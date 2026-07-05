@@ -48,6 +48,13 @@ window.SB3 = {
         window.__vm.postIOData('keyboard', { key, isDown: false });
     },
 
+    // Click at a scratch coordinate (x in [-240,240], y in [-180,180]).
+    clickAt(sx, sy, isDown = true) {
+        const x = ((sx + 240) / 480) * 480;
+        const y = ((180 - sy) / 360) * 360;
+        window.__vm.postIOData('mouse', { x, y, canvasWidth: 480, canvasHeight: 360, isDown });
+    },
+
     // Read a variable/list by name across all targets.
     getVar(name) {
         for (const t of window.__vm.runtime.targets) {

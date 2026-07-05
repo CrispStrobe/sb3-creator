@@ -170,3 +170,22 @@ harness closes that gap.
   project's VM/renderer across loads (fixed by reloading the page per project).
 - [x] `npm run test:browser` (opt-in, needs `npx playwright install chromium`); the
   default `npm test` stays browser-free.
+
+## 12. Round 5 — app UI, CLI, tic-tac-toe
+
+- [x] **UI bug:** the example dropdown hard-coded only 4 examples, so none of the games
+  (or the basics) were reachable in the actual app. `Examples.jsx` now renders every
+  example, grouped (Games / Demos / Language basics), verified by driving the running app
+  with Playwright (dropdown has all entries; selecting one loads it; Generate succeeds).
+- [x] **CLI** (`bin/sb3c.mjs`, `npm bin` `sb3c`): compile a pseudocode file to `.sb3`
+  from the command line, with a `--check` (parse + integrity only) mode. Tested in
+  `test/cli.test.mjs`.
+- [x] **New games:** `tictactoe` (2 players) and `tictactoe_ai` — the AI is a custom
+  block that tries to win, else blocks, else takes centre, else the first free cell,
+  driven off the board list. Verified in the VM by driving mouse clicks (one move per
+  turn; it blocks a real threat) and rendered in the browser.
+- [x] **BUG (game logic):** the AI placed two marks per turn — two *separate* `IF`s tested
+  a board cell that the first branch mutated. Same shape as an earlier turn-switch bug.
+  Fixed with `IF/ELSE`; noted as a language gotcha (branches that mutate the tested state
+  must be `ELSE`, not sequential `IF`s).
+- [x] Harness gained `clickAt` (mouse) so the browser suite can drive click-based games.

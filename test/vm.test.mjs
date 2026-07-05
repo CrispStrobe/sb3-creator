@@ -169,4 +169,53 @@ test('vm: pong_ai paddle tracks the ball via sensing_of', async () => {
     assert.notEqual(Number(ry.value), 0); // it reacted to the ball, i.e. sensing_of resolved
 });
 
+// Drive mouse clicks into the VM to exercise the tic-tac-toe games. Cell (row,col)
+// centres map to scratch coords x = -80 + col*80, y = 80 - row*80.
+async function loadRunning(code) {
+    const c = new SB3Creator();
+    c.parse(code);
+    const buf = Buffer.from(await (await c.generateSB3()).arrayBuffer());
+    const vm = new VM();
+    await vm.loadProject(buf);
+    vm.start();
+    vm.greenFlag();
+    for (let i = 0; i < 10; i++) vm.runtime._step();
+    return vm;
+}
+function clickCell(vm, sx, sy) {
+    const x = ((sx + 240) / 480) * 480;
+    const y = ((180 - sy) / 360) * 360;
+    vm.postIOData('mouse', { x, y, canvasWidth: 480, canvasHeight: 360, isDown: true });
+    for (let i = 0; i < 40; i++) vm.runtime._step();
+    vm.postIOData('mouse', { x, y, canvasWidth: 480, canvasHeight: 360, isDown: false });
+    for (let i = 0; i < 10; i++) vm.runtime._step();
+}
+const boardOf = (vm) => {
+    for (const t of vm.runtime.targets) for (const v of Object.values(t.variables)) if (v.name === 'board') return v.value;
+};
+
+test('vm: tic-tac-toe (2p) alternates X and O on clicks', async () => {
+    const vm = await loadRunning(examples.tictactoe);
+    clickCell(vm, -80, 80);   // player 1 -> cell 1
+    clickCell(vm, 0, 80);     // player 2 -> cell 2
+    const b = boardOf(vm);
+    vm.quit();
+    assert.equal(String(b[0]), '1', 'first click is X');
+    assert.equal(String(b[1]), '2', 'second click is O');
+});
+
+test('vm: tic-tac-toe AI plays exactly one move per turn and blocks a win', async () => {
+    const vm = await loadRunning(examples.tictactoe_ai);
+    clickCell(vm, -80, 80);   // X @ cell 1; AI replies (takes centre)
+    let b = boardOf(vm);
+    assert.equal(b.filter((v) => String(v) === '1').length, 1);
+    assert.equal(b.filter((v) => String(v) === '2').length, 1, 'AI makes exactly one move');
+
+    clickCell(vm, 80, 80);    // X @ cell 3 -> threatens 1-2-3; AI must block at cell 2
+    b = boardOf(vm);
+    vm.quit();
+    assert.equal(b.filter((v) => String(v) === '2').length, 2, 'still one AI move per turn');
+    assert.equal(String(b[1]), '2', 'AI blocked the winning line at cell 2');
+});
+
 test.after(() => { console.warn = origWarn; });

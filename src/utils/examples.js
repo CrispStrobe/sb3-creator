@@ -1110,7 +1110,219 @@ SPRITE Pipe:
     REPEAT UNTIL x position < -240:
       change x by -4
       wait 0.02 seconds
-    delete this clone`
+    delete this clone`,
+
+    tictactoe: `# Tic-Tac-Toe (2 players) — click a cell to place your mark. Red = X (player 1),
+# blue = O (player 2). The 3x3 board is a 9-cell list; a custom block checks the
+# eight winning lines. Cells are drawn with the pen, color-coded by mark.
+GLOBAL turn
+GLOBAL winner
+GLOBAL col
+GLOBAL row
+GLOBAL i
+GLOBAL v
+GLOBAL va
+GLOBAL vb
+GLOBAL vc
+
+SPRITE Board:
+  LIST board
+
+  DEFINE FAST reset:
+    delete all of board
+    REPEAT 9:
+      add 0 to board
+    set turn to 1
+    set winner to 0
+
+  DEFINE check line (a) (b) (c):
+    set va to item a of board
+    set vb to item b of board
+    set vc to item c of board
+    IF va > 0 and va = vb and vb = vc THEN:
+      set winner to va
+
+  DEFINE check winner:
+    set winner to 0
+    check line 1 2 3
+    check line 4 5 6
+    check line 7 8 9
+    check line 1 4 7
+    check line 2 5 8
+    check line 3 6 9
+    check line 1 5 9
+    check line 3 5 7
+
+  DEFINE FAST render:
+    clear
+    set i to 0
+    REPEAT 9:
+      set v to item (i + 1) of board
+      IF v = 1 THEN:
+        set color effect to 0
+        go to x: (-80) + ((i mod 3) * 80) y: (80) - ((floor of (i / 3)) * 80)
+        stamp
+      IF v = 2 THEN:
+        set color effect to 100
+        go to x: (-80) + ((i mod 3) * 80) y: (80) - ((floor of (i / 3)) * 80)
+        stamp
+      change i by 1
+
+  DEFINE place at (r) (c):
+    set i to (r * 3) + c
+    IF winner = 0 and item (i + 1) of board = 0 THEN:
+      replace item (i + 1) of board with turn
+      check winner
+      render
+      IF winner > 0 THEN:
+        say join "Winner: player " winner for 3 seconds
+      IF winner = 0 THEN:
+        IF turn = 1 THEN:
+          set turn to 2
+        ELSE:
+          set turn to 1
+
+  WHEN flag clicked:
+    set size to 55
+    show
+    reset
+    render
+    FOREVER:
+      IF mouse down? THEN:
+        set col to floor of ((mouse x + 120) / 80)
+        set row to floor of ((120 - mouse y) / 80)
+        IF col > -1 and col < 3 and row > -1 and row < 3 THEN:
+          place at row col
+        wait until not mouse down?
+      wait 0.02 seconds`,
+
+    tictactoe_ai: `# Tic-Tac-Toe (vs AI) — you are X (red), the computer is O (blue). Click a cell.
+# The AI (a custom block) tries to win, else blocks your winning line, else takes
+# the centre, else the first free cell — a genuine little opponent built from lists.
+GLOBAL turn
+GLOBAL winner
+GLOBAL col
+GLOBAL row
+GLOBAL i
+GLOBAL v
+GLOBAL va
+GLOBAL vb
+GLOBAL vc
+GLOBAL cand
+GLOBAL k
+GLOBAL done
+
+SPRITE Board:
+  LIST board
+
+  DEFINE FAST reset:
+    delete all of board
+    REPEAT 9:
+      add 0 to board
+    set turn to 1
+    set winner to 0
+
+  DEFINE check line (a) (b) (c):
+    set va to item a of board
+    set vb to item b of board
+    set vc to item c of board
+    IF va > 0 and va = vb and vb = vc THEN:
+      set winner to va
+
+  DEFINE check winner:
+    set winner to 0
+    check line 1 2 3
+    check line 4 5 6
+    check line 7 8 9
+    check line 1 4 7
+    check line 2 5 8
+    check line 3 6 9
+    check line 1 5 9
+    check line 3 5 7
+
+  DEFINE FAST render:
+    clear
+    set i to 0
+    REPEAT 9:
+      set v to item (i + 1) of board
+      IF v = 1 THEN:
+        set color effect to 0
+        go to x: (-80) + ((i mod 3) * 80) y: (80) - ((floor of (i / 3)) * 80)
+        stamp
+      IF v = 2 THEN:
+        set color effect to 100
+        go to x: (-80) + ((i mod 3) * 80) y: (80) - ((floor of (i / 3)) * 80)
+        stamp
+      change i by 1
+
+  DEFINE place at (r) (c):
+    set i to (r * 3) + c
+    IF winner = 0 and item (i + 1) of board = 0 THEN:
+      replace item (i + 1) of board with 1
+      check winner
+      render
+      IF winner > 0 THEN:
+        say "You win!" for 3 seconds
+      IF winner = 0 THEN:
+        set turn to 2
+
+  DEFINE find win for (p):
+    set cand to 0
+    set k to 1
+    REPEAT 9:
+      IF cand = 0 and item k of board = 0 THEN:
+        replace item k of board with p
+        check winner
+        IF winner = p THEN:
+          set cand to k
+        replace item k of board with 0
+        set winner to 0
+      change k by 1
+
+  DEFINE place mark (k):
+    replace item k of board with 2
+    check winner
+    render
+    IF winner > 0 THEN:
+      say "Computer wins!" for 3 seconds
+    IF winner = 0 THEN:
+      set turn to 1
+
+  DEFINE ai move:
+    find win for 2
+    IF cand > 0 THEN:
+      place mark cand
+    ELSE:
+      find win for 1
+      IF cand > 0 THEN:
+        place mark cand
+      ELSE:
+        IF item 5 of board = 0 THEN:
+          place mark 5
+        ELSE:
+          set done to 0
+          set k to 1
+          REPEAT 9:
+            IF done = 0 and item k of board = 0 THEN:
+              place mark k
+              set done to 1
+            change k by 1
+
+  WHEN flag clicked:
+    set size to 55
+    show
+    reset
+    render
+    FOREVER:
+      IF mouse down? and turn = 1 THEN:
+        set col to floor of ((mouse x + 120) / 80)
+        set row to floor of ((120 - mouse y) / 80)
+        IF col > -1 and col < 3 and row > -1 and row < 3 THEN:
+          place at row col
+        IF turn = 2 and winner = 0 THEN:
+          ai move
+        wait until not mouse down?
+      wait 0.02 seconds`
 };
 
 export default examples;

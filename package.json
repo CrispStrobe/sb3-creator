@@ -4,6 +4,9 @@
   "version": "1.0.0",
   "type": "module",
   "homepage": "https://crispstrobe.github.io/sb3-creator/",
+  "bin": {
+    "sb3c": "bin/sb3c.mjs"
+  },
   "scripts": {
     "dev": "vite",
     "test": "node --test test/*.test.mjs",

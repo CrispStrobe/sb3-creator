@@ -104,6 +104,23 @@ SPRITE Brick:
     assert.ok(Number(await getVar('score')) > 0, 'score should increment while overlapping');
 });
 
+test('tic-tac-toe renders X + AI\'s O after a click', async () => {
+    await load(examples.tictactoe_ai);
+    await step(6);
+    // Click the top-left cell: player plays X, the AI replies with an O.
+    for (const [sx, sy] of [[-80, 80]]) {
+        await page.evaluate(([x, y]) => window.SB3.clickAt(x, y, true), [sx, sy]);
+        await step(30);
+        await page.evaluate(() => window.SB3.clickAt(0, 0, false));
+        await step(6);
+    }
+    await page.screenshot({ path: path.join(shots, 'tictactoe_ai.png'), clip: { x: 0, y: 0, width: 480, height: 360 } });
+    const board = await page.evaluate(() => window.SB3.getVar('board'));
+    assert.equal(board.filter((v) => String(v) === '1').length, 1);
+    assert.equal(board.filter((v) => String(v) === '2').length, 1);
+    assert.deepEqual(pageErrors, []);
+});
+
 // Render each headline game and screenshot it; assert no runtime page exceptions.
 for (const name of ['breakout', 'pong_ai', 'sokoban', 'invaders', 'snake_pro', 'flappy']) {
     test(`game renders without error: ${name}`, async () => {

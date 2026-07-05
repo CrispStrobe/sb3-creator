@@ -15,7 +15,13 @@ This project converts a custom pseudocode language into a downloadable Scratch 3
     ```
     The application will be available at `http://localhost:5173`.
 
-3.  **Run the tests**:
+3.  **Compile from the command line** (no browser):
+    ```bash
+    node bin/sb3c.mjs my-game.txt my-game.sb3   # or: npx sb3c ...
+    node bin/sb3c.mjs --check my-game.txt        # parse + integrity check only
+    ```
+
+4.  **Run the tests**:
     ```bash
     npm test
     ```
