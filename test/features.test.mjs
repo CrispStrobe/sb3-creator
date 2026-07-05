@@ -2,7 +2,7 @@
 // date, music) discovered by building Breakout / Bomberman / Tetris.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { build, blocksOf, findBlock, findAll, hasOpcode, sprite } from './helpers.mjs';
+import { build, blocksOf, findBlock, findAll, hasOpcode, sprite, target } from './helpers.mjs';
 
 // ---- Custom blocks --------------------------------------------------------------
 
@@ -162,4 +162,60 @@ test('set drag mode / bare turn', () => {
     const drag = findBlock(b, 'sensing_setdragmode');
     assert.deepEqual(drag.fields.DRAG_MODE, ['draggable', null]);
     assert.ok(hasOpcode(b, 'motion_turnright'));
+});
+
+// ---- Compiler hardening ---------------------------------------------------------
+
+test('warnings carry the source line number', () => {
+    const code = `SPRITE S:
+  WHEN flag clicked:
+    move 10 steps
+    frobnicate the widget`;
+    const c = build(code);
+    assert.ok(c.warnings.some((w) => /^Line 4: .*frobnicate/.test(w)), c.warnings.join(' | '));
+});
+
+test('COSTUME declarations add distinct animation frames', () => {
+    const c = build(`SPRITE Hero:
+  COSTUME walk1
+  COSTUME walk2
+  WHEN flag clicked:
+    next costume`);
+    const hero = target(c, 'Hero');
+    assert.deepEqual(hero.costumes.map((x) => x.name), ['costume1', 'walk1', 'walk2']);
+    assert.equal(new Set(hero.costumes.map((x) => x.assetId)).size, 3, 'each costume is a distinct asset');
+});
+
+test('BACKDROP declarations add stage backdrops', () => {
+    const c = build(`BACKDROP night
+BACKDROP day
+SPRITE S:
+  WHEN flag clicked:
+    switch backdrop to "night"`);
+    const stage = target(c, 'Stage');
+    assert.deepEqual(stage.costumes.map((x) => x.name), ['backdrop1', 'night', 'day']);
+});
+
+test('SOUND declarations and default sounds are audible (non-empty)', () => {
+    const c = build(`SPRITE Hero:
+  SOUND jump 660
+  WHEN flag clicked:
+    play sound "jump"`);
+    const hero = target(c, 'Hero');
+    const jump = hero.sounds.find((s) => s.name === 'jump');
+    const meow = hero.sounds.find((s) => s.name === 'Meow');
+    assert.ok(jump && jump.sampleCount > 0, 'declared sound has samples');
+    assert.ok(meow && meow.sampleCount > 0, 'default sound is no longer silent');
+    // the generated asset is a real RIFF/WAVE payload
+    const wav = c.assets.get(jump.assetId).data;
+    assert.equal(String.fromCharCode(...wav.slice(0, 4)), 'RIFF');
+    assert.equal(String.fromCharCode(...wav.slice(8, 12)), 'WAVE');
+});
+
+test('unknown sprite references produce a warning', () => {
+    const c = build(`SPRITE Snake:
+  WHEN flag clicked:
+    IF touching Snak THEN:
+      say "typo"`);
+    assert.ok(c.warnings.some((w) => /unknown sprite "Snak"/.test(w)));
 });

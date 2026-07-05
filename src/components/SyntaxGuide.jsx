@@ -13,6 +13,8 @@ function SyntaxGuide() {
                             <li><code>STAGE:</code></li>
                             <li><code>GLOBAL score</code> / <code>LOCAL hp</code></li>
                             <li><code>LIST inventory</code></li>
+                            <li><code>COSTUME walk2</code> / <code>BACKDROP night</code></li>
+                            <li><code>SOUND jump 660</code></li>
                             <li><code># comment</code></li>
                         </ul>
                     </div>

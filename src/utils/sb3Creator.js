@@ -55,6 +55,7 @@ class SB3Creator {
         this.declaredGlobalLists = new Set(); // list names forced global
         this.declaredLocalLists = new Set(); // `${scope}:${name}` forced local
         this.spriteColorIndex = 0;
+        this.spriteColors = new Map(); // sprite name -> costume colour (for extra costumes)
         this.procedures = []; // registered custom blocks (for call-site matching)
         this.currentProcArgs = null; // param name -> {type} while parsing a definition body
         this.targetNames = new Set(['Stage']); // all sprite/stage names (for sensing_of)
@@ -90,6 +91,11 @@ class SB3Creator {
         } while (this.usedIds.has(id));
         this.usedIds.add(id);
         return id;
+    }
+
+    // Push a warning tagged with its 1-based source line number.
+    warn(lineIndex, message) {
+        this.warnings.push(`Line ${lineIndex + 1}: ${message}`);
     }
 
     // Determine if a variable should be global.
@@ -1121,6 +1127,67 @@ class SB3Creator {
             this.declaredLocalLists.has(`${target.name}:${name}`);
     }
 
+    // Generate an audible 16-bit PCM mono WAV sine tone (with short fades to avoid clicks).
+    makeToneWav(freq, durationSec, rate = 44100) {
+        const sampleCount = Math.max(1, Math.floor(rate * durationSec));
+        const dataSize = sampleCount * 2;
+        const buf = new ArrayBuffer(44 + dataSize);
+        const dv = new DataView(buf);
+        const writeStr = (off, s) => { for (let i = 0; i < s.length; i++) dv.setUint8(off + i, s.charCodeAt(i)); };
+        writeStr(0, 'RIFF'); dv.setUint32(4, 36 + dataSize, true); writeStr(8, 'WAVE');
+        writeStr(12, 'fmt '); dv.setUint32(16, 16, true); dv.setUint16(20, 1, true); dv.setUint16(22, 1, true);
+        dv.setUint32(24, rate, true); dv.setUint32(28, rate * 2, true); dv.setUint16(32, 2, true); dv.setUint16(34, 16, true);
+        writeStr(36, 'data'); dv.setUint32(40, dataSize, true);
+        const fade = Math.min(Math.floor(sampleCount / 8), 400);
+        for (let i = 0; i < sampleCount; i++) {
+            let amp = 0.35;
+            if (i < fade) amp *= i / fade;
+            else if (i > sampleCount - fade) amp *= (sampleCount - i) / fade;
+            const s = Math.sin((2 * Math.PI * freq * i) / rate) * amp;
+            dv.setInt16(44 + i * 2, Math.max(-1, Math.min(1, s)) * 32767, true);
+        }
+        return { data: new Uint8Array(buf), sampleCount, rate };
+    }
+
+    // Register a generated tone as a sound asset and return its sound descriptor.
+    registerSound(name, freq, durationSec) {
+        const { data, sampleCount, rate } = this.makeToneWav(freq, durationSec);
+        const assetId = this.generateAssetId();
+        this.assets.set(assetId, { type: 'wav', data, filename: `${assetId}.wav`, metadata: {} });
+        return { assetId, name, dataFormat: 'wav', rate, sampleCount, md5ext: `${assetId}.wav` };
+    }
+
+    // Build a distinct costume SVG. `variant` slightly squishes the shape so cycling
+    // through a sprite's costumes reads as a simple animation.
+    buildCostume(spriteName, color, variant, costumeName) {
+        const letter = (spriteName.trim()[0] || 'S').toUpperCase().replace(/[<>&"]/g, '');
+        const ry = 36 - (variant % 3) * 6; // bob up/down across frames
+        const cy = 40 + (variant % 3) * 3;
+        const assetId = this.generateAssetId();
+        const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 80 80"><ellipse cx="40" cy="${cy}" rx="36" ry="${ry}" fill="${color}" stroke="#000000" stroke-width="3"/><text x="40" y="${cy + 13}" font-size="40" text-anchor="middle" fill="#ffffff" font-family="Helvetica, Arial, sans-serif">${letter}</text></svg>`;
+        this.assets.set(assetId, { type: 'svg', data: svg, filename: `${assetId}.svg`, metadata: { width: 80, height: 80 } });
+        return { assetId, name: costumeName, md5ext: `${assetId}.svg`, dataFormat: 'svg', rotationCenterX: 40, rotationCenterY: 40 };
+    }
+
+    // Build a solid-colour backdrop SVG.
+    buildBackdrop(color, name) {
+        const assetId = this.generateAssetId();
+        const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="480" height="360" viewBox="0 0 480 360"><rect width="480" height="360" fill="${color}"/></svg>`;
+        this.assets.set(assetId, { type: 'svg', data: svg, filename: `${assetId}.svg`, metadata: { width: 480, height: 360 } });
+        return { assetId, name, md5ext: `${assetId}.svg`, dataFormat: 'svg', rotationCenterX: 240, rotationCenterY: 180 };
+    }
+
+    // Add an extra costume/backdrop to a target (used by COSTUME / BACKDROP declarations).
+    addCostume(target, name) {
+        if (target.isStage) {
+            const palette = ['#576065', '#4a6fa5', '#8a5a83', '#3d7068', '#a5794a'];
+            target.costumes.push(this.buildBackdrop(palette[(target.costumes.length - 1) % palette.length], name));
+        } else {
+            const color = this.spriteColors.get(target.name) || '#4C97FF';
+            target.costumes.push(this.buildCostume(target.name, color, target.costumes.length, name));
+        }
+    }
+
     createStage() {
         return {
             isStage: true,
@@ -1139,14 +1206,7 @@ class SB3Creator {
                 rotationCenterX: 240,
                 rotationCenterY: 180
             }],
-            sounds: [{
-                assetId: "83a9787d4cb6f3b7632b4ddfebf74367",
-                name: "Pop",
-                dataFormat: "wav",
-                rate: 48000,
-                sampleCount: 1123,
-                md5ext: "83a9787d4cb6f3b7632b4ddfebf74367.wav"
-            }],
+            sounds: [this.registerSound('Pop', 800, 0.12)],
             volume: 100,
             layerOrder: 0,
             tempo: 60,
@@ -1156,15 +1216,12 @@ class SB3Creator {
         };
     }
 
-    // Build a distinct colored costume SVG so sprites don't all render identically.
+    // Build a distinct colored first costume so sprites don't all render identically.
     createSpriteCostume(name) {
         const palette = ['#4C97FF', '#FF6680', '#59C059', '#FFAB19', '#9966FF', '#FF8C1A', '#0FBD8C', '#DB6E00'];
         const color = palette[this.spriteColorIndex++ % palette.length];
-        const letter = (name.trim()[0] || 'S').toUpperCase().replace(/[<>&"]/g, '');
-        const assetId = this.generateAssetId();
-        const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 80 80"><circle cx="40" cy="40" r="36" fill="${color}" stroke="#000000" stroke-width="3"/><text x="40" y="53" font-size="40" text-anchor="middle" fill="#ffffff" font-family="Helvetica, Arial, sans-serif">${letter}</text></svg>`;
-        this.assets.set(assetId, { type: 'svg', data: svg, filename: `${assetId}.svg`, metadata: { width: 80, height: 80 } });
-        return { assetId, name: 'costume1', md5ext: `${assetId}.svg`, dataFormat: 'svg', rotationCenterX: 40, rotationCenterY: 40 };
+        this.spriteColors.set(name, color);
+        return this.buildCostume(name, color, 0, 'costume1');
     }
 
     createSprite(name) {
@@ -1178,14 +1235,7 @@ class SB3Creator {
             comments: {},
             currentCostume: 0,
             costumes: [this.createSpriteCostume(name)],
-            sounds: [{
-                assetId: "83c36d806dc92327b9e7049a565c6bff",
-                name: "Meow",
-                dataFormat: "wav",
-                rate: 48000,
-                sampleCount: 40681,
-                md5ext: "83c36d806dc92327b9e7049a565c6bff.wav"
-            }],
+            sounds: [this.registerSound('Meow', 320, 0.25)],
             volume: 100,
             layerOrder: 1,
             visible: true,
@@ -1240,7 +1290,7 @@ class SB3Creator {
                 const currentIndent = getIndent(line);
                 if (currentIndent < indentLevel) break;
                 if (currentIndent > indentLevel) {
-                    this.warnings.push(`Skipping line with unexpected indentation: "${line.trim()}"`);
+                    this.warn(i, `Skipping line with unexpected indentation: "${line.trim()}"`);
                     i++;
                     continue;
                 }
@@ -1259,7 +1309,7 @@ class SB3Creator {
                     } else if (/^REPEAT\s+UNTIL\b/i.test(trimmed)) {
                         const m = trimmed.match(/^REPEAT\s+UNTIL\s+(.+):$/i);
                         if (!m) {
-                            this.warnings.push(`Malformed REPEAT UNTIL (expected "REPEAT UNTIL <condition>:"): "${trimmed}"`);
+                            this.warn(i, `Malformed REPEAT UNTIL (expected "REPEAT UNTIL <condition>:"): "${trimmed}"`);
                             i++; continue;
                         }
                         const { id, block } = this.createBlock('control_repeat_until');
@@ -1269,7 +1319,7 @@ class SB3Creator {
                     } else if (trimmed.startsWith('REPEAT')) {
                         const m = trimmed.match(/REPEAT\s+(.+?):/i);
                         if (!m) {
-                            this.warnings.push(`Malformed REPEAT (expected "REPEAT <count>:"): "${trimmed}"`);
+                            this.warn(i, `Malformed REPEAT (expected "REPEAT <count>:"): "${trimmed}"`);
                             i++; continue;
                         }
                         const { id, block } = this.createBlock('control_repeat');
@@ -1279,7 +1329,7 @@ class SB3Creator {
                     } else if (trimmed.startsWith('IF')) {
                         const m = trimmed.match(/IF\s+(.+?)\s+THEN:/i);
                         if (!m) {
-                            this.warnings.push(`Malformed IF (expected "IF <condition> THEN:"): "${trimmed}"`);
+                            this.warn(i, `Malformed IF (expected "IF <condition> THEN:"): "${trimmed}"`);
                             i++; continue;
                         }
                         const { id, block } = this.createBlock('control_if');
@@ -1300,7 +1350,7 @@ class SB3Creator {
                             i = childResult.endIndex;
                             continue;
                         } else {
-                            this.warnings.push('ELSE block without matching IF block');
+                            this.warn(i, 'ELSE block without matching IF block');
                         }
                     }
 
@@ -1323,7 +1373,7 @@ class SB3Creator {
                         linkBlock(this.parseCommand(trimmed, target));
                     } catch (error) {
                         if (error.isSB3Error) {
-                            this.warnings.push(error.message);
+                            this.warn(i, error.message);
                         } else {
                             throw error;
                         }
@@ -1378,11 +1428,26 @@ class SB3Creator {
                 i++; continue;
             }
 
+            // Asset declarations: extra costumes (animation frames), backdrops, sounds.
+            if ((decl = trimmed.match(/^COSTUME\s+(.+)$/i))) {
+                this.addCostume(currentTarget, this.unquote(decl[1].trim()));
+                i++; continue;
+            }
+            if ((decl = trimmed.match(/^BACKDROP\s+(.+)$/i))) {
+                this.addCostume(stage, this.unquote(decl[1].trim()));
+                i++; continue;
+            }
+            if ((decl = trimmed.match(/^SOUND\s+(.+?)(?:\s+(\d+))?$/i))) {
+                const freq = decl[2] ? Number(decl[2]) : 440;
+                currentTarget.sounds.push(this.registerSound(this.unquote(decl[1].trim()), freq, 0.3));
+                i++; continue;
+            }
+
             if (trimmed.startsWith('SPRITE') || trimmed.startsWith('STAGE')) {
                 if (trimmed.startsWith('SPRITE')) {
                     const m = trimmed.match(/SPRITE\s+(.+?):/i);
                     if (!m) {
-                        this.warnings.push(`Malformed SPRITE header (expected "SPRITE <name>:"): "${trimmed}"`);
+                        this.warn(i, `Malformed SPRITE header (expected "SPRITE <name>:"): "${trimmed}"`);
                         i++; continue;
                     }
                     currentTarget = this.createSprite(m[1].trim());
@@ -1413,7 +1478,7 @@ class SB3Creator {
                     i = result.endIndex;
                 } catch (error) {
                     if (error.isSB3Error) {
-                        this.warnings.push(`Error in line "${trimmed}": ${error.message}`);
+                        this.warn(i, `Error in "${trimmed}": ${error.message}`);
                         i++;
                     } else {
                         throw error;
@@ -1442,19 +1507,49 @@ class SB3Creator {
                 } catch (error) {
                     this.currentProcArgs = null;
                     if (error.isSB3Error) {
-                        this.warnings.push(`Error in DEFINE "${trimmed}": ${error.message}`);
+                        this.warn(i, `Error in DEFINE "${trimmed}": ${error.message}`);
                         i++;
                     } else {
                         throw error;
                     }
                 }
             } else {
-                this.warnings.push(`Ignoring line not associated with a script: "${trimmed}"`);
+                this.warn(i, `Ignoring line not associated with a script: "${trimmed}"`);
                 i++;
             }
         }
 
+        this.validateReferences();
         return this.project;
+    }
+
+    // Warn about menu blocks (touching, clone of, ... of, point/go towards) that name a
+    // sprite which doesn't exist — usually a typo that would silently do nothing.
+    validateReferences() {
+        const MENUS = {
+            sensing_touchingobjectmenu: ['TOUCHINGOBJECTMENU', ['_edge_', '_mouse_']],
+            control_create_clone_of_menu: ['CLONE_OPTION', ['_myself_']],
+            sensing_of_object_menu: ['OBJECT', ['_stage_']],
+            motion_pointtowards_menu: ['TOWARDS', ['_mouse_', '_random_']],
+            motion_goto_menu: ['TO', ['_mouse_', '_random_']],
+            motion_glideto_menu: ['TO', ['_mouse_', '_random_']],
+            sensing_distancetomenu: ['DISTANCETOMENU', ['_mouse_']],
+        };
+        const known = new Set([...this.targetNames].map((n) => n.toLowerCase()));
+        const seen = new Set();
+        for (const target of this.project.targets) {
+            for (const block of Object.values(target.blocks || {})) {
+                const menu = MENUS[block.opcode];
+                if (!menu) continue;
+                const [field, allowed] = menu;
+                const value = block.fields?.[field]?.[0];
+                if (typeof value !== 'string') continue;
+                if (allowed.includes(value) || known.has(value.toLowerCase())) continue;
+                if (seen.has(value)) continue;
+                seen.add(value);
+                this.warnings.push(`References unknown sprite "${value}" (not a defined sprite)`);
+            }
+        }
     }
 
     async generateSB3() {
@@ -1465,19 +1560,12 @@ class SB3Creator {
         const zip = new JSZip();
         zip.file('project.json', JSON.stringify(this.project));
 
-        // Add default assets
+        // The Stage's default backdrop is the one fixed asset id (a soft gradient).
+        // Everything else — sprite costumes, extra costumes/backdrops, and the generated
+        // tone sounds — is produced on the fly and lives in `this.assets`.
         const stageAsset = `<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="480" height="360" viewBox="0,0,480,360"><defs><linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#87CEEB;stop-opacity:1" /><stop offset="100%" style="stop-color:#98FB98;stop-opacity:1" /></linearGradient></defs><rect width="480" height="360" fill="url(#bg)"/></svg>`;
-        const spriteAsset = `<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="96" height="100" viewBox="-2 -2 100 104"><g><ellipse cx="47" cy="50" rx="45" ry="38" fill="#FF8C00" stroke="#000000" stroke-width="2"/><ellipse cx="32" cy="40" rx="8" ry="10" fill="#FFFFFF" stroke="#000000" stroke-width="1"/><ellipse cx="62" cy="40" rx="8" ry="10" fill="#FFFFFF" stroke="#000000" stroke-width="1"/><circle cx="32" cy="42" r="4" fill="#000000"/><circle cx="62" cy="42" r="4" fill="#000000"/><path d="M 25 65 Q 47 75 70 65" stroke="#000000" stroke-width="2" fill="none"/></g></svg>`;
-
         zip.file('cd21514d0531fdffb22204e0ec5ed84a.svg', stageAsset);
-        zip.file('bcf454acf82e4504149f7ffe07081dbc.svg', spriteAsset);
-        
-        // Create minimal WAV files
-        const silentWav = new Uint8Array([82, 73, 70, 70, 36, 0, 0, 0, 87, 65, 86, 69, 102, 109, 116, 32, 16, 0, 0, 0, 1, 0, 1, 0, 68, 172, 0, 0, 136, 88, 1, 0, 2, 0, 16, 0, 100, 97, 116, 97, 0, 0, 0, 0]);
-        zip.file('83a9787d4cb6f3b7632b4ddfebf74367.wav', silentWav);
-        zip.file('83c36d806dc92327b9e7049a565c6bff.wav', silentWav);
 
-        // Add custom assets
         for (const assetData of this.assets.values()) {
             zip.file(assetData.filename, assetData.data);
         }

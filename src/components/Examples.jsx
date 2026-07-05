@@ -27,6 +27,7 @@ const GROUPS = [
             ['game', '🎯 Complete Game'],
             ['art', '🎨 Digital Art'],
             ['physics', '⚡ Physics Demo'],
+            ['animation', '🎞️ Animation & Sound'],
             ['educational', '📚 Educational Tool'],
         ],
     },

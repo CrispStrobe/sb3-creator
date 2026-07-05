@@ -50,6 +50,9 @@ in-app **Syntax Reference** for the full list; highlights:
 
 - **Structure:** `SPRITE Name:`, `STAGE:`, `# comments`, and explicit scoping with
   `GLOBAL x`, `LOCAL x`, `LIST items` (overrides the legacy magic-name defaults).
+- **Assets:** `COSTUME frame2` adds an animation frame, `BACKDROP night` a stage backdrop,
+  and `SOUND jump 660` a generated tone (frequency optional). Parser warnings are tagged
+  with their source line number, and typo'd sprite references are flagged.
 - **Events:** `WHEN flag clicked:`, `WHEN <key> key pressed:`, `WHEN sprite clicked:`,
   `WHEN I receive "msg":`, `WHEN I start as a clone:`.
 - **Control:** `FOREVER`, `REPEAT n`, `REPEAT UNTIL cond`, `IF … THEN` / `ELSE`,

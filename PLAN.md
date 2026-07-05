@@ -189,3 +189,21 @@ harness closes that gap.
   Fixed with `IF/ELSE`; noted as a language gotcha (branches that mutate the tested state
   must be `ELSE`, not sequential `IF`s).
 - [x] Harness gained `clickAt` (mouse) so the browser suite can drive click-based games.
+
+## 13. Round 6 — compiler hardening
+
+- [x] **Line numbers in diagnostics.** Every parser warning is now prefixed `Line N:`
+  (via a `warn(i, msg)` helper), so users can find the offending line.
+- [x] **Multi-costume sprites.** `COSTUME <name>` adds an animation frame to the current
+  sprite (each frame is a distinct SVG, slightly squished so cycling reads as movement);
+  `next costume` / `switch costume to` now have real costumes to cycle. `BACKDROP <name>`
+  adds stage backdrops.
+- [x] **Real (audible) sounds.** The default Meow/Pop sounds and any `SOUND <name> [freq]`
+  declaration are now generated 16-bit PCM WAV sine tones (with fades) instead of the
+  silent placeholder, so `play sound` actually makes sound in Scratch.
+- [x] **Reference validation.** `touching`, `create clone of`, `… of`, `point/go towards`
+  and distance menus that name a sprite which doesn't exist now warn (typo catcher);
+  previously they silently produced dead menus.
+- [x] **Asset generation cleanup.** Costumes and sounds are all generated into the asset
+  map with filesystem-safe ids; only the Stage's gradient backdrop remains a fixed asset.
+- [x] New `animation` example (costume cycling + a step beep). 102 tests pass.

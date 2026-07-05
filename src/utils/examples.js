@@ -1322,7 +1322,26 @@ SPRITE Board:
         IF turn = 2 and winner = 0 THEN:
           ai move
         wait until not mouse down?
-      wait 0.02 seconds`
+      wait 0.02 seconds`,
+
+    animation: `# Animation & sound — the walker cycles through its costumes to "walk" and beeps
+# each step, then wraps around the screen. Shows COSTUME frames and SOUND tones.
+SPRITE Walker:
+  COSTUME frame2
+  COSTUME frame3
+  SOUND step 520
+  WHEN flag clicked:
+    set size to 120
+    go to x: -200 y: 0
+    show
+    FOREVER:
+      next costume
+      play sound "step"
+      change px by 15
+      go to x: px y: 0
+      IF px > 210 THEN:
+        set px to -210
+      wait 0.15 seconds`
 };
 
 export default examples;
