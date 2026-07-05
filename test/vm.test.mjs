@@ -368,4 +368,49 @@ test('vm: decompile round-trip preserves behaviour', async () => {
     assert.deepEqual(after, before, 'variable state identical before/after round trip');
 });
 
+test('tetris: pieces are real tetrominoes and all four keys respond', async () => {
+    const c = new SB3Creator();
+    c.parse(examples.tetris);
+    const buf = Buffer.from(await (await c.generateSB3()).arrayBuffer());
+    const vm = new VM();
+    await vm.loadProject(buf);
+    vm.start();
+    vm.greenFlag();
+    for (let i = 0; i < 6; i++) vm.runtime._step();
+
+    const get = (n) => {
+        for (const t of vm.runtime.targets) for (const v of Object.values(t.variables)) if (v.name === n) return v.value;
+        return undefined;
+    };
+    const cells = () => [1, 2, 3, 4].map(i => `${get('cr' + i)},${get('cc' + i)}`).join(' ');
+    const fire = (k) => { vm.runtime.startHats('event_whenkeypressed', {KEY_OPTION: k}); for (let i = 0; i < 3; i++) vm.runtime._step(); };
+
+    // a tetromino is 4 distinct cells (not a 2x2 blob of coincident points)
+    const spawn = new Set([1, 2, 3, 4].map(i => `${get('cr' + i)},${get('cc' + i)}`));
+    assert.equal(spawn.size, 4, 'piece has 4 distinct cells');
+
+    const before = cells();
+    fire('right arrow');
+    assert.notEqual(cells(), before, 'right arrow moves the piece');
+    fire('left arrow');
+    assert.equal(cells(), before, 'left arrow moves it back');
+    const preRot = cells();
+    fire('up arrow');
+    assert.notEqual(cells(), preRot, 'up arrow rotates the piece');
+
+    // soft-drop with the down arrow reaches the floor (row 19)
+    let prev = '';
+    for (let i = 0; i < 25 && prev !== cells(); i++) { prev = cells(); fire('down arrow'); }
+    const lowest = Math.max(...[1, 2, 3, 4].map(i => Number(get('cr' + i))));
+    assert.ok(lowest >= 18, `piece soft-dropped to the floor (row ${lowest})`);
+
+    // real-time gravity locks the piece into the board
+    const t0 = Date.now();
+    while (Date.now() - t0 < 1600) vm.runtime._step();
+    const board = get('board') || [];
+    const filled = board.filter(x => Number(x) > 0).length;
+    assert.ok(filled >= 4, `a locked piece fills >= 4 board cells (got ${filled})`);
+    vm.quit();
+});
+
 test.after(() => { console.warn = origWarn; });

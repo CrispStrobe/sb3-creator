@@ -329,6 +329,7 @@ GLOBAL hy
 SPRITE Head:
   SHAPE square 18
   WHEN flag clicked:
+    show variable score
     set score to 0
     set length to 4
     set alive to 1
@@ -482,6 +483,7 @@ GLOBAL bomby
 SPRITE Player:
   SHAPE square 30
   WHEN flag clicked:
+    show variable score
     set score to 0
     set px to -180
     set py to 140
@@ -583,10 +585,12 @@ SPRITE Enemy:
         stop this script
       wait 0.3 seconds`,
 
-    tetris: `# Tetris (simplified) — a 2x2 block falls into a 10x16 grid stored in a list,
-# rows clear when full. Showcases custom blocks (with args), a list-as-2D-grid,
-# computed indices, and pen rendering. Left/Right arrows move; gravity is automatic.
+    tetris: `# Tetris — all 7 tetrominoes fall into a 10x20 well, rotate with Up, soft-drop
+# with Down, move with Left/Right. Full rows clear and score. The well border is
+# drawn with the pen; each piece is a stamped square tinted by a colour effect.
+# Showcases custom blocks with args, a list-as-2D-grid, and rotation math.
 GLOBAL score
+GLOBAL ptype
 GLOBAL pr
 GLOBAL pc
 GLOBAL cell
@@ -595,6 +599,22 @@ GLOBAL r
 GLOBAL c
 GLOBAL j
 GLOBAL tmp
+GLOBAL cr1
+GLOBAL cr2
+GLOBAL cr3
+GLOBAL cr4
+GLOBAL cc1
+GLOBAL cc2
+GLOBAL cc3
+GLOBAL cc4
+GLOBAL tr1
+GLOBAL tr2
+GLOBAL tr3
+GLOBAL tr4
+GLOBAL tc1
+GLOBAL tc2
+GLOBAL tc3
+GLOBAL tc4
 
 SPRITE Game:
   SHAPE square 100
@@ -603,43 +623,161 @@ SPRITE Game:
   DEFINE FAST reset board:
     delete all of board
     set r to 1
-    REPEAT 160:
+    REPEAT 200:
       add 0 to board
       change r by 1
 
   DEFINE set cell (row) (col) to (v):
-    replace item ((row * 10) + col) + 1 of board with v
+    replace item (((row * 10) + col) + 1) of board with v
 
   DEFINE read cell (row) (col):
-    set cell to item ((row * 10) + col) + 1 of board
+    set cell to item (((row * 10) + col) + 1) of board
 
-  DEFINE check fit (row) (col):
-    set canmove to 1
-    IF col < 0 or col > 8 or row > 14 THEN:
+  # A candidate cell is blocked if it is out of bounds or already filled.
+  DEFINE FAST test cell (row) (col):
+    IF col < 0 or col > 9 or row < 0 or row > 19 THEN:
       set canmove to 0
-    IF canmove = 1 THEN:
+    ELSE:
       read cell row col
       IF cell > 0 THEN:
         set canmove to 0
-      read cell row (col + 1)
-      IF cell > 0 THEN:
-        set canmove to 0
-      read cell (row + 1) col
-      IF cell > 0 THEN:
-        set canmove to 0
-      read cell (row + 1) (col + 1)
-      IF cell > 0 THEN:
-        set canmove to 0
 
-  DEFINE lock piece:
-    set cell pr pc to 1
-    set cell pr (pc + 1) to 1
-    set cell (pr + 1) pc to 1
-    set cell (pr + 1) (pc + 1) to 1
+  # Test the 4 candidate cells (tr/tc); leaves canmove = 1 only if all are free.
+  DEFINE FAST test place:
+    set canmove to 1
+    test cell tr1 tc1
+    test cell tr2 tc2
+    test cell tr3 tc3
+    test cell tr4 tc4
 
+  # Try to shift the piece by (dr, dc); commit + redraw only if it fits.
+  DEFINE FAST move piece (dr) (dc):
+    set tr1 to cr1 + dr
+    set tc1 to cc1 + dc
+    set tr2 to cr2 + dr
+    set tc2 to cc2 + dc
+    set tr3 to cr3 + dr
+    set tc3 to cc3 + dc
+    set tr4 to cr4 + dr
+    set tc4 to cc4 + dc
+    test place
+    IF canmove = 1 THEN:
+      set cr1 to tr1
+      set cc1 to tc1
+      set cr2 to tr2
+      set cc2 to tc2
+      set cr3 to tr3
+      set cc3 to tc3
+      set cr4 to tr4
+      set cc4 to tc4
+      set pr to pr + dr
+      set pc to pc + dc
+      render
+
+  # Rotate 90 deg clockwise about the pivot (pr, pc). The O piece stays put.
+  DEFINE FAST rotate piece:
+    IF not (ptype = 2) THEN:
+      set tr1 to pr + (cc1 - pc)
+      set tc1 to pc - (cr1 - pr)
+      set tr2 to pr + (cc2 - pc)
+      set tc2 to pc - (cr2 - pr)
+      set tr3 to pr + (cc3 - pc)
+      set tc3 to pc - (cr3 - pr)
+      set tr4 to pr + (cc4 - pc)
+      set tc4 to pc - (cr4 - pr)
+      test place
+      IF canmove = 1 THEN:
+        set cr1 to tr1
+        set cc1 to tc1
+        set cr2 to tr2
+        set cc2 to tc2
+        set cr3 to tr3
+        set cc3 to tc3
+        set cr4 to tr4
+        set cc4 to tc4
+        render
+
+  DEFINE FAST lock piece:
+    set cell cr1 cc1 to ptype
+    set cell cr2 cc2 to ptype
+    set cell cr3 cc3 to ptype
+    set cell cr4 cc4 to ptype
+
+  # Spawn a random tetromino near the top-centre with its rotation pivot.
+  DEFINE FAST spawn piece:
+    set ptype to pick random 1 to 7
+    set pr to 1
+    set pc to 4
+    IF ptype = 1 THEN:
+      set cr1 to 1
+      set cc1 to 3
+      set cr2 to 1
+      set cc2 to 4
+      set cr3 to 1
+      set cc3 to 5
+      set cr4 to 1
+      set cc4 to 6
+    IF ptype = 2 THEN:
+      set pr to 0
+      set cr1 to 0
+      set cc1 to 4
+      set cr2 to 0
+      set cc2 to 5
+      set cr3 to 1
+      set cc3 to 4
+      set cr4 to 1
+      set cc4 to 5
+    IF ptype = 3 THEN:
+      set cr1 to 0
+      set cc1 to 4
+      set cr2 to 1
+      set cc2 to 3
+      set cr3 to 1
+      set cc3 to 4
+      set cr4 to 1
+      set cc4 to 5
+    IF ptype = 4 THEN:
+      set cr1 to 0
+      set cc1 to 4
+      set cr2 to 0
+      set cc2 to 5
+      set cr3 to 1
+      set cc3 to 3
+      set cr4 to 1
+      set cc4 to 4
+    IF ptype = 5 THEN:
+      set cr1 to 0
+      set cc1 to 3
+      set cr2 to 0
+      set cc2 to 4
+      set cr3 to 1
+      set cc3 to 4
+      set cr4 to 1
+      set cc4 to 5
+    IF ptype = 6 THEN:
+      set cr1 to 0
+      set cc1 to 3
+      set cr2 to 1
+      set cc2 to 3
+      set cr3 to 1
+      set cc3 to 4
+      set cr4 to 1
+      set cc4 to 5
+    IF ptype = 7 THEN:
+      set cr1 to 0
+      set cc1 to 5
+      set cr2 to 1
+      set cc2 to 3
+      set cr3 to 1
+      set cc3 to 4
+      set cr4 to 1
+      set cc4 to 5
+
+  # Compact the well downward, discarding full rows and scoring each.
   DEFINE FAST clear full lines:
-    set r to 15
-    REPEAT 16:
+    set j to 19
+    set r to 19
+    REPEAT 20:
       set c to 0
       set tmp to 0
       REPEAT 10:
@@ -647,73 +785,96 @@ SPRITE Game:
         IF cell > 0 THEN:
           change tmp by 1
         change c by 1
-      IF tmp = 10 THEN:
-        set j to r
-        REPEAT UNTIL j < 1:
-          set c to 0
-          REPEAT 10:
-            read cell (j - 1) c
-            set cell j c to cell
-            change c by 1
-          change j by -1
+      IF not (tmp = 10) THEN:
+        set c to 0
+        REPEAT 10:
+          read cell r c
+          set cell j c to cell
+          change c by 1
+        change j by -1
+      ELSE:
         change score by 1
       change r by -1
+    REPEAT UNTIL j < 0:
+      set c to 0
+      REPEAT 10:
+        set cell j c to 0
+        change c by 1
+      change j by -1
+
+  DEFINE draw well:
+    set pen size to 3
+    set pen color to #4488ff
+    pen up
+    go to x: (-80) y: 170
+    pen down
+    go to x: 80 y: 170
+    go to x: 80 y: (-150)
+    go to x: (-80) y: (-150)
+    go to x: (-80) y: 170
+    pen up
 
   DEFINE FAST render:
     clear
+    draw well
     set r to 0
-    REPEAT 16:
+    REPEAT 20:
       set c to 0
       REPEAT 10:
         read cell r c
         IF cell > 0 THEN:
-          go to x: (-90) + (c * 20) y: (150) - (r * 20)
+          set color effect to (cell * 25)
+          go to x: ((c * 16) - 72) y: (162 - (r * 16))
           stamp
         change c by 1
       change r by 1
-    go to x: (-90) + (pc * 20) y: (150) - (pr * 20)
+    set color effect to (ptype * 25)
+    go to x: ((cc1 * 16) - 72) y: (162 - (cr1 * 16))
     stamp
-    go to x: (-90) + ((pc + 1) * 20) y: (150) - (pr * 20)
+    go to x: ((cc2 * 16) - 72) y: (162 - (cr2 * 16))
     stamp
-    go to x: (-90) + (pc * 20) y: (150) - ((pr + 1) * 20)
+    go to x: ((cc3 * 16) - 72) y: (162 - (cr3 * 16))
     stamp
-    go to x: (-90) + ((pc + 1) * 20) y: (150) - ((pr + 1) * 20)
+    go to x: ((cc4 * 16) - 72) y: (162 - (cr4 * 16))
     stamp
 
   WHEN flag clicked:
-    set size to 20
+    set size to 16
     hide
+    show variable score
     reset board
     set score to 0
-    set pr to 0
-    set pc to 4
+    spawn piece
     render
     FOREVER:
-      check fit (pr + 1) pc
-      IF canmove = 1 THEN:
-        change pr by 1
-      ELSE:
+      move piece 1 0
+      IF canmove = 0 THEN:
         lock piece
         clear full lines
-        set pr to 0
-        set pc to 4
-        check fit pr pc
+        spawn piece
+        set tr1 to cr1
+        set tc1 to cc1
+        set tr2 to cr2
+        set tc2 to cc2
+        set tr3 to cr3
+        set tc3 to cc3
+        set tr4 to cr4
+        set tc4 to cc4
+        test place
         IF canmove = 0 THEN:
           say "Game Over" for 2 seconds
           stop all
       render
-      wait 0.3 seconds
+      wait 0.4 seconds
 
   WHEN left arrow key pressed:
-    check fit pr (pc - 1)
-    IF canmove = 1 THEN:
-      change pc by -1
-      render
+    move piece 0 (-1)
   WHEN right arrow key pressed:
-    check fit pr (pc + 1)
-    IF canmove = 1 THEN:
-      change pc by 1
-      render`,
+    move piece 0 1
+  WHEN down arrow key pressed:
+    move piece 1 0
+  WHEN up arrow key pressed:
+    rotate piece`,
 
     pong_2p: `# Pong (2 players) — left paddle W/S, right paddle up/down arrows. First to 5 wins.
 GLOBAL scoreL
@@ -724,6 +885,7 @@ GLOBAL bally
 SPRITE PaddleL:
   SHAPE rect 16 90
   WHEN flag clicked:
+    show variable score
     set ly to 0
     go to x: -220 y: ly
     show
@@ -802,6 +964,7 @@ GLOBAL scoreR
 SPRITE PaddleL:
   SHAPE rect 16 90
   WHEN flag clicked:
+    show variable score
     set ly to 0
     go to x: -220 y: ly
     show
@@ -1009,6 +1172,7 @@ GLOBAL bullety
 SPRITE Player:
   SHAPE triangle 38
   WHEN flag clicked:
+    show variable score
     set score to 0
     set px to 0
     go to x: px y: -150
@@ -1075,6 +1239,7 @@ GLOBAL gapy
 SPRITE Bird:
   SHAPE circle 30
   WHEN flag clicked:
+    show variable score
     set score to 0
     set birdy to 0
     set vy to 0
@@ -1478,6 +1643,7 @@ SPRITE Board:
     render
 
   WHEN flag clicked:
+    show variable score
     set size to 52
     show
     reset
@@ -1613,6 +1779,7 @@ SPRITE Game:
         set gcol to gcol + gdc
 
   WHEN flag clicked:
+    show variable score
     set size to 40
     show
     init maze

@@ -316,3 +316,36 @@ test('unknown costume and sound names are flagged', () => {
     play sound "Pop"`);
     assert.equal(ok.warnings.length, 0, ok.warnings.join(' | '));
 });
+
+// ---- Monitor visibility ---------------------------------------------------------
+
+test('variable/list monitors are hidden by default', () => {
+    const c = build(`SPRITE S:
+  GLOBAL score
+  LIST items
+  WHEN flag clicked:
+    set score to 1
+    add 2 to items`);
+    // every monitor the compiler creates starts hidden — games declare lots of
+    // internal state that should not clutter the stage.
+    assert.ok(c.project.monitors.length >= 2, 'monitors should exist');
+    assert.equal(c.project.monitors.filter(m => m.visible).length, 0, 'none visible by default');
+});
+
+test('show variable / show list make the monitor visible; hide turns it off', () => {
+    const shown = build(`SPRITE S:
+  GLOBAL score
+  LIST items
+  WHEN flag clicked:
+    show variable score
+    show list items`);
+    const vis = shown.project.monitors.filter(m => m.visible).map(m => m.params.VARIABLE || m.params.LIST).sort();
+    assert.deepEqual(vis, ['items', 'score']);
+
+    const hidden = build(`SPRITE S:
+  GLOBAL score
+  WHEN flag clicked:
+    show variable score
+    hide variable score`);
+    assert.equal(hidden.project.monitors.filter(m => m.visible).length, 0, 'hide wins');
+});

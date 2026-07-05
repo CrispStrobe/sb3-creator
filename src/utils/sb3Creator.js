@@ -191,6 +191,14 @@ class SB3Creator {
         return { id: this.broadcasts.get(name), name };
     }
 
+    // Set a monitor's initial on-stage visibility (used by show/hide commands so
+    // the display state matches the author's intent from frame 0, not just after
+    // the runtime show/hide block fires).
+    setMonitorVisible(varId, visible) {
+        const m = this.project.monitors.find(mon => mon.id === varId);
+        if (m) m.visible = visible;
+    }
+
     createMonitor(varId, varName, opcode = 'data_variable') {
         if (this.project.monitors.find(m => m.id === varId)) return;
 
@@ -207,7 +215,10 @@ class SB3Creator {
             height: isList ? 120 : 0,
             x: 5,
             y: monitorY,
-            visible: true,
+            // Hidden by default — games use lots of internal state (loop counters,
+            // board cells) that shouldn't clutter the stage. Use `show variable X`
+            // / `show list X` to display one.
+            visible: false,
             sliderMin: 0,
             sliderMax: 100,
             isDiscrete: true
@@ -1034,21 +1045,25 @@ class SB3Creator {
         }
         if ((match = line.match(/^show list\s+(.+)$/i))) {
             const list = this.getOrCreateList(match[1].trim(), target);
+            this.setMonitorVisible(list.id, true);
             const { id, block } = this.createBlock('data_showlist'); block[id].fields.LIST = [list.name, list.id];
             return { block, extraBlocks: {} };
         }
         if ((match = line.match(/^hide list\s+(.+)$/i))) {
             const list = this.getOrCreateList(match[1].trim(), target);
+            this.setMonitorVisible(list.id, false);
             const { id, block } = this.createBlock('data_hidelist'); block[id].fields.LIST = [list.name, list.id];
             return { block, extraBlocks: {} };
         }
         if ((match = line.match(/^show variable\s+(.+)$/i))) {
             const v = this.getOrCreateVariable(match[1].trim(), target);
+            this.setMonitorVisible(v.id, true);
             const { id, block } = this.createBlock('data_showvariable'); block[id].fields.VARIABLE = [v.name, v.id];
             return { block, extraBlocks: {} };
         }
         if ((match = line.match(/^hide variable\s+(.+)$/i))) {
             const v = this.getOrCreateVariable(match[1].trim(), target);
+            this.setMonitorVisible(v.id, false);
             const { id, block } = this.createBlock('data_hidevariable'); block[id].fields.VARIABLE = [v.name, v.id];
             return { block, extraBlocks: {} };
         }
