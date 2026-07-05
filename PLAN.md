@@ -292,6 +292,21 @@ built on TurboWarp. The compiler (`src/lib/sb3-creator.js`) is vendored from thi
   local headless build.
 - [x] **Deploy:** the Pages build hung until a `.nojekyll` was added (Jekyll was choking on
   the JS bundles); with it, builds are fast and the live editor picks up new chunks.
+- [x] **Pseudocode tab at parity with the standalone app** — the tab was a bare textarea;
+  now it has the example catalogue (all 28, grouped), a collapsible syntax reference, and
+  the SVG uploader. The uploader is a **2-column association table** (`SVG file | Sprite |
+  Mode`) whose Sprite column is a dropdown populated from the `SPRITE` names parsed live
+  from the pseudocode — so you pick a real sprite instead of typing a name (verified live:
+  loading Snake lists `Snake`, `Apple`). `add as frame` mode wires `addCustomSVGCostume`.
+- [x] **Vendored-file syncing** — `src/lib/sb3-creator.js` + `sb3-creator-examples.js` are
+  copies of this repo's `src/utils/{sb3Creator,examples}.js`. `scripts/sync-sb3creator.mjs`
+  (`npm run sync:sb3creator[:check]`) pulls them from `raw.githubusercontent…/main`; CI runs
+  the `--check` variant (informational) to flag drift.
+- [x] **CI** — this repo had none. `.github/workflows/ci.yml` runs lint + the 152
+  `node --test` tests + the vite build, plus a separate non-blocking headless-WebGL
+  render job; concurrency cancels superseded runs, docs-only pushes skip. (The very first
+  run caught a latent `no-unreachable` dead-code line in `dval`.) The scratch-gui fork's
+  workflow got the same concurrency/paths-ignore treatment + the drift check.
 
 ## 20. Ecosystem notes (CrispStrobe LEGO toolchain)
 
