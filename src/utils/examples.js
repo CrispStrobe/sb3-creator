@@ -1535,9 +1535,20 @@ GLOBAL r
 GLOBAL c
 
 SPRITE Board:
-  SHAPE square 100
   LIST grid
   LIST linebuf
+  COSTUME blank tile "" #cdc1b4
+  COSTUME t2 tile "2" #eee4da #776e65
+  COSTUME t4 tile "4" #ede0c8 #776e65
+  COSTUME t8 tile "8" #f2b179 #ffffff
+  COSTUME t16 tile "16" #f59563 #ffffff
+  COSTUME t32 tile "32" #f67c5f #ffffff
+  COSTUME t64 tile "64" #f65e3b #ffffff
+  COSTUME t128 tile "128" #edcf72 #ffffff
+  COSTUME t256 tile "256" #edcc61 #ffffff
+  COSTUME t512 tile "512" #edc850 #ffffff
+  COSTUME t1024 tile "1024" #edc53f #ffffff
+  COSTUME t2048 tile "2048" #edc22e #ffffff
 
   DEFINE FAST reset:
     delete all of grid
@@ -1602,12 +1613,14 @@ SPRITE Board:
     set i to 0
     REPEAT 16:
       set v to item (i + 1) of grid
-      IF v > 0 THEN:
-        set r to floor of (i / 4)
-        set c to i mod 4
-        set color effect to v mod 200
-        go to x: (-90) + (c * 60) y: (90) - (r * 60)
-        stamp
+      set r to floor of (i / 4)
+      set c to i mod 4
+      IF v = 0 THEN:
+        switch costume to blank
+      ELSE:
+        switch costume to ("t" join v)
+      go to x: (-120) + (c * 80) y: (120) - (r * 80)
+      stamp
       change i by 1
 
   DEFINE move left:
@@ -1652,8 +1665,8 @@ SPRITE Board:
 
   WHEN flag clicked:
     show variable score
-    set size to 52
-    show
+    set size to 100
+    hide
     reset
     render
 
