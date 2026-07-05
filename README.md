@@ -27,6 +27,14 @@ This project converts a custom pseudocode language into a downloadable Scratch 3
       (`scratch-vm`) and executes it, verifying feature logic (custom blocks, operator
       precedence, list math, clone creation) by reading back runtime state.
 
+    A separate **browser render suite** (opt-in, needs Chromium) runs the games with the
+    real WebGL renderer so that `touching`/collision works, and writes gameplay
+    screenshots to `test/browser/shots/`:
+    ```bash
+    npx playwright install chromium   # once
+    npm run test:browser
+    ```
+
 ---
 
 ## 🧩 Language

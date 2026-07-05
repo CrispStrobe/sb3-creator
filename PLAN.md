@@ -150,3 +150,23 @@ Building real games (and running them in the actual Scratch VM) exposed the next
   box moved and walls block) and the Pong-AI tracker (`sensing_of` resolves at runtime).
 - [x] **Game-design note:** `stop this script` inside a custom block does not reliably
   halt the procedure in the VM; the games branch on state explicitly instead.
+
+## 11. Round 4 — browser render harness (Playwright + WebGL)
+
+Headless `scratch-vm` has no renderer, so `touching`/collision is inert. A browser
+harness closes that gap.
+
+- [x] **Harness** (`test/browser/`): esbuild bundles `scratch-vm` + `scratch-render`
+  (WebGL) + `scratch-svg-renderer`; a Playwright test loads generated `.sb3` files into
+  headless Chromium (SwiftShader WebGL), drives them, and screenshots the stage.
+- [x] **Real collision tests:** overlapping sprites report `touching: true`, separated
+  ones `false`, and a `touching`-gated script (score-on-hit) fires — none of which the
+  headless-VM suite can check.
+- [x] **Gameplay screenshots** for breakout / pong / sokoban / invaders / snake / flappy,
+  written to `test/browser/shots/`. Confirmed the games render correctly (e.g. Breakout's
+  brick wall + paddle + ball; Sokoban's color-coded grid).
+- [x] **Two bugs caught by looking at the screenshots:** clone-placement loops need more
+  than a few frames before the stage is populated; and the harness leaked the previous
+  project's VM/renderer across loads (fixed by reloading the page per project).
+- [x] `npm run test:browser` (opt-in, needs `npx playwright install chromium`); the
+  default `npm test` stays browser-free.

@@ -7,6 +7,8 @@
   "scripts": {
     "dev": "vite",
     "test": "node --test test/*.test.mjs",
+    "build:harness": "node test/browser/build.mjs",
+    "test:browser": "node test/browser/build.mjs && node --test test/browser/render.browser.mjs",
     "build": "vite build",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
@@ -23,12 +25,17 @@
     "@types/react": "^18.2.66",
     "@types/react-dom": "^18.2.22",
     "@vitejs/plugin-react": "^4.2.1",
+    "esbuild": "^0.21.5",
     "eslint": "^9.33.0",
     "eslint-plugin-react": "^7.34.1",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.20",
-    "globals": "^16.3.0",
     "gh-pages": "^6.1.1",
+    "globals": "^16.3.0",
+    "playwright": "^1.61.1",
+    "scratch-render": "^2.2.84",
+    "scratch-storage": "^6.2.1",
+    "scratch-svg-renderer": "^3.1.19",
     "scratch-vm": "^5.0.300",
     "vite": "^5.2.0"
   }
