@@ -1636,7 +1636,175 @@ SPRITE Game:
   WHEN left arrow key pressed:
     move player 0 -1
   WHEN right arrow key pressed:
-    move player 0 1`
+    move player 0 1`,
+
+    connect4: `// Connect Four (vs AI) — click a column to drop your red disc. The yellow computer
+// tries to win, else blocks your three-in-a-row, else plays centre. 7x6 board in a
+// list; a custom block checks every 4-in-a-row window (horizontal/vertical/diagonal).
+GLOBAL turn
+GLOBAL win
+GLOBAL over
+GLOBAL col
+GLOBAL row
+GLOBAL r
+GLOBAL c
+GLOBAL i
+GLOBAL cand
+GLOBAL cnt
+GLOBAL k
+GLOBAL placed
+GLOBAL lastrow
+GLOBAL v
+GLOBAL cell
+
+SPRITE Game:
+  SHAPE circle 46
+  LIST board
+
+  DEFINE FAST reset:
+    delete all of board
+    REPEAT 42:
+      add 0 to board
+    set turn to 1
+    set win to 0
+    set over to 0
+
+  DEFINE readc (rr) (cc):
+    set cell to item ((rr * 7) + cc) + 1 of board
+
+  DEFINE setc (rr) (cc) (vv):
+    replace item ((rr * 7) + cc) + 1 of board with vv
+
+  DEFINE drop (cc) (player):
+    set placed to 0
+    set row to 5
+    REPEAT 6:
+      readc row cc
+      IF placed = 0 and cell = 0 THEN:
+        setc row cc player
+        set lastrow to row
+        set placed to 1
+      change row by -1
+
+  DEFINE line4 (r0) (c0) (dr) (dc) (p):
+    set cnt to 0
+    set i to 0
+    REPEAT 4:
+      readc (r0 + (i * dr)) (c0 + (i * dc))
+      IF cell = p THEN:
+        change cnt by 1
+      change i by 1
+    IF cnt = 4 THEN:
+      set win to 1
+
+  DEFINE FAST check win for (p):
+    set win to 0
+    set r to 0
+    REPEAT 6:
+      set c to 0
+      REPEAT 4:
+        line4 r c 0 1 p
+        change c by 1
+      change r by 1
+    set r to 0
+    REPEAT 3:
+      set c to 0
+      REPEAT 7:
+        line4 r c 1 0 p
+        change c by 1
+      change r by 1
+    set r to 0
+    REPEAT 3:
+      set c to 0
+      REPEAT 4:
+        line4 r c 1 1 p
+        change c by 1
+      change r by 1
+    set r to 0
+    REPEAT 3:
+      set c to 3
+      REPEAT 4:
+        line4 r c 1 -1 p
+        change c by 1
+      change r by 1
+
+  DEFINE FAST render:
+    clear
+    set i to 0
+    REPEAT 42:
+      set v to item (i + 1) of board
+      IF v > 0 THEN:
+        set r to floor of (i / 7)
+        set c to i mod 7
+        IF v = 1 THEN:
+          set color effect to 0
+        IF v = 2 THEN:
+          set color effect to 100
+        go to x: (-150) + (c * 50) y: (125) - (r * 50)
+        stamp
+      change i by 1
+
+  DEFINE ai move:
+    set cand to -1
+    set k to 0
+    REPEAT 7:
+      IF cand = -1 THEN:
+        drop k 2
+        IF placed = 1 THEN:
+          check win for 2
+          IF win = 1 THEN:
+            set cand to k
+          setc lastrow k 0
+      change k by 1
+    IF cand = -1 THEN:
+      set k to 0
+      REPEAT 7:
+        IF cand = -1 THEN:
+          drop k 1
+          IF placed = 1 THEN:
+            check win for 1
+            IF win = 1 THEN:
+              set cand to k
+            setc lastrow k 0
+        change k by 1
+    IF cand > -1 THEN:
+      drop cand 2
+    IF cand = -1 THEN:
+      drop 3 2
+      IF placed = 0 THEN:
+        set k to 0
+        REPEAT 7:
+          IF placed = 0 THEN:
+            drop k 2
+          change k by 1
+    check win for 2
+    render
+    IF win = 1 THEN:
+      set over to 1
+      say "Computer wins!" for 3 seconds
+      stop all
+    set turn to 1
+
+  WHEN flag clicked:
+    show
+    reset
+    render
+    FOREVER:
+      IF mouse down? and turn = 1 and over = 0 THEN:
+        set col to floor of ((mouse x + 175) / 50)
+        IF col > -1 and col < 7 THEN:
+          drop col 1
+          IF placed = 1 THEN:
+            check win for 1
+            render
+            IF win = 1 THEN:
+              set over to 1
+              say "You win!" for 3 seconds
+              stop all
+            set turn to 2
+            ai move
+        wait until not mouse down?
+      wait 0.02 seconds`
 };
 
 export default examples;

@@ -271,4 +271,35 @@ test('vm: maze ghost AI chases the player across the grid', async () => {
     assert.ok(gr1 > gr0 || gc1 < gc0, `ghost should move toward the player (was ${gr0},${gc0} now ${gr1},${gc1})`);
 });
 
+test('vm: Connect Four AI drops with gravity and blocks a three-in-a-row', async () => {
+    const c = new SB3Creator();
+    c.parse(examples.connect4);
+    const vm = new VM();
+    await vm.loadProject(Buffer.from(await (await c.generateSB3()).arrayBuffer()));
+    vm.start();
+    vm.greenFlag();
+    for (let i = 0; i < 12; i++) vm.runtime._step();
+    const board = () => {
+        for (const t of vm.runtime.targets) for (const x of Object.values(t.variables)) if (x.name === 'board') return x.value;
+    };
+    const clickCol = (col) => {
+        const sx = -150 + col * 50;
+        const x = ((sx + 240) / 480) * 480;
+        const y = (180 / 360) * 360;
+        vm.postIOData('mouse', { x, y, canvasWidth: 480, canvasHeight: 360, isDown: true });
+        for (let i = 0; i < 50; i++) vm.runtime._step();
+        vm.postIOData('mouse', { x, y, canvasWidth: 480, canvasHeight: 360, isDown: false });
+        for (let i = 0; i < 8; i++) vm.runtime._step();
+    };
+    // player takes bottom cols 0,1,2 (open three); AI must block col 3
+    clickCol(0);
+    clickCol(1);
+    clickCol(2);
+    const b = board().map(Number);
+    vm.quit();
+    const bottom = b.slice(35, 42); // row 5
+    assert.equal(bottom.filter((x) => x === 1).length, 3, 'three player discs sit on the bottom row (gravity)');
+    assert.equal(b[38], 2, 'AI blocked the open three at column 3');
+});
+
 test.after(() => { console.warn = origWarn; });

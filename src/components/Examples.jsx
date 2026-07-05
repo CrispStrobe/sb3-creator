@@ -21,6 +21,7 @@ const GROUPS = [
             ['tictactoe_ai', '⭕ Tic-Tac-Toe (vs AI)'],
             ['g2048', '🔢 2048'],
             ['maze', '👻 Maze Chase'],
+            ['connect4', '🔴 Connect Four (vs AI)'],
         ],
     },
     {
