@@ -263,6 +263,20 @@ SPRITE Ball:
     assert.equal(c.warnings.length, 0);
 });
 
+test('SHAPE polygon bakes an arbitrary custom SVG costume', () => {
+    const c = build(`SPRITE Rocket:
+  SHAPE polygon 20 0 40 40 20 30 0 40 #ff5533
+  WHEN flag clicked:
+    show`);
+    const rocket = target(c, 'Rocket');
+    const svg = c.assets.get(rocket.costumes[0].assetId).data;
+    assert.match(svg, /<polygon points="/);
+    assert.match(svg, /#ff5533/);
+    // bounding box of the points is 40x40 -> svg is 44x44 (2px stroke padding)
+    assert.match(svg, /width="44"/);
+    assert.equal(c.warnings.length, 0);
+});
+
 test('unknown costume and sound names are flagged', () => {
     const c1 = build(sprite('S', 'switch costume to "nope"'));
     assert.ok(c1.warnings.some((w) => /unknown costume "nope"/.test(w)));

@@ -232,3 +232,20 @@ harness closes that gap.
 - [x] **Maze chase** (`maze`): an 11x9 wall grid with dot-eating and a ghost whose custom
   block greedily hunts the player. VM-tested (player eats dots; the ghost provably moves
   toward the player) and rendered in the browser.
+
+## 16. Round 9 — real sprite shapes + "Open in Scratch"
+
+- [x] **SHAPE declaration:** `SHAPE rect|square|circle|ellipse|triangle <dims> [#hex]`
+  replaces a sprite's costume with a true-sized geometric shape, and `SHAPE polygon x1 y1
+  x2 y2 … [#hex]` bakes an arbitrary custom SVG. Applied across every game: Pong has real
+  rectangular paddles + round ball, Breakout real bricks/paddle/ball, Tetris/2048 crisp
+  square cells, Invaders a triangular ship, etc.
+- [x] **"Open in Scratch" button:** opens the generated project straight in the hosted
+  TurboWarp editor by passing the whole `.sb3` as a `data:` URL in the location **hash**
+  (the fragment isn't sent to the server, avoiding GitHub Pages' 414 URI Too Long).
+- [x] **scratch-gui fork change:** `project-fetcher-hoc` now also reads `project_url` from
+  the URL hash (branch `feature/sb3creator-handoff`), built and deployed to gh-pages with
+  a `.nojekyll` (Jekyll was hanging the Pages build on the JS bundles). Verified
+  end-to-end against the **live** editor: a generated game loads with all sprites, shapes,
+  blocks, and variable monitors intact.
+- [x] Halved default tone-sound sample rate to shrink projects (pong 103KB -> 64KB).

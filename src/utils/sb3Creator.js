@@ -1189,14 +1189,30 @@ class SB3Creator {
         return { assetId, name, md5ext: `${assetId}.svg`, dataFormat: 'svg', rotationCenterX: 240, rotationCenterY: 180 };
     }
 
-    // Build a plain geometric costume (rect/square/circle/ellipse/triangle) at true size.
+    // Build a plain geometric costume at true size. Kinds: rect/square/circle/ellipse/
+    // triangle, or `polygon` with an arbitrary list of x,y points (custom SVG art).
     buildShapeCostume(color, kind, dims) {
         const s = 2;
-        let w, h;
+        let w, h, shape;
+        if (kind === 'polygon') {
+            const pts = [];
+            for (let i = 0; i + 1 < dims.length; i += 2) pts.push([dims[i], dims[i + 1]]);
+            while (pts.length < 3) pts.push([0, 0]);
+            const xs = pts.map((p) => p[0]), ys = pts.map((p) => p[1]);
+            const minX = Math.min(...xs), minY = Math.min(...ys);
+            w = Math.max(...xs) - minX || 40;
+            h = Math.max(...ys) - minY || 40;
+            const pointsStr = pts.map((p) => `${p[0] - minX + s},${p[1] - minY + s}`).join(' ');
+            const W0 = w + 2 * s, H0 = h + 2 * s;
+            shape = `<polygon points="${pointsStr}" fill="${color}" stroke="#000000" stroke-width="${s}" stroke-linejoin="round"/>`;
+            const svg0 = `<svg xmlns="http://www.w3.org/2000/svg" width="${W0}" height="${H0}" viewBox="0 0 ${W0} ${H0}">${shape}</svg>`;
+            const assetId0 = this.generateAssetId();
+            this.assets.set(assetId0, { type: 'svg', data: svg0, filename: `${assetId0}.svg`, metadata: { width: W0, height: H0 } });
+            return { assetId: assetId0, name: 'costume1', md5ext: `${assetId0}.svg`, dataFormat: 'svg', rotationCenterX: W0 / 2, rotationCenterY: H0 / 2 };
+        }
         if (kind === 'rect' || kind === 'ellipse') { w = dims[0] || 40; h = dims[1] || dims[0] || 40; }
         else { w = dims[0] || 40; h = w; } // square / circle / triangle
         const W = w + 2 * s, H = h + 2 * s;
-        let shape;
         if (kind === 'circle') shape = `<circle cx="${W / 2}" cy="${H / 2}" r="${w / 2}" fill="${color}" stroke="#000000" stroke-width="${s}"/>`;
         else if (kind === 'ellipse') shape = `<ellipse cx="${W / 2}" cy="${H / 2}" rx="${w / 2}" ry="${h / 2}" fill="${color}" stroke="#000000" stroke-width="${s}"/>`;
         else if (kind === 'triangle') shape = `<polygon points="${W / 2},${s} ${W - s},${H - s} ${s},${H - s}" fill="${color}" stroke="#000000" stroke-width="${s}"/>`;
@@ -1212,8 +1228,8 @@ class SB3Creator {
         if (target.isStage) { this.warn(lineIndex, 'SHAPE has no effect on the Stage (use BACKDROP)'); return; }
         const tokens = spec.split(/\s+/).filter(Boolean);
         const kind = (tokens[0] || '').toLowerCase();
-        if (!['rect', 'square', 'circle', 'ellipse', 'triangle'].includes(kind)) {
-            this.warn(lineIndex, `Unknown SHAPE "${tokens[0]}" (use rect/square/circle/ellipse/triangle)`);
+        if (!['rect', 'square', 'circle', 'ellipse', 'triangle', 'polygon'].includes(kind)) {
+            this.warn(lineIndex, `Unknown SHAPE "${tokens[0]}" (use rect/square/circle/ellipse/triangle/polygon)`);
             return;
         }
         const hex = tokens.find((t) => /^#[0-9a-fA-F]{6}$/.test(t));
