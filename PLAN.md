@@ -322,6 +322,25 @@ built on TurboWarp. The compiler (`src/lib/sb3-creator.js`) is vendored from thi
 - Conclusion: blocks-as-hub, with one-way walkers everywhere. We can do a genuine
   **round-trip** for our DSL because we own both directions.
 
+## 20b. Round 13 — monitor visibility + a real Tetris
+
+- [x] **Monitors hidden by default.** `createMonitor` now sets `visible: false` — games
+  declare lots of internal state (loop counters, board cells) that shouldn't clutter the
+  stage. `show variable X` / `show list X` (and `hide …`) toggle it via a new
+  `setMonitorVisible`, so a display is opt-in and shown from frame 0. The 8 arcade examples
+  that track a score got `show variable score`. Unit-tested in `features.test.mjs`.
+- [x] **Tetris rewritten into a real Tetris.** The old one was a deliberately-simplified
+  2×2 block with no well border and only Left/Right bound. Now: all 7 tetrominoes on a
+  10×20 well, **Up** rotates (90° about a pivot), **Down** soft-drops, **Left/Right** move,
+  full rows compact + score, a **pen-drawn well border**, and per-piece colour tinting via
+  the colour effect. VM-tested (`vm.test.mjs`: 4 distinct cells, all four keys respond,
+  soft-drop to the floor, real-time gravity locks into the board) and verified live in the
+  deployed editor.
+- [x] **CI annotation hygiene** (scratch-gui fork): the non-gating lint + vendored-drift
+  steps now emit `::warning::` instead of failing (`cmd || echo ::warning::`), so runs are
+  green with no red ✗; the drift check compares against a real checkout of the source repo
+  (via `sync-sb3creator.mjs --dir`) instead of the lagging raw CDN.
+
 ## 21. Roadmap
 
 - [x] **Decompiler + block⇄code round-trip** (done). `decompile(project) → pseudocode`
