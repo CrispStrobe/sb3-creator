@@ -977,6 +977,16 @@ class SB3Creator {
         if ((match = line.match(/^set pen color to\s+(.+)$/i))) {
             ext('pen'); const { id, block } = cmd('pen_setPenColorToColor'); block[id].inputs.COLOR = val(match[1]); return ret(block);
         }
+        if ((match = line.match(/^change pen (color|saturation|brightness|transparency) by\s+(.+)$/i))) {
+            ext('pen'); const { id, block } = cmd('pen_changePenColorParamBy');
+            block[id].inputs.COLOR_PARAM = this.menuInput(context, 'pen_menu_colorParam', 'colorParam', match[1].toLowerCase());
+            block[id].inputs.VALUE = val(match[2]); return ret(block);
+        }
+        if ((match = line.match(/^set pen (color|saturation|brightness|transparency) to\s+(.+)$/i))) {
+            ext('pen'); const { id, block } = cmd('pen_setPenColorParamTo');
+            block[id].inputs.COLOR_PARAM = this.menuInput(context, 'pen_menu_colorParam', 'colorParam', match[1].toLowerCase());
+            block[id].inputs.VALUE = val(match[2]); return ret(block);
+        }
         if ((match = line.match(/^change pen size by\s+(.+)$/i))) {
             ext('pen'); const { id, block } = cmd('pen_changePenSizeBy'); block[id].inputs.SIZE = val(match[1]); return ret(block);
         }
@@ -1196,6 +1206,33 @@ class SB3Creator {
         return { assetId, name: costumeName, md5ext: `${assetId}.svg`, dataFormat: 'svg', rotationCenterX: 40, rotationCenterY: 40 };
     }
 
+    // Build a "tile" costume: a rounded square (optionally filled) with centered
+    // text — digits, letters, symbols. This is what lets grid games render real
+    // numbers/marks (2048, minesweeper, tic-tac-toe) instead of recoloured blobs.
+    buildTileCostume(text, bg, fg, costumeName) {
+        const size = 80;
+        const assetId = this.generateAssetId();
+        const esc = String(text).replace(/[<>&"']/g, (c) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;', '\'': '&#39;' }[c]));
+        const n = esc.replace(/&[a-z#0-9]+;/g, 'x').length;
+        const fontSize = n >= 4 ? 24 : n === 3 ? 32 : n === 2 ? 40 : 48;
+        const y = 40 + fontSize * 0.34;
+        const bgRect = (bg && bg !== 'none') ?
+            `<rect x="3" y="3" width="74" height="74" rx="10" fill="${bg}" stroke="#00000033" stroke-width="2"/>` : '';
+        const label = esc ? `<text x="40" y="${y}" font-size="${fontSize}" text-anchor="middle" fill="${fg}" font-family="Helvetica, Arial, sans-serif" font-weight="bold">${esc}</text>` : '';
+        const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">${bgRect}${label}</svg>`;
+        this.assets.set(assetId, { type: 'svg', data: svg, filename: `${assetId}.svg`, metadata: { width: size, height: size } });
+        return { assetId, name: costumeName, md5ext: `${assetId}.svg`, dataFormat: 'svg', rotationCenterX: size / 2, rotationCenterY: size / 2 };
+    }
+
+    // Split a COSTUME spec into tokens, keeping "quoted strings" as single tokens.
+    tokenizeCostumeSpec(s) {
+        const out = [];
+        const re = /"([^"]*)"|(\S+)/g;
+        let m;
+        while ((m = re.exec(s)) !== null) out.push(m[1] !== undefined ? `"${m[1]}"` : m[2]);
+        return out;
+    }
+
     // Build a solid-colour backdrop SVG.
     buildBackdrop(color, name) {
         const assetId = this.generateAssetId();
@@ -1256,14 +1293,42 @@ class SB3Creator {
     }
 
     // Add an extra costume/backdrop to a target (used by COSTUME / BACKDROP declarations).
-    addCostume(target, name) {
+    // Supported specs (sprites):
+    //   COSTUME <name>                         legacy letter-in-a-circle frame
+    //   COSTUME <name> tile "<txt>" <bg> [fg]  rounded square with centered text
+    //   COSTUME <name> label "<txt>" [fg]      transparent centered text
+    //   COSTUME <name> <shape> <dims..> [#hex] a real geometric costume (square/circle/…)
+    addCostume(target, spec) {
         if (target.isStage) {
+            const tks = this.tokenizeCostumeSpec(spec);
+            const name = this.unquote(tks[0] || 'backdrop');
+            const hex = tks.find((t) => /^#[0-9a-fA-F]{6}$/.test(t));
             const palette = ['#576065', '#4a6fa5', '#8a5a83', '#3d7068', '#a5794a'];
-            target.costumes.push(this.buildBackdrop(palette[(target.costumes.length - 1) % palette.length], name));
+            const color = hex || palette[(target.costumes.length - 1) % palette.length];
+            target.costumes.push(this.buildBackdrop(color, name));
+            return;
+        }
+        const tokens = this.tokenizeCostumeSpec(spec);
+        const name = this.unquote(tokens[0] || `costume${target.costumes.length + 1}`);
+        const kind = (tokens[1] || '').toLowerCase();
+        let costume;
+        if (kind === 'tile' || kind === 'label') {
+            const text = this.unquote(tokens[2] || '');
+            const colors = tokens.slice(3).filter((t) => /^#[0-9a-fA-F]{6}$/.test(t));
+            const bg = kind === 'tile' ? (colors[0] || '#cccccc') : 'none';
+            const fg = kind === 'tile' ? (colors[1] || '#222222') : (colors[0] || '#222222');
+            costume = this.buildTileCostume(text, bg, fg, name);
+        } else if (['rect', 'square', 'circle', 'ellipse', 'triangle', 'polygon'].includes(kind)) {
+            const hex = tokens.find((t) => /^#[0-9a-fA-F]{6}$/.test(t));
+            const dims = tokens.slice(2).filter((t) => /^\d+(\.\d+)?$/.test(t)).map(Number);
+            const color = hex ? hex.toLowerCase() : (this.spriteColors.get(target.name) || '#4C97FF');
+            costume = this.buildShapeCostume(color, kind, dims.length ? dims : [40]);
+            costume.name = name;
         } else {
             const color = this.spriteColors.get(target.name) || '#4C97FF';
-            target.costumes.push(this.buildCostume(target.name, color, target.costumes.length, name));
+            costume = this.buildCostume(target.name, color, target.costumes.length, name);
         }
+        target.costumes.push(costume);
     }
 
     createStage() {
@@ -1531,11 +1596,11 @@ class SB3Creator {
                 i++; continue;
             }
             if ((decl = trimmed.match(/^COSTUME\s+(.+)$/i))) {
-                this.addCostume(currentTarget, this.unquote(decl[1].trim()));
+                this.addCostume(currentTarget, decl[1].trim());
                 i++; continue;
             }
             if ((decl = trimmed.match(/^BACKDROP\s+(.+)$/i))) {
-                this.addCostume(stage, this.unquote(decl[1].trim()));
+                this.addCostume(stage, decl[1].trim());
                 i++; continue;
             }
             if ((decl = trimmed.match(/^SOUND\s+(.+?)(?:\s+(\d+))?$/i))) {
@@ -2106,6 +2171,8 @@ class SB3Creator {
             case 'pen_penDown': return line('pen down');
             case 'pen_penUp': return line('pen up');
             case 'pen_setPenColorToColor': return line(`set pen color to ${v('COLOR')}`);
+            case 'pen_changePenColorParamBy': return line(`change pen ${this.dmenu(b.inputs.COLOR_PARAM, blocks, 'colorParam')} by ${v('VALUE')}`);
+            case 'pen_setPenColorParamTo': return line(`set pen ${this.dmenu(b.inputs.COLOR_PARAM, blocks, 'colorParam')} to ${v('VALUE')}`);
             case 'pen_changePenSizeBy': return line(`change pen size by ${v('SIZE')}`);
             case 'pen_setPenSizeTo': return line(`set pen size to ${v('SIZE')}`);
             case 'sensing_askandwait': return line(`ask ${v('QUESTION')} and wait`);

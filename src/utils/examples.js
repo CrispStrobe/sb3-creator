@@ -200,16 +200,19 @@ STAGE:
 
     art: `SPRITE Pen:
   WHEN flag clicked:
+    hide
     clear
     go to x: 0 y: 0
     pen down
-    set pen size to 5
-    
+    set pen size to 3
+    set pen color to #4c97ff
+
   WHEN space key pressed:
     REPEAT 72:
+      change pen color by 4
       move 150 steps
       turn left 175 degrees
-      
+
   WHEN c key pressed:
     clear`,
 
@@ -429,8 +432,8 @@ SPRITE Ball:
   WHEN flag clicked:
     set bx to 0
     set by to -120
-    set vx to 4
-    set vy to 5
+    set vx to 7
+    set vy to 9
     go to x: bx y: by
     show
   WHEN flag clicked:
@@ -452,7 +455,6 @@ SPRITE Ball:
         IF lives < 1 THEN:
           say "Game Over" for 2 seconds
           stop all
-      wait 0.01 seconds
 
 SPRITE Brick:
   SHAPE rect 42 18
@@ -885,7 +887,8 @@ GLOBAL bally
 SPRITE PaddleL:
   SHAPE rect 16 90
   WHEN flag clicked:
-    show variable score
+    show variable scoreL
+    show variable scoreR
     set ly to 0
     go to x: -220 y: ly
     show
@@ -926,8 +929,8 @@ SPRITE Ball:
     set scoreR to 0
     set ballx to 0
     set bally to 0
-    set vx to 5
-    set vy to 3
+    set vx to 8
+    set vy to 5
     go to x: ballx y: bally
     show
   WHEN flag clicked:
@@ -953,8 +956,7 @@ SPRITE Ball:
         go to x: ballx y: bally
       IF scoreL > 4 or scoreR > 4 THEN:
         say "Game Over" for 2 seconds
-        stop all
-      wait 0.016 seconds`,
+        stop all`,
 
     pong_ai: `# Pong (vs AI) — you are the left paddle (W/S). The right paddle is a computer that
 # tracks the ball, reading the ball's position with "y position of Ball" (sensing_of).
@@ -964,7 +966,8 @@ GLOBAL scoreR
 SPRITE PaddleL:
   SHAPE rect 16 90
   WHEN flag clicked:
-    show variable score
+    show variable scoreL
+    show variable scoreR
     set ly to 0
     go to x: -220 y: ly
     show
@@ -1006,8 +1009,8 @@ SPRITE Ball:
     set scoreR to 0
     set bx to 0
     set by to 0
-    set vx to 5
-    set vy to 3
+    set vx to 8
+    set vy to 5
     go to x: bx y: by
     show
   WHEN flag clicked:
@@ -1033,8 +1036,7 @@ SPRITE Ball:
         go to x: bx y: by
       IF scoreL > 4 or scoreR > 4 THEN:
         say "Game Over" for 2 seconds
-        stop all
-      wait 0.016 seconds`,
+        stop all`,
 
     sokoban: `# Sokoban — push the boxes onto the goals. Arrow keys move. The 8x7 level lives in
 # two lists (walls/boxes + goals); custom blocks handle movement, rendering (cells are
@@ -1266,12 +1268,12 @@ SPRITE Pipe:
     hide
   WHEN flag clicked:
     FOREVER:
-      set gapy to pick random -70 to 70
-      go to x: 240 y: gapy + 150
+      set gapy to pick random -60 to 60
+      go to x: 240 y: gapy + 190
       create clone of myself
-      go to x: 240 y: gapy - 150
+      go to x: 240 y: gapy - 190
       create clone of myself
-      wait 1.8 seconds
+      wait 2.4 seconds
   WHEN I start as a clone:
     show
     REPEAT UNTIL x position < -240:
@@ -1294,6 +1296,9 @@ GLOBAL vc
 
 SPRITE Board:
   LIST board
+  COSTUME blank tile "" #dfe9ff
+  COSTUME x tile "X" #ffffff #e63946
+  COSTUME o tile "O" #ffffff #457b9d
 
   DEFINE FAST reset:
     delete all of board
@@ -1325,14 +1330,14 @@ SPRITE Board:
     set i to 0
     REPEAT 9:
       set v to item (i + 1) of board
+      IF v = 0 THEN:
+        switch costume to blank
       IF v = 1 THEN:
-        set color effect to 0
-        go to x: (-80) + ((i mod 3) * 80) y: (80) - ((floor of (i / 3)) * 80)
-        stamp
+        switch costume to x
       IF v = 2 THEN:
-        set color effect to 100
-        go to x: (-80) + ((i mod 3) * 80) y: (80) - ((floor of (i / 3)) * 80)
-        stamp
+        switch costume to o
+      go to x: (-80) + ((i mod 3) * 80) y: (80) - ((floor of (i / 3)) * 80)
+      stamp
       change i by 1
 
   DEFINE place at (r) (c):
@@ -1350,8 +1355,8 @@ SPRITE Board:
           set turn to 1
 
   WHEN flag clicked:
-    set size to 55
-    show
+    set size to 100
+    hide
     reset
     render
     FOREVER:
@@ -1381,6 +1386,9 @@ GLOBAL done
 
 SPRITE Board:
   LIST board
+  COSTUME blank tile "" #dfe9ff
+  COSTUME x tile "X" #ffffff #e63946
+  COSTUME o tile "O" #ffffff #457b9d
 
   DEFINE FAST reset:
     delete all of board
@@ -1412,14 +1420,14 @@ SPRITE Board:
     set i to 0
     REPEAT 9:
       set v to item (i + 1) of board
+      IF v = 0 THEN:
+        switch costume to blank
       IF v = 1 THEN:
-        set color effect to 0
-        go to x: (-80) + ((i mod 3) * 80) y: (80) - ((floor of (i / 3)) * 80)
-        stamp
+        switch costume to x
       IF v = 2 THEN:
-        set color effect to 100
-        go to x: (-80) + ((i mod 3) * 80) y: (80) - ((floor of (i / 3)) * 80)
-        stamp
+        switch costume to o
+      go to x: (-80) + ((i mod 3) * 80) y: (80) - ((floor of (i / 3)) * 80)
+      stamp
       change i by 1
 
   DEFINE place at (r) (c):
@@ -1476,8 +1484,8 @@ SPRITE Board:
             change k by 1
 
   WHEN flag clicked:
-    set size to 55
-    show
+    set size to 100
+    hide
     reset
     render
     FOREVER:
