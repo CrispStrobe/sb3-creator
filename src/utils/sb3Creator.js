@@ -1188,6 +1188,41 @@ class SB3Creator {
         return { assetId, name, md5ext: `${assetId}.svg`, dataFormat: 'svg', rotationCenterX: 240, rotationCenterY: 180 };
     }
 
+    // Build a plain geometric costume (rect/square/circle/ellipse/triangle) at true size.
+    buildShapeCostume(color, kind, dims) {
+        const s = 2;
+        let w, h;
+        if (kind === 'rect' || kind === 'ellipse') { w = dims[0] || 40; h = dims[1] || dims[0] || 40; }
+        else { w = dims[0] || 40; h = w; } // square / circle / triangle
+        const W = w + 2 * s, H = h + 2 * s;
+        let shape;
+        if (kind === 'circle') shape = `<circle cx="${W / 2}" cy="${H / 2}" r="${w / 2}" fill="${color}" stroke="#000000" stroke-width="${s}"/>`;
+        else if (kind === 'ellipse') shape = `<ellipse cx="${W / 2}" cy="${H / 2}" rx="${w / 2}" ry="${h / 2}" fill="${color}" stroke="#000000" stroke-width="${s}"/>`;
+        else if (kind === 'triangle') shape = `<polygon points="${W / 2},${s} ${W - s},${H - s} ${s},${H - s}" fill="${color}" stroke="#000000" stroke-width="${s}"/>`;
+        else shape = `<rect x="${s}" y="${s}" width="${w}" height="${h}" rx="3" fill="${color}" stroke="#000000" stroke-width="${s}"/>`;
+        const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">${shape}</svg>`;
+        const assetId = this.generateAssetId();
+        this.assets.set(assetId, { type: 'svg', data: svg, filename: `${assetId}.svg`, metadata: { width: W, height: H } });
+        return { assetId, name: 'costume1', md5ext: `${assetId}.svg`, dataFormat: 'svg', rotationCenterX: W / 2, rotationCenterY: H / 2 };
+    }
+
+    // SHAPE <kind> <dims...> [#hex]: replace a sprite's first costume with a real shape.
+    setShape(target, spec, lineIndex) {
+        if (target.isStage) { this.warn(lineIndex, 'SHAPE has no effect on the Stage (use BACKDROP)'); return; }
+        const tokens = spec.split(/\s+/).filter(Boolean);
+        const kind = (tokens[0] || '').toLowerCase();
+        if (!['rect', 'square', 'circle', 'ellipse', 'triangle'].includes(kind)) {
+            this.warn(lineIndex, `Unknown SHAPE "${tokens[0]}" (use rect/square/circle/ellipse/triangle)`);
+            return;
+        }
+        const hex = tokens.find((t) => /^#[0-9a-fA-F]{6}$/.test(t));
+        const dims = tokens.slice(1).filter((t) => /^\d+(\.\d+)?$/.test(t)).map(Number);
+        const color = hex ? hex.toLowerCase() : (this.spriteColors.get(target.name) || '#4C97FF');
+        const old = target.costumes[0];
+        if (old && old.assetId) this.assets.delete(old.assetId);
+        target.costumes[0] = this.buildShapeCostume(color, kind, dims.length ? dims : [40]);
+    }
+
     // Add an extra costume/backdrop to a target (used by COSTUME / BACKDROP declarations).
     addCostume(target, name) {
         if (target.isStage) {
@@ -1458,7 +1493,11 @@ class SB3Creator {
                 i++; continue;
             }
 
-            // Asset declarations: extra costumes (animation frames), backdrops, sounds.
+            // Asset declarations: shape, extra costumes (animation frames), backdrops, sounds.
+            if ((decl = trimmed.match(/^SHAPE\s+(.+)$/i))) {
+                this.setShape(currentTarget, decl[1].trim(), i);
+                i++; continue;
+            }
             if ((decl = trimmed.match(/^COSTUME\s+(.+)$/i))) {
                 this.addCostume(currentTarget, this.unquote(decl[1].trim()));
                 i++; continue;

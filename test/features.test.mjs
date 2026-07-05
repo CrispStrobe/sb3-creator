@@ -242,6 +242,27 @@ test('4-space, tab, and CRLF indentation parse like 2-space', () => {
     for (const variant of [four, tabs, crlf]) assert.deepEqual(shape(variant), base);
 });
 
+test('SHAPE replaces a sprite costume with a real geometric shape', () => {
+    const c = build(`SPRITE Paddle:
+  SHAPE rect 16 90
+  WHEN flag clicked:
+    show
+SPRITE Ball:
+  SHAPE circle 18 #ff0000
+  WHEN flag clicked:
+    show`);
+    const paddle = target(c, 'Paddle');
+    const svg = c.assets.get(paddle.costumes[0].assetId).data;
+    assert.match(svg, /<rect /);
+    assert.match(svg, /width="90"|height="90"/); // 90 appears as a dimension
+    assert.equal(paddle.costumes.length, 1);
+    const ball = target(c, 'Ball');
+    const bsvg = c.assets.get(ball.costumes[0].assetId).data;
+    assert.match(bsvg, /<circle /);
+    assert.match(bsvg, /#ff0000/); // explicit colour honoured
+    assert.equal(c.warnings.length, 0);
+});
+
 test('unknown costume and sound names are flagged', () => {
     const c1 = build(sprite('S', 'switch costume to "nope"'));
     assert.ok(c1.warnings.some((w) => /unknown costume "nope"/.test(w)));

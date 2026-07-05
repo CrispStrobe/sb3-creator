@@ -721,8 +721,8 @@ GLOBAL ballx
 GLOBAL bally
 
 SPRITE PaddleL:
+  SHAPE rect 16 90
   WHEN flag clicked:
-    set size to 40
     set ly to 0
     go to x: -220 y: ly
     show
@@ -739,8 +739,8 @@ SPRITE PaddleL:
       go to x: -220 y: ly
 
 SPRITE PaddleR:
+  SHAPE rect 16 90
   WHEN flag clicked:
-    set size to 40
     set ry to 0
     go to x: 220 y: ry
     show
@@ -757,8 +757,8 @@ SPRITE PaddleR:
       go to x: 220 y: ry
 
 SPRITE Ball:
+  SHAPE circle 18
   WHEN flag clicked:
-    set size to 30
     set scoreL to 0
     set scoreR to 0
     set ballx to 0
@@ -799,8 +799,8 @@ GLOBAL scoreL
 GLOBAL scoreR
 
 SPRITE PaddleL:
+  SHAPE rect 16 90
   WHEN flag clicked:
-    set size to 40
     set ly to 0
     go to x: -220 y: ly
     show
@@ -817,8 +817,8 @@ SPRITE PaddleL:
       go to x: -220 y: ly
 
 SPRITE PaddleR:
+  SHAPE rect 16 90
   WHEN flag clicked:
-    set size to 40
     set ry to 0
     go to x: 220 y: ry
     show
@@ -836,8 +836,8 @@ SPRITE PaddleR:
       go to x: 220 y: ry
 
 SPRITE Ball:
+  SHAPE circle 18
   WHEN flag clicked:
-    set size to 30
     set scoreL to 0
     set scoreR to 0
     set bx to 0
