@@ -263,8 +263,8 @@ STAGE:
 
     snake: `# Simple Snake — arrow keys steer, eat the apple, don't hit the walls.
 SPRITE Snake:
+  SHAPE square 20
   WHEN flag clicked:
-    set size to 60
     set score to 0
     set px to 0
     set py to 0
@@ -297,8 +297,8 @@ SPRITE Snake:
       wait 0.1 seconds
 
 SPRITE Apple:
+  SHAPE circle 18
   WHEN flag clicked:
-    set size to 45
     set foodx to -150
     set foody to 100
     go to x: foodx y: foody
@@ -327,8 +327,8 @@ GLOBAL hx
 GLOBAL hy
 
 SPRITE Head:
+  SHAPE square 18
   WHEN flag clicked:
-    set size to 25
     set score to 0
     set length to 4
     set alive to 1
@@ -374,8 +374,8 @@ SPRITE Head:
       wait 0.15 seconds
 
 SPRITE Body:
+  SHAPE square 18
   WHEN flag clicked:
-    set size to 25
     hide
 
   WHEN I receive "grow":
@@ -391,8 +391,8 @@ SPRITE Body:
     delete this clone
 
 SPRITE Apple:
+  SHAPE circle 16
   WHEN flag clicked:
-    set size to 20
     set ax to 100
     set ay to 60
     go to x: ax y: ay
@@ -414,8 +414,8 @@ SPRITE Apple:
 
     breakout: `# Breakout — mouse-controlled paddle, bouncing ball, a wall of brick clones.
 SPRITE Paddle:
+  SHAPE rect 70 14
   WHEN flag clicked:
-    set size to 70
     set score to 0
     set lives to 3
     show
@@ -424,8 +424,8 @@ SPRITE Paddle:
       go to x: mouse x y: -160
 
 SPRITE Ball:
+  SHAPE circle 16
   WHEN flag clicked:
-    set size to 40
     set bx to 0
     set by to -120
     set vx to 4
@@ -454,8 +454,8 @@ SPRITE Ball:
       wait 0.01 seconds
 
 SPRITE Brick:
+  SHAPE rect 42 18
   WHEN flag clicked:
-    set size to 45
     hide
     set by to 150
     REPEAT 3:
@@ -480,8 +480,8 @@ GLOBAL bombx
 GLOBAL bomby
 
 SPRITE Player:
+  SHAPE square 30
   WHEN flag clicked:
-    set size to 32
     set score to 0
     set px to -180
     set py to 140
@@ -519,24 +519,24 @@ SPRITE Player:
     broadcast "drop" and wait
 
 SPRITE Bomb:
+  SHAPE circle 26
   WHEN flag clicked:
-    set size to 30
     hide
   WHEN I receive "drop":
     go to x: bombx y: bomby
     create clone of myself
   WHEN I start as a clone:
-    set size to 30
+    set size to 100
     show
     wait 2 seconds
-    set size to 95
+    set size to 340
     change color effect by 80
     wait 0.4 seconds
     delete this clone
 
 SPRITE Wall:
+  SHAPE square 40
   WHEN flag clicked:
-    set size to 40
     hide
     set wx to -200
     REPEAT 11:
@@ -549,8 +549,8 @@ SPRITE Wall:
     show
 
 SPRITE Crate:
+  SHAPE square 30
   WHEN flag clicked:
-    set size to 32
     hide
     set cx to -100
     REPEAT 6:
@@ -566,8 +566,8 @@ SPRITE Crate:
         delete this clone
 
 SPRITE Enemy:
+  SHAPE triangle 28
   WHEN flag clicked:
-    set size to 32
     set ex to 160
     set ey to -120
     go to x: ex y: ey
@@ -597,6 +597,7 @@ GLOBAL j
 GLOBAL tmp
 
 SPRITE Game:
+  SHAPE square 100
   LIST board
 
   DEFINE FAST reset board:
@@ -680,7 +681,7 @@ SPRITE Game:
     stamp
 
   WHEN flag clicked:
-    set size to 55
+    set size to 20
     hide
     reset board
     set score to 0
@@ -1006,8 +1007,8 @@ GLOBAL bulletx
 GLOBAL bullety
 
 SPRITE Player:
+  SHAPE triangle 38
   WHEN flag clicked:
-    set size to 40
     set score to 0
     set px to 0
     go to x: px y: -150
@@ -1029,8 +1030,8 @@ SPRITE Player:
     broadcast "shoot"
 
 SPRITE Bullet:
+  SHAPE rect 6 16
   WHEN flag clicked:
-    set size to 15
     hide
   WHEN I receive "shoot":
     go to x: bulletx y: bullety
@@ -1043,8 +1044,8 @@ SPRITE Bullet:
     delete this clone
 
 SPRITE Enemy:
+  SHAPE square 26
   WHEN flag clicked:
-    set size to 30
     hide
     set ex to -180
     REPEAT 8:
@@ -1072,8 +1073,8 @@ GLOBAL score
 GLOBAL gapy
 
 SPRITE Bird:
+  SHAPE circle 30
   WHEN flag clicked:
-    set size to 45
     set score to 0
     set birdy to 0
     set vy to 0
@@ -1095,8 +1096,8 @@ SPRITE Bird:
       wait 0.02 seconds
 
 SPRITE Pipe:
+  SHAPE rect 60 220
   WHEN flag clicked:
-    set size to 60
     hide
   WHEN flag clicked:
     FOREVER:
@@ -1361,6 +1362,7 @@ GLOBAL r
 GLOBAL c
 
 SPRITE Board:
+  SHAPE square 100
   LIST grid
   LIST linebuf
 
@@ -1476,7 +1478,7 @@ SPRITE Board:
     render
 
   WHEN flag clicked:
-    set size to 45
+    set size to 52
     show
     reset
     render
