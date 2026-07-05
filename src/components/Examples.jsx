@@ -19,6 +19,8 @@ const GROUPS = [
             ['flappy', '🐤 Flappy'],
             ['tictactoe', '⭕ Tic-Tac-Toe (2 players)'],
             ['tictactoe_ai', '⭕ Tic-Tac-Toe (vs AI)'],
+            ['g2048', '🔢 2048'],
+            ['maze', '👻 Maze Chase'],
         ],
     },
     {

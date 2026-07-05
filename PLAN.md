@@ -219,3 +219,16 @@ harness closes that gap.
   the Stage's Pop are fine). Fixed the `looks` example, which had always switched to a
   non-existent `costume2`.
 - [x] **Duplicate sprite names** are flagged.
+
+## 15. Round 8 — inline comments, 2048, maze
+
+- [x] **Inline comments** with `//` (a safe marker — `#` clashes with hex colours and
+  `item # of`). Stripped outside double-quoted strings, so `#ff0000`, `item # of`, and
+  URLs in strings survive.
+- [x] **2048** (`g2048`): a 4x4 board in a list; one `slide` custom block does the
+  slide+merge-once for a line and is reused for all four directions; tiles are colour-coded
+  by value. VM-tested deterministically (a line merges correctly, score updates, a new
+  tile spawns).
+- [x] **Maze chase** (`maze`): an 11x9 wall grid with dot-eating and a ghost whose custom
+  block greedily hunts the player. VM-tested (player eats dots; the ghost provably moves
+  toward the player) and rendered in the browser.

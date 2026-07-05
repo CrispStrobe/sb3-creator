@@ -98,6 +98,17 @@ class SB3Creator {
         this.warnings.push(`Line ${lineIndex + 1}: ${message}`);
     }
 
+    // Strip a trailing `// comment` that is outside any double-quoted string.
+    stripComment(line) {
+        let inStr = false;
+        for (let i = 0; i < line.length - 1; i++) {
+            const c = line[i];
+            if (c === '"') inStr = !inStr;
+            else if (!inStr && c === '/' && line[i + 1] === '/') return line.slice(0, i);
+        }
+        return line;
+    }
+
     // Determine if a variable should be global.
     // Explicit GLOBAL/LOCAL declarations win; otherwise fall back to the legacy
     // magic-name list (kept only for backwards compatibility) or Stage scope.
@@ -1256,7 +1267,8 @@ class SB3Creator {
 
         // Normalise line endings and expand leading tabs so tab- or CRLF-indented files
         // parse the same as space-indented ones.
-        const lines = pseudocode.replace(/\r\n?/g, '\n').split('\n').map((line) => {
+        const lines = pseudocode.replace(/\r\n?/g, '\n').split('\n').map((raw) => {
+            const line = this.stripComment(raw);
             const lead = line.match(/^[ \t]*/)[0].replace(/\t/g, '  ');
             return lead + line.slice(line.match(/^[ \t]*/)[0].length);
         });

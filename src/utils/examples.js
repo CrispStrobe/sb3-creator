@@ -1342,7 +1342,299 @@ SPRITE Walker:
       go to x: px y: 0
       IF px > 210 THEN:
         set px to -210
-      wait 0.15 seconds`
+      wait 0.15 seconds`,
+
+    g2048: `// 2048 — arrow keys slide the tiles; equal tiles merge and a new tile appears.
+// The 4x4 board is a 16-cell list; a custom block slides+merges one line, reused
+// for all four directions. Tiles are colour-coded by value (bigger = warmer).
+GLOBAL score
+GLOBAL moved
+GLOBAL p
+GLOBAL v
+GLOBAL old
+GLOBAL i
+GLOBAL idx
+GLOBAL empties
+GLOBAL nv
+GLOBAL done
+GLOBAL r
+GLOBAL c
+
+SPRITE Board:
+  LIST grid
+  LIST linebuf
+
+  DEFINE FAST reset:
+    delete all of grid
+    REPEAT 16:
+      add 0 to grid
+    set score to 0
+    spawn
+    spawn
+
+  DEFINE addcell (a):
+    set v to item a of grid
+    IF not v = 0 THEN:
+      add v to linebuf
+
+  DEFINE writeback (a) (slot):
+    set old to item a of grid
+    IF slot > length of linebuf THEN:
+      replace item a of grid with 0
+    ELSE:
+      replace item a of grid with item slot of linebuf
+    IF not old = item a of grid THEN:
+      set moved to 1
+
+  DEFINE slide (a) (b) (c) (d):
+    delete all of linebuf
+    addcell a
+    addcell b
+    addcell c
+    addcell d
+    set p to 1
+    REPEAT UNTIL p > (length of linebuf) - 1:
+      IF item p of linebuf = item (p + 1) of linebuf THEN:
+        replace item p of linebuf with (item p of linebuf) * 2
+        change score by item p of linebuf
+        delete (p + 1) of linebuf
+      change p by 1
+    writeback a 1
+    writeback b 2
+    writeback c 3
+    writeback d 4
+
+  DEFINE spawn:
+    set empties to 0
+    set i to 1
+    REPEAT 16:
+      IF item i of grid = 0 THEN:
+        change empties by 1
+      change i by 1
+    IF empties > 0 THEN:
+      set nv to 2
+      IF pick random 1 to 10 = 1 THEN:
+        set nv to 4
+      set done to 0
+      REPEAT UNTIL done = 1:
+        set idx to pick random 1 to 16
+        IF item idx of grid = 0 THEN:
+          replace item idx of grid with nv
+          set done to 1
+
+  DEFINE FAST render:
+    clear
+    set i to 0
+    REPEAT 16:
+      set v to item (i + 1) of grid
+      IF v > 0 THEN:
+        set r to floor of (i / 4)
+        set c to i mod 4
+        set color effect to v mod 200
+        go to x: (-90) + (c * 60) y: (90) - (r * 60)
+        stamp
+      change i by 1
+
+  DEFINE move left:
+    set moved to 0
+    slide 1 2 3 4
+    slide 5 6 7 8
+    slide 9 10 11 12
+    slide 13 14 15 16
+    IF moved = 1 THEN:
+      spawn
+    render
+
+  DEFINE move right:
+    set moved to 0
+    slide 4 3 2 1
+    slide 8 7 6 5
+    slide 12 11 10 9
+    slide 16 15 14 13
+    IF moved = 1 THEN:
+      spawn
+    render
+
+  DEFINE move up:
+    set moved to 0
+    slide 1 5 9 13
+    slide 2 6 10 14
+    slide 3 7 11 15
+    slide 4 8 12 16
+    IF moved = 1 THEN:
+      spawn
+    render
+
+  DEFINE move down:
+    set moved to 0
+    slide 13 9 5 1
+    slide 14 10 6 2
+    slide 15 11 7 3
+    slide 16 12 8 4
+    IF moved = 1 THEN:
+      spawn
+    render
+
+  WHEN flag clicked:
+    set size to 45
+    show
+    reset
+    render
+
+  WHEN left arrow key pressed:
+    move left
+  WHEN right arrow key pressed:
+    move right
+  WHEN up arrow key pressed:
+    move up
+  WHEN down arrow key pressed:
+    move down`,
+
+    maze: `// Maze chase — eat the dots (green), avoid the red ghost, which greedily hunts you
+// across an 11x9 wall grid. Arrow keys move. Grid: 1=wall, 0=dot, 2=eaten/floor.
+GLOBAL score
+GLOBAL alive
+GLOBAL prow
+GLOBAL pcol
+GLOBAL grow
+GLOBAL gcol
+GLOBAL nr
+GLOBAL nc
+GLOBAL cell
+GLOBAL gdr
+GLOBAL gdc
+GLOBAL moved
+GLOBAL r
+GLOBAL c
+
+SPRITE Game:
+  LIST grid
+
+  DEFINE setc (row) (col) (v):
+    replace item ((row * 11) + col) + 1 of grid with v
+
+  DEFINE readc (row) (col):
+    set cell to item ((row * 11) + col) + 1 of grid
+
+  DEFINE FAST init maze:
+    delete all of grid
+    REPEAT 99:
+      add 0 to grid
+    set r to 0
+    REPEAT 9:
+      set c to 0
+      REPEAT 11:
+        IF r = 0 or r = 8 or c = 0 or c = 10 THEN:
+          setc r c 1
+        change c by 1
+      change r by 1
+    setc 2 3 1
+    setc 2 4 1
+    setc 2 5 1
+    setc 6 5 1
+    setc 6 6 1
+    setc 6 7 1
+    setc 4 8 1
+    setc 4 2 1
+    set prow to 7
+    set pcol to 1
+    setc 7 1 2
+    set grow to 1
+    set gcol to 9
+    setc 1 9 2
+    set score to 0
+    set alive to 1
+
+  DEFINE FAST render:
+    clear
+    set r to 0
+    REPEAT 9:
+      set c to 0
+      REPEAT 11:
+        readc r c
+        IF cell = 1 THEN:
+          set color effect to 0
+          set size to 45
+          go to x: (-150) + (c * 30) y: (120) - (r * 30)
+          stamp
+        IF cell = 0 THEN:
+          set color effect to 40
+          set size to 18
+          go to x: (-150) + (c * 30) y: (120) - (r * 30)
+          stamp
+        change c by 1
+      change r by 1
+    set size to 40
+    set color effect to 150
+    go to x: (-150) + (pcol * 30) y: (120) - (prow * 30)
+    stamp
+    set color effect to 90
+    go to x: (-150) + (gcol * 30) y: (120) - (grow * 30)
+    stamp
+
+  DEFINE move player (dr) (dc):
+    set nr to prow + dr
+    set nc to pcol + dc
+    readc nr nc
+    IF not cell = 1 THEN:
+      IF cell = 0 THEN:
+        change score by 1
+        setc nr nc 2
+      set prow to nr
+      set pcol to nc
+    render
+    IF prow = grow and pcol = gcol THEN:
+      set alive to 0
+      say "Caught!" for 2 seconds
+      stop all
+
+  DEFINE ghost step:
+    set gdr to 0
+    set gdc to 0
+    IF prow > grow THEN:
+      set gdr to 1
+    IF prow < grow THEN:
+      set gdr to -1
+    IF pcol > gcol THEN:
+      set gdc to 1
+    IF pcol < gcol THEN:
+      set gdc to -1
+    set moved to 0
+    IF not gdr = 0 THEN:
+      readc (grow + gdr) gcol
+      IF not cell = 1 THEN:
+        set grow to grow + gdr
+        set moved to 1
+    IF moved = 0 and not gdc = 0 THEN:
+      readc grow (gcol + gdc)
+      IF not cell = 1 THEN:
+        set gcol to gcol + gdc
+
+  WHEN flag clicked:
+    set size to 40
+    show
+    init maze
+    render
+
+  WHEN flag clicked:
+    FOREVER:
+      IF alive = 1 THEN:
+        ghost step
+        render
+        IF grow = prow and gcol = pcol THEN:
+          set alive to 0
+          say "Caught!" for 2 seconds
+          stop all
+      wait 0.4 seconds
+
+  WHEN up arrow key pressed:
+    move player -1 0
+  WHEN down arrow key pressed:
+    move player 1 0
+  WHEN left arrow key pressed:
+    move player 0 -1
+  WHEN right arrow key pressed:
+    move player 0 1`
 };
 
 export default examples;

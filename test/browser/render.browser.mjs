@@ -122,7 +122,7 @@ test('tic-tac-toe renders X + AI\'s O after a click', async () => {
 });
 
 // Render each headline game and screenshot it; assert no runtime page exceptions.
-for (const name of ['breakout', 'pong_ai', 'sokoban', 'invaders', 'snake_pro', 'flappy']) {
+for (const name of ['breakout', 'pong_ai', 'sokoban', 'invaders', 'snake_pro', 'flappy', 'maze', 'g2048']) {
     test(`game renders without error: ${name}`, async () => {
         await load(examples[name]);
         await step(90); // enough for clone-placement / init loops to populate the stage

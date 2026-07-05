@@ -218,4 +218,57 @@ test('vm: tic-tac-toe AI plays exactly one move per turn and blocks a win', asyn
     assert.equal(String(b[1]), '2', 'AI blocked the winning line at cell 2');
 });
 
+test('vm: 2048 slides and merges a line, keeps score, and spawns a tile', async () => {
+    const c = new SB3Creator();
+    c.parse(examples.g2048);
+    const vm = new VM();
+    await vm.loadProject(Buffer.from(await (await c.generateSB3()).arrayBuffer()));
+    vm.start();
+    vm.greenFlag();
+    for (let i = 0; i < 15; i++) vm.runtime._step();
+    const varOf = (n) => {
+        for (const t of vm.runtime.targets) for (const x of Object.values(t.variables)) if (x.name === n) return x;
+    };
+    const grid = varOf('grid');
+    const score = varOf('score');
+    grid.value = [2, 2, 0, 0, 4, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+    score.value = 0;
+    vm.runtime.startHats('event_whenkeypressed', { KEY_OPTION: 'left arrow' });
+    for (let i = 0; i < 30; i++) vm.runtime._step();
+    const g = grid.value.map(Number);
+    vm.quit();
+    assert.equal(g[0], 4, 'row 0: 2+2 merged to 4 at the front');
+    assert.equal(g[4], 8, 'row 1: 4+4 merged to 8 at the front');
+    assert.equal(Number(score.value), 12, 'score = 4 + 8');
+    assert.equal(g.filter((x) => x !== 0).length, 3, 'two merged tiles + one spawned tile');
+});
+
+test('vm: maze ghost AI chases the player across the grid', async () => {
+    const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+    const c = new SB3Creator();
+    c.parse(examples.maze);
+    const vm = new VM();
+    await vm.loadProject(Buffer.from(await (await c.generateSB3()).arrayBuffer()));
+    vm.start();
+    vm.greenFlag();
+    await sleep(250);
+    const v = (n) => {
+        for (const t of vm.runtime.targets) for (const x of Object.values(t.variables)) if (x.name === n) return x.value;
+    };
+    assert.equal(`${v('prow')},${v('pcol')}`, '7,1', 'player starts bottom-left');
+    // eat two dots to the right
+    vm.runtime.startHats('event_whenkeypressed', { KEY_OPTION: 'right arrow' });
+    await sleep(150);
+    vm.runtime.startHats('event_whenkeypressed', { KEY_OPTION: 'right arrow' });
+    await sleep(150);
+    assert.equal(String(v('score')), '2', 'ate two dots');
+    const gr0 = Number(v('grow'));
+    const gc0 = Number(v('gcol'));
+    await sleep(1600);
+    const gr1 = Number(v('grow'));
+    const gc1 = Number(v('gcol'));
+    vm.quit();
+    assert.ok(gr1 > gr0 || gc1 < gc0, `ghost should move toward the player (was ${gr0},${gc0} now ${gr1},${gc1})`);
+});
+
 test.after(() => { console.warn = origWarn; });
