@@ -63,7 +63,10 @@ function App() {
                 svgUploads.forEach((u) => {
                     const name = (u.sprite || '').trim();
                     if (!name || !u.svg) return;
-                    if (!creatorRef.current.applyCustomSVG(name, u.svg)) missing.push(name);
+                    const ok = u.mode === 'add'
+                        ? creatorRef.current.addCustomSVGCostume(name, u.svg, u.filename.replace(/\.svg$/i, ''))
+                        : creatorRef.current.applyCustomSVG(name, u.svg);
+                    if (!ok) missing.push(name);
                 });
 
                 const outputJson = JSON.stringify(project, null, 2);
@@ -160,6 +163,8 @@ function App() {
     const removeSvgUpload = (i) => setSvgUploads((list) => list.filter((_, idx) => idx !== i));
     const setUploadSprite = (i, sprite) =>
         setSvgUploads((list) => list.map((u, idx) => (idx === i ? { ...u, sprite } : u)));
+    const setUploadMode = (i, mode) =>
+        setSvgUploads((list) => list.map((u, idx) => (idx === i ? { ...u, mode } : u)));
 
     const handleClear = () => {
         setPseudocode('');
@@ -181,6 +186,7 @@ function App() {
                         onAdd={addSvgUpload}
                         onRemove={removeSvgUpload}
                         onSpriteChange={setUploadSprite}
+                        onModeChange={setUploadMode}
                     />
                 </div>
                 

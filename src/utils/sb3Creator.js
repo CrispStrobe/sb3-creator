@@ -1846,6 +1846,22 @@ class SB3Creator {
         };
         return true;
     }
+
+    // Append a user-supplied SVG as an extra costume (animation frame) on a sprite.
+    addCustomSVGCostume(spriteName, svgText, costumeName) {
+        const target = this.project.targets.find(t => !t.isStage && t.name === spriteName);
+        if (!target) return false;
+        const { width, height } = this.svgDimensions(svgText);
+        const assetId = this.generateAssetId();
+        this.assets.set(assetId, { type: 'svg', data: svgText, filename: `${assetId}.svg`, metadata: { width, height } });
+        target.costumes.push({
+            assetId,
+            name: costumeName || `costume${target.costumes.length + 1}`,
+            md5ext: `${assetId}.svg`, dataFormat: 'svg',
+            rotationCenterX: width / 2, rotationCenterY: height / 2
+        });
+        return true;
+    }
 }
 
 export default SB3Creator;

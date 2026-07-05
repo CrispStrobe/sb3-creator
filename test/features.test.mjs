@@ -280,6 +280,15 @@ test('applyCustomSVG bakes an uploaded SVG onto a named sprite', () => {
     assert.equal(a.costumes[0].rotationCenterY, 10);
 });
 
+test('addCustomSVGCostume appends animation frames', () => {
+    const c = build('SPRITE Hero:\n  WHEN flag clicked:\n    show');
+    const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60"><circle cx="30" cy="30" r="28"/></svg>';
+    assert.equal(c.addCustomSVGCostume('Hero', svg, 'frame2'), true);
+    assert.equal(c.addCustomSVGCostume('Hero', svg, 'frame3'), true);
+    assert.equal(c.addCustomSVGCostume('Nope', svg, 'x'), false);
+    assert.deepEqual(target(c, 'Hero').costumes.map((x) => x.name), ['costume1', 'frame2', 'frame3']);
+});
+
 test('SHAPE polygon bakes an arbitrary custom SVG costume', () => {
     const c = build(`SPRITE Rocket:
   SHAPE polygon 20 0 40 40 20 30 0 40 #ff5533

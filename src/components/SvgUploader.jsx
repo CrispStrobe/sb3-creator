@@ -2,7 +2,7 @@ import React, { useRef } from 'react';
 
 // Upload SVG files and assign each to a sprite by name. On Generate, each SVG is
 // baked in as that sprite's costume (replacing the generated shape/circle).
-function SvgUploader({ uploads, onAdd, onRemove, onSpriteChange }) {
+function SvgUploader({ uploads, onAdd, onRemove, onSpriteChange, onModeChange }) {
     const fileRef = useRef(null);
 
     const handleFiles = (e) => {
@@ -10,11 +10,14 @@ function SvgUploader({ uploads, onAdd, onRemove, onSpriteChange }) {
         files.forEach((f) => {
             if (!/\.svg$/i.test(f.name) && !f.type.includes('svg')) return;
             const reader = new FileReader();
-            reader.onload = () => onAdd({ sprite: '', filename: f.name, svg: String(reader.result) });
+            reader.onload = () => onAdd({ sprite: '', filename: f.name, svg: String(reader.result), mode: 'replace' });
             reader.readAsText(f);
         });
         if (fileRef.current) fileRef.current.value = '';
     };
+
+    // Render the SVG safely via an <img> data URL (an <img> never runs scripts).
+    const preview = (svg) => `data:image/svg+xml,${encodeURIComponent(svg)}`;
 
     return (
         <details className="syntax-details">
@@ -35,14 +38,27 @@ function SvgUploader({ uploads, onAdd, onRemove, onSpriteChange }) {
                 {uploads.length > 0 && (
                     <ul style={{ listStyle: 'none', padding: 0, margin: '10px 0 0' }}>
                         {uploads.map((u, i) => (
-                            <li key={i} style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '6px' }}>
+                            <li key={i} style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '8px' }}>
+                                <img
+                                    src={preview(u.svg)}
+                                    alt={u.filename}
+                                    style={{ width: 40, height: 40, objectFit: 'contain', background: '#ffffff', borderRadius: 6, border: '1px solid #e2e8f0', flexShrink: 0 }}
+                                />
                                 <input
                                     placeholder="sprite name"
                                     value={u.sprite}
                                     onChange={(e) => onSpriteChange(i, e.target.value)}
-                                    style={{ padding: '4px 8px', borderRadius: '6px', border: '1px solid #cbd5e1' }}
+                                    style={{ padding: '4px 8px', borderRadius: '6px', border: '1px solid #cbd5e1', width: 120 }}
                                 />
-                                <span style={{ opacity: 0.7, fontSize: '0.85em', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                <select
+                                    value={u.mode || 'replace'}
+                                    onChange={(e) => onModeChange(i, e.target.value)}
+                                    style={{ padding: '4px 6px', borderRadius: '6px', border: '1px solid #cbd5e1' }}
+                                >
+                                    <option value="replace">replace costume</option>
+                                    <option value="add">add as frame</option>
+                                </select>
+                                <span style={{ opacity: 0.6, fontSize: '0.8em', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis' }}>
                                     {u.filename}
                                 </span>
                                 <button
