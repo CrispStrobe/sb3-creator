@@ -1910,15 +1910,11 @@ class SB3Creator {
         if (!Array.isArray(input)) return '';
         const inner = input[1];
         if (Array.isArray(inner)) {
-            const [type, a, b] = inner;
-            if (type === 4) return String(a);
-            if (type === 10) return `"${a}"`;
-            if (type === 9) return String(a);
-            if (type === 11) return `"${a}"`;      // broadcast
-            if (type === 12) return String(a);      // variable name
-            if (type === 13) return String(a);      // list name
+            const [type, a] = inner;
+            if (type === 10) return `"${a}"`;       // string
+            if (type === 11) return `"${a}"`;       // broadcast
+            // number (4), color (9), variable (12), list (13) — emit the raw value
             return String(a);
-            void b;
         }
         // block reference (a reporter)
         return `(${this.drep(blocks[inner], blocks)})`;
