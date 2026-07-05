@@ -272,7 +272,7 @@ harness closes that gap.
   cascades to reveal ~49 cells). Surfaced an ergonomic rule: a computed custom-block
   argument must be a single token, so `((r*9)+c)+1` must be wrapped as `(((r*9)+c)+1)`.
 
-## 19. Round 12 — integration into the TurboWarp fork (CrispStrobe/scratch-gui)
+## 19. Round 12 — integration into the TurboWarp fork (CrispStrobe/brickwright)
 
 Everything below lives in the **scratch-gui fork** (branch `develop`, deployed to gh-pages),
 built on TurboWarp. The compiler (`src/lib/sb3-creator.js`) is vendored from this repo.
@@ -352,7 +352,7 @@ built on TurboWarp. The compiler (`src/lib/sb3-creator.js`) is vendored from thi
   a behavioural check in `test/vm.test.mjs`). Also verified against real `vm.toJSON()`
   output. Wired into the TurboWarp Pseudocode tab as a **⟵ From blocks** button next to
   **Compile & Load**, making the tab a true two-way block⇄code view (verified live at
-  crispstrobe.github.io/scratch-gui via Playwright).
+  crispstrobe.github.io/brickwright via Playwright).
 - [ ] **Extension-aware compilation** — read loaded extensions' block metadata
   (`vm.runtime._blockInfo`: opcode + text template + typed args) and auto-derive pseudocode
   grammar, so a LEGO walker gait can be written in pseudocode and emit `spikeprimeble_*`

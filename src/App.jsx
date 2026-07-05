@@ -140,7 +140,7 @@ function App() {
     // The whole .sb3 is passed as a data: URL in the location HASH — the fragment is
     // never sent to the server, so it avoids the 414 URI-Too-Long that a query string
     // of this size would hit on GitHub Pages.
-    const SCRATCH_EDITOR = 'https://crispstrobe.github.io/scratch-gui/editor.html';
+    const SCRATCH_EDITOR = 'https://crispstrobe.github.io/brickwright/editor.html';
     const handleOpenInScratch = () => {
         const blob = creatorRef.current.generatedSB3;
         if (!blob) {
