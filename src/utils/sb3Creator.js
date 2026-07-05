@@ -75,6 +75,20 @@ class SB3Creator {
         return id;
     }
 
+    // Filesystem-safe id for asset filenames (mirrors Scratch's md5-hex names).
+    // The full block-id alphabet contains '/' and '.', which JSZip path-normalizes
+    // and would desync a costume's md5ext from its stored zip entry.
+    generateAssetId() {
+        const hex = '0123456789abcdef';
+        let id;
+        do {
+            id = '';
+            for (let i = 0; i < 32; i++) id += hex[Math.floor(Math.random() * 16)];
+        } while (this.usedIds.has(id));
+        this.usedIds.add(id);
+        return id;
+    }
+
     // Determine if a variable should be global.
     // Explicit GLOBAL/LOCAL declarations win; otherwise fall back to the legacy
     // magic-name list (kept only for backwards compatibility) or Stage scope.
@@ -915,7 +929,7 @@ class SB3Creator {
         const palette = ['#4C97FF', '#FF6680', '#59C059', '#FFAB19', '#9966FF', '#FF8C1A', '#0FBD8C', '#DB6E00'];
         const color = palette[this.spriteColorIndex++ % palette.length];
         const letter = (name.trim()[0] || 'S').toUpperCase().replace(/[<>&"]/g, '');
-        const assetId = this.generateId();
+        const assetId = this.generateAssetId();
         const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 80 80"><circle cx="40" cy="40" r="36" fill="${color}" stroke="#000000" stroke-width="3"/><text x="40" y="53" font-size="40" text-anchor="middle" fill="#ffffff" font-family="Helvetica, Arial, sans-serif">${letter}</text></svg>`;
         this.assets.set(assetId, { type: 'svg', data: svg, filename: `${assetId}.svg`, metadata: { width: 80, height: 80 } });
         return { assetId, name: 'costume1', md5ext: `${assetId}.svg`, dataFormat: 'svg', rotationCenterX: 40, rotationCenterY: 40 };
@@ -1304,7 +1318,7 @@ class SB3Creator {
         const width = parseFloat(svgElement.getAttribute('width')) || 240;
         const height = parseFloat(svgElement.getAttribute('height')) || 180;
         
-        const assetId = this.generateId();
+        const assetId = this.generateAssetId();
         const filename = `${assetId}.svg`;
         
         // Store asset data

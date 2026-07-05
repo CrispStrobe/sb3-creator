@@ -20,6 +20,11 @@ Each item was reproduced by running code through the real parser. Status legend:
 - [x] **B4 — `<=` / `>=` were wrong.** `<=` mapped to `operator_lt` (plain `<`) and `>=`
   to `operator_gt` (plain `>`). Scratch 3.0 has no native `<=`/`>=`, so they are now
   emitted as `not (a > b)` and `not (a < b)`.
+- [x] **B6 — Unsafe asset filenames (found by the live tests).** Costume/sound
+  asset ids reused the full block-id alphabet, which includes `/` and `.`. Used as a
+  filename (`<id>.svg`), JSZip path-normalizes those, desyncing a costume's `md5ext`
+  from its stored zip entry and intermittently producing an unloadable asset. Assets
+  now use a filesystem-safe hex id (`generateAssetId`), matching Scratch's md5 names.
 - [x] **B5 — Silent no-ops for unsupported reporters.** `set foo to pick random 1 to 10`
   produced no warning and stored the literal string. All defined-but-unreachable blocks
   are now wired to real syntax (see §2), and unknown reporters fall back predictably.
