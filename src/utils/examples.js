@@ -711,7 +711,406 @@ SPRITE Game:
     check fit pr (pc + 1)
     IF canmove = 1 THEN:
       change pc by 1
-      render`
+      render`,
+
+    pong_2p: `# Pong (2 players) — left paddle W/S, right paddle up/down arrows. First to 5 wins.
+GLOBAL scoreL
+GLOBAL scoreR
+GLOBAL ballx
+GLOBAL bally
+
+SPRITE PaddleL:
+  WHEN flag clicked:
+    set size to 40
+    set ly to 0
+    go to x: -220 y: ly
+    show
+  WHEN flag clicked:
+    FOREVER:
+      IF key w pressed? THEN:
+        change ly by 8
+      IF key s pressed? THEN:
+        change ly by -8
+      IF ly > 140 THEN:
+        set ly to 140
+      IF ly < -140 THEN:
+        set ly to -140
+      go to x: -220 y: ly
+
+SPRITE PaddleR:
+  WHEN flag clicked:
+    set size to 40
+    set ry to 0
+    go to x: 220 y: ry
+    show
+  WHEN flag clicked:
+    FOREVER:
+      IF key up arrow pressed? THEN:
+        change ry by 8
+      IF key down arrow pressed? THEN:
+        change ry by -8
+      IF ry > 140 THEN:
+        set ry to 140
+      IF ry < -140 THEN:
+        set ry to -140
+      go to x: 220 y: ry
+
+SPRITE Ball:
+  WHEN flag clicked:
+    set size to 30
+    set scoreL to 0
+    set scoreR to 0
+    set ballx to 0
+    set bally to 0
+    set vx to 5
+    set vy to 3
+    go to x: ballx y: bally
+    show
+  WHEN flag clicked:
+    FOREVER:
+      change ballx by vx
+      change bally by vy
+      go to x: ballx y: bally
+      IF bally > 165 or bally < -165 THEN:
+        set vy to vy * -1
+      IF touching PaddleL THEN:
+        set vx to abs of vx
+      IF touching PaddleR THEN:
+        set vx to abs of vx * -1
+      IF ballx < -235 THEN:
+        change scoreR by 1
+        set ballx to 0
+        set bally to 0
+        go to x: ballx y: bally
+      IF ballx > 235 THEN:
+        change scoreL by 1
+        set ballx to 0
+        set bally to 0
+        go to x: ballx y: bally
+      IF scoreL > 4 or scoreR > 4 THEN:
+        say "Game Over" for 2 seconds
+        stop all
+      wait 0.016 seconds`,
+
+    pong_ai: `# Pong (vs AI) — you are the left paddle (W/S). The right paddle is a computer that
+# tracks the ball, reading the ball's position with "y position of Ball" (sensing_of).
+GLOBAL scoreL
+GLOBAL scoreR
+
+SPRITE PaddleL:
+  WHEN flag clicked:
+    set size to 40
+    set ly to 0
+    go to x: -220 y: ly
+    show
+  WHEN flag clicked:
+    FOREVER:
+      IF key w pressed? THEN:
+        change ly by 8
+      IF key s pressed? THEN:
+        change ly by -8
+      IF ly > 140 THEN:
+        set ly to 140
+      IF ly < -140 THEN:
+        set ly to -140
+      go to x: -220 y: ly
+
+SPRITE PaddleR:
+  WHEN flag clicked:
+    set size to 40
+    set ry to 0
+    go to x: 220 y: ry
+    show
+  WHEN flag clicked:
+    FOREVER:
+      set target to y position of Ball
+      IF target > ry + 6 THEN:
+        change ry by 5
+      IF target < ry - 6 THEN:
+        change ry by -5
+      IF ry > 140 THEN:
+        set ry to 140
+      IF ry < -140 THEN:
+        set ry to -140
+      go to x: 220 y: ry
+
+SPRITE Ball:
+  WHEN flag clicked:
+    set size to 30
+    set scoreL to 0
+    set scoreR to 0
+    set bx to 0
+    set by to 0
+    set vx to 5
+    set vy to 3
+    go to x: bx y: by
+    show
+  WHEN flag clicked:
+    FOREVER:
+      change bx by vx
+      change by by vy
+      go to x: bx y: by
+      IF by > 165 or by < -165 THEN:
+        set vy to vy * -1
+      IF touching PaddleL THEN:
+        set vx to abs of vx
+      IF touching PaddleR THEN:
+        set vx to abs of vx * -1
+      IF bx < -235 THEN:
+        change scoreR by 1
+        set bx to 0
+        set by to 0
+        go to x: bx y: by
+      IF bx > 235 THEN:
+        change scoreL by 1
+        set bx to 0
+        set by to 0
+        go to x: bx y: by
+      IF scoreL > 4 or scoreR > 4 THEN:
+        say "Game Over" for 2 seconds
+        stop all
+      wait 0.016 seconds`,
+
+    sokoban: `# Sokoban — push the boxes onto the goals. Arrow keys move. The 8x7 level lives in
+# two lists (walls/boxes + goals); custom blocks handle movement, rendering (cells are
+# color-coded via the color effect), and win detection.
+GLOBAL prow
+GLOBAL pcol
+GLOBAL nr
+GLOBAL nc
+GLOBAL br
+GLOBAL bc
+GLOBAL cell
+GLOBAL won
+GLOBAL gv
+GLOBAL bv
+GLOBAL r
+GLOBAL c
+GLOBAL i
+
+SPRITE Game:
+  LIST board
+  LIST goals
+
+  DEFINE set b (row) (col) to (v):
+    replace item ((row * 8) + col) + 1 of board with v
+
+  DEFINE set g (row) (col) to (v):
+    replace item ((row * 8) + col) + 1 of goals with v
+
+  DEFINE read b (row) (col):
+    set cell to item ((row * 8) + col) + 1 of board
+
+  DEFINE FAST init level:
+    delete all of board
+    delete all of goals
+    REPEAT 56:
+      add 0 to board
+      add 0 to goals
+    set r to 0
+    REPEAT 7:
+      set c to 0
+      REPEAT 8:
+        IF r = 0 or r = 6 or c = 0 or c = 7 THEN:
+          set b r c to 1
+        change c by 1
+      change r by 1
+    set b 2 3 to 2
+    set b 4 3 to 2
+    set g 2 5 to 1
+    set g 4 5 to 1
+    set prow to 3
+    set pcol to 1
+    set won to 0
+
+  DEFINE FAST render:
+    clear
+    set r to 0
+    REPEAT 7:
+      set c to 0
+      REPEAT 8:
+        set gv to item ((r * 8) + c) + 1 of goals
+        IF gv = 1 THEN:
+          set color effect to 60
+          set size to 30
+          go to x: (-140) + (c * 40) y: (120) - (r * 40)
+          stamp
+          set size to 55
+        read b r c
+        IF cell = 1 THEN:
+          set color effect to 0
+          go to x: (-140) + (c * 40) y: (120) - (r * 40)
+          stamp
+        IF cell = 2 THEN:
+          set color effect to 100
+          go to x: (-140) + (c * 40) y: (120) - (r * 40)
+          stamp
+        change c by 1
+      change r by 1
+    set color effect to 150
+    go to x: (-140) + (pcol * 40) y: (120) - (prow * 40)
+    stamp
+
+  DEFINE check win:
+    set won to 1
+    set i to 1
+    REPEAT 56:
+      set gv to item i of goals
+      set bv to item i of board
+      IF gv = 1 THEN:
+        IF not bv = 2 THEN:
+          set won to 0
+      change i by 1
+
+  DEFINE try move (dr) (dc):
+    set nr to prow + dr
+    set nc to pcol + dc
+    read b nr nc
+    IF cell = 0 THEN:
+      set prow to nr
+      set pcol to nc
+    IF cell = 2 THEN:
+      set br to nr + dr
+      set bc to nc + dc
+      read b br bc
+      IF cell = 0 THEN:
+        set b nr nc to 0
+        set b br bc to 2
+        set prow to nr
+        set pcol to nc
+    render
+    check win
+    IF won = 1 THEN:
+      say "You win!" for 3 seconds
+
+  WHEN flag clicked:
+    set size to 55
+    show
+    init level
+    render
+
+  WHEN up arrow key pressed:
+    try move -1 0
+  WHEN down arrow key pressed:
+    try move 1 0
+  WHEN left arrow key pressed:
+    try move 0 -1
+  WHEN right arrow key pressed:
+    try move 0 1`,
+
+    invaders: `# Space Invaders — move with arrow keys, space to shoot. Bullets and enemies are
+# clones; enemies descend and are destroyed on a bullet hit.
+GLOBAL score
+GLOBAL bulletx
+GLOBAL bullety
+
+SPRITE Player:
+  WHEN flag clicked:
+    set size to 40
+    set score to 0
+    set px to 0
+    go to x: px y: -150
+    show
+  WHEN flag clicked:
+    FOREVER:
+      IF key left arrow pressed? THEN:
+        change px by -7
+      IF key right arrow pressed? THEN:
+        change px by 7
+      IF px > 220 THEN:
+        set px to 220
+      IF px < -220 THEN:
+        set px to -220
+      go to x: px y: -150
+  WHEN space key pressed:
+    set bulletx to px
+    set bullety to -130
+    broadcast "shoot"
+
+SPRITE Bullet:
+  WHEN flag clicked:
+    set size to 15
+    hide
+  WHEN I receive "shoot":
+    go to x: bulletx y: bullety
+    create clone of myself
+  WHEN I start as a clone:
+    show
+    REPEAT UNTIL y position > 170:
+      change y by 12
+      wait 0.01 seconds
+    delete this clone
+
+SPRITE Enemy:
+  WHEN flag clicked:
+    set size to 30
+    hide
+    set ex to -180
+    REPEAT 8:
+      go to x: ex y: 140
+      create clone of myself
+      change ex by 50
+  WHEN I start as a clone:
+    show
+    FOREVER:
+      change y by -1
+      IF y position < -140 THEN:
+        say "Invaded!" for 2 seconds
+        stop all
+      wait 0.2 seconds
+  WHEN I start as a clone:
+    FOREVER:
+      IF touching Bullet THEN:
+        change score by 1
+        delete this clone
+      wait 0.03 seconds`,
+
+    flappy: `# Flappy — press space to flap. Pipe pairs scroll in from the right with a gap;
+# touching a pipe or the floor/ceiling ends the game.
+GLOBAL score
+GLOBAL gapy
+
+SPRITE Bird:
+  WHEN flag clicked:
+    set size to 45
+    set score to 0
+    set birdy to 0
+    set vy to 0
+    go to x: -120 y: birdy
+    show
+  WHEN space key pressed:
+    set vy to 8
+  WHEN flag clicked:
+    FOREVER:
+      change vy by -0.6
+      change birdy by vy
+      go to x: -120 y: birdy
+      IF birdy < -170 or birdy > 175 THEN:
+        say "Game Over" for 2 seconds
+        stop all
+      IF touching Pipe THEN:
+        say "Game Over" for 2 seconds
+        stop all
+      wait 0.02 seconds
+
+SPRITE Pipe:
+  WHEN flag clicked:
+    set size to 60
+    hide
+  WHEN flag clicked:
+    FOREVER:
+      set gapy to pick random -70 to 70
+      go to x: 240 y: gapy + 150
+      create clone of myself
+      go to x: 240 y: gapy - 150
+      create clone of myself
+      wait 1.8 seconds
+  WHEN I start as a clone:
+    show
+    REPEAT UNTIL x position < -240:
+      change x by -4
+      wait 0.02 seconds
+    delete this clone`
 };
 
 export default examples;

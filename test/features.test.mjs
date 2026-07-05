@@ -131,6 +131,32 @@ test('music: play note / set tempo add the music extension', () => {
     assert.ok(c.project.extensions.includes('music'));
 });
 
+test('bounded reporter binds its index before arithmetic (item .. + 1 of list)', () => {
+    // `item (r*8+c)+1 of board` — the trailing + 1 belongs to the index, not an
+    // addition wrapping the whole reporter. Found via a Sokoban/Tetris VM run.
+    const code = `SPRITE S:
+  LIST board
+  WHEN flag clicked:
+    set out to item ((2 * 8) + 0) + 1 of board
+`;
+    const b = blocksOf(build(code), 'S');
+    const setX = findAll(b, 'data_setvariableto').find(x => x.fields.VARIABLE[0] === 'out');
+    // The value is a single item-of-list reporter, not an operator_add of two things.
+    const val = b[setX.inputs.VALUE[1]];
+    assert.equal(val.opcode, 'data_itemoflist');
+    // and its INDEX is ((2*8)+0)+1, i.e. an add whose right operand is 1
+    const idx = b[val.inputs.INDEX[1]];
+    assert.equal(idx.opcode, 'operator_add');
+    assert.deepEqual(idx.inputs.NUM2, [1, [4, '1']]);
+});
+
+test('unbounded reporter keeps precedence (abs of x * -1)', () => {
+    // Must stay (abs of x) * -1, not abs of (x * -1).
+    const b = blocksOf(build(sprite('S', 'set r to abs of vx * -1')), 'S');
+    const setR = findAll(b, 'data_setvariableto').find(x => x.fields.VARIABLE[0] === 'r');
+    assert.equal(b[setR.inputs.VALUE[1]].opcode, 'operator_multiply');
+});
+
 test('set drag mode / bare turn', () => {
     const b = blocksOf(build(sprite('S', 'set drag mode draggable\nturn 15 degrees')), 'S');
     const drag = findBlock(b, 'sensing_setdragmode');

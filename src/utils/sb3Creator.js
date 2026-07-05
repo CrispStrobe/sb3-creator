@@ -352,6 +352,16 @@ class SB3Creator {
         if (/^(true|false)$/i.test(s)) return [1, [10, s.toLowerCase()]];
         if (/^#[0-9a-fA-F]{6}$/.test(s)) return [1, [9, s.toLowerCase()]];
 
+        // Bounded reporters (item/letter/pick random) are recognized before operator
+        // splitting: their trailing `of`/`to`/`in` keyword bounds an index/argument
+        // expression that may itself contain operators (e.g. `item (r*8+c)+1 of board`).
+        // Unbounded reporters (abs/round/…) stay after operators so that
+        // `abs of vx * -1` keeps its `(abs of vx) * -1` meaning.
+        if (/^(item|letter|pick random)\b/i.test(s)) {
+            const early = this.parseReporter(s, context);
+            if (early) return early;
+        }
+
         // Binary operators, loosest binding first
         let sp;
         if ((sp = this.splitBinary(s, [' join ']))) {

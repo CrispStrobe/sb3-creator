@@ -133,3 +133,20 @@ Building real games (and running them in the actual Scratch VM) exposed the next
 - [x] **Dependency hygiene:** `package.json` dev deps were out of sync with the lockfile
   (declared eslint 8 while the v9 flat config and lock needed eslint 9). Aligned the
   ranges and added the missing `@eslint/js` / `globals` so `npm install` is reproducible.
+
+## 10. Round 3 — Pong / Sokoban / more games
+
+- [x] **New games:** `pong_2p` (two-player key polling), `pong_ai` (AI paddle via
+  `sensing_of`), `sokoban` (list-grid push puzzle with custom blocks), `invaders`
+  (bullet + enemy clones), `flappy` (gravity + scrolling pipe clones).
+- [x] **BUG — reporter/operator precedence.** `item ((r*8)+c)+1 of board` was mis-parsed:
+  the arithmetic pass split the trailing `+ 1` off *before* the `item…of` reporter was
+  recognized, so list indices were wrong. Found by driving Sokoban in the Scratch VM (a
+  push wrote to the wrong cell; the same bug silently corrupted Tetris's collision read).
+  Fixed by recognizing the *bounded* reporters (`item`/`letter`/`pick random`, which end
+  at an `of`/`to` keyword) before operator splitting, while leaving *unbounded* ones
+  (`abs of`, `round`, …) after operators so `abs of vx * -1` still means `(abs of vx)*-1`.
+- [x] **VM logic tests** for the Sokoban push mechanic (drive arrow-key hats, assert the
+  box moved and walls block) and the Pong-AI tracker (`sensing_of` resolves at runtime).
+- [x] **Game-design note:** `stop this script` inside a custom block does not reliably
+  halt the procedure in the VM; the games branch on state explicitly instead.

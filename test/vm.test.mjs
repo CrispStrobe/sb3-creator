@@ -123,4 +123,50 @@ test('vm: clones are actually created at runtime', async () => {
     assert.equal(clones.length, 5);
 });
 
+test('vm: sokoban grid init, wall blocking, and box pushing all work', async () => {
+    const c = new SB3Creator();
+    c.parse(examples.sokoban);
+    const buf = Buffer.from(await (await c.generateSB3()).arrayBuffer());
+    const vm = new VM();
+    await vm.loadProject(buf);
+    vm.start();
+    vm.greenFlag();
+    for (let i = 0; i < 12; i++) vm.runtime._step();
+    const val = (n) => {
+        for (const t of vm.runtime.targets) for (const x of Object.values(t.variables)) if (x.name === n) return x.value;
+    };
+    const board = () => val('board');
+    const at = (r, col) => board()[r * 8 + col];
+
+    // init: 26 border walls, 2 boxes, player at (3,1)
+    assert.equal(board().length, 56);
+    assert.equal(board().filter(x => String(x) === '1').length, 26);
+    assert.equal(board().filter(x => String(x) === '2').length, 2);
+
+    const press = (key) => {
+        vm.runtime.startHats('event_whenkeypressed', { KEY_OPTION: key });
+        for (let i = 0; i < 8; i++) vm.runtime._step();
+    };
+    press('up arrow');                       // (3,1) -> (2,1)
+    assert.equal(`${val('prow')},${val('pcol')}`, '2,1');
+    press('left arrow');                     // into wall (2,0) -> blocked
+    assert.equal(`${val('prow')},${val('pcol')}`, '2,1');
+    press('right arrow');                    // (2,1) -> (2,2)
+    press('right arrow');                    // push box (2,3) -> (2,4), player -> (2,3)
+    assert.equal(`${val('prow')},${val('pcol')}`, '2,3');
+    assert.equal(String(at(2, 4)), '2');     // box moved forward
+    assert.equal(String(at(2, 3)), '0');     // vacated
+    vm.quit();
+});
+
+test('vm: pong_ai paddle tracks the ball via sensing_of', async () => {
+    const vm = await run(examples.pong_ai, 90);
+    // After ~90 frames the AI paddle should have moved from its start (0) toward the ball.
+    const ry = vm.runtime.targets
+        .flatMap(t => Object.values(t.variables))
+        .find(v => v.name === 'ry');
+    assert.ok(ry !== undefined);
+    assert.notEqual(Number(ry.value), 0); // it reacted to the ball, i.e. sensing_of resolved
+});
+
 test.after(() => { console.warn = origWarn; });
