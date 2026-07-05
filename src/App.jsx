@@ -120,6 +120,29 @@ function App() {
         }
     };
 
+    // Open the generated project directly in the hosted Scratch (TurboWarp) editor.
+    // The whole .sb3 is passed as a data: URL in the location HASH — the fragment is
+    // never sent to the server, so it avoids the 414 URI-Too-Long that a query string
+    // of this size would hit on GitHub Pages.
+    const SCRATCH_EDITOR = 'https://crispstrobe.github.io/scratch-gui/editor.html';
+    const handleOpenInScratch = () => {
+        const blob = creatorRef.current.generatedSB3;
+        if (!blob) {
+            showStatus('Please generate an SB3 file first!', 'error');
+            return;
+        }
+        const reader = new FileReader();
+        reader.onload = () => {
+            const base64 = String(reader.result).split(',')[1];
+            const dataUrl = `data:application/octet-stream;base64,${base64}`;
+            const url = `${SCRATCH_EDITOR}#project_url=${encodeURIComponent(dataUrl)}`;
+            window.open(url, '_blank', 'noopener');
+            showStatus('Opening your project in Scratch…', 'success');
+        };
+        reader.onerror = () => showStatus('Could not read the generated file.', 'error');
+        reader.readAsDataURL(blob);
+    };
+
     const handleClear = () => {
         setPseudocode('');
         setOutput('');
@@ -147,6 +170,7 @@ function App() {
                     onGenerate={handleGenerate}
                     onValidate={handleValidate}
                     onDownload={handleDownload}
+                    onOpenInScratch={handleOpenInScratch}
                     onClear={handleClear}
                     isReady={isReady}
                 />

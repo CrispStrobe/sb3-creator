@@ -1139,7 +1139,8 @@ class SB3Creator {
     }
 
     // Generate an audible 16-bit PCM mono WAV sine tone (with short fades to avoid clicks).
-    makeToneWav(freq, durationSec, rate = 44100) {
+    // 22.05 kHz keeps a beep perfectly clear while roughly halving the file size.
+    makeToneWav(freq, durationSec, rate = 22050) {
         const sampleCount = Math.max(1, Math.floor(rate * durationSec));
         const dataSize = sampleCount * 2;
         const buf = new ArrayBuffer(44 + dataSize);
