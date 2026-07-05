@@ -916,7 +916,19 @@ class SB3Creator {
         if (line.toLowerCase() === 'show') return { block: this.createBlock('looks_show').block, extraBlocks: {} };
         if (line.toLowerCase() === 'hide') return { block: this.createBlock('looks_hide').block, extraBlocks: {} };
         if ((match = line.match(/^switch costume to\s+(.+)$/i))) {
-            const { id, block } = cmd('looks_switchcostumeto'); block[id].inputs.COSTUME = val(match[1]); return ret(block);
+            const arg = match[1].trim();
+            const { id, block } = cmd('looks_switchcostumeto');
+            // A parenthesised argument is a reporter expression (e.g. ("t" join v));
+            // anything else is a literal costume NAME carried in a costume menu shadow
+            // (a bare word must not become a variable reference).
+            if (arg.startsWith('(')) {
+                const rep = val(arg);
+                const menu = this.menuInput(context, 'looks_costume', 'COSTUME', '');
+                block[id].inputs.COSTUME = (rep[0] === 3) ? [3, rep[1], menu[1]] : rep;
+            } else {
+                block[id].inputs.COSTUME = this.menuInput(context, 'looks_costume', 'COSTUME', this.unquote(arg));
+            }
+            return ret(block);
         }
         if (line.toLowerCase() === 'next costume') return { block: this.createBlock('looks_nextcostume').block, extraBlocks: {} };
         if ((match = line.match(/^switch backdrop to\s+(.+)$/i))) {
@@ -1727,7 +1739,14 @@ class SB3Creator {
                     }
                 }
                 if (block.opcode === 'looks_switchcostumeto') {
-                    const name = literal(block.inputs?.COSTUME);
+                    const inp = block.inputs?.COSTUME;
+                    // Read the name from the costume menu shadow; reporter forms
+                    // ([3, reporterId, shadowId]) are dynamic, so skip them.
+                    let name = literal(inp);
+                    if (name === null && Array.isArray(inp) && inp[0] === 1) {
+                        const shadow = target.blocks[inp[1]];
+                        name = shadow && shadow.fields?.COSTUME ? shadow.fields.COSTUME[0] : null;
+                    }
                     if (name && !/^\d+$/.test(name) && !costumeNames.has(name) && !seen.has('c:' + name)) {
                         seen.add('c:' + name);
                         this.warnings.push(`Switches to unknown costume "${name}" (declare it with COSTUME ${name})`);
@@ -2149,7 +2168,11 @@ class SB3Creator {
             case 'looks_think': return line(`think ${v('MESSAGE')}`);
             case 'looks_show': return line('show');
             case 'looks_hide': return line('hide');
-            case 'looks_switchcostumeto': return line(`switch costume to ${v('COSTUME')}`);
+            case 'looks_switchcostumeto': {
+                const inp = b.inputs.COSTUME;
+                if (Array.isArray(inp) && inp[0] === 3) return line(`switch costume to (${this.drep(blocks[inp[1]], blocks)})`);
+                return line(`switch costume to ${this.dmenu(inp, blocks, 'COSTUME')}`);
+            }
             case 'looks_nextcostume': return line('next costume');
             case 'looks_switchbackdropto': return line(`switch backdrop to ${this.dmenu(b.inputs.BACKDROP, blocks, 'BACKDROP')}`);
             case 'looks_nextbackdrop': return line('next backdrop');

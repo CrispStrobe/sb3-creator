@@ -271,22 +271,22 @@ SPRITE Snake:
     set score to 0
     set px to 0
     set py to 0
-    set dx to 10
+    set dx to 20
     set dy to 0
     go to x: px y: py
     show
 
   WHEN up arrow key pressed:
     set dx to 0
-    set dy to 10
+    set dy to 20
   WHEN down arrow key pressed:
     set dx to 0
-    set dy to -10
+    set dy to -20
   WHEN left arrow key pressed:
-    set dx to -10
+    set dx to -20
     set dy to 0
   WHEN right arrow key pressed:
-    set dx to 10
+    set dx to 20
     set dy to 0
 
   WHEN flag clicked:
@@ -302,8 +302,8 @@ SPRITE Snake:
 SPRITE Apple:
   SHAPE circle 18
   WHEN flag clicked:
-    set foodx to -150
-    set foody to 100
+    set foodx to (pick random -10 to 10) * 20
+    set foody to (pick random -7 to 7) * 20
     go to x: foodx y: foody
     show
 
@@ -311,14 +311,10 @@ SPRITE Apple:
     FOREVER:
       IF touching Snake THEN:
         change score by 1
-        change foodx by 130
-        IF foodx > 180 THEN:
-          set foodx to -180
-        change foody by 90
-        IF foody > 150 THEN:
-          set foody to -150
+        set foodx to (pick random -10 to 10) * 20
+        set foody to (pick random -7 to 7) * 20
         go to x: foodx y: foody
-        wait 0.4 seconds`,
+        wait 0.3 seconds`,
 
     snake_pro: `# Growing-tail Snake — showcases clones, compound conditions, REPEAT UNTIL, and
 # explicit GLOBAL scoping. The body is a trail of Body clones, each living for
@@ -380,13 +376,19 @@ SPRITE Head:
 SPRITE Body:
   SHAPE square 18
   WHEN flag clicked:
+    set role to 0
     hide
 
+  # Only the original (role 0) spawns a trail clone per step. Clones set role 1
+  # in their start script so they never spawn more — otherwise every clone would
+  # also react to "grow" and the tail would multiply exponentially.
   WHEN I receive "grow":
-    go to x: hx y: hy
-    create clone of myself
+    IF role = 0 THEN:
+      go to x: hx y: hy
+      create clone of myself
 
   WHEN I start as a clone:
+    set role to 1
     show
     set life to length
     REPEAT UNTIL life < 1:
@@ -476,101 +478,125 @@ SPRITE Brick:
         change score by 1
         delete this clone`,
 
-    bomberman: `# Bomberman-lite — grid movement with wall collision, bombs (clones) that
-# explode on a timer and destroy crates and enemies.
+    bomberman: `# Bomberman — a walled arena with pillars and crates. Arrow keys move on the
+# 40px grid (you can't walk through walls or crates); Space drops a bomb that
+# blasts after a fuse, destroying crates and the enemy in range.
 GLOBAL score
 GLOBAL bombx
 GLOBAL bomby
 
 SPRITE Player:
-  SHAPE square 30
+  SHAPE circle 28 #4c97ff
   WHEN flag clicked:
     show variable score
     set score to 0
-    set px to -180
-    set py to 140
+    set px to -160
+    set py to 120
     go to x: px y: py
     show
 
   WHEN up arrow key pressed:
     change py by 40
     go to x: px y: py
-    IF touching Wall THEN:
+    IF touching Wall or touching Crate THEN:
       change py by -40
       go to x: px y: py
   WHEN down arrow key pressed:
     change py by -40
     go to x: px y: py
-    IF touching Wall THEN:
+    IF touching Wall or touching Crate THEN:
       change py by 40
       go to x: px y: py
   WHEN left arrow key pressed:
     change px by -40
     go to x: px y: py
-    IF touching Wall THEN:
+    IF touching Wall or touching Crate THEN:
       change px by 40
       go to x: px y: py
   WHEN right arrow key pressed:
     change px by 40
     go to x: px y: py
-    IF touching Wall THEN:
+    IF touching Wall or touching Crate THEN:
       change px by -40
       go to x: px y: py
 
   WHEN space key pressed:
     set bombx to px
     set bomby to py
-    broadcast "drop" and wait
+    broadcast "drop"
 
 SPRITE Bomb:
-  SHAPE circle 26
+  SHAPE circle 26 #2b2b2b
+  COSTUME blast circle 40 #ff7a1a
   WHEN flag clicked:
+    set role to 0
     hide
   WHEN I receive "drop":
-    go to x: bombx y: bomby
-    create clone of myself
+    IF role = 0 THEN:
+      go to x: bombx y: bomby
+      create clone of myself
   WHEN I start as a clone:
+    set role to 1
+    switch costume to costume1
     set size to 100
     show
-    wait 2 seconds
-    set size to 340
-    change color effect by 80
-    wait 0.4 seconds
+    wait 1.5 seconds
+    switch costume to blast
+    set size to 150
+    wait 0.5 seconds
     delete this clone
 
 SPRITE Wall:
-  SHAPE square 40
+  SHAPE square 40 #5a6470
   WHEN flag clicked:
     hide
-    set wx to -200
-    REPEAT 11:
-      go to x: wx y: 170
-      create clone of myself
-      go to x: wx y: -170
-      create clone of myself
-      change wx by 40
+    set wy to 160
+    REPEAT 9:
+      set wx to -200
+      REPEAT 11:
+        IF wy = 160 or wy = -160 or wx = -200 or wx = 200 THEN:
+          go to x: wx y: wy
+          create clone of myself
+        change wx by 40
+      change wy by -40
+    set wy to 80
+    REPEAT 3:
+      set wx to -120
+      REPEAT 4:
+        go to x: wx y: wy
+        create clone of myself
+        change wx by 80
+      change wy by -80
   WHEN I start as a clone:
     show
 
 SPRITE Crate:
-  SHAPE square 30
-  WHEN flag clicked:
-    hide
-    set cx to -100
-    REPEAT 6:
-      go to x: cx y: 40
+  SHAPE square 34 #b5793a
+  DEFINE make crate (x) (y):
+    IF role = 0 THEN:
+      go to x: x y: y
       create clone of myself
-      change cx by 50
+  WHEN flag clicked:
+    set role to 0
+    hide
+    make crate -160 40
+    make crate -80 120
+    make crate 0 40
+    make crate 80 -40
+    make crate 160 40
+    make crate -80 -120
+    make crate 80 120
+    make crate 0 -120
   WHEN I start as a clone:
+    set role to 1
     show
-  WHEN I start as a clone:
     FOREVER:
       IF touching Bomb THEN:
         change score by 1
         delete this clone
 
 SPRITE Enemy:
-  SHAPE triangle 28
+  SHAPE circle 26 #e63946
   WHEN flag clicked:
     set ex to 160
     set ey to -120
@@ -578,14 +604,30 @@ SPRITE Enemy:
     show
   WHEN flag clicked:
     FOREVER:
-      change ex by pick random -20 to 20
-      change ey by pick random -20 to 20
+      set edir to pick random 1 to 4
+      set edx to 0
+      set edy to 0
+      IF edir = 1 THEN:
+        set edx to 40
+      IF edir = 2 THEN:
+        set edx to -40
+      IF edir = 3 THEN:
+        set edy to 40
+      IF edir = 4 THEN:
+        set edy to -40
+      change ex by edx
+      change ey by edy
       go to x: ex y: ey
+      IF touching Wall or touching Crate THEN:
+        change ex by (0 - edx)
+        change ey by (0 - edy)
+        go to x: ex y: ey
       IF touching Bomb THEN:
-        say "hit" for 0.5 seconds
+        change score by 5
+        say "got me!" for 1 seconds
         hide
         stop this script
-      wait 0.3 seconds`,
+      wait 0.4 seconds`,
 
     tetris: `# Tetris — all 7 tetrominoes fall into a 10x20 well, rotate with Up, soft-drop
 # with Down, move with Left/Right. Full rows clear and score. The well border is
@@ -1038,9 +1080,10 @@ SPRITE Ball:
         say "Game Over" for 2 seconds
         stop all`,
 
-    sokoban: `# Sokoban — push the boxes onto the goals. Arrow keys move. The 8x7 level lives in
-# two lists (walls/boxes + goals); custom blocks handle movement, rendering (cells are
-# color-coded via the color effect), and win detection.
+    sokoban: `# Sokoban — push the boxes (orange) onto the goals (green). Arrow keys move.
+# The 8x7 level lives in two lists (walls/boxes + goals); custom blocks handle
+# movement, tile rendering, win detection, and advancing through 3 levels.
+GLOBAL level
 GLOBAL prow
 GLOBAL pcol
 GLOBAL nr
@@ -1058,6 +1101,10 @@ GLOBAL i
 SPRITE Game:
   LIST board
   LIST goals
+  COSTUME wall square 40 #6b5344
+  COSTUME box square 34 #d9a441
+  COSTUME goal circle 14 #55c57a
+  COSTUME hero circle 30 #4c97ff
 
   DEFINE set b (row) (col) to (v):
     replace item ((row * 8) + col) + 1 of board with v
@@ -1082,39 +1129,55 @@ SPRITE Game:
           set b r c to 1
         change c by 1
       change r by 1
-    set b 2 3 to 2
-    set b 4 3 to 2
-    set g 2 5 to 1
-    set g 4 5 to 1
-    set prow to 3
-    set pcol to 1
+    IF level = 1 THEN:
+      set b 2 3 to 2
+      set b 4 3 to 2
+      set g 2 5 to 1
+      set g 4 5 to 1
+      set prow to 3
+      set pcol to 1
+    IF level = 2 THEN:
+      set b 1 3 to 2
+      set b 3 3 to 2
+      set b 5 3 to 2
+      set g 1 5 to 1
+      set g 3 5 to 1
+      set g 5 5 to 1
+      set prow to 3
+      set pcol to 1
+    IF level = 3 THEN:
+      set b 2 4 to 2
+      set b 4 4 to 2
+      set g 2 2 to 1
+      set g 4 2 to 1
+      set prow to 3
+      set pcol to 5
     set won to 0
 
   DEFINE FAST render:
     clear
+    set size to 100
     set r to 0
     REPEAT 7:
       set c to 0
       REPEAT 8:
         set gv to item ((r * 8) + c) + 1 of goals
         IF gv = 1 THEN:
-          set color effect to 60
-          set size to 30
+          switch costume to goal
           go to x: (-140) + (c * 40) y: (120) - (r * 40)
           stamp
-          set size to 55
         read b r c
         IF cell = 1 THEN:
-          set color effect to 0
+          switch costume to wall
           go to x: (-140) + (c * 40) y: (120) - (r * 40)
           stamp
         IF cell = 2 THEN:
-          set color effect to 100
+          switch costume to box
           go to x: (-140) + (c * 40) y: (120) - (r * 40)
           stamp
         change c by 1
       change r by 1
-    set color effect to 150
+    switch costume to hero
     go to x: (-140) + (pcol * 40) y: (120) - (prow * 40)
     stamp
 
@@ -1148,11 +1211,18 @@ SPRITE Game:
     render
     check win
     IF won = 1 THEN:
-      say "You win!" for 3 seconds
+      change level by 1
+      IF level > 3 THEN:
+        say "All levels solved!" for 3 seconds
+        stop all
+      ELSE:
+        say "Level " join level for 1.5 seconds
+        init level
+        render
 
   WHEN flag clicked:
-    set size to 55
-    show
+    hide
+    set level to 1
     init level
     render
 
@@ -1198,11 +1268,16 @@ SPRITE Player:
 SPRITE Bullet:
   SHAPE rect 6 16
   WHEN flag clicked:
+    set role to 0
     hide
+  # Only the original fires; clones set role 1 so a single press = a single
+  # bullet (otherwise every live bullet would spawn another on each shot).
   WHEN I receive "shoot":
-    go to x: bulletx y: bullety
-    create clone of myself
+    IF role = 0 THEN:
+      go to x: bulletx y: bullety
+      create clone of myself
   WHEN I start as a clone:
+    set role to 1
     show
     REPEAT UNTIL y position > 170:
       change y by 12
@@ -1347,7 +1422,7 @@ SPRITE Board:
       check winner
       render
       IF winner > 0 THEN:
-        say join "Winner: player " winner for 3 seconds
+        say "Winner: player " join winner for 3 seconds
       IF winner = 0 THEN:
         IF turn = 1 THEN:
           set turn to 2
@@ -1502,8 +1577,9 @@ SPRITE Board:
     animation: `# Animation & sound — the walker cycles through its costumes to "walk" and beeps
 # each step, then wraps around the screen. Shows COSTUME frames and SOUND tones.
 SPRITE Walker:
-  COSTUME frame2
-  COSTUME frame3
+  SHAPE square 40 #ff6680
+  COSTUME frame2 circle 44 #59c059
+  COSTUME frame3 triangle 44 #ffab19
   SOUND step 520
   WHEN flag clicked:
     set size to 120
@@ -1698,6 +1774,10 @@ GLOBAL c
 
 SPRITE Game:
   LIST grid
+  COSTUME wall square 30 #2b3a67
+  COSTUME dot circle 8 #ffd54a
+  COSTUME hero circle 24 #ffe14d
+  COSTUME ghost circle 24 #e63946
 
   DEFINE setc (row) (col) (v):
     replace item ((row * 11) + col) + 1 of grid with v
@@ -1736,28 +1816,26 @@ SPRITE Game:
 
   DEFINE FAST render:
     clear
+    set size to 100
     set r to 0
     REPEAT 9:
       set c to 0
       REPEAT 11:
         readc r c
         IF cell = 1 THEN:
-          set color effect to 0
-          set size to 45
+          switch costume to wall
           go to x: (-150) + (c * 30) y: (120) - (r * 30)
           stamp
         IF cell = 0 THEN:
-          set color effect to 40
-          set size to 18
+          switch costume to dot
           go to x: (-150) + (c * 30) y: (120) - (r * 30)
           stamp
         change c by 1
       change r by 1
-    set size to 40
-    set color effect to 150
+    switch costume to hero
     go to x: (-150) + (pcol * 30) y: (120) - (prow * 30)
     stamp
-    set color effect to 90
+    switch costume to ghost
     go to x: (-150) + (gcol * 30) y: (120) - (grow * 30)
     stamp
 
@@ -1801,8 +1879,7 @@ SPRITE Game:
 
   WHEN flag clicked:
     show variable score
-    set size to 40
-    show
+    hide
     init maze
     render
 
@@ -1846,8 +1923,11 @@ GLOBAL v
 GLOBAL cell
 
 SPRITE Game:
-  SHAPE circle 46
   LIST board
+  COSTUME slot square 50 #1e4fd8
+  COSTUME empty circle 40 #dfe7ff
+  COSTUME red circle 40 #e63946
+  COSTUME yellow circle 40 #ffd23f
 
   DEFINE FAST reset:
     delete all of board
@@ -1918,18 +1998,23 @@ SPRITE Game:
 
   DEFINE FAST render:
     clear
+    set size to 100
     set i to 0
     REPEAT 42:
       set v to item (i + 1) of board
-      IF v > 0 THEN:
-        set r to floor of (i / 7)
-        set c to i mod 7
-        IF v = 1 THEN:
-          set color effect to 0
-        IF v = 2 THEN:
-          set color effect to 100
-        go to x: (-150) + (c * 50) y: (125) - (r * 50)
-        stamp
+      set r to floor of (i / 7)
+      set c to i mod 7
+      switch costume to slot
+      go to x: (-150) + (c * 50) y: (125) - (r * 50)
+      stamp
+      IF v = 0 THEN:
+        switch costume to empty
+      IF v = 1 THEN:
+        switch costume to red
+      IF v = 2 THEN:
+        switch costume to yellow
+      go to x: (-150) + (c * 50) y: (125) - (r * 50)
+      stamp
       change i by 1
 
   DEFINE ai move:
@@ -1974,7 +2059,8 @@ SPRITE Game:
     set turn to 1
 
   WHEN flag clicked:
-    show
+    hide
+    set size to 100
     reset
     render
     FOREVER:
@@ -1994,10 +2080,10 @@ SPRITE Game:
         wait until not mouse down?
       wait 0.02 seconds`,
 
-    minesweeper: `// Minesweeper — click to reveal a cell. Clicking a mine ends the game; clicking an
-// empty (0-neighbour) cell flood-fills the whole connected empty region using a
-// worklist queue stored in a list. 9x9 grid, 10 mines. Cells are colour-coded:
-// gray = hidden, light = revealed (tinted by neighbour count), red = a mine.
+    minesweeper: `// Minesweeper — click to reveal a cell; press F to flag/unflag the cell under the
+// mouse. Clicking a mine ends the game; an empty (0-neighbour) cell flood-fills the
+// connected region via a worklist queue. 9x9 grid, 10 mines. Revealed cells show their
+// neighbour count (1-8, classic colours); hidden = grey, flagged = F, mine = red.
 GLOBAL over
 GLOBAL i
 GLOBAL r
@@ -2013,11 +2099,22 @@ GLOBAL col
 GLOBAL row
 
 SPRITE Game:
-  SHAPE square 100
   LIST mine
   LIST revealed
   LIST adj
   LIST queue
+  COSTUME covered tile "" #9aa7b8
+  COSTUME empty tile "" #d7dde6
+  COSTUME flag tile "F" #9aa7b8 #d32f2f
+  COSTUME mine tile "*" #e84855 #ffffff
+  COSTUME n1 tile "1" #d7dde6 #1976d2
+  COSTUME n2 tile "2" #d7dde6 #388e3c
+  COSTUME n3 tile "3" #d7dde6 #d32f2f
+  COSTUME n4 tile "4" #d7dde6 #512da8
+  COSTUME n5 tile "5" #d7dde6 #b71c1c
+  COSTUME n6 tile "6" #d7dde6 #00838f
+  COSTUME n7 tile "7" #d7dde6 #212121
+  COSTUME n8 tile "8" #d7dde6 #616161
 
   DEFINE countmine (nr) (nc):
     IF nr > -1 and nr < 9 and nc > -1 and nc < 9 THEN:
@@ -2099,24 +2196,40 @@ SPRITE Game:
 
   DEFINE FAST render:
     clear
+    set size to 42
     set i to 0
     REPEAT 81:
       set r to floor of (i / 9)
       set c to i mod 9
-      go to x: (-136) + (c * 34) y: (136) - (r * 34)
+      IF item (i + 1) of revealed = 2 THEN:
+        switch costume to flag
+      IF item (i + 1) of revealed = 0 THEN:
+        switch costume to covered
       IF item (i + 1) of revealed = 1 THEN:
         IF item (i + 1) of mine = 1 THEN:
-          set color effect to 0
+          switch costume to mine
         ELSE:
-          set color effect to 60 + ((item (i + 1) of adj) * 22)
-      ELSE:
-        set color effect to 140
+          IF item (i + 1) of adj = 0 THEN:
+            switch costume to empty
+          ELSE:
+            switch costume to ("n" join (item (i + 1) of adj))
+      go to x: (-136) + (c * 34) y: (136) - (r * 34)
       stamp
       change i by 1
 
+  DEFINE toggle flag (cell):
+    IF over = 0 THEN:
+      IF item cell of revealed = 0 THEN:
+        replace item cell of revealed with 2
+        render
+      ELSE:
+        IF item cell of revealed = 2 THEN:
+          replace item cell of revealed with 0
+          render
+
   WHEN flag clicked:
-    set size to 30
-    show
+    set size to 42
+    hide
     reset
     render
     FOREVER:
@@ -2126,7 +2239,13 @@ SPRITE Game:
         IF col > -1 and col < 9 and row > -1 and row < 9 THEN:
           reveal (((row * 9) + col) + 1)
         wait until not mouse down?
-      wait 0.02 seconds`
+      wait 0.02 seconds
+
+  WHEN f key pressed:
+    set col to floor of ((mouse x + 153) / 34)
+    set row to floor of ((153 - mouse y) / 34)
+    IF col > -1 and col < 9 and row > -1 and row < 9 THEN:
+      toggle flag (((row * 9) + col) + 1)`
 };
 
 export default examples;
