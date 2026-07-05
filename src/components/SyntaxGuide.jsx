@@ -87,6 +87,26 @@ function SyntaxGuide() {
                             <li><code>nums contains 3</code></li>
                         </ul>
                     </div>
+                    <div className="syntax-section">
+                        <h4>Custom blocks</h4>
+                        <ul>
+                            <li><code>DEFINE draw box (col) (row):</code></li>
+                            <li><code>DEFINE FAST render:</code> (warp)</li>
+                            <li><code>&lt;flag&gt;</code> = boolean parameter</li>
+                            <li>call: <code>draw box 3 4</code></li>
+                            <li>params usable in the body: <code>go to x: col y: row</code></li>
+                        </ul>
+                    </div>
+                    <div className="syntax-section">
+                        <h4>Sensing &amp; more</h4>
+                        <ul>
+                            <li><code>x position of Player</code> (of a sprite/Stage)</li>
+                            <li><code>current year</code>, <code>day of week</code></li>
+                            <li><code>distance to mouse-pointer</code></li>
+                            <li><code>set drag mode draggable</code></li>
+                            <li><code>play note 60 for 0.5 beats</code>, <code>set tempo to 120</code></li>
+                        </ul>
+                    </div>
                 </div>
             </div>
         </details>

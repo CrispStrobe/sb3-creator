@@ -97,3 +97,39 @@ Each item was reproduced by running code through the real parser. Status legend:
 - [x] **DOC1 — Syntax Guide** updated to match the real, expanded grammar.
 - [x] **DOC2 — New examples**, including a real growing-tail Snake built on clones + lists.
 - [x] **DOC3 — README** notes the expanded language and how to run the tests.
+
+## 8. Round 2 — gaps found by building Tetris / Breakout / Bomberman
+
+Building real games (and running them in the actual Scratch VM) exposed the next tier.
+
+- [x] **Custom blocks (procedures).** `DEFINE [FAST] name (arg) <boolArg>:` defines a
+  reusable block; calls like `draw box 3 4` compile to `procedures_call` with a matching
+  mutation. Params resolve to argument reporters in the body; `FAST` = run without screen
+  refresh (warp). Forward references (call before `DEFINE`) resolve via a first pass.
+- [x] **`[property] of [Sprite|Stage]`** → `sensing_of` (e.g. `x position of Player`).
+  Only fires when the right-hand side is a real target, so it can't silently swallow a
+  plain identifier.
+- [x] **Current date/time:** `current year|month|date|hour|minute|second`, `day of week`.
+- [x] **Music extension:** `play note N for B beats`, `play drum N for B beats`,
+  `rest for B beats`, `set tempo to N`, `change tempo by N`.
+- [x] **Misc:** `set drag mode draggable|not draggable`, bare `turn N degrees`.
+- [x] **BUG — custom-block arg capture.** The first implementation matched call args with
+  lazy `(.+?)` regex groups, which split parenthesized args like `(pr + 1)` into `(pr`.
+  Found via the Scratch-VM Tetris run (a locked piece filled 3 cells instead of 4). Fixed
+  with paren/quote-aware token matching.
+- [x] **BUG — clone placement race in `snake_pro`.** Body clones read the shared head
+  position after it had already moved, so the tail rendered on top of the head. Fixed to
+  the correct `broadcast … and wait` handshake so each segment is stamped before the head
+  advances.
+- [x] **Forward-reference hardening.** A first pass now also collects sprite names so
+  `sensing_of` a sprite defined later in the file resolves.
+
+## 9. Round 2 — testing & examples
+
+- [x] **VM tests** (`test/vm.test.mjs`): every example is loaded into the real headless
+  Scratch VM and stepped; feature logic (custom blocks, precedence, list math, `pick
+  random` bounds, clone creation) is verified by executing and reading back VM state.
+- [x] **New examples:** `breakout`, `bomberman`, and a list-and-custom-block `tetris`.
+- [x] **Dependency hygiene:** `package.json` dev deps were out of sync with the lockfile
+  (declared eslint 8 while the v9 flat config and lock needed eslint 9). Aligned the
+  ranges and added the missing `@eslint/js` / `globals` so `npm install` is reproducible.

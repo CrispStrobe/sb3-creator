@@ -19,9 +19,13 @@ This project converts a custom pseudocode language into a downloadable Scratch 3
     ```bash
     npm test
     ```
-    Runs the unit suite (`test/unit.test.mjs`) and the live end-to-end suite
-    (`test/live.test.mjs`, which compiles every example to a real `.sb3` and
-    validates the project graph). No browser required.
+    Runs three suites, no browser required:
+    - `test/unit.test.mjs` / `test/features.test.mjs` — per-feature block assertions.
+    - `test/live.test.mjs` — compiles every example to a real `.sb3`, unzips it, and
+      validates the project graph and that all referenced assets exist.
+    - `test/vm.test.mjs` — loads every example into the **real headless Scratch VM**
+      (`scratch-vm`) and executes it, verifying feature logic (custom blocks, operator
+      precedence, list math, clone creation) by reading back runtime state.
 
 ---
 
@@ -41,11 +45,18 @@ in-app **Syntax Reference** for the full list; highlights:
 - **Expressions:** parentheses and correct precedence, `+ - * /`, `mod`,
   `pick random a to b`, `round`, `sqrt of`, `abs of`, `join`, `letter n of`,
   `length of`, and reporters like `x position`, `size`, `timer`, `answer`,
-  `item n of list`.
+  `item n of list`, `x position of Sprite` (sensing-of), `current year`, `day of week`.
 - **Conditions:** `< <= > >= =`, `and` / `or` / `not`, `touching X`,
   `touching color #hex`, `key X pressed?`, `mouse down?`, `list contains v`.
 - **Lists:** `add`, `delete n of`, `delete all of`, `insert … at … of`,
   `replace item … of … with …`, `show/hide list`.
+- **Custom blocks:** `DEFINE [FAST] name (arg) <boolArg>:` defines a reusable block
+  (FAST = run without screen refresh); call it by name, e.g. `draw box 3 4`. Parameters
+  are usable in the body.
+- **Music:** `play note`, `play drum`, `rest for … beats`, `set/change tempo`.
+
+Example games in the dropdown include **snake**, a clone-based **snake_pro**,
+**breakout**, **bomberman**, and a list-and-custom-block **tetris**.
 
 See [`PLAN.md`](PLAN.md) for the full list of bugs fixed and features added.
 

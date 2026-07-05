@@ -55,6 +55,9 @@ class SB3Creator {
         this.declaredGlobalLists = new Set(); // list names forced global
         this.declaredLocalLists = new Set(); // `${scope}:${name}` forced local
         this.spriteColorIndex = 0;
+        this.procedures = []; // registered custom blocks (for call-site matching)
+        this.currentProcArgs = null; // param name -> {type} while parsing a definition body
+        this.targetNames = new Set(['Stage']); // all sprite/stage names (for sensing_of)
         this.generatedSB3 = null;
         this.errors = [];
         this.warnings = [];
@@ -410,6 +413,13 @@ class SB3Creator {
         const B = (op, inputs = {}, fields = {}) => this.valueOfBlock(this.pushBlock(context, op, inputs, fields));
         let m;
 
+        // Custom-block parameters resolve to argument reporters inside their definition.
+        if (this.currentProcArgs && this.currentProcArgs.has(s)) {
+            const arg = this.currentProcArgs.get(s);
+            const op = arg.type === 'b' ? 'argument_reporter_boolean' : 'argument_reporter_string_number';
+            return B(op, {}, { VALUE: [s, null] });
+        }
+
         if ((m = s.match(/^pick random\s+(.+)$/i))) {
             const parts = this.splitBinary(m[1], [' to '], { ci: true });
             if (parts) {
@@ -452,14 +462,32 @@ class SB3Creator {
             return B('sensing_distanceto', { DISTANCETOMENU: this.menuInput(context, 'sensing_distancetomenu', 'DISTANCETOMENU', target) });
         }
 
+        // [property] of [Sprite|Stage] -> sensing_of (only when the object is a real target).
+        if ((m = s.match(/^(.+?)\s+of\s+(.+)$/i)) && this.targetExists(m[2].trim())) {
+            const objName = m[2].trim();
+            const object = /^stage$/i.test(objName) ? '_stage_' : objName;
+            const propMap = {
+                'x position': 'x position', 'y position': 'y position', 'direction': 'direction',
+                'costume number': 'costume #', 'costume name': 'costume name', 'size': 'size',
+                'volume': 'volume', 'backdrop number': 'backdrop #', 'backdrop name': 'backdrop name'
+            };
+            const prop = propMap[m[1].trim().toLowerCase()] || m[1].trim();
+            return B('sensing_of', { OBJECT: this.menuInput(context, 'sensing_of_object_menu', 'OBJECT', object) }, { PROPERTY: [prop, null] });
+        }
+
+        // current date/time
+        if ((m = s.match(/^current (year|month|date|hour|minute|second)$/i))) {
+            return B('sensing_current', {}, { CURRENTMENU: [m[1].toUpperCase(), null] });
+        }
+        if (/^day of week$/i.test(s)) return B('sensing_current', {}, { CURRENTMENU: ['DAYOFWEEK', null] });
+
         // Zero-argument reporters. Single ambiguous words defer to an existing variable.
         const simple = {
             'x position': 'motion_xposition',
             'y position': 'motion_yposition',
             'mouse x': 'sensing_mousex',
             'mouse y': 'sensing_mousey',
-            'days since 2000': 'sensing_dayssince2000',
-            'current year': null
+            'days since 2000': 'sensing_dayssince2000'
         };
         const key = s.toLowerCase();
         if (simple[key]) return B(simple[key]);
@@ -475,6 +503,12 @@ class SB3Creator {
         if (ambiguous[key] && !this.variableExists(s, context.target)) return B(ambiguous[key]);
 
         return null;
+    }
+
+    targetExists(name) {
+        const lower = name.toLowerCase();
+        for (const n of this.targetNames) if (n.toLowerCase() === lower) return true;
+        return false;
     }
 
     // Normalize a key name for KEY_OPTION / WHEN key pressed menus.
@@ -562,6 +596,11 @@ class SB3Creator {
             });
         }
 
+        // A boolean custom-block parameter used directly as a condition.
+        if (this.currentProcArgs && this.currentProcArgs.get(s)?.type === 'b') {
+            return push('argument_reporter_boolean', {}, { VALUE: [s, null] });
+        }
+
         // Default: treat as a boolean-ish value compared to true.
         return push('operator_equals', {
             OPERAND1: this.parseValue(s, context),
@@ -573,6 +612,155 @@ class SB3Creator {
         s = s.trim();
         if (s.length >= 2 && s.startsWith('"') && s.endsWith('"')) return s.slice(1, -1);
         return s;
+    }
+
+    // Parse `DEFINE [FAST] <signature>:` into {proccode, argNames, argTypes, warp, regexParts}.
+    parseSignature(headerLine) {
+        let sig = headerLine.replace(/^DEFINE\s+/i, '').replace(/:\s*$/, '').trim();
+        let warp = false;
+        if (/^FAST\s+/i.test(sig)) { warp = true; sig = sig.replace(/^FAST\s+/i, ''); }
+
+        const tokens = sig.match(/\([^)]*\)|<[^>]*>|[^\s]+/g) || [];
+        const procParts = [];
+        const template = []; // per proccode word: { lit } or { arg: true }
+        const argNames = [];
+        const argTypes = [];
+        for (const tok of tokens) {
+            if (tok.startsWith('(') || tok.startsWith('<')) {
+                const type = tok.startsWith('<') ? 'b' : 's';
+                argNames.push(tok.slice(1, -1).trim());
+                argTypes.push(type);
+                procParts.push(type === 'b' ? '%b' : '%s');
+                template.push({ arg: true });
+            } else {
+                procParts.push(tok);
+                template.push({ lit: tok });
+            }
+        }
+        return { proccode: procParts.join(' '), argNames, argTypes, warp, template };
+    }
+
+    // Split a line into top-level tokens: parenthesized groups and quoted strings
+    // count as a single token, so custom-block args like `(pr + 1)` stay intact.
+    tokenizeTop(s) {
+        const tokens = [];
+        let i = 0;
+        s = s.trim();
+        while (i < s.length) {
+            if (s[i] === ' ') { i++; continue; }
+            if (s[i] === '(') {
+                let depth = 0, j = i;
+                for (; j < s.length; j++) {
+                    if (s[j] === '(') depth++;
+                    else if (s[j] === ')') { depth--; if (depth === 0) { j++; break; } }
+                }
+                tokens.push(s.slice(i, j)); i = j; continue;
+            }
+            if (s[i] === '"') {
+                let j = i + 1;
+                while (j < s.length && s[j] !== '"') j++;
+                j++; tokens.push(s.slice(i, j)); i = j; continue;
+            }
+            let j = i;
+            while (j < s.length && s[j] !== ' ' && s[j] !== '(' && s[j] !== '"') j++;
+            tokens.push(s.slice(i, j)); i = j;
+        }
+        return tokens;
+    }
+
+    // First-pass registration so calls resolve even before the DEFINE appears.
+    registerProcedure(headerLine) {
+        const sig = this.parseSignature(headerLine);
+        if (this.procedures.some(p => p.proccode === sig.proccode)) return;
+        this.procedures.push({
+            proccode: sig.proccode,
+            argIds: sig.argNames.map(() => this.generateId()),
+            argNames: sig.argNames,
+            argTypes: sig.argTypes,
+            warp: sig.warp,
+            template: sig.template
+        });
+        // Longest templates first so a more specific signature wins call matching.
+        this.procedures.sort((a, b) => b.template.length - a.template.length);
+    }
+
+    // Build the definition blocks. Returns { block, extraBlocks, args } where `args`
+    // maps param names to their type so the body emits argument reporters.
+    parseDefine(headerLine, target) {
+        const context = { target, extraBlocks: {}, parentId: null };
+        const sig = this.parseSignature(headerLine);
+        const proc = this.procedures.find(p => p.proccode === sig.proccode);
+        const argIds = proc.argIds;
+        const argDefaults = sig.argTypes.map(t => (t === 'b' ? 'false' : ''));
+        const args = new Map();
+        sig.argNames.forEach((name, i) => args.set(name, { type: sig.argTypes[i] }));
+
+        const defId = this.generateId();
+        const protoId = this.generateId();
+        const protoInputs = {};
+        sig.argNames.forEach((name, i) => {
+            const repId = this.generateId();
+            context.extraBlocks[repId] = {
+                opcode: sig.argTypes[i] === 'b' ? 'argument_reporter_boolean' : 'argument_reporter_string_number',
+                next: null, parent: protoId, inputs: {}, fields: { VALUE: [name, null] },
+                shadow: true, topLevel: false
+            };
+            protoInputs[argIds[i]] = [1, repId];
+        });
+        context.extraBlocks[protoId] = {
+            opcode: 'procedures_prototype',
+            next: null, parent: defId, inputs: protoInputs, fields: {},
+            shadow: true, topLevel: false,
+            mutation: {
+                tagName: 'mutation', children: [], proccode: sig.proccode,
+                argumentids: JSON.stringify(argIds),
+                argumentnames: JSON.stringify(sig.argNames),
+                argumentdefaults: JSON.stringify(argDefaults),
+                warp: String(sig.warp)
+            }
+        };
+        const block = {
+            [defId]: {
+                opcode: 'procedures_definition',
+                next: null, parent: null, inputs: { custom_block: [1, protoId] }, fields: {},
+                shadow: false, topLevel: true
+            }
+        };
+        return { block, extraBlocks: context.extraBlocks, args };
+    }
+
+    // Try to resolve a line as a call to a registered custom block, matching the
+    // call's top-level tokens against the procedure's template token-for-token.
+    tryProcedureCall(line, target) {
+        const tokens = this.tokenizeTop(line);
+        for (const proc of this.procedures) {
+            if (proc.template.length !== tokens.length) continue;
+            const rawArgs = [];
+            let ok = true;
+            for (let i = 0; i < proc.template.length; i++) {
+                const t = proc.template[i];
+                if (t.lit) { if (tokens[i] !== t.lit) { ok = false; break; } }
+                else rawArgs.push(tokens[i]);
+            }
+            if (!ok) continue;
+
+            const context = { target, extraBlocks: {}, parentId: null };
+            const { id, block } = this.createBlock('procedures_call');
+            context.parentId = id;
+            const inputs = {};
+            proc.argIds.forEach((argId, i) => {
+                inputs[argId] = proc.argTypes[i] === 'b'
+                    ? [2, this.parseCondition(rawArgs[i], context)]
+                    : this.parseValue(rawArgs[i], context);
+            });
+            block[id].inputs = inputs;
+            block[id].mutation = {
+                tagName: 'mutation', children: [], proccode: proc.proccode,
+                argumentids: JSON.stringify(proc.argIds), warp: String(proc.warp)
+            };
+            return { block, extraBlocks: context.extraBlocks };
+        }
+        return null;
     }
 
     parseCommand(line, target) {
@@ -622,6 +810,9 @@ class SB3Creator {
         if ((match = line.match(/^turn\s+(left|right)\s+(.+)\s+degrees?$/i))) {
             const { id, block } = cmd(match[1].toLowerCase() === 'left' ? 'motion_turnleft' : 'motion_turnright');
             block[id].inputs.DEGREES = val(match[2]); return ret(block);
+        }
+        if ((match = line.match(/^turn\s+(.+)\s+degrees?$/i))) {
+            const { id, block } = cmd('motion_turnright'); block[id].inputs.DEGREES = val(match[1]); return ret(block);
         }
         if ((match = line.match(/^go to x:\s*(.+?)\s+y:\s*(.+)$/i))) {
             const { id, block } = cmd('motion_gotoxy');
@@ -760,6 +951,31 @@ class SB3Creator {
             const { id, block } = cmd('sensing_askandwait'); block[id].inputs.QUESTION = val(match[1]); return ret(block);
         }
         if (line.toLowerCase() === 'reset timer') return { block: this.createBlock('sensing_resettimer').block, extraBlocks: {} };
+        if ((match = line.match(/^set drag mode\s+(draggable|not draggable)$/i))) {
+            const { id, block } = this.createBlock('sensing_setdragmode');
+            block[id].fields.DRAG_MODE = [match[1].toLowerCase(), null];
+            return { block, extraBlocks: {} };
+        }
+
+        // ---- Music (extension) -----------------------------------------------------
+        if ((match = line.match(/^play note\s+(.+?)\s+for\s+(.+)\s+beats?$/i))) {
+            ext('music'); const { id, block } = cmd('music_playNoteForBeats');
+            block[id].inputs.NOTE = val(match[1]); block[id].inputs.BEATS = val(match[2]); return ret(block);
+        }
+        if ((match = line.match(/^play drum\s+(.+?)\s+for\s+(.+)\s+beats?$/i))) {
+            ext('music'); const { id, block } = cmd('music_playDrumForBeats');
+            block[id].inputs.DRUM = this.menuInput(context, 'music_menu_DRUM', 'DRUM', match[1].trim());
+            block[id].inputs.BEATS = val(match[2]); return ret(block);
+        }
+        if ((match = line.match(/^rest for\s+(.+)\s+beats?$/i))) {
+            ext('music'); const { id, block } = cmd('music_restForBeats'); block[id].inputs.BEATS = val(match[1]); return ret(block);
+        }
+        if ((match = line.match(/^set tempo to\s+(.+)$/i))) {
+            ext('music'); const { id, block } = cmd('music_setTempo'); block[id].inputs.TEMPO = val(match[1]); return ret(block);
+        }
+        if ((match = line.match(/^change tempo by\s+(.+)$/i))) {
+            ext('music'); const { id, block } = cmd('music_changeTempo'); block[id].inputs.TEMPO = val(match[1]); return ret(block);
+        }
 
         // ---- Lists (before the generic variable set/change) ------------------------
         if ((match = line.match(/^add\s+(.+?)\s+to\s+(.+)$/i)) && this.isListTarget(match[2], target)) {
@@ -852,6 +1068,12 @@ class SB3Creator {
             const bc = this.getOrCreateBroadcast(this.unquote(match[1]));
             const { id, block } = cmd('event_broadcast');
             block[id].inputs.BROADCAST_INPUT = [1, [11, bc.name, bc.id]]; return ret(block);
+        }
+
+        // ---- Custom block calls (before the generic variable fallback) -------------
+        if (this.procedures.length) {
+            const call = this.tryProcedureCall(line, target);
+            if (call) return call;
         }
 
         // ---- Generic variable set / change (LAST so specific commands win) ---------
@@ -1103,11 +1325,20 @@ class SB3Creator {
             return { blocks: allBlocks, firstBlockId, endIndex: i };
         };
 
+        // First pass: collect sprite names and register all custom-block signatures so
+        // forward references (sensing_of a later sprite, calling a later DEFINE) resolve.
+        for (const l of lines) {
+            const t = l.trim();
+            const sm = t.match(/^SPRITE\s+(.+?):/i);
+            if (sm) this.targetNames.add(sm[1].trim());
+            if (/^DEFINE\b/i.test(t)) this.registerProcedure(t);
+        }
+
         let i = 0;
         while (i < lines.length) {
             const line = lines[i];
             const trimmed = line.trim();
-            
+
             if (!trimmed || trimmed.startsWith('#')) {
                 i++;
                 continue;
@@ -1173,6 +1404,35 @@ class SB3Creator {
                 } catch (error) {
                     if (error.isSB3Error) {
                         this.warnings.push(`Error in line "${trimmed}": ${error.message}`);
+                        i++;
+                    } else {
+                        throw error;
+                    }
+                }
+            } else if (trimmed.startsWith('DEFINE')) {
+                try {
+                    const defData = this.parseDefine(trimmed, currentTarget);
+                    const defId = Object.keys(defData.block)[0];
+                    defData.block[defId].x = 50 + (this.scriptCount % 3) * 350;
+                    defData.block[defId].y = 50 + Math.floor(this.scriptCount / 3) * 300;
+                    this.scriptCount++;
+
+                    this.currentProcArgs = defData.args;
+                    const nextLineIndent = (i + 1 < lines.length) ? getIndent(lines[i + 1]) : 0;
+                    const result = parseStructure(i + 1, nextLineIndent, currentTarget);
+
+                    if (result.firstBlockId) {
+                        defData.block[defId].next = result.firstBlockId;
+                        result.blocks[result.firstBlockId].parent = defId;
+                    }
+
+                    Object.assign(currentTarget.blocks, defData.block, defData.extraBlocks || {}, result.blocks);
+                    this.currentProcArgs = null;
+                    i = result.endIndex;
+                } catch (error) {
+                    this.currentProcArgs = null;
+                    if (error.isSB3Error) {
+                        this.warnings.push(`Error in DEFINE "${trimmed}": ${error.message}`);
                         i++;
                     } else {
                         throw error;

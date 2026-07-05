@@ -358,7 +358,7 @@ SPRITE Head:
   WHEN flag clicked:
     FOREVER:
       IF alive = 1 THEN:
-        create clone of Body
+        broadcast "grow" and wait
         change hx by dx
         change hy by dy
         go to x: hx y: hy
@@ -377,8 +377,11 @@ SPRITE Body:
     set size to 25
     hide
 
-  WHEN I start as a clone:
+  WHEN I receive "grow":
     go to x: hx y: hy
+    create clone of myself
+
+  WHEN I start as a clone:
     show
     set life to length
     REPEAT UNTIL life < 1:
@@ -406,7 +409,309 @@ SPRITE Apple:
         IF ay > 150 THEN:
           set ay to -150
         go to x: ax y: ay
-        wait 0.2 seconds`
+        wait 0.2 seconds`,
+
+    breakout: `# Breakout — mouse-controlled paddle, bouncing ball, a wall of brick clones.
+SPRITE Paddle:
+  WHEN flag clicked:
+    set size to 70
+    set score to 0
+    set lives to 3
+    show
+  WHEN flag clicked:
+    FOREVER:
+      go to x: mouse x y: -160
+
+SPRITE Ball:
+  WHEN flag clicked:
+    set size to 40
+    set bx to 0
+    set by to -120
+    set vx to 4
+    set vy to 5
+    go to x: bx y: by
+    show
+  WHEN flag clicked:
+    FOREVER:
+      change bx by vx
+      change by by vy
+      go to x: bx y: by
+      IF bx > 230 or bx < -230 THEN:
+        set vx to vx * -1
+      IF by > 170 THEN:
+        set vy to vy * -1
+      IF touching Paddle THEN:
+        set vy to abs of vy
+      IF by < -175 THEN:
+        change lives by -1
+        set bx to 0
+        set by to -120
+        go to x: bx y: by
+        IF lives < 1 THEN:
+          say "Game Over" for 2 seconds
+          stop all
+      wait 0.01 seconds
+
+SPRITE Brick:
+  WHEN flag clicked:
+    set size to 45
+    hide
+    set by to 150
+    REPEAT 3:
+      set bx to -180
+      REPEAT 9:
+        go to x: bx y: by
+        create clone of myself
+        change bx by 45
+      change by by -30
+  WHEN I start as a clone:
+    show
+  WHEN I start as a clone:
+    FOREVER:
+      IF touching Ball THEN:
+        change score by 1
+        delete this clone`,
+
+    bomberman: `# Bomberman-lite — grid movement with wall collision, bombs (clones) that
+# explode on a timer and destroy crates and enemies.
+GLOBAL score
+GLOBAL bombx
+GLOBAL bomby
+
+SPRITE Player:
+  WHEN flag clicked:
+    set size to 32
+    set score to 0
+    set px to -180
+    set py to 140
+    go to x: px y: py
+    show
+
+  WHEN up arrow key pressed:
+    change py by 40
+    go to x: px y: py
+    IF touching Wall THEN:
+      change py by -40
+      go to x: px y: py
+  WHEN down arrow key pressed:
+    change py by -40
+    go to x: px y: py
+    IF touching Wall THEN:
+      change py by 40
+      go to x: px y: py
+  WHEN left arrow key pressed:
+    change px by -40
+    go to x: px y: py
+    IF touching Wall THEN:
+      change px by 40
+      go to x: px y: py
+  WHEN right arrow key pressed:
+    change px by 40
+    go to x: px y: py
+    IF touching Wall THEN:
+      change px by -40
+      go to x: px y: py
+
+  WHEN space key pressed:
+    set bombx to px
+    set bomby to py
+    broadcast "drop" and wait
+
+SPRITE Bomb:
+  WHEN flag clicked:
+    set size to 30
+    hide
+  WHEN I receive "drop":
+    go to x: bombx y: bomby
+    create clone of myself
+  WHEN I start as a clone:
+    set size to 30
+    show
+    wait 2 seconds
+    set size to 95
+    change color effect by 80
+    wait 0.4 seconds
+    delete this clone
+
+SPRITE Wall:
+  WHEN flag clicked:
+    set size to 40
+    hide
+    set wx to -200
+    REPEAT 11:
+      go to x: wx y: 170
+      create clone of myself
+      go to x: wx y: -170
+      create clone of myself
+      change wx by 40
+  WHEN I start as a clone:
+    show
+
+SPRITE Crate:
+  WHEN flag clicked:
+    set size to 32
+    hide
+    set cx to -100
+    REPEAT 6:
+      go to x: cx y: 40
+      create clone of myself
+      change cx by 50
+  WHEN I start as a clone:
+    show
+  WHEN I start as a clone:
+    FOREVER:
+      IF touching Bomb THEN:
+        change score by 1
+        delete this clone
+
+SPRITE Enemy:
+  WHEN flag clicked:
+    set size to 32
+    set ex to 160
+    set ey to -120
+    go to x: ex y: ey
+    show
+  WHEN flag clicked:
+    FOREVER:
+      change ex by pick random -20 to 20
+      change ey by pick random -20 to 20
+      go to x: ex y: ey
+      IF touching Bomb THEN:
+        say "hit" for 0.5 seconds
+        hide
+        stop this script
+      wait 0.3 seconds`,
+
+    tetris: `# Tetris (simplified) — a 2x2 block falls into a 10x16 grid stored in a list,
+# rows clear when full. Showcases custom blocks (with args), a list-as-2D-grid,
+# computed indices, and pen rendering. Left/Right arrows move; gravity is automatic.
+GLOBAL score
+GLOBAL pr
+GLOBAL pc
+GLOBAL cell
+GLOBAL canmove
+GLOBAL r
+GLOBAL c
+GLOBAL j
+GLOBAL tmp
+
+SPRITE Game:
+  LIST board
+
+  DEFINE FAST reset board:
+    delete all of board
+    set r to 1
+    REPEAT 160:
+      add 0 to board
+      change r by 1
+
+  DEFINE set cell (row) (col) to (v):
+    replace item ((row * 10) + col) + 1 of board with v
+
+  DEFINE read cell (row) (col):
+    set cell to item ((row * 10) + col) + 1 of board
+
+  DEFINE check fit (row) (col):
+    set canmove to 1
+    IF col < 0 or col > 8 or row > 14 THEN:
+      set canmove to 0
+    IF canmove = 1 THEN:
+      read cell row col
+      IF cell > 0 THEN:
+        set canmove to 0
+      read cell row (col + 1)
+      IF cell > 0 THEN:
+        set canmove to 0
+      read cell (row + 1) col
+      IF cell > 0 THEN:
+        set canmove to 0
+      read cell (row + 1) (col + 1)
+      IF cell > 0 THEN:
+        set canmove to 0
+
+  DEFINE lock piece:
+    set cell pr pc to 1
+    set cell pr (pc + 1) to 1
+    set cell (pr + 1) pc to 1
+    set cell (pr + 1) (pc + 1) to 1
+
+  DEFINE FAST clear full lines:
+    set r to 15
+    REPEAT 16:
+      set c to 0
+      set tmp to 0
+      REPEAT 10:
+        read cell r c
+        IF cell > 0 THEN:
+          change tmp by 1
+        change c by 1
+      IF tmp = 10 THEN:
+        set j to r
+        REPEAT UNTIL j < 1:
+          set c to 0
+          REPEAT 10:
+            read cell (j - 1) c
+            set cell j c to cell
+            change c by 1
+          change j by -1
+        change score by 1
+      change r by -1
+
+  DEFINE FAST render:
+    clear
+    set r to 0
+    REPEAT 16:
+      set c to 0
+      REPEAT 10:
+        read cell r c
+        IF cell > 0 THEN:
+          go to x: (-90) + (c * 20) y: (150) - (r * 20)
+          stamp
+        change c by 1
+      change r by 1
+    go to x: (-90) + (pc * 20) y: (150) - (pr * 20)
+    stamp
+    go to x: (-90) + ((pc + 1) * 20) y: (150) - (pr * 20)
+    stamp
+    go to x: (-90) + (pc * 20) y: (150) - ((pr + 1) * 20)
+    stamp
+    go to x: (-90) + ((pc + 1) * 20) y: (150) - ((pr + 1) * 20)
+    stamp
+
+  WHEN flag clicked:
+    set size to 55
+    hide
+    reset board
+    set score to 0
+    set pr to 0
+    set pc to 4
+    render
+    FOREVER:
+      check fit (pr + 1) pc
+      IF canmove = 1 THEN:
+        change pr by 1
+      ELSE:
+        lock piece
+        clear full lines
+        set pr to 0
+        set pc to 4
+        check fit pr pc
+        IF canmove = 0 THEN:
+          say "Game Over" for 2 seconds
+          stop all
+      render
+      wait 0.3 seconds
+
+  WHEN left arrow key pressed:
+    check fit pr (pc - 1)
+    IF canmove = 1 THEN:
+      change pc by -1
+      render
+  WHEN right arrow key pressed:
+    check fit pr (pc + 1)
+    IF canmove = 1 THEN:
+      change pc by 1
+      render`
 };
 
 export default examples;
