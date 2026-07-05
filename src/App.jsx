@@ -4,6 +4,7 @@ import examples from './utils/examples';
 
 import Header from './components/Header';
 import SyntaxGuide from './components/SyntaxGuide';
+import SvgUploader from './components/SvgUploader';
 import Examples from './components/Examples';
 import Editor from './components/Editor';
 import Controls from './components/Controls';
@@ -15,6 +16,7 @@ function App() {
     const [status, setStatus] = useState({ message: '', type: '' });
     const [isReady, setIsReady] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [svgUploads, setSvgUploads] = useState([]); // [{ sprite, filename, svg }]
     
     const creatorRef = useRef(null);
     if (!creatorRef.current) {
@@ -55,14 +57,25 @@ function App() {
         setTimeout(() => {
             try {
                 const project = creatorRef.current.parse(pseudocode);
+
+                // Bake any uploaded SVGs onto their sprites (after parse, before packaging).
+                const missing = [];
+                svgUploads.forEach((u) => {
+                    const name = (u.sprite || '').trim();
+                    if (!name || !u.svg) return;
+                    if (!creatorRef.current.applyCustomSVG(name, u.svg)) missing.push(name);
+                });
+
                 const outputJson = JSON.stringify(project, null, 2);
                 setOutput(outputJson);
 
                 creatorRef.current.generateSB3().then(() => {
                     setIsReady(true);
                     const validation = creatorRef.current.validate();
-                    if (validation.parsingWarnings.length > 0) {
-                        showStatus(`Generated with warnings: ${validation.parsingWarnings.join(', ')}`, 'warning');
+                    const warns = [...validation.parsingWarnings];
+                    if (missing.length) warns.push(`no sprite named ${missing.join(', ')} for uploaded SVG`);
+                    if (warns.length > 0) {
+                        showStatus(`Generated with warnings: ${warns.join(' · ')}`, 'warning');
                     } else {
                         showStatus('SB3 file generated successfully!', 'success');
                     }
@@ -143,6 +156,11 @@ function App() {
         reader.readAsDataURL(blob);
     };
 
+    const addSvgUpload = (u) => setSvgUploads((list) => [...list, u]);
+    const removeSvgUpload = (i) => setSvgUploads((list) => list.filter((_, idx) => idx !== i));
+    const setUploadSprite = (i, sprite) =>
+        setSvgUploads((list) => list.map((u, idx) => (idx === i ? { ...u, sprite } : u)));
+
     const handleClear = () => {
         setPseudocode('');
         setOutput('');
@@ -158,6 +176,12 @@ function App() {
                 <div className="controls-bar">
                     <Examples onExampleChange={handleExampleChange} />
                     <SyntaxGuide />
+                    <SvgUploader
+                        uploads={svgUploads}
+                        onAdd={addSvgUpload}
+                        onRemove={removeSvgUpload}
+                        onSpriteChange={setUploadSprite}
+                    />
                 </div>
                 
                 <Editor

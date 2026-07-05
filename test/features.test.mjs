@@ -263,6 +263,23 @@ SPRITE Ball:
     assert.equal(c.warnings.length, 0);
 });
 
+test('applyCustomSVG bakes an uploaded SVG onto a named sprite', () => {
+    const c = build('SPRITE Hero:\n  WHEN flag clicked:\n    show');
+    const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="120" height="90" viewBox="0 0 120 90"><rect width="120" height="90" fill="purple"/></svg>';
+    assert.equal(c.applyCustomSVG('Hero', svg), true);
+    assert.equal(c.applyCustomSVG('Nope', svg), false, 'unknown sprite returns false');
+    const hero = target(c, 'Hero');
+    assert.equal(c.assets.get(hero.costumes[0].assetId).data, svg, 'the uploaded SVG is the costume');
+    assert.equal(hero.costumes[0].rotationCenterX, 60);
+    assert.equal(hero.costumes[0].rotationCenterY, 45);
+    // dimensions fall back to viewBox when width/height are missing
+    const c2 = build('SPRITE A:\n  WHEN flag clicked:\n    show');
+    c2.applyCustomSVG('A', '<svg viewBox="0 0 40 20"><rect width="40" height="20"/></svg>');
+    const a = target(c2, 'A');
+    assert.equal(a.costumes[0].rotationCenterX, 20);
+    assert.equal(a.costumes[0].rotationCenterY, 10);
+});
+
 test('SHAPE polygon bakes an arbitrary custom SVG costume', () => {
     const c = build(`SPRITE Rocket:
   SHAPE polygon 20 0 40 40 20 30 0 40 #ff5533

@@ -1816,6 +1816,36 @@ class SB3Creator {
 
         return { assetId, costume };
     }
+
+    // Read width/height from raw SVG text (attributes first, then viewBox), no DOM.
+    svgDimensions(svgText) {
+        const wm = svgText.match(/\bwidth\s*=\s*"([\d.]+)/i);
+        const hm = svgText.match(/\bheight\s*=\s*"([\d.]+)/i);
+        let w = wm ? parseFloat(wm[1]) : 0;
+        let h = hm ? parseFloat(hm[1]) : 0;
+        if (!w || !h) {
+            const vb = svgText.match(/viewBox\s*=\s*"\s*[-\d.]+\s+[-\d.]+\s+([\d.]+)\s+([\d.]+)/i);
+            if (vb) { w = w || parseFloat(vb[1]); h = h || parseFloat(vb[2]); }
+        }
+        return { width: w || 80, height: h || 80 };
+    }
+
+    // Bake a user-supplied SVG in as a named sprite's costume (replacing costume 1).
+    // Returns true if the sprite exists. Used by the app's SVG-upload feature.
+    applyCustomSVG(spriteName, svgText) {
+        const target = this.project.targets.find(t => !t.isStage && t.name === spriteName);
+        if (!target) return false;
+        const { width, height } = this.svgDimensions(svgText);
+        const assetId = this.generateAssetId();
+        this.assets.set(assetId, { type: 'svg', data: svgText, filename: `${assetId}.svg`, metadata: { width, height } });
+        const old = target.costumes[0];
+        if (old && old.assetId) this.assets.delete(old.assetId);
+        target.costumes[0] = {
+            assetId, name: 'costume1', md5ext: `${assetId}.svg`, dataFormat: 'svg',
+            rotationCenterX: width / 2, rotationCenterY: height / 2
+        };
+        return true;
+    }
 }
 
 export default SB3Creator;

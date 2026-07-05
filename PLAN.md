@@ -249,3 +249,15 @@ harness closes that gap.
   end-to-end against the **live** editor: a generated game loads with all sprites, shapes,
   blocks, and variable monitors intact.
 - [x] Halved default tone-sound sample rate to shrink projects (pong 103KB -> 64KB).
+
+## 17. Round 10 — Connect Four, custom SVG upload
+
+- [x] **Connect Four (vs AI):** gravity-drop discs + a custom block scanning every
+  4-in-a-row window; the AI wins/blocks/plays-centre. VM-tested (discs stack, AI blocks
+  an open three). Bug found via the VM: the AI loop shared globals with the `check win`
+  block it called, clobbering its counter — fixed with a private loop variable.
+- [x] **Custom SVG upload:** `applyCustomSVG(sprite, svgText)` bakes a user-supplied SVG
+  in as a sprite's costume; a new `SvgUploader` panel in the app lets you drop in `.svg`
+  files, assign each to a sprite by name, and Generate bakes them in (and they ride into
+  Scratch via the "Open in Scratch" button). Verified end-to-end by driving the running
+  app with Playwright.
