@@ -309,10 +309,16 @@ built on TurboWarp. The compiler (`src/lib/sb3-creator.js`) is vendored from thi
 
 ## 21. Roadmap
 
-- [ ] **Decompiler + block⇄code round-trip** (in progress). `decompile(project) → pseudocode`
-  — the inverse walker (same shape as the LEGO transpilers' `processBlockChain`). Round-trip
-  tested (`pseudocode → blocks → pseudocode → blocks`, compare structure + VM behaviour),
-  then wired into the Pseudocode tab so switching to it shows the current project as code.
+- [x] **Decompiler + block⇄code round-trip** (done). `decompile(project) → pseudocode`
+  — the inverse walker (same shape as the LEGO transpilers' `processBlockChain`). Emits
+  GLOBAL/LIST/BACKDROP/SOUND declarations, then per-sprite COSTUME/SOUND + scripts, with
+  reporters parenthesised so each value is a single token. Round-trip tested
+  (`pseudocode → blocks → pseudocode → blocks`) across all 28 examples: identical block
+  structure, zero recompile warnings, VM behaviour preserved (`test/decompile.test.mjs` +
+  a behavioural check in `test/vm.test.mjs`). Also verified against real `vm.toJSON()`
+  output. Wired into the TurboWarp Pseudocode tab as a **⟵ From blocks** button next to
+  **Compile & Load**, making the tab a true two-way block⇄code view (verified live at
+  crispstrobe.github.io/scratch-gui via Playwright).
 - [ ] **Extension-aware compilation** — read loaded extensions' block metadata
   (`vm.runtime._blockInfo`: opcode + text template + typed args) and auto-derive pseudocode
   grammar, so a LEGO walker gait can be written in pseudocode and emit `spikeprimeble_*`
