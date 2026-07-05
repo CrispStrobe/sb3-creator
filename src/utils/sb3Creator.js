@@ -1847,6 +1847,300 @@ class SB3Creator {
         return true;
     }
 
+    // ===== Decompiler: project blocks -> pseudocode (inverse of the parser) =========
+
+    // Decompile a whole project back into pseudocode.
+    decompile(project = this.project) {
+        const out = [];
+        const stage = project.targets.find(t => t.isStage);
+        for (const v of Object.values(stage.variables || {})) out.push(`GLOBAL ${v[0]}`);
+        for (const l of Object.values(stage.lists || {})) out.push(`GLOBAL LIST ${l[0]}`);
+        for (const bd of (stage.costumes || []).slice(1)) out.push(`BACKDROP ${bd.name}`);
+        for (const snd of (stage.sounds || []).slice(1)) out.push(`SOUND ${snd.name}`);
+        if (out.length) out.push('');
+
+        for (const t of project.targets) {
+            const scripts = this.decompileTargetScripts(t);
+            if (t.isStage) {
+                if (scripts.length) {
+                    out.push('STAGE:');
+                    out.push(...scripts.map(l => (l ? `  ${l}` : l)));
+                    out.push('');
+                }
+            } else {
+                out.push(`SPRITE ${t.name}:`);
+                for (const v of Object.values(t.variables || {})) out.push(`  LOCAL ${v[0]}`);
+                for (const l of Object.values(t.lists || {})) out.push(`  LOCAL LIST ${l[0]}`);
+                for (const cos of (t.costumes || []).slice(1)) out.push(`  COSTUME ${cos.name}`);
+                for (const snd of (t.sounds || []).slice(1)) out.push(`  SOUND ${snd.name}`);
+                out.push(...scripts.map(l => (l ? `  ${l}` : l)));
+                out.push('');
+            }
+        }
+        return out.join('\n').replace(/\n{3,}/g, '\n\n').trim() + '\n';
+    }
+
+    decompileTargetScripts(target) {
+        const blocks = target.blocks || {};
+        const lines = [];
+        const tops = Object.entries(blocks).filter(([, b]) => b.topLevel && !b.shadow);
+        for (const [, b] of tops) {
+            const hat = this.decompileHat(b, blocks);
+            if (hat === null) continue;
+            lines.push(hat);
+            lines.push(...this.decompileStackFrom(b.next, blocks, 1));
+            lines.push('');
+        }
+        return lines;
+    }
+
+    decompileStackFrom(firstId, blocks, level) {
+        const lines = [];
+        let id = firstId;
+        while (id && blocks[id]) {
+            lines.push(...this.decompileStackBlock(blocks[id], blocks, level));
+            id = blocks[id].next;
+        }
+        return lines;
+    }
+
+    // Decompile a value input -> pseudocode expression. Compound reporters are wrapped
+    // in parens so the result is always a single top-level token.
+    dval(input, blocks) {
+        if (!Array.isArray(input)) return '';
+        const inner = input[1];
+        if (Array.isArray(inner)) {
+            const [type, a, b] = inner;
+            if (type === 4) return String(a);
+            if (type === 10) return `"${a}"`;
+            if (type === 9) return String(a);
+            if (type === 11) return `"${a}"`;      // broadcast
+            if (type === 12) return String(a);      // variable name
+            if (type === 13) return String(a);      // list name
+            return String(a);
+            void b;
+        }
+        // block reference (a reporter)
+        return `(${this.drep(blocks[inner], blocks)})`;
+    }
+
+    // Decompile a reporter block (without outer parens).
+    drep(b, blocks) {
+        if (!b) return '';
+        const v = (k) => this.dval(b.inputs[k], blocks);
+        const f = (k) => (b.fields[k] ? b.fields[k][0] : '');
+        switch (b.opcode) {
+            case 'operator_add': return `${v('NUM1')} + ${v('NUM2')}`;
+            case 'operator_subtract': return `${v('NUM1')} - ${v('NUM2')}`;
+            case 'operator_multiply': return `${v('NUM1')} * ${v('NUM2')}`;
+            case 'operator_divide': return `${v('NUM1')} / ${v('NUM2')}`;
+            case 'operator_mod': return `${v('NUM1')} mod ${v('NUM2')}`;
+            case 'operator_random': return `pick random ${v('FROM')} to ${v('TO')}`;
+            case 'operator_round': return `round ${v('NUM')}`;
+            case 'operator_mathop': return `${f('OPERATOR')} of ${v('NUM')}`;
+            case 'operator_join': return `${v('STRING1')} join ${v('STRING2')}`;
+            case 'operator_letter_of': return `letter ${v('LETTER')} of ${v('STRING')}`;
+            case 'operator_length': return `length of ${v('STRING')}`;
+            case 'operator_contains': return `${v('STRING1')} contains ${v('STRING2')}`;
+            case 'data_itemoflist': return `item ${v('INDEX')} of ${f('LIST')}`;
+            case 'data_itemnumoflist': return `item # of ${v('ITEM')} in ${f('LIST')}`;
+            case 'data_lengthoflist': return `length of ${f('LIST')}`;
+            case 'data_listcontainsitem': return `${f('LIST')} contains ${v('ITEM')}`;
+            case 'motion_xposition': return 'x position';
+            case 'motion_yposition': return 'y position';
+            case 'motion_direction': return 'direction';
+            case 'looks_size': return 'size';
+            case 'looks_costumenumbername': return `costume ${f('NUMBER_NAME')}`;
+            case 'looks_backdropnumbername': return `backdrop ${f('NUMBER_NAME')}`;
+            case 'sound_volume': return 'volume';
+            case 'sensing_answer': return 'answer';
+            case 'sensing_timer': return 'timer';
+            case 'sensing_mousex': return 'mouse x';
+            case 'sensing_mousey': return 'mouse y';
+            case 'sensing_loudness': return 'loudness';
+            case 'sensing_username': return 'username';
+            case 'sensing_dayssince2000': return 'days since 2000';
+            case 'sensing_distanceto': return `distance to ${this.dmenu(b.inputs.DISTANCETOMENU, blocks, 'DISTANCETOMENU')}`;
+            case 'sensing_current': return f('CURRENTMENU') === 'DAYOFWEEK' ? 'day of week' : `current ${f('CURRENTMENU').toLowerCase()}`;
+            case 'sensing_of': return `${this.dprop(f('PROPERTY'))} of ${this.dmenu(b.inputs.OBJECT, blocks, 'OBJECT')}`;
+            case 'argument_reporter_string_number':
+            case 'argument_reporter_boolean': return f('VALUE');
+            default: return b.opcode;
+        }
+    }
+
+    dprop(p) { return p === 'costume #' ? 'costume number' : p === 'backdrop #' ? 'backdrop number' : p; }
+
+    // Decompile a boolean input/block -> condition text.
+    dcond(ref, blocks) {
+        const b = typeof ref === 'string' ? blocks[ref] : blocks[ref];
+        if (!b) return '';
+        const v = (k) => this.dval(b.inputs[k], blocks);
+        const c = (k) => this.dcond(b.inputs[k][1], blocks);
+        switch (b.opcode) {
+            case 'operator_gt': return `${v('OPERAND1')} > ${v('OPERAND2')}`;
+            case 'operator_lt': return `${v('OPERAND1')} < ${v('OPERAND2')}`;
+            case 'operator_equals': return `${v('OPERAND1')} = ${v('OPERAND2')}`;
+            case 'operator_and': return `(${c('OPERAND1')}) and (${c('OPERAND2')})`;
+            case 'operator_or': return `(${c('OPERAND1')}) or (${c('OPERAND2')})`;
+            case 'operator_not': return `not (${c('OPERAND')})`;
+            case 'operator_contains': return `${v('STRING1')} contains ${v('STRING2')}`;
+            case 'data_listcontainsitem': return `${b.fields.LIST[0]} contains ${v('ITEM')}`;
+            case 'sensing_touchingobject': return `touching ${this.dmenu(b.inputs.TOUCHINGOBJECTMENU, blocks, 'TOUCHINGOBJECTMENU')}`;
+            case 'sensing_touchingcolor': return `touching color ${v('COLOR')}`;
+            case 'sensing_keypressed': return `key ${this.dmenu(b.inputs.KEY_OPTION, blocks, 'KEY_OPTION')} pressed?`;
+            case 'sensing_mousedown': return 'mouse down?';
+            case 'argument_reporter_boolean': return b.fields.VALUE[0];
+            default: return this.drep(b, blocks);
+        }
+    }
+
+    // Read a dropdown menu shadow's value and map internal names back to pseudocode.
+    dmenu(input, blocks, field) {
+        if (!Array.isArray(input)) return '';
+        const shadow = blocks[input[1]];
+        const val = shadow && shadow.fields && shadow.fields[field] ? shadow.fields[field][0] : '';
+        const map = { _edge_: 'edge', _mouse_: 'mouse-pointer', _myself_: 'myself', _random_: 'random position', _stage_: 'Stage' };
+        return map[val] || val;
+    }
+
+    decompileHat(b, blocks) {
+        const f = (k) => (b.fields[k] ? b.fields[k][0] : '');
+        switch (b.opcode) {
+            case 'event_whenflagclicked': return 'WHEN flag clicked:';
+            case 'event_whenkeypressed': return `WHEN ${f('KEY_OPTION')} key pressed:`;
+            case 'event_whenthisspriteclicked': return 'WHEN sprite clicked:';
+            case 'event_whenbroadcastreceived': return `WHEN I receive "${f('BROADCAST_OPTION')}":`;
+            case 'control_start_as_clone': return 'WHEN I start as a clone:';
+            case 'procedures_definition': {
+                const proto = blocks[b.inputs.custom_block[1]];
+                const m = proto.mutation;
+                const names = JSON.parse(m.argumentnames || '[]');
+                let ai = 0;
+                const sig = m.proccode.replace(/%[sb]/g, (tok) => {
+                    const nm = names[ai++];
+                    return tok === '%b' ? `<${nm}>` : `(${nm})`;
+                });
+                return `DEFINE ${m.warp === 'true' ? 'FAST ' : ''}${sig}:`;
+            }
+            default: return null;
+        }
+    }
+
+    // Decompile a stack block (and any nested substacks) into pseudocode lines.
+    decompileStackBlock(b, blocks, level) {
+        const pad = '  '.repeat(level);
+        const v = (k) => this.dval(b.inputs[k], blocks);
+        const f = (k) => (b.fields[k] ? b.fields[k][0] : '');
+        const sub = (k, lvl) => (b.inputs[k] ? this.decompileStackFrom(b.inputs[k][1], blocks, lvl) : []);
+        const line = (txt) => [pad + txt];
+
+        switch (b.opcode) {
+            // ---- control structures ----
+            case 'control_forever': return [pad + 'FOREVER:', ...sub('SUBSTACK', level + 1)];
+            case 'control_repeat': return [pad + `REPEAT ${v('TIMES')}:`, ...sub('SUBSTACK', level + 1)];
+            case 'control_repeat_until': return [pad + `REPEAT UNTIL ${this.dcond(b.inputs.CONDITION[1], blocks)}:`, ...sub('SUBSTACK', level + 1)];
+            case 'control_if': return [pad + `IF ${this.dcond(b.inputs.CONDITION[1], blocks)} THEN:`, ...sub('SUBSTACK', level + 1)];
+            case 'control_if_else': return [
+                pad + `IF ${this.dcond(b.inputs.CONDITION[1], blocks)} THEN:`, ...sub('SUBSTACK', level + 1),
+                pad + 'ELSE:', ...sub('SUBSTACK2', level + 1)
+            ];
+            case 'control_wait': return line(`wait ${v('DURATION')} seconds`);
+            case 'control_wait_until': return line(`wait until ${this.dcond(b.inputs.CONDITION[1], blocks)}`);
+            case 'control_stop': return line(f('STOP_OPTION') === 'all' ? 'stop all' : f('STOP_OPTION') === 'this script' ? 'stop this script' : 'stop other scripts in sprite');
+            case 'control_create_clone_of': return line(`create clone of ${this.dmenu(b.inputs.CLONE_OPTION, blocks, 'CLONE_OPTION')}`);
+            case 'control_delete_this_clone': return line('delete this clone');
+            // ---- motion ----
+            case 'motion_movesteps': return line(`move ${v('STEPS')} steps`);
+            case 'motion_turnright': return line(`turn right ${v('DEGREES')} degrees`);
+            case 'motion_turnleft': return line(`turn left ${v('DEGREES')} degrees`);
+            case 'motion_gotoxy': return line(`go to x: ${v('X')} y: ${v('Y')}`);
+            case 'motion_glidesecstoxy': return line(`glide ${v('SECS')} secs to x: ${v('X')} y: ${v('Y')}`);
+            case 'motion_glideto': return line(`glide ${v('SECS')} secs to ${this.dmenu(b.inputs.TO, blocks, 'TO')}`);
+            case 'motion_goto': return line(`go to ${this.dmenu(b.inputs.TO, blocks, 'TO')}`);
+            case 'motion_changexby': return line(`change x by ${v('DX')}`);
+            case 'motion_changeyby': return line(`change y by ${v('DY')}`);
+            case 'motion_setx': return line(`set x to ${v('X')}`);
+            case 'motion_sety': return line(`set y to ${v('Y')}`);
+            case 'motion_pointindirection': return line(`point in direction ${v('DIRECTION')}`);
+            case 'motion_pointtowards': return line(`point towards ${this.dmenu(b.inputs.TOWARDS, blocks, 'TOWARDS')}`);
+            case 'motion_ifonedgebounce': return line('if on edge bounce');
+            case 'motion_setrotationstyle': return line(`set rotation style ${f('STYLE')}`);
+            // ---- looks ----
+            case 'looks_sayforsecs': return line(`say ${v('MESSAGE')} for ${v('SECS')} seconds`);
+            case 'looks_say': return line(`say ${v('MESSAGE')}`);
+            case 'looks_thinkforsecs': return line(`think ${v('MESSAGE')} for ${v('SECS')} seconds`);
+            case 'looks_think': return line(`think ${v('MESSAGE')}`);
+            case 'looks_show': return line('show');
+            case 'looks_hide': return line('hide');
+            case 'looks_switchcostumeto': return line(`switch costume to ${v('COSTUME')}`);
+            case 'looks_nextcostume': return line('next costume');
+            case 'looks_switchbackdropto': return line(`switch backdrop to ${this.dmenu(b.inputs.BACKDROP, blocks, 'BACKDROP')}`);
+            case 'looks_nextbackdrop': return line('next backdrop');
+            case 'looks_changesizeby': return line(`change size by ${v('CHANGE')}`);
+            case 'looks_setsizeto': return line(`set size to ${v('SIZE')}`);
+            case 'looks_changeeffectby': return line(`change ${f('EFFECT').toLowerCase()} effect by ${v('CHANGE')}`);
+            case 'looks_seteffectto': return line(`set ${f('EFFECT').toLowerCase()} effect to ${v('VALUE')}`);
+            case 'looks_cleargraphiceffects': return line('clear graphic effects');
+            case 'looks_gotofrontback': return line(f('FRONT_BACK') === 'back' ? 'go to back' : 'go to front');
+            case 'looks_goforwardbackwardlayers': return line(`go ${f('FORWARD_BACKWARD')} ${v('NUM')} layers`);
+            // ---- sound / pen / sensing / music ----
+            case 'sound_playuntildone': return line(`play sound ${v('SOUND_MENU')} until done`);
+            case 'sound_play': return line(`play sound ${v('SOUND_MENU')}`);
+            case 'sound_stopallsounds': return line('stop all sounds');
+            case 'sound_changevolumeby': return line(`change volume by ${v('VOLUME')}`);
+            case 'sound_setvolumeto': return line(`set volume to ${v('VOLUME')}`);
+            case 'pen_clear': return line('clear');
+            case 'pen_stamp': return line('stamp');
+            case 'pen_penDown': return line('pen down');
+            case 'pen_penUp': return line('pen up');
+            case 'pen_setPenColorToColor': return line(`set pen color to ${v('COLOR')}`);
+            case 'pen_changePenSizeBy': return line(`change pen size by ${v('SIZE')}`);
+            case 'pen_setPenSizeTo': return line(`set pen size to ${v('SIZE')}`);
+            case 'sensing_askandwait': return line(`ask ${v('QUESTION')} and wait`);
+            case 'sensing_resettimer': return line('reset timer');
+            case 'sensing_setdragmode': return line(`set drag mode ${f('DRAG_MODE')}`);
+            case 'music_playNoteForBeats': return line(`play note ${v('NOTE')} for ${v('BEATS')} beats`);
+            case 'music_playDrumForBeats': return line(`play drum ${this.dmenu(b.inputs.DRUM, blocks, 'DRUM')} for ${v('BEATS')} beats`);
+            case 'music_restForBeats': return line(`rest for ${v('BEATS')} beats`);
+            case 'music_setTempo': return line(`set tempo to ${v('TEMPO')}`);
+            case 'music_changeTempo': return line(`change tempo by ${v('TEMPO')}`);
+            // ---- data ----
+            case 'data_setvariableto': return line(`set ${f('VARIABLE')} to ${v('VALUE')}`);
+            case 'data_changevariableby': return line(`change ${f('VARIABLE')} by ${v('VALUE')}`);
+            case 'data_addtolist': return line(`add ${v('ITEM')} to ${f('LIST')}`);
+            case 'data_deleteoflist': return line(`delete ${v('INDEX')} of ${f('LIST')}`);
+            case 'data_deletealloflist': return line(`delete all of ${f('LIST')}`);
+            case 'data_insertatlist': return line(`insert ${v('ITEM')} at ${v('INDEX')} of ${f('LIST')}`);
+            case 'data_replaceitemoflist': return line(`replace item ${v('INDEX')} of ${f('LIST')} with ${v('ITEM')}`);
+            case 'data_showlist': return line(`show list ${f('LIST')}`);
+            case 'data_hidelist': return line(`hide list ${f('LIST')}`);
+            case 'data_showvariable': return line(`show variable ${f('VARIABLE')}`);
+            case 'data_hidevariable': return line(`hide variable ${f('VARIABLE')}`);
+            // ---- broadcasts ----
+            case 'event_broadcast': return line(`broadcast ${this.dbroadcast(b.inputs.BROADCAST_INPUT)}`);
+            case 'event_broadcastandwait': return line(`broadcast ${this.dbroadcast(b.inputs.BROADCAST_INPUT)} and wait`);
+            // ---- custom block calls ----
+            case 'procedures_call': {
+                const m = b.mutation;
+                const argIds = JSON.parse(m.argumentids || '[]');
+                let ai = 0;
+                const text = m.proccode.replace(/%[sb]/g, (tok) => {
+                    const input = b.inputs[argIds[ai++]];
+                    if (tok === '%b') return `(${this.dcond(input[1], blocks)})`;
+                    return this.dval(input, blocks);
+                });
+                return line(text);
+            }
+            default: return line(`# unsupported: ${b.opcode}`);
+        }
+    }
+
+    dbroadcast(input) {
+        if (Array.isArray(input) && Array.isArray(input[1]) && input[1][0] === 11) return `"${input[1][1]}"`;
+        return '"message1"';
+    }
+
     // Append a user-supplied SVG as an extra costume (animation frame) on a sprite.
     addCustomSVGCostume(spriteName, svgText, costumeName) {
         const target = this.project.targets.find(t => !t.isStage && t.name === spriteName);

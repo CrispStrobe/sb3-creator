@@ -271,3 +271,51 @@ harness closes that gap.
   region via a worklist queue stored in a list. VM-tested (a click on a 0-neighbour cell
   cascades to reveal ~49 cells). Surfaced an ergonomic rule: a computed custom-block
   argument must be a single token, so `((r*9)+c)+1` must be wrapped as `(((r*9)+c)+1)`.
+
+## 19. Round 12 — integration into the TurboWarp fork (CrispStrobe/scratch-gui)
+
+Everything below lives in the **scratch-gui fork** (branch `develop`, deployed to gh-pages),
+built on TurboWarp. The compiler (`src/lib/sb3-creator.js`) is vendored from this repo.
+
+- [x] **"Open in Scratch" button** (this repo): opens the generated project in the hosted
+  editor by passing the whole `.sb3` as a `data:` URL in the location **hash** (fragment
+  isn't sent to the server → avoids the `414 URI Too Long` a query string hits).
+- [x] **scratch-gui: `project_url` via hash** — `project-fetcher-hoc` reads `project_url`
+  from the hash as well as the query, so the handoff works.
+- [x] **scratch-gui: `#pseudocode=<code>`** — the fetcher compiles pseudocode in-browser
+  (lazy-loaded compiler chunk) and loads it. Tiny URL (pong is ~3KB of code vs ~90KB as a
+  `.sb3`).
+- [x] **scratch-gui: a real "Pseudocode" editor tab** next to Code / Costumes / Sounds
+  (not a floating panel — first attempt was a bottom-left overlay, replaced per feedback).
+  The tab holds a pseudocode textarea + per-sprite SVG-costume upload + "Compile & Load",
+  which runs the compiler + `applyCustomSVG` and calls `vm.loadProject`. Verified in a
+  local headless build.
+- [x] **Deploy:** the Pages build hung until a `.nojekyll` was added (Jekyll was choking on
+  the JS bundles); with it, builds are fast and the live editor picks up new chunks.
+
+## 20. Ecosystem notes (CrispStrobe LEGO toolchain)
+
+- The LEGO transpilers (`lego-nxt-bt/*_transpile*.js`, `ev3_universal.js`, …) are
+  **block-tree walkers**: `transpileProject()` → `processBlockChain()` (follows `next`,
+  recurses substacks) → `processBlock()` (opcode switch → emit target code), targeting
+  **LMS assembly / ev3dev Python / NXC**, then the external `lego-compiler` API
+  (NBC + ev3dev `lmsasm`) turns those into `.rxe` / `.rbf` bytecode for the brick.
+- `Makeblock-official/mBlock` is **mBlock 3** (ActionScript / Scratch 2.0 / 2017, GPL-2.0),
+  not the modern React switch. Its `ArduinoManager.as` is the same recursive walker with
+  per-opcode `parseX` emitters → Arduino C (one-way "code mode"). The pattern is universal;
+  the code isn't portable.
+- Conclusion: blocks-as-hub, with one-way walkers everywhere. We can do a genuine
+  **round-trip** for our DSL because we own both directions.
+
+## 21. Roadmap
+
+- [ ] **Decompiler + block⇄code round-trip** (in progress). `decompile(project) → pseudocode`
+  — the inverse walker (same shape as the LEGO transpilers' `processBlockChain`). Round-trip
+  tested (`pseudocode → blocks → pseudocode → blocks`, compare structure + VM behaviour),
+  then wired into the Pseudocode tab so switching to it shows the current project as code.
+- [ ] **Extension-aware compilation** — read loaded extensions' block metadata
+  (`vm.runtime._blockInfo`: opcode + text template + typed args) and auto-derive pseudocode
+  grammar, so a LEGO walker gait can be written in pseudocode and emit `spikeprimeble_*`
+  opcodes + `extensions[]`.
+- [ ] **Later:** mirror Makeblock's device-connection UX for the LEGO extensions;
+  MakeCode-style micro:bit support (simulator + upload + device panel) in the GUI.

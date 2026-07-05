@@ -332,4 +332,40 @@ test('vm: Minesweeper flood-fill reveals a connected empty region', async () => 
     assert.ok(revealed > 3, `flood-fill should reveal a region, got ${revealed}`);
 });
 
+test('vm: decompile round-trip preserves behaviour', async () => {
+    const src = `SPRITE Calc:
+  DEFINE add (n) times (k):
+    set i to 0
+    REPEAT UNTIL i > k:
+      change total by n
+      change i by 1
+  WHEN flag clicked:
+    set total to 0
+    set a to (2 + 3) * 4
+    set b to 17 mod 5
+    add 5 times 2
+    add 10 times 0`;
+    const runState = async (code) => {
+        const c = new SB3Creator();
+        c.parse(code);
+        const vm = new VM();
+        await vm.loadProject(Buffer.from(await (await c.generateSB3()).arrayBuffer()));
+        vm.start();
+        vm.greenFlag();
+        for (let i = 0; i < 80; i++) vm.runtime._step();
+        const st = {};
+        for (const t of vm.runtime.targets) for (const v of Object.values(t.variables)) st[v.name] = String(v.value);
+        vm.quit();
+        return st;
+    };
+    const before = await runState(src);
+    const c = new SB3Creator();
+    c.parse(src);
+    const after = await runState(c.decompile());
+    assert.equal(after.total, '25');
+    assert.equal(after.a, '20');
+    assert.equal(after.b, '2');
+    assert.deepEqual(after, before, 'variable state identical before/after round trip');
+});
+
 test.after(() => { console.warn = origWarn; });
