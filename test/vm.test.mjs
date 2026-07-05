@@ -302,4 +302,34 @@ test('vm: Connect Four AI drops with gravity and blocks a three-in-a-row', async
     assert.equal(b[38], 2, 'AI blocked the open three at column 3');
 });
 
+test('vm: Minesweeper flood-fill reveals a connected empty region', async () => {
+    const c = new SB3Creator();
+    c.parse(examples.minesweeper);
+    const vm = new VM();
+    await vm.loadProject(Buffer.from(await (await c.generateSB3()).arrayBuffer()));
+    vm.start();
+    vm.greenFlag();
+    for (let i = 0; i < 20; i++) vm.runtime._step();
+    const list = (n) => {
+        for (const t of vm.runtime.targets) for (const x of Object.values(t.variables)) if (x.name === n) return x.value;
+    };
+    const mine = list('mine');
+    const adj = list('adj');
+    assert.equal(mine.filter((x) => String(x) === '1').length, 10, '10 mines placed');
+    // find a 0-neighbour, non-mine cell and click it
+    let tgt = -1;
+    for (let idx = 0; idx < 81; idx++) if (String(mine[idx]) === '0' && String(adj[idx]) === '0') { tgt = idx; break; }
+    assert.ok(tgt >= 0, 'there is an empty cell to click');
+    const r = Math.floor(tgt / 9), col = tgt % 9;
+    const x = ((-136 + col * 34 + 240) / 480) * 480;
+    const y = ((180 - (136 - r * 34)) / 360) * 360;
+    vm.postIOData('mouse', { x, y, canvasWidth: 480, canvasHeight: 360, isDown: true });
+    for (let i = 0; i < 60; i++) vm.runtime._step();
+    vm.postIOData('mouse', { x, y, canvasWidth: 480, canvasHeight: 360, isDown: false });
+    for (let i = 0; i < 10; i++) vm.runtime._step();
+    const revealed = list('revealed').filter((x) => String(x) === '1').length;
+    vm.quit();
+    assert.ok(revealed > 3, `flood-fill should reveal a region, got ${revealed}`);
+});
+
 test.after(() => { console.warn = origWarn; });

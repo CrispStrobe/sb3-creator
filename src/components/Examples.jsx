@@ -22,6 +22,7 @@ const GROUPS = [
             ['g2048', '🔢 2048'],
             ['maze', '👻 Maze Chase'],
             ['connect4', '🔴 Connect Four (vs AI)'],
+            ['minesweeper', '💥 Minesweeper'],
         ],
     },
     {

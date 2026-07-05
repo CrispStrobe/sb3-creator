@@ -1804,6 +1804,140 @@ SPRITE Game:
             set turn to 2
             ai move
         wait until not mouse down?
+      wait 0.02 seconds`,
+
+    minesweeper: `// Minesweeper — click to reveal a cell. Clicking a mine ends the game; clicking an
+// empty (0-neighbour) cell flood-fills the whole connected empty region using a
+// worklist queue stored in a list. 9x9 grid, 10 mines. Cells are colour-coded:
+// gray = hidden, light = revealed (tinted by neighbour count), red = a mine.
+GLOBAL over
+GLOBAL i
+GLOBAL r
+GLOBAL c
+GLOBAL cnt
+GLOBAL ci
+GLOBAL qi
+GLOBAL fr
+GLOBAL fc
+GLOBAL nidx
+GLOBAL placed
+GLOBAL col
+GLOBAL row
+
+SPRITE Game:
+  SHAPE square 100
+  LIST mine
+  LIST revealed
+  LIST adj
+  LIST queue
+
+  DEFINE countmine (nr) (nc):
+    IF nr > -1 and nr < 9 and nc > -1 and nc < 9 THEN:
+      IF item ((nr * 9) + nc) + 1 of mine = 1 THEN:
+        change cnt by 1
+
+  DEFINE FAST reset:
+    delete all of mine
+    delete all of revealed
+    delete all of adj
+    delete all of queue
+    REPEAT 81:
+      add 0 to mine
+      add 0 to revealed
+      add 0 to adj
+    set placed to 0
+    REPEAT UNTIL placed = 10:
+      set ci to pick random 1 to 81
+      IF item ci of mine = 0 THEN:
+        replace item ci of mine with 1
+        change placed by 1
+    set i to 0
+    REPEAT 81:
+      set r to floor of (i / 9)
+      set c to i mod 9
+      set cnt to 0
+      countmine (r - 1) (c - 1)
+      countmine (r - 1) c
+      countmine (r - 1) (c + 1)
+      countmine r (c - 1)
+      countmine r (c + 1)
+      countmine (r + 1) (c - 1)
+      countmine (r + 1) c
+      countmine (r + 1) (c + 1)
+      replace item (i + 1) of adj with cnt
+      change i by 1
+    set over to 0
+
+  DEFINE pushn (nr) (nc):
+    IF nr > -1 and nr < 9 and nc > -1 and nc < 9 THEN:
+      set nidx to ((nr * 9) + nc) + 1
+      IF item nidx of revealed = 0 and item nidx of mine = 0 THEN:
+        add nidx to queue
+
+  DEFINE flood (start):
+    delete all of queue
+    add start to queue
+    REPEAT UNTIL length of queue = 0:
+      set qi to item 1 of queue
+      delete 1 of queue
+      IF item qi of revealed = 0 THEN:
+        replace item qi of revealed with 1
+        IF item qi of adj = 0 THEN:
+          set fr to floor of ((qi - 1) / 9)
+          set fc to (qi - 1) mod 9
+          pushn (fr - 1) (fc - 1)
+          pushn (fr - 1) fc
+          pushn (fr - 1) (fc + 1)
+          pushn fr (fc - 1)
+          pushn fr (fc + 1)
+          pushn (fr + 1) (fc - 1)
+          pushn (fr + 1) fc
+          pushn (fr + 1) (fc + 1)
+
+  DEFINE reveal (cell):
+    IF item cell of revealed = 0 and over = 0 THEN:
+      IF item cell of mine = 1 THEN:
+        replace item cell of revealed with 1
+        set over to 1
+        render
+        say "Boom!" for 2 seconds
+        stop all
+      IF item cell of mine = 0 THEN:
+        IF item cell of adj = 0 THEN:
+          flood cell
+        IF item cell of adj > 0 THEN:
+          replace item cell of revealed with 1
+        render
+
+  DEFINE FAST render:
+    clear
+    set i to 0
+    REPEAT 81:
+      set r to floor of (i / 9)
+      set c to i mod 9
+      go to x: (-136) + (c * 34) y: (136) - (r * 34)
+      IF item (i + 1) of revealed = 1 THEN:
+        IF item (i + 1) of mine = 1 THEN:
+          set color effect to 0
+        ELSE:
+          set color effect to 60 + ((item (i + 1) of adj) * 22)
+      ELSE:
+        set color effect to 140
+      stamp
+      change i by 1
+
+  WHEN flag clicked:
+    set size to 30
+    show
+    reset
+    render
+    FOREVER:
+      IF mouse down? and over = 0 THEN:
+        set col to floor of ((mouse x + 153) / 34)
+        set row to floor of ((153 - mouse y) / 34)
+        IF col > -1 and col < 9 and row > -1 and row < 9 THEN:
+          reveal (((row * 9) + col) + 1)
+        wait until not mouse down?
       wait 0.02 seconds`
 };
 

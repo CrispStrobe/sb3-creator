@@ -261,3 +261,13 @@ harness closes that gap.
   files, assign each to a sprite by name, and Generate bakes them in (and they ride into
   Scratch via the "Open in Scratch" button). Verified end-to-end by driving the running
   app with Playwright.
+
+## 18. Round 11 — uploader UX + Minesweeper
+
+- [x] **SVG uploader UX:** inline thumbnail preview (safe `<img>` data URL) and a per-file
+  mode — "replace costume" or "add as frame" (`addCustomSVGCostume`) to assemble
+  animations from uploaded art.
+- [x] **Minesweeper:** 9x9 / 10 mines; clicking an empty cell flood-fills the connected
+  region via a worklist queue stored in a list. VM-tested (a click on a 0-neighbour cell
+  cascades to reveal ~49 cells). Surfaced an ergonomic rule: a computed custom-block
+  argument must be a single token, so `((r*9)+c)+1` must be wrapped as `(((r*9)+c)+1)`.
