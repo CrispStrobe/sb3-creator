@@ -1254,8 +1254,26 @@ class SB3Creator {
             throw new ParseError("Pseudocode is empty");
         }
 
-        const lines = pseudocode.split('\n');
+        // Normalise line endings and expand leading tabs so tab- or CRLF-indented files
+        // parse the same as space-indented ones.
+        const lines = pseudocode.replace(/\r\n?/g, '\n').split('\n').map((line) => {
+            const lead = line.match(/^[ \t]*/)[0].replace(/\t/g, '  ');
+            return lead + line.slice(line.match(/^[ \t]*/)[0].length);
+        });
         const getIndent = (s) => s.match(/^\s*/)[0].length;
+        // Indentation of the next non-blank line after `idx` (or -1 if none).
+        const nextIndent = (idx) => {
+            for (let j = idx + 1; j < lines.length; j++) {
+                if (lines[j].trim()) return getIndent(lines[j]);
+            }
+            return -1;
+        };
+        // Child-block indent: the actual indent of the following line when it is deeper
+        // than the block header, so any consistent indent step (2, 4, tab…) works.
+        const childIndent = (idx, headerIndent) => {
+            const ni = nextIndent(idx);
+            return ni > headerIndent ? ni : headerIndent + 2;
+        };
 
         const stage = this.createStage();
         this.project.targets.push(stage);
@@ -1341,7 +1359,7 @@ class SB3Creator {
                         // Find the parent IF block to convert to IF_ELSE
                         if (lastBlockId && allBlocks[lastBlockId] && allBlocks[lastBlockId].opcode === 'control_if') {
                             allBlocks[lastBlockId].opcode = 'control_if_else';
-                            const childResult = parseStructure(i + 1, currentIndent + 2, target);
+                            const childResult = parseStructure(i + 1, childIndent(i, currentIndent), target);
                             if (childResult.firstBlockId) {
                                 allBlocks[lastBlockId].inputs.SUBSTACK2 = [2, childResult.firstBlockId];
                                 childResult.blocks[childResult.firstBlockId].parent = lastBlockId;
@@ -1355,7 +1373,7 @@ class SB3Creator {
                     }
 
                     if (newBlockData) {
-                        const childResult = parseStructure(i + 1, currentIndent + 2, target);
+                        const childResult = parseStructure(i + 1, childIndent(i, currentIndent), target);
                         const blockId = Object.keys(newBlockData.block)[0];
                         
                         if (childResult.firstBlockId) {
@@ -1450,7 +1468,11 @@ class SB3Creator {
                         this.warn(i, `Malformed SPRITE header (expected "SPRITE <name>:"): "${trimmed}"`);
                         i++; continue;
                     }
-                    currentTarget = this.createSprite(m[1].trim());
+                    const spriteName = m[1].trim();
+                    if (this.project.targets.some((t) => !t.isStage && t.name === spriteName)) {
+                        this.warn(i, `Duplicate sprite name "${spriteName}" — sprite names must be unique`);
+                    }
+                    currentTarget = this.createSprite(spriteName);
                     this.project.targets.push(currentTarget);
                 } else {
                     currentTarget = stage;
@@ -1537,17 +1559,39 @@ class SB3Creator {
         };
         const known = new Set([...this.targetNames].map((n) => n.toLowerCase()));
         const seen = new Set();
+        // Every sound name defined anywhere (a sprite may reference by shared name).
+        const allSounds = new Set();
+        for (const t of this.project.targets) for (const s of t.sounds || []) allSounds.add(s.name);
+
+        // Literal string value of an input like COSTUME / SOUND_MENU (else null).
+        const literal = (input) => (Array.isArray(input) && input[0] === 1 && Array.isArray(input[1]) && input[1][0] === 10 ? input[1][1] : null);
+
         for (const target of this.project.targets) {
+            const costumeNames = new Set((target.costumes || []).map((c) => c.name));
             for (const block of Object.values(target.blocks || {})) {
                 const menu = MENUS[block.opcode];
-                if (!menu) continue;
-                const [field, allowed] = menu;
-                const value = block.fields?.[field]?.[0];
-                if (typeof value !== 'string') continue;
-                if (allowed.includes(value) || known.has(value.toLowerCase())) continue;
-                if (seen.has(value)) continue;
-                seen.add(value);
-                this.warnings.push(`References unknown sprite "${value}" (not a defined sprite)`);
+                if (menu) {
+                    const [field, allowed] = menu;
+                    const value = block.fields?.[field]?.[0];
+                    if (typeof value === 'string' && !allowed.includes(value) && !known.has(value.toLowerCase()) && !seen.has(value)) {
+                        seen.add(value);
+                        this.warnings.push(`References unknown sprite "${value}" (not a defined sprite)`);
+                    }
+                }
+                if (block.opcode === 'looks_switchcostumeto') {
+                    const name = literal(block.inputs?.COSTUME);
+                    if (name && !/^\d+$/.test(name) && !costumeNames.has(name) && !seen.has('c:' + name)) {
+                        seen.add('c:' + name);
+                        this.warnings.push(`Switches to unknown costume "${name}" (declare it with COSTUME ${name})`);
+                    }
+                }
+                if (block.opcode === 'sound_play' || block.opcode === 'sound_playuntildone') {
+                    const name = literal(block.inputs?.SOUND_MENU);
+                    if (name && !allSounds.has(name) && !seen.has('s:' + name)) {
+                        seen.add('s:' + name);
+                        this.warnings.push(`Plays unknown sound "${name}" (declare it with SOUND ${name})`);
+                    }
+                }
             }
         }
     }

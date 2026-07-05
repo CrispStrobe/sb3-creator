@@ -219,3 +219,39 @@ test('unknown sprite references produce a warning', () => {
       say "typo"`);
     assert.ok(c.warnings.some((w) => /unknown sprite "Snak"/.test(w)));
 });
+
+test('4-space, tab, and CRLF indentation parse like 2-space', () => {
+    const two = `SPRITE S:
+  WHEN flag clicked:
+    FOREVER:
+      IF score > 5 THEN:
+        change score by 1
+      ELSE:
+        change score by 2
+      wait 1 seconds`;
+    const four = two.replace(/^( +)/gm, (m) => ' '.repeat(m.length * 2));
+    const tabs = two.replace(/^( +)/gm, (m) => '\t'.repeat(m.length / 2));
+    const crlf = two.replace(/\n/g, '\r\n');
+    const shape = (code) => {
+        const c = build(code);
+        const b = blocksOf(c, 'S');
+        return { n: Object.keys(b).length, warns: c.warnings.length, ig: c.checkIntegrity().length };
+    };
+    const base = shape(two);
+    assert.ok(base.warns === 0 && base.ig === 0 && base.n > 5);
+    for (const variant of [four, tabs, crlf]) assert.deepEqual(shape(variant), base);
+});
+
+test('unknown costume and sound names are flagged', () => {
+    const c1 = build(sprite('S', 'switch costume to "nope"'));
+    assert.ok(c1.warnings.some((w) => /unknown costume "nope"/.test(w)));
+    const c2 = build(sprite('S', 'play sound "zzz"'));
+    assert.ok(c2.warnings.some((w) => /unknown sound "zzz"/.test(w)));
+    // a declared costume / a shared sound (Pop lives on the Stage) do NOT warn
+    const ok = build(`SPRITE S:
+  COSTUME jump
+  WHEN flag clicked:
+    switch costume to "jump"
+    play sound "Pop"`);
+    assert.equal(ok.warnings.length, 0, ok.warnings.join(' | '));
+});

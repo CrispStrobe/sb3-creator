@@ -207,3 +207,15 @@ harness closes that gap.
 - [x] **Asset generation cleanup.** Costumes and sounds are all generated into the asset
   map with filesystem-safe ids; only the Stage's gradient backdrop remains a fixed asset.
 - [x] New `animation` example (costume cycling + a step beep). 102 tests pass.
+
+## 14. Round 7 — parser robustness
+
+- [x] **Flexible indentation.** The parser previously hard-required a 2-space indent step,
+  so 4-space, tab, or CRLF files silently broke on nested blocks. Line endings are now
+  normalised, leading tabs expanded, and child-block indent is read from the following
+  line — 2-space, 4-space, tabs, and CRLF now all parse identically.
+- [x] **Costume/sound name validation.** `switch costume to "typo"` and `play sound "typo"`
+  warn when the name isn't defined (sounds are checked project-wide so shared names like
+  the Stage's Pop are fine). Fixed the `looks` example, which had always switched to a
+  non-existent `costume2`.
+- [x] **Duplicate sprite names** are flagged.

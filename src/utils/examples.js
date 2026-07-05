@@ -19,6 +19,7 @@ const examples = {
     say "Motion test complete!"`,
 
     looks: `SPRITE Looks_Test:
+  COSTUME costume2
   WHEN flag clicked:
     say "Testing Looks Commands" for 2 seconds
     think "I'm thinking..." for 1 seconds
