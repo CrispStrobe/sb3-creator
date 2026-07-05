@@ -15,6 +15,40 @@ This project converts a custom pseudocode language into a downloadable Scratch 3
     ```
     The application will be available at `http://localhost:5173`.
 
+3.  **Run the tests**:
+    ```bash
+    npm test
+    ```
+    Runs the unit suite (`test/unit.test.mjs`) and the live end-to-end suite
+    (`test/live.test.mjs`, which compiles every example to a real `.sb3` and
+    validates the project graph). No browser required.
+
+---
+
+## 🧩 Language
+
+The compiler lives in [`src/utils/sb3Creator.js`](src/utils/sb3Creator.js). Open the
+in-app **Syntax Reference** for the full list; highlights:
+
+- **Structure:** `SPRITE Name:`, `STAGE:`, `# comments`, and explicit scoping with
+  `GLOBAL x`, `LOCAL x`, `LIST items` (overrides the legacy magic-name defaults).
+- **Events:** `WHEN flag clicked:`, `WHEN <key> key pressed:`, `WHEN sprite clicked:`,
+  `WHEN I receive "msg":`, `WHEN I start as a clone:`.
+- **Control:** `FOREVER`, `REPEAT n`, `REPEAT UNTIL cond`, `IF … THEN` / `ELSE`,
+  `wait until cond`, `stop all | this script | other scripts in sprite`.
+- **Clones & messaging:** `create clone of myself|Sprite`, `delete this clone`,
+  `broadcast "m"`, `broadcast "m" and wait`.
+- **Expressions:** parentheses and correct precedence, `+ - * /`, `mod`,
+  `pick random a to b`, `round`, `sqrt of`, `abs of`, `join`, `letter n of`,
+  `length of`, and reporters like `x position`, `size`, `timer`, `answer`,
+  `item n of list`.
+- **Conditions:** `< <= > >= =`, `and` / `or` / `not`, `touching X`,
+  `touching color #hex`, `key X pressed?`, `mouse down?`, `list contains v`.
+- **Lists:** `add`, `delete n of`, `delete all of`, `insert … at … of`,
+  `replace item … of … with …`, `show/hide list`.
+
+See [`PLAN.md`](PLAN.md) for the full list of bugs fixed and features added.
+
 ---
 
 ## 🌐 Deployment

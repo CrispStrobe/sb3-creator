@@ -258,7 +258,155 @@ STAGE:
 
     say "Your final score is" for 2 seconds
     say score for 3 seconds
-    stop all`
+    stop all`,
+
+    snake: `# Simple Snake — arrow keys steer, eat the apple, don't hit the walls.
+SPRITE Snake:
+  WHEN flag clicked:
+    set size to 60
+    set score to 0
+    set px to 0
+    set py to 0
+    set dx to 10
+    set dy to 0
+    go to x: px y: py
+    show
+
+  WHEN up arrow key pressed:
+    set dx to 0
+    set dy to 10
+  WHEN down arrow key pressed:
+    set dx to 0
+    set dy to -10
+  WHEN left arrow key pressed:
+    set dx to -10
+    set dy to 0
+  WHEN right arrow key pressed:
+    set dx to 10
+    set dy to 0
+
+  WHEN flag clicked:
+    FOREVER:
+      change px by dx
+      change py by dy
+      go to x: px y: py
+      IF px > 220 or px < -220 or py > 160 or py < -160 THEN:
+        say "Game Over!" for 2 seconds
+        stop all
+      wait 0.1 seconds
+
+SPRITE Apple:
+  WHEN flag clicked:
+    set size to 45
+    set foodx to -150
+    set foody to 100
+    go to x: foodx y: foody
+    show
+
+  WHEN flag clicked:
+    FOREVER:
+      IF touching Snake THEN:
+        change score by 1
+        change foodx by 130
+        IF foodx > 180 THEN:
+          set foodx to -180
+        change foody by 90
+        IF foody > 150 THEN:
+          set foody to -150
+        go to x: foodx y: foody
+        wait 0.4 seconds`,
+
+    snake_pro: `# Growing-tail Snake — showcases clones, compound conditions, REPEAT UNTIL, and
+# explicit GLOBAL scoping. The body is a trail of Body clones, each living for
+# 'length' steps, so the tail grows by 2 every time the apple is eaten.
+GLOBAL score
+GLOBAL length
+GLOBAL alive
+GLOBAL hx
+GLOBAL hy
+
+SPRITE Head:
+  WHEN flag clicked:
+    set size to 25
+    set score to 0
+    set length to 4
+    set alive to 1
+    set hx to 0
+    set hy to 0
+    set dx to 20
+    set dy to 0
+    go to x: hx y: hy
+    show
+
+  WHEN up arrow key pressed:
+    IF not dy < 0 THEN:
+      set dx to 0
+      set dy to 20
+  WHEN down arrow key pressed:
+    IF not dy > 0 THEN:
+      set dx to 0
+      set dy to -20
+  WHEN left arrow key pressed:
+    IF not dx > 0 THEN:
+      set dx to -20
+      set dy to 0
+  WHEN right arrow key pressed:
+    IF not dx < 0 THEN:
+      set dx to 20
+      set dy to 0
+
+  WHEN flag clicked:
+    FOREVER:
+      IF alive = 1 THEN:
+        create clone of Body
+        change hx by dx
+        change hy by dy
+        go to x: hx y: hy
+        IF touching Body THEN:
+          set alive to 0
+          say "Game Over!" for 2 seconds
+          stop all
+        IF hx > 220 or hx < -220 or hy > 160 or hy < -160 THEN:
+          set alive to 0
+          say "Game Over!" for 2 seconds
+          stop all
+      wait 0.15 seconds
+
+SPRITE Body:
+  WHEN flag clicked:
+    set size to 25
+    hide
+
+  WHEN I start as a clone:
+    go to x: hx y: hy
+    show
+    set life to length
+    REPEAT UNTIL life < 1:
+      change life by -1
+      wait 0.15 seconds
+    delete this clone
+
+SPRITE Apple:
+  WHEN flag clicked:
+    set size to 20
+    set ax to 100
+    set ay to 60
+    go to x: ax y: ay
+    show
+
+  WHEN flag clicked:
+    FOREVER:
+      IF touching Head THEN:
+        change score by 1
+        change length by 2
+        change ax by 70
+        IF ax > 200 THEN:
+          set ax to -200
+        change ay by 50
+        IF ay > 150 THEN:
+          set ay to -150
+        go to x: ax y: ay
+        wait 0.2 seconds`
 };
 
 export default examples;

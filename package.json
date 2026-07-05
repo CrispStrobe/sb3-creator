@@ -6,6 +6,7 @@
   "homepage": "https://crispstrobe.github.io/sb3-creator/",
   "scripts": {
     "dev": "vite",
+    "test": "node --test test/*.test.mjs",
     "build": "vite build",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",

@@ -1,94 +1,5 @@
 import JSZip from 'jszip';
 
-// Comprehensive block definitions
-const blockDefinitions = {
-    motion: {
-        'motion_movesteps': { inputs: ['STEPS'], fields: [] },
-        'motion_turnright': { inputs: ['DEGREES'], fields: [] },
-        'motion_turnleft': { inputs: ['DEGREES'], fields: [] },
-        'motion_gotoxy': { inputs: ['X', 'Y'], fields: [] },
-        'motion_changexby': { inputs: ['DX'], fields: [] },
-        'motion_changeyby': { inputs: ['DY'], fields: [] },
-        'motion_setx': { inputs: ['X'], fields: [] },
-        'motion_sety': { inputs: ['Y'], fields: [] },
-        'motion_pointindirection': { inputs: ['DIRECTION'], fields: [] },
-    },
-    looks: {
-        'looks_sayforsecs': { inputs: ['MESSAGE', 'SECS'], fields: [] },
-        'looks_say': { inputs: ['MESSAGE'], fields: [] },
-        'looks_thinkforsecs': { inputs: ['MESSAGE', 'SECS'], fields: [] },
-        'looks_think': { inputs: ['MESSAGE'], fields: [] },
-        'looks_show': { inputs: [], fields: [] },
-        'looks_hide': { inputs: [], fields: [] },
-        'looks_switchcostumeto': { inputs: ['COSTUME'], fields: [] },
-        'looks_nextcostume': { inputs: [], fields: [] },
-        'looks_changesizeby': { inputs: ['CHANGE'], fields: [] },
-        'looks_setsizeto': { inputs: ['SIZE'], fields: [] },
-    },
-    sound: {
-        'sound_play': { inputs: ['SOUND_MENU'], fields: [] },
-        'sound_playuntildone': { inputs: ['SOUND_MENU'], fields: [] },
-        'sound_stopallsounds': { inputs: [], fields: [] },
-        'sound_changevolumeby': { inputs: ['VOLUME'], fields: [] },
-        'sound_setvolumeto': { inputs: ['VOLUME'], fields: [] },
-    },
-    pen: {
-        'pen_clear': { inputs: [], fields: [] },
-        'pen_penDown': { inputs: [], fields: [] },
-        'pen_penUp': { inputs: [], fields: [] },
-        'pen_setPenColorToColor': { inputs: ['COLOR'], fields: [] },
-        'pen_changePenSizeBy': { inputs: ['SIZE'], fields: [] },
-        'pen_setPenSizeTo': { inputs: ['SIZE'], fields: [] },
-    },
-    sensing: {
-        'sensing_askandwait': { inputs: ['QUESTION'], fields: [] },
-        'sensing_answer': { inputs: [], fields: [] },
-        'sensing_keypressed': { inputs: [], fields: ['KEY_OPTION'] },
-        'sensing_mousedown': { inputs: [], fields: [] },
-        'sensing_mousex': { inputs: [], fields: [] },
-        'sensing_mousey': { inputs: [], fields: [] },
-        'sensing_touchingobject': { inputs: [], fields: ['TOUCHINGOBJECTMENU'] },
-        'sensing_timer': { inputs: [], fields: [] },
-        'sensing_resettimer': { inputs: [], fields: [] },
-    },
-    data: {
-        'data_setvariableto': { inputs: ['VALUE'], fields: ['VARIABLE'] },
-        'data_changevariableby': { inputs: ['VALUE'], fields: ['VARIABLE'] },
-        'data_showvariable': { inputs: [], fields: ['VARIABLE'] },
-        'data_hidevariable': { inputs: [], fields: ['VARIABLE'] },
-    },
-    event: {
-        'event_whenflagclicked': { inputs: [], fields: [] },
-        'event_whenkeypressed': { inputs: [], fields: ['KEY_OPTION'] },
-        'event_whenthisspriteclicked': { inputs: [], fields: [] },
-        'event_broadcast': { inputs: ['BROADCAST_INPUT'], fields: [] },
-        'event_broadcastandwait': { inputs: ['BROADCAST_INPUT'], fields: [] },
-    },
-    control: {
-        'control_wait': { inputs: ['DURATION'], fields: [] },
-        'control_forever': { inputs: [], fields: [] },
-        'control_repeat': { inputs: ['TIMES'], fields: [] },
-        'control_if': { inputs: ['CONDITION'], fields: [] },
-        'control_if_else': { inputs: ['CONDITION'], fields: [] },
-        'control_stop': { inputs: [], fields: ['STOP_OPTION'] },
-    },
-    operator: {
-        'operator_add': { inputs: ['NUM1', 'NUM2'], fields: [] },
-        'operator_subtract': { inputs: ['NUM1', 'NUM2'], fields: [] },
-        'operator_multiply': { inputs: ['NUM1', 'NUM2'], fields: [] },
-        'operator_divide': { inputs: ['NUM1', 'NUM2'], fields: [] },
-        'operator_random': { inputs: ['FROM', 'TO'], fields: [] },
-        'operator_gt': { inputs: ['OPERAND1', 'OPERAND2'], fields: [] },
-        'operator_lt': { inputs: ['OPERAND1', 'OPERAND2'], fields: [] },
-        'operator_equals': { inputs: ['OPERAND1', 'OPERAND2'], fields: [] },
-        'operator_and': { inputs: ['OPERAND1', 'OPERAND2'], fields: [] },
-        'operator_or': { inputs: ['OPERAND1', 'OPERAND2'], fields: [] },
-        'operator_not': { inputs: ['OPERAND'], fields: [] },
-        'operator_join': { inputs: ['STRING1', 'STRING2'], fields: [] },
-        'operator_letter_of': { inputs: ['LETTER', 'STRING'], fields: [] },
-        'operator_length': { inputs: ['STRING'], fields: [] },
-    }
-};
 
 // Structured error classes
 class SB3Error extends Error {
@@ -119,9 +30,9 @@ class AssetError extends SB3Error {
 }
 
 /**
- * Enhanced SB3 Creator with improved accuracy and comprehensive command support
+ * SB3 Creator: compiles the pseudocode language into a Scratch 3.0 project.
  */
-class EnhancedSB3Creator {
+class SB3Creator {
     constructor() {
         this.reset();
     }
@@ -131,11 +42,19 @@ class EnhancedSB3Creator {
             targets: [],
             monitors: [],
             extensions: [],
-            meta: { semver: "3.0.0", vm: "4.6.0", agent: "Enhanced SB3 Creator/1.0.0" }
+            meta: { semver: "3.0.0", vm: "4.6.0", agent: "SB3 Creator/1.0.0" }
         };
         this.usedIds = new Set();
         this.variables = new Map(); // scope:name -> {id, name, isGlobal}
+        this.lists = new Map(); // scope:name -> {id, name, isGlobal}
+        this.broadcasts = new Map(); // name -> id
         this.assets = new Map(); // assetId -> {type, data, metadata}
+        // Explicit scope declarations (GLOBAL / LOCAL / LIST) override the magic-name fallback.
+        this.declaredGlobals = new Set(); // var names forced global
+        this.declaredLocals = new Set(); // `${scope}:${name}` forced local
+        this.declaredGlobalLists = new Set(); // list names forced global
+        this.declaredLocalLists = new Set(); // `${scope}:${name}` forced local
+        this.spriteColorIndex = 0;
         this.generatedSB3 = null;
         this.errors = [];
         this.warnings = [];
@@ -156,10 +75,21 @@ class EnhancedSB3Creator {
         return id;
     }
 
-    // Determine if variable should be global
+    // Determine if a variable should be global.
+    // Explicit GLOBAL/LOCAL declarations win; otherwise fall back to the legacy
+    // magic-name list (kept only for backwards compatibility) or Stage scope.
     isGlobalVariable(name, target) {
+        if (this.declaredLocals.has(`${target.name}:${name}`)) return false;
+        if (this.declaredGlobals.has(name)) return true;
+        if (target.isStage) return true;
         const globalVars = ['health', 'score', 'game active', 'speed', 'lives', 'level', 'time', 'points'];
-        return globalVars.includes(name.toLowerCase()) || target.isStage;
+        return globalVars.includes(name.toLowerCase());
+    }
+
+    isGlobalList(name, target) {
+        if (this.declaredLocalLists.has(`${target.name}:${name}`)) return false;
+        if (this.declaredGlobalLists.has(name)) return true;
+        return target.isStage;
     }
 
     getOrCreateVariable(name, target) {
@@ -170,12 +100,12 @@ class EnhancedSB3Creator {
         if (!this.variables.has(key)) {
             const id = this.generateId();
             this.variables.set(key, { id, name, isGlobal });
-            
+
             const varTarget = isGlobal ? this.project.targets.find(t => t.isStage) : target;
             if (varTarget) {
                 if (!varTarget.variables) varTarget.variables = {};
                 varTarget.variables[id] = [name, 0];
-                
+
                 // Create monitor for global variables
                 if (isGlobal) {
                     this.createMonitor(id, name, 'data_variable');
@@ -185,19 +115,62 @@ class EnhancedSB3Creator {
         return this.variables.get(key);
     }
 
+    getOrCreateList(name, target) {
+        const isGlobal = this.isGlobalList(name, target);
+        const scope = isGlobal ? 'Stage' : target.name;
+        const key = `${scope}:${name}`;
+
+        if (!this.lists.has(key)) {
+            const id = this.generateId();
+            this.lists.set(key, { id, name, isGlobal });
+
+            const listTarget = isGlobal ? this.project.targets.find(t => t.isStage) : target;
+            if (listTarget) {
+                if (!listTarget.lists) listTarget.lists = {};
+                listTarget.lists[id] = [name, []];
+                this.createMonitor(id, name, 'data_listcontents');
+            }
+        }
+        return this.lists.get(key);
+    }
+
+    // Does a variable already exist in scope? Used to disambiguate reporter phrases
+    // (e.g. `size`) from user variables of the same name.
+    variableExists(name, target) {
+        return this.variables.has(`Stage:${name}`) || this.variables.has(`${target.name}:${name}`);
+    }
+
+    listExists(name, target) {
+        return this.lists.has(`Stage:${name}`) || this.lists.has(`${target.name}:${name}`);
+    }
+
+    getOrCreateBroadcast(name) {
+        if (!this.broadcasts.has(name)) {
+            const id = this.generateId();
+            this.broadcasts.set(name, id);
+            const stage = this.project.targets.find(t => t.isStage);
+            if (stage) {
+                if (!stage.broadcasts) stage.broadcasts = {};
+                stage.broadcasts[id] = name;
+            }
+        }
+        return { id: this.broadcasts.get(name), name };
+    }
+
     createMonitor(varId, varName, opcode = 'data_variable') {
         if (this.project.monitors.find(m => m.id === varId)) return;
-        
+
+        const isList = opcode === 'data_listcontents';
         const monitorY = 5 + this.project.monitors.length * 28;
         this.project.monitors.push({
             id: varId,
-            mode: "default",
+            mode: isList ? "list" : "default",
             opcode,
-            params: opcode === 'data_variable' ? { VARIABLE: varName } : { LIST: varName },
+            params: isList ? { LIST: varName } : { VARIABLE: varName },
             spriteName: null,
-            value: opcode === 'data_variable' ? 0 : [],
-            width: 0,
-            height: 0,
+            value: isList ? [] : 0,
+            width: isList ? 100 : 0,
+            height: isList ? 120 : 0,
             x: 5,
             y: monitorY,
             visible: true,
@@ -254,474 +227,652 @@ class EnhancedSB3Creator {
         return { id, block: { [id]: block } };
     }
 
-    // Enhanced value parsing with proper string concatenation and operator precedence
-    parseValue(valueStr, context) {
-        valueStr = valueStr.trim();
-        
-        // Handle literals
-        if (/^-?\d+(\.\d+)?$/.test(valueStr)) {
-            return [1, [4, valueStr]];
-        }
-        
-        // Handle quoted strings - NO variable interpolation for now
-        if (valueStr.startsWith('"') && valueStr.endsWith('"')) {
-            return [1, [10, valueStr.slice(1, -1)]];
-        }
-        
-        if (/^(true|false)$/i.test(valueStr)) {
-            return [1, [10, valueStr.toLowerCase()]];
-        }
+    // ---- Expression engine helpers -------------------------------------------------
 
-        // Handle operators with proper precedence (only if not in quotes)
-        const operators = [
-            { symbols: ['*', '/'], opcodes: ['operator_multiply', 'operator_divide'] },
-            { symbols: ['+', '-'], opcodes: ['operator_add', 'operator_subtract'] }
-        ];
-
-        for (const { symbols, opcodes } of operators) {
-            for (let i = 0; i < symbols.length; i++) {
-                const symbol = symbols[i];
-                const opcode = opcodes[i];
-                const parts = valueStr.split(symbol);
-                
-                if (parts.length === 2 && parts[0].trim() && parts[1].trim()) {
-                    const opId = this.generateId();
-                    context.extraBlocks[opId] = {
-                        opcode,
-                        parent: context.parentId,
-                        next: null,
-                        shadow: false,
-                        topLevel: false,
-                        inputs: {
-                            NUM1: this.parseValue(parts[0].trim(), context),
-                            NUM2: this.parseValue(parts[1].trim(), context)
-                        },
-                        fields: {}
-                    };
-                    return [3, opId, [4, "0"]];
-                }
-            }
-        }
-
-        // Handle special sensing values that should be blocks, not variables
-        if (valueStr === 'answer') {
-            const answerId = this.generateId();
-            context.extraBlocks[answerId] = {
-                opcode: 'sensing_answer',
-                parent: context.parentId,
-                next: null,
-                shadow: false,
-                topLevel: false,
-                inputs: {},
-                fields: {}
-            };
-            return [3, answerId, [4, ""]];
-        }
-        
-        if (valueStr === 'mouse x') {
-            const mouseXId = this.generateId();
-            context.extraBlocks[mouseXId] = {
-                opcode: 'sensing_mousex',
-                parent: context.parentId,
-                next: null,
-                shadow: false,
-                topLevel: false,
-                inputs: {},
-                fields: {}
-            };
-            return [3, mouseXId, [4, ""]];
-        }
-        
-        if (valueStr === 'mouse y') {
-            const mouseYId = this.generateId();
-            context.extraBlocks[mouseYId] = {
-                opcode: 'sensing_mousey',
-                parent: context.parentId,
-                next: null,
-                shadow: false,
-                topLevel: false,
-                inputs: {},
-                fields: {}
-            };
-            return [3, mouseYId, [4, ""]];
-        }
-        
-        if (valueStr === 'timer') {
-            const timerId = this.generateId();
-            context.extraBlocks[timerId] = {
-                opcode: 'sensing_timer',
-                parent: context.parentId,
-                next: null,
-                shadow: false,
-                topLevel: false,
-                inputs: {},
-                fields: {}
-            };
-            return [3, timerId, [4, ""]];
-        }
-
-        // Handle variables
-        if (/^[a-zA-Z_][a-zA-Z0-9_\s]*$/.test(valueStr)) {
-            const variable = this.getOrCreateVariable(valueStr, context.target);
-            return [3, [12, variable.name, variable.id], [10, ""]];
-        }
-
-        // Default to string literal
-        return [1, [10, valueStr]];
-    }
-
-    parseCondition(conditionStr, context) {
-        conditionStr = conditionStr.trim();
-        
-        const comparisons = [
-            { symbol: '<=', opcode: 'operator_lt' }, // Handle <= before <
-            { symbol: '>=', opcode: 'operator_gt' }, // Handle >= before >
-            { symbol: '<', opcode: 'operator_lt' },
-            { symbol: '>', opcode: 'operator_gt' },
-            { symbol: '=', opcode: 'operator_equals' }
-        ];
-
-        for (const { symbol, opcode } of comparisons) {
-            const parts = conditionStr.split(symbol);
-            if (parts.length === 2) {
-                const id = this.generateId();
-                context.extraBlocks[id] = {
-                    opcode,
-                    parent: context.parentId,
-                    next: null,
-                    shadow: false,
-                    topLevel: false,
-                    inputs: {
-                        OPERAND1: this.parseValue(parts[0].trim(), context),
-                        OPERAND2: this.parseValue(parts[1].trim(), context)
-                    },
-                    fields: {}
-                };
-                return id;
-            }
-        }
-
-        // Handle special conditions
-        if (conditionStr.startsWith('touching ')) {
-            const targetName = conditionStr.replace('touching ', '').trim();
-            const id = this.generateId();
-            const shadowData = this.createShadowBlock('sensing_touchingobject', 'TOUCHINGOBJECTMENU', targetName, id);
-            
-            context.extraBlocks[id] = {
-                opcode: 'sensing_touchingobject',
-                parent: context.parentId,
-                next: null,
-                shadow: false,
-                topLevel: false,
-                inputs: { TOUCHINGOBJECTMENU: [1, shadowData.id] },
-                fields: {}
-            };
-            context.extraBlocks[shadowData.id] = shadowData.block;
-            return id;
-        }
-
-        // Default: treat as boolean variable
+    // Register a reporter/boolean block and return its id.
+    pushBlock(context, opcode, inputs = {}, fields = {}) {
         const id = this.generateId();
         context.extraBlocks[id] = {
-            opcode: 'operator_equals',
+            opcode,
             parent: context.parentId,
             next: null,
             shadow: false,
             topLevel: false,
-            inputs: {
-                OPERAND1: this.parseValue(conditionStr, context),
-                OPERAND2: [1, [10, 'true']]
-            },
-            fields: {}
+            inputs,
+            fields
         };
         return id;
     }
 
+    // Register a dropdown menu shadow block and return an input array [1, id].
+    menuInput(context, opcode, field, value) {
+        const id = this.generateId();
+        context.extraBlocks[id] = {
+            opcode,
+            parent: context.parentId,
+            next: null,
+            shadow: true,
+            topLevel: false,
+            inputs: {},
+            fields: { [field]: [value, null] }
+        };
+        return [1, id];
+    }
+
+    valueOfBlock(id) { return [3, id, [4, "0"]]; }
+
+    // Index of the ')' matching the '(' at position `open`, or -1.
+    matchParen(s, open) {
+        let depth = 0, inStr = false;
+        for (let i = open; i < s.length; i++) {
+            const c = s[i];
+            if (c === '"') { inStr = !inStr; continue; }
+            if (inStr) continue;
+            if (c === '(') depth++;
+            else if (c === ')') { depth--; if (depth === 0) return i; }
+        }
+        return -1;
+    }
+
+    stripOuterParens(s) {
+        s = s.trim();
+        while (s.startsWith('(') && this.matchParen(s, 0) === s.length - 1) {
+            s = s.slice(1, -1).trim();
+        }
+        return s;
+    }
+
+    prevMeaningful(s, i) {
+        for (let j = i - 1; j >= 0; j--) {
+            if (s[j] !== ' ') return s[j];
+        }
+        return null;
+    }
+
+    // Split `s` at the rightmost top-level occurrence of any operator in `ops`
+    // (left-associative). Respects parentheses and quotes. Returns {left,right,op} or null.
+    splitBinary(s, ops, opts = {}) {
+        const ci = !!opts.ci;
+        let depth = 0, inStr = false, best = null;
+        for (let i = 0; i < s.length; i++) {
+            const ch = s[i];
+            if (ch === '"') { inStr = !inStr; continue; }
+            if (inStr) continue;
+            if (ch === '(') { depth++; continue; }
+            if (ch === ')') { depth--; continue; }
+            if (depth !== 0) continue;
+            for (const op of ops) {
+                const seg = s.substr(i, op.length);
+                if (ci ? seg.toLowerCase() !== op.toLowerCase() : seg !== op) continue;
+                if (op === '+' || op === '-') {
+                    const prev = this.prevMeaningful(s, i);
+                    if (prev === null || '+-*/(,'.includes(prev)) continue; // unary sign, not a binary op
+                }
+                if (op === '<' && s[i + 1] === '=') continue;
+                if (op === '>' && s[i + 1] === '=') continue;
+                if (op === '=' && (s[i - 1] === '<' || s[i - 1] === '>' || s[i + 1] === '=')) continue;
+                if (!s.slice(0, i).trim() || !s.slice(i + op.length).trim()) continue;
+                best = { index: i, op };
+            }
+        }
+        if (!best) return null;
+        return {
+            left: s.slice(0, best.index).trim(),
+            right: s.slice(best.index + best.op.length).trim(),
+            op: best.op.trim()
+        };
+    }
+
+    // Parse a numeric/string value expression into a Scratch input array.
+    parseValue(valueStr, context) {
+        let s = this.stripOuterParens((valueStr || '').trim());
+
+        // Literals
+        if (/^-?\d+(\.\d+)?$/.test(s)) return [1, [4, s]];
+        if (s.length >= 2 && s.startsWith('"') && s.endsWith('"') && this.matchQuote(s) === s.length - 1) {
+            return [1, [10, s.slice(1, -1)]];
+        }
+        if (/^(true|false)$/i.test(s)) return [1, [10, s.toLowerCase()]];
+        if (/^#[0-9a-fA-F]{6}$/.test(s)) return [1, [9, s.toLowerCase()]];
+
+        // Binary operators, loosest binding first
+        let sp;
+        if ((sp = this.splitBinary(s, [' join ']))) {
+            return this.valueOfBlock(this.pushBlock(context, 'operator_join', {
+                STRING1: this.parseValue(sp.left, context),
+                STRING2: this.parseValue(sp.right, context)
+            }));
+        }
+        if ((sp = this.splitBinary(s, ['+', '-']))) {
+            const op = sp.op === '+' ? 'operator_add' : 'operator_subtract';
+            return this.valueOfBlock(this.pushBlock(context, op, {
+                NUM1: this.parseValue(sp.left, context),
+                NUM2: this.parseValue(sp.right, context)
+            }));
+        }
+        if ((sp = this.splitBinary(s, ['*', '/', ' mod ']))) {
+            const op = sp.op === '*' ? 'operator_multiply' : sp.op === '/' ? 'operator_divide' : 'operator_mod';
+            return this.valueOfBlock(this.pushBlock(context, op, {
+                NUM1: this.parseValue(sp.left, context),
+                NUM2: this.parseValue(sp.right, context)
+            }));
+        }
+
+        // Unary minus applied to a non-literal (e.g. `-score`)
+        if (s.startsWith('-') && s.length > 1) {
+            return this.valueOfBlock(this.pushBlock(context, 'operator_subtract', {
+                NUM1: [1, [4, "0"]],
+                NUM2: this.parseValue(s.slice(1).trim(), context)
+            }));
+        }
+
+        // Reporter phrases
+        const reporter = this.parseReporter(s, context);
+        if (reporter) return reporter;
+
+        // Identifier -> list or variable reporter
+        if (/^[a-zA-Z_][a-zA-Z0-9_\s]*$/.test(s)) {
+            if (this.listExists(s, context.target)) {
+                const list = this.getOrCreateList(s, context.target);
+                return [3, [13, list.name, list.id], [10, ""]];
+            }
+            const variable = this.getOrCreateVariable(s, context.target);
+            return [3, [12, variable.name, variable.id], [10, ""]];
+        }
+
+        // Fallback: string literal
+        return [1, [10, s]];
+    }
+
+    matchQuote(s) {
+        for (let i = 1; i < s.length; i++) {
+            if (s[i] === '"') return i;
+        }
+        return -1;
+    }
+
+    // Reporter phrases (blocks that report a value). Returns an input array or null.
+    parseReporter(s, context) {
+        const B = (op, inputs = {}, fields = {}) => this.valueOfBlock(this.pushBlock(context, op, inputs, fields));
+        let m;
+
+        if ((m = s.match(/^pick random\s+(.+)$/i))) {
+            const parts = this.splitBinary(m[1], [' to '], { ci: true });
+            if (parts) {
+                return B('operator_random', {
+                    FROM: this.parseValue(parts.left, context),
+                    TO: this.parseValue(parts.right, context)
+                });
+            }
+        }
+        if ((m = s.match(/^round\s+(.+)$/i))) {
+            return B('operator_round', { NUM: this.parseValue(m[1], context) });
+        }
+        if ((m = s.match(/^(abs|floor|ceiling|sqrt|sin|cos|tan|asin|acos|atan|ln|log)\s+of\s+(.+)$/i))) {
+            return B('operator_mathop', { NUM: this.parseValue(m[2], context) }, { OPERATOR: [m[1].toLowerCase(), null] });
+        }
+        if ((m = s.match(/^letter\s+(.+?)\s+of\s+(.+)$/i))) {
+            return B('operator_letter_of', {
+                LETTER: this.parseValue(m[1], context),
+                STRING: this.parseValue(m[2], context)
+            });
+        }
+        if ((m = s.match(/^item\s+#\s+of\s+(.+)\s+in\s+(.+)$/i))) {
+            const list = this.getOrCreateList(m[2].trim(), context.target);
+            return B('data_itemnumoflist', { ITEM: this.parseValue(m[1], context) }, { LIST: [list.name, list.id] });
+        }
+        if ((m = s.match(/^item\s+(.+?)\s+of\s+(.+)$/i)) && this.listExists(m[2].trim(), context.target)) {
+            const list = this.getOrCreateList(m[2].trim(), context.target);
+            return B('data_itemoflist', { INDEX: this.parseValue(m[1], context) }, { LIST: [list.name, list.id] });
+        }
+        if ((m = s.match(/^length of\s+(.+)$/i))) {
+            const arg = m[1].trim();
+            if (this.listExists(arg, context.target)) {
+                const list = this.getOrCreateList(arg, context.target);
+                return B('data_lengthoflist', {}, { LIST: [list.name, list.id] });
+            }
+            return B('operator_length', { STRING: this.parseValue(arg, context) });
+        }
+        if ((m = s.match(/^distance to\s+(.+)$/i))) {
+            const target = /^mouse(-pointer)?$/i.test(m[1].trim()) ? '_mouse_' : m[1].trim();
+            return B('sensing_distanceto', { DISTANCETOMENU: this.menuInput(context, 'sensing_distancetomenu', 'DISTANCETOMENU', target) });
+        }
+
+        // Zero-argument reporters. Single ambiguous words defer to an existing variable.
+        const simple = {
+            'x position': 'motion_xposition',
+            'y position': 'motion_yposition',
+            'mouse x': 'sensing_mousex',
+            'mouse y': 'sensing_mousey',
+            'days since 2000': 'sensing_dayssince2000',
+            'current year': null
+        };
+        const key = s.toLowerCase();
+        if (simple[key]) return B(simple[key]);
+        if (key === 'answer') return B('sensing_answer');
+        if (key === 'timer') return B('sensing_timer');
+        if (key === 'loudness') return B('sensing_loudness');
+        if (key === 'username') return B('sensing_username');
+        if (key === 'costume number') return B('looks_costumenumbername', {}, { NUMBER_NAME: ['number', null] });
+        if (key === 'costume name') return B('looks_costumenumbername', {}, { NUMBER_NAME: ['name', null] });
+        if (key === 'backdrop number') return B('looks_backdropnumbername', {}, { NUMBER_NAME: ['number', null] });
+        if (key === 'backdrop name') return B('looks_backdropnumbername', {}, { NUMBER_NAME: ['name', null] });
+        const ambiguous = { direction: 'motion_direction', size: 'looks_size', volume: 'sound_volume' };
+        if (ambiguous[key] && !this.variableExists(s, context.target)) return B(ambiguous[key]);
+
+        return null;
+    }
+
+    // Normalize a key name for KEY_OPTION / WHEN key pressed menus.
+    normalizeKey(key) {
+        key = key.toLowerCase().trim();
+        const keyMap = {
+            'leftarrow': 'left arrow', 'rightarrow': 'right arrow',
+            'uparrow': 'up arrow', 'downarrow': 'down arrow',
+            'left': 'left arrow', 'right': 'right arrow',
+            'up': 'up arrow', 'down': 'down arrow'
+        };
+        return keyMap[key] || key;
+    }
+
+    // Parse a boolean condition expression into a block id.
+    parseCondition(conditionStr, context) {
+        let s = this.stripOuterParens((conditionStr || '').trim());
+        const push = (op, inputs = {}, fields = {}) => this.pushBlock(context, op, inputs, fields);
+
+        // not / or / and (loosest binding first)
+        if (/^not\s+/i.test(s)) {
+            const child = this.parseCondition(s.replace(/^not\s+/i, ''), context);
+            return push('operator_not', { OPERAND: [2, child] });
+        }
+        let sp;
+        if ((sp = this.splitBinary(s, [' or '], { ci: true }))) {
+            return push('operator_or', {
+                OPERAND1: [2, this.parseCondition(sp.left, context)],
+                OPERAND2: [2, this.parseCondition(sp.right, context)]
+            });
+        }
+        if ((sp = this.splitBinary(s, [' and '], { ci: true }))) {
+            return push('operator_and', {
+                OPERAND1: [2, this.parseCondition(sp.left, context)],
+                OPERAND2: [2, this.parseCondition(sp.right, context)]
+            });
+        }
+
+        // Comparisons. Scratch 3.0 has no native <= / >=, so build them from not().
+        if ((sp = this.splitBinary(s, ['<=']))) {
+            const gt = push('operator_gt', { OPERAND1: this.parseValue(sp.left, context), OPERAND2: this.parseValue(sp.right, context) });
+            return push('operator_not', { OPERAND: [2, gt] });
+        }
+        if ((sp = this.splitBinary(s, ['>=']))) {
+            const lt = push('operator_lt', { OPERAND1: this.parseValue(sp.left, context), OPERAND2: this.parseValue(sp.right, context) });
+            return push('operator_not', { OPERAND: [2, lt] });
+        }
+        for (const [sym, op] of [['<', 'operator_lt'], ['>', 'operator_gt'], ['=', 'operator_equals']]) {
+            if ((sp = this.splitBinary(s, [sym]))) {
+                return push(op, { OPERAND1: this.parseValue(sp.left, context), OPERAND2: this.parseValue(sp.right, context) });
+            }
+        }
+
+        // Predicates
+        let m;
+        if ((m = s.match(/^touching color\s+(.+)$/i))) {
+            const color = this.parseValue(m[1].trim(), context);
+            return push('sensing_touchingcolor', { COLOR: color });
+        }
+        if ((m = s.match(/^touching\s+(.+)$/i))) {
+            let name = m[1].trim();
+            if (/^edge$/i.test(name)) name = '_edge_';
+            else if (/^mouse(-pointer)?$/i.test(name)) name = '_mouse_';
+            return push('sensing_touchingobject', {
+                TOUCHINGOBJECTMENU: this.menuInput(context, 'sensing_touchingobjectmenu', 'TOUCHINGOBJECTMENU', name)
+            });
+        }
+        if ((m = s.match(/^key\s+(.+?)\s+pressed\??$/i))) {
+            return push('sensing_keypressed', {
+                KEY_OPTION: this.menuInput(context, 'sensing_keyoptions', 'KEY_OPTION', this.normalizeKey(m[1]))
+            });
+        }
+        if (/^mouse down\??$/i.test(s)) {
+            return push('sensing_mousedown');
+        }
+        if ((sp = this.splitBinary(s, [' contains '], { ci: true }))) {
+            const left = sp.left.trim();
+            if (this.listExists(left, context.target)) {
+                const list = this.getOrCreateList(left, context.target);
+                return push('data_listcontainsitem', { ITEM: this.parseValue(sp.right, context) }, { LIST: [list.name, list.id] });
+            }
+            return push('operator_contains', {
+                STRING1: this.parseValue(sp.left, context),
+                STRING2: this.parseValue(sp.right, context)
+            });
+        }
+
+        // Default: treat as a boolean-ish value compared to true.
+        return push('operator_equals', {
+            OPERAND1: this.parseValue(s, context),
+            OPERAND2: [1, [10, 'true']]
+        });
+    }
+
+    unquote(s) {
+        s = s.trim();
+        if (s.length >= 2 && s.startsWith('"') && s.endsWith('"')) return s.slice(1, -1);
+        return s;
+    }
+
     parseCommand(line, target) {
+        // Event hats reach here with their trailing ':' — strip it so the hat
+        // patterns can anchor cleanly.
+        if (/^when\b/i.test(line)) line = line.replace(/\s*:\s*$/, '');
         const context = { target, extraBlocks: {}, parentId: null };
         let match;
 
-        // Motion commands - CHECK THESE FIRST before general "set ... to" pattern
+        // Create a stack command block and make it the parent for any reporter/menu
+        // blocks parsed into its inputs.
+        const cmd = (opcode, opts = {}) => {
+            const { id, block } = this.createBlock(opcode, opts);
+            context.parentId = id;
+            return { id, block };
+        };
+        const ret = (block) => ({ block, extraBlocks: context.extraBlocks });
+        const ext = (n) => { if (!this.project.extensions.includes(n)) this.project.extensions.push(n); };
+        const val = (s) => this.parseValue(s, context);
+
+        // ---- Event hats (routed here from the main loop) ---------------------------
+        if (/^when I start as a clone$/i.test(line)) {
+            return { block: this.createBlock('control_start_as_clone', { topLevel: true }).block, extraBlocks: {} };
+        }
+        if ((match = line.match(/^when I receive\s+(.+)$/i))) {
+            const bc = this.getOrCreateBroadcast(this.unquote(match[1]));
+            const { id, block } = this.createBlock('event_whenbroadcastreceived', { topLevel: true });
+            block[id].fields.BROADCAST_OPTION = [bc.name, bc.id];
+            return { block, extraBlocks: {} };
+        }
+        if (/^when (this )?sprite clicked$/i.test(line)) {
+            return { block: this.createBlock('event_whenthisspriteclicked', { topLevel: true }).block, extraBlocks: {} };
+        }
+        if ((match = line.match(/^when\s+(.+?)\s+key\s+pressed$/i))) {
+            const { id, block } = this.createBlock('event_whenkeypressed', { topLevel: true });
+            block[id].fields.KEY_OPTION = [this.normalizeKey(match[1]), null];
+            return { block, extraBlocks: {} };
+        }
+        if (line.includes('flag clicked')) {
+            return { block: this.createBlock('event_whenflagclicked', { topLevel: true }).block, extraBlocks: {} };
+        }
+
+        // ---- Motion ----------------------------------------------------------------
         if ((match = line.match(/^move\s+(.+)\s+steps?$/i))) {
-            const { id, block } = this.createBlock('motion_movesteps');
-            block[id].inputs.STEPS = this.parseValue(match[1], context);
-            return { block, extraBlocks: context.extraBlocks };
+            const { id, block } = cmd('motion_movesteps'); block[id].inputs.STEPS = val(match[1]); return ret(block);
         }
-
         if ((match = line.match(/^turn\s+(left|right)\s+(.+)\s+degrees?$/i))) {
-            const opcode = match[1].toLowerCase() === 'left' ? 'motion_turnleft' : 'motion_turnright';
-            const { id, block } = this.createBlock(opcode);
-            block[id].inputs.DEGREES = this.parseValue(match[2], context);
-            return { block, extraBlocks: context.extraBlocks };
+            const { id, block } = cmd(match[1].toLowerCase() === 'left' ? 'motion_turnleft' : 'motion_turnright');
+            block[id].inputs.DEGREES = val(match[2]); return ret(block);
         }
-
         if ((match = line.match(/^go to x:\s*(.+?)\s+y:\s*(.+)$/i))) {
-            const { id, block } = this.createBlock('motion_gotoxy');
-            block[id].inputs.X = this.parseValue(match[1], context);
-            block[id].inputs.Y = this.parseValue(match[2], context);
-            return { block, extraBlocks: context.extraBlocks };
+            const { id, block } = cmd('motion_gotoxy');
+            block[id].inputs.X = val(match[1]); block[id].inputs.Y = val(match[2]); return ret(block);
         }
-
+        if ((match = line.match(/^glide\s+(.+?)\s+secs?\s+to x:\s*(.+?)\s+y:\s*(.+)$/i))) {
+            const { id, block } = cmd('motion_glidesecstoxy');
+            block[id].inputs.SECS = val(match[1]); block[id].inputs.X = val(match[2]); block[id].inputs.Y = val(match[3]);
+            return ret(block);
+        }
+        if ((match = line.match(/^glide\s+(.+?)\s+secs?\s+to\s+(.+)$/i))) {
+            const { id, block } = cmd('motion_glideto');
+            block[id].inputs.SECS = val(match[1]);
+            block[id].inputs.TO = this.menuInput(context, 'motion_glideto_menu', 'TO', this.spriteMenuValue(match[2]));
+            return ret(block);
+        }
+        if ((match = line.match(/^go to\s+(.+)$/i))) {
+            const { id, block } = cmd('motion_goto');
+            block[id].inputs.TO = this.menuInput(context, 'motion_goto_menu', 'TO', this.spriteMenuValue(match[1]));
+            return ret(block);
+        }
         if ((match = line.match(/^change x by\s+(.+)$/i))) {
-            const { id, block } = this.createBlock('motion_changexby');
-            block[id].inputs.DX = this.parseValue(match[1], context);
-            return { block, extraBlocks: context.extraBlocks };
+            const { id, block } = cmd('motion_changexby'); block[id].inputs.DX = val(match[1]); return ret(block);
         }
-
         if ((match = line.match(/^change y by\s+(.+)$/i))) {
-            const { id, block } = this.createBlock('motion_changeyby');
-            block[id].inputs.DY = this.parseValue(match[1], context);
-            return { block, extraBlocks: context.extraBlocks };
+            const { id, block } = cmd('motion_changeyby'); block[id].inputs.DY = val(match[1]); return ret(block);
         }
-
-        // CRITICAL: Check motion set x/y BEFORE general variable setting
         if ((match = line.match(/^set x to\s+(.+)$/i))) {
-            const { id, block } = this.createBlock('motion_setx');
-            block[id].inputs.X = this.parseValue(match[1], context);
-            return { block, extraBlocks: context.extraBlocks };
+            const { id, block } = cmd('motion_setx'); block[id].inputs.X = val(match[1]); return ret(block);
         }
-
         if ((match = line.match(/^set y to\s+(.+)$/i))) {
-            const { id, block } = this.createBlock('motion_sety');
-            block[id].inputs.Y = this.parseValue(match[1], context);
-            return { block, extraBlocks: context.extraBlocks };
+            const { id, block } = cmd('motion_sety'); block[id].inputs.Y = val(match[1]); return ret(block);
         }
-
         if ((match = line.match(/^point in direction\s+(.+)$/i))) {
-            const { id, block } = this.createBlock('motion_pointindirection');
-            block[id].inputs.DIRECTION = this.parseValue(match[1], context);
-            return { block, extraBlocks: context.extraBlocks };
+            const { id, block } = cmd('motion_pointindirection'); block[id].inputs.DIRECTION = val(match[1]); return ret(block);
+        }
+        if ((match = line.match(/^point towards\s+(.+)$/i))) {
+            const { id, block } = cmd('motion_pointtowards');
+            block[id].inputs.TOWARDS = this.menuInput(context, 'motion_pointtowards_menu', 'TOWARDS', this.spriteMenuValue(match[1]));
+            return ret(block);
+        }
+        if (/^if on edge,?\s*bounce$/i.test(line)) {
+            return { block: this.createBlock('motion_ifonedgebounce').block, extraBlocks: {} };
+        }
+        if ((match = line.match(/^set rotation style\s+(.+)$/i))) {
+            const { id, block } = cmd('motion_setrotationstyle');
+            block[id].fields.STYLE = [match[1].trim(), null]; return ret(block);
         }
 
-        // Data commands - AFTER motion commands to avoid conflicts
+        // ---- Looks -----------------------------------------------------------------
+        if ((match = line.match(/^say\s+(.+?)(?:\s+for\s+(.+)\s+seconds?)?$/i))) {
+            const { id, block } = cmd(match[2] ? 'looks_sayforsecs' : 'looks_say');
+            block[id].inputs.MESSAGE = val(match[1]);
+            if (match[2]) block[id].inputs.SECS = val(match[2]);
+            return ret(block);
+        }
+        if ((match = line.match(/^think\s+(.+?)(?:\s+for\s+(.+)\s+seconds?)?$/i))) {
+            const { id, block } = cmd(match[2] ? 'looks_thinkforsecs' : 'looks_think');
+            block[id].inputs.MESSAGE = val(match[1]);
+            if (match[2]) block[id].inputs.SECS = val(match[2]);
+            return ret(block);
+        }
+        if (line.toLowerCase() === 'show') return { block: this.createBlock('looks_show').block, extraBlocks: {} };
+        if (line.toLowerCase() === 'hide') return { block: this.createBlock('looks_hide').block, extraBlocks: {} };
+        if ((match = line.match(/^switch costume to\s+(.+)$/i))) {
+            const { id, block } = cmd('looks_switchcostumeto'); block[id].inputs.COSTUME = val(match[1]); return ret(block);
+        }
+        if (line.toLowerCase() === 'next costume') return { block: this.createBlock('looks_nextcostume').block, extraBlocks: {} };
+        if ((match = line.match(/^switch backdrop to\s+(.+)$/i))) {
+            const { id, block } = cmd('looks_switchbackdropto');
+            block[id].inputs.BACKDROP = this.menuInput(context, 'looks_backdrops', 'BACKDROP', this.unquote(match[1]));
+            return ret(block);
+        }
+        if (line.toLowerCase() === 'next backdrop') return { block: this.createBlock('looks_nextbackdrop').block, extraBlocks: {} };
+        if ((match = line.match(/^change size by\s+(.+)$/i))) {
+            const { id, block } = cmd('looks_changesizeby'); block[id].inputs.CHANGE = val(match[1]); return ret(block);
+        }
+        if ((match = line.match(/^set size to\s+(.+)$/i))) {
+            const { id, block } = cmd('looks_setsizeto'); block[id].inputs.SIZE = val(match[1]); return ret(block);
+        }
+        if ((match = line.match(/^change\s+(color|fisheye|whirl|pixelate|mosaic|brightness|ghost)\s+effect by\s+(.+)$/i))) {
+            const { id, block } = cmd('looks_changeeffectby');
+            block[id].fields.EFFECT = [match[1].toUpperCase(), null]; block[id].inputs.CHANGE = val(match[2]); return ret(block);
+        }
+        if ((match = line.match(/^set\s+(color|fisheye|whirl|pixelate|mosaic|brightness|ghost)\s+effect to\s+(.+)$/i))) {
+            const { id, block } = cmd('looks_seteffectto');
+            block[id].fields.EFFECT = [match[1].toUpperCase(), null]; block[id].inputs.VALUE = val(match[2]); return ret(block);
+        }
+        if (/^clear graphic effects$/i.test(line)) return { block: this.createBlock('looks_cleargraphiceffects').block, extraBlocks: {} };
+        if (/^go to front$/i.test(line)) {
+            const { id, block } = this.createBlock('looks_gotofrontback'); block[id].fields.FRONT_BACK = ['front', null];
+            return { block, extraBlocks: {} };
+        }
+        if (/^go to back$/i.test(line)) {
+            const { id, block } = this.createBlock('looks_gotofrontback'); block[id].fields.FRONT_BACK = ['back', null];
+            return { block, extraBlocks: {} };
+        }
+        if ((match = line.match(/^go (forward|backward|back)\s+(.+?)\s+layers?$/i))) {
+            const { id, block } = cmd('looks_goforwardbackwardlayers');
+            block[id].fields.FORWARD_BACKWARD = [match[1].toLowerCase() === 'forward' ? 'forward' : 'backward', null];
+            block[id].inputs.NUM = val(match[2]); return ret(block);
+        }
+
+        // ---- Sound -----------------------------------------------------------------
+        if ((match = line.match(/^play sound\s+(.+)\s+until done$/i))) {
+            const { id, block } = cmd('sound_playuntildone'); block[id].inputs.SOUND_MENU = val(match[1]); return ret(block);
+        }
+        if ((match = line.match(/^play sound\s+(.+)$/i))) {
+            const { id, block } = cmd('sound_play'); block[id].inputs.SOUND_MENU = val(match[1]); return ret(block);
+        }
+        if (line.toLowerCase() === 'stop all sounds') return { block: this.createBlock('sound_stopallsounds').block, extraBlocks: {} };
+        if ((match = line.match(/^change volume by\s+(.+)$/i))) {
+            const { id, block } = cmd('sound_changevolumeby'); block[id].inputs.VOLUME = val(match[1]); return ret(block);
+        }
+        if ((match = line.match(/^set volume to\s+(.+)$/i))) {
+            const { id, block } = cmd('sound_setvolumeto'); block[id].inputs.VOLUME = val(match[1]); return ret(block);
+        }
+
+        // ---- Pen -------------------------------------------------------------------
+        if (line.toLowerCase() === 'clear') { ext('pen'); return { block: this.createBlock('pen_clear').block, extraBlocks: {} }; }
+        if (line.toLowerCase() === 'stamp') { ext('pen'); return { block: this.createBlock('pen_stamp').block, extraBlocks: {} }; }
+        if (line.toLowerCase() === 'pen down') { ext('pen'); return { block: this.createBlock('pen_penDown').block, extraBlocks: {} }; }
+        if (line.toLowerCase() === 'pen up') { ext('pen'); return { block: this.createBlock('pen_penUp').block, extraBlocks: {} }; }
+        if ((match = line.match(/^set pen color to\s+(.+)$/i))) {
+            ext('pen'); const { id, block } = cmd('pen_setPenColorToColor'); block[id].inputs.COLOR = val(match[1]); return ret(block);
+        }
+        if ((match = line.match(/^change pen size by\s+(.+)$/i))) {
+            ext('pen'); const { id, block } = cmd('pen_changePenSizeBy'); block[id].inputs.SIZE = val(match[1]); return ret(block);
+        }
+        if ((match = line.match(/^set pen size to\s+(.+)$/i))) {
+            ext('pen'); const { id, block } = cmd('pen_setPenSizeTo'); block[id].inputs.SIZE = val(match[1]); return ret(block);
+        }
+
+        // ---- Sensing ---------------------------------------------------------------
+        if ((match = line.match(/^ask\s+(.+?)\s+and wait$/i))) {
+            const { id, block } = cmd('sensing_askandwait'); block[id].inputs.QUESTION = val(match[1]); return ret(block);
+        }
+        if (line.toLowerCase() === 'reset timer') return { block: this.createBlock('sensing_resettimer').block, extraBlocks: {} };
+
+        // ---- Lists (before the generic variable set/change) ------------------------
+        if ((match = line.match(/^add\s+(.+?)\s+to\s+(.+)$/i)) && this.isListTarget(match[2], target)) {
+            const list = this.getOrCreateList(match[2].trim(), target);
+            const { id, block } = cmd('data_addtolist');
+            block[id].inputs.ITEM = val(match[1]); block[id].fields.LIST = [list.name, list.id]; return ret(block);
+        }
+        if ((match = line.match(/^delete all of\s+(.+)$/i))) {
+            const list = this.getOrCreateList(match[1].trim(), target);
+            const { id, block } = this.createBlock('data_deletealloflist'); block[id].fields.LIST = [list.name, list.id];
+            return { block, extraBlocks: {} };
+        }
+        if ((match = line.match(/^delete\s+(.+?)\s+of\s+(.+)$/i)) && this.isListTarget(match[2], target)) {
+            const list = this.getOrCreateList(match[2].trim(), target);
+            const { id, block } = cmd('data_deleteoflist');
+            block[id].inputs.INDEX = val(match[1]); block[id].fields.LIST = [list.name, list.id]; return ret(block);
+        }
+        if ((match = line.match(/^insert\s+(.+?)\s+at\s+(.+?)\s+of\s+(.+)$/i))) {
+            const list = this.getOrCreateList(match[3].trim(), target);
+            const { id, block } = cmd('data_insertatlist');
+            block[id].inputs.ITEM = val(match[1]); block[id].inputs.INDEX = val(match[2]);
+            block[id].fields.LIST = [list.name, list.id]; return ret(block);
+        }
+        if ((match = line.match(/^replace item\s+(.+?)\s+of\s+(.+?)\s+with\s+(.+)$/i))) {
+            const list = this.getOrCreateList(match[2].trim(), target);
+            const { id, block } = cmd('data_replaceitemoflist');
+            block[id].inputs.INDEX = val(match[1]); block[id].inputs.ITEM = val(match[3]);
+            block[id].fields.LIST = [list.name, list.id]; return ret(block);
+        }
+        if ((match = line.match(/^show list\s+(.+)$/i))) {
+            const list = this.getOrCreateList(match[1].trim(), target);
+            const { id, block } = this.createBlock('data_showlist'); block[id].fields.LIST = [list.name, list.id];
+            return { block, extraBlocks: {} };
+        }
+        if ((match = line.match(/^hide list\s+(.+)$/i))) {
+            const list = this.getOrCreateList(match[1].trim(), target);
+            const { id, block } = this.createBlock('data_hidelist'); block[id].fields.LIST = [list.name, list.id];
+            return { block, extraBlocks: {} };
+        }
+        if ((match = line.match(/^show variable\s+(.+)$/i))) {
+            const v = this.getOrCreateVariable(match[1].trim(), target);
+            const { id, block } = this.createBlock('data_showvariable'); block[id].fields.VARIABLE = [v.name, v.id];
+            return { block, extraBlocks: {} };
+        }
+        if ((match = line.match(/^hide variable\s+(.+)$/i))) {
+            const v = this.getOrCreateVariable(match[1].trim(), target);
+            const { id, block } = this.createBlock('data_hidevariable'); block[id].fields.VARIABLE = [v.name, v.id];
+            return { block, extraBlocks: {} };
+        }
+
+        // ---- Control ---------------------------------------------------------------
+        if ((match = line.match(/^wait\s+(.+)\s+seconds?$/i))) {
+            const { id, block } = cmd('control_wait'); block[id].inputs.DURATION = val(match[1]); return ret(block);
+        }
+        if ((match = line.match(/^wait until\s+(.+)$/i))) {
+            const { id, block } = cmd('control_wait_until');
+            block[id].inputs.CONDITION = [2, this.parseCondition(match[1], context)]; return ret(block);
+        }
+        if (line.toLowerCase() === 'stop all') {
+            const { id, block } = this.createBlock('control_stop'); block[id].fields.STOP_OPTION = ['all', null];
+            block[id].mutation = { tagName: 'mutation', children: [], hasnext: 'false' };
+            return { block, extraBlocks: {} };
+        }
+        if (/^stop this script$/i.test(line)) {
+            const { id, block } = this.createBlock('control_stop'); block[id].fields.STOP_OPTION = ['this script', null];
+            block[id].mutation = { tagName: 'mutation', children: [], hasnext: 'false' };
+            return { block, extraBlocks: {} };
+        }
+        if (/^stop other scripts in sprite$/i.test(line)) {
+            const { id, block } = this.createBlock('control_stop'); block[id].fields.STOP_OPTION = ['other scripts in sprite', null];
+            block[id].mutation = { tagName: 'mutation', children: [], hasnext: 'true' };
+            return { block, extraBlocks: {} };
+        }
+        if ((match = line.match(/^create clone of\s+(.+)$/i))) {
+            const { id, block } = cmd('control_create_clone_of');
+            block[id].inputs.CLONE_OPTION = this.menuInput(context, 'control_create_clone_of_menu', 'CLONE_OPTION', this.cloneMenuValue(match[1]));
+            return ret(block);
+        }
+        if (/^delete this clone$/i.test(line)) {
+            return { block: this.createBlock('control_delete_this_clone').block, extraBlocks: {} };
+        }
+
+        // ---- Broadcasts ------------------------------------------------------------
+        if ((match = line.match(/^broadcast\s+(.+?)\s+and wait$/i))) {
+            const bc = this.getOrCreateBroadcast(this.unquote(match[1]));
+            const { id, block } = cmd('event_broadcastandwait');
+            block[id].inputs.BROADCAST_INPUT = [1, [11, bc.name, bc.id]]; return ret(block);
+        }
+        if ((match = line.match(/^broadcast\s+(.+)$/i))) {
+            const bc = this.getOrCreateBroadcast(this.unquote(match[1]));
+            const { id, block } = cmd('event_broadcast');
+            block[id].inputs.BROADCAST_INPUT = [1, [11, bc.name, bc.id]]; return ret(block);
+        }
+
+        // ---- Generic variable set / change (LAST so specific commands win) ---------
         if ((match = line.match(/^set\s+(.+?)\s+to\s+(.+)$/i))) {
             const variable = this.getOrCreateVariable(match[1].trim(), target);
-            const { id, block } = this.createBlock('data_setvariableto');
-            block[id].inputs.VALUE = this.parseValue(match[2], context);
-            block[id].fields.VARIABLE = [variable.name, variable.id];
-            return { block, extraBlocks: context.extraBlocks };
+            const { id, block } = cmd('data_setvariableto');
+            block[id].inputs.VALUE = val(match[2]); block[id].fields.VARIABLE = [variable.name, variable.id]; return ret(block);
         }
-
         if ((match = line.match(/^change\s+(.+?)\s+by\s+(.+)$/i))) {
             const variable = this.getOrCreateVariable(match[1].trim(), target);
-            const { id, block } = this.createBlock('data_changevariableby');
-            block[id].inputs.VALUE = this.parseValue(match[2], context);
-            block[id].fields.VARIABLE = [variable.name, variable.id];
-            return { block, extraBlocks: context.extraBlocks };
-        }
-
-        // Looks commands
-        if ((match = line.match(/^say\s+(.+?)(?:\s+for\s+(.+)\s+seconds?)?$/i))) {
-            const opcode = match[2] ? 'looks_sayforsecs' : 'looks_say';
-            const { id, block } = this.createBlock(opcode);
-            block[id].inputs.MESSAGE = this.parseValue(match[1], context);
-            if (match[2]) {
-                block[id].inputs.SECS = this.parseValue(match[2], context);
-            }
-            return { block, extraBlocks: context.extraBlocks };
-        }
-
-        if ((match = line.match(/^think\s+(.+?)(?:\s+for\s+(.+)\s+seconds?)?$/i))) {
-            const opcode = match[2] ? 'looks_thinkforsecs' : 'looks_think';
-            const { id, block } = this.createBlock(opcode);
-            block[id].inputs.MESSAGE = this.parseValue(match[1], context);
-            if (match[2]) {
-                block[id].inputs.SECS = this.parseValue(match[2], context);
-            }
-            return { block, extraBlocks: context.extraBlocks };
-        }
-
-        if (line.toLowerCase() === 'show') {
-            return { block: this.createBlock('looks_show').block, extraBlocks: {} };
-        }
-
-        if (line.toLowerCase() === 'hide') {
-            return { block: this.createBlock('looks_hide').block, extraBlocks: {} };
-        }
-
-        if ((match = line.match(/^switch costume to\s+(.+)$/i))) {
-            const { id, block } = this.createBlock('looks_switchcostumeto');
-            block[id].inputs.COSTUME = this.parseValue(match[1], context);
-            return { block, extraBlocks: context.extraBlocks };
-        }
-
-        if (line.toLowerCase() === 'next costume') {
-            return { block: this.createBlock('looks_nextcostume').block, extraBlocks: {} };
-        }
-
-        if ((match = line.match(/^change size by\s+(.+)$/i))) {
-            const { id, block } = this.createBlock('looks_changesizeby');
-            block[id].inputs.CHANGE = this.parseValue(match[1], context);
-            return { block, extraBlocks: context.extraBlocks };
-        }
-
-        if ((match = line.match(/^set size to\s+(.+)$/i))) {
-            const { id, block } = this.createBlock('looks_setsizeto');
-            block[id].inputs.SIZE = this.parseValue(match[1], context);
-            return { block, extraBlocks: context.extraBlocks };
-        }
-
-        // Sound commands
-        if ((match = line.match(/^play sound\s+(.+)$/i))) {
-            const { id, block } = this.createBlock('sound_play');
-            block[id].inputs.SOUND_MENU = this.parseValue(match[1], context);
-            return { block, extraBlocks: context.extraBlocks };
-        }
-
-        if ((match = line.match(/^play sound\s+(.+)\s+until done$/i))) {
-            const { id, block } = this.createBlock('sound_playuntildone');
-            block[id].inputs.SOUND_MENU = this.parseValue(match[1], context);
-            return { block, extraBlocks: context.extraBlocks };
-        }
-
-        if (line.toLowerCase() === 'stop all sounds') {
-            return { block: this.createBlock('sound_stopallsounds').block, extraBlocks: {} };
-        }
-
-        if ((match = line.match(/^change volume by\s+(.+)$/i))) {
-            const { id, block } = this.createBlock('sound_changevolumeby');
-            block[id].inputs.VOLUME = this.parseValue(match[1], context);
-            return { block, extraBlocks: context.extraBlocks };
-        }
-
-        if ((match = line.match(/^set volume to\s+(.+)$/i))) {
-            const { id, block } = this.createBlock('sound_setvolumeto');
-            block[id].inputs.VOLUME = this.parseValue(match[1], context);
-            return { block, extraBlocks: context.extraBlocks };
-        }
-
-        // Pen commands
-        if (line.toLowerCase() === 'clear') {
-            // Add pen extension if not already added
-            if (!this.project.extensions.includes('pen')) {
-                this.project.extensions.push('pen');
-            }
-            return { block: this.createBlock('pen_clear').block, extraBlocks: {} };
-        }
-
-        if (line.toLowerCase() === 'pen down') {
-            if (!this.project.extensions.includes('pen')) {
-                this.project.extensions.push('pen');
-            }
-            return { block: this.createBlock('pen_penDown').block, extraBlocks: {} };
-        }
-
-        if (line.toLowerCase() === 'pen up') {
-            if (!this.project.extensions.includes('pen')) {
-                this.project.extensions.push('pen');
-            }
-            return { block: this.createBlock('pen_penUp').block, extraBlocks: {} };
-        }
-
-        if ((match = line.match(/^set pen color to\s+(.+)$/i))) {
-            if (!this.project.extensions.includes('pen')) {
-                this.project.extensions.push('pen');
-            }
-            const { id, block } = this.createBlock('pen_setPenColorToColor');
-            block[id].inputs.COLOR = this.parseValue(match[1], context);
-            return { block, extraBlocks: context.extraBlocks };
-        }
-
-        if ((match = line.match(/^change pen size by\s+(.+)$/i))) {
-            if (!this.project.extensions.includes('pen')) {
-                this.project.extensions.push('pen');
-            }
-            const { id, block } = this.createBlock('pen_changePenSizeBy');
-            block[id].inputs.SIZE = this.parseValue(match[1], context);
-            return { block, extraBlocks: context.extraBlocks };
-        }
-
-        if ((match = line.match(/^set pen size to\s+(.+)$/i))) {
-            if (!this.project.extensions.includes('pen')) {
-                this.project.extensions.push('pen');
-            }
-            const { id, block } = this.createBlock('pen_setPenSizeTo');
-            block[id].inputs.SIZE = this.parseValue(match[1], context);
-            return { block, extraBlocks: context.extraBlocks };
-        }
-
-        // Sensing commands
-        if ((match = line.match(/^ask\s+(.+?)\s+and wait$/i))) {
-            const { id, block } = this.createBlock('sensing_askandwait');
-            block[id].inputs.QUESTION = this.parseValue(match[1], context);
-            return { block, extraBlocks: context.extraBlocks };
-        }
-
-        if (line.toLowerCase() === 'answer') {
-            return { block: this.createBlock('sensing_answer').block, extraBlocks: {} };
-        }
-
-        if (line.toLowerCase() === 'mouse x') {
-            return { block: this.createBlock('sensing_mousex').block, extraBlocks: {} };
-        }
-
-        if (line.toLowerCase() === 'mouse y') {
-            return { block: this.createBlock('sensing_mousey').block, extraBlocks: {} };
-        }
-
-        if (line.toLowerCase() === 'mouse down?') {
-            return { block: this.createBlock('sensing_mousedown').block, extraBlocks: {} };
-        }
-
-        if (line.toLowerCase() === 'timer') {
-            return { block: this.createBlock('sensing_timer').block, extraBlocks: {} };
-        }
-
-        if (line.toLowerCase() === 'reset timer') {
-            return { block: this.createBlock('sensing_resettimer').block, extraBlocks: {} };
-        }
-
-        // Control commands
-        if ((match = line.match(/^wait\s+(.+)\s+seconds?$/i))) {
-            const { id, block } = this.createBlock('control_wait');
-            block[id].inputs.DURATION = this.parseValue(match[1], context);
-            return { block, extraBlocks: context.extraBlocks };
-        }
-
-        if (line.toLowerCase() === 'stop all') {
-            const { id, block } = this.createBlock('control_stop');
-            block[id].fields.STOP_OPTION = ['all', null];
-            return { block, extraBlocks: {} };
-        }
-
-        // Event commands
-        if ((match = line.match(/^when\s+(.+?)\s+key\s+pressed/i))) {
-            let key = match[1].toLowerCase().trim();
-            
-            // Fix key name formatting for Scratch compatibility
-            const keyMap = {
-                'left arrow': 'left arrow',
-                'right arrow': 'right arrow', 
-                'up arrow': 'up arrow',
-                'down arrow': 'down arrow',
-                'leftarrow': 'left arrow',
-                'rightarrow': 'right arrow',
-                'uparrow': 'up arrow',
-                'downarrow': 'down arrow',
-                'space': 'space'
-            };
-            
-            key = keyMap[key] || key;
-            
-            const { id, block } = this.createBlock('event_whenkeypressed', { topLevel: true });
-            block[id].fields.KEY_OPTION = [key, null];
-            return { block, extraBlocks: {} };
-        }
-
-        if (line.includes('flag clicked')) {
-            return { 
-                block: this.createBlock('event_whenflagclicked', { topLevel: true }).block, 
-                extraBlocks: {} 
-            };
-        }
-
-        if ((match = line.match(/^broadcast\s+(.+)$/i))) {
-            const { id, block } = this.createBlock('event_broadcast');
-            block[id].inputs.BROADCAST_INPUT = this.parseValue(match[1], context);
-            return { block, extraBlocks: context.extraBlocks };
+            const { id, block } = cmd('data_changevariableby');
+            block[id].inputs.VALUE = val(match[2]); block[id].fields.VARIABLE = [variable.name, variable.id]; return ret(block);
         }
 
         throw new ParseError(`Unknown command: "${line}"`);
+    }
+
+    // Menu value helpers ------------------------------------------------------------
+    spriteMenuValue(name) {
+        name = this.unquote(name).trim();
+        if (/^mouse(-pointer)?$/i.test(name)) return '_mouse_';
+        if (/^random( position)?$/i.test(name)) return '_random_';
+        return name;
+    }
+    cloneMenuValue(name) {
+        name = this.unquote(name).trim();
+        if (/^(myself|me|this sprite)$/i.test(name)) return '_myself_';
+        return name;
+    }
+    // Only treat `add/delete X of Y` as a list op when Y is plausibly a list.
+    isListTarget(name, target) {
+        name = name.trim();
+        return this.listExists(name, target) ||
+            this.declaredGlobalLists.has(name) ||
+            this.declaredLocalLists.has(`${target.name}:${name}`);
     }
 
     createStage() {
@@ -759,6 +910,17 @@ class EnhancedSB3Creator {
         };
     }
 
+    // Build a distinct colored costume SVG so sprites don't all render identically.
+    createSpriteCostume(name) {
+        const palette = ['#4C97FF', '#FF6680', '#59C059', '#FFAB19', '#9966FF', '#FF8C1A', '#0FBD8C', '#DB6E00'];
+        const color = palette[this.spriteColorIndex++ % palette.length];
+        const letter = (name.trim()[0] || 'S').toUpperCase().replace(/[<>&"]/g, '');
+        const assetId = this.generateId();
+        const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 80 80"><circle cx="40" cy="40" r="36" fill="${color}" stroke="#000000" stroke-width="3"/><text x="40" y="53" font-size="40" text-anchor="middle" fill="#ffffff" font-family="Helvetica, Arial, sans-serif">${letter}</text></svg>`;
+        this.assets.set(assetId, { type: 'svg', data: svg, filename: `${assetId}.svg`, metadata: { width: 80, height: 80 } });
+        return { assetId, name: 'costume1', md5ext: `${assetId}.svg`, dataFormat: 'svg', rotationCenterX: 40, rotationCenterY: 40 };
+    }
+
     createSprite(name) {
         return {
             isStage: false,
@@ -769,14 +931,7 @@ class EnhancedSB3Creator {
             blocks: {},
             comments: {},
             currentCostume: 0,
-            costumes: [{
-                assetId: "bcf454acf82e4504149f7ffe07081dbc",
-                name: "costume1",
-                md5ext: "bcf454acf82e4504149f7ffe07081dbc.svg",
-                dataFormat: "svg",
-                rotationCenterX: 48,
-                rotationCenterY: 50
-            }],
+            costumes: [this.createSpriteCostume(name)],
             sounds: [{
                 assetId: "83c36d806dc92327b9e7049a565c6bff",
                 name: "Meow",
@@ -851,20 +1006,39 @@ class EnhancedSB3Creator {
                     const context = { target, extraBlocks: {}, parentId: null };
 
                     if (trimmed.startsWith('FOREVER')) {
-                        newBlockData = { 
-                            block: this.createBlock('control_forever').block, 
-                            extraBlocks: {} 
+                        newBlockData = {
+                            block: this.createBlock('control_forever').block,
+                            extraBlocks: {}
                         };
+                    } else if (/^REPEAT\s+UNTIL\b/i.test(trimmed)) {
+                        const m = trimmed.match(/^REPEAT\s+UNTIL\s+(.+):$/i);
+                        if (!m) {
+                            this.warnings.push(`Malformed REPEAT UNTIL (expected "REPEAT UNTIL <condition>:"): "${trimmed}"`);
+                            i++; continue;
+                        }
+                        const { id, block } = this.createBlock('control_repeat_until');
+                        context.parentId = id;
+                        block[id].inputs.CONDITION = [2, this.parseCondition(m[1], context)];
+                        newBlockData = { block, extraBlocks: context.extraBlocks };
                     } else if (trimmed.startsWith('REPEAT')) {
-                        const times = trimmed.match(/REPEAT\s+(.+?):/i)[1];
+                        const m = trimmed.match(/REPEAT\s+(.+?):/i);
+                        if (!m) {
+                            this.warnings.push(`Malformed REPEAT (expected "REPEAT <count>:"): "${trimmed}"`);
+                            i++; continue;
+                        }
                         const { id, block } = this.createBlock('control_repeat');
-                        block[id].inputs.TIMES = this.parseValue(times, context);
+                        context.parentId = id;
+                        block[id].inputs.TIMES = this.parseValue(m[1], context);
                         newBlockData = { block, extraBlocks: context.extraBlocks };
                     } else if (trimmed.startsWith('IF')) {
-                        const condition = trimmed.match(/IF\s+(.+?)\s+THEN:/i)[1];
+                        const m = trimmed.match(/IF\s+(.+?)\s+THEN:/i);
+                        if (!m) {
+                            this.warnings.push(`Malformed IF (expected "IF <condition> THEN:"): "${trimmed}"`);
+                            i++; continue;
+                        }
                         const { id, block } = this.createBlock('control_if');
                         context.parentId = id;
-                        const condId = this.parseCondition(condition, context);
+                        const condId = this.parseCondition(m[1], context);
                         block[id].inputs.CONDITION = [2, condId];
                         newBlockData = { block, extraBlocks: context.extraBlocks };
                     } else if (trimmed.startsWith('ELSE')) {
@@ -920,15 +1094,43 @@ class EnhancedSB3Creator {
             const line = lines[i];
             const trimmed = line.trim();
             
-            if (!trimmed || trimmed.startsWith('#')) { 
-                i++; 
-                continue; 
+            if (!trimmed || trimmed.startsWith('#')) {
+                i++;
+                continue;
+            }
+
+            // Explicit scope declarations
+            let decl;
+            if ((decl = trimmed.match(/^(GLOBAL|LOCAL)\s+LIST\s+(.+)$/i))) {
+                const name = decl[2].trim();
+                if (decl[1].toUpperCase() === 'GLOBAL') this.declaredGlobalLists.add(name);
+                else this.declaredLocalLists.add(`${currentTarget.name}:${name}`);
+                this.getOrCreateList(name, currentTarget);
+                i++; continue;
+            }
+            if ((decl = trimmed.match(/^LIST\s+(.+)$/i))) {
+                const name = decl[1].trim();
+                if (currentTarget.isStage) this.declaredGlobalLists.add(name);
+                else this.declaredLocalLists.add(`${currentTarget.name}:${name}`);
+                this.getOrCreateList(name, currentTarget);
+                i++; continue;
+            }
+            if ((decl = trimmed.match(/^(GLOBAL|LOCAL)\s+(.+)$/i))) {
+                const name = decl[2].trim();
+                if (decl[1].toUpperCase() === 'GLOBAL') this.declaredGlobals.add(name);
+                else this.declaredLocals.add(`${currentTarget.name}:${name}`);
+                this.getOrCreateVariable(name, currentTarget);
+                i++; continue;
             }
 
             if (trimmed.startsWith('SPRITE') || trimmed.startsWith('STAGE')) {
                 if (trimmed.startsWith('SPRITE')) {
-                    const name = trimmed.match(/SPRITE\s+(.+?):/i)[1];
-                    currentTarget = this.createSprite(name);
+                    const m = trimmed.match(/SPRITE\s+(.+?):/i);
+                    if (!m) {
+                        this.warnings.push(`Malformed SPRITE header (expected "SPRITE <name>:"): "${trimmed}"`);
+                        i++; continue;
+                    }
+                    currentTarget = this.createSprite(m[1].trim());
                     this.project.targets.push(currentTarget);
                 } else {
                     currentTarget = stage;
@@ -992,7 +1194,7 @@ class EnhancedSB3Creator {
         zip.file('83c36d806dc92327b9e7049a565c6bff.wav', silentWav);
 
         // Add custom assets
-        for (const [assetId, assetData] of this.assets) {
+        for (const assetData of this.assets.values()) {
             zip.file(assetData.filename, assetData.data);
         }
 
@@ -1027,6 +1229,60 @@ class EnhancedSB3Creator {
             variablesCreated: this.variables.size,
             targets: this.project.targets.length
         };
+    }
+
+    // Deep referential-integrity check of the generated project graph.
+    // Returns an array of human-readable problems (empty === healthy).
+    checkIntegrity(project = this.project) {
+        const issues = [];
+        const allVarIds = new Set();
+        const allListIds = new Set();
+        const broadcastIds = new Set();
+        for (const t of project.targets) {
+            for (const id of Object.keys(t.variables || {})) allVarIds.add(id);
+            for (const id of Object.keys(t.lists || {})) allListIds.add(id);
+            if (t.isStage) for (const id of Object.keys(t.broadcasts || {})) broadcastIds.add(id);
+        }
+
+        for (const t of project.targets) {
+            const blocks = t.blocks || {};
+            const ids = new Set(Object.keys(blocks));
+            const where = (bid) => `${t.isStage ? 'Stage' : t.name}/${bid}`;
+
+            const checkInput = (bid, key, input) => {
+                if (!Array.isArray(input)) return;
+                const shadowType = input[0];
+                const check = (ref, kind) => {
+                    if (typeof ref === 'string') {
+                        if (!ids.has(ref)) issues.push(`${where(bid)} input ${key} references missing ${kind} block ${ref}`);
+                    } else if (Array.isArray(ref)) {
+                        if (ref[0] === 12 && !allVarIds.has(ref[2])) issues.push(`${where(bid)} input ${key} references undeclared variable ${ref[1]}`);
+                        if (ref[0] === 13 && !allListIds.has(ref[2])) issues.push(`${where(bid)} input ${key} references undeclared list ${ref[1]}`);
+                        if (ref[0] === 11 && !broadcastIds.has(ref[2])) issues.push(`${where(bid)} input ${key} references undeclared broadcast ${ref[1]}`);
+                    }
+                };
+                if (shadowType === 2 || shadowType === 3) check(input[1], 'block'); // boolean/obscured value
+                if (shadowType === 1) check(input[1], 'shadow'); // shadow primitive or menu id
+                if (shadowType === 3 && input[2] !== undefined) check(input[2], 'shadow');
+            };
+
+            for (const [bid, b] of Object.entries(blocks)) {
+                if (b.next && !ids.has(b.next)) issues.push(`${where(bid)} .next points to missing block ${b.next}`);
+                if (b.parent && !ids.has(b.parent)) issues.push(`${where(bid)} .parent points to missing block ${b.parent}`);
+                for (const [key, input] of Object.entries(b.inputs || {})) checkInput(bid, key, input);
+                for (const [fname, fval] of Object.entries(b.fields || {})) {
+                    if (fname === 'VARIABLE' && Array.isArray(fval) && !allVarIds.has(fval[1])) issues.push(`${where(bid)} field VARIABLE references undeclared variable ${fval[0]}`);
+                    if (fname === 'LIST' && Array.isArray(fval) && !allListIds.has(fval[1])) issues.push(`${where(bid)} field LIST references undeclared list ${fval[0]}`);
+                    if (fname === 'BROADCAST_OPTION' && Array.isArray(fval) && !broadcastIds.has(fval[1])) issues.push(`${where(bid)} field BROADCAST_OPTION references undeclared broadcast ${fval[0]}`);
+                }
+            }
+
+            // Every referenced costume/sound asset must be present in the project.
+            for (const c of t.costumes || []) {
+                if (!c.assetId || !c.md5ext) issues.push(`${where('costume')} ${c.name} missing asset id`);
+            }
+        }
+        return issues;
     }
 
     // Add method to handle SVG uploads
@@ -1078,4 +1334,4 @@ class EnhancedSB3Creator {
     }
 }
 
-export default EnhancedSB3Creator;
+export default SB3Creator;

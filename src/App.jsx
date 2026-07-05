@@ -21,8 +21,9 @@ function App() {
         creatorRef.current = new RobustSB3Creator();
     }
 
+    // Seed the editor with a default example on mount.
     useEffect(() => {
-        handleExampleChange('game');
+        setPseudocode(examples.game);
     }, []);
 
     const showStatus = (message, type, duration = 5000) => {
