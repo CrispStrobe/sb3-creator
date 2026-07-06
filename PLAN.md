@@ -403,7 +403,9 @@ to our bricks×education×codegen intersection); **BlocklyML** (domain Blockly�
     Scratch's loose equality; conditional `import`s. Tested: all 28 examples produce
     **syntactically valid Python** (real `py_compile` in `test/codegen.test.mjs`), and the
     quiz **runs and scores correctly** (fed `12`/`32` → `2`).
-  - [ ] **JavaScript emitter** (same walker, JS templates).
+  - [x] **JavaScript emitter** (`generateJavaScript`) — same walker, JS templates; closures
+    mean no `global` decls and empty `{}` needs no `pass`. Runs in a browser (console/prompt).
+    Tested: all 28 examples parse (`new Function`), the quiz runs and scores `2`.
   - [ ] Language dropdown on the **From blocks** button in the Code tab; run Python in-browser
     via Skulpt/Pyodide for the algorithmic subset.
 - [ ] **P2:** a tiny `brickwright` Python/JS runtime shim so full projects' emitted code runs

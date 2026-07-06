@@ -2257,7 +2257,10 @@ class SB3Creator {
         let id = String(name).trim().replace(/[^A-Za-z0-9_]+/g, '_').replace(/^_+|_+$/g, '') || 'v';
         if (/^[0-9]/.test(id)) id = 'v_' + id;
         const kw = ['for', 'while', 'if', 'else', 'elif', 'and', 'or', 'not', 'in', 'is', 'def', 'return',
-            'True', 'False', 'None', 'import', 'class', 'lambda', 'global', 'pass', 'break', 'continue', 'answer'];
+            'True', 'False', 'None', 'import', 'class', 'lambda', 'global', 'pass', 'break', 'continue', 'answer',
+            // also reserve JS keywords so a name is safe across both codegen targets
+            'function', 'var', 'let', 'const', 'null', 'undefined', 'new', 'delete', 'typeof', 'void', 'this',
+            'super', 'switch', 'case', 'default', 'try', 'catch', 'finally', 'throw', 'yield', 'await', 'async', 'do'];
         if (kw.includes(id)) id += '_';
         const used = new Set(this._pyNames.values());
         let final = id, n = 2;
@@ -2502,6 +2505,180 @@ class SB3Creator {
         for (const fn of funcDefs) { out.push(fn); out.push(''); }
         for (const h of hatDefs) { out.push(h); out.push(''); }
         if (flagCalls.length) { out.push('# run'); out.push(...flagCalls); }
+        return out.join('\n').replace(/\n{3,}/g, '\n\n').trim() + '\n';
+    }
+
+    // ---- JavaScript code generation (same walker, JS templates) -----------------
+    // JS closures mean functions read the outer `let` state directly (no `global`),
+    // and empty `{}` is valid (no `pass` needed). Runs in a browser (console/prompt).
+    jsVal(input, blocks) {
+        if (!Array.isArray(input)) return 'undefined';
+        const inner = input[1];
+        if (Array.isArray(inner)) {
+            const [type, a] = inner;
+            if (type === 12 || type === 13) return this.pyName(a);
+            return /^-?\d+(\.\d+)?$/.test(String(a)) ? String(a) : this.pyStr(a);
+        }
+        return this.jsRep(blocks[inner], blocks);
+    }
+
+    jsMathop(op, x) {
+        const m = {
+            abs: `Math.abs(${x})`, floor: `Math.floor(${x})`, ceiling: `Math.ceil(${x})`, sqrt: `Math.sqrt(${x})`,
+            sin: `Math.sin((${x}) * Math.PI / 180)`, cos: `Math.cos((${x}) * Math.PI / 180)`, tan: `Math.tan((${x}) * Math.PI / 180)`,
+            ln: `Math.log(${x})`, log: `Math.log10(${x})`, 'e ^': `Math.exp(${x})`, '10 ^': `(10 ** (${x}))`
+        };
+        return m[op] || `Math.abs(${x})`;
+    }
+
+    jsRep(b, blocks) {
+        if (!b) return 'undefined';
+        const v = (k) => this.jsVal(b.inputs[k], blocks);
+        const f = (k) => (b.fields[k] ? b.fields[k][0] : '');
+        const L = (k) => this.pyName(f(k));
+        switch (b.opcode) {
+            case 'operator_add': return `(${v('NUM1')} + ${v('NUM2')})`;
+            case 'operator_subtract': return `(${v('NUM1')} - ${v('NUM2')})`;
+            case 'operator_multiply': return `(${v('NUM1')} * ${v('NUM2')})`;
+            case 'operator_divide': return `(${v('NUM1')} / ${v('NUM2')})`;
+            case 'operator_mod': return `(${v('NUM1')} % ${v('NUM2')})`;
+            case 'operator_random': this._jsUses.rand = true; return `_rand(${v('FROM')}, ${v('TO')})`;
+            case 'operator_round': return `Math.round(${v('NUM')})`;
+            case 'operator_mathop': return this.jsMathop(f('OPERATOR'), v('NUM'));
+            case 'operator_join': return `(String(${v('STRING1')}) + String(${v('STRING2')}))`;
+            case 'operator_letter_of': return `String(${v('STRING')})[Number(${v('LETTER')}) - 1]`;
+            case 'operator_length': return `String(${v('STRING')}).length`;
+            case 'operator_contains': return `String(${v('STRING1')}).includes(String(${v('STRING2')}))`;
+            case 'data_itemoflist': return `${L('LIST')}[Number(${v('INDEX')}) - 1]`;
+            case 'data_lengthoflist': return `${L('LIST')}.length`;
+            case 'data_listcontainsitem': return `${L('LIST')}.includes(${v('ITEM')})`;
+            case 'sensing_answer': this._jsUses.answer = true; return 'answer';
+            case 'argument_reporter_string_number':
+            case 'argument_reporter_boolean': return this.pyName(f('VALUE'));
+            default: return 'undefined';
+        }
+    }
+
+    jsCond(ref, blocks) {
+        const b = blocks[ref];
+        if (!b) return 'false';
+        const v = (k) => this.jsVal(b.inputs[k], blocks);
+        const c = (k) => this.jsCond(b.inputs[k][1], blocks);
+        switch (b.opcode) {
+            case 'operator_gt': return `(${v('OPERAND1')} > ${v('OPERAND2')})`;
+            case 'operator_lt': return `(${v('OPERAND1')} < ${v('OPERAND2')})`;
+            case 'operator_equals': this._jsUses.eq = true; return `_eq(${v('OPERAND1')}, ${v('OPERAND2')})`;
+            case 'operator_and': return `(${c('OPERAND1')} && ${c('OPERAND2')})`;
+            case 'operator_or': return `(${c('OPERAND1')} || ${c('OPERAND2')})`;
+            case 'operator_not': return `(!${c('OPERAND')})`;
+            case 'operator_contains': return `String(${v('STRING1')}).includes(String(${v('STRING2')}))`;
+            case 'data_listcontainsitem': return `${this.pyName(b.fields.LIST[0])}.includes(${v('ITEM')})`;
+            case 'argument_reporter_boolean': return this.pyName(b.fields.VALUE[0]);
+            default: return 'false';
+        }
+    }
+
+    jsStackFrom(firstId, blocks, level) {
+        const lines = [];
+        let id = firstId;
+        while (id && blocks[id]) { lines.push(...this.jsStackBlock(blocks[id], blocks, level)); id = blocks[id].next; }
+        return lines;
+    }
+
+    jsStackBlock(b, blocks, level) {
+        const pad = '  '.repeat(level);
+        const v = (k) => this.jsVal(b.inputs[k], blocks);
+        const f = (k) => (b.fields[k] ? b.fields[k][0] : '');
+        const L = (k) => this.pyName(f(k));
+        const sub = (k) => (b.inputs[k] ? this.jsStackFrom(b.inputs[k][1], blocks, level + 1) : []);
+        const line = (t) => [pad + t];
+        const block = (head, k) => [pad + head, ...sub(k), pad + '}'];
+        const cond = () => this.jsCond(b.inputs.CONDITION[1], blocks);
+        switch (b.opcode) {
+            case 'control_forever': return block('while (true) {', 'SUBSTACK');
+            case 'control_repeat': return block(`for (let _i${level} = 0; _i${level} < ${v('TIMES')}; _i${level}++) {`, 'SUBSTACK');
+            case 'control_repeat_until': return block(`while (!(${cond()})) {`, 'SUBSTACK');
+            case 'control_if': return block(`if (${cond()}) {`, 'SUBSTACK');
+            case 'control_if_else': return [pad + `if (${cond()}) {`, ...sub('SUBSTACK'), pad + '} else {', ...sub('SUBSTACK2'), pad + '}'];
+            case 'control_wait': return line(`// wait ${v('DURATION')} seconds`);
+            case 'control_wait_until': return line(`// wait until ${cond()}`);
+            case 'control_stop': return line('return;');
+            case 'looks_sayforsecs': case 'looks_say': case 'looks_thinkforsecs': case 'looks_think':
+                return line(`console.log(${v('MESSAGE')});`);
+            case 'sensing_askandwait': this._jsUses.answer = true; return line(`answer = prompt(String(${v('QUESTION')}));`);
+            case 'data_setvariableto': return line(`${this.pyName(f('VARIABLE'))} = ${v('VALUE')};`);
+            case 'data_changevariableby': return line(`${this.pyName(f('VARIABLE'))} += ${v('VALUE')};`);
+            case 'data_addtolist': return line(`${L('LIST')}.push(${v('ITEM')});`);
+            case 'data_deleteoflist': return line(`${L('LIST')}.splice(Number(${v('INDEX')}) - 1, 1);`);
+            case 'data_deletealloflist': return line(`${L('LIST')}.length = 0;`);
+            case 'data_insertatlist': return line(`${L('LIST')}.splice(Number(${v('INDEX')}) - 1, 0, ${v('ITEM')});`);
+            case 'data_replaceitemoflist': return line(`${L('LIST')}[Number(${v('INDEX')}) - 1] = ${v('ITEM')};`);
+            case 'procedures_call': {
+                const m = b.mutation;
+                const argIds = JSON.parse(m.argumentids || '[]');
+                let ai = 0; const args = [];
+                m.proccode.replace(/%[sb]/g, (tok) => {
+                    const input = b.inputs[argIds[ai++]];
+                    args.push(tok === '%b' ? this.jsCond(input[1], blocks) : this.jsVal(input, blocks));
+                    return '';
+                });
+                return line(`${this.pyProcName(m.proccode)}(${args.join(', ')});`);
+            }
+            default: {
+                const ps = (this.decompileStackBlock(b, blocks, 0)[0] || b.opcode).trim();
+                return line(`// ${ps}`);
+            }
+        }
+    }
+
+    generateJavaScript(project = this.project) {
+        this._pyNames = new Map();
+        this._jsUses = { rand: false, eq: false, answer: false };
+        const targets = project.targets || [];
+        const scalars = new Set(), lists = new Set();
+        for (const t of targets) {
+            for (const vv of Object.values(t.variables || {})) scalars.add(vv[0]);
+            for (const ll of Object.values(t.lists || {})) lists.add(ll[0]);
+        }
+        for (const n of scalars) this.pyName(n);
+        for (const n of lists) this.pyName(n);
+
+        const funcDefs = [], hatDefs = [], flagCalls = [];
+        for (const t of targets) {
+            const blocks = t.blocks || {};
+            for (const b of Object.values(blocks)) {
+                if (!b.topLevel || !this.isHat(b.opcode)) continue;
+                if (b.opcode === 'procedures_definition') {
+                    const proto = blocks[b.inputs.custom_block[1]];
+                    const m = proto.mutation;
+                    const argNames = JSON.parse(m.argumentnames || '[]').map(n => this.pyName(n));
+                    funcDefs.push([`function ${this.pyProcName(m.proccode)}(${argNames.join(', ')}) {`, ...this.jsStackFrom(b.next, blocks, 1), '}'].join('\n'));
+                } else {
+                    const name = this.pyHatName(b);
+                    const isFlag = b.opcode === 'event_whenflagclicked';
+                    let code = [`function ${name}() {`, ...this.jsStackFrom(b.next, blocks, 1), '}'].join('\n');
+                    if (!isFlag) code = `// ${this.decompileHat(b, blocks)}  (event handler — call it when that event happens)\n` + code;
+                    hatDefs.push(code);
+                    if (isFlag) flagCalls.push(`${name}();`);
+                }
+            }
+        }
+
+        const out = [];
+        out.push('// Generated by Brickwright — blocks → JavaScript (algorithmic subset).');
+        out.push('// Sprite / graphics / sound blocks appear as // comments; the rest runs (in a browser).');
+        out.push('');
+        if (this._jsUses.eq) out.push('function _eq(a, b) { const x = Number(a), y = Number(b); if (!Number.isNaN(x) && !Number.isNaN(y)) return x === y; return String(a).toLowerCase() === String(b).toLowerCase(); }');
+        if (this._jsUses.rand) out.push('function _rand(a, b) { a = Number(a); b = Number(b); return Math.floor(Math.random() * (b - a + 1)) + a; }');
+        if (this._jsUses.eq || this._jsUses.rand) out.push('');
+        const state = [];
+        for (const n of scalars) state.push(`let ${this.pyName(n)} = 0;`);
+        for (const n of lists) state.push(`let ${this.pyName(n)} = [];`);
+        if (this._jsUses.answer) state.push('let answer = "";');
+        if (state.length) { out.push(...state); out.push(''); }
+        for (const fn of funcDefs) { out.push(fn); out.push(''); }
+        for (const h of hatDefs) { out.push(h); out.push(''); }
+        if (flagCalls.length) { out.push('// run'); out.push(...flagCalls); }
         return out.join('\n').replace(/\n{3,}/g, '\n\n').trim() + '\n';
     }
 
