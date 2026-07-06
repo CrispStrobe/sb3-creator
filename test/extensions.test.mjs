@@ -322,29 +322,25 @@ test('runtime convention: LEGO Boost commands/reporters emit driver calls + a pl
     const B = c.project.targets.find(t => !t.isStage).blocks;
     const hatId = Object.keys(B).find(id => B[id].opcode === 'event_whenflagclicked');
     const sayId = Object.keys(B).find(id => B[id].opcode === 'looks_say');
-    // command with a menu arg (MOTOR_ID = "A"), and a reporter said
-    B.c1 = { opcode: 'legoboost_motorOn', inputs: { MOTOR_ID: [1, 'm1'] }, fields: {}, parent: hatId, next: sayId };
-    B.m1 = { opcode: 'legoboost_menu_MOTOR_ID', fields: { MOTOR_ID: ['A', null] }, shadow: true, parent: 'c1' };
+    // a command (from the auto-generated registry) + a sensor reporter said
+    B.c1 = { opcode: 'legoboostunified_connect', inputs: {}, fields: {}, parent: hatId, next: sayId };
     B[hatId].next = 'c1'; B[sayId].parent = 'c1';
-    B.rep = { opcode: 'legoboost_getDistance', inputs: { PORT: [1, 'p1'] }, fields: {}, parent: sayId };
-    B.p1 = { opcode: 'legoboost_menu_PORT', fields: { PORT: ['1', null] }, shadow: true, parent: 'rep' };
+    B.rep = { opcode: 'legoboostunified_getDistance', inputs: { PORT: [1, 'p1'] }, fields: {}, parent: sayId };
+    B.p1 = { opcode: 'legoboostunified_menu_PORT', fields: { PORT: ['1', null] }, shadow: true, parent: 'rep' };
     B[sayId].inputs.MESSAGE = [3, 'rep', [10, '']];
     c.syncExtensions();
-    assert.ok(c.project.extensions.includes('legoboost'));
-    assert.equal(c.project.extensionURLs.legoboost, 'https://crispstrobe.github.io/extensions/CrispStrobe/legoboost_universal.js');
+    assert.ok(c.project.extensions.includes('legoboostunified'));
+    assert.equal(c.project.extensionURLs.legoboostunified, 'https://crispstrobe.github.io/extensions/CrispStrobe/legoboost_universal.js');
     const js = c.generateJavaScript();
-    // driver-agnostic program + a pluggable neutral driver
-    assert.match(js, /const _boost = \{/, 'emits a _boost driver');
-    assert.match(js, /_boost\.motorOn\("A"\)/, 'command with resolved menu arg');
-    assert.match(js, /_boost\.distance\(/, 'reporter call');
-    assert.match(js, /_boost driver — .*stub|drives nothing/, 'documented as the swap point');
-    // runs neutral without a real device
+    assert.match(js, /const _legoboostunified = \{/, 'emits the driver');
+    assert.match(js, /_legoboostunified\.connect\(\)/, 'command call');
+    assert.match(js, /_legoboostunified\.getDistance\(/, 'reporter call');
+    assert.match(js, /driver — .*stub|drives nothing/, 'documented as the swap point');
     const logs = [];
     vm.runInNewContext(js, { console: { log: (...a) => logs.push(a.join(' ')) } }, { timeout: 1000 });
     assert.equal(logs[logs.length - 1], '0', 'distance neutral 0 standalone');
-    // Python emits a driver class too
-    assert.match(c.generatePython(), /class _BoostDriver:/);
-    assert.match(c.generatePython(), /_boost\.motorOn\("A"\)/);
+    assert.match(c.generatePython(), /class _LegoboostunifiedDriver:/);
+    assert.match(c.generatePython(), /_legoboostunified\.connect\(\)/);
 });
 
 test('runtime convention: the driver switch selects the backend, program stays the same', () => {
@@ -354,8 +350,7 @@ test('runtime convention: the driver switch selects the backend, program stays t
         const B = c.project.targets.find(t => !t.isStage).blocks;
         const hatId = Object.keys(B).find(id => B[id].opcode === 'event_whenflagclicked');
         const sayId = Object.keys(B).find(id => B[id].opcode === 'looks_say');
-        B.c1 = { opcode: 'legoboost_motorOn', inputs: { MOTOR_ID: [1, 'm1'] }, fields: {}, parent: hatId, next: sayId };
-        B.m1 = { opcode: 'legoboost_menu_MOTOR_ID', fields: { MOTOR_ID: ['A', null] }, shadow: true };
+        B.c1 = { opcode: 'legoboostunified_connect', inputs: {}, fields: {}, parent: hatId, next: sayId };
         B[hatId].next = 'c1'; B[sayId].parent = 'c1';
         c.syncExtensions();
         return c;
@@ -364,16 +359,16 @@ test('runtime convention: the driver switch selects the backend, program stays t
     const remote = build().generateJavaScript(undefined, { driver: 'remote' });
     const onDev = build().generatePython(undefined, { driver: 'ondevice' });
     // same driver-agnostic call in every mode
-    for (const code of [shim, remote]) assert.match(code, /_boost\.motorOn\("A"\)/);
+    for (const code of [shim, remote]) assert.match(code, /_legoboostunified\.connect\(\)/);
     // but different drivers
-    assert.match(shim, /motorOn: \(\) => \{\}/, 'shim: no-op');
+    assert.match(shim, /connect: \(\) => \{\}/, 'shim: no-op');
     assert.match(remote, /_bridge\(|brickwright-bridges/, 'remote: forwards to a bridge');
     assert.match(onDev, /per-hardware transpiler|ev3dev/, 'ondevice: points at the transpiler');
 });
 
 test('runtime convention: adding an extension is declarative (registry-only)', () => {
     const reg = SB3Creator.RUNTIME_EXTENSIONS;
-    assert.ok(reg.universalgamepad && reg.legoboost, 'both registered');
+    assert.ok(reg.universalgamepad && reg.legoboostunified && reg.ev3comprehensive, 'both registered');
     // every op declares a kind + method
     for (const ext of Object.values(reg)) for (const op of Object.values(ext.ops)) {
         assert.ok(['command', 'reporter', 'boolean'].includes(op.kind));
