@@ -4,6 +4,10 @@
 // variables, lists, custom blocks, clones, and control flow run for real.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import nodeVm from 'node:vm';
+import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import path from 'node:path';
 import VM from 'scratch-vm';
 import SB3Creator from '../src/utils/sb3Creator.js';
 import examples from '../src/utils/examples.js';
@@ -12,11 +16,62 @@ import examples from '../src/utils/examples.js';
 const origWarn = console.warn;
 console.warn = () => {};
 
+// The two CrispStrobe extensions (arrays, planetemaths) are custom (non-builtin), so
+// scratch-vm would spin up a browser `Worker` to sandbox them — which doesn't exist in
+// headless node. We instead run each extension's real source against a mock `Scratch`
+// (the same trick as scripts/gen-runtime-registry.mjs) and register the resulting instance
+// as an INTERNAL extension on the main thread, so the project loads and its blocks run.
+const REF = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'reference', 'extensions');
+const BlockType = { COMMAND: 'command', REPORTER: 'reporter', BOOLEAN: 'Boolean', HAT: 'hat', EVENT: 'event', CONDITIONAL: 'conditional', LOOP: 'loop', BUTTON: 'button', LABEL: 'label', XML: 'xml' };
+const ArgumentType = { NUMBER: 'number', STRING: 'string', BOOLEAN: 'Boolean', ANGLE: 'angle', COLOR: 'color', MATRIX: 'matrix', NOTE: 'note', IMAGE: 'image', COSTUME: 'costume', SOUND: 'sound' };
+const Cast = {
+    toNumber: (v) => { if (typeof v === 'number') return Number.isNaN(v) ? 0 : v; const n = Number(v); return Number.isNaN(n) ? 0 : n; },
+    toString: (v) => String(v),
+    toBoolean: (v) => typeof v === 'boolean' ? v : (v === 'true' || (typeof v === 'number' && v !== 0) || (typeof v === 'string' && v !== '' && v !== '0' && v.toLowerCase() !== 'false')),
+    compare: (a, b) => { const na = Number(a), nb = Number(b); if (!Number.isNaN(na) && !Number.isNaN(nb)) return na - nb; const sa = String(a).toLowerCase(), sb = String(b).toLowerCase(); return sa < sb ? -1 : sa > sb ? 1 : 0; },
+    toListIndex: (i, len) => { const n = Math.floor(Number(i)); return (n < 1 || n > len) ? 0 : n; }
+};
+function permissive () {
+    const p = new Proxy(function () {}, {
+        get: (_, k) => { if (k === Symbol.toPrimitive) return () => ''; if (k === Symbol.toStringTag) return 'Object'; if (k === Symbol.iterator) return function* () {}; if (k === 'valueOf') return () => 0; if (k === 'toString') return () => ''; if (k === 'then') return undefined; return p; },
+        has: () => true, apply: () => p, construct: () => p
+    });
+    return p;
+}
+function loadLocalExtension (slug) {
+    let captured = null;
+    const Scratch = {
+        BlockType, ArgumentType, Cast, TargetType: { SPRITE: 'sprite', STAGE: 'stage' },
+        translate: Object.assign((m) => (m && typeof m === 'object' ? (m.default || '') : m), { setup: () => {} }),
+        extensions: { register: (inst) => { captured = inst; }, unsandboxed: true, isPenguinMod: false }
+    };
+    const known = { Scratch, console: new Proxy({}, { get: () => () => {} }), setTimeout: () => 0, clearTimeout: () => {}, setInterval: () => 0, clearInterval: () => {}, module: { exports: null }, exports: {} };
+    const sandbox = new Proxy(known, { has: () => true, get: (t, k) => (k in t ? t[k] : (t[k] = permissive())) });
+    nodeVm.createContext(sandbox);
+    nodeVm.runInContext(readFileSync(path.join(REF, `${slug}.js`), 'utf8'), sandbox, { timeout: 5000 });
+    return captured;
+}
+// Register CrispStrobe extensions internally instead of via a Worker.
+function patchExtensionManager (vm) {
+    const em = vm.extensionManager;
+    const orig = em.loadExtensionURL.bind(em);
+    em.loadExtensionURL = (url) => {
+        const slug = ['arrays', 'planetemaths'].find((s) => String(url).includes(s));
+        if (slug) {
+            const serviceName = em._registerInternalExtension(loadLocalExtension(slug));
+            em._loadedExtensions.set(url, serviceName);
+            return Promise.resolve();
+        }
+        return orig(url);
+    };
+}
+
 async function run(code, frames = 60) {
     const c = new SB3Creator();
     c.parse(code);
     const buf = Buffer.from(await (await c.generateSB3()).arrayBuffer());
     const vm = new VM();
+    patchExtensionManager(vm);
     await vm.loadProject(buf);
     vm.start();            // enables the runtime sequencer used by _step()
     vm.greenFlag();

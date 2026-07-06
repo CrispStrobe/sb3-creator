@@ -566,3 +566,22 @@ deliberate choice, because each carries real risk or needs an account we don't h
   `docs/` desktop marketing site (HTML + screenshots), and l10n strings in menus/About. A
   full sweep risks addon compatibility and saved-settings migration, so we did the identity
   layer, not every occurrence. Next layer if a top-to-bottom desktop rebrand is wanted.
+
+## 24. About / Acknowledgements dialog (in-app)
+
+- [ ] **Add an "About Brickwright" dialog** in the GUI, reachable from the menu bar. It should
+  make provenance, dependencies, and authorship explicit and honest:
+  - **Who we are** — Brickwright by CrispStrobe, link to the repo
+    (github.com/CrispStrobe/brickwright) and an invitation to file issues / PRs.
+  - **Built on** — a credit to TurboWarp and Scratch (Brickwright is a TurboWarp/scratch-gui
+    fork), with links, since our tagline already says "based on TurboWarp".
+  - **Dependencies & licenses** — the key open-source deps (scratch-gui/-vm/-blocks/-render,
+    JSZip, Skulpt for in-browser Python, React, etc.) each with a link and its license
+    (MIT/BSD/Apache/GPL as applicable). Prefer generating this list from `package.json` +
+    installed license metadata so it stays accurate rather than hand-maintained.
+  - **Our extensions** — link the CrispStrobe/extensions gallery and the compiler
+    (sb3-creator) so users can see the multi-target transpilation + LEGO toolchain.
+  - **Follow the sibling apps' pattern** — mirror how the About/credits surface is done in
+    ../CrispSorter, ../CrispCalc, ../CrisperWeaver, ../Naga (compare their layout, license
+    listing, and "made by" framing) so the family of apps stays consistent.
+  - Keep it self-contained (no external calls at runtime); bundle the license text/links.

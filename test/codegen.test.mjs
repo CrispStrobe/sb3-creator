@@ -41,7 +41,7 @@ test('python codegen: the quiz is readable, runnable, and correct', () => {
     const py = c.generatePython();
     assert.match(py, /answer = input\(/, 'ask -> input()');
     assert.match(py, /_eq\(answer, 12\)/, 'equality via loose _eq helper');
-    assert.match(py, /print\(score\)/, 'say score -> print');
+    assert.match(py, /scratch\.say\((s\d+_)?score\b/, 'say score -> scratch.say (shim prints)');
     assert.match(py, /when_flag_clicked\(\)/, 'flag hat is called');
     if (PY) {
         const file = path.join(dir, 'quiz.py');
@@ -52,12 +52,13 @@ test('python codegen: the quiz is readable, runnable, and correct', () => {
     }
 });
 
-test('python codegen: sprite ops become comments, list ops become real Python', () => {
+test('python codegen: sprite ops become scratch.* calls, list ops become real Python', () => {
     const c = new SB3Creator();
     c.parse(examples.g2048);
     const py = c.generatePython();
     assert.match(py, /\.append\(|\.clear\(\)|\[int\(/, 'list blocks -> Python list ops');
-    assert.match(py, /^\s*#\s/m, 'non-runnable blocks kept as comments');
+    assert.match(py, /scratch\.\w+\(/, 'sprite/graphics blocks -> reversible scratch.<method>() calls');
+    assert.match(py, /scratch\.sprite\(/, 'sprite structure is marked for round-tripping');
 });
 
 // ---- JavaScript backend ----------------------------------------------------------

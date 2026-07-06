@@ -2,6 +2,9 @@ import JSZip from 'jszip';
 // Auto-generated hardware-extension registry (scripts/gen-runtime-registry.mjs). Covers all
 // the LEGO/hardware extensions declaratively so the pluggable driver "works for all of them".
 import { RUNTIME_EXTENSIONS as GENERATED_RUNTIME, RUNTIME_EXTENSION_URLS as GENERATED_URLS } from './runtimeRegistry.generated.js';
+// Scratch-runtime shim table: maps graphical blocks (motion/looks/sensing/…) to
+// reversible `scratch.<method>(...)` calls so Python/JS round-trips preserve the project.
+import { OP_TO_SCRATCH, OP_TO_ARRAYS, spritePrefix, sanitizeIdent } from './scratchRuntime.js';
 
 
 // Structured error classes
@@ -1519,6 +1522,7 @@ class SB3Creator {
         const old = target.costumes[0];
         if (old && old.assetId) this.assets.delete(old.assetId);
         target.costumes[0] = this.buildShapeCostume(color, kind, dims.length ? dims : [40]);
+        target.costumes[0]._shapeSpec = spec.trim();   // remember directive for lossless round-trip
     }
 
     // Add an extra costume/backdrop to a target (used by COSTUME / BACKDROP declarations).
@@ -1534,7 +1538,9 @@ class SB3Creator {
             const hex = tks.find((t) => /^#[0-9a-fA-F]{6}$/.test(t));
             const palette = ['#576065', '#4a6fa5', '#8a5a83', '#3d7068', '#a5794a'];
             const color = hex || palette[(target.costumes.length - 1) % palette.length];
-            target.costumes.push(this.buildBackdrop(color, name));
+            const bd = this.buildBackdrop(color, name);
+            bd._spec = spec.trim();
+            target.costumes.push(bd);
             return;
         }
         const tokens = this.tokenizeCostumeSpec(spec);
@@ -1557,6 +1563,7 @@ class SB3Creator {
             const color = this.spriteColors.get(target.name) || '#4C97FF';
             costume = this.buildCostume(target.name, color, target.costumes.length, name);
         }
+        costume._spec = spec.trim();   // remember directive for lossless round-trip
         target.costumes.push(costume);
     }
 
@@ -2190,7 +2197,7 @@ class SB3Creator {
         const stage = project.targets.find(t => t.isStage);
         for (const v of Object.values(stage.variables || {})) out.push(`GLOBAL ${v[0]}`);
         for (const l of Object.values(stage.lists || {})) out.push(`GLOBAL LIST ${l[0]}`);
-        for (const bd of (stage.costumes || []).slice(1)) out.push(`BACKDROP ${bd.name}`);
+        for (const bd of (stage.costumes || []).slice(1)) out.push(`BACKDROP ${bd._spec || bd.name}`);
         for (const snd of (stage.sounds || []).slice(1)) out.push(`SOUND ${snd.name}`);
         if (out.length) out.push('');
 
@@ -2204,9 +2211,10 @@ class SB3Creator {
                 }
             } else {
                 out.push(`SPRITE ${t.name}:`);
+                if (t.costumes && t.costumes[0] && t.costumes[0]._shapeSpec) out.push(`  SHAPE ${t.costumes[0]._shapeSpec}`);
                 for (const v of Object.values(t.variables || {})) out.push(`  LOCAL ${v[0]}`);
                 for (const l of Object.values(t.lists || {})) out.push(`  LOCAL LIST ${l[0]}`);
-                for (const cos of (t.costumes || []).slice(1)) out.push(`  COSTUME ${cos.name}`);
+                for (const cos of (t.costumes || []).slice(1)) out.push(`  COSTUME ${cos._spec || cos.name}`);
                 for (const snd of (t.sounds || []).slice(1)) out.push(`  SOUND ${snd.name}`);
                 out.push(...scripts.map(l => (l ? `  ${l}` : l)));
                 out.push('');
@@ -2558,14 +2566,7 @@ class SB3Creator {
     pyName(name) {
         if (!this._pyNames) this._pyNames = new Map();
         if (this._pyNames.has(name)) return this._pyNames.get(name);
-        let id = String(name).trim().replace(/[^A-Za-z0-9_]+/g, '_').replace(/^_+|_+$/g, '') || 'v';
-        if (/^[0-9]/.test(id)) id = 'v_' + id;
-        const kw = ['for', 'while', 'if', 'else', 'elif', 'and', 'or', 'not', 'in', 'is', 'def', 'return',
-            'True', 'False', 'None', 'import', 'class', 'lambda', 'global', 'pass', 'break', 'continue', 'answer',
-            // also reserve JS keywords so a name is safe across both codegen targets
-            'function', 'var', 'let', 'const', 'null', 'undefined', 'new', 'delete', 'typeof', 'void', 'this',
-            'super', 'switch', 'case', 'default', 'try', 'catch', 'finally', 'throw', 'yield', 'await', 'async', 'do'];
-        if (kw.includes(id)) id += '_';
+        const id = sanitizeIdent(name);
         const used = new Set(this._pyNames.values());
         let final = id, n = 2;
         while (used.has(final)) final = id + '_' + n++;
@@ -2587,7 +2588,7 @@ class SB3Creator {
             if (type === 10 || type === 11) {
                 return /^-?\d+(\.\d+)?$/.test(String(a)) ? String(a) : this.pyStr(a);
             }
-            if (type === 12 || type === 13) return this.pyName(a);
+            if (type === 12 || type === 13) return this.varRef(a);
             return /^-?\d+(\.\d+)?$/.test(String(a)) ? String(a) : this.pyStr(a);
         }
         return this.pyRep(blocks[inner], blocks);
@@ -2621,9 +2622,9 @@ class SB3Creator {
             case 'operator_letter_of': return `str(${v('STRING')})[int(${v('LETTER')}) - 1]`;
             case 'operator_length': return `len(str(${v('STRING')}))`;
             case 'operator_contains': return `(str(${v('STRING2')}) in str(${v('STRING1')}))`;
-            case 'data_itemoflist': return `${this.pyName(f('LIST'))}[int(${v('INDEX')}) - 1]`;
-            case 'data_lengthoflist': return `len(${this.pyName(f('LIST'))})`;
-            case 'data_listcontainsitem': return `(${v('ITEM')} in ${this.pyName(f('LIST'))})`;
+            case 'data_itemoflist': return `${this.varRef(f('LIST'))}[int(${v('INDEX')}) - 1]`;
+            case 'data_lengthoflist': return `len(${this.varRef(f('LIST'))})`;
+            case 'data_listcontainsitem': return `(${v('ITEM')} in ${this.varRef(f('LIST'))})`;
             case 'sensing_answer': this._pyUses.answer = true; return 'answer';
             case 'argument_reporter_string_number':
             case 'argument_reporter_boolean': return this.pyName(f('VALUE'));
@@ -2647,22 +2648,12 @@ class SB3Creator {
             case 'planetemaths_length': return `len(str(${v('STRING')}))`;
             case 'planetemaths_sommechiffres': this._pyUses.sumdigits = true; return `_sumdigits(${v('NUM1')})`;
             // Arrays & Vectors reporters (0-based; `_arrays` registry).
-            case 'arrays_get': this._pyUses.arrays = true; return `_arrays[${v('NAME')}][int(${v('INDEX')})]`;
-            case 'arrays_pop': this._pyUses.arrays = true; return `_arrays[${v('NAME')}].pop()`;
-            case 'arrays_length': this._pyUses.arrays = true; return `len(_arrays[${v('NAME')}])`;
-            case 'arrays_sum': this._pyUses.arrays = true; return `sum(_arrays[${v('NAME')}])`;
-            case 'arrays_mean': this._pyUses.arrays = true; return `(sum(_arrays[${v('NAME')}]) / len(_arrays[${v('NAME')}]))`;
-            case 'arrays_min': this._pyUses.arrays = true; return `min(_arrays[${v('NAME')}])`;
-            case 'arrays_max': this._pyUses.arrays = true; return `max(_arrays[${v('NAME')}])`;
-            case 'arrays_indexOf': this._pyUses.arrays = true; return `(_arrays[${v('NAME')}].index(${v('VALUE')}) if ${v('VALUE')} in _arrays[${v('NAME')}] else -1)`;
-            case 'arrays_slice': this._pyUses.arrays = true; return `_arrays[${v('NAME')}][int(${v('START')}):int(${v('END')})]`;
-            case 'arrays_reverse': this._pyUses.arrays = true; return `list(reversed(_arrays[${v('NAME')}]))`;
-            case 'arrays_sort': this._pyUses.arrays = true; return `sorted(_arrays[${v('NAME')}], reverse=(${v('ORDER')} != "ascending"))`;
-            case 'arrays_flatten': this._pyUses.arrays = true; return `[x for row in _arrays[${v('NAME')}] for x in (row if isinstance(row, list) else [row])]`;
-            case 'arrays_toJSON': case 'arrays_toString': this._pyUses.arrays = true; this._pyUses.json = true; return `json.dumps(_arrays[${v('NAME')}])`;
-            // Reporters outside the runnable subset (sprite/pen/sensing) become a
-            // placeholder — no inline comment, which would break enclosing syntax.
+            // Scratch-runtime reporters (x position, mouse x, timer, …) -> scratch.<method>().
             default: {
+                const ac = this.arraysCall(b, blocks, this.pyVal);
+                if (ac) return ac.call;
+                const sc = this.scratchCall(b, blocks, this.pyVal);
+                if (sc) return sc.call;
                 const rc = this.runtimeCall(b, blocks, v);   // pluggable runtime/hardware extensions
                 if (rc) return rc.call;
                 return 'None';
@@ -2683,7 +2674,7 @@ class SB3Creator {
             case 'operator_or': return `(${c('OPERAND1')} or ${c('OPERAND2')})`;
             case 'operator_not': return `(not ${c('OPERAND')})`;
             case 'operator_contains': return `(str(${v('STRING2')}) in str(${v('STRING1')}))`;
-            case 'data_listcontainsitem': return `(${v('ITEM')} in ${this.pyName(b.fields.LIST[0])})`;
+            case 'data_listcontainsitem': return `(${v('ITEM')} in ${this.varRef(b.fields.LIST[0])})`;
             case 'argument_reporter_boolean': return this.pyName(b.fields.VALUE[0]);
             // Planète Maths booleans — semantics from the implementation (opcode names
             // are internal misnomers: `gt` computes compare<0, i.e. NUM1 < NUM2).
@@ -2697,9 +2688,12 @@ class SB3Creator {
             case 'planetemaths_not': return `(not ${c('OPERAND1')})`;
             case 'planetemaths_contains': return `(str(${v('STRING2')}) in str(${v('STRING1')}))`;
             case 'planetemaths_multiple': return `(${v('NUM1')} % ${v('NUM2')} == 0)`;
-            case 'arrays_contains': this._pyUses.arrays = true; return `(${v('VALUE')} in _arrays[${v('NAME')}])`;
-            // Predicate outside the subset (touching/key/mouse) -> placeholder.
+            // Scratch-runtime predicates (touching, key pressed?, mouse down?) -> scratch.<method>().
             default: {
+                const ac = this.arraysCall(b, blocks, this.pyVal);
+                if (ac) return ac.call;
+                const sc = this.scratchCall(b, blocks, this.pyVal);
+                if (sc) return sc.call;
                 const rc = this.runtimeCall(b, blocks, v);
                 if (rc) return rc.call;
                 return 'False';
@@ -2734,27 +2728,18 @@ class SB3Creator {
             case 'control_if_else': return [pad + `if ${this.pyCond(b.inputs.CONDITION[1], blocks)}:`, ...body('SUBSTACK'), pad + 'else:', ...body('SUBSTACK2')];
             case 'control_wait': this._pyUses.time = true; return line(`time.sleep(${v('DURATION')})`);
             case 'control_wait_until': return [pad + `while not (${this.pyCond(b.inputs.CONDITION[1], blocks)}):`, pad + '    pass'];
-            case 'control_stop': return line(f('STOP_OPTION') === 'other scripts in sprite' ? 'pass  # stop other scripts' : 'return');
-            case 'looks_sayforsecs': case 'looks_say': case 'looks_thinkforsecs': case 'looks_think':
-                return line(`print(${v('MESSAGE')})`);
+            // 'this script' -> return (halts the Python function); 'all'/'other' -> scratch.stop().
+            case 'control_stop': return f('STOP_OPTION') === 'this script' ? line('return') : line(this.scratchCall(b, blocks, this.pyVal).call);
             case 'sensing_askandwait': this._pyUses.answer = true; return line(`answer = input(str(${v('QUESTION')}) + " ")`);
-            case 'data_setvariableto': return line(`${this.pyName(f('VARIABLE'))} = ${v('VALUE')}`);
-            case 'data_changevariableby': return line(`${this.pyName(f('VARIABLE'))} += ${v('VALUE')}`);
-            case 'data_addtolist': return line(`${this.pyName(f('LIST'))}.append(${v('ITEM')})`);
-            case 'data_deleteoflist': return line(`del ${this.pyName(f('LIST'))}[int(${v('INDEX')}) - 1]`);
-            case 'data_deletealloflist': return line(`${this.pyName(f('LIST'))}.clear()`);
-            case 'data_insertatlist': return line(`${this.pyName(f('LIST'))}.insert(int(${v('INDEX')}) - 1, ${v('ITEM')})`);
-            case 'data_replaceitemoflist': return line(`${this.pyName(f('LIST'))}[int(${v('INDEX')}) - 1] = ${v('ITEM')}`);
+            case 'data_setvariableto': return line(`${this.varRef(f('VARIABLE'))} = ${v('VALUE')}`);
+            case 'data_changevariableby': return line(`${this.varRef(f('VARIABLE'))} += ${v('VALUE')}`);
+            case 'data_addtolist': return line(`${this.varRef(f('LIST'))}.append(${v('ITEM')})`);
+            case 'data_deleteoflist': return line(`del ${this.varRef(f('LIST'))}[int(${v('INDEX')}) - 1]`);
+            case 'data_deletealloflist': return line(`${this.varRef(f('LIST'))}.clear()`);
+            case 'data_insertatlist': return line(`${this.varRef(f('LIST'))}.insert(int(${v('INDEX')}) - 1, ${v('ITEM')})`);
+            case 'data_replaceitemoflist': return line(`${this.varRef(f('LIST'))}[int(${v('INDEX')}) - 1] = ${v('ITEM')}`);
             // Arrays & Vectors extension (id `arrays`) — a named-array registry (`_arrays`),
             // 0-based indexing (matches the extension). Command blocks:
-            case 'arrays_create1D': this._pyUses.arrays = true; this._pyUses.json = true; return line(`_arrays[${v('NAME')}] = json.loads(${v('JSON')})`);
-            case 'arrays_createEmpty': this._pyUses.arrays = true; return line(`_arrays[${v('NAME')}] = []`);
-            case 'arrays_createRange': this._pyUses.arrays = true; return line(`_arrays[${v('NAME')}] = list(range(int(${v('START')}), int(${v('END')}) + 1))`);
-            case 'arrays_set': this._pyUses.arrays = true; return line(`_arrays[${v('NAME')}][int(${v('INDEX')})] = ${v('VALUE')}`);
-            case 'arrays_push': this._pyUses.arrays = true; return line(`_arrays[${v('NAME')}].append(${v('VALUE')})`);
-            case 'arrays_insert': this._pyUses.arrays = true; return line(`_arrays[${v('NAME')}].insert(int(${v('INDEX')}), ${v('VALUE')})`);
-            case 'arrays_remove': this._pyUses.arrays = true; return line(`del _arrays[${v('NAME')}][int(${v('INDEX')})]`);
-            case 'arrays_delete': this._pyUses.arrays = true; return line(`_arrays.pop(${v('NAME')}, None)`);
             case 'procedures_call': {
                 const m = b.mutation;
                 const argIds = JSON.parse(m.argumentids || '[]');
@@ -2764,9 +2749,14 @@ class SB3Creator {
                     args.push(tok === '%b' ? this.pyCond(input[1], blocks) : this.pyVal(input, blocks));
                     return '';
                 });
-                return line(`${this._async ? 'await ' : ''}${this.pyProcName(m.proccode)}(${args.join(', ')})`);
+                const fn = this.pyName(this._curPrefix + this.pyProcRaw(m.proccode));
+                return line(`${this._async ? 'await ' : ''}${fn}(${args.join(', ')})`);
             }
             default: {
+                const ac = this.arraysCall(b, blocks, this.pyVal);
+                if (ac) return line(ac.call);
+                const sc = this.scratchCall(b, blocks, this.pyVal);   // motion/looks/sensing/pen/… -> scratch.<method>()
+                if (sc) return line(sc.call);
                 const rc = this.runtimeCall(b, blocks, v);   // pluggable runtime/hardware commands
                 if (rc) return line(rc.call);
                 const ps = (this.decompileStackBlock(b, blocks, 0)[0] || b.opcode).trim();
@@ -2805,7 +2795,7 @@ class SB3Creator {
         const globals = [];
         for (const a of assigned) {
             if (a === ' answer') { globals.push('answer'); this._pyUses.answer = true; }
-            else { const nm = this.pyName(a); if (!argNames.includes(nm)) globals.push(nm); }
+            else { const nm = this.varRef(a); if (!argNames.includes(nm)) globals.push(nm); }
         }
         const bodyLines = this.pyStackFrom(firstId, blocks, 1);
         const out = [header];
@@ -2817,6 +2807,88 @@ class SB3Creator {
         return out.join('\n');
     }
 
+    // ---- scratch-runtime shim helpers (shared by Python + JS codegen) -----------
+    // Prefix-aware variable/list reference: sprite-local names are prefixed `s<idx>_`
+    // (so same-named locals in different sprites stay distinct in the flat module);
+    // globals (Stage) and anything else use their plain sanitized name.
+    varRef(name) {
+        if (this._curLocals && this._curLocals.has(name)) return this._curPrefix + this.pyName(name);
+        return this.pyName(name);
+    }
+
+    scratchCall(b, blocks, valFn) { return this.runtimeObjCall(b, blocks, valFn, OP_TO_SCRATCH, 'scratch'); }
+    arraysCall(b, blocks, valFn) {
+        if (!OP_TO_ARRAYS[b.opcode]) return null;
+        if (this._pyUses) { this._pyUses.arrays = true; this._pyUses.json = true; }
+        if (this._jsUses) this._jsUses.arrays = true;
+        return this.runtimeObjCall(b, blocks, valFn, OP_TO_ARRAYS, '_arrays');
+    }
+
+    // Build an `<obj>.<method>(args)` call for a block from a reversible-op table, or null.
+    // `valFn` is pyVal or jsVal (value inputs); menu/field args become string literals,
+    // broadcasts pass through quoted. Used for both `scratch` and the `_arrays` registry.
+    runtimeObjCall(b, blocks, valFn, table, obj) {
+        const e = table[b.opcode];
+        if (!e) return null;
+        const args = e.gen.map((g) => {
+            if (g.v) return valFn.call(this, b.inputs[g.v], blocks);
+            // A menu input can be obscured by a reporter (e.g. `switch costume to (join …)`);
+            // then emit the expression, otherwise the dropdown value as a string literal.
+            if (g.m) {
+                const inp = b.inputs[g.m];
+                if (Array.isArray(inp) && inp[0] === 3) return valFn.call(this, inp, blocks);
+                return this.pyStr(this.dmenu(inp, blocks, g.field || g.m));
+            }
+            if (g.f) return this.pyStr(b.fields[g.f] ? b.fields[g.f][0] : '');
+            if (g.bc) return this.dbroadcast(b.inputs[g.bc]);
+            return 'None';
+        });
+        return { kind: e.kind || 'command', call: `${obj}.${e.m}(${args.join(', ')})` };
+    }
+
+    // A guaranteed-unique sanitized identifier (unlike pyName, which memoizes by input, so
+    // two same-named hats — e.g. a sprite with two `when flag clicked` — would collide).
+    pyFreshName(base) {
+        let id = String(base).replace(/[^A-Za-z0-9_]+/g, '_').replace(/^_+|_+$/g, '') || 'f';
+        if (/^[0-9]/.test(id)) id = 'v_' + id;
+        const used = new Set(this._pyNames.values());
+        let final = id, n = 2;
+        while (used.has(final)) final = id + '_' + n++;
+        this._pyNames.set(Symbol(base), final);   // reserve the value (Symbol key never matches a name lookup)
+        return final;
+    }
+
+    // Custom-block base name (unprefixed) and hat base name — used with the sprite prefix.
+    pyProcRaw(proccode) { return 'do_' + String(proccode).replace(/%[sb]/g, '').trim(); }
+    pyHatBase(b) {
+        const f = (k) => (b.fields[k] ? b.fields[k][0] : '');
+        switch (b.opcode) {
+            case 'event_whenflagclicked': return 'when_flag_clicked';
+            case 'event_whenkeypressed': return 'when_' + f('KEY_OPTION') + '_key';
+            case 'event_whenthisspriteclicked': return 'when_clicked';
+            case 'event_whenbroadcastreceived': return 'on_' + f('BROADCAST_OPTION');
+            case 'control_start_as_clone': return 'when_clone_starts';
+            default: return 'handler';
+        }
+    }
+
+    // The pseudocode structure markers for one target: scratch.sprite/stage + local + costume.
+    // `quote` = this.pyStr (JSON strings work in both Python and JS).
+    scratchStructMarkers(t) {
+        const q = (s) => this.pyStr(s);
+        const lines = [];
+        if (t.isStage) lines.push('scratch.stage()');
+        else {
+            const shape = t.costumes && t.costumes[0] && t.costumes[0]._shapeSpec;
+            lines.push(shape ? `scratch.sprite(${q(t.name)}, ${q(shape)})` : `scratch.sprite(${q(t.name)})`);
+        }
+        for (const v of Object.values(t.variables || {})) if (!t.isStage) lines.push(`scratch.local(${q(v[0])})`);
+        for (const l of Object.values(t.lists || {})) if (!t.isStage) lines.push(`scratch.local_list(${q(l[0])})`);
+        for (const cos of (t.costumes || []).slice(1)) lines.push(`scratch.costume(${q(cos._spec || cos.name)})`);
+        for (const snd of (t.sounds || []).slice(1)) lines.push(`scratch.sound(${q(snd.name)})`);
+        return lines;
+    }
+
     generatePython(project = this.project, opts = {}) {
         this._pyNames = new Map();
         this._pyUses = { random: false, math: false, time: false, eq: false, answer: false, arrays: false, json: false, sumdigits: false };
@@ -2824,27 +2896,42 @@ class SB3Creator {
         this._async = !!(opts && opts.async);
         this._events = !!(opts && opts.events);
         const targets = project.targets || [];
-        const scalars = new Set(), lists = new Set();
-        for (const t of targets) {
-            for (const vv of Object.values(t.variables || {})) scalars.add(vv[0]);
-            for (const ll of Object.values(t.lists || {})) lists.add(ll[0]);
-        }
-        // pre-register names (stable, avoids collisions)
-        for (const n of scalars) this.pyName(n);
-        for (const n of lists) this.pyName(n);
+        const stage = targets.find((t) => t.isStage);
+        // Stage variables are globals; sprite variables are locals (prefixed per sprite).
+        const gScalars = stage ? Object.values(stage.variables || {}).map((v) => v[0]) : [];
+        const gLists = stage ? Object.values(stage.lists || {}).map((l) => l[0]) : [];
+        for (const n of gScalars) this.pyName(n);
+        for (const n of gLists) this.pyName(n);
 
-        const funcDefs = [], hatDefs = [], flagCalls = [], eventRegs = [];
-        for (const t of targets) {
+        // Sections in emission order (Stage only if it has scripts). The section's POSITION
+        // is its sprite index for prefixing — matching how the parser counts markers back.
+        const sections = targets.filter((t) => !t.isStage || Object.values(t.blocks || {}).some((b) => b.topLevel));
+
+        const stateDecls = [];       // module-level `name = 0/[]` (globals + all locals)
+        const bodyBlocks = [];       // [{markers, defs}] in emission order
+        const flagCalls = [], eventRegs = [];
+        for (const n of gScalars) stateDecls.push(`${this.pyName(n)} = 0`);
+        for (const n of gLists) stateDecls.push(`${this.pyName(n)} = []`);
+
+        sections.forEach((t, idx) => {
+            const pfx = spritePrefix(idx);
+            const localScalars = t.isStage ? [] : Object.values(t.variables || {}).map((v) => v[0]);
+            const localLists = t.isStage ? [] : Object.values(t.lists || {}).map((l) => l[0]);
+            this._curPrefix = pfx;
+            this._curLocals = new Set([...localScalars, ...localLists]);
+            for (const n of localScalars) stateDecls.push(`${pfx}${this.pyName(n)} = 0`);
+            for (const n of localLists) stateDecls.push(`${pfx}${this.pyName(n)} = []`);
+
+            const defs = [];
             const blocks = t.blocks || {};
             for (const b of Object.values(blocks)) {
                 if (!b.topLevel) continue;
-                // Extension event hats (whenButtonPressed …) → a handler + driver registration.
                 const rop = this.runtimeOp(b.opcode);
                 if (rop && rop.kind === 'hat') {
                     if (this._events) {
                         this._runtimesUsed.add(b.opcode.slice(0, b.opcode.indexOf('_')));
-                        const hn = this.pyName('on_' + b.opcode.slice(b.opcode.indexOf('_') + 1));
-                        hatDefs.push(this.pyFunc(`def ${hn}():`, b.next, blocks, []));
+                        const hn = this.pyFreshName(pfx + 'on_' + b.opcode.slice(b.opcode.indexOf('_') + 1));
+                        defs.push(this.pyFunc(`def ${hn}():`, b.next, blocks, []));
                         eventRegs.push(`_${rop.runtime}.on(${this.pyStr(b.opcode)}, ${hn})`);
                     }
                     continue;
@@ -2853,22 +2940,29 @@ class SB3Creator {
                 if (b.opcode === 'procedures_definition') {
                     const proto = blocks[b.inputs.custom_block[1]];
                     const m = proto.mutation;
-                    const argNames = JSON.parse(m.argumentnames || '[]').map(n => this.pyName(n));
-                    funcDefs.push(this.pyFunc(`def ${this.pyProcName(m.proccode)}(${argNames.join(', ')}):`, b.next, blocks, argNames));
+                    const argNames = JSON.parse(m.argumentnames || '[]').map((n) => this.pyName(n));
+                    const fn = this.pyName(pfx + this.pyProcRaw(m.proccode));
+                    // Marker preserves the exact proccode (arg positions interleave with label
+                    // words) + warp flag, which the flat function name can't encode.
+                    const marker = `scratch.defblock(${this.pyStr(m.proccode)}, ${m.warp === 'true' ? 1 : 0})`;
+                    defs.push(marker + '\n' + this.pyFunc(`def ${fn}(${argNames.join(', ')}):`, b.next, blocks, argNames));
                 } else {
-                    const name = this.pyHatName(b);
+                    const name = this.pyFreshName(pfx + this.pyHatBase(b));
                     const isFlag = b.opcode === 'event_whenflagclicked';
                     let code = this.pyFunc(`def ${name}():`, b.next, blocks, []);
                     if (!isFlag) code = `# ${this.decompileHat(b, blocks)}  (event handler — call it when that event happens)\n` + code;
-                    hatDefs.push(code);
+                    defs.push(code);
                     if (isFlag) flagCalls.push(`${name}()`);
                 }
             }
-        }
+            bodyBlocks.push({ markers: this.scratchStructMarkers(t), defs });
+        });
+        this._curPrefix = ''; this._curLocals = null;
 
         const out = [];
-        out.push('# Generated by Brickwright — blocks → Python (algorithmic subset).');
-        out.push('# Sprite / graphics / sound blocks appear as `# ...` comments; the rest runs.');
+        out.push('# Generated by Brickwright — blocks → Python.');
+        out.push('# Scratch blocks (motion/looks/sensing/…) map to a `scratch` runtime object;');
+        out.push('# sprite structure is marked by scratch.sprite()/costume() so it round-trips to blocks.');
         out.push('');
         if (this._pyUses.random) out.push('import random');
         if (this._pyUses.math) out.push('import math');
@@ -2876,6 +2970,9 @@ class SB3Creator {
         if (this._pyUses.json) out.push('import json');
         if (this._async) out.push('import asyncio');
         if (this._pyUses.random || this._pyUses.math || this._pyUses.time || this._pyUses.json || this._async) out.push('');
+        out.push(...this.scratchShimPy());
+        out.push('');
+        if (this._pyUses.arrays) { out.push(...this.arraysShimPy()); out.push(''); }
         if (this._pyUses.sumdigits) {
             out.push('def _sumdigits(n): return sum(int(d) for d in str(n) if d.isdigit())');
             out.push('');
@@ -2891,20 +2988,38 @@ class SB3Creator {
         // Pluggable driver shim(s) for any runtime/hardware extensions used.
         for (const extId of this._runtimesUsed) { out.push(...this.runtimeShim(extId, 'py', opts.driver || 'shim')); out.push(''); }
         // module state
-        const state = [];
-        if (this._pyUses.arrays) state.push('_arrays = {}  # Arrays & Vectors registry');
-        for (const n of scalars) state.push(`${this.pyName(n)} = 0`);
-        for (const n of lists) state.push(`${this.pyName(n)} = []`);
-        if (this._pyUses.answer) state.push('answer = ""');
-        if (state.length) { out.push(...state); out.push(''); }
-        for (const fn of funcDefs) { out.push(fn); out.push(''); }
-        for (const h of hatDefs) { out.push(h); out.push(''); }
+        if (this._pyUses.answer) stateDecls.push('answer = ""');
+        if (stateDecls.length) { out.push(...stateDecls); out.push(''); }
+        // Global-name markers (carry original names so the parser un-mangles identifiers).
+        for (const n of gScalars) out.push(`scratch.global_var(${this.pyStr(n)})`);
+        for (const n of gLists) out.push(`scratch.global_list(${this.pyStr(n)})`);
+        if (gScalars.length || gLists.length) out.push('');
+        for (const { markers, defs } of bodyBlocks) {
+            out.push(...markers);
+            out.push('');
+            for (const d of defs) { out.push(d); out.push(''); }
+        }
         if (eventRegs.length || flagCalls.length) {
             out.push('# run');
             out.push(...eventRegs);
-            out.push(...flagCalls.map(c => (this._async ? `asyncio.run(${c})` : c)));
+            out.push(...flagCalls.map((c) => (this._async ? `asyncio.run(${c})` : c)));
         }
         return out.join('\n').replace(/\n{3,}/g, '\n\n').trim() + '\n';
+    }
+
+    // A tiny no-op `scratch` runtime so the generated Python runs headless. It is the swap
+    // point: implement these to drive a real stage. Reporters return neutral values.
+    scratchShimPy() {
+        return [
+            'class _Scratch:',
+            '    """No-op Scratch stage shim (swap for a real renderer). Reporters return neutral values."""',
+            '    def say(self, msg, *_a): print(msg)',
+            '    def think(self, msg, *_a): print(msg)',
+            '    def __getattr__(self, _name):',
+            '        def _op(*_a, **_k): return 0',
+            '        return _op',
+            'scratch = _Scratch()'
+        ];
     }
 
     // ---- JavaScript code generation (same walker, JS templates) -----------------
@@ -2915,7 +3030,7 @@ class SB3Creator {
         const inner = input[1];
         if (Array.isArray(inner)) {
             const [type, a] = inner;
-            if (type === 12 || type === 13) return this.pyName(a);
+            if (type === 12 || type === 13) return this.varRef(a);
             return /^-?\d+(\.\d+)?$/.test(String(a)) ? String(a) : this.pyStr(a);
         }
         return this.jsRep(blocks[inner], blocks);
@@ -2934,7 +3049,7 @@ class SB3Creator {
         if (!b) return 'undefined';
         const v = (k) => this.jsVal(b.inputs[k], blocks);
         const f = (k) => (b.fields[k] ? b.fields[k][0] : '');
-        const L = (k) => this.pyName(f(k));
+        const L = (k) => this.varRef(f(k));
         switch (b.opcode) {
             case 'operator_add': return `(${v('NUM1')} + ${v('NUM2')})`;
             case 'operator_subtract': return `(${v('NUM1')} - ${v('NUM2')})`;
@@ -2975,20 +3090,11 @@ class SB3Creator {
             case 'planetemaths_length': return `String(${v('STRING')}).length`;
             case 'planetemaths_sommechiffres': this._jsUses.sumdigits = true; return `_sumdigits(${v('NUM1')})`;
             // Arrays & Vectors reporters (0-based; `_arrays` registry).
-            case 'arrays_get': this._jsUses.arrays = true; return `_arrays[${v('NAME')}][Number(${v('INDEX')})]`;
-            case 'arrays_pop': this._jsUses.arrays = true; return `_arrays[${v('NAME')}].pop()`;
-            case 'arrays_length': this._jsUses.arrays = true; return `_arrays[${v('NAME')}].length`;
-            case 'arrays_sum': this._jsUses.arrays = true; return `_arrays[${v('NAME')}].reduce(function(s,x){return s+Number(x);},0)`;
-            case 'arrays_mean': this._jsUses.arrays = true; return `(_arrays[${v('NAME')}].reduce(function(s,x){return s+Number(x);},0) / _arrays[${v('NAME')}].length)`;
-            case 'arrays_min': this._jsUses.arrays = true; return `Math.min.apply(null, _arrays[${v('NAME')}])`;
-            case 'arrays_max': this._jsUses.arrays = true; return `Math.max.apply(null, _arrays[${v('NAME')}])`;
-            case 'arrays_indexOf': this._jsUses.arrays = true; return `_arrays[${v('NAME')}].indexOf(${v('VALUE')})`;
-            case 'arrays_slice': this._jsUses.arrays = true; return `_arrays[${v('NAME')}].slice(Number(${v('START')}), Number(${v('END')}))`;
-            case 'arrays_reverse': this._jsUses.arrays = true; return `_arrays[${v('NAME')}].slice().reverse()`;
-            case 'arrays_sort': this._jsUses.arrays = true; return `_arrays[${v('NAME')}].slice().sort(function(a,b){return ${v('ORDER')} === "ascending" ? a-b : b-a;})`;
-            case 'arrays_flatten': this._jsUses.arrays = true; return `_arrays[${v('NAME')}].flat(Infinity)`;
-            case 'arrays_toJSON': case 'arrays_toString': this._jsUses.arrays = true; return `JSON.stringify(_arrays[${v('NAME')}])`;
             default: {
+                const ac = this.arraysCall(b, blocks, this.jsVal);
+                if (ac) return ac.call;
+                const sc = this.scratchCall(b, blocks, this.jsVal);   // scratch-runtime reporters
+                if (sc) return sc.call;
                 const rc = this.runtimeCall(b, blocks, v);   // pluggable runtime/hardware extensions
                 if (rc) return rc.call;
                 return 'undefined';
@@ -3009,7 +3115,7 @@ class SB3Creator {
             case 'operator_or': return `(${c('OPERAND1')} || ${c('OPERAND2')})`;
             case 'operator_not': return `(!${c('OPERAND')})`;
             case 'operator_contains': return `String(${v('STRING1')}).includes(String(${v('STRING2')}))`;
-            case 'data_listcontainsitem': return `${this.pyName(b.fields.LIST[0])}.includes(${v('ITEM')})`;
+            case 'data_listcontainsitem': return `${this.varRef(b.fields.LIST[0])}.includes(${v('ITEM')})`;
             case 'argument_reporter_boolean': return this.pyName(b.fields.VALUE[0]);
             // Planète Maths booleans (semantics from the implementation, not the labels).
             case 'planetemaths_gt': return `(${v('NUM1')} < ${v('NUM2')})`;
@@ -3022,8 +3128,11 @@ class SB3Creator {
             case 'planetemaths_not': return `(!${c('OPERAND1')})`;
             case 'planetemaths_contains': return `String(${v('STRING1')}).includes(String(${v('STRING2')}))`;
             case 'planetemaths_multiple': return `(${v('NUM1')} % ${v('NUM2')} === 0)`;
-            case 'arrays_contains': this._jsUses.arrays = true; return `_arrays[${v('NAME')}].includes(${v('VALUE')})`;
             default: {
+                const ac = this.arraysCall(b, blocks, this.jsVal);
+                if (ac) return ac.call;
+                const sc = this.scratchCall(b, blocks, this.jsVal);   // scratch-runtime predicates
+                if (sc) return sc.call;
                 const rc = this.runtimeCall(b, blocks, v);
                 if (rc) return rc.call;
                 return 'false';
@@ -3042,7 +3151,7 @@ class SB3Creator {
         const pad = '  '.repeat(level);
         const v = (k) => this.jsVal(b.inputs[k], blocks);
         const f = (k) => (b.fields[k] ? b.fields[k][0] : '');
-        const L = (k) => this.pyName(f(k));
+        const L = (k) => this.varRef(f(k));
         const sub = (k) => (b.inputs[k] ? this.jsStackFrom(b.inputs[k][1], blocks, level + 1) : []);
         const line = (t) => [pad + t];
         const block = (head, k) => [pad + head, ...sub(k), pad + '}'];
@@ -3053,28 +3162,18 @@ class SB3Creator {
             case 'control_repeat_until': return block(`while (!(${cond()})) {`, 'SUBSTACK');
             case 'control_if': return block(`if (${cond()}) {`, 'SUBSTACK');
             case 'control_if_else': return [pad + `if (${cond()}) {`, ...sub('SUBSTACK'), pad + '} else {', ...sub('SUBSTACK2'), pad + '}'];
-            case 'control_wait': return line(`// wait ${v('DURATION')} seconds`);
-            case 'control_wait_until': return line(`// wait until ${cond()}`);
-            case 'control_stop': return line(f('STOP_OPTION') === 'other scripts in sprite' ? '// stop other scripts' : 'return;');
-            case 'looks_sayforsecs': case 'looks_say': case 'looks_thinkforsecs': case 'looks_think':
-                return line(`console.log(${v('MESSAGE')});`);
+            case 'control_wait': return line(`scratch.wait(${v('DURATION')});`);
+            case 'control_wait_until': return line(`scratch.wait_until(${cond()});`);
+            case 'control_stop': return f('STOP_OPTION') === 'this script' ? line('return;') : line(this.scratchCall(b, blocks, this.jsVal).call + ';');
             case 'sensing_askandwait': this._jsUses.answer = true; return line(`answer = prompt(String(${v('QUESTION')}));`);
-            case 'data_setvariableto': return line(`${this.pyName(f('VARIABLE'))} = ${v('VALUE')};`);
-            case 'data_changevariableby': return line(`${this.pyName(f('VARIABLE'))} += ${v('VALUE')};`);
+            case 'data_setvariableto': return line(`${this.varRef(f('VARIABLE'))} = ${v('VALUE')};`);
+            case 'data_changevariableby': return line(`${this.varRef(f('VARIABLE'))} += ${v('VALUE')};`);
             case 'data_addtolist': return line(`${L('LIST')}.push(${v('ITEM')});`);
             case 'data_deleteoflist': return line(`${L('LIST')}.splice(Number(${v('INDEX')}) - 1, 1);`);
             case 'data_deletealloflist': return line(`${L('LIST')}.length = 0;`);
             case 'data_insertatlist': return line(`${L('LIST')}.splice(Number(${v('INDEX')}) - 1, 0, ${v('ITEM')});`);
             case 'data_replaceitemoflist': return line(`${L('LIST')}[Number(${v('INDEX')}) - 1] = ${v('ITEM')};`);
             // Arrays & Vectors extension (id `arrays`) — `_arrays` registry, 0-based.
-            case 'arrays_create1D': this._jsUses.arrays = true; return line(`_arrays[${v('NAME')}] = JSON.parse(${v('JSON')});`);
-            case 'arrays_createEmpty': this._jsUses.arrays = true; return line(`_arrays[${v('NAME')}] = [];`);
-            case 'arrays_createRange': this._jsUses.arrays = true; return line(`_arrays[${v('NAME')}] = Array.from({length: Number(${v('END')}) - Number(${v('START')}) + 1}, (_, i) => Number(${v('START')}) + i);`);
-            case 'arrays_set': this._jsUses.arrays = true; return line(`_arrays[${v('NAME')}][Number(${v('INDEX')})] = ${v('VALUE')};`);
-            case 'arrays_push': this._jsUses.arrays = true; return line(`_arrays[${v('NAME')}].push(${v('VALUE')});`);
-            case 'arrays_insert': this._jsUses.arrays = true; return line(`_arrays[${v('NAME')}].splice(Number(${v('INDEX')}), 0, ${v('VALUE')});`);
-            case 'arrays_remove': this._jsUses.arrays = true; return line(`_arrays[${v('NAME')}].splice(Number(${v('INDEX')}), 1);`);
-            case 'arrays_delete': this._jsUses.arrays = true; return line(`delete _arrays[${v('NAME')}];`);
             case 'procedures_call': {
                 const m = b.mutation;
                 const argIds = JSON.parse(m.argumentids || '[]');
@@ -3084,9 +3183,14 @@ class SB3Creator {
                     args.push(tok === '%b' ? this.jsCond(input[1], blocks) : this.jsVal(input, blocks));
                     return '';
                 });
-                return line(`${this._async ? 'await ' : ''}${this.pyProcName(m.proccode)}(${args.join(', ')});`);
+                const fn = this.pyName(this._curPrefix + this.pyProcRaw(m.proccode));
+                return line(`${this._async ? 'await ' : ''}${fn}(${args.join(', ')});`);
             }
             default: {
+                const ac = this.arraysCall(b, blocks, this.jsVal);
+                if (ac) return line(ac.call + ';');
+                const sc = this.scratchCall(b, blocks, this.jsVal);   // motion/looks/sensing/pen/… -> scratch.<method>()
+                if (sc) return line(sc.call + ';');
                 const rc = this.runtimeCall(b, blocks, v);   // pluggable runtime/hardware commands
                 if (rc) return line(rc.call + ';');
                 const ps = (this.decompileStackBlock(b, blocks, 0)[0] || b.opcode).trim();
@@ -3102,25 +3206,40 @@ class SB3Creator {
         this._async = !!(opts && opts.async);
         this._events = !!(opts && opts.events);
         const targets = project.targets || [];
-        const scalars = new Set(), lists = new Set();
-        for (const t of targets) {
-            for (const vv of Object.values(t.variables || {})) scalars.add(vv[0]);
-            for (const ll of Object.values(t.lists || {})) lists.add(ll[0]);
-        }
-        for (const n of scalars) this.pyName(n);
-        for (const n of lists) this.pyName(n);
+        const stage = targets.find((t) => t.isStage);
+        const gScalars = stage ? Object.values(stage.variables || {}).map((v) => v[0]) : [];
+        const gLists = stage ? Object.values(stage.lists || {}).map((l) => l[0]) : [];
+        for (const n of gScalars) this.pyName(n);
+        for (const n of gLists) this.pyName(n);
 
-        const funcDefs = [], hatDefs = [], flagCalls = [], eventRegs = [];
-        for (const t of targets) {
+        const sections = targets.filter((t) => !t.isStage || Object.values(t.blocks || {}).some((b) => b.topLevel));
+
+        const stateDecls = [];
+        const bodyBlocks = [];
+        const flagCalls = [], eventRegs = [];
+        for (const n of gScalars) stateDecls.push(`let ${this.pyName(n)} = 0;`);
+        for (const n of gLists) stateDecls.push(`let ${this.pyName(n)} = [];`);
+
+        sections.forEach((t, idx) => {
+            const pfx = spritePrefix(idx);
+            const localScalars = t.isStage ? [] : Object.values(t.variables || {}).map((v) => v[0]);
+            const localLists = t.isStage ? [] : Object.values(t.lists || {}).map((l) => l[0]);
+            this._curPrefix = pfx;
+            this._curLocals = new Set([...localScalars, ...localLists]);
+            for (const n of localScalars) stateDecls.push(`let ${pfx}${this.pyName(n)} = 0;`);
+            for (const n of localLists) stateDecls.push(`let ${pfx}${this.pyName(n)} = [];`);
+
+            const defs = [];
             const blocks = t.blocks || {};
+            const af = this._async ? 'async ' : '';
             for (const b of Object.values(blocks)) {
                 if (!b.topLevel) continue;
                 const rop = this.runtimeOp(b.opcode);
                 if (rop && rop.kind === 'hat') {
                     if (this._events) {
                         this._runtimesUsed.add(b.opcode.slice(0, b.opcode.indexOf('_')));
-                        const hn = this.pyName('on_' + b.opcode.slice(b.opcode.indexOf('_') + 1));
-                        hatDefs.push([`${this._async ? 'async ' : ''}function ${hn}() {`, ...this.jsStackFrom(b.next, blocks, 1), '}'].join('\n'));
+                        const hn = this.pyFreshName(pfx + 'on_' + b.opcode.slice(b.opcode.indexOf('_') + 1));
+                        defs.push([`${af}function ${hn}() {`, ...this.jsStackFrom(b.next, blocks, 1), '}'].join('\n'));
                         eventRegs.push(`_${rop.runtime}.on(${this.pyStr(b.opcode)}, ${hn});`);
                     }
                     continue;
@@ -3129,45 +3248,116 @@ class SB3Creator {
                 if (b.opcode === 'procedures_definition') {
                     const proto = blocks[b.inputs.custom_block[1]];
                     const m = proto.mutation;
-                    const argNames = JSON.parse(m.argumentnames || '[]').map(n => this.pyName(n));
-                    const af = this._async ? 'async ' : '';
-                    funcDefs.push([`${af}function ${this.pyProcName(m.proccode)}(${argNames.join(', ')}) {`, ...this.jsStackFrom(b.next, blocks, 1), '}'].join('\n'));
+                    const argNames = JSON.parse(m.argumentnames || '[]').map((n) => this.pyName(n));
+                    const fn = this.pyName(pfx + this.pyProcRaw(m.proccode));
+                    const marker = `scratch.defblock(${this.pyStr(m.proccode)}, ${m.warp === 'true' ? 1 : 0});`;
+                    defs.push([marker, `${af}function ${fn}(${argNames.join(', ')}) {`, ...this.jsStackFrom(b.next, blocks, 1), '}'].join('\n'));
                 } else {
-                    const name = this.pyHatName(b);
+                    const name = this.pyFreshName(pfx + this.pyHatBase(b));
                     const isFlag = b.opcode === 'event_whenflagclicked';
-                    let code = [`${this._async ? 'async ' : ''}function ${name}() {`, ...this.jsStackFrom(b.next, blocks, 1), '}'].join('\n');
+                    let code = [`${af}function ${name}() {`, ...this.jsStackFrom(b.next, blocks, 1), '}'].join('\n');
                     if (!isFlag) code = `// ${this.decompileHat(b, blocks)}  (event handler — call it when that event happens)\n` + code;
-                    hatDefs.push(code);
+                    defs.push(code);
                     if (isFlag) flagCalls.push(`${name}();`);
                 }
             }
-        }
+            bodyBlocks.push({ markers: this.scratchStructMarkers(t).map((l) => l + ';'), defs });
+        });
+        this._curPrefix = ''; this._curLocals = null;
 
         const out = [];
-        out.push('// Generated by Brickwright — blocks → JavaScript (algorithmic subset).');
-        out.push('// Sprite / graphics / sound blocks appear as // comments; the rest runs (in a browser).');
+        out.push('// Generated by Brickwright — blocks → JavaScript.');
+        out.push('// Scratch blocks (motion/looks/sensing/…) map to a `scratch` runtime object;');
+        out.push('// sprite structure is marked by scratch.sprite()/costume() so it round-trips to blocks.');
         out.push('');
         if (this._jsUses.eq) out.push('function _eq(a, b) { const x = Number(a), y = Number(b); if (!Number.isNaN(x) && !Number.isNaN(y)) return x === y; return String(a).toLowerCase() === String(b).toLowerCase(); }');
         if (this._jsUses.rand) out.push('function _rand(a, b) { a = Number(a); b = Number(b); return Math.floor(Math.random() * (b - a + 1)) + a; }');
         if (this._jsUses.fact) out.push('function _fact(n) { n = Number(n); let r = 1; for (let i = 2; i <= n; i++) r *= i; return r; }');
         if (this._jsUses.sumdigits) out.push("function _sumdigits(n) { return String(n).split('').filter(d => d >= '0' && d <= '9').reduce((s, d) => s + Number(d), 0); }");
         if (this._jsUses.eq || this._jsUses.rand || this._jsUses.fact || this._jsUses.sumdigits) out.push('');
+        out.push(...this.scratchShimJs());
+        out.push('');
+        if (this._jsUses.arrays) { out.push(...this.arraysShimJs()); out.push(''); }
         // Pluggable driver shim(s) for any runtime/hardware extensions used.
         for (const extId of this._runtimesUsed) { out.push(...this.runtimeShim(extId, 'js', opts.driver || 'shim')); out.push(''); }
-        const state = [];
-        if (this._jsUses.arrays) state.push('const _arrays = {};  // Arrays & Vectors registry');
-        for (const n of scalars) state.push(`let ${this.pyName(n)} = 0;`);
-        for (const n of lists) state.push(`let ${this.pyName(n)} = [];`);
-        if (this._jsUses.answer) state.push('let answer = "";');
-        if (state.length) { out.push(...state); out.push(''); }
-        for (const fn of funcDefs) { out.push(fn); out.push(''); }
-        for (const h of hatDefs) { out.push(h); out.push(''); }
+        if (this._jsUses.answer) stateDecls.push('let answer = "";');
+        if (stateDecls.length) { out.push(...stateDecls); out.push(''); }
+        for (const n of gScalars) out.push(`scratch.global_var(${this.pyStr(n)});`);
+        for (const n of gLists) out.push(`scratch.global_list(${this.pyStr(n)});`);
+        if (gScalars.length || gLists.length) out.push('');
+        for (const { markers, defs } of bodyBlocks) {
+            out.push(...markers);
+            out.push('');
+            for (const d of defs) { out.push(d); out.push(''); }
+        }
         if (eventRegs.length || flagCalls.length) {
             out.push('// run');
             out.push(...eventRegs);
-            out.push(...flagCalls.map(c => (this._async ? `(async () => { await ${c} })();` : c)));
+            out.push(...flagCalls.map((c) => (this._async ? `(async () => { await ${c} })();` : c)));
         }
         return out.join('\n').replace(/\n{3,}/g, '\n\n').trim() + '\n';
+    }
+
+    // A tiny no-op `scratch` runtime so the generated JavaScript runs headless. `say`/`think`
+    // log to the console (so existing behaviour tests keep working); other ops are no-ops
+    // and reporters return 0. Swap for a real renderer to actually drive a stage.
+    scratchShimJs() {
+        return [
+            'const scratch = new Proxy({', '    say: (m) => console.log(m), think: (m) => console.log(m)',
+            '}, { get: (t, k) => (k in t ? t[k] : () => 0) });  // no-op stage shim; reporters -> 0'
+        ];
+    }
+
+    // Functional shims for the Arrays & Vectors extension (id `arrays`) so the generated
+    // code runs standalone. The block surface maps 1:1 to these methods (0-based indices).
+    arraysShimPy() {
+        return [
+            'class _Arrays:  # Arrays & Vectors extension (github.com/CrispStrobe/extensions), as plain Python',
+            '    def __init__(self): self._d = {}',
+            '    def create1d(self, n, j): self._d[n] = json.loads(j) if isinstance(j, str) else list(j)',
+            '    def create(self, n): self._d[n] = []',
+            '    def create_range(self, n, s, e): self._d[n] = list(range(int(s), int(e) + 1))',
+            '    def set(self, n, i, v): self._d[n][int(i)] = v',
+            '    def push(self, n, v): self._d[n].append(v)',
+            '    def insert(self, n, i, v): self._d[n].insert(int(i), v)',
+            '    def remove(self, n, i): del self._d[n][int(i)]',
+            '    def drop(self, n): self._d.pop(n, None)',
+            '    def get(self, n, i): return self._d[n][int(i)]',
+            '    def pop(self, n): return self._d[n].pop()',
+            '    def length(self, n): return len(self._d[n])',
+            '    def sum(self, n): return sum(self._d[n])',
+            '    def mean(self, n): return sum(self._d[n]) / len(self._d[n])',
+            '    def min(self, n): return min(self._d[n])',
+            '    def max(self, n): return max(self._d[n])',
+            '    def index_of(self, n, v): return self._d[n].index(v) if v in self._d[n] else -1',
+            '    def reverse(self, n): return list(reversed(self._d[n]))',
+            '    def flatten(self, n): return [x for row in self._d[n] for x in (row if isinstance(row, list) else [row])]',
+            '    def sort(self, n, o="ascending"): return sorted(self._d[n], reverse=(o != "ascending"))',
+            '    def slice(self, n, s, e): return self._d[n][int(s):int(e)]',
+            '    def to_text(self, n): return json.dumps(self._d[n])',
+            '    def contains(self, n, v): return v in self._d[n]',
+            '_arrays = _Arrays()'
+        ];
+    }
+
+    arraysShimJs() {
+        return [
+            'const _arrays = (() => {  // Arrays & Vectors extension (github.com/CrispStrobe/extensions), as plain JS',
+            '    const d = {};',
+            '    return {',
+            '        create1d: (n, j) => { d[n] = typeof j === "string" ? JSON.parse(j) : Array.from(j); },',
+            '        create: (n) => { d[n] = []; }, create_range: (n, s, e) => { d[n] = Array.from({length: Number(e) - Number(s) + 1}, (_, i) => Number(s) + i); },',
+            '        set: (n, i, v) => { d[n][Number(i)] = v; }, push: (n, v) => { d[n].push(v); },',
+            '        insert: (n, i, v) => { d[n].splice(Number(i), 0, v); }, remove: (n, i) => { d[n].splice(Number(i), 1); }, drop: (n) => { delete d[n]; },',
+            '        get: (n, i) => d[n][Number(i)], pop: (n) => d[n].pop(), length: (n) => d[n].length,',
+            '        sum: (n) => d[n].reduce((a, b) => a + Number(b), 0), mean: (n) => d[n].reduce((a, b) => a + Number(b), 0) / d[n].length,',
+            '        min: (n) => Math.min(...d[n]), max: (n) => Math.max(...d[n]), index_of: (n, v) => d[n].indexOf(v),',
+            '        reverse: (n) => d[n].slice().reverse(), flatten: (n) => d[n].flat(Infinity),',
+            '        sort: (n, o = "ascending") => d[n].slice().sort((a, b) => o === "ascending" ? a - b : b - a),',
+            '        slice: (n, s, e) => d[n].slice(Number(s), Number(e)), to_text: (n) => JSON.stringify(d[n]), contains: (n, v) => d[n].includes(v)',
+            '    };',
+            '})();'
+        ];
     }
 
     // Append a user-supplied SVG as an extra costume (animation frame) on a sprite.
