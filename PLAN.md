@@ -519,11 +519,14 @@ three languages fully two-way, runnable in-editor, in one 3-tab highlighted edit
       (`legoboost`, 29 blocks: motor commands, distance/tilt/force reporters, button/color booleans)
       added declaratively. Both auto-declare + get their `extensionURL`; code runs neutral standalone
       and is verified in tests.
-    - **Next — the switches** (the user's ask): a per-project switch selecting the emitted driver —
-      *shim* (pseudofunctional) / *on-brick* (ev3dev/pybricks, reusing the existing
-      `ev3dev_py_transpile` etc.) / *remote* (USB/BLE/BTC) — plus switches for **async/await** (BLE
-      is async) and **event hats** (`whenButtonPressed` → driver callback registration). All layer
-      onto the same driver-agnostic program.
+    - [x] **Driver-mode switch** — `generatePython/JS(project, {driver})` selects the emitted driver:
+      *shim* (neutral) / *remote* (forwards to a `brickwright-bridges` WebSocket bridge) / *on-brick*
+      (header pointing at the per-hardware transpilers in `CrispStrobe/extensions` that emit real
+      ev3dev2/pybricks). The program is unchanged; only the driver swaps. GUI has a `🔌 driver:`
+      selector on the code tabs (regenerates the view). Documented in `reference/runtime-drivers.md`.
+    - [ ] **Still to wire:** switches for **async/await** (BLE is async → `await _boost…`) and
+      **event hats** (`whenButtonPressed` → driver callback registration); and fleshing out the
+      `remote`/`on-brick` drivers by reusing the bridges/transpilers.
   - Registry/runtime extensions transpile blocks → code but their **code is one-way** (the
     `_arrays[...]` registry / `_driver.method()` model doesn't reverse-map); they round-trip
     pseudocode ↔ blocks. The parsers are hardened to *survive* such code (dict/object literals,
