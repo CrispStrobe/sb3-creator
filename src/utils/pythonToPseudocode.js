@@ -516,7 +516,7 @@ class Translator {
                 return [p + `change ${this.expr(s.target)} by ${val}`];
             }
             case 'Del': {
-                if (s.target.type === 'Subscript') { const { name, oneBased } = this.listIndex(s.target); if (name) return [p + `delete item ${oneBased} of ${name}`]; }
+                if (s.target.type === 'Subscript') { const { name, oneBased } = this.listIndex(s.target); if (name) return [p + `delete ${oneBased} of ${name}`]; }
                 return [];
             }
             case 'Expr': return this.exprStmt(s.value, indent);
@@ -578,7 +578,7 @@ class Translator {
                 this.lists.add(list);
                 const oneBased = this.recoverIndex(e.args[0]);
                 if (e.args.length >= 3) return [p + `insert ${this.expr(e.args[2])} at ${oneBased} of ${list}`];
-                return [p + `delete item ${oneBased} of ${list}`];
+                return [p + `delete ${oneBased} of ${list}`];
             }
             if (list === 'time' && f.attr === 'sleep') return [p + `wait ${this.expr(e.args[0])} seconds`];
         }
