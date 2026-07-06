@@ -114,6 +114,9 @@ class JsParser {
 
     parseDeclaration () {
         this.next(); // let/const/var
+        // The `const scratch = new Proxy(...)` / `const _arrays = (() => {…})()` runtime shims
+        // are out of the subset (arrow fns, Proxy, IIFE) and re-emitted anyway — skip raw.
+        if (this.at('NAME') && ['scratch', '_arrays'].includes(this.peek().value)) { this.skipToStatementEnd(); return null; }
         // support `let a = 0, b = 0;`
         const decls = [];
         for (;;) {
@@ -126,6 +129,18 @@ class JsParser {
         }
         this.semi();
         return decls.length === 1 ? decls[0] : { type: 'BlockStmt', body: decls };
+    }
+
+    // Consume tokens up to and including the next depth-0 `;` (or EOF).
+    skipToStatementEnd () {
+        let depth = 0;
+        while (!this.at('EOF')) {
+            const t = this.peek();
+            if (t.type === 'OP' && '([{'.includes(t.value)) depth++;
+            else if (t.type === 'OP' && ')]}'.includes(t.value)) depth--;
+            else if (t.type === 'OP' && t.value === ';' && depth <= 0) { this.next(); return; }
+            this.next();
+        }
     }
 
     parseFunction () {
@@ -266,10 +281,15 @@ class JsParser {
     normalizeCall (callee, args) {
         if (callee.type === 'Attribute') {
             const obj = callee.value, attr = callee.attr;
-            if (attr === 'includes') return { type: 'Compare', op: 'in', left: args[0], right: obj };       // contains
+            // Runtime objects (`_arrays`, `scratch`) carry their own method surface — don't
+            // rewrite their calls into JS-list idioms (e.g. `_arrays.push` is NOT list.append).
+            const isRuntimeObj = obj.type === 'Name' && (obj.id === '_arrays' || obj.id === 'scratch');
+            if (!isRuntimeObj) {
+                if (attr === 'includes') return { type: 'Compare', op: 'in', left: args[0], right: obj };   // contains
+                if (attr === 'push') return { type: 'Call', func: { type: 'Attribute', value: obj, attr: 'append' }, args };
+            }
             if (obj.type === 'Name' && obj.id === 'console' && attr === 'log') return { type: 'Call', func: { type: 'Name', id: 'print' }, args };
             if (obj.type === 'Name' && obj.id === 'Math') return this.mathCall(attr, args);
-            if (attr === 'push') return { type: 'Call', func: { type: 'Attribute', value: obj, attr: 'append' }, args };
             // .splice / .toLowerCase etc stay as Attribute calls; splice handled in the translator
             return { type: 'Call', func: callee, args };
         }

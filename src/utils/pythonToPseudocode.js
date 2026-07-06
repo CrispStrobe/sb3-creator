@@ -1,3 +1,5 @@
+import { scratchCallToPseudo, arraysCallToPseudo, stripSpritePrefix, unq, sanitizeIdent } from './scratchRuntime.js';
+
 // Python (restricted subset) -> Brickwright pseudocode.
 //
 // This is the back half of the round-trip: blocks -> Python (generatePython) and
@@ -389,9 +391,26 @@ class Translator {
         this.lists = new Set();      // names known to be lists
         this.scalars = new Set();    // module-level scalar names (for GLOBAL decls)
         this.usesAnswer = false;
+        this.procMap = new Map();    // stripped custom-block fn name -> { proccode, warp }
+        this.renameMap = new Map();  // sanitized identifier -> original Scratch name (spaces etc.)
     }
 
     warn (m) { this.warnings.push(m); }
+
+    // Strip the generated `s<idx>_` sprite prefix and un-mangle back to the original Scratch
+    // name (which may contain spaces/punctuation) via the rename map.
+    vname (id) { const s = stripSpritePrefix(id); return this.renameMap.get(s) || s; }
+
+    // If `node` is an `<obj>.<method>(args)` call, return {method, args}; else null.
+    asObjCall (node, obj) {
+        if (node && node.type === 'Call' && node.func.type === 'Attribute' &&
+            node.func.value.type === 'Name' && node.func.value.id === obj) {
+            return { method: node.func.attr, args: node.args };
+        }
+        return null;
+    }
+    asScratch (node) { return this.asObjCall(node, 'scratch'); }
+    asArrays (node) { return this.asObjCall(node, '_arrays'); }
 
     // Map a def name (possibly mangled by the emitter) back to a WHEN hat header,
     // or null if it should be treated as a custom block DEFINE.
@@ -420,7 +439,7 @@ class Translator {
             case 'Num': return node.value;
             case 'Str': return JSON.stringify(node.value);
             case 'Const': return node.value === true ? 'true' : node.value === false ? 'false' : '""';
-            case 'Name': return node.id;
+            case 'Name': return this.vname(node.id);
             case 'Unary': {
                 const x = this.expr(node.operand);
                 if (node.op === '-') return node.operand.type === 'Num' ? `-${x}` : `(0 - ${x})`;
@@ -473,6 +492,20 @@ class Translator {
     callExpr (node) {
         const f = node.func;
         const a = node.args;
+        // scratch.<reporter/boolean>(...) -> pseudocode reporter, e.g. scratch.touching("A")
+        const sc = this.asScratch(node);
+        if (sc) {
+            const r = scratchCallToPseudo(sc.method, sc.args.map((x) => this.expr(x)));
+            if (r) return `(${r.text})`;
+            this.warn(`unknown scratch.${sc.method} in expression`); return '""';
+        }
+        // _arrays.<reporter/boolean>(...) -> Arrays & Vectors reporter, e.g. _arrays.get("v", 0)
+        const ar = this.asArrays(node);
+        if (ar) {
+            const r = arraysCallToPseudo(ar.method, ar.args.map((x) => this.expr(x)));
+            if (r) return `(${r.text})`;
+            this.warn(`unknown _arrays.${ar.method} in expression`); return '""';
+        }
         // math.* / random.*
         if (f.type === 'Attribute' && f.value.type === 'Name') {
             const q = `${f.value.id}.${f.attr}`;
@@ -528,7 +561,7 @@ class Translator {
         } else {
             oneBased = `(${this.expr(idx)} + 1)`;
         }
-        if (base.type === 'Name' && this.lists.has(base.id)) return `(item ${oneBased} of ${base.id})`;
+        if (base.type === 'Name' && this.lists.has(this.vname(base.id))) return `(item ${oneBased} of ${this.vname(base.id)})`;
         // string subscript -> letter of
         return `(letter ${oneBased} of ${this.expr(this.unwrap(base))})`;
     }
@@ -571,7 +604,7 @@ class Translator {
         let oneBased;
         if (idx.type === 'BinOp' && idx.op === '-' && idx.right.type === 'Num' && Number(idx.right.value) === 1) oneBased = this.expr(this.unwrap(idx.left));
         else oneBased = `(${this.expr(idx)} + 1)`;
-        return { name: base.type === 'Name' ? base.id : null, oneBased };
+        return { name: base.type === 'Name' ? this.vname(base.id) : null, oneBased };
     }
 
     assign (s, indent) {
@@ -580,11 +613,12 @@ class Translator {
         if (s.target.type === 'Subscript') { const { name, oneBased } = this.listIndex(s.target); if (name) return [p + `replace item ${oneBased} of ${name} with ${this.expr(s.value)}`]; }
         // JS `xs.length = 0`  ->  clear the list
         if (s.target.type === 'Attribute' && s.target.attr === 'length' && s.target.value.type === 'Name') {
-            this.lists.add(s.target.value.id);
-            return [p + `delete all of ${s.target.value.id}`];
+            const ln = this.vname(s.target.value.id);
+            this.lists.add(ln);
+            return [p + `delete all of ${ln}`];
         }
         if (s.target.type !== 'Name') { this.warn('unsupported assignment target'); return []; }
-        const name = s.target.id;
+        const name = this.vname(s.target.id);
         // x = input(prompt)  ->  ask prompt and wait  (+ bind if not `answer`)
         if (s.value.type === 'Call' && s.value.func.type === 'Name' && s.value.func.id === 'input') {
             this.usesAnswer = true;
@@ -604,9 +638,25 @@ class Translator {
         const p = this.pad(indent);
         if (e.type !== 'Call') return [];
         const f = e.func;
+        // scratch.<command>(...) -> pseudocode statement (motion/looks/pen/sound/clones/…).
+        // Structure markers (sprite/stage/local/costume) are consumed at the program level.
+        const sc = this.asScratch(e);
+        if (sc) {
+            if (['sprite', 'stage', 'local', 'local_list', 'costume'].includes(sc.method)) return [];
+            const r = scratchCallToPseudo(sc.method, sc.args.map((x) => this.expr(x)));
+            if (r) return [p + r.text];
+            this.warn(`unknown scratch.${sc.method}`); return [];
+        }
+        // _arrays.<command>(...) -> Arrays & Vectors statement, e.g. _arrays.push("v", 5)
+        const ar = this.asArrays(e);
+        if (ar) {
+            const r = arraysCallToPseudo(ar.method, ar.args.map((x) => this.expr(x)));
+            if (r) return [p + r.text];
+            this.warn(`unknown _arrays.${ar.method}`); return [];
+        }
         // list method calls
         if (f.type === 'Attribute' && f.value.type === 'Name') {
-            const list = f.value.id;
+            const list = this.vname(f.value.id);
             if (f.attr === 'append') { this.lists.add(list); return [p + `add ${this.expr(e.args[0])} to ${list}`]; }
             if (f.attr === 'clear') { this.lists.add(list); return [p + `delete all of ${list}`]; }
             if (f.attr === 'insert') { this.lists.add(list); const oneBased = this.recoverIndex(e.args[0]); return [p + `insert ${this.expr(e.args[1])} at ${oneBased} of ${list}`]; }
@@ -617,15 +667,22 @@ class Translator {
                 if (e.args.length >= 3) return [p + `insert ${this.expr(e.args[2])} at ${oneBased} of ${list}`];
                 return [p + `delete ${oneBased} of ${list}`];
             }
-            if (list === 'time' && f.attr === 'sleep') return [p + `wait ${this.expr(e.args[0])} seconds`];
+            if (f.value.id === 'time' && f.attr === 'sleep') return [p + `wait ${this.expr(e.args[0])} seconds`];
         }
         if (f.type === 'Name') {
             const id = f.id;
             if (['print'].includes(id)) return [p + `say ${e.args.map((x) => this.expr(x)).join(' join ')}`];
             // a bare call to a hat function at any level is the emitter's "# run" invocation
-            if (this.hatHeader(id, e.args) && e.args.length === 0) return [];
-            // otherwise a custom-block call
-            const blockName = id.replace(/^do_/, '').replace(/_/g, ' ');
+            if (this.resolveHat(id, e.args) && e.args.length === 0) return [];
+            // a known custom-block call: substitute args back into the proccode template
+            const proc = this.procMap.get(stripSpritePrefix(id));
+            if (proc) {
+                let ai = 0;
+                const text = proc.proccode.replace(/%[sb]/g, () => this.expr(e.args[ai++]));
+                return [p + text];
+            }
+            // otherwise a best-effort custom-block call
+            const blockName = stripSpritePrefix(id).replace(/^do_/, '').replace(/_/g, ' ');
             const args = e.args.map((x) => this.expr(x)).join(' ');
             return [p + `call: ${blockName}${args ? ' ' + args : ''}`];
         }
@@ -687,81 +744,159 @@ class Translator {
         return str.slice(1, -1);
     }
 
+    // Map a (possibly sprite-prefixed / dedup-suffixed) function name to a hat header, or null.
+    resolveHat (name, args) {
+        const base = stripSpritePrefix(name);
+        return this.hatHeader(base, args) ||
+            (/_\d+$/.test(base) ? this.hatHeader(base.replace(/_\d+$/, ''), args) : null);
+    }
+
     // ---- top level ----
+    // Reconstruct the multi-sprite project from the flat module. Sprite/costume structure
+    // is carried by scratch.sprite()/stage()/local()/costume() markers; sprite-local names
+    // are `s<idx>_`-prefixed (stripped on the way out). Falls back to a single "Main" sprite
+    // for marker-less hand-written code.
     program (ast) {
-        // First pass: collect module-level scalar/list names and pre-scan lists so
-        // subscripts/`in` translate as list ops even before their first append.
+        // Pre-scan list names (stripped of prefix) so subscripts/`in` translate as list ops.
         const preScanLists = (stmts) => {
             for (const s of stmts) {
-                if (s.type === 'Assign' && s.target.type === 'Name' && s.value.type === 'List') this.lists.add(s.target.id);
+                if (s.type === 'Assign' && s.target.type === 'Name' && s.value.type === 'List') this.lists.add(this.vname(s.target.id));
                 if (s.type === 'Expr' && s.value.type === 'Call' && s.value.func.type === 'Attribute' &&
-                    s.value.func.value.type === 'Name' && ['append', 'clear', 'insert'].includes(s.value.func.attr)) this.lists.add(s.value.func.value.id);
+                    s.value.func.value.type === 'Name' && ['append', 'clear', 'insert'].includes(s.value.func.attr)) this.lists.add(this.vname(s.value.func.value.id));
+                const sc = s.type === 'Expr' ? this.asScratch(s.value) : null;
+                if (sc && sc.method === 'local_list' && sc.args[0]) this.lists.add(unq(this.expr(sc.args[0])));
+                // Build the rename map: any marker carrying an original var/list name lets us
+                // map its sanitized identifier back (e.g. `game_active` -> `game active`).
+                if (sc && ['local', 'local_list', 'global_var', 'global_list'].includes(sc.method) && sc.args[0]) {
+                    const orig = unq(this.expr(sc.args[0]));
+                    const san = sanitizeIdent(orig);
+                    if (san !== orig) this.renameMap.set(san, orig);
+                }
                 for (const k of ['body', 'orelse']) if (s[k]) preScanLists(s[k]);
             }
         };
         preScanLists(ast.body);
 
-        const hats = [];
-        const defs = [];
-        const moduleStmts = [];
+        const sections = [];       // { kind, name, shape, locals[], localLists[], costumes[], defs[], hats[], inits[] }
+        const initsByKey = {};     // 'global' | '<sprite-idx>' -> [initLine]
+        const gScalars = [], gLists = [];
+        let current = null;
+        const ensure = () => (current || (current = pushSection('sprite', 'Main')));
+        const pushSection = (kind, name, shape) => {
+            const sec = { kind, name, shape, locals: [], localLists: [], costumes: [], sounds: [], defs: [], hats: [], inits: [] };
+            sections.push(sec); current = sec; return sec;
+        };
+
+        let pendingDef = null;   // {proccode, warp} from a scratch.defblock() marker
         for (const s of ast.body) {
             if (s.type === 'Def') {
-                const header = this.hatHeader(s.name, s.args);
-                if (header) hats.push({ header, body: s.body });
-                else defs.push(s);
-            } else if (s.type === 'Assign' && s.target.type === 'Name') {
-                // module-level state init: declare, don't emit a set (blocks init to 0/[] anyway,
-                // but keep an explicit set so a non-zero initial value survives)
-                if (s.value.type === 'List') this.lists.add(s.target.id);
-                else this.scalars.add(s.target.id);
-                moduleStmts.push(s);
-            } else if (s.type === 'Expr') {
-                // a bare hat-call ("# run") — drop; anything else is stray, drop with note
-                const v = s.value;
-                if (!(v.type === 'Call' && v.func.type === 'Name' && this.hatHeader(v.func.id, v.args))) this.warn('dropped top-level statement');
-            } else {
-                this.warn(`dropped top-level ${s.type}`);
+                if (pendingDef) {
+                    s._proc = pendingDef;
+                    this.procMap.set(stripSpritePrefix(s.name), pendingDef);
+                    pendingDef = null;
+                    ensure().defs.push(s);
+                    continue;
+                }
+                const header = this.resolveHat(s.name, s.args);
+                if (header) ensure().hats.push({ header, body: s.body });
+                else ensure().defs.push(s);
+                continue;
             }
+            if (s.type === 'Expr') {
+                const sc = this.asScratch(s.value);
+                if (sc) {
+                    const arg0 = sc.args[0] ? unq(this.expr(sc.args[0])) : '';
+                    if (sc.method === 'sprite') { pushSection('sprite', arg0, sc.args[1] ? unq(this.expr(sc.args[1])) : ''); continue; }
+                    if (sc.method === 'stage') { pushSection('stage', 'Stage'); continue; }
+                    if (sc.method === 'local') { ensure().locals.push(arg0); continue; }
+                    if (sc.method === 'local_list') { ensure().localLists.push(arg0); this.lists.add(arg0); continue; }
+                    if (sc.method === 'costume') { ensure().costumes.push(arg0); continue; }
+                    if (sc.method === 'sound') { ensure().sounds.push(arg0); continue; }
+                    if (sc.method === 'global_var' || sc.method === 'global_list') continue;   // handled in pre-pass (rename map)
+                    if (sc.method === 'defblock') { pendingDef = { proccode: arg0, warp: sc.args[1] && /^(1|true)$/.test(this.expr(sc.args[1])) }; continue; }
+                    continue;   // stray scratch command at top level
+                }
+                const v = s.value;
+                if (!(v.type === 'Call' && v.func.type === 'Name' && this.resolveHat(v.func.id, v.args))) this.warn('dropped top-level statement');
+                continue;
+            }
+            if (s.type === 'Assign' && s.target.type === 'Name') {
+                if (s.target.id === 'scratch' || s.target.id === '_arrays') continue;   // shim instance / arrays registry
+                const m = /^s(\d+)_/.exec(s.target.id);
+                const key = m ? m[1] : 'global';
+                const name = this.vname(s.target.id);
+                if (!m) { if (s.value.type === 'List') gLists.push(name); else if (name !== 'answer') gScalars.push(name); }
+                // keep non-default initialisers so they survive as a flag-clicked prologue
+                if (s.value.type !== 'List' &&
+                    !(s.value.type === 'Num' && Number(s.value.value) === 0) &&
+                    !(s.value.type === 'Str' && s.value.value === '')) {
+                    (initsByKey[key] || (initsByKey[key] = [])).push('set ' + name + ' to ' + this.expr(s.value));
+                }
+                continue;
+            }
+            this.warn(`dropped top-level ${s.type}`);
         }
 
-        const lines = ['SPRITE Main:'];
-        for (const n of this.scalars) if (n !== 'answer') lines.push('    GLOBAL ' + n);
-        for (const n of this.lists) lines.push('    LIST ' + n);
-        lines.push('');
+        // Assign section indices in order so `s<idx>_` inits attach to the right sprite.
+        sections.forEach((sec, i) => { sec.inits = initsByKey[String(i)] || []; });
+        const globalInits = initsByKey.global || [];
+        if (!sections.length && (gScalars.length || gLists.length || globalInits.length)) pushSection('sprite', 'Main');
 
-        // module-level non-zero initialisers become a flag-clicked prologue
-        const initLines = [];
-        for (const s of moduleStmts) {
-            if (s.value.type === 'List') continue; // list starts empty
-            if (s.value.type === 'Num' && Number(s.value.value) === 0) continue; // default
-            if (s.value.type === 'Str' && s.value.value === '') continue;
-            initLines.push('        set ' + s.target.id + ' to ' + this.expr(s.value));
-        }
+        const lines = [];
+        for (const n of gScalars) lines.push('GLOBAL ' + n);
+        for (const n of gLists) lines.push('GLOBAL LIST ' + n);
+        if (lines.length) lines.push('');
 
-        // custom block DEFINEs
-        for (const d of defs) {
-            const sig = d.name.replace(/^do_/, '').replace(/_/g, ' ');
-            const params = d.args.map((a) => `(${a})`).join(' ');
-            lines.push(`    DEFINE ${sig}${params ? ' ' + params : ''}:`);
-            const body = this.block(d.body, 2);
-            lines.push(...(body.length ? body : ['        stop this script']).map((l) => l));
+        let globalInitsPlaced = globalInits.length === 0;
+        for (const sec of sections) {
+            lines.push(sec.kind === 'stage' ? 'STAGE:' : `SPRITE ${sec.name}:`);
+            if (sec.shape) lines.push('    SHAPE ' + sec.shape);
+            for (const n of sec.locals) lines.push('    LOCAL ' + n);
+            for (const n of sec.localLists) lines.push('    LOCAL LIST ' + n);
+            for (const c of sec.costumes) lines.push('    COSTUME ' + c);
+            for (const sd of sec.sounds) lines.push('    SOUND ' + sd);
             lines.push('');
-        }
 
-        // hats
-        let flagEmitted = false;
-        for (const h of hats) {
-            lines.push('    ' + h.header);
-            let body = this.block(h.body, 2);
-            if (h.header === 'WHEN flag clicked:' && !flagEmitted && initLines.length) { body = [...initLines, ...body]; flagEmitted = true; }
-            lines.push(...(body.length ? body : ['        say ""']));
-            lines.push('');
-        }
-        // if there were module inits but no flag hat, add one
-        if (initLines.length && !flagEmitted) {
-            lines.push('    WHEN flag clicked:');
-            lines.push(...initLines);
-            lines.push('');
+            // Non-default initialisers (this sprite's locals + any pending globals) -> flag prologue.
+            let prologue = sec.inits.slice();
+            let flagEmitted = false;
+
+            for (const d of sec.defs) {
+                let header;
+                if (d._proc) {
+                    // Rebuild the exact signature from the proccode (args interleave with words).
+                    let ai = 0;
+                    const sig = d._proc.proccode.replace(/%[sb]/g, (tok) => (tok === '%b' ? `<${d.args[ai++]}>` : `(${d.args[ai++]})`));
+                    header = `DEFINE ${d._proc.warp ? 'FAST ' : ''}${sig}`;
+                } else {
+                    const sig = stripSpritePrefix(d.name).replace(/^do_/, '').replace(/_/g, ' ');
+                    const params = d.args.map((a) => `(${a})`).join(' ');
+                    header = `DEFINE ${sig}${params ? ' ' + params : ''}`;
+                }
+                lines.push('    ' + header + ':');
+                const body = this.block(d.body, 2);
+                lines.push(...(body.length ? body : ['        stop this script']));
+                lines.push('');
+            }
+            for (const h of sec.hats) {
+                lines.push('    ' + h.header);
+                let body = this.block(h.body, 2);
+                if (h.header === 'WHEN flag clicked:' && !flagEmitted) {
+                    const pre = [...(globalInitsPlaced ? [] : globalInits), ...prologue].map((l) => this.pad(2) + l);
+                    body = [...pre, ...body];
+                    flagEmitted = true; globalInitsPlaced = true; prologue = [];
+                }
+                lines.push(...(body.length ? body : ['        say ""']));
+                lines.push('');
+            }
+            // Inits but no flag hat in this sprite -> synthesise one.
+            const leftover = [...(globalInitsPlaced ? [] : globalInits), ...prologue];
+            if (leftover.length && !flagEmitted) {
+                lines.push('    WHEN flag clicked:');
+                lines.push(...leftover.map((l) => this.pad(2) + l));
+                lines.push('');
+                globalInitsPlaced = true;
+            }
         }
 
         return lines.join('\n').replace(/\n{3,}/g, '\n\n').trim() + '\n';

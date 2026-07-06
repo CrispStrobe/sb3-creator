@@ -295,7 +295,7 @@ for (const t of ARR) {
         assert.ok(c.project.extensions.includes('arrays'));
         assert.equal(c.project.extensionURLs.arrays, 'https://crispstrobe.github.io/extensions/CrispStrobe/arrays.js');
         assert.equal(runJsProg(c), t.want);
-        assert.match(c.generatePython(), /_arrays = \{\}/, 'Python emits the registry');
+        assert.match(c.generatePython(), /_arrays = _Arrays\(\)/, 'Python emits the reversible registry shim');
     });
 }
 
@@ -377,13 +377,13 @@ test('runtime convention: async switch awaits hardware calls and makes functions
     c.syncExtensions();
     const py = c.generatePython(undefined, { async: true });
     assert.match(py, /^import asyncio$/m);
-    assert.match(py, /async def when_flag_clicked\(\):/);
+    assert.match(py, /async def s\d+_when_flag_clicked\(\):/);
     assert.match(py, /await _legoboostunified\.connect\(\)/);
-    assert.match(py, /asyncio\.run\(when_flag_clicked\(\)\)/);
+    assert.match(py, /asyncio\.run\(s\d+_when_flag_clicked\(\)\)/);
     const js = c.generateJavaScript(undefined, { async: true });
-    assert.match(js, /async function when_flag_clicked\(\)/);
+    assert.match(js, /async function s\d+_when_flag_clicked\(\)/);
     assert.match(js, /await _legoboostunified\.connect\(\)/);
-    assert.match(js, /\(async \(\) => \{ await when_flag_clicked\(\); \}\)\(\);/);
+    assert.match(js, /\(async \(\) => \{ await s\d+_when_flag_clicked\(\); \}\)\(\);/);
     assert.doesNotMatch(c.generateJavaScript(), /await /);   // default (sync) has no await
 });
 
@@ -395,8 +395,8 @@ test('runtime convention: events switch turns an extension hat into a handler + 
     B.s2 = { opcode: 'looks_say', inputs: { MESSAGE: [1, [10, 'pressed']] }, fields: {}, parent: 'hat2' };
     c.syncExtensions();
     const js = c.generateJavaScript(undefined, { events: true });
-    assert.match(js, /function on_whenButtonPressed\(\)/);
-    assert.match(js, /_legoboostunified\.on\("legoboostunified_whenButtonPressed", on_whenButtonPressed\)/);
+    assert.match(js, /function s\d+_on_whenButtonPressed\(\)/);
+    assert.match(js, /_legoboostunified\.on\("legoboostunified_whenButtonPressed", s\d+_on_whenButtonPressed\)/);
     assert.doesNotMatch(c.generateJavaScript(), /on_whenButtonPressed/);   // off by default
 });
 
