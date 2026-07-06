@@ -12,6 +12,7 @@ import vm from 'node:vm';
 import SB3Creator from '../src/utils/sb3Creator.js';
 import pythonToPseudocode from '../src/utils/pythonToPseudocode.js';
 import javascriptToPseudocode from '../src/utils/javascriptToPseudocode.js';
+import examples from '../src/utils/examples.js';
 
 // Build a project: WHEN flag clicked -> say <extension reporter/boolean>. Returns the
 // SB3Creator (so we can call generateJavaScript/generatePython) — the say's MESSAGE is
@@ -138,6 +139,58 @@ test('extensions: core categories are never treated as extensions', () => {
     const c = new SB3Creator();
     c.parse('SPRITE T:\n  WHEN flag clicked:\n    set x to (3 + 4)\n    say x\n    move 10 steps');
     assert.deepEqual(c.project.extensions, [], 'motion/operator/looks/data are core, not extensions');
+});
+
+// ---- pseudocode syntax for Arrays & Vectors ----
+const ARR_PSEUDO = [
+    'SPRITE T:',
+    '  WHEN flag clicked:',
+    '    new array "v" = [3, 1, 2]',
+    '    push 5 to array "v"',
+    '    set item 1 of array "v" to 9',
+    '    insert 7 at 0 of array "v"',
+    '    say (sum of array "v") for 1 seconds',
+    '    say (item 0 of array "v") for 1 seconds',
+    '    say (largest of array "v") for 1 seconds',
+    '    say (length of array "v") for 1 seconds',
+    '    new array "r" = range 1 to 5',
+    '    IF array "v" contains 9 THEN:',
+    '      say "yes" for 1 seconds'
+].join('\n');
+
+test('pseudocode: Arrays phrases compile to arrays_* blocks (auto-declared)', () => {
+    const c = new SB3Creator();
+    c.parse(ARR_PSEUDO);
+    assert.deepEqual(c.warnings, []);
+    assert.ok(c.project.extensions.includes('arrays'));
+    const ops = new Set(Object.values(c.project.targets.find(t => !t.isStage).blocks).map(b => b.opcode).filter(o => o.startsWith('arrays')));
+    for (const op of ['arrays_create1D', 'arrays_push', 'arrays_set', 'arrays_insert', 'arrays_sum', 'arrays_get', 'arrays_max', 'arrays_length', 'arrays_createRange', 'arrays_contains']) {
+        assert.ok(ops.has(op), `expected ${op}`);
+    }
+});
+
+test('pseudocode: Arrays blocks decompile to phrases (idempotent) and run correctly', () => {
+    const c = new SB3Creator();
+    c.parse(ARR_PSEUDO);
+    const dec = new SB3Creator().decompile(c.project);
+    assert.match(dec, /new array "v" = \[3, 1, 2\]/);
+    assert.match(dec, /push 5 to array "v"/);
+    assert.match(dec, /sum of array "v"/);
+    assert.match(dec, /new array "r" = range 1 to 5/);
+    const c2 = new SB3Creator();
+    c2.parse(dec);
+    assert.equal(new SB3Creator().decompile(c2.project), dec, 'idempotent');
+});
+
+test('pseudocode: Arrays example runs to the right values in JS', () => {
+    const c = new SB3Creator();
+    c.parse(examples.arrays);
+    const logs = [];
+    vm.runInNewContext(c.generateJavaScript(), { console: { log: (...a) => logs.push(a.join(' ')) }, prompt: () => '' }, { timeout: 1000 });
+    assert.ok(logs.includes('sum = 29'));
+    assert.ok(logs.includes('largest = 12'));
+    assert.ok(logs.some(l => /\[5,99,8,1,12\]/.test(l)));
+    assert.ok(logs.includes('range 1..5 sums to 15'));
 });
 
 // ---- pseudocode syntax for the distinctive Planète Maths ops ----

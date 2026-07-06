@@ -504,8 +504,10 @@ three languages fully two-way, runnable in-editor, in one 3-tab highlighted edit
   - [x] **Arrays & Vectors** (`arrays`, 37 blocks) — named-array registry (`_arrays = {}`), 0-based
     (matches the extension). Core ops mapped to runnable Python/JS: create1D/Empty/Range, get/set/
     push/pop/insert/remove/delete, length/sum/mean/min/max/indexOf/slice/reverse/sort/flatten/
-    contains/toJSON. 2D/functional ops (create2D, map/filter/reduce, transpose, reshape) fall back
-    to comments. Fixtures build + run to correct values (`test/extensions.test.mjs`).
+    contains/toJSON. Also **pseudocode syntax** (anchored on `array "NAME"`): `new array "v" = [..]`,
+    `push x to array "v"`, `item i of array "v"`, `sum of array "v"`, `array "v" contains x`, … —
+    parses to blocks, decompiles back (idempotent), and the `arrays` example runs to correct values.
+    2D/functional ops (create2D, map/filter/reduce, transpose, reshape) fall back to comments.
   - [x] **Gamepad** (`universalgamepad`) — real-time input, so standalone code reads a neutral
     `_gamepad` shim (connected→false, axis/cursor→0, …); it runs without crashing and the real
     extension drives it live in the VM/browser. Reporters/booleans mapped; commands (vibrate,
