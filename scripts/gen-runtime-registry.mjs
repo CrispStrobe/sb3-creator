@@ -41,7 +41,7 @@ const HARDWARE = [
     'CrispStrobe/ev3_lms_transpile'
 ].map(slug => [slug, `${slug.split('/').pop()}.js`]);
 
-const BLOCK_KIND = { command: 'command', reporter: 'reporter', Boolean: 'boolean', conditional: 'command', loop: 'command' };
+const BLOCK_KIND = { command: 'command', reporter: 'reporter', Boolean: 'boolean', conditional: 'command', loop: 'command', hat: 'hat', event: 'hat' };
 
 async function loadSource (slug, file) {
     const local = path.join(root, 'reference', 'extensions', file);

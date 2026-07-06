@@ -177,7 +177,8 @@ class SB3Creator {
         if (!this._runtimesUsed) this._runtimesUsed = new Set();
         this._runtimesUsed.add(b.opcode.slice(0, b.opcode.indexOf('_')));
         const args = (op.args || []).map(k => this.runtimeArg(b, k, blocks, valFn));
-        return { kind: op.kind, call: `_${op.runtime}.${op.method}(${args.join(', ')})` };
+        const call = `_${op.runtime}.${op.method}(${args.join(', ')})`;
+        return { kind: op.kind, call: this._async ? `await ${call}` : call };
     }
 
     // Emit a driver for a runtime extension. The program is driver-agnostic; this is the
@@ -213,11 +214,13 @@ class SB3Creator {
             } else {
                 lines.push(`class _${cls}Driver:`);
             }
+            const df = this._async ? 'async def' : 'def';   // async so `await _boost.x()` works
             for (const [method, op] of methods) {
-                if (mode === 'remote' && op.kind === 'command') { lines.push(`    def ${method}(self, *a): self._send("${method}", list(a))`); continue; }
+                if (mode === 'remote' && op.kind === 'command') { lines.push(`    ${df} ${method}(self, *a): self._send("${method}", list(a))`); continue; }
                 const ret = op.kind === 'command' ? 'pass' : op.kind === 'boolean' ? 'return False' : `return ${op.neutral || '0'}`;
-                lines.push(`    def ${method}(self, *a): ${ret}`);
+                lines.push(`    ${df} ${method}(self, *a): ${ret}`);
             }
+            lines.push('    def on(self, event, handler): pass  # register an event-hat handler');
             lines.push(`_${rt} = _${cls}Driver()`);
             return lines;
         }
@@ -226,6 +229,7 @@ class SB3Creator {
             const ret = op.kind === 'command' ? '() => {}' : op.kind === 'boolean' ? '() => false' : `() => ${op.neutral || '0'}`;
             return `${method}: ${ret}`;
         });
+        entries.push('on: (event, handler) => {}');   // register an event-hat handler
         const out = [`// _${rt} driver — ${banner}`];
         if (mode === 'remote') out.push('// wire _bridge() to a Brickwright bridge (brickwright-bridges) over WebSocket.');
         out.push(`const _${rt} = { ${entries.join(', ')} };`);
@@ -2751,7 +2755,7 @@ class SB3Creator {
                     args.push(tok === '%b' ? this.pyCond(input[1], blocks) : this.pyVal(input, blocks));
                     return '';
                 });
-                return line(`${this.pyProcName(m.proccode)}(${args.join(', ')})`);
+                return line(`${this._async ? 'await ' : ''}${this.pyProcName(m.proccode)}(${args.join(', ')})`);
             }
             default: {
                 const rc = this.runtimeCall(b, blocks, v);   // pluggable runtime/hardware commands
@@ -2787,6 +2791,7 @@ class SB3Creator {
     }
 
     pyFunc(header, firstId, blocks, argNames) {
+        if (this._async) header = 'async ' + header;   // await runtime/hardware calls
         const assigned = this.pyAssigned(firstId, blocks, new Set());
         const globals = [];
         for (const a of assigned) {
@@ -2807,6 +2812,8 @@ class SB3Creator {
         this._pyNames = new Map();
         this._pyUses = { random: false, math: false, time: false, eq: false, answer: false, arrays: false, json: false, sumdigits: false };
         this._runtimesUsed = new Set();
+        this._async = !!(opts && opts.async);
+        this._events = !!(opts && opts.events);
         const targets = project.targets || [];
         const scalars = new Set(), lists = new Set();
         for (const t of targets) {
@@ -2817,11 +2824,23 @@ class SB3Creator {
         for (const n of scalars) this.pyName(n);
         for (const n of lists) this.pyName(n);
 
-        const funcDefs = [], hatDefs = [], flagCalls = [];
+        const funcDefs = [], hatDefs = [], flagCalls = [], eventRegs = [];
         for (const t of targets) {
             const blocks = t.blocks || {};
             for (const b of Object.values(blocks)) {
-                if (!b.topLevel || !this.isHat(b.opcode)) continue;
+                if (!b.topLevel) continue;
+                // Extension event hats (whenButtonPressed …) → a handler + driver registration.
+                const rop = this.runtimeOp(b.opcode);
+                if (rop && rop.kind === 'hat') {
+                    if (this._events) {
+                        this._runtimesUsed.add(b.opcode.slice(0, b.opcode.indexOf('_')));
+                        const hn = this.pyName('on_' + b.opcode.slice(b.opcode.indexOf('_') + 1));
+                        hatDefs.push(this.pyFunc(`def ${hn}():`, b.next, blocks, []));
+                        eventRegs.push(`_${rop.runtime}.on(${this.pyStr(b.opcode)}, ${hn})`);
+                    }
+                    continue;
+                }
+                if (!this.isHat(b.opcode)) continue;
                 if (b.opcode === 'procedures_definition') {
                     const proto = blocks[b.inputs.custom_block[1]];
                     const m = proto.mutation;
@@ -2846,7 +2865,8 @@ class SB3Creator {
         if (this._pyUses.math) out.push('import math');
         if (this._pyUses.time) out.push('import time');
         if (this._pyUses.json) out.push('import json');
-        if (this._pyUses.random || this._pyUses.math || this._pyUses.time || this._pyUses.json) out.push('');
+        if (this._async) out.push('import asyncio');
+        if (this._pyUses.random || this._pyUses.math || this._pyUses.time || this._pyUses.json || this._async) out.push('');
         if (this._pyUses.sumdigits) {
             out.push('def _sumdigits(n): return sum(int(d) for d in str(n) if d.isdigit())');
             out.push('');
@@ -2870,7 +2890,11 @@ class SB3Creator {
         if (state.length) { out.push(...state); out.push(''); }
         for (const fn of funcDefs) { out.push(fn); out.push(''); }
         for (const h of hatDefs) { out.push(h); out.push(''); }
-        if (flagCalls.length) { out.push('# run'); out.push(...flagCalls); }
+        if (eventRegs.length || flagCalls.length) {
+            out.push('# run');
+            out.push(...eventRegs);
+            out.push(...flagCalls.map(c => (this._async ? `asyncio.run(${c})` : c)));
+        }
         return out.join('\n').replace(/\n{3,}/g, '\n\n').trim() + '\n';
     }
 
@@ -3051,7 +3075,7 @@ class SB3Creator {
                     args.push(tok === '%b' ? this.jsCond(input[1], blocks) : this.jsVal(input, blocks));
                     return '';
                 });
-                return line(`${this.pyProcName(m.proccode)}(${args.join(', ')});`);
+                return line(`${this._async ? 'await ' : ''}${this.pyProcName(m.proccode)}(${args.join(', ')});`);
             }
             default: {
                 const rc = this.runtimeCall(b, blocks, v);   // pluggable runtime/hardware commands
@@ -3066,6 +3090,8 @@ class SB3Creator {
         this._pyNames = new Map();
         this._jsUses = { rand: false, eq: false, answer: false, fact: false, arrays: false, sumdigits: false };
         this._runtimesUsed = new Set();
+        this._async = !!(opts && opts.async);
+        this._events = !!(opts && opts.events);
         const targets = project.targets || [];
         const scalars = new Set(), lists = new Set();
         for (const t of targets) {
@@ -3075,20 +3101,32 @@ class SB3Creator {
         for (const n of scalars) this.pyName(n);
         for (const n of lists) this.pyName(n);
 
-        const funcDefs = [], hatDefs = [], flagCalls = [];
+        const funcDefs = [], hatDefs = [], flagCalls = [], eventRegs = [];
         for (const t of targets) {
             const blocks = t.blocks || {};
             for (const b of Object.values(blocks)) {
-                if (!b.topLevel || !this.isHat(b.opcode)) continue;
+                if (!b.topLevel) continue;
+                const rop = this.runtimeOp(b.opcode);
+                if (rop && rop.kind === 'hat') {
+                    if (this._events) {
+                        this._runtimesUsed.add(b.opcode.slice(0, b.opcode.indexOf('_')));
+                        const hn = this.pyName('on_' + b.opcode.slice(b.opcode.indexOf('_') + 1));
+                        hatDefs.push([`${this._async ? 'async ' : ''}function ${hn}() {`, ...this.jsStackFrom(b.next, blocks, 1), '}'].join('\n'));
+                        eventRegs.push(`_${rop.runtime}.on(${this.pyStr(b.opcode)}, ${hn});`);
+                    }
+                    continue;
+                }
+                if (!this.isHat(b.opcode)) continue;
                 if (b.opcode === 'procedures_definition') {
                     const proto = blocks[b.inputs.custom_block[1]];
                     const m = proto.mutation;
                     const argNames = JSON.parse(m.argumentnames || '[]').map(n => this.pyName(n));
-                    funcDefs.push([`function ${this.pyProcName(m.proccode)}(${argNames.join(', ')}) {`, ...this.jsStackFrom(b.next, blocks, 1), '}'].join('\n'));
+                    const af = this._async ? 'async ' : '';
+                    funcDefs.push([`${af}function ${this.pyProcName(m.proccode)}(${argNames.join(', ')}) {`, ...this.jsStackFrom(b.next, blocks, 1), '}'].join('\n'));
                 } else {
                     const name = this.pyHatName(b);
                     const isFlag = b.opcode === 'event_whenflagclicked';
-                    let code = [`function ${name}() {`, ...this.jsStackFrom(b.next, blocks, 1), '}'].join('\n');
+                    let code = [`${this._async ? 'async ' : ''}function ${name}() {`, ...this.jsStackFrom(b.next, blocks, 1), '}'].join('\n');
                     if (!isFlag) code = `// ${this.decompileHat(b, blocks)}  (event handler — call it when that event happens)\n` + code;
                     hatDefs.push(code);
                     if (isFlag) flagCalls.push(`${name}();`);
@@ -3115,7 +3153,11 @@ class SB3Creator {
         if (state.length) { out.push(...state); out.push(''); }
         for (const fn of funcDefs) { out.push(fn); out.push(''); }
         for (const h of hatDefs) { out.push(h); out.push(''); }
-        if (flagCalls.length) { out.push('// run'); out.push(...flagCalls); }
+        if (eventRegs.length || flagCalls.length) {
+            out.push('// run');
+            out.push(...eventRegs);
+            out.push(...flagCalls.map(c => (this._async ? `(async () => { await ${c} })();` : c)));
+        }
         return out.join('\n').replace(/\n{3,}/g, '\n\n').trim() + '\n';
     }
 
