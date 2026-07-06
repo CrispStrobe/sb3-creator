@@ -447,17 +447,25 @@ to our bricks×education×codegen intersection); **BlocklyML** (domain Blockly�
   (`_eq`) and out-of-subset sprite/pen behaviour (which live in the blocks, not the text) are
   dropped with warnings rather than guessed. All 28 examples round-trip; the quiz still scores 2
   after Python → blocks (31 tests in `test/roundtrip.test.mjs`).
-- [x] **GUI — syntax-highlighted two-way editor.** The Pseudocode tab's plain textarea is now an
-  overlay editor: a highlighted `<pre>` behind a transparent `<textarea>` (caret preserved,
-  Tab-to-indent), with per-language highlighting for Pseudocode / Python / JavaScript. The
-  language selector shows the sync direction (`Pseudocode ⇄ blocks`, `Python ⇄ blocks`,
-  `JavaScript → view`); **To blocks** compiles Pseudocode or Python to blocks, **From blocks**
-  reads them back in any language, and **▶ Run** executes Python/JS in-editor. **Verified live**
-  at crispstrobe.github.io/brickwright: quiz → From blocks (Python, highlighted) → To blocks →
-  read back as JS → Run → score 2, no page errors.
+- [x] **P3 — JavaScript → blocks (all three languages two-way).** `javascriptToPseudocode.js`
+  parses the emitted JS subset (`let` state, `function`, `if/else`, `while`, C-style `for`,
+  `console.log`/`prompt`, `===`/`&&`/`!`, `_eq`/`_rand`, `.push`/`.splice`/`.length`) into the
+  *same* AST the Python front-end builds and reuses the shared `Translator` (JS idioms normalised
+  to its Python-flavoured nodes). All 28 examples round-trip through JS too; the quiz scores 2 and
+  an edit changes it to 1. 69 tests in `test/roundtrip.test.mjs`.
+- [x] **GUI — 3-tab syntax-highlighted editor.** The Pseudocode tab is now three real tabs
+  (`🧩 Pseudocode` / `🐍 Python` / `🟨 JavaScript`), each with its own buffer and per-language
+  highlighting (overlay: coloured `<pre>` behind a transparent `<textarea>`, caret + Tab-indent).
+  Editing a tab clears the others so switching always re-derives from the latest edit through
+  blocks — structurally impossible to feed (say) pseudocode to the Python parser (the cause of the
+  earlier "unexpected `:`" / "bad input on line 1" errors). **To blocks** compiles the active tab,
+  **From blocks** fills all three, **▶ Run** executes Python/JS. Fix: the tab buttons must *not*
+  use `role="tab"` — that collided with the editor's top-level react-tabs and switched to
+  Costumes/Sounds by index. **Verified live** across all paths (tab conversion, compile-from-each,
+  run, two-way editing to score 1) with no page errors.
 
-Multi-target codegen is now feature-complete: **Pseudocode ⇄ blocks ⇄ Python** two-way, plus a
-runnable read-only **JavaScript** view — all in one highlighted editor.
+Multi-target codegen is **feature-complete**: **Pseudocode ⇄ blocks ⇄ Python ⇄ JavaScript** — all
+three languages fully two-way, runnable in-editor, in one 3-tab highlighted editor.
 
 ## 23. Deferred — Brickwright desktop deep rebrand
 
