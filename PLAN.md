@@ -411,8 +411,16 @@ to our bricks×education×codegen intersection); **BlocklyML** (domain Blockly�
     Python/JS are read-only views (Compile & Load auto-disables). Verified live at
     crispstrobe.github.io/brickwright: compile the quiz → From blocks as Python → real
     `input()`/`_eq`/`def`/`print`.
-  - [ ] **P2 preview:** run the emitted Python in-browser (Skulpt/Pyodide) and JS natively, so
-    the read-only view becomes a runnable console for the algorithmic subset.
+- [~] **P2 — run the emitted code in-editor** (make the read-only view a runnable console).
+  - [x] **JavaScript run** — a **▶ Run** button on the JS view executes the code natively
+    (`new Function` with a captured `console` + `prompt`; the editor already allows eval for
+    the VM compiler) and prints to a console panel. Refuses `forever` loops (they'd hang the
+    tab) with a friendly note; the algorithmic examples (quiz, operators, 2048 logic) run.
+  - [ ] **Python run** via Skulpt/Pyodide — Skulpt bundles but assumes a global `Sk`, so it
+    needs webpack glue (`ProvidePlugin` / `exports-loader`, or inject the prebuilt dist at
+    runtime). Deferred; the JS run covers the demo today.
+  - [ ] Harden: run compute-heavy programs in a Web Worker with a timeout instead of the
+    `forever` guard (a Worker has no `prompt`, so input-based programs stay on the main thread).
 - [ ] **P2:** a tiny `brickwright` Python/JS runtime shim so full projects' emitted code runs
   (or lean on the VM for execution + show the code as a reading view).
 - [ ] **P3 (hard, optional):** Python→blocks via a restricted-subset parser (BlockMirror /
