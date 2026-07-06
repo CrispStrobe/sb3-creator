@@ -359,3 +359,63 @@ built on TurboWarp. The compiler (`src/lib/sb3-creator.js`) is vendored from thi
   opcodes + `extensions[]`.
 - [ ] **Later:** mirror Makeblock's device-connection UX for the LEGO extensions;
   MakeCode-style micro:bit support (simulator + upload + device panel) in the GUI.
+- [~] **Multi-target code generation (blocks → Python / JavaScript)** — in progress; see §22.
+
+## 22. Multi-target code generation — blocks ⇄ pseudocode ⇄ Python / JS
+
+**Why:** the on-ramp Scratch never shipped. We already own the block→text direction
+(the decompiler *is* a code generator); adding Python and JS makes Brickwright *"the same
+project as blocks, pseudocode, Python, or JS, in one editor"* — then run it fast or on a
+brick. Our EV3-Python extension already proves block→Python for a domain; this generalises it.
+
+**Architecture.** Refactor `decompile()` into a multi-target `CodeGen`
+(`target ∈ {pseudocode, python, javascript}`) that shares the block-tree walker and the
+precedence/parenthesisation logic we already have. Each opcode maps to a per-target emit
+(same pattern as Blockly's generators, and as our LEGO transpilers' `processBlockChain`).
+
+**Two hard truths that shape the design:**
+1. **Direction is asymmetric.** blocks→text is easy (we do it). text→blocks needs a real
+   parser (Droplet / BlockPy's BlockMirror territory) — deferred to a later phase.
+2. **Scratch's model ≠ plain Python/JS** (sprites, clones, broadcasts, parallel scripts,
+   pen). So two fidelity tiers:
+   - **Runnable-minimal** — the *algorithmic* subset (variables, math, loops, if/else,
+     lists, `say`→`print`, `ask`→`input`) emits idiomatic, standalone-runnable Python 3 / JS.
+     A big chunk of the educational examples (quiz, operators, 2048's slide logic) are pure
+     algorithm and map cleanly.
+   - **Runtime-backed** — full sprite/graphics projects emit readable code against a small
+     documented `brickwright` runtime API (or keep executing in the VM and treat the code
+     as a synced *reading* view).
+
+**Prior art to mirror:** Blockly's 5 generators (the `ORDER_*` precedence + per-block-func
+pattern; `nameDB_` identifier sanitising); **BlockPy / BlockMirror** (true Python↔blocks via
+AST, in-browser exec via **Skulpt/Pyodide**, subset-restricted for clean round-trip);
+**Droplet / Pencil Code** (bidirectional block↔real-text); **MakeCode/pxt** (pick one
+canonical form — for us the sb3 block tree — and project both blocks and Python from it);
+**Open Roberta** (Blockly→real robot code incl. LEGO EV3/NXT/Spike — the closest OSS match
+to our bricks×education×codegen intersection); **BlocklyML** (domain Blockly→Python template).
+
+**Phases:**
+- [ ] **P1 (tractable, high-value):** multi-target `CodeGen`, one-way; **Python** first, then
+  JS. A language dropdown on the **From blocks** button in the Code tab. Runnable for the
+  algorithmic subset (Skulpt for Python); runtime-commented for sprite projects.
+- [ ] **P2:** a tiny `brickwright` Python/JS runtime shim so full projects' emitted code runs
+  (or lean on the VM for execution + show the code as a reading view).
+- [ ] **P3 (hard, optional):** Python→blocks via a restricted-subset parser (BlockMirror /
+  Droplet-style) for genuine round-trip.
+
+## 23. Deferred — Brickwright desktop deep rebrand
+
+The `brickwright-desktop` **identity** layer is done (appId, update feed, homepage, Linux
+`.desktop`/`metainfo`/`mime`, and the full icon set — §desktop-rebrand). Left deferred, by
+deliberate choice, because each carries real risk or needs an account we don't have:
+
+- [ ] **MS Store publisher identity** — `identityName: 45747ThomasWeber.TurboWarpDesktop`,
+  the `publisher: CN=…` cert thumbprint, `publisherDisplayName: Thomas Weber`. Tied to Thomas
+  Weber's Microsoft Store account; only worth changing if *we* publish to MS Store, in which
+  case swap in our own cert/identity. Fake placeholders don't help.
+- [ ] **Technical Referer-header mechanism** (`referer.html`, `project-running-window.js`) —
+  internal, not user-visible; changing it risks breaking request handling. Left as-is.
+- [ ] **Deep "TurboWarp" strings** — the addon system, `tw_`-prefixed settings keys, the
+  `docs/` desktop marketing site (HTML + screenshots), and l10n strings in menus/About. A
+  full sweep risks addon compatibility and saved-settings migration, so we did the identity
+  layer, not every occurrence. Next layer if a top-to-bottom desktop rebrand is wanted.
