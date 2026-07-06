@@ -15,7 +15,7 @@ import { Translator } from './pythonToPseudocode.js';
 const JS_KEYWORDS = new Set(['function', 'if', 'else', 'while', 'for', 'return', 'let',
     'const', 'var', 'true', 'false', 'null', 'undefined', 'new', 'typeof', 'break', 'continue']);
 
-const JS_OPS = ['===', '!==', '**', '==', '!=', '<=', '>=', '&&', '||', '++', '--',
+const JS_OPS = ['===', '!==', '=>', '**', '==', '!=', '<=', '>=', '&&', '||', '++', '--',
     '+=', '-=', '*=', '/=', '%=', '(', ')', '{', '}', '[', ']', ';', ',', '.',
     '+', '-', '*', '/', '%', '<', '>', '=', '!', '?', ':'];
 
@@ -297,12 +297,35 @@ class JsParser {
         if (t.type === 'false') { this.next(); return { type: 'Const', value: false }; }
         if (t.type === 'null' || t.type === 'undefined') { this.next(); return { type: 'Const', value: null }; }
         if (t.type === 'NAME') { this.next(); return { type: 'Name', id: t.value }; }
-        if (this.at('OP', '(')) { this.next(); const e = this.parseExpr(); this.eat('OP', ')'); return e; }
+        if (this.at('OP', '(')) {
+            // Distinguish a grouped expression from arrow-function params `(a, b) => …`.
+            let j = this.p, depth = 0;
+            for (; j < this.toks.length; j++) { const tk = this.toks[j]; if (tk.type === 'OP' && tk.value === '(') depth++; else if (tk.type === 'OP' && tk.value === ')') { depth--; if (depth === 0) break; } }
+            const after = this.toks[j + 1];
+            if (after && after.type === 'OP' && after.value === '=>') {
+                this.p = j + 2; // consume `(...)  =>`
+                if (this.at('OP', '{')) this.skipBraces(); else this.parseExpr(); // arrow body (discarded)
+                return { type: 'Const', value: null };
+            }
+            this.next(); const e = this.parseExpr(); this.eat('OP', ')'); return e;
+        }
         if (this.at('OP', '[')) {
             this.next(); const elts = [];
             while (!this.at('OP', ']')) { elts.push(this.parseExpr()); if (this.at('OP', ',')) this.next(); }
             this.eat('OP', ']');
             return { type: 'List', elts };
+        }
+        // object literal (e.g. the generated `_arrays = {}` registry / driver shims) — not in
+        // the subset; consume the balanced braces and return a placeholder so parsing survives.
+        if (this.at('OP', '{')) { this.skipBraces(); return { type: 'Const', value: null }; }
+        // inline function expression (e.g. `.reduce(function(s,x){...})`) — out of subset;
+        // consume it raw so parsing survives (the enclosing op won't reverse-map anyway).
+        if (t.type === 'function') {
+            this.next();
+            if (this.at('NAME')) this.next();
+            if (this.at('OP', '(')) { let d = 0; do { if (this.at('OP', '(')) d++; else if (this.at('OP', ')')) d--; this.next(); } while (d > 0 && !this.at('EOF')); }
+            if (this.at('OP', '{')) this.skipBraces();
+            return { type: 'Const', value: null };
         }
         this.err(`unexpected ${t.type} ${t.value || ''}`);
         return null;

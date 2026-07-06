@@ -315,6 +315,48 @@ test('extension[arrays]: contains runs true/false inside an IF', () => {
     assert.equal(runJsProg(c), 'yes', '6 is in [5,6,7]');
 });
 
+// ---- Pluggable runtime-driver convention (data-driven registry) ----
+test('runtime convention: LEGO Boost commands/reporters emit driver calls + a pluggable shim', () => {
+    const c = new SB3Creator();
+    c.parse('SPRITE T:\n  WHEN flag clicked:\n    say "x"');
+    const B = c.project.targets.find(t => !t.isStage).blocks;
+    const hatId = Object.keys(B).find(id => B[id].opcode === 'event_whenflagclicked');
+    const sayId = Object.keys(B).find(id => B[id].opcode === 'looks_say');
+    // command with a menu arg (MOTOR_ID = "A"), and a reporter said
+    B.c1 = { opcode: 'legoboost_motorOn', inputs: { MOTOR_ID: [1, 'm1'] }, fields: {}, parent: hatId, next: sayId };
+    B.m1 = { opcode: 'legoboost_menu_MOTOR_ID', fields: { MOTOR_ID: ['A', null] }, shadow: true, parent: 'c1' };
+    B[hatId].next = 'c1'; B[sayId].parent = 'c1';
+    B.rep = { opcode: 'legoboost_getDistance', inputs: { PORT: [1, 'p1'] }, fields: {}, parent: sayId };
+    B.p1 = { opcode: 'legoboost_menu_PORT', fields: { PORT: ['1', null] }, shadow: true, parent: 'rep' };
+    B[sayId].inputs.MESSAGE = [3, 'rep', [10, '']];
+    c.syncExtensions();
+    assert.ok(c.project.extensions.includes('legoboost'));
+    assert.equal(c.project.extensionURLs.legoboost, 'https://crispstrobe.github.io/extensions/CrispStrobe/legoboost_universal.js');
+    const js = c.generateJavaScript();
+    // driver-agnostic program + a pluggable neutral driver
+    assert.match(js, /const _boost = \{/, 'emits a _boost driver');
+    assert.match(js, /_boost\.motorOn\("A"\)/, 'command with resolved menu arg');
+    assert.match(js, /_boost\.distance\(/, 'reporter call');
+    assert.match(js, /pluggable driver/, 'documented as the swap point');
+    // runs neutral without a real device
+    const logs = [];
+    vm.runInNewContext(js, { console: { log: (...a) => logs.push(a.join(' ')) } }, { timeout: 1000 });
+    assert.equal(logs[logs.length - 1], '0', 'distance neutral 0 standalone');
+    // Python emits a driver class too
+    assert.match(c.generatePython(), /class _BoostDriver:/);
+    assert.match(c.generatePython(), /_boost\.motorOn\("A"\)/);
+});
+
+test('runtime convention: adding an extension is declarative (registry-only)', () => {
+    const reg = SB3Creator.RUNTIME_EXTENSIONS;
+    assert.ok(reg.universalgamepad && reg.legoboost, 'both registered');
+    // every op declares a kind + method
+    for (const ext of Object.values(reg)) for (const op of Object.values(ext.ops)) {
+        assert.ok(['command', 'reporter', 'boolean'].includes(op.kind));
+        assert.ok(typeof op.method === 'string' && op.method.length);
+    }
+});
+
 // ---- Gamepad extension (id `universalgamepad`, runtime input -> neutral shim) ----
 for (const [op, want] of [['universalgamepad_getStickValue', '0'], ['universalgamepad_getCursorX', '0'], ['universalgamepad_getControllerCount', '0']]) {
     test(`extension[gamepad]: ${op} runs to a neutral value standalone`, () => {
@@ -328,7 +370,7 @@ for (const [op, want] of [['universalgamepad_getStickValue', '0'], ['universalga
         assert.ok(c.project.extensions.includes('universalgamepad'));
         assert.equal(c.project.extensionURLs.universalgamepad, 'https://crispstrobe.github.io/extensions/CrispStrobe/gamepad.js');
         assert.equal(runJsProg(c), want);
-        assert.match(c.generatePython(), /_GamepadShim/, 'Python emits the shim');
+        assert.match(c.generatePython(), /_GamepadDriver|_gamepad = _/, 'Python emits the pluggable driver');
     });
 }
 

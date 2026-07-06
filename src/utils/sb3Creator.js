@@ -139,6 +139,76 @@ class SB3Creator {
         return project.extensions;
     }
 
+    // ---- Pluggable runtime/hardware extension convention (see RUNTIME_EXTENSIONS) ----
+
+    // Look up an opcode in the runtime registry -> { runtime, method, kind, args, neutral }.
+    runtimeOp(opcode) {
+        const i = opcode.indexOf('_');
+        if (i <= 0) return null;
+        const reg = SB3Creator.RUNTIME_EXTENSIONS[opcode.slice(0, i)];
+        const op = reg && reg.ops[opcode.slice(i + 1)];
+        return op ? { runtime: reg.runtime, ...op } : null;
+    }
+
+    // Resolve one runtime-op argument: a menu/dropdown shadow -> its field value (quoted);
+    // a value input -> the language value via `valFn(key)`.
+    runtimeArg(b, key, blocks, valFn) {
+        const input = b.inputs[key];
+        if (!input) return valFn(key);
+        const inner = input[1];
+        if (!Array.isArray(inner)) {
+            const shadow = blocks[inner];
+            if (shadow && shadow.shadow && shadow.fields) {
+                const fk = Object.keys(shadow.fields)[0];
+                if (fk) return JSON.stringify(String(shadow.fields[fk][0]));
+            }
+        }
+        return valFn(key);
+    }
+
+    // Build `_<runtime>.<method>(args)` for a runtime-extension block, or null. Records the
+    // runtime as used so its driver shim gets emitted.
+    runtimeCall(b, blocks, valFn) {
+        const op = this.runtimeOp(b.opcode);
+        if (!op) return null;
+        if (!this._runtimesUsed) this._runtimesUsed = new Set();
+        this._runtimesUsed.add(b.opcode.slice(0, b.opcode.indexOf('_')));
+        const args = (op.args || []).map(k => this.runtimeArg(b, k, blocks, valFn));
+        return { kind: op.kind, call: `_${op.runtime}.${op.method}(${args.join(', ')})` };
+    }
+
+    // Emit a driver for a runtime extension. Default mode 'shim' is a neutral no-op stub;
+    // it is the seam to implement against real hardware (on-brick ev3dev/pybricks, or
+    // remote USB/BLE/BTC). `lang` is 'py' or 'js'.
+    runtimeShim(extId, lang) {
+        const reg = SB3Creator.RUNTIME_EXTENSIONS[extId];
+        if (!reg) return [];
+        const rt = reg.runtime;
+        const methods = new Map();
+        for (const op of Object.values(reg.ops)) if (!methods.has(op.method)) methods.set(op.method, op);
+        const cls = rt.charAt(0).toUpperCase() + rt.slice(1);
+        if (lang === 'py') {
+            const lines = [
+                `class _${cls}Driver:  # pluggable driver (neutral stub) — implement to drive real hardware`,
+                `    # on-brick (ev3dev/pybricks) or remote (USB/BLE/BTC). The program above is driver-agnostic.`
+            ];
+            for (const [method, op] of methods) {
+                const ret = op.kind === 'command' ? 'pass' : op.kind === 'boolean' ? 'return False' : `return ${op.neutral || '0'}`;
+                lines.push(`    def ${method}(self, *a): ${ret}`);
+            }
+            lines.push(`_${rt} = _${cls}Driver()`);
+            return lines;
+        }
+        const entries = [...methods].map(([method, op]) => {
+            const ret = op.kind === 'command' ? '() => {}' : op.kind === 'boolean' ? '() => false' : `() => ${op.neutral || '0'}`;
+            return `${method}: ${ret}`;
+        });
+        return [
+            `// pluggable driver (neutral stub) — implement to drive real hardware (on-brick or remote USB/BLE/BTC).`,
+            `const _${rt} = { ${entries.join(', ')} };`
+        ];
+    }
+
     // Attach any buffered `# comment` to a freshly created block as a Scratch block
     // comment (stored on the target, referenced by the block) so it survives to decompile.
     attachPendingComment(target, block, blockId) {
@@ -2554,16 +2624,13 @@ class SB3Creator {
             case 'arrays_sort': this._pyUses.arrays = true; return `sorted(_arrays[${v('NAME')}], reverse=(${v('ORDER')} != "ascending"))`;
             case 'arrays_flatten': this._pyUses.arrays = true; return `[x for row in _arrays[${v('NAME')}] for x in (row if isinstance(row, list) else [row])]`;
             case 'arrays_toJSON': case 'arrays_toString': this._pyUses.arrays = true; this._pyUses.json = true; return `json.dumps(_arrays[${v('NAME')}])`;
-            // Gamepad extension (id `universalgamepad`) — real-time input; standalone code
-            // reads a neutral shim (real input works in the VM/browser).
-            case 'universalgamepad_getStickValue': case 'universalgamepad_getStickDirection': case 'universalgamepad_getStickMagnitude': this._pyUses.gamepad = true; return '_gamepad.axis()';
-            case 'universalgamepad_getCursorX': this._pyUses.gamepad = true; return "_gamepad.cursor('x')";
-            case 'universalgamepad_getCursorY': this._pyUses.gamepad = true; return "_gamepad.cursor('y')";
-            case 'universalgamepad_getControllerCount': this._pyUses.gamepad = true; return '_gamepad.count()';
-            case 'universalgamepad_getControllerInfo': case 'universalgamepad_getDebugStats': this._pyUses.gamepad = true; return '_gamepad.info()';
             // Reporters outside the runnable subset (sprite/pen/sensing) become a
             // placeholder — no inline comment, which would break enclosing syntax.
-            default: return 'None';
+            default: {
+                const rc = this.runtimeCall(b, blocks, v);   // pluggable runtime/hardware extensions
+                if (rc) return rc.call;
+                return 'None';
+            }
         }
     }
 
@@ -2595,11 +2662,12 @@ class SB3Creator {
             case 'planetemaths_contains': return `(str(${v('STRING2')}) in str(${v('STRING1')}))`;
             case 'planetemaths_multiple': return `(${v('NUM1')} % ${v('NUM2')} == 0)`;
             case 'arrays_contains': this._pyUses.arrays = true; return `(${v('VALUE')} in _arrays[${v('NAME')}])`;
-            case 'universalgamepad_isConnected': this._pyUses.gamepad = true; return '_gamepad.connected()';
-            case 'universalgamepad_isButtonPressed': this._pyUses.gamepad = true; return '_gamepad.button()';
-            case 'universalgamepad_isAnyButtonPressed': this._pyUses.gamepad = true; return '_gamepad.any_button()';
             // Predicate outside the subset (touching/key/mouse) -> placeholder.
-            default: return 'False';
+            default: {
+                const rc = this.runtimeCall(b, blocks, v);
+                if (rc) return rc.call;
+                return 'False';
+            }
         }
     }
 
@@ -2663,6 +2731,8 @@ class SB3Creator {
                 return line(`${this.pyProcName(m.proccode)}(${args.join(', ')})`);
             }
             default: {
+                const rc = this.runtimeCall(b, blocks, v);   // pluggable runtime/hardware commands
+                if (rc) return line(rc.call);
                 const ps = (this.decompileStackBlock(b, blocks, 0)[0] || b.opcode).trim();
                 return line(`# ${ps}`);
             }
@@ -2712,7 +2782,8 @@ class SB3Creator {
 
     generatePython(project = this.project) {
         this._pyNames = new Map();
-        this._pyUses = { random: false, math: false, time: false, eq: false, answer: false, arrays: false, json: false, gamepad: false, sumdigits: false };
+        this._pyUses = { random: false, math: false, time: false, eq: false, answer: false, arrays: false, json: false, sumdigits: false };
+        this._runtimesUsed = new Set();
         const targets = project.targets || [];
         const scalars = new Set(), lists = new Set();
         for (const t of targets) {
@@ -2765,18 +2836,8 @@ class SB3Creator {
             out.push('        return str(a).lower() == str(b).lower()');
             out.push('');
         }
-        if (this._pyUses.gamepad) {
-            out.push('class _GamepadShim:  # real-time input — neutral standalone, live in the VM');
-            out.push('    def connected(self, *a): return False');
-            out.push('    def button(self, *a): return False');
-            out.push('    def any_button(self, *a): return False');
-            out.push('    def axis(self, *a): return 0');
-            out.push('    def cursor(self, *a): return 0');
-            out.push('    def count(self, *a): return 0');
-            out.push('    def info(self, *a): return ""');
-            out.push('_gamepad = _GamepadShim()');
-            out.push('');
-        }
+        // Pluggable driver shim(s) for any runtime/hardware extensions used.
+        for (const extId of this._runtimesUsed) { out.push(...this.runtimeShim(extId, 'py')); out.push(''); }
         // module state
         const state = [];
         if (this._pyUses.arrays) state.push('_arrays = {}  # Arrays & Vectors registry');
@@ -2871,13 +2932,11 @@ class SB3Creator {
             case 'arrays_sort': this._jsUses.arrays = true; return `_arrays[${v('NAME')}].slice().sort(function(a,b){return ${v('ORDER')} === "ascending" ? a-b : b-a;})`;
             case 'arrays_flatten': this._jsUses.arrays = true; return `_arrays[${v('NAME')}].flat(Infinity)`;
             case 'arrays_toJSON': case 'arrays_toString': this._jsUses.arrays = true; return `JSON.stringify(_arrays[${v('NAME')}])`;
-            // Gamepad (id `universalgamepad`) — neutral shim standalone; live in the VM/browser.
-            case 'universalgamepad_getStickValue': case 'universalgamepad_getStickDirection': case 'universalgamepad_getStickMagnitude': this._jsUses.gamepad = true; return '_gamepad.axis()';
-            case 'universalgamepad_getCursorX': this._jsUses.gamepad = true; return "_gamepad.cursor('x')";
-            case 'universalgamepad_getCursorY': this._jsUses.gamepad = true; return "_gamepad.cursor('y')";
-            case 'universalgamepad_getControllerCount': this._jsUses.gamepad = true; return '_gamepad.count()';
-            case 'universalgamepad_getControllerInfo': case 'universalgamepad_getDebugStats': this._jsUses.gamepad = true; return '_gamepad.info()';
-            default: return 'undefined';
+            default: {
+                const rc = this.runtimeCall(b, blocks, v);   // pluggable runtime/hardware extensions
+                if (rc) return rc.call;
+                return 'undefined';
+            }
         }
     }
 
@@ -2908,10 +2967,11 @@ class SB3Creator {
             case 'planetemaths_contains': return `String(${v('STRING1')}).includes(String(${v('STRING2')}))`;
             case 'planetemaths_multiple': return `(${v('NUM1')} % ${v('NUM2')} === 0)`;
             case 'arrays_contains': this._jsUses.arrays = true; return `_arrays[${v('NAME')}].includes(${v('VALUE')})`;
-            case 'universalgamepad_isConnected': this._jsUses.gamepad = true; return '_gamepad.connected()';
-            case 'universalgamepad_isButtonPressed': this._jsUses.gamepad = true; return '_gamepad.button()';
-            case 'universalgamepad_isAnyButtonPressed': this._jsUses.gamepad = true; return '_gamepad.anyButton()';
-            default: return 'false';
+            default: {
+                const rc = this.runtimeCall(b, blocks, v);
+                if (rc) return rc.call;
+                return 'false';
+            }
         }
     }
 
@@ -2971,6 +3031,8 @@ class SB3Creator {
                 return line(`${this.pyProcName(m.proccode)}(${args.join(', ')});`);
             }
             default: {
+                const rc = this.runtimeCall(b, blocks, v);   // pluggable runtime/hardware commands
+                if (rc) return line(rc.call + ';');
                 const ps = (this.decompileStackBlock(b, blocks, 0)[0] || b.opcode).trim();
                 return line(`// ${ps}`);
             }
@@ -2979,7 +3041,8 @@ class SB3Creator {
 
     generateJavaScript(project = this.project) {
         this._pyNames = new Map();
-        this._jsUses = { rand: false, eq: false, answer: false, fact: false, arrays: false, gamepad: false, sumdigits: false };
+        this._jsUses = { rand: false, eq: false, answer: false, fact: false, arrays: false, sumdigits: false };
+        this._runtimesUsed = new Set();
         const targets = project.targets || [];
         const scalars = new Set(), lists = new Set();
         for (const t of targets) {
@@ -3019,8 +3082,9 @@ class SB3Creator {
         if (this._jsUses.fact) out.push('function _fact(n) { n = Number(n); let r = 1; for (let i = 2; i <= n; i++) r *= i; return r; }');
         if (this._jsUses.sumdigits) out.push("function _sumdigits(n) { return String(n).split('').filter(d => d >= '0' && d <= '9').reduce((s, d) => s + Number(d), 0); }");
         if (this._jsUses.eq || this._jsUses.rand || this._jsUses.fact || this._jsUses.sumdigits) out.push('');
+        // Pluggable driver shim(s) for any runtime/hardware extensions used.
+        for (const extId of this._runtimesUsed) { out.push(...this.runtimeShim(extId, 'js')); out.push(''); }
         const state = [];
-        if (this._jsUses.gamepad) state.push('const _gamepad = { connected: () => false, button: () => false, anyButton: () => false, axis: () => 0, cursor: () => 0, count: () => 0, info: () => "" };  // neutral standalone; live in the VM');
         if (this._jsUses.arrays) state.push('const _arrays = {};  // Arrays & Vectors registry');
         for (const n of scalars) state.push(`let ${this.pyName(n)} = 0;`);
         for (const n of lists) state.push(`let ${this.pyName(n)} = [];`);
@@ -3060,7 +3124,63 @@ SB3Creator.CORE_CATEGORIES = new Set([
 SB3Creator.EXTENSION_URLS = {
     planetemaths: 'https://crispstrobe.github.io/extensions/CrispStrobe/planetemaths.js',
     arrays: 'https://crispstrobe.github.io/extensions/CrispStrobe/arrays.js',
-    universalgamepad: 'https://crispstrobe.github.io/extensions/CrispStrobe/gamepad.js'
+    universalgamepad: 'https://crispstrobe.github.io/extensions/CrispStrobe/gamepad.js',
+    legoboost: 'https://crispstrobe.github.io/extensions/CrispStrobe/legoboost_universal.js'
+};
+
+// Pluggable-driver convention for runtime/hardware extensions (gamepad, LEGO, …).
+// The transpiled program is driver-agnostic: it calls `_<runtime>.<method>(args)`.
+// A driver object is emitted at the top — a neutral no-op "shim" by default — which is
+// the single swap point: implement its methods to drive real hardware on-brick (ev3dev/
+// pybricks) or remotely (USB/BLE/BTC). Adding an extension = one declarative entry here,
+// not new emitter code. Each op: { kind: 'command'|'reporter'|'boolean', method, args?,
+// neutral? }. Source of truth for the block surface: github.com/CrispStrobe/extensions.
+SB3Creator.RUNTIME_EXTENSIONS = {
+    universalgamepad: {
+        runtime: 'gamepad',
+        ops: {
+            isConnected: { kind: 'boolean', method: 'connected' },
+            isButtonPressed: { kind: 'boolean', method: 'buttonPressed', args: ['BUTTON', 'STICK', 'AXIS'] },
+            isAnyButtonPressed: { kind: 'boolean', method: 'anyButtonPressed' },
+            getStickValue: { kind: 'reporter', method: 'stickValue', args: ['STICK', 'AXIS'] },
+            getStickDirection: { kind: 'reporter', method: 'stickDirection', args: ['STICK'] },
+            getStickMagnitude: { kind: 'reporter', method: 'stickMagnitude', args: ['STICK'] },
+            getCursorX: { kind: 'reporter', method: 'cursorX' },
+            getCursorY: { kind: 'reporter', method: 'cursorY' },
+            getControllerCount: { kind: 'reporter', method: 'controllerCount' },
+            getControllerInfo: { kind: 'reporter', method: 'controllerInfo', neutral: '""' },
+            getDebugStats: { kind: 'reporter', method: 'debugStats', neutral: '""' },
+            setCursorPosition: { kind: 'command', method: 'setCursor', args: ['X', 'Y', 'DURATION', 'INTENSITY'] },
+            resetCursor: { kind: 'command', method: 'resetCursor' },
+            vibrate: { kind: 'command', method: 'vibrate', args: ['DURATION', 'INTENSITY'] },
+            stopVibration: { kind: 'command', method: 'stopVibration' }
+        }
+    },
+    legoboost: {
+        runtime: 'boost',
+        ops: {
+            motorOn: { kind: 'command', method: 'motorOn', args: ['MOTOR_ID'] },
+            motorOff: { kind: 'command', method: 'motorOff', args: ['MOTOR_ID'] },
+            motorOnFor: { kind: 'command', method: 'motorOnFor', args: ['MOTOR_ID', 'DURATION'] },
+            motorOnForRotation: { kind: 'command', method: 'motorOnForRotation', args: ['MOTOR_ID', 'ROTATION'] },
+            motorRunToPosition: { kind: 'command', method: 'motorRunToPosition', args: ['MOTOR_ID', 'POSITION'] },
+            setMotorPower: { kind: 'command', method: 'setMotorPower', args: ['MOTOR_ID', 'POWER'] },
+            setMotorDirection: { kind: 'command', method: 'setMotorDirection', args: ['MOTOR_ID', 'MOTOR_DIRECTION'] },
+            resetMotorPosition: { kind: 'command', method: 'resetMotorPosition', args: ['MOTOR_ID'] },
+            setLightHue: { kind: 'command', method: 'setLightHue', args: ['HUE'] },
+            shutdown: { kind: 'command', method: 'shutdown' },
+            getMotorPosition: { kind: 'reporter', method: 'motorPosition', args: ['MOTOR_REPORTER_ID'] },
+            getDistance: { kind: 'reporter', method: 'distance', args: ['PORT'] },
+            getReflection: { kind: 'reporter', method: 'reflection', args: ['PORT'] },
+            getForce: { kind: 'reporter', method: 'force', args: ['PORT'] },
+            getTiltAngle: { kind: 'reporter', method: 'tiltAngle', args: ['TILT_DIRECTION'] },
+            getBatteryLevel: { kind: 'reporter', method: 'batteryLevel' },
+            seeingColor: { kind: 'boolean', method: 'seeingColor', args: ['PORT', 'COLOR'] },
+            isForceSensorPressed: { kind: 'boolean', method: 'forceSensorPressed', args: ['PORT'] },
+            isTilted: { kind: 'boolean', method: 'isTilted', args: ['TILT_DIRECTION_ANY'] },
+            isButtonPressed: { kind: 'boolean', method: 'buttonPressed' }
+        }
+    }
 };
 
 export default SB3Creator;

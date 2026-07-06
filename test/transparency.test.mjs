@@ -37,7 +37,14 @@ const ORDERS = [
     ['py', 'pseudocode', 'js', 'pseudocode', 'py']
 ];
 
+// Registry/runtime extensions (arrays, gamepad, …) transpile blocks -> code but their
+// code doesn't reverse-map (the `_arrays[...]` registry / driver-call model is one-way).
+// They round-trip pseudocode <-> blocks (see extensions.test.mjs) but can't converge
+// through *mixed* code+pseudocode chains, so they're excluded from this invariant.
+const CODE_ONE_WAY = new Set(['arrays']);
+
 for (const name of Object.keys(examples)) {
+    if (CODE_ONE_WAY.has(name)) continue;
     test(`transparency: ${name} converges under every permutation order`, () => {
         for (const order of ORDERS) {
             const snaps = transparencySnapshots(name, order, 10);

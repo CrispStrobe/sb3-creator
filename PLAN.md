@@ -508,10 +508,27 @@ three languages fully two-way, runnable in-editor, in one 3-tab highlighted edit
     `push x to array "v"`, `item i of array "v"`, `sum of array "v"`, `array "v" contains x`, … —
     parses to blocks, decompiles back (idempotent), and the `arrays` example runs to correct values.
     2D/functional ops (create2D, map/filter/reduce, transpose, reshape) fall back to comments.
-  - [x] **Gamepad** (`universalgamepad`) — real-time input, so standalone code reads a neutral
-    `_gamepad` shim (connected→false, axis/cursor→0, …); it runs without crashing and the real
-    extension drives it live in the VM/browser. Reporters/booleans mapped; commands (vibrate,
-    setCursor…) stay as comments.
+  - [x] **Pluggable-driver convention for runtime/hardware extensions** (`RUNTIME_EXTENSIONS`
+    registry). The transpiled program is **driver-agnostic**: it calls `_<runtime>.<method>(args)`
+    (e.g. `_boost.motorOn("A")`, `_gamepad.stickValue(...)`). A **driver** is emitted at the top —
+    a neutral no-op *shim* by default — which is the single **swap point**: implement its methods
+    to drive real hardware **on-brick** (ev3dev/pybricks) or **remotely** (USB/BLE/BTC). Same
+    program, swap the driver → real hardware "on top". Menu args (motor port, button) resolve to
+    their field values. Adding an extension = one declarative registry entry, not new emitter code.
+    - **Gamepad** (`universalgamepad`) migrated into the registry as the reference; **LEGO Boost**
+      (`legoboost`, 29 blocks: motor commands, distance/tilt/force reporters, button/color booleans)
+      added declaratively. Both auto-declare + get their `extensionURL`; code runs neutral standalone
+      and is verified in tests.
+    - **Next — the switches** (the user's ask): a per-project switch selecting the emitted driver —
+      *shim* (pseudofunctional) / *on-brick* (ev3dev/pybricks, reusing the existing
+      `ev3dev_py_transpile` etc.) / *remote* (USB/BLE/BTC) — plus switches for **async/await** (BLE
+      is async) and **event hats** (`whenButtonPressed` → driver callback registration). All layer
+      onto the same driver-agnostic program.
+  - Registry/runtime extensions transpile blocks → code but their **code is one-way** (the
+    `_arrays[...]` registry / `_driver.method()` model doesn't reverse-map); they round-trip
+    pseudocode ↔ blocks. The parsers are hardened to *survive* such code (dict/object literals,
+    arrow/function expressions, driver classes) without crashing, and these examples are excluded
+    from the code-language transparency invariant (kept for pseudocode ↔ blocks).
   - [ ] Reverse mapping (code → extension block) is often ambiguous (planetemaths add ≡ operator
     add); execution parity is the priority, so code→blocks normalises to standard blocks.
 - [ ] **P6 — standalone executable export (TurboWarp-style packaging).** Produce a self-contained
