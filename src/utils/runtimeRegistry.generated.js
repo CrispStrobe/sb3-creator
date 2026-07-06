@@ -2,6 +2,131 @@
 // Runtime/hardware extension block surface (source: github.com/CrispStrobe/extensions),
 // consumed by the pluggable-driver convention in sb3Creator.js. See reference/runtime-drivers.md.
 export const RUNTIME_EXTENSIONS = {
+    "universalgamepad": {
+        "runtime": "universalgamepad",
+        "ops": {
+            "isConnected": {
+                "kind": "boolean",
+                "method": "isConnected",
+                "args": []
+            },
+            "getControllerInfo": {
+                "kind": "reporter",
+                "method": "getControllerInfo",
+                "args": []
+            },
+            "getControllerCount": {
+                "kind": "reporter",
+                "method": "getControllerCount",
+                "args": []
+            },
+            "isButtonPressed": {
+                "kind": "boolean",
+                "method": "isButtonPressed",
+                "args": [
+                    "BUTTON"
+                ]
+            },
+            "isAnyButtonPressed": {
+                "kind": "boolean",
+                "method": "isAnyButtonPressed",
+                "args": []
+            },
+            "getStickValue": {
+                "kind": "reporter",
+                "method": "getStickValue",
+                "args": [
+                    "STICK",
+                    "AXIS"
+                ]
+            },
+            "getStickDirection": {
+                "kind": "reporter",
+                "method": "getStickDirection",
+                "args": [
+                    "STICK"
+                ]
+            },
+            "getStickMagnitude": {
+                "kind": "reporter",
+                "method": "getStickMagnitude",
+                "args": [
+                    "STICK"
+                ]
+            },
+            "getCursorX": {
+                "kind": "reporter",
+                "method": "getCursorX",
+                "args": []
+            },
+            "getCursorY": {
+                "kind": "reporter",
+                "method": "getCursorY",
+                "args": []
+            },
+            "setCursorPosition": {
+                "kind": "command",
+                "method": "setCursorPosition",
+                "args": [
+                    "X",
+                    "Y"
+                ]
+            },
+            "resetCursor": {
+                "kind": "command",
+                "method": "resetCursor",
+                "args": []
+            },
+            "setCursorSensitivity": {
+                "kind": "command",
+                "method": "setCursorSensitivity",
+                "args": [
+                    "SENSITIVITY"
+                ]
+            },
+            "vibrate": {
+                "kind": "command",
+                "method": "vibrate",
+                "args": [
+                    "DURATION",
+                    "INTENSITY"
+                ]
+            },
+            "vibratePattern": {
+                "kind": "command",
+                "method": "vibratePattern",
+                "args": [
+                    "WEAK",
+                    "STRONG",
+                    "DURATION"
+                ]
+            },
+            "stopVibration": {
+                "kind": "command",
+                "method": "stopVibration",
+                "args": []
+            },
+            "setDeadzone": {
+                "kind": "command",
+                "method": "setDeadzone",
+                "args": [
+                    "DEADZONE"
+                ]
+            },
+            "showDebugInfo": {
+                "kind": "command",
+                "method": "showDebugInfo",
+                "args": []
+            },
+            "getDebugStats": {
+                "kind": "reporter",
+                "method": "getDebugStats",
+                "args": [
+                    "STAT"
+                ]
+            }
+        }
+    },
     "legoboostunified": {
         "runtime": "legoboostunified",
         "ops": {
@@ -4048,6 +4173,7 @@ export const RUNTIME_EXTENSIONS = {
 };
 
 export const RUNTIME_EXTENSION_URLS = {
+    "universalgamepad": "https://crispstrobe.github.io/extensions/CrispStrobe/gamepad.js",
     "legoboostunified": "https://crispstrobe.github.io/extensions/CrispStrobe/legoboost_universal.js",
     "legopoweredup": "https://crispstrobe.github.io/extensions/CrispStrobe/lego_poweredup.js",
     "wedo2unified": "https://crispstrobe.github.io/extensions/CrispStrobe/lego_wedo2_universal.js",

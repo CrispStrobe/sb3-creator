@@ -3147,8 +3147,7 @@ SB3Creator.CORE_CATEGORIES = new Set([
 SB3Creator.EXTENSION_URLS = {
     planetemaths: 'https://crispstrobe.github.io/extensions/CrispStrobe/planetemaths.js',
     arrays: 'https://crispstrobe.github.io/extensions/CrispStrobe/arrays.js',
-    universalgamepad: 'https://crispstrobe.github.io/extensions/CrispStrobe/gamepad.js',
-    ...GENERATED_URLS   // LEGO/hardware extension URLs (auto-generated)
+    ...GENERATED_URLS   // gamepad + LEGO/hardware extension URLs (auto-generated)
 };
 
 // Pluggable-driver convention for runtime/hardware extensions (gamepad, LEGO, …).
@@ -3158,30 +3157,9 @@ SB3Creator.EXTENSION_URLS = {
 // pybricks) or remotely (USB/BLE/BTC). Adding an extension = one declarative entry here,
 // not new emitter code. Each op: { kind: 'command'|'reporter'|'boolean', method, args?,
 // neutral? }. Source of truth for the block surface: github.com/CrispStrobe/extensions.
-SB3Creator.RUNTIME_EXTENSIONS = {
-    universalgamepad: {
-        runtime: 'gamepad',
-        ops: {
-            isConnected: { kind: 'boolean', method: 'connected' },
-            isButtonPressed: { kind: 'boolean', method: 'buttonPressed', args: ['BUTTON', 'STICK', 'AXIS'] },
-            isAnyButtonPressed: { kind: 'boolean', method: 'anyButtonPressed' },
-            getStickValue: { kind: 'reporter', method: 'stickValue', args: ['STICK', 'AXIS'] },
-            getStickDirection: { kind: 'reporter', method: 'stickDirection', args: ['STICK'] },
-            getStickMagnitude: { kind: 'reporter', method: 'stickMagnitude', args: ['STICK'] },
-            getCursorX: { kind: 'reporter', method: 'cursorX' },
-            getCursorY: { kind: 'reporter', method: 'cursorY' },
-            getControllerCount: { kind: 'reporter', method: 'controllerCount' },
-            getControllerInfo: { kind: 'reporter', method: 'controllerInfo', neutral: '""' },
-            getDebugStats: { kind: 'reporter', method: 'debugStats', neutral: '""' },
-            setCursorPosition: { kind: 'command', method: 'setCursor', args: ['X', 'Y', 'DURATION', 'INTENSITY'] },
-            resetCursor: { kind: 'command', method: 'resetCursor' },
-            vibrate: { kind: 'command', method: 'vibrate', args: ['DURATION', 'INTENSITY'] },
-            stopVibration: { kind: 'command', method: 'stopVibration' }
-        }
-    },
-    // All LEGO/hardware extensions (Boost, PoweredUp, WeDo, Spike, EV3, …) are auto-generated
-    // from their block surfaces so the driver convention works for every one of them.
-    ...GENERATED_RUNTIME
-};
+// All runtime/hardware extensions (Gamepad + Boost, PoweredUp, WeDo, Spike, EV3, …) are
+// auto-generated from their block surfaces (scripts/gen-runtime-registry.mjs) so the
+// pluggable-driver convention works for every one of them.
+SB3Creator.RUNTIME_EXTENSIONS = { ...GENERATED_RUNTIME };
 
 export default SB3Creator;
