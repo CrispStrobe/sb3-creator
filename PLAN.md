@@ -490,13 +490,23 @@ three languages fully two-way, runnable in-editor, in one 3-tab highlighted edit
   `#`/`//` in `generatePython`/`generateJavaScript`, and have `pythonToPseudocode`/
   `javascriptToPseudocode` re-attach them to the following statement. Then a comment survives *any*
   language hop, not just pseudocode.
-- [ ] **P5 — extension blocks in Python/JS.** The emitters currently render extension/custom-hardware
-  blocks as `# ...` comments. Give the algorithmic extensions a real mapping so they round-trip:
-  start with **Arrays & Vectors** (maps naturally to JS/Python array & vector ops — dot/cross/norm,
-  push/pop/slice), then **Gamepad** (button/axis reads → a small `gamepad` shim object) and
-  **Planète Maths** (math helpers → `math`/`Math`). Each needs: emitter opcode → code template, and
-  parser call-shape → opcode. Extensions whose behaviour is inherently runtime (real gamepad, real
-  bricks) stay as commented stubs in standalone code but keep working in the VM.
+- [~] **P5 — extension blocks in Python/JS.** Source of truth: **github.com/CrispStrobe/extensions**
+  (loaded by the fork from `crispstrobe.github.io/extensions/generated-metadata/extensions-v0.json`;
+  canonical copies pinned in `reference/extensions/`).
+  - [x] **Planète Maths** (`planetemaths`, pure math) — all arithmetic/compare/logic/string ops map
+    to real Python/JS in `pyRep`/`jsRep`/`pyCond`/`jsCond`; block fixtures run to the right values
+    (`test/extensions.test.mjs`). Semantics taken from the implementation (the boolean opcode names
+    are misnomers — `gt` = `NUM1 < NUM2`).
+  - [x] **Auto-declare extensions both directions** — `syncExtensions(project)` derives
+    `project.extensions` (+ `extensionURLs` for custom gallery extensions) from the opcodes actually
+    used, at the end of `parse()` and in `generateSB3()`. So compiling code that needs an extension
+    adds it, and reading blocks parses which extensions are genuinely used.
+  - [ ] **Arrays & Vectors** (`arrays`, 38 opcodes) — named-array registry model; needs a small
+    `_arrays = {}` runtime shim in the generated code (create/get/set/push/pop/slice/sum/… ).
+  - [ ] **Gamepad** (`gamepad`) — inherently runtime input; map to a `gamepad` shim object where
+    possible, else keep as a commented stub that still works in the VM.
+  - [ ] Reverse mapping (code → extension block) is often ambiguous (planetemaths add ≡ operator
+    add); execution parity is the priority, so code→blocks normalises to standard blocks.
 - [ ] **P6 — standalone executable export (TurboWarp-style packaging).** Produce a self-contained
   `.html`/`.js` (and a Python variant) that runs the project *without* Scratch — the ambitious one.
   It needs a real runtime: a canvas renderer for SVG/bitmap costumes, the sprite/clone model,

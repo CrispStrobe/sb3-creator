@@ -1,0 +1,152 @@
+// Extension-block transpilation (PLAN §22 P5). Blocks from our gallery extensions
+// (source of truth: github.com/CrispStrobe/extensions, mirrored in reference/extensions/)
+// must transpile to correct, runnable Python/JS. Planète Maths (id `planetemaths`) is
+// pure math, so we build block fixtures and RUN the generated JS to check the value.
+//
+// Extension blocks can't be written in pseudocode (they come from the blocks editor),
+// so these fixtures inject the block into a real project scaffold and exercise the
+// generateJavaScript / generatePython walkers directly.
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import vm from 'node:vm';
+import SB3Creator from '../src/utils/sb3Creator.js';
+
+// Build a project: WHEN flag clicked -> say <extension reporter/boolean>. Returns the
+// SB3Creator (so we can call generateJavaScript/generatePython) — the say's MESSAGE is
+// the extension block so its value is printed.
+function projectWith (opcode, numInputs = {}, boolInputs = {}, fields = {}, strInputs = {}) {
+    const c = new SB3Creator();
+    c.parse('SPRITE T:\n  WHEN flag clicked:\n    say "x"');
+    const sprite = c.project.targets.find(t => !t.isStage);
+    const blocks = sprite.blocks;
+    const sayId = Object.keys(blocks).find(id => blocks[id].opcode === 'looks_say');
+    const repId = 'rep1';
+    const inputs = {};
+    for (const [k, val] of Object.entries(numInputs)) inputs[k] = [1, [4, String(val)]];
+    for (const [k, val] of Object.entries(strInputs)) inputs[k] = [1, [10, String(val)]];
+    for (const [k, sub] of Object.entries(boolInputs)) { // sub = {opcode, num:{...}}
+        const bid = `b_${k}`;
+        const binputs = {};
+        for (const [bk, bv] of Object.entries(sub.num || {})) binputs[bk] = [1, [4, String(bv)]];
+        blocks[bid] = {opcode: sub.opcode, inputs: binputs, fields: sub.fields || {}, shadow: false, topLevel: false, parent: repId};
+        inputs[k] = [2, bid];
+    }
+    blocks[repId] = {opcode, inputs, fields, shadow: false, topLevel: false, parent: sayId};
+    blocks[sayId].inputs.MESSAGE = [3, repId, [10, '']];
+    return c;
+}
+
+// If the block is a boolean, wrap it in an IF so `say` prints "T"/"F".
+function boolProjectWith (opcode, numInputs = {}, boolInputs = {}, strInputs = {}) {
+    const c = new SB3Creator();
+    c.parse('SPRITE T:\n  WHEN flag clicked:\n    IF 1 = 1 THEN:\n      say "T"\n    ELSE:\n      say "F"');
+    const sprite = c.project.targets.find(t => !t.isStage);
+    const blocks = sprite.blocks;
+    const ifId = Object.keys(blocks).find(id => blocks[id].opcode === 'control_if_else');
+    const condId = 'cond1';
+    const inputs = {};
+    for (const [k, val] of Object.entries(numInputs)) inputs[k] = [1, [4, String(val)]];
+    for (const [k, val] of Object.entries(strInputs)) inputs[k] = [1, [10, String(val)]];
+    for (const [k, sub] of Object.entries(boolInputs)) {
+        const bid = `b_${k}`;
+        blocks[bid] = {opcode: sub.opcode, inputs: {}, fields: {}, shadow: false, topLevel: false, parent: condId};
+        if (sub.bool) { blocks[bid].opcode = sub.bool; } // simple boolean literal-ish
+        inputs[k] = [2, bid];
+    }
+    blocks[condId] = {opcode, inputs, fields: {}, shadow: false, topLevel: false, parent: ifId};
+    blocks[ifId].inputs.CONDITION = [2, condId];
+    return c;
+}
+
+function runJs (js) {
+    const logs = [];
+    vm.runInNewContext(js, {console: {log: (...a) => logs.push(a.join(' '))}, prompt: () => ''}, {timeout: 1000});
+    return logs;
+}
+
+// ---- reporters: build, transpile, run, check the value ----
+const REPORTERS = [
+    ['planetemaths_add', {NUM1: 3, NUM2: 4}, {}, '7'],
+    ['planetemaths_substract', {NUM1: 10, NUM2: 3}, {}, '7'],
+    ['planetemaths_multiply', {NUM1: 3, NUM2: 4}, {}, '12'],
+    ['planetemaths_divide', {NUM1: 12, NUM2: 4}, {}, '3'],
+    ['planetemaths_pow', {NUM1: 2, NUM2: 5}, {}, '32'],
+    ['planetemaths_oppose', {NUM1: 5}, {}, '-5'],
+    ['planetemaths_inverse', {NUM1: 4}, {}, '0.25'],
+    ['planetemaths_pourcent', {NUM1: 50}, {}, '0.5'],
+    ['planetemaths_factorial', {NUM1: 5}, {}, '120'],
+    ['planetemaths_min', {NUM1: 3, NUM2: 7}, {}, '3'],
+    ['planetemaths_max', {NUM1: 3, NUM2: 7}, {}, '7'],
+    ['planetemaths_length', {}, {STRING: 'hello'}, '5'],
+    ['planetemaths_sommechiffres', {NUM1: 123}, {}, '6']
+];
+
+for (const [opcode, num, str, expected] of REPORTERS) {
+    test(`extension[planetemaths]: ${opcode} transpiles and runs to ${expected} (JS)`, () => {
+        const c = projectWith(opcode, num, {}, {}, str);
+        const js = c.generateJavaScript();
+        const out = runJs(js);
+        assert.equal(out[out.length - 1], expected, `${opcode} JS => ${expected}`);
+        // Python is generated too (shape check; running python is covered elsewhere)
+        const py = c.generatePython();
+        assert.doesNotMatch(py, new RegExp(`# unsupported`), `${opcode} must not be an unsupported comment in Python`);
+    });
+}
+
+test('extension[planetemaths]: string/join reporters', () => {
+    assert.equal(runJs(projectWith('planetemaths_join', {}, {}, {}, {STRING1: 'a', STRING2: 'b'}).generateJavaScript()).pop(), 'ab');
+    assert.equal(runJs(projectWith('planetemaths_letterOf', {LETTER: 2}, {}, {}, {STRING: 'hello'}).generateJavaScript()).pop(), 'e');
+    assert.equal(runJs(projectWith('planetemaths_nombre_pi').generateJavaScript()).pop(), String(Math.PI));
+});
+
+// ---- booleans: build IF <bool> and check the branch ----
+const BOOLS = [
+    ['planetemaths_gt', {NUM1: 3, NUM2: 7}, 'T'],  // gt = compare<0 = NUM1<NUM2 = 3<7 = true
+    ['planetemaths_gte', {NUM1: 7, NUM2: 7}, 'T'],
+    ['planetemaths_lt', {NUM1: 7, NUM2: 3}, 'T'],  // lt = NUM1>NUM2
+    ['planetemaths_lte', {NUM1: 3, NUM2: 3}, 'T'],
+    ['planetemaths_equals', {NUM1: 5, NUM2: 5}, 'T'],
+    ['planetemaths_multiple', {NUM1: 10, NUM2: 5}, 'T'],
+    ['planetemaths_gt', {NUM1: 7, NUM2: 3}, 'F']
+];
+
+for (const [opcode, num, expected] of BOOLS) {
+    test(`extension[planetemaths]: ${opcode}(${num.NUM1},${num.NUM2}) => ${expected} (JS)`, () => {
+        const c = boolProjectWith(opcode, num);
+        const out = runJs(c.generateJavaScript());
+        assert.equal(out[out.length - 1], expected);
+    });
+}
+
+// ---- extension auto-declaration (both directions) ----
+test('extensions: pen usage in pseudocode auto-declares the pen extension', () => {
+    const c = new SB3Creator();
+    c.parse('SPRITE T:\n  WHEN flag clicked:\n    pen down\n    clear');
+    assert.ok(c.project.extensions.includes('pen'), 'pen auto-declared');
+});
+
+test('extensions: a planetemaths block is detected and gets an extensionURL', () => {
+    const c = projectWith('planetemaths_add', {NUM1: 1, NUM2: 2});
+    c.syncExtensions();
+    assert.deepEqual(c.project.extensions, ['planetemaths']);
+    assert.equal(c.project.extensionURLs.planetemaths, 'https://crispstrobe.github.io/extensions/CrispStrobe/planetemaths.js');
+});
+
+test('extensions: core categories are never treated as extensions', () => {
+    const c = new SB3Creator();
+    c.parse('SPRITE T:\n  WHEN flag clicked:\n    set x to (3 + 4)\n    say x\n    move 10 steps');
+    assert.deepEqual(c.project.extensions, [], 'motion/operator/looks/data are core, not extensions');
+});
+
+test('extension[planetemaths]: and / or / not compose', () => {
+    // and(gt(3,7)=T, gt(1,9)=T) = T
+    const c = boolProjectWith('planetemaths_and', {}, {
+        OPERAND1: {opcode: 'planetemaths_gt'},
+        OPERAND2: {opcode: 'planetemaths_gt'}
+    });
+    // give the nested gts numeric inputs so they evaluate true (3<7, 1<9)
+    const sprite = c.project.targets.find(t => !t.isStage);
+    sprite.blocks.b_OPERAND1.inputs = {NUM1: [1, [4, '3']], NUM2: [1, [4, '7']]};
+    sprite.blocks.b_OPERAND2.inputs = {NUM1: [1, [4, '1']], NUM2: [1, [4, '9']]};
+    assert.equal(runJs(c.generateJavaScript()).pop(), 'T');
+});
