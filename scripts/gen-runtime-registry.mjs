@@ -15,6 +15,7 @@
 
 import { readFile, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
+import vm from 'node:vm';
 import path from 'node:path';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -76,13 +77,20 @@ function mockScratch (capture) {
 
 function extract (source) {
     const captured = [];
-    const Scratch = mockScratch(captured);
-    const globals = { Scratch, window: permissive(), navigator: permissive(), document: permissive(), self: permissive(), globalThis: permissive(), console: { log () {}, warn () {}, error () {}, info () {} }, setTimeout: () => 0, clearTimeout: () => {}, setInterval: () => 0, fetch: () => Promise.resolve(permissive()), URL: permissive(), TextEncoder: permissive, TextDecoder: permissive };
-    // eslint-disable-next-line no-new-func
-    const run = new Function(...Object.keys(globals), `${source}\nreturn (typeof module !== 'undefined' && module.exports) || null;`);
-    let moduleExport = null;
-    try { moduleExport = run(...Object.values(globals)); } catch { /* getInfo may still have registered */ }
+    // Known globals get real mocks; any OTHER global the extension touches at load resolves
+    // to a permissive stub, so BLE/DOM/rAF/timers etc. never throw before getInfo() runs.
+    const known = {
+        Scratch: mockScratch(captured), console: { log () {}, warn () {}, error () {}, info () {} },
+        setTimeout: () => 0, clearTimeout: () => {}, setInterval: () => 0, clearInterval: () => {},
+        module: { exports: null }, exports: {}
+    };
+    const sandbox = new Proxy(known, {
+        has: () => true,
+        get: (t, k) => (k in t ? t[k] : (t[k] = permissive()))
+    });
+    try { vm.createContext(sandbox); vm.runInContext(source, sandbox, { timeout: 8000 }); } catch { /* getInfo may still have registered */ }
     let inst = captured[0];
+    const moduleExport = known.module.exports;
     if (!inst && moduleExport) { try { inst = typeof moduleExport === 'function' ? new moduleExport() : moduleExport; } catch { /* ignore */ } }
     if (!inst || typeof inst.getInfo !== 'function') return null;
     let info;

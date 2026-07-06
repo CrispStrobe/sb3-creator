@@ -389,7 +389,7 @@ for (const [op, want] of [['universalgamepad_getStickValue', '0'], ['universalga
         assert.ok(c.project.extensions.includes('universalgamepad'));
         assert.equal(c.project.extensionURLs.universalgamepad, 'https://crispstrobe.github.io/extensions/CrispStrobe/gamepad.js');
         assert.equal(runJsProg(c), want);
-        assert.match(c.generatePython(), /_GamepadDriver|_gamepad = _/, 'Python emits the pluggable driver');
+        assert.match(c.generatePython(), /_UniversalgamepadDriver|_universalgamepad = _/, 'Python emits the pluggable driver');
     });
 }
 
