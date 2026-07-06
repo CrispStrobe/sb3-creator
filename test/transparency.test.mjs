@@ -13,30 +13,38 @@ const jsOf = (p) => new SB3Creator().generateJavaScript(p);
 const pyOf = (p) => new SB3Creator().generatePython(p);
 const psOf = (p) => new SB3Creator().decompile(p);
 const blocksFrom = (ps) => { const c = new SB3Creator(); c.parse(ps); return c.project; };
-const CYCLE = ['js', 'py', 'pseudocode'];
+const hop = (proj, lang) => blocksFrom(
+    lang === 'js' ? javascriptToPseudocode(jsOf(proj)).pseudocode
+        : lang === 'py' ? pythonToPseudocode(pyOf(proj)).pseudocode
+            : psOf(proj));
 
-// Chain the project through blocks<->{js,py,pseudocode} and snapshot the generated
-// JS at each hop. The last hops must be identical (a stable fixed point).
-function transparencySnapshots (name, steps) {
+// Chain the project through blocks<->{js,py,pseudocode} following `order` (cycled),
+// snapshotting the generated JS at each hop. The last hops must be identical (stable).
+function transparencySnapshots (name, order, steps) {
     let proj = blocksFrom(examples[name]);
     const snaps = [jsOf(proj)];
-    for (let s = 0; s < steps; s++) {
-        const lang = CYCLE[s % CYCLE.length];
-        const ps = lang === 'js' ? javascriptToPseudocode(jsOf(proj)).pseudocode
-            : lang === 'py' ? pythonToPseudocode(pyOf(proj)).pseudocode
-                : psOf(proj);
-        proj = blocksFrom(ps);
-        snaps.push(jsOf(proj));
-    }
+    for (let s = 0; s < steps; s++) { proj = hop(proj, order[s % order.length]); snaps.push(jsOf(proj)); }
     return snaps;
 }
 
+// A few different permutation orders — the round-trip must converge regardless of the
+// path taken through the languages (pseudocode↔blocks↔python↔js in any interleaving).
+const ORDERS = [
+    ['js', 'py', 'pseudocode'],
+    ['py', 'js', 'pseudocode'],
+    ['pseudocode', 'js', 'py', 'js'],
+    ['js', 'js', 'py', 'py', 'pseudocode'],
+    ['py', 'pseudocode', 'js', 'pseudocode', 'py']
+];
+
 for (const name of Object.keys(examples)) {
-    test(`transparency: ${name} converges to a fixed point across languages`, () => {
-        const snaps = transparencySnapshots(name, 9);
-        const n = snaps.length;
-        assert.equal(snaps[n - 1], snaps[n - 2], `${name} must be stable at the end (no per-round-trip drift)`);
-        assert.equal(snaps[n - 2], snaps[n - 3], `${name} must have converged, not oscillate`);
+    test(`transparency: ${name} converges under every permutation order`, () => {
+        for (const order of ORDERS) {
+            const snaps = transparencySnapshots(name, order, 10);
+            const n = snaps.length;
+            assert.equal(snaps[n - 1], snaps[n - 2], `${name} [${order}] must be stable at the end`);
+            assert.equal(snaps[n - 2], snaps[n - 3], `${name} [${order}] must converge, not oscillate`);
+        }
     });
 }
 
