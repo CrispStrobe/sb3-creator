@@ -20,6 +20,13 @@ export const RUNTIME_EXTENSIONS = {
                 "method": "getControllerCount",
                 "args": []
             },
+            "whenButtonPressed": {
+                "kind": "hat",
+                "method": "whenButtonPressed",
+                "args": [
+                    "BUTTON"
+                ]
+            },
             "isButtonPressed": {
                 "kind": "boolean",
                 "method": "isButtonPressed",
@@ -258,6 +265,14 @@ export const RUNTIME_EXTENSIONS = {
                     "MOTOR_ID"
                 ]
             },
+            "whenColor": {
+                "kind": "hat",
+                "method": "whenColor",
+                "args": [
+                    "PORT",
+                    "COLOR"
+                ]
+            },
             "seeingColor": {
                 "kind": "boolean",
                 "method": "seeingColor",
@@ -287,11 +302,25 @@ export const RUNTIME_EXTENSIONS = {
                     "PORT"
                 ]
             },
+            "whenForceSensorPressed": {
+                "kind": "hat",
+                "method": "whenForceSensorPressed",
+                "args": [
+                    "PORT"
+                ]
+            },
             "isForceSensorPressed": {
                 "kind": "boolean",
                 "method": "isForceSensorPressed",
                 "args": [
                     "PORT"
+                ]
+            },
+            "whenTilted": {
+                "kind": "hat",
+                "method": "whenTilted",
+                "args": [
+                    "TILT_DIRECTION_ANY"
                 ]
             },
             "isTilted": {
@@ -320,6 +349,11 @@ export const RUNTIME_EXTENSIONS = {
                 "method": "shutdown",
                 "args": []
             },
+            "whenButtonPressed": {
+                "kind": "hat",
+                "method": "whenButtonPressed",
+                "args": []
+            },
             "isButtonPressed": {
                 "kind": "boolean",
                 "method": "isButtonPressed",
@@ -338,6 +372,16 @@ export const RUNTIME_EXTENSIONS = {
             "getRSSI": {
                 "kind": "reporter",
                 "method": "getRSSI",
+                "args": []
+            },
+            "whenBatteryLow": {
+                "kind": "hat",
+                "method": "whenBatteryLow",
+                "args": []
+            },
+            "whenMotorOverloaded": {
+                "kind": "hat",
+                "method": "whenMotorOverloaded",
                 "args": []
             }
         }
@@ -490,6 +534,14 @@ export const RUNTIME_EXTENSIONS = {
                     "PORT"
                 ]
             },
+            "whenColor": {
+                "kind": "hat",
+                "method": "whenColor",
+                "args": [
+                    "PORT",
+                    "COLOR"
+                ]
+            },
             "seeingColor": {
                 "kind": "boolean",
                 "method": "seeingColor",
@@ -526,11 +578,25 @@ export const RUNTIME_EXTENSIONS = {
                     "PORT"
                 ]
             },
+            "whenForceSensorPressed": {
+                "kind": "hat",
+                "method": "whenForceSensorPressed",
+                "args": [
+                    "PORT"
+                ]
+            },
             "isForceSensorPressed": {
                 "kind": "boolean",
                 "method": "isForceSensorPressed",
                 "args": [
                     "PORT"
+                ]
+            },
+            "whenTilted": {
+                "kind": "hat",
+                "method": "whenTilted",
+                "args": [
+                    "DIRECTION"
                 ]
             },
             "isTilted": {
@@ -591,6 +657,11 @@ export const RUNTIME_EXTENSIONS = {
                 "method": "shutdown",
                 "args": []
             },
+            "whenButtonPressed": {
+                "kind": "hat",
+                "method": "whenButtonPressed",
+                "args": []
+            },
             "isButtonPressed": {
                 "kind": "boolean",
                 "method": "isButtonPressed",
@@ -609,6 +680,16 @@ export const RUNTIME_EXTENSIONS = {
             "getRSSI": {
                 "kind": "reporter",
                 "method": "getRSSI",
+                "args": []
+            },
+            "whenBatteryLow": {
+                "kind": "hat",
+                "method": "whenBatteryLow",
+                "args": []
+            },
+            "whenMotorOverloaded": {
+                "kind": "hat",
+                "method": "whenMotorOverloaded",
                 "args": []
             }
         }
@@ -687,6 +768,13 @@ export const RUNTIME_EXTENSIONS = {
                     "DIRECTION"
                 ]
             },
+            "whenTilted": {
+                "kind": "hat",
+                "method": "whenTilted",
+                "args": [
+                    "DIRECTION"
+                ]
+            },
             "isTilted": {
                 "kind": "boolean",
                 "method": "isTilted",
@@ -708,6 +796,11 @@ export const RUNTIME_EXTENSIONS = {
                     "NOTE",
                     "DURATION"
                 ]
+            },
+            "whenButtonPressed": {
+                "kind": "hat",
+                "method": "whenButtonPressed",
+                "args": []
             },
             "isButtonPressed": {
                 "kind": "boolean",
@@ -1322,6 +1415,13 @@ export const RUNTIME_EXTENSIONS = {
                     "PORT"
                 ]
             },
+            "whenGesture": {
+                "kind": "hat",
+                "method": "whenGesture",
+                "args": [
+                    "GESTURE"
+                ]
+            },
             "isGesture": {
                 "kind": "boolean",
                 "method": "isGesture",
@@ -1466,6 +1566,14 @@ export const RUNTIME_EXTENSIONS = {
                     "PORT"
                 ]
             },
+            "whenColor": {
+                "kind": "hat",
+                "method": "whenColor",
+                "args": [
+                    "PORT",
+                    "COLOR"
+                ]
+            },
             "isColor": {
                 "kind": "boolean",
                 "method": "isColor",
@@ -1474,9 +1582,24 @@ export const RUNTIME_EXTENSIONS = {
                     "COLOR"
                 ]
             },
+            "whenForceSensor": {
+                "kind": "hat",
+                "method": "whenForceSensor",
+                "args": [
+                    "PORT",
+                    "STATE"
+                ]
+            },
             "isButtonPressed": {
                 "kind": "boolean",
                 "method": "isButtonPressed",
+                "args": [
+                    "BUTTON"
+                ]
+            },
+            "whenButtonPressed": {
+                "kind": "hat",
+                "method": "whenButtonPressed",
                 "args": [
                     "BUTTON"
                 ]
@@ -1693,6 +1816,13 @@ export const RUNTIME_EXTENSIONS = {
                 "method": "isForceSensorPressed",
                 "args": [
                     "PORT"
+                ]
+            },
+            "whenGesture": {
+                "kind": "hat",
+                "method": "whenGesture",
+                "args": [
+                    "GESTURE"
                 ]
             },
             "playBeep": {
@@ -2884,6 +3014,13 @@ export const RUNTIME_EXTENSIONS = {
                     "PORT"
                 ]
             },
+            "whenGesture": {
+                "kind": "hat",
+                "method": "whenGesture",
+                "args": [
+                    "GESTURE"
+                ]
+            },
             "isGesture": {
                 "kind": "boolean",
                 "method": "isGesture",
@@ -3028,6 +3165,14 @@ export const RUNTIME_EXTENSIONS = {
                     "PORT"
                 ]
             },
+            "whenColor": {
+                "kind": "hat",
+                "method": "whenColor",
+                "args": [
+                    "PORT",
+                    "COLOR"
+                ]
+            },
             "isColor": {
                 "kind": "boolean",
                 "method": "isColor",
@@ -3036,9 +3181,24 @@ export const RUNTIME_EXTENSIONS = {
                     "COLOR"
                 ]
             },
+            "whenForceSensor": {
+                "kind": "hat",
+                "method": "whenForceSensor",
+                "args": [
+                    "PORT",
+                    "STATE"
+                ]
+            },
             "isButtonPressed": {
                 "kind": "boolean",
                 "method": "isButtonPressed",
+                "args": [
+                    "BUTTON"
+                ]
+            },
+            "whenButtonPressed": {
+                "kind": "hat",
+                "method": "whenButtonPressed",
                 "args": [
                     "BUTTON"
                 ]

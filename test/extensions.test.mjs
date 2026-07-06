@@ -366,12 +366,46 @@ test('runtime convention: the driver switch selects the backend, program stays t
     assert.match(onDev, /per-hardware transpiler|ev3dev/, 'ondevice: points at the transpiler');
 });
 
+test('runtime convention: async switch awaits hardware calls and makes functions async', () => {
+    const c = new SB3Creator();
+    c.parse('SPRITE T:\n  WHEN flag clicked:\n    say "x"');
+    const B = c.project.targets.find(t => !t.isStage).blocks;
+    const hatId = Object.keys(B).find(id => B[id].opcode === 'event_whenflagclicked');
+    const sayId = Object.keys(B).find(id => B[id].opcode === 'looks_say');
+    B.c1 = { opcode: 'legoboostunified_connect', inputs: {}, fields: {}, parent: hatId, next: sayId };
+    B[hatId].next = 'c1'; B[sayId].parent = 'c1';
+    c.syncExtensions();
+    const py = c.generatePython(undefined, { async: true });
+    assert.match(py, /^import asyncio$/m);
+    assert.match(py, /async def when_flag_clicked\(\):/);
+    assert.match(py, /await _legoboostunified\.connect\(\)/);
+    assert.match(py, /asyncio\.run\(when_flag_clicked\(\)\)/);
+    const js = c.generateJavaScript(undefined, { async: true });
+    assert.match(js, /async function when_flag_clicked\(\)/);
+    assert.match(js, /await _legoboostunified\.connect\(\)/);
+    assert.match(js, /\(async \(\) => \{ await when_flag_clicked\(\); \}\)\(\);/);
+    assert.doesNotMatch(c.generateJavaScript(), /await /);   // default (sync) has no await
+});
+
+test('runtime convention: events switch turns an extension hat into a handler + registration', () => {
+    const c = new SB3Creator();
+    c.parse('SPRITE T:\n  WHEN flag clicked:\n    say "x"');
+    const B = c.project.targets.find(t => !t.isStage).blocks;
+    B.hat2 = { opcode: 'legoboostunified_whenButtonPressed', inputs: {}, fields: {}, topLevel: true, next: 's2' };
+    B.s2 = { opcode: 'looks_say', inputs: { MESSAGE: [1, [10, 'pressed']] }, fields: {}, parent: 'hat2' };
+    c.syncExtensions();
+    const js = c.generateJavaScript(undefined, { events: true });
+    assert.match(js, /function on_whenButtonPressed\(\)/);
+    assert.match(js, /_legoboostunified\.on\("legoboostunified_whenButtonPressed", on_whenButtonPressed\)/);
+    assert.doesNotMatch(c.generateJavaScript(), /on_whenButtonPressed/);   // off by default
+});
+
 test('runtime convention: adding an extension is declarative (registry-only)', () => {
     const reg = SB3Creator.RUNTIME_EXTENSIONS;
     assert.ok(reg.universalgamepad && reg.legoboostunified && reg.ev3comprehensive, 'both registered');
     // every op declares a kind + method
     for (const ext of Object.values(reg)) for (const op of Object.values(ext.ops)) {
-        assert.ok(['command', 'reporter', 'boolean'].includes(op.kind));
+        assert.ok(['command', 'reporter', 'boolean', 'hat'].includes(op.kind));
         assert.ok(typeof op.method === 'string' && op.method.length);
     }
 });

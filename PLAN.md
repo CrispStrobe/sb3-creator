@@ -524,9 +524,14 @@ three languages fully two-way, runnable in-editor, in one 3-tab highlighted edit
       (header pointing at the per-hardware transpilers in `CrispStrobe/extensions` that emit real
       ev3dev2/pybricks). The program is unchanged; only the driver swaps. GUI has a `🔌 driver:`
       selector on the code tabs (regenerates the view). Documented in `reference/runtime-drivers.md`.
-    - [ ] **Still to wire:** switches for **async/await** (BLE is async → `await _boost…`) and
-      **event hats** (`whenButtonPressed` → driver callback registration); and fleshing out the
-      `remote`/`on-brick` drivers by reusing the bridges/transpilers.
+    - [x] **async/await switch** — `{async:true}` makes functions `async`, `await`s every
+      hardware/proc call, awaits driver methods (Python shim methods become `async def`), and runs
+      via `asyncio.run(...)` (Python) / an `(async () => …)()` IIFE (JS). GUI checkbox.
+    - [x] **event-hat switch** — the generated registry now includes HAT ops; `{events:true}` turns
+      an extension hat (`whenButtonPressed`) into a handler function + a `_driver.on("opcode", fn)`
+      registration (the driver shim gains an `on(event, handler)` method). GUI checkbox.
+    - [ ] **Still to flesh out:** the `remote` driver actually speaking `universal_lego_bridge.py`'s
+      normalized-JSON protocol end-to-end, and the `on-brick` driver reusing the transpilers.
   - Registry/runtime extensions transpile blocks → code but their **code is one-way** (the
     `_arrays[...]` registry / `_driver.method()` model doesn't reverse-map); they round-trip
     pseudocode ↔ blocks. The parsers are hardened to *survive* such code (dict/object literals,
