@@ -1,4 +1,7 @@
 import JSZip from 'jszip';
+// Auto-generated hardware-extension registry (scripts/gen-runtime-registry.mjs). Covers all
+// the LEGO/hardware extensions declaratively so the pluggable driver "works for all of them".
+import { RUNTIME_EXTENSIONS as GENERATED_RUNTIME, RUNTIME_EXTENSION_URLS as GENERATED_URLS } from './runtimeRegistry.generated.js';
 
 
 // Structured error classes
@@ -3145,7 +3148,7 @@ SB3Creator.EXTENSION_URLS = {
     planetemaths: 'https://crispstrobe.github.io/extensions/CrispStrobe/planetemaths.js',
     arrays: 'https://crispstrobe.github.io/extensions/CrispStrobe/arrays.js',
     universalgamepad: 'https://crispstrobe.github.io/extensions/CrispStrobe/gamepad.js',
-    legoboost: 'https://crispstrobe.github.io/extensions/CrispStrobe/legoboost_universal.js'
+    ...GENERATED_URLS   // LEGO/hardware extension URLs (auto-generated)
 };
 
 // Pluggable-driver convention for runtime/hardware extensions (gamepad, LEGO, …).
@@ -3176,31 +3179,9 @@ SB3Creator.RUNTIME_EXTENSIONS = {
             stopVibration: { kind: 'command', method: 'stopVibration' }
         }
     },
-    legoboost: {
-        runtime: 'boost',
-        ops: {
-            motorOn: { kind: 'command', method: 'motorOn', args: ['MOTOR_ID'] },
-            motorOff: { kind: 'command', method: 'motorOff', args: ['MOTOR_ID'] },
-            motorOnFor: { kind: 'command', method: 'motorOnFor', args: ['MOTOR_ID', 'DURATION'] },
-            motorOnForRotation: { kind: 'command', method: 'motorOnForRotation', args: ['MOTOR_ID', 'ROTATION'] },
-            motorRunToPosition: { kind: 'command', method: 'motorRunToPosition', args: ['MOTOR_ID', 'POSITION'] },
-            setMotorPower: { kind: 'command', method: 'setMotorPower', args: ['MOTOR_ID', 'POWER'] },
-            setMotorDirection: { kind: 'command', method: 'setMotorDirection', args: ['MOTOR_ID', 'MOTOR_DIRECTION'] },
-            resetMotorPosition: { kind: 'command', method: 'resetMotorPosition', args: ['MOTOR_ID'] },
-            setLightHue: { kind: 'command', method: 'setLightHue', args: ['HUE'] },
-            shutdown: { kind: 'command', method: 'shutdown' },
-            getMotorPosition: { kind: 'reporter', method: 'motorPosition', args: ['MOTOR_REPORTER_ID'] },
-            getDistance: { kind: 'reporter', method: 'distance', args: ['PORT'] },
-            getReflection: { kind: 'reporter', method: 'reflection', args: ['PORT'] },
-            getForce: { kind: 'reporter', method: 'force', args: ['PORT'] },
-            getTiltAngle: { kind: 'reporter', method: 'tiltAngle', args: ['TILT_DIRECTION'] },
-            getBatteryLevel: { kind: 'reporter', method: 'batteryLevel' },
-            seeingColor: { kind: 'boolean', method: 'seeingColor', args: ['PORT', 'COLOR'] },
-            isForceSensorPressed: { kind: 'boolean', method: 'forceSensorPressed', args: ['PORT'] },
-            isTilted: { kind: 'boolean', method: 'isTilted', args: ['TILT_DIRECTION_ANY'] },
-            isButtonPressed: { kind: 'boolean', method: 'buttonPressed' }
-        }
-    }
+    // All LEGO/hardware extensions (Boost, PoweredUp, WeDo, Spike, EV3, …) are auto-generated
+    // from their block surfaces so the driver convention works for every one of them.
+    ...GENERATED_RUNTIME
 };
 
 export default SB3Creator;

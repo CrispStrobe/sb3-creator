@@ -10,6 +10,8 @@
   "scripts": {
     "dev": "vite",
     "test": "node --test test/*.test.mjs",
+    "gen:runtime": "node scripts/gen-runtime-registry.mjs",
+    "gen:runtime:check": "node scripts/gen-runtime-registry.mjs --check",
     "build:harness": "node test/browser/build.mjs",
     "test:browser": "node test/browser/build.mjs && node --test test/browser/render.browser.mjs",
     "build": "vite build",
