@@ -114,6 +114,31 @@ class SB3Creator {
         return line;
     }
 
+    // Reconcile project.extensions with the blocks that are actually used. Scratch
+    // opcodes are `<category>_<name>`; any non-core category is an extension id. This
+    // both AUTO-ADDS extensions the code needs (compile direction) and parses which
+    // extensions are genuinely used in the blocks (read direction). Custom gallery
+    // extensions also get an extensionURL so the VM can load them.
+    // Source of truth for URLs: github.com/CrispStrobe/extensions (see reference/extensions/).
+    syncExtensions(project = this.project) {
+        const CORE = SB3Creator.CORE_CATEGORIES;
+        const used = new Set();
+        for (const t of project.targets || []) {
+            for (const b of Object.values(t.blocks || {})) {
+                const op = b.opcode || '';
+                const i = op.indexOf('_');
+                if (i <= 0) continue;
+                const prefix = op.slice(0, i);
+                if (!CORE.has(prefix)) used.add(prefix);
+            }
+        }
+        project.extensions = [...used];
+        const urls = { ...(project.extensionURLs || {}) };
+        for (const id of used) if (SB3Creator.EXTENSION_URLS[id]) urls[id] = SB3Creator.EXTENSION_URLS[id];
+        if (Object.keys(urls).length) project.extensionURLs = urls;
+        return project.extensions;
+    }
+
     // Attach any buffered `# comment` to a freshly created block as a Scratch block
     // comment (stored on the target, referenced by the block) so it survives to decompile.
     attachPendingComment(target, block, blockId) {
@@ -1734,6 +1759,7 @@ class SB3Creator {
         }
 
         this.validateReferences();
+        this.syncExtensions();
         return this.project;
     }
 
@@ -1799,6 +1825,10 @@ class SB3Creator {
         if (!this.project) {
             throw new ValidationError('No project to generate');
         }
+
+        // Auto-declare the extensions the blocks actually use (and their URLs) so the
+        // VM loads them — covers blocks that arrived via any path (compile / injected).
+        this.syncExtensions();
 
         const zip = new JSZip();
         zip.file('project.json', JSON.stringify(this.project));
@@ -2367,6 +2397,25 @@ class SB3Creator {
             case 'sensing_answer': this._pyUses.answer = true; return 'answer';
             case 'argument_reporter_string_number':
             case 'argument_reporter_boolean': return this.pyName(f('VALUE'));
+            // Planète Maths extension (id `planetemaths`) — pure math, maps 1:1.
+            case 'planetemaths_add': return `(${v('NUM1')} + ${v('NUM2')})`;
+            case 'planetemaths_substract': return `(${v('NUM1')} - ${v('NUM2')})`;
+            case 'planetemaths_multiply': return `(${v('NUM1')} * ${v('NUM2')})`;
+            case 'planetemaths_divide': return `(${v('NUM1')} / ${v('NUM2')})`;
+            case 'planetemaths_pow': return `(${v('NUM1')} ** ${v('NUM2')})`;
+            case 'planetemaths_oppose': return `(0 - ${v('NUM1')})`;
+            case 'planetemaths_inverse': return `(1 / ${v('NUM1')})`;
+            case 'planetemaths_pourcent': return `(${v('NUM1')} / 100)`;
+            case 'planetemaths_nombre_pi': this._pyUses.math = true; return 'math.pi';
+            case 'planetemaths_nombre_e': this._pyUses.math = true; return 'math.e';
+            case 'planetemaths_factorial': this._pyUses.math = true; return `math.factorial(int(${v('NUM1')}))`;
+            case 'planetemaths_min': return `min(${v('NUM1')}, ${v('NUM2')})`;
+            case 'planetemaths_max': return `max(${v('NUM1')}, ${v('NUM2')})`;
+            case 'planetemaths_random': this._pyUses.random = true; return `random.randint(${v('NUM1')}, ${v('NUM2')})`;
+            case 'planetemaths_join': return `(str(${v('STRING1')}) + str(${v('STRING2')}))`;
+            case 'planetemaths_letterOf': return `str(${v('STRING')})[int(${v('LETTER')}) - 1]`;
+            case 'planetemaths_length': return `len(str(${v('STRING')}))`;
+            case 'planetemaths_sommechiffres': return `sum(int(d) for d in str(${v('NUM1')}) if d.isdigit())`;
             // Reporters outside the runnable subset (sprite/pen/sensing) become a
             // placeholder — no inline comment, which would break enclosing syntax.
             default: return 'None';
@@ -2388,6 +2437,18 @@ class SB3Creator {
             case 'operator_contains': return `(str(${v('STRING2')}) in str(${v('STRING1')}))`;
             case 'data_listcontainsitem': return `(${v('ITEM')} in ${this.pyName(b.fields.LIST[0])})`;
             case 'argument_reporter_boolean': return this.pyName(b.fields.VALUE[0]);
+            // Planète Maths booleans — semantics from the implementation (opcode names
+            // are internal misnomers: `gt` computes compare<0, i.e. NUM1 < NUM2).
+            case 'planetemaths_gt': return `(${v('NUM1')} < ${v('NUM2')})`;
+            case 'planetemaths_gte': return `(${v('NUM1')} <= ${v('NUM2')})`;
+            case 'planetemaths_lt': return `(${v('NUM1')} > ${v('NUM2')})`;
+            case 'planetemaths_lte': return `(${v('NUM1')} >= ${v('NUM2')})`;
+            case 'planetemaths_equals': this._pyUses.eq = true; return `_eq(${v('NUM1')}, ${v('NUM2')})`;
+            case 'planetemaths_and': return `(${c('OPERAND1')} and ${c('OPERAND2')})`;
+            case 'planetemaths_or': return `(${c('OPERAND1')} or ${c('OPERAND2')})`;
+            case 'planetemaths_not': return `(not ${c('OPERAND1')})`;
+            case 'planetemaths_contains': return `(str(${v('STRING2')}) in str(${v('STRING1')}))`;
+            case 'planetemaths_multiple': return `(${v('NUM1')} % ${v('NUM2')} == 0)`;
             // Predicate outside the subset (touching/key/mouse) -> placeholder.
             default: return 'False';
         }
@@ -2599,6 +2660,26 @@ class SB3Creator {
             case 'sensing_answer': this._jsUses.answer = true; return 'answer';
             case 'argument_reporter_string_number':
             case 'argument_reporter_boolean': return this.pyName(f('VALUE'));
+            // Planète Maths extension (id `planetemaths`) — source of truth:
+            // github.com/CrispStrobe/extensions (extensions/CrispStrobe/planetemaths.js).
+            case 'planetemaths_add': return `(${v('NUM1')} + ${v('NUM2')})`;
+            case 'planetemaths_substract': return `(${v('NUM1')} - ${v('NUM2')})`;
+            case 'planetemaths_multiply': return `(${v('NUM1')} * ${v('NUM2')})`;
+            case 'planetemaths_divide': return `(${v('NUM1')} / ${v('NUM2')})`;
+            case 'planetemaths_pow': return `Math.pow(${v('NUM1')}, ${v('NUM2')})`;
+            case 'planetemaths_oppose': return `(0 - ${v('NUM1')})`;
+            case 'planetemaths_inverse': return `(1 / ${v('NUM1')})`;
+            case 'planetemaths_pourcent': return `(${v('NUM1')} / 100)`;
+            case 'planetemaths_nombre_pi': return 'Math.PI';
+            case 'planetemaths_nombre_e': return 'Math.E';
+            case 'planetemaths_factorial': return `(function(n){let r=1;for(let i=2;i<=n;i++)r*=i;return r;})(${v('NUM1')})`;
+            case 'planetemaths_min': return `Math.min(${v('NUM1')}, ${v('NUM2')})`;
+            case 'planetemaths_max': return `Math.max(${v('NUM1')}, ${v('NUM2')})`;
+            case 'planetemaths_random': this._jsUses.rand = true; return `_rand(${v('NUM1')}, ${v('NUM2')})`;
+            case 'planetemaths_join': return `(String(${v('STRING1')}) + String(${v('STRING2')}))`;
+            case 'planetemaths_letterOf': return `String(${v('STRING')})[Number(${v('LETTER')}) - 1]`;
+            case 'planetemaths_length': return `String(${v('STRING')}).length`;
+            case 'planetemaths_sommechiffres': return `String(${v('NUM1')}).split('').filter(function(d){return d>='0'&&d<='9';}).reduce(function(s,d){return s+Number(d);},0)`;
             default: return 'undefined';
         }
     }
@@ -2618,6 +2699,17 @@ class SB3Creator {
             case 'operator_contains': return `String(${v('STRING1')}).includes(String(${v('STRING2')}))`;
             case 'data_listcontainsitem': return `${this.pyName(b.fields.LIST[0])}.includes(${v('ITEM')})`;
             case 'argument_reporter_boolean': return this.pyName(b.fields.VALUE[0]);
+            // Planète Maths booleans (semantics from the implementation, not the labels).
+            case 'planetemaths_gt': return `(${v('NUM1')} < ${v('NUM2')})`;
+            case 'planetemaths_gte': return `(${v('NUM1')} <= ${v('NUM2')})`;
+            case 'planetemaths_lt': return `(${v('NUM1')} > ${v('NUM2')})`;
+            case 'planetemaths_lte': return `(${v('NUM1')} >= ${v('NUM2')})`;
+            case 'planetemaths_equals': this._jsUses.eq = true; return `_eq(${v('NUM1')}, ${v('NUM2')})`;
+            case 'planetemaths_and': return `(${c('OPERAND1')} && ${c('OPERAND2')})`;
+            case 'planetemaths_or': return `(${c('OPERAND1')} || ${c('OPERAND2')})`;
+            case 'planetemaths_not': return `(!${c('OPERAND1')})`;
+            case 'planetemaths_contains': return `String(${v('STRING1')}).includes(String(${v('STRING2')}))`;
+            case 'planetemaths_multiple': return `(${v('NUM1')} % ${v('NUM2')} === 0)`;
             default: return 'false';
         }
     }
@@ -2742,5 +2834,19 @@ class SB3Creator {
         return true;
     }
 }
+
+// Core Scratch block categories (everything else is an extension id, see syncExtensions).
+SB3Creator.CORE_CATEGORIES = new Set([
+    'motion', 'looks', 'sound', 'event', 'control', 'sensing', 'operator', 'data', 'procedures', 'argument'
+]);
+
+// URLs for custom gallery extensions so the VM can load them when a project uses them.
+// Source of truth: github.com/CrispStrobe/extensions; the fork loads the registry from
+// crispstrobe.github.io/extensions/generated-metadata/extensions-v0.json (slug -> `${slug}.js`).
+SB3Creator.EXTENSION_URLS = {
+    planetemaths: 'https://crispstrobe.github.io/extensions/CrispStrobe/planetemaths.js',
+    arrays: 'https://crispstrobe.github.io/extensions/CrispStrobe/arrays.js',
+    gamepad: 'https://crispstrobe.github.io/extensions/CrispStrobe/gamepad.js'
+};
 
 export default SB3Creator;
