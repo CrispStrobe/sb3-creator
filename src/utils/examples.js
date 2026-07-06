@@ -2261,7 +2261,22 @@ SPRITE Game:
     IF n is multiple of 2 THEN:
       say (n join " is even") for 2 seconds
     ELSE:
-      say (n join " is odd") for 2 seconds`
+      say (n join " is odd") for 2 seconds`,
+
+    // Uses the Arrays & Vectors extension (auto-declared). Named arrays, 0-based.
+    arrays: `SPRITE Arraybot:
+  WHEN flag clicked:
+    new array "nums" = [5, 3, 8, 1]
+    push 12 to array "nums"
+    say ("sum = " join sum of array "nums") for 2 seconds
+    say ("largest = " join largest of array "nums") for 2 seconds
+    say ("first item = " join item 0 of array "nums") for 2 seconds
+    set item 1 of array "nums" to 99
+    say ("after set: " join array "nums" as text) for 2 seconds
+    IF array "nums" contains 8 THEN:
+      say "the array has an 8" for 2 seconds
+    new array "counts" = range 1 to 5
+    say ("range 1..5 sums to " join sum of array "counts") for 2 seconds`
 };
 
 export default examples;

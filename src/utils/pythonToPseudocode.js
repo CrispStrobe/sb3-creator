@@ -481,6 +481,7 @@ class Translator {
             if (id === '_eq') return `(${this.expr(a[0])} = ${this.expr(a[1])})`;
             if (id === '_rand') return `(pick random ${this.expr(a[0])} to ${this.expr(a[1])})`;
             if (id === '_fact') return `(factorial of ${this.expr(a[0])})`;
+            if (id === '_sumdigits') return `(sum of digits of ${this.expr(a[0])})`;
             // Planète Maths min/max (no standard Scratch equivalent)
             if (id === 'min') return `(min of ${this.expr(a[0])} and ${this.expr(a[1])})`;
             if (id === 'max') return `(max of ${this.expr(a[0])} and ${this.expr(a[1])})`;

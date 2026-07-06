@@ -135,10 +135,22 @@ class JsParser {
         const args = [];
         while (!this.at('OP', ')')) { args.push(this.eat('NAME').value); if (this.at('OP', ',')) this.next(); }
         this.eat('OP', ')');
+        // Emitter helpers (`_eq`, `_rand`, `_fact`, `_sumdigits`) may use arrow functions
+        // etc. outside the subset — skip their body raw (they're re-emitted anyway).
+        if (name.startsWith('_')) { this.skipBraces(); return null; }
         const body = this.parseBlock();
-        // Emitter helpers (`_eq`, `_rand`) are re-emitted by generateJavaScript — drop them.
-        if (name.startsWith('_')) return null;
         return { type: 'Def', name, args, body };
+    }
+
+    // Consume a balanced `{ ... }` without parsing (string tokens keep braces out of OPs).
+    skipBraces () {
+        this.eat('OP', '{');
+        let depth = 1;
+        while (depth > 0 && !this.at('EOF')) {
+            if (this.at('OP', '{')) depth++;
+            else if (this.at('OP', '}')) depth--;
+            this.next();
+        }
     }
 
     parseIf () {

@@ -522,6 +522,23 @@ class SB3Creator {
         if ((m = s.match(/^(.+?)\s+to the power of\s+(.+)$/i))) return B('planetemaths_pow', { NUM1: this.parseValue(m[1], context), NUM2: this.parseValue(m[2], context) });
         if (/^pi$/i.test(s) && !this.variableExists('pi', context.target)) return B('planetemaths_nombre_pi', {});
         if (/^euler$/i.test(s) && !this.variableExists('euler', context.target)) return B('planetemaths_nombre_e', {});
+        // Arrays & Vectors reporters (anchored on `array "NAME"`; 0-based).
+        if (/\barray\s+"/.test(s)) {
+            const aN = (n) => [1, [10, n]];
+            if ((m = s.match(/^item\s+(.+?)\s+of array\s+"([^"]*)"$/i))) return B('arrays_get', { NAME: aN(m[2]), INDEX: this.parseValue(m[1], context) });
+            if ((m = s.match(/^pop from array\s+"([^"]*)"$/i))) return B('arrays_pop', { NAME: aN(m[1]) });
+            if ((m = s.match(/^length of array\s+"([^"]*)"$/i))) return B('arrays_length', { NAME: aN(m[1]) });
+            if ((m = s.match(/^sum of array\s+"([^"]*)"$/i))) return B('arrays_sum', { NAME: aN(m[1]) });
+            if ((m = s.match(/^(?:mean|average) of array\s+"([^"]*)"$/i))) return B('arrays_mean', { NAME: aN(m[1]) });
+            if ((m = s.match(/^smallest of array\s+"([^"]*)"$/i))) return B('arrays_min', { NAME: aN(m[1]) });
+            if ((m = s.match(/^largest of array\s+"([^"]*)"$/i))) return B('arrays_max', { NAME: aN(m[1]) });
+            if ((m = s.match(/^index of\s+(.+?)\s+in array\s+"([^"]*)"$/i))) return B('arrays_indexOf', { NAME: aN(m[2]), VALUE: this.parseValue(m[1], context) });
+            if ((m = s.match(/^reverse of array\s+"([^"]*)"$/i))) return B('arrays_reverse', { NAME: aN(m[1]) });
+            if ((m = s.match(/^flatten of array\s+"([^"]*)"$/i))) return B('arrays_flatten', { NAME: aN(m[1]) });
+            if ((m = s.match(/^sort of array\s+"([^"]*)"\s+(ascending|descending)$/i))) return B('arrays_sort', { NAME: aN(m[1]) }, { ORDER: [m[2].toLowerCase(), null] });
+            if ((m = s.match(/^slice of array\s+"([^"]*)"\s+from\s+(.+?)\s+to\s+(.+)$/i))) return B('arrays_slice', { NAME: aN(m[1]), START: this.parseValue(m[2], context), END: this.parseValue(m[3], context) });
+            if ((m = s.match(/^array\s+"([^"]*)"\s+as text$/i))) return B('arrays_toJSON', { NAME: aN(m[1]) });
+        }
         if ((m = s.match(/^(abs|floor|ceiling|sqrt|sin|cos|tan|asin|acos|atan|ln|log)\s+of\s+(.+)$/i))) {
             return B('operator_mathop', { NUM: this.parseValue(m[2], context) }, { OPERATOR: [m[1].toLowerCase(), null] });
         }
@@ -641,6 +658,10 @@ class SB3Creator {
         let mm;
         if ((mm = s.match(/^(.+?)\s+is multiple of\s+(.+)$/i))) {
             return push('planetemaths_multiple', { NUM1: this.parseValue(mm[1], context), NUM2: this.parseValue(mm[2], context) });
+        }
+        // Arrays & Vectors boolean: array "NAME" contains VALUE
+        if ((mm = s.match(/^array\s+"([^"]*)"\s+contains\s+(.+)$/i))) {
+            return push('arrays_contains', { NAME: [1, [10, mm[1]]], VALUE: this.parseValue(mm[2], context) });
         }
 
         // Comparisons. Scratch 3.0 has no native <= / >=, so build them from not().
@@ -897,6 +918,38 @@ class SB3Creator {
         }
         if (line.includes('flag clicked')) {
             return { block: this.createBlock('event_whenflagclicked', { topLevel: true }).block, extraBlocks: {} };
+        }
+
+        // ---- Arrays & Vectors extension commands (anchored on `array "NAME"`; 0-based) ----
+        // syncExtensions() auto-declares the `arrays` extension from these opcodes.
+        const aName = (n) => [1, [10, n]];
+        if ((match = line.match(/^new array\s+"([^"]*)"\s*=\s*range\s+(.+?)\s+to\s+(.+)$/i))) {
+            const { id, block } = cmd('arrays_createRange');
+            block[id].inputs.NAME = aName(match[1]); block[id].inputs.START = val(match[2]); block[id].inputs.END = val(match[3]);
+            return ret(block);
+        }
+        if ((match = line.match(/^new array\s+"([^"]*)"\s*=\s*(.+)$/i))) {
+            const { id, block } = cmd('arrays_create1D');
+            block[id].inputs.NAME = aName(match[1]); block[id].inputs.JSON = [1, [10, match[2].trim()]];
+            return ret(block);
+        }
+        if ((match = line.match(/^new array\s+"([^"]*)"$/i))) {
+            const { id, block } = cmd('arrays_createEmpty'); block[id].inputs.NAME = aName(match[1]); return ret(block);
+        }
+        if ((match = line.match(/^push\s+(.+?)\s+to array\s+"([^"]*)"$/i))) {
+            const { id, block } = cmd('arrays_push'); block[id].inputs.NAME = aName(match[2]); block[id].inputs.VALUE = val(match[1]); return ret(block);
+        }
+        if ((match = line.match(/^set item\s+(.+?)\s+of array\s+"([^"]*)"\s+to\s+(.+)$/i))) {
+            const { id, block } = cmd('arrays_set'); block[id].inputs.NAME = aName(match[2]); block[id].inputs.INDEX = val(match[1]); block[id].inputs.VALUE = val(match[3]); return ret(block);
+        }
+        if ((match = line.match(/^insert\s+(.+?)\s+at\s+(.+?)\s+of array\s+"([^"]*)"$/i))) {
+            const { id, block } = cmd('arrays_insert'); block[id].inputs.NAME = aName(match[3]); block[id].inputs.INDEX = val(match[2]); block[id].inputs.VALUE = val(match[1]); return ret(block);
+        }
+        if ((match = line.match(/^remove item\s+(.+?)\s+of array\s+"([^"]*)"$/i))) {
+            const { id, block } = cmd('arrays_remove'); block[id].inputs.NAME = aName(match[2]); block[id].inputs.INDEX = val(match[1]); return ret(block);
+        }
+        if ((match = line.match(/^delete array\s+"([^"]*)"$/i))) {
+            const { id, block } = cmd('arrays_delete'); block[id].inputs.NAME = aName(match[1]); return ret(block);
         }
 
         // ---- Motion ----------------------------------------------------------------
@@ -2170,6 +2223,20 @@ class SB3Creator {
             case 'planetemaths_max': return `max of ${v('NUM1')} and ${v('NUM2')}`;
             case 'planetemaths_nombre_pi': return 'pi';
             case 'planetemaths_nombre_e': return 'euler';
+            // Arrays & Vectors reporters (v('NAME') yields the quoted name).
+            case 'arrays_get': return `item ${v('INDEX')} of array ${v('NAME')}`;
+            case 'arrays_pop': return `pop from array ${v('NAME')}`;
+            case 'arrays_length': return `length of array ${v('NAME')}`;
+            case 'arrays_sum': return `sum of array ${v('NAME')}`;
+            case 'arrays_mean': return `mean of array ${v('NAME')}`;
+            case 'arrays_min': return `smallest of array ${v('NAME')}`;
+            case 'arrays_max': return `largest of array ${v('NAME')}`;
+            case 'arrays_indexOf': return `index of ${v('VALUE')} in array ${v('NAME')}`;
+            case 'arrays_reverse': return `reverse of array ${v('NAME')}`;
+            case 'arrays_flatten': return `flatten of array ${v('NAME')}`;
+            case 'arrays_sort': return `sort of array ${v('NAME')} ${f('ORDER') || 'ascending'}`;
+            case 'arrays_slice': return `slice of array ${v('NAME')} from ${v('START')} to ${v('END')}`;
+            case 'arrays_toJSON': case 'arrays_toString': return `array ${v('NAME')} as text`;
             default: return b.opcode;
         }
     }
@@ -2207,6 +2274,7 @@ class SB3Creator {
             case 'planetemaths_not': return `not (${c('OPERAND1')})`;
             case 'planetemaths_contains': return `${v('STRING1')} contains ${v('STRING2')}`;
             case 'planetemaths_multiple': return `${v('NUM1')} is multiple of ${v('NUM2')}`;
+            case 'arrays_contains': return `array ${v('NAME')} contains ${v('VALUE')}`;
             default: return this.drep(b, blocks);
         }
     }
@@ -2335,6 +2403,15 @@ class SB3Creator {
             case 'data_deletealloflist': return line(`delete all of ${f('LIST')}`);
             case 'data_insertatlist': return line(`insert ${v('ITEM')} at ${v('INDEX')} of ${f('LIST')}`);
             case 'data_replaceitemoflist': return line(`replace item ${v('INDEX')} of ${f('LIST')} with ${v('ITEM')}`);
+            // Arrays & Vectors commands (v('NAME') yields the quoted name).
+            case 'arrays_create1D': return line(`new array ${v('NAME')} = ${this.dval(b.inputs.JSON, blocks).replace(/^"|"$/g, '')}`);
+            case 'arrays_createEmpty': return line(`new array ${v('NAME')}`);
+            case 'arrays_createRange': return line(`new array ${v('NAME')} = range ${v('START')} to ${v('END')}`);
+            case 'arrays_push': return line(`push ${v('VALUE')} to array ${v('NAME')}`);
+            case 'arrays_set': return line(`set item ${v('INDEX')} of array ${v('NAME')} to ${v('VALUE')}`);
+            case 'arrays_insert': return line(`insert ${v('VALUE')} at ${v('INDEX')} of array ${v('NAME')}`);
+            case 'arrays_remove': return line(`remove item ${v('INDEX')} of array ${v('NAME')}`);
+            case 'arrays_delete': return line(`delete array ${v('NAME')}`);
             case 'data_showlist': return line(`show list ${f('LIST')}`);
             case 'data_hidelist': return line(`hide list ${f('LIST')}`);
             case 'data_showvariable': return line(`show variable ${f('VARIABLE')}`);
@@ -2462,7 +2539,7 @@ class SB3Creator {
             case 'planetemaths_join': return `(str(${v('STRING1')}) + str(${v('STRING2')}))`;
             case 'planetemaths_letterOf': return `str(${v('STRING')})[int(${v('LETTER')}) - 1]`;
             case 'planetemaths_length': return `len(str(${v('STRING')}))`;
-            case 'planetemaths_sommechiffres': return `sum(int(d) for d in str(${v('NUM1')}) if d.isdigit())`;
+            case 'planetemaths_sommechiffres': this._pyUses.sumdigits = true; return `_sumdigits(${v('NUM1')})`;
             // Arrays & Vectors reporters (0-based; `_arrays` registry).
             case 'arrays_get': this._pyUses.arrays = true; return `_arrays[${v('NAME')}][int(${v('INDEX')})]`;
             case 'arrays_pop': this._pyUses.arrays = true; return `_arrays[${v('NAME')}].pop()`;
@@ -2635,7 +2712,7 @@ class SB3Creator {
 
     generatePython(project = this.project) {
         this._pyNames = new Map();
-        this._pyUses = { random: false, math: false, time: false, eq: false, answer: false, arrays: false, json: false, gamepad: false };
+        this._pyUses = { random: false, math: false, time: false, eq: false, answer: false, arrays: false, json: false, gamepad: false, sumdigits: false };
         const targets = project.targets || [];
         const scalars = new Set(), lists = new Set();
         for (const t of targets) {
@@ -2676,6 +2753,10 @@ class SB3Creator {
         if (this._pyUses.time) out.push('import time');
         if (this._pyUses.json) out.push('import json');
         if (this._pyUses.random || this._pyUses.math || this._pyUses.time || this._pyUses.json) out.push('');
+        if (this._pyUses.sumdigits) {
+            out.push('def _sumdigits(n): return sum(int(d) for d in str(n) if d.isdigit())');
+            out.push('');
+        }
         if (this._pyUses.eq) {
             out.push('def _eq(a, b):  # Scratch-style loose equality');
             out.push('    try:');
@@ -2775,7 +2856,7 @@ class SB3Creator {
             case 'planetemaths_join': return `(String(${v('STRING1')}) + String(${v('STRING2')}))`;
             case 'planetemaths_letterOf': return `String(${v('STRING')})[Number(${v('LETTER')}) - 1]`;
             case 'planetemaths_length': return `String(${v('STRING')}).length`;
-            case 'planetemaths_sommechiffres': return `String(${v('NUM1')}).split('').filter(function(d){return d>='0'&&d<='9';}).reduce(function(s,d){return s+Number(d);},0)`;
+            case 'planetemaths_sommechiffres': this._jsUses.sumdigits = true; return `_sumdigits(${v('NUM1')})`;
             // Arrays & Vectors reporters (0-based; `_arrays` registry).
             case 'arrays_get': this._jsUses.arrays = true; return `_arrays[${v('NAME')}][Number(${v('INDEX')})]`;
             case 'arrays_pop': this._jsUses.arrays = true; return `_arrays[${v('NAME')}].pop()`;
@@ -2898,7 +2979,7 @@ class SB3Creator {
 
     generateJavaScript(project = this.project) {
         this._pyNames = new Map();
-        this._jsUses = { rand: false, eq: false, answer: false, fact: false, arrays: false, gamepad: false };
+        this._jsUses = { rand: false, eq: false, answer: false, fact: false, arrays: false, gamepad: false, sumdigits: false };
         const targets = project.targets || [];
         const scalars = new Set(), lists = new Set();
         for (const t of targets) {
@@ -2936,7 +3017,8 @@ class SB3Creator {
         if (this._jsUses.eq) out.push('function _eq(a, b) { const x = Number(a), y = Number(b); if (!Number.isNaN(x) && !Number.isNaN(y)) return x === y; return String(a).toLowerCase() === String(b).toLowerCase(); }');
         if (this._jsUses.rand) out.push('function _rand(a, b) { a = Number(a); b = Number(b); return Math.floor(Math.random() * (b - a + 1)) + a; }');
         if (this._jsUses.fact) out.push('function _fact(n) { n = Number(n); let r = 1; for (let i = 2; i <= n; i++) r *= i; return r; }');
-        if (this._jsUses.eq || this._jsUses.rand || this._jsUses.fact) out.push('');
+        if (this._jsUses.sumdigits) out.push("function _sumdigits(n) { return String(n).split('').filter(d => d >= '0' && d <= '9').reduce((s, d) => s + Number(d), 0); }");
+        if (this._jsUses.eq || this._jsUses.rand || this._jsUses.fact || this._jsUses.sumdigits) out.push('');
         const state = [];
         if (this._jsUses.gamepad) state.push('const _gamepad = { connected: () => false, button: () => false, anyButton: () => false, axis: () => 0, cursor: () => 0, count: () => 0, info: () => "" };  // neutral standalone; live in the VM');
         if (this._jsUses.arrays) state.push('const _arrays = {};  // Arrays & Vectors registry');
