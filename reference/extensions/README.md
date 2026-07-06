@@ -11,9 +11,12 @@ The fork loads the registry at runtime from
 
 | file | id | name | codegen |
 |------|----|------|---------|
-| `planetemaths.js` | `planetemaths` | Planète Maths | ✅ mapped (pure math) |
-| `arrays.js` | `arrays` | Arrays & Vectors | ⏳ next (named-array registry) |
-| `gamepad.js` | `gamepad` | Gamepad | ⏳ runtime input (shim) |
+| `planetemaths.js` | `planetemaths` | Planète Maths | ✅ mapped (pure math; also pseudocode syntax) |
+| `arrays.js` | `arrays` | Arrays & Vectors | ✅ core ops mapped (0-based, `_arrays` registry) |
+| `gamepad.js` | `universalgamepad` | Gamepad | ✅ neutral `_gamepad` shim (live in VM) |
+
+Note the Gamepad extension **id is `universalgamepad`** (not `gamepad`), so its opcodes are
+`universalgamepad_*` and the file at the URL is `gamepad.js`.
 
 **Gotcha:** in `planetemaths.js` the boolean opcode *names* are misnomers — `gt` computes
 `Cast.compare(NUM1, NUM2) < 0`, i.e. **NUM1 < NUM2**. Always map by the method body, not the

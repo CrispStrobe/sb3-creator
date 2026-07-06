@@ -194,6 +194,106 @@ test('pseudocode: distinctive Planète Maths ops round-trip through Python AND J
     }
 });
 
+// ---- Arrays & Vectors extension (id `arrays`) ----
+// Build a command chain + reporters, transpile, and RUN the JS to check values.
+function arraysProgram (commands, reporterOpcode, reporterInputs = {}) {
+    const c = new SB3Creator();
+    c.parse('SPRITE T:\n  WHEN flag clicked:\n    say "x"');
+    const B = c.project.targets.find(t => !t.isStage).blocks;
+    const hatId = Object.keys(B).find(id => B[id].opcode === 'event_whenflagclicked');
+    const sayId = Object.keys(B).find(id => B[id].opcode === 'looks_say');
+    const S = v => [1, [10, String(v)]];
+    const N = v => [1, [4, String(v)]];
+    const mk = (op, inputs) => ({ opcode: op, inputs, fields: {}, topLevel: false, parent: null });
+    let prev = hatId;
+    commands.forEach((cmd, i) => {
+        const id = `cmd${i}`;
+        B[id] = mk(cmd.op, Object.fromEntries(Object.entries(cmd.args).map(([k, val]) => [k, typeof val === 'number' ? N(val) : S(val)])));
+        B[prev].next = id; B[id].parent = prev; prev = id;
+    });
+    B[prev].next = sayId; B[sayId].parent = prev;
+    const rInputs = Object.fromEntries(Object.entries(reporterInputs).map(([k, val]) => [k, typeof val === 'number' ? N(val) : S(val)]));
+    B.rep = mk(reporterOpcode, rInputs);
+    B[sayId].inputs.MESSAGE = [3, 'rep', [10, '']];
+    c.syncExtensions();
+    return c;
+}
+function runJsProg (c) {
+    const logs = [];
+    vm.runInNewContext(c.generateJavaScript(), { console: { log: (...a) => logs.push(a.join(' ')) }, prompt: () => '' }, { timeout: 1000 });
+    return logs[logs.length - 1];
+}
+
+const ARR = [
+    { setup: [{ op: 'arrays_create1D', args: { NAME: 'v', JSON: '[3,1,2]' } }, { op: 'arrays_push', args: { NAME: 'v', VALUE: 5 } }], rep: 'arrays_sum', ri: { NAME: 'v' }, want: '11' },
+    { setup: [{ op: 'arrays_create1D', args: { NAME: 'v', JSON: '[3,1,2]' } }], rep: 'arrays_get', ri: { NAME: 'v', INDEX: 0 }, want: '3' },
+    { setup: [{ op: 'arrays_create1D', args: { NAME: 'v', JSON: '[3,1,2]' } }], rep: 'arrays_length', ri: { NAME: 'v' }, want: '3' },
+    { setup: [{ op: 'arrays_create1D', args: { NAME: 'v', JSON: '[3,1,2]' } }], rep: 'arrays_min', ri: { NAME: 'v' }, want: '1' },
+    { setup: [{ op: 'arrays_create1D', args: { NAME: 'v', JSON: '[3,1,2]' } }], rep: 'arrays_max', ri: { NAME: 'v' }, want: '3' },
+    { setup: [{ op: 'arrays_create1D', args: { NAME: 'v', JSON: '[2,4,6]' } }], rep: 'arrays_mean', ri: { NAME: 'v' }, want: '4' },
+    { setup: [{ op: 'arrays_createRange', args: { NAME: 'v', START: 1, END: 4 } }], rep: 'arrays_sum', ri: { NAME: 'v' }, want: '10' },
+    { setup: [{ op: 'arrays_create1D', args: { NAME: 'v', JSON: '[5,6,7]' } }], rep: 'arrays_indexOf', ri: { NAME: 'v', VALUE: 6 }, want: '1' },
+    { setup: [{ op: 'arrays_create1D', args: { NAME: 'v', JSON: '[1,2,3]' } }, { op: 'arrays_remove', args: { NAME: 'v', INDEX: 0 } }], rep: 'arrays_sum', ri: { NAME: 'v' }, want: '5' }
+];
+
+for (const t of ARR) {
+    test(`extension[arrays]: ${t.rep} => ${t.want} (JS runs the _arrays registry)`, () => {
+        const c = arraysProgram(t.setup, t.rep, t.ri);
+        assert.ok(c.project.extensions.includes('arrays'));
+        assert.equal(c.project.extensionURLs.arrays, 'https://crispstrobe.github.io/extensions/CrispStrobe/arrays.js');
+        assert.equal(runJsProg(c), t.want);
+        assert.match(c.generatePython(), /_arrays = \{\}/, 'Python emits the registry');
+    });
+}
+
+test('extension[arrays]: contains runs true/false inside an IF', () => {
+    const c = new SB3Creator();
+    c.parse('SPRITE T:\n  WHEN flag clicked:\n    say "x"');
+    const B = c.project.targets.find(t => !t.isStage).blocks;
+    const hatId = Object.keys(B).find(id => B[id].opcode === 'event_whenflagclicked');
+    const sayId = Object.keys(B).find(id => B[id].opcode === 'looks_say');
+    const S = v => [1, [10, String(v)]];
+    B.c0 = { opcode: 'arrays_create1D', inputs: { NAME: S('v'), JSON: S('[5,6,7]') }, fields: {}, parent: hatId, next: 'iff' };
+    B.iff = { opcode: 'control_if_else', inputs: { CONDITION: [2, 'cnd'], SUBSTACK: [2, sayId], SUBSTACK2: [2, 'sayF'] }, fields: {}, parent: 'c0' };
+    B.cnd = { opcode: 'arrays_contains', inputs: { NAME: S('v'), VALUE: [1, [4, '6']] }, fields: {}, parent: 'iff' };
+    B.sayF = { opcode: 'looks_say', inputs: { MESSAGE: S('no') }, fields: {}, parent: 'iff' };
+    B[sayId].inputs.MESSAGE = S('yes'); B[sayId].parent = 'iff'; B[sayId].next = null;
+    B[hatId].next = 'c0';
+    assert.equal(runJsProg(c), 'yes', '6 is in [5,6,7]');
+});
+
+// ---- Gamepad extension (id `universalgamepad`, runtime input -> neutral shim) ----
+for (const [op, want] of [['universalgamepad_getStickValue', '0'], ['universalgamepad_getCursorX', '0'], ['universalgamepad_getControllerCount', '0']]) {
+    test(`extension[gamepad]: ${op} runs to a neutral value standalone`, () => {
+        const c = new SB3Creator();
+        c.parse('SPRITE T:\n  WHEN flag clicked:\n    say "x"');
+        const B = c.project.targets.find(t => !t.isStage).blocks;
+        const sayId = Object.keys(B).find(id => B[id].opcode === 'looks_say');
+        B.r = { opcode: op, inputs: {}, fields: {}, parent: sayId };
+        B[sayId].inputs.MESSAGE = [3, 'r', [10, '']];
+        c.syncExtensions();
+        assert.ok(c.project.extensions.includes('universalgamepad'));
+        assert.equal(c.project.extensionURLs.universalgamepad, 'https://crispstrobe.github.io/extensions/CrispStrobe/gamepad.js');
+        assert.equal(runJsProg(c), want);
+        assert.match(c.generatePython(), /_GamepadShim/, 'Python emits the shim');
+    });
+}
+
+test('extension[gamepad]: isConnected is a runnable boolean (false standalone)', () => {
+    const c = new SB3Creator();
+    c.parse('SPRITE T:\n  WHEN flag clicked:\n    say "x"');
+    const B = c.project.targets.find(t => !t.isStage).blocks;
+    const hatId = Object.keys(B).find(id => B[id].opcode === 'event_whenflagclicked');
+    const sayId = Object.keys(B).find(id => B[id].opcode === 'looks_say');
+    const S = v => [1, [10, String(v)]];
+    B.iff = { opcode: 'control_if_else', inputs: { CONDITION: [2, 'cnd'], SUBSTACK: [2, sayId], SUBSTACK2: [2, 'sayF'] }, fields: {}, parent: hatId };
+    B.cnd = { opcode: 'universalgamepad_isConnected', inputs: {}, fields: {}, parent: 'iff' };
+    B.sayF = { opcode: 'looks_say', inputs: { MESSAGE: S('no') }, fields: {}, parent: 'iff' };
+    B[sayId].inputs.MESSAGE = S('yes'); B[sayId].parent = 'iff'; B[sayId].next = null;
+    B[hatId].next = 'iff';
+    assert.equal(runJsProg(c), 'no', 'no gamepad connected standalone');
+});
+
 test('extension[planetemaths]: and / or / not compose', () => {
     // and(gt(3,7)=T, gt(1,9)=T) = T
     const c = boolProjectWith('planetemaths_and', {}, {

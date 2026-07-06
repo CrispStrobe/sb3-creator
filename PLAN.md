@@ -501,10 +501,15 @@ three languages fully two-way, runnable in-editor, in one 3-tab highlighted edit
     `project.extensions` (+ `extensionURLs` for custom gallery extensions) from the opcodes actually
     used, at the end of `parse()` and in `generateSB3()`. So compiling code that needs an extension
     adds it, and reading blocks parses which extensions are genuinely used.
-  - [ ] **Arrays & Vectors** (`arrays`, 38 opcodes) — named-array registry model; needs a small
-    `_arrays = {}` runtime shim in the generated code (create/get/set/push/pop/slice/sum/… ).
-  - [ ] **Gamepad** (`gamepad`) — inherently runtime input; map to a `gamepad` shim object where
-    possible, else keep as a commented stub that still works in the VM.
+  - [x] **Arrays & Vectors** (`arrays`, 37 blocks) — named-array registry (`_arrays = {}`), 0-based
+    (matches the extension). Core ops mapped to runnable Python/JS: create1D/Empty/Range, get/set/
+    push/pop/insert/remove/delete, length/sum/mean/min/max/indexOf/slice/reverse/sort/flatten/
+    contains/toJSON. 2D/functional ops (create2D, map/filter/reduce, transpose, reshape) fall back
+    to comments. Fixtures build + run to correct values (`test/extensions.test.mjs`).
+  - [x] **Gamepad** (`universalgamepad`) — real-time input, so standalone code reads a neutral
+    `_gamepad` shim (connected→false, axis/cursor→0, …); it runs without crashing and the real
+    extension drives it live in the VM/browser. Reporters/booleans mapped; commands (vibrate,
+    setCursor…) stay as comments.
   - [ ] Reverse mapping (code → extension block) is often ambiguous (planetemaths add ≡ operator
     add); execution parity is the priority, so code→blocks normalises to standard blocks.
 - [ ] **P6 — standalone executable export (TurboWarp-style packaging).** Produce a self-contained
