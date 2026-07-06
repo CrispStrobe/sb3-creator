@@ -427,8 +427,16 @@ to our bricks×education×codegen intersection); **BlocklyML** (domain Blockly�
     scripts` → a comment). **Verified live** at crispstrobe.github.io/brickwright: compile the
     quiz → Python → From blocks → ▶ Run (answers 12/32) → the console prints "Welcome to the Math
     Quiz! / Correct! / Correct! / Your final score is / 2" with no error.
-  - [ ] Harden: run compute-heavy programs in a Web Worker with a timeout instead of the
-    `forever` guard (a Worker has no `prompt`, so input-based programs stay on the main thread).
+  - [x] **Harden — Web Worker + timeout.** Non-interactive code (JS and Python alike) now runs
+    in a fresh `Worker` built from a `Blob` URL, streaming output back over `postMessage`; a
+    runaway loop is `terminate()`d after 4 s and reported as "⏱ Stopped after 4s…" instead of
+    freezing the tab. Interactive programs (that read `prompt`/`input`) keep the main-thread path
+    since a Worker has no synchronous prompt, and an obvious top-level `forever` game loop still
+    gets an instant "press the green flag" nudge (the timeout is only the safety net for
+    non-obvious infinite loops). Python reuses the cached Skulpt sources, concatenated with a
+    worker runner. **Verified live** at crispstrobe.github.io/brickwright: `operators` (JS) runs
+    in the Worker and prints its results; the quiz (Python, input) still runs on the main thread;
+    the `control` forever loop shows the nudge — all with no page errors.
 - [ ] **P2:** a tiny `brickwright` Python/JS runtime shim so full projects' emitted code runs
   (or lean on the VM for execution + show the code as a reading view).
 - [ ] **P3 (hard, optional):** Python→blocks via a restricted-subset parser (BlockMirror /
