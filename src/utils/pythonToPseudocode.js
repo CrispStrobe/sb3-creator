@@ -205,6 +205,12 @@ class Parser {
         if (t.type === 'def') return this.parseDef();
         if (t.type === 'import' || t.type === 'from') { this.skipToNewline(); return null; }
         if (t.type === 'global') { this.skipToNewline(); return null; }
+        // Generated driver classes (`class _BoostDriver:`) are re-emitted — skip them.
+        if (t.type === 'NAME' && t.value === 'class') {
+            while (!this.at('OP', ':') && !this.at('EOF') && !this.at('NEWLINE')) this.next();
+            this.skipSuite();
+            return null;
+        }
         return this.parseSimpleStatement();
     }
 
@@ -357,8 +363,21 @@ class Parser {
             this.eat('OP', ']');
             return { type: 'List', elts };
         }
+        // dict/set literal (e.g. the generated `_arrays = {}` registry) — not in the
+        // subset; consume the balanced braces and return a placeholder so parsing survives.
+        if (this.at('OP', '{')) { this.skipBalanced('{', '}'); return { type: 'Const', value: null }; }
         this.err(`unexpected ${t.type} ${t.value || ''}`);
         return null;
+    }
+
+    skipBalanced (open, close) {
+        this.eat('OP', open);
+        let depth = 1;
+        while (depth > 0 && !this.at('EOF')) {
+            if (this.at('OP', open)) depth++;
+            else if (this.at('OP', close)) depth--;
+            this.next();
+        }
     }
 }
 
