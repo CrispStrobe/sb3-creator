@@ -199,3 +199,25 @@ test('parsers reject empty input with a clear error', () => {
 test('javascript parser reports a line number on a syntax error', () => {
     assert.throws(() => javascriptToPseudocode('function f() {\n  let x = ;\n}'), /line \d+/);
 });
+
+// Regression: minimal top-level code with no hat/function must still compile
+// (previously "SyntaxError: bad input on line 1" when JS was fed to the pseudocode parser).
+test('minimal module-level declarations compile (no function/hat)', () => {
+    for (const [parse, src] of [
+        [javascriptToPseudocode, '// Generated\nlet my_variable = 0;'],
+        [pythonToPseudocode, '# Generated\nmy_variable = 0'],
+        [javascriptToPseudocode, 'let a = 5;\nlet b = [];']
+    ]) {
+        const { pseudocode } = parse(src);
+        assert.match(pseudocode, /^SPRITE /m);
+        const c = new SB3Creator();
+        assert.doesNotThrow(() => c.parse(pseudocode));
+    }
+});
+
+// Regression: a whole example's generated code, edited to nonsense in ONE line,
+// should surface a typed parse error rather than crash.
+test('a broken line yields a typed, line-numbered parse error', () => {
+    assert.throws(() => javascriptToPseudocode('function f() {\n  let x = @#$;\n}'), /JavaScript parse error \(line \d+\)/);
+    assert.throws(() => pythonToPseudocode('def f():\n    x = = 5'), /Python parse error \(line \d+\)/);
+});
