@@ -337,7 +337,7 @@ test('runtime convention: LEGO Boost commands/reporters emit driver calls + a pl
     assert.match(js, /const _boost = \{/, 'emits a _boost driver');
     assert.match(js, /_boost\.motorOn\("A"\)/, 'command with resolved menu arg');
     assert.match(js, /_boost\.distance\(/, 'reporter call');
-    assert.match(js, /pluggable driver/, 'documented as the swap point');
+    assert.match(js, /_boost driver — .*stub|drives nothing/, 'documented as the swap point');
     // runs neutral without a real device
     const logs = [];
     vm.runInNewContext(js, { console: { log: (...a) => logs.push(a.join(' ')) } }, { timeout: 1000 });
@@ -345,6 +345,30 @@ test('runtime convention: LEGO Boost commands/reporters emit driver calls + a pl
     // Python emits a driver class too
     assert.match(c.generatePython(), /class _BoostDriver:/);
     assert.match(c.generatePython(), /_boost\.motorOn\("A"\)/);
+});
+
+test('runtime convention: the driver switch selects the backend, program stays the same', () => {
+    const build = () => {
+        const c = new SB3Creator();
+        c.parse('SPRITE T:\n  WHEN flag clicked:\n    say "x"');
+        const B = c.project.targets.find(t => !t.isStage).blocks;
+        const hatId = Object.keys(B).find(id => B[id].opcode === 'event_whenflagclicked');
+        const sayId = Object.keys(B).find(id => B[id].opcode === 'looks_say');
+        B.c1 = { opcode: 'legoboost_motorOn', inputs: { MOTOR_ID: [1, 'm1'] }, fields: {}, parent: hatId, next: sayId };
+        B.m1 = { opcode: 'legoboost_menu_MOTOR_ID', fields: { MOTOR_ID: ['A', null] }, shadow: true };
+        B[hatId].next = 'c1'; B[sayId].parent = 'c1';
+        c.syncExtensions();
+        return c;
+    };
+    const shim = build().generateJavaScript(undefined, { driver: 'shim' });
+    const remote = build().generateJavaScript(undefined, { driver: 'remote' });
+    const onDev = build().generatePython(undefined, { driver: 'ondevice' });
+    // same driver-agnostic call in every mode
+    for (const code of [shim, remote]) assert.match(code, /_boost\.motorOn\("A"\)/);
+    // but different drivers
+    assert.match(shim, /motorOn: \(\) => \{\}/, 'shim: no-op');
+    assert.match(remote, /_bridge\(|brickwright-bridges/, 'remote: forwards to a bridge');
+    assert.match(onDev, /per-hardware transpiler|ev3dev/, 'ondevice: points at the transpiler');
 });
 
 test('runtime convention: adding an extension is declarative (registry-only)', () => {

@@ -177,22 +177,41 @@ class SB3Creator {
         return { kind: op.kind, call: `_${op.runtime}.${op.method}(${args.join(', ')})` };
     }
 
-    // Emit a driver for a runtime extension. Default mode 'shim' is a neutral no-op stub;
-    // it is the seam to implement against real hardware (on-brick ev3dev/pybricks, or
-    // remote USB/BLE/BTC). `lang` is 'py' or 'js'.
-    runtimeShim(extId, lang) {
+    // Emit a driver for a runtime extension. The program is driver-agnostic; this is the
+    // single swap point. `mode` selects the backend:
+    //   'shim'     — neutral no-op stub (default): runs anywhere, drives nothing.
+    //   'remote'   — forwards each call to a Brickwright bridge over WebSocket
+    //                (github.com/CrispStrobe/brickwright-bridges, e.g. universal_lego_bridge.py,
+    //                normalized JSON {"command","args"} → device binary).
+    //   'ondevice' — for on-brick code (ev3dev/pybricks); the per-hardware transpilers
+    //                (github.com/CrispStrobe/extensions, ev3dev_py_transpile.js → real ev3dev2)
+    //                are the source of truth — emit a header pointing there over the neutral base.
+    // `lang` is 'py' or 'js'. See reference/runtime-drivers.md.
+    runtimeShim(extId, lang, mode = 'shim') {
         const reg = SB3Creator.RUNTIME_EXTENSIONS[extId];
         if (!reg) return [];
         const rt = reg.runtime;
         const methods = new Map();
         for (const op of Object.values(reg.ops)) if (!methods.has(op.method)) methods.set(op.method, op);
         const cls = rt.charAt(0).toUpperCase() + rt.slice(1);
+        const banner = {
+            shim: 'neutral stub — drives nothing; implement to drive real hardware',
+            remote: `forwards to a Brickwright bridge (brickwright-bridges) over WebSocket`,
+            ondevice: `on-brick target — see the per-hardware transpiler (extensions/CrispStrobe) for real ev3dev/pybricks code`
+        }[mode] || 'neutral stub';
         if (lang === 'py') {
-            const lines = [
-                `class _${cls}Driver:  # pluggable driver (neutral stub) — implement to drive real hardware`,
-                `    # on-brick (ev3dev/pybricks) or remote (USB/BLE/BTC). The program above is driver-agnostic.`
-            ];
+            const lines = [`# _${rt} driver — ${banner}`];
+            if (mode === 'remote') {
+                lines.push('# pip install websockets; run a bridge from github.com/CrispStrobe/brickwright-bridges');
+                lines.push('import json');
+                lines.push(`class _${cls}Driver:`);
+                lines.push('    def __init__(self, url="ws://localhost:8080"): self._url = url');
+                lines.push('    def _send(self, method, args): pass  # TODO: send {"extension","command":method,"args":args} to the bridge');
+            } else {
+                lines.push(`class _${cls}Driver:`);
+            }
             for (const [method, op] of methods) {
+                if (mode === 'remote' && op.kind === 'command') { lines.push(`    def ${method}(self, *a): self._send("${method}", list(a))`); continue; }
                 const ret = op.kind === 'command' ? 'pass' : op.kind === 'boolean' ? 'return False' : `return ${op.neutral || '0'}`;
                 lines.push(`    def ${method}(self, *a): ${ret}`);
             }
@@ -200,13 +219,14 @@ class SB3Creator {
             return lines;
         }
         const entries = [...methods].map(([method, op]) => {
+            if (mode === 'remote' && op.kind === 'command') return `${method}: (...a) => _bridge("${rt}", "${method}", a)`;
             const ret = op.kind === 'command' ? '() => {}' : op.kind === 'boolean' ? '() => false' : `() => ${op.neutral || '0'}`;
             return `${method}: ${ret}`;
         });
-        return [
-            `// pluggable driver (neutral stub) — implement to drive real hardware (on-brick or remote USB/BLE/BTC).`,
-            `const _${rt} = { ${entries.join(', ')} };`
-        ];
+        const out = [`// _${rt} driver — ${banner}`];
+        if (mode === 'remote') out.push('// wire _bridge() to a Brickwright bridge (brickwright-bridges) over WebSocket.');
+        out.push(`const _${rt} = { ${entries.join(', ')} };`);
+        return out;
     }
 
     // Attach any buffered `# comment` to a freshly created block as a Scratch block
@@ -2780,7 +2800,7 @@ class SB3Creator {
         return out.join('\n');
     }
 
-    generatePython(project = this.project) {
+    generatePython(project = this.project, opts = {}) {
         this._pyNames = new Map();
         this._pyUses = { random: false, math: false, time: false, eq: false, answer: false, arrays: false, json: false, sumdigits: false };
         this._runtimesUsed = new Set();
@@ -2837,7 +2857,7 @@ class SB3Creator {
             out.push('');
         }
         // Pluggable driver shim(s) for any runtime/hardware extensions used.
-        for (const extId of this._runtimesUsed) { out.push(...this.runtimeShim(extId, 'py')); out.push(''); }
+        for (const extId of this._runtimesUsed) { out.push(...this.runtimeShim(extId, 'py', opts.driver || 'shim')); out.push(''); }
         // module state
         const state = [];
         if (this._pyUses.arrays) state.push('_arrays = {}  # Arrays & Vectors registry');
@@ -3039,7 +3059,7 @@ class SB3Creator {
         }
     }
 
-    generateJavaScript(project = this.project) {
+    generateJavaScript(project = this.project, opts = {}) {
         this._pyNames = new Map();
         this._jsUses = { rand: false, eq: false, answer: false, fact: false, arrays: false, sumdigits: false };
         this._runtimesUsed = new Set();
@@ -3083,7 +3103,7 @@ class SB3Creator {
         if (this._jsUses.sumdigits) out.push("function _sumdigits(n) { return String(n).split('').filter(d => d >= '0' && d <= '9').reduce((s, d) => s + Number(d), 0); }");
         if (this._jsUses.eq || this._jsUses.rand || this._jsUses.fact || this._jsUses.sumdigits) out.push('');
         // Pluggable driver shim(s) for any runtime/hardware extensions used.
-        for (const extId of this._runtimesUsed) { out.push(...this.runtimeShim(extId, 'js')); out.push(''); }
+        for (const extId of this._runtimesUsed) { out.push(...this.runtimeShim(extId, 'js', opts.driver || 'shim')); out.push(''); }
         const state = [];
         if (this._jsUses.arrays) state.push('const _arrays = {};  // Arrays & Vectors registry');
         for (const n of scalars) state.push(`let ${this.pyName(n)} = 0;`);
