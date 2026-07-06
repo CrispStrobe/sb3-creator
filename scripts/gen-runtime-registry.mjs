@@ -20,17 +20,25 @@ import path from 'node:path';
 const here = path.dirname(fileURLToPath(import.meta.url));
 const root = path.join(here, '..');
 
-// [gallery slug, local filename in reference/extensions/] for the hardware extensions.
-// (Pure/data extensions like planetemaths & arrays are hand-mapped in sb3Creator, not here.)
+// Gallery slugs for the hardware extensions (filename derived as `${slug}.js`). Pure/data
+// extensions (planetemaths, arrays) are hand-mapped in sb3Creator, not here. Transpiler
+// extensions are included — they also expose a block surface via getInfo().
 const HARDWARE = [
-    ['CrispStrobe/gamepad', 'gamepad.js'],
-    ['CrispStrobe/legoboost_universal', 'legoboost_universal.js'],
-    ['CrispStrobe/lego_poweredup', 'lego_poweredup.js'],
-    ['CrispStrobe/lego_wedo2_universal', 'lego_wedo2_universal.js'],
-    ['CrispStrobe/legospikeprime_ble', 'legospikeprime_ble.js'],
-    ['CrispStrobe/legonxt_transpile_universal', 'legonxt_transpile_universal.js'],
-    ['CrispStrobe/ev3_universal', 'ev3_universal.js']
-];
+    'CrispStrobe/gamepad',
+    'CrispStrobe/legoboost_universal',
+    'CrispStrobe/lego_poweredup',
+    'CrispStrobe/lego_wedo2_universal',
+    'CrispStrobe/legospikeprime_ble',
+    'CrispStrobe/legospike_ble',
+    'CrispStrobe/legospikeprime_btc_scratchlink',
+    'CrispStrobe/legospike_bridge',
+    'CrispStrobe/ev3_universal',
+    'CrispStrobe/ev3_direct',
+    'CrispStrobe/legonxt_transpile_universal',
+    'CrispStrobe/legospike_turbowarp_transpile',
+    'CrispStrobe/ev3dev_py_transpile',
+    'CrispStrobe/ev3_lms_transpile'
+].map(slug => [slug, `${slug.split('/').pop()}.js`]);
 
 const BLOCK_KIND = { command: 'command', reporter: 'reporter', Boolean: 'boolean', conditional: 'command', loop: 'command' };
 
