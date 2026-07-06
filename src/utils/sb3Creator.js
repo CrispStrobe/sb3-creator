@@ -63,6 +63,11 @@ class SB3Creator {
         this.errors = [];
         this.warnings = [];
         this.scriptCount = 0;
+        // Comments are the ground truth on the blocks, not the text: a `# comment`
+        // line is attached as a Scratch block comment to the block that follows it,
+        // so it survives compile → From-blocks (decompile) round-trips.
+        this._pendingComment = '';
+        this._commentSeq = 0;
     }
 
     // Use Scratch's character set for IDs
@@ -107,6 +112,19 @@ class SB3Creator {
             else if (!inStr && c === '/' && line[i + 1] === '/') return line.slice(0, i);
         }
         return line;
+    }
+
+    // Attach any buffered `# comment` to a freshly created block as a Scratch block
+    // comment (stored on the target, referenced by the block) so it survives to decompile.
+    attachPendingComment(target, block, blockId) {
+        if (!this._pendingComment || !block) return;
+        const cid = `cmt_${this._commentSeq++}`;
+        if (!target.comments) target.comments = {};
+        target.comments[cid] = {
+            blockId, x: 0, y: 0, width: 200, height: 100, minimized: false, text: this._pendingComment
+        };
+        block.comment = cid;
+        this._pendingComment = '';
     }
 
     // Determine if a variable should be global.
@@ -1445,22 +1463,31 @@ class SB3Creator {
                 if (!newBlockData || !newBlockData.block) return;
                 const newId = Object.keys(newBlockData.block)[0];
                 Object.assign(allBlocks, newBlockData.extraBlocks || {}, newBlockData.block);
-                
+
                 if (!firstBlockId) firstBlockId = newId;
                 if (lastBlockId) {
                     allBlocks[lastBlockId].next = newId;
                     allBlocks[newId].parent = lastBlockId;
                 }
                 lastBlockId = newId;
+                this.attachPendingComment(target, allBlocks[newId], newId);
             };
 
             while (i < lines.length) {
                 const line = lines[i];
-                if (!line.trim()) { 
-                    i++; 
-                    continue; 
+                if (!line.trim()) {
+                    i++;
+                    continue;
                 }
-                
+
+                // A `# comment` line buffers onto the next block created (see linkBlock).
+                if (line.trim().startsWith('#')) {
+                    const text = line.trim().replace(/^#+\s?/, '');
+                    this._pendingComment = this._pendingComment ? `${this._pendingComment}\n${text}` : text;
+                    i++;
+                    continue;
+                }
+
                 const currentIndent = getIndent(line);
                 if (currentIndent < indentLevel) break;
                 if (currentIndent > indentLevel) {
@@ -1573,7 +1600,11 @@ class SB3Creator {
             const line = lines[i];
             const trimmed = line.trim();
 
-            if (!trimmed || trimmed.startsWith('#')) {
+            if (!trimmed) { i++; continue; }
+            // A `# comment` before a hat (or sprite) buffers onto the next block created.
+            if (trimmed.startsWith('#')) {
+                const text = trimmed.replace(/^#+\s?/, '');
+                this._pendingComment = this._pendingComment ? `${this._pendingComment}\n${text}` : text;
                 i++;
                 continue;
             }
@@ -1647,6 +1678,7 @@ class SB3Creator {
                     eventData.block[eventId].x = 50 + (this.scriptCount % 3) * 350;
                     eventData.block[eventId].y = 50 + Math.floor(this.scriptCount / 3) * 300;
                     this.scriptCount++;
+                    this.attachPendingComment(currentTarget, eventData.block[eventId], eventId);
                     
                     const nextLineIndent = (i + 1 < lines.length) ? getIndent(lines[i + 1]) : 0;
                     const result = parseStructure(i + 1, nextLineIndent, currentTarget);
@@ -1982,10 +2014,14 @@ class SB3Creator {
     decompileTargetScripts(target) {
         const blocks = target.blocks || {};
         const lines = [];
+        // Reverse-map blockId -> comment text so blocks can re-emit their `# comment`.
+        this._blockComments = {};
+        for (const c of Object.values(target.comments || {})) if (c && c.blockId) this._blockComments[c.blockId] = c.text;
         const tops = Object.entries(blocks).filter(([, b]) => b.topLevel && !b.shadow);
-        for (const [, b] of tops) {
+        for (const [id, b] of tops) {
             const hat = this.decompileHat(b, blocks);
             if (hat === null) continue;
+            lines.push(...this.commentLines(id, 0));
             lines.push(hat);
             lines.push(...this.decompileStackFrom(b.next, blocks, 1));
             lines.push('');
@@ -1993,10 +2029,18 @@ class SB3Creator {
         return lines;
     }
 
+    // `# comment` lines (indented to `level`) for a block that carries a comment.
+    commentLines(blockId, level) {
+        const text = this._blockComments && this._blockComments[blockId];
+        if (!text) return [];
+        return String(text).split('\n').map(l => `${'  '.repeat(level)}# ${l}`);
+    }
+
     decompileStackFrom(firstId, blocks, level) {
         const lines = [];
         let id = firstId;
         while (id && blocks[id]) {
+            lines.push(...this.commentLines(id, level));
             lines.push(...this.decompileStackBlock(blocks[id], blocks, level));
             id = blocks[id].next;
         }
