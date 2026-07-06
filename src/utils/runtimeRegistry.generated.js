@@ -2687,6 +2687,545 @@ export const RUNTIME_EXTENSIONS = {
             }
         }
     },
+    "legonxt": {
+        "runtime": "legonxt",
+        "ops": {
+            "setConnectionMode": {
+                "kind": "command",
+                "method": "setConnectionMode",
+                "args": [
+                    "MODE"
+                ]
+            },
+            "getConnectionMode": {
+                "kind": "reporter",
+                "method": "getConnectionMode",
+                "args": []
+            },
+            "connect": {
+                "kind": "command",
+                "method": "connect",
+                "args": [
+                    "PARAM"
+                ]
+            },
+            "disconnect": {
+                "kind": "command",
+                "method": "disconnect",
+                "args": []
+            },
+            "isConnected": {
+                "kind": "boolean",
+                "method": "isConnected",
+                "args": []
+            },
+            "motorOn": {
+                "kind": "command",
+                "method": "motorOn",
+                "args": [
+                    "PORT",
+                    "POWER"
+                ]
+            },
+            "motorRunDegrees": {
+                "kind": "command",
+                "method": "motorRunDegrees",
+                "args": [
+                    "PORT",
+                    "POWER",
+                    "DEGREES"
+                ]
+            },
+            "motorRunRotations": {
+                "kind": "command",
+                "method": "motorRunRotations",
+                "args": [
+                    "PORT",
+                    "POWER",
+                    "ROTATIONS"
+                ]
+            },
+            "motorStop": {
+                "kind": "command",
+                "method": "motorStop",
+                "args": [
+                    "PORT",
+                    "ACTION"
+                ]
+            },
+            "getMotorPosition": {
+                "kind": "reporter",
+                "method": "getMotorPosition",
+                "args": [
+                    "PORT"
+                ]
+            },
+            "resetMotorPosition": {
+                "kind": "command",
+                "method": "resetMotorPosition",
+                "args": [
+                    "PORT"
+                ]
+            },
+            "getMotorPower": {
+                "kind": "reporter",
+                "method": "getMotorPower",
+                "args": [
+                    "PORT"
+                ]
+            },
+            "getMotorMode": {
+                "kind": "reporter",
+                "method": "getMotorMode",
+                "args": [
+                    "PORT"
+                ]
+            },
+            "getMotorRegulationMode": {
+                "kind": "reporter",
+                "method": "getMotorRegulationMode",
+                "args": [
+                    "PORT"
+                ]
+            },
+            "getMotorTurnRatio": {
+                "kind": "reporter",
+                "method": "getMotorTurnRatio",
+                "args": [
+                    "PORT"
+                ]
+            },
+            "getMotorRunState": {
+                "kind": "reporter",
+                "method": "getMotorRunState",
+                "args": [
+                    "PORT"
+                ]
+            },
+            "getMotorTachoLimit": {
+                "kind": "reporter",
+                "method": "getMotorTachoLimit",
+                "args": [
+                    "PORT"
+                ]
+            },
+            "getMotorTachoCount": {
+                "kind": "reporter",
+                "method": "getMotorTachoCount",
+                "args": [
+                    "PORT"
+                ]
+            },
+            "getMotorBlockTachoCount": {
+                "kind": "reporter",
+                "method": "getMotorBlockTachoCount",
+                "args": [
+                    "PORT"
+                ]
+            },
+            "getMotorRotationCount": {
+                "kind": "reporter",
+                "method": "getMotorRotationCount",
+                "args": [
+                    "PORT"
+                ]
+            },
+            "setupTouchSensorNXT": {
+                "kind": "command",
+                "method": "setupTouchSensorNXT",
+                "args": [
+                    "PORT"
+                ]
+            },
+            "isTouchPressed": {
+                "kind": "boolean",
+                "method": "isTouchPressed",
+                "args": [
+                    "PORT"
+                ]
+            },
+            "setupLightSensor": {
+                "kind": "command",
+                "method": "setupLightSensor",
+                "args": [
+                    "PORT",
+                    "STATE"
+                ]
+            },
+            "getLightLevel": {
+                "kind": "reporter",
+                "method": "getLightLevel",
+                "args": [
+                    "PORT"
+                ]
+            },
+            "setupColorSensor": {
+                "kind": "command",
+                "method": "setupColorSensor",
+                "args": [
+                    "PORT",
+                    "MODE"
+                ]
+            },
+            "getColor": {
+                "kind": "reporter",
+                "method": "getColor",
+                "args": [
+                    "PORT"
+                ]
+            },
+            "setupSoundSensor": {
+                "kind": "command",
+                "method": "setupSoundSensor",
+                "args": [
+                    "PORT",
+                    "MODE"
+                ]
+            },
+            "getSoundLevel": {
+                "kind": "reporter",
+                "method": "getSoundLevel",
+                "args": [
+                    "PORT"
+                ]
+            },
+            "setupUltrasonicSensor": {
+                "kind": "command",
+                "method": "setupUltrasonicSensor",
+                "args": [
+                    "PORT"
+                ]
+            },
+            "getDistance": {
+                "kind": "reporter",
+                "method": "getDistance",
+                "args": [
+                    "PORT"
+                ]
+            },
+            "getSensorPort": {
+                "kind": "reporter",
+                "method": "getSensorPort",
+                "args": [
+                    "PORT"
+                ]
+            },
+            "getSensorValid": {
+                "kind": "boolean",
+                "method": "getSensorValid",
+                "args": [
+                    "PORT"
+                ]
+            },
+            "getSensorCalibrated": {
+                "kind": "boolean",
+                "method": "getSensorCalibrated",
+                "args": [
+                    "PORT"
+                ]
+            },
+            "getSensorType": {
+                "kind": "reporter",
+                "method": "getSensorType",
+                "args": [
+                    "PORT"
+                ]
+            },
+            "getSensorMode": {
+                "kind": "reporter",
+                "method": "getSensorMode",
+                "args": [
+                    "PORT"
+                ]
+            },
+            "getSensorRawValue": {
+                "kind": "reporter",
+                "method": "getSensorRawValue",
+                "args": [
+                    "PORT"
+                ]
+            },
+            "getSensorNormalizedValue": {
+                "kind": "reporter",
+                "method": "getSensorNormalizedValue",
+                "args": [
+                    "PORT"
+                ]
+            },
+            "getSensorScaledValue": {
+                "kind": "reporter",
+                "method": "getSensorScaledValue",
+                "args": [
+                    "PORT"
+                ]
+            },
+            "getSensorCalibratedValue": {
+                "kind": "reporter",
+                "method": "getSensorCalibratedValue",
+                "args": [
+                    "PORT"
+                ]
+            },
+            "playTone": {
+                "kind": "command",
+                "method": "playTone",
+                "args": [
+                    "FREQ",
+                    "MS"
+                ]
+            },
+            "playNote": {
+                "kind": "command",
+                "method": "playNote",
+                "args": [
+                    "NOTE",
+                    "BEATS"
+                ]
+            },
+            "captureScreen": {
+                "kind": "command",
+                "method": "captureScreen",
+                "args": []
+            },
+            "clearScreen": {
+                "kind": "command",
+                "method": "clearScreen",
+                "args": []
+            },
+            "updateDisplay": {
+                "kind": "command",
+                "method": "updateDisplay",
+                "args": []
+            },
+            "drawText": {
+                "kind": "command",
+                "method": "drawText",
+                "args": [
+                    "TEXT",
+                    "X",
+                    "Y"
+                ]
+            },
+            "drawPixel": {
+                "kind": "command",
+                "method": "drawPixel",
+                "args": [
+                    "X",
+                    "Y",
+                    "STATE"
+                ]
+            },
+            "drawLine": {
+                "kind": "command",
+                "method": "drawLine",
+                "args": [
+                    "X1",
+                    "Y1",
+                    "X2",
+                    "Y2"
+                ]
+            },
+            "drawRect": {
+                "kind": "command",
+                "method": "drawRect",
+                "args": [
+                    "X",
+                    "Y",
+                    "W",
+                    "H",
+                    "FILL"
+                ]
+            },
+            "drawCircle": {
+                "kind": "command",
+                "method": "drawCircle",
+                "args": [
+                    "X",
+                    "Y",
+                    "R",
+                    "FILL"
+                ]
+            },
+            "drawPattern": {
+                "kind": "command",
+                "method": "drawPattern",
+                "args": [
+                    "PATTERN"
+                ]
+            },
+            "getBattery": {
+                "kind": "reporter",
+                "method": "getBattery",
+                "args": []
+            },
+            "getRawSensorValue": {
+                "kind": "reporter",
+                "method": "getRawSensorValue",
+                "args": [
+                    "PORT"
+                ]
+            },
+            "spriteGetX": {
+                "kind": "reporter",
+                "method": "spriteGetX",
+                "args": [
+                    "SPRITE"
+                ]
+            },
+            "spriteGetY": {
+                "kind": "reporter",
+                "method": "spriteGetY",
+                "args": [
+                    "SPRITE"
+                ]
+            },
+            "spriteGetSize": {
+                "kind": "reporter",
+                "method": "spriteGetSize",
+                "args": [
+                    "SPRITE"
+                ]
+            },
+            "spriteGetVisible": {
+                "kind": "boolean",
+                "method": "spriteGetVisible",
+                "args": [
+                    "SPRITE"
+                ]
+            },
+            "spriteSetPosition": {
+                "kind": "command",
+                "method": "spriteSetPosition",
+                "args": [
+                    "SPRITE",
+                    "X",
+                    "Y"
+                ]
+            },
+            "spriteSetSize": {
+                "kind": "command",
+                "method": "spriteSetSize",
+                "args": [
+                    "SPRITE",
+                    "SIZE"
+                ]
+            },
+            "spriteSetVisible": {
+                "kind": "command",
+                "method": "spriteSetVisible",
+                "args": [
+                    "SPRITE",
+                    "VISIBLE"
+                ]
+            },
+            "transpileProject": {
+                "kind": "command",
+                "method": "transpileProject",
+                "args": []
+            },
+            "showNXCCode": {
+                "kind": "command",
+                "method": "showNXCCode",
+                "args": []
+            },
+            "downloadNXC": {
+                "kind": "command",
+                "method": "downloadNXC",
+                "args": []
+            },
+            "compileToRXE": {
+                "kind": "command",
+                "method": "compileToRXE",
+                "args": []
+            },
+            "setRxeFilename": {
+                "kind": "command",
+                "method": "setRxeFilename",
+                "args": [
+                    "NAME"
+                ]
+            },
+            "uploadToNXT": {
+                "kind": "command",
+                "method": "uploadToNXT",
+                "args": [
+                    "FILENAME"
+                ]
+            },
+            "fullWorkflow": {
+                "kind": "command",
+                "method": "fullWorkflow",
+                "args": [
+                    "FILENAME"
+                ]
+            },
+            "getDeviceName": {
+                "kind": "reporter",
+                "method": "getDeviceName",
+                "args": []
+            },
+            "getBluetoothAddress": {
+                "kind": "reporter",
+                "method": "getBluetoothAddress",
+                "args": []
+            },
+            "getFreeFlash": {
+                "kind": "reporter",
+                "method": "getFreeFlash",
+                "args": []
+            },
+            "getSignalStrength": {
+                "kind": "reporter",
+                "method": "getSignalStrength",
+                "args": []
+            },
+            "sendMessage": {
+                "kind": "command",
+                "method": "sendMessage",
+                "args": [
+                    "MSG",
+                    "BOX"
+                ]
+            },
+            "receiveMessage": {
+                "kind": "reporter",
+                "method": "receiveMessage",
+                "args": [
+                    "BOX",
+                    "REMOVE"
+                ]
+            },
+            "getLowSpeedStatus": {
+                "kind": "reporter",
+                "method": "getLowSpeedStatus",
+                "args": [
+                    "PORT"
+                ]
+            },
+            "startProgram": {
+                "kind": "command",
+                "method": "startProgram",
+                "args": [
+                    "FILENAME"
+                ]
+            },
+            "stopProgram": {
+                "kind": "command",
+                "method": "stopProgram",
+                "args": []
+            },
+            "keepAlive": {
+                "kind": "command",
+                "method": "keepAlive",
+                "args": []
+            },
+            "getCurrentProgram": {
+                "kind": "reporter",
+                "method": "getCurrentProgram",
+                "args": []
+            }
+        }
+    },
     "spikeprime": {
         "runtime": "spikeprime",
         "ops": {
@@ -4343,6 +4882,7 @@ export const RUNTIME_EXTENSION_URLS = {
     "spikeprimeBridge": "https://crispstrobe.github.io/extensions/CrispStrobe/legospike_bridge.js",
     "ev3comprehensive": "https://crispstrobe.github.io/extensions/CrispStrobe/ev3_universal.js",
     "legoev3direct": "https://crispstrobe.github.io/extensions/CrispStrobe/ev3_direct.js",
+    "legonxt": "https://crispstrobe.github.io/extensions/CrispStrobe/legonxt_transpile_universal.js",
     "spikeprime": "https://crispstrobe.github.io/extensions/CrispStrobe/legospike_turbowarp_transpile.js",
     "scratchtoev3": "https://crispstrobe.github.io/extensions/CrispStrobe/ev3dev_py_transpile.js",
     "ev3lms": "https://crispstrobe.github.io/extensions/CrispStrobe/ev3_lms_transpile.js"

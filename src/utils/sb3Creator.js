@@ -209,8 +209,11 @@ class SB3Creator {
                 lines.push('# pip install websockets; run a bridge from github.com/CrispStrobe/brickwright-bridges');
                 lines.push('import json');
                 lines.push(`class _${cls}Driver:`);
-                lines.push('    def __init__(self, url="ws://localhost:8080"): self._url = url');
-                lines.push('    def _send(self, method, args): pass  # TODO: send {"extension","command":method,"args":args} to the bridge');
+                lines.push('    def __init__(self, url="ws://localhost:8080"): self._url = url; self._ws = None');
+                lines.push('    def _send(self, command, args):');
+                lines.push(`        payload = json.dumps({"ext": "${rt}", "command": command, "args": args})`);
+                lines.push('        # send `payload` to the bridge (async websockets); the bridge maps it to the');
+                lines.push('        # device per hub — see brickwright-bridges/universal_lego_bridge.py from_normalized.');
             } else {
                 lines.push(`class _${cls}Driver:`);
             }
@@ -225,13 +228,19 @@ class SB3Creator {
             return lines;
         }
         const entries = [...methods].map(([method, op]) => {
-            if (mode === 'remote' && op.kind === 'command') return `${method}: (...a) => _bridge("${rt}", "${method}", a)`;
+            if (mode === 'remote' && op.kind === 'command') return `${method}: (...a) => _${rt}_send("${method}", a)`;
             const ret = op.kind === 'command' ? '() => {}' : op.kind === 'boolean' ? '() => false' : `() => ${op.neutral || '0'}`;
             return `${method}: ${ret}`;
         });
         entries.push('on: (event, handler) => {}');   // register an event-hat handler
         const out = [`// _${rt} driver — ${banner}`];
-        if (mode === 'remote') out.push('// wire _bridge() to a Brickwright bridge (brickwright-bridges) over WebSocket.');
+        if (mode === 'remote') {
+            // Real WebSocket transport to a Brickwright bridge. The bridge maps
+            // {ext, command, args} to the device (per hub, e.g. universal_lego_bridge.py
+            // from_normalized). Point the URL at your running bridge (8080 / 20110).
+            out.push(`const _${rt}_ws = (typeof WebSocket !== 'undefined') ? new WebSocket("ws://localhost:8080") : null;`);
+            out.push(`const _${rt}_send = (command, args) => { if (_${rt}_ws && _${rt}_ws.readyState === 1) _${rt}_ws.send(JSON.stringify({ ext: "${rt}", command, args })); };`);
+        }
         out.push(`const _${rt} = { ${entries.join(', ')} };`);
         return out;
     }
