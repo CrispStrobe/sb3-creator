@@ -440,6 +440,9 @@ SPRITE Ball:
     show
   WHEN flag clicked:
     FOREVER:
+      IF score > 26 THEN:
+        say "You Win!" for 3 seconds
+        stop all
       change bx by vx
       change by by vy
       go to x: bx y: by
@@ -602,32 +605,42 @@ SPRITE Enemy:
     set ey to -120
     go to x: ex y: ey
     show
+    set edx to -40
+    set edy to 0
   WHEN flag clicked:
     FOREVER:
-      set edir to pick random 1 to 4
-      set edx to 0
-      set edy to 0
-      IF edir = 1 THEN:
-        set edx to 40
-      IF edir = 2 THEN:
-        set edx to -40
-      IF edir = 3 THEN:
-        set edy to 40
-      IF edir = 4 THEN:
-        set edy to -40
       change ex by edx
       change ey by edy
       go to x: ex y: ey
+      # keep travelling in a straight line; only pick a new heading when blocked
       IF touching Wall or touching Crate THEN:
         change ex by (0 - edx)
         change ey by (0 - edy)
         go to x: ex y: ey
+        set edir to pick random 1 to 4
+        set edx to 0
+        set edy to 0
+        IF edir = 1 THEN:
+          set edx to 40
+        IF edir = 2 THEN:
+          set edx to -40
+        IF edir = 3 THEN:
+          set edy to 40
+        IF edir = 4 THEN:
+          set edy to -40
       IF touching Bomb THEN:
         change score by 5
         say "got me!" for 1 seconds
         hide
         stop this script
-      wait 0.4 seconds`,
+      wait 0.35 seconds
+
+  WHEN flag clicked:
+    FOREVER:
+      IF score > 12 THEN:
+        say "You cleared the arena!" for 3 seconds
+        stop all
+      wait 0.1 seconds`,
 
     tetris: `# Tetris — all 7 tetrominoes fall into a 10x20 well, rotate with Up, soft-drop
 # with Down, move with Left/Right. Full rows clear and score. The well border is
@@ -1216,9 +1229,10 @@ SPRITE Game:
         say "All levels solved!" for 3 seconds
         stop all
       ELSE:
-        say "Level " join level for 1.5 seconds
+        set won to 0
         init level
         render
+        say "Level " join level for 1.5 seconds
 
   WHEN flag clicked:
     hide
@@ -1251,6 +1265,9 @@ SPRITE Player:
     show
   WHEN flag clicked:
     FOREVER:
+      IF score > 7 THEN:
+        say "You Win!" for 3 seconds
+        stop all
       IF key left arrow pressed? THEN:
         change px by -7
       IF key right arrow pressed? THEN:
@@ -1423,11 +1440,16 @@ SPRITE Board:
       render
       IF winner > 0 THEN:
         say "Winner: player " join winner for 3 seconds
+        stop all
       IF winner = 0 THEN:
-        IF turn = 1 THEN:
-          set turn to 2
+        IF board contains 0 THEN:
+          IF turn = 1 THEN:
+            set turn to 2
+          ELSE:
+            set turn to 1
         ELSE:
-          set turn to 1
+          say "Draw!" for 3 seconds
+          stop all
 
   WHEN flag clicked:
     set size to 100
@@ -1513,8 +1535,13 @@ SPRITE Board:
       render
       IF winner > 0 THEN:
         say "You win!" for 3 seconds
+        stop all
       IF winner = 0 THEN:
-        set turn to 2
+        IF board contains 0 THEN:
+          set turn to 2
+        ELSE:
+          say "Draw!" for 3 seconds
+          stop all
 
   DEFINE find win for (p):
     set cand to 0
@@ -1535,8 +1562,13 @@ SPRITE Board:
     render
     IF winner > 0 THEN:
       say "Computer wins!" for 3 seconds
+      stop all
     IF winner = 0 THEN:
-      set turn to 1
+      IF board contains 0 THEN:
+        set turn to 1
+      ELSE:
+        say "Draw!" for 3 seconds
+        stop all
 
   DEFINE ai move:
     find win for 2
@@ -1850,6 +1882,9 @@ SPRITE Game:
       set prow to nr
       set pcol to nc
     render
+    IF not (grid contains 0) THEN:
+      say "You win! All dots eaten!" for 3 seconds
+      stop all
     IF prow = grow and pcol = gcol THEN:
       set alive to 0
       say "Caught!" for 2 seconds
@@ -2056,6 +2091,10 @@ SPRITE Game:
       set over to 1
       say "Computer wins!" for 3 seconds
       stop all
+    IF not (board contains 0) THEN:
+      set over to 1
+      say "Draw!" for 3 seconds
+      stop all
     set turn to 1
 
   WHEN flag clicked:
@@ -2074,6 +2113,10 @@ SPRITE Game:
             IF win = 1 THEN:
               set over to 1
               say "You win!" for 3 seconds
+              stop all
+            IF not (board contains 0) THEN:
+              set over to 1
+              say "Draw!" for 3 seconds
               stop all
             set turn to 2
             ai move
@@ -2193,6 +2236,19 @@ SPRITE Game:
         IF item cell of adj > 0 THEN:
           replace item cell of revealed with 1
         render
+        check win
+
+  DEFINE check win:
+    set cnt to 0
+    set i to 1
+    REPEAT 81:
+      IF item i of mine = 0 and item i of revealed = 1 THEN:
+        change cnt by 1
+      change i by 1
+    IF cnt = 71 THEN:
+      set over to 1
+      say "You cleared it!" for 3 seconds
+      stop all
 
   DEFINE FAST render:
     clear
@@ -2226,6 +2282,9 @@ SPRITE Game:
         IF item cell of revealed = 2 THEN:
           replace item cell of revealed with 0
           render
+
+  WHEN flag clicked:
+    say "Click a cell to reveal. Press F to flag a bomb." for 3 seconds
 
   WHEN flag clicked:
     set size to 42
@@ -2265,6 +2324,7 @@ SPRITE Game:
 
     // Uses the Arrays & Vectors extension (auto-declared). Named arrays, 0-based.
     arrays: `SPRITE Arraybot:
+  SHAPE square 46 #6b8e23
   WHEN flag clicked:
     new array "nums" = [5, 3, 8, 1]
     push 12 to array "nums"

@@ -1941,7 +1941,42 @@ class SB3Creator {
 
         this.validateReferences();
         this.syncExtensions();
+        for (const t of this.project.targets) this.layoutScripts(t);
         return this.project;
+    }
+
+    // Lay a target's top-level scripts out so they don't overlap in the editor. The parse-time
+    // grid uses fixed 350×300 cells, so tall scripts (a big `DEFINE`) collide with the next row.
+    // This masonry pass measures each script (block count → height) and drops it into whichever
+    // column currently ends highest, giving a compact, collision-free arrangement.
+    layoutScripts(target) {
+        const blocks = target.blocks || {};
+        const tops = Object.entries(blocks).filter(([, b]) => b.topLevel && !b.shadow);
+        if (!tops.length) return;
+        const MARGIN = 40, GAP = 48, COL_W = 600, ROW_H = 48;
+        const nCols = Math.min(3, Math.max(1, Math.ceil(Math.sqrt(tops.length))));
+        const colY = new Array(nCols).fill(MARGIN);
+        // Estimate a script's pixel height from the number of blocks it contains (incl. nested).
+        const heightOf = (hatId) => {
+            let count = 0;
+            const walk = (id) => {
+                while (id && blocks[id]) {
+                    count++;
+                    const inp = blocks[id].inputs || {};
+                    for (const k of ['SUBSTACK', 'SUBSTACK2']) if (Array.isArray(inp[k])) walk(inp[k][1]);
+                    id = blocks[id].next;
+                }
+            };
+            walk(blocks[hatId].next);
+            return ROW_H * (count + 1) + 24;   // hat + stacked blocks + padding
+        };
+        for (const [id, b] of tops) {
+            let col = 0;
+            for (let k = 1; k < nCols; k++) if (colY[k] < colY[col]) col = k;
+            b.x = MARGIN + col * COL_W;
+            b.y = colY[col];
+            colY[col] += heightOf(id) + GAP;
+        }
     }
 
     // Warn about menu blocks (touching, clone of, ... of, point/go towards) that name a
