@@ -416,6 +416,8 @@ to our bricks×education×codegen intersection); **BlocklyML** (domain Blockly�
     (`new Function` with a captured `console` + `prompt`; the editor already allows eval for
     the VM compiler) and prints to a console panel. Refuses `forever` loops (they'd hang the
     tab) with a friendly note; the algorithmic examples (quiz, operators, 2048 logic) run.
+    **Verified live** at crispstrobe.github.io/brickwright: compile the quiz → JavaScript →
+    From blocks → Run → the console prints "Correct!" ×2 and final score `2`.
   - [ ] **Python run** via Skulpt/Pyodide — Skulpt bundles but assumes a global `Sk`, so it
     needs webpack glue (`ProvidePlugin` / `exports-loader`, or inject the prebuilt dist at
     runtime). Deferred; the JS run covers the demo today.
