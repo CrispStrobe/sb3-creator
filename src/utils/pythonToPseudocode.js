@@ -414,7 +414,11 @@ class Translator {
             case 'Call': return this.callExpr(node);
             case 'Subscript': return this.subscript(node);
             case 'List': return node.elts.length ? `[${node.elts.map((e) => this.expr(e)).join(', ')}]` : '""';
-            case 'Attribute': this.warn(`dropped attribute access .${node.attr}`); return '""';
+            case 'Ternary': this.warn('ternary expression flattened to its true branch'); return this.expr(node.then);
+            case 'Attribute':
+                // JS `x.length` (string or list length); other members aren't in the subset.
+                if (node.attr === 'length') return `(length of ${this.expr(node.value)})`;
+                this.warn(`dropped attribute access .${node.attr}`); return '""';
             default: this.warn(`unsupported expression ${node.type}`); return '""';
         }
     }
@@ -462,6 +466,7 @@ class Translator {
         if (f.type === 'Name') {
             const id = f.id;
             if (id === '_eq') return `(${this.expr(a[0])} = ${this.expr(a[1])})`;
+            if (id === '_rand') return `(pick random ${this.expr(a[0])} to ${this.expr(a[1])})`;
             if (id === 'abs') return `(abs of ${this.expr(a[0])})`;
             if (id === 'round') return `(round ${this.expr(a[0])})`;
             if (id === 'len') {
@@ -536,6 +541,11 @@ class Translator {
         const p = this.pad(indent);
         // list[i] = v  ->  replace item i of list with v
         if (s.target.type === 'Subscript') { const { name, oneBased } = this.listIndex(s.target); if (name) return [p + `replace item ${oneBased} of ${name} with ${this.expr(s.value)}`]; }
+        // JS `xs.length = 0`  ->  clear the list
+        if (s.target.type === 'Attribute' && s.target.attr === 'length' && s.target.value.type === 'Name') {
+            this.lists.add(s.target.value.id);
+            return [p + `delete all of ${s.target.value.id}`];
+        }
         if (s.target.type !== 'Name') { this.warn('unsupported assignment target'); return []; }
         const name = s.target.id;
         // x = input(prompt)  ->  ask prompt and wait  (+ bind if not `answer`)
@@ -563,6 +573,13 @@ class Translator {
             if (f.attr === 'append') { this.lists.add(list); return [p + `add ${this.expr(e.args[0])} to ${list}`]; }
             if (f.attr === 'clear') { this.lists.add(list); return [p + `delete all of ${list}`]; }
             if (f.attr === 'insert') { this.lists.add(list); const oneBased = this.recoverIndex(e.args[0]); return [p + `insert ${this.expr(e.args[1])} at ${oneBased} of ${list}`]; }
+            // JS list ops: xs.splice(i-1, 1) delete; xs.splice(i-1, 0, item) insert
+            if (f.attr === 'splice') {
+                this.lists.add(list);
+                const oneBased = this.recoverIndex(e.args[0]);
+                if (e.args.length >= 3) return [p + `insert ${this.expr(e.args[2])} at ${oneBased} of ${list}`];
+                return [p + `delete item ${oneBased} of ${list}`];
+            }
             if (list === 'time' && f.attr === 'sleep') return [p + `wait ${this.expr(e.args[0])} seconds`];
         }
         if (f.type === 'Name') {
@@ -722,3 +739,7 @@ export default function pythonToPseudocode (source) {
     const pseudocode = t.program(ast);
     return { pseudocode, warnings: t.warnings };
 }
+
+// The AST -> pseudocode translator is language-agnostic: the JavaScript front-end
+// (javascriptToPseudocode.js) produces the same node shapes and reuses it.
+export { Translator };
