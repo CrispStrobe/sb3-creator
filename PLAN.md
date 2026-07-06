@@ -424,10 +424,10 @@ The `brickwright-desktop` **identity** layer is done (appId, update feed, homepa
 `.desktop`/`metainfo`/`mime`, and the full icon set — §desktop-rebrand). Left deferred, by
 deliberate choice, because each carries real risk or needs an account we don't have:
 
-- [ ] **MS Store publisher identity** — `identityName: 45747ThomasWeber.TurboWarpDesktop`,
-  the `publisher: CN=…` cert thumbprint, `publisherDisplayName: Thomas Weber`. Tied to Thomas
-  Weber's Microsoft Store account; only worth changing if *we* publish to MS Store, in which
-  case swap in our own cert/identity. Fake placeholders don't help.
+- [ ] **MS Store publisher identity** — the appx `identityName`, `publisher` cert thumbprint,
+  and `publisherDisplayName` are the upstream author's Microsoft Store account. Only worth
+  changing if *we* publish to MS Store, in which case swap in our own cert/identity; fake
+  placeholders don't help.
 - [ ] **Technical Referer-header mechanism** (`referer.html`, `project-running-window.js`) —
   internal, not user-visible; changing it risks breaking request handling. Left as-is.
 - [ ] **Deep "TurboWarp" strings** — the addon system, `tw_`-prefixed settings keys, the
