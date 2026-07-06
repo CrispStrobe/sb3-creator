@@ -147,7 +147,7 @@ test('javascript: list ops (push/splice/length) and &&/||/! map back', () => {
     ].join('\n');
     const { pseudocode } = javascriptToPseudocode(js);
     assert.match(pseudocode, /add 1 to xs/);
-    assert.match(pseudocode, /delete item 2 of xs/);
+    assert.match(pseudocode, /delete 2 of xs/);
     assert.match(pseudocode, /insert 9 at 1 of xs/);
     assert.match(pseudocode, /replace item 1 of xs with 7/);
     assert.match(pseudocode, /delete all of xs/);
