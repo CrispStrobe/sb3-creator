@@ -418,6 +418,11 @@ class Translator {
             case 'Attribute':
                 // JS `x.length` (string or list length); other members aren't in the subset.
                 if (node.attr === 'length') return `(length of ${this.expr(node.value)})`;
+                // Planète Maths constants: math.pi / Math.PI -> pi, math.e / Math.E -> euler.
+                if (node.value.type === 'Name' && (node.value.id === 'math' || node.value.id === 'Math')) {
+                    if (node.attr === 'pi' || node.attr === 'PI') return 'pi';
+                    if (node.attr === 'e' || node.attr === 'E') return 'euler';
+                }
                 this.warn(`dropped attribute access .${node.attr}`); return '""';
             default: this.warn(`unsupported expression ${node.type}`); return '""';
         }
@@ -438,7 +443,9 @@ class Translator {
         const L = node.left, R = node.right;
         // str(a) + str(b)  ->  join
         if (node.op === '+' && this.isStrCall(L) && this.isStrCall(R)) return `(${this.expr(L.args[0])} join ${this.expr(R.args[0])})`;
-        const map = { '+': '+', '-': '-', '*': '*', '/': '/', '%': 'mod', '//': '/', '**': '^' };
+        // a ** b  ->  Planète Maths "to the power of" (no standard Scratch power)
+        if (node.op === '**') return `(${this.expr(L)} to the power of ${this.expr(R)})`;
+        const map = { '+': '+', '-': '-', '*': '*', '/': '/', '%': 'mod', '//': '/' };
         return `(${this.expr(L)} ${map[node.op] || node.op} ${this.expr(R)})`;
     }
 
@@ -462,11 +469,21 @@ class Translator {
                 if (arg && arg.type === 'Call' && arg.func.type === 'Attribute' && arg.func.attr === 'radians') arg = arg.args[0];
                 return `(${mathUnary[q]} of ${this.expr(arg)})`;
             }
+            // Planète Maths: math.factorial(int(x)) -> factorial of x;
+            // JS Math.min/max/pow normalise to math.* here.
+            if (q === 'math.factorial') return `(factorial of ${this.expr(this.unwrap(a[0]))})`;
+            if (q === 'math.min') return `(min of ${this.expr(a[0])} and ${this.expr(a[1])})`;
+            if (q === 'math.max') return `(max of ${this.expr(a[0])} and ${this.expr(a[1])})`;
+            if (q === 'math.pow') return `(${this.expr(a[0])} to the power of ${this.expr(a[1])})`;
         }
         if (f.type === 'Name') {
             const id = f.id;
             if (id === '_eq') return `(${this.expr(a[0])} = ${this.expr(a[1])})`;
             if (id === '_rand') return `(pick random ${this.expr(a[0])} to ${this.expr(a[1])})`;
+            if (id === '_fact') return `(factorial of ${this.expr(a[0])})`;
+            // Planète Maths min/max (no standard Scratch equivalent)
+            if (id === 'min') return `(min of ${this.expr(a[0])} and ${this.expr(a[1])})`;
+            if (id === 'max') return `(max of ${this.expr(a[0])} and ${this.expr(a[1])})`;
             if (id === 'abs') return `(abs of ${this.expr(a[0])})`;
             if (id === 'round') return `(round ${this.expr(a[0])})`;
             if (id === 'len') {
