@@ -439,8 +439,25 @@ to our bricks×education×codegen intersection); **BlocklyML** (domain Blockly�
     the `control` forever loop shows the nudge — all with no page errors.
 - [ ] **P2:** a tiny `brickwright` Python/JS runtime shim so full projects' emitted code runs
   (or lean on the VM for execution + show the code as a reading view).
-- [ ] **P3 (hard, optional):** Python→blocks via a restricted-subset parser (BlockMirror /
-  Droplet-style) for genuine round-trip.
+- [x] **P3 — Python → blocks (genuine round-trip).** `pythonToPseudocode.js` is a
+  dependency-free tokenizer + Pratt expression parser + translator for the algorithmic Python
+  subset (assignments, `if/elif/else`, `while`, `for _ in range`, `print`/`input`, `def`,
+  arithmetic, comparisons, `_eq`, list ops). It maps Python back to Brickwright pseudocode, which
+  `parse()` recompiles to blocks — so Python is now **two-way**, alongside pseudocode. Helper defs
+  (`_eq`) and out-of-subset sprite/pen behaviour (which live in the blocks, not the text) are
+  dropped with warnings rather than guessed. All 28 examples round-trip; the quiz still scores 2
+  after Python → blocks (31 tests in `test/roundtrip.test.mjs`).
+- [x] **GUI — syntax-highlighted two-way editor.** The Pseudocode tab's plain textarea is now an
+  overlay editor: a highlighted `<pre>` behind a transparent `<textarea>` (caret preserved,
+  Tab-to-indent), with per-language highlighting for Pseudocode / Python / JavaScript. The
+  language selector shows the sync direction (`Pseudocode ⇄ blocks`, `Python ⇄ blocks`,
+  `JavaScript → view`); **To blocks** compiles Pseudocode or Python to blocks, **From blocks**
+  reads them back in any language, and **▶ Run** executes Python/JS in-editor. **Verified live**
+  at crispstrobe.github.io/brickwright: quiz → From blocks (Python, highlighted) → To blocks →
+  read back as JS → Run → score 2, no page errors.
+
+Multi-target codegen is now feature-complete: **Pseudocode ⇄ blocks ⇄ Python** two-way, plus a
+runnable read-only **JavaScript** view — all in one highlighted editor.
 
 ## 23. Deferred — Brickwright desktop deep rebrand
 
