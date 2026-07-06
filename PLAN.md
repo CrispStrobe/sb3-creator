@@ -411,16 +411,22 @@ to our bricks×education×codegen intersection); **BlocklyML** (domain Blockly�
     Python/JS are read-only views (Compile & Load auto-disables). Verified live at
     crispstrobe.github.io/brickwright: compile the quiz → From blocks as Python → real
     `input()`/`_eq`/`def`/`print`.
-- [~] **P2 — run the emitted code in-editor** (make the read-only view a runnable console).
+- [x] **P2 — run the emitted code in-editor** (both languages runnable; console panel).
   - [x] **JavaScript run** — a **▶ Run** button on the JS view executes the code natively
     (`new Function` with a captured `console` + `prompt`; the editor already allows eval for
     the VM compiler) and prints to a console panel. Refuses `forever` loops (they'd hang the
     tab) with a friendly note; the algorithmic examples (quiz, operators, 2048 logic) run.
     **Verified live** at crispstrobe.github.io/brickwright: compile the quiz → JavaScript →
     From blocks → Run → the console prints "Correct!" ×2 and final score `2`.
-  - [ ] **Python run** via Skulpt/Pyodide — Skulpt bundles but assumes a global `Sk`, so it
-    needs webpack glue (`ProvidePlugin` / `exports-loader`, or inject the prebuilt dist at
-    runtime). Deferred; the JS run covers the demo today.
+  - [x] **Python run** via **Skulpt** — Skulpt assumes a global `Sk` and won't survive webpack's
+    module wrapper, so the prebuilt `skulpt.min.js` + `skulpt-stdlib.js` are injected as real
+    `<script>` tags at runtime (lazy, via `raw-loader`) and executed with
+    `Sk.misceval.asyncToPromise`. `ask`→`input()` is wired to `window.prompt`; `say`/`print` to
+    the console panel. Key fix: `stop all` emitted `raise SystemExit`, which Skulpt propagates as
+    an uncaught error and swallows all prior output — changed to `return` (and `stop other
+    scripts` → a comment). **Verified live** at crispstrobe.github.io/brickwright: compile the
+    quiz → Python → From blocks → ▶ Run (answers 12/32) → the console prints "Welcome to the Math
+    Quiz! / Correct! / Correct! / Your final score is / 2" with no error.
   - [ ] Harden: run compute-heavy programs in a Web Worker with a timeout instead of the
     `forever` guard (a Worker has no `prompt`, so input-based programs stay on the main thread).
 - [ ] **P2:** a tiny `brickwright` Python/JS runtime shim so full projects' emitted code runs
