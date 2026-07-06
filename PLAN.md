@@ -395,9 +395,17 @@ canonical form — for us the sb3 block tree — and project both blocks and Pyt
 to our bricks×education×codegen intersection); **BlocklyML** (domain Blockly→Python template).
 
 **Phases:**
-- [ ] **P1 (tractable, high-value):** multi-target `CodeGen`, one-way; **Python** first, then
-  JS. A language dropdown on the **From blocks** button in the Code tab. Runnable for the
-  algorithmic subset (Skulpt for Python); runtime-commented for sprite projects.
+- [~] **P1 (tractable, high-value):** multi-target codegen, one-way.
+  - [x] **Python emitter** (`generatePython`) — walks the block tree (same shape as the
+    decompiler): variables/math/loops/if-else/lists/`say`→`print`/`ask`→`input` emit
+    runnable Python; sprite/pen/sound blocks become `# comments`; custom blocks → `def`s
+    (with `global` decls); hats → functions, flag-hat called at the end; a `_eq` helper for
+    Scratch's loose equality; conditional `import`s. Tested: all 28 examples produce
+    **syntactically valid Python** (real `py_compile` in `test/codegen.test.mjs`), and the
+    quiz **runs and scores correctly** (fed `12`/`32` → `2`).
+  - [ ] **JavaScript emitter** (same walker, JS templates).
+  - [ ] Language dropdown on the **From blocks** button in the Code tab; run Python in-browser
+    via Skulpt/Pyodide for the algorithmic subset.
 - [ ] **P2:** a tiny `brickwright` Python/JS runtime shim so full projects' emitted code runs
   (or lean on the VM for execution + show the code as a reading view).
 - [ ] **P3 (hard, optional):** Python→blocks via a restricted-subset parser (BlockMirror /

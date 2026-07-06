@@ -2242,6 +2242,269 @@ class SB3Creator {
         return '"message1"';
     }
 
+    // ---- Python code generation (blocks -> readable Python 3) --------------------
+    // Phase 1 of multi-target codegen (see PLAN §22): the algorithmic subset
+    // (variables, math, loops, if/else, lists, say->print, ask->input) emits
+    // runnable Python; sprite/graphics blocks are emitted as `# ...` comments.
+    isHat(op) {
+        return ['event_whenflagclicked', 'event_whenkeypressed', 'event_whenthisspriteclicked',
+            'event_whenbroadcastreceived', 'control_start_as_clone', 'procedures_definition'].includes(op);
+    }
+
+    pyName(name) {
+        if (!this._pyNames) this._pyNames = new Map();
+        if (this._pyNames.has(name)) return this._pyNames.get(name);
+        let id = String(name).trim().replace(/[^A-Za-z0-9_]+/g, '_').replace(/^_+|_+$/g, '') || 'v';
+        if (/^[0-9]/.test(id)) id = 'v_' + id;
+        const kw = ['for', 'while', 'if', 'else', 'elif', 'and', 'or', 'not', 'in', 'is', 'def', 'return',
+            'True', 'False', 'None', 'import', 'class', 'lambda', 'global', 'pass', 'break', 'continue', 'answer'];
+        if (kw.includes(id)) id += '_';
+        const used = new Set(this._pyNames.values());
+        let final = id, n = 2;
+        while (used.has(final)) final = id + '_' + n++;
+        this._pyNames.set(name, final);
+        return final;
+    }
+
+    pyProcName(proccode) {
+        return this.pyName('do_' + proccode.replace(/%[sb]/g, '').trim());
+    }
+
+    pyStr(s) { return JSON.stringify(String(s)); }
+
+    pyVal(input, blocks) {
+        if (!Array.isArray(input)) return 'None';
+        const inner = input[1];
+        if (Array.isArray(inner)) {
+            const [type, a] = inner;
+            if (type === 10 || type === 11) {
+                return /^-?\d+(\.\d+)?$/.test(String(a)) ? String(a) : this.pyStr(a);
+            }
+            if (type === 12 || type === 13) return this.pyName(a);
+            return /^-?\d+(\.\d+)?$/.test(String(a)) ? String(a) : this.pyStr(a);
+        }
+        return this.pyRep(blocks[inner], blocks);
+    }
+
+    pyMathop(op, x) {
+        const need = ['floor', 'ceiling', 'sqrt', 'sin', 'cos', 'tan', 'ln', 'log', 'e ^', '10 ^'];
+        if (need.includes(op)) this._pyUses.math = true;
+        const m = {
+            abs: `abs(${x})`, floor: `math.floor(${x})`, ceiling: `math.ceil(${x})`, sqrt: `math.sqrt(${x})`,
+            sin: `math.sin(math.radians(${x}))`, cos: `math.cos(math.radians(${x}))`, tan: `math.tan(math.radians(${x}))`,
+            ln: `math.log(${x})`, log: `math.log10(${x})`, 'e ^': `math.exp(${x})`, '10 ^': `(10 ** (${x}))`
+        };
+        return m[op] || `abs(${x})`;
+    }
+
+    pyRep(b, blocks) {
+        if (!b) return 'None';
+        const v = (k) => this.pyVal(b.inputs[k], blocks);
+        const f = (k) => (b.fields[k] ? b.fields[k][0] : '');
+        switch (b.opcode) {
+            case 'operator_add': return `(${v('NUM1')} + ${v('NUM2')})`;
+            case 'operator_subtract': return `(${v('NUM1')} - ${v('NUM2')})`;
+            case 'operator_multiply': return `(${v('NUM1')} * ${v('NUM2')})`;
+            case 'operator_divide': return `(${v('NUM1')} / ${v('NUM2')})`;
+            case 'operator_mod': return `(${v('NUM1')} % ${v('NUM2')})`;
+            case 'operator_random': this._pyUses.random = true; return `random.randint(${v('FROM')}, ${v('TO')})`;
+            case 'operator_round': return `round(${v('NUM')})`;
+            case 'operator_mathop': return this.pyMathop(f('OPERATOR'), v('NUM'));
+            case 'operator_join': return `(str(${v('STRING1')}) + str(${v('STRING2')}))`;
+            case 'operator_letter_of': return `str(${v('STRING')})[int(${v('LETTER')}) - 1]`;
+            case 'operator_length': return `len(str(${v('STRING')}))`;
+            case 'operator_contains': return `(str(${v('STRING2')}) in str(${v('STRING1')}))`;
+            case 'data_itemoflist': return `${this.pyName(f('LIST'))}[int(${v('INDEX')}) - 1]`;
+            case 'data_lengthoflist': return `len(${this.pyName(f('LIST'))})`;
+            case 'data_listcontainsitem': return `(${v('ITEM')} in ${this.pyName(f('LIST'))})`;
+            case 'sensing_answer': this._pyUses.answer = true; return 'answer';
+            case 'argument_reporter_string_number':
+            case 'argument_reporter_boolean': return this.pyName(f('VALUE'));
+            // Reporters outside the runnable subset (sprite/pen/sensing) become a
+            // placeholder — no inline comment, which would break enclosing syntax.
+            default: return 'None';
+        }
+    }
+
+    pyCond(ref, blocks) {
+        const b = blocks[ref];
+        if (!b) return 'False';
+        const v = (k) => this.pyVal(b.inputs[k], blocks);
+        const c = (k) => this.pyCond(b.inputs[k][1], blocks);
+        switch (b.opcode) {
+            case 'operator_gt': return `(${v('OPERAND1')} > ${v('OPERAND2')})`;
+            case 'operator_lt': return `(${v('OPERAND1')} < ${v('OPERAND2')})`;
+            case 'operator_equals': this._pyUses.eq = true; return `_eq(${v('OPERAND1')}, ${v('OPERAND2')})`;
+            case 'operator_and': return `(${c('OPERAND1')} and ${c('OPERAND2')})`;
+            case 'operator_or': return `(${c('OPERAND1')} or ${c('OPERAND2')})`;
+            case 'operator_not': return `(not ${c('OPERAND')})`;
+            case 'operator_contains': return `(str(${v('STRING2')}) in str(${v('STRING1')}))`;
+            case 'data_listcontainsitem': return `(${v('ITEM')} in ${this.pyName(b.fields.LIST[0])})`;
+            case 'argument_reporter_boolean': return this.pyName(b.fields.VALUE[0]);
+            // Predicate outside the subset (touching/key/mouse) -> placeholder.
+            default: return 'False';
+        }
+    }
+
+    pyStackFrom(firstId, blocks, level) {
+        const lines = [];
+        let id = firstId;
+        while (id && blocks[id]) { lines.push(...this.pyStackBlock(blocks[id], blocks, level)); id = blocks[id].next; }
+        return lines;
+    }
+
+    pyStackBlock(b, blocks, level) {
+        const pad = '    '.repeat(level);
+        const v = (k) => this.pyVal(b.inputs[k], blocks);
+        const f = (k) => (b.fields[k] ? b.fields[k][0] : '');
+        // A Python block needs a real statement; a body of only `# comments`
+        // (sprite ops we don't run) still needs a `pass`.
+        const body = (k) => {
+            const s = b.inputs[k] ? this.pyStackFrom(b.inputs[k][1], blocks, level + 1) : [];
+            const real = s.some((l) => { const t = l.trim(); return t && !t.startsWith('#'); });
+            return real ? s : [...s, pad + '    pass'];
+        };
+        const line = (t) => [pad + t];
+        switch (b.opcode) {
+            case 'control_forever': return [pad + 'while True:', ...body('SUBSTACK')];
+            case 'control_repeat': return [pad + `for _ in range(int(${v('TIMES')})):`, ...body('SUBSTACK')];
+            case 'control_repeat_until': return [pad + `while not (${this.pyCond(b.inputs.CONDITION[1], blocks)}):`, ...body('SUBSTACK')];
+            case 'control_if': return [pad + `if ${this.pyCond(b.inputs.CONDITION[1], blocks)}:`, ...body('SUBSTACK')];
+            case 'control_if_else': return [pad + `if ${this.pyCond(b.inputs.CONDITION[1], blocks)}:`, ...body('SUBSTACK'), pad + 'else:', ...body('SUBSTACK2')];
+            case 'control_wait': this._pyUses.time = true; return line(`time.sleep(${v('DURATION')})`);
+            case 'control_wait_until': return [pad + `while not (${this.pyCond(b.inputs.CONDITION[1], blocks)}):`, pad + '    pass'];
+            case 'control_stop': return line(f('STOP_OPTION') === 'all' ? 'raise SystemExit' : 'return');
+            case 'looks_sayforsecs': case 'looks_say': case 'looks_thinkforsecs': case 'looks_think':
+                return line(`print(${v('MESSAGE')})`);
+            case 'sensing_askandwait': this._pyUses.answer = true; return line(`answer = input(str(${v('QUESTION')}) + " ")`);
+            case 'data_setvariableto': return line(`${this.pyName(f('VARIABLE'))} = ${v('VALUE')}`);
+            case 'data_changevariableby': return line(`${this.pyName(f('VARIABLE'))} += ${v('VALUE')}`);
+            case 'data_addtolist': return line(`${this.pyName(f('LIST'))}.append(${v('ITEM')})`);
+            case 'data_deleteoflist': return line(`del ${this.pyName(f('LIST'))}[int(${v('INDEX')}) - 1]`);
+            case 'data_deletealloflist': return line(`${this.pyName(f('LIST'))}.clear()`);
+            case 'data_insertatlist': return line(`${this.pyName(f('LIST'))}.insert(int(${v('INDEX')}) - 1, ${v('ITEM')})`);
+            case 'data_replaceitemoflist': return line(`${this.pyName(f('LIST'))}[int(${v('INDEX')}) - 1] = ${v('ITEM')}`);
+            case 'procedures_call': {
+                const m = b.mutation;
+                const argIds = JSON.parse(m.argumentids || '[]');
+                let ai = 0; const args = [];
+                m.proccode.replace(/%[sb]/g, (tok) => {
+                    const input = b.inputs[argIds[ai++]];
+                    args.push(tok === '%b' ? this.pyCond(input[1], blocks) : this.pyVal(input, blocks));
+                    return '';
+                });
+                return line(`${this.pyProcName(m.proccode)}(${args.join(', ')})`);
+            }
+            default: {
+                const ps = (this.decompileStackBlock(b, blocks, 0)[0] || b.opcode).trim();
+                return line(`# ${ps}`);
+            }
+        }
+    }
+
+    pyAssigned(firstId, blocks, acc) {
+        let id = firstId;
+        while (id && blocks[id]) {
+            const b = blocks[id];
+            if (b.opcode === 'data_setvariableto' || b.opcode === 'data_changevariableby') acc.add(b.fields.VARIABLE[0]);
+            if (b.opcode === 'sensing_askandwait') acc.add(' answer');
+            for (const k of ['SUBSTACK', 'SUBSTACK2']) if (b.inputs[k]) this.pyAssigned(b.inputs[k][1], blocks, acc);
+            id = b.next;
+        }
+        return acc;
+    }
+
+    pyHatName(b) {
+        const f = (k) => (b.fields[k] ? b.fields[k][0] : '');
+        switch (b.opcode) {
+            case 'event_whenflagclicked': return 'when_flag_clicked';
+            case 'event_whenkeypressed': return this.pyName('when_' + f('KEY_OPTION') + '_key');
+            case 'event_whenthisspriteclicked': return 'when_clicked';
+            case 'event_whenbroadcastreceived': return this.pyName('on_' + f('BROADCAST_OPTION'));
+            case 'control_start_as_clone': return 'when_clone_starts';
+            default: return this.pyName('handler');
+        }
+    }
+
+    pyFunc(header, firstId, blocks, argNames) {
+        const assigned = this.pyAssigned(firstId, blocks, new Set());
+        const globals = [];
+        for (const a of assigned) {
+            if (a === ' answer') { globals.push('answer'); this._pyUses.answer = true; }
+            else { const nm = this.pyName(a); if (!argNames.includes(nm)) globals.push(nm); }
+        }
+        const bodyLines = this.pyStackFrom(firstId, blocks, 1);
+        const out = [header];
+        if (globals.length) out.push('    global ' + [...new Set(globals)].join(', '));
+        out.push(...bodyLines);
+        // Ensure a real statement (a `global` line counts; a body of only comments does not).
+        const hasStmt = globals.length > 0 || bodyLines.some((l) => { const t = l.trim(); return t && !t.startsWith('#'); });
+        if (!hasStmt) out.push('    pass');
+        return out.join('\n');
+    }
+
+    generatePython(project = this.project) {
+        this._pyNames = new Map();
+        this._pyUses = { random: false, math: false, time: false, eq: false, answer: false };
+        const targets = project.targets || [];
+        const scalars = new Set(), lists = new Set();
+        for (const t of targets) {
+            for (const vv of Object.values(t.variables || {})) scalars.add(vv[0]);
+            for (const ll of Object.values(t.lists || {})) lists.add(ll[0]);
+        }
+        // pre-register names (stable, avoids collisions)
+        for (const n of scalars) this.pyName(n);
+        for (const n of lists) this.pyName(n);
+
+        const funcDefs = [], hatDefs = [], flagCalls = [];
+        for (const t of targets) {
+            const blocks = t.blocks || {};
+            for (const b of Object.values(blocks)) {
+                if (!b.topLevel || !this.isHat(b.opcode)) continue;
+                if (b.opcode === 'procedures_definition') {
+                    const proto = blocks[b.inputs.custom_block[1]];
+                    const m = proto.mutation;
+                    const argNames = JSON.parse(m.argumentnames || '[]').map(n => this.pyName(n));
+                    funcDefs.push(this.pyFunc(`def ${this.pyProcName(m.proccode)}(${argNames.join(', ')}):`, b.next, blocks, argNames));
+                } else {
+                    const name = this.pyHatName(b);
+                    const isFlag = b.opcode === 'event_whenflagclicked';
+                    let code = this.pyFunc(`def ${name}():`, b.next, blocks, []);
+                    if (!isFlag) code = `# ${this.decompileHat(b, blocks)}  (event handler — call it when that event happens)\n` + code;
+                    hatDefs.push(code);
+                    if (isFlag) flagCalls.push(`${name}()`);
+                }
+            }
+        }
+
+        const out = [];
+        out.push('# Generated by Brickwright — blocks → Python (algorithmic subset).');
+        out.push('# Sprite / graphics / sound blocks appear as `# ...` comments; the rest runs.');
+        out.push('');
+        if (this._pyUses.random) out.push('import random');
+        if (this._pyUses.math) out.push('import math');
+        if (this._pyUses.time) out.push('import time');
+        if (this._pyUses.random || this._pyUses.math || this._pyUses.time) out.push('');
+        if (this._pyUses.eq) {
+            out.push('def _eq(a, b):  # Scratch-style loose equality');
+            out.push('    try:');
+            out.push('        return float(a) == float(b)');
+            out.push('    except (ValueError, TypeError):');
+            out.push('        return str(a).lower() == str(b).lower()');
+            out.push('');
+        }
+        // module state
+        const state = [];
+        for (const n of scalars) state.push(`${this.pyName(n)} = 0`);
+        for (const n of lists) state.push(`${this.pyName(n)} = []`);
+        if (this._pyUses.answer) state.push('answer = ""');
+        if (state.length) { out.push(...state); out.push(''); }
+        for (const fn of funcDefs) { out.push(fn); out.push(''); }
+        for (const h of hatDefs) { out.push(h); out.push(''); }
+        if (flagCalls.length) { out.push('# run'); out.push(...flagCalls); }
+        return out.join('\n').replace(/\n{3,}/g, '\n\n').trim() + '\n';
+    }
+
     // Append a user-supplied SVG as an extra costume (animation frame) on a sprite.
     addCustomSVGCostume(spriteName, svgText, costumeName) {
         const target = this.project.targets.find(t => !t.isStage && t.name === spriteName);
