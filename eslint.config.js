@@ -5,7 +5,9 @@ import reactRefresh from 'eslint-plugin-react-refresh'
 import { defineConfig, globalIgnores } from 'eslint/config'
 
 export default defineConfig([
-  globalIgnores(['dist', 'test/browser/harness.bundle.js']),
+  // `reference/extensions/*` are pinned third-party extension sources (github.com/CrispStrobe/
+  // extensions), read verbatim at runtime by the vm test + registry generator — not our code to lint.
+  globalIgnores(['dist', 'test/browser/harness.bundle.js', 'reference/**']),
   {
     files: ['**/*.{js,jsx}'],
     extends: [
