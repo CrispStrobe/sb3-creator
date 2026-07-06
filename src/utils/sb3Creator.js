@@ -2463,6 +2463,27 @@ class SB3Creator {
             case 'planetemaths_letterOf': return `str(${v('STRING')})[int(${v('LETTER')}) - 1]`;
             case 'planetemaths_length': return `len(str(${v('STRING')}))`;
             case 'planetemaths_sommechiffres': return `sum(int(d) for d in str(${v('NUM1')}) if d.isdigit())`;
+            // Arrays & Vectors reporters (0-based; `_arrays` registry).
+            case 'arrays_get': this._pyUses.arrays = true; return `_arrays[${v('NAME')}][int(${v('INDEX')})]`;
+            case 'arrays_pop': this._pyUses.arrays = true; return `_arrays[${v('NAME')}].pop()`;
+            case 'arrays_length': this._pyUses.arrays = true; return `len(_arrays[${v('NAME')}])`;
+            case 'arrays_sum': this._pyUses.arrays = true; return `sum(_arrays[${v('NAME')}])`;
+            case 'arrays_mean': this._pyUses.arrays = true; return `(sum(_arrays[${v('NAME')}]) / len(_arrays[${v('NAME')}]))`;
+            case 'arrays_min': this._pyUses.arrays = true; return `min(_arrays[${v('NAME')}])`;
+            case 'arrays_max': this._pyUses.arrays = true; return `max(_arrays[${v('NAME')}])`;
+            case 'arrays_indexOf': this._pyUses.arrays = true; return `(_arrays[${v('NAME')}].index(${v('VALUE')}) if ${v('VALUE')} in _arrays[${v('NAME')}] else -1)`;
+            case 'arrays_slice': this._pyUses.arrays = true; return `_arrays[${v('NAME')}][int(${v('START')}):int(${v('END')})]`;
+            case 'arrays_reverse': this._pyUses.arrays = true; return `list(reversed(_arrays[${v('NAME')}]))`;
+            case 'arrays_sort': this._pyUses.arrays = true; return `sorted(_arrays[${v('NAME')}], reverse=(${v('ORDER')} != "ascending"))`;
+            case 'arrays_flatten': this._pyUses.arrays = true; return `[x for row in _arrays[${v('NAME')}] for x in (row if isinstance(row, list) else [row])]`;
+            case 'arrays_toJSON': case 'arrays_toString': this._pyUses.arrays = true; this._pyUses.json = true; return `json.dumps(_arrays[${v('NAME')}])`;
+            // Gamepad extension (id `universalgamepad`) — real-time input; standalone code
+            // reads a neutral shim (real input works in the VM/browser).
+            case 'universalgamepad_getStickValue': case 'universalgamepad_getStickDirection': case 'universalgamepad_getStickMagnitude': this._pyUses.gamepad = true; return '_gamepad.axis()';
+            case 'universalgamepad_getCursorX': this._pyUses.gamepad = true; return "_gamepad.cursor('x')";
+            case 'universalgamepad_getCursorY': this._pyUses.gamepad = true; return "_gamepad.cursor('y')";
+            case 'universalgamepad_getControllerCount': this._pyUses.gamepad = true; return '_gamepad.count()';
+            case 'universalgamepad_getControllerInfo': case 'universalgamepad_getDebugStats': this._pyUses.gamepad = true; return '_gamepad.info()';
             // Reporters outside the runnable subset (sprite/pen/sensing) become a
             // placeholder — no inline comment, which would break enclosing syntax.
             default: return 'None';
@@ -2496,6 +2517,10 @@ class SB3Creator {
             case 'planetemaths_not': return `(not ${c('OPERAND1')})`;
             case 'planetemaths_contains': return `(str(${v('STRING2')}) in str(${v('STRING1')}))`;
             case 'planetemaths_multiple': return `(${v('NUM1')} % ${v('NUM2')} == 0)`;
+            case 'arrays_contains': this._pyUses.arrays = true; return `(${v('VALUE')} in _arrays[${v('NAME')}])`;
+            case 'universalgamepad_isConnected': this._pyUses.gamepad = true; return '_gamepad.connected()';
+            case 'universalgamepad_isButtonPressed': this._pyUses.gamepad = true; return '_gamepad.button()';
+            case 'universalgamepad_isAnyButtonPressed': this._pyUses.gamepad = true; return '_gamepad.any_button()';
             // Predicate outside the subset (touching/key/mouse) -> placeholder.
             default: return 'False';
         }
@@ -2539,6 +2564,16 @@ class SB3Creator {
             case 'data_deletealloflist': return line(`${this.pyName(f('LIST'))}.clear()`);
             case 'data_insertatlist': return line(`${this.pyName(f('LIST'))}.insert(int(${v('INDEX')}) - 1, ${v('ITEM')})`);
             case 'data_replaceitemoflist': return line(`${this.pyName(f('LIST'))}[int(${v('INDEX')}) - 1] = ${v('ITEM')}`);
+            // Arrays & Vectors extension (id `arrays`) — a named-array registry (`_arrays`),
+            // 0-based indexing (matches the extension). Command blocks:
+            case 'arrays_create1D': this._pyUses.arrays = true; this._pyUses.json = true; return line(`_arrays[${v('NAME')}] = json.loads(${v('JSON')})`);
+            case 'arrays_createEmpty': this._pyUses.arrays = true; return line(`_arrays[${v('NAME')}] = []`);
+            case 'arrays_createRange': this._pyUses.arrays = true; return line(`_arrays[${v('NAME')}] = list(range(int(${v('START')}), int(${v('END')}) + 1))`);
+            case 'arrays_set': this._pyUses.arrays = true; return line(`_arrays[${v('NAME')}][int(${v('INDEX')})] = ${v('VALUE')}`);
+            case 'arrays_push': this._pyUses.arrays = true; return line(`_arrays[${v('NAME')}].append(${v('VALUE')})`);
+            case 'arrays_insert': this._pyUses.arrays = true; return line(`_arrays[${v('NAME')}].insert(int(${v('INDEX')}), ${v('VALUE')})`);
+            case 'arrays_remove': this._pyUses.arrays = true; return line(`del _arrays[${v('NAME')}][int(${v('INDEX')})]`);
+            case 'arrays_delete': this._pyUses.arrays = true; return line(`_arrays.pop(${v('NAME')}, None)`);
             case 'procedures_call': {
                 const m = b.mutation;
                 const argIds = JSON.parse(m.argumentids || '[]');
@@ -2600,7 +2635,7 @@ class SB3Creator {
 
     generatePython(project = this.project) {
         this._pyNames = new Map();
-        this._pyUses = { random: false, math: false, time: false, eq: false, answer: false };
+        this._pyUses = { random: false, math: false, time: false, eq: false, answer: false, arrays: false, json: false, gamepad: false };
         const targets = project.targets || [];
         const scalars = new Set(), lists = new Set();
         for (const t of targets) {
@@ -2639,7 +2674,8 @@ class SB3Creator {
         if (this._pyUses.random) out.push('import random');
         if (this._pyUses.math) out.push('import math');
         if (this._pyUses.time) out.push('import time');
-        if (this._pyUses.random || this._pyUses.math || this._pyUses.time) out.push('');
+        if (this._pyUses.json) out.push('import json');
+        if (this._pyUses.random || this._pyUses.math || this._pyUses.time || this._pyUses.json) out.push('');
         if (this._pyUses.eq) {
             out.push('def _eq(a, b):  # Scratch-style loose equality');
             out.push('    try:');
@@ -2648,8 +2684,21 @@ class SB3Creator {
             out.push('        return str(a).lower() == str(b).lower()');
             out.push('');
         }
+        if (this._pyUses.gamepad) {
+            out.push('class _GamepadShim:  # real-time input — neutral standalone, live in the VM');
+            out.push('    def connected(self, *a): return False');
+            out.push('    def button(self, *a): return False');
+            out.push('    def any_button(self, *a): return False');
+            out.push('    def axis(self, *a): return 0');
+            out.push('    def cursor(self, *a): return 0');
+            out.push('    def count(self, *a): return 0');
+            out.push('    def info(self, *a): return ""');
+            out.push('_gamepad = _GamepadShim()');
+            out.push('');
+        }
         // module state
         const state = [];
+        if (this._pyUses.arrays) state.push('_arrays = {}  # Arrays & Vectors registry');
         for (const n of scalars) state.push(`${this.pyName(n)} = 0`);
         for (const n of lists) state.push(`${this.pyName(n)} = []`);
         if (this._pyUses.answer) state.push('answer = ""');
@@ -2727,6 +2776,26 @@ class SB3Creator {
             case 'planetemaths_letterOf': return `String(${v('STRING')})[Number(${v('LETTER')}) - 1]`;
             case 'planetemaths_length': return `String(${v('STRING')}).length`;
             case 'planetemaths_sommechiffres': return `String(${v('NUM1')}).split('').filter(function(d){return d>='0'&&d<='9';}).reduce(function(s,d){return s+Number(d);},0)`;
+            // Arrays & Vectors reporters (0-based; `_arrays` registry).
+            case 'arrays_get': this._jsUses.arrays = true; return `_arrays[${v('NAME')}][Number(${v('INDEX')})]`;
+            case 'arrays_pop': this._jsUses.arrays = true; return `_arrays[${v('NAME')}].pop()`;
+            case 'arrays_length': this._jsUses.arrays = true; return `_arrays[${v('NAME')}].length`;
+            case 'arrays_sum': this._jsUses.arrays = true; return `_arrays[${v('NAME')}].reduce(function(s,x){return s+Number(x);},0)`;
+            case 'arrays_mean': this._jsUses.arrays = true; return `(_arrays[${v('NAME')}].reduce(function(s,x){return s+Number(x);},0) / _arrays[${v('NAME')}].length)`;
+            case 'arrays_min': this._jsUses.arrays = true; return `Math.min.apply(null, _arrays[${v('NAME')}])`;
+            case 'arrays_max': this._jsUses.arrays = true; return `Math.max.apply(null, _arrays[${v('NAME')}])`;
+            case 'arrays_indexOf': this._jsUses.arrays = true; return `_arrays[${v('NAME')}].indexOf(${v('VALUE')})`;
+            case 'arrays_slice': this._jsUses.arrays = true; return `_arrays[${v('NAME')}].slice(Number(${v('START')}), Number(${v('END')}))`;
+            case 'arrays_reverse': this._jsUses.arrays = true; return `_arrays[${v('NAME')}].slice().reverse()`;
+            case 'arrays_sort': this._jsUses.arrays = true; return `_arrays[${v('NAME')}].slice().sort(function(a,b){return ${v('ORDER')} === "ascending" ? a-b : b-a;})`;
+            case 'arrays_flatten': this._jsUses.arrays = true; return `_arrays[${v('NAME')}].flat(Infinity)`;
+            case 'arrays_toJSON': case 'arrays_toString': this._jsUses.arrays = true; return `JSON.stringify(_arrays[${v('NAME')}])`;
+            // Gamepad (id `universalgamepad`) — neutral shim standalone; live in the VM/browser.
+            case 'universalgamepad_getStickValue': case 'universalgamepad_getStickDirection': case 'universalgamepad_getStickMagnitude': this._jsUses.gamepad = true; return '_gamepad.axis()';
+            case 'universalgamepad_getCursorX': this._jsUses.gamepad = true; return "_gamepad.cursor('x')";
+            case 'universalgamepad_getCursorY': this._jsUses.gamepad = true; return "_gamepad.cursor('y')";
+            case 'universalgamepad_getControllerCount': this._jsUses.gamepad = true; return '_gamepad.count()';
+            case 'universalgamepad_getControllerInfo': case 'universalgamepad_getDebugStats': this._jsUses.gamepad = true; return '_gamepad.info()';
             default: return 'undefined';
         }
     }
@@ -2757,6 +2826,10 @@ class SB3Creator {
             case 'planetemaths_not': return `(!${c('OPERAND1')})`;
             case 'planetemaths_contains': return `String(${v('STRING1')}).includes(String(${v('STRING2')}))`;
             case 'planetemaths_multiple': return `(${v('NUM1')} % ${v('NUM2')} === 0)`;
+            case 'arrays_contains': this._jsUses.arrays = true; return `_arrays[${v('NAME')}].includes(${v('VALUE')})`;
+            case 'universalgamepad_isConnected': this._jsUses.gamepad = true; return '_gamepad.connected()';
+            case 'universalgamepad_isButtonPressed': this._jsUses.gamepad = true; return '_gamepad.button()';
+            case 'universalgamepad_isAnyButtonPressed': this._jsUses.gamepad = true; return '_gamepad.anyButton()';
             default: return 'false';
         }
     }
@@ -2796,6 +2869,15 @@ class SB3Creator {
             case 'data_deletealloflist': return line(`${L('LIST')}.length = 0;`);
             case 'data_insertatlist': return line(`${L('LIST')}.splice(Number(${v('INDEX')}) - 1, 0, ${v('ITEM')});`);
             case 'data_replaceitemoflist': return line(`${L('LIST')}[Number(${v('INDEX')}) - 1] = ${v('ITEM')};`);
+            // Arrays & Vectors extension (id `arrays`) — `_arrays` registry, 0-based.
+            case 'arrays_create1D': this._jsUses.arrays = true; return line(`_arrays[${v('NAME')}] = JSON.parse(${v('JSON')});`);
+            case 'arrays_createEmpty': this._jsUses.arrays = true; return line(`_arrays[${v('NAME')}] = [];`);
+            case 'arrays_createRange': this._jsUses.arrays = true; return line(`_arrays[${v('NAME')}] = Array.from({length: Number(${v('END')}) - Number(${v('START')}) + 1}, (_, i) => Number(${v('START')}) + i);`);
+            case 'arrays_set': this._jsUses.arrays = true; return line(`_arrays[${v('NAME')}][Number(${v('INDEX')})] = ${v('VALUE')};`);
+            case 'arrays_push': this._jsUses.arrays = true; return line(`_arrays[${v('NAME')}].push(${v('VALUE')});`);
+            case 'arrays_insert': this._jsUses.arrays = true; return line(`_arrays[${v('NAME')}].splice(Number(${v('INDEX')}), 0, ${v('VALUE')});`);
+            case 'arrays_remove': this._jsUses.arrays = true; return line(`_arrays[${v('NAME')}].splice(Number(${v('INDEX')}), 1);`);
+            case 'arrays_delete': this._jsUses.arrays = true; return line(`delete _arrays[${v('NAME')}];`);
             case 'procedures_call': {
                 const m = b.mutation;
                 const argIds = JSON.parse(m.argumentids || '[]');
@@ -2816,7 +2898,7 @@ class SB3Creator {
 
     generateJavaScript(project = this.project) {
         this._pyNames = new Map();
-        this._jsUses = { rand: false, eq: false, answer: false, fact: false };
+        this._jsUses = { rand: false, eq: false, answer: false, fact: false, arrays: false, gamepad: false };
         const targets = project.targets || [];
         const scalars = new Set(), lists = new Set();
         for (const t of targets) {
@@ -2856,6 +2938,8 @@ class SB3Creator {
         if (this._jsUses.fact) out.push('function _fact(n) { n = Number(n); let r = 1; for (let i = 2; i <= n; i++) r *= i; return r; }');
         if (this._jsUses.eq || this._jsUses.rand || this._jsUses.fact) out.push('');
         const state = [];
+        if (this._jsUses.gamepad) state.push('const _gamepad = { connected: () => false, button: () => false, anyButton: () => false, axis: () => 0, cursor: () => 0, count: () => 0, info: () => "" };  // neutral standalone; live in the VM');
+        if (this._jsUses.arrays) state.push('const _arrays = {};  // Arrays & Vectors registry');
         for (const n of scalars) state.push(`let ${this.pyName(n)} = 0;`);
         for (const n of lists) state.push(`let ${this.pyName(n)} = [];`);
         if (this._jsUses.answer) state.push('let answer = "";');
@@ -2894,7 +2978,7 @@ SB3Creator.CORE_CATEGORIES = new Set([
 SB3Creator.EXTENSION_URLS = {
     planetemaths: 'https://crispstrobe.github.io/extensions/CrispStrobe/planetemaths.js',
     arrays: 'https://crispstrobe.github.io/extensions/CrispStrobe/arrays.js',
-    gamepad: 'https://crispstrobe.github.io/extensions/CrispStrobe/gamepad.js'
+    universalgamepad: 'https://crispstrobe.github.io/extensions/CrispStrobe/gamepad.js'
 };
 
 export default SB3Creator;
