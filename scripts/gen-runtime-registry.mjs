@@ -56,8 +56,16 @@ async function loadSource (slug, file) {
 // that touches BLE / DOM / runtime internals during load doesn't crash getInfo().
 function permissive () {
     const p = new Proxy(function () {}, {
-        get: (_, k) => (k === Symbol.toPrimitive ? () => '' : k === 'then' ? undefined : p),
-        apply: () => p, construct: () => p
+        get: (_, k) => {
+            if (k === Symbol.toPrimitive) return () => '';           // string/number coercion
+            if (k === Symbol.toStringTag) return 'Object';
+            if (k === Symbol.iterator) return function* () {};       // spread / for-of
+            if (k === 'valueOf') return () => 0;
+            if (k === 'toString') return () => '';
+            if (k === 'then') return undefined;                      // not a thenable
+            return p;
+        },
+        has: () => true, apply: () => p, construct: () => p
     });
     return p;
 }
@@ -80,7 +88,8 @@ function extract (source) {
     // Known globals get real mocks; any OTHER global the extension touches at load resolves
     // to a permissive stub, so BLE/DOM/rAF/timers etc. never throw before getInfo() runs.
     const known = {
-        Scratch: mockScratch(captured), console: { log () {}, warn () {}, error () {}, info () {} },
+        Scratch: mockScratch(captured),
+        console: new Proxy({}, { get: () => () => {} }),   // any console.* method is a no-op
         setTimeout: () => 0, clearTimeout: () => {}, setInterval: () => 0, clearInterval: () => {},
         module: { exports: null }, exports: {}
     };
