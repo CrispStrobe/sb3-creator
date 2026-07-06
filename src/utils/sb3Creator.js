@@ -2376,7 +2376,7 @@ class SB3Creator {
             case 'control_if_else': return [pad + `if ${this.pyCond(b.inputs.CONDITION[1], blocks)}:`, ...body('SUBSTACK'), pad + 'else:', ...body('SUBSTACK2')];
             case 'control_wait': this._pyUses.time = true; return line(`time.sleep(${v('DURATION')})`);
             case 'control_wait_until': return [pad + `while not (${this.pyCond(b.inputs.CONDITION[1], blocks)}):`, pad + '    pass'];
-            case 'control_stop': return line(f('STOP_OPTION') === 'all' ? 'raise SystemExit' : 'return');
+            case 'control_stop': return line(f('STOP_OPTION') === 'other scripts in sprite' ? 'pass  # stop other scripts' : 'return');
             case 'looks_sayforsecs': case 'looks_say': case 'looks_thinkforsecs': case 'looks_think':
                 return line(`print(${v('MESSAGE')})`);
             case 'sensing_askandwait': this._pyUses.answer = true; return line(`answer = input(str(${v('QUESTION')}) + " ")`);
@@ -2602,7 +2602,7 @@ class SB3Creator {
             case 'control_if_else': return [pad + `if (${cond()}) {`, ...sub('SUBSTACK'), pad + '} else {', ...sub('SUBSTACK2'), pad + '}'];
             case 'control_wait': return line(`// wait ${v('DURATION')} seconds`);
             case 'control_wait_until': return line(`// wait until ${cond()}`);
-            case 'control_stop': return line('return;');
+            case 'control_stop': return line(f('STOP_OPTION') === 'other scripts in sprite' ? '// stop other scripts' : 'return;');
             case 'looks_sayforsecs': case 'looks_say': case 'looks_thinkforsecs': case 'looks_think':
                 return line(`console.log(${v('MESSAGE')});`);
             case 'sensing_askandwait': this._jsUses.answer = true; return line(`answer = prompt(String(${v('QUESTION')}));`);
