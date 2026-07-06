@@ -10,6 +10,8 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import SB3Creator from '../src/utils/sb3Creator.js';
+import pythonToPseudocode from '../src/utils/pythonToPseudocode.js';
+import javascriptToPseudocode from '../src/utils/javascriptToPseudocode.js';
 
 // Build a project: WHEN flag clicked -> say <extension reporter/boolean>. Returns the
 // SB3Creator (so we can call generateJavaScript/generatePython) — the say's MESSAGE is
@@ -136,6 +138,60 @@ test('extensions: core categories are never treated as extensions', () => {
     const c = new SB3Creator();
     c.parse('SPRITE T:\n  WHEN flag clicked:\n    set x to (3 + 4)\n    say x\n    move 10 steps');
     assert.deepEqual(c.project.extensions, [], 'motion/operator/looks/data are core, not extensions');
+});
+
+// ---- pseudocode syntax for the distinctive Planète Maths ops ----
+const PM_PSEUDO = [
+    'SPRITE T:',
+    '  GLOBAL n',
+    '  WHEN flag clicked:',
+    '    set n to factorial of 5',
+    '    set n to sum of digits of 123',
+    '    set n to min of 3 and 7',
+    '    set n to max of 1 and 9',
+    '    set n to 2 to the power of 8',
+    '    set n to pi',
+    '    set n to euler',
+    '    IF n is multiple of 2 THEN:',
+    '      say "even"'
+].join('\n');
+
+test('pseudocode: Planète Maths phrases compile to the right extension blocks', () => {
+    const c = new SB3Creator();
+    c.parse(PM_PSEUDO);
+    assert.deepEqual(c.warnings, []);
+    assert.ok(c.project.extensions.includes('planetemaths'), 'auto-declared');
+    const ops = new Set(Object.values(c.project.targets.find(t => !t.isStage).blocks).map(b => b.opcode).filter(o => o.startsWith('planetemaths')));
+    for (const op of ['planetemaths_factorial', 'planetemaths_sommechiffres', 'planetemaths_min', 'planetemaths_max', 'planetemaths_pow', 'planetemaths_nombre_pi', 'planetemaths_nombre_e', 'planetemaths_multiple']) {
+        assert.ok(ops.has(op), `expected ${op}`);
+    }
+});
+
+test('pseudocode: Planète Maths blocks decompile to readable phrases (idempotent)', () => {
+    const c = new SB3Creator();
+    c.parse(PM_PSEUDO);
+    const dec = new SB3Creator().decompile(c.project);
+    assert.match(dec, /factorial of 5/);
+    assert.match(dec, /min of 3 and 7/);
+    assert.match(dec, /2 to the power of 8/);
+    assert.match(dec, /is multiple of 2/);
+    const c2 = new SB3Creator();
+    c2.parse(dec);
+    assert.equal(new SB3Creator().decompile(c2.project), dec, 'idempotent');
+});
+
+test('pseudocode: distinctive Planète Maths ops round-trip through Python AND JavaScript', () => {
+    const c = new SB3Creator();
+    c.parse('SPRITE T:\n  GLOBAL n\n  WHEN flag clicked:\n    set n to factorial of 5\n    set n to min of 3 and 7\n    set n to 2 to the power of 8\n    set n to pi\n    set n to euler');
+    const want = ['planetemaths_factorial', 'planetemaths_min', 'planetemaths_nombre_e', 'planetemaths_nombre_pi', 'planetemaths_pow'];
+    for (const [gen, parse] of [[() => c.generatePython(), pythonToPseudocode], [() => c.generateJavaScript(), javascriptToPseudocode]]) {
+        const { pseudocode, warnings } = parse(gen());
+        assert.equal(warnings.length, 0);
+        const c2 = new SB3Creator();
+        c2.parse(pseudocode);
+        const ops = Object.values(c2.project.targets.find(t => !t.isStage).blocks).map(b => b.opcode).filter(o => o.startsWith('planetemaths')).sort();
+        assert.deepEqual(ops, want);
+    }
 });
 
 test('extension[planetemaths]: and / or / not compose', () => {

@@ -513,6 +513,15 @@ class SB3Creator {
         if ((m = s.match(/^round\s+(.+)$/i))) {
             return B('operator_round', { NUM: this.parseValue(m[1], context) });
         }
+        // Planète Maths distinctive reporters (no standard equivalent). syncExtensions
+        // auto-declares the `planetemaths` extension from these opcodes.
+        if ((m = s.match(/^factorial of\s+(.+)$/i))) return B('planetemaths_factorial', { NUM1: this.parseValue(m[1], context) });
+        if ((m = s.match(/^sum of digits of\s+(.+)$/i))) return B('planetemaths_sommechiffres', { NUM1: this.parseValue(m[1], context) });
+        if ((m = s.match(/^min of\s+(.+?)\s+and\s+(.+)$/i))) return B('planetemaths_min', { NUM1: this.parseValue(m[1], context), NUM2: this.parseValue(m[2], context) });
+        if ((m = s.match(/^max of\s+(.+?)\s+and\s+(.+)$/i))) return B('planetemaths_max', { NUM1: this.parseValue(m[1], context), NUM2: this.parseValue(m[2], context) });
+        if ((m = s.match(/^(.+?)\s+to the power of\s+(.+)$/i))) return B('planetemaths_pow', { NUM1: this.parseValue(m[1], context), NUM2: this.parseValue(m[2], context) });
+        if (/^pi$/i.test(s) && !this.variableExists('pi', context.target)) return B('planetemaths_nombre_pi', {});
+        if (/^euler$/i.test(s) && !this.variableExists('euler', context.target)) return B('planetemaths_nombre_e', {});
         if ((m = s.match(/^(abs|floor|ceiling|sqrt|sin|cos|tan|asin|acos|atan|ln|log)\s+of\s+(.+)$/i))) {
             return B('operator_mathop', { NUM: this.parseValue(m[2], context) }, { OPERATOR: [m[1].toLowerCase(), null] });
         }
@@ -626,6 +635,12 @@ class SB3Creator {
                 OPERAND1: [2, this.parseCondition(sp.left, context)],
                 OPERAND2: [2, this.parseCondition(sp.right, context)]
             });
+        }
+
+        // Planète Maths distinctive boolean (extension `planetemaths`).
+        let mm;
+        if ((mm = s.match(/^(.+?)\s+is multiple of\s+(.+)$/i))) {
+            return push('planetemaths_multiple', { NUM1: this.parseValue(mm[1], context), NUM2: this.parseValue(mm[2], context) });
         }
 
         // Comparisons. Scratch 3.0 has no native <= / >=, so build them from not().
@@ -2134,6 +2149,27 @@ class SB3Creator {
             case 'sensing_of': return `${this.dprop(f('PROPERTY'))} of ${this.dmenu(b.inputs.OBJECT, blocks, 'OBJECT')}`;
             case 'argument_reporter_string_number':
             case 'argument_reporter_boolean': return f('VALUE');
+            // Planète Maths reporters. Ops with a standard equivalent decompile to
+            // standard pseudocode (execution-preserved); the distinctive ones get their
+            // own readable phrase that parses back to the extension block.
+            case 'planetemaths_add': return `${v('NUM1')} + ${v('NUM2')}`;
+            case 'planetemaths_substract': return `${v('NUM1')} - ${v('NUM2')}`;
+            case 'planetemaths_multiply': return `${v('NUM1')} * ${v('NUM2')}`;
+            case 'planetemaths_divide': return `${v('NUM1')} / ${v('NUM2')}`;
+            case 'planetemaths_oppose': return `0 - ${v('NUM1')}`;
+            case 'planetemaths_inverse': return `1 / ${v('NUM1')}`;
+            case 'planetemaths_pourcent': return `${v('NUM1')} / 100`;
+            case 'planetemaths_join': return `${v('STRING1')} join ${v('STRING2')}`;
+            case 'planetemaths_letterOf': return `letter ${v('LETTER')} of ${v('STRING')}`;
+            case 'planetemaths_length': return `length of ${v('STRING')}`;
+            case 'planetemaths_random': return `pick random ${v('NUM1')} to ${v('NUM2')}`;
+            case 'planetemaths_pow': return `${v('NUM1')} to the power of ${v('NUM2')}`;
+            case 'planetemaths_factorial': return `factorial of ${v('NUM1')}`;
+            case 'planetemaths_sommechiffres': return `sum of digits of ${v('NUM1')}`;
+            case 'planetemaths_min': return `min of ${v('NUM1')} and ${v('NUM2')}`;
+            case 'planetemaths_max': return `max of ${v('NUM1')} and ${v('NUM2')}`;
+            case 'planetemaths_nombre_pi': return 'pi';
+            case 'planetemaths_nombre_e': return 'euler';
             default: return b.opcode;
         }
     }
@@ -2160,6 +2196,17 @@ class SB3Creator {
             case 'sensing_keypressed': return `key ${this.dmenu(b.inputs.KEY_OPTION, blocks, 'KEY_OPTION')} pressed?`;
             case 'sensing_mousedown': return 'mouse down?';
             case 'argument_reporter_boolean': return b.fields.VALUE[0];
+            // Planète Maths booleans (semantics from the implementation: gt = NUM1 < NUM2).
+            case 'planetemaths_gt': return `${v('NUM1')} < ${v('NUM2')}`;
+            case 'planetemaths_gte': return `${v('NUM1')} <= ${v('NUM2')}`;
+            case 'planetemaths_lt': return `${v('NUM1')} > ${v('NUM2')}`;
+            case 'planetemaths_lte': return `${v('NUM1')} >= ${v('NUM2')}`;
+            case 'planetemaths_equals': return `${v('NUM1')} = ${v('NUM2')}`;
+            case 'planetemaths_and': return `(${c('OPERAND1')}) and (${c('OPERAND2')})`;
+            case 'planetemaths_or': return `(${c('OPERAND1')}) or (${c('OPERAND2')})`;
+            case 'planetemaths_not': return `not (${c('OPERAND1')})`;
+            case 'planetemaths_contains': return `${v('STRING1')} contains ${v('STRING2')}`;
+            case 'planetemaths_multiple': return `${v('NUM1')} is multiple of ${v('NUM2')}`;
             default: return this.drep(b, blocks);
         }
     }
@@ -2672,7 +2719,7 @@ class SB3Creator {
             case 'planetemaths_pourcent': return `(${v('NUM1')} / 100)`;
             case 'planetemaths_nombre_pi': return 'Math.PI';
             case 'planetemaths_nombre_e': return 'Math.E';
-            case 'planetemaths_factorial': return `(function(n){let r=1;for(let i=2;i<=n;i++)r*=i;return r;})(${v('NUM1')})`;
+            case 'planetemaths_factorial': this._jsUses.fact = true; return `_fact(${v('NUM1')})`;
             case 'planetemaths_min': return `Math.min(${v('NUM1')}, ${v('NUM2')})`;
             case 'planetemaths_max': return `Math.max(${v('NUM1')}, ${v('NUM2')})`;
             case 'planetemaths_random': this._jsUses.rand = true; return `_rand(${v('NUM1')}, ${v('NUM2')})`;
@@ -2769,7 +2816,7 @@ class SB3Creator {
 
     generateJavaScript(project = this.project) {
         this._pyNames = new Map();
-        this._jsUses = { rand: false, eq: false, answer: false };
+        this._jsUses = { rand: false, eq: false, answer: false, fact: false };
         const targets = project.targets || [];
         const scalars = new Set(), lists = new Set();
         for (const t of targets) {
@@ -2806,7 +2853,8 @@ class SB3Creator {
         out.push('');
         if (this._jsUses.eq) out.push('function _eq(a, b) { const x = Number(a), y = Number(b); if (!Number.isNaN(x) && !Number.isNaN(y)) return x === y; return String(a).toLowerCase() === String(b).toLowerCase(); }');
         if (this._jsUses.rand) out.push('function _rand(a, b) { a = Number(a); b = Number(b); return Math.floor(Math.random() * (b - a + 1)) + a; }');
-        if (this._jsUses.eq || this._jsUses.rand) out.push('');
+        if (this._jsUses.fact) out.push('function _fact(n) { n = Number(n); let r = 1; for (let i = 2; i <= n; i++) r *= i; return r; }');
+        if (this._jsUses.eq || this._jsUses.rand || this._jsUses.fact) out.push('');
         const state = [];
         for (const n of scalars) state.push(`let ${this.pyName(n)} = 0;`);
         for (const n of lists) state.push(`let ${this.pyName(n)} = [];`);
