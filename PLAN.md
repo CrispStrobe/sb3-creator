@@ -467,6 +467,47 @@ to our bricks×education×codegen intersection); **BlocklyML** (domain Blockly�
 Multi-target codegen is **feature-complete**: **Pseudocode ⇄ blocks ⇄ Python ⇄ JavaScript** — all
 three languages fully two-way, runnable in-editor, in one 3-tab highlighted editor.
 
+### Verified correctness (the round-trip is trustworthy)
+
+- **Execution matrix** (`test/exec.test.mjs`): all 28 examples' generated JS actually *runs* in a
+  bounded `vm` (games hit the loop timeout = still-running, not an error) — 0 runtime errors. Python
+  likewise runs under a subprocess timeout. Quiz scores 2 in both languages.
+- **Transpilation matrix**: every example converts pseudocode→{blocks, pseudocode, python, js} —
+  112/112 recompile (`test/roundtrip.test.mjs`, both backends × 28).
+- **Transparency / fixed point** (`test/transparency.test.mjs`): chaining a project through the
+  languages repeatedly *converges* — 28/28 under **five different permutation orders**. Bug found &
+  fixed along the way: the translator emitted `delete item N of list` but the compiler's grammar is
+  `delete <index> of list`; the stray `item` was swallowed as a string index that grew every
+  round-trip (g2048 never converged). Now every example is a stable fixed point.
+- **Comments are preserved** (`test/comments.test.mjs`): a `# comment` attaches to the following
+  block/hat as a native Scratch block comment (stored on the target — the ground truth), so it
+  survives To blocks → From blocks and shows as a note on the block. Idempotent; inert for codegen.
+
+### Deferred — bigger follow-ups (design captured, not yet built)
+
+- [ ] **P4 — comments through the code languages.** Today block comments survive pseudocode↔blocks
+  but are dropped when going through Python/JS (the parsers strip `#`/`//`). Emit block comments as
+  `#`/`//` in `generatePython`/`generateJavaScript`, and have `pythonToPseudocode`/
+  `javascriptToPseudocode` re-attach them to the following statement. Then a comment survives *any*
+  language hop, not just pseudocode.
+- [ ] **P5 — extension blocks in Python/JS.** The emitters currently render extension/custom-hardware
+  blocks as `# ...` comments. Give the algorithmic extensions a real mapping so they round-trip:
+  start with **Arrays & Vectors** (maps naturally to JS/Python array & vector ops — dot/cross/norm,
+  push/pop/slice), then **Gamepad** (button/axis reads → a small `gamepad` shim object) and
+  **Planète Maths** (math helpers → `math`/`Math`). Each needs: emitter opcode → code template, and
+  parser call-shape → opcode. Extensions whose behaviour is inherently runtime (real gamepad, real
+  bricks) stay as commented stubs in standalone code but keep working in the VM.
+- [ ] **P6 — standalone executable export (TurboWarp-style packaging).** Produce a self-contained
+  `.html`/`.js` (and a Python variant) that runs the project *without* Scratch — the ambitious one.
+  It needs a real runtime: a canvas renderer for SVG/bitmap costumes, the sprite/clone model,
+  motion + coordinate space, pen layer, collision/touching/color sensing, sound, and input
+  (keyboard/mouse/gamepad). Two viable paths: (a) reuse TurboWarp's existing `scratch-vm`
+  + `tw-packager` (already vendored) for the *runnable* artifact and keep our Python/JS as the
+  *readable* view; or (b) a from-scratch minimal `brickwright-runtime` implementing the subset we
+  emit. (a) is far less work and already near-complete via the packager; (b) is the "pure code, no
+  VM" dream and is a large multi-phase effort. Recommend (a) first (wire the existing packager into
+  a "Download standalone" button), then evaluate (b).
+
 ## 23. Deferred — Brickwright desktop deep rebrand
 
 The `brickwright-desktop` **identity** layer is done (appId, update feed, homepage, Linux
