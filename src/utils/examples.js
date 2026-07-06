@@ -2245,7 +2245,23 @@ SPRITE Game:
     set col to floor of ((mouse x + 153) / 34)
     set row to floor of ((153 - mouse y) / 34)
     IF col > -1 and col < 9 and row > -1 and row < 9 THEN:
-      toggle flag (((row * 9) + col) + 1)`
+      toggle flag (((row * 9) + col) + 1)`,
+
+    // Uses the Planète Maths extension (auto-declared on compile). These phrases map to
+    // planetemaths_* blocks and transpile to real Python/JS.
+    planetemaths: `SPRITE Mathbot:
+  GLOBAL n
+  WHEN flag clicked:
+    say ("factorial of 5 = " join factorial of 5) for 2 seconds
+    say ("min of 3 and 7 = " join min of 3 and 7) for 1 seconds
+    say ("2 to the power of 8 = " join 2 to the power of 8) for 1 seconds
+    say ("digits of 1234 sum to " join sum of digits of 1234) for 2 seconds
+    say ("pi is about " join pi) for 2 seconds
+    set n to pick random 1 to 20
+    IF n is multiple of 2 THEN:
+      say (n join " is even") for 2 seconds
+    ELSE:
+      say (n join " is odd") for 2 seconds`
 };
 
 export default examples;
