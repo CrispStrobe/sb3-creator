@@ -20,16 +20,28 @@ const JS_OPS = ['===', '!==', '=>', '**', '==', '!=', '<=', '>=', '&&', '||', '+
     '+', '-', '*', '/', '%', '<', '>', '=', '!', '?', ':'];
 
 class JsTokenizer {
-    constructor (src) { this.s = src.replace(/\r\n?/g, '\n'); this.i = 0; this.line = 1; this.toks = []; }
+    constructor (src) { this.s = src.replace(/\r\n?/g, '\n'); this.i = 0; this.line = 1; this.toks = []; this._pendingComment = ''; }
     error (m) { const e = new Error(`JavaScript parse error (line ${this.line}): ${m}`); e.isJsParseError = true; throw e; }
-    push (type, value) { this.toks.push({ type, value, line: this.line }); }
+    push (type, value) {
+        const tok = { type, value, line: this.line };
+        if (this._pendingComment && type !== 'EOF') { tok.comment = this._pendingComment; this._pendingComment = ''; }
+        this.toks.push(tok);
+    }
     tokenize () {
         const s = this.s;
         while (this.i < s.length) {
             const c = s[this.i];
             if (c === '\n') { this.line++; this.i++; continue; }
             if (c === ' ' || c === '\t') { this.i++; continue; }
-            if (c === '/' && s[this.i + 1] === '/') { while (this.i < s.length && s[this.i] !== '\n') this.i++; continue; }
+            if (c === '/' && s[this.i + 1] === '/') {
+                // Leading `// comment` -> capture and attach to the next content token.
+                this.i += 2;
+                if (s[this.i] === ' ') this.i++;
+                let text = '';
+                while (this.i < s.length && s[this.i] !== '\n') { text += s[this.i]; this.i++; }
+                this._pendingComment = this._pendingComment ? `${this._pendingComment}\n${text}` : text;
+                continue;
+            }
             if (c === '/' && s[this.i + 1] === '*') { this.i += 2; while (this.i < s.length && !(s[this.i] === '*' && s[this.i + 1] === '/')) { if (s[this.i] === '\n') this.line++; this.i++; } this.i += 2; continue; }
             if (c === '"' || c === "'" || c === '`') { this.readString(c); continue; }
             if (/[0-9]/.test(c) || (c === '.' && /[0-9]/.test(s[this.i + 1] || ''))) { this.readNumber(); continue; }
@@ -100,6 +112,13 @@ class JsParser {
 
     parseStatement () {
         const t = this.peek();
+        const lead = t.comment; // captured leading `// comment`
+        const st = this.parseStatementInner(t);
+        if (st && lead && !st.comment) st.comment = lead;
+        return st;
+    }
+
+    parseStatementInner (t) {
         if (t.type === 'function') return this.parseFunction();
         if (t.type === 'if') return this.parseIf();
         if (t.type === 'while') return this.parseWhile();
