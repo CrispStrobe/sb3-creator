@@ -139,6 +139,12 @@ const ARRAY_ENTRIES = [
     { m: 'sort', op: 'arrays_sort', kind: 'reporter', gen: [{ v: 'NAME' }, { f: 'ORDER' }], ps: (a, u) => `sort of array ${a[0]} ${u(a[1]) || 'ascending'}` },
     { m: 'slice', op: 'arrays_slice', kind: 'reporter', gen: [{ v: 'NAME' }, { v: 'START' }, { v: 'END' }], ps: (a) => `slice of array ${a[0]} from ${a[1]} to ${a[2]}` },
     { m: 'to_text', op: 'arrays_toJSON', kind: 'reporter', gen: [{ v: 'NAME' }], ps: (a) => `array ${a[0]} as text` },
+    // 2D / matrix ops
+    { m: 'create2d', op: 'arrays_create2D', gen: [{ v: 'NAME' }, { v: 'JSON' }], ps: (a, u) => `new 2D array ${a[0]} = ${u(a[1])}` },
+    { m: 'get2d', op: 'arrays_get2D', kind: 'reporter', gen: [{ v: 'NAME' }, { v: 'ROW' }, { v: 'COL' }], ps: (a) => `item row ${a[1]} col ${a[2]} of array ${a[0]}` },
+    { m: 'set2d', op: 'arrays_set2D', gen: [{ v: 'NAME' }, { v: 'ROW' }, { v: 'COL' }, { v: 'VALUE' }], ps: (a) => `set item row ${a[1]} col ${a[2]} of array ${a[0]} to ${a[3]}` },
+    { m: 'transpose', op: 'arrays_transpose', kind: 'reporter', gen: [{ v: 'NAME' }], ps: (a) => `transpose of array ${a[0]}` },
+    { m: 'reshape', op: 'arrays_reshape', kind: 'reporter', gen: [{ v: 'NAME' }, { v: 'SHAPE' }], ps: (a, u) => `reshape array ${a[0]} to ${u(a[1])}` },
     // boolean
     { m: 'contains', op: 'arrays_contains', kind: 'boolean', gen: [{ v: 'NAME' }, { v: 'VALUE' }], ps: (a) => `array ${a[0]} contains ${a[1]}` }
 ];

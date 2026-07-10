@@ -286,7 +286,10 @@ const ARR = [
     { setup: [{ op: 'arrays_create1D', args: { NAME: 'v', JSON: '[2,4,6]' } }], rep: 'arrays_mean', ri: { NAME: 'v' }, want: '4' },
     { setup: [{ op: 'arrays_createRange', args: { NAME: 'v', START: 1, END: 4 } }], rep: 'arrays_sum', ri: { NAME: 'v' }, want: '10' },
     { setup: [{ op: 'arrays_create1D', args: { NAME: 'v', JSON: '[5,6,7]' } }], rep: 'arrays_indexOf', ri: { NAME: 'v', VALUE: 6 }, want: '1' },
-    { setup: [{ op: 'arrays_create1D', args: { NAME: 'v', JSON: '[1,2,3]' } }, { op: 'arrays_remove', args: { NAME: 'v', INDEX: 0 } }], rep: 'arrays_sum', ri: { NAME: 'v' }, want: '5' }
+    { setup: [{ op: 'arrays_create1D', args: { NAME: 'v', JSON: '[1,2,3]' } }, { op: 'arrays_remove', args: { NAME: 'v', INDEX: 0 } }], rep: 'arrays_sum', ri: { NAME: 'v' }, want: '5' },
+    // 2D + functional ops
+    { setup: [{ op: 'arrays_create2D', args: { NAME: 'g', JSON: '[[1,2],[3,4]]' } }, { op: 'arrays_set2D', args: { NAME: 'g', ROW: 0, COL: 1, VALUE: 9 } }], rep: 'arrays_get2D', ri: { NAME: 'g', ROW: 0, COL: 1 }, want: '9' },
+    { setup: [{ op: 'arrays_create1D', args: { NAME: 'v', JSON: '[1,2,3,4]' } }], rep: 'arrays_reduce', ri: { NAME: 'v', FUNC: '(a,x) => a + x', INIT: 0 }, want: '10' }
 ];
 
 for (const t of ARR) {
@@ -298,6 +301,42 @@ for (const t of ARR) {
         assert.match(c.generatePython(), /_arrays = _Arrays\(\)/, 'Python emits the reversible registry shim');
     });
 }
+
+test('extension[arrays]: 2D + functional ops parse, round-trip, and run', () => {
+    const SRC = [
+        'SPRITE M:',
+        '  WHEN flag clicked:',
+        '    new 2D array "grid" = [[1,2],[3,4]]',
+        '    set item row 0 col 1 of array "grid" to 9',
+        '    say (item row 0 col 1 of array "grid")',
+        '    say (transpose of array "grid")',
+        '    new array "nums" = [1,2,3,4]',
+        '    say (reshape array "nums" to [2,2])',
+        '    say (map "x => x * 2" over array "nums")',
+        '    say (filter array "nums" by "x => x > 2")',
+        '    say (reduce array "nums" with "(a,x) => a + x" from 0)'
+    ].join('\n');
+    const c = new SB3Creator();
+    c.parse(SRC);
+    assert.deepEqual(c.warnings, [], 'no parse warnings');
+    const ops = new Set(Object.values(c.project.targets.find(t => !t.isStage).blocks).map(b => b.opcode));
+    for (const op of ['arrays_create2D', 'arrays_set2D', 'arrays_get2D', 'arrays_transpose', 'arrays_reshape', 'arrays_map', 'arrays_filter', 'arrays_reduce']) {
+        assert.ok(ops.has(op), `${op} block created`);
+    }
+    // decompile is an exact, idempotent round-trip
+    const dec = new SB3Creator().decompile(c.project);
+    assert.match(dec, /new 2D array "grid" = \[\[1,2\],\[3,4\]\]/);
+    assert.match(dec, /map "x => x \* 2" over array "nums"/);
+    const c2 = new SB3Creator(); c2.parse(dec);
+    assert.equal(new SB3Creator().decompile(c2.project), dec, 'decompile idempotent');
+    // functional ops emit a real Python lambda (not a quoted string)
+    assert.match(c.generatePython(), /_arrays\.map\("nums", \(lambda x: x \* 2\)\)/);
+    assert.match(c.generateJavaScript(), /_arrays\.map\("nums", x => x \* 2\)/);
+    // and the generated JS runs to the right values
+    const logs = [];
+    vm.runInNewContext(c.generateJavaScript(), { console: { log: (...a) => logs.push(a.map(x => JSON.stringify(x)).join(' ')) }, prompt: () => '' }, { timeout: 1000 });
+    assert.deepEqual(logs, ['9', '[[1,3],[9,4]]', '[[1,2],[3,4]]', '[2,4,6,8]', '[3,4]', '10']);
+});
 
 test('extension[arrays]: contains runs true/false inside an IF', () => {
     const c = new SB3Creator();
