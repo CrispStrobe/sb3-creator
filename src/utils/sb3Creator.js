@@ -634,6 +634,15 @@ class SB3Creator {
         // Arrays & Vectors reporters (anchored on `array "NAME"`; 0-based).
         if (/\barray\s+"/.test(s)) {
             const aN = (n) => [1, [10, n]];
+            // 2D / matrix reporters. get2D first, so `item row R col C of array` isn't
+            // mis-parsed as a 1D `item <index> of array`.
+            if ((m = s.match(/^item\s+row\s+(.+?)\s+col\s+(.+?)\s+of array\s+"([^"]*)"$/i))) return B('arrays_get2D', { NAME: aN(m[3]), ROW: this.parseValue(m[1], context), COL: this.parseValue(m[2], context) });
+            if ((m = s.match(/^transpose of array\s+"([^"]*)"$/i))) return B('arrays_transpose', { NAME: aN(m[1]) });
+            if ((m = s.match(/^reshape array\s+"([^"]*)"\s+to\s+(.+)$/i))) return B('arrays_reshape', { NAME: aN(m[1]), SHAPE: [1, [10, m[2].trim()]] });
+            // functional reporters (FUNC is a quoted JS arrow string; emitted as a Python lambda / raw JS)
+            if ((m = s.match(/^map\s+"([^"]*)"\s+over array\s+"([^"]*)"$/i))) return B('arrays_map', { NAME: aN(m[2]), FUNC: [1, [10, m[1]]] });
+            if ((m = s.match(/^filter array\s+"([^"]*)"\s+by\s+"([^"]*)"$/i))) return B('arrays_filter', { NAME: aN(m[1]), FUNC: [1, [10, m[2]]] });
+            if ((m = s.match(/^reduce array\s+"([^"]*)"\s+with\s+"([^"]*)"\s+from\s+(.+)$/i))) return B('arrays_reduce', { NAME: aN(m[1]), FUNC: [1, [10, m[2]]], INIT: this.parseValue(m[3], context) });
             if ((m = s.match(/^item\s+(.+?)\s+of array\s+"([^"]*)"$/i))) return B('arrays_get', { NAME: aN(m[2]), INDEX: this.parseValue(m[1], context) });
             if ((m = s.match(/^pop from array\s+"([^"]*)"$/i))) return B('arrays_pop', { NAME: aN(m[1]) });
             if ((m = s.match(/^length of array\s+"([^"]*)"$/i))) return B('arrays_length', { NAME: aN(m[1]) });
@@ -1037,6 +1046,11 @@ class SB3Creator {
             block[id].inputs.NAME = aName(match[1]); block[id].inputs.START = val(match[2]); block[id].inputs.END = val(match[3]);
             return ret(block);
         }
+        if ((match = line.match(/^new 2D array\s+"([^"]*)"\s*=\s*(.+)$/i))) {
+            const { id, block } = cmd('arrays_create2D');
+            block[id].inputs.NAME = aName(match[1]); block[id].inputs.JSON = [1, [10, match[2].trim()]];
+            return ret(block);
+        }
         if ((match = line.match(/^new array\s+"([^"]*)"\s*=\s*(.+)$/i))) {
             const { id, block } = cmd('arrays_create1D');
             block[id].inputs.NAME = aName(match[1]); block[id].inputs.JSON = [1, [10, match[2].trim()]];
@@ -1047,6 +1061,11 @@ class SB3Creator {
         }
         if ((match = line.match(/^push\s+(.+?)\s+to array\s+"([^"]*)"$/i))) {
             const { id, block } = cmd('arrays_push'); block[id].inputs.NAME = aName(match[2]); block[id].inputs.VALUE = val(match[1]); return ret(block);
+        }
+        if ((match = line.match(/^set item\s+row\s+(.+?)\s+col\s+(.+?)\s+of array\s+"([^"]*)"\s+to\s+(.+)$/i))) {
+            const { id, block } = cmd('arrays_set2D');
+            block[id].inputs.NAME = aName(match[3]); block[id].inputs.ROW = val(match[1]); block[id].inputs.COL = val(match[2]); block[id].inputs.VALUE = val(match[4]);
+            return ret(block);
         }
         if ((match = line.match(/^set item\s+(.+?)\s+of array\s+"([^"]*)"\s+to\s+(.+)$/i))) {
             const { id, block } = cmd('arrays_set'); block[id].inputs.NAME = aName(match[2]); block[id].inputs.INDEX = val(match[1]); block[id].inputs.VALUE = val(match[3]); return ret(block);
@@ -2386,6 +2405,12 @@ class SB3Creator {
             case 'arrays_sort': return `sort of array ${v('NAME')} ${f('ORDER') || 'ascending'}`;
             case 'arrays_slice': return `slice of array ${v('NAME')} from ${v('START')} to ${v('END')}`;
             case 'arrays_toJSON': case 'arrays_toString': return `array ${v('NAME')} as text`;
+            case 'arrays_get2D': return `item row ${v('ROW')} col ${v('COL')} of array ${v('NAME')}`;
+            case 'arrays_transpose': return `transpose of array ${v('NAME')}`;
+            case 'arrays_reshape': return `reshape array ${v('NAME')} to ${this.dval(b.inputs.SHAPE, blocks).replace(/^"|"$/g, '')}`;
+            case 'arrays_map': return `map ${this.dval(b.inputs.FUNC, blocks)} over array ${v('NAME')}`;
+            case 'arrays_filter': return `filter array ${v('NAME')} by ${this.dval(b.inputs.FUNC, blocks)}`;
+            case 'arrays_reduce': return `reduce array ${v('NAME')} with ${this.dval(b.inputs.FUNC, blocks)} from ${v('INIT')}`;
             default: return b.opcode;
         }
     }
@@ -2554,6 +2579,8 @@ class SB3Creator {
             case 'data_replaceitemoflist': return line(`replace item ${v('INDEX')} of ${f('LIST')} with ${v('ITEM')}`);
             // Arrays & Vectors commands (v('NAME') yields the quoted name).
             case 'arrays_create1D': return line(`new array ${v('NAME')} = ${this.dval(b.inputs.JSON, blocks).replace(/^"|"$/g, '')}`);
+            case 'arrays_create2D': return line(`new 2D array ${v('NAME')} = ${this.dval(b.inputs.JSON, blocks).replace(/^"|"$/g, '')}`);
+            case 'arrays_set2D': return line(`set item row ${v('ROW')} col ${v('COL')} of array ${v('NAME')} to ${v('VALUE')}`);
             case 'arrays_createEmpty': return line(`new array ${v('NAME')}`);
             case 'arrays_createRange': return line(`new array ${v('NAME')} = range ${v('START')} to ${v('END')}`);
             case 'arrays_push': return line(`push ${v('VALUE')} to array ${v('NAME')}`);
@@ -2880,10 +2907,36 @@ class SB3Creator {
 
     scratchCall(b, blocks, valFn) { return this.runtimeObjCall(b, blocks, valFn, OP_TO_SCRATCH, 'scratch'); }
     arraysCall(b, blocks, valFn) {
-        if (!OP_TO_ARRAYS[b.opcode]) return null;
+        const isFunc = b.opcode === 'arrays_map' || b.opcode === 'arrays_filter' || b.opcode === 'arrays_reduce';
+        if (!OP_TO_ARRAYS[b.opcode] && !isFunc) return null;
         if (this._pyUses) { this._pyUses.arrays = true; this._pyUses.json = true; }
         if (this._jsUses) this._jsUses.arrays = true;
+        if (isFunc) return { kind: 'reporter', call: this.arraysFuncCall(b, blocks, valFn === this.pyVal ? 'py' : 'js') };
         return this.runtimeObjCall(b, blocks, valFn, OP_TO_ARRAYS, '_arrays');
+    }
+
+    // map/filter/reduce carry a FUNC arg that is a JS arrow-function string. They're
+    // not in OP_TO_ARRAYS (which would quote FUNC as a plain string) -- instead we
+    // emit it as raw JS (js) or a translated lambda (py).
+    arraysFuncCall(b, blocks, lang) {
+        const valFn = lang === 'py' ? this.pyVal : this.jsVal;
+        const name = valFn.call(this, b.inputs.NAME, blocks);
+        const raw = this.dval(b.inputs.FUNC, blocks).replace(/^"|"$/g, '');   // arrow string, unquoted
+        const fn = lang === 'py' ? this.arrowToPyLambda(raw) : raw;
+        const method = b.opcode.slice('arrays_'.length);   // map | filter | reduce
+        if (b.opcode === 'arrays_reduce') return `_arrays.${method}(${name}, ${fn}, ${valFn.call(this, b.inputs.INIT, blocks)})`;
+        return `_arrays.${method}(${name}, ${fn})`;
+    }
+
+    // Best-effort JS arrow -> Python lambda for the map/filter/reduce FUNC arg.
+    // Handles the common single-expression forms (`x => x * 2`, `(acc,x) => acc+x`);
+    // JS arithmetic/compare operators are valid Python. Complex bodies aren't translated.
+    arrowToPyLambda(s) {
+        const m = String(s).match(/^\s*\(?\s*([A-Za-z0-9_,\s]*?)\s*\)?\s*=>\s*(.+)$/);
+        if (!m) return `(lambda *a: None)`;
+        const params = m[1].trim();
+        const body = m[2].trim().replace(/^\{\s*return\s+|;?\s*\}$/g, '').trim();
+        return `(lambda ${params}: ${body})`;
     }
 
     // Build an `<obj>.<method>(args)` call for a block from a reversible-op table, or null.
@@ -3407,6 +3460,28 @@ class SB3Creator {
             '    def slice(self, n, s, e): return self._d[n][int(s):int(e)]',
             '    def to_text(self, n): return json.dumps(self._d[n])',
             '    def contains(self, n, v): return v in self._d[n]',
+            '    def create2d(self, n, j): self._d[n] = json.loads(j) if isinstance(j, str) else [list(r) for r in j]',
+            '    def get2d(self, n, r, c): return self._d[n][int(r)][int(c)]',
+            '    def set2d(self, n, r, c, v):',
+            '        row = self._d[n]',
+            '        while len(row) <= int(r): row.append([])',
+            '        while len(row[int(r)]) <= int(c): row[int(r)].append(0)',
+            '        row[int(r)][int(c)] = v',
+            '    def transpose(self, n): return [list(x) for x in zip(*self._d[n])]',
+            '    def _flat(self, a): return [y for x in a for y in (self._flat(x) if isinstance(x, list) else [x])]',
+            '    def reshape(self, n, shp):',
+            '        dims = json.loads(shp) if isinstance(shp, str) else shp',
+            '        flat = self._flat(self._d[n])',
+            '        def rs(i=0):',
+            '            if i == len(dims) - 1: return [flat.pop(0) for _ in range(int(dims[i]))]',
+            '            return [rs(i + 1) for _ in range(int(dims[i]))]',
+            '        return rs()',
+            '    def map(self, n, f): return [f(x) for x in self._d[n]]',
+            '    def filter(self, n, f): return [x for x in self._d[n] if f(x)]',
+            '    def reduce(self, n, f, init):',
+            '        acc = init',
+            '        for x in self._d[n]: acc = f(acc, x)',
+            '        return acc',
             '_arrays = _Arrays()'
         ];
     }
@@ -3425,7 +3500,13 @@ class SB3Creator {
             '        min: (n) => Math.min(...d[n]), max: (n) => Math.max(...d[n]), index_of: (n, v) => d[n].indexOf(v),',
             '        reverse: (n) => d[n].slice().reverse(), flatten: (n) => d[n].flat(Infinity),',
             '        sort: (n, o = "ascending") => d[n].slice().sort((a, b) => o === "ascending" ? a - b : b - a),',
-            '        slice: (n, s, e) => d[n].slice(Number(s), Number(e)), to_text: (n) => JSON.stringify(d[n]), contains: (n, v) => d[n].includes(v)',
+            '        slice: (n, s, e) => d[n].slice(Number(s), Number(e)), to_text: (n) => JSON.stringify(d[n]), contains: (n, v) => d[n].includes(v),',
+            '        create2d: (n, j) => { d[n] = typeof j === "string" ? JSON.parse(j) : j; },',
+            '        get2d: (n, r, c) => d[n][Number(r)][Number(c)],',
+            '        set2d: (n, r, c, v) => { if (!d[n][Number(r)]) d[n][Number(r)] = []; d[n][Number(r)][Number(c)] = v; },',
+            '        transpose: (n) => d[n][0].map((_, i) => d[n].map((row) => row[i])),',
+            '        reshape: (n, shp) => { const dims = typeof shp === "string" ? JSON.parse(shp) : shp; const flat = d[n].flat(Infinity); const rs = (i = 0) => i === dims.length - 1 ? flat.splice(0, Number(dims[i])) : Array.from({length: Number(dims[i])}, () => rs(i + 1)); return rs(); },',
+            '        map: (n, f) => d[n].map(f), filter: (n, f) => d[n].filter(f), reduce: (n, f, init) => d[n].reduce(f, init)',
             '    };',
             '})();'
         ];
