@@ -2907,36 +2907,10 @@ class SB3Creator {
 
     scratchCall(b, blocks, valFn) { return this.runtimeObjCall(b, blocks, valFn, OP_TO_SCRATCH, 'scratch'); }
     arraysCall(b, blocks, valFn) {
-        const isFunc = b.opcode === 'arrays_map' || b.opcode === 'arrays_filter' || b.opcode === 'arrays_reduce';
-        if (!OP_TO_ARRAYS[b.opcode] && !isFunc) return null;
+        if (!OP_TO_ARRAYS[b.opcode]) return null;
         if (this._pyUses) { this._pyUses.arrays = true; this._pyUses.json = true; }
         if (this._jsUses) this._jsUses.arrays = true;
-        if (isFunc) return { kind: 'reporter', call: this.arraysFuncCall(b, blocks, valFn === this.pyVal ? 'py' : 'js') };
         return this.runtimeObjCall(b, blocks, valFn, OP_TO_ARRAYS, '_arrays');
-    }
-
-    // map/filter/reduce carry a FUNC arg that is a JS arrow-function string. They're
-    // not in OP_TO_ARRAYS (which would quote FUNC as a plain string) -- instead we
-    // emit it as raw JS (js) or a translated lambda (py).
-    arraysFuncCall(b, blocks, lang) {
-        const valFn = lang === 'py' ? this.pyVal : this.jsVal;
-        const name = valFn.call(this, b.inputs.NAME, blocks);
-        const raw = this.dval(b.inputs.FUNC, blocks).replace(/^"|"$/g, '');   // arrow string, unquoted
-        const fn = lang === 'py' ? this.arrowToPyLambda(raw) : raw;
-        const method = b.opcode.slice('arrays_'.length);   // map | filter | reduce
-        if (b.opcode === 'arrays_reduce') return `_arrays.${method}(${name}, ${fn}, ${valFn.call(this, b.inputs.INIT, blocks)})`;
-        return `_arrays.${method}(${name}, ${fn})`;
-    }
-
-    // Best-effort JS arrow -> Python lambda for the map/filter/reduce FUNC arg.
-    // Handles the common single-expression forms (`x => x * 2`, `(acc,x) => acc+x`);
-    // JS arithmetic/compare operators are valid Python. Complex bodies aren't translated.
-    arrowToPyLambda(s) {
-        const m = String(s).match(/^\s*\(?\s*([A-Za-z0-9_,\s]*?)\s*\)?\s*=>\s*(.+)$/);
-        if (!m) return `(lambda *a: None)`;
-        const params = m[1].trim();
-        const body = m[2].trim().replace(/^\{\s*return\s+|;?\s*\}$/g, '').trim();
-        return `(lambda ${params}: ${body})`;
     }
 
     // Build an `<obj>.<method>(args)` call for a block from a reversible-op table, or null.
@@ -3476,11 +3450,22 @@ class SB3Creator {
             '            if i == len(dims) - 1: return [flat.pop(0) for _ in range(int(dims[i]))]',
             '            return [rs(i + 1) for _ in range(int(dims[i]))]',
             '        return rs()',
-            '    def map(self, n, f): return [f(x) for x in self._d[n]]',
-            '    def filter(self, n, f): return [x for x in self._d[n] if f(x)]',
+            '    def _fn(self, f):',
+            '        if callable(f): return f',
+            '        s = str(f)',
+            '        i = s.find("=>")',
+            '        if i < 0: return lambda *a: None',
+            '        return eval("lambda " + s[:i].strip().strip("()").strip() + ": " + s[i + 2:].strip())',
+            '    def map(self, n, f):',
+            '        g = self._fn(f)',
+            '        return [g(x) for x in self._d[n]]',
+            '    def filter(self, n, f):',
+            '        g = self._fn(f)',
+            '        return [x for x in self._d[n] if g(x)]',
             '    def reduce(self, n, f, init):',
+            '        g = self._fn(f)',
             '        acc = init',
-            '        for x in self._d[n]: acc = f(acc, x)',
+            '        for x in self._d[n]: acc = g(acc, x)',
             '        return acc',
             '_arrays = _Arrays()'
         ];
@@ -3490,6 +3475,7 @@ class SB3Creator {
         return [
             'const _arrays = (() => {  // Arrays & Vectors extension (github.com/CrispStrobe/extensions), as plain JS',
             '    const d = {};',
+            '    const _fn = (f) => typeof f === "function" ? f : new Function("return (" + f + ")")();  // compile a "x => …" FUNC string',
             '    return {',
             '        create1d: (n, j) => { d[n] = typeof j === "string" ? JSON.parse(j) : Array.from(j); },',
             '        create: (n) => { d[n] = []; }, create_range: (n, s, e) => { d[n] = Array.from({length: Number(e) - Number(s) + 1}, (_, i) => Number(s) + i); },',
@@ -3506,7 +3492,7 @@ class SB3Creator {
             '        set2d: (n, r, c, v) => { if (!d[n][Number(r)]) d[n][Number(r)] = []; d[n][Number(r)][Number(c)] = v; },',
             '        transpose: (n) => d[n][0].map((_, i) => d[n].map((row) => row[i])),',
             '        reshape: (n, shp) => { const dims = typeof shp === "string" ? JSON.parse(shp) : shp; const flat = d[n].flat(Infinity); const rs = (i = 0) => i === dims.length - 1 ? flat.splice(0, Number(dims[i])) : Array.from({length: Number(dims[i])}, () => rs(i + 1)); return rs(); },',
-            '        map: (n, f) => d[n].map(f), filter: (n, f) => d[n].filter(f), reduce: (n, f, init) => d[n].reduce(f, init)',
+            '        map: (n, f) => d[n].map(_fn(f)), filter: (n, f) => d[n].filter(_fn(f)), reduce: (n, f, init) => d[n].reduce(_fn(f), init)',
             '    };',
             '})();'
         ];
