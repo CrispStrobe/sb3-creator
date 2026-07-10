@@ -2736,10 +2736,37 @@ class SB3Creator {
         }
     }
 
+    // Project-wide blockId -> comment text map for codegen. Block ids are unique
+    // across targets, so one merged map is safe.
+    _buildCodeComments(targets) {
+        this._codeComments = {};
+        for (const t of targets || []) {
+            for (const c of Object.values(t.comments || {})) {
+                if (c && c.blockId) this._codeComments[c.blockId] = c.text;
+            }
+        }
+    }
+
+    // `#` / `//` comment lines (indented to `pad`) for a block carrying a Scratch
+    // block comment, so a native comment survives blocks -> Python/JS. Mirrors the
+    // decompiler's commentLines(); reads the project-wide _codeComments map built
+    // in generatePython/generateJavaScript.
+    codeCommentLines(blockId, pad, marker) {
+        if (this._emitComments === false) return [];
+        const text = this._codeComments && this._codeComments[blockId];
+        if (!text) return [];
+        return String(text).split('\n').map((l) => `${pad}${marker} ${l}`);
+    }
+
     pyStackFrom(firstId, blocks, level) {
         const lines = [];
         let id = firstId;
-        while (id && blocks[id]) { lines.push(...this.pyStackBlock(blocks[id], blocks, level)); id = blocks[id].next; }
+        const pad = '    '.repeat(level);
+        while (id && blocks[id]) {
+            lines.push(...this.codeCommentLines(id, pad, '#'));
+            lines.push(...this.pyStackBlock(blocks[id], blocks, level));
+            id = blocks[id].next;
+        }
         return lines;
     }
 
@@ -2930,7 +2957,9 @@ class SB3Creator {
         this._runtimesUsed = new Set();
         this._async = !!(opts && opts.async);
         this._events = !!(opts && opts.events);
+        this._emitComments = !(opts && opts.comments === false); // default: include block comments as #/// lines
         const targets = project.targets || [];
+        this._buildCodeComments(targets);
         const stage = targets.find((t) => t.isStage);
         // Stage variables are globals; sprite variables are locals (prefixed per sprite).
         const gScalars = stage ? Object.values(stage.variables || {}).map((v) => v[0]) : [];
@@ -3178,7 +3207,12 @@ class SB3Creator {
     jsStackFrom(firstId, blocks, level) {
         const lines = [];
         let id = firstId;
-        while (id && blocks[id]) { lines.push(...this.jsStackBlock(blocks[id], blocks, level)); id = blocks[id].next; }
+        const pad = '  '.repeat(level);
+        while (id && blocks[id]) {
+            lines.push(...this.codeCommentLines(id, pad, '//'));
+            lines.push(...this.jsStackBlock(blocks[id], blocks, level));
+            id = blocks[id].next;
+        }
         return lines;
     }
 
@@ -3240,7 +3274,9 @@ class SB3Creator {
         this._runtimesUsed = new Set();
         this._async = !!(opts && opts.async);
         this._events = !!(opts && opts.events);
+        this._emitComments = !(opts && opts.comments === false); // default: include block comments as #/// lines
         const targets = project.targets || [];
+        this._buildCodeComments(targets);
         const stage = targets.find((t) => t.isStage);
         const gScalars = stage ? Object.values(stage.variables || {}).map((v) => v[0]) : [];
         const gLists = stage ? Object.values(stage.lists || {}).map((l) => l[0]) : [];

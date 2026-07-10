@@ -37,6 +37,7 @@ class Tokenizer {
         this.indents = [0];
         this.bracketDepth = 0;
         this.atLineStart = true;
+        this._pendingComment = ''; // comment-only lines, attached to the next content token
     }
 
     error (msg) {
@@ -78,10 +79,17 @@ class Tokenizer {
             width += s[this.i] === '\t' ? 8 - (width % 8) : 1;
             this.i++;
         }
-        // Blank or comment-only line: no indent tokens.
+        // Blank or comment-only line: no indent tokens. A comment-only line is a
+        // leading comment for the next statement -- capture its text.
         if (this.i >= s.length || s[this.i] === '\n' || s[this.i] === '#') {
             this.atLineStart = false;
-            if (s[this.i] === '#') { while (this.i < s.length && s[this.i] !== '\n') this.i++; }
+            if (s[this.i] === '#') {
+                this.i++; // skip '#'
+                if (s[this.i] === ' ') this.i++; // skip one leading space
+                let text = '';
+                while (this.i < s.length && s[this.i] !== '\n') { text += s[this.i]; this.i++; }
+                this._pendingComment = this._pendingComment ? `${this._pendingComment}\n${text}` : text;
+            }
             return;
         }
         this.atLineStart = false;
@@ -98,7 +106,15 @@ class Tokenizer {
         if (last && last.type !== 'NEWLINE' && last.type !== 'INDENT' && last.type !== 'DEDENT') this.push('NEWLINE');
     }
 
-    push (type, value) { this.tokens.push({ type, value, line: this.line }); }
+    push (type, value) {
+        const tok = { type, value, line: this.line };
+        // Attach a buffered leading comment to the first real content token that follows.
+        if (this._pendingComment && type !== 'NEWLINE' && type !== 'INDENT' && type !== 'DEDENT' && type !== 'EOF') {
+            tok.comment = this._pendingComment;
+            this._pendingComment = '';
+        }
+        this.tokens.push(tok);
+    }
 
     readString (quote) {
         const s = this.src;
@@ -201,6 +217,13 @@ class Parser {
 
     parseStatement () {
         const t = this.peek();
+        const lead = t.comment; // captured leading `# comment`
+        const st = this.parseStatementInner(t);
+        if (st && lead && !st.comment) st.comment = lead;
+        return st;
+    }
+
+    parseStatementInner (t) {
         if (t.type === 'if') return this.parseIf();
         if (t.type === 'while') return this.parseWhile();
         if (t.type === 'for') return this.parseFor();
@@ -575,7 +598,19 @@ class Translator {
 
     pad (n) { return '    '.repeat(n); }
 
+    // Prepend any leading `#`/`//` comment (captured on the AST node) as pseudocode
+    // `# comment` lines, so a comment written in Python/JS survives back to blocks.
     stmt (s, indent) {
+        const out = this.stmtCore(s, indent);
+        if (s && s.comment && out.length) {
+            const p = this.pad(indent);
+            const lead = String(s.comment).split('\n').map((l) => `${p}# ${l}`);
+            return lead.concat(out);
+        }
+        return out;
+    }
+
+    stmtCore (s, indent) {
         const p = this.pad(indent);
         switch (s.type) {
             case 'Pass': case 'Break': case 'Continue': return [];
