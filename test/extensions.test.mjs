@@ -329,13 +329,44 @@ test('extension[arrays]: 2D + functional ops parse, round-trip, and run', () => 
     assert.match(dec, /map "x => x \* 2" over array "nums"/);
     const c2 = new SB3Creator(); c2.parse(dec);
     assert.equal(new SB3Creator().decompile(c2.project), dec, 'decompile idempotent');
-    // functional ops emit a real Python lambda (not a quoted string)
-    assert.match(c.generatePython(), /_arrays\.map\("nums", \(lambda x: x \* 2\)\)/);
-    assert.match(c.generateJavaScript(), /_arrays\.map\("nums", x => x \* 2\)/);
+    // functional ops carry FUNC as a quoted string end-to-end (the runtime shim
+    // compiles it) -- so they round-trip through code hops like any other reporter.
+    assert.match(c.generatePython(), /_arrays\.map\("nums", "x => x \* 2"\)/);
+    assert.match(c.generateJavaScript(), /_arrays\.map\("nums", "x => x \* 2"\)/);
     // and the generated JS runs to the right values
     const logs = [];
     vm.runInNewContext(c.generateJavaScript(), { console: { log: (...a) => logs.push(a.map(x => JSON.stringify(x)).join(' ')) }, prompt: () => '' }, { timeout: 1000 });
     assert.deepEqual(logs, ['9', '[[1,3],[9,4]]', '[[1,2],[3,4]]', '[2,4,6,8]', '[3,4]', '10']);
+});
+
+test('extension[arrays]: all 2D/functional ops are byte-for-byte transparent through code hops', () => {
+    const SRC = [
+        'SPRITE X:',
+        '  WHEN flag clicked:',
+        '    new 2D array "g" = [[1,2],[3,4]]',
+        '    set item row 0 col 1 of array "g" to 9',
+        '    say (transpose of array "g")',
+        '    new array "n" = [1,2,3,4]',
+        '    say (reshape array "n" to [2,2])',
+        '    say (map "x => x * 2" over array "n")',
+        '    say (filter array "n" by "x => x > 2")',
+        '    say (reduce array "n" with "(a,x) => a + x" from 0)'
+    ].join('\n');
+    const parse = (ps) => { const c = new SB3Creator(); c.parse(ps); return c.project; };
+    const sig = (proj) => new SB3Creator().decompile(proj).split('\n').filter(l => l.trim() && !l.trim().startsWith('#')).join('\n');
+    const hop = (proj, lang) => {
+        const c = new SB3Creator();
+        if (lang === 'py') return parse(pythonToPseudocode(c.generatePython(proj)).pseudocode);
+        if (lang === 'js') return parse(javascriptToPseudocode(c.generateJavaScript(proj)).pseudocode);
+        return parse(new SB3Creator().decompile(proj));
+    };
+    let p = parse(SRC);
+    const base = sig(p);
+    // Push through every language in several interleavings; the project signature must not drift.
+    for (const lang of ['js', 'py', 'pseudocode', 'js', 'py', 'pseudocode', 'py', 'js', 'py']) {
+        p = hop(p, lang);
+        assert.equal(sig(p), base, `signature preserved after ${lang} hop`);
+    }
 });
 
 test('extension[arrays]: contains runs true/false inside an IF', () => {

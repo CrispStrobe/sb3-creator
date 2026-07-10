@@ -145,6 +145,11 @@ const ARRAY_ENTRIES = [
     { m: 'set2d', op: 'arrays_set2D', gen: [{ v: 'NAME' }, { v: 'ROW' }, { v: 'COL' }, { v: 'VALUE' }], ps: (a) => `set item row ${a[1]} col ${a[2]} of array ${a[0]} to ${a[3]}` },
     { m: 'transpose', op: 'arrays_transpose', kind: 'reporter', gen: [{ v: 'NAME' }], ps: (a) => `transpose of array ${a[0]}` },
     { m: 'reshape', op: 'arrays_reshape', kind: 'reporter', gen: [{ v: 'NAME' }, { v: 'SHAPE' }], ps: (a, u) => `reshape array ${a[0]} to ${u(a[1])}` },
+    // functional ops -- FUNC stays a quoted JS-arrow string end-to-end (the runtime
+    // shim compiles it), so these round-trip through code hops like any other reporter.
+    { m: 'map', op: 'arrays_map', kind: 'reporter', gen: [{ v: 'NAME' }, { v: 'FUNC' }], ps: (a) => `map ${a[1]} over array ${a[0]}` },
+    { m: 'filter', op: 'arrays_filter', kind: 'reporter', gen: [{ v: 'NAME' }, { v: 'FUNC' }], ps: (a) => `filter array ${a[0]} by ${a[1]}` },
+    { m: 'reduce', op: 'arrays_reduce', kind: 'reporter', gen: [{ v: 'NAME' }, { v: 'FUNC' }, { v: 'INIT' }], ps: (a) => `reduce array ${a[0]} with ${a[1]} from ${a[2]}` },
     // boolean
     { m: 'contains', op: 'arrays_contains', kind: 'boolean', gen: [{ v: 'NAME' }, { v: 'VALUE' }], ps: (a) => `array ${a[0]} contains ${a[1]}` }
 ];
