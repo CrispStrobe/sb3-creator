@@ -26,8 +26,10 @@ Scratch `.sb3` projects and back, in four interchangeable representations.
 - `# comments` survive as native Scratch block comments (`test/comments.test.mjs`).
 - Extension blocks transpile to runnable code (`test/extensions.test.mjs`).
 
-Run tests: `node --test test/<file>.test.mjs` (the full `npm test` includes slow browser/exec
-suites and can exceed a 3-min limit — run files individually while iterating).
+Run tests: `npm run test:fast` (~5s: everything except the two heavy suites) while iterating;
+`npm run test:slow` runs the two behavioral ones (`exec` + `vm`, ~15s each); `npm test` runs all
+`test/*.test.mjs`; `npm run test:browser` is the opt-in Playwright/WebGL harness. Or run one file:
+`node --test test/<file>.test.mjs`.
 
 ## Extensions (source of truth)
 Brickwright's gallery extensions are NOT bundled in the fork; they load at runtime from
@@ -35,8 +37,12 @@ Brickwright's gallery extensions are NOT bundled in the fork; they load at runti
 from **github.com/CrispStrobe/extensions** (`extensions/CrispStrobe/*.js`). Canonical copies are
 pinned in `reference/extensions/`. Codegen maps their opcodes to Python/JS in
 `pyRep`/`jsRep`/`pyCond`/`jsCond`. **Done:** `planetemaths` (pure math; note the boolean opcode
-NAMES are misnomers — map by the implementation, `gt` = `NUM1 < NUM2`). **Next:** `arrays`
-(named-array registry), `gamepad` (runtime input).
+NAMES are misnomers — map by the implementation, `gt` = `NUM1 < NUM2`); `arrays` (named-array
+registry, `_arrays = {}`, 0-based) with pseudocode syntax + round-trip; `gamepad`/`universalgamepad`
+and `legoboost` via the pluggable `RUNTIME_EXTENSIONS` driver registry (see PLAN.md §22 P5).
+**Remaining P5:** the `arrays` 2D/functional ops (`create2D`, `map`/`filter`/`reduce`, `transpose`,
+`reshape`) still fall back to comments; the `remote` driver speaking `universal_lego_bridge.py`
+end-to-end; the `on-brick` driver reusing the per-hardware transpilers.
 
 ## Fork integration
 Compiler is VENDORED into the fork (`github.com/CrispStrobe/brickwright`, branch `develop`) at

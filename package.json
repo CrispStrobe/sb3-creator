@@ -10,6 +10,8 @@
   "scripts": {
     "dev": "vite",
     "test": "node --test test/*.test.mjs",
+    "test:fast": "node --test test/cli.test.mjs test/codegen.test.mjs test/comments.test.mjs test/decompile.test.mjs test/extensions.test.mjs test/features.test.mjs test/live.test.mjs test/roundtrip.test.mjs test/transparency.test.mjs test/unit.test.mjs",
+    "test:slow": "node --test test/exec.test.mjs test/vm.test.mjs",
     "gen:runtime": "node scripts/gen-runtime-registry.mjs",
     "gen:runtime:check": "node scripts/gen-runtime-registry.mjs --check",
     "build:harness": "node test/browser/build.mjs",
