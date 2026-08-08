@@ -8,17 +8,64 @@ It is **emit-only for now**: there is no C → blocks front end *yet*, so C is e
 two-way convergence invariant that pseudocode/Python/JavaScript satisfy. The STC *block
 surface* below does round-trip pseudocode ⇄ blocks like everything else.
 
-**Both directions are the intent**, and most of the machinery for the way back already exists
-in `../stc-compiler` — the missing piece is the lift onto pseudocode/blocks, not the ability
-to read C or an image:
+**Both directions are the intent.** The keystone is one piece of work: **`cToPseudocode.js`**,
+a fourth front end exactly parallel to `pythonToPseudocode.js` / `javascriptToPseudocode.js`
+— tokenizer + Pratt parser → the shared `Translator` → pseudocode → `parse()`. That is what
+makes C two-way; nothing else does.
 
-| have | what it does | measured |
+Two things make it tractable, and both are established house patterns rather than new ideas:
+
+- **Parse the subset the emitter emits, not general C.** The Python and JS front ends only
+  ever parse what their emitters produce, and `generateC`'s vocabulary is far smaller and
+  more regular than either: `P1_0 = 0;`, `delay_ms(150);`, `for (;;)`, `while (!(cond))`, the
+  `{ unsigned int _iN; for (…) }` REPEAT idiom, `static int` variables. Round-tripping *our
+  own* output is the tractable, testable goal.
+- **Where the C form loses information, emit a marker.** `generatePython` already emits
+  `scratch.defblock(proccode, warp)`, `scratch.sprite(…)`, `scratch.global_var(…)` for
+  exactly this reason. `generateC` should emit an equivalent machine-readable header
+  (DEVICE / CLOCK / PIN, and the script boundaries) so the front end never has to invert the
+  Duff's-device state machine — recovering "three `when green flag clicked` scripts" from a
+  switch whose `case` labels are scattered through nested `if`s is a genuine inverse problem,
+  and it does not need solving if the emitter simply says so.
+
+**What the two existing pieces in `../stc-compiler` actually contribute** — neither is on the
+C → blocks path, which is why neither is a substitute for the front end above:
+
+| have | what it really is | measured |
 |---|---|---|
-| `keil2sdcc.py` — `POST /translate`, `/translate-project` | reads arbitrary third-party Keil C51 and normalises it to SDCC C (whole projects: ISR-prototype injection, case-unified externs, `.uvproj` source list) | 546/597 files over an 86-repo corpus (91%); 31/31 on the hand-converted QX-mini51 parallel corpus |
-| `stc_disasm.py` — `POST /disassemble` | Intel HEX image → 8051 assembly, table generated from the encoding's regularities, linear sweep with branch-target sync points | 380/380 byte-exact over 349 images, verified two ways (SDCC's own `.rst` listing, and reassembly through `sdas8051`/`sdld`) |
+| `keil2sdcc.py` — `POST /translate`, `/translate-project` | **C → C.** Dialect normalisation, so it widens the *input surface* of the front end above: once `cToPseudocode` exists, a Keil project can become blocks. It moves nothing toward blocks on its own. | 546/597 files over an 86-repo corpus (91%); 31/31 on the hand-converted QX-mini51 parallel corpus |
+| `stc_disasm.py` — `POST /disassemble` | **HEX → asm.** A *different and harder* front end: asm → pseudocode needs structure recovery (no loop shapes, no names, no script boundaries). Keep it on its own track. | 380/380 byte-exact over 349 images, verified two ways (SDCC's own `.rst` listing, and reassembly through `sdas8051`/`sdld`) |
 
-So the reverse direction is a roadmap item with two thirds of its foundation already
-measured — not a closed door.
+### The asm → blocks track, separately
+
+Three strategies, increasing in ambition; do them in this order.
+
+1. **Our own images: idiom matching, not decompilation.** The shape is known — `delay_ms`,
+   `bw_now`, `adc_read` are recognisable subroutines, SFR bit writes are `CLR`/`SETB` on a
+   known bit address, and every loop is one of a finite set of skeletons `stmts_c` can
+   produce. Find the library routines by byte signature (the technique IDA's FLIRT uses),
+   then match the remaining basic blocks against that finite set. The oracle is free:
+   `generateC → SDCC → hex → disassemble → recover → compare against the original
+   pseudocode`, in the same spirit as the existing reassembly round-trip.
+2. **Foreign images: annotate rather than decompile.** For a third-party `.hex` the useful
+   product is usually a named, commented disassembly plus a recognised-peripheral report
+   ("writes `ADC_CONTR` with `0xE8|ch` then polls bit 4 → an ADC read on channel *n*";
+   "Timer 0 mode 1, reload 0xDC00 at FOSC/12 → a 1 ms tick"). Achievable from what already
+   exists, and it is what the debugger view wants anyway.
+3. **Real structure recovery, only if a need appears — and adopted, not hand-rolled.** Build
+   a CFG from the existing linear sweep (its branch-target sync points already give the
+   leaders), then structural/interval analysis to recover `if`/`while` (Cifuentes' *dcc* is
+   the canonical reference at this scale; `reko`, `retdec` and Ghidra's decompiler all
+   descend from it). Control flow is the *easy* half on an 8051 — compilers emit very
+   stereotyped code. The pain is data: `ACC`/`B`/`DPTR`/`R0–R7` with register banks
+   (`PSW.RS0/RS1`), bit-addressable RAM at 0x20–0x2F, four address spaces, and SDCC passing
+   arguments in registers while overlaying locals. Type recovery is where decompilers lose.
+
+**The emulator is the test harness for all three.** With an STC12 model in ucsim, a recovered
+program can be validated by *executing* both and comparing pin/SFR traces — differential
+execution as the oracle for decompilation, the same pattern already used for the Keil
+translator. So the ucsim work is not a detour from the reverse direction; it is what makes it
+checkable.
 
 ## The reference implementation and oracle
 
