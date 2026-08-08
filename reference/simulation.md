@@ -124,6 +124,45 @@ code never references.
    of merely asserting it. It belongs in the shared peripheral spec, not in either emulator's
    source.
 
+## The tier-1 loop is closed — verified 2026-08-08
+
+`generateJavaScript(project, {driver: 'simulator'})` emits a program that **is** the MCU side
+of boundary A. It needs no emulator and no new emitter code — it is one more mode of the same
+driver swap point that already serves shim / remote / on-brick.
+
+The one thing this driver carries that the others do not is the **pin table**. The program says
+`turn on led1`; boundary A wants `setPin("P1.0", mode, driveHigh)`. Only the project knows that
+`led1` is P1.0, push-pull, and wired ACTIVE LOW, so the table is emitted as data beside the
+driver and the driver performs the inversion that makes `on` a `0`. An `ANALOG` pin reads
+**volts** from the board and the scaling to counts stays on the MCU side, exactly as the
+contract requires — the board never has to know which chip it is attached to.
+
+### Reproducing it
+
+```js
+import { BoardImpl } from 'bw-board/src/index.js';
+
+const board = new BoardImpl();
+board.setNetlist(PARTS, NETS);   // VCC -> 1k -> LED(anode/cathode) -> MCU "P1.0", plus GND
+board.setPower(true);
+
+new Function('bwBoard', emittedProgramSource)(board);   // the program drives the board
+board.advanceTo(20_000_000n);                           // 20 ms, the brightness window
+
+board.readPin('P1.0');        // 0  — the active-low inversion happened
+board.ledBrightness('LED1');  // 0.1449
+```
+
+`0.1449` is bw-board's own hand-computed oracle — `I = (5 − 2) / (1000 + 10 + 25) = 2.899 mA`,
+brightness `= I / 20 mA` — reached by a component that was never told the answer. The junction
+sits at 2.101 V.
+
+**Copy the netlist shape from the consumer's own passing tests.** Writing one from memory cost
+two false starts: the LED's terminals are `anode`/`cathode` (not `a`/`b`), `VCC`'s is `vcc` and
+takes no `volts` param, and a `GND` part is required. Getting any of those wrong returns
+brightness `0.0000` and a node at `5.000 V` — a *plausible, wrong* answer, which is the same
+failure mode as a multimeter that reads ohms on a live circuit.
+
 ## Staging
 
 1. **Board layer + closed-form path + `driver:"simulator"`** — 8051 only; LED, pot, button,
