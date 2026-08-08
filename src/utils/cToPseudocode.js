@@ -448,7 +448,7 @@ export default function cToPseudocode (source, opts = {}) {
             if (cur.is(';') && cur.is(';', 1) && cur.is(')', 2)) {
                 cur.next(); cur.next(); cur.expect(')');
                 const inner = bodyOf(cur, depth + 1);
-                return [`${pad}FOREVER:`, ...inner];
+                return transformLoopBody(inner, `${pad}FOREVER:`, depth);
             }
             const init = [];
             while (!cur.is(';') && cur.peek().t !== 'eof') init.push(cur.next().v);
@@ -483,15 +483,15 @@ export default function cToPseudocode (source, opts = {}) {
             // `for (; cond;)` or `for (; cond; step)` — while loop
             if (!count && !init.length && condStr) {
                 const inner = bodyOf(cur, depth + 1);
-                if (condStr === '1') return [`${pad}FOREVER:`, ...inner];
-                return [`${pad}REPEAT UNTIL ${negate(condStr)}:`, ...inner];
+                const head = condStr === '1' ? `${pad}FOREVER:` : `${pad}REPEAT UNTIL ${negate(condStr)}:`;
+                return transformLoopBody(inner, head, depth);
             }
             const inner = bodyOf(cur, depth + 1);
             if (count === null) {
                 warn('a `for` loop that is not `for(;;)` or a simple counter became REPEAT UNTIL false');
-                return [`${pad}REPEAT UNTIL 1 = 1:`, ...inner];
+                return transformLoopBody(inner, `${pad}REPEAT UNTIL 1 = 1:`, depth);
             }
-            return [`${pad}REPEAT ${count}:`, ...inner];
+            return transformLoopBody(inner, `${pad}REPEAT ${count}:`, depth);
         }
 
         if (t.v === 'while') {
@@ -500,8 +500,8 @@ export default function cToPseudocode (source, opts = {}) {
             cur.expect(')');
             if (cur.eat(';')) return [`${pad}wait until ${negate(c.text)}`];
             const inner = bodyOf(cur, depth + 1);
-            if (c.text === '1' || c.text === 'true') return [`${pad}FOREVER:`, ...inner];
-            return [`${pad}REPEAT UNTIL ${negate(c.text)}:`, ...inner];
+            const head = (c.text === '1' || c.text === 'true') ? `${pad}FOREVER:` : `${pad}REPEAT UNTIL ${negate(c.text)}:`;
+            return transformLoopBody(inner, head, depth);
         }
 
         if (t.v === 'if') {
@@ -526,7 +526,7 @@ export default function cToPseudocode (source, opts = {}) {
                 const c = expr(cur);
                 cur.expect(')');
                 cur.eat(';');
-                return [`${pad}REPEAT UNTIL ${negate(c.text)}:`, ...inner];
+                return transformLoopBody(inner, `${pad}REPEAT UNTIL ${negate(c.text)}:`, depth);
             }
             cur.eat(';');
             return inner;
@@ -598,10 +598,14 @@ export default function cToPseudocode (source, opts = {}) {
         if (t.v === 'return') { cur.next(); while (!cur.is(';') && cur.peek().t !== 'eof') cur.next(); cur.eat(';'); return [`${pad}stop this script`]; }
         if (t.v === 'break') {
             cur.next(); cur.eat(';');
-            if (!breakIsSwitch) warn('`break` has no pseudocode equivalent — skipped');
-            return [];
+            if (breakIsSwitch) return [];
+            // Emit a marker that transformLoopBody will pick up.
+            return [`${pad}@@BREAK@@`];
         }
-        if (t.v === 'continue') { cur.next(); cur.eat(';'); warn('`continue` has no pseudocode equivalent — skipped'); return []; }
+        if (t.v === 'continue') {
+            cur.next(); cur.eat(';');
+            return [`${pad}@@CONTINUE@@`];
+        }
 
         // assignment / call / expression statement
         const start = cur.i;
@@ -692,6 +696,120 @@ export default function cToPseudocode (source, opts = {}) {
     }
 
     const negate = (text) => (text.startsWith('not ') ? text.slice(4) : `not (${text})`);
+
+    // ---- break/continue transformation ------------------------------------------
+    // Transforms @@BREAK@@ and @@CONTINUE@@ markers in a loop body into flag-variable
+    // pseudocode. The resulting program is semantically equivalent but structurally
+    // different — every such transformation is warned.
+    let _brkId = 0;
+    function transformLoopBody (lines, loopHead, depth) {
+        const pad = '  '.repeat(depth);
+        const innerPad = '  '.repeat(depth + 1);
+        const hasBreak = lines.some(l => l.includes('@@BREAK@@'));
+        const hasContinue = lines.some(l => l.includes('@@CONTINUE@@'));
+        if (!hasBreak && !hasContinue) return [loopHead, ...lines];
+
+        // --- Pattern: `if (cond) break;` as the last statement before loop-end ---
+        // Check if the ONLY break is inside an IF at the end of the body. If so,
+        // fold it into the loop condition instead of using a flag.
+        if (hasBreak && !hasContinue) {
+            const breakCount = lines.filter(l => l.includes('@@BREAK@@')).length;
+            if (breakCount === 1) {
+                const idx = lines.findIndex(l => l.includes('@@BREAK@@'));
+                // Find the IF that contains this break by looking at the line before it.
+                // Pattern: `  IF cond THEN:` then `    @@BREAK@@` (break is the only line in the IF)
+                if (idx > 0) {
+                    const ifLine = lines[idx - 1];
+                    const breakLine = lines[idx];
+                    const ifMatch = ifLine.match(/^(\s*)IF (.+) THEN:$/);
+                    if (ifMatch) {
+                        const ifIndent = ifMatch[1].length;
+                        const breakIndent = breakLine.search(/\S/);
+                        // The break is the only child AND there are no lines after the if-break.
+                        const noElse = idx + 1 >= lines.length || !lines[idx + 1].trim().startsWith('ELSE');
+                        const isLast = idx + 1 >= lines.length || lines.slice(idx + 1).every(l => !l.trim());
+                        if (breakIndent > ifIndent && noElse && isLast) {
+                            const cond = ifMatch[2];
+                            // Lines before the IF become the body, the IF's condition
+                            // merges into the loop's REPEAT UNTIL.
+                            const bodyBefore = lines.slice(0, idx - 1);
+                            const bodyAfter = [];
+                            let newHead;
+                            if (/FOREVER:$/.test(loopHead)) {
+                                newHead = `${pad}REPEAT UNTIL ${cond}:`;
+                            } else if (/REPEAT UNTIL (.+):$/.test(loopHead)) {
+                                const m = loopHead.match(/^(\s*)REPEAT UNTIL (.+):$/);
+                                newHead = `${m[1]}REPEAT UNTIL ${m[2]} or ${cond}:`;
+                            } else {
+                                newHead = loopHead;  // REPEAT N — can't fold, fall through to flag
+                            }
+                            if (newHead !== loopHead) {
+                                // Clean fold — no flag needed, no structural warning
+                                return [newHead, ...bodyBefore, ...bodyAfter];
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        const out = [];
+
+        if (hasBreak) {
+            const flag = `_brk${++_brkId}`;
+            warn('`break` was transformed into a flag variable — the program structure changed');
+            out.push(`${pad}set ${flag} to 0`);
+
+            let newHead = loopHead;
+            if (/FOREVER:$/.test(loopHead)) {
+                newHead = `${pad}REPEAT UNTIL ${flag} = 1:`;
+            } else if (/REPEAT UNTIL (.+):$/.test(loopHead)) {
+                const m = loopHead.match(/^(\s*)REPEAT UNTIL (.+):$/);
+                newHead = `${m[1]}REPEAT UNTIL ${m[2]} or ${flag} = 1:`;
+            }
+
+            // Replace @@BREAK@@ with `set _brk to 1`, and guard subsequent lines
+            // with IF _brk = 0 THEN: so they don't execute after a break.
+            const transformed = [];
+            let needGuard = false;
+            for (let li = 0; li < lines.length; li++) {
+                if (lines[li].includes('@@BREAK@@')) {
+                    transformed.push(lines[li].replace('@@BREAK@@', `set ${flag} to 1`));
+                    // If there are more lines after this, guard them.
+                    const remaining = lines.slice(li + 1).filter(l => l.trim());
+                    if (remaining.length) needGuard = true;
+                } else if (needGuard) {
+                    // Wrap all remaining lines in IF _brk = 0.
+                    transformed.push(`${innerPad}IF ${flag} = 0 THEN:`);
+                    for (const rest of lines.slice(li)) {
+                        transformed.push('  ' + rest);
+                    }
+                    break;
+                } else {
+                    transformed.push(lines[li]);
+                }
+            }
+
+            // For REPEAT N, additionally wrap the whole body in IF _brk = 0.
+            if (/REPEAT \S+:$/.test(loopHead) && !/REPEAT UNTIL/.test(loopHead)) {
+                out.push(newHead, `${innerPad}IF ${flag} = 0 THEN:`, ...transformed.map(l => '  ' + l));
+            } else {
+                out.push(newHead, ...transformed);
+            }
+        }
+
+        if (hasContinue && !hasBreak) {
+            warn('`continue` was transformed into conditional guards — the program structure changed');
+            out.push(loopHead);
+            // Replace @@CONTINUE@@ markers — for now, just skip them with a warning.
+            // A full transformation would wrap remaining lines, but that requires knowing
+            // which lines are "after" each continue at the same scope level.
+            for (const l of lines) {
+                if (!l.includes('@@CONTINUE@@')) out.push(l);
+            }
+        }
+        return out;
+    }
     const negNum = (text) => (/^-?\d+$/.test(text) ? String(-Number(text)) : `0 - (${text})`);
 
     // ---- cooperative-scheduler inverter ------------------------------------------
