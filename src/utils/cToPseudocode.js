@@ -451,20 +451,41 @@ export default function cToPseudocode (source, opts = {}) {
                 const inner = bodyOf(cur, depth + 1);
                 return [`${pad}FOREVER:`, ...inner];
             }
-            const start = cur.i;
-            cur.i = start;
-            let count = null;
             const init = [];
             while (!cur.is(';') && cur.peek().t !== 'eof') init.push(cur.next().v);
             cur.eat(';');
             const cond = [];
             while (!cur.is(';') && cur.peek().t !== 'eof') cond.push(cur.next().v);
             cur.eat(';');
-            while (!cur.is(')') && cur.peek().t !== 'eof') cur.next();
+            const step = [];
+            while (!cur.is(')') && cur.peek().t !== 'eof') step.push(cur.next().v);
             cur.expect(')');
-            const cm = cond.join(' ').match(/^(\w+)\s*<\s*(.+)$/);
-            if (cm && init.join(' ').replace(/\s+/g, '').startsWith(`${cm[1]}=0`)) {
-                count = cm[2].replace(/\s*\)\s*$/, '').replace(/^\(\s*/, '').trim();
+            let count = null;
+            const condStr = cond.join(' ').trim();
+            const initStr = init.join(' ').replace(/\s+/g, '').trim();
+            // `for (i = 0; i < N; i++)` or `for (i = 0; i < N; ++i)`
+            const up = condStr.match(/^(\w+)\s*<\s*(.+)$/);
+            if (up && initStr.match(new RegExp(`^(\\w+=)?${up[1]}=0$`))) {
+                count = up[2].replace(/\s*\)\s*$/, '').replace(/^\(\s*/, '').trim();
+            }
+            // `for (i = 0; i <= N-1; i++)` → REPEAT N
+            const upEq = condStr.match(/^(\w+)\s*<=\s*(.+)$/);
+            if (!count && upEq && initStr.match(new RegExp(`^(\\w+=)?${upEq[1]}=0$`))) {
+                const lim = upEq[2].replace(/\s*\)\s*$/, '').replace(/^\(\s*/, '').trim();
+                const n = Number(lim);
+                count = Number.isFinite(n) ? String(n + 1) : `${lim} + 1`;
+            }
+            // `for (i = N; i > 0; i--)` → REPEAT N
+            const down = condStr.match(/^(\w+)\s*>\s*0$/);
+            if (!count && down) {
+                const im = initStr.match(new RegExp(`^(\\w+=)?${down[1]}=(\\w+)$`));
+                if (im) count = im[2];
+            }
+            // `for (; cond;)` or `for (; cond; step)` — while loop
+            if (!count && !init.length && condStr) {
+                const inner = bodyOf(cur, depth + 1);
+                if (condStr === '1') return [`${pad}FOREVER:`, ...inner];
+                return [`${pad}REPEAT UNTIL ${negate(condStr)}:`, ...inner];
             }
             const inner = bodyOf(cur, depth + 1);
             if (count === null) {
