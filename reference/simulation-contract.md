@@ -65,6 +65,15 @@ Four decisions, each of which matters:
    which chip it is attached to, which is exactly what we are avoiding.
 4. **The board never calls the MCU.** One direction of control, so there is no re-entrancy and
    no scheduler to agree on. `advanceTo` is how the board learns that time moved.
+5. **Debugger pauses need nothing added here.** A halted MCU simply stops calling `advanceTo`,
+   so board time stops with program time and the world freezes coherently. **Do not add a
+   `pause()` to this interface**, and — the part that is not obvious — **do not catch up on
+   resume** by passing the elapsed wall time: the board would integrate one enormous `dt` in a
+   single step, and RC networks, PWM brightness averaging and buzzer frequency would all be
+   wrong for a frame. `setControl` (boundary B) stays live while halted, because turning a knob
+   is user intent rather than physics. The full rule, including what changes when the panel is
+   mirroring *real* hardware instead of driving an emulator, is
+   `stc12c5a60s2-lab/docs/DEBUG-CONTROL-MODEL.md` §3.1.
 
 That is the entire coupling. It is small on purpose: both emulators can implement it cheaply,
 and it constrains neither of their internals.
