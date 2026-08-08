@@ -179,6 +179,15 @@ class ExprParser {
         if (level >= BIN.length) return this.unary();
         const [ops, word] = BIN[level];
         let left = this.parse(level + 1);
+        // Ternary `? :` at the lowest level (below `||`).
+        if (level === 0 && this.c.is('?')) {
+            this.c.next();
+            const then = this.parse(0);
+            this.c.eat(':');
+            const els = this.parse(0);
+            // No pseudocode equivalent — just pick the 'then' branch.
+            return then;
+        }
         for (;;) {
             const v = this.c.peek().v;
             if (!ops.includes(v)) return left;
@@ -195,14 +204,26 @@ class ExprParser {
         if (this.c.eat('~')) { const x = this.unary(); return { text: x.text, level: 99, bitwise: true }; }
         if (this.c.eat('-')) { const x = this.unary(); return { text: `-${wrap(x, 99)}`, level: 99 }; }
         if (this.c.eat('+')) return this.unary();
+        // Unary `&` (address-of) and `*` (dereference) — no pseudocode equivalent,
+        // but parse them so the containing expression does not throw.
+        if (this.c.eat('&')) { return this.unary(); }
+        if (this.c.eat('*')) { return this.unary(); }
+        // Pre-increment/decrement: `++x` / `--x`
+        if (this.c.eat('++')) { return this.unary(); }
+        if (this.c.eat('--')) { return this.unary(); }
         return this.atom();
     }
 
     atom () {
         const t = this.c.next();
         if (t.v === '(') {
-            // A cast — `(unsigned int)(x)` / `(int)(y)` — is noise here; step over it.
-            if (t.t === 'op' && this.isCast()) { this.c.skip('(', ')'); this.c.i--; this.c.next(); return this.unary(); }
+            // A cast — `(unsigned int)(x)` / `(int)(y)` / `(char *)buf` — is noise here; step over it.
+            if (t.t === 'op' && this.isCast()) {
+                // isCast verified type keywords then ')'; skip past them to the ')'.
+                while (!this.c.is(')') && this.c.peek().t !== 'eof') this.c.next();
+                this.c.next();   // eat the ')'
+                return this.unary();
+            }
             const inner = this.parse(0);
             this.c.expect(')');
             return inner;
@@ -213,17 +234,37 @@ class ExprParser {
         }
         if (t.t === 'id') {
             if (this.c.is('(')) return this.call(t.v);
-            return { text: this.ctx.readName(t.v), level: 99 };
+            let result = { text: this.ctx.readName(t.v), level: 99 };
+            // Array subscript(s): `name[expr]` or `name[expr][expr]`
+            while (this.c.is('[')) {
+                this.c.skip('[', ']');
+                result = { text: result.text, level: 99, array: true };
+            }
+            // Postfix ++ / --: `i++` or `i--` used as an expression.
+            if (this.c.is('++') || this.c.is('--')) {
+                this.c.next();
+                return result;
+            }
+            // Struct member access: `s.field` or `s->field`.
+            while (this.c.is('.') || this.c.is('->')) {
+                this.c.next();
+                if (this.c.peek().t === 'id') this.c.next();
+            }
+            return result;
         }
         return { text: '0', level: 9 };
     }
 
     isCast () {
-        // cursor is just past '('; a cast is a type keyword run then ')'
+        // cursor is just past '('; a cast is a type keyword run then ')'.
+        // Also handles pointer casts like `(char *)` and `(unsigned int *)`.
         let n = 0;
         const types = new Set(['unsigned', 'signed', 'int', 'char', 'long', 'short', 'void', 'float', 'double']);
         while (this.c.peek(n).t === 'id' && types.has(this.c.peek(n).v)) n++;
-        return n > 0 && this.c.peek(n).v === ')';
+        if (n === 0) return false;
+        // Allow trailing `*` for pointer casts.
+        while (this.c.peek(n).v === '*') n++;
+        return this.c.peek(n).v === ')';
     }
 
     call (name) {
@@ -391,7 +432,10 @@ export default function cToPseudocode (source, opts = {}) {
         if (cur.is('{')) return block(cur, depth);
 
         // A local declaration (`unsigned char i;`) carries no meaning here.
-        if (t.t === 'id' && ['unsigned', 'signed', 'int', 'char', 'long', 'short', 'static', 'volatile', 'const', 'float', 'double'].includes(t.v)) {
+        // Keil keywords (`sbit`, `sfr`, `bit`, `code`, `data`, `xdata`, etc.) are
+        // also declaration specifiers.
+        if (t.t === 'id' && ['unsigned', 'signed', 'int', 'char', 'long', 'short', 'static', 'volatile', 'const', 'float', 'double',
+            'sbit', 'sfr', 'sfr16', 'bit', 'code', 'data', 'xdata', 'idata', 'pdata', 'void', 'extern', 'register', 'typedef', 'struct', 'union', 'enum'].includes(t.v)) {
             while (!cur.is(';') && cur.peek().t !== 'eof') {
                 if (cur.is('{')) cur.skip('{', '}'); else cur.next();
             }
@@ -436,6 +480,7 @@ export default function cToPseudocode (source, opts = {}) {
             cur.expect(')');
             if (cur.eat(';')) return [`${pad}wait until ${negate(c.text)}`];
             const inner = bodyOf(cur, depth + 1);
+            if (c.text === '1' || c.text === 'true') return [`${pad}FOREVER:`, ...inner];
             return [`${pad}REPEAT UNTIL ${negate(c.text)}:`, ...inner];
         }
 
@@ -452,11 +497,74 @@ export default function cToPseudocode (source, opts = {}) {
             return out;
         }
 
-        if (t.v === 'do' || t.v === 'switch' || t.v === 'goto') {
-            warn(`\`${t.v}\` has no pseudocode equivalent — skipped`);
+        if (t.v === 'do') {
             cur.next();
-            if (cur.is('(')) cur.skip('(', ')');
-            if (cur.is('{')) cur.skip('{', '}');
+            const inner = bodyOf(cur, depth + 1);
+            // `do { body } while (cond);` → REPEAT UNTIL not cond
+            if (cur.eat('while')) {
+                cur.expect('(');
+                const c = expr(cur);
+                cur.expect(')');
+                cur.eat(';');
+                return [`${pad}REPEAT UNTIL ${negate(c.text)}:`, ...inner];
+            }
+            cur.eat(';');
+            return inner;
+        }
+
+        if (t.v === 'switch') {
+            cur.next(); cur.expect('(');
+            const switchExpr = expr(cur);
+            cur.expect(')'); cur.expect('{');
+            // Convert case labels to if-else chain.
+            const cases = [];
+            let defaultCase = null;
+            while (!cur.is('}') && cur.peek().t !== 'eof') {
+                if (cur.eat('case')) {
+                    const val = expr(cur);
+                    cur.expect(':');
+                    const body = [];
+                    while (!cur.is('case') && !cur.is('default') && !cur.is('}') && cur.peek().t !== 'eof') {
+                        if (cur.eat('break')) { cur.eat(';'); break; }
+                        body.push(...statement(cur, depth + 1));
+                    }
+                    cases.push({ val: val.text, body });
+                } else if (cur.eat('default')) {
+                    cur.expect(':');
+                    const body = [];
+                    while (!cur.is('case') && !cur.is('}') && cur.peek().t !== 'eof') {
+                        if (cur.eat('break')) { cur.eat(';'); break; }
+                        body.push(...statement(cur, depth + 1));
+                    }
+                    defaultCase = body;
+                } else { cur.next(); }
+            }
+            cur.eat('}');
+            if (!cases.length && !defaultCase) return [];
+            // Convert switch to a series of independent IF blocks.
+            // Not semantically equivalent (fall-through is lost, which is warned), but
+            // correct for the common pattern of case+break.
+            const out = [];
+            for (const c of cases) {
+                out.push(`${pad}IF ${switchExpr.text} = ${c.val} THEN:`);
+                out.push(...(c.body.length ? c.body : [`${'  '.repeat(depth + 1)}stop`]));
+            }
+            // Default case becomes the final else-body of the last IF, or standalone.
+            if (defaultCase && defaultCase.length) {
+                if (cases.length) {
+                    // Attach as ELSE to the last IF for cleaner semantics.
+                    out.push(`${pad}ELSE:`);
+                    out.push(...defaultCase);
+                } else {
+                    out.push(...defaultCase);
+                }
+            }
+            return out;
+        }
+
+        if (t.v === 'goto') {
+            warn('`goto` has no pseudocode equivalent — skipped');
+            cur.next();
             while (!cur.is(';') && !cur.is('}') && cur.peek().t !== 'eof') cur.next();
             cur.eat(';');
             return [];
@@ -522,12 +630,19 @@ export default function cToPseudocode (source, opts = {}) {
             const secs = Number.isFinite(ms) ? +(ms / 1000).toFixed(6) : null;
             return { text: '0', level: 99, stmt: secs === null ? `wait ${args[0].text} ms` : `wait ${secs} seconds` };
         }
-        if (SETUP.has(name)) return { text: '0', level: 99, stmt: null };
+        if (SETUP.has(name) || name === '_nop_' || name === 'NOP' || name === '__nop') return { text: '0', level: 99, stmt: null };
         if (markers && markers.procs.has(name)) {
             const { proccode } = markers.procs.get(name);
             let i = 0;
             const label = proccode.replace(/%[sb]/g, () => (args[i] ? args[i++].text : '0'));
             return { text: '0', level: 99, stmt: label };
+        }
+        // For hand-written firmware, translate unknown function calls as custom block
+        // calls rather than silently dropping them. In expression position (not
+        // statement), it still returns 0 with a warning via origReadCall.
+        if (!markers && !SFRS.test(name)) {
+            const argList = args.map((a) => a.text).join(' ');
+            return { text: '0', level: 99, stmt: `${name}${argList ? ' ' + argList : ''}` };
         }
         return origReadCall(name, args);
     };

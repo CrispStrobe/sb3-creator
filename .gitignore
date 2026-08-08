@@ -29,3 +29,4 @@ test/browser/shots/
 
 # Agent context: local paths and operational detail, not for the repo.
 CLAUDE.md
+corpus/
