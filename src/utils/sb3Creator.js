@@ -3961,14 +3961,17 @@ class SB3Creator {
         // Pass 2 — declare state. Names are claimed here so a custom block's parameter can
         // never quietly take a variable's identifier.
         const stateDecls = [];
+        const markVars = [], markProcs = [], markScripts = [];
         for (const entry of Object.values((stage && stage.variables) || {})) {
             stateDecls.push(`static int ${this.cName(entry[0])} = ${this.cInit(entry[1])};`);
+            markVars.push(`var ${this.cName(entry[0])} ${this.pyStr(entry[0])}`);
         }
         sections.forEach((t, idx) => {
             if (t.isStage) return;
             const pfx = spritePrefix(idx);
             for (const entry of Object.values(t.variables || {})) {
                 stateDecls.push(`static int ${this.cName(pfx + entry[0])} = ${this.cInit(entry[1])};   /* ${this.cComment(t.name)}: ${this.cComment(entry[0])} */`);
+                markVars.push(`var ${this.cName(pfx + entry[0])} ${this.pyStr(entry[0])} sprite ${this.pyStr(t.name)}`);
             }
         });
 
@@ -3993,6 +3996,7 @@ class SB3Creator {
                     const fn = this.cName(pfx + this.pyProcRaw(m.proccode));
                     const params = argNames.length ? argNames.map((a) => `int ${a}`).join(', ') : 'void';
                     procProtos.push(`static void ${fn}(${params});`);
+                    markProcs.push(`proc ${fn} ${this.pyStr(m.proccode)} warp=${m.warp === 'true' ? 1 : 0}`);
                     procDefs.push(`/* ${this.cComment(m.proccode.replace(/%[sb]/g, '').trim())} */`,
                         `static void ${fn}(${params})`, '{',
                         ...this.cStackFrom(b.next, blocks, 1), '}', '');
@@ -4000,6 +4004,8 @@ class SB3Creator {
                     const n = taskIndex++;
                     const task = taskNames[n];
                     const where = t.isStage ? '' : `, ${this.cComment(t.name)}`;
+                    markScripts.push(`script ${this._cTasks ? task : 'main'} ${n}`
+                        + (t.isStage ? ' stage' : ` sprite ${this.pyStr(t.name)}`));
                     if (!this._cTasks) { mainBody = this.cStackFrom(b.next, blocks, 1); continue; }
                     const ctx = { task, state: 0, statics, tasks: taskNames };
                     const body = this.cTaskFrom(b.next, blocks, 1, ctx);
@@ -4028,6 +4034,26 @@ class SB3Creator {
             ' * Hand edits will be lost; change the project instead. */'
         ];
         for (const w of this._cWarnings) out.push(`/* warning: ${this.cComment(w)} */`);
+
+        // The marker header: everything the flat C form cannot say for itself, stated by the
+        // emitter instead of left to be inferred. Same device as `scratch.defblock(...)` /
+        // `scratch.sprite(...)` in the Python and JS back ends, and for the same reason — it
+        // is what makes a C -> blocks front end a bounded parser rather than a guessing game.
+        // `#include <stc12.h>` cannot distinguish stc12c5a60s2 from stc15f2k60s2; `cName`
+        // mangling is not reversible; a proccode's %s/%b positions are lost in the C name;
+        // and the Duff's-device form hides where one script ends and the next begins.
+        // Suppress with `{markers: false}` if you only want the C.
+        if (!(opts && opts.markers === false)) {
+            const marks = [
+                `device ${device}`,
+                `clock ${clock}`,
+                ...pins.map((p) => `pin ${p.name} P${p.port}.${p.bit} ${p.direction}${p.activeLow ? ' active-low' : ''}`),
+                ...markVars, ...markProcs, ...markScripts
+            ];
+            out.push('/* @bw-begin — machine-readable; do not hand-edit.');
+            for (const m of marks) out.push(` * @bw ${this.cComment(m)}`);
+            out.push(' * @bw-end */');
+        }
         out.push(`#include <${chip.header}>`, '');
         out.push(`#define FOSC_HZ ${clock}UL`, '');
         out.push('/* Timer 0, mode 1, clocked at FOSC/12 — accuracy depends only on FOSC, and',
@@ -4107,7 +4133,11 @@ class SB3Creator {
         }
         if (taskDefs.length) out.push(...taskDefs);
 
-        out.push('void main(void)', '{');
+        const setup = [];
+        out.push('/* Register setup: ports, ADC, Timer 0. Kept out of main() so the program',
+            ' * body stands alone — a C -> blocks reader can then tell them apart. */',
+            'static void bw_setup(void)', '{');
+        void setup;
         const outputs = {};
         for (const p of pins) if (p.direction === 'output') outputs[p.port] = (outputs[p.port] || 0) | (1 << p.bit);
         if (chip.portModes) {
@@ -4133,6 +4163,7 @@ class SB3Creator {
         out.push('');
         if (chip.aux1T) out.push('    AUXR &= ~0x80;                 /* Timer 0 at FOSC/12 */');
         out.push('    TMOD  = (TMOD & 0xF0) | 0x01;  /* Timer 0, mode 1 */');
+        out.push('}', '', 'void main(void)', '{', '    bw_setup();');
         if (this._cTasks) {
             out.push('    TL0 = (unsigned char)(T0_RELOAD & 0xFF);',
                 '    TH0 = (unsigned char)(T0_RELOAD >> 8);',

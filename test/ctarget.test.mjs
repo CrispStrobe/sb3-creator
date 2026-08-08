@@ -476,3 +476,142 @@ for (const [name, src] of Object.entries(FIXTURES)) {
         assert.ok(body.hex || body.image || body.memory, `no image returned: ${JSON.stringify(body).slice(0, 400)}`);
     });
 }
+
+// ---- C -> pseudocode: the fourth front end ---------------------------------------
+// `generateC` emits an `@bw` marker header carrying what the flat C cannot say for itself,
+// which is what makes this a bounded parser instead of a guessing game. It also has to read
+// hand-written firmware, which has no header and must be inferred from — and only from —
+// what the C actually says.
+
+import cToPseudocode from '../src/utils/cToPseudocode.js';
+
+const recompiles = (ps) => { const c = new SB3Creator(); c.parse(ps); return c.warnings; };
+
+test('the marker header states what the flat C form loses', () => {
+    const c = cOf(SCHEDULED);
+    assert.match(c, /@bw device stc12c5a60s2/);
+    assert.match(c, /@bw clock 11059200/);
+    assert.match(c, /@bw pin led1 P1\.0 output active-low/);
+    assert.match(c, /@bw pin pot P1\.3 analog/);
+    // A proccode's %s positions cannot survive in the C function name.
+    assert.match(c, /@bw proc \w*do_pulse "pulse %s" warp=0/);
+    assert.match(c, /@bw script bw_task0 0 stage/);
+    assert.ok(!/@bw/.test(cOf(SCHEDULED, { markers: false })), 'suppressible');
+});
+
+test('the register prologue is out of main(), so setup is distinguishable from program', () => {
+    const c = cOf(BLINK);
+    assert.match(c, /static void bw_setup\(void\)/);
+    assert.match(c, /void main\(void\)\n\{\n    bw_setup\(\);/);
+    const main = c.slice(c.indexOf('void main(void)'));
+    assert.ok(!/P1M1|TMOD|AUXR/.test(main), 'no register setup left in main()');
+});
+
+test('our own C round-trips back to the pseudocode it came from', () => {
+    const c = new SB3Creator();
+    c.parse(BLINK);
+    const { pseudocode, warnings } = cToPseudocode(c.generateC());
+    assert.deepEqual(warnings, [], 'a program we emitted needs no inference');
+    // Same device, pins and program.
+    assert.match(pseudocode, /^DEVICE STC12C5A60S2$/m);
+    assert.match(pseudocode, /^PIN led1 = P1\.0 OUTPUT ACTIVE LOW$/m);
+    assert.match(pseudocode, /set counter to 0/);
+    assert.match(pseudocode, /FOREVER:/);
+    assert.match(pseudocode, /REPEAT 6:/);
+    assert.match(pseudocode, /turn on led1/);
+    assert.match(pseudocode, /wait 0\.15 seconds/);
+    assert.match(pseudocode, /IF counter > 2 THEN:/);
+    assert.deepEqual(recompiles(pseudocode), [], 'and it recompiles cleanly');
+});
+
+test('C -> pseudocode -> C is a fixed point', () => {
+    const first = (() => { const c = new SB3Creator(); c.parse(BLINK); return c.generateC(); })();
+    const back = cToPseudocode(first).pseudocode;
+    const again = (() => { const c = new SB3Creator(); c.parse(back); return c.generateC(); })();
+    assert.equal(again, first, 'a second pass through C must change nothing');
+});
+
+// Hand-written firmware: the idioms real 8051 code actually uses, and no marker header.
+const HAND_WRITTEN = `
+#include <stc12.h>
+#define FOSC_HZ 11059200UL
+#define LED1    P1_0
+#define LED2    P1_1
+#define LED_ON  0
+#define LED_OFF 1
+
+void board_init(void) { LED1 = LED_OFF; LED2 = LED_OFF; }
+
+void main(void)
+{
+    unsigned char i;
+    board_init();
+    for (;;) {
+        for (i = 0; i < 6; i++) {
+            LED1 = LED_ON;
+            LED2 = LED_OFF;
+            delay_ms(150);
+        }
+    }
+}
+`;
+
+test('hand-written C is translated, with every inference reported', () => {
+    const { pseudocode, warnings } = cToPseudocode(HAND_WRITTEN);
+    assert.match(pseudocode, /^PIN led1 = P1\.0 OUTPUT ACTIVE LOW$/m);
+    assert.match(pseudocode, /^CLOCK 11059200$/m);
+    assert.match(pseudocode, /FOREVER:/);
+    assert.match(pseudocode, /REPEAT 6:/);
+    assert.match(pseudocode, /turn on led1/);
+    assert.match(pseudocode, /turn off led2/);
+    assert.match(pseudocode, /wait 0\.15 seconds/);
+    assert.deepEqual(recompiles(pseudocode), []);
+    // Nothing is inferred silently.
+    assert.ok(warnings.some((w) => /ACTIVE LOW because LED_ON is 0/.test(w)));
+    assert.ok(warnings.some((w) => /led2.*ACTIVE LOW|"LED2" read as ACTIVE LOW/i.test(w)), 'LED2 is only ever written LED_OFF, and that settles it too');
+    assert.ok(warnings.some((w) => /inferred CLOCK/.test(w)));
+    assert.ok(warnings.some((w) => /serves several parts/.test(w)));
+});
+
+test('polarity comes from the _ON constant, not from whichever write comes first', () => {
+    // board_init() parks the LED with LED_OFF before any LED_ON; reading the first write
+    // would invert the polarity of every program that follows this very common shape.
+    const { pseudocode } = cToPseudocode(HAND_WRITTEN);
+    assert.match(pseudocode, /ACTIVE LOW/);
+    const flipped = HAND_WRITTEN.replace('#define LED_ON  0', '#define LED_ON  1')
+        .replace('#define LED_OFF 1', '#define LED_OFF 0');
+    assert.ok(!/ACTIVE LOW/.test(cToPseudocode(flipped).pseudocode), 'and the reverse wiring is not');
+});
+
+test('unknown polarity is admitted rather than guessed', () => {
+    const { pseudocode, warnings } = cToPseudocode(`
+#include <stc12.h>
+sbit RELAY = P2^3;
+void main(void) { for (;;) { RELAY = 1; } }`);
+    assert.match(pseudocode, /^PIN relay = P2\.3 OUTPUT$/m);
+    assert.ok(warnings.some((w) => /polarity of "RELAY" is unknown/.test(w)));
+});
+
+test('C we cannot express is dropped with a warning, never mistranslated', () => {
+    const { pseudocode, warnings } = cToPseudocode(`
+#include <stc12.h>
+#define LED P1_0
+#define LED_ON 0
+void main(void) {
+    unsigned char mask = 0x0F;
+    P1M0 |= 0x01;
+    mask ^= 0x10;
+    LED = LED_ON;
+}`);
+    assert.match(pseudocode, /turn on led/);
+    assert.ok(!/mask/.test(pseudocode), 'the bitwise work is not invented into pseudocode');
+    assert.ok(warnings.some((w) => /bitwise/.test(w)));
+});
+
+test('the scheduler form is declared unsupported rather than mis-inverted', () => {
+    const c = new SB3Creator();
+    c.parse(SCHEDULED);
+    const { warnings } = cToPseudocode(c.generateC());
+    assert.ok(warnings.some((w) => /cooperative-scheduler form/.test(w)),
+        'a Duff\'s-device state machine is not inverted here, and says so');
+});
