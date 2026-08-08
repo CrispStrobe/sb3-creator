@@ -839,3 +839,29 @@ void main(void) {
     assert.match(pseudocode, /set flags to flags shiftright 1/);
     assert.ok(!warnings.some((w) => /bitwise/.test(w)));
 });
+
+test('a computed value can be written to a pin (the 16-file corpus gap)', () => {
+    const c = build('PIN led = P1.0 OUTPUT ACTIVE LOW\nPIN pot = P1.3 ANALOG\n'
+        + 'WHEN flag clicked:\n  set level to read pot\n  set led to level bitand 1');
+    assert.deepEqual(c.warnings, []);
+    const once = c.decompile();
+    assert.match(once, /set led to \(level bitand 1\)/);
+    assert.equal(build(once).decompile(), once, 'fixed point');
+    // A computed value is a LEVEL: ACTIVE LOW must NOT invert it, exactly as `set high` does not.
+    assert.match(c.generateC(), /P1_0 = \(\(level & 1\)\) \? 1 : 0;/);
+    // It reaches the driver like every other pin op, so the simulator can drive it.
+    assert.match(c.generateJavaScript(), /writePin/);
+});
+
+test('a pin name wins over the variable and motion readings of `set X to`', () => {
+    // `set x to` is motion_setx and `set foo to` is a variable; a declared PIN must beat both.
+    const c = build('PIN x = P2.0 OUTPUT\nWHEN flag clicked:\n  set x to 1');
+    const ops = Object.values(c.project.targets[0].blocks).map((b) => b.opcode);
+    assert.ok(ops.includes('stc12_writepin'));
+    assert.ok(!ops.includes('motion_setx'), 'the pin declaration wins');
+    // …and with no such pin declared, the ordinary meanings are untouched.
+    const d = build('SPRITE S:\n  WHEN flag clicked:\n    set x to 1\n    set score to 2');
+    const dops = Object.values(d.project.targets[1].blocks).map((b) => b.opcode);
+    assert.ok(dops.includes('motion_setx'));
+    assert.ok(dops.includes('data_setvariableto'));
+});

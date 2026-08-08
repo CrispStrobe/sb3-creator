@@ -292,6 +292,9 @@ class SB3Creator {
                 '    def setPin(self, name, state):',
                 '        p = self._p(name)',
                 '        if p and _board(): _board().setPin(p["pin"], self._mode(p), self._drive(p, state))',
+                '    def writePin(self, name, v):',
+                '        p = self._p(name)',
+                '        if p and _board(): _board().setPin(p["pin"], self._mode(p), bool(int(v)))',
                 '    def togglePin(self, name):',
                 '        p = self._p(name)',
                 '        if p and _board(): _board().setPin(p["pin"], self._mode(p), not _board().readPin(p["pin"]))',
@@ -322,6 +325,8 @@ class SB3Creator {
             'const _stc12 = {',
             '    setPin: (name, st) => { const p = _stc12_pins[name], b = _board();',
             '        if (p && b) b.setPin(p.pin, _mod(p), _drv(p, st)); },',
+            '    writePin: (name, v) => { const p = _stc12_pins[name], b = _board();',
+            '        if (p && b) b.setPin(p.pin, _mod(p), !!Number(v)); },',
             '    togglePin: (name) => { const p = _stc12_pins[name], b = _board();',
             '        if (p && b) b.setPin(p.pin, _mod(p), !b.readPin(p.pin)); },',
             '    readPin: (name) => { const p = _stc12_pins[name], b = _board();',
@@ -1232,6 +1237,16 @@ class SB3Creator {
         }
         if ((match = line.match(/^set\s+([A-Za-z_]\w*)\s+(high|low)$/i)) && this.stcPin(match[1])) {
             return stcSet(this.stcPin(match[1]), match[2].toLowerCase());
+        }
+        // `set <pin> to <expr>` writes a computed LEVEL. Distinct from `turn on/off`, which
+        // are states and respect ACTIVE LOW; a level is a level, exactly like `set high`.
+        // Placed before the generic variable assignment (and before motion's `set x to`) so a
+        // declared pin always wins, consistent with the other pin statements.
+        if ((match = line.match(/^set\s+([A-Za-z_]\w*)\s+to\s+(.+)$/i)) && this.stcPin(match[1])) {
+            const { id, block } = cmd('stc12_writepin');
+            block[id].fields.PIN = [this.stcPin(match[1]).name, null];
+            block[id].inputs.VALUE = val(match[2]);
+            return ret(block);
         }
         if ((match = line.match(/^toggle\s+([A-Za-z_]\w*)$/i)) && this.stcPin(match[1])) {
             const { id, block } = this.createBlock('stc12_toggle');
@@ -2818,6 +2833,7 @@ class SB3Creator {
                 const state = f('STATE');
                 return line(state === 'on' || state === 'off' ? `turn ${state} ${f('PIN')}` : `set ${f('PIN')} ${state}`);
             }
+            case 'stc12_writepin': return line(`set ${f('PIN')} to ${v('VALUE')}`);
             case 'stc12_toggle': return line(`toggle ${f('PIN')}`);
             case 'data_showlist': return line(`show list ${f('LIST')}`);
             case 'data_hidelist': return line(`hide list ${f('LIST')}`);
@@ -3943,6 +3959,12 @@ class SB3Creator {
             case 'data_setvariableto': return line(`${this.cRef(f('VARIABLE'))} = ${v('VALUE')};`);
             case 'data_changevariableby': return line(`${this.cRef(f('VARIABLE'))} += ${v('VALUE')};`);
             case 'stc12_setpin': return line(this.cSetPin(f('PIN'), f('STATE')));
+            case 'stc12_writepin': {
+                const sfr = this.cSfr(f('PIN'));
+                // A computed value is a LEVEL, so ACTIVE LOW does not invert it — the same
+                // rule `set high` / `set low` already follow.
+                return line(sfr ? `${sfr} = (${v('VALUE')}) ? 1 : 0;` : `/* set ${this.cComment(f('PIN'))} */`);
+            }
             case 'stc12_toggle': {
                 const sfr = this.cSfr(f('PIN'));
                 return line(sfr ? `${sfr} = !${sfr};` : `/* toggle ${this.cComment(f('PIN'))} */`);
@@ -4463,6 +4485,7 @@ SB3Creator.RUNTIME_EXTENSIONS = {
         ops: {
             setpin: { kind: 'command', method: 'setPin', args: ['PIN', 'STATE'] },
             toggle: { kind: 'command', method: 'togglePin', args: ['PIN'] },
+            writepin: { kind: 'command', method: 'writePin', args: ['PIN', 'VALUE'] },
             read: { kind: 'reporter', method: 'readPin', args: ['PIN'], neutral: '0' }
         }
     }
