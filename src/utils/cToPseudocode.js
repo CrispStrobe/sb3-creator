@@ -403,6 +403,7 @@ export default function cToPseudocode (source, opts = {}) {
     };
 
     // ---- statements ----
+    let breakIsSwitch = false;  // true inside switchCaseBody, suppresses break warning
     // Special-function registers and generated helpers: setup, never program logic.
     const SFRS = /^(P[0-5]|P[0-5]M[01]|P[0-5]_[0-7]|P1ASF|P4SW|AUXR1?|TMOD|TCON|T[HL][01]|TR[01]|TF[01]|IE|IP|EA|ET[01]|EX[01]|SCON|SBUF|S2CON|S2BUF|BRT|PCON|PSW|CLK_DIV|ADC_CONTR|ADC_RES|ADC_RESL|CCON|CMOD|CCAPM[01]|C[LH]|CCAP[01]H|PCA_PWM[01]|WDT_CONTR|bw_ms|bw_task\d+_(state|until)|bw_i\d+)$/;
     const DELAYS = new Set(['delay_ms', 'bw_block_ms', 'Delay_ms', 'delayms', 'delay']);
@@ -533,6 +534,20 @@ export default function cToPseudocode (source, opts = {}) {
             return inner;
         }
 
+        // Helper: parse a switch case body, treating `break` as "end of case"
+        // at any nesting depth (including inside { } braces).
+        function switchCaseBody (cur, depth) {
+            const body = [];
+            const _origBreak = breakIsSwitch;
+            breakIsSwitch = true;
+            while (!cur.is('case') && !cur.is('default') && !cur.is('}') && cur.peek().t !== 'eof') {
+                if (cur.is('break')) { cur.next(); cur.eat(';'); breakIsSwitch = _origBreak; return body; }
+                body.push(...statement(cur, depth));
+            }
+            breakIsSwitch = _origBreak;
+            return body;
+        }
+
         if (t.v === 'switch') {
             cur.next(); cur.expect('(');
             const switchExpr = expr(cur);
@@ -544,20 +559,11 @@ export default function cToPseudocode (source, opts = {}) {
                 if (cur.eat('case')) {
                     const val = expr(cur);
                     cur.expect(':');
-                    const body = [];
-                    while (!cur.is('case') && !cur.is('default') && !cur.is('}') && cur.peek().t !== 'eof') {
-                        if (cur.eat('break')) { cur.eat(';'); break; }
-                        body.push(...statement(cur, depth + 1));
-                    }
+                    const body = switchCaseBody(cur, depth + 1);
                     cases.push({ val: val.text, body });
                 } else if (cur.eat('default')) {
                     cur.expect(':');
-                    const body = [];
-                    while (!cur.is('case') && !cur.is('}') && cur.peek().t !== 'eof') {
-                        if (cur.eat('break')) { cur.eat(';'); break; }
-                        body.push(...statement(cur, depth + 1));
-                    }
-                    defaultCase = body;
+                    defaultCase = switchCaseBody(cur, depth + 1);
                 } else { cur.next(); }
             }
             cur.eat('}');
@@ -592,7 +598,12 @@ export default function cToPseudocode (source, opts = {}) {
         }
 
         if (t.v === 'return') { cur.next(); while (!cur.is(';') && cur.peek().t !== 'eof') cur.next(); cur.eat(';'); return [`${pad}stop this script`]; }
-        if (t.v === 'break' || t.v === 'continue') { cur.next(); cur.eat(';'); warn(`\`${t.v}\` has no pseudocode equivalent — skipped`); return []; }
+        if (t.v === 'break') {
+            cur.next(); cur.eat(';');
+            if (!breakIsSwitch) warn('`break` has no pseudocode equivalent — skipped');
+            return [];
+        }
+        if (t.v === 'continue') { cur.next(); cur.eat(';'); warn('`continue` has no pseudocode equivalent — skipped'); return []; }
 
         // assignment / call / expression statement
         const start = cur.i;
