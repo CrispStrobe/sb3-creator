@@ -610,6 +610,11 @@ class SB3Creator {
             return B(op, {}, { VALUE: [s, null] });
         }
 
+        // STC12 pin read: digital level, or the 10-bit ADC value for an ANALOG pin.
+        if ((m = s.match(/^read\s+([A-Za-z_]\w*)$/i)) && this.stcPin(m[1])) {
+            return B('stc12_read', {}, { PIN: [this.stcPin(m[1]).name, null] });
+        }
+
         if ((m = s.match(/^pick random\s+(.+)$/i))) {
             const parts = this.splitBinary(m[1], [' to '], { ci: true });
             if (parts) {
@@ -748,6 +753,67 @@ class SB3Creator {
         return keyMap[key] || key;
     }
 
+    // ---- STC12 / 8051 target: the device model ------------------------------------
+    // `DEVICE` / `CLOCK` / `PIN` are top-level declarations (like GLOBAL / COSTUME) and
+    // live on `project.stc`, so they survive pseudocode ⇄ blocks and ride along inside
+    // project.json. The spelling deliberately mirrors ../stc-compiler's pseudocode
+    // dialect (`stc_pseudocode.py`), which is this target's reference implementation
+    // and test oracle — see generateC().
+    stcConfig(project = this.project) {
+        if (!project.stc) project.stc = { device: 'stc12c5a60s2', clock: 11059200, pins: [] };
+        return project.stc;
+    }
+
+    // A declared pin by name (case-insensitive), or null. Pin commands only claim a line
+    // when the name really is a pin, so `turn on led1` cannot shadow anything else.
+    stcPin(name) {
+        const cfg = this.project && this.project.stc;
+        if (!cfg || !name) return null;
+        const lower = String(name).trim().toLowerCase();
+        return cfg.pins.find((p) => p.name.toLowerCase() === lower) || null;
+    }
+
+    // Parse a top-level DEVICE / CLOCK / PIN declaration. Returns true if the line was one.
+    parseStcDeclaration(trimmed, lineIndex) {
+        let m;
+        if ((m = trimmed.match(/^DEVICE\s+([\w-]+)$/i))) {
+            const device = m[1].toLowerCase();
+            if (!SB3Creator.STC_PARTS[device]) {
+                this.warn(lineIndex, `Unknown DEVICE "${m[1]}"; known: ${Object.keys(SB3Creator.STC_PARTS).sort().join(', ')}`);
+                return true;
+            }
+            this.stcConfig().device = device;
+            return true;
+        }
+        if ((m = trimmed.match(/^CLOCK\s+([\d_]+)\s*(hz|mhz)?$/i))) {
+            const value = Number(m[1].replace(/_/g, ''));
+            this.stcConfig().clock = /^mhz$/i.test(m[2] || '') ? value * 1000000 : value;
+            return true;
+        }
+        if ((m = trimmed.match(/^PIN\s+([A-Za-z_]\w*)\s*=\s*P([0-4])\.([0-7])\s+(OUTPUT|INPUT|ANALOG)(?:\s+ACTIVE\s+(LOW|HIGH))?$/i))) {
+            const [, name, port, bit, direction, active] = m;
+            const cfg = this.stcConfig();
+            if (this.stcPin(name)) {
+                this.warn(lineIndex, `Pin "${name}" declared twice`);
+                return true;
+            }
+            // ADC channel n is physically P1.n — there is no mux to anywhere else.
+            if (/^analog$/i.test(direction) && port !== '1') {
+                this.warn(lineIndex, `ANALOG is only available on P1.0-P1.7 (ADC0-ADC7), not P${port}.${bit}`);
+                return true;
+            }
+            cfg.pins.push({
+                name,
+                port: Number(port),
+                bit: Number(bit),
+                direction: direction.toLowerCase(),
+                activeLow: /^low$/i.test(active || '')
+            });
+            return true;
+        }
+        return false;
+    }
+
     // Parse a boolean condition expression into a block id.
     parseCondition(conditionStr, context) {
         let s = this.stripOuterParens((conditionStr || '').trim());
@@ -799,6 +865,10 @@ class SB3Creator {
 
         // Predicates
         let m;
+        // A bare `read <pin>` used as a condition is the pin's level (active-low aware).
+        if ((m = s.match(/^read\s+([A-Za-z_]\w*)$/i)) && this.stcPin(m[1])) {
+            return push('stc12_read', {}, { PIN: [this.stcPin(m[1]).name, null] });
+        }
         if ((m = s.match(/^touching color\s+(.+)$/i))) {
             const color = this.parseValue(m[1].trim(), context);
             return push('sensing_touchingcolor', { COLOR: color });
@@ -1036,6 +1106,27 @@ class SB3Creator {
         }
         if (line.includes('flag clicked')) {
             return { block: this.createBlock('event_whenflagclicked', { topLevel: true }).block, extraBlocks: {} };
+        }
+
+        // ---- STC12 / 8051 pin commands --------------------------------------------
+        // Guarded on the name really being a declared PIN, so these never shadow
+        // `turn right 15 degrees`, `set score to 0`, or a custom block called `toggle`.
+        const stcSet = (pin, state) => {
+            const { id, block } = this.createBlock('stc12_setpin');
+            block[id].fields.PIN = [pin.name, null];
+            block[id].fields.STATE = [state, null];
+            return { block, extraBlocks: {} };
+        };
+        if ((match = line.match(/^turn\s+(on|off)\s+([A-Za-z_]\w*)$/i)) && this.stcPin(match[2])) {
+            return stcSet(this.stcPin(match[2]), match[1].toLowerCase());
+        }
+        if ((match = line.match(/^set\s+([A-Za-z_]\w*)\s+(high|low)$/i)) && this.stcPin(match[1])) {
+            return stcSet(this.stcPin(match[1]), match[2].toLowerCase());
+        }
+        if ((match = line.match(/^toggle\s+([A-Za-z_]\w*)$/i)) && this.stcPin(match[1])) {
+            const { id, block } = this.createBlock('stc12_toggle');
+            block[id].fields.PIN = [this.stcPin(match[1]).name, null];
+            return { block, extraBlocks: {} };
         }
 
         // ---- Arrays & Vectors extension commands (anchored on `array "NAME"`; 0-based) ----
@@ -1858,6 +1949,12 @@ class SB3Creator {
                 i++; continue;
             }
 
+            // STC12 / 8051 target declarations (DEVICE / CLOCK / PIN). Inert for every
+            // other target; generateC() is the only consumer.
+            if (/^(DEVICE|CLOCK|PIN)\b/i.test(trimmed) && this.parseStcDeclaration(trimmed, i)) {
+                i++; continue;
+            }
+
             // Asset declarations: shape, extra costumes (animation frames), backdrops, sounds.
             if ((decl = trimmed.match(/^SHAPE\s+(.+)$/i))) {
                 this.setShape(currentTarget, decl[1].trim(), i);
@@ -2249,6 +2346,16 @@ class SB3Creator {
     decompile(project = this.project) {
         const out = [];
         const stage = project.targets.find(t => t.isStage);
+        // STC12 / 8051 device declarations first — they are read before any script.
+        if (project.stc) {
+            const cfg = project.stc;
+            out.push(`DEVICE ${String(cfg.device || 'stc12c5a60s2').toUpperCase()}`);
+            out.push(`CLOCK ${cfg.clock || 11059200}`);
+            for (const p of cfg.pins || []) {
+                out.push(`PIN ${p.name} = P${p.port}.${p.bit} ${p.direction.toUpperCase()}${p.activeLow ? ' ACTIVE LOW' : ''}`);
+            }
+            out.push('');
+        }
         for (const v of Object.values(stage.variables || {})) out.push(`GLOBAL ${v[0]}`);
         for (const l of Object.values(stage.lists || {})) out.push(`GLOBAL LIST ${l[0]}`);
         for (const bd of (stage.costumes || []).slice(1)) out.push(`BACKDROP ${bd._spec || bd.name}`);
@@ -2411,6 +2518,8 @@ class SB3Creator {
             case 'arrays_map': return `map ${this.dval(b.inputs.FUNC, blocks)} over array ${v('NAME')}`;
             case 'arrays_filter': return `filter array ${v('NAME')} by ${this.dval(b.inputs.FUNC, blocks)}`;
             case 'arrays_reduce': return `reduce array ${v('NAME')} with ${this.dval(b.inputs.FUNC, blocks)} from ${v('INIT')}`;
+            // STC12 / 8051 pin read (digital level or ADC value).
+            case 'stc12_read': return `read ${f('PIN')}`;
             default: return b.opcode;
         }
     }
@@ -2588,6 +2697,12 @@ class SB3Creator {
             case 'arrays_insert': return line(`insert ${v('VALUE')} at ${v('INDEX')} of array ${v('NAME')}`);
             case 'arrays_remove': return line(`remove item ${v('INDEX')} of array ${v('NAME')}`);
             case 'arrays_delete': return line(`delete array ${v('NAME')}`);
+            // ---- STC12 / 8051 pins ----
+            case 'stc12_setpin': {
+                const state = f('STATE');
+                return line(state === 'on' || state === 'off' ? `turn ${state} ${f('PIN')}` : `set ${f('PIN')} ${state}`);
+            }
+            case 'stc12_toggle': return line(`toggle ${f('PIN')}`);
             case 'data_showlist': return line(`show list ${f('LIST')}`);
             case 'data_hidelist': return line(`hide list ${f('LIST')}`);
             case 'data_showvariable': return line(`show variable ${f('VARIABLE')}`);
@@ -2690,6 +2805,8 @@ class SB3Creator {
             case 'sensing_answer': this._pyUses.answer = true; return 'answer';
             case 'argument_reporter_string_number':
             case 'argument_reporter_boolean': return this.pyName(f('VALUE'));
+            // STC12 pins only exist on the chip; off-target the read is neutral (see generateC).
+            case 'stc12_read': return '0';
             // Planète Maths extension (id `planetemaths`) — pure math, maps 1:1.
             case 'planetemaths_add': return `(${v('NUM1')} + ${v('NUM2')})`;
             case 'planetemaths_substract': return `(${v('NUM1')} - ${v('NUM2')})`;
@@ -2738,6 +2855,7 @@ class SB3Creator {
             case 'operator_contains': return `(str(${v('STRING2')}) in str(${v('STRING1')}))`;
             case 'data_listcontainsitem': return `(${v('ITEM')} in ${this.varRef(b.fields.LIST[0])})`;
             case 'argument_reporter_boolean': return this.pyName(b.fields.VALUE[0]);
+            case 'stc12_read': return 'False';
             // Planète Maths booleans — semantics from the implementation (opcode names
             // are internal misnomers: `gt` computes compare<0, i.e. NUM1 < NUM2).
             case 'planetemaths_gt': return `(${v('NUM1')} < ${v('NUM2')})`;
@@ -3160,6 +3278,8 @@ class SB3Creator {
             case 'sensing_answer': this._jsUses.answer = true; return 'answer';
             case 'argument_reporter_string_number':
             case 'argument_reporter_boolean': return this.pyName(f('VALUE'));
+            // STC12 pins only exist on the chip; off-target the read is neutral (see generateC).
+            case 'stc12_read': return '0';
             // Planète Maths extension (id `planetemaths`) — source of truth:
             // github.com/CrispStrobe/extensions (extensions/CrispStrobe/planetemaths.js).
             case 'planetemaths_add': return `(${v('NUM1')} + ${v('NUM2')})`;
@@ -3208,6 +3328,7 @@ class SB3Creator {
             case 'operator_contains': return `String(${v('STRING1')}).includes(String(${v('STRING2')}))`;
             case 'data_listcontainsitem': return `${this.varRef(b.fields.LIST[0])}.includes(${v('ITEM')})`;
             case 'argument_reporter_boolean': return this.pyName(b.fields.VALUE[0]);
+            case 'stc12_read': return 'false';
             // Planète Maths booleans (semantics from the implementation, not the labels).
             case 'planetemaths_gt': return `(${v('NUM1')} < ${v('NUM2')})`;
             case 'planetemaths_gte': return `(${v('NUM1')} <= ${v('NUM2')})`;
@@ -3406,6 +3527,625 @@ class SB3Creator {
         ];
     }
 
+    // ---- C code generation (blocks -> C for the STC12 / 8051) --------------------
+    //
+    // The fifth target, and the only emit-only one: there is no C -> pseudocode front
+    // end and none is intended, so C takes no part in the two-way convergence
+    // invariant (it must not break the others).
+    //
+    // `../stc-compiler/stc_pseudocode.py` is the reference implementation AND the test
+    // oracle — the same AST shape, one language over. `cStackBlock` ports its `stmts_c`,
+    // `cTaskBlock` its `stmts_task`, `generateC` its `emit_c`. Three decisions come from
+    // there unchanged (they are settled; do not redesign them here):
+    //
+    //  1. **Scheduling.** Several `when green flag clicked` scripts compile to cooperative
+    //     tasks: a Timer-0 ISR advances a millisecond counter and does nothing else, and
+    //     each script becomes a Duff's-device state machine that yields at every wait AND
+    //     at every loop back-edge — Scratch's own contract, and what stops a busy FOREVER
+    //     starving the others. Deadlines are wraparound-safe 16-bit compares behind an
+    //     interrupt-safe read, because a 16-bit load is not atomic on an 8051. A single
+    //     script keeps straight-line emission in main().
+    //  2. **Timing.** Everything hangs off Timer 0 at FOSC/12 — the one mode a 12T STC89
+    //     and a 1T STC12/STC15 count identically, so one program is timing-correct on any
+    //     supported part. NEVER emit a cycle-counted delay loop: on a 1T part it runs
+    //     6-12x too fast, the classic drop-in-socket bug (`../stc/README.md` §8.1).
+    //  3. **Active-low pins.** A quasi-bidirectional 8051 pin sinks 20 mA but sources only
+    //     ~230 µA, so LEDs are wired active-low and `turn on` must write a 0.
+    //
+    // Numbers are 16-bit ints (Scratch's integers without the float tail). Blocks with no
+    // meaning on bare metal — motion, looks, sound, lists — become /* comments */ and a
+    // warning, exactly as the Python back end turns them into `#` lines.
+
+    // A unique, valid C identifier for a Scratch name. Memoized like pyName, but with its
+    // own map so C keywords and the Python/JS names never interfere.
+    cName(name) {
+        if (!this._cNames) this._cNames = new Map();
+        if (this._cNames.has(name)) return this._cNames.get(name);
+        let id = sanitizeIdent(name);
+        if (SB3Creator.C_RESERVED.has(id)) id += '_';
+        const used = new Set(this._cNames.values());
+        let final = id, n = 2;
+        while (used.has(final)) final = id + '_' + n++;
+        this._cNames.set(name, final);
+        return final;
+    }
+
+    // Prefix-aware variable reference (sprite locals are `s<idx>_`-prefixed, as in Python/JS).
+    cRef(name) {
+        if (this._curLocals && this._curLocals.has(name)) return this.cName(this._curPrefix + name);
+        return this.cName(name);
+    }
+
+    // Make arbitrary text safe to drop inside a /* ... */ comment.
+    cComment(text) {
+        return String(text).replace(/\*\//g, '* /').replace(/\/\*/g, '/ *');
+    }
+
+    cWarn(message) {
+        if (!this._cWarnings) this._cWarnings = [];
+        if (!this._cWarnings.includes(message)) this._cWarnings.push(message);
+    }
+
+    cPin(name) {
+        if (!this._cPins || name === undefined || name === null) return null;
+        return this._cPins.get(String(name).toLowerCase()) || null;
+    }
+
+    // Scratch values are strings/numbers; C variables here are ints, so a literal is
+    // truncated (as the oracle's `int(node.value)` does) and a non-number becomes 0.
+    cNum(value) {
+        const n = Number(value);
+        if (!Number.isFinite(n)) return `0 /* ${this.cComment(value)} */`;
+        return String(Math.trunc(n));
+    }
+
+    cInit(value) {
+        const n = Number(value);
+        return Number.isFinite(n) ? String(Math.trunc(n)) : '0';
+    }
+
+    cVal(input, blocks) {
+        if (!Array.isArray(input)) return '0';
+        const inner = input[1];
+        if (Array.isArray(inner)) {
+            const [type, a] = inner;
+            if (type === 12) return this.cRef(a);
+            if (type === 13) { this.cWarn('lists have no C equivalent — emitted as 0'); return '0'; }
+            return this.cNum(a);
+        }
+        return this.cRep(blocks[inner], blocks);
+    }
+
+    // The SFR bit name for a driveable pin (`P1_0`), or null with a warning.
+    cSfr(name) {
+        const pin = this.cPin(name);
+        if (!pin) {
+            this.cWarn(`undeclared pin "${name}" — declare it with e.g. PIN ${name} = P1.0 OUTPUT`);
+            return null;
+        }
+        if (pin.direction !== 'output') {
+            this.cWarn(`"${pin.name}" is an ${pin.direction.toUpperCase()} pin and cannot be driven`);
+            return null;
+        }
+        return `P${pin.port}_${pin.bit}`;
+    }
+
+    // Reading a pin: the ADC for an ANALOG pin, otherwise the level — inverted when the
+    // pin is wired ACTIVE LOW, so the pseudocode never has to know about the polarity.
+    cPinRead(name) {
+        const pin = this.cPin(name);
+        if (!pin) {
+            this.cWarn(`read of undeclared pin "${name}" — emitted as 0`);
+            return `0 /* read ${this.cComment(name)} */`;
+        }
+        if (pin.direction === 'analog') {
+            this._cUses.adc = true;
+            return `adc_read(${pin.bit})`;   // ADC channel n is physically P1.n
+        }
+        const sfr = `P${pin.port}_${pin.bit}`;
+        return pin.activeLow ? `!${sfr}` : sfr;
+    }
+
+    // `turn on` writes a 0 on an ACTIVE LOW pin. That inversion is the whole point.
+    cSetPin(name, state) {
+        const sfr = this.cSfr(name);
+        if (!sfr) return `/* set ${this.cComment(name)} ${this.cComment(state)} */`;
+        const pin = this.cPin(name);
+        const high = state === 'high' ? true
+            : state === 'low' ? false
+                : (state === 'on') !== !!pin.activeLow;
+        return `${sfr} = ${high ? 1 : 0};`;
+    }
+
+    cRep(b, blocks) {
+        if (!b) return '0';
+        const v = (k) => this.cVal(b.inputs[k], blocks);
+        const f = (k) => (b.fields[k] ? b.fields[k][0] : '');
+        switch (b.opcode) {
+            case 'operator_add': case 'planetemaths_add': return `(${v('NUM1')} + ${v('NUM2')})`;
+            case 'operator_subtract': case 'planetemaths_substract': return `(${v('NUM1')} - ${v('NUM2')})`;
+            case 'operator_multiply': case 'planetemaths_multiply': return `(${v('NUM1')} * ${v('NUM2')})`;
+            case 'operator_divide': case 'planetemaths_divide': return `(${v('NUM1')} / ${v('NUM2')})`;
+            case 'operator_mod': return `(${v('NUM1')} % ${v('NUM2')})`;
+            case 'operator_round': return v('NUM');       // integer arithmetic already
+            case 'planetemaths_oppose': return `(0 - ${v('NUM1')})`;
+            case 'planetemaths_pourcent': return `(${v('NUM1')} / 100)`;
+            case 'stc12_read': return this.cPinRead(f('PIN'));
+            case 'argument_reporter_string_number':
+            case 'argument_reporter_boolean': return this.cName(f('VALUE'));
+            default: {
+                const text = this.drep(b, blocks) || b.opcode;
+                this.cWarn(`no C equivalent for "${text}" — emitted as 0`);
+                return `0 /* ${this.cComment(text)} */`;
+            }
+        }
+    }
+
+    cCond(ref, blocks) {
+        const b = typeof ref === 'string' ? blocks[ref] : null;
+        if (!b) return '0';
+        const v = (k) => this.cVal(b.inputs[k], blocks);
+        const f = (k) => (b.fields[k] ? b.fields[k][0] : '');
+        const c = (k) => this.cCond(b.inputs[k] ? b.inputs[k][1] : null, blocks);
+        switch (b.opcode) {
+            case 'operator_gt': return `(${v('OPERAND1')} > ${v('OPERAND2')})`;
+            case 'operator_lt': return `(${v('OPERAND1')} < ${v('OPERAND2')})`;
+            case 'operator_equals': {
+                // `IF <boolean-ish> THEN:` parses to `x = true`; on a chip that is just `x`.
+                const lit = (k) => {
+                    const inner = Array.isArray(b.inputs[k]) ? b.inputs[k][1] : null;
+                    return Array.isArray(inner) && (inner[0] === 10 || inner[0] === 4) ? String(inner[1]) : null;
+                };
+                const l = lit('OPERAND1'), r = lit('OPERAND2');
+                if (/^true$/i.test(r || '')) return `(${v('OPERAND1')})`;
+                if (/^false$/i.test(r || '')) return `(!(${v('OPERAND1')}))`;
+                if (/^true$/i.test(l || '')) return `(${v('OPERAND2')})`;
+                if (/^false$/i.test(l || '')) return `(!(${v('OPERAND2')}))`;
+                return `(${v('OPERAND1')} == ${v('OPERAND2')})`;
+            }
+            case 'planetemaths_equals': return `(${v('NUM1')} == ${v('NUM2')})`;
+            // The planetemaths boolean opcode NAMES are misnomers; map by the implementation.
+            case 'planetemaths_gt': return `(${v('NUM1')} < ${v('NUM2')})`;
+            case 'planetemaths_gte': return `(${v('NUM1')} <= ${v('NUM2')})`;
+            case 'planetemaths_lt': return `(${v('NUM1')} > ${v('NUM2')})`;
+            case 'planetemaths_lte': return `(${v('NUM1')} >= ${v('NUM2')})`;
+            case 'operator_and': case 'planetemaths_and': return `(${c('OPERAND1')} && ${c('OPERAND2')})`;
+            case 'operator_or': case 'planetemaths_or': return `(${c('OPERAND1')} || ${c('OPERAND2')})`;
+            case 'operator_not': return `(!${c('OPERAND')})`;
+            case 'planetemaths_not': return `(!${c('OPERAND1')})`;
+            case 'planetemaths_multiple': return `((${v('NUM1')} % ${v('NUM2')}) == 0)`;
+            case 'stc12_read': return this.cPinRead(f('PIN'));
+            case 'argument_reporter_boolean': return this.cName(f('VALUE'));
+            default: return `(${this.cRep(b, blocks)})`;
+        }
+    }
+
+    // A `wait` duration (seconds, as Scratch spells it) in milliseconds, folded to a
+    // constant where it can be — everything downstream counts whole milliseconds.
+    cMs(input, blocks) {
+        const inner = Array.isArray(input) ? input[1] : null;
+        if (Array.isArray(inner)) {
+            const n = Number(inner[1]);
+            if (inner[0] !== 12 && inner[0] !== 13 && Number.isFinite(n)) return String(Math.round(n * 1000));
+        }
+        return `(unsigned int)((${this.cVal(input, blocks)}) * 1000)`;
+    }
+
+    // Block comments as real C comments (the Python/JS emitters use `#` / `//`).
+    cCommentLines(blockId, pad) {
+        if (this._emitComments === false) return [];
+        const text = this._codeComments && this._codeComments[blockId];
+        if (!text) return [];
+        return String(text).split('\n').map((l) => `${pad}/* ${this.cComment(l)} */`);
+    }
+
+    cProcCall(b, blocks) {
+        const m = b.mutation;
+        const argIds = JSON.parse(m.argumentids || '[]');
+        let ai = 0;
+        const args = [];
+        m.proccode.replace(/%[sb]/g, (tok) => {
+            const input = b.inputs[argIds[ai++]];
+            args.push(tok === '%b' ? this.cCond(input ? input[1] : null, blocks) : this.cVal(input, blocks));
+            return '';
+        });
+        return `${this.cName(this._curPrefix + this.pyProcRaw(m.proccode))}(${args.join(', ')});`;
+    }
+
+    cStackFrom(firstId, blocks, level) {
+        const lines = [];
+        let id = firstId;
+        const pad = '    '.repeat(level);
+        while (id && blocks[id]) {
+            lines.push(...this.cCommentLines(id, pad));
+            lines.push(...this.cStackBlock(blocks[id], blocks, level));
+            id = blocks[id].next;
+        }
+        return lines;
+    }
+
+    // Straight-line statements — the single-script case, and every custom block's body.
+    // (Custom blocks run to completion, so a `wait` inside one really does block.)
+    cStackBlock(b, blocks, level) {
+        const pad = '    '.repeat(level);
+        const v = (k) => this.cVal(b.inputs[k], blocks);
+        const f = (k) => (b.fields[k] ? b.fields[k][0] : '');
+        const sub = (k, lvl = level + 1) => (b.inputs[k] ? this.cStackFrom(b.inputs[k][1], blocks, lvl) : []);
+        const cond = () => this.cCond(b.inputs.CONDITION ? b.inputs.CONDITION[1] : null, blocks);
+        const line = (t) => [pad + t];
+        switch (b.opcode) {
+            case 'control_forever': return [pad + 'for (;;) {', ...sub('SUBSTACK'), pad + '}'];
+            case 'control_repeat': {
+                // The counter is scoped to its own block so nested REPEATs never collide,
+                // and declared up front because C89 wants declarations before statements.
+                const i = `_i${++this._cCounter}`;
+                return [pad + `{ unsigned int ${i};`,
+                    pad + `    for (${i} = 0; ${i} < (${v('TIMES')}); ${i}++) {`,
+                    ...sub('SUBSTACK', level + 2),
+                    pad + '    }',
+                    pad + '}'];
+            }
+            case 'control_repeat_until': return [pad + `while (!(${cond()})) {`, ...sub('SUBSTACK'), pad + '}'];
+            case 'control_if': return [pad + `if (${cond()}) {`, ...sub('SUBSTACK'), pad + '}'];
+            case 'control_if_else': return [pad + `if (${cond()}) {`, ...sub('SUBSTACK'),
+                pad + '} else {', ...sub('SUBSTACK2'), pad + '}'];
+            case 'control_wait': {
+                if (this._cTasks) { this._cUses.blockDelay = true; return line(`bw_block_ms(${this.cMs(b.inputs.DURATION, blocks)});`); }
+                this._cUses.delay = true;
+                return line(`delay_ms(${this.cMs(b.inputs.DURATION, blocks)});`);
+            }
+            case 'control_wait_until': return line(`while (!(${cond()})) ;`);
+            case 'control_stop': {
+                const option = f('STOP_OPTION');
+                if (option === 'this script') return line('return;');
+                // Straight-line emission means there is exactly one script, so "stop other
+                // scripts" has nothing to stop; only "stop all" halts the chip.
+                if (option === 'other scripts in sprite') return line('/* stop other scripts in sprite — there are none */');
+                return line('for (;;) ;   /* stop all */');
+            }
+            case 'data_setvariableto': return line(`${this.cRef(f('VARIABLE'))} = ${v('VALUE')};`);
+            case 'data_changevariableby': return line(`${this.cRef(f('VARIABLE'))} += ${v('VALUE')};`);
+            case 'stc12_setpin': return line(this.cSetPin(f('PIN'), f('STATE')));
+            case 'stc12_toggle': {
+                const sfr = this.cSfr(f('PIN'));
+                return line(sfr ? `${sfr} = !${sfr};` : `/* toggle ${this.cComment(f('PIN'))} */`);
+            }
+            case 'procedures_call': return line(this.cProcCall(b, blocks));
+            default: {
+                const text = (this.decompileStackBlock(b, blocks, 0)[0] || b.opcode).trim();
+                this.cWarn(`no C equivalent for "${text}" — emitted as a comment`);
+                return line(`/* ${this.cComment(text)} */`);
+            }
+        }
+    }
+
+    // Does this stack contain a `wait`? Only then does its task need a deadline slot.
+    cHasWait(firstId, blocks) {
+        let id = firstId;
+        while (id && blocks[id]) {
+            const b = blocks[id];
+            if (b.opcode === 'control_wait') return true;
+            for (const k of ['SUBSTACK', 'SUBSTACK2']) {
+                if (b.inputs[k] && this.cHasWait(b.inputs[k][1], blocks)) return true;
+            }
+            id = b.next;
+        }
+        return false;
+    }
+
+    cTaskFrom(firstId, blocks, level, ctx) {
+        const lines = [];
+        let id = firstId;
+        const pad = '    '.repeat(level);
+        while (id && blocks[id]) {
+            lines.push(...this.cCommentLines(id, pad));
+            lines.push(...this.cTaskBlock(blocks[id], blocks, level, ctx));
+            id = blocks[id].next;
+        }
+        return lines;
+    }
+
+    // One task's statements as the interior of a Duff's-device state machine. The switch
+    // sits in the caller; case labels land inside whatever nesting the statements build,
+    // which C allows as long as no inner switch appears (we emit none). Every wait AND
+    // every loop back-edge is a numbered yield — the latter is Scratch's own scheduling
+    // contract, and it is what makes a busy FOREVER unable to starve the other tasks.
+    cTaskBlock(b, blocks, level, ctx) {
+        const pad = '    '.repeat(level);
+        const v = (k) => this.cVal(b.inputs[k], blocks);
+        const f = (k) => (b.fields[k] ? b.fields[k][0] : '');
+        const sub = (k, lvl) => (b.inputs[k] ? this.cTaskFrom(b.inputs[k][1], blocks, lvl, ctx) : []);
+        const cond = () => this.cCond(b.inputs.CONDITION ? b.inputs.CONDITION[1] : null, blocks);
+        const task = ctx.task;
+        switch (b.opcode) {
+            case 'control_wait': {
+                this._cUses.now = true;
+                const s = ++ctx.state;
+                return [
+                    `${pad}${task}_until = bw_now() + (${this.cMs(b.inputs.DURATION, blocks)});`,
+                    `${pad}${task}_state = ${s};`,
+                    `${pad}case ${s}:`,
+                    `${pad}if ((int)(bw_now() - ${task}_until) < 0) return;`
+                ];
+            }
+            case 'control_wait_until': {
+                const s = ++ctx.state;
+                return [`${pad}${task}_state = ${s};`, `${pad}case ${s}:`, `${pad}if (!(${cond()})) return;`];
+            }
+            case 'control_forever': {
+                const s = ++ctx.state;
+                return [`${pad}${task}_state = ${s};`, `${pad}case ${s}:`,
+                    ...sub('SUBSTACK', level),
+                    `${pad}${task}_state = ${s};`, `${pad}return;`];
+            }
+            case 'control_repeat': {
+                // The counter has to survive the yield, so it is a static, not a local.
+                const name = `bw_i${++this._cCounter}`;
+                ctx.statics.push(name);
+                const s = ++ctx.state;
+                return [`${pad}${name} = (${v('TIMES')});`,
+                    `${pad}${task}_state = ${s};`,
+                    `${pad}case ${s}:`,
+                    `${pad}if (${name}) {`,
+                    ...sub('SUBSTACK', level + 1),
+                    `${pad}    ${name}--;`,
+                    `${pad}    ${task}_state = ${s};`,
+                    `${pad}    return;`,
+                    `${pad}}`];
+            }
+            case 'control_repeat_until': {
+                const s = ++ctx.state;
+                return [`${pad}${task}_state = ${s};`,
+                    `${pad}case ${s}:`,
+                    `${pad}if (!(${cond()})) {`,
+                    ...sub('SUBSTACK', level + 1),
+                    `${pad}    ${task}_state = ${s};`,
+                    `${pad}    return;`,
+                    `${pad}}`];
+            }
+            case 'control_if': return [`${pad}if (${cond()}) {`, ...sub('SUBSTACK', level + 1), `${pad}}`];
+            case 'control_if_else': return [`${pad}if (${cond()}) {`, ...sub('SUBSTACK', level + 1),
+                `${pad}} else {`, ...sub('SUBSTACK2', level + 1), `${pad}}`];
+            case 'control_stop': {
+                const option = f('STOP_OPTION');
+                const others = option === 'this script' ? [task]
+                    : option === 'other scripts in sprite' ? ctx.tasks.filter((t) => t !== task)
+                        : ctx.tasks;
+                const out = others.map((t) => `${pad}${t}_state = 0xFFFF;`);
+                if (option !== 'other scripts in sprite') out.push(`${pad}return;`);
+                return out;
+            }
+            // Everything else is the same statement in either mode (it cannot yield).
+            default: return this.cStackBlock(b, blocks, level);
+        }
+    }
+
+    generateC(project = this.project, opts = {}) {
+        this._cNames = new Map();
+        this._cCounter = 0;
+        this._cWarnings = [];
+        this._cUses = { adc: false, delay: false, blockDelay: false, now: false };
+        this._emitComments = !(opts && opts.comments === false);
+        const targets = project.targets || [];
+        this._buildCodeComments(targets);
+
+        const stored = project.stc || {};
+        const device = String(opts.device || stored.device || 'stc12c5a60s2').toLowerCase();
+        const clock = Number(opts.clock || stored.clock || 11059200);
+        const pins = opts.pins || stored.pins || [];
+        const part = SB3Creator.STC_PARTS[device];
+        if (!part) this.cWarn(`unknown DEVICE "${device}" — emitting for stc12c5a60s2`);
+        const chip = part || SB3Creator.STC_PARTS.stc12c5a60s2;
+        this._cPins = new Map(pins.map((p) => [String(p.name).toLowerCase(), p]));
+
+        const stage = targets.find((t) => t.isStage);
+        // Same section rule as the Python/JS back ends, so sprite prefixes line up.
+        const sections = targets.filter((t) => !t.isStage || Object.values(t.blocks || {}).some((b) => b.topLevel));
+
+        // Pass 1 — count the `when green flag clicked` scripts. Several means the
+        // cooperative scheduler; exactly one keeps straight-line code in main().
+        let scriptCount = 0;
+        for (const t of sections) {
+            for (const b of Object.values(t.blocks || {})) {
+                if (b.topLevel && b.opcode === 'event_whenflagclicked') scriptCount++;
+            }
+        }
+        this._cTasks = scriptCount > 1;
+        const taskNames = Array.from({ length: scriptCount }, (_, n) => `bw_task${n}`);
+
+        // Pass 2 — declare state. Names are claimed here so a custom block's parameter can
+        // never quietly take a variable's identifier.
+        const stateDecls = [];
+        for (const entry of Object.values((stage && stage.variables) || {})) {
+            stateDecls.push(`static int ${this.cName(entry[0])} = ${this.cInit(entry[1])};`);
+        }
+        sections.forEach((t, idx) => {
+            if (t.isStage) return;
+            const pfx = spritePrefix(idx);
+            for (const entry of Object.values(t.variables || {})) {
+                stateDecls.push(`static int ${this.cName(pfx + entry[0])} = ${this.cInit(entry[1])};   /* ${this.cComment(t.name)}: ${this.cComment(entry[0])} */`);
+            }
+        });
+
+        // Pass 3 — walk the scripts.
+        const procProtos = [], procDefs = [], taskDefs = [];
+        const statics = [];
+        let mainBody = [];
+        let taskIndex = 0;
+        sections.forEach((t, idx) => {
+            const pfx = spritePrefix(idx);
+            this._curPrefix = pfx;
+            this._curLocals = t.isStage ? new Set()
+                : new Set([...Object.values(t.variables || {}).map((v) => v[0]),
+                    ...Object.values(t.lists || {}).map((l) => l[0])]);
+            const blocks = t.blocks || {};
+            for (const b of Object.values(blocks)) {
+                if (!b.topLevel) continue;
+                if (b.opcode === 'procedures_definition') {
+                    const proto = blocks[b.inputs.custom_block[1]];
+                    const m = proto.mutation;
+                    const argNames = JSON.parse(m.argumentnames || '[]').map((a) => this.cName(a));
+                    const fn = this.cName(pfx + this.pyProcRaw(m.proccode));
+                    const params = argNames.length ? argNames.map((a) => `int ${a}`).join(', ') : 'void';
+                    procProtos.push(`static void ${fn}(${params});`);
+                    procDefs.push(`/* ${this.cComment(m.proccode.replace(/%[sb]/g, '').trim())} */`,
+                        `static void ${fn}(${params})`, '{',
+                        ...this.cStackFrom(b.next, blocks, 1), '}', '');
+                } else if (b.opcode === 'event_whenflagclicked') {
+                    const n = taskIndex++;
+                    const task = taskNames[n];
+                    const where = t.isStage ? '' : `, ${this.cComment(t.name)}`;
+                    if (!this._cTasks) { mainBody = this.cStackFrom(b.next, blocks, 1); continue; }
+                    const ctx = { task, state: 0, statics, tasks: taskNames };
+                    const body = this.cTaskFrom(b.next, blocks, 1, ctx);
+                    taskDefs.push(`static unsigned int ${task}_state;`);
+                    if (this.cHasWait(b.next, blocks)) taskDefs.push(`static unsigned int ${task}_until;`);
+                    taskDefs.push(`/* when green flag clicked (script ${n + 1}${where}) */`,
+                        `static void ${task}(void)`, '{',
+                        `    switch (${task}_state) {`,
+                        '    case 0:',
+                        ...body,
+                        '    }',
+                        `    ${task}_state = 0xFFFF;   /* ran to the end */`,
+                        '}', '');
+                } else if (this.isHat(b.opcode) || this.runtimeOp(b.opcode)) {
+                    this.cWarn(`"${this.decompileHat(b, blocks) || b.opcode}" has no meaning on the chip — script skipped`);
+                }
+            }
+        });
+        this._curPrefix = ''; this._curLocals = null;
+        if (this._cUses.adc && !chip.adc) this.cWarn(`ANALOG pins need an ADC, and the ${device} has none`);
+
+        // ---- assemble ----------------------------------------------------------------
+        const hex = (n) => n.toString(16).toUpperCase().padStart(2, '0');
+        const out = [
+            '/* Generated by Brickwright — blocks → C for the STC12 / 8051.',
+            ' * Hand edits will be lost; change the project instead. */'
+        ];
+        for (const w of this._cWarnings) out.push(`/* warning: ${this.cComment(w)} */`);
+        out.push(`#include <${chip.header}>`, '');
+        out.push(`#define FOSC_HZ ${clock}UL`, '');
+        out.push('/* Timer 0, mode 1, clocked at FOSC/12 — accuracy depends only on FOSC, and',
+            ' * every supported family counts this mode identically, so the same program is',
+            ' * timing-correct on a 12T STC89 and a 1T STC12 or STC15. Nothing generated here',
+            ' * ever busy-waits on a cycle count. */',
+            '#define T0_RELOAD (65536UL - (FOSC_HZ / 12UL / 1000UL))', '');
+
+        if (this._cTasks) {
+            out.push('/* One script = one cooperative task. Timer 0 interrupts every millisecond;',
+                ' * tasks yield at every wait and at every loop iteration (Scratch\'s own',
+                ' * scheduling contract), so no task can starve the others. */',
+                'static volatile unsigned int bw_ms;', '',
+                'void bw_tick(void) __interrupt(1)',
+                '{',
+                '    TL0 = (unsigned char)(T0_RELOAD & 0xFF);',
+                '    TH0 = (unsigned char)(T0_RELOAD >> 8);',
+                '    bw_ms++;',
+                '}', '');
+            if (this._cUses.now || this._cUses.blockDelay) {
+                out.push('/* A 16-bit read is not atomic on an 8051; hold the tick off. */',
+                    'static unsigned int bw_now(void)',
+                    '{',
+                    '    unsigned int t;',
+                    '    ET0 = 0;',
+                    '    t = bw_ms;',
+                    '    ET0 = 1;',
+                    '    return t;',
+                    '}', '');
+            }
+            if (this._cUses.blockDelay) {
+                out.push('/* A wait inside a custom block: those run to completion in Scratch too, so',
+                    ' * this one really does block — but on the tick, never on a cycle count. */',
+                    'static void bw_block_ms(unsigned int ms)',
+                    '{',
+                    '    unsigned int start = bw_now();',
+                    '    while ((int)(bw_now() - start - ms) < 0) ;',
+                    '}', '');
+            }
+        } else if (this._cUses.delay) {
+            out.push('static void delay_ms(unsigned int ms)',
+                '{',
+                '    while (ms--) {',
+                '        TL0 = (unsigned char)(T0_RELOAD & 0xFF);',
+                '        TH0 = (unsigned char)(T0_RELOAD >> 8);',
+                '        TF0 = 0;',
+                '        TR0 = 1;',
+                '        while (!TF0) ;',
+                '        TR0 = 0;',
+                '        TF0 = 0;',
+                '    }',
+                '}', '');
+        }
+
+        if (this._cUses.adc) {
+            out.push('/* 10-bit ADC, polled. Channel n is on P1.n; the channel is selected and the',
+                ' * conversion started in one write, as STC\'s own examples do. */',
+                'static unsigned int adc_read(unsigned char channel)',
+                '{',
+                '    unsigned char settle;',
+                '    ADC_CONTR = (unsigned char)(0xE8 | channel);  /* power|fast|start|chan */',
+                '    for (settle = 0; settle < 8; settle++) ;      /* let the mux settle */',
+                '    while (!(ADC_CONTR & 0x10)) ;                 /* wait for ADC_FLAG */',
+                '    ADC_CONTR &= ~0x10;                           /* clear it by hand */',
+                '    return ((unsigned int)ADC_RES << 2) | (ADC_RESL & 0x03);',
+                '}', '');
+        }
+
+        if (stateDecls.length) {
+            out.push('/* Variables (16-bit signed, like Scratch\'s integers). */', ...stateDecls, '');
+        }
+        if (procProtos.length) out.push(...procProtos, '');
+        if (procDefs.length) out.push(...procDefs);
+        if (statics.length) {
+            out.push('/* REPEAT counters live across yields. */',
+                ...statics.map((n) => `static unsigned int ${n};`), '');
+        }
+        if (taskDefs.length) out.push(...taskDefs);
+
+        out.push('void main(void)', '{');
+        const outputs = {};
+        for (const p of pins) if (p.direction === 'output') outputs[p.port] = (outputs[p.port] || 0) | (1 << p.bit);
+        if (chip.portModes) {
+            for (const port of Object.keys(outputs).sort()) {
+                out.push(`    P${port}M1 &= ~0x${hex(outputs[port])};   /* push-pull */`,
+                    `    P${port}M0 |=  0x${hex(outputs[port])};`);
+            }
+        }
+        // On a quasi-bidirectional-only part (STC89) there is nothing to set up: the
+        // active-low wiring sinks the LED current either way.
+        for (const p of pins) {
+            if (p.direction === 'output') out.push(`    P${p.port}_${p.bit} = ${p.activeLow ? 1 : 0};   /* ${this.cComment(p.name)} off */`);
+        }
+        let analog = 0;
+        for (const p of pins) if (p.direction === 'analog') analog |= 1 << p.bit;
+        if (analog) {
+            out.push('',
+                `    P1ASF = 0x${hex(analog)};                 /* analog function on P1 */`,
+                `    P1M1 |=  0x${hex(analog)};                /* high-impedance input */`,
+                `    P1M0 &= ~0x${hex(analog)};`,
+                '    ADC_CONTR = 0xE0;              /* ADC on, fastest conversion */');
+        }
+        out.push('');
+        if (chip.aux1T) out.push('    AUXR &= ~0x80;                 /* Timer 0 at FOSC/12 */');
+        out.push('    TMOD  = (TMOD & 0xF0) | 0x01;  /* Timer 0, mode 1 */');
+        if (this._cTasks) {
+            out.push('    TL0 = (unsigned char)(T0_RELOAD & 0xFF);',
+                '    TH0 = (unsigned char)(T0_RELOAD >> 8);',
+                '    ET0 = 1;                       /* millisecond tick */',
+                '    EA  = 1;',
+                '    TR0 = 1;',
+                '',
+                '    for (;;) {',
+                ...taskNames.map((n) => `        ${n}();`),
+                '    }');
+        } else {
+            out.push('');
+            out.push(...mainBody);
+        }
+        out.push('}', '');
+        return out.join('\n').replace(/\n{3,}/g, '\n\n').trim() + '\n';
+    }
+
     // Functional shims for the Arrays & Vectors extension (id `arrays`) so the generated
     // code runs standalone. The block surface maps 1:1 to these methods (0-based indices).
     arraysShimPy() {
@@ -3540,5 +4280,40 @@ SB3Creator.EXTENSION_URLS = {
 // auto-generated from their block surfaces (scripts/gen-runtime-registry.mjs) so the
 // pluggable-driver convention works for every one of them.
 SB3Creator.RUNTIME_EXTENSIONS = { ...GENERATED_RUNTIME };
+
+// ---- STC12 / 8051 target (generateC) ---------------------------------------------
+// What the C emitter must know about a chip family. The point of keeping this explicit:
+// an STC12C5A60S2 drops into an STC89C52 socket pin-for-pin, but its 1T core runs
+// software delay loops 6-12x too fast. Generated code never busy-waits on a cycle count
+// — every delay and every scheduler tick is Timer 0 at FOSC/12, which both families
+// count identically — so the same project is timing-correct on either chip.
+// Register addresses are datasheet facts; the header is SDCC's own.
+// Mirrors the PARTS table in ../stc-compiler/stc_pseudocode.py.
+//   header     — the SDCC header carrying this family's registers
+//   portModes  — PxM0/PxM1 exist (STC12/STC15); the STC89 is quasi-bidirectional only
+//   aux1T      — AUXR.7 selects Timer 0's 1T mode and must be cleared
+//   adc        — 10-bit ADC on P1
+// The STC15 borrows stc12.h deliberately: every register this emitter touches (P0-P3,
+// PxM0/PxM1, AUXR, Timer 0, P1ASF, the ADC block) sits at the same address on an
+// STC15F2K60S2. Its famous divergences (Timer 2 at 0xD6/0xD7, S3CON…) are registers
+// nothing here ever writes.
+SB3Creator.STC_PARTS = {
+    stc12c5a60s2: { header: 'stc12.h', portModes: true, aux1T: true, adc: true },
+    stc12c5a16s2: { header: 'stc12.h', portModes: true, aux1T: true, adc: true },
+    stc89c52rc: { header: '8052.h', portModes: false, aux1T: false, adc: false },
+    stc89c52: { header: '8052.h', portModes: false, aux1T: false, adc: false },
+    stc15f2k60s2: { header: 'stc12.h', portModes: true, aux1T: true, adc: true }
+};
+
+// C keywords a sanitized Scratch name could collide with (sanitizeIdent only guards the
+// Python/JS ones). SDCC's own storage-class keywords are included.
+SB3Creator.C_RESERVED = new Set([
+    'auto', 'break', 'case', 'char', 'const', 'continue', 'default', 'do', 'double', 'else',
+    'enum', 'extern', 'float', 'for', 'goto', 'if', 'inline', 'int', 'long', 'register',
+    'restrict', 'return', 'short', 'signed', 'sizeof', 'static', 'struct', 'switch',
+    'typedef', 'union', 'unsigned', 'void', 'volatile', 'while', 'bit', 'sbit', 'sfr',
+    'sfr16', 'data', 'idata', 'xdata', 'pdata', 'code', 'bdata', 'at', 'interrupt', 'using',
+    'reentrant', 'naked', 'main'
+]);
 
 export default SB3Creator;
