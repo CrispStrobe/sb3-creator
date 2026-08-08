@@ -183,8 +183,11 @@ class ExprParser {
             this.c.next();
             const then = this.parse(0);
             this.c.eat(':');
-            const els = this.parse(0);
-            // No pseudocode equivalent — just pick the 'then' branch.
+            this.parse(0);   // consume the else branch to keep the cursor in step
+            // Pseudocode has no inline conditional, so the else branch is lost. SAY SO —
+            // silently returning the then branch turns `x = c ? a : b` into `x = a`, which
+            // is a plausible, wrong translation, and those are worse than a refusal.
+            if (this.ctx.warn) this.ctx.warn('a ternary `? :` has no pseudocode equivalent — the else branch was dropped');
             return then;
         }
         for (;;) {
@@ -378,6 +381,7 @@ export default function cToPseudocode (source, opts = {}) {
     const usedVars = new Set();
 
     const ctx = {
+        warn,
         readName (id) {
             const lit = expand(id, pre.defines);
             if (/^-?\d+$/.test(lit)) return lit;
