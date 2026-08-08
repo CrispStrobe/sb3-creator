@@ -339,6 +339,17 @@ export default function cToPseudocode (source, opts = {}) {
         for (const line of pre.body) {
             const m = line.match(/\bsbit\s+(\w+)\s*=\s*P([0-4])\s*\^\s*([0-7])/);
             if (m) seen.set(m[1], { port: +m[2], bit: +m[3] });
+            // SDCC spells the same declaration by ADDRESS: `__sbit __at (0x90) LED1;`.
+            // This is what Keil source looks like after stc-compiler normalises it, so
+            // without this the translator makes firmware HARDER to read, not easier.
+            // The bit-addressable ports sit at 0x80/0x90/0xA0/0xB0, eight bits each.
+            const a = line.match(/__sbit\s+__at\s*\(\s*(0[xX][0-9a-fA-F]+|\d+)\s*\)\s*(\w+)/);
+            if (a) {
+                const addr = a[1].toLowerCase().startsWith('0x') ? parseInt(a[1], 16) : +a[1];
+                if (addr >= 0x80 && addr <= 0xB7 && (addr & 0xF8) % 0x10 === 0) {
+                    seen.set(a[2], { port: (addr - 0x80) >> 4, bit: addr & 7 });
+                }
+            }
         }
         const text = pre.body.join('\n');
         for (const [alias, where] of seen) {

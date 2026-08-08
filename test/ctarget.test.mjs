@@ -900,3 +900,22 @@ test('a Scratch program says so once, instead of warning per block', async () =>
     assert.ok(!/NOT AN STC12 PROGRAM/.test(withPins));
     assert.match(withPins, /no C equivalent for "say "a""/);
 });
+
+test('SDCC\'s __sbit __at (addr) form is understood, not just Keil\'s P1^0', async () => {
+    const c2p = (await import('../src/utils/cToPseudocode.js')).default;
+    // This is what Keil source looks like AFTER stc-compiler normalises it. Without this the
+    // translator would make firmware harder to read rather than easier, which would defeat
+    // the point of routing Keil through it at all.
+    const { pseudocode } = c2p(`#include <keil-reg52.h>
+__sbit __at (0x90) LED1;
+__sbit __at (0x91) LED2;
+#define LED_ON  0
+#define LED_OFF 1
+void main(void) { while (1) { LED1 = LED_ON; LED2 = LED_OFF; delay_ms(150); } }`);
+    assert.match(pseudocode, /^PIN led1 = P1\.0 OUTPUT ACTIVE LOW$/m);
+    assert.match(pseudocode, /^PIN led2 = P1\.1 OUTPUT ACTIVE LOW$/m);
+    assert.match(pseudocode, /turn on led1/);
+    // the bit-addressable ports are 0x80/0x90/0xA0/0xB0, eight bits each
+    const p3 = c2p('__sbit __at (0xB2) BTN;\nvoid main(void){ while(1){ if (BTN) {} } }').pseudocode;
+    assert.match(p3, /P3\.2/);
+});
