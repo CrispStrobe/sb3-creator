@@ -1,9 +1,10 @@
 // The fifth target: blocks -> C for the STC12 / 8051 (`generateC`).
 //
-// C is emit-only — there is no C -> pseudocode front end — so this suite does NOT check
-// the two-way convergence invariant for C. What it does check is (a) the STC block
-// surface (DEVICE / CLOCK / PIN / turn on / toggle / read) round-trips pseudocode <->
-// blocks like everything else, and (b) the emitted C keeps the three settled decisions
+// C is emit-only for now — the C -> blocks front end is intended but not built (the way
+// back is being grown from stc-compiler's Keil translator and disassembler) — so this
+// suite does NOT check the two-way convergence invariant for C. What it does check is
+// (a) the STC block surface (DEVICE / CLOCK / PIN / turn on / toggle / read) round-trips
+// pseudocode <-> blocks like everything else, and (b) the emitted C keeps the decisions
 // that ../stc-compiler/stc_pseudocode.py (the reference implementation and oracle) makes:
 // the cooperative scheduler, Timer 0 at FOSC/12, and active-low pins.
 //

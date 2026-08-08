@@ -4,9 +4,21 @@
 (pseudocode), `generatePython` and `generateJavaScript`. It compiles a Brickwright project to
 C for an **STC12C5A60S2** and its relatives, ready for SDCC.
 
-It is **emit-only**: there is no C → pseudocode front end and none is intended, so C takes no
-part in the two-way convergence invariant that pseudocode/Python/JavaScript satisfy. The STC
-*block surface* below does round-trip pseudocode ⇄ blocks like everything else.
+It is **emit-only for now**: there is no C → blocks front end *yet*, so C is excluded from the
+two-way convergence invariant that pseudocode/Python/JavaScript satisfy. The STC *block
+surface* below does round-trip pseudocode ⇄ blocks like everything else.
+
+**Both directions are the intent**, and most of the machinery for the way back already exists
+in `../stc-compiler` — the missing piece is the lift onto pseudocode/blocks, not the ability
+to read C or an image:
+
+| have | what it does | measured |
+|---|---|---|
+| `keil2sdcc.py` — `POST /translate`, `/translate-project` | reads arbitrary third-party Keil C51 and normalises it to SDCC C (whole projects: ISR-prototype injection, case-unified externs, `.uvproj` source list) | 546/597 files over an 86-repo corpus (91%); 31/31 on the hand-converted QX-mini51 parallel corpus |
+| `stc_disasm.py` — `POST /disassemble` | Intel HEX image → 8051 assembly, table generated from the encoding's regularities, linear sweep with branch-target sync points | 380/380 byte-exact over 349 images, verified two ways (SDCC's own `.rst` listing, and reassembly through `sdas8051`/`sdld`) |
+
+So the reverse direction is a roadmap item with two thirds of its foundation already
+measured — not a closed door.
 
 ## The reference implementation and oracle
 

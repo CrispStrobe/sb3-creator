@@ -3529,9 +3529,14 @@ class SB3Creator {
 
     // ---- C code generation (blocks -> C for the STC12 / 8051) --------------------
     //
-    // The fifth target, and the only emit-only one: there is no C -> pseudocode front
-    // end and none is intended, so C takes no part in the two-way convergence
-    // invariant (it must not break the others).
+    // The fifth target. It is emit-only *for now*: there is no C -> blocks front end yet,
+    // so C is excluded from the two-way convergence invariant (it must not break the
+    // others). Both directions ARE the intent, and two thirds of the way back already
+    // exist in ../stc-compiler: `keil2sdcc.py` (POST /translate, /translate-project)
+    // reads arbitrary third-party C at 546/597 on an 86-repo corpus, and `stc_disasm.py`
+    // (POST /disassemble) takes an Intel HEX image back to 8051 assembly, 380/380
+    // byte-exact over 349 images with reassembly as its oracle. What is missing is the
+    // C -> pseudocode/blocks lift on top of them, not the ability to read C.
     //
     // `../stc-compiler/stc_pseudocode.py` is the reference implementation AND the test
     // oracle — the same AST shape, one language over. `cStackBlock` ports its `stmts_c`,
