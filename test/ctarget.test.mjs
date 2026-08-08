@@ -668,3 +668,38 @@ test('the simulator driver advances simulated time, or the board stays frozen', 
     // The neutral driver must not gain a clock it has no board to advance.
     assert.ok(!/advanceTo/.test(c.generateJavaScript(undefined, { driver: 'shim' })));
 });
+
+// ---- bitwise operators: the dialect gap that made real firmware untranslatable ----------
+
+test('bitwise operators exist, round-trip, and emit natively in all three languages', () => {
+    const src = 'PIN led = P1.0 OUTPUT\nWHEN flag clicked:\n  set mask to 0xF0\n'
+        // NB: not `x`/`y` — `set x to` is motion_setx, which is exactly the shadowing trap
+        // the pin blocks were written to avoid.
+        + '  set v to mask bitand 15\n  set w to v bitor 1\n  set p to v bitxor w\n'
+        + '  set q to v shiftleft 2\n  set z to bitnot q';
+    const c = build(src);
+    assert.deepEqual(c.warnings, []);
+    // Hex literals, because a mask is unreadable in decimal.
+    assert.match(c.decompile(), /set mask to 240/);
+    // Round-trips to a fixed point like every other construct.
+    const once = c.decompile();
+    assert.equal(build(once).decompile(), once);
+    // C is the target that wanted these: native operators, no helper calls.
+    const cc = c.generateC();
+    assert.match(cc, /v = \(mask & 15\);/);
+    assert.match(cc, /w = \(v \| 1\);/);
+    assert.match(cc, /p = \(v \^ w\);/);
+    assert.match(cc, /q = \(v << 2\);/);
+    assert.match(cc, /z = \(~q\);/);
+    // And they are real operators in Python/JS too, not comments.
+    assert.match(c.generatePython(), /int\(mask\) & int\(15\)/);
+    assert.match(c.generateJavaScript(), /\(mask\) & \(15\)/);
+});
+
+test('bitwise words do not shadow ordinary variable names', () => {
+    const c = build('WHEN flag clicked:\n  set bitanded to 1\n  set shift to 2');
+    assert.deepEqual(c.warnings, []);
+    const ps = c.decompile();
+    assert.match(ps, /set bitanded to 1/);
+    assert.match(ps, /set shift to 2/);
+});

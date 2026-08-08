@@ -619,6 +619,8 @@ class SB3Creator {
 
         // Literals
         if (/^-?\d+(\.\d+)?$/.test(s)) return [1, [4, s]];
+        // Hex, because a bit mask is unreadable in decimal and firmware is written in them.
+        if (/^0[xX][0-9a-fA-F]+$/.test(s)) return [1, [4, String(parseInt(s, 16))]];
         if (s.length >= 2 && s.startsWith('"') && s.endsWith('"') && this.matchQuote(s) === s.length - 1) {
             return [1, [10, s.slice(1, -1)]];
         }
@@ -719,6 +721,21 @@ class SB3Creator {
         }
         if ((m = s.match(/^round\s+(.+)$/i))) {
             return B('operator_round', { NUM: this.parseValue(m[1], context) });
+        }
+        // Bitwise. Scratch has none, and that absence is what made half the real 8051
+        // firmware in the corpus untranslatable — masking a port, setting one bit, shifting
+        // a reading. Worded like `mod` and `join` rather than punctuated, so pseudocode
+        // still reads aloud.
+        if ((m = s.match(/^bitnot\s+(.+)$/i))) return B('bitops_not', { NUM: this.parseValue(m[1], context) });
+        for (const [word, op] of [['bitand', 'and'], ['bitor', 'or'], ['bitxor', 'xor'],
+            ['shiftleft', 'shl'], ['shiftright', 'shr']]) {
+            const sp = this.splitBinary(s, [` ${word} `], { ci: true });
+            if (sp) {
+                return B(`bitops_${op}`, {
+                    NUM1: this.parseValue(sp.left, context),
+                    NUM2: this.parseValue(sp.right, context)
+                });
+            }
         }
         // Planète Maths distinctive reporters (no standard equivalent). syncExtensions
         // auto-declares the `planetemaths` extension from these opcodes.
@@ -2540,6 +2557,12 @@ class SB3Creator {
             case 'operator_multiply': return `${v('NUM1')} * ${v('NUM2')}`;
             case 'operator_divide': return `${v('NUM1')} / ${v('NUM2')}`;
             case 'operator_mod': return `${v('NUM1')} mod ${v('NUM2')}`;
+            case 'bitops_and': return `${v('NUM1')} bitand ${v('NUM2')}`;
+            case 'bitops_or': return `${v('NUM1')} bitor ${v('NUM2')}`;
+            case 'bitops_xor': return `${v('NUM1')} bitxor ${v('NUM2')}`;
+            case 'bitops_shl': return `${v('NUM1')} shiftleft ${v('NUM2')}`;
+            case 'bitops_shr': return `${v('NUM1')} shiftright ${v('NUM2')}`;
+            case 'bitops_not': return `bitnot ${v('NUM')}`;
             case 'operator_random': return `pick random ${v('FROM')} to ${v('TO')}`;
             case 'operator_round': return `round ${v('NUM')}`;
             case 'operator_mathop': return `${f('OPERATOR')} of ${v('NUM')}`;
@@ -2885,6 +2908,12 @@ class SB3Creator {
             case 'operator_multiply': return `(${v('NUM1')} * ${v('NUM2')})`;
             case 'operator_divide': return `(${v('NUM1')} / ${v('NUM2')})`;
             case 'operator_mod': return `(${v('NUM1')} % ${v('NUM2')})`;
+            case 'bitops_and': return `(int(${v('NUM1')}) & int(${v('NUM2')}))`;
+            case 'bitops_or': return `(int(${v('NUM1')}) | int(${v('NUM2')}))`;
+            case 'bitops_xor': return `(int(${v('NUM1')}) ^ int(${v('NUM2')}))`;
+            case 'bitops_shl': return `(int(${v('NUM1')}) << int(${v('NUM2')}))`;
+            case 'bitops_shr': return `(int(${v('NUM1')}) >> int(${v('NUM2')}))`;
+            case 'bitops_not': return `(~int(${v('NUM')}))`;
             case 'operator_random': this._pyUses.random = true; return `random.randint(${v('FROM')}, ${v('TO')})`;
             case 'operator_round': return `round(${v('NUM')})`;
             case 'operator_mathop': return this.pyMathop(f('OPERATOR'), v('NUM'));
@@ -3356,6 +3385,12 @@ class SB3Creator {
             case 'operator_multiply': return `(${v('NUM1')} * ${v('NUM2')})`;
             case 'operator_divide': return `(${v('NUM1')} / ${v('NUM2')})`;
             case 'operator_mod': return `(${v('NUM1')} % ${v('NUM2')})`;
+            case 'bitops_and': return `((${v('NUM1')}) & (${v('NUM2')}))`;
+            case 'bitops_or': return `((${v('NUM1')}) | (${v('NUM2')}))`;
+            case 'bitops_xor': return `((${v('NUM1')}) ^ (${v('NUM2')}))`;
+            case 'bitops_shl': return `((${v('NUM1')}) << (${v('NUM2')}))`;
+            case 'bitops_shr': return `((${v('NUM1')}) >> (${v('NUM2')}))`;
+            case 'bitops_not': return `(~(${v('NUM')}))`;
             case 'operator_random': this._jsUses.rand = true; return `_rand(${v('FROM')}, ${v('TO')})`;
             case 'operator_round': return `Math.round(${v('NUM')})`;
             case 'operator_mathop': return this.jsMathop(f('OPERATOR'), v('NUM'));
@@ -3761,6 +3796,14 @@ class SB3Creator {
             case 'operator_multiply': case 'planetemaths_multiply': return `(${v('NUM1')} * ${v('NUM2')})`;
             case 'operator_divide': case 'planetemaths_divide': return `(${v('NUM1')} / ${v('NUM2')})`;
             case 'operator_mod': return `(${v('NUM1')} % ${v('NUM2')})`;
+            // Native on the chip, and the reason these exist: masking a port, setting one
+            // bit, shifting an ADC reading.
+            case 'bitops_and': return `(${v('NUM1')} & ${v('NUM2')})`;
+            case 'bitops_or': return `(${v('NUM1')} | ${v('NUM2')})`;
+            case 'bitops_xor': return `(${v('NUM1')} ^ ${v('NUM2')})`;
+            case 'bitops_shl': return `(${v('NUM1')} << ${v('NUM2')})`;
+            case 'bitops_shr': return `(${v('NUM1')} >> ${v('NUM2')})`;
+            case 'bitops_not': return `(~${v('NUM')})`;
             case 'operator_round': return v('NUM');       // integer arithmetic already
             case 'planetemaths_oppose': return `(0 - ${v('NUM1')})`;
             case 'planetemaths_pourcent': return `(${v('NUM1')} / 100)`;
