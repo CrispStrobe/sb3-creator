@@ -1185,8 +1185,14 @@ class SB3Creator {
 
     parseCommand(line, target) {
         // Event hats reach here with their trailing ':' — strip it so the hat
-        // patterns can anchor cleanly.
-        if (/^when\b/i.test(line)) line = line.replace(/\s*:\s*$/, '');
+        // patterns can anchor cleanly. Remember that it WAS a hat: an unrecognised
+        // one must be refused rather than falling through to statement parsing,
+        // which silently swallowed the whole script (see the guard below).
+        let wasHat = false;
+        if (/^when\b/i.test(line)) {
+            wasHat = /:\s*$/.test(line);
+            line = line.replace(/\s*:\s*$/, '');
+        }
         const context = { target, extraBlocks: {}, parentId: null };
         let match;
 
@@ -1219,8 +1225,24 @@ class SB3Creator {
             block[id].fields.KEY_OPTION = [this.normalizeKey(match[1]), null];
             return { block, extraBlocks: {} };
         }
-        if (line.includes('flag clicked')) {
+        // `flag clicked`, `started` and `powered on` are one hat under three names.
+        // stc-compiler's stc_pseudocode.py accepts all three and CANONICALISES to
+        // `WHEN started:`, so refusing that spelling made this side unable to read
+        // the other's own output — the scripts vanished and an empty main() compiled
+        // clean. Both implementations now accept all three; each keeps its own
+        // canonical spelling on the way out.
+        if (line.includes('flag clicked') || /^when\s+started$/i.test(line)
+            || /^when\s+powered\s+on$/i.test(line)) {
             return { block: this.createBlock('event_whenflagclicked', { topLevel: true }).block, extraBlocks: {} };
+        }
+
+        // Nothing above matched a line that arrived as `WHEN ...:`. Falling through
+        // to statement parsing is what made an unknown hat silently drop its entire
+        // script, so say so instead.
+        if (wasHat) {
+            throw new ParseError(`Unknown event hat "${line}". Known hats: WHEN flag clicked / `
+                + `started / powered on, WHEN <key> key pressed, WHEN sprite clicked, `
+                + `WHEN I receive "<message>", WHEN I start as a clone.`);
         }
 
         // ---- STC12 / 8051 pin commands --------------------------------------------
