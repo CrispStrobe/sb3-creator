@@ -465,24 +465,56 @@ export default function cToPseudocode (source, opts = {}) {
             cur.expect(')');
             let count = null;
             const condStr = cond.join(' ').trim();
-            const initStr = init.join(' ').replace(/\s+/g, '').trim();
-            // `for (i = 0; i < N; i++)` or `for (i = 0; i < N; ++i)`
+            // Strip type specifiers from init so `uint8_t i = 0` → `i = 0`.
+            const TYPE_WORDS = new Set(['unsigned', 'signed', 'int', 'char', 'long', 'short',
+                'static', 'volatile', 'const', 'uint8_t', 'uint16_t', 'uint32_t',
+                'int8_t', 'int16_t', 'int32_t', 'BYTE', 'WORD', 'DWORD']);
+            const initClean = init.filter(t => !TYPE_WORDS.has(t));
+            const initStr = initClean.join('').replace(/\s+/g, '').trim();
+            // Extract loop variable name and initial value from init.
+            const initMatch = initStr.match(/^(\w+)=(.+)$/);
+            const initVar = initMatch ? initMatch[1] : null;
+            const initVal = initMatch ? initMatch[2] : null;
+            // `for (i = 0; i < N; i++)` or `for (uint8_t i = 0; i < N; ++i)`
             const up = condStr.match(/^(\w+)\s*<\s*(.+)$/);
-            if (up && initStr.match(new RegExp(`^(\\w+=)?${up[1]}=0$`))) {
+            if (up && initVar === up[1] && initVal === '0') {
                 count = up[2].replace(/\s*\)\s*$/, '').replace(/^\(\s*/, '').trim();
+            }
+            // `for (i = 0; i != N; i++)` — same as i < N when counting up from 0
+            const upNe = condStr.match(/^(\w+)\s*!=\s*(.+)$/);
+            if (!count && upNe && initVar === upNe[1] && initVal === '0') {
+                count = upNe[2].replace(/\s*\)\s*$/, '').replace(/^\(\s*/, '').trim();
             }
             // `for (i = 0; i <= N-1; i++)` → REPEAT N
             const upEq = condStr.match(/^(\w+)\s*<=\s*(.+)$/);
-            if (!count && upEq && initStr.match(new RegExp(`^(\\w+=)?${upEq[1]}=0$`))) {
+            if (!count && upEq && initVar === upEq[1] && initVal === '0') {
                 const lim = upEq[2].replace(/\s*\)\s*$/, '').replace(/^\(\s*/, '').trim();
                 const n = Number(lim);
                 count = Number.isFinite(n) ? String(n + 1) : `${lim} + 1`;
             }
+            // `for (i = M; i < N; i++)` where M > 0 → REPEAT (N - M)
+            if (!count && up && initVar === up[1] && initVal && /^\d+$/.test(initVal) && Number(initVal) > 0) {
+                const lim = up[2].replace(/\s*\)\s*$/, '').replace(/^\(\s*/, '').trim();
+                const n = Number(lim);
+                const m = Number(initVal);
+                count = (Number.isFinite(n) && Number.isFinite(m)) ? String(n - m) : `${lim} - ${initVal}`;
+            }
             // `for (i = N; i > 0; i--)` → REPEAT N
             const down = condStr.match(/^(\w+)\s*>\s*0$/);
-            if (!count && down) {
-                const im = initStr.match(new RegExp(`^(\\w+=)?${down[1]}=(\\w+)$`));
-                if (im) count = im[2];
+            if (!count && down && initVar === down[1] && initVal) {
+                count = initVal;
+            }
+            // `for (i = N; i >= 0; i--)` → REPEAT N+1
+            const downEq = condStr.match(/^(\w+)\s*>=\s*0$/);
+            if (!count && downEq && initVar === downEq[1] && initVal) {
+                const n = Number(initVal);
+                count = Number.isFinite(n) ? String(n + 1) : `${initVal} + 1`;
+            }
+            // `for (i = N; i != -1; i--)` → REPEAT N+1
+            const downNe = condStr.match(/^(\w+)\s*!=\s*-\s*1$/);
+            if (!count && downNe && initVar === downNe[1] && initVal) {
+                const n = Number(initVal);
+                count = Number.isFinite(n) ? String(n + 1) : `${initVal} + 1`;
             }
             // `for (; cond;)` or `for (; cond; step)` — while loop
             if (!count && !init.length && condStr) {
