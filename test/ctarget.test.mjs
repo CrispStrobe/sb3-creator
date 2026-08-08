@@ -544,6 +544,89 @@ test('C -> pseudocode -> C is a fixed point', () => {
     assert.equal(again, first, 'a second pass through C must change nothing');
 });
 
+test('the scheduler round-trip is a fixed point: pseudocode -> C -> pseudocode -> C', () => {
+    const first = (() => { const c = new SB3Creator(); c.parse(SCHEDULED); return c.generateC(); })();
+    const { pseudocode: back, warnings } = cToPseudocode(first);
+    assert.deepEqual(warnings, [], 'no warnings on our own output');
+    const again = (() => { const c = new SB3Creator(); c.parse(back); return c.generateC(); })();
+    const { pseudocode: back2 } = cToPseudocode(again);
+    assert.equal(back2, back, 'pseudocode is a fixed point after one hop');
+    assert.equal(again, first, 'C is a fixed point after one hop');
+});
+
+test('nested loops + waits inside ifs round-trip through the scheduler', () => {
+    const src = `DEVICE STC12C5A60S2
+CLOCK 11059200
+PIN led = P1.0 OUTPUT ACTIVE LOW
+PIN button = P3.2 INPUT
+
+WHEN flag clicked:
+  FOREVER:
+    REPEAT 3:
+      IF counter > 5 THEN:
+        wait 0.1 seconds
+      ELSE:
+        wait 0.2 seconds
+      toggle led
+
+WHEN flag clicked:
+  REPEAT 10:
+    wait 0.5 seconds
+  stop this script
+`;
+    const c1 = new SB3Creator();
+    c1.parse(src);
+    const cCode = c1.generateC();
+    const { pseudocode, warnings } = cToPseudocode(cCode);
+    assert.deepEqual(warnings, []);
+    assert.match(pseudocode, /FOREVER:/);
+    assert.match(pseudocode, /REPEAT 3:/);
+    assert.match(pseudocode, /REPEAT 10:/);
+    assert.match(pseudocode, /wait 0\.1 seconds/);
+    assert.match(pseudocode, /wait 0\.2 seconds/);
+    assert.match(pseudocode, /wait 0\.5 seconds/);
+    assert.match(pseudocode, /toggle led/);
+    assert.match(pseudocode, /stop this script/);
+    // Second hop is stable.
+    const c2 = new SB3Creator();
+    c2.parse(pseudocode);
+    const { pseudocode: ps2 } = cToPseudocode(c2.generateC());
+    assert.equal(ps2, pseudocode, 'stable after one hop');
+});
+
+test('stop all and stop others survive the scheduler round-trip', () => {
+    const src = `DEVICE STC12C5A60S2
+CLOCK 11059200
+PIN led = P1.0 OUTPUT
+
+WHEN flag clicked:
+  FOREVER:
+    toggle led
+    wait 1 seconds
+
+WHEN flag clicked:
+  wait 1 seconds
+  stop other scripts in sprite
+
+WHEN flag clicked:
+  wait 2 seconds
+  stop all
+`;
+    const c = new SB3Creator();
+    c.parse(src);
+    const { pseudocode, warnings } = cToPseudocode(c.generateC());
+    assert.deepEqual(warnings, []);
+    const flags = [...pseudocode.matchAll(/^WHEN flag clicked:$/gm)];
+    assert.equal(flags.length, 3, 'three scripts');
+    assert.match(pseudocode, /stop other scripts in sprite/);
+    assert.match(pseudocode, /stop all/);
+    // Stable on second hop.
+    const c2 = new SB3Creator();
+    c2.parse(pseudocode);
+    const { pseudocode: ps2 } = cToPseudocode(c2.generateC());
+    assert.equal(ps2, pseudocode, 'stable after one hop');
+});
+
 // Hand-written firmware: the idioms real 8051 code actually uses, and no marker header.
 const HAND_WRITTEN = `
 #include <stc12.h>
@@ -621,12 +704,24 @@ void main(void) {
     assert.ok(warnings.some((w) => /bitwise/.test(w)));
 });
 
-test('the scheduler form is declared unsupported rather than mis-inverted', () => {
+test('the scheduler form is inverted back to multiple scripts', () => {
     const c = new SB3Creator();
     c.parse(SCHEDULED);
-    const { warnings } = cToPseudocode(c.generateC());
-    assert.ok(warnings.some((w) => /cooperative-scheduler form/.test(w)),
-        'a Duff\'s-device state machine is not inverted here, and says so');
+    const { pseudocode, warnings } = cToPseudocode(c.generateC());
+    assert.deepEqual(warnings, [], 'our own scheduler output needs no inference');
+    // Both scripts survive the round-trip.
+    const flags = [...pseudocode.matchAll(/^WHEN flag clicked:$/gm)];
+    assert.equal(flags.length, 2, 'two scripts');
+    // The constructs inside survive.
+    assert.match(pseudocode, /FOREVER:/);
+    assert.match(pseudocode, /REPEAT 6:/);
+    assert.match(pseudocode, /toggle led1/);
+    assert.match(pseudocode, /wait 0\.15 seconds/);
+    assert.match(pseudocode, /wait until read button/);
+    assert.match(pseudocode, /REPEAT UNTIL level < 10:/);
+    assert.match(pseudocode, /pulse 20/);
+    // And the result recompiles cleanly.
+    assert.deepEqual(recompiles(pseudocode), []);
 });
 
 test('the simulator driver makes an STC12 program drivable by a board layer', () => {

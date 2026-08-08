@@ -546,6 +546,292 @@ export default function cToPseudocode (source, opts = {}) {
     const negate = (text) => (text.startsWith('not ') ? text.slice(4) : `not (${text})`);
     const negNum = (text) => (/^-?\d+$/.test(text) ? String(-Number(text)) : `0 - (${text})`);
 
+    // ---- cooperative-scheduler inverter ------------------------------------------
+    // Recognises the finite grammar `cTaskBlock` emits. Each task function is a
+    // `switch (task_state) { case 0: … }` Duff's device; this walks the interior
+    // structurally, matching each shape and recovering the original pseudocode.
+
+    function taskLines (taskTokens, funcName, depth) {
+        const tc = new Cursor(taskTokens);
+        // Enter the function body: { switch (…state) { case 0: <stmts> } …end… }
+        tc.expect('{');
+        if (!tc.eat('switch')) { warn(`${funcName}: expected switch in task`); return []; }
+        tc.skip('(', ')');     // skip (task_state)
+        tc.expect('{');
+        // Now inside the switch body. First token should be `case 0:`
+        if (!(tc.is('case') && tc.peek(1).v === '0')) {
+            warn(`${funcName}: expected case 0 in task`); return [];
+        }
+        tc.next(); tc.next(); tc.expect(':');   // eat `case 0:`
+        const lines = taskBody(tc, funcName, depth);
+        return lines;
+    }
+
+    // Parse the statement sequence inside a task's switch body. We consume tokens
+    // until we hit the closing `}` of the switch or eof.
+    function taskBody (tc, task, depth) {
+        const out = [];
+        while (tc.peek().t !== 'eof' && !tc.is('}')) {
+            out.push(...taskStmt(tc, task, depth));
+        }
+        return out;
+    }
+
+    function taskBodyOf (tc, task, depth) {
+        if (tc.is('{')) {
+            tc.expect('{');
+            const out = [];
+            while (!tc.is('}') && tc.peek().t !== 'eof') out.push(...taskStmt(tc, task, depth));
+            tc.expect('}');
+            return out.length ? out : [`${'  '.repeat(depth)}stop`];
+        }
+        return taskStmt(tc, task, depth);
+    }
+
+    function taskStmt (tc, task, depth) {
+        const pad = '  '.repeat(depth);
+
+        // `state = 0xFFFF;` → stop (this script or all/others — we just emit stop)
+        if (tc.peek().t === 'id' && tc.peek().v.endsWith('_state') && tc.peek(1).v === '='
+            && tc.peek(2).v === '0xFFFF') {
+            // Possibly multiple `taskN_state = 0xFFFF;` lines (stop all / stop others).
+            // Consume all of them plus the trailing `return;`.
+            const stopped = [];
+            while (tc.peek().t === 'id' && tc.peek().v.endsWith('_state')
+                && tc.peek(1).v === '=' && tc.peek(2).v === '0xFFFF') {
+                stopped.push(tc.next().v);
+                tc.next(); tc.next(); tc.eat(';');   // = 0xFFFF ;
+            }
+            tc.eat('return'); tc.eat(';');
+            // Figure out what kind of stop.
+            const self = stopped.some((s) => s === `${task}_state`);
+            const others = stopped.filter((s) => s !== `${task}_state`);
+            if (self && others.length) return [`${pad}stop all`];
+            if (!self && others.length) return [`${pad}stop other scripts in sprite`];
+            return [`${pad}stop this script`];
+        }
+
+        // `task_state = N;` followed by `case N:` → a yield point. What follows
+        // identifies the construct.
+        if (tc.peek().t === 'id' && tc.peek().v === `${task}_state` && tc.peek(1).v === '=') {
+            const stateAssign = tc.i;
+            tc.next(); tc.next();   // task_state =
+            const stateNum = tc.next().v;   // N
+            tc.eat(';');
+            // Expect `case N:`
+            if (tc.is('case') && tc.peek(1).v === stateNum) {
+                tc.next(); tc.next(); tc.expect(':');
+                return taskYield(tc, task, depth, stateNum);
+            }
+            // Not followed by matching case — may be the back-edge of a FOREVER
+            // (`state = S; return;`). Put it back and let the caller handle it.
+            tc.i = stateAssign;
+            // Fall through to handle as a regular statement or back-edge marker.
+        }
+
+        // `bw_iK = (expr);` — the REPEAT counter init. This is consumed by the
+        // yield handler for REPEAT, but if we see it here, grab it and then expect
+        // the yield that follows.
+        if (tc.peek().t === 'id' && /^bw_i\d+$/.test(tc.peek().v) && tc.peek(1).v === '=') {
+            const counterName = tc.next().v;
+            tc.next();   // =
+            tc.expect('(');
+            const countExpr = expr(tc);
+            tc.expect(')');
+            tc.eat(';');
+            // Now expect: task_state = S; case S: if (counterName) { ... }
+            if (tc.peek().v === `${task}_state` && tc.peek(1).v === '=') {
+                tc.next(); tc.next();
+                const stateNum = tc.next().v;
+                tc.eat(';');
+                tc.eat('case'); tc.eat(stateNum); tc.expect(':');
+                return taskRepeat(tc, task, depth, stateNum, counterName, countExpr);
+            }
+            // Unexpected — warn
+            warn(`${task}: unexpected pattern after counter init`);
+            return [];
+        }
+
+        // `task_until = bw_now() + (MS);` → wait N seconds. This appears BEFORE
+        // the yield point, so we emit the wait here and the deadline check gets skipped.
+        if (tc.peek().t === 'id' && tc.peek().v === `${task}_until` && tc.peek(1).v === '=') {
+            tc.next(); tc.next();   // task_until =
+            // bw_now() + (MS)
+            tc.eat('bw_now'); tc.skip('(', ')');   // bw_now()
+            tc.eat('+');
+            tc.expect('(');
+            const msExpr = expr(tc);
+            tc.expect(')');
+            tc.eat(';');
+            const ms = Number(msExpr.text);
+            const secs = Number.isFinite(ms) ? +(ms / 1000).toFixed(6) : null;
+            return [`${pad}${secs !== null ? `wait ${secs} seconds` : `wait ${msExpr.text} ms`}`];
+        }
+
+        // `case N:` without a preceding state assignment — skip it (stale label after yield).
+        if (tc.is('case')) {
+            tc.next(); tc.next(); tc.expect(':');
+            return [];
+        }
+
+        // `return;` at the tail of a construct body — consumed by the construct handler,
+        // but if we see it loose, just skip.
+        if (tc.is('return')) { tc.next(); tc.eat(';'); return []; }
+
+        // `if (cond) { … } else { … }` — must be handled here (not by the generic
+        // `statement()`) because case labels and wait assignments can appear INSIDE
+        // the if/else branches in a Duff's-device.
+        if (tc.is('if')) {
+            tc.next(); tc.expect('(');
+            const c = expr(tc);
+            tc.expect(')');
+            const then = taskBodyOf(tc, task, depth + 1);
+            const out = [`${pad}IF ${c.text} THEN:`, ...then];
+            if (tc.peek().v === 'else') {
+                tc.next();
+                out.push(`${pad}ELSE:`, ...taskBodyOf(tc, task, depth + 1));
+            }
+            return out;
+        }
+
+        // Otherwise: a regular statement (assignment, call, etc.). Reuse the
+        // existing statement parser.
+        return statement(tc, depth);
+    }
+
+    // After consuming `state = S; case S:` we look at what follows to identify the construct.
+    function taskYield (tc, task, depth, stateNum) {
+        const pad = '  '.repeat(depth);
+
+        // Pattern: `if ((int)(bw_now() - task_until) < 0) return;` → wait N seconds
+        // The wait duration was set BEFORE this yield by `task_until = bw_now() + (MS);`
+        // which we already consumed as a regular statement. But we can recognise this
+        // pattern and emit the wait. The duration was in the preceding `until = bw_now() + (MS)`.
+        if (tc.is('if') && looksLikeWaitDeadline(tc, task)) {
+            skipWaitDeadlineCheck(tc);
+            return [];   // The wait line was already emitted when we saw the `until = …` assignment.
+        }
+
+        // Pattern: `if (!(cond)) return;` → wait until cond
+        if (tc.is('if')) {
+            const saved = tc.i;
+            tc.next(); tc.expect('(');
+            // Check for `!(cond)` pattern followed by `) return;`
+            if (tc.is('!')) {
+                tc.next(); tc.expect('(');
+                const cond = expr(tc);
+                tc.expect(')'); tc.expect(')');
+                if (tc.is('return')) {
+                    tc.next(); tc.eat(';');
+                    return [`${pad}wait until ${cond.text}`];
+                }
+                // It's `if (!(cond)) { body; state = S; return; }` → REPEAT UNTIL
+                tc.i = saved;
+                return taskRepeatUntil(tc, task, depth, stateNum);
+            }
+            // It might be `if (counterName) { ... }` → REPEAT (handled separately)
+            // or a regular `if`. Restore and try regular statement.
+            tc.i = saved;
+        }
+
+        // This is a FOREVER or a sequence of statements followed by `state = stateNum; return;`.
+        // Collect statements until we see `state = stateNum; return;` which is the back-edge.
+        const body = [];
+        while (tc.peek().t !== 'eof' && !tc.is('}')) {
+            // Check for back-edge: `state = stateNum; return;`
+            if (tc.peek().v === `${task}_state` && tc.peek(1).v === '='
+                && tc.peek(2).v === stateNum && tc.peek(3).v === ';') {
+                // This is the FOREVER back-edge.
+                tc.next(); tc.next(); tc.next(); tc.eat(';');   // state = N ;
+                tc.eat('return'); tc.eat(';');
+                return [`${pad}FOREVER:`, ...body];
+            }
+            body.push(...taskStmt(tc, task, depth + 1));
+        }
+        // If we reach the end without finding a back-edge, it's a linear sequence.
+        return body;
+    }
+
+    // REPEAT n: `if (bw_iK) { <body> bw_iK--; state = S; return; }`
+    function taskRepeat (tc, task, depth, stateNum, counterName, countExpr) {
+        const pad = '  '.repeat(depth);
+        // Expect: if (counterName) {
+        tc.expect('if'); tc.expect('(');
+        if (tc.peek().v !== counterName) { warn(`${task}: expected ${counterName} in REPEAT`); return []; }
+        tc.next(); tc.expect(')'); tc.expect('{');
+
+        // Parse body until we hit `counterName--;` then `state = S; return;`
+        const body = [];
+        while (tc.peek().t !== 'eof') {
+            // Check for the REPEAT tail: `counterName--; state = S; return; }`
+            if (tc.peek().v === counterName && tc.peek(1).v === '--') {
+                tc.next(); tc.next(); tc.eat(';');   // counterName-- ;
+                // state = S; return; }
+                tc.eat(`${task}_state`); tc.eat('='); tc.eat(stateNum); tc.eat(';');
+                tc.eat('return'); tc.eat(';');
+                tc.expect('}');
+                return [`${pad}REPEAT ${countExpr.text}:`, ...body];
+            }
+            body.push(...taskStmt(tc, task, depth + 1));
+        }
+        warn(`${task}: unterminated REPEAT`);
+        return [`${pad}REPEAT ${countExpr.text}:`, ...body];
+    }
+
+    // REPEAT UNTIL cond: `if (!(cond)) { <body> state = S; return; }`
+    function taskRepeatUntil (tc, task, depth, stateNum) {
+        const pad = '  '.repeat(depth);
+        tc.expect('if'); tc.expect('(');
+        tc.expect('!'); tc.expect('(');
+        const cond = expr(tc);
+        tc.expect(')'); tc.expect(')'); tc.expect('{');
+
+        const body = [];
+        while (tc.peek().t !== 'eof') {
+            // Check for back-edge: `state = S; return; }`
+            if (tc.peek().v === `${task}_state` && tc.peek(1).v === '='
+                && tc.peek(2).v === stateNum) {
+                tc.next(); tc.next(); tc.next(); tc.eat(';');
+                tc.eat('return'); tc.eat(';');
+                tc.expect('}');
+                return [`${pad}REPEAT UNTIL ${cond.text}:`, ...body];
+            }
+            body.push(...taskStmt(tc, task, depth + 1));
+        }
+        warn(`${task}: unterminated REPEAT UNTIL`);
+        return [`${pad}REPEAT UNTIL ${cond.text}:`, ...body];
+    }
+
+    // Check if the current position looks like the wait-deadline pattern:
+    // `if ((int)(bw_now() - task_until) < 0) return;`
+    function looksLikeWaitDeadline (tc, task) {
+        // We need to peek ahead without consuming. Scan for `bw_now` and `task_until`.
+        let n = 0;
+        let depth = 0;
+        let sawNow = false, sawUntil = false;
+        while (n < 30) {
+            const t = tc.peek(n);
+            if (t.t === 'eof') return false;
+            if (t.v === '(') depth++;
+            if (t.v === ')') depth--;
+            if (t.v === 'bw_now') sawNow = true;
+            if (t.v === `${task}_until`) sawUntil = true;
+            if (t.v === 'return' && depth <= 0) return sawNow && sawUntil;
+            if (t.v === ';' && depth <= 0) return false;
+            n++;
+        }
+        return false;
+    }
+
+    // Skip past the wait-deadline check: `if ((int)(bw_now() - task_until) < 0) return;`
+    function skipWaitDeadlineCheck (tc) {
+        // Just skip tokens until we see `return;`
+        while (tc.peek().t !== 'eof') {
+            if (tc.is('return')) { tc.next(); tc.eat(';'); return; }
+            tc.next();
+        }
+    }
+
     // ---- top level: find the functions ----
     const tokens = tokenize(pre.body.join('\n'));
     const cur = new Cursor(tokens);
@@ -594,20 +880,31 @@ export default function cToPseudocode (source, opts = {}) {
 
     for (const f of procFns) {
         const { proccode } = markers.procs.get(f.name);
+        // Recover parameter names from the C function signature (just before the body).
+        const paramNames = [];
+        for (let j = f.from - 1; j >= 0; j--) {
+            if (tokens[j].v === '(') break;
+            if (tokens[j].t === 'id' && tokens[j - 1] && tokens[j - 1].t === 'id') paramNames.unshift(varName(tokens[j].v));
+        }
         let n = 0;
-        const sig = proccode.replace(/%[sb]/g, (tok) => `${tok === '%b' ? '<' : '('}arg${++n}${tok === '%b' ? '>' : ')'}`);
+        const sig = proccode.replace(/%[sb]/g, (tok) => {
+            const name = paramNames[n] || `arg${n + 1}`;
+            n++;
+            return `${tok === '%b' ? '<' : '('}${name}${tok === '%b' ? '>' : ')'}`;
+        });
         out.push('', `DEFINE ${sig}:`, ...linesFor(f, 1));
     }
 
     const isTask = markers && [...markers.scripts.keys()].some((k) => k.startsWith('bw_task'));
-    if (isTask) {
-        warn('this C uses the cooperative-scheduler form; its scripts are state machines and '
-            + 'are not inverted here — re-generate from blocks for an exact round-trip');
-    }
     for (const f of scriptFns) {
         out.push('', 'WHEN flag clicked:');
-        const body = linesFor(f, 1).filter((l) => l.trim() !== 'stop');
-        out.push(...(body.length ? body : ['  stop']));
+        if (isTask) {
+            const body = taskLines(tokens.slice(f.from, f.to), f.name, 1);
+            out.push(...(body.length ? body : ['  stop']));
+        } else {
+            const body = linesFor(f, 1).filter((l) => l.trim() !== 'stop');
+            out.push(...(body.length ? body : ['  stop']));
+        }
     }
 
     return { pseudocode: out.join('\n').replace(/\n{3,}/g, '\n\n').trim() + '\n', warnings };
