@@ -157,9 +157,12 @@ class SB3Creator {
     }
 
     // Resolve one runtime-op argument: a menu/dropdown shadow -> its field value (quoted);
-    // a value input -> the language value via `valFn(key)`.
+    // a plain field -> the same; a value input -> the language value via `valFn(key)`.
     runtimeArg(b, key, blocks, valFn) {
         const input = b.inputs[key];
+        // Blocks whose arguments are fields rather than inputs (the stc12 pin blocks are the
+        // first) would otherwise resolve to a neutral value and lose the pin name entirely.
+        if (!input && b.fields && b.fields[key]) return this.pyStr(String(b.fields[key][0]));
         if (!input) return valFn(key);
         const inner = input[1];
         if (!Array.isArray(inner)) {
@@ -2805,8 +2808,6 @@ class SB3Creator {
             case 'sensing_answer': this._pyUses.answer = true; return 'answer';
             case 'argument_reporter_string_number':
             case 'argument_reporter_boolean': return this.pyName(f('VALUE'));
-            // STC12 pins only exist on the chip; off-target the read is neutral (see generateC).
-            case 'stc12_read': return '0';
             // Planète Maths extension (id `planetemaths`) — pure math, maps 1:1.
             case 'planetemaths_add': return `(${v('NUM1')} + ${v('NUM2')})`;
             case 'planetemaths_substract': return `(${v('NUM1')} - ${v('NUM2')})`;
@@ -2855,7 +2856,6 @@ class SB3Creator {
             case 'operator_contains': return `(str(${v('STRING2')}) in str(${v('STRING1')}))`;
             case 'data_listcontainsitem': return `(${v('ITEM')} in ${this.varRef(b.fields.LIST[0])})`;
             case 'argument_reporter_boolean': return this.pyName(b.fields.VALUE[0]);
-            case 'stc12_read': return 'False';
             // Planète Maths booleans — semantics from the implementation (opcode names
             // are internal misnomers: `gt` computes compare<0, i.e. NUM1 < NUM2).
             case 'planetemaths_gt': return `(${v('NUM1')} < ${v('NUM2')})`;
@@ -3278,8 +3278,6 @@ class SB3Creator {
             case 'sensing_answer': this._jsUses.answer = true; return 'answer';
             case 'argument_reporter_string_number':
             case 'argument_reporter_boolean': return this.pyName(f('VALUE'));
-            // STC12 pins only exist on the chip; off-target the read is neutral (see generateC).
-            case 'stc12_read': return '0';
             // Planète Maths extension (id `planetemaths`) — source of truth:
             // github.com/CrispStrobe/extensions (extensions/CrispStrobe/planetemaths.js).
             case 'planetemaths_add': return `(${v('NUM1')} + ${v('NUM2')})`;
@@ -3328,7 +3326,6 @@ class SB3Creator {
             case 'operator_contains': return `String(${v('STRING1')}).includes(String(${v('STRING2')}))`;
             case 'data_listcontainsitem': return `${this.varRef(b.fields.LIST[0])}.includes(${v('ITEM')})`;
             case 'argument_reporter_boolean': return this.pyName(b.fields.VALUE[0]);
-            case 'stc12_read': return 'false';
             // Planète Maths booleans (semantics from the implementation, not the labels).
             case 'planetemaths_gt': return `(${v('NUM1')} < ${v('NUM2')})`;
             case 'planetemaths_gte': return `(${v('NUM1')} <= ${v('NUM2')})`;
@@ -4315,7 +4312,26 @@ SB3Creator.EXTENSION_URLS = {
 // All runtime/hardware extensions (Gamepad + Boost, PoweredUp, WeDo, Spike, EV3, …) are
 // auto-generated from their block surfaces (scripts/gen-runtime-registry.mjs) so the
 // pluggable-driver convention works for every one of them.
-SB3Creator.RUNTIME_EXTENSIONS = { ...GENERATED_RUNTIME };
+SB3Creator.RUNTIME_EXTENSIONS = {
+    ...GENERATED_RUNTIME,
+    // The STC12 pin surface. Declared here rather than special-cased in the walkers, which is
+    // the convention's own promise: adding hardware is one registry entry, not new emitter code.
+    //
+    // This is what lets the CHEAP simulation tier reach the chip blocks. Emitted Python/JS now
+    // calls `_stc12.setPin("led1", "on")` instead of dropping a `# comment`, so swapping in a
+    // driver that pokes a board layer simulates an STC12 program with no emitter change at all
+    // — the same swap point that already serves shim / remote / on-brick. See
+    // reference/simulation.md (tier 1). `generateC` does NOT come through here: on the chip
+    // these are direct SFR writes.
+    stc12: {
+        runtime: 'stc12',
+        ops: {
+            setpin: { kind: 'command', method: 'setPin', args: ['PIN', 'STATE'] },
+            toggle: { kind: 'command', method: 'togglePin', args: ['PIN'] },
+            read: { kind: 'reporter', method: 'readPin', args: ['PIN'], neutral: '0' }
+        }
+    }
+};
 
 // ---- STC12 / 8051 target (generateC) ---------------------------------------------
 // What the C emitter must know about a chip family. The point of keeping this explicit:
