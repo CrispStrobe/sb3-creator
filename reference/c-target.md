@@ -4,37 +4,49 @@
 (pseudocode), `generatePython` and `generateJavaScript`. It compiles a Brickwright project to
 C for an **STC12C5A60S2** and its relatives, ready for SDCC.
 
-It is **emit-only for now**: there is no C → blocks front end *yet*, so C is excluded from the
-two-way convergence invariant that pseudocode/Python/JavaScript satisfy. The STC *block
-surface* below does round-trip pseudocode ⇄ blocks like everything else.
+**C is two-way as of 2026-08-08** — `src/utils/cToPseudocode.js` is the fourth front end,
+alongside `pythonToPseudocode.js` and `javascriptToPseudocode.js`. It reads two kinds of C:
 
-**Both directions are the intent.** The keystone is one piece of work: **`cToPseudocode.js`**,
-a fourth front end exactly parallel to `pythonToPseudocode.js` / `javascriptToPseudocode.js`
-— tokenizer + Pratt parser → the shared `Translator` → pseudocode → `parse()`. That is what
-makes C two-way; nothing else does.
+| input | how the facts are obtained | fidelity |
+|---|---|---|
+| **our own output** | the `@bw` marker header `generateC` emits | exact; `C → pseudocode → C` is a fixed point, zero warnings |
+| **hand-written firmware** | inferred — pins from `#define LED1 P1_0` / `sbit LED1 = P1^0;`, polarity from the `LED_ON 0` idiom, clock from `#define FOSC_HZ`, direction from use | best effort; **every inference is reported in `warnings`** |
 
-Two things make it tractable, and both are established house patterns rather than new ideas:
+**Why the marker header.** `#include <stc12.h>` cannot distinguish a stc12c5a60s2 from a
+stc15f2k60s2; `cName` mangling is not reversible; a proccode's `%s`/`%b` positions vanish into
+the C function name; and the Duff's-device form hides where one script ends and the next
+begins. So the emitter states them, exactly as `scratch.defblock(…)` / `scratch.sprite(…)`
+already do for Python and JS. Suppress with `{markers: false}` if you only want the C.
 
-- **Parse the subset the emitter emits, not general C.** The Python and JS front ends only
-  ever parse what their emitters produce, and `generateC`'s vocabulary is far smaller and
-  more regular than either: `P1_0 = 0;`, `delay_ms(150);`, `for (;;)`, `while (!(cond))`, the
-  `{ unsigned int _iN; for (…) }` REPEAT idiom, `static int` variables. Round-tripping *our
-  own* output is the tractable, testable goal.
-- **Where the C form loses information, emit a marker.** `generatePython` already emits
-  `scratch.defblock(proccode, warp)`, `scratch.sprite(…)`, `scratch.global_var(…)` for
-  exactly this reason. `generateC` should emit an equivalent machine-readable header
-  (DEVICE / CLOCK / PIN, and the script boundaries) so the front end never has to invert the
-  Duff's-device state machine — recovering "three `when green flag clicked` scripts" from a
-  switch whose `case` labels are scattered through nested `if`s is a genuine inverse problem,
-  and it does not need solving if the emitter simply says so.
+The register prologue also moved out of `main()` into `bw_setup()`, so a reader can tell setup
+from program without heuristics — `P1_0 = 1; /* led off */` in the prologue is otherwise
+indistinguishable from a real statement.
 
-**What the two existing pieces in `../stc-compiler` actually contribute** — neither is on the
-C → blocks path, which is why neither is a substitute for the front end above:
+**Polarity is the pleasing one.** `#define LED_ON 0` together with `LED1 = LED_ON;` *is*
+active-low wiring, so a real `board.h` already states the polarity without meaning to. Two
+traps, both now covered by tests: reading only the **first** write inverts it, because a
+`board_init()` that parks the LED with `LED1 = LED_OFF;` runs before any `= LED_ON`; and a pin
+is often written only one of the pair, so `X = SOMETHING_OFF` that is `1` has to settle it
+symmetrically.
+
+**What it will not do.** The cooperative-scheduler form is **not inverted**. Recovering three
+scripts from a switch whose `case` labels are scattered through nested `if`s is a genuine
+inverse problem, and a fragile half-inverter would be worse than saying so — it warns and
+tells you to re-generate from blocks. Bitwise work, `do`/`switch`/`goto`, and anything else
+outside the subset is dropped with a warning rather than mistranslated.
+
+For that reason C stays **out of the strict two-way convergence invariant** the other three
+languages satisfy: it is genuinely two-way over the subset it covers, not over all of it.
+
+## What the other two pieces in `../stc-compiler` contribute
+
+Neither is on the C → blocks path, which is why neither was ever a substitute for the front
+end above:
 
 | have | what it really is | measured |
 |---|---|---|
-| `keil2sdcc.py` — `POST /translate`, `/translate-project` | **C → C.** Dialect normalisation, so it widens the *input surface* of the front end above: once `cToPseudocode` exists, a Keil project can become blocks. It moves nothing toward blocks on its own. | 546/597 files over an 86-repo corpus (91%); 31/31 on the hand-converted QX-mini51 parallel corpus |
-| `stc_disasm.py` — `POST /disassemble` | **HEX → asm.** A *different and harder* front end: asm → pseudocode needs structure recovery (no loop shapes, no names, no script boundaries). Keep it on its own track. | 380/380 byte-exact over 349 images, verified two ways (SDCC's own `.rst` listing, and reassembly through `sdas8051`/`sdld`) |
+| `keil2sdcc.py` — `POST /translate`, `/translate-project` | **C → C.** Dialect normalisation, so it widens the *input surface* of the front end above: a Keil project can now become blocks by passing through both. | 546/597 files over an 86-repo corpus (91%); 31/31 on the hand-converted QX-mini51 parallel corpus |
+| `stc_disasm.py` — `POST /disassemble` | **HEX → asm.** A *different and harder* front end: asm → pseudocode needs structure recovery. Its own track, below. | 380/380 byte-exact over 349 images, verified two ways |
 
 ### The asm → blocks track, separately
 
