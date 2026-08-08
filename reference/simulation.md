@@ -1,7 +1,8 @@
 # Simulating the hardware — board, circuit, and instruments
 
-Design note, 2026-08-08. **Nothing here is built yet.** It records the architecture and the
-licence constraints so the first implementation does not have to re-derive them.
+Design note, 2026-08-08. **Tier 1 is built and verified** (see the end of this file); the
+board layer, the emulators and the designer UI are in progress. This records the architecture
+and the licence constraints so each piece does not have to re-derive them.
 
 Goal: run a BrickWright project against a *simulated board* — turn a pot and hear the buzzer
 change pitch, watch an LED dim, probe nodes with a virtual multimeter — for the STC12/8051
