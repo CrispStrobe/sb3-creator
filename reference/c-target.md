@@ -98,6 +98,27 @@ creator.generateC(project, {
 Numbers are 16-bit `int`s — Scratch's integers without the float tail. Fractional literals are
 truncated, and `/` is integer division, exactly as the oracle does it.
 
+## Where this is going
+
+Two surfaces the hardware story still needs. Neither exists yet; both are additive to
+Scratch's stage rather than replacements for it, and neither requires emitter changes.
+
+- **A hardware interaction / visualisation surface** — what
+  [S4A](https://s4a.cat/index_en.html) does with its board picture, but modern and
+  multi-device: LED states, pin levels, pot/sensor readings, motor speeds, live next to the
+  stage. One panel, two sources: **simulated** (fed by the emulator, or by the neutral driver
+  shim) and **live** (mirroring real hardware over the tethered link). It rides on the
+  existing `RUNTIME_EXTENSIONS` driver contract — the panel is just another driver consumer.
+  Order: LEGO hubs (drivers exist), the 8051 board, later Arduino.
+- **A simulator / emulator / debugger view** — run the emitted image with nothing plugged
+  in: step, breakpoints, SFR and register view, memory, pin state. **`emu8051` is the UX
+  reference** (its TUI already shows the right panes); **`ucsim`/`s51` is the engine the
+  toolchain already builds against** — stc-compiler uses ucsim differential execution as one
+  of its three oracles. The known gap is that **no ucsim build ships an STC model** (verified
+  at git head 0.9.9), so an STC12 model — the SFR set, the ADC, the PCA, the 1T timing — is
+  the actual work. For the browser, ucsim or emu8051 compiled to WebAssembly is the realistic
+  path.
+
 ## Known limits
 
 - Lists, strings, `pick random`, and the trig/`mathop` reporters have no C equivalent; they
