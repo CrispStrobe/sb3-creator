@@ -276,6 +276,10 @@ class SB3Creator {
         // `set high`/`set low` are levels; `turn on`/`off` are states and respect the polarity.
         const drive = 'const _drv = (p, st) => (st === "high" ? true : st === "low" ? false : ((st === "on") !== p.low));';
         const mode = 'const _mod = (p) => (p.dir === "output" ? "pushpull" : p.dir === "analog" ? "input" : "quasi");';
+        // Boundary A is (pins, TIME). Driving pins without advancing the clock leaves the
+        // board frozen: the 20 ms brightness integrator never samples, RC never charges, and
+        // the buzzer has no edges to measure a period from. So a `wait` must move the clock —
+        // which means overriding the neutral `scratch.wait` the stage shim installs.
         if (lang === 'py') {
             return [
                 '# _stc12 driver — simulated board (boundary A). Supply `bw_board` to attach one.',
@@ -299,7 +303,15 @@ class SB3Creator {
                 '        return (not _board().readPin(p["pin"])) if p["low"] else _board().readPin(p["pin"])',
                 '    def on(self, event, handler): pass',
                 'def _board(): return globals().get("bw_board")',
-                '_stc12 = _Stc12Simulated()'
+                '_stc12 = _Stc12Simulated()',
+                '',
+                '# Simulated time. A wait advances the board clock; without this the board is frozen.',
+                '_bw_t = [0]',
+                'def _bw_wait(secs, *_a):',
+                '    _bw_t[0] += int(round(float(secs) * 1e9))',
+                '    b = _board()',
+                '    if b: b.advanceTo(_bw_t[0])',
+                'scratch.wait = _bw_wait'
             ];
         }
         return [
@@ -318,7 +330,14 @@ class SB3Creator {
             '        if (p.dir === "analog") return Math.round(b.readAnalog(p.pin) / 5.0 * 1023);',
             '        return p.low ? (b.readPin(p.pin) ? 0 : 1) : b.readPin(p.pin); },',
             '    on: (event, handler) => {}',
-            '};'
+            '};',
+            '',
+            '// Simulated time. A wait advances the board clock; without this the board is frozen:',
+            '// the brightness integrator never samples and the buzzer has no edges to measure.',
+            'let _bw_t = 0n;',
+            'scratch.wait = (secs) => { _bw_t += BigInt(Math.round(Number(secs) * 1e9));',
+            '    const b = _board(); if (b) b.advanceTo(_bw_t); };',
+            'const _bw_now_ns = () => _bw_t;'
         ];
     }
 

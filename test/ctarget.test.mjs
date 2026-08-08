@@ -649,3 +649,22 @@ test('the simulator driver makes an STC12 program drivable by a board layer', ()
     // Python gets the same driver.
     assert.match(c.generatePython(undefined, { driver: 'simulator' }), /class _Stc12Simulated:/);
 });
+
+test('the simulator driver advances simulated time, or the board stays frozen', () => {
+    const c = build('PIN led = P1.0 OUTPUT ACTIVE LOW\nWHEN flag clicked:\n  turn on led\n  wait 0.5 seconds');
+    const js = c.generateJavaScript(undefined, { driver: 'simulator' });
+    // Boundary A is (pins, TIME). Driving pins without advancing the clock leaves the 20 ms
+    // brightness integrator with nothing to sample and the buzzer with no edges to measure.
+    assert.match(js, /scratch\.wait = \(secs\) => \{ _bw_t \+= BigInt/);
+    assert.match(js, /if \(b\) b\.advanceTo\(_bw_t\)/);
+    // A nanosecond clock, because that is the contract's basis and the only unit that means
+    // the same thing on a 1T and a 12T part.
+    assert.match(js, /let _bw_t = 0n;/);
+    assert.match(js, /Number\(secs\) \* 1e9/);
+    // Python gets the same treatment.
+    const py = c.generatePython(undefined, { driver: 'simulator' });
+    assert.match(py, /scratch\.wait = _bw_wait/);
+    assert.match(py, /b\.advanceTo\(_bw_t\[0\]\)/);
+    // The neutral driver must not gain a clock it has no board to advance.
+    assert.ok(!/advanceTo/.test(c.generateJavaScript(undefined, { driver: 'shim' })));
+});
