@@ -818,33 +818,34 @@ export default function cToPseudocode (source, opts = {}) {
                 newHead = `${m[1]}REPEAT UNTIL ${m[2]} or ${flag} = 1:`;
             }
 
-            // Replace @@BREAK@@ with `set _brk to 1`, and guard subsequent lines
-            // with IF _brk = 0 THEN: so they don't execute after a break.
-            const transformed = [];
-            let needGuard = false;
-            for (let li = 0; li < lines.length; li++) {
-                if (lines[li].includes('@@BREAK@@')) {
-                    transformed.push(lines[li].replace('@@BREAK@@', `set ${flag} to 1`));
-                    // If there are more lines after this, guard them.
-                    const remaining = lines.slice(li + 1).filter(l => l.trim());
-                    if (remaining.length) needGuard = true;
-                } else if (needGuard) {
-                    // Wrap all remaining lines in IF _brk = 0.
-                    transformed.push(`${innerPad}IF ${flag} = 0 THEN:`);
-                    for (const rest of lines.slice(li)) {
-                        transformed.push('  ' + rest);
-                    }
-                    break;
-                } else {
-                    transformed.push(lines[li]);
+            // Replace ALL @@BREAK@@ markers with `set _brk to 1`, at any nesting depth.
+            const transformed = lines.map(l =>
+                l.includes('@@BREAK@@') ? l.replace('@@BREAK@@', `set ${flag} to 1`) : l);
+
+            // Guard: find the first break at the TOP level of the loop body.
+            // Lines after it at the same indentation get wrapped in IF _brk = 0.
+            const topBreakIdx = transformed.findIndex((l, i) => {
+                const origLine = lines[i];
+                if (!origLine || !origLine.includes('@@BREAK@@')) return false;
+                // Top-level = indented exactly one level from the loop
+                return origLine.search(/\S/) === innerPad.length;
+            });
+            const guarded = [];
+            if (topBreakIdx >= 0 && topBreakIdx + 1 < transformed.length) {
+                guarded.push(...transformed.slice(0, topBreakIdx + 1));
+                guarded.push(`${innerPad}IF ${flag} = 0 THEN:`);
+                for (const rest of transformed.slice(topBreakIdx + 1)) {
+                    guarded.push('  ' + rest);
                 }
+            } else {
+                guarded.push(...transformed);
             }
 
             // For REPEAT N, additionally wrap the whole body in IF _brk = 0.
             if (/REPEAT \S+:$/.test(loopHead) && !/REPEAT UNTIL/.test(loopHead)) {
-                out.push(newHead, `${innerPad}IF ${flag} = 0 THEN:`, ...transformed.map(l => '  ' + l));
+                out.push(newHead, `${innerPad}IF ${flag} = 0 THEN:`, ...guarded.map(l => '  ' + l));
             } else {
-                out.push(newHead, ...transformed);
+                out.push(newHead, ...guarded);
             }
         }
 
