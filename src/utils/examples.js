@@ -2337,6 +2337,123 @@ SPRITE Game:
       say "the array has an 8" for 2 seconds
     new array "counts" = range 1 to 5
     say ("range 1..5 sums to " join sum of array "counts") for 2 seconds`
+,
+
+    // ---- Hardware: STC12 / 8051 -------------------------------------------------
+    // These are the examples for the C target. Everything above is a Scratch program and
+    // compiles to C only as a wall of "no equivalent" warnings — reasonably, since a
+    // sprite has no meaning on a microcontroller. These do the opposite: they declare
+    // real pins and compile to C that SDCC builds and a chip runs.
+    //
+    // They are excluded from the Python/JS transparency matrix on purpose: a pin block
+    // emits `_stc12.setPin(...)` against the driver, and the JS front end has no way to
+    // read that back. They round-trip pseudocode <-> blocks <-> C, which is the pair that
+    // matters for hardware.
+
+    stc_blink: `DEVICE STC12C5A60S2
+CLOCK 11059200
+
+PIN led1 = P1.0 OUTPUT ACTIVE LOW
+PIN led2 = P1.1 OUTPUT ACTIVE LOW
+
+# The smoke test for a fresh chip: alternate two LEDs, then flash them together.
+# ACTIVE LOW is the whole story of this pin — the chip sinks 20 mA but sources only
+# ~230 uA, so the LED is wired to +5V through a resistor and "turn on" writes a 0.
+WHEN flag clicked:
+  FOREVER:
+    REPEAT 6:
+      turn on led1
+      turn off led2
+      wait 0.15 seconds
+      turn off led1
+      turn on led2
+      wait 0.15 seconds
+    turn on led1
+    turn on led2
+    wait 1 seconds
+    turn off led1
+    turn off led2
+    wait 1 seconds`,
+
+    stc_potentiometer: `DEVICE STC12C5A60S2
+CLOCK 11059200
+
+PIN led = P1.0 OUTPUT ACTIVE LOW
+PIN pot = P1.3 ANALOG
+
+# A potentiometer on P1.3 sets the blink rate. ANALOG pins live on P1 only —
+# ADC channel n is physically P1.n, there is no mux to anywhere else.
+WHEN flag clicked:
+  FOREVER:
+    set reading to read pot
+    turn on led
+    wait (reading / 1000) seconds
+    turn off led
+    wait (reading / 1000) seconds`,
+
+    stc_button: `DEVICE STC12C5A60S2
+CLOCK 11059200
+
+PIN led = P1.0 OUTPUT ACTIVE LOW
+PIN button = P3.2 INPUT ACTIVE LOW
+
+# A button between P3.2 and ground, so pressing it pulls the pin LOW —
+# hence ACTIVE LOW, which lets the pseudocode read "read button" as pressed.
+WHEN flag clicked:
+  set count to 0
+  FOREVER:
+    wait until read button
+    change count by 1
+    turn on led
+    wait 0.25 seconds
+    turn off led
+    wait 0.25 seconds`,
+
+    stc_two_scripts: `DEVICE STC12C5A60S2
+CLOCK 11059200
+
+PIN heartbeat = P1.0 OUTPUT ACTIVE LOW
+PIN signal = P1.1 OUTPUT ACTIVE LOW
+
+# Two scripts running at once. On a chip with no operating system this compiles to a
+# cooperative scheduler: a Timer-0 interrupt counts milliseconds and nothing else, and
+# each script becomes a state machine that yields at every wait AND at every loop
+# back-edge — which is Scratch's own rule, and what stops one busy loop starving the other.
+WHEN flag clicked:
+  FOREVER:
+    turn on heartbeat
+    wait 0.05 seconds
+    turn off heartbeat
+    wait 0.95 seconds
+
+WHEN flag clicked:
+  FOREVER:
+    REPEAT 3:
+      turn on signal
+      wait 0.1 seconds
+      turn off signal
+      wait 0.1 seconds
+    wait 2 seconds`,
+
+    stc_pwm_fade: `DEVICE STC12C5A60S2
+CLOCK 11059200
+
+PIN led = P1.0 OUTPUT ACTIVE LOW
+
+# Brightness by hand: switch the pin faster than the eye can follow and vary how long
+# it stays on. The eye integrates over roughly 20 ms, so this reads as a fade rather
+# than as flicker. "set led to <expression>" writes a computed LEVEL — unlike
+# "turn on", a level is not inverted by ACTIVE LOW.
+WHEN flag clicked:
+  FOREVER:
+    REPEAT 20:
+      change duty by 1
+      REPEAT 12:
+        set led to 0
+        wait 0.0004 seconds
+        set led to 1
+        wait 0.0004 seconds
+    set duty to 0`
 };
 
 export default examples;

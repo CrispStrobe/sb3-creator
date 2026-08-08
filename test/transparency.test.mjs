@@ -48,7 +48,14 @@ const ORDERS = [
 // `_arrays.<method>()` surface — is preserved byte-for-byte through code hops.
 const CONVERGE_ONLY = new Set(['planetemaths']);
 
-for (const name of Object.keys(examples)) {
+// The hardware examples target the chip, not the stage. A pin block emits
+// `_stc12.setPin(...)` against the pluggable driver, and the JS front end has no way to read
+// a driver call back into blocks — the same one-way property the registry extensions have
+// (PLAN §22 P5). They round-trip pseudocode <-> blocks <-> C, which is the pair that matters
+// for hardware, and `test/ctarget.test.mjs` asserts exactly that.
+const HARDWARE = new Set(Object.keys(examples).filter((n) => n.startsWith('stc_')));
+
+for (const name of Object.keys(examples).filter((n) => !HARDWARE.has(n))) {
     const strict = !CONVERGE_ONLY.has(name);
     test(`transparency: ${name} ${strict ? 'is preserved exactly' : 'converges'} under every permutation order`, () => {
         const base = sig(blocksFrom(examples[name]));

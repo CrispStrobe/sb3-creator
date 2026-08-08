@@ -865,3 +865,38 @@ test('a pin name wins over the variable and motion readings of `set X to`', () =
     assert.ok(dops.includes('motion_setx'));
     assert.ok(dops.includes('data_setvariableto'));
 });
+
+// ---- the shipped hardware examples ----------------------------------------------
+// The C target had no working example for its entire existence: all 30 examples were
+// Scratch programs, so the C tab's first impression was 52 "no equivalent" warnings on a
+// Minesweeper. These are the examples that actually target the chip.
+
+test('every stc_ example compiles to C with no warnings at all', async () => {
+    const examples = (await import('../src/utils/examples.js')).default;
+    const hardware = Object.keys(examples).filter((n) => n.startsWith('stc_'));
+    assert.ok(hardware.length >= 5, 'the C target ships real examples');
+    for (const name of hardware) {
+        const c = build(examples[name]);
+        assert.deepEqual(c.warnings, [], `${name} parses cleanly`);
+        const out = c.generateC();
+        assert.ok(!/warning:/.test(out), `${name} emits C with no warnings`);
+        assert.match(out, /^#include <stc12\.h>$/m, name);
+        assert.match(out, /@bw pin /, `${name} declares pins`);
+        // and it round-trips through pseudocode <-> blocks
+        const once = c.decompile();
+        assert.equal(build(once).decompile(), once, `${name} is a fixed point`);
+    }
+});
+
+test('a Scratch program says so once, instead of warning per block', async () => {
+    const examples = (await import('../src/utils/examples.js')).default;
+    const out = build(examples.minesweeper).generateC();
+    assert.match(out, /THIS PROJECT IS NOT AN STC12 PROGRAM/);
+    assert.match(out, /and \d+ more of the same kind/, 'the rest are summarised');
+    // 52 individual warnings read as a broken tool rather than as an honest answer.
+    assert.ok((out.match(/warning:/g) || []).length <= 5, 'the noise is bounded');
+    // …and a project that DOES declare pins still gets every warning in full.
+    const withPins = build('PIN led = P1.0 OUTPUT\nWHEN flag clicked:\n  say "a"\n  move 4 steps\n  turn on led').generateC();
+    assert.ok(!/NOT AN STC12 PROGRAM/.test(withPins));
+    assert.match(withPins, /no C equivalent for "say "a""/);
+});

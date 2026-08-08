@@ -15,10 +15,16 @@ const BACKENDS = [
     { name: 'javascript', gen: (c) => c.generateJavaScript(), parse: (s) => javascriptToPseudocode(s) }
 ];
 
-// Every example's generated code (Python + JS) must parse back to pseudocode and
+// The hardware (stc_) examples target the chip rather than the stage: a pin block emits
+// `_stc12.setPin(...)` against the pluggable driver, and neither front end can read a driver
+// call back into blocks — the same one-way property the registry extensions have. Their
+// round-trip is pseudocode <-> blocks <-> C, and `test/ctarget.test.mjs` asserts it there.
+const HARDWARE = (n) => n.startsWith('stc_');
+
+// Every other example's generated code (Python + JS) must parse back to pseudocode and
 // recompile to blocks without throwing (graphics become comments and are dropped).
 for (const be of BACKENDS) {
-    for (const [name, code] of Object.entries(examples)) {
+    for (const [name, code] of Object.entries(examples).filter(([n]) => !HARDWARE(n))) {
         test(`round-trip[${be.name}]: ${name} survives code -> pseudocode -> blocks`, () => {
             const c0 = new SB3Creator();
             c0.parse(code);
