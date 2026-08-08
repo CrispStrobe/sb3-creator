@@ -26,3 +26,6 @@ test/browser/shots/
 *.njsproj
 *.sln
 *.sw?
+
+# Agent context: local paths and operational detail, not for the repo.
+CLAUDE.md
