@@ -260,7 +260,9 @@ class ExprParser {
         // cursor is just past '('; a cast is a type keyword run then ')'.
         // Also handles pointer casts like `(char *)` and `(unsigned int *)`.
         let n = 0;
-        const types = new Set(['unsigned', 'signed', 'int', 'char', 'long', 'short', 'void', 'float', 'double']);
+        const types = new Set(['unsigned', 'signed', 'int', 'char', 'long', 'short', 'void', 'float', 'double',
+            'uint8_t', 'uint16_t', 'uint32_t', 'int8_t', 'int16_t', 'int32_t', 'size_t',
+            'uchar', 'BYTE', 'WORD', 'DWORD', 'BOOL', 'bool']);
         while (this.c.peek(n).t === 'id' && types.has(this.c.peek(n).v)) n++;
         if (n === 0) return false;
         // Allow trailing `*` for pointer casts.
@@ -723,8 +725,9 @@ export default function cToPseudocode (source, opts = {}) {
     function pinWrite (pin, valueText) {
         const n = Number(valueText);
         if (!Number.isFinite(n)) {
-            warn(`"${pin.name}" is assigned a computed value; pseudocode can only set a level`);
-            return `toggle ${pin.name}`;
+            // A computed value is a LEVEL — ACTIVE LOW does NOT invert it
+            // (same as `set high`/`set low`).
+            return `set ${pin.name} to ${valueText}`;
         }
         const high = n !== 0;
         const on = pin.activeLow ? !high : high;
