@@ -688,7 +688,7 @@ void main(void) { for (;;) { RELAY = 1; } }`);
     assert.ok(warnings.some((w) => /polarity of "RELAY" is unknown/.test(w)));
 });
 
-test('C we cannot express is dropped with a warning, never mistranslated', () => {
+test('bitwise on program variables is now expressible; SFR setup is still filtered', () => {
     const { pseudocode, warnings } = cToPseudocode(`
 #include <stc12.h>
 #define LED P1_0
@@ -700,8 +700,11 @@ void main(void) {
     LED = LED_ON;
 }`);
     assert.match(pseudocode, /turn on led/);
-    assert.ok(!/mask/.test(pseudocode), 'the bitwise work is not invented into pseudocode');
-    assert.ok(warnings.some((w) => /bitwise/.test(w)));
+    // Bitwise on user variables IS now expressible.
+    assert.match(pseudocode, /set mask to mask bitxor 16/, 'mask ^= 0x10 is now translated');
+    // SFR register setup is still silently dropped.
+    assert.ok(!/P1M0/.test(pseudocode), 'SFR setup stays filtered');
+    assert.ok(!warnings.some((w) => /bitwise/.test(w)), 'no bitwise warnings on expressible ops');
 });
 
 test('the scheduler form is inverted back to multiple scripts', () => {
@@ -797,4 +800,42 @@ test('bitwise words do not shadow ordinary variable names', () => {
     const ps = c.decompile();
     assert.match(ps, /set bitanded to 1/);
     assert.match(ps, /set shift to 2/);
+});
+
+test('C -> pseudocode recovers bitwise operators from our own output', () => {
+    const src = 'PIN led = P1.0 OUTPUT\nWHEN flag clicked:\n  set mask to 240\n'
+        + '  set v to mask bitand 15\n  set w to v bitor 1\n  set p to v bitxor w\n'
+        + '  set q to v shiftleft 2\n  set z to bitnot q';
+    const c = new SB3Creator();
+    c.parse(src);
+    const cCode = c.generateC();
+    const { pseudocode, warnings } = cToPseudocode(cCode);
+    assert.deepEqual(warnings, []);
+    assert.match(pseudocode, /set mask to 240/);
+    assert.match(pseudocode, /set v to mask bitand 15/);
+    assert.match(pseudocode, /set w to v bitor 1/);
+    assert.match(pseudocode, /set p to v bitxor w/);
+    assert.match(pseudocode, /set q to v shiftleft 2/);
+    assert.match(pseudocode, /set z to bitnot q/);
+    // And it recompiles cleanly.
+    assert.deepEqual(recompiles(pseudocode), []);
+});
+
+test('C -> pseudocode handles compound bitwise assignment on user variables', () => {
+    const { pseudocode, warnings } = cToPseudocode(`
+#include <stc12.h>
+void main(void) {
+    unsigned int flags = 0;
+    flags |= 0x01;
+    flags &= 0xFE;
+    flags ^= 0x10;
+    flags <<= 2;
+    flags >>= 1;
+}`);
+    assert.match(pseudocode, /set flags to flags bitor 1/);
+    assert.match(pseudocode, /set flags to flags bitand 254/);
+    assert.match(pseudocode, /set flags to flags bitxor 16/);
+    assert.match(pseudocode, /set flags to flags shiftleft 2/);
+    assert.match(pseudocode, /set flags to flags shiftright 1/);
+    assert.ok(!warnings.some((w) => /bitwise/.test(w)));
 });

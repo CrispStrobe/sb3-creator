@@ -161,16 +161,15 @@ class Cursor {
 
 // C precedence -> pseudocode. Pseudocode's own levels are or < and < compare < +- < */%,
 // so parenthesise only where the pseudocode grammar would otherwise re-associate.
-// Bitwise and shift operators have no pseudocode equivalent; they are parsed only so that
-// register setup does not throw, and any statement containing one is dropped with a warning.
 const BIN = [
     [['||'], 'or', 0], [['&&'], 'and', 1],
-    [['|'], null, 2], [['^'], null, 3], [['&'], null, 4],
+    [['|'], 'bitor', 2], [['^'], 'bitxor', 3], [['&'], 'bitand', 4],
     [['==', '!=', '<', '>', '<=', '>='], null, 5],
     [['<<', '>>'], null, 6],
     [['+', '-'], null, 7], [['*', '/', '%'], null, 8]
 ];
-const TO_PSEUDO = { '==': '=', '!=': '!=', '<': '<', '>': '>', '<=': '<=', '>=': '>=', '%': 'mod' };
+const TO_PSEUDO = { '==': '=', '!=': '!=', '<': '<', '>': '>', '<=': '<=', '>=': '>=', '%': 'mod',
+    '<<': 'shiftleft', '>>': 'shiftright' };
 
 class ExprParser {
     constructor (cur, ctx) { this.c = cur; this.ctx = ctx; }
@@ -194,14 +193,13 @@ class ExprParser {
             this.c.next();
             const right = this.parse(level + 1);
             const op = word || TO_PSEUDO[v] || v;
-            const bitwise = left.bitwise || right.bitwise || ['|', '^', '&', '<<', '>>'].includes(v);
-            left = { text: `${wrap(left, level)} ${op} ${wrap(right, level + 1)}`, level, bitwise };
+            left = { text: `${wrap(left, level)} ${op} ${wrap(right, level + 1)}`, level };
         }
     }
 
     unary () {
         if (this.c.eat('!')) { const x = this.unary(); return { text: `not ${wrap(x, 99)}`, level: 99 }; }
-        if (this.c.eat('~')) { const x = this.unary(); return { text: x.text, level: 99, bitwise: true }; }
+        if (this.c.eat('~')) { const x = this.unary(); return { text: `bitnot ${wrap(x, 99)}`, level: 99 }; }
         if (this.c.eat('-')) { const x = this.unary(); return { text: `-${wrap(x, 99)}`, level: 99 }; }
         if (this.c.eat('+')) return this.unary();
         // Unary `&` (address-of) and `*` (dereference) — no pseudocode equivalent,
@@ -611,9 +609,13 @@ export default function cToPseudocode (source, opts = {}) {
             const name = cur.next().v;
             // `X = expr;`  /  `X += expr;`
             if (cur.is('&=') || cur.is('|=') || cur.is('^=') || cur.is('<<=') || cur.is('>>=')) {
-                cur.next(); while (!cur.is(';') && cur.peek().t !== 'eof') cur.next(); cur.eat(';');
-                if (!SFRS.test(name)) warn(`"${name}" is modified bitwise, which pseudocode cannot express — skipped`);
-                return [];
+                const op = cur.next().v;
+                const rhs = expr(cur);
+                cur.eat(';');
+                if (SFRS.test(name)) return [];   // register setup, not program logic
+                const BITOP = { '&=': 'bitand', '|=': 'bitor', '^=': 'bitxor', '<<=': 'shiftleft', '>>=': 'shiftright' };
+                const v = varName(name); usedVars.add(v);
+                return [`${pad}set ${v} to ${v} ${BITOP[op]} ${rhs.text}`];
             }
             if (cur.is('=') || cur.is('+=') || cur.is('-=')) {
                 const op = cur.next().v;
@@ -623,7 +625,6 @@ export default function cToPseudocode (source, opts = {}) {
                 // or every `P1_0 = 0;` is mistaken for setup and the program disappears.
                 const pin = byName.get(name) || pins.get(expand(name, pre.defines));
                 if (!pin && SFRS.test(name)) return [];       // register setup, not program logic
-                if (rhs.bitwise) { warn(`"${name} ${op} <bitwise>" has no pseudocode equivalent — skipped`); return []; }
                 if (pin) {
                     if (op !== '=') { warn(`"${name} ${op}" on a pin is not expressible — skipped`); return []; }
                     if (rhs.text === `not read ${pin.name}` || rhs.text === `read ${pin.name}`) return [`${pad}toggle ${pin.name}`];
