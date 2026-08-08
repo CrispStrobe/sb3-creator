@@ -628,3 +628,24 @@ test('the scheduler form is declared unsupported rather than mis-inverted', () =
     assert.ok(warnings.some((w) => /cooperative-scheduler form/.test(w)),
         'a Duff\'s-device state machine is not inverted here, and says so');
 });
+
+test('the simulator driver makes an STC12 program drivable by a board layer', () => {
+    const c = build('PIN led1 = P1.0 OUTPUT ACTIVE LOW\nPIN pot = P1.3 ANALOG\n'
+        + 'WHEN flag clicked:\n  turn on led1\n  set reading to read pot');
+    const js = c.generateJavaScript(undefined, { driver: 'simulator' });
+    // The pin table travels with the program: only the project knows led1 is P1.0 and
+    // active-low, and boundary A speaks (pin, mode, driveHigh).
+    assert.match(js, /_stc12_pins = \{"led1":\{"pin":"P1\.0","dir":"output","low":true\}/);
+    assert.match(js, /b\.setPin\(p\.pin, _mod\(p\), _drv\(p, st\)\)/);
+    // `turn on` on an active-low pin must resolve to a LOW drive — the inversion is the point.
+    const drv = new Function('st', 'p', 'return (st === "high" ? true : st === "low" ? false : ((st === "on") !== p.low));');
+    assert.equal(drv('on', { low: true }), false, 'turn on + active low -> drive 0');
+    assert.equal(drv('on', { low: false }), true);
+    assert.equal(drv('high', { low: true }), true, 'set high is a level, not a state');
+    // An analog pin reads VOLTS from the board; scaling to counts stays on the MCU side.
+    assert.match(js, /b\.readAnalog\(p\.pin\) \/ 5\.0 \* 1023/);
+    // With no board attached the program still runs.
+    assert.match(js, /const _board = \(\) => \(typeof bwBoard !== "undefined" \? bwBoard : null\)/);
+    // Python gets the same driver.
+    assert.match(c.generatePython(undefined, { driver: 'simulator' }), /class _Stc12Simulated:/);
+});

@@ -204,8 +204,14 @@ class SB3Creator {
         const methods = new Map();
         for (const op of Object.values(reg.ops)) if (!methods.has(op.method)) methods.set(op.method, op);
         const cls = rt.charAt(0).toUpperCase() + rt.slice(1);
+        // The simulated-board driver. Only the stc12 runtime has the pin table needed to
+        // speak boundary A, so other runtimes fall back to the neutral stub.
+        if (mode === 'simulator' && extId === 'stc12' && this._driverPins) {
+            return this.stc12SimulatorDriver(lang, this._driverPins);
+        }
         const banner = {
             shim: 'neutral stub — drives nothing; implement to drive real hardware',
+            simulator: 'simulated board — no board attached for this runtime, so neutral',
             remote: `forwards to a Brickwright bridge (brickwright-bridges) over WebSocket`,
             ondevice: `on-brick target — see the per-hardware transpiler (extensions/CrispStrobe) for real ev3dev/pybricks code`
         }[mode] || 'neutral stub';
@@ -249,6 +255,71 @@ class SB3Creator {
         }
         out.push(`const _${rt} = { ${entries.join(', ')} };`);
         return out;
+    }
+
+    // The `simulator` driver for the stc12 runtime: turns the emitted program into the MCU
+    // side of **boundary A** (see reference/simulation-contract.md), talking to a board layer.
+    //
+    // The program says `turn on led1`; the board needs `setPin("P1.0", mode, driveHigh)`. Only
+    // the project knows that led1 is P1.0, is push-pull, and is wired ACTIVE LOW — so the pin
+    // table is emitted as data beside the driver. That inversion (`on` -> a 0 on an active-low
+    // pin) is the whole reason the board can then *show* why the naive wiring stays dark.
+    //
+    // The host supplies `bwBoard`; with none attached the driver stays neutral, so the program
+    // still runs standalone.
+    stc12SimulatorDriver(lang, pins) {
+        const table = {};
+        for (const p of pins) {
+            table[p.name] = { pin: `P${p.port}.${p.bit}`, dir: p.direction, low: !!p.activeLow };
+        }
+        const json = JSON.stringify(table);
+        // `set high`/`set low` are levels; `turn on`/`off` are states and respect the polarity.
+        const drive = 'const _drv = (p, st) => (st === "high" ? true : st === "low" ? false : ((st === "on") !== p.low));';
+        const mode = 'const _mod = (p) => (p.dir === "output" ? "pushpull" : p.dir === "analog" ? "input" : "quasi");';
+        if (lang === 'py') {
+            return [
+                '# _stc12 driver — simulated board (boundary A). Supply `bw_board` to attach one.',
+                'import json',
+                `_stc12_pins = json.loads(${this.pyStr(json)})`,
+                'class _Stc12Simulated:',
+                '    def _p(self, name): return _stc12_pins.get(name)',
+                '    def _mode(self, p): return "pushpull" if p["dir"] == "output" else ("input" if p["dir"] == "analog" else "quasi")',
+                '    def _drive(self, p, st): return True if st == "high" else False if st == "low" else ((st == "on") != p["low"])',
+                '    def setPin(self, name, state):',
+                '        p = self._p(name)',
+                '        if p and _board(): _board().setPin(p["pin"], self._mode(p), self._drive(p, state))',
+                '    def togglePin(self, name):',
+                '        p = self._p(name)',
+                '        if p and _board(): _board().setPin(p["pin"], self._mode(p), not _board().readPin(p["pin"]))',
+                '    def readPin(self, name):',
+                '        p = self._p(name)',
+                '        if not p or not _board(): return 0',
+                '        # An ANALOG pin reads volts from the board; the MCU scales to counts.',
+                '        if p["dir"] == "analog": return int(_board().readAnalog(p["pin"]) / 5.0 * 1023)',
+                '        return (not _board().readPin(p["pin"])) if p["low"] else _board().readPin(p["pin"])',
+                '    def on(self, event, handler): pass',
+                'def _board(): return globals().get("bw_board")',
+                '_stc12 = _Stc12Simulated()'
+            ];
+        }
+        return [
+            '// _stc12 driver — simulated board (boundary A). Supply `bwBoard` to attach one.',
+            `const _stc12_pins = ${json};`,
+            drive, mode,
+            'const _board = () => (typeof bwBoard !== "undefined" ? bwBoard : null);',
+            'const _stc12 = {',
+            '    setPin: (name, st) => { const p = _stc12_pins[name], b = _board();',
+            '        if (p && b) b.setPin(p.pin, _mod(p), _drv(p, st)); },',
+            '    togglePin: (name) => { const p = _stc12_pins[name], b = _board();',
+            '        if (p && b) b.setPin(p.pin, _mod(p), !b.readPin(p.pin)); },',
+            '    readPin: (name) => { const p = _stc12_pins[name], b = _board();',
+            '        if (!p || !b) return 0;',
+            '        // An ANALOG pin reads volts from the board; the MCU scales to counts.',
+            '        if (p.dir === "analog") return Math.round(b.readAnalog(p.pin) / 5.0 * 1023);',
+            '        return p.low ? (b.readPin(p.pin) ? 0 : 1) : b.readPin(p.pin); },',
+            '    on: (event, handler) => {}',
+            '};'
+        ];
     }
 
     // Attach any buffered `# comment` to a freshly created block as a Scratch block
@@ -3097,6 +3168,7 @@ class SB3Creator {
     }
 
     generatePython(project = this.project, opts = {}) {
+        this._driverPins = (project.stc && project.stc.pins) || null;
         this._pyNames = new Map();
         this._pyUses = { random: false, math: false, time: false, eq: false, answer: false, arrays: false, json: false, sumdigits: false };
         this._runtimesUsed = new Set();
@@ -3414,6 +3486,7 @@ class SB3Creator {
     }
 
     generateJavaScript(project = this.project, opts = {}) {
+        this._driverPins = (project.stc && project.stc.pins) || null;
         this._pyNames = new Map();
         this._jsUses = { rand: false, eq: false, answer: false, fact: false, arrays: false, sumdigits: false };
         this._runtimesUsed = new Set();
