@@ -13,10 +13,23 @@
 
   const SOF = 0x7e;
   const CMD_HELLO = 0x01;
-  const _CMD_READ = 0x02; // wire constant — used by upcoming pin commands
-  const _CMD_WRITE = 0x03;
+  const CMD_READ = 0x02;
+  const CMD_WRITE = 0x03;
   const _CMD_POS = 0x0a;
   const _CMD_RESET = 0x0b;
+
+  // 8051 address spaces (from live-proto.h).
+  const _SP_SFR = 2;
+  const SP_BIT = 4;
+
+  // Port SFR base addresses (8051: P0=0x80, P1=0x90, P2=0xA0, P3=0xB0).
+  const PORT_SFR = [0x80, 0x90, 0xa0, 0xb0, 0xc0];
+
+  // Pin declarations live on the runtime.
+  function pinDecls(runtime) {
+    const stc = runtime && runtime.stc;
+    return stc && Array.isArray(stc.pins) ? stc.pins : [];
+  }
   const REPLY = (c) => c | 0x80;
   const EVT_HALT = 0xf0;
   const NAK = 0xff;
@@ -215,7 +228,10 @@
     async _close() {
       this._connected = false;
       this._capabilities = null;
-      if (this._runtime) this._runtime.stc12liveCapabilities = null;
+      if (this._runtime) {
+        this._runtime.stc12liveCapabilities = null;
+        this._runtime._stc12live = null;
+      }
       try {
         if (this._reader) {
           await this._reader.cancel();
@@ -306,9 +322,12 @@
           consumed: cap[8] || 0,
         };
         this._connected = true;
-        // Publish to runtime so the palette and circuit extension can read them.
-        if (this._runtime)
+        // Publish to runtime so the palette, circuit extension, and stc12
+        // pin extension can find the live transport.
+        if (this._runtime) {
           this._runtime.stc12liveCapabilities = this._capabilities;
+          this._runtime._stc12live = this;
+        }
       } catch (e) {
         await this._close();
         // Surface the reason rather than failing silently.
@@ -341,6 +360,116 @@
       if (c & 0x08) names.push("BRT");
       if (c & 0x20) names.push("PCA");
       return names.length ? names.join(", ") : "none";
+    }
+
+    // ---- pin driving over the wire ------------------------------------------
+    // These are called by the stc12 extension when a live target is connected.
+    // Each is a WRITE to the pin's SFR bit address over the UART link.
+
+    /** Look up a pin declaration by name. */
+    _pin(name) {
+      return pinDecls(this._runtime).find(
+        (p) => p.name.toLowerCase() === String(name).toLowerCase()
+      );
+    }
+
+    /** The bit-addressable SFR address for a pin: port_base + bit. */
+    _bitAddr(pin) {
+      if (!pin || pin.port < 0 || pin.port > 4) return -1;
+      return PORT_SFR[pin.port] + pin.bit;
+    }
+
+    /**
+     * Set a pin to a level over the wire.
+     * @param {string} name  pin name from project.stc.pins
+     * @param {string} state  'on' | 'off' | 'high' | 'low'
+     */
+    async drivePin(name, state) {
+      if (!this._connected) return;
+      const pin = this._pin(name);
+      if (!pin) return;
+      const addr = this._bitAddr(pin);
+      if (addr < 0) return;
+      // Resolve the level: on/off respect ACTIVE LOW; high/low are literal.
+      const high =
+        state === "high"
+          ? true
+          : state === "low"
+            ? false
+            : (state === "on") !== !!pin.activeLow;
+      const level = high ? 1 : 0;
+      await this._exchange(CMD_WRITE, [
+        SP_BIT,
+        (addr >> 8) & 0xff,
+        addr & 0xff,
+        level,
+      ]);
+    }
+
+    /**
+     * Write a computed level to a pin.
+     * @param {string} name
+     * @param {number} value  truthy = high
+     */
+    async writePinLevel(name, value) {
+      if (!this._connected) return;
+      const pin = this._pin(name);
+      if (!pin) return;
+      const addr = this._bitAddr(pin);
+      if (addr < 0) return;
+      await this._exchange(CMD_WRITE, [
+        SP_BIT,
+        (addr >> 8) & 0xff,
+        addr & 0xff,
+        value ? 1 : 0,
+      ]);
+    }
+
+    /**
+     * Toggle a pin.
+     * @param {string} name
+     */
+    async togglePin(name) {
+      if (!this._connected) return;
+      const pin = this._pin(name);
+      if (!pin) return;
+      const addr = this._bitAddr(pin);
+      if (addr < 0) return;
+      // Read current value, then write the inverse.
+      const reply = await this._exchange(CMD_READ, [
+        SP_BIT,
+        (addr >> 8) & 0xff,
+        addr & 0xff,
+        1,
+      ]);
+      const current = reply && reply[0] ? 1 : 0;
+      await this._exchange(CMD_WRITE, [
+        SP_BIT,
+        (addr >> 8) & 0xff,
+        addr & 0xff,
+        current ? 0 : 1,
+      ]);
+    }
+
+    /**
+     * Read a pin's level.
+     * @param {string} name
+     * @returns {Promise<number>}  0 or 1, polarity-aware
+     */
+    async readPin(name) {
+      if (!this._connected) return 0;
+      const pin = this._pin(name);
+      if (!pin) return 0;
+      const addr = this._bitAddr(pin);
+      if (addr < 0) return 0;
+      const reply = await this._exchange(CMD_READ, [
+        SP_BIT,
+        (addr >> 8) & 0xff,
+        addr & 0xff,
+        1,
+      ]);
+      const raw = reply && reply[0] ? 1 : 0;
+      return pin.activeLow ? (raw ? 0 : 1) : raw;
     }
   }
 

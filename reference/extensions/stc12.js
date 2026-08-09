@@ -203,6 +203,11 @@
         : [{ text: "(declare a TABLE in the Code tab)", value: "" }];
     }
 
+    /** The live transport, if connected. */
+    _live() {
+      return this.runtime && this.runtime._stc12live;
+    }
+
     setpin(args) {
       const pin = decls(this.runtime).find((p) => p.name === args.PIN);
       const state = String(args.STATE);
@@ -220,18 +225,28 @@
               ? 1
               : 0;
       board(this.runtime)[args.PIN] = level;
+      // Forward to the tethered target if connected.
+      const live = this._live();
+      if (live) live.drivePin(args.PIN, state);
     }
 
     toggle(args) {
       const b = board(this.runtime);
       b[args.PIN] = b[args.PIN] ? 0 : 1;
+      const live = this._live();
+      if (live) live.togglePin(args.PIN);
     }
 
     writepin(args) {
       board(this.runtime)[args.PIN] = Number(args.VALUE) ? 1 : 0;
+      const live = this._live();
+      if (live) live.writePinLevel(args.PIN, Number(args.VALUE));
     }
 
     read(args) {
+      // If a live target is connected, read from the chip.
+      const live = this._live();
+      if (live) return live.readPin(args.PIN);
       const b = board(this.runtime);
       return Object.prototype.hasOwnProperty.call(b, args.PIN)
         ? b[args.PIN]
