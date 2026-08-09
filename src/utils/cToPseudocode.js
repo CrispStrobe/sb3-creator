@@ -16,6 +16,19 @@
 //     `#define FOSC_HZ`, directions from how each pin is used. Everything inferred rather
 //     than known is reported in `warnings` — this never guesses silently.
 //
+// The Arduino/AVR core vocabulary. Present in order to be REFUSED by name:
+// these are library calls, not functions defined in the file, so the
+// custom-block fallback below would invent a block for each one.
+// `delay()` is NOT here: it already translates correctly to a wait, and
+// refusing something the reader handles would be a regression dressed as
+// caution. Nor are `setup`/`loop`, which are functions defined in the file and
+// so are legitimately procedures.
+const ARDUINO_CORE = new Set([
+    'pinMode', 'digitalWrite', 'digitalRead', 'analogRead', 'analogWrite',
+    'delayMicroseconds', 'tone', 'noTone', 'shiftOut', 'shiftIn',
+    'attachInterrupt', 'analogReference', 'pulseIn',
+]);
+
 // Deliberately a subset. C that does not map onto Scratch blocks (pointers, structs, arrays,
 // bit fiddling on whole ports) is dropped with a warning rather than mistranslated.
 
@@ -342,14 +355,31 @@ export default function cToPseudocode (source, opts = {}) {
     const pre = preprocess(stripped, opts.headers || {}, warn);
 
     // ---- device + clock ----
+    // 11.0592 MHz is an 8051 crystal, chosen because it divides into exact
+    // baud rates. It is not a sensible default for a board that has never
+    // seen one, which is why the device gets to change it.
+    let defaultClock = 11059200;
     let device = markers && markers.device;
+    // A source can now be for a board this front end does not read. Naming the
+    // device correctly and saying so is the whole point: assuming STC12 for an
+    // Arduino sketch produced a confident DEVICE STC12C5A60S2 and a body of
+    // invented statements, which is the one outcome this file exists to avoid.
+    const foreign = pre.includes.find((i) =>
+        /^(arduino\.h|avr\/io\.h)$/i.test(i.name.replace(/^.*?(avr\/io\.h)$/i, '$1')));
     if (!device) {
         const inc = pre.includes.find((i) => /^(stc12|8052|8051)\.h$/i.test(i.name.split('/').pop()));
         const head = inc ? inc.name.split('/').pop().toLowerCase() : null;
-        device = head === '8052.h' || head === '8051.h' ? 'stc89c52rc' : 'stc12c5a60s2';
-        if (head === 'stc12.h') warn(`<stc12.h> serves several parts — assuming DEVICE ${device.toUpperCase()}; set it explicitly if that is wrong`);
-        else if (head) warn(`inferred DEVICE ${device.toUpperCase()} from <${head}>`);
-        else warn(`no register header found — assuming DEVICE ${device.toUpperCase()}`);
+        if (foreign) {
+            const which = /arduino\.h/i.test(foreign.name);
+            device = which ? 'arduino-uno' : 'atmega328p';
+            defaultClock = 16000000;    // not an 8051 crystal
+            warn(`inferred DEVICE ${device.toUpperCase()} from <${foreign.name}> — but this front end reads the 8051 subset only, so the body below is not translated`);
+        } else {
+            device = head === '8052.h' || head === '8051.h' ? 'stc89c52rc' : 'stc12c5a60s2';
+            if (head === 'stc12.h') warn(`<stc12.h> serves several parts — assuming DEVICE ${device.toUpperCase()}; set it explicitly if that is wrong`);
+            else if (head) warn(`inferred DEVICE ${device.toUpperCase()} from <${head}>`);
+            else warn(`no register header found — assuming DEVICE ${device.toUpperCase()}`);
+        }
     }
     let clock = markers && markers.clock;
     if (!clock) {
@@ -360,7 +390,7 @@ export default function cToPseudocode (source, opts = {}) {
             }
         }
         if (clock) warn(`inferred CLOCK ${clock} from a #define`);
-        else { clock = 11059200; warn('no clock #define found — assuming CLOCK 11059200'); }
+        else { clock = defaultClock; warn(`no clock #define found — assuming CLOCK ${defaultClock}`); }
     }
 
     // ---- pins ----
@@ -841,6 +871,14 @@ export default function cToPseudocode (source, opts = {}) {
             let i = 0;
             const label = proccode.replace(/%[sb]/g, () => (args[i] ? args[i++].text : '0'));
             return { text: '0', level: 99, stmt: label };
+        }
+        // Arduino and AVR core calls are LIBRARY functions, not helpers defined
+        // in the file, so turning them into custom-block calls invents a block
+        // that means nothing -- `pinMode led OUTPUT` is not a sentence in this
+        // dialect. Refused by name instead, which is actionable.
+        if (ARDUINO_CORE.has(name)) {
+            warn(`${name}() is Arduino/AVR core, which this front end does not read — the pseudocode below is missing that line`);
+            return { text: '0', level: 99, stmt: null };
         }
         // For hand-written firmware, translate unknown function calls as custom block
         // calls rather than silently dropping them. In expression position (not
