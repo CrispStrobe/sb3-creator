@@ -1290,7 +1290,7 @@ export default function cToPseudocode (source, opts = {}) {
 
     const linesFor = (f, depth) => {
         const sub = new Cursor(tokens.slice(f.from, f.to));
-        try { return block(sub, depth); } catch (e) { warn(`could not parse ${f.name}(): ${e.message}`); return []; }
+        try { return block(sub, depth); } catch (e) { warn(`could not parse ${f.name}(): ${e.message}`); return [`${'  '.repeat(depth)}stop`]; }
     };
 
     // ---- assemble ----

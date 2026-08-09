@@ -122,44 +122,62 @@ Three of the six still do not translate; none of them do so silently.
 
 ## Corpus results
 
-**Measured 2026-08-09** against 1282 `.c` files from 76 STC12/8051 repositories
-(9 of 85 failed to clone — link rot). Corpus lives in `corpus/` (gitignored, never committed).
+**Last measured: 2026-08-09** at commit `9bdb9e1`.
+
+Corpus: 1282 `.c` files from 76 STC12/8051 repositories (9 of 85 failed to
+clone — link rot). Corpus hash (SHA-256 of all file hashes): `2e82d48b39214d7c`.
+Lives in `corpus/` (gitignored, never committed).
 
 ```bash
-# Reproduce:
-node scripts/corpus-baseline.mjs          # basic pass/warn/fail
-node scripts/corpus-keil-effect.mjs       # with keil2sdcc preprocessing
+# Reproduce the four-category split:
+node -e "
+import { readFileSync } from 'fs';
+import { execSync } from 'child_process';
+import cToPseudocode from './src/utils/cToPseudocode.js';
+import SB3Creator from './src/utils/sb3Creator.js';
+const INFERENCE = /^(no clock|no register|no pins|polarity|inferred|<stc)/;
+const files = execSync('find corpus -name \"*.c\" -type f',{encoding:'utf8'}).trim().split('\n');
+let noMain=0,hasMain=0,direct=0,restr=0,gotoF=0,defects=0;
+for (const f of files) { const src=readFileSync(f,'utf8');
+  try { const{pseudocode,warnings}=cToPseudocode(src); const c=new SB3Creator(); c.parse(pseudocode);
+    const all=[...warnings,...c.warnings].filter(w=>!INFERENCE.test(w)&&!/Unknown DEVICE/.test(w));
+    if(all.some(w=>/no main/.test(w))){noMain++;continue;} hasMain++;
+    const int=all.filter(w=>!/Unknown command/.test(w));
+    const str=int.filter(w=>/transformed|structure/.test(w));
+    const real=int.filter(w=>!/transformed|structure/.test(w));
+    if(!real.length&&!str.length){direct++;continue;}
+    if(!real.length){restr++;continue;}
+    if(real.every(w=>/goto/.test(w))){gotoF++;continue;} defects++;
+  } catch{} }
+console.log('direct:',direct,'/',hasMain,'restructured:',restr,'defects:',defects,'goto:',gotoF);
+"
 ```
 
-### Four-category split (515 files with `main()`, 767 library files excluded)
+### Four-category split (521 files with `main()`, 761 library files excluded)
 
-| | count | % of 515 |
+| | count | % of 521 |
 |---|---|---|
-| 1. Translates directly (zero real warnings) | **502** | **96.4%** |
-| 2. Translates after restructuring (break→flag, warned) | 10 | 1.9% |
-| **total that translate** | **512** | **98.3%** |
-| 3. Remaining defects (characterised above) | 6 | 1.2% |
-| 4. Genuinely impossible (`goto`) | 3 | 0.6% |
+| 1. Translates directly (zero real warnings) | **466** | **89.4%** |
+| 2. Translates after restructuring (break→flag, warned) | 23 | 4.4% |
+| **total that translate** | **489** | **93.9%** |
+| 3. Remaining defects | 28 | 5.4% |
+| 4. Genuinely impossible (`goto`) | 4 | 0.8% |
 
-### Trajectory
-
-| date | direct | total | exceptions | what changed |
-|---|---|---|---|---|
-| baseline (before any work) | — | — | 46 | — |
-| after Phase 2 broadening | 426 / 515 (82.7%) | 426 | 0 | arrays, do/while, switch, casts, for-loops, _nop_ |
-| + bitwise dialect | 468 / 515 (90.9%) | 468 | 0 | `bitand`/`bitor`/`bitxor`/`bitnot`/`shiftleft`/`shiftright` |
-| + break/continue | 468 | 476 (92.4%) | 0 | flag variable transformation |
-| + pin computed value | 494 / 515 (95.9%) | 504 (97.9%) | 0 | `set <pin> to <expr>` dialect |
-| + for-loop patterns + uchar casts | 494 | 504 | 0 | typed inits, `!=`, count-down |
-| + comment stripping + ternary expansion | 502 / 515 (96.4%) | 512 (98.3%) | 0 | string-aware `//`, `x = c ? a : b` |
+Note: numbers differ from the earlier 502/515 measurement because the codebase evolved
+(new opcodes, ledcube blocks, DEFINE emission for hand-written functions produces parse
+warnings from functions with array subscripts). The previous measurement was on a
+different commit and is superseded.
 
 ### keil2sdcc effect (measured separately)
 
 keil2sdcc (`stc-compiler/keil2sdcc.py`) preprocesses Keil C51 dialect into SDCC form. It
-changed 494 corpus files. Effect on translation: **+16 clean files** on top of bitwise (was
-+1 before the bitwise dialect — the two interact because keil2sdcc translates Keil-style
-bitwise SFR setup that is now expressible). This is **input widening** (more files parse as
-valid C), not expressibility (constructs the dialect can represent).
+changed 494 corpus files. Effect on translation: **+0 files** — the front end now handles
+Keil constructs (`sbit`, `sfr`, `__sbit __at`) natively, so the preprocessing is redundant
+for translation. It remains valuable for SDCC *compilation* but not for this front end.
+
+This is **input widening** (more files parse as valid C), as distinct from expressibility
+(constructs the dialect can represent). The two axes are separate and the keil2sdcc effect
+on the translation axis is now zero.
 
 ## Relation to the host C front end
 
