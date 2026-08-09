@@ -2,34 +2,35 @@
 
 ## Circuit
 
-- VCC → DC motor (R = 10 Ω, kV = 0.01 V/rad/s) → MCU P1.0 (output).
-  Software PWM toggles the pin; the motor integrates the duty cycle.
-- VCC → 10 kΩ pot → GND. Wiper → MCU P1.3 (ADC channel 3).
+MCU P1.0 → 1 kΩ base resistor → TIP120 base. TIP120 collector → DC motor
+(R = 10 Ω, kV = 0.01 V/rad/s) → VCC. TIP120 emitter → GND. Flyback diode
+across motor (cathode → VCC, anode → collector).
 
-Note: a real circuit would need a MOSFET driver for the motor current.
-Pedagogically simplified — the circuit teaches the pot → ADC → PWM → motor
-control loop.
+Speed control: VCC → 10 kΩ pot → GND. Wiper → MCU P1.3 (ADC channel 3).
+
+**Why the TIP120:** same as the relay — a DC motor draws far more current than
+a quasi-bidirectional pin can source. The TIP120 lets the MCU switch the motor
+current with a few mA of base drive.
 
 ## Program
 
-Reads the pot (0–1023), uses LSB to toggle the motor pin at ~1 kHz.
-Full pot → ~50% duty cycle, motor runs at moderate speed.
+Reads the pot (0–1023), uses LSB to toggle the motor pin at ~1 kHz. The motor
+integrates the PWM duty cycle into a proportional speed.
 
 ## Observable behaviour
 
-| pot position | ADC reading | duty cycle | motor state |
-|---|---|---|---|
-| 0% | ~0 | bit 0 = 0 → always off | stopped |
-| 25% | ~256 | bit 0 = 0 → off | stopped |
-| 50% | ~512 | bit 0 = 0 → off | stopped |
-| 100% | ~1023 | bit 0 = 1 → ~50% | running |
+| P1.0 | TIP120 | motor |
+|---|---|---|
+| HIGH (1) | on | current flows, motor spins |
+| LOW (0) | off | no current, motor coasts |
 
-Note: this is a simplified example using bit 0 as the PWM source.
-A proper PWM implementation would compare the ADC reading against a
-counter for proportional speed control.
+- **Base current:** (5.0 − 1.4) / 1000 ≈ 3.6 mA
+- **Motor stall current:** (5.0 − 2.0) / 10 = 300 mA (Vce_sat ≈ 2 V)
+- **Motor running:** back-EMF reduces current as speed increases
 
 ## What this verifies
 
-1. DC motor as a circuit-only part (driven via pin output)
-2. Pot → ADC → computed pin write control loop
-3. The motor device model in the engine (R, kV, back-EMF)
+1. TIP120 driver for a motor (same pattern as the relay)
+2. Pot → ADC → computed pin write → motor speed control loop
+3. Flyback diode across an inductive load
+4. **Negative property:** driving the motor straight from the pin does NOT spin it

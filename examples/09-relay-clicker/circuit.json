@@ -1,18 +1,26 @@
 {
   "vcc": 5.0,
   "parts": [
-    { "id": "vcc1",   "kind": "vcc",      "params": {},                              "x": 100, "y": 50  },
-    { "id": "gnd1",   "kind": "gnd",      "params": {},                              "x": 100, "y": 400 },
-    { "id": "relay1", "kind": "relay",     "params": { "coilR": 70, "vOn": 3.5 },    "x": 250, "y": 150 },
-    { "id": "r1",     "kind": "resistor",  "params": { "ohms": 1000 },               "x": 350, "y": 120 },
-    { "id": "led1",   "kind": "led",       "params": { "vf": 2.0, "color": "green" },"x": 350, "y": 220 },
-    { "id": "mcu1",   "kind": "mcu",       "params": { "pins": ["P1.0", "P1.1"] },   "x": 50,  "y": 250 }
+    { "id": "vcc1",    "kind": "vcc",      "params": {},                              "x": 100, "y": 50  },
+    { "id": "gnd1",    "kind": "gnd",      "params": {},                              "x": 100, "y": 450 },
+    { "id": "relay1",  "kind": "relay",     "params": { "coilR": 70, "vOn": 3.5 },    "x": 250, "y": 100 },
+    { "id": "d1",      "kind": "diode",     "params": { "vf": 0.7 },                  "x": 350, "y": 100 },
+    { "id": "q1",      "kind": "tip120",    "params": {},                              "x": 250, "y": 250 },
+    { "id": "rb1",     "kind": "resistor",  "params": { "ohms": 1000 },               "x": 150, "y": 250 },
+    { "id": "r1",      "kind": "resistor",  "params": { "ohms": 1000 },               "x": 400, "y": 150 },
+    { "id": "led1",    "kind": "led",       "params": { "vf": 2.0, "color": "green" },"x": 400, "y": 250 },
+    { "id": "mcu1",    "kind": "mcu",       "params": { "pins": ["P1.0", "P1.1"] },   "x": 50,  "y": 300 }
   ],
   "wires": [
-    { "from": "vcc1",   "fromTerminal": "vcc",     "to": "relay1", "toTerminal": "coil_a"  },
-    { "from": "relay1", "fromTerminal": "coil_b",   "to": "mcu1",   "toTerminal": "P1.0"   },
-    { "from": "vcc1",   "fromTerminal": "vcc",     "to": "r1",     "toTerminal": "a"       },
-    { "from": "r1",     "fromTerminal": "b",        "to": "led1",   "toTerminal": "anode"  },
-    { "from": "led1",   "fromTerminal": "cathode",  "to": "mcu1",   "toTerminal": "P1.1"  }
+    { "from": "vcc1",   "fromTerminal": "vcc",       "to": "relay1", "toTerminal": "coil_a"    },
+    { "from": "relay1", "fromTerminal": "coil_b",     "to": "q1",     "toTerminal": "collector" },
+    { "from": "q1",     "fromTerminal": "emitter",    "to": "gnd1",   "toTerminal": "gnd"       },
+    { "from": "mcu1",   "fromTerminal": "P1.0",       "to": "rb1",    "toTerminal": "a"          },
+    { "from": "rb1",    "fromTerminal": "b",           "to": "q1",     "toTerminal": "base"       },
+    { "from": "d1",     "fromTerminal": "cathode",     "to": "vcc1",   "toTerminal": "vcc"        },
+    { "from": "d1",     "fromTerminal": "anode",       "to": "relay1", "toTerminal": "coil_b"     },
+    { "from": "vcc1",   "fromTerminal": "vcc",        "to": "r1",     "toTerminal": "a"           },
+    { "from": "r1",     "fromTerminal": "b",           "to": "led1",   "toTerminal": "anode"      },
+    { "from": "led1",   "fromTerminal": "cathode",     "to": "mcu1",   "toTerminal": "P1.1"       }
   ]
 }

@@ -2,16 +2,24 @@
   "vcc": 5.0,
   "parts": [
     { "id": "vcc1",   "kind": "vcc",           "params": {},                                  "x": 100, "y": 50  },
-    { "id": "gnd1",   "kind": "gnd",           "params": {},                                  "x": 100, "y": 400 },
-    { "id": "motor1", "kind": "dc_motor",      "params": { "R": 10, "kV": 0.01 },             "x": 300, "y": 150 },
+    { "id": "gnd1",   "kind": "gnd",           "params": {},                                  "x": 100, "y": 450 },
+    { "id": "motor1", "kind": "dc_motor",      "params": { "R": 10, "kV": 0.01 },             "x": 300, "y": 100 },
+    { "id": "d1",     "kind": "diode",          "params": { "vf": 0.7 },                      "x": 400, "y": 100 },
+    { "id": "q1",     "kind": "tip120",         "params": {},                                  "x": 300, "y": 250 },
+    { "id": "rb1",    "kind": "resistor",       "params": { "ohms": 1000 },                   "x": 150, "y": 250 },
     { "id": "pot1",   "kind": "potentiometer",  "params": { "ohms": 10000, "position": 0.5 }, "x": 100, "y": 200 },
-    { "id": "mcu1",   "kind": "mcu",            "params": { "pins": ["P1.0", "P1.3"] },       "x": 50,  "y": 300 }
+    { "id": "mcu1",   "kind": "mcu",            "params": { "pins": ["P1.0", "P1.3"] },       "x": 50,  "y": 350 }
   ],
   "wires": [
-    { "from": "vcc1",  "fromTerminal": "vcc",    "to": "motor1", "toTerminal": "a"     },
-    { "from": "motor1","fromTerminal": "b",       "to": "mcu1",   "toTerminal": "P1.0" },
-    { "from": "vcc1",  "fromTerminal": "vcc",    "to": "pot1",   "toTerminal": "a"     },
-    { "from": "pot1",  "fromTerminal": "b",       "to": "gnd1",   "toTerminal": "gnd"  },
-    { "from": "pot1",  "fromTerminal": "wiper",   "to": "mcu1",   "toTerminal": "P1.3" }
+    { "from": "vcc1",   "fromTerminal": "vcc",       "to": "motor1", "toTerminal": "a"         },
+    { "from": "motor1", "fromTerminal": "b",           "to": "q1",     "toTerminal": "collector" },
+    { "from": "q1",     "fromTerminal": "emitter",     "to": "gnd1",   "toTerminal": "gnd"       },
+    { "from": "mcu1",   "fromTerminal": "P1.0",        "to": "rb1",    "toTerminal": "a"          },
+    { "from": "rb1",    "fromTerminal": "b",            "to": "q1",     "toTerminal": "base"       },
+    { "from": "d1",     "fromTerminal": "cathode",      "to": "vcc1",   "toTerminal": "vcc"        },
+    { "from": "d1",     "fromTerminal": "anode",         "to": "motor1", "toTerminal": "b"          },
+    { "from": "vcc1",   "fromTerminal": "vcc",          "to": "pot1",   "toTerminal": "a"          },
+    { "from": "pot1",   "fromTerminal": "b",             "to": "gnd1",   "toTerminal": "gnd"       },
+    { "from": "pot1",   "fromTerminal": "wiper",          "to": "mcu1",   "toTerminal": "P1.3"     }
   ]
 }
