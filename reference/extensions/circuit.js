@@ -133,6 +133,14 @@
       /** @type {import('../../reference/simulation-contract').Board | null} */
       this._board = null;
 
+      // Capture the VM runtime so we can read vm.runtime.circuitBoard lazily.
+      // The host (bw-circuit-ui circuit-tab.jsx) writes circuitBoard on
+      // onBoardReady; we read it per-call so rebuilds are picked up without
+      // a second handshake.
+      /** @type {object | null} */
+      this._runtime = (typeof Scratch !== "undefined" && Scratch.vm && Scratch.vm.runtime)
+        ? Scratch.vm.runtime : null;
+
       // Display-rate cache.  Meter reporters read from here; the cache is
       // invalidated at ~60 Hz so the board is never called more than once
       // per frame per quantity.
@@ -140,19 +148,33 @@
       this._lastSample = 0;
     }
 
-    // ---- board injection (the adapter pattern) ----------------------------
-    // The caller: bw-circuit-ui's onDeclarationChange handler, which already
-    // pushes declarations to vm.runtime.stc. It reaches this extension via
-    // vm.extensionManager → the loaded circuit instance → setBoard(board).
-    // clearBoard() when the board is torn down or power is cut.
+    // ---- board resolution -------------------------------------------------
+    // Two attach points, one lazy and one explicit:
+    //
+    //   1. vm.runtime.circuitBoard — written by the host (circuit-tab.jsx),
+    //      read lazily per reporter call. This is the editor path: the Board
+    //      is rebuilt whenever the netlist changes, so a value captured at
+    //      construction would go stale.
+    //
+    //   2. setBoard() / clearBoard() — the explicit override. This is what
+    //      tests use (attach a mock Board), and what an embedder uses when
+    //      there is no VM.
+    //
+    // The explicit override wins when set; otherwise we fall back to the
+    // runtime property.
 
-    /** Attach a Board instance (boundary B of simulation-contract.md). */
+    /** The current Board, or null. Lazy read from vm.runtime.circuitBoard. */
+    get board() {
+      return this._board || (this._runtime && this._runtime.circuitBoard) || null;
+    }
+
+    /** Explicitly attach a Board (overrides the runtime fallback). */
     setBoard(board) {
       this._board = board;
       this._cache = {};
     }
 
-    /** Detach the board.  Reporters revert to neutrals. */
+    /** Detach the explicit Board. Reverts to vm.runtime.circuitBoard if set. */
     clearBoard() {
       this._board = null;
       this._cache = {};
@@ -269,37 +291,37 @@
     // ---- reporters --------------------------------------------------------
 
     nodevoltage({ NET }) {
-      if (!this._board) return "needs the simulator";
+      if (!this.board) return "needs the simulator";
       return this._cachedCall(`voltage:${NET}`, () =>
-        this._board.nodeVoltage(String(NET))
+        this.board.nodeVoltage(String(NET))
       );
     }
 
     branchcurrent({ PART }) {
-      if (!this._board) return "needs the simulator";
+      if (!this.board) return "needs the simulator";
       return this._cachedCall(`current:${PART}`, () =>
-        this._board.branchCurrent(String(PART), "a")
+        this.board.branchCurrent(String(PART), "a")
       );
     }
 
     resistance({ A, B }) {
-      if (!this._board) return "needs the simulator";
+      if (!this.board) return "needs the simulator";
       return this._cachedCall(`resistance:${A}:${B}`, () =>
-        this._board.resistance(String(A), String(B))
+        this.board.resistance(String(A), String(B))
       );
     }
 
     ledbrightness({ PART }) {
-      if (!this._board) return "needs the simulator";
+      if (!this.board) return "needs the simulator";
       return this._cachedCall(`brightness:${PART}`, () =>
-        this._board.ledBrightness(String(PART))
+        this.board.ledBrightness(String(PART))
       );
     }
 
     buzzertone({ PART }) {
-      if (!this._board) return "needs the simulator";
+      if (!this.board) return "needs the simulator";
       return this._cachedCall(`tone:${PART}`, () => {
-        const r = this._board.buzzerTone(String(PART));
+        const r = this.board.buzzerTone(String(PART));
         return r && r.on ? r.hz : 0;
       });
     }
@@ -308,11 +330,11 @@
     // Commands are not cached — they are user intent, not measurements.
 
     setcontrol({ CONTROL, VALUE }) {
-      if (this._board) this._board.setControl(String(CONTROL), Number(VALUE));
+      if (this.board) this.board.setControl(String(CONTROL), Number(VALUE));
     }
 
     setpower({ STATE }) {
-      if (this._board) this._board.setPower(String(STATE) === "on");
+      if (this.board) this.board.setPower(String(STATE) === "on");
     }
   }
 

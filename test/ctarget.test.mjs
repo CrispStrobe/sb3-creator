@@ -1250,6 +1250,77 @@ test('circuit reporters return numbers when a Board is attached', async () => {
         'after clearBoard, reporters refuse again');
 });
 
+test('circuit reporters read vm.runtime.circuitBoard lazily (the editor path)', async () => {
+    // This tests the REAL path the editor uses: bw-circuit-ui writes
+    // vm.runtime.circuitBoard, and the extension reads it lazily per call.
+    // The setBoard() test above uses the explicit override; this one must
+    // go through the runtime property or it cannot catch the gap.
+    const { readFileSync } = await import('node:fs');
+    const vm = await import('node:vm');
+    const src = readFileSync(new URL('../reference/extensions/circuit.js', import.meta.url), 'utf8');
+    const captured = [];
+    const mockRuntime = {};   // simulates vm.runtime — no circuitBoard yet
+    const mockScratch = {
+        BlockType: { COMMAND: 'command', REPORTER: 'reporter', BOOLEAN: 'Boolean', HAT: 'hat' },
+        ArgumentType: { NUMBER: 'number', STRING: 'string', BOOLEAN: 'Boolean' },
+        extensions: { register: (inst) => captured.push(inst), unsandboxed: true },
+        vm: { runtime: mockRuntime }
+    };
+    const ctx = vm.createContext({ Scratch: mockScratch, console, performance, localStorage: { getItem: () => null }, navigator: { language: 'en' } });
+    vm.runInContext(src, ctx);
+    const ext = captured[0];
+
+    // No circuitBoard on runtime yet → refuses.
+    assert.equal(ext.nodevoltage({ NET: 'vcc' }), 'needs the simulator');
+    assert.equal(ext.resistance({ A: 'a', B: 'b' }), 'needs the simulator');
+
+    // Host writes vm.runtime.circuitBoard (what circuit-tab.jsx does).
+    mockRuntime.circuitBoard = {
+        nodeVoltage: (net) => net === 'vcc' ? 3.3 : 0,
+        branchCurrent: () => 0.015,
+        resistance: () => 470,
+        ledBrightness: () => 0.7,
+        buzzerTone: () => ({ hz: 880, on: true }),
+        setControl: () => {},
+        setPower: () => {}
+    };
+
+    // Now the reporters return numbers — no setBoard() call needed.
+    assert.equal(ext.nodevoltage({ NET: 'vcc' }), 3.3, 'voltage via runtime.circuitBoard');
+    assert.equal(ext.branchcurrent({ PART: 'r1' }), 0.015, 'current via runtime.circuitBoard');
+    assert.equal(ext.resistance({ A: 'a', B: 'b' }), 470, 'resistance via runtime.circuitBoard');
+    assert.equal(ext.ledbrightness({ PART: 'led1' }), 0.7, 'brightness via runtime.circuitBoard');
+    assert.equal(ext.buzzertone({ PART: 'bz1' }), 880, 'tone via runtime.circuitBoard');
+
+    // Board rebuilt (netlist changed) — the new board is picked up lazily.
+    mockRuntime.circuitBoard = {
+        nodeVoltage: () => 1.8,
+        branchCurrent: () => 0.001,
+        resistance: () => 'requires-power-off',
+        ledBrightness: () => 0,
+        buzzerTone: () => ({ hz: 0, on: false }),
+        setControl: () => {},
+        setPower: () => {}
+    };
+    ext._cache = {};   // clear display-rate cache so the new board is read
+    assert.equal(ext.nodevoltage({ NET: 'vcc' }), 1.8, 'picks up the rebuilt board');
+    assert.equal(ext.resistance({ A: 'a', B: 'b' }), 'requires-power-off',
+        'resistance refuses on a live rebuilt board');
+
+    // Board torn down — reporters refuse again.
+    mockRuntime.circuitBoard = null;
+    ext._cache = {};
+    assert.equal(ext.nodevoltage({ NET: 'vcc' }), 'needs the simulator');
+
+    // setBoard() overrides the runtime fallback.
+    ext.setBoard({ nodeVoltage: () => 12, branchCurrent: () => 0, resistance: () => 100,
+        ledBrightness: () => 0, buzzerTone: () => ({ hz: 0, on: false }), setControl: () => {}, setPower: () => {} });
+    assert.equal(ext.nodevoltage({ NET: 'vcc' }), 12, 'setBoard overrides runtime');
+    ext.clearBoard();
+    assert.equal(ext.nodevoltage({ NET: 'vcc' }), 'needs the simulator',
+        'clearBoard reverts to runtime (which is null)');
+});
+
 test('the simulator driver refuses with a reason when no board is attached', () => {
     const c = new SB3Creator();
     c.parse('PIN led = P1.0 OUTPUT\nWHEN flag clicked:\n  turn on led');
