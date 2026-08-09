@@ -8,6 +8,9 @@ import { OP_TO_SCRATCH, OP_TO_ARRAYS, spritePrefix, sanitizeIdent } from './scra
 // The host C target's runtime and shim naming (see cHostRuntime.js for why the
 // shim is generated from OP_TO_SCRATCH rather than written out).
 import { cHostRuntime, cShimName, C_HOST_INCLUDES } from './cHostRuntime.js';
+// The LED cube's shift directions. Shared with the C reader so the two cannot
+// drift — they already did once, and the round trip lost the block.
+import { CUBE_DIRECTIONS, cubeDirectionIndex } from './cubeDirections.js';
 
 
 // Structured error classes
@@ -381,33 +384,38 @@ class SB3Creator {
     circuitSimulatorDriver(lang) {
         // No-board returns NaN (stopgap) — visibly wrong, not a plausible 0.
         // Greying out unavailable blocks per target is the real fix.
+        // Self-contained board lookup: the stc12 driver defines `_board`, but a project can
+        // use circuit blocks WITHOUT any stc12 pin block, and then `_board` would not exist
+        // (a ReferenceError/NameError on the first reporter). Own helper name, no collision
+        // when both drivers are emitted side by side.
         if (lang === 'py') {
             return [
                 '# _circuit driver — board instruments (boundary B). Supply `bw_board` to attach one.',
                 '# No-board reporters return float("nan") — visibly wrong, not a plausible 0.',
+                'def _circuit_board(): return globals().get("bw_board")',
                 'class _CircuitSimulated:',
                 '    def nodeVoltage(self, net):',
-                '        b = _board()',
+                '        b = _circuit_board()',
                 '        return b.nodeVoltage(net) if b else float("nan")',
                 '    def branchCurrent(self, part):',
-                '        b = _board()',
+                '        b = _circuit_board()',
                 '        return b.branchCurrent(part, "a") if b else float("nan")',
                 '    def resistance(self, a, b_net):',
-                '        b = _board()',
+                '        b = _circuit_board()',
                 '        return b.resistance(a, b_net) if b else float("nan")',
                 '    def ledBrightness(self, part):',
-                '        b = _board()',
+                '        b = _circuit_board()',
                 '        return b.ledBrightness(part) if b else float("nan")',
                 '    def buzzerTone(self, part):',
-                '        b = _board()',
+                '        b = _circuit_board()',
                 '        if not b: return float("nan")',
                 '        r = b.buzzerTone(part)',
                 '        return r.get("hz", 0) if r.get("on") else 0',
                 '    def setControl(self, control, value):',
-                '        b = _board()',
+                '        b = _circuit_board()',
                 '        if b: b.setControl(control, float(value))',
                 '    def setPower(self, state):',
-                '        b = _board()',
+                '        b = _circuit_board()',
                 '        if b: b.setPower(state == "on")',
                 '_circuit = _CircuitSimulated()'
             ];
@@ -416,15 +424,16 @@ class SB3Creator {
             '// _circuit driver — board instruments (boundary B). Supply `bwBoard` to attach one.',
             '// No-board reporters return NaN — visibly wrong, not a plausible 0.',
             '// Stopgap: greying out unavailable blocks per target is the real fix.',
+            'const _circuit_board = () => (typeof bwBoard !== "undefined" ? bwBoard : null);',
             'const _circuit = {',
-            '    nodeVoltage: (net) => { const b = _board(); return b ? b.nodeVoltage(net) : NaN; },',
-            '    branchCurrent: (part) => { const b = _board(); return b ? b.branchCurrent(part, "a") : NaN; },',
-            '    resistance: (a, bNet) => { const b = _board(); return b ? b.resistance(a, bNet) : NaN; },',
-            '    ledBrightness: (part) => { const b = _board(); return b ? b.ledBrightness(part) : NaN; },',
-            '    buzzerTone: (part) => { const b = _board(); if (!b) return NaN;',
+            '    nodeVoltage: (net) => { const b = _circuit_board(); return b ? b.nodeVoltage(net) : NaN; },',
+            '    branchCurrent: (part) => { const b = _circuit_board(); return b ? b.branchCurrent(part, "a") : NaN; },',
+            '    resistance: (a, bNet) => { const b = _circuit_board(); return b ? b.resistance(a, bNet) : NaN; },',
+            '    ledBrightness: (part) => { const b = _circuit_board(); return b ? b.ledBrightness(part) : NaN; },',
+            '    buzzerTone: (part) => { const b = _circuit_board(); if (!b) return NaN;',
             '        const r = b.buzzerTone(part); return r && r.on ? r.hz : 0; },',
-            '    setControl: (control, v) => { const b = _board(); if (b) b.setControl(control, Number(v)); },',
-            '    setPower: (state) => { const b = _board(); if (b) b.setPower(state === "on"); }',
+            '    setControl: (control, v) => { const b = _circuit_board(); if (b) b.setControl(control, Number(v)); },',
+            '    setPower: (state) => { const b = _circuit_board(); if (b) b.setPower(state === "on"); }',
             '};'
         ];
     }
@@ -1662,7 +1671,12 @@ class SB3Creator {
                 const { block } = cmd('ledcube_clear');
                 return ret(block);
             }
-            if ((match = line.match(/^shift cube\s+(up|down|left|right|forward|back)$/i))) {
+            // Alternation built from the shared table, so adding a direction
+            // there makes the dialect accept it. Spelling the six words out
+            // here was a third copy — the parser would have gone on rejecting
+            // a direction the emitter and reader both understood.
+            if ((match = line.match(
+                new RegExp(`^shift cube\\s+(${CUBE_DIRECTIONS.join('|')})$`, 'i')))) {
                 const { id, block } = cmd('ledcube_shift');
                 block[id].fields.DIR = [match[1].toLowerCase(), null];
                 return ret(block);
@@ -4588,7 +4602,16 @@ class SB3Creator {
             case 'ledcube_shift': {
                 this._cUses.cube = true;
                 const dir = f('DIR');
-                const dirIdx = { up: 0, down: 1, left: 2, right: 3, forward: 4, back: 5 }[dir] || 0;
+                const dirIdx = cubeDirectionIndex(dir);
+                // `|| 0` used to live here, which turned any unrecognised
+                // direction into "up" and emitted it as though it were asked
+                // for. Refuse instead: a cube shifting the wrong way is not a
+                // thing anyone can debug from the firmware.
+                if (dirIdx < 0) {
+                    throw new ParseError(
+                        `shift cube: "${dir}" is not a direction. ` +
+                        `Use one of: ${CUBE_DIRECTIONS.join(', ')}.`);
+                }
                 return line(`bw_cube_shift(${dirIdx});`);
             }
             case 'ledcube_hold': {

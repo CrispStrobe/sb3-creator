@@ -1357,6 +1357,29 @@ test('the simulator driver refuses with a reason when no board is attached', () 
     assert.match(pyDriver, /b\.resistance\(a, b_net\)/);
 });
 
+test('the circuit driver is self-contained — no dependency on the stc12 driver', () => {
+    // Regression: circuitSimulatorDriver used to call `_board()`, which only
+    // stc12SimulatorDriver defines. A project with circuit blocks and NO stc12 pin
+    // block emitted JS that threw ReferenceError on the first reporter (NameError in
+    // Python). The driver must define its own lookup, under a name that cannot
+    // collide when both drivers are emitted side by side.
+    const c = new SB3Creator();
+    const jsDriver = c.circuitSimulatorDriver('js').join('\n');
+    assert.match(jsDriver, /const _circuit_board = /);
+    assert.ok(!/\b_board\(/.test(jsDriver), 'circuit JS driver must not call the stc12 helper');
+    // Prove it by running it: no bwBoard in scope, reporters answer NaN instead of throwing.
+    const probe = new Function(`${jsDriver}\nreturn _circuit.nodeVoltage("vcc");`);
+    assert.ok(Number.isNaN(probe()), 'no board -> NaN, and above all: no ReferenceError');
+    // Both drivers together must not redeclare anything (const collision would throw at parse).
+    c.parse('PIN led = P1.0 OUTPUT ACTIVE LOW\nWHEN flag clicked:\n  turn on led');
+    const both = `${c.stc12SimulatorDriver('js', [{ name: 'led', port: 1, bit: 0, direction: 'output', activeLow: true }]).join('\n')}\n${jsDriver}`;
+    assert.doesNotThrow(() => new Function(`const scratch = { wait: () => {} };\n${both}`)());
+    // Python: same self-containment.
+    const pyDriver = c.circuitSimulatorDriver('py').join('\n');
+    assert.match(pyDriver, /def _circuit_board\(\)/);
+    assert.ok(!/\b_board\(\)/.test(pyDriver), 'circuit Python driver must not call the stc12 helper');
+});
+
 // ---- registry URL resolution: do the gallery URLs actually serve? --------
 // A registry entry is a claim about a URL. If the URL 404s, the editor silently
 // gets no extension — no blocks, no refusal, nothing. This check HEADs every
