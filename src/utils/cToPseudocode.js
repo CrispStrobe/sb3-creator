@@ -726,23 +726,28 @@ export default function cToPseudocode (source, opts = {}) {
                         else if (cur.k[si].v === ')') pDepth--;
                         else if (cur.k[si].v === '?' && pDepth === 0) { hasQ = true; break; }
                     }
-                    if (hasQ && !SFRS.test(name)) {
-                        // Parse cond, then, else separately so we can expand to if/else.
-                        // Suppress the ternary warning during this parse — we handle it.
+                    const qPin = byName.get(name) || pins.get(expand(name, pre.defines));
+                    if (hasQ && (qPin || !SFRS.test(name))) {
                         const origWarn = ctx.warn;
                         ctx.warn = (m) => { if (!/ternary/.test(m)) origWarn(m); };
                         cur.i = scan;
-                        const condExpr = new ExprParser(cur, ctx).parse(1);  // parse above ternary level
+                        const condExpr = new ExprParser(cur, ctx).parse(1);
                         if (cur.eat('?')) {
                             const thenExpr = new ExprParser(cur, ctx).parse(0);
                             cur.eat(':');
                             const elseExpr = new ExprParser(cur, ctx).parse(0);
                             cur.eat(';');
                             const pin = byName.get(name) || pins.get(expand(name, pre.defines));
+                            ctx.warn = origWarn;
+                            // Emitter pattern: `PIN = (expr) ? 1 : 0` → `set pin to expr`.
+                            // The ternary clamps to 0/1 for the physical bit; the condition
+                            // IS the computed value the user wrote.
+                            if (pin && thenExpr.text === '1' && elseExpr.text === '0') {
+                                return [`${pad}set ${pin.name} to ${condExpr.text}`];
+                            }
                             const target = pin ? pin.name : varName(name);
                             if (!pin) usedVars.add(target);
                             const setCmd = pin ? (v) => pinWrite(pin, v) : (v) => `set ${target} to ${v}`;
-                            ctx.warn = origWarn;
                             return [
                                 `${pad}IF ${condExpr.text} THEN:`,
                                 `${'  '.repeat(depth + 1)}${setCmd(thenExpr.text)}`,
@@ -750,7 +755,6 @@ export default function cToPseudocode (source, opts = {}) {
                                 `${'  '.repeat(depth + 1)}${setCmd(elseExpr.text)}`
                             ];
                         }
-                        // Fallback: `?` not where expected, restore and parse normally.
                         ctx.warn = origWarn;
                         cur.i = scan;
                     }
@@ -823,7 +827,11 @@ export default function cToPseudocode (source, opts = {}) {
             return { text: '0', level: 99, stmt: `fill layer ${args[0].text} with ${args[1].text}` };
         }
         if (name === 'bw_cube_shift' && args.length >= 1) {
-            return { text: '0', level: 99, stmt: `shift cube ${args[0].text}` };
+            // Direction table: index → name. Must agree with the emitter's
+            // { up: 0, down: 1, left: 2, right: 3, forward: 4, back: 5 }.
+            const CUBE_DIRS = ['up', 'down', 'left', 'right', 'forward', 'back'];
+            const dir = CUBE_DIRS[Number(args[0].text)] || args[0].text;
+            return { text: '0', level: 99, stmt: `shift cube ${dir}` };
         }
         if (name === 'bw_cube_get' && args.length >= 3) {
             return { text: `voxel ${args[0].text} ${args[1].text} ${args[2].text}`, level: 99 };
