@@ -98,6 +98,11 @@ static inline const char *bw_s(bw_val v) {
 }
 `;
 
+const CHANGE = `/* \`change x by n\`. A helper rather than inline arithmetic so that the
+ * way back can tell it from \`set x to x + n\`, which is a different block. */
+static inline void bw_change(bw_val *v, bw_val d) { *v = bw_num(bw_n(*v) + bw_n(d)); }
+`;
+
 const NUMERIC = `/* Does this value look like a number? Decides whether = compares numerically. */
 static inline int bw_numeric(bw_val v) {
     if (!v.is_str) return 1;
@@ -278,6 +283,7 @@ const CHUNKS = [
     { name: 'bw_bool', code: BOOL },
     { name: 'bw_n', code: N },
     { name: 'bw_s', code: S },
+    { name: 'bw_change', code: CHANGE },
     { name: 'bw_numeric', code: NUMERIC },
     { name: 'bw_cmp', code: CMP },
     { name: 'bw_join', code: JOIN },

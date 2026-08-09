@@ -4298,9 +4298,10 @@ class SB3Creator {
             case 'control_forever': return [`${pad}for (;;) {`, ...body('SUBSTACK'), `${pad}}`];
             case 'control_repeat': {
                 const i = `bw_i${++this._hcCounter}`;
-                return [`${pad}{ long ${i} = (long)${n('TIMES')};`,
-                    `${pad}  while (${i}-- > 0) {`, ...body('SUBSTACK'),
-                    `${pad}  }`, `${pad}}`];
+                // A C99 for-init declaration, so the whole construct is one line
+                // going out and one line coming back.
+                return [`${pad}for (long ${i} = (long)${n('TIMES')}; ${i}-- > 0; ) {`,
+                    ...body('SUBSTACK'), `${pad}}`];
             }
             case 'control_repeat_until':
                 return [`${pad}while (!${cond('CONDITION')}) {`, ...body('SUBSTACK'), `${pad}}`];
@@ -4320,10 +4321,11 @@ class SB3Creator {
                 this._hcUses.answer = true;
                 return line(`bw_answer = bw_ask(${v('QUESTION')});`);
             case 'data_setvariableto': return line(`${this.hcVar(f('VARIABLE'))} = ${v('VALUE')};`);
-            case 'data_changevariableby': {
-                const t = this.hcVar(f('VARIABLE'));
-                return line(`${t} = bw_num(bw_n(${t}) + ${n('VALUE')});`);
-            }
+            case 'data_changevariableby':
+                // Not `x = bw_num(bw_n(x) + …)`: that is byte-identical to what
+                // `set x to x + 1` emits, and the way back could not tell the two
+                // blocks apart. A named helper keeps the distinction.
+                return line(`bw_change(&${this.hcVar(f('VARIABLE'))}, ${v('VALUE')});`);
             case 'data_addtolist': return line(`bw_list_add(${list('LIST')}, ${v('ITEM')});`);
             case 'data_deleteoflist': return line(`bw_list_delete(${list('LIST')}, (int)${n('INDEX')});`);
             case 'data_deletealloflist': return line(`bw_list_delete_all(${list('LIST')});`);
@@ -4436,9 +4438,13 @@ class SB3Creator {
                 } else {
                     const fn = this.hcFresh(pfx + this.pyHatBase(b));
                     protos.push(`void ${fn}(void);`);
+                    // A comment attached to the hat belongs to the script; `//` so
+                    // the way back can tell it from the emitter's own /* notes */.
+                    const note = this.codeCommentLines(b.id || Object.keys(blocks)
+                        .find((k) => blocks[k] === b), '', '//');
                     const head = b.opcode === 'event_whenflagclicked'
                         ? [] : [`/* ${this.decompileHat(b, blocks)} — call when that happens */`];
-                    defs.push([...head, `void ${fn}(void)`, '{',
+                    defs.push([...note, ...head, `void ${fn}(void)`, '{',
                         ...this.hcStackFrom(b.next, blocks, 1), '}'].join('\n'));
                     if (b.opcode === 'event_whenflagclicked') flagCalls.push(`    ${fn}();`);
                 }
@@ -4469,6 +4475,7 @@ class SB3Creator {
             ...C_HOST_INCLUDES.map((h) => `#include <${h}>`),
             '',
             cHostRuntime(body),
+            '/* @bw-program — everything above is runtime; the project starts here. */',
             body,
             '',
         ];

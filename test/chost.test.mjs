@@ -24,6 +24,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import SB3Creator from '../src/utils/sb3Creator.js';
+import cHostToPseudocode from '../src/utils/cHostToPseudocode.js';
 
 const build = (src) => { const c = new SB3Creator(); c.parse(src); return c; };
 const has = (cmd) => spawnSync(cmd, ['--version'], { stdio: 'ignore' }).status === 0;
@@ -104,3 +105,33 @@ test('host C and Python produce the same output for the same project',
     });
 
 void skip;
+
+// ---- the way back --------------------------------------------------------
+// blocks → host C → pseudocode → blocks has to land on the same project.
+// Measured rather than asserted per example: 26 of the 30 come back identical
+// today. The four that do not are named, because a floor that can only rise is
+// worth more than a suite that passes while quietly losing ground.
+//
+// Two of the four are the extension gaps the emit test already names (the
+// Arrays registry and Planète Maths' digit sum — the C cannot carry what was
+// never emitted). The other two are custom-block DEFINE reconstruction in the
+// two largest examples, which is a reader bug and not a lossy emission.
+const ROUNDTRIP_FLOOR = 26;
+const KNOWN_LOSSY = new Set(['arrays', 'planetemaths', 'tetris', 'sokoban']);
+
+test('host C reads back as the same project', async () => {
+    const examples = (await import('../src/utils/examples.js')).default;
+    let identical = 0;
+    const differ = [];
+    for (const [name, ex] of Object.entries(examples)) {
+        const a = build(ex.code ?? ex);
+        if (a.project.stc && a.project.stc.pins && a.project.stc.pins.length) continue;
+        const want = a.decompile();
+        const got = build(cHostToPseudocode(a.generateC())).decompile();
+        if (got === want) identical++; else differ.push(name);
+    }
+    assert.ok(identical >= ROUNDTRIP_FLOOR,
+        `round trip fell to ${identical} (floor ${ROUNDTRIP_FLOOR}); differing: ${differ.join(', ')}`);
+    assert.deepEqual(differ.filter((n) => !KNOWN_LOSSY.has(n)), [],
+        'a new example stopped round-tripping');
+});
