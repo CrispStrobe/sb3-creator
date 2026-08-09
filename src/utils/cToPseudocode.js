@@ -292,9 +292,9 @@ export default function cToPseudocode (source, opts = {}) {
     const warn = (m) => { if (!warnings.includes(m)) warnings.push(m); };
     const markers = readMarkers(source);
 
-    const stripped = source
-        .replace(/\/\*[\s\S]*?\*\//g, ' ')
-        .replace(/\/\/[^\n]*/g, ' ');
+    // Strip comments while respecting string literals — `//` inside `"http://..."` is not a comment.
+    const stripped = source.replace(/"(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'|\/\*[\s\S]*?\*\/|\/\/[^\n]*/g,
+        (m) => m[0] === '"' || m[0] === "'" ? m : ' ');
     const pre = preprocess(stripped, opts.headers || {}, warn);
 
     // ---- device + clock ----
@@ -672,6 +672,46 @@ export default function cToPseudocode (source, opts = {}) {
             }
             if (cur.is('=') || cur.is('+=') || cur.is('-=')) {
                 const op = cur.next().v;
+                // Detect `x = cond ? a : b;` and expand to if/else instead of
+                // dropping the else branch. Scan ahead for `?` before `;`.
+                if (op === '=') {
+                    const scan = cur.i;
+                    let pDepth = 0, hasQ = false;
+                    for (let si = scan; si < cur.k.length && !(cur.k[si].v === ';' && pDepth === 0); si++) {
+                        if (cur.k[si].v === '(') pDepth++;
+                        else if (cur.k[si].v === ')') pDepth--;
+                        else if (cur.k[si].v === '?' && pDepth === 0) { hasQ = true; break; }
+                    }
+                    if (hasQ && !SFRS.test(name)) {
+                        // Parse cond, then, else separately so we can expand to if/else.
+                        // Suppress the ternary warning during this parse — we handle it.
+                        const origWarn = ctx.warn;
+                        let ternaryWarned = false;
+                        ctx.warn = (m) => { if (/ternary/.test(m)) ternaryWarned = true; else origWarn(m); };
+                        cur.i = scan;
+                        const condExpr = new ExprParser(cur, ctx).parse(1);  // parse above ternary level
+                        if (cur.eat('?')) {
+                            const thenExpr = new ExprParser(cur, ctx).parse(0);
+                            cur.eat(':');
+                            const elseExpr = new ExprParser(cur, ctx).parse(0);
+                            cur.eat(';');
+                            const pin = byName.get(name) || pins.get(expand(name, pre.defines));
+                            const target = pin ? pin.name : varName(name);
+                            if (!pin) usedVars.add(target);
+                            const setCmd = pin ? (v) => pinWrite(pin, v) : (v) => `set ${target} to ${v}`;
+                            ctx.warn = origWarn;
+                            return [
+                                `${pad}IF ${condExpr.text} THEN:`,
+                                `${'  '.repeat(depth + 1)}${setCmd(thenExpr.text)}`,
+                                `${pad}ELSE:`,
+                                `${'  '.repeat(depth + 1)}${setCmd(elseExpr.text)}`
+                            ];
+                        }
+                        // Fallback: `?` not where expected, restore and parse normally.
+                        ctx.warn = origWarn;
+                        cur.i = scan;
+                    }
+                }
                 const rhs = expr(cur);
                 cur.eat(';');
                 // A declared pin IS an SFR bit, so check it BEFORE the register filter,
