@@ -52,15 +52,28 @@ try { gallerySource = readFileSync(galleryPath, 'utf8'); } catch { /* skip */ }
 try { bundledWrapper = readFileSync(bundledPath, 'utf8'); } catch { /* skip */ }
 
 // ---- the opcodes sb3-creator emits (derived, not hand-maintained) ------------
-// Scan sb3Creator.js for every 'stc12_*' opcode it emits. A hand-maintained list
-// let stc12 go unregistered for months; this finds every opcode automatically.
+// Scan sb3Creator.js for every stc12_* opcode created by createBlock / cmd / B / push.
+// Matching the creation call rather than the bare string means no exclusion list is
+// needed (_stc12_pins is a variable name, not a createBlock call, so it never appears).
 
 const sb3CreatorSource = readFileSync(resolve(here, '../src/utils/sb3Creator.js'), 'utf8');
-const EMITTED_OPCODES = new Set(
-    [...sb3CreatorSource.matchAll(/'stc12_([a-z]+)'/g)].map(m => m[1])
-        // _stc12_pins is a generated variable name, not an opcode
-        .filter(op => op !== 'pins')
-);
+const EMITTED_OPCODES = new Set();
+const EMITTER_ARGS = {};  // opcode → Set of argument names the emitter writes
+
+for (const m of sb3CreatorSource.matchAll(/(?:createBlock|cmd)\('stc12_([a-z0-9_]+)'/g)) {
+    const op = m[1];
+    EMITTED_OPCODES.add(op);
+    if (!EMITTER_ARGS[op]) EMITTER_ARGS[op] = new Set();
+    // Scan the 400 chars after the call for fields.X and inputs.X assignments.
+    const after = sb3CreatorSource.slice(m.index, m.index + 400);
+    for (const f of after.matchAll(/(?:fields|inputs)\.([A-Z_]+)\s*=/g)) EMITTER_ARGS[op].add(f[1]);
+}
+for (const m of sb3CreatorSource.matchAll(/(?:B|push)\('stc12_([a-z0-9_]+)',\s*\{[^}]*\},\s*\{([^}]*)\}/g)) {
+    const op = m[1];
+    EMITTED_OPCODES.add(op);
+    if (!EMITTER_ARGS[op]) EMITTER_ARGS[op] = new Set();
+    for (const f of m[2].matchAll(/([A-Z_]+)\s*:/g)) EMITTER_ARGS[op].add(f[1]);
+}
 
 // ---- assert a getInfo matches the emitted opcodes ---------------------------
 
@@ -72,6 +85,20 @@ function assertConformance(info, label) {
     // Every emitted opcode must exist in the extension
     for (const op of EMITTED_OPCODES) {
         assert.ok(blocksByOpcode[op], `${label}: missing opcode "${op}" (sb3-creator emits stc12_${op})`);
+    }
+
+    // The extension's argument names must match what the emitter writes.
+    // A renamed argument silently breaks every saved project's field binding.
+    for (const op of EMITTED_OPCODES) {
+        const block = blocksByOpcode[op];
+        if (!block) continue;
+        const emitterArgs = EMITTER_ARGS[op];
+        if (!emitterArgs || emitterArgs.size === 0) continue;
+        const declared = new Set(Object.keys(block.arguments || {}));
+        for (const arg of emitterArgs) {
+            assert.ok(declared.has(arg),
+                `${label}: stc12_${op} — emitter writes "${arg}" but getInfo() does not declare it`);
+        }
     }
 
     // Every menu referenced by any block must have acceptReporters:false (→ FIELD)
