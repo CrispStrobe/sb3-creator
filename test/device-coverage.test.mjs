@@ -96,15 +96,20 @@ const BLOCK_COVERAGE = {
     temp_sensor: ['devices_temperature'],
     ldr: ['devices_light'],
     ultrasonic: ['devices_distance'],
+
+    // Display devices
+    char_lcd: ['devices_lcdprint', 'devices_lcdcursor', 'devices_lcdclear'],
+    led_matrix: ['devices_setpixel', 'devices_clearmatrix'],
+    neopixel: ['devices_setneopixel', 'devices_clearneopixels'],
 };
 
 // Devices that exist in the engine but have NO block vocabulary yet.
 // This is the explicit gap list — adding blocks removes the entry.
 const KNOWN_GAPS = new Set([
-    // --- displays (need dedicated show/draw blocks) ---
-    'char_lcd',         // "print to LCD" / "set cursor"
-    // seven_segment — now covered via devices_showdigit
-    'led_matrix',       // per-pixel or pattern blocks
+    // --- displays ---
+    // char_lcd — now covered via devices_lcdprint/lcdcursor/lcdclear
+    // led_matrix — now covered via devices_setpixel/clearmatrix
+    // seven_segment — covered via devices_showdigit
     'bargraph',         // "set bar N to M"
 
     // --- actuators ---
@@ -115,7 +120,7 @@ const KNOWN_GAPS = new Set([
 
     // --- LEDs ---
     // rgb_led — now covered via devices_setrgb
-    'neopixel',         // addressable LED — "set pixel N to colour"
+    // neopixel — now covered via devices_setneopixel/clearneopixels
 
     // --- sensors ---
     // temp_sensor, ldr, ultrasonic — now covered via devices_temperature/light/distance

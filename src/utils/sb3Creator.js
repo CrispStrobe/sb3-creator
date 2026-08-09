@@ -1850,6 +1850,60 @@ class SB3Creator {
         if ((match = line.match(/^read light from\s+(.+)$/i))) {
             // Reporter — handled in parseReporter, not here
         }
+        // ---- char_lcd blocks ----
+        if ((match = line.match(/^lcd print\s+"([^"]*)"\s+on\s+(.+)$/i))) {
+            const { id, block } = cmd('devices_lcdprint');
+            block[id].inputs.TEXT = [1, [10, match[1]]];
+            block[id].inputs.DISPLAY = val(match[2]);
+            return ret(block);
+        }
+        if ((match = line.match(/^lcd print\s+(.+?)\s+on\s+(.+)$/i))) {
+            const { id, block } = cmd('devices_lcdprint');
+            block[id].inputs.TEXT = val(match[1]);
+            block[id].inputs.DISPLAY = val(match[2]);
+            return ret(block);
+        }
+        if ((match = line.match(/^lcd set cursor\s+(.+?)\s+(.+?)\s+on\s+(.+)$/i))) {
+            const { id, block } = cmd('devices_lcdcursor');
+            block[id].inputs.ROW = val(match[1]);
+            block[id].inputs.COL = val(match[2]);
+            block[id].inputs.DISPLAY = val(match[3]);
+            return ret(block);
+        }
+        if ((match = line.match(/^lcd clear\s+(.+)$/i))) {
+            const { id, block } = cmd('devices_lcdclear');
+            block[id].inputs.DISPLAY = val(match[1]);
+            return ret(block);
+        }
+        // ---- led_matrix blocks ----
+        if ((match = line.match(/^set pixel\s+(.+?)\s+(.+?)\s+to\s+(.+?)\s+on\s+(.+)$/i))) {
+            const { id, block } = cmd('devices_setpixel');
+            block[id].inputs.X = val(match[1]);
+            block[id].inputs.Y = val(match[2]);
+            block[id].inputs.BRIGHTNESS = val(match[3]);
+            block[id].inputs.MATRIX = val(match[4]);
+            return ret(block);
+        }
+        if ((match = line.match(/^clear matrix\s+(.+)$/i))) {
+            const { id, block } = cmd('devices_clearmatrix');
+            block[id].inputs.MATRIX = val(match[1]);
+            return ret(block);
+        }
+        // ---- neopixel blocks ----
+        if ((match = line.match(/^set neopixel\s+(.+?)\s+to R\s+(.+?)\s+G\s+(.+?)\s+B\s+(.+?)\s+on\s+(.+)$/i))) {
+            const { id, block } = cmd('devices_setneopixel');
+            block[id].inputs.INDEX = val(match[1]);
+            block[id].inputs.R = val(match[2]);
+            block[id].inputs.G = val(match[3]);
+            block[id].inputs.B = val(match[4]);
+            block[id].inputs.STRIP = val(match[5]);
+            return ret(block);
+        }
+        if ((match = line.match(/^clear neopixels on\s+(.+)$/i))) {
+            const { id, block } = cmd('devices_clearneopixels');
+            block[id].inputs.STRIP = val(match[1]);
+            return ret(block);
+        }
 
         // ---- Arrays & Vectors extension commands (anchored on `array "NAME"`; 0-based) ----
         // syncExtensions() auto-declares the `arrays` extension from these opcodes.
@@ -3563,6 +3617,13 @@ class SB3Creator {
             case 'devices_setservo': return line(`set ${v('SERVO')} angle to ${v('ANGLE')}`);
             case 'devices_setmotor': return line(`set ${v('MOTOR')} speed to ${v('SPEED')}`);
             case 'devices_setrelay': return line(`set relay ${v('RELAY')} ${f('STATE')}`);
+            case 'devices_lcdprint': return line(`lcd print ${v('TEXT')} on ${v('DISPLAY')}`);
+            case 'devices_lcdcursor': return line(`lcd set cursor ${v('ROW')} ${v('COL')} on ${v('DISPLAY')}`);
+            case 'devices_lcdclear': return line(`lcd clear ${v('DISPLAY')}`);
+            case 'devices_setpixel': return line(`set pixel ${v('X')} ${v('Y')} to ${v('BRIGHTNESS')} on ${v('MATRIX')}`);
+            case 'devices_clearmatrix': return line(`clear matrix ${v('MATRIX')}`);
+            case 'devices_setneopixel': return line(`set neopixel ${v('INDEX')} to R ${v('R')} G ${v('G')} B ${v('B')} on ${v('STRIP')}`);
+            case 'devices_clearneopixels': return line(`clear neopixels on ${v('STRIP')}`);
             // LED cube commands
             case 'ledcube_setvoxel': return line(`set voxel ${v('X')} ${v('Y')} ${v('Z')} to ${v('COLOUR')}`);
             case 'ledcube_clearvoxel': return line(`clear voxel ${v('X')} ${v('Y')} ${v('Z')}`);
@@ -6184,7 +6245,17 @@ SB3Creator.RUNTIME_EXTENSIONS = {
             temperature: { kind: 'reporter', method: 'temperature', args: ['SENSOR'], neutral: 'NaN' },
             light: { kind: 'reporter', method: 'light', args: ['SENSOR'], neutral: 'NaN' },
             servoangle: { kind: 'reporter', method: 'servoAngle', args: ['SERVO'], neutral: 'NaN' },
-            distance: { kind: 'reporter', method: 'distance', args: ['SENSOR'], neutral: 'NaN' }
+            distance: { kind: 'reporter', method: 'distance', args: ['SENSOR'], neutral: 'NaN' },
+            // char_lcd
+            lcdprint: { kind: 'command', method: 'lcdPrint', args: ['TEXT', 'DISPLAY'] },
+            lcdcursor: { kind: 'command', method: 'lcdCursor', args: ['ROW', 'COL', 'DISPLAY'] },
+            lcdclear: { kind: 'command', method: 'lcdClear', args: ['DISPLAY'] },
+            // led_matrix
+            setpixel: { kind: 'command', method: 'setPixel', args: ['X', 'Y', 'BRIGHTNESS', 'MATRIX'] },
+            clearmatrix: { kind: 'command', method: 'clearMatrix', args: ['MATRIX'] },
+            // neopixel
+            setneopixel: { kind: 'command', method: 'setNeopixel', args: ['INDEX', 'R', 'G', 'B', 'STRIP'] },
+            clearneopixels: { kind: 'command', method: 'clearNeopixels', args: ['STRIP'] }
         }
     },
     // The generated entry from circuit.js provides the opcode shape and the gallery URL.
