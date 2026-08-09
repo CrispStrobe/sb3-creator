@@ -8,10 +8,20 @@ on:
     paths-ignore: ['**.md']
   workflow_dispatch:
 
-# Cancel an in-progress run when a newer commit is pushed to the same ref.
+# Cancel superseded runs on a branch, but never on main.
+#
+# On a branch only the tip matters, so cancelling saves minutes and costs
+# nothing. On main every commit is a landing, and cancelling means it never gets
+# a verdict at all. Several sessions push here, sometimes minutes apart, and on
+# 2026-08-09 six of twenty consecutive runs were cancelled — including the two
+# commits either side of a break that left main unable to import. The run that
+# would have said so was killed by the next push.
+#
+# `cancel-in-progress` takes an expression, so this is one condition rather than
+# two workflows.
 concurrency:
   group: ci-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
   test:
