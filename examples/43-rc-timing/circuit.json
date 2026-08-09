@@ -1,0 +1,14 @@
+{
+  "vcc": 5.0,
+  "parts": [
+    { "id": "vcc1",  "kind": "vcc",        "params": {},                    "x": 200, "y": 50  },
+    { "id": "gnd1",  "kind": "gnd",        "params": {},                    "x": 200, "y": 350 },
+    { "id": "r1",    "kind": "resistor",    "params": { "ohms": 10000 },    "x": 200, "y": 130 },
+    { "id": "c1",    "kind": "capacitor",   "params": { "farads": 0.0001 }, "x": 200, "y": 250 }
+  ],
+  "wires": [
+    { "from": "vcc1",  "fromTerminal": "vcc",  "to": "r1",   "toTerminal": "a"   },
+    { "from": "r1",    "fromTerminal": "b",     "to": "c1",   "toTerminal": "a"   },
+    { "from": "c1",    "fromTerminal": "b",     "to": "gnd1", "toTerminal": "gnd" }
+  ]
+}

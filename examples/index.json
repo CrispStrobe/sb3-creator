@@ -1,266 +1,710 @@
 [
   {
     "id": "01-blink",
-    "title": { "en": "Blink an LED", "de": "LED blinken lassen" },
+    "title": {
+      "en": "Blink an LED",
+      "de": "LED blinken lassen"
+    },
     "category": "basics",
     "difficulty": 1,
     "thumbnail": "01-blink/thumb.svg",
-    "files": { "program": "01-blink/program.bw", "circuit": "01-blink/circuit.json", "expected": "01-blink/EXPECTED.md" }
+    "files": {
+      "program": "01-blink/program.bw",
+      "circuit": "01-blink/circuit.json",
+      "expected": "01-blink/EXPECTED.md"
+    },
+    "kind": "program"
   },
   {
     "id": "02-dimmer",
-    "title": { "en": "LED dimmer with potentiometer", "de": "LED-Dimmer mit Potentiometer" },
+    "title": {
+      "en": "LED dimmer with potentiometer",
+      "de": "LED-Dimmer mit Potentiometer"
+    },
     "category": "analog",
     "difficulty": 2,
     "thumbnail": "02-dimmer/thumb.svg",
-    "files": { "program": "02-dimmer/program.bw", "circuit": "02-dimmer/circuit.json", "expected": "02-dimmer/EXPECTED.md" }
+    "files": {
+      "program": "02-dimmer/program.bw",
+      "circuit": "02-dimmer/circuit.json",
+      "expected": "02-dimmer/EXPECTED.md"
+    },
+    "kind": "program"
   },
   {
     "id": "03-night-light",
-    "title": { "en": "Automatic night light", "de": "Automatisches Nachtlicht" },
+    "title": {
+      "en": "Automatic night light",
+      "de": "Automatisches Nachtlicht"
+    },
     "category": "analog",
     "difficulty": 2,
     "thumbnail": "03-night-light/thumb.svg",
-    "files": { "program": "03-night-light/program.bw", "circuit": "03-night-light/circuit.json", "expected": "03-night-light/EXPECTED.md" }
+    "files": {
+      "program": "03-night-light/program.bw",
+      "circuit": "03-night-light/circuit.json",
+      "expected": "03-night-light/EXPECTED.md"
+    },
+    "kind": "program"
   },
   {
     "id": "04-thermostat",
-    "title": { "en": "Thermostat with hysteresis", "de": "Thermostat mit Hysterese" },
+    "title": {
+      "en": "Thermostat with hysteresis",
+      "de": "Thermostat mit Hysterese"
+    },
     "category": "analog",
     "difficulty": 3,
     "thumbnail": "04-thermostat/thumb.svg",
-    "files": { "program": "04-thermostat/program.bw", "circuit": "04-thermostat/circuit.json", "expected": "04-thermostat/EXPECTED.md" }
+    "files": {
+      "program": "04-thermostat/program.bw",
+      "circuit": "04-thermostat/circuit.json",
+      "expected": "04-thermostat/EXPECTED.md"
+    },
+    "kind": "program"
   },
   {
     "id": "05-counter",
-    "title": { "en": "Button counter with LED blinks", "de": "Tastenzähler mit LED-Blinken" },
+    "title": {
+      "en": "Button counter with LED blinks",
+      "de": "Tastenzähler mit LED-Blinken"
+    },
     "category": "basics",
     "difficulty": 2,
     "thumbnail": "05-counter-7seg/thumb.svg",
-    "files": { "program": "05-counter-7seg/program.bw", "circuit": "05-counter-7seg/circuit.json", "expected": "05-counter-7seg/EXPECTED.md" }
+    "files": {
+      "program": "05-counter-7seg/program.bw",
+      "circuit": "05-counter-7seg/circuit.json",
+      "expected": "05-counter-7seg/EXPECTED.md"
+    },
+    "kind": "program"
   },
   {
     "id": "06-active-low-high",
-    "title": { "en": "Active-low vs active-high LEDs", "de": "Active-Low vs Active-High LEDs" },
+    "title": {
+      "en": "Active-low vs active-high LEDs",
+      "de": "Active-Low vs Active-High LEDs"
+    },
     "category": "basics",
     "difficulty": 2,
     "thumbnail": "06-active-low-high/thumb.svg",
-    "files": { "program": "06-active-low-high/program.bw", "circuit": "06-active-low-high/circuit.json", "expected": "06-active-low-high/EXPECTED.md" }
+    "files": {
+      "program": "06-active-low-high/program.bw",
+      "circuit": "06-active-low-high/circuit.json",
+      "expected": "06-active-low-high/EXPECTED.md"
+    },
+    "kind": "program"
   },
   {
     "id": "07-buzzer-siren",
-    "title": { "en": "Two-tone siren", "de": "Zweiklang-Sirene" },
+    "title": {
+      "en": "Two-tone siren",
+      "de": "Zweiklang-Sirene"
+    },
     "category": "basics",
     "difficulty": 2,
     "thumbnail": "07-buzzer-siren/thumb.svg",
-    "files": { "program": "07-buzzer-siren/program.bw", "circuit": "07-buzzer-siren/circuit.json", "expected": "07-buzzer-siren/EXPECTED.md" }
+    "files": {
+      "program": "07-buzzer-siren/program.bw",
+      "circuit": "07-buzzer-siren/circuit.json",
+      "expected": "07-buzzer-siren/EXPECTED.md"
+    },
+    "kind": "program"
   },
   {
     "id": "08-led-chaser-595",
-    "title": { "en": "8-LED chaser with shift register", "de": "8-LED-Lauflicht mit Schieberegister" },
+    "title": {
+      "en": "8-LED chaser with shift register",
+      "de": "8-LED-Lauflicht mit Schieberegister"
+    },
     "category": "digital",
     "difficulty": 3,
     "thumbnail": "08-led-chaser-595/thumb.svg",
-    "files": { "program": "08-led-chaser-595/program.bw", "circuit": "08-led-chaser-595/circuit.json", "expected": "08-led-chaser-595/EXPECTED.md" }
+    "files": {
+      "program": "08-led-chaser-595/program.bw",
+      "circuit": "08-led-chaser-595/circuit.json",
+      "expected": "08-led-chaser-595/EXPECTED.md"
+    },
+    "kind": "program"
   },
   {
     "id": "09-relay-clicker",
-    "title": { "en": "Relay on/off with indicator", "de": "Relais ein/aus mit Anzeige" },
+    "title": {
+      "en": "Relay on/off with indicator",
+      "de": "Relais ein/aus mit Anzeige"
+    },
     "category": "motors",
     "difficulty": 2,
     "thumbnail": "09-relay-clicker/thumb.svg",
-    "files": { "program": "09-relay-clicker/program.bw", "circuit": "09-relay-clicker/circuit.json", "expected": "09-relay-clicker/EXPECTED.md" }
+    "files": {
+      "program": "09-relay-clicker/program.bw",
+      "circuit": "09-relay-clicker/circuit.json",
+      "expected": "09-relay-clicker/EXPECTED.md"
+    },
+    "kind": "program"
   },
   {
     "id": "10-motor-speed",
-    "title": { "en": "Motor speed control with pot", "de": "Motordrehzahl mit Poti steuern" },
+    "title": {
+      "en": "Motor speed control with pot",
+      "de": "Motordrehzahl mit Poti steuern"
+    },
     "category": "motors",
     "difficulty": 3,
     "thumbnail": "10-motor-speed/thumb.svg",
-    "files": { "program": "10-motor-speed/program.bw", "circuit": "10-motor-speed/circuit.json", "expected": "10-motor-speed/EXPECTED.md" }
+    "files": {
+      "program": "10-motor-speed/program.bw",
+      "circuit": "10-motor-speed/circuit.json",
+      "expected": "10-motor-speed/EXPECTED.md"
+    },
+    "kind": "program"
   },
   {
     "id": "11-toggle-button",
-    "title": { "en": "Toggle button LED", "de": "Taster-LED umschalten" },
+    "title": {
+      "en": "Toggle button LED",
+      "de": "Taster-LED umschalten"
+    },
     "category": "basics",
     "difficulty": 2,
     "thumbnail": "11-toggle-button/thumb.svg",
-    "files": { "program": "11-toggle-button/program.bw", "circuit": "11-toggle-button/circuit.json", "expected": "11-toggle-button/EXPECTED.md" }
+    "files": {
+      "program": "11-toggle-button/program.bw",
+      "circuit": "11-toggle-button/circuit.json",
+      "expected": "11-toggle-button/EXPECTED.md"
+    },
+    "kind": "program"
   },
   {
     "id": "12-dual-blink",
-    "title": { "en": "Two LEDs alternating", "de": "Zwei LEDs abwechselnd" },
+    "title": {
+      "en": "Two LEDs alternating",
+      "de": "Zwei LEDs abwechselnd"
+    },
     "category": "basics",
     "difficulty": 2,
     "thumbnail": "12-dual-blink/thumb.svg",
-    "files": { "program": "12-dual-blink/program.bw", "circuit": "12-dual-blink/circuit.json", "expected": "12-dual-blink/EXPECTED.md" }
+    "files": {
+      "program": "12-dual-blink/program.bw",
+      "circuit": "12-dual-blink/circuit.json",
+      "expected": "12-dual-blink/EXPECTED.md"
+    },
+    "kind": "program"
   },
   {
     "id": "13-sos-morse",
-    "title": { "en": "SOS Morse code blinker", "de": "SOS-Morsecode-Blinker" },
+    "title": {
+      "en": "SOS Morse code blinker",
+      "de": "SOS-Morsecode-Blinker"
+    },
     "category": "basics",
     "difficulty": 3,
     "thumbnail": "13-sos-morse/thumb.svg",
-    "files": { "program": "13-sos-morse/program.bw", "circuit": "13-sos-morse/circuit.json", "expected": "13-sos-morse/EXPECTED.md" }
+    "files": {
+      "program": "13-sos-morse/program.bw",
+      "circuit": "13-sos-morse/circuit.json",
+      "expected": "13-sos-morse/EXPECTED.md"
+    },
+    "kind": "program"
   },
   {
     "id": "14-traffic-light",
-    "title": { "en": "Traffic light sequence", "de": "Ampelschaltung" },
+    "title": {
+      "en": "Traffic light sequence",
+      "de": "Ampelschaltung"
+    },
     "category": "basics",
     "difficulty": 3,
     "thumbnail": "14-traffic-light/thumb.svg",
-    "files": { "program": "14-traffic-light/program.bw", "circuit": "14-traffic-light/circuit.json", "expected": "14-traffic-light/EXPECTED.md" }
+    "files": {
+      "program": "14-traffic-light/program.bw",
+      "circuit": "14-traffic-light/circuit.json",
+      "expected": "14-traffic-light/EXPECTED.md"
+    },
+    "kind": "program"
   },
   {
     "id": "15-voltage-divider",
-    "title": { "en": "Voltage divider with ADC", "de": "Spannungsteiler mit ADC" },
+    "title": {
+      "en": "Voltage divider with ADC",
+      "de": "Spannungsteiler mit ADC"
+    },
     "category": "analog",
     "difficulty": 1,
     "thumbnail": "15-voltage-divider/thumb.svg",
-    "files": { "program": "15-voltage-divider/program.bw", "circuit": "15-voltage-divider/circuit.json", "expected": "15-voltage-divider/EXPECTED.md" }
+    "files": {
+      "program": "15-voltage-divider/program.bw",
+      "circuit": "15-voltage-divider/circuit.json",
+      "expected": "15-voltage-divider/EXPECTED.md"
+    },
+    "kind": "program"
   },
   {
     "id": "16-ldr-bargraph",
-    "title": { "en": "LDR brightness bar graph", "de": "LDR-Helligkeitsbalken" },
+    "title": {
+      "en": "LDR brightness bar graph",
+      "de": "LDR-Helligkeitsbalken"
+    },
     "category": "analog",
     "difficulty": 3,
     "thumbnail": "16-ldr-bargraph/thumb.svg",
-    "files": { "program": "16-ldr-bargraph/program.bw", "circuit": "16-ldr-bargraph/circuit.json", "expected": "16-ldr-bargraph/EXPECTED.md" }
+    "files": {
+      "program": "16-ldr-bargraph/program.bw",
+      "circuit": "16-ldr-bargraph/circuit.json",
+      "expected": "16-ldr-bargraph/EXPECTED.md"
+    },
+    "kind": "program"
   },
   {
     "id": "17-comparator",
-    "title": { "en": "Analog comparator with two pots", "de": "Analogvergleicher mit zwei Potis" },
+    "title": {
+      "en": "Analog comparator with two pots",
+      "de": "Analogvergleicher mit zwei Potis"
+    },
     "category": "analog",
     "difficulty": 3,
     "thumbnail": "17-comparator/thumb.svg",
-    "files": { "program": "17-comparator/program.bw", "circuit": "17-comparator/circuit.json", "expected": "17-comparator/EXPECTED.md" }
+    "files": {
+      "program": "17-comparator/program.bw",
+      "circuit": "17-comparator/circuit.json",
+      "expected": "17-comparator/EXPECTED.md"
+    },
+    "kind": "program"
   },
   {
     "id": "18-logic-and-gate",
-    "title": { "en": "AND gate with two buttons", "de": "UND-Gatter mit zwei Tastern" },
+    "title": {
+      "en": "AND gate with two buttons",
+      "de": "UND-Gatter mit zwei Tastern"
+    },
     "category": "digital",
     "difficulty": 2,
     "thumbnail": "18-logic-and-gate/thumb.svg",
-    "files": { "program": "18-logic-and-gate/program.bw", "circuit": "18-logic-and-gate/circuit.json", "expected": "18-logic-and-gate/EXPECTED.md" }
+    "files": {
+      "program": "18-logic-and-gate/program.bw",
+      "circuit": "18-logic-and-gate/circuit.json",
+      "expected": "18-logic-and-gate/EXPECTED.md"
+    },
+    "kind": "program"
   },
   {
     "id": "19-logic-or-gate",
-    "title": { "en": "OR gate with two buttons", "de": "ODER-Gatter mit zwei Tastern" },
+    "title": {
+      "en": "OR gate with two buttons",
+      "de": "ODER-Gatter mit zwei Tastern"
+    },
     "category": "digital",
     "difficulty": 2,
     "thumbnail": "19-logic-or-gate/thumb.svg",
-    "files": { "program": "19-logic-or-gate/program.bw", "circuit": "19-logic-or-gate/circuit.json", "expected": "19-logic-or-gate/EXPECTED.md" }
+    "files": {
+      "program": "19-logic-or-gate/program.bw",
+      "circuit": "19-logic-or-gate/circuit.json",
+      "expected": "19-logic-or-gate/EXPECTED.md"
+    },
+    "kind": "program"
   },
   {
     "id": "20-shift-register-binary",
-    "title": { "en": "Binary counter on shift register", "de": "Binärzähler auf Schieberegister" },
+    "title": {
+      "en": "Binary counter on shift register",
+      "de": "Binärzähler auf Schieberegister"
+    },
     "category": "digital",
     "difficulty": 3,
     "thumbnail": "20-shift-register-binary/thumb.svg",
-    "files": { "program": "20-shift-register-binary/program.bw", "circuit": "20-shift-register-binary/circuit.json", "expected": "20-shift-register-binary/EXPECTED.md" }
+    "files": {
+      "program": "20-shift-register-binary/program.bw",
+      "circuit": "20-shift-register-binary/circuit.json",
+      "expected": "20-shift-register-binary/EXPECTED.md"
+    },
+    "kind": "program"
   },
   {
     "id": "21-resistor-led",
-    "title": { "en": "Resistor + LED (no MCU)", "de": "Widerstand + LED (ohne MCU)" },
+    "title": {
+      "en": "Resistor + LED (no MCU)",
+      "de": "Widerstand + LED (ohne MCU)"
+    },
     "category": "pure-circuit",
     "difficulty": 1,
     "thumbnail": "21-resistor-led/thumb.svg",
-    "files": { "program": "21-resistor-led/program.bw", "circuit": "21-resistor-led/circuit.json", "expected": "21-resistor-led/EXPECTED.md" }
+    "files": {
+      "program": "21-resistor-led/program.bw",
+      "circuit": "21-resistor-led/circuit.json",
+      "expected": "21-resistor-led/EXPECTED.md"
+    },
+    "kind": "circuit"
   },
   {
     "id": "22-series-parallel",
-    "title": { "en": "Series vs parallel resistors", "de": "Reihen- vs Parallelschaltung" },
+    "title": {
+      "en": "Series vs parallel resistors",
+      "de": "Reihen- vs Parallelschaltung"
+    },
     "category": "pure-circuit",
     "difficulty": 2,
     "thumbnail": "22-series-parallel/thumb.svg",
-    "files": { "program": "22-series-parallel/program.bw", "circuit": "22-series-parallel/circuit.json", "expected": "22-series-parallel/EXPECTED.md" }
+    "files": {
+      "program": "22-series-parallel/program.bw",
+      "circuit": "22-series-parallel/circuit.json",
+      "expected": "22-series-parallel/EXPECTED.md"
+    },
+    "kind": "circuit"
   },
   {
     "id": "23-voltage-regulator",
-    "title": { "en": "Zener voltage regulator", "de": "Zener-Spannungsregler" },
+    "title": {
+      "en": "Zener voltage regulator",
+      "de": "Zener-Spannungsregler"
+    },
     "category": "pure-circuit",
     "difficulty": 2,
     "thumbnail": "23-voltage-regulator/thumb.svg",
-    "files": { "program": "23-voltage-regulator/program.bw", "circuit": "23-voltage-regulator/circuit.json", "expected": "23-voltage-regulator/EXPECTED.md" }
+    "files": {
+      "program": "23-voltage-regulator/program.bw",
+      "circuit": "23-voltage-regulator/circuit.json",
+      "expected": "23-voltage-regulator/EXPECTED.md"
+    },
+    "kind": "circuit"
   },
   {
     "id": "24-pwm-fade",
-    "title": { "en": "Software PWM LED fade", "de": "Software-PWM LED-Fading" },
+    "title": {
+      "en": "Software PWM LED fade",
+      "de": "Software-PWM LED-Fading"
+    },
     "category": "basics",
     "difficulty": 3,
     "thumbnail": "24-pwm-fade/thumb.svg",
-    "files": { "program": "24-pwm-fade/program.bw", "circuit": "24-pwm-fade/circuit.json", "expected": "24-pwm-fade/EXPECTED.md" }
+    "files": {
+      "program": "24-pwm-fade/program.bw",
+      "circuit": "24-pwm-fade/circuit.json",
+      "expected": "24-pwm-fade/EXPECTED.md"
+    },
+    "kind": "program"
   },
   {
     "id": "25-reaction-timer",
-    "title": { "en": "Reaction timer", "de": "Reaktionszeitmesser" },
+    "title": {
+      "en": "Reaction timer",
+      "de": "Reaktionszeitmesser"
+    },
     "category": "basics",
     "difficulty": 3,
     "thumbnail": "25-reaction-timer/thumb.svg",
-    "files": { "program": "25-reaction-timer/program.bw", "circuit": "25-reaction-timer/circuit.json", "expected": "25-reaction-timer/EXPECTED.md" }
+    "files": {
+      "program": "25-reaction-timer/program.bw",
+      "circuit": "25-reaction-timer/circuit.json",
+      "expected": "25-reaction-timer/EXPECTED.md"
+    },
+    "kind": "program"
   },
   {
     "id": "26-debounce",
-    "title": { "en": "Button debounce", "de": "Taster-Entprellung" },
+    "title": {
+      "en": "Button debounce",
+      "de": "Taster-Entprellung"
+    },
     "category": "basics",
     "difficulty": 2,
     "thumbnail": "26-debounce/thumb.svg",
-    "files": { "program": "26-debounce/program.bw", "circuit": "26-debounce/circuit.json", "expected": "26-debounce/EXPECTED.md" }
+    "files": {
+      "program": "26-debounce/program.bw",
+      "circuit": "26-debounce/circuit.json",
+      "expected": "26-debounce/EXPECTED.md"
+    },
+    "kind": "program"
   },
   {
     "id": "27-led-dice",
-    "title": { "en": "LED dice", "de": "LED-Wuerfel" },
+    "title": {
+      "en": "LED dice",
+      "de": "LED-Wuerfel"
+    },
     "category": "basics",
     "difficulty": 3,
     "thumbnail": "27-led-dice/thumb.svg",
-    "files": { "program": "27-led-dice/program.bw", "circuit": "27-led-dice/circuit.json", "expected": "27-led-dice/EXPECTED.md" }
+    "files": {
+      "program": "27-led-dice/program.bw",
+      "circuit": "27-led-dice/circuit.json",
+      "expected": "27-led-dice/EXPECTED.md"
+    },
+    "kind": "program"
   },
   {
     "id": "28-diode-polarity",
-    "title": { "en": "Diode polarity demo", "de": "Diodenpolaritaet-Demo" },
+    "title": {
+      "en": "Diode polarity demo",
+      "de": "Diodenpolaritaet-Demo"
+    },
     "category": "pure-circuit",
     "difficulty": 1,
     "thumbnail": "28-diode-polarity/thumb.svg",
-    "files": { "program": "28-diode-polarity/program.bw", "circuit": "28-diode-polarity/circuit.json", "expected": "28-diode-polarity/EXPECTED.md" }
+    "files": {
+      "program": "28-diode-polarity/program.bw",
+      "circuit": "28-diode-polarity/circuit.json",
+      "expected": "28-diode-polarity/EXPECTED.md"
+    },
+    "kind": "circuit"
   },
   {
     "id": "29-capacitor-charge",
-    "title": { "en": "RC charging circuit", "de": "RC-Ladeschaltung" },
+    "title": {
+      "en": "RC charging circuit",
+      "de": "RC-Ladeschaltung"
+    },
     "category": "pure-circuit",
     "difficulty": 2,
     "thumbnail": "29-capacitor-charge/thumb.svg",
-    "files": { "program": "29-capacitor-charge/program.bw", "circuit": "29-capacitor-charge/circuit.json", "expected": "29-capacitor-charge/EXPECTED.md" }
+    "files": {
+      "program": "29-capacitor-charge/program.bw",
+      "circuit": "29-capacitor-charge/circuit.json",
+      "expected": "29-capacitor-charge/EXPECTED.md"
+    },
+    "kind": "circuit"
   },
   {
     "id": "30-multi-led-pattern",
-    "title": { "en": "4-LED chaser pattern", "de": "4-LED-Lauflicht" },
+    "title": {
+      "en": "4-LED chaser pattern",
+      "de": "4-LED-Lauflicht"
+    },
     "category": "basics",
     "difficulty": 2,
     "thumbnail": "30-multi-led-pattern/thumb.svg",
-    "files": { "program": "30-multi-led-pattern/program.bw", "circuit": "30-multi-led-pattern/circuit.json", "expected": "30-multi-led-pattern/EXPECTED.md" }
+    "files": {
+      "program": "30-multi-led-pattern/program.bw",
+      "circuit": "30-multi-led-pattern/circuit.json",
+      "expected": "30-multi-led-pattern/EXPECTED.md"
+    },
+    "kind": "program"
   },
   {
     "id": "31-no-resistor-led",
-    "title": { "en": "LED with and without series resistor", "de": "LED mit und ohne Vorwiderstand" },
+    "title": {
+      "en": "LED with and without series resistor",
+      "de": "LED mit und ohne Vorwiderstand"
+    },
     "category": "pure-circuit",
     "difficulty": 1,
     "thumbnail": "31-no-resistor-led/thumb.svg",
-    "files": { "program": "31-no-resistor-led/program.bw", "circuit": "31-no-resistor-led/circuit.json", "expected": "31-no-resistor-led/EXPECTED.md" }
+    "files": {
+      "program": "31-no-resistor-led/program.bw",
+      "circuit": "31-no-resistor-led/circuit.json",
+      "expected": "31-no-resistor-led/EXPECTED.md"
+    },
+    "kind": "circuit"
   },
   {
     "id": "32-source-vs-sink",
-    "title": { "en": "Sink vs source: why LEDs are wired active-low", "de": "Senke vs Quelle: warum LEDs active-low verdrahtet werden" },
+    "title": {
+      "en": "Sink vs source: why LEDs are wired active-low",
+      "de": "Senke vs Quelle: warum LEDs active-low verdrahtet werden"
+    },
     "category": "basics",
     "difficulty": 2,
     "thumbnail": "32-source-vs-sink/thumb.svg",
-    "files": { "program": "32-source-vs-sink/program.bw", "circuit": "32-source-vs-sink/circuit.json", "expected": "32-source-vs-sink/EXPECTED.md" }
+    "files": {
+      "program": "32-source-vs-sink/program.bw",
+      "circuit": "32-source-vs-sink/circuit.json",
+      "expected": "32-source-vs-sink/EXPECTED.md"
+    },
+    "kind": "program"
   },
   {
     "id": "33-inductive-no-flyback",
-    "title": { "en": "Inductive load without flyback diode", "de": "Induktive Last ohne Freilaufdiode" },
+    "title": {
+      "en": "Inductive load without flyback diode",
+      "de": "Induktive Last ohne Freilaufdiode"
+    },
     "category": "motors",
     "difficulty": 3,
     "thumbnail": "33-inductive-no-flyback/thumb.svg",
-    "files": { "program": "33-inductive-no-flyback/program.bw", "circuit": "33-inductive-no-flyback/circuit.json", "expected": "33-inductive-no-flyback/EXPECTED.md" }
+    "files": {
+      "program": "33-inductive-no-flyback/program.bw",
+      "circuit": "33-inductive-no-flyback/circuit.json",
+      "expected": "33-inductive-no-flyback/EXPECTED.md"
+    },
+    "kind": "circuit"
+  },
+  {
+    "id": "34-ohms-law",
+    "title": {
+      "en": "Ohm's law: VCC -> resistor -> LED",
+      "de": "Ohmsches Gesetz: VCC -> Widerstand -> LED"
+    },
+    "category": "pure-circuit",
+    "difficulty": 1,
+    "files": {
+      "program": "34-ohms-law/program.bw",
+      "circuit": "34-ohms-law/circuit.json",
+      "expected": "34-ohms-law/EXPECTED.md"
+    },
+    "kind": "circuit"
+  },
+  {
+    "id": "35-series-resistors",
+    "title": {
+      "en": "Series resistors with LED",
+      "de": "Reihenschaltung von Widerstaenden mit LED"
+    },
+    "category": "pure-circuit",
+    "difficulty": 1,
+    "files": {
+      "program": "35-series-resistors/program.bw",
+      "circuit": "35-series-resistors/circuit.json",
+      "expected": "35-series-resistors/EXPECTED.md"
+    },
+    "kind": "circuit"
+  },
+  {
+    "id": "36-parallel-leds",
+    "title": {
+      "en": "Two LEDs in parallel",
+      "de": "Zwei LEDs parallel"
+    },
+    "category": "pure-circuit",
+    "difficulty": 1,
+    "files": {
+      "program": "36-parallel-leds/program.bw",
+      "circuit": "36-parallel-leds/circuit.json",
+      "expected": "36-parallel-leds/EXPECTED.md"
+    },
+    "kind": "circuit"
+  },
+  {
+    "id": "37-voltage-divider-basic",
+    "title": {
+      "en": "Voltage divider (no load)",
+      "de": "Spannungsteiler (ohne Last)"
+    },
+    "category": "pure-circuit",
+    "difficulty": 1,
+    "files": {
+      "program": "37-voltage-divider-basic/program.bw",
+      "circuit": "37-voltage-divider-basic/circuit.json",
+      "expected": "37-voltage-divider-basic/EXPECTED.md"
+    },
+    "kind": "circuit"
+  },
+  {
+    "id": "38-npn-switch",
+    "title": {
+      "en": "NPN transistor switch with button",
+      "de": "NPN-Transistorschalter mit Taster"
+    },
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "files": {
+      "program": "38-npn-switch/program.bw",
+      "circuit": "38-npn-switch/circuit.json",
+      "expected": "38-npn-switch/EXPECTED.md"
+    },
+    "kind": "circuit"
+  },
+  {
+    "id": "39-zener-clamp",
+    "title": {
+      "en": "Zener voltage clamp with LED",
+      "de": "Zener-Spannungsbegrenzung mit LED"
+    },
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "files": {
+      "program": "39-zener-clamp/program.bw",
+      "circuit": "39-zener-clamp/circuit.json",
+      "expected": "39-zener-clamp/EXPECTED.md"
+    },
+    "kind": "circuit"
+  },
+  {
+    "id": "40-led-color-mix",
+    "title": {
+      "en": "RGB LED colour mix",
+      "de": "RGB-LED-Farbmischung"
+    },
+    "category": "pure-circuit",
+    "difficulty": 1,
+    "files": {
+      "program": "40-led-color-mix/program.bw",
+      "circuit": "40-led-color-mix/circuit.json",
+      "expected": "40-led-color-mix/EXPECTED.md"
+    },
+    "kind": "circuit"
+  },
+  {
+    "id": "41-pot-as-dimmer",
+    "title": {
+      "en": "Potentiometer as LED dimmer",
+      "de": "Potentiometer als LED-Dimmer"
+    },
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "files": {
+      "program": "41-pot-as-dimmer/program.bw",
+      "circuit": "41-pot-as-dimmer/circuit.json",
+      "expected": "41-pot-as-dimmer/EXPECTED.md"
+    },
+    "kind": "circuit"
+  },
+  {
+    "id": "42-diode-rectifier",
+    "title": {
+      "en": "Diode polarity: forward vs reverse",
+      "de": "Diodenpolaritaet: Durchlass vs Sperrrichtung"
+    },
+    "category": "pure-circuit",
+    "difficulty": 1,
+    "files": {
+      "program": "42-diode-rectifier/program.bw",
+      "circuit": "42-diode-rectifier/circuit.json",
+      "expected": "42-diode-rectifier/EXPECTED.md"
+    },
+    "kind": "circuit"
+  },
+  {
+    "id": "43-rc-timing",
+    "title": {
+      "en": "RC timing circuit (tau = 1 s)",
+      "de": "RC-Zeitkonstante (tau = 1 s)"
+    },
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "files": {
+      "program": "43-rc-timing/program.bw",
+      "circuit": "43-rc-timing/circuit.json",
+      "expected": "43-rc-timing/EXPECTED.md"
+    },
+    "kind": "circuit"
+  },
+  {
+    "id": "44-darlington-motor",
+    "title": {
+      "en": "Button-driven buzzer via NPN",
+      "de": "Taster-gesteuerter Buzzer ueber NPN"
+    },
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "files": {
+      "program": "44-darlington-motor/program.bw",
+      "circuit": "44-darlington-motor/circuit.json",
+      "expected": "44-darlington-motor/EXPECTED.md"
+    },
+    "kind": "circuit"
+  },
+  {
+    "id": "45-led-current-comparison",
+    "title": {
+      "en": "LED current comparison (3 resistors)",
+      "de": "LED-Stromvergleich (3 Widerstaende)"
+    },
+    "category": "pure-circuit",
+    "difficulty": 1,
+    "files": {
+      "program": "45-led-current-comparison/program.bw",
+      "circuit": "45-led-current-comparison/circuit.json",
+      "expected": "45-led-current-comparison/EXPECTED.md"
+    },
+    "kind": "circuit"
   }
 ]

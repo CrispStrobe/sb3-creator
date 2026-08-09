@@ -111,12 +111,14 @@ describe('gallery: index.json is valid and covers every example', () => {
     test('every entry has required fields', () => {
         const index = JSON.parse(readFileSync(indexPath, 'utf8'));
         const CATEGORIES = new Set(['basics', 'analog', 'digital', 'display', 'motors', 'pure-circuit']);
+        const KINDS = new Set(['circuit', 'program']);
         for (const entry of index) {
             assert.ok(entry.id, 'id');
             assert.ok(entry.title?.en, 'title.en');
             assert.ok(entry.title?.de, 'title.de');
             assert.ok(CATEGORIES.has(entry.category), `category "${entry.category}" not in ${[...CATEGORIES]}`);
             assert.ok(typeof entry.difficulty === 'number' && entry.difficulty >= 1 && entry.difficulty <= 5, 'difficulty 1-5');
+            assert.ok(KINDS.has(entry.kind), `kind "${entry.kind}" not in ${[...KINDS]}`);
             assert.ok(entry.files?.program, 'files.program');
             assert.ok(entry.files?.circuit, 'files.circuit');
             assert.ok(entry.files?.expected, 'files.expected');

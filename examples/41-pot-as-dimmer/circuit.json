@@ -1,0 +1,17 @@
+{
+  "vcc": 5.0,
+  "parts": [
+    { "id": "vcc1",  "kind": "vcc",            "params": {},                                  "x": 200, "y": 50  },
+    { "id": "gnd1",  "kind": "gnd",            "params": {},                                  "x": 200, "y": 450 },
+    { "id": "pot1",  "kind": "potentiometer",   "params": { "ohms": 10000, "position": 0.5 }, "x": 200, "y": 150 },
+    { "id": "r1",    "kind": "resistor",        "params": { "ohms": 220 },                    "x": 200, "y": 260 },
+    { "id": "led1",  "kind": "led",             "params": { "vf": 2.0, "color": "red" },      "x": 200, "y": 350 }
+  ],
+  "wires": [
+    { "from": "vcc1",  "fromTerminal": "vcc",    "to": "pot1", "toTerminal": "a"       },
+    { "from": "pot1",  "fromTerminal": "b",       "to": "gnd1", "toTerminal": "gnd"     },
+    { "from": "pot1",  "fromTerminal": "wiper",   "to": "r1",   "toTerminal": "a"       },
+    { "from": "r1",    "fromTerminal": "b",        "to": "led1", "toTerminal": "anode"   },
+    { "from": "led1",  "fromTerminal": "cathode",  "to": "gnd1", "toTerminal": "gnd"    }
+  ]
+}

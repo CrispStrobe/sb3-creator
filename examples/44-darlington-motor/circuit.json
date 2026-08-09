@@ -1,0 +1,19 @@
+{
+  "vcc": 5.0,
+  "parts": [
+    { "id": "vcc1",   "kind": "vcc",      "params": {},                "x": 200, "y": 50  },
+    { "id": "gnd1",   "kind": "gnd",      "params": {},                "x": 200, "y": 450 },
+    { "id": "buzz1",  "kind": "buzzer",   "params": {},                "x": 200, "y": 150 },
+    { "id": "q1",     "kind": "npn",      "params": { "beta": 100 },  "x": 200, "y": 300 },
+    { "id": "btn1",   "kind": "button",   "params": {},                "x": 50,  "y": 150 },
+    { "id": "rb1",    "kind": "resistor", "params": { "ohms": 10000 }, "x": 50,  "y": 280 }
+  ],
+  "wires": [
+    { "from": "vcc1",   "fromTerminal": "vcc",      "to": "buzz1", "toTerminal": "a"         },
+    { "from": "buzz1",  "fromTerminal": "b",          "to": "q1",    "toTerminal": "collector" },
+    { "from": "q1",     "fromTerminal": "emitter",    "to": "gnd1",  "toTerminal": "gnd"       },
+    { "from": "vcc1",   "fromTerminal": "vcc",      "to": "btn1",  "toTerminal": "a"         },
+    { "from": "btn1",   "fromTerminal": "b",          "to": "rb1",   "toTerminal": "a"         },
+    { "from": "rb1",    "fromTerminal": "b",           "to": "q1",    "toTerminal": "base"      }
+  ]
+}
