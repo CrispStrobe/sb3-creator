@@ -4868,6 +4868,62 @@ export const RUNTIME_EXTENSIONS = {
                 ]
             }
         }
+    },
+    "circuit": {
+        "runtime": "circuit",
+        "ops": {
+            "nodevoltage": {
+                "kind": "reporter",
+                "method": "nodevoltage",
+                "args": [
+                    "NET"
+                ]
+            },
+            "branchcurrent": {
+                "kind": "reporter",
+                "method": "branchcurrent",
+                "args": [
+                    "PART"
+                ]
+            },
+            "resistance": {
+                "kind": "reporter",
+                "method": "resistance",
+                "args": [
+                    "A",
+                    "B"
+                ]
+            },
+            "ledbrightness": {
+                "kind": "reporter",
+                "method": "ledbrightness",
+                "args": [
+                    "PART"
+                ]
+            },
+            "buzzertone": {
+                "kind": "reporter",
+                "method": "buzzertone",
+                "args": [
+                    "PART"
+                ]
+            },
+            "setcontrol": {
+                "kind": "command",
+                "method": "setcontrol",
+                "args": [
+                    "CONTROL",
+                    "VALUE"
+                ]
+            },
+            "setpower": {
+                "kind": "command",
+                "method": "setpower",
+                "args": [
+                    "STATE"
+                ]
+            }
+        }
     }
 };
 
@@ -4885,5 +4941,6 @@ export const RUNTIME_EXTENSION_URLS = {
     "legonxt": "https://crispstrobe.github.io/extensions/CrispStrobe/legonxt_transpile_universal.js",
     "spikeprime": "https://crispstrobe.github.io/extensions/CrispStrobe/legospike_turbowarp_transpile.js",
     "scratchtoev3": "https://crispstrobe.github.io/extensions/CrispStrobe/ev3dev_py_transpile.js",
-    "ev3lms": "https://crispstrobe.github.io/extensions/CrispStrobe/ev3_lms_transpile.js"
+    "ev3lms": "https://crispstrobe.github.io/extensions/CrispStrobe/ev3_lms_transpile.js",
+    "circuit": "https://crispstrobe.github.io/extensions/CrispStrobe/circuit.js"
 };

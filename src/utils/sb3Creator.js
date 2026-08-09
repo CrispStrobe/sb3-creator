@@ -5476,9 +5476,9 @@ SB3Creator.RUNTIME_EXTENSIONS = {
         }
     },
     // The circuit extension — board instruments and controls (simulation-only reporters).
-    // Meter reporters sample at display rate (~60 Hz), not per edge — measured constraint
-    // from bw-board 88ac0d6: branchCurrent on a PWM pin at 7.2K edges/sec against a
-    // 7.0K ops/sec MNA solver budget would drop below real time.
+    // Overrides the generated entry with camelCase method names (matching the simulator
+    // driver and boundary B) and neutral values (resistance alone refuses with a reason).
+    // The generated entry from circuit.js provides the opcode shape and the gallery URL.
     circuit: {
         runtime: 'circuit',
         ops: {
