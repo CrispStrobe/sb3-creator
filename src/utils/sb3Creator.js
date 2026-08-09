@@ -917,6 +917,15 @@ class SB3Creator {
         if ((m = s.match(/^distance from\s+(.+)$/i))) {
             return B('devices_distance', { SENSOR: this.parseValue(m[1], context) });
         }
+        if ((m = s.match(/^speed of\s+(.+)$/i))) {
+            return B('devices_motorspeed', { MOTOR: this.parseValue(m[1], context) });
+        }
+        if ((m = s.match(/^direction of\s+(.+)$/i))) {
+            return B('devices_motordirection', { MOTOR: this.parseValue(m[1], context) });
+        }
+        if ((m = s.match(/^state of\s+(.+)$/i))) {
+            return B('devices_devicestate', { DEVICE: this.parseValue(m[1], context) });
+        }
 
         if ((m = s.match(/^pick random\s+(.+)$/i))) {
             const parts = this.splitBinary(m[1], [' to '], { ci: true });
@@ -3483,6 +3492,9 @@ class SB3Creator {
             case 'devices_light': return `light from ${v('SENSOR')}`;
             case 'devices_servoangle': return `angle of ${v('SERVO')}`;
             case 'devices_distance': return `distance from ${v('SENSOR')}`;
+            case 'devices_motorspeed': return `speed of ${v('MOTOR')}`;
+            case 'devices_motordirection': return `direction of ${v('MOTOR')}`;
+            case 'devices_devicestate': return `state of ${v('DEVICE')}`;
             // circuit extension reporters
             case 'circuit_nodevoltage': return `voltage at ${v('NET')}`;
             case 'circuit_branchcurrent': return `current through ${v('PART')}`;
@@ -6348,6 +6360,10 @@ SB3Creator.RUNTIME_EXTENSIONS = {
             setdirection: { kind: 'command', method: 'setDirection', args: ['MOTOR', 'DIR'] },
             activate: { kind: 'command', method: 'activate', args: ['DEVICE'] },
             deactivate: { kind: 'command', method: 'deactivate', args: ['DEVICE'] },
+            // Actuator readback reporters
+            motorspeed: { kind: 'reporter', method: 'motorSpeed', args: ['MOTOR'], neutral: 'NaN' },
+            motordirection: { kind: 'reporter', method: 'motorDirection', args: ['MOTOR'], neutral: '"stopped"' },
+            devicestate: { kind: 'reporter', method: 'deviceState', args: ['DEVICE'], neutral: '"unknown"' },
             // Predicates (boolean reporters)
             pressed: { kind: 'boolean', method: 'pressed', args: ['BUTTON'], neutral: 'false' },
             above: { kind: 'boolean', method: 'above', args: ['SENSOR', 'THRESHOLD'], neutral: 'false' },

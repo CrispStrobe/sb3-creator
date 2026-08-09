@@ -41,10 +41,10 @@ const SHAPE_MATRIX = {
 
     // --- actuators ---
     servo:        { command: 'devices_setservo',        reporter: 'devices_servoangle', predicate: null, hat: null,           exempt: { predicate: 'angle is a number', hat: 'not event-driven' } },
-    dc_motor:     { command: 'devices_setmotor',        reporter: null,                 predicate: null, hat: null,           need: { reporter: 'motor speed' } },
-    relay:        { command: 'devices_setrelay',        reporter: null,                 predicate: 'devices_energised', hat: null, need: { reporter: 'relay state' } },
-    solenoid:     { command: 'devices_activate',        reporter: null,                 predicate: 'devices_energised', hat: null, need: { reporter: 'solenoid state' } },
-    h_bridge:     { command: 'devices_setdirection',    reporter: null,                 predicate: null, hat: null,           need: { reporter: 'motor direction' } },
+    dc_motor:     { command: 'devices_setmotor',        reporter: 'devices_motorspeed', predicate: null, hat: null, exempt: { predicate: 'speed is a number', hat: 'not event-driven' } },
+    relay:        { command: 'devices_setrelay',        reporter: 'devices_devicestate', predicate: 'devices_energised', hat: null, exempt: { hat: 'relay state does not change spontaneously' } },
+    solenoid:     { command: 'devices_activate',        reporter: 'devices_devicestate', predicate: 'devices_energised', hat: null, exempt: { hat: 'same as relay' } },
+    h_bridge:     { command: 'devices_setdirection',    reporter: 'devices_motordirection', predicate: null, hat: null, exempt: { predicate: 'direction is a word', hat: 'not event-driven' } },
 
     // --- displays ---
     seven_segment:{ command: 'devices_showdigit',       reporter: null,                 predicate: null, hat: null,           exempt: { reporter: 'display is write-only', predicate: 'same', hat: 'same' } },
