@@ -1726,3 +1726,48 @@ void main(void) { for (;;) { helper(5); } }`);
     assert.match(pseudocode, /wait 0\.1 seconds/);
     assert.match(pseudocode, /helper 5/);
 });
+
+// ---- debug builds: {debug: true} forces the scheduler for single scripts -----------
+
+test('a debug build of a multi-script project round-trips exactly like release', () => {
+    const c = new SB3Creator();
+    c.parse(SCHEDULED);
+    const release = c.generateC();
+    const debug = c.generateC(undefined, { debug: true });
+    const { pseudocode: psR, warnings: wR } = cToPseudocode(release);
+    const { pseudocode: psD, warnings: wD } = cToPseudocode(debug);
+    assert.deepEqual(wR, [], 'release has no warnings');
+    assert.deepEqual(wD, [], 'debug has no warnings');
+    assert.equal(psR, psD, 'same pseudocode regardless of debug flag');
+});
+
+test('a debug build of a single-script project round-trips despite forced scheduler', () => {
+    const c = new SB3Creator();
+    c.parse(BLINK);
+    const debug = c.generateC(undefined, { debug: true });
+    assert.match(debug, /bw_task0_state/, 'single script is now a scheduler task');
+    assert.match(debug, /@bw yield/, 'yield map present');
+    const { pseudocode, warnings } = cToPseudocode(debug);
+    assert.deepEqual(warnings, [], 'no warnings — the scheduler inverter handles it');
+    assert.match(pseudocode, /FOREVER:/);
+    assert.match(pseudocode, /turn on led1/);
+    assert.match(pseudocode, /wait 0\.15 seconds/);
+    // And it recompiles cleanly.
+    assert.deepEqual(recompiles(pseudocode), []);
+});
+
+test('the yield map is readable from a debug build', () => {
+    const c = new SB3Creator();
+    c.parse(BLINK);
+    const debug = c.generateC(undefined, { debug: true });
+    const yields = readYieldMap(debug);
+    assert.ok(yields.length > 0, 'at least one yield entry');
+    for (const y of yields) {
+        assert.equal(typeof y.task, 'string');
+        assert.equal(typeof y.state, 'number');
+        assert.equal(typeof y.block, 'string');
+        assert.ok(y.block.length > 0, 'block id is not empty');
+    }
+    // Release builds have no yield map.
+    assert.deepEqual(readYieldMap(c.generateC()), []);
+});
