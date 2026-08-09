@@ -5,7 +5,7 @@ PIN buzzer = P1.5 TONE
 # Two-tone siren: alternate between 440 Hz and 880 Hz
 WHEN flag clicked:
   FOREVER:
-    tone buzzer 440
+    set buzzer to 440 hz
     wait 0.5 seconds
-    tone buzzer 880
+    set buzzer to 880 hz
     wait 0.5 seconds
