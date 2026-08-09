@@ -8,9 +8,10 @@
 // that ../stc-compiler/stc_pseudocode.py (the reference implementation and oracle) makes:
 // the cooperative scheduler, Timer 0 at FOSC/12, and active-low pins.
 //
-// Set STC_COMPILER_URL=https://stc-compiler.vercel.app to additionally POST every fixture
-// to the live service (`{"language":"c"}`) and prove it really builds. Off by default so
-// the fast suite stays offline.
+// The oracle tests POST every fixture to stc-compiler and prove it really builds.
+// Defaults to the public endpoint; set STC_COMPILER_URL to override, or
+// STC_COMPILER_URL=off to skip (offline work). A skip is printed loudly so a green
+// run cannot be mistaken for a complete one.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import SB3Creator from '../src/utils/sb3Creator.js';
@@ -468,11 +469,14 @@ test('project.stc survives the sb3 project.json', async () => {
 });
 
 // ---- the oracle: does it actually build? ----------------------------------------
-// Opt-in (STC_COMPILER_URL=https://stc-compiler.vercel.app), because it needs the network.
+// Defaults to the public endpoint. Set STC_COMPILER_URL=off to skip for offline work.
+// A silent skip is indistinguishable from a pass — so we say it loudly.
 
-const ORACLE = process.env.STC_COMPILER_URL;
+const ORACLE_ENV = process.env.STC_COMPILER_URL;
+const ORACLE = ORACLE_ENV === 'off' ? null : (ORACLE_ENV || 'https://stc-compiler.vercel.app');
+if (!ORACLE) console.log('\n⚠  4 oracle tests SKIPPED — set STC_COMPILER_URL (or remove =off) to compile through SDCC\n');
 for (const [name, src] of Object.entries(FIXTURES)) {
-    test(`oracle: ${name} compiles with SDCC`, { skip: ORACLE ? false : 'set STC_COMPILER_URL to run' }, async () => {
+    test(`oracle: ${name} compiles with SDCC`, { skip: ORACLE ? false : 'STC_COMPILER_URL=off — oracle tests disabled' }, async () => {
         const creator = build(src);
         const code = creator.generateC();
         const response = await fetch(`${ORACLE.replace(/\/$/, '')}/compile`, {
