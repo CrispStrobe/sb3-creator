@@ -506,7 +506,7 @@ const ORACLE = ORACLE_ENV === 'off' ? null : (ORACLE_ENV || 'https://stc-compile
 let oracleReachable = false;
 if (ORACLE) {
     try {
-        const probe = await fetch(`${ORACLE.replace(/\/$/, '')}/health`, { signal: AbortSignal.timeout(5000) });
+        const probe = await fetch(`${ORACLE.replace(/\/$/, '')}/health`, { signal: AbortSignal.timeout(10000) });
         oracleReachable = probe.ok;
     } catch { /* unreachable */ }
     if (!oracleReachable) console.log(`\n⚠  4 oracle tests SKIPPED — stc-compiler unreachable (${ORACLE})\n`);
