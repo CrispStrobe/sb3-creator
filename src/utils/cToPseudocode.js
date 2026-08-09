@@ -16,6 +16,10 @@
 //     `#define FOSC_HZ`, directions from how each pin is used. Everything inferred rather
 //     than known is reported in `warnings` — this never guesses silently.
 //
+// The LED cube's shift directions. Imported rather than restated: the emitter
+// and this reader each used to carry their own copy, and they disagreed.
+import { CUBE_DIRECTIONS, cubeDirectionWord } from './cubeDirections.js';
+
 // The Arduino/AVR core vocabulary. Present in order to be REFUSED by name:
 // these are library calls, not functions defined in the file, so the
 // custom-block fallback below would invent a block for each one.
@@ -870,10 +874,20 @@ export default function cToPseudocode (source, opts = {}) {
             return { text: '0', level: 99, stmt: `fill layer ${args[0].text} with ${args[1].text}` };
         }
         if (name === 'bw_cube_shift' && args.length >= 1) {
-            // Direction table: index → name. Must agree with the emitter's
-            // { up: 0, down: 1, left: 2, right: 3, forward: 4, back: 5 }.
-            const CUBE_DIRS = ['up', 'down', 'left', 'right', 'forward', 'back'];
-            const dir = CUBE_DIRS[Number(args[0].text)] || args[0].text;
+            // The table is imported, not restated. The previous version copied
+            // it here under a comment saying it "must agree with the emitter's"
+            // — which is a hope, not a mechanism, and the two had already
+            // disagreed once.
+            const dir = cubeDirectionWord(args[0].text);
+            if (dir === null) {
+                // Out of range: pass the number through rather than inventing a
+                // direction, and say so. Silently choosing one would turn a
+                // firmware/reader version mismatch into a cube shifting the
+                // wrong way with nothing to explain it.
+                warn(`bw_cube_shift(${args[0].text}): not a known direction `
+                    + `(0-${CUBE_DIRECTIONS.length - 1}); left as a number`);
+                return { text: '0', level: 99, stmt: `shift cube ${args[0].text}` };
+            }
             return { text: '0', level: 99, stmt: `shift cube ${dir}` };
         }
         if (name === 'bw_cube_get' && args.length >= 3) {

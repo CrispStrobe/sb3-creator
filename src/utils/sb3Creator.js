@@ -5706,7 +5706,11 @@ class SB3Creator {
                 `    if (sel >= 0 && sel < ${S}) bw_cube_frame[sel] = BW_CUBE_FILL;`,
                 '}',
                 '',
-                '/* Directions: 0=up 1=down 2=left 3=right 4=forward 5=back */',
+                // The legend the firmware carries for whoever reads the C later.
+                // Generated from the same table, so it cannot describe an
+                // encoding the emitter no longer uses — a comment that lies
+                // about a wire format is worse than no comment.
+                `/* Directions: ${CUBE_DIRECTIONS.map((d, i) => `${i}=${d}`).join(' ')} */`,
                 'static void bw_cube_shift(int dir)',
                 '{',
                 `    unsigned char i;`,
