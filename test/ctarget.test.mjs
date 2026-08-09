@@ -2062,3 +2062,93 @@ void main(void) { while (1) { LED1 = LED_ON; delay_ms(500); } }
     assert.match(pseudocode, /^PIN led1 = P1\.0 OUTPUT ACTIVE LOW$/m,
         'the {port, bit} spelling is untouched');
 });
+
+// ---- the far end: an Arduino project parses, and refuses to become 8051 C ----
+// The reader above produces correct pseudocode. Until this, sb3-creator could
+// not read it back: five STC parts and one pin syntax, so `PIN led = D13
+// OUTPUT` was "a line not associated with a script" and the whole import
+// dead-ended. What follows is the small half of closing that — the project
+// path — and the loud refusal that has to come with it.
+
+test('an Arduino board and its numbered pins parse into a project', () => {
+    const c = new SB3Creator();
+    c.parse(`DEVICE ARDUINO-UNO
+CLOCK 16000000
+PIN led = D13 OUTPUT
+PIN button = D2 INPUT ACTIVE LOW
+PIN pot = A0 ANALOG
+
+WHEN flag clicked:
+  FOREVER:
+    turn on led
+    wait read pot ms
+`);
+    assert.deepEqual(c.warnings, [], 'nothing about this is unknown any more');
+    const cfg = c.project.stc;
+    assert.equal(cfg.device, 'arduino-uno');
+    assert.deepEqual(cfg.pins.map((p) => [p.name, p.where, p.direction, p.activeLow]), [
+        ['led', 'D13', 'output', false],
+        ['button', 'D2', 'input', true],
+        ['pot', 'A0', 'analog', false]
+    ]);
+    // No port and no bit: an Arduino pin is not in that coordinate system, and
+    // inventing a 0 for it would read as P0.0 downstream.
+    assert.ok(cfg.pins.every((p) => p.port === undefined && p.bit === undefined));
+});
+
+test('the two pin vocabularies do not cross', () => {
+    const stc = new SB3Creator();
+    stc.parse('DEVICE STC12C5A60S2\nPIN led = D13 OUTPUT\n');
+    assert.ok(stc.warnings.some((w) => /Arduino pin name.*names its pins P<port>\.<bit>/.test(w)),
+        `expected a vocabulary warning, got ${JSON.stringify(stc.warnings)}`);
+
+    const ard = new SB3Creator();
+    ard.parse('DEVICE ARDUINO-UNO\nPIN pot = D3 ANALOG\n');
+    assert.ok(ard.warnings.some((w) => /ANALOG needs an analog input \(A0 and up\)/.test(w)),
+        `expected an ADC warning, got ${JSON.stringify(ard.warnings)}`);
+});
+
+test('generateC refuses an Arduino board instead of emitting 8051 for it', () => {
+    const c = new SB3Creator();
+    c.parse('DEVICE ARDUINO-UNO\nPIN led = D13 OUTPUT\n\nWHEN flag clicked:\n  turn on led\n');
+    const out = c.generateC();
+    // The failure this guards is silence: falling through to the 8051 emitter
+    // produces a file that compiles, for the wrong chip, out of pins the board
+    // does not have.
+    assert.match(out, /No C emitted for DEVICE ARDUINO-UNO/);
+    assert.ok(!/P1M1|TMOD|AUXR|sbit|P1_0/.test(out), 'no 8051 registers leaked in');
+    // _cWarnings is where generateC keeps them; there is no public accessor.
+    assert.ok(c._cWarnings.some((w) => /numbered pins and no 8051 registers/.test(w)
+        && /stc-compiler/.test(w)), 'and it names where the project CAN be built');
+});
+
+test('a sketch survives the whole chain: C -> pseudocode -> project -> pseudocode', () => {
+    const sketchSrc = `#include <Arduino.h>
+#define LED 13
+const int pot = A0;
+void setup() { pinMode(LED, OUTPUT); }
+void loop() { digitalWrite(LED, HIGH); delay(analogRead(pot)); digitalWrite(LED, LOW); delay(100); }
+`;
+    const ps = cToPseudocode(sketchSrc).pseudocode;
+    const hop = (t) => { const c = new SB3Creator(); c.parse(t); return { text: c.decompile(), warns: c.warnings }; };
+    const a = hop(ps), b = hop(a.text);
+    assert.deepEqual(a.warns, [], `the imported sketch parses clean: ${JSON.stringify(a.warns)}`);
+    // Not equal to `ps` -- decompile emits the canonical form (STAGE:, explicit
+    // parens, seconds). Equal to ITSELF after another hop is the real property.
+    assert.equal(b.text, a.text, 'a fixed point after one hop');
+    assert.match(a.text, /^PIN led = D13 OUTPUT$/m, 'the board spelling round-trips');
+    assert.match(a.text, /^PIN pot = A0 ANALOG$/m);
+});
+
+test('the 8051 pin syntax is untouched by any of it', () => {
+    const c = new SB3Creator();
+    c.parse('DEVICE STC12C5A60S2\nPIN led = P1.0 OUTPUT ACTIVE LOW\nPIN pot = P1.3 ANALOG\n\nWHEN flag clicked:\n  turn on led\n');
+    assert.deepEqual(c.warnings, []);
+    assert.deepEqual(c.project.stc.pins.map((p) => [p.name, p.port, p.bit]),
+        [['led', 1, 0], ['pot', 1, 3]]);
+    assert.match(c.decompile(), /^PIN led = P1\.0 OUTPUT ACTIVE LOW$/m);
+    // And ANALOG off P1 is still refused for the reason it always was.
+    const bad = new SB3Creator();
+    bad.parse('DEVICE STC12C5A60S2\nPIN pot = P2.3 ANALOG\n');
+    assert.ok(bad.warnings.some((w) => /ANALOG is only available on P1\.0-P1\.7/.test(w)));
+});

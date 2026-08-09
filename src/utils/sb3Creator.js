@@ -1123,6 +1123,33 @@ class SB3Creator {
             this.stcConfig().clock = /^mhz$/i.test(m[2] || '') ? value * 1000000 : value;
             return true;
         }
+        // A numbered pin (D13, A0) for the boards that have them. Kept as its
+        // own branch: an Arduino pin has no port and no bit, so every check
+        // below it is about a coordinate system it is not in.
+        if ((m = trimmed.match(/^PIN\s+([A-Za-z_]\w*)\s*=\s*([DA]\d+)\s+(OUTPUT|INPUT|ANALOG|PWM|TONE)(?:\s+ACTIVE\s+(LOW|HIGH))?$/i))) {
+            const [, name, where, direction, active] = m;
+            const cfg = this.stcConfig();
+            const part = SB3Creator.STC_PARTS[cfg.device];
+            if (part && part.core !== 'arduino') {
+                this.warn(lineIndex, `"${where.toUpperCase()}" is an Arduino pin name; ${cfg.device} names its pins P<port>.<bit>`);
+                return true;
+            }
+            if (this.stcPin(name)) {
+                this.warn(lineIndex, `Pin "${name}" declared twice`);
+                return true;
+            }
+            if (/^analog$/i.test(direction) && !/^A/i.test(where)) {
+                this.warn(lineIndex, `ANALOG needs an analog input (A0 and up), not ${where.toUpperCase()}`);
+                return true;
+            }
+            cfg.pins.push({
+                name,
+                where: where.toUpperCase(),
+                direction: direction.toLowerCase(),
+                activeLow: /^low$/i.test(active || '')
+            });
+            return true;
+        }
         if ((m = trimmed.match(/^PIN\s+([A-Za-z_]\w*)\s*=\s*P([0-4])\.([0-7])\s+(OUTPUT|INPUT|ANALOG|PWM|TONE)(?:\s+ACTIVE\s+(LOW|HIGH))?$/i))) {
             const [, name, port, bit, direction, active] = m;
             const cfg = this.stcConfig();
@@ -3078,7 +3105,7 @@ class SB3Creator {
             out.push(`DEVICE ${String(cfg.device || 'stc12c5a60s2').toUpperCase()}`);
             out.push(`CLOCK ${cfg.clock || 11059200}`);
             for (const p of cfg.pins || []) {
-                out.push(`PIN ${p.name} = P${p.port}.${p.bit} ${p.direction.toUpperCase()}${p.activeLow ? ' ACTIVE LOW' : ''}`);
+                out.push(`PIN ${p.name} = ${p.where || `P${p.port}.${p.bit}`} ${p.direction.toUpperCase()}${p.activeLow ? ' ACTIVE LOW' : ''}`);
             }
             for (const p of cfg.ports || []) {
                 out.push(`PORT ${p.name} = P${p.port} ${p.direction.toUpperCase()}${p.activeLow ? ' ACTIVE LOW' : ''}`);
@@ -5329,6 +5356,25 @@ class SB3Creator {
         const pins = opts.pins || stored.pins || [];
         const part = SB3Creator.STC_PARTS[device];
         if (!part) this.cWarn(`unknown DEVICE "${device}" — emitting for stc12c5a60s2`);
+        // A board whose pins are numbers has no P1_0 to assign and no port-mode
+        // register to set up, so falling back to the 8051 emitter would produce
+        // a file that compiles for the wrong chip out of pins that do not exist
+        // on it. Refusing by name is the only honest answer until the Arduino
+        // back end lands; stc-compiler can already build these, and says so.
+        if (part && part.core === 'arduino') {
+            this.cWarn(`DEVICE ${device.toUpperCase()} has numbered pins and no 8051 registers — `
+                + 'this back end emits bare-metal 8051 only. The project is unchanged; '
+                + 'build it with stc-compiler, which has an Arduino target.');
+            return `/* No C emitted for DEVICE ${device.toUpperCase()}.\n`
+                + ' *\n'
+                + ' * This back end emits bare-metal 8051. An Arduino board has numbered\n'
+                + ' * pins (D13, A0) and none of the registers this emitter writes, so\n'
+                + ' * there is nothing here it could correctly produce.\n'
+                + ' *\n'
+                + ' * The pseudocode form of this project IS portable: stc-compiler\n'
+                + ' * builds it for the Arduino targets.\n'
+                + ' */\n';
+        }
         const chip = part || SB3Creator.STC_PARTS.stc12c5a60s2;
         this._cPins = new Map(pins.map((p) => [String(p.name).toLowerCase(), p]));
 
@@ -6089,12 +6135,23 @@ SB3Creator.RUNTIME_EXTENSIONS = {
 // PxM0/PxM1, AUXR, Timer 0, P1ASF, the ADC block) sits at the same address on an
 // STC15F2K60S2. Its famous divergences (Timer 2 at 0xD6/0xD7, S3CON…) are registers
 // nothing here ever writes.
+// Not all STC any more, but the name is in warning text and in saved
+// projects. `core` is what actually matters: it says which vocabulary a
+// board's pins are spelled in, and which C back end (if any) can emit for it.
 SB3Creator.STC_PARTS = {
+    // core: '8051' -- {port, bit} pins, and generateC() emits for these.
     stc12c5a60s2: { header: 'stc12.h', portModes: true, aux1T: true, adc: true },
     stc12c5a16s2: { header: 'stc12.h', portModes: true, aux1T: true, adc: true },
     stc89c52rc: { header: '8052.h', portModes: false, aux1T: false, adc: false },
     stc89c52: { header: '8052.h', portModes: false, aux1T: false, adc: false },
-    stc15f2k60s2: { header: 'stc12.h', portModes: true, aux1T: true, adc: true }
+    stc15f2k60s2: { header: 'stc12.h', portModes: true, aux1T: true, adc: true },
+    // core: 'arduino' -- pins are NUMBERS (D13, A0), and there is no C back
+    // end here yet. Declared so a sketch imported by cToPseudocode.js parses
+    // into a project and reaches the blocks; generateC() refuses them by name
+    // rather than emitting 8051 registers for a board that has none.
+    'arduino-uno': { core: 'arduino', header: 'Arduino.h', portModes: false, aux1T: false, adc: true },
+    'arduino-nano': { core: 'arduino', header: 'Arduino.h', portModes: false, aux1T: false, adc: true },
+    atmega328p: { core: 'arduino', header: 'avr/io.h', portModes: false, aux1T: false, adc: true }
 };
 
 // C keywords a sanitized Scratch name could collide with (sanitizeIdent only guards the
