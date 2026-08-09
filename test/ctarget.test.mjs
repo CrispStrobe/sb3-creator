@@ -929,3 +929,234 @@ void main(void) { while (1) { LED1 = LED_ON; LED2 = LED_OFF; delay_ms(150); } }`
     const p3 = c2p('__sbit __at (0xB2) BTN;\nvoid main(void){ while(1){ if (BTN) {} } }').pseudocode;
     assert.match(p3, /P3\.2/);
 });
+
+// ---- new block surface: PWM, TONE, PORT, PART, print, when-pin --------
+
+test('PIN declarations accept PWM and TONE directions', () => {
+    const c = build(`PIN buzzer = P1.1 TONE\nPIN motor = P1.2 PWM\nWHEN flag clicked:\n  set buzzer to 440 hz`);
+    const stc = c.project.stc;
+    assert.equal(stc.pins.find(p => p.name === 'buzzer').direction, 'tone');
+    assert.equal(stc.pins.find(p => p.name === 'motor').direction, 'pwm');
+});
+
+test('PORT declarations parse and round-trip', () => {
+    const c = build('PORT display = P0 OUTPUT\nWHEN flag clicked:\n  set display to 255');
+    assert.equal(c.project.stc.ports.length, 1);
+    assert.equal(c.project.stc.ports[0].name, 'display');
+    assert.equal(c.project.stc.ports[0].port, 0);
+    assert.equal(c.project.stc.ports[0].direction, 'output');
+    const dc = c.decompile();
+    assert.match(dc, /^PORT display = P0 OUTPUT$/m);
+    assert.match(dc, /set display to 255/);
+    // round-trip
+    const dc2 = new SB3Creator().parse(dc);
+    assert.equal(new SB3Creator().decompile(new SB3Creator().parse(dc)), dc);
+});
+
+test('PART declarations parse and round-trip', () => {
+    const c = build('PART sr = 74HC595 data P2.0 clock P2.1 latch P2.2\nWHEN flag clicked:\n  set sr to 128');
+    assert.equal(c.project.stc.parts.length, 1);
+    const p = c.project.stc.parts[0];
+    assert.equal(p.name, 'sr');
+    assert.deepEqual(p.data, { port: 2, bit: 0 });
+    assert.deepEqual(p.clock, { port: 2, bit: 1 });
+    assert.deepEqual(p.latch, { port: 2, bit: 2 });
+    const dc = c.decompile();
+    assert.match(dc, /^PART sr = 74HC595 data P2\.0 clock P2\.1 latch P2\.2$/m);
+    assert.match(dc, /set sr to 128/);
+});
+
+test('PIN-vs-PORT conflict is rejected in both directions', () => {
+    // PIN first, then PORT on the same physical port
+    const c1 = new SB3Creator();
+    c1.parse('PIN led = P1.0 OUTPUT\nPORT p1 = P1 OUTPUT\nWHEN flag clicked:\n  turn on led');
+    assert.equal(c1.project.stc.ports.length, 0, 'PORT was rejected');
+    // PORT first, then PIN inside it
+    const c2 = new SB3Creator();
+    c2.parse('PORT p1 = P1 OUTPUT\nPIN led = P1.0 OUTPUT\nWHEN flag clicked:\n  set p1 to 0');
+    assert.equal(c2.project.stc.pins.length, 0, 'PIN was rejected');
+});
+
+test('PART pin conflicts are rejected', () => {
+    // A PART on pins already taken by a PIN
+    const c = new SB3Creator();
+    c.parse('PIN led = P2.0 OUTPUT\nPART sr = 74HC595 data P2.0 clock P2.1 latch P2.2\nWHEN flag clicked:\n  turn on led');
+    assert.equal(c.project.stc.parts.length, 0, 'PART was rejected');
+});
+
+test('set x to <n> percent emits PWM in C', () => {
+    const code = cOf('PIN motor = P1.2 PWM\nWHEN flag clicked:\n  set motor to 50 percent');
+    assert.match(code, /pwm_set\(\d+, 50\)/);
+});
+
+test('set x to <n> hz emits tone_set in C', () => {
+    const code = cOf('PIN buzzer = P1.1 TONE\nWHEN flag clicked:\n  set buzzer to 440 hz');
+    assert.match(code, /tone_set\(440\)/);
+});
+
+test('set port to <n> emits a whole-port write in C', () => {
+    const code = cOf('PIN led = P1.0 OUTPUT\nPORT display = P0 OUTPUT\nWHEN flag clicked:\n  set display to 255');
+    assert.match(code, /P0 = \(unsigned char\)\(255\)/);
+});
+
+test('set part to <n> emits shift_out in C', () => {
+    const code = cOf('PIN led = P1.0 OUTPUT\nPART sr = 74HC595 data P2.0 clock P2.1 latch P2.2\nWHEN flag clicked:\n  set sr to 128');
+    assert.match(code, /shift_out\(P2_0, P2_1, P2_2, 0, \(unsigned char\)\(128\)\)/);
+});
+
+test('print text and number emit bw_print / bw_print_num in C', () => {
+    const code = cOf('PIN led = P1.0 OUTPUT\nWHEN flag clicked:\n  print "hello"\n  print 42');
+    assert.match(code, /bw_print\("hello"\)/);
+    assert.match(code, /bw_print_num\(42\)/);
+});
+
+test('when x pressed lowers to a polled edge-triggered task', () => {
+    const code = cOf('PIN btn = P3.2 INPUT ACTIVE LOW\nPIN led = P1.0 OUTPUT ACTIVE LOW\n'
+        + 'WHEN flag clicked:\n  turn on led\nWHEN btn pressed:\n  toggle led');
+    // edge detection preamble
+    assert.match(code, /unsigned char now\s+=\s+\(!P3_2\) \? 1 : 0/);
+    assert.match(code, /unsigned char fired\s+=\s+\(now && !bw_task1_prev\) \? 1 : 0/);
+    assert.match(code, /bw_task1_prev = now/);
+    // case 0 is the edge test; body starts at case 1
+    assert.match(code, /case 0:\s*\n\s+if \(!fired\)\s*\n\s+return/);
+    assert.match(code, /case 1:/);
+    // tail rearms to 0 — a hat re-fires on the next edge
+    assert.match(code, /bw_task1_state = 0;\s+\/\* ready for the next edge \*\//);
+});
+
+test('when x released uses the falling edge of the logical level', () => {
+    const code = cOf('PIN btn = P3.2 INPUT\nWHEN btn released:\n  wait 1 seconds');
+    assert.match(code, /\(!now && bw_task0_prev\)/);
+});
+
+test('a hat forces the scheduler even as the only script', () => {
+    const code = cOf('PIN btn = P3.2 INPUT\nWHEN btn pressed:\n  wait 1 seconds');
+    assert.match(code, /for \(;;\)/, 'dispatch loop');
+    assert.match(code, /bw_task0\(\)/, 'task function');
+    assert.match(code, /bw_tick.*__interrupt/, 'Timer 0 ISR');
+});
+
+test('a hat on a non-INPUT pin is refused', () => {
+    const code = cOf('PIN led = P1.0 OUTPUT\nWHEN flag clicked:\n  turn on led\nWHEN led pressed:\n  wait 1 seconds');
+    assert.match(code, /warning.*OUTPUT.*not INPUT/i);
+    // The refused hat does not produce a task; the single valid script goes to main().
+    assert.ok(!/bw_task1/.test(code), 'no task for the refused hat');
+});
+
+test('new blocks round-trip pseudocode -> blocks -> pseudocode', () => {
+    const src = `DEVICE STC12C5A60S2
+CLOCK 11059200
+PIN led = P1.0 OUTPUT ACTIVE LOW
+PIN buzzer = P1.1 TONE
+PIN motor = P1.2 PWM
+PIN btn = P3.2 INPUT
+PORT display = P0 OUTPUT
+PART sr = 74HC595 data P2.0 clock P2.1 latch P2.2
+
+SPRITE chip:
+  WHEN flag clicked:
+    turn on led
+    set buzzer to 440 hz
+    set motor to 50 percent
+    set display to 255
+    set sr to 128
+    print "hello"
+    print 42
+
+  WHEN btn pressed:
+    toggle led`;
+    const c = new SB3Creator();
+    const dc = c.decompile(c.parse(src));
+    const dc2 = new SB3Creator().decompile(new SB3Creator().parse(dc));
+    assert.equal(dc, dc2, 'round-trip is a fixed point');
+});
+
+// ---- circuit extension: the board instruments (boundary B) --------
+
+test('circuit reporters parse, decompile, and round-trip', () => {
+    const src = `SPRITE test:
+  WHEN flag clicked:
+    say voltage at "vcc"
+    say current through "led1"
+    say resistance between "net1" and "net2"
+    say brightness of "led1"
+    say tone of "buzzer1"`;
+    const c = new SB3Creator();
+    const dc = c.decompile(c.parse(src));
+    assert.match(dc, /voltage at "vcc"/);
+    assert.match(dc, /current through "led1"/);
+    assert.match(dc, /resistance between "net1" and "net2"/);
+    assert.match(dc, /brightness of "led1"/);
+    assert.match(dc, /tone of "buzzer1"/);
+    const dc2 = new SB3Creator().decompile(new SB3Creator().parse(dc));
+    assert.equal(dc, dc2, 'round-trip is a fixed point');
+});
+
+test('circuit commands parse and round-trip', () => {
+    const src = `SPRITE test:
+  WHEN flag clicked:
+    turn power on
+    turn power off`;
+    const c = new SB3Creator();
+    const dc = c.decompile(c.parse(src));
+    assert.match(dc, /turn power on/);
+    assert.match(dc, /turn power off/);
+    const dc2 = new SB3Creator().decompile(new SB3Creator().parse(dc));
+    assert.equal(dc, dc2);
+});
+
+test('resistance teaches by refusing: the neutral value is a reason, not a number', () => {
+    // The contract (simulation-contract.md) says:
+    //   resistance(a, b): number | 'requires-power-off'
+    // A real DMM reads ohms with the power off. The block must surface the
+    // refusal rather than quietly returning 0.
+    const src = `SPRITE test:
+  WHEN flag clicked:
+    set r to resistance between "net1" and "net2"`;
+    const c = new SB3Creator();
+    const project = c.parse(src);
+
+    // In Python: the neutral stub returns the string, not 0.
+    const py = c.generatePython(project);
+    assert.match(py, /def resistance\(self, \*a\): return "requires-power-off"/,
+        'the neutral stub returns the reason string');
+    assert.ok(!/def resistance\(self, \*a\): return 0/.test(py),
+        'resistance must never silently return 0');
+
+    // In JavaScript: same.
+    const js = c.generateJavaScript(project);
+    assert.match(js, /resistance: \(\) => "requires-power-off"/,
+        'JS stub also returns the reason');
+
+    // The runtime registry declares the neutral value as the string.
+    const reg = SB3Creator.RUNTIME_EXTENSIONS.circuit.ops.resistance;
+    assert.equal(reg.neutral, '"requires-power-off"',
+        'the registry declares the refusal as neutral, not 0');
+});
+
+test('resistance is the only circuit reporter whose neutral is not a number', () => {
+    // This is the asymmetry that makes it the teaching block: every other meter
+    // returns 0 when there is no board; resistance returns a reason.
+    const ops = SB3Creator.RUNTIME_EXTENSIONS.circuit.ops;
+    assert.equal(ops.nodevoltage.neutral, '0');
+    assert.equal(ops.branchcurrent.neutral, '0');
+    assert.equal(ops.ledbrightness.neutral, '0');
+    assert.equal(ops.buzzertone.neutral, '0');
+    assert.equal(ops.resistance.neutral, '"requires-power-off"',
+        'resistance alone refuses with a reason');
+});
+
+test('the simulator driver returns the board answer for resistance', () => {
+    const c = new SB3Creator();
+    c.parse('PIN led = P1.0 OUTPUT\nWHEN flag clicked:\n  turn on led');
+    // The JS simulator driver wraps boundary B.
+    const jsDriver = c.circuitSimulatorDriver('js').join('\n');
+    assert.match(jsDriver, /resistance.*"requires-power-off"/,
+        'no-board case returns the refusal');
+    assert.match(jsDriver, /b\.resistance\(a, bNet\)/,
+        'with-board case calls boundary B');
+    // The Python simulator driver wraps boundary B.
+    const pyDriver = c.circuitSimulatorDriver('py').join('\n');
+    assert.match(pyDriver, /resistance.*"requires-power-off"/);
+    assert.match(pyDriver, /b\.resistance\(a, b_net\)/);
+});

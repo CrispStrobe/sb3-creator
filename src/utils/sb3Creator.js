@@ -1440,6 +1440,13 @@ class SB3Creator {
                 block[id].fields.EDGE = [match[2].toLowerCase(), null];
                 return { block, extraBlocks: {} };
             }
+            // An OUTPUT/ANALOG/PWM/TONE pin has no edge to react to. Build the block
+            // anyway so the script body is kept, but generateC will refuse it.
+            this.warn(null, `"${pin.name}" is ${pin.direction.toUpperCase()}, not INPUT; a "when ${pin.name} ${match[2].toLowerCase()}" hat has no edge to react to`);
+            const { id, block } = this.createBlock('stc12_whenpin', { topLevel: true });
+            block[id].fields.PIN = [pin.name, null];
+            block[id].fields.EDGE = [match[2].toLowerCase(), null];
+            return { block, extraBlocks: {} };
         }
 
         // Nothing above matched a line that arrived as `WHEN ...:`. Falling through
@@ -4959,7 +4966,11 @@ class SB3Creator {
             for (const b of Object.values(t.blocks || {})) {
                 if (!b.topLevel) continue;
                 if (b.opcode === 'event_whenflagclicked') scriptCount++;
-                if (b.opcode === 'stc12_whenpin') { scriptCount++; hasEventHat = true; }
+                if (b.opcode === 'stc12_whenpin') {
+                    const pn = b.fields.PIN ? b.fields.PIN[0] : '';
+                    const pc = this._cPins && this._cPins.get(pn.toLowerCase());
+                    if (pc && pc.direction === 'input') { scriptCount++; hasEventHat = true; }
+                }
             }
         }
         // `{debug: true}` forces the scheduler even for one script. Straight-line code in
