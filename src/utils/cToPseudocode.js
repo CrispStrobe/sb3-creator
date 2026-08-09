@@ -811,6 +811,23 @@ export default function cToPseudocode (source, opts = {}) {
             return { text: '0', level: 99, stmt: `wait ${argText} ms` };
         }
         if (SETUP.has(name) || name === '_nop_' || name === 'NOP' || name === '__nop') return { text: '0', level: 99, stmt: null };
+        // LED cube kernel functions → cube pseudocode commands.
+        if (name === 'bw_cube_clear') return { text: '0', level: 99, stmt: 'clear cube' };
+        if (name === 'bw_cube_hold' || name === 'bw_cube_scan') {
+            return { text: '0', level: 99, stmt: `hold frame for ${args[0] ? args[0].text : 0} ms` };
+        }
+        if (name === 'bw_cube_set' && args.length >= 4) {
+            return { text: '0', level: 99, stmt: `set voxel ${args[0].text} ${args[1].text} ${args[2].text} to ${args[3].text}` };
+        }
+        if (name === 'bw_cube_fill_layer' && args.length >= 2) {
+            return { text: '0', level: 99, stmt: `fill layer ${args[0].text} with ${args[1].text}` };
+        }
+        if (name === 'bw_cube_shift' && args.length >= 1) {
+            return { text: '0', level: 99, stmt: `shift cube ${args[0].text}` };
+        }
+        if (name === 'bw_cube_get' && args.length >= 3) {
+            return { text: `voxel ${args[0].text} ${args[1].text} ${args[2].text}`, level: 99 };
+        }
         if (markers && markers.procs.has(name)) {
             const { proccode } = markers.procs.get(name);
             let i = 0;
@@ -1277,9 +1294,18 @@ export default function cToPseudocode (source, opts = {}) {
             out.push(`PIN ${p.name} = P${p.port}.${p.bit} ${p.direction.toUpperCase()}${p.activeLow ? ' ACTIVE LOW' : ''}`);
         }
     }
+    // Detect the LED cube kernel by the presence of bw_cube_frame.
+    const cubeFrameMatch = source.match(/bw_cube_frame\[(\d+)\]/);
+    if (cubeFrameMatch) {
+        const selects = Number(cubeFrameMatch[1]);
+        const size = selects / 2;   // 8 selects = 4×4×4, 6 selects = 3×3×3
+        if (size >= 2 && size <= 8) out.push('', `LEDCUBE ${size}`);
+    }
 
     const IGNORE_FNS = new Set(['bw_setup', 'bw_tick', 'bw_now', 'bw_block_ms', 'delay_ms', 'adc_read',
-        'board_init', 'delay_init']);
+        'board_init', 'delay_init',
+        'bw_cube_scan', 'bw_cube_set', 'bw_cube_get', 'bw_cube_clear',
+        'bw_cube_fill_layer', 'bw_cube_shift', 'bw_cube_hold']);
     const procFns = funcs.filter((f) => markers && markers.procs.has(f.name));
     const scriptFns = funcs.filter((f) => !IGNORE_FNS.has(f.name)
         && (markers ? markers.scripts.has(f.name) : f.name === 'main'));
