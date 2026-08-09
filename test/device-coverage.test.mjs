@@ -186,6 +186,21 @@ const KNOWN_GAPS = new Set([
     'tmp36',            // analog temp sensor — read via ADC (devices_temperature)
     'cd4511',           // BCD-to-7-segment decoder — circuit-level
 
+    // --- new kinds from engine expansion ---
+    'ambient_light',    // ambient light sensor
+    'battery_9v',       // 9V battery — circuit-level power source
+    'battery_aa',       // AA battery — circuit-level
+    'battery_coin',     // coin cell — circuit-level
+    'dc_motor_encoder', // motor with encoder — needs "read encoder" blocks
+    'dip_switch',       // multi-position switch — needs individual switch reads
+    'gas_sensor',       // MQ-series — needs "read gas level" reporter
+    'ir_transmitter',   // IR LED — needs "send IR code" block
+    'keypad_4x4',       // matrix keypad — needs "key pressed" reporter/hat
+    'ld1117v33',        // 3.3V LDO regulator — circuit-level
+    'lm7805',           // 5V regulator — circuit-level
+    'polarized_cap',    // electrolytic capacitor — observed through reporters
+    'vibration_motor',  // eccentric mass motor — on/off via pin
+
     // --- 74HC logic family (chip-composer parts, observed through voltage reporters) ---
     '74hc00', '74hc02', '74hc04', '74hc08', '74hc10', '74hc11', '74hc14', '74hc20',
     '74hc21', '74hc27', '74hc32', '74hc73', '74hc74', '74hc86', '74hc93', '74hc132',

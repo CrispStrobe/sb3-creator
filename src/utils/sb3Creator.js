@@ -6364,6 +6364,9 @@ SB3Creator.STC_PARTS = {
     stc89c52rc: { header: '8052.h', portModes: false, aux1T: false, adc: false },
     stc89c52: { header: '8052.h', portModes: false, aux1T: false, adc: false },
     stc15f2k60s2: { header: 'stc12.h', portModes: true, aux1T: true, adc: true },
+    // STC15W408AS: same SFR layout as STC15F2K60S2 for everything the emitter
+    // touches. Lacks Timer 1, so TONE pins (which need Timer 1) should warn.
+    stc15w408as: { header: 'stc12.h', portModes: true, aux1T: true, adc: true },
     // core: 'arduino' -- pins are NUMBERS (D13, A0), and there is no C back
     // end here yet. Declared so a sketch imported by cToPseudocode.js parses
     // into a project and reaches the blocks; generateC() refuses them by name
