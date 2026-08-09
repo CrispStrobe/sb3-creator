@@ -4401,11 +4401,12 @@ class SB3Creator {
     // function per script, structural markers so the project round-trips —
     // with C's constraints: markers must live inside a function, and every
     // function needs a prototype before it is called.
-    // Reshape, transpose and the higher-order blocks need a list-valued return
-    // and a callable argument; neither fits the flat value model, and a stub
-    // returning 0 would make the C disagree with Python without saying so.
-    static C_ARRAYS_UNIMPLEMENTED = new Set(['reverse', 'flatten', 'sort', 'slice',
-        'create2d', 'get2d', 'set2d', 'transpose', 'reshape', 'map', 'filter', 'reduce']);
+    // Everything the extension offers has a C form now: the value model grew a
+    // list kind for reverse/sort/slice/transpose/reshape, and map/filter/reduce
+    // evaluate their lambda text with a small parser over the subset those
+    // blocks contain. The set stays as the place to name a block that has no C
+    // form, so one reappearing is a warning rather than a silent zero.
+    static C_ARRAYS_UNIMPLEMENTED = new Set([]);
 
     generateHostC(project = this.project, opts = {}) {
         this._cNames = new Map();

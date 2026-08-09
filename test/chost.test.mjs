@@ -127,6 +127,54 @@ test('host C and Python produce the same output for the same project',
 
 void skip;
 
+
+// Every block the Arrays & Vectors extension has, including the three that take
+// a lambda as text and the ones that hand back a list. Python eval()s those
+// lambdas; C cannot, so it parses them — which is exactly the kind of
+// reimplementation that passes a spelling test and then disagrees on the
+// numbers, so this compares the numbers.
+const ARRAYS_ALL = `SPRITE Bot:
+  WHEN flag clicked:
+    new array "v" = [3, 1, 2]
+    say (reverse of array "v")
+    say (sort of array "v" ascending)
+    say (sort of array "v" descending)
+    say (slice of array "v" from 1 to 3)
+    new 2D array "g" = [[1, 2], [3, 4]]
+    say (item row 1 col 0 of array "g")
+    say (transpose of array "g")
+    say (flatten of array "g")
+    say (reshape array "g" to [4])
+    say (map "(x) => x * 2" over array "v")
+    say (filter array "v" by "(x) => x > 1")
+    say (reduce array "v" with "(a, b) => a + b" from 0)
+`;
+
+test('the whole arrays surface agrees with Python, lambdas included',
+    { skip: !(HAS_CC && HAS_PY) }, () => {
+        const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'bw-arr2-'));
+        const py = path.join(dir, 'a.py'), cs = path.join(dir, 'a.c'), bin = path.join(dir, 'a');
+        const creator = build(ARRAYS_ALL);
+        assert.deepEqual(creator._hcWarnings || [], [], 'no block is left without a C form');
+        fs.writeFileSync(py, build(ARRAYS_ALL).generatePython());
+        fs.writeFileSync(cs, creator.generateC());
+        const cc = spawnSync('cc', ['-std=c99', '-Wall', '-Wextra', '-Werror', '-o', bin, cs, '-lm'],
+            { encoding: 'utf8' });
+        assert.equal(cc.status, 0, cc.stderr);
+        const fromPy = execFileSync('python3', [py], { encoding: 'utf8' });
+        const fromC = execFileSync(bin, [], { encoding: 'utf8' });
+        fs.rmSync(dir, { recursive: true, force: true });
+        assert.equal(fromC, fromPy);
+        assert.match(fromPy, /^\[\[1, 3\], \[2, 4\]\]$/m, 'transpose really ran');
+        assert.match(fromPy, /^\[6, 2, 4\]$/m, 'and so did the lambda');
+    });
+
+test('and it survives the way back', () => {
+    const a = build(ARRAYS_ALL);
+    const viaC = build(cHostToPseudocode(a.generateC())).decompile();
+    assert.equal(viaC, build(a.decompile()).decompile());
+});
+
 // ---- the way back --------------------------------------------------------
 // blocks → host C → pseudocode → blocks has to land on the same project.
 //
@@ -139,8 +187,10 @@ void skip;
 // through — a bug dressed as an improvement.
 //
 // So: the C is allowed to lose whatever the dialect already loses, and nothing
-// more. All 30 clear that bar. 29 are byte-identical outright; the one that is
-// not is `tetris`, and it is not identical through pseudocode alone either.
+// more. All 30 clear that bar, and since the parser stopped mis-attaching a
+// comment above a control block, all 30 are byte-identical outright too — the
+// weaker test below is kept anyway, so a regression says which bar it fell
+// below rather than only that something moved.
 const FIDELITY_FLOOR = 30;
 const KNOWN_LOSSY = new Set([]);
 
@@ -165,7 +215,7 @@ test('host C loses nothing the dialect does not already lose', async () => {
 // The stricter statement, kept separate so a regression says which bar it fell
 // below: most projects come back byte-identical to the original, not merely as
 // good as the dialect.
-test('and most come back byte-identical', async () => {
+test('and all of them come back byte-identical', async () => {
     const examples = (await import('../src/utils/examples.js')).default;
     let identical = 0;
     for (const [name, ex] of Object.entries(examples)) {
@@ -174,5 +224,5 @@ test('and most come back byte-identical', async () => {
         if (a.project.stc && a.project.stc.pins && a.project.stc.pins.length) continue;
         if (build(cHostToPseudocode(a.generateC())).decompile() === a.decompile()) identical++;
     }
-    assert.ok(identical >= 29, `only ${identical} of 30 are byte-identical`);
+    assert.ok(identical >= 30, `only ${identical} of 30 are byte-identical`);
 });

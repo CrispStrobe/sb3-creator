@@ -56,7 +56,20 @@ const TYPE = `/* ---- values ---------------------------------------------------
  * programs are short-lived, and a refcount would be a lie about how carefully
  * this is managed. Swap the arena for a real allocator if that stops being true.
  */
-typedef struct { int is_str; double n; const char *s; } bw_val;
+#define BW_NUM  0
+#define BW_STR  1
+#define BW_LIST 2                     /* reverse/sort/slice/... return one */
+
+struct bw_list_s;
+typedef struct { int kind; double n; const char *s; struct bw_list_s *l; } bw_val;
+
+/* Scratch lists are 1-based and silently ignore out-of-range writes; both are
+ * modelled rather than corrected, because a project may rely on either. */
+typedef struct bw_list_s { bw_val *v; int n, cap; } bw_list;
+
+/* Mutually recursive: a list prints its elements and an element may be a list. */
+static inline const char *bw_s(bw_val v);
+static const char *bw_list_text(bw_list *l, int json);
 `;
 
 const ARENA = `static char bw_arena[1 << 16];
@@ -72,15 +85,16 @@ static inline const char *bw_intern(const char *src, size_t len) {
 }
 `;
 
-const NUM = `static inline bw_val bw_num(double n) { bw_val v; v.is_str = 0; v.n = n; v.s = 0; return v; }
+const NUM = `static inline bw_val bw_num(double n) { bw_val v; v.kind = BW_NUM; v.n = n; v.s = 0; v.l = 0; return v; }
 `;
-const STR = `static inline bw_val bw_str(const char *s) { bw_val v; v.is_str = 1; v.n = 0; v.s = s; return v; }
+const STR = `static inline bw_val bw_str(const char *s) { bw_val v; v.kind = BW_STR; v.n = 0; v.s = s; v.l = 0; return v; }
 `;
 const BOOL = `static inline bw_val bw_bool(int b) { return bw_num(b ? 1 : 0); }
 `;
 const N = `/* Number coercion: a non-numeric string is 0, which is Scratch's rule. */
 static inline double bw_n(bw_val v) {
-    if (!v.is_str) return v.n;
+    if (v.kind == BW_NUM) return v.n;
+    if (v.kind == BW_LIST) return 0;
     if (!v.s || !*v.s) return 0;
     char *end;
     double d = strtod(v.s, &end);
@@ -90,7 +104,8 @@ static inline double bw_n(bw_val v) {
 `;
 const S = `/* String coercion. Integers print without a decimal point, as Scratch shows them. */
 static inline const char *bw_s(bw_val v) {
-    if (v.is_str) return v.s ? v.s : "";
+    if (v.kind == BW_LIST) return bw_list_text(v.l, 0);   /* Python's str(list) */
+    if (v.kind == BW_STR) return v.s ? v.s : "";
     char buf[40];
     if (v.n == (double)(long long)v.n) snprintf(buf, sizeof buf, "%lld", (long long)v.n);
     else snprintf(buf, sizeof buf, "%g", v.n);
@@ -105,7 +120,8 @@ static inline void bw_change(bw_val *v, bw_val d) { *v = bw_num(bw_n(*v) + bw_n(
 
 const NUMERIC = `/* Does this value look like a number? Decides whether = compares numerically. */
 static inline int bw_numeric(bw_val v) {
-    if (!v.is_str) return 1;
+    if (v.kind == BW_NUM) return 1;
+    if (v.kind == BW_LIST) return 0;
     if (!v.s || !*v.s) return 0;
     char *end;
     strtod(v.s, &end);
@@ -312,16 +328,363 @@ static inline bw_val arrays_contains(bw_val n, bw_val v) {
 }
 /* Matches json.dumps on the Python side, separators and all, so the two
  * targets print the same thing. */
-static inline bw_val arrays_to_text(bw_val n) {
-    bw_list *l = bw_array(n);
-    bw_val out = bw_str("[");
-    for (int i = 0; i < l->n; i++) {
-        if (i) out = bw_join(out, bw_str(", "));
-        out = l->v[i].is_str
-            ? bw_join(bw_join(out, bw_str("\\"")), bw_join(l->v[i], bw_str("\\"")))
-            : bw_join(out, l->v[i]);
+static inline bw_val arrays_to_text(bw_val n) { return bw_str(bw_list_text(bw_array(n), 1)); }
+
+/* The list-valued operations. Each hands back a fresh list rather than mutating
+ * the named one, which is what the Python side does and what \`say (reverse of
+ * array "v")\` therefore has to print. */
+static inline bw_val arrays_reverse(bw_val n) {
+    bw_list *src = bw_array(n), *out = bw_new_list();
+    for (int i = src->n - 1; i >= 0; i--) bw_list_add(out, src->v[i]);
+    return bw_listval(out);
+}
+
+static inline bw_val arrays_sort(bw_val n, bw_val order) {
+    bw_list *src = bw_array(n), *out = bw_new_list();
+    for (int i = 0; i < src->n; i++) bw_list_add(out, src->v[i]);
+    int desc = strcmp(bw_s(order), "ascending") != 0;
+    for (int i = 1; i < out->n; i++) {            /* insertion sort: lists are small */
+        bw_val key = out->v[i];
+        int j = i - 1;
+        while (j >= 0 && (desc ? bw_cmp(out->v[j], key) < 0 : bw_cmp(out->v[j], key) > 0)) {
+            out->v[j + 1] = out->v[j]; j--;
+        }
+        out->v[j + 1] = key;
     }
-    return bw_join(out, bw_str("]"));
+    return bw_listval(out);
+}
+
+static inline bw_val arrays_slice(bw_val n, bw_val from, bw_val to) {
+    bw_list *src = bw_array(n), *out = bw_new_list();
+    long a = (long)bw_n(from), b = (long)bw_n(to);
+    if (a < 0) a = 0;
+    if (b > src->n) b = src->n;
+    for (long i = a; i < b; i++) bw_list_add(out, src->v[i]);
+    return bw_listval(out);
+}
+
+static inline bw_val arrays_flatten(bw_val n) {
+    bw_list *src = bw_array(n), *out = bw_new_list();
+    for (int i = 0; i < src->n; i++) {
+        if (src->v[i].kind == BW_LIST) {
+            bw_list *row = src->v[i].l;
+            for (int j = 0; j < row->n; j++) bw_list_add(out, row->v[j]);
+        } else bw_list_add(out, src->v[i]);
+    }
+    return bw_listval(out);
+}
+
+/* \`[[1, 2], [3, 4]]\` — the same text parser as the 1-D case, one level deeper. */
+static const char *bw_array_load2d(bw_list *l, const char *p) {
+    l->n = 0;
+    while (*p && *p != '[') p++;
+    if (*p == '[') p++;
+    while (*p) {
+        while (*p == ' ' || *p == ',') p++;
+        if (*p == ']' || !*p) break;
+        if (*p == '[') {
+            bw_list *row = bw_new_list();
+            p = bw_array_load2d(row, p);
+            bw_list_add(l, bw_listval(row));
+            continue;
+        }
+        if (*p == '"') {
+            const char *start = ++p;
+            while (*p && *p != '"') p++;
+            bw_list_add(l, bw_str(bw_intern(start, (size_t)(p - start))));
+            if (*p == '"') p++;
+        } else {
+            char *end;
+            double d = strtod(p, &end);
+            if (end == p) break;
+            bw_list_add(l, bw_num(d));
+            p = end;
+        }
+    }
+    return *p == ']' ? p + 1 : p;
+}
+
+static inline bw_val arrays_create2d(bw_val n, bw_val j) {
+    bw_array_load2d(bw_array(n), bw_s(j));
+    return bw_num(0);
+}
+
+static inline bw_val arrays_get2d(bw_val n, bw_val r, bw_val c) {
+    bw_list *l = bw_array(n);
+    long i = (long)bw_n(r), k = (long)bw_n(c);
+    if (i < 0 || i >= l->n || l->v[i].kind != BW_LIST) return bw_str("");
+    bw_list *row = l->v[i].l;
+    return (k >= 0 && k < row->n) ? row->v[k] : bw_str("");
+}
+
+static inline bw_val arrays_set2d(bw_val n, bw_val r, bw_val c, bw_val v) {
+    bw_list *l = bw_array(n);
+    long i = (long)bw_n(r), k = (long)bw_n(c);
+    while (l->n <= i) bw_list_add(l, bw_listval(bw_new_list()));
+    if (l->v[i].kind != BW_LIST) l->v[i] = bw_listval(bw_new_list());
+    bw_list *row = l->v[i].l;
+    while (row->n <= k) bw_list_add(row, bw_num(0));
+    row->v[k] = v;
+    return bw_num(0);
+}
+
+static inline bw_val arrays_transpose(bw_val n) {
+    bw_list *l = bw_array(n), *out = bw_new_list();
+    int cols = 0;
+    for (int i = 0; i < l->n; i++)
+        if (l->v[i].kind == BW_LIST && l->v[i].l->n > cols) cols = l->v[i].l->n;
+    for (int c = 0; c < cols; c++) {
+        bw_list *row = bw_new_list();
+        for (int i = 0; i < l->n; i++) {
+            if (l->v[i].kind != BW_LIST || c >= l->v[i].l->n) break;   /* zip() stops short */
+            bw_list_add(row, l->v[i].l->v[c]);
+        }
+        if (row->n == l->n) bw_list_add(out, bw_listval(row));
+    }
+    return bw_listval(out);
+}
+
+static bw_list *bw_reshape(bw_list *flat, int *taken, bw_list *dims, int d) {
+    bw_list *out = bw_new_list();
+    long count = (long)bw_n(dims->v[d]);
+    for (long i = 0; i < count; i++) {
+        if (d == dims->n - 1) {
+            bw_list_add(out, *taken < flat->n ? flat->v[(*taken)++] : bw_num(0));
+        } else {
+            bw_list_add(out, bw_listval(bw_reshape(flat, taken, dims, d + 1)));
+        }
+    }
+    return out;
+}
+
+static void bw_flat_into(bw_list *src, bw_list *dst) {
+    for (int i = 0; i < src->n; i++) {
+        if (src->v[i].kind == BW_LIST) bw_flat_into(src->v[i].l, dst);
+        else bw_list_add(dst, src->v[i]);
+    }
+}
+
+static inline bw_val arrays_reshape(bw_val n, bw_val shape) {
+    bw_list dims = {0, 0, 0};
+    bw_array_load(&dims, shape);
+    if (!dims.n) return bw_listval(bw_new_list());
+    bw_list *flat = bw_new_list();
+    bw_flat_into(bw_array(n), flat);
+    int taken = 0;
+    return bw_listval(bw_reshape(flat, &taken, &dims, 0));
+}
+
+/* ---- the lambda subset -----------------------------------------------------
+ * map/filter/reduce take their function as text -- "(x) => x * 2" -- and the
+ * Python target eval()s it. C cannot, so this is a small recursive-descent
+ * evaluator over the subset those blocks actually contain: numbers, string
+ * literals, the parameters, ( ), unary -, * / %, + -, comparisons, and && ||.
+ * Anything outside that yields 0 and is reported by the emitter rather than
+ * guessed at, because a lambda that silently evaluates to 0 would make the C
+ * disagree with Python without saying so.
+ */
+typedef struct {
+    const char *p;
+    const char *names[2];
+    bw_val args[2];
+    int argc;
+    int failed;
+} bw_lam;
+
+static bw_val bw_lam_or(bw_lam *L);
+
+static void bw_lam_ws(bw_lam *L) { while (*L->p == ' ' || *L->p == '\t') L->p++; }
+
+static int bw_lam_eat(bw_lam *L, const char *tok) {
+    bw_lam_ws(L);
+    size_t n = strlen(tok);
+    if (strncmp(L->p, tok, n)) return 0;
+    /* \`<\` must not swallow the \`<\` of \`<=\` */
+    if ((tok[0] == '<' || tok[0] == '>') && n == 1 && L->p[1] == '=') return 0;
+    L->p += n;
+    return 1;
+}
+
+static bw_val bw_lam_atom(bw_lam *L) {
+    bw_lam_ws(L);
+    if (*L->p == '(') {
+        L->p++;
+        bw_val v = bw_lam_or(L);
+        bw_lam_ws(L);
+        if (*L->p == ')') L->p++; else L->failed = 1;
+        return v;
+    }
+    if (*L->p == '-') { L->p++; return bw_num(-bw_n(bw_lam_atom(L))); }
+    if (*L->p == '"' || *L->p == 0x27) {
+        char q = *L->p++;
+        const char *start = L->p;
+        while (*L->p && *L->p != q) L->p++;
+        bw_val v = bw_str(bw_intern(start, (size_t)(L->p - start)));
+        if (*L->p == q) L->p++;
+        return v;
+    }
+    if ((*L->p >= '0' && *L->p <= '9') || *L->p == '.') {
+        char *end;
+        double d = strtod(L->p, &end);
+        L->p = end;
+        return bw_num(d);
+    }
+    const char *start = L->p;
+    while ((*L->p >= 'a' && *L->p <= 'z') || (*L->p >= 'A' && *L->p <= 'Z')
+           || (*L->p >= '0' && *L->p <= '9') || *L->p == '_') L->p++;
+    size_t len = (size_t)(L->p - start);
+    for (int i = 0; i < L->argc; i++)
+        if (strlen(L->names[i]) == len && !strncmp(L->names[i], start, len)) return L->args[i];
+    L->failed = 1;
+    return bw_num(0);
+}
+
+static bw_val bw_lam_mul(bw_lam *L) {
+    bw_val v = bw_lam_atom(L);
+    for (;;) {
+        bw_lam_ws(L);
+        if (bw_lam_eat(L, "*")) v = bw_num(bw_n(v) * bw_n(bw_lam_atom(L)));
+        else if (bw_lam_eat(L, "/")) { double d = bw_n(bw_lam_atom(L)); v = bw_num(d ? bw_n(v) / d : 0); }
+        else if (bw_lam_eat(L, "%")) v = bw_mod(v, bw_lam_atom(L));
+        else return v;
+    }
+}
+
+static bw_val bw_lam_add(bw_lam *L) {
+    bw_val v = bw_lam_mul(L);
+    for (;;) {
+        bw_lam_ws(L);
+        if (bw_lam_eat(L, "+")) {
+            bw_val r = bw_lam_mul(L);
+            /* Python's + is concatenation when either side is a string. */
+            v = (v.kind == BW_STR || r.kind == BW_STR) ? bw_join(v, r) : bw_num(bw_n(v) + bw_n(r));
+        } else if (bw_lam_eat(L, "-")) v = bw_num(bw_n(v) - bw_n(bw_lam_mul(L)));
+        else return v;
+    }
+}
+
+static bw_val bw_lam_cmp(bw_lam *L) {
+    bw_val v = bw_lam_add(L);
+    bw_lam_ws(L);
+    if (bw_lam_eat(L, "==")) return bw_bool(bw_cmp(v, bw_lam_add(L)) == 0);
+    if (bw_lam_eat(L, "!=")) return bw_bool(bw_cmp(v, bw_lam_add(L)) != 0);
+    if (bw_lam_eat(L, "<=")) return bw_bool(bw_cmp(v, bw_lam_add(L)) <= 0);
+    if (bw_lam_eat(L, ">=")) return bw_bool(bw_cmp(v, bw_lam_add(L)) >= 0);
+    if (bw_lam_eat(L, "<")) return bw_bool(bw_cmp(v, bw_lam_add(L)) < 0);
+    if (bw_lam_eat(L, ">")) return bw_bool(bw_cmp(v, bw_lam_add(L)) > 0);
+    return v;
+}
+
+static bw_val bw_lam_and(bw_lam *L) {
+    bw_val v = bw_lam_cmp(L);
+    while (bw_lam_eat(L, "&&") || bw_lam_eat(L, "and")) {
+        bw_val r = bw_lam_cmp(L);
+        v = bw_bool(bw_n(v) != 0 && bw_n(r) != 0);
+    }
+    return v;
+}
+
+static bw_val bw_lam_or(bw_lam *L) {
+    bw_val v = bw_lam_and(L);
+    while (bw_lam_eat(L, "||") || bw_lam_eat(L, "or")) {
+        bw_val r = bw_lam_and(L);
+        v = bw_bool(bw_n(v) != 0 || bw_n(r) != 0);
+    }
+    return v;
+}
+
+/* Apply "(a, b) => body" to up to two arguments. */
+static bw_val bw_lam_call(bw_val fn, bw_val a0, bw_val a1, int argc) {
+    const char *text = bw_s(fn);
+    const char *arrow = strstr(text, "=>");
+    if (!arrow) return bw_num(0);
+    bw_lam L;
+    L.argc = 0; L.failed = 0;
+    /* parameter list, with or without its parentheses */
+    const char *q = text;
+    while (q < arrow && L.argc < 2) {
+        while (q < arrow && (*q == ' ' || *q == '(' || *q == ',')) q++;
+        const char *start = q;
+        while (q < arrow && *q != ' ' && *q != ',' && *q != ')') q++;
+        if (q > start) {
+            L.names[L.argc] = bw_intern(start, (size_t)(q - start));
+            L.argc++;
+        }
+        while (q < arrow && (*q == ')' || *q == ' ')) q++;
+    }
+    L.args[0] = a0; L.args[1] = a1;
+    if (argc < L.argc) L.argc = argc;
+    L.p = arrow + 2;
+    bw_val v = bw_lam_or(&L);
+    return L.failed ? bw_num(0) : v;
+}
+
+static inline bw_val arrays_map(bw_val n, bw_val fn) {
+    bw_list *src = bw_array(n), *out = bw_new_list();
+    for (int i = 0; i < src->n; i++) bw_list_add(out, bw_lam_call(fn, src->v[i], bw_num(0), 1));
+    return bw_listval(out);
+}
+
+static inline bw_val arrays_filter(bw_val n, bw_val fn) {
+    bw_list *src = bw_array(n), *out = bw_new_list();
+    for (int i = 0; i < src->n; i++)
+        if (bw_n(bw_lam_call(fn, src->v[i], bw_num(0), 1)) != 0) bw_list_add(out, src->v[i]);
+    return bw_listval(out);
+}
+
+static inline bw_val arrays_reduce(bw_val n, bw_val fn, bw_val init) {
+    bw_list *src = bw_array(n);
+    bw_val acc = init;
+    for (int i = 0; i < src->n; i++) acc = bw_lam_call(fn, acc, src->v[i], 2);
+    return acc;
+}
+
+`;
+
+const LISTTEXT = `/* A list as text. \`json\` picks the extension's \`as text\` form, which is
+ * json.dumps on the Python side ("a"); everything else is Python's str(list),
+ * which quotes strings with apostrophes ('a'). Two spellings, one function,
+ * because the two targets have to print the same bytes. */
+static const char *bw_list_text(bw_list *l, int json) {
+    char buf[4096];
+    size_t k = 0;
+    buf[k++] = '[';
+    for (int i = 0; i < l->n && k < sizeof buf - 80; i++) {
+        if (i) { buf[k++] = ','; buf[k++] = ' '; }
+        bw_val e = l->v[i];
+        if (e.kind == BW_LIST) {
+            const char *inner = bw_list_text(e.l, json);
+            size_t n = strlen(inner);
+            if (k + n >= sizeof buf - 8) break;
+            memcpy(buf + k, inner, n); k += n;
+        } else if (e.kind == BW_STR) {
+            const char *t = e.s ? e.s : "";
+            size_t n = strlen(t);
+            if (k + n >= sizeof buf - 8) break;
+            buf[k++] = json ? '"' : 0x27;
+            memcpy(buf + k, t, n); k += n;
+            buf[k++] = json ? '"' : 0x27;
+        } else {
+            const char *t = bw_s(e);
+            size_t n = strlen(t);
+            if (k + n >= sizeof buf - 8) break;
+            memcpy(buf + k, t, n); k += n;
+        }
+    }
+    buf[k++] = ']';
+    buf[k] = 0;
+    return bw_intern(buf, k);
+}
+
+`;
+
+const NEWLIST = `static inline bw_list *bw_new_list(void) {
+    bw_list *l = (bw_list *)calloc(1, sizeof(bw_list));
+    return l;
+}
+
+static inline bw_val bw_listval(bw_list *l) {
+    bw_val v; v.kind = BW_LIST; v.n = 0; v.s = 0; v.l = l; return v;
 }
 `;
 
@@ -370,14 +733,7 @@ static inline bw_val bw_mathop(const char *op, bw_val x) {
 }
 `;
 
-const LIST = `/* ---- lists ---------------------------------------------------------------
- * Scratch lists are 1-based and silently ignore out-of-range writes. Both are
- * modelled here rather than corrected, because a project that relies on the
- * behaviour has to keep working.
- */
-typedef struct { bw_val *v; int n, cap; } bw_list;
-
-static inline void bw_list_grow(bw_list *l, int need) {
+const LIST = `static inline void bw_list_grow(bw_list *l, int need) {
     if (need <= l->cap) return;
     int cap = l->cap ? l->cap * 2 : 8;
     while (cap < need) cap *= 2;
@@ -442,6 +798,8 @@ const CHUNKS = [
     // after the list chunks: the registry is built on bw_list. Split per
     // function for the same reason the list is — a project that only pushes
     // must not carry `mean` and `index of`.
+    { name: 'bw_list_text', code: LISTTEXT },
+    { name: 'bw_new_list', code: NEWLIST },
     ...arrayChunks(),
 ];
 
@@ -451,9 +809,18 @@ function arrayChunks() {
     const base = ARRAYS.slice(0, first);
     const rest = ARRAYS.slice(first);
     const out = [{ name: 'bw_array', code: base }];
-    for (const piece of rest.split(/\n(?=static inline |\/\* )/).filter(Boolean)) {
-        const name = (piece.match(/\b(arrays_\w+)\(/) || [])[1];
-        if (name) out.push({ name, code: piece.trimEnd() + '\n' });
+    let prefix = '';
+    for (const piece of rest.split(/\n(?=static inline |static \w|\/\* )/).filter(Boolean)) {
+        // Name a piece by the first function it defines, whatever that is: the
+        // registry has private helpers (bw_array_load2d, bw_reshape) as well as
+        // arrays_* entry points, and dropping the ones that did not match an
+        // arrays_ name is how create2d ended up calling something undeclared.
+        const name = (piece.match(/^(?:static\s+(?:inline\s+)?[\w *]+?)\b(\w+)\s*\(/m) || [])[1];
+        // A piece with no function of its own is a preamble -- a typedef, a
+        // forward declaration -- and belongs to what comes NEXT, not to what
+        // came before, which may well be pruned away from under it.
+        if (name) { out.push({ name, code: prefix + piece.trimEnd() + '\n' }); prefix = ''; }
+        else prefix += piece;
     }
     return out;
 }
