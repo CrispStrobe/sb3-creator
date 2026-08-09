@@ -45,14 +45,36 @@ function extractInlinedSource(wrapperCode) {
 
 // ---- load all three copies ---------------------------------------------------
 
-const galleryPath = resolve(here, '../../extensions/extensions/CrispStrobe/stc12.js');
-const bundledPath = resolve(here, '../../bw-bundle/lite/overlay/scratch-vm/src/extensions/crispstrobe/stc12/index.js');
-const referencePath = resolve(here, '../reference/extensions/stc12.js');
+// The sibling checkouts are not laid out the same way on every machine: the VPS has
+// `extensions/` and `bw-bundle/lite/` beside this repo, a workstation has them under
+// `lego/brickwright-lite/`. A single hardcoded path means four of the five tests skip
+// silently on the other machine — and a skipped conformance test looks exactly like a
+// passing one in the summary line. So try each known layout, and let an env var win.
+function findCopy (envVar, ...candidates) {
+    const fromEnv = process.env[envVar];
+    if (fromEnv) {
+        // An explicit pointer that does not resolve is an error, not a skip: someone
+        // set it meaning to run the check, and silently skipping would hide that.
+        return { path: fromEnv, source: readFileSync(fromEnv, 'utf8') };
+    }
+    for (const rel of candidates) {
+        const path = resolve(here, rel);
+        try { return { path, source: readFileSync(path, 'utf8') }; } catch { /* next */ }
+    }
+    return {};
+}
 
-let gallerySource, bundledWrapper, referenceSource;
-try { gallerySource = readFileSync(galleryPath, 'utf8'); } catch { /* skip */ }
-try { bundledWrapper = readFileSync(bundledPath, 'utf8'); } catch { /* skip */ }
-try { referenceSource = readFileSync(referencePath, 'utf8'); } catch { /* skip */ }
+const gallery = findCopy('BW_GALLERY',
+    '../../extensions/extensions/CrispStrobe/stc12.js',
+    '../../lego/extensions/extensions/CrispStrobe/stc12.js');
+const bundled = findCopy('BW_LITE_STC12',
+    '../../bw-bundle/lite/overlay/scratch-vm/src/extensions/crispstrobe/stc12/index.js',
+    '../../lego/brickwright-lite/overlay/scratch-vm/src/extensions/crispstrobe/stc12/index.js');
+const reference = findCopy('BW_REFERENCE_STC12', '../reference/extensions/stc12.js');
+
+const gallerySource = gallery.source;
+const bundledWrapper = bundled.source;
+const referenceSource = reference.source;
 
 // ---- the opcodes sb3-creator emits (derived, not hand-maintained) ------------
 // Scan sb3Creator.js for every stc12_* opcode created by createBlock / cmd / B / push.
@@ -144,14 +166,21 @@ test('reference copy matches emitted opcodes', { skip: !referenceSource && 'refe
     assertConformance(info, 'reference');
 });
 
-test('all three copies have identical block shapes on shared opcodes', {
-    skip: (!gallerySource || !bundledWrapper || !referenceSource) && 'one or more files not found'
+// Compare whatever copies this machine actually has, rather than all-or-nothing.
+// Requiring all three meant a workstation without the gallery checkout skipped the
+// comparison entirely — and bundled-vs-reference disagreeing is just as much a bug as
+// all three disagreeing. Two is enough to compare; one is not a comparison.
+const availableCopies = {};
+if (gallerySource) availableCopies.gallery = () => loadExtension(gallerySource);
+if (bundledWrapper) availableCopies.bundled = () => loadExtension(extractInlinedSource(bundledWrapper));
+if (referenceSource) availableCopies.reference = () => loadExtension(referenceSource);
+
+test('the stc12 copies present on this machine have identical block shapes', {
+    skip: Object.keys(availableCopies).length < 2 &&
+        `need two copies to compare, found ${Object.keys(availableCopies).join(', ') || 'none'}`
 }, () => {
-    const copies = {
-        gallery: loadExtension(gallerySource),
-        bundled: loadExtension(extractInlinedSource(bundledWrapper)),
-        reference: loadExtension(referenceSource)
-    };
+    const copies = Object.fromEntries(
+        Object.entries(availableCopies).map(([name, load]) => [name, load()]));
 
     // Collect blocks by opcode from each copy
     const byOp = {};
@@ -161,15 +190,14 @@ test('all three copies have identical block shapes on shared opcodes', {
         );
     }
 
-    // Find opcodes shared by all three
-    const allOps = new Set(Object.keys(byOp.gallery));
-    const shared = [...allOps].filter(op => byOp.bundled[op] && byOp.reference[op]);
+    // Opcodes every present copy has
+    const names = Object.keys(copies);
+    const shared = Object.keys(byOp[names[0]]).filter(op => names.every(n => byOp[n][op]));
     assert.ok(shared.length >= EMITTED_OPCODES.size,
-        `all three copies must share at least the ${EMITTED_OPCODES.size} emitted opcodes (shared: ${shared.length})`);
+        `${names.join(' + ')} must share at least the ${EMITTED_OPCODES.size} emitted opcodes (shared: ${shared.length})`);
 
-    // For each shared opcode, all three must agree on blockType and argument shapes
+    // For each shared opcode, every present copy must agree on blockType and arg shapes
     for (const op of shared) {
-        const names = Object.keys(copies);
         for (let i = 1; i < names.length; i++) {
             const a = byOp[names[0]][op], b = byOp[names[i]][op];
             assert.strictEqual(a.blockType, b.blockType,
@@ -199,27 +227,30 @@ test('all three copies have identical block shapes on shared opcodes', {
 
 // ---- stc12live: copy agreement (no emitter, runtime-only extension) ---------
 
-const stc12liveGalleryPath = resolve(here, '../../extensions/extensions/CrispStrobe/stc12live.js');
-const stc12liveBundledPath = resolve(here, '../../bw-bundle/lite/overlay/scratch-vm/src/extensions/crispstrobe/stc12live/index.js');
-const stc12liveRefPath = resolve(here, '../reference/extensions/stc12live.js');
+const stc12liveGallery = findCopy('BW_GALLERY_STC12LIVE',
+    '../../extensions/extensions/CrispStrobe/stc12live.js',
+    '../../lego/extensions/extensions/CrispStrobe/stc12live.js').source;
+const stc12liveBundled = findCopy('BW_LITE_STC12LIVE',
+    '../../bw-bundle/lite/overlay/scratch-vm/src/extensions/crispstrobe/stc12live/index.js',
+    '../../lego/brickwright-lite/overlay/scratch-vm/src/extensions/crispstrobe/stc12live/index.js').source;
+const stc12liveRef = findCopy('BW_REFERENCE_STC12LIVE', '../reference/extensions/stc12live.js').source;
 
-let stc12liveGallery, stc12liveBundled, stc12liveRef;
-try { stc12liveGallery = readFileSync(stc12liveGalleryPath, 'utf8'); } catch { /* skip */ }
-try { stc12liveBundled = readFileSync(stc12liveBundledPath, 'utf8'); } catch { /* skip */ }
-try { stc12liveRef = readFileSync(stc12liveRefPath, 'utf8'); } catch { /* skip */ }
+const availableLive = {};
+if (stc12liveGallery) availableLive.gallery = () => loadExtension(stc12liveGallery);
+if (stc12liveBundled) availableLive.bundled = () => loadExtension(extractInlinedSource(stc12liveBundled));
+if (stc12liveRef) availableLive.reference = () => loadExtension(stc12liveRef);
 
-test('stc12live copies have identical block shapes', {
-    skip: (!stc12liveGallery || !stc12liveBundled) && 'one or more stc12live files not found'
+test('the stc12live copies present on this machine have identical block shapes', {
+    skip: Object.keys(availableLive).length < 2 &&
+        `need two copies to compare, found ${Object.keys(availableLive).join(', ') || 'none'}`
 }, () => {
-    const copies = {};
-    copies.gallery = loadExtension(stc12liveGallery);
-    copies.bundled = loadExtension(extractInlinedSource(stc12liveBundled));
-    if (stc12liveRef) copies.reference = loadExtension(stc12liveRef);
-
-    assert.strictEqual(copies.gallery.id, 'stc12live');
-    assert.strictEqual(copies.bundled.id, 'stc12live');
+    const copies = Object.fromEntries(
+        Object.entries(availableLive).map(([name, load]) => [name, load()]));
 
     const names = Object.keys(copies);
+    for (const name of names) {
+        assert.strictEqual(copies[name].id, 'stc12live', `${name} copy must register as stc12live`);
+    }
     const byOp = {};
     for (const name of names) {
         byOp[name] = Object.fromEntries(
