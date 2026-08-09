@@ -1348,11 +1348,11 @@ test('the simulator driver refuses with a reason when no board is attached', () 
 import { RUNTIME_EXTENSION_URLS } from '../src/utils/runtimeRegistry.generated.js';
 
 const galleryReachable = await (async () => {
-    // Probe any CrispStrobe URL to check if Pages is up.
-    const probe = Object.values(RUNTIME_EXTENSION_URLS).find(u => u.includes('crispstrobe.github.io'));
-    if (!probe) return false;
+    // Probe the site root — something NOT under test — so "the gallery is up"
+    // and "this URL resolves" are independent facts. If the probe drew from the
+    // same set, a broken first entry would disable every assertion.
     try {
-        const r = await fetch(probe, { method: 'HEAD', signal: AbortSignal.timeout(5000) });
+        const r = await fetch('https://crispstrobe.github.io/extensions/', { method: 'HEAD', signal: AbortSignal.timeout(5000) });
         return r.ok;
     } catch { return false; }
 })();
