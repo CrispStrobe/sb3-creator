@@ -220,6 +220,10 @@ class SB3Creator {
         if (mode === 'simulator' && extId === 'circuit') {
             return this.circuitSimulatorDriver(lang);
         }
+        // LED cube: a frame buffer that the board's led_cube can read if attached.
+        if (mode === 'simulator' && extId === 'ledcube') {
+            return this.ledcubeSimulatorDriver(lang);
+        }
         const banner = {
             shim: 'neutral stub — drives nothing; implement to drive real hardware',
             simulator: 'simulated board — no board attached for this runtime, so neutral',
@@ -435,6 +439,67 @@ class SB3Creator {
             '    setControl: (control, v) => { const b = _circuit_board(); if (b) b.setControl(control, Number(v)); },',
             '    setPower: (state) => { const b = _circuit_board(); if (b) b.setPower(state === "on"); }',
             '};'
+        ];
+    }
+
+    // LED cube simulator driver — a frame buffer that records voxel state.
+    // The board's led_cube kind reads scan history from it if attached.
+    ledcubeSimulatorDriver(lang) {
+        const cube = (this.project && this.project.stc && this.project.stc.ledcube) || { size: 4, selects: 8 };
+        const S = cube.selects;
+        const N = cube.size;
+        if (lang === 'py') {
+            return [
+                `# _ledcube driver — ${N}x${N}x${N} frame buffer.`,
+                `_ledcube_frame = [0] * ${S}`,
+                'class _LedcubeDriver:',
+                `    def _addr(self, x, y, z, c=1): return (z * 2 + (1 if c > 1 else 0), y * ${N} + x)`,
+                '    def setVoxel(self, x, y, z, c):',
+                '        s, b = self._addr(int(x), int(y), int(z), int(c))',
+                `        if 0 <= s < ${S} and 0 <= b < 8:`,
+                `            _ledcube_frame[s] = (_ledcube_frame[s] | (1 << b)) if c else (_ledcube_frame[s] & ~(1 << b))`,
+                '    def clearVoxel(self, x, y, z): self.setVoxel(int(x), int(y), int(z), 0)',
+                `    def fillLayer(self, layer, c):`,
+                `        s = int(layer) * 2 + (1 if int(c) > 1 else 0)`,
+                `        if 0 <= s < ${S}: _ledcube_frame[s] = 0xFF if c else 0`,
+                `    def fillColumn(self, x, y, c):`,
+                `        for z in range(${N}): self.setVoxel(int(x), int(y), z, int(c))`,
+                `    def fillWall(self, z, c):`,
+                `        for y in range(${N}):`,
+                `            for x in range(${N}): self.setVoxel(x, y, int(z), int(c))`,
+                `    def clear(self):`,
+                `        for i in range(${S}): _ledcube_frame[i] = 0`,
+                `    def invert(self):`,
+                `        for i in range(${S}): _ledcube_frame[i] = _ledcube_frame[i] ^ 0xFF`,
+                '    def shift(self, d): pass  # direction shift — needs voxel map',
+                `    def hold(self, ms): scratch.wait(float(ms) / 1000)`,
+                '    def readVoxel(self, x, y, z):',
+                '        s, b = self._addr(int(x), int(y), int(z))',
+                `        if 0 <= s < ${S} and 0 <= b < 8: return (_ledcube_frame[s] >> b) & 1`,
+                '        return 0',
+                '_ledcube = _LedcubeDriver()',
+            ];
+        }
+        return [
+            `// _ledcube driver — ${N}x${N}x${N} frame buffer.`,
+            `const _ledcube_frame = new Uint8Array(${S});`,
+            'const _ledcube = {',
+            `    _addr: (x, y, z, c = 1) => [z * 2 + (c > 1 ? 1 : 0), y * ${N} + x],`,
+            '    setVoxel: (x, y, z, c) => { const [s, b] = _ledcube._addr(x, y, z, c);',
+            `        if (s >= 0 && s < ${S} && b >= 0 && b < 8)`,
+            '            _ledcube_frame[s] = c ? (_ledcube_frame[s] | (1 << b)) : (_ledcube_frame[s] & ~(1 << b)); },',
+            '    clearVoxel: (x, y, z) => _ledcube.setVoxel(x, y, z, 0),',
+            `    fillLayer: (layer, c) => { const s = layer * 2 + (c > 1 ? 1 : 0);`,
+            `        if (s >= 0 && s < ${S}) _ledcube_frame[s] = c ? 0xFF : 0; },`,
+            `    fillColumn: (x, y, c) => { for (let z = 0; z < ${N}; z++) _ledcube.setVoxel(x, y, z, c); },`,
+            `    fillWall: (z, c) => { for (let y = 0; y < ${N}; y++) for (let x = 0; x < ${N}; x++) _ledcube.setVoxel(x, y, z, c); },`,
+            `    clear: () => { _ledcube_frame.fill(0); },`,
+            `    invert: () => { for (let i = 0; i < ${S}; i++) _ledcube_frame[i] ^= 0xFF; },`,
+            '    shift: (d) => {},  // direction shift — needs voxel map',
+            '    hold: (ms) => { scratch.wait(ms / 1000); },',
+            '    readVoxel: (x, y, z) => { const [s, b] = _ledcube._addr(x, y, z);',
+            `        return (s >= 0 && s < ${S} && b >= 0 && b < 8) ? (_ledcube_frame[s] >> b) & 1 : 0; },`,
+            '};',
         ];
     }
 
@@ -5898,6 +5963,24 @@ SB3Creator.RUNTIME_EXTENSIONS = {
             print: { kind: 'command', method: 'print', args: ['VALUE', 'MODE'] },
             whenpin: { kind: 'hat', method: 'whenpin', args: ['PIN', 'EDGE'] },
             tableindex: { kind: 'reporter', method: 'tableIndex', args: ['TABLE', 'INDEX'], neutral: '0' }
+        }
+    },
+    // LED cube — frame-buffer animation blocks. The simulator driver maps to
+    // the board's cube accessors (bw-board led_cube kind) when a board is
+    // attached; the neutral shim records frames locally.
+    ledcube: {
+        runtime: 'ledcube',
+        ops: {
+            setvoxel: { kind: 'command', method: 'setVoxel', args: ['X', 'Y', 'Z', 'COLOUR'] },
+            clearvoxel: { kind: 'command', method: 'clearVoxel', args: ['X', 'Y', 'Z'] },
+            filllayer: { kind: 'command', method: 'fillLayer', args: ['LAYER', 'COLOUR'] },
+            fillcolumn: { kind: 'command', method: 'fillColumn', args: ['X', 'Y', 'COLOUR'] },
+            fillwall: { kind: 'command', method: 'fillWall', args: ['Z', 'COLOUR'] },
+            clear: { kind: 'command', method: 'clear', args: [] },
+            invert: { kind: 'command', method: 'invert', args: [] },
+            shift: { kind: 'command', method: 'shift', args: ['DIR'] },
+            hold: { kind: 'command', method: 'hold', args: ['DURATION'] },
+            readvoxel: { kind: 'reporter', method: 'readVoxel', args: ['X', 'Y', 'Z'], neutral: '0' }
         }
     },
     // The circuit extension — board instruments and controls (simulation-only reporters).
