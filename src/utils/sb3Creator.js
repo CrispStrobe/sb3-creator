@@ -1659,7 +1659,7 @@ class SB3Creator {
                 return ret(block);
             }
             if (/^clear cube$/i.test(line)) {
-                const { id, block } = cmd('ledcube_clear');
+                const { block } = cmd('ledcube_clear');
                 return ret(block);
             }
             if ((match = line.match(/^shift cube\s+(up|down|left|right|forward|back)$/i))) {

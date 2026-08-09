@@ -13,10 +13,10 @@
 
   const SOF = 0x7e;
   const CMD_HELLO = 0x01;
-  const CMD_READ = 0x02;
-  const CMD_WRITE = 0x03;
-  const CMD_POS = 0x0a;
-  const CMD_RESET = 0x0b;
+  const _CMD_READ = 0x02; // wire constant — used by upcoming pin commands
+  const _CMD_WRITE = 0x03;
+  const _CMD_POS = 0x0a;
+  const _CMD_RESET = 0x0b;
   const REPLY = (c) => c | 0x80;
   const EVT_HALT = 0xf0;
   const NAK = 0xff;
