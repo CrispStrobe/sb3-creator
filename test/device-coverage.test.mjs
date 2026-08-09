@@ -77,6 +77,16 @@ const BLOCK_COVERAGE = {
     pmos: ['circuit_branchcurrent'],
     opamp: ['circuit_nodevoltage'],
     vsource: ['circuit_setcontrol'],
+
+    // Device convenience blocks
+    seven_segment: ['devices_showdigit'],
+    rgb_led: ['devices_setrgb'],
+    servo: ['devices_setservo'],
+    dc_motor: ['devices_setmotor'],
+    relay: ['devices_setrelay'],
+    temp_sensor: ['devices_temperature'],
+    ldr: ['devices_light'],
+    ultrasonic: ['devices_distance'],
 };
 
 // Devices that exist in the engine but have NO block vocabulary yet.
@@ -84,29 +94,27 @@ const BLOCK_COVERAGE = {
 const KNOWN_GAPS = new Set([
     // --- displays (need dedicated show/draw blocks) ---
     'char_lcd',         // "print to LCD" / "set cursor"
-    'seven_segment',    // "show digit N"
+    // seven_segment — now covered via devices_showdigit
     'led_matrix',       // per-pixel or pattern blocks
     'bargraph',         // "set bar N to M"
 
-    // --- actuators (need set-angle / set-speed blocks) ---
-    'servo',            // "set angle"
-    'dc_motor',         // "set speed" / "set direction"
+    // --- actuators ---
+    // servo, dc_motor, relay — now covered via devices_setservo/setmotor/setrelay
     'stepper',          // "step N" / "set speed"
     'solenoid',         // "activate" / "release"
-    'relay',            // "set relay on/off" (or just setpin)
     'h_bridge',         // motor driver — driven via pins
 
     // --- LEDs ---
-    'rgb_led',          // "set colour R G B"
+    // rgb_led — now covered via devices_setrgb
     'neopixel',         // addressable LED — "set pixel N to colour"
 
-    // --- sensors (need "read temperature" / "read distance" etc.) ---
-    'temp_sensor',      // "temperature" reporter
+    // --- sensors ---
+    // temp_sensor, ldr, ultrasonic — now covered via devices_temperature/light/distance
     'ntc',              // thermistor — "temperature" or raw ADC
-    'ldr',              // "light level" reporter
+    // ldr — now covered via devices_light
     'ir_receiver',      // "received code" reporter
     'pir',              // "motion detected?" boolean
-    'ultrasonic',       // "distance" reporter
+    // ultrasonic — now covered via devices_distance
     'flex_sensor',      // "flex" reporter
     'force_sensor',     // "force" reporter
     'tilt_sensor',      // "tilt" boolean/reporter

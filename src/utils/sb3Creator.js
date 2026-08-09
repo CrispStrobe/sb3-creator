@@ -904,6 +904,20 @@ class SB3Creator {
             });
         }
 
+        // Device reporters
+        if ((m = s.match(/^temperature from\s+(.+)$/i))) {
+            return B('devices_temperature', { SENSOR: this.parseValue(m[1], context) });
+        }
+        if ((m = s.match(/^light from\s+(.+)$/i))) {
+            return B('devices_light', { SENSOR: this.parseValue(m[1], context) });
+        }
+        if ((m = s.match(/^angle of\s+(.+)$/i))) {
+            return B('devices_servoangle', { SERVO: this.parseValue(m[1], context) });
+        }
+        if ((m = s.match(/^distance from\s+(.+)$/i))) {
+            return B('devices_distance', { SENSOR: this.parseValue(m[1], context) });
+        }
+
         if ((m = s.match(/^pick random\s+(.+)$/i))) {
             const parts = this.splitBinary(m[1], [' to '], { ci: true });
             if (parts) {
@@ -1793,6 +1807,48 @@ class SB3Creator {
                 const { block } = cmd('ledcube_invert');
                 return ret(block);
             }
+        }
+
+        // ---- Device convenience blocks (seven-segment, RGB LED, servo, motor, relay) ----
+        // Higher-level vocabulary over the pin/port primitives. A learner says
+        // "show digit 5" not "set port to font[5]".
+        if ((match = line.match(/^show digit\s+(.+?)\s+on\s+(.+)$/i))) {
+            const { id, block } = cmd('devices_showdigit');
+            block[id].inputs.DIGIT = val(match[1]);
+            block[id].inputs.DISPLAY = val(match[2]);
+            return ret(block);
+        }
+        if ((match = line.match(/^set\s+(.+?)\s+colour to R\s+(.+?)\s+G\s+(.+?)\s+B\s+(.+)$/i))) {
+            const { id, block } = cmd('devices_setrgb');
+            block[id].inputs.LED = val(match[1]);
+            block[id].inputs.R = val(match[2]);
+            block[id].inputs.G = val(match[3]);
+            block[id].inputs.B = val(match[4]);
+            return ret(block);
+        }
+        if ((match = line.match(/^set\s+(.+?)\s+angle to\s+(.+)$/i))) {
+            const { id, block } = cmd('devices_setservo');
+            block[id].inputs.SERVO = val(match[1]);
+            block[id].inputs.ANGLE = val(match[2]);
+            return ret(block);
+        }
+        if ((match = line.match(/^set\s+(.+?)\s+speed to\s+(.+)$/i))) {
+            const { id, block } = cmd('devices_setmotor');
+            block[id].inputs.MOTOR = val(match[1]);
+            block[id].inputs.SPEED = val(match[2]);
+            return ret(block);
+        }
+        if ((match = line.match(/^set relay\s+(.+?)\s+(on|off)$/i))) {
+            const { id, block } = cmd('devices_setrelay');
+            block[id].inputs.RELAY = val(match[1]);
+            block[id].fields.STATE = [match[2].toLowerCase(), null];
+            return ret(block);
+        }
+        if ((match = line.match(/^read temperature from\s+(.+)$/i))) {
+            // Reporter — handled in parseReporter, not here
+        }
+        if ((match = line.match(/^read light from\s+(.+)$/i))) {
+            // Reporter — handled in parseReporter, not here
         }
 
         // ---- Arrays & Vectors extension commands (anchored on `array "NAME"`; 0-based) ----
@@ -3293,6 +3349,11 @@ class SB3Creator {
             case 'stc12_readport': return `read ${f('PORT')}`;
             case 'stc12_tableindex': return `${f('TABLE')}[${v('INDEX')}]`;
             case 'ledcube_readvoxel': return `voxel ${v('X')} ${v('Y')} ${v('Z')}`;
+            // Device reporters
+            case 'devices_temperature': return `temperature from ${v('SENSOR')}`;
+            case 'devices_light': return `light from ${v('SENSOR')}`;
+            case 'devices_servoangle': return `angle of ${v('SERVO')}`;
+            case 'devices_distance': return `distance from ${v('SENSOR')}`;
             // circuit extension reporters
             case 'circuit_nodevoltage': return `voltage at ${v('NET')}`;
             case 'circuit_branchcurrent': return `current through ${v('PART')}`;
@@ -3496,6 +3557,12 @@ class SB3Creator {
             // circuit extension commands
             case 'circuit_setcontrol': return line(`set control ${v('CONTROL')} to ${v('VALUE')}`);
             case 'circuit_setpower': return line(`turn power ${f('STATE')}`);
+            // Device convenience blocks
+            case 'devices_showdigit': return line(`show digit ${v('DIGIT')} on ${v('DISPLAY')}`);
+            case 'devices_setrgb': return line(`set ${v('LED')} colour to R ${v('R')} G ${v('G')} B ${v('B')}`);
+            case 'devices_setservo': return line(`set ${v('SERVO')} angle to ${v('ANGLE')}`);
+            case 'devices_setmotor': return line(`set ${v('MOTOR')} speed to ${v('SPEED')}`);
+            case 'devices_setrelay': return line(`set relay ${v('RELAY')} ${f('STATE')}`);
             // LED cube commands
             case 'ledcube_setvoxel': return line(`set voxel ${v('X')} ${v('Y')} ${v('Z')} to ${v('COLOUR')}`);
             case 'ledcube_clearvoxel': return line(`clear voxel ${v('X')} ${v('Y')} ${v('Z')}`);
@@ -6104,6 +6171,22 @@ SB3Creator.RUNTIME_EXTENSIONS = {
     // The circuit extension — board instruments and controls (simulation-only reporters).
     // Overrides the generated entry with camelCase method names (matching the simulator
     // driver and boundary B) and neutral values (resistance alone refuses with a reason).
+    // Device convenience blocks — higher-level vocabulary over pins/ports.
+    // A learner says "show digit 5" not "set port to font[5]".
+    devices: {
+        runtime: 'devices',
+        ops: {
+            showdigit: { kind: 'command', method: 'showDigit', args: ['DIGIT', 'DISPLAY'] },
+            setrgb: { kind: 'command', method: 'setRgb', args: ['LED', 'R', 'G', 'B'] },
+            setservo: { kind: 'command', method: 'setServo', args: ['SERVO', 'ANGLE'] },
+            setmotor: { kind: 'command', method: 'setMotor', args: ['MOTOR', 'SPEED'] },
+            setrelay: { kind: 'command', method: 'setRelay', args: ['RELAY', 'STATE'] },
+            temperature: { kind: 'reporter', method: 'temperature', args: ['SENSOR'], neutral: 'NaN' },
+            light: { kind: 'reporter', method: 'light', args: ['SENSOR'], neutral: 'NaN' },
+            servoangle: { kind: 'reporter', method: 'servoAngle', args: ['SERVO'], neutral: 'NaN' },
+            distance: { kind: 'reporter', method: 'distance', args: ['SENSOR'], neutral: 'NaN' }
+        }
+    },
     // The generated entry from circuit.js provides the opcode shape and the gallery URL.
     circuit: {
         runtime: 'circuit',
