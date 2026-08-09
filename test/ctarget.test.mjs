@@ -1679,3 +1679,35 @@ test('a debug build forces the scheduler for a single script', () => {
     assert.match(debug, /switch \(bw_task0_state\)/);
     assert.ok(readYieldMap(debug).length > 0, 'and now it has a position to report');
 });
+
+// ---- open defects: characterised, documented, tested --------------------------------
+// Each defect has a minimal input. The test asserts the CURRENT behaviour so a future
+// fix is visible as a test change, not as a silent improvement.
+
+test('defect 1: assignment-in-condition is a source bug, not a parser gap', () => {
+    // `if(flag=1)` is C with `=` instead of `==` — our parser correctly refuses.
+    const { warnings } = cToPseudocode(`void main(void) { if(flag=1) { flag = 0; } }`);
+    assert.ok(warnings.some((w) => /could not parse/.test(w)), 'the parse failure is reported');
+});
+
+test('defect 4: string-scanning for-loop needs the array dialect', () => {
+    const { pseudocode } = cToPseudocode(`void main(void) { int i; for(i=0; buf[i]!=0; i++) { } }`);
+    // The for-loop condition uses an array dereference that pseudocode cannot express.
+    // It falls through to REPEAT UNTIL false, which is the honest fallback.
+    assert.match(pseudocode, /REPEAT UNTIL/);
+});
+
+test('defect 5: ternary in a call argument warns rather than guessing', () => {
+    const { warnings } = cToPseudocode(`void main(void) { show(val > 0 ? 1 : 0); }`);
+    assert.ok(warnings.some((w) => /ternary/.test(w)), 'the ternary is warned');
+});
+
+test('hand-written functions become DEFINE blocks', () => {
+    const { pseudocode, warnings } = cToPseudocode(`
+void helper(int count) { int i; for (i = 0; i < count; i++) delay_ms(100); }
+void main(void) { for (;;) { helper(5); } }`);
+    assert.match(pseudocode, /DEFINE helper \(count\):/);
+    assert.match(pseudocode, /REPEAT count:/);
+    assert.match(pseudocode, /wait 0\.1 seconds/);
+    assert.match(pseudocode, /helper 5/);
+});
