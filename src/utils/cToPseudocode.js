@@ -862,6 +862,12 @@ export default function cToPseudocode (source, opts = {}) {
             return { text: '0', level: 99, stmt: `wait ${argText} ms` };
         }
         if (SETUP.has(name) || name === '_nop_' || name === 'NOP' || name === '__nop') return { text: '0', level: 99, stmt: null };
+        // Tone: `tone_set(freq)` → `set <tone-pin> to freq hz`
+        if (name === 'tone_set' && args.length >= 1) {
+            const tonePin = [...pins.values()].find(p => p.direction === 'tone');
+            const pname = tonePin ? tonePin.name : 'buzzer';
+            return { text: '0', level: 99, stmt: `set ${pname} to ${args[0].text} hz` };
+        }
         // LED cube kernel functions → cube pseudocode commands.
         if (name === 'bw_cube_clear') return { text: '0', level: 99, stmt: 'clear cube' };
         if (name === 'bw_cube_hold' || name === 'bw_cube_scan') {
@@ -1376,7 +1382,7 @@ export default function cToPseudocode (source, opts = {}) {
     }
 
     const IGNORE_FNS = new Set(['bw_setup', 'bw_tick', 'bw_now', 'bw_block_ms', 'delay_ms', 'adc_read',
-        'board_init', 'delay_init',
+        'board_init', 'delay_init', 'tone_set', 'tone_stop',
         'bw_cube_scan', 'bw_cube_set', 'bw_cube_get', 'bw_cube_clear',
         'bw_cube_fill_layer', 'bw_cube_shift', 'bw_cube_hold']);
     const procFns = funcs.filter((f) => markers && markers.procs.has(f.name));
