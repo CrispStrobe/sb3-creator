@@ -29,14 +29,26 @@ traps, both now covered by tests: reading only the **first** write inverts it, b
 is often written only one of the pair, so `X = SOMETHING_OFF` that is `1` has to settle it
 symmetrically.
 
-**What it will not do.** The cooperative-scheduler form is **not inverted**. Recovering three
-scripts from a switch whose `case` labels are scattered through nested `if`s is a genuine
-inverse problem, and a fragile half-inverter would be worse than saying so — it warns and
-tells you to re-generate from blocks. Bitwise work, `do`/`switch`/`goto`, and anything else
-outside the subset is dropped with a warning rather than mistranslated.
+**The cooperative-scheduler form IS now inverted** (as of 2026-08-09). The shapes are finite
+— `cTaskBlock` is the complete grammar — and each is recognised structurally:
 
-For that reason C stays **out of the strict two-way convergence invariant** the other three
-languages satisfy: it is genuinely two-way over the subset it covers, not over all of it.
+| construct | inverts cleanly? |
+|---|---|
+| FOREVER, REPEAT n, REPEAT UNTIL | yes — including case labels nested inside if/else (the Duff's-device property) |
+| wait N seconds, wait until | yes |
+| stop (this/all/others) | yes |
+| if / if-else inside tasks | yes — parsed with a task-aware handler |
+
+A `{debug: true}` build forces the scheduler even for a single script; that also round-trips
+cleanly (tested). If a shape does not match the grammar, the inverter warns and skips it rather
+than guessing — the guarantee is that nothing comes back confidently wrong.
+
+Bitwise operators (`bitand`/`bitor`/`bitxor`/`bitnot`/`shiftleft`/`shiftright`) are now part
+of the pseudocode dialect and translate natively. `do/while` maps to `REPEAT UNTIL`.
+`switch/case` maps to a series of `IF` blocks. `goto` is the only construct that is genuinely
+inexpressible — it is refused with a warning.
+
+C is two-way over the full subset the dialect can express, not just over straight-line code.
 
 ## What the other two pieces in `../stc-compiler` contribute
 
