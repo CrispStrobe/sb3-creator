@@ -65,6 +65,7 @@ function asCall(text) {
 
 class Reader {
     constructor() {
+        this.params = null;          // param name -> '%s' | '%b', inside a DEFINE
         this.warnings = [];
         this.lists = new Set();
         this.renames = new Map();       // C identifier -> original Scratch name
@@ -75,6 +76,13 @@ class Reader {
 
     name(id) {
         if (id === 'bw_answer') return 'answer';   // the emitter's spelling of sensing_answer
+        // Inside a custom block, a parameter is an argument reporter, not a
+        // variable, and the dialect spells it (name) for %s and <name> for %b.
+        // Bare, it reparses as an ordinary variable — which is how the two
+        // largest examples grew a dozen phantom globals.
+        if (this.params && this.params.has(id)) {
+            return this.params.get(id) === '%b' ? `<${id}>` : `(${id})`;
+        }
         const bare = stripSpritePrefix(id);
         return this.renames.get(id) || this.renames.get(bare) || bare;
     }
@@ -251,6 +259,22 @@ export default function cHostToPseudocode(source) {
         else if (s.m === 'global_list') out.push(`GLOBAL LIST ${s.a[0]}`);
     }
 
+    // Pass 1b — every custom block's proccode, so a CALL can be written the way
+    // the dialect writes it: the label with the arguments interleaved.
+    for (let k = 0; k < lines.length; k++) {
+        const def = /^(?:void|static void)\s+([A-Za-z_]\w*)\s*\(/.exec(lines[k].trim());
+        if (!def) continue;
+        for (let j = k + 1; j < Math.min(k + 6, lines.length); j++) {
+            const t = lines[j].trim();
+            if (t.startsWith('scratch_defblock(')) {
+                const call = asCall(t.replace(/;$/, ''));
+                r.procs.set(def[1], unquoteArg(call.args[0]));
+                break;
+            }
+            if (t && t !== '{' && !t.startsWith('/*')) break;
+        }
+    }
+
     // Pass 2 — the functions, under the section header their prefix names.
     // `s0_` is the first section, `s1_` the second, in the order bw_structure()
     // introduced them, which is how the emitter assigned the prefixes.
@@ -289,6 +313,7 @@ export default function cHostToPseudocode(source) {
                     ...section.lists, ...section.costumes, ...section.sounds);
             }
             const indent = section ? 1 : 0;
+            r.params = null;                     // scoped to one DEFINE; header() sets it
             out.push('', ...pending.map((c) => '  '.repeat(indent) + c),
                 ...header(r, fn[1], fn[2], body).map((h) => '  '.repeat(indent) + h),
                 ...stmts(r, body, indent + 1));
@@ -350,10 +375,13 @@ function header(r, cname, params, body) {
         const warp = unquoteArg(call.args[1]) === '1';
         const names = (params.match(/bw_val\s+(\w+)/g) || []).map((p) => p.split(/\s+/)[1]);
         let k = 0;
-        // `%b` is a boolean parameter and the dialect spells it <name>, not (name);
-        // getting that wrong turned the whole DEFINE line into a LOCAL declaration.
-        const label = String(proccode).replace(/%[sb]/g,
-            (tok) => (tok === '%b' ? `<${names[k++] || 'arg'}>` : `(${names[k++] || 'arg'})`));
+        // `%b` is a boolean parameter and the dialect spells it <name>, not (name).
+        r.params = new Map();
+        const label = String(proccode).replace(/%[sb]/g, (tok) => {
+            const nm = names[k++] || 'arg';
+            r.params.set(nm, tok);
+            return tok === '%b' ? `<${nm}>` : `(${nm})`;
+        });
         return [`DEFINE ${warp ? 'FAST ' : ''}${label}:`];
     }
     if (bare === 'when_flag_clicked') return ['WHEN flag clicked:'];
@@ -440,8 +468,21 @@ function simple(r, line, pad) {
         const p = r.scratch(call.name, call.args);
         return p ? [pad + p] : [];
     }
-    // a call to another generated function is a custom-block call
+    // A call to another generated function is a custom-block call. Its proccode
+    // carries where the arguments sit among the label words, which a flat C name
+    // cannot: `set cell %s %s to %s` is called `set cell 3 4 to 7`.
+    const proccode = r.procs.get(call.name);
+    if (proccode) {
+        let k = 0;
+        const args = call.args.map((a) => r.expr(a));
+        const text = String(proccode).replace(/%[sb]/g, () => {
+            const v = args[k++];
+            return v === undefined ? '' : v;
+        }).replace(/\s+/g, ' ').trim();
+        return [pad + text];
+    }
     const bare = stripSpritePrefix(call.name).replace(/^do_/, '').replace(/_/g, ' ');
+    r.warn(`call to ${call.name} has no DEFINE marker`);
     return [pad + (call.args.length
         ? `${bare} ${call.args.map((a) => r.expr(a)).join(' ')}` : bare)];
 }

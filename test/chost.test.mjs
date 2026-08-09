@@ -108,30 +108,51 @@ void skip;
 
 // ---- the way back --------------------------------------------------------
 // blocks → host C → pseudocode → blocks has to land on the same project.
-// Measured rather than asserted per example: 26 of the 30 come back identical
-// today. The four that do not are named, because a floor that can only rise is
-// worth more than a suite that passes while quietly losing ground.
 //
-// Two of the four are the extension gaps the emit test already names (the
-// Arrays registry and Planète Maths' digit sum — the C cannot carry what was
-// never emitted). The other two are custom-block DEFINE reconstruction in the
-// two largest examples, which is a reader bug and not a lossy emission.
-const ROUNDTRIP_FLOOR = 26;
-const KNOWN_LOSSY = new Set(['arrays', 'planetemaths', 'tetris', 'sokoban']);
+// The comparison is against what the DIALECT's own round trip preserves, not
+// against the original decompile, and that distinction earned itself: `tetris`
+// loses a comment through pseudocode → blocks → pseudocode with no C involved
+// at all. Measuring against the original would have blamed the C target for a
+// pre-existing asymmetry in the parser, and "fixing" it in the reader would
+// have meant making the C round trip better than the language it round-trips
+// through — a bug dressed as an improvement.
+//
+// So: the C is allowed to lose whatever the dialect already loses, and nothing
+// more. 28 of the 30 clear that bar. The two that do not are the extension
+// surfaces the emit test already names: the C never carried them, so no reader
+// can invent them.
+const FIDELITY_FLOOR = 28;
+const KNOWN_LOSSY = new Set(['arrays', 'planetemaths']);
 
-test('host C reads back as the same project', async () => {
+test('host C loses nothing the dialect does not already lose', async () => {
     const examples = (await import('../src/utils/examples.js')).default;
-    let identical = 0;
-    const differ = [];
+    let asFaithful = 0;
+    const worse = [];
     for (const [name, ex] of Object.entries(examples)) {
         const a = build(ex.code ?? ex);
         if (a.project.stc && a.project.stc.pins && a.project.stc.pins.length) continue;
-        const want = a.decompile();
-        const got = build(cHostToPseudocode(a.generateC())).decompile();
-        if (got === want) identical++; else differ.push(name);
+        const direct = a.decompile();
+        const viaPseudocode = build(direct).decompile();          // the dialect's own ceiling
+        const viaC = build(cHostToPseudocode(a.generateC())).decompile();
+        if (viaC === viaPseudocode) asFaithful++; else worse.push(name);
     }
-    assert.ok(identical >= ROUNDTRIP_FLOOR,
-        `round trip fell to ${identical} (floor ${ROUNDTRIP_FLOOR}); differing: ${differ.join(', ')}`);
-    assert.deepEqual(differ.filter((n) => !KNOWN_LOSSY.has(n)), [],
-        'a new example stopped round-tripping');
+    assert.ok(asFaithful >= FIDELITY_FLOOR,
+        `fidelity fell to ${asFaithful} (floor ${FIDELITY_FLOOR}); worse: ${worse.join(', ')}`);
+    assert.deepEqual(worse.filter((n) => !KNOWN_LOSSY.has(n)), [],
+        'a new example started losing information through C');
+});
+
+// The stricter statement, kept separate so a regression says which bar it fell
+// below: most projects come back byte-identical to the original, not merely as
+// good as the dialect.
+test('and most come back byte-identical', async () => {
+    const examples = (await import('../src/utils/examples.js')).default;
+    let identical = 0;
+    for (const [name, ex] of Object.entries(examples)) {
+        void name;
+        const a = build(ex.code ?? ex);
+        if (a.project.stc && a.project.stc.pins && a.project.stc.pins.length) continue;
+        if (build(cHostToPseudocode(a.generateC())).decompile() === a.decompile()) identical++;
+    }
+    assert.ok(identical >= 27, `only ${identical} of 30 are byte-identical`);
 });
