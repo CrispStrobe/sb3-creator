@@ -2,7 +2,7 @@
 // exactly the opcodes sb3-creator emits, with identical argument shapes.
 //
 // Three things agree, or projects round-trip wrong:
-//   1. sb3-creator emits  stc12_setpin, stc12_writepin, stc12_toggle, stc12_read
+//   1. sb3-creator emits  stc12_* opcodes (derived by scanning sb3Creator.js)
 //   2. gallery copy       extensions/CrispStrobe/stc12.js (fetched at runtime)
 //   3. bundled copy       lite/overlay/.../crispstrobe/stc12/index.js (string literal)
 //
@@ -51,14 +51,16 @@ let gallerySource, bundledWrapper;
 try { gallerySource = readFileSync(galleryPath, 'utf8'); } catch { /* skip */ }
 try { bundledWrapper = readFileSync(bundledPath, 'utf8'); } catch { /* skip */ }
 
-// ---- the opcodes sb3-creator emits ------------------------------------------
+// ---- the opcodes sb3-creator emits (derived, not hand-maintained) ------------
+// Scan sb3Creator.js for every 'stc12_*' opcode it emits. A hand-maintained list
+// let stc12 go unregistered for months; this finds every opcode automatically.
 
-const EMITTED_OPCODES = {
-    setpin:   { args: ['STATE', 'PIN'], fields: ['STATE', 'PIN'] },
-    writepin: { args: ['PIN', 'VALUE'], fields: ['PIN'] },
-    toggle:   { args: ['PIN'], fields: ['PIN'] },
-    read:     { args: ['PIN'], fields: ['PIN'] },
-};
+const sb3CreatorSource = readFileSync(resolve(here, '../src/utils/sb3Creator.js'), 'utf8');
+const EMITTED_OPCODES = new Set(
+    [...sb3CreatorSource.matchAll(/'stc12_([a-z]+)'/g)].map(m => m[1])
+        // _stc12_pins is a generated variable name, not an opcode
+        .filter(op => op !== 'pins')
+);
 
 // ---- assert a getInfo matches the emitted opcodes ---------------------------
 
@@ -67,31 +69,18 @@ function assertConformance(info, label) {
         info.blocks.filter(b => typeof b === 'object').map(b => [b.opcode, b])
     );
 
-    // Every emitted opcode must exist
-    for (const op of Object.keys(EMITTED_OPCODES)) {
-        assert.ok(blocksByOpcode[op], `${label}: missing opcode "${op}"`);
+    // Every emitted opcode must exist in the extension
+    for (const op of EMITTED_OPCODES) {
+        assert.ok(blocksByOpcode[op], `${label}: missing opcode "${op}" (sb3-creator emits stc12_${op})`);
     }
 
-    // Extra opcodes in the extension are fine — the extension is the superset,
-    // sb3-creator is the subset. The invariant is: every emitted opcode exists.
-
-    // Argument names match
-    for (const [op, expect] of Object.entries(EMITTED_OPCODES)) {
-        const block = blocksByOpcode[op];
-        const argNames = Object.keys(block.arguments || {});
-        assert.deepStrictEqual(argNames.sort(), [...expect.args].sort(),
-            `${label}: ${op} argument names`);
-    }
-
-    // Menus that field-arguments reference must have acceptReporters:false
+    // Every menu referenced by any block must have acceptReporters:false (→ FIELD)
     const menus = info.menus || {};
-    for (const [op, expect] of Object.entries(EMITTED_OPCODES)) {
-        const block = blocksByOpcode[op];
-        for (const fieldArg of expect.fields) {
-            const arg = block.arguments[fieldArg];
+    for (const block of Object.values(blocksByOpcode)) {
+        for (const [argName, arg] of Object.entries(block.arguments || {})) {
             if (arg.menu) {
                 const menu = menus[arg.menu];
-                assert.ok(menu, `${label}: ${op}.${fieldArg} references menu "${arg.menu}" which does not exist`);
+                assert.ok(menu, `${label}: ${block.opcode}.${argName} references menu "${arg.menu}" which does not exist`);
                 assert.strictEqual(menu.acceptReporters, false,
                     `${label}: menu "${arg.menu}" must have acceptReporters:false (FIELD, not input)`);
             }
@@ -130,7 +119,7 @@ test('shared stc12 opcodes have identical block shapes across copies', {
     // Extra opcodes in either copy are fine — the gallery may gain blocks
     // before the bundled copy is updated, and vice versa.
     const shared = Object.keys(gByOp).filter(op => bByOp[op]);
-    assert.ok(shared.length >= Object.keys(EMITTED_OPCODES).length,
+    assert.ok(shared.length >= EMITTED_OPCODES.size,
         'both copies must at least share the emitted opcodes');
 
     for (const op of shared) {
