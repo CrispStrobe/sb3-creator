@@ -1289,21 +1289,35 @@ export default function cToPseudocode (source, opts = {}) {
         else warn('no main() and no @bw script markers — nothing to translate');
     }
 
-    for (const f of procFns) {
-        const { proccode } = markers.procs.get(f.name);
-        // Recover parameter names from the C function signature (just before the body).
+    // Emit DEFINE blocks for custom procedures.
+    // With markers: only named procs. Without markers (hand-written firmware):
+    // every function that is not main, not a known setup/delay, and not an ISR.
+    const userFns = markers
+        ? procFns
+        : funcs.filter((f) => !IGNORE_FNS.has(f.name) && f.name !== 'main'
+            && !DELAYS.has(f.name) && !SETUP.has(f.name));
+
+    for (const f of userFns) {
+        // Recover parameter names from the C function signature.
         const paramNames = [];
         for (let j = f.from - 1; j >= 0; j--) {
             if (tokens[j].v === '(') break;
             if (tokens[j].t === 'id' && tokens[j - 1] && tokens[j - 1].t === 'id') paramNames.unshift(varName(tokens[j].v));
         }
-        let n = 0;
-        const sig = proccode.replace(/%[sb]/g, (tok) => {
-            const name = paramNames[n] || `arg${n + 1}`;
-            n++;
-            return `${tok === '%b' ? '<' : '('}${name}${tok === '%b' ? '>' : ')'}`;
-        });
-        out.push('', `DEFINE ${sig}:`, ...linesFor(f, 1));
+        if (markers && markers.procs.has(f.name)) {
+            const { proccode } = markers.procs.get(f.name);
+            let n = 0;
+            const sig = proccode.replace(/%[sb]/g, (tok) => {
+                const name = paramNames[n] || `arg${n + 1}`;
+                n++;
+                return `${tok === '%b' ? '<' : '('}${name}${tok === '%b' ? '>' : ')'}`;
+            });
+            out.push('', `DEFINE ${sig}:`, ...linesFor(f, 1));
+        } else {
+            // Hand-written: build a proccode from the function name and parameters.
+            const params = paramNames.length ? ' ' + paramNames.map((p) => `(${p})`).join(' ') : '';
+            out.push('', `DEFINE ${f.name}${params}:`, ...linesFor(f, 1));
+        }
     }
 
     // Find `//` comments preceding a function definition in the original source.

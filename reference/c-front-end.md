@@ -74,6 +74,30 @@ In multi-script programs, the emitter only places `//` comments before the **fir
 function. Comments on the second and subsequent scripts are lost by `generateC`, not by
 the reader. The round-trip is consistent (a fixed point) because neither hop has the comment.
 
+## Cube driver characterisation (2026-08-09)
+
+`stc/src/20-ledcube/main.c` — hand-written firmware with no `@bw` header. 239 lines,
+`__code` arrays, port writes, indexed tables, nested loops, inter-function calls.
+
+| construct | result | class |
+|---|---|---|
+| `while(1)` in main → `FOREVER:` | ✓ translated | |
+| Function calls → custom-block syntax | ✓ translated | |
+| Loop structures (for/while) | ✓ translated | |
+| Conditionals | ✓ translated | |
+| `delay_ms(N)` → `wait` | ✓ translated | |
+| Bitwise in expressions | ✓ translated (since dialect) | |
+| User function definitions → `DEFINE` | ✓ translated (new) | was missing |
+| `P0 = fb[line]` — port write | silently filtered (SFR) | **dialect gap**: whole-port I/O |
+| `__code uint8_t table[] = {...}` | skipped (declaration) | **dialect gap**: lookup tables |
+| `fb[line]`, `scan_table[line]` | parsed, index lost | **dialect gap**: arrays |
+| `fb[i] = (fb[i] | 0x0F) & ~(mask)` | bitwise on array → empty | **parser + dialect gap** |
+
+**Summary:** the function structure, loops, calls, delays, and bitwise all translate.
+What blocks it is the same two features DIALECT-COVERAGE.md identifies as tier 2:
+whole-port I/O and indexed lookup tables. These are feature requests for the dialect,
+not bugs in the parser.
+
 ## Open defects (6, characterised 2026-08-09)
 
 | # | file | construct | class | fixable? |
