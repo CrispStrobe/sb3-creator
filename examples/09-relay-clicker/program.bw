@@ -1,0 +1,14 @@
+DEVICE STC12C5A60S2
+CLOCK 11059200
+PIN relay_ctrl = P1.0 OUTPUT
+PIN led1 = P1.1 OUTPUT ACTIVE LOW
+
+# Click a relay on and off every 2 seconds; LED mirrors the relay state
+WHEN flag clicked:
+  FOREVER:
+    turn on relay_ctrl
+    turn on led1
+    wait 2 seconds
+    turn off relay_ctrl
+    turn off led1
+    wait 2 seconds

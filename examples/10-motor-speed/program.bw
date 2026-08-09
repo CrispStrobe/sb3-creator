@@ -1,0 +1,11 @@
+DEVICE STC12C5A60S2
+CLOCK 11059200
+PIN motor_pwm = P1.0 OUTPUT
+PIN pot = P1.3 ANALOG
+
+# Motor speed control via pot: read ADC, set PWM duty cycle
+WHEN flag clicked:
+  FOREVER:
+    set speed to read pot
+    set motor_pwm to speed bitand 1
+    wait 0.001 seconds

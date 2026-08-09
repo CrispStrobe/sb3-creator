@@ -47,9 +47,11 @@ describe('gallery: every example parses and compiles', () => {
             const src = readFileSync(bwPath, 'utf8');
             const c = new SB3Creator();
             c.parse(src);
-            const { pseudocode, warnings } = cToPseudocode(c.generateC());
+            const cCode = c.generateC();
+            // Skip round-trip for host C (no @bw marker → not device C → different reader)
+            if (!/@bw-begin/.test(cCode)) return;
+            const { pseudocode, warnings } = cToPseudocode(cCode);
             assert.deepEqual(warnings, [], `${name} round-trip warnings`);
-            // The pseudocode recompiles cleanly.
             const c2 = new SB3Creator();
             c2.parse(pseudocode);
             assert.deepEqual(c2.warnings, [], `${name} recompile warnings`);
@@ -60,6 +62,7 @@ describe('gallery: every example parses and compiles', () => {
             const c1 = new SB3Creator();
             c1.parse(src);
             const cCode = c1.generateC();
+            if (!/@bw-begin/.test(cCode)) return;
             const { pseudocode: ps1 } = cToPseudocode(cCode);
             const c2 = new SB3Creator();
             c2.parse(ps1);

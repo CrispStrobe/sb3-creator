@@ -1,0 +1,21 @@
+DEVICE STC12C5A60S2
+CLOCK 11059200
+PART leds = 74HC595 data P1.0 clock P1.1 latch P1.2
+
+# 8-LED chaser: a single lit LED walks left then right
+WHEN flag clicked:
+  set pattern to 1
+  set direction to 1
+  FOREVER:
+    set leds to pattern
+    wait 0.1 seconds
+    IF direction = 1 THEN:
+      set pattern to pattern shiftleft 1
+      IF pattern > 128 THEN:
+        set direction to 0
+        set pattern to 128
+    ELSE:
+      set pattern to pattern shiftright 1
+      IF pattern < 1 THEN:
+        set direction to 1
+        set pattern to 1
