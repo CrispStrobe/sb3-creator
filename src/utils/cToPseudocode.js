@@ -1539,6 +1539,35 @@ export default function cToPseudocode (source, opts = {}) {
             out.push(`PIN ${p.name} = ${at} ${p.direction.toUpperCase()}${p.activeLow ? ' ACTIVE LOW' : ''}`);
         }
     }
+    // ---- static current check (STC12C5A60S2 datasheet §4.6) ----
+    // Sum worst-case sink current for all output pins. The per-pin maximum is
+    // 20 mA; the total chip I/O budget is ~120 mA. A warning fires when the
+    // declarations alone put the total over the budget, before any simulation.
+    if (pinList.length) {
+        const MAX_PER_PIN_MA = 20;
+        const CHIP_TOTAL_MA = 120;
+        const outputPins = pinList.filter(p => p.direction === 'output' || p.direction === 'pwm' || p.direction === 'tone');
+        const worstCaseMa = outputPins.length * MAX_PER_PIN_MA;
+        if (worstCaseMa > CHIP_TOTAL_MA) {
+            warn(`${outputPins.length} output pins × ${MAX_PER_PIN_MA} mA = ${worstCaseMa} mA worst-case, `
+                + `which exceeds the chip's total I/O budget of ~${CHIP_TOTAL_MA} mA (STC12 datasheet §4.6). `
+                + `Use current-limiting resistors ≥1 kΩ or multiplex the outputs.`);
+        }
+        // Also warn per-port: if a single port has ≥6 outputs, note the concentration.
+        const portCounts = new Map();
+        for (const p of outputPins) {
+            if (p.port !== undefined) {
+                portCounts.set(p.port, (portCounts.get(p.port) || 0) + 1);
+            }
+        }
+        for (const [port, count] of portCounts) {
+            if (count >= 6) {
+                warn(`Port ${port} has ${count} output pins — at 20 mA each that is ${count * 20} mA `
+                    + `from one port. Total chip budget is ~120 mA.`);
+            }
+        }
+    }
+
     // Detect the LED cube kernel by the presence of bw_cube_frame.
     const cubeFrameMatch = source.match(/bw_cube_frame\[(\d+)\]/);
     if (cubeFrameMatch) {

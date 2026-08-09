@@ -438,6 +438,41 @@ describe('e2e: device-state examples — relay, motor, 595', { skip: DEVICE_SKIP
     }, () => {});
 });
 
+// The aggregate current check does not need the board engine — just the parser.
+import SB3Creator from '../src/utils/sb3Creator.js';
+import cToPseudocode from '../src/utils/cToPseudocode.js';
+
+describe('e2e: aggregate current check (STC12 §4.6)', () => {
+    test('8 output pins on one port triggers the chip-total warning', () => {
+        const src = readFileSync(join(EXAMPLES, '46-port-overcurrent', 'program.bw'), 'utf8');
+        const c = new SB3Creator();
+        c.parse(src);
+        const code = c.generateC();
+        const { warnings } = cToPseudocode(code);
+        assert.ok(warnings.some(w => /160 mA worst-case/.test(w)),
+            'should warn about 160 mA exceeding 120 mA chip budget');
+        assert.ok(warnings.some(w => /Port 1 has 8 output pins/.test(w)),
+            'should warn about port concentration');
+    });
+
+    test('4 output pins does NOT trigger the warning', () => {
+        const { warnings } = cToPseudocode(`
+/* @bw-begin
+ * @bw device stc12c5a60s2
+ * @bw clock 11059200
+ * @bw pin led0 P1.0 output active-low
+ * @bw pin led1 P1.1 output active-low
+ * @bw pin led2 P1.2 output active-low
+ * @bw pin led3 P1.3 output active-low
+ * @bw script main 0 stage
+ * @bw-end */
+#include <stc12.h>
+void main(void) { }`);
+        assert.ok(!warnings.some(w => /worst-case/.test(w)),
+            '4 pins × 20 mA = 80 mA — under the 120 mA budget');
+    });
+});
+
 describe('e2e: blocked examples — named dependencies', { skip: SKIP }, () => {
     for (const [name, blocker] of Object.entries(BLOCKED)) {
         test(`${name}: BLOCKED on ${blocker}`, { skip: `waiting on bw-board: ${blocker}` }, () => {});

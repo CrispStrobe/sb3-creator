@@ -706,5 +706,21 @@
       "expected": "45-led-current-comparison/EXPECTED.md"
     },
     "kind": "circuit"
+  },
+  {
+    "id": "46-port-overcurrent",
+    "title": {
+      "en": "8 LEDs on one port: the aggregate current lesson",
+      "de": "8 LEDs an einem Port: die Gesamtstrom-Lektion"
+    },
+    "kind": "program",
+    "category": "basics",
+    "difficulty": 3,
+    "thumbnail": "46-port-overcurrent/thumb.svg",
+    "files": {
+      "program": "46-port-overcurrent/program.bw",
+      "circuit": "46-port-overcurrent/circuit.json",
+      "expected": "46-port-overcurrent/EXPECTED.md"
+    }
   }
 ]

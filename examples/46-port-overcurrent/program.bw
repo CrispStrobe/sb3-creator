@@ -1,0 +1,37 @@
+DEVICE STC12C5A60S2
+CLOCK 11059200
+PIN led0 = P1.0 OUTPUT ACTIVE LOW
+PIN led1 = P1.1 OUTPUT ACTIVE LOW
+PIN led2 = P1.2 OUTPUT ACTIVE LOW
+PIN led3 = P1.3 OUTPUT ACTIVE LOW
+PIN led4 = P1.4 OUTPUT ACTIVE LOW
+PIN led5 = P1.5 OUTPUT ACTIVE LOW
+PIN led6 = P1.6 OUTPUT ACTIVE LOW
+PIN led7 = P1.7 OUTPUT ACTIVE LOW
+
+# 8 LEDs on one port, all active-low with 470Ω resistors.
+# Each draws (5.0 - 2.0) / 470 ≈ 6.4 mA.
+# Total: 8 × 6.4 = 51 mA from Port 1 alone.
+# With 1kΩ resistors: 8 × 3.0 = 24 mA — safe.
+# With 330Ω resistors: 8 × 9.1 = 73 mA — over half the chip budget.
+# The datasheet says: total chip current should stay under ~120 mA.
+WHEN flag clicked:
+  FOREVER:
+    turn on led0
+    turn on led1
+    turn on led2
+    turn on led3
+    turn on led4
+    turn on led5
+    turn on led6
+    turn on led7
+    wait 1 seconds
+    turn off led0
+    turn off led1
+    turn off led2
+    turn off led3
+    turn off led4
+    turn off led5
+    turn off led6
+    turn off led7
+    wait 1 seconds
