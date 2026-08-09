@@ -203,7 +203,9 @@ const KNOWN_GAPS = new Set([
 
     // --- 74HC logic family (chip-composer parts, observed through voltage reporters) ---
     '74hc00', '74hc02', '74hc04', '74hc08', '74hc10', '74hc11', '74hc14', '74hc20',
-    '74hc21', '74hc27', '74hc32', '74hc73', '74hc74', '74hc86', '74hc93', '74hc132',
+    '74hc21', '74hc27', '74hc32', '74hc73', '74hc74', '74hc86', '74hc93', '74hc95', '74hc132',
+    'lm339',            // quad comparator — circuit-level
+    'timer_556',        // dual 555 — circuit-level
 ]);
 
 // ---- tests ------------------------------------------------------------------
