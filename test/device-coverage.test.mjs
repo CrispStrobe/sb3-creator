@@ -206,6 +206,19 @@ const KNOWN_GAPS = new Set([
     '74hc21', '74hc27', '74hc32', '74hc73', '74hc74', '74hc86', '74hc93', '74hc95', '74hc132',
     'lm339',            // quad comparator — circuit-level
     'timer_556',        // dual 555 — circuit-level
+
+    // --- new kinds from latest engine expansion ---
+    '74hc283',          // 4-bit adder — circuit-level
+    '74hc75',           // quad latch — circuit-level
+    'clock_display',    // 4-digit 7-seg with colon — needs "show time" block
+    'gearmotor',        // geared DC motor — same as dc_motor
+    'header',           // pin header — connectivity, no block needed
+    'ir_remote',        // IR remote control — needs "send code" block
+    'photodiode',       // light sensor — circuit-level
+    'relay_dpdt',       // double-pole relay — same as relay
+    'soil_moisture',    // moisture sensor — needs "moisture level" reporter
+    'solar_cell',       // power source — circuit-level
+    'usb_a',            // USB connector — power/data, circuit-level
 ]);
 
 // ---- tests ------------------------------------------------------------------

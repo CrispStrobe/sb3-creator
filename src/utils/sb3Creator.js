@@ -1709,6 +1709,35 @@ class SB3Creator {
             || /^when\s+powered\s+on$/i.test(line)) {
             return { block: this.createBlock('event_whenflagclicked', { topLevel: true }).block, extraBlocks: {} };
         }
+        // Device sensor hats: threshold-based and binary event blocks.
+        // Quoted sensor name avoids collision with Scratch's "when X key pressed".
+        if ((match = line.match(/^when\s+"([^"]+)"\s+above\s+(.+)$/i))) {
+            const { id, block } = this.createBlock('devices_whenabove', { topLevel: true });
+            block[id].inputs.SENSOR = [1, [10, match[1]]];
+            block[id].inputs.THRESHOLD = val(match[2]);
+            return { block, extraBlocks: {} };
+        }
+        if ((match = line.match(/^when\s+"([^"]+)"\s+closer than\s+(.+)$/i))) {
+            const { id, block } = this.createBlock('devices_whencloser', { topLevel: true });
+            block[id].inputs.SENSOR = [1, [10, match[1]]];
+            block[id].inputs.DISTANCE = val(match[2]);
+            return { block, extraBlocks: {} };
+        }
+        if ((match = line.match(/^when motion on\s+"([^"]+)"$/i))) {
+            const { id, block } = this.createBlock('devices_whenmotion', { topLevel: true });
+            block[id].inputs.SENSOR = [1, [10, match[1]]];
+            return { block, extraBlocks: {} };
+        }
+        if ((match = line.match(/^when\s+"([^"]+)"\s+tilted$/i))) {
+            const { id, block } = this.createBlock('devices_whentilted', { topLevel: true });
+            block[id].inputs.SENSOR = [1, [10, match[1]]];
+            return { block, extraBlocks: {} };
+        }
+        if ((match = line.match(/^when IR received on\s+"([^"]+)"$/i))) {
+            const { id, block } = this.createBlock('devices_whenirreceived', { topLevel: true });
+            block[id].inputs.SENSOR = [1, [10, match[1]]];
+            return { block, extraBlocks: {} };
+        }
         // STC12 event hat: `when <pin> pressed` / `when <pin> released` for INPUT pins.
         if ((match = line.match(/^when\s+([A-Za-z_]\w*)\s+(pressed|released)$/i)) && this.stcPin(match[1])) {
             const pin = this.stcPin(match[1]);
@@ -3580,6 +3609,11 @@ class SB3Creator {
             case 'event_whenbroadcastreceived': return `WHEN I receive "${f('BROADCAST_OPTION')}":`;
             case 'control_start_as_clone': return 'WHEN I start as a clone:';
             case 'stc12_whenpin': return `WHEN ${f('PIN')} ${f('EDGE')}:`;
+            case 'devices_whenabove': return `WHEN ${v('SENSOR')} above ${v('THRESHOLD')}:`;
+            case 'devices_whencloser': return `WHEN ${v('SENSOR')} closer than ${v('DISTANCE')}:`;
+            case 'devices_whenmotion': return `WHEN motion on ${v('SENSOR')}:`;
+            case 'devices_whentilted': return `WHEN ${v('SENSOR')} tilted:`;
+            case 'devices_whenirreceived': return `WHEN IR received on ${v('SENSOR')}:`;
             case 'procedures_definition': {
                 const proto = blocks[b.inputs.custom_block[1]];
                 const m = proto.mutation;
@@ -3778,7 +3812,9 @@ class SB3Creator {
     isHat(op) {
         return ['event_whenflagclicked', 'event_whenkeypressed', 'event_whenthisspriteclicked',
             'event_whenbroadcastreceived', 'control_start_as_clone', 'procedures_definition',
-            'stc12_whenpin'].includes(op);
+            'stc12_whenpin',
+            'devices_whenabove', 'devices_whencloser', 'devices_whenmotion',
+            'devices_whentilted', 'devices_whenirreceived'].includes(op);
     }
 
     pyName(name) {
@@ -6386,7 +6422,13 @@ SB3Creator.RUNTIME_EXTENSIONS = {
             closer: { kind: 'boolean', method: 'closer', args: ['SENSOR', 'DISTANCE'], neutral: 'false' },
             motion: { kind: 'boolean', method: 'motion', args: ['SENSOR'], neutral: 'false' },
             tilted: { kind: 'boolean', method: 'tilted', args: ['SENSOR'], neutral: 'false' },
-            energised: { kind: 'boolean', method: 'energised', args: ['DEVICE'], neutral: 'false' }
+            energised: { kind: 'boolean', method: 'energised', args: ['DEVICE'], neutral: 'false' },
+            // Sensor event hats
+            whenabove: { kind: 'hat', method: 'whenAbove', args: ['SENSOR', 'THRESHOLD'] },
+            whencloser: { kind: 'hat', method: 'whenCloser', args: ['SENSOR', 'DISTANCE'] },
+            whenmotion: { kind: 'hat', method: 'whenMotion', args: ['SENSOR'] },
+            whentilted: { kind: 'hat', method: 'whenTilted', args: ['SENSOR'] },
+            whenirreceived: { kind: 'hat', method: 'whenIrReceived', args: ['SENSOR'] }
         }
     },
     // The generated entry from circuit.js provides the opcode shape and the gallery URL.
