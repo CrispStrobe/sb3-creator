@@ -1,0 +1,11 @@
+DEVICE STC12C5A60S2
+CLOCK 11059200
+PIN led1 = P1.0 OUTPUT ACTIVE LOW
+PIN pot = P1.3 ANALOG
+
+# Read a pot and set LED brightness via software PWM
+WHEN flag clicked:
+  FOREVER:
+    set level to read pot
+    set led1 to level bitand 1
+    wait 0.001 seconds

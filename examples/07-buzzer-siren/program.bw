@@ -1,0 +1,11 @@
+DEVICE STC12C5A60S2
+CLOCK 11059200
+PIN buzzer = P1.5 TONE
+
+# Two-tone siren: alternate between 440 Hz and 880 Hz
+WHEN flag clicked:
+  FOREVER:
+    tone buzzer 440
+    wait 0.5 seconds
+    tone buzzer 880
+    wait 0.5 seconds

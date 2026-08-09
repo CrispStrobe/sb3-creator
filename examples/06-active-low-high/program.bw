@@ -1,0 +1,16 @@
+DEVICE STC12C5A60S2
+CLOCK 11059200
+PIN led_low = P1.0 OUTPUT ACTIVE LOW
+PIN led_high = P1.1 OUTPUT
+
+# The port-mode lesson: both wirings on one board
+# Active-low: VCC → R → LED → pin (turn on = pin LOW)
+# Active-high: pin → R → LED → GND (turn on = pin HIGH)
+WHEN flag clicked:
+  FOREVER:
+    turn on led_low
+    turn on led_high
+    wait 0.5 seconds
+    turn off led_low
+    turn off led_high
+    wait 0.5 seconds

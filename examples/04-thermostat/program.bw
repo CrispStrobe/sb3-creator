@@ -1,0 +1,14 @@
+DEVICE STC12C5A60S2
+CLOCK 11059200
+PIN heater = P1.0 OUTPUT ACTIVE LOW
+PIN sensor = P1.3 ANALOG
+
+# Thermostat with hysteresis: heater on below 300, off above 500
+WHEN flag clicked:
+  FOREVER:
+    set temp to read sensor
+    IF temp < 300 THEN:
+      turn on heater
+    IF temp > 500 THEN:
+      turn off heater
+    wait 0.5 seconds

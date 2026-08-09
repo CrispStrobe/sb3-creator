@@ -1,0 +1,13 @@
+{
+  "vcc": 5.0,
+  "parts": [
+    { "id": "vcc1",    "kind": "vcc",     "params": {},                   "x": 100, "y": 50  },
+    { "id": "gnd1",    "kind": "gnd",     "params": {},                   "x": 100, "y": 300 },
+    { "id": "buzzer1", "kind": "buzzer",  "params": {},                   "x": 200, "y": 150 },
+    { "id": "mcu1",    "kind": "mcu",     "params": { "pins": ["P1.5"] }, "x": 50,  "y": 200 }
+  ],
+  "wires": [
+    { "from": "vcc1",    "fromTerminal": "vcc",  "to": "buzzer1", "toTerminal": "a"    },
+    { "from": "buzzer1", "fromTerminal": "b",     "to": "mcu1",    "toTerminal": "P1.5" }
+  ]
+}

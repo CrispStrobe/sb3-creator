@@ -1,0 +1,21 @@
+{
+  "vcc": 5.0,
+  "parts": [
+    { "id": "vcc1",   "kind": "vcc",      "params": {},                              "x": 100, "y": 50  },
+    { "id": "gnd1",   "kind": "gnd",      "params": {},                              "x": 100, "y": 400 },
+    { "id": "r1",     "kind": "resistor",  "params": { "ohms": 1000 },               "x": 300, "y": 120 },
+    { "id": "led1",   "kind": "led",       "params": { "vf": 2.0, "color": "red" },  "x": 300, "y": 220 },
+    { "id": "btn1",   "kind": "button",    "params": {},                              "x": 100, "y": 200 },
+    { "id": "r2",     "kind": "resistor",  "params": { "ohms": 10000 },              "x": 100, "y": 300 },
+    { "id": "mcu1",   "kind": "mcu",       "params": { "pins": ["P1.0", "P3.2"] },   "x": 50,  "y": 320 }
+  ],
+  "wires": [
+    { "from": "vcc1",  "fromTerminal": "vcc",     "to": "btn1", "toTerminal": "a"       },
+    { "from": "btn1",  "fromTerminal": "b",        "to": "mcu1", "toTerminal": "P3.2"   },
+    { "from": "mcu1",  "fromTerminal": "P3.2",     "to": "r2",   "toTerminal": "a"      },
+    { "from": "r2",    "fromTerminal": "b",         "to": "gnd1", "toTerminal": "gnd"   },
+    { "from": "vcc1",  "fromTerminal": "vcc",     "to": "r1",   "toTerminal": "a"       },
+    { "from": "r1",    "fromTerminal": "b",        "to": "led1", "toTerminal": "anode"   },
+    { "from": "led1",  "fromTerminal": "cathode",  "to": "mcu1", "toTerminal": "P1.0"   }
+  ]
+}

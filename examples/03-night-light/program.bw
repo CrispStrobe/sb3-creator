@@ -1,0 +1,14 @@
+DEVICE STC12C5A60S2
+CLOCK 11059200
+PIN led1 = P1.0 OUTPUT ACTIVE LOW
+PIN ldr = P1.3 ANALOG
+
+# Night light: LED on when it gets dark (LDR reading drops below threshold)
+WHEN flag clicked:
+  FOREVER:
+    set brightness to read ldr
+    IF brightness < 200 THEN:
+      turn on led1
+    ELSE:
+      turn off led1
+    wait 0.1 seconds
