@@ -93,7 +93,11 @@ function assertConformance(info, label) {
         const block = blocksByOpcode[op];
         if (!block) continue;
         const emitterArgs = EMITTER_ARGS[op];
-        if (!emitterArgs || emitterArgs.size === 0) continue;
+        // Every stc12 opcode takes at least one argument. If the deriver found
+        // none, the 400-char scan window missed the assignments — fail loudly
+        // rather than silently skipping the argument check.
+        assert.ok(emitterArgs && emitterArgs.size > 0,
+            `${label}: stc12_${op} — deriver found no argument names (scan window too small or opcode takes none)`);
         const declared = new Set(Object.keys(block.arguments || {}));
         for (const arg of emitterArgs) {
             assert.ok(declared.has(arg),

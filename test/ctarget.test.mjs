@@ -1507,3 +1507,85 @@ test('stc12 blocks agree across gallery, bundled, and sb3-creator', async () => 
         assert.ok(emitted.has(op), `block "${op}" is declared but sb3-creator never emits stc12_${op}`);
     }
 });
+
+// ---- readYieldMap: the debug-build yield map survives the C round-trip ------
+// readYieldMap is exported, verified once by hand, and has no test. The debugger
+// runner imports it — without a test, losing the function (or breaking its
+// encoding) is invisible until someone launches the debugger.
+
+import { readYieldMap } from '../src/utils/cToPseudocode.js';
+
+test('readYieldMap returns the yield map from a debug-build two-script program', () => {
+    const src = `PIN led1 = P1.0 OUTPUT ACTIVE LOW
+PIN led2 = P1.1 OUTPUT ACTIVE LOW
+
+WHEN flag clicked:
+  FOREVER:
+    turn on led1
+    wait 0.5 seconds
+    turn off led1
+    wait 0.5 seconds
+
+WHEN flag clicked:
+  FOREVER:
+    toggle led2
+    wait 1 seconds`;
+
+    const c = build(src);
+    const code = c.generateC(undefined, { debug: true });
+
+    const yields = readYieldMap(code);
+    // Script 1: hat, forever, wait, wait (two waits in the FOREVER body).
+    // Script 2: hat, forever, wait.  Total: 7 yield points.
+    assert.equal(yields.length, 7, `expected 7 yield points, got ${yields.length}`);
+
+    // Kinds in order.
+    const kinds = yields.map(y => y.kind);
+    assert.deepEqual(kinds, ['hat', 'forever', 'wait', 'wait', 'hat', 'forever', 'wait']);
+
+    // Every entry has a task name, block id, and numeric state.
+    for (const y of yields) {
+        assert.ok(y.task, 'yield point missing task name');
+        assert.ok(y.block, 'yield point missing block id');
+        assert.equal(typeof y.state, 'number', 'state must be a number');
+    }
+    // Tasks are bw_task0 and bw_task1.
+    assert.equal(yields[0].task, 'bw_task0');
+    assert.equal(yields[4].task, 'bw_task1');
+});
+
+test('readYieldMap returns [] for hand-written C (no @bw header)', () => {
+    assert.deepEqual(readYieldMap('void main(void) { for(;;); }'), []);
+    assert.deepEqual(readYieldMap(''), []);
+    assert.deepEqual(readYieldMap(null), []);
+});
+
+test('cMark / decodeMark round-trip block ids with */ and special characters', () => {
+    // cMark encodes a block id for use inside a C /* @bw ... */ comment.
+    // decodeMark undoes it. A block id containing */ would close the comment
+    // prematurely — cMark must escape it, and decodeMark must recover it exactly.
+    const c = new SB3Creator();
+    const cases = [
+        'simple_id',
+        'a*/b',                        // would close a C comment
+        '*/close',                     // starts with the closing sequence
+        'has spaces and (parens)',
+        'unicode:日本語',
+        'percent%already',
+        'a*b/c*d',                     // both * and / but not adjacent
+        'a*/b*/c',                     // double */
+    ];
+    for (const id of cases) {
+        const encoded = c.cMark(id);
+        // The encoded form must contain no `*/` (would close the @bw comment).
+        assert.ok(!encoded.includes('*/'),
+            `cMark("${id}") produced "${encoded}" which contains */`);
+        // Importing decodeMark: it's not exported, so we verify the round-trip
+        // through the full chain: emit a @bw yield line → readYieldMap → block id.
+        const fakeSrc = `/* @bw-begin\n * @bw yield bw_task0 0 ${encoded} hat\n * @bw-end */`;
+        const yields = readYieldMap(fakeSrc);
+        assert.equal(yields.length, 1, `expected 1 yield from fake header for id "${id}"`);
+        assert.equal(yields[0].block, id,
+            `round-trip failed: cMark("${id}") → "${encoded}" → "${yields[0].block}"`);
+    }
+});
