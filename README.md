@@ -2,6 +2,10 @@
 
 This project converts a custom pseudocode language into a downloadable Scratch 3.0 (`.sb3`) project file. It's built with React and Vite.
 
+**▶ Live editor: <https://crispstrobe.github.io/sb3-creator/>** — nothing to install; write pseudocode, download the `.sb3`.
+
+Published by the `pages` job in [`.github/workflows/ci.yml`](.github/workflows/ci.yml) on every push to `main`, and only after lint, the unit/VM suites and the WebGL browser tests pass — so the page can never be replaced by a build that does not work. It used to be a manual `npm run deploy` to a `gh-pages` branch, which is how it ended up close to a year behind `main`.
+
 ## 🚀 Quickstart
 
 1.  **Install Dependencies**:
