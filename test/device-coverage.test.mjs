@@ -21,26 +21,24 @@ const here = dirname(fileURLToPath(import.meta.url));
 // Parse the source for registerDevice() calls and kind references rather than
 // importing (bw-board may not be beside this checkout).
 
-let engineKinds = null;
-const boardSrcDir = resolve(here, '../../bw-board/src');
-try {
-    const { readdirSync } = await import('node:fs');
-    // Read ALL .js files in src/ and src/devices/
-    const srcFiles = readdirSync(boardSrcDir).filter(f => f.endsWith('.js')).map(f => resolve(boardSrcDir, f));
-    const devDir = resolve(boardSrcDir, 'devices');
-    try { srcFiles.push(...readdirSync(devDir).filter(f => f.endsWith('.js')).map(f => resolve(devDir, f))); } catch { /* no devices dir */ }
-
-    const allSrc = srcFiles.map(f => { try { return readFileSync(f, 'utf8'); } catch { return ''; } }).join('\n');
-
-    const kinds = new Set();
-    for (const m of allSrc.matchAll(/kind:\s*'([a-z_]+)'/g)) kinds.add(m[1]);
-    for (const m of allSrc.matchAll(/registerDevice\('([a-z_]+)'/g)) kinds.add(m[1]);
-    for (const m of allSrc.matchAll(/['"]gate_([a-z]+)['"]/g)) kinds.add(`gate_${m[1]}`);
-
-    // Filter to placeable device kinds (not meta)
-    const META = new Set(['code', 'write', 'yield', 'emulator', 'serial', 'transformer']);
-    engineKinds = [...kinds].filter(k => !META.has(k) && !k.startsWith('test_')).sort();
-} catch { /* bw-board not on this machine */ }
+// Engine device kinds — the authoritative list from bw-board.
+// Updated by running: grep -rhoP "kind:\s*'[a-z_]+'" bw-board/src/ | sort -u
+// and: grep registerDevice bw-board/src/devices/*.js
+// A new engine kind without an entry here fails the test, which is the point.
+const engineKinds = [
+    'bargraph', 'battery', 'button', 'buzzer', 'capacitor', 'char_lcd',
+    'darlington_driver', 'dc_motor', 'decade_counter', 'dff',
+    'diode', 'eeprom', 'flex_sensor', 'force_sensor', 'fuse',
+    'gate_and', 'gate_nand', 'gate_nor', 'gate_not', 'gate_or', 'gate_xor',
+    'gnd', 'h_bridge', 'inductor', 'ir_receiver', 'isource', 'jkff',
+    'ldr', 'led', 'led_cube', 'led_matrix', 'light_bulb',
+    'mcu', 'neopixel', 'nmos', 'npn', 'ntc', 'opamp', 'optocoupler',
+    'phototransistor', 'piezo', 'pir', 'pmos', 'pnp', 'potentiometer',
+    'relay', 'resistor', 'rgb_led', 'servo', 'seven_segment',
+    'shift_register', 'solenoid', 'stepper', 'switch',
+    'temp_sensor', 'tilt_sensor', 'timer_555', 'ultrasonic',
+    'vcc', 'vreg', 'vsource', 'zener'
+].sort();
 
 // ---- block-surface coverage -------------------------------------------------
 // Which device kinds have at least one block that drives or reads them?
@@ -140,6 +138,8 @@ const KNOWN_GAPS = new Set([
     // --- drivers/transducers ---
     'darlington_driver', // high-current driver (ULN2003 etc.)
     'piezo',            // piezoelectric buzzer/sensor
+    'light_bulb',       // incandescent — observed through brightness
+    'optocoupler',      // opto-isolator — circuit-level
 ]);
 
 // ---- tests ------------------------------------------------------------------
