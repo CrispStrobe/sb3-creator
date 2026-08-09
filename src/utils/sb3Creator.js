@@ -377,25 +377,29 @@ class SB3Creator {
     // The circuit extension driver — boundary B exposed to Python/JS. Meter reporters
     // sample at display rate (~60 Hz), not per edge (measured constraint from bw-board).
     circuitSimulatorDriver(lang) {
+        // No-board returns 'needs the simulator', not 0 — a voltmeter that reads
+        // 0 V when disconnected is indistinguishable from a grounded-net reading.
         if (lang === 'py') {
             return [
                 '# _circuit driver — board instruments (boundary B). Supply `bw_board` to attach one.',
+                '# No-board reporters return "needs the simulator", never 0 — refuse with a reason.',
                 'class _CircuitSimulated:',
                 '    def nodeVoltage(self, net):',
                 '        b = _board()',
-                '        return b.nodeVoltage(net) if b else 0',
+                '        return b.nodeVoltage(net) if b else "needs the simulator"',
                 '    def branchCurrent(self, part):',
                 '        b = _board()',
-                '        return b.branchCurrent(part, "a") if b else 0',
+                '        return b.branchCurrent(part, "a") if b else "needs the simulator"',
                 '    def resistance(self, a, b_net):',
                 '        b = _board()',
-                '        return b.resistance(a, b_net) if b else "requires-power-off"',
+                '        return b.resistance(a, b_net) if b else "needs the simulator"',
                 '    def ledBrightness(self, part):',
                 '        b = _board()',
-                '        return b.ledBrightness(part) if b else 0',
+                '        return b.ledBrightness(part) if b else "needs the simulator"',
                 '    def buzzerTone(self, part):',
                 '        b = _board()',
-                '        r = b.buzzerTone(part) if b else {"hz": 0, "on": False}',
+                '        if not b: return "needs the simulator"',
+                '        r = b.buzzerTone(part)',
                 '        return r.get("hz", 0) if r.get("on") else 0',
                 '    def setControl(self, control, value):',
                 '        b = _board()',
@@ -408,12 +412,13 @@ class SB3Creator {
         }
         return [
             '// _circuit driver — board instruments (boundary B). Supply `bwBoard` to attach one.',
+            '// No-board reporters return "needs the simulator", never 0 — refuse with a reason.',
             'const _circuit = {',
-            '    nodeVoltage: (net) => { const b = _board(); return b ? b.nodeVoltage(net) : 0; },',
-            '    branchCurrent: (part) => { const b = _board(); return b ? b.branchCurrent(part, "a") : 0; },',
-            '    resistance: (a, bNet) => { const b = _board(); return b ? b.resistance(a, bNet) : "requires-power-off"; },',
-            '    ledBrightness: (part) => { const b = _board(); return b ? b.ledBrightness(part) : 0; },',
-            '    buzzerTone: (part) => { const b = _board(); if (!b) return 0;',
+            '    nodeVoltage: (net) => { const b = _board(); return b ? b.nodeVoltage(net) : "needs the simulator"; },',
+            '    branchCurrent: (part) => { const b = _board(); return b ? b.branchCurrent(part, "a") : "needs the simulator"; },',
+            '    resistance: (a, bNet) => { const b = _board(); return b ? b.resistance(a, bNet) : "needs the simulator"; },',
+            '    ledBrightness: (part) => { const b = _board(); return b ? b.ledBrightness(part) : "needs the simulator"; },',
+            '    buzzerTone: (part) => { const b = _board(); if (!b) return "needs the simulator";',
             '        const r = b.buzzerTone(part); return r && r.on ? r.hz : 0; },',
             '    setControl: (control, v) => { const b = _board(); if (b) b.setControl(control, Number(v)); },',
             '    setPower: (state) => { const b = _board(); if (b) b.setPower(state === "on"); }',
@@ -5482,11 +5487,11 @@ SB3Creator.RUNTIME_EXTENSIONS = {
     circuit: {
         runtime: 'circuit',
         ops: {
-            nodevoltage: { kind: 'reporter', method: 'nodeVoltage', args: ['NET'], neutral: '0' },
-            branchcurrent: { kind: 'reporter', method: 'branchCurrent', args: ['PART'], neutral: '0' },
-            resistance: { kind: 'reporter', method: 'resistance', args: ['A', 'B'], neutral: '"requires-power-off"' },
-            ledbrightness: { kind: 'reporter', method: 'ledBrightness', args: ['PART'], neutral: '0' },
-            buzzertone: { kind: 'reporter', method: 'buzzerTone', args: ['PART'], neutral: '0' },
+            nodevoltage: { kind: 'reporter', method: 'nodeVoltage', args: ['NET'], neutral: '"needs the simulator"' },
+            branchcurrent: { kind: 'reporter', method: 'branchCurrent', args: ['PART'], neutral: '"needs the simulator"' },
+            resistance: { kind: 'reporter', method: 'resistance', args: ['A', 'B'], neutral: '"needs the simulator"' },
+            ledbrightness: { kind: 'reporter', method: 'ledBrightness', args: ['PART'], neutral: '"needs the simulator"' },
+            buzzertone: { kind: 'reporter', method: 'buzzerTone', args: ['PART'], neutral: '"needs the simulator"' },
             setcontrol: { kind: 'command', method: 'setControl', args: ['CONTROL', 'VALUE'] },
             setpower: { kind: 'command', method: 'setPower', args: ['STATE'] }
         }

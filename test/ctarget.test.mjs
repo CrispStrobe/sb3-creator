@@ -1105,58 +1105,55 @@ test('circuit commands parse and round-trip', () => {
     assert.equal(dc, dc2);
 });
 
-test('resistance teaches by refusing: the neutral value is a reason, not a number', () => {
-    // The contract (simulation-contract.md) says:
-    //   resistance(a, b): number | 'requires-power-off'
-    // A real DMM reads ohms with the power off. The block must surface the
-    // refusal rather than quietly returning 0.
+test('no circuit reporter fabricates a plausible reading without a board', () => {
+    // A voltmeter that reads 0 V when disconnected is indistinguishable from a
+    // grounded net.  All five reporters must return a reason string, not 0.
     const src = `SPRITE test:
   WHEN flag clicked:
-    set r to resistance between "net1" and "net2"`;
+    set r to resistance between "net1" and "net2"
+    set v to voltage at "vcc"`;
     const c = new SB3Creator();
     const project = c.parse(src);
 
-    // In Python: the neutral stub returns the string, not 0.
+    // In Python: every neutral stub returns "needs the simulator", not 0.
     const py = c.generatePython(project);
-    assert.match(py, /def resistance\(self, \*a\): return "requires-power-off"/,
-        'the neutral stub returns the reason string');
-    assert.ok(!/def resistance\(self, \*a\): return 0/.test(py),
-        'resistance must never silently return 0');
+    assert.match(py, /def resistance\(self, \*a\): return "needs the simulator"/);
+    assert.match(py, /def nodeVoltage\(self, \*a\): return "needs the simulator"/);
+    assert.match(py, /def branchCurrent\(self, \*a\): return "needs the simulator"/);
+    assert.match(py, /def ledBrightness\(self, \*a\): return "needs the simulator"/);
+    assert.match(py, /def buzzerTone\(self, \*a\): return "needs the simulator"/);
+    assert.ok(!/def \w+\(self, \*a\): return 0/.test(py),
+        'no circuit reporter returns a bare 0');
 
     // In JavaScript: same.
     const js = c.generateJavaScript(project);
-    assert.match(js, /resistance: \(\) => "requires-power-off"/,
-        'JS stub also returns the reason');
-
-    // The runtime registry declares the neutral value as the string.
-    const reg = SB3Creator.RUNTIME_EXTENSIONS.circuit.ops.resistance;
-    assert.equal(reg.neutral, '"requires-power-off"',
-        'the registry declares the refusal as neutral, not 0');
+    assert.match(js, /resistance: \(\) => "needs the simulator"/);
+    assert.match(js, /nodeVoltage: \(\) => "needs the simulator"/);
 });
 
-test('resistance is the only circuit reporter whose neutral is not a number', () => {
-    // This is the asymmetry that makes it the teaching block: every other meter
-    // returns 0 when there is no board; resistance returns a reason.
+test('all circuit reporter neutrals are reason strings, not numbers', () => {
     const ops = SB3Creator.RUNTIME_EXTENSIONS.circuit.ops;
-    assert.equal(ops.nodevoltage.neutral, '0');
-    assert.equal(ops.branchcurrent.neutral, '0');
-    assert.equal(ops.ledbrightness.neutral, '0');
-    assert.equal(ops.buzzertone.neutral, '0');
-    assert.equal(ops.resistance.neutral, '"requires-power-off"',
-        'resistance alone refuses with a reason');
+    for (const name of ['nodevoltage', 'branchcurrent', 'resistance', 'ledbrightness', 'buzzertone']) {
+        assert.equal(ops[name].neutral, '"needs the simulator"',
+            `${name} must refuse with a reason, not return 0`);
+    }
 });
 
-test('the simulator driver returns the board answer for resistance', () => {
+test('the simulator driver refuses with a reason when no board is attached', () => {
     const c = new SB3Creator();
     c.parse('PIN led = P1.0 OUTPUT\nWHEN flag clicked:\n  turn on led');
-    // The JS simulator driver wraps boundary B.
+    // JS driver: every no-board path returns "needs the simulator".
     const jsDriver = c.circuitSimulatorDriver('js').join('\n');
-    assert.match(jsDriver, /resistance.*"requires-power-off"/,
-        'no-board case returns the refusal');
-    assert.match(jsDriver, /b\.resistance\(a, bNet\)/,
-        'with-board case calls boundary B');
-    // The Python simulator driver wraps boundary B.
+    assert.match(jsDriver, /nodeVoltage.*"needs the simulator"/);
+    assert.match(jsDriver, /branchCurrent.*"needs the simulator"/);
+    assert.match(jsDriver, /resistance.*"needs the simulator"/);
+    assert.match(jsDriver, /ledBrightness.*"needs the simulator"/);
+    assert.match(jsDriver, /buzzerTone.*"needs the simulator"/);
+    // With a board, calls go through to boundary B.
+    assert.match(jsDriver, /b\.resistance\(a, bNet\)/);
+    // Python driver: same.
     const pyDriver = c.circuitSimulatorDriver('py').join('\n');
-    assert.match(pyDriver, /resistance.*"requires-power-off"/);
+    assert.match(pyDriver, /nodeVoltage.*"needs the simulator"/);
+    assert.match(pyDriver, /resistance.*"needs the simulator"/);
     assert.match(pyDriver, /b\.resistance\(a, b_net\)/);
 });

@@ -99,8 +99,19 @@
   //
   // Seven blocks from boundary B of simulation-contract.md.  The Board instance
   // is injected via setBoard() — the adapter pattern the LEGO extensions use for
-  // their transports.  Without a board, reporters return neutral values and
+  // their transports.  Without a board, reporters return a reason string and
   // commands are no-ops.
+  //
+  // THE RULE: refuse with a reason, never fabricate a plausible value.
+  //
+  //   No board attached  → 'needs the simulator'   (all five reporters)
+  //   Board, power on    → 'requires-power-off'    (resistance only)
+  //
+  // A voltmeter that reads 0 V when disconnected is worse than one that reads
+  // nothing: 0 V is a perfectly ordinary measurement (a grounded net reads it),
+  // so the no-board case would be indistinguishable from a real result.  A user
+  // sees "0" and concludes the circuit is dead, not that the simulator is absent.
+  // That is a wrong answer wearing the clothes of a right one.
   //
   // Three constraints (../stc/docs/PARTS-TO-BLOCKS.md):
   //
@@ -110,7 +121,8 @@
   //    number, and so does this.
   //
   // 2. resistance teaches by refusing: it returns 'requires-power-off' on a
-  //    live circuit.  That is a feature, not an error path.
+  //    live circuit, and 'needs the simulator' when no board is attached.
+  //    Two distinct refusals, because they mean different things.
   //
   // 3. Most reporters are simulation-only.  On real hardware the methods
   //    return a reason string rather than a bogus number.
@@ -253,35 +265,35 @@
     // ---- reporters --------------------------------------------------------
 
     nodevoltage({ NET }) {
-      if (!this._board) return 0;
+      if (!this._board) return "needs the simulator";
       return this._cachedCall(`voltage:${NET}`, () =>
         this._board.nodeVoltage(String(NET))
       );
     }
 
     branchcurrent({ PART }) {
-      if (!this._board) return 0;
+      if (!this._board) return "needs the simulator";
       return this._cachedCall(`current:${PART}`, () =>
         this._board.branchCurrent(String(PART), "a")
       );
     }
 
     resistance({ A, B }) {
-      if (!this._board) return "requires-power-off";
+      if (!this._board) return "needs the simulator";
       return this._cachedCall(`resistance:${A}:${B}`, () =>
         this._board.resistance(String(A), String(B))
       );
     }
 
     ledbrightness({ PART }) {
-      if (!this._board) return 0;
+      if (!this._board) return "needs the simulator";
       return this._cachedCall(`brightness:${PART}`, () =>
         this._board.ledBrightness(String(PART))
       );
     }
 
     buzzertone({ PART }) {
-      if (!this._board) return 0;
+      if (!this._board) return "needs the simulator";
       return this._cachedCall(`tone:${PART}`, () => {
         const r = this._board.buzzerTone(String(PART));
         return r && r.on ? r.hz : 0;
