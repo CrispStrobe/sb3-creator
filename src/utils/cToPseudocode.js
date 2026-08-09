@@ -377,7 +377,7 @@ export default function cToPseudocode (source, opts = {}) {
             const which = /arduino\.h/i.test(foreign.name);
             device = which ? 'arduino-uno' : 'atmega328p';
             defaultClock = 16000000;    // not an 8051 crystal
-            warn(`inferred DEVICE ${device.toUpperCase()} from <${foreign.name}> — but this front end reads the 8051 subset only, so the body below is not translated`);
+            warn(`inferred DEVICE ${device.toUpperCase()} from <${foreign.name}>`);
         } else {
             device = head === '8052.h' || head === '8051.h' ? 'stc89c52rc' : 'stc12c5a60s2';
             if (head === 'stc12.h') warn(`<stc12.h> serves several parts — assuming DEVICE ${device.toUpperCase()}; set it explicitly if that is wrong`);
@@ -385,6 +385,20 @@ export default function cToPseudocode (source, opts = {}) {
             else warn(`no register header found — assuming DEVICE ${device.toUpperCase()}`);
         }
     }
+    // Which vocabulary the body is read in. An Arduino sketch names its pins
+    // by number and drives them through core calls; an 8051 source names them
+    // by {port, bit} and assigns registers. Nothing about the two overlaps, so
+    // the reader picks one rather than trying both.
+    const isArduino = /^(arduino-|atmega)/.test(String(device));
+    if (isArduino) {
+        // Core constants. They come from the toolchain rather than the sketch,
+        // so there is no #define to find and nothing downstream resolves them:
+        // without this a digitalWrite lands as `set led to HIGH`.
+        for (const [k, v] of [['HIGH', '1'], ['LOW', '0']]) {
+            if (!pre.defines.has(k)) pre.defines.set(k, v);
+        }
+    }
+
     let clock = markers && markers.clock;
     if (!clock) {
         for (const key of ['FOSC_HZ', 'FOSC', 'F_CPU', 'SYSCLK']) {
@@ -403,11 +417,94 @@ export default function cToPseudocode (source, opts = {}) {
     const pins = new Map();       // c-expression (P1_0) -> {name, port, bit, direction, activeLow}
     const byName = new Map();     // source spelling (LED1) -> the same record
     const addPin = (rec, aliases) => {
-        pins.set(`P${rec.port}_${rec.bit}`, rec);
+        pins.set(rec.where || `P${rec.port}_${rec.bit}`, rec);
         for (const a of aliases) byName.set(a, rec);
     };
-    if (markers) {
+    const markerPins = markers && (markers.pins.length > 0 || !isArduino);
+    if (markerPins) {
         for (const p of markers.pins) addPin({ ...p }, [p.name, `P${p.port}_${p.bit}`]);
+    } else if (isArduino) {
+        // An Arduino pin is a NUMBER, not a {port, bit}: there is no register
+        // to find it in and no sbit to declare it with, so it is discovered
+        // from the calls that use it. That is the whole reason this needs a
+        // front end rather than another entry in a lookup table.
+        //
+        // A name comes from whatever the sketch called the number, because
+        // `#define LED 13` / `const int led = 13;` is how every sketch does it
+        // and "d13" is a worse name than the author's own.
+        const alias = new Map();          // LED -> "13" | "A0"
+        for (const [k, v] of pre.defines) {
+            const t = String(v).trim();
+            if (/^(\d+|A\d+)$/i.test(t)) alias.set(k, t.toUpperCase());
+        }
+        for (const line of pre.body) {
+            // `const int led = 13;`, `const uint8_t pot = A0;`, `int led = 13;`
+            const m = line.match(/\b(?:const\s+)?(?:u?int8_t|int|byte|uint8_t)\s+(\w+)\s*=\s*(\d+|A\d+)\s*;/i);
+            if (m) alias.set(m[1], m[2].toUpperCase());
+        }
+
+        // A pin reference resolves to the board's spelling, or to null when it
+        // is a computed expression -- `digitalWrite(pins[i], HIGH)` is a real
+        // sketch idiom and there is no single pin to declare for it.
+        const resolve = (tok) => {
+            const t = alias.get(tok) || String(tok).toUpperCase();
+            if (/^A(\d+)$/.test(t)) return { where: t, analog: true, num: +t.slice(1) };
+            if (/^\d+$/.test(t)) return { where: `D${t}`, analog: false, num: +t };
+            return null;
+        };
+
+        // Direction, strongest evidence first. analogRead settles it outright:
+        // a pin that is read through the ADC is an ANALOG pin whatever else the
+        // sketch does to it. Below that, a write beats a read, because a sketch
+        // that only ever reads a pin has no reason to have configured it as an
+        // output.
+        const RANK = { analog: 5, tone: 4, pwm: 3, output: 2, input: 1 };
+        const found = new Map();          // where -> {name, where, direction, activeLow}
+        const note = (tok, direction, activeLow) => {
+            const r = resolve(tok);
+            if (!r) { warn(`a pin computed at run time (${tok}) cannot be declared — that line is not translated`); return; }
+            const prev = found.get(r.where);
+            const named = [...alias].find(([, v]) => v === (alias.get(tok) || String(tok).toUpperCase()));
+            const name = (named ? named[0] : r.where).toLowerCase();
+            if (!prev) { found.set(r.where, { name, where: r.where, direction, activeLow: !!activeLow }); return; }
+            if (RANK[direction] > RANK[prev.direction]) prev.direction = direction;
+            if (activeLow) prev.activeLow = true;
+        };
+
+        const text = pre.body.join('\n');
+        // pinMode is the declaration when it is there, but it is NOT required:
+        // analogRead needs none, and plenty of sketches drive a pin they never
+        // configured. So every call that touches a pin contributes.
+        for (const m of text.matchAll(/\bpinMode\s*\(\s*([^,()]+?)\s*,\s*(\w+)\s*\)/g)) {
+            const mode = m[2].toUpperCase();
+            // INPUT_PULLUP is a button wired to ground: pressed reads 0. That is
+            // ACTIVE LOW, stated by the sketch rather than guessed at, and it is
+            // the one polarity an Arduino sketch does declare.
+            if (mode === 'OUTPUT') note(m[1], 'output', false);
+            else note(m[1], 'input', mode === 'INPUT_PULLUP');
+        }
+        for (const [re, dir] of [[/\bdigitalWrite\s*\(\s*([^,()]+?)\s*,/g, 'output'],
+                                 [/\bdigitalRead\s*\(\s*([^,()]+?)\s*\)/g, 'input'],
+                                 [/\banalogRead\s*\(\s*([^,()]+?)\s*\)/g, 'analog'],
+                                 [/\banalogWrite\s*\(\s*([^,()]+?)\s*,/g, 'pwm'],
+                                 [/\btone\s*\(\s*([^,()]+?)\s*,/g, 'tone']]) {
+            for (const m of text.matchAll(re)) note(m[1], dir, false);
+        }
+
+        for (const rec of found.values()) {
+            // The Nano's A6/A7 reach the pad with no digital buffer behind
+            // them. A sketch that drives one is not a sketch this reader can
+            // repair, but it IS one whose behaviour on the bench will not
+            // match its source, and saying so here is cheaper than finding out
+            // with a meter.
+            if (device === 'arduino-nano' && /^A[67]$/.test(rec.where)
+                && rec.direction !== 'analog') {
+                warn(`${rec.where} is analog-input only on the Nano (no digital buffer on the TQFP package) — `
+                    + `this sketch drives it as ${rec.direction.toUpperCase()}, which does nothing on the board`);
+            }
+            addPin(rec, [rec.name, rec.where, rec.where.replace(/^D/, '')]);
+        }
+        if (!found.size) warn('no pins found — this front end discovers them from pinMode/digitalWrite/analogRead');
     } else {
         const seen = new Map();
         for (const [k, v] of pre.defines) {
@@ -905,6 +1002,71 @@ export default function cToPseudocode (source, opts = {}) {
             const label = proccode.replace(/%[sb]/g, () => (args[i] ? args[i++].text : '0'));
             return { text: '0', level: 99, stmt: label };
         }
+        // ---- Arduino core, read rather than refused -----------------------
+        // These are LIBRARY functions and there is no body to walk, so each is
+        // translated by hand into the sentence the dialect already has. The
+        // ones NOT here still fall through to the refusal below, which is the
+        // point: a call this does not understand must stay visible.
+        if (isArduino) {
+            // By the time an argument reaches here it has been through
+            // readName, which turns a pin identifier into `read pin` -- so
+            // `digitalRead(button)` arrives as the text "read button", not
+            // "button". Look through that rather than failing to match it.
+            const pinOf = (a) => {
+                if (!a) return null;
+                const bare = String(a.text).replace(/^not\s+/, '').replace(/^read\s+/, '');
+                return byName.get(a.text) || byName.get(bare)
+                    || [...pins.values()].find((p) => p.name === bare) || null;
+            };
+            if (name === 'pinMode') return { text: '0', level: 99, stmt: null };  // a declaration, already read
+            if (name === 'digitalWrite' && args.length >= 2) {
+                const p = pinOf(args[0]);
+                if (p) return { text: '0', level: 99, stmt: pinWrite(p, args[1].text) };
+            }
+            if (name === 'digitalRead' && args.length >= 1) {
+                const p = pinOf(args[0]);
+                if (p) return { text: p.activeLow ? `not read ${p.name}` : `read ${p.name}`, level: 99 };
+            }
+            if (name === 'analogRead' && args.length >= 1) {
+                const p = pinOf(args[0]);
+                if (p) return { text: `read ${p.name}`, level: 99 };
+            }
+            if (name === 'analogWrite' && args.length >= 2) {
+                const p = pinOf(args[0]);
+                // analogWrite is 0-255 of duty; the dialect speaks percent. An
+                // exact literal converts, anything computed does not -- and
+                // inventing `x * 100 / 255` around a variable would change the
+                // arithmetic the sketch actually performs.
+                const n = Number(args[1].text);
+                if (p && Number.isFinite(n)) {
+                    return { text: '0', level: 99, stmt: `set ${p.name} to ${Math.round(n * 100 / 255)} percent` };
+                }
+                if (p) {
+                    warn(`analogWrite(${p.name}, ${args[1].text}) is 0-255 and the pseudocode is percent — `
+                        + 'left as a percentage of the same expression, which is not the same number');
+                    return { text: '0', level: 99, stmt: `set ${p.name} to ${args[1].text} percent` };
+                }
+            }
+            if (name === 'tone' && args.length >= 2) {
+                const p = pinOf(args[0]);
+                if (p) return { text: '0', level: 99, stmt: `set ${p.name} to ${args[1].text} hz` };
+            }
+            if (name === 'noTone' && args.length >= 1) {
+                const p = pinOf(args[0]);
+                if (p) return { text: '0', level: 99, stmt: `set ${p.name} to 0 hz` };
+            }
+            if (name === 'delay' && args.length === 1) {
+                return { text: '0', level: 99, stmt: `wait ${args[0].text} ms` };
+            }
+            if (name === 'delayMicroseconds' && args.length === 1) {
+                // The dialect's floor is a millisecond. Rounding 100us to 0ms
+                // would silently delete the delay, so it is kept as a comment
+                // and flagged rather than approximated.
+                warn(`delayMicroseconds(${args[0].text}) is shorter than this dialect can express (1 ms) — left out`);
+                return { text: '0', level: 99, stmt: null };
+            }
+            if (name === 'millis') return { text: 'timer', level: 99 };
+        }
         // Arduino and AVR core calls are LIBRARY functions, not helpers defined
         // in the file, so turning them into custom-block calls invents a block
         // that means nothing -- `pinMode led OUTPUT` is not a sentence in this
@@ -1370,7 +1532,11 @@ export default function cToPseudocode (source, opts = {}) {
     if (pinList.length) {
         out.push('');
         for (const p of pinList) {
-            out.push(`PIN ${p.name} = P${p.port}.${p.bit} ${p.direction.toUpperCase()}${p.activeLow ? ' ACTIVE LOW' : ''}`);
+            // `where` carries the board's own spelling when the board does not
+            // have 8051 {port, bit} pins at all -- D13, A0. The 8051 path never
+            // sets it and is emitted exactly as before.
+            const at = p.where || `P${p.port}.${p.bit}`;
+            out.push(`PIN ${p.name} = ${at} ${p.direction.toUpperCase()}${p.activeLow ? ' ACTIVE LOW' : ''}`);
         }
     }
     // Detect the LED cube kernel by the presence of bw_cube_frame.
@@ -1388,10 +1554,14 @@ export default function cToPseudocode (source, opts = {}) {
     const procFns = funcs.filter((f) => markers && markers.procs.has(f.name));
     const scriptFns = funcs.filter((f) => !IGNORE_FNS.has(f.name)
         && (markers ? markers.scripts.has(f.name) : f.name === 'main'));
+    // An Arduino sketch legitimately has neither, because setup()/loop() are
+    // assembled into one script further down.
+    const hasSketchShape = isArduino && !markers
+        && funcs.some((f) => f.name === 'setup' || f.name === 'loop');
     if (!scriptFns.length) {
         const main = funcs.find((f) => f.name === 'main');
         if (main) scriptFns.push(main);
-        else warn('no main() and no @bw script markers — nothing to translate');
+        else if (!hasSketchShape) warn('no main() and no @bw script markers — nothing to translate');
     }
 
     // Emit DEFINE blocks for custom procedures.
@@ -1400,7 +1570,11 @@ export default function cToPseudocode (source, opts = {}) {
     const userFns = markers
         ? procFns
         : funcs.filter((f) => !IGNORE_FNS.has(f.name) && f.name !== 'main'
-            && !DELAYS.has(f.name) && !SETUP.has(f.name));
+            && !DELAYS.has(f.name) && !SETUP.has(f.name)
+            // setup() and loop() are the script itself, not procedures called
+            // by it; emitting DEFINE blocks for them would say the sketch has
+            // two custom blocks it never calls.
+            && !(hasSketchShape && (f.name === 'setup' || f.name === 'loop')));
 
     for (const f of userFns) {
         // Recover parameter names from the C function signature.
@@ -1465,6 +1639,29 @@ export default function cToPseudocode (source, opts = {}) {
             }
         }
         return comments;
+    }
+
+    // An Arduino sketch has no main(): setup() runs once and loop() runs
+    // forever, which is precisely one script with a FOREVER in it. Reassembling
+    // it that way is what makes the round trip mean anything -- the dialect
+    // emits exactly this shape in the other direction.
+    const arduinoSetup = isArduino && !markers && funcs.find((f) => f.name === 'setup');
+    const arduinoLoop = isArduino && !markers && funcs.find((f) => f.name === 'loop');
+    if (arduinoSetup || arduinoLoop) {
+        out.push('');
+        for (const c of commentsFor(arduinoSetup ? 'setup' : 'loop')) out.push(c);
+        out.push('WHEN flag clicked:');
+        const body = [];
+        // pinMode lines vanish here, because they became the PIN declarations
+        // above. A setup() that held nothing else contributes nothing, which
+        // is correct rather than a loss.
+        if (arduinoSetup) body.push(...linesFor(arduinoSetup, 1).filter((l) => l.trim() && l.trim() !== 'stop'));
+        if (arduinoLoop) {
+            const inner = linesFor(arduinoLoop, 2).filter((l) => l.trim() && l.trim() !== 'stop');
+            if (inner.length) body.push('  FOREVER:', ...inner);
+        }
+        out.push(...(body.length ? body : ['  stop']));
+        return { pseudocode: out.join('\n').replace(/\n{3,}/g, '\n\n').trim() + '\n', warnings };
     }
 
     const isTask = markers && [...markers.scripts.keys()].some((k) => k.startsWith('bw_task'));

@@ -1921,3 +1921,144 @@ test('stc12live and bw-board frame codecs agree byte for byte', async () => {
         assert.equal(parsed.cmd, cmd);
     }
 });
+
+// ---- Arduino sketches -> pseudocode ----------------------------------------
+// The 8051 reader finds pins in declarations: `sbit LED = P1^0` names a pin and
+// says where it is. An Arduino sketch has neither. A pin is a NUMBER, it is
+// never declared, and the only evidence that D13 is an output is that something
+// called pinMode or digitalWrite on it. So the pins are discovered from the
+// calls, which is why this needed a front end rather than another lookup entry.
+
+const sketch = (body) => cToPseudocode(`#include <Arduino.h>\n${body}`);
+
+test('an Arduino pin is discovered from the calls that use it', () => {
+    const { pseudocode, warnings } = sketch(`
+#define LED 13
+const int button = 2;
+const int pot = A0;
+void setup() {
+  pinMode(LED, OUTPUT);
+  pinMode(button, INPUT_PULLUP);
+}
+void loop() {
+  if (digitalRead(button)) { digitalWrite(LED, HIGH); } else { digitalWrite(LED, LOW); }
+  delay(analogRead(pot));
+}
+`);
+    assert.match(pseudocode, /^DEVICE ARDUINO-UNO$/m);
+    assert.match(pseudocode, /^CLOCK 16000000$/m, 'not an 8051 crystal');
+    // The author's own name for the number, not "d13".
+    assert.match(pseudocode, /^PIN led = D13 OUTPUT$/m);
+    // INPUT_PULLUP is a button to ground: pressed reads 0. That is ACTIVE LOW
+    // stated by the sketch, and it is the one polarity an Arduino source
+    // actually declares rather than implying.
+    assert.match(pseudocode, /^PIN button = D2 INPUT ACTIVE LOW$/m);
+    assert.match(pseudocode, /^PIN pot = A0 ANALOG$/m, 'analogRead settles the direction');
+    // HIGH/LOW come from the toolchain, not the sketch: without them a write
+    // lands as the non-sentence `set led to HIGH`.
+    assert.match(pseudocode, /turn on led/);
+    assert.match(pseudocode, /turn off led/);
+    // A pin in argument position has already been through readName, so
+    // digitalRead(button) arrives as the text "read button".
+    assert.match(pseudocode, /IF not read button THEN:/);
+    assert.match(pseudocode, /wait read pot ms/);
+    assert.ok(!warnings.some((w) => /does not read|no pins found/.test(w)),
+        `nothing refused: ${JSON.stringify(warnings)}`);
+});
+
+test('setup() and loop() reassemble into one script with a FOREVER', () => {
+    const { pseudocode } = sketch(`
+void setup() { pinMode(13, OUTPUT); }
+void loop() { digitalWrite(13, HIGH); delay(500); digitalWrite(13, LOW); delay(500); }
+`);
+    const lines = pseudocode.split('\n');
+    assert.equal(lines.filter((l) => /^WHEN /.test(l)).length, 1, 'one script, not two');
+    assert.match(pseudocode, /WHEN flag clicked:\n {2}FOREVER:/,
+        'setup() held only pinMode, so the script is the loop');
+    // setup() and loop() are the script, not procedures it calls.
+    assert.ok(!/DEFINE/.test(pseudocode), 'no DEFINE blocks for setup/loop');
+    // A pin nothing named still gets declared, under the board's own spelling.
+    assert.match(pseudocode, /^PIN d13 = D13 OUTPUT$/m);
+});
+
+test('setup() work that is not pinMode survives into the script', () => {
+    const { pseudocode } = sketch(`
+int n;
+void setup() { pinMode(9, OUTPUT); n = 5; }
+void loop() { analogWrite(9, 128); delay(n); }
+`);
+    const body = pseudocode.slice(pseudocode.indexOf('WHEN'));
+    assert.match(body, /set n to 5[\s\S]*FOREVER:/, 'setup runs once, before the FOREVER');
+    // analogWrite is 0-255 of duty and the dialect speaks percent.
+    assert.match(pseudocode, /set d9 to 50 percent/);
+    assert.match(pseudocode, /^PIN d9 = D9 PWM$/m);
+});
+
+test('a duty that is not a literal is flagged rather than silently rescaled', () => {
+    const { pseudocode, warnings } = sketch(`
+int v;
+void setup() { pinMode(9, OUTPUT); }
+void loop() { analogWrite(9, v); }
+`);
+    assert.match(pseudocode, /set d9 to v percent/);
+    assert.ok(warnings.some((w) => /0-255 and the pseudocode is percent/.test(w)),
+        `expected a scale warning, got ${JSON.stringify(warnings)}`);
+});
+
+test("the Nano's A6/A7 are analog-only, and a sketch that drives one is told so", () => {
+    // The board cannot be inferred from <Arduino.h> -- an Uno and a Nano
+    // include the same header -- so the marker header is how a Nano says it
+    // is a Nano. Its pins are still discovered, because naming the board must
+    // not switch pin discovery off.
+    const { pseudocode, warnings } = cToPseudocode(`#include <Arduino.h>
+// @bw-begin
+// @bw device arduino-nano
+// @bw-end
+void setup() { pinMode(A6, OUTPUT); }
+void loop() { digitalWrite(A6, HIGH); }
+`);
+    assert.match(pseudocode, /^DEVICE ARDUINO-NANO$/m);
+    assert.match(pseudocode, /^PIN a6 = A6 OUTPUT$/m, 'still discovered from the calls');
+    assert.ok(warnings.some((w) => /A6 is analog-input only on the Nano/.test(w)
+        && /does nothing on the board/.test(w)),
+    `expected the package warning, got ${JSON.stringify(warnings)}`);
+});
+
+test('a pin computed at run time is refused by name, not guessed at', () => {
+    const { warnings } = sketch(`
+int pins[3];
+void setup() { for (int i = 0; i < 3; i = i + 1) { pinMode(pins[i], OUTPUT); } }
+void loop() { }
+`);
+    assert.ok(warnings.some((w) => /computed at run time/.test(w)),
+        `expected a run-time-pin warning, got ${JSON.stringify(warnings)}`);
+});
+
+test('a core call with no equivalent still warns rather than vanishing', () => {
+    const { warnings } = sketch(`
+void setup() { pinMode(13, OUTPUT); }
+void loop() { shiftOut(13, 12, 0, 255); digitalWrite(13, HIGH); }
+`);
+    assert.ok(warnings.some((w) => /shiftOut/.test(w)),
+        `an untranslated call must stay visible: ${JSON.stringify(warnings)}`);
+});
+
+test('delayMicroseconds is below the dialect floor and says so', () => {
+    const { pseudocode, warnings } = sketch(`
+void setup() { pinMode(13, OUTPUT); }
+void loop() { digitalWrite(13, HIGH); delayMicroseconds(100); digitalWrite(13, LOW); }
+`);
+    assert.ok(warnings.some((w) => /delayMicroseconds\(100\).*1 ms/.test(w)));
+    assert.ok(!/wait 0 ms/.test(pseudocode), 'rounding it to 0 would delete the delay silently');
+});
+
+test('an 8051 source is unaffected by the Arduino vocabulary', () => {
+    const { pseudocode } = cToPseudocode(`#include <stc12.h>
+sbit LED1 = P1^0;
+#define LED_ON 0
+void main(void) { while (1) { LED1 = LED_ON; delay_ms(500); } }
+`);
+    assert.match(pseudocode, /^DEVICE STC12C5A60S2$/m);
+    assert.match(pseudocode, /^PIN led1 = P1\.0 OUTPUT ACTIVE LOW$/m,
+        'the {port, bit} spelling is untouched');
+});
