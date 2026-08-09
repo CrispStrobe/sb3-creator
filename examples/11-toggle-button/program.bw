@@ -1,0 +1,13 @@
+DEVICE STC12C5A60S2
+CLOCK 11059200
+PIN btn = P3.2 INPUT
+PIN led1 = P1.0 OUTPUT ACTIVE LOW
+
+# Button toggles LED: press once = on, press again = off
+WHEN flag clicked:
+  FOREVER:
+    wait until read btn = 0
+    toggle led1
+    wait 0.05 seconds
+    wait until read btn = 1
+    wait 0.05 seconds

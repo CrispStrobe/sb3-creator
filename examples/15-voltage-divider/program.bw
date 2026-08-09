@@ -1,0 +1,13 @@
+DEVICE STC12C5A60S2
+CLOCK 11059200
+PIN sense = P1.7 ANALOG
+PIN led1 = P1.0 OUTPUT ACTIVE LOW
+
+# Read the voltage divider junction; light LED if above midpoint
+WHEN flag clicked:
+  FOREVER:
+    IF read sense > 512 THEN:
+      turn on led1
+    ELSE:
+      turn off led1
+    wait 0.1 seconds

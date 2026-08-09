@@ -1,0 +1,19 @@
+{
+  "vcc": 9.0,
+  "parts": [
+    { "id": "vcc1",  "kind": "vcc",      "params": {},                                  "x": 200, "y": 50  },
+    { "id": "gnd1",  "kind": "gnd",      "params": {},                                  "x": 200, "y": 400 },
+    { "id": "r1",    "kind": "resistor",  "params": { "ohms": 330 },                    "x": 200, "y": 130 },
+    { "id": "zd1",   "kind": "diode",     "params": { "vf": 5.1 },                      "x": 100, "y": 250 },
+    { "id": "r2",    "kind": "resistor",  "params": { "ohms": 470 },                    "x": 300, "y": 180 },
+    { "id": "led1",  "kind": "led",       "params": { "vf": 2.0, "color": "green" },    "x": 300, "y": 290 }
+  ],
+  "wires": [
+    { "from": "vcc1",  "fromTerminal": "vcc",     "to": "r1",   "toTerminal": "a"       },
+    { "from": "r1",    "fromTerminal": "b",        "to": "zd1",  "toTerminal": "cathode" },
+    { "from": "zd1",   "fromTerminal": "anode",    "to": "gnd1", "toTerminal": "gnd"    },
+    { "from": "r1",    "fromTerminal": "b",        "to": "r2",   "toTerminal": "a"       },
+    { "from": "r2",    "fromTerminal": "b",        "to": "led1", "toTerminal": "anode"   },
+    { "from": "led1",  "fromTerminal": "cathode",  "to": "gnd1", "toTerminal": "gnd"    }
+  ]
+}

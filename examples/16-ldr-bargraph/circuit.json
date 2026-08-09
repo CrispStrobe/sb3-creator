@@ -1,0 +1,29 @@
+{
+  "vcc": 5.0,
+  "parts": [
+    { "id": "vcc1",  "kind": "vcc",      "params": {},                                        "x": 200, "y": 50  },
+    { "id": "gnd1",  "kind": "gnd",      "params": {},                                        "x": 200, "y": 500 },
+    { "id": "pot1",  "kind": "potentiometer", "params": { "ohms": 10000, "position": 0.5 },   "x": 100, "y": 150 },
+    { "id": "r1",    "kind": "resistor",  "params": { "ohms": 1000 },                         "x": 250, "y": 120 },
+    { "id": "r2",    "kind": "resistor",  "params": { "ohms": 1000 },                         "x": 350, "y": 120 },
+    { "id": "r3",    "kind": "resistor",  "params": { "ohms": 1000 },                         "x": 450, "y": 120 },
+    { "id": "led1",  "kind": "led",       "params": { "vf": 2.0, "color": "green" },          "x": 250, "y": 230 },
+    { "id": "led2",  "kind": "led",       "params": { "vf": 2.0, "color": "yellow" },         "x": 350, "y": 230 },
+    { "id": "led3",  "kind": "led",       "params": { "vf": 2.0, "color": "red" },            "x": 450, "y": 230 },
+    { "id": "mcu1",  "kind": "mcu",       "params": { "pins": ["P1.0", "P1.1", "P1.2", "P1.7"] }, "x": 50, "y": 300 }
+  ],
+  "wires": [
+    { "from": "vcc1",  "fromTerminal": "vcc",     "to": "pot1", "toTerminal": "a"       },
+    { "from": "pot1",  "fromTerminal": "b",        "to": "gnd1", "toTerminal": "gnd"    },
+    { "from": "pot1",  "fromTerminal": "wiper",    "to": "mcu1", "toTerminal": "P1.7"   },
+    { "from": "vcc1",  "fromTerminal": "vcc",     "to": "r1",   "toTerminal": "a"       },
+    { "from": "vcc1",  "fromTerminal": "vcc",     "to": "r2",   "toTerminal": "a"       },
+    { "from": "vcc1",  "fromTerminal": "vcc",     "to": "r3",   "toTerminal": "a"       },
+    { "from": "r1",    "fromTerminal": "b",        "to": "led1", "toTerminal": "anode"  },
+    { "from": "r2",    "fromTerminal": "b",        "to": "led2", "toTerminal": "anode"  },
+    { "from": "r3",    "fromTerminal": "b",        "to": "led3", "toTerminal": "anode"  },
+    { "from": "led1",  "fromTerminal": "cathode",  "to": "mcu1", "toTerminal": "P1.0"  },
+    { "from": "led2",  "fromTerminal": "cathode",  "to": "mcu1", "toTerminal": "P1.1"  },
+    { "from": "led3",  "fromTerminal": "cathode",  "to": "mcu1", "toTerminal": "P1.2"  }
+  ]
+}

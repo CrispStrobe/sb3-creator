@@ -78,5 +78,109 @@
     "difficulty": 3,
     "thumbnail": "10-motor-speed/thumb.svg",
     "files": { "program": "10-motor-speed/program.bw", "circuit": "10-motor-speed/circuit.json", "expected": "10-motor-speed/EXPECTED.md" }
+  },
+  {
+    "id": "11-toggle-button",
+    "title": { "en": "Toggle button LED", "de": "Taster-LED umschalten" },
+    "category": "basics",
+    "difficulty": 2,
+    "thumbnail": "11-toggle-button/thumb.svg",
+    "files": { "program": "11-toggle-button/program.bw", "circuit": "11-toggle-button/circuit.json", "expected": "11-toggle-button/EXPECTED.md" }
+  },
+  {
+    "id": "12-dual-blink",
+    "title": { "en": "Two LEDs alternating", "de": "Zwei LEDs abwechselnd" },
+    "category": "basics",
+    "difficulty": 2,
+    "thumbnail": "12-dual-blink/thumb.svg",
+    "files": { "program": "12-dual-blink/program.bw", "circuit": "12-dual-blink/circuit.json", "expected": "12-dual-blink/EXPECTED.md" }
+  },
+  {
+    "id": "13-sos-morse",
+    "title": { "en": "SOS Morse code blinker", "de": "SOS-Morsecode-Blinker" },
+    "category": "basics",
+    "difficulty": 3,
+    "thumbnail": "13-sos-morse/thumb.svg",
+    "files": { "program": "13-sos-morse/program.bw", "circuit": "13-sos-morse/circuit.json", "expected": "13-sos-morse/EXPECTED.md" }
+  },
+  {
+    "id": "14-traffic-light",
+    "title": { "en": "Traffic light sequence", "de": "Ampelschaltung" },
+    "category": "basics",
+    "difficulty": 3,
+    "thumbnail": "14-traffic-light/thumb.svg",
+    "files": { "program": "14-traffic-light/program.bw", "circuit": "14-traffic-light/circuit.json", "expected": "14-traffic-light/EXPECTED.md" }
+  },
+  {
+    "id": "15-voltage-divider",
+    "title": { "en": "Voltage divider with ADC", "de": "Spannungsteiler mit ADC" },
+    "category": "analog",
+    "difficulty": 1,
+    "thumbnail": "15-voltage-divider/thumb.svg",
+    "files": { "program": "15-voltage-divider/program.bw", "circuit": "15-voltage-divider/circuit.json", "expected": "15-voltage-divider/EXPECTED.md" }
+  },
+  {
+    "id": "16-ldr-bargraph",
+    "title": { "en": "LDR brightness bar graph", "de": "LDR-Helligkeitsbalken" },
+    "category": "analog",
+    "difficulty": 3,
+    "thumbnail": "16-ldr-bargraph/thumb.svg",
+    "files": { "program": "16-ldr-bargraph/program.bw", "circuit": "16-ldr-bargraph/circuit.json", "expected": "16-ldr-bargraph/EXPECTED.md" }
+  },
+  {
+    "id": "17-comparator",
+    "title": { "en": "Analog comparator with two pots", "de": "Analogvergleicher mit zwei Potis" },
+    "category": "analog",
+    "difficulty": 3,
+    "thumbnail": "17-comparator/thumb.svg",
+    "files": { "program": "17-comparator/program.bw", "circuit": "17-comparator/circuit.json", "expected": "17-comparator/EXPECTED.md" }
+  },
+  {
+    "id": "18-logic-and-gate",
+    "title": { "en": "AND gate with two buttons", "de": "UND-Gatter mit zwei Tastern" },
+    "category": "digital",
+    "difficulty": 2,
+    "thumbnail": "18-logic-and-gate/thumb.svg",
+    "files": { "program": "18-logic-and-gate/program.bw", "circuit": "18-logic-and-gate/circuit.json", "expected": "18-logic-and-gate/EXPECTED.md" }
+  },
+  {
+    "id": "19-logic-or-gate",
+    "title": { "en": "OR gate with two buttons", "de": "ODER-Gatter mit zwei Tastern" },
+    "category": "digital",
+    "difficulty": 2,
+    "thumbnail": "19-logic-or-gate/thumb.svg",
+    "files": { "program": "19-logic-or-gate/program.bw", "circuit": "19-logic-or-gate/circuit.json", "expected": "19-logic-or-gate/EXPECTED.md" }
+  },
+  {
+    "id": "20-shift-register-binary",
+    "title": { "en": "Binary counter on shift register", "de": "Binärzähler auf Schieberegister" },
+    "category": "digital",
+    "difficulty": 3,
+    "thumbnail": "20-shift-register-binary/thumb.svg",
+    "files": { "program": "20-shift-register-binary/program.bw", "circuit": "20-shift-register-binary/circuit.json", "expected": "20-shift-register-binary/EXPECTED.md" }
+  },
+  {
+    "id": "21-resistor-led",
+    "title": { "en": "Resistor + LED (no MCU)", "de": "Widerstand + LED (ohne MCU)" },
+    "category": "pure-circuit",
+    "difficulty": 1,
+    "thumbnail": "21-resistor-led/thumb.svg",
+    "files": { "program": "21-resistor-led/program.bw", "circuit": "21-resistor-led/circuit.json", "expected": "21-resistor-led/EXPECTED.md" }
+  },
+  {
+    "id": "22-series-parallel",
+    "title": { "en": "Series vs parallel resistors", "de": "Reihen- vs Parallelschaltung" },
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "thumbnail": "22-series-parallel/thumb.svg",
+    "files": { "program": "22-series-parallel/program.bw", "circuit": "22-series-parallel/circuit.json", "expected": "22-series-parallel/EXPECTED.md" }
+  },
+  {
+    "id": "23-voltage-regulator",
+    "title": { "en": "Zener voltage regulator", "de": "Zener-Spannungsregler" },
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "thumbnail": "23-voltage-regulator/thumb.svg",
+    "files": { "program": "23-voltage-regulator/program.bw", "circuit": "23-voltage-regulator/circuit.json", "expected": "23-voltage-regulator/EXPECTED.md" }
   }
 ]

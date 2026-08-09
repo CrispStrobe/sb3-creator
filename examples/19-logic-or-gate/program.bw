@@ -1,0 +1,17 @@
+DEVICE STC12C5A60S2
+CLOCK 11059200
+PIN btnA = P3.2 INPUT
+PIN btnB = P3.3 INPUT
+PIN led1 = P1.0 OUTPUT ACTIVE LOW
+
+# OR gate: LED on when either button is pressed
+WHEN flag clicked:
+  FOREVER:
+    IF read btnA = 0 THEN:
+      turn on led1
+    ELSE:
+      IF read btnB = 0 THEN:
+        turn on led1
+      ELSE:
+        turn off led1
+    wait 0.05 seconds

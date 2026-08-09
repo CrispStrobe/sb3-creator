@@ -1,0 +1,2 @@
+# Pure circuit -- no MCU, no program
+# VCC -> resistor -> LED -> GND

@@ -1,0 +1,25 @@
+DEVICE STC12C5A60S2
+CLOCK 11059200
+PIN led1 = P1.0 OUTPUT ACTIVE LOW
+
+# Blink SOS in Morse code: ... --- ... (dot=0.2s, dash=0.6s, gap=0.2s, letter=0.6s, word=1.4s)
+WHEN flag clicked:
+  FOREVER:
+    REPEAT 3:
+      turn on led1
+      wait 0.2 seconds
+      turn off led1
+      wait 0.2 seconds
+    wait 0.4 seconds
+    REPEAT 3:
+      turn on led1
+      wait 0.6 seconds
+      turn off led1
+      wait 0.2 seconds
+    wait 0.4 seconds
+    REPEAT 3:
+      turn on led1
+      wait 0.2 seconds
+      turn off led1
+      wait 0.2 seconds
+    wait 1.0 seconds

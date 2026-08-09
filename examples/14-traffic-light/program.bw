@@ -1,0 +1,19 @@
+DEVICE STC12C5A60S2
+CLOCK 11059200
+PIN red = P1.0 OUTPUT ACTIVE LOW
+PIN yellow = P1.1 OUTPUT ACTIVE LOW
+PIN green = P1.2 OUTPUT ACTIVE LOW
+
+# Traffic light: red -> green -> yellow -> red
+WHEN flag clicked:
+  FOREVER:
+    turn on red
+    turn off yellow
+    turn off green
+    wait 3 seconds
+    turn off red
+    turn on green
+    wait 3 seconds
+    turn off green
+    turn on yellow
+    wait 1 seconds
