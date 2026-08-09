@@ -603,6 +603,19 @@ export default function cToPseudocode (source, opts = {}) {
                 const n = Number(initVal);
                 count = Number.isFinite(n) ? String(n + 1) : `${initVal} + 1`;
             }
+            // `for (i = N; i >= M; i--)` where M is a variable or non-zero constant → REPEAT (N - M + 1)
+            const downToVar = condStr.match(/^(\w+)\s*>=\s*(.+)$/);
+            if (!count && downToVar && initVar === downToVar[1] && initVal && downToVar[2].trim() !== '0') {
+                const lim = downToVar[2].trim();
+                const n = Number(initVal), m = Number(lim);
+                count = (Number.isFinite(n) && Number.isFinite(m)) ? String(n - m + 1) : `${initVal} - ${lim} + 1`;
+            }
+            // `for (i = M; i <= N; i++)` with variable bounds → REPEAT (N - M + 1)
+            if (!count && upEq && initVar === upEq[1] && initVal && !/^0$/.test(initVal)) {
+                const lim = upEq[2].replace(/\s*\)\s*$/, '').replace(/^\(\s*/, '').trim();
+                const n = Number(lim), m = Number(initVal);
+                count = (Number.isFinite(n) && Number.isFinite(m)) ? String(n - m + 1) : `${lim} - ${initVal} + 1`;
+            }
             // `for (; cond;)` or `for (; cond; step)` — while loop
             if (!count && !init.length && condStr) {
                 const inner = bodyOf(cur, depth + 1);
