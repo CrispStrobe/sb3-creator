@@ -2099,7 +2099,7 @@ WHEN flag clicked:
 test('the two pin vocabularies do not cross', () => {
     const stc = new SB3Creator();
     stc.parse('DEVICE STC12C5A60S2\nPIN led = D13 OUTPUT\n');
-    assert.ok(stc.warnings.some((w) => /Arduino pin name.*names its pins P<port>\.<bit>/.test(w)),
+    assert.ok(stc.warnings.some((w) => /"D13" is not how stc12c5a60s2 names a pin; it uses P<port>\.<bit>/.test(w)),
         `expected a vocabulary warning, got ${JSON.stringify(stc.warnings)}`);
 
     const ard = new SB3Creator();
@@ -2151,4 +2151,168 @@ test('the 8051 pin syntax is untouched by any of it', () => {
     const bad = new SB3Creator();
     bad.parse('DEVICE STC12C5A60S2\nPIN pot = P2.3 ANALOG\n');
     assert.ok(bad.warnings.some((w) => /ANALOG is only available on P1\.0-P1\.7/.test(w)));
+});
+
+// ---- MicroPython -> pseudocode: the fifth front end -------------------------
+// micro:bit and Pico both emit MicroPython and nothing read it back. They share
+// a language and almost no vocabulary: `pin0.write_digital(1)` against
+// `_pin15.value(1)`, and only one of the two declares a pin at all. So the
+// import line picks the dialect, exactly as the C reader splits 8051 from
+// Arduino.
+//
+// The interesting part is what the writer leaves behind. `pin0.write_digital(0)
+// # led off` is three facts in one line: the pin is called led, it is an
+// output, and 0 is its OFF level — which IS the ACTIVE LOW, and is the one
+// thing no amount of reading the loop body could recover, because a program
+// that only ever turns a lamp on looks identical either way.
+
+import micropythonToPseudocode from '../src/utils/micropythonToPseudocode.js';
+
+const MICROBIT_SRC = `from microbit import *
+
+_level = {'led': 0}
+
+# WHEN started:
+def bw_script():
+    while True:
+        if button_a.is_pressed():
+            _level['led'] = 1 - _level['led']
+            pin0.write_digital(_level['led'])
+        sleep(200)
+        print(pin1.read_analog())
+
+pin0.write_digital(1)  # led off
+
+bw_script()
+`;
+
+const PICO_SRC = `from machine import Pin, ADC, PWM
+import time
+
+def bw_script():
+    while True:
+        if (not _pin14.value()):
+            _pin15.value(0)
+        _pwm16.duty_u16((60) * 65535 // 100)
+        _hz = 440
+        if _hz:
+            _pwm17.freq(_hz)
+            _pwm17.duty_u16(32768)
+        else:
+            _pwm17.duty_u16(0)
+        time.sleep_ms(250)
+
+_pin15 = Pin(15, Pin.OUT)
+_pin14 = Pin(14, Pin.IN, Pin.PULL_UP)
+_adc26 = ADC(26)
+_pwm16 = PWM(Pin(16))
+_pwm16.freq(1000)
+_pwm17 = PWM(Pin(17))
+
+_pin15.value(1)  # led off
+
+bw_script()
+`;
+
+test('a micro:bit program reads back, polarity and all', () => {
+    const { pseudocode, warnings } = micropythonToPseudocode(MICROBIT_SRC);
+    assert.match(pseudocode, /^DEVICE MICROBIT$/m);
+    // The name and the ACTIVE LOW both come from `pin0.write_digital(1) # led off`.
+    assert.match(pseudocode, /^PIN led = P0 OUTPUT ACTIVE LOW$/m);
+    assert.match(pseudocode, /^PIN button_a = BUTTON_A INPUT$/m);
+    assert.match(pseudocode, /^PIN p1 = P1 ANALOG$/m);
+    assert.match(pseudocode, /FOREVER:/);
+    assert.match(pseudocode, /IF read button_a THEN:/);
+    // Two statements are one act: the dictionary write is bookkeeping.
+    assert.match(pseudocode, /toggle led/);
+    assert.ok(!/_level/.test(pseudocode), 'the bookkeeping does not survive');
+    assert.match(pseudocode, /wait 200 ms/);
+    assert.deepEqual(warnings, []);
+});
+
+test('a Pico program reads back, including the tone idiom', () => {
+    const { pseudocode, warnings } = micropythonToPseudocode(PICO_SRC);
+    assert.match(pseudocode, /^DEVICE PICO$/m);
+    assert.match(pseudocode, /^PIN led = GP15 OUTPUT ACTIVE LOW$/m);
+    // PULL_UP is a button to ground: pressed reads 0. Stated, not guessed.
+    assert.match(pseudocode, /^PIN gp14 = GP14 INPUT ACTIVE LOW$/m);
+    assert.match(pseudocode, /^PIN gp26 = GP26 ANALOG$/m);
+    assert.match(pseudocode, /^PIN gp16 = GP16 PWM$/m);
+    // Only ever given a frequency, never a computed duty — that is a tone.
+    assert.match(pseudocode, /^PIN gp17 = GP17 TONE$/m);
+    // A tone is four statements and one act; emitting the `if _hz:` as a
+    // branch would invent control flow the author never wrote.
+    assert.match(pseudocode, /set gp17 to 440 hz/);
+    assert.ok(!/IF _hz/.test(pseudocode), 'the zero-guard is not a branch');
+    // The writer scales a percentage to the hardware; leaving that in would
+    // say a duty of 65535 where the author wrote 60.
+    assert.match(pseudocode, /set gp16 to 60 percent/);
+    assert.match(pseudocode, /wait 250 ms/);
+    assert.deepEqual(warnings, []);
+});
+
+test('the Pico ADC comes back on the same scale as every other board', () => {
+    const { pseudocode } = micropythonToPseudocode(`from machine import Pin, ADC
+import time
+def bw_script():
+    while True:
+        print(_adc26.read_u16() >> 6)
+        time.sleep_ms(10)
+_adc26 = ADC(26)
+bw_script()
+`);
+    // read_u16() >> 6 is the writer making a 16-bit ADC report 0-1023 like the
+    // others. It is an artefact of one board and has no business in portable text.
+    assert.match(pseudocode, /print read gp26/);
+    assert.ok(!/read_u16|>> 6/.test(pseudocode));
+});
+
+test('MicroPython round-trips through sb3-creator to a fixed point', () => {
+    for (const src of [MICROBIT_SRC, PICO_SRC]) {
+        const ps = micropythonToPseudocode(src).pseudocode;
+        const hop = (t) => { const c = new SB3Creator(); c.parse(t); return { text: c.decompile(), warns: c.warnings }; };
+        const a = hop(ps), b = hop(a.text);
+        assert.deepEqual(a.warns, [], `parses clean: ${JSON.stringify(a.warns)}`);
+        assert.equal(b.text, a.text, 'a fixed point after one hop');
+    }
+});
+
+test('a board that runs MicroPython has no C to emit, by definition', () => {
+    const c = new SB3Creator();
+    c.parse('DEVICE MICROBIT\nPIN led = P0 OUTPUT\n\nWHEN flag clicked:\n  turn on led\n');
+    assert.deepEqual(c.warnings, []);
+    const out = c.generateC();
+    assert.match(out, /No C emitted for DEVICE MICROBIT/);
+    assert.ok(c._cWarnings.some((w) => /the program IS the artefact/.test(w)),
+        'not "not yet" — there is nothing to compile at all');
+});
+
+test('each board is held to its own pin spelling', () => {
+    const cases = [
+        ['MICROBIT', 'GP15', /P0-P20, BUTTON_A or BUTTON_B/],
+        ['PICO', 'P0', /GP0-GP28/],
+        ['ARDUINO-UNO', 'GP15', /D0-D13 or A0-A5/],
+        ['MICROBIT', 'P21', /microbit has no P21; it goes up to P20/],
+        ['PICO', 'GP29', /pico has no GP29; it goes up to GP28/],
+        // The compiler refuses this; sb3-creator disagreeing would mean a
+        // project that builds in one place and not the other.
+        ['ARDUINO-NANO', 'A6', /analog-input only on the Nano/],
+        ['STC12C5A60S2', 'P0', /P<port>\.<bit>/]
+    ];
+    for (const [device, where, want] of cases) {
+        const c = new SB3Creator();
+        c.parse(`DEVICE ${device}\nPIN x = ${where} OUTPUT\n`);
+        assert.ok(c.warnings.some((w) => want.test(w)),
+            `${device} + ${where}: expected ${want}, got ${JSON.stringify(c.warnings)}`);
+    }
+    // A button is an input and nothing else, on the board that has buttons.
+    const b = new SB3Creator();
+    b.parse('DEVICE MICROBIT\nPIN a = BUTTON_A OUTPUT\n');
+    assert.ok(b.warnings.some((w) => /BUTTON_A is a button and can only be an INPUT/.test(w)));
+});
+
+test('a Python file that is not for a board says so instead of guessing', () => {
+    const { pseudocode, warnings } = micropythonToPseudocode('import os\nprint(os.getcwd())\n');
+    assert.equal(pseudocode, '');
+    assert.ok(warnings.some((w) => /not MicroPython for a board this reads/.test(w)));
 });

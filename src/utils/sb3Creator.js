@@ -1140,20 +1140,59 @@ class SB3Creator {
         // A numbered pin (D13, A0) for the boards that have them. Kept as its
         // own branch: an Arduino pin has no port and no bit, so every check
         // below it is about a coordinate system it is not in.
-        if ((m = trimmed.match(/^PIN\s+([A-Za-z_]\w*)\s*=\s*([DA]\d+)\s+(OUTPUT|INPUT|ANALOG|PWM|TONE)(?:\s+ACTIVE\s+(LOW|HIGH))?$/i))) {
+        if ((m = trimmed.match(/^PIN\s+([A-Za-z_]\w*)\s*=\s*([DA]\d+|GP\d+|P\d+|BUTTON_[AB])\s+(OUTPUT|INPUT|ANALOG|PWM|TONE)(?:\s+ACTIVE\s+(LOW|HIGH))?$/i))) {
             const [, name, where, direction, active] = m;
             const cfg = this.stcConfig();
             const part = SB3Creator.STC_PARTS[cfg.device];
-            if (part && part.core !== 'arduino') {
-                this.warn(lineIndex, `"${where.toUpperCase()}" is an Arduino pin name; ${cfg.device} names its pins P<port>.<bit>`);
+            const core = part && part.core;
+            // Three vocabularies reach here and each board owns exactly one.
+            // Naming a pin in another board's spelling is the mistake worth
+            // catching, because both spellings look perfectly reasonable.
+            // Per DEVICE, not per core: a micro:bit and a Pico are both
+            // MicroPython and share no pin name at all, so one regex for the
+            // pair let each accept the other's spelling.
+            const SPOKEN = {
+                'arduino-uno': [/^(D\d+|A\d+)$/i, 'D0-D13 or A0-A5'],
+                'arduino-nano': [/^(D\d+|A\d+)$/i, 'D0-D13 or A0-A7'],
+                atmega328p: [/^(D\d+|A\d+)$/i, 'D0-D13 or A0-A5'],
+                microbit: [/^(P\d+|BUTTON_[AB])$/i, 'P0-P20, BUTTON_A or BUTTON_B'],
+                pico: [/^GP\d+$/i, 'GP0-GP28']
+            };
+            const spoken = SPOKEN[cfg.device];
+            if (!spoken || !spoken[0].test(where)) {
+                const want = spoken ? spoken[1] : 'P<port>.<bit>';
+                this.warn(lineIndex, `"${where.toUpperCase()}" is not how ${cfg.device || 'this device'} names a pin; it uses ${want}`);
+                return true;
+            }
+            // The board ends somewhere, and the compiler already refuses past
+            // it. Disagreeing here would mean a project that builds in one
+            // place and not the other.
+            const LAST = { 'arduino-uno': { D: 13, A: 5 }, 'arduino-nano': { D: 13, A: 7 },
+                atmega328p: { D: 13, A: 5 }, microbit: { P: 20 }, pico: { GP: 28 } };
+            const edge = LAST[cfg.device] || {};
+            const num = where.match(/^([A-Z]+)(\d+)$/i);
+            if (num && edge[num[1].toUpperCase()] !== undefined && Number(num[2]) > edge[num[1].toUpperCase()]) {
+                this.warn(lineIndex, `${cfg.device} has no ${where.toUpperCase()}; it goes up to ${num[1].toUpperCase()}${edge[num[1].toUpperCase()]}`);
                 return true;
             }
             if (this.stcPin(name)) {
                 this.warn(lineIndex, `Pin "${name}" declared twice`);
                 return true;
             }
-            if (/^analog$/i.test(direction) && !/^A/i.test(where)) {
+            // The Nano's A6/A7 reach the pad with no digital buffer behind
+            // them, so a digital write to one does nothing on the board. The
+            // compiler refuses it; agreeing here is the point of the rule
+            // above about not disagreeing with it.
+            if (cfg.device === 'arduino-nano' && /^A[67]$/i.test(where) && !/^analog$/i.test(direction)) {
+                this.warn(lineIndex, `${where.toUpperCase()} is analog-input only on the Nano (the TQFP package brings out the ADC channel with no digital buffer), so it cannot be an ${direction.toUpperCase()}`);
+                return true;
+            }
+            if (core === 'arduino' && /^analog$/i.test(direction) && !/^A/i.test(where)) {
                 this.warn(lineIndex, `ANALOG needs an analog input (A0 and up), not ${where.toUpperCase()}`);
+                return true;
+            }
+            if (core === 'micropython' && /^button_[ab]$/i.test(where) && !/^input$/i.test(direction)) {
+                this.warn(lineIndex, `${where.toUpperCase()} is a button and can only be an INPUT`);
                 return true;
             }
             cfg.pins.push({
@@ -5489,10 +5528,13 @@ class SB3Creator {
         // a file that compiles for the wrong chip out of pins that do not exist
         // on it. Refusing by name is the only honest answer until the Arduino
         // back end lands; stc-compiler can already build these, and says so.
-        if (part && part.core === 'arduino') {
-            this.cWarn(`DEVICE ${device.toUpperCase()} has numbered pins and no 8051 registers — `
+        if (part && part.core && part.core !== '8051') {
+            const how = part.core === 'micropython'
+                ? 'runs MicroPython, where the program IS the artefact and there is nothing to compile'
+                : 'has numbered pins and no 8051 registers';
+            this.cWarn(`DEVICE ${device.toUpperCase()} ${how} — `
                 + 'this back end emits bare-metal 8051 only. The project is unchanged; '
-                + 'build it with stc-compiler, which has an Arduino target.');
+                + 'build it with stc-compiler, which has a target for this board.');
             return `/* No C emitted for DEVICE ${device.toUpperCase()}.\n`
                 + ' *\n'
                 + ' * This back end emits bare-metal 8051. An Arduino board has numbered\n'
@@ -6305,7 +6347,12 @@ SB3Creator.STC_PARTS = {
     // rather than emitting 8051 registers for a board that has none.
     'arduino-uno': { core: 'arduino', header: 'Arduino.h', portModes: false, aux1T: false, adc: true },
     'arduino-nano': { core: 'arduino', header: 'Arduino.h', portModes: false, aux1T: false, adc: true },
-    atmega328p: { core: 'arduino', header: 'avr/io.h', portModes: false, aux1T: false, adc: true }
+    atmega328p: { core: 'arduino', header: 'avr/io.h', portModes: false, aux1T: false, adc: true },
+    // core: 'micropython' -- the program IS the artefact, so there is no C back
+    // end for these by definition, not merely not yet. Pins are P0-P20 and the
+    // two buttons on a micro:bit, GP0-GP28 on a Pico.
+    microbit: { core: 'micropython', header: null, portModes: false, aux1T: false, adc: true },
+    pico: { core: 'micropython', header: null, portModes: false, aux1T: false, adc: true }
 };
 
 // C keywords a sanitized Scratch name could collide with (sanitizeIdent only guards the
