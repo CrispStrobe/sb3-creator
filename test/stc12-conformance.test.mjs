@@ -27,6 +27,7 @@ function loadExtension(source) {
         BlockType: { COMMAND: 'command', REPORTER: 'reporter', BOOLEAN: 'boolean', HAT: 'hat' },
         ArgumentType: { STRING: 'string', NUMBER: 'number', BOOLEAN: 'boolean', COLOR: 'color' },
         extensions: { register(ext) { registered.push(ext); } },
+        translate: (obj) => obj.default || obj,  // identity — returns the default-locale string
         vm: { runtime: { stc: { pins: [{ name: 'P1_0', activeLow: false }], ports: [], parts: [], tables: [{ name: 'font', values: [0x3F] }] } } }
     };
     const fn = new Function('Scratch', source);
@@ -42,14 +43,16 @@ function extractInlinedSource(wrapperCode) {
     return m[1];
 }
 
-// ---- load both copies -------------------------------------------------------
+// ---- load all three copies ---------------------------------------------------
 
 const galleryPath = resolve(here, '../../extensions/extensions/CrispStrobe/stc12.js');
 const bundledPath = resolve(here, '../../bw-bundle/lite/overlay/scratch-vm/src/extensions/crispstrobe/stc12/index.js');
+const referencePath = resolve(here, '../reference/extensions/stc12.js');
 
-let gallerySource, bundledWrapper;
+let gallerySource, bundledWrapper, referenceSource;
 try { gallerySource = readFileSync(galleryPath, 'utf8'); } catch { /* skip */ }
 try { bundledWrapper = readFileSync(bundledPath, 'utf8'); } catch { /* skip */ }
+try { referenceSource = readFileSync(referencePath, 'utf8'); } catch { /* skip */ }
 
 // ---- the opcodes sb3-creator emits (derived, not hand-maintained) ------------
 // Scan sb3Creator.js for every stc12_* opcode created by createBlock / cmd / B / push.
@@ -135,42 +138,61 @@ test('bundled stc12 extension matches emitted opcodes', { skip: !bundledWrapper 
     assertConformance(info, 'bundled');
 });
 
-test('shared stc12 opcodes have identical block shapes across copies', {
-    skip: (!gallerySource || !bundledWrapper) && 'one or both files not found'
+test('reference copy matches emitted opcodes', { skip: !referenceSource && 'reference file not found' }, () => {
+    const info = loadExtension(referenceSource);
+    assert.strictEqual(info.id, 'stc12');
+    assertConformance(info, 'reference');
+});
+
+test('all three copies have identical block shapes on shared opcodes', {
+    skip: (!gallerySource || !bundledWrapper || !referenceSource) && 'one or more files not found'
 }, () => {
-    const galleryInfo = loadExtension(gallerySource);
-    const bundledInfo = loadExtension(extractInlinedSource(bundledWrapper));
+    const copies = {
+        gallery: loadExtension(gallerySource),
+        bundled: loadExtension(extractInlinedSource(bundledWrapper)),
+        reference: loadExtension(referenceSource)
+    };
 
-    const gBlocks = galleryInfo.blocks.filter(b => typeof b === 'object');
-    const bBlocks = bundledInfo.blocks.filter(b => typeof b === 'object');
-    const gByOp = Object.fromEntries(gBlocks.map(b => [b.opcode, b]));
-    const bByOp = Object.fromEntries(bBlocks.map(b => [b.opcode, b]));
-
-    // For every opcode that exists in BOTH copies, shapes must match.
-    // Extra opcodes in either copy are fine — the gallery may gain blocks
-    // before the bundled copy is updated, and vice versa.
-    const shared = Object.keys(gByOp).filter(op => bByOp[op]);
-    assert.ok(shared.length >= EMITTED_OPCODES.size,
-        'both copies must at least share the emitted opcodes');
-
-    for (const op of shared) {
-        const gb = gByOp[op], bb = bByOp[op];
-        assert.strictEqual(gb.blockType, bb.blockType, `${op}: blockType mismatch`);
-
-        const gArgs = Object.entries(gb.arguments || {}).sort(([a], [b]) => a.localeCompare(b));
-        const bArgs = Object.entries(bb.arguments || {}).sort(([a], [b]) => a.localeCompare(b));
-        assert.deepStrictEqual(
-            gArgs.map(([k, v]) => [k, v.type, v.menu || null]),
-            bArgs.map(([k, v]) => [k, v.type, v.menu || null]),
-            `${op}: argument shapes differ between gallery and bundled`
+    // Collect blocks by opcode from each copy
+    const byOp = {};
+    for (const [name, info] of Object.entries(copies)) {
+        byOp[name] = Object.fromEntries(
+            info.blocks.filter(b => typeof b === 'object').map(b => [b.opcode, b])
         );
     }
 
-    // For shared menus, acceptReporters must match
-    const gMenus = galleryInfo.menus || {};
-    const bMenus = bundledInfo.menus || {};
-    for (const name of Object.keys(gMenus).filter(n => bMenus[n])) {
-        assert.strictEqual(gMenus[name].acceptReporters, bMenus[name].acceptReporters,
-            `menu "${name}": acceptReporters mismatch between copies`);
+    // Find opcodes shared by all three
+    const allOps = new Set(Object.keys(byOp.gallery));
+    const shared = [...allOps].filter(op => byOp.bundled[op] && byOp.reference[op]);
+    assert.ok(shared.length >= EMITTED_OPCODES.size,
+        `all three copies must share at least the ${EMITTED_OPCODES.size} emitted opcodes (shared: ${shared.length})`);
+
+    // For each shared opcode, all three must agree on blockType and argument shapes
+    for (const op of shared) {
+        const names = Object.keys(copies);
+        for (let i = 1; i < names.length; i++) {
+            const a = byOp[names[0]][op], b = byOp[names[i]][op];
+            assert.strictEqual(a.blockType, b.blockType,
+                `${op}: blockType mismatch between ${names[0]} and ${names[i]}`);
+
+            const aArgs = Object.entries(a.arguments || {}).sort(([x], [y]) => x.localeCompare(y));
+            const bArgs = Object.entries(b.arguments || {}).sort(([x], [y]) => x.localeCompare(y));
+            assert.deepStrictEqual(
+                aArgs.map(([k, v]) => [k, v.type, v.menu || null]),
+                bArgs.map(([k, v]) => [k, v.type, v.menu || null]),
+                `${op}: argument shapes differ between ${names[0]} and ${names[i]}`
+            );
+        }
+    }
+
+    // For shared menus, acceptReporters must match across all copies
+    for (let i = 1; i < Object.keys(copies).length; i++) {
+        const nameA = Object.keys(copies)[0], nameB = Object.keys(copies)[i];
+        const menusA = copies[nameA].menus || {};
+        const menusB = copies[nameB].menus || {};
+        for (const name of Object.keys(menusA).filter(n => menusB[n])) {
+            assert.strictEqual(menusA[name].acceptReporters, menusB[name].acceptReporters,
+                `menu "${name}": acceptReporters mismatch between ${nameA} and ${nameB}`);
+        }
     }
 });
