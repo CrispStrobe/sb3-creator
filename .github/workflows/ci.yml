@@ -32,6 +32,7 @@ jobs:
 
       - name: Unit + VM tests
         run: npm test
+        timeout-minutes: 5
 
       - name: Build
         run: npm run build
