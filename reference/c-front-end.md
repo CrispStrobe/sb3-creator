@@ -98,7 +98,7 @@ What blocks it is the same two features DIALECT-COVERAGE.md identifies as tier 2
 whole-port I/O and indexed lookup tables. These are feature requests for the dialect,
 not bugs in the parser.
 
-## Open defects (6, characterised 2026-08-09)
+## Defects (6, characterised and triaged 2026-08-09)
 
 | # | file | construct | class | fixable? |
 |---|---|---|---|---|
@@ -116,8 +116,9 @@ The fix for 5–6 (temp-variable hoisting for ternary inside call arguments)
 requires propagating ternary info out of the expression parser into statement-level
 code — an architectural change disproportionate to 2 corpus files.
 
-**All six are resolved**: 3 are not bugs (source/scope/duplicate), 1 awaits
-tier 2 dialect, 2 are honestly warned with the architectural reason documented.
+**All six are dispositioned**: 3 are not translator bugs (source / scope / duplicate),
+1 is blocked on the tier-2 array dialect, and 2 are correctly warned rather than guessed.
+Three of the six still do not translate; none of them do so silently.
 
 ## Corpus results
 
