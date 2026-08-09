@@ -1,3 +1,4 @@
+import micropythonToPseudocode from './micropythonToPseudocode.js';
 import { scratchCallToPseudo, arraysCallToPseudo, stripSpritePrefix, unq, sanitizeIdent } from './scratchRuntime.js';
 
 // Python (restricted subset) -> Brickwright pseudocode.
@@ -989,6 +990,16 @@ class Translator {
 
 export default function pythonToPseudocode (source) {
     if (!source || !source.trim()) throw new Error('Python source is empty');
+    // MicroPython for a board is Python only in the sense that C for an 8051
+    // and C for an Arduino are both C. It has no sprites, no scratch runtime
+    // and no `_eq`; what it has is pins. Parsing it as the algorithmic subset
+    // produces a program that is syntactically fine and means nothing, so it
+    // goes to the front end that knows what a pin is. One entry point, because
+    // a user pasting a file should not have to know which of these it is.
+    if (/^\s*from\s+microbit\s+import\s+\*/m.test(source)
+        || /^\s*from\s+machine\s+import\b/m.test(source)) {
+        return micropythonToPseudocode(source);
+    }
     const tokens = new Tokenizer(source).tokenize();
     const ast = new Parser(tokens).parseProgram();
     const t = new Translator();

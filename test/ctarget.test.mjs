@@ -2374,3 +2374,32 @@ bw_script()
     // whether or not this particular script touches it.
     assert.match(pseudocode, /^PIN spare = P2 OUTPUT$/m);
 });
+
+test('one Python entry point takes both kinds of Python', async () => {
+    // A user pasting a file into the importer's Python tab should not have to
+    // know whether it is Scratch-runtime Python or MicroPython for a board.
+    // Parsing a micro:bit program as the algorithmic subset would succeed
+    // syntactically and mean nothing, which is the failure worth routing away
+    // from -- the same reason cToPseudocode splits 8051 from Arduino.
+    const pythonToPseudocode = (await import('../src/utils/pythonToPseudocode.js')).default;
+
+    const board = pythonToPseudocode(`from microbit import *
+# @bw-begin
+# @bw device microbit
+# @bw pin led P0 output active-low
+# @bw-end
+def bw_script():
+    while True:
+        pin0.write_digital(0)
+        sleep(50)
+bw_script()
+`);
+    assert.match(board.pseudocode, /^DEVICE MICROBIT$/m);
+    assert.match(board.pseudocode, /^PIN led = P0 OUTPUT ACTIVE LOW$/m);
+    assert.match(board.pseudocode, /turn on led/, 'ACTIVE LOW: writing 0 turns it ON');
+
+    // And the algorithmic subset is untouched — no DEVICE, a sprite instead.
+    const plain = pythonToPseudocode('x = 1\nprint(x + 2)\n');
+    assert.ok(!/DEVICE|PIN /.test(plain.pseudocode), 'plain Python is not a board program');
+    assert.match(plain.pseudocode, /SPRITE Main:/);
+});
