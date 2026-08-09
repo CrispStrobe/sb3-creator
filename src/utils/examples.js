@@ -2450,9 +2450,9 @@ WHEN flag clicked:
       change duty by 1
       REPEAT 12:
         set led to 0
-        wait 0.0004 seconds
+        wait 0.001 seconds
         set led to 1
-        wait 0.0004 seconds
+        wait 0.001 seconds
     set duty to 0`
 };
 

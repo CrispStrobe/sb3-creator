@@ -1795,6 +1795,47 @@ test('the yield map is readable from a debug build', () => {
     assert.deepEqual(readYieldMap(c.generateC()), []);
 });
 
+// ---- regression tests for reader fixes that shipped without tests -----------
+
+test('tone_set(freq) round-trips as set <pin> to freq hz', () => {
+    const c = new SB3Creator();
+    c.parse('DEVICE STC12C5A60S2\nCLOCK 11059200\nPIN buzzer = P1.5 TONE\n\nWHEN flag clicked:\n  set buzzer to 440 hz\n  set buzzer to 880 hz');
+    const { pseudocode, warnings } = cToPseudocode(c.generateC());
+    assert.deepEqual(warnings, []);
+    assert.match(pseudocode, /set buzzer to 440 hz/);
+    assert.match(pseudocode, /set buzzer to 880 hz/);
+    assert.deepEqual(recompiles(pseudocode), []);
+});
+
+test('pin = (expr) ? 1 : 0 round-trips as set <pin> to expr', () => {
+    const c = new SB3Creator();
+    c.parse('DEVICE STC12C5A60S2\nCLOCK 11059200\nPIN led = P1.0 OUTPUT ACTIVE LOW\n\nWHEN flag clicked:\n  set led to 0\n  set led to 1\n  set led to duty');
+    const { pseudocode, warnings } = cToPseudocode(c.generateC());
+    assert.deepEqual(warnings, []);
+    assert.match(pseudocode, /set led to 0/);
+    assert.match(pseudocode, /set led to 1/);
+    assert.match(pseudocode, /set led to duty/);
+});
+
+test('device C round-trip is 5/5 on the example fixtures', async () => {
+    const examples = (await import('../src/utils/examples.js')).default;
+    let pass = 0, total = 0;
+    for (const [name, src] of Object.entries(examples)) {
+        const c1 = new SB3Creator(); c1.parse(src);
+        if (!c1.project.stc?.pins?.length && !c1.project.stc?.ledcube) continue;
+        total++;
+        const ps0 = c1.decompile();
+        const c0b = new SB3Creator(); c0b.parse(ps0);
+        const dialectFP = c0b.decompile();
+        const { pseudocode: psC, warnings } = cToPseudocode(c1.generateC());
+        const cBack = new SB3Creator(); cBack.parse(psC);
+        const cFP = cBack.decompile();
+        if (cFP === dialectFP && warnings.length === 0) pass++;
+        else assert.fail(`${name}: device C round-trip failed`);
+    }
+    assert.equal(pass, total, `${pass}/${total}`);
+});
+
 // ---- wire protocol agreement: stc12live vs bw-board's serial-debug ---------
 // Two independent implementations of live-proto.h framing. Both must produce
 // and parse the same bytes, or a runtime driver and a debug target silently
