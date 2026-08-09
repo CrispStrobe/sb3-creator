@@ -300,6 +300,7 @@ drawer does.
 | PSW pane — 8 bits per instruction | trace `PSW` column; named flags in *Registers* | |
 | I/O pane — SP, P0–P3, IP, IE | trace `ports` column group; *Registers* | |
 | timer pane — TMOD, TCON, TH0, TL0, TH1, TL1, SCON, PCON | trace `timers` column group; *SFRs* | |
+| code pane (the TUI has none — its code box is the trace) | *Code at the program counter* | anchored at the PC and read FORWARDS: an 8051 cannot be disassembled backwards, because nothing marks where an instruction starts |
 | memory window, cycling Low/Upr/SFR/Ext/ROM | *Memory*, a space picker over all five | click a byte to edit |
 | stack pane | *Stack*, 0x08..SP, top marked | |
 | misc pane — cycles, time, clock | *Clock* | cycles **derived** from ns × f, and said so |
@@ -308,7 +309,7 @@ drawer does.
 | options view (F4) | project `CLOCK` declaration | the clock is the project's, not a setting |
 | `space` single step | *Step instruction* (and ×10) | |
 | `r` run / stop, `+`/`-` speed | ⚑ ⏸ ⏹ and the speed dial | |
-| `k` breakpoint at an address | *Break at* | plus breakpoint-on-block, which the TUI has no notion of |
+| `k` breakpoint at an address | **click a line in *Code*** | plus breakpoint-on-block, which the TUI has no notion of. Clicking the line it is on beats typing the address it is at, and removed a `window.prompt` |
 | `g` go to address | *Set PC* | |
 | `home` / `z` reset, `Z` wipe | *Reset* / *Wipe* | |
 | `l` load intel hex | ⚑ builds and loads from the blocks | loading a foreign image is not this tool's job |
