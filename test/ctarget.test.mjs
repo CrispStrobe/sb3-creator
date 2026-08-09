@@ -1589,3 +1589,89 @@ test('cMark / decodeMark round-trip block ids with */ and special characters', (
             `round-trip failed: cMark("${id}") → "${encoded}" → "${yields[0].block}"`);
     }
 });
+
+// ---- the yield map, beyond "it comes back" ---------------------------------
+//
+// readYieldMap has two tests above: a debug build produces a map, hand-written C
+// does not. These cover the ways the map can be WRONG while still being present,
+// which is the failure mode that matters — a map that parses but points at the
+// wrong block glows a confidently wrong block.
+
+test('a debug build emits one @bw yield per case label, in order', () => {
+    const out = cOf(SCHEDULED, {debug: true});
+    const map = readYieldMap(out);
+    // The state numbers come from the same counter the `case` labels do, so a
+    // disagreement means the walker and the marker have drifted apart.
+    const cases = [...out.matchAll(/^\s*case (\d+):/gm)].map(m => +m[1]);
+    assert.deepEqual(map.map(y => y.state), cases, 'one entry per case label, same order');
+    const t0 = map.filter(y => y.task === 'bw_task0');
+    assert.deepEqual(t0.map(y => y.kind), ['hat', 'forever', 'repeat', 'wait']);
+    // State 0 is `case 0:` — the task has not started, so it points at the hat,
+    // which is what Scratch shows for a script that has not run.
+    assert.ok(map.filter(y => y.state === 0).every(y => y.kind === 'hat'));
+});
+
+test('every block id in the yield map is a real block in the project', () => {
+    const creator = build(SCHEDULED);
+    const out = creator.generateC(undefined, {debug: true});
+    const ids = new Set();
+    for (const t of creator.project.targets) for (const k of Object.keys(t.blocks || {})) ids.add(k);
+    const map = readYieldMap(out);
+    assert.ok(map.length > 0);
+    for (const y of map) assert.ok(ids.has(y.block), `${y.task}/${y.state} points at a real block`);
+});
+
+test('block ids survive the marker header byte for byte', () => {
+    // Scratch's id alphabet contains `*` and `/`, so about one id in 400 holds
+    // `*/` and would close the C comment the header lives in — and cComment's
+    // `*/` -> `* /` guard would then hand back a DIFFERENT id, silently. Force
+    // the worst case rather than waiting for the 1-in-400 to reach production.
+    const creator = build(SCHEDULED);
+    const hostile = ['a*/b', '/*x', 'p*q/r', '%25 already', 'plain'];
+    let n = 0;
+    for (const t of creator.project.targets) {
+        for (const [id, b] of Object.entries(t.blocks || {})) {
+            if (n >= hostile.length) break;
+            const fresh = hostile[n++];
+            t.blocks[fresh] = b;
+            delete t.blocks[id];
+            for (const other of Object.values(t.blocks)) {
+                if (!other || typeof other !== 'object') continue;
+                if (other.next === id) other.next = fresh;
+                if (other.parent === id) other.parent = fresh;
+                for (const inp of Object.values(other.inputs || {})) {
+                    if (Array.isArray(inp) && inp[1] === id) inp[1] = fresh;
+                }
+            }
+        }
+    }
+    const out = creator.generateC(undefined, {debug: true});
+    const header = out.slice(out.indexOf('@bw-begin'), out.indexOf('@bw-end'));
+    assert.ok(!header.includes('*/'), 'no id closed the comment early');
+    const ids = new Set();
+    for (const t of creator.project.targets) for (const k of Object.keys(t.blocks || {})) ids.add(k);
+    for (const y of readYieldMap(out)) assert.ok(ids.has(y.block), `${y.block} came back intact`);
+});
+
+test('the yield map is a debug build only, so plain output stays reproducible', () => {
+    // Block ids are minted afresh by every parse. Emitting them unconditionally
+    // would make the same program produce different C run to run, which breaks
+    // the fixed point the other three languages hold themselves to.
+    const a = cOf(SCHEDULED);
+    const b = cOf(SCHEDULED);
+    assert.equal(a, b, 'a release build is reproducible across parses');
+    assert.deepEqual(readYieldMap(a), [], 'and carries no yield map');
+    assert.ok(readYieldMap(cOf(SCHEDULED, {debug: true})).length > 0);
+});
+
+test('a debug build forces the scheduler for a single script', () => {
+    // Straight-line code in main() has no `<task>_state`, so it has no Level 1
+    // position at all — and one WHEN is the commonest beginner project. The
+    // debugger would be blind exactly where it is needed most.
+    const release = cOf(BLINK);
+    assert.ok(!/bw_task0/.test(release), 'one script still compiles straight-line by default');
+    const debug = cOf(BLINK, {debug: true});
+    assert.match(debug, /static void bw_task0\(void\)/);
+    assert.match(debug, /switch \(bw_task0_state\)/);
+    assert.ok(readYieldMap(debug).length > 0, 'and now it has a position to report');
+});

@@ -37,7 +37,8 @@ ADC, time). So the chain is:
 | host: build → compile → load → glow | `brickwright-lite` `lib/bw-debug/debug-runner.js` | **done 2026-08-09** |
 | controls | `brickwright-lite` `tw-pseudocode/debug-panel.jsx` | **done 2026-08-09** |
 | breakpoint-on-block | `brickwright-lite` `lib/bw-debug/{breakpoints,block-menu}.js` | **done 2026-08-09** |
-| the drawer, a target picker, the skew badge | `brickwright-lite` | missing |
+| the "under the hood" drawer, at TUI parity | `brickwright-lite` `tw-pseudocode/debug-drawer.jsx` | **done 2026-08-09** (§4b) |
+| a target picker, the skew badge | `brickwright-lite` | missing — both need a live target |
 
 **The symbol table needed an endpoint.** A browser cannot run SDCC and cannot run
 `stc_symtab.py`, and the yield map alone is not enough: it says which *block* each
@@ -183,17 +184,67 @@ The tabs stay as they are. The debugger inhabits them rather than adding a sixth
 └───────────────────────────────────────┘  └─────────────────────────┘
 ```
 
-"Under the hood" is a drawer, **closed by default**, and it is where emu8051's TUI finally gets
-to be itself: PC and registers, the SFR view (curated set marked as such), IRAM/XRAM hex,
-disassembly via `emu_disasm`, `insn`/`line`/`over`/`out`, `tNs`. Opening it is the user
-declaring they want the engineer's view. It needs no design agonising, because emu8051's TUI
-already *is* the design.
+"Under the hood" is a drawer, **closed by default**, and it is where emu8051's TUI gets to be
+itself. Opening it is the user declaring they want the engineer's view. §4b is the parity map.
 
 The Circuit tab needs no new interface at all — DEBUG-CONTROL-MODEL §3.1 settled that. A halted
 MCU stops calling `advanceTo`, so the board freezes coherently, and `CircuitDesigner` already
 accepts `debugState: {halted, skewNs}`. Two rules it must actually implement: **no wall-clock
 catch-up on resume**, and `setControl` stays live while halted (turning the pot is intent, not
 physics).
+
+## 4b. Parity with emu8051's TUI — the map
+
+Built 2026-08-09 as `components/tw-pseudocode/debug-drawer.jsx`. The TUI is the reference, so
+"parity" has to mean something checkable: every pane and every key it has, enumerated from
+`mainview.c` / `memeditor.c` / `logicboard.c` / `options.c` / `popups.c`, against what the
+drawer does.
+
+| emu8051 TUI | here | note |
+|---|---|---|
+| code pane — PC, opcodes, assembly, per executed instruction | trace table, first three columns | |
+| register pane — A, R0–R7, B, DPTR per instruction | trace, `registers` column group | |
+| PSW pane — 8 bits per instruction | trace `PSW` column; named flags in *Registers* | |
+| I/O pane — SP, P0–P3, IP, IE | trace `ports` column group; *Registers* | |
+| timer pane — TMOD, TCON, TH0, TL0, TH1, TL1, SCON, PCON | trace `timers` column group; *SFRs* | |
+| memory window, cycling Low/Upr/SFR/Ext/ROM | *Memory*, a space picker over all five | click a byte to edit |
+| stack pane | *Stack*, 0x08..SP, top marked | |
+| misc pane — cycles, time, clock | *Clock* | cycles **derived** from ns × f, and said so |
+| memory editor view (F3) | the same *Memory* pane | one editor, not two |
+| logic board view (F2) | **the Circuit tab** | a second, worse board would be the wrong parity |
+| options view (F4) | project `CLOCK` declaration | the clock is the project's, not a setting |
+| `space` single step | *Step instruction* (and ×10) | |
+| `r` run / stop, `+`/`-` speed | ⚑ ⏸ ⏹ and the speed dial | |
+| `k` breakpoint at an address | *Break at* | plus breakpoint-on-block, which the TUI has no notion of |
+| `g` go to address | *Set PC* | |
+| `home` / `z` reset, `Z` wipe | *Reset* / *Wipe* | |
+| `l` load intel hex | ⚑ builds and loads from the blocks | loading a foreign image is not this tool's job |
+| cursor + hex editing of any value | click a byte in *Memory*, or a register in *Registers* | every register IS a location — A is SFR 0xE0, R3 is IRAM bank×8+3 — so both go through the same `writeMem` |
+| `end` reset the tick counter | — | time is program time since reset; ⏹ is the reset |
+
+**Three places it is deliberately not a copy**, each because the terminal was the constraint:
+
+1. **Five panes are one table.** They already are in the TUI — `mainview.c` keeps one history
+   ring and draws five columns of it, scrolled together. Eight boxes across 80 columns is a
+   layout constraint, not a design. One row per instruction, with registers / ports / timers as
+   toggleable column groups, is the same data with the relationship made visible.
+2. **Nothing is a bare number where a name exists.** PSW is eight named, hoverable flags rather
+   than eight digits under a `C-ACF0R1R0Ov--P` header; SFRs are `TMOD`, not `0x89`; the active
+   register bank is stated rather than left to be decoded out of PSW.4:3. The TUI's users know
+   the 8051 already. This one's are learning it.
+3. **The trace says what it did not record.** A row is about thirty WASM calls, so a
+   full-speed run cannot be traced per instruction — and neither can the TUI's, which records
+   per instruction only because its loop single-steps. Stepping here traces instruction by
+   instruction; a free run records where it stopped, and the pane says which it is showing.
+
+Two supporting pieces were needed. **Opcode lengths** (`lib/bw-debug/opcodes.js`) are generated
+from `stc_disasm.py`'s table rather than obtained from the emulator: `emu_disasm` returns the
+mnemonic but not the length, and the trace's opcode-bytes column needs it. Generating it avoids
+rebuilding and re-pinning the WASM for a fact already written down in the one place with an
+oracle behind it — and `npm run smoke:debugger` checks the copy against that source on a real
+image (**237 instructions, 0 disagreements**). **`emu_disasm` itself** returns a `const char *`,
+normally unreachable (§7b); `ccall` with a `'string'` return marshals it using Emscripten's own
+heap access, which *is* exported.
 
 ## 5. Three honesty affordances
 
@@ -366,7 +417,8 @@ subpath as well as at a domain root.
    lands in the Blocks tab either way — `glowBlock` does not care which tab is open. Move it
    once the chrome knows what an STC project is; nothing else changes.
 4. `debugState` honoured in the Circuit tab: freeze, no catch-up, live `setControl`.
-5. "Under the hood" drawer. Cheap once 2 exists.
+5. **"Under the hood" drawer** — done 2026-08-09. §4b maps it pane by pane and key by key
+   against emu8051's TUI, including the three places it deliberately differs.
 6. The live target, after the bench session on `10-live-firmware`. It slots into the same UI by
    construction — which is the payoff for having branched on `capabilities()` from the start.
 
