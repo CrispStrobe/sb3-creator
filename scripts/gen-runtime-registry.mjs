@@ -39,7 +39,8 @@ const HARDWARE = [
     'CrispStrobe/legospike_turbowarp_transpile',
     'CrispStrobe/ev3dev_py_transpile',
     'CrispStrobe/ev3_lms_transpile',
-    'CrispStrobe/circuit'
+    'CrispStrobe/circuit',
+    'CrispStrobe/stc12live'
 ].map(slug => [slug, `${slug.split('/').pop()}.js`]);
 
 const BLOCK_KIND = { command: 'command', reporter: 'reporter', Boolean: 'boolean', conditional: 'command', loop: 'command', hat: 'hat', event: 'hat' };

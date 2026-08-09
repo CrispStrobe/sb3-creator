@@ -4924,6 +4924,36 @@ export const RUNTIME_EXTENSIONS = {
                 ]
             }
         }
+    },
+    "stc12live": {
+        "runtime": "stc12live",
+        "ops": {
+            "connect": {
+                "kind": "command",
+                "method": "connect",
+                "args": []
+            },
+            "disconnect": {
+                "kind": "command",
+                "method": "disconnect",
+                "args": []
+            },
+            "isConnected": {
+                "kind": "boolean",
+                "method": "isConnected",
+                "args": []
+            },
+            "chipVersion": {
+                "kind": "reporter",
+                "method": "chipVersion",
+                "args": []
+            },
+            "consumed": {
+                "kind": "reporter",
+                "method": "consumed",
+                "args": []
+            }
+        }
     }
 };
 
@@ -4942,5 +4972,6 @@ export const RUNTIME_EXTENSION_URLS = {
     "spikeprime": "https://crispstrobe.github.io/extensions/CrispStrobe/legospike_turbowarp_transpile.js",
     "scratchtoev3": "https://crispstrobe.github.io/extensions/CrispStrobe/ev3dev_py_transpile.js",
     "ev3lms": "https://crispstrobe.github.io/extensions/CrispStrobe/ev3_lms_transpile.js",
-    "circuit": "https://crispstrobe.github.io/extensions/CrispStrobe/circuit.js"
+    "circuit": "https://crispstrobe.github.io/extensions/CrispStrobe/circuit.js",
+    "stc12live": "https://crispstrobe.github.io/extensions/CrispStrobe/stc12live.js"
 };
