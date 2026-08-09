@@ -24,18 +24,36 @@ const here = dirname(fileURLToPath(import.meta.url));
 // Engine device kinds — read from bw-board's getPartKinds() if available,
 // else fall back to a hardcoded snapshot. A new engine kind without coverage
 // or a KNOWN_GAPS entry fails the test, which is the point.
+// Read engine kinds from bw-board's getPartKinds(). If bw-board is not
+// beside this checkout, fall back to a snapshot — but say so in the test
+// name so a green run is never mistaken for a real check.
 let engineKinds = null;
+let engineSource = 'live';  // or 'snapshot'
 const boardPath = resolve(here, '../../bw-board/src/board.js');
-try {
+let boardExists = false;
+try { readFileSync(boardPath); boardExists = true; } catch { /* not found */ }
+
+if (boardExists) {
     const boardSrc = readFileSync(boardPath, 'utf8');
     const m = boardSrc.match(/getPartKinds\s*\(\)\s*\{[^}]*return\s*\[([^\]]+)\]/s);
+    // [a-z0-9] first char — 74hc00 starts with a digit.
     if (m) {
-        engineKinds = [...m[1].matchAll(/'([a-z][a-z0-9_]+)'/g)].map(k => k[1]).sort();
+        engineKinds = [...m[1].matchAll(/'([a-z0-9][a-z0-9_]+)'/g)].map(k => k[1]).sort();
     }
-} catch { /* bw-board not beside this checkout */ }
-// Hardcoded fallback — kept in sync manually when bw-board is not available.
-if (!engineKinds) {
+    // If the file exists but the parse yielded nothing, FAIL rather than fall back.
+    // A silent fallback to a stale snapshot is worse than no gate.
+    if (!engineKinds || engineKinds.length === 0) {
+        throw new Error('bw-board/src/board.js exists but getPartKinds() parse yielded nothing — the gate cannot see the engine');
+    }
+    // Assert a floor — a count that drops is a parse regression, not a smaller engine.
+    if (engineKinds.length < 80) {
+        throw new Error(`getPartKinds() returned only ${engineKinds.length} kinds (expected >= 80) — parse regression?`);
+    }
+} else {
+    engineSource = 'snapshot';
     engineKinds = [
+        '74hc00', '74hc02', '74hc04', '74hc08', '74hc10', '74hc11', '74hc14', '74hc20',
+        '74hc21', '74hc27', '74hc32', '74hc73', '74hc74', '74hc86', '74hc93', '74hc132',
         'bargraph', 'battery', 'button', 'buzzer', 'capacitor', 'cd4511', 'char_lcd',
         'darlington_driver', 'dc_motor', 'decade_counter', 'dff',
         'diode', 'eeprom', 'flex_sensor', 'force_sensor', 'fuse',
@@ -160,13 +178,15 @@ const KNOWN_GAPS = new Set([
     'lm393',            // comparator IC — circuit-level
     'tmp36',            // analog temp sensor — read via ADC (devices_temperature)
     'cd4511',           // BCD-to-7-segment decoder — circuit-level
+
+    // --- 74HC logic family (chip-composer parts, observed through voltage reporters) ---
+    '74hc00', '74hc02', '74hc04', '74hc08', '74hc10', '74hc11', '74hc14', '74hc20',
+    '74hc21', '74hc27', '74hc32', '74hc73', '74hc74', '74hc86', '74hc93', '74hc132',
 ]);
 
 // ---- tests ------------------------------------------------------------------
 
-test('device block coverage is enumerated and the gaps are explicit', {
-    skip: !engineKinds && 'bw-board not found'
-}, () => {
+test(`device block coverage (${engineSource} — ${engineKinds ? engineKinds.length : 0} kinds)`, () => {
     const covered = new Set(Object.keys(BLOCK_COVERAGE));
     const gapped = new Set(KNOWN_GAPS);
 
