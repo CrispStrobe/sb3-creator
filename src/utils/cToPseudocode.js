@@ -292,6 +292,15 @@ export default function cToPseudocode (source, opts = {}) {
     const warn = (m) => { if (!warnings.includes(m)) warnings.push(m); };
     const markers = readMarkers(source);
 
+    // Extract `//` comments before stripping, so we can recover script comments
+    // that the emitter places before function definitions.
+    const sourceLines = source.split('\n');
+    const lineComments = new Map();   // line number (0-based) → comment text (without //)
+    for (let i = 0; i < sourceLines.length; i++) {
+        const m = sourceLines[i].match(/^\s*\/\/\s?(.*)/);
+        if (m) lineComments.set(i, m[1]);
+    }
+
     // Strip comments while respecting string literals — `//` inside `"http://..."` is not a comment.
     const stripped = source.replace(/"(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'|\/\*[\s\S]*?\*\/|\/\/[^\n]*/g,
         (m) => m[0] === '"' || m[0] === "'" ? m : ' ');
@@ -1252,9 +1261,54 @@ export default function cToPseudocode (source, opts = {}) {
         out.push('', `DEFINE ${sig}:`, ...linesFor(f, 1));
     }
 
+    // Find `//` comments preceding a function definition in the original source.
+    // These are script comments the emitter placed before the function, and they
+    // come back as `# comment` lines before the WHEN hat.
+    function commentsFor (funcName) {
+        const comments = [];
+        for (let i = 0; i < sourceLines.length; i++) {
+            // Find the function definition line: `static void funcName(void)` or `void funcName(void)`
+            if (new RegExp(`\\b${funcName}\\s*\\(`).test(sourceLines[i])) {
+                // Collect `//` comment lines immediately above, stopping at blank or non-comment lines.
+                for (let j = i - 1; j >= 0; j--) {
+                    if (lineComments.has(j)) {
+                        const text = lineComments.get(j);
+                        // Skip emitter remarks like `/* when green flag clicked (script N) */`
+                        if (!/^when green flag clicked/.test(text)) comments.unshift(`# ${text}`);
+                    } else if (/^\s*\/\*.*\*\/\s*$/.test(sourceLines[j])) {
+                        continue;   // skip `/* ... */` single-line remarks between // and the function
+                    } else {
+                        break;
+                    }
+                }
+                break;
+            }
+        }
+        // For single-script main(), comments may be inside the body after bw_setup().
+        if (funcName === 'main' && !comments.length) {
+            for (let i = 0; i < sourceLines.length; i++) {
+                if (/void\s+main\s*\(/.test(sourceLines[i])) {
+                    for (let j = i + 1; j < sourceLines.length; j++) {
+                        const line = sourceLines[j].trim();
+                        // Skip braces, blanks, setup calls, timer init, and register writes
+                        if (line === '{' || line === '' || /^bw_setup\b|^TL0|^TH0|^ET0|^EA|^TR0/.test(line)) continue;
+                        const cm = line.match(/^\/\/\s?(.*)/);
+                        if (cm) { comments.push(`# ${cm[1]}`); }
+                        else break;
+                    }
+                    break;
+                }
+            }
+        }
+        return comments;
+    }
+
     const isTask = markers && [...markers.scripts.keys()].some((k) => k.startsWith('bw_task'));
     for (const f of scriptFns) {
-        out.push('', 'WHEN flag clicked:');
+        const hatComments = commentsFor(f.name);
+        out.push('');
+        for (const c of hatComments) out.push(c);
+        out.push('WHEN flag clicked:');
         if (isTask) {
             const body = taskLines(tokens.slice(f.from, f.to), f.name, 1);
             out.push(...(body.length ? body : ['  stop']));
