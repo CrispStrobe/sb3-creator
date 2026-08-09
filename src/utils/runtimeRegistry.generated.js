@@ -4925,6 +4925,88 @@ export const RUNTIME_EXTENSIONS = {
             }
         }
     },
+    "ledcube": {
+        "runtime": "ledcube",
+        "ops": {
+            "setvoxel": {
+                "kind": "command",
+                "method": "setvoxel",
+                "args": [
+                    "X",
+                    "Y",
+                    "Z",
+                    "COLOUR"
+                ]
+            },
+            "clearvoxel": {
+                "kind": "command",
+                "method": "clearvoxel",
+                "args": [
+                    "X",
+                    "Y",
+                    "Z"
+                ]
+            },
+            "filllayer": {
+                "kind": "command",
+                "method": "filllayer",
+                "args": [
+                    "LAYER",
+                    "COLOUR"
+                ]
+            },
+            "fillcolumn": {
+                "kind": "command",
+                "method": "fillcolumn",
+                "args": [
+                    "X",
+                    "Y",
+                    "COLOUR"
+                ]
+            },
+            "fillwall": {
+                "kind": "command",
+                "method": "fillwall",
+                "args": [
+                    "Z",
+                    "COLOUR"
+                ]
+            },
+            "clear": {
+                "kind": "command",
+                "method": "clear",
+                "args": []
+            },
+            "invert": {
+                "kind": "command",
+                "method": "invert",
+                "args": []
+            },
+            "shift": {
+                "kind": "command",
+                "method": "shift",
+                "args": [
+                    "DIR"
+                ]
+            },
+            "hold": {
+                "kind": "command",
+                "method": "hold",
+                "args": [
+                    "DURATION"
+                ]
+            },
+            "readvoxel": {
+                "kind": "reporter",
+                "method": "readvoxel",
+                "args": [
+                    "X",
+                    "Y",
+                    "Z"
+                ]
+            }
+        }
+    },
     "stc12live": {
         "runtime": "stc12live",
         "ops": {
@@ -4973,5 +5055,6 @@ export const RUNTIME_EXTENSION_URLS = {
     "scratchtoev3": "https://crispstrobe.github.io/extensions/CrispStrobe/ev3dev_py_transpile.js",
     "ev3lms": "https://crispstrobe.github.io/extensions/CrispStrobe/ev3_lms_transpile.js",
     "circuit": "https://crispstrobe.github.io/extensions/CrispStrobe/circuit.js",
+    "ledcube": "https://crispstrobe.github.io/extensions/CrispStrobe/ledcube.js",
     "stc12live": "https://crispstrobe.github.io/extensions/CrispStrobe/stc12live.js"
 };

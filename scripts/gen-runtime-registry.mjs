@@ -40,6 +40,7 @@ const HARDWARE = [
     'CrispStrobe/ev3dev_py_transpile',
     'CrispStrobe/ev3_lms_transpile',
     'CrispStrobe/circuit',
+    'CrispStrobe/ledcube',
     'CrispStrobe/stc12live'
 ].map(slug => [slug, `${slug.split('/').pop()}.js`]);
 
