@@ -150,9 +150,23 @@ creator.generateC(project, {
     device: 'stc89c52rc',   // overrides DEVICE
     clock: 12000000,        // overrides CLOCK (Hz)
     pins: [...],            // overrides the declared pins
-    comments: false         // drop block comments (default: emit them as C comments)
+    comments: false,        // drop block comments (default: emit them as C comments)
+    markers: false,         // drop the @bw header (default: emit it)
+    debug: true             // a build you can debug — see below
 });
 ```
+
+`debug: true` does two things and nothing else. It adds a **yield map** to the `@bw` header —
+`yield <task> <state> <block id> <kind>`, one line per `case` label — which is what lets a
+debugger highlight the block a halted program is sitting on rather than report a number; and it
+**forces the cooperative scheduler even for a single script**, because straight-line code in
+`main()` has no `<task>_state` and therefore no position to report at all.
+
+It is opt-in rather than always-on because block ids are minted afresh by every parse: emitting
+them unconditionally would make the same program produce different C run to run, breaking the
+`C → pseudocode → C` fixed point and making the output undiffable. Read the map back with
+`readYieldMap(source)` from `cToPseudocode.js`; `stc-compiler/stc_symtab.py` merges it into
+`yields[].block` beside the code address. Full design: [`debugger-ui.md`](debugger-ui.md).
 
 Numbers are 16-bit `int`s — Scratch's integers without the float tail. Fractional literals are
 truncated, and `/` is integer division, exactly as the oracle does it.
