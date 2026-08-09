@@ -1364,3 +1364,123 @@ for (const [id, url] of Object.entries(RUNTIME_EXTENSION_URLS)) {
         assert.equal(r.status, 200, `${url} returned ${r.status}`);
     });
 }
+
+// ---- three-copies-one-contract: stc12 block shape agreement ----------------
+// The stc12 blocks exist in three places:
+//   1. sb3-creator's RUNTIME_EXTENSIONS (the source of truth for codegen)
+//   2. extensions/CrispStrobe/stc12.js (the gallery copy the editor loads)
+//   3. bw-bundle/lite/overlay/.../stc12/index.js (the hard-bundled copy)
+// All three must agree on opcodes, argument shapes, and menu identity, or a
+// project round-trips into blocks that read differently from the ones it came
+// from. A menu with acceptReporters:true would serialise as an input with a
+// shadow block instead of a field — and the mismatch is silent.
+
+function extractStc12Info(source) {
+    // Strip the makeExt(`...`) wrapper if present (the bundled copy).
+    const inner = source.replace(/^module\.exports\s*=\s*makeExt\(`/, '').replace(/`\);\s*$/, '');
+    const captured = [];
+    const mockScratch = {
+        BlockType: { COMMAND: 'command', REPORTER: 'reporter', BOOLEAN: 'Boolean', HAT: 'hat' },
+        ArgumentType: { NUMBER: 'number', STRING: 'string', BOOLEAN: 'Boolean' },
+        extensions: { register: (inst) => captured.push(inst), unsandboxed: true },
+        vm: { runtime: { stc: { pins: [{ name: 'led1' }] } } }
+    };
+    const vm = require('node:vm');
+    const ctx = vm.createContext({ Scratch: mockScratch, console, module: { exports: null }, exports: {}, require: () => (s) => s });
+    vm.runInContext(inner, ctx);
+    const inst = captured[0];
+    if (!inst || !inst.getInfo) return null;
+    return inst.getInfo();
+}
+
+// Normalise a getInfo block descriptor to a comparable shape.
+function blockShape(b) {
+    const args = {};
+    for (const [k, v] of Object.entries(b.arguments || {})) {
+        args[k] = { type: v.type, menu: v.menu || null };
+    }
+    return { opcode: b.opcode, blockType: b.blockType, args };
+}
+
+test('stc12 blocks agree across gallery, bundled, and sb3-creator', async () => {
+    const { readFileSync } = await import('node:fs');
+    const vm = await import('node:vm');
+
+    const GALLERY = '/mnt/volume1/code/extensions/extensions/CrispStrobe/stc12.js';
+    const BUNDLED = '/mnt/volume1/code/bw-bundle/lite/overlay/scratch-vm/src/extensions/crispstrobe/stc12/index.js';
+
+    // ---- extract getInfo from both extension files ----
+    function extract(source) {
+        // Strip the makeExt(`...`) wrapper if present.
+        let inner = source;
+        const wrapMatch = source.match(/makeExt\(`([\s\S]+)`\)\s*;?\s*$/);
+        if (wrapMatch) inner = wrapMatch[1];
+        const captured = [];
+        const mockScratch = {
+            BlockType: { COMMAND: 'command', REPORTER: 'reporter', BOOLEAN: 'Boolean', HAT: 'hat' },
+            ArgumentType: { NUMBER: 'number', STRING: 'string', BOOLEAN: 'Boolean' },
+            extensions: { register: (inst) => captured.push(inst), unsandboxed: true },
+            vm: { runtime: { stc: { pins: [{ name: 'led1' }] }, _stc12Pins: {} } }
+        };
+        const ctx = vm.createContext({ Scratch: mockScratch, console });
+        vm.runInContext(inner, ctx);
+        return captured[0] && captured[0].getInfo();
+    }
+
+    let gallerySrc, bundledSrc;
+    try { gallerySrc = readFileSync(GALLERY, 'utf8'); } catch {
+        assert.fail(`gallery stc12 extension not found at ${GALLERY}`);
+    }
+    try { bundledSrc = readFileSync(BUNDLED, 'utf8'); } catch {
+        assert.fail(`bundled stc12 extension not found at ${BUNDLED}`);
+    }
+
+    const galleryInfo = extract(gallerySrc);
+    const bundledInfo = extract(bundledSrc);
+    assert.ok(galleryInfo, 'gallery getInfo() returned a result');
+    assert.ok(bundledInfo, 'bundled getInfo() returned a result');
+
+    // ---- both must have the same id ----
+    assert.equal(galleryInfo.id, 'stc12');
+    assert.equal(bundledInfo.id, 'stc12');
+
+    // ---- same opcodes, same order ----
+    // Objects from vm.createContext are cross-realm, so assert.deepStrictEqual
+    // fails on Array identity. JSON round-trip normalises to the host realm.
+    const j = (x) => JSON.parse(JSON.stringify(x));
+    const galleryOps = j(galleryInfo.blocks.filter(b => typeof b === 'object').map(b => b.opcode));
+    const bundledOps = j(bundledInfo.blocks.filter(b => typeof b === 'object').map(b => b.opcode));
+    assert.deepEqual(galleryOps, bundledOps, 'opcodes must be identical between copies');
+
+    // ---- same argument shapes ----
+    const galleryBlocks = galleryInfo.blocks.filter(b => typeof b === 'object');
+    const bundledBlocks = bundledInfo.blocks.filter(b => typeof b === 'object');
+    for (let i = 0; i < galleryBlocks.length; i++) {
+        const g = galleryBlocks[i], b = bundledBlocks[i];
+        const gArgs = j(Object.entries(g.arguments || {}).map(([k, v]) => [k, v.type, v.menu || null]));
+        const bArgs = j(Object.entries(b.arguments || {}).map(([k, v]) => [k, v.type, v.menu || null]));
+        assert.deepEqual(gArgs, bArgs, `argument shape mismatch on ${g.opcode}`);
+    }
+
+    // ---- every menu must be acceptReporters:false (fields, not inputs) ----
+    for (const [name, menu] of Object.entries(galleryInfo.menus || {})) {
+        assert.equal(menu.acceptReporters, false,
+            `gallery menu "${name}" must have acceptReporters:false to stay a FIELD`);
+    }
+    for (const [name, menu] of Object.entries(bundledInfo.menus || {})) {
+        assert.equal(menu.acceptReporters, false,
+            `bundled menu "${name}" must have acceptReporters:false to stay a FIELD`);
+    }
+
+    // ---- opcodes match what sb3-creator emits ----
+    const emitted = new Set(Object.keys(SB3Creator.RUNTIME_EXTENSIONS.stc12.ops));
+    const declared = new Set(galleryOps);
+    // Every emitted opcode must have a block.
+    for (const op of emitted) {
+        assert.ok(declared.has(op), `sb3-creator emits stc12_${op} but no block declares it`);
+    }
+    // Every declared block must be emitted (no orphan blocks).
+    for (const op of declared) {
+        assert.ok(emitted.has(op), `block "${op}" is declared but sb3-creator never emits stc12_${op}`);
+    }
+});
