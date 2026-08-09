@@ -1444,6 +1444,7 @@ test('stc12 blocks agree across gallery, bundled, and sb3-creator', async () => 
             ArgumentType: { NUMBER: 'number', STRING: 'string', BOOLEAN: 'Boolean' },
             translate: (s) => s,
             extensions: { register: (inst) => captured.push(inst), unsandboxed: true },
+            translate: (m) => (m && typeof m === 'object' ? (m.default || '') : String(m || '')),
             vm: { runtime: { stc: { pins: [{ name: 'led1' }], ports: [], parts: [], tables: [{ name: 'font', values: [0x3F] }] }, _stc12Pins: {} } }
         };
         const ctx = vm.createContext({ Scratch: mockScratch, console });
