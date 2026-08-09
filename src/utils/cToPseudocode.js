@@ -112,7 +112,7 @@ function expand (name, defines, depth = 0) {
 function readMarkers (source) {
     const block = source.match(/@bw-begin([\s\S]*?)@bw-end/);
     if (!block) return null;
-    const h = { device: null, clock: null, pins: [], vars: new Map(), procs: new Map(), scripts: new Map() };
+    const h = { device: null, clock: null, pins: [], vars: new Map(), procs: new Map(), scripts: new Map(), yields: [] };
     const str = (s) => { try { return JSON.parse(s); } catch { return s; } };
     for (const line of block[1].split('\n')) {
         const m = line.match(/@bw\s+(.*?)\s*$/);
@@ -134,6 +134,14 @@ function readMarkers (source) {
         } else if (kind === 'script') {
             const s = rest.match(/^(\w+)\s+(\d+)\s+(stage|sprite\s+("(?:[^"\\]|\\.)*"))/);
             if (s) h.scripts.set(s[1], { index: +s[2], sprite: s[4] ? str(s[4]) : null });
+        if (s) h.scripts.set(s[1], { index: +s[2], sprite: s[4] ? str(s[4]) : null });
+        } else if (kind === 'yield') {
+            // `yield <task> <state> <percent-encoded block id> <kind>` — the map from a
+            // Level 1 position to the block the debugger should point at. Nothing on the
+            // C -> blocks path uses it (block ids are minted fresh by the parser); it is
+            // read by the debugger and by stc_symtab. See reference/debugger-ui.md §7.
+            const y = rest.match(/^(\w+)\s+(\d+)\s+(\S+)\s+(\S+)\s*$/);
+            if (y) h.yields.push({ task: y[1], state: +y[2], block: decodeMark(y[3]), kind: y[4] });
         }
     }
     return h;
@@ -286,6 +294,27 @@ function wrap (node, parentLevel) {
 }
 
 // ---- the translator --------------------------------------------------------------
+
+/**
+ * The `(task, state) -> block id` map out of a generated C file's `@bw` header.
+ *
+ * Exported because the debugger needs it without going anywhere near the C -> blocks
+ * parser: it wants to glow a block the moment the emulator halts, which is long before
+ * (and independently of) anyone asking to read C back into blocks.
+ *
+ * @param {string} source generated C
+ * @returns {Array<{task: string, state: number, block: string, kind: string}>}
+ *          empty for hand-written C, which has no blocks to point at
+ */
+/** Undo `cMark`. A malformed escape means a hand-edited header; keep it verbatim. */
+function decodeMark (token) {
+    try { return decodeURIComponent(token); } catch { return token; }
+}
+
+export function readYieldMap (source) {
+    const markers = readMarkers(String(source || ''));
+    return markers ? markers.yields : [];
+}
 
 export default function cToPseudocode (source, opts = {}) {
     const warnings = [];
