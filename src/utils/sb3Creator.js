@@ -2716,7 +2716,69 @@ class SB3Creator {
         this.validateReferences();
         this.syncExtensions();
         for (const t of this.project.targets) this.layoutScripts(t);
+        SB3Creator.writeStcComment(this.project);
         return this.project;
+    }
+
+    // ===== STC persistence: survive the sb3 serializer ==============================
+    //
+    // scratch-vm's sb3 serializer emits only targets/monitors/extensions/meta and
+    // drops every other top-level key — so `project.stc` dies on the first save from
+    // a running VM, and a reopened project loses every pin declaration. Stage
+    // comments, however, round-trip through every sb3 serializer and every editor.
+    // So the declarations ride in BOTH places: the top-level `stc` key (canonical,
+    // read by the hosted compiler and everything in this repo) and a Stage comment
+    // carrying the same JSON behind a magic marker (the survivor). readStc() prefers
+    // the key and falls back to the comment; the comment is regenerated on every
+    // parse, so the two cannot drift within this library's own flows.
+
+    /** Marker that identifies the persistence comment. */
+    static STC_MAGIC = '_stcconfig_';
+
+    /** Stable comment id, so rewrites replace rather than accumulate. */
+    static STC_COMMENT_ID = 'stcconfig';
+
+    /**
+     * Write (or rewrite) the Stage comment mirroring project.stc.
+     * No-op when the project has no stc block or no stage.
+     * @param {object} project - sb3-shaped project JSON
+     */
+    static writeStcComment(project) {
+        if (!project || !project.stc || !Array.isArray(project.targets)) return;
+        const stage = project.targets.find(t => t.isStage);
+        if (!stage) return;
+        if (!stage.comments) stage.comments = {};
+        stage.comments[SB3Creator.STC_COMMENT_ID] = {
+            blockId: null,
+            x: 0, y: 0, width: 320, height: 140, minimized: true,
+            text: 'BrickWright hardware declarations — regenerated on save, do not edit.\n'
+                + SB3Creator.STC_MAGIC + JSON.stringify(project.stc)
+        };
+    }
+
+    /**
+     * Recover the stc block from a project: the top-level key when present,
+     * else the Stage persistence comment. Returns null when neither exists or
+     * the comment is corrupt — never a fabricated default.
+     * @param {object} project - sb3-shaped project JSON
+     * @returns {object | null}
+     */
+    static readStc(project) {
+        if (!project) return null;
+        if (project.stc) return project.stc;
+        const stage = Array.isArray(project.targets) ? project.targets.find(t => t.isStage) : null;
+        if (!stage || !stage.comments) return null;
+        for (const c of Object.values(stage.comments)) {
+            const text = c && typeof c.text === 'string' ? c.text : '';
+            const at = text.indexOf(SB3Creator.STC_MAGIC);
+            if (at === -1) continue;
+            try {
+                return JSON.parse(text.slice(at + SB3Creator.STC_MAGIC.length));
+            } catch {
+                return null; // corrupt comment: absent beats invented
+            }
+        }
+        return null;
     }
 
     // Lay a target's top-level scripts out so they don't overlap in the editor. The parse-time
@@ -3005,6 +3067,12 @@ class SB3Creator {
         const out = [];
         const stage = project.targets.find(t => t.isStage);
         // STC12 / 8051 device declarations first — they are read before any script.
+        // A project that lived through scratch-vm's serializer has lost the
+        // top-level key; recover it from the Stage persistence comment.
+        if (!project.stc) {
+            const recovered = SB3Creator.readStc(project);
+            if (recovered) project.stc = recovered;
+        }
         if (project.stc) {
             const cfg = project.stc;
             out.push(`DEVICE ${String(cfg.device || 'stc12c5a60s2').toUpperCase()}`);
