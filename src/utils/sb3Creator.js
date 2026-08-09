@@ -4920,6 +4920,7 @@ class SB3Creator {
             ' * the structure calls in bw_structure() are what make this read back as the',
             ' * same project. For the STC12/8051 this is the WRONG target — declare pins',
             ' * and you get bare metal instead. */',
+            '#define _POSIX_C_SOURCE 199309L   /* nanosleep, struct timespec */',
             ...C_HOST_INCLUDES.map((h) => `#include <${h}>`),
             '',
             cHostRuntime(body),
