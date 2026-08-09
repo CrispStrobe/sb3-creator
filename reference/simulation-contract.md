@@ -180,3 +180,69 @@ the code happened to produce.
 Only when `branchCurrent` / `resistance` arrive does the solver appear, and it is checked the
 same way: hand-computed answers for small networks first, then agreement with the closed-form
 path on the cases both can handle.
+
+---
+
+## Boundary B, v2 — amendments (2026-08-09)
+
+Adopted by the coordinator after the engine's solver rework landed (bw-board: op-amp
+VCVS with rails, transient companion models, waveform sources, device registry).
+Everything here is implemented in bw-board master; consumers may rely on it.
+Per the standing rule, further changes go through `spec-updates/` in the proposing
+repo — this section records what was adjudicated, so it is not relitigated.
+
+### 1. Waveform sources (the function generator)
+
+A `vsource` part accepts waveform params and the board evaluates them against
+simulation time (`advanceTo` is still the only clock):
+
+```ts
+params: {
+  volts?: number;                       // DC value (wave absent or 'dc')
+  wave?: 'dc'|'sine'|'square'|'triangle'|'pulse';
+  freq?: number;                        // Hz
+  amplitude?: number;                   // peak deviation from offset
+  offset?: number; phase?: number;      // volts; degrees
+  duty?: number;                        // 0…1, square/pulse only
+}
+```
+
+A UI "function generator" is a `vsource` with these params and nothing more.
+`sourceVoltage(part, tSeconds, vcc)` is exported for a UI that wants to draw the
+ideal waveform beside the measured one.
+
+### 2. Op-amp rails
+
+`opamp` params gain `railLow` (default 0) and `railHigh` (default VCC). The output
+saturates at the rails. A model that lets an op-amp output kilovolts teaches the
+wrong electronics; a UI may expose the rails but must not disable them.
+
+### 3. Instantaneous capacitor semantics
+
+Between `advanceTo` calls, a charged capacitor pins its nets at its stored voltage
+(it IS a voltage source at an instant). Instruments therefore read the charging
+current mid-transient, not the DC endpoint. No API change — a semantic guarantee.
+
+### 4. Registered devices
+
+`registerDevice(kind, model)` (bw-board `src/devices.js`) extends the part
+vocabulary without touching the solver: a model declares `terminals`, optional
+analog loading (`stamp`), behavioral state (`update`, run to a bounded fixpoint
+after each solve; once per sub-step during transients — switching resolution is
+one sub-step, a stated limit), and optional `branchCurrents`. Whatever the device
+drives is a Thévenin source, exactly like an MCU pin. Built-in kinds cannot be
+shadowed. Gates, shift registers, relays, motors, servos and timer ICs land as
+device models, one file per device, in bw-board `src/devices/`.
+
+### 5. Reserved: the scope tap
+
+A waveform-capture API (fixed sample cadence, min/max decimation buckets, current
+channels) is under proposal from bw-board (`spec-updates/scope-tap.md`). Until it
+is adjudicated here, the existing probe API (`addProbe`/`getProbeData`) is the
+interim surface and carries no cadence guarantee — a UI must not assume one.
+
+### 6. Breadboard topology stays above boundary B
+
+The breadboard model (bw-circuit-ui `src/model/breadboard.js`) derives `Net[]`
+from holes, strips and jumpers and feeds `setNetlist` unchanged. No breadboard
+concept crosses this boundary; the engine remains placement-blind.
