@@ -100,6 +100,54 @@ describe('gallery: every example parses and compiles', () => {
     }
 });
 
+describe('gallery: index.json is valid and covers every example', () => {
+    const indexPath = join(EXAMPLES_DIR, 'index.json');
+
+    test('index.json exists and parses', () => {
+        assert.ok(existsSync(indexPath));
+        JSON.parse(readFileSync(indexPath, 'utf8'));
+    });
+
+    test('every entry has required fields', () => {
+        const index = JSON.parse(readFileSync(indexPath, 'utf8'));
+        const CATEGORIES = new Set(['basics', 'analog', 'digital', 'display', 'motors', 'pure-circuit']);
+        for (const entry of index) {
+            assert.ok(entry.id, 'id');
+            assert.ok(entry.title?.en, 'title.en');
+            assert.ok(entry.title?.de, 'title.de');
+            assert.ok(CATEGORIES.has(entry.category), `category "${entry.category}" not in ${[...CATEGORIES]}`);
+            assert.ok(typeof entry.difficulty === 'number' && entry.difficulty >= 1 && entry.difficulty <= 5, 'difficulty 1-5');
+            assert.ok(entry.files?.program, 'files.program');
+            assert.ok(entry.files?.circuit, 'files.circuit');
+            assert.ok(entry.files?.expected, 'files.expected');
+        }
+    });
+
+    test('every example directory is in the index', () => {
+        const index = JSON.parse(readFileSync(indexPath, 'utf8'));
+        const indexDirs = new Set(index.map(e => e.files.program.split('/')[0]));
+        for (const name of examples) {
+            assert.ok(indexDirs.has(name), `${name} is missing from index.json`);
+        }
+    });
+
+    test('every index entry points to files that exist', () => {
+        const index = JSON.parse(readFileSync(indexPath, 'utf8'));
+        for (const entry of index) {
+            for (const [key, path] of Object.entries(entry.files)) {
+                const full = join(EXAMPLES_DIR, path);
+                assert.ok(existsSync(full), `${entry.id}: ${key} file missing: ${path}`);
+            }
+        }
+    });
+
+    test('no duplicate ids', () => {
+        const index = JSON.parse(readFileSync(indexPath, 'utf8'));
+        const ids = index.map(e => e.id);
+        assert.equal(new Set(ids).size, ids.length, 'duplicate ids');
+    });
+});
+
 describe('gallery: determinism — same input, same output, twice', () => {
     for (const name of examples) {
         test(`${name}: two compiles produce identical C`, () => {

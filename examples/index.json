@@ -1,0 +1,82 @@
+[
+  {
+    "id": "01-blink",
+    "title": { "en": "Blink an LED", "de": "LED blinken lassen" },
+    "category": "basics",
+    "difficulty": 1,
+    "thumbnail": "01-blink/thumb.svg",
+    "files": { "program": "01-blink/program.bw", "circuit": "01-blink/circuit.json", "expected": "01-blink/EXPECTED.md" }
+  },
+  {
+    "id": "02-dimmer",
+    "title": { "en": "LED dimmer with potentiometer", "de": "LED-Dimmer mit Potentiometer" },
+    "category": "analog",
+    "difficulty": 2,
+    "thumbnail": "02-dimmer/thumb.svg",
+    "files": { "program": "02-dimmer/program.bw", "circuit": "02-dimmer/circuit.json", "expected": "02-dimmer/EXPECTED.md" }
+  },
+  {
+    "id": "03-night-light",
+    "title": { "en": "Automatic night light", "de": "Automatisches Nachtlicht" },
+    "category": "analog",
+    "difficulty": 2,
+    "thumbnail": "03-night-light/thumb.svg",
+    "files": { "program": "03-night-light/program.bw", "circuit": "03-night-light/circuit.json", "expected": "03-night-light/EXPECTED.md" }
+  },
+  {
+    "id": "04-thermostat",
+    "title": { "en": "Thermostat with hysteresis", "de": "Thermostat mit Hysterese" },
+    "category": "analog",
+    "difficulty": 3,
+    "thumbnail": "04-thermostat/thumb.svg",
+    "files": { "program": "04-thermostat/program.bw", "circuit": "04-thermostat/circuit.json", "expected": "04-thermostat/EXPECTED.md" }
+  },
+  {
+    "id": "05-counter",
+    "title": { "en": "Button counter with LED blinks", "de": "Tastenzähler mit LED-Blinken" },
+    "category": "basics",
+    "difficulty": 2,
+    "thumbnail": "05-counter-7seg/thumb.svg",
+    "files": { "program": "05-counter-7seg/program.bw", "circuit": "05-counter-7seg/circuit.json", "expected": "05-counter-7seg/EXPECTED.md" }
+  },
+  {
+    "id": "06-active-low-high",
+    "title": { "en": "Active-low vs active-high LEDs", "de": "Active-Low vs Active-High LEDs" },
+    "category": "basics",
+    "difficulty": 2,
+    "thumbnail": "06-active-low-high/thumb.svg",
+    "files": { "program": "06-active-low-high/program.bw", "circuit": "06-active-low-high/circuit.json", "expected": "06-active-low-high/EXPECTED.md" }
+  },
+  {
+    "id": "07-buzzer-siren",
+    "title": { "en": "Two-tone siren", "de": "Zweiklang-Sirene" },
+    "category": "basics",
+    "difficulty": 2,
+    "thumbnail": "07-buzzer-siren/thumb.svg",
+    "files": { "program": "07-buzzer-siren/program.bw", "circuit": "07-buzzer-siren/circuit.json", "expected": "07-buzzer-siren/EXPECTED.md" }
+  },
+  {
+    "id": "08-led-chaser-595",
+    "title": { "en": "8-LED chaser with shift register", "de": "8-LED-Lauflicht mit Schieberegister" },
+    "category": "digital",
+    "difficulty": 3,
+    "thumbnail": "08-led-chaser-595/thumb.svg",
+    "files": { "program": "08-led-chaser-595/program.bw", "circuit": "08-led-chaser-595/circuit.json", "expected": "08-led-chaser-595/EXPECTED.md" }
+  },
+  {
+    "id": "09-relay-clicker",
+    "title": { "en": "Relay on/off with indicator", "de": "Relais ein/aus mit Anzeige" },
+    "category": "motors",
+    "difficulty": 2,
+    "thumbnail": "09-relay-clicker/thumb.svg",
+    "files": { "program": "09-relay-clicker/program.bw", "circuit": "09-relay-clicker/circuit.json", "expected": "09-relay-clicker/EXPECTED.md" }
+  },
+  {
+    "id": "10-motor-speed",
+    "title": { "en": "Motor speed control with pot", "de": "Motordrehzahl mit Poti steuern" },
+    "category": "motors",
+    "difficulty": 3,
+    "thumbnail": "10-motor-speed/thumb.svg",
+    "files": { "program": "10-motor-speed/program.bw", "circuit": "10-motor-speed/circuit.json", "expected": "10-motor-speed/EXPECTED.md" }
+  }
+]
