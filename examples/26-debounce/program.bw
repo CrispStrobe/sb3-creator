@@ -1,0 +1,14 @@
+DEVICE STC12C5A60S2
+CLOCK 11059200
+PIN btn = P3.2 INPUT
+PIN led1 = P1.0 OUTPUT ACTIVE LOW
+
+# Button with 50 ms software debounce -- only toggle LED if still pressed after delay
+WHEN flag clicked:
+  FOREVER:
+    wait until read btn = 0
+    wait 0.05 seconds
+    IF read btn = 0 THEN:
+      toggle led1
+      wait until read btn = 1
+      wait 0.05 seconds

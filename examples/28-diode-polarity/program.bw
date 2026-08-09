@@ -1,0 +1,2 @@
+# Pure circuit -- no MCU, no program
+# Two paths: forward-biased diode + LED lights, reverse-biased diode blocks

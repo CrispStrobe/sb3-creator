@@ -1,0 +1,23 @@
+DEVICE STC12C5A60S2
+CLOCK 11059200
+PIN btn = P3.2 INPUT
+PIN led1 = P1.0 OUTPUT ACTIVE LOW
+
+# LED dice: fast-count while button held, blink result 1-6 times
+WHEN flag clicked:
+  FOREVER:
+    set roll to 1
+    wait until read btn = 0
+    REPEAT UNTIL read btn = 1:
+      change roll by 1
+      IF roll > 6 THEN:
+        set roll to 1
+    wait 0.05 seconds
+    turn off led1
+    wait 0.3 seconds
+    REPEAT roll:
+      turn on led1
+      wait 0.3 seconds
+      turn off led1
+      wait 0.3 seconds
+    wait 1 seconds

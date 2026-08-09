@@ -1,0 +1,25 @@
+DEVICE STC12C5A60S2
+CLOCK 11059200
+PIN led1 = P1.0 OUTPUT ACTIVE LOW
+PIN btn = P3.2 INPUT
+
+# Reaction timer: wait random time, light LED, count until button press
+WHEN flag clicked:
+  FOREVER:
+    turn off led1
+    set delay to 20
+    change delay by 10
+    REPEAT delay:
+      wait 0.1 seconds
+    turn on led1
+    set counter to 0
+    REPEAT UNTIL read btn = 0:
+      change counter by 1
+      wait 0.001 seconds
+    turn off led1
+    REPEAT counter:
+      turn on led1
+      wait 0.1 seconds
+      turn off led1
+      wait 0.1 seconds
+    wait 2 seconds

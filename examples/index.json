@@ -182,5 +182,61 @@
     "difficulty": 2,
     "thumbnail": "23-voltage-regulator/thumb.svg",
     "files": { "program": "23-voltage-regulator/program.bw", "circuit": "23-voltage-regulator/circuit.json", "expected": "23-voltage-regulator/EXPECTED.md" }
+  },
+  {
+    "id": "24-pwm-fade",
+    "title": { "en": "Software PWM LED fade", "de": "Software-PWM LED-Fading" },
+    "category": "basics",
+    "difficulty": 3,
+    "thumbnail": "24-pwm-fade/thumb.svg",
+    "files": { "program": "24-pwm-fade/program.bw", "circuit": "24-pwm-fade/circuit.json", "expected": "24-pwm-fade/EXPECTED.md" }
+  },
+  {
+    "id": "25-reaction-timer",
+    "title": { "en": "Reaction timer", "de": "Reaktionszeitmesser" },
+    "category": "basics",
+    "difficulty": 3,
+    "thumbnail": "25-reaction-timer/thumb.svg",
+    "files": { "program": "25-reaction-timer/program.bw", "circuit": "25-reaction-timer/circuit.json", "expected": "25-reaction-timer/EXPECTED.md" }
+  },
+  {
+    "id": "26-debounce",
+    "title": { "en": "Button debounce", "de": "Taster-Entprellung" },
+    "category": "basics",
+    "difficulty": 2,
+    "thumbnail": "26-debounce/thumb.svg",
+    "files": { "program": "26-debounce/program.bw", "circuit": "26-debounce/circuit.json", "expected": "26-debounce/EXPECTED.md" }
+  },
+  {
+    "id": "27-led-dice",
+    "title": { "en": "LED dice", "de": "LED-Wuerfel" },
+    "category": "basics",
+    "difficulty": 3,
+    "thumbnail": "27-led-dice/thumb.svg",
+    "files": { "program": "27-led-dice/program.bw", "circuit": "27-led-dice/circuit.json", "expected": "27-led-dice/EXPECTED.md" }
+  },
+  {
+    "id": "28-diode-polarity",
+    "title": { "en": "Diode polarity demo", "de": "Diodenpolaritaet-Demo" },
+    "category": "pure-circuit",
+    "difficulty": 1,
+    "thumbnail": "28-diode-polarity/thumb.svg",
+    "files": { "program": "28-diode-polarity/program.bw", "circuit": "28-diode-polarity/circuit.json", "expected": "28-diode-polarity/EXPECTED.md" }
+  },
+  {
+    "id": "29-capacitor-charge",
+    "title": { "en": "RC charging circuit", "de": "RC-Ladeschaltung" },
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "thumbnail": "29-capacitor-charge/thumb.svg",
+    "files": { "program": "29-capacitor-charge/program.bw", "circuit": "29-capacitor-charge/circuit.json", "expected": "29-capacitor-charge/EXPECTED.md" }
+  },
+  {
+    "id": "30-multi-led-pattern",
+    "title": { "en": "4-LED chaser pattern", "de": "4-LED-Lauflicht" },
+    "category": "basics",
+    "difficulty": 2,
+    "thumbnail": "30-multi-led-pattern/thumb.svg",
+    "files": { "program": "30-multi-led-pattern/program.bw", "circuit": "30-multi-led-pattern/circuit.json", "expected": "30-multi-led-pattern/EXPECTED.md" }
   }
 ]

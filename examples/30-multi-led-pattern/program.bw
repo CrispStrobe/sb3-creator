@@ -1,0 +1,22 @@
+DEVICE STC12C5A60S2
+CLOCK 11059200
+PIN led1 = P1.0 OUTPUT ACTIVE LOW
+PIN led2 = P1.1 OUTPUT ACTIVE LOW
+PIN led3 = P1.2 OUTPUT ACTIVE LOW
+PIN led4 = P1.3 OUTPUT ACTIVE LOW
+
+# 4-LED chaser: each LED lights for 200 ms in sequence
+WHEN flag clicked:
+  FOREVER:
+    turn on led1
+    wait 0.2 seconds
+    turn off led1
+    turn on led2
+    wait 0.2 seconds
+    turn off led2
+    turn on led3
+    wait 0.2 seconds
+    turn off led3
+    turn on led4
+    wait 0.2 seconds
+    turn off led4
