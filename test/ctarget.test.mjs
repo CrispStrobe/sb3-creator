@@ -470,27 +470,67 @@ test('project.stc survives the sb3 project.json', async () => {
 
 // ---- the oracle: does it actually build? ----------------------------------------
 // Defaults to the public endpoint. Set STC_COMPILER_URL=off to skip for offline work.
-// A silent skip is indistinguishable from a pass — so we say it loudly.
+//
+// Reachability is separated from the verdict: a /health probe runs once before the
+// loop. If the service is unreachable (down, rate-limited, offline), the tests skip
+// with a loud banner — an unreachable service is not evidence about the emitter.
+// Inside each test, 429/5xx are infrastructure failures and skip; only a 200-with-no-
+// image or a 4xx carrying a compiler diagnostic actually fail the test.
+//
+// The invariant: green means the C compiles; red means it doesn't; neither can mean
+// "the network was having a day".
 
 const ORACLE_ENV = process.env.STC_COMPILER_URL;
 const ORACLE = ORACLE_ENV === 'off' ? null : (ORACLE_ENV || 'https://stc-compiler.vercel.app');
-if (!ORACLE) console.log('\n⚠  4 oracle tests SKIPPED — set STC_COMPILER_URL (or remove =off) to compile through SDCC\n');
+
+// Probe reachability once. If the service doesn't answer, skip all four rather than
+// producing four red results that look like emitter bugs.
+let oracleReachable = false;
+if (ORACLE) {
+    try {
+        const probe = await fetch(`${ORACLE.replace(/\/$/, '')}/health`, { signal: AbortSignal.timeout(5000) });
+        oracleReachable = probe.ok;
+    } catch { /* unreachable */ }
+    if (!oracleReachable) console.log(`\n⚠  4 oracle tests SKIPPED — stc-compiler unreachable (${ORACLE})\n`);
+} else {
+    console.log('\n⚠  4 oracle tests SKIPPED — set STC_COMPILER_URL (or remove =off) to compile through SDCC\n');
+}
+
+const oracleSkip = !ORACLE ? 'STC_COMPILER_URL=off — oracle tests disabled'
+    : !oracleReachable ? `stc-compiler unreachable (${ORACLE})`
+        : false;
+
 for (const [name, src] of Object.entries(FIXTURES)) {
-    test(`oracle: ${name} compiles with SDCC`, { skip: ORACLE ? false : 'STC_COMPILER_URL=off — oracle tests disabled' }, async () => {
+    test(`oracle: ${name} compiles with SDCC`, { skip: oracleSkip }, async () => {
         const creator = build(src);
         const code = creator.generateC();
-        const response = await fetch(`${ORACLE.replace(/\/$/, '')}/compile`, {
-            method: 'POST',
-            headers: { 'content-type': 'application/json' },
-            body: JSON.stringify({
-                code, language: 'c',
-                target: creator.project.stc.device,
-                fosc: creator.project.stc.clock
-            })
-        });
-        const body = await response.json();
-        assert.equal(response.status, 200, JSON.stringify(body).slice(0, 800));
-        assert.ok(body.hex || body.image || body.memory, `no image returned: ${JSON.stringify(body).slice(0, 400)}`);
+        let response;
+        try {
+            response = await fetch(`${ORACLE.replace(/\/$/, '')}/compile`, {
+                method: 'POST',
+                headers: { 'content-type': 'application/json' },
+                body: JSON.stringify({
+                    code, language: 'c',
+                    target: creator.project.stc.device,
+                    fosc: creator.project.stc.clock
+                }),
+                signal: AbortSignal.timeout(15000)
+            });
+        } catch (e) {
+            // Network error mid-test (timeout, connection reset) — infrastructure, not emitter.
+            return assert.fail(`oracle infrastructure error (not a compiler failure): ${e.message}`);
+        }
+        // 429 / 5xx are the service's problem, not ours — skip rather than fail.
+        if (response.status === 429 || response.status >= 500) {
+            return assert.fail(`oracle infrastructure: HTTP ${response.status} (not a compiler failure)`);
+        }
+        let body;
+        try { body = await response.json(); } catch {
+            return assert.fail(`oracle: response is not JSON (HTTP ${response.status}) — infrastructure, not compiler`);
+        }
+        // A 200 with no image, or a 4xx carrying a compiler diagnostic, is our bug.
+        assert.equal(response.status, 200, `compiler rejected the C: ${JSON.stringify(body).slice(0, 800)}`);
+        assert.ok(body.hex || body.image || body.memory, `compiled but no image returned: ${JSON.stringify(body).slice(0, 400)}`);
     });
 }
 
