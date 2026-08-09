@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+# Installed with: git config core.hooksPath scripts/hooks
+exec "$(git rev-parse --show-toplevel)/scripts/guard-commit.sh"
