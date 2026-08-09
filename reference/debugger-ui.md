@@ -342,10 +342,18 @@ heap access, which *is* exported.
 
 ## 5. Three honesty affordances
 
-1. **`skewNs` gets a visible badge.** Simulated and halted → the board renders solid and frozen.
-   Live and halted with `skew > 0` → desaturate, hatch, and label it *"snapshot — the board kept
-   running for 4.2 s while you were stopped."* Same panel, visibly different, which is exactly
-   what §3.1.3 demands and what an undifferentiated panel would quietly get wrong.
+1. **`skewNs` gets a visible badge.** Built 2026-08-09 in `bw-circuit-ui`, where the prop had
+   been *documented and ignored* — `CircuitDesigner`'s JSDoc described `debugState` and the
+   component never destructured it, so the status line said "LIVE — emulator driving pins" for a
+   board whose program had been stopped for four seconds. Now: running → `LIVE`; halted with
+   `skew == 0` → `PAUSED — program and board are frozen together`; halted with `skew > 0` →
+   `SNAPSHOT — the board kept running for 4.2 s while the program was stopped`, **with the
+   number**, because "stale" alone is not actionable. A snapshot is also desaturated: it must not
+   *look* like a live board. A frozen simulation gets no treatment, because nothing about it is
+   stale — rendering both the same is exactly the information `skewNs` exists to carry being
+   thrown away. Controls stay live in both, since turning a pot with the program stopped is
+   intent rather than physics. Not observable in this fork yet (an emulator always reports 0),
+   but the path is complete rather than promised.
 2. **Greyed controls carry their reason in the tooltip, always.** "Step one instruction — not on
    a live chip through this monitor (it needs P3.2)." A dead button that explains itself teaches
    the hardware; a dead button that does not reads as a bug.
