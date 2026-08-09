@@ -1672,6 +1672,21 @@ class SB3Creator {
                 block[id].inputs.DURATION = val(match[1]);
                 return ret(block);
             }
+            if ((match = line.match(/^fill column\s+(.+?)\s+(.+?)\s+with\s+(.+)$/i))) {
+                const { id, block } = cmd('ledcube_fillcolumn');
+                block[id].inputs.X = val(match[1]); block[id].inputs.Y = val(match[2]);
+                block[id].inputs.COLOUR = val(match[3]);
+                return ret(block);
+            }
+            if ((match = line.match(/^fill wall\s+(.+?)\s+with\s+(.+)$/i))) {
+                const { id, block } = cmd('ledcube_fillwall');
+                block[id].inputs.Z = val(match[1]); block[id].inputs.COLOUR = val(match[2]);
+                return ret(block);
+            }
+            if (/^invert cube$/i.test(line)) {
+                const { block } = cmd('ledcube_invert');
+                return ret(block);
+            }
         }
 
         // ---- Arrays & Vectors extension commands (anchored on `array "NAME"`; 0-based) ----
@@ -3314,6 +3329,9 @@ class SB3Creator {
             case 'ledcube_clear': return line('clear cube');
             case 'ledcube_shift': return line(`shift cube ${f('DIR')}`);
             case 'ledcube_hold': return line(`hold frame for ${v('DURATION')} ms`);
+            case 'ledcube_fillcolumn': return line(`fill column ${v('X')} ${v('Y')} with ${v('COLOUR')}`);
+            case 'ledcube_fillwall': return line(`fill wall ${v('Z')} with ${v('COLOUR')}`);
+            case 'ledcube_invert': return line('invert cube');
             case 'data_showlist': return line(`show list ${f('LIST')}`);
             case 'data_hidelist': return line(`hide list ${f('LIST')}`);
             case 'data_showvariable': return line(`show variable ${f('VARIABLE')}`);
@@ -4577,6 +4595,18 @@ class SB3Creator {
                 this._cUses.cube = true;
                 return line(`bw_cube_hold(${v('DURATION')});`);
             }
+            case 'ledcube_fillcolumn': {
+                this._cUses.cube = true;
+                return line(`bw_cube_fill_column(${v('X')}, ${v('Y')}, ${v('COLOUR')});`);
+            }
+            case 'ledcube_fillwall': {
+                this._cUses.cube = true;
+                return line(`bw_cube_fill_wall(${v('Z')}, ${v('COLOUR')});`);
+            }
+            case 'ledcube_invert': {
+                this._cUses.cube = true;
+                return line('bw_cube_invert();');
+            }
             case 'procedures_call': return line(this.cProcCall(b, blocks));
             default: {
                 const text = (this.decompileStackBlock(b, blocks, 0)[0] || b.opcode).trim();
@@ -5503,6 +5533,7 @@ class SB3Creator {
         if (this._cUses.cube) {
             const cube = (this.project && this.project.stc && this.project.stc.ledcube) || { size: 4, selects: 8, bits: 8 };
             const S = cube.selects;
+            const N = cube.size;   // side length (4 for a 4×4×4)
             out.push(`/* LED cube: ${cube.size}x${cube.size}x${cube.size}, ${S} select lines, multiplex scan.`,
                 ' *',
                 ' * P0 POLARITY — ACTIVE-HIGH.  Measured: emu8051-stc Finding #14, P0',
@@ -5537,13 +5568,23 @@ class SB3Creator {
                 '    }',
                 '}',
                 '',
+                `/* VOXEL MAP — UNVERIFIED.  Assumed identity: (x, y, z) maps to`,
+                ` * select = z * 2, bit = y * ${N} + x.  Only probe.c on a real cube can`,
+                ` * fill in the actual (select, bit) → position table.  Changing this`,
+                ` * one table corrects every set/get/fill/clear in the kernel.`,
+                ` * See stc/src/20-ledcube/README.md. */`,
+                `static void bw_cube_addr(int x, int y, int z, int colour,`,
+                '                         unsigned char *sel, unsigned char *bit)',
+                '{',
+                `    *sel = (unsigned char)(z * 2 + (colour > 1 ? 1 : 0));`,
+                `    *bit = (unsigned char)(y * ${N} + x);`,
+                '}',
+                '',
                 `static void bw_cube_set(int x, int y, int z, int colour)`,
                 '{',
-                `    /* Identity voxel map: select = z * 2, bit = x + ${cube.size} * y. */`,
-                `    /* TODO: replace with the measured (select, bit) → (x, y, z) table. */`,
-                `    int sel = z * 2 + (colour > 1 ? 1 : 0);`,
-                `    int bit = x + ${cube.size} * y;`,
-                `    if (sel < 0 || sel >= ${S} || bit < 0 || bit >= 8) return;`,
+                '    unsigned char sel, bit;',
+                '    bw_cube_addr(x, y, z, colour, &sel, &bit);',
+                `    if (sel >= ${S} || bit >= 8) return;`,
                 '    if (colour) {',
                 '        if (BW_CUBE_ACTIVE_HIGH)',
                 '            bw_cube_frame[sel] |= (unsigned char)(1u << bit);',
@@ -5559,9 +5600,9 @@ class SB3Creator {
                 '',
                 `static unsigned char bw_cube_get(int x, int y, int z)`,
                 '{',
-                `    int sel = z * 2;`,
-                `    int bit = x + ${cube.size} * y;`,
-                `    if (sel < 0 || sel >= ${S} || bit < 0 || bit >= 8) return 0;`,
+                '    unsigned char sel, bit;',
+                '    bw_cube_addr(x, y, z, 1, &sel, &bit);',
+                `    if (sel >= ${S} || bit >= 8) return 0;`,
                 '    return BW_CUBE_ACTIVE_HIGH ? ((bw_cube_frame[sel] >> bit) & 1)',
                 '                              : !((bw_cube_frame[sel] >> bit) & 1);',
                 '}',
@@ -5588,6 +5629,21 @@ class SB3Creator {
                 '    case 3: for (i = 0; i < ' + S + '; i++) bw_cube_frame[i] >>= 1; break;',
                 `    default: break;  /* forward/back need the voxel map */`,
                 '    }',
+                '}',
+                '',
+                `static void bw_cube_fill_column(int x, int y, int colour)`,
+                '{',
+                `    int z; for (z = 0; z < ${N}; z++) bw_cube_set(x, y, z, colour);`,
+                '}',
+                '',
+                `static void bw_cube_fill_wall(int z, int colour)`,
+                '{',
+                `    int x, y; for (y = 0; y < ${N}; y++) for (x = 0; x < ${N}; x++) bw_cube_set(x, y, z, colour);`,
+                '}',
+                '',
+                'static void bw_cube_invert(void)',
+                '{',
+                `    unsigned char i; for (i = 0; i < ${S}; i++) bw_cube_frame[i] = ~bw_cube_frame[i];`,
                 '}',
                 '',
                 'static void bw_cube_hold(unsigned int ms) { bw_cube_scan(ms); }',
