@@ -38,6 +38,7 @@ ADC, time). So the chain is:
 | controls | `brickwright-lite` `tw-pseudocode/debug-panel.jsx` | **done 2026-08-09** |
 | breakpoint-on-block | `brickwright-lite` `lib/bw-debug/{breakpoints,block-menu}.js` | **done 2026-08-09** |
 | the "under the hood" drawer, at TUI parity | `brickwright-lite` `tw-pseudocode/debug-drawer.jsx` | **done 2026-08-09** (§4b) |
+| the inspector: variables, pins, timeline | `brickwright-lite` `tw-pseudocode/debug-inspector.jsx` | **done 2026-08-09** (§4a) |
 | a target picker, the skew badge | `brickwright-lite` | missing — both need a live target |
 
 **The symbol table needed an endpoint.** A browser cannot run SDCC and cannot run
@@ -192,6 +193,42 @@ MCU stops calling `advanceTo`, so the board freezes coherently, and `CircuitDesi
 accepts `debugState: {halted, skewNs}`. Two rules it must actually implement: **no wall-clock
 catch-up on resume**, and `setControl` stays live while halted (turning the pot is intent, not
 physics).
+
+## 4a. What a debugger for THIS audience leads with
+
+Parity with the TUI (§4b) is the floor, not the design. The TUI's first pane is a disassembly
+and its second is `A R0..R7 B DPTR`; that is correct for someone who knows the 8051 and wrong
+as the first thing shown to someone who has just written `change counter by 1`. Every mature
+debugger — DevTools, VS Code — puts the user's own nouns first and the machine's underneath.
+This one could not, until the symbol table learned which memory holds `counter`.
+
+Built 2026-08-09 as `components/tw-pseudocode/debug-inspector.jsx`, above the drawer:
+
+1. **Their nouns, not the machine's.** Variables under the name the user typed, from
+   `symbols.variables` — `generateC` states the `@bw var <c> "<original>"` pair because `cName`
+   mangling is not reversible, and `stc_symtab` joins it to the linker's address. Pins as
+   physical facts: `led1 is on`, `pot is at 2.47 V`, with the **active-low inversion already
+   applied**, because printing "P1.0 = 0" teaches the exact opposite of what this board exists
+   to teach. A variable the linker dropped is reported as unlocated rather than omitted — a
+   front end that silently leaves it out has the user hunting for a variable that appears to
+   have vanished.
+
+2. **Change, not just state.** A value that moved since the last stop is highlighted with its
+   previous value beside it. Seeing *what changed* is most of debugging; a wall of identical
+   numbers is not.
+
+3. **Time travel.** The trace already captures a full snapshot at every stop, so the timeline
+   only needed an axis. Scrub back and the variables pane shows what they were *then*, compared
+   against the stop before — so "what changed" means the same thing live and in the past.
+
+   It is **explicitly read-only and says so**: the program is not being rewound, you are looking
+   at what was recorded. Claiming otherwise would be the same class of lie as a multimeter
+   reading ohms on a live circuit. Pins are therefore live-only and disappear while scrubbing —
+   they come from the board, which keeps no history, and showing a live pin beside a past
+   variable is the more confusing option.
+
+The layering is the point: **what happened → why → under the hood**, each one openable only if
+the last was not enough. The drawer is closed by default and the inspector is not.
 
 ## 4b. Parity with emu8051's TUI — the map
 
