@@ -219,6 +219,8 @@ const KNOWN_GAPS = new Set([
     'soil_moisture',    // moisture sensor — needs "moisture level" reporter
     'solar_cell',       // power source — circuit-level
     'usb_a',            // USB connector — power/data, circuit-level
+    'char_lcd_i2c',     // I2C LCD — same blocks as char_lcd, different wiring
+    'pcf8574',          // I2C GPIO expander — circuit-level
 ]);
 
 // ---- tests ------------------------------------------------------------------
