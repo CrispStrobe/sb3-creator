@@ -3757,7 +3757,7 @@ class SB3Creator {
         while (id && blocks[id]) {
             const b = blocks[id];
             if (b.opcode === 'data_setvariableto' || b.opcode === 'data_changevariableby') acc.add(b.fields.VARIABLE[0]);
-            if (b.opcode === 'sensing_askandwait') acc.add(' answer');
+            if (b.opcode === 'sensing_askandwait') acc.add('\u0000answer');
             for (const k of ['SUBSTACK', 'SUBSTACK2']) if (b.inputs[k]) this.pyAssigned(b.inputs[k][1], blocks, acc);
             id = b.next;
         }
@@ -3781,7 +3781,7 @@ class SB3Creator {
         const assigned = this.pyAssigned(firstId, blocks, new Set());
         const globals = [];
         for (const a of assigned) {
-            if (a === ' answer') { globals.push('answer'); this._pyUses.answer = true; }
+            if (a === '\u0000answer') { globals.push('answer'); this._pyUses.answer = true; }
             else { const nm = this.varRef(a); if (!argNames.includes(nm)) globals.push(nm); }
         }
         const bodyLines = this.pyStackFrom(firstId, blocks, 1);
