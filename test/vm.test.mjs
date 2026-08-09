@@ -38,12 +38,16 @@ function permissive () {
     });
     return p;
 }
-function loadLocalExtension (slug) {
+function loadLocalExtension (slug, runtime) {
     let captured = null;
     const Scratch = {
         BlockType, ArgumentType, Cast, TargetType: { SPRITE: 'sprite', STAGE: 'stage' },
         translate: Object.assign((m) => (m && typeof m === 'object' ? (m.default || '') : m), { setup: () => {} }),
-        extensions: { register: (inst) => { captured = inst; }, unsandboxed: true, isPenguinMod: false }
+        extensions: { register: (inst) => { captured = inst; }, unsandboxed: true, isPenguinMod: false },
+        // Extensions that keep per-project state hang it off the runtime and take it
+        // from Scratch.vm.runtime at registration -- stc12 does. Hand them the real one,
+        // or they register against undefined and throw on the first block.
+        vm: { runtime }
     };
     const known = { Scratch, console: new Proxy({}, { get: () => () => {} }), setTimeout: () => 0, clearTimeout: () => {}, setInterval: () => 0, clearInterval: () => {}, module: { exports: null }, exports: {} };
     const sandbox = new Proxy(known, { has: () => true, get: (t, k) => (k in t ? t[k] : (t[k] = permissive())) });
@@ -56,9 +60,9 @@ function patchExtensionManager (vm) {
     const em = vm.extensionManager;
     const orig = em.loadExtensionURL.bind(em);
     em.loadExtensionURL = (url) => {
-        const slug = ['arrays', 'planetemaths'].find((s) => String(url).includes(s));
+        const slug = ['arrays', 'planetemaths', 'stc12'].find((s) => String(url).includes(s));
         if (slug) {
-            const serviceName = em._registerInternalExtension(loadLocalExtension(slug));
+            const serviceName = em._registerInternalExtension(loadLocalExtension(slug, vm.runtime));
             em._loadedExtensions.set(url, serviceName);
             return Promise.resolve();
         }
