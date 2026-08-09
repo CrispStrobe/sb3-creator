@@ -5452,6 +5452,11 @@ SB3Creator.CORE_CATEGORIES = new Set([
 SB3Creator.EXTENSION_URLS = {
     planetemaths: 'https://crispstrobe.github.io/extensions/CrispStrobe/planetemaths.js',
     arrays: 'https://crispstrobe.github.io/extensions/CrispStrobe/arrays.js',
+    // Without this line a hardware project carries `extensions: ["stc12"]` and no URL
+    // for it, so a TurboWarp-based host has nowhere to fetch the blocks from and the
+    // project fails to open at all: "Unknown extension: stc12". A host that has the
+    // extension built in (brickwright-lite does) checks that first and ignores the URL.
+    stc12: 'https://crispstrobe.github.io/extensions/CrispStrobe/stc12.js',
     ...GENERATED_URLS   // gamepad + LEGO/hardware extension URLs (auto-generated)
 };
 
