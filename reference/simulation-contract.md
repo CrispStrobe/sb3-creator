@@ -30,7 +30,7 @@ The MCU is a black box that **owns time**. The board is passive and only ever an
 
 ```ts
 type PinId   = string;                                    // "P1.0", "P3.2"
-type PinMode = 'quasi' | 'pushpull' | 'input' | 'opendrain';
+type PinMode = 'quasi' | 'pushpull' | 'input' | 'opendrain' | 'input-pullup';
 
 /** What the MCU tells the board. */
 interface McuToBoard {
@@ -234,12 +234,35 @@ drives is a Thévenin source, exactly like an MCU pin. Built-in kinds cannot be
 shadowed. Gates, shift registers, relays, motors, servos and timer ICs land as
 device models, one file per device, in bw-board `src/devices/`.
 
-### 5. Reserved: the scope tap
+### 5. The scope tap — ADOPTED (from bw-board `spec-updates/scope-tap.md`, 2026-08-09)
 
-A waveform-capture API (fixed sample cadence, min/max decimation buckets, current
-channels) is under proposal from bw-board (`spec-updates/scope-tap.md`). Until it
-is adjudicated here, the existing probe API (`addProbe`/`getProbeData`) is the
-interim surface and carries no cadence guarantee — a UI must not assume one.
+`addScopeChannel({type: 'voltage'|'current', netId | partId+terminal, sampleRateHz
+(default 100 kHz), depth (default 8192)})` → handle; `removeScopeChannel(h)`;
+`clearScopeChannels()`; `getScopeData(h)` → `{samples, startTNs, sampleIntervalNs,
+writeIndex, channelType}` with `samples` an interleaved Float64Array of (min, max)
+pairs — the envelope survives any timebase zoom, which is the whole point.
+
+Voltage channels sample at fixed sim-time cadence inside `advanceTo`. Current
+channels sample at DISPLAY rate via an explicit `sampleCurrentChannels()` from the
+UI's frame loop — the proposal's own cost model showed per-sample MNA solves are
+unaffordable, and the meter-block precedent (sample at display rate, never per
+edge) governs here too.
+
+Two adjudication additions:
+- **Unwritten buffer regions must read as absent** (NaN-filled at channel
+  creation), never as a flat 0 V trace — a scope that draws data it never
+  captured is the multimeter-that-lies failure in a new costume.
+- Trigger logic, timebase, and drawing stay UI-side, as proposed. The legacy
+  `addProbe` API remains, still without a cadence guarantee.
+
+### 5a. `input-pullup` pin mode — ADOPTED (from bw-board `spec-updates/input-pullup.md`)
+
+Boundary A's `PinMode` union gains `'input-pullup'`: Thévenin `{vTh: vcc,
+rTh: 35 kΩ}` regardless of `driveHigh` (the pull-up is on by definition; 35 kΩ is
+the midpoint of the AVR's 20–50 kΩ datasheet range). Reusing `quasi` was rightly
+rejected: quasi driving low is a strong 25 Ω sink, and a real input never sinks.
+`input` stays high-Z. This unblocks the AVR adapter's `INPUT_PULLUP` mapping and
+the standard button-to-ground idiom.
 
 ### 6. Breadboard topology stays above boundary B
 
