@@ -4170,6 +4170,29 @@ class SB3Creator {
         return `${cShimName(e.m, args.length)}(${args.join(', ')})`;
     }
 
+    // The Arrays & Vectors registry, the same shape as hcScratchCall. The 2-D and
+    // functional blocks have no C implementation, so using one warns rather than
+    // quietly returning 0 — the C would otherwise disagree with Python in silence.
+    hcArraysCall(b, blocks) {
+        const e = OP_TO_ARRAYS[b.opcode];
+        if (!e) return null;
+        if (SB3Creator.C_ARRAYS_UNIMPLEMENTED.has(e.m)) {
+            this.hcWarn(b, blocks);
+            return null;
+        }
+        const args = e.gen.map((g) => {
+            if (g.v) return this.hcVal(b.inputs[g.v], blocks);
+            if (g.m) {
+                const inp = b.inputs[g.m];
+                if (Array.isArray(inp) && inp[0] === 3) return this.hcVal(inp, blocks);
+                return this.hcStr(this.dmenu(inp, blocks, g.field || g.m));
+            }
+            if (g.f) return this.hcStr(b.fields[g.f] ? b.fields[g.f][0] : '');
+            return 'bw_num(0)';
+        });
+        return `arrays_${e.m}(${args.join(', ')})`;
+    }
+
     hcRep(b, blocks) {
         if (!b) return 'bw_num(0)';
         const v = (k) => this.hcVal(b.inputs[k], blocks);
@@ -4210,8 +4233,8 @@ class SB3Creator {
             case 'planetemaths_oppose': return `bw_num(0 - ${n('NUM1')})`;
             case 'planetemaths_inverse': return `bw_num(1 / ${n('NUM1')})`;
             case 'planetemaths_pourcent': return `bw_num(${n('NUM1')} / 100)`;
-            case 'planetemaths_nombre_pi': return 'bw_num(3.14159265358979323846)';
-            case 'planetemaths_nombre_e': return 'bw_num(2.71828182845904523536)';
+            case 'planetemaths_nombre_pi': return 'bw_pi()';
+            case 'planetemaths_nombre_e': return 'bw_e()';
             case 'planetemaths_factorial': return `bw_num(tgamma(${n('NUM1')} + 1))`;
             case 'planetemaths_min': return `bw_num(fmin(${n('NUM1')}, ${n('NUM2')}))`;
             case 'planetemaths_max': return `bw_num(fmax(${n('NUM1')}, ${n('NUM2')}))`;
@@ -4219,7 +4242,10 @@ class SB3Creator {
             case 'planetemaths_join': return `bw_join(${v('STRING1')}, ${v('STRING2')})`;
             case 'planetemaths_letterOf': return `bw_letter(${v('STRING')}, ${v('LETTER')})`;
             case 'planetemaths_length': return `bw_length(${v('STRING')})`;
+            case 'planetemaths_sommechiffres': return `bw_sumdigits(${v('NUM1')})`;
             default: {
+                const ac = this.hcArraysCall(b, blocks);
+                if (ac) return ac;
                 const sc = this.hcScratchCall(b, blocks);
                 if (sc) return sc;
                 this.hcWarn(b, blocks);
@@ -4255,8 +4281,12 @@ class SB3Creator {
             case 'planetemaths_not': return `(!${c('OPERAND1')})`;
             case 'planetemaths_contains': return truthy(`bw_contains(${v('STRING1')}, ${v('STRING2')})`);
             case 'planetemaths_multiple':
-                return `(bw_n(bw_mod(${v('NUM1')}, ${v('NUM2')})) == 0)`;
+                // Its own helper: `x mod y = 0` is a different block that happens
+                // to mean the same thing, and the way back cannot guess which.
+                return `bw_multiple(${v('NUM1')}, ${v('NUM2')})`;
             default: {
+                const ac = this.hcArraysCall(b, blocks);
+                if (ac) return truthy(ac);
                 const sc = this.hcScratchCall(b, blocks);
                 if (sc) return truthy(sc);
                 this.hcWarn(b, blocks);
@@ -4347,6 +4377,8 @@ class SB3Creator {
                 return line(`${this.cName(this._curPrefix + this.pyProcRaw(m.proccode))}(${args.join(', ')});`);
             }
             default: {
+                const ac = this.hcArraysCall(b, blocks);
+                if (ac) return line(ac + ';');
                 const sc = this.hcScratchCall(b, blocks);
                 if (sc) return line(sc + ';');
                 this.hcWarn(b, blocks);
@@ -4360,6 +4392,12 @@ class SB3Creator {
     // function per script, structural markers so the project round-trips —
     // with C's constraints: markers must live inside a function, and every
     // function needs a prototype before it is called.
+    // Reshape, transpose and the higher-order blocks need a list-valued return
+    // and a callable argument; neither fits the flat value model, and a stub
+    // returning 0 would make the C disagree with Python without saying so.
+    static C_ARRAYS_UNIMPLEMENTED = new Set(['reverse', 'flatten', 'sort', 'slice',
+        'create2d', 'get2d', 'set2d', 'transpose', 'reshape', 'map', 'filter', 'reduce']);
+
     generateHostC(project = this.project, opts = {}) {
         this._cNames = new Map();
         this._hcWarnings = [];

@@ -31,10 +31,10 @@ const has = (cmd) => spawnSync(cmd, ['--version'], { stdio: 'ignore' }).status =
 const HAS_CC = has('cc');
 const HAS_PY = has('python3');
 
-// The Arrays & Vectors extension and Planète Maths' digit-sum have no host-C
-// form yet. Named rather than hidden: if anything else joins them, that is a
-// regression and this number moves.
-const KNOWN_GAPS = new Set(['arrays', 'planetemaths']);
+// Nothing warns any more: the Arrays & Vectors registry and Planète Maths'
+// digit sum both have host-C forms now. The set stays as the place to name a
+// gap if one reappears, rather than letting warnings drift back in unnoticed.
+const KNOWN_GAPS = new Set([]);
 
 test('every example emits host C, and only the known extension gaps warn', async () => {
     const examples = (await import('../src/utils/examples.js')).default;
@@ -88,6 +88,27 @@ const CROSS = `WHEN flag clicked:
   say round 3.6
 `;
 
+test('the arrays extension agrees with Python, not just in spelling',
+    { skip: !(HAS_CC && HAS_PY) }, async () => {
+        const examples = (await import('../src/utils/examples.js')).default;
+        const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'bw-arr-'));
+        const py = path.join(dir, 'a.py'), cs = path.join(dir, 'a.c'), bin = path.join(dir, 'a');
+        const src = examples.arrays.code ?? examples.arrays;
+        fs.writeFileSync(py, build(src).generatePython());
+        fs.writeFileSync(cs, build(src).generateC());
+        const cc = spawnSync('cc', ['-std=c99', '-Wall', '-Wextra', '-Werror', '-o', bin, cs, '-lm'],
+            { encoding: 'utf8' });
+        assert.equal(cc.status, 0, cc.stderr);
+        const fromPy = execFileSync('python3', [py], { encoding: 'utf8' });
+        const fromC = execFileSync(bin, [], { encoding: 'utf8' });
+        fs.rmSync(dir, { recursive: true, force: true });
+        // A registry that merely compiled would pass a spelling test and still
+        // print zeros; this is the one that catches that.
+        assert.equal(fromC, fromPy);
+        assert.match(fromPy, /^sum = 29$/m);
+        assert.match(fromPy, /^after set: \[5, 99, 8, 1, 12\]$/m);
+    });
+
 test('host C and Python produce the same output for the same project',
     { skip: !(HAS_CC && HAS_PY) }, () => {
         const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'bw-cross-'));
@@ -118,11 +139,10 @@ void skip;
 // through — a bug dressed as an improvement.
 //
 // So: the C is allowed to lose whatever the dialect already loses, and nothing
-// more. 28 of the 30 clear that bar. The two that do not are the extension
-// surfaces the emit test already names: the C never carried them, so no reader
-// can invent them.
-const FIDELITY_FLOOR = 28;
-const KNOWN_LOSSY = new Set(['arrays', 'planetemaths']);
+// more. All 30 clear that bar. 29 are byte-identical outright; the one that is
+// not is `tetris`, and it is not identical through pseudocode alone either.
+const FIDELITY_FLOOR = 30;
+const KNOWN_LOSSY = new Set([]);
 
 test('host C loses nothing the dialect does not already lose', async () => {
     const examples = (await import('../src/utils/examples.js')).default;
@@ -154,5 +174,5 @@ test('and most come back byte-identical', async () => {
         if (a.project.stc && a.project.stc.pins && a.project.stc.pins.length) continue;
         if (build(cHostToPseudocode(a.generateC())).decompile() === a.decompile()) identical++;
     }
-    assert.ok(identical >= 27, `only ${identical} of 30 are byte-identical`);
+    assert.ok(identical >= 29, `only ${identical} of 30 are byte-identical`);
 });

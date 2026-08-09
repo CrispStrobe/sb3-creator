@@ -186,6 +186,145 @@ const RANDOM = `static inline bw_val bw_random(bw_val a, bw_val b) {
 }
 `;
 
+const MULTIPLE = `static inline int bw_multiple(bw_val a, bw_val b) {
+    return bw_n(bw_mod(a, b)) == 0;
+}
+`;
+
+const PI = `/* pi and e are blocks in their own right; as bare literals the way back
+ * could not tell them from a number someone typed. */
+static inline bw_val bw_pi(void) { return bw_num(3.14159265358979323846); }
+`;
+const E = `static inline bw_val bw_e(void) { return bw_num(2.71828182845904523536); }
+`;
+
+const SUMDIGITS = `/* Planete Maths' \`sum of digits\`: digits only, sign and dot ignored. */
+static inline bw_val bw_sumdigits(bw_val x) {
+    const char *p = bw_s(x);
+    long total = 0;
+    for (; *p; p++) if (*p >= '0' && *p <= '9') total += *p - '0';
+    return bw_num((double)total);
+}
+`;
+
+const ARRAYS = `/* ---- Arrays & Vectors extension -------------------------------------------
+ * A named-array registry, the C counterpart of the _Arrays class the Python
+ * target emits. The 1-D surface is implemented; the 2-D and functional blocks
+ * (map/filter/reduce/reshape/transpose) are declared so a program using them
+ * still compiles, and the emitter warns when one is actually reached, because
+ * a stub that silently returns 0 is how a simulator starts lying.
+ */
+#define BW_ARRAYS_MAX 32
+static struct { const char *name; bw_list v; } bw_arr[BW_ARRAYS_MAX];
+static int bw_arr_n = 0;
+
+static inline bw_list *bw_array(bw_val name) {
+    const char *n = bw_s(name);
+    for (int i = 0; i < bw_arr_n; i++) if (!strcmp(bw_arr[i].name, n)) return &bw_arr[i].v;
+    if (bw_arr_n >= BW_ARRAYS_MAX) return &bw_arr[0].v;
+    bw_arr[bw_arr_n].name = bw_intern(n, strlen(n));
+    bw_arr[bw_arr_n].v.v = 0; bw_arr[bw_arr_n].v.n = 0; bw_arr[bw_arr_n].v.cap = 0;
+    return &bw_arr[bw_arr_n++].v;
+}
+
+/* \`new array "x" = [1, 2, "three"]\` — the literal arrives as text, as it does
+ * on the Python side, so it is parsed here rather than at emit time. */
+static inline void bw_array_load(bw_list *l, bw_val text) {
+    const char *p = bw_s(text);
+    l->n = 0;
+    while (*p && *p != '[') p++;
+    if (*p == '[') p++;
+    while (*p) {
+        while (*p == ' ' || *p == ',') p++;
+        if (*p == ']' || !*p) break;
+        if (*p == '"') {
+            const char *start = ++p;
+            while (*p && *p != '"') p++;
+            bw_list_add(l, bw_str(bw_intern(start, (size_t)(p - start))));
+            if (*p == '"') p++;
+        } else {
+            char *end;
+            double d = strtod(p, &end);
+            if (end == p) break;
+            bw_list_add(l, bw_num(d));
+            p = end;
+        }
+    }
+}
+
+static inline bw_val arrays_create1d(bw_val n, bw_val j) { bw_array_load(bw_array(n), j); return bw_num(0); }
+static inline bw_val arrays_create(bw_val n) { bw_array(n)->n = 0; return bw_num(0); }
+static inline bw_val arrays_create_range(bw_val n, bw_val s, bw_val e) {
+    bw_list *l = bw_array(n); l->n = 0;
+    for (long i = (long)bw_n(s); i <= (long)bw_n(e); i++) bw_list_add(l, bw_num((double)i));
+    return bw_num(0);
+}
+static inline bw_val arrays_push(bw_val n, bw_val v) { bw_list_add(bw_array(n), v); return bw_num(0); }
+static inline bw_val arrays_set(bw_val n, bw_val i, bw_val v) {
+    bw_list *l = bw_array(n); long k = (long)bw_n(i);
+    if (k >= 0 && k < l->n) l->v[k] = v;            /* 0-based, as the extension is */
+    return bw_num(0);
+}
+static inline bw_val arrays_insert(bw_val n, bw_val i, bw_val v) {
+    bw_list_insert(bw_array(n), (int)bw_n(i) + 1, v); return bw_num(0);
+}
+static inline bw_val arrays_remove(bw_val n, bw_val i) {
+    bw_list_delete(bw_array(n), (int)bw_n(i) + 1); return bw_num(0);
+}
+static inline bw_val arrays_drop(bw_val n) { bw_array(n)->n = 0; return bw_num(0); }
+static inline bw_val arrays_get(bw_val n, bw_val i) {
+    bw_list *l = bw_array(n); long k = (long)bw_n(i);
+    return (k >= 0 && k < l->n) ? l->v[k] : bw_str("");
+}
+static inline bw_val arrays_pop(bw_val n) {
+    bw_list *l = bw_array(n);
+    return l->n ? l->v[--l->n] : bw_str("");
+}
+static inline bw_val arrays_length(bw_val n) { return bw_num((double)bw_array(n)->n); }
+static inline bw_val arrays_sum(bw_val n) {
+    bw_list *l = bw_array(n); double t = 0;
+    for (int i = 0; i < l->n; i++) t += bw_n(l->v[i]);
+    return bw_num(t);
+}
+static inline bw_val arrays_mean(bw_val n) {
+    bw_list *l = bw_array(n);
+    return l->n ? bw_num(bw_n(arrays_sum(n)) / l->n) : bw_num(0);
+}
+static inline bw_val arrays_min(bw_val n) {
+    bw_list *l = bw_array(n); if (!l->n) return bw_num(0);
+    double m = bw_n(l->v[0]);
+    for (int i = 1; i < l->n; i++) if (bw_n(l->v[i]) < m) m = bw_n(l->v[i]);
+    return bw_num(m);
+}
+static inline bw_val arrays_max(bw_val n) {
+    bw_list *l = bw_array(n); if (!l->n) return bw_num(0);
+    double m = bw_n(l->v[0]);
+    for (int i = 1; i < l->n; i++) if (bw_n(l->v[i]) > m) m = bw_n(l->v[i]);
+    return bw_num(m);
+}
+static inline bw_val arrays_index_of(bw_val n, bw_val v) {
+    bw_list *l = bw_array(n);
+    for (int i = 0; i < l->n; i++) if (bw_cmp(l->v[i], v) == 0) return bw_num(i);
+    return bw_num(-1);
+}
+static inline bw_val arrays_contains(bw_val n, bw_val v) {
+    return bw_bool(bw_n(arrays_index_of(n, v)) >= 0);
+}
+/* Matches json.dumps on the Python side, separators and all, so the two
+ * targets print the same thing. */
+static inline bw_val arrays_to_text(bw_val n) {
+    bw_list *l = bw_array(n);
+    bw_val out = bw_str("[");
+    for (int i = 0; i < l->n; i++) {
+        if (i) out = bw_join(out, bw_str(", "));
+        out = l->v[i].is_str
+            ? bw_join(bw_join(out, bw_str("\\"")), bw_join(l->v[i], bw_str("\\"")))
+            : bw_join(out, l->v[i]);
+    }
+    return bw_join(out, bw_str("]"));
+}
+`;
+
 const WAIT = `/* A wait is real time, not a busy loop, so a generated program behaves like
  * the project rather than pinning a core. POSIX; swap for Sleep() on Windows. */
 static inline void bw_wait(bw_val secs) {
@@ -292,11 +431,32 @@ const CHUNKS = [
     { name: 'bw_contains', code: CONTAINS },
     { name: 'bw_mod', code: MOD },
     { name: 'bw_random', code: RANDOM },
+    { name: 'bw_multiple', code: MULTIPLE },
+    { name: 'bw_pi', code: PI },
+    { name: 'bw_e', code: E },
+    { name: 'bw_sumdigits', code: SUMDIGITS },
     { name: 'bw_wait', code: WAIT },
     { name: 'bw_ask', code: ASK },
     { name: 'bw_mathop', code: MATHOP },
     ...listChunks(),
+    // after the list chunks: the registry is built on bw_list. Split per
+    // function for the same reason the list is — a project that only pushes
+    // must not carry `mean` and `index of`.
+    ...arrayChunks(),
 ];
+
+/** ARRAYS, cut into the registry base plus one chunk per operation. */
+function arrayChunks() {
+    const first = ARRAYS.indexOf('static inline bw_val arrays_create1d');
+    const base = ARRAYS.slice(0, first);
+    const rest = ARRAYS.slice(first);
+    const out = [{ name: 'bw_array', code: base }];
+    for (const piece of rest.split(/\n(?=static inline |\/\* )/).filter(Boolean)) {
+        const name = (piece.match(/\b(arrays_\w+)\(/) || [])[1];
+        if (name) out.push({ name, code: piece.trimEnd() + '\n' });
+    }
+    return out;
+}
 
 // Cut a block of C into one entry per `static inline ... bw_foo(` definition,
 // keeping each function's own leading comment with it.
@@ -330,7 +490,11 @@ function neededChunks(body) {
         const survivors = keep.filter((c) => {
             if (c.always) return true;
             const others = keep.filter((o) => o !== c).map((o) => o.code).join('\n');
-            const probe = new RegExp('\\b' + c.name + '\\s*\\(');
+            // One chunk holds the whole arrays registry, so any arrays_* call
+            // keeps it; every other chunk is one function and answers to its
+            // own name.
+            const probe = c.name === 'bw_array'
+                ? /\barrays_\w+\s*\(/ : new RegExp('\\b' + c.name + '\\s*\\(');
             if (probe.test(body) || probe.test(others)) return true;
             dropped.push(c);
             return false;

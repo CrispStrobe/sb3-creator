@@ -11,7 +11,7 @@
 // The point of it is the round trip: blocks → C → pseudocode → blocks has to
 // land on the same project, which is what proves the emission loses nothing.
 
-import { scratchCallToPseudo, stripSpritePrefix } from './scratchRuntime.js';
+import { scratchCallToPseudo, arraysCallToPseudo, stripSpritePrefix } from './scratchRuntime.js';
 
 const BOUNDARY = '/* @bw-program';
 
@@ -170,6 +170,10 @@ class Reader {
             case 'pow': return `(${this.expr(args[0])} to the power of ${this.expr(args[1])})`;
             case 'fmin': return `(min of ${this.expr(args[0])} and ${this.expr(args[1])})`;
             case 'fmax': return `(max of ${this.expr(args[0])} and ${this.expr(args[1])})`;
+            case 'bw_multiple': return `${this.expr(args[0])} is multiple of ${this.expr(args[1])}`;
+            case 'bw_pi': return '(pi)';
+            case 'bw_e': return '(e)';
+            case 'bw_sumdigits': return `(sum of digits of ${this.expr(args[0])})`;
             case 'bw_ask': return 'answer';
             default: break;
         }
@@ -178,11 +182,24 @@ class Reader {
             if (r) return `(${r})`;
             return '""';
         }
+        if (name.startsWith('arrays_')) {
+            const r = this.arrays(name, args);
+            if (r) return `(${r})`;
+            return '""';
+        }
         this.warn(`cannot read call ${name}() in ${whole}`);
         return '""';
     }
 
     listName(ref) { return this.name(String(ref).replace(/^&/, '').trim()); }
+
+    /** An arrays_* call back through the same table the Python reader uses. */
+    arrays(cname, args) {
+        const r = arraysCallToPseudo(cname.slice('arrays_'.length), args.map((a) => this.expr(a)));
+        if (r) return r.text;
+        this.warn(`unknown ${cname}`);
+        return null;
+    }
 
     /** A scratch_* call back to its pseudocode phrase via the shared table. */
     scratch(cname, args) {
@@ -462,6 +479,10 @@ function simple(r, line, pad) {
     }
     if (call.name === 'bw_wait') return [pad + `wait ${r.expr(call.args[0])} seconds`];
     if (call.name === 'scratch_defblock') return [];
+    if (call.name.startsWith('arrays_')) {
+        const p = r.arrays(call.name, call.args);
+        return p ? [pad + p] : [];
+    }
     if (call.name.startsWith('scratch_')) {
         const method = call.name.slice('scratch_'.length);
         if (STRUCTURAL.has(method)) return [];
