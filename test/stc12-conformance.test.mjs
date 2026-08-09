@@ -196,3 +196,62 @@ test('all three copies have identical block shapes on shared opcodes', {
         }
     }
 });
+
+// ---- stc12live: copy agreement (no emitter, runtime-only extension) ---------
+
+const stc12liveGalleryPath = resolve(here, '../../extensions/extensions/CrispStrobe/stc12live.js');
+const stc12liveBundledPath = resolve(here, '../../bw-bundle/lite/overlay/scratch-vm/src/extensions/crispstrobe/stc12live/index.js');
+const stc12liveRefPath = resolve(here, '../reference/extensions/stc12live.js');
+
+let stc12liveGallery, stc12liveBundled, stc12liveRef;
+try { stc12liveGallery = readFileSync(stc12liveGalleryPath, 'utf8'); } catch { /* skip */ }
+try { stc12liveBundled = readFileSync(stc12liveBundledPath, 'utf8'); } catch { /* skip */ }
+try { stc12liveRef = readFileSync(stc12liveRefPath, 'utf8'); } catch { /* skip */ }
+
+test('stc12live copies have identical block shapes', {
+    skip: (!stc12liveGallery || !stc12liveBundled) && 'one or more stc12live files not found'
+}, () => {
+    const copies = {};
+    copies.gallery = loadExtension(stc12liveGallery);
+    copies.bundled = loadExtension(extractInlinedSource(stc12liveBundled));
+    if (stc12liveRef) copies.reference = loadExtension(stc12liveRef);
+
+    assert.strictEqual(copies.gallery.id, 'stc12live');
+    assert.strictEqual(copies.bundled.id, 'stc12live');
+
+    const names = Object.keys(copies);
+    const byOp = {};
+    for (const name of names) {
+        byOp[name] = Object.fromEntries(
+            copies[name].blocks.filter(b => typeof b === 'object').map(b => [b.opcode, b])
+        );
+    }
+
+    // All shared opcodes must have identical shapes
+    const allOps = new Set(Object.keys(byOp[names[0]]));
+    for (let i = 1; i < names.length; i++) {
+        for (const op of allOps) {
+            const a = byOp[names[0]][op], b = byOp[names[i]][op];
+            if (!b) continue; // extra in one copy is ok
+            assert.strictEqual(a.blockType, b.blockType,
+                `stc12live ${op}: blockType mismatch between ${names[0]} and ${names[i]}`);
+            const aArgs = Object.entries(a.arguments || {}).sort(([x], [y]) => x.localeCompare(y));
+            const bArgs = Object.entries(b.arguments || {}).sort(([x], [y]) => x.localeCompare(y));
+            assert.deepStrictEqual(
+                aArgs.map(([k, v]) => [k, v.type, v.menu || null]),
+                bArgs.map(([k, v]) => [k, v.type, v.menu || null]),
+                `stc12live ${op}: argument shapes differ between ${names[0]} and ${names[i]}`
+            );
+        }
+    }
+
+    // Shared menus must agree on acceptReporters
+    for (let i = 1; i < names.length; i++) {
+        const menusA = copies[names[0]].menus || {};
+        const menusB = copies[names[i]].menus || {};
+        for (const name of Object.keys(menusA).filter(n => menusB[n])) {
+            assert.strictEqual(menusA[name].acceptReporters, menusB[name].acceptReporters,
+                `stc12live menu "${name}": acceptReporters mismatch`);
+        }
+    }
+});
