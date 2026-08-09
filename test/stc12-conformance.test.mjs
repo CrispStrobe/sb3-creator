@@ -27,7 +27,7 @@ function loadExtension(source) {
         BlockType: { COMMAND: 'command', REPORTER: 'reporter', BOOLEAN: 'boolean', HAT: 'hat' },
         ArgumentType: { STRING: 'string', NUMBER: 'number', BOOLEAN: 'boolean', COLOR: 'color' },
         extensions: { register(ext) { registered.push(ext); } },
-        vm: { runtime: { stc: { pins: [{ name: 'P1_0', activeLow: false }] } } }
+        vm: { runtime: { stc: { pins: [{ name: 'P1_0', activeLow: false }], ports: [], parts: [], tables: [{ name: 'font', values: [0x3F] }] } } }
     };
     const fn = new Function('Scratch', source);
     fn(Scratch);

@@ -798,6 +798,11 @@ class SB3Creator {
         if ((m = s.match(/^read\s+([A-Za-z_]\w*)$/i)) && this.stcPort(m[1])) {
             return B('stc12_readport', {}, { PORT: [this.stcPort(m[1]).name, null] });
         }
+        // TABLE lookup: table[index] — a constant byte from code-space flash.
+        if ((m = s.match(/^([A-Za-z_]\w*)\[(.+)\]$/)) && this.stcTable(m[1])) {
+            return B('stc12_tableindex', { INDEX: this.parseValue(m[2], context) },
+                { TABLE: [this.stcTable(m[1]).name, null] });
+        }
         // Circuit extension reporters (boundary B instruments).
         if ((m = s.match(/^voltage at\s+(.+)$/i))) {
             return B('circuit_nodevoltage', { NET: this.parseValue(m[1], context) });
@@ -975,10 +980,11 @@ class SB3Creator {
     // dialect (`stc_pseudocode.py`), which is this target's reference implementation
     // and test oracle — see generateC().
     stcConfig(project = this.project) {
-        if (!project.stc) project.stc = { device: 'stc12c5a60s2', clock: 11059200, pins: [], ports: [], parts: [] };
+        if (!project.stc) project.stc = { device: 'stc12c5a60s2', clock: 11059200, pins: [], ports: [], parts: [], tables: [] };
         const cfg = project.stc;
         if (!cfg.ports) cfg.ports = [];
         if (!cfg.parts) cfg.parts = [];
+        if (!cfg.tables) cfg.tables = [];
         return cfg;
     }
 
@@ -997,6 +1003,14 @@ class SB3Creator {
         if (!cfg || !cfg.ports || !name) return null;
         const lower = String(name).trim().toLowerCase();
         return cfg.ports.find((p) => p.name.toLowerCase() === lower) || null;
+    }
+
+    // A declared lookup table by name, or null.
+    stcTable(name) {
+        const cfg = this.project && this.project.stc;
+        if (!cfg || !cfg.tables || !name) return null;
+        const lower = String(name).trim().toLowerCase();
+        return cfg.tables.find((t) => t.name.toLowerCase() === lower) || null;
     }
 
     // A declared shift-register part by name, or null.
@@ -1122,6 +1136,41 @@ class SB3Creator {
                 latch: { port: Number(lp), bit: Number(lb) },
                 activeLow: /^low$/i.test(active || '')
             });
+            return true;
+        }
+        // TABLE <name> = <value>, <value>, ... — constant lookup table in code space.
+        // Values are bytes (0–255), separated by commas. Supports hex (0x3F) and
+        // binary (0b00111111) literals. The table rides in project.stc.tables and
+        // the C emitter puts it in __code flash.
+        if ((m = trimmed.match(/^TABLE\s+([A-Za-z_]\w*)\s*=\s*(.+)$/i))) {
+            const [, name, body] = m;
+            const cfg = this.stcConfig();
+            if (this.stcTable(name)) {
+                this.warn(lineIndex, `Table "${name}" declared twice`);
+                return true;
+            }
+            const values = [];
+            for (let item of body.split(',')) {
+                item = item.trim();
+                if (!item) continue;
+                let n;
+                if (/^0b[01]+$/i.test(item)) n = parseInt(item.slice(2), 2);
+                else n = Number(item.startsWith('0x') || item.startsWith('0X') ? item : item);
+                if (!Number.isFinite(n) || n !== Math.floor(n)) {
+                    this.warn(lineIndex, `"${item}" is not a constant; a TABLE holds numbers only`);
+                    return true;
+                }
+                if (n < 0 || n > 255) {
+                    this.warn(lineIndex, `${n} is outside 0–255; a TABLE holds bytes`);
+                    return true;
+                }
+                values.push(n);
+            }
+            if (!values.length) {
+                this.warn(lineIndex, `Table "${name}" is empty`);
+                return true;
+            }
+            cfg.tables.push({ name, values });
             return true;
         }
         return false;
@@ -1547,6 +1596,12 @@ class SB3Creator {
             return ret(block);
         }
         // ---- Circuit extension commands (boundary B) --------------------------------
+        if ((match = line.match(/^set control\s+(.+?)\s+to\s+(.+)$/i))) {
+            const { id, block } = cmd('circuit_setcontrol');
+            block[id].inputs.CONTROL = val(match[1]);
+            block[id].inputs.VALUE = val(match[2]);
+            return ret(block);
+        }
         if ((match = line.match(/^turn power\s+(on|off)$/i))) {
             const { id, block } = cmd('circuit_setpower');
             block[id].fields.STATE = [match[1].toLowerCase(), null];
@@ -2394,7 +2449,7 @@ class SB3Creator {
 
             // STC12 / 8051 target declarations (DEVICE / CLOCK / PIN / PORT / PART). Inert
             // for every other target; generateC() is the only consumer.
-            if (/^(DEVICE|CLOCK|PIN|PORT|PART)\b/i.test(trimmed) && this.parseStcDeclaration(trimmed, i)) {
+            if (/^(DEVICE|CLOCK|PIN|PORT|PART|TABLE)\b/i.test(trimmed) && this.parseStcDeclaration(trimmed, i)) {
                 i++; continue;
             }
 
@@ -2803,6 +2858,10 @@ class SB3Creator {
             for (const p of cfg.parts || []) {
                 out.push(`PART ${p.name} = 74HC595 data P${p.data.port}.${p.data.bit} clock P${p.clock.port}.${p.clock.bit} latch P${p.latch.port}.${p.latch.bit}${p.activeLow ? ' ACTIVE LOW' : ''}`);
             }
+            for (const t of cfg.tables || []) {
+                const vals = t.values.map((v) => `0x${v.toString(16).toUpperCase().padStart(2, '0')}`);
+                out.push(`TABLE ${t.name} = ${vals.join(', ')}`);
+            }
             out.push('');
         }
         for (const v of Object.values(stage.variables || {})) out.push(`GLOBAL ${v[0]}`);
@@ -2976,6 +3035,7 @@ class SB3Creator {
             // STC12 / 8051 pin read (digital level or ADC value).
             case 'stc12_read': return `read ${f('PIN')}`;
             case 'stc12_readport': return `read ${f('PORT')}`;
+            case 'stc12_tableindex': return `${f('TABLE')}[${v('INDEX')}]`;
             // circuit extension reporters
             case 'circuit_nodevoltage': return `voltage at ${v('NET')}`;
             case 'circuit_branchcurrent': return `current through ${v('PART')}`;
@@ -3177,7 +3237,7 @@ class SB3Creator {
                 return line(`print ${v('VALUE')}`);
             }
             // circuit extension commands
-            case 'circuit_setcontrol': return line(`set ${v('CONTROL')} to ${v('VALUE')}`);
+            case 'circuit_setcontrol': return line(`set control ${v('CONTROL')} to ${v('VALUE')}`);
             case 'circuit_setpower': return line(`turn power ${f('STATE')}`);
             case 'data_showlist': return line(`show list ${f('LIST')}`);
             case 'data_hidelist': return line(`hide list ${f('LIST')}`);
@@ -4222,6 +4282,13 @@ class SB3Creator {
                 const portCfg = this.project && this.project.stc && (this.project.stc.ports || []).find((p) => p.name.toLowerCase() === f('PORT').toLowerCase());
                 return portCfg ? `P${portCfg.port}` : `0 /* read ${this.cComment(f('PORT'))} */`;
             }
+            case 'stc12_tableindex': {
+                const tbl = this.stcTable(f('TABLE'));
+                const tName = tbl ? `bw_tab_${tbl.name}` : `bw_tab_${f('TABLE').toLowerCase()}`;
+                const len = tbl ? tbl.values.length : 0;
+                this._cUses.table = true;
+                return len ? `${tName}[bw_clamp(${v('INDEX')}, ${len - 1})]` : `${tName}[${v('INDEX')}]`;
+            }
             case 'argument_reporter_string_number':
             case 'argument_reporter_boolean': return this.cName(f('VALUE'));
             default: {
@@ -5174,6 +5241,8 @@ class SB3Creator {
             for (const w of this._cWarnings) out.push(`/* warning: ${this.cComment(w)} */`);
         }
 
+        const tables = (this.project && this.project.stc && this.project.stc.tables) || [];
+
         // The marker header: everything the flat C form cannot say for itself, stated by the
         // emitter instead of left to be inferred. Same device as `scratch.defblock(...)` /
         // `scratch.sprite(...)` in the Python and JS back ends, and for the same reason — it
@@ -5187,6 +5256,7 @@ class SB3Creator {
                 `device ${device}`,
                 `clock ${clock}`,
                 ...pins.map((p) => `pin ${p.name} P${p.port}.${p.bit} ${p.direction}${p.activeLow ? ' active-low' : ''}`),
+                ...tables.map((t) => `table ${t.name} ${t.values.length}`),
                 ...markVars, ...markProcs, ...markScripts,
                 // The yield map: `<task>_state == N` means "about to run this block". It is
                 // the only thing that turns a Level 1 position into something the block
@@ -5271,6 +5341,27 @@ class SB3Creator {
                 '    while (!(ADC_CONTR & 0x10)) ;                 /* wait for ADC_FLAG */',
                 '    ADC_CONTR &= ~0x10;                           /* clear it by hand */',
                 '    return ((unsigned int)ADC_RES << 2) | (ADC_RESL & 0x03);',
+                '}', '');
+        }
+
+        // Lookup tables: constant bytes in code space (__code flash).
+        // (tables was declared earlier, before the marker header that references it.)
+        if (tables.length) {
+            out.push('/* Lookup tables live in code space: flash is the abundant resource',
+                ' * here and RAM is not. `const __code` keeps them out of the 256 bytes',
+                ' * that matter. */');
+            const hex2 = (n) => '0x' + n.toString(16).toUpperCase().padStart(2, '0');
+            for (const t of tables) {
+                out.push(`static const __code unsigned char bw_tab_${t.name}[] = { ${t.values.map(hex2).join(', ')} };`);
+            }
+            out.push('', '/* A computed index is clamped rather than trusted. Reading past a',
+                ' * table means reading a random byte of flash and, on a display,',
+                ' * showing it — which looks like data rather than like a fault. */',
+                'static unsigned char bw_clamp(int i, unsigned char last)',
+                '{',
+                '    if (i < 0) return 0;',
+                '    if (i > (int)last) return last;',
+                '    return (unsigned char)i;',
                 '}', '');
         }
 
@@ -5497,7 +5588,8 @@ SB3Creator.RUNTIME_EXTENSIONS = {
             readport: { kind: 'reporter', method: 'readPort', args: ['PORT'], neutral: '0' },
             setpart: { kind: 'command', method: 'setPart', args: ['PART', 'VALUE'] },
             print: { kind: 'command', method: 'print', args: ['VALUE', 'MODE'] },
-            whenpin: { kind: 'hat', method: 'whenpin', args: ['PIN', 'EDGE'] }
+            whenpin: { kind: 'hat', method: 'whenpin', args: ['PIN', 'EDGE'] },
+            tableindex: { kind: 'reporter', method: 'tableIndex', args: ['TABLE', 'INDEX'], neutral: '0' }
         }
     },
     // The circuit extension — board instruments and controls (simulation-only reporters).

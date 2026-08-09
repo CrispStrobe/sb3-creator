@@ -1139,10 +1139,12 @@ test('circuit reporters parse, decompile, and round-trip', () => {
 test('circuit commands parse and round-trip', () => {
     const src = `SPRITE test:
   WHEN flag clicked:
+    set control "pot1" to 0.5
     turn power on
     turn power off`;
     const c = new SB3Creator();
     const dc = c.decompile(c.parse(src));
+    assert.match(dc, /set control "pot1" to 0\.5/);
     assert.match(dc, /turn power on/);
     assert.match(dc, /turn power off/);
     const dc2 = new SB3Creator().decompile(new SB3Creator().parse(dc));
@@ -1441,7 +1443,7 @@ test('stc12 blocks agree across gallery, bundled, and sb3-creator', async () => 
             BlockType: { COMMAND: 'command', REPORTER: 'reporter', BOOLEAN: 'Boolean', HAT: 'hat' },
             ArgumentType: { NUMBER: 'number', STRING: 'string', BOOLEAN: 'Boolean' },
             extensions: { register: (inst) => captured.push(inst), unsandboxed: true },
-            vm: { runtime: { stc: { pins: [{ name: 'led1' }] }, _stc12Pins: {} } }
+            vm: { runtime: { stc: { pins: [{ name: 'led1' }], ports: [], parts: [], tables: [{ name: 'font', values: [0x3F] }] }, _stc12Pins: {} } }
         };
         const ctx = vm.createContext({ Scratch: mockScratch, console });
         vm.runInContext(inner, ctx);
