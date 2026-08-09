@@ -1339,3 +1339,28 @@ test('the simulator driver refuses with a reason when no board is attached', () 
     assert.match(pyDriver, /resistance.*"needs the simulator"/);
     assert.match(pyDriver, /b\.resistance\(a, b_net\)/);
 });
+
+// ---- registry URL resolution: do the gallery URLs actually serve? --------
+// A registry entry is a claim about a URL. If the URL 404s, the editor silently
+// gets no extension — no blocks, no refusal, nothing. This check HEADs every
+// URL in the generated registry, skipped when offline (same probe as the oracle).
+
+import { RUNTIME_EXTENSION_URLS } from '../src/utils/runtimeRegistry.generated.js';
+
+const galleryReachable = await (async () => {
+    // Probe any CrispStrobe URL to check if Pages is up.
+    const probe = Object.values(RUNTIME_EXTENSION_URLS).find(u => u.includes('crispstrobe.github.io'));
+    if (!probe) return false;
+    try {
+        const r = await fetch(probe, { method: 'HEAD', signal: AbortSignal.timeout(5000) });
+        return r.ok;
+    } catch { return false; }
+})();
+if (!galleryReachable) console.log('\n⚠  registry URL checks SKIPPED — gallery unreachable\n');
+
+for (const [id, url] of Object.entries(RUNTIME_EXTENSION_URLS)) {
+    test(`registry URL resolves: ${id}`, { skip: galleryReachable ? false : 'gallery unreachable' }, async () => {
+        const r = await fetch(url, { method: 'HEAD', signal: AbortSignal.timeout(10000) });
+        assert.equal(r.status, 200, `${url} returned ${r.status}`);
+    });
+}

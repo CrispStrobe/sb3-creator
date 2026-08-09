@@ -57,15 +57,31 @@
       if (typeof window !== "undefined" && window.ReduxStore?.getState) {
         candidates.push(window.ReduxStore.getState().locales?.locale);
       }
-    } catch (e) { /* ignore */ }
-    try { candidates.push(localStorage.getItem("tw:language")); } catch (e) { /* ignore */ }
+    } catch (e) {
+      /* ignore */
+    }
+    try {
+      candidates.push(localStorage.getItem("tw:language"));
+    } catch (e) {
+      /* ignore */
+    }
     try {
       if (typeof Scratch !== "undefined" && Scratch.vm?.runtime?.getLocale) {
         candidates.push(Scratch.vm.runtime.getLocale());
       }
-    } catch (e) { /* ignore */ }
-    try { candidates.push(document.documentElement.lang); } catch (e) { /* ignore */ }
-    try { candidates.push(navigator.language); } catch (e) { /* ignore */ }
+    } catch (e) {
+      /* ignore */
+    }
+    try {
+      candidates.push(document.documentElement.lang);
+    } catch (e) {
+      /* ignore */
+    }
+    try {
+      candidates.push(navigator.language);
+    } catch (e) {
+      /* ignore */
+    }
     for (const c of candidates) {
       if (typeof c !== "string" || !c) continue;
       const lower = c.toLowerCase();
@@ -138,8 +154,10 @@
       // onBoardReady; we read it per-call so rebuilds are picked up without
       // a second handshake.
       /** @type {object | null} */
-      this._runtime = (typeof Scratch !== "undefined" && Scratch.vm && Scratch.vm.runtime)
-        ? Scratch.vm.runtime : null;
+      this._runtime =
+        typeof Scratch !== "undefined" && Scratch.vm && Scratch.vm.runtime
+          ? Scratch.vm.runtime
+          : null;
 
       // Display-rate cache.  Meter reporters read from here; the cache is
       // invalidated at ~60 Hz so the board is never called more than once
@@ -165,7 +183,9 @@
 
     /** The current Board, or null. Lazy read from vm.runtime.circuitBoard. */
     get board() {
-      return this._board || (this._runtime && this._runtime.circuitBoard) || null;
+      return (
+        this._board || (this._runtime && this._runtime.circuitBoard) || null
+      );
     }
 
     /** Explicitly attach a Board (overrides the runtime fallback). */
@@ -228,7 +248,10 @@
             blockType: Scratch.BlockType.REPORTER,
             text: t("circuit.tone"),
             arguments: {
-              PART: { type: Scratch.ArgumentType.STRING, defaultValue: "buzzer1" },
+              PART: {
+                type: Scratch.ArgumentType.STRING,
+                defaultValue: "buzzer1",
+              },
             },
           },
           "---",
@@ -237,7 +260,10 @@
             blockType: Scratch.BlockType.COMMAND,
             text: t("circuit.setcontrol"),
             arguments: {
-              CONTROL: { type: Scratch.ArgumentType.STRING, defaultValue: "pot1" },
+              CONTROL: {
+                type: Scratch.ArgumentType.STRING,
+                defaultValue: "pot1",
+              },
               VALUE: { type: Scratch.ArgumentType.NUMBER, defaultValue: 0 },
             },
           },
@@ -273,7 +299,8 @@
     // A real multimeter integrates and shows one number; so does this.
 
     _invalidateIfStale() {
-      const now = typeof performance !== "undefined" ? performance.now() : Date.now();
+      const now =
+        typeof performance !== "undefined" ? performance.now() : Date.now();
       if (now - this._lastSample >= 16) {
         this._cache = {};
         this._lastSample = now;
