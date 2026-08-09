@@ -1420,6 +1420,26 @@ class SB3Creator {
         if ((m = s.match(/^read\s+([A-Za-z_]\w*)$/i)) && this.stcPort(m[1])) {
             return push('stc12_readport', {}, { PORT: [this.stcPort(m[1]).name, null] });
         }
+        // Device predicates (boolean reporters)
+        // Device predicate: "<name> pressed?" — but NOT "key X pressed?" which is Scratch's own.
+        if ((m = s.match(/^"([^"]+)"\s+pressed\??$/i))) {
+            return push('devices_pressed', { BUTTON: this.parseValue(`"${m[1]}"`, context) });
+        }
+        if ((m = s.match(/^(.+?)\s+above\s+(.+)$/i))) {
+            return push('devices_above', { SENSOR: this.parseValue(m[1], context), THRESHOLD: this.parseValue(m[2], context) });
+        }
+        if ((m = s.match(/^(.+?)\s+closer than\s+(.+)$/i))) {
+            return push('devices_closer', { SENSOR: this.parseValue(m[1], context), DISTANCE: this.parseValue(m[2], context) });
+        }
+        if ((m = s.match(/^motion detected on\s+(.+)$/i))) {
+            return push('devices_motion', { SENSOR: this.parseValue(m[1], context) });
+        }
+        if ((m = s.match(/^(.+?)\s+tilted\??$/i))) {
+            return push('devices_tilted', { SENSOR: this.parseValue(m[1], context) });
+        }
+        if ((m = s.match(/^(.+?)\s+energised\??$/i)) || (m = s.match(/^(.+?)\s+energized\??$/i))) {
+            return push('devices_energised', { DEVICE: this.parseValue(m[1], context) });
+        }
         if ((m = s.match(/^touching color\s+(.+)$/i))) {
             const color = this.parseValue(m[1].trim(), context);
             return push('sensing_touchingcolor', { COLOR: color });
@@ -3507,6 +3527,13 @@ class SB3Creator {
             case 'planetemaths_contains': return `${v('STRING1')} contains ${v('STRING2')}`;
             case 'planetemaths_multiple': return `${v('NUM1')} is multiple of ${v('NUM2')}`;
             case 'arrays_contains': return `array ${v('NAME')} contains ${v('VALUE')}`;
+            // Device predicates
+            case 'devices_pressed': return `${v('BUTTON')} pressed?`;
+            case 'devices_above': return `${v('SENSOR')} above ${v('THRESHOLD')}`;
+            case 'devices_closer': return `${v('SENSOR')} closer than ${v('DISTANCE')}`;
+            case 'devices_motion': return `motion detected on ${v('SENSOR')}`;
+            case 'devices_tilted': return `${v('SENSOR')} tilted?`;
+            case 'devices_energised': return `${v('DEVICE')} energised?`;
             default: return this.drep(b, blocks);
         }
     }
@@ -6320,7 +6347,14 @@ SB3Creator.RUNTIME_EXTENSIONS = {
             // H-bridge / solenoid / general actuator control
             setdirection: { kind: 'command', method: 'setDirection', args: ['MOTOR', 'DIR'] },
             activate: { kind: 'command', method: 'activate', args: ['DEVICE'] },
-            deactivate: { kind: 'command', method: 'deactivate', args: ['DEVICE'] }
+            deactivate: { kind: 'command', method: 'deactivate', args: ['DEVICE'] },
+            // Predicates (boolean reporters)
+            pressed: { kind: 'boolean', method: 'pressed', args: ['BUTTON'], neutral: 'false' },
+            above: { kind: 'boolean', method: 'above', args: ['SENSOR', 'THRESHOLD'], neutral: 'false' },
+            closer: { kind: 'boolean', method: 'closer', args: ['SENSOR', 'DISTANCE'], neutral: 'false' },
+            motion: { kind: 'boolean', method: 'motion', args: ['SENSOR'], neutral: 'false' },
+            tilted: { kind: 'boolean', method: 'tilted', args: ['SENSOR'], neutral: 'false' },
+            energised: { kind: 'boolean', method: 'energised', args: ['DEVICE'], neutral: 'false' }
         }
     },
     // The generated entry from circuit.js provides the opcode shape and the gallery URL.

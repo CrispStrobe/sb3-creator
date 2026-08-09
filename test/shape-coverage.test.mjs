@@ -22,18 +22,18 @@ import assert from 'node:assert/strict';
 
 const SHAPE_MATRIX = {
     // --- MCU pins (stc12 extension) ---
-    button:       { command: null,                     reporter: 'stc12_read',      predicate: null,    hat: 'stc12_whenpin', need: { predicate: 'is <button> pressed? — hides active-low and debounce' } },
-    switch:       { command: null,                     reporter: 'stc12_read',      predicate: null,    hat: 'stc12_whenpin', need: { predicate: 'is <switch> on?' } },
+    button:       { command: null,                     reporter: 'stc12_read',      predicate: 'devices_pressed', hat: 'stc12_whenpin' },
+    switch:       { command: null,                     reporter: 'stc12_read',      predicate: 'devices_pressed', hat: 'stc12_whenpin' },
     led:          { command: 'stc12_setpin',            reporter: null,              predicate: null,    hat: null,            exempt: { reporter: 'LED state is set, not read', predicate: 'same', hat: 'same' } },
     buzzer:       { command: 'stc12_settone',           reporter: 'circuit_buzzertone', predicate: null, hat: null,            exempt: { predicate: 'frequency is a number, not a boolean', hat: 'not event-driven' } },
     potentiometer:{ command: null,                     reporter: 'stc12_read',      predicate: null,    hat: null,            need: { predicate: 'is <pot> above <n>? — threshold comparison', hat: 'when <pot> above <n>' } },
 
     // --- sensors ---
-    temp_sensor:  { command: null,                     reporter: 'devices_temperature', predicate: null, hat: null,           need: { predicate: '<sensor> above <n> degrees?', hat: 'when temperature above <n>' } },
-    ldr:          { command: null,                     reporter: 'devices_light',       predicate: null, hat: null,           need: { predicate: '<sensor> above <n>?', hat: 'when light above <n>' } },
-    ultrasonic:   { command: null,                     reporter: 'devices_distance',    predicate: null, hat: null,           need: { predicate: '<sensor> closer than <n>?', hat: 'when distance < <n>' } },
-    pir:          { command: null,                     reporter: null,                  predicate: null, hat: null,           need: { predicate: 'motion detected?', hat: 'when motion detected', reporter: 'motion level' } },
-    tilt_sensor:  { command: null,                     reporter: null,                  predicate: null, hat: null,           need: { predicate: 'tilted?', hat: 'when tilted' } },
+    temp_sensor:  { command: null,                     reporter: 'devices_temperature', predicate: 'devices_above', hat: null, need: { hat: 'when temperature above <n>' } },
+    ldr:          { command: null,                     reporter: 'devices_light',       predicate: 'devices_above', hat: null, need: { hat: 'when light above <n>' } },
+    ultrasonic:   { command: null,                     reporter: 'devices_distance',    predicate: 'devices_closer', hat: null, need: { hat: 'when distance < <n>' } },
+    pir:          { command: null,                     reporter: null,                  predicate: 'devices_motion', hat: null, need: { hat: 'when motion detected', reporter: 'motion level' } },
+    tilt_sensor:  { command: null,                     reporter: null,                  predicate: 'devices_tilted', hat: null, need: { hat: 'when tilted' } },
     flex_sensor:  { command: null,                     reporter: null,                  predicate: null, hat: null,           need: { reporter: 'flex level', predicate: 'flex above <n>?' } },
     force_sensor: { command: null,                     reporter: null,                  predicate: null, hat: null,           need: { reporter: 'force level', predicate: 'force above <n>?' } },
     phototransistor:{ command: null,                   reporter: null,                  predicate: null, hat: null,           need: { reporter: 'light level', predicate: 'light above <n>?' } },
@@ -42,8 +42,8 @@ const SHAPE_MATRIX = {
     // --- actuators ---
     servo:        { command: 'devices_setservo',        reporter: 'devices_servoangle', predicate: null, hat: null,           exempt: { predicate: 'angle is a number', hat: 'not event-driven' } },
     dc_motor:     { command: 'devices_setmotor',        reporter: null,                 predicate: null, hat: null,           need: { reporter: 'motor speed' } },
-    relay:        { command: 'devices_setrelay',        reporter: null,                 predicate: null, hat: null,           need: { reporter: 'relay state', predicate: 'is <relay> on?' } },
-    solenoid:     { command: 'devices_activate',        reporter: null,                 predicate: null, hat: null,           need: { reporter: 'solenoid state', predicate: 'is <solenoid> active?' } },
+    relay:        { command: 'devices_setrelay',        reporter: null,                 predicate: 'devices_energised', hat: null, need: { reporter: 'relay state' } },
+    solenoid:     { command: 'devices_activate',        reporter: null,                 predicate: 'devices_energised', hat: null, need: { reporter: 'solenoid state' } },
     h_bridge:     { command: 'devices_setdirection',    reporter: null,                 predicate: null, hat: null,           need: { reporter: 'motor direction' } },
 
     // --- displays ---
