@@ -1010,7 +1010,7 @@ class SB3Creator {
     // Parse a top-level DEVICE / CLOCK / PIN declaration. Returns true if the line was one.
     parseStcDeclaration(trimmed, lineIndex) {
         let m;
-        if ((m = trimmed.match(/^DEVICE\s+([\w-]+)$/i))) {
+        if ((m = trimmed.match(/^DEVICE\s+([\w-]+):?$/i))) {
             const device = m[1].toLowerCase();
             if (!SB3Creator.STC_PARTS[device]) {
                 this.warn(lineIndex, `Unknown DEVICE "${m[1]}"; known: ${Object.keys(SB3Creator.STC_PARTS).sort().join(', ')}`);
@@ -1845,8 +1845,18 @@ class SB3Creator {
         }
 
         // ---- Control ---------------------------------------------------------------
-        if ((match = line.match(/^wait\s+(.+)\s+seconds?$/i))) {
-            const { id, block } = cmd('control_wait'); block[id].inputs.DURATION = val(match[1]); return ret(block);
+        if ((match = line.match(/^wait\s+(.+?)\s+(seconds?|secs?|s|ms|milliseconds?)$/i))) {
+            const { id, block } = cmd('control_wait');
+            const unit = match[2].toLowerCase();
+            // Scratch stores duration in seconds; convert ms.
+            if (unit === 'ms' || unit.startsWith('millisecond')) {
+                const raw = match[1].trim();
+                const n = Number(raw);
+                block[id].inputs.DURATION = Number.isFinite(n) ? val(String(n / 1000)) : val(`${raw} / 1000`);
+            } else {
+                block[id].inputs.DURATION = val(match[1]);
+            }
+            return ret(block);
         }
         if ((match = line.match(/^wait until\s+(.+)$/i))) {
             const { id, block } = cmd('control_wait_until');
