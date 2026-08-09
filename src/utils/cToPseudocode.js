@@ -209,7 +209,13 @@ class ExprParser {
     }
 
     unary () {
-        if (this.c.eat('!')) { const x = this.unary(); return { text: `not ${wrap(x, 99)}`, level: 99 }; }
+        if (this.c.eat('!')) {
+            const x = this.unary();
+            // Collapse `!(!expr)` → expr. Arises from active-low pins: `!P1_0` = `not read led`,
+            // `!(!P1_0)` should be `read led`, not `not not read led`.
+            if (x.text.startsWith('not ')) return { text: x.text.slice(4), level: x.level };
+            return { text: `not ${wrap(x, 99)}`, level: 99 };
+        }
         if (this.c.eat('~')) { const x = this.unary(); return { text: `bitnot ${wrap(x, 99)}`, level: 99 }; }
         if (this.c.eat('-')) { const x = this.unary(); return { text: `-${wrap(x, 99)}`, level: 99 }; }
         if (this.c.eat('+')) return this.unary();
@@ -438,7 +444,7 @@ export default function cToPseudocode (source, opts = {}) {
             if (/^-?\d+$/.test(lit)) return lit;
             if (/^0x[0-9a-f]+$/i.test(lit)) return String(parseInt(lit, 16));
             const pin = byName.get(id) || pins.get(lit);
-            if (pin) return `read ${pin.name}`;
+            if (pin) return pin.activeLow ? `not read ${pin.name}` : `read ${pin.name}`;
             const n = varName(id);
             usedVars.add(n);
             return n;
@@ -790,9 +796,20 @@ export default function cToPseudocode (source, opts = {}) {
     const origReadCall = ctx.readCall;
     ctx.readCall = (name, args) => {
         if (DELAYS.has(name)) {
-            const ms = Number(args[0] ? args[0].text : 0);
-            const secs = Number.isFinite(ms) ? +(ms / 1000).toFixed(6) : null;
-            return { text: '0', level: 99, stmt: secs === null ? `wait ${args[0].text} ms` : `wait ${secs} seconds` };
+            const argText = args[0] ? args[0].text : '0';
+            const ms = Number(argText);
+            if (Number.isFinite(ms)) {
+                const secs = +(ms / 1000).toFixed(6);
+                return { text: '0', level: 99, stmt: `wait ${secs} seconds` };
+            }
+            // The emitter writes `delay_ms((unsigned int)((secs) * 1000))` for a
+            // variable wait. Detect `(EXPR) * 1000` and recover `wait EXPR seconds`.
+            const mulMatch = argText.match(/^\((.+)\) \* 1000$/);
+            if (mulMatch) return { text: '0', level: 99, stmt: `wait ${mulMatch[1]} seconds` };
+            // Also handle `EXPR * 1000` without outer parens.
+            const mulMatch2 = argText.match(/^(.+) \* 1000$/);
+            if (mulMatch2) return { text: '0', level: 99, stmt: `wait (${mulMatch2[1]}) seconds` };
+            return { text: '0', level: 99, stmt: `wait ${argText} ms` };
         }
         if (SETUP.has(name) || name === '_nop_' || name === 'NOP' || name === '__nop') return { text: '0', level: 99, stmt: null };
         if (markers && markers.procs.has(name)) {

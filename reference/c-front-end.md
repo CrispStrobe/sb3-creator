@@ -68,6 +68,12 @@ Proc parameter names are recovered from the C function signature.
 lines before the `WHEN flag clicked:` hat. Single-script comments inside `main()` (after
 `bw_setup()`) are also recovered. This closes the device C round-trip for comments.
 
+### Known emitter limitation
+
+In multi-script programs, the emitter only places `//` comments before the **first** task
+function. Comments on the second and subsequent scripts are lost by `generateC`, not by
+the reader. The round-trip is consistent (a fixed point) because neither hop has the comment.
+
 ## Open defects (6, characterised 2026-08-09)
 
 | # | file | construct | class | fixable? |
