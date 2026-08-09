@@ -99,7 +99,25 @@ WHEN flag clicked:
     wait 0.25 seconds
 `;
 
+// LED cube: the scan kernel + frame helpers must compile.
+const CUBE = `DEVICE STC12C5A60S2
+CLOCK 11059200
+LEDCUBE 4
+
+WHEN flag clicked:
+  clear cube
+  set voxel 0 0 0 to 1
+  set voxel 3 3 3 to 1
+  fill layer 2 with 1
+  hold frame for 500 ms
+  shift cube up
+  hold frame for 500 ms
+`;
+
 const FIXTURES = { BLINK, SCHEDULED, STC89, STC15 };
+// CUBE is tested by the oracle separately — it has no PINs, so it doesn't
+// belong in FIXTURES (which the round-trip test asserts contains PIN lines).
+const ORACLE_FIXTURES = { ...FIXTURES, CUBE };
 
 // ---- the block surface: parse + round-trip --------------------------------------
 
@@ -500,7 +518,7 @@ const oracleSkip = !ORACLE ? 'STC_COMPILER_URL=off — oracle tests disabled'
     : !oracleReachable ? `stc-compiler unreachable (${ORACLE})`
         : false;
 
-for (const [name, src] of Object.entries(FIXTURES)) {
+for (const [name, src] of Object.entries(ORACLE_FIXTURES)) {
     test(`oracle: ${name} compiles with SDCC`, { skip: oracleSkip }, async () => {
         const creator = build(src);
         const code = creator.generateC();

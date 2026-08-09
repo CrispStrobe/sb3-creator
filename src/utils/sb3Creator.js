@@ -5311,6 +5311,11 @@ class SB3Creator {
             }
         });
         this._curPrefix = ''; this._curLocals = null;
+        // The cube scan kernel needs delay_ms unconditionally — it is a blocking
+        // per-line dwell, not a scheduler wait. Flag it so the assembly emits it
+        // even when the scheduler is active (which normally suppresses delay_ms
+        // in favour of the ISR-based bw_now/bw_block_ms).
+        if (this._cUses.cube) this._cUses.cubeDelay = true;
         if (this._cUses.adc && !chip.adc) this.cWarn(`ANALOG pins need an ADC, and the ${device} has none`);
 
         // ---- assemble ----------------------------------------------------------------
@@ -5434,6 +5439,25 @@ class SB3Creator {
                 '    }',
                 '}', '');
         }
+        // The cube scan kernel always needs delay_ms (blocking per-line dwell).
+        // The normal path emits it only when !_cTasks && _cUses.delay; if the
+        // scheduler is active (or no wait blocks exist), it was not emitted.
+        const delayAlreadyEmitted = !this._cTasks && this._cUses.delay;
+        if (this._cUses.cubeDelay && !delayAlreadyEmitted) {
+            out.push('/* Blocking delay for the cube scan kernel (per-line dwell). */',
+                'static void delay_ms(unsigned int ms)',
+                '{',
+                '    while (ms--) {',
+                '        TL0 = (unsigned char)(T0_RELOAD & 0xFF);',
+                '        TH0 = (unsigned char)(T0_RELOAD >> 8);',
+                '        TF0 = 0;',
+                '        TR0 = 1;',
+                '        while (!TF0) ;',
+                '        TR0 = 0;',
+                '        TF0 = 0;',
+                '    }',
+                '}', '');
+        }
 
         if (this._cUses.adc) {
             out.push('/* 10-bit ADC, polled. Channel n is on P1.n; the channel is selected and the',
@@ -5478,10 +5502,11 @@ class SB3Creator {
             const S = cube.selects;
             out.push(`/* LED cube: ${cube.size}x${cube.size}x${cube.size}, ${S} select lines, multiplex scan.`,
                 ' *',
-                ' * P0 POLARITY — UNVERIFIED.  Set to 1 for active-high (P0 bit = 1 lights',
-                ' * a voxel, P0 = 0x00 blanks), 0 for active-low (inverted).  Only a real',
-                ' * cube can settle this — see stc/src/20-ledcube/README.md.  Changing this',
-                ' * one constant flips every frame, clear, fill and blank in the kernel. */',
+                ' * P0 POLARITY — ACTIVE-HIGH.  Measured: emu8051-stc Finding #14, P0',
+                ' * value histogram over 5 s of vendor firmware, zero exceptions in 3,930+',
+                ' * writes (0x00 always blank, 0xFF always data).  Not yet confirmed on',
+                ' * silicon — probe.c on a real cube is the definitive check.  Changing',
+                ' * this one constant flips every frame, clear, fill and blank. */',
                 '#define BW_CUBE_ACTIVE_HIGH 1',
                 `#define BW_CUBE_BLANK  (BW_CUBE_ACTIVE_HIGH ? 0x00 : 0xFF)`,
                 `#define BW_CUBE_FILL   (BW_CUBE_ACTIVE_HIGH ? 0xFF : 0x00)`,
