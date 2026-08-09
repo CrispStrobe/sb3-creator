@@ -212,6 +212,11 @@ class SB3Creator {
         if (mode === 'simulator' && extId === 'stc12' && this._driverPins) {
             return this.stc12SimulatorDriver(lang, this._driverPins);
         }
+        // The circuit extension talks directly to the board (boundary B).
+        // Meter reporters sample at display rate (~60 Hz), not per edge.
+        if (mode === 'simulator' && extId === 'circuit') {
+            return this.circuitSimulatorDriver(lang);
+        }
         const banner = {
             shim: 'neutral stub — drives nothing; implement to drive real hardware',
             simulator: 'simulated board — no board attached for this runtime, so neutral',
@@ -307,6 +312,18 @@ class SB3Creator {
                 '        # An ANALOG pin reads volts from the board; the MCU scales to counts.',
                 '        if p["dir"] == "analog": return int(_board().readAnalog(p["pin"]) / 5.0 * 1023)',
                 '        return (not _board().readPin(p["pin"])) if p["low"] else _board().readPin(p["pin"])',
+                '    def setPwm(self, name, value):',
+                '        p = self._p(name)',
+                '        if p and _board(): _board().setPwm(p["pin"], int(value))',
+                '    def setTone(self, name, value):',
+                '        p = self._p(name)',
+                '        if p and _board(): _board().setTone(p["pin"], int(value))',
+                '    def setPort(self, name, value): pass  # TODO: whole-port sim',
+                '    def readPort(self, name): return 0  # TODO: whole-port sim',
+                '    def setPart(self, name, value): pass  # TODO: shift-register sim',
+                '    def print(self, value, mode):',
+                '        if mode == "text": print(value)',
+                '        else: print(int(value))',
                 '    def on(self, event, handler): pass',
                 'def _board(): return globals().get("bw_board")',
                 '_stc12 = _Stc12Simulated()',
@@ -337,6 +354,14 @@ class SB3Creator {
             '        // An ANALOG pin reads volts from the board; the MCU scales to counts.',
             '        if (p.dir === "analog") return Math.round(b.readAnalog(p.pin) / 5.0 * 1023);',
             '        return p.low ? (b.readPin(p.pin) ? 0 : 1) : b.readPin(p.pin); },',
+            '    setPwm: (name, v) => { const p = _stc12_pins[name], b = _board();',
+            '        if (p && b && b.setPwm) b.setPwm(p.pin, Number(v)); },',
+            '    setTone: (name, v) => { const p = _stc12_pins[name], b = _board();',
+            '        if (p && b && b.setTone) b.setTone(p.pin, Number(v)); },',
+            '    setPort: (name, v) => {},',  // TODO: whole-port sim
+            '    readPort: (name) => 0,',     // TODO: whole-port sim
+            '    setPart: (name, v) => {},',   // TODO: shift-register sim
+            '    print: (v, mode) => { console.log(mode === "text" ? v : Number(v)); },',
             '    on: (event, handler) => {}',
             '};',
             '',
@@ -346,6 +371,53 @@ class SB3Creator {
             'scratch.wait = (secs) => { _bw_t += BigInt(Math.round(Number(secs) * 1e9));',
             '    const b = _board(); if (b) b.advanceTo(_bw_t); };',
             'const _bw_now_ns = () => _bw_t;'
+        ];
+    }
+
+    // The circuit extension driver — boundary B exposed to Python/JS. Meter reporters
+    // sample at display rate (~60 Hz), not per edge (measured constraint from bw-board).
+    circuitSimulatorDriver(lang) {
+        if (lang === 'py') {
+            return [
+                '# _circuit driver — board instruments (boundary B). Supply `bw_board` to attach one.',
+                'class _CircuitSimulated:',
+                '    def nodeVoltage(self, net):',
+                '        b = _board()',
+                '        return b.nodeVoltage(net) if b else 0',
+                '    def branchCurrent(self, part):',
+                '        b = _board()',
+                '        return b.branchCurrent(part, "a") if b else 0',
+                '    def resistance(self, a, b_net):',
+                '        b = _board()',
+                '        return b.resistance(a, b_net) if b else "requires-power-off"',
+                '    def ledBrightness(self, part):',
+                '        b = _board()',
+                '        return b.ledBrightness(part) if b else 0',
+                '    def buzzerTone(self, part):',
+                '        b = _board()',
+                '        r = b.buzzerTone(part) if b else {"hz": 0, "on": False}',
+                '        return r.get("hz", 0) if r.get("on") else 0',
+                '    def setControl(self, control, value):',
+                '        b = _board()',
+                '        if b: b.setControl(control, float(value))',
+                '    def setPower(self, state):',
+                '        b = _board()',
+                '        if b: b.setPower(state == "on")',
+                '_circuit = _CircuitSimulated()'
+            ];
+        }
+        return [
+            '// _circuit driver — board instruments (boundary B). Supply `bwBoard` to attach one.',
+            'const _circuit = {',
+            '    nodeVoltage: (net) => { const b = _board(); return b ? b.nodeVoltage(net) : 0; },',
+            '    branchCurrent: (part) => { const b = _board(); return b ? b.branchCurrent(part, "a") : 0; },',
+            '    resistance: (a, bNet) => { const b = _board(); return b ? b.resistance(a, bNet) : "requires-power-off"; },',
+            '    ledBrightness: (part) => { const b = _board(); return b ? b.ledBrightness(part) : 0; },',
+            '    buzzerTone: (part) => { const b = _board(); if (!b) return 0;',
+            '        const r = b.buzzerTone(part); return r && r.on ? r.hz : 0; },',
+            '    setControl: (control, v) => { const b = _board(); if (b) b.setControl(control, Number(v)); },',
+            '    setPower: (state) => { const b = _board(); if (b) b.setPower(state === "on"); }',
+            '};'
         ];
     }
 
@@ -717,6 +789,26 @@ class SB3Creator {
         if ((m = s.match(/^read\s+([A-Za-z_]\w*)$/i)) && this.stcPin(m[1])) {
             return B('stc12_read', {}, { PIN: [this.stcPin(m[1]).name, null] });
         }
+        // STC12 port read: the whole 8-bit port value.
+        if ((m = s.match(/^read\s+([A-Za-z_]\w*)$/i)) && this.stcPort(m[1])) {
+            return B('stc12_readport', {}, { PORT: [this.stcPort(m[1]).name, null] });
+        }
+        // Circuit extension reporters (boundary B instruments).
+        if ((m = s.match(/^voltage at\s+(.+)$/i))) {
+            return B('circuit_nodevoltage', { NET: this.parseValue(m[1], context) });
+        }
+        if ((m = s.match(/^current through\s+(.+)$/i))) {
+            return B('circuit_branchcurrent', { PART: this.parseValue(m[1], context) });
+        }
+        if ((m = s.match(/^resistance between\s+(.+?)\s+and\s+(.+)$/i))) {
+            return B('circuit_resistance', { A: this.parseValue(m[1], context), B: this.parseValue(m[2], context) });
+        }
+        if ((m = s.match(/^brightness of\s+(.+)$/i))) {
+            return B('circuit_ledbrightness', { PART: this.parseValue(m[1], context) });
+        }
+        if ((m = s.match(/^tone of\s+(.+)$/i))) {
+            return B('circuit_buzzertone', { PART: this.parseValue(m[1], context) });
+        }
 
         if ((m = s.match(/^pick random\s+(.+)$/i))) {
             const parts = this.splitBinary(m[1], [' to '], { ci: true });
@@ -878,8 +970,11 @@ class SB3Creator {
     // dialect (`stc_pseudocode.py`), which is this target's reference implementation
     // and test oracle — see generateC().
     stcConfig(project = this.project) {
-        if (!project.stc) project.stc = { device: 'stc12c5a60s2', clock: 11059200, pins: [] };
-        return project.stc;
+        if (!project.stc) project.stc = { device: 'stc12c5a60s2', clock: 11059200, pins: [], ports: [], parts: [] };
+        const cfg = project.stc;
+        if (!cfg.ports) cfg.ports = [];
+        if (!cfg.parts) cfg.parts = [];
+        return cfg;
     }
 
     // A declared pin by name (case-insensitive), or null. Pin commands only claim a line
@@ -889,6 +984,22 @@ class SB3Creator {
         if (!cfg || !name) return null;
         const lower = String(name).trim().toLowerCase();
         return cfg.pins.find((p) => p.name.toLowerCase() === lower) || null;
+    }
+
+    // A declared whole-port by name, or null.
+    stcPort(name) {
+        const cfg = this.project && this.project.stc;
+        if (!cfg || !cfg.ports || !name) return null;
+        const lower = String(name).trim().toLowerCase();
+        return cfg.ports.find((p) => p.name.toLowerCase() === lower) || null;
+    }
+
+    // A declared shift-register part by name, or null.
+    stcPart(name) {
+        const cfg = this.project && this.project.stc;
+        if (!cfg || !cfg.parts || !name) return null;
+        const lower = String(name).trim().toLowerCase();
+        return cfg.parts.find((p) => p.name.toLowerCase() === lower) || null;
     }
 
     // Parse a top-level DEVICE / CLOCK / PIN declaration. Returns true if the line was one.
@@ -908,7 +1019,7 @@ class SB3Creator {
             this.stcConfig().clock = /^mhz$/i.test(m[2] || '') ? value * 1000000 : value;
             return true;
         }
-        if ((m = trimmed.match(/^PIN\s+([A-Za-z_]\w*)\s*=\s*P([0-4])\.([0-7])\s+(OUTPUT|INPUT|ANALOG)(?:\s+ACTIVE\s+(LOW|HIGH))?$/i))) {
+        if ((m = trimmed.match(/^PIN\s+([A-Za-z_]\w*)\s*=\s*P([0-4])\.([0-7])\s+(OUTPUT|INPUT|ANALOG|PWM|TONE)(?:\s+ACTIVE\s+(LOW|HIGH))?$/i))) {
             const [, name, port, bit, direction, active] = m;
             const cfg = this.stcConfig();
             if (this.stcPin(name)) {
@@ -920,11 +1031,90 @@ class SB3Creator {
                 this.warn(lineIndex, `ANALOG is only available on P1.0-P1.7 (ADC0-ADC7), not P${port}.${bit}`);
                 return true;
             }
+            // PORT conflict: a PIN inside a declared PORT would be clobbered by every
+            // port write, and neither declaration looks wrong on its own.
+            if (cfg.ports.some((w) => w.port === Number(port))) {
+                const conflict = cfg.ports.find((w) => w.port === Number(port));
+                this.warn(lineIndex, `P${port} is already declared as the whole port "${conflict.name}"; a PORT write covers all eight bits and would clobber P${port}.${bit}`);
+                return true;
+            }
             cfg.pins.push({
                 name,
                 port: Number(port),
                 bit: Number(bit),
                 direction: direction.toLowerCase(),
+                activeLow: /^low$/i.test(active || '')
+            });
+            return true;
+        }
+        // PORT <name> = P<n> OUTPUT|INPUT [ACTIVE LOW|HIGH]
+        if ((m = trimmed.match(/^PORT\s+([A-Za-z_]\w*)\s*=\s*P([0-4])\s+(OUTPUT|INPUT)(?:\s+ACTIVE\s+(LOW|HIGH))?$/i))) {
+            const [, name, port, direction, active] = m;
+            const cfg = this.stcConfig();
+            const portNum = Number(port);
+            if (this.stcPort(name) || this.stcPin(name) || this.stcPart(name)) {
+                this.warn(lineIndex, `"${name}" declared twice`);
+                return true;
+            }
+            // Conflict: a PIN already uses a bit on this port.
+            const conflict = cfg.pins.find((p) => p.port === portNum);
+            if (conflict) {
+                this.warn(lineIndex, `P${port} is already used one bit at a time, by "${conflict.name}" (P${conflict.port}.${conflict.bit}); a PORT writes all eight at once and would clobber it`);
+                return true;
+            }
+            // Two PORTs on the same physical port.
+            if (cfg.ports.some((p) => p.port === portNum)) {
+                this.warn(lineIndex, `P${port} is already declared as "${cfg.ports.find((p) => p.port === portNum).name}"`);
+                return true;
+            }
+            cfg.ports.push({
+                name,
+                port: portNum,
+                direction: direction.toLowerCase(),
+                activeLow: /^low$/i.test(active || '')
+            });
+            return true;
+        }
+        // PART <name> = 74HC595 data P<p>.<b> clock P<p>.<b> latch P<p>.<b> [ACTIVE LOW|HIGH]
+        if ((m = trimmed.match(/^PART\s+([A-Za-z_]\w*)\s*=\s*74HC595\s+data\s+P([0-4])\.([0-7])\s+clock\s+P([0-4])\.([0-7])\s+latch\s+P([0-4])\.([0-7])(?:\s+ACTIVE\s+(LOW|HIGH))?$/i))) {
+            const [, name, dp, db, cp, cb, lp, lb, active] = m;
+            const cfg = this.stcConfig();
+            if (this.stcPin(name) || this.stcPort(name) || this.stcPart(name)) {
+                this.warn(lineIndex, `"${name}" declared twice`);
+                return true;
+            }
+            const claims = [[Number(dp), Number(db)], [Number(cp), Number(cb)], [Number(lp), Number(lb)]];
+            const claimSet = new Set(claims.map(([p, b]) => `${p}.${b}`));
+            if (claimSet.size !== 3) {
+                this.warn(lineIndex, `"${name}" names the same pin twice; data, clock and latch must be three different pins`);
+                return true;
+            }
+            // Check conflicts with existing PINs, PORTs, PARTs.
+            for (const [p, b] of claims) {
+                const pinConflict = cfg.pins.find((pin) => pin.port === p && pin.bit === b);
+                if (pinConflict) {
+                    this.warn(lineIndex, `P${p}.${b} is already declared as "${pinConflict.name}"; a PART claims its pins`);
+                    return true;
+                }
+                const portConflict = cfg.ports.find((w) => w.port === p);
+                if (portConflict) {
+                    this.warn(lineIndex, `P${p}.${b} is inside the whole port "${portConflict.name}", which would clobber it`);
+                    return true;
+                }
+                for (const prev of cfg.parts) {
+                    if (prev.claims.some(([pp, pb]) => pp === p && pb === b)) {
+                        this.warn(lineIndex, `P${p}.${b} is already claimed by "${prev.name}"`);
+                        return true;
+                    }
+                }
+            }
+            cfg.parts.push({
+                name,
+                type: '74hc595',
+                claims,
+                data: { port: Number(dp), bit: Number(db) },
+                clock: { port: Number(cp), bit: Number(cb) },
+                latch: { port: Number(lp), bit: Number(lb) },
                 activeLow: /^low$/i.test(active || '')
             });
             return true;
@@ -986,6 +1176,9 @@ class SB3Creator {
         // A bare `read <pin>` used as a condition is the pin's level (active-low aware).
         if ((m = s.match(/^read\s+([A-Za-z_]\w*)$/i)) && this.stcPin(m[1])) {
             return push('stc12_read', {}, { PIN: [this.stcPin(m[1]).name, null] });
+        }
+        if ((m = s.match(/^read\s+([A-Za-z_]\w*)$/i)) && this.stcPort(m[1])) {
+            return push('stc12_readport', {}, { PORT: [this.stcPort(m[1]).name, null] });
         }
         if ((m = s.match(/^touching color\s+(.+)$/i))) {
             const color = this.parseValue(m[1].trim(), context);
@@ -1238,6 +1431,16 @@ class SB3Creator {
             || /^when\s+powered\s+on$/i.test(line)) {
             return { block: this.createBlock('event_whenflagclicked', { topLevel: true }).block, extraBlocks: {} };
         }
+        // STC12 event hat: `when <pin> pressed` / `when <pin> released` for INPUT pins.
+        if ((match = line.match(/^when\s+([A-Za-z_]\w*)\s+(pressed|released)$/i)) && this.stcPin(match[1])) {
+            const pin = this.stcPin(match[1]);
+            if (pin.direction === 'input') {
+                const { id, block } = this.createBlock('stc12_whenpin', { topLevel: true });
+                block[id].fields.PIN = [pin.name, null];
+                block[id].fields.EDGE = [match[2].toLowerCase(), null];
+                return { block, extraBlocks: {} };
+            }
+        }
 
         // Nothing above matched a line that arrived as `WHEN ...:`. Falling through
         // to statement parsing is what made an unknown hat silently drop its entire
@@ -1263,6 +1466,29 @@ class SB3Creator {
         if ((match = line.match(/^set\s+([A-Za-z_]\w*)\s+(high|low)$/i)) && this.stcPin(match[1])) {
             return stcSet(this.stcPin(match[1]), match[2].toLowerCase());
         }
+        // `set <pin> to <n> percent` — PWM duty cycle. Must match BEFORE the generic
+        // `set <pin> to <expr>` (writepin) below.
+        if ((match = line.match(/^set\s+([A-Za-z_]\w*)\s+to\s+(.+?)\s*(?:percent|%)$/i)) && this.stcPin(match[1])) {
+            const pin = this.stcPin(match[1]);
+            if (pin.direction !== 'pwm') {
+                this.warn(null, `"${pin.name}" is a ${pin.direction.toUpperCase()} pin; only a PWM pin takes a percentage`);
+            }
+            const { id, block } = cmd('stc12_setpwm');
+            block[id].fields.PIN = [pin.name, null];
+            block[id].inputs.VALUE = val(match[2]);
+            return ret(block);
+        }
+        // `set <pin> to <n> hz` — tone frequency. Must match BEFORE the generic writepin.
+        if ((match = line.match(/^set\s+([A-Za-z_]\w*)\s+to\s+(.+?)\s*(?:hz|hertz)$/i)) && this.stcPin(match[1])) {
+            const pin = this.stcPin(match[1]);
+            if (pin.direction !== 'tone') {
+                this.warn(null, `"${pin.name}" is a ${pin.direction.toUpperCase()} pin; only a TONE pin takes a frequency`);
+            }
+            const { id, block } = cmd('stc12_settone');
+            block[id].fields.PIN = [pin.name, null];
+            block[id].inputs.VALUE = val(match[2]);
+            return ret(block);
+        }
         // `set <pin> to <expr>` writes a computed LEVEL. Distinct from `turn on/off`, which
         // are states and respect ACTIVE LOW; a level is a level, exactly like `set high`.
         // Placed before the generic variable assignment (and before motion's `set x to`) so a
@@ -1277,6 +1503,42 @@ class SB3Creator {
             const { id, block } = this.createBlock('stc12_toggle');
             block[id].fields.PIN = [this.stcPin(match[1]).name, null];
             return { block, extraBlocks: {} };
+        }
+        // ---- STC12 / 8051 PORT and PART commands ------------------------------------
+        // `set <port> to <n>` — writes the whole 8-bit port at once.
+        if ((match = line.match(/^set\s+([A-Za-z_]\w*)\s+to\s+(.+)$/i)) && this.stcPort(match[1])) {
+            const port = this.stcPort(match[1]);
+            const { id, block } = cmd('stc12_setport');
+            block[id].fields.PORT = [port.name, null];
+            block[id].inputs.VALUE = val(match[2]);
+            return ret(block);
+        }
+        // `set <part> to <n>` — shifts a byte out to a 74HC595.
+        if ((match = line.match(/^set\s+([A-Za-z_]\w*)\s+to\s+(.+)$/i)) && this.stcPart(match[1])) {
+            const part = this.stcPart(match[1]);
+            const { id, block } = cmd('stc12_setpart');
+            block[id].fields.PART = [part.name, null];
+            block[id].inputs.VALUE = val(match[2]);
+            return ret(block);
+        }
+        // ---- STC12 / 8051 print (program-wide, no declaration needed) ---------------
+        if ((match = line.match(/^print\s+"([^"]*)"\s*$/i))) {
+            const { id, block } = cmd('stc12_print');
+            block[id].inputs.VALUE = [1, [10, match[1]]];
+            block[id].fields.MODE = ['text', null];
+            return ret(block);
+        }
+        if ((match = line.match(/^print\s+(.+)$/i))) {
+            const { id, block } = cmd('stc12_print');
+            block[id].inputs.VALUE = val(match[1]);
+            block[id].fields.MODE = ['number', null];
+            return ret(block);
+        }
+        // ---- Circuit extension commands (boundary B) --------------------------------
+        if ((match = line.match(/^turn power\s+(on|off)$/i))) {
+            const { id, block } = cmd('circuit_setpower');
+            block[id].fields.STATE = [match[1].toLowerCase(), null];
+            return ret(block);
         }
 
         // ---- Arrays & Vectors extension commands (anchored on `array "NAME"`; 0-based) ----
@@ -2108,9 +2370,9 @@ class SB3Creator {
                 i++; continue;
             }
 
-            // STC12 / 8051 target declarations (DEVICE / CLOCK / PIN). Inert for every
-            // other target; generateC() is the only consumer.
-            if (/^(DEVICE|CLOCK|PIN)\b/i.test(trimmed) && this.parseStcDeclaration(trimmed, i)) {
+            // STC12 / 8051 target declarations (DEVICE / CLOCK / PIN / PORT / PART). Inert
+            // for every other target; generateC() is the only consumer.
+            if (/^(DEVICE|CLOCK|PIN|PORT|PART)\b/i.test(trimmed) && this.parseStcDeclaration(trimmed, i)) {
                 i++; continue;
             }
 
@@ -2513,6 +2775,12 @@ class SB3Creator {
             for (const p of cfg.pins || []) {
                 out.push(`PIN ${p.name} = P${p.port}.${p.bit} ${p.direction.toUpperCase()}${p.activeLow ? ' ACTIVE LOW' : ''}`);
             }
+            for (const p of cfg.ports || []) {
+                out.push(`PORT ${p.name} = P${p.port} ${p.direction.toUpperCase()}${p.activeLow ? ' ACTIVE LOW' : ''}`);
+            }
+            for (const p of cfg.parts || []) {
+                out.push(`PART ${p.name} = 74HC595 data P${p.data.port}.${p.data.bit} clock P${p.clock.port}.${p.clock.bit} latch P${p.latch.port}.${p.latch.bit}${p.activeLow ? ' ACTIVE LOW' : ''}`);
+            }
             out.push('');
         }
         for (const v of Object.values(stage.variables || {})) out.push(`GLOBAL ${v[0]}`);
@@ -2685,6 +2953,13 @@ class SB3Creator {
             case 'arrays_reduce': return `reduce array ${v('NAME')} with ${this.dval(b.inputs.FUNC, blocks)} from ${v('INIT')}`;
             // STC12 / 8051 pin read (digital level or ADC value).
             case 'stc12_read': return `read ${f('PIN')}`;
+            case 'stc12_readport': return `read ${f('PORT')}`;
+            // circuit extension reporters
+            case 'circuit_nodevoltage': return `voltage at ${v('NET')}`;
+            case 'circuit_branchcurrent': return `current through ${v('PART')}`;
+            case 'circuit_resistance': return `resistance between ${v('A')} and ${v('B')}`;
+            case 'circuit_ledbrightness': return `brightness of ${v('PART')}`;
+            case 'circuit_buzzertone': return `tone of ${v('PART')}`;
             default: return b.opcode;
         }
     }
@@ -2744,6 +3019,7 @@ class SB3Creator {
             case 'event_whenthisspriteclicked': return 'WHEN sprite clicked:';
             case 'event_whenbroadcastreceived': return `WHEN I receive "${f('BROADCAST_OPTION')}":`;
             case 'control_start_as_clone': return 'WHEN I start as a clone:';
+            case 'stc12_whenpin': return `WHEN ${f('PIN')} ${f('EDGE')}:`;
             case 'procedures_definition': {
                 const proto = blocks[b.inputs.custom_block[1]];
                 const m = proto.mutation;
@@ -2869,6 +3145,18 @@ class SB3Creator {
             }
             case 'stc12_writepin': return line(`set ${f('PIN')} to ${v('VALUE')}`);
             case 'stc12_toggle': return line(`toggle ${f('PIN')}`);
+            case 'stc12_setpwm': return line(`set ${f('PIN')} to ${v('VALUE')} percent`);
+            case 'stc12_settone': return line(`set ${f('PIN')} to ${v('VALUE')} hz`);
+            case 'stc12_setport': return line(`set ${f('PORT')} to ${v('VALUE')}`);
+            case 'stc12_setpart': return line(`set ${f('PART')} to ${v('VALUE')}`);
+            case 'stc12_print': {
+                const mode = f('MODE');
+                if (mode === 'text') return line(`print "${this.dval(b.inputs.VALUE, blocks).replace(/^"|"$/g, '')}"`);
+                return line(`print ${v('VALUE')}`);
+            }
+            // circuit extension commands
+            case 'circuit_setcontrol': return line(`set ${v('CONTROL')} to ${v('VALUE')}`);
+            case 'circuit_setpower': return line(`turn power ${f('STATE')}`);
             case 'data_showlist': return line(`show list ${f('LIST')}`);
             case 'data_hidelist': return line(`hide list ${f('LIST')}`);
             case 'data_showvariable': return line(`show variable ${f('VARIABLE')}`);
@@ -2903,7 +3191,8 @@ class SB3Creator {
     // runnable Python; sprite/graphics blocks are emitted as `# ...` comments.
     isHat(op) {
         return ['event_whenflagclicked', 'event_whenkeypressed', 'event_whenthisspriteclicked',
-            'event_whenbroadcastreceived', 'control_start_as_clone', 'procedures_definition'].includes(op);
+            'event_whenbroadcastreceived', 'control_start_as_clone', 'procedures_definition',
+            'stc12_whenpin'].includes(op);
     }
 
     pyName(name) {
@@ -3907,6 +4196,10 @@ class SB3Creator {
             case 'planetemaths_oppose': return `(0 - ${v('NUM1')})`;
             case 'planetemaths_pourcent': return `(${v('NUM1')} / 100)`;
             case 'stc12_read': return this.cPinRead(f('PIN'));
+            case 'stc12_readport': {
+                const portCfg = this.project && this.project.stc && (this.project.stc.ports || []).find((p) => p.name.toLowerCase() === f('PORT').toLowerCase());
+                return portCfg ? `P${portCfg.port}` : `0 /* read ${this.cComment(f('PORT'))} */`;
+            }
             case 'argument_reporter_string_number':
             case 'argument_reporter_boolean': return this.cName(f('VALUE'));
             default: {
@@ -3951,6 +4244,10 @@ class SB3Creator {
             case 'planetemaths_not': return `(!${c('OPERAND1')})`;
             case 'planetemaths_multiple': return `((${v('NUM1')} % ${v('NUM2')}) == 0)`;
             case 'stc12_read': return this.cPinRead(f('PIN'));
+            case 'stc12_readport': {
+                const portCfg = this.project && this.project.stc && (this.project.stc.ports || []).find((p) => p.name.toLowerCase() === f('PORT').toLowerCase());
+                return portCfg ? `P${portCfg.port}` : `0 /* read ${this.cComment(f('PORT'))} */`;
+            }
             case 'argument_reporter_boolean': return this.cName(f('VALUE'));
             default: return `(${this.cRep(b, blocks)})`;
         }
@@ -4051,6 +4348,39 @@ class SB3Creator {
             case 'stc12_toggle': {
                 const sfr = this.cSfr(f('PIN'));
                 return line(sfr ? `${sfr} = !${sfr};` : `/* toggle ${this.cComment(f('PIN'))} */`);
+            }
+            case 'stc12_setpwm': {
+                this._cUses.pwm = true;
+                const pin = this._cPins && this._cPins.get(f('PIN').toLowerCase());
+                const module = pin ? `${pin.port * 8 + pin.bit}` : '0';
+                return line(`pwm_set(${module}, ${v('VALUE')});`);
+            }
+            case 'stc12_settone': {
+                this._cUses.tone = true;
+                return line(`tone_set(${v('VALUE')});`);
+            }
+            case 'stc12_setport': {
+                const port = f('PORT');
+                const portCfg = this.project && this.project.stc && (this.project.stc.ports || []).find((p) => p.name.toLowerCase() === port.toLowerCase());
+                const sfr = portCfg ? `P${portCfg.port}` : `/* ${this.cComment(port)} */`;
+                return line(`${sfr} = (unsigned char)(${v('VALUE')});`);
+            }
+            case 'stc12_setpart': {
+                this._cUses.shiftOut = true;
+                const part = f('PART');
+                const partCfg = this.project && this.project.stc && (this.project.stc.parts || []).find((p) => p.name.toLowerCase() === part.toLowerCase());
+                if (!partCfg) return line(`/* set ${this.cComment(part)} — undeclared PART */`);
+                const { data, clock, latch } = partCfg;
+                return line(`shift_out(P${data.port}_${data.bit}, P${clock.port}_${clock.bit}, P${latch.port}_${latch.bit}, ${partCfg.activeLow ? '1' : '0'}, (unsigned char)(${v('VALUE')}));`);
+            }
+            case 'stc12_print': {
+                this._cUses.print = true;
+                const mode = f('MODE');
+                if (mode === 'text') {
+                    const text = this.dval(b.inputs.VALUE, blocks).replace(/^"|"$/g, '');
+                    return line(`bw_print("${this.cComment(text)}");`);
+                }
+                return line(`bw_print_num(${v('VALUE')});`);
             }
             case 'procedures_call': return line(this.cProcCall(b, blocks));
             default: {
@@ -4713,6 +5043,8 @@ class SB3Creator {
                         '    }',
                         `    ${task}_state = 0xFFFF;   /* ran to the end */`,
                         '}', '');
+                } else if (b.opcode === 'stc12_whenpin') {
+                    this.cWarn(`"${this.decompileHat(b, blocks) || b.opcode}" — event hat lowering not yet available; script skipped`);
                 } else if (this.isHat(b.opcode) || this.runtimeOp(b.opcode)) {
                     this.cWarn(`"${this.decompileHat(b, blocks) || b.opcode}" has no meaning on the chip — script skipped`);
                 }
@@ -5065,7 +5397,29 @@ SB3Creator.RUNTIME_EXTENSIONS = {
             setpin: { kind: 'command', method: 'setPin', args: ['PIN', 'STATE'] },
             toggle: { kind: 'command', method: 'togglePin', args: ['PIN'] },
             writepin: { kind: 'command', method: 'writePin', args: ['PIN', 'VALUE'] },
-            read: { kind: 'reporter', method: 'readPin', args: ['PIN'], neutral: '0' }
+            read: { kind: 'reporter', method: 'readPin', args: ['PIN'], neutral: '0' },
+            setpwm: { kind: 'command', method: 'setPwm', args: ['PIN', 'VALUE'] },
+            settone: { kind: 'command', method: 'setTone', args: ['PIN', 'VALUE'] },
+            setport: { kind: 'command', method: 'setPort', args: ['PORT', 'VALUE'] },
+            readport: { kind: 'reporter', method: 'readPort', args: ['PORT'], neutral: '0' },
+            setpart: { kind: 'command', method: 'setPart', args: ['PART', 'VALUE'] },
+            print: { kind: 'command', method: 'print', args: ['VALUE', 'MODE'] }
+        }
+    },
+    // The circuit extension — board instruments and controls (simulation-only reporters).
+    // Meter reporters sample at display rate (~60 Hz), not per edge — measured constraint
+    // from bw-board 88ac0d6: branchCurrent on a PWM pin at 7.2K edges/sec against a
+    // 7.0K ops/sec MNA solver budget would drop below real time.
+    circuit: {
+        runtime: 'circuit',
+        ops: {
+            nodevoltage: { kind: 'reporter', method: 'nodeVoltage', args: ['NET'], neutral: '0' },
+            branchcurrent: { kind: 'reporter', method: 'branchCurrent', args: ['PART'], neutral: '0' },
+            resistance: { kind: 'reporter', method: 'resistance', args: ['A', 'B'], neutral: '"requires-power-off"' },
+            ledbrightness: { kind: 'reporter', method: 'ledBrightness', args: ['PART'], neutral: '0' },
+            buzzertone: { kind: 'reporter', method: 'buzzerTone', args: ['PART'], neutral: '0' },
+            setcontrol: { kind: 'command', method: 'setControl', args: ['CONTROL', 'VALUE'] },
+            setpower: { kind: 'command', method: 'setPower', args: ['STATE'] }
         }
     }
 };
