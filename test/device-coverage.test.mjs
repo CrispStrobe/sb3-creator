@@ -97,13 +97,19 @@ const BLOCK_COVERAGE = {
     diode: ['circuit_branchcurrent'],
     zener: ['circuit_branchcurrent'],
 
-    // Transistors / op-amp — circuit-level, no dedicated blocks
+    // Transistors / op-amp / drivers — circuit-level, driven through pin blocks,
+    // observed through circuit reporters. No dedicated blocks needed: the driver
+    // is in the wiring, not the code. The MCU pin drives the base/gate.
     npn: ['circuit_branchcurrent'],
     pnp: ['circuit_branchcurrent'],
     nmos: ['circuit_branchcurrent'],
     pmos: ['circuit_branchcurrent'],
     opamp: ['circuit_nodevoltage'],
     vsource: ['circuit_setcontrol'],
+    tip120: ['circuit_branchcurrent'],         // Darlington — pin drives base through R
+    darlington_driver: ['circuit_branchcurrent'], // same pattern as tip120
+    solenoid: ['devices_activate', 'devices_deactivate'],
+    h_bridge: ['devices_setdirection', 'devices_setmotor'],
 
     // Device convenience blocks
     seven_segment: ['devices_showdigit'],
@@ -132,9 +138,9 @@ const KNOWN_GAPS = new Set([
 
     // --- actuators ---
     // servo, dc_motor, relay — now covered via devices_setservo/setmotor/setrelay
+    // solenoid — now covered via devices_activate/deactivate
+    // h_bridge — now covered via devices_setdirection/setmotor
     'stepper',          // "step N" / "set speed"
-    'solenoid',         // "activate" / "release"
-    'h_bridge',         // motor driver — driven via pins
 
     // --- LEDs ---
     // rgb_led — now covered via devices_setrgb
@@ -170,11 +176,12 @@ const KNOWN_GAPS = new Set([
     'decade_counter',   // 4017-style counter
 
     // --- drivers/transducers ---
-    'darlington_driver', // high-current driver (ULN2003 etc.)
+    // darlington_driver — now covered via circuit_branchcurrent
     'piezo',            // piezoelectric buzzer/sensor
     'light_bulb',       // incandescent — observed through brightness
     'optocoupler',      // opto-isolator — circuit-level
-    'tip120',           // Darlington transistor — circuit-level
+    // tip120 — now covered via circuit_branchcurrent (in BLOCK_COVERAGE)
+    // darlington_driver — now covered via circuit_branchcurrent
     'lm393',            // comparator IC — circuit-level
     'tmp36',            // analog temp sensor — read via ADC (devices_temperature)
     'cd4511',           // BCD-to-7-segment decoder — circuit-level

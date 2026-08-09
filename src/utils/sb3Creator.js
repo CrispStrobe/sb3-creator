@@ -1883,6 +1883,22 @@ class SB3Creator {
             block[id].fields.STATE = [match[2].toLowerCase(), null];
             return ret(block);
         }
+        if ((match = line.match(/^set\s+(.+?)\s+direction\s+(forward|reverse|brake|coast)$/i))) {
+            const { id, block } = cmd('devices_setdirection');
+            block[id].inputs.MOTOR = val(match[1]);
+            block[id].fields.DIR = [match[2].toLowerCase(), null];
+            return ret(block);
+        }
+        if ((match = line.match(/^activate\s+(.+)$/i))) {
+            const { id, block } = cmd('devices_activate');
+            block[id].inputs.DEVICE = val(match[1]);
+            return ret(block);
+        }
+        if ((match = line.match(/^deactivate\s+(.+)$/i))) {
+            const { id, block } = cmd('devices_deactivate');
+            block[id].inputs.DEVICE = val(match[1]);
+            return ret(block);
+        }
         if ((match = line.match(/^read temperature from\s+(.+)$/i))) {
             // Reporter — handled in parseReporter, not here
         }
@@ -3656,6 +3672,9 @@ class SB3Creator {
             case 'devices_setservo': return line(`set ${v('SERVO')} angle to ${v('ANGLE')}`);
             case 'devices_setmotor': return line(`set ${v('MOTOR')} speed to ${v('SPEED')}`);
             case 'devices_setrelay': return line(`set relay ${v('RELAY')} ${f('STATE')}`);
+            case 'devices_setdirection': return line(`set ${v('MOTOR')} direction ${f('DIR')}`);
+            case 'devices_activate': return line(`activate ${v('DEVICE')}`);
+            case 'devices_deactivate': return line(`deactivate ${v('DEVICE')}`);
             case 'devices_lcdprint': return line(`lcd print ${v('TEXT')} on ${v('DISPLAY')}`);
             case 'devices_lcdcursor': return line(`lcd set cursor ${v('ROW')} ${v('COL')} on ${v('DISPLAY')}`);
             case 'devices_lcdclear': return line(`lcd clear ${v('DISPLAY')}`);
@@ -6297,7 +6316,11 @@ SB3Creator.RUNTIME_EXTENSIONS = {
             clearmatrix: { kind: 'command', method: 'clearMatrix', args: ['MATRIX'] },
             // neopixel
             setneopixel: { kind: 'command', method: 'setNeopixel', args: ['INDEX', 'R', 'G', 'B', 'STRIP'] },
-            clearneopixels: { kind: 'command', method: 'clearNeopixels', args: ['STRIP'] }
+            clearneopixels: { kind: 'command', method: 'clearNeopixels', args: ['STRIP'] },
+            // H-bridge / solenoid / general actuator control
+            setdirection: { kind: 'command', method: 'setDirection', args: ['MOTOR', 'DIR'] },
+            activate: { kind: 'command', method: 'activate', args: ['DEVICE'] },
+            deactivate: { kind: 'command', method: 'deactivate', args: ['DEVICE'] }
         }
     },
     // The generated entry from circuit.js provides the opcode shape and the gallery URL.
