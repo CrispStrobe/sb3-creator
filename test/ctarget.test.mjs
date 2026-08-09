@@ -1453,14 +1453,17 @@ test('stc12 blocks agree across gallery, bundled, and sb3-creator', async () => 
     const CANDIDATES = {
         gallery: [
             process.env.BW_GALLERY,
-            '/mnt/volume1/code/extensions/extensions/CrispStrobe/stc12.js',
             new URL('../../extensions/extensions/CrispStrobe/stc12.js', import.meta.url).pathname,
             new URL('../../lego/extensions/extensions/CrispStrobe/stc12.js', import.meta.url).pathname
         ],
         bundled: [
             process.env.BW_LITE_STC12,
-            '/mnt/volume1/code/bw-bundle/lite/overlay/scratch-vm/src/extensions/crispstrobe/stc12/index.js',
             new URL('../../lego/brickwright-lite/overlay/scratch-vm/src/extensions/crispstrobe/stc12/index.js',
+                import.meta.url).pathname,
+            // The bundle layout, resolved the same relative way -- it used to be
+            // spelled as one machine's absolute path, which is what this whole
+            // convention exists to avoid.
+            new URL('../../bw-bundle/lite/overlay/scratch-vm/src/extensions/crispstrobe/stc12/index.js',
                 import.meta.url).pathname
         ]
     };

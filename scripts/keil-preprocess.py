@@ -8,7 +8,20 @@ import os
 import sys
 import glob
 
-sys.path.insert(0, '/mnt/volume1/code/stc-compiler')
+# stc-compiler is a sibling checkout, not a package. An absolute path here
+# worked on one machine and nowhere else; look beside this repo instead, and
+# say which of the two things is missing rather than dying on the import.
+_here = os.path.dirname(os.path.abspath(__file__))
+_candidates = [os.environ.get('STC_COMPILER'),
+               os.path.join(_here, '..', '..', 'stc-compiler'),
+               os.path.join(_here, '..', '..', '..', 'stc-compiler')]
+for _c in _candidates:
+    if _c and os.path.isfile(os.path.join(_c, 'keil2sdcc.py')):
+        sys.path.insert(0, os.path.abspath(_c))
+        break
+else:
+    sys.exit('keil2sdcc.py not found: check out stc-compiler beside this repo, '
+             'or set STC_COMPILER to it')
 from keil2sdcc import translate
 
 corpus_dir = sys.argv[1] if len(sys.argv) > 1 else 'corpus'

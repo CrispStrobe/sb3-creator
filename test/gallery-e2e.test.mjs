@@ -11,29 +11,62 @@
  * explicitly skipped with the blocker named.
  *
  * Run: node --test test/gallery-e2e.test.mjs
- * Not in test:fast (needs bw-board on the local machine).
+ * Skips itself, with the missing repo named, when bw-board and bw-circuit-ui
+ * are not checked out beside this one. Point BW_BOARD / BW_CIRCUIT_UI at them
+ * to run it from elsewhere.
  */
 
 import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync, readdirSync } from 'fs';
+import { readFileSync, readdirSync, existsSync } from 'fs';
 import { join } from 'path';
+import { pathToFileURL } from 'url';
 
-import { BoardImpl } from '/mnt/volume1/code/bw-board/src/board.js';
-import { inferNetlist, checkWiring } from '/mnt/volume1/code/bw-board/src/infer-netlist.js';
-import { setEngine } from '/mnt/volume1/code/bw-circuit-ui/src/engine.js';
-import { Circuit } from '/mnt/volume1/code/bw-circuit-ui/src/model/circuit.js';
-// Register device models — each requires an explicit call
-import { registerRelay } from '/mnt/volume1/code/bw-board/src/devices/relay.js';
-import { registerDCMotor } from '/mnt/volume1/code/bw-board/src/devices/dc-motor.js';
-import { registerServo } from '/mnt/volume1/code/bw-board/src/devices/servo.js';
-import { registerAnalogICs } from '/mnt/volume1/code/bw-board/src/devices/analog-ics.js';
-try { registerRelay(); } catch { /* already registered */ }
-try { registerDCMotor(); } catch { /* already registered */ }
-try { registerServo(); } catch { /* already registered */ }
-try { registerAnalogICs(); } catch { /* already registered */ }
+// Two checkouts this repo does not own, found wherever the machine keeps them.
+// They were imported by absolute path, which made this file pass on exactly one
+// machine and throw ERR_MODULE_NOT_FOUND on every other — and a suite that is
+// red for everyone is a suite people learn to skip, which costs more than the
+// check is worth. Same candidate-list convention as ctarget.test.mjs.
+const findRepo = (envVar, probe, ...rels) => {
+    for (const base of [process.env[envVar], ...rels]) {
+        if (!base) continue;
+        const url = base.startsWith('file:') ? new URL(base)
+            : pathToFileURL(base.endsWith('/') ? base : base + '/');
+        if (existsSync(new URL(probe, url))) return url;
+    }
+    return null;
+};
+// Siblings of this repo is the normal layout: ~/code/sb3-creator next to
+// ~/code/bw-board. The second candidate covers a checkout one level deeper.
+const sib = (name) => new URL(`../../${name}/`, import.meta.url).href;
+const nest = (name) => new URL(`../../../${name}/`, import.meta.url).href;
+const BOARD = findRepo('BW_BOARD', 'src/board.js', sib('bw-board'), nest('bw-board'));
+const CIRCUIT = findRepo('BW_CIRCUIT_UI', 'src/engine.js', sib('bw-circuit-ui'), nest('bw-circuit-ui'));
 
-setEngine({ BoardImpl, inferNetlist, checkWiring });
+const SKIP = BOARD && CIRCUIT ? false
+    : `needs ${!BOARD ? 'bw-board' : 'bw-circuit-ui'} checked out beside this repo `
+      + '(or BW_BOARD / BW_CIRCUIT_UI pointing at it)';
+
+let BoardImpl, inferNetlist, checkWiring, Circuit;
+const MISSING_DEVICES = [];
+if (!SKIP) {
+    ({ BoardImpl } = await import(new URL('src/board.js', BOARD).href));
+    ({ inferNetlist, checkWiring } = await import(new URL('src/infer-netlist.js', BOARD).href));
+    ({ Circuit } = await import(new URL('src/model/circuit.js', CIRCUIT).href));
+    const { setEngine } = await import(new URL('src/engine.js', CIRCUIT).href);
+    // Device models — each requires an explicit call, and each is optional:
+    // an older bw-board checkout simply has fewer of them. A missing one is
+    // recorded and named, not thrown, so the suites that do not need it still
+    // run and the one that does says which file it wanted.
+    for (const [file, fn] of [['relay.js', 'registerRelay'], ['dc-motor.js', 'registerDCMotor'],
+        ['servo.js', 'registerServo'], ['analog-ics.js', 'registerAnalogICs']]) {
+        try {
+            const mod = await import(new URL(`src/devices/${file}`, BOARD).href);
+            try { mod[fn](); } catch { /* already registered */ }
+        } catch { MISSING_DEVICES.push(file); }
+    }
+    setEngine({ BoardImpl, inferNetlist, checkWiring });
+}
 
 const EXAMPLES = join(import.meta.dirname, '..', 'examples');
 const MS = 1_000_000n;
@@ -256,7 +289,7 @@ const PURE_TESTS = {
 
 // ---- test runner ----------------------------------------------------------------
 
-describe('e2e: MCU examples — drive pins, check LEDs', () => {
+describe('e2e: MCU examples — drive pins, check LEDs', { skip: SKIP }, () => {
     for (const [name, spec] of Object.entries(MCU_TESTS)) {
         test(name, () => {
             const circuit = loadCircuit(name);
@@ -289,7 +322,7 @@ describe('e2e: MCU examples — drive pins, check LEDs', () => {
     }
 });
 
-describe('e2e: pure-circuit examples — no MCU, always on', () => {
+describe('e2e: pure-circuit examples — no MCU, always on', { skip: SKIP }, () => {
     for (const [name, spec] of Object.entries(PURE_TESTS)) {
         test(name, () => {
             const circuit = loadCircuit(name);
@@ -317,7 +350,10 @@ describe('e2e: pure-circuit examples — no MCU, always on', () => {
     }
 });
 
-describe('e2e: device-state examples — relay, motor, 595', () => {
+const DEVICE_SKIP = SKIP || (MISSING_DEVICES.length
+    ? `bw-board here has no src/devices/${MISSING_DEVICES.join(', ')} — needs a newer checkout`
+    : false);
+describe('e2e: device-state examples — relay, motor, 595', { skip: DEVICE_SKIP }, () => {
     test('09-relay-clicker: TIP120-driven relay circuit accepted and has state', () => {
         const { board, parts } = loadCircuit('09-relay-clicker');
         assert.ok(board.parts.length > 0, 'board accepted the TIP120+relay circuit');
@@ -371,7 +407,7 @@ describe('e2e: device-state examples — relay, motor, 595', () => {
     }, () => {});
 });
 
-describe('e2e: blocked examples — named dependencies', () => {
+describe('e2e: blocked examples — named dependencies', { skip: SKIP }, () => {
     for (const [name, blocker] of Object.entries(BLOCKED)) {
         test(`${name}: BLOCKED on ${blocker}`, { skip: `waiting on bw-board: ${blocker}` }, () => {});
     }
