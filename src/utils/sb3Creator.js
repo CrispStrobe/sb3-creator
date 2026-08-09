@@ -5493,7 +5493,8 @@ SB3Creator.RUNTIME_EXTENSIONS = {
             setport: { kind: 'command', method: 'setPort', args: ['PORT', 'VALUE'] },
             readport: { kind: 'reporter', method: 'readPort', args: ['PORT'], neutral: '0' },
             setpart: { kind: 'command', method: 'setPart', args: ['PART', 'VALUE'] },
-            print: { kind: 'command', method: 'print', args: ['VALUE', 'MODE'] }
+            print: { kind: 'command', method: 'print', args: ['VALUE', 'MODE'] },
+            whenpin: { kind: 'hat', method: 'whenpin', args: ['PIN', 'EDGE'] }
         }
     },
     // The circuit extension — board instruments and controls (simulation-only reporters).
