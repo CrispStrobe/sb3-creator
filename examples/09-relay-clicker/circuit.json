@@ -9,8 +9,8 @@
     { "id": "mcu1",   "kind": "mcu",       "params": { "pins": ["P1.0", "P1.1"] },   "x": 50,  "y": 250 }
   ],
   "wires": [
-    { "from": "vcc1",   "fromTerminal": "vcc",     "to": "relay1", "toTerminal": "a"       },
-    { "from": "relay1", "fromTerminal": "b",        "to": "mcu1",   "toTerminal": "P1.0"   },
+    { "from": "vcc1",   "fromTerminal": "vcc",     "to": "relay1", "toTerminal": "coil_a"  },
+    { "from": "relay1", "fromTerminal": "coil_b",   "to": "mcu1",   "toTerminal": "P1.0"   },
     { "from": "vcc1",   "fromTerminal": "vcc",     "to": "r1",     "toTerminal": "a"       },
     { "from": "r1",     "fromTerminal": "b",        "to": "led1",   "toTerminal": "anode"  },
     { "from": "led1",   "fromTerminal": "cathode",  "to": "mcu1",   "toTerminal": "P1.1"  }
