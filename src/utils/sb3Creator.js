@@ -1967,6 +1967,13 @@ class SB3Creator {
                 if (trimmed.endsWith(':')) {
                     let newBlockData;
                     const context = { target, extraBlocks: {}, parentId: null };
+                    // A comment written above `IF …:` belongs to the IF. The body is
+                    // parsed before the control block is linked, so without setting
+                    // the pending comment aside here the body's first statement
+                    // swallows it — and the decompiler then writes it one level in,
+                    // which is not what was written and does not survive a round trip.
+                    const ownComment = this._pendingComment;
+                    this._pendingComment = '';
 
                     if (trimmed.startsWith('FOREVER')) {
                         newBlockData = {
@@ -1977,7 +1984,7 @@ class SB3Creator {
                         const m = trimmed.match(/^REPEAT\s+UNTIL\s+(.+):$/i);
                         if (!m) {
                             this.warn(i, `Malformed REPEAT UNTIL (expected "REPEAT UNTIL <condition>:"): "${trimmed}"`);
-                            i++; continue;
+                            this._pendingComment = ownComment; i++; continue;
                         }
                         const { id, block } = this.createBlock('control_repeat_until');
                         context.parentId = id;
@@ -1987,7 +1994,7 @@ class SB3Creator {
                         const m = trimmed.match(/REPEAT\s+(.+?):/i);
                         if (!m) {
                             this.warn(i, `Malformed REPEAT (expected "REPEAT <count>:"): "${trimmed}"`);
-                            i++; continue;
+                            this._pendingComment = ownComment; i++; continue;
                         }
                         const { id, block } = this.createBlock('control_repeat');
                         context.parentId = id;
@@ -1997,7 +2004,7 @@ class SB3Creator {
                         const m = trimmed.match(/IF\s+(.+?)\s+THEN:/i);
                         if (!m) {
                             this.warn(i, `Malformed IF (expected "IF <condition> THEN:"): "${trimmed}"`);
-                            i++; continue;
+                            this._pendingComment = ownComment; i++; continue;
                         }
                         const { id, block } = this.createBlock('control_if');
                         context.parentId = id;
@@ -2006,6 +2013,7 @@ class SB3Creator {
                         newBlockData = { block, extraBlocks: context.extraBlocks };
                     } else if (trimmed.startsWith('ELSE')) {
                         // Find the parent IF block to convert to IF_ELSE
+                        this._pendingComment = ownComment;
                         if (lastBlockId && allBlocks[lastBlockId] && allBlocks[lastBlockId].opcode === 'control_if') {
                             allBlocks[lastBlockId].opcode = 'control_if_else';
                             const childResult = parseStructure(i + 1, childIndent(i, currentIndent), target);
@@ -2031,6 +2039,7 @@ class SB3Creator {
                             Object.assign(newBlockData.extraBlocks, childResult.blocks);
                         }
                         
+                        this._pendingComment = ownComment;   // …and hand it to the block it was written for
                         linkBlock(newBlockData);
                         i = childResult.endIndex;
                         continue;
