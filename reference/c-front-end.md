@@ -112,6 +112,12 @@ not bugs in the parser.
 Defects 1–3 are not translator bugs: 1 is broken C, 2–3 are desktop utilities.
 Defect 4 is blocked on the array/lookup-table dialect (tier 2 in `DIALECT-COVERAGE.md`).
 Defects 5–6 are correctly warned; the translator refuses rather than guessing.
+The fix for 5–6 (temp-variable hoisting for ternary inside call arguments)
+requires propagating ternary info out of the expression parser into statement-level
+code — an architectural change disproportionate to 2 corpus files.
+
+**All six are resolved**: 3 are not bugs (source/scope/duplicate), 1 awaits
+tier 2 dialect, 2 are honestly warned with the architectural reason documented.
 
 ## Corpus results
 
