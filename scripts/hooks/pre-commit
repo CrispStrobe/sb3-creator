@@ -1,3 +1,15 @@
 #!/usr/bin/env bash
 # Installed with: git config core.hooksPath scripts/hooks
-exec "$(git rev-parse --show-toplevel)/scripts/guard-commit.sh"
+set -e
+ROOT="$(git rev-parse --show-toplevel)"
+
+# Two different stale-tree failures, so two checks.
+#
+# guard-commit.sh catches the loud one: a commit that deletes far more than it
+# adds, which is what a commit from an out-of-date tree looks like.
+#
+# check-staged-imports.mjs catches the quiet one, which shipped a broken main on
+# 2026-08-09: a commit that imports a file it does not contain. Nothing looks
+# wrong locally, because the file is sitting untracked in your working tree.
+"$ROOT/scripts/guard-commit.sh"
+node "$ROOT/scripts/check-staged-imports.mjs"

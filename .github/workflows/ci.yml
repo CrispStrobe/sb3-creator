@@ -27,6 +27,13 @@ jobs:
 
       - run: npm ci
 
+      # Before the tests, because the tests cannot see this: they run against a
+      # checkout that has every committed file, so an import of a file that was
+      # never committed only fails for the next person to clone. It happened on
+      # 2026-08-09 and main was broken until someone tried a fresh clone.
+      - name: Every import resolves to a committed file
+        run: node scripts/check-staged-imports.mjs --tracked
+
       - name: Lint
         run: npm run lint
 
