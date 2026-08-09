@@ -899,7 +899,7 @@ test('a Scratch program gets the host target, not a lecture about the chip', asy
     assert.match(out, /blocks → C \(host\)/, 'a Scratch project gets host C');
     assert.ok(!/warning:/.test(out), 'and it needs no warnings');
     assert.ok(!/#include <stc12\.h>/.test(out), 'nothing about the chip leaks in');
-    assert.match(out, /typedef struct \{ int is_str; double n; const char \*s; \} bw_val;/);
+    assert.match(out, /typedef struct \{ int kind; double n; const char \*s; struct bw_list_s \*l; \} bw_val;/);
     // Asking for the chip anyway still explains why that is a bad idea.
     const forced = build(examples.minesweeper).generateC(undefined, { target: 'device' });
     assert.match(forced, /THIS PROJECT IS NOT AN STC12 PROGRAM/);
