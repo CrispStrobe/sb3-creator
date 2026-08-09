@@ -264,6 +264,28 @@ Two fixes, both of which the design already implied:
    fix a `counter > 2` pause point stops at exactly `counter == 3`, having passed over 118,157
    hits — a number that is itself the argument for both fixes.
 
+### 4a.2 Hover a block: what was `counter` *here*?
+
+Added 2026-08-09. Hovering any block that is a yield point shows the variables as they were the
+last time the program was at that block, and **always says when** — `last here 340 ms ago`, or
+`here now` when it is stopped there.
+
+This answers the question a learner actually has, and the one a live-values pane structurally
+cannot: by the time you look at the panel, the program has moved on. It needed no new
+recording — every stop already carries a variable snapshot and the position it was taken at, so
+this is a lookup over the trace.
+
+Two small honesty rules. **A block that has never been stopped at shows nothing**, rather than a
+tooltip full of zeroes or of current values; "no recording here" is a real answer and different
+from "everything was zero". And the timestamp is never omitted — a value with no time beside it
+reads as current, which is the one thing it is not.
+
+The plumbing is worth recording because it is the smallest thing that worked: the workspace is
+mounted by `containers/blocks.jsx` and the runner by the Circuit tab's panel, and neither is the
+other's parent. Threading a runner through the GUI to reach one tooltip would couple most of the
+editor to the debugger. Instead the runner publishes a lookup into `lib/bw-debug/hover-values.js`
+and the editor asks; an editor with no debugger attached gets `null` and shows nothing.
+
 ## 4b. Parity with emu8051's TUI — the map
 
 Built 2026-08-09 as `components/tw-pseudocode/debug-drawer.jsx`. The TUI is the reference, so
