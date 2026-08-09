@@ -1,0 +1,4 @@
+# Pure circuit — no MCU
+# WRONG: VCC → LED → GND with no series resistor
+# RIGHT: VCC → 220Ω → LED → GND
+# The simulator should show the difference

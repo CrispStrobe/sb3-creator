@@ -1,0 +1,13 @@
+DEVICE STC12C5A60S2
+CLOCK 11059200
+PIN led_sink = P1.0 OUTPUT ACTIVE LOW
+PIN led_source = P1.1 OUTPUT
+
+# The sink/source lesson: the 8051's central asymmetry.
+# led_sink (active-low): VCC → R → LED → pin. Pin sinks 20 mA. LED is bright.
+# led_source (active-high): pin → R → LED → GND. Pin sources ~230 µA. LED is dim/dead.
+WHEN flag clicked:
+  FOREVER:
+    turn on led_sink
+    turn on led_source
+    wait 1 seconds

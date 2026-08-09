@@ -1,0 +1,12 @@
+DEVICE STC12C5A60S2
+CLOCK 11059200
+PIN motor_ctrl = P1.0 OUTPUT
+
+# Inductive load without flyback diode — the kick damages the transistor.
+# This example shows the WRONG way (no diode) and the RIGHT way (with diode).
+WHEN flag clicked:
+  FOREVER:
+    turn on motor_ctrl
+    wait 1 seconds
+    turn off motor_ctrl
+    wait 1 seconds

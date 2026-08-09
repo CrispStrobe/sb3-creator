@@ -261,6 +261,14 @@ const MCU_TESTS = {
         ],
         leds: [{ litCount: 1, label: 'exactly 1 of 4 lit' }],
     },
+    '32-source-vs-sink': {
+        // THE lesson: sink (active-low) is bright, source (active-high) is dim/dead.
+        pins: [{ pin: 'P1.0', high: false }, { pin: 'P1.1', high: true }],
+        leds: [
+            { idx: 0, min: 0.1, label: 'sink LED (active-low) bright' },
+            { idx: 1, max: 0.02, label: 'source LED (quasi-bidirectional) dim/dead' },
+        ],
+    },
 };
 
 // ---- pure-circuit examples: no MCU, always on ----------------------------------
@@ -284,6 +292,14 @@ const PURE_TESTS = {
     },
     '29-capacitor-charge': {
         leds: [],   // no LED — this is an RC circuit with a meter
+    },
+    '31-no-resistor-led': {
+        // Two LEDs: one with 220Ω (safe), one without (overcurrent).
+        // Both should light, but the no-resistor LED should have much higher brightness.
+        leds: [
+            { idx: 0, min: 0.5, label: 'no-resistor LED (overcurrent, very bright)' },
+            { idx: 1, brightness: 0.6522, tol: 0.05, label: '220Ω LED (safe, ~0.65)' },
+        ],
     },
 };
 
@@ -396,6 +412,21 @@ describe('e2e: device-state examples — relay, motor, 595', { skip: DEVICE_SKIP
         assert.ok(state, `motor device state exists for ${motorPart.id}`);
         // Motor should be spinning or have non-zero omega
         assert.ok(state.omega >= 0, `motor state: omega=${state.omega?.toFixed(2)}`);
+    });
+
+    test('32-source-vs-sink: active-high LED is dim (quasi-bidirectional source limit)', () => {
+        // Pin THE property: the sink/source asymmetry is visible as brightness.
+        const circuit = loadCircuit('32-source-vs-sink');
+        const board = circuit.board || circuit;
+        board.setPin('P1.0', 'quasi', false);   // sink = bright
+        board.setPin('P1.1', 'quasi', true);    // source = dim
+        board.advanceTo(25n * MS);
+        const leds = board.getLeds();
+        const bSink = board.ledBrightness(leds[0]);
+        const bSource = board.ledBrightness(leds[1]);
+        assert.ok(bSink > 0.1, `sink LED brightness ${bSink.toFixed(4)} should be > 0.1`);
+        assert.ok(bSource < 0.02, `source LED brightness ${bSource.toFixed(4)} should be < 0.02 (quasi-bidirectional ~230 µA)`);
+        assert.ok(bSink > bSource * 5, `sink (${bSink.toFixed(4)}) must be much brighter than source (${bSource.toFixed(4)})`);
     });
 
     test('08-led-chaser-595: shift register e2e', {

@@ -238,5 +238,29 @@
     "difficulty": 2,
     "thumbnail": "30-multi-led-pattern/thumb.svg",
     "files": { "program": "30-multi-led-pattern/program.bw", "circuit": "30-multi-led-pattern/circuit.json", "expected": "30-multi-led-pattern/EXPECTED.md" }
+  },
+  {
+    "id": "31-no-resistor-led",
+    "title": { "en": "LED with and without series resistor", "de": "LED mit und ohne Vorwiderstand" },
+    "category": "pure-circuit",
+    "difficulty": 1,
+    "thumbnail": "31-no-resistor-led/thumb.svg",
+    "files": { "program": "31-no-resistor-led/program.bw", "circuit": "31-no-resistor-led/circuit.json", "expected": "31-no-resistor-led/EXPECTED.md" }
+  },
+  {
+    "id": "32-source-vs-sink",
+    "title": { "en": "Sink vs source: why LEDs are wired active-low", "de": "Senke vs Quelle: warum LEDs active-low verdrahtet werden" },
+    "category": "basics",
+    "difficulty": 2,
+    "thumbnail": "32-source-vs-sink/thumb.svg",
+    "files": { "program": "32-source-vs-sink/program.bw", "circuit": "32-source-vs-sink/circuit.json", "expected": "32-source-vs-sink/EXPECTED.md" }
+  },
+  {
+    "id": "33-inductive-no-flyback",
+    "title": { "en": "Inductive load without flyback diode", "de": "Induktive Last ohne Freilaufdiode" },
+    "category": "motors",
+    "difficulty": 3,
+    "thumbnail": "33-inductive-no-flyback/thumb.svg",
+    "files": { "program": "33-inductive-no-flyback/program.bw", "circuit": "33-inductive-no-flyback/circuit.json", "expected": "33-inductive-no-flyback/EXPECTED.md" }
   }
 ]
