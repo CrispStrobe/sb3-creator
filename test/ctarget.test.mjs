@@ -888,13 +888,23 @@ test('every stc_ example compiles to C with no warnings at all', async () => {
     }
 });
 
-test('a Scratch program says so once, instead of warning per block', async () => {
+test('a Scratch program gets the host target, not a lecture about the chip', async () => {
     const examples = (await import('../src/utils/examples.js')).default;
+    // This used to be the 'say so once instead of 52 warnings' test. Saying it
+    // once was the best available answer while there was one C target; now the
+    // project picks its own, so a project with no pins gets host C and no
+    // warning at all. The diagnostic is still there for anyone who asks for the
+    // chip on purpose.
     const out = build(examples.minesweeper).generateC();
-    assert.match(out, /THIS PROJECT IS NOT AN STC12 PROGRAM/);
-    assert.match(out, /and \d+ more of the same kind/, 'the rest are summarised');
-    // 52 individual warnings read as a broken tool rather than as an honest answer.
-    assert.ok((out.match(/warning:/g) || []).length <= 5, 'the noise is bounded');
+    assert.match(out, /blocks → C \(host\)/, 'a Scratch project gets host C');
+    assert.ok(!/warning:/.test(out), 'and it needs no warnings');
+    assert.ok(!/#include <stc12\.h>/.test(out), 'nothing about the chip leaks in');
+    assert.match(out, /typedef struct \{ int is_str; double n; const char \*s; \} bw_val;/);
+    // Asking for the chip anyway still explains why that is a bad idea.
+    const forced = build(examples.minesweeper).generateC(undefined, { target: 'device' });
+    assert.match(forced, /THIS PROJECT IS NOT AN STC12 PROGRAM/);
+    assert.match(forced, /and \d+ more of the same kind/, 'the rest are summarised');
+    assert.ok((forced.match(/warning:/g) || []).length <= 5, 'the noise is bounded');
     // …and a project that DOES declare pins still gets every warning in full.
     const withPins = build('PIN led = P1.0 OUTPUT\nWHEN flag clicked:\n  say "a"\n  move 4 steps\n  turn on led').generateC();
     assert.ok(!/NOT AN STC12 PROGRAM/.test(withPins));

@@ -50,18 +50,19 @@ export function shimSignatures() {
 // The fixed part: values, coercion, lists. Kept as one string so the generated
 // program is self-contained — the same choice generatePython makes with its
 // `_Scratch` class, and the reason either can be pasted into a compiler and run.
-const CORE = `/* ---- values ---------------------------------------------------------------
+const TYPE = `/* ---- values ---------------------------------------------------------------
  * A Scratch value is a number or a string, and blocks coerce freely between
  * them. Strings come out of a bump arena that is never freed: generated
  * programs are short-lived, and a refcount would be a lie about how carefully
  * this is managed. Swap the arena for a real allocator if that stops being true.
  */
 typedef struct { int is_str; double n; const char *s; } bw_val;
+`;
 
-static char bw_arena[1 << 16];
+const ARENA = `static char bw_arena[1 << 16];
 static size_t bw_arena_used = 0;
 
-static const char *bw_intern(const char *src, size_t len) {
+static inline const char *bw_intern(const char *src, size_t len) {
     if (bw_arena_used + len + 1 > sizeof bw_arena) return "";   /* out of arena */
     char *dst = bw_arena + bw_arena_used;
     memcpy(dst, src, len);
@@ -69,12 +70,15 @@ static const char *bw_intern(const char *src, size_t len) {
     bw_arena_used += len + 1;
     return dst;
 }
+`;
 
-static inline bw_val bw_num(double n) { bw_val v; v.is_str = 0; v.n = n; v.s = 0; return v; }
-static inline bw_val bw_str(const char *s) { bw_val v; v.is_str = 1; v.n = 0; v.s = s; return v; }
-static inline bw_val bw_bool(int b) { return bw_num(b ? 1 : 0); }
-
-/* Number coercion: a non-numeric string is 0, which is Scratch's rule. */
+const NUM = `static inline bw_val bw_num(double n) { bw_val v; v.is_str = 0; v.n = n; v.s = 0; return v; }
+`;
+const STR = `static inline bw_val bw_str(const char *s) { bw_val v; v.is_str = 1; v.n = 0; v.s = s; return v; }
+`;
+const BOOL = `static inline bw_val bw_bool(int b) { return bw_num(b ? 1 : 0); }
+`;
+const N = `/* Number coercion: a non-numeric string is 0, which is Scratch's rule. */
 static inline double bw_n(bw_val v) {
     if (!v.is_str) return v.n;
     if (!v.s || !*v.s) return 0;
@@ -83,9 +87,9 @@ static inline double bw_n(bw_val v) {
     while (*end == ' ') end++;
     return *end ? 0 : d;
 }
-
-/* String coercion. Integers print without a decimal point, as Scratch shows them. */
-static const char *bw_s(bw_val v) {
+`;
+const S = `/* String coercion. Integers print without a decimal point, as Scratch shows them. */
+static inline const char *bw_s(bw_val v) {
     if (v.is_str) return v.s ? v.s : "";
     char buf[40];
     if (v.n == (double)(long long)v.n) snprintf(buf, sizeof buf, "%lld", (long long)v.n);
@@ -177,6 +181,51 @@ const RANDOM = `static inline bw_val bw_random(bw_val a, bw_val b) {
 }
 `;
 
+const WAIT = `/* A wait is real time, not a busy loop, so a generated program behaves like
+ * the project rather than pinning a core. POSIX; swap for Sleep() on Windows. */
+static inline void bw_wait(bw_val secs) {
+    double d = bw_n(secs);
+    if (d <= 0) return;
+    struct timespec ts;
+    ts.tv_sec = (time_t)d;
+    ts.tv_nsec = (long)((d - (double)ts.tv_sec) * 1e9);
+    nanosleep(&ts, 0);
+}
+`;
+
+const ASK = `/* \`ask and wait\` reads a line; \`answer\` then holds it, as in Scratch. */
+static inline bw_val bw_ask(bw_val question) {
+    static char line[512];
+    printf("%s ", bw_s(question));
+    fflush(stdout);
+    if (!fgets(line, sizeof line, stdin)) return bw_str("");
+    size_t n = strlen(line);
+    while (n && (line[n - 1] == '\\n' || line[n - 1] == '\\r')) line[--n] = 0;
+    return bw_str(bw_intern(line, n));
+}
+`;
+
+const MATHOP = `/* Scratch's [abs v] of () menu. Trig is in degrees, as the blocks are. */
+static inline bw_val bw_mathop(const char *op, bw_val x) {
+    double d = bw_n(x);
+    if (!strcmp(op, "abs")) return bw_num(fabs(d));
+    if (!strcmp(op, "floor")) return bw_num(floor(d));
+    if (!strcmp(op, "ceiling")) return bw_num(ceil(d));
+    if (!strcmp(op, "sqrt")) return bw_num(sqrt(d));
+    if (!strcmp(op, "sin")) return bw_num(sin(d * 3.14159265358979323846 / 180.0));
+    if (!strcmp(op, "cos")) return bw_num(cos(d * 3.14159265358979323846 / 180.0));
+    if (!strcmp(op, "tan")) return bw_num(tan(d * 3.14159265358979323846 / 180.0));
+    if (!strcmp(op, "asin")) return bw_num(asin(d) * 180.0 / 3.14159265358979323846);
+    if (!strcmp(op, "acos")) return bw_num(acos(d) * 180.0 / 3.14159265358979323846);
+    if (!strcmp(op, "atan")) return bw_num(atan(d) * 180.0 / 3.14159265358979323846);
+    if (!strcmp(op, "ln")) return bw_num(log(d));
+    if (!strcmp(op, "log")) return bw_num(log10(d));
+    if (!strcmp(op, "e ^")) return bw_num(exp(d));
+    if (!strcmp(op, "10 ^")) return bw_num(pow(10.0, d));
+    return bw_num(fabs(d));
+}
+`;
+
 const LIST = `/* ---- lists ---------------------------------------------------------------
  * Scratch lists are 1-based and silently ignore out-of-range writes. Both are
  * modelled here rather than corrected, because a project that relies on the
@@ -222,17 +271,24 @@ static inline bw_val bw_list_index(bw_list *l, bw_val x) {
 // all of it would make -Werror unusable for a two-block project. `deps` is the
 // transitive part -- bw_cmp needs bw_numeric, the list needs bw_cmp.
 const CHUNKS = [
-    { name: 'core', deps: [], always: true, code: CORE },
-    { name: 'bw_numeric', deps: ['core'], code: NUMERIC },
-    { name: 'bw_cmp', deps: ['bw_numeric'], code: CMP },
-    { name: 'bw_join', deps: ['core'], code: JOIN },
-    { name: 'bw_letter', deps: ['core'], code: LETTER },
-    { name: 'bw_length', deps: ['core'], code: LENGTH },
-    { name: 'bw_contains', deps: ['core'], code: CONTAINS },
-    { name: 'bw_mod', deps: ['core'], code: MOD },
-    { name: 'bw_random', deps: ['core'], code: RANDOM },
-    // The list functions are chunked one by one: a project that only appends
-    // must not carry `delete of` and `insert at`.
+    { name: '#type', always: true, code: TYPE },
+    { name: 'bw_intern', code: ARENA },
+    { name: 'bw_num', code: NUM },
+    { name: 'bw_str', code: STR },
+    { name: 'bw_bool', code: BOOL },
+    { name: 'bw_n', code: N },
+    { name: 'bw_s', code: S },
+    { name: 'bw_numeric', code: NUMERIC },
+    { name: 'bw_cmp', code: CMP },
+    { name: 'bw_join', code: JOIN },
+    { name: 'bw_letter', code: LETTER },
+    { name: 'bw_length', code: LENGTH },
+    { name: 'bw_contains', code: CONTAINS },
+    { name: 'bw_mod', code: MOD },
+    { name: 'bw_random', code: RANDOM },
+    { name: 'bw_wait', code: WAIT },
+    { name: 'bw_ask', code: ASK },
+    { name: 'bw_mathop', code: MATHOP },
     ...listChunks(),
 ];
 
@@ -242,35 +298,40 @@ function listChunks() {
     const head = LIST.slice(0, LIST.indexOf('static inline void bw_list_grow'));
     const rest = LIST.slice(LIST.indexOf('static inline void bw_list_grow'));
     const pieces = rest.split(/\n(?=static inline )/).filter(Boolean);
-    const out = [{ name: 'bw_list_base', deps: ['core'],
+    const out = [{ name: 'bw_list_grow',
                    code: head + pieces[0] + '\n' }];   // typedef + grow
     for (const piece of pieces.slice(1)) {
         const name = (piece.match(/\b(bw_list_\w+)\(/) || [])[1];
         if (!name) continue;
-        const deps = ['bw_list_base'];
-        if (/bw_cmp\(/.test(piece)) deps.push('bw_cmp');
-        out.push({ name, deps, code: piece.trimEnd() + '\n' });
+        out.push({ name, code: piece.trimEnd() + '\n' });
     }
     return out;
 }
 
-/** Every chunk whose name the body mentions, plus what those need. */
+/**
+ * The chunks this program needs, by fixed point rather than a dependency list.
+ * Start with everything, then repeatedly drop any chunk whose function nobody
+ * calls -- not the body, not another surviving chunk. A hand-written `deps`
+ * table would be a second copy of the truth, and would go stale the first time
+ * a helper stopped calling another. clang counts an unused `static inline` in a
+ * .c file as a warning, so this is what lets a two-block project build cleanly
+ * under -Werror.
+ */
 function neededChunks(body) {
-    const want = new Set(CHUNKS.filter((c) => c.always).map((c) => c.name));
-    for (const c of CHUNKS) {
-        if (c.always) continue;
-        const probe = c.name === 'bw_list_base' ? /\bbw_list\b/ : new RegExp('\\b' + c.name + '\\(');
-        if (probe.test(body)) want.add(c.name);
+    let keep = CHUNKS.slice();
+    for (;;) {
+        const dropped = [];
+        const survivors = keep.filter((c) => {
+            if (c.always) return true;
+            const others = keep.filter((o) => o !== c).map((o) => o.code).join('\n');
+            const probe = new RegExp('\\b' + c.name + '\\s*\\(');
+            if (probe.test(body) || probe.test(others)) return true;
+            dropped.push(c);
+            return false;
+        });
+        if (!dropped.length) return keep;
+        keep = survivors;
     }
-    let grew = true;
-    while (grew) {
-        grew = false;
-        for (const c of CHUNKS) {
-            if (!want.has(c.name)) continue;
-            for (const d of c.deps) if (!want.has(d)) { want.add(d); grew = true; }
-        }
-    }
-    return CHUNKS.filter((c) => want.has(c.name));
 }
 
 /**
@@ -280,18 +341,12 @@ function neededChunks(body) {
  * does not carry 59 stubs. Pass null for all of them.
  */
 export function cHostRuntime(body = '', used = null) {
-    const out = [];
-    for (const chunk of neededChunks(body)) out.push(chunk.code);
-    out.push('/* ---- Scratch stage shim ---------------------------------------------------');
-    out.push(' * No-ops that report what they were asked to do, so a generated program runs');
-    out.push(' * and prints something without a renderer. Replace the bodies to drive one.');
-    out.push(' * Generated from the same OP_TO_SCRATCH table as the Python and JS targets,');
-    out.push(' * so this list cannot fall behind them.');
-    out.push(' */');
-    let any = false;
-    for (const { name, argc } of shimSignatures()) {
-        if (used ? !used.has(name) : !new RegExp('\\b' + name + '\\(').test(body)) continue;
-        any = true;
+    // Build the shim first: `scratch_say` calls bw_s, so the pruning below has to
+    // see the shim text as well as the program, or a project whose only string
+    // coercion happens inside a shim loses the helper it needs.
+    const shim = [];
+    for (const { name, argc } of [...shimSignatures(), ...STRUCT_SHIMS]) {
+        if (used ? !used.has(name) : !new RegExp('\\b' + name + '\\s*\\(').test(body)) continue;
         const params = argc === 0 ? 'void'
             : Array.from({ length: argc }, (_, i) => `bw_val a${i}`).join(', ');
         const say = name === 'scratch_say' || name === 'scratch_think';
@@ -299,12 +354,35 @@ export function cHostRuntime(body = '', used = null) {
         const inner = say ? ' printf("%s\\n", bw_s(a0));'
             : sayFor ? ' printf("%s\\n", bw_s(a0)); (void)a1;'
                 : Array.from({ length: argc }, (_, i) => ` (void)a${i};`).join('');
-        out.push(`static inline bw_val ${name}(${params}) {${inner} return bw_num(0); }`);
+        shim.push(`static inline bw_val ${name}(${params}) {${inner} return bw_num(0); }`);
     }
-    if (!any) out.length -= 6;      // no shim used: drop the heading too
+
+    const out = [];
+    for (const chunk of neededChunks(body + '\n' + shim.join('\n'))) out.push(chunk.code);
+    if (shim.length) {
+        out.push('/* ---- Scratch stage shim ---------------------------------------------------');
+        out.push(' * No-ops that report what they were asked to do, so a generated program runs');
+        out.push(' * and prints something without a renderer. Replace the bodies to drive one.');
+        out.push(' * Generated from the same OP_TO_SCRATCH table as the Python and JS targets,');
+        out.push(' * so this list cannot fall behind them.');
+        out.push(' */');
+        out.push(...shim);
+    }
     out.push('');
     return out.join('\n');
 }
 
+// Structural markers (sprite/stage/local/costume/defblock) are not blocks, so they
+// are not in OP_TO_SCRATCH -- but Python emits them into the program so the project
+// structure round-trips, and `__getattr__` makes them exist for free there. Here they
+// have to be declared like everything else.
+export const STRUCT_SHIMS = [
+    { name: 'scratch_stage', argc: 0 }, { name: 'scratch_sprite', argc: 1 },
+    { name: 'scratch_sprite_shape', argc: 2 }, { name: 'scratch_local', argc: 1 },
+    { name: 'scratch_local_list', argc: 1 }, { name: 'scratch_costume', argc: 1 },
+    { name: 'scratch_sound', argc: 1 }, { name: 'scratch_defblock', argc: 2 },
+    { name: 'scratch_global_var', argc: 1 }, { name: 'scratch_global_list', argc: 1 },
+];
+
 /** The headers the runtime above needs. */
-export const C_HOST_INCLUDES = ['stdio.h', 'stdlib.h', 'string.h', 'math.h', 'ctype.h'];
+export const C_HOST_INCLUDES = ['stdio.h', 'stdlib.h', 'string.h', 'math.h', 'ctype.h', 'time.h'];

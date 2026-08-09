@@ -5,6 +5,9 @@ import { RUNTIME_EXTENSIONS as GENERATED_RUNTIME, RUNTIME_EXTENSION_URLS as GENE
 // Scratch-runtime shim table: maps graphical blocks (motion/looks/sensing/…) to
 // reversible `scratch.<method>(...)` calls so Python/JS round-trips preserve the project.
 import { OP_TO_SCRATCH, OP_TO_ARRAYS, spritePrefix, sanitizeIdent } from './scratchRuntime.js';
+// The host C target's runtime and shim naming (see cHostRuntime.js for why the
+// shim is generated from OP_TO_SCRATCH rather than written out).
+import { cHostRuntime, cShimName, C_HOST_INCLUDES } from './cHostRuntime.js';
 
 
 // Structured error classes
@@ -4101,7 +4104,387 @@ class SB3Creator {
         }
     }
 
+    // ================== host C target =========================================
+    // The second C target. `generateC` emits bare metal for the 8051, where a
+    // `move 10 steps` block has no meaning and saying so is correct. A project
+    // that moves a sprite needs the other one: a portable C99 program that runs
+    // the project the way `generatePython` does, against the shim in
+    // cHostRuntime.js. Which target a project gets is decided by the project —
+    // declared pins mean the chip, everything else means the host.
+    //
+    // These walkers mirror the PYTHON ones, not the device ones, because
+    // Python's are already total: every block either has a case here or falls
+    // through to the same OP_TO_SCRATCH lookup that gives Python its coverage.
+
+    hcStr(s) { return `bw_str(${JSON.stringify(String(s))})`; }
+
+    // A variable or list reference: sprite locals carry their sprite prefix, so
+    // two sprites with a `count` each stay distinct in one flat C file.
+    hcVar(name) {
+        const base = (this._curLocals && this._curLocals.has(name))
+            ? this._curPrefix + name : name;
+        return this.cName(base);
+    }
+
+    // Unique C identifier for a function (two `when flag clicked` hats in one
+    // sprite would otherwise collide, exactly as pyFreshName guards against).
+    hcFresh(base) {
+        let id = sanitizeIdent(base) || 'f';
+        if (SB3Creator.C_RESERVED.has(id)) id += '_';
+        const used = new Set(this._cNames ? this._cNames.values() : []);
+        let final = id, n = 2;
+        while (used.has(final)) final = id + '_' + n++;
+        if (!this._cNames) this._cNames = new Map();
+        this._cNames.set(Symbol(base), final);
+        return final;
+    }
+
+    hcVal(input, blocks) {
+        if (!Array.isArray(input)) return 'bw_num(0)';
+        const inner = input[1];
+        if (Array.isArray(inner)) {
+            const [type, a] = inner;
+            if (type === 12 || type === 13) return this.hcVar(a);
+            return /^-?\d+(\.\d+)?$/.test(String(a)) ? `bw_num(${Number(a)})` : this.hcStr(a);
+        }
+        return this.hcRep(blocks[inner], blocks);
+    }
+
+    // `scratch.<method>(...)` from the shared table, spelled for C. Mirrors
+    // runtimeObjCall rather than calling it, because the separator and the
+    // arity-disambiguated names (say / say_for) are C's problem alone.
+    hcScratchCall(b, blocks) {
+        const e = OP_TO_SCRATCH[b.opcode];
+        if (!e) return null;
+        const args = e.gen.map((g) => {
+            if (g.v) return this.hcVal(b.inputs[g.v], blocks);
+            if (g.m) {
+                const inp = b.inputs[g.m];
+                if (Array.isArray(inp) && inp[0] === 3) return this.hcVal(inp, blocks);
+                return this.hcStr(this.dmenu(inp, blocks, g.field || g.m));
+            }
+            if (g.f) return this.hcStr(b.fields[g.f] ? b.fields[g.f][0] : '');
+            if (g.bc) return this.hcStr(this.dbroadcast(b.inputs[g.bc]).replace(/^"|"$/g, ''));
+            return 'bw_num(0)';
+        });
+        return `${cShimName(e.m, args.length)}(${args.join(', ')})`;
+    }
+
+    hcRep(b, blocks) {
+        if (!b) return 'bw_num(0)';
+        const v = (k) => this.hcVal(b.inputs[k], blocks);
+        const n = (k) => `bw_n(${this.hcVal(b.inputs[k], blocks)})`;
+        const f = (k) => (b.fields[k] ? b.fields[k][0] : '');
+        const list = (k) => `&${this.hcVar(f(k))}`;
+        switch (b.opcode) {
+            case 'operator_add': return `bw_num(${n('NUM1')} + ${n('NUM2')})`;
+            case 'operator_subtract': return `bw_num(${n('NUM1')} - ${n('NUM2')})`;
+            case 'operator_multiply': return `bw_num(${n('NUM1')} * ${n('NUM2')})`;
+            case 'operator_divide': return `bw_num(${n('NUM1')} / ${n('NUM2')})`;
+            case 'operator_mod': return `bw_mod(${v('NUM1')}, ${v('NUM2')})`;
+            case 'bitops_and': return `bw_num((double)((long)${n('NUM1')} & (long)${n('NUM2')}))`;
+            case 'bitops_or': return `bw_num((double)((long)${n('NUM1')} | (long)${n('NUM2')}))`;
+            case 'bitops_xor': return `bw_num((double)((long)${n('NUM1')} ^ (long)${n('NUM2')}))`;
+            case 'bitops_shl': return `bw_num((double)((long)${n('NUM1')} << (long)${n('NUM2')}))`;
+            case 'bitops_shr': return `bw_num((double)((long)${n('NUM1')} >> (long)${n('NUM2')}))`;
+            case 'bitops_not': return `bw_num((double)(~(long)${n('NUM')}))`;
+            case 'operator_random': return `bw_random(${v('FROM')}, ${v('TO')})`;
+            case 'operator_round': return `bw_num(round(${n('NUM')}))`;
+            case 'operator_mathop': return `bw_mathop(${JSON.stringify(f('OPERATOR'))}, ${v('NUM')})`;
+            case 'operator_join': return `bw_join(${v('STRING1')}, ${v('STRING2')})`;
+            case 'operator_letter_of': return `bw_letter(${v('STRING')}, ${v('LETTER')})`;
+            case 'operator_length': return `bw_length(${v('STRING')})`;
+            case 'operator_contains': return `bw_contains(${v('STRING1')}, ${v('STRING2')})`;
+            case 'data_itemoflist': return `bw_list_item(${list('LIST')}, (int)${n('INDEX')})`;
+            case 'data_itemnumoflist': return `bw_list_index(${list('LIST')}, ${v('ITEM')})`;
+            case 'data_lengthoflist': return `bw_list_length(${list('LIST')})`;
+            case 'data_listcontainsitem': return `bw_list_contains(${list('LIST')}, ${v('ITEM')})`;
+            case 'sensing_answer': this._hcUses.answer = true; return 'bw_answer';
+            case 'argument_reporter_string_number':
+            case 'argument_reporter_boolean': return this.cName(f('VALUE'));
+            case 'planetemaths_add': return `bw_num(${n('NUM1')} + ${n('NUM2')})`;
+            case 'planetemaths_substract': return `bw_num(${n('NUM1')} - ${n('NUM2')})`;
+            case 'planetemaths_multiply': return `bw_num(${n('NUM1')} * ${n('NUM2')})`;
+            case 'planetemaths_divide': return `bw_num(${n('NUM1')} / ${n('NUM2')})`;
+            case 'planetemaths_pow': return `bw_num(pow(${n('NUM1')}, ${n('NUM2')}))`;
+            case 'planetemaths_oppose': return `bw_num(0 - ${n('NUM1')})`;
+            case 'planetemaths_inverse': return `bw_num(1 / ${n('NUM1')})`;
+            case 'planetemaths_pourcent': return `bw_num(${n('NUM1')} / 100)`;
+            case 'planetemaths_nombre_pi': return 'bw_num(3.14159265358979323846)';
+            case 'planetemaths_nombre_e': return 'bw_num(2.71828182845904523536)';
+            case 'planetemaths_factorial': return `bw_num(tgamma(${n('NUM1')} + 1))`;
+            case 'planetemaths_min': return `bw_num(fmin(${n('NUM1')}, ${n('NUM2')}))`;
+            case 'planetemaths_max': return `bw_num(fmax(${n('NUM1')}, ${n('NUM2')}))`;
+            case 'planetemaths_random': return `bw_random(${v('NUM1')}, ${v('NUM2')})`;
+            case 'planetemaths_join': return `bw_join(${v('STRING1')}, ${v('STRING2')})`;
+            case 'planetemaths_letterOf': return `bw_letter(${v('STRING')}, ${v('LETTER')})`;
+            case 'planetemaths_length': return `bw_length(${v('STRING')})`;
+            default: {
+                const sc = this.hcScratchCall(b, blocks);
+                if (sc) return sc;
+                this.hcWarn(b, blocks);
+                return 'bw_num(0)';
+            }
+        }
+    }
+
+    hcCond(ref, blocks) {
+        const b = blocks[ref];
+        if (!b) return '0';
+        const v = (k) => this.hcVal(b.inputs[k], blocks);
+        const c = (k) => (b.inputs[k] ? this.hcCond(b.inputs[k][1], blocks) : '0');
+        const truthy = (e) => `(bw_n(${e}) != 0)`;
+        switch (b.opcode) {
+            case 'operator_gt': return `(bw_cmp(${v('OPERAND1')}, ${v('OPERAND2')}) > 0)`;
+            case 'operator_lt': return `(bw_cmp(${v('OPERAND1')}, ${v('OPERAND2')}) < 0)`;
+            case 'operator_equals': return `(bw_cmp(${v('OPERAND1')}, ${v('OPERAND2')}) == 0)`;
+            case 'operator_and': return `(${c('OPERAND1')} && ${c('OPERAND2')})`;
+            case 'operator_or': return `(${c('OPERAND1')} || ${c('OPERAND2')})`;
+            case 'operator_not': return `(!${c('OPERAND')})`;
+            case 'operator_contains': return truthy(`bw_contains(${v('STRING1')}, ${v('STRING2')})`);
+            case 'data_listcontainsitem':
+                return truthy(`bw_list_contains(&${this.hcVar(b.fields.LIST[0])}, ${v('ITEM')})`);
+            case 'argument_reporter_boolean': return truthy(this.cName(b.fields.VALUE[0]));
+            case 'planetemaths_gt': return `(bw_cmp(${v('NUM1')}, ${v('NUM2')}) < 0)`;
+            case 'planetemaths_gte': return `(bw_cmp(${v('NUM1')}, ${v('NUM2')}) <= 0)`;
+            case 'planetemaths_lt': return `(bw_cmp(${v('NUM1')}, ${v('NUM2')}) > 0)`;
+            case 'planetemaths_lte': return `(bw_cmp(${v('NUM1')}, ${v('NUM2')}) >= 0)`;
+            case 'planetemaths_equals': return `(bw_cmp(${v('NUM1')}, ${v('NUM2')}) == 0)`;
+            case 'planetemaths_and': return `(${c('OPERAND1')} && ${c('OPERAND2')})`;
+            case 'planetemaths_or': return `(${c('OPERAND1')} || ${c('OPERAND2')})`;
+            case 'planetemaths_not': return `(!${c('OPERAND1')})`;
+            case 'planetemaths_contains': return truthy(`bw_contains(${v('STRING1')}, ${v('STRING2')})`);
+            case 'planetemaths_multiple':
+                return `(bw_n(bw_mod(${v('NUM1')}, ${v('NUM2')})) == 0)`;
+            default: {
+                const sc = this.hcScratchCall(b, blocks);
+                if (sc) return truthy(sc);
+                this.hcWarn(b, blocks);
+                return '0';
+            }
+        }
+    }
+
+    // A block with no host-C form. Unlike the device target this should stay
+    // empty for ordinary projects — if it fills up, the table and the walkers
+    // have drifted apart and that is worth knowing.
+    hcWarn(b, blocks) {
+        const text = (this.decompileStackBlock(b, blocks, 0)[0] || b.opcode).trim();
+        const msg = `no host-C form for "${text}"`;
+        if (!this._hcWarnings.includes(msg)) this._hcWarnings.push(msg);
+    }
+
+    hcStackFrom(firstId, blocks, level) {
+        const out = [];
+        let id = firstId;
+        while (id && blocks[id]) {
+            out.push(...this.codeCommentLines(id, '    '.repeat(level), '//'));
+            out.push(...this.hcStackBlock(blocks[id], blocks, level));
+            id = blocks[id].next;
+        }
+        return out;
+    }
+
+    hcStackBlock(b, blocks, level) {
+        const pad = '    '.repeat(level);
+        const v = (k) => this.hcVal(b.inputs[k], blocks);
+        const n = (k) => `bw_n(${this.hcVal(b.inputs[k], blocks)})`;
+        const f = (k) => (b.fields[k] ? b.fields[k][0] : '');
+        const list = (k) => `&${this.hcVar(f(k))}`;
+        const cond = (k) => (b.inputs[k] ? this.hcCond(b.inputs[k][1], blocks) : '0');
+        const body = (k) => (b.inputs[k] ? this.hcStackFrom(b.inputs[k][1], blocks, level + 1) : []);
+        const line = (t) => [pad + t];
+        switch (b.opcode) {
+            case 'control_forever': return [`${pad}for (;;) {`, ...body('SUBSTACK'), `${pad}}`];
+            case 'control_repeat': {
+                const i = `bw_i${++this._hcCounter}`;
+                return [`${pad}{ long ${i} = (long)${n('TIMES')};`,
+                    `${pad}  while (${i}-- > 0) {`, ...body('SUBSTACK'),
+                    `${pad}  }`, `${pad}}`];
+            }
+            case 'control_repeat_until':
+                return [`${pad}while (!${cond('CONDITION')}) {`, ...body('SUBSTACK'), `${pad}}`];
+            case 'control_while':
+                return [`${pad}while (${cond('CONDITION')}) {`, ...body('SUBSTACK'), `${pad}}`];
+            case 'control_if':
+                return [`${pad}if (${cond('CONDITION')}) {`, ...body('SUBSTACK'), `${pad}}`];
+            case 'control_if_else':
+                return [`${pad}if (${cond('CONDITION')}) {`, ...body('SUBSTACK'),
+                    `${pad}} else {`, ...body('SUBSTACK2'), `${pad}}`];
+            case 'control_wait': return line(`bw_wait(${v('DURATION')});`);
+            case 'control_wait_until': return line(`while (!${cond('CONDITION')}) ;`);
+            case 'control_stop':
+                return f('STOP_OPTION') === 'this script'
+                    ? line('return;') : line(`${this.hcScratchCall(b, blocks)};`);
+            case 'sensing_askandwait':
+                this._hcUses.answer = true;
+                return line(`bw_answer = bw_ask(${v('QUESTION')});`);
+            case 'data_setvariableto': return line(`${this.hcVar(f('VARIABLE'))} = ${v('VALUE')};`);
+            case 'data_changevariableby': {
+                const t = this.hcVar(f('VARIABLE'));
+                return line(`${t} = bw_num(bw_n(${t}) + ${n('VALUE')});`);
+            }
+            case 'data_addtolist': return line(`bw_list_add(${list('LIST')}, ${v('ITEM')});`);
+            case 'data_deleteoflist': return line(`bw_list_delete(${list('LIST')}, (int)${n('INDEX')});`);
+            case 'data_deletealloflist': return line(`bw_list_delete_all(${list('LIST')});`);
+            case 'data_insertatlist':
+                return line(`bw_list_insert(${list('LIST')}, (int)${n('INDEX')}, ${v('ITEM')});`);
+            case 'data_replaceitemoflist':
+                return line(`bw_list_replace(${list('LIST')}, (int)${n('INDEX')}, ${v('ITEM')});`);
+            case 'procedures_call': {
+                const m = b.mutation;
+                const argIds = JSON.parse(m.argumentids || '[]');
+                let ai = 0; const args = [];
+                m.proccode.replace(/%[sb]/g, (tok) => {
+                    const input = b.inputs[argIds[ai++]];
+                    args.push(tok === '%b'
+                        ? `bw_bool(${this.hcCond(input[1], blocks)})`
+                        : this.hcVal(input, blocks));
+                    return '';
+                });
+                return line(`${this.cName(this._curPrefix + this.pyProcRaw(m.proccode))}(${args.join(', ')});`);
+            }
+            default: {
+                const sc = this.hcScratchCall(b, blocks);
+                if (sc) return line(sc + ';');
+                this.hcWarn(b, blocks);
+                const ps = (this.decompileStackBlock(b, blocks, 0)[0] || b.opcode).trim();
+                return line(`/* ${ps} */`);
+            }
+        }
+    }
+
+    // The whole program. Mirrors generatePython's shape — global state, one
+    // function per script, structural markers so the project round-trips —
+    // with C's constraints: markers must live inside a function, and every
+    // function needs a prototype before it is called.
+    generateHostC(project = this.project, opts = {}) {
+        this._cNames = new Map();
+        this._hcWarnings = [];
+        this._hcUses = { answer: false };
+        this._hcCounter = 0;
+        this._emitComments = opts.comments !== false;
+        const targets = project.targets || [];
+        this._buildCodeComments(targets);
+
+        const stage = targets.find((t) => t.isStage);
+        const gScalars = stage ? Object.values(stage.variables || {}).map((v) => v[0]) : [];
+        const gLists = stage ? Object.values(stage.lists || {}).map((l) => l[0]) : [];
+
+        const sections = targets.filter((t) => !t.isStage
+            || Object.values(t.blocks || {}).some((b) => b.topLevel));
+
+        const decls = [];           // file-scope state
+        const protos = [];          // every function, declared before use
+        const defs = [];            // the functions themselves
+        const structure = [];       // marker calls, for the round trip
+        const flagCalls = [];
+
+        for (const name of gScalars) decls.push(`static bw_val ${this.cName(name)};`);
+        for (const name of gLists) decls.push(`static bw_list ${this.cName(name)};`);
+        for (const name of gScalars) structure.push(`    scratch_global_var(${this.hcStr(name)});`);
+        for (const name of gLists) structure.push(`    scratch_global_list(${this.hcStr(name)});`);
+
+        sections.forEach((t, idx) => {
+            const pfx = spritePrefix(idx);
+            const localScalars = t.isStage ? [] : Object.values(t.variables || {}).map((v) => v[0]);
+            const localLists = t.isStage ? [] : Object.values(t.lists || {}).map((l) => l[0]);
+            this._curPrefix = pfx;
+            this._curLocals = new Set([...localScalars, ...localLists]);
+            for (const name of localScalars) decls.push(`static bw_val ${this.hcVar(name)};`);
+            for (const name of localLists) decls.push(`static bw_list ${this.hcVar(name)};`);
+
+            if (t.isStage) structure.push('    scratch_stage();');
+            else {
+                const shape = t.costumes && t.costumes[0] && t.costumes[0]._shapeSpec;
+                structure.push(shape
+                    ? `    scratch_sprite_shape(${this.hcStr(t.name)}, ${this.hcStr(shape)});`
+                    : `    scratch_sprite(${this.hcStr(t.name)});`);
+            }
+            for (const name of localScalars) structure.push(`    scratch_local(${this.hcStr(name)});`);
+            for (const name of localLists) structure.push(`    scratch_local_list(${this.hcStr(name)});`);
+            for (const cos of (t.costumes || []).slice(1)) {
+                structure.push(`    scratch_costume(${this.hcStr(cos._spec || cos.name)});`);
+            }
+            for (const snd of (t.sounds || []).slice(1)) {
+                structure.push(`    scratch_sound(${this.hcStr(snd.name)});`);
+            }
+
+            const blocks = t.blocks || {};
+            for (const b of Object.values(blocks)) {
+                if (!b.topLevel || !this.isHat(b.opcode)) continue;
+                if (b.opcode === 'procedures_definition') {
+                    const proto = blocks[b.inputs.custom_block[1]];
+                    const m = proto.mutation;
+                    const argNames = JSON.parse(m.argumentnames || '[]').map((a) => this.cName(a));
+                    const fn = this.cName(pfx + this.pyProcRaw(m.proccode));
+                    const params = argNames.length
+                        ? argNames.map((a) => `bw_val ${a}`).join(', ') : 'void';
+                    // External linkage on purpose: a custom block or an event handler
+                    // that nothing calls is still meaningful -- it is an entry point for
+                    // whatever drives the shim -- and `static` would make an uncalled one
+                    // a warning under -Werror.
+                    protos.push(`void ${fn}(${params});`);
+                    // The marker keeps the exact proccode and warp flag, which a flat
+                    // C name cannot encode — the same reason Python emits defblock().
+                    defs.push([
+                        `/* DEFINE ${m.proccode} */`,
+                        `void ${fn}(${params})`, '{',
+                        `    scratch_defblock(${this.hcStr(m.proccode)}, bw_num(${m.warp === 'true' ? 1 : 0}));`,
+                        ...this.hcStackFrom(b.next, blocks, 1), '}',
+                    ].join('\n'));
+                } else {
+                    const fn = this.hcFresh(pfx + this.pyHatBase(b));
+                    protos.push(`void ${fn}(void);`);
+                    const head = b.opcode === 'event_whenflagclicked'
+                        ? [] : [`/* ${this.decompileHat(b, blocks)} — call when that happens */`];
+                    defs.push([...head, `void ${fn}(void)`, '{',
+                        ...this.hcStackFrom(b.next, blocks, 1), '}'].join('\n'));
+                    if (b.opcode === 'event_whenflagclicked') flagCalls.push(`    ${fn}();`);
+                }
+            }
+        });
+        this._curPrefix = ''; this._curLocals = null;
+
+        const program = [];
+        if (decls.length) program.push(...decls, '');
+        if (this._hcUses.answer) program.push('static bw_val bw_answer;', '');
+        if (protos.length) program.push(...protos, '');
+        if (structure.length) {
+            program.push('/* Project structure, so the C reads back as the same blocks. */',
+                'static void bw_structure(void)', '{', ...structure, '}', '');
+        }
+        for (const d of defs) program.push(d, '');
+        program.push('int main(void)', '{');
+        if (structure.length) program.push('    bw_structure();');
+        program.push(...flagCalls, '    return 0;', '}');
+
+        const body = program.join('\n');
+        const out = [
+            '/* Generated by Brickwright — blocks → C (host).',
+            ' * Scratch blocks map to a `scratch_*` shim you can point at a real renderer;',
+            ' * the structure calls in bw_structure() are what make this read back as the',
+            ' * same project. For the STC12/8051 this is the WRONG target — declare pins',
+            ' * and you get bare metal instead. */',
+            ...C_HOST_INCLUDES.map((h) => `#include <${h}>`),
+            '',
+            cHostRuntime(body),
+            body,
+            '',
+        ];
+        return out.join('\n');
+    }
+
     generateC(project = this.project, opts = {}) {
+        // Which C? The project decides. Declared pins mean the chip and bare
+        // metal; anything else is a Scratch program, and emitting 8051 register
+        // writes for it produced the 390 "no C equivalent" warnings this split
+        // exists to end. `opts.target` overrides for the rare case of wanting
+        // the other one on purpose.
+        const hasPins = !!(project && project.stc && project.stc.pins && project.stc.pins.length);
+        const want = opts.target || (hasPins ? 'device' : 'host');
+        if (want === 'host') return this.generateHostC(project, opts);
+
         this._cNames = new Map();
         this._cCounter = 0;
         this._cWarnings = [];
