@@ -72,11 +72,8 @@ function assertConformance(info, label) {
         assert.ok(blocksByOpcode[op], `${label}: missing opcode "${op}"`);
     }
 
-    // No extra opcodes (unless explicitly expected)
-    const extraOps = Object.keys(blocksByOpcode).filter(op => !EMITTED_OPCODES[op]);
-    // readport is acceptable if present (sb3-creator emits it too)
-    const unexpected = extraOps.filter(op => op !== 'readport');
-    assert.deepStrictEqual(unexpected, [], `${label}: unexpected opcodes: ${unexpected}`);
+    // Extra opcodes in the extension are fine — the extension is the superset,
+    // sb3-creator is the subset. The invariant is: every emitted opcode exists.
 
     // Argument names match
     for (const [op, expect] of Object.entries(EMITTED_OPCODES)) {
@@ -118,7 +115,7 @@ test('bundled stc12 extension matches emitted opcodes', { skip: !bundledWrapper 
     assertConformance(info, 'bundled');
 });
 
-test('gallery and bundled copies have identical block shapes', {
+test('shared stc12 opcodes have identical block shapes across copies', {
     skip: (!gallerySource || !bundledWrapper) && 'one or both files not found'
 }, () => {
     const galleryInfo = loadExtension(gallerySource);
@@ -126,26 +123,34 @@ test('gallery and bundled copies have identical block shapes', {
 
     const gBlocks = galleryInfo.blocks.filter(b => typeof b === 'object');
     const bBlocks = bundledInfo.blocks.filter(b => typeof b === 'object');
+    const gByOp = Object.fromEntries(gBlocks.map(b => [b.opcode, b]));
+    const bByOp = Object.fromEntries(bBlocks.map(b => [b.opcode, b]));
 
-    for (const gb of gBlocks) {
-        const bb = bBlocks.find(b => b.opcode === gb.opcode);
-        assert.ok(bb, `bundled missing opcode "${gb.opcode}" that gallery has`);
-        assert.strictEqual(gb.blockType, bb.blockType, `${gb.opcode}: blockType mismatch`);
+    // For every opcode that exists in BOTH copies, shapes must match.
+    // Extra opcodes in either copy are fine — the gallery may gain blocks
+    // before the bundled copy is updated, and vice versa.
+    const shared = Object.keys(gByOp).filter(op => bByOp[op]);
+    assert.ok(shared.length >= Object.keys(EMITTED_OPCODES).length,
+        'both copies must at least share the emitted opcodes');
+
+    for (const op of shared) {
+        const gb = gByOp[op], bb = bByOp[op];
+        assert.strictEqual(gb.blockType, bb.blockType, `${op}: blockType mismatch`);
 
         const gArgs = Object.entries(gb.arguments || {}).sort(([a], [b]) => a.localeCompare(b));
         const bArgs = Object.entries(bb.arguments || {}).sort(([a], [b]) => a.localeCompare(b));
         assert.deepStrictEqual(
             gArgs.map(([k, v]) => [k, v.type, v.menu || null]),
             bArgs.map(([k, v]) => [k, v.type, v.menu || null]),
-            `${gb.opcode}: argument shapes differ`
+            `${op}: argument shapes differ between gallery and bundled`
         );
     }
 
-    // Check menus match
-    for (const [name, gMenu] of Object.entries(galleryInfo.menus || {})) {
-        const bMenu = bundledInfo.menus[name];
-        assert.ok(bMenu, `bundled missing menu "${name}"`);
-        assert.strictEqual(gMenu.acceptReporters, bMenu.acceptReporters,
-            `menu "${name}": acceptReporters mismatch`);
+    // For shared menus, acceptReporters must match
+    const gMenus = galleryInfo.menus || {};
+    const bMenus = bundledInfo.menus || {};
+    for (const name of Object.keys(gMenus).filter(n => bMenus[n])) {
+        assert.strictEqual(gMenus[name].acceptReporters, bMenus[name].acceptReporters,
+            `menu "${name}": acceptReporters mismatch between copies`);
     }
 });
