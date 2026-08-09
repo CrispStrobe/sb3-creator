@@ -1771,3 +1771,89 @@ test('the yield map is readable from a debug build', () => {
     // Release builds have no yield map.
     assert.deepEqual(readYieldMap(c.generateC()), []);
 });
+
+// ---- wire protocol agreement: stc12live vs bw-board's serial-debug ---------
+// Two independent implementations of live-proto.h framing. Both must produce
+// and parse the same bytes, or a runtime driver and a debug target silently
+// disagree about what they sent.
+
+test('stc12live and bw-board frame codecs agree byte for byte', async () => {
+    const { readFileSync } = await import('node:fs');
+    const vm = await import('node:vm');
+
+    // Load stc12live's buildFrame and Decoder.
+    const liveSrc = readFileSync(new URL('../reference/extensions/stc12live.js', import.meta.url), 'utf8');
+    const liveCapture = {};
+    const liveMock = {
+        BlockType: { COMMAND: 'command', REPORTER: 'reporter', BOOLEAN: 'Boolean', HAT: 'hat' },
+        ArgumentType: { NUMBER: 'number', STRING: 'string', BOOLEAN: 'Boolean' },
+        extensions: { register: () => {} },
+        translate: (m) => (m && typeof m === 'object' ? (m.default || '') : String(m || '')),
+        vm: { runtime: {} }
+    };
+    // Extract buildFrame and Decoder from the IIFE scope by patching the source.
+    const patchedLive = liveSrc.replace(
+        'Scratch.extensions.register(new STC12Live());',
+        'Scratch._bwCapture = { buildFrame, Decoder }; Scratch.extensions.register(new STC12Live());'
+    );
+    const liveCtx = vm.createContext({ Scratch: liveMock, console, navigator: { language: 'en' }, localStorage: { getItem: () => null }, performance });
+    vm.runInContext(patchedLive, liveCtx);
+    const { buildFrame: liveBuild, Decoder: LiveDecoder } = liveMock._bwCapture;
+    assert.ok(liveBuild, 'stc12live buildFrame extracted');
+    assert.ok(LiveDecoder, 'stc12live Decoder extracted');
+
+    // Load bw-board's buildFrame and FrameReceiver.
+    const boardPath = new URL('../../bw-board/src/serial-debug.js', import.meta.url).pathname;
+    let boardBuild, BoardReceiver;
+    try {
+        const boardMod = await import(boardPath);
+        boardBuild = boardMod.buildFrame;
+        BoardReceiver = boardMod.FrameReceiver;
+    } catch {
+        // bw-board not on this machine — skip rather than fail.
+        console.log('  (bw-board not found, skipping wire-protocol comparison)');
+        return;
+    }
+    assert.ok(boardBuild, 'bw-board buildFrame loaded');
+    assert.ok(BoardReceiver, 'bw-board FrameReceiver loaded');
+
+    // Test vectors: command + payload pairs covering the protocol space.
+    const vectors = [
+        { cmd: 0x01, payload: [] },                           // HELLO, empty payload
+        { cmd: 0x02, payload: [4, 0x00, 0x90, 1] },           // READ bit space P1.0
+        { cmd: 0x03, payload: [4, 0x00, 0x90, 1] },           // WRITE bit space
+        { cmd: 0x81, payload: [1, 64, 4, 2, 0x1F, 0x1F, 7, 4, 0x19] },  // HELLO reply (cap blob)
+        { cmd: 0x0A, payload: [0, 2, 0x00, 0x00, 0x00, 0x00] },  // POS
+        { cmd: 0xFF, payload: [0x01, 0x03] },                  // NAK
+        { cmd: 0xF0, payload: [1, 0, 2, 0x00, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00] },  // EVT_HALT
+        { cmd: 0x03, payload: Array.from({ length: 64 }, (_, i) => i) },  // max payload
+    ];
+
+    for (const { cmd, payload } of vectors) {
+        const liveFrame = liveBuild(cmd, payload);
+        const boardFrame = boardBuild(cmd, payload);
+
+        // Byte-for-byte equality.
+        assert.equal(liveFrame.length, boardFrame.length,
+            `frame length differs for cmd 0x${cmd.toString(16)}`);
+        for (let i = 0; i < liveFrame.length; i++) {
+            assert.equal(liveFrame[i], boardFrame[i],
+                `byte ${i} differs for cmd 0x${cmd.toString(16)}: live=${liveFrame[i]} board=${boardFrame[i]}`);
+        }
+
+        // Round-trip: bw-board's receiver can parse stc12live's frames.
+        const rx = new BoardReceiver();
+        rx.feed(liveFrame);
+        assert.equal(rx.frames.length, 1,
+            `bw-board did not parse stc12live's frame for cmd 0x${cmd.toString(16)}`);
+        assert.equal(rx.frames[0].cmd, cmd);
+
+        // Round-trip: stc12live's decoder can parse bw-board's frames.
+        const dec = new LiveDecoder();
+        let parsed = null;
+        dec.onFrame = (c, p) => { parsed = { cmd: c, payload: p }; };
+        for (const b of boardFrame) dec.feed(b);
+        assert.ok(parsed, `stc12live did not parse bw-board's frame for cmd 0x${cmd.toString(16)}`);
+        assert.equal(parsed.cmd, cmd);
+    }
+});
