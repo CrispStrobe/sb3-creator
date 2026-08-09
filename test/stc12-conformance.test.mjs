@@ -286,3 +286,92 @@ test('the stc12live copies present on this machine have identical block shapes',
         }
     }
 });
+
+// ---- ledcube: conformance across copies + emitter agreement ----------------
+
+const ledcubeGallery = findCopy('BW_GALLERY_LEDCUBE',
+    '../../extensions/extensions/CrispStrobe/ledcube.js');
+const ledcubeRef = findCopy('BW_REFERENCE_LEDCUBE', '../reference/extensions/ledcube.js');
+
+// Derive EMITTED_LEDCUBE_OPCODES the same way as stc12, from createBlock/cmd/B/push.
+// Use `return` as the scan boundary instead of a fixed 400-char window, because
+// ledcube blocks are packed close together and the window picks up neighbours.
+const EMITTED_LEDCUBE = new Set();
+const LEDCUBE_ARGS = {};
+for (const m of sb3CreatorSource.matchAll(/(?:createBlock|cmd)\('ledcube_([a-z0-9_]+)'/g)) {
+    EMITTED_LEDCUBE.add(m[1]);
+    if (!LEDCUBE_ARGS[m[1]]) LEDCUBE_ARGS[m[1]] = new Set();
+    const afterFull = sb3CreatorSource.slice(m.index, m.index + 400);
+    const retIdx = afterFull.indexOf('return ret(');
+    const after = retIdx > 0 ? afterFull.slice(0, retIdx) : afterFull;
+    for (const f of after.matchAll(/(?:fields|inputs)\.([A-Z_]+)\s*=/g)) LEDCUBE_ARGS[m[1]].add(f[1]);
+}
+for (const m of sb3CreatorSource.matchAll(/(?:B|push)\('ledcube_([a-z0-9_]+)',\s*\{[^}]*\},?\s*\{([^}]*)\}/g)) {
+    EMITTED_LEDCUBE.add(m[1]);
+    if (!LEDCUBE_ARGS[m[1]]) LEDCUBE_ARGS[m[1]] = new Set();
+    for (const f of m[2].matchAll(/([A-Z_]+)\s*:/g)) LEDCUBE_ARGS[m[1]].add(f[1]);
+}
+
+test('ledcube extension matches emitted opcodes', {
+    skip: !ledcubeGallery.source && !ledcubeRef.source && 'no ledcube copy found'
+}, () => {
+    const source = ledcubeGallery.source || ledcubeRef.source;
+    const info = loadExtension(source);
+    assert.strictEqual(info.id, 'ledcube');
+
+    const blocksByOpcode = Object.fromEntries(
+        info.blocks.filter(b => typeof b === 'object').map(b => [b.opcode, b])
+    );
+
+    // Every emitted opcode must exist in the extension.
+    for (const op of EMITTED_LEDCUBE) {
+        assert.ok(blocksByOpcode[op], `ledcube: missing opcode "${op}" (sb3-creator emits ledcube_${op})`);
+    }
+
+    // Argument names must match what the emitter writes.
+    for (const op of EMITTED_LEDCUBE) {
+        const block = blocksByOpcode[op];
+        if (!block) continue;
+        const emitterArgs = LEDCUBE_ARGS[op];
+        if (!emitterArgs || emitterArgs.size === 0) continue;
+        const declared = new Set(Object.keys(block.arguments || {}));
+        for (const arg of emitterArgs) {
+            assert.ok(declared.has(arg),
+                `ledcube_${op} — emitter writes "${arg}" but getInfo() does not declare it`);
+        }
+    }
+
+    // Menus must be acceptReporters:false.
+    const menus = info.menus || {};
+    for (const block of Object.values(blocksByOpcode)) {
+        for (const [argName, arg] of Object.entries(block.arguments || {})) {
+            if (arg.menu) {
+                const menu = menus[arg.menu];
+                assert.ok(menu, `ledcube: ${block.opcode}.${argName} references missing menu "${arg.menu}"`);
+                assert.strictEqual(menu.acceptReporters, false,
+                    `ledcube: menu "${arg.menu}" must have acceptReporters:false`);
+            }
+        }
+    }
+});
+
+test('ledcube copies agree on block shapes', {
+    skip: (!ledcubeGallery.source || !ledcubeRef.source) && 'need both gallery and reference copies'
+}, () => {
+    const gInfo = loadExtension(ledcubeGallery.source);
+    const rInfo = loadExtension(ledcubeRef.source);
+    const gBlocks = Object.fromEntries(gInfo.blocks.filter(b => typeof b === 'object').map(b => [b.opcode, b]));
+    const rBlocks = Object.fromEntries(rInfo.blocks.filter(b => typeof b === 'object').map(b => [b.opcode, b]));
+    for (const op of Object.keys(gBlocks)) {
+        const r = rBlocks[op];
+        if (!r) continue;
+        assert.strictEqual(gBlocks[op].blockType, r.blockType, `ledcube ${op}: blockType mismatch`);
+        const gArgs = Object.entries(gBlocks[op].arguments || {}).sort(([a],[b]) => a.localeCompare(b));
+        const rArgs = Object.entries(r.arguments || {}).sort(([a],[b]) => a.localeCompare(b));
+        assert.deepStrictEqual(
+            gArgs.map(([k,v]) => [k, v.type, v.menu || null]),
+            rArgs.map(([k,v]) => [k, v.type, v.menu || null]),
+            `ledcube ${op}: argument shapes differ`
+        );
+    }
+});
