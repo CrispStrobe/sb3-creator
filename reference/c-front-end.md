@@ -157,16 +157,29 @@ console.log('direct:',direct,'/',hasMain,'restructured:',restr,'defects:',defect
 
 | | count | % of 521 |
 |---|---|---|
-| 1. Translates directly (zero real warnings) | **466** | **89.4%** |
-| 2. Translates after restructuring (break→flag, warned) | 23 | 4.4% |
-| **total that translate** | **489** | **93.9%** |
-| 3. Remaining defects | 28 | 5.4% |
+| 1. Translates directly (zero real warnings) | **467** | **89.6%** |
+| 2. Translates after restructuring (break→flag, warned) | 24 | 4.6% |
+| **total that translate** | **491** | **94.2%** |
+| 3. Remaining defects | 26 | 5.0% |
 | 4. Genuinely impossible (`goto`) | 4 | 0.8% |
 
-Note: numbers differ from the earlier 502/515 measurement because the codebase evolved
-(new opcodes, ledcube blocks, DEFINE emission for hand-written functions produces parse
-warnings from functions with array subscripts). The previous measurement was on a
-different commit and is superseded.
+### Defect characterisation (26 defects, 3 causes)
+
+The 26 defects are **3 causes, not 26 problems** — a handful of fixes would move
+the number, but most are blocked on dialect gaps:
+
+| cause | files | nature |
+|---|---|---|
+| **parse-crash** | 11 | assignment in condition (`if(x=1)`), array subscript in function arguments |
+| **for-loop** | 13 | array-dereference condition (`buf[i]!=0`), shift-step loops (`i>>=1`) |
+| **ternary** | 4 | inside call arguments, with side effects |
+
+The parse-crash category is dominated by assignment-in-condition (source bugs in the
+corpus, not parser bugs). The for-loop category is dominated by array subscripts in
+conditions (dialect gap — needs tier 2). The ternary category would need temp-variable
+hoisting (architectural change, disproportionate to 4 files).
+
+(Some files have multiple causes; totals overlap.)
 
 ### keil2sdcc effect (measured separately)
 
