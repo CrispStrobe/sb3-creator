@@ -55,7 +55,7 @@ export default function micropythonToPseudocode (source, opts = {}) {
     // them has. It is emitted because the dialect wants one, and 16 MHz is what
     // the writer uses -- keeping the pair consistent matters more than the
     // number, which nothing reads.
-    const device = opts.device || (isMicrobit ? 'microbit' : 'pico');
+    let device = opts.device || (isMicrobit ? 'microbit' : 'pico');
 
     const rawLines = source.split('\n');
     const lines = rawLines.map((l) => {
@@ -128,6 +128,36 @@ export default function micropythonToPseudocode (source, opts = {}) {
         }
     }
 
+    // ---- the header, when the writer left one ------------------------------
+    // Everything below this recovers facts from the code, which works and is
+    // what a hand-written program gets. But a pin that is never parked has its
+    // NAME nowhere in the program at all -- `_adc26` is what the machine needs
+    // and `pot` is what the author wrote -- so the writer states it, and a
+    // stated fact beats an inferred one every time.
+    const block = source.match(/@bw-begin([\s\S]*?)@bw-end/);
+    let markerDevice = null;
+    if (block) {
+        for (const line of block[1].split('\n')) {
+            let m;
+            if ((m = line.match(/@bw\s+device\s+(\S+)/))) { markerDevice = m[1].toLowerCase(); continue; }
+            if ((m = line.match(/@bw\s+pin\s+(\w+)\s+(\S+)\s+(\w+)(\s+active-low)?/))) {
+                const [, name, where, direction, low] = m;
+                const rec = pins.get(where.toUpperCase());
+                if (rec) {
+                    rec.name = name;
+                    rec.direction = direction.toLowerCase();
+                    rec.activeLow = !!low;
+                } else {
+                    // Declared in the header and never used in the body. Still
+                    // a pin the program has, and dropping it would silently
+                    // shrink the board.
+                    pins.set(where.toUpperCase(), { name, where: where.toUpperCase(),
+                        direction: direction.toLowerCase(), activeLow: !!low, obj: null });
+                }
+            }
+        }
+    }
+
     // ---- names and polarity, recovered from the parking lines -------------
     // `pin0.write_digital(0)  # led off` says three things at once: that P0 is
     // called "led", that the pin is an output, and that 0 is its OFF level --
@@ -140,7 +170,7 @@ export default function micropythonToPseudocode (source, opts = {}) {
         const m = l.code.match(/\b(\w+)\.(?:write_digital|value)\s*\(\s*([01])\s*\)/);
         if (!m) continue;
         const rec = byObj.get(m[1]);
-        if (!rec) continue;
+        if (!rec || block) continue;    // the header already said, and said better
         rec.name = named[1];
         rec.activeLow = m[2] === '1';   // "off" is HIGH => the load is active low
     }
@@ -306,6 +336,7 @@ export default function micropythonToPseudocode (source, opts = {}) {
         return m ? m[1].trim() : e;
     }
 
+    if (markerDevice && !opts.device) device = markerDevice;
     const head = [`DEVICE ${device.toUpperCase()}`, 'CLOCK 16000000'];
     const pinList = [...pins.values()];
     if (pinList.length) {

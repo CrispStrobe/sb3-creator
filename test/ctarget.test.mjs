@@ -2316,3 +2316,58 @@ test('a Python file that is not for a board says so instead of guessing', () => 
     assert.equal(pseudocode, '');
     assert.ok(warnings.some((w) => /not MicroPython for a board this reads/.test(w)));
 });
+
+test('a stated pin name beats an inferred one', () => {
+    // Only an OUTPUT gets a parking line, so only an output's name survives in
+    // the code. An input or an ADC is named nowhere at all -- `_adc26` is what
+    // the machine needs and `pot` is what the author wrote -- so the writer
+    // states it in an @bw header and the reader takes that over its own
+    // inference. This is the same header convention generateC already uses.
+    const withHeader = `from machine import Pin, ADC, PWM
+import time
+# @bw-begin
+# @bw device pico
+# @bw pin led GP15 output active-low
+# @bw pin btn GP14 input active-low
+# @bw pin pot GP26 analog
+# @bw-end
+def bw_script():
+    while True:
+        if (not _pin14.value()):
+            _pin15.value(0)
+        print(_adc26.read_u16() >> 6)
+        time.sleep_ms(10)
+_pin15 = Pin(15, Pin.OUT)
+_pin14 = Pin(14, Pin.IN, Pin.PULL_UP)
+_adc26 = ADC(26)
+_pin15.value(1)  # led off
+bw_script()
+`;
+    const { pseudocode, warnings } = micropythonToPseudocode(withHeader);
+    assert.deepEqual(warnings, []);
+    assert.match(pseudocode, /^PIN led = GP15 OUTPUT ACTIVE LOW$/m);
+    // These two are the whole point: without the header they come back as
+    // gp14 and gp26.
+    assert.match(pseudocode, /^PIN btn = GP14 INPUT ACTIVE LOW$/m);
+    assert.match(pseudocode, /^PIN pot = GP26 ANALOG$/m);
+    assert.match(pseudocode, /print read pot/);
+    assert.match(pseudocode, /IF not read btn THEN:/);
+    // And the header is not left behind as a comment in the output.
+    assert.ok(!/@bw/.test(pseudocode));
+});
+
+test('a pin declared in the header but unused still exists', () => {
+    const { pseudocode } = micropythonToPseudocode(`from microbit import *
+# @bw-begin
+# @bw device microbit
+# @bw pin spare P2 output
+# @bw-end
+def bw_script():
+    while True:
+        sleep(10)
+bw_script()
+`);
+    // Dropping it would silently shrink the board: the program has that pin
+    // whether or not this particular script touches it.
+    assert.match(pseudocode, /^PIN spare = P2 OUTPUT$/m);
+});
