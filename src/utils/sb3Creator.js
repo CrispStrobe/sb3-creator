@@ -926,6 +926,15 @@ class SB3Creator {
         if ((m = s.match(/^state of\s+(.+)$/i))) {
             return B('devices_devicestate', { DEVICE: this.parseValue(m[1], context) });
         }
+        if ((m = s.match(/^flex of\s+(.+)$/i))) {
+            return B('devices_flex', { SENSOR: this.parseValue(m[1], context) });
+        }
+        if ((m = s.match(/^force on\s+(.+)$/i))) {
+            return B('devices_force', { SENSOR: this.parseValue(m[1], context) });
+        }
+        if ((m = s.match(/^ir code from\s+(.+)$/i))) {
+            return B('devices_ircode', { SENSOR: this.parseValue(m[1], context) });
+        }
 
         if ((m = s.match(/^pick random\s+(.+)$/i))) {
             const parts = this.splitBinary(m[1], [' to '], { ci: true });
@@ -3495,6 +3504,9 @@ class SB3Creator {
             case 'devices_motorspeed': return `speed of ${v('MOTOR')}`;
             case 'devices_motordirection': return `direction of ${v('MOTOR')}`;
             case 'devices_devicestate': return `state of ${v('DEVICE')}`;
+            case 'devices_flex': return `flex of ${v('SENSOR')}`;
+            case 'devices_force': return `force on ${v('SENSOR')}`;
+            case 'devices_ircode': return `ir code from ${v('SENSOR')}`;
             // circuit extension reporters
             case 'circuit_nodevoltage': return `voltage at ${v('NET')}`;
             case 'circuit_branchcurrent': return `current through ${v('PART')}`;
@@ -6360,6 +6372,10 @@ SB3Creator.RUNTIME_EXTENSIONS = {
             setdirection: { kind: 'command', method: 'setDirection', args: ['MOTOR', 'DIR'] },
             activate: { kind: 'command', method: 'activate', args: ['DEVICE'] },
             deactivate: { kind: 'command', method: 'deactivate', args: ['DEVICE'] },
+            // Sensor reporters
+            flex: { kind: 'reporter', method: 'flex', args: ['SENSOR'], neutral: 'NaN' },
+            force: { kind: 'reporter', method: 'force', args: ['SENSOR'], neutral: 'NaN' },
+            ircode: { kind: 'reporter', method: 'irCode', args: ['SENSOR'], neutral: 'NaN' },
             // Actuator readback reporters
             motorspeed: { kind: 'reporter', method: 'motorSpeed', args: ['MOTOR'], neutral: 'NaN' },
             motordirection: { kind: 'reporter', method: 'motorDirection', args: ['MOTOR'], neutral: '"stopped"' },

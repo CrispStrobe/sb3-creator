@@ -32,12 +32,12 @@ const SHAPE_MATRIX = {
     temp_sensor:  { command: null,                     reporter: 'devices_temperature', predicate: 'devices_above', hat: null, need: { hat: 'when temperature above <n>' } },
     ldr:          { command: null,                     reporter: 'devices_light',       predicate: 'devices_above', hat: null, need: { hat: 'when light above <n>' } },
     ultrasonic:   { command: null,                     reporter: 'devices_distance',    predicate: 'devices_closer', hat: null, need: { hat: 'when distance < <n>' } },
-    pir:          { command: null,                     reporter: null,                  predicate: 'devices_motion', hat: null, need: { hat: 'when motion detected', reporter: 'motion level' } },
-    tilt_sensor:  { command: null,                     reporter: null,                  predicate: 'devices_tilted', hat: null, need: { hat: 'when tilted' } },
-    flex_sensor:  { command: null,                     reporter: null,                  predicate: null, hat: null,           need: { reporter: 'flex level', predicate: 'flex above <n>?' } },
-    force_sensor: { command: null,                     reporter: null,                  predicate: null, hat: null,           need: { reporter: 'force level', predicate: 'force above <n>?' } },
-    phototransistor:{ command: null,                   reporter: null,                  predicate: null, hat: null,           need: { reporter: 'light level', predicate: 'light above <n>?' } },
-    ir_receiver:  { command: null,                     reporter: null,                  predicate: null, hat: null,           need: { reporter: 'received code', hat: 'when IR received' } },
+    pir:          { command: null,                     reporter: null,                  predicate: 'devices_motion', hat: null, need: { hat: 'when motion detected' }, exempt: { reporter: 'PIR is binary, predicate is the right shape' } },
+    tilt_sensor:  { command: null,                     reporter: null,                  predicate: 'devices_tilted', hat: null, need: { hat: 'when tilted' }, exempt: { reporter: 'tilt is binary' } },
+    flex_sensor:  { command: null,                     reporter: 'devices_flex',        predicate: 'devices_above', hat: null, need: { hat: 'when flex above <n>' } },
+    force_sensor: { command: null,                     reporter: 'devices_force',       predicate: 'devices_above', hat: null, need: { hat: 'when force above <n>' } },
+    phototransistor:{ command: null,                   reporter: 'devices_light',       predicate: 'devices_above', hat: null, need: { hat: 'when light above <n>' } },
+    ir_receiver:  { command: null,                     reporter: 'devices_ircode',      predicate: null, hat: null,           need: { hat: 'when IR received' } },
 
     // --- actuators ---
     servo:        { command: 'devices_setservo',        reporter: 'devices_servoangle', predicate: null, hat: null,           exempt: { predicate: 'angle is a number', hat: 'not event-driven' } },
