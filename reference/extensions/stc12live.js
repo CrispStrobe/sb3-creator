@@ -104,6 +104,18 @@
       this._pendingResolve = null;
       this._pendingCmd = 0;
       this._readLoop = null;
+      // Publish capabilities to runtime.stc12liveCapabilities on connect,
+      // cleared on disconnect.  NO READER EXISTS YET — the palette layer in
+      // brickwright-lite needs to consult this and grey out the five circuit
+      // reporters (nodeVoltage, branchCurrent, resistance, ledBrightness,
+      // buzzerTone) when a hardware target is connected.  Until then, those
+      // blocks return NaN (circuit.js stopgap), which Scratch's Cast.toNumber
+      // still maps to 0 in numeric slots.  Same seam as runtime.stc and
+      // runtime.circuitBoard.
+      this._runtime =
+        typeof Scratch !== "undefined" && Scratch.vm && Scratch.vm.runtime
+          ? Scratch.vm.runtime
+          : null;
     }
 
     getInfo() {
@@ -203,6 +215,7 @@
     async _close() {
       this._connected = false;
       this._capabilities = null;
+      if (this._runtime) this._runtime.stc12liveCapabilities = null;
       try {
         if (this._reader) {
           await this._reader.cancel();
@@ -293,6 +306,9 @@
           consumed: cap[8] || 0,
         };
         this._connected = true;
+        // Publish to runtime so the palette and circuit extension can read them.
+        if (this._runtime)
+          this._runtime.stc12liveCapabilities = this._capabilities;
       } catch (e) {
         await this._close();
         // Surface the reason rather than failing silently.

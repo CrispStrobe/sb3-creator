@@ -131,10 +131,12 @@
   // cast to 0 in JavaScript arithmetic, but Scratch's Cast.toNumber still maps
   // it to 0 and the "say" block shows "NaN" instead of a reason.  The real fix
   // is greying out unavailable blocks per target (PARTS-TO-BLOCKS.md, §7 of
-  // DEBUG-CONTROL-MODEL.md) — stc12live publishes its capabilities on
-  // runtime.stc12liveCapabilities for the palette layer to read.  Do not
-  // "fix" NaN back to a string — the string silently becomes 0 in every
-  // numeric context, which is the failure mode this project refuses to ship.
+  // DEBUG-CONTROL-MODEL.md).  stc12live writes runtime.stc12liveCapabilities
+  // on connect — NO READER EXISTS YET; the palette layer in brickwright-lite
+  // needs to consult it and suppress these five reporters when a hardware
+  // target is connected.  Do not "fix" NaN back to a string — the string
+  // silently becomes 0 in every numeric context, which is the failure mode
+  // this project refuses to ship.
   //
   // Three constraints (../stc/docs/PARTS-TO-BLOCKS.md):
   //
