@@ -4949,12 +4949,17 @@ class SB3Creator {
         // Same section rule as the Python/JS back ends, so sprite prefixes line up.
         const sections = targets.filter((t) => !t.isStage || Object.values(t.blocks || {}).some((b) => b.topLevel));
 
-        // Pass 1 — count the `when green flag clicked` scripts. Several means the
-        // cooperative scheduler; exactly one keeps straight-line code in main().
+        // Pass 1 — count scripts that become tasks. Several means the cooperative
+        // scheduler; exactly one `when green flag clicked` keeps straight-line code in
+        // main(). A `when X pressed` hat ALWAYS forces the scheduler — there is no
+        // straight-line form of something that has to be sampled.
         let scriptCount = 0;
+        let hasEventHat = false;
         for (const t of sections) {
             for (const b of Object.values(t.blocks || {})) {
-                if (b.topLevel && b.opcode === 'event_whenflagclicked') scriptCount++;
+                if (!b.topLevel) continue;
+                if (b.opcode === 'event_whenflagclicked') scriptCount++;
+                if (b.opcode === 'stc12_whenpin') { scriptCount++; hasEventHat = true; }
             }
         }
         // `{debug: true}` forces the scheduler even for one script. Straight-line code in
@@ -4963,8 +4968,9 @@ class SB3Creator {
         // worth having. The cooperative form costs the Timer-0 ISR and a dispatch loop and
         // changes nothing semantically: a lone task that yields simply re-enters at once.
         // Release builds are untouched. See reference/debugger-ui.md §7.
+        // Event hats always force the scheduler — a polled task has no straight-line form.
         const debug = !!(opts && opts.debug);
-        this._cTasks = scriptCount > 1 || (scriptCount > 0 && debug);
+        this._cTasks = scriptCount > 1 || hasEventHat || (scriptCount > 0 && debug);
         const taskNames = Array.from({ length: scriptCount }, (_, n) => `bw_task${n}`);
         const yieldMap = [];   // only emitted for a debug build — see the marker header below
 
@@ -5044,7 +5050,59 @@ class SB3Creator {
                         `    ${task}_state = 0xFFFF;   /* ran to the end */`,
                         '}', '');
                 } else if (b.opcode === 'stc12_whenpin') {
-                    this.cWarn(`"${this.decompileHat(b, blocks) || b.opcode}" — event hat lowering not yet available; script skipped`);
+                    const pinName = b.fields.PIN ? b.fields.PIN[0] : '';
+                    const edge = b.fields.EDGE ? b.fields.EDGE[0] : 'pressed';
+                    const pin = this._cPins && this._cPins.get(pinName.toLowerCase());
+                    if (!pin) {
+                        this.cWarn(`"when ${pinName} ${edge}" — undeclared pin; script skipped`);
+                    } else if (pin.direction !== 'input') {
+                        this.cWarn(`"when ${pinName} ${edge}" — ${pinName} is ${pin.direction.toUpperCase()}, not INPUT; script skipped`);
+                    } else {
+                        const n = taskIndex++;
+                        const task = taskNames[n];
+                        const where = t.isStage ? '' : `, ${this.cComment(t.name)}`;
+                        const hatNote = this.codeCommentLines(topId, '', '//');
+                        markScripts.push(`script ${task} ${n}`
+                            + (t.isStage ? ' stage' : ` sprite ${this.pyStr(t.name)}`));
+                        const ctx = { task, state: 0, statics, tasks: taskNames, yields: debug ? yieldMap : [] };
+                        if (debug) yieldMap.push({ task, state: 0, block: topId, kind: 'hat' });
+                        // Body starts at case 1 — case 0 is the edge test.
+                        ctx.state = 1;
+                        const body = this.cTaskFrom(b.next, blocks, 1, ctx);
+                        // The polarity-aware LOGICAL level — same rule as cPinRead: ACTIVE
+                        // LOW means pressed = pin low, so `!Px_y` reads as 1 when pressed.
+                        const sfr = `P${pin.port}_${pin.bit}`;
+                        const level = pin.activeLow ? `!${sfr}` : sfr;
+                        const test = edge === 'pressed'
+                            ? `now && !${task}_prev`
+                            : `!now && ${task}_prev`;
+                        taskDefs.push(`static unsigned int ${task}_state;`);
+                        if (this.cHasWait(b.next, blocks)) taskDefs.push(`static unsigned int ${task}_until;`);
+                        taskDefs.push(`static unsigned char ${task}_prev;`);
+                        taskDefs.push(...hatNote,
+                            `/* WHEN ${this.cComment(pinName)} ${edge}: (script ${n + 1}${where})`,
+                            ' *',
+                            ` * Polled once per dispatch and EDGE-triggered: \`_prev\` is updated on every`,
+                            ` * pass, so a held button runs the body once rather than every millisecond,`,
+                            ` * and a release during the body does not queue a second run. The level read`,
+                            ` * is the LOGICAL one, so an ACTIVE LOW button reads as pressed when the pin`,
+                            ` * is low. */`,
+                            `static void ${task}(void)`, '{',
+                            `    unsigned char now   = (${level}) ? 1 : 0;`,
+                            `    unsigned char fired = (${test}) ? 1 : 0;`,
+                            `    ${task}_prev = now;`,
+                            '',
+                            `    switch (${task}_state) {`,
+                            '    case 0:',
+                            '        if (!fired)',
+                            '            return;',
+                            `        ${task}_state = 1;`,
+                            '    case 1:',
+                            ...body,
+                            '    }',
+                            `    ${task}_state = 0;   /* ready for the next edge */`,
+                            '}', '');
+                    }
                 } else if (this.isHat(b.opcode) || this.runtimeOp(b.opcode)) {
                     this.cWarn(`"${this.decompileHat(b, blocks) || b.opcode}" has no meaning on the chip — script skipped`);
                 }
