@@ -269,3 +269,18 @@ the standard button-to-ground idiom.
 The breadboard model (bw-circuit-ui `src/model/breadboard.js`) derives `Net[]`
 from holes, strips and jumpers and feeds `setNetlist` unchanged. No breadboard
 concept crosses this boundary; the engine remains placement-blind.
+
+### 7. Power-supply current limit — ADOPTED (bw-board `spec-updates/vsource-current-limit.md`)
+
+`vsource` gains optional `iLimit`. CV mode is today's source; when the branch
+current would exceed the limit, the stamp flips to constant-current at ±iLimit
+(NR region switching, the op-amp-rail pattern) and back when the load lightens.
+`sourceModes` in the solve result reports 'cv' | 'cc' per limited source — the
+UI shows "CV 12.0V" / "CC 0.50A". A bench supply never feeds a short infinite
+current, and neither does ours.
+
+Process note, recorded so it is not relitigated: the implementation predated
+the coordinator's review (the mna.js freeze existed to prevent collisions and
+this once nearly caused one). The freeze is REPLACED by a gate: mna.js changes
+require a spec-updates/ file first and hand-oracle tests in the same commit —
+which this change satisfied on both counts.
