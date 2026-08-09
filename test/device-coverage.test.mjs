@@ -21,24 +21,35 @@ const here = dirname(fileURLToPath(import.meta.url));
 // Parse the source for registerDevice() calls and kind references rather than
 // importing (bw-board may not be beside this checkout).
 
-// Engine device kinds — the authoritative list from bw-board.
-// Updated by running: grep -rhoP "kind:\s*'[a-z_]+'" bw-board/src/ | sort -u
-// and: grep registerDevice bw-board/src/devices/*.js
-// A new engine kind without an entry here fails the test, which is the point.
-const engineKinds = [
-    'bargraph', 'battery', 'button', 'buzzer', 'capacitor', 'char_lcd',
-    'darlington_driver', 'dc_motor', 'decade_counter', 'dff',
-    'diode', 'eeprom', 'flex_sensor', 'force_sensor', 'fuse',
-    'gate_and', 'gate_nand', 'gate_nor', 'gate_not', 'gate_or', 'gate_xor',
-    'gnd', 'h_bridge', 'inductor', 'ir_receiver', 'isource', 'jkff',
-    'ldr', 'led', 'led_cube', 'led_matrix', 'light_bulb',
-    'mcu', 'neopixel', 'nmos', 'npn', 'ntc', 'opamp', 'optocoupler',
-    'phototransistor', 'piezo', 'pir', 'pmos', 'pnp', 'potentiometer',
-    'relay', 'resistor', 'rgb_led', 'servo', 'seven_segment',
-    'shift_register', 'solenoid', 'stepper', 'switch',
-    'temp_sensor', 'tilt_sensor', 'timer_555', 'ultrasonic',
-    'vcc', 'vreg', 'vsource', 'zener'
-].sort();
+// Engine device kinds — read from bw-board's getPartKinds() if available,
+// else fall back to a hardcoded snapshot. A new engine kind without coverage
+// or a KNOWN_GAPS entry fails the test, which is the point.
+let engineKinds = null;
+const boardPath = resolve(here, '../../bw-board/src/board.js');
+try {
+    const boardSrc = readFileSync(boardPath, 'utf8');
+    const m = boardSrc.match(/getPartKinds\s*\(\)\s*\{[^}]*return\s*\[([^\]]+)\]/s);
+    if (m) {
+        engineKinds = [...m[1].matchAll(/'([a-z][a-z0-9_]+)'/g)].map(k => k[1]).sort();
+    }
+} catch { /* bw-board not beside this checkout */ }
+// Hardcoded fallback — kept in sync manually when bw-board is not available.
+if (!engineKinds) {
+    engineKinds = [
+        'bargraph', 'battery', 'button', 'buzzer', 'capacitor', 'cd4511', 'char_lcd',
+        'darlington_driver', 'dc_motor', 'decade_counter', 'dff',
+        'diode', 'eeprom', 'flex_sensor', 'force_sensor', 'fuse',
+        'gate_and', 'gate_nand', 'gate_nor', 'gate_not', 'gate_or', 'gate_xor',
+        'gnd', 'h_bridge', 'inductor', 'ir_receiver', 'isource', 'jkff',
+        'ldr', 'led', 'led_cube', 'led_matrix', 'light_bulb', 'lm393',
+        'mcu', 'neopixel', 'nmos', 'npn', 'ntc', 'opamp', 'optocoupler',
+        'phototransistor', 'piezo', 'pir', 'pmos', 'pnp', 'potentiometer',
+        'relay', 'resistor', 'rgb_led', 'servo', 'seven_segment',
+        'shift_register', 'solenoid', 'stepper', 'switch',
+        'temp_sensor', 'tilt_sensor', 'timer_555', 'tip120', 'tmp36',
+        'ultrasonic', 'vcc', 'vreg', 'vsource', 'zener'
+    ].sort();
+}
 
 // ---- block-surface coverage -------------------------------------------------
 // Which device kinds have at least one block that drives or reads them?
@@ -140,6 +151,10 @@ const KNOWN_GAPS = new Set([
     'piezo',            // piezoelectric buzzer/sensor
     'light_bulb',       // incandescent — observed through brightness
     'optocoupler',      // opto-isolator — circuit-level
+    'tip120',           // Darlington transistor — circuit-level
+    'lm393',            // comparator IC — circuit-level
+    'tmp36',            // analog temp sensor — read via ADC (devices_temperature)
+    'cd4511',           // BCD-to-7-segment decoder — circuit-level
 ]);
 
 // ---- tests ------------------------------------------------------------------
