@@ -141,8 +141,12 @@
     }
 
     // ---- board injection (the adapter pattern) ----------------------------
+    // The caller: bw-circuit-ui's onDeclarationChange handler, which already
+    // pushes declarations to vm.runtime.stc. It reaches this extension via
+    // vm.extensionManager → the loaded circuit instance → setBoard(board).
+    // clearBoard() when the board is torn down or power is cut.
 
-    /** Attach a Board instance.  Called by the circuit designer or test harness. */
+    /** Attach a Board instance (boundary B of simulation-contract.md). */
     setBoard(board) {
       this._board = board;
       this._cache = {};

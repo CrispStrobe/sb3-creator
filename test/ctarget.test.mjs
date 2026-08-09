@@ -1183,6 +1183,73 @@ test('all circuit reporter neutrals are reason strings, not numbers', () => {
     }
 });
 
+test('circuit reporters return numbers when a Board is attached', async () => {
+    // This is the test that catches the setBoard() gap: without it, every current
+    // test exercises only the null branch and the suite is green on an extension
+    // that cannot work.
+    //
+    // The extension is a plain class — we can instantiate it directly (it registers
+    // with a mock Scratch in the IIFE, but the class is the same). We use the
+    // pinned copy so we test the exact file the editor would load.
+    const { readFileSync } = await import('node:fs');
+    const vm = await import('node:vm');
+    const src = readFileSync(new URL('../reference/extensions/circuit.js', import.meta.url), 'utf8');
+    const captured = [];
+    const mockScratch = {
+        BlockType: { COMMAND: 'command', REPORTER: 'reporter', BOOLEAN: 'Boolean', HAT: 'hat' },
+        ArgumentType: { NUMBER: 'number', STRING: 'string', BOOLEAN: 'Boolean' },
+        extensions: { register: (inst) => captured.push(inst), unsandboxed: true }
+    };
+    const ctx = vm.createContext({ Scratch: mockScratch, console, performance, localStorage: { getItem: () => null }, navigator: { language: 'en' } });
+    vm.runInContext(src, ctx);
+    const ext = captured[0];
+    assert.ok(ext, 'extension registered');
+    assert.ok(typeof ext.setBoard === 'function', 'setBoard exists');
+
+    // Without a board: every reporter refuses.
+    assert.equal(ext.nodevoltage({ NET: 'vcc' }), 'needs the simulator');
+    assert.equal(ext.resistance({ A: 'a', B: 'b' }), 'needs the simulator');
+
+    // Attach a mock board implementing boundary B.
+    const mockBoard = {
+        nodeVoltage: (net) => net === 'vcc' ? 5.0 : 0.0,
+        branchCurrent: (part, terminal) => 0.02,
+        resistance: (a, b) => 1000,        // power off → number
+        ledBrightness: (part) => 0.5,
+        buzzerTone: (part) => ({ hz: 440, on: true }),
+        setControl: () => {},
+        setPower: () => {}
+    };
+    ext.setBoard(mockBoard);
+
+    // Now every reporter returns a number.
+    assert.equal(ext.nodevoltage({ NET: 'vcc' }), 5.0, 'voltage is a number');
+    assert.equal(ext.branchcurrent({ PART: 'led1' }), 0.02, 'current is a number');
+    assert.equal(ext.resistance({ A: 'a', B: 'b' }), 1000, 'resistance is a number (power off)');
+    assert.equal(ext.ledbrightness({ PART: 'led1' }), 0.5, 'brightness is a number');
+    assert.equal(ext.buzzertone({ PART: 'bz1' }), 440, 'tone is a number');
+
+    // resistance with power on: the board returns the refusal.
+    mockBoard.resistance = () => 'requires-power-off';
+    ext._cache = {};  // clear the display-rate cache
+    assert.equal(ext.resistance({ A: 'a', B: 'b' }), 'requires-power-off',
+        'resistance refuses on a live circuit');
+
+    // Commands call through to the board.
+    let controlCalled = false, powerCalled = false;
+    mockBoard.setControl = (name, val) => { controlCalled = true; assert.equal(name, 'pot1'); assert.equal(val, 0.5); };
+    mockBoard.setPower = (on) => { powerCalled = true; assert.equal(on, true); };
+    ext.setcontrol({ CONTROL: 'pot1', VALUE: 0.5 });
+    ext.setpower({ STATE: 'on' });
+    assert.ok(controlCalled, 'setControl was called on the board');
+    assert.ok(powerCalled, 'setPower was called on the board');
+
+    // clearBoard reverts to refusals.
+    ext.clearBoard();
+    assert.equal(ext.nodevoltage({ NET: 'vcc' }), 'needs the simulator',
+        'after clearBoard, reporters refuse again');
+});
+
 test('the simulator driver refuses with a reason when no board is attached', () => {
     const c = new SB3Creator();
     c.parse('PIN led = P1.0 OUTPUT\nWHEN flag clicked:\n  turn on led');
