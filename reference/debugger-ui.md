@@ -230,6 +230,40 @@ Built 2026-08-09 as `components/tw-pseudocode/debug-inspector.jsx`, above the dr
 The layering is the point: **what happened → why → under the hood**, each one openable only if
 the last was not enough. The drawer is closed by default and the inspector is not.
 
+### 4a.1 Conditional pause points, and the thing they exposed
+
+"Pause here **when `counter > 10`**" — the one feature that turns a breakpoint in a loop from
+useless into the whole point. Added 2026-08-09; it needs no emulator change, because a
+condition is evaluated on the host when a hit arrives and a false one simply resumes.
+
+**The condition is parsed, never `eval`ed.** The obvious implementation is
+`new Function('return ' + expr)`, which would run arbitrary code from a project file with full
+page access — in an editor whose purpose is that children open each other's projects. The
+grammar is instead small enough to read in one sitting: a comparison between a variable and a
+number, joined with `and` / `or`. `=` means equals, because that is what a Scratch user writes.
+No arithmetic, no calls. An expression it cannot parse is **rejected with the reason at the
+point it was typed** — never treated as true (pause always) or false (pause never, and look
+broken). A name the current build has no variable for is accepted but flagged, since the
+commonest condition that never fires is a misspelt one.
+
+**What it exposed is more interesting than the feature.** A yield breakpoint is a code address
+at a `case` label, and the cooperative scheduler re-enters that label on *every pass of the
+dispatch loop* while the task sits in it. So a pause point on `wait 0.3 seconds` fires
+**thousands of times during that one wait** — measured at 1,749 hits before the fix. Unconditionally
+that means "resume" appears to do nothing; conditionally it means the condition never gets the
+chance to become true, because each visit costs a frame and program time advances by
+microseconds.
+
+Two fixes, both of which the design already implied:
+
+1. **One stop per visit.** The task itself knows the difference — while it is waiting,
+   `<task>_until` is in the future — so the halt handler reuses the generated C's own
+   wraparound-safe 16-bit compare and passes over hits taken mid-wait. The stop lands on the
+   pass where the wait is over, which is also the moment the user means by "pause here".
+2. **Absorb passed-over hits inside one frame**, bounded, rather than one per frame. With the
+   fix a `counter > 2` pause point stops at exactly `counter == 3`, having passed over 118,157
+   hits — a number that is itself the argument for both fixes.
+
 ## 4b. Parity with emu8051's TUI — the map
 
 Built 2026-08-09 as `components/tw-pseudocode/debug-drawer.jsx`. The TUI is the reference, so
