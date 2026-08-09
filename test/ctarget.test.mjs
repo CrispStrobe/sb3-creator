@@ -1179,27 +1179,25 @@ test('no circuit reporter fabricates a plausible reading without a board', () =>
     const c = new SB3Creator();
     const project = c.parse(src);
 
-    // In Python: every neutral stub returns "needs the simulator", not 0.
+    // In Python: every neutral stub returns float("nan"), not 0.
     const py = c.generatePython(project);
-    assert.match(py, /def resistance\(self, \*a\): return "needs the simulator"/);
-    assert.match(py, /def nodeVoltage\(self, \*a\): return "needs the simulator"/);
-    assert.match(py, /def branchCurrent\(self, \*a\): return "needs the simulator"/);
-    assert.match(py, /def ledBrightness\(self, \*a\): return "needs the simulator"/);
-    assert.match(py, /def buzzerTone\(self, \*a\): return "needs the simulator"/);
+    assert.match(py, /float\("nan"\)/,
+        'Python driver must return float("nan") for no-board reporters');
     assert.ok(!/def \w+\(self, \*a\): return 0/.test(py),
         'no circuit reporter returns a bare 0');
 
-    // In JavaScript: same.
+    // In JavaScript: same — NaN, not a string.
     const js = c.generateJavaScript(project);
-    assert.match(js, /resistance: \(\) => "needs the simulator"/);
-    assert.match(js, /nodeVoltage: \(\) => "needs the simulator"/);
+    assert.match(js, /nodeVoltage.*NaN/);
+    assert.match(js, /resistance.*NaN/);
 });
 
-test('all circuit reporter neutrals are reason strings, not numbers', () => {
+test('all circuit reporter neutrals are NaN, not a plausible number', () => {
+    // NaN is the stopgap — greying out unavailable blocks is the real fix.
     const ops = SB3Creator.RUNTIME_EXTENSIONS.circuit.ops;
     for (const name of ['nodevoltage', 'branchcurrent', 'resistance', 'ledbrightness', 'buzzertone']) {
-        assert.equal(ops[name].neutral, '"needs the simulator"',
-            `${name} must refuse with a reason, not return 0`);
+        assert.equal(ops[name].neutral, 'NaN',
+            `${name} must refuse with NaN, not return 0`);
     }
 });
 
@@ -1227,8 +1225,8 @@ test('circuit reporters return numbers when a Board is attached', async () => {
     assert.ok(typeof ext.setBoard === 'function', 'setBoard exists');
 
     // Without a board: every reporter refuses.
-    assert.equal(ext.nodevoltage({ NET: 'vcc' }), 'needs the simulator');
-    assert.equal(ext.resistance({ A: 'a', B: 'b' }), 'needs the simulator');
+    assert.ok(Number.isNaN(ext.nodevoltage({ NET: 'vcc' })));
+    assert.ok(Number.isNaN(ext.resistance({ A: 'a', B: 'b' })));
 
     // Attach a mock board implementing boundary B.
     const mockBoard = {
@@ -1266,7 +1264,7 @@ test('circuit reporters return numbers when a Board is attached', async () => {
 
     // clearBoard reverts to refusals.
     ext.clearBoard();
-    assert.equal(ext.nodevoltage({ NET: 'vcc' }), 'needs the simulator',
+    assert.ok(Number.isNaN(ext.nodevoltage({ NET: 'vcc' })),
         'after clearBoard, reporters refuse again');
 });
 
@@ -1291,8 +1289,8 @@ test('circuit reporters read vm.runtime.circuitBoard lazily (the editor path)', 
     const ext = captured[0];
 
     // No circuitBoard on runtime yet → refuses.
-    assert.equal(ext.nodevoltage({ NET: 'vcc' }), 'needs the simulator');
-    assert.equal(ext.resistance({ A: 'a', B: 'b' }), 'needs the simulator');
+    assert.ok(Number.isNaN(ext.nodevoltage({ NET: 'vcc' })));
+    assert.ok(Number.isNaN(ext.resistance({ A: 'a', B: 'b' })));
 
     // Host writes vm.runtime.circuitBoard (what circuit-tab.jsx does).
     mockRuntime.circuitBoard = {
@@ -1330,33 +1328,32 @@ test('circuit reporters read vm.runtime.circuitBoard lazily (the editor path)', 
     // Board torn down — reporters refuse again.
     mockRuntime.circuitBoard = null;
     ext._cache = {};
-    assert.equal(ext.nodevoltage({ NET: 'vcc' }), 'needs the simulator');
+    assert.ok(Number.isNaN(ext.nodevoltage({ NET: 'vcc' })));
 
     // setBoard() overrides the runtime fallback.
     ext.setBoard({ nodeVoltage: () => 12, branchCurrent: () => 0, resistance: () => 100,
         ledBrightness: () => 0, buzzerTone: () => ({ hz: 0, on: false }), setControl: () => {}, setPower: () => {} });
     assert.equal(ext.nodevoltage({ NET: 'vcc' }), 12, 'setBoard overrides runtime');
     ext.clearBoard();
-    assert.equal(ext.nodevoltage({ NET: 'vcc' }), 'needs the simulator',
+    assert.ok(Number.isNaN(ext.nodevoltage({ NET: 'vcc' })),
         'clearBoard reverts to runtime (which is null)');
 });
 
 test('the simulator driver refuses with a reason when no board is attached', () => {
     const c = new SB3Creator();
     c.parse('PIN led = P1.0 OUTPUT\nWHEN flag clicked:\n  turn on led');
-    // JS driver: every no-board path returns "needs the simulator".
+    // JS driver: every no-board path returns NaN, not a string or 0.
     const jsDriver = c.circuitSimulatorDriver('js').join('\n');
-    assert.match(jsDriver, /nodeVoltage.*"needs the simulator"/);
-    assert.match(jsDriver, /branchCurrent.*"needs the simulator"/);
-    assert.match(jsDriver, /resistance.*"needs the simulator"/);
-    assert.match(jsDriver, /ledBrightness.*"needs the simulator"/);
-    assert.match(jsDriver, /buzzerTone.*"needs the simulator"/);
+    assert.match(jsDriver, /nodeVoltage.*NaN/);
+    assert.match(jsDriver, /branchCurrent.*NaN/);
+    assert.match(jsDriver, /resistance.*NaN/);
+    assert.match(jsDriver, /ledBrightness.*NaN/);
+    assert.match(jsDriver, /buzzerTone.*NaN/);
     // With a board, calls go through to boundary B.
     assert.match(jsDriver, /b\.resistance\(a, bNet\)/);
-    // Python driver: same.
+    // Python driver: same — float("nan").
     const pyDriver = c.circuitSimulatorDriver('py').join('\n');
-    assert.match(pyDriver, /nodeVoltage.*"needs the simulator"/);
-    assert.match(pyDriver, /resistance.*"needs the simulator"/);
+    assert.match(pyDriver, /float\("nan"\)/);
     assert.match(pyDriver, /b\.resistance\(a, b_net\)/);
 });
 

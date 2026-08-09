@@ -240,7 +240,9 @@ class SB3Creator {
             const df = this._async ? 'async def' : 'def';   // async so `await _boost.x()` works
             for (const [method, op] of methods) {
                 if (mode === 'remote' && op.kind === 'command') { lines.push(`    ${df} ${method}(self, *a): self._send("${method}", list(a))`); continue; }
-                const ret = op.kind === 'command' ? 'pass' : op.kind === 'boolean' ? 'return False' : `return ${op.neutral || '0'}`;
+                let neutral = op.neutral || '0';
+                if (neutral === 'NaN') neutral = 'float("nan")';  // Python has no bare NaN
+                const ret = op.kind === 'command' ? 'pass' : op.kind === 'boolean' ? 'return False' : `return ${neutral}`;
                 lines.push(`    ${df} ${method}(self, *a): ${ret}`);
             }
             lines.push('    def on(self, event, handler): pass  # register an event-hat handler');
@@ -377,28 +379,28 @@ class SB3Creator {
     // The circuit extension driver — boundary B exposed to Python/JS. Meter reporters
     // sample at display rate (~60 Hz), not per edge (measured constraint from bw-board).
     circuitSimulatorDriver(lang) {
-        // No-board returns 'needs the simulator', not 0 — a voltmeter that reads
-        // 0 V when disconnected is indistinguishable from a grounded-net reading.
+        // No-board returns NaN (stopgap) — visibly wrong, not a plausible 0.
+        // Greying out unavailable blocks per target is the real fix.
         if (lang === 'py') {
             return [
                 '# _circuit driver — board instruments (boundary B). Supply `bw_board` to attach one.',
-                '# No-board reporters return "needs the simulator", never 0 — refuse with a reason.',
+                '# No-board reporters return float("nan") — visibly wrong, not a plausible 0.',
                 'class _CircuitSimulated:',
                 '    def nodeVoltage(self, net):',
                 '        b = _board()',
-                '        return b.nodeVoltage(net) if b else "needs the simulator"',
+                '        return b.nodeVoltage(net) if b else float("nan")',
                 '    def branchCurrent(self, part):',
                 '        b = _board()',
-                '        return b.branchCurrent(part, "a") if b else "needs the simulator"',
+                '        return b.branchCurrent(part, "a") if b else float("nan")',
                 '    def resistance(self, a, b_net):',
                 '        b = _board()',
-                '        return b.resistance(a, b_net) if b else "needs the simulator"',
+                '        return b.resistance(a, b_net) if b else float("nan")',
                 '    def ledBrightness(self, part):',
                 '        b = _board()',
-                '        return b.ledBrightness(part) if b else "needs the simulator"',
+                '        return b.ledBrightness(part) if b else float("nan")',
                 '    def buzzerTone(self, part):',
                 '        b = _board()',
-                '        if not b: return "needs the simulator"',
+                '        if not b: return float("nan")',
                 '        r = b.buzzerTone(part)',
                 '        return r.get("hz", 0) if r.get("on") else 0',
                 '    def setControl(self, control, value):',
@@ -412,13 +414,14 @@ class SB3Creator {
         }
         return [
             '// _circuit driver — board instruments (boundary B). Supply `bwBoard` to attach one.',
-            '// No-board reporters return "needs the simulator", never 0 — refuse with a reason.',
+            '// No-board reporters return NaN — visibly wrong, not a plausible 0.',
+            '// Stopgap: greying out unavailable blocks per target is the real fix.',
             'const _circuit = {',
-            '    nodeVoltage: (net) => { const b = _board(); return b ? b.nodeVoltage(net) : "needs the simulator"; },',
-            '    branchCurrent: (part) => { const b = _board(); return b ? b.branchCurrent(part, "a") : "needs the simulator"; },',
-            '    resistance: (a, bNet) => { const b = _board(); return b ? b.resistance(a, bNet) : "needs the simulator"; },',
-            '    ledBrightness: (part) => { const b = _board(); return b ? b.ledBrightness(part) : "needs the simulator"; },',
-            '    buzzerTone: (part) => { const b = _board(); if (!b) return "needs the simulator";',
+            '    nodeVoltage: (net) => { const b = _board(); return b ? b.nodeVoltage(net) : NaN; },',
+            '    branchCurrent: (part) => { const b = _board(); return b ? b.branchCurrent(part, "a") : NaN; },',
+            '    resistance: (a, bNet) => { const b = _board(); return b ? b.resistance(a, bNet) : NaN; },',
+            '    ledBrightness: (part) => { const b = _board(); return b ? b.ledBrightness(part) : NaN; },',
+            '    buzzerTone: (part) => { const b = _board(); if (!b) return NaN;',
             '        const r = b.buzzerTone(part); return r && r.on ? r.hz : 0; },',
             '    setControl: (control, v) => { const b = _board(); if (b) b.setControl(control, Number(v)); },',
             '    setPower: (state) => { const b = _board(); if (b) b.setPower(state === "on"); }',
@@ -5825,11 +5828,11 @@ SB3Creator.RUNTIME_EXTENSIONS = {
     circuit: {
         runtime: 'circuit',
         ops: {
-            nodevoltage: { kind: 'reporter', method: 'nodeVoltage', args: ['NET'], neutral: '"needs the simulator"' },
-            branchcurrent: { kind: 'reporter', method: 'branchCurrent', args: ['PART'], neutral: '"needs the simulator"' },
-            resistance: { kind: 'reporter', method: 'resistance', args: ['A', 'B'], neutral: '"needs the simulator"' },
-            ledbrightness: { kind: 'reporter', method: 'ledBrightness', args: ['PART'], neutral: '"needs the simulator"' },
-            buzzertone: { kind: 'reporter', method: 'buzzerTone', args: ['PART'], neutral: '"needs the simulator"' },
+            nodevoltage: { kind: 'reporter', method: 'nodeVoltage', args: ['NET'], neutral: 'NaN' },
+            branchcurrent: { kind: 'reporter', method: 'branchCurrent', args: ['PART'], neutral: 'NaN' },
+            resistance: { kind: 'reporter', method: 'resistance', args: ['A', 'B'], neutral: 'NaN' },
+            ledbrightness: { kind: 'reporter', method: 'ledBrightness', args: ['PART'], neutral: 'NaN' },
+            buzzertone: { kind: 'reporter', method: 'buzzerTone', args: ['PART'], neutral: 'NaN' },
             setcontrol: { kind: 'command', method: 'setControl', args: ['CONTROL', 'VALUE'] },
             setpower: { kind: 'command', method: 'setPower', args: ['STATE'] }
         }

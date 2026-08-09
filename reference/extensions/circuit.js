@@ -118,16 +118,23 @@
   // their transports.  Without a board, reporters return a reason string and
   // commands are no-ops.
   //
-  // THE RULE: refuse with a reason, never fabricate a plausible value.
+  // THE RULE: refuse visibly, never fabricate a plausible value.
   //
-  //   No board attached  → 'needs the simulator'   (all five reporters)
+  //   No board attached  → NaN              (all five reporters)
   //   Board, power on    → 'requires-power-off'    (resistance only)
   //
   // A voltmeter that reads 0 V when disconnected is worse than one that reads
   // nothing: 0 V is a perfectly ordinary measurement (a grounded net reads it),
-  // so the no-board case would be indistinguishable from a real result.  A user
-  // sees "0" and concludes the circuit is dead, not that the simulator is absent.
-  // That is a wrong answer wearing the clothes of a right one.
+  // so the no-board case would be indistinguishable from a real result.
+  //
+  // NaN is a STOPGAP: it shows visibly wrong in reporter bubbles and does not
+  // cast to 0 in JavaScript arithmetic, but Scratch's Cast.toNumber still maps
+  // it to 0 and the "say" block shows "NaN" instead of a reason.  The real fix
+  // is greying out unavailable blocks per target (PARTS-TO-BLOCKS.md, §7 of
+  // DEBUG-CONTROL-MODEL.md) — stc12live publishes its capabilities on
+  // runtime.stc12liveCapabilities for the palette layer to read.  Do not
+  // "fix" NaN back to a string — the string silently becomes 0 in every
+  // numeric context, which is the failure mode this project refuses to ship.
   //
   // Three constraints (../stc/docs/PARTS-TO-BLOCKS.md):
   //
@@ -318,35 +325,35 @@
     // ---- reporters --------------------------------------------------------
 
     nodevoltage({ NET }) {
-      if (!this.board) return "needs the simulator";
+      if (!this.board) return NaN; // stopgap — greying is the real fix
       return this._cachedCall(`voltage:${NET}`, () =>
         this.board.nodeVoltage(String(NET))
       );
     }
 
     branchcurrent({ PART }) {
-      if (!this.board) return "needs the simulator";
+      if (!this.board) return NaN;
       return this._cachedCall(`current:${PART}`, () =>
         this.board.branchCurrent(String(PART), "a")
       );
     }
 
     resistance({ A, B }) {
-      if (!this.board) return "needs the simulator";
+      if (!this.board) return NaN;
       return this._cachedCall(`resistance:${A}:${B}`, () =>
         this.board.resistance(String(A), String(B))
       );
     }
 
     ledbrightness({ PART }) {
-      if (!this.board) return "needs the simulator";
+      if (!this.board) return NaN;
       return this._cachedCall(`brightness:${PART}`, () =>
         this.board.ledBrightness(String(PART))
       );
     }
 
     buzzertone({ PART }) {
-      if (!this.board) return "needs the simulator";
+      if (!this.board) return NaN;
       return this._cachedCall(`tone:${PART}`, () => {
         const r = this.board.buzzerTone(String(PART));
         return r && r.on ? r.hz : 0;
