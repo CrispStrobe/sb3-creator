@@ -433,6 +433,26 @@ class Translator {
         return null;
     }
     asScratch (node) { return this.asObjCall(node, 'scratch'); }
+    asStc (node) { return this.asObjCall(node, '_stc12'); }
+
+    /** A `_stc12.<method>(...)` call as its pseudocode sentence, or null. */
+    stcCall (node) {
+        const c = this.asStc(node);
+        if (!c) return null;
+        const a = c.args.map((x) => this.expr(x));
+        const name = unq(a[0] || '');
+        switch (c.method) {
+            case 'setPin': {
+                const state = unq(a[1] || '');
+                if (state === 'on' || state === 'off') return `turn ${state} ${name}`;
+                return `set ${name} ${state}`;                 // high | low
+            }
+            case 'togglePin': return `toggle ${name}`;
+            case 'writePin': return `set ${name} to ${a[1]}`;
+            case 'readPin': return `read ${name}`;
+            default: return null;
+        }
+    }
     asArrays (node) { return this.asObjCall(node, '_arrays'); }
 
     // Map a def name (possibly mangled by the emitter) back to a WHEN hat header,
@@ -522,6 +542,8 @@ class Translator {
             if (r) return `(${r.text})`;
             this.warn(`unknown scratch.${sc.method} in expression`); return '""';
         }
+        const st = this.stcCall(node);
+        if (st) return `(${st})`;
         // _arrays.<reporter/boolean>(...) -> Arrays & Vectors reporter, e.g. _arrays.get("v", 0)
         const ar = this.asArrays(node);
         if (ar) {
@@ -557,6 +579,7 @@ class Translator {
             if (id === '_rand') return `(pick random ${this.expr(a[0])} to ${this.expr(a[1])})`;
             if (id === '_fact') return `(factorial of ${this.expr(a[0])})`;
             if (id === '_sumdigits') return `(sum of digits of ${this.expr(a[0])})`;
+        if (id === '_multiple') return `${this.expr(a[0])} is multiple of ${this.expr(a[1])}`;
             // Planète Maths min/max (no standard Scratch equivalent)
             if (id === 'min') return `(min of ${this.expr(a[0])} and ${this.expr(a[1])})`;
             if (id === 'max') return `(max of ${this.expr(a[0])} and ${this.expr(a[1])})`;
@@ -682,6 +705,8 @@ class Translator {
             if (r) return [p + r.text];
             this.warn(`unknown scratch.${sc.method}`); return [];
         }
+        const st = this.stcCall(e);
+        if (st) return [p + st];
         // _arrays.<command>(...) -> Arrays & Vectors statement, e.g. _arrays.push("v", 5)
         const ar = this.asArrays(e);
         if (ar) {
@@ -822,6 +847,7 @@ class Translator {
             sections.push(sec); current = sec; return sec;
         };
 
+        const stcHeader = [];    // DEVICE / CLOCK / PIN, from scratch.device()/pin() markers
         let pendingDef = null;   // {proccode, warp} from a scratch.defblock() marker
         for (const s of ast.body) {
             if (s.type === 'Def') {
@@ -833,7 +859,7 @@ class Translator {
                     continue;
                 }
                 const header = this.resolveHat(s.name, s.args);
-                if (header) ensure().hats.push({ header, body: s.body });
+                if (header) ensure().hats.push({ header, body: s.body, comment: s.comment });
                 else ensure().defs.push(s);
                 continue;
             }
@@ -848,6 +874,18 @@ class Translator {
                     if (sc.method === 'costume') { ensure().costumes.push(arg0); continue; }
                     if (sc.method === 'sound') { ensure().sounds.push(arg0); continue; }
                     if (sc.method === 'global_var' || sc.method === 'global_list') continue;   // handled in pre-pass (rename map)
+                    if (sc.method === 'device') {
+                        stcHeader.push(`DEVICE ${arg0.toUpperCase()}`);
+                        if (sc.args[1]) stcHeader.push(`CLOCK ${this.expr(sc.args[1])}`);
+                        continue;
+                    }
+                    if (sc.method === 'pin') {
+                        const where = unq(this.expr(sc.args[1] || ''));
+                        const dir = unq(this.expr(sc.args[2] || '')).toUpperCase();
+                        const low = /^(1|true)$/.test(this.expr(sc.args[3] || '0'));
+                        stcHeader.push(`PIN ${arg0} = ${where} ${dir}${low ? ' ACTIVE LOW' : ''}`);
+                        continue;
+                    }
                     if (sc.method === 'defblock') { pendingDef = { proccode: arg0, warp: sc.args[1] && /^(1|true)$/.test(this.expr(sc.args[1])) }; continue; }
                     continue;   // stray scratch command at top level
                 }
@@ -856,7 +894,11 @@ class Translator {
                 continue;
             }
             if (s.type === 'Assign' && s.target.type === 'Name') {
-                if (s.target.id === 'scratch' || s.target.id === '_arrays') continue;   // shim instance / arrays registry
+                // Shim instances are machinery: `scratch`, the arrays registry, and any
+                // `_<runtime>` hardware driver. Treated as a variable, `_stc12` came
+                // back as `GLOBAL _stc12` and the pins vanished.
+                if (s.target.id === 'scratch' || s.target.id === '_arrays'
+                    || /^_[a-z][\w]*$/.test(s.target.id)) continue;
                 const m = /^s(\d+)_/.exec(s.target.id);
                 const key = m ? m[1] : 'global';
                 const name = this.vname(s.target.id);
@@ -878,6 +920,7 @@ class Translator {
         if (!sections.length && (gScalars.length || gLists.length || globalInits.length)) pushSection('sprite', 'Main');
 
         const lines = [];
+        if (stcHeader.length) { lines.push(...stcHeader); lines.push(''); }
         for (const n of gScalars) lines.push('GLOBAL ' + n);
         for (const n of gLists) lines.push('GLOBAL LIST ' + n);
         if (lines.length) lines.push('');
@@ -914,6 +957,12 @@ class Translator {
                 lines.push('');
             }
             for (const h of sec.hats) {
+                // The emitter writes its own note above a non-flag handler ("… call it
+                // when that event happens"); that is the generator talking, not the
+                // project, so it must not come back as a comment the user wrote.
+                const own = String(h.comment || '').split('\n')
+                    .filter((l) => !/\(event handler — call it when that event happens\)\s*$/.test(l));
+                for (const l of own) if (l.trim()) lines.push('    # ' + l);
                 lines.push('    ' + h.header);
                 let body = this.block(h.body, 2);
                 if (h.header === 'WHEN flag clicked:' && !flagEmitted) {

@@ -3036,7 +3036,7 @@ class SB3Creator {
             case 'planetemaths_or': return `(${c('OPERAND1')} or ${c('OPERAND2')})`;
             case 'planetemaths_not': return `(not ${c('OPERAND1')})`;
             case 'planetemaths_contains': return `(str(${v('STRING2')}) in str(${v('STRING1')}))`;
-            case 'planetemaths_multiple': return `(${v('NUM1')} % ${v('NUM2')} == 0)`;
+            case 'planetemaths_multiple': this._pyUses.multiple = true; return `_multiple(${v('NUM1')}, ${v('NUM2')})`;
             // Scratch-runtime predicates (touching, key pressed?, mouse down?) -> scratch.<method>().
             default: {
                 const ac = this.arraysCall(b, blocks, this.pyVal);
@@ -3248,6 +3248,22 @@ class SB3Creator {
         }
     }
 
+    // DEVICE / CLOCK / PIN as reversible marker calls. Without these the Python
+    // and JavaScript targets emitted the pin-driver shim and the setPin() calls
+    // but nothing that says what the pins ARE, so a hardware project came back
+    // from either of them with `_stc12` as a variable and no pins at all.
+    stcStructMarkers(project) {
+        const stc = project && project.stc;
+        if (!stc || !stc.pins || !stc.pins.length) return [];
+        const q = (v) => this.pyStr(v);
+        const lines = [`scratch.device(${q(stc.device)}, ${stc.clock})`];
+        for (const pin of stc.pins) {
+            lines.push(`scratch.pin(${q(pin.name)}, ${q(`P${pin.port}.${pin.bit}`)}, `
+                + `${q(pin.direction)}, ${pin.activeLow ? 1 : 0})`);
+        }
+        return lines;
+    }
+
     // The pseudocode structure markers for one target: scratch.sprite/stage + local + costume.
     // `quote` = this.pyStr (JSON strings work in both Python and JS).
     scratchStructMarkers(t) {
@@ -3328,7 +3344,11 @@ class SB3Creator {
                 } else {
                     const name = this.pyFreshName(pfx + this.pyHatBase(b));
                     const isFlag = b.opcode === 'event_whenflagclicked';
+                    // A comment on the hat belongs to the script, and was being dropped.
+                    const note = this.codeCommentLines(Object.keys(blocks)
+                        .find((k) => blocks[k] === b), '', '#');
                     let code = this.pyFunc(`def ${name}():`, b.next, blocks, []);
+                    if (note.length) code = note.join('\n') + '\n' + code;
                     if (!isFlag) code = `# ${this.decompileHat(b, blocks)}  (event handler — call it when that event happens)\n` + code;
                     defs.push(code);
                     if (isFlag) flagCalls.push(`${name}()`);
@@ -3356,6 +3376,11 @@ class SB3Creator {
             out.push('def _sumdigits(n): return sum(int(d) for d in str(n) if d.isdigit())');
             out.push('');
         }
+        if (this._pyUses.multiple) {
+            out.push('def _multiple(a, b):  # `is multiple of`, kept distinct from `mod … = 0`');
+            out.push('    return float(b) != 0 and float(a) % float(b) == 0');
+            out.push('');
+        }
         if (this._pyUses.eq) {
             out.push('def _eq(a, b):  # Scratch-style loose equality');
             out.push('    try:');
@@ -3369,6 +3394,9 @@ class SB3Creator {
         // module state
         if (this._pyUses.answer) stateDecls.push('answer = ""');
         if (stateDecls.length) { out.push(...stateDecls); out.push(''); }
+        // Hardware declarations first: they are the project's header in pseudocode too.
+        const stcMarkers = this.stcStructMarkers(project);
+        if (stcMarkers.length) { out.push(...stcMarkers); out.push(''); }
         // Global-name markers (carry original names so the parser un-mangles identifiers).
         for (const n of gScalars) out.push(`scratch.global_var(${this.pyStr(n)})`);
         for (const n of gLists) out.push(`scratch.global_list(${this.pyStr(n)})`);
@@ -3512,7 +3540,7 @@ class SB3Creator {
             case 'planetemaths_or': return `(${c('OPERAND1')} || ${c('OPERAND2')})`;
             case 'planetemaths_not': return `(!${c('OPERAND1')})`;
             case 'planetemaths_contains': return `String(${v('STRING1')}).includes(String(${v('STRING2')}))`;
-            case 'planetemaths_multiple': return `(${v('NUM1')} % ${v('NUM2')} === 0)`;
+            case 'planetemaths_multiple': this._jsUses.multiple = true; return `_multiple(${v('NUM1')}, ${v('NUM2')})`;
             default: {
                 const ac = this.arraysCall(b, blocks, this.jsVal);
                 if (ac) return ac.call;
@@ -3592,7 +3620,7 @@ class SB3Creator {
     generateJavaScript(project = this.project, opts = {}) {
         this._driverPins = (project.stc && project.stc.pins) || null;
         this._pyNames = new Map();
-        this._jsUses = { rand: false, eq: false, answer: false, fact: false, arrays: false, sumdigits: false };
+        this._jsUses = { rand: false, eq: false, answer: false, fact: false, arrays: false, sumdigits: false, multiple: false };
         this._runtimesUsed = new Set();
         this._async = !!(opts && opts.async);
         this._events = !!(opts && opts.events);
@@ -3648,7 +3676,11 @@ class SB3Creator {
                 } else {
                     const name = this.pyFreshName(pfx + this.pyHatBase(b));
                     const isFlag = b.opcode === 'event_whenflagclicked';
-                    let code = [`${af}function ${name}() {`, ...this.jsStackFrom(b.next, blocks, 1), '}'].join('\n');
+                    // A comment on the hat belongs to the script, and was being dropped.
+                    const note = this.codeCommentLines(Object.keys(blocks)
+                        .find((k) => blocks[k] === b), '', '//');
+                    let code = [...note, `${af}function ${name}() {`,
+                        ...this.jsStackFrom(b.next, blocks, 1), '}'].join('\n');
                     if (!isFlag) code = `// ${this.decompileHat(b, blocks)}  (event handler — call it when that event happens)\n` + code;
                     defs.push(code);
                     if (isFlag) flagCalls.push(`${name}();`);
@@ -3663,6 +3695,9 @@ class SB3Creator {
         out.push('// Scratch blocks (motion/looks/sensing/…) map to a `scratch` runtime object;');
         out.push('// sprite structure is marked by scratch.sprite()/costume() so it round-trips to blocks.');
         out.push('');
+        // `is multiple of` gets its own function: `x % y === 0` is a different
+        // block that means the same thing, and the way back cannot guess which.
+        if (this._jsUses.multiple) out.push('function _multiple(a, b) { return Number(b) !== 0 && Number(a) % Number(b) === 0; }');
         if (this._jsUses.eq) out.push('function _eq(a, b) { const x = Number(a), y = Number(b); if (!Number.isNaN(x) && !Number.isNaN(y)) return x === y; return String(a).toLowerCase() === String(b).toLowerCase(); }');
         if (this._jsUses.rand) out.push('function _rand(a, b) { a = Number(a); b = Number(b); return Math.floor(Math.random() * (b - a + 1)) + a; }');
         if (this._jsUses.fact) out.push('function _fact(n) { n = Number(n); let r = 1; for (let i = 2; i <= n; i++) r *= i; return r; }');
@@ -3675,6 +3710,8 @@ class SB3Creator {
         for (const extId of this._runtimesUsed) { out.push(...this.runtimeShim(extId, 'js', opts.driver || 'shim')); out.push(''); }
         if (this._jsUses.answer) stateDecls.push('let answer = "";');
         if (stateDecls.length) { out.push(...stateDecls); out.push(''); }
+        const stcMarkers = this.stcStructMarkers(project).map((l) => l + ';');
+        if (stcMarkers.length) { out.push(...stcMarkers); out.push(''); }
         for (const n of gScalars) out.push(`scratch.global_var(${this.pyStr(n)});`);
         for (const n of gLists) out.push(`scratch.global_list(${this.pyStr(n)});`);
         if (gScalars.length || gLists.length) out.push('');
@@ -3758,6 +3795,18 @@ class SB3Creator {
     // Make arbitrary text safe to drop inside a /* ... */ comment.
     cComment(text) {
         return String(text).replace(/\*\//g, '* /').replace(/\/\*/g, '/ *');
+    }
+
+    // A marker-header token that must survive the trip byte for byte — a block id.
+    // cComment is the wrong tool for those: Scratch's id alphabet contains both `*`
+    // and `/` (see generateId, and generateAssetId which already exists to dodge the
+    // same alphabet for filenames), so roughly one id in 400 contains `*/` and would
+    // close the comment the header lives in. cComment would then rewrite it to `* /`
+    // and silently hand back a DIFFERENT id, which is worse than a broken comment.
+    // encodeURIComponent leaves `*` alone but escapes `/`, so escape `*` too; what is
+    // left has no `/`, no `*` and no whitespace, and decodeURIComponent is exact.
+    cMark(text) {
+        return encodeURIComponent(String(text)).replace(/\*/g, '%2A');
     }
 
     cWarn(message) {
@@ -4032,10 +4081,19 @@ class SB3Creator {
         const pad = '    '.repeat(level);
         while (id && blocks[id]) {
             lines.push(...this.cCommentLines(id, pad));
-            lines.push(...this.cTaskBlock(blocks[id], blocks, level, ctx));
+            lines.push(...this.cTaskBlock(blocks[id], blocks, level, ctx, id));
             id = blocks[id].next;
         }
         return lines;
+    }
+
+    // Record a yield point: `<task>_state == state` means "about to run this block".
+    // The state number is minted here so the map can never disagree with the `case`
+    // labels — they come from the same counter, in the same order.
+    cYield(ctx, blockId, kind) {
+        const state = ++ctx.state;
+        ctx.yields.push({ task: ctx.task, state, block: blockId, kind });
+        return state;
     }
 
     // One task's statements as the interior of a Duff's-device state machine. The switch
@@ -4043,7 +4101,7 @@ class SB3Creator {
     // which C allows as long as no inner switch appears (we emit none). Every wait AND
     // every loop back-edge is a numbered yield — the latter is Scratch's own scheduling
     // contract, and it is what makes a busy FOREVER unable to starve the other tasks.
-    cTaskBlock(b, blocks, level, ctx) {
+    cTaskBlock(b, blocks, level, ctx, blockId) {
         const pad = '    '.repeat(level);
         const v = (k) => this.cVal(b.inputs[k], blocks);
         const f = (k) => (b.fields[k] ? b.fields[k][0] : '');
@@ -4053,7 +4111,7 @@ class SB3Creator {
         switch (b.opcode) {
             case 'control_wait': {
                 this._cUses.now = true;
-                const s = ++ctx.state;
+                const s = this.cYield(ctx, blockId, 'wait');
                 return [
                     `${pad}${task}_until = bw_now() + (${this.cMs(b.inputs.DURATION, blocks)});`,
                     `${pad}${task}_state = ${s};`,
@@ -4062,11 +4120,11 @@ class SB3Creator {
                 ];
             }
             case 'control_wait_until': {
-                const s = ++ctx.state;
+                const s = this.cYield(ctx, blockId, 'wait-until');
                 return [`${pad}${task}_state = ${s};`, `${pad}case ${s}:`, `${pad}if (!(${cond()})) return;`];
             }
             case 'control_forever': {
-                const s = ++ctx.state;
+                const s = this.cYield(ctx, blockId, 'forever');
                 return [`${pad}${task}_state = ${s};`, `${pad}case ${s}:`,
                     ...sub('SUBSTACK', level),
                     `${pad}${task}_state = ${s};`, `${pad}return;`];
@@ -4075,7 +4133,7 @@ class SB3Creator {
                 // The counter has to survive the yield, so it is a static, not a local.
                 const name = `bw_i${++this._cCounter}`;
                 ctx.statics.push(name);
-                const s = ++ctx.state;
+                const s = this.cYield(ctx, blockId, 'repeat');
                 return [`${pad}${name} = (${v('TIMES')});`,
                     `${pad}${task}_state = ${s};`,
                     `${pad}case ${s}:`,
@@ -4087,7 +4145,7 @@ class SB3Creator {
                     `${pad}}`];
             }
             case 'control_repeat_until': {
-                const s = ++ctx.state;
+                const s = this.cYield(ctx, blockId, 'repeat-until');
                 return [`${pad}${task}_state = ${s};`,
                     `${pad}case ${s}:`,
                     `${pad}if (!(${cond()})) {`,
@@ -4569,8 +4627,16 @@ class SB3Creator {
                 if (b.topLevel && b.opcode === 'event_whenflagclicked') scriptCount++;
             }
         }
-        this._cTasks = scriptCount > 1;
+        // `{debug: true}` forces the scheduler even for one script. Straight-line code in
+        // main() has no `<task>_state`, so it has no Level 1 position — and a debugger that
+        // cannot say where it is in the commonest beginner project (a single WHEN) is not
+        // worth having. The cooperative form costs the Timer-0 ISR and a dispatch loop and
+        // changes nothing semantically: a lone task that yields simply re-enters at once.
+        // Release builds are untouched. See reference/debugger-ui.md §7.
+        const debug = !!(opts && opts.debug);
+        this._cTasks = scriptCount > 1 || (scriptCount > 0 && debug);
         const taskNames = Array.from({ length: scriptCount }, (_, n) => `bw_task${n}`);
+        const yieldMap = [];   // only emitted for a debug build — see the marker header below
 
         // Pass 2 — declare state. Names are claimed here so a custom block's parameter can
         // never quietly take a variable's identifier.
@@ -4602,8 +4668,8 @@ class SB3Creator {
                 : new Set([...Object.values(t.variables || {}).map((v) => v[0]),
                     ...Object.values(t.lists || {}).map((l) => l[0])]);
             const blocks = t.blocks || {};
-            for (const b of Object.values(blocks)) {
-                if (!b.topLevel) continue;
+            for (const [topId, b] of Object.entries(blocks)) {
+                if (!b || !b.topLevel) continue;
                 if (b.opcode === 'procedures_definition') {
                     const proto = blocks[b.inputs.custom_block[1]];
                     const m = proto.mutation;
@@ -4622,8 +4688,7 @@ class SB3Creator {
                     // A comment on the hat belongs to the script. The host target
                     // carries it; this one was dropping it, which is the only thing
                     // that stopped a device round trip from being a fixed point.
-                    const hatNote = this.codeCommentLines(Object.keys(blocks)
-                        .find((k) => blocks[k] === b), '', '//');
+                    const hatNote = this.codeCommentLines(topId, '', '//');
                     markScripts.push(`script ${this._cTasks ? task : 'main'} ${n}`
                         + (t.isStage ? ' stage' : ` sprite ${this.pyStr(t.name)}`));
                     if (!this._cTasks) {
@@ -4631,7 +4696,11 @@ class SB3Creator {
                         mainBody = this.cStackFrom(b.next, blocks, 1);
                         continue;
                     }
-                    const ctx = { task, state: 0, statics, tasks: taskNames };
+                    // State 0 is `case 0:` — the task has not started, so the block to point
+                    // at is the hat itself. That is what Scratch shows for a script that has
+                    // not run, and it means the map covers every reachable state.
+                    const ctx = { task, state: 0, statics, tasks: taskNames, yields: debug ? yieldMap : [] };
+                    if (debug) yieldMap.push({ task, state: 0, block: topId, kind: 'hat' });
                     const body = this.cTaskFrom(b.next, blocks, 1, ctx);
                     taskDefs.push(`static unsigned int ${task}_state;`);
                     if (this.cHasWait(b.next, blocks)) taskDefs.push(`static unsigned int ${task}_until;`);
@@ -4698,7 +4767,20 @@ class SB3Creator {
                 `device ${device}`,
                 `clock ${clock}`,
                 ...pins.map((p) => `pin ${p.name} P${p.port}.${p.bit} ${p.direction}${p.activeLow ? ' active-low' : ''}`),
-                ...markVars, ...markProcs, ...markScripts
+                ...markVars, ...markProcs, ...markScripts,
+                // The yield map: `<task>_state == N` means "about to run this block". It is
+                // the only thing that turns a Level 1 position into something the block
+                // editor can point at, and only the emitter knows it — the C form has lost
+                // it by the time stc_symtab or either emulator sees the file.
+                //
+                // Debug builds only, and that is not squeamishness: block ids are minted
+                // afresh by every parse, so emitting them unconditionally would make
+                // generateC's output differ run to run for the same program. That breaks
+                // the `C -> pseudocode -> C` fixed point the other three languages hold
+                // themselves to, and makes emitted C undiffable. A debugger asks for
+                // {debug: true} anyway — it needs the scheduler form regardless.
+                // reference/debugger-ui.md §7 is the normative spec.
+                ...yieldMap.map((y) => `yield ${y.task} ${y.state} ${this.cMark(y.block)} ${y.kind}`)
             ];
             out.push('/* @bw-begin — machine-readable; do not hand-edit.');
             for (const m of marks) out.push(` * @bw ${this.cComment(m)}`);
