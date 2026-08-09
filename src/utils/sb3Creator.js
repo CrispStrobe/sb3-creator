@@ -4593,6 +4593,7 @@ class SB3Creator {
         const procProtos = [], procDefs = [], taskDefs = [];
         const statics = [];
         let mainBody = [];
+        let mainNote = [];   // a comment on the single script's hat
         let taskIndex = 0;
         sections.forEach((t, idx) => {
             const pfx = spritePrefix(idx);
@@ -4618,14 +4619,24 @@ class SB3Creator {
                     const n = taskIndex++;
                     const task = taskNames[n];
                     const where = t.isStage ? '' : `, ${this.cComment(t.name)}`;
+                    // A comment on the hat belongs to the script. The host target
+                    // carries it; this one was dropping it, which is the only thing
+                    // that stopped a device round trip from being a fixed point.
+                    const hatNote = this.codeCommentLines(Object.keys(blocks)
+                        .find((k) => blocks[k] === b), '', '//');
                     markScripts.push(`script ${this._cTasks ? task : 'main'} ${n}`
                         + (t.isStage ? ' stage' : ` sprite ${this.pyStr(t.name)}`));
-                    if (!this._cTasks) { mainBody = this.cStackFrom(b.next, blocks, 1); continue; }
+                    if (!this._cTasks) {
+                        mainNote = hatNote;
+                        mainBody = this.cStackFrom(b.next, blocks, 1);
+                        continue;
+                    }
                     const ctx = { task, state: 0, statics, tasks: taskNames };
                     const body = this.cTaskFrom(b.next, blocks, 1, ctx);
                     taskDefs.push(`static unsigned int ${task}_state;`);
                     if (this.cHasWait(b.next, blocks)) taskDefs.push(`static unsigned int ${task}_until;`);
-                    taskDefs.push(`/* when green flag clicked (script ${n + 1}${where}) */`,
+                    taskDefs.push(...hatNote,
+                        `/* when green flag clicked (script ${n + 1}${where}) */`,
                         `static void ${task}(void)`, '{',
                         `    switch (${task}_state) {`,
                         '    case 0:',
@@ -4815,6 +4826,7 @@ class SB3Creator {
                 '    }');
         } else {
             out.push('');
+            out.push(...mainNote.map((l) => `    ${l}`));
             out.push(...mainBody);
         }
         out.push('}', '');
