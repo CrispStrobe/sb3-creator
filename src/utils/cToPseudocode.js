@@ -730,8 +730,7 @@ export default function cToPseudocode (source, opts = {}) {
                         // Parse cond, then, else separately so we can expand to if/else.
                         // Suppress the ternary warning during this parse — we handle it.
                         const origWarn = ctx.warn;
-                        let ternaryWarned = false;
-                        ctx.warn = (m) => { if (/ternary/.test(m)) ternaryWarned = true; else origWarn(m); };
+                        ctx.warn = (m) => { if (!/ternary/.test(m)) origWarn(m); };
                         cur.i = scan;
                         const condExpr = new ExprParser(cur, ctx).parse(1);  // parse above ternary level
                         if (cur.eat('?')) {
