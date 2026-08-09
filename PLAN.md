@@ -585,3 +585,82 @@ deliberate choice, because each carries real risk or needs an account we don't h
     ../CrispSorter, ../CrispCalc, ../CrisperWeaver, ../Naga (compare their layout, license
     listing, and "made by" framing) so the family of apps stays consistent.
   - Keep it self-contained (no external calls at runtime); bundle the license text/links.
+
+## 25. Offline asset library + downloads-manager (brickwright-lite / Tauri app)
+
+The native app (`brickwright-lite/apps/tauri`) needs the costume/sound/backdrop library
+offline, plus a way to fetch ML/TTS model weights on demand without bloating the installer.
+
+**License reality (VERIFIED against Scratch ToU §4–5 + Wikimedia Commons
+`Template:Cc-by-sa-2.0-Scratch`):** the Scratch built-in library = the ToU's **"Support
+Materials"** (images/sounds/video/sample code), and the ToU **licenses them under CC BY-SA
+2.0** (attribution required) — for content published **before Jan 22, 2026** (after that a
+stricter custom license; CC BY-SA being irrevocable, the pre-cutoff corpus stays free).
+**Carve-outs from the grant:** the trademarked mascots/logos — **Scratch Logo, Scratch Cat,
+Gobo, Pico, Nano, Giga, Tera** (need written permission) — and any **third-party-owned** items
+in the library (e.g. Kevin MacLeod sounds). So a **redistributable snapshot IS possible**: the
+standard set MINUS the named mascots MINUS flagged third-party items, shipped with a
+CC-BY-SA-2.0 LICENSE + attribution (share-alike binds the media only, not our MIT/BSD code).
+(Earlier drafts of this plan wrongly said "no uniform license" — that over-generalized the
+carve-outs; corrected.)
+
+**Chosen: Option B — fetch-on-demand, host/bundle nothing.** The downloads-manager fetches
+library media from Scratch's own CDN *to the user's device* on request and caches it locally
+for offline use (a tiny Rust static server on `127.0.0.1:20112` serves the cache; storage.js
+gets a local-first web store with CDN fallback). We redistribute nothing — same "we fetch, we
+don't redistribute" logic as the runtime GPL extensions. The reusable pin is TurboWarp's
+`scripts/library-files.json` manifest (md5+sha256 provenance), or we enumerate md5exts from our
+own bundled library JSONs. ML/TTS weights go through the same manager (from their own hosts),
+removable to reclaim space (esp. on mobile).
+
+- [ ] **Later: Option C (now on solid legal ground)** — bundle/host a redistributable CC BY-SA
+  2.0 snapshot = the standard library set (TurboWarp `library-files.json` / CodePM's ~1035
+  files) **MINUS the named mascots' costumes** (Scratch Cat, Gobo, Pico, Nano, Giga, Tera) and
+  **MINUS flagged third-party items**, shipped with a `CC-BY-SA-2.0` LICENSE + Scratch
+  attribution. This is a **finite exclusion list, not a 1300-file audit** (the ToU grants the
+  whole library CC BY-SA except those carve-outs). **Pin the manifest/library JSONs to a
+  PRE-Jan-2026 version** (post-cutoff ToU dropped the CC language, so later additions aren't
+  CC BY-SA; safest to enumerate from our own pre-2026-fork bundled library JSONs). Gives true
+  offline-out-of-box on first run without the on-demand fetch. Deferred until Option B ships.
+  (Option A — a fresh CC0 pack — is only needed if we also want to replace the excluded
+  mascots with free stand-ins.)
+
+## 26. Editor UX parity — URL-loaded extensions + Xcratch / Scratch-Foundation improvements
+
+**Licensing rule (governs everything here):** features/behaviours are NOT copyrightable, only
+specific source code is. So we may **reimplement** any of these ourselves (clean-room from the
+public description → our code, permissive) or **port from a permissive source** (our
+TurboWarp/scratch-gui base is BSD-3 and already has several). We may **NOT** copy from AGPL-3
+sources — `xcratch/scratch-editor` or the Scratch Foundation `scratch-editor` monorepo. Note
+`xcratch.github.io` is MIT but it's only the deploy wrapper; the editor changes live in the
+AGPL fork, so for us it's reimplement-or-port, never copy-from-xcratch.
+
+**Done (brickwright-lite):**
+- [x] **Load extensions from `?extension=<url>`** (Xcratch-style). Parsed on startup
+  (repeatable / comma-separated), fed to the existing in-process loader
+  (`extensionManager.loadExtensionURL`). Reuses the trust gate: our gallery host loads directly,
+  any other URL prompts a confirm first (a query-param link must not silently run remote code).
+  `overlay/scratch-gui/src/lib/url-extensions.js` + wired in `render-gui.jsx`.
+- [x] **Full-width (double-byte) numbers as values** — clean-room patch to `Cast.toNumber` (via
+  `apply-vm-overlay.mjs`, like the runtime.js fix): full-width `０-９ ＋ － ．` → ASCII before
+  `Number()`. Verified 7/7 unit cases.
+- [x] **Backpack on your own server** — already present via `?backpack_host=<url>` (TW base).
+- [x] **Embed + fullscreen** — already present: `player.html` build entry + stage fullscreen (TW base).
+
+**Deferred — need a running editor to implement correctly + verify visually (NOT small; both are
+core-library changes, do clean-room):**
+- [ ] **`\n` / `\t` in say / think / `=`** — spans scratch-render (multi-line speech-bubble
+  layout) and the scratch-blocks text field. Not a VM tweak.
+- [ ] **See hidden area on right edge of block palette** — NOT CSS: the flyout is a
+  Blockly-rendered SVG whose width scratch-blocks computes from block widths; wider blocks are
+  clipped in the SVG itself. Fix is in scratch-blocks' flyout-width calculation.
+- [ ] **Cleanup: horizontal alignment + animations** — scratch-blocks layout change. Involved.
+- [ ] **Comment-position bug fix** — scratch-blocks; needs a repro.
+- [ ] **Japanese arithmetic operator glyphs (＋ － ✕ ／)** — locale block-text; niche (JP only).
+
+**Also verified (LEGO/gallery extensions):** 26/31 of `CrispStrobe/scratch-lego-bluetooth-extensions`
+`dist/*.mjs` load cleanly through Brickwright's real `adapter.js` (all canonical extensions incl.
+`spikeprimebtc`). The 5 failures are stale numbered dev-variants (`spikeprimeble-1/-2`,
+`spikeprimebtc-1/-2` = old `require`-based / wrong export shape; `planetemaths-1` = undefined
+`Scratch3GamepadBlocks`) — candidates to delete from the repo. **Test with the REAL adapter, not a
+reimplementation — a simplified harness gives false negatives.**
