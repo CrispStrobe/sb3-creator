@@ -610,7 +610,13 @@ class SB3Creator {
         const cid = `cmt_${this._commentSeq++}`;
         if (!target.comments) target.comments = {};
         target.comments[cid] = {
-            blockId, x: 0, y: 0, width: 200, height: 100, minimized: false, text: this._pendingComment
+            // minimized: an OPEN comment bubble must be positioned by Blockly
+            // the moment the workspace renders, and on a hidden workspace
+            // (project loaded while another tab is active) positionBubble_
+            // dereferences null and crashes the GUI (2026-08-10, examples
+            // 05-08). A minimized comment renders as an icon, no bubble, and
+            // the reader expands it when they actually want it.
+            blockId, x: 0, y: 0, width: 200, height: 100, minimized: true, text: this._pendingComment
         };
         block.comment = cid;
         this._pendingComment = '';
