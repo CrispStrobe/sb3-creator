@@ -628,7 +628,6 @@ export default function cToPseudocode (source, opts = {}) {
         if (t.t === 'id' && ['unsigned', 'signed', 'int', 'char', 'long', 'short', 'static', 'volatile', 'const', 'float', 'double',
             'sbit', 'sfr', 'sfr16', 'bit', 'code', 'data', 'xdata', 'idata', 'pdata', 'void', 'extern', 'register', 'typedef', 'struct', 'union', 'enum'].includes(t.v)) {
             // Capture what is being skipped so the warning can name it.
-            const declStart = cur.i - 1;
             const declTokens = [t.v];
             while (!cur.is(';') && cur.peek().t !== 'eof') {
                 if (cur.is('{')) cur.skip('{', '}');
