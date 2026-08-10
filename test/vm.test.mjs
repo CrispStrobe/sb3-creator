@@ -2,7 +2,7 @@
 // assert both that every project loads and that feature logic actually executes.
 // scratch-vm runs blocks without a renderer, so collision/rendering is inert, but
 // variables, lists, custom blocks, clones, and control flow run for real.
-import { test } from 'node:test';
+import { test, describe, afterEach } from 'node:test';
 import assert from 'node:assert/strict';
 import nodeVm from 'node:vm';
 import { readFileSync } from 'node:fs';
@@ -92,6 +92,24 @@ function readVar(vm, name) {
     }
     return undefined;
 }
+
+// scratch-vm's CentralDispatch is a module-level singleton and vm.start() registers
+// a setInterval.  If any test fails before reaching vm.quit(), that interval keeps
+// the process alive — indefinitely.  This is the root cause of the 6h+ hangs.
+// _activeVMs tracks every started VM so afterEach can clean up stranded ones.
+const _activeVMs = new Set();
+const _origStart = VM.prototype.start;
+VM.prototype.start = function () { _activeVMs.add(this); return _origStart.call(this); };
+const _origQuit = VM.prototype.quit;
+VM.prototype.quit = function () { _activeVMs.delete(this); return _origQuit.call(this); };
+
+describe('vm', { concurrency: 1 }, () => {
+
+afterEach(() => {
+    // Kill any VM that a failed test left running.
+    for (const vm of _activeVMs) { try { vm.quit(); } catch {} }
+    _activeVMs.clear();
+});
 
 // Every shipped example must load into the real VM and step without throwing.
 for (const [name, code] of Object.entries(examples)) {
@@ -471,5 +489,7 @@ test('tetris: pieces are real tetrominoes and all four keys respond', async () =
     assert.ok(filled >= 4, `a locked piece fills >= 4 board cells (got ${filled})`);
     vm.quit();
 });
+
+}); // end describe('vm', { concurrency: 1 })
 
 test.after(() => { console.warn = origWarn; });
