@@ -80,7 +80,7 @@ test('block lowering census', () => {
     // RATCHET: the number of unlowered blocks must never grow.
     // Lower this constant when you add a C lowering; a new block without
     // one fails the test and names the offender.
-    const KNOWN_UNLOWERED = 36;  // ratchet: only ever decrease
+    const KNOWN_UNLOWERED = 0;  // ratchet: all devices_* now lower to C
     assert.ok(noLowering.length <= KNOWN_UNLOWERED,
         `${noLowering.length} blocks have no C lowering (was ${KNOWN_UNLOWERED}) — ` +
         `new block(s) added without a C emitter: ` +

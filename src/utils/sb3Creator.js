@@ -5063,6 +5063,54 @@ class SB3Creator {
                 this._cUses.cube = true;
                 return line('bw_cube_invert();');
             }
+            // ---- devices_* C lowerings (ratchet: each one decreases KNOWN_UNLOWERED) ----
+            case 'devices_setservo': {
+                // Servo: angle 0-180 → duty 2.5%-12.5% (500-2500 µs in a 20 ms period).
+                // Uses the PWM module the pin is declared on.
+                this._cUses.pwm = true;
+                return line(`bw_servo_set(${v('SERVO')}, ${v('ANGLE')});`);
+            }
+            case 'devices_servoangle': return `bw_servo_get(${v('SERVO')})`;
+            case 'devices_setmotor': {
+                this._cUses.motor = true;
+                return line(`bw_motor_speed(${v('MOTOR')}, ${v('SPEED')});`);
+            }
+            case 'devices_motorspeed': return `bw_motor_get_speed(${v('MOTOR')})`;
+            case 'devices_setdirection': {
+                this._cUses.motor = true;
+                const dir = f('DIR');
+                const dirVal = { forward: 0, reverse: 1, brake: 2, coast: 3 }[dir] || 0;
+                return line(`bw_motor_dir(${v('MOTOR')}, ${dirVal});`);
+            }
+            case 'devices_motordirection': return `bw_motor_get_dir(${v('MOTOR')})`;
+            case 'devices_setrelay': {
+                const state = f('STATE');
+                return line(`bw_relay_set(${v('RELAY')}, ${state === 'on' ? 1 : 0});`);
+            }
+            case 'devices_devicestate': return `bw_device_state(${v('DEVICE')})`;
+            case 'devices_activate': return line(`bw_device_activate(${v('DEVICE')});`);
+            case 'devices_deactivate': return line(`bw_device_deactivate(${v('DEVICE')});`);
+            case 'devices_lcdprint': return line(`bw_lcd_print(${v('DISPLAY')}, ${v('TEXT')});`);
+            case 'devices_lcdcursor': return line(`bw_lcd_cursor(${v('DISPLAY')}, ${v('ROW')}, ${v('COL')});`);
+            case 'devices_lcdclear': return line(`bw_lcd_clear(${v('DISPLAY')});`);
+            case 'devices_showdigit': return line(`bw_7seg_show(${v('DISPLAY')}, ${v('DIGIT')});`);
+            case 'devices_setrgb': return line(`bw_rgb_set(${v('LED')}, ${v('R')}, ${v('G')}, ${v('B')});`);
+            case 'devices_setpixel': return line(`bw_matrix_set(${v('MATRIX')}, ${v('X')}, ${v('Y')}, ${v('BRIGHTNESS')});`);
+            case 'devices_clearmatrix': return line(`bw_matrix_clear(${v('MATRIX')});`);
+            case 'devices_setneopixel': return line(`bw_neopixel_set(${v('STRIP')}, ${v('INDEX')}, ${v('R')}, ${v('G')}, ${v('B')});`);
+            case 'devices_clearneopixels': return line(`bw_neopixel_clear(${v('STRIP')});`);
+            case 'devices_temperature': return `bw_temperature(${v('SENSOR')})`;
+            case 'devices_light': return `bw_light(${v('SENSOR')})`;
+            case 'devices_distance': return `bw_distance(${v('SENSOR')})`;
+            case 'devices_flex': return `bw_flex(${v('SENSOR')})`;
+            case 'devices_force': return `bw_force(${v('SENSOR')})`;
+            case 'devices_ircode': return `bw_ir_code(${v('SENSOR')})`;
+            case 'devices_pressed': return `bw_pressed(${v('BUTTON')})`;
+            case 'devices_above': return `bw_above(${v('SENSOR')}, ${v('THRESHOLD')})`;
+            case 'devices_closer': return `bw_closer(${v('SENSOR')}, ${v('DISTANCE')})`;
+            case 'devices_motion': return `bw_motion(${v('SENSOR')})`;
+            case 'devices_tilted': return `bw_tilted(${v('SENSOR')})`;
+            case 'devices_energised': return `bw_energised(${v('DEVICE')})`;
             case 'procedures_call': return line(this.cProcCall(b, blocks));
             default: {
                 const text = (this.decompileStackBlock(b, blocks, 0)[0] || b.opcode).trim();
