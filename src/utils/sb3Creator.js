@@ -6435,6 +6435,8 @@ class SB3Creator {
                 '    CCAP0L = 0; CCAP0H = 0;',
                 '    CL = 0; CH = 0;',
                 '    CR = 1;                           /* start PCA counter */',
+                '    EC = 1;                           /* PCA interrupt enable */',
+                '    EA = 1;                           /* global interrupt enable */',
                 '    _servo_pulse = (unsigned int)(1500UL * (FOSC_HZ / 12UL) / 1000000UL);  /* 90° default */',
                 '    _servo_angle = 90;',
                 '    _servo_phase = 0;');
@@ -6445,7 +6447,6 @@ class SB3Creator {
                 '    TH0 = (unsigned char)(T0_RELOAD >> 8);',
                 '    ET0 = 1;                       /* millisecond tick */',
                 '    EA  = 1;',
-                this._cUses.servo ? '    EC  = 1;                       /* PCA interrupt for servo */' : '',
                 '    TR0 = 1;',
                 '',
                 '    for (;;) {',
