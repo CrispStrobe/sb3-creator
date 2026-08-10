@@ -1037,6 +1037,13 @@ export default function cToPseudocode (source, opts = {}) {
             case 'bw_force': return { text: `force on ${a(0)}`, level: 99 };
             case 'bw_ir_code': return { text: `ir code from ${a(0)}`, level: 99 };
             case 'bw_device_state': return { text: `state of ${a(0)}`, level: 99 };
+            // Boolean reporters (conditions)
+            case 'bw_pressed': return { text: `${a(0)} pressed?`, level: 99 };
+            case 'bw_above': return { text: `${a(0)} above ${a(1)}`, level: 99 };
+            case 'bw_closer': return { text: `${a(0)} closer than ${a(1)}`, level: 99 };
+            case 'bw_motion': return { text: `motion detected on ${a(0)}`, level: 99 };
+            case 'bw_tilted': return { text: `${a(0)} tilted?`, level: 99 };
+            case 'bw_energised': return { text: `${a(0)} energised?`, level: 99 };
             // Cube extras (not in the original cube kernel)
             case 'bw_cube_fill_column': return { text: '0', level: 99, stmt: `fill column ${a(0)} ${a(1)} with ${a(2)}` };
             case 'bw_cube_fill_wall': return { text: '0', level: 99, stmt: `fill wall ${a(0)} with ${a(1)}` };
@@ -1642,6 +1649,7 @@ export default function cToPseudocode (source, opts = {}) {
         'bw_neopixel_set', 'bw_neopixel_clear',
         'bw_temperature', 'bw_light', 'bw_distance', 'bw_flex', 'bw_force',
         'bw_ir_code', 'bw_device_state',
+        'bw_pressed', 'bw_above', 'bw_closer', 'bw_motion', 'bw_tilted', 'bw_energised',
         'bw_print', 'bw_print_num']);
     const procFns = funcs.filter((f) => markers && markers.procs.has(f.name));
     const scriptFns = funcs.filter((f) => !IGNORE_FNS.has(f.name)
