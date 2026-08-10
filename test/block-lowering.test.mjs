@@ -107,11 +107,13 @@ test('block lowering census', () => {
         'devices_whenabove',   // polled task, edge-triggered on temperature
         'devices_whenmotion',  // polled task, edge-triggered on contact closure
         'devices_whentilted',  // polled task, edge-triggered on contact closure
-        'devices_whencloser',  // polled task, edge-triggered on distance (stub sensor)
+        'devices_whencloser',  // polled task, edge-triggered on distance
+        'devices_distance',    // HC-SR04 ultrasonic (P3.6 trig, P3.7 echo, Timer 1)
+        'devices_closer',      // threshold predicate on distance
     ]);
     const allDevices = hw.filter(op => op.startsWith('devices_'));
     const stubs = allDevices.filter(op => !REAL_DRIVERS.has(op));
-    const KNOWN_STUBS = 14;   // ratchet: only ever decrease (was 18, event hats real)
+    const KNOWN_STUBS = 12;   // ratchet: only ever decrease (was 14, ultrasonic real)
     console.log(`    ${stubs.length} devices_* stubs, ${REAL_DRIVERS.size} real drivers`);
     assert.ok(stubs.length <= KNOWN_STUBS,
         `${stubs.length} stub blocks (was ${KNOWN_STUBS}) — new stub(s) added`);

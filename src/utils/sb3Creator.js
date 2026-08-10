@@ -4942,7 +4942,7 @@ class SB3Creator {
             case 'devices_motordirection': { this._cUses.devices = true; this._cUses.motor = true; return `bw_motor_get_dir(${v('MOTOR')})`; }
             case 'devices_temperature': { this._cUses.devices = true; this._cUses.sensor = true; this._cUses.adc = true; return `bw_temperature(${v('SENSOR')})`; }
             case 'devices_light': { this._cUses.devices = true; this._cUses.sensor = true; this._cUses.adc = true; return `bw_light(${v('SENSOR')})`; }
-            case 'devices_distance': { this._cUses.devices = true; return `bw_distance(${v('SENSOR')})`; }
+            case 'devices_distance': { this._cUses.devices = true; this._cUses.ultrasonic = true; return `bw_distance(${v('SENSOR')})`; }
             case 'devices_flex': { this._cUses.devices = true; this._cUses.sensor = true; this._cUses.adc = true; return `bw_flex(${v('SENSOR')})`; }
             case 'devices_force': { this._cUses.devices = true; this._cUses.sensor = true; this._cUses.adc = true; return `bw_force(${v('SENSOR')})`; }
             case 'devices_ircode': { this._cUses.devices = true; return `bw_ir_code(${v('SENSOR')})`; }
@@ -4950,7 +4950,7 @@ class SB3Creator {
             // Device predicates (booleans): these also land here via cCond → cRep fallback.
             case 'devices_pressed': { this._cUses.devices = true; this._cUses.button = true; return `bw_pressed(${v('BUTTON')})`; }
             case 'devices_above': { this._cUses.devices = true; this._cUses.sensor = true; this._cUses.adc = true; return `bw_above(${v('SENSOR')}, ${v('THRESHOLD')})`; }
-            case 'devices_closer': { this._cUses.devices = true; return `bw_closer(${v('SENSOR')}, ${v('DISTANCE')})`; }
+            case 'devices_closer': { this._cUses.devices = true; this._cUses.ultrasonic = true; return `bw_closer(${v('SENSOR')}, ${v('DISTANCE')})`; }
             case 'devices_motion': { this._cUses.devices = true; this._cUses.button = true; return `bw_motion(${v('SENSOR')})`; }
             case 'devices_tilted': { this._cUses.devices = true; this._cUses.button = true; return `bw_tilted(${v('SENSOR')})`; }
             case 'devices_energised': { this._cUses.devices = true; this._cUses.relay = true; return `bw_energised(${v('DEVICE')})`; }
@@ -5985,7 +5985,7 @@ class SB3Creator {
                             break;
                         }
                         case 'devices_whencloser': {
-                            this._cUses.devices = true;
+                            this._cUses.devices = true; this._cUses.ultrasonic = true;
                             const sv = this.cVal(b.inputs.SENSOR, blocks);
                             const dv = this.cVal(b.inputs.DISTANCE, blocks);
                             condExpr = `(bw_distance(${sv}) < ${dv})`;
@@ -6598,8 +6598,50 @@ class SB3Creator {
                     rstub('static int bw_force(int s)', 'devices_force'),
                     rstub('static int bw_above(int s, int thr)', 'devices_above'));
             }
+            // Ultrasonic distance (HC-SR04): trigger pulse + echo timing.
+            // P3.6 (trigger), P3.7 (echo).  Timer 1 mode 1 measures the echo.
+            // Distance = echo_us / 58 cm.
+            if (this._cUses.ultrasonic) {
+                out.push(
+                    '/* Ultrasonic distance (HC-SR04): P3.6 trig, P3.7 echo. */',
+                    '/* VERIFIED: Timer 1 mode 1 timing, arithmetic. */',
+                    '/* NOT VERIFIED: analog echo threshold — bench only. */',
+                    '#define US_TRIG  P3_6',
+                    '#define US_ECHO  P3_7',
+                    '',
+                    'static int bw_distance(int s)',
+                    '{',
+                    '    unsigned int ticks;',
+                    '    unsigned char i;',
+                    '    (void)s;',
+                    '    /* 10 µs trigger pulse */',
+                    '    US_TRIG = 0;',
+                    '    US_TRIG = 1;',
+                    '    for (i = 0; i < 10; i++) ;  /* ~10 µs at FOSC/12 */',
+                    '    US_TRIG = 0;',
+                    '    /* Wait for echo HIGH (timeout ~60 ms = no object) */',
+                    '    TMOD = (TMOD & 0x0F) | 0x10;  /* Timer 1, mode 1 */',
+                    '    TL1 = 0; TH1 = 0; TF1 = 0;',
+                    '    TR1 = 1;',
+                    '    while (!US_ECHO && !TF1) ;',
+                    '    if (TF1) { TR1 = 0; return 999; }  /* timeout: no object */',
+                    '    /* Measure echo pulse width */',
+                    '    TL1 = 0; TH1 = 0; TF1 = 0;',
+                    '    while (US_ECHO && !TF1) ;',
+                    '    TR1 = 0;',
+                    '    ticks = ((unsigned int)TH1 << 8) | TL1;',
+                    '    /* cm = ticks * (12 / FOSC_HZ) * 1e6 / 58 */',
+                    '    return (int)((unsigned long)ticks * 12UL * 1000000UL / (FOSC_HZ * 58UL));',
+                    '}',
+                    '',
+                    'static int bw_closer(int s, int dist) { return bw_distance(s) < dist; }',
+                    '');
+            } else {
+                out.push(
+                    rstub('static int bw_distance(int s)', 'devices_distance'),
+                    rstub('static int bw_closer(int s, int dist)', 'devices_closer'));
+            }
             // Stubs that still need real implementations:
-            // distance (ultrasonic: trigger pulse + echo timing),
             // IR (protocol decode), displays (I2C/shift register),
             // neopixel (WS2812 bitbang), RGB (3-channel PWM).
             out.push(
@@ -6613,9 +6655,7 @@ class SB3Creator {
                 stub('static void bw_matrix_clear(int m)', 'devices_clearmatrix'),
                 stub('static void bw_neopixel_set(int s, int i, int r, int g, int b)', 'devices_setneopixel'),
                 stub('static void bw_neopixel_clear(int s)', 'devices_clearneopixels'),
-                rstub('static int bw_distance(int s)', 'devices_distance'),
                 rstub('static int bw_ir_code(int s)', 'devices_ircode'),
-                rstub('static int bw_closer(int s, int dist)', 'devices_closer'),
                 '');
         }
 
@@ -6716,6 +6756,13 @@ class SB3Creator {
             }
             out.push('    RELAY_PIN = 1;                    /* de-energized (active-low) */',
                 '    _relay_state = 0;');
+        }
+        // Ultrasonic: P3.6 (trigger) push-pull output.
+        if (this._cUses.ultrasonic) {
+            if (chip.portModes) {
+                out.push('    P3M1 &= ~0x40; P3M0 |=  0x40;  /* P3.6 (US trig) push-pull */');
+            }
+            out.push('    US_TRIG = 0;');
         }
         // Sensor ADC: P1.1 as analog input (channel 1).
         // adc_read() already exists when _cUses.adc is set — the ADC_CONTR

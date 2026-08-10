@@ -1667,7 +1667,7 @@ export default function cToPseudocode (source, opts = {}) {
     }
 
     const IGNORE_FNS = new Set(['bw_setup', 'bw_tick', 'bw_now', 'bw_block_ms', 'delay_ms', 'adc_read',
-        'pwm_set',
+        'pwm_set', 'bw_distance', 'bw_closer',
         'board_init', 'delay_init', 'tone_set', 'tone_stop',
         'bw_cube_scan', 'bw_cube_set', 'bw_cube_get', 'bw_cube_clear',
         'bw_cube_fill_layer', 'bw_cube_shift', 'bw_cube_hold',
