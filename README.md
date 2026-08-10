@@ -1,10 +1,65 @@
-# SB3 Creator
+# sb3-creator — the BrickWright compiler
 
-This project converts a custom pseudocode language into a downloadable Scratch 3.0 (`.sb3`) project file. It's built with React and Vite.
+A **bidirectional** compiler between the representations a Scratch project can
+take. It began as a one-way tool that turned pseudocode into a downloadable
+`.sb3`; it is now six representations and five readers, and the round trips are
+tested rather than hoped for.
 
-**▶ Live editor: <https://crispstrobe.github.io/sb3-creator/>** — nothing to install; write pseudocode, download the `.sb3`.
+**▶ Live editor: <https://crispstrobe.github.io/sb3-creator/>** — nothing to
+install; write pseudocode, download the `.sb3`.
 
-Published by the `pages` job in [`.github/workflows/ci.yml`](.github/workflows/ci.yml) on every push to `main`, and only after lint, the unit/VM suites and the WebGL browser tests pass — so the page can never be replaced by a build that does not work. It used to be a manual `npm run deploy` to a `gh-pages` branch, which is how it ended up close to a year behind `main`.
+## What it converts
+
+```
+                    ┌──────────────┐
+   pseudocode  ⇄    │              │  ⇄  Python        (host, Scratch runtime)
+   Scratch blocks ⇄ │  BrickWright │  ⇄  JavaScript    (host, Scratch runtime)
+   (.sb3)           │      IR      │  ⇄  C for the host (portable C99)
+                    │              │  →  C for an 8051  (SDCC + <stc12.h>)
+                    └──────────────┘  →  MicroPython    (micro:bit, Pico)
+```
+
+Five code generators — `generatePython`, `generateJavaScript`, `generateC`
+(device), `generateHostC`, and pseudocode itself — and five readers that go the
+other way: `cToPseudocode`, `cHostToPseudocode`, `pythonToPseudocode`,
+`javascriptToPseudocode`, `micropythonToPseudocode`.
+
+**The point of the readers is that generated code is not a dead end.** Edit the
+C a program compiled to, import it back, and you get blocks again — a changed
+`delay_ms(400)` returns as `wait 0.4 seconds`, with the whole program intact.
+
+What makes that safe to act on is the second half: code the reader cannot
+represent is **named** rather than dropped in silence. It used to drop quietly,
+and a hand-added helper function would vanish with nothing reported — which is
+worse than a limitation, because the program looked like it round-tripped. Now
+each declined function, declaration and statement is reported by name. One
+remaining gap is known and recorded rather than papered over: a bare struct
+declaration with no uses still goes unreported, though every statement that
+touches it warns.
+
+## Two C targets, deliberately
+
+| target | for | shape |
+|---|---|---|
+| **host C** | a Scratch program that happens to be written in C — sprites, lists, `join` | portable C99 with a tagged-union value type and a runtime shim generated from the same table the Python and JS targets use, so coverage cannot drift between them |
+| **device C** | an 8051 with 248 bytes of stack | no allocation, no floats, statically allocated variables, and several `WHEN` scripts lowered to cooperative state machines over a 1 ms Timer-0 tick |
+
+Which one you get is decided by the project, not by a flag: a program that
+declares pins is a device program.
+
+## Scale
+
+| | |
+|---|---|
+| examples in the gallery | **74**, each parsed, compiled, round-tripped and simulated by the suite |
+| tests | **~1500**, node's runner, no browser needed for the bulk |
+| cross-cutting contracts in `reference/` | 12 |
+| `sb3Creator.js` | ~7,400 lines |
+
+`reference/` holds the documents more than one repo depends on — the simulation
+contract, the C target's lowering rules, the debugger UI's capability matrix,
+the component library the circuit simulator must support. They are contracts
+rather than notes: other repos cite them instead of re-deriving them.
 
 ## 🚀 Quickstart
 
@@ -84,6 +139,14 @@ See [`PLAN.md`](PLAN.md) for the full list of bugs fixed and features added.
 ---
 
 ## 🌐 Deployment
+
+The live editor is published by the `pages` job in
+[`.github/workflows/ci.yml`](.github/workflows/ci.yml) on every push to `main`, and only
+after lint, the unit/VM suites and the WebGL browser tests pass — so the page cannot be
+replaced by a build that does not work. It used to be a manual `npm run deploy` to a
+`gh-pages` branch, which is how it ended up close to a year behind `main`.
+
+The instructions below are for deploying your *own* copy.
 
 ### Vercel (Recommended)
 
