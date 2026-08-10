@@ -220,6 +220,10 @@ class SB3Creator {
         if (mode === 'simulator' && extId === 'circuit') {
             return this.circuitSimulatorDriver(lang);
         }
+        // Device convenience blocks: read state from board.getDeviceState().
+        if (mode === 'simulator' && extId === 'devices') {
+            return this.devicesSimulatorDriver(lang);
+        }
         // LED cube: a frame buffer that the board's led_cube can read if attached.
         if (mode === 'simulator' && extId === 'ledcube') {
             return this.ledcubeSimulatorDriver(lang);
@@ -439,6 +443,102 @@ class SB3Creator {
             '    setControl: (control, v) => { const b = _circuit_board(); if (b) b.setControl(control, Number(v)); },',
             '    setPower: (state) => { const b = _circuit_board(); if (b) b.setPower(state === "on"); }',
             '};'
+        ];
+    }
+
+    // Device convenience blocks simulator driver — reads getDeviceState()
+    // from the board for reporters, forwards commands for actuators.
+    devicesSimulatorDriver(lang) {
+        if (lang === 'py') {
+            return [
+                '# _devices driver — reads device state from the board via getDeviceState().',
+                'class _DevicesSimulated:',
+                '    def _state(self, name):',
+                '        b = _board()',
+                '        return b.getDeviceState(str(name)) if b and hasattr(b, "getDeviceState") else None',
+                '    def servoAngle(self, s):',
+                '        st = self._state(s)',
+                '        return st.get("targetAngle", 0) if st else float("nan")',
+                '    def motorSpeed(self, m):',
+                '        st = self._state(m)',
+                '        return st.get("omega", 0) if st else float("nan")',
+                '    def motorDirection(self, m):',
+                '        st = self._state(m)',
+                '        return st.get("direction", "stopped") if st else "stopped"',
+                '    def deviceState(self, d):',
+                '        st = self._state(d)',
+                '        if not st: return "unknown"',
+                '        if "energized" in st: return "on" if st["energized"] else "off"',
+                '        return "unknown"',
+                '    def temperature(self, s):',
+                '        st = self._state(s)',
+                '        return st.get("temperature", float("nan")) if st else float("nan")',
+                '    def light(self, s):',
+                '        st = self._state(s)',
+                '        return st.get("lux", float("nan")) if st else float("nan")',
+                '    def distance(self, s):',
+                '        st = self._state(s)',
+                '        return st.get("distance", float("nan")) if st else float("nan")',
+                '    def flex(self, s):',
+                '        st = self._state(s)',
+                '        return st.get("flex", float("nan")) if st else float("nan")',
+                '    def force(self, s):',
+                '        st = self._state(s)',
+                '        return st.get("force", float("nan")) if st else float("nan")',
+                '    def irCode(self, s):',
+                '        st = self._state(s)',
+                '        return st.get("code", float("nan")) if st else float("nan")',
+                '    def pressed(self, b): return bool(self._state(b) and self._state(b).get("pressed"))',
+                '    def above(self, s, t): v = self._state(s); return float(v.get("value", 0) if v else 0) > float(t)',
+                '    def closer(self, s, d): v = self._state(s); return float(v.get("distance", 999) if v else 999) < float(d)',
+                '    def motion(self, s): return bool(self._state(s) and self._state(s).get("motion"))',
+                '    def tilted(self, s): return bool(self._state(s) and self._state(s).get("tilted"))',
+                '    def energised(self, d): return bool(self._state(d) and self._state(d).get("energized"))',
+                '    # Commands are forwarded to the board if it supports them.',
+                '    def setServo(self, s, a): pass',
+                '    def setMotor(self, m, s): pass',
+                '    def setDirection(self, m, d): pass',
+                '    def setRelay(self, r, s): pass',
+                '    def activate(self, d): pass',
+                '    def deactivate(self, d): pass',
+                '    def showDigit(self, d, n): pass',
+                '    def setRgb(self, l, r, g, b): pass',
+                '    def lcdPrint(self, d, t): pass',
+                '    def lcdCursor(self, d, r, c): pass',
+                '    def lcdClear(self, d): pass',
+                '    def setPixel(self, m, x, y, b): pass',
+                '    def clearMatrix(self, m): pass',
+                '    def setNeopixel(self, s, i, r, g, b): pass',
+                '    def clearNeopixels(self, s): pass',
+                '_devices = _DevicesSimulated()',
+            ];
+        }
+        return [
+            '// _devices driver — reads device state from the board via getDeviceState().',
+            'const _devices = {',
+            '    _state: (name) => { const b = _board(); return b && b.getDeviceState ? b.getDeviceState(String(name)) : null; },',
+            '    servoAngle: (s) => { const st = _devices._state(s); return st ? (st.targetAngle ?? 0) : NaN; },',
+            '    motorSpeed: (m) => { const st = _devices._state(m); return st ? (st.omega ?? 0) : NaN; },',
+            '    motorDirection: (m) => { const st = _devices._state(m); return st ? (st.direction ?? "stopped") : "stopped"; },',
+            '    deviceState: (d) => { const st = _devices._state(d); if (!st) return "unknown"; return ("energized" in st) ? (st.energized ? "on" : "off") : "unknown"; },',
+            '    temperature: (s) => { const st = _devices._state(s); return st ? (st.temperature ?? NaN) : NaN; },',
+            '    light: (s) => { const st = _devices._state(s); return st ? (st.lux ?? NaN) : NaN; },',
+            '    distance: (s) => { const st = _devices._state(s); return st ? (st.distance ?? NaN) : NaN; },',
+            '    flex: (s) => { const st = _devices._state(s); return st ? (st.flex ?? NaN) : NaN; },',
+            '    force: (s) => { const st = _devices._state(s); return st ? (st.force ?? NaN) : NaN; },',
+            '    irCode: (s) => { const st = _devices._state(s); return st ? (st.code ?? NaN) : NaN; },',
+            '    pressed: (b) => { const st = _devices._state(b); return !!(st && st.pressed); },',
+            '    above: (s, t) => { const st = _devices._state(s); return ((st && st.value) ?? 0) > Number(t); },',
+            '    closer: (s, d) => { const st = _devices._state(s); return ((st && st.distance) ?? 999) < Number(d); },',
+            '    motion: (s) => { const st = _devices._state(s); return !!(st && st.motion); },',
+            '    tilted: (s) => { const st = _devices._state(s); return !!(st && st.tilted); },',
+            '    energised: (d) => { const st = _devices._state(d); return !!(st && st.energized); },',
+            '    // Commands — no-ops in the simulator driver (the board handles them through pins)',
+            '    setServo: () => {}, setMotor: () => {}, setDirection: () => {}, setRelay: () => {},',
+            '    activate: () => {}, deactivate: () => {}, showDigit: () => {}, setRgb: () => {},',
+            '    lcdPrint: () => {}, lcdCursor: () => {}, lcdClear: () => {},',
+            '    setPixel: () => {}, clearMatrix: () => {}, setNeopixel: () => {}, clearNeopixels: () => {},',
+            '};',
         ];
     }
 
