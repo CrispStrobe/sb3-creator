@@ -6,7 +6,7 @@ and the licence constraints so each piece does not have to re-derive them.
 
 Goal: run a BrickWright project against a *simulated board* — turn a pot and hear the buzzer
 change pitch, watch an LED dim, probe nodes with a virtual multimeter — for the STC12/8051
-first, then Arduino/AVR, then micro:bit. With a TinkerCAD-Circuits-style builder that infers
+first, then Arduino/AVR, then micro:bit. With a bench-style breadboard builder that infers
 what it can from the code and lets the user draw the rest.
 
 This is not a third surface. It **is** the two already on the roadmap
