@@ -108,3 +108,11 @@ See [`PLAN.md`](PLAN.md) for the full list of bugs fixed and features added.
 
 3.  **Enable GitHub Pages**:
     In your GitHub repository settings, navigate to the "Pages" section and set the source to deploy from the `gh-pages` branch.
+
+## Licence
+
+MPL-2.0 — see [LICENSE](LICENSE).
+
+Attribution is required, and changes to these files stay open. The code may
+still be combined into a larger work distributed under other terms, which is
+what keeps app-store distribution possible.
