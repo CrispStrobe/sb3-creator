@@ -6562,6 +6562,9 @@ class SB3Creator {
             if (this._cUses.sensor) {
                 out.push(
                     '/* Analog sensors: ADC channel 1 (P1.1) default. */',
+                    '/* VERIFIED: ADC register sequence (P1ASF, ADC_CONTR handshake), */',
+                    '/*   arithmetic (raw code → scaled value). */',
+                    '/* NOT VERIFIED: analog path (voltage → ADC code) — bench only. */',
                     '/* TMP36: mV = ADC * 5000 / 1024; °C = (mV - 500) / 10. */',
                     '/* LDR / flex / force: percentage = ADC * 100 / 1023. */',
                     '#define SENSOR_CH  1',
