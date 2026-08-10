@@ -257,7 +257,7 @@ One figure remains unexplained: a third-party summary claims the catalogue has "
 200 components". 114 parts plus 67 starters is 181. It may be counting variants, or it
 may be wrong. It is recorded here rather than quietly dropped.
 
-**On naming.** This file describes a target set, not a competitor. The parts are
+**On naming.** This file describes a target parts set. The parts are
 industry-standard and the identifications are ours; where provenance genuinely matters
 it is attributed to the artefact — an asset name, a datasheet, a measurement — rather
 than to a product. That is both a house rule and, for the `slug` marks, the more
