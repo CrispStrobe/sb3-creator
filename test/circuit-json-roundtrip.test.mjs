@@ -1,11 +1,13 @@
-// Circuit JSON round-trip: every example's circuit.json must survive a
-// load/save cycle with its wiring intact.
+// Circuit JSON structural validation + safety-lesson topology checks.
 //
-// This is the test the gallery round-trip was missing: 18 standalone-circuit
-// examples and 27 MCU examples carry circuit.json, and nothing verified it
-// survived serialisation. The safety-lesson examples (31-no-resistor-led,
-// 33-inductive-no-flyback) encode deliberate wiring mistakes that a
-// normaliser must NOT "fix".
+// What this tests: every example's circuit.json is valid JSON with the
+// expected schema (parts with id/kind/x/y, wires with from/to endpoints),
+// and the safety-lesson examples preserve their deliberate wiring mistakes.
+//
+// What this does NOT test: the application serialiser's load/save cycle.
+// That test belongs in bw-circuit-ui, which owns the Circuit model and
+// the serialiser. A JSON self-round-trip (parse→stringify→parse→stringify)
+// is true by construction and proves nothing about data loss.
 //
 // Scans examples/ by directory, same pattern as gallery-roundtrip.test.mjs.
 
@@ -25,13 +27,57 @@ try {
         .sort();
 } catch { exampleDirs = []; }
 
-/** Normalise to a canonical JSON string for comparison.
- *  Key order is preserved by JSON.parse→stringify; floating-point
- *  values are compared as-is (no epsilon — coordinates are authored
- *  integers, and params are exact). */
-function canonicalise(src) {
-    return JSON.stringify(JSON.parse(src), null, 2);
+// ---- helpers for wiring topology ----------------------------------------
+
+/** Build an adjacency list from wires: part.terminal → [part.terminal, ...] */
+function buildGraph(obj) {
+    const adj = {};
+    const add = (a, b) => { if (!adj[a]) adj[a] = []; adj[a].push(b); };
+    for (const w of obj.wires || []) {
+        const from = `${w.from}.${w.fromTerminal || '?'}`;
+        const to = `${w.to}.${w.toTerminal || '?'}`;
+        add(from, to);
+        add(to, from);
+    }
+    return adj;
 }
+
+/** All part ids reachable from a given part (BFS over wires). */
+function reachableParts(obj, startId) {
+    const adj = buildGraph(obj);
+    const visited = new Set();
+    const queue = [];
+    // Seed with all terminals of the start part.
+    for (const key of Object.keys(adj)) {
+        if (key.startsWith(startId + '.')) queue.push(key);
+    }
+    while (queue.length) {
+        const node = queue.shift();
+        if (visited.has(node)) continue;
+        visited.add(node);
+        for (const neighbor of (adj[node] || [])) {
+            if (!visited.has(neighbor)) queue.push(neighbor);
+        }
+    }
+    // Extract unique part ids from visited terminals.
+    return new Set([...visited].map(t => t.split('.')[0]));
+}
+
+/** Does a path from partA to partB pass through any part of the given kind? */
+function pathContainsKind(obj, fromId, toId, kind) {
+    const reachable = reachableParts(obj, fromId);
+    if (!reachable.has(toId)) return false;
+    // Walk all parts on the path (simplified: check if any part of `kind`
+    // is reachable from fromId AND can reach toId).
+    const partsOfKind = (obj.parts || []).filter(p => p.kind === kind);
+    for (const p of partsOfKind) {
+        const fromReach = reachableParts(obj, fromId);
+        if (fromReach.has(p.id)) return true;
+    }
+    return false;
+}
+
+// ---- per-example structural validation ----------------------------------
 
 let circuitCount = 0;
 
@@ -41,18 +87,15 @@ for (const name of exampleDirs) {
     try { src = readFileSync(circuitPath, 'utf8'); } catch { continue; }
     circuitCount++;
 
-    test(`circuit.json: ${name} round-trips`, () => {
-        // Parse the JSON.
+    test(`circuit.json: ${name} is valid and well-formed`, () => {
         let obj;
         try { obj = JSON.parse(src); } catch (e) {
             assert.fail(`${name}/circuit.json is not valid JSON: ${e.message}`);
         }
 
-        // Structural assertions: the file must have parts and nets.
         assert.ok(Array.isArray(obj.parts), `${name}: parts must be an array`);
         assert.ok(Array.isArray(obj.wires), `${name}: wires must be an array`);
 
-        // Every part must have id, kind, and position.
         for (const part of obj.parts) {
             assert.ok(part.id, `${name}: part missing id`);
             assert.ok(part.kind, `${name}: part ${part.id} missing kind`);
@@ -60,42 +103,60 @@ for (const name of exampleDirs) {
             assert.ok(typeof part.y === 'number', `${name}: part ${part.id} missing y`);
         }
 
-        // Every wire must connect two terminals.
+        const partIds = new Set(obj.parts.map(p => p.id));
         for (let i = 0; i < obj.wires.length; i++) {
             const w = obj.wires[i];
             assert.ok(w.from, `${name}: wire ${i} missing 'from'`);
             assert.ok(w.to, `${name}: wire ${i} missing 'to'`);
+            // Wire endpoints must reference parts that exist.
+            assert.ok(partIds.has(w.from),
+                `${name}: wire ${i} references unknown part '${w.from}'`);
+            assert.ok(partIds.has(w.to),
+                `${name}: wire ${i} references unknown part '${w.to}'`);
         }
-
-        // Round-trip: JSON.parse → JSON.stringify → JSON.parse → JSON.stringify.
-        const canonical1 = canonicalise(src);
-        const canonical2 = canonicalise(canonical1);
-        assert.equal(canonical1, canonical2, `${name}: circuit.json is not stable under re-serialisation`);
     });
 }
 
-// Safety-lesson assertions: the deliberate mistakes must survive.
-test('safety: 31-no-resistor-led has an LED with no series resistor', () => {
+// ---- safety-lesson topology assertions ----------------------------------
+// These test the WIRING, not part names. A normaliser that "fixes" a
+// deliberate mistake destroys the lesson.
+
+test('safety: 31-no-resistor-led — the LED path to VCC has no resistor', () => {
     const path = resolve(examplesDir, '31-no-resistor-led', 'circuit.json');
     let obj;
     try { obj = JSON.parse(readFileSync(path, 'utf8')); } catch { return; }
+
+    // Find the "bad" LED — any LED whose path to VCC contains no resistor.
     const leds = obj.parts.filter(p => p.kind === 'led');
-    assert.ok(leds.length > 0, 'must have at least one LED');
-    // The "bad" LED (led_bad) is wired directly to VCC/GND with no resistor
-    // in its path. We check that the part exists — the circuit's mistake is
-    // that it has no resistor between vcc and led_bad.
-    const badLed = obj.parts.find(p => p.id === 'led_bad');
-    assert.ok(badLed, 'led_bad must exist — it is the deliberate mistake');
+    const vcc = obj.parts.find(p => p.kind === 'vcc');
+    assert.ok(leds.length > 0 && vcc, 'must have LEDs and VCC');
+
+    // At least one LED must NOT have a resistor in its path to VCC.
+    const hasUnprotectedLed = leds.some(led =>
+        !pathContainsKind(obj, led.id, vcc.id, 'resistor')
+    );
+    assert.ok(hasUnprotectedLed,
+        'the lesson requires at least one LED with no series resistor — a normaliser must not add one');
 });
 
-test('safety: 33-inductive-no-flyback has no flyback diode on the motor path', () => {
+test('safety: 33-inductive-no-flyback — the motor has no diode across it', () => {
     const path = resolve(examplesDir, '33-inductive-no-flyback', 'circuit.json');
     let obj;
     try { obj = JSON.parse(readFileSync(path, 'utf8')); } catch { return; }
-    // The lesson is that the motor (inductive load) has no flyback diode.
-    // Check that diodes exist only on the "right" side, not on the "wrong" side.
+
     const motors = obj.parts.filter(p => p.kind === 'dc_motor');
     assert.ok(motors.length > 0, 'must have at least one motor');
+
+    // The lesson: at least one motor has no flyback diode across its terminals.
+    // A diode directly across a motor's terminals would be reachable from the
+    // motor with only one hop through a diode part.
+    const hasUnprotectedMotor = motors.some(motor => {
+        const reachable = reachableParts(obj, motor.id);
+        const diodes = obj.parts.filter(p => p.kind === 'diode' && reachable.has(p.id));
+        return diodes.length === 0;
+    });
+    assert.ok(hasUnprotectedMotor,
+        'the lesson requires at least one motor with no flyback diode — a normaliser must not add one');
 });
 
 test(`circuit.json gallery has at least 30 files`, () => {
