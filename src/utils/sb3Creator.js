@@ -4936,6 +4936,24 @@ class SB3Creator {
             }
             case 'argument_reporter_string_number':
             case 'argument_reporter_boolean': return this.cName(f('VALUE'));
+            // Device reporters: sensor reads, actuator readback, generic state.
+            case 'devices_servoangle': { this._cUses.devices = true; this._cUses.servo = true; return `bw_servo_get(${v('SERVO')})`; }
+            case 'devices_motorspeed': { this._cUses.devices = true; this._cUses.motor = true; return `bw_motor_get_speed(${v('MOTOR')})`; }
+            case 'devices_motordirection': { this._cUses.devices = true; this._cUses.motor = true; return `bw_motor_get_dir(${v('MOTOR')})`; }
+            case 'devices_temperature': { this._cUses.devices = true; this._cUses.sensor = true; this._cUses.adc = true; return `bw_temperature(${v('SENSOR')})`; }
+            case 'devices_light': { this._cUses.devices = true; this._cUses.sensor = true; this._cUses.adc = true; return `bw_light(${v('SENSOR')})`; }
+            case 'devices_distance': { this._cUses.devices = true; return `bw_distance(${v('SENSOR')})`; }
+            case 'devices_flex': { this._cUses.devices = true; this._cUses.sensor = true; this._cUses.adc = true; return `bw_flex(${v('SENSOR')})`; }
+            case 'devices_force': { this._cUses.devices = true; this._cUses.sensor = true; this._cUses.adc = true; return `bw_force(${v('SENSOR')})`; }
+            case 'devices_ircode': { this._cUses.devices = true; return `bw_ir_code(${v('SENSOR')})`; }
+            case 'devices_devicestate': { this._cUses.devices = true; return `bw_device_state(${v('DEVICE')})`; }
+            // Device predicates (booleans): these also land here via cCond → cRep fallback.
+            case 'devices_pressed': { this._cUses.devices = true; this._cUses.button = true; return `bw_pressed(${v('BUTTON')})`; }
+            case 'devices_above': { this._cUses.devices = true; this._cUses.sensor = true; this._cUses.adc = true; return `bw_above(${v('SENSOR')}, ${v('THRESHOLD')})`; }
+            case 'devices_closer': { this._cUses.devices = true; return `bw_closer(${v('SENSOR')}, ${v('DISTANCE')})`; }
+            case 'devices_motion': { this._cUses.devices = true; this._cUses.button = true; return `bw_motion(${v('SENSOR')})`; }
+            case 'devices_tilted': { this._cUses.devices = true; this._cUses.button = true; return `bw_tilted(${v('SENSOR')})`; }
+            case 'devices_energised': { this._cUses.devices = true; this._cUses.relay = true; return `bw_energised(${v('DEVICE')})`; }
             default: {
                 const text = this.drep(b, blocks) || b.opcode;
                 this.cWarn(`no C equivalent for "${text}" — emitted as 0`);
@@ -5173,15 +5191,11 @@ class SB3Creator {
             // COMPILE, which is better than a link error, and the /* TODO */
             // comment in each stub says what a real implementation would do.
             case 'devices_setservo': { this._cUses.devices = true; this._cUses.servo = true; return line(`bw_servo_set(${v('SERVO')}, ${v('ANGLE')});`); }
-            case 'devices_servoangle': { this._cUses.devices = true; this._cUses.servo = true; return `bw_servo_get(${v('SERVO')})`; }
             case 'devices_setmotor': { this._cUses.devices = true; this._cUses.motor = true; return line(`bw_motor_speed(${v('MOTOR')}, ${v('SPEED')});`); }
-            case 'devices_motorspeed': { this._cUses.devices = true; this._cUses.motor = true; return `bw_motor_get_speed(${v('MOTOR')})`; }
             case 'devices_setdirection': { this._cUses.devices = true; this._cUses.motor = true; const d = f('DIR'); return line(`bw_motor_dir(${v('MOTOR')}, ${({ forward: 0, reverse: 1, brake: 2, coast: 3 })[d] || 0});`); }
-            case 'devices_motordirection': { this._cUses.devices = true; this._cUses.motor = true; return `bw_motor_get_dir(${v('MOTOR')})`; }
-            case 'devices_setrelay': { this._cUses.devices = true; return line(`bw_relay_set(${v('RELAY')}, ${f('STATE') === 'on' ? 1 : 0});`); }
-            case 'devices_devicestate': { this._cUses.devices = true; return `bw_device_state(${v('DEVICE')})`; }
-            case 'devices_activate': { this._cUses.devices = true; return line(`bw_device_activate(${v('DEVICE')});`); }
-            case 'devices_deactivate': { this._cUses.devices = true; return line(`bw_device_deactivate(${v('DEVICE')});`); }
+            case 'devices_setrelay': { this._cUses.devices = true; this._cUses.relay = true; return line(`bw_relay_set(${v('RELAY')}, ${f('STATE') === 'on' ? 1 : 0});`); }
+            case 'devices_activate': { this._cUses.devices = true; this._cUses.relay = true; return line(`bw_device_activate(${v('DEVICE')});`); }
+            case 'devices_deactivate': { this._cUses.devices = true; this._cUses.relay = true; return line(`bw_device_deactivate(${v('DEVICE')});`); }
             case 'devices_lcdprint': { this._cUses.devices = true; return line(`bw_lcd_print(${v('DISPLAY')}, ${v('TEXT')});`); }
             case 'devices_lcdcursor': { this._cUses.devices = true; return line(`bw_lcd_cursor(${v('DISPLAY')}, ${v('ROW')}, ${v('COL')});`); }
             case 'devices_lcdclear': { this._cUses.devices = true; return line(`bw_lcd_clear(${v('DISPLAY')});`); }
@@ -5191,18 +5205,6 @@ class SB3Creator {
             case 'devices_clearmatrix': { this._cUses.devices = true; return line(`bw_matrix_clear(${v('MATRIX')});`); }
             case 'devices_setneopixel': { this._cUses.devices = true; return line(`bw_neopixel_set(${v('STRIP')}, ${v('INDEX')}, ${v('R')}, ${v('G')}, ${v('B')});`); }
             case 'devices_clearneopixels': { this._cUses.devices = true; return line(`bw_neopixel_clear(${v('STRIP')});`); }
-            case 'devices_temperature': { this._cUses.devices = true; return `bw_temperature(${v('SENSOR')})`; }
-            case 'devices_light': { this._cUses.devices = true; return `bw_light(${v('SENSOR')})`; }
-            case 'devices_distance': { this._cUses.devices = true; return `bw_distance(${v('SENSOR')})`; }
-            case 'devices_flex': { this._cUses.devices = true; return `bw_flex(${v('SENSOR')})`; }
-            case 'devices_force': { this._cUses.devices = true; return `bw_force(${v('SENSOR')})`; }
-            case 'devices_ircode': { this._cUses.devices = true; return `bw_ir_code(${v('SENSOR')})`; }
-            case 'devices_pressed': { this._cUses.devices = true; return `bw_pressed(${v('BUTTON')})`; }
-            case 'devices_above': { this._cUses.devices = true; return `bw_above(${v('SENSOR')}, ${v('THRESHOLD')})`; }
-            case 'devices_closer': { this._cUses.devices = true; return `bw_closer(${v('SENSOR')}, ${v('DISTANCE')})`; }
-            case 'devices_motion': { this._cUses.devices = true; return `bw_motion(${v('SENSOR')})`; }
-            case 'devices_tilted': { this._cUses.devices = true; return `bw_tilted(${v('SENSOR')})`; }
-            case 'devices_energised': { this._cUses.devices = true; return `bw_energised(${v('DEVICE')})`; }
             case 'procedures_call': return line(this.cProcCall(b, blocks));
             default: {
                 const text = (this.decompileStackBlock(b, blocks, 0)[0] || b.opcode).trim();
@@ -6436,11 +6438,104 @@ class SB3Creator {
                     stub('static void bw_motor_dir(int motor, int dir)', 'devices_setdirection'),
                     rstub('static int bw_motor_get_dir(int motor)', 'devices_motordirection'));
             }
+            // Relay driver: single GPIO pin drives a transistor that energizes the coil.
+            // P2.0 default — any output pin works; the 8051 sinks current through an
+            // NPN base, so relay ON = pin LOW (active-low, same as LEDs).
+            if (this._cUses.relay) {
+                out.push(
+                    '/* Relay / generic actuator: GPIO pin drives transistor → coil. */',
+                    '/* P2.0 default.  Active-low: pin LOW = relay ON. */',
+                    '#define RELAY_PIN  P2_0',
+                    'static int _relay_state;',
+                    '',
+                    'static void bw_relay_set(int relay, int on)',
+                    '{',
+                    '    (void)relay;',
+                    '    _relay_state = on;',
+                    '    RELAY_PIN = on ? 0 : 1;           /* active-low */',
+                    '}',
+                    '',
+                    'static int bw_energised(int d) { (void)d; return _relay_state; }',
+                    '',
+                    '/* activate/deactivate are relay aliases. */',
+                    'static void bw_device_activate(int dev) { bw_relay_set(dev, 1); }',
+                    'static void bw_device_deactivate(int dev) { bw_relay_set(dev, 0); }',
+                    '');
+            } else {
+                out.push(
+                    stub('static void bw_relay_set(int relay, int on)', 'devices_setrelay'),
+                    stub('static void bw_device_activate(int dev)', 'devices_activate'),
+                    stub('static void bw_device_deactivate(int dev)', 'devices_deactivate'),
+                    rstub('static int bw_energised(int d)', 'devices_energised'));
+            }
+            // Button / digital contact closure: GPIO read with pull-up.
+            // P3.2 (INT0) is the canonical button pin on STC12 dev boards.
+            // Active-low: pressed = pin LOW (button shorts to GND).
+            // Motion and tilt sensors are the same behaviour class (contact closure).
+            if (this._cUses.button) {
+                out.push(
+                    '/* Button / contact closure: active-low GPIO read. */',
+                    '/* P3.2 (INT0) default.  Pressed = pin LOW. */',
+                    '#define BUTTON_PIN  P3_2',
+                    '',
+                    'static int bw_pressed(int btn) { (void)btn; return !BUTTON_PIN; }',
+                    'static int bw_motion(int s) { (void)s; return !BUTTON_PIN; }',
+                    'static int bw_tilted(int s) { (void)s; return !BUTTON_PIN; }',
+                    '');
+            } else {
+                out.push(
+                    rstub('static int bw_pressed(int btn)', 'devices_pressed'),
+                    rstub('static int bw_motion(int s)', 'devices_motion'),
+                    rstub('static int bw_tilted(int s)', 'devices_tilted'));
+            }
+            // Analog sensors: ADC read + scaling.  All four behaviour classes
+            // (3-pin voltage, 2-pin resistance divider) reduce to adc_read().
+            // Default channel: P1.1 (ADC channel 1).
+            //   temperature (TMP36): V = 10 mV/°C + 500 mV → °C = (mV - 500) / 10
+            //   light (LDR):  higher light → lower R → higher V → 0-100%
+            //   flex/force:   resistance divider, 0-1023 raw ADC value
+            if (this._cUses.sensor) {
+                out.push(
+                    '/* Analog sensors: ADC channel 1 (P1.1) default. */',
+                    '/* TMP36: mV = ADC * 5000 / 1024; °C = (mV - 500) / 10. */',
+                    '/* LDR / flex / force: percentage = ADC * 100 / 1023. */',
+                    '#define SENSOR_CH  1',
+                    '',
+                    'static int bw_temperature(int s)',
+                    '{',
+                    '    unsigned int raw;',
+                    '    (void)s;',
+                    '    raw = adc_read(SENSOR_CH);',
+                    '    /* TMP36 at 5V ref: mV = raw * 5000 / 1024, °C = (mV-500)/10 */',
+                    '    return (int)((long)raw * 500 / 1024 - 50);',
+                    '}',
+                    '',
+                    'static int bw_light(int s)',
+                    '{',
+                    '    (void)s;',
+                    '    return (int)((unsigned long)adc_read(SENSOR_CH) * 100 / 1023);',
+                    '}',
+                    '',
+                    'static int bw_flex(int s) { (void)s; return (int)adc_read(SENSOR_CH); }',
+                    'static int bw_force(int s) { (void)s; return (int)adc_read(SENSOR_CH); }',
+                    '',
+                    '/* Threshold predicate: compare sensor reading against a value. */',
+                    'static int bw_above(int s, int thr) { return bw_temperature(s) > thr; }',
+                    '');
+            } else {
+                out.push(
+                    rstub('static int bw_temperature(int s)', 'devices_temperature'),
+                    rstub('static int bw_light(int s)', 'devices_light'),
+                    rstub('static int bw_flex(int s)', 'devices_flex'),
+                    rstub('static int bw_force(int s)', 'devices_force'),
+                    rstub('static int bw_above(int s, int thr)', 'devices_above'));
+            }
+            // Stubs that still need real implementations:
+            // distance (ultrasonic: trigger pulse + echo timing),
+            // IR (protocol decode), displays (I2C/shift register),
+            // neopixel (WS2812 bitbang), RGB (3-channel PWM).
             out.push(
-                stub('static void bw_relay_set(int relay, int on)', 'devices_setrelay'),
                 rstub('static int bw_device_state(int dev)', 'devices_devicestate'),
-                stub('static void bw_device_activate(int dev)', 'devices_activate'),
-                stub('static void bw_device_deactivate(int dev)', 'devices_deactivate'),
                 stub('static void bw_lcd_print(int disp, int text)', 'devices_lcdprint'),
                 stub('static void bw_lcd_cursor(int disp, int row, int col)', 'devices_lcdcursor'),
                 stub('static void bw_lcd_clear(int disp)', 'devices_lcdclear'),
@@ -6450,18 +6545,9 @@ class SB3Creator {
                 stub('static void bw_matrix_clear(int m)', 'devices_clearmatrix'),
                 stub('static void bw_neopixel_set(int s, int i, int r, int g, int b)', 'devices_setneopixel'),
                 stub('static void bw_neopixel_clear(int s)', 'devices_clearneopixels'),
-                rstub('static int bw_temperature(int s)', 'devices_temperature'),
-                rstub('static int bw_light(int s)', 'devices_light'),
                 rstub('static int bw_distance(int s)', 'devices_distance'),
-                rstub('static int bw_flex(int s)', 'devices_flex'),
-                rstub('static int bw_force(int s)', 'devices_force'),
                 rstub('static int bw_ir_code(int s)', 'devices_ircode'),
-                rstub('static int bw_pressed(int btn)', 'devices_pressed'),
-                rstub('static int bw_above(int s, int thr)', 'devices_above'),
                 rstub('static int bw_closer(int s, int dist)', 'devices_closer'),
-                rstub('static int bw_motion(int s)', 'devices_motion'),
-                rstub('static int bw_tilted(int s)', 'devices_tilted'),
-                rstub('static int bw_energised(int d)', 'devices_energised'),
                 '');
         }
 
@@ -6554,6 +6640,25 @@ class SB3Creator {
                 '    CMOD = 0x00;                      /* PCA clock = FOSC/12 */',
                 '    CL = 0; CH = 0;',
                 '    CR = 1;                           /* start PCA counter */');
+        }
+        // Relay: P2.0 as push-pull output, start de-energized.
+        if (this._cUses.relay) {
+            if (chip.portModes) {
+                out.push('    P2M1 &= ~0x01; P2M0 |=  0x01;  /* P2.0 push-pull */');
+            }
+            out.push('    RELAY_PIN = 1;                    /* de-energized (active-low) */',
+                '    _relay_state = 0;');
+        }
+        // Sensor ADC: P1.1 as analog input (channel 1).
+        // adc_read() already exists when _cUses.adc is set — the ADC_CONTR
+        // and P1ASF setup is emitted by the general analog-pin path above.
+        // But devices_temperature etc. set _cUses.adc themselves, so the
+        // P1ASF bit for channel 1 must be included.  That path reads from
+        // the declared pins — sensor blocks have no pin declaration, so add
+        // the bit here.
+        if (this._cUses.sensor) {
+            out.push('    P1ASF |= 0x02;                    /* P1.1 analog (sensor) */',
+                '    P1M1 |=  0x02; P1M0 &= ~0x02;    /* P1.1 high-impedance */');
         }
         out.push('}', '', 'void main(void)', '{', '    bw_setup();');
         if (this._cTasks) {

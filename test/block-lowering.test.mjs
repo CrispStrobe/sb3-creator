@@ -92,10 +92,22 @@ test('block lowering census', () => {
         'devices_motorspeed',  // reads _motor_speed
         'devices_setdirection', // GPIO direction (P3.4/P3.5 for L293D)
         'devices_motordirection', // reads _motor_dir
+        'devices_setrelay',    // GPIO pin write (P2.0, active-low)
+        'devices_activate',    // relay alias → bw_relay_set(dev, 1)
+        'devices_deactivate',  // relay alias → bw_relay_set(dev, 0)
+        'devices_energised',   // relay coil state readback
+        'devices_pressed',     // GPIO read (P3.2/INT0, active-low)
+        'devices_motion',      // digital contact closure (same as pressed)
+        'devices_tilted',      // digital contact closure (same as pressed)
+        'devices_temperature', // ADC ch 1, TMP36 scaling
+        'devices_light',       // ADC ch 1, percentage
+        'devices_flex',        // ADC ch 1, raw
+        'devices_force',       // ADC ch 1, raw
+        'devices_above',       // threshold predicate on temperature
     ]);
     const allDevices = hw.filter(op => op.startsWith('devices_'));
     const stubs = allDevices.filter(op => !REAL_DRIVERS.has(op));
-    const KNOWN_STUBS = 30;   // ratchet: only ever decrease (was 34, motor is real)
+    const KNOWN_STUBS = 18;   // ratchet: only ever decrease (was 30, relay+sensors+button real)
     console.log(`    ${stubs.length} devices_* stubs, ${REAL_DRIVERS.size} real drivers`);
     assert.ok(stubs.length <= KNOWN_STUBS,
         `${stubs.length} stub blocks (was ${KNOWN_STUBS}) — new stub(s) added`);
