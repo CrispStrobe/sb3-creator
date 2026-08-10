@@ -1,0 +1,18 @@
+DEVICE STC12C5A60S2
+CLOCK 11059200
+PIN led = P1.0 OUTPUT ACTIVE LOW
+
+# DC motor driver via L293D H-bridge.
+# PCA CCP1 (P1.4) for PWM speed, P3.4/P3.5 for direction via L293D inputs.
+# Motor power comes from the SUPPLY RAIL through the L293D, not from the chip.
+# The chip pins carry only the control signals (~µA into CMOS inputs).
+WHEN flag clicked:
+  turn on led
+  set mymotor speed to 200
+  set mymotor direction forward
+  wait 2 seconds
+  set mymotor direction reverse
+  wait 2 seconds
+  set mymotor speed to 0
+  set mymotor direction coast
+  turn off led

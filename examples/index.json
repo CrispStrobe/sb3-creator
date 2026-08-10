@@ -828,5 +828,21 @@
       "circuit": "53-servo-sweep/circuit.json",
       "expected": "53-servo-sweep/EXPECTED.md"
     }
+  },
+  {
+    "id": "54-motor-driver",
+    "title": {
+      "en": "DC motor with L293D H-bridge",
+      "de": "DC-Motor mit L293D-H-Brücke"
+    },
+    "kind": "program",
+    "category": "motors",
+    "difficulty": 3,
+    "thumbnail": "54-motor-driver/thumb.svg",
+    "files": {
+      "program": "54-motor-driver/program.bw",
+      "circuit": "54-motor-driver/circuit.json",
+      "expected": "54-motor-driver/EXPECTED.md"
+    }
   }
 ]

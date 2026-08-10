@@ -1,0 +1,24 @@
+{
+  "vcc": 5.0,
+  "parts": [
+    { "id": "vcc1",    "kind": "vcc",       "params": {},                              "x": 200, "y": 50  },
+    { "id": "gnd1",    "kind": "gnd",       "params": {},                              "x": 200, "y": 450 },
+    { "id": "hbridge", "kind": "h_bridge",  "params": {},                              "x": 300, "y": 200 },
+    { "id": "motor1",  "kind": "dc_motor",  "params": { "R": 10, "kV": 0.01 },        "x": 450, "y": 200 },
+    { "id": "r1",      "kind": "resistor",  "params": { "ohms": 1000 },               "x": 100, "y": 150 },
+    { "id": "led1",    "kind": "led",       "params": { "vf": 2.0, "color": "green" }, "x": 100, "y": 250 },
+    { "id": "mcu1",    "kind": "mcu",       "params": { "pins": ["P1.0", "P1.4", "P3.4", "P3.5"] }, "x": 50, "y": 350 }
+  ],
+  "wires": [
+    { "from": "vcc1",    "fromTerminal": "vcc",  "to": "hbridge", "toTerminal": "vcc"    },
+    { "from": "hbridge", "fromTerminal": "gnd",   "to": "gnd1",    "toTerminal": "gnd"    },
+    { "from": "mcu1",    "fromTerminal": "P1.4",  "to": "hbridge", "toTerminal": "en1"    },
+    { "from": "mcu1",    "fromTerminal": "P3.4",  "to": "hbridge", "toTerminal": "in1"    },
+    { "from": "mcu1",    "fromTerminal": "P3.5",  "to": "hbridge", "toTerminal": "in2"    },
+    { "from": "hbridge", "fromTerminal": "out1",  "to": "motor1",  "toTerminal": "a"      },
+    { "from": "hbridge", "fromTerminal": "out2",  "to": "motor1",  "toTerminal": "b"      },
+    { "from": "vcc1",    "fromTerminal": "vcc",  "to": "r1",      "toTerminal": "a"       },
+    { "from": "r1",      "fromTerminal": "b",     "to": "led1",    "toTerminal": "anode"  },
+    { "from": "led1",    "fromTerminal": "cathode","to": "mcu1",   "toTerminal": "P1.0"   }
+  ]
+}

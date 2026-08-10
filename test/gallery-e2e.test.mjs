@@ -508,6 +508,37 @@ describe('e2e: servo — signal pin, not power pin', () => {
     });
 });
 
+describe('e2e: motor driver — L293D, power from rail', () => {
+    test('54-motor-driver: chip-budget warning does NOT fire', () => {
+        const src = readFileSync(join(EXAMPLES, '54-motor-driver', 'program.bw'), 'utf8');
+        const c = new SB3Creator();
+        c.parse(src);
+        assert.deepEqual(c.warnings, []);
+        const code = c.generateC();
+        const { warnings } = cToPseudocode(code);
+        const currentWarns = warnings.filter(w => /mA|budget|output pins/.test(w));
+        assert.deepEqual(currentWarns, [],
+            'motor control pins carry signals (~µA) — the chip budget must not fire');
+    });
+
+    test('54-motor-driver: bw_motor_speed and bw_motor_dir round-trip', () => {
+        const src = readFileSync(join(EXAMPLES, '54-motor-driver', 'program.bw'), 'utf8');
+        const c = new SB3Creator();
+        c.parse(src);
+        const code = c.generateC();
+        assert.match(code, /bw_motor_speed\(/, 'speed call emitted');
+        assert.match(code, /bw_motor_dir\(/, 'direction call emitted');
+        const { pseudocode, warnings } = cToPseudocode(code);
+        // The device calls must read back — no "no pseudocode for the call" warnings
+        assert.ok(!warnings.some(w => /no pseudocode for the call/.test(w)),
+            'all bw_motor_* calls have reader rules');
+        assert.match(pseudocode, /set mymotor speed to 200/);
+        assert.match(pseudocode, /set mymotor direction forward/);
+        assert.match(pseudocode, /set mymotor direction reverse/);
+        assert.match(pseudocode, /set mymotor direction coast/);
+    });
+});
+
 describe('e2e: blocked examples — named dependencies', { skip: SKIP }, () => {
     for (const [name, blocker] of Object.entries(BLOCKED)) {
         test(`${name}: BLOCKED on ${blocker}`, { skip: `waiting on bw-board: ${blocker}` }, () => {});
