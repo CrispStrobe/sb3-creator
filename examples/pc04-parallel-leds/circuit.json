@@ -1,0 +1,156 @@
+{
+  "vcc": 5,
+  "parts": [
+    {
+      "id": "breadboard_1",
+      "kind": "breadboard",
+      "params": {},
+      "terminals": [],
+      "x": 500,
+      "y": 300,
+      "rotation": 0
+    },
+    {
+      "id": "vsource_2",
+      "kind": "vsource",
+      "params": {
+        "volts": 5
+      },
+      "terminals": [
+        "pos",
+        "neg"
+      ],
+      "x": 100,
+      "y": 100,
+      "rotation": 0
+    },
+    {
+      "id": "resistor_3",
+      "kind": "resistor",
+      "params": {
+        "ohms": 1000
+      },
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 0,
+      "y": 0,
+      "rotation": 0,
+      "seat": {
+        "boardId": "breadboard_1",
+        "leadMap": {
+          "a": "a2",
+          "b": "a6"
+        }
+      }
+    },
+    {
+      "id": "resistor_4",
+      "kind": "resistor",
+      "params": {
+        "ohms": 1000
+      },
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 0,
+      "y": 0,
+      "rotation": 0,
+      "seat": {
+        "boardId": "breadboard_1",
+        "leadMap": {
+          "a": "a12",
+          "b": "a16"
+        }
+      }
+    },
+    {
+      "id": "led_5",
+      "kind": "led",
+      "params": {
+        "vf": 2,
+        "color": "red"
+      },
+      "terminals": [
+        "anode",
+        "cathode"
+      ],
+      "x": 0,
+      "y": 0,
+      "rotation": 0,
+      "seat": {
+        "boardId": "breadboard_1",
+        "leadMap": {
+          "anode": "b6",
+          "cathode": "b7"
+        }
+      }
+    },
+    {
+      "id": "led_6",
+      "kind": "led",
+      "params": {
+        "vf": 2,
+        "color": "green"
+      },
+      "terminals": [
+        "anode",
+        "cathode"
+      ],
+      "x": 0,
+      "y": 0,
+      "rotation": 0,
+      "seat": {
+        "boardId": "breadboard_1",
+        "leadMap": {
+          "anode": "b16",
+          "cathode": "b17"
+        }
+      }
+    }
+  ],
+  "wires": [
+    {
+      "id": "w_7",
+      "netId": "net_8",
+      "from": {
+        "part": "vsource_2",
+        "terminal": "pos"
+      },
+      "to": {
+        "board": "breadboard_1",
+        "hole": "e2"
+      }
+    },
+    {
+      "id": "w_9",
+      "netId": "net_10",
+      "from": {
+        "part": "vsource_2",
+        "terminal": "neg"
+      },
+      "to": {
+        "board": "breadboard_1",
+        "hole": "e7"
+      }
+    }
+  ],
+  "holeWires": [
+    {
+      "ref": "bbw:breadboard_1:bbw_11",
+      "boardId": "breadboard_1",
+      "a": "e2",
+      "b": "e12",
+      "color": "red"
+    },
+    {
+      "ref": "bbw:breadboard_1:bbw_12",
+      "boardId": "breadboard_1",
+      "a": "e7",
+      "b": "e17",
+      "color": "black"
+    }
+  ]
+}
