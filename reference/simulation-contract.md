@@ -279,6 +279,59 @@ current would exceed the limit, the stamp flips to constant-current at ±iLimit
 UI shows "CV 12.0V" / "CC 0.50A". A bench supply never feeds a short infinite
 current, and neither does ours.
 
+### 8. Device-state readout — PROPOSED (bw-cfront, 2026-08-10)
+
+`getDeviceState(partId)` returns the internal state of a device-registry part
+or a built-in shift register, or `null` for parts that have no behavioural
+state (passives, LEDs, diodes).
+
+#### What it yields
+
+| part kind | returned shape | units / meaning |
+|---|---|---|
+| `shift_register` (74HC595) | `{ shiftReg: number, latchReg: number, oeActive: boolean }` | `shiftReg`: the 8-bit value being shifted in; `latchReg`: the 8-bit value on the output pins (after latch); `oeActive`: whether outputs are enabled |
+| `relay` | `{ energized: boolean, _pendingState: {target, deadlineNs} \| null }` | `energized`: whether the contacts have switched; `_pendingState`: a switching delay in progress |
+| `dc_motor` | `{ omega: number, _lastTNs: bigint }` | `omega`: angular velocity in rad/s; 0 = stopped |
+| `servo` | `{ angle: number }` | `angle`: current position in degrees (0–180) |
+| `timer_555` | `{ output: boolean, capVolts: number }` | `output`: current output level; `capVolts`: capacitor voltage |
+
+#### When it is sampled
+
+Device state is updated by each device model's `update()` function, called
+from `advanceTo()` at each simulation step. The state is **instantaneous** —
+it is the value at the last `advanceTo` call, not an average or an integral.
+
+A UI reading `getDeviceState` in a `requestAnimationFrame` loop gets the
+state at ~60 Hz display rate, which is correct for showing "the relay is
+energised" or "the 595 outputs are 0b10110011". It is NOT correct for
+measuring transition timing — that requires the scope tap (§5).
+
+#### What it does NOT establish
+
+- **No waveform.** `getDeviceState` is a snapshot, not a trace. The 595's
+  `latchReg` tells you what the outputs ARE, not when they changed. For
+  transition timing, use `addScopeChannel` on the output nets.
+- **No guarantee of update frequency.** The state is updated per `advanceTo`
+  step, which varies with the solver's adaptive stepping. Do not assume a
+  fixed sample rate.
+- **`null` is a legitimate return.** A part with no behavioural state
+  (resistor, capacitor, LED) returns `null`. A consumer that sums over
+  `null` gets `0` — the silent-degradation bug documented in
+  `current-ratings.js`. Guard it or refuse to answer.
+
+#### The 595 case specifically
+
+The shift register is the first device where `getDeviceState` is the
+**only** way to observe what the part is doing. An LED's state is visible
+through `ledBrightness`; a relay's through its contact resistance. A 595's
+output register has no analog observable — it is pure digital state, and
+the only API that reports it is this one.
+
+A gallery example (`08-led-chaser-595`) exists but cannot currently assert
+the output pattern because `Circuit.terminalsForKind` does not know
+`shift_register` terminals. That is a `bw-circuit-ui` gap, not a boundary-B
+gap — the readout API works.
+
 Process note, recorded so it is not relitigated: the implementation predated
 the coordinator's review (the mna.js freeze existed to prevent collisions and
 this once nearly caused one). The freeze is REPLACED by a gate: mna.js changes
