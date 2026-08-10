@@ -6297,6 +6297,9 @@ class SB3Creator {
                 // The ISR toggles the pin: high at frame start, low at the pulse end.
                 out.push(
                     '/* Servo driver: PCA module 0 in 16-bit compare/match mode (50 Hz). */',
+                    '/* Pin: P1.3 (CCP0). Note: P1.3 is also the ADC example pin — a */',
+                    '/* project using both servo and ADC on P1.3 would conflict. CCP1 on */',
+                    '/* P1.4 is available as an alternative. */',
                     '/* FOSC/12 clock: 20 ms = FOSC_HZ/12/50 counts. Pulse: 500-2500 µs. */',
                     '#define SERVO_PERIOD  ((unsigned int)(FOSC_HZ / 12UL / 50UL))',
                     '#define SERVO_MIN_US  500',

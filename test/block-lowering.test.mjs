@@ -84,11 +84,17 @@ test('block lowering census', () => {
     // STUB COUNT: devices_* blocks that have a C case but call a BW_STUB
     // function — they compile but do nothing on hardware. This is the honest
     // number. Lower it when a real driver replaces a stub.
+    // Blocks with REAL implementations (not stubs):
+    const REAL_DRIVERS = new Set([
+        'devices_setservo',    // PCA 16-bit compare/match, 50 Hz
+        'devices_servoangle',  // reads _servo_angle
+    ]);
     const allDevices = hw.filter(op => op.startsWith('devices_'));
-    const KNOWN_STUBS = 36;   // ratchet: only ever decrease
-    console.log(`    ${allDevices.length} devices_* blocks compile to stubs (do nothing on hardware)`);
-    assert.ok(allDevices.length <= KNOWN_STUBS,
-        `${allDevices.length} stub blocks (was ${KNOWN_STUBS}) — new stub(s) added`);
+    const stubs = allDevices.filter(op => !REAL_DRIVERS.has(op));
+    const KNOWN_STUBS = 34;   // ratchet: only ever decrease (was 36, servo is real)
+    console.log(`    ${stubs.length} devices_* stubs, ${REAL_DRIVERS.size} real drivers`);
+    assert.ok(stubs.length <= KNOWN_STUBS,
+        `${stubs.length} stub blocks (was ${KNOWN_STUBS}) — new stub(s) added`);
 
     // circuit_* blocks must NOT have C lowering (they are sim-only).
     const circuitInC = hw.filter(op => op.startsWith('circuit_') && cCases.has(op));
