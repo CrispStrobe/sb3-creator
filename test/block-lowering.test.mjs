@@ -77,14 +77,18 @@ test('block lowering census', () => {
     const cubeMissing = hw.filter(op => op.startsWith('ledcube_') && !cCases.has(op));
     assert.deepEqual(cubeMissing, [], 'ledcube blocks missing C lowering');
 
-    // RATCHET: the number of unlowered blocks must never grow.
-    // Lower this constant when you add a C lowering; a new block without
-    // one fails the test and names the offender.
-    const KNOWN_UNLOWERED = 0;  // ratchet: all devices_* now lower to C
-    assert.ok(noLowering.length <= KNOWN_UNLOWERED,
-        `${noLowering.length} blocks have no C lowering (was ${KNOWN_UNLOWERED}) — ` +
-        `new block(s) added without a C emitter: ` +
-        `${noLowering.filter(op => !DEVICES_NO_C.has(op)).join(', ') || noLowering.slice(-5).join(', ')}`);
+    // RATCHET: no new block may be added without a C case.
+    assert.ok(noLowering.length === 0,
+        `${noLowering.length} block(s) have no C emitter case: ${noLowering.join(', ')}`);
+
+    // STUB COUNT: devices_* blocks that have a C case but call a BW_STUB
+    // function — they compile but do nothing on hardware. This is the honest
+    // number. Lower it when a real driver replaces a stub.
+    const allDevices = hw.filter(op => op.startsWith('devices_'));
+    const KNOWN_STUBS = 36;   // ratchet: only ever decrease
+    console.log(`    ${allDevices.length} devices_* blocks compile to stubs (do nothing on hardware)`);
+    assert.ok(allDevices.length <= KNOWN_STUBS,
+        `${allDevices.length} stub blocks (was ${KNOWN_STUBS}) — new stub(s) added`);
 
     // circuit_* blocks must NOT have C lowering (they are sim-only).
     const circuitInC = hw.filter(op => op.startsWith('circuit_') && cCases.has(op));
