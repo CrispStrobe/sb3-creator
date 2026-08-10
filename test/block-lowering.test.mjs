@@ -43,11 +43,15 @@ const TETHERED_ONLY = new Set([
 ]);
 
 // devices_* blocks: these have Python/JS codegen via RUNTIME_EXTENSIONS
-// but no C lowering. They are convenience blocks over the pin primitives.
-// On the device target, they fall through to a comment — which is the
-// documented behaviour for blocks generateC cannot lower.
-// This is ACCEPTABLE for simulation-mode projects but is a TRAP for a
-// user who expects compiled C to drive their servo/LCD/neopixel.
+// but no C lowering. On the device target they fall through to cStackBlock's
+// default case, which emits a /* warning: no C equivalent for "..." */
+// comment in the generated C. The warning names the block — a user who
+// inspects the output can see what was dropped. But the program still
+// compiles and flashes without the behaviour, which is the silent-drop
+// failure PARTS-TO-BLOCKS.md names as the one this project refuses to ship.
+//
+// The importer IS a supported path (stc/tools/compile-remote.sh -p), so
+// these blocks are reachable today, not only when a palette tile exists.
 const DEVICES_NO_C = new Set(
     hw.filter(op => op.startsWith('devices_') && !cCases.has(op))
 );
