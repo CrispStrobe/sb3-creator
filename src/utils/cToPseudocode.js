@@ -627,10 +627,22 @@ export default function cToPseudocode (source, opts = {}) {
         // also declaration specifiers.
         if (t.t === 'id' && ['unsigned', 'signed', 'int', 'char', 'long', 'short', 'static', 'volatile', 'const', 'float', 'double',
             'sbit', 'sfr', 'sfr16', 'bit', 'code', 'data', 'xdata', 'idata', 'pdata', 'void', 'extern', 'register', 'typedef', 'struct', 'union', 'enum'].includes(t.v)) {
+            // Capture what is being skipped so the warning can name it.
+            const declStart = cur.i - 1;
+            const declTokens = [t.v];
             while (!cur.is(';') && cur.peek().t !== 'eof') {
-                if (cur.is('{')) cur.skip('{', '}'); else cur.next();
+                if (cur.is('{')) cur.skip('{', '}');
+                else declTokens.push(cur.next().v);
             }
             cur.eat(';');
+            // Warn for non-trivial declarations (structs, arrays, pointers, typedefs).
+            // Simple locals (`unsigned char i;`) inside function bodies are noise;
+            // top-level or complex declarations that carry program state are the
+            // ones a user expects to survive.
+            const declText = declTokens.slice(0, 6).join(' ');
+            if (/struct|union|enum|typedef|\*|\[/.test(declTokens.join(' '))) {
+                warn(`declaration dropped (no block equivalent): ${declText}${declTokens.length > 6 ? ' …' : ''}`);
+            }
             return [];
         }
 
@@ -934,8 +946,16 @@ export default function cToPseudocode (source, opts = {}) {
             }
         }
         cur.i = start;
-        while (!cur.is(';') && !cur.is('}') && cur.peek().t !== 'eof') { if (cur.is('{')) cur.skip('{', '}'); else cur.next(); }
+        const skippedTokens = [];
+        while (!cur.is(';') && !cur.is('}') && cur.peek().t !== 'eof') {
+            if (cur.is('{')) cur.skip('{', '}');
+            else skippedTokens.push(cur.next().v);
+        }
         cur.eat(';');
+        if (skippedTokens.length) {
+            const text = skippedTokens.slice(0, 8).join(' ');
+            warn(`statement dropped (not representable as a block): ${text}${skippedTokens.length > 8 ? ' …' : ''}`);
+        }
         return [];
     }
 
@@ -1696,6 +1716,19 @@ export default function cToPseudocode (source, opts = {}) {
             // Hand-written: build a proccode from the function name and parameters.
             const params = paramNames.length ? ' ' + paramNames.map((p) => `(${p})`).join(' ') : '';
             out.push('', `DEFINE ${f.name}${params}:`, ...linesFor(f, 1));
+        }
+    }
+
+    // Warn about functions found in the source but not emitted.
+    // SFR/runtime functions are expected to be dropped; user functions are not.
+    const emitted = new Set([...scriptFns.map(f => f.name), ...userFns.map(f => f.name)]);
+    for (const f of funcs) {
+        if (!emitted.has(f.name) && !IGNORE_FNS.has(f.name) && !DELAYS.has(f.name) && !SETUP.has(f.name)
+            && !f.name.startsWith('bw_')       // runtime/device helpers
+            && !f.name.startsWith('tone_')      // tone helpers
+            && !f.name.startsWith('__')         // compiler intrinsics (__interrupt, __at, etc.)
+            && f.name !== 'main') {
+            warn(`function ${f.name}() dropped: not a script or known procedure — hand-added code does not survive the round-trip`);
         }
     }
 

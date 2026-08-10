@@ -1875,6 +1875,56 @@ test('BW_STUB markers are dropped: device calls read back as normal blocks', () 
     assert.equal(ps2, pseudocode, 'fixed point — the marker is target metadata, not program state');
 });
 
+// ---- silent dropping is data loss: every decline must warn -------------------
+
+test('a hand-added function warns when dropped', () => {
+    const { warnings } = cToPseudocode(`
+/* @bw-begin
+ * @bw device stc12c5a60s2
+ * @bw clock 11059200
+ * @bw script main 0 stage
+ * @bw-end */
+#include <stc12.h>
+static void my_helper(void) { delay_ms(100); }
+void main(void) { my_helper(); delay_ms(500); }`);
+    assert.ok(warnings.some(w => /my_helper.*dropped/.test(w)),
+        'a function the reader cannot emit must warn, not silently vanish');
+});
+
+test('a struct declaration warns when dropped', () => {
+    const { warnings } = cToPseudocode(`
+/* @bw-begin
+ * @bw device stc12c5a60s2
+ * @bw clock 11059200
+ * @bw script main 0 stage
+ * @bw-end */
+#include <stc12.h>
+void main(void) { struct point { int a; }; }`);
+    assert.ok(warnings.some(w => /declaration dropped.*struct/.test(w)),
+        'struct has no block equivalent and must say so');
+});
+
+test('an array subscript statement warns when dropped', () => {
+    const { warnings } = cToPseudocode(`
+/* @bw-begin
+ * @bw device stc12c5a60s2
+ * @bw clock 11059200
+ * @bw script main 0 stage
+ * @bw-end */
+#include <stc12.h>
+void main(void) { unsigned char buf[4]; buf[0] = 1; }`);
+    assert.ok(warnings.some(w => /dropped.*not representable/.test(w)),
+        'array subscript assignment has no block equivalent and must say so');
+});
+
+test('our own generated C does NOT trigger spurious drop warnings', () => {
+    const c = new SB3Creator();
+    c.parse(BLINK);
+    const { warnings } = cToPseudocode(c.generateC());
+    assert.ok(!warnings.some(w => /dropped/.test(w)),
+        'no drop warnings on code we generated ourselves');
+});
+
 // ---- regression tests for reader fixes that shipped without tests -----------
 
 test('tone_set(freq) round-trips as set <pin> to freq hz', () => {
