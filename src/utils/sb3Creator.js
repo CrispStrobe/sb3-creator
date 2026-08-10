@@ -6677,16 +6677,23 @@ class SB3Creator {
                     'static int bw_distance(int s)',
                     '{',
                     '    unsigned int ticks;',
-                    '    unsigned char i;',
+                    '    unsigned int reload;',
                     '    (void)s;',
-                    `    /* 10 µs trigger pulse.  SDCC: ~4 machine cycles per iteration.`,
-                    `     * ${chip.aux1T ? '1T core: 1 cycle = 1/FOSC s' : '12T core: 1 cycle = 12/FOSC s'}; need ≥ 10 µs. */`,
+                    '    /* Timer 1 at FOSC/12 for ALL timing — identical on 1T and 12T cores.',
+                    '     * Never count instructions: same source, different core, wrong time.',
+                    '     * 10 µs trigger: FOSC/12/100000 ticks ≈ 9 at 11.0592 MHz. */',
+                    '    TMOD = (TMOD & 0x0F) | 0x10;  /* Timer 1, mode 1 */',
+                    '    /* 10 µs trigger pulse via Timer 1 */',
+                    '    reload = (unsigned int)(65536UL - FOSC_HZ / 12UL / 100000UL);',
                     '    US_TRIG = 0;',
                     '    US_TRIG = 1;',
-                    `    for (i = 0; i < ${chip.aux1T ? Math.ceil(clock / 400000) : Math.ceil(clock / 12 / 400000)}; i++) ;`,
+                    '    TL1 = (unsigned char)(reload & 0xFF);',
+                    '    TH1 = (unsigned char)(reload >> 8);',
+                    '    TF1 = 0; TR1 = 1;',
+                    '    while (!TF1) ;',
+                    '    TR1 = 0;',
                     '    US_TRIG = 0;',
                     '    /* Wait for echo HIGH (timeout ~60 ms = no object) */',
-                    '    TMOD = (TMOD & 0x0F) | 0x10;  /* Timer 1, mode 1 */',
                     '    TL1 = 0; TH1 = 0; TF1 = 0;',
                     '    TR1 = 1;',
                     '    while (!US_ECHO && !TF1) ;',
@@ -6829,6 +6836,7 @@ class SB3Creator {
                 out.push('    P3M1 &= ~0x40; P3M0 |=  0x40;  /* P3.6 (US trig) push-pull */');
             }
             out.push('    US_TRIG = 0;');
+            if (chip.aux1T) out.push('    AUXR &= ~0x40;                 /* Timer 1 at FOSC/12 */');
         }
         // Sensor ADC: P1.1 as analog input (channel 1).
         // adc_read() already exists when _cUses.adc is set — the ADC_CONTR
