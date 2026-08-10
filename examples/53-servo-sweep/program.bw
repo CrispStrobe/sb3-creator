@@ -1,9 +1,11 @@
 DEVICE STC12C5A60S2
 CLOCK 11059200
-PIN led1 = P1.0 OUTPUT ACTIVE LOW
+PIN signal = P1.1 OUTPUT
 
 # Servo sweep: move from 0° to 180° in 10° steps, then back.
-# The servo is addressed by name; the generated C calls bw_servo_set().
+# Power comes from the SUPPLY RAIL (VCC/GND), not from the chip pin.
+# The pin carries only the 50 Hz control signal (~µA, not hundreds of mA).
+# This circuit must NOT trip the 120 mA chip-budget warning.
 WHEN flag clicked:
   set pos to 0
   FOREVER:

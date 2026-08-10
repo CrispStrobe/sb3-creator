@@ -473,8 +473,21 @@ void main(void) { }`);
     });
 });
 
-describe('e2e: servo — emitted call, no helper yet', () => {
-    test('53-servo-sweep: parses, emits bw_servo_set, does not define it', () => {
+describe('e2e: servo — signal pin, not power pin', () => {
+    test('53-servo-sweep: chip-budget warning does NOT fire (signal current only)', () => {
+        const src = readFileSync(join(EXAMPLES, '53-servo-sweep', 'program.bw'), 'utf8');
+        const c = new SB3Creator();
+        c.parse(src);
+        const code = c.generateC();
+        const { warnings } = cToPseudocode(code);
+        // A servo takes power from the supply rail, not from the chip pin.
+        // The signal pin draws microamps. The 120 mA warning must NOT fire.
+        const currentWarns = warnings.filter(w => /mA|budget|worst-case|output pins/.test(w));
+        assert.deepEqual(currentWarns, [],
+            'servo signal pin must not trip the chip-budget warning — power comes from the rail');
+    });
+
+    test('53-servo-sweep: parses, emits bw_servo_set', () => {
         const src = readFileSync(join(EXAMPLES, '53-servo-sweep', 'program.bw'), 'utf8');
         const c = new SB3Creator();
         c.parse(src);
