@@ -6037,9 +6037,10 @@ class SB3Creator {
         if (this._cUses.adc && !chip.adc) this.cWarn(`ANALOG pins need an ADC, and the ${device} has none`);
 
         // ---- resource collision check ------------------------------------------------
-        // Each driver claims pins, PCA modules and timers. The allocation table:
+        // Resource allocation table — drivers AND runtime:
         //   Timer 0:  scheduler tick (always when _cTasks)
-        //   Timer 1:  ultrasonic echo timing (bw_distance)
+        //   Timer 1:  ultrasonic echo timing — ALSO tethered-mode wall clock
+        //   BRT:      tethered-mode baud generator (10-live-firmware)
         //   PCA 0:    servo (16-bit compare/match, CCP0 = P1.3)
         //   PCA 1:    motor speed (8-bit PWM, CCP1 = P1.4)
         //   P1.1:     ADC sensor channel 1
@@ -6052,33 +6053,24 @@ class SB3Creator {
         //   P3.6:     ultrasonic trigger
         //   P3.7:     ultrasonic echo
         //
-        // Fixed claims are hardcoded #defines in the driver.  A future version
-        // should make these parameters (dropdown or declaration), but today any
-        // collision is caught here and reported as a compile-time warning.
-        if (this._cUses.servo && this._cUses.sensor) {
-            // P1.3 (CCP0) is the servo pin; P1.1 is the ADC sensor.
-            // Not a collision (different pins), but if the user declared P1.3 as
-            // ANALOG, the PCA output would fight the ADC input.
+        // Collision warnings use BW_COLLISION markers and are also pushed to
+        // this.warnings so they reach the UI / CLI without parsing the C.
+        const collision = (msg) => {
+            this.cWarn(`BW_COLLISION: ${msg}`);
+            this.warn(null, msg);
+        };
+        // Timer 1: ultrasonic vs tethered-mode wall clock.
+        if (this._cUses.ultrasonic && debug) {
+            collision('Timer 1 is claimed by both the ultrasonic driver (echo timing) '
+                + 'and the tethered-mode monitor (wall clock) — distance readings will '
+                + 'corrupt the skew counter when the debugger is attached');
+        }
+        // P1.3: servo vs user ANALOG declaration.
+        if (this._cUses.servo) {
             const p13analog = pins.find((p) => p.port === 1 && p.bit === 3 && p.direction === 'analog');
-            if (p13analog) this.cWarn('P1.3 is the servo pin (CCP0) and is also declared ANALOG — these conflict');
+            if (p13analog) collision('P1.3 is the servo pin (CCP0) and is also declared ANALOG — the PCA output fights the ADC input');
         }
-        if (this._cUses.servo && this._cUses.motor) {
-            // Both use PCA, different modules — no collision.  But both need CR=1
-            // and CMOD=0x00, which the emitter already handles.
-        }
-        if (this._cUses.ultrasonic && this._cTasks) {
-            // Timer 1 is used by the ultrasonic driver for echo timing.
-            // In tethered mode (10-live-firmware), Timer 1 is the wall clock.
-            // Standalone mode is fine; tethered mode is incompatible.
-            // Warn so the user knows the constraint.
-        }
-        if (this._cUses.motor && this._cUses.button) {
-            // Motor uses P3.4/P3.5; button uses P3.2. No collision.
-        }
-        if (this._cUses.motor && this._cUses.ultrasonic) {
-            // Motor uses P3.4/P3.5; ultrasonic uses P3.6/P3.7. No collision.
-        }
-        // Check user-declared pins against driver-fixed pins.
+        // Driver-fixed pin claims.
         const driverPins = [];
         if (this._cUses.servo) driverPins.push({ port: 1, bit: 3, driver: 'servo (CCP0)' });
         if (this._cUses.motor) {
@@ -6093,19 +6085,19 @@ class SB3Creator {
             driverPins.push({ port: 3, bit: 6, driver: 'ultrasonic trigger' });
             driverPins.push({ port: 3, bit: 7, driver: 'ultrasonic echo' });
         }
-        // Check driver pins against each other.
+        // Driver pins vs each other.
         for (let i = 0; i < driverPins.length; i++) {
             for (let j = i + 1; j < driverPins.length; j++) {
                 if (driverPins[i].port === driverPins[j].port && driverPins[i].bit === driverPins[j].bit) {
-                    this.cWarn(`P${driverPins[i].port}.${driverPins[i].bit} claimed by both ${driverPins[i].driver} and ${driverPins[j].driver}`);
+                    collision(`P${driverPins[i].port}.${driverPins[i].bit} claimed by both ${driverPins[i].driver} and ${driverPins[j].driver}`);
                 }
             }
         }
-        // Check driver pins against user-declared pins.
+        // Driver pins vs user-declared pins.
         for (const dp of driverPins) {
             const userPin = pins.find((p) => p.port === dp.port && p.bit === dp.bit);
             if (userPin) {
-                this.cWarn(`P${dp.port}.${dp.bit} is declared as "${userPin.name}" and also claimed by the ${dp.driver} driver`);
+                collision(`P${dp.port}.${dp.bit} is declared as "${userPin.name}" and also claimed by the ${dp.driver} driver`);
             }
         }
 
