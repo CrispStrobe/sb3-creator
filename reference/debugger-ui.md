@@ -498,6 +498,58 @@ nothing. And the `.wasm` is not a module, so webpack never emits it: it is copie
 `static/` and found through `document.baseURI`, which keeps it correct under GitHub Pages'
 subpath as well as at a domain root.
 
+## 7d. What shipping it changed — the tab stopped being a debugger panel
+
+The three sections above are about building the debugger. This one is about what happened
+when the Circuit tab became a place a learner actually opens, and every item is a bug that
+shipped or nearly shipped.
+
+**A gate that runs after the thing it gates is not a gate.** The WASM compiler preview sat
+behind `localStorage.getItem('bw-use-wasm-compiler')` — checked *inside* the lazily imported
+module. webpack fetched the ~1.6 MiB chunk for everyone and the flag decided only what
+happened next. The check has to precede the `import()`, and it now lives at the compile call
+site in `debug-runner.js` rather than in the Circuit tab: the intercept patches
+`globalThis.fetch` and only matters when something compiles, so hanging it off *tab
+visibility* meant opting in did nothing unless you happened to open the right tab first.
+Verified after the fix by measuring the served bytes with the flag off: zero.
+
+**Graceful failure and invisible failure are the same edit.** `circuit-tab` caught its own
+dynamic-import rejection and rendered a message, which is exactly what a well-behaved
+component does — and it made the failure invisible to the stale-build recovery, because that
+recovery listens for `error` and `unhandledrejection`, and a handled rejection is neither. A
+user sat looking at "Loading chunk 783 failed" while the fix sat three files away. The
+recovery now returns whether it started and is reachable as `window.__bwRecoverFromStaleBuild`,
+so a component that catches can still ask. **Anything that catches an `import()` must decide,
+explicitly, whether the recovery should see it.**
+
+**An empty list is a claim.** The Examples panel rendered `<ExamplesBrowser examples={[]} />`
+before the gallery shipped. That draws an empty gallery, which says "this product has no
+examples" — false, and about work someone else had done. It now fetches the real index and,
+when that 404s, says the gallery is not part of this build. Unshipped and empty look identical
+on screen and mean opposite things. The same rule produced the two panels that say *why* they
+cannot show a design-rule check rather than showing zero warnings, because zero warnings is a
+statement about the circuit in front of you.
+
+**An enhancement must not be able to kill its host.** 115 part sidecars were loaded with
+`await` inside the designer's try block. One malformed JSON would have taken down the whole
+tab — and, because that catch offers failures to the chunk recovery, could have cleared every
+cache and reloaded the page over a missing part drawing. Loaded unawaited with its own catch,
+a missing registry is a palette that falls back to built-in drawings, which is what
+`artCoverage()` was written to report.
+
+**The debugger's own honesty rules apply to its host.** A condition naming a variable the
+build does not have was warned about only when *some* variables existed — but `variables()`
+returns `[]` both before the first build and after building a program that declares none, so a
+condition in a variable-less program silently never fired. The distinguisher is whether we
+have built, not whether the set is non-empty. Same family as everything above: the check that
+would have caught it was gated on the condition that made it necessary.
+
+And one that is not a bug: **a circuit does not need a microcontroller.** The tab told users
+"this project declares no pins, so the board starts empty", which framed a battery, an LED and
+a resistor — the first circuit anyone builds — as a misconfigured MCU project. Nothing in the
+stack requires an MCU; only the framing did. The debugger panel is correctly conditional on
+pins existing. The board never was.
+
 ## 8. Order
 
 1. **The yield map** — `@bw yield` in `generateC`, `block` through `stc_symtab.py`. *(done)*
