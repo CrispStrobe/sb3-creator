@@ -77,6 +77,15 @@ test('block lowering census', () => {
     const cubeMissing = hw.filter(op => op.startsWith('ledcube_') && !cCases.has(op));
     assert.deepEqual(cubeMissing, [], 'ledcube blocks missing C lowering');
 
+    // RATCHET: the number of unlowered blocks must never grow.
+    // Lower this constant when you add a C lowering; a new block without
+    // one fails the test and names the offender.
+    const KNOWN_UNLOWERED = 36;  // ratchet: only ever decrease
+    assert.ok(noLowering.length <= KNOWN_UNLOWERED,
+        `${noLowering.length} blocks have no C lowering (was ${KNOWN_UNLOWERED}) — ` +
+        `new block(s) added without a C emitter: ` +
+        `${noLowering.filter(op => !DEVICES_NO_C.has(op)).join(', ') || noLowering.slice(-5).join(', ')}`);
+
     // circuit_* blocks must NOT have C lowering (they are sim-only).
     const circuitInC = hw.filter(op => op.startsWith('circuit_') && cCases.has(op));
     assert.deepEqual(circuitInC, [], 'circuit blocks should not have C lowering — they are sim-only');
