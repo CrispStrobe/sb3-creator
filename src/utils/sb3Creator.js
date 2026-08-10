@@ -6434,9 +6434,11 @@ class SB3Creator {
                 '    CCAPM0 = 0x49;                    /* module 0: match + toggle + interrupt */',
                 '    CCAP0L = 0; CCAP0H = 0;',
                 '    CL = 0; CH = 0;',
-                '    CR = 1;                           /* start PCA counter */',
-                '    EC = 1;                           /* PCA interrupt enable */',
                 '    EA = 1;                           /* global interrupt enable */',
+                '    /* PCA interrupt is enabled per-module by CCAPM0.ECCF (bit 0 of */',
+                '    /* 0x49 above). There is NO IE.EC bit for PCA on STC12 — IE.6 is */',
+                '    /* ELVD (Low Voltage Detector). Do not set EC=1 here. */',
+                '    CR = 1;                           /* start PCA counter — AFTER EA */',
                 '    _servo_pulse = (unsigned int)(1500UL * (FOSC_HZ / 12UL) / 1000000UL);  /* 90° default */',
                 '    _servo_angle = 90;',
                 '    _servo_phase = 0;');
