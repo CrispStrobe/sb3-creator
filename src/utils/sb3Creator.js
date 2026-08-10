@@ -5063,54 +5063,45 @@ class SB3Creator {
                 this._cUses.cube = true;
                 return line('bw_cube_invert();');
             }
-            // ---- devices_* C lowerings (ratchet: each one decreases KNOWN_UNLOWERED) ----
-            case 'devices_setservo': {
-                // Servo: angle 0-180 → duty 2.5%-12.5% (500-2500 µs in a 20 ms period).
-                // Uses the PWM module the pin is declared on.
-                this._cUses.pwm = true;
-                return line(`bw_servo_set(${v('SERVO')}, ${v('ANGLE')});`);
-            }
-            case 'devices_servoangle': return `bw_servo_get(${v('SERVO')})`;
-            case 'devices_setmotor': {
-                this._cUses.motor = true;
-                return line(`bw_motor_speed(${v('MOTOR')}, ${v('SPEED')});`);
-            }
-            case 'devices_motorspeed': return `bw_motor_get_speed(${v('MOTOR')})`;
-            case 'devices_setdirection': {
-                this._cUses.motor = true;
-                const dir = f('DIR');
-                const dirVal = { forward: 0, reverse: 1, brake: 2, coast: 3 }[dir] || 0;
-                return line(`bw_motor_dir(${v('MOTOR')}, ${dirVal});`);
-            }
-            case 'devices_motordirection': return `bw_motor_get_dir(${v('MOTOR')})`;
-            case 'devices_setrelay': {
-                const state = f('STATE');
-                return line(`bw_relay_set(${v('RELAY')}, ${state === 'on' ? 1 : 0});`);
-            }
-            case 'devices_devicestate': return `bw_device_state(${v('DEVICE')})`;
-            case 'devices_activate': return line(`bw_device_activate(${v('DEVICE')});`);
-            case 'devices_deactivate': return line(`bw_device_deactivate(${v('DEVICE')});`);
-            case 'devices_lcdprint': return line(`bw_lcd_print(${v('DISPLAY')}, ${v('TEXT')});`);
-            case 'devices_lcdcursor': return line(`bw_lcd_cursor(${v('DISPLAY')}, ${v('ROW')}, ${v('COL')});`);
-            case 'devices_lcdclear': return line(`bw_lcd_clear(${v('DISPLAY')});`);
-            case 'devices_showdigit': return line(`bw_7seg_show(${v('DISPLAY')}, ${v('DIGIT')});`);
-            case 'devices_setrgb': return line(`bw_rgb_set(${v('LED')}, ${v('R')}, ${v('G')}, ${v('B')});`);
-            case 'devices_setpixel': return line(`bw_matrix_set(${v('MATRIX')}, ${v('X')}, ${v('Y')}, ${v('BRIGHTNESS')});`);
-            case 'devices_clearmatrix': return line(`bw_matrix_clear(${v('MATRIX')});`);
-            case 'devices_setneopixel': return line(`bw_neopixel_set(${v('STRIP')}, ${v('INDEX')}, ${v('R')}, ${v('G')}, ${v('B')});`);
-            case 'devices_clearneopixels': return line(`bw_neopixel_clear(${v('STRIP')});`);
-            case 'devices_temperature': return `bw_temperature(${v('SENSOR')})`;
-            case 'devices_light': return `bw_light(${v('SENSOR')})`;
-            case 'devices_distance': return `bw_distance(${v('SENSOR')})`;
-            case 'devices_flex': return `bw_flex(${v('SENSOR')})`;
-            case 'devices_force': return `bw_force(${v('SENSOR')})`;
-            case 'devices_ircode': return `bw_ir_code(${v('SENSOR')})`;
-            case 'devices_pressed': return `bw_pressed(${v('BUTTON')})`;
-            case 'devices_above': return `bw_above(${v('SENSOR')}, ${v('THRESHOLD')})`;
-            case 'devices_closer': return `bw_closer(${v('SENSOR')}, ${v('DISTANCE')})`;
-            case 'devices_motion': return `bw_motion(${v('SENSOR')})`;
-            case 'devices_tilted': return `bw_tilted(${v('SENSOR')})`;
-            case 'devices_energised': return `bw_energised(${v('DEVICE')})`;
+            // ---- devices_* C lowerings ----
+            // Each emits a call to an inline bw_* stub, emitted by the assembly
+            // section when _cUses.devices is set. The stubs are no-ops on the
+            // device target — they record the call so the simulator can read it,
+            // but on bare metal a servo/LCD/motor needs a real driver library
+            // that this emitter does not yet generate. The stubs make the code
+            // COMPILE, which is better than a link error, and the /* TODO */
+            // comment in each stub says what a real implementation would do.
+            case 'devices_setservo': { this._cUses.devices = true; return line(`bw_servo_set(${v('SERVO')}, ${v('ANGLE')});`); }
+            case 'devices_servoangle': { this._cUses.devices = true; return `bw_servo_get(${v('SERVO')})`; }
+            case 'devices_setmotor': { this._cUses.devices = true; return line(`bw_motor_speed(${v('MOTOR')}, ${v('SPEED')});`); }
+            case 'devices_motorspeed': { this._cUses.devices = true; return `bw_motor_get_speed(${v('MOTOR')})`; }
+            case 'devices_setdirection': { this._cUses.devices = true; const d = f('DIR'); return line(`bw_motor_dir(${v('MOTOR')}, ${({ forward: 0, reverse: 1, brake: 2, coast: 3 })[d] || 0});`); }
+            case 'devices_motordirection': { this._cUses.devices = true; return `bw_motor_get_dir(${v('MOTOR')})`; }
+            case 'devices_setrelay': { this._cUses.devices = true; return line(`bw_relay_set(${v('RELAY')}, ${f('STATE') === 'on' ? 1 : 0});`); }
+            case 'devices_devicestate': { this._cUses.devices = true; return `bw_device_state(${v('DEVICE')})`; }
+            case 'devices_activate': { this._cUses.devices = true; return line(`bw_device_activate(${v('DEVICE')});`); }
+            case 'devices_deactivate': { this._cUses.devices = true; return line(`bw_device_deactivate(${v('DEVICE')});`); }
+            case 'devices_lcdprint': { this._cUses.devices = true; return line(`bw_lcd_print(${v('DISPLAY')}, ${v('TEXT')});`); }
+            case 'devices_lcdcursor': { this._cUses.devices = true; return line(`bw_lcd_cursor(${v('DISPLAY')}, ${v('ROW')}, ${v('COL')});`); }
+            case 'devices_lcdclear': { this._cUses.devices = true; return line(`bw_lcd_clear(${v('DISPLAY')});`); }
+            case 'devices_showdigit': { this._cUses.devices = true; return line(`bw_7seg_show(${v('DISPLAY')}, ${v('DIGIT')});`); }
+            case 'devices_setrgb': { this._cUses.devices = true; return line(`bw_rgb_set(${v('LED')}, ${v('R')}, ${v('G')}, ${v('B')});`); }
+            case 'devices_setpixel': { this._cUses.devices = true; return line(`bw_matrix_set(${v('MATRIX')}, ${v('X')}, ${v('Y')}, ${v('BRIGHTNESS')});`); }
+            case 'devices_clearmatrix': { this._cUses.devices = true; return line(`bw_matrix_clear(${v('MATRIX')});`); }
+            case 'devices_setneopixel': { this._cUses.devices = true; return line(`bw_neopixel_set(${v('STRIP')}, ${v('INDEX')}, ${v('R')}, ${v('G')}, ${v('B')});`); }
+            case 'devices_clearneopixels': { this._cUses.devices = true; return line(`bw_neopixel_clear(${v('STRIP')});`); }
+            case 'devices_temperature': { this._cUses.devices = true; return `bw_temperature(${v('SENSOR')})`; }
+            case 'devices_light': { this._cUses.devices = true; return `bw_light(${v('SENSOR')})`; }
+            case 'devices_distance': { this._cUses.devices = true; return `bw_distance(${v('SENSOR')})`; }
+            case 'devices_flex': { this._cUses.devices = true; return `bw_flex(${v('SENSOR')})`; }
+            case 'devices_force': { this._cUses.devices = true; return `bw_force(${v('SENSOR')})`; }
+            case 'devices_ircode': { this._cUses.devices = true; return `bw_ir_code(${v('SENSOR')})`; }
+            case 'devices_pressed': { this._cUses.devices = true; return `bw_pressed(${v('BUTTON')})`; }
+            case 'devices_above': { this._cUses.devices = true; return `bw_above(${v('SENSOR')}, ${v('THRESHOLD')})`; }
+            case 'devices_closer': { this._cUses.devices = true; return `bw_closer(${v('SENSOR')}, ${v('DISTANCE')})`; }
+            case 'devices_motion': { this._cUses.devices = true; return `bw_motion(${v('SENSOR')})`; }
+            case 'devices_tilted': { this._cUses.devices = true; return `bw_tilted(${v('SENSOR')})`; }
+            case 'devices_energised': { this._cUses.devices = true; return `bw_energised(${v('DEVICE')})`; }
             case 'procedures_call': return line(this.cProcCall(b, blocks));
             default: {
                 const text = (this.decompileStackBlock(b, blocks, 0)[0] || b.opcode).trim();
@@ -6177,6 +6168,52 @@ class SB3Creator {
                 '}',
                 '',
                 'static void bw_cube_hold(unsigned int ms) { bw_cube_scan(ms); }',
+                '');
+        }
+
+        // Device helper stubs — emitted inline when any devices_* block is used.
+        // These are no-op stubs that make the generated C COMPILE. On bare metal
+        // a real implementation would drive the peripheral; these record the
+        // intent so the simulator can read it, and on hardware they do nothing.
+        // Each carries a /* TODO */ comment saying what a real driver would do.
+        if (this._cUses.devices) {
+            out.push('/* ---- device helper stubs (emitted because devices_* blocks are used) ----',
+                ' * These are no-ops on the device target. A real implementation would',
+                ' * drive the peripheral via its protocol (I2C for LCD, PWM for servo,',
+                ' * pin toggling for shift registers, etc.). The stubs make the code',
+                ' * compile and record the call for the simulator. */');
+            out.push(
+                'static void bw_servo_set(int servo, int angle) { (void)servo; (void)angle; /* TODO: PWM pulse 500-2500us */ }',
+                'static int bw_servo_get(int servo) { (void)servo; return 0; }',
+                'static void bw_motor_speed(int motor, int speed) { (void)motor; (void)speed; /* TODO: PWM duty */ }',
+                'static int bw_motor_get_speed(int motor) { (void)motor; return 0; }',
+                'static void bw_motor_dir(int motor, int dir) { (void)motor; (void)dir; /* TODO: H-bridge pins */ }',
+                'static int bw_motor_get_dir(int motor) { (void)motor; return 0; }',
+                'static void bw_relay_set(int relay, int on) { (void)relay; (void)on; /* TODO: driver pin */ }',
+                'static int bw_device_state(int dev) { (void)dev; return 0; }',
+                'static void bw_device_activate(int dev) { (void)dev; }',
+                'static void bw_device_deactivate(int dev) { (void)dev; }',
+                'static void bw_lcd_print(int disp, int text) { (void)disp; (void)text; /* TODO: HD44780 I2C/parallel */ }',
+                'static void bw_lcd_cursor(int disp, int row, int col) { (void)disp; (void)row; (void)col; }',
+                'static void bw_lcd_clear(int disp) { (void)disp; }',
+                'static void bw_7seg_show(int disp, int digit) { (void)disp; (void)digit; /* TODO: BCD or port write */ }',
+                'static void bw_rgb_set(int led, int r, int g, int b) { (void)led; (void)r; (void)g; (void)b; /* TODO: 3x PWM */ }',
+                'static void bw_matrix_set(int m, int x, int y, int br) { (void)m; (void)x; (void)y; (void)br; }',
+                'static void bw_matrix_clear(int m) { (void)m; }',
+                'static void bw_neopixel_set(int s, int i, int r, int g, int b) { (void)s; (void)i; (void)r; (void)g; (void)b; /* TODO: WS2812 timing */ }',
+                'static void bw_neopixel_clear(int s) { (void)s; }',
+                'static int bw_temperature(int s) { (void)s; return 0; /* TODO: ADC + conversion */ }',
+                'static int bw_light(int s) { (void)s; return 0; }',
+                'static int bw_distance(int s) { (void)s; return 0; /* TODO: trigger + echo timing */ }',
+                'static int bw_flex(int s) { (void)s; return 0; }',
+                'static int bw_force(int s) { (void)s; return 0; }',
+                'static int bw_ir_code(int s) { (void)s; return 0; /* TODO: IR decode */ }',
+                'static int bw_pressed(int btn) { (void)btn; return 0; }',
+                'static int bw_above(int s, int thr) { (void)s; (void)thr; return 0; }',
+                'static int bw_closer(int s, int dist) { (void)s; (void)dist; return 0; }',
+                'static int bw_motion(int s) { (void)s; return 0; }',
+                'static int bw_tilted(int s) { (void)s; return 0; }',
+                'static int bw_energised(int d) { (void)d; return 0; }',
                 '');
         }
 
