@@ -110,10 +110,12 @@ test('block lowering census', () => {
         'devices_whencloser',  // polled task, edge-triggered on distance
         'devices_distance',    // HC-SR04 ultrasonic (P3.6 trig, P3.7 echo, Timer 1)
         'devices_closer',      // threshold predicate on distance
+        'devices_setneopixel', // WS2812 bitbang (P1.5, 1T only, inline asm)
+        'devices_clearneopixels', // zero the pixel buffer + send
     ]);
     const allDevices = hw.filter(op => op.startsWith('devices_'));
     const stubs = allDevices.filter(op => !REAL_DRIVERS.has(op));
-    const KNOWN_STUBS = 12;   // ratchet: only ever decrease (was 14, ultrasonic real)
+    const KNOWN_STUBS = 10;   // ratchet: only ever decrease (was 12, neopixel real on 1T)
     console.log(`    ${stubs.length} devices_* stubs, ${REAL_DRIVERS.size} real drivers`);
     assert.ok(stubs.length <= KNOWN_STUBS,
         `${stubs.length} stub blocks (was ${KNOWN_STUBS}) — new stub(s) added`);

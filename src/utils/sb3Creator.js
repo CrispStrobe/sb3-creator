@@ -5203,8 +5203,8 @@ class SB3Creator {
             case 'devices_setrgb': { this._cUses.devices = true; return line(`bw_rgb_set(${v('LED')}, ${v('R')}, ${v('G')}, ${v('B')});`); }
             case 'devices_setpixel': { this._cUses.devices = true; return line(`bw_matrix_set(${v('MATRIX')}, ${v('X')}, ${v('Y')}, ${v('BRIGHTNESS')});`); }
             case 'devices_clearmatrix': { this._cUses.devices = true; return line(`bw_matrix_clear(${v('MATRIX')});`); }
-            case 'devices_setneopixel': { this._cUses.devices = true; return line(`bw_neopixel_set(${v('STRIP')}, ${v('INDEX')}, ${v('R')}, ${v('G')}, ${v('B')});`); }
-            case 'devices_clearneopixels': { this._cUses.devices = true; return line(`bw_neopixel_clear(${v('STRIP')});`); }
+            case 'devices_setneopixel': { this._cUses.devices = true; this._cUses.neopixel = true; return line(`bw_neopixel_set(${v('STRIP')}, ${v('INDEX')}, ${v('R')}, ${v('G')}, ${v('B')});`); }
+            case 'devices_clearneopixels': { this._cUses.devices = true; this._cUses.neopixel = true; return line(`bw_neopixel_clear(${v('STRIP')});`); }
             case 'procedures_call': return line(this.cProcCall(b, blocks));
             default: {
                 const text = (this.decompileStackBlock(b, blocks, 0)[0] || b.opcode).trim();
@@ -6085,6 +6085,7 @@ class SB3Creator {
             driverPins.push({ port: 3, bit: 6, driver: 'ultrasonic trigger' });
             driverPins.push({ port: 3, bit: 7, driver: 'ultrasonic echo' });
         }
+        if (this._cUses.neopixel) driverPins.push({ port: 1, bit: 5, driver: 'NeoPixel data' });
         // Driver pins vs each other.
         for (let i = 0; i < driverPins.length; i++) {
             for (let j = i + 1; j < driverPins.length; j++) {
@@ -6714,9 +6715,103 @@ class SB3Creator {
                     rstub('static int bw_distance(int s)', 'devices_distance'),
                     rstub('static int bw_closer(int s, int dist)', 'devices_closer'));
             }
-            // Stubs that still need real implementations:
-            // IR (protocol decode), displays (I2C/shift register),
-            // neopixel (WS2812 bitbang), RGB (3-channel PWM).
+            // WS2812 NeoPixel: 800 kHz bit-timed via inline assembly.
+            // 1T ONLY — 12T cores cannot meet the ±150 ns timing windows
+            // because a single 12T machine cycle (1085 ns at 11.0592 MHz)
+            // exceeds the entire 0-bit HIGH window (250-550 ns).
+            // Pin: P1.5.  Buffer: 8 pixels max (24 bytes GRB, RAM is precious).
+            if (this._cUses.neopixel) {
+                if (!chip.aux1T) {
+                    this.cWarn('WS2812 NeoPixel requires a 1T core — 12T cannot meet the 800 kHz timing');
+                    collision('WS2812 NeoPixel is unavailable on ' + device + ' (12T core)');
+                }
+                // Timing is hand-counted for 11.0592 MHz 1T (90 ns/cy).
+                // At very different clocks the NOP counts would need adjusting.
+                const cyNs = chip.aux1T ? (1e9 / clock) : (12e9 / clock);
+                if (chip.aux1T && (cyNs < 50 || cyNs > 120)) {
+                    this.cWarn(`WS2812 timing tuned for 11.0592 MHz; at ${(clock / 1e6).toFixed(3)} MHz pulse widths may drift`);
+                }
+                out.push(
+                    '/* WS2812B NeoPixel: 800 kHz bitbang via inline assembly (1T only). */',
+                    '/* Pin: P1.5.  Timing at 11.0592 MHz 1T: */',
+                    '/*   T0H = 5 cy = 452 ns (window 250-550)  T0L = 9 cy = 814 ns (700-1000) */',
+                    '/*   T1H = 10 cy = 904 ns (window 650-950) T1L = 4 cy = 362 ns (300-600) */',
+                    '/* 12T CANNOT DO THIS: 1 cycle = 1085 ns > entire 0-bit window. */',
+                    '/* Interrupts disabled during send — any ISR breaks bit timing. */',
+                    '/* A timer-timed pulse carries instruction overhead on top, so a */',
+                    '/* device with an upper bound needs that overhead counted. Here the */',
+                    '/* instruction IS the timing; there is no timer to defer to. */',
+                    '#define NEO_PIN  P1_5',
+                    '#define NEO_MAX  8',
+                    'static unsigned char _neo_buf[NEO_MAX * 3];',
+                    'static unsigned char _neo_count;',
+                    '',
+                    'static void bw_neo_byte(unsigned char val) __naked',
+                    '{',
+                    '    (void)val;',
+                    '    __asm',
+                    '    mov  a, dpl         ; SDCC passes first arg in DPL',
+                    '    mov  r7, #8',
+                    '00201$:',
+                    '    setb 0x95           ; 1  P1.5 HIGH',
+                    '    rlc  a              ; 1  MSB -> C',
+                    '    jc   00202$         ; 2  branch if 1-bit',
+                    '    clr  0x95           ; 1  P1.5 LOW  (T0H = 5 cy = 452 ns)',
+                    '    nop',
+                    '    nop',
+                    '    nop',
+                    '    nop',
+                    '    nop',
+                    '    nop                 ;    T0L = 9 cy = 814 ns',
+                    '    djnz r7, 00201$     ; 2',
+                    '    ret',
+                    '00202$:',
+                    '    nop                 ;    T1H continues...',
+                    '    nop',
+                    '    nop',
+                    '    nop',
+                    '    nop',
+                    '    clr  0x95           ; 1  P1.5 LOW  (T1H = 10 cy = 904 ns)',
+                    '    nop                 ;    T1L = 4 cy = 362 ns',
+                    '    nop',
+                    '    djnz r7, 00201$     ; 2',
+                    '    ret',
+                    '    __endasm;',
+                    '}',
+                    '',
+                    'static void bw_neo_send(void)',
+                    '{',
+                    '    unsigned char i, n;',
+                    '    n = _neo_count * 3;',
+                    '    EA = 0;',
+                    '    for (i = 0; i < n; i++) bw_neo_byte(_neo_buf[i]);',
+                    '    EA = 1;',
+                    '}',
+                    '',
+                    'static void bw_neopixel_set(int s, int idx, int r, int g, int b)',
+                    '{',
+                    '    (void)s;',
+                    '    if (idx < 0 || idx >= _neo_count) return;',
+                    '    _neo_buf[idx * 3]     = (unsigned char)(g > 255 ? 255 : g < 0 ? 0 : g);',
+                    '    _neo_buf[idx * 3 + 1] = (unsigned char)(r > 255 ? 255 : r < 0 ? 0 : r);',
+                    '    _neo_buf[idx * 3 + 2] = (unsigned char)(b > 255 ? 255 : b < 0 ? 0 : b);',
+                    '    bw_neo_send();',
+                    '}',
+                    '',
+                    'static void bw_neopixel_clear(int s)',
+                    '{',
+                    '    unsigned char i;',
+                    '    (void)s;',
+                    '    for (i = 0; i < _neo_count * 3; i++) _neo_buf[i] = 0;',
+                    '    bw_neo_send();',
+                    '}',
+                    '');
+            } else {
+                out.push(
+                    stub('static void bw_neopixel_set(int s, int i, int r, int g, int b)', 'devices_setneopixel'),
+                    stub('static void bw_neopixel_clear(int s)', 'devices_clearneopixels'));
+            }
+            // Stubs: IR (protocol decode), displays (I2C/shift register), RGB (3-channel PWM).
             out.push(
                 rstub('static int bw_device_state(int dev)', 'devices_devicestate'),
                 stub('static void bw_lcd_print(int disp, int text)', 'devices_lcdprint'),
@@ -6726,8 +6821,6 @@ class SB3Creator {
                 stub('static void bw_rgb_set(int led, int r, int g, int b)', 'devices_setrgb'),
                 stub('static void bw_matrix_set(int m, int x, int y, int br)', 'devices_setpixel'),
                 stub('static void bw_matrix_clear(int m)', 'devices_clearmatrix'),
-                stub('static void bw_neopixel_set(int s, int i, int r, int g, int b)', 'devices_setneopixel'),
-                stub('static void bw_neopixel_clear(int s)', 'devices_clearneopixels'),
                 rstub('static int bw_ir_code(int s)', 'devices_ircode'),
                 '');
         }
@@ -6837,6 +6930,14 @@ class SB3Creator {
             }
             out.push('    US_TRIG = 0;');
             if (chip.aux1T) out.push('    AUXR &= ~0x40;                 /* Timer 1 at FOSC/12 */');
+        }
+        // NeoPixel: P1.5 push-pull output, buffer init.
+        if (this._cUses.neopixel) {
+            if (chip.portModes) {
+                out.push('    P1M1 &= ~0x20; P1M0 |=  0x20;  /* P1.5 (NeoPixel) push-pull */');
+            }
+            out.push('    NEO_PIN = 0;',
+                '    _neo_count = NEO_MAX;');
         }
         // Sensor ADC: P1.1 as analog input (channel 1).
         // adc_read() already exists when _cUses.adc is set — the ADC_CONTR
