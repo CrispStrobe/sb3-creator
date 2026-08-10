@@ -1,56 +1,73 @@
-# Examples — your first circuits and programs
+# Getting started — a guided path through the examples
 
-This gallery contains **74 ready-to-open examples**: 20 pure circuits that need no
-microcontroller, and 54 programs that run on a simulated STC12 chip. Every example
-has a circuit you can see, numbers you can check, and something you can change to
-see the result.
+Everything here runs **entirely in the browser**. No hardware, no download, no
+install. The simulator computes real voltages and currents — when an LED lights
+up, the brightness comes from Ohm's law applied to your circuit, not from a
+guess.
 
-## Pure circuits — start here
+There are 94 examples. Do not open them all. Follow the path below; each step
+builds on the one before it. Skip ahead when something feels familiar.
 
-No programming needed. Open the circuit, and it works.
+---
 
-| # | what you see | what it teaches |
-|---|---|---|
-| **pc01** | An LED lights up | A resistor limits the current so the LED survives |
-| **pc09** | Same LED, no breadboard | You can wire parts directly — a breadboard is a convenience |
-| **pc02** | Two resistors, no LED | Voltage divides in proportion to resistance |
-| **pc04** | Two LEDs side by side | Parallel paths share the current |
-| **pc17** | Three LEDs, three brightnesses | More resistance = less current = dimmer LED |
-| **pc05** | An LED that needs a button | A transistor amplifies a tiny base current into a large collector current |
-| **pc06** | A capacitor charges slowly | An RC circuit has a time constant τ = R × C |
-| **pc18** | A zener diode clamps the voltage | A zener holds a fixed voltage regardless of the supply |
+## Step 1: Light an LED (no programming, no breadboard)
 
-**What to change:** open `pc17-current-compare` and change the 220 Ω resistor to
-1000 Ω. The LED gets dimmer — the current dropped from 13.6 mA to 3.0 mA. That is
-Ohm's law: I = V / R.
+Open **`pc09-direct-led`**. You see a 9 V battery, a 1 kΩ resistor, and a red LED,
+wired point to point. The LED is on. Nothing to click, nothing to run.
 
-## Microcontroller programs — after you understand the circuit
+**What you are seeing:** the simulator solved the circuit and found
+I = (9 − 2) / 1000 = 7 mA flowing through the LED. The brightness (0.35) comes
+from that current, not from a setting.
 
-These add a program that runs on the chip and controls the circuit.
+**Change one thing:** change the resistor from 1000 Ω to 220 Ω. The LED gets
+brighter — the current rose to 31.8 mA. Change it to 10000 Ω and it barely
+glows. That is Ohm's law: I = V / R.
 
-| # | what it does | what it teaches |
-|---|---|---|
-| **01** | An LED blinks at 1 Hz | `FOREVER` + `wait` = a loop with timing |
-| **06** | Two LEDs, opposite wiring | Active-low vs active-high: same command, different pin levels |
-| **14** | Three LEDs in sequence | A traffic light is just three timed outputs |
-| **05** | Count button presses | `wait until` + variables = reacting to input |
-| **07** | A buzzer alternates two tones | `set pin to N hz` = a frequency, not a bit |
-| **32** | One bright LED, one dark | The 8051 sinks 20 mA but sources only 0.23 mA — THE lesson |
-| **46** | Eight LEDs on one port | Each is fine alone; together they approach the chip's 120 mA limit |
+**What would happen on a real bench:** exactly the same. Remove the resistor
+entirely and open **`31-no-resistor-led`** to see why you should not.
 
-**What to change:** open `01-blink` and change `wait 0.5 seconds` to `wait 0.1 seconds`.
-The LED blinks faster. Change `toggle led1` to `turn on led1` followed by `turn off led1`
-— same result, but now you see both halves of the cycle.
+## Step 2: Use a breadboard
 
-## The pseudocode dialect
+Open **`pc01-led-resistor`**. Same circuit, but the parts sit in a breadboard.
+The strips conduct — the resistor's right leg and the LED's left leg share a
+column, so they are electrically connected without a wire.
 
-Programs are written in a dialect that reads like English:
+Open **`pc14-mini-led`**. Same circuit on a **mini breadboard** — 17 columns,
+no power rails. The battery connects directly to strip holes. This teaches
+that rails are a convenience, not a requirement.
+
+## Step 3: Voltage and resistance
+
+Open **`pc02-voltage-divider`**. Two 10 kΩ resistors in series from a 9 V battery.
+The junction between them sits at 4.5 V — half the supply, because the resistors
+are equal. Change one to 20 kΩ and the junction moves to 6 V.
+
+Open **`pc17-current-compare`**. Three LEDs with 220 Ω, 470 Ω, and 1 kΩ resistors.
+The 220 Ω LED is brightest (13.6 mA), the 1 kΩ dimmest (3 mA). Same supply,
+same LED — only the resistor differs.
+
+## Step 4: Active components
+
+Open **`pc05-npn-switch`**. A transistor turns an LED on and off. A small base
+current (~0.4 mA through 10 kΩ) switches a large collector current (~6 mA
+through 470 Ω + LED). That amplification is what makes transistors useful.
+
+Open **`pc18-zener-clamp`**. A 5.1 V zener diode clamps the voltage from a 9 V
+battery. The LED after the zener sees 5.1 V regardless of what the battery does.
+
+## Step 5: Time
+
+Open **`pc06-rc-charge`**. A 10 kΩ resistor and a 100 µF capacitor. The capacitor
+charges with a time constant τ = R × C = 1.0 second. After one τ it reaches
+63% of the supply; after five τ it is full.
+
+---
+
+## Step 6: Your first program
+
+Open **`01-blink`**. Now there is a microcontroller. The program is four lines:
 
 ```
-DEVICE STC12C5A60S2
-CLOCK 11059200
-PIN led1 = P1.0 OUTPUT ACTIVE LOW
-
 WHEN flag clicked:
   FOREVER:
     turn on led1
@@ -59,22 +76,71 @@ WHEN flag clicked:
     wait 0.5 seconds
 ```
 
-Every line maps to a Scratch block. `ACTIVE LOW` means the LED is wired from
-VCC through a resistor to the pin — turning ON drives the pin LOW (0), because
-the 8051 can sink much more current than it can source.
+The LED blinks at 1 Hz. Every line maps to a Scratch block.
 
-## Safety lessons
+**Change one thing:** change `0.5 seconds` to `0.1 seconds`. The LED blinks
+five times faster. Change `turn on` / `turn off` to just `toggle led1` — same
+result, shorter program.
 
-Three examples exist to show what goes wrong on a real board:
+**What `ACTIVE LOW` means:** the LED is wired from VCC through a resistor to
+the pin. `turn on` drives the pin LOW (0 V), which lets current flow from VCC
+through the LED into the pin. This is because the STC12's pins can sink 20 mA
+but source only ~230 µA — wiring active-low uses the strong direction.
 
-| # | the mistake | what the simulator shows |
-|---|---|---|
-| **31** | LED with no series resistor | Overcurrent — the LED would burn out |
-| **32** | LED wired active-high on a quasi-bidirectional pin | Almost no light — the pin sources only ~230 µA |
-| **09** | Relay wired directly to a pin (old version) | The relay does not energise — the pin cannot drive it |
+## Step 7: Input
 
-The corrected version of each is in the same example or in a companion: `09-relay-clicker`
-now uses a TIP120 Darlington driver, which is how you would actually build it.
+Open **`05-counter-7seg`**. The program waits for a button press, counts it, and
+blinks the LED that many times. `wait until read button` is how the program
+listens; `change count by 1` is how it remembers.
+
+## Step 8: The sink/source lesson
+
+Open **`32-source-vs-sink`**. Two LEDs, same resistor, same `turn on` command.
+One is bright (3 mA, active-low sink), the other is nearly dark (0.23 mA,
+active-high source). The factor-of-13 difference in brightness IS the lesson.
+
+This is the single most important fact about the STC12: it sinks 20 mA but
+sources only ~230 µA. Every LED in this project is wired active-low for
+exactly this reason.
+
+## Step 9: Multiple scripts
+
+Open **`04-thermostat`**. The program reads a sensor (ADC), compares against two
+thresholds (300 and 500), and turns a heater LED on or off. The gap between the
+thresholds is hysteresis — it stops the output from flickering when the input
+sits near one threshold.
+
+## Step 10: Safety
+
+Open **`09-relay-clicker`**. A relay is wired through a TIP120 Darlington driver.
+The pin drives the transistor's base (~3.6 mA); the transistor drives the relay
+coil (~43 mA from the supply rail). Without the driver, the pin cannot deliver
+enough current and the relay stays dead — the simulator catches this.
+
+Open **`46-port-overcurrent`**. Eight LEDs on one port. Each draws 6.4 mA —
+individually fine. Together, 51.2 mA from one port, approaching the chip's
+total budget of ~120 mA. The simulator warns when the declarations exceed
+the limit.
+
+---
+
+## What needs hardware
+
+**Nothing in this gallery needs hardware to try.** Every example runs in the
+browser simulator. The circuits are solved by a real MNA engine; the programs
+run on an emulated STC12.
+
+If you want to flash a program onto a real chip, you need:
+- An STC12C5A60S2 board (~$2)
+- A USB-to-serial adapter (CH340 or CP2102)
+- `stcgal` for flashing (documented in the stc repo's README)
+
+The simulator's results are **cross-checked between two emulators** (category 2b)
+but **have not been verified on silicon** for most peripherals. The ADC register
+sequence is verified between models; its analog path is not (`BENCH-ADC`). PWM
+duty cycle is verified between models; it has not been measured with a frequency
+counter (`BENCH-PWM`). GPIO (`01-blink`) is the only example that has physically
+run on a real chip.
 
 ## File structure
 
@@ -87,4 +153,4 @@ Each example is a directory with three files:
 | `EXPECTED.md` | What should happen, with computed numbers |
 
 `index.json` lists every example with an English and German title, a category,
-and a difficulty rating (1–5).
+a difficulty rating (1–5), and whether it is a `circuit` or a `program`.
