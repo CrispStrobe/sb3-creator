@@ -7,12 +7,13 @@
 import { writeFileSync, mkdirSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
-import { BoardImpl } from '/mnt/volume1/code/bw-board/src/board.js';
-import { inferNetlist, checkWiring } from '/mnt/volume1/code/bw-board/src/infer-netlist.js';
-import { setEngine } from '/mnt/volume1/code/bw-circuit-ui/src/engine.js';
-import { Circuit, resetIds } from '/mnt/volume1/code/bw-circuit-ui/src/model/circuit.js';
-import { FOOTPRINTS, computeLeadMap } from '/mnt/volume1/code/bw-circuit-ui/src/model/footprints.js';
-const devDir = '/mnt/volume1/code/bw-board/src/devices/';
+const __here = dirname(fileURLToPath(import.meta.url));
+const { BoardImpl } = await import(join(__here, '..', '..', 'bw-board', 'src', 'board.js'));
+const { inferNetlist, checkWiring } = await import(join(__here, '..', '..', 'bw-board', 'src', 'infer-netlist.js'));
+const { setEngine } = await import(join(__here, '..', '..', 'bw-circuit-ui', 'src', 'engine.js'));
+const { Circuit, resetIds } = await import(join(__here, '..', '..', 'bw-circuit-ui', 'src', 'model', 'circuit.js'));
+const { FOOTPRINTS, computeLeadMap } = await import(join(__here, '..', '..', 'bw-circuit-ui', 'src', 'model', 'footprints.js'));
+const devDir = join(__here, '..', '..', 'bw-board', 'src', 'devices') + '/';
 for (const m of ['relay','dc-motor','servo','timer-555','logic-gates','power',
     'analog-ics','h-bridge','sensors','display','digital-ics','chip-composer',
     'motor-drivers','misc-parts','named-parts','tier1-parts','i2c-parts']) {
