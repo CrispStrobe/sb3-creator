@@ -1,5 +1,6 @@
 {
   "name": "sb3-creator",
+  "license": "MPL-2.0",
   "private": true,
   "version": "1.0.0",
   "type": "module",
