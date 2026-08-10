@@ -5172,8 +5172,8 @@ class SB3Creator {
             // that this emitter does not yet generate. The stubs make the code
             // COMPILE, which is better than a link error, and the /* TODO */
             // comment in each stub says what a real implementation would do.
-            case 'devices_setservo': { this._cUses.devices = true; return line(`bw_servo_set(${v('SERVO')}, ${v('ANGLE')});`); }
-            case 'devices_servoangle': { this._cUses.devices = true; return `bw_servo_get(${v('SERVO')})`; }
+            case 'devices_setservo': { this._cUses.devices = true; this._cUses.servo = true; return line(`bw_servo_set(${v('SERVO')}, ${v('ANGLE')});`); }
+            case 'devices_servoangle': { this._cUses.devices = true; this._cUses.servo = true; return `bw_servo_get(${v('SERVO')})`; }
             case 'devices_setmotor': { this._cUses.devices = true; return line(`bw_motor_speed(${v('MOTOR')}, ${v('SPEED')});`); }
             case 'devices_motorspeed': { this._cUses.devices = true; return `bw_motor_get_speed(${v('MOTOR')})`; }
             case 'devices_setdirection': { this._cUses.devices = true; const d = f('DIR'); return line(`bw_motor_dir(${v('MOTOR')}, ${({ forward: 0, reverse: 1, brake: 2, coast: 3 })[d] || 0});`); }
@@ -6288,9 +6288,68 @@ class SB3Creator {
             // stderr — one line per stub, naming the block that will do nothing.
             const stub = (sig, marker) => `${sig} { /* BW_STUB: ${marker} — no-op on hardware */ }`;
             const rstub = (sig, marker) => `${sig} { /* BW_STUB: ${marker} */ return 0; }`;
+            // Servo: real PCA 16-bit compare/match driver when _cUses.servo is set,
+            // otherwise fall back to the stub.
+            if (this._cUses.servo) {
+                // PCA module 0 on P1.3, 16-bit software-timer mode.
+                // At FOSC/12 (921.6 kHz for 11.0592 MHz), 20 ms = 18432 counts.
+                // Pulse: 500 µs (0°) = 461 counts, 2500 µs (180°) = 2304 counts.
+                // The ISR toggles the pin: high at frame start, low at the pulse end.
+                out.push(
+                    '/* Servo driver: PCA module 0 in 16-bit compare/match mode (50 Hz). */',
+                    '/* FOSC/12 clock: 20 ms = FOSC_HZ/12/50 counts. Pulse: 500-2500 µs. */',
+                    '#define SERVO_PERIOD  ((unsigned int)(FOSC_HZ / 12UL / 50UL))',
+                    '#define SERVO_MIN_US  500',
+                    '#define SERVO_MAX_US  2500',
+                    'static unsigned int _servo_pulse;   /* pulse width in timer counts */',
+                    'static unsigned int _servo_phase;   /* 0 = rising edge, 1 = falling */',
+                    'static int _servo_angle;',
+                    '',
+                    'static void bw_servo_set(int servo, int angle)',
+                    '{',
+                    '    unsigned long us;',
+                    '    (void)servo;',
+                    '    if (angle < 0) angle = 0;',
+                    '    if (angle > 180) angle = 180;',
+                    '    _servo_angle = angle;',
+                    '    us = SERVO_MIN_US + (unsigned long)angle * (SERVO_MAX_US - SERVO_MIN_US) / 180;',
+                    '    _servo_pulse = (unsigned int)(us * (FOSC_HZ / 12UL) / 1000000UL);',
+                    '}',
+                    '',
+                    'static int bw_servo_get(int servo) { (void)servo; return _servo_angle; }',
+                    '',
+                    '/* PCA ISR: toggles the servo pin at the pulse edges. */',
+                    '/* Module 0 match flag (CCF0) fires twice per period: */',
+                    '/*   phase 0: set pin HIGH, schedule falling edge at +_servo_pulse */',
+                    '/*   phase 1: set pin LOW,  schedule rising edge at +(PERIOD-pulse) */',
+                    'void bw_pca_isr(void) __interrupt(7)',
+                    '{',
+                    '    unsigned int next;',
+                    '    if (!(CCON & 0x01)) return;  /* not CCF0 */',
+                    '    CCON &= ~0x01;               /* clear CCF0 */',
+                    '    if (_servo_phase == 0) {',
+                    '        P1_3 = 1;                /* pulse start */',
+                    '        next = ((unsigned int)CCAP0H << 8) | CCAP0L;',
+                    '        next += _servo_pulse;',
+                    '        CCAP0L = (unsigned char)(next & 0xFF);',
+                    '        CCAP0H = (unsigned char)(next >> 8);',
+                    '        _servo_phase = 1;',
+                    '    } else {',
+                    '        P1_3 = 0;                /* pulse end */',
+                    '        next = ((unsigned int)CCAP0H << 8) | CCAP0L;',
+                    '        next += SERVO_PERIOD - _servo_pulse;',
+                    '        CCAP0L = (unsigned char)(next & 0xFF);',
+                    '        CCAP0H = (unsigned char)(next >> 8);',
+                    '        _servo_phase = 0;',
+                    '    }',
+                    '}',
+                    '');
+            } else {
+                out.push(
+                    stub('static void bw_servo_set(int servo, int angle)', 'devices_setservo'),
+                    rstub('static int bw_servo_get(int servo)', 'devices_servoangle'));
+            }
             out.push(
-                stub('static void bw_servo_set(int servo, int angle)', 'devices_setservo'),
-                rstub('static int bw_servo_get(int servo)', 'devices_servoangle'),
                 stub('static void bw_motor_speed(int motor, int speed)', 'devices_setmotor'),
                 rstub('static int bw_motor_get_speed(int motor)', 'devices_motorspeed'),
                 stub('static void bw_motor_dir(int motor, int dir)', 'devices_setdirection'),
@@ -6364,12 +6423,26 @@ class SB3Creator {
         out.push('');
         if (chip.aux1T) out.push('    AUXR &= ~0x80;                 /* Timer 0 at FOSC/12 */');
         out.push('    TMOD  = (TMOD & 0xF0) | 0x01;  /* Timer 0, mode 1 */');
+        // PCA setup for servo (16-bit compare/match, module 0 on P1.3).
+        if (this._cUses.servo) {
+            out.push('',
+                '    /* PCA: FOSC/12 clock, 16-bit compare/match on module 0 (P1.3). */',
+                '    CMOD = 0x00;                      /* PCA clock = FOSC/12 */',
+                '    CCAPM0 = 0x49;                    /* module 0: match + toggle + interrupt */',
+                '    CCAP0L = 0; CCAP0H = 0;',
+                '    CL = 0; CH = 0;',
+                '    CR = 1;                           /* start PCA counter */',
+                '    _servo_pulse = (unsigned int)(1500UL * (FOSC_HZ / 12UL) / 1000000UL);  /* 90° default */',
+                '    _servo_angle = 90;',
+                '    _servo_phase = 0;');
+        }
         out.push('}', '', 'void main(void)', '{', '    bw_setup();');
         if (this._cTasks) {
             out.push('    TL0 = (unsigned char)(T0_RELOAD & 0xFF);',
                 '    TH0 = (unsigned char)(T0_RELOAD >> 8);',
                 '    ET0 = 1;                       /* millisecond tick */',
                 '    EA  = 1;',
+                this._cUses.servo ? '    EC  = 1;                       /* PCA interrupt for servo */' : '',
                 '    TR0 = 1;',
                 '',
                 '    for (;;) {',
