@@ -449,8 +449,8 @@ describe('e2e: aggregate current check (STC12 §4.6)', () => {
         c.parse(src);
         const code = c.generateC();
         const { warnings } = cToPseudocode(code);
-        assert.ok(warnings.some(w => /160 mA worst-case/.test(w)),
-            'should warn about 160 mA exceeding 120 mA chip budget');
+        assert.ok(warnings.some(w => /up to 160 mA/.test(w)),
+            'should warn about up to 160 mA at maximum pin ratings');
         assert.ok(warnings.some(w => /Port 1 has 8 output pins/.test(w)),
             'should warn about port concentration');
     });

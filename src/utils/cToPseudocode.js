@@ -1549,9 +1549,10 @@ export default function cToPseudocode (source, opts = {}) {
         const outputPins = pinList.filter(p => p.direction === 'output' || p.direction === 'pwm' || p.direction === 'tone');
         const worstCaseMa = outputPins.length * MAX_PER_PIN_MA;
         if (worstCaseMa > CHIP_TOTAL_MA) {
-            warn(`${outputPins.length} output pins × ${MAX_PER_PIN_MA} mA = ${worstCaseMa} mA worst-case, `
-                + `which exceeds the chip's total I/O budget of ~${CHIP_TOTAL_MA} mA (STC12 datasheet §4.6). `
-                + `Use current-limiting resistors ≥1 kΩ or multiplex the outputs.`);
+            warn(`${outputPins.length} output pins × ${MAX_PER_PIN_MA} mA = up to ${worstCaseMa} mA `
+                + `at maximum pin ratings (actual current depends on series resistors). `
+                + `Chip total I/O budget is ~${CHIP_TOTAL_MA} mA (STC12 datasheet §4.1). `
+                + `With ≥1 kΩ resistors per LED the real total is much lower.`);
         }
         // Also warn per-port: if a single port has ≥6 outputs, note the concentration.
         const portCounts = new Map();
@@ -1562,8 +1563,8 @@ export default function cToPseudocode (source, opts = {}) {
         }
         for (const [port, count] of portCounts) {
             if (count >= 6) {
-                warn(`Port ${port} has ${count} output pins — at 20 mA each that is ${count * 20} mA `
-                    + `from one port. Total chip budget is ~120 mA.`);
+                warn(`Port ${port} has ${count} output pins — up to ${count * 20} mA `
+                    + `at maximum pin ratings. Chip total budget is ~120 mA.`);
             }
         }
     }
