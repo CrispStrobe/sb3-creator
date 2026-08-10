@@ -1268,6 +1268,57 @@ test('circuit reporters return numbers when a Board is attached', async () => {
         'after clearBoard, reporters refuse again');
 });
 
+test('circuit blocks are greyed on hardware and available on simulator', async () => {
+    const { readFileSync } = await import('node:fs');
+    const vm = await import('node:vm');
+    const src = readFileSync(new URL('../reference/extensions/circuit.js', import.meta.url), 'utf8');
+
+    function loadWith(runtimeProps) {
+        const captured = [];
+        const mockScratch = {
+            BlockType: { COMMAND: 'command', REPORTER: 'reporter', BOOLEAN: 'Boolean', HAT: 'hat' },
+            ArgumentType: { NUMBER: 'number', STRING: 'string', BOOLEAN: 'Boolean' },
+            extensions: { register: (inst) => captured.push(inst), unsandboxed: true },
+            translate: (m) => (m && typeof m === 'object' ? (m.default || '') : String(m || '')),
+            vm: { runtime: { ...runtimeProps } }
+        };
+        const ctx = vm.createContext({ Scratch: mockScratch, console, performance,
+            localStorage: { getItem: () => null }, navigator: { language: 'en' } });
+        vm.runInContext(src, ctx);
+        return captured[0];
+    }
+
+    const SIM_ONLY = ['nodevoltage', 'branchcurrent', 'resistance', 'ledbrightness', 'buzzertone', 'setcontrol'];
+
+    // Simulator target: no stc12liveCapabilities → blocks are available.
+    const simExt = loadWith({});
+    const simInfo = simExt.getInfo();
+    const simBlocks = simInfo.blocks.filter(b => typeof b === 'object');
+    for (const op of SIM_ONLY) {
+        const block = simBlocks.find(b => b.opcode === op);
+        assert.ok(block, `${op} must exist on simulator`);
+        assert.ok(!block.hideFromPalette, `${op} must NOT be hidden on simulator`);
+    }
+
+    // Hardware target: stc12liveCapabilities present → blocks are greyed.
+    const hwExt = loadWith({ stc12liveCapabilities: { version: 1 } });
+    const hwInfo = hwExt.getInfo();
+    const hwBlocks = hwInfo.blocks.filter(b => typeof b === 'object');
+    for (const op of SIM_ONLY) {
+        const block = hwBlocks.find(b => b.opcode === op);
+        assert.ok(block, `${op} must exist on hardware (greyed, not removed)`);
+        assert.ok(block.hideFromPalette, `${op} must be hidden on hardware target`);
+        assert.ok(block.text.includes('needs the simulator') || block.text.includes('simulator'),
+            `${op} must say why it is greyed`);
+    }
+
+    // setpower should remain available on both (DTR trick).
+    const simPower = simBlocks.find(b => b.opcode === 'setpower');
+    const hwPower = hwBlocks.find(b => b.opcode === 'setpower');
+    assert.ok(!simPower.hideFromPalette, 'setpower available on simulator');
+    assert.ok(!hwPower.hideFromPalette, 'setpower available on hardware');
+});
+
 test('circuit reporters read vm.runtime.circuitBoard lazily (the editor path)', async () => {
     // This tests the REAL path the editor uses: bw-circuit-ui writes
     // vm.runtime.circuitBoard, and the extension reads it lazily per call.
