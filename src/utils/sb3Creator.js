@@ -6733,10 +6733,10 @@ class SB3Creator {
                 }
                 out.push(
                     '/* WS2812B NeoPixel: 800 kHz bitbang via inline assembly (1T only). */',
-                    '/* Pin: P1.5.  Measured timing at 11.0592 MHz 1T (ucsim-stc 06dc028): */',
-                    '/*   T0H = 4 cy = 362 ns (window 250-550)  T0L = 9 cy = 814 ns (700-1000) */',
-                    '/*   T1H = 10 cy = 904 ns (window 650-950) T1L = 4 cy = 362 ns (300-600) */',
-                    '/*   Bit period = 1176 ns ≈ 850 kHz */',
+                    '/* Pin: P1.5.  Measured by ucsim-stc fbc15bf (category 2b): */',
+                    '/*   T0H = 362 ns (250-550)  T0L = 814 ns (700-1000) */',
+                    '/*   T1H = 814 ns (650-950)  T1L = 452 ns (300-600) */',
+                    '/*   72 bits, 9 bytes, all sent.  Moves to cat 1 with silicon. */',
                     '/* 12T CANNOT DO THIS: 1 cycle = 1085 ns > entire 0-bit window. */',
                     '/* Interrupts disabled during send — any ISR breaks bit timing. */',
                     '/* A timer-timed pulse carries instruction overhead on top, so a */',
