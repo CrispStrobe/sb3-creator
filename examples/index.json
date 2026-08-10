@@ -844,5 +844,305 @@
       "circuit": "54-motor-driver/circuit.json",
       "expected": "54-motor-driver/EXPECTED.md"
     }
+  },
+  {
+    "id": "pc01-led-resistor",
+    "title": {
+      "en": "LED with series resistor",
+      "de": "LED mit Vorwiderstand"
+    },
+    "category": "pure-circuit",
+    "difficulty": 1,
+    "kind": "circuit",
+    "files": {
+      "program": "pc01-led-resistor/program.bw",
+      "circuit": "pc01-led-resistor/circuit.json",
+      "expected": "pc01-led-resistor/EXPECTED.md"
+    }
+  },
+  {
+    "id": "pc02-voltage-divider",
+    "title": {
+      "en": "Voltage divider",
+      "de": "Spannungsteiler"
+    },
+    "category": "pure-circuit",
+    "difficulty": 1,
+    "kind": "circuit",
+    "files": {
+      "program": "pc02-voltage-divider/program.bw",
+      "circuit": "pc02-voltage-divider/circuit.json",
+      "expected": "pc02-voltage-divider/EXPECTED.md"
+    }
+  },
+  {
+    "id": "pc03-series-resistors",
+    "title": {
+      "en": "Resistors in series",
+      "de": "Widerstände in Reihe"
+    },
+    "category": "pure-circuit",
+    "difficulty": 1,
+    "kind": "circuit",
+    "files": {
+      "program": "pc03-series-resistors/program.bw",
+      "circuit": "pc03-series-resistors/circuit.json",
+      "expected": "pc03-series-resistors/EXPECTED.md"
+    }
+  },
+  {
+    "id": "pc04-parallel-leds",
+    "title": {
+      "en": "LEDs in parallel",
+      "de": "LEDs parallel"
+    },
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "kind": "circuit",
+    "files": {
+      "program": "pc04-parallel-leds/program.bw",
+      "circuit": "pc04-parallel-leds/circuit.json",
+      "expected": "pc04-parallel-leds/EXPECTED.md"
+    }
+  },
+  {
+    "id": "pc05-npn-switch",
+    "title": {
+      "en": "NPN transistor as a switch",
+      "de": "NPN-Transistor als Schalter"
+    },
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "kind": "circuit",
+    "files": {
+      "program": "pc05-npn-switch/program.bw",
+      "circuit": "pc05-npn-switch/circuit.json",
+      "expected": "pc05-npn-switch/EXPECTED.md"
+    }
+  },
+  {
+    "id": "pc06-rc-charge",
+    "title": {
+      "en": "RC charging curve",
+      "de": "RC-Ladekurve"
+    },
+    "category": "pure-circuit",
+    "difficulty": 3,
+    "kind": "circuit",
+    "files": {
+      "program": "pc06-rc-charge/program.bw",
+      "circuit": "pc06-rc-charge/circuit.json",
+      "expected": "pc06-rc-charge/EXPECTED.md"
+    }
+  },
+  {
+    "id": "pc07-pot-dimmer",
+    "title": {
+      "en": "Potentiometer as a dimmer",
+      "de": "Potentiometer als Dimmer"
+    },
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "kind": "circuit",
+    "files": {
+      "program": "pc07-pot-dimmer/program.bw",
+      "circuit": "pc07-pot-dimmer/circuit.json",
+      "expected": "pc07-pot-dimmer/EXPECTED.md"
+    }
+  },
+  {
+    "id": "pc08-diode-polarity",
+    "title": {
+      "en": "Diode polarity",
+      "de": "Diodenpolung"
+    },
+    "category": "pure-circuit",
+    "difficulty": 1,
+    "kind": "circuit",
+    "files": {
+      "program": "pc08-diode-polarity/program.bw",
+      "circuit": "pc08-diode-polarity/circuit.json",
+      "expected": "pc08-diode-polarity/EXPECTED.md"
+    }
+  },
+  {
+    "id": "pc09-direct-led",
+    "title": {
+      "en": "LED wired directly, no breadboard",
+      "de": "LED direkt verdrahtet, ohne Steckbrett"
+    },
+    "category": "pure-circuit",
+    "difficulty": 1,
+    "kind": "circuit",
+    "files": {
+      "program": "pc09-direct-led/program.bw",
+      "circuit": "pc09-direct-led/circuit.json",
+      "expected": "pc09-direct-led/EXPECTED.md"
+    }
+  },
+  {
+    "id": "pc10-direct-series",
+    "title": {
+      "en": "Series circuit, direct wired",
+      "de": "Reihenschaltung, direkt verdrahtet"
+    },
+    "category": "pure-circuit",
+    "difficulty": 1,
+    "kind": "circuit",
+    "files": {
+      "program": "pc10-direct-series/program.bw",
+      "circuit": "pc10-direct-series/circuit.json",
+      "expected": "pc10-direct-series/EXPECTED.md"
+    }
+  },
+  {
+    "id": "pc11-direct-parallel",
+    "title": {
+      "en": "Parallel circuit, direct wired",
+      "de": "Parallelschaltung, direkt verdrahtet"
+    },
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "kind": "circuit",
+    "files": {
+      "program": "pc11-direct-parallel/program.bw",
+      "circuit": "pc11-direct-parallel/circuit.json",
+      "expected": "pc11-direct-parallel/EXPECTED.md"
+    }
+  },
+  {
+    "id": "pc12-direct-divider",
+    "title": {
+      "en": "Divider, direct wired",
+      "de": "Spannungsteiler, direkt verdrahtet"
+    },
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "kind": "circuit",
+    "files": {
+      "program": "pc12-direct-divider/program.bw",
+      "circuit": "pc12-direct-divider/circuit.json",
+      "expected": "pc12-direct-divider/EXPECTED.md"
+    }
+  },
+  {
+    "id": "pc13-direct-diode",
+    "title": {
+      "en": "Diode, direct wired",
+      "de": "Diode, direkt verdrahtet"
+    },
+    "category": "pure-circuit",
+    "difficulty": 1,
+    "kind": "circuit",
+    "files": {
+      "program": "pc13-direct-diode/program.bw",
+      "circuit": "pc13-direct-diode/circuit.json",
+      "expected": "pc13-direct-diode/EXPECTED.md"
+    }
+  },
+  {
+    "id": "pc14-mini-led",
+    "title": {
+      "en": "LED on a mini breadboard",
+      "de": "LED auf dem Mini-Steckbrett"
+    },
+    "category": "pure-circuit",
+    "difficulty": 1,
+    "kind": "circuit",
+    "files": {
+      "program": "pc14-mini-led/program.bw",
+      "circuit": "pc14-mini-led/circuit.json",
+      "expected": "pc14-mini-led/EXPECTED.md"
+    }
+  },
+  {
+    "id": "pc15-mini-npn",
+    "title": {
+      "en": "NPN switch on a mini breadboard",
+      "de": "NPN-Schalter auf dem Mini-Steckbrett"
+    },
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "kind": "circuit",
+    "files": {
+      "program": "pc15-mini-npn/program.bw",
+      "circuit": "pc15-mini-npn/circuit.json",
+      "expected": "pc15-mini-npn/EXPECTED.md"
+    }
+  },
+  {
+    "id": "pc16-mini-rc",
+    "title": {
+      "en": "RC circuit on a mini breadboard",
+      "de": "RC-Glied auf dem Mini-Steckbrett"
+    },
+    "category": "pure-circuit",
+    "difficulty": 3,
+    "kind": "circuit",
+    "files": {
+      "program": "pc16-mini-rc/program.bw",
+      "circuit": "pc16-mini-rc/circuit.json",
+      "expected": "pc16-mini-rc/EXPECTED.md"
+    }
+  },
+  {
+    "id": "pc17-current-compare",
+    "title": {
+      "en": "Comparing current through three LEDs",
+      "de": "Stromvergleich an drei LEDs"
+    },
+    "category": "pure-circuit",
+    "difficulty": 3,
+    "kind": "circuit",
+    "files": {
+      "program": "pc17-current-compare/program.bw",
+      "circuit": "pc17-current-compare/circuit.json",
+      "expected": "pc17-current-compare/EXPECTED.md"
+    }
+  },
+  {
+    "id": "pc18-zener-clamp",
+    "title": {
+      "en": "Zener diode as a clamp",
+      "de": "Z-Diode als Begrenzer"
+    },
+    "category": "pure-circuit",
+    "difficulty": 3,
+    "kind": "circuit",
+    "files": {
+      "program": "pc18-zener-clamp/program.bw",
+      "circuit": "pc18-zener-clamp/circuit.json",
+      "expected": "pc18-zener-clamp/EXPECTED.md"
+    }
+  },
+  {
+    "id": "pc19-buzzer-direct",
+    "title": {
+      "en": "Buzzer straight from a battery",
+      "de": "Summer direkt an der Batterie"
+    },
+    "category": "pure-circuit",
+    "difficulty": 1,
+    "kind": "circuit",
+    "files": {
+      "program": "pc19-buzzer-direct/program.bw",
+      "circuit": "pc19-buzzer-direct/circuit.json",
+      "expected": "pc19-buzzer-direct/EXPECTED.md"
+    }
+  },
+  {
+    "id": "pc20-rgb-mix",
+    "title": {
+      "en": "Mixing colour with an RGB LED",
+      "de": "Farbmischung mit einer RGB-LED"
+    },
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "kind": "circuit",
+    "files": {
+      "program": "pc20-rgb-mix/program.bw",
+      "circuit": "pc20-rgb-mix/circuit.json",
+      "expected": "pc20-rgb-mix/EXPECTED.md"
+    }
   }
 ]
