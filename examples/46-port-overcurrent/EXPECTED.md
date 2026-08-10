@@ -45,5 +45,7 @@ this sag, or at minimum warn when aggregate current approaches the limit.
 
 1. 8 LEDs on one port all light (individually within spec)
 2. The aggregate current (51.2 mA) is stated and checkable
-3. A future DRC warning should fire when total I/O current exceeds ~120 mA
+3. **No circuit-time DRC warning exists yet** (as of 2026-08-10). `cToPseudocode`
+   warns on pin declarations when reading C; the circuit designer does not warn.
+   `bw-board` owns the DRC path; this example is the fixture for when it ships.
 4. The example teaches the aggregate limit alongside the per-pin limit
