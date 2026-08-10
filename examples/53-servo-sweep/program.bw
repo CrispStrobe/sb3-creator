@@ -1,0 +1,17 @@
+DEVICE STC12C5A60S2
+CLOCK 11059200
+PIN led1 = P1.0 OUTPUT ACTIVE LOW
+
+# Servo sweep: move from 0° to 180° in 10° steps, then back.
+# The servo is addressed by name; the generated C calls bw_servo_set().
+WHEN flag clicked:
+  set pos to 0
+  FOREVER:
+    REPEAT 18:
+      change pos by 10
+      set myservo angle to pos
+      wait 0.1 seconds
+    REPEAT 18:
+      change pos by -10
+      set myservo angle to pos
+      wait 0.1 seconds

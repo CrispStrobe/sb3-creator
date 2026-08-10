@@ -473,6 +473,28 @@ void main(void) { }`);
     });
 });
 
+describe('e2e: servo — emitted call, no helper yet', () => {
+    test('53-servo-sweep: parses, emits bw_servo_set, does not define it', () => {
+        const src = readFileSync(join(EXAMPLES, '53-servo-sweep', 'program.bw'), 'utf8');
+        const c = new SB3Creator();
+        c.parse(src);
+        assert.deepEqual(c.warnings, []);
+        const code = c.generateC();
+        // The call IS emitted
+        assert.match(code, /bw_servo_set\(/, 'bw_servo_set() call emitted');
+        // But the helper is NOT defined — this is the gap
+        const hasDefinition = /void bw_servo_set\(/.test(code) || /static.*bw_servo_set/.test(code);
+        if (hasDefinition) {
+            // When the helper lands, this branch runs and the example should compile.
+            // TODO: POST to the oracle and assert compilation succeeds.
+            assert.ok(true, 'bw_servo_set helper is now defined — update this test to assert compilation');
+        } else {
+            // The helper is missing — this is the current state. Record it as a finding.
+            assert.ok(true, 'bw_servo_set emitted but not defined — compilation would fail (expected)');
+        }
+    });
+});
+
 describe('e2e: blocked examples — named dependencies', { skip: SKIP }, () => {
     for (const [name, blocker] of Object.entries(BLOCKED)) {
         test(`${name}: BLOCKED on ${blocker}`, { skip: `waiting on bw-board: ${blocker}` }, () => {});

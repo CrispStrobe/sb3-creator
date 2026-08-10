@@ -812,5 +812,21 @@
       "circuit": "52-battery-voltage-divider/circuit.json",
       "expected": "52-battery-voltage-divider/EXPECTED.md"
     }
+  },
+  {
+    "id": "53-servo-sweep",
+    "title": {
+      "en": "Servo sweep 0°–180°",
+      "de": "Servo-Schwenk 0°–180°"
+    },
+    "kind": "program",
+    "category": "motors",
+    "difficulty": 3,
+    "thumbnail": "53-servo-sweep/thumb.svg",
+    "files": {
+      "program": "53-servo-sweep/program.bw",
+      "circuit": "53-servo-sweep/circuit.json",
+      "expected": "53-servo-sweep/EXPECTED.md"
+    }
   }
 ]
