@@ -5202,9 +5202,9 @@ class SB3Creator {
             case 'devices_setrelay': { this._cUses.devices = true; this._cUses.relay = true; return line(`bw_relay_set(${v('RELAY')}, ${f('STATE') === 'on' ? 1 : 0});`); }
             case 'devices_activate': { this._cUses.devices = true; this._cUses.relay = true; return line(`bw_device_activate(${v('DEVICE')});`); }
             case 'devices_deactivate': { this._cUses.devices = true; this._cUses.relay = true; return line(`bw_device_deactivate(${v('DEVICE')});`); }
-            case 'devices_lcdprint': { this._cUses.devices = true; return line(`bw_lcd_print(${v('DISPLAY')}, ${v('TEXT')});`); }
-            case 'devices_lcdcursor': { this._cUses.devices = true; return line(`bw_lcd_cursor(${v('DISPLAY')}, ${v('ROW')}, ${v('COL')});`); }
-            case 'devices_lcdclear': { this._cUses.devices = true; return line(`bw_lcd_clear(${v('DISPLAY')});`); }
+            case 'devices_lcdprint': { this._cUses.devices = true; this._cUses.lcd = true; return line(`bw_lcd_print(${v('DISPLAY')}, ${v('TEXT')});`); }
+            case 'devices_lcdcursor': { this._cUses.devices = true; this._cUses.lcd = true; return line(`bw_lcd_cursor(${v('DISPLAY')}, ${v('ROW')}, ${v('COL')});`); }
+            case 'devices_lcdclear': { this._cUses.devices = true; this._cUses.lcd = true; return line(`bw_lcd_clear(${v('DISPLAY')});`); }
             case 'devices_showdigit': { this._cUses.devices = true; return line(`bw_7seg_show(${v('DISPLAY')}, ${v('DIGIT')});`); }
             case 'devices_setrgb': { this._cUses.devices = true; return line(`bw_rgb_set(${v('LED')}, ${v('R')}, ${v('G')}, ${v('B')});`); }
             case 'devices_setpixel': { this._cUses.devices = true; return line(`bw_matrix_set(${v('MATRIX')}, ${v('X')}, ${v('Y')}, ${v('BRIGHTNESS')});`); }
@@ -6092,6 +6092,10 @@ class SB3Creator {
             driverPins.push({ port: 3, bit: 7, driver: 'ultrasonic echo' });
         }
         if (this._cUses.neopixel) driverPins.push({ port: 1, bit: 5, driver: 'NeoPixel data' });
+        if (this._cUses.lcd) {
+            driverPins.push({ port: 2, bit: 1, driver: 'I2C SDA' });
+            driverPins.push({ port: 2, bit: 2, driver: 'I2C SCL' });
+        }
         // Driver pins vs each other.
         for (let i = 0; i < driverPins.length; i++) {
             for (let j = i + 1; j < driverPins.length; j++) {
@@ -6822,12 +6826,95 @@ class SB3Creator {
                     stub('static void bw_neopixel_set(int s, int i, int r, int g, int b)', 'devices_setneopixel'),
                     stub('static void bw_neopixel_clear(int s)', 'devices_clearneopixels'));
             }
-            // Stubs: IR (protocol decode), displays (I2C/shift register), RGB (3-channel PWM).
+            // I2C LCD (HD44780 via PCF8574 backpack): bit-banged I2C, 4-bit mode.
+            // First bidirectional protocol in this project. Open-drain SDA/SCL.
+            // SIMULATOR LIMIT: the board model decodes I2C bytes but does NOT
+            // drive SDA for ACK — the driver proceeds without ACK check, which
+            // is correct for write-only devices (LCD). The data reaches the
+            // model regardless; the ACK is unverifiable in simulation.
+            if (this._cUses.lcd) {
+                out.push(
+                    '/* I2C LCD (HD44780 via PCF8574 backpack): bit-banged I2C. */',
+                    '/* SDA = P2.1, SCL = P2.2 — open-drain with external pull-ups. */',
+                    '/* SIMULATOR LIMIT: board model does not drive SDA for ACK; */',
+                    '/* driver proceeds without ACK check (write-only LCD). */',
+                    '/* Moves to verifiable when bw-board adds ACK driving. */',
+                    '#define I2C_SDA  P2_1',
+                    '#define I2C_SCL  P2_2',
+                    '#define LCD_ADDR 0x27   /* PCF8574 default */',
+                    '',
+                    'static void i2c_delay(void) { unsigned char i; for (i = 0; i < 2; i++) ; }',
+                    'static void i2c_start(void) { I2C_SDA = 1; I2C_SCL = 1; i2c_delay(); I2C_SDA = 0; i2c_delay(); I2C_SCL = 0; }',
+                    'static void i2c_stop(void)  { I2C_SDA = 0; I2C_SCL = 1; i2c_delay(); I2C_SDA = 1; i2c_delay(); }',
+                    'static void i2c_write(unsigned char dat)',
+                    '{',
+                    '    unsigned char i;',
+                    '    for (i = 0; i < 8; i++) {',
+                    '        I2C_SDA = (dat & 0x80) ? 1 : 0;',
+                    '        dat <<= 1;',
+                    '        I2C_SCL = 1; i2c_delay(); I2C_SCL = 0; i2c_delay();',
+                    '    }',
+                    '    /* ACK clock: release SDA, clock SCL. We do not check the ACK */',
+                    '    /* because the board model does not drive it (write-only LCD). */',
+                    '    I2C_SDA = 1; I2C_SCL = 1; i2c_delay(); I2C_SCL = 0; i2c_delay();',
+                    '}',
+                    '',
+                    '/* Send a byte to the PCF8574 at LCD_ADDR. */',
+                    'static void lcd_i2c_send(unsigned char val)',
+                    '{',
+                    '    i2c_start();',
+                    '    i2c_write((unsigned char)(LCD_ADDR << 1));  /* address + W */',
+                    '    i2c_write(val);',
+                    '    i2c_stop();',
+                    '}',
+                    '',
+                    '/* Pulse the EN line on the PCF8574: set EN high, then low. */',
+                    '/* PCF8574 bit layout: D7 D6 D5 D4 BL EN RW RS */',
+                    'static void lcd_nibble(unsigned char nib, unsigned char rs)',
+                    '{',
+                    '    unsigned char val = (unsigned char)((nib & 0xF0) | 0x08 | rs);  /* BL=1 */',
+                    '    lcd_i2c_send((unsigned char)(val | 0x04));   /* EN=1 */',
+                    '    lcd_i2c_send((unsigned char)(val & ~0x04));  /* EN=0 */',
+                    '}',
+                    '',
+                    'static void lcd_cmd(unsigned char cmd)',
+                    '{',
+                    '    lcd_nibble((unsigned char)(cmd & 0xF0), 0);',
+                    '    lcd_nibble((unsigned char)((cmd << 4) & 0xF0), 0);',
+                    '}',
+                    '',
+                    'static void lcd_data(unsigned char dat)',
+                    '{',
+                    '    lcd_nibble((unsigned char)(dat & 0xF0), 1);',
+                    '    lcd_nibble((unsigned char)((dat << 4) & 0xF0), 1);',
+                    '}',
+                    '',
+                    'static void bw_lcd_print(int disp, int text)',
+                    '{',
+                    '    const char *s = (const char *)(unsigned int)text;',
+                    '    (void)disp;',
+                    '    /* text is a Scratch string cast to int — on the 8051 it is a */',
+                    '    /* pointer to a null-terminated string in code space. */',
+                    '    while (*s) lcd_data((unsigned char)*s++);',
+                    '}',
+                    '',
+                    'static void bw_lcd_cursor(int disp, int row, int col)',
+                    '{',
+                    '    (void)disp;',
+                    '    lcd_cmd((unsigned char)(0x80 | ((row & 1) ? 0x40 : 0x00) | (col & 0x0F)));',
+                    '}',
+                    '',
+                    'static void bw_lcd_clear(int disp) { (void)disp; lcd_cmd(0x01); }',
+                    '');
+            } else {
+                out.push(
+                    stub('static void bw_lcd_print(int disp, int text)', 'devices_lcdprint'),
+                    stub('static void bw_lcd_cursor(int disp, int row, int col)', 'devices_lcdcursor'),
+                    stub('static void bw_lcd_clear(int disp)', 'devices_lcdclear'));
+            }
+            // Stubs: IR (protocol decode), 7-segment, matrix, RGB.
             out.push(
                 rstub('static int bw_device_state(int dev)', 'devices_devicestate'),
-                stub('static void bw_lcd_print(int disp, int text)', 'devices_lcdprint'),
-                stub('static void bw_lcd_cursor(int disp, int row, int col)', 'devices_lcdcursor'),
-                stub('static void bw_lcd_clear(int disp)', 'devices_lcdclear'),
                 stub('static void bw_7seg_show(int disp, int digit)', 'devices_showdigit'),
                 stub('static void bw_rgb_set(int led, int r, int g, int b)', 'devices_setrgb'),
                 stub('static void bw_matrix_set(int m, int x, int y, int br)', 'devices_setpixel'),
@@ -6949,6 +7036,21 @@ class SB3Creator {
             }
             out.push('    NEO_PIN = 0;',
                 '    _neo_count = NEO_MAX;');
+        }
+        // I2C LCD: P2.1 (SDA) and P2.2 (SCL) in open-drain mode.
+        if (this._cUses.lcd) {
+            if (chip.portModes) {
+                out.push('    P2M1 |=  0x06; P2M0 |=  0x06;  /* P2.1, P2.2 open-drain (I2C) */');
+            }
+            out.push('    I2C_SDA = 1; I2C_SCL = 1;      /* release bus */');
+            // HD44780 4-bit mode init sequence (must be sent as nibbles, not bytes).
+            out.push('    /* HD44780 init: 4-bit mode, 2-line, 5x8 font */',
+                '    lcd_nibble(0x30, 0); lcd_nibble(0x30, 0); lcd_nibble(0x30, 0);',
+                '    lcd_nibble(0x20, 0);             /* switch to 4-bit */',
+                '    lcd_cmd(0x28);                    /* 2 lines, 5x8 */',
+                '    lcd_cmd(0x0C);                    /* display on, cursor off */',
+                '    lcd_cmd(0x06);                    /* increment, no shift */',
+                '    lcd_cmd(0x01);                    /* clear */');
         }
         // Sensor ADC: P1.1 as analog input (channel 1).
         // adc_read() already exists when _cUses.adc is set — the ADC_CONTR

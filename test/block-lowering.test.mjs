@@ -112,10 +112,13 @@ test('block lowering census', () => {
         'devices_closer',      // threshold predicate on distance
         'devices_setneopixel', // WS2812 bitbang (P1.5, 1T only, inline asm)
         'devices_clearneopixels', // zero the pixel buffer + send
+        'devices_lcdprint',   // I2C LCD via PCF8574 (P2.1 SDA, P2.2 SCL)
+        'devices_lcdcursor',  // HD44780 set cursor position
+        'devices_lcdclear',   // HD44780 clear display
     ]);
     const allDevices = hw.filter(op => op.startsWith('devices_'));
     const stubs = allDevices.filter(op => !REAL_DRIVERS.has(op));
-    const KNOWN_STUBS = 10;   // ratchet: only ever decrease (was 12, neopixel real on 1T)
+    const KNOWN_STUBS = 7;    // ratchet: only ever decrease (was 10, LCD real)
     console.log(`    ${stubs.length} devices_* stubs, ${REAL_DRIVERS.size} real drivers`);
     assert.ok(stubs.length <= KNOWN_STUBS,
         `${stubs.length} stub blocks (was ${KNOWN_STUBS}) — new stub(s) added`);
