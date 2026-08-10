@@ -78,74 +78,50 @@
     {
       "id": "wire_7",
       "netId": "net_6",
-      "from": {
-        "part": "vsource_1",
-        "terminal": "pos"
-      },
-      "to": {
-        "part": "resistor_2",
-        "terminal": "a"
-      }
+      "from": "vsource_1",
+      "to": "resistor_2",
+      "fromTerminal": "pos",
+      "toTerminal": "a"
     },
     {
       "id": "wire_8",
       "netId": "net_6",
-      "from": {
-        "part": "vsource_1",
-        "terminal": "pos"
-      },
-      "to": {
-        "part": "resistor_3",
-        "terminal": "a"
-      }
+      "from": "vsource_1",
+      "to": "resistor_3",
+      "fromTerminal": "pos",
+      "toTerminal": "a"
     },
     {
       "id": "wire_10",
       "netId": "net_9",
-      "from": {
-        "part": "resistor_2",
-        "terminal": "b"
-      },
-      "to": {
-        "part": "led_4",
-        "terminal": "anode"
-      }
+      "from": "resistor_2",
+      "to": "led_4",
+      "fromTerminal": "b",
+      "toTerminal": "anode"
     },
     {
       "id": "wire_12",
       "netId": "net_11",
-      "from": {
-        "part": "resistor_3",
-        "terminal": "b"
-      },
-      "to": {
-        "part": "led_5",
-        "terminal": "anode"
-      }
+      "from": "resistor_3",
+      "to": "led_5",
+      "fromTerminal": "b",
+      "toTerminal": "anode"
     },
     {
       "id": "wire_14",
       "netId": "net_13",
-      "from": {
-        "part": "led_4",
-        "terminal": "cathode"
-      },
-      "to": {
-        "part": "vsource_1",
-        "terminal": "neg"
-      }
+      "from": "led_4",
+      "to": "vsource_1",
+      "fromTerminal": "cathode",
+      "toTerminal": "neg"
     },
     {
       "id": "wire_15",
       "netId": "net_13",
-      "from": {
-        "part": "led_5",
-        "terminal": "cathode"
-      },
-      "to": {
-        "part": "vsource_1",
-        "terminal": "neg"
-      }
+      "from": "led_5",
+      "to": "vsource_1",
+      "fromTerminal": "cathode",
+      "toTerminal": "neg"
     }
   ],
   "holeWires": []

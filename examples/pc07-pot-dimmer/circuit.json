@@ -96,26 +96,18 @@
     {
       "id": "w_6",
       "netId": "net_7",
-      "from": {
-        "part": "vsource_2",
-        "terminal": "pos"
-      },
-      "to": {
-        "board": "breadboard_1",
-        "hole": "e3"
-      }
+      "from": "vsource_2",
+      "to": "breadboard_1",
+      "fromTerminal": "pos",
+      "toTerminal": "e3"
     },
     {
       "id": "w_8",
       "netId": "net_9",
-      "from": {
-        "part": "vsource_2",
-        "terminal": "neg"
-      },
-      "to": {
-        "board": "breadboard_1",
-        "hole": "e12"
-      }
+      "from": "vsource_2",
+      "to": "breadboard_1",
+      "fromTerminal": "neg",
+      "toTerminal": "e12"
     }
   ],
   "holeWires": []

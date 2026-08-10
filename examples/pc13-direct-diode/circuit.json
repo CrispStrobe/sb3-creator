@@ -63,50 +63,34 @@
     {
       "id": "wire_6",
       "netId": "net_5",
-      "from": {
-        "part": "vsource_1",
-        "terminal": "pos"
-      },
-      "to": {
-        "part": "resistor_2",
-        "terminal": "a"
-      }
+      "from": "vsource_1",
+      "to": "resistor_2",
+      "fromTerminal": "pos",
+      "toTerminal": "a"
     },
     {
       "id": "wire_8",
       "netId": "net_7",
-      "from": {
-        "part": "resistor_2",
-        "terminal": "b"
-      },
-      "to": {
-        "part": "diode_3",
-        "terminal": "anode"
-      }
+      "from": "resistor_2",
+      "to": "diode_3",
+      "fromTerminal": "b",
+      "toTerminal": "anode"
     },
     {
       "id": "wire_10",
       "netId": "net_9",
-      "from": {
-        "part": "diode_3",
-        "terminal": "cathode"
-      },
-      "to": {
-        "part": "led_4",
-        "terminal": "anode"
-      }
+      "from": "diode_3",
+      "to": "led_4",
+      "fromTerminal": "cathode",
+      "toTerminal": "anode"
     },
     {
       "id": "wire_12",
       "netId": "net_11",
-      "from": {
-        "part": "led_4",
-        "terminal": "cathode"
-      },
-      "to": {
-        "part": "vsource_1",
-        "terminal": "neg"
-      }
+      "from": "led_4",
+      "to": "vsource_1",
+      "fromTerminal": "cathode",
+      "toTerminal": "neg"
     }
   ],
   "holeWires": []

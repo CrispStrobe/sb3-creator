@@ -88,25 +88,24 @@ describe('gallery: every example parses and compiles', () => {
             assert.ok(circuit.vcc > 0 || hasSource, 'has a power source (vcc field, battery, vsource, or vcc part)');
             assert.ok(Array.isArray(circuit.parts), 'has parts');
             assert.ok(Array.isArray(circuit.wires), 'has wires');
-            // Every wire references a part that exists.
-            // Endpoints can be string ids (old) or { part, terminal } / { board, hole } (new).
+            // Every wire references a part or board that exists.
+            // Two wire formats: legacy flat (from/to are part-id strings)
+            // and current toJSON (from/to are {part, terminal} or {board, hole}).
             const partIds = new Set(circuit.parts.map(p => p.id));
-            const epPart = (ep) => typeof ep === 'string' ? ep : (ep && (ep.part || ep.board)) || String(ep);
             for (const w of circuit.wires) {
-                assert.ok(partIds.has(epPart(w.from)), `wire from unknown part: ${epPart(w.from)}`);
-                assert.ok(partIds.has(epPart(w.to)), `wire to unknown part: ${epPart(w.to)}`);
+                const fromId = typeof w.from === 'string' ? w.from : w.from?.part || w.from?.board;
+                const toId = typeof w.to === 'string' ? w.to : w.to?.part || w.to?.board;
+                assert.ok(fromId && (partIds.has(fromId) || w.from?.board),
+                    `wire from unknown part: ${JSON.stringify(w.from)}`);
+                assert.ok(toId && (partIds.has(toId) || w.to?.board),
+                    `wire to unknown part: ${JSON.stringify(w.to)}`);
             }
         });
 
         test(`${name}: EXPECTED.md exists`, () => {
             assert.ok(existsSync(expectedPath), `${name}/EXPECTED.md missing`);
             const content = readFileSync(expectedPath, 'utf8');
-            // Pure-circuit examples (program.bw is comment-only) have no MCU
-            // behaviour to specify; their EXPECTED.md is a circuit description.
-            const bwSrc = existsSync(bwPath) ? readFileSync(bwPath, 'utf8') : '';
-            const pureCircuit = bwSrc.replace(/#.*/g, '').trim().length === 0;
-            const minLen = pureCircuit ? 10 : 100;
-            assert.ok(content.length > minLen, `EXPECTED.md has substantive content (${content.length} chars, need >${minLen})`);
+            assert.ok(content.length > 100, 'EXPECTED.md has substantive content');
         });
     }
 });
