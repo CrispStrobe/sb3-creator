@@ -37,17 +37,8 @@ for (const m of decompilerSrc.matchAll(/['"]bw_([a-z0-9_]+)['"]/g)) {
     }
 }
 
-test('every device bw_* call the emitter produces has a decompiler rule', {
-    // This test is intentionally a known failure until bw-cfront adds the
-    // 31 device call rules to cToPseudocode.js. The mapping table was sent
-    // in /tmp/bw-cfront-device-calls.md. Remove the skip when it lands.
-    skip: 'waiting on bw-cfront to add 31 device call rules to cToPseudocode'
-}, () => {
+test('every device bw_* call the emitter produces has a decompiler rule', () => {
     const missing = [...emitterCalls].filter(c => !decompilerCalls.has(c)).sort();
-    if (missing.length) {
-        console.log(`  emitter produces ${emitterCalls.size} device calls`);
-        console.log(`  decompiler knows ${decompilerCalls.size}`);
-    }
     assert.deepEqual(missing, [],
         `C emitter produces these bw_* calls but cToPseudocode cannot read them back: ${missing.join(', ')}`);
 });
