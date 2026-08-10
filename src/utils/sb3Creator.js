@@ -5815,6 +5815,9 @@ class SB3Creator {
                     const pc = this._cPins && this._cPins.get(pn.toLowerCase());
                     if (pc && pc.direction === 'input') { scriptCount++; hasEventHat = true; }
                 }
+                if (['devices_whenabove', 'devices_whencloser', 'devices_whenmotion', 'devices_whentilted'].includes(b.opcode)) {
+                    scriptCount++; hasEventHat = true;
+                }
             }
         }
         // `{debug: true}` forces the scheduler even for one script. Straight-line code in
@@ -5958,6 +5961,68 @@ class SB3Creator {
                             `    ${task}_state = 0;   /* ready for the next edge */`,
                             '}', '');
                     }
+                } else if (b.opcode === 'devices_whenabove' || b.opcode === 'devices_whencloser'
+                    || b.opcode === 'devices_whenmotion' || b.opcode === 'devices_whentilted') {
+                    // Device event hats: polled tasks with edge detection.
+                    // Same pattern as stc12_whenpin, but poll a sensor reading.
+                    const n = taskIndex++;
+                    const task = taskNames[n];
+                    const where = t.isStage ? '' : `, ${this.cComment(t.name)}`;
+                    const hatNote = this.codeCommentLines(topId, '', '//');
+                    markScripts.push(`script ${task} ${n}`
+                        + (t.isStage ? ' stage' : ` sprite ${this.pyStr(t.name)}`));
+                    const ctx = { task, state: 0, statics, tasks: taskNames, yields: debug ? yieldMap : [] };
+                    if (debug) yieldMap.push({ task, state: 0, block: topId, kind: 'hat' });
+                    ctx.state = 1;
+                    const body = this.cTaskFrom(b.next, blocks, 1, ctx);
+                    let condExpr;
+                    switch (b.opcode) {
+                        case 'devices_whenabove': {
+                            this._cUses.devices = true; this._cUses.sensor = true; this._cUses.adc = true;
+                            const sv = this.cVal(b.inputs.SENSOR, blocks);
+                            const tv = this.cVal(b.inputs.THRESHOLD, blocks);
+                            condExpr = `(bw_temperature(${sv}) > ${tv})`;
+                            break;
+                        }
+                        case 'devices_whencloser': {
+                            this._cUses.devices = true;
+                            const sv = this.cVal(b.inputs.SENSOR, blocks);
+                            const dv = this.cVal(b.inputs.DISTANCE, blocks);
+                            condExpr = `(bw_distance(${sv}) < ${dv})`;
+                            break;
+                        }
+                        case 'devices_whenmotion': {
+                            this._cUses.devices = true; this._cUses.button = true;
+                            const sv = this.cVal(b.inputs.SENSOR, blocks);
+                            condExpr = `bw_motion(${sv})`;
+                            break;
+                        }
+                        case 'devices_whentilted': {
+                            this._cUses.devices = true; this._cUses.button = true;
+                            const sv = this.cVal(b.inputs.SENSOR, blocks);
+                            condExpr = `bw_tilted(${sv})`;
+                            break;
+                        }
+                    }
+                    taskDefs.push(`static unsigned int ${task}_state;`);
+                    if (this.cHasWait(b.next, blocks)) taskDefs.push(`static unsigned int ${task}_until;`);
+                    taskDefs.push(`static unsigned char ${task}_prev;`);
+                    taskDefs.push(...hatNote,
+                        `/* ${this.cComment(this.decompileHat(b, blocks) || b.opcode)} (script ${n + 1}${where}) */`,
+                        `static void ${task}(void)`, '{',
+                        `    unsigned char now = ${condExpr} ? 1 : 0;`,
+                        `    unsigned char fired = now && !${task}_prev;`,
+                        `    ${task}_prev = now;`,
+                        `    switch (${task}_state) {`,
+                        '    case 0:',
+                        '        if (!fired)',
+                        '            return;',
+                        `        ${task}_state = 1;`,
+                        '    case 1:',
+                        ...body,
+                        '    }',
+                        `    ${task}_state = 0;   /* ready for the next edge */`,
+                        '}', '');
                 } else if (this.isHat(b.opcode) || this.runtimeOp(b.opcode)) {
                     this.cWarn(`"${this.decompileHat(b, blocks) || b.opcode}" has no meaning on the chip — script skipped`);
                 }

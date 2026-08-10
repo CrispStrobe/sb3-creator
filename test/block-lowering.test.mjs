@@ -104,10 +104,14 @@ test('block lowering census', () => {
         'devices_flex',        // ADC ch 1, raw
         'devices_force',       // ADC ch 1, raw
         'devices_above',       // threshold predicate on temperature
+        'devices_whenabove',   // polled task, edge-triggered on temperature
+        'devices_whenmotion',  // polled task, edge-triggered on contact closure
+        'devices_whentilted',  // polled task, edge-triggered on contact closure
+        'devices_whencloser',  // polled task, edge-triggered on distance (stub sensor)
     ]);
     const allDevices = hw.filter(op => op.startsWith('devices_'));
     const stubs = allDevices.filter(op => !REAL_DRIVERS.has(op));
-    const KNOWN_STUBS = 18;   // ratchet: only ever decrease (was 30, relay+sensors+button real)
+    const KNOWN_STUBS = 14;   // ratchet: only ever decrease (was 18, event hats real)
     console.log(`    ${stubs.length} devices_* stubs, ${REAL_DRIVERS.size} real drivers`);
     assert.ok(stubs.length <= KNOWN_STUBS,
         `${stubs.length} stub blocks (was ${KNOWN_STUBS}) — new stub(s) added`);
