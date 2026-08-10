@@ -3602,6 +3602,7 @@ class SB3Creator {
 
     decompileHat(b, blocks) {
         const f = (k) => (b.fields[k] ? b.fields[k][0] : '');
+        const v = (k) => this.dval(b.inputs[k], blocks);
         switch (b.opcode) {
             case 'event_whenflagclicked': return 'WHEN flag clicked:';
             case 'event_whenkeypressed': return `WHEN ${f('KEY_OPTION')} key pressed:`;
