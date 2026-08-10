@@ -996,6 +996,57 @@ export default function cToPseudocode (source, opts = {}) {
         if (name === 'bw_cube_get' && args.length >= 3) {
             return { text: `voxel ${args[0].text} ${args[1].text} ${args[2].text}`, level: 99 };
         }
+        // ---- device helpers (devices_* blocks, lowered by bw-blocks) ----
+        // Each bw_* call maps back to the pseudocode the decompiler produces.
+        // Reporters return a text value; statements return { stmt }.
+        const MOTOR_DIRS = ['forward', 'reverse', 'brake', 'coast'];
+        const a = (n) => args[n] ? args[n].text : '0';
+        switch (name) {
+            // Servo
+            case 'bw_servo_set': return { text: '0', level: 99, stmt: `set ${a(0)} angle to ${a(1)}` };
+            case 'bw_servo_get': return { text: `angle of ${a(0)}`, level: 99 };
+            // Motor
+            case 'bw_motor_speed': return { text: '0', level: 99, stmt: `set ${a(0)} speed to ${a(1)}` };
+            case 'bw_motor_dir': return { text: '0', level: 99, stmt: `set ${a(0)} direction ${MOTOR_DIRS[Number(a(1))] || a(1)}` };
+            case 'bw_motor_get_speed': return { text: `speed of ${a(0)}`, level: 99 };
+            case 'bw_motor_get_dir': return { text: `direction of ${a(0)}`, level: 99 };
+            // Relay
+            case 'bw_relay_set': return { text: '0', level: 99, stmt: `set relay ${a(0)} ${Number(a(1)) ? 'on' : 'off'}` };
+            // Activate / deactivate (generic device)
+            case 'bw_device_activate': return { text: '0', level: 99, stmt: `activate ${a(0)}` };
+            case 'bw_device_deactivate': return { text: '0', level: 99, stmt: `deactivate ${a(0)}` };
+            // LCD
+            case 'bw_lcd_print': return { text: '0', level: 99, stmt: `lcd print ${a(1)} on ${a(0)}` };
+            case 'bw_lcd_cursor': return { text: '0', level: 99, stmt: `lcd set cursor ${a(1)} ${a(2)} on ${a(0)}` };
+            case 'bw_lcd_clear': return { text: '0', level: 99, stmt: `lcd clear ${a(0)}` };
+            // 7-segment display
+            case 'bw_7seg_show': return { text: '0', level: 99, stmt: `show digit ${a(1)} on ${a(0)}` };
+            // RGB LED
+            case 'bw_rgb_set': return { text: '0', level: 99, stmt: `set ${a(0)} colour to R ${a(1)} G ${a(2)} B ${a(3)}` };
+            // LED matrix
+            case 'bw_matrix_set': return { text: '0', level: 99, stmt: `set pixel ${a(1)} ${a(2)} to ${a(3)} on ${a(0)}` };
+            case 'bw_matrix_clear': return { text: '0', level: 99, stmt: `clear matrix ${a(0)}` };
+            // NeoPixel
+            case 'bw_neopixel_set': return { text: '0', level: 99, stmt: `set neopixel ${a(1)} to R ${a(2)} G ${a(3)} B ${a(4)} on ${a(0)}` };
+            case 'bw_neopixel_clear': return { text: '0', level: 99, stmt: `clear neopixels on ${a(0)}` };
+            // Sensors (reporters)
+            case 'bw_temperature': return { text: `temperature from ${a(0)}`, level: 99 };
+            case 'bw_light': return { text: `light from ${a(0)}`, level: 99 };
+            case 'bw_distance': return { text: `distance from ${a(0)}`, level: 99 };
+            case 'bw_flex': return { text: `flex of ${a(0)}`, level: 99 };
+            case 'bw_force': return { text: `force on ${a(0)}`, level: 99 };
+            case 'bw_ir_code': return { text: `ir code from ${a(0)}`, level: 99 };
+            case 'bw_device_state': return { text: `state of ${a(0)}`, level: 99 };
+            // Cube extras (not in the original cube kernel)
+            case 'bw_cube_fill_column': return { text: '0', level: 99, stmt: `fill column ${a(0)} ${a(1)} with ${a(2)}` };
+            case 'bw_cube_fill_wall': return { text: '0', level: 99, stmt: `fill wall ${a(0)} with ${a(1)}` };
+            case 'bw_cube_invert': return { text: '0', level: 99, stmt: 'invert cube' };
+            // Print (program-wide, not a device)
+            case 'bw_print': return { text: '0', level: 99, stmt: `print ${a(0)}` };
+            case 'bw_print_num': return { text: '0', level: 99, stmt: `print ${a(0)}` };
+            default: break;
+        }
+
         if (markers && markers.procs.has(name)) {
             const { proccode } = markers.procs.get(name);
             let i = 0;
@@ -1580,7 +1631,18 @@ export default function cToPseudocode (source, opts = {}) {
     const IGNORE_FNS = new Set(['bw_setup', 'bw_tick', 'bw_now', 'bw_block_ms', 'delay_ms', 'adc_read',
         'board_init', 'delay_init', 'tone_set', 'tone_stop',
         'bw_cube_scan', 'bw_cube_set', 'bw_cube_get', 'bw_cube_clear',
-        'bw_cube_fill_layer', 'bw_cube_shift', 'bw_cube_hold']);
+        'bw_cube_fill_layer', 'bw_cube_shift', 'bw_cube_hold',
+        'bw_cube_fill_column', 'bw_cube_fill_wall', 'bw_cube_invert',
+        // Device helpers (stubs emitted by bw-blocks' lowering)
+        'bw_servo_set', 'bw_servo_get', 'bw_motor_speed', 'bw_motor_dir',
+        'bw_motor_get_speed', 'bw_motor_get_dir', 'bw_relay_set',
+        'bw_device_activate', 'bw_device_deactivate',
+        'bw_lcd_print', 'bw_lcd_cursor', 'bw_lcd_clear', 'bw_7seg_show',
+        'bw_rgb_set', 'bw_matrix_set', 'bw_matrix_clear',
+        'bw_neopixel_set', 'bw_neopixel_clear',
+        'bw_temperature', 'bw_light', 'bw_distance', 'bw_flex', 'bw_force',
+        'bw_ir_code', 'bw_device_state',
+        'bw_print', 'bw_print_num']);
     const procFns = funcs.filter((f) => markers && markers.procs.has(f.name));
     const scriptFns = funcs.filter((f) => !IGNORE_FNS.has(f.name)
         && (markers ? markers.scripts.has(f.name) : f.name === 'main'));
