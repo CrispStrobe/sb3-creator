@@ -628,19 +628,22 @@ export default function cToPseudocode (source, opts = {}) {
         if (t.t === 'id' && ['unsigned', 'signed', 'int', 'char', 'long', 'short', 'static', 'volatile', 'const', 'float', 'double',
             'sbit', 'sfr', 'sfr16', 'bit', 'code', 'data', 'xdata', 'idata', 'pdata', 'void', 'extern', 'register', 'typedef', 'struct', 'union', 'enum'].includes(t.v)) {
             // Capture what is being skipped so the warning can name it.
+            // cur.peek() returned t but did not advance; skip it before collecting.
+            cur.next();
             const declTokens = [t.v];
             while (!cur.is(';') && cur.peek().t !== 'eof') {
-                if (cur.is('{')) cur.skip('{', '}');
+                if (cur.is('{')) { declTokens.push('{…}'); cur.skip('{', '}'); }
                 else declTokens.push(cur.next().v);
             }
             cur.eat(';');
-            // Warn for non-trivial declarations (structs, arrays, pointers, typedefs).
-            // Simple locals (`unsigned char i;`) inside function bodies are noise;
-            // top-level or complex declarations that carry program state are the
-            // ones a user expects to survive.
-            const declText = declTokens.slice(0, 6).join(' ');
-            if (/struct|union|enum|typedef|\*|\[/.test(declTokens.join(' '))) {
-                warn(`declaration dropped (no block equivalent): ${declText}${declTokens.length > 6 ? ' …' : ''}`);
+            // Warn for non-trivial declarations that carry program state.
+            // Simple locals (`unsigned char i;`) inside function bodies are noise.
+            // Structs, arrays, pointers, typedefs, and named struct variables are
+            // the ones a user expects to survive.
+            const declJoined = declTokens.join(' ');
+            const declText = declTokens.slice(0, 8).join(' ');
+            if (/struct|union|enum|typedef|\*|\[/.test(declJoined)) {
+                warn(`declaration dropped (no block equivalent): ${declText}${declTokens.length > 8 ? ' …' : ''}`);
             }
             return [];
         }
@@ -1595,7 +1598,16 @@ export default function cToPseudocode (source, opts = {}) {
             const bodyStart = cur.i;
             cur.skip('{', '}');
             funcs.push({ name, from: bodyStart, to: cur.i });
-        } else { cur.eat(';'); if (cur.i === start) cur.next(); }
+        } else {
+            // Top-level declaration (not a function). Warn if it carries
+            // program state that the reader cannot represent.
+            const declSpan = tokens.slice(start, cur.i).map(t => t.v).join(' ');
+            if (/struct|union|enum|typedef|\*|\[/.test(declSpan) && !SFRS.test(declSpan)) {
+                const brief = tokens.slice(start, Math.min(cur.i, start + 8)).map(t => t.v).join(' ');
+                warn(`top-level declaration dropped (no block equivalent): ${brief}${cur.i - start > 8 ? ' …' : ''}`);
+            }
+            cur.eat(';'); if (cur.i === start) cur.next();
+        }
     }
 
     const linesFor = (f, depth) => {
