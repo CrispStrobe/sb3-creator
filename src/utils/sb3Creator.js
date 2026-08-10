@@ -5174,10 +5174,10 @@ class SB3Creator {
             // comment in each stub says what a real implementation would do.
             case 'devices_setservo': { this._cUses.devices = true; this._cUses.servo = true; return line(`bw_servo_set(${v('SERVO')}, ${v('ANGLE')});`); }
             case 'devices_servoangle': { this._cUses.devices = true; this._cUses.servo = true; return `bw_servo_get(${v('SERVO')})`; }
-            case 'devices_setmotor': { this._cUses.devices = true; return line(`bw_motor_speed(${v('MOTOR')}, ${v('SPEED')});`); }
-            case 'devices_motorspeed': { this._cUses.devices = true; return `bw_motor_get_speed(${v('MOTOR')})`; }
-            case 'devices_setdirection': { this._cUses.devices = true; const d = f('DIR'); return line(`bw_motor_dir(${v('MOTOR')}, ${({ forward: 0, reverse: 1, brake: 2, coast: 3 })[d] || 0});`); }
-            case 'devices_motordirection': { this._cUses.devices = true; return `bw_motor_get_dir(${v('MOTOR')})`; }
+            case 'devices_setmotor': { this._cUses.devices = true; this._cUses.motor = true; return line(`bw_motor_speed(${v('MOTOR')}, ${v('SPEED')});`); }
+            case 'devices_motorspeed': { this._cUses.devices = true; this._cUses.motor = true; return `bw_motor_get_speed(${v('MOTOR')})`; }
+            case 'devices_setdirection': { this._cUses.devices = true; this._cUses.motor = true; const d = f('DIR'); return line(`bw_motor_dir(${v('MOTOR')}, ${({ forward: 0, reverse: 1, brake: 2, coast: 3 })[d] || 0});`); }
+            case 'devices_motordirection': { this._cUses.devices = true; this._cUses.motor = true; return `bw_motor_get_dir(${v('MOTOR')})`; }
             case 'devices_setrelay': { this._cUses.devices = true; return line(`bw_relay_set(${v('RELAY')}, ${f('STATE') === 'on' ? 1 : 0});`); }
             case 'devices_devicestate': { this._cUses.devices = true; return `bw_device_state(${v('DEVICE')})`; }
             case 'devices_activate': { this._cUses.devices = true; return line(`bw_device_activate(${v('DEVICE')});`); }
@@ -6132,6 +6132,32 @@ class SB3Creator {
                 '}', '');
         }
 
+        if (this._cUses.pwm || this._cUses.motor) {
+            out.push('/* PCA PWM. The comparator is 9 bits, {EPCnH,CCAPnH} against (0,CL),',
+                ' * and it drives the pin LOW while CL is BELOW the compare value — so a',
+                ' * LARGER value is a LONGER low time and the duty as a fraction HIGH is',
+                ' * (256 - value)/256.  Getting that backwards inverts every brightness and',
+                ' * looks entirely plausible doing it.',
+                ' *',
+                ' * Writing CCAPnH rather than CCAPnL is deliberate: the hardware reloads',
+                ' * CCAPnH into CCAPnL when CL wraps, so an update cannot glitch mid-period.',
+                ' * The 9th bit (EPCnH) is what expresses 0% and 100%, which an 8-bit',
+                ' * compare cannot.  Datasheet 10.3.4. */',
+                'static void pwm_set(unsigned char module, unsigned int percent_high)',
+                '{',
+                '    unsigned int v;',
+                '    if (percent_high > 100) percent_high = 100;',
+                '    v = 256 - ((percent_high * 256 + 50) / 100);',
+                '    if (module == 0) {',
+                '        CCAP0H = (unsigned char)v;',
+                '        if (v > 255) PCA_PWM0 |= 0x02; else PCA_PWM0 &= (unsigned char)~0x02;',
+                '    } else {',
+                '        CCAP1H = (unsigned char)v;',
+                '        if (v > 255) PCA_PWM1 |= 0x02; else PCA_PWM1 &= (unsigned char)~0x02;',
+                '    }',
+                '}', '');
+        }
+
         // Lookup tables: constant bytes in code space (__code flash).
         // (tables was declared earlier, before the marker header that references it.)
         if (tables.length) {
@@ -6360,11 +6386,57 @@ class SB3Creator {
                     stub('static void bw_servo_set(int servo, int angle)', 'devices_setservo'),
                     rstub('static int bw_servo_get(int servo)', 'devices_servoangle'));
             }
+            // Motor driver: 8-bit PCA PWM for speed (no ISR, no compare/match),
+            // plain GPIO for direction through an L293D-style H-bridge.
+            // PCA module 1 (CCP1 on P1.4) — module 0 is reserved for servo.
+            // Direction pins: P3.4 (IN1) and P3.5 (IN2) — these are the free
+            // port 3 pins on every STC12 dev board.
+            //   forward: IN1=1, IN2=0    reverse: IN1=0, IN2=1
+            //   brake:   IN1=1, IN2=1    coast:   IN1=0, IN2=0
+            if (this._cUses.motor) {
+                out.push(
+                    '/* DC motor driver: PCA module 1 (CCP1, P1.4) in 8-bit PWM mode. */',
+                    '/* No ISR needed — the hardware toggles the pin autonomously. */',
+                    '/* Direction: P3.4 (IN1) and P3.5 (IN2) for L293D H-bridge. */',
+                    '#define MOTOR_IN1  P3_4',
+                    '#define MOTOR_IN2  P3_5',
+                    'static int _motor_speed;',
+                    'static int _motor_dir;',
+                    '',
+                    'static void bw_motor_speed(int motor, int speed)',
+                    '{',
+                    '    (void)motor;',
+                    '    if (speed < 0) speed = 0;',
+                    '    if (speed > 100) speed = 100;',
+                    '    _motor_speed = speed;',
+                    '    pwm_set(1, (unsigned int)speed);   /* PCA module 1 (CCP1/P1.4) */',
+                    '}',
+                    '',
+                    'static int bw_motor_get_speed(int motor) { (void)motor; return _motor_speed; }',
+                    '',
+                    '/* Direction: 0=forward 1=reverse 2=brake 3=coast */',
+                    'static void bw_motor_dir(int motor, int dir)',
+                    '{',
+                    '    (void)motor;',
+                    '    _motor_dir = dir;',
+                    '    switch (dir) {',
+                    '        case 0: MOTOR_IN1 = 1; MOTOR_IN2 = 0; break;  /* forward */',
+                    '        case 1: MOTOR_IN1 = 0; MOTOR_IN2 = 1; break;  /* reverse */',
+                    '        case 2: MOTOR_IN1 = 1; MOTOR_IN2 = 1; break;  /* brake */',
+                    '        default: MOTOR_IN1 = 0; MOTOR_IN2 = 0; break; /* coast */',
+                    '    }',
+                    '}',
+                    '',
+                    'static int bw_motor_get_dir(int motor) { (void)motor; return _motor_dir; }',
+                    '');
+            } else {
+                out.push(
+                    stub('static void bw_motor_speed(int motor, int speed)', 'devices_setmotor'),
+                    rstub('static int bw_motor_get_speed(int motor)', 'devices_motorspeed'),
+                    stub('static void bw_motor_dir(int motor, int dir)', 'devices_setdirection'),
+                    rstub('static int bw_motor_get_dir(int motor)', 'devices_motordirection'));
+            }
             out.push(
-                stub('static void bw_motor_speed(int motor, int speed)', 'devices_setmotor'),
-                rstub('static int bw_motor_get_speed(int motor)', 'devices_motorspeed'),
-                stub('static void bw_motor_dir(int motor, int dir)', 'devices_setdirection'),
-                rstub('static int bw_motor_get_dir(int motor)', 'devices_motordirection'),
                 stub('static void bw_relay_set(int relay, int on)', 'devices_setrelay'),
                 rstub('static int bw_device_state(int dev)', 'devices_devicestate'),
                 stub('static void bw_device_activate(int dev)', 'devices_activate'),
@@ -6450,6 +6522,38 @@ class SB3Creator {
                 '    _servo_pulse = (unsigned int)(1500UL * (FOSC_HZ / 12UL) / 1000000UL);  /* 90° default */',
                 '    _servo_angle = 90;',
                 '    _servo_phase = 0;');
+        }
+        // PCA setup for motor (8-bit PWM, module 1 on P1.4).
+        if (this._cUses.motor) {
+            if (!this._cUses.servo) {
+                // Servo already sets CMOD and starts CR; only emit if alone.
+                out.push('',
+                    '    /* PCA: FOSC/12 clock for 8-bit PWM. */',
+                    '    CMOD = 0x00;                      /* PCA clock = FOSC/12 */',
+                    '    CL = 0; CH = 0;');
+            }
+            if (chip.portModes) {
+                out.push(
+                    '    P1M1 &= ~0x10; P1M0 |=  0x10;  /* P1.4 (CCP1) push-pull */',
+                    '    P3M1 &= ~0x30; P3M0 |=  0x30;  /* P3.4, P3.5 push-pull */');
+            }
+            out.push(
+                '    CCAPM1 = 0x42;                    /* module 1: 8-bit PWM (ECOM|PWM) */',
+                '    CCAP1H = 0xFF; CCAP1L = 0xFF;     /* start at 0% duty (pin stays high) */',
+                '    _motor_speed = 0;',
+                '    _motor_dir = 3;                    /* coast */',
+                '    MOTOR_IN1 = 0; MOTOR_IN2 = 0;     /* coast: both inputs low */');
+            if (!this._cUses.servo) {
+                out.push('    CR = 1;                           /* start PCA counter */');
+            }
+        }
+        // stc12_setpwm also needs PCA 8-bit PWM — share the same setup path.
+        if (this._cUses.pwm && !this._cUses.servo && !this._cUses.motor) {
+            out.push('',
+                '    /* PCA: FOSC/12 clock for 8-bit PWM. */',
+                '    CMOD = 0x00;                      /* PCA clock = FOSC/12 */',
+                '    CL = 0; CH = 0;',
+                '    CR = 1;                           /* start PCA counter */');
         }
         out.push('}', '', 'void main(void)', '{', '    bw_setup();');
         if (this._cTasks) {

@@ -88,10 +88,14 @@ test('block lowering census', () => {
     const REAL_DRIVERS = new Set([
         'devices_setservo',    // PCA 16-bit compare/match, 50 Hz
         'devices_servoangle',  // reads _servo_angle
+        'devices_setmotor',    // PCA 8-bit PWM on module 1 (CCP1/P1.4)
+        'devices_motorspeed',  // reads _motor_speed
+        'devices_setdirection', // GPIO direction (P3.4/P3.5 for L293D)
+        'devices_motordirection', // reads _motor_dir
     ]);
     const allDevices = hw.filter(op => op.startsWith('devices_'));
     const stubs = allDevices.filter(op => !REAL_DRIVERS.has(op));
-    const KNOWN_STUBS = 34;   // ratchet: only ever decrease (was 36, servo is real)
+    const KNOWN_STUBS = 30;   // ratchet: only ever decrease (was 34, motor is real)
     console.log(`    ${stubs.length} devices_* stubs, ${REAL_DRIVERS.size} real drivers`);
     assert.ok(stubs.length <= KNOWN_STUBS,
         `${stubs.length} stub blocks (was ${KNOWN_STUBS}) — new stub(s) added`);
