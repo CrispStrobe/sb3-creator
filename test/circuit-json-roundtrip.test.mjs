@@ -29,13 +29,27 @@ try {
 
 // ---- helpers for wiring topology ----------------------------------------
 
+/** Resolve a wire endpoint to "partId.terminal".
+ *  Old format: w.from = "led1", w.fromTerminal = "a"  → "led1.a"
+ *  New format: w.from = { part: "led1", terminal: "a" } → "led1.a"
+ *              w.from = { board: "breadboard_1", hole: "a5" } → "breadboard_1.a5"
+ */
+function resolveEndpoint(ep, termField) {
+    if (typeof ep === 'string') return { part: ep, key: `${ep}.${termField || '?'}` };
+    if (ep && typeof ep === 'object') {
+        if (ep.part) return { part: ep.part, key: `${ep.part}.${ep.terminal || '?'}` };
+        if (ep.board) return { part: ep.board, key: `${ep.board}.${ep.hole || '?'}` };
+    }
+    return { part: String(ep), key: `${ep}.?` };
+}
+
 /** Build an adjacency list from wires: part.terminal → [part.terminal, ...] */
 function buildGraph(obj) {
     const adj = {};
     const add = (a, b) => { if (!adj[a]) adj[a] = []; adj[a].push(b); };
     for (const w of obj.wires || []) {
-        const from = `${w.from}.${w.fromTerminal || '?'}`;
-        const to = `${w.to}.${w.toTerminal || '?'}`;
+        const from = resolveEndpoint(w.from, w.fromTerminal).key;
+        const to = resolveEndpoint(w.to, w.toTerminal).key;
         add(from, to);
         add(to, from);
     }
@@ -109,10 +123,13 @@ for (const name of exampleDirs) {
             assert.ok(w.from, `${name}: wire ${i} missing 'from'`);
             assert.ok(w.to, `${name}: wire ${i} missing 'to'`);
             // Wire endpoints must reference parts that exist.
-            assert.ok(partIds.has(w.from),
-                `${name}: wire ${i} references unknown part '${w.from}'`);
-            assert.ok(partIds.has(w.to),
-                `${name}: wire ${i} references unknown part '${w.to}'`);
+            // Endpoint can be a string id (old) or { part, terminal } / { board, hole } (new).
+            const fromPart = resolveEndpoint(w.from, w.fromTerminal).part;
+            const toPart = resolveEndpoint(w.to, w.toTerminal).part;
+            assert.ok(partIds.has(fromPart),
+                `${name}: wire ${i} 'from' references unknown part '${fromPart}'`);
+            assert.ok(partIds.has(toPart),
+                `${name}: wire ${i} 'to' references unknown part '${toPart}'`);
         }
     });
 }
