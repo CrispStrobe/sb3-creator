@@ -68,6 +68,20 @@ Proc parameter names are recovered from the C function signature.
 lines before the `WHEN flag clicked:` hat. Single-script comments inside `main()` (after
 `bw_setup()`) are also recovered. This closes the device C round-trip for comments.
 
+### BW_STUB markers: dropped (decided 2026-08-10)
+
+Device helper calls (`bw_servo_set`, `bw_motor_speed`, etc.) are emitted with
+`/* BW_STUB: devices_setservo — no-op on hardware */` markers when the real
+driver does not exist yet. The reader **drops these markers** — the pseudocode
+reads back as normal blocks with zero warnings.
+
+**Rationale:** stub-ness is a property of the *target's current implementation*,
+not of the program. `set servo1 angle to 90` is a valid instruction; whether the
+C runtime has a real or stub implementation is an emitter concern. When C is
+regenerated from the pseudocode, `generateC` re-adds the `BW_STUB` marker because
+it knows which helpers are stubs. The marker lives in the C, not in the pseudocode,
+and regeneration restores it. Tested: the round-trip is a fixed point.
+
 ### Known emitter limitation
 
 In multi-script programs, the emitter only places `//` comments before the **first** task

@@ -1798,6 +1798,32 @@ test('the yield map is readable from a debug build', () => {
     assert.deepEqual(readYieldMap(c.generateC()), []);
 });
 
+// ---- BW_STUB markers: the reader drops them (decision 2026-08-10) -----------
+// Stub-ness is a property of the TARGET's current implementation, not of the
+// program. The pseudocode is valid; the C side re-adds the marker on regeneration.
+
+test('BW_STUB markers are dropped: device calls read back as normal blocks', () => {
+    const c = new SB3Creator();
+    c.parse('DEVICE STC12C5A60S2\nCLOCK 11059200\nPIN led = P1.0 OUTPUT\n\n'
+        + 'WHEN flag clicked:\n  set myservo angle to 90\n  set mymotor speed to 50');
+    const code = c.generateC();
+    // The C contains BW_STUB markers
+    assert.match(code, /BW_STUB/, 'emitter writes BW_STUB markers');
+    // The reader drops them — the pseudocode is clean
+    const { pseudocode, warnings } = cToPseudocode(code);
+    assert.ok(!/BW_STUB/.test(pseudocode), 'no BW_STUB in pseudocode');
+    assert.ok(!/stub/i.test(pseudocode), 'no stub mention in pseudocode');
+    assert.deepEqual(warnings, [], 'zero warnings — stubs are not a reader concern');
+    assert.match(pseudocode, /set myservo angle to 90/);
+    assert.match(pseudocode, /set mymotor speed to 50/);
+    // And it round-trips
+    const c2 = new SB3Creator(); c2.parse(pseudocode);
+    const code2 = c2.generateC();
+    assert.match(code2, /BW_STUB/, 'regenerated C re-adds the markers');
+    const { pseudocode: ps2 } = cToPseudocode(code2);
+    assert.equal(ps2, pseudocode, 'fixed point — the marker is target metadata, not program state');
+});
+
 // ---- regression tests for reader fixes that shipped without tests -----------
 
 test('tone_set(freq) round-trips as set <pin> to freq hz', () => {
