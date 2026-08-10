@@ -80,14 +80,14 @@ with stated tolerances against hand-computed oracles.
 | defect | where | how surfaced |
 |---|---|---|
 | `IE.EC` enables ELVD, not PCA | `STC12-PERIPHERAL-MODEL.md` | cross-checked against SDCC's `stc12.h` (category 1) |
-| ROADMAP said ADC "proven on real hardware" | `stc/docs/ROADMAP.md` | my commit `71a2118` — overclaim during a levelling pass |
+| ROADMAP said ADC "proven on real hardware" | `stc/docs/ROADMAP.md` | my commit `489ca91` — overclaim during a levelling pass |
 | `aggregateCurrent()` existed only inside its own test | `bw-board` test/ | grepped, not assumed |
 | 120 mA vs 150 mA current limit disagreement | across repos | read datasheet §4.1: verbatim "120mA" |
 
 ### Things that nearly shipped
 
-- **`71a2118` claimed "proven on real hardware"** for GPIO+ADC. `01-blink` has run on silicon;
-  `02-adc` has not. Corrected by the coordinator in `b4f4bb1`. The auditing pass is where
+- **`489ca91` claimed "proven on real hardware"** for GPIO+ADC. `01-blink` has run on silicon;
+  `02-adc` has not. Corrected by the coordinator in `4eaa84f`. The auditing pass is where
   claims get made, and the auditor is not re-checked.
 - **4 of 6 defects were initially labelled "genuinely impossible"** — only `goto` (3 files)
   actually is. The rest were dialect gaps (bitwise: 51 files, now closed), source bugs,

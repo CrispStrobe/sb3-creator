@@ -136,7 +136,7 @@ Three of the six still do not translate; none of them do so silently.
 
 ## Corpus results
 
-**Last measured: 2026-08-09** at commit `9bdb9e1`.
+**Last measured: 2026-08-09** at commit `3c2ebb3`.
 
 Corpus: 1282 `.c` files from 76 STC12/8051 repositories (9 of 85 failed to
 clone — link rot). Corpus hash (SHA-256 of all file hashes): `2e82d48b39214d7c`.
