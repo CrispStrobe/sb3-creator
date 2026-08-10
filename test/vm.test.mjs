@@ -60,7 +60,7 @@ function patchExtensionManager (vm) {
     const em = vm.extensionManager;
     const orig = em.loadExtensionURL.bind(em);
     em.loadExtensionURL = (url) => {
-        const slug = ['arrays', 'planetemaths', 'stc12'].find((s) => String(url).includes(s));
+        const slug = ['arrays', 'planetemaths', 'stc12', 'devices'].find((s) => String(url).includes(s));
         if (slug) {
             const serviceName = em._registerInternalExtension(loadLocalExtension(slug, vm.runtime));
             em._loadedExtensions.set(url, serviceName);
