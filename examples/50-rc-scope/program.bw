@@ -1,0 +1,2 @@
+# Pure circuit -- no MCU, no program
+# RC low-pass filter: function generator -> 10k resistor -> 1uF capacitor -> GND

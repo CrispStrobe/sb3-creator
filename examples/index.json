@@ -722,5 +722,95 @@
       "circuit": "46-port-overcurrent/circuit.json",
       "expected": "46-port-overcurrent/EXPECTED.md"
     }
+  },
+  {
+    "id": "47-battery-led",
+    "title": {
+      "en": "Battery-powered LED",
+      "de": "Batteriebetriebene LED"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 1,
+    "files": {
+      "program": "47-battery-led/program.bw",
+      "circuit": "47-battery-led/circuit.json",
+      "expected": "47-battery-led/EXPECTED.md"
+    }
+  },
+  {
+    "id": "48-breadboard-basics",
+    "title": {
+      "en": "Breadboard layout basics",
+      "de": "Steckbrett-Aufbau Grundlagen"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "files": {
+      "program": "48-breadboard-basics/program.bw",
+      "circuit": "48-breadboard-basics/circuit.json",
+      "expected": "48-breadboard-basics/EXPECTED.md"
+    }
+  },
+  {
+    "id": "49-function-generator-sine",
+    "title": {
+      "en": "Function generator sine wave",
+      "de": "Funktionsgenerator Sinuswelle"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "files": {
+      "program": "49-function-generator-sine/program.bw",
+      "circuit": "49-function-generator-sine/circuit.json",
+      "expected": "49-function-generator-sine/EXPECTED.md"
+    }
+  },
+  {
+    "id": "50-rc-scope",
+    "title": {
+      "en": "RC low-pass filter on scope",
+      "de": "RC-Tiefpassfilter am Oszilloskop"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 3,
+    "files": {
+      "program": "50-rc-scope/program.bw",
+      "circuit": "50-rc-scope/circuit.json",
+      "expected": "50-rc-scope/EXPECTED.md"
+    }
+  },
+  {
+    "id": "51-555-astable",
+    "title": {
+      "en": "555 timer astable blinker",
+      "de": "555-Timer astabile Blinkschaltung"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 3,
+    "files": {
+      "program": "51-555-astable/program.bw",
+      "circuit": "51-555-astable/circuit.json",
+      "expected": "51-555-astable/EXPECTED.md"
+    }
+  },
+  {
+    "id": "52-battery-voltage-divider",
+    "title": {
+      "en": "Battery voltage divider",
+      "de": "Batterie-Spannungsteiler"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "files": {
+      "program": "52-battery-voltage-divider/program.bw",
+      "circuit": "52-battery-voltage-divider/circuit.json",
+      "expected": "52-battery-voltage-divider/EXPECTED.md"
+    }
   }
 ]

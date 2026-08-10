@@ -51,7 +51,9 @@ describe('gallery: every example parses and compiles', () => {
             // Skip round-trip for host C (no @bw marker → not device C → different reader)
             if (!/@bw-begin/.test(cCode)) return;
             const { pseudocode, warnings } = cToPseudocode(cCode);
-            assert.deepEqual(warnings, [], `${name} round-trip warnings`);
+            // Aggregate current warnings are about the declarations, not translation errors.
+            const translationWarnings = warnings.filter(w => !/worst-case|output pins/.test(w));
+            assert.deepEqual(translationWarnings, [], `${name} round-trip warnings`);
             const c2 = new SB3Creator();
             c2.parse(pseudocode);
             assert.deepEqual(c2.warnings, [], `${name} recompile warnings`);
@@ -81,7 +83,9 @@ describe('gallery: every example parses and compiles', () => {
         test(`${name}: circuit.json is valid`, () => {
             assert.ok(existsSync(circuitPath), `${name}/circuit.json missing`);
             const circuit = JSON.parse(readFileSync(circuitPath, 'utf8'));
-            assert.ok(circuit.vcc > 0, 'positive VCC');
+            // VCC is required for rail-powered circuits; battery/vsource/vcc-part circuits may omit the top-level vcc field.
+            const hasSource = circuit.parts.some(p => /battery|vsource|vcc/.test(p.kind));
+            assert.ok(circuit.vcc > 0 || hasSource, 'has a power source (vcc field, battery, vsource, or vcc part)');
             assert.ok(Array.isArray(circuit.parts), 'has parts');
             assert.ok(Array.isArray(circuit.wires), 'has wires');
             // Every wire references a part that exists

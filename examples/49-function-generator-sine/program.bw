@@ -1,0 +1,2 @@
+# Pure circuit -- no MCU, no program
+# Function generator (1 kHz sine) driving a 1k load resistor

@@ -1,0 +1,12 @@
+{
+  "parts": [
+    { "id": "fg1",   "kind": "vsource",   "params": { "wave": "sine", "frequency": 1000, "amplitude": 2.5, "offset": 2.5 }, "x": 100, "y": 150 },
+    { "id": "gnd1",  "kind": "gnd",       "params": {},                                  "x": 300, "y": 300 },
+    { "id": "r1",    "kind": "resistor",  "params": { "ohms": 1000 },                    "x": 300, "y": 150 }
+  ],
+  "wires": [
+    { "from": "fg1",  "fromTerminal": "pos",  "to": "r1",   "toTerminal": "a"   },
+    { "from": "r1",   "fromTerminal": "b",     "to": "gnd1", "toTerminal": "gnd" },
+    { "from": "fg1",  "fromTerminal": "neg",   "to": "gnd1", "toTerminal": "gnd" }
+  ]
+}

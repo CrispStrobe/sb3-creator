@@ -1,0 +1,2 @@
+# Pure circuit -- no MCU, no program
+# 9V battery -> voltage divider (2x 10k) -> measure junction at 4.5V

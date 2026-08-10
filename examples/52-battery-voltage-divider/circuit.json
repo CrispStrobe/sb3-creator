@@ -1,0 +1,12 @@
+{
+  "parts": [
+    { "id": "bat1", "kind": "battery",   "params": { "volts": 9, "rInternal": 0.5 },    "x": 100, "y": 200 },
+    { "id": "r1",   "kind": "resistor",  "params": { "ohms": 10000 },                    "x": 300, "y": 100 },
+    { "id": "r2",   "kind": "resistor",  "params": { "ohms": 10000 },                    "x": 300, "y": 300 }
+  ],
+  "wires": [
+    { "from": "bat1", "fromTerminal": "pos",  "to": "r1",   "toTerminal": "a"   },
+    { "from": "r1",   "fromTerminal": "b",     "to": "r2",   "toTerminal": "a"   },
+    { "from": "r2",   "fromTerminal": "b",     "to": "bat1", "toTerminal": "neg" }
+  ]
+}

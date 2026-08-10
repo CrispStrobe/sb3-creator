@@ -1,0 +1,27 @@
+{
+  "parts": [
+    { "id": "vcc1",   "kind": "vcc",        "params": {},                                  "x": 300, "y": 50  },
+    { "id": "gnd1",   "kind": "gnd",        "params": {},                                  "x": 300, "y": 500 },
+    { "id": "u1",     "kind": "timer_555",  "params": {},                                  "x": 300, "y": 250 },
+    { "id": "r1",     "kind": "resistor",   "params": { "ohms": 10000 },                   "x": 150, "y": 130 },
+    { "id": "r2",     "kind": "resistor",   "params": { "ohms": 10000 },                   "x": 150, "y": 250 },
+    { "id": "c1",     "kind": "capacitor",  "params": { "farads": 0.00001 },               "x": 150, "y": 400 },
+    { "id": "r3",     "kind": "resistor",   "params": { "ohms": 1000 },                    "x": 500, "y": 250 },
+    { "id": "led1",   "kind": "led",        "params": { "vf": 2.0, "color": "red" },       "x": 500, "y": 350 }
+  ],
+  "wires": [
+    { "from": "vcc1",  "fromTerminal": "vcc",       "to": "u1",   "toTerminal": "vcc"       },
+    { "from": "u1",    "fromTerminal": "gnd",        "to": "gnd1", "toTerminal": "gnd"       },
+    { "from": "vcc1",  "fromTerminal": "vcc",        "to": "u1",   "toTerminal": "reset"     },
+    { "from": "vcc1",  "fromTerminal": "vcc",        "to": "r1",   "toTerminal": "a"         },
+    { "from": "r1",    "fromTerminal": "b",           "to": "u1",   "toTerminal": "discharge" },
+    { "from": "r1",    "fromTerminal": "b",           "to": "r2",   "toTerminal": "a"         },
+    { "from": "r2",    "fromTerminal": "b",           "to": "u1",   "toTerminal": "threshold" },
+    { "from": "r2",    "fromTerminal": "b",           "to": "u1",   "toTerminal": "trigger"   },
+    { "from": "r2",    "fromTerminal": "b",           "to": "c1",   "toTerminal": "a"         },
+    { "from": "c1",    "fromTerminal": "b",           "to": "gnd1", "toTerminal": "gnd"       },
+    { "from": "u1",    "fromTerminal": "output",      "to": "r3",   "toTerminal": "a"         },
+    { "from": "r3",    "fromTerminal": "b",           "to": "led1", "toTerminal": "anode"     },
+    { "from": "led1",  "fromTerminal": "cathode",     "to": "gnd1", "toTerminal": "gnd"       }
+  ]
+}

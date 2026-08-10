@@ -1,0 +1,14 @@
+{
+  "parts": [
+    { "id": "fg1",   "kind": "vsource",    "params": { "wave": "sine", "frequency": 100, "amplitude": 2.5, "offset": 2.5 }, "x": 100, "y": 150 },
+    { "id": "gnd1",  "kind": "gnd",        "params": {},                                  "x": 400, "y": 300 },
+    { "id": "r1",    "kind": "resistor",   "params": { "ohms": 10000 },                   "x": 250, "y": 100 },
+    { "id": "c1",    "kind": "capacitor",  "params": { "farads": 0.000001 },              "x": 400, "y": 150 }
+  ],
+  "wires": [
+    { "from": "fg1",  "fromTerminal": "pos",  "to": "r1",   "toTerminal": "a"   },
+    { "from": "r1",   "fromTerminal": "b",     "to": "c1",   "toTerminal": "a"   },
+    { "from": "c1",   "fromTerminal": "b",     "to": "gnd1", "toTerminal": "gnd" },
+    { "from": "fg1",  "fromTerminal": "neg",   "to": "gnd1", "toTerminal": "gnd" }
+  ]
+}

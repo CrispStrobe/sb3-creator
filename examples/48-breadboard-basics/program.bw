@@ -1,0 +1,3 @@
+# Pure circuit -- no MCU, no program
+# 9V battery -> 1k resistor -> LED -> battery negative
+# Same circuit as 47-battery-led, with breadboard layout guidance

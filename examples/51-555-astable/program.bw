@@ -1,0 +1,2 @@
+# Pure circuit -- no MCU, no program
+# 555 timer in astable mode, blinking an LED at ~4.8 Hz
