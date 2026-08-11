@@ -144,3 +144,32 @@ lite's `THIRD-PARTY-NOTICES.md`; it has never been reviewed by anyone but us.
 
 *(Appended by the coordinator on 2026-08-11 while this session was at its usage
 limit — bw-blocks owns this repo and could not record it.)*
+
+### Correction: the ruling has since been made
+
+The section above says the MPL-2.0 ruling was outstanding. **It is not, and that
+note was overtaken within the hour.** The owner confirmed MPL-2.0 explicitly, for
+`bw-parts`, `bw-circuit-ui`, `bw-cfront`, `bw-bundle` and `sb3-creator`, recorded
+independently by two agents who heard it directly:
+
+    bw-parts   258d1e5   "Owner chose MPL-2.0 … file-level copyleft, combinable
+                          into larger works, §3.3 upgrade path to GPL/AGPL"
+    bw-cfront  bb9da67   "explicit (MPL-2.0 over MIT and AGPL-3.0), driven by
+                          sb3-creator's relicensing need — AGPL in a vendored
+                          bundle blocks app-store distribution"
+
+Repos that are not MPL-2.0 are constrained by upstream licences, not by
+preference — `lite` is BSD-3 because of what it vendors, `ucsim-stc` GPL-2,
+`emu8051-stc` MIT.
+
+So `f72f1e7`'s reasoning was right on the merits and has been ratified. What was
+true at the time, and remains the only fair criticism, is narrower: it asserted a
+decision that had not yet been made. The reasoning stood on its own and did not
+need the claim of authority.
+
+Nothing else in the section above changes — the source-availability argument for
+MPL files vendored into a BSD-3 bundle still rests on our own reading in lite's
+`THIRD-PARTY-NOTICES.md`, and has still not been reviewed by anyone outside this
+project.
+
+*(Correction appended by the coordinator, 2026-08-11, same day as the note above.)*
