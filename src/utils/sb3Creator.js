@@ -6075,22 +6075,54 @@ class SB3Creator {
         //   P3.6:     ultrasonic trigger
         //   P3.7:     ultrasonic echo
         //
+        //
+        // Collision matrix:
+        //   UNCONDITIONAL (from block list alone):
+        //     PCA 0+1 full: servo + motor + stc12_setpwm → no module left
+        //     Timer 1:      ultrasonic + tethered mode → skew corruption
+        //   CONFIGURATION-DEPENDENT (need pin declarations):
+        //     P1.3: servo (CCP0) vs ANALOG pin declaration (ADC3)
+        //     P1.4: motor (CCP1) vs ANALOG pin declaration (ADC4)
+        //     P1.5: NeoPixel vs ANALOG pin declaration (ADC5)
+        //   UNRESOLVABLE (no fix possible on this part family):
+        //     RGB needs 3 PWM channels, only 2 PCA modules exist
+        //
         // Collision warnings use BW_COLLISION markers and are also pushed to
         // this.warnings so they reach the UI / CLI without parsing the C.
         const collision = (msg) => {
             this.cWarn(`BW_COLLISION: ${msg}`);
             this.warn(null, msg);
         };
+
+        // ---- Unconditional collisions (from block list alone) ----
+        // PCA modules: only 2 exist. Servo=0, motor=1. Both consumed = no room.
+        // A third PWM consumer (e.g. RGB) is unresolvable on this part family.
+        if (this._cUses.servo && this._cUses.motor && this._cUses.pwm) {
+            // User's stc12_setpwm also needs a PCA module but both are taken.
+            collision('both PCA modules are in use (servo=0, motor=1) — no module available for PWM pin blocks');
+        }
         // Timer 1: ultrasonic vs tethered-mode wall clock.
         if (this._cUses.ultrasonic && debug) {
             collision('Timer 1 is claimed by both the ultrasonic driver (echo timing) '
                 + 'and the tethered-mode monitor (wall clock) — distance readings will '
                 + 'corrupt the skew counter when the debugger is attached');
         }
-        // P1.3: servo vs user ANALOG declaration.
+
+        // ---- Configuration-dependent collisions (need pin declarations) ----
+        // P1.3 = CCP0 (servo) AND ADC3. Collides only if P1.3 declared ANALOG.
         if (this._cUses.servo) {
             const p13analog = pins.find((p) => p.port === 1 && p.bit === 3 && p.direction === 'analog');
             if (p13analog) collision('P1.3 is the servo pin (CCP0) and is also declared ANALOG — the PCA output fights the ADC input');
+        }
+        // P1.4 = CCP1 (motor) AND ADC4. Collides only if P1.4 declared ANALOG.
+        if (this._cUses.motor) {
+            const p14analog = pins.find((p) => p.port === 1 && p.bit === 4 && p.direction === 'analog');
+            if (p14analog) collision('P1.4 is the motor pin (CCP1) and is also declared ANALOG — the PCA output fights the ADC input');
+        }
+        // P1.5 = NeoPixel data AND ADC5. Collides only if P1.5 declared ANALOG.
+        if (this._cUses.neopixel) {
+            const p15analog = pins.find((p) => p.port === 1 && p.bit === 5 && p.direction === 'analog');
+            if (p15analog) collision('P1.5 is the NeoPixel data pin and is also declared ANALOG — bitbang output fights the ADC input');
         }
         // Driver-fixed pin claims.
         const driverPins = [];
