@@ -6931,7 +6931,7 @@ class SB3Creator {
             }
             // Stubs: IR (protocol decode), 7-segment, matrix, RGB.
             out.push(
-                rstub('static int bw_device_state(int dev)', 'devices_devicestate'),
+                `static int bw_device_state(int dev) { (void)dev; return ${this._cUses.relay ? '_relay_state' : '0'}; }`,
                 stub('static void bw_7seg_show(int disp, int digit)', 'devices_showdigit'),
                 stub('static void bw_rgb_set(int led, int r, int g, int b)', 'devices_setrgb'),
                 stub('static void bw_matrix_set(int m, int x, int y, int br)', 'devices_setpixel'),
