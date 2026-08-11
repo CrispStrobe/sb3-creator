@@ -136,6 +136,13 @@ const KNOWN_GAPS = new Set([
     // seven_segment — covered via devices_showdigit
     'bargraph',         // "set bar N to M"
 
+    // --- boards ---
+    // Board kinds are driven through PIN blocks (stc12_setpin etc.), not
+    // device blocks: the board IS the thing executing, not a peripheral.
+    'arduino_nano',
+    'arduino_uno',
+    'pi_pico',
+
     // --- actuators ---
     // servo, dc_motor, relay — now covered via devices_setservo/setmotor/setrelay
     // solenoid — now covered via devices_activate/deactivate
