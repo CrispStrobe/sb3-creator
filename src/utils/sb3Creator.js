@@ -6053,6 +6053,10 @@ class SB3Creator {
             this.cWarn(`motor PWM requires PCA — the ${device} has none; speed control will not work`);
             this.warn(null, `motor PWM requires PCA — the ${device} has no PCA peripheral`);
         }
+        if (this._cUses.ultrasonic && !chip.timer1) {
+            this.cWarn(`ultrasonic distance requires Timer 1 — the ${device} has none`);
+            this.warn(null, `ultrasonic distance requires Timer 1 — the ${device} has none`);
+        }
 
         // ---- resource collision check ------------------------------------------------
         // Resource allocation table — drivers AND runtime:
@@ -7386,14 +7390,13 @@ SB3Creator.RUNTIME_EXTENSIONS = {
 // board's pins are spelled in, and which C back end (if any) can emit for it.
 SB3Creator.STC_PARTS = {
     // core: '8051' -- {port, bit} pins, and generateC() emits for these.
-    stc12c5a60s2: { header: 'stc12.h', portModes: true, aux1T: true, adc: true, pca: true },
-    stc12c5a16s2: { header: 'stc12.h', portModes: true, aux1T: true, adc: true, pca: true },
-    stc89c52rc: { header: '8052.h', portModes: false, aux1T: false, adc: false, pca: false },
-    stc89c52: { header: '8052.h', portModes: false, aux1T: false, adc: false, pca: false },
-    stc15f2k60s2: { header: 'stc12.h', portModes: true, aux1T: true, adc: true, pca: true },
-    // STC15W408AS: same SFR layout as STC15F2K60S2 for everything the emitter
-    // touches. Lacks Timer 1, so TONE pins (which need Timer 1) should warn.
-    stc15w408as: { header: 'stc12.h', portModes: true, aux1T: true, adc: true, pca: true },
+    stc12c5a60s2: { header: 'stc12.h', portModes: true, aux1T: true, adc: true, pca: true, timer1: true },
+    stc12c5a16s2: { header: 'stc12.h', portModes: true, aux1T: true, adc: true, pca: true, timer1: true },
+    stc89c52rc: { header: '8052.h', portModes: false, aux1T: false, adc: false, pca: false, timer1: true },
+    stc89c52: { header: '8052.h', portModes: false, aux1T: false, adc: false, pca: false, timer1: true },
+    stc15f2k60s2: { header: 'stc12.h', portModes: true, aux1T: true, adc: true, pca: true, timer1: true },
+    // STC15W408AS: lacks Timer 1 — ultrasonic (echo timing) and TONE are unavailable.
+    stc15w408as: { header: 'stc12.h', portModes: true, aux1T: true, adc: true, pca: true, timer1: false },
     // core: 'arduino' -- pins are NUMBERS (D13, A0), and there is no C back
     // end here yet. Declared so a sketch imported by cToPseudocode.js parses
     // into a project and reaches the blocks; generateC() refuses them by name
