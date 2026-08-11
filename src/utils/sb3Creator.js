@@ -6076,21 +6076,17 @@ class SB3Creator {
         //   P3.7:     ultrasonic echo
         //
         //
-        // Collision matrix (STC12 pin assignments — STC15 remaps CCP pins):
+        // Collision matrix (part-aware via STC_PARTS.ccp and .xtalAdc):
         //   UNCONDITIONAL (from block list alone):
         //     PCA 0+1 full: servo + motor + stc12_setpwm → no module left
         //     Timer 1:      ultrasonic + tethered mode → skew corruption
-        //   CONFIGURATION-DEPENDENT (need pin declarations):
-        //     STC12: P1.3=CCP0(servo)/ADC3, P1.4=CCP1(motor)/ADC4, P1.5=NeoPixel/ADC5
-        //     STC15: CCP0=P1.1, CCP1=P1.0, CCP2=P3.7 (different pins, not yet checked)
-        //     STC15: XTAL shares P1.6/P1.7 = ADC6/ADC7 (crystal costs 2 analog inputs)
+        //   CONFIGURATION-DEPENDENT (from per-part CCP map + pin declarations):
+        //     CCP0(servo) vs ANALOG on same pin — STC12:P1.3, STC15:P1.1
+        //     CCP1(motor) vs ANALOG on same pin — STC12:P1.4, STC15:P1.0
+        //     P1.5 NeoPixel vs ANALOG (ADC5) — same on all families
+        //     STC15 XTAL shares P1.6(ADC6)/P1.7(ADC7) — crystal costs analog
         //   UNRESOLVABLE (no fix possible on this part family):
         //     RGB needs 3 PWM channels, only 2 PCA modules exist
-        //
-        // NOTE: the configuration-dependent checks below use STC12 pin positions.
-        // STC15 CCP remapping is not yet encoded in STC_PARTS — a collision on P1.3
-        // is correct for STC12 and wrong for STC15.  The unconditional checks (PCA
-        // module count, Timer 1) are part-aware because they do not name pins.
         //
         // Collision warnings use BW_COLLISION markers and are also pushed to
         // this.warnings so they reach the UI / CLI without parsing the C.
@@ -6113,36 +6109,38 @@ class SB3Creator {
                 + 'corrupt the skew counter when the debugger is attached');
         }
 
-        // ---- Configuration-dependent collisions (need pin declarations) ----
-        // These use STC12 CCP pin positions. STC15 remaps CCP0→P1.1, CCP1→P1.0;
-        // those checks are not yet implemented (STC_PARTS lacks per-part CCP map).
-        const isSTC12 = /stc12/i.test(device);
-        if (isSTC12) {
-            // P1.3 = CCP0 (servo) AND ADC3.
-            if (this._cUses.servo) {
-                const p13analog = pins.find((p) => p.port === 1 && p.bit === 3 && p.direction === 'analog');
-                if (p13analog) collision('P1.3 is the servo pin (CCP0) and is also declared ANALOG — the PCA output fights the ADC input');
-            }
-            // P1.4 = CCP1 (motor) AND ADC4.
-            if (this._cUses.motor) {
-                const p14analog = pins.find((p) => p.port === 1 && p.bit === 4 && p.direction === 'analog');
-                if (p14analog) collision('P1.4 is the motor pin (CCP1) and is also declared ANALOG — the PCA output fights the ADC input');
-            }
+        // ---- Configuration-dependent collisions (from per-part CCP map) ----
+        const ccpMap = chip.ccp || [];
+        // Servo uses CCP module 0; check if its pin is also declared ANALOG.
+        if (this._cUses.servo && ccpMap[0]) {
+            const cp = ccpMap[0];
+            const analog = pins.find((p) => p.port === cp.port && p.bit === cp.bit && p.direction === 'analog');
+            if (analog) collision(`P${cp.port}.${cp.bit} is the servo pin (CCP0) and is also declared ANALOG — the PCA output fights the ADC input`);
         }
-        // P1.5 = NeoPixel data AND ADC5 (same pin on both STC12 and STC15).
+        // Motor uses CCP module 1; check if its pin is also declared ANALOG.
+        if (this._cUses.motor && ccpMap[1]) {
+            const cp = ccpMap[1];
+            const analog = pins.find((p) => p.port === cp.port && p.bit === cp.bit && p.direction === 'analog');
+            if (analog) collision(`P${cp.port}.${cp.bit} is the motor pin (CCP1) and is also declared ANALOG — the PCA output fights the ADC input`);
+        }
+        // P1.5 = NeoPixel data AND ADC5 (same pin on all families with P1 ADC).
         if (this._cUses.neopixel) {
             const p15analog = pins.find((p) => p.port === 1 && p.bit === 5 && p.direction === 'analog');
             if (p15analog) collision('P1.5 is the NeoPixel data pin and is also declared ANALOG — bitbang output fights the ADC input');
         }
-        // STC15: XTAL shares P1.6(ADC6)/P1.7(ADC7). A crystal costs two analog
-        // inputs. Not a driver collision — a board-level constraint — but worth
-        // noting if a user declares both ANALOG pins and a crystal is fitted.
-        // (No check emitted: we have no crystal declaration syntax yet.)
+        // STC15: XTAL shares P1.6(ADC6)/P1.7(ADC7). If the user declares one
+        // of these as ANALOG and the board has a crystal, it will not work.
+        if (chip.xtalAdc) {
+            for (const ch of chip.xtalAdc) {
+                const analog = pins.find((p) => p.port === 1 && p.bit === ch && p.direction === 'analog');
+                if (analog) collision(`P1.${ch} (ADC${ch}) is shared with the crystal oscillator on ${device} — an external crystal disables this analog input`);
+            }
+        }
         // Driver-fixed pin claims.
         const driverPins = [];
-        if (this._cUses.servo) driverPins.push({ port: 1, bit: 3, driver: 'servo (CCP0)' });
+        if (this._cUses.servo && ccpMap[0]) driverPins.push({ port: ccpMap[0].port, bit: ccpMap[0].bit, driver: 'servo (CCP0)' });
         if (this._cUses.motor) {
-            driverPins.push({ port: 1, bit: 4, driver: 'motor PWM (CCP1)' });
+            if (ccpMap[1]) driverPins.push({ port: ccpMap[1].port, bit: ccpMap[1].bit, driver: 'motor PWM (CCP1)' });
             driverPins.push({ port: 3, bit: 4, driver: 'motor IN1' });
             driverPins.push({ port: 3, bit: 5, driver: 'motor IN2' });
         }
@@ -7436,13 +7434,23 @@ SB3Creator.RUNTIME_EXTENSIONS = {
 // board's pins are spelled in, and which C back end (if any) can emit for it.
 SB3Creator.STC_PARTS = {
     // core: '8051' -- {port, bit} pins, and generateC() emits for these.
-    stc12c5a60s2: { header: 'stc12.h', portModes: true, aux1T: true, adc: true, pca: true, timer1: true },
-    stc12c5a16s2: { header: 'stc12.h', portModes: true, aux1T: true, adc: true, pca: true, timer1: true },
-    stc89c52rc: { header: '8052.h', portModes: false, aux1T: false, adc: false, pca: false, timer1: true },
-    stc89c52: { header: '8052.h', portModes: false, aux1T: false, adc: false, pca: false, timer1: true },
-    stc15f2k60s2: { header: 'stc12.h', portModes: true, aux1T: true, adc: true, pca: true, timer1: true },
-    // STC15W408AS: lacks Timer 1 — ultrasonic (echo timing) and TONE are unavailable.
-    stc15w408as: { header: 'stc12.h', portModes: true, aux1T: true, adc: true, pca: true, timer1: false },
+    // ccp: array of {port, bit} for each PCA module (0, 1, …), or null if no PCA.
+    //   STC12: CCP0=P1.3, CCP1=P1.4.  STC15: CCP0=P1.1, CCP1=P1.0, CCP2=P3.7.
+    // xtalAdc: array of ADC channels lost to the crystal oscillator, or null.
+    //   STC15: XTAL shares P1.6(ADC6)/P1.7(ADC7) — a crystal costs two analog inputs.
+    stc12c5a60s2: { header: 'stc12.h', portModes: true, aux1T: true, adc: true, pca: true, timer1: true,
+        ccp: [{ port: 1, bit: 3 }, { port: 1, bit: 4 }], xtalAdc: null },
+    stc12c5a16s2: { header: 'stc12.h', portModes: true, aux1T: true, adc: true, pca: true, timer1: true,
+        ccp: [{ port: 1, bit: 3 }, { port: 1, bit: 4 }], xtalAdc: null },
+    stc89c52rc: { header: '8052.h', portModes: false, aux1T: false, adc: false, pca: false, timer1: true,
+        ccp: null, xtalAdc: null },
+    stc89c52: { header: '8052.h', portModes: false, aux1T: false, adc: false, pca: false, timer1: true,
+        ccp: null, xtalAdc: null },
+    stc15f2k60s2: { header: 'stc12.h', portModes: true, aux1T: true, adc: true, pca: true, timer1: true,
+        ccp: [{ port: 1, bit: 1 }, { port: 1, bit: 0 }, { port: 3, bit: 7 }], xtalAdc: [6, 7] },
+    // STC15W408AS: lacks Timer 1. Same CCP mapping as STC15F2K. XTAL shares ADC6/7.
+    stc15w408as: { header: 'stc12.h', portModes: true, aux1T: true, adc: true, pca: true, timer1: false,
+        ccp: [{ port: 1, bit: 1 }, { port: 1, bit: 0 }], xtalAdc: [6, 7] },
     // core: 'arduino' -- pins are NUMBERS (D13, A0), and there is no C back
     // end here yet. Declared so a sketch imported by cToPseudocode.js parses
     // into a project and reaches the blocks; generateC() refuses them by name
