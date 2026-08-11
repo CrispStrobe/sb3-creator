@@ -6041,6 +6041,18 @@ class SB3Creator {
         // in favour of the ISR-based bw_now/bw_block_ms).
         if (this._cUses.cube) this._cUses.cubeDelay = true;
         if (this._cUses.adc && !chip.adc) this.cWarn(`ANALOG pins need an ADC, and the ${device} has none`);
+        // PCA: servo (16-bit compare/match) and motor (8-bit PWM) need the PCA.
+        // STC89 has no PCA — these blocks silently produce 0 edges (ucsim-stc
+        // 356df26 measured 0 edges on STC89, confirmed).  Same treatment as
+        // WS2812 on 12T: warn and refuse rather than silently do nothing.
+        if (this._cUses.servo && !chip.pca) {
+            this.cWarn(`servo requires PCA (compare/match) — the ${device} has none; the servo will not move`);
+            this.warn(null, `servo requires PCA — the ${device} has no PCA peripheral`);
+        }
+        if (this._cUses.motor && !chip.pca) {
+            this.cWarn(`motor PWM requires PCA — the ${device} has none; speed control will not work`);
+            this.warn(null, `motor PWM requires PCA — the ${device} has no PCA peripheral`);
+        }
 
         // ---- resource collision check ------------------------------------------------
         // Resource allocation table — drivers AND runtime:
@@ -7374,14 +7386,14 @@ SB3Creator.RUNTIME_EXTENSIONS = {
 // board's pins are spelled in, and which C back end (if any) can emit for it.
 SB3Creator.STC_PARTS = {
     // core: '8051' -- {port, bit} pins, and generateC() emits for these.
-    stc12c5a60s2: { header: 'stc12.h', portModes: true, aux1T: true, adc: true },
-    stc12c5a16s2: { header: 'stc12.h', portModes: true, aux1T: true, adc: true },
-    stc89c52rc: { header: '8052.h', portModes: false, aux1T: false, adc: false },
-    stc89c52: { header: '8052.h', portModes: false, aux1T: false, adc: false },
-    stc15f2k60s2: { header: 'stc12.h', portModes: true, aux1T: true, adc: true },
+    stc12c5a60s2: { header: 'stc12.h', portModes: true, aux1T: true, adc: true, pca: true },
+    stc12c5a16s2: { header: 'stc12.h', portModes: true, aux1T: true, adc: true, pca: true },
+    stc89c52rc: { header: '8052.h', portModes: false, aux1T: false, adc: false, pca: false },
+    stc89c52: { header: '8052.h', portModes: false, aux1T: false, adc: false, pca: false },
+    stc15f2k60s2: { header: 'stc12.h', portModes: true, aux1T: true, adc: true, pca: true },
     // STC15W408AS: same SFR layout as STC15F2K60S2 for everything the emitter
     // touches. Lacks Timer 1, so TONE pins (which need Timer 1) should warn.
-    stc15w408as: { header: 'stc12.h', portModes: true, aux1T: true, adc: true },
+    stc15w408as: { header: 'stc12.h', portModes: true, aux1T: true, adc: true, pca: true },
     // core: 'arduino' -- pins are NUMBERS (D13, A0), and there is no C back
     // end here yet. Declared so a sketch imported by cToPseudocode.js parses
     // into a project and reaches the blocks; generateC() refuses them by name
