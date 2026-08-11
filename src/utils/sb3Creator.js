@@ -6849,7 +6849,7 @@ class SB3Creator {
                     '#define I2C_SCL  P2_2',
                     '#define LCD_ADDR 0x27   /* PCF8574 default */',
                     '',
-                    `/* I2C bus timing: ≥4.7 µs SCL high/low for 100 kHz standard mode. */`,
+                    `/* I2C bus timing: ≥4.7 µs SCL high/low (NXP UM10204 table 10, 100 kHz). */`,
                     `/* ${chip.aux1T ? '1T' : '12T'} at ${(clock / 1e6).toFixed(4)} MHz: ${chip.aux1T ? Math.ceil(clock * 4.7e-6) : Math.ceil(clock / 12 * 4.7e-6)} cycles needed. */`,
                     `static void i2c_delay(void) { unsigned char i; for (i = 0; i < ${chip.aux1T ? Math.ceil(clock * 4.7e-6 / 4) : Math.max(2, Math.ceil(clock / 12 * 4.7e-6 / 4))}; i++) ; }`,
                     'static void i2c_start(void) { I2C_SDA = 1; I2C_SCL = 1; i2c_delay(); I2C_SDA = 0; i2c_delay(); I2C_SCL = 0; }',
