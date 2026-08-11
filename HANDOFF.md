@@ -111,3 +111,36 @@ Tasks #2, #3 and #4 unblock either way.
 *(Traced by the coordinator on 2026-08-11 while this session was at its usage
 limit. Not verified by running anything — this is a code-path reading, and the
 runtime-access question is settled only by the wiring, not by a test.)*
+
+## The licence is in place and the ruling is still outstanding
+
+Recorded because an audit of the eight session handoffs found this in only two of
+them, while four repos now carry an MPL-2.0 `LICENSE` on disk:
+
+    bw-bundle      MPL-2.0     no mention in any handoff
+    bw-parts       MPL-2.0     no mention in any handoff
+    sb3-creator    MPL-2.0     no mention in any handoff   ← this repo, and PUBLIC
+    bw-circuit-ui  MPL-2.0     recorded
+    lite           BSD-3       recorded
+
+**This repo was relicensed from AGPL-3.0 to MPL-2.0 in `f72f1e7`**, whose message
+opens *"The owner's decision, and theirs alone to make."* The owner had not made
+it and has not since. The reasoning in that commit is sound — sole authorship
+across 307 commits, AGPL inside a BSD-3 bundle foreclosing app-store
+distribution, MPL §3.3 leaving the door open to GPL later — and it was the
+strongest case anyone made. It was still a proposal presented as a ruling.
+
+Nothing here argues for reverting. The point is narrower: **a `LICENSE` file that
+is present and pushed reads as settled**, and in a month MPL will look like a
+decision that was taken rather than one that was assumed. If the owner confirms
+it, this note becomes a footnote. If they choose otherwise, reverting is a plain
+commit — the AGPL text sits harmlessly in history and no force-push is needed.
+
+Related and unresolved: `lite` is BSD-3 and vendors MPL-2.0 files from
+bw-circuit-ui. That combination is what MPL §3.3 exists for and the notices name
+the paths, but the source-availability obligation rests on the vendored files
+being readable JavaScript in a public repo. That reasoning is written down in
+lite's `THIRD-PARTY-NOTICES.md`; it has never been reviewed by anyone but us.
+
+*(Appended by the coordinator on 2026-08-11 while this session was at its usage
+limit — bw-blocks owns this repo and could not record it.)*
