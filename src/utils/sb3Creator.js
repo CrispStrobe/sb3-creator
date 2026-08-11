@@ -6076,16 +6076,21 @@ class SB3Creator {
         //   P3.7:     ultrasonic echo
         //
         //
-        // Collision matrix:
+        // Collision matrix (STC12 pin assignments — STC15 remaps CCP pins):
         //   UNCONDITIONAL (from block list alone):
         //     PCA 0+1 full: servo + motor + stc12_setpwm → no module left
         //     Timer 1:      ultrasonic + tethered mode → skew corruption
         //   CONFIGURATION-DEPENDENT (need pin declarations):
-        //     P1.3: servo (CCP0) vs ANALOG pin declaration (ADC3)
-        //     P1.4: motor (CCP1) vs ANALOG pin declaration (ADC4)
-        //     P1.5: NeoPixel vs ANALOG pin declaration (ADC5)
+        //     STC12: P1.3=CCP0(servo)/ADC3, P1.4=CCP1(motor)/ADC4, P1.5=NeoPixel/ADC5
+        //     STC15: CCP0=P1.1, CCP1=P1.0, CCP2=P3.7 (different pins, not yet checked)
+        //     STC15: XTAL shares P1.6/P1.7 = ADC6/ADC7 (crystal costs 2 analog inputs)
         //   UNRESOLVABLE (no fix possible on this part family):
         //     RGB needs 3 PWM channels, only 2 PCA modules exist
+        //
+        // NOTE: the configuration-dependent checks below use STC12 pin positions.
+        // STC15 CCP remapping is not yet encoded in STC_PARTS — a collision on P1.3
+        // is correct for STC12 and wrong for STC15.  The unconditional checks (PCA
+        // module count, Timer 1) are part-aware because they do not name pins.
         //
         // Collision warnings use BW_COLLISION markers and are also pushed to
         // this.warnings so they reach the UI / CLI without parsing the C.
@@ -6109,21 +6114,30 @@ class SB3Creator {
         }
 
         // ---- Configuration-dependent collisions (need pin declarations) ----
-        // P1.3 = CCP0 (servo) AND ADC3. Collides only if P1.3 declared ANALOG.
-        if (this._cUses.servo) {
-            const p13analog = pins.find((p) => p.port === 1 && p.bit === 3 && p.direction === 'analog');
-            if (p13analog) collision('P1.3 is the servo pin (CCP0) and is also declared ANALOG — the PCA output fights the ADC input');
+        // These use STC12 CCP pin positions. STC15 remaps CCP0→P1.1, CCP1→P1.0;
+        // those checks are not yet implemented (STC_PARTS lacks per-part CCP map).
+        const isSTC12 = /stc12/i.test(device);
+        if (isSTC12) {
+            // P1.3 = CCP0 (servo) AND ADC3.
+            if (this._cUses.servo) {
+                const p13analog = pins.find((p) => p.port === 1 && p.bit === 3 && p.direction === 'analog');
+                if (p13analog) collision('P1.3 is the servo pin (CCP0) and is also declared ANALOG — the PCA output fights the ADC input');
+            }
+            // P1.4 = CCP1 (motor) AND ADC4.
+            if (this._cUses.motor) {
+                const p14analog = pins.find((p) => p.port === 1 && p.bit === 4 && p.direction === 'analog');
+                if (p14analog) collision('P1.4 is the motor pin (CCP1) and is also declared ANALOG — the PCA output fights the ADC input');
+            }
         }
-        // P1.4 = CCP1 (motor) AND ADC4. Collides only if P1.4 declared ANALOG.
-        if (this._cUses.motor) {
-            const p14analog = pins.find((p) => p.port === 1 && p.bit === 4 && p.direction === 'analog');
-            if (p14analog) collision('P1.4 is the motor pin (CCP1) and is also declared ANALOG — the PCA output fights the ADC input');
-        }
-        // P1.5 = NeoPixel data AND ADC5. Collides only if P1.5 declared ANALOG.
+        // P1.5 = NeoPixel data AND ADC5 (same pin on both STC12 and STC15).
         if (this._cUses.neopixel) {
             const p15analog = pins.find((p) => p.port === 1 && p.bit === 5 && p.direction === 'analog');
             if (p15analog) collision('P1.5 is the NeoPixel data pin and is also declared ANALOG — bitbang output fights the ADC input');
         }
+        // STC15: XTAL shares P1.6(ADC6)/P1.7(ADC7). A crystal costs two analog
+        // inputs. Not a driver collision — a board-level constraint — but worth
+        // noting if a user declares both ANALOG pins and a crystal is fitted.
+        // (No check emitted: we have no crystal declaration syntax yet.)
         // Driver-fixed pin claims.
         const driverPins = [];
         if (this._cUses.servo) driverPins.push({ port: 1, bit: 3, driver: 'servo (CCP0)' });
