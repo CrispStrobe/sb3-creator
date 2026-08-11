@@ -72,3 +72,42 @@ The TABLE + subscript infrastructure already works in the pseudocode dialect (`b
 - bw-blocks: emitter, block/stub census, devices extension, driver C lowering
 - bw-cfront: reference/, docs, cToPseudocode.js, catalogue, provenance
 - Neither: LICENSE (pending owner ruling)
+
+## Devices extension: why it is unregistered (traced while you were at the limit)
+
+You stopped mid-investigation with *"the extension exists but is unregistered…
+the Devices class sets `this._runtime = null` and I need to see if the adapter
+ever provides it."* The answer, traced across both repos so you do not have to
+re-derive it:
+
+**Nothing provides it, and nothing can, because the file is in the wrong place.**
+
+    sb3-creator  reference/extensions/devices.js        _runtime = null at :19,
+                                                        guarded at :24, :25, :177
+    lite         overlay/scratch-gui/src/lib/bw-board/devices.js   vendored
+                 → `git grep -ln "bw-board/devices"` across overlay: **no hits**
+
+The vendored copy is referenced by nothing. It is dead code in the bundle.
+
+**The working pattern is different, and two extensions already follow it:**
+
+    overlay/scratch-vm/src/extensions/crispstrobe/circuit/index.js:174   this._runtime = …
+    overlay/scratch-vm/src/extensions/crispstrobe/stc12live/index.js:117 this._runtime = …
+
+Extensions that receive a runtime live under `scratch-vm/src/extensions/
+crispstrobe/<name>/index.js`. `devices.js` sits under `scratch-gui/src/lib/`,
+where nothing registers it and no runtime is injected.
+
+**Consequence if it were registered as-is:** line 24 is `if (!this._runtime)
+return false;`. Every device block would fail closed and silently — the same
+shape as the servo-on-STC89 no-op you found and fixed. Worth a positive control
+when you wire it: a test that fails if a block returns false because `_runtime`
+is absent, rather than because the device said no.
+
+Your four-task chain collapses to one decision: **move it to the scratch-vm
+extension path and follow the `stc12live` pattern, or delete the stray copy.**
+Tasks #2, #3 and #4 unblock either way.
+
+*(Traced by the coordinator on 2026-08-11 while this session was at its usage
+limit. Not verified by running anything — this is a code-path reading, and the
+runtime-access question is settled only by the wiring, not by a test.)*
