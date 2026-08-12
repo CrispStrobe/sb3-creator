@@ -1144,5 +1144,53 @@
       "circuit": "pc20-rgb-mix/circuit.json",
       "expected": "pc20-rgb-mix/EXPECTED.md"
     }
+  },
+  {
+    "id": "nano01-blink",
+    "title": {
+      "en": "Blink an LED (Arduino Nano)",
+      "de": "LED blinken lassen (Arduino Nano)"
+    },
+    "category": "basics",
+    "difficulty": 1,
+    "device": "arduino-nano",
+    "files": {
+      "program": "nano01-blink/program.bw",
+      "circuit": "nano01-blink/circuit.json",
+      "expected": "nano01-blink/EXPECTED.md"
+    },
+    "kind": "program"
+  },
+  {
+    "id": "nano02-pot-print",
+    "title": {
+      "en": "Potentiometer serial print (Arduino Nano)",
+      "de": "Potentiometer seriell ausgeben (Arduino Nano)"
+    },
+    "category": "analog",
+    "difficulty": 2,
+    "device": "arduino-nano",
+    "files": {
+      "program": "nano02-pot-print/program.bw",
+      "circuit": "nano02-pot-print/circuit.json",
+      "expected": "nano02-pot-print/EXPECTED.md"
+    },
+    "kind": "program"
+  },
+  {
+    "id": "nano03-two-tasks",
+    "title": {
+      "en": "Blink + serial (Arduino Nano, two tasks)",
+      "de": "Blinken + seriell (Arduino Nano, zwei Aufgaben)"
+    },
+    "category": "basics",
+    "difficulty": 2,
+    "device": "arduino-nano",
+    "files": {
+      "program": "nano03-two-tasks/program.bw",
+      "circuit": "nano03-two-tasks/circuit.json",
+      "expected": "nano03-two-tasks/EXPECTED.md"
+    },
+    "kind": "program"
   }
 ]

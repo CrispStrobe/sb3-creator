@@ -1,0 +1,17 @@
+DEVICE ARDUINO-NANO
+CLOCK 16000000
+PIN led1 = D13 OUTPUT
+PIN pot1 = A6 ANALOG
+
+# Two scripts: one blinks, the other prints the pot reading
+WHEN flag clicked:
+  FOREVER:
+    turn on led1
+    wait 0.5 seconds
+    turn off led1
+    wait 0.5 seconds
+
+WHEN flag clicked:
+  FOREVER:
+    print read pot1
+    wait 1 seconds
