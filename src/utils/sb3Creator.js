@@ -6201,13 +6201,24 @@ class SB3Creator {
         // STC89 has no PCA — these blocks silently produce 0 edges (ucsim-stc
         // 356df26 measured 0 edges on STC89, confirmed).  Same treatment as
         // WS2812 on 12T: warn and refuse rather than silently do nothing.
-        if (this._cUses.servo && !chip.pca) {
+        if (this._core === '8051' && this._cUses.servo && !chip.pca) {
             this.cWarn(`servo requires PCA (compare/match) — the ${device} has none; the servo will not move`);
             this.warn(null, `servo requires PCA — the ${device} has no PCA peripheral`);
         }
-        if (this._cUses.motor && !chip.pca) {
+        if (this._core === '8051' && this._cUses.motor && !chip.pca) {
             this.cWarn(`motor PWM requires PCA — the ${device} has none; speed control will not work`);
             this.warn(null, `motor PWM requires PCA — the ${device} has no PCA peripheral`);
+        }
+        // On the gcc cores a servo shares PWM hardware with the dimmer:
+        // the ATmega's Timer 1 becomes the 50 Hz servo frame (D9/D10 stop
+        // dimming), and the Pico's slice 0 does (GP16/GP17 stop dimming).
+        if (this._core === 'avr' && this._cUses.servo && this._cUses.pwm) {
+            this.cWarn('servo takes Timer 1 for its 50 Hz frame — '
+                + '"set ... percent" on D9/D10 will not dim in this program; use D3/D11');
+        }
+        if (this._core === 'arm' && this._cUses.servo && this._cUses.pwm) {
+            this.cWarn('servo takes PWM slice 0 (GP16/GP17) for its 50 Hz frame — '
+                + 'do not dim on GP16/GP17 in this program');
         }
         if (this._cUses.ultrasonic && !chip.timer1) {
             this.cWarn(`ultrasonic distance requires Timer 1 — the ${device} has none`);
@@ -6943,9 +6954,62 @@ class SB3Creator {
             // stderr — one line per stub, naming the block that will do nothing.
             const stub = (sig, marker) => `${sig} { /* BW_STUB: ${marker} — no-op on hardware */ }`;
             const rstub = (sig, marker) => `${sig} { /* BW_STUB: ${marker} */ return 0; }`;
-            // Servo: real PCA 16-bit compare/match driver when _cUses.servo is set,
+            // Servo: a real driver per core when _cUses.servo is set,
             // otherwise fall back to the stub.
-            if (this._cUses.servo) {
+            if (this._cUses.servo && this._core === 'arm') {
+                out.push(
+                    '/* Servo driver: PWM slice 0 at 50 Hz — servo 1 = GP16 (channel A),',
+                    ' * servo 2 = GP17 (channel B). TOP 19999 at the 1 MHz slice clock is',
+                    ' * a 20 ms frame, and CC is then the pulse width in MICROSECONDS',
+                    ' * directly (500-2500). Slice 0 belongs to the servos: dimming on',
+                    ' * GP16/GP17 in the same program would retune their frame. */',
+                    'static int _servo_angle[2];',
+                    '',
+                    'static void bw_servo_set(int servo, int angle)',
+                    '{',
+                    '    uint32_t gpio, us;',
+                    '    if (servo < 1 || servo > 2) return;',
+                    '    if (angle < 0) angle = 0;',
+                    '    if (angle > 180) angle = 180;',
+                    '    _servo_angle[servo - 1] = angle;',
+                    '    gpio = 15u + (uint32_t)servo;            /* 1 -> GP16, 2 -> GP17 */',
+                    '    us = 500u + (uint32_t)angle * 2000u / 180u;',
+                    '    BW_IOBANK0_CTRL(gpio) = 4u;              /* funcsel PWM */',
+                    '    BW_PWM_DIV(0) = 125u << 4;               /* 1 MHz slice clock */',
+                    '    BW_PWM_TOP(0) = 19999u;                  /* 20 ms frame */',
+                    '    if (gpio & 1u) BW_PWM_CC(0) = (BW_PWM_CC(0) & 0xFFFFu) | (us << 16);',
+                    '    else BW_PWM_CC(0) = (BW_PWM_CC(0) & 0xFFFF0000u) | us;',
+                    '    BW_PWM_CSR(0) = 1u;',
+                    '}',
+                    '',
+                    'static int bw_servo_get(int servo)',
+                    '{ return (servo >= 1 && servo <= 2) ? _servo_angle[servo - 1] : 0; }',
+                    '');
+            } else if (this._cUses.servo && this._core === 'avr') {
+                out.push(
+                    '/* Servo driver: Timer 1 in mode 14 (fast PWM, ICR1 TOP) at 50 Hz —',
+                    ' * servo 1 = D9 (OC1A), servo 2 = D10 (OC1B). Prescaler 8 gives',
+                    ' * 0.5 µs ticks: ICR1 = 39999 is 20 ms and OCR1x = 2 × pulse-µs.',
+                    ' * Timer 1 belongs to the servos in this program (bw_setup put it',
+                    ' * in mode 14, not the dimmer\'s 8-bit mode). */',
+                    'static int _servo_angle[2];',
+                    '',
+                    'static void bw_servo_set(int servo, int angle)',
+                    '{',
+                    '    unsigned int us;',
+                    '    if (servo < 1 || servo > 2) return;',
+                    '    if (angle < 0) angle = 0;',
+                    '    if (angle > 180) angle = 180;',
+                    '    _servo_angle[servo - 1] = angle;',
+                    '    us = (unsigned int)(500u + (unsigned long)angle * 2000u / 180u);',
+                    '    if (servo == 1) { TCCR1A |= (1 << COM1A1); OCR1A = us * 2u; }',
+                    '    else            { TCCR1A |= (1 << COM1B1); OCR1B = us * 2u; }',
+                    '}',
+                    '',
+                    'static int bw_servo_get(int servo)',
+                    '{ return (servo >= 1 && servo <= 2) ? _servo_angle[servo - 1] : 0; }',
+                    '');
+            } else if (this._cUses.servo) {
                 // PCA module 0 on P1.3, 16-bit software-timer mode.
                 // At FOSC/12 (921.6 kHz for 11.0592 MHz), 20 ms = 18432 counts.
                 // Pulse: 500 µs (0°) = 461 counts, 2500 µs (180°) = 2304 counts.
@@ -7014,7 +7078,12 @@ class SB3Creator {
             // port 3 pins on every STC12 dev board.
             //   forward: IN1=1, IN2=0    reverse: IN1=0, IN2=1
             //   brake:   IN1=1, IN2=1    coast:   IN1=0, IN2=0
-            if (this._cUses.motor) {
+            if (this._cUses.motor && this._core !== '8051') {
+                this.cWarn(`motor blocks are not yet ported to the ${this._core === 'arm' ? 'RP2040' : 'AVR'} back end — emitted as no-op stubs`);
+                out.push(
+                    stub('static void bw_motor_speed(int speed)', 'devices_setmotor'),
+                    stub('static void bw_motor_dir(int dir)', 'devices_motordir'));
+            } else if (this._cUses.motor) {
                 out.push(
                     '/* DC motor driver: PCA module 1 (CCP1, P1.4) in 8-bit PWM mode. */',
                     '/* No ISR needed — the hardware toggles the pin autonomously. */',
@@ -7473,10 +7542,17 @@ class SB3Creator {
                     '    OCR0A  = BW_OCR0A;             /* one compare = 1 ms */',
                     '    TIMSK0 = (1 << OCIE0A);        /* millisecond tick */');
             }
-            if (this._cUses.pwm || this._cUses.motor) {
+            if (this._cUses.servo) {
+                out.push('    TCCR1A = (1 << WGM11);         /* Timer 1: mode 14, servo frame */',
+                    '    TCCR1B = (1 << WGM13) | (1 << WGM12) | (1 << CS11);  /* F_CPU/8 */',
+                    '    ICR1 = 39999;                  /* 20 ms at 0.5 us ticks */',
+                    '    DDRB |= (1 << 1) | (1 << 2);   /* D9/D10 = the servo pins */');
+            } else if (this._cUses.pwm || this._cUses.motor) {
                 out.push('    TCCR1A = (1 << WGM10);         /* Timer 1: 8-bit fast PWM */',
-                    '    TCCR1B = (1 << WGM12) | (1 << CS11) | (1 << CS10);  /* F_CPU/64 */',
-                    '    TCCR2A = (1 << WGM20) | (1 << WGM21);  /* Timer 2: fast PWM */',
+                    '    TCCR1B = (1 << WGM12) | (1 << CS11) | (1 << CS10);  /* F_CPU/64 */');
+            }
+            if (this._cUses.pwm || this._cUses.motor) {
+                out.push('    TCCR2A = (1 << WGM20) | (1 << WGM21);  /* Timer 2: fast PWM */',
                     '    TCCR2B = (1 << CS22);          /* F_CPU/64 */');
             }
             if (this._cUses.print) {

@@ -2263,6 +2263,31 @@ test('generateC emits AVR bare metal for an Arduino board — the back end lande
     assert.deepEqual(c._cWarnings, [], `clean emission: ${JSON.stringify(c._cWarnings)}`);
 });
 
+test('servo is real on both gcc cores: 50 Hz frames, microsecond pulses', () => {
+    // Pico: slice 0, TOP 19999 at 1 MHz — CC is the pulse in microseconds.
+    const pico = new SB3Creator();
+    pico.parse('DEVICE PICO\nPIN led1 = GP25 OUTPUT\n\nWHEN flag clicked:\n  set 1 angle to 90\n');
+    const pc = pico.generateC(pico.project, { debug: true });
+    assert.match(pc, /bw_servo_set\(1, 90\);/);
+    assert.match(pc, /BW_PWM_TOP\(0\) = 19999u;/, 'the 20 ms servo frame on slice 0');
+    assert.match(pc, /15u \+ \(uint32_t\)servo/, 'servo 1 = GP16, servo 2 = GP17');
+    assert.ok(!/P1_3|CCON|__interrupt/.test(pc), 'no 8051 PCA leaked onto the Pico');
+
+    // AVR: Timer 1 mode 14, ICR1 TOP, 0.5 µs ticks — and Timer 1 then
+    // belongs to the servos, so dimming on D9/D10 is warned about.
+    const avr = new SB3Creator();
+    avr.parse('DEVICE ARDUINO-NANO\nPIN led1 = D13 OUTPUT\nPIN dim = D3 OUTPUT\n\nWHEN flag clicked:\n  set 1 angle to 90\n  set dim to 30 percent\n');
+    const ac = avr.generateC(avr.project, { debug: true });
+    assert.match(ac, /ICR1 = 39999;/, 'the 20 ms frame at 0.5 us ticks');
+    assert.match(ac, /TCCR1B = \(1 << WGM13\) \| \(1 << WGM12\) \| \(1 << CS11\);/, 'mode 14, F_CPU/8');
+    assert.match(ac, /OCR1A = us \* 2u;/, 'OC1A carries servo 1');
+    assert.ok(!/CCAP0|bw_pca_isr/.test(ac), 'no 8051 PCA leaked onto the AVR');
+    assert.ok(avr._cWarnings.some((w) => /Timer 1.*D9\/D10/.test(w)),
+        'servo + dimmer: the Timer 1 takeover is stated');
+    // D3 dimming still works alongside the servo (Timer 2 is untouched).
+    assert.match(ac, /pwm_set\(3, /);
+});
+
 test('ARM flavor: DEVICE PICO emits freestanding Cortex-M0 bare metal', () => {
     const c = new SB3Creator();
     c.parse('DEVICE PICO\nPIN led1 = GP25 OUTPUT\nPIN pot1 = GP26 ANALOG\n\nWHEN flag clicked:\n  FOREVER:\n    turn on led1\n    wait 0.5 seconds\n    turn off led1\n    wait 0.5 seconds\n\nWHEN flag clicked:\n  FOREVER:\n    print read pot1\n    wait 1 seconds\n');
