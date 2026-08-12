@@ -2263,6 +2263,60 @@ test('generateC emits AVR bare metal for an Arduino board — the back end lande
     assert.deepEqual(c._cWarnings, [], `clean emission: ${JSON.stringify(c._cWarnings)}`);
 });
 
+test('ARM flavor: DEVICE PICO emits freestanding Cortex-M0 bare metal', () => {
+    const c = new SB3Creator();
+    c.parse('DEVICE PICO\nPIN led1 = GP25 OUTPUT\nPIN pot1 = GP26 ANALOG\n\nWHEN flag clicked:\n  FOREVER:\n    turn on led1\n    wait 0.5 seconds\n    turn off led1\n    wait 0.5 seconds\n\nWHEN flag clicked:\n  FOREVER:\n    print read pot1\n    wait 1 seconds\n');
+    assert.deepEqual(c.warnings, []);
+    const out = c.generateC(c.project, { debug: true });
+    // The SIO idioms: set/clr registers, single-writer atomic, no RMW.
+    assert.match(out, /BW_SIO_GPIO_OUT_SET = \(1UL << 25\);/);
+    assert.match(out, /BW_SIO_GPIO_OUT_CLR = \(1UL << 25\);/);
+    // funcsel before level before OE — the boot discipline, ARM spelling.
+    assert.match(out, /BW_IOBANK0_CTRL\(25\) = 5u;[\s\S]*BW_SIO_GPIO_OE_SET = \(1UL << 25\);/);
+    // The ISR-free timebase: a 64-bit latched read, never a tick ISR.
+    assert.match(out, /BW_TIMER_TIMELR/);
+    assert.match(out, /\(uint32_t\)\(\(\(\(\(uint64_t\)hi\) << 32\) \| lo\) \/ 1000u\)/);
+    assert.ok(!/ISR\(|__interrupt|sei\(\)|TMOD|TCCR0A/.test(out), 'no ISR and no other core\'s timer');
+    // GP26 is ADC channel 0; the datasheet's two-phase start sequence.
+    assert.match(out, /adc_read\(0\)/);
+    assert.match(out, /EN \| AINSEL[\s\S]*START_ONCE/);
+    // Scheduler variables are volatile (gcc dead-store elimination, as on AVR).
+    assert.match(out, /static volatile unsigned int bw_task0_state;/);
+    // Freestanding: int main, watchdog tick enabled for real silicon.
+    assert.match(out, /int main\(void\)/);
+    assert.match(out, /BW_WATCHDOG_TICK = \(1u << 9\) \| 12u;/);
+    // print brings UART0 up on GP0 with computed divisors.
+    assert.match(out, /BW_IOBANK0_CTRL\(0\) = 2u;/);
+    assert.match(out, /BW_UART0_IBRD/);
+    // No leaks from the other two cores.
+    assert.ok(!/PORTB|PINB|DDRB|avr\/io\.h|P1M1|AUXR|__sbit|P1_0|T0_RELOAD/.test(out),
+        'no AVR or 8051 register leaked across the core split');
+    assert.deepEqual(c._cWarnings, [], `clean emission: ${JSON.stringify(c._cWarnings)}`);
+    // Marker header carries the device and the GP spelling.
+    assert.match(out, /@bw device pico/);
+    assert.match(out, /@bw pin led1 GP25 output/);
+});
+
+test('ARM flavor: toggle idiom, active-low, and the stated PWM refusal', () => {
+    const c = new SB3Creator();
+    c.parse('DEVICE PICO\nPIN led = GP15 OUTPUT ACTIVE LOW\n\nWHEN flag clicked:\n  turn on led\n  toggle led\n  set led to 40 percent\n');
+    const out = c.generateC(c.project, { debug: true });
+    assert.match(out, /BW_SIO_GPIO_OUT_CLR = \(1UL << 15\);/, 'turn ON an ACTIVE LOW pin drives it LOW');
+    assert.match(out, /BW_SIO_GPIO_OUT_XOR = \(1UL << 15\);/, 'toggle uses the hardware XOR register');
+    assert.match(out, /BW_SIO_GPIO_OUT_SET = \(1UL << 15\);\s+\/\* led: start OFF \*\//,
+        'boot level set BEFORE output enable');
+    assert.match(out, /pwm_set\(.*\)/, 'the PWM call site still emits');
+    assert.match(out, /NOT YET PORTED/, 'and the stub says so instead of lying');
+    assert.ok(c._cWarnings.some((w) => /PWM.*not yet ported.*RP2040/i.test(w)), 'stated in warnings too');
+});
+
+test('ARM flavor: ANALOG means GP26-GP28, said plainly otherwise', () => {
+    const c = new SB3Creator();
+    c.parse('DEVICE PICO\nPIN pot = GP5 ANALOG\n');
+    assert.ok(c.warnings.some((w) => /ANALOG on the Pico means GP26, GP27 or GP28/.test(w)),
+        `expected the channel warning, got ${JSON.stringify(c.warnings)}`);
+});
+
 test('AVR flavor: active-low, analog channels, toggle, and stated PWM refusal', () => {
     const c = new SB3Creator();
     c.parse('DEVICE ARDUINO-NANO\nPIN led = D8 OUTPUT ACTIVE LOW\nPIN pot = A6 ANALOG\n\nWHEN flag clicked:\n  turn on led\n  toggle led\n  set led to 40 percent\n  print read pot\n');

@@ -1263,6 +1263,10 @@ class SB3Creator {
                 && SB3Creator.STC_PARTS[device].core === 'arduino') {
                 cfg.clock = 16000000;
             }
+            if (wasDefault && SB3Creator.STC_PARTS[device]
+                && SB3Creator.STC_PARTS[device].core === 'rp2040') {
+                cfg.clock = 125000000;
+            }
             return true;
         }
         if ((m = trimmed.match(/^CLOCK\s+([\d_]+)\s*(hz|mhz)?$/i))) {
@@ -1318,6 +1322,10 @@ class SB3Creator {
             // above about not disagreeing with it.
             if (cfg.device === 'arduino-nano' && /^A[67]$/i.test(where) && !/^analog$/i.test(direction)) {
                 this.warn(lineIndex, `${where.toUpperCase()} is analog-input only on the Nano (the TQFP package brings out the ADC channel with no digital buffer), so it cannot be an ${direction.toUpperCase()}`);
+                return true;
+            }
+            if (core === 'rp2040' && /^analog$/i.test(direction) && !/^GP2[678]$/i.test(where)) {
+                this.warn(lineIndex, `ANALOG on the Pico means GP26, GP27 or GP28 (ADC0-2), not ${where.toUpperCase()}`);
                 return true;
             }
             if (core === 'arduino' && /^analog$/i.test(direction) && !/^A/i.test(where)) {
@@ -4888,6 +4896,12 @@ class SB3Creator {
         A4: ['C', 4], A5: ['C', 5]
     };
 
+    /** The GPIO index for a Pico pin record (GP<n> -> n), or null. */
+    armHw(pin) {
+        const m = String(pin.where || '').toUpperCase().match(/^GP(\d+)$/);
+        return m && Number(m[1]) <= 28 ? { gpio: Number(m[1]) } : null;
+    }
+
     /** {reg, bit} for an AVR pin record, or null (A6/A7 and unknowns). */
     avrHw(pin) {
         const hw = SB3Creator.AVR_PINS[String(pin.where || '').toUpperCase()];
@@ -4919,6 +4933,14 @@ class SB3Creator {
             // produces C that does not compile, instead of C that lies.
             return `BW_AVR:${pin.name}`;
         }
+        if (this._core === 'arm') {
+            const hw = this.armHw(pin);
+            if (!hw) {
+                this.cWarn(`"${pin.name}" (${pin.where}) is not a Pico GPIO`);
+                return null;
+            }
+            return `BW_ARM:${pin.name}`;   // same non-lvalue discipline as the AVR
+        }
         return `P${pin.port}_${pin.bit}`;
     }
 
@@ -4937,6 +4959,11 @@ class SB3Creator {
                 const ch = Number(String(pin.where || '').replace(/^A/i, ''));
                 return `adc_read(${ch})`;
             }
+            if (this._core === 'arm') {
+                // GP26..GP28 carry ADC channels 0..2 on the Pico.
+                const hw = this.armHw(pin);
+                return `adc_read(${hw.gpio - 26})`;
+            }
             return `adc_read(${pin.bit})`;   // ADC channel n is physically P1.n
         }
         if (this._core === 'avr') {
@@ -4946,6 +4973,15 @@ class SB3Creator {
                 return `0 /* read ${this.cComment(name)} */`;
             }
             const raw = `((PIN${hw.reg} >> ${hw.bit}) & 1)`;
+            return pin.activeLow ? `!${raw}` : raw;
+        }
+        if (this._core === 'arm') {
+            const hw = this.armHw(pin);
+            if (!hw) {
+                this.cWarn(`"${pin.name}" (${pin.where}) cannot be read digitally`);
+                return `0 /* read ${this.cComment(name)} */`;
+            }
+            const raw = `((BW_SIO_GPIO_IN >> ${hw.gpio}) & 1u)`;
             return pin.activeLow ? `!${raw}` : raw;
         }
         const sfr = `P${pin.port}_${pin.bit}`;
@@ -4965,6 +5001,14 @@ class SB3Creator {
             return high
                 ? `PORT${hw.reg} |= (1 << ${hw.bit});`
                 : `PORT${hw.reg} &= (uint8_t)~(1 << ${hw.bit});`;
+        }
+        if (this._core === 'arm') {
+            const hw = this.armHw(pin);
+            // SIO's set/clr registers are single-writer atomic — the RP2040's
+            // own idiom, no read-modify-write anywhere.
+            return high
+                ? `BW_SIO_GPIO_OUT_SET = (1UL << ${hw.gpio});`
+                : `BW_SIO_GPIO_OUT_CLR = (1UL << ${hw.gpio});`;
         }
         return `${sfr} = ${high ? 1 : 0};`;
     }
@@ -5173,6 +5217,11 @@ class SB3Creator {
                     return line(`if (${v('VALUE')}) PORT${hw.reg} |= (1 << ${hw.bit}); `
                         + `else PORT${hw.reg} &= (uint8_t)~(1 << ${hw.bit});`);
                 }
+                if (this._core === 'arm') {
+                    const hw = this.armHw(this.cPin(f('PIN')));
+                    return line(`if (${v('VALUE')}) BW_SIO_GPIO_OUT_SET = (1UL << ${hw.gpio}); `
+                        + `else BW_SIO_GPIO_OUT_CLR = (1UL << ${hw.gpio});`);
+                }
                 return line(`${sfr} = (${v('VALUE')}) ? 1 : 0;`);
             }
             case 'stc12_toggle': {
@@ -5183,6 +5232,11 @@ class SB3Creator {
                     // Writing 1 to PINx toggles PORTx in hardware — one cycle,
                     // no read-modify-write race. The datasheet's own idiom.
                     return line(`PIN${hw.reg} = (1 << ${hw.bit});`);
+                }
+                if (this._core === 'arm') {
+                    const hw = this.armHw(this.cPin(f('PIN')));
+                    // GPIO_OUT_XOR: the RP2040's hardware toggle, same idiom.
+                    return line(`BW_SIO_GPIO_OUT_XOR = (1UL << ${hw.gpio});`);
                 }
                 return line(`${sfr} = !${sfr};`);
             }
@@ -5854,7 +5908,7 @@ class SB3Creator {
         const device = String(opts.device || stored.device || 'stc12c5a60s2').toLowerCase();
         const part = SB3Creator.STC_PARTS[device];
         const clock = Number(opts.clock || stored.clock
-            || ((part && part.core === 'arduino') ? 16000000 : 11059200));
+            || ((part && part.core === 'arduino') ? 16000000 : (part && part.core === 'rp2040') ? 125000000 : 11059200));
         const pins = opts.pins || stored.pins || [];
         if (!part) this.cWarn(`unknown DEVICE "${device}" — emitting for stc12c5a60s2`);
         // Which core? '8051' emits SFR bare metal; 'arduino' emits AVR bare
@@ -5863,8 +5917,10 @@ class SB3Creator {
         // artefact there. The scheduler, state machines and @bw yield map are
         // core-neutral by construction, so the debugger contract carries over
         // to the AVR unchanged.
-        this._core = (part && part.core === 'arduino') ? 'avr' : '8051';
-        if (part && part.core && part.core !== '8051' && part.core !== 'arduino') {
+        this._core = (part && part.core === 'arduino') ? 'avr'
+            : (part && part.core === 'rp2040') ? 'arm' : '8051';
+        if (part && part.core && part.core !== '8051' && part.core !== 'arduino'
+            && part.core !== 'rp2040') {
             const how = part.core === 'micropython'
                 ? 'runs MicroPython, where the program IS the artefact and there is nothing to compile'
                 : 'has numbered pins and no 8051 registers';
@@ -5984,8 +6040,8 @@ class SB3Creator {
                     const ctx = { task, state: 0, statics, tasks: taskNames, yields: debug ? yieldMap : [] };
                     if (debug) yieldMap.push({ task, state: 0, block: topId, kind: 'hat' });
                     const body = this.cTaskFrom(b.next, blocks, 1, ctx);
-                    taskDefs.push(`static ${this._core === 'avr' ? 'volatile ' : ''}unsigned int ${task}_state;`);
-                    if (this.cHasWait(b.next, blocks)) taskDefs.push(`static ${this._core === 'avr' ? 'volatile ' : ''}unsigned int ${task}_until;`);
+                    taskDefs.push(`static ${this._core !== '8051' ? 'volatile ' : ''}unsigned int ${task}_state;`);
+                    if (this.cHasWait(b.next, blocks)) taskDefs.push(`static ${this._core !== '8051' ? 'volatile ' : ''}unsigned int ${task}_until;`);
                     taskDefs.push(...hatNote,
                         `/* when green flag clicked (script ${n + 1}${where}) */`,
                         `static void ${task}(void)`, '{',
@@ -6022,8 +6078,8 @@ class SB3Creator {
                         const test = edge === 'pressed'
                             ? `now && !${task}_prev`
                             : `!now && ${task}_prev`;
-                        taskDefs.push(`static ${this._core === 'avr' ? 'volatile ' : ''}unsigned int ${task}_state;`);
-                        if (this.cHasWait(b.next, blocks)) taskDefs.push(`static ${this._core === 'avr' ? 'volatile ' : ''}unsigned int ${task}_until;`);
+                        taskDefs.push(`static ${this._core !== '8051' ? 'volatile ' : ''}unsigned int ${task}_state;`);
+                        if (this.cHasWait(b.next, blocks)) taskDefs.push(`static ${this._core !== '8051' ? 'volatile ' : ''}unsigned int ${task}_until;`);
                         taskDefs.push(`static unsigned char ${task}_prev;`);
                         taskDefs.push(...hatNote,
                             `/* WHEN ${this.cComment(pinName)} ${edge}: (script ${n + 1}${where})`,
@@ -6092,8 +6148,8 @@ class SB3Creator {
                             break;
                         }
                     }
-                    taskDefs.push(`static ${this._core === 'avr' ? 'volatile ' : ''}unsigned int ${task}_state;`);
-                    if (this.cHasWait(b.next, blocks)) taskDefs.push(`static ${this._core === 'avr' ? 'volatile ' : ''}unsigned int ${task}_until;`);
+                    taskDefs.push(`static ${this._core !== '8051' ? 'volatile ' : ''}unsigned int ${task}_state;`);
+                    if (this.cHasWait(b.next, blocks)) taskDefs.push(`static ${this._core !== '8051' ? 'volatile ' : ''}unsigned int ${task}_until;`);
                     taskDefs.push(`static unsigned char ${task}_prev;`);
                     taskDefs.push(...hatNote,
                         `/* ${this.cComment(this.decompileHat(b, blocks) || b.opcode)} (script ${n + 1}${where}) */`,
@@ -6330,7 +6386,34 @@ class SB3Creator {
             for (const m of marks) out.push(` * @bw ${this.cComment(m)}`);
             out.push(' * @bw-end */');
         }
-        if (this._core === 'avr') {
+        if (this._core === 'arm') {
+            out.push('#include <stdint.h>', '');
+            out.push(`#define F_CPU ${clock}UL`, '');
+            out.push('/* Freestanding Cortex-M0+: no SDK, no headers — the registers this',
+                ' * program touches, spelled as addresses from the RP2040 datasheet.',
+                ' * SIO (single-cycle I/O) owns the GPIO bits; IO_BANK0 selects the',
+                ' * pin function; the 1 MHz TIMER is the timebase (no tick ISR at',
+                ' * all — bw_now() reads the microsecond counter directly). */',
+                '#define BW_MMIO(a) (*(volatile uint32_t *)(a))',
+                '#define BW_SIO_GPIO_IN       BW_MMIO(0xd0000004u)',
+                '#define BW_SIO_GPIO_OUT_SET  BW_MMIO(0xd0000014u)',
+                '#define BW_SIO_GPIO_OUT_CLR  BW_MMIO(0xd0000018u)',
+                '#define BW_SIO_GPIO_OUT_XOR  BW_MMIO(0xd000001cu)',
+                '#define BW_SIO_GPIO_OE_SET   BW_MMIO(0xd0000024u)',
+                '#define BW_IOBANK0_CTRL(n)   BW_MMIO(0x40014004u + (uint32_t)(n) * 8u)',
+                '#define BW_PADS(n)           BW_MMIO(0x4001c004u + (uint32_t)(n) * 4u)',
+                '#define BW_TIMER_TIMELR      BW_MMIO(0x4005400cu)',
+                '#define BW_TIMER_TIMEHR      BW_MMIO(0x40054008u)',
+                '#define BW_WATCHDOG_TICK     BW_MMIO(0x4005802cu)',
+                '#define BW_ADC_CS            BW_MMIO(0x4004c000u)',
+                '#define BW_ADC_RESULT        BW_MMIO(0x4004c004u)',
+                '#define BW_UART0_DR          BW_MMIO(0x40034000u)',
+                '#define BW_UART0_FR          BW_MMIO(0x40034018u)',
+                '#define BW_UART0_IBRD        BW_MMIO(0x40034024u)',
+                '#define BW_UART0_FBRD        BW_MMIO(0x40034028u)',
+                '#define BW_UART0_LCR_H       BW_MMIO(0x4003402cu)',
+                '#define BW_UART0_CR          BW_MMIO(0x40034030u)', '');
+        } else if (this._core === 'avr') {
             out.push('#include <avr/io.h>',
                 '#include <avr/interrupt.h>',
                 '#include <stdint.h>', '');
@@ -6350,7 +6433,33 @@ class SB3Creator {
             '#define T0_RELOAD (65536UL - (FOSC_HZ / 12UL / 1000UL))', '');
         }
 
-        if (this._cTasks) {
+        if (this._cTasks && this._core === 'arm') {
+            out.push('/* One script = one cooperative task; tasks yield at every wait and at',
+                ' * every loop iteration (Scratch\'s own scheduling contract). There is',
+                ' * NO tick ISR on this core: the RP2040\'s TIMER counts microseconds in',
+                ' * hardware, so program time is read, not maintained. */', '');
+            if (this._cUses.now || this._cUses.blockDelay) {
+                out.push('/* TIMELR latches TIMEHR: the pair is a coherent 64-bit read, so the',
+                    ' * millisecond count wraps as a uint32 truncation of a monotonic count',
+                    ' * — delta arithmetic stays correct across the seam (a bare 32-bit',
+                    ' * microsecond read would wrap at 71 minutes on a NON-power-of-two',
+                    ' * millisecond boundary, and one wait per boot would misfire). */',
+                    'static uint32_t bw_now(void)',
+                    '{',
+                    '    uint32_t lo = BW_TIMER_TIMELR;',
+                    '    uint32_t hi = BW_TIMER_TIMEHR;',
+                    '    return (uint32_t)(((((uint64_t)hi) << 32) | lo) / 1000u);',
+                    '}', '');
+            }
+            if (this._cUses.blockDelay) {
+                out.push('/* A wait inside a custom block: really blocks, but on the timer. */',
+                    'static void bw_block_ms(uint32_t ms)',
+                    '{',
+                    '    uint32_t start = bw_now();',
+                    '    while ((int32_t)(bw_now() - start - ms) < 0) ;',
+                    '}', '');
+            }
+        } else if (this._cTasks) {
             out.push('/* One script = one cooperative task. Timer 0 interrupts every millisecond;',
                 ' * tasks yield at every wait and at every loop iteration (Scratch\'s own',
                 ' * scheduling contract), so no task can starve the others. */',
@@ -6410,6 +6519,20 @@ class SB3Creator {
                     '}', ''
                 ]));
             }
+        } else if (this._cUses.delay && this._core === 'arm') {
+            out.push('/* No scheduler in this build; the hardware timer still counts, so a',
+                ' * blocking delay is a wait on the microsecond counter. */',
+                'static uint32_t bw_now(void)',
+                '{',
+                '    uint32_t lo = BW_TIMER_TIMELR;',
+                '    uint32_t hi = BW_TIMER_TIMEHR;',
+                '    return (uint32_t)(((((uint64_t)hi) << 32) | lo) / 1000u);',
+                '}', '',
+                'static void delay_ms(uint32_t ms)',
+                '{',
+                '    uint32_t start = bw_now();',
+                '    while ((int32_t)(bw_now() - start - ms) < 0) ;',
+                '}', '');
         } else if (this._cUses.delay) {
             out.push(...(this._core === 'avr' ? [
                 '/* No scheduler in this build; the tick still runs (main() starts it),',
@@ -6461,6 +6584,29 @@ class SB3Creator {
                 '}', '');
         }
 
+        if (this._core === 'arm' && this._cUses.print) {
+            out.push('/* print goes out UART0 (GP0) at 9600 8N1 — the same wire the other',
+                ' * builds use, so the serial monitor does not care which chip talks. */',
+                'static void bw_putc(char c)',
+                '{',
+                '    while (BW_UART0_FR & (1u << 5)) ;   /* TXFF: FIFO full */',
+                '    BW_UART0_DR = (uint32_t)(uint8_t)c;',
+                '}', '',
+                'static void bw_print(const char *s)',
+                '{',
+                '    while (*s) bw_putc(*s++);',
+                '    bw_putc(13); bw_putc(10);',
+                '}', '',
+                'static void bw_print_num(long n)',
+                '{',
+                '    char buf[12]; unsigned char i = 0;',
+                '    unsigned long u;',
+                '    if (n < 0) { bw_putc(45); u = (unsigned long)(-n); } else { u = (unsigned long)n; }',
+                '    do { buf[i++] = (char)(48 + (u % 10)); u /= 10; } while (u);',
+                '    while (i) bw_putc(buf[--i]);',
+                '    bw_putc(13); bw_putc(10);',
+                '}', '');
+        }
         if (this._core === 'avr' && this._cUses.print) {
             out.push('/* print goes out UART0 at 9600 8N1 — the same wire the 8051 build uses,',
                 ' * so the serial monitor does not care which chip is talking. */',
@@ -6484,7 +6630,18 @@ class SB3Creator {
                 '    bw_putc(13); bw_putc(10);',
                 '}', '');
         }
-        if (this._cUses.adc && this._core === 'avr') {
+        if (this._cUses.adc && this._core === 'arm') {
+            out.push('/* 12-bit ADC, polled over APB. Channel n is GP(26+n). The datasheet',
+                ' * sequence: enable, wait READY, START_ONCE, wait READY, read RESULT. */',
+                'static unsigned int adc_read(unsigned char channel)',
+                '{',
+                '    BW_ADC_CS = 1u | ((uint32_t)channel << 12);        /* EN | AINSEL */',
+                '    while (!(BW_ADC_CS & (1u << 8))) ;                 /* READY */',
+                '    BW_ADC_CS = 1u | (1u << 2) | ((uint32_t)channel << 12);  /* + START_ONCE */',
+                '    while (!(BW_ADC_CS & (1u << 8))) ;                 /* conversion done */',
+                '    return (unsigned int)(BW_ADC_RESULT & 0xFFFu);',
+                '}', '');
+        } else if (this._cUses.adc && this._core === 'avr') {
             out.push('/* 10-bit ADC, polled, AVcc reference. Channel = the A-pin number;',
                 ' * A6/A7 exist on the Nano as ADC-only pads and work here too. */',
                 'static unsigned int adc_read(unsigned char channel)',
@@ -6514,9 +6671,9 @@ class SB3Creator {
                 '}', '');
         }
 
-        if ((this._cUses.pwm || this._cUses.motor) && this._core === 'avr') {
-            this.cWarn('PWM/motor blocks are not yet ported to the AVR back end — emitted as no-op stubs');
-            out.push('/* PWM is NOT YET PORTED to the AVR back end: stubs so the build stays',
+        if ((this._cUses.pwm || this._cUses.motor) && this._core !== '8051') {
+            this.cWarn(`PWM/motor blocks are not yet ported to the ${this._core === 'arm' ? 'RP2040' : 'AVR'} back end — emitted as no-op stubs`);
+            out.push('/* PWM is NOT YET PORTED to this back end: stubs so the build stays',
                 ' * honest and compilable. The 8051 build drives real PCA hardware. */',
                 'static void pwm_set(unsigned char module, unsigned int percent_high)',
                 '{ (void)module; (void)percent_high; }', '');
@@ -6556,7 +6713,7 @@ class SB3Creator {
             // __code is SDCC's flash keyword; on AVR a plain const copy in RAM
             // keeps every read site untouched (PROGMEM would need pgm_read_*
             // wrappers at each) — tables here are tens of bytes, not kilobytes.
-            const tq = this._core === 'avr' ? 'static const unsigned char' : 'static const __code unsigned char';
+            const tq = this._core !== '8051' ? 'static const unsigned char' : 'static const __code unsigned char';
             for (const t of tables) {
                 out.push(`${tq} bw_tab_${t.name}[] = { ${t.values.map(hex2).join(', ')} };`);
             }
@@ -7250,7 +7407,40 @@ class SB3Creator {
                     '    UCSR0C = (1 << UCSZ01) | (1 << UCSZ00);  /* 8N1 */');
             }
         }
-        if (this._core !== 'avr') {
+        if (this._core === 'arm') {
+            out.push('    /* On real silicon the TIMER counts watchdog ticks; the bootrom',
+                '     * normally enables them. This build runs without a bootrom, so do',
+                '     * it here — the emulator does not care, the silicon will. */',
+                '    BW_WATCHDOG_TICK = (1u << 9) | 12u;');
+            for (const p of pins) {
+                const hw = this.armHw(p);
+                if (!hw) continue;
+                if (p.direction === 'output') {
+                    // Level BEFORE output-enable: an ACTIVE LOW load must never
+                    // see a power-on glitch while OE flips.
+                    const off = p.activeLow
+                        ? `BW_SIO_GPIO_OUT_SET = (1UL << ${hw.gpio});`
+                        : `BW_SIO_GPIO_OUT_CLR = (1UL << ${hw.gpio});`;
+                    out.push(`    BW_IOBANK0_CTRL(${hw.gpio}) = 5u;   /* ${p.name} = ${p.where}: funcsel SIO */`,
+                        `    ${off}      /* ${p.name}: start OFF */`,
+                        `    BW_SIO_GPIO_OE_SET = (1UL << ${hw.gpio});   /* output */`);
+                } else if (p.direction === 'input') {
+                    out.push(`    BW_IOBANK0_CTRL(${hw.gpio}) = 5u;   /* ${p.name} = ${p.where}: funcsel SIO, input */`);
+                } else if (p.direction === 'analog') {
+                    // The datasheet's ADC pad state: input buffer off, output
+                    // disable on — the pad becomes purely analog.
+                    out.push(`    BW_PADS(${hw.gpio}) = (1u << 7);   /* ${p.name} = ${p.where}: analog pad (OD=1, IE=0) */`);
+                }
+            }
+            if (this._cUses.print) {
+                out.push('    BW_IOBANK0_CTRL(0) = 2u;           /* GP0: funcsel UART0 TX */',
+                    `    BW_UART0_IBRD = (uint32_t)(F_CPU / 16UL / 9600UL);`,
+                    `    BW_UART0_FBRD = (uint32_t)((((F_CPU % (16UL * 9600UL)) * 64UL) + (8UL * 9600UL)) / (16UL * 9600UL));`,
+                    '    BW_UART0_LCR_H = (3u << 5) | (1u << 4);   /* 8N1, FIFO on */',
+                    '    BW_UART0_CR = (1u << 8) | 1u;             /* TX enable, UART enable */');
+            }
+        }
+        if (this._core === '8051') {
         const outputs = {};
         for (const p of pins) if (p.direction === 'output') outputs[p.port] = (outputs[p.port] || 0) | (1 << p.bit);
         if (chip.portModes) {
@@ -7377,9 +7567,14 @@ class SB3Creator {
         }
         }
         out.push('}', '',
-            this._core === 'avr' ? 'int main(void)' : 'void main(void)',
+            this._core !== '8051' ? 'int main(void)' : 'void main(void)',
             '{', '    bw_setup();');
-        if (this._cTasks && this._core === 'avr') {
+        if (this._cTasks && this._core === 'arm') {
+            out.push('',
+                '    for (;;) {                     /* no tick to start: time is read */',
+                ...taskNames.map((n) => `        ${n}();`),
+                '    }');
+        } else if (this._cTasks && this._core === 'avr') {
             out.push('    sei();                         /* tick on */',
                 '',
                 '    for (;;) {',
@@ -7397,6 +7592,10 @@ class SB3Creator {
                 '    }');
         } else if (this._core === 'avr') {
             out.push('    sei();', '');
+            out.push(...mainNote.map((l) => `    ${l}`));
+            out.push(...mainBody);
+        } else if (this._core === 'arm') {
+            out.push('');
             out.push(...mainNote.map((l) => `    ${l}`));
             out.push(...mainBody);
         } else {
@@ -7708,9 +7907,13 @@ SB3Creator.STC_PARTS = {
     atmega328p: { core: 'arduino', header: 'avr/io.h', portModes: false, aux1T: false, adc: true },
     // core: 'micropython' -- the program IS the artefact, so there is no C back
     // end for these by definition, not merely not yet. Pins are P0-P20 and the
-    // two buttons on a micro:bit, GP0-GP28 on a Pico.
+    // two buttons on a micro:bit.
     microbit: { core: 'micropython', header: null, portModes: false, aux1T: false, adc: true },
-    pico: { core: 'micropython', header: null, portModes: false, aux1T: false, adc: true }
+    // core: 'rp2040' -- GP0-GP28, and generateC() emits freestanding Cortex-M0
+    // bare metal (SIO GPIO, the 1 MHz TIMER as an ISR-free timebase, UART0,
+    // ADC over APB). Decided 2026-08-12 (stc docs/ROADMAP.md): bare-metal C
+    // first; MicroPython stays a future SECOND runtime for the same board.
+    pico: { core: 'rp2040', header: null, portModes: false, aux1T: false, adc: true }
 };
 
 // C keywords a sanitized Scratch name could collide with (sanitizeIdent only guards the
