@@ -13,7 +13,15 @@
       "circuit": "01-blink/circuit.json",
       "expected": "01-blink/EXPECTED.md"
     },
-    "kind": "program"
+    "kind": "program",
+    "devices": [
+      "stc12c5a60s2",
+      "stc89c52rc",
+      "stc15f2k60s2",
+      "arduino-uno",
+      "arduino-nano",
+      "pico"
+    ]
   },
   {
     "id": "02-dimmer",
@@ -29,7 +37,17 @@
       "circuit": "02-dimmer/circuit.json",
       "expected": "02-dimmer/EXPECTED.md"
     },
-    "kind": "program"
+    "kind": "program",
+    "devices": [
+      "stc12c5a60s2",
+      "stc15f2k60s2",
+      "arduino-uno",
+      "arduino-nano",
+      "pico"
+    ],
+    "refusals": {
+      "stc89c52rc": "stc89c52rc has no ADC — the analog pins cannot map"
+    }
   },
   {
     "id": "03-night-light",
@@ -45,7 +63,17 @@
       "circuit": "03-night-light/circuit.json",
       "expected": "03-night-light/EXPECTED.md"
     },
-    "kind": "program"
+    "kind": "program",
+    "devices": [
+      "stc12c5a60s2",
+      "stc15f2k60s2",
+      "arduino-uno",
+      "arduino-nano",
+      "pico"
+    ],
+    "refusals": {
+      "stc89c52rc": "stc89c52rc has no ADC — the analog pins cannot map"
+    }
   },
   {
     "id": "04-thermostat",
@@ -61,7 +89,17 @@
       "circuit": "04-thermostat/circuit.json",
       "expected": "04-thermostat/EXPECTED.md"
     },
-    "kind": "program"
+    "kind": "program",
+    "devices": [
+      "stc12c5a60s2",
+      "stc15f2k60s2",
+      "arduino-uno",
+      "arduino-nano",
+      "pico"
+    ],
+    "refusals": {
+      "stc89c52rc": "stc89c52rc has no ADC — the analog pins cannot map"
+    }
   },
   {
     "id": "05-counter",
@@ -77,7 +115,15 @@
       "circuit": "05-counter-7seg/circuit.json",
       "expected": "05-counter-7seg/EXPECTED.md"
     },
-    "kind": "program"
+    "kind": "program",
+    "devices": [
+      "stc12c5a60s2",
+      "stc89c52rc",
+      "stc15f2k60s2",
+      "arduino-uno",
+      "arduino-nano",
+      "pico"
+    ]
   },
   {
     "id": "06-active-low-high",
@@ -93,7 +139,15 @@
       "circuit": "06-active-low-high/circuit.json",
       "expected": "06-active-low-high/EXPECTED.md"
     },
-    "kind": "program"
+    "kind": "program",
+    "devices": [
+      "stc12c5a60s2",
+      "stc89c52rc",
+      "stc15f2k60s2",
+      "arduino-uno",
+      "arduino-nano",
+      "pico"
+    ]
   },
   {
     "id": "07-buzzer-siren",
@@ -109,7 +163,16 @@
       "circuit": "07-buzzer-siren/circuit.json",
       "expected": "07-buzzer-siren/EXPECTED.md"
     },
-    "kind": "program"
+    "kind": "program",
+    "devices": [],
+    "refusals": {
+      "stc12c5a60s2": "pin \"buzzer\" has direction tone, which does not retarget yet",
+      "stc89c52rc": "pin \"buzzer\" has direction tone, which does not retarget yet",
+      "stc15f2k60s2": "pin \"buzzer\" has direction tone, which does not retarget yet",
+      "arduino-uno": "tone is not ported to this core yet",
+      "arduino-nano": "tone is not ported to this core yet",
+      "pico": "tone is not ported to this core yet"
+    }
   },
   {
     "id": "08-led-chaser-595",
@@ -125,7 +188,15 @@
       "circuit": "08-led-chaser-595/circuit.json",
       "expected": "08-led-chaser-595/EXPECTED.md"
     },
-    "kind": "program"
+    "kind": "program",
+    "devices": [
+      "stc12c5a60s2",
+      "stc89c52rc",
+      "stc15f2k60s2",
+      "arduino-uno",
+      "arduino-nano",
+      "pico"
+    ]
   },
   {
     "id": "09-relay-clicker",
@@ -141,7 +212,15 @@
       "circuit": "09-relay-clicker/circuit.json",
       "expected": "09-relay-clicker/EXPECTED.md"
     },
-    "kind": "program"
+    "kind": "program",
+    "devices": [
+      "stc12c5a60s2",
+      "stc89c52rc",
+      "stc15f2k60s2",
+      "arduino-uno",
+      "arduino-nano",
+      "pico"
+    ]
   },
   {
     "id": "10-motor-speed",
@@ -157,7 +236,17 @@
       "circuit": "10-motor-speed/circuit.json",
       "expected": "10-motor-speed/EXPECTED.md"
     },
-    "kind": "program"
+    "kind": "program",
+    "devices": [
+      "stc12c5a60s2",
+      "stc15f2k60s2",
+      "arduino-uno",
+      "arduino-nano",
+      "pico"
+    ],
+    "refusals": {
+      "stc89c52rc": "stc89c52rc has no ADC — the analog pins cannot map"
+    }
   },
   {
     "id": "11-toggle-button",
@@ -173,7 +262,15 @@
       "circuit": "11-toggle-button/circuit.json",
       "expected": "11-toggle-button/EXPECTED.md"
     },
-    "kind": "program"
+    "kind": "program",
+    "devices": [
+      "stc12c5a60s2",
+      "stc89c52rc",
+      "stc15f2k60s2",
+      "arduino-uno",
+      "arduino-nano",
+      "pico"
+    ]
   },
   {
     "id": "12-dual-blink",
@@ -189,7 +286,15 @@
       "circuit": "12-dual-blink/circuit.json",
       "expected": "12-dual-blink/EXPECTED.md"
     },
-    "kind": "program"
+    "kind": "program",
+    "devices": [
+      "stc12c5a60s2",
+      "stc89c52rc",
+      "stc15f2k60s2",
+      "arduino-uno",
+      "arduino-nano",
+      "pico"
+    ]
   },
   {
     "id": "13-sos-morse",
@@ -205,7 +310,15 @@
       "circuit": "13-sos-morse/circuit.json",
       "expected": "13-sos-morse/EXPECTED.md"
     },
-    "kind": "program"
+    "kind": "program",
+    "devices": [
+      "stc12c5a60s2",
+      "stc89c52rc",
+      "stc15f2k60s2",
+      "arduino-uno",
+      "arduino-nano",
+      "pico"
+    ]
   },
   {
     "id": "14-traffic-light",
@@ -221,7 +334,15 @@
       "circuit": "14-traffic-light/circuit.json",
       "expected": "14-traffic-light/EXPECTED.md"
     },
-    "kind": "program"
+    "kind": "program",
+    "devices": [
+      "stc12c5a60s2",
+      "stc89c52rc",
+      "stc15f2k60s2",
+      "arduino-uno",
+      "arduino-nano",
+      "pico"
+    ]
   },
   {
     "id": "15-voltage-divider",
@@ -237,7 +358,17 @@
       "circuit": "15-voltage-divider/circuit.json",
       "expected": "15-voltage-divider/EXPECTED.md"
     },
-    "kind": "program"
+    "kind": "program",
+    "devices": [
+      "stc12c5a60s2",
+      "stc15f2k60s2",
+      "arduino-uno",
+      "arduino-nano",
+      "pico"
+    ],
+    "refusals": {
+      "stc89c52rc": "stc89c52rc has no ADC — the analog pins cannot map"
+    }
   },
   {
     "id": "16-ldr-bargraph",
@@ -253,7 +384,17 @@
       "circuit": "16-ldr-bargraph/circuit.json",
       "expected": "16-ldr-bargraph/EXPECTED.md"
     },
-    "kind": "program"
+    "kind": "program",
+    "devices": [
+      "stc12c5a60s2",
+      "stc15f2k60s2",
+      "arduino-uno",
+      "arduino-nano",
+      "pico"
+    ],
+    "refusals": {
+      "stc89c52rc": "stc89c52rc has no ADC — the analog pins cannot map"
+    }
   },
   {
     "id": "17-comparator",
@@ -269,7 +410,17 @@
       "circuit": "17-comparator/circuit.json",
       "expected": "17-comparator/EXPECTED.md"
     },
-    "kind": "program"
+    "kind": "program",
+    "devices": [
+      "stc12c5a60s2",
+      "stc15f2k60s2",
+      "arduino-uno",
+      "arduino-nano",
+      "pico"
+    ],
+    "refusals": {
+      "stc89c52rc": "stc89c52rc has no ADC — the analog pins cannot map"
+    }
   },
   {
     "id": "18-logic-and-gate",
@@ -285,7 +436,15 @@
       "circuit": "18-logic-and-gate/circuit.json",
       "expected": "18-logic-and-gate/EXPECTED.md"
     },
-    "kind": "program"
+    "kind": "program",
+    "devices": [
+      "stc12c5a60s2",
+      "stc89c52rc",
+      "stc15f2k60s2",
+      "arduino-uno",
+      "arduino-nano",
+      "pico"
+    ]
   },
   {
     "id": "19-logic-or-gate",
@@ -301,7 +460,15 @@
       "circuit": "19-logic-or-gate/circuit.json",
       "expected": "19-logic-or-gate/EXPECTED.md"
     },
-    "kind": "program"
+    "kind": "program",
+    "devices": [
+      "stc12c5a60s2",
+      "stc89c52rc",
+      "stc15f2k60s2",
+      "arduino-uno",
+      "arduino-nano",
+      "pico"
+    ]
   },
   {
     "id": "20-shift-register-binary",
@@ -317,7 +484,15 @@
       "circuit": "20-shift-register-binary/circuit.json",
       "expected": "20-shift-register-binary/EXPECTED.md"
     },
-    "kind": "program"
+    "kind": "program",
+    "devices": [
+      "stc12c5a60s2",
+      "stc89c52rc",
+      "stc15f2k60s2",
+      "arduino-uno",
+      "arduino-nano",
+      "pico"
+    ]
   },
   {
     "id": "21-resistor-led",
@@ -381,7 +556,15 @@
       "circuit": "24-pwm-fade/circuit.json",
       "expected": "24-pwm-fade/EXPECTED.md"
     },
-    "kind": "program"
+    "kind": "program",
+    "devices": [
+      "stc12c5a60s2",
+      "stc89c52rc",
+      "stc15f2k60s2",
+      "arduino-uno",
+      "arduino-nano",
+      "pico"
+    ]
   },
   {
     "id": "25-reaction-timer",
@@ -397,7 +580,15 @@
       "circuit": "25-reaction-timer/circuit.json",
       "expected": "25-reaction-timer/EXPECTED.md"
     },
-    "kind": "program"
+    "kind": "program",
+    "devices": [
+      "stc12c5a60s2",
+      "stc89c52rc",
+      "stc15f2k60s2",
+      "arduino-uno",
+      "arduino-nano",
+      "pico"
+    ]
   },
   {
     "id": "26-debounce",
@@ -413,7 +604,15 @@
       "circuit": "26-debounce/circuit.json",
       "expected": "26-debounce/EXPECTED.md"
     },
-    "kind": "program"
+    "kind": "program",
+    "devices": [
+      "stc12c5a60s2",
+      "stc89c52rc",
+      "stc15f2k60s2",
+      "arduino-uno",
+      "arduino-nano",
+      "pico"
+    ]
   },
   {
     "id": "27-led-dice",
@@ -429,7 +628,15 @@
       "circuit": "27-led-dice/circuit.json",
       "expected": "27-led-dice/EXPECTED.md"
     },
-    "kind": "program"
+    "kind": "program",
+    "devices": [
+      "stc12c5a60s2",
+      "stc89c52rc",
+      "stc15f2k60s2",
+      "arduino-uno",
+      "arduino-nano",
+      "pico"
+    ]
   },
   {
     "id": "28-diode-polarity",
@@ -477,7 +684,15 @@
       "circuit": "30-multi-led-pattern/circuit.json",
       "expected": "30-multi-led-pattern/EXPECTED.md"
     },
-    "kind": "program"
+    "kind": "program",
+    "devices": [
+      "stc12c5a60s2",
+      "stc89c52rc",
+      "stc15f2k60s2",
+      "arduino-uno",
+      "arduino-nano",
+      "pico"
+    ]
   },
   {
     "id": "31-no-resistor-led",
@@ -509,7 +724,15 @@
       "circuit": "32-source-vs-sink/circuit.json",
       "expected": "32-source-vs-sink/EXPECTED.md"
     },
-    "kind": "program"
+    "kind": "program",
+    "devices": [
+      "stc12c5a60s2",
+      "stc89c52rc",
+      "stc15f2k60s2",
+      "arduino-uno",
+      "arduino-nano",
+      "pico"
+    ]
   },
   {
     "id": "33-inductive-no-flyback",
@@ -721,6 +944,16 @@
       "program": "46-port-overcurrent/program.bw",
       "circuit": "46-port-overcurrent/circuit.json",
       "expected": "46-port-overcurrent/EXPECTED.md"
+    },
+    "devices": [
+      "stc12c5a60s2",
+      "stc89c52rc"
+    ],
+    "refusals": {
+      "stc15f2k60s2": "more digital outputs than stc15f2k60s2's convention offers (6)",
+      "arduino-uno": "more digital outputs than arduino-uno's convention offers (6)",
+      "arduino-nano": "more digital outputs than arduino-nano's convention offers (6)",
+      "pico": "more digital outputs than pico's convention offers (7)"
     }
   },
   {
@@ -827,6 +1060,16 @@
       "program": "53-servo-sweep/program.bw",
       "circuit": "53-servo-sweep/circuit.json",
       "expected": "53-servo-sweep/EXPECTED.md"
+    },
+    "devices": [
+      "stc12c5a60s2",
+      "stc15f2k60s2",
+      "arduino-uno",
+      "arduino-nano",
+      "pico"
+    ],
+    "refusals": {
+      "stc89c52rc": "servo needs the PCA — stc89c52rc has none"
     }
   },
   {
@@ -843,6 +1086,16 @@
       "program": "54-motor-driver/program.bw",
       "circuit": "54-motor-driver/circuit.json",
       "expected": "54-motor-driver/EXPECTED.md"
+    },
+    "devices": [
+      "stc12c5a60s2",
+      "stc89c52rc",
+      "stc15f2k60s2"
+    ],
+    "refusals": {
+      "arduino-uno": "motor blocks are stubs on this core",
+      "arduino-nano": "motor blocks are stubs on this core",
+      "pico": "motor blocks are stubs on this core"
     }
   },
   {
