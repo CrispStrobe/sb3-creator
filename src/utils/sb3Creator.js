@@ -7425,7 +7425,11 @@ class SB3Creator {
                         `    ${off}      /* ${p.name}: start OFF */`,
                         `    BW_SIO_GPIO_OE_SET = (1UL << ${hw.gpio});   /* output */`);
                 } else if (p.direction === 'input') {
-                    out.push(`    BW_IOBANK0_CTRL(${hw.gpio}) = 5u;   /* ${p.name} = ${p.where}: funcsel SIO, input */`);
+                    // The pad's INPUT ENABLE is not a given (rp2040js resets
+                    // it off; the SDK's gpio_init sets it) — without IE the
+                    // SIO GPIO_IN bit reads 0 whatever the pin does.
+                    out.push(`    BW_IOBANK0_CTRL(${hw.gpio}) = 5u;   /* ${p.name} = ${p.where}: funcsel SIO, input */`,
+                        `    BW_PADS(${hw.gpio}) = 0x42u;   /* ${p.name}: pad IE + schmitt */`);
                 } else if (p.direction === 'analog') {
                     // The datasheet's ADC pad state: input buffer off, output
                     // disable on — the pad becomes purely analog.
