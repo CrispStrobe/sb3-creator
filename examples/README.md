@@ -154,3 +154,7 @@ Each example is a directory with three files:
 
 `index.json` lists every example with an English and German title, a category,
 a difficulty rating (1–5), and whether it is a `circuit` or a `program`.
+New entries should also add `parts` (for example `no-mcu`, `led`, `resistor`,
+or `mcu`) and `targets` or `device` when they are target-specific. Keep the
+lesson concept generic where possible; target-specific projections belong in
+metadata rather than duplicated teaching text.
