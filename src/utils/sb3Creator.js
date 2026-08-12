@@ -5243,6 +5243,24 @@ class SB3Creator {
             case 'stc12_setpwm': {
                 this._cUses.pwm = true;
                 const pin = this._cPins && this._cPins.get(f('PIN').toLowerCase());
+                if (this._core === 'avr') {
+                    // Hardware PWM lives on the OC pins. D5/D6 are Timer 0's,
+                    // and Timer 0 IS the millisecond tick — refusing them is
+                    // what keeps every wait in the program honest.
+                    const d = pin ? Number(String(pin.where || '').replace(/^D/i, '')) : NaN;
+                    if (![3, 9, 10, 11].includes(d)) {
+                        this.cWarn(`"${pin ? pin.where : f('PIN')}" has no usable PWM: `
+                            + 'the ATmega328P does hardware PWM on D3/D9/D10/D11 here '
+                            + '(D5/D6 belong to Timer 0, which is the millisecond tick)');
+                        return line(`/* no PWM on ${this.cComment(pin ? pin.where : f('PIN'))} */`);
+                    }
+                    return line(`pwm_set(${d}, ${v('VALUE')});`);
+                }
+                if (this._core === 'arm') {
+                    const hw = pin ? this.armHw(pin) : null;
+                    if (!hw) return line(`/* no PWM on ${this.cComment(f('PIN'))} */`);
+                    return line(`pwm_set(${hw.gpio}, ${v('VALUE')});`);
+                }
                 const module = pin ? `${pin.port * 8 + pin.bit}` : '0';
                 return line(`pwm_set(${module}, ${v('VALUE')});`);
             }
@@ -6412,7 +6430,11 @@ class SB3Creator {
                 '#define BW_UART0_IBRD        BW_MMIO(0x40034024u)',
                 '#define BW_UART0_FBRD        BW_MMIO(0x40034028u)',
                 '#define BW_UART0_LCR_H       BW_MMIO(0x4003402cu)',
-                '#define BW_UART0_CR          BW_MMIO(0x40034030u)', '');
+                '#define BW_UART0_CR          BW_MMIO(0x40034030u)',
+                '#define BW_PWM_CSR(s)        BW_MMIO(0x40050000u + (uint32_t)(s) * 0x14u)',
+                '#define BW_PWM_DIV(s)        BW_MMIO(0x40050004u + (uint32_t)(s) * 0x14u)',
+                '#define BW_PWM_CC(s)         BW_MMIO(0x4005000cu + (uint32_t)(s) * 0x14u)',
+                '#define BW_PWM_TOP(s)        BW_MMIO(0x40050010u + (uint32_t)(s) * 0x14u)', '');
         } else if (this._core === 'avr') {
             out.push('#include <avr/io.h>',
                 '#include <avr/interrupt.h>',
@@ -6671,12 +6693,62 @@ class SB3Creator {
                 '}', '');
         }
 
-        if ((this._cUses.pwm || this._cUses.motor) && this._core !== '8051') {
-            this.cWarn(`PWM/motor blocks are not yet ported to the ${this._core === 'arm' ? 'RP2040' : 'AVR'} back end — emitted as no-op stubs`);
-            out.push('/* PWM is NOT YET PORTED to this back end: stubs so the build stays',
-                ' * honest and compilable. The 8051 build drives real PCA hardware. */',
-                'static void pwm_set(unsigned char module, unsigned int percent_high)',
-                '{ (void)module; (void)percent_high; }', '');
+        if ((this._cUses.pwm || this._cUses.motor) && this._core === 'arm') {
+            out.push('/* PWM: every RP2040 GPIO has a slice channel — slice (gpio/2)&7,',
+                ' * channel A/B by parity, CC packed A-low/B-high. TOP = 999 at a',
+                ' * 1 MHz slice clock gives 1 kHz PWM; CC = 0 is constant low and',
+                ' * CC = TOP+1 constant high, so 0%% and 100%% need no special case.',
+                ' * funcsel moves to PWM here — a later digital write to the same',
+                ' * pin would need funcsel SIO back (same takeover the PCA does',
+                ' * on the 8051): one pin, one job per program. */',
+                'static void pwm_set(unsigned char gpio, unsigned int percent)',
+                '{',
+                '    uint32_t slice = ((uint32_t)gpio >> 1) & 7u;',
+                '    uint32_t duty;',
+                '    if (percent > 100) percent = 100;',
+                '    duty = (percent * 1000u + 50u) / 100u;',
+                '    BW_IOBANK0_CTRL(gpio) = 4u;              /* funcsel PWM */',
+                '    BW_PWM_DIV(slice) = 125u << 4;           /* 125 MHz / 125 = 1 MHz */',
+                '    BW_PWM_TOP(slice) = 999u;',
+                '    if (gpio & 1u) BW_PWM_CC(slice) = (BW_PWM_CC(slice) & 0xFFFFu) | (duty << 16);',
+                '    else BW_PWM_CC(slice) = (BW_PWM_CC(slice) & 0xFFFF0000u) | duty;',
+                '    BW_PWM_CSR(slice) = 1u;                  /* enable */',
+                '}', '');
+        } else if ((this._cUses.pwm || this._cUses.motor) && this._core === 'avr') {
+            out.push('/* PWM on the OC pins of Timers 1 and 2 (D9/D10, D11/D3) — 8-bit',
+                ' * fast PWM at F_CPU/64/256 ≈ 977 Hz, the analogWrite frequency.',
+                ' * Timer 0 is the millisecond tick, so D5/D6 are refused at emit',
+                ' * time. 0%% and 100%% disconnect the compare unit and drive the',
+                ' * level directly — fast PWM cannot express either exactly. */',
+                'static void pwm_set(unsigned char pin, unsigned int percent)',
+                '{',
+                '    uint8_t v;',
+                '    if (percent > 100) percent = 100;',
+                '    v = (uint8_t)((percent * 255u + 50u) / 100u);',
+                '    switch (pin) {',
+                '    case 3:   /* OC2B */',
+                '        if (v == 0)        { TCCR2A &= (uint8_t)~(1 << COM2B1); PORTD &= (uint8_t)~(1 << 3); }',
+                '        else if (v == 255) { TCCR2A &= (uint8_t)~(1 << COM2B1); PORTD |= (1 << 3); }',
+                '        else               { TCCR2A |= (1 << COM2B1); OCR2B = v; }',
+                '        break;',
+                '    case 9:   /* OC1A */',
+                '        if (v == 0)        { TCCR1A &= (uint8_t)~(1 << COM1A1); PORTB &= (uint8_t)~(1 << 1); }',
+                '        else if (v == 255) { TCCR1A &= (uint8_t)~(1 << COM1A1); PORTB |= (1 << 1); }',
+                '        else               { TCCR1A |= (1 << COM1A1); OCR1A = v; }',
+                '        break;',
+                '    case 10:  /* OC1B */',
+                '        if (v == 0)        { TCCR1A &= (uint8_t)~(1 << COM1B1); PORTB &= (uint8_t)~(1 << 2); }',
+                '        else if (v == 255) { TCCR1A &= (uint8_t)~(1 << COM1B1); PORTB |= (1 << 2); }',
+                '        else               { TCCR1A |= (1 << COM1B1); OCR1B = v; }',
+                '        break;',
+                '    case 11:  /* OC2A */',
+                '        if (v == 0)        { TCCR2A &= (uint8_t)~(1 << COM2A1); PORTB &= (uint8_t)~(1 << 3); }',
+                '        else if (v == 255) { TCCR2A &= (uint8_t)~(1 << COM2A1); PORTB |= (1 << 3); }',
+                '        else               { TCCR2A |= (1 << COM2A1); OCR2A = v; }',
+                '        break;',
+                '    default: break;',
+                '    }',
+                '}', '');
         } else if (this._cUses.pwm || this._cUses.motor) {
             out.push('/* PCA PWM. The comparator is 9 bits, {EPCnH,CCAPnH} against (0,CL),',
                 ' * and it drives the pin LOW while CL is BELOW the compare value — so a',
@@ -7400,6 +7472,12 @@ class SB3Creator {
                     '    TCCR0B = (1 << CS01) | (1 << CS00);  /* F_CPU/64 */',
                     '    OCR0A  = BW_OCR0A;             /* one compare = 1 ms */',
                     '    TIMSK0 = (1 << OCIE0A);        /* millisecond tick */');
+            }
+            if (this._cUses.pwm || this._cUses.motor) {
+                out.push('    TCCR1A = (1 << WGM10);         /* Timer 1: 8-bit fast PWM */',
+                    '    TCCR1B = (1 << WGM12) | (1 << CS11) | (1 << CS10);  /* F_CPU/64 */',
+                    '    TCCR2A = (1 << WGM20) | (1 << WGM21);  /* Timer 2: fast PWM */',
+                    '    TCCR2B = (1 << CS22);          /* F_CPU/64 */');
             }
             if (this._cUses.print) {
                 out.push(`    UBRR0 = (uint16_t)(F_CPU / 16UL / 9600UL - 1UL);`,

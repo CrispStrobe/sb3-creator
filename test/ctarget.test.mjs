@@ -2305,9 +2305,12 @@ test('ARM flavor: toggle idiom, active-low, and the stated PWM refusal', () => {
     assert.match(out, /BW_SIO_GPIO_OUT_XOR = \(1UL << 15\);/, 'toggle uses the hardware XOR register');
     assert.match(out, /BW_SIO_GPIO_OUT_SET = \(1UL << 15\);\s+\/\* led: start OFF \*\//,
         'boot level set BEFORE output enable');
-    assert.match(out, /pwm_set\(.*\)/, 'the PWM call site still emits');
-    assert.match(out, /NOT YET PORTED/, 'and the stub says so instead of lying');
-    assert.ok(c._cWarnings.some((w) => /PWM.*not yet ported.*RP2040/i.test(w)), 'stated in warnings too');
+    // Real hardware PWM: GP15 is slice 7 channel B; 40% at TOP 999 is
+    // duty (40*1000+50)/100 = 400, packed into the CC high half.
+    assert.match(out, /pwm_set\(15, /, 'the call site passes the GPIO number');
+    assert.match(out, /BW_PWM_TOP\(slice\) = 999u;/);
+    assert.match(out, /BW_IOBANK0_CTRL\(gpio\) = 4u;/, 'funcsel moves to PWM');
+    assert.match(out, /duty << 16/, 'odd GPIOs land in the CC high half (channel B)');
 });
 
 test('ARM flavor: ANALOG means GP26-GP28, said plainly otherwise', () => {
@@ -2319,7 +2322,7 @@ test('ARM flavor: ANALOG means GP26-GP28, said plainly otherwise', () => {
 
 test('AVR flavor: active-low, analog channels, toggle, and stated PWM refusal', () => {
     const c = new SB3Creator();
-    c.parse('DEVICE ARDUINO-NANO\nPIN led = D8 OUTPUT ACTIVE LOW\nPIN pot = A6 ANALOG\n\nWHEN flag clicked:\n  turn on led\n  toggle led\n  set led to 40 percent\n  print read pot\n');
+    c.parse('DEVICE ARDUINO-NANO\nPIN led = D8 OUTPUT ACTIVE LOW\nPIN pot = A6 ANALOG\nPIN dim = D9 OUTPUT\n\nWHEN flag clicked:\n  turn on led\n  toggle led\n  set dim to 40 percent\n  set led to 40 percent\n  print read pot\n');
     const out = c.generateC(c.project, { debug: true });
     assert.match(out, /PORTB &= \(uint8_t\)~\(1 << 0\);/, 'turn ON an ACTIVE LOW pin drives it LOW');
     assert.match(out, /PORTB \|= \(1 << 0\);\s+\/\* led: start OFF \*\//, 'boot level set BEFORE direction');
@@ -2327,9 +2330,15 @@ test('AVR flavor: active-low, analog channels, toggle, and stated PWM refusal', 
     assert.match(out, /adc_read\(6\)/, 'A6 is ADC channel 6 (the Nano pad)');
     assert.match(out, /ADCSRA = \(1 << ADEN\)/, 'ADC enabled in setup');
     assert.match(out, /UBRR0/, 'print brings the UART up');
-    assert.match(out, /pwm_set\(.*\)/, 'the PWM call site still emits');
-    assert.match(out, /NOT YET PORTED/, 'and the stub says so instead of lying');
-    assert.ok(c._cWarnings.some((w) => /PWM.*not yet ported/i.test(w)), 'stated in warnings too');
+    // Real hardware PWM now: D9 = OC1A, Timer 1 fast PWM, and the
+    // 40% -> OCR arithmetic is (40*255+50)/100 = 102 inside pwm_set.
+    assert.match(out, /pwm_set\(9, /, 'D9 dispatches to the OC1A case');
+    assert.match(out, /TCCR1B = \(1 << WGM12\) \| \(1 << CS11\) \| \(1 << CS10\);/, 'Timer 1 base in setup');
+    assert.match(out, /OCR1A = v;/, 'the OC1A compare path exists');
+    assert.ok(!/COM0A1|COM0B1|OCR0B/.test(out), 'Timer 0 compare units never drive pins — it is the tick');
+    // D8 has no OC unit: refused with the reason, not silently dropped.
+    assert.match(out, /no PWM on D8/i);
+    assert.ok(c._cWarnings.some((w) => /D3\/D9\/D10\/D11/.test(w)), 'the refusal names the real PWM pins');
 });
 
 test('a sketch survives the whole chain: C -> pseudocode -> project -> pseudocode', () => {
