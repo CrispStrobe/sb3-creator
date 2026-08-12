@@ -1195,75 +1195,183 @@
   },
   {
     "id": "pc21-rc-smoothing",
-    "title": { "en": "RC smoothing", "de": "RC-Glättung" },
-    "category": "pure-circuit", "difficulty": 2, "kind": "circuit",
-    "files": { "program": "pc21-rc-smoothing/program.bw", "circuit": "pc21-rc-smoothing/circuit.json", "expected": "pc21-rc-smoothing/EXPECTED.md" }
+    "title": {
+      "en": "RC smoothing",
+      "de": "RC-Glättung"
+    },
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "kind": "circuit",
+    "files": {
+      "program": "pc21-rc-smoothing/program.bw",
+      "circuit": "pc21-rc-smoothing/circuit.json",
+      "expected": "pc21-rc-smoothing/EXPECTED.md"
+    }
   },
   {
     "id": "pc22-diode-selector",
-    "title": { "en": "Diode power selector", "de": "Dioden-Stromwähler" },
-    "category": "pure-circuit", "difficulty": 2, "kind": "circuit",
-    "files": { "program": "pc22-diode-selector/program.bw", "circuit": "pc22-diode-selector/circuit.json", "expected": "pc22-diode-selector/EXPECTED.md" }
+    "title": {
+      "en": "Diode power selector",
+      "de": "Dioden-Stromwähler"
+    },
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "kind": "circuit",
+    "files": {
+      "program": "pc22-diode-selector/program.bw",
+      "circuit": "pc22-diode-selector/circuit.json",
+      "expected": "pc22-diode-selector/EXPECTED.md"
+    }
   },
   {
     "id": "pc23-transistor-switch",
-    "title": { "en": "Transistor switch", "de": "Transistorschalter" },
-    "category": "pure-circuit", "difficulty": 2, "kind": "circuit",
-    "files": { "program": "pc23-transistor-switch/program.bw", "circuit": "pc23-transistor-switch/circuit.json", "expected": "pc23-transistor-switch/EXPECTED.md" }
+    "title": {
+      "en": "Transistor switch",
+      "de": "Transistorschalter"
+    },
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "kind": "circuit",
+    "files": {
+      "program": "pc23-transistor-switch/program.bw",
+      "circuit": "pc23-transistor-switch/circuit.json",
+      "expected": "pc23-transistor-switch/EXPECTED.md"
+    }
   },
   {
     "id": "pc24-light-gate",
-    "title": { "en": "Light-controlled gate", "de": "Lichtgesteuertes Tor" },
-    "category": "pure-circuit", "difficulty": 3, "kind": "circuit",
-    "files": { "program": "pc24-light-gate/program.bw", "circuit": "pc24-light-gate/circuit.json", "expected": "pc24-light-gate/EXPECTED.md" }
+    "title": {
+      "en": "Light-controlled gate",
+      "de": "Lichtgesteuertes Tor"
+    },
+    "category": "pure-circuit",
+    "difficulty": 3,
+    "kind": "circuit",
+    "files": {
+      "program": "pc24-light-gate/program.bw",
+      "circuit": "pc24-light-gate/circuit.json",
+      "expected": "pc24-light-gate/EXPECTED.md"
+    }
   },
   {
     "id": "pc25-relay-isolator",
-    "title": { "en": "Relay isolator", "de": "Relais-Isolator" },
-    "category": "pure-circuit", "difficulty": 3, "kind": "circuit",
-    "files": { "program": "pc25-relay-isolator/program.bw", "circuit": "pc25-relay-isolator/circuit.json", "expected": "pc25-relay-isolator/EXPECTED.md" }
+    "title": {
+      "en": "Relay isolator",
+      "de": "Relais-Isolator"
+    },
+    "category": "pure-circuit",
+    "difficulty": 3,
+    "kind": "circuit",
+    "files": {
+      "program": "pc25-relay-isolator/program.bw",
+      "circuit": "pc25-relay-isolator/circuit.json",
+      "expected": "pc25-relay-isolator/EXPECTED.md"
+    }
   },
   {
     "id": "pc26-motor-clamp",
-    "title": { "en": "Motor flyback clamp", "de": "Motorschutz mit Freilaufdiode" },
-    "category": "pure-circuit", "difficulty": 3, "kind": "circuit",
-    "files": { "program": "pc26-motor-clamp/program.bw", "circuit": "pc26-motor-clamp/circuit.json", "expected": "pc26-motor-clamp/EXPECTED.md" }
+    "title": {
+      "en": "Motor flyback clamp",
+      "de": "Motorschutz mit Freilaufdiode"
+    },
+    "category": "pure-circuit",
+    "difficulty": 3,
+    "kind": "circuit",
+    "files": {
+      "program": "pc26-motor-clamp/program.bw",
+      "circuit": "pc26-motor-clamp/circuit.json",
+      "expected": "pc26-motor-clamp/EXPECTED.md"
+    }
   },
   {
     "id": "pc27-timer-pulse",
-    "title": { "en": "Timer pulse", "de": "Timer-Impuls" },
-    "category": "pure-circuit", "difficulty": 3, "kind": "circuit",
-    "files": { "program": "pc27-timer-pulse/program.bw", "circuit": "pc27-timer-pulse/circuit.json", "expected": "pc27-timer-pulse/EXPECTED.md" }
+    "title": {
+      "en": "Timer pulse",
+      "de": "Timer-Impuls"
+    },
+    "category": "pure-circuit",
+    "difficulty": 3,
+    "kind": "circuit",
+    "files": {
+      "program": "pc27-timer-pulse/program.bw",
+      "circuit": "pc27-timer-pulse/circuit.json",
+      "expected": "pc27-timer-pulse/EXPECTED.md"
+    }
   },
   {
     "id": "pc28-logic-interlock",
-    "title": { "en": "Two-input logic interlock", "de": "Logische Zweifachfreigabe" },
-    "category": "pure-circuit", "difficulty": 3, "kind": "circuit",
-    "files": { "program": "pc28-logic-interlock/program.bw", "circuit": "pc28-logic-interlock/circuit.json", "expected": "pc28-logic-interlock/EXPECTED.md" }
+    "title": {
+      "en": "Two-input logic interlock",
+      "de": "Logische Zweifachfreigabe"
+    },
+    "category": "pure-circuit",
+    "difficulty": 3,
+    "kind": "circuit",
+    "files": {
+      "program": "pc28-logic-interlock/program.bw",
+      "circuit": "pc28-logic-interlock/circuit.json",
+      "expected": "pc28-logic-interlock/EXPECTED.md"
+    }
   },
   {
     "id": "pc29-capacitor-discharge",
-    "title": { "en": "Capacitor discharge", "de": "Kondensatorentladung" },
-    "category": "pure-circuit", "difficulty": 2, "kind": "circuit",
-    "files": { "program": "pc29-capacitor-discharge/program.bw", "circuit": "pc29-capacitor-discharge/circuit.json", "expected": "pc29-capacitor-discharge/EXPECTED.md" }
+    "title": {
+      "en": "Capacitor discharge",
+      "de": "Kondensatorentladung"
+    },
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "kind": "circuit",
+    "files": {
+      "program": "pc29-capacitor-discharge/program.bw",
+      "circuit": "pc29-capacitor-discharge/circuit.json",
+      "expected": "pc29-capacitor-discharge/EXPECTED.md"
+    }
   },
   {
     "id": "pc30-resistor-ladder",
-    "title": { "en": "Resistor ladder", "de": "Widerstandsleiter" },
-    "category": "pure-circuit", "difficulty": 1, "kind": "circuit",
-    "files": { "program": "pc30-resistor-ladder/program.bw", "circuit": "pc30-resistor-ladder/circuit.json", "expected": "pc30-resistor-ladder/EXPECTED.md" }
+    "title": {
+      "en": "Resistor ladder",
+      "de": "Widerstandsleiter"
+    },
+    "category": "pure-circuit",
+    "difficulty": 1,
+    "kind": "circuit",
+    "files": {
+      "program": "pc30-resistor-ladder/program.bw",
+      "circuit": "pc30-resistor-ladder/circuit.json",
+      "expected": "pc30-resistor-ladder/EXPECTED.md"
+    }
   },
   {
     "id": "pc31-bridge-rectifier",
-    "title": { "en": "Bridge rectifier", "de": "Brückengleichrichter" },
-    "category": "pure-circuit", "difficulty": 3, "kind": "circuit",
-    "files": { "program": "pc31-bridge-rectifier/program.bw", "circuit": "pc31-bridge-rectifier/circuit.json", "expected": "pc31-bridge-rectifier/EXPECTED.md" }
+    "title": {
+      "en": "Bridge rectifier",
+      "de": "Brückengleichrichter"
+    },
+    "category": "pure-circuit",
+    "difficulty": 3,
+    "kind": "circuit",
+    "files": {
+      "program": "pc31-bridge-rectifier/program.bw",
+      "circuit": "pc31-bridge-rectifier/circuit.json",
+      "expected": "pc31-bridge-rectifier/EXPECTED.md"
+    }
   },
   {
     "id": "pc32-pnp-high-side",
-    "title": { "en": "PNP high-side switch", "de": "PNP-Hilfsschalter" },
-    "category": "pure-circuit", "difficulty": 3, "kind": "circuit",
-    "files": { "program": "pc32-pnp-high-side/program.bw", "circuit": "pc32-pnp-high-side/circuit.json", "expected": "pc32-pnp-high-side/EXPECTED.md" }
+    "title": {
+      "en": "PNP high-side switch",
+      "de": "PNP-Hilfsschalter"
+    },
+    "category": "pure-circuit",
+    "difficulty": 3,
+    "kind": "circuit",
+    "files": {
+      "program": "pc32-pnp-high-side/program.bw",
+      "circuit": "pc32-pnp-high-side/circuit.json",
+      "expected": "pc32-pnp-high-side/EXPECTED.md"
+    }
   },
   {
     "id": "pico01-blink",
@@ -1314,183 +1422,469 @@
     "kind": "program"
   },
   {
+    "id": "pico04-button",
+    "title": {
+      "en": "Button controls LED (Pico)",
+      "de": "Taster steuert LED (Pico)"
+    },
+    "category": "digital",
+    "difficulty": 2,
+    "device": "pico",
+    "files": {
+      "program": "pico04-button/program.bw",
+      "circuit": "pico04-button/circuit.json",
+      "expected": "pico04-button/EXPECTED.md"
+    },
+    "kind": "program"
+  },
+  {
     "id": "pc33-thermistor-divider",
-    "title": { "en": "Thermistor divider", "de": "Thermistor-Spannungsteiler" },
-    "category": "pure-circuit", "difficulty": 2, "kind": "circuit",
-    "files": { "program": "pc33-thermistor-divider/program.bw", "circuit": "pc33-thermistor-divider/circuit.json", "expected": "pc33-thermistor-divider/EXPECTED.md" }
+    "title": {
+      "en": "Thermistor divider",
+      "de": "Thermistor-Spannungsteiler"
+    },
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "kind": "circuit",
+    "files": {
+      "program": "pc33-thermistor-divider/program.bw",
+      "circuit": "pc33-thermistor-divider/circuit.json",
+      "expected": "pc33-thermistor-divider/EXPECTED.md"
+    }
   },
   {
     "id": "pc34-polarity-protector",
-    "title": { "en": "Polarity protector", "de": "Verpolschutz" },
-    "category": "pure-circuit", "difficulty": 1, "kind": "circuit",
-    "files": { "program": "pc34-polarity-protector/program.bw", "circuit": "pc34-polarity-protector/circuit.json", "expected": "pc34-polarity-protector/EXPECTED.md" }
+    "title": {
+      "en": "Polarity protector",
+      "de": "Verpolschutz"
+    },
+    "category": "pure-circuit",
+    "difficulty": 1,
+    "kind": "circuit",
+    "files": {
+      "program": "pc34-polarity-protector/program.bw",
+      "circuit": "pc34-polarity-protector/circuit.json",
+      "expected": "pc34-polarity-protector/EXPECTED.md"
+    }
   },
   {
     "id": "pc35-capacitor-bypass",
-    "title": { "en": "Capacitor bypass", "de": "Kondensator-Bypass" },
-    "category": "pure-circuit", "difficulty": 2, "kind": "circuit",
-    "files": { "program": "pc35-capacitor-bypass/program.bw", "circuit": "pc35-capacitor-bypass/circuit.json", "expected": "pc35-capacitor-bypass/EXPECTED.md" }
+    "title": {
+      "en": "Capacitor bypass",
+      "de": "Kondensator-Bypass"
+    },
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "kind": "circuit",
+    "files": {
+      "program": "pc35-capacitor-bypass/program.bw",
+      "circuit": "pc35-capacitor-bypass/circuit.json",
+      "expected": "pc35-capacitor-bypass/EXPECTED.md"
+    }
   },
   {
     "id": "pc36-series-interlock",
-    "title": { "en": "Series interlock", "de": "Serien-Freigabe" },
-    "category": "pure-circuit", "difficulty": 1, "kind": "circuit",
-    "files": { "program": "pc36-series-interlock/program.bw", "circuit": "pc36-series-interlock/circuit.json", "expected": "pc36-series-interlock/EXPECTED.md" }
+    "title": {
+      "en": "Series interlock",
+      "de": "Serien-Freigabe"
+    },
+    "category": "pure-circuit",
+    "difficulty": 1,
+    "kind": "circuit",
+    "files": {
+      "program": "pc36-series-interlock/program.bw",
+      "circuit": "pc36-series-interlock/circuit.json",
+      "expected": "pc36-series-interlock/EXPECTED.md"
+    }
   },
   {
     "id": "pc37-selectable-reference",
-    "title": { "en": "Loaded reference tap", "de": "Belasteter Referenzabgriff" },
-    "category": "pure-circuit", "difficulty": 2, "kind": "circuit",
-    "files": { "program": "pc37-selectable-reference/program.bw", "circuit": "pc37-selectable-reference/circuit.json", "expected": "pc37-selectable-reference/EXPECTED.md" }
+    "title": {
+      "en": "Loaded reference tap",
+      "de": "Belasteter Referenzabgriff"
+    },
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "kind": "circuit",
+    "files": {
+      "program": "pc37-selectable-reference/program.bw",
+      "circuit": "pc37-selectable-reference/circuit.json",
+      "expected": "pc37-selectable-reference/EXPECTED.md"
+    }
   },
   {
     "id": "pc38-relay-changeover",
-    "title": { "en": "Relay changeover", "de": "Relais-Umschaltung" },
-    "category": "pure-circuit", "difficulty": 3, "kind": "circuit",
-    "files": { "program": "pc38-relay-changeover/program.bw", "circuit": "pc38-relay-changeover/circuit.json", "expected": "pc38-relay-changeover/EXPECTED.md" }
+    "title": {
+      "en": "Relay changeover",
+      "de": "Relais-Umschaltung"
+    },
+    "category": "pure-circuit",
+    "difficulty": 3,
+    "kind": "circuit",
+    "files": {
+      "program": "pc38-relay-changeover/program.bw",
+      "circuit": "pc38-relay-changeover/circuit.json",
+      "expected": "pc38-relay-changeover/EXPECTED.md"
+    }
   },
   {
     "id": "pc39-nmos-switch",
-    "title": { "en": "N-MOSFET switch", "de": "N-MOSFET-Schalter" },
-    "category": "pure-circuit", "difficulty": 3, "kind": "circuit",
-    "files": { "program": "pc39-nmos-switch/program.bw", "circuit": "pc39-nmos-switch/circuit.json", "expected": "pc39-nmos-switch/EXPECTED.md" }
+    "title": {
+      "en": "N-MOSFET switch",
+      "de": "N-MOSFET-Schalter"
+    },
+    "category": "pure-circuit",
+    "difficulty": 3,
+    "kind": "circuit",
+    "files": {
+      "program": "pc39-nmos-switch/program.bw",
+      "circuit": "pc39-nmos-switch/circuit.json",
+      "expected": "pc39-nmos-switch/EXPECTED.md"
+    }
   },
   {
     "id": "pc40-opamp-threshold",
-    "title": { "en": "Op-amp threshold", "de": "Operationsverstärker-Schwelle" },
-    "category": "pure-circuit", "difficulty": 3, "kind": "circuit",
-    "files": { "program": "pc40-opamp-threshold/program.bw", "circuit": "pc40-opamp-threshold/circuit.json", "expected": "pc40-opamp-threshold/EXPECTED.md" }
+    "title": {
+      "en": "Op-amp threshold",
+      "de": "Operationsverstärker-Schwelle"
+    },
+    "category": "pure-circuit",
+    "difficulty": 3,
+    "kind": "circuit",
+    "files": {
+      "program": "pc40-opamp-threshold/program.bw",
+      "circuit": "pc40-opamp-threshold/circuit.json",
+      "expected": "pc40-opamp-threshold/EXPECTED.md"
+    }
   },
   {
     "id": "pc41-zener-reference",
-    "title": { "en": "Zener reference", "de": "Zener-Referenz" },
-    "category": "pure-circuit", "difficulty": 3, "kind": "circuit",
-    "files": { "program": "pc41-zener-reference/program.bw", "circuit": "pc41-zener-reference/circuit.json", "expected": "pc41-zener-reference/EXPECTED.md" }
+    "title": {
+      "en": "Zener reference",
+      "de": "Zener-Referenz"
+    },
+    "category": "pure-circuit",
+    "difficulty": 3,
+    "kind": "circuit",
+    "files": {
+      "program": "pc41-zener-reference/program.bw",
+      "circuit": "pc41-zener-reference/circuit.json",
+      "expected": "pc41-zener-reference/EXPECTED.md"
+    }
   },
   {
     "id": "pc42-parallel-paths",
-    "title": { "en": "Parallel load paths", "de": "Parallele Lastpfade" },
-    "category": "pure-circuit", "difficulty": 1, "kind": "circuit",
-    "files": { "program": "pc42-parallel-paths/program.bw", "circuit": "pc42-parallel-paths/circuit.json", "expected": "pc42-parallel-paths/EXPECTED.md" }
+    "title": {
+      "en": "Parallel load paths",
+      "de": "Parallele Lastpfade"
+    },
+    "category": "pure-circuit",
+    "difficulty": 1,
+    "kind": "circuit",
+    "files": {
+      "program": "pc42-parallel-paths/program.bw",
+      "circuit": "pc42-parallel-paths/circuit.json",
+      "expected": "pc42-parallel-paths/EXPECTED.md"
+    }
   },
   {
     "id": "pc43-bleeder-discharge",
-    "title": { "en": "Bleeder discharge", "de": "Entladewiderstand" },
-    "category": "pure-circuit", "difficulty": 2, "kind": "circuit",
-    "files": { "program": "pc43-bleeder-discharge/program.bw", "circuit": "pc43-bleeder-discharge/circuit.json", "expected": "pc43-bleeder-discharge/EXPECTED.md" }
+    "title": {
+      "en": "Bleeder discharge",
+      "de": "Entladewiderstand"
+    },
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "kind": "circuit",
+    "files": {
+      "program": "pc43-bleeder-discharge/program.bw",
+      "circuit": "pc43-bleeder-discharge/circuit.json",
+      "expected": "pc43-bleeder-discharge/EXPECTED.md"
+    }
   },
   {
     "id": "pc44-push-pull-led",
-    "title": { "en": "Push-pull indicator", "de": "Gegentakt-Anzeige" },
-    "category": "pure-circuit", "difficulty": 2, "kind": "circuit",
-    "files": { "program": "pc44-push-pull-led/program.bw", "circuit": "pc44-push-pull-led/circuit.json", "expected": "pc44-push-pull-led/EXPECTED.md" }
+    "title": {
+      "en": "Push-pull indicator",
+      "de": "Gegentakt-Anzeige"
+    },
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "kind": "circuit",
+    "files": {
+      "program": "pc44-push-pull-led/program.bw",
+      "circuit": "pc44-push-pull-led/circuit.json",
+      "expected": "pc44-push-pull-led/EXPECTED.md"
+    }
   },
   {
     "id": "pc45-nand-test",
-    "title": { "en": "NAND truth table", "de": "NAND-Wahrheitstabelle" },
-    "category": "pure-circuit", "difficulty": 2, "kind": "circuit",
-    "files": { "program": "pc45-nand-test/program.bw", "circuit": "pc45-nand-test/circuit.json", "expected": "pc45-nand-test/EXPECTED.md" }
+    "title": {
+      "en": "NAND truth table",
+      "de": "NAND-Wahrheitstabelle"
+    },
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "kind": "circuit",
+    "files": {
+      "program": "pc45-nand-test/program.bw",
+      "circuit": "pc45-nand-test/circuit.json",
+      "expected": "pc45-nand-test/EXPECTED.md"
+    }
   },
   {
     "id": "pc46-xor-selector",
-    "title": { "en": "XOR selector", "de": "XOR-Auswahllogik" },
-    "category": "pure-circuit", "difficulty": 2, "kind": "circuit",
-    "files": { "program": "pc46-xor-selector/program.bw", "circuit": "pc46-xor-selector/circuit.json", "expected": "pc46-xor-selector/EXPECTED.md" }
+    "title": {
+      "en": "XOR selector",
+      "de": "XOR-Auswahllogik"
+    },
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "kind": "circuit",
+    "files": {
+      "program": "pc46-xor-selector/program.bw",
+      "circuit": "pc46-xor-selector/circuit.json",
+      "expected": "pc46-xor-selector/EXPECTED.md"
+    }
   },
   {
     "id": "pc47-555-monostable",
-    "title": { "en": "555 one-shot pulse", "de": "555-Monoflop-Impuls" },
-    "category": "pure-circuit", "difficulty": 3, "kind": "circuit",
-    "files": { "program": "pc47-555-monostable/program.bw", "circuit": "pc47-555-monostable/circuit.json", "expected": "pc47-555-monostable/EXPECTED.md" }
+    "title": {
+      "en": "555 one-shot pulse",
+      "de": "555-Monoflop-Impuls"
+    },
+    "category": "pure-circuit",
+    "difficulty": 3,
+    "kind": "circuit",
+    "files": {
+      "program": "pc47-555-monostable/program.bw",
+      "circuit": "pc47-555-monostable/circuit.json",
+      "expected": "pc47-555-monostable/EXPECTED.md"
+    }
   },
   {
     "id": "pc48-ldr-comparator",
-    "title": { "en": "LDR comparator", "de": "LDR-Komparator" },
-    "category": "pure-circuit", "difficulty": 3, "kind": "circuit",
-    "files": { "program": "pc48-ldr-comparator/program.bw", "circuit": "pc48-ldr-comparator/circuit.json", "expected": "pc48-ldr-comparator/EXPECTED.md" }
+    "title": {
+      "en": "LDR comparator",
+      "de": "LDR-Komparator"
+    },
+    "category": "pure-circuit",
+    "difficulty": 3,
+    "kind": "circuit",
+    "files": {
+      "program": "pc48-ldr-comparator/program.bw",
+      "circuit": "pc48-ldr-comparator/circuit.json",
+      "expected": "pc48-ldr-comparator/EXPECTED.md"
+    }
   },
   {
     "id": "pc49-diode-clamp",
-    "title": { "en": "Diode clamp", "de": "Dioden-Begrenzer" },
-    "category": "pure-circuit", "difficulty": 2, "kind": "circuit",
-    "files": { "program": "pc49-diode-clamp/program.bw", "circuit": "pc49-diode-clamp/circuit.json", "expected": "pc49-diode-clamp/EXPECTED.md" }
+    "title": {
+      "en": "Diode clamp",
+      "de": "Dioden-Begrenzer"
+    },
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "kind": "circuit",
+    "files": {
+      "program": "pc49-diode-clamp/program.bw",
+      "circuit": "pc49-diode-clamp/circuit.json",
+      "expected": "pc49-diode-clamp/EXPECTED.md"
+    }
   },
   {
     "id": "pc50-two-stage-rc",
-    "title": { "en": "Two-stage RC filter", "de": "Zweistufiges RC-Filter" },
-    "category": "pure-circuit", "difficulty": 3, "kind": "circuit",
-    "files": { "program": "pc50-two-stage-rc/program.bw", "circuit": "pc50-two-stage-rc/circuit.json", "expected": "pc50-two-stage-rc/EXPECTED.md" }
+    "title": {
+      "en": "Two-stage RC filter",
+      "de": "Zweistufiges RC-Filter"
+    },
+    "category": "pure-circuit",
+    "difficulty": 3,
+    "kind": "circuit",
+    "files": {
+      "program": "pc50-two-stage-rc/program.bw",
+      "circuit": "pc50-two-stage-rc/circuit.json",
+      "expected": "pc50-two-stage-rc/EXPECTED.md"
+    }
   },
   {
     "id": "pc51-series-capacitors",
-    "title": { "en": "Series capacitors", "de": "Kondensatoren in Reihe" },
-    "category": "pure-circuit", "difficulty": 2, "kind": "circuit",
-    "files": { "program": "pc51-series-capacitors/program.bw", "circuit": "pc51-series-capacitors/circuit.json", "expected": "pc51-series-capacitors/EXPECTED.md" }
+    "title": {
+      "en": "Series capacitors",
+      "de": "Kondensatoren in Reihe"
+    },
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "kind": "circuit",
+    "files": {
+      "program": "pc51-series-capacitors/program.bw",
+      "circuit": "pc51-series-capacitors/circuit.json",
+      "expected": "pc51-series-capacitors/EXPECTED.md"
+    }
   },
   {
     "id": "pc52-inductor-filter",
-    "title": { "en": "Inductor filter", "de": "Induktiver Filter" },
-    "category": "pure-circuit", "difficulty": 3, "kind": "circuit",
-    "files": { "program": "pc52-inductor-filter/program.bw", "circuit": "pc52-inductor-filter/circuit.json", "expected": "pc52-inductor-filter/EXPECTED.md" }
+    "title": {
+      "en": "Inductor filter",
+      "de": "Induktiver Filter"
+    },
+    "category": "pure-circuit",
+    "difficulty": 3,
+    "kind": "circuit",
+    "files": {
+      "program": "pc52-inductor-filter/program.bw",
+      "circuit": "pc52-inductor-filter/circuit.json",
+      "expected": "pc52-inductor-filter/EXPECTED.md"
+    }
   },
   {
     "id": "pc53-buzzer-switch",
-    "title": { "en": "Switchable buzzer", "de": "Schaltbarer Summer" },
-    "category": "pure-circuit", "difficulty": 1, "kind": "circuit",
-    "files": { "program": "pc53-buzzer-switch/program.bw", "circuit": "pc53-buzzer-switch/circuit.json", "expected": "pc53-buzzer-switch/EXPECTED.md" }
+    "title": {
+      "en": "Switchable buzzer",
+      "de": "Schaltbarer Summer"
+    },
+    "category": "pure-circuit",
+    "difficulty": 1,
+    "kind": "circuit",
+    "files": {
+      "program": "pc53-buzzer-switch/program.bw",
+      "circuit": "pc53-buzzer-switch/circuit.json",
+      "expected": "pc53-buzzer-switch/EXPECTED.md"
+    }
   },
   {
     "id": "pc54-opamp-follower",
-    "title": { "en": "Op-amp voltage follower", "de": "Operationsverstärker-Spannungsfolger" },
-    "category": "pure-circuit", "difficulty": 3, "kind": "circuit",
-    "files": { "program": "pc54-opamp-follower/program.bw", "circuit": "pc54-opamp-follower/circuit.json", "expected": "pc54-opamp-follower/EXPECTED.md" }
+    "title": {
+      "en": "Op-amp voltage follower",
+      "de": "Operationsverstärker-Spannungsfolger"
+    },
+    "category": "pure-circuit",
+    "difficulty": 3,
+    "kind": "circuit",
+    "files": {
+      "program": "pc54-opamp-follower/program.bw",
+      "circuit": "pc54-opamp-follower/circuit.json",
+      "expected": "pc54-opamp-follower/EXPECTED.md"
+    }
   },
   {
     "id": "pc55-ntc-indicator",
-    "title": { "en": "NTC indicator", "de": "NTC-Anzeige" },
-    "category": "pure-circuit", "difficulty": 2, "kind": "circuit",
-    "files": { "program": "pc55-ntc-indicator/program.bw", "circuit": "pc55-ntc-indicator/circuit.json", "expected": "pc55-ntc-indicator/EXPECTED.md" }
+    "title": {
+      "en": "NTC indicator",
+      "de": "NTC-Anzeige"
+    },
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "kind": "circuit",
+    "files": {
+      "program": "pc55-ntc-indicator/program.bw",
+      "circuit": "pc55-ntc-indicator/circuit.json",
+      "expected": "pc55-ntc-indicator/EXPECTED.md"
+    }
   },
   {
     "id": "pc56-inductor-freewheel",
-    "title": { "en": "Inductor freewheel path", "de": "Freilaufpfad für Induktivität" },
-    "category": "pure-circuit", "difficulty": 3, "kind": "circuit",
-    "files": { "program": "pc56-inductor-freewheel/program.bw", "circuit": "pc56-inductor-freewheel/circuit.json", "expected": "pc56-inductor-freewheel/EXPECTED.md" }
+    "title": {
+      "en": "Inductor freewheel path",
+      "de": "Freilaufpfad für Induktivität"
+    },
+    "category": "pure-circuit",
+    "difficulty": 3,
+    "kind": "circuit",
+    "files": {
+      "program": "pc56-inductor-freewheel/program.bw",
+      "circuit": "pc56-inductor-freewheel/circuit.json",
+      "expected": "pc56-inductor-freewheel/EXPECTED.md"
+    }
   },
   {
     "id": "pc57-inverter-lamp",
-    "title": { "en": "Inverter lamp", "de": "Invertierte Lampe" },
-    "category": "pure-circuit", "difficulty": 2, "kind": "circuit",
-    "files": { "program": "pc57-inverter-lamp/program.bw", "circuit": "pc57-inverter-lamp/circuit.json", "expected": "pc57-inverter-lamp/EXPECTED.md" }
+    "title": {
+      "en": "Inverter lamp",
+      "de": "Invertierte Lampe"
+    },
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "kind": "circuit",
+    "files": {
+      "program": "pc57-inverter-lamp/program.bw",
+      "circuit": "pc57-inverter-lamp/circuit.json",
+      "expected": "pc57-inverter-lamp/EXPECTED.md"
+    }
   },
   {
     "id": "pc58-555-audio-pulse",
-    "title": { "en": "555 audio pulse", "de": "555-Audioimpuls" },
-    "category": "pure-circuit", "difficulty": 3, "kind": "circuit",
-    "files": { "program": "pc58-555-audio-pulse/program.bw", "circuit": "pc58-555-audio-pulse/circuit.json", "expected": "pc58-555-audio-pulse/EXPECTED.md" }
+    "title": {
+      "en": "555 audio pulse",
+      "de": "555-Audioimpuls"
+    },
+    "category": "pure-circuit",
+    "difficulty": 3,
+    "kind": "circuit",
+    "files": {
+      "program": "pc58-555-audio-pulse/program.bw",
+      "circuit": "pc58-555-audio-pulse/circuit.json",
+      "expected": "pc58-555-audio-pulse/EXPECTED.md"
+    }
   },
   {
     "id": "pc59-nor-memory",
-    "title": { "en": "NOR memory", "de": "NOR-Speicher" },
-    "category": "pure-circuit", "difficulty": 3, "kind": "circuit",
-    "files": { "program": "pc59-nor-memory/program.bw", "circuit": "pc59-nor-memory/circuit.json", "expected": "pc59-nor-memory/EXPECTED.md" }
+    "title": {
+      "en": "NOR memory",
+      "de": "NOR-Speicher"
+    },
+    "category": "pure-circuit",
+    "difficulty": 3,
+    "kind": "circuit",
+    "files": {
+      "program": "pc59-nor-memory/program.bw",
+      "circuit": "pc59-nor-memory/circuit.json",
+      "expected": "pc59-nor-memory/EXPECTED.md"
+    }
   },
   {
     "id": "pc60-night-lamp-hardware",
-    "title": { "en": "Hardware night lamp", "de": "Hardware-Nachtlicht" },
-    "category": "pure-circuit", "difficulty": 2, "kind": "circuit",
-    "files": { "program": "pc60-night-lamp-hardware/program.bw", "circuit": "pc60-night-lamp-hardware/circuit.json", "expected": "pc60-night-lamp-hardware/EXPECTED.md" }
+    "title": {
+      "en": "Hardware night lamp",
+      "de": "Hardware-Nachtlicht"
+    },
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "kind": "circuit",
+    "files": {
+      "program": "pc60-night-lamp-hardware/program.bw",
+      "circuit": "pc60-night-lamp-hardware/circuit.json",
+      "expected": "pc60-night-lamp-hardware/EXPECTED.md"
+    }
   },
   {
     "id": "pc61-diode-or",
-    "title": { "en": "Diode OR", "de": "Dioden-ODER" },
-    "category": "pure-circuit", "difficulty": 2, "kind": "circuit",
-    "files": { "program": "pc61-diode-or/program.bw", "circuit": "pc61-diode-or/circuit.json", "expected": "pc61-diode-or/EXPECTED.md" }
+    "title": {
+      "en": "Diode OR",
+      "de": "Dioden-ODER"
+    },
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "kind": "circuit",
+    "files": {
+      "program": "pc61-diode-or/program.bw",
+      "circuit": "pc61-diode-or/circuit.json",
+      "expected": "pc61-diode-or/EXPECTED.md"
+    }
   },
   {
     "id": "pc62-motor-indicator",
-    "title": { "en": "Motor indicator", "de": "Motoranzeige" },
-    "category": "pure-circuit", "difficulty": 2, "kind": "circuit",
-    "files": { "program": "pc62-motor-indicator/program.bw", "circuit": "pc62-motor-indicator/circuit.json", "expected": "pc62-motor-indicator/EXPECTED.md" }
+    "title": {
+      "en": "Motor indicator",
+      "de": "Motoranzeige"
+    },
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "kind": "circuit",
+    "files": {
+      "program": "pc62-motor-indicator/program.bw",
+      "circuit": "pc62-motor-indicator/circuit.json",
+      "expected": "pc62-motor-indicator/EXPECTED.md"
+    }
   }
 ]

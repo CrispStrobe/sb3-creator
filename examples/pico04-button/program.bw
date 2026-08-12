@@ -1,0 +1,12 @@
+DEVICE PICO
+CLOCK 125000000
+PIN btn = GP3 INPUT
+PIN led1 = GP15 OUTPUT
+
+# Read a button on GP3 and mirror it to an LED on GP15
+WHEN flag clicked:
+  FOREVER:
+    IF read btn THEN:
+      turn on led1
+    ELSE:
+      turn off led1
