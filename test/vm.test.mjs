@@ -455,12 +455,33 @@ test('tetris: pieces are real tetrominoes and all four keys respond', async () =
     vm.greenFlag();
     for (let i = 0; i < 6; i++) vm.runtime._step();
 
+    // Stop the background stepping interval — we step manually with a
+    // deterministic clock so the 0.4 s gravity wait never races wall time.
+    clearInterval(vm.runtime._steppingInterval);
+    vm.runtime._steppingInterval = null;
+
+    // Override Timer.nowObj so new stack timers (wait blocks) see our clock.
+    // The sequencer's own timer was created before this override, so it
+    // keeps using real Date — the budget check still terminates normally.
+    const Timer = vm.runtime.sequencer.timer.constructor;
+    const realNowObj = Timer.nowObj;
+    let fakeClock = Date.now();
+    Object.defineProperty(Timer, 'nowObj', {
+        get: () => ({ now: () => fakeClock }), configurable: true
+    });
+
+    // step(dt): run one VM step, then advance the fake clock by dt ms.
+    // Small dt during key tests keeps gravity frozen; large dt for the
+    // lock section lets the wait expire.
+    const step = (dt) => { vm.runtime._step(); fakeClock += dt; };
+
+    try {
     const get = (n) => {
         for (const t of vm.runtime.targets) for (const v of Object.values(t.variables)) if (v.name === n) return v.value;
         return undefined;
     };
     const cells = () => [1, 2, 3, 4].map(i => `${get('cr' + i)},${get('cc' + i)}`).join(' ');
-    const fire = (k) => { vm.runtime.startHats('event_whenkeypressed', {KEY_OPTION: k}); for (let i = 0; i < 3; i++) vm.runtime._step(); };
+    const fire = (k) => { vm.runtime.startHats('event_whenkeypressed', {KEY_OPTION: k}); for (let i = 0; i < 3; i++) step(1); };
 
     // a tetromino is 4 distinct cells (not a 2x2 blob of coincident points)
     const spawn = new Set([1, 2, 3, 4].map(i => `${get('cr' + i)},${get('cc' + i)}`));
@@ -473,7 +494,13 @@ test('tetris: pieces are real tetrominoes and all four keys respond', async () =
     assert.equal(cells(), before, 'left arrow moves it back');
     const preRot = cells();
     fire('up arrow');
-    assert.notEqual(cells(), preRot, 'up arrow rotates the piece');
+    // The O-piece (ptype 2) is rotationally symmetric — up arrow is a no-op.
+    const ptype = Number(get('ptype'));
+    if (ptype === 2) {
+        assert.equal(cells(), preRot, 'up arrow is a no-op for the O-piece');
+    } else {
+        assert.notEqual(cells(), preRot, 'up arrow rotates the piece');
+    }
 
     // soft-drop with the down arrow reaches the floor (row 19)
     let prev = '';
@@ -481,13 +508,18 @@ test('tetris: pieces are real tetrominoes and all four keys respond', async () =
     const lowest = Math.max(...[1, 2, 3, 4].map(i => Number(get('cr' + i))));
     assert.ok(lowest >= 18, `piece soft-dropped to the floor (row ${lowest})`);
 
-    // real-time gravity locks the piece into the board
-    const t0 = Date.now();
-    while (Date.now() - t0 < 1600) vm.runtime._step();
+    // gravity lock: advance 100 ms per step so the 0.4 s wait expires,
+    // giving gravity enough cycles to lock the piece into the board
+    for (let i = 0; i < 60; i++) step(100);
     const board = get('board') || [];
     const filled = board.filter(x => Number(x) > 0).length;
     assert.ok(filled >= 4, `a locked piece fills >= 4 board cells (got ${filled})`);
     vm.quit();
+    } finally {
+        Object.defineProperty(Timer, 'nowObj', {
+            get: () => realNowObj, configurable: true
+        });
+    }
 });
 
 }); // end describe('vm', { concurrency: 1 })
