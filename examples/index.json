@@ -1264,5 +1264,53 @@
     "title": { "en": "PNP high-side switch", "de": "PNP-Hilfsschalter" },
     "category": "pure-circuit", "difficulty": 3, "kind": "circuit",
     "files": { "program": "pc32-pnp-high-side/program.bw", "circuit": "pc32-pnp-high-side/circuit.json", "expected": "pc32-pnp-high-side/EXPECTED.md" }
+  },
+  {
+    "id": "pico01-blink",
+    "title": {
+      "en": "Blink an LED (Raspberry Pi Pico)",
+      "de": "LED blinken lassen (Raspberry Pi Pico)"
+    },
+    "category": "basics",
+    "difficulty": 1,
+    "device": "pico",
+    "files": {
+      "program": "pico01-blink/program.bw",
+      "circuit": "pico01-blink/circuit.json",
+      "expected": "pico01-blink/EXPECTED.md"
+    },
+    "kind": "program"
+  },
+  {
+    "id": "pico02-pot-print",
+    "title": {
+      "en": "Potentiometer serial print (Pico)",
+      "de": "Potentiometer seriell ausgeben (Pico)"
+    },
+    "category": "analog",
+    "difficulty": 2,
+    "device": "pico",
+    "files": {
+      "program": "pico02-pot-print/program.bw",
+      "circuit": "pico02-pot-print/circuit.json",
+      "expected": "pico02-pot-print/EXPECTED.md"
+    },
+    "kind": "program"
+  },
+  {
+    "id": "pico03-two-tasks",
+    "title": {
+      "en": "Blink + serial (Pico, two tasks)",
+      "de": "Blinken + seriell (Pico, zwei Aufgaben)"
+    },
+    "category": "basics",
+    "difficulty": 2,
+    "device": "pico",
+    "files": {
+      "program": "pico03-two-tasks/program.bw",
+      "circuit": "pico03-two-tasks/circuit.json",
+      "expected": "pico03-two-tasks/EXPECTED.md"
+    },
+    "kind": "program"
   }
 ]

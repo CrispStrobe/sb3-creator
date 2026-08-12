@@ -1,0 +1,9 @@
+DEVICE PICO
+CLOCK 125000000
+PIN pot1 = GP26 ANALOG
+
+# Read a potentiometer on GP26 (ADC0) and print the value over serial
+WHEN flag clicked:
+  FOREVER:
+    print read pot1
+    wait 1 seconds
