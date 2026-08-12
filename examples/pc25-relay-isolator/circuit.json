@@ -1,0 +1,22 @@
+{
+  "vcc": 5,
+  "parts": [
+    { "id": "coil_v", "kind": "vcc", "params": {}, "x": 80, "y": 80 },
+    { "id": "load_v", "kind": "vsource", "params": { "volts": 9 }, "x": 80, "y": 350 },
+    { "id": "gnd1", "kind": "gnd", "params": {}, "x": 720, "y": 480 },
+    { "id": "sw1", "kind": "switch", "params": {}, "x": 210, "y": 140 },
+    { "id": "relay1", "kind": "relay", "params": { "coilR": 200, "switchTimeMs": 5 }, "x": 380, "y": 230 },
+    { "id": "rl", "kind": "resistor", "params": { "ohms": 1000 }, "x": 540, "y": 300 },
+    { "id": "led1", "kind": "led", "params": { "vf": 2, "color": "blue" }, "x": 650, "y": 300 }
+  ],
+  "wires": [
+    { "from": "coil_v", "fromTerminal": "vcc", "to": "sw1", "toTerminal": "a" },
+    { "from": "sw1", "fromTerminal": "b", "to": "relay1", "toTerminal": "coil_a" },
+    { "from": "relay1", "fromTerminal": "coil_b", "to": "gnd1", "toTerminal": "gnd" },
+    { "from": "load_v", "fromTerminal": "pos", "to": "relay1", "toTerminal": "com" },
+    { "from": "relay1", "fromTerminal": "no", "to": "rl", "toTerminal": "a" },
+    { "from": "rl", "fromTerminal": "b", "to": "led1", "toTerminal": "anode" },
+    { "from": "led1", "fromTerminal": "cathode", "to": "gnd1", "toTerminal": "gnd" },
+    { "from": "load_v", "fromTerminal": "neg", "to": "gnd1", "toTerminal": "gnd" }
+  ]
+}

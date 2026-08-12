@@ -1192,5 +1192,53 @@
       "expected": "nano03-two-tasks/EXPECTED.md"
     },
     "kind": "program"
+  },
+  {
+    "id": "pc21-rc-smoothing",
+    "title": { "en": "RC smoothing", "de": "RC-Glättung" },
+    "category": "pure-circuit", "difficulty": 2, "kind": "circuit",
+    "files": { "program": "pc21-rc-smoothing/program.bw", "circuit": "pc21-rc-smoothing/circuit.json", "expected": "pc21-rc-smoothing/EXPECTED.md" }
+  },
+  {
+    "id": "pc22-diode-selector",
+    "title": { "en": "Diode power selector", "de": "Dioden-Stromwähler" },
+    "category": "pure-circuit", "difficulty": 2, "kind": "circuit",
+    "files": { "program": "pc22-diode-selector/program.bw", "circuit": "pc22-diode-selector/circuit.json", "expected": "pc22-diode-selector/EXPECTED.md" }
+  },
+  {
+    "id": "pc23-transistor-switch",
+    "title": { "en": "Transistor switch", "de": "Transistorschalter" },
+    "category": "pure-circuit", "difficulty": 2, "kind": "circuit",
+    "files": { "program": "pc23-transistor-switch/program.bw", "circuit": "pc23-transistor-switch/circuit.json", "expected": "pc23-transistor-switch/EXPECTED.md" }
+  },
+  {
+    "id": "pc24-light-gate",
+    "title": { "en": "Light-controlled gate", "de": "Lichtgesteuertes Tor" },
+    "category": "pure-circuit", "difficulty": 3, "kind": "circuit",
+    "files": { "program": "pc24-light-gate/program.bw", "circuit": "pc24-light-gate/circuit.json", "expected": "pc24-light-gate/EXPECTED.md" }
+  },
+  {
+    "id": "pc25-relay-isolator",
+    "title": { "en": "Relay isolator", "de": "Relais-Isolator" },
+    "category": "pure-circuit", "difficulty": 3, "kind": "circuit",
+    "files": { "program": "pc25-relay-isolator/program.bw", "circuit": "pc25-relay-isolator/circuit.json", "expected": "pc25-relay-isolator/EXPECTED.md" }
+  },
+  {
+    "id": "pc26-motor-clamp",
+    "title": { "en": "Motor flyback clamp", "de": "Motorschutz mit Freilaufdiode" },
+    "category": "pure-circuit", "difficulty": 3, "kind": "circuit",
+    "files": { "program": "pc26-motor-clamp/program.bw", "circuit": "pc26-motor-clamp/circuit.json", "expected": "pc26-motor-clamp/EXPECTED.md" }
+  },
+  {
+    "id": "pc27-timer-pulse",
+    "title": { "en": "Timer pulse", "de": "Timer-Impuls" },
+    "category": "pure-circuit", "difficulty": 3, "kind": "circuit",
+    "files": { "program": "pc27-timer-pulse/program.bw", "circuit": "pc27-timer-pulse/circuit.json", "expected": "pc27-timer-pulse/EXPECTED.md" }
+  },
+  {
+    "id": "pc28-logic-interlock",
+    "title": { "en": "Two-input logic interlock", "de": "Logische Zweifachfreigabe" },
+    "category": "pure-circuit", "difficulty": 3, "kind": "circuit",
+    "files": { "program": "pc28-logic-interlock/program.bw", "circuit": "pc28-logic-interlock/circuit.json", "expected": "pc28-logic-interlock/EXPECTED.md" }
   }
 ]

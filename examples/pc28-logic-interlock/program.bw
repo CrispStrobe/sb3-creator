@@ -1,0 +1,2 @@
+# Standalone circuit — logic interlock
+# Two independent controls must be high before the output indicator turns on.

@@ -1,0 +1,28 @@
+{
+  "vcc": 5,
+  "parts": [
+    { "id": "vcc1", "kind": "vcc", "params": {}, "x": 100, "y": 70 },
+    { "id": "gnd1", "kind": "gnd", "params": {}, "x": 680, "y": 470 },
+    { "id": "u1", "kind": "timer_555", "params": {}, "x": 380, "y": 240 },
+    { "id": "r1", "kind": "resistor", "params": { "ohms": 10000 }, "x": 180, "y": 150 },
+    { "id": "r2", "kind": "resistor", "params": { "ohms": 10000 }, "x": 180, "y": 280 },
+    { "id": "c1", "kind": "capacitor", "params": { "farads": 0.00001 }, "x": 180, "y": 400 },
+    { "id": "rled", "kind": "resistor", "params": { "ohms": 1000 }, "x": 560, "y": 220 },
+    { "id": "led1", "kind": "led", "params": { "vf": 2, "color": "red" }, "x": 560, "y": 330 }
+  ],
+  "wires": [
+    { "from": "vcc1", "fromTerminal": "vcc", "to": "u1", "toTerminal": "vcc" },
+    { "from": "u1", "fromTerminal": "gnd", "to": "gnd1", "toTerminal": "gnd" },
+    { "from": "vcc1", "fromTerminal": "vcc", "to": "u1", "toTerminal": "reset" },
+    { "from": "vcc1", "fromTerminal": "vcc", "to": "r1", "toTerminal": "a" },
+    { "from": "r1", "fromTerminal": "b", "to": "u1", "toTerminal": "discharge" },
+    { "from": "r1", "fromTerminal": "b", "to": "r2", "toTerminal": "a" },
+    { "from": "r2", "fromTerminal": "b", "to": "u1", "toTerminal": "threshold" },
+    { "from": "r2", "fromTerminal": "b", "to": "u1", "toTerminal": "trigger" },
+    { "from": "r2", "fromTerminal": "b", "to": "c1", "toTerminal": "a" },
+    { "from": "c1", "fromTerminal": "b", "to": "gnd1", "toTerminal": "gnd" },
+    { "from": "u1", "fromTerminal": "output", "to": "rled", "toTerminal": "a" },
+    { "from": "rled", "fromTerminal": "b", "to": "led1", "toTerminal": "anode" },
+    { "from": "led1", "fromTerminal": "cathode", "to": "gnd1", "toTerminal": "gnd" }
+  ]
+}
