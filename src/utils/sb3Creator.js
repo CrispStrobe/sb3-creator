@@ -8037,6 +8037,148 @@ SB3Creator.RUNTIME_EXTENSIONS = {
 // Not all STC any more, but the name is in warning text and in saved
 // projects. `core` is what actually matters: it says which vocabulary a
 // board's pins are spelled in, and which C back end (if any) can emit for it.
+/**
+ * Conventional pin pools per device, for retargeting an example from one
+ * chip to another. Roles, not pins, are the portable idea: an example says
+ * "a LED, a pot, a button" through its declarations, and each device says
+ * where such things conventionally live. Order matters — the first free
+ * pin of the right role is taken, so multi-LED examples spread naturally.
+ * `ledActiveLow` is the wiring convention: the 8051 boards sink current
+ * (datasheet §4.6), the Nano/Pico onboard LEDs are driven high.
+ */
+SB3Creator.RETARGET_POOLS = {
+    stc12c5a60s2: { digital: ['P1.0', 'P1.1', 'P1.2', 'P1.5', 'P1.6', 'P1.7', 'P3.4', 'P3.5'],
+        analog: ['P1.3', 'P1.4', 'P1.5', 'P1.6'], input: ['P3.2', 'P3.3', 'P3.6', 'P3.7'],
+        pwm: ['P1.3', 'P1.4'], ledActiveLow: true },
+    stc89c52rc: { digital: ['P1.0', 'P1.1', 'P1.2', 'P1.3', 'P1.4', 'P1.5', 'P1.6', 'P1.7'],
+        analog: [], input: ['P3.2', 'P3.3', 'P3.6', 'P3.7'],
+        pwm: [], ledActiveLow: true },
+    stc15f2k60s2: { digital: ['P1.0', 'P1.1', 'P1.2', 'P1.3', 'P1.4', 'P1.5'],
+        // P1.6/P1.7 stay out of the analog pool: a crystal takes ADC6/7.
+        analog: ['P1.0', 'P1.1', 'P1.2', 'P1.3', 'P1.4', 'P1.5'], input: ['P3.2', 'P3.3', 'P3.6', 'P3.7'],
+        pwm: ['P1.1', 'P1.0'], ledActiveLow: true },
+    'arduino-uno': { digital: ['D13', 'D12', 'D8', 'D7', 'D4', 'D2'],
+        analog: ['A0', 'A1', 'A2', 'A3', 'A4', 'A5'], input: ['D2', 'D4', 'D7', 'D8'],
+        // D5/D6 are Timer 0's and refused by the emitter; the pool agrees.
+        pwm: ['D3', 'D11', 'D9', 'D10'], ledActiveLow: false },
+    'arduino-nano': { digital: ['D13', 'D12', 'D8', 'D7', 'D4', 'D2'],
+        analog: ['A0', 'A1', 'A2', 'A3', 'A6', 'A7'], input: ['D2', 'D4', 'D7', 'D8'],
+        pwm: ['D3', 'D11', 'D9', 'D10'], ledActiveLow: false },
+    pico: { digital: ['GP25', 'GP15', 'GP14', 'GP13', 'GP12', 'GP11', 'GP10'],
+        analog: ['GP26', 'GP27', 'GP28'], input: ['GP2', 'GP3', 'GP4', 'GP5'],
+        // GP16/GP17 stay out: they are the servo pins (slice 0, 50 Hz).
+        pwm: ['GP15', 'GP14', 'GP13', 'GP12'], ledActiveLow: false }
+};
+
+/**
+ * Retarget a pseudocode program to another device: same body, the target's
+ * conventional pins. Returns { ok, pseudocode?, reasons: [], warnings: [] }.
+ * `reasons` states every hard blocker (a feature the target cannot do, or
+ * more pins of a role than the convention offers); with any reason, ok is
+ * false and no pseudocode is produced — a gallery filters on exactly this.
+ */
+SB3Creator.retargetPseudocode = function retargetPseudocode(src, device) {
+    const part = SB3Creator.STC_PARTS[device];
+    const pools = SB3Creator.RETARGET_POOLS[device];
+    if (!part || !pools) return { ok: false, reasons: [`unknown device: ${device}`], warnings: [] };
+    const core = part.core === 'arduino' ? 'avr' : part.core === 'rp2040' ? 'arm' : part.core || '8051';
+    if (core === 'micropython') return { ok: false, reasons: [`${device} runs MicroPython — no C retarget`], warnings: [] };
+
+    const c = new SB3Creator();
+    c.parse(src);
+    const stc = c.project && c.project.stc;
+    if (!stc || !Array.isArray(stc.pins)) {
+        return { ok: false, reasons: ['the source has no hardware declarations to retarget'], warnings: [] };
+    }
+    const reasons = [];
+    const warnings = [...(c.warnings || [])];
+    if ((stc.ports || []).length && core !== '8051') {
+        reasons.push('whole-port declarations (PORT x = Pn) are an 8051 construct — no port registers here');
+    }
+
+    // ---- feature scan: what does the body actually use? -----------------
+    const used = { pwmPins: new Set(), port: false, cube: false, pixel: false,
+        servo: false, motor: false, adc: false, tone: false };
+    for (const t of c.project.targets || []) {
+        for (const b of Object.values(t.blocks || {})) {
+            if (!b || !b.opcode) continue;
+            if (b.opcode === 'stc12_setpwm' && b.fields && b.fields.PIN) used.pwmPins.add(String(b.fields.PIN[0]).toLowerCase());
+            if (b.opcode === 'stc12_setport' || b.opcode === 'stc12_readport') used.port = true;
+            if (/^cube_/.test(b.opcode)) used.cube = true;
+            if (/devices_(setpixel|setrgb|clearmatrix)/.test(b.opcode)) used.pixel = true;
+            if (/devices_(setservo|servoangle)/.test(b.opcode)) used.servo = true;
+            if (/devices_(setmotor|motordir|motorspeed)/.test(b.opcode)) used.motor = true;
+            if (b.opcode === 'stc12_settone') used.tone = true;
+        }
+    }
+    for (const pin of stc.pins) if (pin.direction === 'analog') used.adc = true;
+
+    // ---- hard blockers, each with its reason ---------------------------
+    if (used.adc && (!part.adc || !pools.analog.length)) reasons.push(`${device} has no ADC — the analog pins cannot map`);
+    if (used.port && core !== '8051') reasons.push('whole-port writes are an 8051 construct — no port registers here');
+    if (used.cube && device !== 'stc12c5a60s2') reasons.push('the LED cube is STC12 hardware');
+    if (used.pixel && core !== '8051') reasons.push('NeoPixel timing is not ported to this core yet');
+    if (used.tone && core !== '8051') reasons.push('tone is not ported to this core yet');
+    if (used.motor && core !== '8051') reasons.push('motor blocks are stubs on this core');
+    if (used.servo && core === '8051' && !part.pca) reasons.push(`servo needs the PCA — ${device} has none`);
+    if (used.pwmPins.size && !pools.pwm.length) reasons.push(`${device} has no PWM-capable convention pins`);
+
+    // ---- allocate pins from the pools ----------------------------------
+    const taken = new Set();
+    const take = (list) => {
+        for (const where of list) if (!taken.has(where)) { taken.add(where); return where; }
+        return null;
+    };
+    const newPins = [];
+    for (const pin of stc.pins) {
+        let where = null;
+        let activeLow = false;
+        if (pin.direction === 'analog') {
+            where = take(pools.analog);
+            if (!where) reasons.push(`more analog pins than ${device}'s convention offers (${pools.analog.length})`);
+        } else if (pin.direction === 'input') {
+            where = take(pools.input);
+            if (!where) reasons.push(`more input pins than ${device}'s convention offers (${pools.input.length})`);
+        } else if (pin.direction === 'output' && used.pwmPins.has(String(pin.name).toLowerCase())) {
+            where = take(pools.pwm);
+            activeLow = false; // a dimmed LED keeps analogWrite semantics: high = bright
+            if (!where) reasons.push(`more dimmed pins than ${device}'s PWM convention offers (${pools.pwm.length})`);
+            if (where && core !== '8051') {
+                // The arduino/pico parsers require the PWM direction for a
+                // percent write; the 8051 dialect dims OUTPUT pins directly.
+                newPins.push({ ...pin, where, activeLow, direction: 'pwm', port: undefined, bit: undefined });
+                continue;
+            }
+        } else if (pin.direction === 'output') {
+            where = take(pools.digital);
+            activeLow = pools.ledActiveLow;
+            if (!where) reasons.push(`more digital outputs than ${device}'s convention offers (${pools.digital.length})`);
+        } else {
+            reasons.push(`pin "${pin.name}" has direction ${pin.direction}, which does not retarget yet`);
+        }
+        if (where) newPins.push({ ...pin, where, activeLow, port: undefined, bit: undefined });
+    }
+
+    if (reasons.length) return { ok: false, reasons, warnings };
+
+    // ---- rewrite declarations, keep the body ---------------------------
+    // On the 8051 cores the parser wants port/bit back; re-parsing the
+    // decompiled text derives them, so decompile with `where` only.
+    stc.device = device;
+    stc.clock = core === 'avr' ? 16000000 : core === 'arm' ? 125000000
+        : device.startsWith('stc15') ? 11059200 : 11059200;
+    stc.pins = newPins;
+    const out = c.decompile();
+
+    // The proof of the rewrite is a clean re-parse.
+    const check = new SB3Creator();
+    check.parse(out);
+    if ((check.warnings || []).length) {
+        return { ok: false, reasons: [`retargeted text does not re-parse clean: ${check.warnings[0]}`], warnings };
+    }
+    return { ok: true, pseudocode: out, reasons: [], warnings };
+};
+
 SB3Creator.STC_PARTS = {
     // core: '8051' -- {port, bit} pins, and generateC() emits for these.
     // ccp: array of {port, bit} for each PCA module (0, 1, …), or null if no PCA.
