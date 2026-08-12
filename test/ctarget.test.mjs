@@ -2253,7 +2253,11 @@ test('generateC emits AVR bare metal for an Arduino board — the back end lande
     assert.match(out, /BW_OCR0A/, 'CTC reload derived from F_CPU');
     assert.match(out, /#define F_CPU 16000000UL/, 'the clock followed the DEVICE');
     assert.match(out, /@bw-begin/, 'the debug yield map survives the core switch');
-    assert.match(out, /bw_task0_state/, 'the scheduler state variable the debugger reads');
+    assert.match(out, /static volatile unsigned int bw_task0_state;/,
+        'the scheduler state is volatile on AVR: the debugger reads it from outside '
+        + 'the program, and the qualifier is also what keeps gcc dead-store '
+        + 'elimination from pruning an empty task wholesale (SDCC never prunes, '
+        + 'so the 8051 flavor stays unqualified and its goldens byte-identical)');
     assert.ok(!/P1M1|TMOD|AUXR|__sbit|P1_0|__interrupt|T0_RELOAD/.test(out),
         'no 8051 register or SDCC keyword leaked across the core split');
     assert.deepEqual(c._cWarnings, [], `clean emission: ${JSON.stringify(c._cWarnings)}`);

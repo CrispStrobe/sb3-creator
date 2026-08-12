@@ -5984,8 +5984,8 @@ class SB3Creator {
                     const ctx = { task, state: 0, statics, tasks: taskNames, yields: debug ? yieldMap : [] };
                     if (debug) yieldMap.push({ task, state: 0, block: topId, kind: 'hat' });
                     const body = this.cTaskFrom(b.next, blocks, 1, ctx);
-                    taskDefs.push(`static unsigned int ${task}_state;`);
-                    if (this.cHasWait(b.next, blocks)) taskDefs.push(`static unsigned int ${task}_until;`);
+                    taskDefs.push(`static ${this._core === 'avr' ? 'volatile ' : ''}unsigned int ${task}_state;`);
+                    if (this.cHasWait(b.next, blocks)) taskDefs.push(`static ${this._core === 'avr' ? 'volatile ' : ''}unsigned int ${task}_until;`);
                     taskDefs.push(...hatNote,
                         `/* when green flag clicked (script ${n + 1}${where}) */`,
                         `static void ${task}(void)`, '{',
@@ -6022,8 +6022,8 @@ class SB3Creator {
                         const test = edge === 'pressed'
                             ? `now && !${task}_prev`
                             : `!now && ${task}_prev`;
-                        taskDefs.push(`static unsigned int ${task}_state;`);
-                        if (this.cHasWait(b.next, blocks)) taskDefs.push(`static unsigned int ${task}_until;`);
+                        taskDefs.push(`static ${this._core === 'avr' ? 'volatile ' : ''}unsigned int ${task}_state;`);
+                        if (this.cHasWait(b.next, blocks)) taskDefs.push(`static ${this._core === 'avr' ? 'volatile ' : ''}unsigned int ${task}_until;`);
                         taskDefs.push(`static unsigned char ${task}_prev;`);
                         taskDefs.push(...hatNote,
                             `/* WHEN ${this.cComment(pinName)} ${edge}: (script ${n + 1}${where})`,
@@ -6092,8 +6092,8 @@ class SB3Creator {
                             break;
                         }
                     }
-                    taskDefs.push(`static unsigned int ${task}_state;`);
-                    if (this.cHasWait(b.next, blocks)) taskDefs.push(`static unsigned int ${task}_until;`);
+                    taskDefs.push(`static ${this._core === 'avr' ? 'volatile ' : ''}unsigned int ${task}_state;`);
+                    if (this.cHasWait(b.next, blocks)) taskDefs.push(`static ${this._core === 'avr' ? 'volatile ' : ''}unsigned int ${task}_until;`);
                     taskDefs.push(`static unsigned char ${task}_prev;`);
                     taskDefs.push(...hatNote,
                         `/* ${this.cComment(this.decompileHat(b, blocks) || b.opcode)} (script ${n + 1}${where}) */`,
