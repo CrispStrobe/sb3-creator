@@ -460,22 +460,15 @@ test('tetris: pieces are real tetrominoes and all four keys respond', async () =
     clearInterval(vm.runtime._steppingInterval);
     vm.runtime._steppingInterval = null;
 
-    // Override Timer.nowObj so new stack timers (wait blocks) see our clock.
-    // The sequencer's own timer was created before this override, so it
-    // keeps using real Date — the budget check still terminates normally.
-    const Timer = vm.runtime.sequencer.timer.constructor;
-    const realNowObj = Timer.nowObj;
-    let fakeClock = Date.now();
-    Object.defineProperty(Timer, 'nowObj', {
-        get: () => ({ now: () => fakeClock }), configurable: true
-    });
+    // The VM's wait blocks read runtime.currentMSecs (set by
+    // updateCurrentMSecs → Date.now at the top of each _step).
+    // Intercept it so we control time: small advances during key tests
+    // keep gravity frozen, large advances for the lock section let it fire.
+    let fakeClock = vm.runtime.currentMSecs;
+    vm.runtime.updateCurrentMSecs = function () { this.currentMSecs = fakeClock; };
 
-    // step(dt): run one VM step, then advance the fake clock by dt ms.
-    // Small dt during key tests keeps gravity frozen; large dt for the
-    // lock section lets the wait expire.
     const step = (dt) => { vm.runtime._step(); fakeClock += dt; };
 
-    try {
     const get = (n) => {
         for (const t of vm.runtime.targets) for (const v of Object.values(t.variables)) if (v.name === n) return v.value;
         return undefined;
@@ -515,11 +508,6 @@ test('tetris: pieces are real tetrominoes and all four keys respond', async () =
     const filled = board.filter(x => Number(x) > 0).length;
     assert.ok(filled >= 4, `a locked piece fills >= 4 board cells (got ${filled})`);
     vm.quit();
-    } finally {
-        Object.defineProperty(Timer, 'nowObj', {
-            get: () => realNowObj, configurable: true
-        });
-    }
 });
 
 }); // end describe('vm', { concurrency: 1 })
