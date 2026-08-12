@@ -1253,7 +1253,16 @@ class SB3Creator {
                 this.warn(lineIndex, `Unknown DEVICE "${m[1]}"; known: ${Object.keys(SB3Creator.STC_PARTS).sort().join(', ')}`);
                 return true;
             }
-            this.stcConfig().device = device;
+            const cfg = this.stcConfig();
+            const wasDefault = cfg.clock === 11059200 && cfg.device === 'stc12c5a60s2';
+            cfg.device = device;
+            // The seeded default clock belongs to the seeded default device.
+            // A DEVICE line that changes chips takes the chip's own default
+            // with it — an explicit CLOCK line still wins, before or after.
+            if (wasDefault && SB3Creator.STC_PARTS[device]
+                && SB3Creator.STC_PARTS[device].core === 'arduino') {
+                cfg.clock = 16000000;
+            }
             return true;
         }
         if ((m = trimmed.match(/^CLOCK\s+([\d_]+)\s*(hz|mhz)?$/i))) {
@@ -4276,7 +4285,8 @@ class SB3Creator {
         const q = (v) => this.pyStr(v);
         const lines = [`scratch.device(${q(stc.device)}, ${stc.clock})`];
         for (const pin of stc.pins) {
-            lines.push(`scratch.pin(${q(pin.name)}, ${q(`P${pin.port}.${pin.bit}`)}, `
+            const loc = pin.where || `P${pin.port}.${pin.bit}`;
+            lines.push(`scratch.pin(${q(pin.name)}, ${q(loc)}, `
                 + `${q(pin.direction)}, ${pin.activeLow ? 1 : 0})`);
         }
         return lines;
@@ -4862,7 +4872,32 @@ class SB3Creator {
         return this.cRep(blocks[inner], blocks);
     }
 
+    // ---- AVR (Arduino Nano/Uno) pin plumbing --------------------------------
+    //
+    // Arduino pins are NAMES (D13, A0); the hardware is (DDRx, PORTx, PINx,
+    // bit). One table, mirroring bw-board's avr8js adapter exactly — the
+    // emitted C and the emulator must agree on what D13 is or nothing that
+    // follows means anything. A6/A7 are ADC-only pads on the Nano: channel
+    // numbers 6/7, no digital register at all.
+    static AVR_PINS = {
+        D0: ['D', 0], D1: ['D', 1], D2: ['D', 2], D3: ['D', 3],
+        D4: ['D', 4], D5: ['D', 5], D6: ['D', 6], D7: ['D', 7],
+        D8: ['B', 0], D9: ['B', 1], D10: ['B', 2], D11: ['B', 3],
+        D12: ['B', 4], D13: ['B', 5],
+        A0: ['C', 0], A1: ['C', 1], A2: ['C', 2], A3: ['C', 3],
+        A4: ['C', 4], A5: ['C', 5]
+    };
+
+    /** {reg, bit} for an AVR pin record, or null (A6/A7 and unknowns). */
+    avrHw(pin) {
+        const hw = SB3Creator.AVR_PINS[String(pin.where || '').toUpperCase()];
+        return hw ? { reg: hw[0], bit: hw[1] } : null;
+    }
+
     // The SFR bit name for a driveable pin (`P1_0`), or null with a warning.
+    // On the AVR core there is no bit-addressable lvalue; callers that need
+    // to WRITE go through cSetPin/cTogglePin instead, and this returns the
+    // pin RECORD marker so those call sites can branch.
     cSfr(name) {
         const pin = this.cPin(name);
         if (!pin) {
@@ -4872,6 +4907,17 @@ class SB3Creator {
         if (pin.direction !== 'output') {
             this.cWarn(`"${pin.name}" is an ${pin.direction.toUpperCase()} pin and cannot be driven`);
             return null;
+        }
+        if (this._core === 'avr') {
+            const hw = this.avrHw(pin);
+            if (!hw) {
+                this.cWarn(`"${pin.name}" (${pin.where}) has no digital pad on this board`);
+                return null;
+            }
+            // Not an lvalue — a token the write/toggle sites expand. Kept
+            // distinct on purpose so any NEW site that string-interpolates it
+            // produces C that does not compile, instead of C that lies.
+            return `BW_AVR:${pin.name}`;
         }
         return `P${pin.port}_${pin.bit}`;
     }
@@ -4886,7 +4932,21 @@ class SB3Creator {
         }
         if (pin.direction === 'analog') {
             this._cUses.adc = true;
+            if (this._core === 'avr') {
+                // Channel = the number in the name: A0..A7 -> ADC0..ADC7.
+                const ch = Number(String(pin.where || '').replace(/^A/i, ''));
+                return `adc_read(${ch})`;
+            }
             return `adc_read(${pin.bit})`;   // ADC channel n is physically P1.n
+        }
+        if (this._core === 'avr') {
+            const hw = this.avrHw(pin);
+            if (!hw) {
+                this.cWarn(`"${pin.name}" (${pin.where}) cannot be read digitally`);
+                return `0 /* read ${this.cComment(name)} */`;
+            }
+            const raw = `((PIN${hw.reg} >> ${hw.bit}) & 1)`;
+            return pin.activeLow ? `!${raw}` : raw;
         }
         const sfr = `P${pin.port}_${pin.bit}`;
         return pin.activeLow ? `!${sfr}` : sfr;
@@ -4900,6 +4960,12 @@ class SB3Creator {
         const high = state === 'high' ? true
             : state === 'low' ? false
                 : (state === 'on') !== !!pin.activeLow;
+        if (this._core === 'avr') {
+            const hw = this.avrHw(pin);
+            return high
+                ? `PORT${hw.reg} |= (1 << ${hw.bit});`
+                : `PORT${hw.reg} &= (uint8_t)~(1 << ${hw.bit});`;
+        }
         return `${sfr} = ${high ? 1 : 0};`;
     }
 
@@ -5099,13 +5165,26 @@ class SB3Creator {
             case 'stc12_setpin': return line(this.cSetPin(f('PIN'), f('STATE')));
             case 'stc12_writepin': {
                 const sfr = this.cSfr(f('PIN'));
+                if (!sfr) return line(`/* set ${this.cComment(f('PIN'))} */`);
                 // A computed value is a LEVEL, so ACTIVE LOW does not invert it — the same
                 // rule `set high` / `set low` already follow.
-                return line(sfr ? `${sfr} = (${v('VALUE')}) ? 1 : 0;` : `/* set ${this.cComment(f('PIN'))} */`);
+                if (this._core === 'avr') {
+                    const hw = this.avrHw(this.cPin(f('PIN')));
+                    return line(`if (${v('VALUE')}) PORT${hw.reg} |= (1 << ${hw.bit}); `
+                        + `else PORT${hw.reg} &= (uint8_t)~(1 << ${hw.bit});`);
+                }
+                return line(`${sfr} = (${v('VALUE')}) ? 1 : 0;`);
             }
             case 'stc12_toggle': {
                 const sfr = this.cSfr(f('PIN'));
-                return line(sfr ? `${sfr} = !${sfr};` : `/* toggle ${this.cComment(f('PIN'))} */`);
+                if (!sfr) return line(`/* toggle ${this.cComment(f('PIN'))} */`);
+                if (this._core === 'avr') {
+                    const hw = this.avrHw(this.cPin(f('PIN')));
+                    // Writing 1 to PINx toggles PORTx in hardware — one cycle,
+                    // no read-modify-write race. The datasheet's own idiom.
+                    return line(`PIN${hw.reg} = (1 << ${hw.bit});`);
+                }
+                return line(`${sfr} = !${sfr};`);
             }
             case 'stc12_setpwm': {
                 this._cUses.pwm = true;
@@ -5773,16 +5852,19 @@ class SB3Creator {
 
         const stored = project.stc || {};
         const device = String(opts.device || stored.device || 'stc12c5a60s2').toLowerCase();
-        const clock = Number(opts.clock || stored.clock || 11059200);
-        const pins = opts.pins || stored.pins || [];
         const part = SB3Creator.STC_PARTS[device];
+        const clock = Number(opts.clock || stored.clock
+            || ((part && part.core === 'arduino') ? 16000000 : 11059200));
+        const pins = opts.pins || stored.pins || [];
         if (!part) this.cWarn(`unknown DEVICE "${device}" — emitting for stc12c5a60s2`);
-        // A board whose pins are numbers has no P1_0 to assign and no port-mode
-        // register to set up, so falling back to the 8051 emitter would produce
-        // a file that compiles for the wrong chip out of pins that do not exist
-        // on it. Refusing by name is the only honest answer until the Arduino
-        // back end lands; stc-compiler can already build these, and says so.
-        if (part && part.core && part.core !== '8051') {
+        // Which core? '8051' emits SFR bare metal; 'arduino' emits AVR bare
+        // metal (avr/io.h — the same silicon avr8js executes; NOT the Arduino
+        // core runtime). MicroPython boards still refuse: the program IS the
+        // artefact there. The scheduler, state machines and @bw yield map are
+        // core-neutral by construction, so the debugger contract carries over
+        // to the AVR unchanged.
+        this._core = (part && part.core === 'arduino') ? 'avr' : '8051';
+        if (part && part.core && part.core !== '8051' && part.core !== 'arduino') {
             const how = part.core === 'micropython'
                 ? 'runs MicroPython, where the program IS the artefact and there is nothing to compile'
                 : 'has numbered pins and no 8051 registers';
@@ -6227,7 +6309,7 @@ class SB3Creator {
             const marks = [
                 `device ${device}`,
                 `clock ${clock}`,
-                ...pins.map((p) => `pin ${p.name} P${p.port}.${p.bit} ${p.direction}${p.activeLow ? ' active-low' : ''}`),
+                ...pins.map((p) => `pin ${p.name} ${p.where || `P${p.port}.${p.bit}`} ${p.direction}${p.activeLow ? ' active-low' : ''}`),
                 ...tables.map((t) => `table ${t.name} ${t.values.length}`),
                 ...markVars, ...markProcs, ...markScripts,
                 // The yield map: `<task>_state == N` means "about to run this block". It is
@@ -6248,6 +6330,17 @@ class SB3Creator {
             for (const m of marks) out.push(` * @bw ${this.cComment(m)}`);
             out.push(' * @bw-end */');
         }
+        if (this._core === 'avr') {
+            out.push('#include <avr/io.h>',
+                '#include <avr/interrupt.h>',
+                '#include <stdint.h>', '');
+            out.push(`#define F_CPU ${clock}UL`, '');
+            out.push('/* Timer 0 in CTC mode ticks every millisecond: F_CPU/64 counts,',
+                ' * OCR0A picked so one compare = 1 ms exactly at this clock. The same',
+                ' * one-tick contract the 8051 build keeps — nothing generated here',
+                ' * ever busy-waits on a cycle count. */',
+                `#define BW_OCR0A ((uint8_t)(F_CPU / 64UL / 1000UL - 1UL))`, '');
+        } else {
         out.push(`#include <${chip.header}>`, '');
         out.push(`#define FOSC_HZ ${clock}UL`, '');
         out.push('/* Timer 0, mode 1, clocked at FOSC/12 — accuracy depends only on FOSC, and',
@@ -6255,20 +6348,40 @@ class SB3Creator {
             ' * timing-correct on a 12T STC89 and a 1T STC12 or STC15. Nothing generated here',
             ' * ever busy-waits on a cycle count. */',
             '#define T0_RELOAD (65536UL - (FOSC_HZ / 12UL / 1000UL))', '');
+        }
 
         if (this._cTasks) {
             out.push('/* One script = one cooperative task. Timer 0 interrupts every millisecond;',
                 ' * tasks yield at every wait and at every loop iteration (Scratch\'s own',
                 ' * scheduling contract), so no task can starve the others. */',
-                'static volatile unsigned int bw_ms;', '',
-                'void bw_tick(void) __interrupt(1)',
-                '{',
-                '    TL0 = (unsigned char)(T0_RELOAD & 0xFF);',
-                '    TH0 = (unsigned char)(T0_RELOAD >> 8);',
-                '    bw_ms++;',
-                '}', '');
+                ...(this._core === 'avr' ? [
+                    'static volatile uint32_t bw_ms;', '',
+                    'ISR(TIMER0_COMPA_vect)',
+                    '{',
+                    '    bw_ms++;',
+                    '}', ''
+                ] : [
+                    'static volatile unsigned int bw_ms;', '',
+                    'void bw_tick(void) __interrupt(1)',
+                    '{',
+                    '    TL0 = (unsigned char)(T0_RELOAD & 0xFF);',
+                    '    TH0 = (unsigned char)(T0_RELOAD >> 8);',
+                    '    bw_ms++;',
+                    '}', ''
+                ]));
             if (this._cUses.now || this._cUses.blockDelay) {
-                out.push('/* A 16-bit read is not atomic on an 8051; hold the tick off. */',
+                out.push(...(this._core === 'avr' ? [
+                    '/* A 32-bit read is not atomic on an 8-bit AVR; hold interrupts off. */',
+                    'static uint32_t bw_now(void)',
+                    '{',
+                    '    uint32_t t;',
+                    '    cli();',
+                    '    t = bw_ms;',
+                    '    sei();',
+                    '    return t;',
+                    '}', ''
+                ] : [
+                    '/* A 16-bit read is not atomic on an 8051; hold the tick off. */',
                     'static unsigned int bw_now(void)',
                     '{',
                     '    unsigned int t;',
@@ -6276,19 +6389,45 @@ class SB3Creator {
                     '    t = bw_ms;',
                     '    ET0 = 1;',
                     '    return t;',
-                    '}', '');
+                    '}', ''
+                ]));
             }
             if (this._cUses.blockDelay) {
-                out.push('/* A wait inside a custom block: those run to completion in Scratch too, so',
+                out.push(...(this._core === 'avr' ? [
+                    '/* A wait inside a custom block: really blocks, but on the tick. */',
+                    'static void bw_block_ms(uint32_t ms)',
+                    '{',
+                    '    uint32_t start = bw_now();',
+                    '    while ((int32_t)(bw_now() - start - ms) < 0) ;',
+                    '}', ''
+                ] : [
+                    '/* A wait inside a custom block: those run to completion in Scratch too, so',
                     ' * this one really does block — but on the tick, never on a cycle count. */',
                     'static void bw_block_ms(unsigned int ms)',
                     '{',
                     '    unsigned int start = bw_now();',
                     '    while ((int)(bw_now() - start - ms) < 0) ;',
-                    '}', '');
+                    '}', ''
+                ]));
             }
         } else if (this._cUses.delay) {
-            out.push('static void delay_ms(unsigned int ms)',
+            out.push(...(this._core === 'avr' ? [
+                '/* No scheduler in this build; the tick still runs (main() starts it),',
+                ' * so a blocking delay is a wait on bw_ms, never on a cycle count. */',
+                'static volatile uint32_t bw_ms;', '',
+                'ISR(TIMER0_COMPA_vect) { bw_ms++; }', '',
+                'static void delay_ms(uint32_t ms)',
+                '{',
+                '    uint32_t start;',
+                '    cli(); start = bw_ms; sei();',
+                '    for (;;) {',
+                '        uint32_t now;',
+                '        cli(); now = bw_ms; sei();',
+                '        if ((int32_t)(now - start - ms) >= 0) break;',
+                '    }',
+                '}', ''
+            ] : [
+                'static void delay_ms(unsigned int ms)',
                 '{',
                 '    while (ms--) {',
                 '        TL0 = (unsigned char)(T0_RELOAD & 0xFF);',
@@ -6299,7 +6438,8 @@ class SB3Creator {
                 '        TR0 = 0;',
                 '        TF0 = 0;',
                 '    }',
-                '}', '');
+                '}', ''
+            ]));
         }
         // The cube scan kernel always needs delay_ms (blocking per-line dwell).
         // The normal path emits it only when !_cTasks && _cUses.delay; if the
@@ -6321,7 +6461,40 @@ class SB3Creator {
                 '}', '');
         }
 
-        if (this._cUses.adc) {
+        if (this._core === 'avr' && this._cUses.print) {
+            out.push('/* print goes out UART0 at 9600 8N1 — the same wire the 8051 build uses,',
+                ' * so the serial monitor does not care which chip is talking. */',
+                'static void bw_putc(char c)',
+                '{',
+                '    while (!(UCSR0A & (1 << UDRE0))) ;',
+                '    UDR0 = (uint8_t)c;',
+                '}', '',
+                'static void bw_print(const char *s)',
+                '{',
+                '    while (*s) bw_putc(*s++);',
+                '    bw_putc(13); bw_putc(10);',
+                '}', '',
+                'static void bw_print_num(long n)',
+                '{',
+                '    char buf[12]; unsigned char i = 0;',
+                '    unsigned long u;',
+                '    if (n < 0) { bw_putc(45); u = (unsigned long)(-n); } else { u = (unsigned long)n; }',
+                '    do { buf[i++] = (char)(48 + (u % 10)); u /= 10; } while (u);',
+                '    while (i) bw_putc(buf[--i]);',
+                '    bw_putc(13); bw_putc(10);',
+                '}', '');
+        }
+        if (this._cUses.adc && this._core === 'avr') {
+            out.push('/* 10-bit ADC, polled, AVcc reference. Channel = the A-pin number;',
+                ' * A6/A7 exist on the Nano as ADC-only pads and work here too. */',
+                'static unsigned int adc_read(unsigned char channel)',
+                '{',
+                '    ADMUX = (uint8_t)((1 << REFS0) | (channel & 0x0F));',
+                '    ADCSRA |= (1 << ADSC);',
+                '    while (ADCSRA & (1 << ADSC)) ;',
+                '    return ADC;',
+                '}', '');
+        } else if (this._cUses.adc) {
             out.push('/* 10-bit ADC, polled. Channel n is on P1.n; the channel is selected and the',
                 ' * conversion started in one write, as STC\'s own examples do. */',
                 'static unsigned int adc_read(unsigned char channel)',
@@ -6341,7 +6514,13 @@ class SB3Creator {
                 '}', '');
         }
 
-        if (this._cUses.pwm || this._cUses.motor) {
+        if ((this._cUses.pwm || this._cUses.motor) && this._core === 'avr') {
+            this.cWarn('PWM/motor blocks are not yet ported to the AVR back end — emitted as no-op stubs');
+            out.push('/* PWM is NOT YET PORTED to the AVR back end: stubs so the build stays',
+                ' * honest and compilable. The 8051 build drives real PCA hardware. */',
+                'static void pwm_set(unsigned char module, unsigned int percent_high)',
+                '{ (void)module; (void)percent_high; }', '');
+        } else if (this._cUses.pwm || this._cUses.motor) {
             out.push('/* PCA PWM. The comparator is 9 bits, {EPCnH,CCAPnH} against (0,CL),',
                 ' * and it drives the pin LOW while CL is BELOW the compare value — so a',
                 ' * LARGER value is a LONGER low time and the duty as a fraction HIGH is',
@@ -6374,8 +6553,12 @@ class SB3Creator {
                 ' * here and RAM is not. `const __code` keeps them out of the 256 bytes',
                 ' * that matter. */');
             const hex2 = (n) => '0x' + n.toString(16).toUpperCase().padStart(2, '0');
+            // __code is SDCC's flash keyword; on AVR a plain const copy in RAM
+            // keeps every read site untouched (PROGMEM would need pgm_read_*
+            // wrappers at each) — tables here are tens of bytes, not kilobytes.
+            const tq = this._core === 'avr' ? 'static const unsigned char' : 'static const __code unsigned char';
             for (const t of tables) {
-                out.push(`static const __code unsigned char bw_tab_${t.name}[] = { ${t.values.map(hex2).join(', ')} };`);
+                out.push(`${tq} bw_tab_${t.name}[] = { ${t.values.map(hex2).join(', ')} };`);
             }
             out.push('', '/* A computed index is clamped rather than trusted. Reading past a',
                 ' * table means reading a random byte of flash and, on a display,',
@@ -7016,6 +7199,41 @@ class SB3Creator {
             ' * body stands alone — a C -> blocks reader can then tell them apart. */',
             'static void bw_setup(void)', '{');
         void setup;
+        if (this._core === 'avr') {
+            for (const p of pins) {
+                const hw = this.avrHw(p);
+                if (p.direction === 'output') {
+                    if (!hw) continue; // parser already refused A6/A7 outputs
+                    // Level BEFORE direction: an ACTIVE LOW load must never
+                    // see a power-on LOW glitch while DDR flips to output.
+                    const off = p.activeLow ? `PORT${hw.reg} |= (1 << ${hw.bit});`
+                        : `PORT${hw.reg} &= (uint8_t)~(1 << ${hw.bit});`;
+                    out.push(`    ${off}      /* ${p.name}: start OFF */`,
+                        `    DDR${hw.reg} |= (1 << ${hw.bit});     /* ${p.name} = ${p.where} output */`);
+                } else if (p.direction === 'input' && hw) {
+                    // The internal pull-up stands in for the 8051's quasi mode:
+                    // the derived bench wires buttons to ground on both chips.
+                    out.push(`    PORT${hw.reg} |= (1 << ${hw.bit});     /* ${p.name} = ${p.where} input, pull-up */`);
+                } else if (p.direction === 'analog' && hw && hw.bit <= 5) {
+                    out.push(`    DIDR0 |= (1 << ${hw.bit});     /* ${p.name}: digital buffer off on ADC${hw.bit} */`);
+                }
+            }
+            if (this._cUses.adc) {
+                out.push('    ADCSRA = (1 << ADEN) | (1 << ADPS2) | (1 << ADPS1) | (1 << ADPS0);  /* on, /128 */');
+            }
+            if (this._cTasks || this._cUses.delay) {
+                out.push('    TCCR0A = (1 << WGM01);         /* Timer 0 CTC */',
+                    '    TCCR0B = (1 << CS01) | (1 << CS00);  /* F_CPU/64 */',
+                    '    OCR0A  = BW_OCR0A;             /* one compare = 1 ms */',
+                    '    TIMSK0 = (1 << OCIE0A);        /* millisecond tick */');
+            }
+            if (this._cUses.print) {
+                out.push(`    UBRR0 = (uint16_t)(F_CPU / 16UL / 9600UL - 1UL);`,
+                    '    UCSR0B = (1 << TXEN0);         /* transmit only */',
+                    '    UCSR0C = (1 << UCSZ01) | (1 << UCSZ00);  /* 8N1 */');
+            }
+        }
+        if (this._core !== 'avr') {
         const outputs = {};
         for (const p of pins) if (p.direction === 'output') outputs[p.port] = (outputs[p.port] || 0) | (1 << p.bit);
         if (chip.portModes) {
@@ -7140,8 +7358,17 @@ class SB3Creator {
             out.push('    P1ASF |= 0x02;                    /* P1.1 analog (sensor) */',
                 '    P1M1 |=  0x02; P1M0 &= ~0x02;    /* P1.1 high-impedance */');
         }
-        out.push('}', '', 'void main(void)', '{', '    bw_setup();');
-        if (this._cTasks) {
+        }
+        out.push('}', '',
+            this._core === 'avr' ? 'int main(void)' : 'void main(void)',
+            '{', '    bw_setup();');
+        if (this._cTasks && this._core === 'avr') {
+            out.push('    sei();                         /* tick on */',
+                '',
+                '    for (;;) {',
+                ...taskNames.map((n) => `        ${n}();`),
+                '    }');
+        } else if (this._cTasks) {
             out.push('    TL0 = (unsigned char)(T0_RELOAD & 0xFF);',
                 '    TH0 = (unsigned char)(T0_RELOAD >> 8);',
                 '    ET0 = 1;                       /* millisecond tick */',
@@ -7151,6 +7378,10 @@ class SB3Creator {
                 '    for (;;) {',
                 ...taskNames.map((n) => `        ${n}();`),
                 '    }');
+        } else if (this._core === 'avr') {
+            out.push('    sei();', '');
+            out.push(...mainNote.map((l) => `    ${l}`));
+            out.push(...mainBody);
         } else {
             out.push('');
             out.push(...mainNote.map((l) => `    ${l}`));

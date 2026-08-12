@@ -2238,18 +2238,40 @@ test('the two pin vocabularies do not cross', () => {
         `expected an ADC warning, got ${JSON.stringify(ard.warnings)}`);
 });
 
-test('generateC refuses an Arduino board instead of emitting 8051 for it', () => {
+test('generateC emits AVR bare metal for an Arduino board — the back end landed', () => {
+    // This test used to assert the refusal ("until the Arduino back end
+    // lands"). It landed 2026-08-12; the guard flips to asserting the AVR
+    // emission is real AND that no 8051 register leaks across the core split.
     const c = new SB3Creator();
-    c.parse('DEVICE ARDUINO-UNO\nPIN led = D13 OUTPUT\n\nWHEN flag clicked:\n  turn on led\n');
-    const out = c.generateC();
-    // The failure this guards is silence: falling through to the 8051 emitter
-    // produces a file that compiles, for the wrong chip, out of pins the board
-    // does not have.
-    assert.match(out, /No C emitted for DEVICE ARDUINO-UNO/);
-    assert.ok(!/P1M1|TMOD|AUXR|sbit|P1_0/.test(out), 'no 8051 registers leaked in');
-    // _cWarnings is where generateC keeps them; there is no public accessor.
-    assert.ok(c._cWarnings.some((w) => /numbered pins and no 8051 registers/.test(w)
-        && /stc-compiler/.test(w)), 'and it names where the project CAN be built');
+    c.parse('DEVICE ARDUINO-UNO\nPIN led = D13 OUTPUT\nPIN pot = A0 ANALOG\n\nWHEN flag clicked:\n  FOREVER:\n    turn on led\n    wait 0.5 seconds\n    turn off led\n    wait 0.5 seconds\n');
+    const out = c.generateC(c.project, { debug: true });
+    assert.match(out, /#include <avr\/io\.h>/);
+    assert.match(out, /#include <avr\/interrupt\.h>/);
+    assert.match(out, /ISR\(TIMER0_COMPA_vect\)/, 'the millisecond tick is a real AVR ISR');
+    assert.match(out, /DDRB \|= \(1 << 5\)/, 'D13 = PB5 as an output');
+    assert.match(out, /PORTB \|= \(1 << 5\)/, 'turn on drives PB5 high (active-high default)');
+    assert.match(out, /BW_OCR0A/, 'CTC reload derived from F_CPU');
+    assert.match(out, /#define F_CPU 16000000UL/, 'the clock followed the DEVICE');
+    assert.match(out, /@bw-begin/, 'the debug yield map survives the core switch');
+    assert.match(out, /bw_task0_state/, 'the scheduler state variable the debugger reads');
+    assert.ok(!/P1M1|TMOD|AUXR|__sbit|P1_0|__interrupt|T0_RELOAD/.test(out),
+        'no 8051 register or SDCC keyword leaked across the core split');
+    assert.deepEqual(c._cWarnings, [], `clean emission: ${JSON.stringify(c._cWarnings)}`);
+});
+
+test('AVR flavor: active-low, analog channels, toggle, and stated PWM refusal', () => {
+    const c = new SB3Creator();
+    c.parse('DEVICE ARDUINO-NANO\nPIN led = D8 OUTPUT ACTIVE LOW\nPIN pot = A6 ANALOG\n\nWHEN flag clicked:\n  turn on led\n  toggle led\n  set led to 40 percent\n  print read pot\n');
+    const out = c.generateC(c.project, { debug: true });
+    assert.match(out, /PORTB &= \(uint8_t\)~\(1 << 0\);/, 'turn ON an ACTIVE LOW pin drives it LOW');
+    assert.match(out, /PORTB \|= \(1 << 0\);\s+\/\* led: start OFF \*\//, 'boot level set BEFORE direction');
+    assert.match(out, /PINB = \(1 << 0\);/, 'toggle uses the hardware PINx-write idiom');
+    assert.match(out, /adc_read\(6\)/, 'A6 is ADC channel 6 (the Nano pad)');
+    assert.match(out, /ADCSRA = \(1 << ADEN\)/, 'ADC enabled in setup');
+    assert.match(out, /UBRR0/, 'print brings the UART up');
+    assert.match(out, /pwm_set\(.*\)/, 'the PWM call site still emits');
+    assert.match(out, /NOT YET PORTED/, 'and the stub says so instead of lying');
+    assert.ok(c._cWarnings.some((w) => /PWM.*not yet ported/i.test(w)), 'stated in warnings too');
 });
 
 test('a sketch survives the whole chain: C -> pseudocode -> project -> pseudocode', () => {
