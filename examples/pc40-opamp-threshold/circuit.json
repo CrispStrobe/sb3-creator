@@ -1,0 +1,26 @@
+{
+  "vcc": 5,
+  "parts": [
+    { "id": "src", "kind": "vsource", "params": { "volts": 5 }, "x": 80, "y": 80 },
+    { "id": "pot", "kind": "potentiometer", "params": { "ohms": 10000 }, "x": 220, "y": 170 },
+    { "id": "rref1", "kind": "resistor", "params": { "ohms": 10000 }, "x": 220, "y": 300 },
+    { "id": "rref2", "kind": "resistor", "params": { "ohms": 10000 }, "x": 220, "y": 390 },
+    { "id": "amp", "kind": "opamp", "params": { "gain": 100000, "voutHigh": 5, "voutLow": 0 }, "x": 430, "y": 240 },
+    { "id": "rl", "kind": "resistor", "params": { "ohms": 1000 }, "x": 600, "y": 240 },
+    { "id": "led", "kind": "led", "params": { "vf": 2, "color": "green" }, "x": 720, "y": 240 },
+    { "id": "gnd", "kind": "gnd", "params": {}, "x": 820, "y": 450 }
+  ],
+  "wires": [
+    { "from": "src", "fromTerminal": "pos", "to": "pot", "toTerminal": "a" },
+    { "from": "pot", "fromTerminal": "b", "to": "gnd", "toTerminal": "gnd" },
+    { "from": "pot", "fromTerminal": "wiper", "to": "amp", "toTerminal": "inp" },
+    { "from": "src", "fromTerminal": "pos", "to": "rref1", "toTerminal": "a" },
+    { "from": "rref1", "fromTerminal": "b", "to": "amp", "toTerminal": "inn" },
+    { "from": "rref1", "fromTerminal": "b", "to": "rref2", "toTerminal": "a" },
+    { "from": "rref2", "fromTerminal": "b", "to": "gnd", "toTerminal": "gnd" },
+    { "from": "amp", "fromTerminal": "out", "to": "rl", "toTerminal": "a" },
+    { "from": "rl", "fromTerminal": "b", "to": "led", "toTerminal": "anode" },
+    { "from": "led", "fromTerminal": "cathode", "to": "gnd", "toTerminal": "gnd" },
+    { "from": "src", "fromTerminal": "neg", "to": "gnd", "toTerminal": "gnd" }
+  ]
+}

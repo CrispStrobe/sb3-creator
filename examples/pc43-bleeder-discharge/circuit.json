@@ -1,0 +1,18 @@
+{
+  "vcc": 5,
+  "parts": [
+    { "id": "src", "kind": "vsource", "params": { "volts": 5 }, "x": 90, "y": 100 },
+    { "id": "charge", "kind": "resistor", "params": { "ohms": 1000 }, "x": 260, "y": 100 },
+    { "id": "cap", "kind": "capacitor", "params": { "farads": 0.001 }, "x": 430, "y": 220 },
+    { "id": "bleed", "kind": "resistor", "params": { "ohms": 10000 }, "x": 590, "y": 220 },
+    { "id": "gnd", "kind": "gnd", "params": {}, "x": 730, "y": 400 }
+  ],
+  "wires": [
+    { "from": "src", "fromTerminal": "pos", "to": "charge", "toTerminal": "a" },
+    { "from": "charge", "fromTerminal": "b", "to": "cap", "toTerminal": "a" },
+    { "from": "cap", "fromTerminal": "a", "to": "bleed", "toTerminal": "a" },
+    { "from": "bleed", "fromTerminal": "b", "to": "gnd", "toTerminal": "gnd" },
+    { "from": "cap", "fromTerminal": "b", "to": "gnd", "toTerminal": "gnd" },
+    { "from": "src", "fromTerminal": "neg", "to": "gnd", "toTerminal": "gnd" }
+  ]
+}

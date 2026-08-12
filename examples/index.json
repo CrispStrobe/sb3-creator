@@ -1348,5 +1348,41 @@
     "title": { "en": "Relay changeover", "de": "Relais-Umschaltung" },
     "category": "pure-circuit", "difficulty": 3, "kind": "circuit",
     "files": { "program": "pc38-relay-changeover/program.bw", "circuit": "pc38-relay-changeover/circuit.json", "expected": "pc38-relay-changeover/EXPECTED.md" }
+  },
+  {
+    "id": "pc39-nmos-switch",
+    "title": { "en": "N-MOSFET switch", "de": "N-MOSFET-Schalter" },
+    "category": "pure-circuit", "difficulty": 3, "kind": "circuit",
+    "files": { "program": "pc39-nmos-switch/program.bw", "circuit": "pc39-nmos-switch/circuit.json", "expected": "pc39-nmos-switch/EXPECTED.md" }
+  },
+  {
+    "id": "pc40-opamp-threshold",
+    "title": { "en": "Op-amp threshold", "de": "Operationsverstärker-Schwelle" },
+    "category": "pure-circuit", "difficulty": 3, "kind": "circuit",
+    "files": { "program": "pc40-opamp-threshold/program.bw", "circuit": "pc40-opamp-threshold/circuit.json", "expected": "pc40-opamp-threshold/EXPECTED.md" }
+  },
+  {
+    "id": "pc41-zener-reference",
+    "title": { "en": "Zener reference", "de": "Zener-Referenz" },
+    "category": "pure-circuit", "difficulty": 3, "kind": "circuit",
+    "files": { "program": "pc41-zener-reference/program.bw", "circuit": "pc41-zener-reference/circuit.json", "expected": "pc41-zener-reference/EXPECTED.md" }
+  },
+  {
+    "id": "pc42-parallel-paths",
+    "title": { "en": "Parallel load paths", "de": "Parallele Lastpfade" },
+    "category": "pure-circuit", "difficulty": 1, "kind": "circuit",
+    "files": { "program": "pc42-parallel-paths/program.bw", "circuit": "pc42-parallel-paths/circuit.json", "expected": "pc42-parallel-paths/EXPECTED.md" }
+  },
+  {
+    "id": "pc43-bleeder-discharge",
+    "title": { "en": "Bleeder discharge", "de": "Entladewiderstand" },
+    "category": "pure-circuit", "difficulty": 2, "kind": "circuit",
+    "files": { "program": "pc43-bleeder-discharge/program.bw", "circuit": "pc43-bleeder-discharge/circuit.json", "expected": "pc43-bleeder-discharge/EXPECTED.md" }
+  },
+  {
+    "id": "pc44-push-pull-led",
+    "title": { "en": "Push-pull indicator", "de": "Gegentakt-Anzeige" },
+    "category": "pure-circuit", "difficulty": 2, "kind": "circuit",
+    "files": { "program": "pc44-push-pull-led/program.bw", "circuit": "pc44-push-pull-led/circuit.json", "expected": "pc44-push-pull-led/EXPECTED.md" }
   }
 ]

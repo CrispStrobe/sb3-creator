@@ -1,0 +1,18 @@
+{
+  "vcc": 9,
+  "parts": [
+    { "id": "src", "kind": "vsource", "params": { "volts": 9 }, "x": 90, "y": 100 },
+    { "id": "r1", "kind": "resistor", "params": { "ohms": 1000 }, "x": 270, "y": 150 },
+    { "id": "z1", "kind": "zener", "params": { "vz": 5.1, "vf": 0.7 }, "x": 430, "y": 260 },
+    { "id": "load", "kind": "resistor", "params": { "ohms": 10000 }, "x": 590, "y": 150 },
+    { "id": "gnd", "kind": "gnd", "params": {}, "x": 740, "y": 380 }
+  ],
+  "wires": [
+    { "from": "src", "fromTerminal": "pos", "to": "r1", "toTerminal": "a" },
+    { "from": "r1", "fromTerminal": "b", "to": "z1", "toTerminal": "cathode" },
+    { "from": "z1", "fromTerminal": "cathode", "to": "load", "toTerminal": "a" },
+    { "from": "z1", "fromTerminal": "anode", "to": "gnd", "toTerminal": "gnd" },
+    { "from": "load", "fromTerminal": "b", "to": "gnd", "toTerminal": "gnd" },
+    { "from": "src", "fromTerminal": "neg", "to": "gnd", "toTerminal": "gnd" }
+  ]
+}
