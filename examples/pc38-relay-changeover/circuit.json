@@ -1,0 +1,26 @@
+{
+  "vcc": 5,
+  "parts": [
+    { "id": "src", "kind": "vsource", "params": { "volts": 5 }, "x": 80, "y": 100 },
+    { "id": "coil", "kind": "switch", "params": {}, "x": 180, "y": 180 },
+    { "id": "relay", "kind": "relay", "params": { "coilR": 200, "switchTimeMs": 5 }, "x": 350, "y": 220 },
+    { "id": "rnc", "kind": "resistor", "params": { "ohms": 1000 }, "x": 520, "y": 140 },
+    { "id": "rno", "kind": "resistor", "params": { "ohms": 1000 }, "x": 520, "y": 300 },
+    { "id": "lednc", "kind": "led", "params": { "vf": 2, "color": "yellow" }, "x": 650, "y": 140 },
+    { "id": "ledno", "kind": "led", "params": { "vf": 2, "color": "green" }, "x": 650, "y": 300 },
+    { "id": "gnd", "kind": "gnd", "params": {}, "x": 800, "y": 450 }
+  ],
+  "wires": [
+    { "from": "src", "fromTerminal": "pos", "to": "coil", "toTerminal": "a" },
+    { "from": "coil", "fromTerminal": "b", "to": "relay", "toTerminal": "coil_a" },
+    { "from": "relay", "fromTerminal": "coil_b", "to": "gnd", "toTerminal": "gnd" },
+    { "from": "src", "fromTerminal": "pos", "to": "relay", "toTerminal": "com" },
+    { "from": "relay", "fromTerminal": "nc", "to": "rnc", "toTerminal": "a" },
+    { "from": "relay", "fromTerminal": "no", "to": "rno", "toTerminal": "a" },
+    { "from": "rnc", "fromTerminal": "b", "to": "lednc", "toTerminal": "anode" },
+    { "from": "rno", "fromTerminal": "b", "to": "ledno", "toTerminal": "anode" },
+    { "from": "lednc", "fromTerminal": "cathode", "to": "gnd", "toTerminal": "gnd" },
+    { "from": "ledno", "fromTerminal": "cathode", "to": "gnd", "toTerminal": "gnd" },
+    { "from": "src", "fromTerminal": "neg", "to": "gnd", "toTerminal": "gnd" }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "vcc": 9,
+  "parts": [
+    { "id": "src", "kind": "vsource", "params": { "volts": 9 }, "x": 80, "y": 80 },
+    { "id": "r1", "kind": "resistor", "params": { "ohms": 10000 }, "x": 220, "y": 120 },
+    { "id": "r2", "kind": "resistor", "params": { "ohms": 10000 }, "x": 220, "y": 240 },
+    { "id": "r3", "kind": "resistor", "params": { "ohms": 10000 }, "x": 220, "y": 360 },
+    { "id": "sel", "kind": "switch", "params": {}, "x": 420, "y": 220 },
+    { "id": "load", "kind": "resistor", "params": { "ohms": 100000 }, "x": 570, "y": 220 },
+    { "id": "gnd", "kind": "gnd", "params": {}, "x": 700, "y": 450 }
+  ],
+  "wires": [
+    { "from": "src", "fromTerminal": "pos", "to": "r1", "toTerminal": "a" },
+    { "from": "r1", "fromTerminal": "b", "to": "r2", "toTerminal": "a" },
+    { "from": "r2", "fromTerminal": "b", "to": "r3", "toTerminal": "a" },
+    { "from": "r3", "fromTerminal": "b", "to": "gnd", "toTerminal": "gnd" },
+    { "from": "r1", "fromTerminal": "b", "to": "sel", "toTerminal": "a" },
+    { "from": "sel", "fromTerminal": "b", "to": "load", "toTerminal": "a" },
+    { "from": "load", "fromTerminal": "b", "to": "gnd", "toTerminal": "gnd" },
+    { "from": "src", "fromTerminal": "neg", "to": "gnd", "toTerminal": "gnd" }
+  ]
+}

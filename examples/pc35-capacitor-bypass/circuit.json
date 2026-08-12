@@ -1,0 +1,17 @@
+{
+  "vcc": 5,
+  "parts": [
+    { "id": "src", "kind": "vsource", "params": { "volts": 5 }, "x": 100, "y": 100 },
+    { "id": "r1", "kind": "resistor", "params": { "ohms": 1000 }, "x": 280, "y": 100 },
+    { "id": "led", "kind": "led", "params": { "vf": 2, "color": "blue" }, "x": 440, "y": 100 },
+    { "id": "cap", "kind": "capacitor", "params": { "farads": 0.00047 }, "x": 440, "y": 280 },
+    { "id": "gnd", "kind": "gnd", "params": {}, "x": 620, "y": 400 }
+  ],
+  "wires": [
+    { "from": "src", "fromTerminal": "pos", "to": "r1", "toTerminal": "a" },
+    { "from": "r1", "fromTerminal": "b", "to": "led", "toTerminal": "anode" },
+    { "from": "led", "fromTerminal": "cathode", "to": "cap", "toTerminal": "a" },
+    { "from": "cap", "fromTerminal": "b", "to": "gnd", "toTerminal": "gnd" },
+    { "from": "src", "fromTerminal": "neg", "to": "gnd", "toTerminal": "gnd" }
+  ]
+}

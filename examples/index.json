@@ -1312,5 +1312,41 @@
       "expected": "pico03-two-tasks/EXPECTED.md"
     },
     "kind": "program"
+  },
+  {
+    "id": "pc33-thermistor-divider",
+    "title": { "en": "Thermistor divider", "de": "Thermistor-Spannungsteiler" },
+    "category": "pure-circuit", "difficulty": 2, "kind": "circuit",
+    "files": { "program": "pc33-thermistor-divider/program.bw", "circuit": "pc33-thermistor-divider/circuit.json", "expected": "pc33-thermistor-divider/EXPECTED.md" }
+  },
+  {
+    "id": "pc34-polarity-protector",
+    "title": { "en": "Polarity protector", "de": "Verpolschutz" },
+    "category": "pure-circuit", "difficulty": 1, "kind": "circuit",
+    "files": { "program": "pc34-polarity-protector/program.bw", "circuit": "pc34-polarity-protector/circuit.json", "expected": "pc34-polarity-protector/EXPECTED.md" }
+  },
+  {
+    "id": "pc35-capacitor-bypass",
+    "title": { "en": "Capacitor bypass", "de": "Kondensator-Bypass" },
+    "category": "pure-circuit", "difficulty": 2, "kind": "circuit",
+    "files": { "program": "pc35-capacitor-bypass/program.bw", "circuit": "pc35-capacitor-bypass/circuit.json", "expected": "pc35-capacitor-bypass/EXPECTED.md" }
+  },
+  {
+    "id": "pc36-series-interlock",
+    "title": { "en": "Series interlock", "de": "Serien-Freigabe" },
+    "category": "pure-circuit", "difficulty": 1, "kind": "circuit",
+    "files": { "program": "pc36-series-interlock/program.bw", "circuit": "pc36-series-interlock/circuit.json", "expected": "pc36-series-interlock/EXPECTED.md" }
+  },
+  {
+    "id": "pc37-selectable-reference",
+    "title": { "en": "Loaded reference tap", "de": "Belasteter Referenzabgriff" },
+    "category": "pure-circuit", "difficulty": 2, "kind": "circuit",
+    "files": { "program": "pc37-selectable-reference/program.bw", "circuit": "pc37-selectable-reference/circuit.json", "expected": "pc37-selectable-reference/EXPECTED.md" }
+  },
+  {
+    "id": "pc38-relay-changeover",
+    "title": { "en": "Relay changeover", "de": "Relais-Umschaltung" },
+    "category": "pure-circuit", "difficulty": 3, "kind": "circuit",
+    "files": { "program": "pc38-relay-changeover/program.bw", "circuit": "pc38-relay-changeover/circuit.json", "expected": "pc38-relay-changeover/EXPECTED.md" }
   }
 ]
