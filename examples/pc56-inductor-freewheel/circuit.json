@@ -1,0 +1,20 @@
+{
+  "vcc": 9,
+  "parts": [
+    { "id": "src", "kind": "vsource", "params": { "volts": 9 }, "x": 80, "y": 120 },
+    { "id": "sw", "kind": "switch", "params": {}, "x": 220, "y": 120 },
+    { "id": "r", "kind": "resistor", "params": { "ohms": 100 }, "x": 360, "y": 120 },
+    { "id": "l", "kind": "inductor", "params": { "henrys": 0.01 }, "x": 500, "y": 120 },
+    { "id": "d", "kind": "diode", "params": { "vf": 0.7 }, "x": 500, "y": 280 },
+    { "id": "gnd", "kind": "gnd", "params": {}, "x": 680, "y": 400 }
+  ],
+  "wires": [
+    { "from": "src", "fromTerminal": "pos", "to": "sw", "toTerminal": "a" },
+    { "from": "sw", "fromTerminal": "b", "to": "r", "toTerminal": "a" },
+    { "from": "r", "fromTerminal": "b", "to": "l", "toTerminal": "a" },
+    { "from": "l", "fromTerminal": "b", "to": "gnd", "toTerminal": "gnd" },
+    { "from": "l", "fromTerminal": "b", "to": "d", "toTerminal": "anode" },
+    { "from": "d", "fromTerminal": "cathode", "to": "l", "toTerminal": "a" },
+    { "from": "src", "fromTerminal": "neg", "to": "gnd", "toTerminal": "gnd" }
+  ]
+}

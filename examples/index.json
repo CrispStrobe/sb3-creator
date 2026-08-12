@@ -1420,5 +1420,41 @@
     "title": { "en": "Two-stage RC filter", "de": "Zweistufiges RC-Filter" },
     "category": "pure-circuit", "difficulty": 3, "kind": "circuit",
     "files": { "program": "pc50-two-stage-rc/program.bw", "circuit": "pc50-two-stage-rc/circuit.json", "expected": "pc50-two-stage-rc/EXPECTED.md" }
+  },
+  {
+    "id": "pc51-series-capacitors",
+    "title": { "en": "Series capacitors", "de": "Kondensatoren in Reihe" },
+    "category": "pure-circuit", "difficulty": 2, "kind": "circuit",
+    "files": { "program": "pc51-series-capacitors/program.bw", "circuit": "pc51-series-capacitors/circuit.json", "expected": "pc51-series-capacitors/EXPECTED.md" }
+  },
+  {
+    "id": "pc52-inductor-filter",
+    "title": { "en": "Inductor filter", "de": "Induktiver Filter" },
+    "category": "pure-circuit", "difficulty": 3, "kind": "circuit",
+    "files": { "program": "pc52-inductor-filter/program.bw", "circuit": "pc52-inductor-filter/circuit.json", "expected": "pc52-inductor-filter/EXPECTED.md" }
+  },
+  {
+    "id": "pc53-buzzer-switch",
+    "title": { "en": "Switchable buzzer", "de": "Schaltbarer Summer" },
+    "category": "pure-circuit", "difficulty": 1, "kind": "circuit",
+    "files": { "program": "pc53-buzzer-switch/program.bw", "circuit": "pc53-buzzer-switch/circuit.json", "expected": "pc53-buzzer-switch/EXPECTED.md" }
+  },
+  {
+    "id": "pc54-opamp-follower",
+    "title": { "en": "Op-amp voltage follower", "de": "Operationsverstärker-Spannungsfolger" },
+    "category": "pure-circuit", "difficulty": 3, "kind": "circuit",
+    "files": { "program": "pc54-opamp-follower/program.bw", "circuit": "pc54-opamp-follower/circuit.json", "expected": "pc54-opamp-follower/EXPECTED.md" }
+  },
+  {
+    "id": "pc55-ntc-indicator",
+    "title": { "en": "NTC indicator", "de": "NTC-Anzeige" },
+    "category": "pure-circuit", "difficulty": 2, "kind": "circuit",
+    "files": { "program": "pc55-ntc-indicator/program.bw", "circuit": "pc55-ntc-indicator/circuit.json", "expected": "pc55-ntc-indicator/EXPECTED.md" }
+  },
+  {
+    "id": "pc56-inductor-freewheel",
+    "title": { "en": "Inductor freewheel path", "de": "Freilaufpfad für Induktivität" },
+    "category": "pure-circuit", "difficulty": 3, "kind": "circuit",
+    "files": { "program": "pc56-inductor-freewheel/program.bw", "circuit": "pc56-inductor-freewheel/circuit.json", "expected": "pc56-inductor-freewheel/EXPECTED.md" }
   }
 ]
