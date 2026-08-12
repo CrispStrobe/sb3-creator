@@ -1384,5 +1384,41 @@
     "title": { "en": "Push-pull indicator", "de": "Gegentakt-Anzeige" },
     "category": "pure-circuit", "difficulty": 2, "kind": "circuit",
     "files": { "program": "pc44-push-pull-led/program.bw", "circuit": "pc44-push-pull-led/circuit.json", "expected": "pc44-push-pull-led/EXPECTED.md" }
+  },
+  {
+    "id": "pc45-nand-test",
+    "title": { "en": "NAND truth table", "de": "NAND-Wahrheitstabelle" },
+    "category": "pure-circuit", "difficulty": 2, "kind": "circuit",
+    "files": { "program": "pc45-nand-test/program.bw", "circuit": "pc45-nand-test/circuit.json", "expected": "pc45-nand-test/EXPECTED.md" }
+  },
+  {
+    "id": "pc46-xor-selector",
+    "title": { "en": "XOR selector", "de": "XOR-Auswahllogik" },
+    "category": "pure-circuit", "difficulty": 2, "kind": "circuit",
+    "files": { "program": "pc46-xor-selector/program.bw", "circuit": "pc46-xor-selector/circuit.json", "expected": "pc46-xor-selector/EXPECTED.md" }
+  },
+  {
+    "id": "pc47-555-monostable",
+    "title": { "en": "555 one-shot pulse", "de": "555-Monoflop-Impuls" },
+    "category": "pure-circuit", "difficulty": 3, "kind": "circuit",
+    "files": { "program": "pc47-555-monostable/program.bw", "circuit": "pc47-555-monostable/circuit.json", "expected": "pc47-555-monostable/EXPECTED.md" }
+  },
+  {
+    "id": "pc48-ldr-comparator",
+    "title": { "en": "LDR comparator", "de": "LDR-Komparator" },
+    "category": "pure-circuit", "difficulty": 3, "kind": "circuit",
+    "files": { "program": "pc48-ldr-comparator/program.bw", "circuit": "pc48-ldr-comparator/circuit.json", "expected": "pc48-ldr-comparator/EXPECTED.md" }
+  },
+  {
+    "id": "pc49-diode-clamp",
+    "title": { "en": "Diode clamp", "de": "Dioden-Begrenzer" },
+    "category": "pure-circuit", "difficulty": 2, "kind": "circuit",
+    "files": { "program": "pc49-diode-clamp/program.bw", "circuit": "pc49-diode-clamp/circuit.json", "expected": "pc49-diode-clamp/EXPECTED.md" }
+  },
+  {
+    "id": "pc50-two-stage-rc",
+    "title": { "en": "Two-stage RC filter", "de": "Zweistufiges RC-Filter" },
+    "category": "pure-circuit", "difficulty": 3, "kind": "circuit",
+    "files": { "program": "pc50-two-stage-rc/program.bw", "circuit": "pc50-two-stage-rc/circuit.json", "expected": "pc50-two-stage-rc/EXPECTED.md" }
   }
 ]

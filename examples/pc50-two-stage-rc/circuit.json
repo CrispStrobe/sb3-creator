@@ -1,0 +1,23 @@
+{
+  "vcc": 5,
+  "parts": [
+    { "id": "src", "kind": "vsource", "params": { "volts": 5 }, "x": 80, "y": 100 },
+    { "id": "r1", "kind": "resistor", "params": { "ohms": 10000 }, "x": 220, "y": 100 },
+    { "id": "c1", "kind": "capacitor", "params": { "farads": 0.0001 }, "x": 330, "y": 230 },
+    { "id": "r2", "kind": "resistor", "params": { "ohms": 10000 }, "x": 470, "y": 100 },
+    { "id": "c2", "kind": "capacitor", "params": { "farads": 0.0001 }, "x": 580, "y": 230 },
+    { "id": "load", "kind": "resistor", "params": { "ohms": 1000000 }, "x": 700, "y": 100 },
+    { "id": "gnd", "kind": "gnd", "params": {}, "x": 820, "y": 400 }
+  ],
+  "wires": [
+    { "from": "src", "fromTerminal": "pos", "to": "r1", "toTerminal": "a" },
+    { "from": "r1", "fromTerminal": "b", "to": "c1", "toTerminal": "a" },
+    { "from": "c1", "fromTerminal": "b", "to": "gnd", "toTerminal": "gnd" },
+    { "from": "r1", "fromTerminal": "b", "to": "r2", "toTerminal": "a" },
+    { "from": "r2", "fromTerminal": "b", "to": "c2", "toTerminal": "a" },
+    { "from": "c2", "fromTerminal": "b", "to": "gnd", "toTerminal": "gnd" },
+    { "from": "r2", "fromTerminal": "b", "to": "load", "toTerminal": "a" },
+    { "from": "load", "fromTerminal": "b", "to": "gnd", "toTerminal": "gnd" },
+    { "from": "src", "fromTerminal": "neg", "to": "gnd", "toTerminal": "gnd" }
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "vcc": 5,
+  "parts": [
+    { "id": "src", "kind": "vsource", "params": { "volts": 5 }, "x": 80, "y": 80 },
+    { "id": "ldr", "kind": "ldr", "params": { "minOhms": 1000, "maxOhms": 100000 }, "x": 220, "y": 150 },
+    { "id": "rs", "kind": "resistor", "params": { "ohms": 10000 }, "x": 220, "y": 290 },
+    { "id": "rr1", "kind": "resistor", "params": { "ohms": 10000 }, "x": 360, "y": 150 },
+    { "id": "rr2", "kind": "resistor", "params": { "ohms": 10000 }, "x": 360, "y": 290 },
+    { "id": "amp", "kind": "opamp", "params": { "gain": 100000, "voutHigh": 5, "voutLow": 0 }, "x": 500, "y": 220 },
+    { "id": "r", "kind": "resistor", "params": { "ohms": 1000 }, "x": 650, "y": 220 },
+    { "id": "led", "kind": "led", "params": { "vf": 2, "color": "yellow" }, "x": 760, "y": 220 },
+    { "id": "gnd", "kind": "gnd", "params": {}, "x": 850, "y": 430 }
+  ],
+  "wires": [
+    { "from": "src", "fromTerminal": "pos", "to": "ldr", "toTerminal": "a" },
+    { "from": "ldr", "fromTerminal": "b", "to": "rs", "toTerminal": "a" },
+    { "from": "rs", "fromTerminal": "b", "to": "gnd", "toTerminal": "gnd" },
+    { "from": "ldr", "fromTerminal": "b", "to": "amp", "toTerminal": "inp" },
+    { "from": "src", "fromTerminal": "pos", "to": "rr1", "toTerminal": "a" },
+    { "from": "rr1", "fromTerminal": "b", "to": "rr2", "toTerminal": "a" },
+    { "from": "rr1", "fromTerminal": "b", "to": "amp", "toTerminal": "inn" },
+    { "from": "rr2", "fromTerminal": "b", "to": "gnd", "toTerminal": "gnd" },
+    { "from": "amp", "fromTerminal": "out", "to": "r", "toTerminal": "a" },
+    { "from": "r", "fromTerminal": "b", "to": "led", "toTerminal": "anode" },
+    { "from": "led", "fromTerminal": "cathode", "to": "gnd", "toTerminal": "gnd" },
+    { "from": "src", "fromTerminal": "neg", "to": "gnd", "toTerminal": "gnd" }
+  ]
+}

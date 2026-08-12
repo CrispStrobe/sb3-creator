@@ -1,0 +1,2 @@
+# Standalone circuit — NAND test
+# A NAND output stays high except when both inputs are high.

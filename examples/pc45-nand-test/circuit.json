@@ -1,0 +1,27 @@
+{
+  "vcc": 5,
+  "parts": [
+    { "id": "vcc", "kind": "vcc", "params": {}, "x": 80, "y": 80 },
+    { "id": "gnd", "kind": "gnd", "params": {}, "x": 760, "y": 420 },
+    { "id": "sw1", "kind": "switch", "params": {}, "x": 180, "y": 140 },
+    { "id": "sw2", "kind": "switch", "params": {}, "x": 180, "y": 280 },
+    { "id": "pd1", "kind": "resistor", "params": { "ohms": 100000 }, "x": 280, "y": 180 },
+    { "id": "pd2", "kind": "resistor", "params": { "ohms": 100000 }, "x": 280, "y": 320 },
+    { "id": "gate", "kind": "gate_nand", "params": { "inputs": 2 }, "x": 420, "y": 220 },
+    { "id": "r", "kind": "resistor", "params": { "ohms": 1000 }, "x": 570, "y": 220 },
+    { "id": "led", "kind": "led", "params": { "vf": 2, "color": "yellow" }, "x": 680, "y": 220 }
+  ],
+  "wires": [
+    { "from": "vcc", "fromTerminal": "vcc", "to": "sw1", "toTerminal": "a" },
+    { "from": "sw1", "fromTerminal": "b", "to": "gate", "toTerminal": "in0" },
+    { "from": "sw1", "fromTerminal": "b", "to": "pd1", "toTerminal": "a" },
+    { "from": "pd1", "fromTerminal": "b", "to": "gnd", "toTerminal": "gnd" },
+    { "from": "vcc", "fromTerminal": "vcc", "to": "sw2", "toTerminal": "a" },
+    { "from": "sw2", "fromTerminal": "b", "to": "gate", "toTerminal": "in1" },
+    { "from": "sw2", "fromTerminal": "b", "to": "pd2", "toTerminal": "a" },
+    { "from": "pd2", "fromTerminal": "b", "to": "gnd", "toTerminal": "gnd" },
+    { "from": "gate", "fromTerminal": "out", "to": "r", "toTerminal": "a" },
+    { "from": "r", "fromTerminal": "b", "to": "led", "toTerminal": "anode" },
+    { "from": "led", "fromTerminal": "cathode", "to": "gnd", "toTerminal": "gnd" }
+  ]
+}
