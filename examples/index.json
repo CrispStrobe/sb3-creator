@@ -1240,5 +1240,29 @@
     "title": { "en": "Two-input logic interlock", "de": "Logische Zweifachfreigabe" },
     "category": "pure-circuit", "difficulty": 3, "kind": "circuit",
     "files": { "program": "pc28-logic-interlock/program.bw", "circuit": "pc28-logic-interlock/circuit.json", "expected": "pc28-logic-interlock/EXPECTED.md" }
+  },
+  {
+    "id": "pc29-capacitor-discharge",
+    "title": { "en": "Capacitor discharge", "de": "Kondensatorentladung" },
+    "category": "pure-circuit", "difficulty": 2, "kind": "circuit",
+    "files": { "program": "pc29-capacitor-discharge/program.bw", "circuit": "pc29-capacitor-discharge/circuit.json", "expected": "pc29-capacitor-discharge/EXPECTED.md" }
+  },
+  {
+    "id": "pc30-resistor-ladder",
+    "title": { "en": "Resistor ladder", "de": "Widerstandsleiter" },
+    "category": "pure-circuit", "difficulty": 1, "kind": "circuit",
+    "files": { "program": "pc30-resistor-ladder/program.bw", "circuit": "pc30-resistor-ladder/circuit.json", "expected": "pc30-resistor-ladder/EXPECTED.md" }
+  },
+  {
+    "id": "pc31-bridge-rectifier",
+    "title": { "en": "Bridge rectifier", "de": "Brückengleichrichter" },
+    "category": "pure-circuit", "difficulty": 3, "kind": "circuit",
+    "files": { "program": "pc31-bridge-rectifier/program.bw", "circuit": "pc31-bridge-rectifier/circuit.json", "expected": "pc31-bridge-rectifier/EXPECTED.md" }
+  },
+  {
+    "id": "pc32-pnp-high-side",
+    "title": { "en": "PNP high-side switch", "de": "PNP-Hilfsschalter" },
+    "category": "pure-circuit", "difficulty": 3, "kind": "circuit",
+    "files": { "program": "pc32-pnp-high-side/program.bw", "circuit": "pc32-pnp-high-side/circuit.json", "expected": "pc32-pnp-high-side/EXPECTED.md" }
   }
 ]

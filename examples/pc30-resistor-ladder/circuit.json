@@ -1,0 +1,17 @@
+{
+  "vcc": 9,
+  "parts": [
+    { "id": "src", "kind": "vsource", "params": { "volts": 9 }, "x": 100, "y": 100 },
+    { "id": "r1", "kind": "resistor", "params": { "ohms": 10000 }, "x": 280, "y": 100 },
+    { "id": "r2", "kind": "resistor", "params": { "ohms": 10000 }, "x": 420, "y": 100 },
+    { "id": "r3", "kind": "resistor", "params": { "ohms": 10000 }, "x": 560, "y": 100 },
+    { "id": "gnd", "kind": "gnd", "params": {}, "x": 720, "y": 240 }
+  ],
+  "wires": [
+    { "from": "src", "fromTerminal": "pos", "to": "r1", "toTerminal": "a" },
+    { "from": "r1", "fromTerminal": "b", "to": "r2", "toTerminal": "a" },
+    { "from": "r2", "fromTerminal": "b", "to": "r3", "toTerminal": "a" },
+    { "from": "r3", "fromTerminal": "b", "to": "gnd", "toTerminal": "gnd" },
+    { "from": "src", "fromTerminal": "neg", "to": "gnd", "toTerminal": "gnd" }
+  ]
+}

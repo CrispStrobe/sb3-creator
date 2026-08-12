@@ -1,0 +1,21 @@
+{
+  "vcc": 5,
+  "parts": [
+    { "id": "vcc1", "kind": "vcc", "params": {}, "x": 100, "y": 80 },
+    { "id": "gnd1", "kind": "gnd", "params": {}, "x": 620, "y": 420 },
+    { "id": "q1", "kind": "pnp", "params": { "beta": 100, "vbe": 0.7 }, "x": 330, "y": 180 },
+    { "id": "rb", "kind": "resistor", "params": { "ohms": 10000 }, "x": 220, "y": 320 },
+    { "id": "sw", "kind": "switch", "params": {}, "x": 180, "y": 220 },
+    { "id": "rl", "kind": "resistor", "params": { "ohms": 1000 }, "x": 470, "y": 250 },
+    { "id": "led", "kind": "led", "params": { "vf": 2, "color": "red" }, "x": 540, "y": 330 }
+  ],
+  "wires": [
+    { "from": "vcc1", "fromTerminal": "vcc", "to": "q1", "toTerminal": "emitter" },
+    { "from": "q1", "fromTerminal": "base", "to": "sw", "toTerminal": "a" },
+    { "from": "sw", "fromTerminal": "b", "to": "rb", "toTerminal": "a" },
+    { "from": "rb", "fromTerminal": "b", "to": "gnd1", "toTerminal": "gnd" },
+    { "from": "q1", "fromTerminal": "collector", "to": "rl", "toTerminal": "a" },
+    { "from": "rl", "fromTerminal": "b", "to": "led", "toTerminal": "anode" },
+    { "from": "led", "fromTerminal": "cathode", "to": "gnd1", "toTerminal": "gnd" }
+  ]
+}
