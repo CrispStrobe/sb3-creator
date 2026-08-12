@@ -1,0 +1,20 @@
+{
+  "vcc": 9,
+  "parts": [
+    { "id": "src", "kind": "vsource", "params": { "volts": 9 }, "x": 80, "y": 220 },
+    { "id": "sw", "kind": "switch", "params": {}, "x": 220, "y": 220 },
+    { "id": "motor", "kind": "dc_motor", "params": { "windingR": 10, "kV": 0.01 }, "x": 420, "y": 140 },
+    { "id": "r", "kind": "resistor", "params": { "ohms": 1000 }, "x": 420, "y": 320 },
+    { "id": "led", "kind": "led", "params": { "vf": 2, "color": "orange" }, "x": 580, "y": 320 },
+    { "id": "gnd", "kind": "gnd", "params": {}, "x": 740, "y": 450 }
+  ],
+  "wires": [
+    { "from": "src", "fromTerminal": "pos", "to": "sw", "toTerminal": "a" },
+    { "from": "sw", "fromTerminal": "b", "to": "motor", "toTerminal": "a" },
+    { "from": "motor", "fromTerminal": "b", "to": "gnd", "toTerminal": "gnd" },
+    { "from": "sw", "fromTerminal": "b", "to": "r", "toTerminal": "a" },
+    { "from": "r", "fromTerminal": "b", "to": "led", "toTerminal": "anode" },
+    { "from": "led", "fromTerminal": "cathode", "to": "gnd", "toTerminal": "gnd" },
+    { "from": "src", "fromTerminal": "neg", "to": "gnd", "toTerminal": "gnd" }
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "vcc": 5,
+  "parts": [
+    { "id": "vcc", "kind": "vcc", "params": {}, "x": 80, "y": 70 },
+    { "id": "gnd", "kind": "gnd", "params": {}, "x": 700, "y": 450 },
+    { "id": "timer", "kind": "timer_555", "params": {}, "x": 360, "y": 240 },
+    { "id": "ra", "kind": "resistor", "params": { "ohms": 10000 }, "x": 160, "y": 120 },
+    { "id": "rb", "kind": "resistor", "params": { "ohms": 10000 }, "x": 160, "y": 250 },
+    { "id": "cap", "kind": "capacitor", "params": { "farads": 0.00001 }, "x": 160, "y": 390 },
+    { "id": "r", "kind": "resistor", "params": { "ohms": 100 }, "x": 560, "y": 220 },
+    { "id": "buzzer", "kind": "buzzer", "params": {}, "x": 650, "y": 300 }
+  ],
+  "wires": [
+    { "from": "vcc", "fromTerminal": "vcc", "to": "timer", "toTerminal": "vcc" },
+    { "from": "timer", "fromTerminal": "gnd", "to": "gnd", "toTerminal": "gnd" },
+    { "from": "vcc", "fromTerminal": "vcc", "to": "timer", "toTerminal": "reset" },
+    { "from": "vcc", "fromTerminal": "vcc", "to": "ra", "toTerminal": "a" },
+    { "from": "ra", "fromTerminal": "b", "to": "timer", "toTerminal": "discharge" },
+    { "from": "ra", "fromTerminal": "b", "to": "rb", "toTerminal": "a" },
+    { "from": "rb", "fromTerminal": "b", "to": "timer", "toTerminal": "threshold" },
+    { "from": "rb", "fromTerminal": "b", "to": "timer", "toTerminal": "trigger" },
+    { "from": "rb", "fromTerminal": "b", "to": "cap", "toTerminal": "a" },
+    { "from": "cap", "fromTerminal": "b", "to": "gnd", "toTerminal": "gnd" },
+    { "from": "timer", "fromTerminal": "output", "to": "r", "toTerminal": "a" },
+    { "from": "r", "fromTerminal": "b", "to": "buzzer", "toTerminal": "a" },
+    { "from": "buzzer", "fromTerminal": "b", "to": "gnd", "toTerminal": "gnd" }
+  ]
+}

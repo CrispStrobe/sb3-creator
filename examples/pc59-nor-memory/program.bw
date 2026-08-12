@@ -1,0 +1,2 @@
+# Standalone circuit — NOR memory
+# Cross-coupled NOR gates remember which input was activated last.

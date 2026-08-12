@@ -5,7 +5,7 @@ install. The simulator computes real voltages and currents — when an LED light
 up, the brightness comes from Ohm's law applied to your circuit, not from a
 guess.
 
-There are 116 examples. Do not open them all. Follow the path below; each step
+There are 122 examples. Do not open them all. Follow the path below; each step
 builds on the one before it. Skip ahead when something feels familiar.
 
 ---

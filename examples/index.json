@@ -1456,5 +1456,41 @@
     "title": { "en": "Inductor freewheel path", "de": "Freilaufpfad für Induktivität" },
     "category": "pure-circuit", "difficulty": 3, "kind": "circuit",
     "files": { "program": "pc56-inductor-freewheel/program.bw", "circuit": "pc56-inductor-freewheel/circuit.json", "expected": "pc56-inductor-freewheel/EXPECTED.md" }
+  },
+  {
+    "id": "pc57-inverter-lamp",
+    "title": { "en": "Inverter lamp", "de": "Invertierte Lampe" },
+    "category": "pure-circuit", "difficulty": 2, "kind": "circuit",
+    "files": { "program": "pc57-inverter-lamp/program.bw", "circuit": "pc57-inverter-lamp/circuit.json", "expected": "pc57-inverter-lamp/EXPECTED.md" }
+  },
+  {
+    "id": "pc58-555-audio-pulse",
+    "title": { "en": "555 audio pulse", "de": "555-Audioimpuls" },
+    "category": "pure-circuit", "difficulty": 3, "kind": "circuit",
+    "files": { "program": "pc58-555-audio-pulse/program.bw", "circuit": "pc58-555-audio-pulse/circuit.json", "expected": "pc58-555-audio-pulse/EXPECTED.md" }
+  },
+  {
+    "id": "pc59-nor-memory",
+    "title": { "en": "NOR memory", "de": "NOR-Speicher" },
+    "category": "pure-circuit", "difficulty": 3, "kind": "circuit",
+    "files": { "program": "pc59-nor-memory/program.bw", "circuit": "pc59-nor-memory/circuit.json", "expected": "pc59-nor-memory/EXPECTED.md" }
+  },
+  {
+    "id": "pc60-night-lamp-hardware",
+    "title": { "en": "Hardware night lamp", "de": "Hardware-Nachtlicht" },
+    "category": "pure-circuit", "difficulty": 2, "kind": "circuit",
+    "files": { "program": "pc60-night-lamp-hardware/program.bw", "circuit": "pc60-night-lamp-hardware/circuit.json", "expected": "pc60-night-lamp-hardware/EXPECTED.md" }
+  },
+  {
+    "id": "pc61-diode-or",
+    "title": { "en": "Diode OR", "de": "Dioden-ODER" },
+    "category": "pure-circuit", "difficulty": 2, "kind": "circuit",
+    "files": { "program": "pc61-diode-or/program.bw", "circuit": "pc61-diode-or/circuit.json", "expected": "pc61-diode-or/EXPECTED.md" }
+  },
+  {
+    "id": "pc62-motor-indicator",
+    "title": { "en": "Motor indicator", "de": "Motoranzeige" },
+    "category": "pure-circuit", "difficulty": 2, "kind": "circuit",
+    "files": { "program": "pc62-motor-indicator/program.bw", "circuit": "pc62-motor-indicator/circuit.json", "expected": "pc62-motor-indicator/EXPECTED.md" }
   }
 ]
