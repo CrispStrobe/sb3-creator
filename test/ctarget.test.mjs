@@ -3159,3 +3159,37 @@ test('basicToPseudocode: the CC0 corpus reads without crashing, nothing silent',
     }
     assert.equal(files, 3, 'all three fixtures exercised');
 });
+
+test('BASIC round trip: the NUMBERED mode is a fixed point too (GOTO shapes recovered)', async () => {
+    const basicToPseudocode = (await import('../src/utils/basicToPseudocode.js')).default;
+    const src = BAS_SRC.replace('  REPEAT 3:', '  REPEAT UNTIL count = 3:')
+        .replace('  FOREVER:', '  wait until read btn = 0\n  FOREVER:');
+    const c1 = build(src);
+    const b1 = c1.generateBASIC(undefined, {}).basic;
+    const r = basicToPseudocode(b1);
+    const c2 = build(r.pseudocode);
+    const b2 = c2.generateBASIC(undefined, {}).basic;
+    assert.equal(b2, b1, 'if/else, repeat-until, wait-until and forever all come back from their GOTO shapes');
+});
+
+test('basicToPseudocode: CASE (ch. 10) becomes an IF/ELSE chain; DIM maps to the arrays extension 0-based', async () => {
+    const basicToPseudocode = (await import('../src/utils/basicToPseudocode.js')).default;
+    const r = basicToPseudocode([
+        '10 DIM scores(3)',
+        '20 scores(0)=7',
+        '30 x=scores(0)+1',
+        '40 CASE x OF',
+        '50 WHEN 8: PRINT "eight"',
+        '60 WHEN 1,2: PRINT "small"',
+        '70 OTHERWISE',
+        '80 PRINT x',
+        '90 ENDCASE',
+    ].join('\n'));
+    assert.match(r.pseudocode, /new array "scores" = \[0,0,0,0\]/, 'DIM a(3) is FOUR zeros (0..3 inclusive)');
+    assert.match(r.pseudocode, /set item 0 of array "scores" to 7/, '0-based, NO index shift — the arrays extension matches BBC');
+    assert.match(r.pseudocode, /\(item 0 of array "scores"\)\+1/);
+    assert.match(r.pseudocode, /IF \(x = 8\) THEN:/);
+    assert.match(r.pseudocode, /IF \(x = 1 or x = 2\) THEN:/, 'WHEN with a value list ORs');
+    const c = build(r.pseudocode);
+    assert.deepEqual(c.warnings || [], [], 'the reconstruction re-parses clean');
+});

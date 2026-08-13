@@ -62,6 +62,77 @@ export default function basicToPseudocode(source, opts = {}) {
     }
     stats.lines = stmts.length;   // statements, colon-split — same unit as `mapped`
 
+    // ---- destructure: numbered GOTO shapes → structured statements ------
+    // Recovers the exact shapes generateBASIC's numbered mode emits (and
+    // any real-world code that happens to share them), GUARDED: a transform
+    // applies only when no other GOTO enters the region. Anything the
+    // guards reject stays a named comment downstream — restructuring never
+    // guesses.
+    {
+        const idxOf = (lineNo) => stmts.findIndex((s) => s.lineNo === lineNo);
+        const targetsOf = () => {
+            const t = [];
+            for (const s of stmts) {
+                const g = s.text.match(/GOTO\s+(\d+)/i);
+                // A self-loop (the wait-until shape) targets its own line and
+                // is no obstacle to restructuring the code around it.
+                if (g && Number(g[1]) !== s.lineNo) t.push(Number(g[1]));
+            }
+            return t;
+        };
+        const countTargets = (list, n) => list.filter((x) => x === n).length;
+        let changed = true;
+        let guard = 0;
+        while (changed && guard++ < 200) {
+            changed = false;
+            const targets = targetsOf();
+            for (let k = 0; k < stmts.length; k++) {
+                const t = stmts[k].text;
+                let m;
+                // repeat-until: top: IF c THEN GOTO after / … / GOTO top / after:
+                if ((m = t.match(/^IF\s+(.+?)\s+THEN\s+GOTO\s+(\d+)$/i)) && !/^NOT\s*\(/i.test(m[1])) {
+                    const after = Number(m[2]);
+                    const j = stmts.findIndex((s2, kk) => kk > k && new RegExp(`^GOTO\\s+${stmts[k].lineNo}$`, 'i').test(s2.text));
+                    if (j > k && idxOf(after) === j + 1
+                        && countTargets(targets, stmts[k].lineNo) === 1 && countTargets(targets, after) === 1) {
+                        stmts[k] = { text: `WHILE NOT (${m[1]})`, lineNo: stmts[k].lineNo };
+                        stmts[j] = { text: 'ENDWHILE', lineNo: stmts[j].lineNo };
+                        changed = true;
+                        break;
+                    }
+                }
+                // if / if-else: IF NOT (c) THEN GOTO E [… GOTO A] E: … [A:]
+                if ((m = t.match(/^IF\s+NOT\s+\((.+)\)\s+THEN\s+GOTO\s+(\d+)$/i)) && Number(m[2]) !== stmts[k].lineNo) {
+                    const e = idxOf(Number(m[2]));
+                    if (e > k && countTargets(targets, Number(m[2])) === 1) {
+                        const ge = stmts[e - 1].text.match(/^GOTO\s+(\d+)$/i);
+                        if (ge && idxOf(Number(ge[1])) > e && countTargets(targets, Number(ge[1])) === 1) {
+                            const a = idxOf(Number(ge[1]));
+                            stmts[k] = { text: `IF ${m[1]} THEN`, lineNo: stmts[k].lineNo };
+                            stmts[e - 1] = { text: 'ELSE', lineNo: stmts[e - 1].lineNo };
+                            stmts.splice(a, 0, { text: 'ENDIF', lineNo: null });
+                        } else {
+                            stmts[k] = { text: `IF ${m[1]} THEN`, lineNo: stmts[k].lineNo };
+                            stmts.splice(e, 0, { text: 'ENDIF', lineNo: null });
+                        }
+                        changed = true;
+                        break;
+                    }
+                }
+                // forever: top: … GOTO top (backward, sole entry)
+                if ((m = t.match(/^GOTO\s+(\d+)$/i)) && stmts[k].lineNo !== null && Number(m[1]) < stmts[k].lineNo) {
+                    const top = idxOf(Number(m[1]));
+                    if (top >= 0 && top < k && countTargets(targets, Number(m[1])) === 1) {
+                        stmts[k] = { text: 'UNTIL FALSE', lineNo: stmts[k].lineNo };
+                        stmts.splice(top, 0, { text: 'REPEAT', lineNo: null });
+                        changed = true;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
     // ---- @bw header (our own emissions) ---------------------------------
     let device = null;
     const pins = [];
@@ -87,8 +158,23 @@ export default function basicToPseudocode(source, opts = {}) {
     // ---- expressions ----------------------------------------------------
     const exprWarn = new Set();
     const vName = (n) => n.replace(/[%$]$/, (c) => (c === '%' ? '_i' : '_s')).toLowerCase();
+    /** DIM'd 1D array names (BASIC spelling, uppercased). BBC arrays are
+     *  0-based and so is the arrays extension — indices map with NO shift,
+     *  which is exactly why DIM lands on `array` and not on 1-based lists. */
+    const dims = new Set();
     const trExpr = (e) => {
         let x = String(e).trim();
+        // Array reads first: a(i) → item i of array a — innermost first so
+        // nested subscripts like a(b(0)) resolve outward.
+        for (let pass = 0; pass < 4; pass++) {
+            let hit = false;
+            x = x.replace(/([A-Za-z_]\w*[%$]?)\(([^()]*)\)/g, (mm, name, idx) => {
+                if (!dims.has(name.toUpperCase())) return mm;
+                hit = true;
+                return `(item ${trExpr(idx)} of array "${vName(name)}")`;
+            });
+            if (!hit) break;
+        }
         x = x.replace(/FN([A-Za-z_]\w*)\s*(\(([^()]*)\))?/gi, (mm, name, _p, argsText) => {
             const fn = fns.get(name.toUpperCase());
             if (!fn) { exprWarn.add(`FN${name} has no single-line DEF FN — left as 0`); return '0'; }
@@ -215,6 +301,77 @@ export default function basicToPseudocode(source, opts = {}) {
             if (pokeToPin(parseInt(m[1], 16) & 3, m[2])) { mapped(); return; }
             named(s); return;
         }
+        if ((m = t.match(/^DIM\s+([A-Za-z_]\w*[%$]?)\s*\(\s*(\d+)\s*\)$/i))) {
+            // BBC DIM a(n) makes 0..n inclusive; the arrays extension is
+            // 0-based too (feature parity by design) — n+1 zeros, no shift.
+            dims.add(m[1].toUpperCase());
+            line(`new array "${vName(m[1])}" = [${Array(Number(m[2]) + 1).fill(0).join(',')}]`);
+            mapped();
+            return;
+        }
+        if ((m = t.match(/^DIM\s+/i))) {
+            warnings.push(`only 1D numeric DIM maps to the arrays extension so far — "${t}" kept as a comment`);
+            comment(t);
+            return;
+        }
+        if ((m = t.match(/^([A-Za-z_]\w*[%$]?)\s*\(([^()]*)\)\s*=\s*(.+)$/)) && dims.has(m[1].toUpperCase())) {
+            line(`set item ${trExpr(m[2])} of array "${vName(m[1])}" to ${/^".*"$/.test(m[3].trim()) ? m[3].trim() : trExpr(m[3])}`);
+            mapped();
+            return;
+        }
+        if ((m = t.match(/^CASE\s+(.+?)\s+OF$/i))) {
+            // CASE (ch. 10) → an IF/ELSE chain on the subject expression.
+            const subj = trExpr(m[1]);
+            const branches = [];
+            let otherwise = null;
+            i++;
+            while (i < stmts.length && !/^ENDCASE$/i.test(stmts[i].text)) {
+                let w;
+                if ((w = stmts[i].text.match(/^WHEN\s+(.+)$/i))) {
+                    const vals = w[1].split(',').map((x) => trExpr(x));
+                    branches.push({ cond: vals.map((vv) => `${subj} = ${vv}`).join(' or '), start: out.length });
+                    branches[branches.length - 1].mark = out.length;
+                    i++;
+                    const collectStart = out.length;
+                    const saved = depth;
+                    depth = 0;
+                    walk(/^(WHEN\b|OTHERWISE$|ENDCASE$)/i);
+                    depth = saved;
+                    branches[branches.length - 1].body = out.splice(collectStart);
+                    continue;
+                }
+                if (/^OTHERWISE$/i.test(stmts[i].text)) {
+                    i++;
+                    const collectStart = out.length;
+                    const saved = depth;
+                    depth = 0;
+                    walk(/^(WHEN\b|ENDCASE$)/i);
+                    depth = saved;
+                    otherwise = out.splice(collectStart);
+                    continue;
+                }
+                i++;   // stray statement before the first WHEN — skip
+            }
+            const emitChain = (k) => {
+                if (k >= branches.length) {
+                    if (otherwise) out.push(...otherwise.map((l) => '  '.repeat(depth) + l));
+                    return;
+                }
+                line(`IF (${branches[k].cond}) THEN:`);
+                depth++;
+                out.push(...branches[k].body.map((l) => '  '.repeat(depth) + l));
+                depth--;
+                if (k + 1 < branches.length || otherwise) {
+                    line('ELSE:');
+                    depth++;
+                    emitChain(k + 1);
+                    depth--;
+                }
+            };
+            emitChain(0);
+            mapped(); mapped();
+            return;
+        }
         if ((m = t.match(/^PRINT\s+"([^"]*)"$/i))) { line(`print "${m[1]}"`); mapped(); return; }
         if ((m = t.match(/^PRINT\s+([^;,'"]+)$/i))) { line(`print ${trExpr(m[1])}`); mapped(); return; }
         if ((m = t.match(/^FOR\s+([A-Za-z_]\w*[%$]?)\s*=\s*(.+?)\s+TO\s+(.+?)(\s+STEP\s+(.+))?$/i))) {
@@ -229,6 +386,13 @@ export default function basicToPseudocode(source, opts = {}) {
             if (!plain) line(`change ${v} by ${step}`);
             depth--;
             mapped(); mapped();
+            return;
+        }
+        if ((m = t.match(/^REPEAT UNTIL\s+(.+)$/i)) && !/^TIME\s*>=/i.test(m[1])) {
+            // The structured wait-until: an empty-bodied REPEAT UNTIL.
+            // (TIME>= is excluded: those belong to the two-line wait shape.)
+            line(`wait until ${trCond(m[1])}`);
+            mapped();
             return;
         }
         if (/^REPEAT$/i.test(t)) {
@@ -255,7 +419,10 @@ export default function basicToPseudocode(source, opts = {}) {
             return;
         }
         if ((m = t.match(/^WHILE\s+(.+)$/i))) {
-            line(`REPEAT UNTIL not (${trCond(m[1])}):`);
+            // WHILE NOT (x) reads back as REPEAT UNTIL x — no double negation,
+            // which is what makes the NUMBERED round trip a fixed point too.
+            const inner = m[1].match(/^NOT\s+\((.+)\)$/i);
+            line(`REPEAT UNTIL ${inner ? trCond(inner[1]) : `not (${trCond(m[1])})`}:`);
             depth++;
             i++;
             walk(/^ENDWHILE$/i);

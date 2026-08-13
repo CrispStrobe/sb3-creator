@@ -6173,6 +6173,7 @@ class SB3Creator {
         }
         const structured = bbc && !numbered;
         let depth = 0;
+        this._basLoopSeq = 0;
         const stc = project.stc || {};
         const machine = stc.machine || null;
         const viaAt = (machine && (machine.chips || []).find((c) => c.kind === 'via') || { at: 0x6000 }).at;
@@ -6350,7 +6351,10 @@ class SB3Creator {
                     return;
                 }
                 case 'control_repeat': {
-                    const i = basName(`loop${labelSeq}_${outLines.length}`);
+                    // Deterministic loop names: a plain counter, so equivalent
+                    // programs emit identical text on every pass (labelSeq
+                    // varies between the numbered and structured modes).
+                    const i = basName(`loop${this._basLoopSeq++}`);
                     emit(`FOR ${i}=1 TO ${v('TIMES')}`);
                     depth++;
                     basChain(b.inputs.SUBSTACK ? b.inputs.SUBSTACK[1] : null, blocks);
