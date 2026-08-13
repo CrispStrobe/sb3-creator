@@ -26,6 +26,8 @@ const ADC_CFG = {
     stc15f2k60s2: { bits: 10, vref: 5 },
     'arduino-uno':  { bits: 10, vref: 5 },
     'arduino-nano': { bits: 10, vref: 5 },
+    'atmega168p':   { bits: 10, vref: 5 },
+    'arduino-mega': { bits: 10, vref: 5 },
     pico:           { bits: 12, vref: 3.3 },
 };
 

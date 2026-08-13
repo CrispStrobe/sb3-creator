@@ -2307,6 +2307,59 @@ test('servo is real on both gcc cores: 50 Hz frames, microsecond pulses', () => 
     assert.match(ac, /pwm_set\(3, /);
 });
 
+test('the Mega axis: ports A-L, MUX5 channels, Timer-1/2 routing', () => {
+    const c = new SB3Creator();
+    c.parse('DEVICE ARDUINO-MEGA\nPIN led1 = D13 OUTPUT\nPIN led2 = D22 OUTPUT\nPIN led3 = D30 OUTPUT\nPIN led4 = D42 OUTPUT\nPIN pot9 = A9 ANALOG\nPIN dim = D9 PWM\n\nWHEN flag clicked:\n  set dim to 40 percent\n  set 1 angle to 90\n  FOREVER:\n    toggle led1\n    print read pot9\n    wait 0.5 seconds\n');
+    assert.deepEqual(c.warnings, []);
+    const out = c.generateC(c.project, { debug: true });
+    // Official Mega mapping: D13=PB7; D22 opens port A ascending; D30 opens
+    // port C DESCENDING (PC7); D42 opens port L descending (PL7).
+    assert.match(out, /DDRB \|= \(1 << 7\);\s+\/\* led1 = D13 output \*\//);
+    assert.match(out, /DDRA \|= \(1 << 0\);/);
+    assert.match(out, /DDRC \|= \(1 << 7\);/);
+    assert.match(out, /DDRL \|= \(1 << 7\);/);
+    // A9 is ADC channel 9: MUX5 in ADCSRB on top of ADMUX.
+    assert.match(out, /adc_read\(9\)/);
+    assert.match(out, /MUX5/);
+    // Servo rides Timer 1 on D11/D12 here; the dimmer's D9 is Timer 2 (OC2B).
+    assert.match(out, /D11 \(OC1A\/PB5\)/);
+    assert.match(out, /case 9:   \/\* OC2B = PH6 \*\//);
+    // The 8051 PCA collision matrix stays silent on this core.
+    assert.ok(!c._cWarnings.some((w) => /BW_COLLISION/.test(w)),
+        `PCA collisions are 8051 facts: ${JSON.stringify(c._cWarnings)}`);
+    // Servo+dimmer conflict wording is Mega-aware (Timer 1 = D11/D12 here).
+    assert.ok(c._cWarnings.some((w) => /D11\/D12 will not dim/.test(w)));
+});
+
+test('the Mega axis: D3 has no Timer-1/2 PWM here and is refused with the map', () => {
+    const c = new SB3Creator();
+    c.parse('DEVICE ARDUINO-MEGA\nPIN dim = D3 PWM\n\nWHEN flag clicked:\n  set dim to 40 percent\n');
+    c.generateC(c.project, { debug: true });
+    assert.ok(c._cWarnings.some((w) => /D9-D12 on the Mega/.test(w)),
+        JSON.stringify(c._cWarnings));
+});
+
+test('the 168P axis: a 328 with half the flash — same emission, own device', () => {
+    const c = new SB3Creator();
+    c.parse('DEVICE ATMEGA168P\nPIN led1 = D13 OUTPUT\n\nWHEN flag clicked:\n  FOREVER:\n    turn on led1\n    wait 0.5 seconds\n    turn off led1\n    wait 0.5 seconds\n');
+    assert.deepEqual(c.warnings, []);
+    const out = c.generateC(c.project, { debug: true });
+    assert.match(out, /@bw device atmega168p/);
+    assert.match(out, /DDRB \|= \(1 << 5\);/, 'D13 = PB5, the 328 map');
+    assert.deepEqual(c._cWarnings, []);
+});
+
+test('retarget reaches the new devices', () => {
+    const src = 'DEVICE PICO\nPIN led1 = GP25 OUTPUT\nPIN pot1 = GP26 ANALOG\n\nWHEN flag clicked:\n  FOREVER:\n    turn on led1\n    wait read pot1 milliseconds\n    turn off led1\n';
+    for (const dev of ['arduino-mega', 'atmega168p']) {
+        const r = SB3Creator.retargetPseudocode(src, dev);
+        assert.equal(r.ok, true, `${dev}: ${r.reasons.join('; ')}`);
+        const c = new SB3Creator();
+        c.parse(r.pseudocode);
+        assert.deepEqual(c.warnings, [], `${dev} re-parses clean`);
+    }
+});
+
 test('ARM flavor: DEVICE PICO emits freestanding Cortex-M0 bare metal', () => {
     const c = new SB3Creator();
     c.parse('DEVICE PICO\nPIN led1 = GP25 OUTPUT\nPIN pot1 = GP26 ANALOG\n\nWHEN flag clicked:\n  FOREVER:\n    turn on led1\n    wait 0.5 seconds\n    turn off led1\n    wait 0.5 seconds\n\nWHEN flag clicked:\n  FOREVER:\n    print read pot1\n    wait 1 seconds\n');

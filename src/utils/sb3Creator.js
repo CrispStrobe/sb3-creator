@@ -1290,6 +1290,8 @@ class SB3Creator {
             // pair let each accept the other's spelling.
             const SPOKEN = {
                 'arduino-uno': [/^(D\d+|A\d+)$/i, 'D0-D13 or A0-A5'],
+                'atmega168p': [/^(D\d+|A\d+)$/i, 'D0-D13 or A0-A5'],
+                'arduino-mega': [/^(D\d+|A\d+)$/i, 'D0-D53 or A0-A15'],
                 'arduino-nano': [/^(D\d+|A\d+)$/i, 'D0-D13 or A0-A7'],
                 atmega328p: [/^(D\d+|A\d+)$/i, 'D0-D13 or A0-A5'],
                 microbit: [/^(P\d+|BUTTON_[AB])$/i, 'P0-P20, BUTTON_A or BUTTON_B'],
@@ -1305,6 +1307,7 @@ class SB3Creator {
             // it. Disagreeing here would mean a project that builds in one
             // place and not the other.
             const LAST = { 'arduino-uno': { D: 13, A: 5 }, 'arduino-nano': { D: 13, A: 7 },
+                'atmega168p': { D: 13, A: 5 }, 'arduino-mega': { D: 53, A: 15 },
                 atmega328p: { D: 13, A: 5 }, microbit: { P: 20 }, pico: { GP: 28 } };
             const edge = LAST[cfg.device] || {};
             const num = where.match(/^([A-Z]+)(\d+)$/i);
@@ -4902,9 +4905,32 @@ class SB3Creator {
         return m && Number(m[1]) <= 28 ? { gpio: Number(m[1]) } : null;
     }
 
-    /** {reg, bit} for an AVR pin record, or null (A6/A7 and unknowns). */
+    /** The Arduino Mega 2560's pin map (official Arduino pin mapping):
+     *  54 digital + 16 analog pins across ports A–L. D30–D37 and D42–D49
+     *  run DESCENDING through their ports — the board's own quirk. */
+    static AVR_PINS_MEGA = (() => {
+        const m = {
+            D0: ['E', 0], D1: ['E', 1], D2: ['E', 4], D3: ['E', 5], D4: ['G', 5],
+            D5: ['E', 3], D6: ['H', 3], D7: ['H', 4], D8: ['H', 5], D9: ['H', 6],
+            D10: ['B', 4], D11: ['B', 5], D12: ['B', 6], D13: ['B', 7],
+            D14: ['J', 1], D15: ['J', 0], D16: ['H', 1], D17: ['H', 0],
+            D18: ['D', 3], D19: ['D', 2], D20: ['D', 1], D21: ['D', 0],
+            D38: ['D', 7], D39: ['G', 2], D40: ['G', 1], D41: ['G', 0],
+            D50: ['B', 3], D51: ['B', 2], D52: ['B', 1], D53: ['B', 0],
+        };
+        for (let i = 0; i <= 7; i++) m[`D${22 + i}`] = ['A', i];          // ascending
+        for (let i = 0; i <= 7; i++) m[`D${30 + i}`] = ['C', 7 - i];      // descending
+        for (let i = 0; i <= 7; i++) m[`D${42 + i}`] = ['L', 7 - i];      // descending
+        for (let i = 0; i <= 7; i++) m[`A${i}`] = ['F', i];
+        for (let i = 0; i <= 7; i++) m[`A${8 + i}`] = ['K', i];
+        return m;
+    })();
+
+    /** {reg, bit} for an AVR pin record, or null (A6/A7 and unknowns).
+     *  Device-aware: the Mega speaks ports A–L, the 328/168 B–D. */
     avrHw(pin) {
-        const hw = SB3Creator.AVR_PINS[String(pin.where || '').toUpperCase()];
+        const table = this._cMega ? SB3Creator.AVR_PINS_MEGA : SB3Creator.AVR_PINS;
+        const hw = table[String(pin.where || '').toUpperCase()];
         return hw ? { reg: hw[0], bit: hw[1] } : null;
     }
 
@@ -5244,14 +5270,16 @@ class SB3Creator {
                 this._cUses.pwm = true;
                 const pin = this._cPins && this._cPins.get(f('PIN').toLowerCase());
                 if (this._core === 'avr') {
-                    // Hardware PWM lives on the OC pins. D5/D6 are Timer 0's,
-                    // and Timer 0 IS the millisecond tick — refusing them is
-                    // what keeps every wait in the program honest.
+                    // Hardware PWM lives on the OC pins of Timers 1 and 2 —
+                    // Timer 0 is the millisecond tick and its pins are refused.
+                    // The Mega's OC1/OC2 pins are D9-D12; the 328's are
+                    // D3/D9/D10/D11 (the same silicon units, routed differently).
                     const d = pin ? Number(String(pin.where || '').replace(/^D/i, '')) : NaN;
-                    if (![3, 9, 10, 11].includes(d)) {
-                        this.cWarn(`"${pin ? pin.where : f('PIN')}" has no usable PWM: `
-                            + 'the ATmega328P does hardware PWM on D3/D9/D10/D11 here '
-                            + '(D5/D6 belong to Timer 0, which is the millisecond tick)');
+                    const usable = this._cMega ? [9, 10, 11, 12] : [3, 9, 10, 11];
+                    if (!usable.includes(d)) {
+                        this.cWarn(`"${pin ? pin.where : f('PIN')}" has no usable PWM here: `
+                            + `Timers 1 and 2 drive ${this._cMega ? 'D9-D12 on the Mega' : 'D3/D9/D10/D11'} `
+                            + '(Timer 0 is the millisecond tick and its pins are refused)');
                         return line(`/* no PWM on ${this.cComment(pin ? pin.where : f('PIN'))} */`);
                     }
                     return line(`pwm_set(${d}, ${v('VALUE')});`);
@@ -5937,6 +5965,7 @@ class SB3Creator {
         // to the AVR unchanged.
         this._core = (part && part.core === 'arduino') ? 'avr'
             : (part && part.core === 'rp2040') ? 'arm' : '8051';
+        this._cMega = !!(part && part.mega);
         if (part && part.core && part.core !== '8051' && part.core !== 'arduino'
             && part.core !== 'rp2040') {
             const how = part.core === 'micropython'
@@ -6214,7 +6243,9 @@ class SB3Creator {
         // dimming), and the Pico's slice 0 does (GP16/GP17 stop dimming).
         if (this._core === 'avr' && this._cUses.servo && this._cUses.pwm) {
             this.cWarn('servo takes Timer 1 for its 50 Hz frame — '
-                + '"set ... percent" on D9/D10 will not dim in this program; use D3/D11');
+                + (this._cMega
+                    ? '"set ... percent" on D11/D12 will not dim in this program; use D9/D10 (Timer 2)'
+                    : '"set ... percent" on D9/D10 will not dim in this program; use D3/D11'));
         }
         if (this._core === 'arm' && this._cUses.servo && this._cUses.pwm) {
             this.cWarn('servo takes PWM slice 0 (GP16/GP17) for its 50 Hz frame — '
@@ -6257,7 +6288,12 @@ class SB3Creator {
         //
         // Collision warnings use BW_COLLISION markers and are also pushed to
         // this.warnings so they reach the UI / CLI without parsing the C.
+        // The matrix below names PCA modules and P1.x/P3.x pins — 8051 facts.
+        // The gcc cores state their own timer allocations in their driver
+        // emissions, so on those cores every collision here would be about
+        // hardware the chip does not have: the helper goes silent instead.
         const collision = (msg) => {
+            if (this._core !== '8051') return;
             this.cWarn(`BW_COLLISION: ${msg}`);
             this.warn(null, msg);
         };
@@ -6663,7 +6699,18 @@ class SB3Creator {
                 '    bw_putc(13); bw_putc(10);',
                 '}', '');
         }
-        if (this._cUses.adc && this._core === 'arm') {
+        if (this._cUses.adc && this._core === 'avr' && this._cMega) {
+            out.push('/* 10-bit ADC, polled, AVcc reference. The Mega has 16 channels;',
+                ' * channels 8-15 need MUX5 in ADCSRB on top of ADMUX MUX4:0. */',
+                'static unsigned int adc_read(unsigned char channel)',
+                '{',
+                '    ADMUX = (uint8_t)((1 << REFS0) | (channel & 0x07));',
+                '    if (channel & 0x08) ADCSRB |= (1 << MUX5); else ADCSRB &= (uint8_t)~(1 << MUX5);',
+                '    ADCSRA |= (1 << ADSC);',
+                '    while (ADCSRA & (1 << ADSC)) ;',
+                '    return ADC;',
+                '}', '');
+        } else if (this._cUses.adc && this._core === 'arm') {
             out.push('/* 12-bit ADC, polled over APB. Channel n is GP(26+n). The datasheet',
                 ' * sequence: enable, wait READY, START_ONCE, wait READY, read RESULT. */',
                 'static unsigned int adc_read(unsigned char channel)',
@@ -6724,6 +6771,44 @@ class SB3Creator {
                 '    if (gpio & 1u) BW_PWM_CC(slice) = (BW_PWM_CC(slice) & 0xFFFFu) | (duty << 16);',
                 '    else BW_PWM_CC(slice) = (BW_PWM_CC(slice) & 0xFFFF0000u) | duty;',
                 '    BW_PWM_CSR(slice) = 1u;                  /* enable */',
+                '}', '');
+        } else if ((this._cUses.pwm || this._cUses.motor) && this._core === 'avr' && this._cMega) {
+            out.push('/* PWM on the OC pins of Timers 1 and 2, Mega routing: OC1A=D11,',
+                ' * OC1B=D12, OC2A=D10, OC2B=D9 — 8-bit fast PWM at F_CPU/64/256',
+                ' * = 977 Hz. Timer 0 is the millisecond tick; its pins (D13/D4',
+                ' * here) are refused at emit time. */',
+                'static void pwm_set(unsigned char pin, unsigned int percent)',
+                '{',
+                '    uint8_t v;',
+                '    if (percent > 100) percent = 100;',
+                '    v = (uint8_t)((percent * 255u + 50u) / 100u);',
+                '    switch (pin) {',
+                '    case 11:  /* OC1A = PB5 */',
+                '        DDRB |= (1 << 5);',
+                '        if (v == 0)        { TCCR1A &= (uint8_t)~(1 << COM1A1); PORTB &= (uint8_t)~(1 << 5); }',
+                '        else if (v == 255) { TCCR1A &= (uint8_t)~(1 << COM1A1); PORTB |= (1 << 5); }',
+                '        else               { TCCR1A |= (1 << COM1A1); OCR1A = v; }',
+                '        break;',
+                '    case 12:  /* OC1B = PB6 */',
+                '        DDRB |= (1 << 6);',
+                '        if (v == 0)        { TCCR1A &= (uint8_t)~(1 << COM1B1); PORTB &= (uint8_t)~(1 << 6); }',
+                '        else if (v == 255) { TCCR1A &= (uint8_t)~(1 << COM1B1); PORTB |= (1 << 6); }',
+                '        else               { TCCR1A |= (1 << COM1B1); OCR1B = v; }',
+                '        break;',
+                '    case 10:  /* OC2A = PB4 */',
+                '        DDRB |= (1 << 4);',
+                '        if (v == 0)        { TCCR2A &= (uint8_t)~(1 << COM2A1); PORTB &= (uint8_t)~(1 << 4); }',
+                '        else if (v == 255) { TCCR2A &= (uint8_t)~(1 << COM2A1); PORTB |= (1 << 4); }',
+                '        else               { TCCR2A |= (1 << COM2A1); OCR2A = v; }',
+                '        break;',
+                '    case 9:   /* OC2B = PH6 */',
+                '        DDRH |= (1 << 6);',
+                '        if (v == 0)        { TCCR2A &= (uint8_t)~(1 << COM2B1); PORTH &= (uint8_t)~(1 << 6); }',
+                '        else if (v == 255) { TCCR2A &= (uint8_t)~(1 << COM2B1); PORTH |= (1 << 6); }',
+                '        else               { TCCR2A |= (1 << COM2B1); OCR2B = v; }',
+                '        break;',
+                '    default: break;',
+                '    }',
                 '}', '');
         } else if ((this._cUses.pwm || this._cUses.motor) && this._core === 'avr') {
             out.push('/* PWM on the OC pins of Timers 1 and 2 (D9/D10, D11/D3) — 8-bit',
@@ -6989,6 +7074,29 @@ class SB3Creator {
                     'static int bw_servo_get(int servo)',
                     '{ return (servo >= 1 && servo <= 2) ? _servo_angle[servo - 1] : 0; }',
                     '');
+            } else if (this._cUses.servo && this._core === 'avr' && this._cMega) {
+                out.push(
+                    '/* Servo driver: Timer 1 in mode 14 (fast PWM, ICR1 TOP) at 50 Hz —',
+                    ' * Mega routing: servo 1 = D11 (OC1A/PB5), servo 2 = D12 (OC1B/PB6).',
+                    ' * Prescaler 8 gives 0.5 µs ticks: ICR1 = 39999 is 20 ms and',
+                    ' * OCR1x = 2 × pulse-µs. Timer 1 belongs to the servos here. */',
+                    'static int _servo_angle[2];',
+                    '',
+                    'static void bw_servo_set(int servo, int angle)',
+                    '{',
+                    '    unsigned int us;',
+                    '    if (servo < 1 || servo > 2) return;',
+                    '    if (angle < 0) angle = 0;',
+                    '    if (angle > 180) angle = 180;',
+                    '    _servo_angle[servo - 1] = angle;',
+                    '    us = (unsigned int)(500u + (unsigned long)angle * 2000u / 180u);',
+                    '    if (servo == 1) { TCCR1A |= (1 << COM1A1); OCR1A = us * 2u; }',
+                    '    else            { TCCR1A |= (1 << COM1B1); OCR1B = us * 2u; }',
+                    '}',
+                    '',
+                    'static int bw_servo_get(int servo)',
+                    '{ return (servo >= 1 && servo <= 2) ? _servo_angle[servo - 1] : 0; }',
+                    '');
             } else if (this._cUses.servo && this._core === 'avr') {
                 out.push(
                     '/* Servo driver: Timer 1 in mode 14 (fast PWM, ICR1 TOP) at 50 Hz —',
@@ -7115,6 +7223,41 @@ class SB3Creator {
                     '    case 1: BW_SIO_GPIO_OUT_CLR = (1UL << 19); BW_SIO_GPIO_OUT_SET = (1UL << 20); break;',
                     '    case 2: BW_SIO_GPIO_OUT_SET = (1UL << 19) | (1UL << 20); break;',
                     '    default: BW_SIO_GPIO_OUT_CLR = (1UL << 19) | (1UL << 20); break;',
+                    '    }',
+                    '}',
+                    '',
+                    'static int bw_motor_get_dir(int motor) { (void)motor; return _motor_dir; }',
+                    '');
+            } else if (this._cUses.motor && this._core === 'avr' && this._cMega) {
+                out.push(
+                    '/* DC motor driver, Mega routing: OC2B (D9/PH6) carries speed PWM',
+                    ' * at 977 Hz; direction is D7 (PH4, IN1) and D8 (PH5, IN2) into',
+                    ' * an L293D-style H-bridge. */',
+                    'static int _motor_speed;',
+                    'static int _motor_dir;',
+                    '',
+                    'static void bw_motor_speed(int motor, int speed)',
+                    '{',
+                    '    (void)motor;',
+                    '    if (speed < 0) speed = 0;',
+                    '    if (speed > 100) speed = 100;',
+                    '    _motor_speed = speed;',
+                    '    pwm_set(9, (unsigned int)speed);   /* OC2B = D9 on the Mega */',
+                    '}',
+                    '',
+                    'static int bw_motor_get_speed(int motor) { (void)motor; return _motor_speed; }',
+                    '',
+                    '/* Direction: 0=forward 1=reverse 2=brake 3=coast. D7=PH4, D8=PH5. */',
+                    'static void bw_motor_dir(int motor, int dir)',
+                    '{',
+                    '    (void)motor;',
+                    '    _motor_dir = dir;',
+                    '    DDRH |= (1 << 4) | (1 << 5);',
+                    '    switch (dir) {',
+                    '    case 0: PORTH |= (1 << 4);  PORTH &= (uint8_t)~(1 << 5); break;',
+                    '    case 1: PORTH &= (uint8_t)~(1 << 4); PORTH |= (1 << 5); break;',
+                    '    case 2: PORTH |= (1 << 4) | (1 << 5); break;',
+                    '    default: PORTH &= (uint8_t)~((1 << 4) | (1 << 5)); break;',
                     '    }',
                     '}',
                     '',
@@ -7622,7 +7765,9 @@ class SB3Creator {
                 out.push('    TCCR1A = (1 << WGM11);         /* Timer 1: mode 14, servo frame */',
                     '    TCCR1B = (1 << WGM13) | (1 << WGM12) | (1 << CS11);  /* F_CPU/8 */',
                     '    ICR1 = 39999;                  /* 20 ms at 0.5 us ticks */',
-                    '    DDRB |= (1 << 1) | (1 << 2);   /* D9/D10 = the servo pins */');
+                    this._cMega
+                        ? '    DDRB |= (1 << 5) | (1 << 6);   /* D11/D12 = the servo pins (Mega) */'
+                        : '    DDRB |= (1 << 1) | (1 << 2);   /* D9/D10 = the servo pins */');
             } else if (this._cUses.pwm || this._cUses.motor) {
                 out.push('    TCCR1A = (1 << WGM10);         /* Timer 1: 8-bit fast PWM */',
                     '    TCCR1B = (1 << WGM12) | (1 << CS11) | (1 << CS10);  /* F_CPU/64 */');
@@ -8137,6 +8282,13 @@ SB3Creator.RETARGET_POOLS = {
         analog: ['A0', 'A1', 'A2', 'A3', 'A4', 'A5'], input: ['D2', 'D4', 'D7', 'D8'],
         // D5/D6 are Timer 0's and refused by the emitter; the pool agrees.
         pwm: ['D3', 'D11', 'D9', 'D10'], ledActiveLow: false },
+    'atmega168p': { digital: ['D13', 'D12', 'D8', 'D7', 'D4', 'D2'],
+        analog: ['A0', 'A1', 'A2', 'A3', 'A4', 'A5'], input: ['D2', 'D4', 'D7', 'D8'],
+        pwm: ['D3', 'D11', 'D9', 'D10'], ledActiveLow: false },
+    'arduino-mega': { digital: ['D13', 'D22', 'D23', 'D24', 'D25', 'D26', 'D27', 'D28'],
+        analog: ['A0', 'A1', 'A2', 'A3', 'A4', 'A5', 'A8', 'A9'], input: ['D2', 'D3', 'D18', 'D19'],
+        // Timer 1/2 pins only; D13/D4 are Timer 0's (the tick) and never offered.
+        pwm: ['D9', 'D10', 'D11', 'D12'], ledActiveLow: false },
     'arduino-nano': { digital: ['D13', 'D12', 'D8', 'D7', 'D4', 'D2'],
         analog: ['A0', 'A1', 'A2', 'A3', 'A6', 'A7'], input: ['D2', 'D4', 'D7', 'D8'],
         pwm: ['D3', 'D11', 'D9', 'D10'], ledActiveLow: false },
@@ -8279,6 +8431,11 @@ SB3Creator.STC_PARTS = {
     // into a project and reaches the blocks; generateC() refuses them by name
     // rather than emitting 8051 registers for a board that has none.
     'arduino-uno': { core: 'arduino', header: 'Arduino.h', portModes: false, aux1T: false, adc: true },
+    // The 168P is a 328P with half the flash — same pinout, same registers,
+    // same codegen; only the compile target and the byte budget differ.
+    'atmega168p': { core: 'arduino', header: 'Arduino.h', portModes: false, aux1T: false, adc: true },
+    // The Mega: 54 digital + 16 analog pins across ports A–L, six timers.
+    'arduino-mega': { core: 'arduino', header: 'Arduino.h', portModes: false, aux1T: false, adc: true, mega: true },
     'arduino-nano': { core: 'arduino', header: 'Arduino.h', portModes: false, aux1T: false, adc: true },
     atmega328p: { core: 'arduino', header: 'avr/io.h', portModes: false, aux1T: false, adc: true },
     // core: 'micropython' -- the program IS the artefact, so there is no C back
