@@ -6134,6 +6134,327 @@ class SB3Creator {
         return out.join('\n');
     }
 
+    /**
+     * The seventh target: blocks → line-numbered BASIC, to be TYPED into a
+     * live interpreter over the ACIA (BeebEater's BBC BASIC today, the MIT
+     * MS BASIC port when it lands) or run under BBCSDL's console as the
+     * host oracle. Two dialect profiles:
+     *   'bbc' (default): BBC BASIC — REPEAT/UNTIL, TIME-based waits, MOD,
+     *     ?&addr indirection for VIA pokes, DEF PROC/ENDPROC with
+     *     parameters (auto-LOCAL, the chapter-16 contract). Variable names
+     *     stay readable and LOWERCASE: BBC keywords are uppercase-only
+     *     tokens, so lowercase names can never collide with them.
+     *   'ms': Microsoft BASIC 1.1 — POKE/PEEK, GOTO loops, arithmetic in
+     *     place of MOD/EOR, delay loops in place of TIME (with a REM'd
+     *     calibration constant), and names mangled to two significant
+     *     characters because that is all 1.1 keeps.
+     * Single-script programs only: BASIC is single-threaded, so multi-WHEN
+     * projects refuse with the reason instead of pretending. DEF FN (the
+     * chapter-17 value-returning half) is the READER's obligation —
+     * basicToPseudocode must accept it; the emitter will use it the day
+     * the dialect grows reporter procedures.
+     * Returns { ok, basic?, reasons: [], warnings: [] }.
+     */
+    generateBASIC(project = this.project, opts = {}) {
+        const profile = opts.profile || 'bbc';
+        const bbc = profile === 'bbc';
+        const reasons = [];
+        const warnings = [];
+        const stc = project.stc || {};
+        const machine = stc.machine || null;
+        const viaAt = (machine && (machine.chips || []).find((c) => c.kind === 'via') || { at: 0x6000 }).at;
+        const pins = new Map((stc.pins || []).map((p) => [String(p.name).toLowerCase(), p]));
+
+        // ---- names ----------------------------------------------------
+        // BeebEater's serial layer UPPERCASES input, and BBC's conditional
+        // tokenizer eats a keyword only on an EXACT match (COUNT=0 breaks,
+        // COUNTX=0 is a fine variable — measured on the live machine, along
+        // with underscores working). So the rule is exact-collision
+        // avoidance against the FULL keyword/function set, case-blind.
+        const KEYWORDS = new Set(('print time for next if then else goto gosub return repeat '
+            + 'until end def proc fn local endproc rem let dim to step and or not eor mod div '
+            + 'true false rnd int abs sgn sqr len peek poke input count pos page top lomem '
+            + 'himem ptr ext err erl pi sin cos tan asn acs atn log ln exp rad deg val get '
+            + 'inkey point adval usr eval read data restore stop run list new old clear '
+            + 'width tab spc on error trace vdu plot move draw gcol colour mode sound '
+            + 'envelope call chain load save cls clg off asc instr left right mid str '
+            + 'string bget bput openin openout opt oscli report him auto delete renumber').split(' '));
+        const names = new Map();
+        let msSeq = 0;
+        const basName = (raw) => {
+            const k = String(raw);
+            if (names.has(k)) return names.get(k);
+            let n;
+            if (bbc) {
+                n = k.toLowerCase().replace(/^proc:/, '').replace(/[^a-z0-9_]/g, '_').replace(/^[^a-z_]/, 'v$&');
+                if (KEYWORDS.has(n)) n = `${n}x`;
+                const taken = new Set([...names.values()].map((x) => x.toLowerCase()));
+                while (taken.has(n)) n += 'x';
+            } else {
+                // MS BASIC 1.1 keeps TWO significant characters; mint V0..Z9
+                // and carry the real name in a REM at declaration time.
+                n = 'V' + (msSeq++).toString(36).toUpperCase();
+            }
+            names.set(k, n);
+            return n;
+        };
+
+        // ---- the two-pass line store -----------------------------------
+        const outLines = [];   // strings, or {label: id} markers, or {goto: id} inside text as @L<id>@
+        let labelSeq = 0;
+        const newLabel = () => `@L${labelSeq++}@`;
+        const emit = (s) => outLines.push(s);
+        const emitLabel = (l) => outLines.push({ label: l });
+
+        // ---- expressions ----------------------------------------------
+        const num = (v) => {
+            const n = Number(v);
+            return Number.isFinite(n) ? String(n) : '0';
+        };
+        const pinMask = (p) => 1 << Number(String(p.where || '').replace(/^P[AB]/i, ''));
+        const pinPort = (p) => /^PB/i.test(p.where || '') ? viaAt + 0 : viaAt + 1;
+        const peekPin = (p) => {
+            const mask = pinMask(p);
+            const raw = bbc ? `((?&${pinPort(p).toString(16).toUpperCase()} AND ${mask}) DIV ${mask})`
+                : `((PEEK(${pinPort(p)}) AND ${mask})/${mask})`;
+            return p.activeLow ? `(1-${raw})` : raw;
+        };
+        const basVal = (input, blocks) => {
+            if (!input) return '0';
+            const v = input[1];
+            if (Array.isArray(v)) {
+                if (v[0] === 12) return basName(v[1]);       // variable reporter
+                return num(v[1]);
+            }
+            if (typeof v === 'string' && blocks[v]) return basRep(blocks[v], blocks);
+            return '0';
+        };
+        const basRep = (b, blocks) => {
+            const v = (k2) => basVal(b.inputs[k2], blocks);
+            const f = (k2) => (b.fields[k2] ? b.fields[k2][0] : '');
+            switch (b.opcode) {
+                case 'operator_add': return `(${v('NUM1')}+${v('NUM2')})`;
+                case 'operator_subtract': return `(${v('NUM1')}-${v('NUM2')})`;
+                case 'operator_multiply': return `(${v('NUM1')}*${v('NUM2')})`;
+                case 'operator_divide': return `(${v('NUM1')}/${v('NUM2')})`;
+                case 'operator_mod':
+                    return bbc ? `(${v('NUM1')} MOD ${v('NUM2')})`
+                        : `(${v('NUM1')}-INT(${v('NUM1')}/${v('NUM2')})*${v('NUM2')})`;
+                case 'operator_random':
+                    return bbc ? `(RND(${v('TO')}-${v('FROM')}+1)+${v('FROM')}-1)`
+                        : `(INT(RND(1)*(${v('TO')}-${v('FROM')}+1))+${v('FROM')})`;
+                case 'operator_equals': return `${v('OPERAND1')}=${v('OPERAND2')}`;
+                case 'operator_gt': return `${v('OPERAND1')}>${v('OPERAND2')}`;
+                case 'operator_lt': return `${v('OPERAND1')}<${v('OPERAND2')}`;
+                case 'operator_and': return `(${v('OPERAND1')}) AND (${v('OPERAND2')})`;
+                case 'operator_or': return `(${v('OPERAND1')}) OR (${v('OPERAND2')})`;
+                case 'operator_not': return `NOT (${v('OPERAND')})`;
+                case 'stc12_read': case 'stc12_readpin': {
+                    const p = pins.get(String(f('PIN')).toLowerCase());
+                    if (!p) { warnings.push(`read of undeclared pin "${f('PIN')}" — 0`); return '0'; }
+                    return peekPin(p);
+                }
+                case 'argument_reporter_string_number':
+                case 'argument_reporter_boolean':
+                    return basName(f('VALUE'));
+                default:
+                    reasons.push(`"${b.opcode}" has no BASIC form yet`);
+                    return '0';
+            }
+        };
+
+        // ---- statements -----------------------------------------------
+        const pokePin = (p, on) => {
+            const mask = pinMask(p);
+            const port = pinPort(p);
+            const high = (on !== !!p.activeLow);
+            if (bbc) {
+                const a = '?&' + port.toString(16).toUpperCase();
+                return high ? `${a}=${a} OR ${mask}` : `${a}=${a} AND ${255 - mask}`;
+            }
+            return high ? `POKE ${port},PEEK(${port}) OR ${mask}`
+                : `POKE ${port},PEEK(${port}) AND ${255 - mask}`;
+        };
+        const basChain = (id, blocks) => {
+            let b = blocks[id];
+            while (b) {
+                basStmt(b, blocks);
+                b = blocks[b.next];
+            }
+        };
+        const basStmt = (b, blocks) => {
+            const v = (k2) => basVal(b.inputs[k2], blocks);
+            const f = (k2) => (b.fields[k2] ? b.fields[k2][0] : '');
+            switch (b.opcode) {
+                case 'data_setvariableto': emit(`${basName(f('VARIABLE'))}=${v('VALUE')}`); return;
+                case 'data_changevariableby': { const n = basName(f('VARIABLE')); emit(`${n}=${n}+${v('VALUE')}`); return; }
+                case 'stc12_setpin': {
+                    const p = pins.get(String(f('PIN')).toLowerCase());
+                    if (!p) { warnings.push(`undeclared pin "${f('PIN')}"`); return; }
+                    const st = f('STATE');
+                    const on = st === 'on' || st === 'high' ? (st === 'high' ? !p.activeLow : true) : (st === 'low' ? !!p.activeLow : false);
+                    emit(pokePin(p, on)); return;
+                }
+                case 'stc12_toggle': {
+                    const p = pins.get(String(f('PIN')).toLowerCase());
+                    if (!p) { warnings.push(`undeclared pin "${f('PIN')}"`); return; }
+                    const mask = pinMask(p); const port = pinPort(p);
+                    if (bbc) { const a = '?&' + port.toString(16).toUpperCase(); emit(`${a}=${a} EOR ${mask}`); }
+                    else emit(`POKE ${port},PEEK(${port})+${mask}-2*(PEEK(${port}) AND ${mask})`);
+                    return;
+                }
+                case 'stc12_print': {
+                    const mode = f('MODE');
+                    if (mode === 'text') {
+                        emit(`PRINT "${String(this.dval(b.inputs.VALUE, blocks)).replace(/^"|"$/g, '').replace(/"/g, '')}"`);
+                    } else emit(`PRINT ${v('VALUE')}`);
+                    return;
+                }
+                case 'control_wait': {
+                    if (bbc) {
+                        emit(`time_target=TIME+${v('DURATION')}*100`);
+                        emit('REPEAT UNTIL TIME>=time_target');
+                    } else {
+                        emit(`REM delay: calibrate DC for the machine (units per second)`);
+                        emit(`FOR TD=1 TO ${v('DURATION')}*DC:NEXT TD`);
+                        this._basNeedsDC = true;
+                    }
+                    return;
+                }
+                case 'control_forever': {
+                    const top = newLabel();
+                    emitLabel(top);
+                    basChain(b.inputs.SUBSTACK ? b.inputs.SUBSTACK[1] : null, blocks);
+                    emit(`GOTO ${top}`);
+                    return;
+                }
+                case 'control_repeat': {
+                    const i = basName(`__loop${labelSeq}`);
+                    emit(`FOR ${i}=1 TO ${v('TIMES')}`);
+                    basChain(b.inputs.SUBSTACK ? b.inputs.SUBSTACK[1] : null, blocks);
+                    emit(`NEXT ${i}`);
+                    return;
+                }
+                case 'control_repeat_until': {
+                    if (bbc) {
+                        emit('REPEAT');
+                        basChain(b.inputs.SUBSTACK ? b.inputs.SUBSTACK[1] : null, blocks);
+                        emit(`UNTIL ${basVal(b.inputs.CONDITION, blocks)}`);
+                    } else {
+                        const top = newLabel();
+                        emitLabel(top);
+                        basChain(b.inputs.SUBSTACK ? b.inputs.SUBSTACK[1] : null, blocks);
+                        emit(`IF NOT (${basVal(b.inputs.CONDITION, blocks)}) THEN GOTO ${top}`);
+                    }
+                    return;
+                }
+                case 'control_wait_until': {
+                    const top = newLabel();
+                    emitLabel(top);
+                    emit(`IF NOT (${basVal(b.inputs.CONDITION, blocks)}) THEN GOTO ${top}`);
+                    return;
+                }
+                case 'control_if': {
+                    const after = newLabel();
+                    emit(`IF NOT (${basVal(b.inputs.CONDITION, blocks)}) THEN GOTO ${after}`);
+                    basChain(b.inputs.SUBSTACK ? b.inputs.SUBSTACK[1] : null, blocks);
+                    emitLabel(after);
+                    return;
+                }
+                case 'control_if_else': {
+                    const elseL = newLabel(); const after = newLabel();
+                    emit(`IF NOT (${basVal(b.inputs.CONDITION, blocks)}) THEN GOTO ${elseL}`);
+                    basChain(b.inputs.SUBSTACK ? b.inputs.SUBSTACK[1] : null, blocks);
+                    emit(`GOTO ${after}`);
+                    emitLabel(elseL);
+                    basChain(b.inputs.SUBSTACK2 ? b.inputs.SUBSTACK2[1] : null, blocks);
+                    emitLabel(after);
+                    return;
+                }
+                case 'procedures_call': {
+                    if (!bbc) { reasons.push('MS BASIC 1.1 has no named procedures — custom blocks need the bbc profile'); return; }
+                    const proc = basName('proc:' + this.pyProcRaw(b.mutation.proccode));
+                    const args = JSON.parse(b.mutation.argumentids || '[]')
+                        .map((aid) => basVal(b.inputs[aid], blocks));
+                    emit(`PROC${proc}${args.length ? `(${args.join(',')})` : ''}`);
+                    return;
+                }
+                default:
+                    reasons.push(`"${b.opcode}" has no BASIC form yet`);
+            }
+        };
+
+        // ---- collect scripts -------------------------------------------
+        const targets = project.targets || [];
+        const scripts = [];
+        const procs = [];
+        for (const t of targets) {
+            const blocks = t.blocks || {};
+            for (const b of Object.values(blocks)) {
+                if (!b.topLevel) continue;
+                if (b.opcode === 'event_whenflagclicked') scripts.push({ b, blocks });
+                else if (b.opcode === 'procedures_definition') procs.push({ b, blocks });
+                else if (this.isHat(b.opcode)) reasons.push(`"${b.opcode}" scripts have no BASIC form — BASIC is single-threaded`);
+            }
+        }
+        if (scripts.length > 1) {
+            reasons.push(`${scripts.length} WHEN scripts — BASIC is single-threaded; one script per program (the cooperative scheduler is exactly what BASIC does not have)`);
+        }
+        if (!scripts.length) reasons.push('no "when flag clicked" script — nothing to run');
+        if (reasons.length) return { ok: false, reasons: [...new Set(reasons)], warnings };
+
+        // ---- header + pin setup ----------------------------------------
+        emit(`REM generated by Brickwright (${profile.toUpperCase()} BASIC profile)`);
+        emit(`REM @bw device ${stc.device || 'eater6502'}`);
+        for (const p of pins.values()) emit(`REM @bw pin ${p.name} ${p.where} ${p.direction}${p.activeLow ? ' active-low' : ''}`);
+        const ddr = { a: 0, b: 0 };
+        for (const p of pins.values()) {
+            if (p.direction === 'output') ddr[/^PB/i.test(p.where) ? 'b' : 'a'] |= pinMask(p);
+        }
+        if (ddr.a) emit(bbc ? `?&${(viaAt + 3).toString(16).toUpperCase()}=${ddr.a}` : `POKE ${viaAt + 3},${ddr.a}`);
+        if (ddr.b) emit(bbc ? `?&${(viaAt + 2).toString(16).toUpperCase()}=${ddr.b}` : `POKE ${viaAt + 2},${ddr.b}`);
+        this._basNeedsDC = false;
+        const headerEnd = outLines.length;
+
+        // ---- main + procedures -----------------------------------------
+        basChain(scripts[0].b.next, scripts[0].blocks);
+        emit('END');
+        for (const { b, blocks } of procs) {
+            if (!bbc) { reasons.push('MS BASIC 1.1 has no named procedures — custom blocks need the bbc profile'); break; }
+            const proto = blocks[b.inputs.custom_block[1]];
+            const m = proto.mutation;
+            const argNames = JSON.parse(m.argumentnames || '[]').map((n) => basName(n));
+            const pn = basName('proc:' + this.pyProcRaw(m.proccode));
+            // Chapter 16's contract: parameters are the PROC's own (auto-
+            // LOCAL); anything else the body assigns stays global, as in BBC.
+            emit(`DEF PROC${pn}${argNames.length ? `(${argNames.join(',')})` : ''}`);
+            basChain(b.next, blocks);
+            emit('ENDPROC');
+        }
+        // Post-body splices at the header seam: the ms-profile name legend
+        // (names exist only after the body walked) and the delay constant.
+        const seam = [];
+        if (!bbc) for (const [raw, nm] of names) seam.push(`REM ${nm} = ${raw.replace(/^proc:/, '')}`);
+        if (this._basNeedsDC) seam.push('DC=1000:REM delay units/second - CALIBRATE');
+        outLines.splice(headerEnd, 0, ...seam);
+        if (reasons.length) return { ok: false, reasons: [...new Set(reasons)], warnings };
+
+        // ---- number the lines, resolve labels --------------------------
+        const lineNo = new Map();
+        let n = 10;
+        const numbered = [];
+        for (const l of outLines) {
+            if (typeof l === 'object' && l.label) { lineNo.set(l.label, n); continue; }
+            numbered.push({ n, text: l });
+            n += 10;
+        }
+        // A trailing label cannot occur: END / ENDPROC always follow the
+        // last branch, so every label resolves to a real line.
+        const resolve = (text) => text.replace(/@L\d+@/g, (m) => String(lineNo.get(m) ?? n));
+        const basic = numbered.map((l) => `${l.n} ${resolve(l.text)}`).join('\n') + '\n';
+        return { ok: true, basic, reasons: [], warnings };
+    }
+
     generateC(project = this.project, opts = {}) {
         // Which C? The project decides. Declared pins mean the chip and bare
         // metal; anything else is a Scratch program, and emitting 8051 register
