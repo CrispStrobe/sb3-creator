@@ -1455,6 +1455,50 @@ class SB3Creator {
             });
             return true;
         }
+        // PART <name> = 74HC595 data <where> clock <where> latch <where> [ACTIVE LOW|HIGH]
+        // Non-8051 boards: pin names are D<n>, A<n>, GP<n>, PA<n>, PB<n> etc.
+        if ((m = trimmed.match(/^PART\s+([A-Za-z_]\w*)\s*=\s*74HC595\s+data\s+(\S+)\s+clock\s+(\S+)\s+latch\s+(\S+)(?:\s+ACTIVE\s+(LOW|HIGH))?$/i))) {
+            const [, name, dw, cw, lw, active] = m;
+            const cfg = this.stcConfig();
+            const part = SB3Creator.STC_PARTS[cfg.device];
+            const core = part && part.core;
+            // Only match for non-8051 cores (the P<p>.<b> branch above handles 8051).
+            if (core && core !== '8051' && !/^P\d\.\d$/.test(dw)) {
+                if (this.stcPin(name) || this.stcPort(name) || this.stcPart(name)) {
+                    this.warn(lineIndex, `"${name}" declared twice`);
+                    return true;
+                }
+                const wheres = [dw.toUpperCase(), cw.toUpperCase(), lw.toUpperCase()];
+                if (new Set(wheres).size !== 3) {
+                    this.warn(lineIndex, `"${name}" names the same pin twice; data, clock and latch must be three different pins`);
+                    return true;
+                }
+                // Check conflicts with existing PINs and PARTs.
+                for (const w of wheres) {
+                    const pinConflict = cfg.pins.find((pin) => (pin.where || '').toUpperCase() === w);
+                    if (pinConflict) {
+                        this.warn(lineIndex, `${w} is already declared as "${pinConflict.name}"; a PART claims its pins`);
+                        return true;
+                    }
+                    for (const prev of cfg.parts) {
+                        if ((prev.claims || []).some((c) => typeof c === 'string' ? c === w : false)) {
+                            this.warn(lineIndex, `${w} is already claimed by "${prev.name}"`);
+                            return true;
+                        }
+                    }
+                }
+                cfg.parts.push({
+                    name,
+                    type: '74hc595',
+                    claims: wheres,
+                    data: { where: wheres[0] },
+                    clock: { where: wheres[1] },
+                    latch: { where: wheres[2] },
+                    activeLow: /^low$/i.test(active || '')
+                });
+                return true;
+            }
+        }
         // TABLE <name> = <value>, <value>, ... — constant lookup table in code space.
         // Values are bytes (0–255), separated by commas. Supports hex (0x3F) and
         // binary (0b00111111) literals. The table rides in project.stc.tables and
@@ -3477,7 +3521,8 @@ class SB3Creator {
                 out.push(`PORT ${p.name} = P${p.port} ${p.direction.toUpperCase()}${p.activeLow ? ' ACTIVE LOW' : ''}`);
             }
             for (const p of cfg.parts || []) {
-                out.push(`PART ${p.name} = 74HC595 data P${p.data.port}.${p.data.bit} clock P${p.clock.port}.${p.clock.bit} latch P${p.latch.port}.${p.latch.bit}${p.activeLow ? ' ACTIVE LOW' : ''}`);
+                const pinStr = (pin) => pin.where || `P${pin.port}.${pin.bit}`;
+                out.push(`PART ${p.name} = 74HC595 data ${pinStr(p.data)} clock ${pinStr(p.clock)} latch ${pinStr(p.latch)}${p.activeLow ? ' ACTIVE LOW' : ''}`);
             }
             for (const t of cfg.tables || []) {
                 const vals = t.values.map((v) => `0x${v.toString(16).toUpperCase().padStart(2, '0')}`);
@@ -5377,7 +5422,25 @@ class SB3Creator {
                 const partCfg = this.project && this.project.stc && (this.project.stc.parts || []).find((p) => p.name.toLowerCase() === part.toLowerCase());
                 if (!partCfg) return line(`/* set ${this.cComment(part)} — undeclared PART */`);
                 const { data, clock, latch } = partCfg;
-                return line(`shift_out(P${data.port}_${data.bit}, P${clock.port}_${clock.bit}, P${latch.port}_${latch.bit}, ${partCfg.activeLow ? '1' : '0'}, (unsigned char)(${v('VALUE')}));`);
+                const al = partCfg.activeLow ? '1' : '0';
+                const val = `(unsigned char)(${v('VALUE')})`;
+                if (this._core === 'avr') {
+                    const dh = this.avrHw(data), ch = this.avrHw(clock), lh = this.avrHw(latch);
+                    if (!dh || !ch || !lh) return line(`/* set ${this.cComment(part)} — bad PART pin */`);
+                    return line(`shift_out(&PORT${dh.reg}, ${dh.bit}, &PORT${ch.reg}, ${ch.bit}, &PORT${lh.reg}, ${lh.bit}, ${al}, ${val});`);
+                }
+                if (this._core === 'arm') {
+                    const dg = this.armHw(data), cg = this.armHw(clock), lg = this.armHw(latch);
+                    if (!dg || !cg || !lg) return line(`/* set ${this.cComment(part)} — bad PART pin */`);
+                    return line(`shift_out(${dg.gpio}, ${cg.gpio}, ${lg.gpio}, ${al}, ${val});`);
+                }
+                if (this._core === '6502') {
+                    const dh = this.viaHw(data), ch = this.viaHw(clock), lh = this.viaHw(latch);
+                    if (!dh || !ch || !lh) return line(`/* set ${this.cComment(part)} — bad PART pin */`);
+                    return line(`shift_out(&BW_VIA_OR${dh.port}, ${dh.bit}, &BW_VIA_OR${ch.port}, ${ch.bit}, &BW_VIA_OR${lh.port}, ${lh.bit}, ${al}, ${val});`);
+                }
+                // 8051: SFR bit lvalues
+                return line(`shift_out(P${data.port}_${data.bit}, P${clock.port}_${clock.bit}, P${latch.port}_${latch.bit}, ${al}, ${val});`);
             }
             case 'stc12_print': {
                 this._cUses.print = true;
@@ -6878,6 +6941,69 @@ class SB3Creator {
                 '    bw_putc(13); bw_putc(10);',
                 '}', '');
         }
+        // 74HC595 shift register: bit-bang MSB-first, clock-on-rising-edge.
+        // The activeLow param inverts the DATA line only (common-cathode vs
+        // common-anode LED arrays). Edge order: clock LOW, set DATA, clock HIGH.
+        // Latch pulse after the 8th bit makes the shift register output visible.
+        if (this._cUses.shiftOut && (this._core === 'avr' || this._core === '6502')) {
+            // AVR and 6502 share the same pointer+bit signature.
+            out.push('/* 74HC595 shift-out: MSB first, rising-edge clock, latch pulse. */',
+                'static void shift_out(volatile uint8_t *dp, uint8_t db,',
+                '                      volatile uint8_t *cp, uint8_t cb,',
+                '                      volatile uint8_t *lp, uint8_t lb,',
+                '                      uint8_t activeLow, uint8_t value)',
+                '{',
+                '    uint8_t i;',
+                '    *lp &= (uint8_t)~(1 << lb);                    /* latch low */',
+                '    for (i = 0; i < 8; i++) {',
+                '        *cp &= (uint8_t)~(1 << cb);                /* clock low */',
+                '        uint8_t bit = (value & 0x80) ? 1 : 0;',
+                '        if (activeLow) bit = !bit;',
+                '        if (bit) *dp |= (uint8_t)(1 << db);',
+                '        else     *dp &= (uint8_t)~(1 << db);',
+                '        value <<= 1;',
+                '        *cp |= (uint8_t)(1 << cb);                 /* clock high — shift */',
+                '    }',
+                '    *lp |= (uint8_t)(1 << lb);                     /* latch high — output */',
+                '}', '');
+        }
+        if (this._cUses.shiftOut && this._core === 'arm') {
+            out.push('/* 74HC595 shift-out: MSB first, rising-edge clock, latch pulse. */',
+                'static void shift_out(uint8_t data_gpio, uint8_t clock_gpio, uint8_t latch_gpio,',
+                '                      uint8_t activeLow, uint8_t value)',
+                '{',
+                '    uint8_t i;',
+                '    BW_SIO_GPIO_OUT_CLR = (1UL << latch_gpio);     /* latch low */',
+                '    for (i = 0; i < 8; i++) {',
+                '        BW_SIO_GPIO_OUT_CLR = (1UL << clock_gpio); /* clock low */',
+                '        uint8_t bit = (value & 0x80) ? 1 : 0;',
+                '        if (activeLow) bit = !bit;',
+                '        if (bit) BW_SIO_GPIO_OUT_SET = (1UL << data_gpio);',
+                '        else     BW_SIO_GPIO_OUT_CLR = (1UL << data_gpio);',
+                '        value <<= 1;',
+                '        BW_SIO_GPIO_OUT_SET = (1UL << clock_gpio); /* clock high — shift */',
+                '    }',
+                '    BW_SIO_GPIO_OUT_SET = (1UL << latch_gpio);     /* latch high — output */',
+                '}', '');
+        }
+        if (this._cUses.shiftOut && this._core === '8051') {
+            // The 8051 has bit-addressable SFR lvalues: simpler signature.
+            out.push('/* 74HC595 shift-out: MSB first, rising-edge clock, latch pulse. */',
+                'static void shift_out(__sbit data_pin, __sbit clock_pin, __sbit latch_pin,',
+                '                      unsigned char activeLow, unsigned char value)',
+                '{',
+                '    unsigned char i;',
+                '    latch_pin = 0;                                  /* latch low */',
+                '    for (i = 0; i < 8; i++) {',
+                '        clock_pin = 0;                              /* clock low */',
+                '        if (activeLow) data_pin = !(value & 0x80);',
+                '        else           data_pin =  (value & 0x80) ? 1 : 0;',
+                '        value <<= 1;',
+                '        clock_pin = 1;                              /* clock high — shift */',
+                '    }',
+                '    latch_pin = 1;                                  /* latch high — output */',
+                '}', '');
+        }
         if (this._cUses.adc && this._core === 'avr' && this._cMega) {
             out.push('/* 10-bit ADC, polled, AVcc reference. The Mega has 16 channels;',
                 ' * channels 8-15 need MUX5 in ADCSRB on top of ADMUX MUX4:0. */',
@@ -7934,6 +8060,17 @@ class SB3Creator {
             if (this._cUses.adc) {
                 out.push('    ADCSRA = (1 << ADEN) | (1 << ADPS2) | (1 << ADPS1) | (1 << ADPS0);  /* on, /128 */');
             }
+            // 74HC595 PART pins: all three (data, clock, latch) are outputs.
+            if (this._cUses.shiftOut) {
+                for (const p of (this.project.stc.parts || [])) {
+                    for (const role of ['data', 'clock', 'latch']) {
+                        const hw = this.avrHw(p[role]);
+                        if (!hw) continue;
+                        out.push(`    PORT${hw.reg} &= (uint8_t)~(1 << ${hw.bit});   /* ${p.name} ${role} LOW */`,
+                            `    DDR${hw.reg}  |= (1 << ${hw.bit});               /* ${p.name} ${role} = ${p[role].where} output */`);
+                    }
+                }
+            }
             if (this._cTasks || this._cUses.delay) {
                 out.push('    TCCR0A = (1 << WGM01);         /* Timer 0 CTC */',
                     '    TCCR0B = (1 << CS01) | (1 << CS00);  /* F_CPU/64 */',
@@ -7990,6 +8127,18 @@ class SB3Creator {
                     out.push(`    BW_PADS(${hw.gpio}) = (1u << 7);   /* ${p.name} = ${p.where}: analog pad (OD=1, IE=0) */`);
                 }
             }
+            // 74HC595 PART pins: all three (data, clock, latch) are outputs.
+            if (this._cUses.shiftOut) {
+                for (const p of (this.project.stc.parts || [])) {
+                    for (const role of ['data', 'clock', 'latch']) {
+                        const hw = this.armHw(p[role]);
+                        if (!hw) continue;
+                        out.push(`    BW_IOBANK0_CTRL(${hw.gpio}) = 5u;   /* ${p.name} ${role} = ${p[role].where}: funcsel SIO */`,
+                            `    BW_SIO_GPIO_OUT_CLR = (1UL << ${hw.gpio});   /* ${p.name} ${role} LOW */`,
+                            `    BW_SIO_GPIO_OE_SET = (1UL << ${hw.gpio});   /* output */`);
+                    }
+                }
+            }
             if (this._cUses.print) {
                 out.push('    BW_IOBANK0_CTRL(0) = 2u;           /* GP0: funcsel UART0 TX */',
                     `    BW_UART0_IBRD = (uint32_t)(F_CPU / 16UL / 9600UL);`,
@@ -8015,6 +8164,17 @@ class SB3Creator {
                 // internal pull-ups — the bench wiring provides them, and the
                 // derived-circuit layer knows that from the pool metadata.
             }
+            // 74HC595 PART pins: all three (data, clock, latch) are outputs.
+            if (this._cUses.shiftOut) {
+                for (const p of (this.project.stc.parts || [])) {
+                    for (const role of ['data', 'clock', 'latch']) {
+                        const hw = this.viaHw(p[role]);
+                        if (!hw) continue;
+                        out.push(`    BW_VIA_OR${hw.port} &= (uint8_t)~(1 << ${hw.bit});   /* ${p.name} ${role} LOW */`,
+                            `    BW_VIA_DDR${hw.port} |= (uint8_t)(1 << ${hw.bit});   /* ${p.name} ${role} = ${p[role].where} output */`);
+                    }
+                }
+            }
             if (this._cTasks || this._cUses.delay || this._cUses.now
                 || this._cUses.print || this._cUses.blockDelay) {
                 out.push('    BW_VIA_ACR = 0x40;             /* Timer 1 free-run */',
@@ -8029,6 +8189,15 @@ class SB3Creator {
         if (this._core === '8051') {
         const outputs = {};
         for (const p of pins) if (p.direction === 'output') outputs[p.port] = (outputs[p.port] || 0) | (1 << p.bit);
+        // 74HC595 PART pins are outputs too (data, clock, latch).
+        if (this._cUses.shiftOut) {
+            for (const p of (this.project.stc.parts || [])) {
+                for (const role of ['data', 'clock', 'latch']) {
+                    const pin = p[role];
+                    if (pin.port !== undefined) outputs[pin.port] = (outputs[pin.port] || 0) | (1 << pin.bit);
+                }
+            }
+        }
         if (chip.portModes) {
             for (const port of Object.keys(outputs).sort()) {
                 out.push(`    P${port}M1 &= ~0x${hex(outputs[port])};   /* push-pull */`,
@@ -8039,6 +8208,15 @@ class SB3Creator {
         // active-low wiring sinks the LED current either way.
         for (const p of pins) {
             if (p.direction === 'output') out.push(`    P${p.port}_${p.bit} = ${p.activeLow ? 1 : 0};   /* ${this.cComment(p.name)} off */`);
+        }
+        // 74HC595 PART pins start LOW (data, clock, latch all idle low).
+        if (this._cUses.shiftOut) {
+            for (const p of (this.project.stc.parts || [])) {
+                for (const role of ['data', 'clock', 'latch']) {
+                    const pin = p[role];
+                    if (pin.port !== undefined) out.push(`    P${pin.port}_${pin.bit} = 0;   /* ${p.name} ${role} LOW */`);
+                }
+            }
         }
         let analog = 0;
         for (const p of pins) if (p.direction === 'analog') analog |= 1 << p.bit;
@@ -8535,14 +8713,7 @@ SB3Creator.retargetPseudocode = function retargetPseudocode(src, device) {
     if ((stc.ports || []).length && core !== '8051') {
         reasons.push('whole-port declarations (PORT x = Pn) are an 8051 construct — no port registers here');
     }
-    // PART (74HC595) emission exists only on the 8051 today. Without this
-    // refusal the retarget "succeeds" and the generated C silently comments
-    // out every `set <part> to` — a program that compiles and does nothing.
-    // Found 2026-08-13 when the 6502 machine joined; pico/uno were equally
-    // affected. Bit-banging the 595 is portable — port it, then lift this.
-    if ((stc.parts || []).length && core !== '8051') {
-        reasons.push('the 74HC595 PART helper is not ported to this core yet');
-    }
+    // PART (74HC595) shift_out is now ported to all cores — no refusal needed.
 
     // ---- feature scan: what does the body actually use? -----------------
     const used = { pwmPins: new Set(), port: false, cube: false, pixel: false,
@@ -8607,6 +8778,25 @@ SB3Creator.retargetPseudocode = function retargetPseudocode(src, device) {
         }
         if (where) newPins.push({ ...pin, where, activeLow, port: undefined, bit: undefined });
     }
+
+    // ---- retarget PART pin coordinates ---------------------------------
+    // PART data/clock/latch pins are implicitly digital outputs — allocate
+    // them from the digital pool, same as output PINs.
+    const newParts = [];
+    for (const p of (stc.parts || [])) {
+        const newPart = { ...p };
+        for (const role of ['data', 'clock', 'latch']) {
+            const where = take(pools.digital);
+            if (!where) {
+                reasons.push(`more PART pins than ${device}'s digital convention offers (${pools.digital.length})`);
+                break;
+            }
+            newPart[role] = { where };
+        }
+        newPart.claims = [newPart.data.where, newPart.clock.where, newPart.latch.where].filter(Boolean);
+        newParts.push(newPart);
+    }
+    stc.parts = newParts;
 
     if (reasons.length) return { ok: false, reasons, warnings };
 

@@ -1061,9 +1061,60 @@ test('set port to <n> emits a whole-port write in C', () => {
     assert.match(code, /P0 = \(unsigned char\)\(255\)/);
 });
 
-test('set part to <n> emits shift_out in C', () => {
+test('set part to <n> emits shift_out in C (8051)', () => {
     const code = cOf('PIN led = P1.0 OUTPUT\nPART sr = 74HC595 data P2.0 clock P2.1 latch P2.2\nWHEN flag clicked:\n  set sr to 128');
     assert.match(code, /shift_out\(P2_0, P2_1, P2_2, 0, \(unsigned char\)\(128\)\)/);
+    // Helper function body must be emitted
+    assert.match(code, /static void shift_out\(__sbit data_pin/);
+    // PART pins set up as push-pull outputs
+    assert.match(code, /P2_0 = 0;/, '8051 PART data pin starts LOW');
+    assert.match(code, /P2_1 = 0;/, '8051 PART clock pin starts LOW');
+    assert.match(code, /P2_2 = 0;/, '8051 PART latch pin starts LOW');
+});
+
+test('set part to <n> emits shift_out in C (AVR)', () => {
+    const code = cOf('DEVICE ARDUINO-UNO\nPIN led = D13 OUTPUT\nPART sr = 74HC595 data D2 clock D4 latch D7\nWHEN flag clicked:\n  set sr to 128');
+    // Call site: pointer + bit for each pin
+    assert.match(code, /shift_out\(&PORTD, 2, &PORTD, 4, &PORTD, 7, 0, \(unsigned char\)\(128\)\)/);
+    // Helper function body
+    assert.match(code, /static void shift_out\(volatile uint8_t \*dp/);
+    // PART pin direction setup: DDR + initial level
+    assert.match(code, /DDRD  \|= \(1 << 2\);/, 'AVR PART data DDR');
+    assert.match(code, /DDRD  \|= \(1 << 4\);/, 'AVR PART clock DDR');
+    assert.match(code, /DDRD  \|= \(1 << 7\);/, 'AVR PART latch DDR');
+});
+
+test('set part to <n> emits shift_out in C (ARM/Pico)', () => {
+    const code = cOf('DEVICE PICO\nPIN led = GP25 OUTPUT\nPART sr = 74HC595 data GP10 clock GP11 latch GP12\nWHEN flag clicked:\n  set sr to 128');
+    // Call site: GPIO numbers
+    assert.match(code, /shift_out\(10, 11, 12, 0, \(unsigned char\)\(128\)\)/);
+    // Helper function body
+    assert.match(code, /static void shift_out\(uint8_t data_gpio/);
+    // PART pin direction setup: funcsel + OE
+    assert.match(code, /BW_SIO_GPIO_OE_SET = \(1UL << 10\);/, 'ARM PART data OE');
+    assert.match(code, /BW_SIO_GPIO_OE_SET = \(1UL << 11\);/, 'ARM PART clock OE');
+    assert.match(code, /BW_SIO_GPIO_OE_SET = \(1UL << 12\);/, 'ARM PART latch OE');
+});
+
+test('set part to <n> emits shift_out in C (6502)', () => {
+    const code = cOf('DEVICE EATER6502\nPIN led = PA0 OUTPUT\nPART sr = 74HC595 data PA1 clock PA2 latch PA3\nWHEN flag clicked:\n  set sr to 128');
+    // Call site: VIA port pointer + bit
+    assert.match(code, /shift_out\(&BW_VIA_ORA, 1, &BW_VIA_ORA, 2, &BW_VIA_ORA, 3, 0, \(unsigned char\)\(128\)\)/);
+    // Helper function body (same as AVR: pointer+bit)
+    assert.match(code, /static void shift_out\(volatile uint8_t \*dp/);
+    // PART pin direction setup: DDR
+    assert.match(code, /BW_VIA_DDRA \|= \(uint8_t\)\(1 << 1\);/, '6502 PART data DDR');
+    assert.match(code, /BW_VIA_DDRA \|= \(uint8_t\)\(1 << 2\);/, '6502 PART clock DDR');
+    assert.match(code, /BW_VIA_DDRA \|= \(uint8_t\)\(1 << 3\);/, '6502 PART latch DDR');
+});
+
+test('8051 shift_out emission is byte-identical to golden', () => {
+    // The 8051 call site must not change — goldens depend on it.
+    const code = cOf('PIN led = P1.0 OUTPUT\nPART sr = 74HC595 data P2.0 clock P2.1 latch P2.2\nWHEN flag clicked:\n  set sr to 128');
+    // Exact golden call site (no leading spaces, no trailing whitespace variation)
+    const callLine = code.split('\n').find((l) => l.includes('shift_out(P2_0'));
+    assert.ok(callLine, 'shift_out call site must exist');
+    assert.match(callLine.trim(), /^shift_out\(P2_0, P2_1, P2_2, 0, \(unsigned char\)\(128\)\);$/);
 });
 
 test('print text and number emit bw_print / bw_print_num in C', () => {
@@ -2814,9 +2865,7 @@ WHEN flag clicked:
     assert.ok(r2.reasons.some((x) => /no ADC/.test(x)));
 });
 
-test('PART programs refuse retarget on EVERY non-8051 core, not just the 6502', () => {
-    // Before 2026-08-13 these "succeeded" onto pico/uno and the C silently
-    // commented out every `set <part> to` — compiled, ran, did nothing.
+test('PART programs retarget to all cores, rewriting pin coordinates', () => {
     const chaser = `DEVICE STC12C5A60S2
 CLOCK 11059200
 PART leds = 74HC595 data P1.0 clock P1.1 latch P1.2
@@ -2826,11 +2875,27 @@ WHEN flag clicked:
     set leds to 1
     wait 0.1 seconds
 `;
-    for (const dev of ['pico', 'arduino-uno', 'arduino-mega', 'eater6502']) {
-        const r = SB3Creator.retargetPseudocode(chaser, dev);
-        assert.equal(r.ok, false, `${dev} must refuse PART programs`);
-        assert.ok(r.reasons.some((x) => /PART helper is not ported/.test(x)), dev);
-    }
+    // Arduino Uno: PART pins should become D<n> from the digital pool
+    const uno = SB3Creator.retargetPseudocode(chaser, 'arduino-uno');
+    assert.ok(uno.ok, 'Uno: ' + uno.reasons.join('; '));
+    assert.match(uno.pseudocode, /^PART leds = 74HC595 data D\d+ clock D\d+ latch D\d+$/m,
+        'Uno PART pins rewritten to D<n>');
+
+    // Pico: PART pins should become GP<n>
+    const pico = SB3Creator.retargetPseudocode(chaser, 'pico');
+    assert.ok(pico.ok, 'Pico: ' + pico.reasons.join('; '));
+    assert.match(pico.pseudocode, /^PART leds = 74HC595 data GP\d+ clock GP\d+ latch GP\d+$/m,
+        'Pico PART pins rewritten to GP<n>');
+
+    // 6502: PART pins should become PA<n> or PB<n>
+    const eater = SB3Creator.retargetPseudocode(chaser, 'eater6502');
+    assert.ok(eater.ok, 'eater6502: ' + eater.reasons.join('; '));
+    assert.match(eater.pseudocode, /^PART leds = 74HC595 data P[AB]\d clock P[AB]\d latch P[AB]\d$/m,
+        '6502 PART pins rewritten to VIA pins');
+
+    // 8051 to 8051: PART pins should stay P<p>.<b>
     const home = SB3Creator.retargetPseudocode(chaser, 'stc89c52rc');
-    assert.ok(home.ok, '8051 parts still accept PART programs');
+    assert.ok(home.ok, '8051: ' + home.reasons.join('; '));
+    assert.match(home.pseudocode, /^PART leds = 74HC595 data P\d\.\d clock P\d\.\d latch P\d\.\d$/m,
+        '8051 PART pins stay P<p>.<b>');
 });
