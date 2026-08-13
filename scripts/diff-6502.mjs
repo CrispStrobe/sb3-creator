@@ -78,16 +78,27 @@ sh(`ld65 -C ${join(target, 'eater.cfg')} -o prog.rom crt0.o prog.o none.lib`);
 const rom = readFileSync(join(work, 'prog.rom'));
 
 // ---- run on the machine ----------------------------------------------------
+// A declared MAP/CHIP machine overrides the preset — chips at their declared
+// addresses, the via's declared NAME prefixing the pins. (The ld65 cfg keeps
+// the preset's RAM/ROM shape; generating a cfg from MAP lines is the noted
+// follow-up, so declared regions must match it for now.)
+const declared = c.project.stc.machine;
+const machineCfg = declared
+    ? { clockHz: c.project.stc.clock || 1000000, regions: declared.regions, chips: declared.chips }
+    : EATER6502;
+const viaName = declared
+    ? (declared.chips.find((ch) => ch.kind === 'via') || { name: 'via1' }).name
+    : 'via1';
 const inputPins = new Map((c.project.stc.pins || [])
     .filter((p) => p.direction === 'input')
     .map((p) => [p.name.toLowerCase(), p.where.toUpperCase()]));
 const outputPins = new Map((c.project.stc.pins || [])
     .filter((p) => p.direction === 'output')
-    .map((p) => [`via1.${p.where.toUpperCase()}`, p.name]));
+    .map((p) => [`${viaName}.${p.where.toUpperCase()}`, p.name]));
 const events = [];
 const serial = [];
 let line = null;
-const m = new M6502Machine(EATER6502, {
+const m = new M6502Machine(machineCfg, {
     onPinChange: (pin, level, tMs) => { if (outputPins.has(pin)) events.push({ tMs, pin: outputPins.get(pin), level }); },
     onSerial: (byte, tMs) => {
         if (byte === 13) return;
@@ -101,7 +112,7 @@ m.reset();
 const drive = (level) => {
     for (const where of inputPins.values()) {
         const bit = Number(where[2]);
-        m.chips.via1.setInput(where[1] === 'A' ? 'a' : 'b', bit, level);
+        m.chips[viaName].setInput(where[1] === 'A' ? 'a' : 'b', bit, level);
     }
 };
 drive(0);

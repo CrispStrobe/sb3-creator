@@ -2899,3 +2899,59 @@ WHEN flag clicked:
     assert.match(home.pseudocode, /^PART leds = 74HC595 data P\d\.\d clock P\d\.\d latch P\d\.\d$/m,
         '8051 PART pins stay P<p>.<b>');
 });
+
+test('MAP/CHIP: the declared 6502 machine parses, moves the bases, round-trips', async () => {
+    const src = `DEVICE EATER6502
+MAP RAM $0000-$3FFF
+MAP ROM $8000-$FFFF
+CHIP tva = W65C22 AT $7000
+CHIP ser = W65C51 AT $4400
+PIN led1 = PA0 OUTPUT
+
+WHEN flag clicked:
+  FOREVER:
+    toggle led1
+    wait 0.5 seconds
+    print 1
+`;
+    const c = build(src);
+    assert.deepEqual(c.warnings || [], []);
+    assert.equal(c.project.stc.machine.chips.length, 2);
+    const out = c.generateC(undefined, {});
+    assert.match(out, /#define BW_VIA\(a\)  \(\*\(volatile uint8_t \*\)\(0x7000u \+ \(a\)\)\)/,
+        'VIA base moves with the declaration');
+    assert.match(out, /#define BW_ACIA_DATA   \(\*\(volatile uint8_t \*\)0x4400u\)/,
+        'ACIA base moves with the declaration');
+    // The machine survives C -> pseudocode.
+    const cToPseudocode = (await import('../src/utils/cToPseudocode.js')).default;
+    const back = cToPseudocode(out).pseudocode;
+    assert.match(back, /^MAP RAM \$0000-\$3FFF$/m);
+    assert.match(back, /^CHIP tva = W65C22 AT \$7000$/m);
+    assert.match(back, /^CHIP ser = W65C51 AT \$4400$/m);
+    // And decompile() emits the same declarations from the project.
+    assert.match(c.decompile(), /^CHIP tva = W65C22 AT \$7000$/m);
+});
+
+test('MAP/CHIP refusals: wrong device, overlap, second VIA, chip inside RAM', () => {
+    const warnsOf = (src) => { const c = build(src); return (c.warnings || []).join('\n'); };
+    assert.match(warnsOf('DEVICE PICO\nMAP RAM $0000-$3FFF\n'), /fixed memory map/);
+    assert.match(warnsOf('DEVICE EATER6502\nMAP RAM $0000-$3FFF\nMAP ROM $2000-$5FFF\n'), /overlaps the RAM/);
+    assert.match(warnsOf('DEVICE EATER6502\nCHIP a = W65C22 AT $6000\nCHIP b = W65C22 AT $7000\n'), /already declared/);
+    assert.match(warnsOf('DEVICE EATER6502\nMAP RAM $0000-$3FFF\nCHIP a = W65C22 AT $2000\n'), /inside the RAM/);
+});
+
+test('a declared machine without a VIA warns about the missing timebase', () => {
+    const c = build(`DEVICE EATER6502
+MAP RAM $0000-$3FFF
+MAP ROM $8000-$FFFF
+CHIP ser = W65C51 AT $4400
+PIN led1 = PA0 OUTPUT
+
+WHEN flag clicked:
+  FOREVER:
+    toggle led1
+    wait 0.5 seconds
+`);
+    const out = c.generateC(undefined, {});
+    assert.match(out, /has no W65C22 — Timer 1 is the timebase/);
+});

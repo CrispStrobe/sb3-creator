@@ -1278,6 +1278,60 @@ class SB3Creator {
             this.stcConfig().clock = /^mhz$/i.test(m[2] || '') ? value * 1000000 : value;
             return true;
         }
+        // MAP / CHIP: the composable 6502 machine's declared config — the
+        // second of its three config sources (preset, DECLARED, wired). A
+        // machine is regions plus chips; the wired-breadboard extractor emits
+        // exactly these lines, which is what makes the three sources one.
+        if ((m = trimmed.match(/^MAP\s+(RAM|ROM)\s+[$0]?[x$]?([0-9a-f]{1,4})\s*-\s*[$0]?[x$]?([0-9a-f]{1,4})$/i))) {
+            const cfg = this.stcConfig();
+            const part = SB3Creator.STC_PARTS[cfg.device];
+            if (!part || part.core !== 'w65c02') {
+                this.warn(lineIndex, 'MAP declarations describe the 6502 machine — this device has a fixed memory map');
+                return true;
+            }
+            const start = parseInt(m[2], 16); const end = parseInt(m[3], 16);
+            if (start >= end) { this.warn(lineIndex, `MAP range $${m[2]} >= $${m[3]} — start must be below end`); return true; }
+            if (!cfg.machine) cfg.machine = { regions: [], chips: [] };
+            for (const r of cfg.machine.regions) {
+                if (start <= r.end && r.start <= end) {
+                    this.warn(lineIndex, `MAP ${m[1].toUpperCase()} overlaps the ${r.kind.toUpperCase()} at $${r.start.toString(16)}-$${r.end.toString(16)}`);
+                    return true;
+                }
+            }
+            cfg.machine.regions.push({ kind: m[1].toLowerCase(), start, end });
+            return true;
+        }
+        if ((m = trimmed.match(/^CHIP\s+([A-Za-z_]\w*)\s*=\s*(W65C22|W65C51)\s+AT\s+[$0]?[x$]?([0-9a-f]{1,4})$/i))) {
+            const cfg = this.stcConfig();
+            const part = SB3Creator.STC_PARTS[cfg.device];
+            if (!part || part.core !== 'w65c02') {
+                this.warn(lineIndex, 'CHIP declarations describe the 6502 machine — this device has its peripherals on-die');
+                return true;
+            }
+            const kind = /22$/i.test(m[2]) ? 'via' : 'acia';
+            const at = parseInt(m[3], 16);
+            const span = kind === 'via' ? 16 : 4;
+            if (!cfg.machine) cfg.machine = { regions: [], chips: [] };
+            if (cfg.machine.chips.some((c) => c.kind === kind)) {
+                this.warn(lineIndex, `a ${m[2].toUpperCase()} is already declared — one of each for now (the emitter names its registers singly)`);
+                return true;
+            }
+            for (const r of cfg.machine.regions) {
+                if (at <= r.end && r.start <= at + span - 1) {
+                    this.warn(lineIndex, `CHIP at $${m[3]} sits inside the ${r.kind.toUpperCase()} region $${r.start.toString(16)}-$${r.end.toString(16)}`);
+                    return true;
+                }
+            }
+            for (const c of cfg.machine.chips) {
+                const cSpan = c.kind === 'via' ? 16 : 4;
+                if (at <= c.at + cSpan - 1 && c.at <= at + span - 1) {
+                    this.warn(lineIndex, `CHIP at $${m[3]} overlaps "${c.name}" at $${c.at.toString(16)}`);
+                    return true;
+                }
+            }
+            cfg.machine.chips.push({ kind, name: m[1], at });
+            return true;
+        }
         // A numbered pin (D13, A0) for the boards that have them. Kept as its
         // own branch: an Arduino pin has no port and no bit, so every check
         // below it is about a coordinate system it is not in.
@@ -3046,7 +3100,7 @@ class SB3Creator {
 
             // STC12 / 8051 target declarations (DEVICE / CLOCK / PIN / PORT / PART). Inert
             // for every other target; generateC() is the only consumer.
-            if (/^(DEVICE|CLOCK|PIN|PORT|PART|TABLE|LEDCUBE)\b/i.test(trimmed) && this.parseStcDeclaration(trimmed, i)) {
+            if (/^(DEVICE|CLOCK|PIN|PORT|PART|TABLE|LEDCUBE|MAP|CHIP)\b/i.test(trimmed) && this.parseStcDeclaration(trimmed, i)) {
                 i++; continue;
             }
 
@@ -3514,6 +3568,15 @@ class SB3Creator {
             const cfg = project.stc;
             out.push(`DEVICE ${String(cfg.device || 'stc12c5a60s2').toUpperCase()}`);
             out.push(`CLOCK ${cfg.clock || 11059200}`);
+            if (cfg.machine) {
+                const hx = (n) => '$' + n.toString(16).toUpperCase().padStart(4, '0');
+                for (const r of cfg.machine.regions || []) {
+                    out.push(`MAP ${r.kind.toUpperCase()} ${hx(r.start)}-${hx(r.end)}`);
+                }
+                for (const c of cfg.machine.chips || []) {
+                    out.push(`CHIP ${c.name} = ${c.kind === 'via' ? 'W65C22' : 'W65C51'} AT ${hx(c.at)}`);
+                }
+            }
             for (const p of cfg.pins || []) {
                 out.push(`PIN ${p.name} = ${p.where || `P${p.port}.${p.bit}`} ${p.direction.toUpperCase()}${p.activeLow ? ' ACTIVE LOW' : ''}`);
             }
@@ -6525,6 +6588,18 @@ class SB3Creator {
         // ---- assemble ----------------------------------------------------------------
         const hex = (n) => n.toString(16).toUpperCase().padStart(2, '0');
         const out = [
+            // Late checks that need the body's _cUses, BEFORE the warning
+            // banner renders: a declared 6502 machine without a W65C22 has
+            // no timebase, and the body just told us whether one is needed.
+            ...((() => {
+                if (this._core === '6502' && stored.machine
+                    && !(stored.machine.chips || []).some((ch) => ch.kind === 'via')
+                    && (this._cTasks || this._cUses.delay || this._cUses.now || this._cUses.print)) {
+                    this.cWarn('the declared machine has no W65C22 — Timer 1 is the timebase; '
+                        + 'add CHIP via1 = W65C22 AT $6000 (or wherever the decode puts it)');
+                }
+                return [];
+            })()),
             '/* Generated by Brickwright — blocks → C for the STC12 / 8051.',
             // This used to read "Hand edits will be lost; change the project
             // instead." The first half is still true and the second stopped
@@ -6585,6 +6660,12 @@ class SB3Creator {
                     const w = (x) => x.where || `P${x.port}.${x.bit}`;
                     return `part ${pt.name} ${pt.type} ${w(pt.data)} ${w(pt.clock)} ${w(pt.latch)}${pt.activeLow ? ' active-low' : ''}`;
                 })),
+                // The declared machine survives into the header for the same
+                // reason PARTs do: the C reader rebuilds the declarations.
+                ...((stored.machine ? stored.machine.regions || [] : [])
+                    .map((r) => `map ${r.kind} ${r.start.toString(16)} ${r.end.toString(16)}`)),
+                ...((stored.machine ? stored.machine.chips || [] : [])
+                    .map((ch) => `chip ${ch.name} ${ch.kind === 'via' ? 'w65c22' : 'w65c51'} ${ch.at.toString(16)}`)),
                 ...tables.map((t) => `table ${t.name} ${t.values.length}`),
                 ...markVars, ...markProcs, ...markScripts,
                 // The yield map: `<task>_state == N` means "about to run this block". It is
@@ -6606,16 +6687,25 @@ class SB3Creator {
             out.push(' * @bw-end */');
         }
         if (this._core === '6502') {
+            // The machine config: declared MAP/CHIP lines when present, the
+            // EATER6502 preset otherwise. Only the chip BASES move — the
+            // register spellings are the chips' own whatever the decode.
+            const machine = stored.machine || null;
+            const viaChip = machine && (machine.chips || []).find((ch) => ch.kind === 'via');
+            const aciaChip = machine && (machine.chips || []).find((ch) => ch.kind === 'acia');
+            const viaAt = viaChip ? viaChip.at : 0x6000;
+            const aciaAt = aciaChip ? aciaChip.at : 0x5000;
+            const hx = (n) => '0x' + n.toString(16);
             out.push('#include <stdint.h>', '');
             out.push(`#define F_CPU ${clock}UL`, '');
-            out.push('/* The composable 6502 machine (EATER6502 preset): W65C22 VIA at',
-                ' * $6000, W65C51 ACIA at $5000, spelled as addresses from the WDC',
+            out.push(`/* The composable 6502 machine${machine ? ' (declared config)' : ' (EATER6502 preset)'}: W65C22 VIA at`,
+                ` * $${viaAt.toString(16)}, W65C51 ACIA at $${aciaAt.toString(16)}, spelled as addresses from the WDC`,
                 ' * datasheets. Timer 1 free-runs at LATCH+2 cycles per rollover; the',
                 ' * latch below makes that exactly 1 ms at this clock. There is NO',
                 ' * interrupt in this build: bw_now() polls the T1 flag (IFR6) and',
                 ' * accumulates. cc65-compatible C (C89 declarations, no VLA, no',
                 ' * mixed declarations). */',
-                '#define BW_VIA(a)  (*(volatile uint8_t *)(0x6000u + (a)))',
+                `#define BW_VIA(a)  (*(volatile uint8_t *)(${hx(viaAt)}u + (a)))`,
                 '#define BW_VIA_ORB   BW_VIA(0x0u)',
                 '#define BW_VIA_ORA   BW_VIA(0x1u)',
                 '#define BW_VIA_DDRB  BW_VIA(0x2u)',
@@ -6627,10 +6717,10 @@ class SB3Creator {
                 '#define BW_VIA_IRB   BW_VIA_ORB',
                 '/* Port A reads through $600F: no handshake, so no CA-flag clears. */',
                 '#define BW_VIA_IRA   BW_VIA(0xfu)',
-                '#define BW_ACIA_DATA   (*(volatile uint8_t *)0x5000u)',
-                '#define BW_ACIA_STATUS (*(volatile uint8_t *)0x5001u)',
-                '#define BW_ACIA_CMD    (*(volatile uint8_t *)0x5002u)',
-                '#define BW_ACIA_CTRL   (*(volatile uint8_t *)0x5003u)',
+                `#define BW_ACIA_DATA   (*(volatile uint8_t *)${hx(aciaAt)}u)`,
+                `#define BW_ACIA_STATUS (*(volatile uint8_t *)${hx(aciaAt + 1)}u)`,
+                `#define BW_ACIA_CMD    (*(volatile uint8_t *)${hx(aciaAt + 2)}u)`,
+                `#define BW_ACIA_CTRL   (*(volatile uint8_t *)${hx(aciaAt + 3)}u)`,
                 '#define BW_T1_LATCH ((uint16_t)(F_CPU / 1000UL - 2UL))', '');
         } else if (this._core === 'arm') {
             out.push('#include <stdint.h>', '');

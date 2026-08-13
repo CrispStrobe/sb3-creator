@@ -129,7 +129,7 @@ function expand (name, defines, depth = 0) {
 function readMarkers (source) {
     const block = source.match(/@bw-begin([\s\S]*?)@bw-end/);
     if (!block) return null;
-    const h = { device: null, clock: null, pins: [], parts: [], vars: new Map(), procs: new Map(), scripts: new Map(), yields: [] };
+    const h = { device: null, clock: null, pins: [], parts: [], machine: null, vars: new Map(), procs: new Map(), scripts: new Map(), yields: [] };
     const str = (s) => { try { return JSON.parse(s); } catch { return s; } };
     for (const line of block[1].split('\n')) {
         const m = line.match(/@bw\s+(.*?)\s*$/);
@@ -149,6 +149,18 @@ function readMarkers (source) {
             if (p) {
                 const at = (s) => { const m8 = s.match(/^P(\d)\.(\d)$/i); return m8 ? { port: +m8[1], bit: +m8[2] } : { where: s.toUpperCase() }; };
                 h.parts.push({ name: p[1], type: p[2], data: at(p[3]), clock: at(p[4]), latch: at(p[5]), activeLow: !!p[6] });
+            }
+        } else if (kind === 'map') {
+            const p = rest.match(/^(ram|rom)\s+([0-9a-f]{1,4})\s+([0-9a-f]{1,4})/i);
+            if (p) {
+                if (!h.machine) h.machine = { regions: [], chips: [] };
+                h.machine.regions.push({ kind: p[1].toLowerCase(), start: parseInt(p[2], 16), end: parseInt(p[3], 16) });
+            }
+        } else if (kind === 'chip') {
+            const p = rest.match(/^(\w+)\s+(w65c22|w65c51)\s+([0-9a-f]{1,4})/i);
+            if (p) {
+                if (!h.machine) h.machine = { regions: [], chips: [] };
+                h.machine.chips.push({ name: p[1], kind: /22$/i.test(p[2]) ? 'via' : 'acia', at: parseInt(p[3], 16) });
             }
         } else if (kind === 'var') {
             const v = rest.match(/^(\w+)\s+("(?:[^"\\]|\\.)*")(?:\s+sprite\s+("(?:[^"\\]|\\.)*"))?/);
@@ -1635,6 +1647,11 @@ export default function cToPseudocode (source, opts = {}) {
 
     // ---- assemble ----
     const out = [`DEVICE ${device.toUpperCase()}`, `CLOCK ${clock}`];
+    if (markers && markers.machine) {
+        const hx = (n) => '$' + n.toString(16).toUpperCase().padStart(4, '0');
+        for (const r of markers.machine.regions) out.push(`MAP ${r.kind.toUpperCase()} ${hx(r.start)}-${hx(r.end)}`);
+        for (const ch of markers.machine.chips) out.push(`CHIP ${ch.name} = ${ch.kind === 'via' ? 'W65C22' : 'W65C51'} AT ${hx(ch.at)}`);
+    }
     const pinList = [...new Set(pins.values())];
     if (pinList.length) {
         out.push('');
