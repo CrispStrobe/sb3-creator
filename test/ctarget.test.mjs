@@ -3060,7 +3060,7 @@ test('generateBASIC (ms): pokes and delay loops; procedures refuse', () => {
     assert.match(r2.basic, /REM V\w = /, 'two-significant-char names carry a REM legend');
 });
 
-test('generateBASIC refuses multi-WHEN with the single-threading reason', () => {
+test('generateBASIC serializes multi-WHEN with a warning', () => {
     const c = build(`DEVICE EATER6502
 PIN led1 = PA0 OUTPUT
 
@@ -3071,8 +3071,8 @@ WHEN flag clicked:
   print 1
 `);
     const r = c.generateBASIC(undefined, {});
-    assert.equal(r.ok, false);
-    assert.ok(r.reasons.some((x) => /single-threaded/.test(x)), JSON.stringify(r.reasons));
+    assert.ok(r.ok, 'multi-WHEN now serializes instead of refusing');
+    assert.ok(r.warnings.some((x) => /serial/i.test(x)), JSON.stringify(r.warnings));
 });
 
 test('generateBASIC without line numbers: structured chapter-9/12 form', () => {
@@ -3122,8 +3122,8 @@ test('basicToPseudocode: FN macro-expands (ch. 17), unmapped lines are NAMED', a
         'PRINT a',
     ].join('\n'));
     assert.match(r.pseudocode, /set a to \(\(21\)\*2\)/, 'FN inlined with the argument substituted');
+    // MODE is now mapped (emitted as REM comment, not warned).
     assert.match(r.pseudocode, /# BASIC: MODE 4/, 'graphics statement kept as a named comment');
-    assert.ok(r.warnings.some((w) => /MODE 4/.test(w)), 'and warned');
 });
 
 test('basicToPseudocode: BBC REPEAT/UNTIL keeps do-while semantics honestly', async () => {
@@ -3194,14 +3194,15 @@ test('basicToPseudocode: CASE (ch. 10) becomes an IF/ELSE chain; DIM maps to the
     assert.deepEqual(c.warnings || [], [], 'the reconstruction re-parses clean');
 });
 
-test('generateBASIC: non-6502 devices refuse pokes with the retarget hint', () => {
+test('generateBASIC: non-6502 devices emit REM stubs with a warning', () => {
     const { readFileSync } = process.getBuiltinModule('node:fs');
     const blink = readFileSync(new URL('../examples/01-blink/program.bw', import.meta.url), 'utf8');
     const c = build(blink);
     const r = c.generateBASIC(undefined, {});
-    assert.equal(r.ok, false, 'STC12 pins are not VIA addresses');
-    assert.match(r.reasons.join(';'), /retarget the example to EATER6502/);
-    // And the retargeted form emits clean BASIC with a well-formed header.
+    assert.ok(r.ok, 'non-6502 pin ops now degrade to REM stubs instead of refusing');
+    assert.ok(r.warnings.some((w) => /stub/i.test(w)), 'warned about stubs');
+    assert.ok(r.basic.includes('REM turn'), 'pin ops emitted as REM');
+    // And the retargeted form emits clean BASIC with real pokes.
     const rt = SB3Creator.retargetPseudocode(blink, 'eater6502');
     const c2 = build(rt.pseudocode);
     const r2 = c2.generateBASIC(undefined, {});
