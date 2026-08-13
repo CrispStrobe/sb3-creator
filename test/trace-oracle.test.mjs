@@ -168,3 +168,25 @@ WHEN flag clicked:
     assert.ok(t.events[1].tMs >= 800 && t.events[1].tMs <= 910,
         `off within one poll of 800, got ${t.events[1].tMs}`);
 });
+
+test('referee: custom blocks run with bound parameters (gap found by the host oracle)', () => {
+    // BBCSDL printed a procedure's output while the referee silently listed
+    // the call as unsupported — this is the regression lock for that day.
+    const t = interpretTrace(parse(`DEVICE PICO
+PIN led1 = GP15 OUTPUT
+
+DEFINE tally (n):
+  REPEAT n:
+    change total by 2
+  print total
+
+WHEN flag clicked:
+  set total to 0
+  tally 4
+  IF (total > 5) THEN:
+    print 777
+`), { horizonMs: 2000 });
+    assert.deepEqual(t.unsupported, []);
+    assert.deepEqual(t.serial.map((s) => s.line), ['8', '777']);
+    assert.equal(t.vars.total, 8);
+});

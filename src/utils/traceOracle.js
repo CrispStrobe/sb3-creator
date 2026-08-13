@@ -35,6 +35,7 @@ const KNOWN = new Set([
     'operator_mod', 'operator_gt', 'operator_lt', 'operator_equals',
     'operator_and', 'operator_or', 'operator_not', 'operator_join', 'operator_round',
     'bitops_and', 'bitops_or', 'bitops_xor', 'bitops_shl', 'bitops_shr', 'bitops_not',
+    'procedures_call', 'argument_reporter_string_number', 'argument_reporter_boolean',
 ]);
 
 /**
@@ -157,6 +158,16 @@ export function interpretTrace(project, opts = {}) {
             case 'bitops_shr': return num(inp('NUM1')) >> num(inp('NUM2'));
             case 'bitops_not': return ~num(inp('NUM'));
             case 'data_variable': return vars.get(fld('VARIABLE')) ?? 0;
+            // Custom-block parameters: the nearest enclosing procedure
+            // frame that binds this name wins (nested calls shadow).
+            case 'argument_reporter_string_number':
+            case 'argument_reporter_boolean': {
+                for (let k = task.frames.length - 1; k >= 0; k--) {
+                    const a = task.frames[k].args;
+                    if (a && a.has(fld('VALUE'))) return a.get(fld('VALUE'));
+                }
+                return 0;
+            }
             case 'stc12_read': {
                 const pin = pinsByName.get(String(fld('PIN')).toLowerCase());
                 const s = stimAt(fld('PIN'));
@@ -319,6 +330,31 @@ export function interpretTrace(project, opts = {}) {
                     const v = inp('VALUE');
                     trace.serial.push({ tMs: now, line: String(v) });
                     frame.block = b.next; continue;
+                }
+                case 'procedures_call': {
+                    // Find the definition by proccode, bind arguments into
+                    // the new frame, continue at the body (no yield on entry
+                    // — Scratch's contract). The host oracle exposed this
+                    // gap: BBCSDL printed a procedure's output while the
+                    // referee silently listed the call as unsupported.
+                    const proccode = b.mutation && b.mutation.proccode;
+                    let def = null;
+                    let proto = null;
+                    for (const cand of Object.values(blocks)) {
+                        if (cand.opcode !== 'procedures_definition') continue;
+                        const p = blocks[cand.inputs.custom_block[1]];
+                        if (p && p.mutation && p.mutation.proccode === proccode) { def = cand; proto = p; break; }
+                    }
+                    if (!def) { trace.unsupported.push(`procedures_call:${proccode}`); frame.block = b.next; continue; }
+                    const names = JSON.parse(proto.mutation.argumentnames || '[]');
+                    const ids = JSON.parse(b.mutation.argumentids || '[]');
+                    const args = new Map();
+                    names.forEach((nm, k) => args.set(nm, evalInput(task, b.inputs && b.inputs[ids[k]])));
+                    // Same shape as a plain substack: on pop, the caller
+                    // frame's block becomes `after` — the statement past
+                    // the call.
+                    task.frames.push({ block: def.next, after: b.next, args });
+                    continue;
                 }
                 default:
                     frame.block = b.next; continue;
