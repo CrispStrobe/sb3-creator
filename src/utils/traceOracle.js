@@ -385,10 +385,21 @@ export function compareTraces(ref, actual, opts = {}) {
     // the referee's own serial byte count before each compared item.
     // Devices with a real FIFO (the Pico's is 16 deep) pass 0 here.
     const msPerByte = opts.serialMsPerByte ?? 0;
+    // Slow-machine drift: on a 1 MHz 6502 a full cooperative pass costs
+    // real milliseconds, so every completed wait re-arms a little late and
+    // the lag ACCUMULATES with elapsed time (measured ~9 ms/s on the
+    // EATER6502 machine under cc65 -O). The referee's passes are free. A
+    // per-device rate budget covers it; order and levels stay exact, so a
+    // wrong program cannot hide inside the allowance.
+    const driftPerSec = opts.driftPerSecMs ?? 0;
+    // Startup latency: reset -> runtime init (zero BSS, copy DATA) -> main.
+    // A one-time flat offset, not a rate: the cc65 EATER6502 build reaches
+    // main ~8 ms after reset at 1 MHz; gcc cores in the tens of microseconds.
+    const startup = opts.startupMs ?? 0;
     const bytesBefore = (t) => (ref.serial ?? [])
         .filter((sLine) => sLine.tMs < t)
         .reduce((a, sLine) => a + String(sLine.line).length + 2, 0);
-    const tolAt = (t) => tolMs + bytesBefore(t) * msPerByte;
+    const tolAt = (t) => tolMs + startup + bytesBefore(t) * msPerByte + (t / 1000) * driftPerSec;
     const diffs = [];
     const horizon = Math.min(ref.horizon ?? Infinity, actual.horizon ?? Infinity);
     const inWindow = (e) => e.tMs < horizon;

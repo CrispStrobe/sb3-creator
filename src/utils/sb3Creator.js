@@ -6621,11 +6621,16 @@ class SB3Creator {
                 ' * computing for >1 ms between yields would drop a tick — the same',
                 ' * class of caveat as the AVR\'s interrupts-off window, and the',
                 ' * corpus shapes stay far under it at this clock.) */',
-                'static uint32_t bw_ms;', '',
+                'static uint32_t bw_ms;',
+                '/* The FLAG-CLEARING read must survive the optimizer: cc65 -O discards',
+                ' * a (void)-cast volatile read outright (measured: IFR6 stayed set and',
+                ' * bw_ms counted scheduler passes, ~2.4x fast). A store to a volatile',
+                ' * sink cannot be dropped. */',
+                'static volatile uint8_t bw_t1_sink;', '',
                 'static uint32_t bw_now(void)',
                 '{',
                 '    if (BW_VIA_IFR & 0x40u) {',
-                '        (void)BW_VIA_T1CL;         /* reading T1C-L clears IFR6 */',
+                '        bw_t1_sink = BW_VIA_T1CL;  /* reading T1C-L clears IFR6 */',
                 '        ++bw_ms;',
                 '    }',
                 '    return bw_ms;',
@@ -8150,7 +8155,7 @@ class SB3Creator {
         out.push('}', '',
             this._core !== '8051' ? 'int main(void)' : 'void main(void)',
             '{', '    bw_setup();');
-        if (this._cTasks && this._core === 'arm') {
+        if (this._cTasks && (this._core === 'arm' || this._core === '6502')) {
             out.push('',
                 '    for (;;) {                     /* no tick to start: time is read */',
                 ...taskNames.map((n) => `        ${n}();`),

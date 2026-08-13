@@ -2746,8 +2746,8 @@ test('6502: VIA registers, T1 timebase, DDR setup, poll-harvested bw_now', () =>
     assert.match(c, /BW_VIA_ACR = 0x40/, 'T1 free-run');
     assert.match(c, /BW_VIA_ORA \^= \(uint8_t\)\(1 << 0\)/, 'toggle is an XOR on ORA');
     assert.match(c, /\(\(BW_VIA_IRB >> 0\) & 1\)/, 'button reads IRB');
-    assert.match(c, /\(void\)BW_VIA_T1CL;\s+\/\* reading T1C-L clears IFR6/,
-        'bw_now harvests the rollover flag');
+    assert.match(c, /bw_t1_sink = BW_VIA_T1CL;\s+\/\* reading T1C-L clears IFR6/,
+        'bw_now harvests the rollover flag through a volatile sink (cc65 -O drops (void)-cast volatile reads)');
     assert.ok(!/ISR\(|__interrupt/.test(c), 'no interrupt handler anywhere in the build');
 });
 
