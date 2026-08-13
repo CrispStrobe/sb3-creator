@@ -6160,6 +6160,19 @@ class SB3Creator {
         const bbc = profile === 'bbc';
         const reasons = [];
         const warnings = [];
+        // Line numbers are OPTIONAL in modern BBC BASIC (tutorial Appendix
+        // A: "Line Numbers and the Dreaded GOTO") — the structured form uses
+        // multi-line IF/ENDIF (ch. 9) and REPEAT/UNTIL (ch. 12) instead of
+        // labels, and is what BBCSDL/console runs natively. The NUMBERED
+        // form remains the default because BASIC 4 on the live machine
+        // (BeebEater) accepts nothing else. MS BASIC 1.1 always numbers.
+        let numbered = opts.lineNumbers !== false;
+        if (!numbered && !bbc) {
+            warnings.push('MS BASIC 1.1 requires line numbers — emitting numbered');
+            numbered = true;
+        }
+        const structured = bbc && !numbered;
+        let depth = 0;
         const stc = project.stc || {};
         const machine = stc.machine || null;
         const viaAt = (machine && (machine.chips || []).find((c) => c.kind === 'via') || { at: 0x6000 }).at;
@@ -6203,7 +6216,7 @@ class SB3Creator {
         const outLines = [];   // strings, or {label: id} markers, or {goto: id} inside text as @L<id>@
         let labelSeq = 0;
         const newLabel = () => `@L${labelSeq++}@`;
-        const emit = (s) => outLines.push(s);
+        const emit = (s) => outLines.push(structured ? '  '.repeat(depth) + s : s);
         const emitLabel = (l) => outLines.push({ label: l });
 
         // ---- expressions ----------------------------------------------
@@ -6322,6 +6335,14 @@ class SB3Creator {
                     return;
                 }
                 case 'control_forever': {
+                    if (structured) {
+                        emit('REPEAT');
+                        depth++;
+                        basChain(b.inputs.SUBSTACK ? b.inputs.SUBSTACK[1] : null, blocks);
+                        depth--;
+                        emit('UNTIL FALSE');
+                        return;
+                    }
                     const top = newLabel();
                     emitLabel(top);
                     basChain(b.inputs.SUBSTACK ? b.inputs.SUBSTACK[1] : null, blocks);
@@ -6329,16 +6350,20 @@ class SB3Creator {
                     return;
                 }
                 case 'control_repeat': {
-                    const i = basName(`__loop${labelSeq}`);
+                    const i = basName(`loop${labelSeq}_${outLines.length}`);
                     emit(`FOR ${i}=1 TO ${v('TIMES')}`);
+                    depth++;
                     basChain(b.inputs.SUBSTACK ? b.inputs.SUBSTACK[1] : null, blocks);
+                    depth--;
                     emit(`NEXT ${i}`);
                     return;
                 }
                 case 'control_repeat_until': {
                     if (bbc) {
                         emit('REPEAT');
+                        depth++;
                         basChain(b.inputs.SUBSTACK ? b.inputs.SUBSTACK[1] : null, blocks);
+                        depth--;
                         emit(`UNTIL ${basVal(b.inputs.CONDITION, blocks)}`);
                     } else {
                         const top = newLabel();
@@ -6349,12 +6374,21 @@ class SB3Creator {
                     return;
                 }
                 case 'control_wait_until': {
+                    if (structured) { emit(`REPEAT UNTIL ${basVal(b.inputs.CONDITION, blocks)}`); return; }
                     const top = newLabel();
                     emitLabel(top);
                     emit(`IF NOT (${basVal(b.inputs.CONDITION, blocks)}) THEN GOTO ${top}`);
                     return;
                 }
                 case 'control_if': {
+                    if (structured) {
+                        emit(`IF ${basVal(b.inputs.CONDITION, blocks)} THEN`);
+                        depth++;
+                        basChain(b.inputs.SUBSTACK ? b.inputs.SUBSTACK[1] : null, blocks);
+                        depth--;
+                        emit('ENDIF');
+                        return;
+                    }
                     const after = newLabel();
                     emit(`IF NOT (${basVal(b.inputs.CONDITION, blocks)}) THEN GOTO ${after}`);
                     basChain(b.inputs.SUBSTACK ? b.inputs.SUBSTACK[1] : null, blocks);
@@ -6362,6 +6396,18 @@ class SB3Creator {
                     return;
                 }
                 case 'control_if_else': {
+                    if (structured) {
+                        emit(`IF ${basVal(b.inputs.CONDITION, blocks)} THEN`);
+                        depth++;
+                        basChain(b.inputs.SUBSTACK ? b.inputs.SUBSTACK[1] : null, blocks);
+                        depth--;
+                        emit('ELSE');
+                        depth++;
+                        basChain(b.inputs.SUBSTACK2 ? b.inputs.SUBSTACK2[1] : null, blocks);
+                        depth--;
+                        emit('ENDIF');
+                        return;
+                    }
                     const elseL = newLabel(); const after = newLabel();
                     emit(`IF NOT (${basVal(b.inputs.CONDITION, blocks)}) THEN GOTO ${elseL}`);
                     basChain(b.inputs.SUBSTACK ? b.inputs.SUBSTACK[1] : null, blocks);
@@ -6440,18 +6486,23 @@ class SB3Creator {
         if (reasons.length) return { ok: false, reasons: [...new Set(reasons)], warnings };
 
         // ---- number the lines, resolve labels --------------------------
+        if (structured) {
+            // No labels exist in structured mode by construction.
+            const basic = outLines.filter((l) => typeof l === 'string').join('\n') + '\n';
+            return { ok: true, basic, reasons: [], warnings };
+        }
         const lineNo = new Map();
         let n = 10;
-        const numbered = [];
+        const numberedOut = [];
         for (const l of outLines) {
             if (typeof l === 'object' && l.label) { lineNo.set(l.label, n); continue; }
-            numbered.push({ n, text: l });
+            numberedOut.push({ n, text: l });
             n += 10;
         }
         // A trailing label cannot occur: END / ENDPROC always follow the
         // last branch, so every label resolves to a real line.
         const resolve = (text) => text.replace(/@L\d+@/g, (m) => String(lineNo.get(m) ?? n));
-        const basic = numbered.map((l) => `${l.n} ${resolve(l.text)}`).join('\n') + '\n';
+        const basic = numberedOut.map((l) => `${l.n} ${resolve(l.text)}`).join('\n') + '\n';
         return { ok: true, basic, reasons: [], warnings };
     }
 

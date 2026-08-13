@@ -3074,3 +3074,27 @@ WHEN flag clicked:
     assert.equal(r.ok, false);
     assert.ok(r.reasons.some((x) => /single-threaded/.test(x)), JSON.stringify(r.reasons));
 });
+
+test('generateBASIC without line numbers: structured chapter-9/12 form', () => {
+    const c = build(BAS_SRC);
+    const r = c.generateBASIC(undefined, { lineNumbers: false });
+    assert.ok(r.ok, r.reasons.join('; '));
+    const b = r.basic;
+    assert.ok(!/^\d/m.test(b), 'no line starts with a number');
+    assert.ok(!/GOTO/.test(b), 'no GOTO anywhere — labels are a numbered-mode artifact');
+    assert.match(b, /^IF \(\(\?&6000 AND 1\) DIV 1\)=1 THEN$/m, 'multi-line IF (ch. 9)');
+    assert.match(b, /^ELSE$/m);
+    assert.match(b, /^ENDIF$/m);
+    assert.match(b, /^REPEAT$/m);
+    assert.match(b, /^UNTIL FALSE$/m, 'forever is REPEAT/UNTIL FALSE (ch. 12)');
+    assert.match(b, /^  countx=countx\+1$/m, 'bodies indent');
+    assert.match(b, /DEF PROCdo_blink_times\(n\)/, 'PROC unchanged across modes');
+
+    // MS BASIC cannot drop numbers — forced back with a warning.
+    const plain = build(BAS_SRC.replace(/DEFINE[\s\S]*?wait 0.2 seconds\n\n/, '')
+        .replace(/    blink_times 2\n/, '    print 1\n'));
+    const r2 = plain.generateBASIC(undefined, { profile: 'ms', lineNumbers: false });
+    assert.ok(r2.ok);
+    assert.match(r2.basic, /^10 /m, 'numbered despite the request');
+    assert.ok(r2.warnings.some((w) => /requires line numbers/.test(w)));
+});
