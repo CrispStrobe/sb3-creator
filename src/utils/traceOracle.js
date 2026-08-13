@@ -27,7 +27,7 @@
 const KNOWN = new Set([
     'event_whenflagclicked',
     'control_forever', 'control_repeat', 'control_if', 'control_if_else',
-    'control_wait',
+    'control_wait', 'control_wait_until', 'control_repeat_until',
     'data_setvariableto', 'data_changevariableby',
     'stc12_setpin', 'stc12_toggle', 'stc12_writepin', 'stc12_setpwm',
     'stc12_print', 'stc12_read',
@@ -101,7 +101,8 @@ export function interpretTrace(project, opts = {}) {
         const blocks = target.blocks || {};
         for (const [id, b] of Object.entries(blocks)) {
             if (b && b.opcode === 'event_whenflagclicked' && b.topLevel !== false) {
-                tasks.push({ frames: [{ block: b.next }], waitUntil: 0, done: !b.next });
+                tasks.push({ frames: [{ block: b.next }], waitUntil: 0, done: !b.next,
+                    spinNow: -1, spins: 0 });
                 blocksOf.set(tasks[tasks.length - 1], blocks);
             }
         }
@@ -202,6 +203,13 @@ export function interpretTrace(project, opts = {}) {
                     }
                     // fall through: repeat finished; parent continues below
                 }
+                if (fin.loop && fin.loop.kind === 'until') {
+                    if (!evalInput(task, fin.loop.cond)) {
+                        task.frames.push({ block: fin.loop.headId, loop: fin.loop, after: fin.after });
+                        return; // back-edge yield, condition still false
+                    }
+                    // condition true: fall through, parent continues below
+                }
                 const parent = task.frames[task.frames.length - 1];
                 if (parent) parent.block = fin.after ?? null;
                 continue;
@@ -220,6 +228,30 @@ export function interpretTrace(project, opts = {}) {
                     task.waitUntil = now + Math.round(num(inp('DURATION')) * 1000);
                     frame.block = b.next;
                     return; // yield
+                }
+                case 'control_wait_until': {
+                    // The C scheduler re-checks the condition every main-loop
+                    // pass (a continuous busy-poll); the referee re-polls at
+                    // 1 ms virtual granularity — conditions only change via
+                    // stimulus (ms-grained) or other tasks (which run at
+                    // yields), so the coarser poll is faithful within tol.
+                    if (evalInput(task, b.inputs.CONDITION)) {
+                        frame.block = b.next;
+                        continue;
+                    }
+                    task.waitUntil = now + 1;
+                    return; // yield in place, re-check on the next tick
+                }
+                case 'control_repeat_until': {
+                    const head = substack('SUBSTACK');
+                    if (evalInput(task, b.inputs.CONDITION) || !head) {
+                        frame.block = b.next;
+                        continue;
+                    }
+                    task.frames.push({ block: head,
+                        loop: { kind: 'until', headId: head, cond: b.inputs.CONDITION },
+                        after: b.next });
+                    continue;
                 }
                 case 'control_forever': {
                     const head = substack('SUBSTACK');
@@ -303,6 +335,18 @@ export function interpretTrace(project, opts = {}) {
             if (task.done || task.waitUntil > now) continue;
             step(task);
             ran = true;
+            // A loop that yields without EVER advancing time is a busy spin:
+            // on the chip, real time passes and the loop runs at CPU speed
+            // (the LED-dice counter cycles megahertz-fast while a button is
+            // held — its whole POINT is hardware-timing randomness). The
+            // referee cannot predict that and refuses BY NAME instead of
+            // spinning its virtual clock forever at one instant.
+            if (task.spinNow === now) {
+                if (++task.spins > 1000) {
+                    trace.unsupported.push('busy-loop:zero-time-spin');
+                    task.done = true;
+                }
+            } else { task.spinNow = now; task.spins = 0; }
         }
         if (tasks.every((t) => t.done)) break;
         if (!ran || tasks.every((t) => t.done || t.waitUntil > now)) {

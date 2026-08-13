@@ -70,7 +70,13 @@ function defaultStimulus(pins, adc) {
  * as "expected unsupported" rather than a test failure.
  */
 const EXPECTED_UNSUPPORTED = new Set([
-    'control_wait_until', 'control_repeat_until',
+    // A loop with no wait inside spins at CPU speed on the chip while real
+    // time passes (the LED dice's randomness IS that) — virtual time cannot
+    // model it, and the referee refuses by name.
+    'busy-loop:zero-time-spin',
+    // control_wait_until / control_repeat_until joined the referee's
+    // vocabulary 2026-08-13 (1 ms re-poll, matching the C scheduler's
+    // per-pass re-check within tolerance) and left this list.
     'stc12_setpart',     // shift register
     'devices_setservo', 'devices_setmotor', 'devices_setdirection',
 ]);

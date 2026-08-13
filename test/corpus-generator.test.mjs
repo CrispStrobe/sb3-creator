@@ -222,8 +222,13 @@ describe('corpus generator: parse + referee', () => {
             const trace = interpretTrace(c.project, {
                 horizonMs: 3000, adc, stimulus: stim,
             });
-            assert.deepEqual(trace.unsupported, [],
-                `seed ${seed}: unsupported opcodes: ${trace.unsupported.join(', ')}\nSource:\n${source}`);
+            // busy-loop:zero-time-spin is a REFUSAL, not a vocabulary gap:
+            // a generated loop without a wait spins at CPU speed on real
+            // hardware while virtual time stands still — the referee names
+            // it rather than predicting hardware-timing-dependent behavior.
+            const unexpected = trace.unsupported.filter(op => op !== 'busy-loop:zero-time-spin');
+            assert.deepEqual(unexpected, [],
+                `seed ${seed}: unsupported opcodes: ${unexpected.join(', ')}\nSource:\n${source}`);
 
             // Non-degenerate: should have at least one event or serial line
             const hasOutput = (c.project.stc.pins || []).some(

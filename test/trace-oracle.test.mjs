@@ -143,3 +143,28 @@ test('comparator: a wrong level or a late edge is caught', () => {
     };
     assert.equal(compareTraces(ref, late).ok, false);
 });
+
+test('referee: wait until and repeat until', () => {
+    const t = interpretTrace(parse(`DEVICE PICO
+PIN btn = GP3 INPUT
+PIN led1 = GP15 OUTPUT
+
+WHEN flag clicked:
+  wait until read btn = 1
+  turn on led1
+  REPEAT UNTIL read btn = 0:
+    wait 0.1 seconds
+  turn off led1
+`), { horizonMs: 2000, stimulus: [
+        { tMs: 0, pin: 'btn', level: 0 },
+        { tMs: 300, pin: 'btn', level: 1 },
+        { tMs: 800, pin: 'btn', level: 0 },
+    ] });
+    assert.equal(t.unsupported.length, 0, JSON.stringify([...new Set(t.unsupported)]));
+    assert.equal(t.events.length, 2);
+    assert.equal(t.events[0].level, 1);
+    assert.ok(Math.abs(t.events[0].tMs - 300) <= 2, `on near 300, got ${t.events[0].tMs}`);
+    assert.equal(t.events[1].level, 0);
+    assert.ok(t.events[1].tMs >= 800 && t.events[1].tMs <= 910,
+        `off within one poll of 800, got ${t.events[1].tMs}`);
+});
