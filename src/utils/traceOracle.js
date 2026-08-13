@@ -62,7 +62,16 @@ export function interpretTrace(project, opts = {}) {
     const pinsByName = new Map((stc.pins || []).map((p) => [String(p.name).toLowerCase(), p]));
 
     const trace = { events: [], pwm: [], serial: [], vars: {}, horizon: horizonMs, unsupported: [] };
+    // Every pin starts at intent 0 — the implicit boot state on every core
+    // (the C builds write the OFF level in bw_setup). Seeding the dedup map
+    // means a leading 'turn off' records nothing, on the referee AND on any
+    // recorder that follows the same rule: baseline noise dies at the source.
     const pinLevel = new Map();   // logical name -> last recorded intent, dedup
+    for (const p of stc.pins || []) {
+        if (p.direction === 'output' || p.direction === 'pwm') {
+            pinLevel.set(String(p.name).toLowerCase(), 0);
+        }
+    }
 
     const vars = new Map();
     let now = 0;
@@ -324,34 +333,58 @@ export function interpretTrace(project, opts = {}) {
  */
 export function compareTraces(ref, actual, opts = {}) {
     const tolMs = opts.tolMs ?? 3;
+    // Blocking-UART drift: a device whose putc waits on the wire (the
+    // AVR at 9600 baud: ~1.04 ms/byte, no deep FIFO) pushes every LATER
+    // deadline by the bytes it has printed so far — the Nano's third
+    // 1-second print lands 8 ms late, exactly its cumulative byte time.
+    // The referee prints instantaneously, so the allowance grows with
+    // the referee's own serial byte count before each compared item.
+    // Devices with a real FIFO (the Pico's is 16 deep) pass 0 here.
+    const msPerByte = opts.serialMsPerByte ?? 0;
+    const bytesBefore = (t) => (ref.serial ?? [])
+        .filter((sLine) => sLine.tMs < t)
+        .reduce((a, sLine) => a + String(sLine.line).length + 2, 0);
+    const tolAt = (t) => tolMs + bytesBefore(t) * msPerByte;
     const diffs = [];
     const horizon = Math.min(ref.horizon ?? Infinity, actual.horizon ?? Infinity);
     const inWindow = (e) => e.tMs < horizon;
 
-    const clean = (events, isActual) => {
-        let out = events.filter(inWindow);
-        if (isActual && ref.events.length && out.length &&
-            out[0].level === 0 && out[0].tMs <= (ref.events[0].tMs ?? 0)) {
-            out = out.slice(1); // boot-time OFF hygiene
+    // Per-PIN streams: cross-pin order within the same millisecond is
+    // scheduler-arbitrary (two tasks toggling two pins "at" t=0 may
+    // interleave either way), so the global event order proves nothing —
+    // each pin's own sequence is the semantics. Leading level-0 events
+    // are dropped on BOTH sides: pins implicitly start at intent 0, so a
+    // recorded OFF before any ON carries no information (the C build's
+    // bw_setup baseline, or a program whose first act is 'turn off').
+    const byPin = (events) => {
+        const m = new Map();
+        for (const e of events.filter(inWindow)) {
+            if (!m.has(e.pin)) m.set(e.pin, []);
+            m.get(e.pin).push(e);
         }
-        return out;
+        for (const [, list] of m) {
+            while (list.length && list[0].level === 0) list.shift();
+        }
+        return m;
     };
-    const re = clean(ref.events, false);
-    const ae = clean(actual.events, true);
-    const n = Math.min(re.length, ae.length);
-    for (let i = 0; i < n; i++) {
-        const a = re[i], b = ae[i];
-        if (a.pin !== b.pin || a.level !== b.level) {
-            diffs.push(`event ${i}: referee ${a.pin}=${a.level}@${a.tMs}, actual ${b.pin}=${b.level}@${b.tMs}`);
-        } else if (Math.abs(a.tMs - b.tMs) > tolMs) {
-            diffs.push(`event ${i} (${a.pin}=${a.level}): time ${a.tMs} vs ${b.tMs}`);
+    const rm = byPin(ref.events);
+    const am = byPin(actual.events);
+    for (const pin of new Set([...rm.keys(), ...am.keys()])) {
+        const re = rm.get(pin) ?? [];
+        const ae = am.get(pin) ?? [];
+        const n = Math.min(re.length, ae.length);
+        for (let i = 0; i < n; i++) {
+            if (re[i].level !== ae[i].level) {
+                diffs.push(`${pin}[${i}]: referee level ${re[i].level}@${re[i].tMs}, actual ${ae[i].level}@${ae[i].tMs}`);
+            } else if (Math.abs(re[i].tMs - ae[i].tMs) > tolAt(re[i].tMs)) {
+                diffs.push(`${pin}[${i}] (level ${re[i].level}): time ${re[i].tMs} vs ${ae[i].tMs}`);
+            }
         }
+        const extraRef = re.slice(n).filter((e) => e.tMs < horizon - tolMs);
+        const extraAct = ae.slice(n).filter((e) => e.tMs < horizon - tolMs);
+        if (extraRef.length) diffs.push(`${pin}: referee has ${extraRef.length} events the actual lacks (first: ${JSON.stringify(extraRef[0])})`);
+        if (extraAct.length) diffs.push(`${pin}: actual has ${extraAct.length} events the referee lacks (first: ${JSON.stringify(extraAct[0])})`);
     }
-    // Length mismatch beyond the horizon boundary is real.
-    const extraRef = re.slice(n).filter((e) => e.tMs < horizon - tolMs);
-    const extraAct = ae.slice(n).filter((e) => e.tMs < horizon - tolMs);
-    if (extraRef.length) diffs.push(`referee has ${extraRef.length} events the actual lacks (first: ${JSON.stringify(extraRef[0])})`);
-    if (extraAct.length) diffs.push(`actual has ${extraAct.length} events the referee lacks (first: ${JSON.stringify(extraAct[0])})`);
 
     const rs = (ref.serial ?? []).filter(inWindow);
     const as_ = (actual.serial ?? []).filter(inWindow);
@@ -359,7 +392,7 @@ export function compareTraces(ref, actual, opts = {}) {
     for (let i = 0; i < m; i++) {
         if (String(rs[i].line) !== String(as_[i].line)) {
             diffs.push(`serial ${i}: "${rs[i].line}" vs "${as_[i].line}"`);
-        } else if (Math.abs(rs[i].tMs - as_[i].tMs) > tolMs) {
+        } else if (Math.abs(rs[i].tMs - as_[i].tMs) > tolAt(rs[i].tMs)) {
             diffs.push(`serial ${i} ("${rs[i].line}"): time ${rs[i].tMs} vs ${as_[i].tMs}`);
         }
     }
