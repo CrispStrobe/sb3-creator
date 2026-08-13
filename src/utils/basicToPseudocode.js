@@ -20,16 +20,22 @@
  * header), GOTO loop shapes from our own emissions, colon-separated
  * statements, REM.
  *
- * Not covered, by name: CASE [10], DIM/arrays [14], multi-line FN, INPUT,
- * graphics/VDU statements (MODE, GCOL, DRAW, PLOT, COLOUR, CLS, …) — all
+ * Now also covered: INPUT (→ ask/answer), DIM/arrays [14], CLG (→ clear),
+ * MODE (→ REM), GCOL (→ set pen color), MOVE/DRAW (→ go to), TIME=0
+ * (→ reset timer), bw_pen% (→ pen down/up), MID$/LEN/INSTR in expressions
+ * (→ letter/length/contains), INT(x+0.5) (→ round), SQR/ABS/INT (→ mathop),
+ * TIME/100 (→ timer).
+ *
+ * Not covered, by name: multi-line FN,
+ * PLOT, COLOUR, CLS, VDU, SOUND, ENVELOPE — all
  * warned per line. A GOTO that is not a recognized loop shape is warned
  * and kept as a comment.
  *
  * @module
  */
 
-const UNMAPPED = new Set(['MODE', 'GCOL', 'DRAW', 'PLOT', 'MOVE', 'COLOUR', 'COLOR', 'CLS',
-    'CLG', 'VDU', 'SOUND', 'ENVELOPE', 'INPUT', 'DIM', 'DATA', 'READ', 'RESTORE', 'CASE',
+const UNMAPPED = new Set(['PLOT', 'COLOUR', 'COLOR', 'CLS',
+    'VDU', 'SOUND', 'ENVELOPE', 'DATA', 'READ', 'RESTORE',
     'WHEN', 'OTHERWISE', 'ENDCASE', 'ON', 'OSCLI', 'CALL', 'CHAIN', 'LOCAL', 'CLEAR',
     'PRINTTAB']);
 
@@ -186,13 +192,30 @@ export default function basicToPseudocode(source, opts = {}) {
             return `(${body})`;
         });
         x = x.replace(/RND\s*\(\s*([^)]+)\)/gi, 'pick random 1 to $1');
+        // MID$(s, i, 1) → letter i of s.
+        x = x.replace(/MID\$\s*\(\s*([^,]+)\s*,\s*([^,]+)\s*,\s*1\s*\)/gi, (_, s2, idx) => `letter ${trExpr(idx)} of ${trExpr(s2)}`);
+        // LEN(s) → length of s.
+        x = x.replace(/LEN\s*\(\s*([^)]+)\)/gi, (_, s2) => `length of ${trExpr(s2)}`);
+        // INSTR(a, b) > 0 → a contains b.
+        x = x.replace(/\(INSTR\s*\(\s*([^,]+)\s*,\s*([^)]+)\)\s*>\s*0\)/gi, (_, a2, b2) => `${trExpr(a2)} contains ${trExpr(b2)}`);
+        // INT(x+0.5) → round x.
+        x = x.replace(/INT\s*\(\s*([^+]+)\+\s*0\.5\s*\)/gi, (_, a2) => `round ${trExpr(a2)}`);
+        // SQR(x) → sqrt of x.
+        x = x.replace(/\bSQR\s*\(\s*([^)]+)\)/gi, (_, a2) => `sqrt of ${trExpr(a2)}`);
+        // ABS(x) → abs of x.
+        x = x.replace(/\bABS\s*\(\s*([^)]+)\)/gi, (_, a2) => `abs of ${trExpr(a2)}`);
+        // INT(x) → floor of x.
+        x = x.replace(/\bINT\s*\(\s*([^)]+)\)/gi, (_, a2) => `floor of ${trExpr(a2)}`);
+        // TIME/100 → timer.
+        x = x.replace(/\(TIME\s*\/\s*100\)/gi, 'timer');
+        x = x.replace(/TIME\s*\/\s*100/gi, 'timer');
         x = x.replace(/<>/g, '!=');
         x = x.replace(/\bTRUE\b/gi, '1').replace(/\bFALSE\b/gi, '0');
         x = x.replace(/[A-Za-z_]\w*[%$]?/g, (w) => {
             const up = w.toUpperCase();
             if (['MOD', 'DIV', 'AND', 'OR', 'NOT'].includes(up)) return up.toLowerCase();
             if (['PICK', 'RANDOM', 'TO'].includes(up)) return w;
-            if (/^(SIN|COS|TAN|SQR|INT|ABS|LOG|LN|EXP|LEN|GET|VAL|TIME|PI|CHR\$|STR\$)$/.test(up)) {
+            if (/^(SIN|COS|TAN|LOG|LN|EXP|GET|VAL|PI|CHR\$|STR\$)$/.test(up)) {
                 exprWarn.add(`${up} has no dialect equivalent yet — kept textually`);
                 return w;
             }
@@ -371,6 +394,41 @@ export default function basicToPseudocode(source, opts = {}) {
             emitChain(0);
             mapped(); mapped();
             return;
+        }
+        // INPUT → ask/answer. Two forms: PRINT question / INPUT var$ → ask, or INPUT var$.
+        if ((m = t.match(/^INPUT\s+(.+)$/i))) {
+            const vr = vName(m[1].trim());
+            // Check if the previous output line was a PRINT (the question).
+            const prev = out[out.length - 1];
+            const prevMatch = prev && prev.match(/^(\s*)print (.+)$/);
+            if (prevMatch) {
+                out[out.length - 1] = prevMatch[1] + `ask ${prevMatch[2]} and wait`;
+            } else {
+                line('ask "" and wait');
+            }
+            line(`set ${vr} to answer`);
+            mapped(); return;
+        }
+        // CLG → clear (pen).
+        if (/^CLG$/i.test(t)) { line('clear'); mapped(); return; }
+        // MODE n → REM (graphics init).
+        if (/^MODE\b/i.test(t)) { comment(t); mapped(); return; }
+        // TIME=0 → reset timer.
+        if (/^TIME\s*=\s*0$/i.test(t)) { line('reset timer'); mapped(); return; }
+        // bw_pen%=TRUE/FALSE → pen down/up.
+        if (/^bw_pen%\s*=\s*TRUE$/i.test(t)) { line('pen down'); mapped(); return; }
+        if (/^bw_pen%\s*=\s*FALSE$/i.test(t)) { line('pen up'); mapped(); return; }
+        // GCOL color → set pen color.
+        if ((m = t.match(/^GCOL\s+\d+\s*,\s*(.+)$/i))) { line(`set pen color to ${trExpr(m[1])}`); mapped(); return; }
+        // MOVE x,y → go to (pen-space coords: reverse the *4+640/512 transform).
+        if ((m = t.match(/^MOVE\s+(.+?)\s*,\s*(.+)$/i))) {
+            line(`go to x: ${trExpr(m[1])} y: ${trExpr(m[2])}`);
+            mapped(); return;
+        }
+        // DRAW x,y → pen draw (same coords).
+        if ((m = t.match(/^DRAW\s+(.+?)\s*,\s*(.+)$/i))) {
+            line(`go to x: ${trExpr(m[1])} y: ${trExpr(m[2])}`);
+            mapped(); return;
         }
         if ((m = t.match(/^PRINT\s+"([^"]*)"$/i))) { line(`print "${m[1]}"`); mapped(); return; }
         if ((m = t.match(/^PRINT\s+([^;,'"]+)$/i))) { line(`print ${trExpr(m[1])}`); mapped(); return; }
