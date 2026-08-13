@@ -31,10 +31,35 @@ const ADC_CFG = {
 
 /** Build a default stimulus: analog pins at mid-range, digital inputs low. */
 function defaultStimulus(pins, adc) {
+    // The stimulus SWEEPS: a threshold program (night light, thermostat,
+    // comparator) sitting at a constant midpoint may legitimately never
+    // act — and since the referee seeds pins at intent 0, "reacting by
+    // staying off" records nothing at all. Low → high → low crossings
+    // make every threshold fire in both directions, so the
+    // non-degeneracy assertion below tests the PROGRAM, not the noise
+    // floor the referee used to emit for baseline OFF writes.
     const stim = [];
+    let ai = 0;
     for (const p of pins || []) {
-        if (p.direction === 'analog') stim.push({ tMs: 0, pin: p.name, volts: adc.vref / 2 });
-        if (p.direction === 'input') stim.push({ tMs: 0, pin: p.name, level: 0 });
+        if (p.direction === 'analog') {
+            // 3%/85% clears RAW thresholds (the night light compares to 200, on every resolution (a literal
+            // which is 4.9% of a 12-bit range — a 5% floor missed it by five counts), and
+            // pins alternate phase so two-pot comparators see their inputs
+            // CROSS instead of sweeping in lockstep.
+            const lo = adc.vref * 0.03, hi = adc.vref * 0.85;
+            const first = (ai % 2 === 0) ? lo : hi;
+            const second = (ai % 2 === 0) ? hi : lo;
+            const off = ai * 250;
+            stim.push({ tMs: 0, pin: p.name, volts: first });
+            stim.push({ tMs: 900 + off, pin: p.name, volts: second });
+            stim.push({ tMs: 1900 + off, pin: p.name, volts: first });
+            ai++;
+        }
+        if (p.direction === 'input') {
+            stim.push({ tMs: 0, pin: p.name, level: 0 });
+            stim.push({ tMs: 700, pin: p.name, level: 1 });
+            stim.push({ tMs: 1600, pin: p.name, level: 0 });
+        }
     }
     return stim;
 }
@@ -58,6 +83,10 @@ const EXPECTED_UNSUPPORTED = new Set([
  */
 const CROSS_DEVICE_ADC_PIN_EXCEPTIONS = new Set([
     '02-dimmer', '10-motor-speed', '15-voltage-divider', '16-ldr-bargraph',
+    // RAW ADC thresholds are resolution-relative: a literal 512 is half of
+    // a 10-bit range but an eighth of a 12-bit one, so the same volts
+    // legally produce different behaviour per device. Genuine divergence.
+    '03-night-light', '04-thermostat', '17-comparator',
 ]);
 
 // ---- Tier 1: retarget + referee, no unsupported opcodes --------------------
