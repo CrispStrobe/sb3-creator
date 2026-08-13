@@ -3193,3 +3193,19 @@ test('basicToPseudocode: CASE (ch. 10) becomes an IF/ELSE chain; DIM maps to the
     const c = build(r.pseudocode);
     assert.deepEqual(c.warnings || [], [], 'the reconstruction re-parses clean');
 });
+
+test('generateBASIC: non-6502 devices refuse pokes with the retarget hint', () => {
+    const { readFileSync } = process.getBuiltinModule('node:fs');
+    const blink = readFileSync(new URL('../examples/01-blink/program.bw', import.meta.url), 'utf8');
+    const c = build(blink);
+    const r = c.generateBASIC(undefined, {});
+    assert.equal(r.ok, false, 'STC12 pins are not VIA addresses');
+    assert.match(r.reasons.join(';'), /retarget the example to EATER6502/);
+    // And the retargeted form emits clean BASIC with a well-formed header.
+    const rt = SB3Creator.retargetPseudocode(blink, 'eater6502');
+    const c2 = build(rt.pseudocode);
+    const r2 = c2.generateBASIC(undefined, {});
+    assert.ok(r2.ok, r2.reasons.join('; '));
+    assert.match(r2.basic, /REM @bw pin led1 PA0 output/);
+    assert.ok(!/undefined/.test(r2.basic), 'no undefined leaks into the header');
+});
