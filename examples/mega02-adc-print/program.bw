@@ -1,0 +1,9 @@
+DEVICE ARDUINO-MEGA
+CLOCK 16000000
+PIN sensor1 = A9 ANALOG
+
+# Read a sensor on A9 (one of the Mega's 16 ADC channels) and print
+WHEN flag clicked:
+  FOREVER:
+    print read sensor1
+    wait 1 seconds

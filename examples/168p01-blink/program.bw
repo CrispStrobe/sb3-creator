@@ -1,0 +1,11 @@
+DEVICE ATMEGA168P
+CLOCK 16000000
+PIN led1 = D13 OUTPUT
+
+# Blink the built-in LED at 1 Hz
+WHEN flag clicked:
+  FOREVER:
+    turn on led1
+    wait 0.5 seconds
+    turn off led1
+    wait 0.5 seconds

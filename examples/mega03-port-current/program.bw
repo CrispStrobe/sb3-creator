@@ -1,0 +1,38 @@
+DEVICE ARDUINO-MEGA
+CLOCK 16000000
+PIN led1 = D22 OUTPUT
+PIN led2 = D23 OUTPUT
+PIN led3 = D24 OUTPUT
+PIN led4 = D25 OUTPUT
+PIN led5 = D26 OUTPUT
+PIN led6 = D27 OUTPUT
+PIN led7 = D28 OUTPUT
+PIN led8 = D29 OUTPUT
+
+# Walk 8 LEDs across port A (D22-D29) — the Mega pool fits 8 where others fit 6
+WHEN flag clicked:
+  FOREVER:
+    turn on led1
+    wait 0.2 seconds
+    turn off led1
+    turn on led2
+    wait 0.2 seconds
+    turn off led2
+    turn on led3
+    wait 0.2 seconds
+    turn off led3
+    turn on led4
+    wait 0.2 seconds
+    turn off led4
+    turn on led5
+    wait 0.2 seconds
+    turn off led5
+    turn on led6
+    wait 0.2 seconds
+    turn off led6
+    turn on led7
+    wait 0.2 seconds
+    turn off led7
+    turn on led8
+    wait 0.2 seconds
+    turn off led8
