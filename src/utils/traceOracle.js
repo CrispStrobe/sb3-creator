@@ -99,7 +99,7 @@ export function interpretTrace(project, opts = {}) {
     const blocksOf = new Map(); // task -> its target's blocks object
     for (const target of project.targets || []) {
         const blocks = target.blocks || {};
-        for (const [id, b] of Object.entries(blocks)) {
+        for (const b of Object.values(blocks)) {
             if (b && b.opcode === 'event_whenflagclicked' && b.topLevel !== false) {
                 tasks.push({ frames: [{ block: b.next }], waitUntil: 0, done: !b.next,
                     spinNow: -1, spins: 0 });
