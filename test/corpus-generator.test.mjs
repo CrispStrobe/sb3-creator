@@ -48,10 +48,11 @@ function generateProgram(seed) {
     const pools = SB3Creator.RETARGET_POOLS[device];
     const clock = CLOCKS[device];
 
-    // Allocate 1-3 output pins, 0-1 analog, 0-1 input
+    // Allocate 1-3 output pins, 0-1 analog, 0-1 input, 0-1 PWM
     const numOutputs = randInt(1, Math.min(3, pools.digital.length));
     const hasAnalog = pools.analog.length > 0 && rand() < 0.4;
     const hasInput = pools.input.length > 0 && rand() < 0.3;
+    const hasPwm = pools.pwm.length > 0 && rand() < 0.3;
 
     const usedPins = new Set();
     const take = (pool) => {
@@ -75,10 +76,15 @@ function generateProgram(seed) {
         const where = take(pools.input);
         if (where) pins.push({ name: 'btn1', where, direction: 'input', activeLow: '' });
     }
+    if (hasPwm) {
+        const where = take(pools.pwm);
+        if (where) pins.push({ name: 'motor1', where, direction: 'pwm', activeLow: '' });
+    }
 
     const outputPins = pins.filter(p => p.direction === 'output').map(p => p.name);
     const analogPins = pins.filter(p => p.direction === 'analog').map(p => p.name);
     const inputPins = pins.filter(p => p.direction === 'input').map(p => p.name);
+    const pwmPins = pins.filter(p => p.direction === 'pwm').map(p => p.name);
 
     // Declare 0-2 variables
     const numVars = randInt(0, 2);
@@ -90,7 +96,7 @@ function generateProgram(seed) {
 
     for (let t = 0; t < numTasks; t++) {
         const stmts = generateBlock(rand, pick, randInt, outputPins, analogPins,
-            inputPins, varNames, randInt(2, 6), 0, 3);
+            inputPins, pwmPins, varNames, randInt(2, 6), 0, 3);
         // Guarantee an unconditional pin operation at the top of every task
         // so the trace is never degenerate. (A conditional pin op inside an
         // IF on an uninitialized variable may never fire.)
@@ -105,7 +111,7 @@ function generateProgram(seed) {
     lines.push(`DEVICE ${device.toUpperCase()}`);
     lines.push(`CLOCK ${clock}`);
     for (const p of pins) {
-        const dir = p.direction === 'output' ? 'OUTPUT' : p.direction === 'analog' ? 'ANALOG' : 'INPUT';
+        const dir = { output: 'OUTPUT', analog: 'ANALOG', input: 'INPUT', pwm: 'PWM' }[p.direction];
         lines.push(`PIN ${p.name} = ${p.where} ${dir}${p.activeLow}`);
     }
     lines.push('');
@@ -119,17 +125,29 @@ function generateProgram(seed) {
     return { source: lines.join('\n'), device, seed };
 }
 
-function generateBlock(rand, pick, randInt, outputs, analogs, inputs, vars, maxStmts, depth, maxDepth) {
+function makeCond(rand, pick, randInt, inputs, analogs, vars) {
+    const r = rand();
+    if (r < 0.3 && inputs.length > 0) return `read ${pick(inputs)}`;
+    if (r < 0.6 && vars.length > 0) return `(${pick(vars)} > ${randInt(0, 50)})`;
+    if (analogs.length > 0) return `(read ${pick(analogs)} > ${randInt(10, 200)})`;
+    if (vars.length > 0) return `(${pick(vars)} > ${randInt(0, 50)})`;
+    return null;
+}
+
+function generateBlock(rand, pick, randInt, outputs, analogs, inputs, pwms, vars, maxStmts, depth, maxDepth) {
     const stmts = [];
     const numStmts = randInt(1, maxStmts);
 
     for (let i = 0; i < numStmts; i++) {
         const r = rand();
-        if (r < 0.25 && outputs.length > 0) {
+        if (r < 0.20 && outputs.length > 0) {
             // Pin operation
             const pin = pick(outputs);
             const ops = ['turn on', 'turn off', 'toggle'];
             stmts.push(`${pick(ops)} ${pin}`);
+        } else if (r < 0.27 && pwms.length > 0) {
+            // PWM duty cycle
+            stmts.push(`set ${pick(pwms)} to ${randInt(0, 100)} percent`);
         } else if (r < 0.35 && analogs.length > 0) {
             // Print analog read
             stmts.push(`print read ${pick(analogs)}`);
@@ -141,28 +159,44 @@ function generateBlock(rand, pick, randInt, outputs, analogs, inputs, vars, maxS
             } else {
                 stmts.push(`change ${v} by ${randInt(1, 10)}`);
             }
-        } else if (r < 0.55 && vars.length > 0) {
+        } else if (r < 0.50 && vars.length > 0) {
             // Print variable
             stmts.push(`print ${pick(vars)}`);
-        } else if (r < 0.65) {
+        } else if (r < 0.55) {
             // Wait
             const ms = pick([100, 200, 250, 500, 1000]);
             stmts.push(`wait ${ms / 1000} seconds`);
-        } else if (r < 0.75 && depth < maxDepth) {
+        } else if (r < 0.60 && (inputs.length > 0 || vars.length > 0 || analogs.length > 0)) {
+            // wait until <condition>
+            const cond = makeCond(rand, pick, randInt, inputs, analogs, vars);
+            if (cond) stmts.push(`wait until ${cond}`);
+            else stmts.push(`wait 0.1 seconds`);
+        } else if (r < 0.68 && depth < maxDepth) {
             // FOREVER (only once per task to avoid infinite nesting)
-            const body = generateBlock(rand, pick, randInt, outputs, analogs, inputs, vars,
+            const body = generateBlock(rand, pick, randInt, outputs, analogs, inputs, pwms, vars,
                 Math.max(1, maxStmts - 1), depth + 1, maxDepth);
             stmts.push('FOREVER:');
             for (const b of body) stmts.push('  ' + b);
             break; // FOREVER must be last (nothing after runs)
-        } else if (r < 0.85 && depth < maxDepth) {
+        } else if (r < 0.76 && depth < maxDepth) {
             // REPEAT n
             const n = randInt(2, 5);
-            const body = generateBlock(rand, pick, randInt, outputs, analogs, inputs, vars,
+            const body = generateBlock(rand, pick, randInt, outputs, analogs, inputs, pwms, vars,
                 Math.max(1, maxStmts - 2), depth + 1, maxDepth);
             stmts.push(`REPEAT ${n}:`);
             for (const b of body) stmts.push('  ' + b);
-        } else if (r < 0.95 && depth < maxDepth && (inputs.length > 0 || vars.length > 0)) {
+        } else if (r < 0.82 && depth < maxDepth && (inputs.length > 0 || vars.length > 0 || analogs.length > 0)) {
+            // REPEAT UNTIL <condition>:
+            const cond = makeCond(rand, pick, randInt, inputs, analogs, vars);
+            if (cond) {
+                const body = generateBlock(rand, pick, randInt, outputs, analogs, inputs, pwms, vars,
+                    Math.max(1, maxStmts - 2), depth + 1, maxDepth);
+                stmts.push(`REPEAT UNTIL ${cond}:`);
+                for (const b of body) stmts.push('  ' + b);
+            } else {
+                stmts.push(`wait 0.1 seconds`);
+            }
+        } else if (r < 0.92 && depth < maxDepth && (inputs.length > 0 || vars.length > 0)) {
             // IF / IF-ELSE
             let cond;
             if (inputs.length > 0 && rand() < 0.5) {
@@ -173,13 +207,13 @@ function generateBlock(rand, pick, randInt, outputs, analogs, inputs, vars, maxS
                 stmts.push(`wait 0.1 seconds`);
                 continue;
             }
-            const thenBody = generateBlock(rand, pick, randInt, outputs, analogs, inputs, vars,
+            const thenBody = generateBlock(rand, pick, randInt, outputs, analogs, inputs, pwms, vars,
                 Math.max(1, maxStmts - 2), depth + 1, maxDepth);
             if (rand() < 0.4) {
                 stmts.push(`IF ${cond} THEN:`);
                 for (const b of thenBody) stmts.push('  ' + b);
             } else {
-                const elseBody = generateBlock(rand, pick, randInt, outputs, analogs, inputs, vars,
+                const elseBody = generateBlock(rand, pick, randInt, outputs, analogs, inputs, pwms, vars,
                     Math.max(1, maxStmts - 2), depth + 1, maxDepth);
                 stmts.push(`IF ${cond} THEN:`);
                 for (const b of thenBody) stmts.push('  ' + b);
@@ -199,7 +233,7 @@ function generateBlock(rand, pick, randInt, outputs, analogs, inputs, vars, maxS
 // ---- The test suite -------------------------------------------------------
 
 const SEED_START = 1;
-const SEED_COUNT = 100;  // CI runs 100 seeds; increase for deeper sweeps
+const SEED_COUNT = 200;  // CI runs 200 seeds; covers wait_until, repeat_until, PWM
 
 describe('corpus generator: parse + referee', () => {
     for (let seed = SEED_START; seed < SEED_START + SEED_COUNT; seed++) {
