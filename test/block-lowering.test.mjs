@@ -25,7 +25,10 @@ const cCases = new Set();
 for (const name of cMethods) {
     const idx = src.indexOf(name + '(b, blocks');
     if (idx < 0) continue;
-    const chunk = src.slice(idx, idx + 15000);
+    // The window must cover the WHOLE switch: the 6502 core's guards grew
+    // it past 15 KB and the last cases fell out of the census, reporting
+    // real emitter cases as missing.
+    const chunk = src.slice(idx, idx + 80000);
     for (const m of chunk.matchAll(/case '([a-z0-9_]+)':/g)) cCases.add(m[1]);
 }
 

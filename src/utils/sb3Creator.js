@@ -6079,7 +6079,11 @@ class SB3Creator {
         // the other one on purpose.
         const stc = project && project.stc;
         const hasPins = !!(stc && stc.pins && stc.pins.length);
-        const hasHardware = hasPins || !!(stc && stc.ledcube);
+        // A PART or PORT declaration means the chip exactly as a PIN does — a
+        // PART-only program (the 74HC595 chaser) must not fall to host C.
+        const hasHardware = hasPins || !!(stc && stc.ledcube)
+            || !!(stc && stc.parts && stc.parts.length)
+            || !!(stc && stc.ports && stc.ports.length);
         const want = opts.target || (hasHardware ? 'device' : 'host');
         if (want === 'host') return this.generateHostC(project, opts);
 
@@ -6574,6 +6578,13 @@ class SB3Creator {
                 `device ${device}`,
                 `clock ${clock}`,
                 ...pins.map((p) => `pin ${p.name} ${p.where || `P${p.port}.${p.bit}`} ${p.direction}${p.activeLow ? ' active-low' : ''}`),
+                // PARTs must survive the header too, or the C reader cannot
+                // reconstruct the declaration and shift_out calls come back
+                // as nothing (found via the chaser's round-trip, 2026-08-13).
+                ...((stored.parts || []).map((pt) => {
+                    const w = (x) => x.where || `P${x.port}.${x.bit}`;
+                    return `part ${pt.name} ${pt.type} ${w(pt.data)} ${w(pt.clock)} ${w(pt.latch)}${pt.activeLow ? ' active-low' : ''}`;
+                })),
                 ...tables.map((t) => `table ${t.name} ${t.values.length}`),
                 ...markVars, ...markProcs, ...markScripts,
                 // The yield map: `<task>_state == N` means "about to run this block". It is
