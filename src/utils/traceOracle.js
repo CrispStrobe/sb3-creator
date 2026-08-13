@@ -1,0 +1,380 @@
+/**
+ * The reference trace interpreter — the referee every backend answers to.
+ *
+ * Executes a parsed project's blocks under Scratch's own cooperative
+ * contract (tasks yield at waits and loop back-edges) on a VIRTUAL
+ * millisecond clock, and records the canonical trace defined in
+ * reference/corpus-and-oracles.md: pin ON/OFF intent by LOGICAL name,
+ * polarity-normalized; serial lines; PWM percents; final variables.
+ *
+ * Deliberately independent of all four backends — a fifth opinion. It
+ * implements the same yield points the C scheduler compiles to, but from
+ * the block AST directly, so a codegen bug cannot vouch for itself.
+ *
+ * Time is event-driven: when every live task is waiting, the clock JUMPS
+ * to the earliest deadline — a 10-second program traces in microseconds
+ * of wall time. A `stimulus` timeline scripts analog/digital inputs, so
+ * ADC and button programs are deterministic too.
+ *
+ * Unknown opcodes REFUSE loudly (listed in `unsupported`), never skip —
+ * a silent skip would let the corpus drift beyond what the referee
+ * actually referees.
+ *
+ * @module
+ */
+
+/** Opcode surface the referee speaks. Everything else is a stated refusal. */
+const KNOWN = new Set([
+    'event_whenflagclicked',
+    'control_forever', 'control_repeat', 'control_if', 'control_if_else',
+    'control_wait',
+    'data_setvariableto', 'data_changevariableby',
+    'stc12_setpin', 'stc12_toggle', 'stc12_writepin', 'stc12_setpwm',
+    'stc12_print', 'stc12_read',
+    'operator_add', 'operator_subtract', 'operator_multiply', 'operator_divide',
+    'operator_mod', 'operator_gt', 'operator_lt', 'operator_equals',
+    'operator_and', 'operator_or', 'operator_not', 'operator_join', 'operator_round',
+    'bitops_and', 'bitops_or', 'bitops_xor', 'bitops_shl', 'bitops_shr', 'bitops_not',
+]);
+
+/**
+ * @param {object} project - a parsed SB3Creator project (targets + stc config)
+ * @param {object} [opts]
+ * @param {number} [opts.horizonMs] - how much program time to trace (default 5000)
+ * @param {Array<{tMs:number,pin:string,volts?:number,level?:0|1}>} [opts.stimulus]
+ *   scripted inputs by LOGICAL pin name; the latest entry at-or-before now wins
+ * @param {number} [opts.maxSteps] - runaway guard (default 1e6)
+ * @param {{bits:number, vref:number}} [opts.adc] - the DEVICE'S ADC
+ *   resolution and reference (8051/AVR: 10 bits of 5 V; Pico: 12 of 3.3).
+ *   Raw counts are program-visible (print read pot), so the referee must
+ *   speak the device's numbers — this is genuine device-dependence, not
+ *   a normalization the comparator may paper over.
+ * @returns {{ events: [], pwm: [], serial: [], vars: {}, horizon: number,
+ *             unsupported: string[] }}
+ */
+export function interpretTrace(project, opts = {}) {
+    const horizonMs = opts.horizonMs ?? 5000;
+    const maxSteps = opts.maxSteps ?? 1e6;
+    const stimulus = [...(opts.stimulus ?? [])].sort((a, b) => a.tMs - b.tMs);
+    const adc = opts.adc ?? { bits: 10, vref: 5 };
+
+    const stc = (project && project.stc) || { pins: [] };
+    const pinsByName = new Map((stc.pins || []).map((p) => [String(p.name).toLowerCase(), p]));
+
+    const trace = { events: [], pwm: [], serial: [], vars: {}, horizon: horizonMs, unsupported: [] };
+    const pinLevel = new Map();   // logical name -> last recorded intent, dedup
+
+    const vars = new Map();
+    let now = 0;
+
+    const emitPin = (name, intent) => {
+        const key = String(name).toLowerCase();
+        if (pinLevel.get(key) === intent) return; // level changes only
+        pinLevel.set(key, intent);
+        trace.events.push({ tMs: now, pin: key, level: intent });
+    };
+
+    const stimAt = (name) => {
+        const key = String(name).toLowerCase();
+        let hit = null;
+        for (const s of stimulus) {
+            if (s.tMs > now) break;
+            if (String(s.pin).toLowerCase() === key) hit = s;
+        }
+        return hit;
+    };
+
+    // ---- collect the tasks ------------------------------------------------
+    /** A frame: { block: currentBlockId|null, loop: {kind, remaining?, headId} } */
+    const tasks = [];
+    const blocksOf = new Map(); // task -> its target's blocks object
+    for (const target of project.targets || []) {
+        const blocks = target.blocks || {};
+        for (const [id, b] of Object.entries(blocks)) {
+            if (b && b.opcode === 'event_whenflagclicked' && b.topLevel !== false) {
+                tasks.push({ frames: [{ block: b.next }], waitUntil: 0, done: !b.next });
+                blocksOf.set(tasks[tasks.length - 1], blocks);
+            }
+        }
+    }
+
+    // ---- expression evaluation -------------------------------------------
+    function num(v) { const n = Number(v); return Number.isFinite(n) ? n : 0; }
+
+    function evalInput(task, input) {
+        // SB3 input: [shadowType, blockIdOrLiteral] — mirror cVal's reading.
+        if (!input) return 0;
+        const v = input[1];
+        if (Array.isArray(v)) {
+            // [12, name, id] is an INLINE VARIABLE REFERENCE, not a literal —
+            // returning index 1 hands back the variable's NAME (the referee's
+            // first print test printed the string "n").
+            if (v[0] === 12 || v[0] === 13) return vars.get(v[1]) ?? 0;
+            return v[1];                               // literal [type, value]
+        }
+        if (typeof v === 'string') return evalBlock(task, v); // reporter block id
+        return v ?? 0;
+    }
+
+    function evalBlock(task, id) {
+        const blocks = blocksOf.get(task);
+        const b = blocks[id];
+        if (!b) return 0;
+        const inp = (k) => evalInput(task, b.inputs && b.inputs[k]);
+        const fld = (k) => (b.fields && b.fields[k] ? b.fields[k][0] : '');
+        switch (b.opcode) {
+            case 'operator_add': return num(inp('NUM1')) + num(inp('NUM2'));
+            case 'operator_subtract': return num(inp('NUM1')) - num(inp('NUM2'));
+            case 'operator_multiply': return num(inp('NUM1')) * num(inp('NUM2'));
+            case 'operator_divide': {
+                const d = num(inp('NUM2'));
+                // Integer semantics: every C backend divides integers.
+                return d ? Math.trunc(num(inp('NUM1')) / d) : 0;
+            }
+            case 'operator_mod': { const d = num(inp('NUM2')); return d ? num(inp('NUM1')) % d : 0; }
+            case 'operator_gt': return num(inp('OPERAND1')) > num(inp('OPERAND2'));
+            case 'operator_lt': return num(inp('OPERAND1')) < num(inp('OPERAND2'));
+            case 'operator_equals': return num(inp('OPERAND1')) === num(inp('OPERAND2'));
+            case 'operator_and': return !!(evalInput(task, b.inputs.OPERAND1) && evalInput(task, b.inputs.OPERAND2));
+            case 'operator_or': return !!(evalInput(task, b.inputs.OPERAND1) || evalInput(task, b.inputs.OPERAND2));
+            case 'operator_not': return !evalInput(task, b.inputs.OPERAND);
+            case 'operator_join': return String(inp('STRING1')) + String(inp('STRING2'));
+            case 'operator_round': return Math.round(num(inp('NUM')));
+            case 'bitops_and': return num(inp('NUM1')) & num(inp('NUM2'));
+            case 'bitops_or': return num(inp('NUM1')) | num(inp('NUM2'));
+            case 'bitops_xor': return num(inp('NUM1')) ^ num(inp('NUM2'));
+            case 'bitops_shl': return num(inp('NUM1')) << num(inp('NUM2'));
+            case 'bitops_shr': return num(inp('NUM1')) >> num(inp('NUM2'));
+            case 'bitops_not': return ~num(inp('NUM'));
+            case 'data_variable': return vars.get(fld('VARIABLE')) ?? 0;
+            case 'stc12_read': {
+                const pin = pinsByName.get(String(fld('PIN')).toLowerCase());
+                const s = stimAt(fld('PIN'));
+                if (pin && pin.direction === 'analog') {
+                    const full = (1 << adc.bits) - 1;
+                    return s && s.volts !== undefined
+                        ? Math.max(0, Math.min(full, Math.round((s.volts / adc.vref) * full)))
+                        : 0;
+                }
+                return s ? (s.level ? 1 : 0) : 0;
+            }
+            default:
+                trace.unsupported.push(b.opcode);
+                return 0;
+        }
+    }
+
+    // ---- one cooperative step of one task --------------------------------
+    // Runs the task until it YIELDS (wait or loop back-edge) or its script
+    // ends. Mirrors cTaskFrom's yield structure exactly.
+    function step(task) {
+        const blocks = blocksOf.get(task);
+        let guard = 0;
+        while (guard++ < 10000) {
+            const frame = task.frames[task.frames.length - 1];
+            if (!frame) { task.done = true; return; }
+            const id = frame.block;
+            if (!id) {
+                // end of this frame's chain: loops rewind (and YIELD), plain
+                // substacks pop back to their parent's `next`.
+                const fin = task.frames.pop();
+                // Re-pushed frames MUST carry `after` forward: the first
+                // version dropped it, so any repeat that finished after its
+                // first iteration nulled the parent's continuation and the
+                // task died silently right after the loop.
+                if (fin.loop && fin.loop.kind === 'forever') {
+                    task.frames.push({ block: fin.loop.headId, loop: fin.loop, after: fin.after });
+                    return; // loop back-edge = yield (Scratch's contract)
+                }
+                if (fin.loop && fin.loop.kind === 'repeat') {
+                    if (--fin.loop.remaining > 0) {
+                        task.frames.push({ block: fin.loop.headId, loop: fin.loop, after: fin.after });
+                        return; // back-edge yield
+                    }
+                    // fall through: repeat finished; parent continues below
+                }
+                const parent = task.frames[task.frames.length - 1];
+                if (parent) parent.block = fin.after ?? null;
+                continue;
+            }
+            const b = blocks[id];
+            if (!b) { frame.block = null; continue; }
+            const inp = (k) => evalInput(task, b.inputs && b.inputs[k]);
+            const fld = (k) => (b.fields && b.fields[k] ? b.fields[k][0] : '');
+            const substack = (k) => {
+                const s = b.inputs && b.inputs[k];
+                return s && typeof s[1] === 'string' ? s[1] : null;
+            };
+            if (!KNOWN.has(b.opcode)) trace.unsupported.push(b.opcode);
+            switch (b.opcode) {
+                case 'control_wait': {
+                    task.waitUntil = now + Math.round(num(inp('DURATION')) * 1000);
+                    frame.block = b.next;
+                    return; // yield
+                }
+                case 'control_forever': {
+                    const head = substack('SUBSTACK');
+                    task.frames.push({ block: head, loop: { kind: 'forever', headId: head }, after: b.next });
+                    continue;
+                }
+                case 'control_repeat': {
+                    const times = Math.round(num(inp('TIMES')));
+                    const head = substack('SUBSTACK');
+                    if (times > 0 && head) {
+                        task.frames.push({ block: head, loop: { kind: 'repeat', headId: head, remaining: times }, after: b.next });
+                    } else frame.block = b.next;
+                    continue;
+                }
+                case 'control_if': {
+                    const head = substack('SUBSTACK');
+                    if (evalInput(task, b.inputs.CONDITION) && head) {
+                        task.frames.push({ block: head, after: b.next });
+                    } else frame.block = b.next;
+                    continue;
+                }
+                case 'control_if_else': {
+                    const head = evalInput(task, b.inputs.CONDITION)
+                        ? substack('SUBSTACK') : substack('SUBSTACK2');
+                    if (head) task.frames.push({ block: head, after: b.next });
+                    else frame.block = b.next;
+                    continue;
+                }
+                case 'data_setvariableto': vars.set(fld('VARIABLE'), inp('VALUE')); frame.block = b.next; continue;
+                case 'data_changevariableby': {
+                    const k = fld('VARIABLE');
+                    vars.set(k, num(vars.get(k) ?? 0) + num(inp('VALUE')));
+                    frame.block = b.next; continue;
+                }
+                case 'stc12_setpin': {
+                    const state = fld('STATE');
+                    const pin = pinsByName.get(String(fld('PIN')).toLowerCase());
+                    // Intent normalization: on/off ARE intent; high/low are
+                    // physical and cross polarity to become intent.
+                    let intent;
+                    if (state === 'on') intent = 1;
+                    else if (state === 'off') intent = 0;
+                    else intent = ((state === 'high') !== !!(pin && pin.activeLow)) ? 1 : 0;
+                    emitPin(fld('PIN'), intent);
+                    frame.block = b.next; continue;
+                }
+                case 'stc12_toggle': {
+                    const key = String(fld('PIN')).toLowerCase();
+                    emitPin(fld('PIN'), pinLevel.get(key) ? 0 : 1);
+                    frame.block = b.next; continue;
+                }
+                case 'stc12_writepin': {
+                    const pin = pinsByName.get(String(fld('PIN')).toLowerCase());
+                    const level = num(inp('VALUE')) ? 1 : 0; // physical
+                    emitPin(fld('PIN'), (level === 1) !== !!(pin && pin.activeLow) ? 1 : 0);
+                    frame.block = b.next; continue;
+                }
+                case 'stc12_setpwm': {
+                    let pct = num(inp('VALUE'));
+                    pct = Math.max(0, Math.min(100, pct));
+                    trace.pwm.push({ tMs: now, pin: String(fld('PIN')).toLowerCase(), percent: pct });
+                    frame.block = b.next; continue;
+                }
+                case 'stc12_print': {
+                    const v = inp('VALUE');
+                    trace.serial.push({ tMs: now, line: String(v) });
+                    frame.block = b.next; continue;
+                }
+                default:
+                    frame.block = b.next; continue;
+            }
+        }
+        throw new Error('referee: 10000 blocks without a yield — an unyielding loop?');
+    }
+
+    // ---- the scheduler ----------------------------------------------------
+    let steps = 0;
+    while (now <= horizonMs && steps++ < maxSteps) {
+        let ran = false;
+        for (const task of tasks) {
+            if (task.done || task.waitUntil > now) continue;
+            step(task);
+            ran = true;
+        }
+        if (tasks.every((t) => t.done)) break;
+        if (!ran || tasks.every((t) => t.done || t.waitUntil > now)) {
+            // Everyone is waiting: jump to the earliest deadline.
+            const next = Math.min(...tasks.filter((t) => !t.done).map((t) => t.waitUntil));
+            if (!Number.isFinite(next) || next <= now) break;
+            now = next;
+        }
+    }
+    for (const [k, v] of vars) trace.vars[k] = v;
+    trace.events = trace.events.filter((e) => e.tMs <= horizonMs);
+    trace.serial = trace.serial.filter((e) => e.tMs <= horizonMs);
+    return trace;
+}
+
+/**
+ * Compare an actual trace (a backend under an emulator) against the
+ * referee's. Rules learned from the first live differential:
+ *  - the C build's bw_setup writes every output's OFF level at boot; a
+ *    leading level-0 event before the referee's first event is hygiene,
+ *    not behaviour — dropped.
+ *  - the horizon is half-open: events AT the horizon are optional on
+ *    either side (one trace may cut before the other).
+ *  - event order and levels are EXACT; times within `tolMs`.
+ *  - serial lines exact; times within `tolMs`. PWM percents within 2.
+ *
+ * @returns {{ ok: boolean, diffs: string[] }}
+ */
+export function compareTraces(ref, actual, opts = {}) {
+    const tolMs = opts.tolMs ?? 3;
+    const diffs = [];
+    const horizon = Math.min(ref.horizon ?? Infinity, actual.horizon ?? Infinity);
+    const inWindow = (e) => e.tMs < horizon;
+
+    const clean = (events, isActual) => {
+        let out = events.filter(inWindow);
+        if (isActual && ref.events.length && out.length &&
+            out[0].level === 0 && out[0].tMs <= (ref.events[0].tMs ?? 0)) {
+            out = out.slice(1); // boot-time OFF hygiene
+        }
+        return out;
+    };
+    const re = clean(ref.events, false);
+    const ae = clean(actual.events, true);
+    const n = Math.min(re.length, ae.length);
+    for (let i = 0; i < n; i++) {
+        const a = re[i], b = ae[i];
+        if (a.pin !== b.pin || a.level !== b.level) {
+            diffs.push(`event ${i}: referee ${a.pin}=${a.level}@${a.tMs}, actual ${b.pin}=${b.level}@${b.tMs}`);
+        } else if (Math.abs(a.tMs - b.tMs) > tolMs) {
+            diffs.push(`event ${i} (${a.pin}=${a.level}): time ${a.tMs} vs ${b.tMs}`);
+        }
+    }
+    // Length mismatch beyond the horizon boundary is real.
+    const extraRef = re.slice(n).filter((e) => e.tMs < horizon - tolMs);
+    const extraAct = ae.slice(n).filter((e) => e.tMs < horizon - tolMs);
+    if (extraRef.length) diffs.push(`referee has ${extraRef.length} events the actual lacks (first: ${JSON.stringify(extraRef[0])})`);
+    if (extraAct.length) diffs.push(`actual has ${extraAct.length} events the referee lacks (first: ${JSON.stringify(extraAct[0])})`);
+
+    const rs = (ref.serial ?? []).filter(inWindow);
+    const as_ = (actual.serial ?? []).filter(inWindow);
+    const m = Math.min(rs.length, as_.length);
+    for (let i = 0; i < m; i++) {
+        if (String(rs[i].line) !== String(as_[i].line)) {
+            diffs.push(`serial ${i}: "${rs[i].line}" vs "${as_[i].line}"`);
+        } else if (Math.abs(rs[i].tMs - as_[i].tMs) > tolMs) {
+            diffs.push(`serial ${i} ("${rs[i].line}"): time ${rs[i].tMs} vs ${as_[i].tMs}`);
+        }
+    }
+    if (rs.length !== as_.length &&
+        Math.abs(rs.length - as_.length) > 0 &&
+        !(Math.abs(rs.length - as_.length) === 1 &&
+          Math.max(rs[rs.length - 1]?.tMs ?? 0, as_[as_.length - 1]?.tMs ?? 0) >= horizon - tolMs)) {
+        diffs.push(`serial count: referee ${rs.length} vs actual ${as_.length}`);
+    }
+
+    const rp = ref.pwm ?? [], ap = actual.pwm ?? [];
+    for (let i = 0; i < Math.min(rp.length, ap.length); i++) {
+        if (rp[i].pin !== ap[i].pin || Math.abs(rp[i].percent - ap[i].percent) > 2) {
+            diffs.push(`pwm ${i}: ${JSON.stringify(rp[i])} vs ${JSON.stringify(ap[i])}`);
+        }
+    }
+    return { ok: diffs.length === 0, diffs };
+}
