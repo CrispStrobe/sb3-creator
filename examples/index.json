@@ -207,7 +207,13 @@
     "devices": [
       "stc12c5a60s2",
       "stc89c52rc",
-      "stc15f2k60s2"
+      "stc15f2k60s2",
+      "arduino-uno",
+      "atmega168p",
+      "arduino-mega",
+      "arduino-nano",
+      "pico",
+      "eater6502"
     ]
   },
   {
