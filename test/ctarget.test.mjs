@@ -2955,3 +2955,45 @@ WHEN flag clicked:
     const out = c.generateC(undefined, {});
     assert.match(out, /has no W65C22 — Timer 1 is the timebase/);
 });
+
+test('ld65 cfg generation: declared shapes, preset agreement, refusals', () => {
+    // The preset (machine = null) must agree with the checked-in eater.cfg
+    // numbers — one truth, two spellings.
+    const preset = SB3Creator.generate6502LinkerCfg(null);
+    assert.ok(preset.ok);
+    assert.match(preset.cfg, /RAM: start = \$0200, size = \$3E00/);
+    assert.match(preset.cfg, /ROM: start = \$8000, size = \$7FFA/);
+    assert.match(preset.cfg, /__STACKSTART__: type = weak, value = \$4000/);
+
+    // A declared 16K ROM at $C000 with 8K RAM.
+    const small = SB3Creator.generate6502LinkerCfg({ regions: [
+        { kind: 'ram', start: 0x0000, end: 0x1fff },
+        { kind: 'rom', start: 0xc000, end: 0xffff },
+    ] });
+    assert.ok(small.ok);
+    assert.match(small.cfg, /RAM: start = \$0200, size = \$1E00/);
+    assert.match(small.cfg, /ROM: start = \$C000, size = \$3FFA/);
+    assert.match(small.cfg, /__STACKSTART__: type = weak, value = \$2000/);
+
+    // Refusals carry the 6502's own reasons.
+    const noVec = SB3Creator.generate6502LinkerCfg({ regions: [
+        { kind: 'ram', start: 0x0000, end: 0x3fff },
+        { kind: 'rom', start: 0x8000, end: 0xbfff },
+    ] });
+    assert.equal(noVec.ok, false);
+    assert.match(noVec.reasons.join(';'), /vectors at \$FFFA/);
+
+    const highRam = SB3Creator.generate6502LinkerCfg({ regions: [
+        { kind: 'ram', start: 0x2000, end: 0x3fff },
+        { kind: 'rom', start: 0x8000, end: 0xffff },
+    ] });
+    assert.equal(highRam.ok, false);
+    assert.match(highRam.reasons.join(';'), /zero page and the hardware stack/);
+
+    const tinyRam = SB3Creator.generate6502LinkerCfg({ regions: [
+        { kind: 'ram', start: 0x0000, end: 0x00ff },
+        { kind: 'rom', start: 0x8000, end: 0xffff },
+    ] });
+    assert.equal(tinyRam.ok, false);
+    assert.match(tinyRam.reasons.join(';'), /at least \$02FF/);
+});

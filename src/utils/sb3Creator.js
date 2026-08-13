@@ -8796,6 +8796,71 @@ SB3Creator.RETARGET_POOLS = {
  * more pins of a role than the convention offers); with any reason, ok is
  * false and no pseudocode is produced — a gallery filters on exactly this.
  */
+/**
+ * Emit an ld65 linker config for a declared 6502 machine (stc.machine), or
+ * for the EATER6502 preset when machine is null. The toolchain contract:
+ * reference/6502-target/README.md documents the build; the compile service
+ * calls this so a MAP declaration really changes the memory image, not just
+ * the register bases. Refusals are reasons, retargetPseudocode-style.
+ *
+ * Rules the 6502 itself imposes: RAM must start at $0000 (zero page and the
+ * hardware stack live there) and reach at least $02FF (cc65's DATA/BSS
+ * start at $0200 above the stack page); some ROM must cover the vectors at
+ * $FFFA-$FFFF. Chips are not the linker's business — their decode is the
+ * machine's.
+ *
+ * @param {{regions: Array<{kind: string, start: number, end: number}>}|null} machine
+ * @returns {{ ok: boolean, cfg?: string, reasons: string[] }}
+ */
+SB3Creator.generate6502LinkerCfg = function generate6502LinkerCfg(machine) {
+    const regions = machine && machine.regions && machine.regions.length
+        ? machine.regions
+        : [{ kind: 'ram', start: 0x0000, end: 0x3fff }, { kind: 'rom', start: 0x8000, end: 0xffff }];
+    const reasons = [];
+    const hx = (n) => '$' + n.toString(16).toUpperCase().padStart(4, '0');
+    const ram = regions.filter((r) => r.kind === 'ram').sort((a, b) => a.start - b.start)[0];
+    const rom = regions.filter((r) => r.kind === 'rom').find((r) => r.start <= 0xfffa && r.end >= 0xffff);
+    if (!ram) reasons.push('no RAM region — MAP RAM $0000-$xxxx is required');
+    else if (ram.start !== 0) reasons.push(`RAM starts at ${hx(ram.start)} — it must start at $0000: the 6502 keeps zero page and the hardware stack there`);
+    else if (ram.end < 0x02ff) reasons.push(`RAM ends at ${hx(ram.end)} — it must reach at least $02FF (zero page + stack page + room for DATA/BSS)`);
+    if (!rom) reasons.push('no ROM region covering the vectors at $FFFA-$FFFF — the CPU reads RESET from there');
+    if (reasons.length) return { ok: false, reasons };
+    const ramSize = ram.end + 1 - 0x0200;
+    const romSize = 0xfffa - rom.start;
+    const cfg = [
+        `# ld65 config generated from the declared machine: RAM ${hx(ram.start)}-${hx(ram.end)},`,
+        `# ROM ${hx(rom.start)}-${hx(rom.end)}, vectors carved at $FFFA. Output is a raw`,
+        `# ${((romSize + 6) / 1024).toFixed(0)} KB ROM image loaded at ${hx(rom.start)}.`,
+        'MEMORY {',
+        '    ZP:  start = $0000, size = $0100, type = rw, define = yes;',
+        `    RAM: start = $0200, size = ${hx(ramSize)}, type = rw, define = yes;`,
+        `    ROM: start = ${hx(rom.start)}, size = ${hx(romSize)}, type = ro, file = %O, fill = yes, fillval = $EA;`,
+        '    VEC: start = $FFFA, size = $0006, type = ro, file = %O, fill = yes;',
+        '}',
+        'SEGMENTS {',
+        '    ZEROPAGE: load = ZP,  type = zp;',
+        '    STARTUP:  load = ROM, type = ro;',
+        '    ONCE:     load = ROM, type = ro, optional = yes;',
+        '    CODE:     load = ROM, type = ro;',
+        '    RODATA:   load = ROM, type = ro;',
+        '    DATA:     load = ROM, run = RAM, type = rw, define = yes;',
+        '    BSS:      load = RAM, type = bss, define = yes;',
+        '    VECTORS:  load = VEC, type = ro;',
+        '}',
+        'SYMBOLS {',
+        '    __STACKSIZE__:  type = weak, value = $0200;',
+        '    # none.lib\'s own crt0 module rides along (its _exit chain); this feeds it.',
+        `    __STACKSTART__: type = weak, value = ${hx(ram.end + 1)};`,
+        '}',
+        'FEATURES {',
+        '    CONDES: type = constructor, label = __CONSTRUCTOR_TABLE__, count = __CONSTRUCTOR_COUNT__, segment = ONCE;',
+        '    CONDES: type = destructor,  label = __DESTRUCTOR_TABLE__,  count = __DESTRUCTOR_COUNT__,  segment = RODATA;',
+        '}',
+        '',
+    ].join('\n');
+    return { ok: true, cfg, reasons: [] };
+};
+
 SB3Creator.retargetPseudocode = function retargetPseudocode(src, device) {
     const part = SB3Creator.STC_PARTS[device];
     const pools = SB3Creator.RETARGET_POOLS[device];

@@ -70,11 +70,15 @@ if ((c.warnings || []).length) { console.error('parse:', c.warnings); process.ex
 const target = join(root, 'reference', '6502-target');
 const work = mkdtempSync(join(tmpdir(), 'bw6502-'));
 writeFileSync(join(work, 'prog.c'), c.generateC(undefined, {}));
+// The linker config follows the DECLARED memory shape (or the preset's).
+const lk = SB3Creator.generate6502LinkerCfg(c.project.stc.machine || null);
+if (!lk.ok) { console.error('linker cfg refused:', lk.reasons.join('; ')); process.exit(1); }
+writeFileSync(join(work, 'machine.cfg'), lk.cfg);
 const sh = (cmd) => execSync(cmd, { cwd: work, stdio: 'inherit' });
 sh('cc65 -t none --cpu 65C02 -O -o prog.s prog.c');
 sh('ca65 --cpu 65C02 -o prog.o prog.s');
 sh(`ca65 --cpu 65C02 -o crt0.o ${join(target, 'crt0.s')}`);
-sh(`ld65 -C ${join(target, 'eater.cfg')} -o prog.rom crt0.o prog.o none.lib`);
+sh('ld65 -C machine.cfg -o prog.rom crt0.o prog.o none.lib');
 const rom = readFileSync(join(work, 'prog.rom'));
 
 // ---- run on the machine ----------------------------------------------------
