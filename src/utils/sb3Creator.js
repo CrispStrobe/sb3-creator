@@ -6359,18 +6359,25 @@ class SB3Creator {
                     return;
                 }
                 case 'control_repeat_until': {
-                    if (bbc) {
-                        emit('REPEAT');
+                    // Scratch's `repeat until` checks BEFORE each pass; BBC's
+                    // REPEAT/UNTIL checks after (runs once even when the
+                    // condition already holds). Pre-check forms only:
+                    // WHILE NOT in the structured mode (ch. 12), a guarded
+                    // GOTO in the numbered ones.
+                    if (structured) {
+                        emit(`WHILE NOT (${basVal(b.inputs.CONDITION, blocks)})`);
                         depth++;
                         basChain(b.inputs.SUBSTACK ? b.inputs.SUBSTACK[1] : null, blocks);
                         depth--;
-                        emit(`UNTIL ${basVal(b.inputs.CONDITION, blocks)}`);
-                    } else {
-                        const top = newLabel();
-                        emitLabel(top);
-                        basChain(b.inputs.SUBSTACK ? b.inputs.SUBSTACK[1] : null, blocks);
-                        emit(`IF NOT (${basVal(b.inputs.CONDITION, blocks)}) THEN GOTO ${top}`);
+                        emit('ENDWHILE');
+                        return;
                     }
+                    const top = newLabel(); const after = newLabel();
+                    emitLabel(top);
+                    emit(`IF ${basVal(b.inputs.CONDITION, blocks)} THEN GOTO ${after}`);
+                    basChain(b.inputs.SUBSTACK ? b.inputs.SUBSTACK[1] : null, blocks);
+                    emit(`GOTO ${top}`);
+                    emitLabel(after);
                     return;
                 }
                 case 'control_wait_until': {

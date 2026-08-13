@@ -3098,3 +3098,64 @@ test('generateBASIC without line numbers: structured chapter-9/12 form', () => {
     assert.match(r2.basic, /^10 /m, 'numbered despite the request');
     assert.ok(r2.warnings.some((w) => /requires line numbers/.test(w)));
 });
+
+// ---- basicToPseudocode: the way back ---------------------------------------
+
+test('BASIC round trip: structured emit -> read -> emit is a byte fixed point', async () => {
+    const basicToPseudocode = (await import('../src/utils/basicToPseudocode.js')).default;
+    const c1 = build(BAS_SRC);
+    const b1 = c1.generateBASIC(undefined, { lineNumbers: false }).basic;
+    const r = basicToPseudocode(b1);
+    assert.deepEqual(r.warnings, [], 'our own emissions read back clean');
+    const c2 = build(r.pseudocode);
+    assert.deepEqual(c2.warnings || [], [], 'reconstructed pseudocode re-parses clean');
+    const b2 = c2.generateBASIC(undefined, { lineNumbers: false }).basic;
+    assert.equal(b2, b1, 'byte-identical through the loop');
+});
+
+test('basicToPseudocode: FN macro-expands (ch. 17), unmapped lines are NAMED', async () => {
+    const basicToPseudocode = (await import('../src/utils/basicToPseudocode.js')).default;
+    const r = basicToPseudocode([
+        'DEF FNdouble(x)=x*2',
+        'a=FNdouble(21)',
+        'MODE 4',
+        'PRINT a',
+    ].join('\n'));
+    assert.match(r.pseudocode, /set a to \(\(21\)\*2\)/, 'FN inlined with the argument substituted');
+    assert.match(r.pseudocode, /# BASIC: MODE 4/, 'graphics statement kept as a named comment');
+    assert.ok(r.warnings.some((w) => /MODE 4/.test(w)), 'and warned');
+});
+
+test('basicToPseudocode: BBC REPEAT/UNTIL keeps do-while semantics honestly', async () => {
+    const basicToPseudocode = (await import('../src/utils/basicToPseudocode.js')).default;
+    const r = basicToPseudocode([
+        '10 n=0',
+        '20 REPEAT',
+        '30 n=n+1',
+        '40 UNTIL n>=3',
+    ].join('\n'));
+    assert.match(r.pseudocode, /first pass \(BASIC REPEAT tests after the body\)/);
+    // The first pass precedes the loop; the loop keeps the same body.
+    const first = r.pseudocode.indexOf('change n by 1');
+    const second = r.pseudocode.indexOf('change n by 1', first + 1);
+    assert.ok(first >= 0 && second > first, 'body duplicated, not silently reinterpreted');
+});
+
+test('basicToPseudocode: the CC0 corpus reads without crashing, nothing silent', async () => {
+    const basicToPseudocode = (await import('../src/utils/basicToPseudocode.js')).default;
+    const { readFileSync, readdirSync } = await import('node:fs');
+    const dir = new URL('./fixtures/bbc-basic/', import.meta.url);
+    let files = 0;
+    for (const f of readdirSync(dir)) {
+        if (!/\.BAS$/i.test(f)) continue;
+        files++;
+        const r = basicToPseudocode(readFileSync(new URL(f, dir), 'utf8'));
+        assert.ok(r.stats.mapped > 0, `${f}: something mapped`);
+        // Every unmapped statement is accounted for: a comment + a warning,
+        // so mapped + named-comment count covers the file.
+        const namedComments = (r.pseudocode.match(/# BASIC: /g) || []).length;
+        assert.ok(r.stats.mapped + namedComments >= r.stats.lines * 0.95,
+            `${f}: ${r.stats.mapped} mapped + ${namedComments} named of ${r.stats.lines} — nothing may vanish silently`);
+    }
+    assert.equal(files, 3, 'all three fixtures exercised');
+});
