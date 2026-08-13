@@ -2716,3 +2716,121 @@ bw_script()
     assert.ok(!/DEVICE|PIN /.test(plain.pseudocode), 'plain Python is not a board program');
     assert.match(plain.pseudocode, /SPRITE Main:/);
 });
+
+// ---- the sixth axis: DEVICE EATER6502 (the composable 6502 machine) --------
+
+const M6502 = `DEVICE EATER6502
+PIN led1 = PA0 OUTPUT
+PIN btn = PB0 INPUT
+
+WHEN flag clicked:
+  FOREVER:
+    toggle led1
+    wait 0.5 seconds
+
+WHEN flag clicked:
+  FOREVER:
+    IF (read btn = 1) THEN:
+      print 42
+    wait 1 seconds
+`;
+
+test('6502: VIA registers, T1 timebase, DDR setup, poll-harvested bw_now', () => {
+    const c = cOf(M6502, {});
+    assert.match(c, /#define F_CPU 1000000UL/, 'DEVICE line takes the 1 MHz default');
+    assert.match(c, /#define BW_T1_LATCH \(\(uint16_t\)\(F_CPU \/ 1000UL - 2UL\)\)/,
+        'free-run period is LATCH+2, so the latch is clock/1000 - 2');
+    assert.match(c, /BW_VIA_ORA &= \(uint8_t\)~\(1 << 0\);\s+\/\* led1: start OFF \*\//,
+        'active-high LED starts OFF (low) before DDR flips');
+    assert.match(c, /BW_VIA_DDRA \|= \(uint8_t\)\(1 << 0\)/, 'DDR set after level');
+    assert.match(c, /BW_VIA_ACR = 0x40/, 'T1 free-run');
+    assert.match(c, /BW_VIA_ORA \^= \(uint8_t\)\(1 << 0\)/, 'toggle is an XOR on ORA');
+    assert.match(c, /\(\(BW_VIA_IRB >> 0\) & 1\)/, 'button reads IRB');
+    assert.match(c, /\(void\)BW_VIA_T1CL;\s+\/\* reading T1C-L clears IFR6/,
+        'bw_now harvests the rollover flag');
+    assert.ok(!/ISR\(|__interrupt/.test(c), 'no interrupt handler anywhere in the build');
+});
+
+test('6502: print paces the ACIA on the clock, never polls the buggy TDRE', () => {
+    const c = cOf(M6502, {});
+    assert.match(c, /BW_ACIA_CTRL = 0x1e/, '9600 8N1');
+    assert.match(c, /BW_ACIA_DATA = \(uint8_t\)c;/);
+    assert.match(c, /while \(\(int32_t\)\(bw_now\(\) - start - 2\) < 0\)/,
+        '2 ms/byte pacing on the millisecond clock');
+    assert.ok(!/BW_ACIA_STATUS & /.test(c), 'TDRE is never polled (the WDC silicon bug)');
+});
+
+test('6502: PWM, tone, servo, motor and analog all refuse with reasons', () => {
+    const c = build(`DEVICE EATER6502
+PIN led1 = PA0 OUTPUT
+PIN buz = PA2 TONE
+PIN pot1 = PA1 ANALOG
+
+WHEN flag clicked:
+  set led1 to 50 percent
+  set buz to 440 hz
+  print read pot1
+`);
+    const out = c.generateC(undefined, {});
+    assert.match(out, /\/\* no PWM on/);
+    assert.match(out, /\/\* no tone on this machine \*\//);
+    assert.match(out, /0 \/\* no ADC:/);
+    // The reasons ride in the C itself as warning comments.
+    assert.match(out, /Timer 1 is the millisecond timebase/);
+    assert.match(out, /cannot be analog: the 6502 machine has no ADC/);
+});
+
+test('6502: PB7 is refused — Timer 1 owns it', () => {
+    const c = build(`DEVICE EATER6502
+PIN led1 = PB7 OUTPUT
+
+WHEN flag clicked:
+  turn on led1
+`);
+    assert.ok((c.warnings || []).some((w) => /PB7 belongs to Timer 1|not how eater6502/.test(w)),
+        `expected a PB7 refusal, got: ${JSON.stringify(c.warnings)}`);
+});
+
+test('6502: retarget accepts digital examples, refuses analog and PART', () => {
+    const blink = `DEVICE STC12C5A60S2
+CLOCK 11059200
+PIN led1 = P1.0 OUTPUT ACTIVE LOW
+
+WHEN flag clicked:
+  FOREVER:
+    toggle led1
+    wait 0.5 seconds
+`;
+    const r = SB3Creator.retargetPseudocode(blink, 'eater6502');
+    assert.ok(r.ok, r.reasons.join('; '));
+    assert.match(r.pseudocode, /^DEVICE EATER6502$/m);
+    assert.match(r.pseudocode, /^CLOCK 1000000$/m, 'the machine clock travels with the device');
+    assert.match(r.pseudocode, /^PIN led1 = PA0 OUTPUT$/m, 'active-high: no ACTIVE LOW suffix');
+
+    const pot = blink.replace('PIN led1 = P1.0 OUTPUT ACTIVE LOW', 'PIN led1 = P1.3 ANALOG')
+        .replace(/toggle led1/, 'print read led1');
+    const r2 = SB3Creator.retargetPseudocode(pot, 'eater6502');
+    assert.equal(r2.ok, false);
+    assert.ok(r2.reasons.some((x) => /no ADC/.test(x)));
+});
+
+test('PART programs refuse retarget on EVERY non-8051 core, not just the 6502', () => {
+    // Before 2026-08-13 these "succeeded" onto pico/uno and the C silently
+    // commented out every `set <part> to` — compiled, ran, did nothing.
+    const chaser = `DEVICE STC12C5A60S2
+CLOCK 11059200
+PART leds = 74HC595 data P1.0 clock P1.1 latch P1.2
+
+WHEN flag clicked:
+  FOREVER:
+    set leds to 1
+    wait 0.1 seconds
+`;
+    for (const dev of ['pico', 'arduino-uno', 'arduino-mega', 'eater6502']) {
+        const r = SB3Creator.retargetPseudocode(chaser, dev);
+        assert.equal(r.ok, false, `${dev} must refuse PART programs`);
+        assert.ok(r.reasons.some((x) => /PART helper is not ported/.test(x)), dev);
+    }
+    const home = SB3Creator.retargetPseudocode(chaser, 'stc89c52rc');
+    assert.ok(home.ok, '8051 parts still accept PART programs');
+});
