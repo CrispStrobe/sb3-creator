@@ -23,7 +23,7 @@ function mulberry32(seed) {
 // ---- The generator -------------------------------------------------------
 
 const DEVICES = ['stc12c5a60s2', 'stc89c52rc', 'stc15f2k60s2',
-    'arduino-uno', 'arduino-nano', 'pico'];
+    'arduino-uno', 'arduino-nano', 'arduino-mega', 'atmega168p', 'pico'];
 
 const ADC_CFG = {
     stc12c5a60s2: { bits: 10, vref: 5 },
@@ -31,12 +31,15 @@ const ADC_CFG = {
     stc15f2k60s2: { bits: 10, vref: 5 },
     'arduino-uno':  { bits: 10, vref: 5 },
     'arduino-nano': { bits: 10, vref: 5 },
+    'arduino-mega': { bits: 10, vref: 5 },
+    'atmega168p':   { bits: 10, vref: 5 },
     pico:           { bits: 12, vref: 3.3 },
 };
 
 const CLOCKS = {
     stc12c5a60s2: 11059200, stc89c52rc: 11059200, stc15f2k60s2: 11059200,
-    'arduino-uno': 16000000, 'arduino-nano': 16000000, pico: 125000000,
+    'arduino-uno': 16000000, 'arduino-nano': 16000000,
+    'arduino-mega': 16000000, 'atmega168p': 16000000, pico: 125000000,
 };
 
 function generateProgram(seed) {
@@ -321,6 +324,7 @@ if (process.env.COMPILE_TEST) {
         stc12c5a60s2: 'stc12c5a60s2', stc89c52rc: 'stc89c52rc',
         stc15f2k60s2: 'stc15f2k60s2',
         'arduino-uno': 'atmega328p', 'arduino-nano': 'atmega328p',
+        'arduino-mega': 'atmega2560', 'atmega168p': 'atmega168p',
         pico: 'rp2040',
     };
 
