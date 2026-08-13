@@ -2263,6 +2263,25 @@ test('generateC emits AVR bare metal for an Arduino board — the back end lande
     assert.deepEqual(c._cWarnings, [], `clean emission: ${JSON.stringify(c._cWarnings)}`);
 });
 
+test('motor is real on both gcc cores: PWM speed + H-bridge direction', () => {
+    const SRC = (dev) => `DEVICE ${dev}\nPIN led1 = ${dev === 'PICO' ? 'GP25' : 'D13'} OUTPUT\n\nWHEN flag clicked:\n  set 1 speed to 60\n  set 1 direction reverse\n`;
+    const pico = new SB3Creator();
+    pico.parse(SRC('PICO'));
+    const pc = pico.generateC(pico.project, { debug: true });
+    assert.match(pc, /bw_motor_speed\(1, 60\);/);
+    assert.match(pc, /bw_motor_dir\(1, 1\);/, 'reverse encodes as 1');
+    assert.match(pc, /pwm_set\(18, \(unsigned int\)speed\);/, 'GP18 carries speed');
+    assert.match(pc, /1UL << 19\) \| \(1UL << 20/, 'GP19/GP20 are the H-bridge pins');
+    assert.ok(!/P3_4|CCAP1H|CCAPM/.test(pc), 'no 8051 registers leaked (comments may NAME the PCA)');
+    const avr = new SB3Creator();
+    avr.parse(SRC('ARDUINO-NANO'));
+    const ac = avr.generateC(avr.project, { debug: true });
+    assert.match(ac, /pwm_set\(3, \(unsigned int\)speed\);/, 'OC2B (D3) carries speed');
+    assert.match(ac, /DDRD \|= \(1 << 3\);/, 'pwm_set owns its pin direction — a convention pin was never declared');
+    assert.match(ac, /DDRD \|= \(1 << 7\);[\s\S]*DDRB \|= \(1 << 0\);/, 'D7/D8 are the H-bridge pins');
+    assert.ok(!avr._cWarnings.some((w) => /not yet ported/.test(w)), 'the stub warning is gone');
+});
+
 test('servo is real on both gcc cores: 50 Hz frames, microsecond pulses', () => {
     // Pico: slice 0, TOP 19999 at 1 MHz — CC is the pulse in microseconds.
     const pico = new SB3Creator();

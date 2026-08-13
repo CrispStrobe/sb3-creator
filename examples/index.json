@@ -1089,8 +1089,10 @@
     },
     "devices": [
       "stc12c5a60s2",
-      "stc89c52rc",
-      "stc15f2k60s2"
+      "stc15f2k60s2",
+      "arduino-uno",
+      "arduino-nano",
+      "pico"
     ],
     "refusals": {
       "arduino-uno": "motor blocks are stubs on this core",

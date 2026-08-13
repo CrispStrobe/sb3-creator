@@ -6738,21 +6738,25 @@ class SB3Creator {
                 '    v = (uint8_t)((percent * 255u + 50u) / 100u);',
                 '    switch (pin) {',
                 '    case 3:   /* OC2B */',
+                '        DDRD |= (1 << 3);',
                 '        if (v == 0)        { TCCR2A &= (uint8_t)~(1 << COM2B1); PORTD &= (uint8_t)~(1 << 3); }',
                 '        else if (v == 255) { TCCR2A &= (uint8_t)~(1 << COM2B1); PORTD |= (1 << 3); }',
                 '        else               { TCCR2A |= (1 << COM2B1); OCR2B = v; }',
                 '        break;',
                 '    case 9:   /* OC1A */',
+                '        DDRB |= (1 << 1);',
                 '        if (v == 0)        { TCCR1A &= (uint8_t)~(1 << COM1A1); PORTB &= (uint8_t)~(1 << 1); }',
                 '        else if (v == 255) { TCCR1A &= (uint8_t)~(1 << COM1A1); PORTB |= (1 << 1); }',
                 '        else               { TCCR1A |= (1 << COM1A1); OCR1A = v; }',
                 '        break;',
                 '    case 10:  /* OC1B */',
+                '        DDRB |= (1 << 2);',
                 '        if (v == 0)        { TCCR1A &= (uint8_t)~(1 << COM1B1); PORTB &= (uint8_t)~(1 << 2); }',
                 '        else if (v == 255) { TCCR1A &= (uint8_t)~(1 << COM1B1); PORTB |= (1 << 2); }',
                 '        else               { TCCR1A |= (1 << COM1B1); OCR1B = v; }',
                 '        break;',
                 '    case 11:  /* OC2A */',
+                '        DDRB |= (1 << 3);',
                 '        if (v == 0)        { TCCR2A &= (uint8_t)~(1 << COM2A1); PORTB &= (uint8_t)~(1 << 3); }',
                 '        else if (v == 255) { TCCR2A &= (uint8_t)~(1 << COM2A1); PORTB |= (1 << 3); }',
                 '        else               { TCCR2A |= (1 << COM2A1); OCR2A = v; }',
@@ -7078,11 +7082,83 @@ class SB3Creator {
             // port 3 pins on every STC12 dev board.
             //   forward: IN1=1, IN2=0    reverse: IN1=0, IN2=1
             //   brake:   IN1=1, IN2=1    coast:   IN1=0, IN2=0
-            if (this._cUses.motor && this._core !== '8051') {
-                this.cWarn(`motor blocks are not yet ported to the ${this._core === 'arm' ? 'RP2040' : 'AVR'} back end — emitted as no-op stubs`);
+            if (this._cUses.motor && this._core === 'arm') {
                 out.push(
-                    stub('static void bw_motor_speed(int speed)', 'devices_setmotor'),
-                    stub('static void bw_motor_dir(int dir)', 'devices_motordir'));
+                    '/* DC motor driver: GP18 (PWM slice 1A) carries speed at 1 kHz;',
+                    ' * direction is GP19 (IN1) and GP20 (IN2) into an L293D-style',
+                    ' * H-bridge — the 8051 build\'s P3.4/P3.5 convention in Pico',
+                    ' * spelling. The servo\'s slice 0 (GP16/GP17) is untouched. */',
+                    'static int _motor_speed;',
+                    'static int _motor_dir;',
+                    '',
+                    'static void bw_motor_speed(int motor, int speed)',
+                    '{',
+                    '    (void)motor;',
+                    '    if (speed < 0) speed = 0;',
+                    '    if (speed > 100) speed = 100;',
+                    '    _motor_speed = speed;',
+                    '    pwm_set(18, (unsigned int)speed);   /* GP18 = slice 1 A */',
+                    '}',
+                    '',
+                    'static int bw_motor_get_speed(int motor) { (void)motor; return _motor_speed; }',
+                    '',
+                    '/* Direction: 0=forward 1=reverse 2=brake 3=coast */',
+                    'static void bw_motor_dir(int motor, int dir)',
+                    '{',
+                    '    (void)motor;',
+                    '    _motor_dir = dir;',
+                    '    BW_IOBANK0_CTRL(19) = 5u;',
+                    '    BW_IOBANK0_CTRL(20) = 5u;',
+                    '    BW_SIO_GPIO_OE_SET = (1UL << 19) | (1UL << 20);',
+                    '    switch (dir) {',
+                    '    case 0: BW_SIO_GPIO_OUT_SET = (1UL << 19); BW_SIO_GPIO_OUT_CLR = (1UL << 20); break;',
+                    '    case 1: BW_SIO_GPIO_OUT_CLR = (1UL << 19); BW_SIO_GPIO_OUT_SET = (1UL << 20); break;',
+                    '    case 2: BW_SIO_GPIO_OUT_SET = (1UL << 19) | (1UL << 20); break;',
+                    '    default: BW_SIO_GPIO_OUT_CLR = (1UL << 19) | (1UL << 20); break;',
+                    '    }',
+                    '}',
+                    '',
+                    'static int bw_motor_get_dir(int motor) { (void)motor; return _motor_dir; }',
+                    '');
+            } else if (this._cUses.motor && this._core === 'avr') {
+                out.push(
+                    '/* DC motor driver: OC2B (D3) carries speed PWM at 977 Hz;',
+                    ' * direction is D7 (IN1) and D8 (IN2) into an L293D-style',
+                    ' * H-bridge — the 8051 build\'s P3.4/P3.5 convention in Arduino',
+                    ' * spelling. Timer 2 is shared with dimmers; the servo\'s',
+                    ' * Timer 1 is untouched. */',
+                    'static int _motor_speed;',
+                    'static int _motor_dir;',
+                    '',
+                    'static void bw_motor_speed(int motor, int speed)',
+                    '{',
+                    '    (void)motor;',
+                    '    if (speed < 0) speed = 0;',
+                    '    if (speed > 100) speed = 100;',
+                    '    _motor_speed = speed;',
+                    '    pwm_set(3, (unsigned int)speed);   /* OC2B = D3 */',
+                    '}',
+                    '',
+                    'static int bw_motor_get_speed(int motor) { (void)motor; return _motor_speed; }',
+                    '',
+                    '/* Direction: 0=forward 1=reverse 2=brake 3=coast.',
+                    ' * D7 = PD7 (IN1), D8 = PB0 (IN2). */',
+                    'static void bw_motor_dir(int motor, int dir)',
+                    '{',
+                    '    (void)motor;',
+                    '    _motor_dir = dir;',
+                    '    DDRD |= (1 << 7);',
+                    '    DDRB |= (1 << 0);',
+                    '    switch (dir) {',
+                    '    case 0: PORTD |= (1 << 7);  PORTB &= (uint8_t)~(1 << 0); break;',
+                    '    case 1: PORTD &= (uint8_t)~(1 << 7); PORTB |= (1 << 0); break;',
+                    '    case 2: PORTD |= (1 << 7);  PORTB |= (1 << 0); break;',
+                    '    default: PORTD &= (uint8_t)~(1 << 7); PORTB &= (uint8_t)~(1 << 0); break;',
+                    '    }',
+                    '}',
+                    '',
+                    'static int bw_motor_get_dir(int motor) { (void)motor; return _motor_dir; }',
+                    '');
             } else if (this._cUses.motor) {
                 out.push(
                     '/* DC motor driver: PCA module 1 (CCP1, P1.4) in 8-bit PWM mode. */',
@@ -8119,8 +8195,8 @@ SB3Creator.retargetPseudocode = function retargetPseudocode(src, device) {
     if (used.cube && device !== 'stc12c5a60s2') reasons.push('the LED cube is STC12 hardware');
     if (used.pixel && core !== '8051') reasons.push('NeoPixel timing is not ported to this core yet');
     if (used.tone && core !== '8051') reasons.push('tone is not ported to this core yet');
-    if (used.motor && core !== '8051') reasons.push('motor blocks are stubs on this core');
     if (used.servo && core === '8051' && !part.pca) reasons.push(`servo needs the PCA — ${device} has none`);
+    if (used.motor && core === '8051' && !part.pca) reasons.push(`motor speed needs the PCA — ${device} has none`);
     if (used.pwmPins.size && !pools.pwm.length) reasons.push(`${device} has no PWM-capable convention pins`);
 
     // ---- allocate pins from the pools ----------------------------------
