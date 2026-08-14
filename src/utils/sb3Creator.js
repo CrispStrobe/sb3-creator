@@ -6239,11 +6239,21 @@ class SB3Creator {
         };
 
         // ---- the two-pass line store -----------------------------------
+        // lineBlocks runs PARALLEL to outLines: lineBlocks[i] is the Scratch
+        // block id whose lowering emitted outLines[i] (null for scaffolding).
+        // It becomes the returned lineMap, which is what lets BBC BASIC's own
+        // TRACE output — line numbers in the serial stream — glow the block
+        // that owns the line. The one splice below mirrors into it.
         const outLines = [];
+        const lineBlocks = [];
+        let curBlockId = null;
         let labelSeq = 0;
         const newLabel = () => `@L${labelSeq++}@`;
-        const emit = (s) => outLines.push(structured ? '  '.repeat(depth) + s : s);
-        const emitLabel = (l) => outLines.push({ label: l });
+        const emit = (s) => {
+            outLines.push(structured ? '  '.repeat(depth) + s : s);
+            lineBlocks.push(curBlockId);
+        };
+        const emitLabel = (l) => { outLines.push({ label: l }); lineBlocks.push(null); };
 
         // ---- expressions ----------------------------------------------
         const num = (v) => {
@@ -6431,8 +6441,16 @@ class SB3Creator {
         const basChain = (id, blocks) => {
             let b = blocks[id];
             while (b) {
+                // Save/restore means a control block's TAIL lines (NEXT,
+                // UNTIL, ENDWHILE) emitted after the nested basChain returns
+                // still map to the CONTROL block, not to the last statement
+                // inside it — each nested iteration restores its caller's id.
+                const saved = curBlockId;
+                curBlockId = id;
                 basStmt(b, blocks);
-                b = blocks[b.next];
+                curBlockId = saved;
+                id = b.next;
+                b = blocks[id];
             }
         };
         const basStmt = (b, blocks) => {
@@ -6870,24 +6888,38 @@ class SB3Creator {
             seam.push('bw_x%=0:bw_y%=0:bw_dir%=90:bw_pen%=FALSE');
         }
         outLines.splice(headerEnd, 0, ...seam);
+        lineBlocks.splice(headerEnd, 0, ...seam.map(() => null));
         if (reasons.length) return { ok: false, reasons: [...new Set(reasons)], warnings };
 
         // ---- number the lines, resolve labels --------------------------
+        // lineMap: emitted-line key → Scratch block id (only lines a block
+        // owns appear). Numbered mode keys by the BASIC line number — the
+        // token TRACE prints — structured mode by 1-based output line.
         if (structured) {
-            const basic = outLines.filter((l) => typeof l === 'string').join('\n') + '\n';
-            return { ok: true, basic, reasons: [], warnings };
+            const kept = [];
+            const lineMap = {};
+            for (let i = 0; i < outLines.length; i++) {
+                if (typeof outLines[i] !== 'string') continue;
+                kept.push(outLines[i]);
+                if (lineBlocks[i]) lineMap[kept.length] = lineBlocks[i];
+            }
+            const basic = kept.join('\n') + '\n';
+            return { ok: true, basic, lineMap, reasons: [], warnings };
         }
         const lineNo = new Map();
         let n = 10;
         const numberedOut = [];
-        for (const l of outLines) {
+        const lineMap = {};
+        for (let i = 0; i < outLines.length; i++) {
+            const l = outLines[i];
             if (typeof l === 'object' && l.label) { lineNo.set(l.label, n); continue; }
             numberedOut.push({ n, text: l });
+            if (lineBlocks[i]) lineMap[n] = lineBlocks[i];
             n += 10;
         }
         const resolve = (text) => text.replace(/@L\d+@/g, (m) => String(lineNo.get(m) ?? n));
         const basic = numberedOut.map((l) => `${l.n} ${resolve(l.text)}`).join('\n') + '\n';
-        return { ok: true, basic, reasons: [], warnings };
+        return { ok: true, basic, lineMap, reasons: [], warnings };
     }
 
     // INKEY code lookup for BBC BASIC key detection.
