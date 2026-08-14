@@ -6155,6 +6155,219 @@ class SB3Creator {
      * the dialect grows reporter procedures.
      * Returns { ok, basic?, reasons: [], warnings: [] }.
      */
+    /**
+     * MicroPython for the micro:bit — the board's own dialect, where
+     * hardware blocks map to the microbit API (say → display.scroll) and
+     * MULTIPLE WHEN SCRIPTS run on a single thread via the settled
+     * cooperative-scheduling contract in its Python-native form: every
+     * script is a GENERATOR yielding milliseconds at each wait and 0 at
+     * every loop back-edge; a round-robin driver on running_time() walks
+     * them. Same semantics as the C state machines, a tenth of the
+     * machinery, because yield is a language feature here.
+     *
+     * Degradations are NAMED, never silent: blocks with no board meaning
+     * (pen, motion) and sensing that would need the host shim come back
+     * as warnings; reasons[] only for programs that cannot run at all.
+     *
+     * @returns {{ok: boolean, py?: string, reasons: string[], warnings: string[]}}
+     */
+    generateMicroPython(project = this.project, opts = {}) {
+        // The shared pure-Python expression layer (pyVal/pyCond/varRef)
+        // reads the same context generatePython sets up.
+        this._pyNames = new Map();
+        this._pyUses = { random: false, math: false, time: false, eq: false, answer: false, arrays: false, json: false, sumdigits: false };
+        this._runtimesUsed = new Set();
+        this._async = false;
+        this._emitComments = false;
+        this._driverPins = (project.stc && project.stc.pins) || null;
+        this._curPrefix = '';
+        this._curLocals = new Set();
+        const warnings = [];
+        const reasons = [];
+        const targets = project.targets || [];
+        const stage = targets.find((t) => t.isStage);
+        const stateDecls = [];
+        const seen = new Set();
+        const declVar = (name, init) => {
+            const n = this.pyName(name);
+            if (!seen.has(n)) { seen.add(n); stateDecls.push(`${n} = ${init}`); }
+            return n;
+        };
+        if (stage) {
+            for (const v of Object.values(stage.variables || {})) declVar(v[0], '0');
+            for (const l of Object.values(stage.lists || {})) declVar(l[0], '[]');
+        }
+
+        const KEYMAP = { a: 'button_a', b: 'button_b' };
+        const uses = { music: false, buttons: false };
+        const degrade = (msg) => { if (!warnings.includes(msg)) warnings.push(msg); };
+
+        // Expression via the shared pure-Python layer; anything that came
+        // out needing the host shim is a named degradation, not a lie.
+        const guard = (expr, what) => {
+            if (String(expr).includes('scratch.')) {
+                degrade(`${what} has no micro:bit form yet; emitted as 0`);
+                return '0';
+            }
+            return expr;
+        };
+        const val = (b, k, blocks) => guard(this.pyVal(b.inputs[k], blocks), b.opcode);
+        const cond = (b, blocks) => {
+            const ref = b.inputs.CONDITION ? b.inputs.CONDITION[1] : null;
+            if (ref && blocks[ref] && blocks[ref].opcode === 'sensing_keypressed') {
+                const kb = blocks[ref];
+                const opt = kb.inputs.KEY_OPTION ? blocks[kb.inputs.KEY_OPTION[1]] : null;
+                const key = opt && opt.fields.KEY_OPTION ? String(opt.fields.KEY_OPTION[0]).toLowerCase() : '';
+                if (KEYMAP[key]) { uses.buttons = true; return `${KEYMAP[key]}.is_pressed()`; }
+                degrade(`key '${key}' maps to no micro:bit button (a/b only); condition is False`);
+                return 'False';
+            }
+            return guard(this.pyCond(ref, blocks), (ref && blocks[ref] ? blocks[ref].opcode : 'condition'));
+        };
+
+        const stmt = (b, blocks, pad) => {
+            const v = (k) => val(b, k, blocks);
+            const vs = (k) => `str(${val(b, k, blocks)})`;
+            const f = (k) => (b.fields[k] ? b.fields[k][0] : '');
+            const sub = (k) => (b.inputs[k] ? walk(b.inputs[k][1], blocks, pad + '    ') : [`${pad}    pass`]);
+            switch (b.opcode) {
+                case 'data_setvariableto': {
+                    const n = declVar(f('VARIABLE'), '0');
+                    return [`${pad}${n} = ${v('VALUE')}`];
+                }
+                case 'data_changevariableby': {
+                    const n = declVar(f('VARIABLE'), '0');
+                    return [`${pad}${n} = ${n} + ${v('VALUE')}`];
+                }
+                case 'looks_say':
+                case 'looks_think':
+                    return [`${pad}display.scroll(${vs('MESSAGE')}, wait=False, loop=False)`];
+                case 'looks_sayforsecs':
+                case 'looks_thinkforsecs':
+                    return [`${pad}display.scroll(${vs('MESSAGE')}, wait=False, loop=False)`,
+                        `${pad}yield int((${v('SECS')}) * 1000)`];
+                case 'control_wait':
+                    return [`${pad}yield int((${v('DURATION')}) * 1000)`];
+                case 'control_wait_until':
+                    return [`${pad}while not (${cond(b, blocks)}):`, `${pad}    yield 0`];
+                case 'control_forever':
+                    return [`${pad}while True:`, ...sub('SUBSTACK'), `${pad}    yield 0`];
+                case 'control_repeat':
+                    return [`${pad}for _ in range(int(${v('TIMES')})):`, ...sub('SUBSTACK'), `${pad}    yield 0`];
+                case 'control_repeat_until':
+                    return [`${pad}while not (${cond(b, blocks)}):`, ...sub('SUBSTACK'), `${pad}    yield 0`];
+                case 'control_if':
+                    return [`${pad}if ${cond(b, blocks)}:`, ...sub('SUBSTACK')];
+                case 'control_if_else':
+                    return [`${pad}if ${cond(b, blocks)}:`, ...sub('SUBSTACK'),
+                        `${pad}else:`, ...sub('SUBSTACK2')];
+                case 'control_stop':
+                    return [`${pad}return`];
+                case 'sound_playnoteforbeats': {
+                    uses.music = true;
+                    // Scratch note number → frequency; 60 beats/min default tempo.
+                    return [`${pad}music.pitch(int(440 * 2 ** ((${v('NOTE')} - 69) / 12)), wait=False)`,
+                        `${pad}yield int((${v('BEATS')}) * 500)`,
+                        `${pad}music.stop()`];
+                }
+                case 'event_broadcast': {
+                    const msg = this.pyVal(b.inputs.BROADCAST_INPUT, blocks);
+                    return [`${pad}_pending.append(${msg})`];
+                }
+                default: {
+                    const desc = this.decompileBlock ? this.decompileBlock(b, blocks) : b.opcode;
+                    degrade(`${b.opcode} has no micro:bit form yet (${String(desc).slice(0, 40)})`);
+                    return [`${pad}pass  # ${b.opcode}`];
+                }
+            }
+        };
+
+        const walk = (id, blocks, pad) => {
+            const out = [];
+            let b = blocks[id];
+            while (b) {
+                out.push(...stmt(b, blocks, pad));
+                b = blocks[b.next];
+            }
+            return out.length ? out : [`${pad}pass`];
+        };
+
+        // ---- hats → generator defs ------------------------------------
+        const taskDefs = [];
+        const starts = [];       // started at flag
+        const receivers = [];    // [message, fnName]
+        let taskSeq = 0;
+        for (const t of targets) {
+            const blocks = t.blocks || {};
+            for (const b of Object.values(blocks)) {
+                if (!b.topLevel) continue;
+                if (b.opcode === 'event_whenflagclicked') {
+                    const fn = `_task_${taskSeq++}`;
+                    const body = walk(b.next, blocks, '    ');
+                    taskDefs.push([`def ${fn}():`, ...globalsFor(this, body), ...body].join('\n'));
+                    starts.push(fn);
+                } else if (b.opcode === 'event_whenbroadcastreceived') {
+                    const fn = `_task_${taskSeq++}`;
+                    const msg = b.fields.BROADCAST_OPTION ? b.fields.BROADCAST_OPTION[0] : '';
+                    const body = walk(b.next, blocks, '    ');
+                    taskDefs.push([`def ${fn}():`, ...globalsFor(this, body), ...body].join('\n'));
+                    receivers.push([msg, fn]);
+                } else if (this.isHat(b.opcode)) {
+                    degrade(`hat ${b.opcode} has no micro:bit form yet; script skipped`);
+                }
+            }
+        }
+        if (!taskDefs.length) reasons.push('no runnable scripts (a when-flag-clicked hat is required)');
+        if (reasons.length) return { ok: false, reasons, warnings };
+
+        function globalsFor(self, bodyLines) {
+            const names = new Set();
+            for (const line of bodyLines) {
+                const m = line.match(/^\s*([A-Za-z_][A-Za-z0-9_]*) = /);
+                if (m && seen.has(m[1])) names.add(m[1]);
+            }
+            return names.size ? [`    global ${[...names].join(', ')}`] : [];
+        }
+
+        const header = ['# generated for micro:bit (MicroPython)',
+            'from microbit import *'];
+        if (uses.music) header.push('import music');
+
+        const driver = [
+            '',
+            '_pending = []',
+            `_receivers = {${receivers.map(([m, fn]) => `${this.pyStr(m)}: ${fn}`).join(', ')}}`,
+            '',
+            'def _run(tasks):',
+            '    # The scheduling contract: every task yields ms to sleep (0 at',
+            '    # loop back-edges), the driver round-robins on running_time().',
+            '    tasks = [[t, 0] for t in tasks]',
+            '    while tasks:',
+            '        while _pending:',
+            '            fn = _receivers.get(_pending.pop(0))',
+            '            if fn: tasks.append([fn(), 0])',
+            '        now = running_time()',
+            '        alive = []',
+            '        for entry in tasks:',
+            '            gen, wake = entry',
+            '            if now >= wake:',
+            '                try:',
+            '                    entry[1] = now + next(gen)',
+            '                    alive.append(entry)',
+            '                except StopIteration:',
+            '                    pass',
+            '            else:',
+            '                alive.append(entry)',
+            '        tasks = alive',
+            '        sleep(1)',
+            '',
+            `_run([${starts.map((fn) => `${fn}()`).join(', ')}])`,
+        ];
+
+        const py = [...header, '', ...stateDecls, '', ...taskDefs, ...driver].join('\n') + '\n';
+        return { ok: true, py, reasons: [], warnings };
+    }
+
     generateBASIC(project = this.project, opts = {}) {
         const profile = opts.profile || 'bbc';
         const bbc = profile === 'bbc';
