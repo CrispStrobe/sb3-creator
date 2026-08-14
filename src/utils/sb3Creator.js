@@ -2080,6 +2080,19 @@ class SB3Creator {
             block[id].fields.MODE = ['number', null];
             return ret(block);
         }
+        // ---- micro:bit display (explicit device verb: say is STAGE, this is LEDs) ----
+        if ((match = line.match(/^(?:display|scroll)\s+"([^"]*)"\s*$/i))) {
+            const { id, block } = cmd('microbit_display');
+            block[id].inputs.VALUE = [1, [10, match[1]]];
+            block[id].fields.MODE = ['text', null];
+            return ret(block);
+        }
+        if ((match = line.match(/^(?:display|scroll)\s+(.+)$/i))) {
+            const { id, block } = cmd('microbit_display');
+            block[id].inputs.VALUE = val(match[1]);
+            block[id].fields.MODE = ['number', null];
+            return ret(block);
+        }
         // ---- Circuit extension commands (boundary B) --------------------------------
         if ((match = line.match(/^set control\s+(.+?)\s+to\s+(.+)$/i))) {
             const { id, block } = cmd('circuit_setcontrol');
@@ -3990,6 +4003,11 @@ class SB3Creator {
                 const mode = f('MODE');
                 if (mode === 'text') return line(`print "${this.dval(b.inputs.VALUE, blocks).replace(/^"|"$/g, '')}"`);
                 return line(`print ${v('VALUE')}`);
+            }
+            case 'microbit_display': {
+                const mode = f('MODE');
+                if (mode === 'text') return line(`display "${this.dval(b.inputs.VALUE, blocks).replace(/^"|"$/g, '')}"`);
+                return line(`display ${v('VALUE')}`);
             }
             // circuit extension commands
             case 'circuit_setcontrol': return line(`set control ${v('CONTROL')} to ${v('VALUE')}`);
@@ -6239,13 +6257,22 @@ class SB3Creator {
                     const n = declVar(f('VARIABLE'), '0');
                     return [`${pad}${n} = ${n} + ${v('VALUE')}`];
                 }
+                // say is STAGE speech — the board has no stage, so it is a
+                // NAMED degradation; putting text on the LEDs is the explicit
+                // `display` verb, and serial output is `print`. Two intents,
+                // two verbs, per the owner's correction.
                 case 'looks_say':
                 case 'looks_think':
-                    return [`${pad}display.scroll(${vs('MESSAGE')}, wait=False, loop=False)`];
+                    degrade('say/think is stage speech — use `display` for the LEDs or `print` for serial');
+                    return [`${pad}pass  # say (stage)`];
                 case 'looks_sayforsecs':
                 case 'looks_thinkforsecs':
-                    return [`${pad}display.scroll(${vs('MESSAGE')}, wait=False, loop=False)`,
-                        `${pad}yield int((${v('SECS')}) * 1000)`];
+                    degrade('say/think is stage speech — use `display` for the LEDs or `print` for serial');
+                    return [`${pad}yield int((${v('SECS')}) * 1000)  # say (stage)`];
+                case 'microbit_display':
+                    return [`${pad}display.scroll(${vs('VALUE')}, wait=False, loop=False)`];
+                case 'stc12_print':
+                    return [`${pad}print(${vs('VALUE')})`];
                 case 'control_wait':
                     return [`${pad}yield int((${v('DURATION')}) * 1000)`];
                 case 'control_wait_until':

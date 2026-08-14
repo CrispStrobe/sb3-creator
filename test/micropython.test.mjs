@@ -27,7 +27,8 @@ const SRC = `WHEN flag clicked:
   REPEAT 4:
     change counter by 1
     wait 0.2 seconds
-  say "done"
+  display "done"
+  print counter
 
 WHEN flag clicked:
   FOREVER:
@@ -49,7 +50,10 @@ describe('generateMicroPython', () => {
         assert.match(r.py, /def _task_0\(\):/);
         assert.match(r.py, /yield int\(\(0\.2\) \* 1000\)/, 'wait is a ms yield');
         assert.match(r.py, /while True:[\s\S]*?yield 0/, 'forever yields at the back-edge');
-        assert.match(r.py, /display\.scroll\(str\("done"\), wait=False/, 'say scrolls');
+        assert.match(r.py, /display\.scroll\(str\("done"\), wait=False/, 'the display VERB scrolls');
+        assert.match(r.py, /print\(str\(/, 'print goes to serial');
+        assert.ok(r.warnings.some((w) => w.includes('stage speech')),
+            'say degrades by name — stage semantics, not LEDs');
         assert.match(r.py, /button_a\.is_pressed\(\)/, 'key a maps to the button');
         assert.match(r.py, /_pending\.append\("hit"\)/, 'broadcast queues');
         assert.match(r.py, /_receivers = \{"hit": _task_2\}/, 'receiver registered');
