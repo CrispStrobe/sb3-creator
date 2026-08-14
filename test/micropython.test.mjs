@@ -77,6 +77,51 @@ describe('generateMicroPython', () => {
     });
 });
 
+describe('generateMicroPython: PIN programs', () => {
+    const c = build(`DEVICE MICROBIT
+PIN led = P0 OUTPUT ACTIVE LOW
+PIN btn = P1 INPUT
+
+WHEN flag clicked:
+  FOREVER:
+    turn on led
+    wait 0.1 seconds
+    turn off led
+    wait 0.1 seconds
+
+WHEN btn pressed:
+  set led to 50 percent
+`);
+    const r = c.generateMicroPython();
+
+    test('pins lower to microbit pin objects with the on/off convention', () => {
+        assert.ok(r.ok, (r.reasons || []).join('; '));
+        assert.match(r.py, /pin0\.write_digital\(0\)/, 'ON of an ACTIVE LOW pin drives 0');
+        assert.match(r.py, /pin0\.write_digital\(1\)/, 'OFF drives 1');
+        assert.match(r.py, /pin1\.read_digital\(\) == 1/, 'the hat polls the input pin');
+        assert.match(r.py, /pin0\.write_analog\(int\(\(50\) \* 1023 \/ 100\)\)/, 'PWM maps to write_analog');
+        assert.match(r.py, /_cur and not _prev/, 'the hat is edge-triggered, not level');
+    });
+
+    test('the PIN program parses as Python', () => {
+        pythonParses(r.py);
+    });
+
+    test('a non-micro:bit pin location degrades by name', () => {
+        const c2 = build(`DEVICE MICROBIT
+PIN x = P1.0 OUTPUT
+
+WHEN flag clicked:
+  turn on x
+`);
+        const r2 = c2.generateMicroPython();
+        assert.ok(r2.ok);
+        assert.ok(r2.warnings.some((w) => w.includes('not a micro:bit pin')),
+            r2.warnings.join('; '));
+        pythonParses(r2.py);
+    });
+});
+
 describe('generateMicroPython: gallery sweep', () => {
     for (const key of Object.keys(examples).slice(0, 10)) {
         test(`${key}: ok with named degradations, and parses`, () => {

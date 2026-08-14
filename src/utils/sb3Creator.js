@@ -6220,6 +6220,20 @@ class SB3Creator {
         const uses = { music: false, buttons: false };
         const degrade = (msg) => { if (!warnings.includes(msg)) warnings.push(msg); };
 
+        // PIN declarations → microbit pin objects. where P0-P20; the
+        // platform convention holds: on/off is LOGICAL (ACTIVE LOW
+        // inverts), high/low and computed writes are PHYSICAL levels.
+        const pinMap = new Map();
+        for (const p of (project.stc && project.stc.pins) || []) {
+            const m = /^P(\d{1,2})$/i.exec(p.where || '');
+            if (m && Number(m[1]) <= 20) {
+                pinMap.set(p.name, { expr: `pin${Number(m[1])}`, activeLow: !!p.activeLow });
+            } else {
+                degrade(`pin ${p.name} at "${p.where}" is not a micro:bit pin (P0-P20); its operations are stubs`);
+            }
+        }
+        const pinOf = (name) => pinMap.get(name) || null;
+
         // Expression via the shared pure-Python layer; anything that came
         // out needing the host shim is a named degradation, not a lie.
         const guard = (expr, what) => {
@@ -6229,9 +6243,33 @@ class SB3Creator {
             }
             return expr;
         };
-        const val = (b, k, blocks) => guard(this.pyVal(b.inputs[k], blocks), b.opcode);
+        // Pin reporters get intercepted BEFORE the shared layer: reading a
+        // pin is board-native here, not a shim call.
+        const pinReporter = (input, blocks) => {
+            if (!Array.isArray(input) || typeof input[1] !== 'string') return null;
+            const rb = blocks[input[1]];
+            if (!rb) return null;
+            if (rb.opcode === 'stc12_readpin') {
+                const p = pinOf(rb.fields.PIN ? rb.fields.PIN[0] : '');
+                if (!p) return '0';
+                return p.activeLow ? `(1 - ${p.expr}.read_digital())` : `${p.expr}.read_digital()`;
+            }
+            if (rb.opcode === 'stc12_read') {
+                const p = pinOf(rb.fields.PIN ? rb.fields.PIN[0] : '');
+                if (!p) return '0';
+                return `${p.expr}.read_analog()`;
+            }
+            return null;
+        };
+        const val = (b, k, blocks) => pinReporter(b.inputs[k], blocks)
+            ?? guard(this.pyVal(b.inputs[k], blocks), b.opcode);
         const cond = (b, blocks) => {
             const ref = b.inputs.CONDITION ? b.inputs.CONDITION[1] : null;
+            if (ref && blocks[ref] && blocks[ref].opcode === 'stc12_readpin') {
+                const p = pinOf(blocks[ref].fields.PIN ? blocks[ref].fields.PIN[0] : '');
+                if (!p) return 'False';
+                return `${p.expr}.read_digital() == ${p.activeLow ? 0 : 1}`;
+            }
             if (ref && blocks[ref] && blocks[ref].opcode === 'sensing_keypressed') {
                 const kb = blocks[ref];
                 const opt = kb.inputs.KEY_OPTION ? blocks[kb.inputs.KEY_OPTION[1]] : null;
@@ -6273,6 +6311,35 @@ class SB3Creator {
                     return [`${pad}display.scroll(${vs('VALUE')}, wait=False, loop=False)`];
                 case 'stc12_print':
                     return [`${pad}print(${vs('VALUE')})`];
+                case 'stc12_setpin': {
+                    const p = pinOf(f('PIN'));
+                    if (!p) { degrade(`undeclared pin ${f('PIN')}`); return [`${pad}pass  # pin ${f('PIN')}`]; }
+                    const st = f('STATE');
+                    // on/off logical (ACTIVE LOW inverts); high/low physical.
+                    const level = st === 'high' ? 1 : st === 'low' ? 0
+                        : (st === 'on') !== p.activeLow ? 1 : 0;
+                    return [`${pad}${p.expr}.write_digital(${level})`];
+                }
+                case 'stc12_toggle': {
+                    const p = pinOf(f('PIN'));
+                    if (!p) { degrade(`undeclared pin ${f('PIN')}`); return [`${pad}pass`]; }
+                    return [`${pad}${p.expr}.write_digital(1 - ${p.expr}.read_digital())`];
+                }
+                case 'stc12_writepin': {
+                    const p = pinOf(f('PIN'));
+                    if (!p) { degrade(`undeclared pin ${f('PIN')}`); return [`${pad}pass`]; }
+                    return [`${pad}${p.expr}.write_digital(1 if (${v('VALUE')}) else 0)`];
+                }
+                case 'stc12_setpwm': {
+                    const p = pinOf(f('PIN'));
+                    if (!p) { degrade(`undeclared pin ${f('PIN')}`); return [`${pad}pass`]; }
+                    return [`${pad}${p.expr}.write_analog(int((${v('VALUE')}) * 1023 / 100))`];
+                }
+                case 'stc12_settone': {
+                    uses.music = true;
+                    degrade('tone plays on the board speaker/pin0 — the micro:bit has no per-pin tone routing');
+                    return [`${pad}music.pitch(int(${v('VALUE')}), wait=False)`];
+                }
                 case 'control_wait':
                     return [`${pad}yield int((${v('DURATION')}) * 1000)`];
                 case 'control_wait_until':
@@ -6339,6 +6406,25 @@ class SB3Creator {
                     const body = walk(b.next, blocks, '    ');
                     taskDefs.push([`def ${fn}():`, ...globalsFor(this, body), ...body].join('\n'));
                     receivers.push([msg, fn]);
+                } else if (b.opcode === 'stc12_whenpin') {
+                    // Edge-triggered pin hat as an edge-polling generator:
+                    // the body (yields and all) runs on each matching edge.
+                    const p = pinOf(b.fields.PIN ? b.fields.PIN[0] : '');
+                    if (!p) { degrade(`WHEN on undeclared pin ${b.fields.PIN ? b.fields.PIN[0] : '?'}; script skipped`); continue; }
+                    const edge = b.fields.EDGE ? String(b.fields.EDGE[0]).toLowerCase() : 'on';
+                    const activeVal = (edge === 'on' || edge === 'pressed') !== p.activeLow ? 1 : 0;
+                    const fn = `_task_${taskSeq++}`;
+                    const body = walk(b.next, blocks, '            ');
+                    taskDefs.push([`def ${fn}():`,
+                        ...globalsFor(this, body),
+                        '    _prev = False',
+                        '    while True:',
+                        `        _cur = ${p.expr}.read_digital() == ${activeVal}`,
+                        '        if _cur and not _prev:',
+                        ...body,
+                        '        _prev = _cur',
+                        '        yield 0'].join('\n'));
+                    starts.push(fn);
                 } else if (this.isHat(b.opcode)) {
                     degrade(`hat ${b.opcode} has no micro:bit form yet; script skipped`);
                 }
