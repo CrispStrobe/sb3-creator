@@ -107,3 +107,40 @@ one implementation, n faces, or the gating drifts n ways.
   (after pull-down PinMode).
 * Emulator-side trace recording rides the boundary-A adapters bw-board
   already owns — the adapter test stubs already record exactly this shape.
+
+## 8. Update 2026-08-14: the oracle roster after the retro/BASIC week
+
+The referee now runs **custom blocks** (procedures_call with per-frame
+argument binding — a gap the BBCSDL host oracle caught on its first
+run; regression-locked in trace-oracle.test.mjs). compareTraces gained
+per-device physics budgets: `driftPerSecMs` (slow cooperative machines
+re-arm late; ~9 ms/s measured on the 1 MHz 6502 under cc65) and
+`startupMs` (crt0 init before main). Order and levels stay exact.
+
+**Executors and oracles now standing** (beyond §3's original set):
+
+| Layer | Executor | Role |
+|---|---|---|
+| referee | traceOracle.js | virtual clock, fifth opinion |
+| 6502 machine | bw-board M6502Machine | cc65 differential (scripts/diff-6502.mjs), three config sources |
+| Z80 machine | bw-board Z80Machine | CP/M + BBC BASIC smokes |
+| BASIC live | BBC BASIC 4 on the machine | scripts/diff-basic.mjs — generated BASIC typed at the prompt, pins move |
+| BASIC host | BBCSDL console (zlib) | scripts/oracle-bbcsdl.mjs — values only, hardware-gated |
+| CPU twin-run | vrEmu6502 (MIT) | 52.6M lockstep instructions |
+| CPU program | Klaus Dormann suites (GPL-3, out-of-repo) | 52M self-verifying instructions |
+| AVR external | simavr (LGPL, CI-only) | self-timestamping differential AGREE |
+| RP2040 second | labwired-core (MIT) + rp2040js | layer-5 sweep |
+
+**BASIC round trips** are byte fixed points in BOTH numbering modes
+(numbered GOTO shapes recovered by the guarded destructure pass;
+structured ch. 9/12 forms native). DIM lands on the arrays extension
+(0-based both sides, no index shift). Real-corpus coverage: the CC0
+fixture set (test/fixtures/bbc-basic/) plus a 35-file sweep at ~64%
+statements mapped, the remainder NAMED — the gaps are graphics (the
+VDU-terminal lane) by profile.
+
+**Interpreter roster** (licensing settled — see the trademark policy
+in stc/docs/ROADMAP.md): MS BASIC 1.1 (MIT, shippable) and Acorn BBC
+BASIC (local-only/BYOR) on the 6502; Russell BBC BASIC (zlib,
+verbatim-shippable) on Z80 and Pico; BBCSDL as host oracle. CP/M 2.2
+under the Lineo grant with our own BIOS.
