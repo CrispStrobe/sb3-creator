@@ -6189,7 +6189,7 @@ class SB3Creator {
      *
      * @returns {{ok: boolean, py?: string, reasons: string[], warnings: string[]}}
      */
-    generateMicroPython(project = this.project, opts = {}) {
+    generateMicroPython(project = this.project) {
         // The shared pure-Python expression layer (pyVal/pyCond/varRef)
         // reads the same context generatePython sets up.
         this._pyNames = new Map();
