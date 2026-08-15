@@ -643,7 +643,8 @@ export default function cToPseudocode (source, opts = {}) {
     // Special-function registers and generated helpers: setup, never program logic.
     const SFRS = /^(P[0-5]|P[0-5]M[01]|P[0-5]_[0-7]|P1ASF|P4SW|AUXR1?|TMOD|TCON|T[HL][01]|TR[01]|TF[01]|IE|IP|EA|ET[01]|EX[01]|SCON|SBUF|S2CON|S2BUF|BRT|PCON|PSW|CLK_DIV|ADC_CONTR|ADC_RES|ADC_RESL|CCON|CMOD|CCAPM[01]|C[LH]|CCAP[01]H|PCA_PWM[01]|WDT_CONTR|bw_ms|bw_task\d+_(state|until)|bw_i\d+)$/;
     const DELAYS = new Set(['delay_ms', 'bw_block_ms', 'Delay_ms', 'delayms', 'delay']);
-    const SETUP = new Set(['board_init', 'delay_init', 'adc_init', 'uart_init', 'init', 'bw_setup']);
+    const SETUP = new Set(['board_init', 'delay_init', 'adc_init', 'uart_init', 'init', 'bw_setup',
+        'sei', 'cli']);
 
     // Parse a `{ … }` block into pseudocode lines at `depth`.
     function block (cur, depth) {
@@ -1883,7 +1884,7 @@ export default function cToPseudocode (source, opts = {}) {
     }
 
     const IGNORE_FNS = new Set(['bw_setup', 'bw_tick', 'bw_now', 'bw_block_ms', 'delay_ms', 'adc_read',
-        'pwm_set', 'bw_distance', 'bw_closer',
+        'pwm_set', 'bw_distance', 'bw_closer', 'ISR', 'sei', 'cli',
         'bw_neo_byte', 'bw_neo_send', 'bw_neopixel_set', 'bw_neopixel_clear',
         'i2c_delay', 'i2c_start', 'i2c_stop', 'i2c_write', 'shift_out',
         'lcd_i2c_send', 'lcd_nibble', 'lcd_cmd', 'lcd_data',
