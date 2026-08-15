@@ -57,7 +57,14 @@
       ],
       "x": 0,
       "y": 0,
-      "rotation": 0
+      "rotation": 0,
+      "seat": {
+        "boardId": "breadboard_1",
+        "leadMap": {
+          "a": "b6",
+          "b": "b10"
+        }
+      }
     },
     {
       "id": "led_5",
