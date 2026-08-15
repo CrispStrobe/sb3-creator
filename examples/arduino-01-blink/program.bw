@@ -1,0 +1,12 @@
+# Ported from arduino-examples/examples/01.Basics/Blink/Blink.ino, CC0
+DEVICE ARDUINO-UNO
+CLOCK 16000000
+PIN led = D13 OUTPUT
+
+SPRITE Cat:
+  WHEN flag clicked:
+    forever:
+      turn on led
+      wait 1 seconds
+      turn off led
+      wait 1 seconds

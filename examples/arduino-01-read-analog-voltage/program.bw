@@ -1,0 +1,12 @@
+# Ported from arduino-examples/examples/01.Basics/ReadAnalogVoltage/ReadAnalogVoltage.ino, CC0
+DEVICE ARDUINO-UNO
+CLOCK 16000000
+PIN pot = A0 ANALOG
+
+SPRITE Cat:
+  WHEN flag clicked:
+    forever:
+      set sensorValue to read pot
+      set voltage to (sensorValue * (5.0 / 1023))
+      print voltage
+      wait 0.1 seconds

@@ -1,0 +1,10 @@
+# Ported from arduino-examples/examples/01.Basics/AnalogReadSerial/AnalogReadSerial.ino, CC0
+DEVICE ARDUINO-UNO
+CLOCK 16000000
+PIN pot = A0 ANALOG
+
+SPRITE Cat:
+  WHEN flag clicked:
+    forever:
+      print read pot
+      wait 0.1 seconds

@@ -1,0 +1,15 @@
+# Ported from arduino-examples/examples/01.Basics/Fade/Fade.ino, CC0
+DEVICE ARDUINO-UNO
+CLOCK 16000000
+PIN led = D9 OUTPUT
+
+SPRITE Cat:
+  WHEN flag clicked:
+    set brightness to 0
+    set fadeAmount to 5
+    forever:
+      set pwm led to brightness
+      change brightness by fadeAmount
+      if brightness <= 0 or brightness >= 255 then:
+        set fadeAmount to (0 - fadeAmount)
+      wait 0.03 seconds

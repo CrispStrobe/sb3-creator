@@ -1,0 +1,10 @@
+# Ported from arduino-examples/examples/01.Basics/DigitalReadSerial/DigitalReadSerial.ino, CC0
+DEVICE ARDUINO-UNO
+CLOCK 16000000
+PIN btn = D2 INPUT
+
+SPRITE Cat:
+  WHEN flag clicked:
+    forever:
+      print read btn
+      wait 0.1 seconds

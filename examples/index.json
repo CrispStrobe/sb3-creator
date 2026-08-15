@@ -2388,5 +2388,95 @@
       "circuit": "avr06-blink-and-print/circuit.json",
       "expected": "avr06-blink-and-print/EXPECTED.md"
     }
+  },
+  {
+    "id": "arduino-01-blink",
+    "title": {
+      "en": "Blink (Arduino CC0)",
+      "de": "Blink (Arduino CC0)"
+    },
+    "category": "basics",
+    "difficulty": 1,
+    "files": {
+      "program": "arduino-01-blink/program.bw",
+      "circuit": "arduino-01-blink/circuit.json"
+    },
+    "kind": "full",
+    "devices": [
+      "arduino-uno",
+      "arduino-nano"
+    ]
+  },
+  {
+    "id": "arduino-01-fade",
+    "title": {
+      "en": "Fade (Arduino CC0)",
+      "de": "Fade (Arduino CC0)"
+    },
+    "category": "basics",
+    "difficulty": 1,
+    "files": {
+      "program": "arduino-01-fade/program.bw",
+      "circuit": "arduino-01-fade/circuit.json"
+    },
+    "kind": "full",
+    "devices": [
+      "arduino-uno",
+      "arduino-nano"
+    ]
+  },
+  {
+    "id": "arduino-01-analog-read-serial",
+    "title": {
+      "en": "Analog Read Serial (Arduino CC0)",
+      "de": "Analog seriell lesen (Arduino CC0)"
+    },
+    "category": "basics",
+    "difficulty": 1,
+    "files": {
+      "program": "arduino-01-analog-read-serial/program.bw",
+      "circuit": "arduino-01-analog-read-serial/circuit.json"
+    },
+    "kind": "full",
+    "devices": [
+      "arduino-uno",
+      "arduino-nano"
+    ]
+  },
+  {
+    "id": "arduino-01-digital-read-serial",
+    "title": {
+      "en": "Digital Read Serial (Arduino CC0)",
+      "de": "Digital seriell lesen (Arduino CC0)"
+    },
+    "category": "basics",
+    "difficulty": 1,
+    "files": {
+      "program": "arduino-01-digital-read-serial/program.bw",
+      "circuit": "arduino-01-digital-read-serial/circuit.json"
+    },
+    "kind": "full",
+    "devices": [
+      "arduino-uno",
+      "arduino-nano"
+    ]
+  },
+  {
+    "id": "arduino-01-read-analog-voltage",
+    "title": {
+      "en": "Read Analog Voltage (Arduino CC0)",
+      "de": "Analogspannung lesen (Arduino CC0)"
+    },
+    "category": "basics",
+    "difficulty": 1,
+    "files": {
+      "program": "arduino-01-read-analog-voltage/program.bw",
+      "circuit": "arduino-01-read-analog-voltage/circuit.json"
+    },
+    "kind": "full",
+    "devices": [
+      "arduino-uno",
+      "arduino-nano"
+    ]
   }
 ]
