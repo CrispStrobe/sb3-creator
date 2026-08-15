@@ -647,3 +647,99 @@ All 18 examples parse warning-free and solve on the engine with no errors.
 
 ## 54-motor-driver — VERDICT: pass
 **layers: engine.** DC motor with L293D H-bridge. Category `motors`, difficulty 3.
+
+---
+
+# Band 4 — pc49–pc62 (pure circuits, extended gallery)
+
+All 14 examples parse warning-free and solve on the engine.
+
+## pc49-diode-clamp — VERDICT: pass
+**layers: engine.** Difficulty 2.
+
+## pc50-two-stage-rc — VERDICT: pass
+**layers: engine.** Difficulty 3.
+
+## pc51-series-capacitors — VERDICT: pass
+**layers: engine.** Difficulty 2.
+
+## pc52-inductor-filter — VERDICT: pass
+**layers: engine.** Difficulty 3.
+
+## pc53-buzzer-switch — VERDICT: pass
+**layers: engine.** Difficulty 1.
+
+## pc54-opamp-follower — VERDICT: pass
+**layers: engine.** Difficulty 3.
+
+## pc55-ntc-indicator — VERDICT: pass
+**layers: engine.** Difficulty 2.
+
+## pc56-inductor-freewheel — VERDICT: pass
+**layers: engine.** Difficulty 3.
+
+## pc57-inverter-lamp — VERDICT: pass
+**layers: engine.** Difficulty 2.
+
+## pc58-555-audio-pulse — VERDICT: pass
+**layers: engine.** Difficulty 3.
+
+## pc59-nor-memory — VERDICT: pass
+**layers: engine.** Difficulty 3.
+
+## pc60-night-lamp-hardware — VERDICT: pass
+**layers: engine.** Difficulty 2.
+
+## pc61-diode-or — VERDICT: pass
+**layers: engine.** Difficulty 2.
+
+## pc62-motor-indicator — VERDICT: pass
+**layers: engine.** Difficulty 2.
+
+---
+
+# Band 5 — MCU platform variants
+
+All parse warning-free and solve on the engine (except retro CPU bench
+examples which use board-level parts the engine does not model).
+
+## nano01-blink — VERDICT: pass
+**layers: engine.** Arduino Nano blink.
+
+## nano02-pot-print — VERDICT: pass
+**layers: engine.** Nano pot + serial.
+
+## nano03-two-tasks — VERDICT: pass
+**layers: engine.** Nano two tasks.
+
+## mega01-blink — VERDICT: pass
+**layers: engine.** Arduino Mega blink.
+
+## mega02-adc-print — VERDICT: pass
+**layers: engine.** Mega 16-channel ADC.
+
+## mega03-port-current — VERDICT: pass
+**layers: engine.** Mega 8-LED port walker.
+
+## pico01-blink — VERDICT: pass
+**layers: engine.** Raspberry Pi Pico blink.
+
+## pico02-pot-print — VERDICT: pass
+**layers: engine.** Pico pot + serial.
+
+## pico03-two-tasks — VERDICT: pass
+**layers: engine.** Pico two tasks.
+
+## pico04-button — VERDICT: pass
+**layers: engine.** Pico button + LED.
+
+## eater6502-bench — VERDICT: app-level (cannot engine-solve)
+**layers: none.** Retro CPU bench — uses eater6502/6522/62256/28c256 parts the
+engine does not model. Program parses clean.
+
+## eater6502-vdp-hello — VERDICT: app-level (cannot engine-solve)
+**layers: none.** Retro CPU with VDP. Same engine limitation. Program parses clean.
+
+## z80-bench — VERDICT: app-level (cannot engine-solve)
+**layers: none.** Z80 retro bench. Engine does not model z80/mc6850 parts.
+Program parses clean.
