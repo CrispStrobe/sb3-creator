@@ -153,7 +153,6 @@ function loadCircuit(name) {
 // ---- blocked examples: explicitly named blockers --------------------------------
 
 const BLOCKED = {
-    '07-buzzer-siren':        'scope-tap (buzzer frequency readout)',
 };
 
 // ---- MCU examples: drive pins, check LEDs --------------------------------------
@@ -545,6 +544,29 @@ describe('e2e: motor driver — L293D, power from rail', () => {
         assert.match(pseudocode, /set mymotor direction forward/);
         assert.match(pseudocode, /set mymotor direction reverse/);
         assert.match(pseudocode, /set mymotor direction coast/);
+    });
+});
+
+describe('e2e: buzzer — tone frequency readback via pin edge measurement', { skip: SKIP }, () => {
+    test('07-buzzer-siren: toggling P1.5 at 440 Hz, buzzerTone reports ~440 Hz', () => {
+        const { board } = loadCircuit('07-buzzer-siren');
+        assert.ok(board.parts.length > 0, 'board accepted the buzzer circuit');
+        const buzzers = board.getBuzzers();
+        assert.ok(buzzers.length > 0, 'circuit has a buzzer');
+
+        // Toggle P1.5 at 440 Hz: half-period = 1/(2×440) ≈ 1136 µs
+        const halfPeriodNs = BigInt(Math.round(1e9 / (2 * 440)));
+        const pin = 'P1.5';
+        for (let i = 0; i < 20; i++) {
+            const high = i % 2 === 0;
+            board.setPin(pin, 'pushpull', high);
+            board.advanceTo(BigInt(i + 1) * halfPeriodNs);
+        }
+
+        const tone = board.buzzerTone(buzzers[0]);
+        assert.ok(tone.on, 'buzzer should be on after toggling');
+        assert.ok(tone.hz > 400 && tone.hz < 480,
+            `expected ~440 Hz, got ${tone.hz.toFixed(1)} Hz`);
     });
 });
 
