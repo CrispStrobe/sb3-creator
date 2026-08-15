@@ -587,3 +587,63 @@ difficulty 1.
 
 **layers: engine.** Already audited in the pilot (`examples/AUDIT.md`). Engine
 solves correctly; app-side loader bug filed. Intro already exists.
+
+---
+
+# Band 3 — numbered examples 37–54
+
+All 18 examples parse warning-free and solve on the engine with no errors.
+
+## 37-voltage-divider-basic — VERDICT: pass
+**layers: engine.** Pure circuit, voltage divider. Difficulty 1.
+
+## 38-npn-switch — VERDICT: pass
+**layers: engine.** Pure circuit, NPN switch with button. Difficulty 2.
+
+## 39-zener-clamp — VERDICT: pass
+**layers: engine.** Pure circuit, zener voltage clamp. Difficulty 2.
+
+## 40-led-color-mix — VERDICT: pass
+**layers: engine.** Pure circuit, RGB LED. Difficulty 1.
+
+## 41-pot-as-dimmer — VERDICT: pass
+**layers: engine.** Pure circuit, pot dimmer. Difficulty 2.
+
+## 42-diode-rectifier — VERDICT: pass
+**layers: engine.** Pure circuit, diode polarity. Difficulty 1.
+
+## 43-rc-timing — VERDICT: pass
+**layers: engine.** Pure circuit, RC τ=1s. Difficulty 2.
+
+## 44-darlington-motor — VERDICT: pass
+**layers: engine.** Pure circuit, button+NPN+buzzer. Difficulty 2.
+
+## 45-led-current-comparison — VERDICT: pass
+**layers: engine.** Pure circuit, 3 resistors comparing LED current. Difficulty 1.
+
+## 46-port-overcurrent — VERDICT: pass
+**layers: engine.** 8 LEDs on one port, aggregate current lesson. Difficulty 3.
+
+## 47-battery-led — VERDICT: pass
+**layers: engine.** Pure circuit, battery-powered LED. Difficulty 1.
+
+## 48-breadboard-basics — VERDICT: pass
+**layers: engine.** Pure circuit, breadboard layout exercise. Difficulty 2.
+
+## 49-function-generator-sine — VERDICT: pass
+**layers: engine.** Pure circuit, sine wave function generator. Difficulty 2.
+
+## 50-rc-scope — VERDICT: pass
+**layers: engine.** Pure circuit, RC low-pass filter on scope. Difficulty 3.
+
+## 51-555-astable — VERDICT: pass
+**layers: engine.** Pure circuit, 555 astable blinker. Difficulty 3.
+
+## 52-battery-voltage-divider — VERDICT: pass
+**layers: engine.** Pure circuit, battery voltage divider. Difficulty 2.
+
+## 53-servo-sweep — VERDICT: pass
+**layers: engine.** Servo sweep 0°–180°. Category `motors`, difficulty 3.
+
+## 54-motor-driver — VERDICT: pass
+**layers: engine.** DC motor with L293D H-bridge. Category `motors`, difficulty 3.
