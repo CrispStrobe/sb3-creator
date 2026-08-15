@@ -1,0 +1,81 @@
+{
+  "vcc": 5,
+  "parts": [
+    {
+      "id": "mcu",
+      "kind": "mcu",
+      "declName": "mcu",
+      "params": {
+        "pins": [
+          "PA0",
+          "PA1",
+          "PA2",
+          "PA3",
+          "PA4",
+          "PA5",
+          "PA6",
+          "PA7"
+        ]
+      }
+    },
+    {
+      "id": "led1",
+      "kind": "led",
+      "declName": "led",
+      "params": {
+        "color": "red"
+      }
+    },
+    {
+      "id": "r1",
+      "kind": "resistor",
+      "params": {
+        "ohms": 220
+      }
+    },
+    {
+      "id": "vcc1",
+      "kind": "vcc",
+      "params": {
+        "volts": 5
+      }
+    },
+    {
+      "id": "gnd1",
+      "kind": "gnd",
+      "params": {}
+    }
+  ],
+  "wires": [
+    {
+      "from": "mcu",
+      "fromTerminal": "PA0",
+      "to": "r1",
+      "toTerminal": "a"
+    },
+    {
+      "from": "r1",
+      "fromTerminal": "b",
+      "to": "led1",
+      "toTerminal": "anode"
+    },
+    {
+      "from": "led1",
+      "fromTerminal": "cathode",
+      "to": "gnd1",
+      "toTerminal": "gnd"
+    },
+    {
+      "from": "vcc1",
+      "fromTerminal": "vcc",
+      "to": "mcu",
+      "toTerminal": "VCC"
+    },
+    {
+      "from": "gnd1",
+      "fromTerminal": "gnd",
+      "to": "mcu",
+      "toTerminal": "GND"
+    }
+  ]
+}

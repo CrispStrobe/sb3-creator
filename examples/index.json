@@ -10,7 +10,10 @@
     "files": {
       "circuit": "eater6502-contention-bug/circuit.json"
     },
-    "kind": "circuit"
+    "kind": "circuit",
+    "devices": [
+      "eater6502"
+    ]
   },
   {
     "id": "01-blink",
@@ -3537,5 +3540,70 @@
       "arduino-uno",
       "arduino-nano"
     ]
+  },
+  {
+    "id": "eater6502-blink",
+    "title": {
+      "en": "6502 Blink",
+      "de": "6502 Blink"
+    },
+    "category": "basics",
+    "difficulty": 2,
+    "files": {
+      "program": "eater6502-blink/program.bw",
+      "circuit": "eater6502-blink/circuit.json"
+    },
+    "kind": "full",
+    "devices": [
+      "eater6502"
+    ]
+  },
+  {
+    "id": "eater6502-bench",
+    "title": {
+      "en": "6502 Breadboard Computer",
+      "de": "6502-Breadboard-Computer"
+    },
+    "category": "digital",
+    "difficulty": 3,
+    "files": {
+      "program": "eater6502-bench/program.bw",
+      "circuit": "eater6502-bench/circuit.json"
+    },
+    "kind": "full",
+    "devices": [
+      "eater6502"
+    ]
+  },
+  {
+    "id": "eater6502-vdp-hello",
+    "title": {
+      "en": "6502 + VDP Video",
+      "de": "6502 + VDP Video"
+    },
+    "category": "digital",
+    "difficulty": 3,
+    "files": {
+      "program": "eater6502-vdp-hello/program.bw",
+      "circuit": "eater6502-vdp-hello/circuit.json"
+    },
+    "kind": "full",
+    "devices": [
+      "eater6502"
+    ]
+  },
+  {
+    "id": "z80-bench",
+    "title": {
+      "en": "Z80 Breadboard Computer",
+      "de": "Z80-Breadboard-Computer"
+    },
+    "category": "digital",
+    "difficulty": 3,
+    "files": {
+      "program": "z80-bench/program.bw",
+      "circuit": "z80-bench/circuit.json"
+    },
+    "kind": "circuit"
   }
 ]

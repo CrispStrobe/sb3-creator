@@ -1,0 +1,12 @@
+# Blink an LED on the 6502 breadboard computer.
+# The LED is on VIA port A, bit 0 (PA0).
+DEVICE EATER6502
+CLOCK 1000000
+PIN led = PA0 OUTPUT
+
+WHEN flag clicked:
+  FOREVER:
+    turn on led
+    wait 0.5 seconds
+    turn off led
+    wait 0.5 seconds
