@@ -2478,5 +2478,95 @@
       "arduino-uno",
       "arduino-nano"
     ]
+  },
+  {
+    "id": "arduino-02-blink-without-delay",
+    "title": {
+      "en": "Blink Without Delay (CC0)",
+      "de": "Blink ohne Delay (CC0)"
+    },
+    "category": "digital",
+    "difficulty": 2,
+    "files": {
+      "program": "arduino-02-blink-without-delay/program.bw",
+      "circuit": "arduino-02-blink-without-delay/circuit.json"
+    },
+    "kind": "full",
+    "devices": [
+      "arduino-uno",
+      "arduino-nano"
+    ]
+  },
+  {
+    "id": "arduino-02-button",
+    "title": {
+      "en": "Button (CC0)",
+      "de": "Taster (CC0)"
+    },
+    "category": "digital",
+    "difficulty": 1,
+    "files": {
+      "program": "arduino-02-button/program.bw",
+      "circuit": "arduino-02-button/circuit.json"
+    },
+    "kind": "full",
+    "devices": [
+      "arduino-uno",
+      "arduino-nano"
+    ]
+  },
+  {
+    "id": "arduino-02-debounce",
+    "title": {
+      "en": "Debounce (CC0)",
+      "de": "Entprellen (CC0)"
+    },
+    "category": "digital",
+    "difficulty": 2,
+    "files": {
+      "program": "arduino-02-debounce/program.bw",
+      "circuit": "arduino-02-debounce/circuit.json"
+    },
+    "kind": "full",
+    "devices": [
+      "arduino-uno",
+      "arduino-nano"
+    ]
+  },
+  {
+    "id": "arduino-02-digital-input-pullup",
+    "title": {
+      "en": "Input Pullup (CC0)",
+      "de": "Eingabe Pullup (CC0)"
+    },
+    "category": "digital",
+    "difficulty": 1,
+    "files": {
+      "program": "arduino-02-digital-input-pullup/program.bw",
+      "circuit": "arduino-02-digital-input-pullup/circuit.json"
+    },
+    "kind": "full",
+    "devices": [
+      "arduino-uno",
+      "arduino-nano"
+    ]
+  },
+  {
+    "id": "arduino-02-state-change",
+    "title": {
+      "en": "State Change Detection (CC0)",
+      "de": "Zustandswechsel (CC0)"
+    },
+    "category": "digital",
+    "difficulty": 2,
+    "files": {
+      "program": "arduino-02-state-change/program.bw",
+      "circuit": "arduino-02-state-change/circuit.json"
+    },
+    "kind": "full",
+    "devices": [
+      "arduino-uno",
+      "arduino-nano"
+    ]
   }
 ]

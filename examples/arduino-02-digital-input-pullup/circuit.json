@@ -1,0 +1,88 @@
+{
+  "vcc": 5,
+  "parts": [
+    {
+      "id": "board",
+      "kind": "arduino_uno",
+      "declName": "board"
+    },
+    {
+      "id": "led1",
+      "kind": "led",
+      "declName": "led",
+      "params": {
+        "color": "red"
+      }
+    },
+    {
+      "id": "r1",
+      "kind": "resistor",
+      "declName": "r1",
+      "params": {
+        "ohms": 220
+      }
+    },
+    {
+      "id": "btn1",
+      "kind": "button",
+      "declName": "btn",
+      "params": {}
+    },
+    {
+      "id": "vcc1",
+      "kind": "vcc",
+      "params": {
+        "volts": 5
+      }
+    },
+    {
+      "id": "gnd1",
+      "kind": "gnd",
+      "params": {}
+    }
+  ],
+  "wires": [
+    {
+      "from": "board",
+      "fromTerminal": "d13",
+      "to": "r1",
+      "toTerminal": "a"
+    },
+    {
+      "from": "r1",
+      "fromTerminal": "b",
+      "to": "led1",
+      "toTerminal": "anode"
+    },
+    {
+      "from": "led1",
+      "fromTerminal": "cathode",
+      "to": "gnd1",
+      "toTerminal": "gnd"
+    },
+    {
+      "from": "board",
+      "fromTerminal": "d2",
+      "to": "btn1",
+      "toTerminal": "a"
+    },
+    {
+      "from": "btn1",
+      "fromTerminal": "b",
+      "to": "gnd1",
+      "toTerminal": "gnd"
+    },
+    {
+      "from": "vcc1",
+      "fromTerminal": "vcc",
+      "to": "board",
+      "toTerminal": "5v"
+    },
+    {
+      "from": "gnd1",
+      "fromTerminal": "gnd",
+      "to": "board",
+      "toTerminal": "gnd"
+    }
+  ]
+}

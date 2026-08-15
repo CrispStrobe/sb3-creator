@@ -1,0 +1,22 @@
+# Ported from arduino-examples/examples/02.Digital/StateChangeDetection/StateChangeDetection.ino, CC0
+DEVICE ARDUINO-UNO
+CLOCK 16000000
+PIN btn = D2 INPUT
+PIN led = D13 OUTPUT
+
+SPRITE Cat:
+  WHEN flag clicked:
+    set buttonPushCounter to 0
+    set lastButtonState to 0
+    forever:
+      set buttonState to read btn
+      if buttonState != lastButtonState then:
+        if buttonState = 1 then:
+          change buttonPushCounter by 1
+          print buttonPushCounter
+        wait 0.05 seconds
+      set lastButtonState to buttonState
+      if (buttonPushCounter mod 4) = 0 then:
+        turn on led
+      else:
+        turn off led

@@ -1,0 +1,16 @@
+# Ported from arduino-examples/examples/02.Digital/DigitalInputPullup/DigitalInputPullup.ino, CC0
+DEVICE ARDUINO-UNO
+CLOCK 16000000
+PIN btn = D2 INPUT
+PIN led = D13 OUTPUT
+
+SPRITE Cat:
+  WHEN flag clicked:
+    forever:
+      set sensorVal to read btn
+      print sensorVal
+      if sensorVal = 1 then:
+        turn off led
+      else:
+        turn on led
+      wait 0.1 seconds

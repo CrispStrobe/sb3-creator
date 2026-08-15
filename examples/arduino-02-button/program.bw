@@ -1,0 +1,13 @@
+# Ported from arduino-examples/examples/02.Digital/Button/Button.ino, CC0
+DEVICE ARDUINO-UNO
+CLOCK 16000000
+PIN btn = D2 INPUT
+PIN led = D13 OUTPUT
+
+SPRITE Cat:
+  WHEN flag clicked:
+    forever:
+      if read btn then:
+        turn on led
+      else:
+        turn off led

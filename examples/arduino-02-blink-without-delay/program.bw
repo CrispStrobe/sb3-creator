@@ -1,0 +1,19 @@
+# Ported from arduino-examples/examples/02.Digital/BlinkWithoutDelay/BlinkWithoutDelay.ino, CC0
+DEVICE ARDUINO-UNO
+CLOCK 16000000
+PIN led = D13 OUTPUT
+
+SPRITE Cat:
+  WHEN flag clicked:
+    set ledState to 0
+    set previousMillis to 0
+    set interval to 1000
+    forever:
+      if (timer * 1000) - previousMillis >= interval then:
+        set previousMillis to (timer * 1000)
+        if ledState = 0 then:
+          set ledState to 1
+          turn on led
+        else:
+          set ledState to 0
+          turn off led
