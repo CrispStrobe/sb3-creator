@@ -3,8 +3,30 @@
   "parts": [
     {
       "id": "mcu",
-      "kind": "attiny88",
-      "declName": "mcu"
+      "kind": "mcu",
+      "declName": "mcu",
+      "params": {
+        "pins": [
+          "PB0",
+          "PB1",
+          "PB2",
+          "PB3",
+          "PB4",
+          "PB5",
+          "PB6",
+          "PB7",
+          "PD0",
+          "PD1",
+          "PD2",
+          "PD3",
+          "PD4",
+          "PD5",
+          "PD6",
+          "PD7",
+          "PC3",
+          "PC7"
+        ]
+      }
     },
     {
       "id": "matrix",
@@ -58,97 +80,97 @@
   "wires": [
     {
       "from": "mcu",
-      "fromTerminal": "pb0",
+      "fromTerminal": "PB0",
       "to": "matrix",
       "toTerminal": "col0"
     },
     {
       "from": "mcu",
-      "fromTerminal": "pb1",
+      "fromTerminal": "PB1",
       "to": "matrix",
       "toTerminal": "col1"
     },
     {
       "from": "mcu",
-      "fromTerminal": "pb2",
+      "fromTerminal": "PB2",
       "to": "matrix",
       "toTerminal": "col2"
     },
     {
       "from": "mcu",
-      "fromTerminal": "pb3",
+      "fromTerminal": "PB3",
       "to": "matrix",
       "toTerminal": "col3"
     },
     {
       "from": "mcu",
-      "fromTerminal": "pb4",
+      "fromTerminal": "PB4",
       "to": "matrix",
       "toTerminal": "col4"
     },
     {
       "from": "mcu",
-      "fromTerminal": "pb5",
+      "fromTerminal": "PB5",
       "to": "matrix",
       "toTerminal": "col5"
     },
     {
       "from": "mcu",
-      "fromTerminal": "pb6",
+      "fromTerminal": "PB6",
       "to": "matrix",
       "toTerminal": "col6"
     },
     {
       "from": "mcu",
-      "fromTerminal": "pb7",
+      "fromTerminal": "PB7",
       "to": "matrix",
       "toTerminal": "col7"
     },
     {
       "from": "mcu",
-      "fromTerminal": "pd0",
+      "fromTerminal": "PD0",
       "to": "matrix",
       "toTerminal": "row0"
     },
     {
       "from": "mcu",
-      "fromTerminal": "pd1",
+      "fromTerminal": "PD1",
       "to": "matrix",
       "toTerminal": "row1"
     },
     {
       "from": "mcu",
-      "fromTerminal": "pd2",
+      "fromTerminal": "PD2",
       "to": "matrix",
       "toTerminal": "row2"
     },
     {
       "from": "mcu",
-      "fromTerminal": "pd3",
+      "fromTerminal": "PD3",
       "to": "matrix",
       "toTerminal": "row3"
     },
     {
       "from": "mcu",
-      "fromTerminal": "pd4",
+      "fromTerminal": "PD4",
       "to": "matrix",
       "toTerminal": "row4"
     },
     {
       "from": "mcu",
-      "fromTerminal": "pd5",
+      "fromTerminal": "PD5",
       "to": "matrix",
       "toTerminal": "row5"
     },
     {
       "from": "mcu",
-      "fromTerminal": "pd6",
+      "fromTerminal": "PD6",
       "to": "matrix",
       "toTerminal": "row6"
     },
     {
       "from": "mcu",
-      "fromTerminal": "pd7",
+      "fromTerminal": "PD7",
       "to": "matrix",
       "toTerminal": "row7"
     },
@@ -162,11 +184,11 @@
       "from": "btnL",
       "fromTerminal": "b",
       "to": "mcu",
-      "toTerminal": "pc3"
+      "toTerminal": "PC3"
     },
     {
       "from": "mcu",
-      "fromTerminal": "pc3",
+      "fromTerminal": "PC3",
       "to": "rL",
       "toTerminal": "a"
     },
@@ -186,11 +208,11 @@
       "from": "btnR",
       "fromTerminal": "b",
       "to": "mcu",
-      "toTerminal": "pc7"
+      "toTerminal": "PC7"
     },
     {
       "from": "mcu",
-      "fromTerminal": "pc7",
+      "fromTerminal": "PC7",
       "to": "rR",
       "toTerminal": "a"
     },
@@ -204,13 +226,13 @@
       "from": "vcc1",
       "fromTerminal": "vcc",
       "to": "mcu",
-      "toTerminal": "vcc"
+      "toTerminal": "VCC"
     },
     {
       "from": "gnd1",
       "fromTerminal": "gnd",
       "to": "mcu",
-      "toTerminal": "gnd"
+      "toTerminal": "GND"
     }
   ]
 }

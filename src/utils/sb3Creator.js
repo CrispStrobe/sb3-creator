@@ -1357,7 +1357,7 @@ class SB3Creator {
         // A numbered pin (D13, A0) for the boards that have them. Kept as its
         // own branch: an Arduino pin has no port and no bit, so every check
         // below it is about a coordinate system it is not in.
-        if ((m = trimmed.match(/^PIN\s+([A-Za-z_]\w*)\s*=\s*([DA]\d+|GP\d+|P[AB]\d|P\d+|BUTTON_[AB])\s+(OUTPUT|INPUT|ANALOG|PWM|TONE)(?:\s+ACTIVE\s+(LOW|HIGH))?$/i))) {
+        if ((m = trimmed.match(/^PIN\s+([A-Za-z_]\w*)\s*=\s*([DA]\d+|GP\d+|P[A-D]\d|P\d+|BUTTON_[AB])\s+(OUTPUT|INPUT|ANALOG|PWM|TONE)(?:\s+ACTIVE\s+(LOW|HIGH))?$/i))) {
             const [, name, where, direction, active] = m;
             const cfg = this.stcConfig();
             const part = SB3Creator.STC_PARTS[cfg.device];
@@ -1378,7 +1378,8 @@ class SB3Creator {
                 pico: [/^GP\d+$/i, 'GP0-GP28'],
                 // PB7 is Timer 1's square-wave pin and the machine's timebase
                 // guard: the emitter would refuse it anyway, refuse it here too.
-                eater6502: [/^(PA[0-7]|PB[0-6])$/i, 'PA0-PA7 or PB0-PB6 (PB7 belongs to Timer 1)']
+                eater6502: [/^(PA[0-7]|PB[0-6])$/i, 'PA0-PA7 or PB0-PB6 (PB7 belongs to Timer 1)'],
+                attiny88: [/^(PA[0-3]|PB[0-7]|PC[0-7]|PD[0-7])$/i, 'PA0-PA3, PB0-PB7, PC0-PC7, PD0-PD7']
             };
             const spoken = SPOKEN[cfg.device];
             if (!spoken || !spoken[0].test(where)) {
@@ -10369,7 +10370,11 @@ SB3Creator.STC_PARTS = {
     // generateC() emits cc65-compatible freestanding C; pins are VIA port
     // bits (PA0-PA7, PB0-PB6). No ADC, no PWM -- the VIA has neither, and
     // Timer 1 is the millisecond timebase.
-    eater6502: { core: 'w65c02', header: null, portModes: false, aux1T: false, adc: false }
+    eater6502: { core: 'w65c02', header: null, portModes: false, aux1T: false, adc: false },
+    // ATtiny88: bare AVR in DIP-28, 4 ports (A partial, B/C/D full).
+    // Same core as Arduino (avr8js), pin regex accepts PA/PB/PC/PD names.
+    // ADC on PC0-PC5 (channels 0-5); no UART, no hardware PWM on Timer 0.
+    attiny88: { core: 'arduino', header: 'avr/io.h', portModes: false, aux1T: false, adc: true }
 };
 
 // C keywords a sanitized Scratch name could collide with (sanitizeIdent only guards the
