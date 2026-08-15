@@ -9504,6 +9504,23 @@ class SB3Creator {
             if (this._cUses.pwm || this._cUses.motor) {
                 out.push('    TCCR2A = (1 << WGM20) | (1 << WGM21);  /* Timer 2: fast PWM */',
                     '    TCCR2B = (1 << CS22);          /* F_CPU/64 */');
+                if (this._cMega) {
+                    // Mega: Timers 3/4/5 are 16-bit; 8-bit fast PWM uses WGM mode 5
+                    // (WGMn2:0 = 101, TOP = 0xFF). Same F_CPU/64 prescaler as Timer 1.
+                    const megaPwmPins = new Set(pins.filter(p => p.direction === 'pwm' || p.direction === 'motor').map(p => {
+                        const m = String(p.where).match(/^D(\d+)$/i);
+                        return m ? Number(m[1]) : -1;
+                    }));
+                    const needT3 = [2, 3, 5].some(d => megaPwmPins.has(d));
+                    const needT4 = [6, 7, 8].some(d => megaPwmPins.has(d));
+                    const needT5 = [44, 45, 46].some(d => megaPwmPins.has(d));
+                    if (needT3) out.push('    TCCR3A = (1 << WGM30);         /* Timer 3: 8-bit fast PWM */',
+                        '    TCCR3B = (1 << WGM32) | (1 << CS31) | (1 << CS30);  /* F_CPU/64 */');
+                    if (needT4) out.push('    TCCR4A = (1 << WGM40);         /* Timer 4: 8-bit fast PWM */',
+                        '    TCCR4B = (1 << WGM42) | (1 << CS41) | (1 << CS40);  /* F_CPU/64 */');
+                    if (needT5) out.push('    TCCR5A = (1 << WGM50);         /* Timer 5: 8-bit fast PWM */',
+                        '    TCCR5B = (1 << WGM52) | (1 << CS51) | (1 << CS50);  /* F_CPU/64 */');
+                }
             }
             if (this._cUses.print) {
                 out.push(`    UBRR0 = (uint16_t)(F_CPU / 16UL / 9600UL - 1UL);`,
