@@ -13,9 +13,9 @@ and has intro.md + intro.de.md (Layer 3).
 | MCU extended | 37–54 | 18 | 18 | 0 | 0 | 0 | 0 |
 | platform variants | nano/mega/pico | 10 | 10 | 0 | 0 | 0 | 0 |
 | AVR (Uno) | avr01–avr06 | 6 | 5 | 1 | 0 | 0 | 0 |
-| Arduino CC0 | arduino-01–sk | 54 | 53 | 0 | 0 | 0 | 1 |
+| Arduino CC0 | arduino-01–sk | 63 | 62 | 0 | 0 | 0 | 1 |
 | retro benches | eater/z80 | 4 | 0 | 0 | 0 | 0 | 4 |
-| **total** | | **192** | **169** | **10** | **4** | **1** | **6** |
+| **total** | | **201** | **178** | **10** | **4** | **1** | **6** |
 
 ### Content fixes applied (8)
 - pc02: resistor_4 unseated (floating)
@@ -1082,6 +1082,33 @@ terminals) — harness cannot solve. Program parses with warnings.
 
 ## arduino-sk-p06-light-theremin — VERDICT: pass (10 parse warnings)
 **layers: engine.** StarterKit: light theremin. 3 nets. Solves clean.
+
+## arduino-sk-p07-keyboard — VERDICT: pass (11 parse warnings)
+**layers: engine.** StarterKit: piezo keyboard. 2 nets. Solves clean.
+
+## arduino-sk-p08-hourglass — VERDICT: pass (17 parse warnings)
+**layers: engine.** StarterKit: LED hourglass. 2 nets. Solves clean.
+
+## arduino-sk-p09-motorized-pinwheel — VERDICT: pass (4 parse warnings)
+**layers: engine.** StarterKit: motor pinwheel. 2 nets. Solves clean.
+
+## arduino-sk-p10-zoetrope — VERDICT: pass (14 parse warnings)
+**layers: engine.** StarterKit: zoetrope motor. 2 nets. Solves clean.
+
+## arduino-sk-p11-crystal-ball — VERDICT: pass (14 parse warnings)
+**layers: engine.** StarterKit: LCD crystal ball. 2 nets. Solves clean.
+
+## arduino-sk-p12-knock-lock — VERDICT: pass (21 parse warnings)
+**layers: engine.** StarterKit: piezo knock lock. 2 nets. Solves clean.
+
+## arduino-sk-p13-touch-lamp — VERDICT: pass (10 parse warnings)
+**layers: engine.** StarterKit: capacitive touch lamp. 2 nets. Solves clean.
+
+## arduino-sk-p14-serial-pot — VERDICT: pass (2 parse warnings)
+**layers: engine.** StarterKit: serial potentiometer. 2 nets. Solves clean.
+
+## arduino-sk-p15-hacking-buttons — VERDICT: pass (4 parse warnings)
+**layers: engine.** StarterKit: button hacking. 2 nets. Solves clean.
 
 ## blinkenrocket-pendant — VERDICT: app-level (attiny88 kind)
 **layers: none.** Uses `attiny88` MCU not in engine registry. 8x8 LED matrix.
