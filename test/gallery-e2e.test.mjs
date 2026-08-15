@@ -86,6 +86,7 @@ const TERMINALS = {
     tip120: ['base', 'collector', 'emitter'],
     dc_motor: ['a', 'b'],
     servo: ['signal', 'vcc', 'gnd'],
+    shift_register: ['data', 'clock', 'latch', 'oe', 'q0', 'q1', 'q2', 'q3', 'q4', 'q5', 'q6', 'q7'],
 };
 const DEVICE_TERMINALS = TERMINALS; // alias for readability
 
@@ -429,13 +430,21 @@ describe('e2e: device-state examples — relay, motor, 595', { skip: DEVICE_SKIP
         assert.ok(bSink > bSource * 5, `sink (${bSink.toFixed(4)}) must be much brighter than source (${bSource.toFixed(4)})`);
     });
 
-    test('08-led-chaser-595: shift register e2e', {
-        skip: 'Circuit model (terminalsForKind) does not know shift_register terminals — board rejects the netlist'
-    }, () => {});
+    test('08-led-chaser-595: shift register circuit accepted with LEDs', () => {
+        const { board, parts } = loadCircuit('08-led-chaser-595');
+        assert.ok(board.parts.length > 0, 'board accepted the shift register circuit');
+        const sr = parts.find(p => p.kind === 'shift_register');
+        assert.ok(sr, 'circuit has a shift_register part');
+        const leds = board.getLeds();
+        assert.ok(leds.length >= 8, `should have 8 LEDs, got ${leds.length}`);
+    });
 
-    test('20-shift-register-binary: shift register e2e', {
-        skip: 'same as 08: Circuit model needs shift_register terminal mapping'
-    }, () => {});
+    test('20-shift-register-binary: shift register circuit loads', () => {
+        const { board, parts } = loadCircuit('20-shift-register-binary');
+        assert.ok(board.parts.length > 0, 'board accepted the shift register circuit');
+        const sr = parts.find(p => p.kind === 'shift_register');
+        assert.ok(sr, 'circuit has a shift_register part');
+    });
 });
 
 // The aggregate current check does not need the board engine — just the parser.
