@@ -310,9 +310,17 @@ LED on (anode **2.027 V**), phototransistor on (collector **0.003 V**). ✓
 ## stepper — PASS. Coil at 0.146V. ✓
 ## h_bridge (12-terminal) — PASS. All outputs 0V. ✓
 
-## dip_switch — SKIPPED (terminal naming unknown)
-## phototransistor — SKIPPED (terminal naming unknown)
-## gas_sensor — SKIPPED (terminal naming unknown)
+## dip_switch — PASS (1)
+Terminals: s0_a/s0_b through s3_a/s3_b. VCC→s0_a, s0_b→R→GND: junction
+**0.000 V** (default closed). ✓
+
+## phototransistor — PASS (1)
+Terminals: collector/emitter. VCC→Rc(10k)→collector, emitter→GND: collector
+**5.000 V** (dark, transistor off). ✓
+
+## gas_sensor — PASS (1)
+Terminals: a/b + heater_a/heater_b. VCC→sensor.a, sensor.b→Rl(10k)→GND:
+junction **0.455 V** (clean air, sensor resistance high). ✓
 
 ## shift_register — PASS (existing examples)
 Verified through 08-led-chaser-595 and 20-shift-register-binary. 8 Q outputs
@@ -361,13 +369,12 @@ harness. Many are verified through existing gallery examples.
 
 | status | count |
 |---|---|
-| PASS (swept) | 96 |
+| PASS (swept) | 99 |
 | ENGINE-BUG (escalated) | 3 (pnp, nmos-on, pmos) |
 | FINDING (resolved) | 1 (diode default Vf — FIXED) |
-| SKIPPED (terminal naming) | 3 (dip_switch, phototransistor, gas_sensor) |
 | SKIPPED (net-inference only) | 2 (rgb_led, seven_segment) |
 | SKIPPED (MCU/board kinds) | 5 (mcu, arduino_uno, arduino_nano, pi_pico, eater6502) |
-| SKIPPED (I2C/SPI, needs MCU) | ~4 (char_lcd_i2c, pcf8574, etc.) |
+| SKIPPED (I2C/SPI, needs MCU) | 4 (char_lcd_i2c, pcf8574, char_lcd, eeprom) |
 | **total** | **114** |
 
 74hc00, 74hc02, 74hc04, 74hc08, 74hc10, 74hc11, 74hc132, 74hc14,
