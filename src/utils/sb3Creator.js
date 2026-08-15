@@ -8463,6 +8463,73 @@ class SB3Creator {
                 '}', '');
         }
 
+        // tone_set: software square-wave on the declared TONE pin.
+        if (this._cUses.tone && this._core === 'avr') {
+            // Find the tone pin's port and bit
+            const tonePin = pins.find(p => p.direction === 'tone');
+            const pinMap = this._cMega ? SB3Creator.AVR_PINS_MEGA : SB3Creator.AVR_PINS;
+            if (tonePin) {
+                const hw = pinMap[tonePin.where.toUpperCase()];
+                if (hw) {
+                    const [port, bit] = hw;
+                    out.push('/* tone_set: software square-wave via Timer2 CTC + ISR toggle.',
+                        ` * Pin ${tonePin.where} (P${port}${bit}) is the declared TONE output.`,
+                        ' * Frequency = F_CPU / (2 * prescaler * (OCR2A+1)).',
+                        ' * freq=0 stops the tone (silences the pin). */',
+                        `static volatile uint8_t _tone_active;`,
+                        '',
+                        `ISR(TIMER2_COMPA_vect) { if (_tone_active) PIN${port} = (1 << ${bit}); }`,
+                        '',
+                        'static void tone_set(unsigned int freq)',
+                        '{',
+                        '    if (freq == 0) {',
+                        '        TIMSK2 &= (uint8_t)~(1 << OCIE2A);',
+                        '        _tone_active = 0;',
+                        `        PORT${port} &= (uint8_t)~(1 << ${bit});`,
+                        '        return;',
+                        '    }',
+                        '    /* Pick a prescaler that fits the 8-bit OCR2A range. */',
+                        '    uint32_t ocr;',
+                        '    uint8_t cs;',
+                        '    ocr = F_CPU / (2UL * 1UL * freq) - 1;',
+                        '    if (ocr <= 255) { cs = (1 << CS20); }',
+                        '    else { ocr = F_CPU / (2UL * 8UL * freq) - 1;',
+                        '           if (ocr <= 255) cs = (1 << CS21);',
+                        '           else { ocr = F_CPU / (2UL * 64UL * freq) - 1;',
+                        '                  if (ocr <= 255) cs = (1 << CS22);',
+                        '                  else { ocr = F_CPU / (2UL * 256UL * freq) - 1;',
+                        '                         if (ocr <= 255) cs = (1 << CS22) | (1 << CS21);',
+                        '                         else { ocr = F_CPU / (2UL * 1024UL * freq) - 1;',
+                        '                                cs = (1 << CS22) | (1 << CS21) | (1 << CS20);',
+                        '                                if (ocr > 255) ocr = 255; } } } }',
+                        `    DDR${port} |= (1 << ${bit});`,
+                        '    TCCR2A = (1 << WGM21);          /* CTC mode */',
+                        '    TCCR2B = cs;',
+                        '    OCR2A  = (uint8_t)ocr;',
+                        '    TCNT2  = 0;',
+                        '    _tone_active = 1;',
+                        '    TIMSK2 |= (1 << OCIE2A);',
+                        '}', '');
+                }
+            }
+        }
+        if (this._cUses.tone && this._core === '8051') {
+            // 8051 tone via Timer2 (T2CON) — TODO: not all STC parts have Timer2.
+            // For now, emit a stub that warns at compile time.
+            const tonePin = pins.find(p => p.direction === 'tone');
+            if (tonePin) {
+                out.push('/* tone_set stub: 8051 tone not yet implemented. */',
+                    'static void tone_set(unsigned int freq)',
+                    '{',
+                    `    (void)freq; /* P${tonePin.port}_${tonePin.bit} */`,
+                    '}', '');
+            }
+        }
+        if (this._cUses.tone && this._core === 'arm') {
+            // ARM tone — PWM on the declared tone pin. TODO: implement.
+            out.push('static void tone_set(unsigned int freq) { (void)freq; }', '');
+        }
+
         // Lookup tables: constant bytes in code space (__code flash).
         // (tables was declared earlier, before the marker header that references it.)
         if (tables.length) {
