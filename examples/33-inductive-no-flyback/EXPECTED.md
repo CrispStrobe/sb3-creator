@@ -10,12 +10,6 @@ The motor is modelled as two parts in series, because a real winding is both:
 - `motor1` — a `dc_motor`, `windingR` 10 Ω plus back-EMF (`kV` 0.01)
 - `l1` — a 1 mH `inductor`, the winding's inductance
 
-Note that `l1`'s **value** is currently inert: the engine's transient solver
-reads a different spelling of the parameter (`henries`) than the one the schema
-documents (`henrys`), so every inductor is stamped at the 1 mH default. 1 mH is
-what this example wants, so the behaviour below is correct — but editing the
-number changes nothing until that is fixed. Logged in `../AUDIT.md`.
-
 The inductor is what carries this lesson. The engine's `dc_motor` model is
 resistance and back-EMF only; without an explicit `inductor` there is nothing
 in the circuit that can kick, and the example would show a flat 5 V at

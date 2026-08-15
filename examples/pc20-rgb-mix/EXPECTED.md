@@ -23,13 +23,10 @@ white LEDs read as brighter to the eye at the same current.
 The ideal-drop estimate (5.0 − 2.0) / 330 = 9.1 mA is 3 % high; the LED's real
 drop at 9 mA is 2.088 V.
 
-## Note — why there is no `rgb_led` part here
-The gallery title said "RGB LED" while the canvas showed three separate LEDs.
-The engine has an `rgb_led` kind declared, but it is a **composite with no
-model**: `validate.js:51` marks it `null // composite`, `mna.js:578` lists it
-under "handled elsewhere or composite" and stamps nothing, and no expansion
-into `<id>_r` / `_g` / `_b` sub-LEDs exists for `rgbLedBrightness()` to read.
-Wired up, it passes 5 V straight through with no drop and no current —
-measured, not assumed. So the title was corrected to match the circuit rather
-than the circuit rebuilt around a part that does not conduct. Recorded as
-escalation E3 in `examples/AUDIT/pc13-pc24.md`.
+## Note — discrete vs. composite
+
+This circuit uses three discrete LEDs, not a single `rgb_led` composite part.
+The engine now expands `rgb_led` into `<id>_r` / `_g` / `_b` sub-LEDs with
+real diode drops, so a composite version would also work — but the three-branch
+layout is the cleaner teaching circuit because each path is visible and
+independent.

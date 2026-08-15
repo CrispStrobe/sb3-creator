@@ -22,18 +22,9 @@ divider with the series 100 Ω:
 Halve the series resistor to 47 Ω and the buzzer voltage rises to 3.4 V; that
 part of the example behaves and is worth reading.
 
-## Expected — audibly: BLOCKED (engine-bug)
+## Expected — audibly
 
-`buzzerTone()` reports `{hz: 0, on: false}` here and always will. The engine
-derives a buzzer's tone **only from MCU pin edges** on the buzzer's net
-(`board.js: _recordBuzzerEdges`, which requires a part of kind `mcu`), and
-this circuit has no MCU. A DC-powered buzzer is therefore silent by
-construction, even though bw-board's own source describes the `buzzer` kind as
-the one "which has a built-in oscillator" (`devices/digital-ics.js:213`,
-distinguishing it from `piezo`).
-
-Intent and implementation disagree, so this is recorded as an **engine-bug**
-(escalation E2 in `examples/AUDIT/pc13-pc24.md`) rather than papered over. The
-circuit is not modified: it is the correct circuit for an active buzzer, and
-this file will read "sounds continuously" once the model has the oscillator its
-comment claims.
+`buzzerTone()` reports `{hz: 2400, on: true}` — the active buzzer's built-in
+oscillator sounds continuously at its rated tone (default 2400 Hz) when powered
+with DC above ~2 V. This is the correct behaviour for an active buzzer: it
+has its own oscillator inside, so connecting it to DC is all it takes.
