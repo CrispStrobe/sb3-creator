@@ -1,1 +1,10 @@
-DEVICE Z80
+# Z80 breadboard computer — standalone circuit.
+#
+# The bench is the deliverable here: Z80 + RAM + ROM + MC6850 with
+# 74HC00 decode, wired like the real build, and bw-board's
+# extractZ80Machine turns exactly this wiring into the machine config
+# (memory regions + the I/O-mapped ACIA).
+#
+# There is no DEVICE Z80 program axis in the transpiler yet — when the
+# Z80 generateC/generateASM core lands, this line gains a real program;
+# until then a fake DEVICE line would only teach the gallery to lie.

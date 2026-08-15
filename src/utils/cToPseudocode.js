@@ -157,10 +157,14 @@ function readMarkers (source) {
                 h.machine.regions.push({ kind: p[1].toLowerCase(), start: parseInt(p[2], 16), end: parseInt(p[3], 16) });
             }
         } else if (kind === 'chip') {
-            const p = rest.match(/^(\w+)\s+(w65c22|w65c51)\s+([0-9a-f]{1,4})/i);
+            const p = rest.match(/^(\w+)\s+(w65c22|w65c51|tms9918)\s+([0-9a-f]{1,4})/i);
             if (p) {
                 if (!h.machine) h.machine = { regions: [], chips: [] };
-                h.machine.chips.push({ name: p[1], kind: /22$/i.test(p[2]) ? 'via' : 'acia', at: parseInt(p[3], 16) });
+                h.machine.chips.push({
+                    name: p[1],
+                    kind: /22$/i.test(p[2]) ? 'via' : /9918$/i.test(p[2]) ? 'vdp' : 'acia',
+                    at: parseInt(p[3], 16),
+                });
             }
         } else if (kind === 'var') {
             const v = rest.match(/^(\w+)\s+("(?:[^"\\]|\\.)*")(?:\s+sprite\s+("(?:[^"\\]|\\.)*"))?/);
@@ -1650,7 +1654,7 @@ export default function cToPseudocode (source, opts = {}) {
     if (markers && markers.machine) {
         const hx = (n) => '$' + n.toString(16).toUpperCase().padStart(4, '0');
         for (const r of markers.machine.regions) out.push(`MAP ${r.kind.toUpperCase()} ${hx(r.start)}-${hx(r.end)}`);
-        for (const ch of markers.machine.chips) out.push(`CHIP ${ch.name} = ${ch.kind === 'via' ? 'W65C22' : 'W65C51'} AT ${hx(ch.at)}`);
+        for (const ch of markers.machine.chips) out.push(`CHIP ${ch.name} = ${{ via: 'W65C22', acia: 'W65C51', vdp: 'TMS9918' }[ch.kind] || 'W65C51'} AT ${hx(ch.at)}`);
     }
     const pinList = [...new Set(pins.values())];
     if (pinList.length) {

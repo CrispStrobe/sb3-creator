@@ -2932,6 +2932,41 @@ WHEN flag clicked:
     assert.match(c.decompile(), /^CHIP tva = W65C22 AT \$7000$/m);
 });
 
+test('CHIP vdp = TMS9918: parses, names its ports, round-trips', async () => {
+    const src = `DEVICE EATER6502
+MAP RAM $0000-$3FFF
+MAP ROM $C000-$FFFF
+CHIP vdp = TMS9918 AT $9000
+PIN led1 = PA0 OUTPUT
+
+WHEN flag clicked:
+  FOREVER:
+    toggle led1
+    wait 0.5 seconds
+`;
+    const c = build(src);
+    assert.deepEqual(c.warnings || [], []);
+    const chip = c.project.stc.machine.chips.find((ch) => ch.kind === 'vdp');
+    assert.ok(chip, 'vdp chip stored on the machine');
+    assert.equal(chip.at, 0x9000);
+    const out = c.generateC(undefined, {});
+    assert.match(out, /#define BW_VDP_DATA \(\*\(volatile uint8_t \*\)0x9000u\)/);
+    assert.match(out, /#define BW_VDP_CTRL \(\*\(volatile uint8_t \*\)0x9001u\)/);
+    const cToPseudocode = (await import('../src/utils/cToPseudocode.js')).default;
+    const back = cToPseudocode(out).pseudocode;
+    assert.match(back, /^CHIP vdp = TMS9918 AT \$9000$/m);
+    assert.match(c.decompile(), /^CHIP vdp = TMS9918 AT \$9000$/m);
+});
+
+test('CHIP TMS9918 refusals: duplicate vdp, overlap with a chip window', () => {
+    const warnsOf = (src) => { const c = build(src); return (c.warnings || []).join('\n'); };
+    assert.match(warnsOf('DEVICE EATER6502\nCHIP a = TMS9918 AT $9000\nCHIP b = TMS9918 AT $9800\n'),
+        /already declared/);
+    // The VDP's 2-byte window collides with the VIA's 16-byte one
+    assert.match(warnsOf('DEVICE EATER6502\nCHIP a = W65C22 AT $6000\nCHIP b = TMS9918 AT $600e\n'),
+        /overlaps/);
+});
+
 test('MAP/CHIP refusals: wrong device, overlap, second VIA, chip inside RAM', () => {
     const warnsOf = (src) => { const c = build(src); return (c.warnings || []).join('\n'); };
     assert.match(warnsOf('DEVICE PICO\nMAP RAM $0000-$3FFF\n'), /fixed memory map/);
