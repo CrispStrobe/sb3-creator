@@ -83,7 +83,7 @@
       "seat": {
         "boardId": "breadboard_1",
         "leadMap": {
-          "anode": "c10",
+          "anode": "c8",
           "cathode": "c11"
         }
       }

@@ -43,8 +43,8 @@
         "boardId": "breadboard_1",
         "leadMap": {
           "a": "a3",
-          "wiper": "a5",
-          "b": "a7"
+          "wiper": "a7",
+          "b": "a12"
         }
       }
     },

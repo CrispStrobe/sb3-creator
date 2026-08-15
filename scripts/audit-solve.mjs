@@ -33,6 +33,20 @@ const { registerAllDevices } = await import(join(BOARD, 'src', 'register-all.js'
 registerAllDevices();
 
 const doc = JSON.parse(readFileSync(join(HERE, '..', 'examples', id, 'circuit.json'), 'utf8'));
+// Normalize wire format: some examples use {from: {part, terminal}, to: {board, hole}}
+// instead of {from: "partId", fromTerminal: "t", to: "partId", toTerminal: "t"}.
+const rawWires = doc.wires || [];
+const wires = rawWires.map((w) => {
+    if (typeof w.from === 'object') {
+        const fromPart = w.from.part;
+        const fromTerminal = w.from.terminal;
+        const toPart = w.to.part || w.to.board;
+        const toTerminal = w.to.terminal || w.to.hole;
+        return { ...w, from: fromPart, fromTerminal, to: toPart, toTerminal };
+    }
+    return w;
+});
+
 const KIND_ALIASES = { '74hc595': 'shift_register', pot: 'potentiometer' };
 const LAYOUT_ONLY = new Set(['breadboard', 'label', 'wire_junction']);
 
@@ -85,7 +99,7 @@ for (const p of doc.parts) {
 
 // Also resolve wires that go TO a breadboard hole
 const wireEdgesExtra = [];
-for (const w of doc.wires || []) {
+for (const w of wires) {
     if (breadboards.has(w.to)) {
         const sk = bbStripKey(w.to, w.toTerminal);
         wireEdgesExtra.push({
@@ -124,7 +138,7 @@ const add = (k) => { if (!parent.has(k)) parent.set(k, k); };
 const union = (a, b) => { add(a); add(b); parent.set(find(a), find(b)); };
 
 // Regular wires (skip breadboard-to-breadboard)
-for (const w of doc.wires || []) {
+for (const w of wires) {
     if (breadboards.has(w.from) || breadboards.has(w.to)) continue;
     union(key(w.from, w.fromTerminal), key(w.to, w.toTerminal));
 }

@@ -57,7 +57,14 @@
       ],
       "x": 0,
       "y": 0,
-      "rotation": 0
+      "rotation": 0,
+      "seat": {
+        "boardId": "breadboard_1",
+        "leadMap": {
+          "a": "b7",
+          "b": "b11"
+        }
+      }
     }
   ],
   "wires": [

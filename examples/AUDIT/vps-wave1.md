@@ -89,3 +89,109 @@ equal voltage. Category `pure-circuit`, difficulty 2 — sensible (parallel
 concept is one step up from series).
 
 **No content change.**
+
+## pc05-npn-switch — VERDICT: content-fix + engine-bug
+
+**layers: engine.**
+
+**Finding 1 — disconnected parts.** The original circuit had NPN terminals
+seated in the wrong rows: emitter at c8 (row 8, unconnected), base at c9
+(row 9, unconnected), collector at c10 (row 10 = GND). The base resistor R6
+went from VCC (d2) to row 6 (d6, same as LED anode) instead of to the base.
+Nothing drove the transistor; the LED was not in the collector path.
+
+**Action taken.** Corrected NPN seat: collector=c7 (row 7 = LED cathode),
+base=c9, emitter=c10 (row 10 = GND). R6 seat: a=d2 (VCC), b=d9 (base row).
+Circuit topology now matches EXPECTED.md: VCC → R3 (470Ω) → LED → collector
+→ emitter → GND; base driven from VCC through R6 (10kΩ).
+
+**Finding 2 — engine-bug: NPN saturation produces negative voltages.** With
+the corrected circuit, the engine produces physically impossible results:
+collector at −17.6 V, LED anode at −15.2 V. Base voltage is correct at 0.7 V.
+Reproduced with a minimal direct-wired circuit (no breadboard): VCC → 1kΩ →
+collector → emitter → GND, base driven through 10kΩ from VCC. Collector
+reads −38 V instead of the expected ~0.2 V (Vce_sat).
+
+The same topology works correctly in example 38-npn-switch when the base is
+OFF (button unpressed): Vce ≈ 5 V. The bug is specific to the saturated
+(ON) state of the NPN model.
+
+**Engine-bug filed.** bw-board NPN model: saturated common-emitter produces
+negative collector voltages. The example circuit is now topologically correct
+but cannot be engine-validated until this is fixed.
+
+## pc06-rc-charge — VERDICT: content-fix
+
+**layers: engine.** Pure circuit, comment-only program.
+
+**Finding: `capacitor_4` had no `seat` — floating.** Resistor R3 seated at
+rows 3–7, vsource at rows 3 and 11, but the capacitor was entirely
+disconnected.
+
+**Action taken.** Added seat for `capacitor_4` at `b7`–`b11`, connecting it
+between R3's output and vsource negative.
+
+After fix, solved at multiple times (τ = RC = 10kΩ × 100µF = 1.0 s):
+
+| time | Vc (measured) | Vc (theory: 5(1−e^(−t/τ))) |
+|---|---|---|
+| 100 ms | 0.4757 V | 0.476 V |
+| 1000 ms (1τ) | 3.1568 V | 3.161 V |
+| 5000 ms (5τ) | 4.9649 V | 4.966 V |
+
+All three match to within 0.2% (integration step rounding). EXPECTED.md
+states Vc ≈ 3.16 V at t = τ — confirmed.
+
+## pc07-pot-dimmer — VERDICT: content-fix + engine-bug
+
+**layers: engine.**
+
+**Finding 1 — wiper disconnected.** The potentiometer was seated with
+a=row 3 (VCC), wiper=row 5, b=row 7. R4 (220Ω) was at row 7–11, and the LED
+at row 11–12 (GND at row 12). The wiper at row 5 was floating — nothing
+connected to it. The circuit used pot.b (fixed end) as the output instead of
+the wiper, making the pot a fixed 10kΩ series resistor rather than a dimmer.
+
+**Action taken.** Changed pot seat: wiper to row 7 (where R4 connects), pot.b
+to row 12 (GND). Circuit now matches EXPECTED.md: VCC → pot.a, pot.b → GND,
+pot.wiper → R4 (220Ω) → LED → GND.
+
+After fix, solved at t=1 ms: wiper at 2.04 V, LED current ≈ 0.18 mA. The
+wiper voltage is lower than the no-load V_in × position (2.5 V) because the
+LED load pulls the voltage down through the Shockley model.
+
+**Finding 2 — engine-bug: pot position parameter ignored.** Tested the
+potentiometer model in isolation: position 0, 0.25, 0.5, 0.75, and 1.0 all
+produce a wiper voltage of exactly 2.500 V (with 5V across a–b). The
+`position` parameter is completely inert. The dimmer cannot be demonstrated
+until this is fixed. EXPECTED.md's claim of different brightness levels at
+different positions is false on this engine.
+
+**Engine-bug filed.** bw-board potentiometer model: `position` parameter has
+no effect on wiper voltage.
+
+## pc08-diode-polarity — VERDICT: content-fix
+
+**layers: engine.** Pure circuit, comment-only program.
+
+**Finding: LED anode disconnected from diode cathode.** Diode cathode seated
+at b8 (row 8), LED anode at c10 (row 10) — two-row gap, no connection. The
+diode and LED were on separate isolated paths.
+
+**Action taken.** Changed LED seat: anode from c10 to c8 (row 8, same as
+diode cathode). Circuit now matches EXPECTED.md: VCC → R (220Ω) → diode
+(Vf=0.7) → LED (Vf=2.0) → GND.
+
+After fix, solved at t=1 ms:
+
+| net | terminals | voltage |
+|---|---|---|
+| n0 | vsource_2.pos, resistor_3.a | 5.0000 V |
+| n1 | vsource_2.neg, led_5.cathode | 0.0000 V |
+| n2 | resistor_3.b, diode_4.anode | 2.8917 V |
+| n3 | diode_4.cathode, led_5.anode | 2.0958 V |
+
+V across R = 5.0 − 2.89 = 2.11 V, I = 2.11/220 = 9.6 mA. V across diode =
+2.89 − 2.10 = 0.80 V (Shockley; nominal 0.7 V). V across LED = 2.10 V
+(Shockley; nominal 2.0 V). EXPECTED.md says I ≈ 10.5 mA using ideal Vf
+values — the Shockley difference, consistent.

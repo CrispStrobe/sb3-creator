@@ -84,9 +84,9 @@
       "seat": {
         "boardId": "breadboard_1",
         "leadMap": {
-          "emitter": "c8",
+          "collector": "c7",
           "base": "c9",
-          "collector": "c10"
+          "emitter": "c10"
         }
       }
     },
@@ -107,7 +107,7 @@
         "boardId": "breadboard_1",
         "leadMap": {
           "a": "d2",
-          "b": "d6"
+          "b": "d9"
         }
       }
     }
