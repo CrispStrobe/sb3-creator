@@ -1,0 +1,24 @@
+# Ported from arduino-examples/examples/10.StarterKit_BasicKit/p02_SpaceshipInterface, CC0
+DEVICE ARDUINO-UNO
+CLOCK 16000000
+PIN greenLed = D3 OUTPUT
+PIN redLed1 = D4 OUTPUT
+PIN redLed2 = D5 OUTPUT
+PIN btn = D2 INPUT
+
+SPRITE Cat:
+  WHEN flag clicked:
+    turn on greenLed
+    forever:
+      if read btn then:
+        turn off greenLed
+        turn on redLed1
+        wait 0.25 seconds
+        turn off redLed1
+        turn on redLed2
+        wait 0.25 seconds
+        turn off redLed2
+      else:
+        turn on greenLed
+        turn off redLed1
+        turn off redLed2

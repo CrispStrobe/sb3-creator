@@ -1,0 +1,24 @@
+# Ported from arduino-examples/examples/10.StarterKit_BasicKit/p06_LightTheremin, CC0
+DEVICE ARDUINO-UNO
+CLOCK 16000000
+PIN ldr = A0 ANALOG
+PIN speaker = D8 OUTPUT
+
+SPRITE Cat:
+  WHEN flag clicked:
+    # Calibrate for 5 seconds
+    set sensorMin to 1023
+    set sensorMax to 0
+    repeat 100:
+      set val to read ldr
+      if val > sensorMax then: set sensorMax to val
+      if val < sensorMin then: set sensorMin to val
+      wait 0.05 seconds
+    # Play theremin
+    forever:
+      set val to read ldr
+      if val < sensorMin then: set val to sensorMin
+      if val > sensorMax then: set val to sensorMax
+      set pitch to (200 + (((val - sensorMin) * 3800) / (sensorMax - sensorMin)))
+      set tone speaker to pitch
+      wait 0.02 seconds

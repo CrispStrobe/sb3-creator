@@ -1,0 +1,17 @@
+# Ported from arduino-examples/examples/10.StarterKit_BasicKit/p04_ColorMixingLamp, CC0
+DEVICE ARDUINO-UNO
+CLOCK 16000000
+PIN sensorR = A0 ANALOG
+PIN sensorG = A1 ANALOG
+PIN sensorB = A2 ANALOG
+PIN ledR = D3 OUTPUT
+PIN ledG = D5 OUTPUT
+PIN ledB = D6 OUTPUT
+
+SPRITE Cat:
+  WHEN flag clicked:
+    forever:
+      set pwm ledR to ((read sensorR * 255) / 1023)
+      set pwm ledG to ((read sensorG * 255) / 1023)
+      set pwm ledB to ((read sensorB * 255) / 1023)
+      wait 0.05 seconds

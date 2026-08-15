@@ -3268,5 +3268,95 @@
       "arduino-uno",
       "arduino-nano"
     ]
+  },
+  {
+    "id": "arduino-sk-p02-spaceship",
+    "title": {
+      "en": "Spaceship Interface (CC0)",
+      "de": "Raumschiff-Interface (CC0)"
+    },
+    "category": "digital",
+    "difficulty": 1,
+    "files": {
+      "program": "arduino-sk-p02-spaceship/program.bw",
+      "circuit": "arduino-sk-p02-spaceship/circuit.json"
+    },
+    "kind": "full",
+    "devices": [
+      "arduino-uno",
+      "arduino-nano"
+    ]
+  },
+  {
+    "id": "arduino-sk-p03-love-o-meter",
+    "title": {
+      "en": "Love-O-Meter (CC0)",
+      "de": "Love-O-Meter (CC0)"
+    },
+    "category": "analog",
+    "difficulty": 2,
+    "files": {
+      "program": "arduino-sk-p03-love-o-meter/program.bw",
+      "circuit": "arduino-sk-p03-love-o-meter/circuit.json"
+    },
+    "kind": "full",
+    "devices": [
+      "arduino-uno",
+      "arduino-nano"
+    ]
+  },
+  {
+    "id": "arduino-sk-p04-color-mixing",
+    "title": {
+      "en": "Color Mixing Lamp (CC0)",
+      "de": "Farbmischlampe (CC0)"
+    },
+    "category": "analog",
+    "difficulty": 2,
+    "files": {
+      "program": "arduino-sk-p04-color-mixing/program.bw",
+      "circuit": "arduino-sk-p04-color-mixing/circuit.json"
+    },
+    "kind": "full",
+    "devices": [
+      "arduino-uno",
+      "arduino-nano"
+    ]
+  },
+  {
+    "id": "arduino-sk-p05-servo-mood",
+    "title": {
+      "en": "Servo Mood Indicator (CC0)",
+      "de": "Servo-Stimmungsanzeiger (CC0)"
+    },
+    "category": "motors",
+    "difficulty": 2,
+    "files": {
+      "program": "arduino-sk-p05-servo-mood/program.bw",
+      "circuit": "arduino-sk-p05-servo-mood/circuit.json"
+    },
+    "kind": "full",
+    "devices": [
+      "arduino-uno",
+      "arduino-nano"
+    ]
+  },
+  {
+    "id": "arduino-sk-p06-light-theremin",
+    "title": {
+      "en": "Light Theremin (CC0)",
+      "de": "Licht-Theremin (CC0)"
+    },
+    "category": "analog",
+    "difficulty": 2,
+    "files": {
+      "program": "arduino-sk-p06-light-theremin/program.bw",
+      "circuit": "arduino-sk-p06-light-theremin/circuit.json"
+    },
+    "kind": "full",
+    "devices": [
+      "arduino-uno",
+      "arduino-nano"
+    ]
   }
 ]

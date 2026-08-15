@@ -1,0 +1,169 @@
+{
+  "vcc": 5,
+  "parts": [
+    {
+      "id": "board",
+      "kind": "arduino_uno"
+    },
+    {
+      "id": "led1",
+      "kind": "led",
+      "declName": "greenLed",
+      "params": {
+        "color": "green"
+      }
+    },
+    {
+      "id": "led2",
+      "kind": "led",
+      "declName": "redLed1",
+      "params": {
+        "color": "red"
+      }
+    },
+    {
+      "id": "led3",
+      "kind": "led",
+      "declName": "redLed2",
+      "params": {
+        "color": "red"
+      }
+    },
+    {
+      "id": "r1",
+      "kind": "resistor",
+      "params": {
+        "ohms": 220
+      }
+    },
+    {
+      "id": "r2",
+      "kind": "resistor",
+      "params": {
+        "ohms": 220
+      }
+    },
+    {
+      "id": "r3",
+      "kind": "resistor",
+      "params": {
+        "ohms": 220
+      }
+    },
+    {
+      "id": "btn1",
+      "kind": "button",
+      "declName": "btn"
+    },
+    {
+      "id": "r4",
+      "kind": "resistor",
+      "params": {
+        "ohms": 10000
+      }
+    },
+    {
+      "id": "vcc1",
+      "kind": "vcc",
+      "params": {
+        "volts": 5
+      }
+    },
+    {
+      "id": "gnd1",
+      "kind": "gnd"
+    }
+  ],
+  "wires": [
+    {
+      "from": "board",
+      "fromTerminal": "d3",
+      "to": "r1",
+      "toTerminal": "a"
+    },
+    {
+      "from": "r1",
+      "fromTerminal": "b",
+      "to": "led1",
+      "toTerminal": "anode"
+    },
+    {
+      "from": "led1",
+      "fromTerminal": "cathode",
+      "to": "gnd1",
+      "toTerminal": "gnd"
+    },
+    {
+      "from": "board",
+      "fromTerminal": "d4",
+      "to": "r2",
+      "toTerminal": "a"
+    },
+    {
+      "from": "r2",
+      "fromTerminal": "b",
+      "to": "led2",
+      "toTerminal": "anode"
+    },
+    {
+      "from": "led2",
+      "fromTerminal": "cathode",
+      "to": "gnd1",
+      "toTerminal": "gnd"
+    },
+    {
+      "from": "board",
+      "fromTerminal": "d5",
+      "to": "r3",
+      "toTerminal": "a"
+    },
+    {
+      "from": "r3",
+      "fromTerminal": "b",
+      "to": "led3",
+      "toTerminal": "anode"
+    },
+    {
+      "from": "led3",
+      "fromTerminal": "cathode",
+      "to": "gnd1",
+      "toTerminal": "gnd"
+    },
+    {
+      "from": "vcc1",
+      "fromTerminal": "vcc",
+      "to": "btn1",
+      "toTerminal": "a"
+    },
+    {
+      "from": "btn1",
+      "fromTerminal": "b",
+      "to": "board",
+      "toTerminal": "d2"
+    },
+    {
+      "from": "board",
+      "fromTerminal": "d2",
+      "to": "r4",
+      "toTerminal": "a"
+    },
+    {
+      "from": "r4",
+      "fromTerminal": "b",
+      "to": "gnd1",
+      "toTerminal": "gnd"
+    },
+    {
+      "from": "vcc1",
+      "fromTerminal": "vcc",
+      "to": "board",
+      "toTerminal": "5v"
+    },
+    {
+      "from": "gnd1",
+      "fromTerminal": "gnd",
+      "to": "board",
+      "toTerminal": "gnd"
+    }
+  ]
+}

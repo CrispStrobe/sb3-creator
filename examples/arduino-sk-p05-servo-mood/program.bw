@@ -1,0 +1,12 @@
+# Ported from arduino-examples/examples/10.StarterKit_BasicKit/p05_ServoMoodIndicator, CC0
+DEVICE ARDUINO-UNO
+CLOCK 16000000
+PIN pot = A0 ANALOG
+PIN servo = D9 OUTPUT
+
+SPRITE Cat:
+  WHEN flag clicked:
+    forever:
+      set angle to ((read pot * 180) / 1023)
+      set pwm servo to angle
+      wait 0.05 seconds

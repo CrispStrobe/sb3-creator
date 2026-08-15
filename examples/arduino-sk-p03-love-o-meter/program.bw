@@ -1,0 +1,33 @@
+# Ported from arduino-examples/examples/10.StarterKit_BasicKit/p03_LoveOMeter, CC0
+DEVICE ARDUINO-UNO
+CLOCK 16000000
+PIN sensor = A0 ANALOG
+PIN led1 = D2 OUTPUT
+PIN led2 = D3 OUTPUT
+PIN led3 = D4 OUTPUT
+
+SPRITE Cat:
+  WHEN flag clicked:
+    set baselineTemp to 20
+    forever:
+      set sensorVal to read sensor
+      set voltage to (sensorVal * (5.0 / 1024))
+      set temperature to ((voltage - 0.5) * 100)
+      print temperature
+      if temperature < baselineTemp then:
+        turn off led1
+        turn off led2
+        turn off led3
+      if temperature >= baselineTemp and temperature < (baselineTemp + 2) then:
+        turn on led1
+        turn off led2
+        turn off led3
+      if temperature >= (baselineTemp + 2) and temperature < (baselineTemp + 4) then:
+        turn on led1
+        turn on led2
+        turn off led3
+      if temperature >= (baselineTemp + 4) then:
+        turn on led1
+        turn on led2
+        turn on led3
+      wait 0.1 seconds
