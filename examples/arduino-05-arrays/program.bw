@@ -8,23 +8,23 @@ PIN led5 = D5 OUTPUT
 PIN led6 = D6 OUTPUT
 PIN led7 = D7 OUTPUT
 
-SPRITE Cat:
-  WHEN flag clicked:
-    LIST ledPins
-    add D2 to ledPins
-    add D7 to ledPins
-    add D4 to ledPins
-    add D6 to ledPins
-    add D5 to ledPins
-    add D3 to ledPins
-    forever:
-      # Forward
-      repeat 6:
-        turn on led2
-        wait 0.1 seconds
-        turn off led2
-      # Reverse
-      repeat 6:
-        turn on led7
-        wait 0.1 seconds
-        turn off led7
+WHEN flag clicked:
+  FOREVER:
+    turn on led2
+    wait 0.1 seconds
+    turn off led2
+    turn on led7
+    wait 0.1 seconds
+    turn off led7
+    turn on led4
+    wait 0.1 seconds
+    turn off led4
+    turn on led6
+    wait 0.1 seconds
+    turn off led6
+    turn on led5
+    wait 0.1 seconds
+    turn off led5
+    turn on led3
+    wait 0.1 seconds
+    turn off led3

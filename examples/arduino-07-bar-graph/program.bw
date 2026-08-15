@@ -7,35 +7,28 @@ PIN led3 = D3 OUTPUT
 PIN led4 = D4 OUTPUT
 PIN led5 = D5 OUTPUT
 PIN led6 = D6 OUTPUT
-PIN led7 = D7 OUTPUT
-PIN led8 = D8 OUTPUT
-PIN led9 = D9 OUTPUT
-PIN led10 = D10 OUTPUT
-PIN led11 = D11 OUTPUT
 
-SPRITE Cat:
-  WHEN flag clicked:
-    forever:
-      set level to ((read pot * 10) / 1023)
-      # Turn on LEDs up to the level
-      if level >= 1 then: turn on led2
-      else: turn off led2
-      if level >= 2 then: turn on led3
-      else: turn off led3
-      if level >= 3 then: turn on led4
-      else: turn off led4
-      if level >= 4 then: turn on led5
-      else: turn off led5
-      if level >= 5 then: turn on led6
-      else: turn off led6
-      if level >= 6 then: turn on led7
-      else: turn off led7
-      if level >= 7 then: turn on led8
-      else: turn off led8
-      if level >= 8 then: turn on led9
-      else: turn off led9
-      if level >= 9 then: turn on led10
-      else: turn off led10
-      if level >= 10 then: turn on led11
-      else: turn off led11
-      wait 0.05 seconds
+WHEN flag clicked:
+  FOREVER:
+    set level to ((read pot * 5) / 1023)
+    IF level >= 1 THEN:
+      turn on led2
+    ELSE:
+      turn off led2
+    IF level >= 2 THEN:
+      turn on led3
+    ELSE:
+      turn off led3
+    IF level >= 3 THEN:
+      turn on led4
+    ELSE:
+      turn off led4
+    IF level >= 4 THEN:
+      turn on led5
+    ELSE:
+      turn off led5
+    IF level >= 5 THEN:
+      turn on led6
+    ELSE:
+      turn off led6
+    wait 0.05 seconds

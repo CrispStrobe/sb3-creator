@@ -4,21 +4,22 @@ CLOCK 16000000
 PIN ldr = A0 ANALOG
 PIN speaker = D8 OUTPUT
 
-SPRITE Cat:
-  WHEN flag clicked:
-    # Calibrate for 5 seconds
-    set sensorMin to 1023
-    set sensorMax to 0
-    repeat 100:
-      set val to read ldr
-      if val > sensorMax then: set sensorMax to val
-      if val < sensorMin then: set sensorMin to val
-      wait 0.05 seconds
-    # Play theremin
-    forever:
-      set val to read ldr
-      if val < sensorMin then: set val to sensorMin
-      if val > sensorMax then: set val to sensorMax
-      set pitch to (200 + (((val - sensorMin) * 3800) / (sensorMax - sensorMin)))
-      set tone speaker to pitch
-      wait 0.02 seconds
+WHEN flag clicked:
+  set sensorMin to 1023
+  set sensorMax to 0
+  REPEAT 100:
+    set val to read ldr
+    IF val > sensorMax THEN:
+      set sensorMax to val
+    IF val < sensorMin THEN:
+      set sensorMin to val
+    wait 0.05 seconds
+  FOREVER:
+    set val to read ldr
+    IF val < sensorMin THEN:
+      set val to sensorMin
+    IF val > sensorMax THEN:
+      set val to sensorMax
+    set pitch to (200 + (((val - sensorMin) * 3800) / (sensorMax - sensorMin)))
+    set tone speaker to pitch
+    wait 0.02 seconds
