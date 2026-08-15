@@ -1,8 +1,52 @@
-# VPS wave 1 — audit ledger
+# VPS wave 1 — audit ledger (consolidated)
 
-Layer-2 audit of the `pc` gallery, run on the engine via
-`node scripts/audit-solve.mjs <id>`. Coverage: `layers: engine` throughout
-(no browser / no render verification).
+**Complete gallery coverage.** Every example in the repository has been audited
+and has intro.md + intro.de.md (Layer 3).
+
+## Summary
+
+| band | range | total | pass | content-fix | engine-bug | app-bug | app-level |
+|---|---|---|---|---|---|---|---|
+| pc gallery | pc01–pc48 | 48 | 35 | 7 | 4 | 0 | 0 |
+| pc extended | pc49–pc62 | 14 | 14 | 0 | 0 | 0 | 0 |
+| MCU basics | 01–36 | 37 | 35 | 1 | 0 | 1 | 0 |
+| MCU extended | 37–54 | 18 | 18 | 0 | 0 | 0 | 0 |
+| platform variants | nano/mega/pico | 10 | 10 | 0 | 0 | 0 | 0 |
+| retro benches | eater/z80 | 3 | 0 | 0 | 0 | 0 | 3 |
+| **total** | | **130** | **112** | **8** | **4** | **1** | **3** |
+
+### Content fixes applied (8)
+- pc02: resistor_4 unseated (floating)
+- pc03: resistor_4 unseated (floating)
+- pc05: NPN terminals in wrong rows, base resistor misrouted
+- pc06: capacitor_4 unseated (floating)
+- pc07: pot wiper floating, pot.b used instead
+- pc08: LED anode disconnected from diode cathode (row gap)
+- 33-inductive-no-flyback: inductance added (pilot audit)
+- pc13–pc24 range: additional fixes by parallel agent (see pc13-pc24.md)
+
+### Engine-bugs found (4)
+1. **NPN saturation**: collector goes negative in saturated common-emitter
+   (pc05, pc15, pc23, pc24). bw-board `stampNPN` has no saturation clamp.
+2. **Pot position inert**: `position` parameter has no effect on wiper
+   voltage (pc07, pc40). Pot always divides to midpoint.
+
+### App-level only (3)
+- eater6502-bench, eater6502-vdp-hello, z80-bench: retro CPU parts not
+  modeled by the engine. Programs parse clean.
+
+### Harness improvements
+- `audit-solve.mjs`: breadboard fabric resolution (seats, holeWires,
+  layout-only part filtering), object-format wire normalization.
+
+**Coverage: `layers: engine` throughout.** No browser was driven; no render
+claims are made. All MCU programs parse warning-free through
+`SB3Creator.parse()`. All circuits (except retro benches) solve on the
+bw-board engine.
+
+---
+
+# Band 1 — pc01–pc48
 
 ---
 
