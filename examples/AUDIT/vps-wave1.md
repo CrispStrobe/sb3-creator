@@ -195,3 +195,68 @@ V across R = 5.0 − 2.89 = 2.11 V, I = 2.11/220 = 9.6 mA. V across diode =
 2.89 − 2.10 = 0.80 V (Shockley; nominal 0.7 V). V across LED = 2.10 V
 (Shockley; nominal 2.0 V). EXPECTED.md says I ≈ 10.5 mA using ideal Vf
 values — the Shockley difference, consistent.
+
+## pc09-direct-led — VERDICT: pass
+
+**layers: engine.** Pure circuit, direct wired (no breadboard), comment-only
+program.
+
+Solved at t=1 ms (vsource 9 V, 3 nets):
+
+| net | voltage |
+|---|---|
+| vsource_1.pos, resistor_2.a | 9.0000 V |
+| resistor_2.b, led_3.anode | 2.0693 V |
+| led_3.cathode, vsource_1.neg | 0.0000 V |
+
+I = (9.0 − 2.07)/1000 = 6.93 mA. EXPECTED.md states 7.0 mA (ideal Vf).
+Category `pure-circuit`, difficulty 1 — both correct. **No content change.**
+
+## pc10-direct-series — VERDICT: pass
+
+**layers: engine.** Pure circuit, direct wired, comment-only program.
+
+Solved at t=1 ms (vsource 9 V, 4 nets):
+
+| net | voltage |
+|---|---|
+| vsource_1.pos, resistor_2.a | 9.0000 V |
+| resistor_2.b, led_3.anode | 4.2041 V |
+| led_3.cathode, led_4.anode | 2.1020 V |
+| led_4.cathode, vsource_1.neg | 0.0000 V |
+
+V per LED ≈ 2.10 V, I = (9.0 − 4.20)/470 = 10.2 mA. EXPECTED.md states
+10.6 mA (ideal Vf). Both LEDs at equal voltage. **No content change.**
+
+## pc11-direct-parallel — VERDICT: pass
+
+**layers: engine.** Pure circuit, direct wired, comment-only program.
+
+Solved at t=1 ms (vsource 5 V, 4 nets):
+
+| net | voltage |
+|---|---|
+| vsource_1.pos, resistor_2.a, resistor_3.a | 5.0000 V |
+| resistor_2.b, led_4.anode | 2.0625 V |
+| resistor_3.b, led_5.anode | 2.0625 V |
+| led_4.cathode, vsource_1.neg, led_5.cathode | 0.0000 V |
+
+Each branch: I = (5.0 − 2.06)/470 = 6.25 mA. EXPECTED.md states 6.4 mA.
+Total 12.5 mA vs stated 12.8 mA — Shockley difference. Both branches
+equal. Category `pure-circuit`, difficulty 2 — sensible. **No content change.**
+
+## pc12-direct-divider — VERDICT: pass
+
+**layers: engine.** Pure circuit, direct wired, comment-only program.
+
+Solved at t=1 ms (vsource 9 V, 3 nets):
+
+| net | voltage |
+|---|---|
+| vsource_1.pos, resistor_2.a | 9.0000 V |
+| resistor_2.b, resistor_3.a | 4.5000 V |
+| resistor_3.b, vsource_1.neg | 0.0000 V |
+
+Junction at 4.5 V = 9 × 10k/(10k+10k) — exact match with EXPECTED.md.
+I = 9/20k = 0.45 mA. Category `pure-circuit`, difficulty 2. **No content
+change.**
