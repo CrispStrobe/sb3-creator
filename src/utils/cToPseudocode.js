@@ -777,6 +777,45 @@ export default function cToPseudocode (source, opts = {}) {
                 return transformLoopBody(inner, head, depth);
             }
             const inner = bodyOf(cur, depth + 1);
+            if (count === null && condStr) {
+                // Non-trivial for-loop: emit init + REPEAT UNTIL + step in body.
+                // `for (mask = 0x80; mask != 0; mask >>= 1)` becomes:
+                //   set mask to 128
+                //   REPEAT UNTIL mask = 0:
+                //     <body>
+                //     set mask to mask shiftright 1
+                const out = [];
+                // Emit the init as a set statement
+                if (initVar && initVal) {
+                    const v = varName(initVar); usedVars.add(v);
+                    const initCur2 = new Cursor([{ t: /^[0-9]/.test(initVal) || /^0x/i.test(initVal) ? 'num' : 'id', v: initVal }]);
+                    const initExpr = new ExprParser(initCur2, ctx).parse(0);
+                    out.push(`${pad}set ${v} to ${initExpr.text}`);
+                }
+                // Parse the condition as a negation for REPEAT UNTIL
+                const condCur = new Cursor(cond.map((tok) => ({ t: /^[0-9]/.test(tok) || /^0x/i.test(tok) ? 'num' : /^[A-Za-z_]/.test(tok) ? 'id' : 'op', v: tok })));
+                const condExpr = new ExprParser(condCur, ctx).parse(0);
+                // Parse the step as a statement
+                const stepStr = step.join('').replace(/\s+/g, '').trim();
+                const stepLines = [];
+                const stepCompound = stepStr.match(/^(\w+)(\+\+|--)$/);
+                const stepAssign = stepStr.match(/^(\w+)(<<=|>>=|\+=|-=|\*=|\/=|%=|&=|\|=|\^=)(.+)$/);
+                if (stepCompound) {
+                    const sv = varName(stepCompound[1]); usedVars.add(sv);
+                    stepLines.push(`${'  '.repeat(depth + 1)}change ${sv} by ${stepCompound[2] === '++' ? 1 : -1}`);
+                } else if (stepAssign) {
+                    const sv = varName(stepAssign[1]); usedVars.add(sv);
+                    const sop = stepAssign[2];
+                    const srhs = stepAssign[3];
+                    const srhsCur = new Cursor([{ t: /^[0-9]/.test(srhs) || /^0x/i.test(srhs) ? 'num' : 'id', v: srhs }]);
+                    const srhsExpr = new ExprParser(srhsCur, ctx).parse(0);
+                    const OPS = { '<<=': 'shiftleft', '>>=': 'shiftright', '+=': '+', '-=': '-', '*=': '*', '/=': '/', '%=': '%', '&=': 'bitand', '|=': 'bitor', '^=': 'bitxor' };
+                    stepLines.push(`${'  '.repeat(depth + 1)}set ${sv} to ${sv} ${OPS[sop] || sop} ${srhsExpr.text}`);
+                }
+                const bodyWithStep = [...inner, ...stepLines];
+                out.push(...transformLoopBody(bodyWithStep, `${pad}REPEAT UNTIL ${negate(condExpr.text)}:`, depth));
+                return out;
+            }
             if (count === null) {
                 warn('a `for` loop that is not `for(;;)` or a simple counter became REPEAT UNTIL false');
                 return transformLoopBody(inner, `${pad}REPEAT UNTIL 1 = 1:`, depth);
