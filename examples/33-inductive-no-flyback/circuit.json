@@ -3,14 +3,16 @@
   "parts": [
     { "id": "vcc1",   "kind": "vcc",      "params": {},                    "x": 100, "y": 50  },
     { "id": "gnd1",   "kind": "gnd",      "params": {},                    "x": 100, "y": 450 },
-    { "id": "motor1", "kind": "dc_motor", "params": { "R": 10, "kV": 0.01 }, "x": 250, "y": 100 },
+    { "id": "motor1", "kind": "dc_motor", "params": { "windingR": 10, "kV": 0.01 }, "x": 250, "y": 100 },
+    { "id": "l1",     "kind": "inductor", "params": { "henrys": 0.001 },   "x": 250, "y": 175 },
     { "id": "q1",     "kind": "tip120",   "params": {},                    "x": 250, "y": 250 },
     { "id": "rb1",    "kind": "resistor", "params": { "ohms": 1000 },      "x": 150, "y": 250 },
     { "id": "mcu1",   "kind": "mcu",      "params": { "pins": ["P1.0"] },  "x": 50,  "y": 350 }
   ],
   "wires": [
     { "from": "vcc1",   "fromTerminal": "vcc",       "to": "motor1", "toTerminal": "a"         },
-    { "from": "motor1", "fromTerminal": "b",           "to": "q1",     "toTerminal": "collector" },
+    { "from": "motor1", "fromTerminal": "b",           "to": "l1",     "toTerminal": "a"         },
+    { "from": "l1",     "fromTerminal": "b",           "to": "q1",     "toTerminal": "collector" },
     { "from": "q1",     "fromTerminal": "emitter",     "to": "gnd1",   "toTerminal": "gnd"       },
     { "from": "mcu1",   "fromTerminal": "P1.0",        "to": "rb1",    "toTerminal": "a"          },
     { "from": "rb1",    "fromTerminal": "b",            "to": "q1",     "toTerminal": "base"       }

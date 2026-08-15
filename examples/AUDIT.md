@@ -60,15 +60,25 @@ the engine *can* show it, provided the winding inductance exists as a part.
 Added an explicit series `inductor` (`l1`, 1 mH — a realistic small-motor
 winding, and a part `bw-circuit-ui` already renders, so no ghost) between
 `motor1.b` and `q1.collector`, and corrected `R` → `windingR`. EXPECTED.md
-rewritten around measured numbers instead of hedges. Measured after the fix:
+rewritten around measured numbers instead of hedges.
 
-| variant | collector peak after turn-off |
-|---|---|
-| no diode (this example) | **+88 V** |
-| same circuit with a flyback diode | **9.5 V** |
+The phenomenon now appears, and measuring it turned up a second point worth
+writing down: **the peak is timestep-dependent, and that is the finding, not a
+defect.** Collector peak after turn-off, by sample step:
 
-88 V is comfortably past the TIP120's 60 V Vceo, so the lesson lands with a
-number the reader can check against a datasheet.
+| sample step | no diode (this example) | with a flyback diode |
+|---|---|---|
+| 100 µs | 9.2 V | 6.9 V |
+| 10 µs | 46.7 V | 9.1 V |
+| 1 µs | 421.7 V | 9.8 V |
+
+Without the diode the peak climbs without bound as the step shrinks — correct
+behaviour for an ideal switch opening an inductive current (V = L·di/dt), and
+the reason a real TIP120 dies rather than reading a tidy number. With the diode
+it is bounded at 7–10 V regardless of step. EXPECTED.md therefore teaches
+"unbounded versus clamped" and explicitly declines to quote a single peak
+voltage as if it were physical. Both `test:fast` (840 pass, 0 fail) and
+`bw-board`'s examples gate (116 engine-validated) stay green after the edit.
 
 **Assigned, not fixed here (out of this audit's two-example scope).**
 
