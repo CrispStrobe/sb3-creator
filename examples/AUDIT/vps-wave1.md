@@ -13,8 +13,8 @@ and has intro.md + intro.de.md (Layer 3).
 | MCU extended | 37–54 | 18 | 18 | 0 | 0 | 0 | 0 |
 | platform variants | nano/mega/pico | 10 | 10 | 0 | 0 | 0 | 0 |
 | AVR (Uno) | avr01–avr06 | 6 | 5 | 1 | 0 | 0 | 0 |
-| retro benches | eater/z80 | 3 | 0 | 0 | 0 | 0 | 3 |
-| **total** | | **136** | **116** | **10** | **4** | **1** | **3** |
+| retro benches | eater/z80 | 4 | 0 | 0 | 0 | 0 | 4 |
+| **total** | | **137** | **116** | **10** | **4** | **1** | **4** |
 
 ### Content fixes applied (8)
 - pc02: resistor_4 unseated (floating)
@@ -904,3 +904,8 @@ skipped the conditional block.** Fixed to `IF`/`THEN:`/`ELSE:`. After fix:
 ## avr06-blink-and-print — VERDICT: pass
 **layers: engine.** Pot + LED, two cooperative scripts. Same topology as
 avr02. 5 nets.
+
+## eater6502-contention-bug — VERDICT: app-level (cannot engine-solve)
+**layers: none.** Retro 6502 breadboard computer with contention-bug teaching
+scenario. Uses w65c02/62256/28c256/w65c22/w65c51 parts the engine does not
+model. No program.bw. Category `digital`, difficulty 3. Intro already present.
