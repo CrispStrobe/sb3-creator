@@ -167,7 +167,37 @@ The PMOS model never conducts regardless of gate voltage. **ESCALATED.**
 
 ---
 
-## Parts not yet swept (98 remaining)
+## gate_and — PASS (2/2)
+inputs=0,0 → out=0 V; inputs=1,1 → out=4.859 V, LED at 2.028 V ✓
+
+## gate_or — PASS (2/2)
+inputs=0,0 → out=0 V; inputs=1,1 → out=4.859 V ✓
+
+## gate_not — PASS (2/2)
+in=0 → out=5.000 V; in=1 → out=0 V ✓
+
+## gate_nand — PASS (2/2)
+inputs=0,0 → out=5.000 V; inputs=1,1 → out=0 V ✓
+
+## gate_nor — PASS (2/2)
+inputs=0,0 → out=5.000 V; inputs=1,1 → out=0 V ✓
+
+## gate_xor — PASS (2/2)
+inputs=0,0 → out=0 V; inputs=1,1 → out=0 V ✓
+
+## relay — PASS (1 — coil off, COM→NC active)
+NC net at 4.9997 V (COM→NC conducting), LED at 2.030 V. NO floating at 4.995 V. ✓
+
+## potentiometer — PASS (1)
+VCC→a, GND→b, wiper at 2.500 V (position param still inert — documented). ✓
+
+## opamp — PASS (1 — voltage follower)
+Divider → inp = 2.500 V, output (feedback to inn) = 2.500 V. Unity gain buffer
+tracks perfectly. ✓
+
+---
+
+## Parts not yet swept (88 remaining)
 
 74hc00, 74hc02, 74hc04, 74hc08, 74hc10, 74hc11, 74hc132, 74hc14,
 74hc20, 74hc21, 74hc27, 74hc283, 74hc32, 74hc73, 74hc74, 74hc75,
@@ -175,13 +205,12 @@ The PMOS model never conducts regardless of gate voltage. **ESCALATED.**
 bargraph, battery, battery_9v, battery_aa, battery_coin, cd4511,
 char_lcd, char_lcd_i2c, clock_display, darlington_driver, dc_motor,
 dc_motor_encoder, decade_counter, dff, dip_switch, eeprom,
-flex_sensor, force_sensor, fuse, gas_sensor, gate_and, gate_nand,
-gate_nor, gate_not, gate_or, gate_xor, gearmotor, h_bridge, header,
-ir_receiver, ir_remote, ir_transmitter, isource, jkff, keypad_4x4,
-ld1117v33, led_cube, led_matrix, light_bulb, lm339, lm393, lm7805,
-mcu, neopixel, opamp, optocoupler, pcf8574, photodiode,
-phototransistor, pi_pico, piezo, pir, polarized_cap, potentiometer,
-relay, relay_dpdt, rgb_led, servo, seven_segment, shift_register,
-soil_moisture, solar_cell, solenoid, stepper, temp_sensor,
-tilt_sensor, timer_555, timer_556, tip120, tmp36, ultrasonic, usb_a,
-vcc, vibration_motor, vreg, vsource
+flex_sensor, force_sensor, fuse, gas_sensor, gearmotor, h_bridge,
+header, ir_receiver, ir_remote, ir_transmitter, isource, jkff,
+keypad_4x4, ld1117v33, led_cube, led_matrix, light_bulb, lm339,
+lm393, lm7805, mcu, neopixel, optocoupler, pcf8574, photodiode,
+phototransistor, pi_pico, piezo, pir, polarized_cap, relay_dpdt,
+rgb_led, servo, seven_segment, shift_register, soil_moisture,
+solar_cell, solenoid, stepper, temp_sensor, tilt_sensor, timer_555,
+timer_556, tip120, tmp36, ultrasonic, usb_a, vcc, vibration_motor,
+vreg, vsource
