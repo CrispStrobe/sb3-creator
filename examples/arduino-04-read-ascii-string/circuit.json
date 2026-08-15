@@ -4,7 +4,9 @@
     {
       "id": "board",
       "kind": "arduino_uno",
-      "declName": "board"
+      "declName": "board",
+      "x": 100,
+      "y": 100
     },
     {
       "id": "potR",
@@ -12,7 +14,9 @@
       "declName": "potR",
       "params": {
         "ohms": 10000
-      }
+      },
+      "x": 180,
+      "y": 100
     },
     {
       "id": "potG",
@@ -20,7 +24,9 @@
       "declName": "potG",
       "params": {
         "ohms": 10000
-      }
+      },
+      "x": 260,
+      "y": 100
     },
     {
       "id": "potB",
@@ -28,46 +34,60 @@
       "declName": "potB",
       "params": {
         "ohms": 10000
-      }
+      },
+      "x": 340,
+      "y": 100
     },
     {
       "id": "rgb",
       "kind": "rgb_led",
       "declName": "rgb",
-      "params": {}
+      "params": {},
+      "x": 420,
+      "y": 100
     },
     {
       "id": "rR",
       "kind": "resistor",
       "params": {
         "ohms": 220
-      }
+      },
+      "x": 500,
+      "y": 100
     },
     {
       "id": "rG",
       "kind": "resistor",
       "params": {
         "ohms": 220
-      }
+      },
+      "x": 580,
+      "y": 100
     },
     {
       "id": "rB",
       "kind": "resistor",
       "params": {
         "ohms": 220
-      }
+      },
+      "x": 660,
+      "y": 100
     },
     {
       "id": "vcc1",
       "kind": "vcc",
       "params": {
         "volts": 5
-      }
+      },
+      "x": 740,
+      "y": 100
     },
     {
       "id": "gnd1",
       "kind": "gnd",
-      "params": {}
+      "params": {},
+      "x": 820,
+      "y": 100
     }
   ],
   "wires": [

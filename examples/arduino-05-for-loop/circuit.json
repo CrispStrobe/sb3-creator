@@ -4,7 +4,9 @@
     {
       "id": "board",
       "kind": "arduino_uno",
-      "declName": "board"
+      "declName": "board",
+      "x": 100,
+      "y": 100
     },
     {
       "id": "led2",
@@ -12,14 +14,18 @@
       "declName": "led2",
       "params": {
         "color": "red"
-      }
+      },
+      "x": 180,
+      "y": 100
     },
     {
       "id": "r2",
       "kind": "resistor",
       "params": {
         "ohms": 220
-      }
+      },
+      "x": 260,
+      "y": 100
     },
     {
       "id": "led3",
@@ -27,14 +33,18 @@
       "declName": "led3",
       "params": {
         "color": "red"
-      }
+      },
+      "x": 340,
+      "y": 100
     },
     {
       "id": "r3",
       "kind": "resistor",
       "params": {
         "ohms": 220
-      }
+      },
+      "x": 420,
+      "y": 100
     },
     {
       "id": "led4",
@@ -42,14 +52,18 @@
       "declName": "led4",
       "params": {
         "color": "red"
-      }
+      },
+      "x": 500,
+      "y": 100
     },
     {
       "id": "r4",
       "kind": "resistor",
       "params": {
         "ohms": 220
-      }
+      },
+      "x": 580,
+      "y": 100
     },
     {
       "id": "led5",
@@ -57,14 +71,18 @@
       "declName": "led5",
       "params": {
         "color": "red"
-      }
+      },
+      "x": 660,
+      "y": 100
     },
     {
       "id": "r5",
       "kind": "resistor",
       "params": {
         "ohms": 220
-      }
+      },
+      "x": 740,
+      "y": 100
     },
     {
       "id": "led6",
@@ -72,14 +90,18 @@
       "declName": "led6",
       "params": {
         "color": "red"
-      }
+      },
+      "x": 820,
+      "y": 100
     },
     {
       "id": "r6",
       "kind": "resistor",
       "params": {
         "ohms": 220
-      }
+      },
+      "x": 900,
+      "y": 100
     },
     {
       "id": "led7",
@@ -87,26 +109,34 @@
       "declName": "led7",
       "params": {
         "color": "red"
-      }
+      },
+      "x": 980,
+      "y": 100
     },
     {
       "id": "r7",
       "kind": "resistor",
       "params": {
         "ohms": 220
-      }
+      },
+      "x": 1060,
+      "y": 100
     },
     {
       "id": "vcc1",
       "kind": "vcc",
       "params": {
         "volts": 5
-      }
+      },
+      "x": 1140,
+      "y": 100
     },
     {
       "id": "gnd1",
       "kind": "gnd",
-      "params": {}
+      "params": {},
+      "x": 1220,
+      "y": 100
     }
   ],
   "wires": [
