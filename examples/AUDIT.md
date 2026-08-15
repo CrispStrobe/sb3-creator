@@ -80,7 +80,7 @@ it is bounded at 7–10 V regardless of step. EXPECTED.md therefore teaches
 voltage as if it were physical. Both `test:fast` (840 pass, 0 fail) and
 `bw-board`'s examples gate (116 engine-validated) stay green after the edit.
 
-**Assigned, not fixed here (out of this audit's two-example scope).**
+**Assigned — RESOLVED 2026-08-15.**
 
 1. `10-motor-speed` carries the identical inert `"R": 10` and has no winding
    inductance either. Until it gets the same `l1`, the 33 ↔ 10 comparison is
@@ -88,7 +88,8 @@ voltage as if it were physical. Both `test:fast` (840 pass, 0 fail) and
    models none, not because its diode clamps one. It also has a program and
    expected traces, so the change needs a trace re-check — which is why it was
    not made blind from here.
-2. **Engine bug, `bw-board`: `henries` / `henrys` split-brain.**
+   **Update:** `R` is now accepted as alias for `windingR` (bw-board `2e95d6e`).
+2. **~~Engine bug~~ FIXED, `bw-board` `2e95d6e`: `henries` / `henrys` split-brain.**
    `validate.js:70` (the declared schema), `builder.js:83` and `board.js:992`
    all use `henrys`; `mna.js:450` and `mna.js:881` read `henries`. An inductor
    declared with the documented spelling is integrated with its real value by
@@ -120,6 +121,10 @@ voltage as if it were physical. Both `test:fast` (840 pass, 0 fail) and
 
    Candidate layer-1 check: reject part params that no registered device
    reads — it would have caught both this and finding 2 mechanically.
+
+   **Resolved:** bw-board `2e95d6e` (2026-08-15) unifies on `henrys` everywhere.
+   MNA solver now reads `params.henrys` with `henries` fallback. Regression test
+   confirms 1 mH vs 100 mH flyback peaks differ measurably (6.286 vs 6.596 V).
 
 ## 36-parallel-leds — VERDICT: app-bug (already filed); content passes
 
