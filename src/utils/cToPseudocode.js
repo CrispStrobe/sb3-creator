@@ -1923,6 +1923,7 @@ export default function cToPseudocode (source, opts = {}) {
     // Warn about functions found in the source but not emitted.
     // SFR/runtime functions are expected to be dropped; user functions are not.
     const emitted = new Set([...scriptFns.map(f => f.name), ...userFns.map(f => f.name)]);
+    if (hasSketchShape) { emitted.add('setup'); emitted.add('loop'); }
     for (const f of funcs) {
         if (!emitted.has(f.name) && !IGNORE_FNS.has(f.name) && !DELAYS.has(f.name) && !SETUP.has(f.name)
             && !f.name.startsWith('bw_')       // runtime/device helpers
