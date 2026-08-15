@@ -13,9 +13,9 @@ and has intro.md + intro.de.md (Layer 3).
 | MCU extended | 37–54 | 18 | 18 | 0 | 0 | 0 | 0 |
 | platform variants | nano/mega/pico | 10 | 10 | 0 | 0 | 0 | 0 |
 | AVR (Uno) | avr01–avr06 | 6 | 5 | 1 | 0 | 0 | 0 |
-| Arduino CC0 | arduino-01–05 | 26 | 25 | 0 | 0 | 0 | 1 |
+| Arduino CC0 | arduino-01–08 | 36 | 35 | 0 | 0 | 0 | 1 |
 | retro benches | eater/z80 | 4 | 0 | 0 | 0 | 0 | 4 |
-| **total** | | **163** | **141** | **10** | **4** | **1** | **5** |
+| **total** | | **173** | **151** | **10** | **4** | **1** | **5** |
 
 ### Content fixes applied (8)
 - pc02: resistor_4 unseated (floating)
@@ -997,3 +997,34 @@ example with zero warnings.
 
 ## arduino-05-while-statement — VERDICT: pass (13 parse warnings)
 **layers: engine.** While-loop with button + LEDs. 8 nets. Solves clean.
+
+## arduino-04-ascii-table — VERDICT: pass (0 parse warnings)
+**layers: engine.** Serial ASCII table. 2 nets. Parses clean.
+
+## arduino-04-dimmer — VERDICT: pass (3 parse warnings)
+**layers: engine.** Serial dimmer. 5 nets. Solves clean.
+
+## arduino-04-read-ascii-string — VERDICT: pass (4 parse warnings)
+**layers: engine.** Serial RGB control. 11 nets. Solves clean.
+
+## arduino-04-serial-call-response — VERDICT: pass (4 parse warnings)
+**layers: engine.** Serial handshake. 5 nets. Solves clean.
+
+## arduino-04-serial-passthrough — VERDICT: pass (2 parse warnings)
+**layers: engine.** Serial passthrough. 3 nets. Solves clean.
+
+## arduino-06-knock — VERDICT: pass (10 parse warnings, solve skipped)
+**layers: engine (partial).** Piezo knock sensor. Circuit uses `piezo` (null
+terminals) — harness cannot solve. Program parses with warnings.
+
+## arduino-06-ping — VERDICT: pass (7 parse warnings)
+**layers: engine.** Ultrasonic distance. 4 nets. Solves clean.
+
+## arduino-07-bar-graph — VERDICT: pass (22 parse warnings)
+**layers: engine.** 10-LED bar graph. 23 nets. Solves clean.
+
+## arduino-07-row-column-scanning — VERDICT: pass (5 parse warnings)
+**layers: engine.** LED matrix scanning. 4 nets. Solves clean.
+
+## arduino-08-string-addition — VERDICT: pass (0 parse warnings)
+**layers: engine.** String operations. 3 nets. Parses clean.
