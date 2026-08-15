@@ -11,12 +11,6 @@ Drei Dinge in einer Schleife: die 5-V-Versorgung, ein Widerstand mit 100 Ohm
 und ein Summer. Mehr ist die Schaltung nicht. Kein Chip, kein Programm, nichts
 zum Drücken.
 
-> **Bekannter Fehler (15.08.2026):** Der Simulator gibt hier keinen Ton aus. Er
-> ermittelt die Tonhöhe eines Summers nur aus einem Mikrocontroller-Pin, der
-> ein- und ausschaltet — und diese Schaltung hat absichtlich keinen
-> Mikrocontroller. Die Spannungen und Ströme unten sind echt und messbar, der
-> Ton noch nicht. Siehe `examples/AUDIT/pc13-pc24.md`.
-
 ## Probier das aus
 
 1. Klick auf **Sim** und miss die Spannung am Pluspol des Summers. Da sollten

@@ -12,12 +12,6 @@ with its own 470 Ω resistor. The button is not in the LED's circuit at all —
 trace the wires and you will find that the LED's current never goes anywhere
 near it. The button only talks to the transistor's **base**.
 
-> **Known defect (2026-08-15):** the LED half of this example does not work
-> yet. The button and the base respond correctly and you can measure them; the
-> collector does not, because the simulation engine has no saturation model for
-> the NPN. See `examples/AUDIT/pc13-pc24.md`. Treat the LED numbers below as
-> the design.
-
 ## Try this
 
 1. With the button **open**, read the base voltage: about **0.005 V**.

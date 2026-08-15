@@ -62,10 +62,3 @@ high-side one is the one you often actually need.
   with complete isolation instead of a transistor.
 - **Then:** [pc44-push-pull-led](../pc44-push-pull-led) — both polarities of
   transistor working on one load.
-
-> **Note — the simulator cannot show this one yet.** Closing `sw` should light
-> the LED at about 2.9 mA. On the current engine the PNP model never turns on:
-> the base solves to 0 V, no base current flows, and the LED stays dark. The
-> circuit is right and the reasoning above is right; the device model is being
-> fixed. Until then, read this example alongside `pc05-npn-switch`, which does
-> run, and treat the numbers here as predictions rather than measurements.

@@ -13,12 +13,6 @@ liegt an der Basis eines NPN-Transistors, und der Transistor schaltet eine
 gelbe LED. Für die Helligkeit gibt es einen Schieberegler — diese Schaltung
 will *bewegt* werden, nicht nur betrachtet.
 
-> **Bekannter Fehler (15.08.2026):** Die LED-Seite dieses Beispiels
-> funktioniert noch nicht — die Simulationsengine kennt für den NPN keine
-> Sättigung, also läuft der Kollektor davon, statt zu schalten, sobald der
-> Transistor angeht. Die **Sensor**-Seite ist korrekt und messbar, und mit der
-> arbeiten die Schritte unten. Siehe `examples/AUDIT/pc13-pc24.md`.
-
 ## Probier das aus
 
 1. Stell den Lichtregler auf **0** (dunkel) und miss die Spannung an der Basis.

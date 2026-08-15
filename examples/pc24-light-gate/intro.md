@@ -13,12 +13,6 @@ of an NPN transistor, and the transistor switches a yellow LED. There is a
 slider for the light level — this circuit is meant to be *moved*, not just
 looked at.
 
-> **Known defect (2026-08-15):** the LED half of this example does not work
-> yet — the simulation engine has no saturation model for the NPN, so once the
-> transistor turns on the collector runs away instead of switching. The
-> **sensing** half is correct and measurable, and that is the half the steps
-> below use. See `examples/AUDIT/pc13-pc24.md`.
-
 ## Try this
 
 1. Set the light slider to **0** (dark) and read the voltage at the base. About

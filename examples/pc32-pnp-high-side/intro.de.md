@@ -65,11 +65,3 @@ er leichter anzusteuern ist; brauchen tut man oft den anderen.
   Aufgabe mit vollständiger galvanischer Trennung statt mit einem Transistor.
 - **Danach:** [pc44-push-pull-led](../pc44-push-pull-led) — beide
   Transistorarten an einer Last.
-
-> **Hinweis — die Simulation kann das noch nicht zeigen.** Schließen von `sw`
-> sollte die LED mit etwa 2,9 mA zum Leuchten bringen. In der aktuellen Engine
-> schaltet das PNP-Modell nie durch: Die Basis landet bei 0 V, es fließt kein
-> Basisstrom, und die LED bleibt dunkel. Die Schaltung ist richtig und die
-> Überlegung oben auch; am Bauteilmodell wird gearbeitet. Lies dieses Beispiel
-> bis dahin zusammen mit `pc05-npn-switch`, das läuft, und nimm die Zahlen hier
-> als Vorhersage, nicht als Messwert.

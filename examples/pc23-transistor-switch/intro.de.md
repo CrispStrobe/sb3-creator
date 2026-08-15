@@ -13,12 +13,6 @@ LED — verfolg die Leitungen, und du wirst sehen, dass der LED-Strom nie auch
 nur in seine Nähe kommt. Der Taster redet ausschließlich mit der **Basis** des
 Transistors.
 
-> **Bekannter Fehler (15.08.2026):** Die LED-Seite dieses Beispiels
-> funktioniert noch nicht. Taster und Basis reagieren richtig und sind messbar;
-> der Kollektor nicht, weil die Simulationsengine für den NPN keine Sättigung
-> kennt. Siehe `examples/AUDIT/pc13-pc24.md`. Lies die LED-Zahlen unten als
-> Entwurf.
-
 ## Probier das aus
 
 1. Bei **offenem** Taster miss die Basisspannung: etwa **0,005 V**. Praktisch

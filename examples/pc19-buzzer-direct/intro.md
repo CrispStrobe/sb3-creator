@@ -10,12 +10,6 @@ teaches: [series-resistor, voltage-divider, active-buzzer]
 Three things in one loop: the 5 V supply, a 100 ohm resistor, and a buzzer.
 That is the entire circuit. No chip, no program, nothing to press.
 
-> **Known defect (2026-08-15):** the simulator will not make a sound here.
-> It only works out a buzzer's tone from a microcontroller pin switching on
-> and off, and this circuit deliberately has no microcontroller. The
-> voltages and currents below are real and measurable; the sound is not,
-> yet. See `examples/AUDIT/pc13-pc24.md`.
-
 ## Try this
 
 1. Click **Sim** and read the voltage on the buzzer's + terminal. You should
