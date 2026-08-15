@@ -12,8 +12,9 @@ and has intro.md + intro.de.md (Layer 3).
 | MCU basics | 01–36 | 37 | 35 | 1 | 0 | 1 | 0 |
 | MCU extended | 37–54 | 18 | 18 | 0 | 0 | 0 | 0 |
 | platform variants | nano/mega/pico | 10 | 10 | 0 | 0 | 0 | 0 |
+| AVR (Uno) | avr01–avr06 | 6 | 5 | 1 | 0 | 0 | 0 |
 | retro benches | eater/z80 | 3 | 0 | 0 | 0 | 0 | 3 |
-| **total** | | **130** | **111** | **9** | **4** | **1** | **3** |
+| **total** | | **136** | **116** | **10** | **4** | **1** | **3** |
 
 ### Content fixes applied (8)
 - pc02: resistor_4 unseated (floating)
@@ -25,6 +26,7 @@ and has intro.md + intro.de.md (Layer 3).
 - 33-inductive-no-flyback: inductance added (pilot audit)
 - pc13–pc24 range: additional fixes by parallel agent (see pc13-pc24.md)
 - pc61: bogus VCC→GND wire shorted the entire circuit
+- avr05: lowercase `if`/`then:`/`else:` — parser skipped conditional block
 
 ### Engine-bugs found and resolved
 1. **NPN saturation** (pc05, pc15, pc23, pc24): collector went negative in
@@ -873,3 +875,32 @@ engine does not model. Program parses clean.
 ## z80-bench — VERDICT: app-level (cannot engine-solve)
 **layers: none.** Z80 retro bench. Engine does not model z80/mc6850 parts.
 Program parses clean.
+
+---
+
+# Band 6 — AVR (Arduino Uno) platform variants
+
+All 6 parse warning-free (avr05 after content-fix) and solve on the engine.
+Arduino Uno DEVICE at 16 MHz.
+
+## avr01-blink — VERDICT: pass
+**layers: engine.** D13 → LED → R → GND. All at 0 V (MCU floating). 3 nets.
+
+## avr02-dimmer — VERDICT: pass
+**layers: engine.** Pot: VCC (5 V) → cw, ccw → GND. Wiper at **0 V** → A0.
+LED on D9 (floating). 5 nets.
+
+## avr03-dual-blink — VERDICT: pass
+**layers: engine.** Two LEDs on D13 and D12, each with R → GND. 5 nets.
+
+## avr04-serial-pot — VERDICT: pass
+**layers: engine.** Pot: VCC → cw, ccw → GND. Wiper at **0 V** → A0. 3 nets.
+
+## avr05-button-led — VERDICT: content-fix
+**layers: engine.** **Finding: `if`/`then:`/`else:` in lowercase — parser
+skipped the conditional block.** Fixed to `IF`/`THEN:`/`ELSE:`. After fix:
+0 warnings. Button with pull-down at 0 V (open), LED on D13 floating. 5 nets.
+
+## avr06-blink-and-print — VERDICT: pass
+**layers: engine.** Pot + LED, two cooperative scripts. Same topology as
+avr02. 5 nets.
