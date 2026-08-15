@@ -140,8 +140,19 @@ function readMarkers (source) {
         if (kind === 'device') h.device = rest.trim();
         else if (kind === 'clock') h.clock = Number(rest.trim());
         else if (kind === 'pin') {
+            // 8051 style: `led P1.0 output`
             const p = rest.match(/^(\w+)\s+P(\d)\.(\d)\s+(\w+)(\s+active-low)?/);
             if (p) h.pins.push({ name: p[1], port: +p[2], bit: +p[3], direction: p[4], activeLow: !!p[5] });
+            // AVR/6502 style: `col0 PB0 output` or `led PA0 output`
+            if (!p) {
+                const q = rest.match(/^(\w+)\s+P([A-Z])(\d)\s+(\w+)(\s+active-low)?/);
+                if (q) h.pins.push({ name: q[1], portLetter: q[2], bit: +q[3], direction: q[4], activeLow: !!q[5] });
+            }
+            // Arduino style: `led D13 output`
+            if (!p) {
+                const r = rest.match(/^(\w+)\s+([DA]\d+|GP\d+)\s+(\w+)(\s+active-low)?/);
+                if (r) h.pins.push({ name: r[1], where: r[2].toUpperCase(), direction: r[3], activeLow: !!r[4] });
+            }
         } else if (kind === 'part') {
             // `part <name> <type> <data> <clock> <latch> [active-low]` — pin
             // spellings are the device's own (P1.0 on 8051, GP25/PA0 elsewhere).
@@ -446,14 +457,18 @@ export default function cToPseudocode (source, opts = {}) {
     const pins = new Map();       // c-expression (P1_0) -> {name, port, bit, direction, activeLow}
     const byName = new Map();     // source spelling (LED1) -> the same record
     const addPin = (rec, aliases) => {
-        pins.set(rec.where || `P${rec.port}_${rec.bit}`, rec);
+        const key = rec.where || (rec.portLetter ? `P${rec.portLetter}${rec.bit}` : `P${rec.port}_${rec.bit}`);
+        pins.set(key, rec);
         for (const a of aliases) byName.set(a, rec);
     };
     // PARTs from the header: needed to give shift_out calls their name back.
     const hdrParts = (markers && markers.parts) ? markers.parts : [];
     const markerPins = markers && (markers.pins.length > 0 || !isArduino);
     if (markerPins) {
-        for (const p of markers.pins) addPin({ ...p }, [p.name, `P${p.port}_${p.bit}`]);
+        for (const p of markers.pins) {
+            const portId = p.portLetter ? `P${p.portLetter}${p.bit}` : `P${p.port}_${p.bit}`;
+            addPin({ ...p }, [p.name, portId]);
+        }
     } else if (isArduino) {
         // An Arduino pin is a NUMBER, not a {port, bit}: there is no register
         // to find it in and no sbit to declare it with, so it is discovered
@@ -1009,6 +1024,22 @@ export default function cToPseudocode (source, opts = {}) {
                 const rhs = expr(cur);
                 cur.eat(';');
                 if (SFRS.test(name)) return [];   // register setup, not program logic
+                // Port-register pin write: PORTB |= (1 << N) → turn on pin
+                // PORTB &= ~(1 << N) → turn off pin. Uses @bw pin markers.
+                const portMatch = name.match(/^PORT([A-Z])$/);
+                if (portMatch && markers && (op === '|=' || op === '&=')) {
+                    const portLetter = portMatch[1];
+                    // Match `(1 << N)` or `bitnot (1 << N)` in the rhs
+                    const bitMatch = rhs.text.match(/^(?:bitnot\s+)?(?:\()?1 shiftleft (\d+)(?:\))?$/);
+                    if (bitMatch) {
+                        const bit = Number(bitMatch[1]);
+                        const pin = markers.pins.find(p => p.portLetter === portLetter && p.bit === bit);
+                        if (pin) {
+                            if (op === '|=') return [`${pad}${pinWrite(pin, '1')}`];
+                            if (op === '&=') return [`${pad}${pinWrite(pin, '0')}`];
+                        }
+                    }
+                }
                 const BITOP = { '&=': 'bitand', '|=': 'bitor', '^=': 'bitxor', '<<=': 'shiftleft', '>>=': 'shiftright' };
                 const v = varName(name); usedVars.add(v);
                 return [`${pad}set ${v} to ${v} ${BITOP[op]} ${rhs.text}`];
@@ -1802,7 +1833,7 @@ export default function cToPseudocode (source, opts = {}) {
             // `where` carries the board's own spelling when the board does not
             // have 8051 {port, bit} pins at all -- D13, A0. The 8051 path never
             // sets it and is emitted exactly as before.
-            const at = p.where || `P${p.port}.${p.bit}`;
+            const at = p.where || (p.portLetter ? `P${p.portLetter}${p.bit}` : `P${p.port}.${p.bit}`);
             out.push(`PIN ${p.name} = ${at} ${p.direction.toUpperCase()}${p.activeLow ? ' ACTIVE LOW' : ''}`);
         }
     }
