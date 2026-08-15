@@ -454,126 +454,151 @@ Each circuit also solves on the bw-board engine at t=1 ms with no errors.
 **Coverage: `layers: engine`.** The program half is parse-only; no execution
 or trace verification is done here (that is `test/exec.test.mjs`'s job).
 
+Note: MCU examples do not wire the MCU's own VCC/GND power pins in
+`circuit.json` — the MCU is a schematic symbol with signal pins only. The
+engine solves the passive portion (dividers, pull-ups, load resistors); MCU
+I/O pins appear as floating endpoints. Current does not flow through
+MCU-terminated paths at the engine level — that is correct for a static solve
+without program execution.
+
 ## 01-blink — VERDICT: pass
 
 **layers: engine.** Program parses clean (DEVICE stc12c5a60s2, PIN led1 P1.0
-OUTPUT). Circuit: VCC → R → LED → MCU pin. Category `basics`, difficulty 1.
+OUTPUT ACTIVE LOW). Circuit: VCC (5 V) → R1 (1 kΩ) → LED (Vf 2.0) →
+mcu1.P1.0. Solved: R1.a = 5.000 V (VCC), LED.anode = 5.000 V, MCU pin =
+0.000 V. No current flows (MCU pin floating). Category `basics`, difficulty 1.
 
 ## 02-dimmer — VERDICT: pass
 
-**layers: engine.** Program parses clean. Circuit: pot wiper → MCU ADC pin,
-VCC → R → LED → MCU output pin. Category `analog`, difficulty 2.
+**layers: engine.** Program parses clean. Circuit: pot (10 kΩ, pos 0.5) a=VCC,
+b=GND, wiper → mcu1.P1.3 = **2.500 V**. LED path: VCC → R1 → LED → mcu1.P1.0
+(floating). Category `analog`, difficulty 2.
 
 ## 03-night-light — VERDICT: pass
 
-**layers: engine.** LDR divider → MCU ADC pin (1.67 V), VCC → R → LED → MCU
-output pin. Category `analog`, difficulty 2.
+**layers: engine.** LDR divider: VCC → R2 (10 kΩ) → junction → LDR → GND.
+Junction = **1.667 V** → mcu1.P1.3. LED path: VCC → R1 → LED → mcu1.P1.0
+(floating). Category `analog`, difficulty 2.
 
 ## 04-thermostat — VERDICT: pass
 
-**layers: engine.** NTC divider → MCU ADC pin (2.50 V), VCC → R → heater LED
-→ MCU output pin. Category `analog`, difficulty 3.
+**layers: engine.** NTC divider: VCC → R2 (10 kΩ) → junction → NTC (10 kΩ) →
+GND. Junction = **2.500 V** → mcu1.P1.3. Heater LED path floating. Category
+`analog`, difficulty 3.
 
 ## 05-counter-7seg — VERDICT: pass
 
-**layers: engine.** Button with pull-down → MCU interrupt pin (P3.2), VCC → R
-→ LED → MCU output pin. Category `basics`, difficulty 2.
+**layers: engine.** Button (btn1) with 10 kΩ pull-down: btn1.b = mcu1.P3.2 =
+**0.000 V** (button open). LED path: VCC → R1 → LED → mcu1.P1.0 (floating).
+Category `basics`, difficulty 2.
 
 ## 06-active-low-high — VERDICT: pass
 
-**layers: engine.** Two LEDs: one active-low (VCC → R → LED → MCU), one
-active-high (MCU → R → LED → GND). Both at 0V (MCU pins default low).
-Category `basics`, difficulty 2.
+**layers: engine.** Two LEDs: active-low (VCC → R1 → led_low → mcu1.P1.0 =
+0 V), active-high (mcu1.P1.1 = 0 V → R2 → led_high → GND = 0 V). Both at 0 V
+(MCU pins floating). Category `basics`, difficulty 2.
 
 ## 07-buzzer-siren — VERDICT: pass
 
-**layers: engine.** Buzzer between VCC and MCU pin. Category `basics`,
-difficulty 2.
+**layers: engine.** VCC (5 V) → buzzer1.a = 5.000 V, buzzer1.b = mcu1.P1.5 =
+0.000 V (TONE pin, floating). Category `basics`, difficulty 2.
 
 ## 08-led-chaser-595 — VERDICT: pass
 
-**layers: engine.** 74HC595 shift register: data/clock/latch from MCU, 8
-outputs → 8 resistors → 8 LEDs → GND. All dark at t=0. Category `digital`,
-difficulty 3.
+**layers: engine.** 74HC595: data/clock/latch from MCU (all 0 V), 8 Q outputs
+all at 0 V → 8 resistors → 8 LEDs → GND. 21 nets, all at 0 V (shift register
+idle, all outputs low). Category `digital`, difficulty 3.
 
 ## 09-relay-clicker — VERDICT: pass
 
-**layers: engine.** NPN driving relay coil with flyback diode. MCU → base
-resistor → NPN base. Status LED on separate MCU pin. Transistor off at t=0
-(base 0 V). Category `motors`, difficulty 2.
+**layers: engine.** NPN (q1) base = 0 V (MCU P1.0 floating → rb → base),
+collector = 5.000 V (relay coil not energized), flyback diode reverse-biased.
+Status LED: R1.b = led1.anode = 5.000 V, led1.cathode = mcu1.P1.1 = 4.995 V
+(leakage). Category `motors`, difficulty 2.
 
 ## 10-motor-speed — VERDICT: pass
 
-**layers: engine.** TIP120 driving DC motor with flyback diode. Pot wiper →
-MCU ADC. NPN off at t=0. Category `motors`, difficulty 3.
+**layers: engine.** NPN (q1) base = 0 V (motor off), collector = 5.000 V
+(motor not driven), flyback diode reverse-biased. Pot wiper = **2.500 V** →
+mcu1.P1.3. Category `motors`, difficulty 3.
 
 ## 11-toggle-button — VERDICT: pass
 
-**layers: engine.** Button with pull-up → MCU interrupt pin, VCC → R → LED →
-MCU output pin. Button open: pin at 5 V. Category `basics`, difficulty 2.
+**layers: engine.** Button with pull-up R2 to VCC: btn1.a = mcu1.P3.2 =
+**5.000 V** (button open, pulled high). LED path floating (P1.0). Category
+`basics`, difficulty 2.
 
 ## 12-dual-blink — VERDICT: pass
 
-**layers: engine.** Two LEDs on separate MCU pins, both with series resistors.
-Category `basics`, difficulty 2.
+**layers: engine.** Two LEDs: R1 → led1 → mcu1.P1.0, R2 → led2 → mcu1.P1.1.
+Both MCU pins floating at 0 V. Category `basics`, difficulty 2.
 
 ## 13-sos-morse — VERDICT: pass
 
-**layers: engine.** SOS morse pattern on LED. Category `basics`, difficulty 3.
+**layers: engine.** Single LED (R1 → led1 → mcu1.P1.0). Same topology as
+01-blink with different program. Category `basics`, difficulty 3.
 
 ## 14-traffic-light — VERDICT: pass
 
-**layers: engine.** Three LEDs (red/yellow/green) sequenced. Category `basics`,
-difficulty 3.
+**layers: engine.** Three LEDs on separate MCU pins: R1 → led_r → P1.0,
+R2 → led_y → P1.1, R3 → led_g → P1.2. All floating at 0 V. 7 nets, no
+warnings. Category `basics`, difficulty 3.
 
 ## 15-voltage-divider — VERDICT: pass
 
-**layers: engine.** Two-resistor divider read by MCU ADC. Category `analog`,
-difficulty 1.
+**layers: engine.** Divider: VCC → R1 → junction → R2 → GND. Junction =
+**2.500 V** → mcu1.P1.7 (equal 10 kΩ resistors, unloaded). LED path floating.
+Category `analog`, difficulty 1.
 
 ## 168p01-blink — VERDICT: pass
 
-**layers: engine.** ATmega168P variant of 01-blink. Category `basics`,
-difficulty 1.
+**layers: engine.** ATmega168P variant of 01-blink. Same circuit topology.
+Category `basics`, difficulty 1.
 
 ## 16-ldr-bargraph — VERDICT: pass
 
-**layers: engine.** LDR reading displayed on 4-LED bar graph. Category
-`analog`, difficulty 3.
+**layers: engine.** Pot wiper = **2.500 V** → mcu1.P1.7. Three LEDs on
+P1.0–P1.2 (bar graph). Category `analog`, difficulty 3.
 
 ## 17-comparator — VERDICT: pass
 
-**layers: engine.** Two pots compared, LED shows which is higher. Category
-`analog`, difficulty 3.
+**layers: engine.** Two pots: potA.wiper = **2.500 V** → P1.6,
+potB.wiper = **2.500 V** → P1.7. LED on P1.0. Category `analog`, difficulty 3.
 
 ## 18-logic-and-gate — VERDICT: pass
 
-**layers: engine.** Two buttons implementing AND logic via software. Category
-`digital`, difficulty 2.
+**layers: engine.** Two buttons with pull-ups: btnA → P3.2 = **5.000 V**
+(pulled high, button open), btnB → P3.3 = **5.000 V**. LED on P1.0.
+Category `digital`, difficulty 2.
 
 ## 19-logic-or-gate — VERDICT: pass
 
-**layers: engine.** Two buttons implementing OR logic via software. Category
-`digital`, difficulty 2.
+**layers: engine.** Same topology as 18: two buttons with pull-ups at 5 V,
+LED on P1.0. Different program logic (OR vs AND). Category `digital`,
+difficulty 2.
 
 ## 20-shift-register-binary — VERDICT: pass
 
-**layers: engine.** 74HC595 displaying binary count. 8 LEDs, 20 nets, all
-connected. Category `digital`, difficulty 3.
+**layers: engine.** 74HC595: data/clock/latch all at 0 V, 8 Q outputs all
+at 0 V, 8 LEDs all dark. 21 nets. Category `digital`, difficulty 3.
 
 ## 21-resistor-led — VERDICT: pass
 
-**layers: engine.** Pure circuit (no MCU program). VCC → R → LED → GND.
-Category `pure-circuit`, difficulty 1.
+**layers: engine.** Pure circuit. VCC → R (220 Ω) → LED → GND. LED anode =
+**2.130 V**, I = (5.0−2.13)/220 = **13.0 mA**. Category `pure-circuit`,
+difficulty 1.
 
 ## 22-series-parallel — VERDICT: pass
 
-**layers: engine.** Pure circuit. Series vs parallel resistor paths. Category
-`pure-circuit`, difficulty 2.
+**layers: engine.** Pure circuit. Series path: R1+R2 (each 470 Ω) → led1,
+V_led1 = **2.032 V**, I = 3.2 mA. Parallel paths: R3 → led2, R4 → led3,
+each at **2.063 V**, I = 6.3 mA each. Different currents produce different
+Shockley Vf — correct. Category `pure-circuit`, difficulty 2.
 
 ## 23-voltage-regulator — VERDICT: pass
 
-**layers: engine.** Pure circuit. Zener regulator. Category `pure-circuit`,
+**layers: engine.** Pure circuit, 9 V supply. Zener clamp at **6.148 V**,
+LED at **2.086 V**, I_LED = (6.148−2.086)/R2 mA. Category `pure-circuit`,
 difficulty 2.
 
 ## 24-pwm-fade — VERDICT: pass
@@ -582,31 +607,34 @@ difficulty 2.
 
 ## 25-reaction-timer — VERDICT: pass
 
-**layers: engine.** Button + LED reaction timer. Category `basics`, difficulty 3.
+**layers: engine.** Button with pull-up at **5.000 V** (P3.2), LED on P1.0
+(floating). Category `basics`, difficulty 3.
 
 ## 26-debounce — VERDICT: pass
 
-**layers: engine.** Button debounce demonstration. Category `basics`,
-difficulty 2.
+**layers: engine.** Button with pull-up at **5.000 V** (P3.2), LED on P1.0.
+Same topology as 25. Category `basics`, difficulty 2.
 
 ## 27-led-dice — VERDICT: pass
 
-**layers: engine.** Random LED pattern (dice). Category `basics`, difficulty 2.
+**layers: engine.** Button with pull-up at **5.000 V** (P3.2), LED on P1.0.
+Category `basics`, difficulty 2.
 
 ## 28-diode-polarity — VERDICT: pass
 
-**layers: engine.** Forward/reverse diode demonstration with MCU. Category
-`basics`, difficulty 2.
+**layers: engine.** Pure circuit, two paths: forward diode d1 → led1 (anode
+**2.047 V**, conducting), reverse diode d2 → led2 (cathode at 5 V,
+reverse-biased, led2 dark at 2.0 V floating). Category `basics`, difficulty 2.
 
 ## 29-capacitor-charge — VERDICT: pass
 
-**layers: engine.** RC charge observed by MCU ADC. Category `analog`,
-difficulty 2.
+**layers: engine.** Pure circuit. Cap at **0.005 V** at t=1 ms (beginning to
+charge through R1). Category `analog`, difficulty 2.
 
 ## 30-multi-led-pattern — VERDICT: pass
 
-**layers: engine.** Multiple LEDs in programmable patterns. Category `basics`,
-difficulty 3.
+**layers: engine.** Four LEDs on P1.0–P1.3, all floating at 0 V. 9 nets.
+Category `basics`, difficulty 3.
 
 ## 31-no-resistor-led — VERDICT: pass
 
