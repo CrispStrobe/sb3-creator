@@ -39,6 +39,7 @@ const KNOWN = new Set([
     'operator_and', 'operator_or', 'operator_not', 'operator_join', 'operator_round',
     'operator_letter_of', 'operator_length', 'operator_contains',
     'operator_mathop', 'operator_random',
+    'sensing_timer',
     'data_addtolist', 'data_deleteoflist', 'data_insertatlist',
     'data_replaceitemoflist', 'data_itemoflist', 'data_lengthoflist',
     'data_listcontainsitem',
@@ -241,6 +242,7 @@ export function interpretTrace(project, opts = {}) {
             case 'bitops_shr': return num(inp('NUM1')) >> num(inp('NUM2'));
             case 'bitops_not': return ~num(inp('NUM'));
             case 'data_variable': return vars.get(fld('VARIABLE')) ?? 0;
+            case 'sensing_timer': return now / 1000; // elapsed seconds
             // Custom-block parameters: the nearest enclosing procedure
             // frame that binds this name wins (nested calls shadow).
             case 'argument_reporter_string_number':
