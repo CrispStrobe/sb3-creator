@@ -1892,6 +1892,10 @@ export default function cToPseudocode (source, opts = {}) {
         ? procFns
         : funcs.filter((f) => !IGNORE_FNS.has(f.name) && f.name !== 'main'
             && !DELAYS.has(f.name) && !SETUP.has(f.name)
+            && !f.name.startsWith('bw_')       // runtime/device helpers
+            && !f.name.startsWith('tone_')      // tone helpers
+            && !f.name.startsWith('scratch_')   // scratch runtime stubs
+            && !f.name.startsWith('__')         // compiler intrinsics
             // setup() and loop() are the script itself, not procedures called
             // by it; emitting DEFINE blocks for them would say the sketch has
             // two custom blocks it never calls.
