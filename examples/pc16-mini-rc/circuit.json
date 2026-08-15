@@ -59,25 +59,40 @@
       ],
       "x": 0,
       "y": 0,
-      "rotation": 0
+      "rotation": 0,
+      "seat": {
+        "boardId": "breadboard_1",
+        "leadMap": {
+          "a": "b7",
+          "b": "b11"
+        }
+      }
     }
   ],
   "wires": [
     {
       "id": "w_5",
       "netId": "net_6",
-      "from": "vsource_2",
-      "to": "breadboard_1",
-      "fromTerminal": "pos",
-      "toTerminal": "e3"
+      "from": {
+        "part": "vsource_2",
+        "terminal": "pos"
+      },
+      "to": {
+        "board": "breadboard_1",
+        "hole": "e3"
+      }
     },
     {
       "id": "w_7",
       "netId": "net_8",
-      "from": "vsource_2",
-      "to": "breadboard_1",
-      "fromTerminal": "neg",
-      "toTerminal": "e11"
+      "from": {
+        "part": "vsource_2",
+        "terminal": "neg"
+      },
+      "to": {
+        "board": "breadboard_1",
+        "hole": "e11"
+      }
     }
   ],
   "holeWires": []

@@ -42,8 +42,8 @@
       "seat": {
         "boardId": "breadboard_1",
         "leadMap": {
-          "a": "a2",
-          "b": "a6"
+          "a": "b2",
+          "b": "b12"
         }
       }
     },
@@ -64,8 +64,8 @@
       "seat": {
         "boardId": "breadboard_1",
         "leadMap": {
-          "anode": "b6",
-          "cathode": "b7"
+          "anode": "c12",
+          "cathode": "d9"
         }
       }
     },
@@ -86,9 +86,9 @@
       "seat": {
         "boardId": "breadboard_1",
         "leadMap": {
-          "emitter": "c8",
-          "base": "c9",
-          "collector": "c10"
+          "emitter": "c7",
+          "base": "c8",
+          "collector": "c9"
         }
       }
     },
@@ -108,8 +108,8 @@
       "seat": {
         "boardId": "breadboard_1",
         "leadMap": {
-          "a": "d2",
-          "b": "d6"
+          "a": "a2",
+          "b": "a8"
         }
       }
     }
@@ -118,18 +118,26 @@
     {
       "id": "w_7",
       "netId": "net_8",
-      "from": "vsource_2",
-      "to": "breadboard_1",
-      "fromTerminal": "pos",
-      "toTerminal": "e2"
+      "from": {
+        "part": "vsource_2",
+        "terminal": "pos"
+      },
+      "to": {
+        "board": "breadboard_1",
+        "hole": "e2"
+      }
     },
     {
       "id": "w_9",
       "netId": "net_10",
-      "from": "vsource_2",
-      "to": "breadboard_1",
-      "fromTerminal": "neg",
-      "toTerminal": "e10"
+      "from": {
+        "part": "vsource_2",
+        "terminal": "neg"
+      },
+      "to": {
+        "board": "breadboard_1",
+        "hole": "e7"
+      }
     }
   ],
   "holeWires": []
