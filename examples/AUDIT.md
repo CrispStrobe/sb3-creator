@@ -93,12 +93,33 @@ voltage as if it were physical. Both `test:fast` (840 pass, 0 fail) and
    all use `henrys`; `mna.js:450` and `mna.js:881` read `henries`. An inductor
    declared with the documented spelling is integrated with its real value by
    the board-level integrator but **stamped by the MNA solver at the 1 mH
-   default**. Repro: build any inductor with `henrys: 0.01` and observe the
-   transient behave as 1 mH. This example is written as `henrys: 0.001`, where
-   the declared value and the default coincide, so it is correct today under
-   either reading — but it will silently stop scaling the moment anyone edits
-   the number. Candidate layer-1 check: reject part params that no registered
-   device reads.
+   default**, so the declared inductance has no effect on transient behaviour
+   at all. Confirmed directly — this circuit's turn-off peak at a fixed 10 µs
+   step, varying only `henrys`:
+
+   | `henrys` | collector peak |
+   |---|---|
+   | 0.001 | 46.67 V |
+   | 0.01 | 46.67 V |
+   | 0.1 | 46.67 V |
+
+   Byte-identical: the value is inert. This example is written as
+   `henrys: 0.001`, where the declared value and the swallowed default
+   coincide, so it is correct today — but it does not *scale*, and nothing
+   warns you.
+
+   This one nearly escaped into course material: the first draft of
+   `intro.md` ended with "raise `l1` to 10 mH and watch the peak scale with L,
+   exactly as V = L·di/dt predicts". It does not, and a student following that
+   step would have concluded they had misunderstood the physics. The
+   experiment was replaced with *delete `l1` and watch the spike vanish*
+   (which works, and teaches the same modelling point), and both intros carry
+   an explicit note that the value is currently not adjustable. Worth
+   recording as a hazard of the protocol: **layer-3 intros can assert
+   behaviour no layer-1 gate checks.**
+
+   Candidate layer-1 check: reject part params that no registered device
+   reads — it would have caught both this and finding 2 mechanically.
 
 ## 36-parallel-leds — VERDICT: app-bug (already filed); content passes
 
