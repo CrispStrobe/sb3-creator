@@ -3358,5 +3358,22 @@
       "arduino-uno",
       "arduino-nano"
     ]
+  },
+  {
+    "id": "blinkenrocket-pendant",
+    "title": {
+      "en": "Blinkenrocket Pendant",
+      "de": "Blinkenrocket-Anhänger"
+    },
+    "category": "digital",
+    "difficulty": 3,
+    "files": {
+      "program": "blinkenrocket-pendant/program.bw",
+      "circuit": "blinkenrocket-pendant/circuit.json"
+    },
+    "kind": "full",
+    "devices": [
+      "attiny88"
+    ]
   }
 ]

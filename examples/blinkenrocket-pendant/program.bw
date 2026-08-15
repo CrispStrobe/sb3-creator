@@ -1,0 +1,78 @@
+# OUR OWN scrolling text firmware for the blinkenrocket pendant.
+# NOT derived from the blinkenrocket GPL firmware — clean-room implementation
+# of 8x8 LED matrix multiplexing and scrolling text.
+DEVICE ATTINY88
+CLOCK 8000000
+# 788AS matrix: columns on PB0-PB7, rows on PD0-PD7
+# Col LOW selects column, Row HIGH lights LED in that column
+PIN col0 = PB0 OUTPUT
+PIN col1 = PB1 OUTPUT
+PIN col2 = PB2 OUTPUT
+PIN col3 = PB3 OUTPUT
+PIN col4 = PB4 OUTPUT
+PIN col5 = PB5 OUTPUT
+PIN col6 = PB6 OUTPUT
+PIN col7 = PB7 OUTPUT
+PIN row0 = PD0 OUTPUT
+PIN row1 = PD1 OUTPUT
+PIN row2 = PD2 OUTPUT
+PIN row3 = PD3 OUTPUT
+PIN row4 = PD4 OUTPUT
+PIN row5 = PD5 OUTPUT
+PIN row6 = PD6 OUTPUT
+PIN row7 = PD7 OUTPUT
+PIN btnLeft = PC3 INPUT
+PIN btnRight = PC7 INPUT
+
+SPRITE Cat:
+  WHEN flag clicked:
+    # Simple scrolling text: display a smiley pattern, then scroll it left
+    # Each column is a byte where bit n = row n
+    # Smiley: rows 1-6 active in columns 1-6
+    LIST pattern
+    add 0 to pattern
+    add 36 to pattern
+    add 36 to pattern
+    add 0 to pattern
+    add 66 to pattern
+    add 60 to pattern
+    add 0 to pattern
+    add 0 to pattern
+    set scrollPos to 0
+    forever:
+      # Multiplex: scan columns one at a time
+      repeat 8:
+        set col to scrollPos
+        # Turn off all columns (HIGH = deselected for 788AS)
+        turn off col0
+        turn off col1
+        turn off col2
+        turn off col3
+        turn off col4
+        turn off col5
+        turn off col6
+        turn off col7
+        # Set rows for this column from pattern
+        set colData to (item ((col mod 8) + 1) of pattern)
+        # Drive rows (HIGH = lit for 788AS)
+        if (colData mod 2) = 1 then: turn on row0
+        else: turn off row0
+        if ((colData / 2) mod 2) = 1 then: turn on row1
+        else: turn off row1
+        if ((colData / 4) mod 2) = 1 then: turn on row2
+        else: turn off row2
+        if ((colData / 8) mod 2) = 1 then: turn on row3
+        else: turn off row3
+        # Select this column (LOW = selected for 788AS)
+        turn on col0
+        wait 0.002 seconds
+        change col by 1
+      # Scroll on button press
+      if read btnLeft then:
+        change scrollPos by -1
+        if scrollPos < 0 then: set scrollPos to 7
+        wait 0.2 seconds
+      if read btnRight then:
+        change scrollPos by 1
+        if scrollPos > 7 then: set scrollPos to 0
+        wait 0.2 seconds

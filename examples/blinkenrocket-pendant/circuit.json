@@ -1,0 +1,216 @@
+{
+  "vcc": 5,
+  "parts": [
+    {
+      "id": "mcu",
+      "kind": "attiny88",
+      "declName": "mcu"
+    },
+    {
+      "id": "matrix",
+      "kind": "matrix8x8",
+      "declName": "matrix",
+      "params": {
+        "polarity": "788AS",
+        "colActiveHigh": false,
+        "rowActiveHigh": true
+      }
+    },
+    {
+      "id": "btnL",
+      "kind": "button",
+      "declName": "btnLeft",
+      "params": {}
+    },
+    {
+      "id": "btnR",
+      "kind": "button",
+      "declName": "btnRight",
+      "params": {}
+    },
+    {
+      "id": "rL",
+      "kind": "resistor",
+      "params": {
+        "ohms": 10000
+      }
+    },
+    {
+      "id": "rR",
+      "kind": "resistor",
+      "params": {
+        "ohms": 10000
+      }
+    },
+    {
+      "id": "vcc1",
+      "kind": "vcc",
+      "params": {
+        "volts": 5
+      }
+    },
+    {
+      "id": "gnd1",
+      "kind": "gnd",
+      "params": {}
+    }
+  ],
+  "wires": [
+    {
+      "from": "mcu",
+      "fromTerminal": "pb0",
+      "to": "matrix",
+      "toTerminal": "col0"
+    },
+    {
+      "from": "mcu",
+      "fromTerminal": "pb1",
+      "to": "matrix",
+      "toTerminal": "col1"
+    },
+    {
+      "from": "mcu",
+      "fromTerminal": "pb2",
+      "to": "matrix",
+      "toTerminal": "col2"
+    },
+    {
+      "from": "mcu",
+      "fromTerminal": "pb3",
+      "to": "matrix",
+      "toTerminal": "col3"
+    },
+    {
+      "from": "mcu",
+      "fromTerminal": "pb4",
+      "to": "matrix",
+      "toTerminal": "col4"
+    },
+    {
+      "from": "mcu",
+      "fromTerminal": "pb5",
+      "to": "matrix",
+      "toTerminal": "col5"
+    },
+    {
+      "from": "mcu",
+      "fromTerminal": "pb6",
+      "to": "matrix",
+      "toTerminal": "col6"
+    },
+    {
+      "from": "mcu",
+      "fromTerminal": "pb7",
+      "to": "matrix",
+      "toTerminal": "col7"
+    },
+    {
+      "from": "mcu",
+      "fromTerminal": "pd0",
+      "to": "matrix",
+      "toTerminal": "row0"
+    },
+    {
+      "from": "mcu",
+      "fromTerminal": "pd1",
+      "to": "matrix",
+      "toTerminal": "row1"
+    },
+    {
+      "from": "mcu",
+      "fromTerminal": "pd2",
+      "to": "matrix",
+      "toTerminal": "row2"
+    },
+    {
+      "from": "mcu",
+      "fromTerminal": "pd3",
+      "to": "matrix",
+      "toTerminal": "row3"
+    },
+    {
+      "from": "mcu",
+      "fromTerminal": "pd4",
+      "to": "matrix",
+      "toTerminal": "row4"
+    },
+    {
+      "from": "mcu",
+      "fromTerminal": "pd5",
+      "to": "matrix",
+      "toTerminal": "row5"
+    },
+    {
+      "from": "mcu",
+      "fromTerminal": "pd6",
+      "to": "matrix",
+      "toTerminal": "row6"
+    },
+    {
+      "from": "mcu",
+      "fromTerminal": "pd7",
+      "to": "matrix",
+      "toTerminal": "row7"
+    },
+    {
+      "from": "vcc1",
+      "fromTerminal": "vcc",
+      "to": "btnL",
+      "toTerminal": "a"
+    },
+    {
+      "from": "btnL",
+      "fromTerminal": "b",
+      "to": "mcu",
+      "toTerminal": "pc3"
+    },
+    {
+      "from": "mcu",
+      "fromTerminal": "pc3",
+      "to": "rL",
+      "toTerminal": "a"
+    },
+    {
+      "from": "rL",
+      "fromTerminal": "b",
+      "to": "gnd1",
+      "toTerminal": "gnd"
+    },
+    {
+      "from": "vcc1",
+      "fromTerminal": "vcc",
+      "to": "btnR",
+      "toTerminal": "a"
+    },
+    {
+      "from": "btnR",
+      "fromTerminal": "b",
+      "to": "mcu",
+      "toTerminal": "pc7"
+    },
+    {
+      "from": "mcu",
+      "fromTerminal": "pc7",
+      "to": "rR",
+      "toTerminal": "a"
+    },
+    {
+      "from": "rR",
+      "fromTerminal": "b",
+      "to": "gnd1",
+      "toTerminal": "gnd"
+    },
+    {
+      "from": "vcc1",
+      "fromTerminal": "vcc",
+      "to": "mcu",
+      "toTerminal": "vcc"
+    },
+    {
+      "from": "gnd1",
+      "fromTerminal": "gnd",
+      "to": "mcu",
+      "toTerminal": "gnd"
+    }
+  ]
+}
