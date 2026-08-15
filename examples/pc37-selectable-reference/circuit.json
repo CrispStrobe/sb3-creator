@@ -1,22 +1,192 @@
 {
-  "vcc": 9,
-  "parts": [
-    { "id": "src", "kind": "vsource", "params": { "volts": 9 }, "x": 80, "y": 80 },
-    { "id": "r1", "kind": "resistor", "params": { "ohms": 10000 }, "x": 220, "y": 120 },
-    { "id": "r2", "kind": "resistor", "params": { "ohms": 10000 }, "x": 220, "y": 240 },
-    { "id": "r3", "kind": "resistor", "params": { "ohms": 10000 }, "x": 220, "y": 360 },
-    { "id": "sel", "kind": "switch", "params": {}, "x": 420, "y": 220 },
-    { "id": "load", "kind": "resistor", "params": { "ohms": 100000 }, "x": 570, "y": 220 },
-    { "id": "gnd", "kind": "gnd", "params": {}, "x": 700, "y": 450 }
-  ],
-  "wires": [
-    { "from": "src", "fromTerminal": "pos", "to": "r1", "toTerminal": "a" },
-    { "from": "r1", "fromTerminal": "b", "to": "r2", "toTerminal": "a" },
-    { "from": "r2", "fromTerminal": "b", "to": "r3", "toTerminal": "a" },
-    { "from": "r3", "fromTerminal": "b", "to": "gnd", "toTerminal": "gnd" },
-    { "from": "r1", "fromTerminal": "b", "to": "sel", "toTerminal": "a" },
-    { "from": "sel", "fromTerminal": "b", "to": "load", "toTerminal": "a" },
-    { "from": "load", "fromTerminal": "b", "to": "gnd", "toTerminal": "gnd" },
-    { "from": "src", "fromTerminal": "neg", "to": "gnd", "toTerminal": "gnd" }
-  ]
+ "vcc": 9,
+ "parts": [
+  {
+   "id": "src",
+   "kind": "vsource",
+   "params": {
+    "volts": 9
+   },
+   "x": 80,
+   "y": 80
+  },
+  {
+   "id": "r1",
+   "kind": "resistor",
+   "params": {
+    "ohms": 10000
+   },
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a3",
+     "b": "a7"
+    }
+   }
+  },
+  {
+   "id": "r2",
+   "kind": "resistor",
+   "params": {
+    "ohms": 10000
+   },
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a10",
+     "b": "a14"
+    }
+   }
+  },
+  {
+   "id": "r3",
+   "kind": "resistor",
+   "params": {
+    "ohms": 10000
+   },
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a17",
+     "b": "a21"
+    }
+   }
+  },
+  {
+   "id": "sel",
+   "kind": "switch",
+   "params": {},
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a24",
+     "b": "a27"
+    }
+   }
+  },
+  {
+   "id": "load",
+   "kind": "resistor",
+   "params": {
+    "ohms": 100000
+   },
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a30",
+     "b": "a34"
+    }
+   }
+  },
+  {
+   "id": "gnd",
+   "kind": "gnd",
+   "params": {},
+   "x": 700,
+   "y": 450
+  },
+  {
+   "id": "bb1",
+   "kind": "breadboard",
+   "params": {},
+   "terminals": [],
+   "x": 470,
+   "y": 330,
+   "rotation": 0
+  }
+ ],
+ "wires": [
+  {
+   "from": "src",
+   "fromTerminal": "pos",
+   "to": "r1",
+   "toTerminal": "a"
+  },
+  {
+   "from": "r1",
+   "fromTerminal": "b",
+   "to": "r2",
+   "toTerminal": "a"
+  },
+  {
+   "from": "r2",
+   "fromTerminal": "b",
+   "to": "r3",
+   "toTerminal": "a"
+  },
+  {
+   "from": "r3",
+   "fromTerminal": "b",
+   "to": "gnd",
+   "toTerminal": "gnd"
+  },
+  {
+   "from": "r1",
+   "fromTerminal": "b",
+   "to": "sel",
+   "toTerminal": "a"
+  },
+  {
+   "from": "sel",
+   "fromTerminal": "b",
+   "to": "load",
+   "toTerminal": "a"
+  },
+  {
+   "from": "load",
+   "fromTerminal": "b",
+   "to": "gnd",
+   "toTerminal": "gnd"
+  },
+  {
+   "from": "src",
+   "fromTerminal": "neg",
+   "to": "gnd",
+   "toTerminal": "gnd"
+  }
+ ],
+ "holeWires": [
+  {
+   "ref": "bbw:bb1:gen_0",
+   "boardId": "bb1",
+   "a": "b7",
+   "b": "b10",
+   "color": "green"
+  },
+  {
+   "ref": "bbw:bb1:gen_1",
+   "boardId": "bb1",
+   "a": "b14",
+   "b": "b17",
+   "color": "blue"
+  },
+  {
+   "ref": "bbw:bb1:gen_2",
+   "boardId": "bb1",
+   "a": "b21",
+   "b": "b-21",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb1:gen_3",
+   "boardId": "bb1",
+   "a": "c7",
+   "b": "b24",
+   "color": "yellow"
+  },
+  {
+   "ref": "bbw:bb1:gen_4",
+   "boardId": "bb1",
+   "a": "b27",
+   "b": "b30",
+   "color": "orange"
+  },
+  {
+   "ref": "bbw:bb1:gen_5",
+   "boardId": "bb1",
+   "a": "b34",
+   "b": "b-34",
+   "color": "black"
+  }
+ ]
 }

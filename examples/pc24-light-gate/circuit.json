@@ -1,117 +1,210 @@
 {
-  "vcc": 5,
-  "parts": [
-    {
-      "id": "vcc1",
-      "kind": "vcc",
-      "params": {},
-      "x": 100,
-      "y": 80
-    },
-    {
-      "id": "gnd1",
-      "kind": "gnd",
-      "params": {},
-      "x": 650,
-      "y": 430
-    },
-    {
-      "id": "ldr1",
-      "kind": "ldr",
-      "params": {
-        "rDark": 100000,
-        "rLight": 1000
-      },
-      "x": 250,
-      "y": 150
-    },
-    {
-      "id": "r1",
-      "kind": "resistor",
-      "params": {
-        "ohms": 10000
-      },
-      "x": 250,
-      "y": 300
-    },
-    {
-      "id": "q1",
-      "kind": "npn",
-      "params": {
-        "beta": 100,
-        "vbe": 0.7
-      },
-      "x": 450,
-      "y": 280
-    },
-    {
-      "id": "rled",
-      "kind": "resistor",
-      "params": {
-        "ohms": 1000
-      },
-      "x": 450,
-      "y": 130
-    },
-    {
-      "id": "led1",
-      "kind": "led",
-      "params": {
-        "vf": 2,
-        "color": "yellow"
-      },
-      "x": 560,
-      "y": 260
+ "vcc": 5,
+ "parts": [
+  {
+   "id": "vcc1",
+   "kind": "vcc",
+   "params": {},
+   "x": 100,
+   "y": 80
+  },
+  {
+   "id": "gnd1",
+   "kind": "gnd",
+   "params": {},
+   "x": 650,
+   "y": 430
+  },
+  {
+   "id": "ldr1",
+   "kind": "ldr",
+   "params": {
+    "rDark": 100000,
+    "rLight": 1000
+   },
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a3",
+     "b": "a5"
     }
-  ],
-  "wires": [
-    {
-      "from": "vcc1",
-      "fromTerminal": "vcc",
-      "to": "ldr1",
-      "toTerminal": "a"
-    },
-    {
-      "from": "ldr1",
-      "fromTerminal": "b",
-      "to": "r1",
-      "toTerminal": "a"
-    },
-    {
-      "from": "r1",
-      "fromTerminal": "b",
-      "to": "gnd1",
-      "toTerminal": "gnd"
-    },
-    {
-      "from": "ldr1",
-      "fromTerminal": "b",
-      "to": "q1",
-      "toTerminal": "base"
-    },
-    {
-      "from": "vcc1",
-      "fromTerminal": "vcc",
-      "to": "rled",
-      "toTerminal": "a"
-    },
-    {
-      "from": "rled",
-      "fromTerminal": "b",
-      "to": "led1",
-      "toTerminal": "anode"
-    },
-    {
-      "from": "led1",
-      "fromTerminal": "cathode",
-      "to": "q1",
-      "toTerminal": "collector"
-    },
-    {
-      "from": "q1",
-      "fromTerminal": "emitter",
-      "to": "gnd1",
-      "toTerminal": "gnd"
+   }
+  },
+  {
+   "id": "r1",
+   "kind": "resistor",
+   "params": {
+    "ohms": 10000
+   },
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a8",
+     "b": "a12"
     }
-  ]
+   }
+  },
+  {
+   "id": "q1",
+   "kind": "npn",
+   "params": {
+    "beta": 100,
+    "vbe": 0.7
+   },
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "emitter": "a15",
+     "base": "a16",
+     "collector": "a17"
+    }
+   }
+  },
+  {
+   "id": "rled",
+   "kind": "resistor",
+   "params": {
+    "ohms": 1000
+   },
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a20",
+     "b": "a24"
+    }
+   }
+  },
+  {
+   "id": "led1",
+   "kind": "led",
+   "params": {
+    "vf": 2,
+    "color": "yellow"
+   },
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "anode": "a27",
+     "cathode": "a28"
+    }
+   }
+  },
+  {
+   "id": "bb1",
+   "kind": "breadboard",
+   "params": {},
+   "terminals": [],
+   "x": 470,
+   "y": 330,
+   "rotation": 0
+  }
+ ],
+ "wires": [
+  {
+   "from": "vcc1",
+   "fromTerminal": "vcc",
+   "to": "ldr1",
+   "toTerminal": "a"
+  },
+  {
+   "from": "ldr1",
+   "fromTerminal": "b",
+   "to": "r1",
+   "toTerminal": "a"
+  },
+  {
+   "from": "r1",
+   "fromTerminal": "b",
+   "to": "gnd1",
+   "toTerminal": "gnd"
+  },
+  {
+   "from": "ldr1",
+   "fromTerminal": "b",
+   "to": "q1",
+   "toTerminal": "base"
+  },
+  {
+   "from": "vcc1",
+   "fromTerminal": "vcc",
+   "to": "rled",
+   "toTerminal": "a"
+  },
+  {
+   "from": "rled",
+   "fromTerminal": "b",
+   "to": "led1",
+   "toTerminal": "anode"
+  },
+  {
+   "from": "led1",
+   "fromTerminal": "cathode",
+   "to": "q1",
+   "toTerminal": "collector"
+  },
+  {
+   "from": "q1",
+   "fromTerminal": "emitter",
+   "to": "gnd1",
+   "toTerminal": "gnd"
+  }
+ ],
+ "holeWires": [
+  {
+   "ref": "bbw:bb1:gen_0",
+   "boardId": "bb1",
+   "a": "b3",
+   "b": "t+3",
+   "color": "red"
+  },
+  {
+   "ref": "bbw:bb1:gen_1",
+   "boardId": "bb1",
+   "a": "b5",
+   "b": "b8",
+   "color": "green"
+  },
+  {
+   "ref": "bbw:bb1:gen_2",
+   "boardId": "bb1",
+   "a": "b12",
+   "b": "b-12",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb1:gen_3",
+   "boardId": "bb1",
+   "a": "c5",
+   "b": "b16",
+   "color": "blue"
+  },
+  {
+   "ref": "bbw:bb1:gen_4",
+   "boardId": "bb1",
+   "a": "b20",
+   "b": "t+20",
+   "color": "red"
+  },
+  {
+   "ref": "bbw:bb1:gen_5",
+   "boardId": "bb1",
+   "a": "b24",
+   "b": "b27",
+   "color": "yellow"
+  },
+  {
+   "ref": "bbw:bb1:gen_6",
+   "boardId": "bb1",
+   "a": "b28",
+   "b": "b17",
+   "color": "orange"
+  },
+  {
+   "ref": "bbw:bb1:gen_7",
+   "boardId": "bb1",
+   "a": "b15",
+   "b": "b-15",
+   "color": "black"
+  }
+ ]
 }

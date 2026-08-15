@@ -1,30 +1,255 @@
 {
-  "vcc": 5,
-  "parts": [
-    { "id": "vcc", "kind": "vcc", "params": {}, "x": 90, "y": 70 },
-    { "id": "gnd", "kind": "gnd", "params": {}, "x": 700, "y": 460 },
-    { "id": "timer", "kind": "timer_555", "params": {}, "x": 370, "y": 240 },
-    { "id": "button", "kind": "button", "params": {}, "x": 160, "y": 180 },
-    { "id": "pull", "kind": "resistor", "params": { "ohms": 10000 }, "x": 240, "y": 310 },
-    { "id": "rt", "kind": "resistor", "params": { "ohms": 100000 }, "x": 160, "y": 100 },
-    { "id": "ct", "kind": "capacitor", "params": { "farads": 0.00001 }, "x": 160, "y": 390 },
-    { "id": "rl", "kind": "resistor", "params": { "ohms": 1000 }, "x": 560, "y": 220 },
-    { "id": "led", "kind": "led", "params": { "vf": 2, "color": "red" }, "x": 650, "y": 300 }
-  ],
-  "wires": [
-    { "from": "vcc", "fromTerminal": "vcc", "to": "timer", "toTerminal": "vcc" },
-    { "from": "timer", "fromTerminal": "gnd", "to": "gnd", "toTerminal": "gnd" },
-    { "from": "vcc", "fromTerminal": "vcc", "to": "timer", "toTerminal": "reset" },
-    { "from": "vcc", "fromTerminal": "vcc", "to": "rt", "toTerminal": "a" },
-    { "from": "rt", "fromTerminal": "b", "to": "timer", "toTerminal": "threshold" },
-    { "from": "rt", "fromTerminal": "b", "to": "ct", "toTerminal": "a" },
-    { "from": "ct", "fromTerminal": "b", "to": "gnd", "toTerminal": "gnd" },
-    { "from": "button", "fromTerminal": "a", "to": "timer", "toTerminal": "trigger" },
-    { "from": "button", "fromTerminal": "b", "to": "gnd", "toTerminal": "gnd" },
-    { "from": "timer", "fromTerminal": "trigger", "to": "pull", "toTerminal": "a" },
-    { "from": "pull", "fromTerminal": "b", "to": "vcc", "toTerminal": "vcc" },
-    { "from": "timer", "fromTerminal": "output", "to": "rl", "toTerminal": "a" },
-    { "from": "rl", "fromTerminal": "b", "to": "led", "toTerminal": "anode" },
-    { "from": "led", "fromTerminal": "cathode", "to": "gnd", "toTerminal": "gnd" }
-  ]
+ "vcc": 5,
+ "parts": [
+  {
+   "id": "vcc",
+   "kind": "vcc",
+   "params": {},
+   "x": 90,
+   "y": 70
+  },
+  {
+   "id": "gnd",
+   "kind": "gnd",
+   "params": {},
+   "x": 700,
+   "y": 460
+  },
+  {
+   "id": "timer",
+   "kind": "timer_555",
+   "params": {},
+   "x": 370,
+   "y": 240
+  },
+  {
+   "id": "button",
+   "kind": "button",
+   "params": {},
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a3",
+     "b": "f3"
+    }
+   }
+  },
+  {
+   "id": "pull",
+   "kind": "resistor",
+   "params": {
+    "ohms": 10000
+   },
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a6",
+     "b": "a10"
+    }
+   }
+  },
+  {
+   "id": "rt",
+   "kind": "resistor",
+   "params": {
+    "ohms": 100000
+   },
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a13",
+     "b": "a17"
+    }
+   }
+  },
+  {
+   "id": "ct",
+   "kind": "capacitor",
+   "params": {
+    "farads": 0.00001
+   },
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a20",
+     "b": "a21"
+    }
+   }
+  },
+  {
+   "id": "rl",
+   "kind": "resistor",
+   "params": {
+    "ohms": 1000
+   },
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a24",
+     "b": "a28"
+    }
+   }
+  },
+  {
+   "id": "led",
+   "kind": "led",
+   "params": {
+    "vf": 2,
+    "color": "red"
+   },
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "anode": "a31",
+     "cathode": "a32"
+    }
+   }
+  },
+  {
+   "id": "bb1",
+   "kind": "breadboard",
+   "params": {},
+   "terminals": [],
+   "x": 470,
+   "y": 330,
+   "rotation": 0
+  }
+ ],
+ "wires": [
+  {
+   "from": "vcc",
+   "fromTerminal": "vcc",
+   "to": "timer",
+   "toTerminal": "vcc"
+  },
+  {
+   "from": "timer",
+   "fromTerminal": "gnd",
+   "to": "gnd",
+   "toTerminal": "gnd"
+  },
+  {
+   "from": "vcc",
+   "fromTerminal": "vcc",
+   "to": "timer",
+   "toTerminal": "reset"
+  },
+  {
+   "from": "vcc",
+   "fromTerminal": "vcc",
+   "to": "rt",
+   "toTerminal": "a"
+  },
+  {
+   "from": "rt",
+   "fromTerminal": "b",
+   "to": "timer",
+   "toTerminal": "threshold"
+  },
+  {
+   "from": "rt",
+   "fromTerminal": "b",
+   "to": "ct",
+   "toTerminal": "a"
+  },
+  {
+   "from": "ct",
+   "fromTerminal": "b",
+   "to": "gnd",
+   "toTerminal": "gnd"
+  },
+  {
+   "from": "button",
+   "fromTerminal": "a",
+   "to": "timer",
+   "toTerminal": "trigger"
+  },
+  {
+   "from": "button",
+   "fromTerminal": "b",
+   "to": "gnd",
+   "toTerminal": "gnd"
+  },
+  {
+   "from": "timer",
+   "fromTerminal": "trigger",
+   "to": "pull",
+   "toTerminal": "a"
+  },
+  {
+   "from": "pull",
+   "fromTerminal": "b",
+   "to": "vcc",
+   "toTerminal": "vcc"
+  },
+  {
+   "from": "timer",
+   "fromTerminal": "output",
+   "to": "rl",
+   "toTerminal": "a"
+  },
+  {
+   "from": "rl",
+   "fromTerminal": "b",
+   "to": "led",
+   "toTerminal": "anode"
+  },
+  {
+   "from": "led",
+   "fromTerminal": "cathode",
+   "to": "gnd",
+   "toTerminal": "gnd"
+  }
+ ],
+ "holeWires": [
+  {
+   "ref": "bbw:bb1:gen_0",
+   "boardId": "bb1",
+   "a": "b13",
+   "b": "t+13",
+   "color": "red"
+  },
+  {
+   "ref": "bbw:bb1:gen_1",
+   "boardId": "bb1",
+   "a": "b17",
+   "b": "b20",
+   "color": "green"
+  },
+  {
+   "ref": "bbw:bb1:gen_2",
+   "boardId": "bb1",
+   "a": "b21",
+   "b": "b-21",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb1:gen_3",
+   "boardId": "bb1",
+   "a": "g3",
+   "b": "b-3",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb1:gen_4",
+   "boardId": "bb1",
+   "a": "b10",
+   "b": "t+10",
+   "color": "red"
+  },
+  {
+   "ref": "bbw:bb1:gen_5",
+   "boardId": "bb1",
+   "a": "b28",
+   "b": "b31",
+   "color": "blue"
+  },
+  {
+   "ref": "bbw:bb1:gen_6",
+   "boardId": "bb1",
+   "a": "b32",
+   "b": "b-32",
+   "color": "black"
+  }
+ ]
 }

@@ -1,128 +1,179 @@
 {
-  "vcc": 5,
-  "parts": [
-    {
-      "id": "vsource_1",
-      "kind": "vsource",
-      "params": {
-        "volts": 9,
-        "variant": "9v"
-      },
-      "terminals": [
-        "pos",
-        "neg"
-      ],
-      "x": 100,
-      "y": 150,
-      "rotation": 0
-    },
-    {
-      "id": "resistor_2",
-      "kind": "resistor",
-      "params": {
-        "ohms": 330
-      },
-      "terminals": [
-        "a",
-        "b"
-      ],
-      "x": 250,
-      "y": 80,
-      "rotation": 0
-    },
-    {
-      "id": "zener_3",
-      "kind": "zener",
-      "params": {
-        "vf": 5.1
-      },
-      "terminals": [
-        "anode",
-        "cathode"
-      ],
-      "x": 250,
-      "y": 160,
-      "rotation": 0
-    },
-    {
-      "id": "resistor_4",
-      "kind": "resistor",
-      "params": {
-        "ohms": 1000
-      },
-      "terminals": [
-        "a",
-        "b"
-      ],
-      "x": 350,
-      "y": 80,
-      "rotation": 0
-    },
-    {
-      "id": "led_5",
-      "kind": "led",
-      "params": {
-        "vf": 2,
-        "color": "green"
-      },
-      "terminals": [
-        "anode",
-        "cathode"
-      ],
-      "x": 350,
-      "y": 160,
-      "rotation": 0
+ "vcc": 5,
+ "parts": [
+  {
+   "id": "vsource_1",
+   "kind": "vsource",
+   "params": {
+    "volts": 9,
+    "variant": "9v"
+   },
+   "terminals": [
+    "pos",
+    "neg"
+   ],
+   "x": 100,
+   "y": 150,
+   "rotation": 0
+  },
+  {
+   "id": "resistor_2",
+   "kind": "resistor",
+   "params": {
+    "ohms": 330
+   },
+   "terminals": [
+    "a",
+    "b"
+   ],
+   "rotation": 0,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a3",
+     "b": "a7"
     }
-  ],
-  "wires": [
-    {
-      "id": "wire_7",
-      "netId": "net_6",
-      "from": "vsource_1",
-      "to": "resistor_2",
-      "fromTerminal": "pos",
-      "toTerminal": "a"
-    },
-    {
-      "id": "wire_9",
-      "netId": "net_8",
-      "from": "resistor_2",
-      "to": "zener_3",
-      "fromTerminal": "b",
-      "toTerminal": "cathode"
-    },
-    {
-      "id": "wire_11",
-      "netId": "net_10",
-      "from": "zener_3",
-      "to": "vsource_1",
-      "fromTerminal": "anode",
-      "toTerminal": "neg"
-    },
-    {
-      "id": "wire_12",
-      "netId": "net_8",
-      "from": "resistor_2",
-      "to": "resistor_4",
-      "fromTerminal": "b",
-      "toTerminal": "a"
-    },
-    {
-      "id": "wire_14",
-      "netId": "net_13",
-      "from": "resistor_4",
-      "to": "led_5",
-      "fromTerminal": "b",
-      "toTerminal": "anode"
-    },
-    {
-      "id": "wire_15",
-      "netId": "net_10",
-      "from": "led_5",
-      "to": "vsource_1",
-      "fromTerminal": "cathode",
-      "toTerminal": "neg"
+   }
+  },
+  {
+   "id": "zener_3",
+   "kind": "zener",
+   "params": {
+    "vf": 5.1
+   },
+   "terminals": [
+    "anode",
+    "cathode"
+   ],
+   "rotation": 0,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "anode": "a10",
+     "cathode": "a12"
     }
-  ],
-  "holeWires": []
+   }
+  },
+  {
+   "id": "resistor_4",
+   "kind": "resistor",
+   "params": {
+    "ohms": 1000
+   },
+   "terminals": [
+    "a",
+    "b"
+   ],
+   "rotation": 0,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a15",
+     "b": "a19"
+    }
+   }
+  },
+  {
+   "id": "led_5",
+   "kind": "led",
+   "params": {
+    "vf": 2,
+    "color": "green"
+   },
+   "terminals": [
+    "anode",
+    "cathode"
+   ],
+   "rotation": 0,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "anode": "a22",
+     "cathode": "a23"
+    }
+   }
+  },
+  {
+   "id": "bb1",
+   "kind": "breadboard",
+   "params": {},
+   "terminals": [],
+   "x": 470,
+   "y": 330,
+   "rotation": 0
+  }
+ ],
+ "wires": [
+  {
+   "id": "wire_7",
+   "netId": "net_6",
+   "from": "vsource_1",
+   "to": "resistor_2",
+   "fromTerminal": "pos",
+   "toTerminal": "a"
+  },
+  {
+   "id": "wire_9",
+   "netId": "net_8",
+   "from": "resistor_2",
+   "to": "zener_3",
+   "fromTerminal": "b",
+   "toTerminal": "cathode"
+  },
+  {
+   "id": "wire_11",
+   "netId": "net_10",
+   "from": "zener_3",
+   "to": "vsource_1",
+   "fromTerminal": "anode",
+   "toTerminal": "neg"
+  },
+  {
+   "id": "wire_12",
+   "netId": "net_8",
+   "from": "resistor_2",
+   "to": "resistor_4",
+   "fromTerminal": "b",
+   "toTerminal": "a"
+  },
+  {
+   "id": "wire_14",
+   "netId": "net_13",
+   "from": "resistor_4",
+   "to": "led_5",
+   "fromTerminal": "b",
+   "toTerminal": "anode"
+  },
+  {
+   "id": "wire_15",
+   "netId": "net_10",
+   "from": "led_5",
+   "to": "vsource_1",
+   "fromTerminal": "cathode",
+   "toTerminal": "neg"
+  }
+ ],
+ "holeWires": [
+  {
+   "ref": "bbw:bb1:gen_0",
+   "boardId": "bb1",
+   "a": "b7",
+   "b": "b12",
+   "color": "green"
+  },
+  {
+   "ref": "bbw:bb1:gen_1",
+   "boardId": "bb1",
+   "a": "c7",
+   "b": "b15",
+   "color": "blue"
+  },
+  {
+   "ref": "bbw:bb1:gen_2",
+   "boardId": "bb1",
+   "a": "b19",
+   "b": "b22",
+   "color": "yellow"
+  }
+ ]
 }

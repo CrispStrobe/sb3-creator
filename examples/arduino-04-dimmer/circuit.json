@@ -1,107 +1,179 @@
 {
-  "vcc": 5,
-  "parts": [
-    {
-      "id": "board",
-      "kind": "arduino_uno",
-      "declName": "board",
-      "x": 100,
-      "y": 100
-    },
-    {
-      "id": "pot1",
-      "kind": "potentiometer",
-      "declName": "pot",
-      "params": {
-        "ohms": 10000
-      },
-      "x": 180,
-      "y": 100
-    },
-    {
-      "id": "led1",
-      "kind": "led",
-      "declName": "led",
-      "params": {
-        "color": "white"
-      },
-      "x": 260,
-      "y": 100
-    },
-    {
-      "id": "r1",
-      "kind": "resistor",
-      "params": {
-        "ohms": 220
-      },
-      "x": 340,
-      "y": 100
-    },
-    {
-      "id": "vcc1",
-      "kind": "vcc",
-      "params": {
-        "volts": 5
-      },
-      "x": 420,
-      "y": 100
-    },
-    {
-      "id": "gnd1",
-      "kind": "gnd",
-      "params": {},
-      "x": 500,
-      "y": 100
+ "vcc": 5,
+ "parts": [
+  {
+   "id": "board",
+   "kind": "arduino_uno",
+   "declName": "board",
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "D0": "a3",
+     "D1": "a4",
+     "D2": "a5",
+     "D3": "a6",
+     "D4": "a7",
+     "D5": "a8",
+     "D6": "a9",
+     "D7": "a10",
+     "D8": "a11",
+     "D9": "a12",
+     "D10": "a13",
+     "D11": "a14",
+     "D12": "a15",
+     "D13": "a16"
     }
-  ],
-  "wires": [
-    {
-      "from": "vcc1",
-      "fromTerminal": "vcc",
-      "to": "pot1",
-      "toTerminal": "a"
-    },
-    {
-      "from": "pot1",
-      "fromTerminal": "wiper",
-      "to": "board",
-      "toTerminal": "a0"
-    },
-    {
-      "from": "pot1",
-      "fromTerminal": "b",
-      "to": "gnd1",
-      "toTerminal": "gnd"
-    },
-    {
-      "from": "board",
-      "fromTerminal": "d9",
-      "to": "r1",
-      "toTerminal": "a"
-    },
-    {
-      "from": "r1",
-      "fromTerminal": "b",
-      "to": "led1",
-      "toTerminal": "anode"
-    },
-    {
-      "from": "led1",
-      "fromTerminal": "cathode",
-      "to": "gnd1",
-      "toTerminal": "gnd"
-    },
-    {
-      "from": "vcc1",
-      "fromTerminal": "vcc",
-      "to": "board",
-      "toTerminal": "5v"
-    },
-    {
-      "from": "gnd1",
-      "fromTerminal": "gnd",
-      "to": "board",
-      "toTerminal": "gnd"
+   }
+  },
+  {
+   "id": "pot1",
+   "kind": "potentiometer",
+   "declName": "pot",
+   "params": {
+    "ohms": 10000
+   },
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a19",
+     "wiper": "a21",
+     "b": "a23"
     }
-  ]
+   }
+  },
+  {
+   "id": "led1",
+   "kind": "led",
+   "declName": "led",
+   "params": {
+    "color": "white"
+   },
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "anode": "a26",
+     "cathode": "a27"
+    }
+   }
+  },
+  {
+   "id": "r1",
+   "kind": "resistor",
+   "params": {
+    "ohms": 220
+   },
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a30",
+     "b": "a34"
+    }
+   }
+  },
+  {
+   "id": "vcc1",
+   "kind": "vcc",
+   "params": {
+    "volts": 5
+   },
+   "x": 420,
+   "y": 100
+  },
+  {
+   "id": "gnd1",
+   "kind": "gnd",
+   "params": {},
+   "x": 500,
+   "y": 100
+  },
+  {
+   "id": "bb1",
+   "kind": "breadboard",
+   "params": {},
+   "terminals": [],
+   "x": 470,
+   "y": 330,
+   "rotation": 0
+  }
+ ],
+ "wires": [
+  {
+   "from": "vcc1",
+   "fromTerminal": "vcc",
+   "to": "pot1",
+   "toTerminal": "a"
+  },
+  {
+   "from": "pot1",
+   "fromTerminal": "wiper",
+   "to": "board",
+   "toTerminal": "a0"
+  },
+  {
+   "from": "pot1",
+   "fromTerminal": "b",
+   "to": "gnd1",
+   "toTerminal": "gnd"
+  },
+  {
+   "from": "board",
+   "fromTerminal": "d9",
+   "to": "r1",
+   "toTerminal": "a"
+  },
+  {
+   "from": "r1",
+   "fromTerminal": "b",
+   "to": "led1",
+   "toTerminal": "anode"
+  },
+  {
+   "from": "led1",
+   "fromTerminal": "cathode",
+   "to": "gnd1",
+   "toTerminal": "gnd"
+  },
+  {
+   "from": "vcc1",
+   "fromTerminal": "vcc",
+   "to": "board",
+   "toTerminal": "5v"
+  },
+  {
+   "from": "gnd1",
+   "fromTerminal": "gnd",
+   "to": "board",
+   "toTerminal": "gnd"
+  }
+ ],
+ "holeWires": [
+  {
+   "ref": "bbw:bb1:gen_0",
+   "boardId": "bb1",
+   "a": "b19",
+   "b": "t+19",
+   "color": "red"
+  },
+  {
+   "ref": "bbw:bb1:gen_1",
+   "boardId": "bb1",
+   "a": "b23",
+   "b": "b-23",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb1:gen_2",
+   "boardId": "bb1",
+   "a": "b34",
+   "b": "b26",
+   "color": "green"
+  },
+  {
+   "ref": "bbw:bb1:gen_3",
+   "boardId": "bb1",
+   "a": "b27",
+   "b": "b-27",
+   "color": "black"
+  }
+ ]
 }

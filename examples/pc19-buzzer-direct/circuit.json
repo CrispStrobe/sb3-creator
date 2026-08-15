@@ -1,72 +1,99 @@
 {
-  "vcc": 5,
-  "parts": [
-    {
-      "id": "vsource_1",
-      "kind": "vsource",
-      "params": {
-        "volts": 5
-      },
-      "terminals": [
-        "pos",
-        "neg"
-      ],
-      "x": 100,
-      "y": 150,
-      "rotation": 0
-    },
-    {
-      "id": "resistor_2",
-      "kind": "resistor",
-      "params": {
-        "ohms": 100
-      },
-      "terminals": [
-        "a",
-        "b"
-      ],
-      "x": 250,
-      "y": 100,
-      "rotation": 0
-    },
-    {
-      "id": "buzzer_3",
-      "kind": "buzzer",
-      "params": {},
-      "terminals": [
-        "a",
-        "b"
-      ],
-      "x": 250,
-      "y": 200,
-      "rotation": 0
+ "vcc": 5,
+ "parts": [
+  {
+   "id": "vsource_1",
+   "kind": "vsource",
+   "params": {
+    "volts": 5
+   },
+   "terminals": [
+    "pos",
+    "neg"
+   ],
+   "x": 100,
+   "y": 150,
+   "rotation": 0
+  },
+  {
+   "id": "resistor_2",
+   "kind": "resistor",
+   "params": {
+    "ohms": 100
+   },
+   "terminals": [
+    "a",
+    "b"
+   ],
+   "rotation": 0,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a3",
+     "b": "a7"
     }
-  ],
-  "wires": [
-    {
-      "id": "wire_5",
-      "netId": "net_4",
-      "from": "vsource_1",
-      "to": "resistor_2",
-      "fromTerminal": "pos",
-      "toTerminal": "a"
-    },
-    {
-      "id": "wire_7",
-      "netId": "net_6",
-      "from": "resistor_2",
-      "to": "buzzer_3",
-      "fromTerminal": "b",
-      "toTerminal": "a"
-    },
-    {
-      "id": "wire_9",
-      "netId": "net_8",
-      "from": "buzzer_3",
-      "to": "vsource_1",
-      "fromTerminal": "b",
-      "toTerminal": "neg"
+   }
+  },
+  {
+   "id": "buzzer_3",
+   "kind": "buzzer",
+   "params": {},
+   "terminals": [
+    "a",
+    "b"
+   ],
+   "rotation": 0,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a10",
+     "b": "a12"
     }
-  ],
-  "holeWires": []
+   }
+  },
+  {
+   "id": "bb1",
+   "kind": "breadboard",
+   "params": {},
+   "terminals": [],
+   "x": 470,
+   "y": 330,
+   "rotation": 0
+  }
+ ],
+ "wires": [
+  {
+   "id": "wire_5",
+   "netId": "net_4",
+   "from": "vsource_1",
+   "to": "resistor_2",
+   "fromTerminal": "pos",
+   "toTerminal": "a"
+  },
+  {
+   "id": "wire_7",
+   "netId": "net_6",
+   "from": "resistor_2",
+   "to": "buzzer_3",
+   "fromTerminal": "b",
+   "toTerminal": "a"
+  },
+  {
+   "id": "wire_9",
+   "netId": "net_8",
+   "from": "buzzer_3",
+   "to": "vsource_1",
+   "fromTerminal": "b",
+   "toTerminal": "neg"
+  }
+ ],
+ "holeWires": [
+  {
+   "ref": "bbw:bb1:gen_0",
+   "boardId": "bb1",
+   "a": "b7",
+   "b": "b10",
+   "color": "green"
+  }
+ ]
 }

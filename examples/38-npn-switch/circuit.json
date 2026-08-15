@@ -1,21 +1,193 @@
 {
-  "vcc": 5.0,
-  "parts": [
-    { "id": "vcc1",  "kind": "vcc",      "params": {},                                  "x": 200, "y": 50  },
-    { "id": "gnd1",  "kind": "gnd",      "params": {},                                  "x": 200, "y": 450 },
-    { "id": "r1",    "kind": "resistor",  "params": { "ohms": 470 },                    "x": 200, "y": 130 },
-    { "id": "led1",  "kind": "led",       "params": { "vf": 2.0, "color": "red" },      "x": 200, "y": 220 },
-    { "id": "q1",    "kind": "npn",       "params": { "beta": 100 },                    "x": 200, "y": 320 },
-    { "id": "btn1",  "kind": "button",    "params": {},                                  "x": 50,  "y": 130 },
-    { "id": "rb1",   "kind": "resistor",  "params": { "ohms": 10000 },                  "x": 50,  "y": 250 }
-  ],
-  "wires": [
-    { "from": "vcc1",  "fromTerminal": "vcc",      "to": "r1",   "toTerminal": "a"         },
-    { "from": "r1",    "fromTerminal": "b",         "to": "led1", "toTerminal": "anode"     },
-    { "from": "led1",  "fromTerminal": "cathode",   "to": "q1",   "toTerminal": "collector" },
-    { "from": "q1",    "fromTerminal": "emitter",   "to": "gnd1", "toTerminal": "gnd"       },
-    { "from": "vcc1",  "fromTerminal": "vcc",      "to": "btn1", "toTerminal": "a"         },
-    { "from": "btn1",  "fromTerminal": "b",         "to": "rb1",  "toTerminal": "a"         },
-    { "from": "rb1",   "fromTerminal": "b",         "to": "q1",   "toTerminal": "base"      }
-  ]
+ "vcc": 5,
+ "parts": [
+  {
+   "id": "vcc1",
+   "kind": "vcc",
+   "params": {},
+   "x": 200,
+   "y": 50
+  },
+  {
+   "id": "gnd1",
+   "kind": "gnd",
+   "params": {},
+   "x": 200,
+   "y": 450
+  },
+  {
+   "id": "r1",
+   "kind": "resistor",
+   "params": {
+    "ohms": 470
+   },
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a3",
+     "b": "a7"
+    }
+   }
+  },
+  {
+   "id": "led1",
+   "kind": "led",
+   "params": {
+    "vf": 2,
+    "color": "red"
+   },
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "anode": "a10",
+     "cathode": "a11"
+    }
+   }
+  },
+  {
+   "id": "q1",
+   "kind": "npn",
+   "params": {
+    "beta": 100
+   },
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "emitter": "a14",
+     "base": "a15",
+     "collector": "a16"
+    }
+   }
+  },
+  {
+   "id": "btn1",
+   "kind": "button",
+   "params": {},
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a19",
+     "b": "f19"
+    }
+   }
+  },
+  {
+   "id": "rb1",
+   "kind": "resistor",
+   "params": {
+    "ohms": 10000
+   },
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a22",
+     "b": "a26"
+    }
+   }
+  },
+  {
+   "id": "bb1",
+   "kind": "breadboard",
+   "params": {},
+   "terminals": [],
+   "x": 470,
+   "y": 330,
+   "rotation": 0
+  }
+ ],
+ "wires": [
+  {
+   "from": "vcc1",
+   "fromTerminal": "vcc",
+   "to": "r1",
+   "toTerminal": "a"
+  },
+  {
+   "from": "r1",
+   "fromTerminal": "b",
+   "to": "led1",
+   "toTerminal": "anode"
+  },
+  {
+   "from": "led1",
+   "fromTerminal": "cathode",
+   "to": "q1",
+   "toTerminal": "collector"
+  },
+  {
+   "from": "q1",
+   "fromTerminal": "emitter",
+   "to": "gnd1",
+   "toTerminal": "gnd"
+  },
+  {
+   "from": "vcc1",
+   "fromTerminal": "vcc",
+   "to": "btn1",
+   "toTerminal": "a"
+  },
+  {
+   "from": "btn1",
+   "fromTerminal": "b",
+   "to": "rb1",
+   "toTerminal": "a"
+  },
+  {
+   "from": "rb1",
+   "fromTerminal": "b",
+   "to": "q1",
+   "toTerminal": "base"
+  }
+ ],
+ "holeWires": [
+  {
+   "ref": "bbw:bb1:gen_0",
+   "boardId": "bb1",
+   "a": "b3",
+   "b": "t+3",
+   "color": "red"
+  },
+  {
+   "ref": "bbw:bb1:gen_1",
+   "boardId": "bb1",
+   "a": "b7",
+   "b": "b10",
+   "color": "green"
+  },
+  {
+   "ref": "bbw:bb1:gen_2",
+   "boardId": "bb1",
+   "a": "b11",
+   "b": "b16",
+   "color": "blue"
+  },
+  {
+   "ref": "bbw:bb1:gen_3",
+   "boardId": "bb1",
+   "a": "b14",
+   "b": "b-14",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb1:gen_4",
+   "boardId": "bb1",
+   "a": "b19",
+   "b": "t+19",
+   "color": "red"
+  },
+  {
+   "ref": "bbw:bb1:gen_5",
+   "boardId": "bb1",
+   "a": "g19",
+   "b": "b22",
+   "color": "yellow"
+  },
+  {
+   "ref": "bbw:bb1:gen_6",
+   "boardId": "bb1",
+   "a": "b26",
+   "b": "b15",
+   "color": "orange"
+  }
+ ]
 }

@@ -1,15 +1,101 @@
 {
-  "vcc": 5,
-  "parts": [
-    { "id": "src", "kind": "vsource", "params": { "volts": 5 }, "x": 100, "y": 100 },
-    { "id": "ntc", "kind": "ntc", "params": { "rCold": 100000, "rHot": 1000 }, "x": 300, "y": 160 },
-    { "id": "r1", "kind": "resistor", "params": { "ohms": 10000 }, "x": 300, "y": 300 },
-    { "id": "gnd", "kind": "gnd", "params": {}, "x": 680, "y": 420 }
-  ],
-  "wires": [
-    { "from": "src", "fromTerminal": "pos", "to": "ntc", "toTerminal": "a" },
-    { "from": "ntc", "fromTerminal": "b", "to": "r1", "toTerminal": "a" },
-    { "from": "r1", "fromTerminal": "b", "to": "gnd", "toTerminal": "gnd" },
-    { "from": "src", "fromTerminal": "neg", "to": "gnd", "toTerminal": "gnd" }
-  ]
+ "vcc": 5,
+ "parts": [
+  {
+   "id": "src",
+   "kind": "vsource",
+   "params": {
+    "volts": 5
+   },
+   "x": 100,
+   "y": 100
+  },
+  {
+   "id": "ntc",
+   "kind": "ntc",
+   "params": {
+    "rCold": 100000,
+    "rHot": 1000
+   },
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a3",
+     "b": "a4"
+    }
+   }
+  },
+  {
+   "id": "r1",
+   "kind": "resistor",
+   "params": {
+    "ohms": 10000
+   },
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a7",
+     "b": "a11"
+    }
+   }
+  },
+  {
+   "id": "gnd",
+   "kind": "gnd",
+   "params": {},
+   "x": 680,
+   "y": 420
+  },
+  {
+   "id": "bb1",
+   "kind": "breadboard",
+   "params": {},
+   "terminals": [],
+   "x": 470,
+   "y": 330,
+   "rotation": 0
+  }
+ ],
+ "wires": [
+  {
+   "from": "src",
+   "fromTerminal": "pos",
+   "to": "ntc",
+   "toTerminal": "a"
+  },
+  {
+   "from": "ntc",
+   "fromTerminal": "b",
+   "to": "r1",
+   "toTerminal": "a"
+  },
+  {
+   "from": "r1",
+   "fromTerminal": "b",
+   "to": "gnd",
+   "toTerminal": "gnd"
+  },
+  {
+   "from": "src",
+   "fromTerminal": "neg",
+   "to": "gnd",
+   "toTerminal": "gnd"
+  }
+ ],
+ "holeWires": [
+  {
+   "ref": "bbw:bb1:gen_0",
+   "boardId": "bb1",
+   "a": "b4",
+   "b": "b7",
+   "color": "green"
+  },
+  {
+   "ref": "bbw:bb1:gen_1",
+   "boardId": "bb1",
+   "a": "b11",
+   "b": "b-11",
+   "color": "black"
+  }
+ ]
 }

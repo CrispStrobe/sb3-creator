@@ -1,12 +1,81 @@
 {
-  "parts": [
-    { "id": "bat1", "kind": "battery",   "params": { "volts": 9, "rInternal": 0.5 },    "x": 200, "y": 50  },
-    { "id": "r1",   "kind": "resistor",  "params": { "ohms": 1000 },                    "x": 200, "y": 150 },
-    { "id": "led1", "kind": "led",       "params": { "vf": 2.0, "color": "red" },       "x": 200, "y": 250 }
-  ],
-  "wires": [
-    { "from": "bat1", "fromTerminal": "pos",     "to": "r1",   "toTerminal": "a"       },
-    { "from": "r1",   "fromTerminal": "b",        "to": "led1", "toTerminal": "anode"   },
-    { "from": "led1", "fromTerminal": "cathode",  "to": "bat1", "toTerminal": "neg"     }
-  ]
+ "parts": [
+  {
+   "id": "bat1",
+   "kind": "battery",
+   "params": {
+    "volts": 9,
+    "rInternal": 0.5
+   },
+   "x": 200,
+   "y": 50
+  },
+  {
+   "id": "r1",
+   "kind": "resistor",
+   "params": {
+    "ohms": 1000
+   },
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a3",
+     "b": "a7"
+    }
+   }
+  },
+  {
+   "id": "led1",
+   "kind": "led",
+   "params": {
+    "vf": 2,
+    "color": "red"
+   },
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "anode": "a10",
+     "cathode": "a11"
+    }
+   }
+  },
+  {
+   "id": "bb1",
+   "kind": "breadboard",
+   "params": {},
+   "terminals": [],
+   "x": 470,
+   "y": 330,
+   "rotation": 0
+  }
+ ],
+ "wires": [
+  {
+   "from": "bat1",
+   "fromTerminal": "pos",
+   "to": "r1",
+   "toTerminal": "a"
+  },
+  {
+   "from": "r1",
+   "fromTerminal": "b",
+   "to": "led1",
+   "toTerminal": "anode"
+  },
+  {
+   "from": "led1",
+   "fromTerminal": "cathode",
+   "to": "bat1",
+   "toTerminal": "neg"
+  }
+ ],
+ "holeWires": [
+  {
+   "ref": "bbw:bb1:gen_0",
+   "boardId": "bb1",
+   "a": "b7",
+   "b": "b10",
+   "color": "green"
+  }
+ ]
 }

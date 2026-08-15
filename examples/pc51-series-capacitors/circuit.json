@@ -1,17 +1,127 @@
 {
-  "vcc": 9,
-  "parts": [
-    { "id": "src", "kind": "vsource", "params": { "volts": 9 }, "x": 90, "y": 100 },
-    { "id": "c1", "kind": "capacitor", "params": { "farads": 0.0001 }, "x": 260, "y": 150 },
-    { "id": "c2", "kind": "capacitor", "params": { "farads": 0.0002 }, "x": 440, "y": 150 },
-    { "id": "r", "kind": "resistor", "params": { "ohms": 1000000 }, "x": 590, "y": 150 },
-    { "id": "gnd", "kind": "gnd", "params": {}, "x": 740, "y": 360 }
-  ],
-  "wires": [
-    { "from": "src", "fromTerminal": "pos", "to": "c1", "toTerminal": "a" },
-    { "from": "c1", "fromTerminal": "b", "to": "c2", "toTerminal": "a" },
-    { "from": "c2", "fromTerminal": "b", "to": "r", "toTerminal": "a" },
-    { "from": "r", "fromTerminal": "b", "to": "gnd", "toTerminal": "gnd" },
-    { "from": "src", "fromTerminal": "neg", "to": "gnd", "toTerminal": "gnd" }
-  ]
+ "vcc": 9,
+ "parts": [
+  {
+   "id": "src",
+   "kind": "vsource",
+   "params": {
+    "volts": 9
+   },
+   "x": 90,
+   "y": 100
+  },
+  {
+   "id": "c1",
+   "kind": "capacitor",
+   "params": {
+    "farads": 0.0001
+   },
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a3",
+     "b": "a4"
+    }
+   }
+  },
+  {
+   "id": "c2",
+   "kind": "capacitor",
+   "params": {
+    "farads": 0.0002
+   },
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a7",
+     "b": "a8"
+    }
+   }
+  },
+  {
+   "id": "r",
+   "kind": "resistor",
+   "params": {
+    "ohms": 1000000
+   },
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a11",
+     "b": "a15"
+    }
+   }
+  },
+  {
+   "id": "gnd",
+   "kind": "gnd",
+   "params": {},
+   "x": 740,
+   "y": 360
+  },
+  {
+   "id": "bb1",
+   "kind": "breadboard",
+   "params": {},
+   "terminals": [],
+   "x": 470,
+   "y": 330,
+   "rotation": 0
+  }
+ ],
+ "wires": [
+  {
+   "from": "src",
+   "fromTerminal": "pos",
+   "to": "c1",
+   "toTerminal": "a"
+  },
+  {
+   "from": "c1",
+   "fromTerminal": "b",
+   "to": "c2",
+   "toTerminal": "a"
+  },
+  {
+   "from": "c2",
+   "fromTerminal": "b",
+   "to": "r",
+   "toTerminal": "a"
+  },
+  {
+   "from": "r",
+   "fromTerminal": "b",
+   "to": "gnd",
+   "toTerminal": "gnd"
+  },
+  {
+   "from": "src",
+   "fromTerminal": "neg",
+   "to": "gnd",
+   "toTerminal": "gnd"
+  }
+ ],
+ "holeWires": [
+  {
+   "ref": "bbw:bb1:gen_0",
+   "boardId": "bb1",
+   "a": "b4",
+   "b": "b7",
+   "color": "green"
+  },
+  {
+   "ref": "bbw:bb1:gen_1",
+   "boardId": "bb1",
+   "a": "b8",
+   "b": "b11",
+   "color": "blue"
+  },
+  {
+   "ref": "bbw:bb1:gen_2",
+   "boardId": "bb1",
+   "a": "b15",
+   "b": "b-15",
+   "color": "black"
+  }
+ ]
 }

@@ -1,19 +1,160 @@
 {
-  "vcc": 3.3,
-  "parts": [
-    { "id": "vcc1",  "kind": "vcc",       "params": {},               "x": 100, "y": 50  },
-    { "id": "gnd1",  "kind": "gnd",       "params": {},               "x": 250, "y": 350 },
-    { "id": "pot1",  "kind": "pot",       "params": { "ohms": 10000 }, "x": 100, "y": 180 },
-    { "id": "r1",    "kind": "resistor",  "params": { "ohms": 220 },   "x": 350, "y": 250 },
-    { "id": "led1",  "kind": "led",       "params": { "color": "green", "vf": 2.1 }, "x": 350, "y": 150 },
-    { "id": "mcu1",  "kind": "mcu",       "params": { "pins": ["GP25", "GP26"] }, "x": 50, "y": 180 }
-  ],
-  "wires": [
-    { "from": "vcc1",  "fromTerminal": "vcc",     "to": "pot1", "toTerminal": "cw"     },
-    { "from": "pot1",  "fromTerminal": "ccw",     "to": "gnd1", "toTerminal": "gnd"    },
-    { "from": "pot1",  "fromTerminal": "wiper",   "to": "mcu1", "toTerminal": "GP26"   },
-    { "from": "mcu1",  "fromTerminal": "GP25",    "to": "led1", "toTerminal": "anode"  },
-    { "from": "led1",  "fromTerminal": "cathode", "to": "r1",   "toTerminal": "lead1"  },
-    { "from": "r1",    "fromTerminal": "lead2",   "to": "gnd1", "toTerminal": "gnd"    }
-  ]
+ "vcc": 3.3,
+ "parts": [
+  {
+   "id": "vcc1",
+   "kind": "vcc",
+   "params": {},
+   "x": 100,
+   "y": 50
+  },
+  {
+   "id": "gnd1",
+   "kind": "gnd",
+   "params": {},
+   "x": 250,
+   "y": 350
+  },
+  {
+   "id": "pot1",
+   "kind": "pot",
+   "params": {
+    "ohms": 10000
+   },
+   "x": 100,
+   "y": 180
+  },
+  {
+   "id": "r1",
+   "kind": "resistor",
+   "params": {
+    "ohms": 220
+   },
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a25",
+     "b": "a29"
+    }
+   }
+  },
+  {
+   "id": "led1",
+   "kind": "led",
+   "params": {
+    "color": "green",
+    "vf": 2.1
+   },
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "anode": "a32",
+     "cathode": "a33"
+    }
+   }
+  },
+  {
+   "id": "mcu1",
+   "kind": "mcu",
+   "params": {
+    "pins": [
+     "GP25",
+     "GP26"
+    ]
+   },
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "P1.0": "a3",
+     "P1.1": "a4",
+     "P1.2": "a5",
+     "P1.3": "a6",
+     "P1.4": "a7",
+     "P1.5": "a8",
+     "P1.6": "a9",
+     "P1.7": "a10",
+     "RST": "a11",
+     "P3.0": "a12",
+     "P3.1": "a13",
+     "P3.2": "a14",
+     "P3.3": "a15",
+     "P3.4": "a16",
+     "P3.5": "a17",
+     "P3.6": "a18",
+     "P3.7": "a19",
+     "XTAL2": "a20",
+     "XTAL1": "a21",
+     "GND": "a22",
+     "P2.0": "f22",
+     "P2.1": "f21",
+     "P2.2": "f20",
+     "P2.3": "f19",
+     "P2.4": "f18",
+     "P2.5": "f17",
+     "P2.6": "f16",
+     "P2.7": "f15",
+     "P4.4": "f14",
+     "P4.5": "f13",
+     "P4.6": "f12",
+     "P0.7": "f11",
+     "P0.6": "f10",
+     "P0.5": "f9",
+     "P0.4": "f8",
+     "P0.3": "f7",
+     "P0.2": "f6",
+     "P0.1": "f5",
+     "P0.0": "f4",
+     "VCC": "f3"
+    }
+   }
+  },
+  {
+   "id": "bb1",
+   "kind": "breadboard",
+   "params": {},
+   "terminals": [],
+   "x": 470,
+   "y": 330,
+   "rotation": 0
+  }
+ ],
+ "wires": [
+  {
+   "from": "vcc1",
+   "fromTerminal": "vcc",
+   "to": "pot1",
+   "toTerminal": "cw"
+  },
+  {
+   "from": "pot1",
+   "fromTerminal": "ccw",
+   "to": "gnd1",
+   "toTerminal": "gnd"
+  },
+  {
+   "from": "pot1",
+   "fromTerminal": "wiper",
+   "to": "mcu1",
+   "toTerminal": "GP26"
+  },
+  {
+   "from": "mcu1",
+   "fromTerminal": "GP25",
+   "to": "led1",
+   "toTerminal": "anode"
+  },
+  {
+   "from": "led1",
+   "fromTerminal": "cathode",
+   "to": "r1",
+   "toTerminal": "lead1"
+  },
+  {
+   "from": "r1",
+   "fromTerminal": "lead2",
+   "to": "gnd1",
+   "toTerminal": "gnd"
+  }
+ ],
+ "holeWires": []
 }

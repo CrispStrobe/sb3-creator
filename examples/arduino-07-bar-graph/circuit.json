@@ -1,440 +1,572 @@
 {
-  "vcc": 5,
-  "parts": [
-    {
-      "id": "board",
-      "kind": "arduino_uno",
-      "declName": "board",
-      "x": 100,
-      "y": 100
-    },
-    {
-      "id": "pot1",
-      "kind": "potentiometer",
-      "declName": "pot",
-      "params": {
-        "ohms": 10000
-      },
-      "x": 180,
-      "y": 100
-    },
-    {
-      "id": "led2",
-      "kind": "led",
-      "declName": "led2",
-      "params": {
-        "color": "green"
-      },
-      "x": 260,
-      "y": 100
-    },
-    {
-      "id": "r2",
-      "kind": "resistor",
-      "params": {
-        "ohms": 220
-      },
-      "x": 340,
-      "y": 100
-    },
-    {
-      "id": "led3",
-      "kind": "led",
-      "declName": "led3",
-      "params": {
-        "color": "green"
-      },
-      "x": 420,
-      "y": 100
-    },
-    {
-      "id": "r3",
-      "kind": "resistor",
-      "params": {
-        "ohms": 220
-      },
-      "x": 500,
-      "y": 100
-    },
-    {
-      "id": "led4",
-      "kind": "led",
-      "declName": "led4",
-      "params": {
-        "color": "green"
-      },
-      "x": 580,
-      "y": 100
-    },
-    {
-      "id": "r4",
-      "kind": "resistor",
-      "params": {
-        "ohms": 220
-      },
-      "x": 660,
-      "y": 100
-    },
-    {
-      "id": "led5",
-      "kind": "led",
-      "declName": "led5",
-      "params": {
-        "color": "green"
-      },
-      "x": 740,
-      "y": 100
-    },
-    {
-      "id": "r5",
-      "kind": "resistor",
-      "params": {
-        "ohms": 220
-      },
-      "x": 820,
-      "y": 100
-    },
-    {
-      "id": "led6",
-      "kind": "led",
-      "declName": "led6",
-      "params": {
-        "color": "green"
-      },
-      "x": 900,
-      "y": 100
-    },
-    {
-      "id": "r6",
-      "kind": "resistor",
-      "params": {
-        "ohms": 220
-      },
-      "x": 980,
-      "y": 100
-    },
-    {
-      "id": "led7",
-      "kind": "led",
-      "declName": "led7",
-      "params": {
-        "color": "green"
-      },
-      "x": 1060,
-      "y": 100
-    },
-    {
-      "id": "r7",
-      "kind": "resistor",
-      "params": {
-        "ohms": 220
-      },
-      "x": 1140,
-      "y": 100
-    },
-    {
-      "id": "led8",
-      "kind": "led",
-      "declName": "led8",
-      "params": {
-        "color": "green"
-      },
-      "x": 1220,
-      "y": 100
-    },
-    {
-      "id": "r8",
-      "kind": "resistor",
-      "params": {
-        "ohms": 220
-      },
-      "x": 1300,
-      "y": 100
-    },
-    {
-      "id": "led9",
-      "kind": "led",
-      "declName": "led9",
-      "params": {
-        "color": "green"
-      },
-      "x": 1380,
-      "y": 100
-    },
-    {
-      "id": "r9",
-      "kind": "resistor",
-      "params": {
-        "ohms": 220
-      },
-      "x": 1460,
-      "y": 100
-    },
-    {
-      "id": "led10",
-      "kind": "led",
-      "declName": "led10",
-      "params": {
-        "color": "green"
-      },
-      "x": 1540,
-      "y": 100
-    },
-    {
-      "id": "r10",
-      "kind": "resistor",
-      "params": {
-        "ohms": 220
-      },
-      "x": 1620,
-      "y": 100
-    },
-    {
-      "id": "led11",
-      "kind": "led",
-      "declName": "led11",
-      "params": {
-        "color": "green"
-      },
-      "x": 1700,
-      "y": 100
-    },
-    {
-      "id": "r11",
-      "kind": "resistor",
-      "params": {
-        "ohms": 220
-      },
-      "x": 1780,
-      "y": 100
-    },
-    {
-      "id": "vcc1",
-      "kind": "vcc",
-      "params": {
-        "volts": 5
-      },
-      "x": 1860,
-      "y": 100
-    },
-    {
-      "id": "gnd1",
-      "kind": "gnd",
-      "params": {},
-      "x": 1940,
-      "y": 100
+ "vcc": 5,
+ "parts": [
+  {
+   "id": "board",
+   "kind": "arduino_uno",
+   "declName": "board",
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "D0": "a3",
+     "D1": "a4",
+     "D2": "a5",
+     "D3": "a6",
+     "D4": "a7",
+     "D5": "a8",
+     "D6": "a9",
+     "D7": "a10",
+     "D8": "a11",
+     "D9": "a12",
+     "D10": "a13",
+     "D11": "a14",
+     "D12": "a15",
+     "D13": "a16"
     }
-  ],
-  "wires": [
-    {
-      "from": "vcc1",
-      "fromTerminal": "vcc",
-      "to": "pot1",
-      "toTerminal": "a"
-    },
-    {
-      "from": "pot1",
-      "fromTerminal": "wiper",
-      "to": "board",
-      "toTerminal": "a0"
-    },
-    {
-      "from": "pot1",
-      "fromTerminal": "b",
-      "to": "gnd1",
-      "toTerminal": "gnd"
-    },
-    {
-      "from": "board",
-      "fromTerminal": "d2",
-      "to": "r2",
-      "toTerminal": "a"
-    },
-    {
-      "from": "r2",
-      "fromTerminal": "b",
-      "to": "led2",
-      "toTerminal": "anode"
-    },
-    {
-      "from": "led2",
-      "fromTerminal": "cathode",
-      "to": "gnd1",
-      "toTerminal": "gnd"
-    },
-    {
-      "from": "board",
-      "fromTerminal": "d3",
-      "to": "r3",
-      "toTerminal": "a"
-    },
-    {
-      "from": "r3",
-      "fromTerminal": "b",
-      "to": "led3",
-      "toTerminal": "anode"
-    },
-    {
-      "from": "led3",
-      "fromTerminal": "cathode",
-      "to": "gnd1",
-      "toTerminal": "gnd"
-    },
-    {
-      "from": "board",
-      "fromTerminal": "d4",
-      "to": "r4",
-      "toTerminal": "a"
-    },
-    {
-      "from": "r4",
-      "fromTerminal": "b",
-      "to": "led4",
-      "toTerminal": "anode"
-    },
-    {
-      "from": "led4",
-      "fromTerminal": "cathode",
-      "to": "gnd1",
-      "toTerminal": "gnd"
-    },
-    {
-      "from": "board",
-      "fromTerminal": "d5",
-      "to": "r5",
-      "toTerminal": "a"
-    },
-    {
-      "from": "r5",
-      "fromTerminal": "b",
-      "to": "led5",
-      "toTerminal": "anode"
-    },
-    {
-      "from": "led5",
-      "fromTerminal": "cathode",
-      "to": "gnd1",
-      "toTerminal": "gnd"
-    },
-    {
-      "from": "board",
-      "fromTerminal": "d6",
-      "to": "r6",
-      "toTerminal": "a"
-    },
-    {
-      "from": "r6",
-      "fromTerminal": "b",
-      "to": "led6",
-      "toTerminal": "anode"
-    },
-    {
-      "from": "led6",
-      "fromTerminal": "cathode",
-      "to": "gnd1",
-      "toTerminal": "gnd"
-    },
-    {
-      "from": "board",
-      "fromTerminal": "d7",
-      "to": "r7",
-      "toTerminal": "a"
-    },
-    {
-      "from": "r7",
-      "fromTerminal": "b",
-      "to": "led7",
-      "toTerminal": "anode"
-    },
-    {
-      "from": "led7",
-      "fromTerminal": "cathode",
-      "to": "gnd1",
-      "toTerminal": "gnd"
-    },
-    {
-      "from": "board",
-      "fromTerminal": "d8",
-      "to": "r8",
-      "toTerminal": "a"
-    },
-    {
-      "from": "r8",
-      "fromTerminal": "b",
-      "to": "led8",
-      "toTerminal": "anode"
-    },
-    {
-      "from": "led8",
-      "fromTerminal": "cathode",
-      "to": "gnd1",
-      "toTerminal": "gnd"
-    },
-    {
-      "from": "board",
-      "fromTerminal": "d9",
-      "to": "r9",
-      "toTerminal": "a"
-    },
-    {
-      "from": "r9",
-      "fromTerminal": "b",
-      "to": "led9",
-      "toTerminal": "anode"
-    },
-    {
-      "from": "led9",
-      "fromTerminal": "cathode",
-      "to": "gnd1",
-      "toTerminal": "gnd"
-    },
-    {
-      "from": "board",
-      "fromTerminal": "d10",
-      "to": "r10",
-      "toTerminal": "a"
-    },
-    {
-      "from": "r10",
-      "fromTerminal": "b",
-      "to": "led10",
-      "toTerminal": "anode"
-    },
-    {
-      "from": "led10",
-      "fromTerminal": "cathode",
-      "to": "gnd1",
-      "toTerminal": "gnd"
-    },
-    {
-      "from": "board",
-      "fromTerminal": "d11",
-      "to": "r11",
-      "toTerminal": "a"
-    },
-    {
-      "from": "r11",
-      "fromTerminal": "b",
-      "to": "led11",
-      "toTerminal": "anode"
-    },
-    {
-      "from": "led11",
-      "fromTerminal": "cathode",
-      "to": "gnd1",
-      "toTerminal": "gnd"
-    },
-    {
-      "from": "vcc1",
-      "fromTerminal": "vcc",
-      "to": "board",
-      "toTerminal": "5v"
-    },
-    {
-      "from": "gnd1",
-      "fromTerminal": "gnd",
-      "to": "board",
-      "toTerminal": "gnd"
+   }
+  },
+  {
+   "id": "pot1",
+   "kind": "potentiometer",
+   "declName": "pot",
+   "params": {
+    "ohms": 10000
+   },
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a19",
+     "wiper": "a21",
+     "b": "a23"
     }
-  ]
+   }
+  },
+  {
+   "id": "led2",
+   "kind": "led",
+   "declName": "led2",
+   "params": {
+    "color": "green"
+   },
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "anode": "a26",
+     "cathode": "a27"
+    }
+   }
+  },
+  {
+   "id": "r2",
+   "kind": "resistor",
+   "params": {
+    "ohms": 220
+   },
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a30",
+     "b": "a34"
+    }
+   }
+  },
+  {
+   "id": "led3",
+   "kind": "led",
+   "declName": "led3",
+   "params": {
+    "color": "green"
+   },
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "anode": "a37",
+     "cathode": "a38"
+    }
+   }
+  },
+  {
+   "id": "r3",
+   "kind": "resistor",
+   "params": {
+    "ohms": 220
+   },
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a41",
+     "b": "a45"
+    }
+   }
+  },
+  {
+   "id": "led4",
+   "kind": "led",
+   "declName": "led4",
+   "params": {
+    "color": "green"
+   },
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "anode": "a48",
+     "cathode": "a49"
+    }
+   }
+  },
+  {
+   "id": "r4",
+   "kind": "resistor",
+   "params": {
+    "ohms": 220
+   },
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a52",
+     "b": "a56"
+    }
+   }
+  },
+  {
+   "id": "led5",
+   "kind": "led",
+   "declName": "led5",
+   "params": {
+    "color": "green"
+   },
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "anode": "a59",
+     "cathode": "a60"
+    }
+   }
+  },
+  {
+   "id": "r5",
+   "kind": "resistor",
+   "params": {
+    "ohms": 220
+   },
+   "x": 820,
+   "y": 100
+  },
+  {
+   "id": "led6",
+   "kind": "led",
+   "declName": "led6",
+   "params": {
+    "color": "green"
+   },
+   "x": 900,
+   "y": 100
+  },
+  {
+   "id": "r6",
+   "kind": "resistor",
+   "params": {
+    "ohms": 220
+   },
+   "x": 980,
+   "y": 100
+  },
+  {
+   "id": "led7",
+   "kind": "led",
+   "declName": "led7",
+   "params": {
+    "color": "green"
+   },
+   "x": 1060,
+   "y": 100
+  },
+  {
+   "id": "r7",
+   "kind": "resistor",
+   "params": {
+    "ohms": 220
+   },
+   "x": 1140,
+   "y": 100
+  },
+  {
+   "id": "led8",
+   "kind": "led",
+   "declName": "led8",
+   "params": {
+    "color": "green"
+   },
+   "x": 1220,
+   "y": 100
+  },
+  {
+   "id": "r8",
+   "kind": "resistor",
+   "params": {
+    "ohms": 220
+   },
+   "x": 1300,
+   "y": 100
+  },
+  {
+   "id": "led9",
+   "kind": "led",
+   "declName": "led9",
+   "params": {
+    "color": "green"
+   },
+   "x": 1380,
+   "y": 100
+  },
+  {
+   "id": "r9",
+   "kind": "resistor",
+   "params": {
+    "ohms": 220
+   },
+   "x": 1460,
+   "y": 100
+  },
+  {
+   "id": "led10",
+   "kind": "led",
+   "declName": "led10",
+   "params": {
+    "color": "green"
+   },
+   "x": 1540,
+   "y": 100
+  },
+  {
+   "id": "r10",
+   "kind": "resistor",
+   "params": {
+    "ohms": 220
+   },
+   "x": 1620,
+   "y": 100
+  },
+  {
+   "id": "led11",
+   "kind": "led",
+   "declName": "led11",
+   "params": {
+    "color": "green"
+   },
+   "x": 1700,
+   "y": 100
+  },
+  {
+   "id": "r11",
+   "kind": "resistor",
+   "params": {
+    "ohms": 220
+   },
+   "x": 1780,
+   "y": 100
+  },
+  {
+   "id": "vcc1",
+   "kind": "vcc",
+   "params": {
+    "volts": 5
+   },
+   "x": 1860,
+   "y": 100
+  },
+  {
+   "id": "gnd1",
+   "kind": "gnd",
+   "params": {},
+   "x": 1940,
+   "y": 100
+  },
+  {
+   "id": "bb1",
+   "kind": "breadboard",
+   "params": {},
+   "terminals": [],
+   "x": 470,
+   "y": 330,
+   "rotation": 0
+  }
+ ],
+ "wires": [
+  {
+   "from": "vcc1",
+   "fromTerminal": "vcc",
+   "to": "pot1",
+   "toTerminal": "a"
+  },
+  {
+   "from": "pot1",
+   "fromTerminal": "wiper",
+   "to": "board",
+   "toTerminal": "a0"
+  },
+  {
+   "from": "pot1",
+   "fromTerminal": "b",
+   "to": "gnd1",
+   "toTerminal": "gnd"
+  },
+  {
+   "from": "board",
+   "fromTerminal": "d2",
+   "to": "r2",
+   "toTerminal": "a"
+  },
+  {
+   "from": "r2",
+   "fromTerminal": "b",
+   "to": "led2",
+   "toTerminal": "anode"
+  },
+  {
+   "from": "led2",
+   "fromTerminal": "cathode",
+   "to": "gnd1",
+   "toTerminal": "gnd"
+  },
+  {
+   "from": "board",
+   "fromTerminal": "d3",
+   "to": "r3",
+   "toTerminal": "a"
+  },
+  {
+   "from": "r3",
+   "fromTerminal": "b",
+   "to": "led3",
+   "toTerminal": "anode"
+  },
+  {
+   "from": "led3",
+   "fromTerminal": "cathode",
+   "to": "gnd1",
+   "toTerminal": "gnd"
+  },
+  {
+   "from": "board",
+   "fromTerminal": "d4",
+   "to": "r4",
+   "toTerminal": "a"
+  },
+  {
+   "from": "r4",
+   "fromTerminal": "b",
+   "to": "led4",
+   "toTerminal": "anode"
+  },
+  {
+   "from": "led4",
+   "fromTerminal": "cathode",
+   "to": "gnd1",
+   "toTerminal": "gnd"
+  },
+  {
+   "from": "board",
+   "fromTerminal": "d5",
+   "to": "r5",
+   "toTerminal": "a"
+  },
+  {
+   "from": "r5",
+   "fromTerminal": "b",
+   "to": "led5",
+   "toTerminal": "anode"
+  },
+  {
+   "from": "led5",
+   "fromTerminal": "cathode",
+   "to": "gnd1",
+   "toTerminal": "gnd"
+  },
+  {
+   "from": "board",
+   "fromTerminal": "d6",
+   "to": "r6",
+   "toTerminal": "a"
+  },
+  {
+   "from": "r6",
+   "fromTerminal": "b",
+   "to": "led6",
+   "toTerminal": "anode"
+  },
+  {
+   "from": "led6",
+   "fromTerminal": "cathode",
+   "to": "gnd1",
+   "toTerminal": "gnd"
+  },
+  {
+   "from": "board",
+   "fromTerminal": "d7",
+   "to": "r7",
+   "toTerminal": "a"
+  },
+  {
+   "from": "r7",
+   "fromTerminal": "b",
+   "to": "led7",
+   "toTerminal": "anode"
+  },
+  {
+   "from": "led7",
+   "fromTerminal": "cathode",
+   "to": "gnd1",
+   "toTerminal": "gnd"
+  },
+  {
+   "from": "board",
+   "fromTerminal": "d8",
+   "to": "r8",
+   "toTerminal": "a"
+  },
+  {
+   "from": "r8",
+   "fromTerminal": "b",
+   "to": "led8",
+   "toTerminal": "anode"
+  },
+  {
+   "from": "led8",
+   "fromTerminal": "cathode",
+   "to": "gnd1",
+   "toTerminal": "gnd"
+  },
+  {
+   "from": "board",
+   "fromTerminal": "d9",
+   "to": "r9",
+   "toTerminal": "a"
+  },
+  {
+   "from": "r9",
+   "fromTerminal": "b",
+   "to": "led9",
+   "toTerminal": "anode"
+  },
+  {
+   "from": "led9",
+   "fromTerminal": "cathode",
+   "to": "gnd1",
+   "toTerminal": "gnd"
+  },
+  {
+   "from": "board",
+   "fromTerminal": "d10",
+   "to": "r10",
+   "toTerminal": "a"
+  },
+  {
+   "from": "r10",
+   "fromTerminal": "b",
+   "to": "led10",
+   "toTerminal": "anode"
+  },
+  {
+   "from": "led10",
+   "fromTerminal": "cathode",
+   "to": "gnd1",
+   "toTerminal": "gnd"
+  },
+  {
+   "from": "board",
+   "fromTerminal": "d11",
+   "to": "r11",
+   "toTerminal": "a"
+  },
+  {
+   "from": "r11",
+   "fromTerminal": "b",
+   "to": "led11",
+   "toTerminal": "anode"
+  },
+  {
+   "from": "led11",
+   "fromTerminal": "cathode",
+   "to": "gnd1",
+   "toTerminal": "gnd"
+  },
+  {
+   "from": "vcc1",
+   "fromTerminal": "vcc",
+   "to": "board",
+   "toTerminal": "5v"
+  },
+  {
+   "from": "gnd1",
+   "fromTerminal": "gnd",
+   "to": "board",
+   "toTerminal": "gnd"
+  }
+ ],
+ "holeWires": [
+  {
+   "ref": "bbw:bb1:gen_0",
+   "boardId": "bb1",
+   "a": "b19",
+   "b": "t+19",
+   "color": "red"
+  },
+  {
+   "ref": "bbw:bb1:gen_1",
+   "boardId": "bb1",
+   "a": "b23",
+   "b": "b-23",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb1:gen_2",
+   "boardId": "bb1",
+   "a": "b34",
+   "b": "b26",
+   "color": "green"
+  },
+  {
+   "ref": "bbw:bb1:gen_3",
+   "boardId": "bb1",
+   "a": "b27",
+   "b": "b-27",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb1:gen_4",
+   "boardId": "bb1",
+   "a": "b45",
+   "b": "b37",
+   "color": "blue"
+  },
+  {
+   "ref": "bbw:bb1:gen_5",
+   "boardId": "bb1",
+   "a": "b38",
+   "b": "b-38",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb1:gen_6",
+   "boardId": "bb1",
+   "a": "b56",
+   "b": "b48",
+   "color": "yellow"
+  },
+  {
+   "ref": "bbw:bb1:gen_7",
+   "boardId": "bb1",
+   "a": "b49",
+   "b": "b-49",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb1:gen_8",
+   "boardId": "bb1",
+   "a": "b60",
+   "b": "b-60",
+   "color": "black"
+  }
+ ]
 }
