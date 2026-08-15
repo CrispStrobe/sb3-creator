@@ -342,3 +342,29 @@ LED dark. The pot position engine-bug means the threshold crossing cannot be
 demonstrated by adjusting the pot, but the circuit topology is correct and the
 quiescent state matches the expected equal-input condition. Category
 `pure-circuit`, difficulty 3. **No content change.**
+
+## pc41-zener-reference — VERDICT: pass
+
+**layers: engine.** Solved at t=1 ms (vsource 9 V). Zener node at 5.117 V —
+the zener clamping at its breakdown voltage. Category `pure-circuit`,
+difficulty 3. **No content change.**
+
+## pc42-parallel-paths — VERDICT: pass
+
+**layers: engine.** Solved at t=1 ms (vsource 9 V). Two parallel LED branches:
+led1 at 2.146 V (higher current, higher Shockley Vf), led2 at 2.069 V. Both
+lit, different brightness due to different series resistors. Category
+`pure-circuit`, difficulty 1. **No content change.**
+
+## pc43-bleeder-discharge — VERDICT: pass
+
+**layers: engine.** Solved at t=100ms,1s,5s. Capacitor charges through charge
+resistor with bleeder in parallel: Vc = 0.47 V at 100 ms, 3.03 V at 1 s,
+4.53 V at 5 s. Category `pure-circuit`, difficulty 2. **No content change.**
+
+## pc44-push-pull-led — VERDICT: pass
+
+**layers: engine.** Solved at t=1 ms (vsource 5 V). Both switches open: both
+LED branches at ~0 V, LEDs dark. EXPECTED.md notes that pressing both switches
+at once is a "wiring condition to inspect." Category `pure-circuit`,
+difficulty 2. **No content change.**
