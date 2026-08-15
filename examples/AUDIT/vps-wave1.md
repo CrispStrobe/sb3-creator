@@ -32,8 +32,9 @@ and has intro.md + intro.de.md (Layer 3).
    Re-audit confirms Vce_sat ≈ 0.20 V, Ic ≈ 5.4 mA (2026-08-15).
 2. **PNP model** (pc32): PNP never conducted. **FIXED** — re-audit confirms
    correct off-state (Veb ≈ 0.01 V, collector at leakage).
-3. **Pot position inert** (pc07, pc40): `position` parameter had no effect.
-   Status after engine update: not yet re-verified.
+3. **Pot position inert** (pc07, pc40, pc41, nano02, mega02, pico02): `position`
+   parameter has no effect. **STILL OPEN** after 2026-08-15 engine update —
+   re-verified, pot always divides to midpoint regardless of position value.
 4. **555 timer**, **buzzer DC**, **power-off discharge**, **composites**:
    all escalated and fixed in bw-board. 555 cap now charges through timing
    resistor (verified on pc47, pc58, 51-555-astable).
@@ -193,7 +194,7 @@ After fix, solved at multiple times (τ = RC = 10kΩ × 100µF = 1.0 s):
 All three match to within 0.2% (integration step rounding). EXPECTED.md
 states Vc ≈ 3.16 V at t = τ — confirmed.
 
-## pc07-pot-dimmer — VERDICT: content-fix (pot engine-bug status: pending re-verify)
+## pc07-pot-dimmer — VERDICT: content-fix + engine-bug (pot position STILL INERT)
 
 **layers: engine.**
 
