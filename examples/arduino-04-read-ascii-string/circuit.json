@@ -1,0 +1,183 @@
+{
+  "vcc": 5,
+  "parts": [
+    {
+      "id": "board",
+      "kind": "arduino_uno",
+      "declName": "board"
+    },
+    {
+      "id": "potR",
+      "kind": "potentiometer",
+      "declName": "potR",
+      "params": {
+        "ohms": 10000
+      }
+    },
+    {
+      "id": "potG",
+      "kind": "potentiometer",
+      "declName": "potG",
+      "params": {
+        "ohms": 10000
+      }
+    },
+    {
+      "id": "potB",
+      "kind": "potentiometer",
+      "declName": "potB",
+      "params": {
+        "ohms": 10000
+      }
+    },
+    {
+      "id": "rgb",
+      "kind": "rgb_led",
+      "declName": "rgb",
+      "params": {}
+    },
+    {
+      "id": "rR",
+      "kind": "resistor",
+      "params": {
+        "ohms": 220
+      }
+    },
+    {
+      "id": "rG",
+      "kind": "resistor",
+      "params": {
+        "ohms": 220
+      }
+    },
+    {
+      "id": "rB",
+      "kind": "resistor",
+      "params": {
+        "ohms": 220
+      }
+    },
+    {
+      "id": "vcc1",
+      "kind": "vcc",
+      "params": {
+        "volts": 5
+      }
+    },
+    {
+      "id": "gnd1",
+      "kind": "gnd",
+      "params": {}
+    }
+  ],
+  "wires": [
+    {
+      "from": "vcc1",
+      "fromTerminal": "vcc",
+      "to": "potR",
+      "toTerminal": "a"
+    },
+    {
+      "from": "potR",
+      "fromTerminal": "wiper",
+      "to": "board",
+      "toTerminal": "a0"
+    },
+    {
+      "from": "potR",
+      "fromTerminal": "b",
+      "to": "gnd1",
+      "toTerminal": "gnd"
+    },
+    {
+      "from": "vcc1",
+      "fromTerminal": "vcc",
+      "to": "potG",
+      "toTerminal": "a"
+    },
+    {
+      "from": "potG",
+      "fromTerminal": "wiper",
+      "to": "board",
+      "toTerminal": "a1"
+    },
+    {
+      "from": "potG",
+      "fromTerminal": "b",
+      "to": "gnd1",
+      "toTerminal": "gnd"
+    },
+    {
+      "from": "vcc1",
+      "fromTerminal": "vcc",
+      "to": "potB",
+      "toTerminal": "a"
+    },
+    {
+      "from": "potB",
+      "fromTerminal": "wiper",
+      "to": "board",
+      "toTerminal": "a2"
+    },
+    {
+      "from": "potB",
+      "fromTerminal": "b",
+      "to": "gnd1",
+      "toTerminal": "gnd"
+    },
+    {
+      "from": "board",
+      "fromTerminal": "d3",
+      "to": "rR",
+      "toTerminal": "a"
+    },
+    {
+      "from": "rR",
+      "fromTerminal": "b",
+      "to": "rgb",
+      "toTerminal": "r"
+    },
+    {
+      "from": "board",
+      "fromTerminal": "d5",
+      "to": "rG",
+      "toTerminal": "a"
+    },
+    {
+      "from": "rG",
+      "fromTerminal": "b",
+      "to": "rgb",
+      "toTerminal": "g"
+    },
+    {
+      "from": "board",
+      "fromTerminal": "d6",
+      "to": "rB",
+      "toTerminal": "a"
+    },
+    {
+      "from": "rB",
+      "fromTerminal": "b",
+      "to": "rgb",
+      "toTerminal": "b"
+    },
+    {
+      "from": "rgb",
+      "fromTerminal": "cathode",
+      "to": "gnd1",
+      "toTerminal": "gnd"
+    },
+    {
+      "from": "vcc1",
+      "fromTerminal": "vcc",
+      "to": "board",
+      "toTerminal": "5v"
+    },
+    {
+      "from": "gnd1",
+      "fromTerminal": "gnd",
+      "to": "board",
+      "toTerminal": "gnd"
+    }
+  ]
+}

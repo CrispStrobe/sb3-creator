@@ -1,0 +1,11 @@
+# Ported from arduino-examples/examples/04.Communication/ASCIITable/ASCIITable.ino, CC0
+DEVICE ARDUINO-UNO
+CLOCK 16000000
+
+SPRITE Cat:
+  WHEN flag clicked:
+    print "ASCII Table"
+    set thisByte to 33
+    repeat until thisByte > 126:
+      print thisByte
+      change thisByte by 1

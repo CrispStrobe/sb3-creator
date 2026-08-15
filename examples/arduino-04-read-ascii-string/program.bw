@@ -1,0 +1,18 @@
+# Ported from arduino-examples/examples/04.Communication/ReadASCIIString/ReadASCIIString.ino, CC0
+# Adapted: three potentiometers replace serial input for RGB control
+DEVICE ARDUINO-UNO
+CLOCK 16000000
+PIN potR = A0 ANALOG
+PIN potG = A1 ANALOG
+PIN potB = A2 ANALOG
+PIN ledR = D3 OUTPUT
+PIN ledG = D5 OUTPUT
+PIN ledB = D6 OUTPUT
+
+SPRITE Cat:
+  WHEN flag clicked:
+    forever:
+      set pwm ledR to ((read potR * 255) / 1023)
+      set pwm ledG to ((read potG * 255) / 1023)
+      set pwm ledB to ((read potB * 255) / 1023)
+      wait 0.05 seconds

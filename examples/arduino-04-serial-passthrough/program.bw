@@ -1,0 +1,11 @@
+# Ported from arduino-examples/examples/04.Communication/SerialPassthrough/SerialPassthrough.ino, CC0
+# Simplified: reads analog input and prints continuously (echo concept)
+DEVICE ARDUINO-UNO
+CLOCK 16000000
+PIN sensor = A0 ANALOG
+
+SPRITE Cat:
+  WHEN flag clicked:
+    forever:
+      print read sensor
+      wait 0.01 seconds

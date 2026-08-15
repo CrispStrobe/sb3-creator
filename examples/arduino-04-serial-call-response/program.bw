@@ -1,0 +1,14 @@
+# Ported from arduino-examples/examples/04.Communication/SerialCallResponse/SerialCallResponse.ino, CC0
+DEVICE ARDUINO-UNO
+CLOCK 16000000
+PIN pot1 = A0 ANALOG
+PIN pot2 = A1 ANALOG
+PIN btn = D2 INPUT
+
+SPRITE Cat:
+  WHEN flag clicked:
+    forever:
+      print read pot1
+      print read pot2
+      print read btn
+      wait 0.1 seconds

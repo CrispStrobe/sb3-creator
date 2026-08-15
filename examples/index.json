@@ -2855,5 +2855,95 @@
       "arduino-uno",
       "arduino-nano"
     ]
+  },
+  {
+    "id": "arduino-04-ascii-table",
+    "title": {
+      "en": "ASCII Table (CC0)",
+      "de": "ASCII-Tabelle (CC0)"
+    },
+    "category": "basics",
+    "difficulty": 1,
+    "files": {
+      "program": "arduino-04-ascii-table/program.bw",
+      "circuit": "arduino-04-ascii-table/circuit.json"
+    },
+    "kind": "full",
+    "devices": [
+      "arduino-uno",
+      "arduino-nano"
+    ]
+  },
+  {
+    "id": "arduino-04-dimmer",
+    "title": {
+      "en": "Dimmer (CC0)",
+      "de": "Dimmer (CC0)"
+    },
+    "category": "analog",
+    "difficulty": 1,
+    "files": {
+      "program": "arduino-04-dimmer/program.bw",
+      "circuit": "arduino-04-dimmer/circuit.json"
+    },
+    "kind": "full",
+    "devices": [
+      "arduino-uno",
+      "arduino-nano"
+    ]
+  },
+  {
+    "id": "arduino-04-read-ascii-string",
+    "title": {
+      "en": "RGB Color Mixer (CC0)",
+      "de": "RGB-Farbmischer (CC0)"
+    },
+    "category": "analog",
+    "difficulty": 2,
+    "files": {
+      "program": "arduino-04-read-ascii-string/program.bw",
+      "circuit": "arduino-04-read-ascii-string/circuit.json"
+    },
+    "kind": "full",
+    "devices": [
+      "arduino-uno",
+      "arduino-nano"
+    ]
+  },
+  {
+    "id": "arduino-04-serial-call-response",
+    "title": {
+      "en": "Serial Call Response (CC0)",
+      "de": "Serieller Aufruf-Antwort (CC0)"
+    },
+    "category": "analog",
+    "difficulty": 2,
+    "files": {
+      "program": "arduino-04-serial-call-response/program.bw",
+      "circuit": "arduino-04-serial-call-response/circuit.json"
+    },
+    "kind": "full",
+    "devices": [
+      "arduino-uno",
+      "arduino-nano"
+    ]
+  },
+  {
+    "id": "arduino-04-serial-passthrough",
+    "title": {
+      "en": "Serial Passthrough (CC0)",
+      "de": "Serieller Durchgang (CC0)"
+    },
+    "category": "basics",
+    "difficulty": 1,
+    "files": {
+      "program": "arduino-04-serial-passthrough/program.bw",
+      "circuit": "arduino-04-serial-passthrough/circuit.json"
+    },
+    "kind": "full",
+    "devices": [
+      "arduino-uno",
+      "arduino-nano"
+    ]
   }
 ]

@@ -1,0 +1,13 @@
+# Ported from arduino-examples/examples/04.Communication/Dimmer/Dimmer.ino, CC0
+# Adapted: pot on A0 replaces serial input (no serial input in blocks)
+DEVICE ARDUINO-UNO
+CLOCK 16000000
+PIN pot = A0 ANALOG
+PIN led = D9 OUTPUT
+
+SPRITE Cat:
+  WHEN flag clicked:
+    forever:
+      set brightness to ((read pot * 255) / 1023)
+      set pwm led to brightness
+      wait 0.02 seconds
