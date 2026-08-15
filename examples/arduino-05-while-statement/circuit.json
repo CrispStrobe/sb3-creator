@@ -1,0 +1,176 @@
+{
+  "vcc": 5,
+  "parts": [
+    {
+      "id": "board",
+      "kind": "arduino_uno",
+      "declName": "board"
+    },
+    {
+      "id": "btn1",
+      "kind": "button",
+      "declName": "btn",
+      "params": {}
+    },
+    {
+      "id": "r_btn",
+      "kind": "resistor",
+      "params": {
+        "ohms": 10000
+      }
+    },
+    {
+      "id": "ldr",
+      "kind": "ldr",
+      "declName": "ldr",
+      "params": {}
+    },
+    {
+      "id": "r_ldr",
+      "kind": "resistor",
+      "params": {
+        "ohms": 10000
+      }
+    },
+    {
+      "id": "led1",
+      "kind": "led",
+      "declName": "led",
+      "params": {
+        "color": "green"
+      }
+    },
+    {
+      "id": "r_led",
+      "kind": "resistor",
+      "params": {
+        "ohms": 220
+      }
+    },
+    {
+      "id": "led2",
+      "kind": "led",
+      "declName": "statusLed",
+      "params": {
+        "color": "red"
+      }
+    },
+    {
+      "id": "r_status",
+      "kind": "resistor",
+      "params": {
+        "ohms": 220
+      }
+    },
+    {
+      "id": "vcc1",
+      "kind": "vcc",
+      "params": {
+        "volts": 5
+      }
+    },
+    {
+      "id": "gnd1",
+      "kind": "gnd",
+      "params": {}
+    }
+  ],
+  "wires": [
+    {
+      "from": "vcc1",
+      "fromTerminal": "vcc",
+      "to": "btn1",
+      "toTerminal": "a"
+    },
+    {
+      "from": "btn1",
+      "fromTerminal": "b",
+      "to": "board",
+      "toTerminal": "d2"
+    },
+    {
+      "from": "board",
+      "fromTerminal": "d2",
+      "to": "r_btn",
+      "toTerminal": "a"
+    },
+    {
+      "from": "r_btn",
+      "fromTerminal": "b",
+      "to": "gnd1",
+      "toTerminal": "gnd"
+    },
+    {
+      "from": "vcc1",
+      "fromTerminal": "vcc",
+      "to": "ldr",
+      "toTerminal": "a"
+    },
+    {
+      "from": "ldr",
+      "fromTerminal": "b",
+      "to": "board",
+      "toTerminal": "a0"
+    },
+    {
+      "from": "board",
+      "fromTerminal": "a0",
+      "to": "r_ldr",
+      "toTerminal": "a"
+    },
+    {
+      "from": "r_ldr",
+      "fromTerminal": "b",
+      "to": "gnd1",
+      "toTerminal": "gnd"
+    },
+    {
+      "from": "board",
+      "fromTerminal": "d9",
+      "to": "r_led",
+      "toTerminal": "a"
+    },
+    {
+      "from": "r_led",
+      "fromTerminal": "b",
+      "to": "led1",
+      "toTerminal": "anode"
+    },
+    {
+      "from": "led1",
+      "fromTerminal": "cathode",
+      "to": "gnd1",
+      "toTerminal": "gnd"
+    },
+    {
+      "from": "board",
+      "fromTerminal": "d13",
+      "to": "r_status",
+      "toTerminal": "a"
+    },
+    {
+      "from": "r_status",
+      "fromTerminal": "b",
+      "to": "led2",
+      "toTerminal": "anode"
+    },
+    {
+      "from": "led2",
+      "fromTerminal": "cathode",
+      "to": "gnd1",
+      "toTerminal": "gnd"
+    },
+    {
+      "from": "vcc1",
+      "fromTerminal": "vcc",
+      "to": "board",
+      "toTerminal": "5v"
+    },
+    {
+      "from": "gnd1",
+      "fromTerminal": "gnd",
+      "to": "board",
+      "toTerminal": "gnd"
+    }
+  ]
+}

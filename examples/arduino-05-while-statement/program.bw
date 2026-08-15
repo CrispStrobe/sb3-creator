@@ -1,0 +1,28 @@
+# Ported from arduino-examples/examples/05.Control/WhileStatementConditional/WhileStatementConditional.ino, CC0
+DEVICE ARDUINO-UNO
+CLOCK 16000000
+PIN btn = D2 INPUT
+PIN ldr = A0 ANALOG
+PIN led = D9 OUTPUT
+PIN statusLed = D13 OUTPUT
+
+SPRITE Cat:
+  WHEN flag clicked:
+    set sensorMin to 1023
+    set sensorMax to 0
+    forever:
+      # Calibrate while button is held
+      repeat until not read btn:
+        turn on statusLed
+        set sensorValue to read ldr
+        if sensorValue > sensorMax then:
+          set sensorMax to sensorValue
+        if sensorValue < sensorMin then:
+          set sensorMin to sensorValue
+      turn off statusLed
+      # Apply calibrated range
+      set sensorValue to read ldr
+      if sensorMin < sensorMax then:
+        set mapped to (((sensorValue - sensorMin) * 255) / (sensorMax - sensorMin))
+        set pwm led to mapped
+      wait 0.02 seconds

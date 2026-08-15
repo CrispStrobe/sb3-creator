@@ -1,0 +1,51 @@
+# Ported from arduino-examples/examples/05.Control/ForLoopIteration/ForLoopIteration.ino, CC0
+DEVICE ARDUINO-UNO
+CLOCK 16000000
+PIN led2 = D2 OUTPUT
+PIN led3 = D3 OUTPUT
+PIN led4 = D4 OUTPUT
+PIN led5 = D5 OUTPUT
+PIN led6 = D6 OUTPUT
+PIN led7 = D7 OUTPUT
+
+SPRITE Cat:
+  WHEN flag clicked:
+    forever:
+      # Forward: light each LED in sequence
+      turn on led2
+      wait 0.1 seconds
+      turn off led2
+      turn on led3
+      wait 0.1 seconds
+      turn off led3
+      turn on led4
+      wait 0.1 seconds
+      turn off led4
+      turn on led5
+      wait 0.1 seconds
+      turn off led5
+      turn on led6
+      wait 0.1 seconds
+      turn off led6
+      turn on led7
+      wait 0.1 seconds
+      turn off led7
+      # Reverse
+      turn on led7
+      wait 0.1 seconds
+      turn off led7
+      turn on led6
+      wait 0.1 seconds
+      turn off led6
+      turn on led5
+      wait 0.1 seconds
+      turn off led5
+      turn on led4
+      wait 0.1 seconds
+      turn off led4
+      turn on led3
+      wait 0.1 seconds
+      turn off led3
+      turn on led2
+      wait 0.1 seconds
+      turn off led2

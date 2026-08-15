@@ -2747,5 +2747,113 @@
       "arduino-uno",
       "arduino-nano"
     ]
+  },
+  {
+    "id": "arduino-05-arrays",
+    "title": {
+      "en": "Arrays (CC0)",
+      "de": "Arrays (CC0)"
+    },
+    "category": "digital",
+    "difficulty": 2,
+    "files": {
+      "program": "arduino-05-arrays/program.bw",
+      "circuit": "arduino-05-arrays/circuit.json"
+    },
+    "kind": "full",
+    "devices": [
+      "arduino-uno",
+      "arduino-nano"
+    ]
+  },
+  {
+    "id": "arduino-05-for-loop",
+    "title": {
+      "en": "For Loop (CC0)",
+      "de": "For-Schleife (CC0)"
+    },
+    "category": "digital",
+    "difficulty": 1,
+    "files": {
+      "program": "arduino-05-for-loop/program.bw",
+      "circuit": "arduino-05-for-loop/circuit.json"
+    },
+    "kind": "full",
+    "devices": [
+      "arduino-uno",
+      "arduino-nano"
+    ]
+  },
+  {
+    "id": "arduino-05-if-statement",
+    "title": {
+      "en": "If Statement (CC0)",
+      "de": "If-Anweisung (CC0)"
+    },
+    "category": "analog",
+    "difficulty": 1,
+    "files": {
+      "program": "arduino-05-if-statement/program.bw",
+      "circuit": "arduino-05-if-statement/circuit.json"
+    },
+    "kind": "full",
+    "devices": [
+      "arduino-uno",
+      "arduino-nano"
+    ]
+  },
+  {
+    "id": "arduino-05-switch-case",
+    "title": {
+      "en": "Switch Case (CC0)",
+      "de": "Switch Case (CC0)"
+    },
+    "category": "analog",
+    "difficulty": 2,
+    "files": {
+      "program": "arduino-05-switch-case/program.bw",
+      "circuit": "arduino-05-switch-case/circuit.json"
+    },
+    "kind": "full",
+    "devices": [
+      "arduino-uno",
+      "arduino-nano"
+    ]
+  },
+  {
+    "id": "arduino-05-switch-case-2",
+    "title": {
+      "en": "Switch Case 2 (CC0)",
+      "de": "Switch Case 2 (CC0)"
+    },
+    "category": "digital",
+    "difficulty": 2,
+    "files": {
+      "program": "arduino-05-switch-case-2/program.bw",
+      "circuit": "arduino-05-switch-case-2/circuit.json"
+    },
+    "kind": "full",
+    "devices": [
+      "arduino-uno",
+      "arduino-nano"
+    ]
+  },
+  {
+    "id": "arduino-05-while-statement",
+    "title": {
+      "en": "While Statement (CC0)",
+      "de": "While-Anweisung (CC0)"
+    },
+    "category": "analog",
+    "difficulty": 2,
+    "files": {
+      "program": "arduino-05-while-statement/program.bw",
+      "circuit": "arduino-05-while-statement/circuit.json"
+    },
+    "kind": "full",
+    "devices": [
+      "arduino-uno",
+      "arduino-nano"
+    ]
   }
 ]

@@ -1,0 +1,17 @@
+# Ported from arduino-examples/examples/05.Control/IfStatementConditional/IfStatementConditional.ino, CC0
+DEVICE ARDUINO-UNO
+CLOCK 16000000
+PIN pot = A0 ANALOG
+PIN led = D13 OUTPUT
+
+SPRITE Cat:
+  WHEN flag clicked:
+    set threshold to 400
+    forever:
+      set analogValue to read pot
+      print analogValue
+      if analogValue > threshold then:
+        turn on led
+      else:
+        turn off led
+      wait 0.05 seconds

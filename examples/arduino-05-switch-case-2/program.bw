@@ -1,0 +1,28 @@
+# Ported from arduino-examples/examples/05.Control/switchCase2/switchCase2.ino, CC0
+# Simplified: cycles through 5 LED patterns since serial input is not available in blocks
+DEVICE ARDUINO-UNO
+CLOCK 16000000
+PIN led2 = D2 OUTPUT
+PIN led3 = D3 OUTPUT
+PIN led4 = D4 OUTPUT
+PIN led5 = D5 OUTPUT
+PIN led6 = D6 OUTPUT
+
+SPRITE Cat:
+  WHEN flag clicked:
+    forever:
+      turn on led2
+      wait 0.5 seconds
+      turn off led2
+      turn on led3
+      wait 0.5 seconds
+      turn off led3
+      turn on led4
+      wait 0.5 seconds
+      turn off led4
+      turn on led5
+      wait 0.5 seconds
+      turn off led5
+      turn on led6
+      wait 0.5 seconds
+      turn off led6

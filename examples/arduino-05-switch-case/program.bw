@@ -1,0 +1,19 @@
+# Ported from arduino-examples/examples/05.Control/switchCase/switchCase.ino, CC0
+DEVICE ARDUINO-UNO
+CLOCK 16000000
+PIN ldr = A0 ANALOG
+
+SPRITE Cat:
+  WHEN flag clicked:
+    forever:
+      set sensorReading to read ldr
+      set range to ((sensorReading / 1024) * 3)
+      if range = 0 then:
+        print "dark"
+      if range = 1 then:
+        print "dim"
+      if range = 2 then:
+        print "medium"
+      if range = 3 then:
+        print "bright"
+      wait 0.5 seconds

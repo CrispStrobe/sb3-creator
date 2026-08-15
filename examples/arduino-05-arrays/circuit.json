@@ -1,0 +1,234 @@
+{
+  "vcc": 5,
+  "parts": [
+    {
+      "id": "board",
+      "kind": "arduino_uno",
+      "declName": "board"
+    },
+    {
+      "id": "led2",
+      "kind": "led",
+      "declName": "led2",
+      "params": {
+        "color": "red"
+      }
+    },
+    {
+      "id": "r2",
+      "kind": "resistor",
+      "params": {
+        "ohms": 220
+      }
+    },
+    {
+      "id": "led3",
+      "kind": "led",
+      "declName": "led3",
+      "params": {
+        "color": "red"
+      }
+    },
+    {
+      "id": "r3",
+      "kind": "resistor",
+      "params": {
+        "ohms": 220
+      }
+    },
+    {
+      "id": "led4",
+      "kind": "led",
+      "declName": "led4",
+      "params": {
+        "color": "red"
+      }
+    },
+    {
+      "id": "r4",
+      "kind": "resistor",
+      "params": {
+        "ohms": 220
+      }
+    },
+    {
+      "id": "led5",
+      "kind": "led",
+      "declName": "led5",
+      "params": {
+        "color": "red"
+      }
+    },
+    {
+      "id": "r5",
+      "kind": "resistor",
+      "params": {
+        "ohms": 220
+      }
+    },
+    {
+      "id": "led6",
+      "kind": "led",
+      "declName": "led6",
+      "params": {
+        "color": "red"
+      }
+    },
+    {
+      "id": "r6",
+      "kind": "resistor",
+      "params": {
+        "ohms": 220
+      }
+    },
+    {
+      "id": "led7",
+      "kind": "led",
+      "declName": "led7",
+      "params": {
+        "color": "red"
+      }
+    },
+    {
+      "id": "r7",
+      "kind": "resistor",
+      "params": {
+        "ohms": 220
+      }
+    },
+    {
+      "id": "vcc1",
+      "kind": "vcc",
+      "params": {
+        "volts": 5
+      }
+    },
+    {
+      "id": "gnd1",
+      "kind": "gnd",
+      "params": {}
+    }
+  ],
+  "wires": [
+    {
+      "from": "board",
+      "fromTerminal": "d2",
+      "to": "r2",
+      "toTerminal": "a"
+    },
+    {
+      "from": "r2",
+      "fromTerminal": "b",
+      "to": "led2",
+      "toTerminal": "anode"
+    },
+    {
+      "from": "led2",
+      "fromTerminal": "cathode",
+      "to": "gnd1",
+      "toTerminal": "gnd"
+    },
+    {
+      "from": "board",
+      "fromTerminal": "d3",
+      "to": "r3",
+      "toTerminal": "a"
+    },
+    {
+      "from": "r3",
+      "fromTerminal": "b",
+      "to": "led3",
+      "toTerminal": "anode"
+    },
+    {
+      "from": "led3",
+      "fromTerminal": "cathode",
+      "to": "gnd1",
+      "toTerminal": "gnd"
+    },
+    {
+      "from": "board",
+      "fromTerminal": "d4",
+      "to": "r4",
+      "toTerminal": "a"
+    },
+    {
+      "from": "r4",
+      "fromTerminal": "b",
+      "to": "led4",
+      "toTerminal": "anode"
+    },
+    {
+      "from": "led4",
+      "fromTerminal": "cathode",
+      "to": "gnd1",
+      "toTerminal": "gnd"
+    },
+    {
+      "from": "board",
+      "fromTerminal": "d5",
+      "to": "r5",
+      "toTerminal": "a"
+    },
+    {
+      "from": "r5",
+      "fromTerminal": "b",
+      "to": "led5",
+      "toTerminal": "anode"
+    },
+    {
+      "from": "led5",
+      "fromTerminal": "cathode",
+      "to": "gnd1",
+      "toTerminal": "gnd"
+    },
+    {
+      "from": "board",
+      "fromTerminal": "d6",
+      "to": "r6",
+      "toTerminal": "a"
+    },
+    {
+      "from": "r6",
+      "fromTerminal": "b",
+      "to": "led6",
+      "toTerminal": "anode"
+    },
+    {
+      "from": "led6",
+      "fromTerminal": "cathode",
+      "to": "gnd1",
+      "toTerminal": "gnd"
+    },
+    {
+      "from": "board",
+      "fromTerminal": "d7",
+      "to": "r7",
+      "toTerminal": "a"
+    },
+    {
+      "from": "r7",
+      "fromTerminal": "b",
+      "to": "led7",
+      "toTerminal": "anode"
+    },
+    {
+      "from": "led7",
+      "fromTerminal": "cathode",
+      "to": "gnd1",
+      "toTerminal": "gnd"
+    },
+    {
+      "from": "vcc1",
+      "fromTerminal": "vcc",
+      "to": "board",
+      "toTerminal": "5v"
+    },
+    {
+      "from": "gnd1",
+      "fromTerminal": "gnd",
+      "to": "board",
+      "toTerminal": "gnd"
+    }
+  ]
+}
