@@ -260,3 +260,43 @@ Solved at t=1 ms (vsource 9 V, 3 nets):
 Junction at 4.5 V = 9 × 10k/(10k+10k) — exact match with EXPECTED.md.
 I = 9/20k = 0.45 mA. Category `pure-circuit`, difficulty 2. **No content
 change.**
+
+## pc13-direct-diode — VERDICT: pass
+
+**layers: engine.** Pure circuit, direct wired, comment-only program.
+
+Solved at t=1 ms (vsource 5 V, 4 nets). R→diode→LED series chain. Diode
+forward drop 0.80 V (Shockley), LED 2.10 V, I = 9.6 mA. EXPECTED.md has a
+thorough write-up with measured values that match exactly. Category
+`pure-circuit`, difficulty 1. **No content change.**
+
+## pc14-mini-led — VERDICT: pass
+
+**layers: engine.** Pure circuit on a mini breadboard (170-point, no rails).
+
+Solved at t=1 ms (5 V, 3 nets): LED at 2.06 V, I = 6.25 mA through 470 Ω.
+EXPECTED.md documents precise values and the column-strip connectivity
+lesson. Category `pure-circuit`, difficulty 1. **No content change.**
+
+## pc15-mini-npn — VERDICT: engine-bug
+
+**layers: engine.** NPN switch on a mini breadboard. Same NPN saturation bug
+as pc05: collector at −17.6 V, base correct at 0.7 V. The circuit is
+topologically correct (documented in EXPECTED.md with the full seating table),
+but the engine cannot solve the saturated state. Already recorded as engine-bug
+in pc05; this is a second occurrence of the same defect. **No content change.**
+
+## pc16-mini-rc — VERDICT: pass
+
+**layers: engine.** RC charge on mini breadboard. Capacitor and resistor both
+properly seated. Solved at multiple times:
+
+| time | Vc (measured) | theory |
+|---|---|---|
+| 100 ms | 0.4757 V | 0.476 V |
+| 1000 ms (1τ) | 3.1568 V | 3.161 V |
+| 5000 ms (5τ) | 4.9649 V | 4.966 V |
+
+Matches EXPECTED.md's detailed table to 0.1%. EXPECTED.md includes the
+observation-conditions note (sub-ms samples show zero). Category `pure-circuit`,
+difficulty 3. **No content change.**
