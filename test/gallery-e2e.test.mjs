@@ -101,8 +101,15 @@ const TERMINALS = {
 };
 const DEVICE_TERMINALS = TERMINALS; // alias for readability
 
+// Visual-only part kinds: no electrical role, no terminals in the engine.
+const VISUAL_ONLY = new Set(['breadboard', 'label', 'wire_jumper']);
+
 function loadCircuit(name) {
     const data = JSON.parse(readFileSync(join(EXAMPLES, name, 'circuit.json'), 'utf8'));
+    // Filter out visual-only parts and any wires referencing them
+    const visualIds = new Set(data.parts.filter(p => VISUAL_ONLY.has(p.kind)).map(p => p.id));
+    data.parts = data.parts.filter(p => !VISUAL_ONLY.has(p.kind));
+    data.wires = (data.wires || []).filter(w => !visualIds.has(w.from) && !visualIds.has(w.to));
     const hasDeviceParts = data.parts.some(p => DEVICE_TERMINALS[p.kind] || KIND_MAP[p.kind]);
 
     if (hasDeviceParts) {
