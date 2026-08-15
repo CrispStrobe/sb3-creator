@@ -13,9 +13,9 @@ and has intro.md + intro.de.md (Layer 3).
 | MCU extended | 37–54 | 18 | 18 | 0 | 0 | 0 | 0 |
 | platform variants | nano/mega/pico | 10 | 10 | 0 | 0 | 0 | 0 |
 | AVR (Uno) | avr01–avr06 | 6 | 5 | 1 | 0 | 0 | 0 |
-| Arduino CC0 | arduino-01–08 | 36 | 35 | 0 | 0 | 0 | 1 |
+| Arduino CC0 | arduino-01–08 | 49 | 48 | 0 | 0 | 0 | 1 |
 | retro benches | eater/z80 | 4 | 0 | 0 | 0 | 0 | 4 |
-| **total** | | **173** | **151** | **10** | **4** | **1** | **5** |
+| **total** | | **186** | **164** | **10** | **4** | **1** | **5** |
 
 ### Content fixes applied (8)
 - pc02: resistor_4 unseated (floating)
@@ -1028,3 +1028,42 @@ terminals) — harness cannot solve. Program parses with warnings.
 
 ## arduino-08-string-addition — VERDICT: pass (0 parse warnings)
 **layers: engine.** String operations. 3 nets. Parses clean.
+
+## arduino-08-char-analysis — VERDICT: pass (0 parse warnings)
+**layers: engine.** Character analysis. 2 nets. Parses clean.
+
+## arduino-08-string-append — VERDICT: pass (0 parse warnings)
+**layers: engine.** String append. 2 nets. Parses clean.
+
+## arduino-08-string-case — VERDICT: pass (0 parse warnings)
+**layers: engine.** String case conversion. 2 nets. Parses clean.
+
+## arduino-08-string-chars — VERDICT: pass (0 parse warnings)
+**layers: engine.** String character access. 2 nets. Parses clean.
+
+## arduino-08-string-compare — VERDICT: pass (0 parse warnings)
+**layers: engine.** String comparison. 2 nets. Parses clean.
+
+## arduino-08-string-constructors — VERDICT: pass (0 parse warnings)
+**layers: engine.** String constructors. 2 nets. Parses clean.
+
+## arduino-08-string-indexof — VERDICT: pass (0 parse warnings)
+**layers: engine.** String indexOf. 2 nets. Parses clean.
+
+## arduino-08-string-length — VERDICT: pass (0 parse warnings)
+**layers: engine.** String length. 2 nets. Parses clean.
+
+## arduino-08-string-length-trim — VERDICT: pass (0 parse warnings)
+**layers: engine.** String length/trim. 2 nets. Parses clean.
+
+## arduino-08-string-replace — VERDICT: pass (0 parse warnings)
+**layers: engine.** String replace. 2 nets. Parses clean.
+
+## arduino-08-string-startswith — VERDICT: pass (0 parse warnings)
+**layers: engine.** String startsWith/endsWith. 2 nets. Parses clean.
+
+## arduino-08-string-substring — VERDICT: pass (0 parse warnings)
+**layers: engine.** String substring. 2 nets. Parses clean.
+
+## arduino-08-string-toint — VERDICT: pass (0 parse warnings)
+**layers: engine.** String toInt. 2 nets. Parses clean.
