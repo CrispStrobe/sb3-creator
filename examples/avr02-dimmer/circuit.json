@@ -1,0 +1,19 @@
+{
+  "vcc": 5.0,
+  "parts": [
+    { "id": "vcc1",  "kind": "vcc",  "params": {},               "x": 100, "y": 50  },
+    { "id": "gnd1",  "kind": "gnd",  "params": {},               "x": 200, "y": 350 },
+    { "id": "pot1",  "kind": "pot",  "params": { "ohms": 10000 }, "x": 100, "y": 180 },
+    { "id": "r1",    "kind": "resistor", "params": { "ohms": 220 }, "x": 300, "y": 250 },
+    { "id": "led1",  "kind": "led",  "params": { "color": "white", "vf": 3.0 }, "x": 300, "y": 150 },
+    { "id": "mcu1",  "kind": "mcu",  "params": { "pins": ["A0", "D9"] }, "x": 50, "y": 180 }
+  ],
+  "wires": [
+    { "from": "vcc1",  "fromTerminal": "vcc",    "to": "pot1", "toTerminal": "cw"     },
+    { "from": "pot1",  "fromTerminal": "ccw",    "to": "gnd1", "toTerminal": "gnd"    },
+    { "from": "pot1",  "fromTerminal": "wiper",  "to": "mcu1", "toTerminal": "A0"     },
+    { "from": "mcu1",  "fromTerminal": "D9",     "to": "led1", "toTerminal": "anode"  },
+    { "from": "led1",  "fromTerminal": "cathode","to": "r1",   "toTerminal": "lead1"  },
+    { "from": "r1",    "fromTerminal": "lead2",  "to": "gnd1", "toTerminal": "gnd"    }
+  ]
+}

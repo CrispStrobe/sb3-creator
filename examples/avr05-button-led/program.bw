@@ -1,0 +1,13 @@
+DEVICE ARDUINO-UNO
+CLOCK 16000000
+PIN button1 = D2 INPUT
+PIN led1 = D13 OUTPUT
+
+# Light the LED while the button is pressed
+WHEN flag clicked:
+  FOREVER:
+    if read button1 then:
+      turn on led1
+    else:
+      turn off led1
+    wait 0.05 seconds

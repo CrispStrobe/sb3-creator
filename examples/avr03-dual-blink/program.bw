@@ -1,0 +1,19 @@
+DEVICE ARDUINO-UNO
+CLOCK 16000000
+PIN led1 = D13 OUTPUT
+PIN led2 = D12 OUTPUT
+
+# Two LEDs blink at different rates — two cooperative scripts
+WHEN flag clicked:
+  FOREVER:
+    turn on led1
+    wait 0.5 seconds
+    turn off led1
+    wait 0.5 seconds
+
+WHEN flag clicked:
+  FOREVER:
+    turn on led2
+    wait 0.25 seconds
+    turn off led2
+    wait 0.25 seconds

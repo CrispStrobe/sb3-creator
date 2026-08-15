@@ -1,0 +1,9 @@
+DEVICE ARDUINO-UNO
+CLOCK 16000000
+PIN pot1 = A0 ANALOG
+
+# Read a potentiometer and print the ADC value over serial
+WHEN flag clicked:
+  FOREVER:
+    print read pot1
+    wait 0.5 seconds

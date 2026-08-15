@@ -1,0 +1,14 @@
+{
+  "vcc": 5.0,
+  "parts": [
+    { "id": "vcc1",  "kind": "vcc",  "params": {},               "x": 100, "y": 50  },
+    { "id": "gnd1",  "kind": "gnd",  "params": {},               "x": 100, "y": 350 },
+    { "id": "pot1",  "kind": "pot",  "params": { "ohms": 10000 }, "x": 200, "y": 180 },
+    { "id": "mcu1",  "kind": "mcu",  "params": { "pins": ["A0"] }, "x": 50, "y": 180 }
+  ],
+  "wires": [
+    { "from": "vcc1",  "fromTerminal": "vcc",    "to": "pot1", "toTerminal": "cw"    },
+    { "from": "pot1",  "fromTerminal": "ccw",    "to": "gnd1", "toTerminal": "gnd"   },
+    { "from": "pot1",  "fromTerminal": "wiper",  "to": "mcu1", "toTerminal": "A0"    }
+  ]
+}

@@ -2279,5 +2279,101 @@
       "expected": "168p01-blink/EXPECTED.md"
     },
     "kind": "program"
+  },
+  {
+    "id": "avr01-blink",
+    "title": {
+      "en": "Blink an LED (Arduino Uno)",
+      "de": "LED blinken (Arduino Uno)"
+    },
+    "category": "basics",
+    "difficulty": 1,
+    "device": "arduino-uno",
+    "kind": "program",
+    "files": {
+      "program": "avr01-blink/program.bw",
+      "circuit": "avr01-blink/circuit.json",
+      "expected": "avr01-blink/EXPECTED.md"
+    }
+  },
+  {
+    "id": "avr02-dimmer",
+    "title": {
+      "en": "Potentiometer dimmer (Arduino Uno)",
+      "de": "Potentiometer-Dimmer (Arduino Uno)"
+    },
+    "category": "analog",
+    "difficulty": 2,
+    "device": "arduino-uno",
+    "kind": "program",
+    "files": {
+      "program": "avr02-dimmer/program.bw",
+      "circuit": "avr02-dimmer/circuit.json",
+      "expected": "avr02-dimmer/EXPECTED.md"
+    }
+  },
+  {
+    "id": "avr03-dual-blink",
+    "title": {
+      "en": "Two-task blink (Arduino Uno)",
+      "de": "Zwei-Task-Blinken (Arduino Uno)"
+    },
+    "category": "basics",
+    "difficulty": 2,
+    "device": "arduino-uno",
+    "kind": "program",
+    "files": {
+      "program": "avr03-dual-blink/program.bw",
+      "circuit": "avr03-dual-blink/circuit.json",
+      "expected": "avr03-dual-blink/EXPECTED.md"
+    }
+  },
+  {
+    "id": "avr04-serial-pot",
+    "title": {
+      "en": "Serial potentiometer readout (Arduino Uno)",
+      "de": "Serielle Potentiometer-Anzeige (Arduino Uno)"
+    },
+    "category": "analog",
+    "difficulty": 2,
+    "device": "arduino-uno",
+    "kind": "program",
+    "files": {
+      "program": "avr04-serial-pot/program.bw",
+      "circuit": "avr04-serial-pot/circuit.json",
+      "expected": "avr04-serial-pot/EXPECTED.md"
+    }
+  },
+  {
+    "id": "avr05-button-led",
+    "title": {
+      "en": "Button-controlled LED (Arduino Uno)",
+      "de": "Taster-gesteuerte LED (Arduino Uno)"
+    },
+    "category": "digital",
+    "difficulty": 1,
+    "device": "arduino-uno",
+    "kind": "program",
+    "files": {
+      "program": "avr05-button-led/program.bw",
+      "circuit": "avr05-button-led/circuit.json",
+      "expected": "avr05-button-led/EXPECTED.md"
+    }
+  },
+  {
+    "id": "avr06-blink-and-print",
+    "title": {
+      "en": "Blink and print (Arduino Uno)",
+      "de": "Blinken und Drucken (Arduino Uno)"
+    },
+    "category": "basics",
+    "difficulty": 2,
+    "device": "arduino-uno",
+    "kind": "program",
+    "files": {
+      "program": "avr06-blink-and-print/program.bw",
+      "circuit": "avr06-blink-and-print/circuit.json",
+      "expected": "avr06-blink-and-print/EXPECTED.md"
+    }
   }
 ]
