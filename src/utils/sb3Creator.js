@@ -8198,6 +8198,32 @@ class SB3Creator {
                 '    bw_putc(13); bw_putc(10);',
                 '}', '');
         }
+        if (this._core === '8051' && this._cUses.print) {
+            out.push('/* print goes out UART (SBUF) at 9600 8N1.',
+                ' * Timer 1 mode 2 (8-bit auto-reload) generates the baud clock.',
+                ' * TH1 = 256 - FOSC / 12 / 32 / 9600 (the standard formula). */',
+                'static void bw_putc(char c)',
+                '{',
+                '    SBUF = c;',
+                '    while (!TI) ;',
+                '    TI = 0;',
+                '}', '',
+                'static void bw_print(const char *s)',
+                '{',
+                '    while (*s) bw_putc(*s++);',
+                '    bw_putc(13); bw_putc(10);',
+                '}', '',
+                'static void bw_print_num(long n)',
+                '{',
+                '    char buf[12]; unsigned char i = 0;',
+                '    unsigned long u;',
+                '    if (n < 0) { bw_putc(45); u = (unsigned long)(-n); } else { u = (unsigned long)n; }',
+                '    do { buf[i++] = (char)(48 + (u % 10)); u /= 10; } while (u);',
+                '    while (i) bw_putc(buf[--i]);',
+                '    bw_putc(13); bw_putc(10);',
+                '}', '');
+        }
+
         // 74HC595 shift register: bit-bang MSB-first, clock-on-rising-edge.
         // The activeLow param inverts the DATA line only (common-cathode vs
         // common-anode LED arrays). Edge order: clock LOW, set DATA, clock HIGH.
@@ -9271,6 +9297,16 @@ class SB3Creator {
             out.push('/* REPEAT counters live across yields. */',
                 ...statics.map((n) => `static unsigned int ${n};`), '');
         }
+        // Forward-declare the print helpers when used inside task bodies.
+        // The definitions come later (after the timer/print-library section),
+        // but the calls appear inside bw_taskN which is emitted here.
+        if (this._cUses.print && taskDefs.length) {
+            out.push('/* forward declarations — print helpers defined after the timer section */',
+                'static void bw_putc(char c);',
+                'static void bw_print(const char *s);',
+                'static void bw_print_num(long n);', '');
+        }
+
         if (taskDefs.length) {
             // A label must precede a STATEMENT in C. An empty script (a hat
             // with nothing under it — the default project's shape) emits
@@ -9483,6 +9519,16 @@ class SB3Creator {
                 `    P1M1 |=  0x${hex(analog)};                /* high-impedance input */`,
                 `    P1M0 &= ~0x${hex(analog)};`,
                 '    ADC_CONTR = 0xE0;              /* ADC on, fastest conversion */');
+        }
+        if (this._cUses.print) {
+            out.push('',
+                '    /* UART at 9600 baud: Timer 1 mode 2 (auto-reload) generates the clock. */',
+                '    SCON = 0x50;                      /* mode 1, REN */',
+                `    TMOD = (TMOD & 0x0F) | 0x20;      /* Timer 1, mode 2 */`,
+                `    TH1  = (unsigned char)(256 - FOSC_HZ / 12 / 32 / 9600);`,
+                '    TL1  = TH1;',
+                '    TR1  = 1;                          /* start Timer 1 */',
+                '    TI   = 1;                          /* transmitter ready */');
         }
         out.push('');
         if (chip.aux1T) out.push('    AUXR &= ~0x80;                 /* Timer 0 at FOSC/12 */');
