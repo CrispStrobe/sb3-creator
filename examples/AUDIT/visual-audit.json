@@ -606,203 +606,124 @@
  },
  {
   "name": "arduino-01-analog-read-serial",
-  "verdict": "content-bug",
-  "parseWarnings": 2,
-  "blocks": 1,
+  "verdict": "visual-pass",
+  "parseWarnings": 0,
+  "blocks": 5,
   "scripts": 1,
   "device": "arduino-uno",
   "pins": 1,
-  "extensions": 0,
-  "commentOnly": false,
-  "warnings": [
-   "Line 9: Skipping line with unexpected indentation: \"print read pot\"",
-   "Line 10: Skipping line with unexpected indentation: \"wait 0.1 seconds\""
-  ],
-  "reason": "2 lines skipped by parser"
+  "extensions": 1,
+  "commentOnly": false
  },
  {
   "name": "arduino-01-blink",
-  "verdict": "content-bug",
-  "parseWarnings": 4,
-  "blocks": 1,
+  "verdict": "visual-pass",
+  "parseWarnings": 0,
+  "blocks": 6,
   "scripts": 1,
   "device": "arduino-uno",
   "pins": 1,
-  "extensions": 0,
-  "commentOnly": false,
-  "warnings": [
-   "Line 9: Skipping line with unexpected indentation: \"turn on led\"",
-   "Line 10: Skipping line with unexpected indentation: \"wait 1 seconds\"",
-   "Line 11: Skipping line with unexpected indentation: \"turn off led\"",
-   "Line 12: Skipping line with unexpected indentation: \"wait 1 seconds\""
-  ],
-  "reason": "4 lines skipped by parser"
+  "extensions": 1,
+  "commentOnly": false
  },
  {
   "name": "arduino-01-digital-read-serial",
-  "verdict": "content-bug",
-  "parseWarnings": 2,
-  "blocks": 1,
+  "verdict": "visual-pass",
+  "parseWarnings": 0,
+  "blocks": 5,
   "scripts": 1,
   "device": "arduino-uno",
   "pins": 1,
-  "extensions": 0,
-  "commentOnly": false,
-  "warnings": [
-   "Line 9: Skipping line with unexpected indentation: \"print read btn\"",
-   "Line 10: Skipping line with unexpected indentation: \"wait 0.1 seconds\""
-  ],
-  "reason": "2 lines skipped by parser"
+  "extensions": 1,
+  "commentOnly": false
  },
  {
   "name": "arduino-01-fade",
-  "verdict": "content-bug",
-  "parseWarnings": 5,
-  "blocks": 3,
+  "verdict": "visual-pass",
+  "parseWarnings": 0,
+  "blocks": 15,
   "scripts": 1,
   "device": "arduino-uno",
   "pins": 1,
   "extensions": 0,
-  "commentOnly": false,
-  "warnings": [
-   "Line 11: Skipping line with unexpected indentation: \"set pwm led to brightness\"",
-   "Line 12: Skipping line with unexpected indentation: \"change brightness by fadeAmount\"",
-   "Line 13: Skipping line with unexpected indentation: \"if brightness <= 0 or brightness >= 255 then:\"",
-   "Line 14: Skipping line with unexpected indentation: \"set fadeAmount to (0 - fadeAmount)\"",
-   "Line 15: Skipping line with unexpected indentation: \"wait 0.03 seconds\""
-  ],
-  "reason": "5 lines skipped by parser"
+  "commentOnly": false
  },
  {
   "name": "arduino-01-read-analog-voltage",
-  "verdict": "content-bug",
-  "parseWarnings": 4,
-  "blocks": 1,
+  "verdict": "visual-pass",
+  "parseWarnings": 0,
+  "blocks": 9,
   "scripts": 1,
   "device": "arduino-uno",
   "pins": 1,
-  "extensions": 0,
-  "commentOnly": false,
-  "warnings": [
-   "Line 9: Skipping line with unexpected indentation: \"set sensorValue to read pot\"",
-   "Line 10: Skipping line with unexpected indentation: \"set voltage to (sensorValue * (5.0 / 1023))\"",
-   "Line 11: Skipping line with unexpected indentation: \"print voltage\"",
-   "Line 12: Skipping line with unexpected indentation: \"wait 0.1 seconds\""
-  ],
-  "reason": "4 lines skipped by parser"
+  "extensions": 1,
+  "commentOnly": false
  },
  {
   "name": "arduino-02-blink-without-delay",
-  "verdict": "content-bug",
-  "parseWarnings": 8,
-  "blocks": 4,
+  "verdict": "visual-pass",
+  "parseWarnings": 0,
+  "blocks": 20,
   "scripts": 1,
   "device": "arduino-uno",
   "pins": 1,
-  "extensions": 0,
-  "commentOnly": false,
-  "warnings": [
-   "Line 12: Skipping line with unexpected indentation: \"if (timer * 1000) - previousMillis >= interval ",
-   "Line 13: Skipping line with unexpected indentation: \"set previousMillis to (timer * 1000)\"",
-   "Line 14: Skipping line with unexpected indentation: \"if ledState = 0 then:\"",
-   "Line 15: Skipping line with unexpected indentation: \"set ledState to 1\"",
-   "Line 16: Skipping line with unexpected indentation: \"turn on led\""
-  ],
-  "reason": "8 lines skipped by parser"
+  "extensions": 1,
+  "commentOnly": false
  },
  {
   "name": "arduino-02-button",
-  "verdict": "content-bug",
-  "parseWarnings": 4,
-  "blocks": 1,
-  "scripts": 1,
-  "device": "arduino-uno",
-  "pins": 2,
-  "extensions": 0,
-  "commentOnly": false,
-  "warnings": [
-   "Line 10: Skipping line with unexpected indentation: \"if read btn then:\"",
-   "Line 11: Skipping line with unexpected indentation: \"turn on led\"",
-   "Line 12: Skipping line with unexpected indentation: \"else:\"",
-   "Line 13: Skipping line with unexpected indentation: \"turn off led\""
-  ],
-  "reason": "4 lines skipped by parser"
- },
- {
-  "name": "arduino-02-debounce",
-  "verdict": "content-bug",
-  "parseWarnings": 14,
+  "verdict": "visual-pass",
+  "parseWarnings": 0,
   "blocks": 6,
   "scripts": 1,
   "device": "arduino-uno",
   "pins": 2,
   "extensions": 1,
-  "commentOnly": false,
-  "warnings": [
-   "Line 15: Skipping line with unexpected indentation: \"set reading to read btn\"",
-   "Line 16: Skipping line with unexpected indentation: \"if reading != lastReading then:\"",
-   "Line 17: Skipping line with unexpected indentation: \"set lastDebounceTime to (timer * 1000)\"",
-   "Line 18: Skipping line with unexpected indentation: \"if (timer * 1000) - lastDebounceTime > debounce",
-   "Line 19: Skipping line with unexpected indentation: \"if reading != buttonState then:\""
-  ],
-  "reason": "14 lines skipped by parser"
+  "commentOnly": false
+ },
+ {
+  "name": "arduino-02-debounce",
+  "verdict": "visual-pass",
+  "parseWarnings": 0,
+  "blocks": 31,
+  "scripts": 1,
+  "device": "arduino-uno",
+  "pins": 2,
+  "extensions": 1,
+  "commentOnly": false
  },
  {
   "name": "arduino-02-digital-input-pullup",
-  "verdict": "content-bug",
-  "parseWarnings": 7,
-  "blocks": 1,
+  "verdict": "visual-pass",
+  "parseWarnings": 0,
+  "blocks": 10,
   "scripts": 1,
   "device": "arduino-uno",
   "pins": 2,
-  "extensions": 0,
-  "commentOnly": false,
-  "warnings": [
-   "Line 10: Skipping line with unexpected indentation: \"set sensorVal to read btn\"",
-   "Line 11: Skipping line with unexpected indentation: \"print sensorVal\"",
-   "Line 12: Skipping line with unexpected indentation: \"if sensorVal = 1 then:\"",
-   "Line 13: Skipping line with unexpected indentation: \"turn off led\"",
-   "Line 14: Skipping line with unexpected indentation: \"else:\""
-  ],
-  "reason": "7 lines skipped by parser"
+  "extensions": 1,
+  "commentOnly": false
  },
  {
   "name": "arduino-02-state-change",
-  "verdict": "content-bug",
-  "parseWarnings": 11,
-  "blocks": 3,
+  "verdict": "visual-pass",
+  "parseWarnings": 0,
+  "blocks": 19,
   "scripts": 1,
   "device": "arduino-uno",
   "pins": 2,
-  "extensions": 0,
-  "commentOnly": false,
-  "warnings": [
-   "Line 12: Skipping line with unexpected indentation: \"set buttonState to read btn\"",
-   "Line 13: Skipping line with unexpected indentation: \"if buttonState != lastButtonState then:\"",
-   "Line 14: Skipping line with unexpected indentation: \"if buttonState = 1 then:\"",
-   "Line 15: Skipping line with unexpected indentation: \"change buttonPushCounter by 1\"",
-   "Line 16: Skipping line with unexpected indentation: \"print buttonPushCounter\""
-  ],
-  "reason": "11 lines skipped by parser"
+  "extensions": 1,
+  "commentOnly": false
  },
  {
   "name": "arduino-02-tone-keyboard",
-  "verdict": "content-bug",
-  "parseWarnings": 8,
-  "blocks": 1,
+  "verdict": "visual-pass",
+  "parseWarnings": 0,
+  "blocks": 12,
   "scripts": 1,
   "device": "arduino-uno",
   "pins": 3,
-  "extensions": 0,
-  "commentOnly": false,
-  "warnings": [
-   "Line 11: Skipping line with unexpected indentation: \"if read sensor1 > 10 then:\"",
-   "Line 12: Skipping line with unexpected indentation: \"set tone speaker to 440\"",
-   "Line 13: Skipping line with unexpected indentation: \"else:\"",
-   "Line 14: Skipping line with unexpected indentation: \"if read sensor2 > 10 then:\"",
-   "Line 15: Skipping line with unexpected indentation: \"set tone speaker to 494\""
-  ],
-  "reason": "8 lines skipped by parser"
+  "extensions": 1,
+  "commentOnly": false
  },
  {
   "name": "arduino-02-tone-melody",
@@ -817,155 +738,91 @@
  },
  {
   "name": "arduino-02-tone-multiple",
-  "verdict": "content-bug",
-  "parseWarnings": 9,
-  "blocks": 1,
-  "scripts": 1,
-  "device": "arduino-uno",
-  "pins": 3,
-  "extensions": 0,
-  "commentOnly": false,
-  "warnings": [
-   "Line 11: Skipping line with unexpected indentation: \"set tone spk1 to 440\"",
-   "Line 12: Skipping line with unexpected indentation: \"wait 0.2 seconds\"",
-   "Line 13: Skipping line with unexpected indentation: \"turn off spk1\"",
-   "Line 14: Skipping line with unexpected indentation: \"set tone spk2 to 523\"",
-   "Line 15: Skipping line with unexpected indentation: \"wait 0.5 seconds\""
-  ],
-  "reason": "9 lines skipped by parser"
- },
- {
-  "name": "arduino-02-tone-pitch-follower",
-  "verdict": "content-bug",
-  "parseWarnings": 5,
-  "blocks": 1,
-  "scripts": 1,
-  "device": "arduino-uno",
-  "pins": 2,
-  "extensions": 0,
-  "commentOnly": false,
-  "warnings": [
-   "Line 10: Skipping line with unexpected indentation: \"set sensorReading to read ldr\"",
-   "Line 11: Skipping line with unexpected indentation: \"print sensorReading\"",
-   "Line 13: Skipping line with unexpected indentation: \"set thisPitch to (120 + ((sensorReading - 400) ",
-   "Line 14: Skipping line with unexpected indentation: \"set tone speaker to thisPitch\"",
-   "Line 15: Skipping line with unexpected indentation: \"wait 0.05 seconds\""
-  ],
-  "reason": "5 lines skipped by parser"
- },
- {
-  "name": "arduino-03-analog-in-out-serial",
-  "verdict": "content-bug",
-  "parseWarnings": 5,
-  "blocks": 1,
-  "scripts": 1,
-  "device": "arduino-uno",
-  "pins": 2,
-  "extensions": 0,
-  "commentOnly": false,
-  "warnings": [
-   "Line 10: Skipping line with unexpected indentation: \"set sensorValue to read pot\"",
-   "Line 11: Skipping line with unexpected indentation: \"set outputValue to ((sensorValue * 255) / 1023)",
-   "Line 12: Skipping line with unexpected indentation: \"set pwm led to outputValue\"",
-   "Line 13: Skipping line with unexpected indentation: \"print sensorValue\"",
-   "Line 14: Skipping line with unexpected indentation: \"wait 0.02 seconds\""
-  ],
-  "reason": "5 lines skipped by parser"
- },
- {
-  "name": "arduino-03-analog-input",
-  "verdict": "content-bug",
-  "parseWarnings": 5,
-  "blocks": 1,
-  "scripts": 1,
-  "device": "arduino-uno",
-  "pins": 2,
-  "extensions": 0,
-  "commentOnly": false,
-  "warnings": [
-   "Line 10: Skipping line with unexpected indentation: \"set sensorValue to read pot\"",
-   "Line 11: Skipping line with unexpected indentation: \"turn on led\"",
-   "Line 12: Skipping line with unexpected indentation: \"wait (sensorValue / 1000) seconds\"",
-   "Line 13: Skipping line with unexpected indentation: \"turn off led\"",
-   "Line 14: Skipping line with unexpected indentation: \"wait (sensorValue / 1000) seconds\""
-  ],
-  "reason": "5 lines skipped by parser"
- },
- {
-  "name": "arduino-03-analog-write-mega",
-  "verdict": "content-bug",
-  "parseWarnings": 8,
-  "blocks": 1,
-  "scripts": 1,
-  "device": "arduino-mega",
-  "pins": 3,
-  "extensions": 0,
-  "commentOnly": false,
-  "warnings": [
-   "Line 11: Skipping line with unexpected indentation: \"repeat 51:\"",
-   "Line 12: Skipping line with unexpected indentation: \"set pwm led2 to (brightness * 5)\"",
-   "Line 13: Skipping line with unexpected indentation: \"change brightness by 1\"",
-   "Line 14: Skipping line with unexpected indentation: \"wait 0.03 seconds\"",
-   "Line 15: Skipping line with unexpected indentation: \"repeat 51:\""
-  ],
-  "reason": "8 lines skipped by parser"
- },
- {
-  "name": "arduino-03-calibration",
-  "verdict": "content-bug",
-  "parseWarnings": 14,
-  "blocks": 5,
+  "verdict": "visual-pass",
+  "parseWarnings": 0,
+  "blocks": 11,
   "scripts": 1,
   "device": "arduino-uno",
   "pins": 3,
   "extensions": 1,
-  "commentOnly": false,
-  "warnings": [
-   "Line 15: Skipping line with unexpected indentation: \"set sensorValue to read sensor\"",
-   "Line 16: Skipping line with unexpected indentation: \"if sensorValue > sensorMax then:\"",
-   "Line 17: Skipping line with unexpected indentation: \"set sensorMax to sensorValue\"",
-   "Line 18: Skipping line with unexpected indentation: \"if sensorValue < sensorMin then:\"",
-   "Line 19: Skipping line with unexpected indentation: \"set sensorMin to sensorValue\""
-  ],
-  "reason": "14 lines skipped by parser"
+  "commentOnly": false
+ },
+ {
+  "name": "arduino-02-tone-pitch-follower",
+  "verdict": "visual-pass",
+  "parseWarnings": 0,
+  "blocks": 12,
+  "scripts": 1,
+  "device": "arduino-uno",
+  "pins": 2,
+  "extensions": 1,
+  "commentOnly": false
+ },
+ {
+  "name": "arduino-03-analog-in-out-serial",
+  "verdict": "visual-pass",
+  "parseWarnings": 0,
+  "blocks": 10,
+  "scripts": 1,
+  "device": "arduino-uno",
+  "pins": 2,
+  "extensions": 1,
+  "commentOnly": false
+ },
+ {
+  "name": "arduino-03-analog-input",
+  "verdict": "visual-pass",
+  "parseWarnings": 0,
+  "blocks": 10,
+  "scripts": 1,
+  "device": "arduino-uno",
+  "pins": 2,
+  "extensions": 1,
+  "commentOnly": false
+ },
+ {
+  "name": "arduino-03-analog-write-mega",
+  "verdict": "visual-pass",
+  "parseWarnings": 0,
+  "blocks": 12,
+  "scripts": 1,
+  "device": "arduino-mega",
+  "pins": 3,
+  "extensions": 0,
+  "commentOnly": false
+ },
+ {
+  "name": "arduino-03-calibration",
+  "verdict": "visual-pass",
+  "parseWarnings": 0,
+  "blocks": 31,
+  "scripts": 1,
+  "device": "arduino-uno",
+  "pins": 3,
+  "extensions": 1,
+  "commentOnly": false
  },
  {
   "name": "arduino-03-fading",
-  "verdict": "content-bug",
-  "parseWarnings": 10,
-  "blocks": 1,
+  "verdict": "visual-pass",
+  "parseWarnings": 0,
+  "blocks": 12,
   "scripts": 1,
   "device": "arduino-uno",
   "pins": 1,
   "extensions": 0,
-  "commentOnly": false,
-  "warnings": [
-   "Line 9: Skipping line with unexpected indentation: \"set fadeValue to 0\"",
-   "Line 10: Skipping line with unexpected indentation: \"repeat 52:\"",
-   "Line 11: Skipping line with unexpected indentation: \"set pwm led to fadeValue\"",
-   "Line 12: Skipping line with unexpected indentation: \"change fadeValue by 5\"",
-   "Line 13: Skipping line with unexpected indentation: \"wait 0.03 seconds\""
-  ],
-  "reason": "10 lines skipped by parser"
+  "commentOnly": false
  },
  {
   "name": "arduino-03-smoothing",
-  "verdict": "content-bug",
-  "parseWarnings": 10,
-  "blocks": 5,
+  "verdict": "visual-pass",
+  "parseWarnings": 0,
+  "blocks": 28,
   "scripts": 1,
   "device": "arduino-uno",
   "pins": 1,
-  "extensions": 0,
-  "commentOnly": false,
-  "warnings": [
-   "Line 14: Skipping line with unexpected indentation: \"add 0 to readings\"",
-   "Line 16: Skipping line with unexpected indentation: \"set total to (total - (item (readIndex + 1) of ",
-   "Line 17: Skipping line with unexpected indentation: \"replace item (readIndex + 1) of readings with r",
-   "Line 18: Skipping line with unexpected indentation: \"set total to (total + (item (readIndex + 1) of ",
-   "Line 19: Skipping line with unexpected indentation: \"change readIndex by 1\""
-  ],
-  "reason": "10 lines skipped by parser"
+  "extensions": 1,
+  "commentOnly": false
  },
  {
   "name": "arduino-04-ascii-table",
@@ -980,82 +837,57 @@
  },
  {
   "name": "arduino-04-dimmer",
-  "verdict": "content-bug",
-  "parseWarnings": 3,
-  "blocks": 1,
+  "verdict": "visual-pass",
+  "parseWarnings": 0,
+  "blocks": 8,
   "scripts": 1,
   "device": "arduino-uno",
   "pins": 2,
-  "extensions": 0,
-  "commentOnly": false,
-  "warnings": [
-   "Line 11: Skipping line with unexpected indentation: \"set brightness to ((read pot * 255) / 1023)\"",
-   "Line 12: Skipping line with unexpected indentation: \"set pwm led to brightness\"",
-   "Line 13: Skipping line with unexpected indentation: \"wait 0.02 seconds\""
-  ],
-  "reason": "3 lines skipped by parser"
+  "extensions": 1,
+  "commentOnly": false
  },
  {
   "name": "arduino-04-read-ascii-string",
-  "verdict": "content-bug",
-  "parseWarnings": 4,
-  "blocks": 1,
+  "verdict": "visual-pass",
+  "parseWarnings": 0,
+  "blocks": 15,
   "scripts": 1,
   "device": "arduino-uno",
   "pins": 6,
-  "extensions": 0,
-  "commentOnly": false,
-  "warnings": [
-   "Line 15: Skipping line with unexpected indentation: \"set pwm ledR to ((read potR * 255) / 1023)\"",
-   "Line 16: Skipping line with unexpected indentation: \"set pwm ledG to ((read potG * 255) / 1023)\"",
-   "Line 17: Skipping line with unexpected indentation: \"set pwm ledB to ((read potB * 255) / 1023)\"",
-   "Line 18: Skipping line with unexpected indentation: \"wait 0.05 seconds\""
-  ],
-  "reason": "4 lines skipped by parser"
+  "extensions": 1,
+  "commentOnly": false
  },
  {
   "name": "arduino-04-serial-call-response",
-  "verdict": "content-bug",
-  "parseWarnings": 4,
-  "blocks": 1,
+  "verdict": "visual-pass",
+  "parseWarnings": 0,
+  "blocks": 9,
   "scripts": 1,
   "device": "arduino-uno",
   "pins": 3,
-  "extensions": 0,
-  "commentOnly": false,
-  "warnings": [
-   "Line 11: Skipping line with unexpected indentation: \"print read pot1\"",
-   "Line 12: Skipping line with unexpected indentation: \"print read pot2\"",
-   "Line 13: Skipping line with unexpected indentation: \"print read btn\"",
-   "Line 14: Skipping line with unexpected indentation: \"wait 0.1 seconds\""
-  ],
-  "reason": "4 lines skipped by parser"
+  "extensions": 1,
+  "commentOnly": false
  },
  {
   "name": "arduino-04-serial-passthrough",
-  "verdict": "content-bug",
-  "parseWarnings": 2,
-  "blocks": 1,
+  "verdict": "visual-pass",
+  "parseWarnings": 0,
+  "blocks": 5,
   "scripts": 1,
   "device": "arduino-uno",
   "pins": 1,
-  "extensions": 0,
-  "commentOnly": false,
-  "warnings": [
-   "Line 10: Skipping line with unexpected indentation: \"print read sensor\"",
-   "Line 11: Skipping line with unexpected indentation: \"wait 0.01 seconds\""
-  ],
-  "reason": "2 lines skipped by parser"
+  "extensions": 1,
+  "commentOnly": false
  },
  {
   "name": "arduino-05-arrays",
-  "verdict": "content-bug",
-  "parseWarnings": 15,
-  "blocks": 1,
+  "verdict": "visual-pass",
+  "parseWarnings": 7,
+  "blocks": 10,
   "scripts": 1,
   "device": "arduino-uno",
   "pins": 6,
-  "extensions": 0,
+  "extensions": 1,
   "commentOnly": false,
   "warnings": [
    "Line 13: Unknown command: \"LIST ledPins\"",
@@ -1063,179 +895,113 @@
    "Line 15: Unknown command: \"add D7 to ledPins\"",
    "Line 16: Unknown command: \"add D4 to ledPins\"",
    "Line 17: Unknown command: \"add D6 to ledPins\""
-  ],
-  "reason": "8 lines skipped by parser"
+  ]
  },
  {
   "name": "arduino-05-for-loop",
-  "verdict": "content-bug",
-  "parseWarnings": 36,
-  "blocks": 1,
+  "verdict": "visual-pass",
+  "parseWarnings": 0,
+  "blocks": 38,
   "scripts": 1,
   "device": "arduino-uno",
   "pins": 6,
-  "extensions": 0,
-  "commentOnly": false,
-  "warnings": [
-   "Line 15: Skipping line with unexpected indentation: \"turn on led2\"",
-   "Line 16: Skipping line with unexpected indentation: \"wait 0.1 seconds\"",
-   "Line 17: Skipping line with unexpected indentation: \"turn off led2\"",
-   "Line 18: Skipping line with unexpected indentation: \"turn on led3\"",
-   "Line 19: Skipping line with unexpected indentation: \"wait 0.1 seconds\""
-  ],
-  "reason": "36 lines skipped by parser"
+  "extensions": 1,
+  "commentOnly": false
  },
  {
   "name": "arduino-05-if-statement",
-  "verdict": "content-bug",
-  "parseWarnings": 7,
-  "blocks": 2,
+  "verdict": "visual-pass",
+  "parseWarnings": 0,
+  "blocks": 11,
   "scripts": 1,
   "device": "arduino-uno",
   "pins": 2,
-  "extensions": 0,
-  "commentOnly": false,
-  "warnings": [
-   "Line 11: Skipping line with unexpected indentation: \"set analogValue to read pot\"",
-   "Line 12: Skipping line with unexpected indentation: \"print analogValue\"",
-   "Line 13: Skipping line with unexpected indentation: \"if analogValue > threshold then:\"",
-   "Line 14: Skipping line with unexpected indentation: \"turn on led\"",
-   "Line 15: Skipping line with unexpected indentation: \"else:\""
-  ],
-  "reason": "7 lines skipped by parser"
+  "extensions": 1,
+  "commentOnly": false
  },
  {
   "name": "arduino-05-switch-case",
-  "verdict": "content-bug",
-  "parseWarnings": 11,
-  "blocks": 1,
+  "verdict": "visual-pass",
+  "parseWarnings": 0,
+  "blocks": 20,
   "scripts": 1,
   "device": "arduino-uno",
   "pins": 1,
-  "extensions": 0,
-  "commentOnly": false,
-  "warnings": [
-   "Line 9: Skipping line with unexpected indentation: \"set sensorReading to read ldr\"",
-   "Line 10: Skipping line with unexpected indentation: \"set range to ((sensorReading / 1024) * 3)\"",
-   "Line 11: Skipping line with unexpected indentation: \"if range = 0 then:\"",
-   "Line 12: Skipping line with unexpected indentation: \"print \"dark\"\"",
-   "Line 13: Skipping line with unexpected indentation: \"if range = 1 then:\""
-  ],
-  "reason": "11 lines skipped by parser"
+  "extensions": 1,
+  "commentOnly": false
  },
  {
   "name": "arduino-05-switch-case-2",
-  "verdict": "content-bug",
-  "parseWarnings": 15,
-  "blocks": 1,
+  "verdict": "visual-pass",
+  "parseWarnings": 0,
+  "blocks": 17,
   "scripts": 1,
   "device": "arduino-uno",
   "pins": 5,
-  "extensions": 0,
-  "commentOnly": false,
-  "warnings": [
-   "Line 14: Skipping line with unexpected indentation: \"turn on led2\"",
-   "Line 15: Skipping line with unexpected indentation: \"wait 0.5 seconds\"",
-   "Line 16: Skipping line with unexpected indentation: \"turn off led2\"",
-   "Line 17: Skipping line with unexpected indentation: \"turn on led3\"",
-   "Line 18: Skipping line with unexpected indentation: \"wait 0.5 seconds\""
-  ],
-  "reason": "15 lines skipped by parser"
+  "extensions": 1,
+  "commentOnly": false
  },
  {
   "name": "arduino-05-while-statement",
-  "verdict": "content-bug",
-  "parseWarnings": 13,
-  "blocks": 3,
+  "verdict": "visual-pass",
+  "parseWarnings": 0,
+  "blocks": 28,
   "scripts": 1,
   "device": "arduino-uno",
   "pins": 4,
-  "extensions": 0,
-  "commentOnly": false,
-  "warnings": [
-   "Line 15: Skipping line with unexpected indentation: \"repeat until not read btn:\"",
-   "Line 16: Skipping line with unexpected indentation: \"turn on statusLed\"",
-   "Line 17: Skipping line with unexpected indentation: \"set sensorValue to read ldr\"",
-   "Line 18: Skipping line with unexpected indentation: \"if sensorValue > sensorMax then:\"",
-   "Line 19: Skipping line with unexpected indentation: \"set sensorMax to sensorValue\""
-  ],
-  "reason": "13 lines skipped by parser"
+  "extensions": 1,
+  "commentOnly": false
  },
  {
   "name": "arduino-06-knock",
-  "verdict": "content-bug",
-  "parseWarnings": 10,
-  "blocks": 3,
+  "verdict": "visual-pass",
+  "parseWarnings": 0,
+  "blocks": 17,
   "scripts": 1,
   "device": "arduino-uno",
   "pins": 2,
-  "extensions": 0,
-  "commentOnly": false,
-  "warnings": [
-   "Line 12: Skipping line with unexpected indentation: \"set sensorReading to read piezo\"",
-   "Line 13: Skipping line with unexpected indentation: \"if sensorReading >= threshold then:\"",
-   "Line 14: Skipping line with unexpected indentation: \"if ledState = 0 then:\"",
-   "Line 15: Skipping line with unexpected indentation: \"set ledState to 1\"",
-   "Line 16: Skipping line with unexpected indentation: \"turn on led\""
-  ],
-  "reason": "10 lines skipped by parser"
+  "extensions": 1,
+  "commentOnly": false
  },
  {
   "name": "arduino-06-ping",
-  "verdict": "content-bug",
-  "parseWarnings": 7,
-  "blocks": 1,
+  "verdict": "visual-pass",
+  "parseWarnings": 0,
+  "blocks": 10,
   "scripts": 1,
   "device": "arduino-uno",
   "pins": 2,
-  "extensions": 0,
-  "commentOnly": false,
-  "warnings": [
-   "Line 12: Skipping line with unexpected indentation: \"turn off trig\"",
-   "Line 13: Skipping line with unexpected indentation: \"wait 0.000002 seconds\"",
-   "Line 14: Skipping line with unexpected indentation: \"turn on trig\"",
-   "Line 15: Skipping line with unexpected indentation: \"wait 0.00001 seconds\"",
-   "Line 16: Skipping line with unexpected indentation: \"turn off trig\""
-  ],
-  "reason": "7 lines skipped by parser"
+  "extensions": 1,
+  "commentOnly": false
  },
  {
   "name": "arduino-07-bar-graph",
-  "verdict": "content-bug",
-  "parseWarnings": 22,
-  "blocks": 1,
+  "verdict": "visual-pass",
+  "parseWarnings": 20,
+  "blocks": 7,
   "scripts": 1,
   "device": "arduino-uno",
   "pins": 11,
-  "extensions": 0,
+  "extensions": 1,
   "commentOnly": false,
   "warnings": [
-   "Line 19: Skipping line with unexpected indentation: \"set level to ((read pot * 10) / 1023)\"",
-   "Line 21: Skipping line with unexpected indentation: \"if level >= 1 then: turn on led2\"",
-   "Line 22: Skipping line with unexpected indentation: \"else: turn off led2\"",
-   "Line 23: Skipping line with unexpected indentation: \"if level >= 2 then: turn on led3\"",
-   "Line 24: Skipping line with unexpected indentation: \"else: turn off led3\""
-  ],
-  "reason": "22 lines skipped by parser"
+   "Line 21: Unknown command: \"if level >= 1 then: turn on led2\"",
+   "Line 22: Unknown command: \"else: turn off led2\"",
+   "Line 23: Unknown command: \"if level >= 2 then: turn on led3\"",
+   "Line 24: Unknown command: \"else: turn off led3\"",
+   "Line 25: Unknown command: \"if level >= 3 then: turn on led4\""
+  ]
  },
  {
   "name": "arduino-07-row-column-scanning",
-  "verdict": "content-bug",
-  "parseWarnings": 5,
-  "blocks": 1,
+  "verdict": "visual-pass",
+  "parseWarnings": 0,
+  "blocks": 13,
   "scripts": 1,
   "device": "arduino-uno",
   "pins": 2,
-  "extensions": 0,
-  "commentOnly": false,
-  "warnings": [
-   "Line 11: Skipping line with unexpected indentation: \"set x to ((read potX * 7) / 1023)\"",
-   "Line 12: Skipping line with unexpected indentation: \"set y to ((read potY * 7) / 1023)\"",
-   "Line 13: Skipping line with unexpected indentation: \"print x\"",
-   "Line 14: Skipping line with unexpected indentation: \"print y\"",
-   "Line 15: Skipping line with unexpected indentation: \"wait 0.1 seconds\""
-  ],
-  "reason": "5 lines skipped by parser"
+  "extensions": 1,
+  "commentOnly": false
  },
  {
   "name": "arduino-08-char-analysis",
@@ -1393,180 +1159,125 @@
  },
  {
   "name": "arduino-sk-p02-spaceship",
-  "verdict": "content-bug",
-  "parseWarnings": 12,
-  "blocks": 2,
+  "verdict": "visual-pass",
+  "parseWarnings": 0,
+  "blocks": 15,
   "scripts": 1,
   "device": "arduino-uno",
   "pins": 4,
   "extensions": 1,
-  "commentOnly": false,
-  "warnings": [
-   "Line 13: Skipping line with unexpected indentation: \"if read btn then:\"",
-   "Line 14: Skipping line with unexpected indentation: \"turn off greenLed\"",
-   "Line 15: Skipping line with unexpected indentation: \"turn on redLed1\"",
-   "Line 16: Skipping line with unexpected indentation: \"wait 0.25 seconds\"",
-   "Line 17: Skipping line with unexpected indentation: \"turn off redLed1\""
-  ],
-  "reason": "12 lines skipped by parser"
+  "commentOnly": false
  },
  {
   "name": "arduino-sk-p03-love-o-meter",
-  "verdict": "content-bug",
-  "parseWarnings": 21,
-  "blocks": 2,
+  "verdict": "visual-pass",
+  "parseWarnings": 0,
+  "blocks": 44,
   "scripts": 1,
   "device": "arduino-uno",
   "pins": 4,
-  "extensions": 0,
-  "commentOnly": false,
-  "warnings": [
-   "Line 13: Skipping line with unexpected indentation: \"set sensorVal to read sensor\"",
-   "Line 14: Skipping line with unexpected indentation: \"set voltage to (sensorVal * (5.0 / 1024))\"",
-   "Line 15: Skipping line with unexpected indentation: \"set temperature to ((voltage - 0.5) * 100)\"",
-   "Line 16: Skipping line with unexpected indentation: \"print temperature\"",
-   "Line 17: Skipping line with unexpected indentation: \"if temperature < baselineTemp then:\""
-  ],
-  "reason": "21 lines skipped by parser"
+  "extensions": 1,
+  "commentOnly": false
  },
  {
   "name": "arduino-sk-p04-color-mixing",
-  "verdict": "content-bug",
-  "parseWarnings": 4,
-  "blocks": 1,
+  "verdict": "visual-pass",
+  "parseWarnings": 0,
+  "blocks": 15,
   "scripts": 1,
   "device": "arduino-uno",
   "pins": 6,
-  "extensions": 0,
-  "commentOnly": false,
-  "warnings": [
-   "Line 14: Skipping line with unexpected indentation: \"set pwm ledR to ((read sensorR * 255) / 1023)\"",
-   "Line 15: Skipping line with unexpected indentation: \"set pwm ledG to ((read sensorG * 255) / 1023)\"",
-   "Line 16: Skipping line with unexpected indentation: \"set pwm ledB to ((read sensorB * 255) / 1023)\"",
-   "Line 17: Skipping line with unexpected indentation: \"wait 0.05 seconds\""
-  ],
-  "reason": "4 lines skipped by parser"
+  "extensions": 1,
+  "commentOnly": false
  },
  {
   "name": "arduino-sk-p05-servo-mood",
-  "verdict": "content-bug",
-  "parseWarnings": 3,
-  "blocks": 1,
+  "verdict": "visual-pass",
+  "parseWarnings": 0,
+  "blocks": 8,
   "scripts": 1,
   "device": "arduino-uno",
   "pins": 2,
-  "extensions": 0,
-  "commentOnly": false,
-  "warnings": [
-   "Line 10: Skipping line with unexpected indentation: \"set angle to ((read pot * 180) / 1023)\"",
-   "Line 11: Skipping line with unexpected indentation: \"set pwm servo to angle\"",
-   "Line 12: Skipping line with unexpected indentation: \"wait 0.05 seconds\""
-  ],
-  "reason": "3 lines skipped by parser"
+  "extensions": 1,
+  "commentOnly": false
  },
  {
   "name": "arduino-sk-p06-light-theremin",
-  "verdict": "content-bug",
-  "parseWarnings": 10,
-  "blocks": 3,
+  "verdict": "visual-pass",
+  "parseWarnings": 4,
+  "blocks": 18,
   "scripts": 1,
   "device": "arduino-uno",
   "pins": 2,
-  "extensions": 0,
+  "extensions": 1,
   "commentOnly": false,
   "warnings": [
-   "Line 13: Skipping line with unexpected indentation: \"set val to read ldr\"",
-   "Line 14: Skipping line with unexpected indentation: \"if val > sensorMax then: set sensorMax to val\"",
-   "Line 15: Skipping line with unexpected indentation: \"if val < sensorMin then: set sensorMin to val\"",
-   "Line 16: Skipping line with unexpected indentation: \"wait 0.05 seconds\"",
-   "Line 19: Skipping line with unexpected indentation: \"set val to read ldr\""
-  ],
-  "reason": "10 lines skipped by parser"
+   "Line 14: Unknown command: \"if val > sensorMax then: set sensorMax to val\"",
+   "Line 15: Unknown command: \"if val < sensorMin then: set sensorMin to val\"",
+   "Line 20: Unknown command: \"if val < sensorMin then: set val to sensorMin\"",
+   "Line 21: Unknown command: \"if val > sensorMax then: set val to sensorMax\""
+  ]
  },
  {
   "name": "arduino-sk-p07-keyboard",
-  "verdict": "content-bug",
-  "parseWarnings": 11,
-  "blocks": 1,
+  "verdict": "visual-pass",
+  "parseWarnings": 0,
+  "blocks": 28,
   "scripts": 1,
   "device": "arduino-uno",
   "pins": 5,
-  "extensions": 0,
-  "commentOnly": false,
-  "warnings": [
-   "Line 13: Skipping line with unexpected indentation: \"if read btn1 then:\"",
-   "Line 14: Skipping line with unexpected indentation: \"set tone speaker to 262\"",
-   "Line 15: Skipping line with unexpected indentation: \"if read btn2 then:\"",
-   "Line 16: Skipping line with unexpected indentation: \"set tone speaker to 294\"",
-   "Line 17: Skipping line with unexpected indentation: \"if read btn3 then:\""
-  ],
-  "reason": "11 lines skipped by parser"
+  "extensions": 1,
+  "commentOnly": false
  },
  {
   "name": "arduino-sk-p08-hourglass",
-  "verdict": "content-bug",
-  "parseWarnings": 17,
-  "blocks": 3,
+  "verdict": "visual-pass",
+  "parseWarnings": 6,
+  "blocks": 17,
   "scripts": 1,
   "device": "arduino-uno",
   "pins": 7,
-  "extensions": 0,
+  "extensions": 1,
   "commentOnly": false,
   "warnings": [
-   "Line 17: Skipping line with unexpected indentation: \"if currentLed >= 1 then: turn on led2\"",
-   "Line 18: Skipping line with unexpected indentation: \"if currentLed >= 2 then: turn on led3\"",
-   "Line 19: Skipping line with unexpected indentation: \"if currentLed >= 3 then: turn on led4\"",
-   "Line 20: Skipping line with unexpected indentation: \"if currentLed >= 4 then: turn on led5\"",
-   "Line 21: Skipping line with unexpected indentation: \"if currentLed >= 5 then: turn on led6\""
-  ],
-  "reason": "17 lines skipped by parser"
+   "Line 17: Unknown command: \"if currentLed >= 1 then: turn on led2\"",
+   "Line 18: Unknown command: \"if currentLed >= 2 then: turn on led3\"",
+   "Line 19: Unknown command: \"if currentLed >= 3 then: turn on led4\"",
+   "Line 20: Unknown command: \"if currentLed >= 4 then: turn on led5\"",
+   "Line 21: Unknown command: \"if currentLed >= 5 then: turn on led6\""
+  ]
  },
  {
   "name": "arduino-sk-p09-motorized-pinwheel",
-  "verdict": "content-bug",
-  "parseWarnings": 4,
-  "blocks": 1,
+  "verdict": "visual-pass",
+  "parseWarnings": 0,
+  "blocks": 6,
   "scripts": 1,
   "device": "arduino-uno",
   "pins": 2,
-  "extensions": 0,
-  "commentOnly": false,
-  "warnings": [
-   "Line 10: Skipping line with unexpected indentation: \"if read btn then:\"",
-   "Line 11: Skipping line with unexpected indentation: \"turn on motor\"",
-   "Line 12: Skipping line with unexpected indentation: \"else:\"",
-   "Line 13: Skipping line with unexpected indentation: \"turn off motor\""
-  ],
-  "reason": "4 lines skipped by parser"
+  "extensions": 1,
+  "commentOnly": false
  },
  {
   "name": "arduino-sk-p10-zoetrope",
-  "verdict": "content-bug",
-  "parseWarnings": 14,
-  "blocks": 1,
+  "verdict": "visual-pass",
+  "parseWarnings": 0,
+  "blocks": 26,
   "scripts": 1,
   "device": "arduino-uno",
   "pins": 6,
-  "extensions": 0,
-  "commentOnly": false,
-  "warnings": [
-   "Line 14: Skipping line with unexpected indentation: \"set motorSpeed to ((read pot * 255) / 1023)\"",
-   "Line 15: Skipping line with unexpected indentation: \"if read btnFwd then:\"",
-   "Line 16: Skipping line with unexpected indentation: \"turn on motorDir1\"",
-   "Line 17: Skipping line with unexpected indentation: \"turn off motorDir2\"",
-   "Line 18: Skipping line with unexpected indentation: \"set pwm motorEnable to motorSpeed\""
-  ],
-  "reason": "14 lines skipped by parser"
+  "extensions": 1,
+  "commentOnly": false
  },
  {
   "name": "arduino-sk-p11-crystal-ball",
-  "verdict": "content-bug",
-  "parseWarnings": 14,
-  "blocks": 1,
+  "verdict": "visual-pass",
+  "parseWarnings": 9,
+  "blocks": 8,
   "scripts": 1,
   "device": "arduino-uno",
   "pins": 1,
-  "extensions": 0,
+  "extensions": 1,
   "commentOnly": false,
   "warnings": [
    "Line 9: Unknown command: \"LIST answers\"",
@@ -1574,80 +1285,51 @@
    "Line 11: Unknown command: \"add \"Most likely\" to answers\"",
    "Line 12: Unknown command: \"add \"Certainly\" to answers\"",
    "Line 13: Unknown command: \"add \"Signs point to yes\" to answers\""
-  ],
-  "reason": "5 lines skipped by parser"
+  ]
  },
  {
   "name": "arduino-sk-p12-knock-lock",
-  "verdict": "content-bug",
-  "parseWarnings": 21,
-  "blocks": 6,
+  "verdict": "visual-pass",
+  "parseWarnings": 0,
+  "blocks": 34,
   "scripts": 1,
   "device": "arduino-uno",
   "pins": 6,
   "extensions": 1,
-  "commentOnly": false,
-  "warnings": [
-   "Line 19: Skipping line with unexpected indentation: \"if locked = 1 then:\"",
-   "Line 20: Skipping line with unexpected indentation: \"set sensorVal to read piezo\"",
-   "Line 21: Skipping line with unexpected indentation: \"if sensorVal >= threshold then:\"",
-   "Line 22: Skipping line with unexpected indentation: \"change knockCount by 1\"",
-   "Line 23: Skipping line with unexpected indentation: \"turn on ledY\""
-  ],
-  "reason": "21 lines skipped by parser"
+  "commentOnly": false
  },
  {
   "name": "arduino-sk-p13-touch-lamp",
-  "verdict": "content-bug",
-  "parseWarnings": 10,
-  "blocks": 3,
+  "verdict": "visual-pass",
+  "parseWarnings": 0,
+  "blocks": 18,
   "scripts": 1,
   "device": "arduino-uno",
   "pins": 2,
-  "extensions": 0,
-  "commentOnly": false,
-  "warnings": [
-   "Line 13: Skipping line with unexpected indentation: \"set touchVal to read touch\"",
-   "Line 14: Skipping line with unexpected indentation: \"if touchVal = 1 and lastTouch = 0 then:\"",
-   "Line 15: Skipping line with unexpected indentation: \"if ledState = 0 then:\"",
-   "Line 16: Skipping line with unexpected indentation: \"set ledState to 1\"",
-   "Line 17: Skipping line with unexpected indentation: \"turn on led\""
-  ],
-  "reason": "10 lines skipped by parser"
+  "extensions": 1,
+  "commentOnly": false
  },
  {
   "name": "arduino-sk-p14-serial-pot",
-  "verdict": "content-bug",
-  "parseWarnings": 2,
-  "blocks": 1,
+  "verdict": "visual-pass",
+  "parseWarnings": 0,
+  "blocks": 5,
   "scripts": 1,
   "device": "arduino-uno",
   "pins": 1,
-  "extensions": 0,
-  "commentOnly": false,
-  "warnings": [
-   "Line 10: Skipping line with unexpected indentation: \"print read pot\"",
-   "Line 11: Skipping line with unexpected indentation: \"wait 0.01 seconds\""
-  ],
-  "reason": "2 lines skipped by parser"
+  "extensions": 1,
+  "commentOnly": false
  },
  {
   "name": "arduino-sk-p15-hacking-buttons",
-  "verdict": "content-bug",
-  "parseWarnings": 4,
-  "blocks": 1,
+  "verdict": "visual-pass",
+  "parseWarnings": 0,
+  "blocks": 6,
   "scripts": 1,
   "device": "arduino-uno",
   "pins": 1,
-  "extensions": 0,
-  "commentOnly": false,
-  "warnings": [
-   "Line 9: Skipping line with unexpected indentation: \"turn on opto\"",
-   "Line 10: Skipping line with unexpected indentation: \"wait 0.5 seconds\"",
-   "Line 11: Skipping line with unexpected indentation: \"turn off opto\"",
-   "Line 12: Skipping line with unexpected indentation: \"wait 0.5 seconds\""
-  ],
-  "reason": "4 lines skipped by parser"
+  "extensions": 1,
+  "commentOnly": false
  },
  {
   "name": "avr01-blink",
