@@ -394,3 +394,75 @@ difficulty 3. **No content change.**
 (high resistance, dark condition), reference → inn = 2.50 V. inp < inn →
 op-amp output low → LED dark. Correct for dark state. Category `pure-circuit`,
 difficulty 3. **No content change.**
+
+---
+
+# Band 2 — MCU examples (01–36)
+
+All 36 numbered MCU examples parse warning-free through `SB3Creator.parse()`.
+Each circuit also solves on the bw-board engine at t=1 ms with no errors.
+**Coverage: `layers: engine`.** The program half is parse-only; no execution
+or trace verification is done here (that is `test/exec.test.mjs`'s job).
+
+## 01-blink — VERDICT: pass
+
+**layers: engine.** Program parses clean (DEVICE stc12c5a60s2, PIN led1 P1.0
+OUTPUT). Circuit: VCC → R → LED → MCU pin. Category `basics`, difficulty 1.
+
+## 02-dimmer — VERDICT: pass
+
+**layers: engine.** Program parses clean. Circuit: pot wiper → MCU ADC pin,
+VCC → R → LED → MCU output pin. Category `analog`, difficulty 2.
+
+## 03-night-light — VERDICT: pass
+
+**layers: engine.** LDR divider → MCU ADC pin (1.67 V), VCC → R → LED → MCU
+output pin. Category `analog`, difficulty 2.
+
+## 04-thermostat — VERDICT: pass
+
+**layers: engine.** NTC divider → MCU ADC pin (2.50 V), VCC → R → heater LED
+→ MCU output pin. Category `analog`, difficulty 3.
+
+## 05-counter-7seg — VERDICT: pass
+
+**layers: engine.** Button with pull-down → MCU interrupt pin (P3.2), VCC → R
+→ LED → MCU output pin. Category `basics`, difficulty 2.
+
+## 06-active-low-high — VERDICT: pass
+
+**layers: engine.** Two LEDs: one active-low (VCC → R → LED → MCU), one
+active-high (MCU → R → LED → GND). Both at 0V (MCU pins default low).
+Category `basics`, difficulty 2.
+
+## 07-buzzer-siren — VERDICT: pass
+
+**layers: engine.** Buzzer between VCC and MCU pin. Category `basics`,
+difficulty 2.
+
+## 08-led-chaser-595 — VERDICT: pass
+
+**layers: engine.** 74HC595 shift register: data/clock/latch from MCU, 8
+outputs → 8 resistors → 8 LEDs → GND. All dark at t=0. Category `digital`,
+difficulty 3.
+
+## 09-relay-clicker — VERDICT: pass
+
+**layers: engine.** NPN driving relay coil with flyback diode. MCU → base
+resistor → NPN base. Status LED on separate MCU pin. Transistor off at t=0
+(base 0 V). Category `motors`, difficulty 2.
+
+## 10-motor-speed — VERDICT: pass
+
+**layers: engine.** TIP120 driving DC motor with flyback diode. Pot wiper →
+MCU ADC. NPN off at t=0. Category `motors`, difficulty 3.
+
+## 11-toggle-button — VERDICT: pass
+
+**layers: engine.** Button with pull-up → MCU interrupt pin, VCC → R → LED →
+MCU output pin. Button open: pin at 5 V. Category `basics`, difficulty 2.
+
+## 12-dual-blink — VERDICT: pass
+
+**layers: engine.** Two LEDs on separate MCU pins, both with series resistors.
+Category `basics`, difficulty 2.
