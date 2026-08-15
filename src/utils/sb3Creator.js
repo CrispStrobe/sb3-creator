@@ -3001,7 +3001,7 @@ class SB3Creator {
                     const ownComment = this._pendingComment;
                     this._pendingComment = '';
 
-                    if (trimmed.startsWith('FOREVER')) {
+                    if (trimmed.toUpperCase().startsWith('FOREVER')) {
                         newBlockData = {
                             block: this.createBlock('control_forever').block,
                             extraBlocks: {}
@@ -3016,7 +3016,7 @@ class SB3Creator {
                         context.parentId = id;
                         block[id].inputs.CONDITION = [2, this.parseCondition(m[1], context)];
                         newBlockData = { block, extraBlocks: context.extraBlocks };
-                    } else if (trimmed.startsWith('REPEAT')) {
+                    } else if (trimmed.toUpperCase().startsWith('REPEAT')) {
                         const m = trimmed.match(/REPEAT\s+(.+?):/i);
                         if (!m) {
                             this.warn(i, `Malformed REPEAT (expected "REPEAT <count>:"): "${trimmed}"`);
@@ -3026,7 +3026,7 @@ class SB3Creator {
                         context.parentId = id;
                         block[id].inputs.TIMES = this.parseValue(m[1], context);
                         newBlockData = { block, extraBlocks: context.extraBlocks };
-                    } else if (trimmed.startsWith('IF')) {
+                    } else if (trimmed.toUpperCase().startsWith('IF')) {
                         const m = trimmed.match(/IF\s+(.+?)\s+THEN:/i);
                         if (!m) {
                             this.warn(i, `Malformed IF (expected "IF <condition> THEN:"): "${trimmed}"`);
@@ -3037,7 +3037,7 @@ class SB3Creator {
                         const condId = this.parseCondition(m[1], context);
                         block[id].inputs.CONDITION = [2, condId];
                         newBlockData = { block, extraBlocks: context.extraBlocks };
-                    } else if (trimmed.startsWith('ELSE')) {
+                    } else if (trimmed.toUpperCase().startsWith('ELSE')) {
                         // Find the parent IF block to convert to IF_ELSE
                         this._pendingComment = ownComment;
                         if (lastBlockId && allBlocks[lastBlockId] && allBlocks[lastBlockId].opcode === 'control_if') {
@@ -3159,8 +3159,8 @@ class SB3Creator {
                 i++; continue;
             }
 
-            if (trimmed.startsWith('SPRITE') || trimmed.startsWith('STAGE')) {
-                if (trimmed.startsWith('SPRITE')) {
+            if (trimmed.toUpperCase().startsWith('SPRITE') || trimmed.toUpperCase().startsWith('STAGE')) {
+                if (trimmed.toUpperCase().startsWith('SPRITE')) {
                     const m = trimmed.match(/SPRITE\s+(.+?):/i);
                     if (!m) {
                         this.warn(i, `Malformed SPRITE header (expected "SPRITE <name>:"): "${trimmed}"`);
@@ -3176,7 +3176,7 @@ class SB3Creator {
                     currentTarget = stage;
                 }
                 i++;
-            } else if (trimmed.startsWith('WHEN')) {
+            } else if (trimmed.toUpperCase().startsWith('WHEN')) {
                 try {
                     const eventData = this.parseCommand(trimmed, currentTarget);
                     const eventId = Object.keys(eventData.block)[0];
@@ -3205,7 +3205,7 @@ class SB3Creator {
                         throw error;
                     }
                 }
-            } else if (trimmed.startsWith('DEFINE')) {
+            } else if (trimmed.toUpperCase().startsWith('DEFINE')) {
                 try {
                     const defData = this.parseDefine(trimmed, currentTarget);
                     const defId = Object.keys(defData.block)[0];
