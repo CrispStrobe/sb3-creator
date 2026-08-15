@@ -466,3 +466,124 @@ MCU output pin. Button open: pin at 5 V. Category `basics`, difficulty 2.
 
 **layers: engine.** Two LEDs on separate MCU pins, both with series resistors.
 Category `basics`, difficulty 2.
+
+## 13-sos-morse — VERDICT: pass
+
+**layers: engine.** SOS morse pattern on LED. Category `basics`, difficulty 3.
+
+## 14-traffic-light — VERDICT: pass
+
+**layers: engine.** Three LEDs (red/yellow/green) sequenced. Category `basics`,
+difficulty 3.
+
+## 15-voltage-divider — VERDICT: pass
+
+**layers: engine.** Two-resistor divider read by MCU ADC. Category `analog`,
+difficulty 1.
+
+## 168p01-blink — VERDICT: pass
+
+**layers: engine.** ATmega168P variant of 01-blink. Category `basics`,
+difficulty 1.
+
+## 16-ldr-bargraph — VERDICT: pass
+
+**layers: engine.** LDR reading displayed on 4-LED bar graph. Category
+`analog`, difficulty 3.
+
+## 17-comparator — VERDICT: pass
+
+**layers: engine.** Two pots compared, LED shows which is higher. Category
+`analog`, difficulty 3.
+
+## 18-logic-and-gate — VERDICT: pass
+
+**layers: engine.** Two buttons implementing AND logic via software. Category
+`digital`, difficulty 2.
+
+## 19-logic-or-gate — VERDICT: pass
+
+**layers: engine.** Two buttons implementing OR logic via software. Category
+`digital`, difficulty 2.
+
+## 20-shift-register-binary — VERDICT: pass
+
+**layers: engine.** 74HC595 displaying binary count. 8 LEDs, 20 nets, all
+connected. Category `digital`, difficulty 3.
+
+## 21-resistor-led — VERDICT: pass
+
+**layers: engine.** Pure circuit (no MCU program). VCC → R → LED → GND.
+Category `pure-circuit`, difficulty 1.
+
+## 22-series-parallel — VERDICT: pass
+
+**layers: engine.** Pure circuit. Series vs parallel resistor paths. Category
+`pure-circuit`, difficulty 2.
+
+## 23-voltage-regulator — VERDICT: pass
+
+**layers: engine.** Pure circuit. Zener regulator. Category `pure-circuit`,
+difficulty 2.
+
+## 24-pwm-fade — VERDICT: pass
+
+**layers: engine.** Software PWM fading LED. Category `basics`, difficulty 3.
+
+## 25-reaction-timer — VERDICT: pass
+
+**layers: engine.** Button + LED reaction timer. Category `basics`, difficulty 3.
+
+## 26-debounce — VERDICT: pass
+
+**layers: engine.** Button debounce demonstration. Category `basics`,
+difficulty 2.
+
+## 27-led-dice — VERDICT: pass
+
+**layers: engine.** Random LED pattern (dice). Category `basics`, difficulty 2.
+
+## 28-diode-polarity — VERDICT: pass
+
+**layers: engine.** Forward/reverse diode demonstration with MCU. Category
+`basics`, difficulty 2.
+
+## 29-capacitor-charge — VERDICT: pass
+
+**layers: engine.** RC charge observed by MCU ADC. Category `analog`,
+difficulty 2.
+
+## 30-multi-led-pattern — VERDICT: pass
+
+**layers: engine.** Multiple LEDs in programmable patterns. Category `basics`,
+difficulty 3.
+
+## 31-no-resistor-led — VERDICT: pass
+
+**layers: engine.** Intentional overcurrent demonstration. DRC correctly warns:
+LED at 300 mA (exceeds 20 mA), total I/O current 313 mA (exceeds 120 mA chip
+limit). The warnings ARE the lesson. Category `pure-circuit`, difficulty 1.
+
+## 32-source-vs-sink — VERDICT: pass
+
+**layers: engine.** Source vs sink current LED wiring comparison. Category
+`basics`, difficulty 2.
+
+## 33-inductive-no-flyback — VERDICT: content-fix (pilot audit)
+
+**layers: engine.** Already audited in the pilot (`examples/AUDIT.md`).
+Inductance added, phenomenon now observable. Intro already exists.
+
+## 34-ohms-law — VERDICT: pass
+
+**layers: engine.** Ohm's law demonstration. VCC → R → LED. Category `basics`,
+difficulty 1.
+
+## 35-series-resistors — VERDICT: pass
+
+**layers: engine.** Series resistors with LED. Category `basics`, difficulty 1.
+
+## 36-parallel-leds — VERDICT: app-bug (pilot audit)
+
+**layers: engine.** Already audited in the pilot (`examples/AUDIT.md`). Engine
+solves correctly; app-side loader bug filed. Intro already exists.
