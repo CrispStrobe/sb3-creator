@@ -3034,5 +3034,239 @@
       "arduino-uno",
       "arduino-nano"
     ]
+  },
+  {
+    "id": "arduino-08-char-analysis",
+    "title": {
+      "en": "char analysis (CC0)",
+      "de": "char analysis (CC0)"
+    },
+    "category": "basics",
+    "difficulty": 1,
+    "files": {
+      "program": "arduino-08-char-analysis/program.bw",
+      "circuit": "arduino-08-char-analysis/circuit.json"
+    },
+    "kind": "full",
+    "devices": [
+      "arduino-uno",
+      "arduino-nano"
+    ]
+  },
+  {
+    "id": "arduino-08-string-append",
+    "title": {
+      "en": "string append (CC0)",
+      "de": "string append (CC0)"
+    },
+    "category": "basics",
+    "difficulty": 1,
+    "files": {
+      "program": "arduino-08-string-append/program.bw",
+      "circuit": "arduino-08-string-append/circuit.json"
+    },
+    "kind": "full",
+    "devices": [
+      "arduino-uno",
+      "arduino-nano"
+    ]
+  },
+  {
+    "id": "arduino-08-string-case",
+    "title": {
+      "en": "string case (CC0)",
+      "de": "string case (CC0)"
+    },
+    "category": "basics",
+    "difficulty": 1,
+    "files": {
+      "program": "arduino-08-string-case/program.bw",
+      "circuit": "arduino-08-string-case/circuit.json"
+    },
+    "kind": "full",
+    "devices": [
+      "arduino-uno",
+      "arduino-nano"
+    ]
+  },
+  {
+    "id": "arduino-08-string-chars",
+    "title": {
+      "en": "string chars (CC0)",
+      "de": "string chars (CC0)"
+    },
+    "category": "basics",
+    "difficulty": 1,
+    "files": {
+      "program": "arduino-08-string-chars/program.bw",
+      "circuit": "arduino-08-string-chars/circuit.json"
+    },
+    "kind": "full",
+    "devices": [
+      "arduino-uno",
+      "arduino-nano"
+    ]
+  },
+  {
+    "id": "arduino-08-string-compare",
+    "title": {
+      "en": "string compare (CC0)",
+      "de": "string compare (CC0)"
+    },
+    "category": "basics",
+    "difficulty": 1,
+    "files": {
+      "program": "arduino-08-string-compare/program.bw",
+      "circuit": "arduino-08-string-compare/circuit.json"
+    },
+    "kind": "full",
+    "devices": [
+      "arduino-uno",
+      "arduino-nano"
+    ]
+  },
+  {
+    "id": "arduino-08-string-constructors",
+    "title": {
+      "en": "string constructors (CC0)",
+      "de": "string constructors (CC0)"
+    },
+    "category": "basics",
+    "difficulty": 1,
+    "files": {
+      "program": "arduino-08-string-constructors/program.bw",
+      "circuit": "arduino-08-string-constructors/circuit.json"
+    },
+    "kind": "full",
+    "devices": [
+      "arduino-uno",
+      "arduino-nano"
+    ]
+  },
+  {
+    "id": "arduino-08-string-indexof",
+    "title": {
+      "en": "string indexof (CC0)",
+      "de": "string indexof (CC0)"
+    },
+    "category": "basics",
+    "difficulty": 1,
+    "files": {
+      "program": "arduino-08-string-indexof/program.bw",
+      "circuit": "arduino-08-string-indexof/circuit.json"
+    },
+    "kind": "full",
+    "devices": [
+      "arduino-uno",
+      "arduino-nano"
+    ]
+  },
+  {
+    "id": "arduino-08-string-length",
+    "title": {
+      "en": "string length (CC0)",
+      "de": "string length (CC0)"
+    },
+    "category": "basics",
+    "difficulty": 1,
+    "files": {
+      "program": "arduino-08-string-length/program.bw",
+      "circuit": "arduino-08-string-length/circuit.json"
+    },
+    "kind": "full",
+    "devices": [
+      "arduino-uno",
+      "arduino-nano"
+    ]
+  },
+  {
+    "id": "arduino-08-string-length-trim",
+    "title": {
+      "en": "string length trim (CC0)",
+      "de": "string length trim (CC0)"
+    },
+    "category": "basics",
+    "difficulty": 1,
+    "files": {
+      "program": "arduino-08-string-length-trim/program.bw",
+      "circuit": "arduino-08-string-length-trim/circuit.json"
+    },
+    "kind": "full",
+    "devices": [
+      "arduino-uno",
+      "arduino-nano"
+    ]
+  },
+  {
+    "id": "arduino-08-string-replace",
+    "title": {
+      "en": "string replace (CC0)",
+      "de": "string replace (CC0)"
+    },
+    "category": "basics",
+    "difficulty": 1,
+    "files": {
+      "program": "arduino-08-string-replace/program.bw",
+      "circuit": "arduino-08-string-replace/circuit.json"
+    },
+    "kind": "full",
+    "devices": [
+      "arduino-uno",
+      "arduino-nano"
+    ]
+  },
+  {
+    "id": "arduino-08-string-startswith",
+    "title": {
+      "en": "string startswith (CC0)",
+      "de": "string startswith (CC0)"
+    },
+    "category": "basics",
+    "difficulty": 1,
+    "files": {
+      "program": "arduino-08-string-startswith/program.bw",
+      "circuit": "arduino-08-string-startswith/circuit.json"
+    },
+    "kind": "full",
+    "devices": [
+      "arduino-uno",
+      "arduino-nano"
+    ]
+  },
+  {
+    "id": "arduino-08-string-substring",
+    "title": {
+      "en": "string substring (CC0)",
+      "de": "string substring (CC0)"
+    },
+    "category": "basics",
+    "difficulty": 1,
+    "files": {
+      "program": "arduino-08-string-substring/program.bw",
+      "circuit": "arduino-08-string-substring/circuit.json"
+    },
+    "kind": "full",
+    "devices": [
+      "arduino-uno",
+      "arduino-nano"
+    ]
+  },
+  {
+    "id": "arduino-08-string-toint",
+    "title": {
+      "en": "string toint (CC0)",
+      "de": "string toint (CC0)"
+    },
+    "category": "basics",
+    "difficulty": 1,
+    "files": {
+      "program": "arduino-08-string-toint/program.bw",
+      "circuit": "arduino-08-string-toint/circuit.json"
+    },
+    "kind": "full",
+    "devices": [
+      "arduino-uno",
+      "arduino-nano"
+    ]
   }
 ]

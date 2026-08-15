@@ -1,0 +1,10 @@
+# Ported from arduino-examples/examples/08.Strings/StringConstructors/StringConstructors.ino, CC0
+DEVICE ARDUINO-UNO
+CLOCK 16000000
+
+SPRITE Cat:
+  WHEN flag clicked:
+    print "String operations demo"
+    set testStr to "Hello, World!"
+    print testStr
+    print length of testStr
