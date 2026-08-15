@@ -15,7 +15,7 @@ and has intro.md + intro.de.md (Layer 3).
 | AVR (Uno) | avr01–avr06 | 6 | 5 | 1 | 0 | 0 | 0 |
 | Arduino CC0 | arduino-01–sk | 63 | 62 | 0 | 0 | 0 | 1 |
 | retro benches | eater/z80 | 4 | 0 | 0 | 0 | 0 | 4 |
-| **total** | | **202** | **179** | **10** | **4** | **1** | **6** |
+| **total** | | **203** | **179** | **10** | **4** | **1** | **7** |
 
 ### Content fixes applied (8)
 - pc02: resistor_4 unseated (floating)
@@ -1113,6 +1113,10 @@ terminals) — harness cannot solve. Program parses with warnings.
 ## eater6502-blink — VERDICT: pass (0 parse warnings)
 **layers: engine.** eater6502 blink with VCC/GND wired. PA0→R→LED→GND. 4 nets.
 Parses clean, solves clean.
+
+## eater6502-full-build — VERDICT: app-level (cannot engine-solve)
+**layers: none.** Full eater6502 build. Retro CPU parts not modeled by engine.
+Program parses clean (0 warnings).
 
 ## blinkenrocket-pendant — VERDICT: app-level (attiny88 kind)
 **layers: none.** Uses `attiny88` MCU not in engine registry. 8x8 LED matrix.
