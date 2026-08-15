@@ -319,7 +319,10 @@ class ExprParser {
         let n = 0;
         const types = new Set(['unsigned', 'signed', 'int', 'char', 'long', 'short', 'void', 'float', 'double',
             'uint8_t', 'uint16_t', 'uint32_t', 'int8_t', 'int16_t', 'int32_t', 'size_t',
-            'uchar', 'BYTE', 'WORD', 'DWORD', 'BOOL', 'bool']);
+            'uchar', 'uint', 'ulong', 'ushort',
+            'uint8', 'uint16', 'uint32', 'int8', 'int16', 'int32',
+            'u8', 'u16', 'u32', 's8', 's16', 's32',
+            'BYTE', 'WORD', 'DWORD', 'BOOL', 'bool', 'UINT', 'UCHAR', 'ULONG']);
         while (this.c.peek(n).t === 'id' && types.has(this.c.peek(n).v)) n++;
         if (n === 0) return false;
         // Allow trailing `*` for pointer casts.
