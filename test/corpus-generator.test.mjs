@@ -221,10 +221,23 @@ function generateBlock(rand, pick, randInt, outputs, analogs, inputs, pwms, vars
             } else {
                 stmts.push(`delete 1 of ${ln}`);
             }
-        } else if (r < 0.38 && pwms.length > 0) {
+        } else if (r < 0.38 && vars.length > 0) {
+            // String / math ops on variables
+            const v = pick(vars);
+            const op = rand();
+            if (op < 0.25) {
+                stmts.push(`print length of ${v}`);
+            } else if (op < 0.5) {
+                stmts.push(`print letter 1 of ${v}`);
+            } else if (op < 0.75) {
+                stmts.push(`print ${pick(['abs', 'floor', 'sqrt'])} of ${v}`);
+            } else {
+                stmts.push(`print pick random 1 to ${randInt(5, 100)}`);
+            }
+        } else if (r < 0.40 && pwms.length > 0) {
             // PWM duty cycle
             stmts.push(`set ${pick(pwms)} to ${randInt(0, 100)} percent`);
-        } else if (r < 0.42 && analogs.length > 0) {
+        } else if (r < 0.44 && analogs.length > 0) {
             // Print analog read
             stmts.push(`print read ${pick(analogs)}`);
         } else if (r < 0.45 && vars.length > 0) {
@@ -326,8 +339,15 @@ describe('corpus generator: parse + referee', () => {
             const adc = ADC_CFG[device];
             const stim = [];
             for (const p of c.project.stc.pins || []) {
-                if (p.direction === 'analog') stim.push({ tMs: 0, pin: p.name, volts: adc.vref / 2 });
-                if (p.direction === 'input') stim.push({ tMs: 0, pin: p.name, level: 0 });
+                if (p.direction === 'analog') {
+                    // Time-varying stimulus: start at vref/2, change at 1s
+                    stim.push({ tMs: 0, pin: p.name, volts: adc.vref / 2 });
+                    stim.push({ tMs: 1000, pin: p.name, volts: adc.vref * 0.8 });
+                }
+                if (p.direction === 'input') {
+                    stim.push({ tMs: 0, pin: p.name, level: 0 });
+                    stim.push({ tMs: 1500, pin: p.name, level: 1 });
+                }
             }
             const trace = interpretTrace(c.project, {
                 horizonMs: 3000, adc, stimulus: stim,
