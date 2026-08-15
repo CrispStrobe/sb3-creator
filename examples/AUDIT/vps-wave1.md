@@ -368,3 +368,29 @@ resistor with bleeder in parallel: Vc = 0.47 V at 100 ms, 3.03 V at 1 s,
 LED branches at ~0 V, LEDs dark. EXPECTED.md notes that pressing both switches
 at once is a "wiring condition to inspect." Category `pure-circuit`,
 difficulty 2. **No content change.**
+
+## pc45-nand-test — VERDICT: pass
+
+**layers: engine.** Solved at t=1 ms (vcc 5 V). Both switches open (inputs
+low): NAND output high (4.86 V), LED lit at ~2.0 V. Correct NAND truth table
+row (0,0→1). Category `pure-circuit`, difficulty 2. **No content change.**
+
+## pc46-xor-selector — VERDICT: pass
+
+**layers: engine.** Solved at t=1 ms (vcc 5 V). Both switches open (inputs
+low): XOR output low (0 V), LED dark. Correct XOR truth table row (0,0→0).
+Category `pure-circuit`, difficulty 2. **No content change.**
+
+## pc47-555-monostable — VERDICT: pass
+
+**layers: engine.** Solved at t=1 ms (vcc 5 V). Trigger held high by pull-up,
+button not pressed: timer idle, output low, LED dark. Capacitor at 0.005 V
+(uncharged). Correct quiescent state for a monostable. Category `pure-circuit`,
+difficulty 3. **No content change.**
+
+## pc48-ldr-comparator — VERDICT: pass
+
+**layers: engine.** Solved at t=1 ms (vsource 5 V). LDR divider → inp = 0.05 V
+(high resistance, dark condition), reference → inn = 2.50 V. inp < inn →
+op-amp output low → LED dark. Correct for dark state. Category `pure-circuit`,
+difficulty 3. **No content change.**
