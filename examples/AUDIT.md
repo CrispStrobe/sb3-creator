@@ -155,4 +155,80 @@ with no edits.
 
 ## Protocol friction
 
-_(appended after the first two audits — see the end of this file)_
+Notes from the first run of the layer-2 checklist, while it is still cheap to
+change. Written as friction, not complaint: the protocol worked — it found a
+real teaching failure that had shipped — but these are the places it made the
+work harder or nearly let something through.
+
+**1. "IN THE RUNNING APP" was not achievable, and the verdicts are narrower
+than they look.** The checklist offers "Playwright or by driving the engine
+directly" as equivalent routes. They are not. Driving the engine cannot check
+the first item (*loads without console errors; canvas shows every part, no
+ghosts*) or the fourth (*instruments shown are the relevant ones*) — those are
+render properties, and I checked neither. This bites hardest on 36, where the
+entire reported defect is app-side: I concluded "app-bug" **by elimination**,
+having shown the engine is healthy, without ever observing the app. That is a
+sound inference but a weaker claim than the ledger format implies. Suggestion:
+make the verdict state which layer it covers (`content`, `engine`, `render`),
+so an unopened app is visible rather than assumed.
+
+**2. Every auditor rebuilds the app's loader by hand.** Solving an example
+means copying ~40 lines of union-find and terminal normalization out of
+`bw-board/test/examples-gate.test.mjs` into a throwaway script. Two problems:
+it is a ritual, and it is a *fidelity* risk. If the app's real loader ever
+diverges from that copy, every audit silently measures a circuit the app would
+never build — and finding 36's verdict rests entirely on my copy being
+faithful. This wants to be one shipped command (`npm run audit:solve <id>`,
+printing nets, node voltages, LED states and warnings) that both the gate and
+the auditors call, so there is exactly one loader.
+
+**3. "DOES something" has no defined observation conditions, and for transient
+examples that decides the outcome.** Example 33's phenomenon exists only in a
+microsecond-scale transient. The obvious first choice of timestep is the
+program's own timebase — 1 s on, 1 s off — and at anything near it the
+collector reads a flat 5 V. **An auditor sampling at the natural rate would
+have seen nothing wrong and passed a broken example.** I found it only by
+sampling at 10 µs and finer, which the checklist never suggests. Worse, the
+next item (*values are plausible*) then has no stable answer: the peak ranges
+over 9 V–422 V depending purely on the step. The checklist quietly assumes
+steady-state DC examples. It needs a rule for time-varying ones — at minimum
+"sweep the sample step and report the trend, not one number".
+
+**4. The verdict vocabulary has no slot for engine bugs.** `pass |
+content-fix | app-bug` covers the app and the content but not the simulator,
+and this audit found two engine defects (`dc_motor` models no inductance; the
+`henries`/`henrys` split-brain). Both are currently buried inside a
+`content-fix` entry, so anyone scanning the verdict column learns nothing about
+them. Add `engine-bug`, and allow compound verdicts — 33 is honestly
+`content-fix + engine-bug`.
+
+**5. Verdicts are per-example; defects are not.** The inert `R` param is in 33
+*and* 10-motor-speed. The missing inductance affects every motor example in the
+gallery. With a strict one-example-at-a-time scope, a cross-cutting defect gets
+either rediscovered by each auditor in turn or assigned once and forgotten. The
+ledger probably needs a second index — findings keyed by defect, listing the
+examples they touch — alongside the per-example entries.
+
+**6. Layer 3 can assert behaviour that no layer checks, and it nearly did.**
+Intros are not prose; their "Try this" steps and numbers are executable claims.
+Mine originally instructed the reader to raise `l1` to 10 mH and observe the
+peak scale with L — plausible, physically correct, and false on this engine. A
+student would have blamed themselves. Nothing in layers 1 or 2 would have
+caught it, because layer 1 checks only that intros *exist*. If intros are going
+to carry numbers, the numbered steps need to be machine-checkable, or at
+minimum the layer-1 presence check should grow into "every numeric claim in an
+intro appears in that example's EXPECTED.md".
+
+**7. Audit-then-fix is not two phases.** The deliverable order (ledger first,
+fixes second) assumes the findings are known before the repair. They are not:
+the honest content of 33's entry — that the spike is unbounded rather than
+"88 V" — only existed *after* the fix was applied and measured, and the entry
+had to be amended twice. Recommend the ledger entry be written last and the
+commit order simply be fix-then-record, or that the entry explicitly carry
+"finding" and "outcome" as separate timestamps.
+
+**What worked well and should be kept:** one example at a time is right — the
+depth needed to catch finding 1 would not have survived a sweep of ten. And
+requiring a *verdict word* rather than a narrative forced the uncomfortable
+call (33 had to be named broken, not "improvable"), which is exactly what a
+ledger is for.
