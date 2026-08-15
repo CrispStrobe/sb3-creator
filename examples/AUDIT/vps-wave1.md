@@ -13,9 +13,9 @@ and has intro.md + intro.de.md (Layer 3).
 | MCU extended | 37–54 | 18 | 18 | 0 | 0 | 0 | 0 |
 | platform variants | nano/mega/pico | 10 | 10 | 0 | 0 | 0 | 0 |
 | AVR (Uno) | avr01–avr06 | 6 | 5 | 1 | 0 | 0 | 0 |
-| Arduino CC0 | arduino-01/02 | 10 | 10 | 0 | 0 | 0 | 0 |
+| Arduino CC0 | arduino-01/02/03 | 15 | 15 | 0 | 0 | 0 | 0 |
 | retro benches | eater/z80 | 4 | 0 | 0 | 0 | 0 | 4 |
-| **total** | | **147** | **126** | **10** | **4** | **1** | **4** |
+| **total** | | **152** | **131** | **10** | **4** | **1** | **4** |
 
 ### Content fixes applied (8)
 - pc02: resistor_4 unseated (floating)
@@ -948,3 +948,19 @@ in progress — features not yet lowered to the pseudocode dialect).
 
 ## arduino-02-state-change — VERDICT: pass (11 parse warnings)
 **layers: engine.** Button + pull-down → D2, LED on D13. Solves clean.
+
+## arduino-02-tone-keyboard — VERDICT: pass (8 parse warnings)
+**layers: engine.** Tone keyboard circuit. 5 nets. Solves clean.
+
+## arduino-02-tone-melody — VERDICT: pass (0 parse warnings)
+**layers: engine.** Tone melody. 3 nets. Parses clean — only Arduino tone
+example with zero warnings.
+
+## arduino-02-tone-multiple — VERDICT: pass (9 parse warnings)
+**layers: engine.** Multiple tone outputs. 5 nets. Solves clean.
+
+## arduino-02-tone-pitch-follower — VERDICT: pass (5 parse warnings)
+**layers: engine.** Pitch follower (pot → tone). 4 nets. Solves clean.
+
+## arduino-03-analog-input — VERDICT: pass (5 parse warnings)
+**layers: engine.** Analog input example. 5 nets. Solves clean.

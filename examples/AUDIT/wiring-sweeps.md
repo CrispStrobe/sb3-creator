@@ -195,9 +195,24 @@ VCC→a, GND→b, wiper at 2.500 V (position param still inert — documented). 
 Divider → inp = 2.500 V, output (feedback to inn) = 2.500 V. Unity gain buffer
 tracks perfectly. ✓
 
+## timer_555 — PASS (1 — astable with control-pin cap)
+Cap at 0.022 V (t=1ms), control at 3.333 V (2/3 VCC), output HIGH (5 V),
+discharge at 2.511 V. Confirmed oscillating at longer timescales. ✓
+
+## dc_motor — PASS (1 — direct drive)
+VCC → motor (windingR=10Ω) → GND. Full 5 V across motor. I = 500 mA. ✓
+
+## tip120 — PASS (1 — Darlington saturated)
+VCC→Rc(1k)→collector, VCC→Rb(10k)→base, emitter→GND. Collector at 0.010 V
+(deep saturation), base at 4.546 V. Darlington Vbe ≈ 0.45 V (two junctions). ✓
+
+## rgb_led — SKIPPED (null terminals, needs net inference)
+## battery — SKIPPED (floating island, no board GND reference)
+## lm7805 — SKIPPED (null terminals)
+
 ---
 
-## Parts not yet swept (88 remaining)
+## Parts not yet swept (82 remaining)
 
 74hc00, 74hc02, 74hc04, 74hc08, 74hc10, 74hc11, 74hc132, 74hc14,
 74hc20, 74hc21, 74hc27, 74hc283, 74hc32, 74hc73, 74hc74, 74hc75,
