@@ -300,3 +300,45 @@ properly seated. Solved at multiple times:
 Matches EXPECTED.md's detailed table to 0.1%. EXPECTED.md includes the
 observation-conditions note (sub-ms samples show zero). Category `pure-circuit`,
 difficulty 3. **No content change.**
+
+---
+
+## pc37-selectable-reference — VERDICT: pass
+
+**layers: engine.** Pure circuit, direct wired.
+
+Solved at t=1 ms (vsource 9 V). Three 10 kΩ resistors in series, switch with
+100 kΩ load to the upper tap. Switch open: upper tap = 6.000 V, lower = 3.000 V,
+load floating at 0 V. All values match EXPECTED.md exactly. EXPECTED.md
+documents the load droop calculation (5.625 V when switch closed) — not tested
+here (switch is off by default). Category `pure-circuit`, difficulty 2.
+**No content change.**
+
+## pc38-relay-changeover — VERDICT: pass
+
+**layers: engine.** Pure circuit, direct wired.
+
+Solved at t=1 ms (vsource 5 V, coil off). NC contact at ~5.0 V, NO at 2.0 V
+(floating LED voltage). EXPECTED.md documents the changeover behaviour including
+the 5 ms switching delay. With coil off, the NC LED is lit (2.97 mA) and NO LED
+is dark. Category `pure-circuit`, difficulty 3. **No content change.**
+
+## pc39-nmos-switch — VERDICT: pass
+
+**layers: engine.** Pure circuit, direct wired.
+
+Solved at t=1 ms (vsource 5 V, gate switch open). Gate at 0 V (pulled low by
+10 kΩ), drain at 3.0 V, LED dark. Matches EXPECTED.md's "gate low" column.
+EXPECTED.md carries an engine caveat about the MOSFET model (no triode region).
+Category `pure-circuit`, difficulty 3. **No content change.**
+
+## pc40-opamp-threshold — VERDICT: pass
+
+**layers: engine.** Pure circuit, direct wired.
+
+Solved at t=1 ms (vsource 5 V). Pot at 50% → inp = 2.500 V, reference divider
+→ inn = 2.500 V (equal 10kΩ resistors). Op-amp output near 0 V (0.0006 V),
+LED dark. The pot position engine-bug means the threshold crossing cannot be
+demonstrated by adjusting the pot, but the circuit topology is correct and the
+quiescent state matches the expected equal-input condition. Category
+`pure-circuit`, difficulty 3. **No content change.**
