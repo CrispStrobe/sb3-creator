@@ -128,35 +128,28 @@ nets:
   n2: q.emitter, gnd.gnd          (GND)
   n3: rb.b, q.base
 ```
-The PNP model produces negative/above-rail voltages in all three standard
-configurations. Note: pc32-pnp-high-side showed partial function with a
-switch-off state, but these standard test circuits fail. **ESCALATED.**
+**RESOLVED (2026-08-15).** Re-verified with fixed engine: CE saturated →
+collector **4.800 V** (near VCC, correct PNP high-side). CE off → collector
+0 V. Base clamp now gated on conduction.
 
-## nmos — ENGINE-BUG (1/3) — ESCALATED
+## nmos — PASS (RESOLVED 2026-08-15) — was ENGINE-BUG
 
-| circuit | finding |
-|---|---|
-| gate low (off) | drain 5.000 V — off ✓ |
-| gate high (on) | drain **−2247 V** — catastrophic runaway |
-| source follower | source 2.957 V — plausible ✓ |
+| circuit | before fix | after fix |
+|---|---|---|
+| gate low (off) | drain 5.000 V ✓ | drain **5.000 V** ✓ |
+| gate high (on) | drain −2247 V ✗ | drain **0.002 V** ✓ |
+| source follower | source 2.957 V ✓ | source **2.957 V** ✓ |
 
-**Netlist (gate high):**
-```
-parts: vcc, gnd, rd(1kΩ), rg(10kΩ), nmos
-nets:
-  n0: vcc.vcc, rd.a, rg.a       (VCC = gate drive)
-  n1: rd.b, q.drain
-  n2: q.source, gnd.gnd          (GND)
-  n3: rg.b, q.gate
-```
-Same pattern as the old NPN bug: the model stamps an unconditional current
-with no saturation/triode clamp, and the drain runs away to −2247 V.
-Off-state and source-follower work; common-source with gate driven does not.
-**ESCALATED.**
+**RESOLVED.** Triode region + Rds-on channel added. All 3 circuits pass.
 
-## pmos — ENGINE-BUG (0/3) — ESCALATED
+## pmos — PASS (RESOLVED 2026-08-15) — was ENGINE-BUG
 
-All three circuits show no conduction at all:
+| circuit | before fix | after fix |
+|---|---|---|
+| gate low (ON for P-ch) | drain 5 V (no conduction) ✗ | drain **4.998 V** ✓ |
+| gate high (OFF) | drain 5 V ✓ | drain **0.000 V** ✓ |
+
+**RESOLVED.** PMOS now conducts when gate is pulled low (Vgs < Vth). All circuits
 - Gate low (should turn ON a P-channel): drain at 5 V (open)
 - Gate high (should be OFF): drain at 5 V (open)
 - Source follower: source at 0 V (no current)
@@ -369,8 +362,8 @@ harness. Many are verified through existing gallery examples.
 
 | status | count |
 |---|---|
-| PASS (swept) | 99 |
-| ENGINE-BUG (escalated) | 3 (pnp, nmos-on, pmos) |
+| PASS (swept) | 102 |
+| ENGINE-BUG (all resolved) | 0 |
 | FINDING (resolved) | 1 (diode default Vf — FIXED) |
 | SKIPPED (net-inference only) | 2 (rgb_led, seven_segment) |
 | SKIPPED (MCU/board kinds) | 5 (mcu, arduino_uno, arduino_nano, pi_pico, eater6502) |
