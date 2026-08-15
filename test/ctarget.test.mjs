@@ -3245,3 +3245,29 @@ test('generateBASIC: non-6502 devices emit REM stubs with a warning', () => {
     assert.match(r2.basic, /REM @bw pin led1 PA0 output/);
     assert.ok(!/undefined/.test(r2.basic), 'no undefined leaks into the header');
 });
+
+test('CHIP vga = SIMPLEVGA: address-free card parses and round-trips', async () => {
+    const src = `DEVICE EATER6502
+MAP RAM $0000-$3FFF
+MAP ROM $C000-$FFFF
+CHIP vga = SIMPLEVGA
+PIN led1 = PA0 OUTPUT
+
+WHEN flag clicked:
+  FOREVER:
+    toggle led1
+    wait 0.5 seconds
+`;
+    const c = build(src);
+    assert.deepEqual(c.warnings || [], []);
+    const chip = c.project.stc.machine.chips.find((ch) => ch.kind === 'simplevga');
+    assert.ok(chip, 'simplevga stored on the machine');
+    const out = c.generateC(undefined, {});
+    const cToPseudocode = (await import('../src/utils/cToPseudocode.js')).default;
+    const back = cToPseudocode(out).pseudocode;
+    assert.match(back, /^CHIP vga = SIMPLEVGA$/m);
+    assert.match(c.decompile(), /^CHIP vga = SIMPLEVGA$/m);
+    // one card per machine
+    const dup = build(`DEVICE EATER6502\nCHIP a = SIMPLEVGA\nCHIP b = SIMPLEVGA\n`);
+    assert.match((dup.warnings || []).join('\n'), /already declared/);
+});

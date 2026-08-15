@@ -1301,6 +1301,25 @@ class SB3Creator {
             cfg.machine.regions.push({ kind: m[1].toLowerCase(), start, end });
             return true;
         }
+        if ((m = trimmed.match(/^CHIP\s+([A-Za-z_]\w*)\s*=\s*SIMPLEVGA$/i))) {
+            // The simplevga card takes NO address: it is a write-snoop
+            // overlay on the ROM window with its bank line on the VIA's
+            // port B — no decode window, so no AT clause and no overlap
+            // checks. (bw-board machine chips kind 'simplevga'.)
+            const cfg = this.stcConfig();
+            const part = SB3Creator.STC_PARTS[cfg.device];
+            if (!part || part.core !== 'w65c02') {
+                this.warn(lineIndex, 'CHIP declarations describe the 6502 machine — this device has its peripherals on-die');
+                return true;
+            }
+            if (!cfg.machine) cfg.machine = { regions: [], chips: [] };
+            if (cfg.machine.chips.some((c) => c.kind === 'simplevga')) {
+                this.warn(lineIndex, 'a SIMPLEVGA is already declared — one card per machine');
+                return true;
+            }
+            cfg.machine.chips.push({ name: m[1], kind: 'simplevga', at: 0 });
+            return true;
+        }
         if ((m = trimmed.match(/^CHIP\s+([A-Za-z_]\w*)\s*=\s*(W65C22|W65C51|TMS9918)\s+AT\s+[$0]?[x$]?([0-9a-f]{1,4})$/i))) {
             const cfg = this.stcConfig();
             const part = SB3Creator.STC_PARTS[cfg.device];
@@ -3590,6 +3609,7 @@ class SB3Creator {
                     out.push(`MAP ${r.kind.toUpperCase()} ${hx(r.start)}-${hx(r.end)}`);
                 }
                 for (const c of cfg.machine.chips || []) {
+                    if (c.kind === 'simplevga') { out.push(`CHIP ${c.name} = SIMPLEVGA`); continue; }
                     const chipName = { via: 'W65C22', acia: 'W65C51', vdp: 'TMS9918' }[c.kind] || 'W65C51';
                     out.push(`CHIP ${c.name} = ${chipName} AT ${hx(c.at)}`);
                 }
@@ -7792,7 +7812,7 @@ class SB3Creator {
                 ...((stored.machine ? stored.machine.regions || [] : [])
                     .map((r) => `map ${r.kind} ${r.start.toString(16)} ${r.end.toString(16)}`)),
                 ...((stored.machine ? stored.machine.chips || [] : [])
-                    .map((ch) => `chip ${ch.name} ${{ via: 'w65c22', acia: 'w65c51', vdp: 'tms9918' }[ch.kind] || 'w65c51'} ${ch.at.toString(16)}`)),
+                    .map((ch) => `chip ${ch.name} ${{ via: 'w65c22', acia: 'w65c51', vdp: 'tms9918', simplevga: 'simplevga' }[ch.kind] || 'w65c51'} ${ch.at.toString(16)}`)),
                 ...tables.map((t) => `table ${t.name} ${t.values.length}`),
                 ...markVars, ...markProcs, ...markScripts,
                 // The yield map: `<task>_state == N` means "about to run this block". It is
