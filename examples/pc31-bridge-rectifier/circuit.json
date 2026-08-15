@@ -13,14 +13,13 @@
   "wires": [
     { "from": "src", "fromTerminal": "pos", "to": "d1", "toTerminal": "anode" },
     { "from": "src", "fromTerminal": "pos", "to": "d2", "toTerminal": "cathode" },
+    { "from": "src", "fromTerminal": "neg", "to": "d3", "toTerminal": "anode" },
+    { "from": "src", "fromTerminal": "neg", "to": "d4", "toTerminal": "cathode" },
     { "from": "d1", "fromTerminal": "cathode", "to": "r1", "toTerminal": "a" },
-    { "from": "d2", "fromTerminal": "anode", "to": "gnd", "toTerminal": "gnd" },
-    { "from": "gnd", "fromTerminal": "gnd", "to": "d3", "toTerminal": "anode" },
     { "from": "d3", "fromTerminal": "cathode", "to": "r1", "toTerminal": "a" },
-    { "from": "gnd", "fromTerminal": "gnd", "to": "d4", "toTerminal": "cathode" },
-    { "from": "d4", "fromTerminal": "anode", "to": "src", "toTerminal": "neg" },
+    { "from": "d2", "fromTerminal": "anode", "to": "gnd", "toTerminal": "gnd" },
+    { "from": "d4", "fromTerminal": "anode", "to": "gnd", "toTerminal": "gnd" },
     { "from": "r1", "fromTerminal": "b", "to": "led", "toTerminal": "anode" },
-    { "from": "led", "fromTerminal": "cathode", "to": "gnd", "toTerminal": "gnd" },
-    { "from": "src", "fromTerminal": "neg", "to": "d4", "toTerminal": "anode" }
+    { "from": "led", "fromTerminal": "cathode", "to": "gnd", "toTerminal": "gnd" }
   ]
 }
