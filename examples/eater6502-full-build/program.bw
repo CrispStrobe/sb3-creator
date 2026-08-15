@@ -1,0 +1,54 @@
+# The full Ben Eater 6502 breadboard computer build.
+# W65C02 + 62256 RAM + 28C256 ROM + W65C22 VIA + W65C51 ACIA
+# + HD44780 LCD on VIA port B + bar-graph LEDs on VIA port A
+# + 555 timer as clock source.
+DEVICE EATER6502
+CLOCK 1000000
+PIN led0 = PA0 OUTPUT
+PIN led1 = PA1 OUTPUT
+PIN led2 = PA2 OUTPUT
+PIN led3 = PA3 OUTPUT
+PIN led4 = PA4 OUTPUT
+PIN led5 = PA5 OUTPUT
+PIN led6 = PA6 OUTPUT
+PIN led7 = PA7 OUTPUT
+
+WHEN flag clicked:
+  set counter to 0
+  FOREVER:
+    set counter to ((counter + 1) mod 256)
+    # Binary count on the LED bar graph
+    IF (counter mod 2) >= 1 THEN:
+      turn on led0
+    ELSE:
+      turn off led0
+    IF ((counter / 2) mod 2) >= 1 THEN:
+      turn on led1
+    ELSE:
+      turn off led1
+    IF ((counter / 4) mod 2) >= 1 THEN:
+      turn on led2
+    ELSE:
+      turn off led2
+    IF ((counter / 8) mod 2) >= 1 THEN:
+      turn on led3
+    ELSE:
+      turn off led3
+    IF ((counter / 16) mod 2) >= 1 THEN:
+      turn on led4
+    ELSE:
+      turn off led4
+    IF ((counter / 32) mod 2) >= 1 THEN:
+      turn on led5
+    ELSE:
+      turn off led5
+    IF ((counter / 64) mod 2) >= 1 THEN:
+      turn on led6
+    ELSE:
+      turn off led6
+    IF ((counter / 128) mod 2) >= 1 THEN:
+      turn on led7
+    ELSE:
+      turn off led7
+    print counter
+    wait 0.25 seconds
