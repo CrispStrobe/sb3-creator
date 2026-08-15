@@ -5086,10 +5086,16 @@ class SB3Creator {
     })();
 
     /** {reg, bit} for an AVR pin record, or null (A6/A7 and unknowns).
-     *  Device-aware: the Mega speaks ports A–L, the 328/168 B–D. */
+     *  Device-aware: the Mega speaks ports A–L, the 328/168 B–D,
+     *  the ATtiny88 speaks PB0-PB7/PC0-PC7/PD0-PD7/PA0-PA3. */
     avrHw(pin) {
+        // ATtiny88 pins are port/bit names directly (PB0, PC3, PD7, PA2)
+        const where = String(pin.where || '').toUpperCase();
+        const portBit = where.match(/^P([A-D])(\d)$/);
+        if (portBit) return { reg: portBit[1], bit: Number(portBit[2]) };
+
         const table = this._cMega ? SB3Creator.AVR_PINS_MEGA : SB3Creator.AVR_PINS;
-        const hw = table[String(pin.where || '').toUpperCase()];
+        const hw = table[where];
         return hw ? { reg: hw[0], bit: hw[1] } : null;
     }
 
@@ -7324,6 +7330,7 @@ class SB3Creator {
             : (part && part.core === 'rp2040') ? 'arm'
                 : (part && part.core === 'w65c02') ? '6502' : '8051';
         this._cMega = !!(part && part.mega);
+        this._cTiny88 = !!(part && part.tiny88);
         if (part && part.core && part.core !== '8051' && part.core !== 'arduino'
             && part.core !== 'rp2040' && part.core !== 'w65c02') {
             const how = part.core === 'micropython'
@@ -7915,11 +7922,19 @@ class SB3Creator {
                 '#include <avr/interrupt.h>',
                 '#include <stdint.h>', '');
             out.push(`#define F_CPU ${clock}UL`, '');
-            out.push('/* Timer 0 in CTC mode ticks every millisecond: F_CPU/64 counts,',
-                ' * OCR0A picked so one compare = 1 ms exactly at this clock. The same',
-                ' * one-tick contract the 8051 build keeps — nothing generated here',
-                ' * ever busy-waits on a cycle count. */',
-                `#define BW_OCR0A ((uint8_t)(F_CPU / 64UL / 1000UL - 1UL))`, '');
+            if (this._cTiny88) {
+                // ATtiny88: Timer0 has no CTC mode. Use Timer1 CTC instead.
+                out.push('/* Timer 1 in CTC mode ticks every millisecond: F_CPU/64 counts,',
+                    ' * OCR1A picked so one compare = 1 ms exactly at this clock.',
+                    ' * (ATtiny88 Timer0 has no CTC — Timer1 is the tick source.) */',
+                    `#define BW_OCR1A ((uint16_t)(F_CPU / 64UL / 1000UL - 1UL))`, '');
+            } else {
+                out.push('/* Timer 0 in CTC mode ticks every millisecond: F_CPU/64 counts,',
+                    ' * OCR0A picked so one compare = 1 ms exactly at this clock. The same',
+                    ' * one-tick contract the 8051 build keeps — nothing generated here',
+                    ' * ever busy-waits on a cycle count. */',
+                    `#define BW_OCR0A ((uint8_t)(F_CPU / 64UL / 1000UL - 1UL))`, '');
+            }
         } else {
         out.push(`#include <${chip.header}>`, '');
         out.push(`#define FOSC_HZ ${clock}UL`, '');
@@ -8001,12 +8016,12 @@ class SB3Creator {
                     '}', '');
             }
         } else if (this._cTasks && this._core !== '6502') {
-            out.push('/* One script = one cooperative task. Timer 0 interrupts every millisecond;',
+            out.push('/* One script = one cooperative task. Timer interrupts every millisecond;',
                 ' * tasks yield at every wait and at every loop iteration (Scratch\'s own',
                 ' * scheduling contract), so no task can starve the others. */',
                 ...(this._core === 'avr' ? [
                     'static volatile uint32_t bw_ms;', '',
-                    'ISR(TIMER0_COMPA_vect)',
+                    `ISR(${this._cTiny88 ? 'TIMER1_COMPA_vect' : 'TIMER0_COMPA_vect'})`,
                     '{',
                     '    bw_ms++;',
                     '}', ''
@@ -8079,7 +8094,7 @@ class SB3Creator {
                 '/* No scheduler in this build; the tick still runs (main() starts it),',
                 ' * so a blocking delay is a wait on bw_ms, never on a cycle count. */',
                 'static volatile uint32_t bw_ms;', '',
-                'ISR(TIMER0_COMPA_vect) { bw_ms++; }', '',
+                `ISR(${this._cTiny88 ? 'TIMER1_COMPA_vect' : 'TIMER0_COMPA_vect'}) { bw_ms++; }`, '',
                 'static void delay_ms(uint32_t ms)',
                 '{',
                 '    uint32_t start;',
@@ -9486,10 +9501,17 @@ class SB3Creator {
                 }
             }
             if (this._cTasks || this._cUses.delay) {
-                out.push('    TCCR0A = (1 << WGM01);         /* Timer 0 CTC */',
-                    '    TCCR0B = (1 << CS01) | (1 << CS00);  /* F_CPU/64 */',
-                    '    OCR0A  = BW_OCR0A;             /* one compare = 1 ms */',
-                    '    TIMSK0 = (1 << OCIE0A);        /* millisecond tick */');
+                if (this._cTiny88) {
+                    // ATtiny88: Timer0 has no CTC mode — use Timer1 CTC.
+                    out.push('    TCCR1B = (1 << WGM12) | (1 << CS11) | (1 << CS10);  /* Timer 1 CTC, F_CPU/64 */',
+                        '    OCR1A  = BW_OCR1A;             /* one compare = 1 ms */',
+                        '    TIMSK1 = (1 << OCIE1A);        /* millisecond tick */');
+                } else {
+                    out.push('    TCCR0A = (1 << WGM01);         /* Timer 0 CTC */',
+                        '    TCCR0B = (1 << CS01) | (1 << CS00);  /* F_CPU/64 */',
+                        '    OCR0A  = BW_OCR0A;             /* one compare = 1 ms */',
+                        '    TIMSK0 = (1 << OCIE0A);        /* millisecond tick */');
+                }
             }
             if (this._cUses.servo) {
                 out.push('    TCCR1A = (1 << WGM11);         /* Timer 1: mode 14, servo frame */',
@@ -10126,6 +10148,12 @@ SB3Creator.RETARGET_POOLS = {
     // appears: Timer 1 owns it. No analog, no PWM — the VIA has neither.
     eater6502: { digital: ['PA0', 'PA1', 'PA2', 'PA3', 'PA4', 'PA5', 'PA6', 'PA7'],
         analog: [], input: ['PB0', 'PB1', 'PB2', 'PB3'],
+        pwm: [], ledActiveLow: false },
+    // ATtiny88 Blinkenrocket: PORTB = cols, PORTD = rows, PC3/PC7 = buttons.
+    // No ADC, no PWM — the pendant is a pure LED matrix.
+    attiny88: { digital: ['PB0', 'PB1', 'PB2', 'PB3', 'PB4', 'PB5', 'PB6', 'PB7',
+        'PD0', 'PD1', 'PD2', 'PD3', 'PD4', 'PD5', 'PD6', 'PD7'],
+        analog: [], input: ['PC3', 'PC7'],
         pwm: [], ledActiveLow: false }
 };
 
@@ -10371,10 +10399,12 @@ SB3Creator.STC_PARTS = {
     // bits (PA0-PA7, PB0-PB6). No ADC, no PWM -- the VIA has neither, and
     // Timer 1 is the millisecond timebase.
     eater6502: { core: 'w65c02', header: null, portModes: false, aux1T: false, adc: false },
-    // ATtiny88: bare AVR in DIP-28, 4 ports (A partial, B/C/D full).
-    // Same core as Arduino (avr8js), pin regex accepts PA/PB/PC/PD names.
-    // ADC on PC0-PC5 (channels 0-5); no UART, no hardware PWM on Timer 0.
-    attiny88: { core: 'arduino', header: 'avr/io.h', portModes: false, aux1T: false, adc: true }
+    // ATtiny88: 28-pin DIP, avr25 family. Pins are PB0-7/PC0-7/PD0-7/PA0-3
+    // (port/bit, not Arduino Dn numbering). Timer0 has NO CTC mode — the ms
+    // tick uses Timer1 CTC instead. ADC on PC0-PC5 (channels 0-5).
+    // The Blinkenrocket pendant uses PORTB=cols, PORTD=rows for an 8x8 matrix.
+    attiny88: { core: 'arduino', header: 'avr/io.h', portModes: false, aux1T: false, adc: true,
+        tiny88: true }
 };
 
 // C keywords a sanitized Scratch name could collide with (sanitizeIdent only guards the
