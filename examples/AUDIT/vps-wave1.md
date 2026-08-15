@@ -8,12 +8,12 @@ and has intro.md + intro.de.md (Layer 3).
 | band | range | total | pass | content-fix | engine-bug | app-bug | app-level |
 |---|---|---|---|---|---|---|---|
 | pc gallery | pc01–pc48 | 48 | 35 | 7 | 4 | 0 | 0 |
-| pc extended | pc49–pc62 | 14 | 14 | 0 | 0 | 0 | 0 |
+| pc extended | pc49–pc62 | 14 | 13 | 1 | 0 | 0 | 0 |
 | MCU basics | 01–36 | 37 | 35 | 1 | 0 | 1 | 0 |
 | MCU extended | 37–54 | 18 | 18 | 0 | 0 | 0 | 0 |
 | platform variants | nano/mega/pico | 10 | 10 | 0 | 0 | 0 | 0 |
 | retro benches | eater/z80 | 3 | 0 | 0 | 0 | 0 | 3 |
-| **total** | | **130** | **112** | **8** | **4** | **1** | **3** |
+| **total** | | **130** | **111** | **9** | **4** | **1** | **3** |
 
 ### Content fixes applied (8)
 - pc02: resistor_4 unseated (floating)
@@ -24,6 +24,7 @@ and has intro.md + intro.de.md (Layer 3).
 - pc08: LED anode disconnected from diode cathode (row gap)
 - 33-inductive-no-flyback: inductance added (pilot audit)
 - pc13–pc24 range: additional fixes by parallel agent (see pc13-pc24.md)
+- pc61: bogus VCC→GND wire shorted the entire circuit
 
 ### Engine-bugs found and resolved
 1. **NPN saturation** (pc05, pc15, pc23, pc24): collector went negative in
@@ -638,14 +639,16 @@ Category `basics`, difficulty 3.
 
 ## 31-no-resistor-led — VERDICT: pass
 
-**layers: engine.** Intentional overcurrent demonstration. DRC correctly warns:
-LED at 300 mA (exceeds 20 mA), total I/O current 313 mA (exceeds 120 mA chip
-limit). The warnings ARE the lesson. Category `pure-circuit`, difficulty 1.
+**layers: engine.** Pure circuit. led_bad: VCC → LED → GND (no resistor), DRC:
+**300 mA** (exceeds 20 mA). led_ok: VCC → R (220 Ω) → LED → GND, anode at
+**2.130 V**, I = 13 mA. The DRC warnings ARE the lesson. Category
+`pure-circuit`, difficulty 1.
 
 ## 32-source-vs-sink — VERDICT: pass
 
-**layers: engine.** Source vs sink current LED wiring comparison. Category
-`basics`, difficulty 2.
+**layers: engine.** Active-low (VCC → R → led_sink → P1.0) vs active-high
+(P1.1 → R → led_source → GND). Both MCU pins floating. Category `basics`,
+difficulty 2.
 
 ## 33-inductive-no-flyback — VERDICT: content-fix (pilot audit)
 
@@ -654,12 +657,15 @@ Inductance added, phenomenon now observable. Intro already exists.
 
 ## 34-ohms-law — VERDICT: pass
 
-**layers: engine.** Ohm's law demonstration. VCC → R → LED. Category `basics`,
+**layers: engine.** Pure circuit. VCC → R (1 kΩ) → LED → GND. LED anode =
+**2.030 V**, I = (5.0−2.03)/1000 = **2.97 mA**. Category `basics`,
 difficulty 1.
 
 ## 35-series-resistors — VERDICT: pass
 
-**layers: engine.** Series resistors with LED. Category `basics`, difficulty 1.
+**layers: engine.** Pure circuit. VCC → R1 (1 kΩ) → R2 (2 kΩ) → LED → GND.
+R1/R2 junction = **4.003 V**, LED anode = **2.010 V**, I ≈ 1.0 mA. Category
+`basics`, difficulty 1.
 
 ## 36-parallel-leds — VERDICT: app-bug (pilot audit)
 
@@ -673,58 +679,81 @@ solves correctly; app-side loader bug filed. Intro already exists.
 All 18 examples parse warning-free and solve on the engine with no errors.
 
 ## 37-voltage-divider-basic — VERDICT: pass
-**layers: engine.** Pure circuit, voltage divider. Difficulty 1.
+**layers: engine.** VCC → R1 → junction → R2 → GND. Junction = **2.500 V**
+(equal resistors). Difficulty 1.
 
 ## 38-npn-switch — VERDICT: pass
-**layers: engine.** Pure circuit, NPN switch with button. Difficulty 2.
+**layers: engine.** NPN with button: btn open → base = **0.005 V**, collector =
+**4.497 V** (LED reverse-biased, NPN off). Correct quiescent state.
+Difficulty 2.
 
 ## 39-zener-clamp — VERDICT: pass
-**layers: engine.** Pure circuit, zener voltage clamp. Difficulty 2.
+**layers: engine.** 9 V → R1 → zener → GND. Zener clamp = **5.143 V**, LED at
+**2.031 V**. I_LED = (5.14−2.03)/R2 mA. Difficulty 2.
 
 ## 40-led-color-mix — VERDICT: pass
-**layers: engine.** Pure circuit, RGB LED. Difficulty 1.
+**layers: engine.** Three LEDs (R/G/B): red/green at **2.088 V** (330 Ω), blue
+at **3.253 V** (100 Ω, higher Vf). Current differs by color. Difficulty 1.
 
 ## 41-pot-as-dimmer — VERDICT: pass
-**layers: engine.** Pure circuit, pot dimmer. Difficulty 2.
+**layers: engine.** Pot wiper = **2.500 V** → R1 → LED at **2.022 V**. I =
+(2.50−2.02)/R1 mA. Pot position inertness noted (pot bug pending). Difficulty 2.
 
 ## 42-diode-rectifier — VERDICT: pass
-**layers: engine.** Pure circuit, diode polarity. Difficulty 1.
+**layers: engine.** Forward: d1 cathode = **4.253 V**, led1 at **2.047 V**,
+I ≈ 10 mA. Reverse: d2 reverse-biased, led2 at **2.000 V** (floating, no
+current). Difficulty 1.
 
 ## 43-rc-timing — VERDICT: pass
-**layers: engine.** Pure circuit, RC τ=1s. Difficulty 2.
+**layers: engine.** R (10 kΩ) + C: cap at **0.005 V** at t=1 ms (τ = 1 s,
+barely started). Difficulty 2.
 
 ## 44-darlington-motor — VERDICT: pass
-**layers: engine.** Pure circuit, button+NPN+buzzer. Difficulty 2.
+**layers: engine.** NPN+buzzer: btn open → base = **0.005 V**, collector =
+**5.000 V** (buzzer not driven). Difficulty 2.
 
 ## 45-led-current-comparison — VERDICT: pass
-**layers: engine.** Pure circuit, 3 resistors comparing LED current. Difficulty 1.
+**layers: engine.** Three LEDs with R1=220 Ω, R2=470 Ω, R3=1 kΩ. Vf: **2.130**,
+**2.063**, **2.030 V** (higher R → lower I → lower Shockley Vf). Difficulty 1.
 
 ## 46-port-overcurrent — VERDICT: pass
-**layers: engine.** 8 LEDs on one port, aggregate current lesson. Difficulty 3.
+**layers: engine.** 8 LEDs on P1.0–P1.7. All MCU pins floating, 0 V. The
+aggregate current lesson is in the program, not the static solve. Difficulty 3.
 
 ## 47-battery-led — VERDICT: pass
-**layers: engine.** Pure circuit, battery-powered LED. Difficulty 1.
+**layers: engine.** Standalone battery (bat1): floating island (not referenced
+to board GND), LED anode ≈ bat1.neg ≈ **9 V**. Engine cannot solve meaningful
+voltages across a floating source — correct behavior for a groundless circuit.
+Difficulty 1.
 
 ## 48-breadboard-basics — VERDICT: pass
-**layers: engine.** Pure circuit, breadboard layout exercise. Difficulty 2.
+**layers: engine.** Same topology as 47 (floating battery). Difficulty 2.
 
 ## 49-function-generator-sine — VERDICT: pass
-**layers: engine.** Pure circuit, sine wave function generator. Difficulty 2.
+**layers: engine.** Function generator: fg1.pos = **2.500 V** at t=1 ms (sine
+at snapshot). R1 to GND. Difficulty 2.
 
 ## 50-rc-scope — VERDICT: pass
-**layers: engine.** Pure circuit, RC low-pass filter on scope. Difficulty 3.
+**layers: engine.** RC low-pass: fg1 at **2.500 V**, cap at **0.233 V** (filter
+lagging the input). Difficulty 3.
 
 ## 51-555-astable — VERDICT: pass
-**layers: engine.** Pure circuit, 555 astable blinker. Difficulty 3.
+**layers: engine.** 555: cap at **0.000 V** at t=1 ms, discharge pin at
+**0.005 V**. Confirmed oscillating at longer timescales (cap swings between
+1.67 V and 3.33 V, period ≈ 208 ms). Difficulty 3.
 
 ## 52-battery-voltage-divider — VERDICT: pass
-**layers: engine.** Pure circuit, battery voltage divider. Difficulty 2.
+**layers: engine.** Floating battery (same as 47/48): all nodes at **9 V**
+(groundless island). Difficulty 2.
 
 ## 53-servo-sweep — VERDICT: pass
-**layers: engine.** Servo sweep 0°–180°. Category `motors`, difficulty 3.
+**layers: engine.** Servo: VCC = **5.000 V**, signal from MCU P1.1 = 0 V
+(floating). Difficulty 3.
 
 ## 54-motor-driver — VERDICT: pass
-**layers: engine.** DC motor with L293D H-bridge. Category `motors`, difficulty 3.
+**layers: engine.** L293D: en1/in1/in2 from MCU (all 0 V floating), out1/out2
+→ motor (0 V). LED indicator: anode **5.000 V**, cathode **4.995 V** (P1.0
+leakage). Difficulty 3.
 
 ---
 
@@ -733,46 +762,64 @@ All 18 examples parse warning-free and solve on the engine with no errors.
 All 14 examples parse warning-free and solve on the engine.
 
 ## pc49-diode-clamp — VERDICT: pass
-**layers: engine.** Difficulty 2.
+**layers: engine.** Diode clamp: r.b = **0.742 V** (forward-biased diode
+clamping to Vf). Difficulty 2.
 
 ## pc50-two-stage-rc — VERDICT: pass
-**layers: engine.** Difficulty 3.
+**layers: engine.** Two-stage RC: both caps at ~0 V at t=1 ms (τ >> 1 ms).
+Difficulty 3.
 
 ## pc51-series-capacitors — VERDICT: pass
-**layers: engine.** Difficulty 2.
+**layers: engine.** Series caps: all nodes near 9 V at t=1 ms (caps barely
+charged). Difficulty 2.
 
 ## pc52-inductor-filter — VERDICT: pass
-**layers: engine.** Difficulty 3.
+**layers: engine.** Inductor filter: R output = **0.388 V**, inductor output =
+**0.429 V** (inductor storing energy, output slightly ahead of input).
+Difficulty 3.
 
 ## pc53-buzzer-switch — VERDICT: pass
-**layers: engine.** Difficulty 1.
+**layers: engine.** Button open: buzzer at 0 V (no current). Difficulty 1.
 
 ## pc54-opamp-follower — VERDICT: pass
-**layers: engine.** Difficulty 3.
+**layers: engine.** Unity gain buffer: pot wiper = **2.500 V** → amp.inp,
+amp.out = **2.500 V** (voltage follower tracking input exactly). Difficulty 3.
 
 ## pc55-ntc-indicator — VERDICT: pass
-**layers: engine.** Difficulty 2.
+**layers: engine.** NTC divider: junction = **2.030 V**, LED anode =
+**2.000 V** (barely any current through LED — NTC and R similar values).
+Difficulty 2.
 
 ## pc56-inductor-freewheel — VERDICT: pass
-**layers: engine.** Difficulty 3.
+**layers: engine.** Switch open: all nodes at 0 V (no current path).
+Difficulty 3.
 
 ## pc57-inverter-lamp — VERDICT: pass
-**layers: engine.** Difficulty 2.
+**layers: engine.** Inverter: input LOW (switch open) → output **4.859 V**
+(HIGH) → LED at **2.028 V**, LED lit. Correct NOT logic. Difficulty 2.
 
 ## pc58-555-audio-pulse — VERDICT: pass
-**layers: engine.** Difficulty 3.
+**layers: engine.** 555 astable: cap at 0 V at t=1 ms (beginning to charge).
+Difficulty 3.
 
 ## pc59-nor-memory — VERDICT: pass
-**layers: engine.** Difficulty 3.
+**layers: engine.** NOR SR latch: set=reset=LOW → both outputs HIGH
+(**4.858 V**), both indicator LEDs lit at **2.028 V**. Symmetric initial state
+(no latched memory yet). Difficulty 3.
 
 ## pc60-night-lamp-hardware — VERDICT: pass
-**layers: engine.** Difficulty 2.
+**layers: engine.** LDR divider (dark): junction = **0.050 V** (below Vbe),
+NPN off, collector at **3.000 V** (floating). LED dark. Correct dark-state
+behavior. Difficulty 2.
 
-## pc61-diode-or — VERDICT: pass
-**layers: engine.** Difficulty 2.
+## pc61-diode-or — VERDICT: content-fix
+**layers: engine.** **Finding: bogus wire VCC→GND shorted the entire circuit.**
+All nodes at 0 V. Removed the wire. After fix: both switches open, diode
+anodes at 0.015 V (no current), LED dark. Correct quiescent state for diode-OR
+with both inputs off. Difficulty 2.
 
 ## pc62-motor-indicator — VERDICT: pass
-**layers: engine.** Difficulty 2.
+**layers: engine.** Switch open: motor and LED at 0 V. Difficulty 2.
 
 ---
 

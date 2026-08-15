@@ -18,7 +18,6 @@
     { "from": "da", "fromTerminal": "cathode", "to": "r", "toTerminal": "a" },
     { "from": "db", "fromTerminal": "cathode", "to": "r", "toTerminal": "a" },
     { "from": "r", "fromTerminal": "b", "to": "led", "toTerminal": "anode" },
-    { "from": "led", "fromTerminal": "cathode", "to": "gnd", "toTerminal": "gnd" },
-    { "from": "vcc", "fromTerminal": "vcc", "to": "gnd", "toTerminal": "gnd" }
+    { "from": "led", "fromTerminal": "cathode", "to": "gnd", "toTerminal": "gnd" }
   ]
 }
