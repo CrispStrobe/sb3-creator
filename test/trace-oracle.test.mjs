@@ -393,3 +393,131 @@ test('comparator: device events compared correctly', () => {
     assert.equal(wrong.ok, false);
     assert.ok(wrong.diffs.some(d => /angle/.test(d)));
 });
+
+// ---- String and list vocabulary (05.Control / 08.Strings campaign) --------
+
+test('referee: string operators — letter_of, length, contains', () => {
+    const t = interpretTrace(parse(`DEVICE PICO
+PIN led1 = GP15 OUTPUT
+
+WHEN flag clicked:
+  set msg to "Hello"
+  print length of msg
+  print letter 2 of msg
+  IF msg contains "ell" THEN:
+    print 1
+  ELSE:
+    print 0
+`), { horizonMs: 1000 });
+    assert.deepEqual(t.unsupported, []);
+    assert.deepEqual(t.serial.map(s => s.line), ['5', 'e', '1']);
+});
+
+test('referee: list operations — add, item, length, replace, delete', () => {
+    const t = interpretTrace(parse(`DEVICE PICO
+PIN led1 = GP15 OUTPUT
+LIST mylist
+
+WHEN flag clicked:
+  add 10 to mylist
+  add 20 to mylist
+  add 30 to mylist
+  print length of mylist
+  print item 2 of mylist
+  replace item 2 of mylist with 25
+  print item 2 of mylist
+  delete 1 of mylist
+  print length of mylist
+  print item 1 of mylist
+`), { horizonMs: 1000 });
+    assert.deepEqual(t.unsupported, []);
+    assert.deepEqual(t.serial.map(s => s.line), ['3', '20', '25', '2', '25']);
+    assert.deepEqual(t.lists.mylist.map(String), ['25', '30']);
+});
+
+test('referee: list contains', () => {
+    const t = interpretTrace(parse(`DEVICE PICO
+PIN led1 = GP15 OUTPUT
+LIST vals
+
+WHEN flag clicked:
+  add 42 to vals
+  add 99 to vals
+  IF vals contains 42 THEN:
+    print 1
+  IF vals contains 50 THEN:
+    print 2
+`), { horizonMs: 1000 });
+    assert.deepEqual(t.unsupported, []);
+    assert.deepEqual(t.serial.map(s => s.line), ['1']);
+});
+
+test('referee: mathop — abs, floor, sqrt', () => {
+    const t = interpretTrace(parse(`DEVICE PICO
+PIN led1 = GP15 OUTPUT
+
+WHEN flag clicked:
+  set n to (0 - 7)
+  print abs of n
+  print floor of 3.7
+  print sqrt of 16
+`), { horizonMs: 1000 });
+    assert.deepEqual(t.unsupported, []);
+    assert.deepEqual(t.serial.map(s => s.line), ['7', '3', '4']);
+});
+
+test('referee: random is deterministic (midpoint)', () => {
+    const t = interpretTrace(parse(`DEVICE PICO
+PIN led1 = GP15 OUTPUT
+
+WHEN flag clicked:
+  print pick random 1 to 10
+`), { horizonMs: 1000 });
+    assert.deepEqual(t.unsupported, []);
+    // Midpoint of 1..10 = 5.5 → round = 6
+    assert.deepEqual(t.serial.map(s => s.line), ['6']);
+});
+
+// ---- Part-stimulus timeline (sensor campaign) ----------------------------
+
+test('referee: partStimulus feeds analog read through sensor voltage model', () => {
+    // Ultrasonic distance → analog read: the part maps distance to voltage,
+    // but the referee traces PIN reads. partStimulus changes the voltage
+    // timeline dynamically.
+    const t = interpretTrace(parse(`DEVICE PICO
+PIN sensor = GP26 ANALOG
+
+WHEN flag clicked:
+  print read sensor
+  wait 1 seconds
+  print read sensor
+`), { horizonMs: 3000, adc: { bits: 12, vref: 3.3 },
+        stimulus: [
+            { tMs: 0, pin: 'sensor', volts: 1.0 },
+            { tMs: 800, pin: 'sensor', volts: 2.5 },
+        ] });
+    assert.deepEqual(t.unsupported, []);
+    // At t=0: 1.0V → round(1.0/3.3 * 4095) = 1241
+    // At t=1000: 2.5V → round(2.5/3.3 * 4095) = 3102
+    assert.equal(t.serial[0].line, '1241');
+    assert.equal(t.serial[1].line, '3102');
+});
+
+test('referee: partStimulus for digital sensor (touch at specific time)', () => {
+    const t = interpretTrace(parse(`DEVICE PICO
+PIN touch = GP3 INPUT
+
+WHEN flag clicked:
+  wait until read touch = 1
+  print 42
+`), { horizonMs: 2000,
+        stimulus: [
+            { tMs: 0, pin: 'touch', level: 0 },
+            { tMs: 500, pin: 'touch', level: 1 },
+        ] });
+    assert.deepEqual(t.unsupported, []);
+    assert.equal(t.serial.length, 1);
+    assert.equal(t.serial[0].line, '42');
+    assert.ok(t.serial[0].tMs >= 500 && t.serial[0].tMs <= 510,
+        `should print near 500ms, got ${t.serial[0].tMs}`);
+});

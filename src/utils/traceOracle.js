@@ -37,6 +37,11 @@ const KNOWN = new Set([
     'operator_add', 'operator_subtract', 'operator_multiply', 'operator_divide',
     'operator_mod', 'operator_gt', 'operator_lt', 'operator_equals',
     'operator_and', 'operator_or', 'operator_not', 'operator_join', 'operator_round',
+    'operator_letter_of', 'operator_length', 'operator_contains',
+    'operator_mathop', 'operator_random',
+    'data_addtolist', 'data_deleteoflist', 'data_insertatlist',
+    'data_replaceitemoflist', 'data_itemoflist', 'data_lengthoflist',
+    'data_listcontainsitem',
     'bitops_and', 'bitops_or', 'bitops_xor', 'bitops_shl', 'bitops_shr', 'bitops_not',
     'procedures_call', 'argument_reporter_string_number', 'argument_reporter_boolean',
 ]);
@@ -47,6 +52,11 @@ const KNOWN = new Set([
  * @param {number} [opts.horizonMs] - how much program time to trace (default 5000)
  * @param {Array<{tMs:number,pin:string,volts?:number,level?:0|1}>} [opts.stimulus]
  *   scripted inputs by LOGICAL pin name; the latest entry at-or-before now wins
+ * @param {Array<{tMs:number,part:string,param:string,value:number}>} [opts.partStimulus]
+ *   scripted part-param inputs (e.g. ultrasonic distance, accelerometer g):
+ *   at any read, the latest entry at-or-before now for that part+param wins.
+ *   Used for sensor examples where the stimulus is not a pin voltage but a
+ *   world-facing parameter (knock force, distance, tilt vector, touch state).
  * @param {number} [opts.maxSteps] - runaway guard (default 1e6)
  * @param {{bits:number, vref:number}} [opts.adc] - the DEVICE'S ADC
  *   resolution and reference (8051/AVR: 10 bits of 5 V; Pico: 12 of 3.3).
@@ -60,6 +70,7 @@ export function interpretTrace(project, opts = {}) {
     const horizonMs = opts.horizonMs ?? 5000;
     const maxSteps = opts.maxSteps ?? 1e6;
     const stimulus = [...(opts.stimulus ?? [])].sort((a, b) => a.tMs - b.tMs);
+    const partStimulus = [...(opts.partStimulus ?? [])].sort((a, b) => a.tMs - b.tMs);
     const adc = opts.adc ?? { bits: 10, vref: 5 };
 
     const stc = (project && project.stc) || { pins: [] };
@@ -81,6 +92,7 @@ export function interpretTrace(project, opts = {}) {
     }
 
     const vars = new Map();
+    const lists = new Map(); // name → array of values
     let now = 0;
 
     const emitPin = (name, intent) => {
@@ -98,6 +110,18 @@ export function interpretTrace(project, opts = {}) {
             if (String(s.pin).toLowerCase() === key) hit = s;
         }
         return hit;
+    };
+
+    /** Lookup part-param stimulus value at current time. */
+    const partStimAt = (partName, param) => {
+        const pk = String(partName).toLowerCase();
+        const pp = String(param).toLowerCase();
+        let hit = null;
+        for (const s of partStimulus) {
+            if (s.tMs > now) break;
+            if (String(s.part).toLowerCase() === pk && String(s.param).toLowerCase() === pp) hit = s;
+        }
+        return hit ? hit.value : undefined;
     };
 
     // ---- collect the tasks ------------------------------------------------
@@ -166,6 +190,50 @@ export function interpretTrace(project, opts = {}) {
             case 'operator_not': return !evalInput(task, b.inputs.OPERAND);
             case 'operator_join': return String(inp('STRING1')) + String(inp('STRING2'));
             case 'operator_round': return Math.round(num(inp('NUM')));
+            case 'operator_letter_of': {
+                const idx = Math.round(num(inp('LETTER')));
+                const str = String(inp('STRING'));
+                return (idx >= 1 && idx <= str.length) ? str[idx - 1] : '';
+            }
+            case 'operator_length': return String(inp('STRING')).length;
+            case 'operator_contains': return String(inp('STRING1')).toLowerCase().includes(String(inp('STRING2')).toLowerCase());
+            case 'operator_mathop': {
+                const v = num(inp('NUM'));
+                switch (fld('OPERATOR')) {
+                    case 'abs': return Math.abs(v);
+                    case 'floor': return Math.floor(v);
+                    case 'ceiling': return Math.ceil(v);
+                    case 'sqrt': return Math.sqrt(v);
+                    case 'sin': return Math.sin(v * Math.PI / 180);
+                    case 'cos': return Math.cos(v * Math.PI / 180);
+                    case 'tan': return Math.tan(v * Math.PI / 180);
+                    case 'asin': return Math.asin(v) * 180 / Math.PI;
+                    case 'acos': return Math.acos(v) * 180 / Math.PI;
+                    case 'atan': return Math.atan(v) * 180 / Math.PI;
+                    case 'ln': return Math.log(v);
+                    case 'log': return Math.log10(v);
+                    case 'e ^': return Math.exp(v);
+                    case '10 ^': return Math.pow(10, v);
+                    default: return 0;
+                }
+            }
+            case 'operator_random': {
+                // Deterministic: the referee uses a fixed value (midpoint of range)
+                // so traces are reproducible. Real hardware uses hardware RNG.
+                const lo = num(inp('FROM')), hi = num(inp('TO'));
+                return Math.round((lo + hi) / 2);
+            }
+            case 'data_itemoflist': {
+                const list = lists.get(fld('LIST')) ?? [];
+                const idx = Math.round(num(inp('INDEX')));
+                return (idx >= 1 && idx <= list.length) ? list[idx - 1] : '';
+            }
+            case 'data_lengthoflist': return (lists.get(fld('LIST')) ?? []).length;
+            case 'data_listcontainsitem': {
+                const list = lists.get(fld('LIST')) ?? [];
+                const item = inp('ITEM');
+                return list.some(v => String(v) === String(item));
+            }
             case 'bitops_and': return num(inp('NUM1')) & num(inp('NUM2'));
             case 'bitops_or': return num(inp('NUM1')) | num(inp('NUM2'));
             case 'bitops_xor': return num(inp('NUM1')) ^ num(inp('NUM2'));
@@ -322,6 +390,40 @@ export function interpretTrace(project, opts = {}) {
                 case 'data_changevariableby': {
                     const k = fld('VARIABLE');
                     vars.set(k, num(vars.get(k) ?? 0) + num(inp('VALUE')));
+                    frame.block = b.next; continue;
+                }
+                case 'data_addtolist': {
+                    const k = fld('LIST');
+                    if (!lists.has(k)) lists.set(k, []);
+                    lists.get(k).push(inp('ITEM'));
+                    frame.block = b.next; continue;
+                }
+                case 'data_deleteoflist': {
+                    const k = fld('LIST');
+                    const list = lists.get(k);
+                    if (list) {
+                        const idx = Math.round(num(inp('INDEX')));
+                        if (idx >= 1 && idx <= list.length) list.splice(idx - 1, 1);
+                        else if (idx === list.length + 1 || String(inp('INDEX')) === 'last') list.pop();
+                        else if (String(inp('INDEX')) === 'all') list.length = 0;
+                    }
+                    frame.block = b.next; continue;
+                }
+                case 'data_insertatlist': {
+                    const k = fld('LIST');
+                    if (!lists.has(k)) lists.set(k, []);
+                    const list = lists.get(k);
+                    const idx = Math.round(num(inp('INDEX')));
+                    if (idx >= 1 && idx <= list.length + 1) list.splice(idx - 1, 0, inp('ITEM'));
+                    frame.block = b.next; continue;
+                }
+                case 'data_replaceitemoflist': {
+                    const k = fld('LIST');
+                    const list = lists.get(k);
+                    if (list) {
+                        const idx = Math.round(num(inp('INDEX')));
+                        if (idx >= 1 && idx <= list.length) list[idx - 1] = inp('ITEM');
+                    }
                     frame.block = b.next; continue;
                 }
                 case 'stc12_setpin': {
@@ -482,6 +584,8 @@ export function interpretTrace(project, opts = {}) {
         }
     }
     for (const [k, v] of vars) trace.vars[k] = v;
+    trace.lists = {};
+    for (const [k, v] of lists) trace.lists[k] = [...v];
     trace.events = trace.events.filter((e) => e.tMs <= horizonMs);
     trace.serial = trace.serial.filter((e) => e.tMs <= horizonMs);
     trace.devices = trace.devices.filter((e) => e.tMs <= horizonMs);
