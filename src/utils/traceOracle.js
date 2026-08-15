@@ -30,7 +30,10 @@ const KNOWN = new Set([
     'control_wait', 'control_wait_until', 'control_repeat_until',
     'data_setvariableto', 'data_changevariableby',
     'stc12_setpin', 'stc12_toggle', 'stc12_writepin', 'stc12_setpwm',
-    'stc12_print', 'stc12_read',
+    'stc12_print', 'stc12_read', 'stc12_setpart',
+    'devices_setservo', 'devices_servoangle',
+    'devices_setmotor', 'devices_motorspeed', 'devices_motordirection',
+    'devices_setdirection',
     'operator_add', 'operator_subtract', 'operator_multiply', 'operator_divide',
     'operator_mod', 'operator_gt', 'operator_lt', 'operator_equals',
     'operator_and', 'operator_or', 'operator_not', 'operator_join', 'operator_round',
@@ -61,8 +64,11 @@ export function interpretTrace(project, opts = {}) {
 
     const stc = (project && project.stc) || { pins: [] };
     const pinsByName = new Map((stc.pins || []).map((p) => [String(p.name).toLowerCase(), p]));
+    const partsByName = new Map((stc.parts || []).map((p) => [String(p.name).toLowerCase(), p]));
 
-    const trace = { events: [], pwm: [], serial: [], vars: {}, horizon: horizonMs, unsupported: [] };
+    const trace = { events: [], pwm: [], serial: [], devices: [], vars: {}, horizon: horizonMs, unsupported: [] };
+    // Device state: servo angle, motor speed/direction — readable by reporters.
+    const deviceState = new Map(); // name → { angle?, speed?, dir? }
     // Every pin starts at intent 0 — the implicit boot state on every core
     // (the C builds write the OFF level in bw_setup). Seeding the dedup map
     // means a leading 'turn off' records nothing, on the referee AND on any
@@ -111,6 +117,15 @@ export function interpretTrace(project, opts = {}) {
 
     // ---- expression evaluation -------------------------------------------
     function num(v) { const n = Number(v); return Number.isFinite(n) ? n : 0; }
+
+    /** Extract a device/part name from an input (type 12/13 = variable-reference format). */
+    function nameInput(input) {
+        if (!input) return '';
+        const v = input[1];
+        if (Array.isArray(v) && (v[0] === 12 || v[0] === 13)) return String(v[1]);
+        if (Array.isArray(v)) return String(v[1]);
+        return String(v ?? '');
+    }
 
     function evalInput(task, input) {
         // SB3 input: [shadowType, blockIdOrLiteral] — mirror cVal's reading.
@@ -178,6 +193,18 @@ export function interpretTrace(project, opts = {}) {
                         : 0;
                 }
                 return s ? (s.level ? 1 : 0) : 0;
+            }
+            case 'devices_servoangle': {
+                const ds = deviceState.get(nameInput(b.inputs && b.inputs.SERVO).toLowerCase());
+                return ds ? (ds.angle ?? 0) : 0;
+            }
+            case 'devices_motorspeed': {
+                const ds = deviceState.get(nameInput(b.inputs && b.inputs.MOTOR).toLowerCase());
+                return ds ? (ds.speed ?? 0) : 0;
+            }
+            case 'devices_motordirection': {
+                const ds = deviceState.get(nameInput(b.inputs && b.inputs.MOTOR).toLowerCase());
+                return ds ? (ds.dir ?? 0) : 0;
             }
             default:
                 trace.unsupported.push(b.opcode);
@@ -331,6 +358,63 @@ export function interpretTrace(project, opts = {}) {
                     trace.serial.push({ tMs: now, line: String(v) });
                     frame.block = b.next; continue;
                 }
+                case 'stc12_setpart': {
+                    // 74HC595 shift register: shift_out(data, clock, latch, activeLow, value).
+                    // Observable: 8 data+clock bit-bangs then a latch pulse.
+                    // The referee records the part-level event; the emulator's
+                    // shift_out() helper produces the same pin sequence.
+                    const partName = fld('PART');
+                    const value = num(inp('VALUE')) & 0xFF;
+                    const partCfg = partsByName.get(String(partName).toLowerCase());
+                    if (partCfg) {
+                        const al = !!partCfg.activeLow;
+                        // Record pin-level events for data/clock/latch
+                        const { data, clock, latch } = partCfg;
+                        const dataKey = `P${data.port}.${data.bit}`;
+                        const clockKey = `P${clock.port}.${clock.bit}`;
+                        const latchKey = `P${latch.port}.${latch.bit}`;
+                        // Latch low to start
+                        emitPin(latchKey, al ? 1 : 0);
+                        for (let bit = 7; bit >= 0; bit--) {
+                            const bitVal = (value >> bit) & 1;
+                            emitPin(dataKey, al ? (bitVal ? 0 : 1) : bitVal);
+                            emitPin(clockKey, al ? 0 : 1);  // clock high
+                            emitPin(clockKey, al ? 1 : 0);  // clock low
+                        }
+                        // Latch pulse
+                        emitPin(latchKey, al ? 0 : 1);
+                        emitPin(latchKey, al ? 1 : 0);
+                    }
+                    trace.devices.push({ tMs: now, kind: 'shift_out', name: String(partName).toLowerCase(), value });
+                    frame.block = b.next; continue;
+                }
+                case 'devices_setservo': {
+                    // Servo: record angle as a device event + track state.
+                    // The emulator captures bw_servo_set(name, angle).
+                    const name = nameInput(b.inputs && b.inputs.SERVO).toLowerCase();
+                    const angle = Math.max(0, Math.min(180, Math.round(num(inp('ANGLE')))));
+                    if (!deviceState.has(name)) deviceState.set(name, {});
+                    deviceState.get(name).angle = angle;
+                    trace.devices.push({ tMs: now, kind: 'servo', name, angle });
+                    frame.block = b.next; continue;
+                }
+                case 'devices_setmotor': {
+                    const name = nameInput(b.inputs && b.inputs.MOTOR).toLowerCase();
+                    const speed = Math.max(0, Math.min(255, Math.round(num(inp('SPEED')))));
+                    if (!deviceState.has(name)) deviceState.set(name, {});
+                    deviceState.get(name).speed = speed;
+                    trace.devices.push({ tMs: now, kind: 'motor_speed', name, speed });
+                    frame.block = b.next; continue;
+                }
+                case 'devices_setdirection': {
+                    const name = nameInput(b.inputs && b.inputs.MOTOR).toLowerCase();
+                    const dir = fld('DIR');
+                    const dirNum = ({ forward: 0, reverse: 1, brake: 2, coast: 3 })[dir] ?? 0;
+                    if (!deviceState.has(name)) deviceState.set(name, {});
+                    deviceState.get(name).dir = dirNum;
+                    trace.devices.push({ tMs: now, kind: 'motor_dir', name, dir: dirNum });
+                    frame.block = b.next; continue;
+                }
                 case 'procedures_call': {
                     // Find the definition by proccode, bind arguments into
                     // the new frame, continue at the body (no yield on entry
@@ -395,6 +479,7 @@ export function interpretTrace(project, opts = {}) {
     for (const [k, v] of vars) trace.vars[k] = v;
     trace.events = trace.events.filter((e) => e.tMs <= horizonMs);
     trace.serial = trace.serial.filter((e) => e.tMs <= horizonMs);
+    trace.devices = trace.devices.filter((e) => e.tMs <= horizonMs);
     return trace;
 }
 
@@ -500,5 +585,37 @@ export function compareTraces(ref, actual, opts = {}) {
             diffs.push(`pwm ${i}: ${JSON.stringify(rp[i])} vs ${JSON.stringify(ap[i])}`);
         }
     }
+
+    // Device events: servo angle, motor speed/direction, shift_out value.
+    // Compared by kind+name sequence within tolerance, same rules as serial.
+    const rd = (ref.devices ?? []).filter(inWindow);
+    const ad = (actual.devices ?? []).filter(inWindow);
+    const md = Math.min(rd.length, ad.length);
+    for (let i = 0; i < md; i++) {
+        if (rd[i].kind !== ad[i].kind || rd[i].name !== ad[i].name) {
+            diffs.push(`device ${i}: ${JSON.stringify(rd[i])} vs ${JSON.stringify(ad[i])}`);
+        } else {
+            // Kind-specific value comparison
+            const rde = rd[i], ade = ad[i];
+            if (rde.kind === 'servo' && rde.angle !== ade.angle) {
+                diffs.push(`device ${i} servo "${rde.name}": angle ${rde.angle} vs ${ade.angle}`);
+            } else if (rde.kind === 'motor_speed' && rde.speed !== ade.speed) {
+                diffs.push(`device ${i} motor "${rde.name}": speed ${rde.speed} vs ${ade.speed}`);
+            } else if (rde.kind === 'motor_dir' && rde.dir !== ade.dir) {
+                diffs.push(`device ${i} motor "${rde.name}": dir ${rde.dir} vs ${ade.dir}`);
+            } else if (rde.kind === 'shift_out' && rde.value !== ade.value) {
+                diffs.push(`device ${i} shift_out "${rde.name}": value ${rde.value} vs ${ade.value}`);
+            }
+            if (Math.abs(rde.tMs - ade.tMs) > tolAt(rde.tMs)) {
+                diffs.push(`device ${i} ${rde.kind} "${rde.name}": time ${rde.tMs} vs ${ade.tMs}`);
+            }
+        }
+    }
+    if (rd.length !== ad.length) {
+        const extra = rd.length > ad.length ? 'referee' : 'actual';
+        const diff = Math.abs(rd.length - ad.length);
+        diffs.push(`device count: referee ${rd.length} vs actual ${ad.length} (${extra} has ${diff} extra)`);
+    }
+
     return { ok: diffs.length === 0, diffs };
 }

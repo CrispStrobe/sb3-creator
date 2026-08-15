@@ -190,3 +190,141 @@ WHEN flag clicked:
     assert.deepEqual(t.serial.map((s) => s.line), ['8', '777']);
     assert.equal(t.vars.total, 8);
 });
+
+// ---- Servo / motor / shift_out vocabulary ---------------------------------
+
+test('referee: servo angle records device event and tracks state', () => {
+    const t = interpretTrace(parse(`DEVICE STC12C5A60S2
+CLOCK 11059200
+PIN signal = P1.1 OUTPUT
+
+WHEN flag clicked:
+  set myservo angle to 90
+  wait 0.5 seconds
+  set myservo angle to 0
+  print angle of myservo
+`), { horizonMs: 2000 });
+    assert.deepEqual(t.unsupported, []);
+    assert.equal(t.devices.length, 2);
+    assert.equal(t.devices[0].kind, 'servo');
+    assert.equal(t.devices[0].name, 'myservo');
+    assert.equal(t.devices[0].angle, 90);
+    assert.equal(t.devices[0].tMs, 0);
+    assert.equal(t.devices[1].angle, 0);
+    assert.equal(t.devices[1].tMs, 500);
+    // Reporter reads back device state
+    assert.deepEqual(t.serial.map(s => s.line), ['0']);
+});
+
+test('referee: servo angle is clamped to 0-180', () => {
+    const t = interpretTrace(parse(`DEVICE PICO
+PIN sig = GP15 OUTPUT
+
+WHEN flag clicked:
+  set myservo angle to 200
+  set myservo angle to -10
+`), { horizonMs: 1000 });
+    assert.deepEqual(t.unsupported, []);
+    assert.equal(t.devices[0].angle, 180);
+    assert.equal(t.devices[1].angle, 0);
+});
+
+test('referee: motor speed + direction record device events', () => {
+    const t = interpretTrace(parse(`DEVICE STC12C5A60S2
+CLOCK 11059200
+PIN led = P1.0 OUTPUT ACTIVE LOW
+
+WHEN flag clicked:
+  turn on led
+  set mymotor speed to 200
+  set mymotor direction forward
+  wait 1 seconds
+  set mymotor direction reverse
+  wait 1 seconds
+  set mymotor speed to 0
+  set mymotor direction coast
+  turn off led
+`), { horizonMs: 5000 });
+    assert.deepEqual(t.unsupported, []);
+    // Device events: speed, dir forward, dir reverse, speed 0, dir coast
+    assert.equal(t.devices.length, 5);
+    assert.equal(t.devices[0].kind, 'motor_speed');
+    assert.equal(t.devices[0].speed, 200);
+    assert.equal(t.devices[1].kind, 'motor_dir');
+    assert.equal(t.devices[1].dir, 0); // forward
+    assert.equal(t.devices[2].kind, 'motor_dir');
+    assert.equal(t.devices[2].dir, 1); // reverse
+    assert.equal(t.devices[3].kind, 'motor_speed');
+    assert.equal(t.devices[3].speed, 0);
+    assert.equal(t.devices[4].kind, 'motor_dir');
+    assert.equal(t.devices[4].dir, 3); // coast
+    // Pin events: on at 0, off at 2000
+    assert.equal(t.events[0].level, 1);
+    assert.equal(t.events[1].level, 0);
+});
+
+test('referee: motor speed clamped 0-255', () => {
+    const t = interpretTrace(parse(`DEVICE PICO
+PIN led = GP15 OUTPUT
+
+WHEN flag clicked:
+  set mymotor speed to 300
+`), { horizonMs: 1000 });
+    assert.deepEqual(t.unsupported, []);
+    assert.equal(t.devices[0].speed, 255);
+});
+
+test('referee: shift_out records device event + pin edges', () => {
+    const t = interpretTrace(parse(`DEVICE STC12C5A60S2
+CLOCK 11059200
+PART leds = 74HC595 data P1.0 clock P1.1 latch P1.2
+
+WHEN flag clicked:
+  set leds to 170
+`), { horizonMs: 1000 });
+    assert.deepEqual(t.unsupported, []);
+    // Device event
+    assert.equal(t.devices.length, 1);
+    assert.equal(t.devices[0].kind, 'shift_out');
+    assert.equal(t.devices[0].name, 'leds');
+    assert.equal(t.devices[0].value, 170); // 0b10101010
+    // Pin events: data, clock edges for each bit, then latch
+    // 170 = 0b10101010 → bits MSB first: 1,0,1,0,1,0,1,0
+    assert.ok(t.events.length > 0, 'should have pin events');
+});
+
+test('referee: shift_out value is masked to 8 bits', () => {
+    const t = interpretTrace(parse(`DEVICE STC12C5A60S2
+CLOCK 11059200
+PART leds = 74HC595 data P1.0 clock P1.1 latch P1.2
+
+WHEN flag clicked:
+  set leds to 256
+`), { horizonMs: 1000 });
+    assert.deepEqual(t.unsupported, []);
+    assert.equal(t.devices[0].value, 0); // 256 & 0xFF = 0
+});
+
+test('comparator: device events compared correctly', () => {
+    const ref = {
+        horizon: 2000,
+        events: [], serial: [], pwm: [],
+        devices: [
+            { tMs: 0, kind: 'servo', name: 'myservo', angle: 90 },
+            { tMs: 500, kind: 'servo', name: 'myservo', angle: 0 },
+        ],
+    };
+    // Matching actual
+    const ok = compareTraces(ref, { ...ref });
+    assert.ok(ok.ok, ok.diffs.join('; '));
+    // Wrong angle
+    const wrong = compareTraces(ref, {
+        ...ref,
+        devices: [
+            { tMs: 0, kind: 'servo', name: 'myservo', angle: 90 },
+            { tMs: 500, kind: 'servo', name: 'myservo', angle: 45 },
+        ],
+    });
+    assert.equal(wrong.ok, false);
+    assert.ok(wrong.diffs.some(d => /angle/.test(d)));
+});
