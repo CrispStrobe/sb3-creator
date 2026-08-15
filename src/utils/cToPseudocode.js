@@ -1058,7 +1058,15 @@ export default function cToPseudocode (source, opts = {}) {
                         cur.i = scan;
                     }
                 }
-                const rhs = expr(cur);
+                // Handle chained assignment: `A = B = C = val;`
+                // Collect the chain of lvalues, then the final rvalue.
+                const chain = [name];
+                let rhs = expr(cur);
+                while (op === '=' && cur.is('=')) {
+                    chain.push(rhs.text);
+                    cur.next(); // eat '='
+                    rhs = expr(cur);
+                }
                 cur.eat(';');
                 // A declared pin IS an SFR bit, so check it BEFORE the register filter,
                 // or every `P1_0 = 0;` is mistaken for setup and the program disappears.
@@ -1068,6 +1076,16 @@ export default function cToPseudocode (source, opts = {}) {
                     if (op !== '=') { warn(`"${name} ${op}" on a pin is not expressible — skipped`); return []; }
                     if (rhs.text === `not read ${pin.name}` || rhs.text === `read ${pin.name}`) return [`${pad}toggle ${pin.name}`];
                     return [`${pad}${pinWrite(pin, rhs.text)}`];
+                }
+                // Emit set statements for each name in the chain
+                if (op === '=' && chain.length > 1) {
+                    const lines = [];
+                    for (const lv of chain) {
+                        if (SFRS.test(lv)) continue;
+                        const v = varName(lv); usedVars.add(v);
+                        lines.push(`${pad}set ${v} to ${rhs.text}`);
+                    }
+                    return lines;
                 }
                 const v = varName(name); usedVars.add(v);
                 if (op === '=') return [`${pad}set ${v} to ${rhs.text}`];
