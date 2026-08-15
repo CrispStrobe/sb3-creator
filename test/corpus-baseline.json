@@ -13,11 +13,11 @@
     "no register header found — assuming DEVICE STC12C5A60S2": 1199,
     "no pins found — declare them with #define NAME P1_0 or sbit NAME = P1^0": 955,
     "no main() and no @bw script markers — nothing to translate": 759,
-    "statement dropped (not representable as a block): uchar i": 82,
     "top-level declaration dropped (no block equivalent): typedef unsigned char uint8": 74,
     "top-level declaration dropped (no block equivalent): typedef unsigned int uint16": 66,
-    "`break` was transformed into a flag variable — the program structure changed": 64,
+    "`break` was transformed into a flag variable — the program structure changed": 63,
     "inferred DEVICE STC89C52RC from <8051.h>": 57,
-    "polarity of \"LCD_RS\" is unknown — assuming active high": 40
+    "polarity of \"LCD_RS\" is unknown — assuming active high": 40,
+    "polarity of \"LCD_RW\" is unknown — assuming active high": 39
   }
 }
