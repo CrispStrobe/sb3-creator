@@ -71,3 +71,25 @@ set into a DAG — a course path (8yo LED start → adult flyback diodes)
 is a walk over that DAG, which the app can render as a Scratch-style
 guided tutorial later without new content work. Inspiration noted from
 Scratch tutorials/onboarding; our own design is this schema.
+
+## Doctrine amendments from the pilot (2026-08-15)
+
+- **Verdict vocabulary grows `engine-bug`** — a defect in bw-board found
+  through an example is its own verdict, escalated to the coordinator
+  (never buried inside a content-fix entry).
+- **Every verdict states its coverage**: `layers: engine` or
+  `layers: engine+render`. A verdict that never drove the browser must
+  say so; 36-parallel-leds's app-bug verdict was by elimination and the
+  ledger now shows that.
+- **Observation conditions are part of the checklist**: transient
+  phenomena require sub-millisecond sampling (`audit-solve <id> --at
+  0.001,0.01,1`); the timebase chosen decides the outcome, so it must
+  be recorded in the ledger entry.
+- **The shared harness is `node scripts/audit-solve.mjs <id>`** — no
+  auditor hand-copies the union-find again.
+- **Audit and fix are one motion**: the honest ledger entry exists only
+  after the fix is measured; the ledger records before/after numbers.
+- **Sweep organization**: waves of ~10 examples per agent; each agent
+  writes its OWN ledger slice `examples/AUDIT/<range>.md` (no merge
+  conflicts) and its intros beside each example; engine-bug findings
+  stop the example and escalate rather than being worked around.
