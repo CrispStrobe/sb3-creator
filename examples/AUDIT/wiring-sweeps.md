@@ -206,13 +206,53 @@ VCC → motor (windingR=10Ω) → GND. Full 5 V across motor. I = 500 mA. ✓
 VCC→Rc(1k)→collector, VCC→Rb(10k)→base, emitter→GND. Collector at 0.010 V
 (deep saturation), base at 4.546 V. Darlington Vbe ≈ 0.45 V (two junctions). ✓
 
+## isource — PASS (1)
+10 mA into 100 Ω = exactly **1.000 V**. ✓
+
+## vsource — PASS (1)
+3.3 V source → R(1k) → LED. pos = **3.300 V**, LED at **2.013 V**. ✓
+
+## servo — PASS (1)
+VCC = **5.000 V**, signal = 0 V (floating, no MCU driving). ✓
+
+## temp_sensor — PASS (1)
+VCC powered, dq output = 0 V (no stimulus). ✓
+
+## ir_receiver — PASS (1)
+VCC powered, output = 0 V (idle, no IR signal). ✓
+
+## shift_register — PASS (existing examples)
+Verified through 08-led-chaser-595 and 20-shift-register-binary. 8 Q outputs
+all at 0 V (idle), data/clock/latch from MCU. ✓
+
+## char_lcd — SKIPPED (16-terminal I2C/parallel, needs MCU interaction)
+## eeprom — SKIPPED (I2C, needs MCU interaction)
 ## rgb_led — SKIPPED (null terminals, needs net inference)
-## battery — SKIPPED (floating island, no board GND reference)
-## lm7805 — SKIPPED (null terminals)
+## battery/battery_9v/battery_aa/battery_coin — SKIPPED (floating island)
+## lm7805/ld1117v33/vreg — SKIPPED (null terminals)
+
+## 74HC series (13 kinds) — SKIPPED (null terminals, net-inference only)
+74hc00, 74hc02, 74hc04, 74hc08, 74hc10, 74hc11, 74hc132, 74hc14, 74hc20,
+74hc21, 74hc27, 74hc32, 74hc86. These gate ICs use net-inference for terminals
+and cannot be swept generically. Verified indirectly through pc45-nand-test,
+pc46-xor-selector, and other gate examples.
+
+## Null-terminal parts (65 kinds) — require custom circuits
+These parts return null for `getTerminalsForKind` and rely on net-inference
+from circuit.json wiring. They cannot be swept with the generic 2/3-terminal
+harness. Many are verified through existing gallery examples.
 
 ---
 
-## Parts not yet swept (82 remaining)
+## Sweep totals
+
+| status | count |
+|---|---|
+| PASS (generic sweep) | 33 |
+| ENGINE-BUG (escalated) | 3 (pnp, nmos-on, pmos) |
+| FINDING (not bug) | 1 (diode default Vf) |
+| SKIPPED (null terminals / floating) | 77 |
+| **total** | **114** |
 
 74hc00, 74hc02, 74hc04, 74hc08, 74hc10, 74hc11, 74hc132, 74hc14,
 74hc20, 74hc21, 74hc27, 74hc283, 74hc32, 74hc73, 74hc74, 74hc75,
