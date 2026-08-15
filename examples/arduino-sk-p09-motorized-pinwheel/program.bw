@@ -1,0 +1,13 @@
+# Ported from arduino-examples/examples/10.StarterKit_BasicKit/p09_MotorizedPinwheel, CC0
+DEVICE ARDUINO-UNO
+CLOCK 16000000
+PIN btn = D2 INPUT
+PIN motor = D9 OUTPUT
+
+SPRITE Cat:
+  WHEN flag clicked:
+    forever:
+      if read btn then:
+        turn on motor
+      else:
+        turn off motor

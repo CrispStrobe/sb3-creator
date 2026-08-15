@@ -3375,5 +3375,95 @@
     "devices": [
       "attiny88"
     ]
+  },
+  {
+    "id": "arduino-sk-p07-keyboard",
+    "title": {
+      "en": "Keyboard (CC0)",
+      "de": "Tastatur (CC0)"
+    },
+    "category": "digital",
+    "difficulty": 1,
+    "files": {
+      "program": "arduino-sk-p07-keyboard/program.bw",
+      "circuit": "arduino-sk-p07-keyboard/circuit.json"
+    },
+    "kind": "full",
+    "devices": [
+      "arduino-uno",
+      "arduino-nano"
+    ]
+  },
+  {
+    "id": "arduino-sk-p08-hourglass",
+    "title": {
+      "en": "Digital Hourglass (CC0)",
+      "de": "Digitale Sanduhr (CC0)"
+    },
+    "category": "digital",
+    "difficulty": 2,
+    "files": {
+      "program": "arduino-sk-p08-hourglass/program.bw",
+      "circuit": "arduino-sk-p08-hourglass/circuit.json"
+    },
+    "kind": "full",
+    "devices": [
+      "arduino-uno",
+      "arduino-nano"
+    ]
+  },
+  {
+    "id": "arduino-sk-p09-motorized-pinwheel",
+    "title": {
+      "en": "Motorized Pinwheel (CC0)",
+      "de": "Motorisiertes Windrad (CC0)"
+    },
+    "category": "motors",
+    "difficulty": 1,
+    "files": {
+      "program": "arduino-sk-p09-motorized-pinwheel/program.bw",
+      "circuit": "arduino-sk-p09-motorized-pinwheel/circuit.json"
+    },
+    "kind": "full",
+    "devices": [
+      "arduino-uno",
+      "arduino-nano"
+    ]
+  },
+  {
+    "id": "arduino-sk-p10-zoetrope",
+    "title": {
+      "en": "Zoetrope (CC0)",
+      "de": "Zoetrop (CC0)"
+    },
+    "category": "motors",
+    "difficulty": 2,
+    "files": {
+      "program": "arduino-sk-p10-zoetrope/program.bw",
+      "circuit": "arduino-sk-p10-zoetrope/circuit.json"
+    },
+    "kind": "full",
+    "devices": [
+      "arduino-uno",
+      "arduino-nano"
+    ]
+  },
+  {
+    "id": "arduino-sk-p11-crystal-ball",
+    "title": {
+      "en": "Crystal Ball (CC0)",
+      "de": "Kristallkugel (CC0)"
+    },
+    "category": "basics",
+    "difficulty": 1,
+    "files": {
+      "program": "arduino-sk-p11-crystal-ball/program.bw",
+      "circuit": "arduino-sk-p11-crystal-ball/circuit.json"
+    },
+    "kind": "full",
+    "devices": [
+      "arduino-uno",
+      "arduino-nano"
+    ]
   }
 ]

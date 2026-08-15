@@ -1,0 +1,23 @@
+# Ported from arduino-examples/examples/10.StarterKit_BasicKit/p11_CrystalBall, CC0
+# Simplified: prints to serial instead of LCD
+DEVICE ARDUINO-UNO
+CLOCK 16000000
+PIN tilt = D6 INPUT
+
+SPRITE Cat:
+  WHEN flag clicked:
+    LIST answers
+    add "Yes" to answers
+    add "Most likely" to answers
+    add "Certainly" to answers
+    add "Signs point to yes" to answers
+    add "Without a doubt" to answers
+    add "Ask again" to answers
+    add "Better not tell you" to answers
+    add "No" to answers
+    forever:
+      if read tilt then:
+        set reply to (item (pick random 1 to 8) of answers)
+        print reply
+        wait 1 seconds
+      wait 0.1 seconds
