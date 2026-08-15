@@ -84,6 +84,13 @@ function generateProgram(seed) {
         if (where) pins.push({ name: 'motor1', where, direction: 'pwm', activeLow: '' });
     }
 
+    // Optional: tone pin (buzzer frequency via settone)
+    const hasTone = pools.pwm.length > 1 && rand() < 0.2;
+    if (hasTone) {
+        const where = take(pools.pwm);
+        if (where) pins.push({ name: 'buzzer1', where, direction: 'tone', activeLow: '' });
+    }
+
     // Optional: servo (uses an output pin as signal)
     const hasServo = rand() < 0.2;
     const servoNames = [];
@@ -112,6 +119,7 @@ function generateProgram(seed) {
     const analogPins = pins.filter(p => p.direction === 'analog').map(p => p.name);
     const inputPins = pins.filter(p => p.direction === 'input').map(p => p.name);
     const pwmPins = pins.filter(p => p.direction === 'pwm').map(p => p.name);
+    const tonePins = pins.filter(p => p.direction === 'tone').map(p => p.name);
 
     // Declare 0-2 variables
     const numVars = randInt(0, 2);
@@ -124,7 +132,7 @@ function generateProgram(seed) {
     for (let t = 0; t < numTasks; t++) {
         const stmts = generateBlock(rand, pick, randInt, outputPins, analogPins,
             inputPins, pwmPins, varNames, randInt(2, 6), 0, 3,
-            servoNames, motorNames, partNames);
+            servoNames, motorNames, partNames, tonePins);
         // Guarantee an unconditional pin operation at the top of every task
         // so the trace is never degenerate. (A conditional pin op inside an
         // IF on an uninitialized variable may never fire.)
@@ -139,7 +147,7 @@ function generateProgram(seed) {
     lines.push(`DEVICE ${device.toUpperCase()}`);
     lines.push(`CLOCK ${clock}`);
     for (const p of pins) {
-        const dir = { output: 'OUTPUT', analog: 'ANALOG', input: 'INPUT', pwm: 'PWM' }[p.direction];
+        const dir = { output: 'OUTPUT', analog: 'ANALOG', input: 'INPUT', pwm: 'PWM', tone: 'TONE' }[p.direction];
         lines.push(`PIN ${p.name} = ${p.where} ${dir}${p.activeLow}`);
     }
     for (const pd of partDecls) {
@@ -166,7 +174,7 @@ function makeCond(rand, pick, randInt, inputs, analogs, vars) {
 }
 
 function generateBlock(rand, pick, randInt, outputs, analogs, inputs, pwms, vars, maxStmts, depth, maxDepth,
-    servos = [], motors = [], parts = []) {
+    servos = [], motors = [], parts = [], tones = []) {
     const stmts = [];
     const numStmts = randInt(1, maxStmts);
 
@@ -190,6 +198,9 @@ function generateBlock(rand, pick, randInt, outputs, analogs, inputs, pwms, vars
         } else if (r < 0.30 && parts.length > 0) {
             // Shift register: set part to value
             stmts.push(`set ${pick(parts)} to ${randInt(0, 255)}`);
+        } else if (r < 0.33 && tones.length > 0) {
+            // Tone: set buzzer frequency
+            stmts.push(`set ${pick(tones)} to ${pick([0, 220, 440, 880, 1000, 2000, 4000])} hz`);
         } else if (r < 0.35 && pwms.length > 0) {
             // PWM duty cycle
             stmts.push(`set ${pick(pwms)} to ${randInt(0, 100)} percent`);
@@ -219,7 +230,7 @@ function generateBlock(rand, pick, randInt, outputs, analogs, inputs, pwms, vars
         } else if (r < 0.68 && depth < maxDepth) {
             // FOREVER (only once per task to avoid infinite nesting)
             const body = generateBlock(rand, pick, randInt, outputs, analogs, inputs, pwms, vars,
-                Math.max(1, maxStmts - 1), depth + 1, maxDepth, servos, motors, parts);
+                Math.max(1, maxStmts - 1), depth + 1, maxDepth, servos, motors, parts, tones);
             stmts.push('FOREVER:');
             for (const b of body) stmts.push('  ' + b);
             break; // FOREVER must be last (nothing after runs)
@@ -227,7 +238,7 @@ function generateBlock(rand, pick, randInt, outputs, analogs, inputs, pwms, vars
             // REPEAT n
             const n = randInt(2, 5);
             const body = generateBlock(rand, pick, randInt, outputs, analogs, inputs, pwms, vars,
-                Math.max(1, maxStmts - 2), depth + 1, maxDepth, servos, motors, parts);
+                Math.max(1, maxStmts - 2), depth + 1, maxDepth, servos, motors, parts, tones);
             stmts.push(`REPEAT ${n}:`);
             for (const b of body) stmts.push('  ' + b);
         } else if (r < 0.82 && depth < maxDepth && (inputs.length > 0 || vars.length > 0 || analogs.length > 0)) {
@@ -235,7 +246,7 @@ function generateBlock(rand, pick, randInt, outputs, analogs, inputs, pwms, vars
             const cond = makeCond(rand, pick, randInt, inputs, analogs, vars);
             if (cond) {
                 const body = generateBlock(rand, pick, randInt, outputs, analogs, inputs, pwms, vars,
-                    Math.max(1, maxStmts - 2), depth + 1, maxDepth, servos, motors, parts);
+                    Math.max(1, maxStmts - 2), depth + 1, maxDepth, servos, motors, parts, tones);
                 stmts.push(`REPEAT UNTIL ${cond}:`);
                 for (const b of body) stmts.push('  ' + b);
             } else {
@@ -253,13 +264,13 @@ function generateBlock(rand, pick, randInt, outputs, analogs, inputs, pwms, vars
                 continue;
             }
             const thenBody = generateBlock(rand, pick, randInt, outputs, analogs, inputs, pwms, vars,
-                Math.max(1, maxStmts - 2), depth + 1, maxDepth, servos, motors, parts);
+                Math.max(1, maxStmts - 2), depth + 1, maxDepth, servos, motors, parts, tones);
             if (rand() < 0.4) {
                 stmts.push(`IF ${cond} THEN:`);
                 for (const b of thenBody) stmts.push('  ' + b);
             } else {
                 const elseBody = generateBlock(rand, pick, randInt, outputs, analogs, inputs, pwms, vars,
-                    Math.max(1, maxStmts - 2), depth + 1, maxDepth, servos, motors, parts);
+                    Math.max(1, maxStmts - 2), depth + 1, maxDepth, servos, motors, parts, tones);
                 stmts.push(`IF ${cond} THEN:`);
                 for (const b of thenBody) stmts.push('  ' + b);
                 stmts.push('ELSE:');

@@ -305,6 +305,71 @@ WHEN flag clicked:
     assert.equal(t.devices[0].value, 0); // 256 & 0xFF = 0
 });
 
+test('referee: settone records tone events (buzzer-siren pattern)', () => {
+    const t = interpretTrace(parse(`DEVICE STC12C5A60S2
+CLOCK 11059200
+PIN buzzer = P1.5 TONE
+
+WHEN flag clicked:
+  set buzzer to 440 hz
+  wait 0.5 seconds
+  set buzzer to 880 hz
+  wait 0.5 seconds
+  set buzzer to 0 hz
+`), { horizonMs: 2000 });
+    assert.deepEqual(t.unsupported, []);
+    assert.equal(t.tones.length, 3);
+    assert.equal(t.tones[0].pin, 'buzzer');
+    assert.equal(t.tones[0].hz, 440);
+    assert.equal(t.tones[0].tMs, 0);
+    assert.equal(t.tones[1].hz, 880);
+    assert.equal(t.tones[1].tMs, 500);
+    assert.equal(t.tones[2].hz, 0);
+    assert.equal(t.tones[2].tMs, 1000);
+});
+
+test('referee: DC buzzer (setpin on output) produces pin events, no tone', () => {
+    // An active buzzer on an OUTPUT pin uses turn on/off, not settone.
+    // The referee traces pin events; the buzzer-DC semantics are engine-side.
+    const t = interpretTrace(parse(`DEVICE STC12C5A60S2
+CLOCK 11059200
+PIN buzzer = P1.5 OUTPUT
+
+WHEN flag clicked:
+  turn on buzzer
+  wait 1 seconds
+  turn off buzzer
+`), { horizonMs: 2000 });
+    assert.deepEqual(t.unsupported, []);
+    assert.equal(t.tones.length, 0, 'OUTPUT pin uses setpin, not settone');
+    assert.equal(t.events.length, 2);
+    assert.equal(t.events[0].level, 1);
+    assert.equal(t.events[1].level, 0);
+});
+
+test('comparator: tone events compared correctly', () => {
+    const ref = {
+        horizon: 2000,
+        events: [], serial: [], pwm: [], devices: [],
+        tones: [
+            { tMs: 0, pin: 'buzzer', hz: 440 },
+            { tMs: 500, pin: 'buzzer', hz: 880 },
+        ],
+    };
+    const ok = compareTraces(ref, { ...ref });
+    assert.ok(ok.ok, ok.diffs.join('; '));
+    // Wrong frequency
+    const wrong = compareTraces(ref, {
+        ...ref,
+        tones: [
+            { tMs: 0, pin: 'buzzer', hz: 440 },
+            { tMs: 500, pin: 'buzzer', hz: 400 },
+        ],
+    });
+    assert.equal(wrong.ok, false);
+    assert.ok(wrong.diffs.some(d => /Hz/.test(d)));
+});
+
 test('comparator: device events compared correctly', () => {
     const ref = {
         horizon: 2000,

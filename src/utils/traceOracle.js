@@ -30,7 +30,7 @@ const KNOWN = new Set([
     'control_wait', 'control_wait_until', 'control_repeat_until',
     'data_setvariableto', 'data_changevariableby',
     'stc12_setpin', 'stc12_toggle', 'stc12_writepin', 'stc12_setpwm',
-    'stc12_print', 'stc12_read', 'stc12_setpart',
+    'stc12_settone', 'stc12_print', 'stc12_read', 'stc12_setpart',
     'devices_setservo', 'devices_servoangle',
     'devices_setmotor', 'devices_motorspeed', 'devices_motordirection',
     'devices_setdirection',
@@ -66,7 +66,7 @@ export function interpretTrace(project, opts = {}) {
     const pinsByName = new Map((stc.pins || []).map((p) => [String(p.name).toLowerCase(), p]));
     const partsByName = new Map((stc.parts || []).map((p) => [String(p.name).toLowerCase(), p]));
 
-    const trace = { events: [], pwm: [], serial: [], devices: [], vars: {}, horizon: horizonMs, unsupported: [] };
+    const trace = { events: [], pwm: [], tones: [], serial: [], devices: [], vars: {}, horizon: horizonMs, unsupported: [] };
     // Device state: servo angle, motor speed/direction — readable by reporters.
     const deviceState = new Map(); // name → { angle?, speed?, dir? }
     // Every pin starts at intent 0 — the implicit boot state on every core
@@ -353,6 +353,11 @@ export function interpretTrace(project, opts = {}) {
                     trace.pwm.push({ tMs: now, pin: String(fld('PIN')).toLowerCase(), percent: pct });
                     frame.block = b.next; continue;
                 }
+                case 'stc12_settone': {
+                    const hz = Math.max(0, Math.round(num(inp('VALUE'))));
+                    trace.tones.push({ tMs: now, pin: String(fld('PIN')).toLowerCase(), hz });
+                    frame.block = b.next; continue;
+                }
                 case 'stc12_print': {
                     const v = inp('VALUE');
                     trace.serial.push({ tMs: now, line: String(v) });
@@ -480,6 +485,7 @@ export function interpretTrace(project, opts = {}) {
     trace.events = trace.events.filter((e) => e.tMs <= horizonMs);
     trace.serial = trace.serial.filter((e) => e.tMs <= horizonMs);
     trace.devices = trace.devices.filter((e) => e.tMs <= horizonMs);
+    trace.tones = trace.tones.filter((e) => e.tMs <= horizonMs);
     return trace;
 }
 
@@ -584,6 +590,21 @@ export function compareTraces(ref, actual, opts = {}) {
         if (rp[i].pin !== ap[i].pin || Math.abs(rp[i].percent - ap[i].percent) > 2) {
             diffs.push(`pwm ${i}: ${JSON.stringify(rp[i])} vs ${JSON.stringify(ap[i])}`);
         }
+    }
+
+    // Tone events: pin + frequency, ±5 Hz tolerance (timer resolution).
+    const rt = ref.tones ?? [], at_ = actual.tones ?? [];
+    for (let i = 0; i < Math.min(rt.length, at_.length); i++) {
+        if (rt[i].pin !== at_[i].pin) {
+            diffs.push(`tone ${i}: pin "${rt[i].pin}" vs "${at_[i].pin}"`);
+        } else if (Math.abs(rt[i].hz - at_[i].hz) > 5) {
+            diffs.push(`tone ${i} ("${rt[i].pin}"): ${rt[i].hz} Hz vs ${at_[i].hz} Hz`);
+        } else if (Math.abs(rt[i].tMs - at_[i].tMs) > tolAt(rt[i].tMs)) {
+            diffs.push(`tone ${i} ("${rt[i].pin}"): time ${rt[i].tMs} vs ${at_[i].tMs}`);
+        }
+    }
+    if (rt.length !== at_.length) {
+        diffs.push(`tone count: referee ${rt.length} vs actual ${at_.length}`);
     }
 
     // Device events: servo angle, motor speed/direction, shift_out value.
