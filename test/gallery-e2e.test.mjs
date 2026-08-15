@@ -68,6 +68,17 @@ if (!SKIP) {
     setEngine({ BoardImpl, inferNetlist, checkWiring });
 }
 
+let extract6502Machine, extractZ80Machine;
+let EXTRACTOR_SKIP = SKIP;
+if (!SKIP) {
+    try {
+        ({ extract6502Machine } = await import(new URL('src/m6502-extract.js', BOARD).href));
+        ({ extractZ80Machine } = await import(new URL('src/z80-extract.js', BOARD).href));
+    } catch {
+        EXTRACTOR_SKIP = 'bw-board has no m6502-extract.js / z80-extract.js';
+    }
+}
+
 const EXAMPLES = join(import.meta.dirname, '..', 'examples');
 const MS = 1_000_000n;
 
@@ -567,6 +578,60 @@ describe('e2e: buzzer — tone frequency readback via pin edge measurement', { s
         assert.ok(tone.on, 'buzzer should be on after toggling');
         assert.ok(tone.hz > 400 && tone.hz < 480,
             `expected ~440 Hz, got ${tone.hz.toFixed(1)} Hz`);
+    });
+});
+
+// ---- wired-machine extraction: refusals are part of the teaching contract ------
+// Each refusal reason string is a teachable assertion: the student sees WHY their
+// wiring is wrong, with addresses and part names. Asserting specific reason
+// substrings locks the refusal vocabulary into the gallery contract.
+
+describe('e2e: wired-machine extraction — refusals as assertions', { skip: EXTRACTOR_SKIP }, () => {
+    test('eater6502-bench: extracts with zero refusals, lines match preset', () => {
+        const data = JSON.parse(readFileSync(join(EXAMPLES, 'eater6502-bench', 'circuit.json'), 'utf8'));
+        const r = extract6502Machine(data);
+        assert.ok(r.ok, `extraction failed: ${r.reasons.join('; ')}`);
+        assert.deepEqual(r.reasons, [], 'expected zero refusals');
+        assert.ok(r.lines.some(l => /MAP RAM/.test(l)), 'has RAM region');
+        assert.ok(r.lines.some(l => /MAP ROM/.test(l)), 'has ROM region');
+        assert.ok(r.lines.some(l => /W65C22/.test(l)), 'has VIA chip');
+    });
+
+    test('eater6502-contention-bug: refuses with bus-contention at named address', () => {
+        const data = JSON.parse(readFileSync(join(EXAMPLES, 'eater6502-contention-bug', 'circuit.json'), 'utf8'));
+        const r = extract6502Machine(data);
+        assert.equal(r.ok, false, 'contention circuit must fail extraction');
+        assert.ok(r.reasons.length > 0, 'must have at least one refusal reason');
+        assert.ok(r.reasons.some(s => /bus contention/i.test(s)),
+            `expected "bus contention" in reasons: ${r.reasons.join('; ')}`);
+        // The reason must name the colliding address — a refusal without an
+        // address is not teachable.
+        assert.ok(r.reasons.some(s => /\$[0-9a-f]{4}/i.test(s)),
+            `refusal must name the address: ${r.reasons.join('; ')}`);
+    });
+
+    test('z80-bench: extracts with zero refusals', () => {
+        const z80Dir = join(EXAMPLES, 'z80-bench');
+        if (!existsSync(join(z80Dir, 'circuit.json'))) {
+            return; // z80-bench not yet in gallery
+        }
+        const data = JSON.parse(readFileSync(join(z80Dir, 'circuit.json'), 'utf8'));
+        const r = extractZ80Machine(data);
+        assert.ok(r.ok, `extraction failed: ${r.reasons.join('; ')}`);
+        assert.deepEqual(r.reasons, [], 'expected zero refusals');
+        assert.ok(r.lines.some(l => /MAP ROM/.test(l)), 'has ROM region');
+        assert.ok(r.lines.some(l => /MAP RAM/.test(l)), 'has RAM region');
+    });
+
+    test('eater6502-vdp-hello: extracts with zero refusals', () => {
+        const vdpDir = join(EXAMPLES, 'eater6502-vdp-hello');
+        if (!existsSync(join(vdpDir, 'circuit.json'))) {
+            return; // vdp example not yet in gallery
+        }
+        const data = JSON.parse(readFileSync(join(vdpDir, 'circuit.json'), 'utf8'));
+        const r = extract6502Machine(data);
+        assert.ok(r.ok, `extraction failed: ${r.reasons.join('; ')}`);
+        assert.deepEqual(r.reasons, [], 'expected zero refusals');
     });
 });
 
