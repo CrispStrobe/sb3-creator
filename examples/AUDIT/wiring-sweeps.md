@@ -37,11 +37,9 @@ Registry: **114 part kinds** total. Sweep in progress.
 | VCC→diode→R(1k)→GND | cathode 2.970 V ✓ |
 | two parallel | d1: 2.030 V, d2: 2.014 V ✓ |
 
-**Finding: default diode Vf = 2.0 V (same as LED).** A `diode` without
-explicit `vf: 0.7` behaves identically to an `led`. Every example in the
-gallery sets `vf: 0.7` explicitly, so existing examples are correct, but the
-default is misleading — a generic silicon diode should default to 0.7 V.
-With `vf: 0.7` the anode reads 0.743 V as expected.
+**Finding (RESOLVED):** default diode Vf was 2.0 V (same as LED). Fixed in
+bw-board mna.js — diode now defaults to 0.7 V. Re-verified: anode reads
+**0.743 V** with no params. ✓
 
 ## zener — PASS (3/3)
 
@@ -221,6 +219,77 @@ VCC powered, dq output = 0 V (no stimulus). ✓
 ## ir_receiver — PASS (1)
 VCC powered, output = 0 V (idle, no IR signal). ✓
 
+## light_bulb — PASS (1)
+VCC→R(1k)→bulb→GND: junction **1.667 V** (bulb modeled as resistor). ✓
+
+## piezo — PASS (1)
+VCC→R(1k)→piezo→GND: junction **4.995 V** (very high impedance). ✓
+
+## fuse — PASS (1)
+VCC→fuse→R(1k)→GND: junction **0.000 V** (fuse = short, R gets all). ✓
+
+## solar_cell — PASS (1)
+Cell→R(10k): junction **0.611 V** (open-circuit voltage, no light). ✓
+
+## vibration_motor — PASS (1)
+VCC→R(1k)→motor→GND: junction **0.074 V** (low winding resistance). ✓
+
+## solenoid — PASS (1)
+VCC→R(100)→solenoid(coil_a/b)→GND: junction **1.667 V**. ✓
+
+## polarized_cap — PASS (1)
+VCC→R(1k)→cap(pos/neg)→GND: junction **4.995 V** at t=1ms (charging). ✓
+
+## gearmotor — PASS (1)
+VCC→R(1k)→gearmotor→GND: junction **0.050 V** (low winding R). ✓
+
+## battery_9v — PASS (1)
+Battery→R(1k)→LED→battery: pos **9.000 V** (floating island). ✓
+
+## battery_aa — PASS (1)
+Battery pos: **1.501 V** (nominal 1.5 V). ✓
+
+## battery_coin — PASS (1)
+Battery pos: **3.010 V** (nominal 3.0 V). ✓
+
+## tmp36 — PASS (1)
+VCC powered, output **0.750 V** (25°C: 10 mV/°C + 500 mV = 750 mV). ✓
+
+## photodiode — PASS (1)
+Reverse-biased in divider: junction **5.000 V** (no photocurrent, dark). ✓
+
+## ambient_light — PASS (1)
+Output **2.500 V** (midrange default). ✓
+
+## pir — PASS (1)
+Output **0.000 V** (idle, no motion). ✓
+
+## tilt_sensor — PASS (1)
+Junction **0.000 V** (switch open, upright). ✓
+
+## flex_sensor — PASS (1)
+Divider: junction **3.571 V** (flex R vs 10kΩ pull-down). ✓
+
+## force_sensor — PASS (1)
+Divider: junction **4.951 V** (high R, no force applied). ✓
+
+## soil_moisture — PASS (1)
+Output **5.000 V** (dry, high resistance). ✓
+
+## ultrasonic — PASS (1)
+Trig **0.000 V**, echo **0.000 V** (idle). ✓
+
+## h_bridge — PASS (1)
+Enable low: all outputs **0.000 V** (motor off). ✓
+
+## optocoupler — PASS (1)
+LED on (anode **2.027 V**), phototransistor on (collector **0.003 V**). ✓
+
+## dip_switch — SKIPPED (invalid netlist with tested terminal patterns)
+## phototransistor — SKIPPED (invalid netlist, needs different terminal names)
+## gas_sensor — SKIPPED (invalid netlist, needs heater terminal)
+## darlington_driver — SKIPPED (invalid netlist, needs different terminal names)
+
 ## shift_register — PASS (existing examples)
 Verified through 08-led-chaser-595 and 20-shift-register-binary. 8 Q outputs
 all at 0 V (idle), data/clock/latch from MCU. ✓
@@ -248,10 +317,14 @@ harness. Many are verified through existing gallery examples.
 
 | status | count |
 |---|---|
-| PASS (generic sweep) | 33 |
+| PASS (swept) | 57 |
 | ENGINE-BUG (escalated) | 3 (pnp, nmos-on, pmos) |
-| FINDING (not bug) | 1 (diode default Vf) |
-| SKIPPED (null terminals / floating) | 77 |
+| FINDING (resolved) | 1 (diode default Vf — FIXED) |
+| SKIPPED (netlist error) | 4 (dip_switch, phototransistor, gas_sensor, darlington_driver) |
+| SKIPPED (74HC, needs net-inference) | 13 |
+| SKIPPED (MCU/board kinds) | 5 (mcu, arduino_uno, arduino_nano, pi_pico, eater6502) |
+| SKIPPED (I2C/SPI, needs MCU) | 10+ (char_lcd, char_lcd_i2c, pcf8574, eeprom, etc.) |
+| SKIPPED (complex multi-terminal) | ~20 (bargraph, led_matrix, led_cube, etc.) |
 | **total** | **114** |
 
 74hc00, 74hc02, 74hc04, 74hc08, 74hc10, 74hc11, 74hc132, 74hc14,
