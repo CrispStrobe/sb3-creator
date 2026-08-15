@@ -829,34 +829,38 @@ All parse warning-free and solve on the engine (except retro CPU bench
 examples which use board-level parts the engine does not model).
 
 ## nano01-blink — VERDICT: pass
-**layers: engine.** Arduino Nano blink.
+**layers: engine.** D13 → LED → R → GND. All at 0 V (MCU floating). 3 nets.
 
 ## nano02-pot-print — VERDICT: pass
-**layers: engine.** Nano pot + serial.
+**layers: engine.** Pot: VCC (5 V) → cw, ccw → GND. Wiper at **0 V** → A6
+(pot position inert, reads as midpoint at GND side). 3 nets.
 
 ## nano03-two-tasks — VERDICT: pass
-**layers: engine.** Nano two tasks.
+**layers: engine.** Pot + LED. Same as nano01+nano02 combined. 5 nets.
 
 ## mega01-blink — VERDICT: pass
-**layers: engine.** Arduino Mega blink.
+**layers: engine.** D13 → LED → R → GND. All at 0 V (MCU floating). 3 nets.
 
 ## mega02-adc-print — VERDICT: pass
-**layers: engine.** Mega 16-channel ADC.
+**layers: engine.** Pot: VCC (5 V) → lead1. Wiper at **0 V** → A9. 3 nets.
 
 ## mega03-port-current — VERDICT: pass
-**layers: engine.** Mega 8-LED port walker.
+**layers: engine.** 8 LEDs on D22–D29, each with R to GND. All at 0 V (MCU
+floating). 17 nets.
 
 ## pico01-blink — VERDICT: pass
-**layers: engine.** Raspberry Pi Pico blink.
+**layers: engine.** GP25 → LED → R → GND. All at 0 V. 3 nets.
 
 ## pico02-pot-print — VERDICT: pass
-**layers: engine.** Pico pot + serial.
+**layers: engine.** Pot: VCC (**3.300 V**) → cw. Wiper at **0 V** → GP26.
+Note: Pico VCC = 3.3 V (correctly modelled). 3 nets.
 
 ## pico03-two-tasks — VERDICT: pass
-**layers: engine.** Pico two tasks.
+**layers: engine.** Pot (3.3 V) + LED. Wiper at 0 V → GP26. 5 nets.
 
 ## pico04-button — VERDICT: pass
-**layers: engine.** Pico button + LED.
+**layers: engine.** Button: VCC (**3.300 V**) → btn → GP3 with 10 kΩ pull-down
+= **0 V** (button open). LED on GP15 → R → GND (floating). 6 nets.
 
 ## eater6502-bench — VERDICT: app-level (cannot engine-solve)
 **layers: none.** Retro CPU bench — uses eater6502/6522/62256/28c256 parts the
