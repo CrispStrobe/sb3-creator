@@ -1462,8 +1462,8 @@
   {
     "id": "pc20-rgb-mix",
     "title": {
-      "en": "Mixing colour with an RGB LED",
-      "de": "Farbmischung mit einer RGB-LED"
+      "en": "Mixing colour with three LEDs",
+      "de": "Farbmischung mit drei LEDs"
     },
     "category": "pure-circuit",
     "difficulty": 2,
