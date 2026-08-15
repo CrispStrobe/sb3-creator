@@ -1,0 +1,15 @@
+# Ported from arduino-examples/examples/02.Digital/tonePitchFollower/tonePitchFollower.ino, CC0
+DEVICE ARDUINO-UNO
+CLOCK 16000000
+PIN ldr = A0 ANALOG
+PIN speaker = D9 OUTPUT
+
+SPRITE Cat:
+  WHEN flag clicked:
+    forever:
+      set sensorReading to read ldr
+      print sensorReading
+      # Map 400-1000 range to 120-1500 Hz
+      set thisPitch to (120 + ((sensorReading - 400) * (1380 / 600)))
+      set tone speaker to thisPitch
+      wait 0.05 seconds

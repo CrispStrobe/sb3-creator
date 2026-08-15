@@ -1,0 +1,18 @@
+# Ported from arduino-examples/examples/02.Digital/toneKeyboard/toneKeyboard.ino, CC0
+DEVICE ARDUINO-UNO
+CLOCK 16000000
+PIN sensor1 = A0 ANALOG
+PIN sensor2 = A1 ANALOG
+PIN speaker = D8 OUTPUT
+
+SPRITE Cat:
+  WHEN flag clicked:
+    forever:
+      if read sensor1 > 10 then:
+        set tone speaker to 440
+      else:
+        if read sensor2 > 10 then:
+          set tone speaker to 494
+        else:
+          turn off speaker
+      wait 0.05 seconds

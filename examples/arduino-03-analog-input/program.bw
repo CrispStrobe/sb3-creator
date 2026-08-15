@@ -1,0 +1,14 @@
+# Ported from arduino-examples/examples/03.Analog/AnalogInput/AnalogInput.ino, CC0
+DEVICE ARDUINO-UNO
+CLOCK 16000000
+PIN pot = A0 ANALOG
+PIN led = D13 OUTPUT
+
+SPRITE Cat:
+  WHEN flag clicked:
+    forever:
+      set sensorValue to read pot
+      turn on led
+      wait (sensorValue / 1000) seconds
+      turn off led
+      wait (sensorValue / 1000) seconds

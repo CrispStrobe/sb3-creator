@@ -1,0 +1,90 @@
+{
+  "vcc": 5,
+  "parts": [
+    {
+      "id": "board",
+      "kind": "arduino_uno",
+      "declName": "board"
+    },
+    {
+      "id": "buz1",
+      "kind": "buzzer",
+      "declName": "spk1",
+      "params": {}
+    },
+    {
+      "id": "buz2",
+      "kind": "buzzer",
+      "declName": "spk2",
+      "params": {}
+    },
+    {
+      "id": "buz3",
+      "kind": "buzzer",
+      "declName": "spk3",
+      "params": {}
+    },
+    {
+      "id": "vcc1",
+      "kind": "vcc",
+      "params": {
+        "volts": 5
+      }
+    },
+    {
+      "id": "gnd1",
+      "kind": "gnd",
+      "params": {}
+    }
+  ],
+  "wires": [
+    {
+      "from": "board",
+      "fromTerminal": "d6",
+      "to": "buz1",
+      "toTerminal": "pos"
+    },
+    {
+      "from": "buz1",
+      "fromTerminal": "neg",
+      "to": "gnd1",
+      "toTerminal": "gnd"
+    },
+    {
+      "from": "board",
+      "fromTerminal": "d7",
+      "to": "buz2",
+      "toTerminal": "pos"
+    },
+    {
+      "from": "buz2",
+      "fromTerminal": "neg",
+      "to": "gnd1",
+      "toTerminal": "gnd"
+    },
+    {
+      "from": "board",
+      "fromTerminal": "d8",
+      "to": "buz3",
+      "toTerminal": "pos"
+    },
+    {
+      "from": "buz3",
+      "fromTerminal": "neg",
+      "to": "gnd1",
+      "toTerminal": "gnd"
+    },
+    {
+      "from": "vcc1",
+      "fromTerminal": "vcc",
+      "to": "board",
+      "toTerminal": "5v"
+    },
+    {
+      "from": "gnd1",
+      "fromTerminal": "gnd",
+      "to": "board",
+      "toTerminal": "gnd"
+    }
+  ]
+}

@@ -2568,5 +2568,95 @@
       "arduino-uno",
       "arduino-nano"
     ]
+  },
+  {
+    "id": "arduino-02-tone-melody",
+    "title": {
+      "en": "Tone Melody (CC0)",
+      "de": "Ton-Melodie (CC0)"
+    },
+    "category": "digital",
+    "difficulty": 1,
+    "files": {
+      "program": "arduino-02-tone-melody/program.bw",
+      "circuit": "arduino-02-tone-melody/circuit.json"
+    },
+    "kind": "full",
+    "devices": [
+      "arduino-uno",
+      "arduino-nano"
+    ]
+  },
+  {
+    "id": "arduino-02-tone-keyboard",
+    "title": {
+      "en": "Tone Keyboard (CC0)",
+      "de": "Ton-Tastatur (CC0)"
+    },
+    "category": "digital",
+    "difficulty": 2,
+    "files": {
+      "program": "arduino-02-tone-keyboard/program.bw",
+      "circuit": "arduino-02-tone-keyboard/circuit.json"
+    },
+    "kind": "full",
+    "devices": [
+      "arduino-uno",
+      "arduino-nano"
+    ]
+  },
+  {
+    "id": "arduino-02-tone-multiple",
+    "title": {
+      "en": "Tone Multiple (CC0)",
+      "de": "Mehrfachton (CC0)"
+    },
+    "category": "digital",
+    "difficulty": 2,
+    "files": {
+      "program": "arduino-02-tone-multiple/program.bw",
+      "circuit": "arduino-02-tone-multiple/circuit.json"
+    },
+    "kind": "full",
+    "devices": [
+      "arduino-uno",
+      "arduino-nano"
+    ]
+  },
+  {
+    "id": "arduino-02-tone-pitch-follower",
+    "title": {
+      "en": "Pitch Follower (CC0)",
+      "de": "Tonhöhenfolger (CC0)"
+    },
+    "category": "digital",
+    "difficulty": 2,
+    "files": {
+      "program": "arduino-02-tone-pitch-follower/program.bw",
+      "circuit": "arduino-02-tone-pitch-follower/circuit.json"
+    },
+    "kind": "full",
+    "devices": [
+      "arduino-uno",
+      "arduino-nano"
+    ]
+  },
+  {
+    "id": "arduino-03-analog-input",
+    "title": {
+      "en": "Analog Input (CC0)",
+      "de": "Analogeingang (CC0)"
+    },
+    "category": "analog",
+    "difficulty": 1,
+    "files": {
+      "program": "arduino-03-analog-input/program.bw",
+      "circuit": "arduino-03-analog-input/circuit.json"
+    },
+    "kind": "full",
+    "devices": [
+      "arduino-uno",
+      "arduino-nano"
+    ]
   }
 ]

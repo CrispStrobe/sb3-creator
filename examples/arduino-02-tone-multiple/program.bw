@@ -1,0 +1,19 @@
+# Ported from arduino-examples/examples/02.Digital/toneMultiple/toneMultiple.ino, CC0
+DEVICE ARDUINO-UNO
+CLOCK 16000000
+PIN spk1 = D6 OUTPUT
+PIN spk2 = D7 OUTPUT
+PIN spk3 = D8 OUTPUT
+
+SPRITE Cat:
+  WHEN flag clicked:
+    forever:
+      set tone spk1 to 440
+      wait 0.2 seconds
+      turn off spk1
+      set tone spk2 to 523
+      wait 0.5 seconds
+      turn off spk2
+      set tone spk3 to 659
+      wait 0.3 seconds
+      turn off spk3
