@@ -1,0 +1,24 @@
+# Ported from arduino-examples/examples/03.Analog/Smoothing/Smoothing.ino, CC0
+DEVICE ARDUINO-UNO
+CLOCK 16000000
+PIN sensor = A0 ANALOG
+
+SPRITE Cat:
+  WHEN flag clicked:
+    set total to 0
+    set numReadings to 10
+    set readIndex to 0
+    # Initialize readings list
+    delete all of readings
+    repeat numReadings:
+      add 0 to readings
+    forever:
+      set total to (total - (item (readIndex + 1) of readings))
+      replace item (readIndex + 1) of readings with read sensor
+      set total to (total + (item (readIndex + 1) of readings))
+      change readIndex by 1
+      if readIndex >= numReadings then:
+        set readIndex to 0
+      set average to (total / numReadings)
+      print average
+      wait 0.01 seconds

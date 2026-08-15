@@ -1,0 +1,14 @@
+# Ported from arduino-examples/examples/03.Analog/AnalogInOutSerial/AnalogInOutSerial.ino, CC0
+DEVICE ARDUINO-UNO
+CLOCK 16000000
+PIN pot = A0 ANALOG
+PIN led = D9 OUTPUT
+
+SPRITE Cat:
+  WHEN flag clicked:
+    forever:
+      set sensorValue to read pot
+      set outputValue to ((sensorValue * 255) / 1023)
+      set pwm led to outputValue
+      print sensorValue
+      wait 0.02 seconds

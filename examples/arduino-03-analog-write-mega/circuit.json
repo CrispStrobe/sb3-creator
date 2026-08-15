@@ -1,0 +1,135 @@
+{
+  "vcc": 5,
+  "parts": [
+    {
+      "id": "board",
+      "kind": "arduino_mega",
+      "declName": "board"
+    },
+    {
+      "id": "led1",
+      "kind": "led",
+      "declName": "led2",
+      "params": {
+        "color": "red"
+      }
+    },
+    {
+      "id": "led2",
+      "kind": "led",
+      "declName": "led3",
+      "params": {
+        "color": "green"
+      }
+    },
+    {
+      "id": "led3",
+      "kind": "led",
+      "declName": "led4",
+      "params": {
+        "color": "blue"
+      }
+    },
+    {
+      "id": "r1",
+      "kind": "resistor",
+      "params": {
+        "ohms": 220
+      }
+    },
+    {
+      "id": "r2",
+      "kind": "resistor",
+      "params": {
+        "ohms": 220
+      }
+    },
+    {
+      "id": "r3",
+      "kind": "resistor",
+      "params": {
+        "ohms": 220
+      }
+    },
+    {
+      "id": "vcc1",
+      "kind": "vcc",
+      "params": {
+        "volts": 5
+      }
+    },
+    {
+      "id": "gnd1",
+      "kind": "gnd",
+      "params": {}
+    }
+  ],
+  "wires": [
+    {
+      "from": "board",
+      "fromTerminal": "d2",
+      "to": "r1",
+      "toTerminal": "a"
+    },
+    {
+      "from": "r1",
+      "fromTerminal": "b",
+      "to": "led1",
+      "toTerminal": "anode"
+    },
+    {
+      "from": "led1",
+      "fromTerminal": "cathode",
+      "to": "gnd1",
+      "toTerminal": "gnd"
+    },
+    {
+      "from": "board",
+      "fromTerminal": "d3",
+      "to": "r2",
+      "toTerminal": "a"
+    },
+    {
+      "from": "r2",
+      "fromTerminal": "b",
+      "to": "led2",
+      "toTerminal": "anode"
+    },
+    {
+      "from": "led2",
+      "fromTerminal": "cathode",
+      "to": "gnd1",
+      "toTerminal": "gnd"
+    },
+    {
+      "from": "board",
+      "fromTerminal": "d4",
+      "to": "r3",
+      "toTerminal": "a"
+    },
+    {
+      "from": "r3",
+      "fromTerminal": "b",
+      "to": "led3",
+      "toTerminal": "anode"
+    },
+    {
+      "from": "led3",
+      "fromTerminal": "cathode",
+      "to": "gnd1",
+      "toTerminal": "gnd"
+    },
+    {
+      "from": "vcc1",
+      "fromTerminal": "vcc",
+      "to": "board",
+      "toTerminal": "5v"
+    },
+    {
+      "from": "gnd1",
+      "fromTerminal": "gnd",
+      "to": "board",
+      "toTerminal": "gnd"
+    }
+  ]
+}

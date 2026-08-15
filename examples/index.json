@@ -2658,5 +2658,94 @@
       "arduino-uno",
       "arduino-nano"
     ]
+  },
+  {
+    "id": "arduino-03-analog-in-out-serial",
+    "title": {
+      "en": "Analog In Out Serial (CC0)",
+      "de": "Analog Ein/Aus Seriell (CC0)"
+    },
+    "category": "analog",
+    "difficulty": 1,
+    "files": {
+      "program": "arduino-03-analog-in-out-serial/program.bw",
+      "circuit": "arduino-03-analog-in-out-serial/circuit.json"
+    },
+    "kind": "full",
+    "devices": [
+      "arduino-uno",
+      "arduino-nano"
+    ]
+  },
+  {
+    "id": "arduino-03-analog-write-mega",
+    "title": {
+      "en": "Analog Write Mega (CC0)",
+      "de": "Analog Write Mega (CC0)"
+    },
+    "category": "analog",
+    "difficulty": 2,
+    "files": {
+      "program": "arduino-03-analog-write-mega/program.bw",
+      "circuit": "arduino-03-analog-write-mega/circuit.json"
+    },
+    "kind": "full",
+    "devices": [
+      "arduino-mega"
+    ]
+  },
+  {
+    "id": "arduino-03-calibration",
+    "title": {
+      "en": "Calibration (CC0)",
+      "de": "Kalibrierung (CC0)"
+    },
+    "category": "analog",
+    "difficulty": 2,
+    "files": {
+      "program": "arduino-03-calibration/program.bw",
+      "circuit": "arduino-03-calibration/circuit.json"
+    },
+    "kind": "full",
+    "devices": [
+      "arduino-uno",
+      "arduino-nano"
+    ]
+  },
+  {
+    "id": "arduino-03-fading",
+    "title": {
+      "en": "Fading (CC0)",
+      "de": "Fading (CC0)"
+    },
+    "category": "analog",
+    "difficulty": 1,
+    "files": {
+      "program": "arduino-03-fading/program.bw",
+      "circuit": "arduino-03-fading/circuit.json"
+    },
+    "kind": "full",
+    "devices": [
+      "arduino-uno",
+      "arduino-nano"
+    ]
+  },
+  {
+    "id": "arduino-03-smoothing",
+    "title": {
+      "en": "Smoothing (CC0)",
+      "de": "Glättung (CC0)"
+    },
+    "category": "analog",
+    "difficulty": 2,
+    "files": {
+      "program": "arduino-03-smoothing/program.bw",
+      "circuit": "arduino-03-smoothing/circuit.json"
+    },
+    "kind": "full",
+    "devices": [
+      "arduino-uno",
+      "arduino-nano"
+    ]
   }
 ]

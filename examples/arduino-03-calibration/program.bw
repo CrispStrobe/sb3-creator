@@ -1,0 +1,31 @@
+# Ported from arduino-examples/examples/03.Analog/Calibration/Calibration.ino, CC0
+DEVICE ARDUINO-UNO
+CLOCK 16000000
+PIN sensor = A0 ANALOG
+PIN led = D9 OUTPUT
+PIN statusLed = D13 OUTPUT
+
+SPRITE Cat:
+  WHEN flag clicked:
+    set sensorMin to 1023
+    set sensorMax to 0
+    turn on statusLed
+    # Calibrate for 5 seconds
+    repeat 100:
+      set sensorValue to read sensor
+      if sensorValue > sensorMax then:
+        set sensorMax to sensorValue
+      if sensorValue < sensorMin then:
+        set sensorMin to sensorValue
+      wait 0.05 seconds
+    turn off statusLed
+    # Main loop: map calibrated range to LED
+    forever:
+      set sensorValue to read sensor
+      if sensorValue < sensorMin then:
+        set sensorValue to sensorMin
+      if sensorValue > sensorMax then:
+        set sensorValue to sensorMax
+      set outputValue to (((sensorValue - sensorMin) * 255) / (sensorMax - sensorMin))
+      set pwm led to outputValue
+      wait 0.02 seconds
