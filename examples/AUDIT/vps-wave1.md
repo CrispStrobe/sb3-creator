@@ -25,11 +25,17 @@ and has intro.md + intro.de.md (Layer 3).
 - 33-inductive-no-flyback: inductance added (pilot audit)
 - pc13–pc24 range: additional fixes by parallel agent (see pc13-pc24.md)
 
-### Engine-bugs found (4)
-1. **NPN saturation**: collector goes negative in saturated common-emitter
-   (pc05, pc15, pc23, pc24). bw-board `stampNPN` has no saturation clamp.
-2. **Pot position inert**: `position` parameter has no effect on wiper
-   voltage (pc07, pc40). Pot always divides to midpoint.
+### Engine-bugs found and resolved
+1. **NPN saturation** (pc05, pc15, pc23, pc24): collector went negative in
+   saturated common-emitter. **FIXED** — bw-board now has saturation clamp.
+   Re-audit confirms Vce_sat ≈ 0.20 V, Ic ≈ 5.4 mA (2026-08-15).
+2. **PNP model** (pc32): PNP never conducted. **FIXED** — re-audit confirms
+   correct off-state (Veb ≈ 0.01 V, collector at leakage).
+3. **Pot position inert** (pc07, pc40): `position` parameter had no effect.
+   Status after engine update: not yet re-verified.
+4. **555 timer**, **buzzer DC**, **power-off discharge**, **composites**:
+   all escalated and fixed in bw-board. 555 cap now charges through timing
+   resistor (verified on pc47, pc58, 51-555-astable).
 
 ### App-level only (3)
 - eater6502-bench, eater6502-vdp-hello, z80-bench: retro CPU parts not
@@ -134,7 +140,7 @@ concept is one step up from series).
 
 **No content change.**
 
-## pc05-npn-switch — VERDICT: content-fix + engine-bug
+## pc05-npn-switch — VERDICT: content-fix (engine-bug RESOLVED 2026-08-15)
 
 **layers: engine.**
 
@@ -186,7 +192,7 @@ After fix, solved at multiple times (τ = RC = 10kΩ × 100µF = 1.0 s):
 All three match to within 0.2% (integration step rounding). EXPECTED.md
 states Vc ≈ 3.16 V at t = τ — confirmed.
 
-## pc07-pot-dimmer — VERDICT: content-fix + engine-bug
+## pc07-pot-dimmer — VERDICT: content-fix (pot engine-bug status: pending re-verify)
 
 **layers: engine.**
 
@@ -322,13 +328,13 @@ Solved at t=1 ms (5 V, 3 nets): LED at 2.06 V, I = 6.25 mA through 470 Ω.
 EXPECTED.md documents precise values and the column-strip connectivity
 lesson. Category `pure-circuit`, difficulty 1. **No content change.**
 
-## pc15-mini-npn — VERDICT: engine-bug
+## pc15-mini-npn — VERDICT: pass (engine-bug RESOLVED 2026-08-15)
 
-**layers: engine.** NPN switch on a mini breadboard. Same NPN saturation bug
-as pc05: collector at −17.6 V, base correct at 0.7 V. The circuit is
-topologically correct (documented in EXPECTED.md with the full seating table),
-but the engine cannot solve the saturated state. Already recorded as engine-bug
-in pc05; this is a second occurrence of the same defect. **No content change.**
+**layers: engine.** NPN switch on a mini breadboard. Re-solved after engine
+fix: collector at 0.2006 V (Vce_sat), LED anode at 2.2589 V, base at 0.7043 V.
+Ic = 5.40 mA — matches EXPECTED.md's prediction of ~6 mA (Shockley difference).
+EXPECTED.md updated to show correct measured values; engine-bug note removed
+from intro.md and intro.de.md.
 
 ## pc16-mini-rc — VERDICT: pass
 

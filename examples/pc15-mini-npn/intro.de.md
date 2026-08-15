@@ -13,13 +13,6 @@ Last über dem Kollektor. Der Transistor überspannt gleich drei Spalten —
 Emitter in Spalte 7, Basis in Spalte 8, Kollektor in Spalte 9 — genau so, wie
 ein TO-92-Transistor auf einem echten Brett sitzt.
 
-> **Bekannter Fehler (15.08.2026):** Die Kollektor-Seite dieses Beispiels
-> funktioniert noch nicht. Die Simulationsengine kennt für den NPN keine
-> Sättigung und meldet deshalb −17,6 V am Kollektor und 43 mA durch die LED
-> statt eines durchgesteuerten Transistors mit rund 6 mA. Die Basis-Seite
-> stimmt und ist messbar. Siehe `examples/AUDIT/pc13-pc24.md`. Lies die Zahlen
-> unten als Entwurf, noch nicht als Messwert.
-
 ## Probier das aus
 
 1. Verfolge die zwei Wege ab Spalte 2, wo die Plusleitung ankommt. Der eine

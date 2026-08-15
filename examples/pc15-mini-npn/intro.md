@@ -13,13 +13,6 @@ the transistor's collector. The transistor straddles three columns at once —
 emitter in column 7, base in column 8, collector in column 9 — which is exactly
 how a TO-92 transistor sits on a real board.
 
-> **Known defect (2026-08-15):** the collector half of this example does not
-> yet behave. The simulation engine has no saturation model for the NPN, so it
-> reports a collector at −17.6 V and 43 mA through the LED instead of a
-> saturated transistor and ~6 mA. The base half is correct and measurable. See
-> `examples/AUDIT/pc13-pc24.md`. Read the numbers below as the design, not yet
-> as the readout.
-
 ## Try this
 
 1. Trace the two paths from column 2, where the + lead comes in. One goes

@@ -29,7 +29,7 @@ Supply leads tap **e2** (+5 V) and **e7** (return).
   **saturated** — hard on, LED lit at about 6 mA, collector pinned near
   0.2 V above the emitter.
 
-## Measured on the engine — DOES NOT MATCH (see the audit ledger)
+## Measured on the engine
 
 `audit-solve pc15-mini-npn` at t = 1 ms:
 
@@ -37,16 +37,11 @@ Supply leads tap **e2** (+5 V) and **e7** (return).
 |---|---|
 | supply (col-t2) | 5.0000 |
 | base (col-t8) | 0.7043 |
-| collector (col-t9) | **−17.6194** |
-| LED anode (col-t12) | **−15.1898** |
+| collector (col-t9) | 0.2006 |
+| LED anode (col-t12) | 2.2589 |
 | emitter (col-t7) | 0.0000 |
 
-reported LED current **42.96 mA**, DRC *"current 43.0 mA exceeds 20 mA
-rating"*.
-
-The base half is right — 0.43 mA in, exactly as designed. The collector half is
-not: bw-board's `stampNPN` has no saturation region, so it forces the full
-β · I_b = 43 mA through the branch and drags the collector to −17.6 V rather
-than clamping at V_ce_sat. Recorded as **engine-bug** in
-`examples/AUDIT/pc13-pc24.md`; the seating above is the correct circuit and
-this file will read as designed once the clamp exists.
+NPN is saturated as expected: V_ce = 0.20 V, LED forward drop 2.06 V,
+I_c = (5.0 − 2.26 − 0.20) / 470 = **5.40 mA**. The hand estimate of 5.96 mA
+used ideal drops; the Shockley model raises them slightly, reducing the current
+by about 10 % — the same pattern as every other LED example in the gallery.

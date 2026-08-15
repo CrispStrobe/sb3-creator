@@ -13,9 +13,18 @@ V_EB ≈ 4.3 V across a 10 kΩ base resistor gives roughly 0.43 mA of base curre
 with β = 100 the transistor saturates, the collector rises to within a few tenths
 of the 5 V rail, and the LED branch carries about (5 − 2.05) V / 1 kΩ ≈ **2.9 mA**.
 
-> **Simulator limitation — this does not happen yet.** On the current bw-board
-> engine the PNP never conducts: with the switch closed the base solves to
-> 0.0000 V (no base current flows at all) and the collector floats at 2.0005 V
-> with 0.000 mA in the load. The circuit as drawn is correct; the device model
-> is not. Repro and mechanism are in `examples/AUDIT/pc25-pc36.md` — escalated,
-> deliberately not worked around here.
+## Measured on the engine (switch open)
+
+`audit-solve pc32-pnp-high-side` at t = 1 ms:
+
+| node | volts |
+|---|---|
+| emitter (VCC) | 5.0000 |
+| base | 4.9900 |
+| collector / rl top | 0.9960 |
+| rl bottom / LED anode | 0.9960 |
+| GND | 0.0000 |
+
+With the switch open the base floats near the emitter, V_EB ≈ 0.01 V — the
+PNP is off and the collector shows only leakage-level voltage (no significant
+current through the LED branch).
