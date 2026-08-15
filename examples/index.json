@@ -1,5 +1,18 @@
 [
   {
+    "id": "eater6502-contention-bug",
+    "title": {
+      "en": "Contention bug: find the collision",
+      "de": "Contention-Bug: finde die Kollision"
+    },
+    "category": "digital",
+    "difficulty": 3,
+    "files": {
+      "circuit": "eater6502-contention-bug/circuit.json"
+    },
+    "kind": "circuit"
+  },
+  {
     "id": "01-blink",
     "title": {
       "en": "Blink an LED",
