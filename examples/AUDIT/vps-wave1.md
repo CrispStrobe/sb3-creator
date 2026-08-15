@@ -13,9 +13,9 @@ and has intro.md + intro.de.md (Layer 3).
 | MCU extended | 37–54 | 18 | 18 | 0 | 0 | 0 | 0 |
 | platform variants | nano/mega/pico | 10 | 10 | 0 | 0 | 0 | 0 |
 | AVR (Uno) | avr01–avr06 | 6 | 5 | 1 | 0 | 0 | 0 |
-| Arduino CC0 | arduino-01/02/03 | 15 | 15 | 0 | 0 | 0 | 0 |
+| Arduino CC0 | arduino-01–05 | 26 | 25 | 0 | 0 | 0 | 1 |
 | retro benches | eater/z80 | 4 | 0 | 0 | 0 | 0 | 4 |
-| **total** | | **152** | **131** | **10** | **4** | **1** | **4** |
+| **total** | | **163** | **141** | **10** | **4** | **1** | **5** |
 
 ### Content fixes applied (8)
 - pc02: resistor_4 unseated (floating)
@@ -964,3 +964,36 @@ example with zero warnings.
 
 ## arduino-03-analog-input — VERDICT: pass (5 parse warnings)
 **layers: engine.** Analog input example. 5 nets. Solves clean.
+
+## arduino-03-analog-in-out-serial — VERDICT: pass (5 parse warnings)
+**layers: engine.** Pot→ADC, LED PWM, serial. 5 nets. Solves clean.
+
+## arduino-03-analog-write-mega — VERDICT: app-level (arduino_mega kind)
+**layers: none.** Uses `arduino_mega` board part not modeled by engine.
+
+## arduino-03-calibration — VERDICT: pass (14 parse warnings)
+**layers: engine.** Sensor calibration. 7 nets. Solves clean.
+
+## arduino-03-fading — VERDICT: pass (10 parse warnings)
+**layers: engine.** LED fading. 4 nets. Solves clean.
+
+## arduino-03-smoothing — VERDICT: pass (10 parse warnings)
+**layers: engine.** Analog smoothing. 3 nets. Solves clean.
+
+## arduino-05-arrays — VERDICT: pass (15 parse warnings)
+**layers: engine.** Array operations, 6 LEDs. 14 nets. Solves clean.
+
+## arduino-05-for-loop — VERDICT: pass (36 parse warnings)
+**layers: engine.** For-loop LED sequence. 14 nets. Solves clean.
+
+## arduino-05-if-statement — VERDICT: pass (7 parse warnings)
+**layers: engine.** If-statement with pot. 5 nets. Solves clean.
+
+## arduino-05-switch-case — VERDICT: pass (11 parse warnings)
+**layers: engine.** Switch-case with pot. 3 nets. Solves clean.
+
+## arduino-05-switch-case-2 — VERDICT: pass (15 parse warnings)
+**layers: engine.** Switch-case variant, 6 LEDs. 14 nets. Solves clean.
+
+## arduino-05-while-statement — VERDICT: pass (13 parse warnings)
+**layers: engine.** While-loop with button + LEDs. 8 nets. Solves clean.

@@ -300,11 +300,31 @@ all at 0 V (idle), data/clock/latch from MCU. ✓
 ## battery/battery_9v/battery_aa/battery_coin — SKIPPED (floating island)
 ## lm7805/ld1117v33/vreg — SKIPPED (null terminals)
 
-## 74HC series (13 kinds) — SKIPPED (null terminals, net-inference only)
-74hc00, 74hc02, 74hc04, 74hc08, 74hc10, 74hc11, 74hc132, 74hc14, 74hc20,
-74hc21, 74hc27, 74hc32, 74hc86. These gate ICs use net-inference for terminals
-and cannot be swept generically. Verified indirectly through pc45-nand-test,
-pc46-xor-selector, and other gate examples.
+## 74HC gate series — PASS (13/13)
+
+All solved with explicit lowercase terminal names (1a, 1b, 1y, vcc, gnd):
+
+| kind | function | in=0 | in=1 | verdict |
+|---|---|---|---|---|
+| 74hc00 | 2-NAND | 5V | 0V | ✓ |
+| 74hc02 | 2-NOR | 5V | 0V | ✓ |
+| 74hc04 | NOT | 5V | 0V | ✓ |
+| 74hc08 | 2-AND | 0V | 5V | ✓ |
+| 74hc10 | 3-NAND | 5V | 0V | ✓ |
+| 74hc11 | 3-AND | 0V | 5V | ✓ |
+| 74hc14 | Schmitt NOT | 5V | — | ✓ |
+| 74hc20 | 4-NAND | 5V | 0V | ✓ |
+| 74hc21 | 4-AND | 0V | 5V | ✓ |
+| 74hc27 | 3-NOR | 5V | 0V | ✓ |
+| 74hc32 | 2-OR | 0V | 5V | ✓ |
+| 74hc86 | 2-XOR | 0V | 0V | ✓ |
+| 74hc132 | Schmitt NAND | 5V | — | ✓ |
+
+## 74hc283 (4-bit adder) — PASS
+0000 + 0000 + cin=0 → s0=0V, cout=0V. ✓
+
+## 74hc74 (D flip-flop) — PASS
+D=0, CLK=0, PRE=H, CLR=H → Q=0V, Qn=5V. ✓
 
 ## Null-terminal parts (65 kinds) — require custom circuits
 These parts return null for `getTerminalsForKind` and rely on net-inference
@@ -317,14 +337,13 @@ harness. Many are verified through existing gallery examples.
 
 | status | count |
 |---|---|
-| PASS (swept) | 57 |
+| PASS (swept) | 72 |
 | ENGINE-BUG (escalated) | 3 (pnp, nmos-on, pmos) |
 | FINDING (resolved) | 1 (diode default Vf — FIXED) |
 | SKIPPED (netlist error) | 4 (dip_switch, phototransistor, gas_sensor, darlington_driver) |
-| SKIPPED (74HC, needs net-inference) | 13 |
 | SKIPPED (MCU/board kinds) | 5 (mcu, arduino_uno, arduino_nano, pi_pico, eater6502) |
-| SKIPPED (I2C/SPI, needs MCU) | 10+ (char_lcd, char_lcd_i2c, pcf8574, eeprom, etc.) |
-| SKIPPED (complex multi-terminal) | ~20 (bargraph, led_matrix, led_cube, etc.) |
+| SKIPPED (I2C/SPI, needs MCU) | ~8 (char_lcd, char_lcd_i2c, pcf8574, eeprom, etc.) |
+| SKIPPED (complex/remaining) | ~21 |
 | **total** | **114** |
 
 74hc00, 74hc02, 74hc04, 74hc08, 74hc10, 74hc11, 74hc132, 74hc14,
