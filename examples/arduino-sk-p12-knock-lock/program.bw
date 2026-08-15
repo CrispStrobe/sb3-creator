@@ -1,0 +1,39 @@
+# Ported from arduino-examples/examples/10.StarterKit_BasicKit/p12_KnockLock, CC0
+DEVICE ARDUINO-UNO
+CLOCK 16000000
+PIN piezo = A0 ANALOG
+PIN btn = D2 INPUT
+PIN ledR = D3 OUTPUT
+PIN ledY = D4 OUTPUT
+PIN ledG = D5 OUTPUT
+PIN servo = D9 OUTPUT
+
+SPRITE Cat:
+  WHEN flag clicked:
+    set locked to 1
+    set knockCount to 0
+    set threshold to 100
+    set requiredKnocks to 3
+    turn on ledR
+    forever:
+      if locked = 1 then:
+        set sensorVal to read piezo
+        if sensorVal >= threshold then:
+          change knockCount by 1
+          turn on ledY
+          wait 0.1 seconds
+          turn off ledY
+        if knockCount >= requiredKnocks then:
+          set locked to 0
+          set knockCount to 0
+          turn off ledR
+          turn on ledG
+          set pwm servo to 90
+      else:
+        if read btn then:
+          set locked to 1
+          turn off ledG
+          turn on ledR
+          set pwm servo to 0
+          wait 0.3 seconds
+      wait 0.05 seconds

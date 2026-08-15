@@ -3465,5 +3465,77 @@
       "arduino-uno",
       "arduino-nano"
     ]
+  },
+  {
+    "id": "arduino-sk-p12-knock-lock",
+    "title": {
+      "en": "Knock Lock (CC0)",
+      "de": "Klopfschloss (CC0)"
+    },
+    "category": "analog",
+    "difficulty": 2,
+    "files": {
+      "program": "arduino-sk-p12-knock-lock/program.bw",
+      "circuit": "arduino-sk-p12-knock-lock/circuit.json"
+    },
+    "kind": "full",
+    "devices": [
+      "arduino-uno",
+      "arduino-nano"
+    ]
+  },
+  {
+    "id": "arduino-sk-p13-touch-lamp",
+    "title": {
+      "en": "Touch Sensor Lamp (CC0)",
+      "de": "Touch-Sensor-Lampe (CC0)"
+    },
+    "category": "digital",
+    "difficulty": 1,
+    "files": {
+      "program": "arduino-sk-p13-touch-lamp/program.bw",
+      "circuit": "arduino-sk-p13-touch-lamp/circuit.json"
+    },
+    "kind": "full",
+    "devices": [
+      "arduino-uno",
+      "arduino-nano"
+    ]
+  },
+  {
+    "id": "arduino-sk-p14-serial-pot",
+    "title": {
+      "en": "Serial Pot (CC0)",
+      "de": "Serielles Poti (CC0)"
+    },
+    "category": "analog",
+    "difficulty": 1,
+    "files": {
+      "program": "arduino-sk-p14-serial-pot/program.bw",
+      "circuit": "arduino-sk-p14-serial-pot/circuit.json"
+    },
+    "kind": "full",
+    "devices": [
+      "arduino-uno",
+      "arduino-nano"
+    ]
+  },
+  {
+    "id": "arduino-sk-p15-hacking-buttons",
+    "title": {
+      "en": "Hacking Buttons (CC0)",
+      "de": "Buttons hacken (CC0)"
+    },
+    "category": "digital",
+    "difficulty": 1,
+    "files": {
+      "program": "arduino-sk-p15-hacking-buttons/program.bw",
+      "circuit": "arduino-sk-p15-hacking-buttons/circuit.json"
+    },
+    "kind": "full",
+    "devices": [
+      "arduino-uno",
+      "arduino-nano"
+    ]
   }
 ]

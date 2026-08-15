@@ -1,0 +1,12 @@
+# Ported from arduino-examples/examples/10.StarterKit_BasicKit/p15_HackingButtons, CC0
+DEVICE ARDUINO-UNO
+CLOCK 16000000
+PIN opto = D2 OUTPUT
+
+SPRITE Cat:
+  WHEN flag clicked:
+    forever:
+      turn on opto
+      wait 0.5 seconds
+      turn off opto
+      wait 0.5 seconds

@@ -1,0 +1,11 @@
+# Ported from arduino-examples/examples/10.StarterKit_BasicKit/p14_TweakTheArduinoLogo, CC0
+# Simplified: prints pot value to serial (original sent to Processing)
+DEVICE ARDUINO-UNO
+CLOCK 16000000
+PIN pot = A0 ANALOG
+
+SPRITE Cat:
+  WHEN flag clicked:
+    forever:
+      print read pot
+      wait 0.01 seconds

@@ -1,0 +1,22 @@
+# Ported from arduino-examples/examples/10.StarterKit_BasicKit/p13_TouchSensorLamp, CC0
+# Adapted: uses TTP223 touch module instead of CapacitiveSensor library
+DEVICE ARDUINO-UNO
+CLOCK 16000000
+PIN touch = D2 INPUT
+PIN led = D3 OUTPUT
+
+SPRITE Cat:
+  WHEN flag clicked:
+    set ledState to 0
+    set lastTouch to 0
+    forever:
+      set touchVal to read touch
+      if touchVal = 1 and lastTouch = 0 then:
+        if ledState = 0 then:
+          set ledState to 1
+          turn on led
+        else:
+          set ledState to 0
+          turn off led
+      set lastTouch to touchVal
+      wait 0.05 seconds
