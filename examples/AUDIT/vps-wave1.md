@@ -13,8 +13,9 @@ and has intro.md + intro.de.md (Layer 3).
 | MCU extended | 37–54 | 18 | 18 | 0 | 0 | 0 | 0 |
 | platform variants | nano/mega/pico | 10 | 10 | 0 | 0 | 0 | 0 |
 | AVR (Uno) | avr01–avr06 | 6 | 5 | 1 | 0 | 0 | 0 |
+| Arduino CC0 | arduino-01/02 | 10 | 10 | 0 | 0 | 0 | 0 |
 | retro benches | eater/z80 | 4 | 0 | 0 | 0 | 0 | 4 |
-| **total** | | **137** | **116** | **10** | **4** | **1** | **4** |
+| **total** | | **147** | **126** | **10** | **4** | **1** | **4** |
 
 ### Content fixes applied (8)
 - pc02: resistor_4 unseated (floating)
@@ -909,3 +910,41 @@ avr02. 5 nets.
 **layers: none.** Retro 6502 breadboard computer with contention-bug teaching
 scenario. Uses w65c02/62256/28c256/w65c22/w65c51 parts the engine does not
 model. No program.bw. Category `digital`, difficulty 3. Intro already present.
+
+---
+
+# Band 7 — Arduino CC0 ported examples
+
+Ported from `github.com/arduino/arduino-examples` (CC0-1.0) by a parallel
+agent. All circuits solve on the engine; programs have parse warnings (porting
+in progress — features not yet lowered to the pseudocode dialect).
+
+## arduino-01-blink — VERDICT: pass (4 parse warnings)
+**layers: engine.** D13 → R → LED → GND. Solves clean.
+
+## arduino-01-analog-read-serial — VERDICT: pass (2 parse warnings)
+**layers: engine.** Pot → A0. Solves clean.
+
+## arduino-01-digital-read-serial — VERDICT: pass (2 parse warnings)
+**layers: engine.** Button + pull-down → D2. Solves clean.
+
+## arduino-01-fade — VERDICT: pass (5 parse warnings)
+**layers: engine.** LED on D9. Solves clean.
+
+## arduino-01-read-analog-voltage — VERDICT: pass (4 parse warnings)
+**layers: engine.** Pot → A0. Solves clean.
+
+## arduino-02-blink-without-delay — VERDICT: pass (8 parse warnings)
+**layers: engine.** LED + button. Solves clean.
+
+## arduino-02-button — VERDICT: pass (4 parse warnings)
+**layers: engine.** Button + pull-down → D2, LED on D13. Solves clean.
+
+## arduino-02-debounce — VERDICT: pass (14 parse warnings)
+**layers: engine.** Button + pull-down → D2, LED on D13. Solves clean.
+
+## arduino-02-digital-input-pullup — VERDICT: pass (7 parse warnings)
+**layers: engine.** Button → D2 (internal pull-up), LED on D13. Solves clean.
+
+## arduino-02-state-change — VERDICT: pass (11 parse warnings)
+**layers: engine.** Button + pull-down → D2, LED on D13. Solves clean.
