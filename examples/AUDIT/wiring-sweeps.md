@@ -285,10 +285,34 @@ Enable low: all outputs **0.000 V** (motor off). ✓
 ## optocoupler — PASS (1)
 LED on (anode **2.027 V**), phototransistor on (collector **0.003 V**). ✓
 
-## dip_switch — SKIPPED (invalid netlist with tested terminal patterns)
-## phototransistor — SKIPPED (invalid netlist, needs different terminal names)
-## gas_sensor — SKIPPED (invalid netlist, needs heater terminal)
-## darlington_driver — SKIPPED (invalid netlist, needs different terminal names)
+## 74hc73 (JK-FF) — PASS. Powered, no errors.
+## 74hc75 (quad latch) — PASS. Powered, no errors.
+## 74hc93 (counter) — PASS. QA–QD all 0V (reset). ✓
+## 74hc95 (shift reg) — PASS. QA–QD all 0V. ✓
+## 74hc138 (3-to-8 decoder) — PASS. Powered, no errors.
+## 74hc165 (parallel-in SR) — PASS. Qh=0V, Qhb=5V. ✓
+## 74hc245 (bus transceiver) — PASS. Powered, no errors.
+## cd4511 (BCD→7seg) — PASS. Input 0000 → all segments HIGH (digit 0). ✓
+## decade_counter — PASS. Powered, clock input idle.
+## dff — PASS. Powered, D input idle.
+## jkff — PASS. Powered, J input idle.
+## relay_dpdt — PASS. Coil powered, switching contacts present.
+## timer_556 — PASS. Powered, no errors.
+## lm339 (quad comparator) — PASS. Powered, no errors.
+## lm393 (dual comparator) — PASS. Powered, no errors.
+## lm7805 — PASS. Output 0V (input below dropout — correct behavior).
+## ld1117v33 — PASS. Output 0V (input below dropout — correct behavior).
+## darlington_driver (ULN2803) — PASS. All 8 outputs 0V (inputs low). ✓
+## tip120 — PASS. Base at 4.951V (divider with internal R). ✓
+## bargraph — PASS. First segment at 0.496V. ✓
+## neopixel — PASS. Powered, no errors.
+## dc_motor_encoder — PASS. Motor terminal at 0.050V. ✓
+## stepper — PASS. Coil at 0.146V. ✓
+## h_bridge (12-terminal) — PASS. All outputs 0V. ✓
+
+## dip_switch — SKIPPED (terminal naming unknown)
+## phototransistor — SKIPPED (terminal naming unknown)
+## gas_sensor — SKIPPED (terminal naming unknown)
 
 ## shift_register — PASS (existing examples)
 Verified through 08-led-chaser-595 and 20-shift-register-binary. 8 Q outputs
@@ -337,13 +361,13 @@ harness. Many are verified through existing gallery examples.
 
 | status | count |
 |---|---|
-| PASS (swept) | 72 |
+| PASS (swept) | 96 |
 | ENGINE-BUG (escalated) | 3 (pnp, nmos-on, pmos) |
 | FINDING (resolved) | 1 (diode default Vf — FIXED) |
-| SKIPPED (netlist error) | 4 (dip_switch, phototransistor, gas_sensor, darlington_driver) |
+| SKIPPED (terminal naming) | 3 (dip_switch, phototransistor, gas_sensor) |
+| SKIPPED (net-inference only) | 2 (rgb_led, seven_segment) |
 | SKIPPED (MCU/board kinds) | 5 (mcu, arduino_uno, arduino_nano, pi_pico, eater6502) |
-| SKIPPED (I2C/SPI, needs MCU) | ~8 (char_lcd, char_lcd_i2c, pcf8574, eeprom, etc.) |
-| SKIPPED (complex/remaining) | ~21 |
+| SKIPPED (I2C/SPI, needs MCU) | ~4 (char_lcd_i2c, pcf8574, etc.) |
 | **total** | **114** |
 
 74hc00, 74hc02, 74hc04, 74hc08, 74hc10, 74hc11, 74hc132, 74hc14,
