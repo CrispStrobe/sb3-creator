@@ -65,7 +65,7 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a33",
+     "a": "e33",
      "b": "f33"
     }
    }
@@ -216,7 +216,7 @@
   {
    "ref": "bbw:bb1:gen_4",
    "boardId": "bb1",
-   "a": "b33",
+   "a": "a33",
    "b": "t+33",
    "color": "red"
   },
