@@ -1,6 +1,5 @@
 # OUR OWN scrolling text firmware for the blinkenrocket pendant.
-# NOT derived from the blinkenrocket GPL firmware — clean-room
-# implementation of 8x8 LED matrix multiplexing.
+# NOT derived from the blinkenrocket GPL firmware.
 DEVICE ATTINY88
 CLOCK 8000000
 PIN col0 = PB0 OUTPUT
@@ -22,43 +21,42 @@ PIN row7 = PD7 OUTPUT
 PIN btnLeft = PC3 INPUT
 PIN btnRight = PC7 INPUT
 
-SPRITE Cat:
-  WHEN flag clicked:
-    forever:
-      turn off col0
-      turn off col1
-      turn off col2
-      turn off col3
-      turn off col4
-      turn off col5
-      turn off col6
-      turn off col7
-      turn on row2
-      turn on row5
-      turn on col1
-      wait 0.002 seconds
-      turn off col1
-      turn off row2
-      turn off row5
-      turn on row1
-      turn on row6
-      turn on col4
-      wait 0.002 seconds
-      turn off col4
-      turn off row1
-      turn off row6
-      turn on row2
-      turn on row3
-      turn on row4
-      turn on row5
-      turn on col5
-      wait 0.002 seconds
-      turn off col5
-      turn off row2
-      turn off row3
-      turn off row4
-      turn off row5
-      if read btnLeft then:
-        wait 0.2 seconds
-      if read btnRight then:
-        wait 0.2 seconds
+WHEN flag clicked:
+  forever:
+    turn off col0
+    turn off col1
+    turn off col2
+    turn off col3
+    turn off col4
+    turn off col5
+    turn off col6
+    turn off col7
+    turn on row2
+    turn on row5
+    turn on col1
+    wait 0.002 seconds
+    turn off col1
+    turn off row2
+    turn off row5
+    turn on row1
+    turn on row6
+    turn on col4
+    wait 0.002 seconds
+    turn off col4
+    turn off row1
+    turn off row6
+    turn on row2
+    turn on row3
+    turn on row4
+    turn on row5
+    turn on col5
+    wait 0.002 seconds
+    turn off col5
+    turn off row2
+    turn off row3
+    turn off row4
+    turn off row5
+    if read btnLeft then:
+      wait 0.2 seconds
+    if read btnRight then:
+      wait 0.2 seconds
