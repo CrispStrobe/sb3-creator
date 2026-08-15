@@ -1955,8 +1955,8 @@ void main(void) { struct point { int a; }; }`);
         'struct has no block equivalent and must say so');
 });
 
-test('an array subscript statement warns when dropped', () => {
-    const { warnings } = cToPseudocode(`
+test('an array subscript assignment becomes replace-item', () => {
+    const { pseudocode } = cToPseudocode(`
 /* @bw-begin
  * @bw device stc12c5a60s2
  * @bw clock 11059200
@@ -1964,8 +1964,8 @@ test('an array subscript statement warns when dropped', () => {
  * @bw-end */
 #include <stc12.h>
 void main(void) { unsigned char buf[4]; buf[0] = 1; }`);
-    assert.ok(warnings.some(w => /dropped.*not representable/.test(w)),
-        'array subscript assignment has no block equivalent and must say so');
+    assert.ok(/replace item 0 of buf with 1/.test(pseudocode),
+        'array subscript assignment should emit replace-item');
 });
 
 test('our own generated C does NOT trigger spurious drop warnings', () => {

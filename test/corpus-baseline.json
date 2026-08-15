@@ -22,17 +22,7 @@
     "polarity of \"LCD_RS\" is unknown — assuming active high": 40,
     "polarity of \"LCD_RW\" is unknown — assuming active high": 39,
     "polarity of \"LCD_EN\" is unknown — assuming active high": 38,
-    "statement dropped (not representable as a block): Result *= X": 30,
     "polarity of \"K1\" is unknown — assuming active high": 24,
-    "top-level declaration dropped (no block equivalent): typedef unsigned char u8": 23,
-    "statement dropped (not representable as a block): u8 i": 23,
-    "statement dropped (not representable as a block): uchar t": 23,
-    "top-level declaration dropped (no block equivalent): include < msp430f2618 . h >": 20,
-    "inferred DEVICE STC89C52RC from <8052.h>": 19,
-    "top-level declaration dropped (no block equivalent): uchar code DSY_CODE [ ] =": 19,
-    "top-level declaration dropped (no block equivalent): typedef unsigned int u16": 17,
-    "polarity of \"LED\" is unknown — assuming active high": 17,
-    "8 output pins × 20 mA = up to 160 mA at maximum pin ratings (actual current depe": 16,
-    "polarity of \"RS\" is unknown — assuming active high": 16
+    "top-level declaration dropped (no block equivalent): typedef unsigned char u8": 23
   }
 }
