@@ -1,2 +1,3 @@
 # Standalone circuit — light gate
-# An LDR changes the transistor base bias and turns an indicator on in dim light.
+# An LDR changes the transistor base bias: bright light pulls the base up and
+# turns the indicator on, darkness lets it fall and the indicator goes off.

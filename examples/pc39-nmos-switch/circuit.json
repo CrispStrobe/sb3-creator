@@ -4,7 +4,7 @@
     { "id": "src", "kind": "vsource", "params": { "volts": 5 }, "x": 80, "y": 80 },
     { "id": "gate", "kind": "switch", "params": {}, "x": 180, "y": 180 },
     { "id": "rg", "kind": "resistor", "params": { "ohms": 10000 }, "x": 300, "y": 260 },
-    { "id": "q1", "kind": "nmos", "params": { "vth": 2, "rOn": 5 }, "x": 420, "y": 250 },
+    { "id": "q1", "kind": "nmos", "params": { "vth": 2, "k": 0.0003 }, "x": 420, "y": 250 },
     { "id": "rl", "kind": "resistor", "params": { "ohms": 1000 }, "x": 520, "y": 120 },
     { "id": "led", "kind": "led", "params": { "vf": 2, "color": "red" }, "x": 650, "y": 220 },
     { "id": "gnd", "kind": "gnd", "params": {}, "x": 800, "y": 420 }
