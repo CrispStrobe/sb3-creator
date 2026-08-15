@@ -1,0 +1,15 @@
+# Ported from arduino-examples/examples/07.Display/RowColumnScanning/RowColumnScanning.ino, CC0
+# Simplified: demonstrates the concept with serial output instead of matrix hardware
+DEVICE ARDUINO-UNO
+CLOCK 16000000
+PIN potX = A0 ANALOG
+PIN potY = A1 ANALOG
+
+SPRITE Cat:
+  WHEN flag clicked:
+    forever:
+      set x to ((read potX * 7) / 1023)
+      set y to ((read potY * 7) / 1023)
+      print x
+      print y
+      wait 0.1 seconds

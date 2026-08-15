@@ -2945,5 +2945,94 @@
       "arduino-uno",
       "arduino-nano"
     ]
+  },
+  {
+    "id": "arduino-06-knock",
+    "title": {
+      "en": "Knock Sensor (CC0)",
+      "de": "Klopfsensor (CC0)"
+    },
+    "category": "analog",
+    "difficulty": 1,
+    "files": {
+      "program": "arduino-06-knock/program.bw",
+      "circuit": "arduino-06-knock/circuit.json"
+    },
+    "kind": "full",
+    "devices": [
+      "arduino-uno",
+      "arduino-nano"
+    ]
+  },
+  {
+    "id": "arduino-06-ping",
+    "title": {
+      "en": "Ping Ultrasonic (CC0)",
+      "de": "Ping Ultraschall (CC0)"
+    },
+    "category": "digital",
+    "difficulty": 2,
+    "files": {
+      "program": "arduino-06-ping/program.bw",
+      "circuit": "arduino-06-ping/circuit.json"
+    },
+    "kind": "full",
+    "devices": [
+      "arduino-uno",
+      "arduino-nano"
+    ]
+  },
+  {
+    "id": "arduino-07-bar-graph",
+    "title": {
+      "en": "Bar Graph (CC0)",
+      "de": "Balkendiagramm (CC0)"
+    },
+    "category": "digital",
+    "difficulty": 2,
+    "files": {
+      "program": "arduino-07-bar-graph/program.bw",
+      "circuit": "arduino-07-bar-graph/circuit.json"
+    },
+    "kind": "full",
+    "devices": [
+      "arduino-uno",
+      "arduino-nano"
+    ]
+  },
+  {
+    "id": "arduino-07-row-column-scanning",
+    "title": {
+      "en": "Row Column Scanning (CC0)",
+      "de": "Zeilen-Spalten-Abtastung (CC0)"
+    },
+    "category": "digital",
+    "difficulty": 3,
+    "files": {
+      "program": "arduino-07-row-column-scanning/program.bw",
+      "circuit": "arduino-07-row-column-scanning/circuit.json"
+    },
+    "kind": "full",
+    "devices": [
+      "arduino-uno"
+    ]
+  },
+  {
+    "id": "arduino-08-string-addition",
+    "title": {
+      "en": "String Addition (CC0)",
+      "de": "String-Verkettung (CC0)"
+    },
+    "category": "basics",
+    "difficulty": 1,
+    "files": {
+      "program": "arduino-08-string-addition/program.bw",
+      "circuit": "arduino-08-string-addition/circuit.json"
+    },
+    "kind": "full",
+    "devices": [
+      "arduino-uno",
+      "arduino-nano"
+    ]
   }
 ]

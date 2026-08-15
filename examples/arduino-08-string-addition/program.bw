@@ -1,0 +1,12 @@
+# Ported from arduino-examples/examples/08.Strings/StringAdditionOperator/StringAdditionOperator.ino, CC0
+DEVICE ARDUINO-UNO
+CLOCK 16000000
+PIN sensor = A0 ANALOG
+
+SPRITE Cat:
+  WHEN flag clicked:
+    set stringOne to "Sensor value: "
+    print stringOne join read sensor
+    set stringTwo to "millis: "
+    print stringTwo join (timer * 1000)
+    print "combined: " join (read sensor) join " at " join (timer * 1000)

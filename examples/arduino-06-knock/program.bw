@@ -1,0 +1,21 @@
+# Ported from arduino-examples/examples/06.Sensors/Knock/Knock.ino, CC0
+DEVICE ARDUINO-UNO
+CLOCK 16000000
+PIN piezo = A0 ANALOG
+PIN led = D13 OUTPUT
+
+SPRITE Cat:
+  WHEN flag clicked:
+    set ledState to 0
+    set threshold to 100
+    forever:
+      set sensorReading to read piezo
+      if sensorReading >= threshold then:
+        if ledState = 0 then:
+          set ledState to 1
+          turn on led
+        else:
+          set ledState to 0
+          turn off led
+        print "Knock!"
+      wait 0.1 seconds

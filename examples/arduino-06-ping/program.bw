@@ -1,0 +1,19 @@
+# Ported from arduino-examples/examples/06.Sensors/Ping/Ping.ino, CC0
+# Simplified: uses the ultrasonic sensor's analog distance reading
+DEVICE ARDUINO-UNO
+CLOCK 16000000
+PIN trig = D7 OUTPUT
+PIN echo = D8 INPUT
+
+SPRITE Cat:
+  WHEN flag clicked:
+    forever:
+      # Trigger pulse
+      turn off trig
+      wait 0.000002 seconds
+      turn on trig
+      wait 0.00001 seconds
+      turn off trig
+      # Read distance (simplified)
+      print read echo
+      wait 0.1 seconds

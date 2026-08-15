@@ -1,0 +1,66 @@
+{
+  "vcc": 5,
+  "parts": [
+    {
+      "id": "board",
+      "kind": "arduino_uno",
+      "declName": "board"
+    },
+    {
+      "id": "us",
+      "kind": "ultrasonic",
+      "declName": "us",
+      "params": {}
+    },
+    {
+      "id": "vcc1",
+      "kind": "vcc",
+      "params": {
+        "volts": 5
+      }
+    },
+    {
+      "id": "gnd1",
+      "kind": "gnd",
+      "params": {}
+    }
+  ],
+  "wires": [
+    {
+      "from": "board",
+      "fromTerminal": "d7",
+      "to": "us",
+      "toTerminal": "trig"
+    },
+    {
+      "from": "us",
+      "fromTerminal": "echo",
+      "to": "board",
+      "toTerminal": "d8"
+    },
+    {
+      "from": "vcc1",
+      "fromTerminal": "vcc",
+      "to": "us",
+      "toTerminal": "vcc"
+    },
+    {
+      "from": "gnd1",
+      "fromTerminal": "gnd",
+      "to": "us",
+      "toTerminal": "gnd"
+    },
+    {
+      "from": "vcc1",
+      "fromTerminal": "vcc",
+      "to": "board",
+      "toTerminal": "5v"
+    },
+    {
+      "from": "gnd1",
+      "fromTerminal": "gnd",
+      "to": "board",
+      "toTerminal": "gnd"
+    }
+  ]
+}
