@@ -1,5 +1,20 @@
-# Logic interlock
+# Two-input logic interlock
 
-The gate output is high only when both input switches connect their inputs to
-the supply. Test the four input combinations and observe that one low input is
-enough to keep the indicator off.
+The AND gate's output is high only when both switches connect their inputs to
+the supply. The 100 kΩ pull-down resistors are what make the other three
+combinations well-defined: an unconnected CMOS input is not "low", it is
+undecided.
+
+Measured on the engine (board vcc 5):
+
+| `sw_a` | `sw_b` | `in0` | `in1` | `gate1.out` | LED |
+|---|---|---|---|---|---|
+| open | open | 0.00 V | 0.00 V | 0.00 V | off, 0.00 mA |
+| closed | open | 5.00 V | 0.00 V | 0.00 V | off, 0.00 mA |
+| open | closed | 0.00 V | 5.00 V | 0.00 V | off, 0.00 mA |
+| closed | closed | 5.00 V | 5.00 V | 4.86 V | on, 2.83 mA |
+
+The output's 4.86 V rather than 5.00 V is the gate's 50 Ω output resistance
+carrying 2.83 mA. The gate switches at CMOS thresholds — below 30 % of VCC is
+low, above 70 % is high — so the 0 V and 5 V the switches produce are
+unambiguous at both ends.

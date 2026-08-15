@@ -7,6 +7,7 @@
     { "id": "r1", "kind": "resistor", "params": { "ohms": 10000 }, "x": 180, "y": 150 },
     { "id": "r2", "kind": "resistor", "params": { "ohms": 10000 }, "x": 180, "y": 280 },
     { "id": "c1", "kind": "capacitor", "params": { "farads": 0.00001 }, "x": 180, "y": 400 },
+    { "id": "c2", "kind": "capacitor", "params": { "farads": 1e-8 }, "x": 380, "y": 420 },
     { "id": "rled", "kind": "resistor", "params": { "ohms": 1000 }, "x": 560, "y": 220 },
     { "id": "led1", "kind": "led", "params": { "vf": 2, "color": "red" }, "x": 560, "y": 330 }
   ],
@@ -21,6 +22,8 @@
     { "from": "r2", "fromTerminal": "b", "to": "u1", "toTerminal": "trigger" },
     { "from": "r2", "fromTerminal": "b", "to": "c1", "toTerminal": "a" },
     { "from": "c1", "fromTerminal": "b", "to": "gnd1", "toTerminal": "gnd" },
+    { "from": "u1", "fromTerminal": "control", "to": "c2", "toTerminal": "a" },
+    { "from": "c2", "fromTerminal": "b", "to": "gnd1", "toTerminal": "gnd" },
     { "from": "u1", "fromTerminal": "output", "to": "rled", "toTerminal": "a" },
     { "from": "rled", "fromTerminal": "b", "to": "led1", "toTerminal": "anode" },
     { "from": "led1", "fromTerminal": "cathode", "to": "gnd1", "toTerminal": "gnd" }
