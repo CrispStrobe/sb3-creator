@@ -26,7 +26,11 @@ const CORPUS_SRC = join(import.meta.dirname, '..', 'corpus', 'arduino-examples',
 const CORPUS_OUT = join(import.meta.dirname, '..', 'corpus', 'arduino-imported');
 const ARDUINO_PREAMBLE = '#include <Arduino.h>\n#define LED_BUILTIN 13\n';
 
-const CATEGORIES = ['01.Basics', '02.Digital', '03.Analog'];
+const CATEGORIES = [
+    '01.Basics', '02.Digital', '03.Analog',
+    '04.Communication', '05.Control', '06.Sensors', '07.Display',
+    '08.Strings', '09.USB', '10.StarterKit_BasicKit', '11.ArduinoISP',
+];
 
 // Collect all .ino files
 const examples = [];
@@ -44,9 +48,25 @@ for (const cat of CATEGORIES) {
 // Examples that don't re-parse clean (no pins found, or parse warnings).
 // Recorded, not a test failure — they exercise the importer's refusal path.
 const PARSE_WARN_EXPECTED = new Set([
+    // 01-03 (original set)
     'BareMinimum',       // no pins
     'ReadAnalogVoltage', // float arithmetic dropped
     'toneKeyboard',      // array declaration dropped
+    'tonePitchFollower',  // produces "stop" that parser doesn't recognize
+    // 04.Communication — Serial constructs
+    'Dimmer', 'Midi', 'MultiSerial', 'PhysicalPixel', 'ReadASCIIString',
+    'SerialCallResponse', 'SerialCallResponseASCII', 'SerialEvent',
+    'SerialPassthrough', 'VirtualColorMixer',
+    // 05.Control
+    'switchCase',        // switch on analog read produces parse warnings
+    // 06.Sensors
+    'ADXL3xx',           // multi-axis accelerometer, complex pin declarations
+    // 07.Display
+    'RowColumnScanning', // matrix scanning with arrays
+    // 09.USB
+    'KeyboardAndMouseControl', // USB HID library calls
+    // 11.ArduinoISP
+    'ArduinoISP',        // ISP programmer — SPI, complex defines
 ]);
 
 describe('arduino-import: cToPseudocode produces pseudocode', () => {
