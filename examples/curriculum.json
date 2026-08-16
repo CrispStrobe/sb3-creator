@@ -23,6 +23,16 @@
       {"example": "37-voltage-divider-basic", "lead": {"en": "The most important little circuit in electronics: two resistors make any voltage you want.", "de": "Die wichtigste kleine Schaltung der Elektronik: Zwei Widerstände machen jede gewünschte Spannung."}},
       {"example": "pc07-pot-dimmer", "lead": {"en": "A potentiometer is a divider you can turn.", "de": "Ein Potentiometer ist ein drehbarer Spannungsteiler."}}
      ]
+    },
+    {
+     "title": {"en": "The battery fights back", "de": "Die Batterie wehrt sich"},
+     "stations": [
+      {"interlude": {"en": "Every real battery has a hidden resistance inside. The harder you push it, the more it pushes back — and the voltage you measure at the terminals drops. This chapter is about the gap between what a battery promises and what it delivers.", "de": "Jede echte Batterie hat einen versteckten Widerstand in sich. Je mehr man sie belastet, desto mehr wehrt sie sich — und die Spannung an den Klemmen sinkt. Dieses Kapitel handelt von der Lücke zwischen dem, was eine Batterie verspricht, und dem, was sie liefert."}},
+      {"example": "pc77-klemmenspannung", "lead": {"en": "Connect a load and watch the voltage drop. The missing volts are hiding inside the battery — measure them.", "de": "Schließe eine Last an und beobachte den Spannungsabfall. Die fehlenden Volt verstecken sich in der Batterie — miss sie."}},
+      {"example": "pc78-belastete-quelle", "lead": {"en": "A light load barely notices the internal resistance. A heavy load makes it obvious — two LEDs, same battery, different brightness.", "de": "Eine leichte Last spürt den Innenwiderstand kaum. Eine schwere macht ihn sichtbar — zwei LEDs, gleiche Batterie, verschiedene Helligkeit."}},
+      {"example": "pc79-indirekte-strommessung", "lead": {"en": "How do you measure current without breaking the wire? Put a tiny resistor in the way and read the voltage across it — I = V/R.", "de": "Wie misst man Strom, ohne den Draht aufzutrennen? Einen winzigen Widerstand dazwischen und die Spannung darüber ablesen — I = V/R."}},
+      {"example": "pc80-quellen-vergleich", "lead": {"en": "Two batteries, same label, different souls. The one with lower internal resistance wins every race.", "de": "Zwei Batterien, gleiches Etikett, verschiedene Seelen. Die mit dem niedrigeren Innenwiderstand gewinnt jedes Rennen."}}
+     ]
     }
    ]
   },
@@ -43,7 +53,8 @@
      "title": {"en": "Level 18: reading it off the scope", "de": "Stufe 18: am Oszilloskop ablesen"},
      "stations": [
       {"interlude": {"en": "Xc = 1/(2πfC) is nothing but the membrane's stiffness written as a number that FALLS with frequency. You are about to measure that number.", "de": "Xc = 1/(2πfC) ist nichts als die Steifheit der Membran, als Zahl geschrieben, die mit der Frequenz FÄLLT. Diese Zahl misst du jetzt."}},
-      {"example": "pc06-rc-charge", "level": 18, "lead": {"en": "Drive the RC divider below, at, and above its corner. Read amplitude ratio and phase lag off the traces; fill the table — you are drawing a Bode plot by hand before you know its name.", "de": "Steuere den RC-Teiler unter, an und über seiner Eckfrequenz an. Lies Amplitudenverhältnis und Phasenverschiebung aus den Kurven; füll die Tabelle — du zeichnest ein Bode-Diagramm von Hand, bevor du seinen Namen kennst."}}
+      {"example": "pc06-rc-charge", "level": 18, "lead": {"en": "Drive the RC divider below, at, and above its corner. Read amplitude ratio and phase lag off the traces; fill the table — you are drawing a Bode plot by hand before you know its name.", "de": "Steuere den RC-Teiler unter, an und über seiner Eckfrequenz an. Lies Amplitudenverhältnis und Phasenverschiebung aus den Kurven; füll die Tabelle — du zeichnest ein Bode-Diagramm von Hand, bevor du seinen Namen kennst."}},
+      {"example": "50-rc-scope", "level": 18, "lead": {"en": "Now the oscilloscope shows both signals at once. The output sine is smaller and shifted — that IS impedance, drawn on the screen.", "de": "Jetzt zeigt das Oszilloskop beide Signale gleichzeitig. Die Ausgangskurve ist kleiner und verschoben — das IST Impedanz, auf dem Bildschirm gezeichnet."}}
      ]
     },
     {
@@ -51,6 +62,105 @@
      "stations": [
       {"interlude": {"en": "Z = R + jX and phasors are bookkeeping, not new physics: the divider formula you already trust, made honest at every frequency. Design task: pick R and C for a 1 kHz corner, then PROVE it by sweep.", "de": "Z = R + jX und Zeiger sind Buchhaltung, keine neue Physik: die Teilerformel, der du schon vertraust, ehrlich gemacht für jede Frequenz. Entwurfsaufgabe: Wähle R und C für 1 kHz Eckfrequenz — und BEWEISE es per Sweep."}},
       {"interlude": {"en": "[Awaiting the sweep instrument: Bode magnitude/phase panel + RLC resonance station land here.]", "de": "[Wartet auf das Sweep-Instrument: Bode-Betrag/Phase und die RLC-Resonanz-Station kommen hierher.]"}}
+     ]
+    }
+   ]
+  },
+  {
+   "id": "zeit-und-takt",
+   "title": {"en": "Time & Clock: the 555 family", "de": "Zeit und Takt: die 555-Familie"},
+   "audience": "12+",
+   "chapters": [
+    {
+     "title": {"en": "One shot, one blink, one memory", "de": "Ein Impuls, ein Blinken, ein Gedächtnis"},
+     "stations": [
+      {"interlude": {"en": "The 555 timer does three things: fire once (monostable), blink forever (astable), or remember (bistable). Every configuration is the same chip with different wiring — and always one formula: t = 1.1 × R × C.", "de": "Der 555-Timer kann drei Dinge: einmal feuern (Monoflop), ewig blinken (Astable), oder sich erinnern (Bistabile Kippstufe). Jede Konfiguration ist derselbe Chip mit anderer Verdrahtung — und immer eine Formel: t = 1,1 × R × C."}},
+      {"example": "pc47-555-monostable", "lead": {"en": "Press the button, the LED lights for exactly 1.1 seconds. Not 1.0, not 1.2 — the resistor and capacitor decide, and they are precise.", "de": "Drück den Taster, die LED leuchtet genau 1,1 Sekunden. Nicht 1,0, nicht 1,2 — der Widerstand und der Kondensator entscheiden, und sie sind genau."}},
+      {"example": "51-555-astable", "lead": {"en": "Same chip, two resistors instead of one, and now it blinks forever. No button needed — the capacitor is its own metronome.", "de": "Gleicher Chip, zwei Widerstände statt einem, und jetzt blinkt er ewig. Kein Taster nötig — der Kondensator ist sein eigenes Metronom."}},
+      {"example": "pc63-555-bistabil", "lead": {"en": "Set. Reset. It remembers. No timing at all — the 555 is now a one-bit memory, the simplest flip-flop you can build.", "de": "Setzen. Rücksetzen. Er merkt es sich. Keine Zeitgebung — der 555 ist jetzt ein Ein-Bit-Speicher, das einfachste Flip-Flop, das man bauen kann."}}
+     ]
+    },
+    {
+     "title": {"en": "Tuning the clock", "de": "Die Uhr einstellen"},
+     "stations": [
+      {"example": "pc65-555-metronom", "lead": {"en": "A potentiometer in the timing path: turn the knob, change the tempo. From one tick per second to a fast rattle.", "de": "Ein Potentiometer im Zeitgeberpfad: dreh am Knopf, ändere das Tempo. Von einem Tick pro Sekunde bis zum schnellen Rattern."}},
+      {"example": "pc67-555-tongenerator", "lead": {"en": "Make C small enough and the blinks become a tone. 686 Hz — the sound of R₁, R₂ and C doing arithmetic.", "de": "Mach C klein genug und das Blinken wird zum Ton. 686 Hz — der Klang von R₁, R₂ und C beim Rechnen."}},
+      {"example": "pc68-555-sirene", "lead": {"en": "Add a pot and the tone sweeps: a siren you control by hand. The formula is the same — only the numbers move.", "de": "Füge ein Poti hinzu und der Ton gleitet: eine Sirene, die du von Hand steuerst. Die Formel ist dieselbe — nur die Zahlen bewegen sich."}}
+     ]
+    },
+    {
+     "title": {"en": "Stretching time", "de": "Zeit dehnen"},
+     "stations": [
+      {"example": "pc64-555-retrigger", "lead": {"en": "Press again before the pulse ends and the clock restarts — a retriggerable timer that waits as long as you keep asking.", "de": "Drück nochmal, bevor der Impuls endet, und die Uhr startet neu — ein retriggerbarer Timer, der wartet, solange du fragst."}},
+      {"example": "pc66-555-langzeit", "lead": {"en": "R = 1 MΩ, C = 100 µF: nearly two minutes from one button press. Same formula, bigger numbers, longer patience.", "de": "R = 1 MΩ, C = 100 µF: fast zwei Minuten aus einem Tastendruck. Gleiche Formel, größere Zahlen, mehr Geduld."}}
+     ]
+    }
+   ]
+  },
+  {
+   "id": "halbleiter-und-gatter",
+   "title": {"en": "From Diodes to Gates", "de": "Von Dioden zu Gattern"},
+   "audience": "12+",
+   "chapters": [
+    {
+     "title": {"en": "The one-way valve", "de": "Das Einwegventil"},
+     "stations": [
+      {"interlude": {"en": "A diode lets current through in one direction and blocks it in the other. That is all a semiconductor needs to do to be useful — and everything else is built on top of this asymmetry.", "de": "Eine Diode lässt Strom in einer Richtung durch und sperrt ihn in der anderen. Das ist alles, was ein Halbleiter können muss, um nützlich zu sein — und alles andere baut auf dieser Asymmetrie auf."}},
+      {"example": "pc08-diode-polarity", "lead": {"en": "Flip the diode and the LED goes dark. The stripe marks the way out — current flows toward it, never away.", "de": "Dreh die Diode um und die LED erlischt. Der Strich markiert den Ausgang — Strom fließt zu ihm hin, nie weg."}},
+      {"example": "42-diode-rectifier", "lead": {"en": "Forward: the diode conducts and drops 0.7 V. Reverse: it blocks completely. Measure both — the asymmetry is the whole story.", "de": "Durchlass: die Diode leitet und verliert 0,7 V. Sperrrichtung: totale Blockade. Miss beides — die Asymmetrie ist die ganze Geschichte."}},
+      {"example": "pc31-bridge-rectifier", "lead": {"en": "Four diodes in a diamond turn AC into DC. Each one only knows forward vs reverse — together they steer the river.", "de": "Vier Dioden in einer Raute machen aus Wechsel- Gleichstrom. Jede kennt nur Durchlass und Sperren — zusammen lenken sie den Fluss."}}
+     ]
+    },
+    {
+     "title": {"en": "The electronic switch", "de": "Der elektronische Schalter"},
+     "stations": [
+      {"interlude": {"en": "A transistor is a valve you open with a trickle: a tiny current at the base controls a large current through the collector. It is the building block of every amplifier, every computer, every phone.", "de": "Ein Transistor ist ein Ventil, das man mit einem Rinnsal öffnet: Ein winziger Strom an der Basis steuert einen großen Strom durch den Kollektor. Er ist der Baustein jedes Verstärkers, jedes Computers, jedes Telefons."}},
+      {"example": "pc05-npn-switch", "lead": {"en": "Button on the base, LED on the collector. Press — the transistor opens the floodgate.", "de": "Taster an der Basis, LED am Kollektor. Drücken — der Transistor öffnet das Schleusentor."}},
+      {"example": "pc72-tagschaltung", "lead": {"en": "Replace the button with a light sensor: now the transistor decides by itself. Bright → LED on. The first automatic circuit.", "de": "Ersetze den Taster durch einen Lichtsensor: jetzt entscheidet der Transistor selbst. Hell → LED an. Die erste automatische Schaltung."}},
+      {"example": "pc73-nachtschaltung", "lead": {"en": "Swap the sensor and resistor — now dark turns the LED on. Same parts, opposite behaviour. The divider position is the only difference.", "de": "Vertausche Sensor und Widerstand — jetzt schaltet Dunkelheit die LED ein. Gleiche Teile, entgegengesetztes Verhalten. Nur die Teilerposition ist anders."}}
+     ]
+    },
+    {
+     "title": {"en": "Gates from switches", "de": "Gatter aus Schaltern"},
+     "stations": [
+      {"interlude": {"en": "A NAND gate is two transistors stacked: both must be on for the output to go low. From this one gate you can build every logic function — AND, OR, NOT, memory. The entire digital world in four pins.", "de": "Ein NAND-Gatter sind zwei gestapelte Transistoren: beide müssen leiten, damit der Ausgang auf Low geht. Aus diesem einen Gatter lässt sich jede Logikfunktion bauen — AND, OR, NOT, Speicher. Die gesamte digitale Welt in vier Pins."}},
+      {"example": "pc45-nand-test", "lead": {"en": "The truth table has four rows. Two switches, one LED. Press them in every combination — the LED tells you NAND.", "de": "Die Wahrheitstabelle hat vier Zeilen. Zwei Schalter, eine LED. Drücke sie in jeder Kombination — die LED zeigt dir NAND."}},
+      {"example": "pc69-nand-inverter", "lead": {"en": "Tie both inputs together and NAND becomes NOT. One gate, one wire, one inversion — the simplest useful logic.", "de": "Verbinde beide Eingänge und NAND wird zu NOT. Ein Gatter, ein Draht, eine Invertierung — die einfachste brauchbare Logik."}},
+      {"example": "pc70-schmitt-trigger", "lead": {"en": "Feed a slow ramp into the gate. The output snaps — no gradual fade, a clean digital edge from an analog crawl.", "de": "Führe eine langsame Rampe ins Gatter. Der Ausgang springt — kein sanftes Gleiten, eine saubere digitale Flanke aus einem analogen Kriechen."}}
+     ]
+    },
+    {
+     "title": {"en": "Memory from gates", "de": "Speicher aus Gattern"},
+     "stations": [
+      {"interlude": {"en": "Cross-couple two gates and they remember: one holds HIGH while the other holds LOW, and they refuse to change until you force them. This is the latch — the atom of digital memory.", "de": "Koppele zwei Gatter überkreuz und sie merken sich: eins hält HIGH, das andere LOW, und sie weigern sich zu wechseln, bis man sie zwingt. Das ist der Latch — das Atom des digitalen Speichers."}},
+      {"example": "pc71-nand-entpreller", "lead": {"en": "Two NAND gates, cross-wired. Press Set — the LED latches on, bounce-free. Press Reset — it latches off. The first memory cell, built from logic alone.", "de": "Zwei NAND-Gatter, überkreuz verdrahtet. Drücke Set — die LED rastet ein, prellfrei. Drücke Reset — sie rastet aus. Die erste Speicherzelle, allein aus Logik gebaut."}},
+      {"example": "pc59-nor-memory", "lead": {"en": "Same idea, NOR gates instead of NAND. The inputs are active-high instead of active-low — same memory, different polarity.", "de": "Gleiche Idee, NOR-Gatter statt NAND. Die Eingänge sind aktiv-high statt aktiv-low — gleicher Speicher, andere Polarität."}},
+      {"example": "pc63-555-bistabil", "lead": {"en": "The 555 can do it too — set and reset, one chip, no gates needed. Three ways to build a flip-flop, same principle.", "de": "Der 555 kann es auch — Setzen und Rücksetzen, ein Chip, keine Gatter nötig. Drei Wege zum Flip-Flop, gleiches Prinzip."}}
+     ]
+    }
+   ]
+  },
+  {
+   "id": "licht-und-alarm",
+   "title": {"en": "Light & Alarm Circuits", "de": "Licht- und Alarmschaltungen"},
+   "audience": "12+",
+   "chapters": [
+    {
+     "title": {"en": "Light decides", "de": "Licht entscheidet"},
+     "stations": [
+      {"interlude": {"en": "A light-dependent resistor changes its resistance with brightness — dark makes it stiff, bright makes it loose. Put it in a voltage divider and the circuit can see.", "de": "Ein lichtabhängiger Widerstand ändert seinen Widerstand mit der Helligkeit — Dunkelheit macht ihn steif, Licht macht ihn locker. Setz ihn in einen Spannungsteiler und die Schaltung kann sehen."}},
+      {"example": "pc48-ldr-comparator", "lead": {"en": "LDR against a reference: the comparator flips when the light crosses the threshold. Digital output from an analog world.", "de": "LDR gegen eine Referenz: der Komparator kippt, wenn das Licht die Schwelle kreuzt. Digitaler Ausgang aus einer analogen Welt."}},
+      {"example": "pc72-tagschaltung", "lead": {"en": "Bright → transistor ON → LED on. The simplest automatic daytime indicator, no IC needed.", "de": "Hell → Transistor EIN → LED an. Der einfachste automatische Tageslichtanzeiger, kein IC nötig."}},
+      {"example": "pc73-nachtschaltung", "lead": {"en": "Swap the divider — now dark triggers the LED. A night light from two resistors and a transistor.", "de": "Vertausche den Teiler — jetzt löst Dunkelheit die LED aus. Ein Nachtlicht aus zwei Widerständen und einem Transistor."}},
+      {"example": "pc74-ldr-555-blinker", "lead": {"en": "Light controls the blink speed: bright → fast, dark → slow. The LDR replaces a fixed resistor in the 555 timing path.", "de": "Licht steuert die Blinkgeschwindigkeit: hell → schnell, dunkel → langsam. Der LDR ersetzt einen Festwiderstand im 555-Zeitgeberpfad."}}
+     ]
+    },
+    {
+     "title": {"en": "Sound the alarm", "de": "Alarm schlagen"},
+     "stations": [
+      {"interlude": {"en": "An alarm has two parts: something that detects (a switch, a sensor) and something that responds (a buzzer, a siren). Add a latch between them and the alarm remembers — it keeps screaming until someone resets it.", "de": "Ein Alarm hat zwei Teile: etwas, das erkennt (ein Schalter, ein Sensor) und etwas, das reagiert (ein Summer, eine Sirene). Füge einen Latch dazwischen und der Alarm merkt sich — er schreit weiter, bis jemand ihn zurücksetzt."}},
+      {"example": "pc75-alarmgeber", "lead": {"en": "Hold the button, hear the siren. Release it, silence. No memory — the simplest alarm.", "de": "Halte den Taster, höre die Sirene. Loslassen, Stille. Kein Gedächtnis — der einfachste Alarm."}},
+      {"example": "pc76-alarmschaltung", "lead": {"en": "Now with memory: the switch triggers, the NOR latch holds, the buzzer screams until you press Reset. A real alarm in five components.", "de": "Jetzt mit Gedächtnis: der Schalter löst aus, der NOR-Latch hält, der Summer schreit, bis du Reset drückst. Ein echter Alarm in fünf Bauteilen."}}
      ]
     }
    ]
