@@ -178,19 +178,193 @@ const parent = new Map();
 const find = (k) => { let r = k; while (parent.get(r) !== r) r = parent.get(r); parent.set(k, r); return r; };
 const uni = (a, b) => { for (const k of [a, b]) if (!parent.has(k)) parent.set(k, k); parent.set(find(a), find(b)); };
 const P = (x, y) => `${x},${y}`;
-// ── SPLITTERS ──────────────────────────────────────────────────────
-// Digital's splitter fans a multi-bit bus into individual bits. In our
-// flat single-bit netlist, individual-bit wires route independently
-// through the splitter area without sharing endpoints, so the
-// union-find naturally keeps them separate. No excision needed —
-// earlier attempts to excise wires near the splitter position broke
-// net connectivity (wrong geometry assumptions for rotated splitters).
-for (const [x1, y1, x2, y2] of wires) uni(P(x1, y1), P(x2, y2));
 const onSeg = (x, y, [x1, y1, x2, y2]) =>
     (x1 === x2 && x === x1 && Math.min(y1, y2) <= y && y <= Math.max(y1, y2)) ||
     (y1 === y2 && y === y1 && Math.min(x1, x2) <= x && x <= Math.max(x1, x2));
+// ── SPLITTERS ──────────────────────────────────────────────────────
+// Digital's splitter fans a multi-bit bus into individual bits. Model
+// each splitter as N per-bit net junctions: bit i on the individual
+// side unions with bit i on the bus side of every bus-connected peer.
+// Bus-side wires carry ALL bits and must be EXCISED from the normal
+// union-find to avoid shorting all bits together.
+
+// 1. Extract splitter pin labels from SVG (font-size:12px, gray)
+const splitterLabels12 = [
+    // Non-rotated (no transform)
+    ...[...svg.matchAll(/<text text-anchor="(start|end)" x="([\d.\-]+)" y="([\d.\-]+)" fill="#808080" style="font-size:12px">([^<]+)<\/text>/g)]
+        .filter(m => !m[0].includes('transform'))
+        .map(m => ({
+            anchor: m[1], text: m[4],
+            px: snap(m[1] === 'start' ? Number(m[2]) - 2 : Number(m[2]) + 2),
+            py: snap(Number(m[3]) - 12),
+        })),
+    // Rotated (has transform="rotate(-90,cx,cy)") — use rotation center
+    ...[...svg.matchAll(/<text text-anchor="(start|end)" x="[\d.\-]+" y="[\d.\-]+" fill="#808080" style="font-size:12px" transform="rotate\(-90,([\d.\-]+),([\d.\-]+)\)"\s*>([^<]+)<\/text>/g)]
+        .map(m => ({
+            anchor: m[1], text: m[4],
+            px: snap(Number(m[2])),
+            py: snap(Number(m[3])),
+        })),
+];
+
+// 2. Parse Splitter elements from .dig XML
+const splitterEls = elements.filter(e => e.name === 'Splitter').map(e => {
+    // Re-extract full element XML for attributes
+    const allEls = [...xml.matchAll(/<visualElement>([\s\S]*?)<\/visualElement>/g)];
+    const elXml = allEls[e.i][1];
+    const getSplitAttr = (name) => {
+        const re = new RegExp(name.replace(/\s/g, '\\s') + '<\\/string>\\s*<string>([^<]+)<');
+        return re.exec(elXml)?.[1];
+    };
+    const inputSplit = getSplitAttr('Input Splitting');
+    const outputSplit = getSplitAttr('Output Splitting');
+    return { ...e, inputSplit, outputSplit };
+});
+
+// 3. Cluster 12px labels to nearest splitter using greedy bipartite matching
+//    (same strategy as chip pin clustering — sort by distance, assign each
+//    label to its closest splitter that doesn't already own that bit/range).
+for (const sp of splitterEls) {
+    sp.indivPins = [];  // {bit, px, py}
+    sp.busPins = [];    // {lo, hi, px, py}
+}
+const splCandidates = [];
+for (const lbl of splitterLabels12) {
+    const isRange = /^\d+-\d+$/.test(lbl.text);
+    const isSingleBit = /^\d+$/.test(lbl.text);
+    if (!isRange && !isSingleBit) continue;
+    for (const sp of splitterEls) {
+        const d = Math.hypot(lbl.px - sp.x, lbl.py - sp.y);
+        if (d < 600) splCandidates.push({ lbl, sp, d });
+    }
+}
+splCandidates.sort((a, b) => a.d - b.d);
+const splLabelUsed = new Set();
+for (const { lbl, sp, d } of splCandidates) {
+    const labelKey = `${lbl.px},${lbl.py},${lbl.text}`;
+    if (splLabelUsed.has(labelKey)) continue;
+    const isRange = /^\d+-\d+$/.test(lbl.text);
+    if (isRange) {
+        const [lo, hi] = lbl.text.split('-').map(Number);
+        // Skip if this splitter already has a bus pin with this range
+        if (sp.busPins.some(bp => bp.lo === Math.min(lo,hi) && bp.hi === Math.max(lo,hi))) continue;
+        sp.busPins.push({ lo: Math.min(lo, hi), hi: Math.max(lo, hi), px: lbl.px, py: lbl.py });
+    } else {
+        const bit = Number(lbl.text);
+        // Skip if this splitter already has this bit
+        if (sp.indivPins.some(ip => ip.bit === bit)) continue;
+        sp.indivPins.push({ bit, px: lbl.px, py: lbl.py });
+    }
+    splLabelUsed.add(labelKey);
+}
+
+// For splitters where the individual pins use bit-range notation
+// (e.g. InputSplit='7-7,6-6,...,0-0'), they render as "7", "6", etc.
+// which are already captured as individual pins above. But if a
+// splitter has no output splitting specified, it has an implicit bus.
+
+// 4. Collect all bus-pin grid positions
+const busPositions = new Set();
+for (const sp of splitterEls) {
+    for (const bp of sp.busPins) busPositions.add(P(bp.px, bp.py));
+}
+// Also: if a splitter has individual pins but no bus pins from labels,
+// check if the element position itself is the bus endpoint
+for (const sp of splitterEls) {
+    if (sp.indivPins.length > 0 && sp.busPins.length === 0) {
+        // The element pos is typically the bus pin for simple splitters
+        // Find wires touching the element position
+        busPositions.add(P(sp.x, sp.y));
+        sp.busPins.push({ lo: 0, hi: sp.indivPins.length - 1, px: sp.x, py: sp.y });
+    }
+}
+
+// 5. Two-pass approach:
+//    (a) Build bus connectivity using ALL wires (to find which bus pins connect)
+//    (b) In the main UF, skip only wires directly touching bus pins (narrow excision)
+//
+// Pass A: full wire UF for bus connectivity discovery
+const tmpP = new Map();
+const tmpFind = (k) => { let r = k; while (tmpP.get(r) !== r) r = tmpP.get(r); tmpP.set(k, r); return r; };
+const tmpUni = (a, b) => { for (const k of [a, b]) if (!tmpP.has(k)) tmpP.set(k, k); tmpP.set(tmpFind(a), tmpFind(b)); };
+for (const [x1, y1, x2, y2] of wires) tmpUni(P(x1, y1), P(x2, y2));
+// T-junctions: endpoint of one wire on another wire's middle
+for (const wa of wires) {
+    for (const wb of wires) {
+        if (wa === wb) continue;
+        if (onSeg(wa[0], wa[1], wb)) tmpUni(P(wa[0], wa[1]), P(wb[0], wb[1]));
+        if (onSeg(wa[2], wa[3], wb)) tmpUni(P(wa[2], wa[3]), P(wb[0], wb[1]));
+    }
+}
+// Attach bus pins to wires via point-on-segment
+for (const bp of busPositions) {
+    const [bx, by] = bp.split(',').map(Number);
+    for (const w of wires) {
+        if (onSeg(bx, by, w)) { tmpUni(bp, P(w[0], w[1])); break; }
+    }
+}
+const busFind2 = tmpFind;
+
+// Pass B: main UF — skip wires directly touching bus pin positions
+const normalWires = [];
+for (const w of wires) {
+    const [x1, y1, x2, y2] = w;
+    let isBus = busPositions.has(P(x1, y1)) || busPositions.has(P(x2, y2));
+    if (!isBus) {
+        for (const bp of busPositions) {
+            const [bx, by] = bp.split(',').map(Number);
+            if (onSeg(bx, by, w)) { isBus = true; break; }
+        }
+    }
+    if (!isBus) normalWires.push(w);
+}
+for (const [x1, y1, x2, y2] of normalWires) uni(P(x1, y1), P(x2, y2));
+
+// Group splitters by bus connectivity
+const splitterBusGroups = new Map(); // busRoot → [splitter, ...]
+for (const sp of splitterEls) {
+    if (sp.busPins.length === 0) continue;
+    const bp = sp.busPins[0];
+    if (!tmpP.has(P(bp.px, bp.py))) continue;
+    const root = busFind2(P(bp.px, bp.py));
+    if (!splitterBusGroups.has(root)) splitterBusGroups.set(root, []);
+    splitterBusGroups.get(root).push(sp);
+}
+
+// 7. For each group of bus-connected splitters, union individual-bit
+//    pins by bit index — this creates the per-bit data-path connections.
+let splitterBridges = 0;
+for (const group of splitterBusGroups.values()) {
+    if (group.length < 2) continue;
+    // Build bit → [pin positions] across all splitters in the group
+    const bitPins = new Map(); // bit index → [P(x,y), ...]
+    for (const sp of group) {
+        for (const ip of sp.indivPins) {
+            if (!bitPins.has(ip.bit)) bitPins.set(ip.bit, []);
+            bitPins.get(ip.bit).push(P(ip.px, ip.py));
+        }
+    }
+    // Union all pin positions sharing the same bit index
+    for (const [, pins] of bitPins) {
+        // Ensure each pin is in the union-find and attached to its wire
+        for (const p of pins) {
+            const [px, py] = p.split(',').map(Number);
+            if (!parent.has(p)) parent.set(p, p);
+            // Attach to any normal wire touching this point
+            for (const w of normalWires) {
+                if (onSeg(px, py, w)) { uni(p, P(w[0], w[1])); break; }
+            }
+        }
+        for (let i = 1; i < pins.length; i++) {
+            uni(pins[0], pins[i]);
+            splitterBridges++;
+        }
+    }
+}
+if (splitterEls.length) console.log(`  splitters: ${splitterEls.length} elements, ${busPositions.size} bus pins excised, ${splitterBusGroups.size} bus groups, ${splitterBridges} bit bridges`);
+// attach: join a point to the normal union-find via any non-bus wire it sits on
 const attach = (x, y) => {
-    for (const w of wires) if (onSeg(x, y, w)) { uni(P(x, y), P(w[0], w[1])); return true; }
+    for (const w of normalWires) if (onSeg(x, y, w)) { uni(P(x, y), P(w[0], w[1])); return true; }
     return false;
 };
 
@@ -308,6 +482,35 @@ for (const members of byNet.values()) {
         outWires.push({ from: hub.partId, fromTerminal: hub.terminal, to: m.partId, toTerminal: m.terminal });
     }
 }
+
+// ── Soundness checks ──
+// 1. No pin may appear in two nets
+const pinNets = new Map(); // `partId.terminal` → net root
+let dupeCount = 0;
+for (const node of nodes) {
+    const key = `${node.partId}.${node.terminal}`;
+    const pk = P(node.x, node.y);
+    if (!parent.has(pk)) continue;
+    const root = find(pk);
+    if (pinNets.has(key) && pinNets.get(key) !== root) {
+        console.error(`  SOUNDNESS: pin ${key} in two nets (${pinNets.get(key)} and ${root})`);
+        dupeCount++;
+    }
+    pinNets.set(key, root);
+}
+// 2. No two pins of one part may share the same coordinate
+const partCoords = new Map(); // partId → Map<coord, terminal>
+for (const node of nodes) {
+    if (!partCoords.has(node.partId)) partCoords.set(node.partId, new Map());
+    const coords = partCoords.get(node.partId);
+    const coord = P(node.x, node.y);
+    if (coords.has(coord) && coords.get(coord) !== node.terminal) {
+        console.error(`  SOUNDNESS: part ${node.partId} has pins ${coords.get(coord)} and ${node.terminal} at same coord ${coord}`);
+        dupeCount++;
+    }
+    coords.set(coord, node.terminal);
+}
+if (dupeCount) { console.error(`  ${dupeCount} soundness violations — output may be incorrect`); process.exitCode = 1; }
 
 const allWires = [...outWires, ...extraWires];
 writeFileSync(output, JSON.stringify({ vcc: 5, parts, wires: allWires }, null, 2));
