@@ -1,0 +1,21 @@
+DEVICE STC12C5A60S2
+CLOCK 11059200
+PIN cs = P1.0 OUTPUT
+PIN dc = P1.1 OUTPUT
+PIN sck = P1.2 OUTPUT
+PIN mosi = P1.3 OUTPUT
+
+STAGE:
+  # ILI9341 240x320 TFT: bit-banged SPI on 4 pins.
+  # The tft verbs drive the transpiler's SPI driver; the board model
+  # decodes the SPI bytes and the TFT face shows the pixels.
+  WHEN flag clicked:
+    tft clear 1
+    # Red rectangle: top-left
+    tft fill 10 10 100 60 R 255 G 0 B 0 on 1
+    # Green rectangle: center
+    tft fill 70 130 100 60 R 0 G 255 B 0 on 1
+    # Blue rectangle: bottom-right
+    tft fill 130 250 100 60 R 0 G 0 B 255 on 1
+    # Single white pixel at center
+    tft pixel 120 160 R 255 G 255 B 255 on 1

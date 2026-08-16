@@ -2281,6 +2281,58 @@ class SB3Creator {
             block[id].inputs.DISPLAY = val(match[1]);
             return ret(block);
         }
+        // ---- tft blocks (ILI9341) ----
+        if ((match = line.match(/^tft pixel\s+(.+?)\s+(.+?)\s+R\s+(.+?)\s+G\s+(.+?)\s+B\s+(.+?)\s+on\s+(.+)$/i))) {
+            const { id, block } = cmd('devices_tftpixel');
+            block[id].inputs.X = val(match[1]);
+            block[id].inputs.Y = val(match[2]);
+            block[id].inputs.R = val(match[3]);
+            block[id].inputs.G = val(match[4]);
+            block[id].inputs.B = val(match[5]);
+            block[id].inputs.DISPLAY = val(match[6]);
+            return ret(block);
+        }
+        if ((match = line.match(/^tft fill\s+(.+?)\s+(.+?)\s+(.+?)\s+(.+?)\s+R\s+(.+?)\s+G\s+(.+?)\s+B\s+(.+?)\s+on\s+(.+)$/i))) {
+            const { id, block } = cmd('devices_tftfill');
+            block[id].inputs.X = val(match[1]);
+            block[id].inputs.Y = val(match[2]);
+            block[id].inputs.W = val(match[3]);
+            block[id].inputs.H = val(match[4]);
+            block[id].inputs.R = val(match[5]);
+            block[id].inputs.G = val(match[6]);
+            block[id].inputs.B = val(match[7]);
+            block[id].inputs.DISPLAY = val(match[8]);
+            return ret(block);
+        }
+        if ((match = line.match(/^tft print\s+"([^"]*)"\s+on\s+(.+)$/i))) {
+            const { id, block } = cmd('devices_tftprint');
+            block[id].inputs.TEXT = [1, [10, match[1]]];
+            block[id].inputs.DISPLAY = val(match[2]);
+            return ret(block);
+        }
+        if ((match = line.match(/^tft print\s+(.+?)\s+on\s+(.+)$/i))) {
+            const { id, block } = cmd('devices_tftprint');
+            block[id].inputs.TEXT = val(match[1]);
+            block[id].inputs.DISPLAY = val(match[2]);
+            return ret(block);
+        }
+        if ((match = line.match(/^tft set cursor\s+(.+?)\s+(.+?)\s+on\s+(.+)$/i))) {
+            const { id, block } = cmd('devices_tftcursor');
+            block[id].inputs.ROW = val(match[1]);
+            block[id].inputs.COL = val(match[2]);
+            block[id].inputs.DISPLAY = val(match[3]);
+            return ret(block);
+        }
+        if ((match = line.match(/^tft clear\s+(.+)$/i))) {
+            const displayArg = match[1].trim();
+            if (/\s/.test(displayArg)) {
+                this.warn(null, `tft clear takes a single display name, but got "${displayArg}" (contains whitespace) — did you mean "tft clear <display>"?`);
+                return null;
+            }
+            const { id, block } = cmd('devices_tftclear');
+            block[id].inputs.DISPLAY = val(match[1]);
+            return ret(block);
+        }
         // ---- led_matrix blocks ----
         if ((match = line.match(/^set pixel\s+(.+?)\s+(.+?)\s+to\s+(.+?)\s+on\s+(.+)$/i))) {
             const { id, block } = cmd('devices_setpixel');
@@ -4069,6 +4121,11 @@ class SB3Creator {
             case 'devices_clearmatrix': return line(`clear matrix ${v('MATRIX')}`);
             case 'devices_setneopixel': return line(`set neopixel ${v('INDEX')} to R ${v('R')} G ${v('G')} B ${v('B')} on ${v('STRIP')}`);
             case 'devices_clearneopixels': return line(`clear neopixels on ${v('STRIP')}`);
+            case 'devices_tftpixel': return line(`tft pixel ${v('X')} ${v('Y')} R ${v('R')} G ${v('G')} B ${v('B')} on ${v('DISPLAY')}`);
+            case 'devices_tftfill': return line(`tft fill ${v('X')} ${v('Y')} ${v('W')} ${v('H')} R ${v('R')} G ${v('G')} B ${v('B')} on ${v('DISPLAY')}`);
+            case 'devices_tftclear': return line(`tft clear ${v('DISPLAY')}`);
+            case 'devices_tftprint': return line(`tft print ${v('TEXT')} on ${v('DISPLAY')}`);
+            case 'devices_tftcursor': return line(`tft set cursor ${v('ROW')} ${v('COL')} on ${v('DISPLAY')}`);
             // LED cube commands
             case 'ledcube_setvoxel': return line(`set voxel ${v('X')} ${v('Y')} ${v('Z')} to ${v('COLOUR')}`);
             case 'ledcube_clearvoxel': return line(`clear voxel ${v('X')} ${v('Y')} ${v('Z')}`);
@@ -5696,6 +5753,17 @@ class SB3Creator {
             case 'devices_clearmatrix': { this._cUses.devices = true; return line(`bw_matrix_clear(${v('MATRIX')});`); }
             case 'devices_setneopixel': { this._cUses.devices = true; this._cUses.neopixel = true; return line(`bw_neopixel_set(${v('STRIP')}, ${v('INDEX')}, ${v('R')}, ${v('G')}, ${v('B')});`); }
             case 'devices_clearneopixels': { this._cUses.devices = true; this._cUses.neopixel = true; return line(`bw_neopixel_clear(${v('STRIP')});`); }
+            case 'devices_tftpixel': { this._cUses.devices = true; this._cUses.tft = true; return line(`bw_tft_pixel(${v('DISPLAY')}, ${v('X')}, ${v('Y')}, ${v('R')}, ${v('G')}, ${v('B')});`); }
+            case 'devices_tftfill': { this._cUses.devices = true; this._cUses.tft = true; return line(`bw_tft_fill(${v('DISPLAY')}, ${v('X')}, ${v('Y')}, ${v('W')}, ${v('H')}, ${v('R')}, ${v('G')}, ${v('B')});`); }
+            case 'devices_tftclear': { this._cUses.devices = true; this._cUses.tft = true; return line(`bw_tft_clear(${v('DISPLAY')});`); }
+            case 'devices_tftprint': {
+                this._cUses.devices = true; this._cUses.tft = true;
+                const t = this.cTextArg(b.inputs.TEXT, blocks);
+                return line(t.isString
+                    ? `bw_tft_print_s(${v('DISPLAY')}, ${t.code});`
+                    : `bw_tft_print_n(${v('DISPLAY')}, ${t.code});`);
+            }
+            case 'devices_tftcursor': { this._cUses.devices = true; this._cUses.tft = true; return line(`bw_tft_cursor(${v('DISPLAY')}, ${v('ROW')}, ${v('COL')});`); }
             case 'procedures_call': return line(this.cProcCall(b, blocks));
             default: {
                 const text = (this.decompileStackBlock(b, blocks, 0)[0] || b.opcode).trim();
@@ -9475,6 +9543,120 @@ class SB3Creator {
                     stub('static void bw_lcd_cursor(int disp, int row, int col)', 'devices_lcdcursor'),
                     stub('static void bw_lcd_clear(int disp)', 'devices_lcdclear'));
             }
+            // TFT (ILI9341, bit-banged SPI): gated by _cUses.tft.
+            if (this._cUses.tft) {
+                const tftPins = this._tftPins || { cs: 'P1_0', dc: 'P1_1', sck: 'P1_2', mosi: 'P1_3' };
+                out.push(
+                    '/* ILI9341 TFT: bit-banged SPI (4-wire: CS, DC, SCK, MOSI). */',
+                    '/* ILITEK ILI9341 datasheet V1.11 §7.1.9, §8.2.20-22. */',
+                    `#define TFT_CS   ${tftPins.cs}`,
+                    `#define TFT_DC   ${tftPins.dc}`,
+                    `#define TFT_SCK  ${tftPins.sck}`,
+                    `#define TFT_MOSI ${tftPins.mosi}`,
+                    '',
+                    'static void tft_spi_write(unsigned char byte)',
+                    '{',
+                    '    unsigned char i;',
+                    '    for (i = 0; i < 8; i++) {',
+                    '        TFT_MOSI = (byte & 0x80) ? 1 : 0;',
+                    '        byte <<= 1;',
+                    '        TFT_SCK = 1; TFT_SCK = 0;',
+                    '    }',
+                    '}',
+                    '',
+                    'static void tft_cmd(unsigned char cmd)',
+                    '{',
+                    '    TFT_DC = 0; TFT_CS = 0;',
+                    '    tft_spi_write(cmd);',
+                    '    TFT_CS = 1;',
+                    '}',
+                    '',
+                    'static void tft_data(unsigned char dat)',
+                    '{',
+                    '    TFT_DC = 1; TFT_CS = 0;',
+                    '    tft_spi_write(dat);',
+                    '    TFT_CS = 1;',
+                    '}',
+                    '',
+                    '/* Address window (CASET + PASET), then RAMWR — §8.2.20-22. */',
+                    'static void tft_set_window(unsigned int x0, unsigned int y0, unsigned int x1, unsigned int y1)',
+                    '{',
+                    '    tft_cmd(0x2A);  /* CASET */',
+                    '    tft_data((unsigned char)(x0 >> 8)); tft_data((unsigned char)x0);',
+                    '    tft_data((unsigned char)(x1 >> 8)); tft_data((unsigned char)x1);',
+                    '    tft_cmd(0x2B);  /* PASET */',
+                    '    tft_data((unsigned char)(y0 >> 8)); tft_data((unsigned char)y0);',
+                    '    tft_data((unsigned char)(y1 >> 8)); tft_data((unsigned char)y1);',
+                    '    tft_cmd(0x2C);  /* RAMWR */',
+                    '}',
+                    '',
+                    '/* Write one RGB565 pixel (high byte first). */',
+                    'static void tft_pixel16(unsigned int rgb565)',
+                    '{',
+                    '    TFT_DC = 1; TFT_CS = 0;',
+                    '    tft_spi_write((unsigned char)(rgb565 >> 8));',
+                    '    tft_spi_write((unsigned char)(rgb565 & 0xFF));',
+                    '    TFT_CS = 1;',
+                    '}',
+                    '',
+                    '/* Convert 8-bit RGB to RGB565. */',
+                    'static unsigned int rgb565(int r, int g, int b)',
+                    '{',
+                    '    return (unsigned int)(((r & 0xF8) << 8) | ((g & 0xFC) << 3) | ((b & 0xF8) >> 3));',
+                    '}',
+                    '',
+                    'static void bw_tft_pixel(int disp, int x, int y, int r, int g, int b)',
+                    '{',
+                    '    (void)disp;',
+                    '    tft_set_window((unsigned int)x, (unsigned int)y, (unsigned int)x, (unsigned int)y);',
+                    '    tft_pixel16(rgb565(r, g, b));',
+                    '}',
+                    '',
+                    'static void bw_tft_fill(int disp, int x, int y, int w, int h, int r, int g, int b)',
+                    '{',
+                    '    unsigned int color = rgb565(r, g, b);',
+                    '    long count = (long)w * h;',
+                    '    long i;',
+                    '    (void)disp;',
+                    '    tft_set_window((unsigned int)x, (unsigned int)y,',
+                    '                  (unsigned int)(x + w - 1), (unsigned int)(y + h - 1));',
+                    '    TFT_DC = 1; TFT_CS = 0;',
+                    '    for (i = 0; i < count; i++) {',
+                    '        tft_spi_write((unsigned char)(color >> 8));',
+                    '        tft_spi_write((unsigned char)(color & 0xFF));',
+                    '    }',
+                    '    TFT_CS = 1;',
+                    '}',
+                    '',
+                    'static void bw_tft_clear(int disp) { bw_tft_fill(disp, 0, 0, 240, 320, 0, 0, 0); }',
+                    '',
+                    'static void bw_tft_print_s(int disp, const char *s)',
+                    '{',
+                    '    (void)disp; (void)s;',
+                    '    /* Text rendering requires a font table — layer 2. */',
+                    '}',
+                    '',
+                    'static void bw_tft_print_n(int disp, long n)',
+                    '{',
+                    '    (void)disp; (void)n;',
+                    '    /* Text rendering requires a font table — layer 2. */',
+                    '}',
+                    '',
+                    'static void bw_tft_cursor(int disp, int row, int col)',
+                    '{',
+                    '    (void)disp; (void)row; (void)col;',
+                    '    /* Cursor positioning requires a font table — layer 2. */',
+                    '}',
+                    '');
+            } else {
+                out.push(
+                    stub('static void bw_tft_pixel(int d, int x, int y, int r, int g, int b)', 'devices_tftpixel'),
+                    stub('static void bw_tft_fill(int d, int x, int y, int w, int h, int r, int g, int b)', 'devices_tftfill'),
+                    stub('static void bw_tft_clear(int d)', 'devices_tftclear'),
+                    stub('static void bw_tft_print_s(int d, const char *s)', 'devices_tftprint'),
+                    stub('static void bw_tft_print_n(int d, long n)', 'devices_tftprint'),
+                    stub('static void bw_tft_cursor(int d, int row, int col)', 'devices_tftcursor'));
+            }
             // Stubs: IR (protocol decode), 7-segment, matrix, RGB.
             out.push(
                 `static int bw_device_state(int dev) { (void)dev; return ${this._cUses.relay ? '_relay_state' : '0'}; }`,
@@ -9842,6 +10024,26 @@ class SB3Creator {
                 '    lcd_cmd(0x0C);                    /* display on, cursor off */',
                 '    lcd_cmd(0x06);                    /* increment, no shift */',
                 '    lcd_cmd(0x01);                    /* clear */');
+        }
+        // TFT (ILI9341): resolve declared pins and emit SPI init sequence.
+        if (this._cUses.tft) {
+            const tftNames = ['cs', 'dc', 'sck', 'mosi'];
+            const resolved = {};
+            for (const name of tftNames) {
+                const p = pins.find((pin) => pin.name.toLowerCase() === name);
+                if (p) resolved[name] = `P${p.port}_${p.bit}`;
+                else this.cWarn(`TFT driver needs a pin named "${name}" — declare it as an OUTPUT pin`);
+            }
+            if (Object.keys(resolved).length === 4) {
+                this._tftPins = resolved;
+                out.push('    /* ILI9341 init: SLPOUT, COLMOD, MADCTL, DISPON (§8.2) */',
+                    '    TFT_CS = 1; TFT_SCK = 0;',
+                    '    tft_cmd(0x01); delay_ms(5);       /* SWRESET */',
+                    '    tft_cmd(0x11); delay_ms(120);     /* SLPOUT */',
+                    '    tft_cmd(0x3A); tft_data(0x55);    /* COLMOD: RGB565 */',
+                    '    tft_cmd(0x36); tft_data(0x48);    /* MADCTL: row/col, BGR */',
+                    '    tft_cmd(0x29);                    /* DISPON */');
+            }
         }
         // Sensor ADC: P1.1 as analog input (channel 1).
         // adc_read() already exists when _cUses.adc is set — the ADC_CONTR
