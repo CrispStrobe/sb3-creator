@@ -4461,6 +4461,25 @@
   ]
  },
  {
+  "id": "eater6502-full-build",
+  "title": {
+   "en": "6502 Computer with LCD",
+   "de": "6502-Computer mit LCD"
+  },
+  "category": "digital",
+  "difficulty": 3,
+  "files": {
+   "program": "eater6502-full-build/program.bw",
+   "circuit": "eater6502-full-build/circuit.json",
+   "intro": "eater6502-full-build/intro.md",
+   "introDE": "eater6502-full-build/intro.de.md"
+  },
+  "kind": "full",
+  "devices": [
+   "eater6502"
+  ]
+ },
+ {
   "id": "eater6502-vdp-hello",
   "title": {
    "en": "6502 + VDP Video",
