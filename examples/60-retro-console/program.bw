@@ -1,0 +1,417 @@
+# The RBS15667 retro console, simulated: OUR OWN self-test firmware.
+# Clean-room — game rules and vendor firmware are not involved; this
+# program sweeps a bar down both matrix halves, walks 8 across the
+# three score digits, and beeps while any button is held. The SAME
+# hex flashes onto the real kit: make PART=stc15f2k60s2 flash.
+# Pin map: docs/RETRO-CONSOLE-RBS15667.md (stc repo). Column order
+# within each matrix is provisional until continuity-tested on the
+# physical board.
+DEVICE STC15F2K60S2
+CLOCK 11059200
+PIN bus0 = P1.5 OUTPUT
+PIN bus1 = P4.1 OUTPUT
+PIN bus2 = P2.4 OUTPUT
+PIN bus3 = P2.2 OUTPUT
+PIN bus4 = P2.1 OUTPUT
+PIN bus5 = P2.0 OUTPUT
+PIN bus6 = P4.4 OUTPUT
+PIN bus7 = P1.4 OUTPUT
+PIN ucol0 = P4.5 OUTPUT
+PIN ucol1 = P2.7 OUTPUT
+PIN ucol2 = P2.6 OUTPUT
+PIN ucol3 = P0.0 OUTPUT
+PIN ucol4 = P0.1 OUTPUT
+PIN ucol5 = P0.2 OUTPUT
+PIN ucol6 = P0.3 OUTPUT
+PIN ucol7 = P0.4 OUTPUT
+PIN lcol0 = P0.7 OUTPUT
+PIN lcol1 = P0.6 OUTPUT
+PIN lcol2 = P0.5 OUTPUT
+PIN lcol3 = P1.0 OUTPUT
+PIN lcol4 = P1.1 OUTPUT
+PIN lcol5 = P1.6 OUTPUT
+PIN lcol6 = P1.2 OUTPUT
+PIN lcol7 = P1.3 OUTPUT
+PIN dig1 = P2.3 OUTPUT ACTIVE LOW
+PIN dig2 = P2.5 OUTPUT ACTIVE LOW
+PIN dig3 = P4.2 OUTPUT ACTIVE LOW
+PIN btn1 = P3.0 INPUT
+PIN btn2 = P3.2 INPUT
+PIN btn3 = P3.3 INPUT
+PIN btn4 = P3.7 INPUT
+PIN btn5 = P3.6 INPUT
+PIN buzzer = P5.5 OUTPUT ACTIVE LOW
+
+WHEN flag clicked:
+  FOREVER:
+    # bar sweeps down the 16x8 playfield (upper half, then lower)
+    REPEAT 2:
+      turn on bus0
+      turn on bus1
+      turn on bus2
+      turn on bus3
+      turn on bus4
+      turn on bus5
+      turn on bus6
+      turn on bus7
+      turn on ucol0
+      wait 0.004 seconds
+      turn off ucol0
+      turn off bus0
+      turn off bus1
+      turn off bus2
+      turn off bus3
+      turn off bus4
+      turn off bus5
+      turn off bus6
+      turn off bus7
+      turn on bus0
+      turn on bus1
+      turn on bus2
+      turn on bus3
+      turn on bus4
+      turn on bus5
+      turn on bus6
+      turn on bus7
+      turn on ucol1
+      wait 0.004 seconds
+      turn off ucol1
+      turn off bus0
+      turn off bus1
+      turn off bus2
+      turn off bus3
+      turn off bus4
+      turn off bus5
+      turn off bus6
+      turn off bus7
+      turn on bus0
+      turn on bus1
+      turn on bus2
+      turn on bus3
+      turn on bus4
+      turn on bus5
+      turn on bus6
+      turn on bus7
+      turn on ucol2
+      wait 0.004 seconds
+      turn off ucol2
+      turn off bus0
+      turn off bus1
+      turn off bus2
+      turn off bus3
+      turn off bus4
+      turn off bus5
+      turn off bus6
+      turn off bus7
+      turn on bus0
+      turn on bus1
+      turn on bus2
+      turn on bus3
+      turn on bus4
+      turn on bus5
+      turn on bus6
+      turn on bus7
+      turn on ucol3
+      wait 0.004 seconds
+      turn off ucol3
+      turn off bus0
+      turn off bus1
+      turn off bus2
+      turn off bus3
+      turn off bus4
+      turn off bus5
+      turn off bus6
+      turn off bus7
+      turn on bus0
+      turn on bus1
+      turn on bus2
+      turn on bus3
+      turn on bus4
+      turn on bus5
+      turn on bus6
+      turn on bus7
+      turn on ucol4
+      wait 0.004 seconds
+      turn off ucol4
+      turn off bus0
+      turn off bus1
+      turn off bus2
+      turn off bus3
+      turn off bus4
+      turn off bus5
+      turn off bus6
+      turn off bus7
+      turn on bus0
+      turn on bus1
+      turn on bus2
+      turn on bus3
+      turn on bus4
+      turn on bus5
+      turn on bus6
+      turn on bus7
+      turn on ucol5
+      wait 0.004 seconds
+      turn off ucol5
+      turn off bus0
+      turn off bus1
+      turn off bus2
+      turn off bus3
+      turn off bus4
+      turn off bus5
+      turn off bus6
+      turn off bus7
+      turn on bus0
+      turn on bus1
+      turn on bus2
+      turn on bus3
+      turn on bus4
+      turn on bus5
+      turn on bus6
+      turn on bus7
+      turn on ucol6
+      wait 0.004 seconds
+      turn off ucol6
+      turn off bus0
+      turn off bus1
+      turn off bus2
+      turn off bus3
+      turn off bus4
+      turn off bus5
+      turn off bus6
+      turn off bus7
+      turn on bus0
+      turn on bus1
+      turn on bus2
+      turn on bus3
+      turn on bus4
+      turn on bus5
+      turn on bus6
+      turn on bus7
+      turn on ucol7
+      wait 0.004 seconds
+      turn off ucol7
+      turn off bus0
+      turn off bus1
+      turn off bus2
+      turn off bus3
+      turn off bus4
+      turn off bus5
+      turn off bus6
+      turn off bus7
+      turn on bus0
+      turn on bus1
+      turn on bus2
+      turn on bus3
+      turn on bus4
+      turn on bus5
+      turn on bus6
+      turn on bus7
+      turn on lcol0
+      wait 0.004 seconds
+      turn off lcol0
+      turn off bus0
+      turn off bus1
+      turn off bus2
+      turn off bus3
+      turn off bus4
+      turn off bus5
+      turn off bus6
+      turn off bus7
+      turn on bus0
+      turn on bus1
+      turn on bus2
+      turn on bus3
+      turn on bus4
+      turn on bus5
+      turn on bus6
+      turn on bus7
+      turn on lcol1
+      wait 0.004 seconds
+      turn off lcol1
+      turn off bus0
+      turn off bus1
+      turn off bus2
+      turn off bus3
+      turn off bus4
+      turn off bus5
+      turn off bus6
+      turn off bus7
+      turn on bus0
+      turn on bus1
+      turn on bus2
+      turn on bus3
+      turn on bus4
+      turn on bus5
+      turn on bus6
+      turn on bus7
+      turn on lcol2
+      wait 0.004 seconds
+      turn off lcol2
+      turn off bus0
+      turn off bus1
+      turn off bus2
+      turn off bus3
+      turn off bus4
+      turn off bus5
+      turn off bus6
+      turn off bus7
+      turn on bus0
+      turn on bus1
+      turn on bus2
+      turn on bus3
+      turn on bus4
+      turn on bus5
+      turn on bus6
+      turn on bus7
+      turn on lcol3
+      wait 0.004 seconds
+      turn off lcol3
+      turn off bus0
+      turn off bus1
+      turn off bus2
+      turn off bus3
+      turn off bus4
+      turn off bus5
+      turn off bus6
+      turn off bus7
+      turn on bus0
+      turn on bus1
+      turn on bus2
+      turn on bus3
+      turn on bus4
+      turn on bus5
+      turn on bus6
+      turn on bus7
+      turn on lcol4
+      wait 0.004 seconds
+      turn off lcol4
+      turn off bus0
+      turn off bus1
+      turn off bus2
+      turn off bus3
+      turn off bus4
+      turn off bus5
+      turn off bus6
+      turn off bus7
+      turn on bus0
+      turn on bus1
+      turn on bus2
+      turn on bus3
+      turn on bus4
+      turn on bus5
+      turn on bus6
+      turn on bus7
+      turn on lcol5
+      wait 0.004 seconds
+      turn off lcol5
+      turn off bus0
+      turn off bus1
+      turn off bus2
+      turn off bus3
+      turn off bus4
+      turn off bus5
+      turn off bus6
+      turn off bus7
+      turn on bus0
+      turn on bus1
+      turn on bus2
+      turn on bus3
+      turn on bus4
+      turn on bus5
+      turn on bus6
+      turn on bus7
+      turn on lcol6
+      wait 0.004 seconds
+      turn off lcol6
+      turn off bus0
+      turn off bus1
+      turn off bus2
+      turn off bus3
+      turn off bus4
+      turn off bus5
+      turn off bus6
+      turn off bus7
+      turn on bus0
+      turn on bus1
+      turn on bus2
+      turn on bus3
+      turn on bus4
+      turn on bus5
+      turn on bus6
+      turn on bus7
+      turn on lcol7
+      wait 0.004 seconds
+      turn off lcol7
+      turn off bus0
+      turn off bus1
+      turn off bus2
+      turn off bus3
+      turn off bus4
+      turn off bus5
+      turn off bus6
+      turn off bus7
+    # walk an 8 across the three score digits (segments = the bus)
+    turn on dig1
+    turn on bus0
+    turn on bus1
+    turn on bus2
+    turn on bus3
+    turn on bus4
+    turn on bus5
+    turn on bus6
+    wait 0.15 seconds
+    turn off bus0
+    turn off bus1
+    turn off bus2
+    turn off bus3
+    turn off bus4
+    turn off bus5
+    turn off bus6
+    turn off dig1
+    turn on dig2
+    turn on bus0
+    turn on bus1
+    turn on bus2
+    turn on bus3
+    turn on bus4
+    turn on bus5
+    turn on bus6
+    wait 0.15 seconds
+    turn off bus0
+    turn off bus1
+    turn off bus2
+    turn off bus3
+    turn off bus4
+    turn off bus5
+    turn off bus6
+    turn off dig2
+    turn on dig3
+    turn on bus0
+    turn on bus1
+    turn on bus2
+    turn on bus3
+    turn on bus4
+    turn on bus5
+    turn on bus6
+    wait 0.15 seconds
+    turn off bus0
+    turn off bus1
+    turn off bus2
+    turn off bus3
+    turn off bus4
+    turn off bus5
+    turn off bus6
+    turn off dig3
+    # any button held: beep
+    IF read btn1 THEN:
+      turn on buzzer
+    IF read btn2 THEN:
+      turn on buzzer
+    IF read btn3 THEN:
+      turn on buzzer
+    IF read btn4 THEN:
+      turn on buzzer
+    IF read btn5 THEN:
+      turn on buzzer
+    wait 0.05 seconds
+    turn off buzzer
