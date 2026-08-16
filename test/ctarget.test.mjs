@@ -238,7 +238,7 @@ test('set high / set low ignore the polarity (they are levels, not states)', () 
 
 test('reading an ACTIVE LOW input inverts the level', () => {
     const c = cOf('PIN btn = P3.2 INPUT ACTIVE LOW\nPIN led = P1.0 OUTPUT\nWHEN flag clicked:\n  wait until read btn\n  turn on led');
-    assert.match(c, /while \(!\(!P3_2\)\) ;/);
+    assert.match(c, /while \(!\(\(!P3_2 > 0\)\)\) ;/);
 });
 
 test('driving a non-output pin warns instead of emitting a bad write', () => {
