@@ -1,18 +1,20 @@
 ---
 level: beginner
 age: 10+
-prereqs: [arduino-01-fade]
-teaches: [serial-input, pwm, brightness-control]
+prereqs: [arduino-03-analog-in-out-serial]
+teaches: [pwm, analog-input, dimmer, brightness-control]
 ---
 ## What you see
-A potentiometer controls LED brightness via PWM — demonstrates analog input driving analog output.
+A potentiometer on A0 controls LED brightness on D9 — turn the knob and the LED dims or brightens smoothly.
 
 ## Try this
-1. Run the program and observe the serial output.
-2. Change a parameter and see how the output changes.
+1. Turn the pot from minimum to maximum and watch the LED track it.
+2. Print the brightness value to see the 0-255 range.
+3. Add a second LED on another PWM pin and drive both from the same pot.
 
 ## What is going on
-This sketch demonstrates serial communication patterns. See the .bw file for details.
+The pot reading (0-1023) is mapped to the PWM range (0-255) and applied to the LED pin. PWM at duty 0 is fully off; at 255 it is fully on.
 
 ## Go further
-- Experiment with different sensor combinations and output formats.
+- [arduino-03-fading](../arduino-03-fading) — automatic fade without a pot.
+- [41-pot-as-dimmer](../41-pot-as-dimmer) — the same circuit on the STC12 platform.

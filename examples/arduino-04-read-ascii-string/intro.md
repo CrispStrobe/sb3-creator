@@ -1,18 +1,20 @@
 ---
 level: intermediate
 age: 12+
-prereqs: [arduino-04-dimmer]
-teaches: [rgb-led, analog-input, color-mixing]
+prereqs: [arduino-03-analog-in-out-serial]
+teaches: [analog-input, rgb-led, pwm, multi-channel]
 ---
 ## What you see
-Three potentiometers control the red, green, and blue channels of an RGB LED.
+Three potentiometers on A0-A2 control three LEDs on D3, D5, D6 — one pot per colour channel (red, green, blue).
 
 ## Try this
-1. Run the program and observe the serial output.
-2. Change a parameter and see how the output changes.
+1. Turn just the red pot — only the red LED brightens.
+2. Set all three pots to maximum for white.
+3. Set red and green high, blue low, for yellow.
 
 ## What is going on
-This sketch demonstrates serial communication patterns. See the .bw file for details.
+Each pot is read (0-1023), mapped to 0-255, and applied as PWM to its LED. The three channels are independent. The original sketch reads RGB values from serial; this version uses three physical pots.
 
 ## Go further
-- Experiment with different sensor combinations and output formats.
+- [pc20-rgb-mix](../pc20-rgb-mix) — RGB colour mixing with resistors (pure circuit).
+- [40-led-color-mix](../40-led-color-mix) — three discrete LEDs side by side.
