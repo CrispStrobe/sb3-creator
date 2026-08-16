@@ -462,6 +462,45 @@ for (const e of elements) {
             { from: rId, fromTerminal: 'b', to: gId, toTerminal: 'gnd' }
         );
     }
+    // ── Logic gate primitives ──────────────────────────────────────
+    // Digital gate geometry (SIZE=20):
+    //   2-input: in_a at (0,0), in_b at (0,40), out at (outW,20)
+    //     outW = 60 for AND/NAND/XOR, 80 for OR/NOR (wider curved body)
+    //   1-input (Not): in at (0,0), out at (40,0)
+    // Rotation transforms offsets: rot 0→(dx,dy), 1→(dy,-dx), 2→(-dx,-dy), 3→(-dy,dx)
+    const GATE_MAP = { XOr: 'gate_xor', And: 'gate_and', NOr: 'gate_nor', NAnd: 'gate_nand', Not: 'gate_not', Or: 'gate_or' };
+    if (GATE_MAP[e.name]) {
+        const kind = GATE_MAP[e.name];
+        const id = e.label || `${kind}_${e.i}`;
+        addPart(kind, id);
+        // Extract rotation from element attributes
+        const allEls = [...xml.matchAll(/<visualElement>([\s\S]*?)<\/visualElement>/g)];
+        const elXml = allEls[e.i][1];
+        const rot = Number(/rotation="(\d+)"/.exec(elXml)?.[1] || 0);
+        const rotOff = (dx, dy) => {
+            if (rot === 1) return [dy, -dx];
+            if (rot === 2) return [-dx, -dy];
+            if (rot === 3) return [-dy, dx];
+            return [dx, dy];
+        };
+        if (e.name === 'Not') {
+            const [odx, ody] = rotOff(40, 0);
+            nodes.push({ partId: id, terminal: 'in', x: e.x, y: e.y });
+            nodes.push({ partId: id, terminal: 'out', x: e.x + odx, y: e.y + ody });
+        } else {
+            const outW = (e.name === 'NOr' || e.name === 'Or') ? 80 : 60;
+            const [bdx, bdy] = rotOff(0, 40);
+            const [odx, ody] = rotOff(outW, 20);
+            nodes.push({ partId: id, terminal: 'in_a', x: e.x, y: e.y });
+            nodes.push({ partId: id, terminal: 'in_b', x: e.x + bdx, y: e.y + bdy });
+            nodes.push({ partId: id, terminal: 'out', x: e.x + odx, y: e.y + ody });
+        }
+    }
+    if (e.name === 'PolarityAwareLED') {
+        const id = `pled_${e.label || e.i}`;
+        addPart('led', id, { color: 'red' });
+        nodes.push({ partId: id, terminal: 'anode', x: e.x, y: e.y });
+    }
 }
 
 let attached = 0, floating = [];
