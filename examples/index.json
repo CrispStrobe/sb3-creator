@@ -8,7 +8,9 @@
     "category": "digital",
     "difficulty": 3,
     "files": {
-      "circuit": "eater6502-contention-bug/circuit.json"
+      "circuit": "eater6502-contention-bug/circuit.json",
+      "intro": "eater6502-contention-bug/intro.md",
+      "introDE": "eater6502-contention-bug/intro.de.md"
     },
     "kind": "circuit",
     "devices": [
@@ -27,7 +29,9 @@
     "files": {
       "program": "01-blink/program.bw",
       "circuit": "01-blink/circuit.json",
-      "expected": "01-blink/EXPECTED.md"
+      "expected": "01-blink/EXPECTED.md",
+      "intro": "01-blink/intro.md",
+      "introDE": "01-blink/intro.de.md"
     },
     "kind": "program",
     "devices": [
@@ -54,7 +58,9 @@
     "files": {
       "program": "02-dimmer/program.bw",
       "circuit": "02-dimmer/circuit.json",
-      "expected": "02-dimmer/EXPECTED.md"
+      "expected": "02-dimmer/EXPECTED.md",
+      "intro": "02-dimmer/intro.md",
+      "introDE": "02-dimmer/intro.de.md"
     },
     "kind": "program",
     "devices": [
@@ -82,7 +88,9 @@
     "files": {
       "program": "03-night-light/program.bw",
       "circuit": "03-night-light/circuit.json",
-      "expected": "03-night-light/EXPECTED.md"
+      "expected": "03-night-light/EXPECTED.md",
+      "intro": "03-night-light/intro.md",
+      "introDE": "03-night-light/intro.de.md"
     },
     "kind": "program",
     "devices": [
@@ -110,7 +118,9 @@
     "files": {
       "program": "04-thermostat/program.bw",
       "circuit": "04-thermostat/circuit.json",
-      "expected": "04-thermostat/EXPECTED.md"
+      "expected": "04-thermostat/EXPECTED.md",
+      "intro": "04-thermostat/intro.md",
+      "introDE": "04-thermostat/intro.de.md"
     },
     "kind": "program",
     "devices": [
@@ -138,7 +148,9 @@
     "files": {
       "program": "05-counter-7seg/program.bw",
       "circuit": "05-counter-7seg/circuit.json",
-      "expected": "05-counter-7seg/EXPECTED.md"
+      "expected": "05-counter-7seg/EXPECTED.md",
+      "intro": "05-counter-7seg/intro.md",
+      "introDE": "05-counter-7seg/intro.de.md"
     },
     "kind": "program",
     "devices": [
@@ -165,7 +177,9 @@
     "files": {
       "program": "06-active-low-high/program.bw",
       "circuit": "06-active-low-high/circuit.json",
-      "expected": "06-active-low-high/EXPECTED.md"
+      "expected": "06-active-low-high/EXPECTED.md",
+      "intro": "06-active-low-high/intro.md",
+      "introDE": "06-active-low-high/intro.de.md"
     },
     "kind": "program",
     "devices": [
@@ -192,7 +206,9 @@
     "files": {
       "program": "07-buzzer-siren/program.bw",
       "circuit": "07-buzzer-siren/circuit.json",
-      "expected": "07-buzzer-siren/EXPECTED.md"
+      "expected": "07-buzzer-siren/EXPECTED.md",
+      "intro": "07-buzzer-siren/intro.md",
+      "introDE": "07-buzzer-siren/intro.de.md"
     },
     "kind": "program",
     "devices": [],
@@ -217,7 +233,9 @@
     "files": {
       "program": "08-led-chaser-595/program.bw",
       "circuit": "08-led-chaser-595/circuit.json",
-      "expected": "08-led-chaser-595/EXPECTED.md"
+      "expected": "08-led-chaser-595/EXPECTED.md",
+      "intro": "08-led-chaser-595/intro.md",
+      "introDE": "08-led-chaser-595/intro.de.md"
     },
     "kind": "program",
     "devices": [
@@ -244,7 +262,9 @@
     "files": {
       "program": "09-relay-clicker/program.bw",
       "circuit": "09-relay-clicker/circuit.json",
-      "expected": "09-relay-clicker/EXPECTED.md"
+      "expected": "09-relay-clicker/EXPECTED.md",
+      "intro": "09-relay-clicker/intro.md",
+      "introDE": "09-relay-clicker/intro.de.md"
     },
     "kind": "program",
     "devices": [
@@ -271,7 +291,9 @@
     "files": {
       "program": "10-motor-speed/program.bw",
       "circuit": "10-motor-speed/circuit.json",
-      "expected": "10-motor-speed/EXPECTED.md"
+      "expected": "10-motor-speed/EXPECTED.md",
+      "intro": "10-motor-speed/intro.md",
+      "introDE": "10-motor-speed/intro.de.md"
     },
     "kind": "program",
     "devices": [
@@ -299,7 +321,9 @@
     "files": {
       "program": "11-toggle-button/program.bw",
       "circuit": "11-toggle-button/circuit.json",
-      "expected": "11-toggle-button/EXPECTED.md"
+      "expected": "11-toggle-button/EXPECTED.md",
+      "intro": "11-toggle-button/intro.md",
+      "introDE": "11-toggle-button/intro.de.md"
     },
     "kind": "program",
     "devices": [
@@ -326,7 +350,9 @@
     "files": {
       "program": "12-dual-blink/program.bw",
       "circuit": "12-dual-blink/circuit.json",
-      "expected": "12-dual-blink/EXPECTED.md"
+      "expected": "12-dual-blink/EXPECTED.md",
+      "intro": "12-dual-blink/intro.md",
+      "introDE": "12-dual-blink/intro.de.md"
     },
     "kind": "program",
     "devices": [
@@ -353,7 +379,9 @@
     "files": {
       "program": "13-sos-morse/program.bw",
       "circuit": "13-sos-morse/circuit.json",
-      "expected": "13-sos-morse/EXPECTED.md"
+      "expected": "13-sos-morse/EXPECTED.md",
+      "intro": "13-sos-morse/intro.md",
+      "introDE": "13-sos-morse/intro.de.md"
     },
     "kind": "program",
     "devices": [
@@ -380,7 +408,9 @@
     "files": {
       "program": "14-traffic-light/program.bw",
       "circuit": "14-traffic-light/circuit.json",
-      "expected": "14-traffic-light/EXPECTED.md"
+      "expected": "14-traffic-light/EXPECTED.md",
+      "intro": "14-traffic-light/intro.md",
+      "introDE": "14-traffic-light/intro.de.md"
     },
     "kind": "program",
     "devices": [
@@ -407,7 +437,9 @@
     "files": {
       "program": "15-voltage-divider/program.bw",
       "circuit": "15-voltage-divider/circuit.json",
-      "expected": "15-voltage-divider/EXPECTED.md"
+      "expected": "15-voltage-divider/EXPECTED.md",
+      "intro": "15-voltage-divider/intro.md",
+      "introDE": "15-voltage-divider/intro.de.md"
     },
     "kind": "program",
     "devices": [
@@ -435,7 +467,9 @@
     "files": {
       "program": "16-ldr-bargraph/program.bw",
       "circuit": "16-ldr-bargraph/circuit.json",
-      "expected": "16-ldr-bargraph/EXPECTED.md"
+      "expected": "16-ldr-bargraph/EXPECTED.md",
+      "intro": "16-ldr-bargraph/intro.md",
+      "introDE": "16-ldr-bargraph/intro.de.md"
     },
     "kind": "program",
     "devices": [
@@ -463,7 +497,9 @@
     "files": {
       "program": "17-comparator/program.bw",
       "circuit": "17-comparator/circuit.json",
-      "expected": "17-comparator/EXPECTED.md"
+      "expected": "17-comparator/EXPECTED.md",
+      "intro": "17-comparator/intro.md",
+      "introDE": "17-comparator/intro.de.md"
     },
     "kind": "program",
     "devices": [
@@ -491,7 +527,9 @@
     "files": {
       "program": "18-logic-and-gate/program.bw",
       "circuit": "18-logic-and-gate/circuit.json",
-      "expected": "18-logic-and-gate/EXPECTED.md"
+      "expected": "18-logic-and-gate/EXPECTED.md",
+      "intro": "18-logic-and-gate/intro.md",
+      "introDE": "18-logic-and-gate/intro.de.md"
     },
     "kind": "program",
     "devices": [
@@ -518,7 +556,9 @@
     "files": {
       "program": "19-logic-or-gate/program.bw",
       "circuit": "19-logic-or-gate/circuit.json",
-      "expected": "19-logic-or-gate/EXPECTED.md"
+      "expected": "19-logic-or-gate/EXPECTED.md",
+      "intro": "19-logic-or-gate/intro.md",
+      "introDE": "19-logic-or-gate/intro.de.md"
     },
     "kind": "program",
     "devices": [
@@ -545,7 +585,9 @@
     "files": {
       "program": "20-shift-register-binary/program.bw",
       "circuit": "20-shift-register-binary/circuit.json",
-      "expected": "20-shift-register-binary/EXPECTED.md"
+      "expected": "20-shift-register-binary/EXPECTED.md",
+      "intro": "20-shift-register-binary/intro.md",
+      "introDE": "20-shift-register-binary/intro.de.md"
     },
     "kind": "program",
     "devices": [
@@ -572,7 +614,9 @@
     "files": {
       "program": "21-resistor-led/program.bw",
       "circuit": "21-resistor-led/circuit.json",
-      "expected": "21-resistor-led/EXPECTED.md"
+      "expected": "21-resistor-led/EXPECTED.md",
+      "intro": "21-resistor-led/intro.md",
+      "introDE": "21-resistor-led/intro.de.md"
     },
     "kind": "circuit"
   },
@@ -588,7 +632,9 @@
     "files": {
       "program": "22-series-parallel/program.bw",
       "circuit": "22-series-parallel/circuit.json",
-      "expected": "22-series-parallel/EXPECTED.md"
+      "expected": "22-series-parallel/EXPECTED.md",
+      "intro": "22-series-parallel/intro.md",
+      "introDE": "22-series-parallel/intro.de.md"
     },
     "kind": "circuit"
   },
@@ -604,7 +650,9 @@
     "files": {
       "program": "23-voltage-regulator/program.bw",
       "circuit": "23-voltage-regulator/circuit.json",
-      "expected": "23-voltage-regulator/EXPECTED.md"
+      "expected": "23-voltage-regulator/EXPECTED.md",
+      "intro": "23-voltage-regulator/intro.md",
+      "introDE": "23-voltage-regulator/intro.de.md"
     },
     "kind": "circuit"
   },
@@ -620,7 +668,9 @@
     "files": {
       "program": "24-pwm-fade/program.bw",
       "circuit": "24-pwm-fade/circuit.json",
-      "expected": "24-pwm-fade/EXPECTED.md"
+      "expected": "24-pwm-fade/EXPECTED.md",
+      "intro": "24-pwm-fade/intro.md",
+      "introDE": "24-pwm-fade/intro.de.md"
     },
     "kind": "program",
     "devices": [
@@ -647,7 +697,9 @@
     "files": {
       "program": "25-reaction-timer/program.bw",
       "circuit": "25-reaction-timer/circuit.json",
-      "expected": "25-reaction-timer/EXPECTED.md"
+      "expected": "25-reaction-timer/EXPECTED.md",
+      "intro": "25-reaction-timer/intro.md",
+      "introDE": "25-reaction-timer/intro.de.md"
     },
     "kind": "program",
     "devices": [
@@ -674,7 +726,9 @@
     "files": {
       "program": "26-debounce/program.bw",
       "circuit": "26-debounce/circuit.json",
-      "expected": "26-debounce/EXPECTED.md"
+      "expected": "26-debounce/EXPECTED.md",
+      "intro": "26-debounce/intro.md",
+      "introDE": "26-debounce/intro.de.md"
     },
     "kind": "program",
     "devices": [
@@ -701,7 +755,9 @@
     "files": {
       "program": "27-led-dice/program.bw",
       "circuit": "27-led-dice/circuit.json",
-      "expected": "27-led-dice/EXPECTED.md"
+      "expected": "27-led-dice/EXPECTED.md",
+      "intro": "27-led-dice/intro.md",
+      "introDE": "27-led-dice/intro.de.md"
     },
     "kind": "program",
     "devices": [
@@ -728,7 +784,9 @@
     "files": {
       "program": "28-diode-polarity/program.bw",
       "circuit": "28-diode-polarity/circuit.json",
-      "expected": "28-diode-polarity/EXPECTED.md"
+      "expected": "28-diode-polarity/EXPECTED.md",
+      "intro": "28-diode-polarity/intro.md",
+      "introDE": "28-diode-polarity/intro.de.md"
     },
     "kind": "circuit"
   },
@@ -744,7 +802,9 @@
     "files": {
       "program": "29-capacitor-charge/program.bw",
       "circuit": "29-capacitor-charge/circuit.json",
-      "expected": "29-capacitor-charge/EXPECTED.md"
+      "expected": "29-capacitor-charge/EXPECTED.md",
+      "intro": "29-capacitor-charge/intro.md",
+      "introDE": "29-capacitor-charge/intro.de.md"
     },
     "kind": "circuit"
   },
@@ -760,7 +820,9 @@
     "files": {
       "program": "30-multi-led-pattern/program.bw",
       "circuit": "30-multi-led-pattern/circuit.json",
-      "expected": "30-multi-led-pattern/EXPECTED.md"
+      "expected": "30-multi-led-pattern/EXPECTED.md",
+      "intro": "30-multi-led-pattern/intro.md",
+      "introDE": "30-multi-led-pattern/intro.de.md"
     },
     "kind": "program",
     "devices": [
@@ -787,7 +849,9 @@
     "files": {
       "program": "31-no-resistor-led/program.bw",
       "circuit": "31-no-resistor-led/circuit.json",
-      "expected": "31-no-resistor-led/EXPECTED.md"
+      "expected": "31-no-resistor-led/EXPECTED.md",
+      "intro": "31-no-resistor-led/intro.md",
+      "introDE": "31-no-resistor-led/intro.de.md"
     },
     "kind": "circuit"
   },
@@ -803,7 +867,9 @@
     "files": {
       "program": "32-source-vs-sink/program.bw",
       "circuit": "32-source-vs-sink/circuit.json",
-      "expected": "32-source-vs-sink/EXPECTED.md"
+      "expected": "32-source-vs-sink/EXPECTED.md",
+      "intro": "32-source-vs-sink/intro.md",
+      "introDE": "32-source-vs-sink/intro.de.md"
     },
     "kind": "program",
     "devices": [
@@ -830,7 +896,9 @@
     "files": {
       "program": "33-inductive-no-flyback/program.bw",
       "circuit": "33-inductive-no-flyback/circuit.json",
-      "expected": "33-inductive-no-flyback/EXPECTED.md"
+      "expected": "33-inductive-no-flyback/EXPECTED.md",
+      "intro": "33-inductive-no-flyback/intro.md",
+      "introDE": "33-inductive-no-flyback/intro.de.md"
     },
     "kind": "circuit"
   },
@@ -845,7 +913,9 @@
     "files": {
       "program": "34-ohms-law/program.bw",
       "circuit": "34-ohms-law/circuit.json",
-      "expected": "34-ohms-law/EXPECTED.md"
+      "expected": "34-ohms-law/EXPECTED.md",
+      "intro": "34-ohms-law/intro.md",
+      "introDE": "34-ohms-law/intro.de.md"
     },
     "kind": "circuit"
   },
@@ -860,7 +930,9 @@
     "files": {
       "program": "35-series-resistors/program.bw",
       "circuit": "35-series-resistors/circuit.json",
-      "expected": "35-series-resistors/EXPECTED.md"
+      "expected": "35-series-resistors/EXPECTED.md",
+      "intro": "35-series-resistors/intro.md",
+      "introDE": "35-series-resistors/intro.de.md"
     },
     "kind": "circuit"
   },
@@ -875,7 +947,9 @@
     "files": {
       "program": "36-parallel-leds/program.bw",
       "circuit": "36-parallel-leds/circuit.json",
-      "expected": "36-parallel-leds/EXPECTED.md"
+      "expected": "36-parallel-leds/EXPECTED.md",
+      "intro": "36-parallel-leds/intro.md",
+      "introDE": "36-parallel-leds/intro.de.md"
     },
     "kind": "circuit"
   },
@@ -890,7 +964,9 @@
     "files": {
       "program": "37-voltage-divider-basic/program.bw",
       "circuit": "37-voltage-divider-basic/circuit.json",
-      "expected": "37-voltage-divider-basic/EXPECTED.md"
+      "expected": "37-voltage-divider-basic/EXPECTED.md",
+      "intro": "37-voltage-divider-basic/intro.md",
+      "introDE": "37-voltage-divider-basic/intro.de.md"
     },
     "kind": "circuit"
   },
@@ -905,7 +981,9 @@
     "files": {
       "program": "38-npn-switch/program.bw",
       "circuit": "38-npn-switch/circuit.json",
-      "expected": "38-npn-switch/EXPECTED.md"
+      "expected": "38-npn-switch/EXPECTED.md",
+      "intro": "38-npn-switch/intro.md",
+      "introDE": "38-npn-switch/intro.de.md"
     },
     "kind": "circuit"
   },
@@ -920,7 +998,9 @@
     "files": {
       "program": "39-zener-clamp/program.bw",
       "circuit": "39-zener-clamp/circuit.json",
-      "expected": "39-zener-clamp/EXPECTED.md"
+      "expected": "39-zener-clamp/EXPECTED.md",
+      "intro": "39-zener-clamp/intro.md",
+      "introDE": "39-zener-clamp/intro.de.md"
     },
     "kind": "circuit"
   },
@@ -935,7 +1015,9 @@
     "files": {
       "program": "40-led-color-mix/program.bw",
       "circuit": "40-led-color-mix/circuit.json",
-      "expected": "40-led-color-mix/EXPECTED.md"
+      "expected": "40-led-color-mix/EXPECTED.md",
+      "intro": "40-led-color-mix/intro.md",
+      "introDE": "40-led-color-mix/intro.de.md"
     },
     "kind": "circuit"
   },
@@ -950,7 +1032,9 @@
     "files": {
       "program": "41-pot-as-dimmer/program.bw",
       "circuit": "41-pot-as-dimmer/circuit.json",
-      "expected": "41-pot-as-dimmer/EXPECTED.md"
+      "expected": "41-pot-as-dimmer/EXPECTED.md",
+      "intro": "41-pot-as-dimmer/intro.md",
+      "introDE": "41-pot-as-dimmer/intro.de.md"
     },
     "kind": "circuit"
   },
@@ -965,7 +1049,9 @@
     "files": {
       "program": "42-diode-rectifier/program.bw",
       "circuit": "42-diode-rectifier/circuit.json",
-      "expected": "42-diode-rectifier/EXPECTED.md"
+      "expected": "42-diode-rectifier/EXPECTED.md",
+      "intro": "42-diode-rectifier/intro.md",
+      "introDE": "42-diode-rectifier/intro.de.md"
     },
     "kind": "circuit"
   },
@@ -980,7 +1066,9 @@
     "files": {
       "program": "43-rc-timing/program.bw",
       "circuit": "43-rc-timing/circuit.json",
-      "expected": "43-rc-timing/EXPECTED.md"
+      "expected": "43-rc-timing/EXPECTED.md",
+      "intro": "43-rc-timing/intro.md",
+      "introDE": "43-rc-timing/intro.de.md"
     },
     "kind": "circuit"
   },
@@ -995,7 +1083,9 @@
     "files": {
       "program": "44-darlington-motor/program.bw",
       "circuit": "44-darlington-motor/circuit.json",
-      "expected": "44-darlington-motor/EXPECTED.md"
+      "expected": "44-darlington-motor/EXPECTED.md",
+      "intro": "44-darlington-motor/intro.md",
+      "introDE": "44-darlington-motor/intro.de.md"
     },
     "kind": "circuit"
   },
@@ -1010,7 +1100,9 @@
     "files": {
       "program": "45-led-current-comparison/program.bw",
       "circuit": "45-led-current-comparison/circuit.json",
-      "expected": "45-led-current-comparison/EXPECTED.md"
+      "expected": "45-led-current-comparison/EXPECTED.md",
+      "intro": "45-led-current-comparison/intro.md",
+      "introDE": "45-led-current-comparison/intro.de.md"
     },
     "kind": "circuit"
   },
@@ -1027,7 +1119,9 @@
     "files": {
       "program": "46-port-overcurrent/program.bw",
       "circuit": "46-port-overcurrent/circuit.json",
-      "expected": "46-port-overcurrent/EXPECTED.md"
+      "expected": "46-port-overcurrent/EXPECTED.md",
+      "intro": "46-port-overcurrent/intro.md",
+      "introDE": "46-port-overcurrent/intro.de.md"
     },
     "devices": [
       "stc12c5a60s2",
@@ -1054,7 +1148,9 @@
     "files": {
       "program": "47-battery-led/program.bw",
       "circuit": "47-battery-led/circuit.json",
-      "expected": "47-battery-led/EXPECTED.md"
+      "expected": "47-battery-led/EXPECTED.md",
+      "intro": "47-battery-led/intro.md",
+      "introDE": "47-battery-led/intro.de.md"
     }
   },
   {
@@ -1069,7 +1165,9 @@
     "files": {
       "program": "48-breadboard-basics/program.bw",
       "circuit": "48-breadboard-basics/circuit.json",
-      "expected": "48-breadboard-basics/EXPECTED.md"
+      "expected": "48-breadboard-basics/EXPECTED.md",
+      "intro": "48-breadboard-basics/intro.md",
+      "introDE": "48-breadboard-basics/intro.de.md"
     }
   },
   {
@@ -1084,7 +1182,9 @@
     "files": {
       "program": "49-function-generator-sine/program.bw",
       "circuit": "49-function-generator-sine/circuit.json",
-      "expected": "49-function-generator-sine/EXPECTED.md"
+      "expected": "49-function-generator-sine/EXPECTED.md",
+      "intro": "49-function-generator-sine/intro.md",
+      "introDE": "49-function-generator-sine/intro.de.md"
     }
   },
   {
@@ -1099,7 +1199,9 @@
     "files": {
       "program": "50-rc-scope/program.bw",
       "circuit": "50-rc-scope/circuit.json",
-      "expected": "50-rc-scope/EXPECTED.md"
+      "expected": "50-rc-scope/EXPECTED.md",
+      "intro": "50-rc-scope/intro.md",
+      "introDE": "50-rc-scope/intro.de.md"
     }
   },
   {
@@ -1114,7 +1216,9 @@
     "files": {
       "program": "51-555-astable/program.bw",
       "circuit": "51-555-astable/circuit.json",
-      "expected": "51-555-astable/EXPECTED.md"
+      "expected": "51-555-astable/EXPECTED.md",
+      "intro": "51-555-astable/intro.md",
+      "introDE": "51-555-astable/intro.de.md"
     }
   },
   {
@@ -1129,7 +1233,9 @@
     "files": {
       "program": "52-battery-voltage-divider/program.bw",
       "circuit": "52-battery-voltage-divider/circuit.json",
-      "expected": "52-battery-voltage-divider/EXPECTED.md"
+      "expected": "52-battery-voltage-divider/EXPECTED.md",
+      "intro": "52-battery-voltage-divider/intro.md",
+      "introDE": "52-battery-voltage-divider/intro.de.md"
     }
   },
   {
@@ -1145,7 +1251,9 @@
     "files": {
       "program": "53-servo-sweep/program.bw",
       "circuit": "53-servo-sweep/circuit.json",
-      "expected": "53-servo-sweep/EXPECTED.md"
+      "expected": "53-servo-sweep/EXPECTED.md",
+      "intro": "53-servo-sweep/intro.md",
+      "introDE": "53-servo-sweep/intro.de.md"
     },
     "devices": [
       "stc12c5a60s2",
@@ -1173,7 +1281,9 @@
     "files": {
       "program": "54-motor-driver/program.bw",
       "circuit": "54-motor-driver/circuit.json",
-      "expected": "54-motor-driver/EXPECTED.md"
+      "expected": "54-motor-driver/EXPECTED.md",
+      "intro": "54-motor-driver/intro.md",
+      "introDE": "54-motor-driver/intro.de.md"
     },
     "devices": [
       "stc12c5a60s2",
@@ -1202,7 +1312,9 @@
     "files": {
       "program": "pc01-led-resistor/program.bw",
       "circuit": "pc01-led-resistor/circuit.json",
-      "expected": "pc01-led-resistor/EXPECTED.md"
+      "expected": "pc01-led-resistor/EXPECTED.md",
+      "intro": "pc01-led-resistor/intro.md",
+      "introDE": "pc01-led-resistor/intro.de.md"
     }
   },
   {
@@ -1217,7 +1329,9 @@
     "files": {
       "program": "pc02-voltage-divider/program.bw",
       "circuit": "pc02-voltage-divider/circuit.json",
-      "expected": "pc02-voltage-divider/EXPECTED.md"
+      "expected": "pc02-voltage-divider/EXPECTED.md",
+      "intro": "pc02-voltage-divider/intro.md",
+      "introDE": "pc02-voltage-divider/intro.de.md"
     }
   },
   {
@@ -1232,7 +1346,9 @@
     "files": {
       "program": "pc03-series-resistors/program.bw",
       "circuit": "pc03-series-resistors/circuit.json",
-      "expected": "pc03-series-resistors/EXPECTED.md"
+      "expected": "pc03-series-resistors/EXPECTED.md",
+      "intro": "pc03-series-resistors/intro.md",
+      "introDE": "pc03-series-resistors/intro.de.md"
     }
   },
   {
@@ -1247,7 +1363,9 @@
     "files": {
       "program": "pc04-parallel-leds/program.bw",
       "circuit": "pc04-parallel-leds/circuit.json",
-      "expected": "pc04-parallel-leds/EXPECTED.md"
+      "expected": "pc04-parallel-leds/EXPECTED.md",
+      "intro": "pc04-parallel-leds/intro.md",
+      "introDE": "pc04-parallel-leds/intro.de.md"
     }
   },
   {
@@ -1262,7 +1380,9 @@
     "files": {
       "program": "pc05-npn-switch/program.bw",
       "circuit": "pc05-npn-switch/circuit.json",
-      "expected": "pc05-npn-switch/EXPECTED.md"
+      "expected": "pc05-npn-switch/EXPECTED.md",
+      "intro": "pc05-npn-switch/intro.md",
+      "introDE": "pc05-npn-switch/intro.de.md"
     }
   },
   {
@@ -1277,7 +1397,9 @@
     "files": {
       "program": "pc06-rc-charge/program.bw",
       "circuit": "pc06-rc-charge/circuit.json",
-      "expected": "pc06-rc-charge/EXPECTED.md"
+      "expected": "pc06-rc-charge/EXPECTED.md",
+      "intro": "pc06-rc-charge/intro.md",
+      "introDE": "pc06-rc-charge/intro.de.md"
     }
   },
   {
@@ -1292,7 +1414,9 @@
     "files": {
       "program": "pc07-pot-dimmer/program.bw",
       "circuit": "pc07-pot-dimmer/circuit.json",
-      "expected": "pc07-pot-dimmer/EXPECTED.md"
+      "expected": "pc07-pot-dimmer/EXPECTED.md",
+      "intro": "pc07-pot-dimmer/intro.md",
+      "introDE": "pc07-pot-dimmer/intro.de.md"
     }
   },
   {
@@ -1307,7 +1431,9 @@
     "files": {
       "program": "pc08-diode-polarity/program.bw",
       "circuit": "pc08-diode-polarity/circuit.json",
-      "expected": "pc08-diode-polarity/EXPECTED.md"
+      "expected": "pc08-diode-polarity/EXPECTED.md",
+      "intro": "pc08-diode-polarity/intro.md",
+      "introDE": "pc08-diode-polarity/intro.de.md"
     }
   },
   {
@@ -1322,7 +1448,9 @@
     "files": {
       "program": "pc09-direct-led/program.bw",
       "circuit": "pc09-direct-led/circuit.json",
-      "expected": "pc09-direct-led/EXPECTED.md"
+      "expected": "pc09-direct-led/EXPECTED.md",
+      "intro": "pc09-direct-led/intro.md",
+      "introDE": "pc09-direct-led/intro.de.md"
     }
   },
   {
@@ -1337,7 +1465,9 @@
     "files": {
       "program": "pc10-direct-series/program.bw",
       "circuit": "pc10-direct-series/circuit.json",
-      "expected": "pc10-direct-series/EXPECTED.md"
+      "expected": "pc10-direct-series/EXPECTED.md",
+      "intro": "pc10-direct-series/intro.md",
+      "introDE": "pc10-direct-series/intro.de.md"
     }
   },
   {
@@ -1352,7 +1482,9 @@
     "files": {
       "program": "pc11-direct-parallel/program.bw",
       "circuit": "pc11-direct-parallel/circuit.json",
-      "expected": "pc11-direct-parallel/EXPECTED.md"
+      "expected": "pc11-direct-parallel/EXPECTED.md",
+      "intro": "pc11-direct-parallel/intro.md",
+      "introDE": "pc11-direct-parallel/intro.de.md"
     }
   },
   {
@@ -1367,7 +1499,9 @@
     "files": {
       "program": "pc12-direct-divider/program.bw",
       "circuit": "pc12-direct-divider/circuit.json",
-      "expected": "pc12-direct-divider/EXPECTED.md"
+      "expected": "pc12-direct-divider/EXPECTED.md",
+      "intro": "pc12-direct-divider/intro.md",
+      "introDE": "pc12-direct-divider/intro.de.md"
     }
   },
   {
@@ -1382,7 +1516,9 @@
     "files": {
       "program": "pc13-direct-diode/program.bw",
       "circuit": "pc13-direct-diode/circuit.json",
-      "expected": "pc13-direct-diode/EXPECTED.md"
+      "expected": "pc13-direct-diode/EXPECTED.md",
+      "intro": "pc13-direct-diode/intro.md",
+      "introDE": "pc13-direct-diode/intro.de.md"
     }
   },
   {
@@ -1397,7 +1533,9 @@
     "files": {
       "program": "pc14-mini-led/program.bw",
       "circuit": "pc14-mini-led/circuit.json",
-      "expected": "pc14-mini-led/EXPECTED.md"
+      "expected": "pc14-mini-led/EXPECTED.md",
+      "intro": "pc14-mini-led/intro.md",
+      "introDE": "pc14-mini-led/intro.de.md"
     }
   },
   {
@@ -1412,7 +1550,9 @@
     "files": {
       "program": "pc15-mini-npn/program.bw",
       "circuit": "pc15-mini-npn/circuit.json",
-      "expected": "pc15-mini-npn/EXPECTED.md"
+      "expected": "pc15-mini-npn/EXPECTED.md",
+      "intro": "pc15-mini-npn/intro.md",
+      "introDE": "pc15-mini-npn/intro.de.md"
     }
   },
   {
@@ -1427,7 +1567,9 @@
     "files": {
       "program": "pc16-mini-rc/program.bw",
       "circuit": "pc16-mini-rc/circuit.json",
-      "expected": "pc16-mini-rc/EXPECTED.md"
+      "expected": "pc16-mini-rc/EXPECTED.md",
+      "intro": "pc16-mini-rc/intro.md",
+      "introDE": "pc16-mini-rc/intro.de.md"
     }
   },
   {
@@ -1442,7 +1584,9 @@
     "files": {
       "program": "pc17-current-compare/program.bw",
       "circuit": "pc17-current-compare/circuit.json",
-      "expected": "pc17-current-compare/EXPECTED.md"
+      "expected": "pc17-current-compare/EXPECTED.md",
+      "intro": "pc17-current-compare/intro.md",
+      "introDE": "pc17-current-compare/intro.de.md"
     }
   },
   {
@@ -1457,7 +1601,9 @@
     "files": {
       "program": "pc18-zener-clamp/program.bw",
       "circuit": "pc18-zener-clamp/circuit.json",
-      "expected": "pc18-zener-clamp/EXPECTED.md"
+      "expected": "pc18-zener-clamp/EXPECTED.md",
+      "intro": "pc18-zener-clamp/intro.md",
+      "introDE": "pc18-zener-clamp/intro.de.md"
     }
   },
   {
@@ -1472,7 +1618,9 @@
     "files": {
       "program": "pc19-buzzer-direct/program.bw",
       "circuit": "pc19-buzzer-direct/circuit.json",
-      "expected": "pc19-buzzer-direct/EXPECTED.md"
+      "expected": "pc19-buzzer-direct/EXPECTED.md",
+      "intro": "pc19-buzzer-direct/intro.md",
+      "introDE": "pc19-buzzer-direct/intro.de.md"
     }
   },
   {
@@ -1487,7 +1635,9 @@
     "files": {
       "program": "pc20-rgb-mix/program.bw",
       "circuit": "pc20-rgb-mix/circuit.json",
-      "expected": "pc20-rgb-mix/EXPECTED.md"
+      "expected": "pc20-rgb-mix/EXPECTED.md",
+      "intro": "pc20-rgb-mix/intro.md",
+      "introDE": "pc20-rgb-mix/intro.de.md"
     }
   },
   {
@@ -1502,7 +1652,9 @@
     "files": {
       "program": "nano01-blink/program.bw",
       "circuit": "nano01-blink/circuit.json",
-      "expected": "nano01-blink/EXPECTED.md"
+      "expected": "nano01-blink/EXPECTED.md",
+      "intro": "nano01-blink/intro.md",
+      "introDE": "nano01-blink/intro.de.md"
     },
     "kind": "program"
   },
@@ -1518,7 +1670,9 @@
     "files": {
       "program": "nano02-pot-print/program.bw",
       "circuit": "nano02-pot-print/circuit.json",
-      "expected": "nano02-pot-print/EXPECTED.md"
+      "expected": "nano02-pot-print/EXPECTED.md",
+      "intro": "nano02-pot-print/intro.md",
+      "introDE": "nano02-pot-print/intro.de.md"
     },
     "kind": "program"
   },
@@ -1534,7 +1688,9 @@
     "files": {
       "program": "nano03-two-tasks/program.bw",
       "circuit": "nano03-two-tasks/circuit.json",
-      "expected": "nano03-two-tasks/EXPECTED.md"
+      "expected": "nano03-two-tasks/EXPECTED.md",
+      "intro": "nano03-two-tasks/intro.md",
+      "introDE": "nano03-two-tasks/intro.de.md"
     },
     "kind": "program"
   },
@@ -1550,7 +1706,9 @@
     "files": {
       "program": "pc21-rc-smoothing/program.bw",
       "circuit": "pc21-rc-smoothing/circuit.json",
-      "expected": "pc21-rc-smoothing/EXPECTED.md"
+      "expected": "pc21-rc-smoothing/EXPECTED.md",
+      "intro": "pc21-rc-smoothing/intro.md",
+      "introDE": "pc21-rc-smoothing/intro.de.md"
     }
   },
   {
@@ -1565,7 +1723,9 @@
     "files": {
       "program": "pc22-diode-selector/program.bw",
       "circuit": "pc22-diode-selector/circuit.json",
-      "expected": "pc22-diode-selector/EXPECTED.md"
+      "expected": "pc22-diode-selector/EXPECTED.md",
+      "intro": "pc22-diode-selector/intro.md",
+      "introDE": "pc22-diode-selector/intro.de.md"
     }
   },
   {
@@ -1580,7 +1740,9 @@
     "files": {
       "program": "pc23-transistor-switch/program.bw",
       "circuit": "pc23-transistor-switch/circuit.json",
-      "expected": "pc23-transistor-switch/EXPECTED.md"
+      "expected": "pc23-transistor-switch/EXPECTED.md",
+      "intro": "pc23-transistor-switch/intro.md",
+      "introDE": "pc23-transistor-switch/intro.de.md"
     }
   },
   {
@@ -1595,7 +1757,9 @@
     "files": {
       "program": "pc24-light-gate/program.bw",
       "circuit": "pc24-light-gate/circuit.json",
-      "expected": "pc24-light-gate/EXPECTED.md"
+      "expected": "pc24-light-gate/EXPECTED.md",
+      "intro": "pc24-light-gate/intro.md",
+      "introDE": "pc24-light-gate/intro.de.md"
     }
   },
   {
@@ -1610,7 +1774,9 @@
     "files": {
       "program": "pc25-relay-isolator/program.bw",
       "circuit": "pc25-relay-isolator/circuit.json",
-      "expected": "pc25-relay-isolator/EXPECTED.md"
+      "expected": "pc25-relay-isolator/EXPECTED.md",
+      "intro": "pc25-relay-isolator/intro.md",
+      "introDE": "pc25-relay-isolator/intro.de.md"
     }
   },
   {
@@ -1625,7 +1791,9 @@
     "files": {
       "program": "pc26-motor-clamp/program.bw",
       "circuit": "pc26-motor-clamp/circuit.json",
-      "expected": "pc26-motor-clamp/EXPECTED.md"
+      "expected": "pc26-motor-clamp/EXPECTED.md",
+      "intro": "pc26-motor-clamp/intro.md",
+      "introDE": "pc26-motor-clamp/intro.de.md"
     }
   },
   {
@@ -1640,7 +1808,9 @@
     "files": {
       "program": "pc27-timer-pulse/program.bw",
       "circuit": "pc27-timer-pulse/circuit.json",
-      "expected": "pc27-timer-pulse/EXPECTED.md"
+      "expected": "pc27-timer-pulse/EXPECTED.md",
+      "intro": "pc27-timer-pulse/intro.md",
+      "introDE": "pc27-timer-pulse/intro.de.md"
     }
   },
   {
@@ -1655,7 +1825,9 @@
     "files": {
       "program": "pc28-logic-interlock/program.bw",
       "circuit": "pc28-logic-interlock/circuit.json",
-      "expected": "pc28-logic-interlock/EXPECTED.md"
+      "expected": "pc28-logic-interlock/EXPECTED.md",
+      "intro": "pc28-logic-interlock/intro.md",
+      "introDE": "pc28-logic-interlock/intro.de.md"
     }
   },
   {
@@ -1670,7 +1842,9 @@
     "files": {
       "program": "pc29-capacitor-discharge/program.bw",
       "circuit": "pc29-capacitor-discharge/circuit.json",
-      "expected": "pc29-capacitor-discharge/EXPECTED.md"
+      "expected": "pc29-capacitor-discharge/EXPECTED.md",
+      "intro": "pc29-capacitor-discharge/intro.md",
+      "introDE": "pc29-capacitor-discharge/intro.de.md"
     }
   },
   {
@@ -1685,7 +1859,9 @@
     "files": {
       "program": "pc30-resistor-ladder/program.bw",
       "circuit": "pc30-resistor-ladder/circuit.json",
-      "expected": "pc30-resistor-ladder/EXPECTED.md"
+      "expected": "pc30-resistor-ladder/EXPECTED.md",
+      "intro": "pc30-resistor-ladder/intro.md",
+      "introDE": "pc30-resistor-ladder/intro.de.md"
     }
   },
   {
@@ -1700,7 +1876,9 @@
     "files": {
       "program": "pc31-bridge-rectifier/program.bw",
       "circuit": "pc31-bridge-rectifier/circuit.json",
-      "expected": "pc31-bridge-rectifier/EXPECTED.md"
+      "expected": "pc31-bridge-rectifier/EXPECTED.md",
+      "intro": "pc31-bridge-rectifier/intro.md",
+      "introDE": "pc31-bridge-rectifier/intro.de.md"
     }
   },
   {
@@ -1715,7 +1893,9 @@
     "files": {
       "program": "pc32-pnp-high-side/program.bw",
       "circuit": "pc32-pnp-high-side/circuit.json",
-      "expected": "pc32-pnp-high-side/EXPECTED.md"
+      "expected": "pc32-pnp-high-side/EXPECTED.md",
+      "intro": "pc32-pnp-high-side/intro.md",
+      "introDE": "pc32-pnp-high-side/intro.de.md"
     }
   },
   {
@@ -1730,7 +1910,9 @@
     "files": {
       "program": "pico01-blink/program.bw",
       "circuit": "pico01-blink/circuit.json",
-      "expected": "pico01-blink/EXPECTED.md"
+      "expected": "pico01-blink/EXPECTED.md",
+      "intro": "pico01-blink/intro.md",
+      "introDE": "pico01-blink/intro.de.md"
     },
     "kind": "program"
   },
@@ -1746,7 +1928,9 @@
     "files": {
       "program": "pico02-pot-print/program.bw",
       "circuit": "pico02-pot-print/circuit.json",
-      "expected": "pico02-pot-print/EXPECTED.md"
+      "expected": "pico02-pot-print/EXPECTED.md",
+      "intro": "pico02-pot-print/intro.md",
+      "introDE": "pico02-pot-print/intro.de.md"
     },
     "kind": "program"
   },
@@ -1762,7 +1946,9 @@
     "files": {
       "program": "pico03-two-tasks/program.bw",
       "circuit": "pico03-two-tasks/circuit.json",
-      "expected": "pico03-two-tasks/EXPECTED.md"
+      "expected": "pico03-two-tasks/EXPECTED.md",
+      "intro": "pico03-two-tasks/intro.md",
+      "introDE": "pico03-two-tasks/intro.de.md"
     },
     "kind": "program"
   },
@@ -1778,7 +1964,9 @@
     "files": {
       "program": "pico04-button/program.bw",
       "circuit": "pico04-button/circuit.json",
-      "expected": "pico04-button/EXPECTED.md"
+      "expected": "pico04-button/EXPECTED.md",
+      "intro": "pico04-button/intro.md",
+      "introDE": "pico04-button/intro.de.md"
     },
     "kind": "program"
   },
@@ -1794,7 +1982,9 @@
     "files": {
       "program": "pc33-thermistor-divider/program.bw",
       "circuit": "pc33-thermistor-divider/circuit.json",
-      "expected": "pc33-thermistor-divider/EXPECTED.md"
+      "expected": "pc33-thermistor-divider/EXPECTED.md",
+      "intro": "pc33-thermistor-divider/intro.md",
+      "introDE": "pc33-thermistor-divider/intro.de.md"
     }
   },
   {
@@ -1809,7 +1999,9 @@
     "files": {
       "program": "pc34-polarity-protector/program.bw",
       "circuit": "pc34-polarity-protector/circuit.json",
-      "expected": "pc34-polarity-protector/EXPECTED.md"
+      "expected": "pc34-polarity-protector/EXPECTED.md",
+      "intro": "pc34-polarity-protector/intro.md",
+      "introDE": "pc34-polarity-protector/intro.de.md"
     }
   },
   {
@@ -1824,7 +2016,9 @@
     "files": {
       "program": "pc35-capacitor-bypass/program.bw",
       "circuit": "pc35-capacitor-bypass/circuit.json",
-      "expected": "pc35-capacitor-bypass/EXPECTED.md"
+      "expected": "pc35-capacitor-bypass/EXPECTED.md",
+      "intro": "pc35-capacitor-bypass/intro.md",
+      "introDE": "pc35-capacitor-bypass/intro.de.md"
     }
   },
   {
@@ -1839,7 +2033,9 @@
     "files": {
       "program": "pc36-series-interlock/program.bw",
       "circuit": "pc36-series-interlock/circuit.json",
-      "expected": "pc36-series-interlock/EXPECTED.md"
+      "expected": "pc36-series-interlock/EXPECTED.md",
+      "intro": "pc36-series-interlock/intro.md",
+      "introDE": "pc36-series-interlock/intro.de.md"
     }
   },
   {
@@ -1854,7 +2050,9 @@
     "files": {
       "program": "pc37-selectable-reference/program.bw",
       "circuit": "pc37-selectable-reference/circuit.json",
-      "expected": "pc37-selectable-reference/EXPECTED.md"
+      "expected": "pc37-selectable-reference/EXPECTED.md",
+      "intro": "pc37-selectable-reference/intro.md",
+      "introDE": "pc37-selectable-reference/intro.de.md"
     }
   },
   {
@@ -1869,7 +2067,9 @@
     "files": {
       "program": "pc38-relay-changeover/program.bw",
       "circuit": "pc38-relay-changeover/circuit.json",
-      "expected": "pc38-relay-changeover/EXPECTED.md"
+      "expected": "pc38-relay-changeover/EXPECTED.md",
+      "intro": "pc38-relay-changeover/intro.md",
+      "introDE": "pc38-relay-changeover/intro.de.md"
     }
   },
   {
@@ -1884,7 +2084,9 @@
     "files": {
       "program": "pc39-nmos-switch/program.bw",
       "circuit": "pc39-nmos-switch/circuit.json",
-      "expected": "pc39-nmos-switch/EXPECTED.md"
+      "expected": "pc39-nmos-switch/EXPECTED.md",
+      "intro": "pc39-nmos-switch/intro.md",
+      "introDE": "pc39-nmos-switch/intro.de.md"
     }
   },
   {
@@ -1899,7 +2101,9 @@
     "files": {
       "program": "pc40-opamp-threshold/program.bw",
       "circuit": "pc40-opamp-threshold/circuit.json",
-      "expected": "pc40-opamp-threshold/EXPECTED.md"
+      "expected": "pc40-opamp-threshold/EXPECTED.md",
+      "intro": "pc40-opamp-threshold/intro.md",
+      "introDE": "pc40-opamp-threshold/intro.de.md"
     }
   },
   {
@@ -1914,7 +2118,9 @@
     "files": {
       "program": "pc41-zener-reference/program.bw",
       "circuit": "pc41-zener-reference/circuit.json",
-      "expected": "pc41-zener-reference/EXPECTED.md"
+      "expected": "pc41-zener-reference/EXPECTED.md",
+      "intro": "pc41-zener-reference/intro.md",
+      "introDE": "pc41-zener-reference/intro.de.md"
     }
   },
   {
@@ -1929,7 +2135,9 @@
     "files": {
       "program": "pc42-parallel-paths/program.bw",
       "circuit": "pc42-parallel-paths/circuit.json",
-      "expected": "pc42-parallel-paths/EXPECTED.md"
+      "expected": "pc42-parallel-paths/EXPECTED.md",
+      "intro": "pc42-parallel-paths/intro.md",
+      "introDE": "pc42-parallel-paths/intro.de.md"
     }
   },
   {
@@ -1944,7 +2152,9 @@
     "files": {
       "program": "pc43-bleeder-discharge/program.bw",
       "circuit": "pc43-bleeder-discharge/circuit.json",
-      "expected": "pc43-bleeder-discharge/EXPECTED.md"
+      "expected": "pc43-bleeder-discharge/EXPECTED.md",
+      "intro": "pc43-bleeder-discharge/intro.md",
+      "introDE": "pc43-bleeder-discharge/intro.de.md"
     }
   },
   {
@@ -1959,7 +2169,9 @@
     "files": {
       "program": "pc44-push-pull-led/program.bw",
       "circuit": "pc44-push-pull-led/circuit.json",
-      "expected": "pc44-push-pull-led/EXPECTED.md"
+      "expected": "pc44-push-pull-led/EXPECTED.md",
+      "intro": "pc44-push-pull-led/intro.md",
+      "introDE": "pc44-push-pull-led/intro.de.md"
     }
   },
   {
@@ -1974,7 +2186,9 @@
     "files": {
       "program": "pc45-nand-test/program.bw",
       "circuit": "pc45-nand-test/circuit.json",
-      "expected": "pc45-nand-test/EXPECTED.md"
+      "expected": "pc45-nand-test/EXPECTED.md",
+      "intro": "pc45-nand-test/intro.md",
+      "introDE": "pc45-nand-test/intro.de.md"
     }
   },
   {
@@ -1989,7 +2203,9 @@
     "files": {
       "program": "pc46-xor-selector/program.bw",
       "circuit": "pc46-xor-selector/circuit.json",
-      "expected": "pc46-xor-selector/EXPECTED.md"
+      "expected": "pc46-xor-selector/EXPECTED.md",
+      "intro": "pc46-xor-selector/intro.md",
+      "introDE": "pc46-xor-selector/intro.de.md"
     }
   },
   {
@@ -2004,7 +2220,9 @@
     "files": {
       "program": "pc47-555-monostable/program.bw",
       "circuit": "pc47-555-monostable/circuit.json",
-      "expected": "pc47-555-monostable/EXPECTED.md"
+      "expected": "pc47-555-monostable/EXPECTED.md",
+      "intro": "pc47-555-monostable/intro.md",
+      "introDE": "pc47-555-monostable/intro.de.md"
     }
   },
   {
@@ -2019,7 +2237,9 @@
     "files": {
       "program": "pc48-ldr-comparator/program.bw",
       "circuit": "pc48-ldr-comparator/circuit.json",
-      "expected": "pc48-ldr-comparator/EXPECTED.md"
+      "expected": "pc48-ldr-comparator/EXPECTED.md",
+      "intro": "pc48-ldr-comparator/intro.md",
+      "introDE": "pc48-ldr-comparator/intro.de.md"
     }
   },
   {
@@ -2034,7 +2254,9 @@
     "files": {
       "program": "pc49-diode-clamp/program.bw",
       "circuit": "pc49-diode-clamp/circuit.json",
-      "expected": "pc49-diode-clamp/EXPECTED.md"
+      "expected": "pc49-diode-clamp/EXPECTED.md",
+      "intro": "pc49-diode-clamp/intro.md",
+      "introDE": "pc49-diode-clamp/intro.de.md"
     }
   },
   {
@@ -2049,7 +2271,9 @@
     "files": {
       "program": "pc50-two-stage-rc/program.bw",
       "circuit": "pc50-two-stage-rc/circuit.json",
-      "expected": "pc50-two-stage-rc/EXPECTED.md"
+      "expected": "pc50-two-stage-rc/EXPECTED.md",
+      "intro": "pc50-two-stage-rc/intro.md",
+      "introDE": "pc50-two-stage-rc/intro.de.md"
     }
   },
   {
@@ -2064,7 +2288,9 @@
     "files": {
       "program": "pc51-series-capacitors/program.bw",
       "circuit": "pc51-series-capacitors/circuit.json",
-      "expected": "pc51-series-capacitors/EXPECTED.md"
+      "expected": "pc51-series-capacitors/EXPECTED.md",
+      "intro": "pc51-series-capacitors/intro.md",
+      "introDE": "pc51-series-capacitors/intro.de.md"
     }
   },
   {
@@ -2079,7 +2305,9 @@
     "files": {
       "program": "pc52-inductor-filter/program.bw",
       "circuit": "pc52-inductor-filter/circuit.json",
-      "expected": "pc52-inductor-filter/EXPECTED.md"
+      "expected": "pc52-inductor-filter/EXPECTED.md",
+      "intro": "pc52-inductor-filter/intro.md",
+      "introDE": "pc52-inductor-filter/intro.de.md"
     }
   },
   {
@@ -2094,7 +2322,9 @@
     "files": {
       "program": "pc53-buzzer-switch/program.bw",
       "circuit": "pc53-buzzer-switch/circuit.json",
-      "expected": "pc53-buzzer-switch/EXPECTED.md"
+      "expected": "pc53-buzzer-switch/EXPECTED.md",
+      "intro": "pc53-buzzer-switch/intro.md",
+      "introDE": "pc53-buzzer-switch/intro.de.md"
     }
   },
   {
@@ -2109,7 +2339,9 @@
     "files": {
       "program": "pc54-opamp-follower/program.bw",
       "circuit": "pc54-opamp-follower/circuit.json",
-      "expected": "pc54-opamp-follower/EXPECTED.md"
+      "expected": "pc54-opamp-follower/EXPECTED.md",
+      "intro": "pc54-opamp-follower/intro.md",
+      "introDE": "pc54-opamp-follower/intro.de.md"
     }
   },
   {
@@ -2124,7 +2356,9 @@
     "files": {
       "program": "pc55-ntc-indicator/program.bw",
       "circuit": "pc55-ntc-indicator/circuit.json",
-      "expected": "pc55-ntc-indicator/EXPECTED.md"
+      "expected": "pc55-ntc-indicator/EXPECTED.md",
+      "intro": "pc55-ntc-indicator/intro.md",
+      "introDE": "pc55-ntc-indicator/intro.de.md"
     }
   },
   {
@@ -2139,7 +2373,9 @@
     "files": {
       "program": "pc56-inductor-freewheel/program.bw",
       "circuit": "pc56-inductor-freewheel/circuit.json",
-      "expected": "pc56-inductor-freewheel/EXPECTED.md"
+      "expected": "pc56-inductor-freewheel/EXPECTED.md",
+      "intro": "pc56-inductor-freewheel/intro.md",
+      "introDE": "pc56-inductor-freewheel/intro.de.md"
     }
   },
   {
@@ -2154,7 +2390,9 @@
     "files": {
       "program": "pc57-inverter-lamp/program.bw",
       "circuit": "pc57-inverter-lamp/circuit.json",
-      "expected": "pc57-inverter-lamp/EXPECTED.md"
+      "expected": "pc57-inverter-lamp/EXPECTED.md",
+      "intro": "pc57-inverter-lamp/intro.md",
+      "introDE": "pc57-inverter-lamp/intro.de.md"
     }
   },
   {
@@ -2169,7 +2407,9 @@
     "files": {
       "program": "pc58-555-audio-pulse/program.bw",
       "circuit": "pc58-555-audio-pulse/circuit.json",
-      "expected": "pc58-555-audio-pulse/EXPECTED.md"
+      "expected": "pc58-555-audio-pulse/EXPECTED.md",
+      "intro": "pc58-555-audio-pulse/intro.md",
+      "introDE": "pc58-555-audio-pulse/intro.de.md"
     }
   },
   {
@@ -2184,7 +2424,9 @@
     "files": {
       "program": "pc59-nor-memory/program.bw",
       "circuit": "pc59-nor-memory/circuit.json",
-      "expected": "pc59-nor-memory/EXPECTED.md"
+      "expected": "pc59-nor-memory/EXPECTED.md",
+      "intro": "pc59-nor-memory/intro.md",
+      "introDE": "pc59-nor-memory/intro.de.md"
     }
   },
   {
@@ -2199,7 +2441,9 @@
     "files": {
       "program": "pc60-night-lamp-hardware/program.bw",
       "circuit": "pc60-night-lamp-hardware/circuit.json",
-      "expected": "pc60-night-lamp-hardware/EXPECTED.md"
+      "expected": "pc60-night-lamp-hardware/EXPECTED.md",
+      "intro": "pc60-night-lamp-hardware/intro.md",
+      "introDE": "pc60-night-lamp-hardware/intro.de.md"
     }
   },
   {
@@ -2214,7 +2458,9 @@
     "files": {
       "program": "pc61-diode-or/program.bw",
       "circuit": "pc61-diode-or/circuit.json",
-      "expected": "pc61-diode-or/EXPECTED.md"
+      "expected": "pc61-diode-or/EXPECTED.md",
+      "intro": "pc61-diode-or/intro.md",
+      "introDE": "pc61-diode-or/intro.de.md"
     }
   },
   {
@@ -2229,7 +2475,9 @@
     "files": {
       "program": "pc62-motor-indicator/program.bw",
       "circuit": "pc62-motor-indicator/circuit.json",
-      "expected": "pc62-motor-indicator/EXPECTED.md"
+      "expected": "pc62-motor-indicator/EXPECTED.md",
+      "intro": "pc62-motor-indicator/intro.md",
+      "introDE": "pc62-motor-indicator/intro.de.md"
     }
   },
   {
@@ -2244,7 +2492,9 @@
     "files": {
       "program": "mega01-blink/program.bw",
       "circuit": "mega01-blink/circuit.json",
-      "expected": "mega01-blink/EXPECTED.md"
+      "expected": "mega01-blink/EXPECTED.md",
+      "intro": "mega01-blink/intro.md",
+      "introDE": "mega01-blink/intro.de.md"
     },
     "kind": "program"
   },
@@ -2260,7 +2510,9 @@
     "files": {
       "program": "mega02-adc-print/program.bw",
       "circuit": "mega02-adc-print/circuit.json",
-      "expected": "mega02-adc-print/EXPECTED.md"
+      "expected": "mega02-adc-print/EXPECTED.md",
+      "intro": "mega02-adc-print/intro.md",
+      "introDE": "mega02-adc-print/intro.de.md"
     },
     "kind": "program"
   },
@@ -2276,7 +2528,9 @@
     "files": {
       "program": "mega03-port-current/program.bw",
       "circuit": "mega03-port-current/circuit.json",
-      "expected": "mega03-port-current/EXPECTED.md"
+      "expected": "mega03-port-current/EXPECTED.md",
+      "intro": "mega03-port-current/intro.md",
+      "introDE": "mega03-port-current/intro.de.md"
     },
     "kind": "program"
   },
@@ -2292,7 +2546,9 @@
     "files": {
       "program": "168p01-blink/program.bw",
       "circuit": "168p01-blink/circuit.json",
-      "expected": "168p01-blink/EXPECTED.md"
+      "expected": "168p01-blink/EXPECTED.md",
+      "intro": "168p01-blink/intro.md",
+      "introDE": "168p01-blink/intro.de.md"
     },
     "kind": "program"
   },
@@ -2309,7 +2565,9 @@
     "files": {
       "program": "avr01-blink/program.bw",
       "circuit": "avr01-blink/circuit.json",
-      "expected": "avr01-blink/EXPECTED.md"
+      "expected": "avr01-blink/EXPECTED.md",
+      "intro": "avr01-blink/intro.md",
+      "introDE": "avr01-blink/intro.de.md"
     }
   },
   {
@@ -2325,7 +2583,9 @@
     "files": {
       "program": "avr02-dimmer/program.bw",
       "circuit": "avr02-dimmer/circuit.json",
-      "expected": "avr02-dimmer/EXPECTED.md"
+      "expected": "avr02-dimmer/EXPECTED.md",
+      "intro": "avr02-dimmer/intro.md",
+      "introDE": "avr02-dimmer/intro.de.md"
     }
   },
   {
@@ -2341,7 +2601,9 @@
     "files": {
       "program": "avr03-dual-blink/program.bw",
       "circuit": "avr03-dual-blink/circuit.json",
-      "expected": "avr03-dual-blink/EXPECTED.md"
+      "expected": "avr03-dual-blink/EXPECTED.md",
+      "intro": "avr03-dual-blink/intro.md",
+      "introDE": "avr03-dual-blink/intro.de.md"
     }
   },
   {
@@ -2357,7 +2619,9 @@
     "files": {
       "program": "avr04-serial-pot/program.bw",
       "circuit": "avr04-serial-pot/circuit.json",
-      "expected": "avr04-serial-pot/EXPECTED.md"
+      "expected": "avr04-serial-pot/EXPECTED.md",
+      "intro": "avr04-serial-pot/intro.md",
+      "introDE": "avr04-serial-pot/intro.de.md"
     }
   },
   {
@@ -2373,7 +2637,9 @@
     "files": {
       "program": "avr05-button-led/program.bw",
       "circuit": "avr05-button-led/circuit.json",
-      "expected": "avr05-button-led/EXPECTED.md"
+      "expected": "avr05-button-led/EXPECTED.md",
+      "intro": "avr05-button-led/intro.md",
+      "introDE": "avr05-button-led/intro.de.md"
     }
   },
   {
@@ -2389,7 +2655,9 @@
     "files": {
       "program": "avr06-blink-and-print/program.bw",
       "circuit": "avr06-blink-and-print/circuit.json",
-      "expected": "avr06-blink-and-print/EXPECTED.md"
+      "expected": "avr06-blink-and-print/EXPECTED.md",
+      "intro": "avr06-blink-and-print/intro.md",
+      "introDE": "avr06-blink-and-print/intro.de.md"
     }
   },
   {
@@ -2402,7 +2670,9 @@
     "difficulty": 1,
     "files": {
       "program": "arduino-01-blink/program.bw",
-      "circuit": "arduino-01-blink/circuit.json"
+      "circuit": "arduino-01-blink/circuit.json",
+      "intro": "arduino-01-blink/intro.md",
+      "introDE": "arduino-01-blink/intro.de.md"
     },
     "kind": "full",
     "devices": [
@@ -2420,7 +2690,9 @@
     "difficulty": 1,
     "files": {
       "program": "arduino-01-fade/program.bw",
-      "circuit": "arduino-01-fade/circuit.json"
+      "circuit": "arduino-01-fade/circuit.json",
+      "intro": "arduino-01-fade/intro.md",
+      "introDE": "arduino-01-fade/intro.de.md"
     },
     "kind": "full",
     "devices": [
@@ -2438,7 +2710,9 @@
     "difficulty": 1,
     "files": {
       "program": "arduino-01-analog-read-serial/program.bw",
-      "circuit": "arduino-01-analog-read-serial/circuit.json"
+      "circuit": "arduino-01-analog-read-serial/circuit.json",
+      "intro": "arduino-01-analog-read-serial/intro.md",
+      "introDE": "arduino-01-analog-read-serial/intro.de.md"
     },
     "kind": "full",
     "devices": [
@@ -2456,7 +2730,9 @@
     "difficulty": 1,
     "files": {
       "program": "arduino-01-digital-read-serial/program.bw",
-      "circuit": "arduino-01-digital-read-serial/circuit.json"
+      "circuit": "arduino-01-digital-read-serial/circuit.json",
+      "intro": "arduino-01-digital-read-serial/intro.md",
+      "introDE": "arduino-01-digital-read-serial/intro.de.md"
     },
     "kind": "full",
     "devices": [
@@ -2474,7 +2750,9 @@
     "difficulty": 1,
     "files": {
       "program": "arduino-01-read-analog-voltage/program.bw",
-      "circuit": "arduino-01-read-analog-voltage/circuit.json"
+      "circuit": "arduino-01-read-analog-voltage/circuit.json",
+      "intro": "arduino-01-read-analog-voltage/intro.md",
+      "introDE": "arduino-01-read-analog-voltage/intro.de.md"
     },
     "kind": "full",
     "devices": [
@@ -2492,7 +2770,9 @@
     "difficulty": 2,
     "files": {
       "program": "arduino-02-blink-without-delay/program.bw",
-      "circuit": "arduino-02-blink-without-delay/circuit.json"
+      "circuit": "arduino-02-blink-without-delay/circuit.json",
+      "intro": "arduino-02-blink-without-delay/intro.md",
+      "introDE": "arduino-02-blink-without-delay/intro.de.md"
     },
     "kind": "full",
     "devices": [
@@ -2510,7 +2790,9 @@
     "difficulty": 1,
     "files": {
       "program": "arduino-02-button/program.bw",
-      "circuit": "arduino-02-button/circuit.json"
+      "circuit": "arduino-02-button/circuit.json",
+      "intro": "arduino-02-button/intro.md",
+      "introDE": "arduino-02-button/intro.de.md"
     },
     "kind": "full",
     "devices": [
@@ -2528,7 +2810,9 @@
     "difficulty": 2,
     "files": {
       "program": "arduino-02-debounce/program.bw",
-      "circuit": "arduino-02-debounce/circuit.json"
+      "circuit": "arduino-02-debounce/circuit.json",
+      "intro": "arduino-02-debounce/intro.md",
+      "introDE": "arduino-02-debounce/intro.de.md"
     },
     "kind": "full",
     "devices": [
@@ -2546,7 +2830,9 @@
     "difficulty": 1,
     "files": {
       "program": "arduino-02-digital-input-pullup/program.bw",
-      "circuit": "arduino-02-digital-input-pullup/circuit.json"
+      "circuit": "arduino-02-digital-input-pullup/circuit.json",
+      "intro": "arduino-02-digital-input-pullup/intro.md",
+      "introDE": "arduino-02-digital-input-pullup/intro.de.md"
     },
     "kind": "full",
     "devices": [
@@ -2564,7 +2850,9 @@
     "difficulty": 2,
     "files": {
       "program": "arduino-02-state-change/program.bw",
-      "circuit": "arduino-02-state-change/circuit.json"
+      "circuit": "arduino-02-state-change/circuit.json",
+      "intro": "arduino-02-state-change/intro.md",
+      "introDE": "arduino-02-state-change/intro.de.md"
     },
     "kind": "full",
     "devices": [
@@ -2582,7 +2870,9 @@
     "difficulty": 1,
     "files": {
       "program": "arduino-02-tone-melody/program.bw",
-      "circuit": "arduino-02-tone-melody/circuit.json"
+      "circuit": "arduino-02-tone-melody/circuit.json",
+      "intro": "arduino-02-tone-melody/intro.md",
+      "introDE": "arduino-02-tone-melody/intro.de.md"
     },
     "kind": "full",
     "devices": [
@@ -2600,7 +2890,9 @@
     "difficulty": 2,
     "files": {
       "program": "arduino-02-tone-keyboard/program.bw",
-      "circuit": "arduino-02-tone-keyboard/circuit.json"
+      "circuit": "arduino-02-tone-keyboard/circuit.json",
+      "intro": "arduino-02-tone-keyboard/intro.md",
+      "introDE": "arduino-02-tone-keyboard/intro.de.md"
     },
     "kind": "full",
     "devices": [
@@ -2618,7 +2910,9 @@
     "difficulty": 2,
     "files": {
       "program": "arduino-02-tone-multiple/program.bw",
-      "circuit": "arduino-02-tone-multiple/circuit.json"
+      "circuit": "arduino-02-tone-multiple/circuit.json",
+      "intro": "arduino-02-tone-multiple/intro.md",
+      "introDE": "arduino-02-tone-multiple/intro.de.md"
     },
     "kind": "full",
     "devices": [
@@ -2636,7 +2930,9 @@
     "difficulty": 2,
     "files": {
       "program": "arduino-02-tone-pitch-follower/program.bw",
-      "circuit": "arduino-02-tone-pitch-follower/circuit.json"
+      "circuit": "arduino-02-tone-pitch-follower/circuit.json",
+      "intro": "arduino-02-tone-pitch-follower/intro.md",
+      "introDE": "arduino-02-tone-pitch-follower/intro.de.md"
     },
     "kind": "full",
     "devices": [
@@ -2654,7 +2950,9 @@
     "difficulty": 1,
     "files": {
       "program": "arduino-03-analog-input/program.bw",
-      "circuit": "arduino-03-analog-input/circuit.json"
+      "circuit": "arduino-03-analog-input/circuit.json",
+      "intro": "arduino-03-analog-input/intro.md",
+      "introDE": "arduino-03-analog-input/intro.de.md"
     },
     "kind": "full",
     "devices": [
@@ -2672,7 +2970,9 @@
     "difficulty": 1,
     "files": {
       "program": "arduino-03-analog-in-out-serial/program.bw",
-      "circuit": "arduino-03-analog-in-out-serial/circuit.json"
+      "circuit": "arduino-03-analog-in-out-serial/circuit.json",
+      "intro": "arduino-03-analog-in-out-serial/intro.md",
+      "introDE": "arduino-03-analog-in-out-serial/intro.de.md"
     },
     "kind": "full",
     "devices": [
@@ -2690,7 +2990,9 @@
     "difficulty": 2,
     "files": {
       "program": "arduino-03-analog-write-mega/program.bw",
-      "circuit": "arduino-03-analog-write-mega/circuit.json"
+      "circuit": "arduino-03-analog-write-mega/circuit.json",
+      "intro": "arduino-03-analog-write-mega/intro.md",
+      "introDE": "arduino-03-analog-write-mega/intro.de.md"
     },
     "kind": "full",
     "devices": [
@@ -2707,7 +3009,9 @@
     "difficulty": 2,
     "files": {
       "program": "arduino-03-calibration/program.bw",
-      "circuit": "arduino-03-calibration/circuit.json"
+      "circuit": "arduino-03-calibration/circuit.json",
+      "intro": "arduino-03-calibration/intro.md",
+      "introDE": "arduino-03-calibration/intro.de.md"
     },
     "kind": "full",
     "devices": [
@@ -2725,7 +3029,9 @@
     "difficulty": 1,
     "files": {
       "program": "arduino-03-fading/program.bw",
-      "circuit": "arduino-03-fading/circuit.json"
+      "circuit": "arduino-03-fading/circuit.json",
+      "intro": "arduino-03-fading/intro.md",
+      "introDE": "arduino-03-fading/intro.de.md"
     },
     "kind": "full",
     "devices": [
@@ -2743,7 +3049,9 @@
     "difficulty": 2,
     "files": {
       "program": "arduino-03-smoothing/program.bw",
-      "circuit": "arduino-03-smoothing/circuit.json"
+      "circuit": "arduino-03-smoothing/circuit.json",
+      "intro": "arduino-03-smoothing/intro.md",
+      "introDE": "arduino-03-smoothing/intro.de.md"
     },
     "kind": "full",
     "devices": [
@@ -2761,7 +3069,9 @@
     "difficulty": 2,
     "files": {
       "program": "arduino-05-arrays/program.bw",
-      "circuit": "arduino-05-arrays/circuit.json"
+      "circuit": "arduino-05-arrays/circuit.json",
+      "intro": "arduino-05-arrays/intro.md",
+      "introDE": "arduino-05-arrays/intro.de.md"
     },
     "kind": "full",
     "devices": [
@@ -2779,7 +3089,9 @@
     "difficulty": 1,
     "files": {
       "program": "arduino-05-for-loop/program.bw",
-      "circuit": "arduino-05-for-loop/circuit.json"
+      "circuit": "arduino-05-for-loop/circuit.json",
+      "intro": "arduino-05-for-loop/intro.md",
+      "introDE": "arduino-05-for-loop/intro.de.md"
     },
     "kind": "full",
     "devices": [
@@ -2797,7 +3109,9 @@
     "difficulty": 1,
     "files": {
       "program": "arduino-05-if-statement/program.bw",
-      "circuit": "arduino-05-if-statement/circuit.json"
+      "circuit": "arduino-05-if-statement/circuit.json",
+      "intro": "arduino-05-if-statement/intro.md",
+      "introDE": "arduino-05-if-statement/intro.de.md"
     },
     "kind": "full",
     "devices": [
@@ -2815,7 +3129,9 @@
     "difficulty": 2,
     "files": {
       "program": "arduino-05-switch-case/program.bw",
-      "circuit": "arduino-05-switch-case/circuit.json"
+      "circuit": "arduino-05-switch-case/circuit.json",
+      "intro": "arduino-05-switch-case/intro.md",
+      "introDE": "arduino-05-switch-case/intro.de.md"
     },
     "kind": "full",
     "devices": [
@@ -2833,7 +3149,9 @@
     "difficulty": 2,
     "files": {
       "program": "arduino-05-switch-case-2/program.bw",
-      "circuit": "arduino-05-switch-case-2/circuit.json"
+      "circuit": "arduino-05-switch-case-2/circuit.json",
+      "intro": "arduino-05-switch-case-2/intro.md",
+      "introDE": "arduino-05-switch-case-2/intro.de.md"
     },
     "kind": "full",
     "devices": [
@@ -2851,7 +3169,9 @@
     "difficulty": 2,
     "files": {
       "program": "arduino-05-while-statement/program.bw",
-      "circuit": "arduino-05-while-statement/circuit.json"
+      "circuit": "arduino-05-while-statement/circuit.json",
+      "intro": "arduino-05-while-statement/intro.md",
+      "introDE": "arduino-05-while-statement/intro.de.md"
     },
     "kind": "full",
     "devices": [
@@ -2869,7 +3189,9 @@
     "difficulty": 1,
     "files": {
       "program": "arduino-04-ascii-table/program.bw",
-      "circuit": "arduino-04-ascii-table/circuit.json"
+      "circuit": "arduino-04-ascii-table/circuit.json",
+      "intro": "arduino-04-ascii-table/intro.md",
+      "introDE": "arduino-04-ascii-table/intro.de.md"
     },
     "kind": "full",
     "devices": [
@@ -2887,7 +3209,9 @@
     "difficulty": 1,
     "files": {
       "program": "arduino-04-dimmer/program.bw",
-      "circuit": "arduino-04-dimmer/circuit.json"
+      "circuit": "arduino-04-dimmer/circuit.json",
+      "intro": "arduino-04-dimmer/intro.md",
+      "introDE": "arduino-04-dimmer/intro.de.md"
     },
     "kind": "full",
     "devices": [
@@ -2905,7 +3229,9 @@
     "difficulty": 2,
     "files": {
       "program": "arduino-04-read-ascii-string/program.bw",
-      "circuit": "arduino-04-read-ascii-string/circuit.json"
+      "circuit": "arduino-04-read-ascii-string/circuit.json",
+      "intro": "arduino-04-read-ascii-string/intro.md",
+      "introDE": "arduino-04-read-ascii-string/intro.de.md"
     },
     "kind": "full",
     "devices": [
@@ -2923,7 +3249,9 @@
     "difficulty": 2,
     "files": {
       "program": "arduino-04-serial-call-response/program.bw",
-      "circuit": "arduino-04-serial-call-response/circuit.json"
+      "circuit": "arduino-04-serial-call-response/circuit.json",
+      "intro": "arduino-04-serial-call-response/intro.md",
+      "introDE": "arduino-04-serial-call-response/intro.de.md"
     },
     "kind": "full",
     "devices": [
@@ -2941,7 +3269,9 @@
     "difficulty": 1,
     "files": {
       "program": "arduino-04-serial-passthrough/program.bw",
-      "circuit": "arduino-04-serial-passthrough/circuit.json"
+      "circuit": "arduino-04-serial-passthrough/circuit.json",
+      "intro": "arduino-04-serial-passthrough/intro.md",
+      "introDE": "arduino-04-serial-passthrough/intro.de.md"
     },
     "kind": "full",
     "devices": [
@@ -2959,7 +3289,9 @@
     "difficulty": 1,
     "files": {
       "program": "arduino-06-knock/program.bw",
-      "circuit": "arduino-06-knock/circuit.json"
+      "circuit": "arduino-06-knock/circuit.json",
+      "intro": "arduino-06-knock/intro.md",
+      "introDE": "arduino-06-knock/intro.de.md"
     },
     "kind": "full",
     "devices": [
@@ -2977,7 +3309,9 @@
     "difficulty": 2,
     "files": {
       "program": "arduino-06-ping/program.bw",
-      "circuit": "arduino-06-ping/circuit.json"
+      "circuit": "arduino-06-ping/circuit.json",
+      "intro": "arduino-06-ping/intro.md",
+      "introDE": "arduino-06-ping/intro.de.md"
     },
     "kind": "full",
     "devices": [
@@ -2995,7 +3329,9 @@
     "difficulty": 2,
     "files": {
       "program": "arduino-07-bar-graph/program.bw",
-      "circuit": "arduino-07-bar-graph/circuit.json"
+      "circuit": "arduino-07-bar-graph/circuit.json",
+      "intro": "arduino-07-bar-graph/intro.md",
+      "introDE": "arduino-07-bar-graph/intro.de.md"
     },
     "kind": "full",
     "devices": [
@@ -3013,7 +3349,9 @@
     "difficulty": 3,
     "files": {
       "program": "arduino-07-row-column-scanning/program.bw",
-      "circuit": "arduino-07-row-column-scanning/circuit.json"
+      "circuit": "arduino-07-row-column-scanning/circuit.json",
+      "intro": "arduino-07-row-column-scanning/intro.md",
+      "introDE": "arduino-07-row-column-scanning/intro.de.md"
     },
     "kind": "full",
     "devices": [
@@ -3030,7 +3368,9 @@
     "difficulty": 1,
     "files": {
       "program": "arduino-08-string-addition/program.bw",
-      "circuit": "arduino-08-string-addition/circuit.json"
+      "circuit": "arduino-08-string-addition/circuit.json",
+      "intro": "arduino-08-string-addition/intro.md",
+      "introDE": "arduino-08-string-addition/intro.de.md"
     },
     "kind": "full",
     "devices": [
@@ -3048,7 +3388,9 @@
     "difficulty": 1,
     "files": {
       "program": "arduino-08-char-analysis/program.bw",
-      "circuit": "arduino-08-char-analysis/circuit.json"
+      "circuit": "arduino-08-char-analysis/circuit.json",
+      "intro": "arduino-08-char-analysis/intro.md",
+      "introDE": "arduino-08-char-analysis/intro.de.md"
     },
     "kind": "full",
     "devices": [
@@ -3066,7 +3408,9 @@
     "difficulty": 1,
     "files": {
       "program": "arduino-08-string-append/program.bw",
-      "circuit": "arduino-08-string-append/circuit.json"
+      "circuit": "arduino-08-string-append/circuit.json",
+      "intro": "arduino-08-string-append/intro.md",
+      "introDE": "arduino-08-string-append/intro.de.md"
     },
     "kind": "full",
     "devices": [
@@ -3084,7 +3428,9 @@
     "difficulty": 1,
     "files": {
       "program": "arduino-08-string-case/program.bw",
-      "circuit": "arduino-08-string-case/circuit.json"
+      "circuit": "arduino-08-string-case/circuit.json",
+      "intro": "arduino-08-string-case/intro.md",
+      "introDE": "arduino-08-string-case/intro.de.md"
     },
     "kind": "full",
     "devices": [
@@ -3102,7 +3448,9 @@
     "difficulty": 1,
     "files": {
       "program": "arduino-08-string-chars/program.bw",
-      "circuit": "arduino-08-string-chars/circuit.json"
+      "circuit": "arduino-08-string-chars/circuit.json",
+      "intro": "arduino-08-string-chars/intro.md",
+      "introDE": "arduino-08-string-chars/intro.de.md"
     },
     "kind": "full",
     "devices": [
@@ -3120,7 +3468,9 @@
     "difficulty": 1,
     "files": {
       "program": "arduino-08-string-compare/program.bw",
-      "circuit": "arduino-08-string-compare/circuit.json"
+      "circuit": "arduino-08-string-compare/circuit.json",
+      "intro": "arduino-08-string-compare/intro.md",
+      "introDE": "arduino-08-string-compare/intro.de.md"
     },
     "kind": "full",
     "devices": [
@@ -3138,7 +3488,9 @@
     "difficulty": 1,
     "files": {
       "program": "arduino-08-string-constructors/program.bw",
-      "circuit": "arduino-08-string-constructors/circuit.json"
+      "circuit": "arduino-08-string-constructors/circuit.json",
+      "intro": "arduino-08-string-constructors/intro.md",
+      "introDE": "arduino-08-string-constructors/intro.de.md"
     },
     "kind": "full",
     "devices": [
@@ -3156,7 +3508,9 @@
     "difficulty": 1,
     "files": {
       "program": "arduino-08-string-indexof/program.bw",
-      "circuit": "arduino-08-string-indexof/circuit.json"
+      "circuit": "arduino-08-string-indexof/circuit.json",
+      "intro": "arduino-08-string-indexof/intro.md",
+      "introDE": "arduino-08-string-indexof/intro.de.md"
     },
     "kind": "full",
     "devices": [
@@ -3174,7 +3528,9 @@
     "difficulty": 1,
     "files": {
       "program": "arduino-08-string-length/program.bw",
-      "circuit": "arduino-08-string-length/circuit.json"
+      "circuit": "arduino-08-string-length/circuit.json",
+      "intro": "arduino-08-string-length/intro.md",
+      "introDE": "arduino-08-string-length/intro.de.md"
     },
     "kind": "full",
     "devices": [
@@ -3192,7 +3548,9 @@
     "difficulty": 1,
     "files": {
       "program": "arduino-08-string-length-trim/program.bw",
-      "circuit": "arduino-08-string-length-trim/circuit.json"
+      "circuit": "arduino-08-string-length-trim/circuit.json",
+      "intro": "arduino-08-string-length-trim/intro.md",
+      "introDE": "arduino-08-string-length-trim/intro.de.md"
     },
     "kind": "full",
     "devices": [
@@ -3210,7 +3568,9 @@
     "difficulty": 1,
     "files": {
       "program": "arduino-08-string-replace/program.bw",
-      "circuit": "arduino-08-string-replace/circuit.json"
+      "circuit": "arduino-08-string-replace/circuit.json",
+      "intro": "arduino-08-string-replace/intro.md",
+      "introDE": "arduino-08-string-replace/intro.de.md"
     },
     "kind": "full",
     "devices": [
@@ -3228,7 +3588,9 @@
     "difficulty": 1,
     "files": {
       "program": "arduino-08-string-startswith/program.bw",
-      "circuit": "arduino-08-string-startswith/circuit.json"
+      "circuit": "arduino-08-string-startswith/circuit.json",
+      "intro": "arduino-08-string-startswith/intro.md",
+      "introDE": "arduino-08-string-startswith/intro.de.md"
     },
     "kind": "full",
     "devices": [
@@ -3246,7 +3608,9 @@
     "difficulty": 1,
     "files": {
       "program": "arduino-08-string-substring/program.bw",
-      "circuit": "arduino-08-string-substring/circuit.json"
+      "circuit": "arduino-08-string-substring/circuit.json",
+      "intro": "arduino-08-string-substring/intro.md",
+      "introDE": "arduino-08-string-substring/intro.de.md"
     },
     "kind": "full",
     "devices": [
@@ -3264,7 +3628,9 @@
     "difficulty": 1,
     "files": {
       "program": "arduino-08-string-toint/program.bw",
-      "circuit": "arduino-08-string-toint/circuit.json"
+      "circuit": "arduino-08-string-toint/circuit.json",
+      "intro": "arduino-08-string-toint/intro.md",
+      "introDE": "arduino-08-string-toint/intro.de.md"
     },
     "kind": "full",
     "devices": [
@@ -3282,7 +3648,9 @@
     "difficulty": 1,
     "files": {
       "program": "arduino-sk-p02-spaceship/program.bw",
-      "circuit": "arduino-sk-p02-spaceship/circuit.json"
+      "circuit": "arduino-sk-p02-spaceship/circuit.json",
+      "intro": "arduino-sk-p02-spaceship/intro.md",
+      "introDE": "arduino-sk-p02-spaceship/intro.de.md"
     },
     "kind": "full",
     "devices": [
@@ -3300,7 +3668,9 @@
     "difficulty": 2,
     "files": {
       "program": "arduino-sk-p03-love-o-meter/program.bw",
-      "circuit": "arduino-sk-p03-love-o-meter/circuit.json"
+      "circuit": "arduino-sk-p03-love-o-meter/circuit.json",
+      "intro": "arduino-sk-p03-love-o-meter/intro.md",
+      "introDE": "arduino-sk-p03-love-o-meter/intro.de.md"
     },
     "kind": "full",
     "devices": [
@@ -3318,7 +3688,9 @@
     "difficulty": 2,
     "files": {
       "program": "arduino-sk-p04-color-mixing/program.bw",
-      "circuit": "arduino-sk-p04-color-mixing/circuit.json"
+      "circuit": "arduino-sk-p04-color-mixing/circuit.json",
+      "intro": "arduino-sk-p04-color-mixing/intro.md",
+      "introDE": "arduino-sk-p04-color-mixing/intro.de.md"
     },
     "kind": "full",
     "devices": [
@@ -3336,7 +3708,9 @@
     "difficulty": 2,
     "files": {
       "program": "arduino-sk-p05-servo-mood/program.bw",
-      "circuit": "arduino-sk-p05-servo-mood/circuit.json"
+      "circuit": "arduino-sk-p05-servo-mood/circuit.json",
+      "intro": "arduino-sk-p05-servo-mood/intro.md",
+      "introDE": "arduino-sk-p05-servo-mood/intro.de.md"
     },
     "kind": "full",
     "devices": [
@@ -3354,7 +3728,9 @@
     "difficulty": 2,
     "files": {
       "program": "arduino-sk-p06-light-theremin/program.bw",
-      "circuit": "arduino-sk-p06-light-theremin/circuit.json"
+      "circuit": "arduino-sk-p06-light-theremin/circuit.json",
+      "intro": "arduino-sk-p06-light-theremin/intro.md",
+      "introDE": "arduino-sk-p06-light-theremin/intro.de.md"
     },
     "kind": "full",
     "devices": [
@@ -3372,7 +3748,9 @@
     "difficulty": 3,
     "files": {
       "program": "blinkenrocket-pendant/program.bw",
-      "circuit": "blinkenrocket-pendant/circuit.json"
+      "circuit": "blinkenrocket-pendant/circuit.json",
+      "intro": "blinkenrocket-pendant/intro.md",
+      "introDE": "blinkenrocket-pendant/intro.de.md"
     },
     "kind": "full",
     "devices": [
@@ -3389,7 +3767,9 @@
     "difficulty": 1,
     "files": {
       "program": "arduino-sk-p07-keyboard/program.bw",
-      "circuit": "arduino-sk-p07-keyboard/circuit.json"
+      "circuit": "arduino-sk-p07-keyboard/circuit.json",
+      "intro": "arduino-sk-p07-keyboard/intro.md",
+      "introDE": "arduino-sk-p07-keyboard/intro.de.md"
     },
     "kind": "full",
     "devices": [
@@ -3407,7 +3787,9 @@
     "difficulty": 2,
     "files": {
       "program": "arduino-sk-p08-hourglass/program.bw",
-      "circuit": "arduino-sk-p08-hourglass/circuit.json"
+      "circuit": "arduino-sk-p08-hourglass/circuit.json",
+      "intro": "arduino-sk-p08-hourglass/intro.md",
+      "introDE": "arduino-sk-p08-hourglass/intro.de.md"
     },
     "kind": "full",
     "devices": [
@@ -3425,7 +3807,9 @@
     "difficulty": 1,
     "files": {
       "program": "arduino-sk-p09-motorized-pinwheel/program.bw",
-      "circuit": "arduino-sk-p09-motorized-pinwheel/circuit.json"
+      "circuit": "arduino-sk-p09-motorized-pinwheel/circuit.json",
+      "intro": "arduino-sk-p09-motorized-pinwheel/intro.md",
+      "introDE": "arduino-sk-p09-motorized-pinwheel/intro.de.md"
     },
     "kind": "full",
     "devices": [
@@ -3443,7 +3827,9 @@
     "difficulty": 2,
     "files": {
       "program": "arduino-sk-p10-zoetrope/program.bw",
-      "circuit": "arduino-sk-p10-zoetrope/circuit.json"
+      "circuit": "arduino-sk-p10-zoetrope/circuit.json",
+      "intro": "arduino-sk-p10-zoetrope/intro.md",
+      "introDE": "arduino-sk-p10-zoetrope/intro.de.md"
     },
     "kind": "full",
     "devices": [
@@ -3461,7 +3847,9 @@
     "difficulty": 1,
     "files": {
       "program": "arduino-sk-p11-crystal-ball/program.bw",
-      "circuit": "arduino-sk-p11-crystal-ball/circuit.json"
+      "circuit": "arduino-sk-p11-crystal-ball/circuit.json",
+      "intro": "arduino-sk-p11-crystal-ball/intro.md",
+      "introDE": "arduino-sk-p11-crystal-ball/intro.de.md"
     },
     "kind": "full",
     "devices": [
@@ -3479,7 +3867,9 @@
     "difficulty": 2,
     "files": {
       "program": "arduino-sk-p12-knock-lock/program.bw",
-      "circuit": "arduino-sk-p12-knock-lock/circuit.json"
+      "circuit": "arduino-sk-p12-knock-lock/circuit.json",
+      "intro": "arduino-sk-p12-knock-lock/intro.md",
+      "introDE": "arduino-sk-p12-knock-lock/intro.de.md"
     },
     "kind": "full",
     "devices": [
@@ -3497,7 +3887,9 @@
     "difficulty": 1,
     "files": {
       "program": "arduino-sk-p13-touch-lamp/program.bw",
-      "circuit": "arduino-sk-p13-touch-lamp/circuit.json"
+      "circuit": "arduino-sk-p13-touch-lamp/circuit.json",
+      "intro": "arduino-sk-p13-touch-lamp/intro.md",
+      "introDE": "arduino-sk-p13-touch-lamp/intro.de.md"
     },
     "kind": "full",
     "devices": [
@@ -3515,7 +3907,9 @@
     "difficulty": 1,
     "files": {
       "program": "arduino-sk-p14-serial-pot/program.bw",
-      "circuit": "arduino-sk-p14-serial-pot/circuit.json"
+      "circuit": "arduino-sk-p14-serial-pot/circuit.json",
+      "intro": "arduino-sk-p14-serial-pot/intro.md",
+      "introDE": "arduino-sk-p14-serial-pot/intro.de.md"
     },
     "kind": "full",
     "devices": [
@@ -3533,7 +3927,9 @@
     "difficulty": 1,
     "files": {
       "program": "arduino-sk-p15-hacking-buttons/program.bw",
-      "circuit": "arduino-sk-p15-hacking-buttons/circuit.json"
+      "circuit": "arduino-sk-p15-hacking-buttons/circuit.json",
+      "intro": "arduino-sk-p15-hacking-buttons/intro.md",
+      "introDE": "arduino-sk-p15-hacking-buttons/intro.de.md"
     },
     "kind": "full",
     "devices": [
@@ -3551,7 +3947,9 @@
     "difficulty": 2,
     "files": {
       "program": "eater6502-blink/program.bw",
-      "circuit": "eater6502-blink/circuit.json"
+      "circuit": "eater6502-blink/circuit.json",
+      "intro": "eater6502-blink/intro.md",
+      "introDE": "eater6502-blink/intro.de.md"
     },
     "kind": "full",
     "devices": [
@@ -3568,7 +3966,9 @@
     "difficulty": 3,
     "files": {
       "program": "eater6502-bench/program.bw",
-      "circuit": "eater6502-bench/circuit.json"
+      "circuit": "eater6502-bench/circuit.json",
+      "intro": "eater6502-bench/intro.md",
+      "introDE": "eater6502-bench/intro.de.md"
     },
     "kind": "full",
     "devices": [
@@ -3585,7 +3985,9 @@
     "difficulty": 3,
     "files": {
       "program": "eater6502-vdp-hello/program.bw",
-      "circuit": "eater6502-vdp-hello/circuit.json"
+      "circuit": "eater6502-vdp-hello/circuit.json",
+      "intro": "eater6502-vdp-hello/intro.md",
+      "introDE": "eater6502-vdp-hello/intro.de.md"
     },
     "kind": "full",
     "devices": [
@@ -3602,7 +4004,9 @@
     "difficulty": 3,
     "files": {
       "program": "z80-bench/program.bw",
-      "circuit": "z80-bench/circuit.json"
+      "circuit": "z80-bench/circuit.json",
+      "intro": "z80-bench/intro.md",
+      "introDE": "z80-bench/intro.de.md"
     },
     "kind": "circuit"
   },
@@ -3615,7 +4019,9 @@
     "category": "digital",
     "difficulty": 2,
     "files": {
-      "circuit": "ttl-clock-module/circuit.json"
+      "circuit": "ttl-clock-module/circuit.json",
+      "intro": "ttl-clock-module/intro.md",
+      "introDE": "ttl-clock-module/intro.de.md"
     },
     "kind": "circuit"
   }
