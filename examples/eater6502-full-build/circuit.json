@@ -23,39 +23,53 @@
       "id": "via",
       "kind": "w65c22",
       "x": 300,
-      "y": 400
+      "y": 420
     },
     {
       "id": "acia",
       "kind": "w65c51",
       "x": 500,
-      "y": 400
+      "y": 420
     },
     {
       "id": "glue1",
       "kind": "74hc00",
       "x": 700,
-      "y": 400
+      "y": 420
     },
     {
       "id": "glue2",
       "kind": "74hc00",
       "x": 900,
-      "y": 400
+      "y": 420
     },
     {
       "id": "lcd",
       "kind": "hd44780",
       "x": 100,
-      "y": 600,
+      "y": 580,
       "declName": "lcd"
+    },
+    {
+      "id": "kbd",
+      "kind": "ps2",
+      "x": 100,
+      "y": 420,
+      "declName": "keyboard"
+    },
+    {
+      "id": "xtal",
+      "kind": "555",
+      "x": 650,
+      "y": 580,
+      "declName": "xtal_1.8432MHz"
     },
     {
       "id": "bargraph",
       "kind": "bargraph",
       "x": 100,
-      "y": 400,
-      "declName": "leds"
+      "y": 250,
+      "declName": "statusLeds"
     },
     {
       "id": "osc",
@@ -111,7 +125,7 @@
       "id": "c_via",
       "kind": "capacitor",
       "x": 350,
-      "y": 330,
+      "y": 350,
       "params": {
         "farads": 1e-7
       }
@@ -120,7 +134,7 @@
       "id": "c_acia",
       "kind": "capacitor",
       "x": 550,
-      "y": 330,
+      "y": 350,
       "params": {
         "farads": 1e-7
       }
@@ -129,26 +143,26 @@
       "id": "c_glue1",
       "kind": "capacitor",
       "x": 750,
-      "y": 330,
+      "y": 350,
       "params": {
         "farads": 1e-7
       }
     },
     {
-      "id": "statusLed",
+      "id": "pwrLed",
       "kind": "led",
       "x": 1000,
-      "y": 200,
+      "y": 100,
       "params": {
         "color": "red"
       },
       "declName": "power"
     },
     {
-      "id": "statusR",
+      "id": "pwrR",
       "kind": "resistor",
       "x": 1000,
-      "y": 130,
+      "y": 50,
       "params": {
         "ohms": 220
       }
@@ -605,17 +619,17 @@
     {
       "from": "vcc1",
       "fromTerminal": "vcc",
-      "to": "statusR",
+      "to": "pwrR",
       "toTerminal": "a"
     },
     {
-      "from": "statusR",
+      "from": "pwrR",
       "fromTerminal": "b",
-      "to": "statusLed",
+      "to": "pwrLed",
       "toTerminal": "anode"
     },
     {
-      "from": "statusLed",
+      "from": "pwrLed",
       "fromTerminal": "cathode",
       "to": "gnd1",
       "toTerminal": "gnd"

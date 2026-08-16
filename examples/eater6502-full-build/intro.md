@@ -2,26 +2,31 @@
 level: advanced
 age: 14+
 prereqs: [eater6502-bench]
-teaches: [full-build, binary-counting, bar-graph, lcd, decoupling, reset-circuit, clock-source]
+teaches: [full-build, binary-counting, bar-graph, lcd-4bit, ps2-keyboard, acia-serial, decoupling, reset-circuit]
 ---
 ## What you see
-The complete Ben Eater 6502 breadboard computer as it appears in the real build: W65C02 CPU, 32 KB RAM (62256), 32 KB ROM (28C256), W65C22 VIA, W65C51 ACIA, two 74HC00 NAND decode gates — plus everything the minimal bench omits: a 10-LED bar graph on VIA port A showing a binary counter, an HD44780 LCD on port B, per-chip 100 nF decoupling capacitors, a reset button with pull-up, a power indicator LED, and the 1 MHz clock source.
+The complete Ben Eater 6502 breadboard computer with the BeebEater peripheral wiring: W65C02 CPU, 16 KB RAM (62256, lower half), 32 KB ROM (28C256), W65C22 VIA with HD44780 LCD in 4-bit mode on PORTB and PS/2 keyboard on PORTA, W65C51 ACIA at 115200 baud with 1.8432 MHz crystal, two 74HC00 NAND decode gates, per-chip decoupling caps, reset button, bar-graph status LEDs, and a 1 MHz clock oscillator.
+
+This is the same circuit that runs BeebEater (chelsea6502, MIT) — and later, the shippable MIT MS-BASIC ROM.
 
 ## Try this
-1. Run the program — the bar graph counts in binary (0–255).
-2. Press the reset button — the counter restarts from 0.
-3. Open the Warnings panel and verify the memory map: RAM $0000–$3FFF, ROM $8000–$FFFF, VIA at $6000, ACIA at $5000.
-4. Remove one decoupling cap and observe: the simulation still runs, but on the real bench this causes random crashes from power supply noise.
+1. Run the program — the bar graph counts in binary on the VIA's port A output.
+2. Press reset — the counter restarts from 0.
+3. Check the Warnings panel: RAM $0000–$3FFF, ROM $8000–$FFFF, VIA $6000, ACIA $5000.
+4. Remove one decoupling cap — the sim still runs, but on real hardware this causes noise crashes.
 
 ## What is going on
-This build matches the owner's physical breadboard computer. Every chip gets a 100 nF bypass capacitor between its VCC and GND pins, placed as close to the chip as possible — these filter the high-frequency switching noise that digital ICs produce. Without them, the power rail rings and nearby chips misread signals. This is the most common source of "it works sometimes" failures in breadboard builds.
+The peripheral wiring follows the BeebEater convention (chelsea6502/BeebEater, MIT):
+- **VIA PORTB** (pins 10–16): HD44780 LCD in 4-bit mode. PB0–PB2 are RS, RW, E; PB4–PB7 are D4–D7. PB7 must be tied to GND when the LCD is disconnected.
+- **VIA PORTA** (pins 2–9): PS/2 keyboard. The keyboard's clock edge triggers CA1 for interrupt-driven input.
+- **ACIA**: 115200 baud serial at $5000, driven by a 1.8432 MHz external crystal. DCDB and DSRB tied to GND to prevent spurious IRQs.
 
-The reset circuit uses a pull-up resistor to hold the CPU's active-low reset pin high during normal operation. Pressing the button pulls it to ground, which restarts the CPU from the reset vector ($FFFC–$FFFD in ROM). The power LED confirms the board has voltage.
+The address decode is the canonical Eater NAND logic: ~A15 gates the lower half (RAM + I/O), A15 gates ROM. Within the lower half, A14+A13 select the VIA, A12 selects the ACIA, and the rest is RAM.
 
 ## Why it matters
-The gap between "works in simulation" and "works on the bench" is almost always power integrity. Decoupling caps, proper reset circuits, and stable clock sources are not optional on real hardware — they are the difference between a computer and a pile of warm chips. This example teaches the habits that make real builds work.
+This circuit is the platform for BBC BASIC, Forth, and eventually a full operating system. Understanding the peripheral wiring — which port drives the LCD, which drives the keyboard, how the ACIA baud rate is set by the crystal — is what turns a CPU into a usable computer.
 
 ## Go further
-- [eater6502-bench](../eater6502-bench) — the minimal version for understanding the architecture.
-- [eater6502-contention-bug](../eater6502-contention-bug) — a deliberate wiring error to debug.
-- [ttl-clock-module](../ttl-clock-module) — the clock module that generates the 1 MHz square wave.
+- [eater6502-bench](../eater6502-bench) — the minimal version for architecture study.
+- [eater6502-contention-bug](../eater6502-contention-bug) — debug a broken address decode.
+- [ttl-clock-module](../ttl-clock-module) — build the clock that drives this CPU.

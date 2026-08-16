@@ -2,24 +2,28 @@
 level: advanced
 age: 14+
 prereqs: [eater6502-bench]
-teaches: [full-build, binary-counting, bar-graph, lcd, decoupling, reset-circuit, clock-source]
+teaches: [full-build, binary-counting, bar-graph, lcd-4bit, ps2-keyboard, acia-serial, decoupling, reset-circuit]
 ---
 ## Was du siehst
-Der vollständige Ben-Eater-6502-Breadboard-Computer wie im echten Aufbau: W65C02-CPU, 32 KB RAM (62256), 32 KB ROM (28C256), W65C22 VIA, W65C51 ACIA, zwei 74HC00-NAND-Dekodier-Gatter — plus alles, was die Minimalversion weglässt: ein 10-LED-Balkendiagramm an VIA-Port A, ein HD44780-LCD an Port B, 100-nF-Entkopplungskondensatoren pro Chip, ein Reset-Taster mit Pull-Up, eine Betriebs-LED und die 1-MHz-Taktquelle.
+Der vollständige Ben-Eater-6502-Breadboard-Computer mit der BeebEater-Peripherie-Verdrahtung: W65C02-CPU, 16 KB RAM (62256, untere Hälfte), 32 KB ROM (28C256), W65C22 VIA mit HD44780-LCD im 4-Bit-Modus an PORTB und PS/2-Tastatur an PORTA, W65C51 ACIA mit 115200 Baud und 1,8432-MHz-Quarz, zwei 74HC00-NAND-Dekodier-Gatter, Entkopplungskondensatoren pro Chip, Reset-Taster, Balkendiagramm-Status-LEDs und 1-MHz-Taktoszillator.
+
+Dieselbe Schaltung, auf der BeebEater (chelsea6502, MIT) läuft — und später das lieferbare MIT-MS-BASIC-ROM.
 
 ## Probier das
-1. Starte das Programm — das Balkendiagramm zählt binär (0–255).
-2. Drücke den Reset-Taster — der Zähler startet bei 0 neu.
-3. Öffne das Warnungen-Panel und überprüfe die Speicherkarte: RAM $0000–$3FFF, ROM $8000–$FFFF, VIA bei $6000, ACIA bei $5000.
-4. Entferne einen Entkopplungskondensator und beobachte: die Simulation läuft weiter, aber auf dem echten Breadboard verursacht das zufällige Abstürze durch Versorgungsspannungsrauschen.
+1. Starte das Programm — das Balkendiagramm zählt binär am VIA-Port-A-Ausgang.
+2. Drücke Reset — der Zähler startet bei 0 neu.
+3. Prüfe das Warnungen-Panel: RAM $0000–$3FFF, ROM $8000–$FFFF, VIA $6000, ACIA $5000.
 
 ## Was passiert hier
-Dieser Aufbau entspricht dem physischen Breadboard-Computer des Eigentümers. Jeder Chip bekommt einen 100-nF-Bypass-Kondensator zwischen VCC und GND — diese filtern das Hochfrequenz-Schaltrauschen, das digitale ICs erzeugen.
+Die Peripherie-Verdrahtung folgt der BeebEater-Konvention (chelsea6502/BeebEater, MIT):
+- **VIA PORTB** (Pins 10–16): HD44780-LCD im 4-Bit-Modus. PB7 muss auf GND gelegt werden, wenn das LCD nicht angeschlossen ist.
+- **VIA PORTA** (Pins 2–9): PS/2-Tastatur. Die Taktflanke der Tastatur löst über CA1 einen Interrupt aus.
+- **ACIA**: 115200-Baud-Seriell bei $5000, angetrieben von einem 1,8432-MHz-Quarz.
 
 ## Warum das wichtig ist
-Die Lücke zwischen „funktioniert in der Simulation" und „funktioniert auf dem Breadboard" ist fast immer die Stromversorgungsintegrität. Entkopplungskondensatoren, korrekte Reset-Schaltungen und stabile Taktquellen sind auf echter Hardware nicht optional.
+Diese Schaltung ist die Plattform für BBC BASIC, Forth und schließlich ein vollständiges Betriebssystem.
 
 ## Weiter geht's
-- [eater6502-bench](../eater6502-bench) — die Minimalversion zum Architekturverständnis.
-- [eater6502-contention-bug](../eater6502-contention-bug) — ein absichtlicher Verdrahtungsfehler.
-- [ttl-clock-module](../ttl-clock-module) — das Taktmodul, das die 1-MHz-Rechteckwelle erzeugt.
+- [eater6502-bench](../eater6502-bench) — die Minimalversion zum Architekturstudium.
+- [eater6502-contention-bug](../eater6502-contention-bug) — eine fehlerhafte Adressdekodierung debuggen.
+- [ttl-clock-module](../ttl-clock-module) — das Taktmodul bauen, das diese CPU antreibt.
