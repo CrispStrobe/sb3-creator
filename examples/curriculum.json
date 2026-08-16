@@ -1,0 +1,59 @@
+{
+ "$schema_note": "Lehrpfad / Trail manifest. trails -> chapters -> stations. A station is either {example: <id>, level?, title?, lead} referencing examples/index.json, or {interlude: {en, de}, lead} as pure narrative. The same example may appear on several trails at different depths. The GUI's Trail view renders lead texts in the reader modal (the intro modal is the station reader) and 'open the bench' loads the example. Progress is client-side.",
+ "version": 1,
+ "trails": [
+  {
+   "id": "strom-und-spannung",
+   "title": {"en": "Current & Voltage from Zero", "de": "Strom und Spannung von Null an"},
+   "audience": "10+",
+   "chapters": [
+    {
+     "title": {"en": "What flows here?", "de": "Was fließt denn hier?"},
+     "stations": [
+      {"interlude": {"en": "Electricity is not magic: something countable moves through the wire, and everything on this trail follows from watching HOW it moves.", "de": "Strom ist keine Magie: Etwas Zählbares bewegt sich durch den Draht, und alles auf diesem Pfad folgt daraus, WIE es sich bewegt."}},
+      {"example": "47-battery-led", "lead": {"en": "A battery, a lamp, a loop. Break the loop anywhere and everything stops — the first law of every circuit.", "de": "Batterie, Lampe, Kreis. Unterbrich den Kreis irgendwo und alles steht — das erste Gesetz jeder Schaltung."}},
+      {"example": "21-resistor-led", "lead": {"en": "The resistor is a narrow spot in the pipe. The LED needs one — find out what happens without it.", "de": "Der Widerstand ist eine Engstelle im Rohr. Die LED braucht ihn — finde heraus, was ohne passiert."}},
+      {"example": "31-no-resistor-led", "lead": {"en": "...and here is exactly that, on purpose, with the meters watching.", "de": "...und hier genau das, mit Absicht, unter den Augen der Messgeräte."}}
+     ]
+    },
+    {
+     "title": {"en": "Dividing and measuring", "de": "Teilen und messen"},
+     "stations": [
+      {"example": "35-series-resistors", "lead": {"en": "Two narrow spots in a row share the push. Measure how.", "de": "Zwei Engstellen hintereinander teilen sich den Druck. Miss nach, wie."}},
+      {"example": "37-voltage-divider-basic", "lead": {"en": "The most important little circuit in electronics: two resistors make any voltage you want.", "de": "Die wichtigste kleine Schaltung der Elektronik: Zwei Widerstände machen jede gewünschte Spannung."}},
+      {"example": "pc07-pot-dimmer", "lead": {"en": "A potentiometer is a divider you can turn.", "de": "Ein Potentiometer ist ein drehbarer Spannungsteiler."}}
+     ]
+    }
+   ]
+  },
+  {
+   "id": "impedanz",
+   "title": {"en": "Impedance: resistance that cares about speed", "de": "Impedanz: Widerstand, der auf Tempo achtet"},
+   "audience": "10/18/23 — three depths, one bench",
+   "chapters": [
+    {
+     "title": {"en": "Level 10: the lamp that picks its frequency", "de": "Stufe 10: die Lampe, die sich ihre Frequenz aussucht"},
+     "stations": [
+      {"interlude": {"en": "A capacitor is a stretchy membrane in the pipe: steady flow stretches it once and stops; wiggling flow keeps it dancing. A coil is a heavy waterwheel: it hates starting and stopping. That is the WHOLE idea — the rest is measuring it.", "de": "Ein Kondensator ist eine dehnbare Membran im Rohr: Gleichstrom dehnt sie einmal und steht; Wackelstrom hält sie am Tanzen. Eine Spule ist ein schweres Wasserrad: Es hasst Anfahren und Stoppen. Das ist die GANZE Idee — der Rest ist Messen."}},
+      {"example": "29-capacitor-charge", "level": 10, "lead": {"en": "First meet the membrane: charge it, watch the current die as it stretches tight.", "de": "Lerne die Membran kennen: Lade sie und sieh zu, wie der Strom stirbt, wenn sie sich strafft."}},
+      {"example": "43-rc-timing", "level": 10, "lead": {"en": "Slow wiggles vs fast wiggles through the same capacitor — the lamp decides which it likes.", "de": "Langsames gegen schnelles Wackeln durch denselben Kondensator — die Lampe entscheidet, was ihr gefällt."}}
+     ]
+    },
+    {
+     "title": {"en": "Level 18: reading it off the scope", "de": "Stufe 18: am Oszilloskop ablesen"},
+     "stations": [
+      {"interlude": {"en": "Xc = 1/(2πfC) is nothing but the membrane's stiffness written as a number that FALLS with frequency. You are about to measure that number.", "de": "Xc = 1/(2πfC) ist nichts als die Steifheit der Membran, als Zahl geschrieben, die mit der Frequenz FÄLLT. Diese Zahl misst du jetzt."}},
+      {"example": "pc06-rc-charge", "level": 18, "lead": {"en": "Drive the RC divider below, at, and above its corner. Read amplitude ratio and phase lag off the traces; fill the table — you are drawing a Bode plot by hand before you know its name.", "de": "Steuere den RC-Teiler unter, an und über seiner Eckfrequenz an. Lies Amplitudenverhältnis und Phasenverschiebung aus den Kurven; füll die Tabelle — du zeichnest ein Bode-Diagramm von Hand, bevor du seinen Namen kennst."}}
+     ]
+    },
+    {
+     "title": {"en": "Level 23: design with Z", "de": "Stufe 23: mit Z entwerfen"},
+     "stations": [
+      {"interlude": {"en": "Z = R + jX and phasors are bookkeeping, not new physics: the divider formula you already trust, made honest at every frequency. Design task: pick R and C for a 1 kHz corner, then PROVE it by sweep.", "de": "Z = R + jX und Zeiger sind Buchhaltung, keine neue Physik: die Teilerformel, der du schon vertraust, ehrlich gemacht für jede Frequenz. Entwurfsaufgabe: Wähle R und C für 1 kHz Eckfrequenz — und BEWEISE es per Sweep."}},
+      {"interlude": {"en": "[Awaiting the sweep instrument: Bode magnitude/phase panel + RLC resonance station land here.]", "de": "[Wartet auf das Sweep-Instrument: Bode-Betrag/Phase und die RLC-Resonanz-Station kommen hierher.]"}}
+     ]
+    }
+   ]
+  }
+ ]
+}
