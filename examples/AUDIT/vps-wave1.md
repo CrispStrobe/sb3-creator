@@ -1131,3 +1131,8 @@ Program parses clean (0 warnings).
 SDA/SCL. Program parses clean (0 warnings, device stc12c5a60s2). Circuit has
 7 parts, 10 wires. I2C device needs MCU interaction for display — structural
 solve only.
+
+## 50-7seg-chase — VERDICT: pass
+**layers: engine.** 7-segment chase pattern. Program parses clean (0 warnings,
+device stc12c5a60s2). Circuit has 13 parts, 17 wires (breadboard-seated).
+Intros present.
