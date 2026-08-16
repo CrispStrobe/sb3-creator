@@ -106,6 +106,30 @@ SPRITE Cat:
         'must not create a variable named "on 1"');
 });
 
+// ---- stc12_read in CONDITION must be boolean-shaped ----
+// `if read btn then:` must wrap the reporter in `> 0` so the CONDITION
+// slot gets a Boolean block, not a String/Number reporter.
+test('read pin in condition produces a boolean block, not a reporter', () => {
+    const c = new SB3Creator();
+    c.parse(`DEVICE STC12C5A60S2
+CLOCK 12000000
+PIN btn = P3.2 INPUT
+
+SPRITE Cat:
+  WHEN flag clicked:
+    if read btn then:
+      turn on btn`);
+    assert.equal(c.warnings.length, 0, `parse warnings: ${c.warnings.join(' | ')}`);
+    // The CONDITION on control_if must be a boolean (operator_gt, not stc12_read)
+    const t1 = c.project.targets[1];
+    const ifBlock = Object.values(t1.blocks).find(b => b.opcode === 'control_if');
+    assert.ok(ifBlock, 'must have a control_if block');
+    const condRef = ifBlock.inputs.CONDITION[1];
+    const condBlock = t1.blocks[condRef];
+    assert.equal(condBlock.opcode, 'operator_gt',
+        `CONDITION must be operator_gt (boolean), got ${condBlock.opcode}`);
+});
+
 test('decompiled pseudocode is human-readable (spot check)', () => {
     const c = new SB3Creator();
     c.parse(`SPRITE Hero:

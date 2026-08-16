@@ -1698,11 +1698,15 @@ class SB3Creator {
         // Predicates
         let m;
         // A bare `read <pin>` used as a condition is the pin's level (active-low aware).
+        // Wrap in `> 0` so the CONDITION input gets a Boolean-shaped block —
+        // stc12_read is a reporter (rounded), not a boolean (hexagonal).
         if ((m = s.match(/^read\s+([A-Za-z_]\w*)$/i)) && this.stcPin(m[1])) {
-            return push('stc12_read', {}, { PIN: [this.stcPin(m[1]).name, null] });
+            const reader = push('stc12_read', {}, { PIN: [this.stcPin(m[1]).name, null] });
+            return push('operator_gt', { OPERAND1: [3, reader, [10, ""]], OPERAND2: [1, [4, "0"]] });
         }
         if ((m = s.match(/^read\s+([A-Za-z_]\w*)$/i)) && this.stcPort(m[1])) {
-            return push('stc12_readport', {}, { PORT: [this.stcPort(m[1]).name, null] });
+            const reader = push('stc12_readport', {}, { PORT: [this.stcPort(m[1]).name, null] });
+            return push('operator_gt', { OPERAND1: [3, reader, [10, ""]], OPERAND2: [1, [4, "0"]] });
         }
         // Device predicates (boolean reporters)
         // Device predicate: "<name> pressed?" — but NOT "key X pressed?" which is Scratch's own.
