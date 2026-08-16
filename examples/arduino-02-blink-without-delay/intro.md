@@ -5,19 +5,16 @@ prereqs: [arduino-01-blink]
 teaches: [millis-timing, non-blocking-code, led]
 ---
 ## What you see
-LED on D13 toggles using millis() instead of delay(), letting other code run concurrently.
+An LED on D13 blinks at 1 Hz using timer comparison instead of delay — the program never blocks, so other code can run between toggles.
 
 ## Try this
-1. Run the program and observe the behavior.
-2. Change a parameter and see how the output changes.
-3. Read the "What is going on" section to understand the principle.
+1. Run the program and confirm the LED blinks at the same rate as the basic blink.
+2. Change the interval from 1000 to 250 ms for a faster blink.
+3. Add a second LED on another pin with a different interval — both blink independently because neither blocks.
 
 ## What is going on
-This sketch demonstrates a fundamental Arduino programming pattern. See the source comments in the .bw file for the detailed explanation.
-
-## Why it matters
-Understanding this pattern is essential for real embedded projects where timing, input handling, and state management matter.
+Instead of `wait 1 second` (which freezes the program), this version checks whether enough time has passed since the last toggle. If yes, it toggles and records the new time. If not, it continues immediately — the loop runs thousands of times per second, but the LED only changes once per interval. This is the foundation of every real-time embedded program.
 
 ## Go further
-- Experiment with different pin numbers and timing values.
-- Combine this pattern with other examples for more complex projects.
+- [arduino-01-blink](../arduino-01-blink) — the blocking version for comparison.
+- [12-dual-blink](../12-dual-blink) — two LEDs at different rates using the cooperative scheduler.

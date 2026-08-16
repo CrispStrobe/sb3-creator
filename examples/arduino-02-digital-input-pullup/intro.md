@@ -5,19 +5,16 @@ prereqs: [arduino-02-button]
 teaches: [internal-pullup, digital-input, inverted-logic]
 ---
 ## What you see
-Uses the Arduino's internal pull-up resistor on D2 — no external resistor needed. The logic is inverted: pressed=LOW.
+A button on D2 drives an LED — but with no external pull-up resistor. The Arduino's internal pull-up keeps the pin HIGH when the button is open; pressing connects it to ground (LOW). The logic is inverted: pressed = LOW = LED on.
 
 ## Try this
-1. Run the program and observe the behavior.
-2. Change a parameter and see how the output changes.
-3. Read the "What is going on" section to understand the principle.
+1. Press the button and watch the LED respond (it lights when pressed, not released).
+2. Swap the IF logic to make the LED turn off on press instead.
+3. Compare with arduino-02-button — that version needs an external resistor; this one does not.
 
 ## What is going on
-This sketch demonstrates a fundamental Arduino programming pattern. See the source comments in the .bw file for the detailed explanation.
-
-## Why it matters
-Understanding this pattern is essential for real embedded projects where timing, input handling, and state management matter.
+Every Arduino digital pin has a built-in ~20 kOhm pull-up resistor that can be enabled in software. When enabled, the pin reads HIGH by default. The button connects the pin to ground when pressed, pulling it LOW. This saves a resistor but inverts the logic: pressed is 0, not 1. Understanding this is essential because most real-world buttons are wired active-low.
 
 ## Go further
-- Experiment with different pin numbers and timing values.
-- Combine this pattern with other examples for more complex projects.
+- [arduino-02-button](../arduino-02-button) — external pull-down, non-inverted logic.
+- [06-active-low-high](../06-active-low-high) — the active-low lesson with LEDs.

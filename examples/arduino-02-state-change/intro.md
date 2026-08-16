@@ -2,22 +2,19 @@
 level: intermediate
 age: 12+
 prereqs: [arduino-02-button]
-teaches: [edge-detection, state-change, counting]
+teaches: [edge-detection, state-change, counting, serial-print]
 ---
 ## What you see
-Counts button presses using edge detection — reacts to the CHANGE from unpressed to pressed, not the held state.
+The program counts how many times the button on D2 has been pressed and prints the count. It reacts to the transition from released to pressed (a rising edge), not to the held state.
 
 ## Try this
-1. Run the program and observe the behavior.
-2. Change a parameter and see how the output changes.
-3. Read the "What is going on" section to understand the principle.
+1. Press the button several times and watch the count increment in the serial monitor.
+2. Hold the button down — the count does not keep climbing (edge, not level).
+3. Every 4th press, the LED on D13 toggles — change 4 to 2 for faster toggling.
 
 ## What is going on
-This sketch demonstrates a fundamental Arduino programming pattern. See the source comments in the .bw file for the detailed explanation.
-
-## Why it matters
-Understanding this pattern is essential for real embedded projects where timing, input handling, and state management matter.
+The program remembers the previous button state. Each loop pass, it compares the current reading to the previous one. If the button went from LOW to HIGH (a rising edge), it increments the counter and prints. If the button is held HIGH or was already HIGH, nothing happens. This is edge detection — the same principle interrupts use in hardware.
 
 ## Go further
-- Experiment with different pin numbers and timing values.
-- Combine this pattern with other examples for more complex projects.
+- [arduino-02-debounce](../arduino-02-debounce) — add bounce filtering to the edge detection.
+- [26-debounce](../26-debounce) — debounced counting on the STC12.

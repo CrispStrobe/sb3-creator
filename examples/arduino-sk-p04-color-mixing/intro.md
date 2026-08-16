@@ -2,17 +2,19 @@
 level: intermediate
 age: 10+
 prereqs: [arduino-04-read-ascii-string]
-teaches: [rgb-led, color-mixing, analog-input]
+teaches: [rgb-led, color-mixing, analog-input, pwm]
 ---
 ## What you see
-Color Mixing Lamp: three analog sensors control the red, green, and blue channels of an RGB LED.
+Color Mixing Lamp: three analog sensors (A0-A2) each control one channel of an RGB LED (D3/D5/D6). Vary the sensors to mix any colour.
 
 ## Try this
-1. Run the program and interact with the input.
-2. Change the thresholds or mapping and observe the effect.
+1. Set one sensor high and the others low — pure red, green, or blue.
+2. Set all three equal for white (or close to it).
+3. Try red+blue for magenta, red+green for yellow, blue+green for cyan.
 
 ## What is going on
-This Arduino Starter Kit project teaches a fundamental interaction pattern.
+Each sensor reading (0-1023) is mapped to the PWM range (0-255) and applied to one LED channel. The three channels combine additively: red + green = yellow, red + blue = magenta, all three = white. The original Starter Kit project uses photoresistors with coloured gels; this version uses potentiometers for easier experimentation.
 
 ## Go further
-- Combine this with other projects for more complex interactions.
+- [pc20-rgb-mix](../pc20-rgb-mix) — RGB colour mixing with resistors (pure circuit, no PWM).
+- [arduino-03-fading](../arduino-03-fading) — single-channel PWM fading.
