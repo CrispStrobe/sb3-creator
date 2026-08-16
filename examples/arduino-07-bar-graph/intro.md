@@ -1,18 +1,20 @@
 ---
 level: intermediate
-age: 10+
-prereqs: [arduino-05-for-loop]
-teaches: [bar-graph, led-display, analog-mapping]
+age: 12+
+prereqs: [arduino-03-analog-input]
+teaches: [bar-graph, led-array, analog-mapping, threshold-levels]
 ---
 ## What you see
-10 LEDs form a bar graph driven by a potentiometer — more rotation lights more LEDs.
+A row of LEDs acts as a bar graph: an analog sensor reading on A0 maps to how many LEDs are lit. Higher reading = more LEDs. Like a VU meter or battery level indicator.
 
 ## Try this
-1. Run the program and observe the behavior.
-2. Change the threshold or parameters and see the effect.
+1. Change the analog stimulus from low to high and watch the bar fill up.
+2. Change the number of LEDs in the bar for finer or coarser resolution.
+3. Add hysteresis so the bar doesn't flicker at boundary values.
 
 ## What is going on
-This sketch demonstrates a sensor or display pattern. See the .bw file for details.
+The analog reading (0-1023) is divided into as many levels as there are LEDs. Each LED has a threshold: if the reading exceeds its threshold, the LED is on; otherwise off. The result is a proportional display — a row of LEDs encoding a number visually.
 
 ## Go further
-- Experiment with different sensor types and display configurations.
+- [16-ldr-bargraph](../16-ldr-bargraph) — bar graph driven by a light sensor on the STC12 platform.
+- [arduino-03-analog-in-out-serial](../arduino-03-analog-in-out-serial) — map analog input to a single PWM LED.

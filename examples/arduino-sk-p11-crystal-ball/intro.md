@@ -1,18 +1,20 @@
 ---
 level: beginner
 age: 8+
-prereqs: [arduino-02-button]
-teaches: [random, tilt-sensor, serial-output]
+prereqs: []
+teaches: [random, tilt-sensor, conditional, serial-print]
 ---
 ## What you see
-Tilt the board to ask the crystal ball a question — it prints a random answer.
+Tilt the sensor on D6 and the crystal ball answers with a random fortune — one of eight responses printed to the serial monitor. Like a Magic 8-Ball.
 
 ## Try this
-1. Run the program and interact with the inputs.
-2. Change the parameters and observe the effect.
+1. Tilt the sensor and read the fortune on the serial monitor.
+2. Tilt again for a different answer (it picks randomly each time).
+3. Add more responses by extending the IF chain past 8.
 
 ## What is going on
-This Arduino Starter Kit project demonstrates a practical interaction pattern.
+When the tilt sensor activates, the program picks a random number from 1 to 8 and prints the matching response. The randomness comes from pick-random, which on real hardware uses the ADC noise seed. Each tilt gives an independent roll.
 
 ## Go further
-- Combine with other projects for more complex builds.
+- [27-led-dice](../27-led-dice) — random LED pattern on a button press.
+- [arduino-05-switch-case](../arduino-05-switch-case) — the same IF-chain pattern with sensor ranges.

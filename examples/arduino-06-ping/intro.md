@@ -1,18 +1,20 @@
 ---
 level: intermediate
 age: 12+
-prereqs: [arduino-01-digital-read-serial]
-teaches: [ultrasonic, distance, pulse-timing]
+prereqs: [arduino-01-analog-read-serial]
+teaches: [ultrasonic-sensor, distance, echo-timing, serial-print]
 ---
 ## What you see
-An ultrasonic sensor measures distance by timing a pulse — closer objects mean shorter echo times.
+An ultrasonic sensor measures distance to the nearest object. The serial monitor prints the distance in centimetres, updating continuously.
 
 ## Try this
-1. Run the program and observe the behavior.
-2. Change the threshold or parameters and see the effect.
+1. Change the distance stimulus and watch the printed value track it.
+2. Set the distance to 0 (object touching the sensor) — the reading should be near zero.
+3. Set it beyond 400 cm (the sensor's rated maximum) — the reading clips or becomes unreliable.
 
 ## What is going on
-This sketch demonstrates a sensor or display pattern. See the .bw file for details.
+The ultrasonic sensor sends a sound pulse and measures how long the echo takes to return. The round-trip time divided by the speed of sound (at ~58 microseconds per centimetre) gives the distance. The simulation models this directly via the distance parameter rather than timing the echo pulse.
 
 ## Go further
-- Experiment with different sensor types and display configurations.
+- [arduino-06-knock](../arduino-06-knock) — analog threshold detection (a different kind of sensor).
+- [arduino-sk-p12-knock-lock](../arduino-sk-p12-knock-lock) — combine sensor detection with a lock mechanism.
