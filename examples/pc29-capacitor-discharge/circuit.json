@@ -23,15 +23,15 @@
    "id": "charge",
    "kind": "switch",
    "params": {},
+   "x": 232,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "a": "a15",
      "b": "a18"
     }
-   },
-   "x": 232,
-   "y": 255
+   }
   },
   {
    "id": "rcharge",
@@ -39,15 +39,15 @@
    "params": {
     "ohms": 1000
    },
+   "x": 64,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "a": "a3",
      "b": "a7"
     }
-   },
-   "x": 64,
-   "y": 255
+   }
   },
   {
    "id": "cap",
@@ -55,29 +55,29 @@
    "params": {
     "farads": 0.001
    },
+   "x": 372,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "a": "a25",
      "b": "a26"
     }
-   },
-   "x": 372,
-   "y": 255
+   }
   },
   {
    "id": "discharge",
    "kind": "switch",
    "params": {},
+   "x": 302,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "a": "a20",
      "b": "a23"
     }
-   },
-   "x": 302,
-   "y": 255
+   }
   },
   {
    "id": "rload",
@@ -85,15 +85,15 @@
    "params": {
     "ohms": 1000
    },
+   "x": 148,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "a": "a9",
      "b": "a13"
     }
-   },
-   "x": 148,
-   "y": 255
+   }
   },
   {
    "id": "led",
@@ -102,15 +102,15 @@
     "vf": 2,
     "color": "orange"
    },
+   "x": 414,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "anode": "a28",
      "cathode": "a29"
     }
-   },
-   "x": 414,
-   "y": 255
+   }
   },
   {
    "id": "gnd",

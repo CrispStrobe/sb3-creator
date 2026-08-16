@@ -115,6 +115,7 @@
     "board": "bb1",
     "hole": "t+2"
    },
+   "color": "red",
    "genPower": true
   },
   {
@@ -124,6 +125,7 @@
     "board": "bb1",
     "hole": "b-2"
    },
+   "color": "black",
    "genPower": true
   }
  ],

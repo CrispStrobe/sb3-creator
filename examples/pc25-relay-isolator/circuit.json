@@ -37,15 +37,15 @@
    "id": "sw1",
    "kind": "switch",
    "params": {},
+   "x": 246,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "a": "a16",
      "b": "a19"
     }
-   },
-   "x": 246,
-   "y": 255
+   }
   },
   {
    "id": "relay1",
@@ -54,6 +54,8 @@
     "coilR": 200,
     "switchTimeMs": 5
    },
+   "x": 64,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
@@ -63,9 +65,7 @@
      "com": "a7",
      "nc": "a8"
     }
-   },
-   "x": 64,
-   "y": 255
+   }
   },
   {
    "id": "rl",
@@ -73,15 +73,15 @@
    "params": {
     "ohms": 1000
    },
+   "x": 162,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "a": "a10",
      "b": "a14"
     }
-   },
-   "x": 162,
-   "y": 255
+   }
   },
   {
    "id": "led1",
@@ -90,15 +90,15 @@
     "vf": 2,
     "color": "blue"
    },
+   "x": 316,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "anode": "a21",
      "cathode": "a22"
     }
-   },
-   "x": 316,
-   "y": 255
+   }
   }
  ],
  "wires": [

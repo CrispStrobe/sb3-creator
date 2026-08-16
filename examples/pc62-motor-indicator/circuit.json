@@ -23,15 +23,15 @@
    "id": "sw",
    "kind": "switch",
    "params": {},
+   "x": 148,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "a": "a9",
      "b": "a12"
     }
-   },
-   "x": 148,
-   "y": 255
+   }
   },
   {
    "id": "motor",
@@ -40,15 +40,15 @@
     "windingR": 10,
     "kV": 0.01
    },
+   "x": 218,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "a": "a14",
      "b": "a16"
     }
-   },
-   "x": 218,
-   "y": 255
+   }
   },
   {
    "id": "r",
@@ -56,15 +56,15 @@
    "params": {
     "ohms": 1000
    },
+   "x": 64,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "a": "a3",
      "b": "a7"
     }
-   },
-   "x": 64,
-   "y": 255
+   }
   },
   {
    "id": "led",
@@ -73,15 +73,15 @@
     "vf": 2,
     "color": "orange"
    },
+   "x": 274,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "anode": "a18",
      "cathode": "a19"
     }
-   },
-   "x": 274,
-   "y": 255
+   }
   },
   {
    "id": "gnd",

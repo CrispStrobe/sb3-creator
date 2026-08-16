@@ -25,6 +25,8 @@
    "params": {
     "ohms": 10000
    },
+   "x": 64,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
@@ -32,9 +34,7 @@
      "wiper": "a5",
      "b": "a7"
     }
-   },
-   "x": 64,
-   "y": 255
+   }
   },
   {
    "id": "rref1",
@@ -42,15 +42,15 @@
    "params": {
     "ohms": 10000
    },
+   "x": 148,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "a": "a9",
      "b": "a13"
     }
-   },
-   "x": 148,
-   "y": 255
+   }
   },
   {
    "id": "rref2",
@@ -58,15 +58,15 @@
    "params": {
     "ohms": 10000
    },
+   "x": 232,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "a": "a15",
      "b": "a19"
     }
-   },
-   "x": 232,
-   "y": 255
+   }
   },
   {
    "id": "amp",
@@ -76,6 +76,8 @@
     "voutHigh": 5,
     "voutLow": 0
    },
+   "x": 400,
+   "y": 311,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
@@ -83,9 +85,7 @@
      "inp": "e28",
      "out": "f27"
     }
-   },
-   "x": 400,
-   "y": 311
+   }
   },
   {
    "id": "rl",
@@ -93,15 +93,15 @@
    "params": {
     "ohms": 1000
    },
+   "x": 316,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "a": "a21",
      "b": "a25"
     }
-   },
-   "x": 316,
-   "y": 255
+   }
   },
   {
    "id": "led",
@@ -110,15 +110,15 @@
     "vf": 2,
     "color": "green"
    },
+   "x": 470,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "anode": "a32",
      "cathode": "a33"
     }
-   },
-   "x": 470,
-   "y": 255
+   }
   },
   {
    "id": "gnd",

@@ -23,15 +23,15 @@
    "id": "coil",
    "kind": "switch",
    "params": {},
+   "x": 330,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "a": "a22",
      "b": "a25"
     }
-   },
-   "x": 330,
-   "y": 255
+   }
   },
   {
    "id": "relay",
@@ -40,6 +40,8 @@
     "coilR": 200,
     "switchTimeMs": 5
    },
+   "x": 64,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
@@ -49,9 +51,7 @@
      "com": "a7",
      "nc": "a8"
     }
-   },
-   "x": 64,
-   "y": 255
+   }
   },
   {
    "id": "rnc",
@@ -59,15 +59,15 @@
    "params": {
     "ohms": 1000
    },
+   "x": 162,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "a": "a10",
      "b": "a14"
     }
-   },
-   "x": 162,
-   "y": 255
+   }
   },
   {
    "id": "rno",
@@ -75,15 +75,15 @@
    "params": {
     "ohms": 1000
    },
+   "x": 246,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "a": "a16",
      "b": "a20"
     }
-   },
-   "x": 246,
-   "y": 255
+   }
   },
   {
    "id": "lednc",
@@ -92,15 +92,15 @@
     "vf": 2,
     "color": "yellow"
    },
+   "x": 400,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "anode": "a27",
      "cathode": "a28"
     }
-   },
-   "x": 400,
-   "y": 255
+   }
   },
   {
    "id": "ledno",
@@ -109,15 +109,15 @@
     "vf": 2,
     "color": "green"
    },
+   "x": 442,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "anode": "a30",
      "cathode": "a31"
     }
-   },
-   "x": 442,
-   "y": 255
+   }
   },
   {
    "id": "gnd",

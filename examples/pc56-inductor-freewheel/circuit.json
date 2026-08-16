@@ -23,15 +23,15 @@
    "id": "sw",
    "kind": "switch",
    "params": {},
+   "x": 148,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "a": "a9",
      "b": "a12"
     }
-   },
-   "x": 148,
-   "y": 255
+   }
   },
   {
    "id": "r",
@@ -39,15 +39,15 @@
    "params": {
     "ohms": 100
    },
+   "x": 64,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "a": "a3",
      "b": "a7"
     }
-   },
-   "x": 64,
-   "y": 255
+   }
   },
   {
    "id": "l",
@@ -55,15 +55,15 @@
    "params": {
     "henrys": 0.01
    },
+   "x": 218,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "a": "a14",
      "b": "a17"
     }
-   },
-   "x": 218,
-   "y": 255
+   }
   },
   {
    "id": "d",
@@ -71,15 +71,15 @@
    "params": {
     "vf": 0.7
    },
+   "x": 288,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "anode": "a19",
      "cathode": "a21"
     }
-   },
-   "x": 288,
-   "y": 255
+   }
   },
   {
    "id": "gnd",

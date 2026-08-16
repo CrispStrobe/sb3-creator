@@ -23,15 +23,15 @@
    "id": "button",
    "kind": "button",
    "params": {},
+   "x": 204,
+   "y": 311,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "a": "e13",
      "b": "f13"
     }
-   },
-   "x": 204,
-   "y": 311
+   }
   },
   {
    "id": "r",
@@ -39,29 +39,29 @@
    "params": {
     "ohms": 100
    },
+   "x": 64,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "a": "a3",
      "b": "a7"
     }
-   },
-   "x": 64,
-   "y": 255
+   }
   },
   {
    "id": "buzzer",
    "kind": "buzzer",
    "params": {},
+   "x": 148,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "a": "a9",
      "b": "a11"
     }
-   },
-   "x": 148,
-   "y": 255
+   }
   },
   {
    "id": "gnd",

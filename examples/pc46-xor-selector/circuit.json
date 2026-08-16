@@ -28,29 +28,29 @@
    "id": "a",
    "kind": "switch",
    "params": {},
+   "x": 316,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "a": "a21",
      "b": "a24"
     }
-   },
-   "x": 316,
-   "y": 255
+   }
   },
   {
    "id": "b",
    "kind": "switch",
    "params": {},
+   "x": 386,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "a": "a26",
      "b": "a29"
     }
-   },
-   "x": 386,
-   "y": 255
+   }
   },
   {
    "id": "pa",
@@ -58,15 +58,15 @@
    "params": {
     "ohms": 100000
    },
+   "x": 64,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "a": "a3",
      "b": "a7"
     }
-   },
-   "x": 64,
-   "y": 255
+   }
   },
   {
    "id": "pb",
@@ -74,15 +74,15 @@
    "params": {
     "ohms": 100000
    },
+   "x": 148,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "a": "a9",
      "b": "a13"
     }
-   },
-   "x": 148,
-   "y": 255
+   }
   },
   {
    "id": "gate",
@@ -90,6 +90,8 @@
    "params": {
     "inputs": 2
    },
+   "x": 456,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
@@ -97,9 +99,7 @@
      "in1": "a32",
      "out": "a34"
     }
-   },
-   "x": 456,
-   "y": 255
+   }
   },
   {
    "id": "r",
@@ -107,15 +107,15 @@
    "params": {
     "ohms": 1000
    },
+   "x": 232,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "a": "a15",
      "b": "a19"
     }
-   },
-   "x": 232,
-   "y": 255
+   }
   },
   {
    "id": "led",
@@ -124,15 +124,15 @@
     "vf": 2,
     "color": "blue"
    },
+   "x": 526,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "anode": "a36",
      "cathode": "a37"
     }
-   },
-   "x": 526,
-   "y": 255
+   }
   }
  ],
  "wires": [

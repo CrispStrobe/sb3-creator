@@ -48,15 +48,15 @@
    "id": "button",
    "kind": "button",
    "params": {},
+   "x": 498,
+   "y": 311,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "a": "e34",
      "b": "f34"
     }
-   },
-   "x": 498,
-   "y": 311
+   }
   },
   {
    "id": "pull",
@@ -64,15 +64,15 @@
    "params": {
     "ohms": 10000
    },
+   "x": 64,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "a": "a3",
      "b": "a7"
     }
-   },
-   "x": 64,
-   "y": 255
+   }
   },
   {
    "id": "rt",
@@ -80,15 +80,15 @@
    "params": {
     "ohms": 100000
    },
+   "x": 148,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "a": "a9",
      "b": "a13"
     }
-   },
-   "x": 148,
-   "y": 255
+   }
   },
   {
    "id": "ct",
@@ -96,15 +96,15 @@
    "params": {
     "farads": 0.00001
    },
+   "x": 414,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "a": "a28",
      "b": "a29"
     }
-   },
-   "x": 414,
-   "y": 255
+   }
   },
   {
    "id": "rl",
@@ -112,15 +112,15 @@
    "params": {
     "ohms": 1000
    },
+   "x": 232,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "a": "a15",
      "b": "a19"
     }
-   },
-   "x": 232,
-   "y": 255
+   }
   },
   {
    "id": "led",
@@ -129,15 +129,15 @@
     "vf": 2,
     "color": "red"
    },
+   "x": 456,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "anode": "a31",
      "cathode": "a32"
     }
-   },
-   "x": 456,
-   "y": 255
+   }
   }
  ],
  "wires": [
@@ -232,6 +232,7 @@
     "board": "bb1",
     "hole": "t+2"
    },
+   "color": "red",
    "genPower": true
   },
   {
@@ -241,6 +242,7 @@
     "board": "bb1",
     "hole": "b-2"
    },
+   "color": "black",
    "genPower": true
   }
  ],

@@ -35,15 +35,15 @@
     "b"
    ],
    "rotation": 0,
+   "x": 64,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "a": "a3",
      "b": "a7"
     }
-   },
-   "x": 64,
-   "y": 255
+   }
   },
   {
    "id": "diode_3",
@@ -56,15 +56,15 @@
     "cathode"
    ],
    "rotation": 0,
+   "x": 148,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "anode": "a9",
      "cathode": "a11"
     }
-   },
-   "x": 148,
-   "y": 255
+   }
   },
   {
    "id": "led_4",
@@ -78,15 +78,15 @@
     "cathode"
    ],
    "rotation": 0,
+   "x": 204,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "anode": "a13",
      "cathode": "a14"
     }
-   },
-   "x": 204,
-   "y": 255
+   }
   }
  ],
  "wires": [

@@ -35,15 +35,15 @@
     "b"
    ],
    "rotation": 0,
+   "x": 64,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "a": "a3",
      "b": "a7"
     }
-   },
-   "x": 64,
-   "y": 255
+   }
   },
   {
    "id": "led_3",
@@ -57,15 +57,15 @@
     "cathode"
    ],
    "rotation": 0,
+   "x": 316,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "anode": "a21",
      "cathode": "a22"
     }
-   },
-   "x": 316,
-   "y": 255
+   }
   },
   {
    "id": "resistor_10",
@@ -78,15 +78,15 @@
     "b"
    ],
    "rotation": 0,
+   "x": 148,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "a": "a9",
      "b": "a13"
     }
-   },
-   "x": 148,
-   "y": 255
+   }
   },
   {
    "id": "led_11",
@@ -100,15 +100,15 @@
     "cathode"
    ],
    "rotation": 0,
+   "x": 358,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "anode": "a24",
      "cathode": "a25"
     }
-   },
-   "x": 358,
-   "y": 255
+   }
   },
   {
    "id": "resistor_16",
@@ -121,15 +121,15 @@
     "b"
    ],
    "rotation": 0,
+   "x": 232,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "a": "a15",
      "b": "a19"
     }
-   },
-   "x": 232,
-   "y": 255
+   }
   },
   {
    "id": "led_17",
@@ -143,15 +143,15 @@
     "cathode"
    ],
    "rotation": 0,
+   "x": 400,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "anode": "a27",
      "cathode": "a28"
     }
-   },
-   "x": 400,
-   "y": 255
+   }
   }
  ],
  "wires": [

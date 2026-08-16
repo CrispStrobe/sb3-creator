@@ -36,15 +36,15 @@
     "b"
    ],
    "rotation": 0,
+   "x": 64,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "a": "a3",
      "b": "a7"
     }
-   },
-   "x": 64,
-   "y": 255
+   }
   },
   {
    "id": "led_3",
@@ -58,15 +58,15 @@
     "cathode"
    ],
    "rotation": 0,
+   "x": 148,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "anode": "a9",
      "cathode": "a10"
     }
-   },
-   "x": 148,
-   "y": 255
+   }
   }
  ],
  "wires": [

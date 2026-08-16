@@ -50,15 +50,15 @@
    "params": {
     "ohms": 10000
    },
+   "x": 64,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "a": "a3",
      "b": "a7"
     }
-   },
-   "x": 64,
-   "y": 255
+   }
   },
   {
    "id": "rb",
@@ -66,15 +66,15 @@
    "params": {
     "ohms": 10000
    },
+   "x": 148,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "a": "a9",
      "b": "a13"
     }
-   },
-   "x": 148,
-   "y": 255
+   }
   },
   {
    "id": "cap",
@@ -82,15 +82,15 @@
    "params": {
     "farads": 0.00001
    },
+   "x": 470,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "a": "a32",
      "b": "a33"
     }
-   },
-   "x": 470,
-   "y": 255
+   }
   },
   {
    "id": "r",
@@ -98,29 +98,29 @@
    "params": {
     "ohms": 100
    },
+   "x": 232,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "a": "a15",
      "b": "a19"
     }
-   },
-   "x": 232,
-   "y": 255
+   }
   },
   {
    "id": "buzzer",
    "kind": "buzzer",
    "params": {},
+   "x": 414,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "a": "a28",
      "b": "a30"
     }
-   },
-   "x": 414,
-   "y": 255
+   }
   }
  ],
  "wires": [
@@ -209,6 +209,7 @@
     "board": "bb1",
     "hole": "t+2"
    },
+   "color": "red",
    "genPower": true
   },
   {
@@ -218,6 +219,7 @@
     "board": "bb1",
     "hole": "b-2"
    },
+   "color": "black",
    "genPower": true
   }
  ],
