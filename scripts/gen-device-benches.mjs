@@ -29,6 +29,11 @@
 import SB3Creator from '../src/utils/sb3Creator.js';
 import { readFileSync, writeFileSync } from 'node:fs';
 
+// Validation contract (finding B): the emitted circuit.json keeps DEVICE
+// part kinds for rendering; engine validation must go through the cui
+// Circuit model (fromJSON + _syncNetlist applies engineKindFor collapse),
+// exactly like every shipped example. The catalog build wires that in;
+// this CLI validates raw only for registered-device kinds.
 const [id, device] = process.argv.slice(2);
 if (!id || !device) { console.error('usage: gen-device-benches.mjs <exampleId> <device>'); process.exit(1); }
 const src = readFileSync(`examples/${id}/program.bw`, 'utf8');

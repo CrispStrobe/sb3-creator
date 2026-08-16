@@ -1,0 +1,103 @@
+{
+ "vcc": 5,
+ "parts": [
+  {
+   "id": "VCC",
+   "kind": "vcc",
+   "params": {},
+   "terminals": [
+    "vcc"
+   ]
+  },
+  {
+   "id": "GND",
+   "kind": "gnd",
+   "params": {},
+   "terminals": [
+    "gnd"
+   ]
+  },
+  {
+   "id": "MCU",
+   "kind": "stc15_mcu",
+   "params": {},
+   "terminals": [
+    "p1.0"
+   ]
+  },
+  {
+   "id": "R_led1",
+   "kind": "resistor",
+   "params": {
+    "ohms": 1000
+   },
+   "terminals": [
+    "a",
+    "b"
+   ]
+  },
+  {
+   "id": "LED_led1",
+   "kind": "led",
+   "params": {
+    "vf": 2,
+    "color": "red"
+   },
+   "terminals": [
+    "anode",
+    "cathode"
+   ]
+  }
+ ],
+ "nets": [
+  {
+   "id": "net_led1_r_led",
+   "terminals": [
+    {
+     "part": "R_led1",
+     "terminal": "b"
+    },
+    {
+     "part": "LED_led1",
+     "terminal": "anode"
+    }
+   ]
+  },
+  {
+   "id": "net_led1_pin",
+   "terminals": [
+    {
+     "part": "LED_led1",
+     "terminal": "cathode"
+    },
+    {
+     "part": "MCU",
+     "terminal": "p1.0"
+    }
+   ]
+  },
+  {
+   "id": "net_vcc",
+   "terminals": [
+    {
+     "part": "VCC",
+     "terminal": "vcc"
+    },
+    {
+     "part": "R_led1",
+     "terminal": "a"
+    }
+   ]
+  },
+  {
+   "id": "net_gnd",
+   "terminals": [
+    {
+     "part": "GND",
+     "terminal": "gnd"
+    }
+   ]
+  }
+ ],
+ "generated": "benchFor 2026-08-16"
+}
