@@ -17,6 +17,8 @@ The 555 timer charges capacitor C1 through R1 and the pot, then discharges it th
 
 The LED on the output shows every clock edge. In the full TTL computer, this output drives the clock input of every register and counter — one pulse, one operation. The manual button bypasses the 555 to inject a single pulse, which is how Ben Eater single-steps through instructions to debug wiring.
 
+**Why a real 555?** Other logic simulators (e.g. ngdrascal/8bitsim, MIT) had to fake the 555 with a digital clock source because their engines cannot solve the RC timing circuit. Our engine simulates the real 555 — the capacitor charges through the resistors, the internal comparators trip at 1/3 and 2/3 VCC, and the discharge transistor resets the cycle. The pot genuinely changes the frequency because it changes the RC time constant.
+
 ## Why it matters
 Every digital computer needs a clock. Understanding how an RC circuit sets the frequency — and being able to slow it down to one step at a time — is the first skill in building a CPU from gates. This module is episode 1 of the 8-bit TTL computer series.
 

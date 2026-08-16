@@ -18,6 +18,8 @@ Der 555-Timer lädt Kondensator C1 über R1 und das Poti, dann entlädt er ihn n
 ## Warum das wichtig ist
 Jeder digitale Computer braucht einen Takt. Zu verstehen, wie eine RC-Schaltung die Frequenz bestimmt — und den Takt auf Einzelschritte verlangsamen zu können — ist die erste Fähigkeit beim Bau einer CPU aus Gattern.
 
+**Warum ein echter 555?** Andere Logiksimulatoren (z.B. ngdrascal/8bitsim, MIT) mussten den 555 durch eine digitale Taktquelle ersetzen, weil ihre Engines die RC-Zeitkonstante nicht lösen können. Unsere Engine simuliert den echten 555 — der Kondensator lädt sich über die Widerstände, die internen Komparatoren schalten bei 1/3 und 2/3 VCC.
+
 ## Weiter geht's
 - Probiere verschiedene Kondensatorwerte (10 µF = sehr langsam, 100 nF = sehr schnell).
 - [eater6502-bench](../eater6502-bench) — ein vollständiger 6502-Computer mit einem solchen Takt.
