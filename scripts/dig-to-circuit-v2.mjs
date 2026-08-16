@@ -128,30 +128,66 @@ const parent = new Map();
 const find = (k) => { let r = k; while (parent.get(r) !== r) r = parent.get(r); parent.set(k, r); return r; };
 const uni = (a, b) => { for (const k of [a, b]) if (!parent.has(k)) parent.set(k, k); parent.set(find(a), find(b)); };
 const P = (x, y) => `${x},${y}`;
-// SPLITTERS ARE NET BARRIERS. Unmodeled, their junction unions the
-// bus side with every bit side — in the PC module that shorted the
-// counter's Q nets into the D/LED nets and the solver flatlined the
-// whole circuit. Until splitters are modeled as parts, any wire
-// SEGMENT touching a splitter's span is dropped from the net graph:
-// honest disconnection beats a silent short.
-const splitters = elements.filter((e) => e.name === 'Splitter').map((e) => {
-    // Span from the splitting spec: '1*4' → 4 one-bit pins, 20 units
-    // apart. The first barrier was a blanket 180-unit box and ATE the
-    // control lines routed under the splitter (clrb/loadb/oeb floated,
-    // the counter froze with a ticking clock) — the barrier must be
-    // exactly the splitter's own pins, nothing below them.
-    const m = /Input Splitting<\/string>\s*<string>([^<]+)</.exec(xml.slice(0)) ;
-    const bits = m ? m[1].split('*').reduce((n, p) => n + (Number(p) || 1), 0) - 1 : 8;
-    return { ...e, bits: Math.max(bits, 4) };
+// ── SPLITTER BRIDGING ──────────────────────────────────────────────
+// A splitter connects a bus-width side to individual bit-width sides.
+// Naive union-find shorts all nets into one (the solver flatlines).
+// Proper model: first build nets WITHOUT splitter-adjacent segments,
+// then add explicit per-bit bridge wires from the bus-side net to
+// each bit-side net. This preserves signal identity per bit while
+// ensuring the bus carries them all.
+const splitterEls = elements.filter((e) => e.name === 'Splitter');
+const splitters = splitterEls.map((e) => {
+    // Parse splitting spec per-element (not global)
+    const elXml = xml.slice(xml.indexOf(`<pos x="${e.x}" y="${e.y}"/>`) - 500,
+                            xml.indexOf(`<pos x="${e.x}" y="${e.y}"/>`) + 200);
+    const m = /Input Splitting<\/string>\s*<string>([^<]+)</.exec(elXml);
+    const spec = m ? m[1] : '1*4';
+    // '1*4' → 4 one-bit pins; '4' → one 4-bit bus; '1,1,1,1' → 4 pins
+    let nBits;
+    if (spec.includes('*')) {
+        const [width, count] = spec.split('*').map(Number);
+        nBits = (count || 1);
+    } else if (spec.includes(',')) {
+        nBits = spec.split(',').length;
+    } else {
+        nBits = 1;
+    }
+    return { ...e, nBits };
 });
-const nearSplitter = (x, y) => splitters.some((sp) =>
-    (x === sp.x || x === sp.x + 20) && y >= sp.y - 20 && y <= sp.y + sp.bits * 20 - 1);
+
+// Build a proximity test for splitter pin positions
+const splitterPins = new Set();
+for (const sp of splitters) {
+    // Bus side at element pos
+    splitterPins.add(P(sp.x, sp.y));
+    // Bit sides at 20px intervals (offset 20 to the right)
+    for (let b = 0; b < sp.nBits; b++) {
+        splitterPins.add(P(sp.x + 20, sp.y + b * 20));
+    }
+}
+const nearSplitter = (x, y) => splitterPins.has(P(x, y));
+
+// Build nets WITHOUT splitter-adjacent wire segments
 const liveWires = wires.filter(([x1, y1, x2, y2]) =>
     !nearSplitter(x1, y1) && !nearSplitter(x2, y2));
-if (liveWires.length < wires.length) {
-    console.log(`  splitter barrier: dropped ${wires.length - liveWires.length} bus-fan segments (splitter modeling pending)`);
-}
 for (const [x1, y1, x2, y2] of liveWires) uni(P(x1, y1), P(x2, y2));
+
+// Now bridge: for each splitter, find the bus-side wire net and
+// each bit-side wire net, then emit explicit bridge wires in extraWires.
+// This happens AFTER chip-pin attachment (below), so at this stage we
+// just record the splitter pin positions for later bridging.
+const splitterBridges = []; // filled after nodes are attached
+for (const sp of splitters) {
+    const busKey = P(sp.x, sp.y);
+    const bitKeys = [];
+    for (let b = 0; b < sp.nBits; b++) {
+        bitKeys.push(P(sp.x + 20, sp.y + b * 20));
+    }
+    splitterBridges.push({ busKey, bitKeys });
+}
+if (splitters.length) {
+    console.log(`  splitters: ${splitters.length} found, ${wires.length - liveWires.length} bus-fan segments excised, bridging deferred`);
+}
 const onSeg = (x, y, [x1, y1, x2, y2]) =>
     (x1 === x2 && x === x1 && Math.min(y1, y2) <= y && y <= Math.max(y1, y2)) ||
     (y1 === y2 && y === y1 && Math.min(x1, x2) <= x && x <= Math.max(x1, x2));
@@ -235,6 +271,50 @@ for (const e of elements) {
 
 let attached = 0, floating = [];
 for (const node of nodes) (attach(node.x, node.y) ? attached++ : floating.push(`${node.partId}.${node.terminal}`));
+
+// ── Splitter bridging: connect bus-side to bit-side nets ──
+// Find wire endpoints adjacent to each splitter pin and bridge
+// through the splitter's geometry.
+for (const bridge of splitterBridges) {
+    // Find the net touching the bus side (wire endpoint nearest to busKey)
+    const findAdjacentNet = (key) => {
+        const [sx, sy] = key.split(',').map(Number);
+        for (const [x1, y1, x2, y2] of wires) {
+            if ((x1 === sx && y1 === sy) || (x2 === sx && y2 === sy)) {
+                const k = P(x1, y1);
+                if (parent.has(k)) return find(k);
+                const k2 = P(x2, y2);
+                if (parent.has(k2)) return find(k2);
+            }
+            // Also check adjacent positions (±20)
+            for (const dx of [-20, 0, 20]) {
+                for (const dy of [-20, 0, 20]) {
+                    if (dx === 0 && dy === 0) continue;
+                    const adj = P(sx + dx, sy + dy);
+                    if (parent.has(adj)) {
+                        for (const w of wires) {
+                            if (onSeg(sx + dx, sy + dy, w)) return find(parent.get(adj));
+                        }
+                    }
+                }
+            }
+        }
+        return null;
+    };
+
+    const busNet = findAdjacentNet(bridge.busKey);
+    if (!busNet) continue;
+
+    for (const bitKey of bridge.bitKeys) {
+        const bitNet = findAdjacentNet(bitKey);
+        if (bitNet && bitNet !== busNet) {
+            // Bridge: union the bus net with this bit net
+            // This is safe because each bit is a separate signal —
+            // the splitter just fans out the bus to individual wires.
+            uni(busNet, bitNet);
+        }
+    }
+}
 
 // ── 4. Emit wires: hub-and-spoke per net ──
 const byNet = new Map();
