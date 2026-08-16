@@ -1125,3 +1125,9 @@ Program parses clean (0 warnings).
 ## blinkenrocket-pendant — VERDICT: app-level (attiny88 kind)
 **layers: none.** Uses `attiny88` MCU not in engine registry. 8x8 LED matrix.
 58 parse warnings (porting in progress).
+
+## 49-lcd-hello — VERDICT: pass
+**layers: engine.** I2C LCD (char_lcd_i2c) with MCU, pull-up resistors on
+SDA/SCL. Program parses clean (0 warnings, device stc12c5a60s2). Circuit has
+7 parts, 10 wires. I2C device needs MCU interaction for display — structural
+solve only.
