@@ -6,7 +6,7 @@
  * translate the .dig file; skips gracefully when unavailable.
  *
  * The test translates PC.dig → circuit.json, then verifies the output
- * has the expected structure (74hc161 counter, LEDs, clock, wires).
+ * has the expected structure (74ls161 counter, LEDs, clock, wires).
  * Engine-level run verification is the coordinator's audit-solve.
  */
 import { test } from 'node:test';
@@ -43,9 +43,9 @@ test('PC module: translated circuit has counter + LEDs + clock', {
     assert.ok(circuit.parts.length >= 5, `expected ≥5 parts, got ${circuit.parts.length}`);
     assert.ok(circuit.wires.length >= 10, `expected ≥10 wires, got ${circuit.wires.length}`);
 
-    // Must have a 74hc161 counter
-    const counter = circuit.parts.find(p => p.kind === '74hc161');
-    assert.ok(counter, '74hc161 counter present');
+    // Must have a 74ls161 counter (CHIPS map: 74161.dig → 74ls161)
+    const counter = circuit.parts.find(p => p.kind === '74ls161');
+    assert.ok(counter, '74ls161 counter present');
 
     // Must have LEDs
     const leds = circuit.parts.filter(p => p.kind === 'led');
@@ -59,6 +59,21 @@ test('PC module: translated circuit has counter + LEDs + clock', {
     const clockWires = circuit.wires.filter(w =>
         w.from === clock.id || w.to === clock.id);
     assert.ok(clockWires.length >= 5, `clock needs astable wiring, got ${clockWires.length} wires`);
+
+    // 74hc245 bus transceiver: B-side pins (b0–b7) are expected-floating
+    // in the PC module in isolation — they connect to the shared bus at
+    // Main.dig level, not inside the sub-module. This is NOT a wiring bug.
+    const xcvr = circuit.parts.find(p => p.kind === '74hc245');
+    if (xcvr) {
+        const xcvrWires = circuit.wires.filter(w =>
+            w.from === xcvr.id || w.to === xcvr.id);
+        // A-side (counter outputs) should be connected; B-side may float
+        const aSide = xcvrWires.filter(w =>
+            (w.from === xcvr.id && /^a\d/.test(w.fromTerminal)) ||
+            (w.to === xcvr.id && /^a\d/.test(w.toTerminal)));
+        assert.ok(aSide.length >= 4, `74hc245 A-side connected (${aSide.length} wires)`);
+        // B-side floating is expected — bus connects at Main.dig level
+    }
 
     // MILESTONE: coordinator verified 6→7→8→9→10 on bus LEDs
     // under audit-solve at sb3 9396259. This assertion records it.
