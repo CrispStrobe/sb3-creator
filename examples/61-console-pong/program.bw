@@ -1,0 +1,725 @@
+# Ball & Paddle for the RBS15667 console — OUR OWN game, clean-room.
+# 8 wide (shared bus) x 16 tall (column selects). One WHEN owns the
+# scan bus (matrix rows + the score digit interleaved — they are the
+# SAME wires); the other WHEN owns game state. Buttons S2/S3 move the
+# paddle; a miss resets. Flashes onto the real kit unchanged.
+DEVICE STC15F2K60S2
+CLOCK 11059200
+PIN bus0 = P1.5 OUTPUT
+PIN bus1 = P4.1 OUTPUT
+PIN bus2 = P2.4 OUTPUT
+PIN bus3 = P2.2 OUTPUT
+PIN bus4 = P2.1 OUTPUT
+PIN bus5 = P2.0 OUTPUT
+PIN bus6 = P4.4 OUTPUT
+PIN bus7 = P1.4 OUTPUT
+PIN ucol0 = P4.5 OUTPUT
+PIN ucol1 = P2.7 OUTPUT
+PIN ucol2 = P2.6 OUTPUT
+PIN ucol3 = P0.0 OUTPUT
+PIN ucol4 = P0.1 OUTPUT
+PIN ucol5 = P0.2 OUTPUT
+PIN ucol6 = P0.3 OUTPUT
+PIN ucol7 = P0.4 OUTPUT
+PIN lcol0 = P0.7 OUTPUT
+PIN lcol1 = P0.6 OUTPUT
+PIN lcol2 = P0.5 OUTPUT
+PIN lcol3 = P1.0 OUTPUT
+PIN lcol4 = P1.1 OUTPUT
+PIN lcol5 = P1.6 OUTPUT
+PIN lcol6 = P1.2 OUTPUT
+PIN lcol7 = P1.3 OUTPUT
+PIN dig1 = P2.3 OUTPUT ACTIVE LOW
+PIN btnL = P3.2 INPUT
+PIN btnR = P3.3 INPUT
+PIN buzzer = P5.5 OUTPUT ACTIVE LOW
+
+WHEN flag clicked:
+  FOREVER:
+    # scan line y=0
+    IF by = 0 THEN:
+      IF bx = 0 THEN:
+        turn on bus0
+      IF bx = 1 THEN:
+        turn on bus1
+      IF bx = 2 THEN:
+        turn on bus2
+      IF bx = 3 THEN:
+        turn on bus3
+      IF bx = 4 THEN:
+        turn on bus4
+      IF bx = 5 THEN:
+        turn on bus5
+      IF bx = 6 THEN:
+        turn on bus6
+      IF bx = 7 THEN:
+        turn on bus7
+    turn on ucol0
+    wait 0.001 seconds
+    turn off ucol0
+    turn off bus0
+    turn off bus1
+    turn off bus2
+    turn off bus3
+    turn off bus4
+    turn off bus5
+    turn off bus6
+    turn off bus7
+    # scan line y=1
+    IF by = 1 THEN:
+      IF bx = 0 THEN:
+        turn on bus0
+      IF bx = 1 THEN:
+        turn on bus1
+      IF bx = 2 THEN:
+        turn on bus2
+      IF bx = 3 THEN:
+        turn on bus3
+      IF bx = 4 THEN:
+        turn on bus4
+      IF bx = 5 THEN:
+        turn on bus5
+      IF bx = 6 THEN:
+        turn on bus6
+      IF bx = 7 THEN:
+        turn on bus7
+    turn on ucol1
+    wait 0.001 seconds
+    turn off ucol1
+    turn off bus0
+    turn off bus1
+    turn off bus2
+    turn off bus3
+    turn off bus4
+    turn off bus5
+    turn off bus6
+    turn off bus7
+    # scan line y=2
+    IF by = 2 THEN:
+      IF bx = 0 THEN:
+        turn on bus0
+      IF bx = 1 THEN:
+        turn on bus1
+      IF bx = 2 THEN:
+        turn on bus2
+      IF bx = 3 THEN:
+        turn on bus3
+      IF bx = 4 THEN:
+        turn on bus4
+      IF bx = 5 THEN:
+        turn on bus5
+      IF bx = 6 THEN:
+        turn on bus6
+      IF bx = 7 THEN:
+        turn on bus7
+    turn on ucol2
+    wait 0.001 seconds
+    turn off ucol2
+    turn off bus0
+    turn off bus1
+    turn off bus2
+    turn off bus3
+    turn off bus4
+    turn off bus5
+    turn off bus6
+    turn off bus7
+    # scan line y=3
+    IF by = 3 THEN:
+      IF bx = 0 THEN:
+        turn on bus0
+      IF bx = 1 THEN:
+        turn on bus1
+      IF bx = 2 THEN:
+        turn on bus2
+      IF bx = 3 THEN:
+        turn on bus3
+      IF bx = 4 THEN:
+        turn on bus4
+      IF bx = 5 THEN:
+        turn on bus5
+      IF bx = 6 THEN:
+        turn on bus6
+      IF bx = 7 THEN:
+        turn on bus7
+    turn on ucol3
+    wait 0.001 seconds
+    turn off ucol3
+    turn off bus0
+    turn off bus1
+    turn off bus2
+    turn off bus3
+    turn off bus4
+    turn off bus5
+    turn off bus6
+    turn off bus7
+    # scan line y=4
+    IF by = 4 THEN:
+      IF bx = 0 THEN:
+        turn on bus0
+      IF bx = 1 THEN:
+        turn on bus1
+      IF bx = 2 THEN:
+        turn on bus2
+      IF bx = 3 THEN:
+        turn on bus3
+      IF bx = 4 THEN:
+        turn on bus4
+      IF bx = 5 THEN:
+        turn on bus5
+      IF bx = 6 THEN:
+        turn on bus6
+      IF bx = 7 THEN:
+        turn on bus7
+    turn on ucol4
+    wait 0.001 seconds
+    turn off ucol4
+    turn off bus0
+    turn off bus1
+    turn off bus2
+    turn off bus3
+    turn off bus4
+    turn off bus5
+    turn off bus6
+    turn off bus7
+    # scan line y=5
+    IF by = 5 THEN:
+      IF bx = 0 THEN:
+        turn on bus0
+      IF bx = 1 THEN:
+        turn on bus1
+      IF bx = 2 THEN:
+        turn on bus2
+      IF bx = 3 THEN:
+        turn on bus3
+      IF bx = 4 THEN:
+        turn on bus4
+      IF bx = 5 THEN:
+        turn on bus5
+      IF bx = 6 THEN:
+        turn on bus6
+      IF bx = 7 THEN:
+        turn on bus7
+    turn on ucol5
+    wait 0.001 seconds
+    turn off ucol5
+    turn off bus0
+    turn off bus1
+    turn off bus2
+    turn off bus3
+    turn off bus4
+    turn off bus5
+    turn off bus6
+    turn off bus7
+    # scan line y=6
+    IF by = 6 THEN:
+      IF bx = 0 THEN:
+        turn on bus0
+      IF bx = 1 THEN:
+        turn on bus1
+      IF bx = 2 THEN:
+        turn on bus2
+      IF bx = 3 THEN:
+        turn on bus3
+      IF bx = 4 THEN:
+        turn on bus4
+      IF bx = 5 THEN:
+        turn on bus5
+      IF bx = 6 THEN:
+        turn on bus6
+      IF bx = 7 THEN:
+        turn on bus7
+    turn on ucol6
+    wait 0.001 seconds
+    turn off ucol6
+    turn off bus0
+    turn off bus1
+    turn off bus2
+    turn off bus3
+    turn off bus4
+    turn off bus5
+    turn off bus6
+    turn off bus7
+    # scan line y=7
+    IF by = 7 THEN:
+      IF bx = 0 THEN:
+        turn on bus0
+      IF bx = 1 THEN:
+        turn on bus1
+      IF bx = 2 THEN:
+        turn on bus2
+      IF bx = 3 THEN:
+        turn on bus3
+      IF bx = 4 THEN:
+        turn on bus4
+      IF bx = 5 THEN:
+        turn on bus5
+      IF bx = 6 THEN:
+        turn on bus6
+      IF bx = 7 THEN:
+        turn on bus7
+    turn on ucol7
+    wait 0.001 seconds
+    turn off ucol7
+    turn off bus0
+    turn off bus1
+    turn off bus2
+    turn off bus3
+    turn off bus4
+    turn off bus5
+    turn off bus6
+    turn off bus7
+    # scan line y=8
+    IF by = 8 THEN:
+      IF bx = 0 THEN:
+        turn on bus0
+      IF bx = 1 THEN:
+        turn on bus1
+      IF bx = 2 THEN:
+        turn on bus2
+      IF bx = 3 THEN:
+        turn on bus3
+      IF bx = 4 THEN:
+        turn on bus4
+      IF bx = 5 THEN:
+        turn on bus5
+      IF bx = 6 THEN:
+        turn on bus6
+      IF bx = 7 THEN:
+        turn on bus7
+    turn on lcol0
+    wait 0.001 seconds
+    turn off lcol0
+    turn off bus0
+    turn off bus1
+    turn off bus2
+    turn off bus3
+    turn off bus4
+    turn off bus5
+    turn off bus6
+    turn off bus7
+    # scan line y=9
+    IF by = 9 THEN:
+      IF bx = 0 THEN:
+        turn on bus0
+      IF bx = 1 THEN:
+        turn on bus1
+      IF bx = 2 THEN:
+        turn on bus2
+      IF bx = 3 THEN:
+        turn on bus3
+      IF bx = 4 THEN:
+        turn on bus4
+      IF bx = 5 THEN:
+        turn on bus5
+      IF bx = 6 THEN:
+        turn on bus6
+      IF bx = 7 THEN:
+        turn on bus7
+    turn on lcol1
+    wait 0.001 seconds
+    turn off lcol1
+    turn off bus0
+    turn off bus1
+    turn off bus2
+    turn off bus3
+    turn off bus4
+    turn off bus5
+    turn off bus6
+    turn off bus7
+    # scan line y=10
+    IF by = 10 THEN:
+      IF bx = 0 THEN:
+        turn on bus0
+      IF bx = 1 THEN:
+        turn on bus1
+      IF bx = 2 THEN:
+        turn on bus2
+      IF bx = 3 THEN:
+        turn on bus3
+      IF bx = 4 THEN:
+        turn on bus4
+      IF bx = 5 THEN:
+        turn on bus5
+      IF bx = 6 THEN:
+        turn on bus6
+      IF bx = 7 THEN:
+        turn on bus7
+    turn on lcol2
+    wait 0.001 seconds
+    turn off lcol2
+    turn off bus0
+    turn off bus1
+    turn off bus2
+    turn off bus3
+    turn off bus4
+    turn off bus5
+    turn off bus6
+    turn off bus7
+    # scan line y=11
+    IF by = 11 THEN:
+      IF bx = 0 THEN:
+        turn on bus0
+      IF bx = 1 THEN:
+        turn on bus1
+      IF bx = 2 THEN:
+        turn on bus2
+      IF bx = 3 THEN:
+        turn on bus3
+      IF bx = 4 THEN:
+        turn on bus4
+      IF bx = 5 THEN:
+        turn on bus5
+      IF bx = 6 THEN:
+        turn on bus6
+      IF bx = 7 THEN:
+        turn on bus7
+    turn on lcol3
+    wait 0.001 seconds
+    turn off lcol3
+    turn off bus0
+    turn off bus1
+    turn off bus2
+    turn off bus3
+    turn off bus4
+    turn off bus5
+    turn off bus6
+    turn off bus7
+    # scan line y=12
+    IF by = 12 THEN:
+      IF bx = 0 THEN:
+        turn on bus0
+      IF bx = 1 THEN:
+        turn on bus1
+      IF bx = 2 THEN:
+        turn on bus2
+      IF bx = 3 THEN:
+        turn on bus3
+      IF bx = 4 THEN:
+        turn on bus4
+      IF bx = 5 THEN:
+        turn on bus5
+      IF bx = 6 THEN:
+        turn on bus6
+      IF bx = 7 THEN:
+        turn on bus7
+    turn on lcol4
+    wait 0.001 seconds
+    turn off lcol4
+    turn off bus0
+    turn off bus1
+    turn off bus2
+    turn off bus3
+    turn off bus4
+    turn off bus5
+    turn off bus6
+    turn off bus7
+    # scan line y=13
+    IF by = 13 THEN:
+      IF bx = 0 THEN:
+        turn on bus0
+      IF bx = 1 THEN:
+        turn on bus1
+      IF bx = 2 THEN:
+        turn on bus2
+      IF bx = 3 THEN:
+        turn on bus3
+      IF bx = 4 THEN:
+        turn on bus4
+      IF bx = 5 THEN:
+        turn on bus5
+      IF bx = 6 THEN:
+        turn on bus6
+      IF bx = 7 THEN:
+        turn on bus7
+    turn on lcol5
+    wait 0.001 seconds
+    turn off lcol5
+    turn off bus0
+    turn off bus1
+    turn off bus2
+    turn off bus3
+    turn off bus4
+    turn off bus5
+    turn off bus6
+    turn off bus7
+    # scan line y=14
+    IF by = 14 THEN:
+      IF bx = 0 THEN:
+        turn on bus0
+      IF bx = 1 THEN:
+        turn on bus1
+      IF bx = 2 THEN:
+        turn on bus2
+      IF bx = 3 THEN:
+        turn on bus3
+      IF bx = 4 THEN:
+        turn on bus4
+      IF bx = 5 THEN:
+        turn on bus5
+      IF bx = 6 THEN:
+        turn on bus6
+      IF bx = 7 THEN:
+        turn on bus7
+    turn on lcol6
+    wait 0.001 seconds
+    turn off lcol6
+    turn off bus0
+    turn off bus1
+    turn off bus2
+    turn off bus3
+    turn off bus4
+    turn off bus5
+    turn off bus6
+    turn off bus7
+    # scan line y=15
+    IF by = 15 THEN:
+      IF bx = 0 THEN:
+        turn on bus0
+      IF bx = 1 THEN:
+        turn on bus1
+      IF bx = 2 THEN:
+        turn on bus2
+      IF bx = 3 THEN:
+        turn on bus3
+      IF bx = 4 THEN:
+        turn on bus4
+      IF bx = 5 THEN:
+        turn on bus5
+      IF bx = 6 THEN:
+        turn on bus6
+      IF bx = 7 THEN:
+        turn on bus7
+    IF padOn0 = 1 THEN:
+      turn on bus0
+    IF padOn1 = 1 THEN:
+      turn on bus1
+    IF padOn2 = 1 THEN:
+      turn on bus2
+    IF padOn3 = 1 THEN:
+      turn on bus3
+    IF padOn4 = 1 THEN:
+      turn on bus4
+    IF padOn5 = 1 THEN:
+      turn on bus5
+    IF padOn6 = 1 THEN:
+      turn on bus6
+    IF padOn7 = 1 THEN:
+      turn on bus7
+    turn on lcol7
+    wait 0.001 seconds
+    turn off lcol7
+    turn off bus0
+    turn off bus1
+    turn off bus2
+    turn off bus3
+    turn off bus4
+    turn off bus5
+    turn off bus6
+    turn off bus7
+    # score digit (segments ride the same bus)
+    IF score = 0 THEN:
+      turn on bus0
+      turn on bus1
+      turn on bus2
+      turn on bus3
+      turn on bus4
+      turn on bus5
+    IF score = 1 THEN:
+      turn on bus1
+      turn on bus2
+    IF score = 2 THEN:
+      turn on bus0
+      turn on bus1
+      turn on bus3
+      turn on bus4
+      turn on bus6
+    IF score = 3 THEN:
+      turn on bus0
+      turn on bus1
+      turn on bus2
+      turn on bus3
+      turn on bus6
+    IF score = 4 THEN:
+      turn on bus1
+      turn on bus2
+      turn on bus5
+      turn on bus6
+    IF score = 5 THEN:
+      turn on bus0
+      turn on bus2
+      turn on bus3
+      turn on bus5
+      turn on bus6
+    IF score = 6 THEN:
+      turn on bus0
+      turn on bus2
+      turn on bus3
+      turn on bus4
+      turn on bus5
+      turn on bus6
+    IF score = 7 THEN:
+      turn on bus0
+      turn on bus1
+      turn on bus2
+    IF score = 8 THEN:
+      turn on bus0
+      turn on bus1
+      turn on bus2
+      turn on bus3
+      turn on bus4
+      turn on bus5
+      turn on bus6
+    IF score = 9 THEN:
+      turn on bus0
+      turn on bus1
+      turn on bus2
+      turn on bus3
+      turn on bus5
+      turn on bus6
+    turn on dig1
+    wait 0.002 seconds
+    turn off dig1
+    turn off bus0
+    turn off bus1
+    turn off bus2
+    turn off bus3
+    turn off bus4
+    turn off bus5
+    turn off bus6
+
+WHEN flag clicked:
+  set bx to 3
+  set by to 5
+  set dx to 1
+  set dy to 1
+  set padX to 2
+  set padOn0 to 0
+  set padOn1 to 0
+  set padOn2 to 0
+  set padOn3 to 0
+  set padOn4 to 0
+  set padOn5 to 0
+  set padOn6 to 0
+  set padOn7 to 0
+  set padOn2 to 1
+  set padOn3 to 1
+  set padOn4 to 1
+  set score to 0
+  FOREVER:
+    wait 0.12 seconds
+    # paddle moves; padOn0..7 mirror its 3-wide footprint for the scanner
+    IF read btnL THEN:
+      IF padX > 0 THEN:
+        change padX by -1
+    IF read btnR THEN:
+      IF padX < 5 THEN:
+        change padX by 1
+    set padOn0 to 0
+    set padOn1 to 0
+    set padOn2 to 0
+    set padOn3 to 0
+    set padOn4 to 0
+    set padOn5 to 0
+    set padOn6 to 0
+    set padOn7 to 0
+    IF padX = 0 THEN:
+      set padOn0 to 1
+      set padOn1 to 1
+      set padOn2 to 1
+    IF padX = 1 THEN:
+      set padOn1 to 1
+      set padOn2 to 1
+      set padOn3 to 1
+    IF padX = 2 THEN:
+      set padOn2 to 1
+      set padOn3 to 1
+      set padOn4 to 1
+    IF padX = 3 THEN:
+      set padOn3 to 1
+      set padOn4 to 1
+      set padOn5 to 1
+    IF padX = 4 THEN:
+      set padOn4 to 1
+      set padOn5 to 1
+      set padOn6 to 1
+    IF padX = 5 THEN:
+      set padOn5 to 1
+      set padOn6 to 1
+      set padOn7 to 1
+    # ball moves
+    change bx by dx
+    change by by dy
+    IF bx = 7 THEN:
+      set dx to -1
+    IF bx = 0 THEN:
+      set dx to 1
+    IF by = 0 THEN:
+      set dy to 1
+    # paddle plane: bounce if covered, else miss
+    IF by = 14 THEN:
+      IF bx = 0 THEN:
+        IF padOn0 = 1 THEN:
+          set dy to -1
+          change score by 1
+          IF score > 9 THEN:
+            set score to 0
+          turn on buzzer
+      IF bx = 1 THEN:
+        IF padOn1 = 1 THEN:
+          set dy to -1
+          change score by 1
+          IF score > 9 THEN:
+            set score to 0
+          turn on buzzer
+      IF bx = 2 THEN:
+        IF padOn2 = 1 THEN:
+          set dy to -1
+          change score by 1
+          IF score > 9 THEN:
+            set score to 0
+          turn on buzzer
+      IF bx = 3 THEN:
+        IF padOn3 = 1 THEN:
+          set dy to -1
+          change score by 1
+          IF score > 9 THEN:
+            set score to 0
+          turn on buzzer
+      IF bx = 4 THEN:
+        IF padOn4 = 1 THEN:
+          set dy to -1
+          change score by 1
+          IF score > 9 THEN:
+            set score to 0
+          turn on buzzer
+      IF bx = 5 THEN:
+        IF padOn5 = 1 THEN:
+          set dy to -1
+          change score by 1
+          IF score > 9 THEN:
+            set score to 0
+          turn on buzzer
+      IF bx = 6 THEN:
+        IF padOn6 = 1 THEN:
+          set dy to -1
+          change score by 1
+          IF score > 9 THEN:
+            set score to 0
+          turn on buzzer
+      IF bx = 7 THEN:
+        IF padOn7 = 1 THEN:
+          set dy to -1
+          change score by 1
+          IF score > 9 THEN:
+            set score to 0
+          turn on buzzer
+    IF by = 15 THEN:
+      # missed: long beep, reset
+      turn on buzzer
+      wait 0.3 seconds
+      set bx to 3
+      set by to 5
+      set dy to 1
+      set score to 0
+    wait 0.03 seconds
+    turn off buzzer
