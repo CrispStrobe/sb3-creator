@@ -28,7 +28,8 @@
      "threshold": "f29",
      "control": "f30"
     }
-   }
+   },
+   "params": {}
   },
   {
    "id": "r1",
@@ -68,7 +69,7 @@
    "id": "c1",
    "kind": "capacitor",
    "params": {
-    "farads": 0.000001
+    "farads": 1e-06
    },
    "x": 498,
    "y": 255,
@@ -84,7 +85,7 @@
    "id": "c2",
    "kind": "capacitor",
    "params": {
-    "farads": 1e-7
+    "farads": 1e-07
    },
    "x": 540,
    "y": 255,
@@ -141,7 +142,8 @@
      "a": "e43",
      "b": "f43"
     }
-   }
+   },
+   "params": {}
   },
   {
    "id": "r3",
@@ -172,7 +174,8 @@
    "id": "gnd1",
    "kind": "gnd",
    "x": 220,
-   "y": 60
+   "y": 60,
+   "params": {}
   }
  ],
  "wires": [

@@ -15,7 +15,8 @@
    "kind": "arduino_mega",
    "declName": "board",
    "x": 80,
-   "y": 60
+   "y": 60,
+   "params": {}
   },
   {
    "id": "led1",
