@@ -3,7 +3,7 @@
   "parts": [
     {
       "id": "u1",
-      "kind": "555",
+      "kind": "timer_555",
       "x": 300,
       "y": 250,
       "declName": "clock"
