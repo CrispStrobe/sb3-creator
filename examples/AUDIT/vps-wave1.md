@@ -1162,3 +1162,21 @@ Intros present.
 ## pc78-belastete-quelle — VERDICT: pass
 ## pc79-indirekte-strommessung — VERDICT: pass
 ## pc80-quellen-vergleich — VERDICT: pass
+
+## 51-tft-pixels — VERDICT: pass
+**layers: engine.** TFT pixel drawing. Program parses clean. Intros present.
+
+---
+
+# Band 9 — Bausatz canon (pc81–pc88)
+
+8 kit-inspired pure-circuit examples. All parse clean (0 warnings).
+
+## pc81-led-lauflicht — VERDICT: pass
+## pc82-mini-roulette — VERDICT: pass
+## pc83-gluecksrad — VERDICT: pass
+## pc84-led-herz — VERDICT: pass
+## pc85-led-lampe-puls — VERDICT: pass
+## pc86-led-sanduhr — VERDICT: pass
+## pc87-stroboskop — VERDICT: pass
+## pc88-lichtorgel — VERDICT: pass
