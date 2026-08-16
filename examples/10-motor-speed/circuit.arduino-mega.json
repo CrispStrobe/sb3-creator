@@ -2,12 +2,23 @@
  "vcc": 5,
  "parts": [
   {
+   "id": "bb1",
+   "kind": "breadboard",
+   "params": {},
+   "terminals": [],
+   "x": 470,
+   "y": 330,
+   "rotation": 0
+  },
+  {
    "id": "VCC",
    "kind": "vcc",
    "params": {},
    "terminals": [
     "vcc"
-   ]
+   ],
+   "x": 80,
+   "y": 60
   },
   {
    "id": "GND",
@@ -15,7 +26,9 @@
    "params": {},
    "terminals": [
     "gnd"
-   ]
+   ],
+   "x": 220,
+   "y": 60
   },
   {
    "id": "MCU",
@@ -24,7 +37,9 @@
    "terminals": [
     "d13",
     "a0"
-   ]
+   ],
+   "x": 360,
+   "y": 60
   },
   {
    "id": "R_motor_pwm",
@@ -35,7 +50,16 @@
    "terminals": [
     "a",
     "b"
-   ]
+   ],
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a3",
+     "b": "a7"
+    }
+   },
+   "x": 64,
+   "y": 255
   },
   {
    "id": "LED_motor_pwm",
@@ -47,7 +71,16 @@
    "terminals": [
     "anode",
     "cathode"
-   ]
+   ],
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "anode": "a15",
+     "cathode": "a16"
+    }
+   },
+   "x": 232,
+   "y": 255
   },
   {
    "id": "POT_pot",
@@ -59,79 +92,106 @@
     "a",
     "b",
     "wiper"
-   ]
+   ],
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a9",
+     "wiper": "a11",
+     "b": "a13"
+    }
+   },
+   "x": 148,
+   "y": 255
   }
  ],
- "nets": [
+ "wires": [
   {
-   "id": "net_motor_pwm_pin_r",
-   "terminals": [
-    {
-     "part": "MCU",
-     "terminal": "d13"
-    },
-    {
-     "part": "R_motor_pwm",
-     "terminal": "a"
-    }
-   ]
+   "from": "MCU",
+   "fromTerminal": "d13",
+   "to": "R_motor_pwm",
+   "toTerminal": "a"
   },
   {
-   "id": "net_motor_pwm_r_led",
-   "terminals": [
-    {
-     "part": "R_motor_pwm",
-     "terminal": "b"
-    },
-    {
-     "part": "LED_motor_pwm",
-     "terminal": "anode"
-    }
-   ]
+   "from": "R_motor_pwm",
+   "fromTerminal": "b",
+   "to": "LED_motor_pwm",
+   "toTerminal": "anode"
   },
   {
-   "id": "net_pot_wiper",
-   "terminals": [
-    {
-     "part": "POT_pot",
-     "terminal": "wiper"
-    },
-    {
-     "part": "MCU",
-     "terminal": "a0"
-    }
-   ]
+   "from": "POT_pot",
+   "fromTerminal": "wiper",
+   "to": "MCU",
+   "toTerminal": "a0"
   },
   {
-   "id": "net_vcc",
-   "terminals": [
-    {
-     "part": "VCC",
-     "terminal": "vcc"
-    },
-    {
-     "part": "POT_pot",
-     "terminal": "a"
-    }
-   ]
+   "from": "VCC",
+   "fromTerminal": "vcc",
+   "to": "POT_pot",
+   "toTerminal": "a"
   },
   {
-   "id": "net_gnd",
-   "terminals": [
-    {
-     "part": "GND",
-     "terminal": "gnd"
-    },
-    {
-     "part": "LED_motor_pwm",
-     "terminal": "cathode"
-    },
-    {
-     "part": "POT_pot",
-     "terminal": "b"
-    }
-   ]
+   "from": "GND",
+   "fromTerminal": "gnd",
+   "to": "LED_motor_pwm",
+   "toTerminal": "cathode"
+  },
+  {
+   "from": "GND",
+   "fromTerminal": "gnd",
+   "to": "POT_pot",
+   "toTerminal": "b"
+  },
+  {
+   "from": "VCC",
+   "fromTerminal": "vcc",
+   "to": {
+    "board": "bb1",
+    "hole": "t+2"
+   },
+   "color": "red",
+   "genPower": true
+  },
+  {
+   "from": "GND",
+   "fromTerminal": "gnd",
+   "to": {
+    "board": "bb1",
+    "hole": "b-2"
+   },
+   "color": "black",
+   "genPower": true
   }
  ],
- "generated": "benchFor batch 2026-08-16"
+ "holeWires": [
+  {
+   "ref": "bbw:bb1:gen_0",
+   "boardId": "bb1",
+   "a": "b7",
+   "b": "b15",
+   "color": "green"
+  },
+  {
+   "ref": "bbw:bb1:gen_1",
+   "boardId": "bb1",
+   "a": "b9",
+   "b": "t+9",
+   "color": "red"
+  },
+  {
+   "ref": "bbw:bb1:gen_2",
+   "boardId": "bb1",
+   "a": "b16",
+   "b": "b-16",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb1:gen_3",
+   "boardId": "bb1",
+   "a": "b13",
+   "b": "b-13",
+   "color": "black"
+  }
+ ],
+ "generated": "benchFor+seat batch 2026-08-16"
 }
