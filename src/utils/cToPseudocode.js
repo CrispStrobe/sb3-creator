@@ -1241,6 +1241,10 @@ export default function cToPseudocode (source, opts = {}) {
             case 'bw_device_deactivate': return { text: '0', level: 99, stmt: `deactivate ${a(0)}` };
             // LCD
             case 'bw_lcd_print': return { text: '0', level: 99, stmt: `lcd print ${a(1)} on ${a(0)}` };
+            // The string/number split (2026-08-16): _s carries a C string
+            // literal back as a dialect string, _n carries an expression.
+            case 'bw_lcd_print_s': return { text: '0', level: 99, stmt: `lcd print ${a(1)} on ${a(0)}` };
+            case 'bw_lcd_print_n': return { text: '0', level: 99, stmt: `lcd print ${a(1)} on ${a(0)}` };
             case 'bw_lcd_cursor': return { text: '0', level: 99, stmt: `lcd set cursor ${a(1)} ${a(2)} on ${a(0)}` };
             case 'bw_lcd_clear': return { text: '0', level: 99, stmt: `lcd clear ${a(0)}` };
             // 7-segment display
@@ -1888,7 +1892,7 @@ export default function cToPseudocode (source, opts = {}) {
         'bw_neo_byte', 'bw_neo_send', 'bw_neopixel_set', 'bw_neopixel_clear',
         'i2c_delay', 'i2c_start', 'i2c_stop', 'i2c_write', 'shift_out',
         'lcd_i2c_send', 'lcd_nibble', 'lcd_cmd', 'lcd_data',
-        'bw_lcd_print', 'bw_lcd_cursor', 'bw_lcd_clear',
+        'bw_lcd_print', 'bw_lcd_print_s', 'bw_lcd_print_n', 'bw_lcd_cursor', 'bw_lcd_clear',
         'board_init', 'delay_init', 'tone_set', 'tone_stop',
         'bw_cube_scan', 'bw_cube_set', 'bw_cube_get', 'bw_cube_clear',
         'bw_cube_fill_layer', 'bw_cube_shift', 'bw_cube_hold',
@@ -1897,7 +1901,7 @@ export default function cToPseudocode (source, opts = {}) {
         'bw_servo_set', 'bw_servo_get', 'bw_motor_speed', 'bw_motor_dir',
         'bw_motor_get_speed', 'bw_motor_get_dir', 'bw_relay_set',
         'bw_device_activate', 'bw_device_deactivate',
-        'bw_lcd_print', 'bw_lcd_cursor', 'bw_lcd_clear', 'bw_7seg_show',
+        'bw_lcd_print', 'bw_lcd_print_s', 'bw_lcd_print_n', 'bw_lcd_cursor', 'bw_lcd_clear', 'bw_7seg_show',
         'bw_rgb_set', 'bw_matrix_set', 'bw_matrix_clear',
         'bw_neopixel_set', 'bw_neopixel_clear',
         'bw_temperature', 'bw_light', 'bw_distance', 'bw_flex', 'bw_force',
