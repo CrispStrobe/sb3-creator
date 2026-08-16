@@ -1,0 +1,270 @@
+{
+  "vcc": 5,
+  "parts": [
+    {
+      "id": "vcc_1",
+      "kind": "vcc",
+      "params": {},
+      "terminals": [
+        "vcc"
+      ],
+      "x": 100,
+      "y": 50,
+      "rotation": 0
+    },
+    {
+      "id": "gnd_2",
+      "kind": "gnd",
+      "params": {},
+      "terminals": [
+        "gnd"
+      ],
+      "x": 100,
+      "y": 400,
+      "rotation": 0
+    },
+    {
+      "id": "gate_nor_3",
+      "kind": "gate_nor",
+      "params": {
+        "inputs": 2
+      },
+      "terminals": [
+        "in0",
+        "in1",
+        "out"
+      ],
+      "x": 300,
+      "y": 150,
+      "rotation": 0
+    },
+    {
+      "id": "gate_nor_4",
+      "kind": "gate_nor",
+      "params": {
+        "inputs": 2
+      },
+      "terminals": [
+        "in0",
+        "in1",
+        "out"
+      ],
+      "x": 300,
+      "y": 300,
+      "rotation": 0
+    },
+    {
+      "id": "switch_5",
+      "kind": "switch",
+      "params": {},
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 100,
+      "y": 150,
+      "rotation": 0
+    },
+    {
+      "id": "button_6",
+      "kind": "button",
+      "params": {},
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 100,
+      "y": 300,
+      "rotation": 0
+    },
+    {
+      "id": "resistor_7",
+      "kind": "resistor",
+      "params": {
+        "ohms": 100000
+      },
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 200,
+      "y": 100,
+      "rotation": 0
+    },
+    {
+      "id": "resistor_8",
+      "kind": "resistor",
+      "params": {
+        "ohms": 100000
+      },
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 200,
+      "y": 350,
+      "rotation": 0
+    },
+    {
+      "id": "resistor_9",
+      "kind": "resistor",
+      "params": {
+        "ohms": 100
+      },
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 450,
+      "y": 150,
+      "rotation": 0
+    },
+    {
+      "id": "buzzer_10",
+      "kind": "buzzer",
+      "params": {},
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 450,
+      "y": 250,
+      "rotation": 0
+    }
+  ],
+  "wires": [
+    {
+      "id": "wire_12",
+      "netId": "net_11",
+      "from": {
+        "part": "vcc_1",
+        "terminal": "vcc"
+      },
+      "to": {
+        "part": "switch_5",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_14",
+      "netId": "net_13",
+      "from": {
+        "part": "switch_5",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "gate_nor_3",
+        "terminal": "in0"
+      }
+    },
+    {
+      "id": "wire_15",
+      "netId": "net_13",
+      "from": {
+        "part": "gate_nor_3",
+        "terminal": "in0"
+      },
+      "to": {
+        "part": "resistor_7",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_17",
+      "netId": "net_16",
+      "from": {
+        "part": "resistor_7",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "gnd_2",
+        "terminal": "gnd"
+      }
+    },
+    {
+      "id": "wire_18",
+      "netId": "net_11",
+      "from": {
+        "part": "vcc_1",
+        "terminal": "vcc"
+      },
+      "to": {
+        "part": "button_6",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_20",
+      "netId": "net_19",
+      "from": {
+        "part": "button_6",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "gate_nor_4",
+        "terminal": "in1"
+      }
+    },
+    {
+      "id": "wire_21",
+      "netId": "net_19",
+      "from": {
+        "part": "gate_nor_4",
+        "terminal": "in1"
+      },
+      "to": {
+        "part": "resistor_8",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_22",
+      "netId": "net_16",
+      "from": {
+        "part": "resistor_8",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "gnd_2",
+        "terminal": "gnd"
+      }
+    },
+    {
+      "id": "wire_24",
+      "netId": "net_23",
+      "from": {
+        "part": "gate_nor_3",
+        "terminal": "out"
+      },
+      "to": {
+        "part": "gate_nor_4",
+        "terminal": "in0"
+      }
+    },
+    {
+      "id": "wire_26",
+      "netId": "net_25",
+      "from": {
+        "part": "gate_nor_4",
+        "terminal": "out"
+      },
+      "to": {
+        "part": "gate_nor_3",
+        "terminal": "in1"
+      }
+    },
+    {
+      "id": "wire_27",
+      "netId": "net_23",
+      "from": {
+        "part": "gate_nor_3",
+        "terminal": "out"
+      },
+      "to": {
+        "part": "resistor_9",
+        "terminal": "a"
+      }
+    }
+  ],
+  "holeWires": []
+}

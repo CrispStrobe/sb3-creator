@@ -1,0 +1,234 @@
+{
+  "vcc": 5,
+  "parts": [
+    {
+      "id": "vcc_1",
+      "kind": "vcc",
+      "params": {},
+      "terminals": [
+        "vcc"
+      ],
+      "x": 100,
+      "y": 50,
+      "rotation": 0
+    },
+    {
+      "id": "gnd_2",
+      "kind": "gnd",
+      "params": {},
+      "terminals": [
+        "gnd"
+      ],
+      "x": 100,
+      "y": 400,
+      "rotation": 0
+    },
+    {
+      "id": "timer_555_3",
+      "kind": "timer_555",
+      "params": {},
+      "terminals": [
+        "vcc",
+        "gnd",
+        "trigger",
+        "threshold",
+        "control",
+        "discharge",
+        "output",
+        "reset"
+      ],
+      "x": 300,
+      "y": 200,
+      "rotation": 0
+    },
+    {
+      "id": "button_4",
+      "kind": "button",
+      "params": {},
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 100,
+      "y": 200,
+      "rotation": 0
+    },
+    {
+      "id": "resistor_5",
+      "kind": "resistor",
+      "params": {
+        "ohms": 1000
+      },
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 200,
+      "y": 100,
+      "rotation": 0
+    },
+    {
+      "id": "resistor_6",
+      "kind": "resistor",
+      "params": {
+        "ohms": 10000
+      },
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 450,
+      "y": 100,
+      "rotation": 0
+    },
+    {
+      "id": "capacitor_7",
+      "kind": "capacitor",
+      "params": {
+        "farads": 1e-7
+      },
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 450,
+      "y": 300,
+      "rotation": 0
+    },
+    {
+      "id": "buzzer_8",
+      "kind": "buzzer",
+      "params": {},
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 300,
+      "y": 380,
+      "rotation": 0
+    }
+  ],
+  "wires": [
+    {
+      "id": "wire_10",
+      "netId": "net_9",
+      "from": {
+        "part": "vcc_1",
+        "terminal": "vcc"
+      },
+      "to": {
+        "part": "button_4",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_12",
+      "netId": "net_11",
+      "from": {
+        "part": "button_4",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "timer_555_3",
+        "terminal": "vcc"
+      }
+    },
+    {
+      "id": "wire_13",
+      "netId": "net_11",
+      "from": {
+        "part": "button_4",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "timer_555_3",
+        "terminal": "reset"
+      }
+    },
+    {
+      "id": "wire_15",
+      "netId": "net_14",
+      "from": {
+        "part": "gnd_2",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "timer_555_3",
+        "terminal": "gnd"
+      }
+    },
+    {
+      "id": "wire_16",
+      "netId": "net_11",
+      "from": {
+        "part": "button_4",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "resistor_5",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_18",
+      "netId": "net_17",
+      "from": {
+        "part": "resistor_5",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "timer_555_3",
+        "terminal": "discharge"
+      }
+    },
+    {
+      "id": "wire_19",
+      "netId": "net_17",
+      "from": {
+        "part": "timer_555_3",
+        "terminal": "discharge"
+      },
+      "to": {
+        "part": "resistor_6",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_21",
+      "netId": "net_20",
+      "from": {
+        "part": "resistor_6",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "timer_555_3",
+        "terminal": "threshold"
+      }
+    },
+    {
+      "id": "wire_22",
+      "netId": "net_20",
+      "from": {
+        "part": "timer_555_3",
+        "terminal": "threshold"
+      },
+      "to": {
+        "part": "timer_555_3",
+        "terminal": "trigger"
+      }
+    },
+    {
+      "id": "wire_23",
+      "netId": "net_14",
+      "from": {
+        "part": "timer_555_3",
+        "terminal": "control"
+      },
+      "to": {
+        "part": "gnd_2",
+        "terminal": "gnd"
+      }
+    }
+  ],
+  "holeWires": []
+}

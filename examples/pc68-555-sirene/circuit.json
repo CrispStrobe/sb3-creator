@@ -1,0 +1,237 @@
+{
+  "vcc": 5,
+  "parts": [
+    {
+      "id": "vcc_1",
+      "kind": "vcc",
+      "params": {},
+      "terminals": [
+        "vcc"
+      ],
+      "x": 100,
+      "y": 50,
+      "rotation": 0
+    },
+    {
+      "id": "gnd_2",
+      "kind": "gnd",
+      "params": {},
+      "terminals": [
+        "gnd"
+      ],
+      "x": 100,
+      "y": 400,
+      "rotation": 0
+    },
+    {
+      "id": "timer_555_3",
+      "kind": "timer_555",
+      "params": {},
+      "terminals": [
+        "vcc",
+        "gnd",
+        "trigger",
+        "threshold",
+        "control",
+        "discharge",
+        "output",
+        "reset"
+      ],
+      "x": 300,
+      "y": 200,
+      "rotation": 0
+    },
+    {
+      "id": "resistor_4",
+      "kind": "resistor",
+      "params": {
+        "ohms": 1000
+      },
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 200,
+      "y": 100,
+      "rotation": 0
+    },
+    {
+      "id": "potentiometer_5",
+      "kind": "potentiometer",
+      "params": {
+        "ohms": 47000
+      },
+      "terminals": [
+        "a",
+        "b",
+        "wiper"
+      ],
+      "x": 450,
+      "y": 100,
+      "rotation": 0
+    },
+    {
+      "id": "capacitor_6",
+      "kind": "capacitor",
+      "params": {
+        "farads": 1e-7
+      },
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 450,
+      "y": 300,
+      "rotation": 0
+    },
+    {
+      "id": "resistor_7",
+      "kind": "resistor",
+      "params": {
+        "ohms": 100
+      },
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 300,
+      "y": 350,
+      "rotation": 0
+    },
+    {
+      "id": "buzzer_8",
+      "kind": "buzzer",
+      "params": {},
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 300,
+      "y": 400,
+      "rotation": 0
+    }
+  ],
+  "wires": [
+    {
+      "id": "wire_10",
+      "netId": "net_9",
+      "from": {
+        "part": "vcc_1",
+        "terminal": "vcc"
+      },
+      "to": {
+        "part": "timer_555_3",
+        "terminal": "vcc"
+      }
+    },
+    {
+      "id": "wire_11",
+      "netId": "net_9",
+      "from": {
+        "part": "vcc_1",
+        "terminal": "vcc"
+      },
+      "to": {
+        "part": "timer_555_3",
+        "terminal": "reset"
+      }
+    },
+    {
+      "id": "wire_13",
+      "netId": "net_12",
+      "from": {
+        "part": "gnd_2",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "timer_555_3",
+        "terminal": "gnd"
+      }
+    },
+    {
+      "id": "wire_14",
+      "netId": "net_9",
+      "from": {
+        "part": "vcc_1",
+        "terminal": "vcc"
+      },
+      "to": {
+        "part": "resistor_4",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_16",
+      "netId": "net_15",
+      "from": {
+        "part": "resistor_4",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "timer_555_3",
+        "terminal": "discharge"
+      }
+    },
+    {
+      "id": "wire_17",
+      "netId": "net_15",
+      "from": {
+        "part": "timer_555_3",
+        "terminal": "discharge"
+      },
+      "to": {
+        "part": "potentiometer_5",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_19",
+      "netId": "net_18",
+      "from": {
+        "part": "potentiometer_5",
+        "terminal": "wiper"
+      },
+      "to": {
+        "part": "timer_555_3",
+        "terminal": "threshold"
+      }
+    },
+    {
+      "id": "wire_20",
+      "netId": "net_18",
+      "from": {
+        "part": "timer_555_3",
+        "terminal": "threshold"
+      },
+      "to": {
+        "part": "timer_555_3",
+        "terminal": "trigger"
+      }
+    },
+    {
+      "id": "wire_21",
+      "netId": "net_12",
+      "from": {
+        "part": "timer_555_3",
+        "terminal": "control"
+      },
+      "to": {
+        "part": "gnd_2",
+        "terminal": "gnd"
+      }
+    },
+    {
+      "id": "wire_23",
+      "netId": "net_22",
+      "from": {
+        "part": "timer_555_3",
+        "terminal": "output"
+      },
+      "to": {
+        "part": "resistor_7",
+        "terminal": "a"
+      }
+    }
+  ],
+  "holeWires": []
+}

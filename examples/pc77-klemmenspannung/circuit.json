@@ -1,0 +1,126 @@
+{
+  "vcc": 5,
+  "parts": [
+    {
+      "id": "battery_1",
+      "kind": "battery",
+      "params": {
+        "volts": 9,
+        "rInternal": 1
+      },
+      "terminals": [
+        "pos",
+        "neg"
+      ],
+      "x": 100,
+      "y": 200,
+      "rotation": 0
+    },
+    {
+      "id": "resistor_2",
+      "kind": "resistor",
+      "params": {
+        "ohms": 100
+      },
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 300,
+      "y": 200,
+      "rotation": 0
+    },
+    {
+      "id": "resistor_3",
+      "kind": "resistor",
+      "params": {
+        "ohms": 470
+      },
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 400,
+      "y": 150,
+      "rotation": 0
+    },
+    {
+      "id": "led_4",
+      "kind": "led",
+      "params": {
+        "vf": 2,
+        "color": "red"
+      },
+      "terminals": [
+        "anode",
+        "cathode"
+      ],
+      "x": 400,
+      "y": 250,
+      "rotation": 0
+    }
+  ],
+  "wires": [
+    {
+      "id": "wire_6",
+      "netId": "net_5",
+      "from": {
+        "part": "battery_1",
+        "terminal": "pos"
+      },
+      "to": {
+        "part": "resistor_2",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_8",
+      "netId": "net_7",
+      "from": {
+        "part": "resistor_2",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "battery_1",
+        "terminal": "neg"
+      }
+    },
+    {
+      "id": "wire_9",
+      "netId": "net_5",
+      "from": {
+        "part": "battery_1",
+        "terminal": "pos"
+      },
+      "to": {
+        "part": "resistor_3",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_11",
+      "netId": "net_10",
+      "from": {
+        "part": "resistor_3",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "led_4",
+        "terminal": "anode"
+      }
+    },
+    {
+      "id": "wire_12",
+      "netId": "net_7",
+      "from": {
+        "part": "led_4",
+        "terminal": "cathode"
+      },
+      "to": {
+        "part": "battery_1",
+        "terminal": "neg"
+      }
+    }
+  ],
+  "holeWires": []
+}
