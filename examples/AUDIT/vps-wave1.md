@@ -1184,3 +1184,7 @@ Intros present.
 ## 60-retro-console — VERDICT: pass
 **layers: engine.** RBS15667 retro console bench with scan bus and three
 displays. Program parses clean (0 warnings). Intros present.
+
+## 61-console-pong — VERDICT: pass
+**layers: engine.** Console Pong game. Program parses clean (0 warnings).
+Intros present.
