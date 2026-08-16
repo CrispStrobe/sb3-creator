@@ -2,25 +2,34 @@
  "vcc": 3.3,
  "parts": [
   {
+   "id": "bb1",
+   "kind": "breadboard",
+   "params": {},
+   "terminals": [],
+   "x": 470,
+   "y": 330,
+   "rotation": 0
+  },
+  {
    "id": "vcc1",
    "kind": "vcc",
    "params": {},
-   "x": 50,
-   "y": 50
+   "x": 80,
+   "y": 60
   },
   {
    "id": "gnd1",
    "kind": "gnd",
    "params": {},
-   "x": 200,
-   "y": 350
+   "x": 220,
+   "y": 60
   },
   {
    "id": "gnd2",
    "kind": "gnd",
    "params": {},
-   "x": 50,
-   "y": 350
+   "x": 360,
+   "y": 60
   },
   {
    "id": "btn1",
@@ -29,8 +38,8 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "e25",
-     "b": "f25"
+     "a": "e47",
+     "b": "f47"
     }
    }
   },
@@ -43,8 +52,8 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a28",
-     "b": "a32"
+     "a": "a26",
+     "b": "a30"
     }
    }
   },
@@ -57,8 +66,8 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a35",
-     "b": "a39"
+     "a": "a34",
+     "b": "a38"
     }
    }
   },
@@ -131,15 +140,6 @@
      "VCC": "e3"
     }
    }
-  },
-  {
-   "id": "bb1",
-   "kind": "breadboard",
-   "params": {},
-   "terminals": [],
-   "x": 470,
-   "y": 330,
-   "rotation": 0
   }
  ],
  "wires": [

@@ -2,6 +2,15 @@
  "vcc": 5,
  "parts": [
   {
+   "id": "bb1",
+   "kind": "breadboard",
+   "params": {},
+   "terminals": [],
+   "x": 470,
+   "y": 330,
+   "rotation": 0
+  },
+  {
    "id": "board",
    "kind": "arduino_uno",
    "declName": "board",
@@ -33,8 +42,8 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a19",
-     "b": "a21"
+     "a": "a20",
+     "b": "a22"
     }
    }
   },
@@ -44,24 +53,15 @@
    "params": {
     "volts": 5
    },
-   "x": 260,
-   "y": 100
+   "x": 80,
+   "y": 60
   },
   {
    "id": "gnd1",
    "kind": "gnd",
    "params": {},
-   "x": 340,
-   "y": 100
-  },
-  {
-   "id": "bb1",
-   "kind": "breadboard",
-   "params": {},
-   "terminals": [],
-   "x": 470,
-   "y": 330,
-   "rotation": 0
+   "x": 220,
+   "y": 60
   }
  ],
  "wires": [

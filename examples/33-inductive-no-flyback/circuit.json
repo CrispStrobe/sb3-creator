@@ -2,18 +2,27 @@
  "vcc": 5,
  "parts": [
   {
+   "id": "bb1",
+   "kind": "breadboard",
+   "params": {},
+   "terminals": [],
+   "x": 470,
+   "y": 330,
+   "rotation": 0
+  },
+  {
    "id": "vcc1",
    "kind": "vcc",
    "params": {},
-   "x": 100,
-   "y": 50
+   "x": 80,
+   "y": 60
   },
   {
    "id": "gnd1",
    "kind": "gnd",
    "params": {},
-   "x": 100,
-   "y": 450
+   "x": 220,
+   "y": 60
   },
   {
    "id": "motor1",
@@ -25,8 +34,8 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a25",
-     "b": "a27"
+     "a": "a41",
+     "b": "a43"
     }
    }
   },
@@ -39,8 +48,8 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a30",
-     "b": "a33"
+     "a": "a34",
+     "b": "a37"
     }
    }
   },
@@ -51,9 +60,9 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "emitter": "a36",
-     "base": "a37",
-     "collector": "a38"
+     "emitter": "a47",
+     "base": "a48",
+     "collector": "a49"
     }
    }
   },
@@ -66,8 +75,8 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a41",
-     "b": "a45"
+     "a": "a26",
+     "b": "a30"
     }
    }
   },
@@ -124,15 +133,6 @@
      "VCC": "e3"
     }
    }
-  },
-  {
-   "id": "bb1",
-   "kind": "breadboard",
-   "params": {},
-   "terminals": [],
-   "x": 470,
-   "y": 330,
-   "rotation": 0
   }
  ],
  "wires": [
@@ -177,43 +177,43 @@
   {
    "ref": "bbw:bb1:gen_0",
    "boardId": "bb1",
-   "a": "b25",
-   "b": "t+25",
+   "a": "b41",
+   "b": "t+41",
    "color": "red"
   },
   {
    "ref": "bbw:bb1:gen_1",
    "boardId": "bb1",
-   "a": "b27",
-   "b": "b30",
+   "a": "b43",
+   "b": "b34",
    "color": "green"
   },
   {
    "ref": "bbw:bb1:gen_2",
    "boardId": "bb1",
-   "a": "b33",
-   "b": "b38",
+   "a": "b37",
+   "b": "b49",
    "color": "blue"
   },
   {
    "ref": "bbw:bb1:gen_3",
    "boardId": "bb1",
-   "a": "b36",
-   "b": "b-36",
+   "a": "b47",
+   "b": "b-47",
    "color": "black"
   },
   {
    "ref": "bbw:bb1:gen_4",
    "boardId": "bb1",
    "a": "g3",
-   "b": "b41",
+   "b": "b26",
    "color": "yellow"
   },
   {
    "ref": "bbw:bb1:gen_5",
    "boardId": "bb1",
-   "a": "b45",
-   "b": "b37",
+   "a": "b30",
+   "b": "b48",
    "color": "orange"
   }
  ]

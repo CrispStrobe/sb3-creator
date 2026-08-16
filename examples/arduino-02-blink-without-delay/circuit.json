@@ -2,6 +2,15 @@
  "vcc": 5,
  "parts": [
   {
+   "id": "bb1",
+   "kind": "breadboard",
+   "params": {},
+   "terminals": [],
+   "x": 470,
+   "y": 330,
+   "rotation": 0
+  },
+  {
    "id": "board",
    "kind": "arduino_uno",
    "declName": "board",
@@ -35,8 +44,8 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "anode": "a19",
-     "cathode": "a20"
+     "anode": "a36",
+     "cathode": "a37"
     }
    }
   },
@@ -50,8 +59,8 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a23",
-     "b": "a27"
+     "a": "a20",
+     "b": "a24"
     }
    }
   },
@@ -63,8 +72,8 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "e30",
-     "b": "f30"
+     "a": "e41",
+     "b": "f41"
     }
    }
   },
@@ -78,8 +87,8 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a33",
-     "b": "a37"
+     "a": "a28",
+     "b": "a32"
     }
    }
   },
@@ -89,24 +98,15 @@
    "params": {
     "volts": 5
    },
-   "x": 500,
-   "y": 100
+   "x": 80,
+   "y": 60
   },
   {
    "id": "gnd1",
    "kind": "gnd",
    "params": {},
-   "x": 580,
-   "y": 100
-  },
-  {
-   "id": "bb1",
-   "kind": "breadboard",
-   "params": {},
-   "terminals": [],
-   "x": 470,
-   "y": 330,
-   "rotation": 0
+   "x": 220,
+   "y": 60
   }
  ],
  "wires": [
@@ -169,29 +169,29 @@
   {
    "ref": "bbw:bb1:gen_0",
    "boardId": "bb1",
-   "a": "b27",
-   "b": "b19",
+   "a": "b24",
+   "b": "b36",
    "color": "green"
   },
   {
    "ref": "bbw:bb1:gen_1",
    "boardId": "bb1",
-   "a": "b20",
-   "b": "b-20",
+   "a": "b37",
+   "b": "b-37",
    "color": "black"
   },
   {
    "ref": "bbw:bb1:gen_2",
    "boardId": "bb1",
-   "a": "a30",
-   "b": "t+30",
+   "a": "a41",
+   "b": "t+41",
    "color": "red"
   },
   {
    "ref": "bbw:bb1:gen_3",
    "boardId": "bb1",
-   "a": "b37",
-   "b": "b-37",
+   "a": "b32",
+   "b": "b-32",
    "color": "black"
   }
  ]

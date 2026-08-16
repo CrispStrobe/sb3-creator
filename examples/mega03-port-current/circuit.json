@@ -2,11 +2,38 @@
  "vcc": 5,
  "parts": [
   {
+   "id": "bb1",
+   "kind": "breadboard",
+   "params": {},
+   "terminals": [],
+   "x": 470,
+   "y": 330,
+   "rotation": 0
+  },
+  {
+   "id": "bb2",
+   "kind": "breadboard",
+   "params": {},
+   "terminals": [],
+   "x": 470,
+   "y": 690,
+   "rotation": 0
+  },
+  {
+   "id": "bb3",
+   "kind": "breadboard",
+   "params": {},
+   "terminals": [],
+   "x": 470,
+   "y": 1050,
+   "rotation": 0
+  },
+  {
    "id": "gnd1",
    "kind": "gnd",
    "params": {},
-   "x": 500,
-   "y": 400
+   "x": 80,
+   "y": 60
   },
   {
    "id": "r1",
@@ -17,8 +44,8 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a25",
-     "b": "a29"
+     "a": "a26",
+     "b": "a30"
     }
    }
   },
@@ -31,8 +58,8 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a32",
-     "b": "a36"
+     "a": "a34",
+     "b": "a38"
     }
    }
   },
@@ -45,8 +72,8 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a39",
-     "b": "a43"
+     "a": "a42",
+     "b": "a46"
     }
    }
   },
@@ -59,8 +86,8 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a46",
-     "b": "a50"
+     "a": "a50",
+     "b": "a54"
     }
    }
   },
@@ -71,10 +98,10 @@
     "ohms": 220
    },
    "seat": {
-    "boardId": "bb1",
+    "boardId": "bb2",
     "leadMap": {
-     "a": "a53",
-     "b": "a57"
+     "a": "a3",
+     "b": "a7"
     }
    }
   },
@@ -84,8 +111,13 @@
    "params": {
     "ohms": 220
    },
-   "x": 350,
-   "y": 300
+   "seat": {
+    "boardId": "bb2",
+    "leadMap": {
+     "a": "a11",
+     "b": "a15"
+    }
+   }
   },
   {
    "id": "r7",
@@ -93,8 +125,13 @@
    "params": {
     "ohms": 220
    },
-   "x": 400,
-   "y": 300
+   "seat": {
+    "boardId": "bb2",
+    "leadMap": {
+     "a": "a19",
+     "b": "a23"
+    }
+   }
   },
   {
    "id": "r8",
@@ -102,8 +139,13 @@
    "params": {
     "ohms": 220
    },
-   "x": 450,
-   "y": 300
+   "seat": {
+    "boardId": "bb2",
+    "leadMap": {
+     "a": "a27",
+     "b": "a31"
+    }
+   }
   },
   {
    "id": "led1",
@@ -113,10 +155,10 @@
     "vf": 2
    },
    "seat": {
-    "boardId": "bb1",
+    "boardId": "bb2",
     "leadMap": {
-     "anode": "a60",
-     "cathode": "a61"
+     "anode": "a35",
+     "cathode": "a36"
     }
    }
   },
@@ -127,8 +169,13 @@
     "color": "red",
     "vf": 2
    },
-   "x": 150,
-   "y": 200
+   "seat": {
+    "boardId": "bb2",
+    "leadMap": {
+     "anode": "a40",
+     "cathode": "a41"
+    }
+   }
   },
   {
    "id": "led3",
@@ -137,8 +184,13 @@
     "color": "red",
     "vf": 2
    },
-   "x": 200,
-   "y": 200
+   "seat": {
+    "boardId": "bb2",
+    "leadMap": {
+     "anode": "a45",
+     "cathode": "a46"
+    }
+   }
   },
   {
    "id": "led4",
@@ -147,8 +199,13 @@
     "color": "red",
     "vf": 2
    },
-   "x": 250,
-   "y": 200
+   "seat": {
+    "boardId": "bb2",
+    "leadMap": {
+     "anode": "a50",
+     "cathode": "a51"
+    }
+   }
   },
   {
    "id": "led5",
@@ -157,8 +214,13 @@
     "color": "green",
     "vf": 2.1
    },
-   "x": 300,
-   "y": 200
+   "seat": {
+    "boardId": "bb2",
+    "leadMap": {
+     "anode": "a55",
+     "cathode": "a56"
+    }
+   }
   },
   {
    "id": "led6",
@@ -167,8 +229,13 @@
     "color": "green",
     "vf": 2.1
    },
-   "x": 350,
-   "y": 200
+   "seat": {
+    "boardId": "bb2",
+    "leadMap": {
+     "anode": "a60",
+     "cathode": "a61"
+    }
+   }
   },
   {
    "id": "led7",
@@ -177,8 +244,13 @@
     "color": "green",
     "vf": 2.1
    },
-   "x": 400,
-   "y": 200
+   "seat": {
+    "boardId": "bb3",
+    "leadMap": {
+     "anode": "a3",
+     "cathode": "a4"
+    }
+   }
   },
   {
    "id": "led8",
@@ -187,8 +259,13 @@
     "color": "green",
     "vf": 2.1
    },
-   "x": 450,
-   "y": 200
+   "seat": {
+    "boardId": "bb3",
+    "leadMap": {
+     "anode": "a8",
+     "cathode": "a9"
+    }
+   }
   },
   {
    "id": "mcu1",
@@ -250,15 +327,6 @@
      "VCC": "e3"
     }
    }
-  },
-  {
-   "id": "bb1",
-   "kind": "breadboard",
-   "params": {},
-   "terminals": [],
-   "x": 470,
-   "y": 330,
-   "rotation": 0
   }
  ],
  "wires": [

@@ -2,18 +2,27 @@
  "vcc": 5,
  "parts": [
   {
+   "id": "bb1",
+   "kind": "breadboard",
+   "params": {},
+   "terminals": [],
+   "x": 470,
+   "y": 330,
+   "rotation": 0
+  },
+  {
    "id": "vcc1",
    "kind": "vcc",
    "params": {},
-   "x": 200,
-   "y": 50
+   "x": 80,
+   "y": 60
   },
   {
    "id": "gnd1",
    "kind": "gnd",
    "params": {},
-   "x": 200,
-   "y": 350
+   "x": 220,
+   "y": 60
   },
   {
    "id": "r1",
@@ -39,19 +48,10 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "anode": "a10",
-     "cathode": "a11"
+     "anode": "a11",
+     "cathode": "a12"
     }
    }
-  },
-  {
-   "id": "bb1",
-   "kind": "breadboard",
-   "params": {},
-   "terminals": [],
-   "x": 470,
-   "y": 330,
-   "rotation": 0
   }
  ],
  "wires": [
@@ -86,14 +86,14 @@
    "ref": "bbw:bb1:gen_1",
    "boardId": "bb1",
    "a": "b7",
-   "b": "b10",
+   "b": "b11",
    "color": "green"
   },
   {
    "ref": "bbw:bb1:gen_2",
    "boardId": "bb1",
-   "a": "b11",
-   "b": "b-11",
+   "a": "b12",
+   "b": "b-12",
    "color": "black"
   }
  ]

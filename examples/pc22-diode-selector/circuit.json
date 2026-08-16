@@ -2,13 +2,22 @@
  "vcc": 5,
  "parts": [
   {
+   "id": "bb1",
+   "kind": "breadboard",
+   "params": {},
+   "terminals": [],
+   "x": 470,
+   "y": 330,
+   "rotation": 0
+  },
+  {
    "id": "src_a",
    "kind": "vsource",
    "params": {
     "volts": 5
    },
    "x": 80,
-   "y": 120
+   "y": 60
   },
   {
    "id": "src_b",
@@ -16,8 +25,8 @@
    "params": {
     "volts": 5
    },
-   "x": 80,
-   "y": 330
+   "x": 220,
+   "y": 60
   },
   {
    "id": "d_a",
@@ -28,8 +37,8 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "anode": "a3",
-     "cathode": "a5"
+     "anode": "a11",
+     "cathode": "a13"
     }
    }
   },
@@ -42,8 +51,8 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "anode": "a8",
-     "cathode": "a10"
+     "anode": "a17",
+     "cathode": "a19"
     }
    }
   },
@@ -56,8 +65,8 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a13",
-     "b": "a17"
+     "a": "a3",
+     "b": "a7"
     }
    }
   },
@@ -71,8 +80,8 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "anode": "a20",
-     "cathode": "a21"
+     "anode": "a23",
+     "cathode": "a24"
     }
    }
   },
@@ -80,17 +89,8 @@
    "id": "gnd",
    "kind": "gnd",
    "params": {},
-   "x": 720,
-   "y": 390
-  },
-  {
-   "id": "bb1",
-   "kind": "breadboard",
-   "params": {},
-   "terminals": [],
-   "x": 470,
-   "y": 330,
-   "rotation": 0
+   "x": 360,
+   "y": 60
   }
  ],
  "wires": [
@@ -147,29 +147,29 @@
   {
    "ref": "bbw:bb1:gen_0",
    "boardId": "bb1",
-   "a": "b5",
-   "b": "b13",
+   "a": "b13",
+   "b": "b3",
    "color": "green"
   },
   {
    "ref": "bbw:bb1:gen_1",
    "boardId": "bb1",
-   "a": "b10",
-   "b": "c13",
+   "a": "b19",
+   "b": "c3",
    "color": "blue"
   },
   {
    "ref": "bbw:bb1:gen_2",
    "boardId": "bb1",
-   "a": "b17",
-   "b": "b20",
+   "a": "b7",
+   "b": "b23",
    "color": "yellow"
   },
   {
    "ref": "bbw:bb1:gen_3",
    "boardId": "bb1",
-   "a": "b21",
-   "b": "b-21",
+   "a": "b24",
+   "b": "b-24",
    "color": "black"
   }
  ]

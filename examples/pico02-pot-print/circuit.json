@@ -2,18 +2,27 @@
  "vcc": 3.3,
  "parts": [
   {
+   "id": "bb1",
+   "kind": "breadboard",
+   "params": {},
+   "terminals": [],
+   "x": 470,
+   "y": 330,
+   "rotation": 0
+  },
+  {
    "id": "vcc1",
    "kind": "vcc",
    "params": {},
-   "x": 100,
-   "y": 50
+   "x": 80,
+   "y": 60
   },
   {
    "id": "gnd1",
    "kind": "gnd",
    "params": {},
-   "x": 100,
-   "y": 350
+   "x": 220,
+   "y": 60
   },
   {
    "id": "pot1",
@@ -21,8 +30,8 @@
    "params": {
     "ohms": 10000
    },
-   "x": 200,
-   "y": 180
+   "x": 360,
+   "y": 60
   },
   {
    "id": "mcu1",
@@ -77,15 +86,6 @@
      "VCC": "e3"
     }
    }
-  },
-  {
-   "id": "bb1",
-   "kind": "breadboard",
-   "params": {},
-   "terminals": [],
-   "x": 470,
-   "y": 330,
-   "rotation": 0
   }
  ],
  "wires": [

@@ -1,14 +1,23 @@
 {
  "parts": [
   {
+   "id": "bb1",
+   "kind": "breadboard",
+   "params": {},
+   "terminals": [],
+   "x": 470,
+   "y": 330,
+   "rotation": 0
+  },
+  {
    "id": "bat1",
    "kind": "battery",
    "params": {
     "volts": 9,
     "rInternal": 0.5
    },
-   "x": 100,
-   "y": 200
+   "x": 80,
+   "y": 60
   },
   {
    "id": "r1",
@@ -33,19 +42,10 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a10",
-     "b": "a14"
+     "a": "a11",
+     "b": "a15"
     }
    }
-  },
-  {
-   "id": "bb1",
-   "kind": "breadboard",
-   "params": {},
-   "terminals": [],
-   "x": 470,
-   "y": 330,
-   "rotation": 0
   }
  ],
  "wires": [
@@ -73,7 +73,7 @@
    "ref": "bbw:bb1:gen_0",
    "boardId": "bb1",
    "a": "b7",
-   "b": "b10",
+   "b": "b11",
    "color": "green"
   }
  ]

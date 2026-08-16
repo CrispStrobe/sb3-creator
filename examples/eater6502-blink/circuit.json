@@ -2,6 +2,15 @@
  "vcc": 5,
  "parts": [
   {
+   "id": "bb1",
+   "kind": "breadboard",
+   "params": {},
+   "terminals": [],
+   "x": 470,
+   "y": 330,
+   "rotation": 0
+  },
+  {
    "id": "mcu",
    "kind": "mcu",
    "declName": "mcu",
@@ -73,8 +82,8 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "anode": "a25",
-     "cathode": "a26"
+     "anode": "a34",
+     "cathode": "a35"
     }
    }
   },
@@ -87,8 +96,8 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a29",
-     "b": "a33"
+     "a": "a26",
+     "b": "a30"
     }
    }
   },
@@ -98,24 +107,15 @@
    "params": {
     "volts": 5
    },
-   "x": 340,
-   "y": 100
+   "x": 80,
+   "y": 60
   },
   {
    "id": "gnd1",
    "kind": "gnd",
    "params": {},
-   "x": 420,
-   "y": 100
-  },
-  {
-   "id": "bb1",
-   "kind": "breadboard",
-   "params": {},
-   "terminals": [],
-   "x": 470,
-   "y": 330,
-   "rotation": 0
+   "x": 220,
+   "y": 60
   }
  ],
  "wires": [
@@ -154,15 +154,15 @@
   {
    "ref": "bbw:bb1:gen_0",
    "boardId": "bb1",
-   "a": "b33",
-   "b": "b25",
+   "a": "b30",
+   "b": "b34",
    "color": "green"
   },
   {
    "ref": "bbw:bb1:gen_1",
    "boardId": "bb1",
-   "a": "b26",
-   "b": "b-26",
+   "a": "b35",
+   "b": "b-35",
    "color": "black"
   },
   {
