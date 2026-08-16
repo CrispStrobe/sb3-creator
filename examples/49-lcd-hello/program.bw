@@ -1,15 +1,20 @@
-# I2C character LCD: HD44780 behind a PCF8574 backpack on P2.1/P2.2.
-# The lcd verbs drive the transpiler's bit-banged I2C driver; the
-# board model decodes the bytes and the LCD face shows the text.
 DEVICE STC12C5A60S2
 CLOCK 11059200
 
-WHEN flag clicked:
-  lcd clear on 1
-  lcd print "HELLO BRICKWRIGHT" on 1
-  set count to 0
-  FOREVER:
+GLOBAL count
+
+STAGE:
+  # I2C character LCD: HD44780 behind a PCF8574 backpack on P2.1/P2.2.
+  # The lcd verbs drive the transpiler's bit-banged I2C driver; the
+  # board model decodes the bytes and the LCD face shows the text.
+  WHEN flag clicked:
+    lcd clear 1
+    lcd print "HELLO BRICKWRIGHT" on 1
     lcd set cursor 1 0 on 1
-    lcd print join "COUNT: " count on 1
-    change count by 1
-    wait 1 seconds
+    lcd print "COUNT:" on 1
+    set count to 0
+    FOREVER:
+      lcd set cursor 1 7 on 1
+      lcd print count on 1
+      change count by 1
+      wait 1 seconds

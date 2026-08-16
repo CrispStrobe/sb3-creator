@@ -80,6 +80,10 @@ const EXPECTED_UNSUPPORTED = new Set([
     // vocabulary 2026-08-13 (1 ms re-poll, matching the C scheduler's
     // per-pass re-check within tolerance) and left this list.
     'stc12_setpart',     // shift register
+    // The LCD verbs drive the bit-banged I2C driver in C; the js referee
+    // has no LCD model (the ENGINE does — board char_lcd_i2c — but the
+    // referee traces pins, not devices). Recorded, not a failure.
+    'devices_lcdprint', 'devices_lcdcursor', 'devices_lcdclear',
     'devices_setservo', 'devices_setmotor', 'devices_setdirection',
 ]);
 
