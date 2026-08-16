@@ -1443,7 +1443,7 @@ class SB3Creator {
             });
             return true;
         }
-        if ((m = trimmed.match(/^PIN\s+([A-Za-z_]\w*)\s*=\s*P([0-4])\.([0-7])\s+(OUTPUT|INPUT|ANALOG|PWM|TONE)(?:\s+ACTIVE\s+(LOW|HIGH))?$/i))) {
+        if ((m = trimmed.match(/^PIN\s+([A-Za-z_]\w*)\s*=\s*P([0-5])\.([0-7])\s+(OUTPUT|INPUT|ANALOG|PWM|TONE)(?:\s+ACTIVE\s+(LOW|HIGH))?$/i))) {
             const [, name, port, bit, direction, active] = m;
             const cfg = this.stcConfig();
             if (this.stcPin(name)) {
@@ -8058,6 +8058,41 @@ class SB3Creator {
             }
         } else {
         out.push(`#include <${chip.header}>`, '');
+        // The STC15 supplement — everything the STC15 has that SDCC's
+        // stc12.h does not declare, emitted for EVERY STC15 program so the
+        // header story is complete, not patched per feature (owner
+        // directive, 2026-08-16). Deduped against the shipped stc12.h
+        // (SDCC 4.5.0): that header already carries P5/P5M0/P5M1 at the
+        // STC15's own addresses, and IAP/SPI/BUS_SPEED besides — but only
+        // sbits P5_0..P5_3 ("lower 4 bits", an LQFP-48 STC12 note), while
+        // the STC15 DIP-40 bonds P5.4 and P5.5 (the RBS15667 console's
+        // buzzer is P5.5). Addresses: STC15-PERIPHERAL-MODEL.md §3.
+        if (chip.p5) {
+            out.push('/* STC15 supplement — registers stc12.h lacks (STC15-PERIPHERAL-MODEL.md §3) */',
+                '__sbit __at (0xCC) P5_4;      /* DIP-40 pin 17, RST-shared */',
+                '__sbit __at (0xCD) P5_5;      /* DIP-40 pin 19 */',
+                '__sbit __at (0xCE) P5_6;      /* not bonded on DIP-40 */',
+                '__sbit __at (0xCF) P5_7;      /* not bonded on DIP-40 */',
+                '__sfr  __at (0xD6) T2H;       /* Timer 2 — the UART1 baud source */',
+                '__sfr  __at (0xD7) T2L;',
+                '__sfr  __at (0xBA) P_SW2;     /* peripheral pin switch 2 */',
+                '__sfr  __at (0xAA) WKTCL;     /* wake-up timer */',
+                '__sfr  __at (0xAB) WKTCH;',
+                '__sfr  __at (0xDC) CCAPM2;    /* third PCA/CCP channel */',
+                '__sfr  __at (0xEC) CCAP2L;',
+                '__sfr  __at (0xFC) CCAP2H;',
+                '__sfr  __at (0xF4) PCA_PWM2;',
+                '#define P_SW1    AUXR1        /* STC15 name for 0xA2 */',
+                '#define INT_CLKO WAKE_CLKO    /* STC15 name for 0x8F */', '');
+        }
+        for (const p of pins) {
+            if (Number(p.port) !== 5) continue;
+            if (!chip.p5) {
+                this.cWarn(`P5 does not exist on DEVICE ${String(this.project.stc.device || '').toUpperCase()} — it is an STC15 port (STC15-PERIPHERAL-MODEL.md §3); this C will not compile`);
+            } else if (Number(p.bit) !== 4 && Number(p.bit) !== 5) {
+                this.cWarn(`P5.${p.bit} is not bonded on the DIP-40 — only P5.4 and P5.5 reach pins`);
+            }
+        }
         out.push(`#define FOSC_HZ ${clock}UL`, '');
         out.push('/* Timer 0, mode 1, clocked at FOSC/12 — accuracy depends only on FOSC, and',
             ' * every supported family counts this mode identically, so the same program is',
@@ -10632,9 +10667,13 @@ SB3Creator.STC_PARTS = {
     stc89c52: { header: '8052.h', portModes: false, aux1T: false, adc: false, pca: false, timer1: true,
         ccp: null, xtalAdc: null },
     stc15f2k60s2: { header: 'stc12.h', portModes: true, aux1T: true, adc: true, pca: true, timer1: true,
+        // p5: port 5 exists (P5.4/P5.5 bonded on the DIP-40) — the emitter
+        // declares its SFRs itself, stc12.h has none of them.
+        p5: true,
         ccp: [{ port: 1, bit: 1 }, { port: 1, bit: 0 }, { port: 3, bit: 7 }], xtalAdc: [6, 7] },
     // STC15W408AS: lacks Timer 1. Same CCP mapping as STC15F2K. XTAL shares ADC6/7.
     stc15w408as: { header: 'stc12.h', portModes: true, aux1T: true, adc: true, pca: true, timer1: false,
+        p5: true,
         ccp: [{ port: 1, bit: 1 }, { port: 1, bit: 0 }], xtalAdc: [6, 7] },
     // core: 'arduino' -- pins are NUMBERS (D13, A0), and there is no C back
     // end here yet. Declared so a sketch imported by cToPseudocode.js parses

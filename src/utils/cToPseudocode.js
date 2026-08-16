@@ -554,11 +554,11 @@ export default function cToPseudocode (source, opts = {}) {
     } else {
         const seen = new Map();
         for (const [k, v] of pre.defines) {
-            const m = String(v).match(/^P([0-4])_([0-7])$/);
+            const m = String(v).match(/^P([0-5])_([0-7])$/);
             if (m) seen.set(k, { port: +m[1], bit: +m[2] });
         }
         for (const line of pre.body) {
-            const m = line.match(/\bsbit\s+(\w+)\s*=\s*P([0-4])\s*\^\s*([0-7])/);
+            const m = line.match(/\bsbit\s+(\w+)\s*=\s*P([0-5])\s*\^\s*([0-7])/);
             if (m) seen.set(m[1], { port: +m[2], bit: +m[3] });
             // SDCC spells the same declaration by ADDRESS: `__sbit __at (0x90) LED1;`.
             // This is what Keil source looks like after stc-compiler normalises it, so
@@ -570,6 +570,10 @@ export default function cToPseudocode (source, opts = {}) {
                 if (addr >= 0x80 && addr <= 0xB7 && (addr & 0xF8) % 0x10 === 0) {
                     seen.set(a[2], { port: (addr - 0x80) >> 4, bit: addr & 7 });
                 }
+                // P4 (0xC0) and the STC15's P5 (0xC8) are bit-addressable too,
+                // but off the 0x10 grid the formula above walks.
+                if (addr >= 0xC0 && addr <= 0xC7) seen.set(a[2], { port: 4, bit: addr & 7 });
+                if (addr >= 0xC8 && addr <= 0xCF) seen.set(a[2], { port: 5, bit: addr & 7 });
             }
         }
         const text = pre.body.join('\n');
