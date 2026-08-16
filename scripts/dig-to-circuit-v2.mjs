@@ -118,6 +118,7 @@ const nodes = [];  // {partId, terminal, x, y}
 const parts = [];
 let n = 0;
 const addPart = (kind, id, params = {}) => { parts.push({ id, kind, params, x: 100 + (n++ % 8) * 120, y: 60 + Math.floor(n / 8) * 90, rotation: 0 }); return id; };
+const extraWires = [];
 
 for (const e of chipEls) {
     const id = e.label || `${CHIPS[e.name].kind}_${e.i}`;
@@ -132,10 +133,35 @@ for (const e of elements) {
     if (e.name === 'VDD') { const id = addPart('vcc', `vcc_${e.i}`, { volts: 5 }); nodes.push({ partId: id, terminal: 'vcc', x: e.x, y: e.y }); }
     if (e.name === 'Ground') { const id = addPart('gnd', `gnd_${e.i}`); nodes.push({ partId: id, terminal: 'gnd', x: e.x, y: e.y }); }
     if (e.name === 'In') { const id = addPart('button', e.label || `in_${e.i}`); nodes.push({ partId: id, terminal: 'a', x: e.x, y: e.y }); }
-    if (e.name === 'Clock') { const id = addPart('timer_555', e.label || `clk_${e.i}`); nodes.push({ partId: id, terminal: 'output', x: e.x, y: e.y }); }
+    if (e.name === 'Clock') {
+        const id = addPart('timer_555', e.label || `clk_${e.i}`);
+        nodes.push({ partId: id, terminal: 'output', x: e.x, y: e.y });
+        // Astable realization: R + C so the 555 oscillates under the engine
+        const rId = addPart('resistor', `${id}_r`, { ohms: 10000 });
+        const cId = addPart('capacitor', `${id}_c`, { farads: 1e-6 });
+        const vId = addPart('vcc', `${id}_vcc`, { volts: 5 });
+        const gId = addPart('gnd', `${id}_gnd`);
+        extraWires.push(
+            { from: vId, fromTerminal: 'vcc', to: rId, toTerminal: 'a' },
+            { from: rId, fromTerminal: 'b', to: id, toTerminal: 'discharge' },
+            { from: rId, fromTerminal: 'b', to: id, toTerminal: 'threshold' },
+            { from: id, fromTerminal: 'threshold', to: id, toTerminal: 'trigger' },
+            { from: id, fromTerminal: 'trigger', to: cId, toTerminal: 'a' },
+            { from: cId, fromTerminal: 'b', to: gId, toTerminal: 'gnd' },
+            { from: vId, fromTerminal: 'vcc', to: id, toTerminal: 'reset' },
+            { from: vId, fromTerminal: 'vcc', to: id, toTerminal: 'vcc' },
+            { from: gId, fromTerminal: 'gnd', to: id, toTerminal: 'gnd' }
+        );
+    }
     if (e.name === 'Out') {
-        const led = addPart('led', e.label || `out_${e.i}`, { color: 'red' });
-        nodes.push({ partId: led, terminal: 'anode', x: e.x, y: e.y });
+        const ledId = addPart('led', e.label || `out_${e.i}`, { color: 'red' });
+        const rId = addPart('resistor', `${ledId}_r`, { ohms: 220 });
+        const gId = addPart('gnd', `${ledId}_gnd`);
+        nodes.push({ partId: ledId, terminal: 'anode', x: e.x, y: e.y });
+        extraWires.push(
+            { from: ledId, fromTerminal: 'cathode', to: rId, toTerminal: 'a' },
+            { from: rId, fromTerminal: 'b', to: gId, toTerminal: 'gnd' }
+        );
     }
 }
 
@@ -158,6 +184,12 @@ for (const members of byNet.values()) {
     }
 }
 
-writeFileSync(output, JSON.stringify({ vcc: 5, parts, wires: outWires }, null, 2));
+const allWires = [...outWires, ...extraWires];
+writeFileSync(output, JSON.stringify({ vcc: 5, parts, wires: allWires }, null, 2));
 console.log(`${parts.length} parts, ${outWires.length} wires (${byNet.size} nets); pins attached ${attached}/${nodes.length}` +
     (floating.length ? `; floating: ${floating.slice(0, 8).join(' ')}` : ''));
+
+// ── Environment note ──
+// Requires: Java runtime + Digital.jar (hneemann/Digital, GPL, run-local).
+// Set DIGITAL_JAR=/path/to/Digital.jar or place at ~/code/digital-sim/Digital/Digital.jar.
+// Download from: https://github.com/hneemann/Digital/releases
