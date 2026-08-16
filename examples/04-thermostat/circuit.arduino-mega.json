@@ -1,0 +1,137 @@
+{
+ "vcc": 5,
+ "parts": [
+  {
+   "id": "VCC",
+   "kind": "vcc",
+   "params": {},
+   "terminals": [
+    "vcc"
+   ]
+  },
+  {
+   "id": "GND",
+   "kind": "gnd",
+   "params": {},
+   "terminals": [
+    "gnd"
+   ]
+  },
+  {
+   "id": "MCU",
+   "kind": "arduino_mega",
+   "params": {},
+   "terminals": [
+    "d13",
+    "a0"
+   ]
+  },
+  {
+   "id": "R_heater",
+   "kind": "resistor",
+   "params": {
+    "ohms": 1000
+   },
+   "terminals": [
+    "a",
+    "b"
+   ]
+  },
+  {
+   "id": "LED_heater",
+   "kind": "led",
+   "params": {
+    "vf": 2,
+    "color": "red"
+   },
+   "terminals": [
+    "anode",
+    "cathode"
+   ]
+  },
+  {
+   "id": "POT_sensor",
+   "kind": "potentiometer",
+   "params": {
+    "ohms": 10000
+   },
+   "terminals": [
+    "a",
+    "b",
+    "wiper"
+   ]
+  }
+ ],
+ "nets": [
+  {
+   "id": "net_heater_pin_r",
+   "terminals": [
+    {
+     "part": "MCU",
+     "terminal": "d13"
+    },
+    {
+     "part": "R_heater",
+     "terminal": "a"
+    }
+   ]
+  },
+  {
+   "id": "net_heater_r_led",
+   "terminals": [
+    {
+     "part": "R_heater",
+     "terminal": "b"
+    },
+    {
+     "part": "LED_heater",
+     "terminal": "anode"
+    }
+   ]
+  },
+  {
+   "id": "net_sensor_wiper",
+   "terminals": [
+    {
+     "part": "POT_sensor",
+     "terminal": "wiper"
+    },
+    {
+     "part": "MCU",
+     "terminal": "a0"
+    }
+   ]
+  },
+  {
+   "id": "net_vcc",
+   "terminals": [
+    {
+     "part": "VCC",
+     "terminal": "vcc"
+    },
+    {
+     "part": "POT_sensor",
+     "terminal": "a"
+    }
+   ]
+  },
+  {
+   "id": "net_gnd",
+   "terminals": [
+    {
+     "part": "GND",
+     "terminal": "gnd"
+    },
+    {
+     "part": "LED_heater",
+     "terminal": "cathode"
+    },
+    {
+     "part": "POT_sensor",
+     "terminal": "b"
+    }
+   ]
+  }
+ ],
+ "generated": "benchFor batch 2026-08-16"
+}

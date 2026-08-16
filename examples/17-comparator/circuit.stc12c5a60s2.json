@@ -1,0 +1,171 @@
+{
+ "vcc": 5,
+ "parts": [
+  {
+   "id": "VCC",
+   "kind": "vcc",
+   "params": {},
+   "terminals": [
+    "vcc"
+   ]
+  },
+  {
+   "id": "GND",
+   "kind": "gnd",
+   "params": {},
+   "terminals": [
+    "gnd"
+   ]
+  },
+  {
+   "id": "MCU",
+   "kind": "mcu",
+   "params": {},
+   "terminals": [
+    "P1.3",
+    "P1.4",
+    "P1.0"
+   ]
+  },
+  {
+   "id": "POT_potA",
+   "kind": "potentiometer",
+   "params": {
+    "ohms": 10000
+   },
+   "terminals": [
+    "a",
+    "b",
+    "wiper"
+   ]
+  },
+  {
+   "id": "POT_potB",
+   "kind": "potentiometer",
+   "params": {
+    "ohms": 10000
+   },
+   "terminals": [
+    "a",
+    "b",
+    "wiper"
+   ]
+  },
+  {
+   "id": "R_led1",
+   "kind": "resistor",
+   "params": {
+    "ohms": 1000
+   },
+   "terminals": [
+    "a",
+    "b"
+   ]
+  },
+  {
+   "id": "LED_led1",
+   "kind": "led",
+   "params": {
+    "vf": 2,
+    "color": "red"
+   },
+   "terminals": [
+    "anode",
+    "cathode"
+   ]
+  }
+ ],
+ "nets": [
+  {
+   "id": "net_potA_wiper",
+   "terminals": [
+    {
+     "part": "POT_potA",
+     "terminal": "wiper"
+    },
+    {
+     "part": "MCU",
+     "terminal": "P1.3"
+    }
+   ]
+  },
+  {
+   "id": "net_potB_wiper",
+   "terminals": [
+    {
+     "part": "POT_potB",
+     "terminal": "wiper"
+    },
+    {
+     "part": "MCU",
+     "terminal": "P1.4"
+    }
+   ]
+  },
+  {
+   "id": "net_led1_r_led",
+   "terminals": [
+    {
+     "part": "R_led1",
+     "terminal": "b"
+    },
+    {
+     "part": "LED_led1",
+     "terminal": "anode"
+    }
+   ]
+  },
+  {
+   "id": "net_led1_pin",
+   "terminals": [
+    {
+     "part": "LED_led1",
+     "terminal": "cathode"
+    },
+    {
+     "part": "MCU",
+     "terminal": "P1.0"
+    }
+   ]
+  },
+  {
+   "id": "net_vcc",
+   "terminals": [
+    {
+     "part": "VCC",
+     "terminal": "vcc"
+    },
+    {
+     "part": "POT_potA",
+     "terminal": "a"
+    },
+    {
+     "part": "POT_potB",
+     "terminal": "a"
+    },
+    {
+     "part": "R_led1",
+     "terminal": "a"
+    }
+   ]
+  },
+  {
+   "id": "net_gnd",
+   "terminals": [
+    {
+     "part": "GND",
+     "terminal": "gnd"
+    },
+    {
+     "part": "POT_potA",
+     "terminal": "b"
+    },
+    {
+     "part": "POT_potB",
+     "terminal": "b"
+    }
+   ]
+  }
+ ],
+ "generated": "benchFor batch 2026-08-16"
+}
