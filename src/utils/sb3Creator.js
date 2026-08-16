@@ -5035,6 +5035,37 @@ class SB3Creator {
 
     // Scratch values are strings/numbers; C variables here are ints, so a literal is
     // truncated (as the oracle's `int(node.value)` does) and a non-number becomes 0.
+    /** LCD/text-capable device args: literal strings become C string
+     *  literals in code space; everything else stays a numeric expression.
+     *  Before this, cVal routed "HELLO" through cNum and emitted
+     *  `0 /* HELLO *​/` — the firmware printed a null pointer and every
+     *  LCD in the product stayed blank while the whole I2C chain worked
+     *  (found by the app-path repro, 2026-08-16). */
+    cCString(value) {
+        const esc = String(value)
+            .replace(/\\/g, '\\\\')
+            .replace(/"/g, '\\"')
+            .replace(/\n/g, '\\n')
+            .replace(/\r/g, '')
+            .replace(/[^\x20-\x7e\\n]/g, '?');
+        return `"${esc}"`;
+    }
+
+    cTextArg(input, blocks) {
+        // Scratch input shapes: [1,[10,"str"]] literal; [3,"blockId",shadow]
+        // or [2,"blockId"] reporter; [1,[4..8, n]] numeric literal.
+        const prim = input && input[1];
+        if (Array.isArray(prim) && prim[0] === 10) {
+            const raw = prim[1];
+            const n = Number(raw);
+            if (String(raw).trim() !== '' && Number.isFinite(n)) {
+                return { isString: false, code: this.cNum(raw) };
+            }
+            return { isString: true, code: this.cCString(raw) };
+        }
+        return { isString: false, code: this.cVal(input, blocks) };
+    }
+
     cNum(value) {
         const n = Number(value);
         if (!Number.isFinite(n)) return `0 /* ${this.cComment(value)} */`;
@@ -5650,7 +5681,13 @@ class SB3Creator {
             case 'devices_setrelay': { this._cUses.devices = true; this._cUses.relay = true; return line(`bw_relay_set(${v('RELAY')}, ${f('STATE') === 'on' ? 1 : 0});`); }
             case 'devices_activate': { this._cUses.devices = true; this._cUses.relay = true; return line(`bw_device_activate(${v('DEVICE')});`); }
             case 'devices_deactivate': { this._cUses.devices = true; this._cUses.relay = true; return line(`bw_device_deactivate(${v('DEVICE')});`); }
-            case 'devices_lcdprint': { this._cUses.devices = true; this._cUses.lcd = true; return line(`bw_lcd_print(${v('DISPLAY')}, ${v('TEXT')});`); }
+            case 'devices_lcdprint': {
+                this._cUses.devices = true; this._cUses.lcd = true;
+                const t = this.cTextArg(b.inputs.TEXT, blocks);
+                return line(t.isString
+                    ? `bw_lcd_print_s(${v('DISPLAY')}, ${t.code});`
+                    : `bw_lcd_print_n(${v('DISPLAY')}, ${t.code});`);
+            }
             case 'devices_lcdcursor': { this._cUses.devices = true; this._cUses.lcd = true; return line(`bw_lcd_cursor(${v('DISPLAY')}, ${v('ROW')}, ${v('COL')});`); }
             case 'devices_lcdclear': { this._cUses.devices = true; this._cUses.lcd = true; return line(`bw_lcd_clear(${v('DISPLAY')});`); }
             case 'devices_showdigit': { this._cUses.devices = true; return line(`bw_7seg_show(${v('DISPLAY')}, ${v('DIGIT')});`); }
@@ -9406,13 +9443,21 @@ class SB3Creator {
                     '    lcd_nibble((unsigned char)((dat << 4) & 0xF0), 1);',
                     '}',
                     '',
-                    'static void bw_lcd_print(int disp, int text)',
+                    'static void bw_lcd_print_s(int disp, const char *s)',
                     '{',
-                    '    const char *s = (const char *)(unsigned int)text;',
                     '    (void)disp;',
-                    '    /* text is a Scratch string cast to int — on the 8051 it is a */',
-                    '    /* pointer to a null-terminated string in code space. */',
                     '    while (*s) lcd_data((unsigned char)*s++);',
+                    '}',
+                    '',
+                    'static void bw_lcd_print_n(int disp, long n)',
+                    '{',
+                    '    char buf[12]; unsigned char i = 0; unsigned long u;',
+                    '    (void)disp;',
+                    '    if (n < 0) { lcd_data(0x2D); u = (unsigned long)(-n); }',
+                    '    else u = (unsigned long)n;',
+                    '    if (u == 0) { lcd_data(0x30); return; }',
+                    '    while (u) { buf[i++] = (char)(0x30 + (u % 10)); u /= 10; }',
+                    '    while (i) lcd_data((unsigned char)buf[--i]);',
                     '}',
                     '',
                     'static void bw_lcd_cursor(int disp, int row, int col)',
@@ -9425,7 +9470,8 @@ class SB3Creator {
                     '');
             } else {
                 out.push(
-                    stub('static void bw_lcd_print(int disp, int text)', 'devices_lcdprint'),
+                    stub('static void bw_lcd_print_s(int disp, const char *s)', 'devices_lcdprint'),
+                    stub('static void bw_lcd_print_n(int disp, long n)', 'devices_lcdprint'),
                     stub('static void bw_lcd_cursor(int disp, int row, int col)', 'devices_lcdcursor'),
                     stub('static void bw_lcd_clear(int disp)', 'devices_lcdclear'));
             }

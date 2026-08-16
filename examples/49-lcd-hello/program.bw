@@ -11,7 +11,7 @@ STAGE:
   # board model decodes the bytes and the LCD face shows the text.
   WHEN flag clicked:
     lcd clear 1
-    lcd print "HELLO BRICKWRIGHT" on 1
+    lcd print "HI BRICKWRIGHT" on 1
     lcd set cursor 1 0 on 1
     lcd print "COUNT:" on 1
     set count to 0
