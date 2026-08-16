@@ -4065,6 +4065,24 @@
   "kind": "circuit"
  },
  {
+  "id": "z80-pd-bench",
+  "title": {
+   "en": "Z80 Computer, USB-FIFO Design",
+   "de": "Z80-Computer, USB-FIFO-Entwurf"
+  },
+  "category": "digital",
+  "difficulty": 3,
+  "files": {
+   "program": "z80-pd-bench/program.bw",
+   "circuit": "z80-pd-bench/circuit.json",
+   "intro": "z80-pd-bench/intro.md",
+   "introDE": "z80-pd-bench/intro.de.md",
+   "expected": "z80-pd-bench/EXPECTED.md"
+  },
+  "kind": "circuit",
+  "devices": ["z80"]
+ },
+ {
   "id": "ttl-clock-module",
   "title": {
    "en": "TTL Clock Module",

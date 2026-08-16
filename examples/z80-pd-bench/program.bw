@@ -1,0 +1,27 @@
+# Z80 breadboard computer — the PainfulDiodes design (USB-FIFO variant).
+#
+# The bench is the deliverable. This is the SECOND Z80 in the catalog and it
+# does not replace the first: `z80-bench` answers "how do I talk to a modern
+# computer?" with an MC6850 ACIA; this one answers it with an FTDI UM245R
+# parallel USB FIFO. Same question, two real answers — which is the point.
+#
+# THE MACHINE, as bw-board's extractZ80Machine reads it off the wiring:
+#
+#   MAP ROM $0000-$7FFF     /ROM_CE = /MREQ OR A15   (memory request, A15 low)
+#   MAP RAM $8000-$FFFF     /RAM_CE = /MREQ OR /A15  (memory request, A15 high)
+#
+# There is no CHIP line, and its absence is honest: the machine's only I/O
+# device is a UM245R USB FIFO, and no engine part models one yet. The decode
+# that would drive it IS on the board and IS wired — glue2/glue3/glue4 produce
+# /RD_PORT_0, /RD_PORT_1 and WR_PORT_1 exactly as the original does — the
+# strobes simply end at unconnected gate outputs. See EXPECTED.md.
+#
+# The port decode, for the record (A0 alone selects; A0 is ignored on writes):
+#
+#   /RD_PORT_0 = A0  OR (/RD OR /IORQ)   IN from an even port  -> status byte
+#   /RD_PORT_1 = /A0 OR (/RD OR /IORQ)   IN from an odd port   -> FIFO read
+#   /WR_PORT_1 = /IORQ OR /WR            OUT to any port       -> FIFO write
+#
+# There is no DEVICE Z80 program axis in the transpiler yet — when a Z80
+# generateC/generateASM core lands, this file gains a real program. Until then
+# a fake DEVICE line would only teach the gallery to lie.
