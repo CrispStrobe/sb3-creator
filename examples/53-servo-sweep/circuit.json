@@ -35,7 +35,9 @@
      "vcc": "a27",
      "gnd": "a28"
     }
-   }
+   },
+   "x": 386,
+   "y": 255
   },
   {
    "id": "mcu1",
@@ -89,7 +91,9 @@
      "P0.0": "e4",
      "VCC": "e3"
     }
-   }
+   },
+   "x": 64,
+   "y": 349
   }
  ],
  "wires": [
@@ -110,6 +114,24 @@
    "fromTerminal": "P1.1",
    "to": "servo1",
    "toTerminal": "signal"
+  },
+  {
+   "from": "vcc1",
+   "fromTerminal": "vcc",
+   "to": {
+    "board": "bb1",
+    "hole": "t+2"
+   },
+   "genPower": true
+  },
+  {
+   "from": "gnd1",
+   "fromTerminal": "gnd",
+   "to": {
+    "board": "bb1",
+    "hole": "b-2"
+   },
+   "genPower": true
   }
  ],
  "holeWires": [
@@ -133,6 +155,34 @@
    "a": "g4",
    "b": "b26",
    "color": "green"
+  },
+  {
+   "ref": "bbw:bb1:gen_3",
+   "boardId": "bb1",
+   "a": "g22",
+   "b": "b-22",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb1:gen_4",
+   "boardId": "bb1",
+   "a": "a3",
+   "b": "t+3",
+   "color": "red"
+  },
+  {
+   "ref": "bbw:bb1:gen_5",
+   "boardId": "bb1",
+   "a": "c27",
+   "b": "t+27",
+   "color": "red"
+  },
+  {
+   "ref": "bbw:bb1:gen_6",
+   "boardId": "bb1",
+   "a": "c28",
+   "b": "b-28",
+   "color": "black"
   }
  ]
 }

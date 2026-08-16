@@ -26,11 +26,13 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a26",
-     "wiper": "a28",
-     "b": "a30"
+     "a": "a3",
+     "wiper": "a5",
+     "b": "a7"
     }
-   }
+   },
+   "x": 64,
+   "y": 255
   },
   {
    "id": "vcc1",
@@ -47,9 +49,8 @@
      "A9"
     ]
    },
-   "seat": {
-    "boardId": "bb1"
-   }
+   "x": 360,
+   "y": 60
   }
  ],
  "wires": [
@@ -57,7 +58,7 @@
    "from": "vcc1",
    "fromTerminal": "vcc",
    "to": "pot1",
-   "toTerminal": "lead1"
+   "toTerminal": "a"
   },
   {
    "from": "pot1",
@@ -67,10 +68,25 @@
   },
   {
    "from": "pot1",
-   "fromTerminal": "lead2",
+   "fromTerminal": "b",
    "to": "gnd1",
    "toTerminal": "gnd"
   }
  ],
- "holeWires": []
+ "holeWires": [
+  {
+   "ref": "bbw:bb1:gen_0",
+   "boardId": "bb1",
+   "a": "b3",
+   "b": "t+3",
+   "color": "red"
+  },
+  {
+   "ref": "bbw:bb1:gen_1",
+   "boardId": "bb1",
+   "a": "b7",
+   "b": "b-7",
+   "color": "black"
+  }
+ ]
 }

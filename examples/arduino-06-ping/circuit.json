@@ -32,7 +32,9 @@
      "D12": "a15",
      "D13": "a16"
     }
-   }
+   },
+   "x": 64,
+   "y": 255
   },
   {
    "id": "us",
@@ -47,7 +49,9 @@
      "echo": "a22",
      "gnd": "a23"
     }
-   }
+   },
+   "x": 302,
+   "y": 255
   },
   {
    "id": "vcc1",
@@ -102,6 +106,24 @@
    "fromTerminal": "gnd",
    "to": "board",
    "toTerminal": "gnd"
+  },
+  {
+   "from": "vcc1",
+   "fromTerminal": "vcc",
+   "to": {
+    "board": "bb1",
+    "hole": "t+2"
+   },
+   "genPower": true
+  },
+  {
+   "from": "gnd1",
+   "fromTerminal": "gnd",
+   "to": {
+    "board": "bb1",
+    "hole": "b-2"
+   },
+   "genPower": true
   }
  ],
  "holeWires": [
@@ -116,6 +138,20 @@
    "ref": "bbw:bb1:gen_1",
    "boardId": "bb1",
    "a": "b23",
+   "b": "b-23",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb1:gen_2",
+   "boardId": "bb1",
+   "a": "c20",
+   "b": "t+20",
+   "color": "red"
+  },
+  {
+   "ref": "bbw:bb1:gen_3",
+   "boardId": "bb1",
+   "a": "c23",
    "b": "b-23",
    "color": "black"
   }

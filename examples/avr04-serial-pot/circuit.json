@@ -30,8 +30,16 @@
    "params": {
     "ohms": 10000
    },
-   "x": 360,
-   "y": 60
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a20",
+     "wiper": "a22",
+     "b": "a24"
+    }
+   },
+   "x": 302,
+   "y": 255
   },
   {
    "id": "mcu1",
@@ -42,8 +50,26 @@
     ]
    },
    "seat": {
-    "boardId": "bb1"
-   }
+    "boardId": "bb1",
+    "leadMap": {
+     "D0": "a3",
+     "D1": "a4",
+     "D2": "a5",
+     "D3": "a6",
+     "D4": "a7",
+     "D5": "a8",
+     "D6": "a9",
+     "D7": "a10",
+     "D8": "a11",
+     "D9": "a12",
+     "D10": "a13",
+     "D11": "a14",
+     "D12": "a15",
+     "D13": "a16"
+    }
+   },
+   "x": 64,
+   "y": 255
   }
  ],
  "wires": [
@@ -51,11 +77,11 @@
    "from": "vcc1",
    "fromTerminal": "vcc",
    "to": "pot1",
-   "toTerminal": "cw"
+   "toTerminal": "a"
   },
   {
    "from": "pot1",
-   "fromTerminal": "ccw",
+   "fromTerminal": "b",
    "to": "gnd1",
    "toTerminal": "gnd"
   },
@@ -66,5 +92,20 @@
    "toTerminal": "A0"
   }
  ],
- "holeWires": []
+ "holeWires": [
+  {
+   "ref": "bbw:bb1:gen_0",
+   "boardId": "bb1",
+   "a": "b20",
+   "b": "t+20",
+   "color": "red"
+  },
+  {
+   "ref": "bbw:bb1:gen_1",
+   "boardId": "bb1",
+   "a": "b24",
+   "b": "b-24",
+   "color": "black"
+  }
+ ]
 }

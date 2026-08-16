@@ -32,15 +32,24 @@
      "D12": "a15",
      "D13": "a16"
     }
-   }
+   },
+   "x": 64,
+   "y": 255
   },
   {
    "id": "piezo",
    "kind": "piezo",
    "declName": "piezo",
    "params": {},
-   "x": 80,
-   "y": 60
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a32",
+     "b": "a33"
+    }
+   },
+   "x": 470,
+   "y": 255
   },
   {
    "id": "r1",
@@ -54,7 +63,9 @@
      "a": "a20",
      "b": "a24"
     }
-   }
+   },
+   "x": 302,
+   "y": 255
   },
   {
    "id": "led1",
@@ -66,10 +77,12 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "anode": "a36",
-     "cathode": "a37"
+     "anode": "a35",
+     "cathode": "a36"
     }
-   }
+   },
+   "x": 512,
+   "y": 255
   },
   {
    "id": "r2",
@@ -80,10 +93,12 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a28",
-     "b": "a32"
+     "a": "a26",
+     "b": "a30"
     }
-   }
+   },
+   "x": 386,
+   "y": 255
   },
   {
    "id": "vcc1",
@@ -91,14 +106,14 @@
    "params": {
     "volts": 5
    },
-   "x": 220,
+   "x": 80,
    "y": 60
   },
   {
    "id": "gnd1",
    "kind": "gnd",
    "params": {},
-   "x": 360,
+   "x": 220,
    "y": 60
   }
  ],
@@ -169,15 +184,15 @@
   {
    "ref": "bbw:bb1:gen_1",
    "boardId": "bb1",
-   "a": "b32",
-   "b": "b36",
+   "a": "b30",
+   "b": "b35",
    "color": "green"
   },
   {
    "ref": "bbw:bb1:gen_2",
    "boardId": "bb1",
-   "a": "b37",
-   "b": "b-37",
+   "a": "b36",
+   "b": "b-36",
    "color": "black"
   }
  ]

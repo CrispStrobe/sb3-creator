@@ -18,35 +18,6 @@
    "y": 60
   },
   {
-   "id": "r1",
-   "kind": "resistor",
-   "params": {
-    "ohms": 220
-   },
-   "seat": {
-    "boardId": "bb1",
-    "leadMap": {
-     "a": "a26",
-     "b": "a30"
-    }
-   }
-  },
-  {
-   "id": "led1",
-   "kind": "led",
-   "params": {
-    "color": "green",
-    "vf": 2.1
-   },
-   "seat": {
-    "boardId": "bb1",
-    "leadMap": {
-     "anode": "a34",
-     "cathode": "a35"
-    }
-   }
-  },
-  {
    "id": "mcu1",
    "kind": "pi_pico",
    "params": {
@@ -54,30 +25,35 @@
      "GP25"
     ]
    },
+   "x": 64,
+   "y": 255,
    "seat": {
-    "boardId": "bb1"
+    "boardId": "bb1",
+    "leadMap": {
+     "GP0": "a3",
+     "GP1": "a4",
+     "GP2": "a5",
+     "GP3": "a6",
+     "GP4": "a7",
+     "GP5": "a8",
+     "GP6": "a9",
+     "GP7": "a10",
+     "GP8": "a11",
+     "GP9": "a12",
+     "GP10": "a13",
+     "GP11": "a14",
+     "GP12": "a15",
+     "GP13": "a16",
+     "GP14": "a17",
+     "GP15": "a18",
+     "GP16": "a19",
+     "GP17": "a20",
+     "GP18": "a21",
+     "GP19": "a22"
+    }
    }
   }
  ],
- "wires": [
-  {
-   "from": "mcu1",
-   "fromTerminal": "GP25",
-   "to": "led1",
-   "toTerminal": "anode"
-  },
-  {
-   "from": "led1",
-   "fromTerminal": "cathode",
-   "to": "r1",
-   "toTerminal": "lead1"
-  },
-  {
-   "from": "r1",
-   "fromTerminal": "lead2",
-   "to": "gnd1",
-   "toTerminal": "gnd"
-  }
- ],
+ "wires": [],
  "holeWires": []
 }

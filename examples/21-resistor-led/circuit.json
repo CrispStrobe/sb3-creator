@@ -36,7 +36,9 @@
      "a": "a3",
      "b": "a7"
     }
-   }
+   },
+   "x": 64,
+   "y": 255
   },
   {
    "id": "led1",
@@ -48,10 +50,12 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "anode": "a11",
-     "cathode": "a12"
+     "anode": "a9",
+     "cathode": "a10"
     }
-   }
+   },
+   "x": 148,
+   "y": 255
   }
  ],
  "wires": [
@@ -86,14 +90,14 @@
    "ref": "bbw:bb1:gen_1",
    "boardId": "bb1",
    "a": "b7",
-   "b": "b11",
+   "b": "b9",
    "color": "green"
   },
   {
    "ref": "bbw:bb1:gen_2",
    "boardId": "bb1",
-   "a": "b12",
-   "b": "b-12",
+   "a": "b10",
+   "b": "b-10",
    "color": "black"
   }
  ]

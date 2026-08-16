@@ -74,7 +74,9 @@
      "a12": "e21",
      "vss": "e22"
     }
-   }
+   },
+   "x": 64,
+   "y": 349
   },
   {
    "id": "ram",
@@ -111,7 +113,9 @@
      "d4": "e15",
      "d3": "e16"
     }
-   }
+   },
+   "x": 64,
+   "y": 709
   },
   {
    "id": "rom",
@@ -148,7 +152,9 @@
      "d4": "e32",
      "d3": "e33"
     }
-   }
+   },
+   "x": 302,
+   "y": 709
   },
   {
    "id": "via",
@@ -197,7 +203,9 @@
      "rwb": "e44",
      "irqb": "e45"
     }
-   }
+   },
+   "x": 386,
+   "y": 349
   },
   {
    "id": "acia",
@@ -233,7 +241,9 @@
      "rs0": "e49",
      "d7": "e50"
     }
-   }
+   },
+   "x": 540,
+   "y": 709
   },
   {
    "id": "glue1",
@@ -256,7 +266,9 @@
      "3a": "e59",
      "3y": "e60"
     }
-   }
+   },
+   "x": 778,
+   "y": 709
   },
   {
    "id": "glue2",
@@ -279,7 +291,9 @@
      "3a": "e8",
      "3y": "e9"
     }
-   }
+   },
+   "x": 64,
+   "y": 1069
   },
   {
    "id": "vcc1",
@@ -954,6 +968,60 @@
    "fromTerminal": "gnd",
    "to": "via",
    "toTerminal": "cs2b"
+  },
+  {
+   "from": "vcc1",
+   "fromTerminal": "vcc",
+   "to": {
+    "board": "bb1",
+    "hole": "t+2"
+   },
+   "genPower": true
+  },
+  {
+   "from": "vcc1",
+   "fromTerminal": "vcc",
+   "to": {
+    "board": "bb2",
+    "hole": "t+3"
+   },
+   "genPower": true
+  },
+  {
+   "from": "vcc1",
+   "fromTerminal": "vcc",
+   "to": {
+    "board": "bb3",
+    "hole": "t+4"
+   },
+   "genPower": true
+  },
+  {
+   "from": "gnd1",
+   "fromTerminal": "gnd",
+   "to": {
+    "board": "bb1",
+    "hole": "b-2"
+   },
+   "genPower": true
+  },
+  {
+   "from": "gnd1",
+   "fromTerminal": "gnd",
+   "to": {
+    "board": "bb2",
+    "hole": "b-3"
+   },
+   "genPower": true
+  },
+  {
+   "from": "gnd1",
+   "fromTerminal": "gnd",
+   "to": {
+    "board": "bb3",
+    "hole": "b-4"
+   },
+   "genPower": true
   }
  ],
  "holeWires": [
@@ -1236,6 +1304,104 @@
    "a": "a43",
    "b": "b-43",
    "color": "black"
+  },
+  {
+   "ref": "bbw:bb1:gen_40",
+   "boardId": "bb1",
+   "a": "h10",
+   "b": "t+10",
+   "color": "red"
+  },
+  {
+   "ref": "bbw:bb1:gen_41",
+   "boardId": "bb1",
+   "a": "b22",
+   "b": "b-22",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb1:gen_42",
+   "boardId": "bb1",
+   "a": "h26",
+   "b": "b-26",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb1:gen_43",
+   "boardId": "bb1",
+   "a": "h45",
+   "b": "t+45",
+   "color": "red"
+  },
+  {
+   "ref": "bbw:bb2:gen_44",
+   "boardId": "bb2",
+   "a": "h16",
+   "b": "b-16",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb2:gen_45",
+   "boardId": "bb2",
+   "a": "b3",
+   "b": "t+3",
+   "color": "red"
+  },
+  {
+   "ref": "bbw:bb2:gen_46",
+   "boardId": "bb2",
+   "a": "h33",
+   "b": "b-33",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb2:gen_47",
+   "boardId": "bb2",
+   "a": "b20",
+   "b": "t+20",
+   "color": "red"
+  },
+  {
+   "ref": "bbw:bb2:gen_48",
+   "boardId": "bb2",
+   "a": "h37",
+   "b": "b-37",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb2:gen_49",
+   "boardId": "bb2",
+   "a": "b37",
+   "b": "t+37",
+   "color": "red"
+  },
+  {
+   "ref": "bbw:bb2:gen_50",
+   "boardId": "bb2",
+   "a": "h60",
+   "b": "b-60",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb2:gen_51",
+   "boardId": "bb2",
+   "a": "b54",
+   "b": "t+54",
+   "color": "red"
+  },
+  {
+   "ref": "bbw:bb3:gen_52",
+   "boardId": "bb3",
+   "a": "h9",
+   "b": "b-9",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb3:gen_53",
+   "boardId": "bb3",
+   "a": "b3",
+   "b": "t+3",
+   "color": "red"
   }
  ]
 }
