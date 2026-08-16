@@ -15,7 +15,7 @@ and has intro.md + intro.de.md (Layer 3).
 | AVR (Uno) | avr01–avr06 | 6 | 5 | 1 | 0 | 0 | 0 |
 | Arduino CC0 | arduino-01–sk | 63 | 62 | 0 | 0 | 0 | 1 |
 | retro benches | eater/z80 | 4 | 0 | 0 | 0 | 0 | 4 |
-| **total** | | **203** | **179** | **10** | **4** | **1** | **7** |
+| **total** | | **204** | **180** | **10** | **4** | **1** | **7** |
 
 ### Content fixes applied (8)
 - pc02: resistor_4 unseated (floating)
@@ -1117,6 +1117,10 @@ Parses clean, solves clean.
 ## eater6502-full-build — VERDICT: app-level (cannot engine-solve)
 **layers: none.** Full eater6502 build. Retro CPU parts not modeled by engine.
 Program parses clean (0 warnings).
+
+## ttl-clock-module — VERDICT: pass
+**layers: engine.** 555 astable clock module. No program. Output at **4.464 V**
+(HIGH), LED at **2.107 V** (lit), control at **3.092 V**. 9 nets. Solves clean.
 
 ## blinkenrocket-pendant — VERDICT: app-level (attiny88 kind)
 **layers: none.** Uses `attiny88` MCU not in engine registry. 8x8 LED matrix.
