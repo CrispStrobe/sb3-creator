@@ -1,23 +1,15 @@
----
-level: intermediate
-age: 14+
-prereqs: []
-teaches: [6502-basics, via-gpio, retro-computing]
----
-## What you see
-An LED on VIA port A bit 0 (PA0) blinks on and off once per second. This is the simplest program for the 6502 breadboard computer — the "Hello World" of retro computing.
+# Blink — the 6502 breadboard computer's first light
 
-## Try this
-1. Run the program and watch the LED blink at 1 Hz.
-2. Change the wait time to 0.1 seconds — the blink speeds up.
-3. Add a second LED on PA1 and make them alternate.
+This is the moment every Ben Eater build works toward: eight LEDs on
+the VIA's port B, walking. The machine is the real thing — W65C02,
+32K RAM, 32K ROM, the 6522 VIA, NAND-gate address decode — seated
+across four breadboards the way the physical build is.
 
-## What is going on
-The 6502 CPU writes to the W65C22 VIA's output register at address $6000. Setting bit 0 high drives PA0 high (5 V through the resistor and LED to ground). Setting it low turns the LED off. The cooperative scheduler yields at each wait, letting the timebase (Timer 0 at FOSC/12) keep time.
+**What to watch:** press the green flag. The program compiles for the
+6502, the bus extractor reads the wiring you see, and the LEDs light
+one after another — each one a real simulated part with a real
+current-limiting resistor, not a picture of an LED.
 
-## Why it matters
-This is the starting point for every retro computer project. If the LED blinks, the CPU is running, the address decode works, and the VIA is responding.
-
-## Go further
-- [eater6502-bench](../eater6502-bench) — the full breadboard computer with RAM, ROM, and address decode.
-- [eater6502-contention-bug](../eater6502-contention-bug) — a wiring error exercise.
+**Try:** change the wait times, or turn two LEDs on at once. Then open
+the Circuit Check panel and find the address map the extractor derived
+from the NAND wiring.

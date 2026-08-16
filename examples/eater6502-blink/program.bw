@@ -1,12 +1,41 @@
-# Blink an LED on the 6502 breadboard computer.
-# The LED is on VIA port A, bit 0 (PA0).
+# The classic first program of the 6502 breadboard computer: a walking
+# light on the eight LEDs of the VIA's port B — the same program Ben
+# Eater blinks at the end of his build, running on the same machine,
+# except here every LED is a real simulated part on the board.
 DEVICE EATER6502
 CLOCK 1000000
-PIN led = PA0 OUTPUT
+PIN l0 = PB0 OUTPUT
+PIN l1 = PB1 OUTPUT
+PIN l2 = PB2 OUTPUT
+PIN l3 = PB3 OUTPUT
+PIN l4 = PB4 OUTPUT
+PIN l5 = PB5 OUTPUT
+PIN l6 = PB6 OUTPUT
+PIN l7 = PB7 OUTPUT
 
 WHEN flag clicked:
   FOREVER:
-    turn on led
-    wait 0.5 seconds
-    turn off led
-    wait 0.5 seconds
+    turn on l0
+    wait 0.1 seconds
+    turn off l0
+    turn on l1
+    wait 0.1 seconds
+    turn off l1
+    turn on l2
+    wait 0.1 seconds
+    turn off l2
+    turn on l3
+    wait 0.1 seconds
+    turn off l3
+    turn on l4
+    wait 0.1 seconds
+    turn off l4
+    turn on l5
+    wait 0.1 seconds
+    turn off l5
+    turn on l6
+    wait 0.1 seconds
+    turn off l6
+    turn on l7
+    wait 0.1 seconds
+    turn off l7
