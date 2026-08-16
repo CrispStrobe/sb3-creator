@@ -20,6 +20,8 @@ Die Peripherie-Verdrahtung folgt der BeebEater-Konvention (chelsea6502/BeebEater
 - **VIA PORTA** (Pins 2–9): PS/2-Tastatur. Die Taktflanke der Tastatur löst über CA1 einen Interrupt aus.
 - **ACIA**: 115200-Baud-Seriell bei $5000, angetrieben von einem 1,8432-MHz-Quarz.
 
+**Errata aus den KiCad-Schaltplänen** (tebl/BE6502, MIT): der echte Aufbau braucht eine dedizierte Reset-Schaltung mit Kondensator für die Einschaltverzögerung sowie Pull-Ups an den Bus-Steuerleitungen (RWB, BE). Die Bus-Trace-Ansicht des Debuggers ist das Software-Äquivalent von tebls Arduino-Mega-Busmonitor-Shield.
+
 ## Warum das wichtig ist
 Diese Schaltung ist die Plattform für BBC BASIC, Forth und schließlich ein vollständiges Betriebssystem.
 

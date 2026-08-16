@@ -23,6 +23,10 @@ The peripheral wiring follows the BeebEater convention (chelsea6502/BeebEater, M
 
 The address decode is the canonical Eater NAND logic: ~A15 gates the lower half (RAM + I/O), A15 gates ROM. Within the lower half, A14+A13 select the VIA, A12 selects the ACIA, and the rest is RAM.
 
+**Errata from the KiCad schematics** (tebl/BE6502, MIT): the real build needs a dedicated reset circuit with a capacitor for power-on delay (a bare button bounces and can leave the CPU in an undefined state), and pull-ups on the bus control lines (RWB, BE) to keep them defined during reset. This simulation assumes clean edges — on the bench, add the RC reset and the pull-ups.
+
+The debugger's bus trace view is the software equivalent of tebl's Arduino Mega bus-monitor shield: both capture address, data, and control signals cycle by cycle — one on a logic analyser, the other in the browser.
+
 ## Why it matters
 This circuit is the platform for BBC BASIC, Forth, and eventually a full operating system. Understanding the peripheral wiring — which port drives the LCD, which drives the keyboard, how the ACIA baud rate is set by the crystal — is what turns a CPU into a usable computer.
 
