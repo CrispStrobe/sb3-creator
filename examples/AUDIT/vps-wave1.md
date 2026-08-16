@@ -1136,3 +1136,29 @@ solve only.
 **layers: engine.** 7-segment chase pattern. Program parses clean (0 warnings,
 device stc12c5a60s2). Circuit has 13 parts, 17 wires (breadboard-seated).
 Intros present.
+
+---
+
+# Band 8 — German lesson canon (pc63–pc80)
+
+18 pure-circuit examples from the German teaching canon. All parse clean
+(0 warnings, comment-only programs). All have intro.md + intro.de.md.
+
+## pc63-555-bistabil — VERDICT: pass
+## pc64-555-retrigger — VERDICT: pass
+## pc65-555-metronom — VERDICT: pass
+## pc66-555-langzeit — VERDICT: pass
+## pc67-555-tongenerator — VERDICT: pass
+## pc68-555-sirene — VERDICT: pass
+## pc69-nand-inverter — VERDICT: pass
+## pc70-schmitt-trigger — VERDICT: pass
+## pc71-nand-entpreller — VERDICT: pass
+## pc72-tagschaltung — VERDICT: pass
+## pc73-nachtschaltung — VERDICT: pass
+## pc74-ldr-555-blinker — VERDICT: pass
+## pc75-alarmgeber — VERDICT: pass
+## pc76-alarmschaltung — VERDICT: pass
+## pc77-klemmenspannung — VERDICT: pass
+## pc78-belastete-quelle — VERDICT: pass
+## pc79-indirekte-strommessung — VERDICT: pass
+## pc80-quellen-vergleich — VERDICT: pass
