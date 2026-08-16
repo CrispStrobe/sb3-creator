@@ -11,6 +11,20 @@
 //     `devices` list; the example card's device picker loads program-retarget +
 //     matching bench together.
 //  4. Migrate portable-tier examples to role form; delete their hardcoded benches.
+// PIPELINE STATE (2026-08-16, coordinator run): blink x arduino-uno and
+// blink x attiny88 produce ENGINE-ACCEPTED, POWERED, device-true benches
+// end to end (retarget -> infer -> device part swap w/ lowercase terminal
+// normalization -> BoardImpl.setNetlist ok). Two shaping findings:
+//  A. pico: the pool assigns led1=GP25 (onboard-LED convention) but the
+//     pi_pico part models the 40-pin HEADER, where gp25 is not bonded.
+//     Resolve by contract: either the part gains gp25 + an onboard-LED
+//     composite, or bench-generation pools prefer header pins (GP15) for
+//     external-part roles. Decide once, in the peripheral-model style.
+//  B. stc15_mcu (and any PASSTHROUGH kind): benchFor must validate through
+//     the cui Circuit model (fromJSON + _syncNetlist, which applies
+//     engineKindFor collapse) -- raw BoardImpl.setNetlist correctly rejects
+//     palette-only kinds. circuit.json keeps the device kind for rendering;
+//     the collapse is the model's job, same as every shipped example.
 // Usage: node scripts/gen-device-benches.mjs <exampleId> <device>
 import SB3Creator from '../src/utils/sb3Creator.js';
 import { readFileSync, writeFileSync } from 'node:fs';
