@@ -3,7 +3,7 @@
 This is the moment every Ben Eater build works toward: eight LEDs on
 the VIA's port B, walking. The machine is the real thing — W65C02,
 32K RAM, 32K ROM, the 6522 VIA, NAND-gate address decode — seated
-across four breadboards the way the physical build is.
+across three breadboards the way the physical build is.
 
 **What to watch:** press the green flag. The program compiles for the
 6502, the bus extractor reads the wiring you see, and the LEDs light

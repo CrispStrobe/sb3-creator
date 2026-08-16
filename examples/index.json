@@ -2,8 +2,8 @@
   {
     "id": "eater6502-contention-bug",
     "title": {
-      "en": "Contention bug: find the collision",
-      "de": "Contention-Bug: finde die Kollision"
+      "en": "6502 Debug Lesson: Bus Contention",
+      "de": "6502 Debug-Lektion: Bus-Contention"
     },
     "category": "digital",
     "difficulty": 3,
