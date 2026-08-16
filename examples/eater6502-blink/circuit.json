@@ -1364,6 +1364,30 @@
    },
    "color": "black",
    "genPower": true
+  },
+  {
+   "from": "vcc1",
+   "fromTerminal": "vcc",
+   "to": "cpu",
+   "toTerminal": "irqb"
+  },
+  {
+   "from": "vcc1",
+   "fromTerminal": "vcc",
+   "to": "cpu",
+   "toTerminal": "nmib"
+  },
+  {
+   "from": "vcc1",
+   "fromTerminal": "vcc",
+   "to": "cpu",
+   "toTerminal": "rdy"
+  },
+  {
+   "from": "vcc1",
+   "fromTerminal": "vcc",
+   "to": "cpu",
+   "toTerminal": "be"
   }
  ],
  "holeWires": [

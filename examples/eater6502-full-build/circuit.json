@@ -447,7 +447,7 @@
    "x": 260,
    "y": 1335,
    "params": {
-    "farads": 1e-7
+    "farads": 1e-07
    },
    "seat": {
     "boardId": "bb4",
@@ -463,7 +463,7 @@
    "x": 302,
    "y": 1335,
    "params": {
-    "farads": 1e-7
+    "farads": 1e-07
    },
    "seat": {
     "boardId": "bb4",
@@ -479,7 +479,7 @@
    "x": 344,
    "y": 1335,
    "params": {
-    "farads": 1e-7
+    "farads": 1e-07
    },
    "seat": {
     "boardId": "bb4",
@@ -495,7 +495,7 @@
    "x": 386,
    "y": 1335,
    "params": {
-    "farads": 1e-7
+    "farads": 1e-07
    },
    "seat": {
     "boardId": "bb4",
@@ -511,7 +511,7 @@
    "x": 428,
    "y": 1335,
    "params": {
-    "farads": 1e-7
+    "farads": 1e-07
    },
    "seat": {
     "boardId": "bb4",
@@ -527,7 +527,7 @@
    "x": 470,
    "y": 1335,
    "params": {
-    "farads": 1e-7
+    "farads": 1e-07
    },
    "seat": {
     "boardId": "bb4",
@@ -1128,6 +1128,30 @@
    },
    "color": "black",
    "genPower": true
+  },
+  {
+   "from": "vcc1",
+   "fromTerminal": "vcc",
+   "to": "cpu",
+   "toTerminal": "irqb"
+  },
+  {
+   "from": "vcc1",
+   "fromTerminal": "vcc",
+   "to": "cpu",
+   "toTerminal": "nmib"
+  },
+  {
+   "from": "vcc1",
+   "fromTerminal": "vcc",
+   "to": "cpu",
+   "toTerminal": "rdy"
+  },
+  {
+   "from": "vcc1",
+   "fromTerminal": "vcc",
+   "to": "cpu",
+   "toTerminal": "be"
   }
  ],
  "holeWires": [
