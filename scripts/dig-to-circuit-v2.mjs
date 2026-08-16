@@ -46,10 +46,10 @@ const output = process.argv[3] || input.replace(/\.dig$/, '.circuit.json');
 // Label lists in the LIBRARY's declaration order (matches the generic
 // shape's pin stacking); terminal names are our sidecars'.
 const CHIPS = {
-    '74245.dig': { kind: '74hc245', labels: { DIR: 'dir', VCC: 'vcc', GND: 'gnd', A1: 'a1', A2: 'a2', A3: 'a3', A4: 'a4', A5: 'a5', A6: 'a6', A7: 'a7', A8: 'a8', B1: 'b1', B2: 'b2', B3: 'b3', B4: 'b4', B5: 'b5', B6: 'b6', B7: 'b7', B8: 'b8', '~OE': 'oeb', OE: 'oeb' } },
-    '74161.dig': { kind: '74hc161', labels: { '~CLR': 'clrb', CLK: 'clk', A: 'a', B: 'b', C: 'c', D: 'd', ENP: 'enp', GND: 'gnd', '~LD': 'ldb', ENT: 'ent', QD: 'qd', QC: 'qc', QB: 'qb', QA: 'qa', RCO: 'rco', VCC: 'vcc' } },
-    '74173.dig': { kind: '74hc173', labels: { M: 'm', N: 'n', '1Q': 'q1', '2Q': 'q2', '3Q': 'q3', '4Q': 'q4', CLK: 'clk', CLR: 'clr', '1D': 'd1', '2D': 'd2', '3D': 'd3', '4D': 'd4', '~G2': 'g2b', '~G1': 'g1b', VCC: 'vcc', GND: 'gnd' } },
-    '74157.dig': { kind: '74hc157', labels: { '~G': 'gb', 'A/~B': 'sel', S: 'sel', VCC: 'vcc', GND: 'gnd', '1A': 'a1', '1B': 'b1', '1Y': 'y1', '2A': 'a2', '2B': 'b2', '2Y': 'y2', '3A': 'a3', '3B': 'b3', '3Y': 'y3', '4A': 'a4', '4B': 'b4', '4Y': 'y4' } },
+    '74245.dig': { kind: '74hc245', labels: { DIR: 'dir', VCC: 'vcc', GND: 'gnd', A1: 'a0', A2: 'a1', A3: 'a2', A4: 'a3', A5: 'a4', A6: 'a5', A7: 'a6', A8: 'a7', B1: 'b0', B2: 'b1', B3: 'b2', B4: 'b3', B5: 'b4', B6: 'b5', B7: 'b6', B8: 'b7', '~OE': 'oeb', OE: 'oeb' } },
+    '74161.dig': { kind: '74ls161', labels: { '~CLR': 'clrb', CLK: 'clk', A: 'd0', B: 'd1', C: 'd2', D: 'd3', ENP: 'enp', GND: 'gnd', '~LD': 'loadb', ENT: 'ent', QD: 'q3', QC: 'q2', QB: 'q1', QA: 'q0', RCO: 'rco', VCC: 'vcc' } },
+    '74173.dig': { kind: '74ls173', labels: { M: 'm', N: 'n', '1Q': 'q1', '2Q': 'q2', '3Q': 'q3', '4Q': 'q4', CLK: 'clk', CLR: 'clr', '1D': 'd1', '2D': 'd2', '3D': 'd3', '4D': 'd4', '~G2': 'g2b', '~G1': 'g1b', VCC: 'vcc', GND: 'gnd' } },
+    '74157.dig': { kind: '74ls157', labels: { '~G': 'gb', 'A/~B': 'sel', S: 'sel', VCC: 'vcc', GND: 'gnd', '1A': 'a1', '1B': 'b1', '1Y': 'y1', '2A': 'a2', '2B': 'b2', '2Y': 'y2', '3A': 'a3', '3B': 'b3', '3Y': 'y3', '4A': 'a4', '4B': 'b4', '4Y': 'y4' } },
 };
 
 // ── 1. Parse the .dig XML ──
@@ -65,6 +65,22 @@ const elements = [...xml.matchAll(/<visualElement>([\s\S]*?)<\/visualElement>/g)
         y: Number(/<pos x="-?\d+" y="(-?\d+)"/.exec(t)?.[1]),
     };
 });
+const setOverrides = {};
+for (const a of process.argv.slice(4)) {
+    const m = /^--set$/.test(a) ? null : /^([^=]+)=([01])$/.exec(a);
+    if (m) setOverrides[m[1]] = Number(m[2]);
+}
+const inDefault = (idx) => {
+    const t = /<visualElement>([\s\S]*?)<\/visualElement>/g;
+    let i = 0, m;
+    while ((m = t.exec(xml))) {
+        if (i++ !== idx) continue;
+        const d = /InDefault<\/string>\s*<value v="(\d+)"/.exec(m[1])
+            || /Default<\/string>\s*<(?:int|long)>(\d+)</.exec(m[1]);
+        return d ? Number(d[1]) : 0;
+    }
+    return 0;
+};
 const wires = [...xml.matchAll(/<wire>\s*<p1 x="(-?\d+)" y="(-?\d+)"\/>\s*<p2 x="(-?\d+)" y="(-?\d+)"\/>\s*<\/wire>/g)]
     .map((m) => m.slice(1).map(Number));
 
@@ -76,8 +92,17 @@ execFileSync('java', ['-cp', JAR, 'CLI', 'svg', '-dig', join(work, basename(inpu
 const svg = readFileSync(svgPath, 'utf8');
 
 const chipEls = elements.filter((e) => CHIPS[e.name]);
-const pinTexts = [...svg.matchAll(/<text text-anchor="(start|end|middle)" x="([\d.\-]+)" y="([\d.\-]+)" fill="#808080" style="font-size:18px">([^<]+)<\/text>/g)]
-    .map((m) => ({ anchor: m[1], x: Number(m[2]), y: Number(m[3]), text: m[4] }));
+// Two label renderings: plain text, and ACTIVE-LOW pins as an
+// overlined <tspan> (Digital draws the bar over CLR/LD/OE; the '~'
+// prefix is ours). Missing the second form left clrb/loadb/oeb out of
+// the oracle — the ties never wired, the floating clrb read low, and
+// the counter sat in async clear with a perfectly ticking clock.
+const pinTexts = [
+    ...[...svg.matchAll(/<text text-anchor="(start|end|middle)" x="([\d.\-]+)" y="([\d.\-]+)" fill="#808080" style="font-size:18px">([^<]+)<\/text>/g)]
+        .map((m) => ({ anchor: m[1], x: Number(m[2]), y: Number(m[3]), text: m[4] })),
+    ...[...svg.matchAll(/<text text-anchor="(start|end|middle)" x="([\d.\-]+)" y="([\d.\-]+)" fill="#808080" style="font-size:18px"><tspan style="text-decoration:overline;">([^<]+)<\/tspan><\/text>/g)]
+        .map((m) => ({ anchor: m[1], x: Number(m[2]), y: Number(m[3]), text: '~' + m[4] })),
+];
 
 // Cluster pin labels to the nearest chip instance; label x sits ±4-6
 // from the pin, baseline ~6.75 below — snap to the 20-grid.
@@ -103,12 +128,35 @@ const parent = new Map();
 const find = (k) => { let r = k; while (parent.get(r) !== r) r = parent.get(r); parent.set(k, r); return r; };
 const uni = (a, b) => { for (const k of [a, b]) if (!parent.has(k)) parent.set(k, k); parent.set(find(a), find(b)); };
 const P = (x, y) => `${x},${y}`;
-for (const [x1, y1, x2, y2] of wires) uni(P(x1, y1), P(x2, y2));
+// SPLITTERS ARE NET BARRIERS. Unmodeled, their junction unions the
+// bus side with every bit side — in the PC module that shorted the
+// counter's Q nets into the D/LED nets and the solver flatlined the
+// whole circuit. Until splitters are modeled as parts, any wire
+// SEGMENT touching a splitter's span is dropped from the net graph:
+// honest disconnection beats a silent short.
+const splitters = elements.filter((e) => e.name === 'Splitter').map((e) => {
+    // Span from the splitting spec: '1*4' → 4 one-bit pins, 20 units
+    // apart. The first barrier was a blanket 180-unit box and ATE the
+    // control lines routed under the splitter (clrb/loadb/oeb floated,
+    // the counter froze with a ticking clock) — the barrier must be
+    // exactly the splitter's own pins, nothing below them.
+    const m = /Input Splitting<\/string>\s*<string>([^<]+)</.exec(xml.slice(0)) ;
+    const bits = m ? m[1].split('*').reduce((n, p) => n + (Number(p) || 1), 0) - 1 : 8;
+    return { ...e, bits: Math.max(bits, 4) };
+});
+const nearSplitter = (x, y) => splitters.some((sp) =>
+    (x === sp.x || x === sp.x + 20) && y >= sp.y - 20 && y <= sp.y + sp.bits * 20 - 1);
+const liveWires = wires.filter(([x1, y1, x2, y2]) =>
+    !nearSplitter(x1, y1) && !nearSplitter(x2, y2));
+if (liveWires.length < wires.length) {
+    console.log(`  splitter barrier: dropped ${wires.length - liveWires.length} bus-fan segments (splitter modeling pending)`);
+}
+for (const [x1, y1, x2, y2] of liveWires) uni(P(x1, y1), P(x2, y2));
 const onSeg = (x, y, [x1, y1, x2, y2]) =>
     (x1 === x2 && x === x1 && Math.min(y1, y2) <= y && y <= Math.max(y1, y2)) ||
     (y1 === y2 && y === y1 && Math.min(x1, x2) <= x && x <= Math.max(x1, x2));
 const attach = (x, y) => {
-    for (const w of wires) if (onSeg(x, y, w)) { uni(P(x, y), P(w[0], w[1])); return true; }
+    for (const w of liveWires) if (onSeg(x, y, w)) { uni(P(x, y), P(w[0], w[1])); return true; }
     return false;
 };
 
@@ -132,22 +180,42 @@ for (const e of chipEls) {
 for (const e of elements) {
     if (e.name === 'VDD') { const id = addPart('vcc', `vcc_${e.i}`, { volts: 5 }); nodes.push({ partId: id, terminal: 'vcc', x: e.x, y: e.y }); }
     if (e.name === 'Ground') { const id = addPart('gnd', `gnd_${e.i}`); nodes.push({ partId: id, terminal: 'gnd', x: e.x, y: e.y }); }
-    if (e.name === 'In') { const id = addPart('button', e.label || `in_${e.i}`); nodes.push({ partId: id, terminal: 'a', x: e.x, y: e.y }); }
+    if (e.name === 'In') {
+        // Digital's In carries a default level; the ORIGINAL sim needs a
+        // click for anything else (8bitsim's CE defaults 0: even upstream
+        // the counter waits for the user). Realize defaults as rail ties;
+        // --set LABEL=0/1 overrides (the acceptance enables CE that way).
+        const label = e.label || `in_${e.i}`;
+        const dflt = inDefault(e.i);
+        const override = setOverrides[label];
+        const level = override != null ? override : dflt;
+        const id = level ? addPart('vcc', label, { volts: 5 }) : addPart('gnd', label);
+        nodes.push({ partId: id, terminal: level ? 'vcc' : 'gnd', x: e.x, y: e.y });
+    }
     if (e.name === 'Clock') {
         const id = addPart('timer_555', e.label || `clk_${e.i}`);
         nodes.push({ partId: id, terminal: 'output', x: e.x, y: e.y });
-        // Astable realization: R + C so the 555 oscillates under the engine
-        const rId = addPart('resistor', `${id}_r`, { ohms: 10000 });
+        // Astable realization — the PROVEN two-resistor classic from
+        // ttl-clock-module (the single-R 50%-duty trick, with discharge
+        // tied straight to threshold, never oscillates under our 555
+        // model: verified by fine-grained sampling, output pinned low).
+        // VCC → R1 → discharge → R2 → threshold(=trigger) → C → GND.
+        const r1Id = addPart('resistor', `${id}_r1`, { ohms: 4700 });
+        const r2Id = addPart('resistor', `${id}_r2`, { ohms: 10000 });
         const cId = addPart('capacitor', `${id}_c`, { farads: 1e-6 });
+        const c2Id = addPart('capacitor', `${id}_cctl`, { farads: 1e-7 });
         const vId = addPart('vcc', `${id}_vcc`, { volts: 5 });
         const gId = addPart('gnd', `${id}_gnd`);
         extraWires.push(
-            { from: vId, fromTerminal: 'vcc', to: rId, toTerminal: 'a' },
-            { from: rId, fromTerminal: 'b', to: id, toTerminal: 'discharge' },
-            { from: rId, fromTerminal: 'b', to: id, toTerminal: 'threshold' },
+            { from: vId, fromTerminal: 'vcc', to: r1Id, toTerminal: 'a' },
+            { from: r1Id, fromTerminal: 'b', to: id, toTerminal: 'discharge' },
+            { from: id, fromTerminal: 'discharge', to: r2Id, toTerminal: 'a' },
+            { from: r2Id, fromTerminal: 'b', to: id, toTerminal: 'threshold' },
             { from: id, fromTerminal: 'threshold', to: id, toTerminal: 'trigger' },
             { from: id, fromTerminal: 'trigger', to: cId, toTerminal: 'a' },
             { from: cId, fromTerminal: 'b', to: gId, toTerminal: 'gnd' },
+            { from: c2Id, fromTerminal: 'a', to: id, toTerminal: 'control' },
+            { from: c2Id, fromTerminal: 'b', to: gId, toTerminal: 'gnd' },
             { from: vId, fromTerminal: 'vcc', to: id, toTerminal: 'reset' },
             { from: vId, fromTerminal: 'vcc', to: id, toTerminal: 'vcc' },
             { from: gId, fromTerminal: 'gnd', to: id, toTerminal: 'gnd' }
