@@ -1,0 +1,263 @@
+{
+  "vcc": 5,
+  "parts": [
+    {
+      "id": "vcc_1",
+      "kind": "vcc",
+      "params": {},
+      "terminals": [
+        "vcc"
+      ],
+      "x": 50,
+      "y": 50,
+      "rotation": 0
+    },
+    {
+      "id": "gnd_2",
+      "kind": "gnd",
+      "params": {},
+      "terminals": [
+        "gnd"
+      ],
+      "x": 50,
+      "y": 400,
+      "rotation": 0
+    },
+    {
+      "id": "timer_555_3",
+      "kind": "timer_555",
+      "params": {},
+      "terminals": [
+        "vcc",
+        "gnd",
+        "trigger",
+        "threshold",
+        "control",
+        "discharge",
+        "output",
+        "reset"
+      ],
+      "x": 200,
+      "y": 200,
+      "rotation": 0
+    },
+    {
+      "id": "resistor_10",
+      "kind": "resistor",
+      "params": {
+        "ohms": 1000
+      },
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 150,
+      "y": 100,
+      "rotation": 0
+    },
+    {
+      "id": "resistor_11",
+      "kind": "resistor",
+      "params": {
+        "ohms": 100000
+      },
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 250,
+      "y": 100,
+      "rotation": 0
+    },
+    {
+      "id": "capacitor_12",
+      "kind": "capacitor",
+      "params": {
+        "farads": 0.000001
+      },
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 300,
+      "y": 300,
+      "rotation": 0
+    },
+    {
+      "id": "resistor_20",
+      "kind": "resistor",
+      "params": {
+        "ohms": 100
+      },
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 350,
+      "y": 200,
+      "rotation": 0
+    },
+    {
+      "id": "led_21",
+      "kind": "led",
+      "params": {
+        "vf": 2,
+        "color": "white"
+      },
+      "terminals": [
+        "anode",
+        "cathode"
+      ],
+      "x": 350,
+      "y": 300,
+      "rotation": 0
+    }
+  ],
+  "wires": [
+    {
+      "id": "wire_5",
+      "netId": "net_4",
+      "from": {
+        "part": "vcc_1",
+        "terminal": "vcc"
+      },
+      "to": {
+        "part": "timer_555_3",
+        "terminal": "vcc"
+      }
+    },
+    {
+      "id": "wire_6",
+      "netId": "net_4",
+      "from": {
+        "part": "vcc_1",
+        "terminal": "vcc"
+      },
+      "to": {
+        "part": "timer_555_3",
+        "terminal": "reset"
+      }
+    },
+    {
+      "id": "wire_8",
+      "netId": "net_7",
+      "from": {
+        "part": "gnd_2",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "timer_555_3",
+        "terminal": "gnd"
+      }
+    },
+    {
+      "id": "wire_9",
+      "netId": "net_7",
+      "from": {
+        "part": "timer_555_3",
+        "terminal": "control"
+      },
+      "to": {
+        "part": "gnd_2",
+        "terminal": "gnd"
+      }
+    },
+    {
+      "id": "wire_13",
+      "netId": "net_4",
+      "from": {
+        "part": "vcc_1",
+        "terminal": "vcc"
+      },
+      "to": {
+        "part": "resistor_10",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_15",
+      "netId": "net_14",
+      "from": {
+        "part": "resistor_10",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "timer_555_3",
+        "terminal": "discharge"
+      }
+    },
+    {
+      "id": "wire_16",
+      "netId": "net_14",
+      "from": {
+        "part": "timer_555_3",
+        "terminal": "discharge"
+      },
+      "to": {
+        "part": "resistor_11",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_18",
+      "netId": "net_17",
+      "from": {
+        "part": "resistor_11",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "timer_555_3",
+        "terminal": "threshold"
+      }
+    },
+    {
+      "id": "wire_19",
+      "netId": "net_17",
+      "from": {
+        "part": "timer_555_3",
+        "terminal": "threshold"
+      },
+      "to": {
+        "part": "timer_555_3",
+        "terminal": "trigger"
+      }
+    },
+    {
+      "id": "wire_23",
+      "netId": "net_22",
+      "from": {
+        "part": "timer_555_3",
+        "terminal": "output"
+      },
+      "to": {
+        "part": "resistor_20",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_25",
+      "netId": "net_24",
+      "from": {
+        "part": "resistor_20",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "led_21",
+        "terminal": "anode"
+      }
+    },
+    {
+      "id": "wire_26",
+      "netId": "net_7",
+      "from": {
+        "part": "led_21",
+        "terminal": "cathode"
+      },
+      "to": {
+        "part": "gnd_2",
+        "terminal": "gnd"
+      }
+    }
+  ],
+  "holeWires": []
+}

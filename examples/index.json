@@ -4384,5 +4384,141 @@
       "intro": "pc80-quellen-vergleich/intro.md",
       "introDE": "pc80-quellen-vergleich/intro.de.md"
     }
+  },
+  {
+    "id": "pc81-led-lauflicht",
+    "title": {
+      "en": "LED Chaser",
+      "de": "LED-Lauflicht"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "files": {
+      "program": "pc81-led-lauflicht/program.bw",
+      "circuit": "pc81-led-lauflicht/circuit.json",
+      "expected": "pc81-led-lauflicht/EXPECTED.md",
+      "intro": "pc81-led-lauflicht/intro.md",
+      "introDE": "pc81-led-lauflicht/intro.de.md"
+    }
+  },
+  {
+    "id": "pc82-mini-roulette",
+    "title": {
+      "en": "Mini Roulette",
+      "de": "Mini-Roulette"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 3,
+    "files": {
+      "program": "pc82-mini-roulette/program.bw",
+      "circuit": "pc82-mini-roulette/circuit.json",
+      "expected": "pc82-mini-roulette/EXPECTED.md",
+      "intro": "pc82-mini-roulette/intro.md",
+      "introDE": "pc82-mini-roulette/intro.de.md"
+    }
+  },
+  {
+    "id": "pc83-gluecksrad",
+    "title": {
+      "en": "Wheel of Fortune: Shake Roulette",
+      "de": "Glücksrad: Schüttel-Roulette"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 3,
+    "files": {
+      "program": "pc83-gluecksrad/program.bw",
+      "circuit": "pc83-gluecksrad/circuit.json",
+      "expected": "pc83-gluecksrad/EXPECTED.md",
+      "intro": "pc83-gluecksrad/intro.md",
+      "introDE": "pc83-gluecksrad/intro.de.md"
+    }
+  },
+  {
+    "id": "pc84-led-herz",
+    "title": {
+      "en": "Breathing LED Heart",
+      "de": "Pulsierendes LED-Herz"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 3,
+    "files": {
+      "program": "pc84-led-herz/program.bw",
+      "circuit": "pc84-led-herz/circuit.json",
+      "expected": "pc84-led-herz/EXPECTED.md",
+      "intro": "pc84-led-herz/intro.md",
+      "introDE": "pc84-led-herz/intro.de.md"
+    }
+  },
+  {
+    "id": "pc85-led-lampe-puls",
+    "title": {
+      "en": "Breathing LED Lamp",
+      "de": "Pulsierende LED-Lampe"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "files": {
+      "program": "pc85-led-lampe-puls/program.bw",
+      "circuit": "pc85-led-lampe-puls/circuit.json",
+      "expected": "pc85-led-lampe-puls/EXPECTED.md",
+      "intro": "pc85-led-lampe-puls/intro.md",
+      "introDE": "pc85-led-lampe-puls/intro.de.md"
+    }
+  },
+  {
+    "id": "pc86-led-sanduhr",
+    "title": {
+      "en": "LED Hourglass",
+      "de": "LED-Sanduhr"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 3,
+    "files": {
+      "program": "pc86-led-sanduhr/program.bw",
+      "circuit": "pc86-led-sanduhr/circuit.json",
+      "expected": "pc86-led-sanduhr/EXPECTED.md",
+      "intro": "pc86-led-sanduhr/intro.md",
+      "introDE": "pc86-led-sanduhr/intro.de.md"
+    }
+  },
+  {
+    "id": "pc87-stroboskop",
+    "title": {
+      "en": "Strobe Light",
+      "de": "Stroboskop"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "files": {
+      "program": "pc87-stroboskop/program.bw",
+      "circuit": "pc87-stroboskop/circuit.json",
+      "expected": "pc87-stroboskop/EXPECTED.md",
+      "intro": "pc87-stroboskop/intro.md",
+      "introDE": "pc87-stroboskop/intro.de.md"
+    }
+  },
+  {
+    "id": "pc88-lichtorgel",
+    "title": {
+      "en": "Colour Organ",
+      "de": "Lichtorgel"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 3,
+    "files": {
+      "program": "pc88-lichtorgel/program.bw",
+      "circuit": "pc88-lichtorgel/circuit.json",
+      "expected": "pc88-lichtorgel/EXPECTED.md",
+      "intro": "pc88-lichtorgel/intro.md",
+      "introDE": "pc88-lichtorgel/intro.de.md"
+    }
   }
 ]
