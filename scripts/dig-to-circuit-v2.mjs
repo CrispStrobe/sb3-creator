@@ -22,6 +22,7 @@
  *      sidecar terminal order).
  *   4. Nets: union-find over wire endpoints WITH point-on-segment
  *      merging (Digital connects a pin touching a wire's middle).
+ *      Tunnel elements provide invisible named connections.
  *   5. Emit parts + wires (one wire per net edge to a hub terminal);
  *      In → button (active-low to GND w/ pull-up left to the DRC),
  *      Clock → timer_555 output node placeholder, Out → led + resistor
@@ -43,13 +44,21 @@ const input = process.argv[2];
 const output = process.argv[3] || input.replace(/\.dig$/, '.circuit.json');
 
 // ── Digital-label → our-part mapping for the chips 8bitsim uses ──
-// Label lists in the LIBRARY's declaration order (matches the generic
-// shape's pin stacking); terminal names are our sidecars'.
+// SVG pin labels come from Digital's own rendering — they differ from
+// the datasheet numbering (D0 not 1D, Q0 not 1Q, A1 not 1A, etc.).
+// Terminal names are our engine sidecar names.
 const CHIPS = {
     '74245.dig': { kind: '74hc245', labels: { DIR: 'dir', VCC: 'vcc', GND: 'gnd', A1: 'a0', A2: 'a1', A3: 'a2', A4: 'a3', A5: 'a4', A6: 'a5', A7: 'a6', A8: 'a7', B1: 'b0', B2: 'b1', B3: 'b2', B4: 'b3', B5: 'b4', B6: 'b5', B7: 'b6', B8: 'b7', '~OE': 'oeb', OE: 'oeb' } },
     '74161.dig': { kind: '74ls161', labels: { '~CLR': 'clrb', CLK: 'clk', A: 'd0', B: 'd1', C: 'd2', D: 'd3', ENP: 'enp', GND: 'gnd', '~LD': 'loadb', ENT: 'ent', QD: 'q3', QC: 'q2', QB: 'q1', QA: 'q0', RCO: 'rco', VCC: 'vcc' } },
-    '74173.dig': { kind: '74ls173', labels: { M: 'm', N: 'n', '1Q': 'q1', '2Q': 'q2', '3Q': 'q3', '4Q': 'q4', CLK: 'clk', CLR: 'clr', '1D': 'd1', '2D': 'd2', '3D': 'd3', '4D': 'd4', '~G2': 'g2b', '~G1': 'g1b', VCC: 'vcc', GND: 'gnd' } },
-    '74157.dig': { kind: '74ls157', labels: { '~G': 'gb', 'A/~B': 'sel', S: 'sel', VCC: 'vcc', GND: 'gnd', '1A': 'a1', '1B': 'b1', '1Y': 'y1', '2A': 'a2', '2B': 'b2', '2Y': 'y2', '3A': 'a3', '3B': 'b3', '3Y': 'y3', '4A': 'a4', '4B': 'b4', '4Y': 'y4' } },
+    '74173.dig': { kind: '74ls173', labels: { OE1: 'm', OE2: 'n', Q0: 'q1', Q1: 'q2', Q2: 'q3', Q3: 'q4', CLK: 'clk', RES: 'clr', D0: 'd1', D1: 'd2', D2: 'd3', D3: 'd4', DE2: 'g2b', DE1: 'g1b', VCC: 'vcc', GND: 'gnd' } },
+    '74157.dig': { kind: '74ls157', labels: { G: 'gb', '~G': 'gb', S: 'sel', VCC: 'vcc', GND: 'gnd', A1: 'a1', B1: 'b1', Y1: 'y1', A2: 'a2', B2: 'b2', Y2: 'y2', A3: 'a3', B3: 'b3', Y3: 'y3', A4: 'a4', B4: 'b4', Y4: 'y4' } },
+    '74283.dig': { kind: '74ls283', labels: { A1: 'a1', A2: 'a2', A3: 'a3', A4: 'a4', B1: 'b1', B2: 'b2', B3: 'b3', B4: 'b4', C0: 'c0', C4: 'c4', S1: 's1', S2: 's2', S3: 's3', S4: 's4', VCC: 'vcc', GND: 'gnd' } },
+    '74138.dig': { kind: '74ls138', labels: { A: 'a', B: 'b', C: 'c', '~GA': 'gab', '~GB': 'gbb', G: 'g', GA: 'gab', GB: 'gbb', VCC: 'vcc', GND: 'gnd', '~Y0': 'y0b', '~Y1': 'y1b', '~Y2': 'y2b', '~Y3': 'y3b', '~Y4': 'y4b', '~Y5': 'y5b', '~Y6': 'y6b', '~Y7': 'y7b', Y0: 'y0b', Y1: 'y1b', Y2: 'y2b', Y3: 'y3b', Y4: 'y4b', Y5: 'y5b', Y6: 'y6b', Y7: 'y7b' } },
+    '74139.dig': { kind: '74ls139', labels: { '~1G': 'g1b', '~2G': 'g2b', '1G': 'g1b', '2G': 'g2b', '1A': 'a1', '1B': 'b1', '2A': 'a2', '2B': 'b2', '~1Y0': 'y10b', '~1Y1': 'y11b', '~1Y2': 'y12b', '~1Y3': 'y13b', '~2Y0': 'y20b', '~2Y1': 'y21b', '~2Y2': 'y22b', '~2Y3': 'y23b', '1Y0': 'y10b', '1Y1': 'y11b', '1Y2': 'y12b', '1Y3': 'y13b', '2Y0': 'y20b', '2Y1': 'y21b', '2Y2': 'y22b', '2Y3': 'y23b', VCC: 'vcc', GND: 'gnd' } },
+    '74154.dig': { kind: '74ls154', labels: { A: 'a', B: 'b', C: 'c', D: 'd', G1: 'g1', G2: 'g2', VCC: 'vcc', GND: 'gnd', Y0: 'y0', Y1: 'y1', Y2: 'y2', Y3: 'y3', Y4: 'y4', Y5: 'y5', Y6: 'y6', Y7: 'y7', Y8: 'y8', Y9: 'y9', Y10: 'y10', Y11: 'y11', Y12: 'y12', Y13: 'y13', Y14: 'y14', Y15: 'y15' } },
+    '74189.dig': { kind: '74ls189', labels: { A0: 'a0', A1: 'a1', A2: 'a2', A3: 'a3', D0: 'd0', D1: 'd1', D2: 'd2', D3: 'd3', Q0: 'q0', Q1: 'q1', Q2: 'q2', Q3: 'q3', '~CS': 'csb', '~WE': 'web', CS: 'csb', WE: 'web', VCC: 'vcc', GND: 'gnd' } },
+    '74374.dig': { kind: '74ls374', labels: { CLK: 'clk', '~OC': 'ocb', OC: 'ocb', D0: 'd0', D1: 'd1', D2: 'd2', D3: 'd3', D4: 'd4', D5: 'd5', D6: 'd6', D7: 'd7', Q0: 'q0', Q1: 'q1', Q2: 'q2', Q3: 'q3', Q4: 'q4', Q5: 'q5', Q6: 'q6', Q7: 'q7', VCC: 'vcc', GND: 'gnd' } },
+    '7476.dig': { kind: '7476', labels: { '1J': 'j1', '1K': 'k1', '1Q': 'q1', '2J': 'j2', '2K': 'k2', '2Q': 'q2', VCC: 'vcc', GND: 'gnd' } },
 };
 
 // ── 1. Parse the .dig XML ──
@@ -128,73 +137,44 @@ const parent = new Map();
 const find = (k) => { let r = k; while (parent.get(r) !== r) r = parent.get(r); parent.set(k, r); return r; };
 const uni = (a, b) => { for (const k of [a, b]) if (!parent.has(k)) parent.set(k, k); parent.set(find(a), find(b)); };
 const P = (x, y) => `${x},${y}`;
-// ── SPLITTER BRIDGING ──────────────────────────────────────────────
-// A splitter connects a bus-width side to individual bit-width sides.
-// Naive union-find shorts all nets into one (the solver flatlines).
-// Proper model: first build nets WITHOUT splitter-adjacent segments,
-// then add explicit per-bit bridge wires from the bus-side net to
-// each bit-side net. This preserves signal identity per bit while
-// ensuring the bus carries them all.
-const splitterEls = elements.filter((e) => e.name === 'Splitter');
-const splitters = splitterEls.map((e) => {
-    // Parse splitting spec per-element (not global)
-    const elXml = xml.slice(xml.indexOf(`<pos x="${e.x}" y="${e.y}"/>`) - 500,
-                            xml.indexOf(`<pos x="${e.x}" y="${e.y}"/>`) + 200);
-    const m = /Input Splitting<\/string>\s*<string>([^<]+)</.exec(elXml);
-    const spec = m ? m[1] : '1*4';
-    // '1*4' → 4 one-bit pins; '4' → one 4-bit bus; '1,1,1,1' → 4 pins
-    let nBits;
-    if (spec.includes('*')) {
-        const [width, count] = spec.split('*').map(Number);
-        nBits = (count || 1);
-    } else if (spec.includes(',')) {
-        nBits = spec.split(',').length;
-    } else {
-        nBits = 1;
-    }
-    return { ...e, nBits };
-});
-
-// Build a proximity test for splitter pin positions
-const splitterPins = new Set();
-for (const sp of splitters) {
-    // Bus side at element pos
-    splitterPins.add(P(sp.x, sp.y));
-    // Bit sides at 20px intervals (offset 20 to the right)
-    for (let b = 0; b < sp.nBits; b++) {
-        splitterPins.add(P(sp.x + 20, sp.y + b * 20));
-    }
-}
-const nearSplitter = (x, y) => splitterPins.has(P(x, y));
-
-// Build nets WITHOUT splitter-adjacent wire segments
-const liveWires = wires.filter(([x1, y1, x2, y2]) =>
-    !nearSplitter(x1, y1) && !nearSplitter(x2, y2));
-for (const [x1, y1, x2, y2] of liveWires) uni(P(x1, y1), P(x2, y2));
-
-// Now bridge: for each splitter, find the bus-side wire net and
-// each bit-side wire net, then emit explicit bridge wires in extraWires.
-// This happens AFTER chip-pin attachment (below), so at this stage we
-// just record the splitter pin positions for later bridging.
-const splitterBridges = []; // filled after nodes are attached
-for (const sp of splitters) {
-    const busKey = P(sp.x, sp.y);
-    const bitKeys = [];
-    for (let b = 0; b < sp.nBits; b++) {
-        bitKeys.push(P(sp.x + 20, sp.y + b * 20));
-    }
-    splitterBridges.push({ busKey, bitKeys });
-}
-if (splitters.length) {
-    console.log(`  splitters: ${splitters.length} found, ${wires.length - liveWires.length} bus-fan segments excised, bridging deferred`);
-}
+// ── SPLITTERS ──────────────────────────────────────────────────────
+// Digital's splitter fans a multi-bit bus into individual bits. In our
+// flat single-bit netlist, individual-bit wires route independently
+// through the splitter area without sharing endpoints, so the
+// union-find naturally keeps them separate. No excision needed —
+// earlier attempts to excise wires near the splitter position broke
+// net connectivity (wrong geometry assumptions for rotated splitters).
+for (const [x1, y1, x2, y2] of wires) uni(P(x1, y1), P(x2, y2));
 const onSeg = (x, y, [x1, y1, x2, y2]) =>
     (x1 === x2 && x === x1 && Math.min(y1, y2) <= y && y <= Math.max(y1, y2)) ||
     (y1 === y2 && y === y1 && Math.min(x1, x2) <= x && x <= Math.max(x1, x2));
 const attach = (x, y) => {
-    for (const w of liveWires) if (onSeg(x, y, w)) { uni(P(x, y), P(w[0], w[1])); return true; }
+    for (const w of wires) if (onSeg(x, y, w)) { uni(P(x, y), P(w[0], w[1])); return true; }
     return false;
 };
+
+// ── TUNNEL BRIDGING ──────────────────────────────────────────────
+// Digital's Tunnel elements are invisible named connections: all
+// tunnel instances with the same NetName label are electrically
+// connected. Attach each tunnel position to any wire it sits on,
+// then union all instances sharing the same name.
+const tunnelsByName = new Map();
+for (const e of elements.filter((el) => el.name === 'Tunnel')) {
+    const idx = xml.indexOf(`<pos x="${e.x}" y="${e.y}"/>`);
+    const elXml = xml.slice(Math.max(0, idx - 500), idx + 200);
+    const m = /NetName<\/string>\s*<string>([^<]+)</.exec(elXml);
+    if (!m) continue;
+    if (!tunnelsByName.has(m[1])) tunnelsByName.set(m[1], []);
+    tunnelsByName.get(m[1]).push(P(e.x, e.y));
+}
+for (const [, keys] of tunnelsByName) {
+    for (const k of keys) {
+        const [tx, ty] = k.split(',').map(Number);
+        attach(tx, ty);
+    }
+    for (let i = 1; i < keys.length; i++) uni(keys[0], keys[i]);
+}
+if (tunnelsByName.size) console.log(`  tunnels: ${tunnelsByName.size} named, ${[...tunnelsByName.values()].reduce((s, v) => s + v.length - 1, 0)} bridges`);
 
 // Terminals that join the net graph: chip pins (from the oracle) and
 // single-point elements (In/Out/Clock at pos; VDD/Ground at pos).
@@ -271,50 +251,6 @@ for (const e of elements) {
 
 let attached = 0, floating = [];
 for (const node of nodes) (attach(node.x, node.y) ? attached++ : floating.push(`${node.partId}.${node.terminal}`));
-
-// ── Splitter bridging: connect bus-side to bit-side nets ──
-// Find wire endpoints adjacent to each splitter pin and bridge
-// through the splitter's geometry.
-for (const bridge of splitterBridges) {
-    // Find the net touching the bus side (wire endpoint nearest to busKey)
-    const findAdjacentNet = (key) => {
-        const [sx, sy] = key.split(',').map(Number);
-        for (const [x1, y1, x2, y2] of wires) {
-            if ((x1 === sx && y1 === sy) || (x2 === sx && y2 === sy)) {
-                const k = P(x1, y1);
-                if (parent.has(k)) return find(k);
-                const k2 = P(x2, y2);
-                if (parent.has(k2)) return find(k2);
-            }
-            // Also check adjacent positions (±20)
-            for (const dx of [-20, 0, 20]) {
-                for (const dy of [-20, 0, 20]) {
-                    if (dx === 0 && dy === 0) continue;
-                    const adj = P(sx + dx, sy + dy);
-                    if (parent.has(adj)) {
-                        for (const w of wires) {
-                            if (onSeg(sx + dx, sy + dy, w)) return find(parent.get(adj));
-                        }
-                    }
-                }
-            }
-        }
-        return null;
-    };
-
-    const busNet = findAdjacentNet(bridge.busKey);
-    if (!busNet) continue;
-
-    for (const bitKey of bridge.bitKeys) {
-        const bitNet = findAdjacentNet(bitKey);
-        if (bitNet && bitNet !== busNet) {
-            // Bridge: union the bus net with this bit net
-            // This is safe because each bit is a separate signal —
-            // the splitter just fans out the bus to individual wires.
-            uni(busNet, bitNet);
-        }
-    }
-}
 
 // ── 4. Emit wires: hub-and-spoke per net ──
 const byNet = new Map();
