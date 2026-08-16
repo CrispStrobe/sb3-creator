@@ -1,0 +1,215 @@
+{
+  "vcc": 5,
+  "parts": [
+    {
+      "id": "u1",
+      "kind": "555",
+      "x": 300,
+      "y": 250,
+      "declName": "clock"
+    },
+    {
+      "id": "r1",
+      "kind": "resistor",
+      "x": 200,
+      "y": 150,
+      "params": {
+        "ohms": 1000
+      }
+    },
+    {
+      "id": "pot1",
+      "kind": "potentiometer",
+      "x": 400,
+      "y": 150,
+      "params": {
+        "ohms": 100000
+      },
+      "declName": "speed"
+    },
+    {
+      "id": "c1",
+      "kind": "capacitor",
+      "x": 300,
+      "y": 400,
+      "params": {
+        "farads": 0.000001
+      }
+    },
+    {
+      "id": "c2",
+      "kind": "capacitor",
+      "x": 500,
+      "y": 350,
+      "params": {
+        "farads": 1e-7
+      }
+    },
+    {
+      "id": "led1",
+      "kind": "led",
+      "x": 550,
+      "y": 250,
+      "params": {
+        "color": "green"
+      },
+      "declName": "clockLed"
+    },
+    {
+      "id": "r2",
+      "kind": "resistor",
+      "x": 550,
+      "y": 170,
+      "params": {
+        "ohms": 220
+      }
+    },
+    {
+      "id": "btn1",
+      "kind": "button",
+      "x": 100,
+      "y": 250,
+      "declName": "step"
+    },
+    {
+      "id": "r3",
+      "kind": "resistor",
+      "x": 100,
+      "y": 350,
+      "params": {
+        "ohms": 10000
+      }
+    },
+    {
+      "id": "vcc1",
+      "kind": "vcc",
+      "x": 100,
+      "y": 50,
+      "params": {
+        "volts": 5
+      }
+    },
+    {
+      "id": "gnd1",
+      "kind": "gnd",
+      "x": 300,
+      "y": 500
+    }
+  ],
+  "wires": [
+    {
+      "from": "vcc1",
+      "fromTerminal": "vcc",
+      "to": "r1",
+      "toTerminal": "a"
+    },
+    {
+      "from": "r1",
+      "fromTerminal": "b",
+      "to": "u1",
+      "toTerminal": "discharge"
+    },
+    {
+      "from": "u1",
+      "fromTerminal": "discharge",
+      "to": "pot1",
+      "toTerminal": "a"
+    },
+    {
+      "from": "pot1",
+      "fromTerminal": "wiper",
+      "to": "u1",
+      "toTerminal": "threshold"
+    },
+    {
+      "from": "u1",
+      "fromTerminal": "threshold",
+      "to": "u1",
+      "toTerminal": "trigger"
+    },
+    {
+      "from": "pot1",
+      "fromTerminal": "b",
+      "to": "u1",
+      "toTerminal": "threshold"
+    },
+    {
+      "from": "u1",
+      "fromTerminal": "trigger",
+      "to": "c1",
+      "toTerminal": "a"
+    },
+    {
+      "from": "c1",
+      "fromTerminal": "b",
+      "to": "gnd1",
+      "toTerminal": "gnd"
+    },
+    {
+      "from": "u1",
+      "fromTerminal": "control",
+      "to": "c2",
+      "toTerminal": "a"
+    },
+    {
+      "from": "c2",
+      "fromTerminal": "b",
+      "to": "gnd1",
+      "toTerminal": "gnd"
+    },
+    {
+      "from": "vcc1",
+      "fromTerminal": "vcc",
+      "to": "u1",
+      "toTerminal": "reset"
+    },
+    {
+      "from": "u1",
+      "fromTerminal": "output",
+      "to": "r2",
+      "toTerminal": "a"
+    },
+    {
+      "from": "r2",
+      "fromTerminal": "b",
+      "to": "led1",
+      "toTerminal": "anode"
+    },
+    {
+      "from": "led1",
+      "fromTerminal": "cathode",
+      "to": "gnd1",
+      "toTerminal": "gnd"
+    },
+    {
+      "from": "vcc1",
+      "fromTerminal": "vcc",
+      "to": "btn1",
+      "toTerminal": "a"
+    },
+    {
+      "from": "btn1",
+      "fromTerminal": "b",
+      "to": "r3",
+      "toTerminal": "a"
+    },
+    {
+      "from": "r3",
+      "fromTerminal": "b",
+      "to": "gnd1",
+      "toTerminal": "gnd"
+    },
+    {
+      "from": "vcc1",
+      "fromTerminal": "vcc",
+      "to": "u1",
+      "toTerminal": "vcc"
+    },
+    {
+      "from": "gnd1",
+      "fromTerminal": "gnd",
+      "to": "u1",
+      "toTerminal": "gnd"
+    }
+  ]
+}

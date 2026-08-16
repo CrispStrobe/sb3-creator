@@ -3605,5 +3605,18 @@
       "circuit": "z80-bench/circuit.json"
     },
     "kind": "circuit"
+  },
+  {
+    "id": "ttl-clock-module",
+    "title": {
+      "en": "TTL Clock Module",
+      "de": "TTL-Taktmodul"
+    },
+    "category": "digital",
+    "difficulty": 2,
+    "files": {
+      "circuit": "ttl-clock-module/circuit.json"
+    },
+    "kind": "circuit"
   }
 ]
