@@ -1152,6 +1152,102 @@
    "fromTerminal": "vcc",
    "to": "cpu",
    "toTerminal": "be"
+  },
+  {
+   "from": "via",
+   "fromTerminal": "pb0",
+   "to": "lcd",
+   "toTerminal": "d0"
+  },
+  {
+   "from": "via",
+   "fromTerminal": "pb1",
+   "to": "lcd",
+   "toTerminal": "d1"
+  },
+  {
+   "from": "via",
+   "fromTerminal": "pb2",
+   "to": "lcd",
+   "toTerminal": "d2"
+  },
+  {
+   "from": "via",
+   "fromTerminal": "pb3",
+   "to": "lcd",
+   "toTerminal": "d3"
+  },
+  {
+   "from": "via",
+   "fromTerminal": "pb4",
+   "to": "lcd",
+   "toTerminal": "d4"
+  },
+  {
+   "from": "via",
+   "fromTerminal": "pb5",
+   "to": "lcd",
+   "toTerminal": "d5"
+  },
+  {
+   "from": "via",
+   "fromTerminal": "pb6",
+   "to": "lcd",
+   "toTerminal": "d6"
+  },
+  {
+   "from": "via",
+   "fromTerminal": "pb7",
+   "to": "lcd",
+   "toTerminal": "d7"
+  },
+  {
+   "from": "via",
+   "fromTerminal": "pa5",
+   "to": "lcd",
+   "toTerminal": "rs"
+  },
+  {
+   "from": "via",
+   "fromTerminal": "pa6",
+   "to": "lcd",
+   "toTerminal": "rw"
+  },
+  {
+   "from": "via",
+   "fromTerminal": "pa7",
+   "to": "lcd",
+   "toTerminal": "e"
+  },
+  {
+   "from": "vcc1",
+   "fromTerminal": "vcc",
+   "to": "lcd",
+   "toTerminal": "vdd"
+  },
+  {
+   "from": "gnd1",
+   "fromTerminal": "gnd",
+   "to": "lcd",
+   "toTerminal": "vss"
+  },
+  {
+   "from": "gnd1",
+   "fromTerminal": "gnd",
+   "to": "lcd",
+   "toTerminal": "v0"
+  },
+  {
+   "from": "vcc1",
+   "fromTerminal": "vcc",
+   "to": "lcd",
+   "toTerminal": "a"
+  },
+  {
+   "from": "gnd1",
+   "fromTerminal": "gnd",
+   "to": "lcd",
+   "toTerminal": "k"
   }
  ],
  "holeWires": [
