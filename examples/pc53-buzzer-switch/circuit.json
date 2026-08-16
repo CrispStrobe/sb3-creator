@@ -26,10 +26,12 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "e17",
-     "b": "f17"
+     "a": "e13",
+     "b": "f13"
     }
-   }
+   },
+   "x": 204,
+   "y": 311
   },
   {
    "id": "r",
@@ -43,7 +45,9 @@
      "a": "a3",
      "b": "a7"
     }
-   }
+   },
+   "x": 64,
+   "y": 255
   },
   {
    "id": "buzzer",
@@ -52,10 +56,12 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a11",
-     "b": "a13"
+     "a": "a9",
+     "b": "a11"
     }
-   }
+   },
+   "x": 148,
+   "y": 255
   },
   {
    "id": "gnd",
@@ -101,7 +107,7 @@
   {
    "ref": "bbw:bb1:gen_0",
    "boardId": "bb1",
-   "a": "g17",
+   "a": "g13",
    "b": "b3",
    "color": "green"
   },
@@ -109,14 +115,14 @@
    "ref": "bbw:bb1:gen_1",
    "boardId": "bb1",
    "a": "b7",
-   "b": "b11",
+   "b": "b9",
    "color": "blue"
   },
   {
    "ref": "bbw:bb1:gen_2",
    "boardId": "bb1",
-   "a": "b13",
-   "b": "b-13",
+   "a": "b11",
+   "b": "b-11",
    "color": "black"
   }
  ]

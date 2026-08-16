@@ -14,6 +14,8 @@
    "id": "mcu",
    "kind": "attiny88",
    "declName": "mcu",
+   "x": 64,
+   "y": 349,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
@@ -46,9 +48,7 @@
      "pb2": "e4",
      "pb1": "e3"
     }
-   },
-   "x": 64,
-   "y": 349
+   }
   },
   {
    "id": "matrix",
@@ -59,6 +59,8 @@
     "colActiveHigh": false,
     "rowActiveHigh": true
    },
+   "x": 302,
+   "y": 311,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
@@ -79,39 +81,37 @@
      "row6": "f26",
      "row7": "f27"
     }
-   },
-   "x": 302,
-   "y": 311
+   }
   },
   {
    "id": "btnL",
    "kind": "button",
    "declName": "btnLeft",
    "params": {},
+   "x": 624,
+   "y": 311,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "a": "e43",
      "b": "f43"
     }
-   },
-   "x": 624,
-   "y": 311
+   }
   },
   {
    "id": "btnR",
    "kind": "button",
    "declName": "btnRight",
    "params": {},
+   "x": 680,
+   "y": 311,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "a": "e47",
      "b": "f47"
     }
-   },
-   "x": 680,
-   "y": 311
+   }
   },
   {
    "id": "rL",
@@ -119,15 +119,15 @@
    "params": {
     "ohms": 10000
    },
+   "x": 456,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "a": "a31",
      "b": "a35"
     }
-   },
-   "x": 456,
-   "y": 255
+   }
   },
   {
    "id": "rR",
@@ -135,15 +135,15 @@
    "params": {
     "ohms": 10000
    },
+   "x": 540,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "a": "a37",
      "b": "a41"
     }
-   },
-   "x": 540,
-   "y": 255
+   }
   },
   {
    "id": "vcc1",

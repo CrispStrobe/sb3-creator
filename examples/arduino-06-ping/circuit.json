@@ -14,6 +14,8 @@
    "id": "board",
    "kind": "arduino_uno",
    "declName": "board",
+   "x": 64,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
@@ -32,15 +34,15 @@
      "D12": "a15",
      "D13": "a16"
     }
-   },
-   "x": 64,
-   "y": 255
+   }
   },
   {
    "id": "us",
    "kind": "ultrasonic",
    "declName": "us",
    "params": {},
+   "x": 302,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
@@ -49,9 +51,7 @@
      "echo": "a22",
      "gnd": "a23"
     }
-   },
-   "x": 302,
-   "y": 255
+   }
   },
   {
    "id": "vcc1",

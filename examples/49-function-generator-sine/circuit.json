@@ -34,15 +34,15 @@
    "params": {
     "ohms": 1000
    },
+   "x": 64,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "a": "a3",
      "b": "a7"
     }
-   },
-   "x": 64,
-   "y": 255
+   }
   }
  ],
  "wires": [

@@ -14,6 +14,8 @@
    "id": "board",
    "kind": "arduino_uno",
    "declName": "board",
+   "x": 64,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
@@ -32,9 +34,7 @@
      "D12": "a15",
      "D13": "a16"
     }
-   },
-   "x": 64,
-   "y": 255
+   }
   },
   {
    "id": "potR",
@@ -43,6 +43,8 @@
    "params": {
     "ohms": 10000
    },
+   "x": 302,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
@@ -50,9 +52,7 @@
      "wiper": "a22",
      "b": "a24"
     }
-   },
-   "x": 302,
-   "y": 255
+   }
   },
   {
    "id": "potG",
@@ -61,6 +61,8 @@
    "params": {
     "ohms": 10000
    },
+   "x": 386,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
@@ -68,9 +70,7 @@
      "wiper": "a28",
      "b": "a30"
     }
-   },
-   "x": 386,
-   "y": 255
+   }
   },
   {
    "id": "potB",
@@ -79,6 +79,8 @@
    "params": {
     "ohms": 10000
    },
+   "x": 470,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
@@ -86,15 +88,15 @@
      "wiper": "a34",
      "b": "a36"
     }
-   },
-   "x": 470,
-   "y": 255
+   }
   },
   {
    "id": "rgb",
    "kind": "rgb_led",
    "declName": "rgb",
    "params": {},
+   "x": 806,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
@@ -103,9 +105,7 @@
      "g_anode": "a58",
      "b_anode": "a59"
     }
-   },
-   "x": 806,
-   "y": 255
+   }
   },
   {
    "id": "rR",
@@ -113,15 +113,15 @@
    "params": {
     "ohms": 220
    },
+   "x": 554,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "a": "a38",
      "b": "a42"
     }
-   },
-   "x": 554,
-   "y": 255
+   }
   },
   {
    "id": "rG",
@@ -129,15 +129,15 @@
    "params": {
     "ohms": 220
    },
+   "x": 638,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "a": "a44",
      "b": "a48"
     }
-   },
-   "x": 638,
-   "y": 255
+   }
   },
   {
    "id": "rB",
@@ -145,15 +145,15 @@
    "params": {
     "ohms": 220
    },
+   "x": 722,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "a": "a50",
      "b": "a54"
     }
-   },
-   "x": 722,
-   "y": 255
+   }
   },
   {
    "id": "vcc1",

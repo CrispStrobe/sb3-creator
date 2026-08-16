@@ -26,10 +26,12 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a19",
-     "b": "a22"
+     "a": "a15",
+     "b": "a18"
     }
-   }
+   },
+   "x": 232,
+   "y": 255
   },
   {
    "id": "r1",
@@ -43,7 +45,9 @@
      "a": "a3",
      "b": "a7"
     }
-   }
+   },
+   "x": 64,
+   "y": 255
   },
   {
    "id": "led1",
@@ -55,10 +59,12 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "anode": "a33",
-     "cathode": "a34"
+     "anode": "a25",
+     "cathode": "a26"
     }
-   }
+   },
+   "x": 372,
+   "y": 255
   },
   {
    "id": "sw2",
@@ -67,10 +73,12 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a26",
-     "b": "a29"
+     "a": "a20",
+     "b": "a23"
     }
-   }
+   },
+   "x": 302,
+   "y": 255
   },
   {
    "id": "r2",
@@ -81,10 +89,12 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a11",
-     "b": "a15"
+     "a": "a9",
+     "b": "a13"
     }
-   }
+   },
+   "x": 148,
+   "y": 255
   },
   {
    "id": "led2",
@@ -96,10 +106,12 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "anode": "a38",
-     "cathode": "a39"
+     "anode": "a28",
+     "cathode": "a29"
     }
-   }
+   },
+   "x": 414,
+   "y": 255
   },
   {
    "id": "gnd",
@@ -169,7 +181,7 @@
   {
    "ref": "bbw:bb1:gen_0",
    "boardId": "bb1",
-   "a": "b22",
+   "a": "b18",
    "b": "b3",
    "color": "green"
   },
@@ -177,35 +189,35 @@
    "ref": "bbw:bb1:gen_1",
    "boardId": "bb1",
    "a": "b7",
-   "b": "b33",
+   "b": "b25",
    "color": "blue"
   },
   {
    "ref": "bbw:bb1:gen_2",
    "boardId": "bb1",
-   "a": "b34",
-   "b": "b-34",
+   "a": "b26",
+   "b": "b-26",
    "color": "black"
   },
   {
    "ref": "bbw:bb1:gen_3",
    "boardId": "bb1",
-   "a": "b29",
-   "b": "b11",
+   "a": "b23",
+   "b": "b9",
    "color": "yellow"
   },
   {
    "ref": "bbw:bb1:gen_4",
    "boardId": "bb1",
-   "a": "b15",
-   "b": "b38",
+   "a": "b13",
+   "b": "b28",
    "color": "orange"
   },
   {
    "ref": "bbw:bb1:gen_5",
    "boardId": "bb1",
-   "a": "b39",
-   "b": "b-39",
+   "a": "b29",
+   "b": "b-29",
    "color": "black"
   }
  ]

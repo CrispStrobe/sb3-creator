@@ -14,6 +14,8 @@
    "id": "board",
    "kind": "arduino_uno",
    "declName": "board",
+   "x": 64,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
@@ -32,24 +34,22 @@
      "D12": "a15",
      "D13": "a16"
     }
-   },
-   "x": 64,
-   "y": 255
+   }
   },
   {
    "id": "ldr",
    "kind": "ldr",
    "declName": "ldr",
    "params": {},
+   "x": 386,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "a": "a26",
      "b": "a28"
     }
-   },
-   "x": 386,
-   "y": 255
+   }
   },
   {
    "id": "r1",
@@ -58,30 +58,30 @@
    "params": {
     "ohms": 4700
    },
+   "x": 302,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "a": "a20",
      "b": "a24"
     }
-   },
-   "x": 302,
-   "y": 255
+   }
   },
   {
    "id": "buz",
    "kind": "buzzer",
    "declName": "speaker",
    "params": {},
+   "x": 442,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "a": "a30",
      "b": "a32"
     }
-   },
-   "x": 442,
-   "y": 255
+   }
   },
   {
    "id": "vcc1",

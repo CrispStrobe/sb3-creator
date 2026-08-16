@@ -23,15 +23,15 @@
    "params": {
     "ohms": 220
    },
+   "x": 64,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "a": "a3",
      "b": "a7"
     }
-   },
-   "x": 64,
-   "y": 255
+   }
   },
   {
    "id": "led1",
@@ -40,15 +40,15 @@
     "color": "green",
     "vf": 2.1
    },
+   "x": 148,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "anode": "a9",
      "cathode": "a10"
     }
-   },
-   "x": 148,
-   "y": 255
+   }
   },
   {
    "id": "mcu1",

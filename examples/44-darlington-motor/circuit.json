@@ -28,15 +28,15 @@
    "id": "buzz1",
    "kind": "buzzer",
    "params": {},
+   "x": 148,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "a": "a9",
      "b": "a11"
     }
-   },
-   "x": 148,
-   "y": 255
+   }
   },
   {
    "id": "q1",
@@ -44,6 +44,8 @@
    "params": {
     "beta": 100
    },
+   "x": 204,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
@@ -51,23 +53,21 @@
      "base": "a14",
      "collector": "a15"
     }
-   },
-   "x": 204,
-   "y": 255
+   }
   },
   {
    "id": "btn1",
    "kind": "button",
    "params": {},
+   "x": 260,
+   "y": 311,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "a": "e17",
      "b": "f17"
     }
-   },
-   "x": 260,
-   "y": 311
+   }
   },
   {
    "id": "rb1",
@@ -75,15 +75,15 @@
    "params": {
     "ohms": 10000
    },
+   "x": 64,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "a": "a3",
      "b": "a7"
     }
-   },
-   "x": 64,
-   "y": 255
+   }
   }
  ],
  "wires": [

@@ -27,6 +27,8 @@
    "id": "u1",
    "kind": "timer_555",
    "params": {},
+   "x": 316,
+   "y": 311,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
@@ -39,9 +41,7 @@
      "threshold": "f23",
      "control": "f24"
     }
-   },
-   "x": 316,
-   "y": 311
+   }
   },
   {
    "id": "r1",
@@ -49,15 +49,15 @@
    "params": {
     "ohms": 10000
    },
+   "x": 64,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "a": "a3",
      "b": "a7"
     }
-   },
-   "x": 64,
-   "y": 255
+   }
   },
   {
    "id": "r2",
@@ -65,15 +65,15 @@
    "params": {
     "ohms": 10000
    },
+   "x": 148,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "a": "a9",
      "b": "a13"
     }
-   },
-   "x": 148,
-   "y": 255
+   }
   },
   {
    "id": "c1",
@@ -81,15 +81,15 @@
    "params": {
     "farads": 0.00001
    },
+   "x": 414,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "a": "a28",
      "b": "a29"
     }
-   },
-   "x": 414,
-   "y": 255
+   }
   },
   {
    "id": "r3",
@@ -97,15 +97,15 @@
    "params": {
     "ohms": 1000
    },
+   "x": 232,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "a": "a15",
      "b": "a19"
     }
-   },
-   "x": 232,
-   "y": 255
+   }
   },
   {
    "id": "led1",
@@ -114,15 +114,15 @@
     "vf": 2,
     "color": "red"
    },
+   "x": 456,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "anode": "a31",
      "cathode": "a32"
     }
-   },
-   "x": 456,
-   "y": 255
+   }
   }
  ],
  "wires": [

@@ -14,6 +14,8 @@
    "id": "board",
    "kind": "arduino_uno",
    "declName": "board",
+   "x": 64,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
@@ -32,9 +34,7 @@
      "D12": "a15",
      "D13": "a16"
     }
-   },
-   "x": 64,
-   "y": 255
+   }
   },
   {
    "id": "led1",
@@ -43,15 +43,15 @@
    "params": {
     "color": "blue"
    },
+   "x": 386,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "anode": "a26",
      "cathode": "a27"
     }
-   },
-   "x": 386,
-   "y": 255
+   }
   },
   {
    "id": "r1",
@@ -59,15 +59,15 @@
    "params": {
     "ohms": 220
    },
+   "x": 302,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "a": "a20",
      "b": "a24"
     }
-   },
-   "x": 302,
-   "y": 255
+   }
   },
   {
    "id": "vcc1",

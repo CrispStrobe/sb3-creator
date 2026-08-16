@@ -14,6 +14,8 @@
    "id": "board",
    "kind": "arduino_uno",
    "declName": "board",
+   "x": 64,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
@@ -32,24 +34,22 @@
      "D12": "a15",
      "D13": "a16"
     }
-   },
-   "x": 64,
-   "y": 255
+   }
   },
   {
    "id": "btn1",
    "kind": "button",
    "declName": "btn",
    "params": {},
+   "x": 778,
+   "y": 311,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "a": "e54",
      "b": "f54"
     }
-   },
-   "x": 778,
-   "y": 311
+   }
   },
   {
    "id": "r_btn",
@@ -57,30 +57,30 @@
    "params": {
     "ohms": 10000
    },
+   "x": 302,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "a": "a20",
      "b": "a24"
     }
-   },
-   "x": 302,
-   "y": 255
+   }
   },
   {
    "id": "ldr",
    "kind": "ldr",
    "declName": "ldr",
    "params": {},
+   "x": 638,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "a": "a44",
      "b": "a46"
     }
-   },
-   "x": 638,
-   "y": 255
+   }
   },
   {
    "id": "r_ldr",
@@ -88,15 +88,15 @@
    "params": {
     "ohms": 10000
    },
+   "x": 386,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "a": "a26",
      "b": "a30"
     }
-   },
-   "x": 386,
-   "y": 255
+   }
   },
   {
    "id": "led1",
@@ -105,15 +105,15 @@
    "params": {
     "color": "green"
    },
+   "x": 694,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "anode": "a48",
      "cathode": "a49"
     }
-   },
-   "x": 694,
-   "y": 255
+   }
   },
   {
    "id": "r_led",
@@ -121,15 +121,15 @@
    "params": {
     "ohms": 220
    },
+   "x": 470,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "a": "a32",
      "b": "a36"
     }
-   },
-   "x": 470,
-   "y": 255
+   }
   },
   {
    "id": "led2",
@@ -138,15 +138,15 @@
    "params": {
     "color": "red"
    },
+   "x": 736,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "anode": "a51",
      "cathode": "a52"
     }
-   },
-   "x": 736,
-   "y": 255
+   }
   },
   {
    "id": "r_status",
@@ -154,15 +154,15 @@
    "params": {
     "ohms": 220
    },
+   "x": 554,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "a": "a38",
      "b": "a42"
     }
-   },
-   "x": 554,
-   "y": 255
+   }
   },
   {
    "id": "vcc1",

@@ -31,10 +31,12 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "e30",
-     "b": "f30"
+     "a": "e22",
+     "b": "f22"
     }
-   }
+   },
+   "x": 330,
+   "y": 311
   },
   {
    "id": "rb",
@@ -48,7 +50,9 @@
      "a": "a3",
      "b": "a7"
     }
-   }
+   },
+   "x": 64,
+   "y": 255
   },
   {
    "id": "q1",
@@ -60,11 +64,13 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "emitter": "a19",
-     "base": "a20",
-     "collector": "a21"
+     "emitter": "a15",
+     "base": "a16",
+     "collector": "a17"
     }
-   }
+   },
+   "x": 232,
+   "y": 255
   },
   {
    "id": "rl",
@@ -75,10 +81,12 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a11",
-     "b": "a15"
+     "a": "a9",
+     "b": "a13"
     }
-   }
+   },
+   "x": 148,
+   "y": 255
   },
   {
    "id": "led1",
@@ -90,10 +98,12 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "anode": "a25",
-     "cathode": "a26"
+     "anode": "a19",
+     "cathode": "a20"
     }
-   }
+   },
+   "x": 288,
+   "y": 255
   }
  ],
  "wires": [
@@ -144,14 +154,14 @@
   {
    "ref": "bbw:bb1:gen_0",
    "boardId": "bb1",
-   "a": "a30",
-   "b": "t+30",
+   "a": "a22",
+   "b": "t+22",
    "color": "red"
   },
   {
    "ref": "bbw:bb1:gen_1",
    "boardId": "bb1",
-   "a": "g30",
+   "a": "g22",
    "b": "b3",
    "color": "green"
   },
@@ -159,35 +169,35 @@
    "ref": "bbw:bb1:gen_2",
    "boardId": "bb1",
    "a": "b7",
-   "b": "b20",
+   "b": "b16",
    "color": "blue"
   },
   {
    "ref": "bbw:bb1:gen_3",
    "boardId": "bb1",
-   "a": "b11",
-   "b": "t+11",
+   "a": "b9",
+   "b": "t+9",
    "color": "red"
   },
   {
    "ref": "bbw:bb1:gen_4",
    "boardId": "bb1",
-   "a": "b15",
-   "b": "b25",
+   "a": "b13",
+   "b": "b19",
    "color": "yellow"
   },
   {
    "ref": "bbw:bb1:gen_5",
    "boardId": "bb1",
-   "a": "b26",
-   "b": "b21",
+   "a": "b20",
+   "b": "b17",
    "color": "orange"
   },
   {
    "ref": "bbw:bb1:gen_6",
    "boardId": "bb1",
-   "a": "b19",
-   "b": "b-19",
+   "a": "b15",
+   "b": "b-15",
    "color": "black"
   }
  ]

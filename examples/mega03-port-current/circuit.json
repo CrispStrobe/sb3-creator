@@ -23,15 +23,15 @@
    "params": {
     "ohms": 220
    },
+   "x": 64,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "a": "a3",
      "b": "a7"
     }
-   },
-   "x": 64,
-   "y": 255
+   }
   },
   {
    "id": "r2",
@@ -39,15 +39,15 @@
    "params": {
     "ohms": 220
    },
+   "x": 148,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "a": "a9",
      "b": "a13"
     }
-   },
-   "x": 148,
-   "y": 255
+   }
   },
   {
    "id": "r3",
@@ -55,15 +55,15 @@
    "params": {
     "ohms": 220
    },
+   "x": 232,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "a": "a15",
      "b": "a19"
     }
-   },
-   "x": 232,
-   "y": 255
+   }
   },
   {
    "id": "r4",
@@ -71,15 +71,15 @@
    "params": {
     "ohms": 220
    },
+   "x": 316,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "a": "a21",
      "b": "a25"
     }
-   },
-   "x": 316,
-   "y": 255
+   }
   },
   {
    "id": "r5",
@@ -87,15 +87,15 @@
    "params": {
     "ohms": 220
    },
+   "x": 400,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "a": "a27",
      "b": "a31"
     }
-   },
-   "x": 400,
-   "y": 255
+   }
   },
   {
    "id": "r6",
@@ -103,15 +103,15 @@
    "params": {
     "ohms": 220
    },
+   "x": 484,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "a": "a33",
      "b": "a37"
     }
-   },
-   "x": 484,
-   "y": 255
+   }
   },
   {
    "id": "r7",
@@ -119,15 +119,15 @@
    "params": {
     "ohms": 220
    },
+   "x": 568,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "a": "a39",
      "b": "a43"
     }
-   },
-   "x": 568,
-   "y": 255
+   }
   },
   {
    "id": "r8",
@@ -135,15 +135,15 @@
    "params": {
     "ohms": 220
    },
+   "x": 652,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "a": "a45",
      "b": "a49"
     }
-   },
-   "x": 652,
-   "y": 255
+   }
   },
   {
    "id": "led1",
@@ -152,15 +152,15 @@
     "color": "red",
     "vf": 2
    },
+   "x": 736,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "anode": "a51",
      "cathode": "a52"
     }
-   },
-   "x": 736,
-   "y": 255
+   }
   },
   {
    "id": "led2",
@@ -169,15 +169,15 @@
     "color": "red",
     "vf": 2
    },
+   "x": 778,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "anode": "a54",
      "cathode": "a55"
     }
-   },
-   "x": 778,
-   "y": 255
+   }
   },
   {
    "id": "led3",
@@ -186,15 +186,15 @@
     "color": "red",
     "vf": 2
    },
+   "x": 820,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "anode": "a57",
      "cathode": "a58"
     }
-   },
-   "x": 820,
-   "y": 255
+   }
   },
   {
    "id": "led4",
@@ -203,15 +203,15 @@
     "color": "red",
     "vf": 2
    },
+   "x": 862,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "anode": "a60",
      "cathode": "a61"
     }
-   },
-   "x": 862,
-   "y": 255
+   }
   },
   {
    "id": "led5",
@@ -220,15 +220,15 @@
     "color": "green",
     "vf": 2.1
    },
+   "x": 64,
+   "y": 349,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "anode": "f3",
      "cathode": "f4"
     }
-   },
-   "x": 64,
-   "y": 349
+   }
   },
   {
    "id": "led6",
@@ -237,15 +237,15 @@
     "color": "green",
     "vf": 2.1
    },
+   "x": 106,
+   "y": 349,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "anode": "f6",
      "cathode": "f7"
     }
-   },
-   "x": 106,
-   "y": 349
+   }
   },
   {
    "id": "led7",
@@ -254,15 +254,15 @@
     "color": "green",
     "vf": 2.1
    },
+   "x": 148,
+   "y": 349,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "anode": "f9",
      "cathode": "f10"
     }
-   },
-   "x": 148,
-   "y": 349
+   }
   },
   {
    "id": "led8",
@@ -271,15 +271,15 @@
     "color": "green",
     "vf": 2.1
    },
+   "x": 190,
+   "y": 349,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "anode": "f12",
      "cathode": "f13"
     }
-   },
-   "x": 190,
-   "y": 349
+   }
   },
   {
    "id": "mcu1",

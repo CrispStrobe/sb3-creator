@@ -14,6 +14,8 @@
    "id": "board",
    "kind": "arduino_uno",
    "declName": "board",
+   "x": 64,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
@@ -32,24 +34,22 @@
      "D12": "a15",
      "D13": "a16"
     }
-   },
-   "x": 64,
-   "y": 255
+   }
   },
   {
    "id": "piezo",
    "kind": "piezo",
    "declName": "piezo",
    "params": {},
+   "x": 470,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "a": "a32",
      "b": "a33"
     }
-   },
-   "x": 470,
-   "y": 255
+   }
   },
   {
    "id": "r1",
@@ -57,15 +57,15 @@
    "params": {
     "ohms": 1000000
    },
+   "x": 302,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "a": "a20",
      "b": "a24"
     }
-   },
-   "x": 302,
-   "y": 255
+   }
   },
   {
    "id": "led1",
@@ -74,15 +74,15 @@
    "params": {
     "color": "red"
    },
+   "x": 512,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "anode": "a35",
      "cathode": "a36"
     }
-   },
-   "x": 512,
-   "y": 255
+   }
   },
   {
    "id": "r2",
@@ -90,15 +90,15 @@
    "params": {
     "ohms": 220
    },
+   "x": 386,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "a": "a26",
      "b": "a30"
     }
-   },
-   "x": 386,
-   "y": 255
+   }
   },
   {
    "id": "vcc1",
