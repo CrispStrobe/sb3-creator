@@ -913,6 +913,17 @@ class SB3Creator {
                 STRING2: this.parseValue(sp.right, context)
             }));
         }
+        // Prefix join: `join X Y` (no leading space — splitBinary misses it)
+        if (/^join\s/i.test(s)) {
+            const inner = s.slice(4).trim();
+            const sp2 = this.splitBinary(inner, [' ']);
+            if (sp2) {
+                return this.valueOfBlock(this.pushBlock(context, 'operator_join', {
+                    STRING1: this.parseValue(sp2.left, context),
+                    STRING2: this.parseValue(sp2.right, context)
+                }));
+            }
+        }
         if ((sp = this.splitBinary(s, ['+', '-']))) {
             const op = sp.op === '+' ? 'operator_add' : 'operator_subtract';
             return this.valueOfBlock(this.pushBlock(context, op, {
@@ -2261,6 +2272,11 @@ class SB3Creator {
             return ret(block);
         }
         if ((match = line.match(/^lcd clear\s+(.+)$/i))) {
+            const displayArg = match[1].trim();
+            if (/\s/.test(displayArg)) {
+                this.warn(null, `lcd clear takes a single display name, but got "${displayArg}" (contains whitespace) — did you mean "lcd clear <display>"?`);
+                return null;
+            }
             const { id, block } = cmd('devices_lcdclear');
             block[id].inputs.DISPLAY = val(match[1]);
             return ret(block);
