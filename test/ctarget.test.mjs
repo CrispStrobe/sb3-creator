@@ -3271,3 +3271,54 @@ WHEN flag clicked:
     const dup = build(`DEVICE EATER6502\nCHIP a = SIMPLEVGA\nCHIP b = SIMPLEVGA\n`);
     assert.match((dup.warnings || []).join('\n'), /already declared/);
 });
+
+// ---- milestone tests: new device flavors round-trip C → pseudocode → C ----
+// These are regression tests for delivered milestones. If one of these breaks,
+// a device that was working stopped working — escalate immediately.
+
+test('ATtiny88 blink round-trips C → pseudocode → C with zero warnings', async () => {
+    const cToPseudocode = (await import('../src/utils/cToPseudocode.js')).default;
+    const src = `DEVICE ATTINY88\nCLOCK 8000000\nPIN col0 = PB0 OUTPUT\nPIN row0 = PD0 OUTPUT\n\nWHEN flag clicked:\n  FOREVER:\n    turn on col0\n    turn on row0\n    wait 0.2 seconds\n    turn off col0\n    turn off row0\n    wait 0.2 seconds\n`;
+    const c1 = build(src);
+    assert.deepEqual(c1.warnings, [], 'parse warnings');
+    const code = c1.generateC();
+    assert.match(code, /TIMER1_COMPA_vect/, 'ATtiny88 must use Timer1 (Timer0 has no CTC)');
+    assert.match(code, /BW_OCR1A/, 'ATtiny88 tick constant is OCR1A');
+    const { pseudocode: ps1, warnings: w1 } = cToPseudocode(code);
+    assert.deepEqual(w1.filter(w => !/output pins/.test(w)), [], 'round-trip warnings');
+    assert.match(ps1, /DEVICE ATTINY88/, 'device survives');
+    assert.match(ps1, /PIN col0 = PB0 OUTPUT/, 'PB0 pin survives');
+    assert.match(ps1, /PIN row0 = PD0 OUTPUT/, 'PD0 pin survives');
+    assert.match(ps1, /turn on col0/, 'port-register write reverse-mapped to pin');
+    const c2 = build(ps1);
+    const { pseudocode: ps2 } = cToPseudocode(c2.generateC());
+    assert.equal(ps2, ps1, 'second hop is stable');
+});
+
+test('STC15F2K60S2 multi-task round-trips with zero warnings', async () => {
+    const cToPseudocode = (await import('../src/utils/cToPseudocode.js')).default;
+    const src = `DEVICE STC15F2K60S2\nCLOCK 11059200\nPIN led1 = P1.0 OUTPUT ACTIVE LOW\nPIN led2 = P1.1 OUTPUT ACTIVE LOW\n\nWHEN flag clicked:\n  FOREVER:\n    turn on led1\n    wait 0.5 seconds\n    turn off led1\n    wait 0.5 seconds\n\nWHEN flag clicked:\n  FOREVER:\n    turn on led2\n    wait 0.3 seconds\n    turn off led2\n    wait 0.3 seconds\n`;
+    const c1 = build(src);
+    const code = c1.generateC();
+    const { pseudocode: ps1, warnings: w1 } = cToPseudocode(code);
+    assert.deepEqual(w1, [], 'STC15 round-trip warnings');
+    assert.match(ps1, /DEVICE STC15F2K60S2/, 'device survives');
+    assert.match(ps1, /WHEN flag clicked:[\s\S]*WHEN flag clicked:/, 'both scripts survive');
+    const c2 = build(ps1);
+    const { pseudocode: ps2 } = cToPseudocode(c2.generateC());
+    assert.equal(ps2, ps1, 'second hop is stable');
+});
+
+test('EATER6502 blink round-trips with VIA pin declarations intact', async () => {
+    const cToPseudocode = (await import('../src/utils/cToPseudocode.js')).default;
+    const src = `DEVICE EATER6502\nCLOCK 1000000\nPIN led = PA0 OUTPUT\n\nWHEN flag clicked:\n  FOREVER:\n    turn on led\n    wait 0.5 seconds\n    turn off led\n    wait 0.5 seconds\n`;
+    const c1 = build(src);
+    const code = c1.generateC();
+    const { pseudocode: ps1, warnings: w1 } = cToPseudocode(code);
+    assert.deepEqual(w1, [], 'eater6502 round-trip warnings');
+    assert.match(ps1, /DEVICE EATER6502/, 'device survives');
+    assert.match(ps1, /PIN led = PA0 OUTPUT/, 'VIA pin survives');
+    const c2 = build(ps1);
+    const { pseudocode: ps2 } = cToPseudocode(c2.generateC());
+    assert.equal(ps2, ps1, 'second hop is stable');
+});
