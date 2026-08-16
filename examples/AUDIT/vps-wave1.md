@@ -1180,3 +1180,7 @@ Intros present.
 ## pc86-led-sanduhr — VERDICT: pass
 ## pc87-stroboskop — VERDICT: pass
 ## pc88-lichtorgel — VERDICT: pass
+
+## 60-retro-console — VERDICT: pass
+**layers: engine.** RBS15667 retro console bench with scan bus and three
+displays. Program parses clean (0 warnings). Intros present.
