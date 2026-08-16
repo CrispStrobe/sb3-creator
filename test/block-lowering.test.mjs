@@ -118,6 +118,11 @@ test('block lowering census', () => {
         'devices_lcdprint',   // I2C LCD via PCF8574 (P2.1 SDA, P2.2 SCL)
         'devices_lcdcursor',  // HD44780 set cursor position
         'devices_lcdclear',   // HD44780 clear display
+        'devices_tftpixel',   // ILI9341 SPI TFT: single pixel (bw_tft_pixel)
+        'devices_tftfill',    // ILI9341 SPI TFT: filled rectangle (bw_tft_fill)
+        'devices_tftclear',   // ILI9341 SPI TFT: clear screen (bw_tft_clear)
+        'devices_tftprint',   // ILI9341 SPI TFT: text print _s/_n (bw_tft_print_s/n)
+        'devices_tftcursor',  // ILI9341 SPI TFT: set cursor (bw_tft_cursor)
         'devices_devicestate', // composite: returns relay state or 0
     ]);
     const allDevices = hw.filter(op => op.startsWith('devices_'));
