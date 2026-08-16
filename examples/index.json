@@ -146,11 +146,11 @@
   "difficulty": 2,
   "thumbnail": "05-counter-7seg/thumb.svg",
   "files": {
-   "program": "05-counter-7seg/program.bw",
-   "circuit": "05-counter-7seg/circuit.json",
-   "expected": "05-counter-7seg/EXPECTED.md",
-   "intro": "05-counter-7seg/intro.md",
-   "introDE": "05-counter-7seg/intro.de.md"
+   "program": "05-counter/program.bw",
+   "circuit": "05-counter/circuit.json",
+   "expected": "05-counter/EXPECTED.md",
+   "intro": "05-counter/intro.md",
+   "introDE": "05-counter/intro.de.md"
   },
   "kind": "program",
   "devices": [
@@ -1194,6 +1194,31 @@
    "atmega168p",
    "arduino-mega",
    "arduino-nano",
+   "pico",
+   "eater6502",
+   "attiny88"
+  ]
+ },
+ {
+  "id": "50-7seg-chase",
+  "title": {
+   "en": "7-segment: segment chase",
+   "de": "Sieben-Segment: Segmentlauf"
+  },
+  "category": "digital",
+  "difficulty": 2,
+  "files": {
+   "program": "50-7seg-chase/program.bw",
+   "circuit": "50-7seg-chase/circuit.json",
+   "expected": "50-7seg-chase/EXPECTED.md",
+   "intro": "50-7seg-chase/intro.md",
+   "introDE": "50-7seg-chase/intro.de.md"
+  },
+  "kind": "program",
+  "devices": [
+   "stc12c5a60s2",
+   "stc89c52rc",
+   "arduino-mega",
    "pico",
    "eater6502",
    "attiny88"

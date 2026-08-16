@@ -116,6 +116,16 @@
    "fromTerminal": "gnd",
    "to": "board",
    "toTerminal": "gnd"
+  },
+  {
+   "from": "gnd1",
+   "fromTerminal": "gnd",
+   "to": {
+    "board": "bb1",
+    "hole": "b-2"
+   },
+   "color": "black",
+   "genPower": true
   }
  ],
  "holeWires": [

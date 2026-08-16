@@ -568,6 +568,16 @@
    },
    "color": "black",
    "genPower": true
+  },
+  {
+   "from": "gnd1",
+   "fromTerminal": "gnd",
+   "to": {
+    "board": "bb2",
+    "hole": "b-3"
+   },
+   "color": "black",
+   "genPower": true
   }
  ],
  "holeWires": [

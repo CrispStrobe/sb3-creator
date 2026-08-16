@@ -1,0 +1,37 @@
+DEVICE STC12C5A60S2
+CLOCK 11059200
+PIN sa = P0.0 OUTPUT
+PIN sb = P0.1 OUTPUT
+PIN sc = P0.2 OUTPUT
+PIN sd = P0.3 OUTPUT
+PIN se = P0.4 OUTPUT
+PIN sf = P0.5 OUTPUT
+PIN sg = P0.6 OUTPUT
+
+STAGE:
+  # Seven segments, seven pins: each segment is just an LED between its
+  # pin and the common cathode. The chase walks a..f around the ring,
+  # then blinks the middle bar — you SEE which pin owns which segment.
+  WHEN flag clicked:
+    FOREVER:
+      turn on sa
+      wait 0.15 seconds
+      turn off sa
+      turn on sb
+      wait 0.15 seconds
+      turn off sb
+      turn on sc
+      wait 0.15 seconds
+      turn off sc
+      turn on sd
+      wait 0.15 seconds
+      turn off sd
+      turn on se
+      wait 0.15 seconds
+      turn off se
+      turn on sf
+      wait 0.15 seconds
+      turn off sf
+      turn on sg
+      wait 0.3 seconds
+      turn off sg
