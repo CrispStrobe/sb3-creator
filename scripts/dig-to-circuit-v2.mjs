@@ -115,21 +115,62 @@ const pinTexts = [
 
 // Cluster pin labels to the nearest chip instance; label x sits ±4-6
 // from the pin, baseline ~6.75 below — snap to the 20-grid.
+//
+// Use the chip-name text (e.g. "74173" rendered at text-anchor="middle"
+// at the bottom of each chip body in the SVG) as the chip center for
+// distance calculations. This solves stacked-chip mis-assignment: two
+// 74173s at (820,140) and (820,480) have anchors close together, but
+// their chip-name texts at (870,417) and (870,757) are well-separated.
 const snap = (v) => Math.round(v / 20) * 20;
-const pinAt = {};   // `${chipIdx}:${terminal}` → {x, y}
+
+// Extract chip-name text positions from the SVG as chip centers
+const chipCenters = {};  // chipEl.i → {cx, cy}
+const chipBaseName = (name) => name.replace('.dig', '');
+const chipNameTexts = [...svg.matchAll(/<text text-anchor="middle" x="([\d.\-]+)" y="([\d.\-]+)"[^>]*>(\d+)<\/text>/g)]
+    .map((m) => ({ x: Number(m[1]), y: Number(m[2]), name: m[3] }));
+for (const e of chipEls) {
+    const base = chipBaseName(e.name);
+    // Find the closest chip-name text matching this chip type
+    let bestCenter = null, bestD = Infinity;
+    for (const ct of chipNameTexts) {
+        if (ct.name !== base) continue;
+        const d = Math.hypot(ct.x - e.x, ct.y - e.y);
+        if (d < bestD) { bestD = d; bestCenter = ct; }
+    }
+    if (bestCenter) {
+        chipCenters[e.i] = { cx: bestCenter.x, cy: bestCenter.y };
+        // Remove used center so stacked chips don't share
+        chipNameTexts.splice(chipNameTexts.indexOf(bestCenter), 1);
+    } else {
+        chipCenters[e.i] = { cx: e.x, cy: e.y };  // fallback to anchor
+    }
+}
+
+// Greedy bipartite: collect all (label, chip, distance-to-center)
+// candidates, sort by distance, assign each label to its closest chip
+// — skip if that chip already owns the terminal from a closer label.
+const candidates = [];
 for (const pt of pinTexts) {
-    let best = null, bestD = Infinity;
     for (const e of chipEls) {
         if (!(pt.text in CHIPS[e.name].labels)) continue;
-        const d = Math.hypot(pt.x - e.x, pt.y - e.y);
-        if (d < bestD && d < 400) { bestD = d; best = e; }
+        const c = chipCenters[e.i];
+        const d = Math.hypot(pt.x - c.cx, pt.y - c.cy);
+        if (d < 400) candidates.push({ pt, e, d });
     }
-    if (!best) continue;
-    const term = CHIPS[best.name].labels[pt.text];
+}
+candidates.sort((a, b) => a.d - b.d);
+const pinAt = {};   // `${chipIdx}:${terminal}` → {x, y, d}
+const labelUsed = new Set();
+for (const { pt, e, d } of candidates) {
+    const labelKey = `${pt.x},${pt.y},${pt.text}`;
+    if (labelUsed.has(labelKey)) continue;
+    const term = CHIPS[e.name].labels[pt.text];
+    const key = `${e.i}:${term}`;
+    if (key in pinAt) continue;
     const px = snap(pt.anchor === 'start' ? pt.x - 4 : pt.x + 4);
     const py = snap(pt.y - 6.75);
-    const key = `${best.i}:${term}`;
-    if (!(key in pinAt) || bestD < pinAt[key].d) pinAt[key] = { x: px, y: py, d: bestD };
+    pinAt[key] = { x: px, y: py, d };
+    labelUsed.add(labelKey);
 }
 
 // ── 3. Nets: union-find with point-on-segment ──
