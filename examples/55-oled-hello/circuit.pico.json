@@ -80,10 +80,7 @@
      "gp18": "f19",
      "gnd_7": "f20",
      "gp17": "f21",
-     "gp16": "f22",
-     "swclk": "d11",
-     "swd_gnd": "d12",
-     "swdio": "d13"
+     "gp16": "f22"
     }
    },
    "x": 64,
@@ -354,27 +351,6 @@
    "boardId": "bb1",
    "a": "g20",
    "b": "b-20",
-   "color": "black"
-  },
-  {
-   "ref": "bbw:bb1:gen_19",
-   "boardId": "bb1",
-   "a": "b12",
-   "b": "b-12",
-   "color": "black"
-  },
-  {
-   "ref": "bbw:bb1:gen_20",
-   "boardId": "bb1",
-   "a": "c38",
-   "b": "t+38",
-   "color": "red"
-  },
-  {
-   "ref": "bbw:bb1:gen_21",
-   "boardId": "bb1",
-   "a": "c39",
-   "b": "b-39",
    "color": "black"
   }
  ],

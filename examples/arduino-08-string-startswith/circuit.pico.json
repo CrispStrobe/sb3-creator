@@ -59,10 +59,7 @@
      "gp18": "f19",
      "gnd_7": "f20",
      "gp17": "f21",
-     "gp16": "f22",
-     "swclk": "d11",
-     "swd_gnd": "d12",
-     "swdio": "d13"
+     "gp16": "f22"
     }
    }
   },
@@ -135,85 +132,64 @@
   {
    "ref": "bbw:bb1:gen_2",
    "boardId": "bb1",
-   "a": "c5",
-   "b": "b-5",
-   "color": "black"
-  },
-  {
-   "ref": "bbw:bb1:gen_3",
-   "boardId": "bb1",
    "a": "b10",
    "b": "b-10",
    "color": "black"
   },
   {
-   "ref": "bbw:bb1:gen_4",
+   "ref": "bbw:bb1:gen_3",
    "boardId": "bb1",
    "a": "b15",
    "b": "b-15",
    "color": "black"
   },
   {
-   "ref": "bbw:bb1:gen_5",
+   "ref": "bbw:bb1:gen_4",
    "boardId": "bb1",
    "a": "b20",
    "b": "b-20",
    "color": "black"
   },
   {
-   "ref": "bbw:bb1:gen_6",
+   "ref": "bbw:bb1:gen_5",
    "boardId": "bb1",
    "a": "g3",
    "b": "t+3",
    "color": "red"
   },
   {
-   "ref": "bbw:bb1:gen_7",
-   "boardId": "bb1",
-   "a": "h4",
-   "b": "t+4",
-   "color": "red"
-  },
-  {
-   "ref": "bbw:bb1:gen_8",
+   "ref": "bbw:bb1:gen_6",
    "boardId": "bb1",
    "a": "g5",
    "b": "b-5",
    "color": "black"
   },
   {
-   "ref": "bbw:bb1:gen_9",
+   "ref": "bbw:bb1:gen_7",
    "boardId": "bb1",
    "a": "g7",
    "b": "t+7",
    "color": "red"
   },
   {
-   "ref": "bbw:bb1:gen_10",
+   "ref": "bbw:bb1:gen_8",
    "boardId": "bb1",
    "a": "g10",
    "b": "b-10",
    "color": "black"
   },
   {
-   "ref": "bbw:bb1:gen_11",
+   "ref": "bbw:bb1:gen_9",
    "boardId": "bb1",
    "a": "g15",
    "b": "b-15",
    "color": "black"
   },
   {
-   "ref": "bbw:bb1:gen_12",
+   "ref": "bbw:bb1:gen_10",
    "boardId": "bb1",
    "a": "g20",
    "b": "b-20",
-   "color": "black"
-  },
-  {
-   "ref": "bbw:bb1:gen_13",
-   "boardId": "bb1",
-   "a": "b12",
-   "b": "b-12",
    "color": "black"
   }
  ],

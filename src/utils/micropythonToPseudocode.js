@@ -67,6 +67,7 @@ export default function micropythonToPseudocode (source, opts = {}) {
     // where -> {name, where, direction, activeLow, obj}
     const pins = new Map();
     const byObj = new Map();
+    const consumedDicts = new Set();   // keypad-idiom dicts already read as pins
     const put = (obj, where, direction, activeLow, name) => {
         const prev = pins.get(where);
         if (prev) {
@@ -137,6 +138,7 @@ export default function micropythonToPseudocode (source, opts = {}) {
                 const dictRe = new RegExp(comp[3] + '\\s*=\\s*\\{([^}]*)\\}');
                 const dm = dictRe.exec(text);
                 if (dm) {
+                    consumedDicts.add(comp[3]);
                     const activeLow = comp[2] === 'PULL_UP';
                     for (const e of dm[1].matchAll(/(\d+)\s*:\s*"([^"]*)"/g)) {
                         const gp = e[1];
@@ -269,6 +271,42 @@ export default function micropythonToPseudocode (source, opts = {}) {
         bodyIndent = lines[start] ? lines[start].indent : 0;
     }
 
+    // ---- module-level setup BEFORE the script: grey-block preserved ------
+    // Imports of unknown modules, helper defs, setup calls — everything the
+    // evidence collectors above did not consume rides along verbatim, in
+    // order, at the top of the script. Known infrastructure (the machine
+    // import, Pin/ADC/PWM/I2C construction, the keypad dict) is silent:
+    // it IS the declarations.
+    // Only HAND-WRITTEN programs get this: a generated program's preamble
+    // is our own infrastructure (drivers, scheduler, pin objects) — the
+    // evidence collectors mine it, and preserving it as grey blocks would
+    // DUPLICATE the driver on re-emission.
+    const isGenerated = fn !== -1 || /^# generated for /m.test(source);
+    if (!isGenerated) {
+        const knownInfra = (t) => /^from\s+(machine|microbit)\s+import\b/.test(t)
+            || /^import\s+(framebuf|time|machine|utime)\s*$/.test(t)
+            || /^\w+\s*=\s*(Pin|ADC|PWM|I2C)\s*\(/.test(t)
+            || /^\{?\s*\w+\s*:\s*Pin\s*\(/.test(t)
+            || /Pin\s*\(\s*\w+\s*,/.test(t) && /for\s+\w+\s+in\s+/.test(t)
+            || /^_?[A-Z_]+\s*=\s*\d+\s*$/.test(t);   // bare numeric consts (DEBOUNCE_MS)
+        let skipDict = null;
+        for (let i = 0; i < start; i++) {
+            const t = lines[i].code;
+            const trimmed = t.trim();
+            if (!trimmed) continue;
+            if (skipDict) { if (/\}/.test(trimmed)) skipDict = null; continue; }
+            const dictOpen = /^(\w+)\s*=\s*\{\s*$/.exec(trimmed);
+            if (dictOpen && consumedDicts.has(dictOpen[1])) { skipDict = dictOpen[1]; continue; }
+            const dictInline = /^(\w+)\s*=\s*\{.*\}\s*$/.exec(trimmed);
+            if (dictInline && consumedDicts.has(dictInline[1])) continue;
+            if (knownInfra(trimmed)) continue;
+            // preserve with the ORIGINAL relative indentation inside the text,
+            // so multi-line defs stay valid Python when re-emitted
+            emit(1, `raw "${t.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`);
+            warn(`kept verbatim as a grey block: "${trimmed.slice(0, 60)}"`);
+        }
+    }
+
     for (let i = start; i < lines.length; i++) {
         const l = lines[i];
         if (!l.code.trim()) continue;
@@ -363,7 +401,12 @@ export default function micropythonToPseudocode (source, opts = {}) {
         }
         if (/^(yield|pass|global|return)\b/.test(s)) continue;
 
-        warn(`no pseudocode for "${s.slice(0, 60)}" — left out`);
+        // GREY BLOCK: what this reader cannot translate it PRESERVES —
+        // a `raw "<line>"` statement the MicroPython emitter re-emits
+        // verbatim, so import → edit → export loses nothing. The warning
+        // stays: the user should know which lines ride along untranslated.
+        emit(depth, `raw "${s.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`);
+        warn(`kept verbatim as a grey block: "${s.slice(0, 60)}"`);
     }
 
     // `x * 1023 // 100` is how a percentage was written to the hardware. Undoing

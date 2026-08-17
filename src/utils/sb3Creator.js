@@ -2440,6 +2440,17 @@ class SB3Creator {
             block[id].inputs.DISPLAY = val(match[2]);
             return ret(block);
         }
+        // ---- grey blocks (the MakeCode lesson) ----
+        // `raw "<line>"` carries source a reader could not translate.
+        // It round-trips VERBATIM through the MicroPython emitter and
+        // degrades to a comment everywhere else — an import loses
+        // nothing, it just shows what it could not understand.
+        if ((match = line.match(/^raw\s+"(.*)"\s*$/i))) {
+            const text = match[1].replace(/\\"/g, '"').replace(/\\\\/g, '\\');
+            const { id, block } = cmd('bw_raw');
+            block[id].fields.TEXT = [text, null];
+            return ret(block);
+        }
         if ((match = line.match(/^oled set cursor\s+(.+?)\s+(.+?)\s+on\s+(.+)$/i))) {
             const { id, block } = cmd('devices_oledcursor');
             block[id].inputs.ROW = val(match[1]);
@@ -4251,6 +4262,10 @@ class SB3Creator {
             case 'devices_tftprint': return line(`tft print ${v('TEXT')} on ${v('DISPLAY')}`);
             case 'devices_tftcursor': return line(`tft set cursor ${v('ROW')} ${v('COL')} on ${v('DISPLAY')}`);
             case 'devices_oledpixel': return line(`oled pixel ${v('X')} ${v('Y')} ${v('VALUE')} on ${v('DISPLAY')}`);
+            case 'bw_raw': {
+                const t = String(b.fields.TEXT ? b.fields.TEXT[0] : '');
+                return line(`raw "${t.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`);
+            }
             case 'devices_oledclear': return line(`oled clear ${v('DISPLAY')}`);
             case 'devices_oledprint': return line(`oled print ${v('TEXT')} on ${v('DISPLAY')}`);
             case 'devices_oledcursor': return line(`oled set cursor ${v('ROW')} ${v('COL')} on ${v('DISPLAY')}`);
@@ -6720,6 +6735,13 @@ class SB3Creator {
                     // the scheduler through. A fast DEFINE simply has no
                     // yields inside and runs atomically.
                     return [`${pad}yield from ${fn}(${args.join(', ')})`];
+                }
+                case 'bw_raw': {
+                    // The grey block comes home: the exact line the reader
+                    // could not translate, re-emitted verbatim. This is
+                    // what makes import → edit → export lossless.
+                    const t = String(b.fields.TEXT ? b.fields.TEXT[0] : '');
+                    return [`${pad}${t}`];
                 }
                 // OLED verbs, Pico only: the page-mode driver in the header
                 // (validated on the real GME12864-70 — an SH1106, which

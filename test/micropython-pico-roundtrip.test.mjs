@@ -58,3 +58,36 @@ test('70-calculator: MicroPython → pseudocode round-trips every PIN', () => {
         assert.equal(q.activeLow, p.activeLow, `${p.name} keeps its polarity`);
     }
 });
+
+test('grey blocks: what the reader cannot translate rides along VERBATIM', () => {
+    // The MakeCode invariant, ours now: import -> edit -> export loses
+    // nothing. Unknown imports, helper defs (bodies included), setup
+    // calls and in-loop calls all come home byte-exact.
+    const hand = [
+        'from machine import Pin',
+        'import neopixel_thing',
+        'DEBOUNCE_MS = 25',
+        '_pin_led = Pin(25, Pin.OUT)',
+        'def helper(x):',
+        '    return x * 2',
+        'neopixel_thing.setup(8)',
+        'while True:',
+        '    _pin_led.value(1)',
+        '    neopixel_thing.spin(helper(3))',
+        '',
+    ].join('\n');
+    const r = mp2bw(hand);
+    const c = new SB3Creator();
+    c.parse(r.pseudocode);
+    assert.deepEqual(c.warnings, [], 'grey blocks parse clean');
+    const back = c.generateMicroPython();
+    assert.equal(back.ok, true);
+    for (const probe of ['import neopixel_thing', 'def helper(x):', '    return x * 2',
+        'neopixel_thing.setup(8)', 'neopixel_thing.spin(helper(3))']) {
+        assert.ok(back.py.includes(probe), `kept verbatim: ${probe}`);
+    }
+    // and the infrastructure the reader DID translate is not duplicated
+    assert.ok(!back.py.includes('raw "'), 'raw markers never leak into the emission');
+    assert.equal((back.py.match(/DEBOUNCE_MS/g) || []).length, 0,
+        'consumed constants stay consumed');
+});

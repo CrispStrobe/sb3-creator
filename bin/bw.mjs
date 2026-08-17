@@ -154,8 +154,40 @@ switch (cmd) {
             fs.copyFileSync(path.join(work, 'main.ihx'), out);
             console.log(`wrote ${out} (Intel HEX for stcgal)`);
         } else if (dev === 'pico' && have('arm-none-eabi-gcc')) {
-            // SRAM image for the rp2040js emulator chain (NOT a flash UF2 —
-            // for the real Pico, `bw flash` speaks MicroPython instead).
+            if (opts.uf2) {
+                // RAM-boot UF2, the MakeCode lesson made concrete: the
+                // RP2040 bootrom accepts SRAM-targeted UF2 blocks and
+                // vectors into the image after the copy — drag the file
+                // onto RPI-RP2 and the program runs, no boot2, no flash
+                // linkage, no cable protocol, works from Safari. The image
+                // leads with a real vector table (SP top of SRAM, reset →
+                // main) instead of the emulator layout's main-first.
+                fs.writeFileSync(path.join(work, 'vectors.c'),
+                    'extern int main(void);\n'
+                    + 'void _reset(void) { main(); for (;;) {} }\n'
+                    + '__attribute__((section(".vectors"), used))\n'
+                    + 'const unsigned int __vectors[] = { 0x20042000u, (unsigned int)&_reset };\n');
+                fs.writeFileSync(path.join(work, 'pico-uf2.ld'),
+                    'ENTRY(_reset)\nMEMORY { RAM (rwx) : ORIGIN = 0x20000000, LENGTH = 256K }\n'
+                    + 'SECTIONS {\n  .vectors : { KEEP(*(.vectors)) } > RAM\n'
+                    + '  .text : { *(.text.startup*) *(.text.main) *(.text*) *(.rodata*) } > RAM\n'
+                    + '  .data : { *(.data*) } > RAM\n  .bss  : { *(.bss*) *(COMMON) } > RAM\n}\n');
+                execFileSync('arm-none-eabi-gcc', ['-mcpu=cortex-m0plus', '-mthumb', '-Os',
+                    '-ffreestanding', '-ffunction-sections', '-nostdlib', '-Wno-implicit-fallthrough',
+                    `-T${path.join(work, 'pico-uf2.ld')}`, '-o', path.join(work, 'main.elf'),
+                    path.join(work, 'vectors.c'), path.join(work, 'main.c'), '-lgcc'], { stdio: 'inherit' });
+                execFileSync('arm-none-eabi-objcopy', ['-O', 'binary',
+                    path.join(work, 'main.elf'), path.join(work, 'main.bin')], { stdio: 'inherit' });
+                const { uf2FromBinary } = await import('../src/utils/uf2.js');
+                const bin = fs.readFileSync(path.join(work, 'main.bin'));
+                const uf2 = uf2FromBinary(new Uint8Array(bin), 0x20000000);
+                const out = opts.o || file.replace(/\.[^.]+$/, '') + '.uf2';
+                fs.writeFileSync(out, uf2);
+                console.log(`wrote ${out} (${uf2.length} bytes) — drag onto the RPI-RP2 drive to run`);
+                break;
+            }
+            // SRAM image for the rp2040js emulator chain (--uf2 makes the
+            // drag-drop artifact; `bw flash` speaks MicroPython instead).
             fs.writeFileSync(path.join(work, 'pico-sram.ld'),
                 'ENTRY(main)\nMEMORY { RAM (rwx) : ORIGIN = 0x20000000, LENGTH = 256K }\n'
                 + 'SECTIONS {\n  .text : { *(.text.startup*) *(.text.main) *(.text*) *(.rodata*) } > RAM\n'

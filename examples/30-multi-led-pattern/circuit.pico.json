@@ -82,10 +82,7 @@
      "gp18": "f19",
      "gnd_7": "f20",
      "gp17": "f21",
-     "gp16": "f22",
-     "swclk": "d11",
-     "swd_gnd": "d12",
-     "swdio": "d13"
+     "gp16": "f22"
     }
    },
    "x": 64,
@@ -507,13 +504,6 @@
    "boardId": "bb1",
    "a": "g20",
    "b": "b-20",
-   "color": "black"
-  },
-  {
-   "ref": "bbw:bb1:gen_22",
-   "boardId": "bb1",
-   "a": "b12",
-   "b": "b-12",
    "color": "black"
   }
  ],

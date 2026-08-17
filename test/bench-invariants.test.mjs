@@ -87,6 +87,24 @@ describe('bench invariants: every device bench, canonical loader', { skip: avail
         if (!seen.has(p.id)) problems.push(`${rel}: ${p.id} (${p.kind}) unreachable from the MCU`);
       }
 
+      // An MCU GPIO directly in a power net is a SHORT: the Pico's SWD
+      // pads seated at dRow 3 landed INSIDE the top-block strips and
+      // grounded gp7 through the breadboard itself — key b4 read
+      // pressed-to-rail (peer probe, 2026-08-17). Power flows to GPIOs
+      // through PARTS (buttons, resistors, switches), never bare.
+      for (const n of circ.resolvedNets || []) {
+        const power = n.terminals.filter((t) => {
+          const pp = circ.parts.find((x) => x.id === t.part);
+          return pp && (pp.kind === 'vcc' || pp.kind === 'gnd');
+        });
+        if (!power.length) continue;
+        const gpios = n.terminals.filter((t) => t.part === mcu.id
+          && /^(gp\d+|p\d+\.\d+|d\d+|a\d+)$/i.test(t.terminal));
+        for (const g of gpios) {
+          problems.push(`${rel}: MCU ${g.terminal} shorted into a power net`);
+        }
+      }
+
       // A button whose two legs share a net is permanently pressed.
       for (const p of circ.parts) {
         if (p.kind !== 'button') continue;

@@ -59,10 +59,7 @@
      "gp18": "f19",
      "gnd_7": "f20",
      "gp17": "f21",
-     "gp16": "f22",
-     "swclk": "d11",
-     "swd_gnd": "d12",
-     "swdio": "d13"
+     "gp16": "f22"
     }
    }
   },
@@ -357,100 +354,65 @@
   {
    "ref": "bbw:bb1:gen_15",
    "boardId": "bb1",
-   "a": "e5",
-   "b": "b-5",
-   "color": "black"
-  },
-  {
-   "ref": "bbw:bb1:gen_16",
-   "boardId": "bb1",
    "a": "b10",
    "b": "b-10",
    "color": "black"
   },
   {
-   "ref": "bbw:bb1:gen_17",
+   "ref": "bbw:bb1:gen_16",
    "boardId": "bb1",
    "a": "b15",
    "b": "b-15",
    "color": "black"
   },
   {
-   "ref": "bbw:bb1:gen_18",
+   "ref": "bbw:bb1:gen_17",
    "boardId": "bb1",
    "a": "b20",
    "b": "b-20",
    "color": "black"
   },
   {
-   "ref": "bbw:bb1:gen_19",
+   "ref": "bbw:bb1:gen_18",
    "boardId": "bb1",
    "a": "g3",
    "b": "t+3",
    "color": "red"
   },
   {
-   "ref": "bbw:bb1:gen_20",
-   "boardId": "bb1",
-   "a": "j4",
-   "b": "t+4",
-   "color": "red"
-  },
-  {
-   "ref": "bbw:bb1:gen_21",
+   "ref": "bbw:bb1:gen_19",
    "boardId": "bb1",
    "a": "g5",
    "b": "b-5",
    "color": "black"
   },
   {
-   "ref": "bbw:bb1:gen_22",
+   "ref": "bbw:bb1:gen_20",
    "boardId": "bb1",
    "a": "g7",
    "b": "t+7",
    "color": "red"
   },
   {
-   "ref": "bbw:bb1:gen_23",
+   "ref": "bbw:bb1:gen_21",
    "boardId": "bb1",
    "a": "g10",
    "b": "b-10",
    "color": "black"
   },
   {
-   "ref": "bbw:bb1:gen_24",
+   "ref": "bbw:bb1:gen_22",
    "boardId": "bb1",
    "a": "g15",
    "b": "b-15",
    "color": "black"
   },
   {
-   "ref": "bbw:bb1:gen_25",
+   "ref": "bbw:bb1:gen_23",
    "boardId": "bb1",
    "a": "g20",
    "b": "b-20",
    "color": "black"
-  },
-  {
-   "ref": "bbw:bb1:gen_26",
-   "boardId": "bb1",
-   "a": "b12",
-   "b": "b-12",
-   "color": "black"
-  },
-  {
-   "ref": "bbw:bb1:gen_27",
-   "boardId": "bb1",
-   "a": "d38",
-   "b": "b-38",
-   "color": "black"
-  },
-  {
-   "ref": "bbw:bb1:gen_28",
-   "boardId": "bb1",
-   "a": "d39",
-   "b": "t+39",
-   "color": "red"
   }
  ],
  "generated": "benchFor+authored+seat"

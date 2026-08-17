@@ -1,5 +1,5 @@
 {
- "vcc": 5,
+ "vcc": 3.3,
  "parts": [
   {
    "id": "bb1",
@@ -40,7 +40,7 @@
     "boardId": "bb1",
     "leadMap": {
      "a": "a43",
-     "common": "a44",
+     "com": "a44",
      "b": "a45"
     }
    }
@@ -780,174 +780,6 @@
   },
   {
    "from": "pico1",
-   "fromTerminal": "d34",
-   "to": "k_bac",
-   "toTerminal": "a"
-  },
-  {
-   "from": "pico1",
-   "fromTerminal": "d33",
-   "to": "k_bclr",
-   "toTerminal": "a"
-  },
-  {
-   "from": "pico1",
-   "fromTerminal": "d32",
-   "to": "k_bexe",
-   "toTerminal": "a"
-  },
-  {
-   "from": "pico1",
-   "fromTerminal": "d22",
-   "to": "k_b3",
-   "toTerminal": "a"
-  },
-  {
-   "from": "pico1",
-   "fromTerminal": "d4",
-   "to": "k_b3",
-   "toTerminal": "a"
-  },
-  {
-   "from": "pico1",
-   "fromTerminal": "d24",
-   "to": "k_b5",
-   "toTerminal": "a"
-  },
-  {
-   "from": "pico1",
-   "fromTerminal": "d5",
-   "to": "k_b5",
-   "toTerminal": "a"
-  },
-  {
-   "from": "pico1",
-   "fromTerminal": "d25",
-   "to": "k_b6",
-   "toTerminal": "a"
-  },
-  {
-   "from": "pico1",
-   "fromTerminal": "d26",
-   "to": "k_b7",
-   "toTerminal": "a"
-  },
-  {
-   "from": "pico1",
-   "fromTerminal": "d27",
-   "to": "k_b8",
-   "toTerminal": "a"
-  },
-  {
-   "from": "pico1",
-   "fromTerminal": "d28",
-   "to": "k_bplus",
-   "toTerminal": "a"
-  },
-  {
-   "from": "pico1",
-   "fromTerminal": "d29",
-   "to": "k_bminus",
-   "toTerminal": "a"
-  },
-  {
-   "from": "pico1",
-   "fromTerminal": "d30",
-   "to": "k_btimes",
-   "toTerminal": "a"
-  },
-  {
-   "from": "pico1",
-   "fromTerminal": "d31",
-   "to": "k_bdiv",
-   "toTerminal": "a"
-  },
-  {
-   "from": "pico1",
-   "fromTerminal": "d20",
-   "to": "oled1",
-   "toTerminal": "sda"
-  },
-  {
-   "from": "pico1",
-   "fromTerminal": "d20",
-   "to": "rpu_sda",
-   "toTerminal": "b"
-  },
-  {
-   "from": "pico1",
-   "fromTerminal": "d21",
-   "to": "oled1",
-   "toTerminal": "scl"
-  },
-  {
-   "from": "pico1",
-   "fromTerminal": "d21",
-   "to": "rpu_scl",
-   "toTerminal": "b"
-  },
-  {
-   "from": "pico1",
-   "fromTerminal": "d2",
-   "to": "k_b9",
-   "toTerminal": "a"
-  },
-  {
-   "from": "pico1",
-   "fromTerminal": "d3",
-   "to": "k_b0",
-   "toTerminal": "a"
-  },
-  {
-   "from": "pico1",
-   "fromTerminal": "d18",
-   "to": "k_b1",
-   "toTerminal": "a"
-  },
-  {
-   "from": "pico1",
-   "fromTerminal": "d19",
-   "to": "k_b2",
-   "toTerminal": "a"
-  },
-  {
-   "from": "pico1",
-   "fromTerminal": "gnd",
-   "to": "gnd1",
-   "toTerminal": "gnd"
-  },
-  {
-   "from": "pico1",
-   "fromTerminal": "gnd",
-   "to": "k_b4",
-   "toTerminal": "a"
-  },
-  {
-   "from": "pico1",
-   "fromTerminal": "gnd",
-   "to": "oled1",
-   "toTerminal": "gnd"
-  },
-  {
-   "from": "pico1",
-   "fromTerminal": "d23",
-   "to": "gnd1",
-   "toTerminal": "gnd"
-  },
-  {
-   "from": "pico1",
-   "fromTerminal": "d23",
-   "to": "k_b4",
-   "toTerminal": "a"
-  },
-  {
-   "from": "pico1",
-   "fromTerminal": "d23",
-   "to": "oled1",
-   "toTerminal": "gnd"
-  },
-  {
-   "from": "pico1",
    "fromTerminal": "5v",
    "to": "k_b0",
    "toTerminal": "b"
@@ -1058,12 +890,6 @@
    "from": "pico1",
    "fromTerminal": "5v",
    "to": "pwr",
-   "toTerminal": "a"
-  },
-  {
-   "from": "pico1",
-   "fromTerminal": "5v",
-   "to": "pwr",
    "toTerminal": "com"
   },
   {
@@ -1076,6 +902,150 @@
    "from": "pico1",
    "fromTerminal": "5v",
    "to": "rpu_sda",
+   "toTerminal": "a"
+  },
+  {
+   "from": "pico1",
+   "fromTerminal": "d34",
+   "to": "k_bac",
+   "toTerminal": "a"
+  },
+  {
+   "from": "pico1",
+   "fromTerminal": "d33",
+   "to": "k_bclr",
+   "toTerminal": "a"
+  },
+  {
+   "from": "pico1",
+   "fromTerminal": "d32",
+   "to": "k_bexe",
+   "toTerminal": "a"
+  },
+  {
+   "from": "pico1",
+   "fromTerminal": "d22",
+   "to": "k_b3",
+   "toTerminal": "a"
+  },
+  {
+   "from": "pico1",
+   "fromTerminal": "d24",
+   "to": "k_b5",
+   "toTerminal": "a"
+  },
+  {
+   "from": "pico1",
+   "fromTerminal": "d23",
+   "to": "k_b4",
+   "toTerminal": "a"
+  },
+  {
+   "from": "pico1",
+   "fromTerminal": "d25",
+   "to": "k_b6",
+   "toTerminal": "a"
+  },
+  {
+   "from": "pico1",
+   "fromTerminal": "d26",
+   "to": "k_b7",
+   "toTerminal": "a"
+  },
+  {
+   "from": "pico1",
+   "fromTerminal": "d27",
+   "to": "k_b8",
+   "toTerminal": "a"
+  },
+  {
+   "from": "pico1",
+   "fromTerminal": "d28",
+   "to": "k_bplus",
+   "toTerminal": "a"
+  },
+  {
+   "from": "pico1",
+   "fromTerminal": "d29",
+   "to": "k_bminus",
+   "toTerminal": "a"
+  },
+  {
+   "from": "pico1",
+   "fromTerminal": "d30",
+   "to": "k_btimes",
+   "toTerminal": "a"
+  },
+  {
+   "from": "pico1",
+   "fromTerminal": "d31",
+   "to": "k_bdiv",
+   "toTerminal": "a"
+  },
+  {
+   "from": "pico1",
+   "fromTerminal": "d20",
+   "to": "oled1",
+   "toTerminal": "sda"
+  },
+  {
+   "from": "pico1",
+   "fromTerminal": "d20",
+   "to": "rpu_sda",
+   "toTerminal": "b"
+  },
+  {
+   "from": "pico1",
+   "fromTerminal": "d21",
+   "to": "oled1",
+   "toTerminal": "scl"
+  },
+  {
+   "from": "pico1",
+   "fromTerminal": "d21",
+   "to": "rpu_scl",
+   "toTerminal": "b"
+  },
+  {
+   "from": "pico1",
+   "fromTerminal": "d2",
+   "to": "k_b9",
+   "toTerminal": "a"
+  },
+  {
+   "from": "pico1",
+   "fromTerminal": "d3",
+   "to": "k_b0",
+   "toTerminal": "a"
+  },
+  {
+   "from": "pico1",
+   "fromTerminal": "d18",
+   "to": "k_b1",
+   "toTerminal": "a"
+  },
+  {
+   "from": "pico1",
+   "fromTerminal": "d19",
+   "to": "k_b2",
+   "toTerminal": "a"
+  },
+  {
+   "from": "pico1",
+   "fromTerminal": "gnd",
+   "to": "gnd1",
+   "toTerminal": "gnd"
+  },
+  {
+   "from": "pico1",
+   "fromTerminal": "gnd",
+   "to": "oled1",
+   "toTerminal": "gnd"
+  },
+  {
+   "from": "pico1",
+   "fromTerminal": "5v",
+   "to": "pwr",
    "toTerminal": "a"
   },
   {
@@ -1300,23 +1270,30 @@
   {
    "ref": "bbw:bb1:gen_1",
    "boardId": "bb1",
+   "a": "b44",
+   "b": "b38",
+   "color": "green"
+  },
+  {
+   "ref": "bbw:bb1:gen_2",
+   "boardId": "bb1",
    "a": "b39",
    "b": "b-39",
    "color": "black"
   },
   {
-   "ref": "bbw:bb1:gen_23",
+   "ref": "bbw:bb1:gen_7",
    "boardId": "bb1",
-   "a": "b38",
-   "b": "t+38",
-   "color": "red"
+   "a": "b26",
+   "b": "d44",
+   "color": "purple"
   },
   {
-   "ref": "bbw:bb1:gen_24",
+   "ref": "bbw:bb1:gen_9",
    "boardId": "bb1",
-   "a": "c39",
-   "b": "b-39",
-   "color": "black"
+   "a": "b32",
+   "b": "e44",
+   "color": "blue"
   }
  ],
  "generated": "benchFor+authored"
