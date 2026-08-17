@@ -598,6 +598,16 @@
    "x": 360,
    "y": 60,
    "params": {}
+  },
+  {
+   "id": "contrast",
+   "kind": "potentiometer",
+   "params": {
+    "ohms": 10000
+   },
+   "x": 150,
+   "y": 620,
+   "rotation": 0
   }
  ],
  "wires": [
@@ -1246,12 +1256,6 @@
    "toTerminal": "vss"
   },
   {
-   "from": "gnd1",
-   "fromTerminal": "gnd",
-   "to": "lcd",
-   "toTerminal": "v0"
-  },
-  {
    "from": "vcc1",
    "fromTerminal": "vcc",
    "to": "lcd",
@@ -1262,6 +1266,24 @@
    "fromTerminal": "gnd",
    "to": "lcd",
    "toTerminal": "k"
+  },
+  {
+   "from": "vcc1",
+   "fromTerminal": "vcc",
+   "to": "contrast",
+   "toTerminal": "a"
+  },
+  {
+   "from": "contrast",
+   "fromTerminal": "b",
+   "to": "gnd1",
+   "toTerminal": "gnd"
+  },
+  {
+   "from": "contrast",
+   "fromTerminal": "wiper",
+   "to": "lcd",
+   "toTerminal": "v0"
   }
  ],
  "holeWires": [
