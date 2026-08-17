@@ -30,11 +30,23 @@ for (const e of items) {
     // is meaningless there — and the chooser it produced offered every
     // chip EXCEPT the machine itself (owner report, 2026-08-17).
     const authored = ((src.match(/^DEVICE\s+([\w-]+)/im) || [])[1] || '').toLowerCase();
+    const DEVPART_KNOWN = new Set(devices.concat([authored]));
     if (/^(eater6502|6502|z80|zx)/.test(authored)) {
         if (e.devices) { console.log(`${e.id}: machine-authored — devices list removed`); delete e.devices; delete e.benches; changed++; }
         continue;
     }
-    const computed = devices.filter((d) => SB3Creator.retargetPseudocode(src, d).ok);
+    // The AUTHORED device is always offered, FIRST, and untested: an
+    // example runs on its own chip by definition — pool canonicalization
+    // refusing its 27 pins is a statement about RETARGETING, not about
+    // the authored pairing. Its absence made the chooser offer every
+    // chip EXCEPT the right one (retro console: only stc12+mega, and a
+    // single-entry ['arduino-mega'] list silently retargeted the
+    // self-test to Mega — the owner's 'Simulated ATmega, not STC').
+    const computed = [
+        ...(authored && DEVPART_KNOWN.has(authored) ? [authored] : []),
+        ...devices.filter((d) => d !== authored && SB3Creator.retargetPseudocode(src, d).ok),
+    ];
+    if (authored && e.authored !== authored && DEVPART_KNOWN.has(authored)) { e.authored = authored; changed++; }
     if (JSON.stringify(computed) !== JSON.stringify(e.devices)) {
         console.log(`${e.id}: ${JSON.stringify(e.devices)} -> ${JSON.stringify(computed)}`);
         e.devices = computed;
