@@ -136,9 +136,22 @@ function parseAssertions(mdText) {
 
 // ---- circuit solver ----
 
+// Index-based circuit file lookup (same contract as gallery-e2e)
+const _idx = JSON.parse(readFileSync(join(EXAMPLES, 'index.json'), 'utf8'));
+const _byDir = new Map(_idx.map(e => [e.files?.program?.split('/')[0] ?? e.id, e]));
+function findCircuitFile(name) {
+    // 1. Direct circuit.json
+    const direct = join(EXAMPLES, name, 'circuit.json');
+    if (existsSync(direct)) return direct;
+    // 2. Index-referenced authored circuit
+    const entry = _byDir.get(name);
+    if (entry?.files?.circuit) return join(EXAMPLES, entry.files.circuit);
+    return null;
+}
+
 function solveCircuit(name, atMs = 1) {
-    const circuitPath = join(EXAMPLES, name, 'circuit.json');
-    if (!existsSync(circuitPath)) return null;
+    const circuitPath = findCircuitFile(name);
+    if (!circuitPath) return null;
     const data = JSON.parse(readFileSync(circuitPath, 'utf8'));
 
     // Filter visual-only

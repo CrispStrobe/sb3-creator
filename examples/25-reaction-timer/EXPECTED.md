@@ -33,3 +33,8 @@ Button on P3.2 with 10 kOhm pull-up to VCC; button press connects P3.2 to GND.
 2. Variable as a counter incrementing in a tight loop
 3. Using REPEAT with a variable to display a measured value
 4. Sequencing multiple phases with different timing
+
+```assert
+# Button open: pull-up holds input at VCC = 5.000V
+net R_PU_btn.b V 5.00 +-0.01
+```

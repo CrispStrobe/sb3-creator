@@ -25,3 +25,8 @@ Reads the ADC at the divider junction. If above midpoint (512 of 1024), LED on; 
 1. Resistive voltage divider produces VCC/2 with equal resistors
 2. ADC reading of analog voltage via P1.7
 3. Threshold comparison to drive a digital output
+
+```assert
+# Sense divider at 50%: wiper = 5.0 × 0.5 = 2.500V
+net POT_sense.wiper V 2.50 +-0.05
+```

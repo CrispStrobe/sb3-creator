@@ -28,3 +28,9 @@ Compares two ADC readings. LED on when pot A reading exceeds pot B reading.
 1. Two independent ADC channels read simultaneously
 2. Comparison of analog values to drive digital output
 3. Software comparator behaviour (mimics hardware LM339)
+
+```assert
+# Both pots at 50%: potA = potB = 2.500V (equal → LED off)
+net POT_potA.wiper V 2.50 +-0.05
+net POT_potB.wiper V 2.50 +-0.05
+```

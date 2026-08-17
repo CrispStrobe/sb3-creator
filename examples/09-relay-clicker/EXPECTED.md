@@ -36,3 +36,8 @@ Toggles the relay and indicator LED every 2 seconds, forever.
 2. Flyback diode protects against inductive kick
 3. The quasi-bidirectional pin limitation is respected, not worked around
 4. **Negative property:** driving the relay straight from the pin does NOT energise it
+
+```assert
+# NPN off (no base drive): relay coil sees VCC on both sides
+net RELAY_relay_ctrl.coil_b V 5.00 +-0.05
+```

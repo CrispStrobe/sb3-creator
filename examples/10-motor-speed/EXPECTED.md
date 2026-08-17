@@ -34,3 +34,8 @@ integrates the PWM duty cycle into a proportional speed.
 2. Pot → ADC → computed pin write → motor speed control loop
 3. Flyback diode across an inductive load
 4. **Negative property:** driving the motor straight from the pin does NOT spin it
+
+```assert
+# Speed pot at 50%: wiper = VCC × 0.5 = 2.500V
+net POT_pot.wiper V 2.50 +-0.05
+```

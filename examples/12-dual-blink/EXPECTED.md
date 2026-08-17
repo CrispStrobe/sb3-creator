@@ -28,3 +28,8 @@ Alternates the two LEDs at 1 Hz: when led1 is on, led2 is off, and vice versa.
 1. Independent control of two active-low outputs
 2. Anti-phase alternation pattern
 3. Constant total current draw regardless of which LED is on
+
+```assert
+# Supply rail: VCC = 5.000V
+net VCC.vcc V 5.00 +-0.01
+```

@@ -30,3 +30,8 @@ release with another 50 ms debounce.
 2. IF/THEN conditional to validate button state after delay
 3. Toggle operation only on confirmed presses
 4. Wait-until for both press and release edge detection
+
+```assert
+# Button open: pull-up holds input at VCC = 5.000V
+net R_PU_btn.b V 5.00 +-0.01
+```

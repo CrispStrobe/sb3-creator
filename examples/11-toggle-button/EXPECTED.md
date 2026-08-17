@@ -30,3 +30,8 @@ then waits for button release before accepting the next press.
 2. Toggle operation (alternates LED state each press)
 3. Software debounce via 50 ms wait
 4. Wait-until construct for edge detection
+
+```assert
+# Button open: pull-up holds input at VCC = 5.000V
+net R_PU_btn.b V 5.00 +-0.01
+```

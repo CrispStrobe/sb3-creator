@@ -30,3 +30,8 @@ adjusts it to see the hysteresis behaviour.
 1. Hysteresis: two separate thresholds (300 and 500) with a dead band
 2. The heater holds state between thresholds (no else-branch toggles it)
 3. ADC + threshold + pin-drive end-to-end path
+
+```assert
+# NTC divider (modeled as pot at 50%): sensor = 2.500V
+net POT_sensor.wiper V 2.50 +-0.05
+```

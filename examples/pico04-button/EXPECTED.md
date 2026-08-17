@@ -35,3 +35,8 @@ GP3 is a general-purpose digital pin with no ADC function, making it a
 clear digital-input example. GP15 is far enough from GP3 to show that
 pin assignments are independent. Neither conflicts with UART0 (GP0/GP1)
 used for serial output.
+
+```assert
+# Pico supply: VCC = 3.300V (3.3V rail, not 5V)
+net vcc1.vcc V 3.30 +-0.01
+```

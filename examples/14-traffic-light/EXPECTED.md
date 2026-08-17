@@ -31,3 +31,8 @@ Cycles through traffic light phases: red (3 s) -> green (3 s) -> yellow (1 s) ->
 1. Three independent active-low outputs with sequenced timing
 2. Mutual exclusion: only one LED on at each phase
 3. Asymmetric timing (yellow is shorter than red/green)
+
+```assert
+# Supply rail: VCC = 5.000V
+net VCC.vcc V 5.00 +-0.01
+```

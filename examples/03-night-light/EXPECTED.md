@@ -28,3 +28,8 @@ corresponds to ~1.0 V at the divider junction.
 1. Voltage divider read via ADC
 2. Threshold comparison with IF/ELSE
 3. Active-low LED control based on sensor input
+
+```assert
+# LDR divider (modeled as pot at 50%): sensor = 2.500V
+net POT_ldr.wiper V 2.50 +-0.05
+```

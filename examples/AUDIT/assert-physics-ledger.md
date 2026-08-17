@@ -4,7 +4,7 @@ Machine-checkable physics values in EXPECTED.md `assert` blocks.
 Runner: `test/assert-physics.test.mjs` — parses ```assert blocks, solves
 circuits headless, checks measured vs expected with stated tolerances.
 
-## Seeded examples (15)
+## Seeded examples (30 total: 15 pure-circuit + 15 MCU)
 
 | # | example | assertion | physics basis |
 |---|---|---|---|
@@ -34,6 +34,26 @@ circuits headless, checks measured vs expected with stated tolerances.
 | Current assertions | ~20 | Need branch-current readback from the engine; `current` kind exists but skipped |
 | Retro CPU examples | ~10 | Engine cannot model w65c02/z80 parts |
 | Arduino CC0 examples | ~30 | Programs are porting-in-progress; assertions depend on program correctness |
+
+### Wave 2 — MCU category (15 examples)
+
+| # | example | assertion | physics basis |
+|---|---|---|---|
+| 16 | 02-dimmer | POT wiper = 2.50V +-0.05 | Pot at 50%: VCC × position |
+| 17 | 03-night-light | LDR wiper = 2.50V +-0.05 | LDR divider (pot model at 50%) |
+| 18 | 04-thermostat | NTC wiper = 2.50V +-0.05 | NTC divider (pot model at 50%) |
+| 19 | 10-motor-speed | speed pot = 2.50V +-0.05 | Pot at 50%: ADC input |
+| 20 | 15-voltage-divider | sense pot = 2.50V +-0.05 | Sense divider at 50% |
+| 21 | 17-comparator | potA = potB = 2.50V | Both at 50% → equal |
+| 22 | 11-toggle-button | pull-up = 5.00V +-0.01 | Button open: R to VCC |
+| 23 | 25-reaction-timer | pull-up = 5.00V +-0.01 | Button open: R to VCC |
+| 24 | 26-debounce | pull-up = 5.00V +-0.01 | Button open: R to VCC |
+| 25 | 12-dual-blink | VCC = 5.00V +-0.01 | Supply rail |
+| 26 | 14-traffic-light | VCC = 5.00V +-0.01 | Supply rail |
+| 27 | 09-relay-clicker | relay coil_b = 5.00V | NPN off: coil not energized |
+| 28 | pc55-ntc-indicator | NTC junction = 2.03V +-0.20 | NTC ≈ R at 25°C → ~VCC/2 |
+| 29 | pc60-night-lamp-hardware | LDR = 0.05V, collector = 3.0V | Dark: LDR >> R, NPN off |
+| 30 | pico04-button | VCC = 3.30V +-0.01 | Pico 3.3V rail (not 5V!) |
 
 ## Continuation ladder
 

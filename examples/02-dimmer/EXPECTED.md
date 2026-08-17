@@ -29,3 +29,8 @@ and the `set pin to expression` construct.
 1. ADC reads the pot voltage on P1.3 (channel 3) as a 10-bit value
 2. `set led1 to level bitand 1` writes a computed value to an active-low pin
 3. The analog → digital → pin-write path works end to end
+
+```assert
+# Pot at 50%: wiper = VCC × position = 5.0 × 0.5 = 2.500V
+net POT_pot.wiper V 2.50 +-0.05
+```
