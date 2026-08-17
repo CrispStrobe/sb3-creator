@@ -25,6 +25,15 @@ let changed = 0;
 for (const e of items) {
     if (!e.files || !e.files.program || !Array.isArray(e.devices)) continue;
     const src = readFileSync(join(root, e.files.program), 'utf8');
+    // Machine-authored examples (6502/Z80 computers) load AS AUTHORED:
+    // the circuit IS the computer, retargeting the program to an stc12
+    // is meaningless there — and the chooser it produced offered every
+    // chip EXCEPT the machine itself (owner report, 2026-08-17).
+    const authored = ((src.match(/^DEVICE\s+([\w-]+)/im) || [])[1] || '').toLowerCase();
+    if (/^(eater6502|6502|z80|zx)/.test(authored)) {
+        if (e.devices) { console.log(`${e.id}: machine-authored — devices list removed`); delete e.devices; delete e.benches; changed++; }
+        continue;
+    }
     const computed = devices.filter((d) => SB3Creator.retargetPseudocode(src, d).ok);
     if (JSON.stringify(computed) !== JSON.stringify(e.devices)) {
         console.log(`${e.id}: ${JSON.stringify(e.devices)} -> ${JSON.stringify(computed)}`);

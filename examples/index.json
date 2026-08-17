@@ -5381,29 +5381,7 @@
    "intro": "eater6502-blink/intro.md",
    "introDE": "eater6502-blink/intro.de.md"
   },
-  "kind": "full",
-  "devices": [
-   "stc12c5a60s2",
-   "stc89c52rc",
-   "stc15f2k60s2",
-   "arduino-uno",
-   "atmega168p",
-   "arduino-mega",
-   "arduino-nano",
-   "pico",
-   "attiny88"
-  ],
-  "benches": {
-   "arduino-mega": "eater6502-blink/circuit.arduino-mega.json",
-   "arduino-nano": "eater6502-blink/circuit.arduino-nano.json",
-   "arduino-uno": "eater6502-blink/circuit.arduino-uno.json",
-   "atmega168p": "eater6502-blink/circuit.atmega168p.json",
-   "attiny88": "eater6502-blink/circuit.attiny88.json",
-   "pico": "eater6502-blink/circuit.pico.json",
-   "stc12c5a60s2": "eater6502-blink/circuit.stc12c5a60s2.json",
-   "stc15f2k60s2": "eater6502-blink/circuit.stc15f2k60s2.json",
-   "stc89c52rc": "eater6502-blink/circuit.stc89c52rc.json"
-  }
+  "kind": "full"
  },
  {
   "id": "eater6502-bench",
@@ -5419,19 +5397,7 @@
    "intro": "eater6502-bench/intro.md",
    "introDE": "eater6502-bench/intro.de.md"
   },
-  "kind": "full",
-  "devices": [
-   "stc12c5a60s2",
-   "stc89c52rc",
-   "stc15f2k60s2",
-   "arduino-uno",
-   "atmega168p",
-   "arduino-mega",
-   "arduino-nano",
-   "pico",
-   "attiny88",
-   "attiny85"
-  ]
+  "kind": "full"
  },
  {
   "id": "eater6502-full-build",
@@ -5447,29 +5413,7 @@
    "intro": "eater6502-full-build/intro.md",
    "introDE": "eater6502-full-build/intro.de.md"
   },
-  "kind": "full",
-  "devices": [
-   "stc12c5a60s2",
-   "stc89c52rc",
-   "stc15f2k60s2",
-   "arduino-uno",
-   "atmega168p",
-   "arduino-mega",
-   "arduino-nano",
-   "pico",
-   "attiny88"
-  ],
-  "benches": {
-   "arduino-mega": "eater6502-full-build/circuit.arduino-mega.json",
-   "arduino-nano": "eater6502-full-build/circuit.arduino-nano.json",
-   "arduino-uno": "eater6502-full-build/circuit.arduino-uno.json",
-   "atmega168p": "eater6502-full-build/circuit.atmega168p.json",
-   "attiny88": "eater6502-full-build/circuit.attiny88.json",
-   "pico": "eater6502-full-build/circuit.pico.json",
-   "stc12c5a60s2": "eater6502-full-build/circuit.stc12c5a60s2.json",
-   "stc15f2k60s2": "eater6502-full-build/circuit.stc15f2k60s2.json",
-   "stc89c52rc": "eater6502-full-build/circuit.stc89c52rc.json"
-  }
+  "kind": "full"
  },
  {
   "id": "eater6502-vdp-hello",
