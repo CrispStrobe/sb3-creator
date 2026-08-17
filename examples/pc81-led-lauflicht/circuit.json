@@ -46,8 +46,20 @@
       "kind": "decade_counter",
       "params": {},
       "terminals": [
-        "a",
-        "b"
+        "clk",
+        "rst",
+        "en",
+        "q0",
+        "q1",
+        "q2",
+        "q3",
+        "q4",
+        "q5",
+        "q6",
+        "q7",
+        "q8",
+        "q9",
+        "co"
       ],
       "x": 400,
       "y": 200,
@@ -733,6 +745,186 @@
       "to": {
         "part": "gnd_2",
         "terminal": "gnd"
+      }
+    },
+    {
+      "id": "wire_fix_1001",
+      "netId": "net_clk",
+      "from": {
+        "part": "timer_555_3",
+        "terminal": "output"
+      },
+      "to": {
+        "part": "decade_counter_4",
+        "terminal": "clk"
+      }
+    },
+    {
+      "id": "wire_fix_1002",
+      "netId": "net_8",
+      "from": {
+        "part": "decade_counter_4",
+        "terminal": "rst"
+      },
+      "to": {
+        "part": "gnd_2",
+        "terminal": "gnd"
+      }
+    },
+    {
+      "id": "wire_fix_1003",
+      "netId": "net_8",
+      "from": {
+        "part": "decade_counter_4",
+        "terminal": "en"
+      },
+      "to": {
+        "part": "gnd_2",
+        "terminal": "gnd"
+      }
+    },
+    {
+      "id": "wire_fix_1004",
+      "netId": "net_18",
+      "from": {
+        "part": "timer_555_3",
+        "terminal": "threshold"
+      },
+      "to": {
+        "part": "capacitor_13",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_fix_1005",
+      "netId": "net_8",
+      "from": {
+        "part": "capacitor_13",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "gnd_2",
+        "terminal": "gnd"
+      }
+    },
+    {
+      "id": "wire_fix_1006",
+      "netId": "net_q0",
+      "from": {
+        "part": "decade_counter_4",
+        "terminal": "q0"
+      },
+      "to": {
+        "part": "resistor_21",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_fix_1007",
+      "netId": "net_q1",
+      "from": {
+        "part": "decade_counter_4",
+        "terminal": "q1"
+      },
+      "to": {
+        "part": "resistor_26",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_fix_1008",
+      "netId": "net_q2",
+      "from": {
+        "part": "decade_counter_4",
+        "terminal": "q2"
+      },
+      "to": {
+        "part": "resistor_31",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_fix_1009",
+      "netId": "net_q3",
+      "from": {
+        "part": "decade_counter_4",
+        "terminal": "q3"
+      },
+      "to": {
+        "part": "resistor_36",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_fix_1010",
+      "netId": "net_q4",
+      "from": {
+        "part": "decade_counter_4",
+        "terminal": "q4"
+      },
+      "to": {
+        "part": "resistor_41",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_fix_1011",
+      "netId": "net_q5",
+      "from": {
+        "part": "decade_counter_4",
+        "terminal": "q5"
+      },
+      "to": {
+        "part": "resistor_46",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_fix_1012",
+      "netId": "net_q6",
+      "from": {
+        "part": "decade_counter_4",
+        "terminal": "q6"
+      },
+      "to": {
+        "part": "resistor_51",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_fix_1013",
+      "netId": "net_q7",
+      "from": {
+        "part": "decade_counter_4",
+        "terminal": "q7"
+      },
+      "to": {
+        "part": "resistor_56",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_fix_1014",
+      "netId": "net_q8",
+      "from": {
+        "part": "decade_counter_4",
+        "terminal": "q8"
+      },
+      "to": {
+        "part": "resistor_61",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_fix_1015",
+      "netId": "net_q9",
+      "from": {
+        "part": "decade_counter_4",
+        "terminal": "q9"
+      },
+      "to": {
+        "part": "resistor_66",
+        "terminal": "a"
       }
     }
   ],

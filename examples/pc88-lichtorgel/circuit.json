@@ -28,8 +28,10 @@
       "kind": "sound_module",
       "params": {},
       "terminals": [
-        "a",
-        "b"
+        "vcc",
+        "gnd",
+        "ao",
+        "do"
       ],
       "x": 150,
       "y": 200,
@@ -584,6 +586,66 @@
       "to": {
         "part": "gnd_2",
         "terminal": "gnd"
+      }
+    },
+    {
+      "id": "wire_fix_1078",
+      "netId": "net_5",
+      "from": {
+        "part": "vcc_1",
+        "terminal": "vcc"
+      },
+      "to": {
+        "part": "sound_module_3",
+        "terminal": "vcc"
+      }
+    },
+    {
+      "id": "wire_fix_1079",
+      "netId": "net_8",
+      "from": {
+        "part": "gnd_2",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "sound_module_3",
+        "terminal": "gnd"
+      }
+    },
+    {
+      "id": "wire_fix_1080",
+      "netId": "net_ao",
+      "from": {
+        "part": "sound_module_3",
+        "terminal": "ao"
+      },
+      "to": {
+        "part": "resistor_4",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_fix_1081",
+      "netId": "net_ao",
+      "from": {
+        "part": "sound_module_3",
+        "terminal": "ao"
+      },
+      "to": {
+        "part": "resistor_24",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_fix_1082",
+      "netId": "net_ao",
+      "from": {
+        "part": "sound_module_3",
+        "terminal": "ao"
+      },
+      "to": {
+        "part": "resistor_42",
+        "terminal": "a"
       }
     }
   ],
