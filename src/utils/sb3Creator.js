@@ -9539,90 +9539,131 @@ class SB3Creator {
             // Gated by _cUses.lcd || _cUses.oled so only one copy is emitted
             // regardless of how many I2C devices a program drives.
             if (this._cUses.lcd || this._cUses.oled) {
-                // Resolve declared sda/scl pins per flavor — the P2.1/P2.2
-                // literals below are the 8051 DEFAULT, kept when no pins are
-                // declared. On AVR the default was an sbit name in an ATmega
-                // program (unbuildable, the same disease the TFT driver had);
-                // BW_BIT gives the shared open-drain idiom its lvalue.
-                let i2cSda = 'P2_1', i2cScl = 'P2_2';
-                {
+                // I2C pin-primitive macros — per-core flavor.
+                // The driver body below calls I2C_SDA_HI()/LO(), I2C_SCL_HI()/LO()
+                // instead of assignment, so the same code works with 8051 sbit,
+                // 6502 VIA shadow-byte, AVR port-bit, and ARM SIO.
+                if (this._core === '6502') {
+                    // 6502/VIA: shadow byte + single-store.  ORA |= mask on the
+                    // VIA reads the INPUT pins, not the output latch — an RMW on
+                    // the register is the well-known VIA trap.  A shadow byte in
+                    // RAM avoids it: modify shadow, write shadow to the port.
+                    // SDA and SCL must be on the SAME port (the natural wiring).
+                    const sdaPin = pins.find((p) => p.name.toLowerCase() === 'sda');
+                    const sclPin = pins.find((p) => p.name.toLowerCase() === 'scl');
+                    const sdaHw = sdaPin ? this.viaHw(sdaPin) : null;
+                    const sclHw = sclPin ? this.viaHw(sclPin) : null;
+                    if (!sdaHw) this.cWarn('I2C driver needs a pin named "sda" on a VIA port');
+                    if (!sclHw) this.cWarn('I2C driver needs a pin named "scl" on a VIA port');
+                    const port = (sdaHw && sdaHw.port) || 'A';
+                    const sdaBit = sdaHw ? sdaHw.bit : 0;
+                    const sclBit = sclHw ? sclHw.bit : 1;
+                    out.push(
+                        `/* I2C bus: bit-banged via W65C22 VIA port ${port} (shadow-byte RMW). */`,
+                        `#define I2C_SDA_MASK (1u << ${sdaBit})`,
+                        `#define I2C_SCL_MASK (1u << ${sclBit})`,
+                        `static unsigned char _i2c_sh;  /* shadow for BW_VIA_OR${port} */`,
+                        `#define I2C_SDA_HI() (_i2c_sh |= I2C_SDA_MASK, BW_VIA_OR${port} = _i2c_sh)`,
+                        `#define I2C_SDA_LO() (_i2c_sh &= (unsigned char)~I2C_SDA_MASK, BW_VIA_OR${port} = _i2c_sh)`,
+                        `#define I2C_SCL_HI() (_i2c_sh |= I2C_SCL_MASK, BW_VIA_OR${port} = _i2c_sh)`,
+                        `#define I2C_SCL_LO() (_i2c_sh &= (unsigned char)~I2C_SCL_MASK, BW_VIA_OR${port} = _i2c_sh)`,
+                        '');
+                } else if (this._core === 'avr') {
+                    // AVR: BW_BIT lvalue gives the open-drain idiom its lvalue.
                     const i2cSrc = (this.project?.stc?.pins) || [];
                     const findPin = (n) => i2cSrc.find((q) => q.name.toLowerCase() === n);
                     const sdaPin = findPin('sda'), sclPin = findPin('scl');
-                    if (this._core === 'avr') {
-                        const table = this._cMega ? SB3Creator.AVR_PINS_MEGA : SB3Creator.AVR_PINS;
-                        const m1 = sdaPin && table[String(sdaPin.where || '').toUpperCase()];
-                        const m2 = sclPin && table[String(sclPin.where || '').toUpperCase()];
-                        if (m1 && m2) {
-                            i2cSda = `BW_BIT(PORT${m1[0]}, ${m1[1]})`;
-                            i2cScl = `BW_BIT(PORT${m2[0]}, ${m2[1]})`;
-                        } else {
-                            this.cWarn('I2C on AVR needs pins named "sda" and "scl" — declare them as OUTPUT pins');
-                        }
+                    const table = this._cMega ? SB3Creator.AVR_PINS_MEGA : SB3Creator.AVR_PINS;
+                    const m1 = sdaPin && table[String(sdaPin.where || '').toUpperCase()];
+                    const m2 = sclPin && table[String(sclPin.where || '').toUpperCase()];
+                    if (m1 && m2) {
                         out.push(
                             'struct __bw_bits2 { uint8_t b0:1, b1:1, b2:1, b3:1, b4:1, b5:1, b6:1, b7:1; };',
                             '#ifndef BW_BIT',
                             '#define BW_BIT(port, bit) (((volatile struct __bw_bits2 *)&(port))->b##bit)',
                             '#endif',
+                            `#define I2C_SDA_HI() (BW_BIT(PORT${m1[0]}, ${m1[1]}) = 1)`,
+                            `#define I2C_SDA_LO() (BW_BIT(PORT${m1[0]}, ${m1[1]}) = 0)`,
+                            `#define I2C_SCL_HI() (BW_BIT(PORT${m2[0]}, ${m2[1]}) = 1)`,
+                            `#define I2C_SCL_LO() (BW_BIT(PORT${m2[0]}, ${m2[1]}) = 0)`,
                             '');
-                    } else if (this._core === 'arm') {
-                        // RP2040: the same lvalue idiom against SIO GPIO_OUT
-                        // (0xd0000010) — a byte-addressed bitfield view; RMW on
-                        // GPIO_OUT is architecturally fine, SET/CLR are only
-                        // atomic conveniences. The general pin init already
-                        // emits funcsel=SIO and OE for declared OUTPUT pins.
-                        const h1 = sdaPin && this.armHw(sdaPin);
-                        const h2 = sclPin && this.armHw(sclPin);
-                        if (h1 && h2) {
-                            const ref = (g) => `BW_BIT((*(volatile unsigned char *)0x${(0xd0000010 + (g >> 3)).toString(16)}u), ${g & 7})`;
-                            i2cSda = ref(h1.gpio);
-                            i2cScl = ref(h2.gpio);
-                        } else {
-                            this.cWarn('I2C on the Pico needs pins named "sda" and "scl" on GP0-GP28');
-                        }
+                    } else {
+                        this.cWarn('I2C on AVR needs pins named "sda" and "scl" — declare them as OUTPUT pins');
+                        out.push(
+                            '#define I2C_SDA_HI() ((void)0)',
+                            '#define I2C_SDA_LO() ((void)0)',
+                            '#define I2C_SCL_HI() ((void)0)',
+                            '#define I2C_SCL_LO() ((void)0)',
+                            '');
+                    }
+                } else if (this._core === 'arm') {
+                    // RP2040: SIO GPIO_OUT byte-addressed bitfield view.
+                    const i2cSrc = (this.project?.stc?.pins) || [];
+                    const findPin = (n) => i2cSrc.find((q) => q.name.toLowerCase() === n);
+                    const sdaPin = findPin('sda'), sclPin = findPin('scl');
+                    const h1 = sdaPin && this.armHw(sdaPin);
+                    const h2 = sclPin && this.armHw(sclPin);
+                    if (h1 && h2) {
+                        const ref = (g) => `BW_BIT((*(volatile unsigned char *)0x${(0xd0000010 + (g >> 3)).toString(16)}u), ${g & 7})`;
                         out.push(
                             'struct __bw_bits2 { unsigned char b0:1, b1:1, b2:1, b3:1, b4:1, b5:1, b6:1, b7:1; };',
                             '#ifndef BW_BIT',
                             '#define BW_BIT(port, bit) (((volatile struct __bw_bits2 *)&(port))->b##bit)',
                             '#endif',
+                            `#define I2C_SDA_HI() (${ref(h1.gpio)} = 1)`,
+                            `#define I2C_SDA_LO() (${ref(h1.gpio)} = 0)`,
+                            `#define I2C_SCL_HI() (${ref(h2.gpio)} = 1)`,
+                            `#define I2C_SCL_LO() (${ref(h2.gpio)} = 0)`,
                             '');
-                    } else if (this._core === '6502') {
-                        // NOT YET: the lvalue idiom cannot reach the VIA
-                        // safely from cc65 — char bitfields are rejected
-                        // ("Bit-field has invalid type") and an int
-                        // bitfield's RMW touches the NEIGHBORING register
-                        // ($6001 ORA drags $6002 DDRB). The 6502 needs
-                        // masked-RMW I2C primitives (shadow byte + single
-                        // stores to ORA $6001), which belongs in the I2C
-                        // primitives refactor. Until then the warning
-                        // states the truth instead of emitting 8051 sbit
-                        // names into a cc65 program.
-                        this.cWarn('OLED/I2C is not emitted for the 6502 bench yet — the VIA needs masked-RMW primitives (see the I2C refactor)');
-                    } else if (sdaPin && sdaPin.port !== undefined && sclPin && sclPin.port !== undefined) {
-                        i2cSda = `P${sdaPin.port}_${sdaPin.bit}`;
-                        i2cScl = `P${sclPin.port}_${sclPin.bit}`;
+                    } else {
+                        this.cWarn('I2C on the Pico needs pins named "sda" and "scl" on GP0-GP28');
+                        out.push(
+                            '#define I2C_SDA_HI() ((void)0)',
+                            '#define I2C_SDA_LO() ((void)0)',
+                            '#define I2C_SCL_HI() ((void)0)',
+                            '#define I2C_SCL_LO() ((void)0)',
+                            '');
                     }
+                } else {
+                    // 8051: resolve from declared sda/scl pins, default P2.1/P2.2.
+                    let sdaRef = 'P2_1', sclRef = 'P2_2';
+                    const sdaPin = pins.find((p) => p.name.toLowerCase() === 'sda');
+                    const sclPin = pins.find((p) => p.name.toLowerCase() === 'scl');
+                    if (sdaPin && sdaPin.port !== undefined) sdaRef = `P${sdaPin.port}_${sdaPin.bit}`;
+                    if (sclPin && sclPin.port !== undefined) sclRef = `P${sclPin.port}_${sclPin.bit}`;
+                    out.push(
+                        `/* I2C bus: bit-banged, SDA/SCL from the declared pins (open-drain). */`,
+                        `#define I2C_SDA_HI() (${sdaRef} = 1)`,
+                        `#define I2C_SDA_LO() (${sdaRef} = 0)`,
+                        `#define I2C_SCL_HI() (${sclRef} = 1)`,
+                        `#define I2C_SCL_LO() (${sclRef} = 0)`,
+                        '');
                 }
+                // Delay — core-aware loop count.
+                if (this._core === '6502') {
+                    const loops = Math.max(2, Math.ceil(clock * 4.7e-6 / 10));
+                    out.push(
+                        `/* I2C timing: t_LOW ≥ 4.7 µs (100 kHz standard mode). */`,
+                        `static void i2c_delay(void) { unsigned char i; for (i = 0; i < ${loops}; i++) ; }`);
+                } else {
+                    out.push(
+                        `/* I2C timing: t_LOW ≥ 4.7 µs (100 kHz standard mode). */`,
+                        `static void i2c_delay(void) { unsigned char i; for (i = 0; i < ${chip.aux1T ? Math.ceil(clock * 4.7e-6 / 2) : Math.max(2, Math.ceil(clock / 12 * 4.7e-6 / 2))}; i++) ; }`);
+                }
+                // Driver body — uses HI/LO primitives, core-neutral.
                 out.push(
-                    '/* I2C bus: bit-banged, SDA/SCL from the declared pins (open-drain). */',
-                    `#define I2C_SDA  ${i2cSda}`,
-                    `#define I2C_SCL  ${i2cScl}`,
-                    '',
-                    `/* I2C bus timing (NXP UM10204 table 10, 100 kHz standard mode): */`,
-                    `/*   t_LOW ≥ 4.7 µs — one delay covers both HIGH and LOW. */`,
-                    `static void i2c_delay(void) { unsigned char i; for (i = 0; i < ${chip.aux1T ? Math.ceil(clock * 4.7e-6 / 2) : Math.max(2, Math.ceil(clock / 12 * 4.7e-6 / 2))}; i++) ; }`,
-                    'static void i2c_start(void) { I2C_SDA = 1; I2C_SCL = 1; i2c_delay(); I2C_SDA = 0; i2c_delay(); I2C_SCL = 0; }',
-                    'static void i2c_stop(void)  { I2C_SDA = 0; I2C_SCL = 1; i2c_delay(); I2C_SDA = 1; i2c_delay(); }',
+                    'static void i2c_start(void) { I2C_SDA_HI(); I2C_SCL_HI(); i2c_delay(); I2C_SDA_LO(); i2c_delay(); I2C_SCL_LO(); }',
+                    'static void i2c_stop(void)  { I2C_SDA_LO(); I2C_SCL_HI(); i2c_delay(); I2C_SDA_HI(); i2c_delay(); }',
                     'static void i2c_write(unsigned char dat)',
                     '{',
                     '    unsigned char i;',
                     '    for (i = 0; i < 8; i++) {',
-                    '        I2C_SDA = (dat & 0x80) ? 1 : 0;',
+                    '        if (dat & 0x80) I2C_SDA_HI(); else I2C_SDA_LO();',
                     '        dat <<= 1;',
-                    '        I2C_SCL = 1; i2c_delay(); I2C_SCL = 0; i2c_delay();',
+                    '        I2C_SCL_HI(); i2c_delay(); I2C_SCL_LO(); i2c_delay();',
                     '    }',
                     '    /* ACK clock — we do not check the ACK (write-only devices). */',
-                    '    I2C_SDA = 1; I2C_SCL = 1; i2c_delay(); I2C_SCL = 0; i2c_delay();',
+                    '    I2C_SDA_HI(); I2C_SCL_HI(); i2c_delay(); I2C_SCL_LO(); i2c_delay();',
                     '}',
                     '');
             }
@@ -10345,13 +10386,26 @@ class SB3Creator {
             out.push('    NEO_PIN = 0;',
                 '    _neo_count = NEO_MAX;');
         }
-        // I2C bus: P2.1 (SDA) and P2.2 (SCL) in open-drain mode.
-        // Shared by LCD and OLED — one init for both.
+        // I2C bus init — shared by LCD and OLED.
         if (this._cUses.lcd || this._cUses.oled) {
-            if (chip.portModes) {
-                out.push('    P2M1 |=  0x06; P2M0 |=  0x06;  /* P2.1, P2.2 open-drain (I2C) */');
+            if (this._core === '6502') {
+                // VIA: set DDR bits for SDA/SCL output, init shadow, release bus.
+                const sdaPin = pins.find((p) => p.name.toLowerCase() === 'sda');
+                const sclPin = pins.find((p) => p.name.toLowerCase() === 'scl');
+                const sdaHw = sdaPin ? this.viaHw(sdaPin) : null;
+                const sclHw = sclPin ? this.viaHw(sclPin) : null;
+                const port = (sdaHw && sdaHw.port) || 'A';
+                const mask = ((sdaHw ? (1 << sdaHw.bit) : 1) | (sclHw ? (1 << sclHw.bit) : 2));
+                out.push(`    BW_VIA_DDR${port} |= 0x${mask.toString(16).padStart(2, '0')};  /* SDA+SCL output */`,
+                    `    _i2c_sh = I2C_SDA_MASK | I2C_SCL_MASK;  /* bus idle: both HIGH */`,
+                    `    BW_VIA_OR${port} = _i2c_sh;`);
+            } else {
+                // 8051: open-drain port mode, release bus.
+                if (chip.portModes) {
+                    out.push('    P2M1 |=  0x06; P2M0 |=  0x06;  /* P2.1, P2.2 open-drain (I2C) */');
+                }
+                out.push('    I2C_SDA_HI(); I2C_SCL_HI();      /* release bus */');
             }
-            out.push('    I2C_SDA = 1; I2C_SCL = 1;      /* release bus */');
         }
         // LCD (HD44780 via PCF8574): 4-bit mode init sequence.
         if (this._cUses.lcd) {
