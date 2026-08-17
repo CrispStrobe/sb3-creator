@@ -5,7 +5,7 @@ prereqs: [01-blink]
 teaches: [multi-output, timing, alternation]
 ---
 ## Was du siehst
-Zwei LEDs an P1.0 und P1.1 blinken abwechselnd — wenn eine an ist, ist die andere aus. Beide sind active-low verdrahtet. Der Effekt ist ein gleichmäßiges Hin-und-Her-Blinken.
+Zwei LEDs an P1.0 und P1.1 blinken abwechselnd — wenn eine an ist, ist die andere aus. Beide sind active-low verdrahtet. Der Effekt ist ein gleichmäßiges Hin-und-Her-Blinken. Dieses Beispiel funktioniert auf allen unterstützten Mikrocontrollern — wähle ein anderes Gerät in der Werkzeugleiste, um die angepasste Schaltung zu sehen.
 
 ## Probier das
 1. Starte das Programm und beobachte die beiden LEDs im Wechsel.

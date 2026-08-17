@@ -5,7 +5,7 @@ prereqs: [01-blink]
 teaches: [multi-output, timing, alternation]
 ---
 ## What you see
-Two LEDs on P1.0 and P1.1 blink in alternation — when one is on, the other is off. Both are wired active-low. The effect is a steady back-and-forth flash.
+Two LEDs on P1.0 and P1.1 blink in alternation — when one is on, the other is off. Both are wired active-low. The effect is a steady back-and-forth flash. This example works on all supported microcontrollers — pick a different device in the toolbar to see the adapted circuit.
 
 ## Try this
 1. Run the program and watch the two LEDs alternate.
