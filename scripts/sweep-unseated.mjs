@@ -20,10 +20,17 @@ const examplesDir = join(root, 'examples');
 const strict = process.argv.includes('--strict');
 
 const BREADBOARD_KINDS = new Set(['breadboard', 'mini_breadboard', 'half_breadboard']);
-// Parts that don't need seating (power symbols, displays, backplanes)
+// Parts that don't need seating:
+// - Power symbols (vcc, gnd, vsource, battery)
+// - MCU boards (sit alongside the breadboard, not in it)
+// - Displays (seven_seg, ssd1306, char_lcd)
 const EXEMPT_KINDS = new Set([
     'breadboard', 'mini_breadboard', 'half_breadboard',
-    'vcc', 'gnd', 'seven_seg', 'seven_seg_hex',
+    'vcc', 'gnd', 'vsource', 'battery_aa', 'battery_9v',
+    'seven_seg', 'seven_seg_hex', 'seven_seg_3', 'ssd1306', 'char_lcd_i2c',
+    'arduino_uno', 'arduino_nano', 'arduino_mega',
+    'mcu', 'stc15_mcu', 'pi_pico', 'attiny88', 'attiny85', 'atmega168p',
+    'ps2',
 ]);
 
 const files = [];
