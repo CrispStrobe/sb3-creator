@@ -46,10 +46,10 @@
    "terminals": [
     "a0",
     "d2",
+    "d3",
+    "d9",
     "d4",
-    "d13",
-    "d12",
-    "d8"
+    "d5"
    ],
    "x": 360,
    "y": 60
@@ -359,11 +359,11 @@
    "from": "R_PU_btnRev",
    "fromTerminal": "b",
    "to": "MCU",
-   "toTerminal": "d4"
+   "toTerminal": "d3"
   },
   {
    "from": "MCU",
-   "fromTerminal": "d13",
+   "fromTerminal": "d9",
    "to": "R_motorEnable",
    "toTerminal": "a"
   },
@@ -381,7 +381,7 @@
   },
   {
    "from": "MCU",
-   "fromTerminal": "d12",
+   "fromTerminal": "d4",
    "to": "R_motorDir1",
    "toTerminal": "a"
   },
@@ -399,7 +399,7 @@
   },
   {
    "from": "MCU",
-   "fromTerminal": "d8",
+   "fromTerminal": "d5",
    "to": "R_motorDir2",
    "toTerminal": "a"
   },

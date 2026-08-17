@@ -44,13 +44,13 @@
    "kind": "arduino_uno",
    "params": {},
    "terminals": [
-    "d13",
-    "d12",
-    "d8",
-    "d7",
-    "d4",
     "d2",
-    "d3"
+    "d3",
+    "d4",
+    "d5",
+    "d6",
+    "d7",
+    "d8"
    ],
    "x": 360,
    "y": 60
@@ -350,7 +350,7 @@
  "wires": [
   {
    "from": "MCU",
-   "fromTerminal": "d13",
+   "fromTerminal": "d2",
    "to": "R_led2",
    "toTerminal": "a"
   },
@@ -362,7 +362,7 @@
   },
   {
    "from": "MCU",
-   "fromTerminal": "d12",
+   "fromTerminal": "d3",
    "to": "R_led3",
    "toTerminal": "a"
   },
@@ -374,7 +374,7 @@
   },
   {
    "from": "MCU",
-   "fromTerminal": "d8",
+   "fromTerminal": "d4",
    "to": "R_led4",
    "toTerminal": "a"
   },
@@ -386,7 +386,7 @@
   },
   {
    "from": "MCU",
-   "fromTerminal": "d7",
+   "fromTerminal": "d5",
    "to": "R_led5",
    "toTerminal": "a"
   },
@@ -398,7 +398,7 @@
   },
   {
    "from": "MCU",
-   "fromTerminal": "d4",
+   "fromTerminal": "d6",
    "to": "R_led6",
    "toTerminal": "a"
   },
@@ -410,7 +410,7 @@
   },
   {
    "from": "MCU",
-   "fromTerminal": "d2",
+   "fromTerminal": "d7",
    "to": "R_led7",
    "toTerminal": "a"
   },
@@ -430,7 +430,7 @@
    "from": "R_PU_tilt",
    "fromTerminal": "b",
    "to": "MCU",
-   "toTerminal": "d3"
+   "toTerminal": "d8"
   },
   {
    "from": "VCC",

@@ -77,6 +77,7 @@
   {
    "id": "LED_trig",
    "kind": "led",
+   "declName": "trig",
    "params": {
     "vf": 2,
     "color": "red"
@@ -118,6 +119,7 @@
   {
    "id": "BTN_echo",
    "kind": "button",
+   "declName": "echo",
    "params": {},
    "terminals": [
     "a",

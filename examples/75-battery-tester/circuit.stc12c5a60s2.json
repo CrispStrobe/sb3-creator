@@ -130,6 +130,7 @@
   {
    "id": "POT_batt",
    "kind": "potentiometer",
+   "declName": "batt",
    "params": {
     "ohms": 10000
    },

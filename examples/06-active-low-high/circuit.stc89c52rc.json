@@ -109,6 +109,7 @@
   {
    "id": "LED_led_low",
    "kind": "led",
+   "declName": "led_low",
    "params": {
     "vf": 2,
     "color": "red"
@@ -150,6 +151,7 @@
   {
    "id": "LED_led_high",
    "kind": "led",
+   "declName": "led_high",
    "params": {
     "vf": 2,
     "color": "red"

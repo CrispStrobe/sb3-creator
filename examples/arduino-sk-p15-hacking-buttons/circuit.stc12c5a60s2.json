@@ -108,6 +108,7 @@
   {
    "id": "LED_opto",
    "kind": "led",
+   "declName": "opto",
    "params": {
     "vf": 2,
     "color": "red"

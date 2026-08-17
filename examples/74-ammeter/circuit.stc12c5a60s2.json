@@ -130,6 +130,7 @@
   {
    "id": "POT_shunt",
    "kind": "potentiometer",
+   "declName": "shunt",
    "params": {
     "ohms": 10000
    },

@@ -91,6 +91,7 @@
   {
    "id": "POT_sensor",
    "kind": "potentiometer",
+   "declName": "sensor",
    "params": {
     "ohms": 10000
    },
@@ -133,6 +134,7 @@
   {
    "id": "LED_led1",
    "kind": "led",
+   "declName": "led1",
    "params": {
     "vf": 2,
     "color": "red"
@@ -174,6 +176,7 @@
   {
    "id": "LED_led2",
    "kind": "led",
+   "declName": "led2",
    "params": {
     "vf": 2,
     "color": "red"
@@ -215,6 +218,7 @@
   {
    "id": "LED_led3",
    "kind": "led",
+   "declName": "led3",
    "params": {
     "vf": 2,
     "color": "red"

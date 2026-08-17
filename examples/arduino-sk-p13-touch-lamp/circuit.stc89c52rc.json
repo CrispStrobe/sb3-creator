@@ -109,6 +109,7 @@
   {
    "id": "BTN_touch",
    "kind": "button",
+   "declName": "touch",
    "params": {},
    "terminals": [
     "a",
@@ -147,6 +148,7 @@
   {
    "id": "LED_led",
    "kind": "led",
+   "declName": "led",
    "params": {
     "vf": 2,
     "color": "red"

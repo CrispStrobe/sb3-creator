@@ -38,9 +38,9 @@
     "a0",
     "a1",
     "a2",
-    "d13",
-    "d12",
-    "d8"
+    "d3",
+    "d5",
+    "d6"
    ],
    "x": 360,
    "y": 60
@@ -262,7 +262,7 @@
   },
   {
    "from": "MCU",
-   "fromTerminal": "d13",
+   "fromTerminal": "d3",
    "to": "R_ledR",
    "toTerminal": "a"
   },
@@ -274,7 +274,7 @@
   },
   {
    "from": "MCU",
-   "fromTerminal": "d12",
+   "fromTerminal": "d5",
    "to": "R_ledG",
    "toTerminal": "a"
   },
@@ -286,7 +286,7 @@
   },
   {
    "from": "MCU",
-   "fromTerminal": "d8",
+   "fromTerminal": "d6",
    "to": "R_ledB",
    "toTerminal": "a"
   },

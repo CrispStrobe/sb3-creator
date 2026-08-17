@@ -35,9 +35,9 @@
    "kind": "arduino_mega",
    "params": {},
    "terminals": [
-    "d13",
-    "d22",
-    "d23"
+    "d2",
+    "d3",
+    "d4"
    ],
    "x": 360,
    "y": 60
@@ -172,7 +172,7 @@
  "wires": [
   {
    "from": "MCU",
-   "fromTerminal": "d13",
+   "fromTerminal": "d2",
    "to": "R_led2",
    "toTerminal": "a"
   },
@@ -184,7 +184,7 @@
   },
   {
    "from": "MCU",
-   "fromTerminal": "d22",
+   "fromTerminal": "d3",
    "to": "R_led3",
    "toTerminal": "a"
   },
@@ -196,7 +196,7 @@
   },
   {
    "from": "MCU",
-   "fromTerminal": "d23",
+   "fromTerminal": "d4",
    "to": "R_led4",
    "toTerminal": "a"
   },

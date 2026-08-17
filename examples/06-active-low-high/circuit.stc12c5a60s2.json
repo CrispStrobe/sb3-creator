@@ -109,6 +109,7 @@
   {
    "id": "LED_led_low",
    "kind": "led",
+   "declName": "led_low",
    "params": {
     "vf": 2,
     "color": "red"
@@ -150,6 +151,7 @@
   {
    "id": "LED_led_high",
    "kind": "led",
+   "declName": "led_high",
    "params": {
     "vf": 2,
     "color": "red"
@@ -183,16 +185,16 @@
    "toTerminal": "P1.0"
   },
   {
+   "from": "MCU",
+   "fromTerminal": "P1.1",
+   "to": "R_led_high",
+   "toTerminal": "a"
+  },
+  {
    "from": "R_led_high",
    "fromTerminal": "b",
    "to": "LED_led_high",
    "toTerminal": "anode"
-  },
-  {
-   "from": "LED_led_high",
-   "fromTerminal": "cathode",
-   "to": "MCU",
-   "toTerminal": "P1.1"
   },
   {
    "from": "VCC",
@@ -201,10 +203,10 @@
    "toTerminal": "a"
   },
   {
-   "from": "VCC",
-   "fromTerminal": "vcc",
-   "to": "R_led_high",
-   "toTerminal": "a"
+   "from": "GND",
+   "fromTerminal": "gnd",
+   "to": "LED_led_high",
+   "toTerminal": "cathode"
   },
   {
    "from": "VCC",
@@ -245,15 +247,15 @@
   {
    "ref": "bbw:bb1:gen_2",
    "boardId": "bb1",
-   "a": "b36",
-   "b": "b41",
+   "a": "g4",
+   "b": "b32",
    "color": "yellow"
   },
   {
    "ref": "bbw:bb1:gen_3",
    "boardId": "bb1",
-   "a": "b42",
-   "b": "g4",
+   "a": "b36",
+   "b": "b41",
    "color": "orange"
   },
   {
@@ -266,9 +268,9 @@
   {
    "ref": "bbw:bb1:gen_5",
    "boardId": "bb1",
-   "a": "b32",
-   "b": "t+32",
-   "color": "red"
+   "a": "b42",
+   "b": "b-42",
+   "color": "black"
   },
   {
    "ref": "bbw:bb1:gen_6",

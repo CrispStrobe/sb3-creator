@@ -78,6 +78,7 @@
   {
    "id": "BTN_btnA",
    "kind": "button",
+   "declName": "btnA",
    "params": {},
    "terminals": [
     "a",
@@ -116,6 +117,7 @@
   {
    "id": "BTN_btnB",
    "kind": "button",
+   "declName": "btnB",
    "params": {},
    "terminals": [
     "a",
@@ -154,6 +156,7 @@
   {
    "id": "LED_led1",
    "kind": "led",
+   "declName": "led1",
    "params": {
     "vf": 2,
     "color": "red"

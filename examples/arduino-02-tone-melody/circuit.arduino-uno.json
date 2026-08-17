@@ -35,7 +35,7 @@
    "kind": "arduino_uno",
    "params": {},
    "terminals": [
-    "d13"
+    "d8"
    ],
    "x": 360,
    "y": 60
@@ -63,7 +63,7 @@
  "wires": [
   {
    "from": "MCU",
-   "fromTerminal": "d13",
+   "fromTerminal": "d8",
    "to": "BUZZ_speaker",
    "toTerminal": "a"
   },

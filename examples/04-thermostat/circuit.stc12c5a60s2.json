@@ -109,6 +109,7 @@
   {
    "id": "LED_heater",
    "kind": "led",
+   "declName": "heater",
    "params": {
     "vf": 2,
     "color": "red"
@@ -130,6 +131,7 @@
   {
    "id": "POT_sensor",
    "kind": "potentiometer",
+   "declName": "sensor",
    "params": {
     "ohms": 10000
    },

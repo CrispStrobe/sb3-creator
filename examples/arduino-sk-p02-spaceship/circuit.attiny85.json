@@ -79,6 +79,7 @@
   {
    "id": "LED_greenLed",
    "kind": "led",
+   "declName": "greenLed",
    "params": {
     "vf": 2,
     "color": "red"
@@ -120,6 +121,7 @@
   {
    "id": "LED_redLed1",
    "kind": "led",
+   "declName": "redLed1",
    "params": {
     "vf": 2,
     "color": "red"
@@ -161,6 +163,7 @@
   {
    "id": "LED_redLed2",
    "kind": "led",
+   "declName": "redLed2",
    "params": {
     "vf": 2,
     "color": "red"
@@ -202,6 +205,7 @@
   {
    "id": "BTN_btn",
    "kind": "button",
+   "declName": "btn",
    "params": {},
    "terminals": [
     "a",

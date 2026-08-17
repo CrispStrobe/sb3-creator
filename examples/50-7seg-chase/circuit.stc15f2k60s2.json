@@ -114,6 +114,7 @@
   {
    "id": "LED_sa",
    "kind": "led",
+   "declName": "sa",
    "params": {
     "vf": 2,
     "color": "red"
@@ -155,6 +156,7 @@
   {
    "id": "LED_sb",
    "kind": "led",
+   "declName": "sb",
    "params": {
     "vf": 2,
     "color": "red"
@@ -196,6 +198,7 @@
   {
    "id": "LED_sc",
    "kind": "led",
+   "declName": "sc",
    "params": {
     "vf": 2,
     "color": "red"
@@ -237,6 +240,7 @@
   {
    "id": "LED_sd",
    "kind": "led",
+   "declName": "sd",
    "params": {
     "vf": 2,
     "color": "red"
@@ -278,6 +282,7 @@
   {
    "id": "LED_se",
    "kind": "led",
+   "declName": "se",
    "params": {
     "vf": 2,
     "color": "red"
@@ -319,6 +324,7 @@
   {
    "id": "LED_sf",
    "kind": "led",
+   "declName": "sf",
    "params": {
     "vf": 2,
     "color": "red"
@@ -360,6 +366,7 @@
   {
    "id": "LED_sg",
    "kind": "led",
+   "declName": "sg",
    "params": {
     "vf": 2,
     "color": "red"

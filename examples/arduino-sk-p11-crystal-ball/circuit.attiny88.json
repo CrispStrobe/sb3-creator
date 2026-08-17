@@ -96,6 +96,7 @@
   {
    "id": "BTN_tilt",
    "kind": "button",
+   "declName": "tilt",
    "params": {},
    "terminals": [
     "a",

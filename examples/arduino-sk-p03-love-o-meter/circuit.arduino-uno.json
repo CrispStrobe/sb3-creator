@@ -36,9 +36,9 @@
    "params": {},
    "terminals": [
     "a0",
-    "d13",
-    "d12",
-    "d8"
+    "d2",
+    "d3",
+    "d4"
    ],
    "x": 360,
    "y": 60
@@ -202,7 +202,7 @@
   },
   {
    "from": "MCU",
-   "fromTerminal": "d13",
+   "fromTerminal": "d2",
    "to": "R_led1",
    "toTerminal": "a"
   },
@@ -214,7 +214,7 @@
   },
   {
    "from": "MCU",
-   "fromTerminal": "d12",
+   "fromTerminal": "d3",
    "to": "R_led2",
    "toTerminal": "a"
   },
@@ -226,7 +226,7 @@
   },
   {
    "from": "MCU",
-   "fromTerminal": "d8",
+   "fromTerminal": "d4",
    "to": "R_led3",
    "toTerminal": "a"
   },

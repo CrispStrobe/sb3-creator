@@ -147,6 +147,7 @@
   {
    "id": "POT_pot",
    "kind": "potentiometer",
+   "declName": "pot",
    "params": {
     "ohms": 10000
    },

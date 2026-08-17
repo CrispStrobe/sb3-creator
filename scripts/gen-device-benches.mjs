@@ -56,14 +56,26 @@ async function batch() {
     if (!(e.kind === 'program' || e.kind === 'full')) continue;
     let src;
     try { src = fs.readFileSync(`examples/${e.id}/program.bw`, 'utf8'); } catch { continue; }
+    // The example's own device keeps its AUTHORED pins. retargetPseudocode
+    // canonicalizes pins into pool order even for the source device (sda
+    // P2.1 → P1.0), but the app pairs the bench with the AUTHORED program
+    // for that device — a canonicalized bench then wires the bus to pins
+    // the program never drives, and the LCD stays dark with every wire in
+    // place (49-lcd-hello on the STC12, owner report 2026-08-17).
+    const exDev = ((src.match(/^DEVICE\s+([\w-]+)/im) || [])[1] || '')
+      .toLowerCase().replace(/_/g, '-');
     for (const device of e.devices) {
       if (!DEVPART[device]) continue;
       const out = `examples/${e.id}/circuit.${device}.json`;
       if (fs.existsSync(out)) continue;
-      const r = SB3Creator.retargetPseudocode(src, device);
-      if (!r.ok) { refused++; continue; }
+      let pseudocode = src;
+      if (device !== exDev) {
+        const r = SB3Creator.retargetPseudocode(src, device);
+        if (!r.ok) { refused++; continue; }
+        pseudocode = r.pseudocode ?? r.src ?? r.text;
+      }
       const c = new SB3Creator();
-      try { c.parse(r.pseudocode ?? r.src ?? r.text); } catch { refused++; continue; }
+      try { c.parse(pseudocode); } catch { refused++; continue; }
       // A program drives hardware through PIN declarations OR a PART
       // binding (PART leds = 74HC595 claims pins with zero PIN lines).
       // Gating on pins alone refused every PART-only program — the 8-LED

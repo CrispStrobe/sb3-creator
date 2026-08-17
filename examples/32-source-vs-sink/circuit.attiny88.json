@@ -97,6 +97,7 @@
   {
    "id": "LED_led_sink",
    "kind": "led",
+   "declName": "led_sink",
    "params": {
     "vf": 2,
     "color": "red"
@@ -138,6 +139,7 @@
   {
    "id": "LED_led_source",
    "kind": "led",
+   "declName": "led_source",
    "params": {
     "vf": 2,
     "color": "red"

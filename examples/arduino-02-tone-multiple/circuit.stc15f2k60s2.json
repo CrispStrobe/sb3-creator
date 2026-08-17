@@ -110,6 +110,7 @@
   {
    "id": "LED_spk1",
    "kind": "led",
+   "declName": "spk1",
    "params": {
     "vf": 2,
     "color": "red"
@@ -151,6 +152,7 @@
   {
    "id": "LED_spk2",
    "kind": "led",
+   "declName": "spk2",
    "params": {
     "vf": 2,
     "color": "red"
@@ -192,6 +194,7 @@
   {
    "id": "LED_spk3",
    "kind": "led",
+   "declName": "spk3",
    "params": {
     "vf": 2,
     "color": "red"

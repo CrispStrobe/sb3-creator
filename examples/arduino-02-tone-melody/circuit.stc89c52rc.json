@@ -88,6 +88,7 @@
   {
    "id": "BUZZ_speaker",
    "kind": "buzzer",
+   "declName": "speaker",
    "params": {},
    "terminals": [
     "a",

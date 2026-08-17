@@ -89,6 +89,7 @@
   {
    "id": "POT_potX",
    "kind": "potentiometer",
+   "declName": "potX",
    "params": {
     "ohms": 10000
    },
@@ -111,6 +112,7 @@
   {
    "id": "POT_potY",
    "kind": "potentiometer",
+   "declName": "potY",
    "params": {
     "ohms": 10000
    },

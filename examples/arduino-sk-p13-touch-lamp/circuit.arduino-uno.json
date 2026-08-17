@@ -36,7 +36,7 @@
    "params": {},
    "terminals": [
     "d2",
-    "d13"
+    "d3"
    ],
    "x": 360,
    "y": 60
@@ -138,7 +138,7 @@
   },
   {
    "from": "MCU",
-   "fromTerminal": "d13",
+   "fromTerminal": "d3",
    "to": "R_led",
    "toTerminal": "a"
   },

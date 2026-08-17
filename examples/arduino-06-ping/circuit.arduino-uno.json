@@ -35,8 +35,8 @@
    "kind": "arduino_uno",
    "params": {},
    "terminals": [
-    "d13",
-    "d2"
+    "d7",
+    "d8"
    ],
    "x": 360,
    "y": 60
@@ -126,7 +126,7 @@
  "wires": [
   {
    "from": "MCU",
-   "fromTerminal": "d13",
+   "fromTerminal": "d7",
    "to": "R_trig",
    "toTerminal": "a"
   },
@@ -146,7 +146,7 @@
    "from": "R_PU_echo",
    "fromTerminal": "b",
    "to": "MCU",
-   "toTerminal": "d2"
+   "toTerminal": "d8"
   },
   {
    "from": "VCC",

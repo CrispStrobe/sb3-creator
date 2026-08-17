@@ -108,6 +108,7 @@
   {
    "id": "LED_signal",
    "kind": "led",
+   "declName": "signal",
    "params": {
     "vf": 2,
     "color": "red"

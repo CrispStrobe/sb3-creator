@@ -27,6 +27,59 @@ const available = sdccAvailable() && existsSync(EMU_JS)
   && existsSync(join(CUI, 'src', 'model', 'circuit.js'))
   && existsSync(join(BWB, 'src', 'emu8051-adapter.js'));
 
+test('49-lcd-hello: the I2C LCD shows its text through the full chain',
+  { skip: available ? false : 'needs sdcc + emu8051-stc build + bw-circuit-ui/bw-board checkouts' },
+  async () => {
+    // The bug this guards: the bench generator retargeted even to the
+    // example's AUTHORED device, canonicalizing sda/scl from P2.1/P2.2
+    // to pool-order P1.0/P1.1 — the app then paired the bench with the
+    // authored program and the bus was wired to pins the firmware never
+    // drives. Every wire present, LCD dark (owner report 2026-08-17).
+    // Only an absolute display-content check catches a pairing bug.
+    const SB3Creator = (await import(join(SB3, 'src/utils/sb3Creator.js'))).default;
+    const src = readFileSync(join(SB3, 'examples/49-lcd-hello/program.bw'), 'utf8');
+    const creator = new SB3Creator();
+    creator.parse(src);
+    assert.deepEqual(creator.warnings, [], 'program parses clean');
+    const scratch = mkdtempSync(join(tmpdir(), 'bw-lcd-'));
+    writeFileSync(join(scratch, 'main.c'), creator.generateC(undefined, {}));
+    execSync(`sdcc -mmcs51 --iram-size 256 --xram-size 1024 -o ${join(scratch, 'main.ihx')} ${join(scratch, 'main.c')}`,
+      { stdio: 'pipe' });
+    const hex = readFileSync(join(scratch, 'main.ihx'), 'utf8');
+
+    const { setEngine } = await import(join(CUI, 'src/engine.js'));
+    const eng = await import(join(BWB, 'src/index.js'));
+    (await import(join(BWB, 'src/register-all.js'))).registerAllDevices();
+    setEngine({ BoardImpl: eng.BoardImpl, inferNetlist: eng.inferNetlist, checkWiring: eng.checkWiring });
+    const { registerSidecar } = await import(join(CUI, 'src/model/parts-registry.js'));
+    for (const f of readdirSync(join(CUI, 'src/parts-data'))) {
+      if (!f.endsWith('.json')) continue;
+      try {
+        const sc = JSON.parse(readFileSync(join(CUI, 'src/parts-data', f), 'utf8'));
+        if (sc.kind) registerSidecar(sc);
+      } catch { /* bw-parts' problem */ }
+    }
+    const { Circuit } = await import(join(CUI, 'src/model/circuit.js'));
+    const circ = Circuit.fromJSON(JSON.parse(
+      readFileSync(join(SB3, 'examples/49-lcd-hello/circuit.stc12c5a60s2.json'), 'utf8')));
+    assert.equal(circ.netlistError, null, 'engine accepts the bench');
+
+    const createEmu = (await import(EMU_JS)).default;
+    const Module = await createEmu();
+    const { createEmu8051Adapter } = await import(join(BWB, 'src/emu8051-adapter.js'));
+    const adapter = createEmu8051Adapter(Module, {
+      part: 'stc12c5a60s2', fosc: 11059200, vcc: 5.0, ports: [2],
+    });
+    adapter.loadHex(hex);
+    adapter.attachBoard(circ.board);
+    adapter.runNs(500_000_000);
+
+    const lcdId = circ.parts.find(p => p.kind === 'char_lcd_i2c').id;
+    const st = circ.board.getDeviceState(lcdId);
+    assert.equal(st.display[0], 'HI BRICKWRIGHT  ', 'line 1');
+    assert.equal(st.display[1].startsWith('COUNT: '), true, 'line 2 counts');
+  });
+
 test('76-multimeter: full-chain EXPECTED values (V, A, T-degC, wrap)',
   { skip: available ? false : 'needs sdcc + emu8051-stc build + bw-circuit-ui/bw-board checkouts' },
   async () => {

@@ -35,7 +35,7 @@
    "kind": "mcu",
    "params": {},
    "terminals": [
-    "P1.3",
+    "P1.7",
     "P1.0",
     "P1.1",
     "P1.2"
@@ -91,6 +91,7 @@
   {
    "id": "POT_ldr",
    "kind": "potentiometer",
+   "declName": "ldr",
    "params": {
     "ohms": 10000
    },
@@ -133,6 +134,7 @@
   {
    "id": "LED_led1",
    "kind": "led",
+   "declName": "led1",
    "params": {
     "vf": 2,
     "color": "red"
@@ -174,6 +176,7 @@
   {
    "id": "LED_led2",
    "kind": "led",
+   "declName": "led2",
    "params": {
     "vf": 2,
     "color": "red"
@@ -215,6 +218,7 @@
   {
    "id": "LED_led3",
    "kind": "led",
+   "declName": "led3",
    "params": {
     "vf": 2,
     "color": "red"
@@ -239,7 +243,7 @@
    "from": "POT_ldr",
    "fromTerminal": "wiper",
    "to": "MCU",
-   "toTerminal": "P1.3"
+   "toTerminal": "P1.7"
   },
   {
    "from": "R_led1",
@@ -333,7 +337,7 @@
    "ref": "bbw:bb1:gen_0",
    "boardId": "bb1",
    "a": "b28",
-   "b": "g6",
+   "b": "g10",
    "color": "green"
   },
   {

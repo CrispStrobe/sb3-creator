@@ -93,6 +93,7 @@
   {
    "id": "POT_potR",
    "kind": "potentiometer",
+   "declName": "potR",
    "params": {
     "ohms": 10000
    },
@@ -115,6 +116,7 @@
   {
    "id": "POT_potG",
    "kind": "potentiometer",
+   "declName": "potG",
    "params": {
     "ohms": 10000
    },
@@ -137,6 +139,7 @@
   {
    "id": "POT_potB",
    "kind": "potentiometer",
+   "declName": "potB",
    "params": {
     "ohms": 10000
    },
@@ -179,6 +182,7 @@
   {
    "id": "LED_ledR",
    "kind": "led",
+   "declName": "ledR",
    "params": {
     "vf": 2,
     "color": "red"
@@ -220,6 +224,7 @@
   {
    "id": "LED_ledG",
    "kind": "led",
+   "declName": "ledG",
    "params": {
     "vf": 2,
     "color": "red"
@@ -261,6 +266,7 @@
   {
    "id": "LED_ledB",
    "kind": "led",
+   "declName": "ledB",
    "params": {
     "vf": 2,
     "color": "red"

@@ -35,8 +35,8 @@
    "kind": "arduino_nano",
    "params": {},
    "terminals": [
-    "d13",
-    "d12",
+    "a4",
+    "a5",
     "a0"
    ],
    "seat": {
@@ -166,25 +166,25 @@
  "wires": [
   {
    "from": "MCU",
-   "fromTerminal": "d13",
+   "fromTerminal": "a4",
    "to": "R_PU_sda",
    "toTerminal": "b"
   },
   {
    "from": "MCU",
-   "fromTerminal": "d13",
+   "fromTerminal": "a4",
    "to": "LCD",
    "toTerminal": "sda"
   },
   {
    "from": "MCU",
-   "fromTerminal": "d12",
+   "fromTerminal": "a5",
    "to": "R_PU_scl",
    "toTerminal": "b"
   },
   {
    "from": "MCU",
-   "fromTerminal": "d12",
+   "fromTerminal": "a5",
    "to": "LCD",
    "toTerminal": "scl"
   },
@@ -255,28 +255,28 @@
   {
    "ref": "bbw:bb1:gen_0",
    "boardId": "bb1",
-   "a": "g17",
+   "a": "g10",
    "b": "b25",
    "color": "green"
   },
   {
    "ref": "bbw:bb1:gen_1",
    "boardId": "bb1",
-   "a": "h17",
+   "a": "h10",
    "b": "b41",
    "color": "blue"
   },
   {
    "ref": "bbw:bb1:gen_2",
    "boardId": "bb1",
-   "a": "a17",
+   "a": "g9",
    "b": "b31",
    "color": "yellow"
   },
   {
    "ref": "bbw:bb1:gen_3",
    "boardId": "bb1",
-   "a": "b17",
+   "a": "h9",
    "b": "b42",
    "color": "orange"
   },

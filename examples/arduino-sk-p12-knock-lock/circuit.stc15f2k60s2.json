@@ -102,6 +102,7 @@
   {
    "id": "POT_piezo",
    "kind": "potentiometer",
+   "declName": "piezo",
    "params": {
     "ohms": 10000
    },
@@ -144,6 +145,7 @@
   {
    "id": "BTN_btn",
    "kind": "button",
+   "declName": "btn",
    "params": {},
    "terminals": [
     "a",
@@ -182,6 +184,7 @@
   {
    "id": "LED_ledR",
    "kind": "led",
+   "declName": "ledR",
    "params": {
     "vf": 2,
     "color": "red"
@@ -223,6 +226,7 @@
   {
    "id": "LED_ledY",
    "kind": "led",
+   "declName": "ledY",
    "params": {
     "vf": 2,
     "color": "red"
@@ -264,6 +268,7 @@
   {
    "id": "LED_ledG",
    "kind": "led",
+   "declName": "ledG",
    "params": {
     "vf": 2,
     "color": "red"
@@ -305,6 +310,7 @@
   {
    "id": "LED_servo",
    "kind": "led",
+   "declName": "servo",
    "params": {
     "vf": 2,
     "color": "red"

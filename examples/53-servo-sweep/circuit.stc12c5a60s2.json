@@ -35,7 +35,7 @@
    "kind": "mcu",
    "params": {},
    "terminals": [
-    "P1.0"
+    "P1.1"
    ],
    "seat": {
     "boardId": "bb1",
@@ -108,6 +108,7 @@
   {
    "id": "LED_signal",
    "kind": "led",
+   "declName": "signal",
    "params": {
     "vf": 2,
     "color": "red"
@@ -129,22 +130,22 @@
  ],
  "wires": [
   {
+   "from": "MCU",
+   "fromTerminal": "P1.1",
+   "to": "R_signal",
+   "toTerminal": "a"
+  },
+  {
    "from": "R_signal",
    "fromTerminal": "b",
    "to": "LED_signal",
    "toTerminal": "anode"
   },
   {
-   "from": "LED_signal",
-   "fromTerminal": "cathode",
-   "to": "MCU",
-   "toTerminal": "P1.0"
-  },
-  {
-   "from": "VCC",
-   "fromTerminal": "vcc",
-   "to": "R_signal",
-   "toTerminal": "a"
+   "from": "GND",
+   "fromTerminal": "gnd",
+   "to": "LED_signal",
+   "toTerminal": "cathode"
   },
   {
    "from": "VCC",
@@ -171,23 +172,23 @@
   {
    "ref": "bbw:bb1:gen_0",
    "boardId": "bb1",
-   "a": "b30",
-   "b": "b32",
+   "a": "g4",
+   "b": "b26",
    "color": "green"
   },
   {
    "ref": "bbw:bb1:gen_1",
    "boardId": "bb1",
-   "a": "b33",
-   "b": "g3",
+   "a": "b30",
+   "b": "b32",
    "color": "blue"
   },
   {
    "ref": "bbw:bb1:gen_2",
    "boardId": "bb1",
-   "a": "b26",
-   "b": "t+26",
-   "color": "red"
+   "a": "b33",
+   "b": "b-33",
+   "color": "black"
   },
   {
    "ref": "bbw:bb1:gen_3",

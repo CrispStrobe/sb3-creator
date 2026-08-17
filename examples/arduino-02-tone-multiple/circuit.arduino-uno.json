@@ -35,8 +35,8 @@
    "kind": "arduino_uno",
    "params": {},
    "terminals": [
-    "d13",
-    "d12",
+    "d6",
+    "d7",
     "d8"
    ],
    "x": 360,
@@ -172,7 +172,7 @@
  "wires": [
   {
    "from": "MCU",
-   "fromTerminal": "d13",
+   "fromTerminal": "d6",
    "to": "R_spk1",
    "toTerminal": "a"
   },
@@ -184,7 +184,7 @@
   },
   {
    "from": "MCU",
-   "fromTerminal": "d12",
+   "fromTerminal": "d7",
    "to": "R_spk2",
    "toTerminal": "a"
   },

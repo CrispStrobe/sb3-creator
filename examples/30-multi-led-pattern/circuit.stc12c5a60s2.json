@@ -38,7 +38,7 @@
     "P1.0",
     "P1.1",
     "P1.2",
-    "P1.5"
+    "P1.3"
    ],
    "seat": {
     "boardId": "bb1",
@@ -111,6 +111,7 @@
   {
    "id": "LED_led1",
    "kind": "led",
+   "declName": "led1",
    "params": {
     "vf": 2,
     "color": "red"
@@ -152,6 +153,7 @@
   {
    "id": "LED_led2",
    "kind": "led",
+   "declName": "led2",
    "params": {
     "vf": 2,
     "color": "red"
@@ -193,6 +195,7 @@
   {
    "id": "LED_led3",
    "kind": "led",
+   "declName": "led3",
    "params": {
     "vf": 2,
     "color": "red"
@@ -234,6 +237,7 @@
   {
    "id": "LED_led4",
    "kind": "led",
+   "declName": "led4",
    "params": {
     "vf": 2,
     "color": "red"
@@ -300,7 +304,7 @@
    "from": "LED_led4",
    "fromTerminal": "cathode",
    "to": "MCU",
-   "toTerminal": "P1.5"
+   "toTerminal": "P1.3"
   },
   {
    "from": "VCC",
@@ -401,7 +405,7 @@
    "ref": "bbw:bb1:gen_7",
    "boardId": "bb1",
    "a": "b60",
-   "b": "g8",
+   "b": "g6",
    "color": "yellow"
   },
   {

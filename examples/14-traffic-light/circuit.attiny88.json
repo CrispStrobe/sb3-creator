@@ -98,6 +98,7 @@
   {
    "id": "LED_red",
    "kind": "led",
+   "declName": "red",
    "params": {
     "vf": 2,
     "color": "red"
@@ -139,6 +140,7 @@
   {
    "id": "LED_yellow",
    "kind": "led",
+   "declName": "yellow",
    "params": {
     "vf": 2,
     "color": "red"
@@ -180,6 +182,7 @@
   {
    "id": "LED_green",
    "kind": "led",
+   "declName": "green",
    "params": {
     "vf": 2,
     "color": "red"

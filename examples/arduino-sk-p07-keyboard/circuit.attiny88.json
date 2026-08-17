@@ -100,6 +100,7 @@
   {
    "id": "BTN_btn1",
    "kind": "button",
+   "declName": "btn1",
    "params": {},
    "terminals": [
     "a",
@@ -138,6 +139,7 @@
   {
    "id": "BTN_btn2",
    "kind": "button",
+   "declName": "btn2",
    "params": {},
    "terminals": [
     "a",
@@ -176,6 +178,7 @@
   {
    "id": "BTN_btn3",
    "kind": "button",
+   "declName": "btn3",
    "params": {},
    "terminals": [
     "a",
@@ -214,6 +217,7 @@
   {
    "id": "BTN_btn4",
    "kind": "button",
+   "declName": "btn4",
    "params": {},
    "terminals": [
     "a",
@@ -232,6 +236,7 @@
   {
    "id": "BUZZ_speaker",
    "kind": "buzzer",
+   "declName": "speaker",
    "params": {},
    "terminals": [
     "a",

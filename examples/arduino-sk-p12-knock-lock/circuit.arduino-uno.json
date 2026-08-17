@@ -37,10 +37,10 @@
    "terminals": [
     "a0",
     "d2",
-    "d13",
-    "d12",
-    "d8",
-    "d7"
+    "d3",
+    "d4",
+    "d5",
+    "d9"
    ],
    "x": 360,
    "y": 60
@@ -297,7 +297,7 @@
   },
   {
    "from": "MCU",
-   "fromTerminal": "d13",
+   "fromTerminal": "d3",
    "to": "R_ledR",
    "toTerminal": "a"
   },
@@ -309,7 +309,7 @@
   },
   {
    "from": "MCU",
-   "fromTerminal": "d12",
+   "fromTerminal": "d4",
    "to": "R_ledY",
    "toTerminal": "a"
   },
@@ -321,7 +321,7 @@
   },
   {
    "from": "MCU",
-   "fromTerminal": "d8",
+   "fromTerminal": "d5",
    "to": "R_ledG",
    "toTerminal": "a"
   },
@@ -333,7 +333,7 @@
   },
   {
    "from": "MCU",
-   "fromTerminal": "d7",
+   "fromTerminal": "d9",
    "to": "R_servo",
    "toTerminal": "a"
   },

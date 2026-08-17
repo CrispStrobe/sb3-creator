@@ -36,10 +36,10 @@
    "params": {},
    "terminals": [
     "d2",
+    "d3",
     "d4",
-    "d7",
-    "d8",
-    "d13"
+    "d5",
+    "d8"
    ],
    "x": 360,
    "y": 60
@@ -243,7 +243,7 @@
    "from": "R_PU_btn2",
    "fromTerminal": "b",
    "to": "MCU",
-   "toTerminal": "d4"
+   "toTerminal": "d3"
   },
   {
    "from": "R_PU_btn3",
@@ -255,7 +255,7 @@
    "from": "R_PU_btn3",
    "fromTerminal": "b",
    "to": "MCU",
-   "toTerminal": "d7"
+   "toTerminal": "d4"
   },
   {
    "from": "R_PU_btn4",
@@ -267,11 +267,11 @@
    "from": "R_PU_btn4",
    "fromTerminal": "b",
    "to": "MCU",
-   "toTerminal": "d8"
+   "toTerminal": "d5"
   },
   {
    "from": "MCU",
-   "fromTerminal": "d13",
+   "fromTerminal": "d8",
    "to": "BUZZ_speaker",
    "toTerminal": "a"
   },

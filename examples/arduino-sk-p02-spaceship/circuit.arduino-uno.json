@@ -35,9 +35,9 @@
    "kind": "arduino_uno",
    "params": {},
    "terminals": [
-    "d13",
-    "d12",
-    "d8",
+    "d3",
+    "d4",
+    "d5",
     "d2"
    ],
    "x": 360,
@@ -212,7 +212,7 @@
  "wires": [
   {
    "from": "MCU",
-   "fromTerminal": "d13",
+   "fromTerminal": "d3",
    "to": "R_greenLed",
    "toTerminal": "a"
   },
@@ -224,7 +224,7 @@
   },
   {
    "from": "MCU",
-   "fromTerminal": "d12",
+   "fromTerminal": "d4",
    "to": "R_redLed1",
    "toTerminal": "a"
   },
@@ -236,7 +236,7 @@
   },
   {
    "from": "MCU",
-   "fromTerminal": "d8",
+   "fromTerminal": "d5",
    "to": "R_redLed2",
    "toTerminal": "a"
   },

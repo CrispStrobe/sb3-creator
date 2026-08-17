@@ -36,7 +36,7 @@
    "params": {},
    "terminals": [
     "d2",
-    "d13"
+    "d9"
    ],
    "x": 360,
    "y": 60
@@ -154,7 +154,7 @@
   },
   {
    "from": "MCU",
-   "fromTerminal": "d13",
+   "fromTerminal": "d9",
    "to": "R_motor",
    "toTerminal": "a"
   },
