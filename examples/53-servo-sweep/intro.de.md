@@ -5,7 +5,7 @@ prereqs: [01-blink]
 teaches: [servo, pwm-control, angular-position]
 ---
 ## Was du siehst
-Ein Servomotor, der zwischen 0 und 180 Grad hin- und herfaehrt. Der MCU erzeugt ein PWM-Signal, das dem Servo sagt, wohin er zeigen soll — ein 1-ms-Puls bedeutet 0 Grad, 1,5 ms bedeutet 90 Grad und 2 ms bedeutet 180 Grad. Der Servo wiederholt diese Bewegung fortlaufend.
+Ein Servomotor, der zwischen 0 und 180 Grad hin- und herfaehrt. Der MCU erzeugt ein PWM-Signal, das dem Servo sagt, wohin er zeigen soll — ein 1-ms-Puls bedeutet 0 Grad, 1,5 ms bedeutet 90 Grad und 2 ms bedeutet 180 Grad. Der Servo wiederholt diese Bewegung fortlaufend. Dieses Beispiel funktioniert auf allen unterstützten Mikrocontrollern — wähle ein anderes Gerät in der Werkzeugleiste, um die angepasste Schaltung zu sehen.
 
 ## Probier das
 1. Starte die Simulation und beobachte, wie der Servoarm von einem Endpunkt zum anderen faehrt.

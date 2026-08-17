@@ -5,7 +5,7 @@ prereqs: [01-blink]
 teaches: [servo, pwm-control, angular-position]
 ---
 ## What you see
-A servo motor sweeping back and forth between 0 and 180 degrees. The MCU generates a PWM signal that tells the servo where to point — a 1 ms pulse means 0 degrees, 1.5 ms means 90 degrees, and 2 ms means 180 degrees. The servo repeats this sweep continuously.
+A servo motor sweeping back and forth between 0 and 180 degrees. The MCU generates a PWM signal that tells the servo where to point — a 1 ms pulse means 0 degrees, 1.5 ms means 90 degrees, and 2 ms means 180 degrees. The servo repeats this sweep continuously. This example works on all supported microcontrollers — pick a different device in the toolbar to see the adapted circuit.
 
 ## Try this
 1. Run the simulation and watch the servo arm sweep from one extreme to the other.
