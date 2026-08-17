@@ -5,7 +5,7 @@ prereqs: [12-dual-blink]
 teaches: [sequencing, state-machine, multi-output]
 ---
 ## What you see
-Three LEDs — red, yellow, and green — cycle through the standard traffic light sequence. Green stays on longest, then yellow briefly, then red, then red-and-yellow together before green again. Each phase has its own duration.
+Three LEDs — red, yellow, and green — cycle through the standard traffic light sequence. Green stays on longest, then yellow briefly, then red, then red-and-yellow together before green again. Each phase has its own duration. This example works on all supported microcontrollers — pick a different device in the toolbar to see the adapted circuit.
 
 ## Try this
 1. Run the program and watch the sequence: green, yellow, red, red+yellow, green.

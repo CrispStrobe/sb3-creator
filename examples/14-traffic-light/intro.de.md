@@ -5,7 +5,7 @@ prereqs: [12-dual-blink]
 teaches: [sequencing, state-machine, multi-output]
 ---
 ## Was du siehst
-Drei LEDs — rot, gelb und grün — durchlaufen die Standard-Ampelsequenz. Grün leuchtet am längsten, dann kurz gelb, dann rot, dann rot und gelb zusammen, bevor es wieder grün wird. Jede Phase hat ihre eigene Dauer.
+Drei LEDs — rot, gelb und grün — durchlaufen die Standard-Ampelsequenz. Grün leuchtet am längsten, dann kurz gelb, dann rot, dann rot und gelb zusammen, bevor es wieder grün wird. Jede Phase hat ihre eigene Dauer. Dieses Beispiel funktioniert auf allen unterstützten Mikrocontrollern — wähle ein anderes Gerät in der Werkzeugleiste, um die angepasste Schaltung zu sehen.
 
 ## Probier das
 1. Starte das Programm und beobachte die Reihenfolge: grün, gelb, rot, rot+gelb, grün.
