@@ -1733,11 +1733,13 @@ class SB3Creator {
         let s = this.stripOuterParens((conditionStr || '').trim());
         const push = (op, inputs = {}, fields = {}) => this.pushBlock(context, op, inputs, fields);
 
-        // not / or / and (loosest binding first)
-        if (/^not\s+/i.test(s)) {
-            const child = this.parseCondition(s.replace(/^not\s+/i, ''), context);
-            return push('operator_not', { OPERAND: [2, child] });
-        }
+        // Boolean precedence, loosest first — Python's, which is the
+        // reference dialect's (stc-compiler c34ad1b): or < and < not <
+        // comparisons. `not` must be checked AFTER and/or, not before:
+        // binding it loosest made `not a and b` parse as `not (a and b)`
+        // where the language means `(not a) and b`, and `not k = shown`
+        // only looked right by coincidence (comparison is tighter than
+        // not in both orders). Comparisons stay below, tighter than all.
         let sp;
         if ((sp = this.splitBinary(s, [' or '], { ci: true }))) {
             return push('operator_or', {
@@ -1750,6 +1752,10 @@ class SB3Creator {
                 OPERAND1: [2, this.parseCondition(sp.left, context)],
                 OPERAND2: [2, this.parseCondition(sp.right, context)]
             });
+        }
+        if (/^not\s+/i.test(s)) {
+            const child = this.parseCondition(s.replace(/^not\s+/i, ''), context);
+            return push('operator_not', { OPERAND: [2, child] });
         }
 
         // Planète Maths distinctive boolean (extension `planetemaths`).
