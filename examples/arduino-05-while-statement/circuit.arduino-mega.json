@@ -66,6 +66,7 @@
   {
    "id": "BTN_btn",
    "kind": "button",
+   "declName": "btn",
    "params": {},
    "terminals": [
     "a",
@@ -84,6 +85,7 @@
   {
    "id": "POT_ldr",
    "kind": "potentiometer",
+   "declName": "ldr",
    "params": {
     "ohms": 10000
    },
@@ -126,6 +128,7 @@
   {
    "id": "LED_led",
    "kind": "led",
+   "declName": "led",
    "params": {
     "vf": 2,
     "color": "red"
@@ -167,6 +170,7 @@
   {
    "id": "LED_statusLed",
    "kind": "led",
+   "declName": "statusLed",
    "params": {
     "vf": 2,
     "color": "red"

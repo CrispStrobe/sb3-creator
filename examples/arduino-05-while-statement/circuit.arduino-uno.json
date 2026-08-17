@@ -40,27 +40,8 @@
     "d13",
     "d12"
    ],
-   "seat": {
-    "boardId": "bb1",
-    "leadMap": {
-     "D0": "a3",
-     "D1": "a4",
-     "D2": "a5",
-     "D3": "a6",
-     "D4": "a7",
-     "D5": "a8",
-     "D6": "a9",
-     "D7": "a10",
-     "D8": "a11",
-     "D9": "a12",
-     "D10": "a13",
-     "D11": "a14",
-     "D12": "a15",
-     "D13": "a16"
-    }
-   },
-   "x": 64,
-   "y": 255
+   "x": 360,
+   "y": 60
   },
   {
    "id": "R_PU_btn",
@@ -75,16 +56,17 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a20",
-     "b": "a24"
+     "a": "a3",
+     "b": "a7"
     }
    },
-   "x": 302,
+   "x": 64,
    "y": 255
   },
   {
    "id": "BTN_btn",
    "kind": "button",
+   "declName": "btn",
    "params": {},
    "terminals": [
     "a",
@@ -93,16 +75,17 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "e50",
-     "b": "f50"
+     "a": "e33",
+     "b": "f33"
     }
    },
-   "x": 722,
+   "x": 484,
    "y": 311
   },
   {
    "id": "POT_ldr",
    "kind": "potentiometer",
+   "declName": "ldr",
    "params": {
     "ohms": 10000
    },
@@ -114,12 +97,12 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a26",
-     "wiper": "a28",
-     "b": "a30"
+     "a": "a9",
+     "wiper": "a11",
+     "b": "a13"
     }
    },
-   "x": 386,
+   "x": 148,
    "y": 255
   },
   {
@@ -135,16 +118,17 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a32",
-     "b": "a36"
+     "a": "a15",
+     "b": "a19"
     }
    },
-   "x": 470,
+   "x": 232,
    "y": 255
   },
   {
    "id": "LED_led",
    "kind": "led",
+   "declName": "led",
    "params": {
     "vf": 2,
     "color": "red"
@@ -156,11 +140,11 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "anode": "a44",
-     "cathode": "a45"
+     "anode": "a27",
+     "cathode": "a28"
     }
    },
-   "x": 638,
+   "x": 400,
    "y": 255
   },
   {
@@ -176,16 +160,17 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a38",
-     "b": "a42"
+     "a": "a21",
+     "b": "a25"
     }
    },
-   "x": 554,
+   "x": 316,
    "y": 255
   },
   {
    "id": "LED_statusLed",
    "kind": "led",
+   "declName": "statusLed",
    "params": {
     "vf": 2,
     "color": "red"
@@ -197,11 +182,11 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "anode": "a47",
-     "cathode": "a48"
+     "anode": "a30",
+     "cathode": "a31"
     }
    },
-   "x": 680,
+   "x": 442,
    "y": 255
   }
  ],
@@ -309,64 +294,64 @@
   {
    "ref": "bbw:bb1:gen_0",
    "boardId": "bb1",
-   "a": "b24",
-   "b": "a50",
+   "a": "b7",
+   "b": "a33",
    "color": "green"
   },
   {
    "ref": "bbw:bb1:gen_1",
    "boardId": "bb1",
-   "a": "b36",
-   "b": "b44",
+   "a": "b19",
+   "b": "b27",
    "color": "blue"
   },
   {
    "ref": "bbw:bb1:gen_2",
    "boardId": "bb1",
-   "a": "b42",
-   "b": "b47",
+   "a": "b25",
+   "b": "b30",
    "color": "yellow"
   },
   {
    "ref": "bbw:bb1:gen_3",
    "boardId": "bb1",
-   "a": "b20",
-   "b": "t+20",
+   "a": "b3",
+   "b": "t+3",
    "color": "red"
   },
   {
    "ref": "bbw:bb1:gen_4",
    "boardId": "bb1",
-   "a": "b26",
-   "b": "t+26",
+   "a": "b9",
+   "b": "t+9",
    "color": "red"
   },
   {
    "ref": "bbw:bb1:gen_5",
    "boardId": "bb1",
-   "a": "g50",
-   "b": "b-50",
+   "a": "g33",
+   "b": "b-33",
    "color": "black"
   },
   {
    "ref": "bbw:bb1:gen_6",
    "boardId": "bb1",
-   "a": "b30",
-   "b": "b-30",
+   "a": "b13",
+   "b": "b-13",
    "color": "black"
   },
   {
    "ref": "bbw:bb1:gen_7",
    "boardId": "bb1",
-   "a": "b45",
-   "b": "b-45",
+   "a": "b28",
+   "b": "b-28",
    "color": "black"
   },
   {
    "ref": "bbw:bb1:gen_8",
    "boardId": "bb1",
-   "a": "b48",
-   "b": "b-48",
+   "a": "b31",
+   "b": "b-31",
    "color": "black"
   }
  ],

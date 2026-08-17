@@ -63,6 +63,7 @@
   {
    "id": "LED_led",
    "kind": "led",
+   "declName": "led",
    "params": {
     "vf": 2,
     "color": "red"

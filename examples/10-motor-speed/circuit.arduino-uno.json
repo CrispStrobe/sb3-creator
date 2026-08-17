@@ -38,27 +38,8 @@
     "d13",
     "a0"
    ],
-   "seat": {
-    "boardId": "bb1",
-    "leadMap": {
-     "D0": "a3",
-     "D1": "a4",
-     "D2": "a5",
-     "D3": "a6",
-     "D4": "a7",
-     "D5": "a8",
-     "D6": "a9",
-     "D7": "a10",
-     "D8": "a11",
-     "D9": "a12",
-     "D10": "a13",
-     "D11": "a14",
-     "D12": "a15",
-     "D13": "a16"
-    }
-   },
-   "x": 64,
-   "y": 255
+   "x": 360,
+   "y": 60
   },
   {
    "id": "R_motor_pwm",
@@ -73,11 +54,11 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a20",
-     "b": "a24"
+     "a": "a3",
+     "b": "a7"
     }
    },
-   "x": 302,
+   "x": 64,
    "y": 255
   },
   {
@@ -92,12 +73,12 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "emitter": "a32",
-     "base": "a33",
-     "collector": "a34"
+     "emitter": "a15",
+     "base": "a16",
+     "collector": "a17"
     }
    },
-   "x": 470,
+   "x": 232,
    "y": 255
   },
   {
@@ -111,16 +92,17 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a36",
-     "b": "a38"
+     "a": "a19",
+     "b": "a21"
     }
    },
-   "x": 526,
+   "x": 288,
    "y": 255
   },
   {
    "id": "POT_pot",
    "kind": "potentiometer",
+   "declName": "pot",
    "params": {
     "ohms": 10000
    },
@@ -132,12 +114,12 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a26",
-     "wiper": "a28",
-     "b": "a30"
+     "a": "a9",
+     "wiper": "a11",
+     "b": "a13"
     }
    },
-   "x": 386,
+   "x": 148,
    "y": 255
   }
  ],
@@ -215,43 +197,43 @@
   {
    "ref": "bbw:bb1:gen_0",
    "boardId": "bb1",
-   "a": "b24",
-   "b": "b33",
+   "a": "b7",
+   "b": "b16",
    "color": "green"
   },
   {
    "ref": "bbw:bb1:gen_1",
    "boardId": "bb1",
-   "a": "b38",
-   "b": "b34",
+   "a": "b21",
+   "b": "b17",
    "color": "blue"
   },
   {
    "ref": "bbw:bb1:gen_2",
    "boardId": "bb1",
-   "a": "b36",
-   "b": "t+36",
+   "a": "b19",
+   "b": "t+19",
    "color": "red"
   },
   {
    "ref": "bbw:bb1:gen_3",
    "boardId": "bb1",
-   "a": "b26",
-   "b": "t+26",
+   "a": "b9",
+   "b": "t+9",
    "color": "red"
   },
   {
    "ref": "bbw:bb1:gen_4",
    "boardId": "bb1",
-   "a": "b32",
-   "b": "b-32",
+   "a": "b15",
+   "b": "b-15",
    "color": "black"
   },
   {
    "ref": "bbw:bb1:gen_5",
    "boardId": "bb1",
-   "a": "b30",
-   "b": "b-30",
+   "a": "b13",
+   "b": "b-13",
    "color": "black"
   }
  ],

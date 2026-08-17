@@ -89,6 +89,7 @@
   {
    "id": "LED_col0",
    "kind": "led",
+   "declName": "col0",
    "params": {
     "vf": 2,
     "color": "red"
@@ -130,6 +131,7 @@
   {
    "id": "LED_col1",
    "kind": "led",
+   "declName": "col1",
    "params": {
     "vf": 2,
     "color": "red"
@@ -171,6 +173,7 @@
   {
    "id": "LED_col2",
    "kind": "led",
+   "declName": "col2",
    "params": {
     "vf": 2,
     "color": "red"
@@ -212,6 +215,7 @@
   {
    "id": "LED_col3",
    "kind": "led",
+   "declName": "col3",
    "params": {
     "vf": 2,
     "color": "red"
@@ -253,6 +257,7 @@
   {
    "id": "LED_col4",
    "kind": "led",
+   "declName": "col4",
    "params": {
     "vf": 2,
     "color": "red"
@@ -294,6 +299,7 @@
   {
    "id": "LED_col5",
    "kind": "led",
+   "declName": "col5",
    "params": {
     "vf": 2,
     "color": "red"
@@ -335,6 +341,7 @@
   {
    "id": "LED_col6",
    "kind": "led",
+   "declName": "col6",
    "params": {
     "vf": 2,
     "color": "red"
@@ -376,6 +383,7 @@
   {
    "id": "LED_col7",
    "kind": "led",
+   "declName": "col7",
    "params": {
     "vf": 2,
     "color": "red"
@@ -417,6 +425,7 @@
   {
    "id": "LED_row0",
    "kind": "led",
+   "declName": "row0",
    "params": {
     "vf": 2,
     "color": "red"
@@ -458,6 +467,7 @@
   {
    "id": "LED_row1",
    "kind": "led",
+   "declName": "row1",
    "params": {
     "vf": 2,
     "color": "red"
@@ -499,6 +509,7 @@
   {
    "id": "LED_row2",
    "kind": "led",
+   "declName": "row2",
    "params": {
     "vf": 2,
     "color": "red"
@@ -540,6 +551,7 @@
   {
    "id": "LED_row3",
    "kind": "led",
+   "declName": "row3",
    "params": {
     "vf": 2,
     "color": "red"
@@ -581,6 +593,7 @@
   {
    "id": "LED_row4",
    "kind": "led",
+   "declName": "row4",
    "params": {
     "vf": 2,
     "color": "red"
@@ -622,6 +635,7 @@
   {
    "id": "LED_row5",
    "kind": "led",
+   "declName": "row5",
    "params": {
     "vf": 2,
     "color": "red"
@@ -663,6 +677,7 @@
   {
    "id": "LED_row6",
    "kind": "led",
+   "declName": "row6",
    "params": {
     "vf": 2,
     "color": "red"
@@ -704,6 +719,7 @@
   {
    "id": "LED_row7",
    "kind": "led",
+   "declName": "row7",
    "params": {
     "vf": 2,
     "color": "red"
@@ -745,6 +761,7 @@
   {
    "id": "BTN_btnLeft",
    "kind": "button",
+   "declName": "btnLeft",
    "params": {},
    "terminals": [
     "a",
@@ -783,6 +800,7 @@
   {
    "id": "BTN_btnRight",
    "kind": "button",
+   "declName": "btnRight",
    "params": {},
    "terminals": [
     "a",

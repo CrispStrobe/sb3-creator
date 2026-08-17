@@ -64,7 +64,13 @@ async function batch() {
       if (!r.ok) { refused++; continue; }
       const c = new SB3Creator();
       try { c.parse(r.pseudocode ?? r.src ?? r.text); } catch { refused++; continue; }
-      if (!c.project?.stc?.pins?.length) { refused++; continue; }
+      // A program drives hardware through PIN declarations OR a PART
+      // binding (PART leds = 74HC595 claims pins with zero PIN lines).
+      // Gating on pins alone refused every PART-only program — the 8-LED
+      // chaser never got a single bench, so the app's device picker fell
+      // back to the authored STC12 circuit on every device (owner report,
+      // 2026-08-17).
+      if (!c.project?.stc?.pins?.length && !c.project?.stc?.parts?.length) { refused++; continue; }
       const usesLcd = /^\s*lcd /m.test(src);
       const nl = eng.inferNetlist(c.project.stc, { display: usesLcd ? 'lcd' : 'oled' });
       const kind = DEVPART[device];

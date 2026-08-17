@@ -45,6 +45,7 @@
   {
    "id": "POT_sensor1",
    "kind": "potentiometer",
+   "declName": "sensor1",
    "params": {
     "ohms": 10000
    },
@@ -67,6 +68,7 @@
   {
    "id": "POT_sensor2",
    "kind": "potentiometer",
+   "declName": "sensor2",
    "params": {
     "ohms": 10000
    },
@@ -89,6 +91,7 @@
   {
    "id": "BUZZ_speaker",
    "kind": "buzzer",
+   "declName": "speaker",
    "params": {},
    "terminals": [
     "a",

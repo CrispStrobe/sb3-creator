@@ -37,27 +37,8 @@
    "terminals": [
     "d2"
    ],
-   "seat": {
-    "boardId": "bb1",
-    "leadMap": {
-     "D0": "a3",
-     "D1": "a4",
-     "D2": "a5",
-     "D3": "a6",
-     "D4": "a7",
-     "D5": "a8",
-     "D6": "a9",
-     "D7": "a10",
-     "D8": "a11",
-     "D9": "a12",
-     "D10": "a13",
-     "D11": "a14",
-     "D12": "a15",
-     "D13": "a16"
-    }
-   },
-   "x": 64,
-   "y": 255
+   "x": 360,
+   "y": 60
   },
   {
    "id": "R_PU_tilt",
@@ -72,16 +53,17 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a20",
-     "b": "a24"
+     "a": "a3",
+     "b": "a7"
     }
    },
-   "x": 302,
+   "x": 64,
    "y": 255
   },
   {
    "id": "BTN_tilt",
    "kind": "button",
+   "declName": "tilt",
    "params": {},
    "terminals": [
     "a",
@@ -90,11 +72,11 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "e26",
-     "b": "f26"
+     "a": "e9",
+     "b": "f9"
     }
    },
-   "x": 386,
+   "x": 148,
    "y": 311
   }
  ],
@@ -148,22 +130,22 @@
   {
    "ref": "bbw:bb1:gen_0",
    "boardId": "bb1",
-   "a": "b24",
-   "b": "a26",
+   "a": "b7",
+   "b": "a9",
    "color": "green"
   },
   {
    "ref": "bbw:bb1:gen_1",
    "boardId": "bb1",
-   "a": "b20",
-   "b": "t+20",
+   "a": "b3",
+   "b": "t+3",
    "color": "red"
   },
   {
    "ref": "bbw:bb1:gen_2",
    "boardId": "bb1",
-   "a": "g26",
-   "b": "b-26",
+   "a": "g9",
+   "b": "b-9",
    "color": "black"
   }
  ],

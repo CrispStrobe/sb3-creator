@@ -43,6 +43,7 @@
   {
    "id": "POT_sensor",
    "kind": "potentiometer",
+   "declName": "sensor",
    "params": {
     "ohms": 10000
    },

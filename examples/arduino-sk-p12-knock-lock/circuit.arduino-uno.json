@@ -11,15 +11,6 @@
    "rotation": 0
   },
   {
-   "id": "bb2",
-   "kind": "breadboard",
-   "params": {},
-   "terminals": [],
-   "x": 470,
-   "y": 690,
-   "rotation": 0
-  },
-  {
    "id": "VCC",
    "kind": "vcc",
    "params": {},
@@ -51,31 +42,13 @@
     "d8",
     "d7"
    ],
-   "seat": {
-    "boardId": "bb1",
-    "leadMap": {
-     "D0": "a3",
-     "D1": "a4",
-     "D2": "a5",
-     "D3": "a6",
-     "D4": "a7",
-     "D5": "a8",
-     "D6": "a9",
-     "D7": "a10",
-     "D8": "a11",
-     "D9": "a12",
-     "D10": "a13",
-     "D11": "a14",
-     "D12": "a15",
-     "D13": "a16"
-    }
-   },
-   "x": 64,
-   "y": 255
+   "x": 360,
+   "y": 60
   },
   {
    "id": "POT_piezo",
    "kind": "potentiometer",
+   "declName": "piezo",
    "params": {
     "ohms": 10000
    },
@@ -87,12 +60,12 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a20",
-     "wiper": "a22",
-     "b": "a24"
+     "a": "a3",
+     "wiper": "a5",
+     "b": "a7"
     }
    },
-   "x": 302,
+   "x": 64,
    "y": 255
   },
   {
@@ -108,30 +81,31 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a26",
-     "b": "a30"
+     "a": "a9",
+     "b": "a13"
     }
    },
-   "x": 386,
+   "x": 148,
    "y": 255
   },
   {
    "id": "BTN_btn",
    "kind": "button",
+   "declName": "btn",
    "params": {},
    "terminals": [
     "a",
     "b"
    ],
    "seat": {
-    "boardId": "bb2",
+    "boardId": "bb1",
     "leadMap": {
-     "a": "e3",
-     "b": "f3"
+     "a": "e51",
+     "b": "f51"
     }
    },
-   "x": 64,
-   "y": 671
+   "x": 736,
+   "y": 311
   },
   {
    "id": "R_ledR",
@@ -146,16 +120,17 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a32",
-     "b": "a36"
+     "a": "a15",
+     "b": "a19"
     }
    },
-   "x": 470,
+   "x": 232,
    "y": 255
   },
   {
    "id": "LED_ledR",
    "kind": "led",
+   "declName": "ledR",
    "params": {
     "vf": 2,
     "color": "red"
@@ -167,11 +142,11 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "anode": "a56",
-     "cathode": "a57"
+     "anode": "a39",
+     "cathode": "a40"
     }
    },
-   "x": 806,
+   "x": 568,
    "y": 255
   },
   {
@@ -187,16 +162,17 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a38",
-     "b": "a42"
+     "a": "a21",
+     "b": "a25"
     }
    },
-   "x": 554,
+   "x": 316,
    "y": 255
   },
   {
    "id": "LED_ledY",
    "kind": "led",
+   "declName": "ledY",
    "params": {
     "vf": 2,
     "color": "red"
@@ -208,11 +184,11 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "anode": "a59",
-     "cathode": "a60"
+     "anode": "a42",
+     "cathode": "a43"
     }
    },
-   "x": 848,
+   "x": 610,
    "y": 255
   },
   {
@@ -228,16 +204,17 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a44",
-     "b": "a48"
+     "a": "a27",
+     "b": "a31"
     }
    },
-   "x": 638,
+   "x": 400,
    "y": 255
   },
   {
    "id": "LED_ledG",
    "kind": "led",
+   "declName": "ledG",
    "params": {
     "vf": 2,
     "color": "red"
@@ -249,12 +226,12 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "anode": "f3",
-     "cathode": "f4"
+     "anode": "a45",
+     "cathode": "a46"
     }
    },
-   "x": 64,
-   "y": 349
+   "x": 652,
+   "y": 255
   },
   {
    "id": "R_servo",
@@ -269,16 +246,17 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a50",
-     "b": "a54"
+     "a": "a33",
+     "b": "a37"
     }
    },
-   "x": 722,
+   "x": 484,
    "y": 255
   },
   {
    "id": "LED_servo",
    "kind": "led",
+   "declName": "servo",
    "params": {
     "vf": 2,
     "color": "red"
@@ -290,12 +268,12 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "anode": "f6",
-     "cathode": "f7"
+     "anode": "a48",
+     "cathode": "a49"
     }
    },
-   "x": 106,
-   "y": 349
+   "x": 694,
+   "y": 255
   }
  ],
  "wires": [
@@ -432,101 +410,98 @@
    },
    "color": "black",
    "genPower": true
-  },
-  {
-   "from": "GND",
-   "fromTerminal": "gnd",
-   "to": {
-    "board": "bb2",
-    "hole": "b-3"
-   },
-   "color": "black",
-   "genPower": true
   }
  ],
  "holeWires": [
   {
    "ref": "bbw:bb1:gen_0",
    "boardId": "bb1",
-   "a": "b36",
-   "b": "b56",
+   "a": "b13",
+   "b": "a51",
    "color": "green"
   },
   {
    "ref": "bbw:bb1:gen_1",
    "boardId": "bb1",
-   "a": "b42",
-   "b": "b59",
+   "a": "b19",
+   "b": "b39",
    "color": "blue"
   },
   {
    "ref": "bbw:bb1:gen_2",
    "boardId": "bb1",
-   "a": "b48",
-   "b": "g3",
+   "a": "b25",
+   "b": "b42",
    "color": "yellow"
   },
   {
    "ref": "bbw:bb1:gen_3",
    "boardId": "bb1",
-   "a": "b54",
-   "b": "g6",
+   "a": "b31",
+   "b": "b45",
    "color": "orange"
   },
   {
    "ref": "bbw:bb1:gen_4",
    "boardId": "bb1",
-   "a": "b20",
-   "b": "t+20",
-   "color": "red"
+   "a": "b37",
+   "b": "b48",
+   "color": "purple"
   },
   {
    "ref": "bbw:bb1:gen_5",
    "boardId": "bb1",
-   "a": "b26",
-   "b": "t+26",
+   "a": "b3",
+   "b": "t+3",
    "color": "red"
   },
   {
    "ref": "bbw:bb1:gen_6",
    "boardId": "bb1",
-   "a": "b24",
-   "b": "b-24",
-   "color": "black"
+   "a": "b9",
+   "b": "t+9",
+   "color": "red"
   },
   {
-   "ref": "bbw:bb2:gen_7",
-   "boardId": "bb2",
-   "a": "g3",
-   "b": "b-3",
+   "ref": "bbw:bb1:gen_7",
+   "boardId": "bb1",
+   "a": "b7",
+   "b": "b-7",
    "color": "black"
   },
   {
    "ref": "bbw:bb1:gen_8",
    "boardId": "bb1",
-   "a": "b57",
-   "b": "b-57",
+   "a": "g51",
+   "b": "b-51",
    "color": "black"
   },
   {
    "ref": "bbw:bb1:gen_9",
    "boardId": "bb1",
-   "a": "b60",
-   "b": "b-60",
+   "a": "b40",
+   "b": "b-40",
    "color": "black"
   },
   {
    "ref": "bbw:bb1:gen_10",
    "boardId": "bb1",
-   "a": "g4",
-   "b": "b-4",
+   "a": "b43",
+   "b": "b-43",
    "color": "black"
   },
   {
    "ref": "bbw:bb1:gen_11",
    "boardId": "bb1",
-   "a": "g7",
-   "b": "b-7",
+   "a": "b46",
+   "b": "b-46",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb1:gen_12",
+   "boardId": "bb1",
+   "a": "b49",
+   "b": "b-49",
    "color": "black"
   }
  ],

@@ -315,7 +315,19 @@
    "pico",
    "attiny88",
    "attiny85"
-  ]
+  ],
+  "benches": {
+   "arduino-mega": "08-led-chaser-595/circuit.arduino-mega.json",
+   "arduino-nano": "08-led-chaser-595/circuit.arduino-nano.json",
+   "arduino-uno": "08-led-chaser-595/circuit.arduino-uno.json",
+   "atmega168p": "08-led-chaser-595/circuit.atmega168p.json",
+   "attiny85": "08-led-chaser-595/circuit.attiny85.json",
+   "attiny88": "08-led-chaser-595/circuit.attiny88.json",
+   "pico": "08-led-chaser-595/circuit.pico.json",
+   "stc12c5a60s2": "08-led-chaser-595/circuit.stc12c5a60s2.json",
+   "stc15f2k60s2": "08-led-chaser-595/circuit.stc15f2k60s2.json",
+   "stc89c52rc": "08-led-chaser-595/circuit.stc89c52rc.json"
+  }
  },
  {
   "id": "09-relay-clicker",

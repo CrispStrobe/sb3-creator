@@ -20,6 +20,15 @@
    "rotation": 0
   },
   {
+   "id": "bb3",
+   "kind": "breadboard",
+   "params": {},
+   "terminals": [],
+   "x": 470,
+   "y": 1050,
+   "rotation": 0
+  },
+  {
    "id": "VCC",
    "kind": "vcc",
    "params": {},
@@ -58,24 +67,40 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "D0": "a3",
-     "D1": "a4",
-     "D2": "a5",
-     "D3": "a6",
-     "D4": "a7",
-     "D5": "a8",
-     "D6": "a9",
-     "D7": "a10",
-     "D8": "a11",
-     "D9": "a12",
-     "D10": "a13",
-     "D11": "a14",
-     "D12": "a15",
-     "D13": "a16"
+     "d1": "e3",
+     "d0": "e4",
+     "reset": "e5",
+     "gnd": "e6",
+     "d2": "e7",
+     "d3": "e8",
+     "d4": "e9",
+     "d5": "e10",
+     "d6": "e11",
+     "d7": "e12",
+     "d8": "e13",
+     "d9": "e14",
+     "d10": "e15",
+     "d11": "e16",
+     "d12": "e17",
+     "vin": "f3",
+     "gnd2": "f4",
+     "reset2": "f5",
+     "5v": "f6",
+     "a7": "f7",
+     "a6": "f8",
+     "a5": "f9",
+     "a4": "f10",
+     "a3": "f11",
+     "a2": "f12",
+     "a1": "f13",
+     "a0": "f14",
+     "aref": "f15",
+     "3v3": "f16",
+     "d13": "f17"
     }
    },
    "x": 64,
-   "y": 255
+   "y": 311
   },
   {
    "id": "R_PU_sda",
@@ -90,11 +115,11 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a20",
-     "b": "a24"
+     "a": "a21",
+     "b": "a25"
     }
    },
-   "x": 302,
+   "x": 316,
    "y": 255
   },
   {
@@ -110,11 +135,11 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a26",
-     "b": "a30"
+     "a": "a27",
+     "b": "a31"
     }
    },
-   "x": 386,
+   "x": 400,
    "y": 255
   },
   {
@@ -130,11 +155,11 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a32",
-     "b": "a36"
+     "a": "a33",
+     "b": "a37"
     }
    },
-   "x": 470,
+   "x": 484,
    "y": 255
   },
   {
@@ -150,11 +175,11 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a38",
-     "b": "a42"
+     "a": "a39",
+     "b": "a43"
     }
    },
-   "x": 554,
+   "x": 568,
    "y": 255
   },
   {
@@ -170,11 +195,11 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a44",
-     "b": "a48"
+     "a": "a45",
+     "b": "a49"
     }
    },
-   "x": 638,
+   "x": 652,
    "y": 255
   },
   {
@@ -190,33 +215,15 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a50",
-     "b": "a54"
+     "a": "a51",
+     "b": "a55"
     }
    },
-   "x": 722,
+   "x": 736,
    "y": 255
   },
   {
    "id": "BTN_row0_col0",
-   "kind": "button",
-   "params": {},
-   "terminals": [
-    "a",
-    "b"
-   ],
-   "seat": {
-    "boardId": "bb1",
-    "leadMap": {
-     "a": "e61",
-     "b": "f61"
-    }
-   },
-   "x": 876,
-   "y": 311
-  },
-  {
-   "id": "BTN_row0_col1",
    "kind": "button",
    "params": {},
    "terminals": [
@@ -234,7 +241,7 @@
    "y": 671
   },
   {
-   "id": "BTN_row0_col2",
+   "id": "BTN_row0_col1",
    "kind": "button",
    "params": {},
    "terminals": [
@@ -252,7 +259,7 @@
    "y": 671
   },
   {
-   "id": "BTN_row0_col3",
+   "id": "BTN_row0_col2",
    "kind": "button",
    "params": {},
    "terminals": [
@@ -270,7 +277,7 @@
    "y": 671
   },
   {
-   "id": "BTN_row1_col0",
+   "id": "BTN_row0_col3",
    "kind": "button",
    "params": {},
    "terminals": [
@@ -288,7 +295,7 @@
    "y": 671
   },
   {
-   "id": "BTN_row1_col1",
+   "id": "BTN_row1_col0",
    "kind": "button",
    "params": {},
    "terminals": [
@@ -306,7 +313,7 @@
    "y": 671
   },
   {
-   "id": "BTN_row1_col2",
+   "id": "BTN_row1_col1",
    "kind": "button",
    "params": {},
    "terminals": [
@@ -324,7 +331,7 @@
    "y": 671
   },
   {
-   "id": "BTN_row1_col3",
+   "id": "BTN_row1_col2",
    "kind": "button",
    "params": {},
    "terminals": [
@@ -342,7 +349,7 @@
    "y": 671
   },
   {
-   "id": "BTN_row2_col0",
+   "id": "BTN_row1_col3",
    "kind": "button",
    "params": {},
    "terminals": [
@@ -360,7 +367,7 @@
    "y": 671
   },
   {
-   "id": "BTN_row2_col1",
+   "id": "BTN_row2_col0",
    "kind": "button",
    "params": {},
    "terminals": [
@@ -378,7 +385,7 @@
    "y": 671
   },
   {
-   "id": "BTN_row2_col2",
+   "id": "BTN_row2_col1",
    "kind": "button",
    "params": {},
    "terminals": [
@@ -396,7 +403,7 @@
    "y": 671
   },
   {
-   "id": "BTN_row2_col3",
+   "id": "BTN_row2_col2",
    "kind": "button",
    "params": {},
    "terminals": [
@@ -414,7 +421,7 @@
    "y": 671
   },
   {
-   "id": "BTN_row3_col0",
+   "id": "BTN_row2_col3",
    "kind": "button",
    "params": {},
    "terminals": [
@@ -432,7 +439,7 @@
    "y": 671
   },
   {
-   "id": "BTN_row3_col1",
+   "id": "BTN_row3_col0",
    "kind": "button",
    "params": {},
    "terminals": [
@@ -450,7 +457,7 @@
    "y": 671
   },
   {
-   "id": "BTN_row3_col2",
+   "id": "BTN_row3_col1",
    "kind": "button",
    "params": {},
    "terminals": [
@@ -468,7 +475,7 @@
    "y": 671
   },
   {
-   "id": "BTN_row3_col3",
+   "id": "BTN_row3_col2",
    "kind": "button",
    "params": {},
    "terminals": [
@@ -486,6 +493,24 @@
    "y": 671
   },
   {
+   "id": "BTN_row3_col3",
+   "kind": "button",
+   "params": {},
+   "terminals": [
+    "a",
+    "b"
+   ],
+   "seat": {
+    "boardId": "bb3",
+    "leadMap": {
+     "a": "e3",
+     "b": "f3"
+    }
+   },
+   "x": 64,
+   "y": 1031
+  },
+  {
    "id": "OLED",
    "kind": "ssd1306",
    "params": {},
@@ -498,13 +523,13 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "vcc": "a56",
-     "gnd": "a57",
-     "sda": "a58",
-     "scl": "a59"
+     "vcc": "a57",
+     "gnd": "a58",
+     "sda": "a59",
+     "scl": "a60"
     }
    },
-   "x": 806,
+   "x": 820,
    "y": 255
   }
  ],
@@ -822,71 +847,155 @@
   {
    "ref": "bbw:bb1:gen_0",
    "boardId": "bb1",
-   "a": "b20",
-   "b": "t+20",
-   "color": "red"
+   "a": "g17",
+   "b": "b25",
+   "color": "green"
   },
   {
    "ref": "bbw:bb1:gen_1",
    "boardId": "bb1",
-   "a": "b26",
-   "b": "t+26",
-   "color": "red"
+   "a": "h17",
+   "b": "b59",
+   "color": "blue"
   },
   {
    "ref": "bbw:bb1:gen_2",
    "boardId": "bb1",
-   "a": "b32",
-   "b": "t+32",
-   "color": "red"
+   "a": "a17",
+   "b": "b31",
+   "color": "yellow"
   },
   {
    "ref": "bbw:bb1:gen_3",
    "boardId": "bb1",
-   "a": "b38",
-   "b": "t+38",
-   "color": "red"
+   "a": "b17",
+   "b": "b60",
+   "color": "orange"
   },
   {
    "ref": "bbw:bb1:gen_4",
    "boardId": "bb1",
-   "a": "b44",
-   "b": "t+44",
-   "color": "red"
+   "a": "a8",
+   "b": "b37",
+   "color": "purple"
   },
   {
    "ref": "bbw:bb1:gen_5",
    "boardId": "bb1",
-   "a": "b50",
-   "b": "t+50",
-   "color": "red"
+   "a": "a10",
+   "b": "b43",
+   "color": "green"
   },
   {
    "ref": "bbw:bb1:gen_6",
    "boardId": "bb1",
-   "a": "b56",
-   "b": "t+56",
-   "color": "red"
+   "a": "a11",
+   "b": "b49",
+   "color": "blue"
   },
   {
    "ref": "bbw:bb1:gen_7",
    "boardId": "bb1",
-   "a": "b57",
-   "b": "b-57",
-   "color": "black"
+   "a": "a14",
+   "b": "b55",
+   "color": "yellow"
   },
   {
    "ref": "bbw:bb1:gen_8",
    "boardId": "bb1",
-   "a": "c56",
-   "b": "t+56",
+   "a": "b21",
+   "b": "t+21",
    "color": "red"
   },
   {
    "ref": "bbw:bb1:gen_9",
    "boardId": "bb1",
+   "a": "b27",
+   "b": "t+27",
+   "color": "red"
+  },
+  {
+   "ref": "bbw:bb1:gen_10",
+   "boardId": "bb1",
+   "a": "b33",
+   "b": "t+33",
+   "color": "red"
+  },
+  {
+   "ref": "bbw:bb1:gen_11",
+   "boardId": "bb1",
+   "a": "b39",
+   "b": "t+39",
+   "color": "red"
+  },
+  {
+   "ref": "bbw:bb1:gen_12",
+   "boardId": "bb1",
+   "a": "b45",
+   "b": "t+45",
+   "color": "red"
+  },
+  {
+   "ref": "bbw:bb1:gen_13",
+   "boardId": "bb1",
+   "a": "b51",
+   "b": "t+51",
+   "color": "red"
+  },
+  {
+   "ref": "bbw:bb1:gen_14",
+   "boardId": "bb1",
+   "a": "b57",
+   "b": "t+57",
+   "color": "red"
+  },
+  {
+   "ref": "bbw:bb1:gen_15",
+   "boardId": "bb1",
+   "a": "b58",
+   "b": "b-58",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb1:gen_16",
+   "boardId": "bb1",
+   "a": "a6",
+   "b": "b-6",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb1:gen_17",
+   "boardId": "bb1",
+   "a": "g4",
+   "b": "b-4",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb1:gen_18",
+   "boardId": "bb1",
+   "a": "g6",
+   "b": "t+6",
+   "color": "red"
+  },
+  {
+   "ref": "bbw:bb1:gen_19",
+   "boardId": "bb1",
+   "a": "g16",
+   "b": "t+16",
+   "color": "red"
+  },
+  {
+   "ref": "bbw:bb1:gen_20",
+   "boardId": "bb1",
    "a": "c57",
-   "b": "b-57",
+   "b": "t+57",
+   "color": "red"
+  },
+  {
+   "ref": "bbw:bb1:gen_21",
+   "boardId": "bb1",
+   "a": "c58",
+   "b": "b-58",
    "color": "black"
   }
  ],

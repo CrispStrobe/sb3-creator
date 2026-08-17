@@ -43,6 +43,7 @@
   {
    "id": "POT_ldr",
    "kind": "potentiometer",
+   "declName": "ldr",
    "params": {
     "ohms": 10000
    },

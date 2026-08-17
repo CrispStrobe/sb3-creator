@@ -57,6 +57,7 @@
   {
    "id": "POT_pot",
    "kind": "potentiometer",
+   "declName": "pot",
    "params": {
     "ohms": 10000
    },
@@ -99,6 +100,7 @@
   {
    "id": "BTN_btnFwd",
    "kind": "button",
+   "declName": "btnFwd",
    "params": {},
    "terminals": [
     "a",
@@ -137,6 +139,7 @@
   {
    "id": "BTN_btnRev",
    "kind": "button",
+   "declName": "btnRev",
    "params": {},
    "terminals": [
     "a",

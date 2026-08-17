@@ -45,6 +45,7 @@
   {
    "id": "POT_potA",
    "kind": "potentiometer",
+   "declName": "potA",
    "params": {
     "ohms": 10000
    },
@@ -67,6 +68,7 @@
   {
    "id": "POT_potB",
    "kind": "potentiometer",
+   "declName": "potB",
    "params": {
     "ohms": 10000
    },
@@ -109,6 +111,7 @@
   {
    "id": "LED_led1",
    "kind": "led",
+   "declName": "led1",
    "params": {
     "vf": 2,
     "color": "red"

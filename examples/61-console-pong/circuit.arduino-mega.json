@@ -108,6 +108,7 @@
   {
    "id": "LED_bus0",
    "kind": "led",
+   "declName": "bus0",
    "params": {
     "vf": 2,
     "color": "red"
@@ -149,6 +150,7 @@
   {
    "id": "LED_bus1",
    "kind": "led",
+   "declName": "bus1",
    "params": {
     "vf": 2,
     "color": "red"
@@ -190,6 +192,7 @@
   {
    "id": "LED_bus2",
    "kind": "led",
+   "declName": "bus2",
    "params": {
     "vf": 2,
     "color": "red"
@@ -231,6 +234,7 @@
   {
    "id": "LED_bus3",
    "kind": "led",
+   "declName": "bus3",
    "params": {
     "vf": 2,
     "color": "red"
@@ -272,6 +276,7 @@
   {
    "id": "LED_bus4",
    "kind": "led",
+   "declName": "bus4",
    "params": {
     "vf": 2,
     "color": "red"
@@ -313,6 +318,7 @@
   {
    "id": "LED_bus5",
    "kind": "led",
+   "declName": "bus5",
    "params": {
     "vf": 2,
     "color": "red"
@@ -354,6 +360,7 @@
   {
    "id": "LED_bus6",
    "kind": "led",
+   "declName": "bus6",
    "params": {
     "vf": 2,
     "color": "red"
@@ -395,6 +402,7 @@
   {
    "id": "LED_bus7",
    "kind": "led",
+   "declName": "bus7",
    "params": {
     "vf": 2,
     "color": "red"
@@ -436,6 +444,7 @@
   {
    "id": "LED_ucol0",
    "kind": "led",
+   "declName": "ucol0",
    "params": {
     "vf": 2,
     "color": "red"
@@ -477,6 +486,7 @@
   {
    "id": "LED_ucol1",
    "kind": "led",
+   "declName": "ucol1",
    "params": {
     "vf": 2,
     "color": "red"
@@ -518,6 +528,7 @@
   {
    "id": "LED_ucol2",
    "kind": "led",
+   "declName": "ucol2",
    "params": {
     "vf": 2,
     "color": "red"
@@ -559,6 +570,7 @@
   {
    "id": "LED_ucol3",
    "kind": "led",
+   "declName": "ucol3",
    "params": {
     "vf": 2,
     "color": "red"
@@ -600,6 +612,7 @@
   {
    "id": "LED_ucol4",
    "kind": "led",
+   "declName": "ucol4",
    "params": {
     "vf": 2,
     "color": "red"
@@ -641,6 +654,7 @@
   {
    "id": "LED_ucol5",
    "kind": "led",
+   "declName": "ucol5",
    "params": {
     "vf": 2,
     "color": "red"
@@ -682,6 +696,7 @@
   {
    "id": "LED_ucol6",
    "kind": "led",
+   "declName": "ucol6",
    "params": {
     "vf": 2,
     "color": "red"
@@ -723,6 +738,7 @@
   {
    "id": "LED_ucol7",
    "kind": "led",
+   "declName": "ucol7",
    "params": {
     "vf": 2,
     "color": "red"
@@ -764,6 +780,7 @@
   {
    "id": "LED_lcol0",
    "kind": "led",
+   "declName": "lcol0",
    "params": {
     "vf": 2,
     "color": "red"
@@ -805,6 +822,7 @@
   {
    "id": "LED_lcol1",
    "kind": "led",
+   "declName": "lcol1",
    "params": {
     "vf": 2,
     "color": "red"
@@ -846,6 +864,7 @@
   {
    "id": "LED_lcol2",
    "kind": "led",
+   "declName": "lcol2",
    "params": {
     "vf": 2,
     "color": "red"
@@ -887,6 +906,7 @@
   {
    "id": "LED_lcol3",
    "kind": "led",
+   "declName": "lcol3",
    "params": {
     "vf": 2,
     "color": "red"
@@ -928,6 +948,7 @@
   {
    "id": "LED_lcol4",
    "kind": "led",
+   "declName": "lcol4",
    "params": {
     "vf": 2,
     "color": "red"
@@ -969,6 +990,7 @@
   {
    "id": "LED_lcol5",
    "kind": "led",
+   "declName": "lcol5",
    "params": {
     "vf": 2,
     "color": "red"
@@ -1010,6 +1032,7 @@
   {
    "id": "LED_lcol6",
    "kind": "led",
+   "declName": "lcol6",
    "params": {
     "vf": 2,
     "color": "red"
@@ -1051,6 +1074,7 @@
   {
    "id": "LED_lcol7",
    "kind": "led",
+   "declName": "lcol7",
    "params": {
     "vf": 2,
     "color": "red"
@@ -1092,6 +1116,7 @@
   {
    "id": "LED_dig1",
    "kind": "led",
+   "declName": "dig1",
    "params": {
     "vf": 2,
     "color": "red"
@@ -1133,6 +1158,7 @@
   {
    "id": "BTN_btnL",
    "kind": "button",
+   "declName": "btnL",
    "params": {},
    "terminals": [
     "a",
@@ -1171,6 +1197,7 @@
   {
    "id": "BTN_btnR",
    "kind": "button",
+   "declName": "btnR",
    "params": {},
    "terminals": [
     "a",
@@ -1189,6 +1216,7 @@
   {
    "id": "BUZZ_buzzer",
    "kind": "buzzer",
+   "declName": "buzzer",
    "params": {},
    "terminals": [
     "a",
