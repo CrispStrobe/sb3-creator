@@ -43,16 +43,20 @@ const available = gccAvailable()
   && existsSync(join(CUI, 'src', 'model', 'circuit.js'))
   && existsSync(join(BWB, 'src', 'rp2040js-adapter.js'));
 
-test('70-calculator on the Pico: the OLED turns on and draws through real I2C',
+test('70-calculator on the Pico: the REAL build — keys to +3V3, OLED on GP0/GP1',
   { skip: available ? false : 'needs arm-none-eabi-gcc + bw-circuit-ui/bw-board checkouts' },
   async () => {
     // 1. blocks → pico C → SRAM image
     const SB3Creator = (await import(join(SB3, 'src/utils/sb3Creator.js'))).default;
     const src = readFileSync(join(SB3, 'examples/70-calculator/program.bw'), 'utf8');
+    // The example is AUTHORED on the Pico now — the pin map is the real
+    // hardware's (GP0/GP1 bus, GP2-GP18 keys to +3V3), and retarget is
+    // the identity for it, so nothing can move these pins.
     const r = SB3Creator.retargetPseudocode(src, 'pico');
     assert.equal(r.ok, true, (r.reasons || []).join('; '));
+    assert.equal(r.pseudocode, src, 'authored device: retarget is the identity');
     const creator = new SB3Creator();
-    creator.parse(r.pseudocode);
+    creator.parse(src);
     const scratch = mkdtempSync(join(tmpdir(), 'bw-pico-'));
     writeFileSync(join(scratch, 'main.c'), creator.generateC(undefined, {}));
     writeFileSync(join(scratch, 'pico-sram.ld'), PICO_SRAM_LD);
@@ -77,8 +81,9 @@ test('70-calculator on the Pico: the OLED turns on and draws through real I2C',
       } catch { /* bw-parts' problem */ }
     }
     const { Circuit } = await import(join(CUI, 'src/model/circuit.js'));
+    // The pico bench IS the authored circuit — the app loads it directly.
     const circ = Circuit.fromJSON(JSON.parse(
-      readFileSync(join(SB3, 'examples/70-calculator/circuit.pico.json'), 'utf8')));
+      readFileSync(join(SB3, 'examples/70-calculator/circuit.json'), 'utf8')));
     assert.equal(circ.netlistError, null, 'engine accepts the bench');
     const board = circ.board;
 
@@ -89,20 +94,32 @@ test('70-calculator on the Pico: the OLED turns on and draws through real I2C',
     const origSetPin = board.setPin.bind(board);
     board.setPin = (pin, mode, drive) => {
       const p = String(pin).toLowerCase();
-      if (p === 'gp4') sdaEdges++;
-      else if (p === 'gp5') sclEdges++;
+      if (p === 'gp0') sdaEdges++;
+      else if (p === 'gp1') sclEdges++;
       return origSetPin(pin, mode, drive);
     };
     adapter.attachBoard(board);
     for (let i = 0; i < 12; i++) adapter.advanceNs(50_000_000);
 
-    // 4. the assertions that catch a publish gap AND a dead bus
+    // 4. the assertions that catch a publish gap AND a dead bus —
+    // on the REAL pins (GP0 sda, GP1 scl)
     assert.ok(sclEdges > 1000, `SCL toggles at the board (${sclEdges} events)`);
     assert.ok(sdaEdges > 100, `SDA toggles at the board (${sdaEdges} events)`);
-    assert.ok(board.readAnalog('GP4') > 3, 'bus idles HIGH through the pull-ups');
+    assert.ok(board.readAnalog('GP0') > 3, 'bus idles HIGH through the pull-ups');
     const oled = circ.parts.find((p) => p.kind === 'ssd1306');
     const st = board.getDeviceState(oled.id);
     assert.equal(st.displayOn, true, 'SSD1306 received its bring-up (charge pump + display on)');
-    const lit = st.fb.reduce((a, b) => a + (b ? 1 : 0), 0);
-    assert.ok(lit >= 20, `framebuffer carries the header text (${lit} non-zero bytes)`);
+    const lit0 = st.fb.reduce((a, b) => a + (b ? 1 : 0), 0);
+    assert.ok(lit0 >= 20, `framebuffer carries the RECHNER header (${lit0} non-zero bytes)`);
+    const before = st.fb.join(',');
+
+    // 5. press '5' (active HIGH: the key connects its GPIO to +3V3 and
+    // the internal pull-DOWN gives the idle low) — the entry glyph
+    // changes from '0' to '5'. Same COLUMN COUNT, different pixels:
+    // content compare, not a byte count.
+    board.setControl('k_b5', 1);
+    for (let i = 0; i < 4; i++) adapter.advanceNs(50_000_000);
+    board.setControl('k_b5', 0);
+    for (let i = 0; i < 2; i++) adapter.advanceNs(50_000_000);
+    assert.notEqual(st.fb.join(','), before, 'a key press redraws the entry glyph');
   });

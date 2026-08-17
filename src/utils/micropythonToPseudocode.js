@@ -76,7 +76,12 @@ export default function micropythonToPseudocode (source, opts = {}) {
             byObj.set(obj, prev);
             return prev;
         }
-        const rec = { name: name || where.toLowerCase(), where, direction: direction || 'output',
+        // The writer's own evidence, again: the sb3-creator Pico emitter
+        // names its objects _pin_<dialect-name>, so 'b9' survives the
+        // round trip instead of degrading to 'gp2'.
+        const fromObj = /^_pin_(\w+)$/.exec(obj || '');
+        const rec = { name: name || (fromObj && fromObj[1]) || where.toLowerCase(),
+            where, direction: direction || 'output',
             activeLow: !!activeLow, obj };
         pins.set(where, rec);
         byObj.set(obj, rec);
@@ -111,6 +116,12 @@ export default function micropythonToPseudocode (source, opts = {}) {
         }
         for (const m of text.matchAll(/\b(\w+)\s*=\s*Pin\s*\(\s*(\d+)\s*,\s*Pin\.IN(?:\s*,\s*Pin\.(PULL_UP|PULL_DOWN))?/g)) {
             put(m[1], `GP${m[2]}`, 'input', m[3] === 'PULL_UP', null);
+        }
+        // The hardware I2C constructor IS a pin declaration: sda/scl by
+        // keyword, the bus by pin — the dialect's sda/scl OUTPUT pair.
+        for (const m of text.matchAll(/I2C\s*\(\s*\d+\s*,\s*sda\s*=\s*Pin\s*\(\s*(\d+)\s*\)\s*,\s*scl\s*=\s*Pin\s*\(\s*(\d+)\s*\)/g)) {
+            put('_i2c_sda', `GP${m[1]}`, 'output', false, 'sda');
+            put('_i2c_scl', `GP${m[2]}`, 'output', false, 'scl');
         }
         for (const m of text.matchAll(/\b(\w+)\s*=\s*ADC\s*\(\s*(\d+)\s*\)/g)) {
             put(m[1], `GP${m[2]}`, 'analog', false, null);

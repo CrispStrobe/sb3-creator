@@ -6192,23 +6192,17 @@
   },
   "kind": "full",
   "devices": [
-   "arduino-nano",
+   "pico",
    "stc12c5a60s2",
    "stc89c52rc",
    "stc15f2k60s2",
-   "arduino-uno",
-   "atmega168p",
    "arduino-mega",
-   "pico",
    "attiny88"
   ],
-  "authored": "arduino-nano",
+  "authored": "pico",
   "benches": {
    "arduino-mega": "70-calculator/circuit.arduino-mega.json",
-   "arduino-uno": "70-calculator/circuit.arduino-uno.json",
-   "atmega168p": "70-calculator/circuit.atmega168p.json",
    "attiny88": "70-calculator/circuit.attiny88.json",
-   "pico": "70-calculator/circuit.pico.json",
    "stc12c5a60s2": "70-calculator/circuit.stc12c5a60s2.json",
    "stc15f2k60s2": "70-calculator/circuit.stc15f2k60s2.json",
    "stc89c52rc": "70-calculator/circuit.stc89c52rc.json"

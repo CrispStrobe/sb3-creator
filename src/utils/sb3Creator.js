@@ -6454,14 +6454,29 @@ class SB3Creator {
         }
 
         const KEYMAP = { a: 'button_a', b: 'button_b' };
-        const uses = { music: false, buttons: false };
+        const uses = { music: false, buttons: false, oled: false };
         const degrade = (msg) => { if (!warnings.includes(msg)) warnings.push(msg); };
 
-        // PIN declarations → microbit pin objects. where P0-P20; the
-        // platform convention holds: on/off is LOGICAL (ACTIVE LOW
-        // inverts), high/low and computed writes are PHYSICAL levels.
+        // TWO boards run MicroPython here. The micro:bit's pins are ambient
+        // objects (pin0..pin20); the Pico's are CONSTRUCTED — Pin(n, Pin.IN,
+        // Pin.PULL_UP) — and an ACTIVE LOW input gets the INTERNAL pull-up,
+        // the button-to-GND idiom with no external resistor, exactly the
+        // real builds' wiring. The platform convention holds on both:
+        // on/off is LOGICAL (ACTIVE LOW inverts), high/low and computed
+        // writes are PHYSICAL levels.
+        const isPico = /^pico$/i.test(String((project.stc && project.stc.device) || ''));
         const pinMap = new Map();
         for (const p of (project.stc && project.stc.pins) || []) {
+            if (isPico) {
+                const m = /^GP(\d{1,2})$/i.exec(p.where || '');
+                if (m && Number(m[1]) <= 28) {
+                    pinMap.set(p.name, { expr: `_pin_${p.name}`, gpio: Number(m[1]),
+                        activeLow: !!p.activeLow, direction: p.direction });
+                } else {
+                    degrade(`pin ${p.name} at "${p.where}" is not a Pico pin (GP0-GP28); its operations are stubs`);
+                }
+                continue;
+            }
             const m = /^P(\d{1,2})$/i.exec(p.where || '');
             if (m && Number(m[1]) <= 20) {
                 pinMap.set(p.name, { expr: `pin${Number(m[1])}`, activeLow: !!p.activeLow });
@@ -6470,6 +6485,9 @@ class SB3Creator {
             }
         }
         const pinOf = (name) => pinMap.get(name) || null;
+        const readExpr = (pin) => isPico
+            ? (pin.activeLow ? `(1 - ${pin.expr}.value())` : `${pin.expr}.value()`)
+            : (pin.activeLow ? `(1 - ${pin.expr}.read_digital())` : `${pin.expr}.read_digital()`);
 
         // Expression via the shared pure-Python layer; anything that came
         // out needing the host shim is a named degradation, not a lie.
@@ -6489,11 +6507,12 @@ class SB3Creator {
             if (rb.opcode === 'stc12_readpin') {
                 const p = pinOf(rb.fields.PIN ? rb.fields.PIN[0] : '');
                 if (!p) return '0';
-                return p.activeLow ? `(1 - ${p.expr}.read_digital())` : `${p.expr}.read_digital()`;
+                return readExpr(p);
             }
             if (rb.opcode === 'stc12_read') {
                 const p = pinOf(rb.fields.PIN ? rb.fields.PIN[0] : '');
                 if (!p) return '0';
+                if (isPico) { degrade(`analog read of ${p.expr} needs machine.ADC — not emitted yet`); return '0'; }
                 return `${p.expr}.read_analog()`;
             }
             return null;
@@ -6505,6 +6524,7 @@ class SB3Creator {
             if (ref && blocks[ref] && blocks[ref].opcode === 'stc12_readpin') {
                 const p = pinOf(blocks[ref].fields.PIN ? blocks[ref].fields.PIN[0] : '');
                 if (!p) return 'False';
+                if (isPico) return `${p.expr}.value() == ${p.activeLow ? 0 : 1}`;
                 return `${p.expr}.read_digital() == ${p.activeLow ? 0 : 1}`;
             }
             if (ref && blocks[ref] && blocks[ref].opcode === 'sensing_keypressed') {
@@ -6555,7 +6575,7 @@ class SB3Creator {
                     // on/off logical (ACTIVE LOW inverts); high/low physical.
                     const level = st === 'high' ? 1 : st === 'low' ? 0
                         : (st === 'on') !== p.activeLow ? 1 : 0;
-                    return [`${pad}${p.expr}.write_digital(${level})`];
+                    return [`${pad}${p.expr}.${isPico ? 'value' : 'write_digital'}(${level})`];
                 }
                 case 'stc12_toggle': {
                     const p = pinOf(f('PIN'));
@@ -6605,12 +6625,44 @@ class SB3Creator {
                     const msg = this.pyVal(b.inputs.BROADCAST_INPUT, blocks);
                     return [`${pad}_pending.append(${msg})`];
                 }
+                case 'procedures_call': {
+                    const m = b.mutation;
+                    const argIds = JSON.parse(m.argumentids || '[]');
+                    let ai = 0; const args = [];
+                    m.proccode.replace(/%[sb]/g, () => {
+                        const input = b.inputs[argIds[ai++]];
+                        args.push(pinReporter(input, blocks)
+                            ?? guard(this.pyVal(input, blocks), 'procedure argument'));
+                        return '';
+                    });
+                    const fn = this.pyName('_proc_' + this.pyProcRaw(m.proccode));
+                    // yield from: a DEFINE may wait — the call must thread
+                    // the scheduler through. A fast DEFINE simply has no
+                    // yields inside and runs atomically.
+                    return [`${pad}yield from ${fn}(${args.join(', ')})`];
+                }
+                // OLED verbs, Pico only: the page-mode driver in the header
+                // (validated on the real GME12864-70 — an SH1106, which
+                // ignores the SSD1306 window commands; page mode works on
+                // BOTH controllers). Cursor is text cells, 8x8 font.
+                case 'devices_oledclear':
+                    if (isPico) { uses.oled = true; return [`${pad}_oled.fill(0)`, `${pad}_oled.show()`]; }
+                    break;
+                case 'devices_oledcursor':
+                    if (isPico) { uses.oled = true; return [`${pad}_oled.crow = int(${v('ROW')})`, `${pad}_oled.ccol = int(${v('COL')})`]; }
+                    break;
+                case 'devices_oledprint':
+                    if (isPico) { uses.oled = true; return [`${pad}_oled_print(${v('VALUE')})`]; }
+                    break;
                 default: {
                     const desc = this.decompileBlock ? this.decompileBlock(b, blocks) : b.opcode;
-                    degrade(`${b.opcode} has no micro:bit form yet (${String(desc).slice(0, 40)})`);
+                    degrade(`${b.opcode} has no ${isPico ? 'Pico' : 'micro:bit'} form yet (${String(desc).slice(0, 40)})`);
                     return [`${pad}pass  # ${b.opcode}`];
                 }
             }
+            // A cased verb that only one board lowers falls through to here.
+            degrade(`${b.opcode} has no ${isPico ? 'Pico' : 'micro:bit'} form yet`);
+            return [`${pad}pass  # ${b.opcode}`];
         };
 
         const walk = (id, blocks, pad) => {
@@ -6625,6 +6677,8 @@ class SB3Creator {
 
         // ---- hats → generator defs ------------------------------------
         const taskDefs = [];
+        const procDefs = [];     // DEFINEs — assembled AFTER all walking so
+                                 // globalsFor sees the complete variable set
         const starts = [];       // started at flag
         const receivers = [];    // [message, fnName]
         let taskSeq = 0;
@@ -6662,10 +6716,32 @@ class SB3Creator {
                         '        _prev = _cur',
                         '        yield 0'].join('\n'));
                     starts.push(fn);
+                } else if (b.opcode === 'procedures_definition') {
+                    // DEFINE → a GENERATOR function; calls are `yield from`,
+                    // so a waiting procedure threads the scheduler and a
+                    // fast one runs straight through. `if False: yield`
+                    // makes the yield-less body a generator all the same.
+                    const proto = blocks[b.inputs.custom_block ? b.inputs.custom_block[1] : ''];
+                    if (!proto || !proto.mutation) { degrade('procedure without a prototype; skipped'); continue; }
+                    const m = proto.mutation;
+                    const fn = this.pyName('_proc_' + this.pyProcRaw(m.proccode));
+                    const argNames = JSON.parse(m.argumentnames || '[]').map((a) => this.pyName(a));
+                    const body = walk(b.next, blocks, '    ');
+                    procDefs.push({ fn, argNames, body });
                 } else if (this.isHat(b.opcode)) {
-                    degrade(`hat ${b.opcode} has no micro:bit form yet; script skipped`);
+                    degrade(`hat ${b.opcode} has no ${isPico ? 'Pico' : 'micro:bit'} form yet; script skipped`);
                 }
             }
+        }
+        for (const { fn, argNames, body } of procDefs) {
+            const globals = globalsFor(this, body)
+                .map((l) => argNames.length
+                    ? l.replace(new RegExp(`\\b(${argNames.join('|')})\\b,? ?`, 'g'), '')
+                        .replace(/, *$/, '').replace(/global *$/, '')
+                    : l)
+                .filter((l) => /global \w/.test(l));
+            taskDefs.unshift([`def ${fn}(${argNames.join(', ')}):`,
+                ...globals, ...body, '    if False:', '        yield 0'].join('\n'));
         }
         if (!taskDefs.length) reasons.push('no runnable scripts (a when-flag-clicked hat is required)');
         if (reasons.length) return { ok: false, reasons, warnings };
@@ -6679,9 +6755,88 @@ class SB3Creator {
             return names.size ? [`    global ${[...names].join(', ')}`] : [];
         }
 
-        const header = ['# generated for micro:bit (MicroPython)',
-            'from microbit import *'];
-        if (uses.music) header.push('import music');
+        const header = isPico
+            ? ['# generated for Raspberry Pi Pico (MicroPython)',
+                'from machine import Pin, I2C',
+                'import time',
+                '',
+                '# The shared scheduler speaks micro:bit; two shims make the',
+                '# Pico fluent in it.',
+                'def running_time():',
+                '    return time.ticks_ms()',
+                '',
+                'def sleep(ms):',
+                '    time.sleep_ms(int(ms))']
+            : ['# generated for micro:bit (MicroPython)',
+                'from microbit import *'];
+        if (uses.music && !isPico) header.push('import music');
+        if (isPico) {
+            // Pin objects. sda/scl by NAME feed the hardware I2C when the
+            // program drives an OLED — they must not be constructed as
+            // plain outputs on top of the peripheral.
+            const i2cNames = new Set(uses.oled ? ['sda', 'scl'] : []);
+            for (const [name, p] of pinMap) {
+                if (i2cNames.has(String(name).toLowerCase())) continue;
+                if (p.direction === 'input') {
+                    const pull = p.activeLow ? ', Pin.PULL_UP' : ', Pin.PULL_DOWN';
+                    header.push(`${p.expr} = Pin(${p.gpio}, Pin.IN${pull})`);
+                } else {
+                    header.push(`${p.expr} = Pin(${p.gpio}, Pin.OUT)`);
+                }
+            }
+            if (uses.oled) {
+                const sdaPin = [...pinMap.entries()].find(([n]) => n.toLowerCase() === 'sda');
+                const sclPin = [...pinMap.entries()].find(([n]) => n.toLowerCase() === 'scl');
+                const sdaN = sdaPin ? sdaPin[1].gpio : 0;
+                const sclN = sclPin ? sclPin[1].gpio : 1;
+                const bus = (sdaN % 4 === 0) ? 0 : 1;   // RP2040 I2C pin muxing
+                header.push('', 'import framebuf',
+                    '',
+                    '# Page-mode OLED driver: works on SSD1306 AND SH1106 (the',
+                    '# GME12864-70 carries an SH1106, which ignores the SSD1306',
+                    '# window commands — horizontal-mode drivers show only noise).',
+                    'class _OLED(framebuf.FrameBuffer):',
+                    '    COL_OFFSET = 2  # SH1106 window; harmless 2px shift on a true SSD1306',
+                    '',
+                    '    def __init__(self, i2c, addr=0x3C, width=128, height=64):',
+                    '        self.i2c = i2c; self.addr = addr',
+                    '        self.width = width; self.height = height',
+                    '        self.pages = height // 8',
+                    '        self.buf = bytearray(self.pages * width)',
+                    '        super().__init__(self.buf, width, height, framebuf.MONO_VLSB)',
+                    '        self.crow = 0; self.ccol = 0',
+                    '        for c in (0xAE, 0x40, 0xA0, 0xA8, height - 1, 0xC0, 0xD3, 0x00,',
+                    '                  0xDA, 0x12, 0xD5, 0x80, 0xD9, 0xF1, 0xDB, 0x30,',
+                    '                  0x81, 0xFF, 0xA4, 0xA6, 0x8D, 0x14, 0xAF):',
+                    '            self.cmd(c)',
+                    '        self.fill(0); self.show()',
+                    '',
+                    '    def cmd(self, c):',
+                    '        self.i2c.writeto(self.addr, bytes((0x80, c)))',
+                    '',
+                    '    def show(self):',
+                    '        for page in range(self.pages):',
+                    '            self.cmd(0xB0 | page)',
+                    '            self.cmd(0x00 | (self.COL_OFFSET & 0x0F))',
+                    '            self.cmd(0x10 | (self.COL_OFFSET >> 4))',
+                    '            s = page * self.width',
+                    '            self.i2c.writeto(self.addr, b"\\x40" + self.buf[s:s + self.width])',
+                    '',
+                    `_i2c = I2C(${bus}, sda=Pin(${sdaN}), scl=Pin(${sclN}), freq=400_000)`,
+                    '_oled = _OLED(_i2c)',
+                    '',
+                    'def _fmt(v):',
+                    '    if isinstance(v, float) and v == int(v):',
+                    '        v = int(v)',
+                    '    return str(v)',
+                    '',
+                    'def _oled_print(v):',
+                    '    s = _fmt(v)',
+                    '    _oled.text(s, _oled.ccol * 8, _oled.crow * 8)',
+                    '    _oled.ccol += len(s)',
+                    '    _oled.show()');
+            }
+        }
 
         const driver = [
             '',
@@ -6714,7 +6869,19 @@ class SB3Creator {
             `_run([${starts.map((fn) => `${fn}()`).join(', ')}])`,
         ];
 
-        const py = [...header, '', ...stateDecls, '', ...taskDefs, ...driver].join('\n') + '\n';
+        // Shared-layer helpers the expressions leaned on. The micro:bit
+        // programs never tripped these; the Pico calculator's _eq(error, 0)
+        // was a NameError at the first key press.
+        const helpers = [];
+        if (this._pyUses.eq) {
+            helpers.push('def _eq(a, b):  # Scratch-style loose equality',
+                '    try:',
+                '        return float(a) == float(b)',
+                '    except (ValueError, TypeError):',
+                '        return str(a).lower() == str(b).lower()',
+                '');
+        }
+        const py = [...header, '', ...helpers, ...stateDecls, '', ...taskDefs, ...driver].join('\n') + '\n';
         return { ok: true, py, reasons: [], warnings };
     }
 
@@ -10247,8 +10414,19 @@ class SB3Creator {
                     // The pad's INPUT ENABLE is not a given (rp2040js resets
                     // it off; the SDK's gpio_init sets it) — without IE the
                     // SIO GPIO_IN bit reads 0 whatever the pin does.
+                    // ACTIVE LOW inputs get the INTERNAL pull-up (PUE, bit 3):
+                    // the button-to-GND idiom with no external resistor — the
+                    // real Pico builds are wired exactly so, and rp2040js
+                    // reports the pad as InputPullUp so the board model sees
+                    // the same weak high the silicon gives.
+                    // ACTIVE LOW → internal pull-up (button to GND);
+                    // active high → internal pull-DOWN (button to 3V3) —
+                    // both real-build idioms, no external resistors, and
+                    // the SDK's gpio_init defaults pull-down the same way.
+                    const pad = p.activeLow ? '0x4au' : '0x46u';
+                    const padNote = p.activeLow ? 'pad IE + schmitt + PULL-UP' : 'pad IE + schmitt + PULL-DOWN';
                     out.push(`    BW_IOBANK0_CTRL(${hw.gpio}) = 5u;   /* ${p.name} = ${p.where}: funcsel SIO, input */`,
-                        `    BW_PADS(${hw.gpio}) = 0x42u;   /* ${p.name}: pad IE + schmitt */`);
+                        `    BW_PADS(${hw.gpio}) = ${pad};   /* ${p.name}: ${padNote} */`);
                 } else if (p.direction === 'analog') {
                     // The datasheet's ADC pad state: input buffer off, output
                     // disable on — the pad becomes purely analog.
