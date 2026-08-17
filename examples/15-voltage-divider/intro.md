@@ -5,7 +5,7 @@ prereqs: [01-blink]
 teaches: [voltage-divider, adc-reading]
 ---
 ## What you see
-Two resistors form a voltage divider between VCC and ground. The MCU reads the voltage at the junction using its ADC and reports the value. Changing either resistor changes the reading.
+Two resistors form a voltage divider between VCC and ground. The MCU reads the voltage at the junction using its ADC and reports the value. Changing either resistor changes the reading. This example works on all supported microcontrollers — pick a different device in the toolbar to see the adapted circuit.
 
 ## Try this
 1. Run the program and note the ADC reading — it should be roughly half of the supply voltage if both resistors are equal.

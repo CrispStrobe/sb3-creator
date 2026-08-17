@@ -5,7 +5,7 @@ prereqs: [01-blink]
 teaches: [voltage-divider, adc-reading]
 ---
 ## Was du siehst
-Zwei Widerstände bilden einen Spannungsteiler zwischen VCC und Masse. Der MCU liest die Spannung am Verbindungspunkt mit seinem ADC und gibt den Wert aus. Ändert man einen der Widerstände, ändert sich der Messwert.
+Zwei Widerstände bilden einen Spannungsteiler zwischen VCC und Masse. Der MCU liest die Spannung am Verbindungspunkt mit seinem ADC und gibt den Wert aus. Ändert man einen der Widerstände, ändert sich der Messwert. Dieses Beispiel funktioniert auf allen unterstützten Mikrocontrollern — wähle ein anderes Gerät in der Werkzeugleiste, um die angepasste Schaltung zu sehen.
 
 ## Probier das
 1. Starte das Programm und notiere den ADC-Wert — er sollte ungefähr der halben Versorgungsspannung entsprechen, wenn beide Widerstände gleich sind.
