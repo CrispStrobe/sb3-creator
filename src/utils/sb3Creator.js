@@ -1390,7 +1390,8 @@ class SB3Creator {
                 // PB7 is Timer 1's square-wave pin and the machine's timebase
                 // guard: the emitter would refuse it anyway, refuse it here too.
                 eater6502: [/^(PA[0-7]|PB[0-6])$/i, 'PA0-PA7 or PB0-PB6 (PB7 belongs to Timer 1)'],
-                attiny88: [/^(PA[0-3]|PB[0-7]|PC[0-7]|PD[0-7])$/i, 'PA0-PA3, PB0-PB7, PC0-PC7, PD0-PD7']
+                attiny88: [/^(PA[0-3]|PB[0-7]|PC[0-7]|PD[0-7])$/i, 'PA0-PA3, PB0-PB7, PC0-PC7, PD0-PD7'],
+                attiny85: [/^PB[0-4]$/i, 'PB0-PB4 (PB5 is RESET)']
             };
             const spoken = SPOKEN[cfg.device];
             if (!spoken || !spoken[0].test(where)) {
@@ -10726,47 +10727,68 @@ SB3Creator.RUNTIME_EXTENSIONS = {
  * `ledActiveLow` is the wiring convention: the 8051 boards sink current
  * (datasheet §4.6), the Nano/Pico onboard LEDs are driven high.
  */
-SB3Creator.RETARGET_POOLS = {
-    stc12c5a60s2: { digital: ['P1.0', 'P1.1', 'P1.2', 'P1.5', 'P1.6', 'P1.7', 'P3.4', 'P3.5'],
-        analog: ['P1.3', 'P1.4', 'P1.5', 'P1.6'], input: ['P3.2', 'P3.3', 'P3.6', 'P3.7'],
-        pwm: ['P1.3', 'P1.4'], ledActiveLow: true },
-    stc89c52rc: { digital: ['P1.0', 'P1.1', 'P1.2', 'P1.3', 'P1.4', 'P1.5', 'P1.6', 'P1.7'],
-        analog: [], input: ['P3.2', 'P3.3', 'P3.6', 'P3.7'],
-        pwm: [], ledActiveLow: true },
-    stc15f2k60s2: { digital: ['P1.0', 'P1.1', 'P1.2', 'P1.3', 'P1.4', 'P1.5'],
-        // P1.6/P1.7 stay out of the analog pool: a crystal takes ADC6/7.
-        analog: ['P1.0', 'P1.1', 'P1.2', 'P1.3', 'P1.4', 'P1.5'], input: ['P3.2', 'P3.3', 'P3.6', 'P3.7'],
-        pwm: ['P1.1', 'P1.0'], ledActiveLow: true },
-    'arduino-uno': { digital: ['D13', 'D12', 'D8', 'D7', 'D4', 'D2'],
-        analog: ['A0', 'A1', 'A2', 'A3', 'A4', 'A5'], input: ['D2', 'D4', 'D7', 'D8'],
-        // D5/D6 are Timer 0's and refused by the emitter; the pool agrees.
-        pwm: ['D3', 'D11', 'D9', 'D10'], ledActiveLow: false },
-    'atmega168p': { digital: ['D13', 'D12', 'D8', 'D7', 'D4', 'D2'],
-        analog: ['A0', 'A1', 'A2', 'A3', 'A4', 'A5'], input: ['D2', 'D4', 'D7', 'D8'],
-        pwm: ['D3', 'D11', 'D9', 'D10'], ledActiveLow: false },
-    'arduino-mega': { digital: ['D13', 'D22', 'D23', 'D24', 'D25', 'D26', 'D27', 'D28'],
-        analog: ['A0', 'A1', 'A2', 'A3', 'A4', 'A5', 'A8', 'A9'], input: ['D2', 'D3', 'D18', 'D19'],
-        // Timer 1/2 pins only; D13/D4 are Timer 0's (the tick) and never offered.
-        pwm: ['D9', 'D10', 'D11', 'D12'], ledActiveLow: false },
-    'arduino-nano': { digital: ['D13', 'D12', 'D8', 'D7', 'D4', 'D2'],
-        analog: ['A0', 'A1', 'A2', 'A3', 'A6', 'A7'], input: ['D2', 'D4', 'D7', 'D8'],
-        pwm: ['D3', 'D11', 'D9', 'D10'], ledActiveLow: false },
-    pico: { digital: ['GP25', 'GP15', 'GP14', 'GP13', 'GP12', 'GP11', 'GP10'],
-        analog: ['GP26', 'GP27', 'GP28'], input: ['GP2', 'GP3', 'GP4', 'GP5'],
-        // GP16/GP17 stay out: they are the servo pins (slice 0, 50 Hz).
-        pwm: ['GP15', 'GP14', 'GP13', 'GP12'], ledActiveLow: false },
-    // VIA outputs are symmetric CMOS, so LEDs wire active-high. PB7 never
-    // appears: Timer 1 owns it. No analog, no PWM — the VIA has neither.
-    eater6502: { digital: ['PA0', 'PA1', 'PA2', 'PA3', 'PA4', 'PA5', 'PA6', 'PA7'],
-        analog: [], input: ['PB0', 'PB1', 'PB2', 'PB3'],
-        pwm: [], ledActiveLow: false },
-    // ATtiny88 Blinkenrocket: PORTB = cols, PORTD = rows, PC3/PC7 = buttons.
-    // No ADC, no PWM — the pendant is a pure LED matrix.
-    attiny88: { digital: ['PB0', 'PB1', 'PB2', 'PB3', 'PB4', 'PB5', 'PB6', 'PB7',
-        'PD0', 'PD1', 'PD2', 'PD3', 'PD4', 'PD5', 'PD6', 'PD7'],
-        analog: [], input: ['PC3', 'PC7'],
-        pwm: [], ledActiveLow: false }
-};
+// Pools list the CONVENTION pins first (simple examples land on the
+// classic wiring) and then EVERY genuinely-free GPIO the silicon has —
+// reserved pins (UART/ISP, Timer-0-owned PWM, crystal ADC, RESET) stay
+// out. The old pools were the convention subset ONLY, so any program
+// needing more pins than the handful refused even when the chip had
+// dozens free — the calculator (12 pins) refused on an Uno with 18
+// usable GPIO (owner question, 2026-08-17).
+SB3Creator.RETARGET_POOLS = (() => {
+    const seq = (fmt, a, b) => Array.from({ length: b - a + 1 }, (_, i) => fmt.replace('%', String(a + i)));
+    const P = (port) => seq(`P${port}.%`, 0, 7);
+    // AVR D-pins: D0/D1 are the UART; D5/D6 (Timer 0) allowed as plain
+    // digital, never as PWM. A-pins double as digital on the '328/'168
+    // (A6/A7 on the Nano are ADC-ONLY and appear in no digital pool).
+    const unoDigital = ['D13', 'D12', 'D8', 'D7', 'D4', 'D2', 'D3', 'D5', 'D6', 'D9', 'D10', 'D11', 'A0', 'A1', 'A2', 'A3', 'A4', 'A5'];
+    const unoInput = ['D2', 'D4', 'D7', 'D8', 'D3', 'D5', 'D6', 'D9', 'D10', 'D11', 'D12', 'D13', 'A0', 'A1', 'A2', 'A3', 'A4', 'A5'];
+    return {
+        stc12c5a60s2: { digital: ['P1.0', 'P1.1', 'P1.2', 'P1.5', 'P1.6', 'P1.7', 'P3.4', 'P3.5', ...P(2), ...P(0), 'P4.4', 'P4.5', 'P4.6', 'P4.7'],
+            analog: ['P1.3', 'P1.4', 'P1.5', 'P1.6'],
+            input: ['P3.2', 'P3.3', 'P3.6', 'P3.7', ...P(2), ...P(0), 'P1.0', 'P1.1', 'P1.2', 'P1.5', 'P1.6', 'P1.7'],
+            pwm: ['P1.3', 'P1.4'], ledActiveLow: true },
+        stc89c52rc: { digital: [...P(1), ...P(2), ...P(0)],
+            analog: [], input: ['P3.2', 'P3.3', 'P3.6', 'P3.7', ...P(2), ...P(0), ...P(1)],
+            pwm: [], ledActiveLow: true },
+        stc15f2k60s2: { digital: ['P1.0', 'P1.1', 'P1.2', 'P1.3', 'P1.4', 'P1.5', ...P(2), ...P(0), 'P3.4', 'P3.5'],
+            // P1.6/P1.7 stay out of the analog pool: a crystal takes ADC6/7.
+            analog: ['P1.0', 'P1.1', 'P1.2', 'P1.3', 'P1.4', 'P1.5'],
+            input: ['P3.2', 'P3.3', 'P3.6', 'P3.7', ...P(2), ...P(0)],
+            pwm: ['P1.1', 'P1.0'], ledActiveLow: true },
+        'arduino-uno': { digital: unoDigital, analog: ['A0', 'A1', 'A2', 'A3', 'A4', 'A5'],
+            input: unoInput, pwm: ['D3', 'D11', 'D9', 'D10'], ledActiveLow: false },
+        'atmega168p': { digital: unoDigital, analog: ['A0', 'A1', 'A2', 'A3', 'A4', 'A5'],
+            input: unoInput, pwm: ['D3', 'D11', 'D9', 'D10'], ledActiveLow: false },
+        'arduino-mega': { digital: ['D13', ...seq('D%', 22, 49)],
+            analog: ['A0', 'A1', 'A2', 'A3', 'A4', 'A5', 'A8', 'A9'],
+            input: ['D2', 'D3', 'D18', 'D19', ...seq('D%', 22, 49)],
+            // Timer 1/2 pins only; D13/D4 are Timer 0's (the tick) and never offered.
+            pwm: ['D9', 'D10', 'D11', 'D12'], ledActiveLow: false },
+        'arduino-nano': { digital: unoDigital, analog: ['A0', 'A1', 'A2', 'A3', 'A6', 'A7'],
+            input: unoInput, pwm: ['D3', 'D11', 'D9', 'D10'], ledActiveLow: false },
+        pico: { digital: ['GP25', 'GP15', 'GP14', 'GP13', 'GP12', 'GP11', 'GP10', ...seq('GP%', 0, 9), ...seq('GP%', 18, 22)],
+            analog: ['GP26', 'GP27', 'GP28'],
+            input: ['GP2', 'GP3', 'GP4', 'GP5', ...seq('GP%', 6, 15), ...seq('GP%', 18, 22), 'GP0', 'GP1'],
+            // GP16/GP17 stay out: they are the servo pins (slice 0, 50 Hz).
+            pwm: ['GP15', 'GP14', 'GP13', 'GP12'], ledActiveLow: false },
+        // VIA outputs are symmetric CMOS, so LEDs wire active-high. PB7 never
+        // appears: Timer 1 owns it. No analog, no PWM — the VIA has neither.
+        eater6502: { digital: ['PA0', 'PA1', 'PA2', 'PA3', 'PA4', 'PA5', 'PA6', 'PA7'],
+            analog: [], input: ['PB0', 'PB1', 'PB2', 'PB3', 'PB4', 'PB5', 'PB6'],
+            pwm: [], ledActiveLow: false },
+        // ATtiny88 as the BARE CHIP: all of B/C/D bar RESET (PC6). The old
+        // input pool was the PENDANT's two buttons — board truth, not chip
+        // truth, and generated benches seat the chip.
+        attiny88: { digital: [...seq('PB%', 0, 7), ...seq('PD%', 0, 7), ...seq('PC%', 0, 5), 'PC7'],
+            analog: [], input: ['PC3', 'PC7', ...seq('PC%', 0, 2), 'PC4', 'PC5', ...seq('PD%', 0, 7), ...seq('PB%', 0, 7)],
+            pwm: [], ledActiveLow: false },
+        // ATtiny85: five usable pins, PB5 is RESET. Honest refusals are the
+        // point — a 12-pin program cannot fit and should say so.
+        attiny85: { digital: ['PB0', 'PB1', 'PB2', 'PB3', 'PB4'],
+            analog: ['PB2', 'PB4', 'PB3'], input: ['PB2', 'PB3', 'PB4', 'PB0', 'PB1'],
+            pwm: ['PB0', 'PB1'], ledActiveLow: false },
+    };
+})();
 
 /**
  * Retarget a pseudocode program to another device: same body, the target's
@@ -11019,7 +11041,12 @@ SB3Creator.STC_PARTS = {
     // tick uses Timer1 CTC instead. ADC on PC0-PC5 (channels 0-5).
     // The Blinkenrocket pendant uses PORTB=cols, PORTD=rows for an 8x8 matrix.
     attiny88: { core: 'arduino', header: 'avr/io.h', portModes: false, aux1T: false, adc: true,
-        tiny88: true }
+        tiny88: true },
+    // ATtiny85: five GPIO (PB0-PB4, PB5 is RESET), ADC on PB2/3/4. The
+    // retarget pools exist so small programs port and big ones refuse
+    // with the honest reason (too few pins), never 'unknown device'.
+    attiny85: { core: 'arduino', header: 'avr/io.h', portModes: false, aux1T: false, adc: true,
+        tiny85: true }
 };
 
 // C keywords a sanitized Scratch name could collide with (sanitizeIdent only guards the

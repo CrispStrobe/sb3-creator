@@ -4307,7 +4307,11 @@
   "devices": [
    "arduino-uno",
    "arduino-nano"
-  ]
+  ],
+  "benches": {
+   "arduino-nano": "arduino-sk-p08-hourglass/circuit.arduino-nano.json",
+   "arduino-uno": "arduino-sk-p08-hourglass/circuit.arduino-uno.json"
+  }
  },
  {
   "id": "arduino-sk-p09-motorized-pinwheel",
@@ -5105,8 +5109,25 @@
   },
   "kind": "full",
   "devices": [
-   "arduino-nano"
-  ]
+   "arduino-nano",
+   "arduino-uno",
+   "arduino-mega",
+   "atmega168p",
+   "pico",
+   "stc12c5a60s2",
+   "stc15f2k60s2",
+   "stc89c52rc"
+  ],
+  "benches": {
+   "arduino-mega": "70-calculator/circuit.arduino-mega.json",
+   "arduino-nano": "70-calculator/circuit.arduino-nano.json",
+   "arduino-uno": "70-calculator/circuit.arduino-uno.json",
+   "atmega168p": "70-calculator/circuit.atmega168p.json",
+   "pico": "70-calculator/circuit.pico.json",
+   "stc12c5a60s2": "70-calculator/circuit.stc12c5a60s2.json",
+   "stc15f2k60s2": "70-calculator/circuit.stc15f2k60s2.json",
+   "stc89c52rc": "70-calculator/circuit.stc89c52rc.json"
+  }
  },
  {
   "id": "72-pico-oled-hello",
@@ -5125,7 +5146,24 @@
   },
   "kind": "full",
   "devices": [
-   "pico"
-  ]
+   "pico",
+   "arduino-nano",
+   "arduino-uno",
+   "arduino-mega",
+   "atmega168p",
+   "stc12c5a60s2",
+   "stc15f2k60s2",
+   "stc89c52rc"
+  ],
+  "benches": {
+   "arduino-mega": "72-pico-oled-hello/circuit.arduino-mega.json",
+   "arduino-nano": "72-pico-oled-hello/circuit.arduino-nano.json",
+   "arduino-uno": "72-pico-oled-hello/circuit.arduino-uno.json",
+   "atmega168p": "72-pico-oled-hello/circuit.atmega168p.json",
+   "pico": "72-pico-oled-hello/circuit.pico.json",
+   "stc12c5a60s2": "72-pico-oled-hello/circuit.stc12c5a60s2.json",
+   "stc15f2k60s2": "72-pico-oled-hello/circuit.stc15f2k60s2.json",
+   "stc89c52rc": "72-pico-oled-hello/circuit.stc89c52rc.json"
+  }
  }
 ]
