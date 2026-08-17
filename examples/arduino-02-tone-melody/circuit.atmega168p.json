@@ -2,12 +2,23 @@
  "vcc": 5,
  "parts": [
   {
+   "id": "bb1",
+   "kind": "breadboard",
+   "params": {},
+   "terminals": [],
+   "x": 470,
+   "y": 330,
+   "rotation": 0
+  },
+  {
    "id": "VCC",
    "kind": "vcc",
    "params": {},
    "terminals": [
     "vcc"
-   ]
+   ],
+   "x": 80,
+   "y": 60
   },
   {
    "id": "GND",
@@ -15,7 +26,9 @@
    "params": {},
    "terminals": [
     "gnd"
-   ]
+   ],
+   "x": 220,
+   "y": 60
   },
   {
    "id": "MCU",
@@ -23,7 +36,28 @@
    "params": {},
    "terminals": [
     "d13"
-   ]
+   ],
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "D0": "a3",
+     "D1": "a4",
+     "D2": "a5",
+     "D3": "a6",
+     "D4": "a7",
+     "D5": "a8",
+     "D6": "a9",
+     "D7": "a10",
+     "D8": "a11",
+     "D9": "a12",
+     "D10": "a13",
+     "D11": "a14",
+     "D12": "a15",
+     "D13": "a16"
+    }
+   },
+   "x": 64,
+   "y": 255
   },
   {
    "id": "BUZZ_speaker",
@@ -32,45 +66,50 @@
    "terminals": [
     "a",
     "b"
-   ]
+   ],
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a20",
+     "b": "a22"
+    }
+   },
+   "x": 302,
+   "y": 255
   }
  ],
- "nets": [
+ "wires": [
   {
-   "id": "net_speaker_pin",
-   "terminals": [
-    {
-     "part": "MCU",
-     "terminal": "d13"
-    },
-    {
-     "part": "BUZZ_speaker",
-     "terminal": "a"
-    }
-   ]
+   "from": "MCU",
+   "fromTerminal": "d13",
+   "to": "BUZZ_speaker",
+   "toTerminal": "a"
   },
   {
-   "id": "net_vcc",
-   "terminals": [
-    {
-     "part": "VCC",
-     "terminal": "vcc"
-    }
-   ]
+   "from": "GND",
+   "fromTerminal": "gnd",
+   "to": "BUZZ_speaker",
+   "toTerminal": "b"
   },
   {
-   "id": "net_gnd",
-   "terminals": [
-    {
-     "part": "GND",
-     "terminal": "gnd"
-    },
-    {
-     "part": "BUZZ_speaker",
-     "terminal": "b"
-    }
-   ]
+   "from": "GND",
+   "fromTerminal": "gnd",
+   "to": {
+    "board": "bb1",
+    "hole": "b-2"
+   },
+   "color": "black",
+   "genPower": true
   }
  ],
- "generated": "benchFor"
+ "holeWires": [
+  {
+   "ref": "bbw:bb1:gen_0",
+   "boardId": "bb1",
+   "a": "b22",
+   "b": "b-22",
+   "color": "black"
+  }
+ ],
+ "generated": "benchFor+seat"
 }

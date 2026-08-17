@@ -2,12 +2,23 @@
  "vcc": 5,
  "parts": [
   {
+   "id": "bb1",
+   "kind": "breadboard",
+   "params": {},
+   "terminals": [],
+   "x": 470,
+   "y": 330,
+   "rotation": 0
+  },
+  {
    "id": "VCC",
    "kind": "vcc",
    "params": {},
    "terminals": [
     "vcc"
-   ]
+   ],
+   "x": 80,
+   "y": 60
   },
   {
    "id": "GND",
@@ -15,7 +26,9 @@
    "params": {},
    "terminals": [
     "gnd"
-   ]
+   ],
+   "x": 220,
+   "y": 60
   },
   {
    "id": "MCU",
@@ -25,7 +38,9 @@
     "a0",
     "a1",
     "d13"
-   ]
+   ],
+   "x": 360,
+   "y": 60
   },
   {
    "id": "POT_sensor1",
@@ -37,7 +52,17 @@
     "a",
     "b",
     "wiper"
-   ]
+   ],
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a3",
+     "wiper": "a5",
+     "b": "a7"
+    }
+   },
+   "x": 64,
+   "y": 255
   },
   {
    "id": "POT_sensor2",
@@ -49,7 +74,17 @@
     "a",
     "b",
     "wiper"
-   ]
+   ],
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a9",
+     "wiper": "a11",
+     "b": "a13"
+    }
+   },
+   "x": 148,
+   "y": 255
   },
   {
    "id": "BUZZ_speaker",
@@ -58,87 +93,124 @@
    "terminals": [
     "a",
     "b"
-   ]
+   ],
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a15",
+     "b": "a17"
+    }
+   },
+   "x": 232,
+   "y": 255
   }
  ],
- "nets": [
+ "wires": [
   {
-   "id": "net_sensor1_wiper",
-   "terminals": [
-    {
-     "part": "POT_sensor1",
-     "terminal": "wiper"
-    },
-    {
-     "part": "MCU",
-     "terminal": "a0"
-    }
-   ]
+   "from": "POT_sensor1",
+   "fromTerminal": "wiper",
+   "to": "MCU",
+   "toTerminal": "a0"
   },
   {
-   "id": "net_sensor2_wiper",
-   "terminals": [
-    {
-     "part": "POT_sensor2",
-     "terminal": "wiper"
-    },
-    {
-     "part": "MCU",
-     "terminal": "a1"
-    }
-   ]
+   "from": "POT_sensor2",
+   "fromTerminal": "wiper",
+   "to": "MCU",
+   "toTerminal": "a1"
   },
   {
-   "id": "net_speaker_pin",
-   "terminals": [
-    {
-     "part": "MCU",
-     "terminal": "d13"
-    },
-    {
-     "part": "BUZZ_speaker",
-     "terminal": "a"
-    }
-   ]
+   "from": "MCU",
+   "fromTerminal": "d13",
+   "to": "BUZZ_speaker",
+   "toTerminal": "a"
   },
   {
-   "id": "net_vcc",
-   "terminals": [
-    {
-     "part": "VCC",
-     "terminal": "vcc"
-    },
-    {
-     "part": "POT_sensor1",
-     "terminal": "a"
-    },
-    {
-     "part": "POT_sensor2",
-     "terminal": "a"
-    }
-   ]
+   "from": "VCC",
+   "fromTerminal": "vcc",
+   "to": "POT_sensor1",
+   "toTerminal": "a"
   },
   {
-   "id": "net_gnd",
-   "terminals": [
-    {
-     "part": "GND",
-     "terminal": "gnd"
-    },
-    {
-     "part": "POT_sensor1",
-     "terminal": "b"
-    },
-    {
-     "part": "POT_sensor2",
-     "terminal": "b"
-    },
-    {
-     "part": "BUZZ_speaker",
-     "terminal": "b"
-    }
-   ]
+   "from": "VCC",
+   "fromTerminal": "vcc",
+   "to": "POT_sensor2",
+   "toTerminal": "a"
+  },
+  {
+   "from": "GND",
+   "fromTerminal": "gnd",
+   "to": "POT_sensor1",
+   "toTerminal": "b"
+  },
+  {
+   "from": "GND",
+   "fromTerminal": "gnd",
+   "to": "POT_sensor2",
+   "toTerminal": "b"
+  },
+  {
+   "from": "GND",
+   "fromTerminal": "gnd",
+   "to": "BUZZ_speaker",
+   "toTerminal": "b"
+  },
+  {
+   "from": "VCC",
+   "fromTerminal": "vcc",
+   "to": {
+    "board": "bb1",
+    "hole": "t+2"
+   },
+   "color": "red",
+   "genPower": true
+  },
+  {
+   "from": "GND",
+   "fromTerminal": "gnd",
+   "to": {
+    "board": "bb1",
+    "hole": "b-2"
+   },
+   "color": "black",
+   "genPower": true
   }
  ],
- "generated": "benchFor"
+ "holeWires": [
+  {
+   "ref": "bbw:bb1:gen_0",
+   "boardId": "bb1",
+   "a": "b3",
+   "b": "t+3",
+   "color": "red"
+  },
+  {
+   "ref": "bbw:bb1:gen_1",
+   "boardId": "bb1",
+   "a": "b9",
+   "b": "t+9",
+   "color": "red"
+  },
+  {
+   "ref": "bbw:bb1:gen_2",
+   "boardId": "bb1",
+   "a": "b7",
+   "b": "b-7",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb1:gen_3",
+   "boardId": "bb1",
+   "a": "b13",
+   "b": "b-13",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb1:gen_4",
+   "boardId": "bb1",
+   "a": "b17",
+   "b": "b-17",
+   "color": "black"
+  }
+ ],
+ "generated": "benchFor+seat"
 }

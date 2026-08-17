@@ -2,12 +2,23 @@
  "vcc": 5,
  "parts": [
   {
+   "id": "bb1",
+   "kind": "breadboard",
+   "params": {},
+   "terminals": [],
+   "x": 470,
+   "y": 330,
+   "rotation": 0
+  },
+  {
    "id": "VCC",
    "kind": "vcc",
    "params": {},
    "terminals": [
     "vcc"
-   ]
+   ],
+   "x": 80,
+   "y": 60
   },
   {
    "id": "GND",
@@ -15,7 +26,9 @@
    "params": {},
    "terminals": [
     "gnd"
-   ]
+   ],
+   "x": 220,
+   "y": 60
   },
   {
    "id": "MCU",
@@ -23,7 +36,34 @@
    "params": {},
    "terminals": [
     "gp26"
-   ]
+   ],
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "GP0": "a3",
+     "GP1": "a4",
+     "GP2": "a5",
+     "GP3": "a6",
+     "GP4": "a7",
+     "GP5": "a8",
+     "GP6": "a9",
+     "GP7": "a10",
+     "GP8": "a11",
+     "GP9": "a12",
+     "GP10": "a13",
+     "GP11": "a14",
+     "GP12": "a15",
+     "GP13": "a16",
+     "GP14": "a17",
+     "GP15": "a18",
+     "GP16": "a19",
+     "GP17": "a20",
+     "GP18": "a21",
+     "GP19": "a22"
+    }
+   },
+   "x": 64,
+   "y": 255
   },
   {
    "id": "POT_ldr",
@@ -35,49 +75,74 @@
     "a",
     "b",
     "wiper"
-   ]
+   ],
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a26",
+     "wiper": "a28",
+     "b": "a30"
+    }
+   },
+   "x": 386,
+   "y": 255
   }
  ],
- "nets": [
+ "wires": [
   {
-   "id": "net_ldr_wiper",
-   "terminals": [
-    {
-     "part": "POT_ldr",
-     "terminal": "wiper"
-    },
-    {
-     "part": "MCU",
-     "terminal": "gp26"
-    }
-   ]
+   "from": "POT_ldr",
+   "fromTerminal": "wiper",
+   "to": "MCU",
+   "toTerminal": "gp26"
   },
   {
-   "id": "net_vcc",
-   "terminals": [
-    {
-     "part": "VCC",
-     "terminal": "vcc"
-    },
-    {
-     "part": "POT_ldr",
-     "terminal": "a"
-    }
-   ]
+   "from": "VCC",
+   "fromTerminal": "vcc",
+   "to": "POT_ldr",
+   "toTerminal": "a"
   },
   {
-   "id": "net_gnd",
-   "terminals": [
-    {
-     "part": "GND",
-     "terminal": "gnd"
-    },
-    {
-     "part": "POT_ldr",
-     "terminal": "b"
-    }
-   ]
+   "from": "GND",
+   "fromTerminal": "gnd",
+   "to": "POT_ldr",
+   "toTerminal": "b"
+  },
+  {
+   "from": "VCC",
+   "fromTerminal": "vcc",
+   "to": {
+    "board": "bb1",
+    "hole": "t+2"
+   },
+   "color": "red",
+   "genPower": true
+  },
+  {
+   "from": "GND",
+   "fromTerminal": "gnd",
+   "to": {
+    "board": "bb1",
+    "hole": "b-2"
+   },
+   "color": "black",
+   "genPower": true
   }
  ],
- "generated": "benchFor"
+ "holeWires": [
+  {
+   "ref": "bbw:bb1:gen_0",
+   "boardId": "bb1",
+   "a": "b26",
+   "b": "t+26",
+   "color": "red"
+  },
+  {
+   "ref": "bbw:bb1:gen_1",
+   "boardId": "bb1",
+   "a": "b30",
+   "b": "b-30",
+   "color": "black"
+  }
+ ],
+ "generated": "benchFor+seat"
 }

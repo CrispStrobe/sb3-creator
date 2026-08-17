@@ -67,107 +67,25 @@
    "y": 255
   },
   {
-   "id": "R_sda",
-   "kind": "resistor",
-   "params": {
-    "ohms": 1000
-   },
+   "id": "LCD",
+   "kind": "char_lcd_i2c",
+   "params": {},
    "terminals": [
-    "a",
-    "b"
+    "sda",
+    "scl",
+    "vcc",
+    "gnd"
    ],
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a26",
-     "b": "a30"
+     "gnd": "a26",
+     "vcc": "a27",
+     "sda": "a28",
+     "scl": "a29"
     }
    },
    "x": 386,
-   "y": 255
-  },
-  {
-   "id": "LED_sda",
-   "kind": "led",
-   "params": {
-    "vf": 2,
-    "color": "red"
-   },
-   "terminals": [
-    "anode",
-    "cathode"
-   ],
-   "seat": {
-    "boardId": "bb1",
-    "leadMap": {
-     "anode": "a43",
-     "cathode": "a44"
-    }
-   },
-   "x": 624,
-   "y": 255
-  },
-  {
-   "id": "R_scl",
-   "kind": "resistor",
-   "params": {
-    "ohms": 1000
-   },
-   "terminals": [
-    "a",
-    "b"
-   ],
-   "seat": {
-    "boardId": "bb1",
-    "leadMap": {
-     "a": "a32",
-     "b": "a36"
-    }
-   },
-   "x": 470,
-   "y": 255
-  },
-  {
-   "id": "LED_scl",
-   "kind": "led",
-   "params": {
-    "vf": 2,
-    "color": "red"
-   },
-   "terminals": [
-    "anode",
-    "cathode"
-   ],
-   "seat": {
-    "boardId": "bb1",
-    "leadMap": {
-     "anode": "a46",
-     "cathode": "a47"
-    }
-   },
-   "x": 666,
-   "y": 255
-  },
-  {
-   "id": "OLED",
-   "kind": "ssd1306",
-   "params": {},
-   "terminals": [
-    "vcc",
-    "gnd",
-    "sda",
-    "scl"
-   ],
-   "seat": {
-    "boardId": "bb1",
-    "leadMap": {
-     "vcc": "a38",
-     "gnd": "a39",
-     "sda": "a40",
-     "scl": "a41"
-    }
-   },
-   "x": 554,
    "y": 255
   }
  ],
@@ -175,61 +93,25 @@
   {
    "from": "MCU",
    "fromTerminal": "gp25",
-   "to": "R_sda",
-   "toTerminal": "a"
-  },
-  {
-   "from": "MCU",
-   "fromTerminal": "gp25",
-   "to": "OLED",
+   "to": "LCD",
    "toTerminal": "sda"
   },
   {
-   "from": "R_sda",
-   "fromTerminal": "b",
-   "to": "LED_sda",
-   "toTerminal": "anode"
-  },
-  {
    "from": "MCU",
    "fromTerminal": "gp15",
-   "to": "R_scl",
-   "toTerminal": "a"
-  },
-  {
-   "from": "MCU",
-   "fromTerminal": "gp15",
-   "to": "OLED",
+   "to": "LCD",
    "toTerminal": "scl"
-  },
-  {
-   "from": "R_scl",
-   "fromTerminal": "b",
-   "to": "LED_scl",
-   "toTerminal": "anode"
   },
   {
    "from": "VCC",
    "fromTerminal": "vcc",
-   "to": "OLED",
+   "to": "LCD",
    "toTerminal": "vcc"
   },
   {
    "from": "GND",
    "fromTerminal": "gnd",
-   "to": "LED_sda",
-   "toTerminal": "cathode"
-  },
-  {
-   "from": "GND",
-   "fromTerminal": "gnd",
-   "to": "LED_scl",
-   "toTerminal": "cathode"
-  },
-  {
-   "from": "GND",
-   "fromTerminal": "gnd",
-   "to": "OLED",
+   "to": "LCD",
    "toTerminal": "gnd"
   },
   {
@@ -257,58 +139,30 @@
   {
    "ref": "bbw:bb1:gen_0",
    "boardId": "bb1",
-   "a": "b30",
-   "b": "b43",
-   "color": "green"
+   "a": "b27",
+   "b": "t+27",
+   "color": "red"
   },
   {
    "ref": "bbw:bb1:gen_1",
    "boardId": "bb1",
-   "a": "b36",
-   "b": "b46",
-   "color": "blue"
+   "a": "b26",
+   "b": "b-26",
+   "color": "black"
   },
   {
    "ref": "bbw:bb1:gen_2",
    "boardId": "bb1",
-   "a": "b38",
-   "b": "t+38",
-   "color": "red"
+   "a": "c26",
+   "b": "b-26",
+   "color": "black"
   },
   {
    "ref": "bbw:bb1:gen_3",
    "boardId": "bb1",
-   "a": "b44",
-   "b": "b-44",
-   "color": "black"
-  },
-  {
-   "ref": "bbw:bb1:gen_4",
-   "boardId": "bb1",
-   "a": "b47",
-   "b": "b-47",
-   "color": "black"
-  },
-  {
-   "ref": "bbw:bb1:gen_5",
-   "boardId": "bb1",
-   "a": "b39",
-   "b": "b-39",
-   "color": "black"
-  },
-  {
-   "ref": "bbw:bb1:gen_6",
-   "boardId": "bb1",
-   "a": "c38",
-   "b": "t+38",
+   "a": "c27",
+   "b": "t+27",
    "color": "red"
-  },
-  {
-   "ref": "bbw:bb1:gen_7",
-   "boardId": "bb1",
-   "a": "c39",
-   "b": "b-39",
-   "color": "black"
   }
  ],
  "generated": "benchFor+seat"

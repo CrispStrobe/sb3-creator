@@ -2,12 +2,23 @@
  "vcc": 5,
  "parts": [
   {
+   "id": "bb1",
+   "kind": "breadboard",
+   "params": {},
+   "terminals": [],
+   "x": 470,
+   "y": 330,
+   "rotation": 0
+  },
+  {
    "id": "VCC",
    "kind": "vcc",
    "params": {},
    "terminals": [
     "vcc"
-   ]
+   ],
+   "x": 80,
+   "y": 60
   },
   {
    "id": "GND",
@@ -15,7 +26,9 @@
    "params": {},
    "terminals": [
     "gnd"
-   ]
+   ],
+   "x": 220,
+   "y": 60
   },
   {
    "id": "MCU",
@@ -23,7 +36,22 @@
    "params": {},
    "terminals": [
     "pb0"
-   ]
+   ],
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "pb5": "f9",
+     "pb3": "f10",
+     "pb4": "f11",
+     "gnd": "f12",
+     "pb0": "e12",
+     "pb1": "e11",
+     "pb2": "e10",
+     "vcc": "e9"
+    }
+   },
+   "x": 148,
+   "y": 349
   },
   {
    "id": "R_signal",
@@ -34,7 +62,16 @@
    "terminals": [
     "a",
     "b"
-   ]
+   ],
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a3",
+     "b": "a7"
+    }
+   },
+   "x": 64,
+   "y": 255
   },
   {
    "id": "LED_signal",
@@ -46,58 +83,94 @@
    "terminals": [
     "anode",
     "cathode"
-   ]
+   ],
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "anode": "a16",
+     "cathode": "a17"
+    }
+   },
+   "x": 246,
+   "y": 255
   }
  ],
- "nets": [
+ "wires": [
   {
-   "id": "net_signal_pin_r",
-   "terminals": [
-    {
-     "part": "MCU",
-     "terminal": "pb0"
-    },
-    {
-     "part": "R_signal",
-     "terminal": "a"
-    }
-   ]
+   "from": "MCU",
+   "fromTerminal": "pb0",
+   "to": "R_signal",
+   "toTerminal": "a"
   },
   {
-   "id": "net_signal_r_led",
-   "terminals": [
-    {
-     "part": "R_signal",
-     "terminal": "b"
-    },
-    {
-     "part": "LED_signal",
-     "terminal": "anode"
-    }
-   ]
+   "from": "R_signal",
+   "fromTerminal": "b",
+   "to": "LED_signal",
+   "toTerminal": "anode"
   },
   {
-   "id": "net_vcc",
-   "terminals": [
-    {
-     "part": "VCC",
-     "terminal": "vcc"
-    }
-   ]
+   "from": "GND",
+   "fromTerminal": "gnd",
+   "to": "LED_signal",
+   "toTerminal": "cathode"
   },
   {
-   "id": "net_gnd",
-   "terminals": [
-    {
-     "part": "GND",
-     "terminal": "gnd"
-    },
-    {
-     "part": "LED_signal",
-     "terminal": "cathode"
-    }
-   ]
+   "from": "VCC",
+   "fromTerminal": "vcc",
+   "to": {
+    "board": "bb1",
+    "hole": "t+2"
+   },
+   "color": "red",
+   "genPower": true
+  },
+  {
+   "from": "GND",
+   "fromTerminal": "gnd",
+   "to": {
+    "board": "bb1",
+    "hole": "b-2"
+   },
+   "color": "black",
+   "genPower": true
   }
  ],
- "generated": "benchFor"
+ "holeWires": [
+  {
+   "ref": "bbw:bb1:gen_0",
+   "boardId": "bb1",
+   "a": "a12",
+   "b": "b3",
+   "color": "green"
+  },
+  {
+   "ref": "bbw:bb1:gen_1",
+   "boardId": "bb1",
+   "a": "b7",
+   "b": "b16",
+   "color": "blue"
+  },
+  {
+   "ref": "bbw:bb1:gen_2",
+   "boardId": "bb1",
+   "a": "b17",
+   "b": "b-17",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb1:gen_3",
+   "boardId": "bb1",
+   "a": "g12",
+   "b": "b-12",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb1:gen_4",
+   "boardId": "bb1",
+   "a": "a9",
+   "b": "t+9",
+   "color": "red"
+  }
+ ],
+ "generated": "benchFor+seat"
 }

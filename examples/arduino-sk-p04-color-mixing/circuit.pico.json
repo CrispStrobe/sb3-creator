@@ -2,12 +2,23 @@
  "vcc": 5,
  "parts": [
   {
+   "id": "bb1",
+   "kind": "breadboard",
+   "params": {},
+   "terminals": [],
+   "x": 470,
+   "y": 330,
+   "rotation": 0
+  },
+  {
    "id": "VCC",
    "kind": "vcc",
    "params": {},
    "terminals": [
     "vcc"
-   ]
+   ],
+   "x": 80,
+   "y": 60
   },
   {
    "id": "GND",
@@ -15,7 +26,9 @@
    "params": {},
    "terminals": [
     "gnd"
-   ]
+   ],
+   "x": 220,
+   "y": 60
   },
   {
    "id": "MCU",
@@ -28,7 +41,34 @@
     "gp25",
     "gp15",
     "gp14"
-   ]
+   ],
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "GP0": "a3",
+     "GP1": "a4",
+     "GP2": "a5",
+     "GP3": "a6",
+     "GP4": "a7",
+     "GP5": "a8",
+     "GP6": "a9",
+     "GP7": "a10",
+     "GP8": "a11",
+     "GP9": "a12",
+     "GP10": "a13",
+     "GP11": "a14",
+     "GP12": "a15",
+     "GP13": "a16",
+     "GP14": "a17",
+     "GP15": "a18",
+     "GP16": "a19",
+     "GP17": "a20",
+     "GP18": "a21",
+     "GP19": "a22"
+    }
+   },
+   "x": 64,
+   "y": 255
   },
   {
    "id": "POT_sensorR",
@@ -40,7 +80,17 @@
     "a",
     "b",
     "wiper"
-   ]
+   ],
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a26",
+     "wiper": "a28",
+     "b": "a30"
+    }
+   },
+   "x": 386,
+   "y": 255
   },
   {
    "id": "POT_sensorG",
@@ -52,7 +102,17 @@
     "a",
     "b",
     "wiper"
-   ]
+   ],
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a32",
+     "wiper": "a34",
+     "b": "a36"
+    }
+   },
+   "x": 470,
+   "y": 255
   },
   {
    "id": "POT_sensorB",
@@ -64,7 +124,17 @@
     "a",
     "b",
     "wiper"
-   ]
+   ],
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a38",
+     "wiper": "a40",
+     "b": "a42"
+    }
+   },
+   "x": 554,
+   "y": 255
   },
   {
    "id": "R_ledR",
@@ -75,7 +145,16 @@
    "terminals": [
     "a",
     "b"
-   ]
+   ],
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a44",
+     "b": "a48"
+    }
+   },
+   "x": 638,
+   "y": 255
   },
   {
    "id": "LED_ledR",
@@ -87,7 +166,16 @@
    "terminals": [
     "anode",
     "cathode"
-   ]
+   ],
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "anode": "f3",
+     "cathode": "f4"
+    }
+   },
+   "x": 64,
+   "y": 349
   },
   {
    "id": "R_ledG",
@@ -98,7 +186,16 @@
    "terminals": [
     "a",
     "b"
-   ]
+   ],
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a50",
+     "b": "a54"
+    }
+   },
+   "x": 722,
+   "y": 255
   },
   {
    "id": "LED_ledG",
@@ -110,7 +207,16 @@
    "terminals": [
     "anode",
     "cathode"
-   ]
+   ],
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "anode": "f6",
+     "cathode": "f7"
+    }
+   },
+   "x": 106,
+   "y": 349
   },
   {
    "id": "R_ledB",
@@ -121,7 +227,16 @@
    "terminals": [
     "a",
     "b"
-   ]
+   ],
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a56",
+     "b": "a60"
+    }
+   },
+   "x": 806,
+   "y": 255
   },
   {
    "id": "LED_ledB",
@@ -133,181 +248,233 @@
    "terminals": [
     "anode",
     "cathode"
-   ]
+   ],
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "anode": "f9",
+     "cathode": "f10"
+    }
+   },
+   "x": 148,
+   "y": 349
   }
  ],
- "nets": [
+ "wires": [
   {
-   "id": "net_sensorR_wiper",
-   "terminals": [
-    {
-     "part": "POT_sensorR",
-     "terminal": "wiper"
-    },
-    {
-     "part": "MCU",
-     "terminal": "gp26"
-    }
-   ]
+   "from": "POT_sensorR",
+   "fromTerminal": "wiper",
+   "to": "MCU",
+   "toTerminal": "gp26"
   },
   {
-   "id": "net_sensorG_wiper",
-   "terminals": [
-    {
-     "part": "POT_sensorG",
-     "terminal": "wiper"
-    },
-    {
-     "part": "MCU",
-     "terminal": "gp27"
-    }
-   ]
+   "from": "POT_sensorG",
+   "fromTerminal": "wiper",
+   "to": "MCU",
+   "toTerminal": "gp27"
   },
   {
-   "id": "net_sensorB_wiper",
-   "terminals": [
-    {
-     "part": "POT_sensorB",
-     "terminal": "wiper"
-    },
-    {
-     "part": "MCU",
-     "terminal": "gp28"
-    }
-   ]
+   "from": "POT_sensorB",
+   "fromTerminal": "wiper",
+   "to": "MCU",
+   "toTerminal": "gp28"
   },
   {
-   "id": "net_ledR_pin_r",
-   "terminals": [
-    {
-     "part": "MCU",
-     "terminal": "gp25"
-    },
-    {
-     "part": "R_ledR",
-     "terminal": "a"
-    }
-   ]
+   "from": "MCU",
+   "fromTerminal": "gp25",
+   "to": "R_ledR",
+   "toTerminal": "a"
   },
   {
-   "id": "net_ledR_r_led",
-   "terminals": [
-    {
-     "part": "R_ledR",
-     "terminal": "b"
-    },
-    {
-     "part": "LED_ledR",
-     "terminal": "anode"
-    }
-   ]
+   "from": "R_ledR",
+   "fromTerminal": "b",
+   "to": "LED_ledR",
+   "toTerminal": "anode"
   },
   {
-   "id": "net_ledG_pin_r",
-   "terminals": [
-    {
-     "part": "MCU",
-     "terminal": "gp15"
-    },
-    {
-     "part": "R_ledG",
-     "terminal": "a"
-    }
-   ]
+   "from": "MCU",
+   "fromTerminal": "gp15",
+   "to": "R_ledG",
+   "toTerminal": "a"
   },
   {
-   "id": "net_ledG_r_led",
-   "terminals": [
-    {
-     "part": "R_ledG",
-     "terminal": "b"
-    },
-    {
-     "part": "LED_ledG",
-     "terminal": "anode"
-    }
-   ]
+   "from": "R_ledG",
+   "fromTerminal": "b",
+   "to": "LED_ledG",
+   "toTerminal": "anode"
   },
   {
-   "id": "net_ledB_pin_r",
-   "terminals": [
-    {
-     "part": "MCU",
-     "terminal": "gp14"
-    },
-    {
-     "part": "R_ledB",
-     "terminal": "a"
-    }
-   ]
+   "from": "MCU",
+   "fromTerminal": "gp14",
+   "to": "R_ledB",
+   "toTerminal": "a"
   },
   {
-   "id": "net_ledB_r_led",
-   "terminals": [
-    {
-     "part": "R_ledB",
-     "terminal": "b"
-    },
-    {
-     "part": "LED_ledB",
-     "terminal": "anode"
-    }
-   ]
+   "from": "R_ledB",
+   "fromTerminal": "b",
+   "to": "LED_ledB",
+   "toTerminal": "anode"
   },
   {
-   "id": "net_vcc",
-   "terminals": [
-    {
-     "part": "VCC",
-     "terminal": "vcc"
-    },
-    {
-     "part": "POT_sensorR",
-     "terminal": "a"
-    },
-    {
-     "part": "POT_sensorG",
-     "terminal": "a"
-    },
-    {
-     "part": "POT_sensorB",
-     "terminal": "a"
-    }
-   ]
+   "from": "VCC",
+   "fromTerminal": "vcc",
+   "to": "POT_sensorR",
+   "toTerminal": "a"
   },
   {
-   "id": "net_gnd",
-   "terminals": [
-    {
-     "part": "GND",
-     "terminal": "gnd"
-    },
-    {
-     "part": "POT_sensorR",
-     "terminal": "b"
-    },
-    {
-     "part": "POT_sensorG",
-     "terminal": "b"
-    },
-    {
-     "part": "POT_sensorB",
-     "terminal": "b"
-    },
-    {
-     "part": "LED_ledR",
-     "terminal": "cathode"
-    },
-    {
-     "part": "LED_ledG",
-     "terminal": "cathode"
-    },
-    {
-     "part": "LED_ledB",
-     "terminal": "cathode"
-    }
-   ]
+   "from": "VCC",
+   "fromTerminal": "vcc",
+   "to": "POT_sensorG",
+   "toTerminal": "a"
+  },
+  {
+   "from": "VCC",
+   "fromTerminal": "vcc",
+   "to": "POT_sensorB",
+   "toTerminal": "a"
+  },
+  {
+   "from": "GND",
+   "fromTerminal": "gnd",
+   "to": "POT_sensorR",
+   "toTerminal": "b"
+  },
+  {
+   "from": "GND",
+   "fromTerminal": "gnd",
+   "to": "POT_sensorG",
+   "toTerminal": "b"
+  },
+  {
+   "from": "GND",
+   "fromTerminal": "gnd",
+   "to": "POT_sensorB",
+   "toTerminal": "b"
+  },
+  {
+   "from": "GND",
+   "fromTerminal": "gnd",
+   "to": "LED_ledR",
+   "toTerminal": "cathode"
+  },
+  {
+   "from": "GND",
+   "fromTerminal": "gnd",
+   "to": "LED_ledG",
+   "toTerminal": "cathode"
+  },
+  {
+   "from": "GND",
+   "fromTerminal": "gnd",
+   "to": "LED_ledB",
+   "toTerminal": "cathode"
+  },
+  {
+   "from": "VCC",
+   "fromTerminal": "vcc",
+   "to": {
+    "board": "bb1",
+    "hole": "t+2"
+   },
+   "color": "red",
+   "genPower": true
+  },
+  {
+   "from": "GND",
+   "fromTerminal": "gnd",
+   "to": {
+    "board": "bb1",
+    "hole": "b-2"
+   },
+   "color": "black",
+   "genPower": true
   }
  ],
- "generated": "benchFor"
+ "holeWires": [
+  {
+   "ref": "bbw:bb1:gen_0",
+   "boardId": "bb1",
+   "a": "b48",
+   "b": "g3",
+   "color": "green"
+  },
+  {
+   "ref": "bbw:bb1:gen_1",
+   "boardId": "bb1",
+   "a": "b54",
+   "b": "g6",
+   "color": "blue"
+  },
+  {
+   "ref": "bbw:bb1:gen_2",
+   "boardId": "bb1",
+   "a": "b60",
+   "b": "g9",
+   "color": "yellow"
+  },
+  {
+   "ref": "bbw:bb1:gen_3",
+   "boardId": "bb1",
+   "a": "b26",
+   "b": "t+26",
+   "color": "red"
+  },
+  {
+   "ref": "bbw:bb1:gen_4",
+   "boardId": "bb1",
+   "a": "b32",
+   "b": "t+32",
+   "color": "red"
+  },
+  {
+   "ref": "bbw:bb1:gen_5",
+   "boardId": "bb1",
+   "a": "b38",
+   "b": "t+38",
+   "color": "red"
+  },
+  {
+   "ref": "bbw:bb1:gen_6",
+   "boardId": "bb1",
+   "a": "b30",
+   "b": "b-30",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb1:gen_7",
+   "boardId": "bb1",
+   "a": "b36",
+   "b": "b-36",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb1:gen_8",
+   "boardId": "bb1",
+   "a": "b42",
+   "b": "b-42",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb1:gen_9",
+   "boardId": "bb1",
+   "a": "g4",
+   "b": "b-4",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb1:gen_10",
+   "boardId": "bb1",
+   "a": "g7",
+   "b": "b-7",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb1:gen_11",
+   "boardId": "bb1",
+   "a": "g10",
+   "b": "b-10",
+   "color": "black"
+  }
+ ],
+ "generated": "benchFor+seat"
 }

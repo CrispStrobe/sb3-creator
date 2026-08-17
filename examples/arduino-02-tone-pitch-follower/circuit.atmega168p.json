@@ -2,12 +2,23 @@
  "vcc": 5,
  "parts": [
   {
+   "id": "bb1",
+   "kind": "breadboard",
+   "params": {},
+   "terminals": [],
+   "x": 470,
+   "y": 330,
+   "rotation": 0
+  },
+  {
    "id": "VCC",
    "kind": "vcc",
    "params": {},
    "terminals": [
     "vcc"
-   ]
+   ],
+   "x": 80,
+   "y": 60
   },
   {
    "id": "GND",
@@ -15,7 +26,9 @@
    "params": {},
    "terminals": [
     "gnd"
-   ]
+   ],
+   "x": 220,
+   "y": 60
   },
   {
    "id": "MCU",
@@ -24,7 +37,28 @@
    "terminals": [
     "a0",
     "d13"
-   ]
+   ],
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "D0": "a3",
+     "D1": "a4",
+     "D2": "a5",
+     "D3": "a6",
+     "D4": "a7",
+     "D5": "a8",
+     "D6": "a9",
+     "D7": "a10",
+     "D8": "a11",
+     "D9": "a12",
+     "D10": "a13",
+     "D11": "a14",
+     "D12": "a15",
+     "D13": "a16"
+    }
+   },
+   "x": 64,
+   "y": 255
   },
   {
    "id": "POT_ldr",
@@ -36,7 +70,17 @@
     "a",
     "b",
     "wiper"
-   ]
+   ],
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a20",
+     "wiper": "a22",
+     "b": "a24"
+    }
+   },
+   "x": 302,
+   "y": 255
   },
   {
    "id": "BUZZ_speaker",
@@ -45,66 +89,92 @@
    "terminals": [
     "a",
     "b"
-   ]
+   ],
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a26",
+     "b": "a28"
+    }
+   },
+   "x": 386,
+   "y": 255
   }
  ],
- "nets": [
+ "wires": [
   {
-   "id": "net_ldr_wiper",
-   "terminals": [
-    {
-     "part": "POT_ldr",
-     "terminal": "wiper"
-    },
-    {
-     "part": "MCU",
-     "terminal": "a0"
-    }
-   ]
+   "from": "POT_ldr",
+   "fromTerminal": "wiper",
+   "to": "MCU",
+   "toTerminal": "a0"
   },
   {
-   "id": "net_speaker_pin",
-   "terminals": [
-    {
-     "part": "MCU",
-     "terminal": "d13"
-    },
-    {
-     "part": "BUZZ_speaker",
-     "terminal": "a"
-    }
-   ]
+   "from": "MCU",
+   "fromTerminal": "d13",
+   "to": "BUZZ_speaker",
+   "toTerminal": "a"
   },
   {
-   "id": "net_vcc",
-   "terminals": [
-    {
-     "part": "VCC",
-     "terminal": "vcc"
-    },
-    {
-     "part": "POT_ldr",
-     "terminal": "a"
-    }
-   ]
+   "from": "VCC",
+   "fromTerminal": "vcc",
+   "to": "POT_ldr",
+   "toTerminal": "a"
   },
   {
-   "id": "net_gnd",
-   "terminals": [
-    {
-     "part": "GND",
-     "terminal": "gnd"
-    },
-    {
-     "part": "POT_ldr",
-     "terminal": "b"
-    },
-    {
-     "part": "BUZZ_speaker",
-     "terminal": "b"
-    }
-   ]
+   "from": "GND",
+   "fromTerminal": "gnd",
+   "to": "POT_ldr",
+   "toTerminal": "b"
+  },
+  {
+   "from": "GND",
+   "fromTerminal": "gnd",
+   "to": "BUZZ_speaker",
+   "toTerminal": "b"
+  },
+  {
+   "from": "VCC",
+   "fromTerminal": "vcc",
+   "to": {
+    "board": "bb1",
+    "hole": "t+2"
+   },
+   "color": "red",
+   "genPower": true
+  },
+  {
+   "from": "GND",
+   "fromTerminal": "gnd",
+   "to": {
+    "board": "bb1",
+    "hole": "b-2"
+   },
+   "color": "black",
+   "genPower": true
   }
  ],
- "generated": "benchFor"
+ "holeWires": [
+  {
+   "ref": "bbw:bb1:gen_0",
+   "boardId": "bb1",
+   "a": "b20",
+   "b": "t+20",
+   "color": "red"
+  },
+  {
+   "ref": "bbw:bb1:gen_1",
+   "boardId": "bb1",
+   "a": "b24",
+   "b": "b-24",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb1:gen_2",
+   "boardId": "bb1",
+   "a": "b28",
+   "b": "b-28",
+   "color": "black"
+  }
+ ],
+ "generated": "benchFor+seat"
 }
