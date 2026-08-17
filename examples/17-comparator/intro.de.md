@@ -5,7 +5,7 @@ prereqs: [02-dimmer]
 teaches: [comparison, dual-adc, decision-logic]
 ---
 ## Was du siehst
-Zwei Potentiometer speisen jeweils einen ADC-Kanal. Eine LED zeigt an, welches Poti höher eingestellt ist. Dreht man eines über das andere hinaus, wechselt die LED.
+Zwei Potentiometer speisen jeweils einen ADC-Kanal. Eine LED zeigt an, welches Poti höher eingestellt ist. Dreht man eines über das andere hinaus, wechselt die LED. Dieses Beispiel funktioniert auf allen unterstützten Mikrocontrollern — wähle ein anderes Gerät in der Werkzeugleiste, um die angepasste Schaltung zu sehen.
 
 ## Probier das
 1. Starte das Programm und drehe beide Potis auf die Mittelstellung — die LED flackert möglicherweise, weil die Werte fast gleich sind.

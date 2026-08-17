@@ -5,7 +5,7 @@ prereqs: [02-dimmer]
 teaches: [comparison, dual-adc, decision-logic]
 ---
 ## What you see
-Two potentiometers each feed an ADC channel. An LED lights up to show which pot is set higher. Turn one pot past the other and the LED switches.
+Two potentiometers each feed an ADC channel. An LED lights up to show which pot is set higher. Turn one pot past the other and the LED switches. This example works on all supported microcontrollers — pick a different device in the toolbar to see the adapted circuit.
 
 ## Try this
 1. Run the program and turn both pots to their midpoint — the LED may flicker as the values are nearly equal.
