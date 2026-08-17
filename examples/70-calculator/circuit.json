@@ -42,6 +42,16 @@
    "rotation": 0
   },
   {
+   "id": "pwr",
+   "kind": "slide_switch",
+   "params": {
+    "position": 0
+   },
+   "x": 130,
+   "y": 120,
+   "rotation": 0
+  },
+  {
    "id": "gnd1",
    "kind": "gnd",
    "params": {},
@@ -222,6 +232,12 @@
   {
    "from": "vcc1",
    "fromTerminal": "vcc",
+   "to": "pwr",
+   "toTerminal": "a"
+  },
+  {
+   "from": "pwr",
+   "fromTerminal": "com",
    "to": "nano",
    "toTerminal": "5v"
   },
@@ -472,8 +488,8 @@
    "toTerminal": "a5"
   },
   {
-   "from": "vcc1",
-   "fromTerminal": "vcc",
+   "from": "pwr",
+   "fromTerminal": "com",
    "to": "oled1",
    "toTerminal": "vcc"
   },

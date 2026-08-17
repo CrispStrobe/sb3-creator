@@ -14,9 +14,22 @@
    "id": "board",
    "kind": "attiny85",
    "params": {},
-   "x": 80,
-   "y": -60,
-   "rotation": 0
+   "x": 64,
+   "y": 349,
+   "rotation": 0,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "pb5": "f3",
+     "pb3": "f4",
+     "pb4": "f5",
+     "gnd": "f6",
+     "pb0": "e6",
+     "pb1": "e5",
+     "pb2": "e4",
+     "vcc": "e3"
+    }
+   }
   },
   {
    "id": "vcc1",
@@ -31,7 +44,7 @@
    "id": "gnd1",
    "kind": "gnd",
    "params": {},
-   "x": 220,
+   "x": 156,
    "y": 60
   }
  ],
@@ -47,8 +60,57 @@
    "fromTerminal": "gnd",
    "to": "gnd1",
    "toTerminal": "gnd"
+  },
+  {
+   "from": "vcc1",
+   "fromTerminal": "vcc",
+   "to": {
+    "board": "bb1",
+    "hole": "t+2"
+   },
+   "color": "red",
+   "genPower": true
+  },
+  {
+   "from": "gnd1",
+   "fromTerminal": "gnd",
+   "to": {
+    "board": "bb1",
+    "hole": "b-2"
+   },
+   "color": "black",
+   "genPower": true
   }
  ],
- "holeWires": [],
- "generated": "benchFor+seat"
+ "holeWires": [
+  {
+   "ref": "bbw:bb1:gen_0",
+   "boardId": "bb1",
+   "a": "a3",
+   "b": "t+3",
+   "color": "red"
+  },
+  {
+   "ref": "bbw:bb1:gen_1",
+   "boardId": "bb1",
+   "a": "g6",
+   "b": "b-6",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb1:gen_2",
+   "boardId": "bb1",
+   "a": "h6",
+   "b": "b-6",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb1:gen_3",
+   "boardId": "bb1",
+   "a": "b3",
+   "b": "t+3",
+   "color": "red"
+  }
+ ],
+ "generated": "benchFor+authored+seat"
 }

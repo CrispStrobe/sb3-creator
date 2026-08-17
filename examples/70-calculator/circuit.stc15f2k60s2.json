@@ -5,6 +5,7 @@
    "id": "bb1",
    "kind": "breadboard",
    "params": {},
+   "terminals": [],
    "x": 470,
    "y": 330,
    "rotation": 0
@@ -13,28 +14,22 @@
    "id": "bb2",
    "kind": "breadboard",
    "params": {},
+   "terminals": [],
    "x": 470,
    "y": 690,
-   "rotation": 0
-  },
-  {
-   "id": "bb3",
-   "kind": "breadboard",
-   "params": {},
-   "x": 470,
-   "y": 1050,
    "rotation": 0
   },
   {
    "id": "nano",
    "kind": "stc15_mcu",
    "params": {},
-   "x": 80,
-   "y": -60,
+   "x": 64,
+   "y": 311,
    "rotation": 0,
    "terminals": [
     "VCC",
     "GND",
+    "P1.4",
     "P1.5",
     "P1.0",
     "P1.1",
@@ -43,145 +38,312 @@
     "P3.3",
     "P3.6",
     "P3.7",
-    "P1.3",
-    "P1.4"
-   ]
+    "P1.3"
+   ],
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "P0.0": "e3",
+     "P0.1": "e4",
+     "P0.2": "e5",
+     "P0.3": "e6",
+     "P0.4": "e7",
+     "P0.5": "e8",
+     "P0.6": "e9",
+     "P0.7": "e10",
+     "P1.0": "e11",
+     "P1.1": "e12",
+     "P1.2": "e13",
+     "P1.3": "e14",
+     "P1.4": "e15",
+     "P1.5": "e16",
+     "P1.6": "e17",
+     "P1.7": "e18",
+     "P5.4": "e19",
+     "VCC": "e20",
+     "P5.5": "e21",
+     "GND": "e22",
+     "P4.5": "f22",
+     "P2.7": "f21",
+     "P2.6": "f20",
+     "P2.5": "f19",
+     "P2.4": "f18",
+     "P2.3": "f17",
+     "P2.2": "f16",
+     "P2.1": "f15",
+     "P2.0": "f14",
+     "P4.4": "f13",
+     "P4.2": "f12",
+     "P4.1": "f11",
+     "P3.7": "f10",
+     "P3.6": "f9",
+     "P3.5": "f8",
+     "P3.4": "f7",
+     "P3.3": "f6",
+     "P3.2": "f5",
+     "P3.1": "f4",
+     "P3.0": "f3"
+    }
+   }
   },
   {
    "id": "vcc1",
    "kind": "vcc",
    "params": {},
-   "x": 60,
-   "y": 120,
+   "x": 80,
+   "y": 60,
    "rotation": 0
+  },
+  {
+   "id": "pwr",
+   "kind": "slide_switch",
+   "params": {
+    "position": 0
+   },
+   "x": 792,
+   "y": 255,
+   "rotation": 0,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a55",
+     "common": "a56",
+     "b": "a57"
+    }
+   }
   },
   {
    "id": "gnd1",
    "kind": "gnd",
    "params": {},
-   "x": 140,
-   "y": 120,
+   "x": 156,
+   "y": 60,
    "rotation": 0
   },
   {
    "id": "btn7",
    "kind": "button",
    "params": {},
-   "x": 440,
-   "y": 660,
-   "rotation": 0
+   "x": 848,
+   "y": 311,
+   "rotation": 0,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "e59",
+     "b": "f59"
+    }
+   }
   },
   {
    "id": "btn8",
    "kind": "button",
    "params": {},
-   "x": 530,
-   "y": 660,
-   "rotation": 0
+   "x": 64,
+   "y": 671,
+   "rotation": 0,
+   "seat": {
+    "boardId": "bb2",
+    "leadMap": {
+     "a": "e3",
+     "b": "f3"
+    }
+   }
   },
   {
    "id": "btn9",
    "kind": "button",
    "params": {},
-   "x": 620,
-   "y": 660,
-   "rotation": 0
+   "x": 120,
+   "y": 671,
+   "rotation": 0,
+   "seat": {
+    "boardId": "bb2",
+    "leadMap": {
+     "a": "e7",
+     "b": "f7"
+    }
+   }
   },
   {
    "id": "btnPlus",
    "kind": "button",
    "params": {},
-   "x": 710,
-   "y": 660,
-   "rotation": 0
+   "x": 176,
+   "y": 671,
+   "rotation": 0,
+   "seat": {
+    "boardId": "bb2",
+    "leadMap": {
+     "a": "e11",
+     "b": "f11"
+    }
+   }
   },
   {
    "id": "btn4",
    "kind": "button",
    "params": {},
-   "x": 440,
-   "y": 765,
-   "rotation": 0
+   "x": 232,
+   "y": 671,
+   "rotation": 0,
+   "seat": {
+    "boardId": "bb2",
+    "leadMap": {
+     "a": "e15",
+     "b": "f15"
+    }
+   }
   },
   {
    "id": "btn5",
    "kind": "button",
    "params": {},
-   "x": 530,
-   "y": 765,
-   "rotation": 0
+   "x": 288,
+   "y": 671,
+   "rotation": 0,
+   "seat": {
+    "boardId": "bb2",
+    "leadMap": {
+     "a": "e19",
+     "b": "f19"
+    }
+   }
   },
   {
    "id": "btn6",
    "kind": "button",
    "params": {},
-   "x": 620,
-   "y": 765,
-   "rotation": 0
+   "x": 344,
+   "y": 671,
+   "rotation": 0,
+   "seat": {
+    "boardId": "bb2",
+    "leadMap": {
+     "a": "e23",
+     "b": "f23"
+    }
+   }
   },
   {
    "id": "btnMinus",
    "kind": "button",
    "params": {},
-   "x": 710,
-   "y": 765,
-   "rotation": 0
+   "x": 400,
+   "y": 671,
+   "rotation": 0,
+   "seat": {
+    "boardId": "bb2",
+    "leadMap": {
+     "a": "e27",
+     "b": "f27"
+    }
+   }
   },
   {
    "id": "btn1",
    "kind": "button",
    "params": {},
-   "x": 440,
-   "y": 870,
-   "rotation": 0
+   "x": 456,
+   "y": 671,
+   "rotation": 0,
+   "seat": {
+    "boardId": "bb2",
+    "leadMap": {
+     "a": "e31",
+     "b": "f31"
+    }
+   }
   },
   {
    "id": "btn2",
    "kind": "button",
    "params": {},
-   "x": 530,
-   "y": 870,
-   "rotation": 0
+   "x": 512,
+   "y": 671,
+   "rotation": 0,
+   "seat": {
+    "boardId": "bb2",
+    "leadMap": {
+     "a": "e35",
+     "b": "f35"
+    }
+   }
   },
   {
    "id": "btn3",
    "kind": "button",
    "params": {},
-   "x": 620,
-   "y": 870,
-   "rotation": 0
+   "x": 568,
+   "y": 671,
+   "rotation": 0,
+   "seat": {
+    "boardId": "bb2",
+    "leadMap": {
+     "a": "e39",
+     "b": "f39"
+    }
+   }
   },
   {
    "id": "btnEq",
    "kind": "button",
    "params": {},
-   "x": 710,
-   "y": 870,
-   "rotation": 0
+   "x": 624,
+   "y": 671,
+   "rotation": 0,
+   "seat": {
+    "boardId": "bb2",
+    "leadMap": {
+     "a": "e43",
+     "b": "f43"
+    }
+   }
   },
   {
    "id": "btn0",
    "kind": "button",
    "params": {},
-   "x": 440,
-   "y": 975,
-   "rotation": 0
+   "x": 680,
+   "y": 671,
+   "rotation": 0,
+   "seat": {
+    "boardId": "bb2",
+    "leadMap": {
+     "a": "e47",
+     "b": "f47"
+    }
+   }
   },
   {
    "id": "btnC",
    "kind": "button",
    "params": {},
-   "x": 530,
-   "y": 975,
-   "rotation": 0
+   "x": 736,
+   "y": 671,
+   "rotation": 0,
+   "seat": {
+    "boardId": "bb2",
+    "leadMap": {
+     "a": "e51",
+     "b": "f51"
+    }
+   }
   },
   {
    "id": "btnAC",
    "kind": "button",
    "params": {},
-   "x": 620,
-   "y": 975,
-   "rotation": 0
+   "x": 792,
+   "y": 671,
+   "rotation": 0,
+   "seat": {
+    "boardId": "bb2",
+    "leadMap": {
+     "a": "e55",
+     "b": "f55"
+    }
+   }
   },
   {
    "id": "pd0",
@@ -189,9 +351,16 @@
    "params": {
     "ohms": 10000
    },
-   "x": 440,
-   "y": 1090,
-   "rotation": 0
+   "x": 386,
+   "y": 255,
+   "rotation": 0,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a26",
+     "b": "a30"
+    }
+   }
   },
   {
    "id": "pd1",
@@ -199,9 +368,16 @@
    "params": {
     "ohms": 10000
    },
-   "x": 530,
-   "y": 1090,
-   "rotation": 0
+   "x": 470,
+   "y": 255,
+   "rotation": 0,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a32",
+     "b": "a36"
+    }
+   }
   },
   {
    "id": "pd2",
@@ -209,9 +385,16 @@
    "params": {
     "ohms": 10000
    },
-   "x": 620,
-   "y": 1090,
-   "rotation": 0
+   "x": 554,
+   "y": 255,
+   "rotation": 0,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a38",
+     "b": "a42"
+    }
+   }
   },
   {
    "id": "pd3",
@@ -219,20 +402,42 @@
    "params": {
     "ohms": 10000
    },
-   "x": 710,
-   "y": 1090,
-   "rotation": 0
+   "x": 638,
+   "y": 255,
+   "rotation": 0,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a44",
+     "b": "a48"
+    }
+   }
   },
   {
    "id": "oled1",
    "kind": "ssd1306",
    "params": {},
-   "x": 780,
-   "y": 300,
-   "rotation": 0
+   "x": 722,
+   "y": 255,
+   "rotation": 0,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "vcc": "a50",
+     "gnd": "a51",
+     "sda": "a52",
+     "scl": "a53"
+    }
+   }
   }
  ],
  "wires": [
+  {
+   "from": "vcc1",
+   "fromTerminal": "vcc",
+   "to": "pwr",
+   "toTerminal": "a"
+  },
   {
    "from": "pd0",
    "fromTerminal": "b",
@@ -258,8 +463,8 @@
    "toTerminal": "gnd"
   },
   {
-   "from": "vcc1",
-   "fromTerminal": "vcc",
+   "from": "pwr",
+   "fromTerminal": "com",
    "to": "oled1",
    "toTerminal": "vcc"
   },
@@ -271,15 +476,27 @@
   },
   {
    "from": "nano",
-   "fromTerminal": "VCC",
-   "to": "oled1",
-   "toTerminal": "vcc"
+   "fromTerminal": "P1.4",
+   "to": "btn1",
+   "toTerminal": "a"
   },
   {
    "from": "nano",
-   "fromTerminal": "VCC",
-   "to": "vcc1",
-   "toTerminal": "vcc"
+   "fromTerminal": "P1.4",
+   "to": "btn2",
+   "toTerminal": "a"
+  },
+  {
+   "from": "nano",
+   "fromTerminal": "P1.4",
+   "to": "btn3",
+   "toTerminal": "a"
+  },
+  {
+   "from": "nano",
+   "fromTerminal": "P1.4",
+   "to": "btnEq",
+   "toTerminal": "a"
   },
   {
    "from": "nano",
@@ -313,6 +530,18 @@
   },
   {
    "from": "nano",
+   "fromTerminal": "VCC",
+   "to": "oled1",
+   "toTerminal": "vcc"
+  },
+  {
+   "from": "nano",
+   "fromTerminal": "VCC",
+   "to": "pwr",
+   "toTerminal": "com"
+  },
+  {
+   "from": "nano",
    "fromTerminal": "GND",
    "to": "gnd1",
    "toTerminal": "gnd"
@@ -510,30 +739,181 @@
    "toTerminal": "a"
   },
   {
-   "from": "nano",
-   "fromTerminal": "P1.4",
-   "to": "btn1",
-   "toTerminal": "a"
+   "from": "vcc1",
+   "fromTerminal": "vcc",
+   "to": {
+    "board": "bb1",
+    "hole": "t+2"
+   },
+   "color": "red",
+   "genPower": true
   },
   {
-   "from": "nano",
-   "fromTerminal": "P1.4",
-   "to": "btn2",
-   "toTerminal": "a"
-  },
-  {
-   "from": "nano",
-   "fromTerminal": "P1.4",
-   "to": "btn3",
-   "toTerminal": "a"
-  },
-  {
-   "from": "nano",
-   "fromTerminal": "P1.4",
-   "to": "btnEq",
-   "toTerminal": "a"
+   "from": "gnd1",
+   "fromTerminal": "gnd",
+   "to": {
+    "board": "bb1",
+    "hole": "b-2"
+   },
+   "color": "black",
+   "genPower": true
   }
  ],
- "holeWires": [],
- "generated": "benchFor+seat"
+ "holeWires": [
+  {
+   "ref": "bbw:bb1:gen_0",
+   "boardId": "bb1",
+   "a": "b55",
+   "b": "t+55",
+   "color": "red"
+  },
+  {
+   "ref": "bbw:bb1:gen_1",
+   "boardId": "bb1",
+   "a": "b30",
+   "b": "b-30",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb1:gen_2",
+   "boardId": "bb1",
+   "a": "b36",
+   "b": "b-36",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb1:gen_3",
+   "boardId": "bb1",
+   "a": "b42",
+   "b": "b-42",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb1:gen_4",
+   "boardId": "bb1",
+   "a": "b48",
+   "b": "b-48",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb1:gen_5",
+   "boardId": "bb1",
+   "a": "b51",
+   "b": "b-51",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb1:gen_6",
+   "boardId": "bb1",
+   "a": "a11",
+   "b": "b52",
+   "color": "green"
+  },
+  {
+   "ref": "bbw:bb1:gen_7",
+   "boardId": "bb1",
+   "a": "a12",
+   "b": "b53",
+   "color": "blue"
+  },
+  {
+   "ref": "bbw:bb1:gen_8",
+   "boardId": "bb1",
+   "a": "a20",
+   "b": "b50",
+   "color": "yellow"
+  },
+  {
+   "ref": "bbw:bb1:gen_9",
+   "boardId": "bb1",
+   "a": "a22",
+   "b": "b-22",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb1:gen_10",
+   "boardId": "bb1",
+   "a": "b22",
+   "b": "c51",
+   "color": "orange"
+  },
+  {
+   "ref": "bbw:bb1:gen_11",
+   "boardId": "bb1",
+   "a": "c22",
+   "b": "c30",
+   "color": "purple"
+  },
+  {
+   "ref": "bbw:bb1:gen_12",
+   "boardId": "bb1",
+   "a": "d22",
+   "b": "c36",
+   "color": "green"
+  },
+  {
+   "ref": "bbw:bb1:gen_13",
+   "boardId": "bb1",
+   "a": "a13",
+   "b": "a59",
+   "color": "blue"
+  },
+  {
+   "ref": "bbw:bb1:gen_14",
+   "boardId": "bb1",
+   "a": "g5",
+   "b": "g59",
+   "color": "yellow"
+  },
+  {
+   "ref": "bbw:bb1:gen_15",
+   "boardId": "bb1",
+   "a": "h5",
+   "b": "b26",
+   "color": "orange"
+  },
+  {
+   "ref": "bbw:bb1:gen_16",
+   "boardId": "bb1",
+   "a": "g6",
+   "b": "b32",
+   "color": "purple"
+  },
+  {
+   "ref": "bbw:bb1:gen_17",
+   "boardId": "bb1",
+   "a": "g9",
+   "b": "b38",
+   "color": "green"
+  },
+  {
+   "ref": "bbw:bb1:gen_18",
+   "boardId": "bb1",
+   "a": "g10",
+   "b": "b44",
+   "color": "blue"
+  },
+  {
+   "ref": "bbw:bb1:gen_19",
+   "boardId": "bb1",
+   "a": "b20",
+   "b": "t+20",
+   "color": "red"
+  },
+  {
+   "ref": "bbw:bb1:gen_20",
+   "boardId": "bb1",
+   "a": "c50",
+   "b": "t+50",
+   "color": "red"
+  },
+  {
+   "ref": "bbw:bb1:gen_21",
+   "boardId": "bb1",
+   "a": "d51",
+   "b": "b-51",
+   "color": "black"
+  }
+ ],
+ "generated": "benchFor+authored+seat"
 }

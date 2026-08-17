@@ -125,7 +125,7 @@ async function batch() {
 
 function seat() {
   const seatgen = path.join(CUI, 'scripts/seat-examples.mjs');
-  let seated = 0, failed = 0;
+  let seated = 0, failed = 0, unseated = 0;
   for (const f of fs.globSync ? fs.globSync('examples/*/circuit.*.json')
       : require('glob').sync('examples/*/circuit.*.json')) {
     const d = JSON.parse(fs.readFileSync(f, 'utf8'));
@@ -149,17 +149,37 @@ function seat() {
     fs.mkdirSync(scratch, { recursive: true });
     fs.writeFileSync(path.join(scratch, 'circuit.json'),
       JSON.stringify({ vcc: d.vcc, parts: d.parts, wires, holeWires: d.holeWires ?? [] }, null, 1));
-    const outText = execFileSync('node', [seatgen, '--examples',
-      `/tmp/wore-batch/${exid}-${device}`, '--only', exid], { encoding: 'utf8' });
-    if (outText.includes('seated')) {
-      const seatedD = JSON.parse(fs.readFileSync(path.join(scratch, 'circuit.json'), 'utf8'));
+    // A transformed authored circuit CARRIES its boards, with floating
+    // hand-laid parts — re-author it: --reseat strips the bb* boards,
+    // seats every part, and generates jumpers + rail power. Without it
+    // the CUI generator skipped 'has-board' and the bench shipped
+    // UNSEATED (owner screenshot: buttons hovering between boards, no
+    // visible wiring anywhere).
+    const args = [seatgen, '--examples', `/tmp/wore-batch/${exid}-${device}`, '--only', exid];
+    if (d.parts.some((p) => p.kind === 'breadboard')) args.push('--reseat');
+    const outText = execFileSync('node', args, { encoding: 'utf8' });
+    // Success is SEATS IN THE OUTPUT, not a substring: the old
+    // outText.includes('seated') matched the summary line even on a
+    // skip, restamped the unchanged file as benchFor+seat, and shipped
+    // it unseated.
+    const seatedD = JSON.parse(fs.readFileSync(path.join(scratch, 'circuit.json'), 'utf8'));
+    if (seatedD.parts.some((p) => p.seat)) {
       seatedD.generated = d.generated === 'benchFor+authored'
         ? 'benchFor+authored+seat' : 'benchFor+seat';
       fs.writeFileSync(f, JSON.stringify(seatedD, null, 1));
       seated++;
-    } else failed++;
+    } else if (/skipped/.test(outText)) {
+      // 'nothing-seatable' is a legitimate bench: a dev board with no
+      // breadboard footprint (the Mega) plus power symbols and its
+      // logical wires — the serial-only lessons. The transform output
+      // on disk IS the bench; nothing to seat, nothing to fail.
+      unseated++;
+    } else {
+      console.log(`seat: ${exid} x ${device} produced no seats — ${outText.split('\n').find((l) => l.includes(exid)) || 'no detail'}`);
+      failed++;
+    }
   }
-  console.log(`seat: ${seated} seated, ${failed} failed`);
+  console.log(`seat: ${seated} seated, ${unseated} legitimately unseated, ${failed} failed`);
   if (failed) process.exit(1);
 }
 

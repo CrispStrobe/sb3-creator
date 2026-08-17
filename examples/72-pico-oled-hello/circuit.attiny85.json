@@ -2,43 +2,66 @@
  "vcc": 3.3,
  "parts": [
   {
-   "id": "pico1",
-   "kind": "attiny85",
-   "params": {},
-   "x": 80,
-   "y": -60,
-   "rotation": 0
-  },
-  {
-   "id": "oled1",
-   "kind": "ssd1306",
-   "params": {},
-   "x": 640,
-   "y": 320,
-   "rotation": 0
-  },
-  {
    "id": "bb1",
    "kind": "breadboard",
    "params": {},
+   "terminals": [],
    "x": 470,
    "y": 330,
    "rotation": 0
   },
   {
+   "id": "pico1",
+   "kind": "attiny85",
+   "params": {},
+   "x": 64,
+   "y": 349,
+   "rotation": 0,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "pb5": "f3",
+     "pb3": "f4",
+     "pb4": "f5",
+     "gnd": "f6",
+     "pb0": "e6",
+     "pb1": "e5",
+     "pb2": "e4",
+     "vcc": "e3"
+    }
+   }
+  },
+  {
+   "id": "oled1",
+   "kind": "ssd1306",
+   "params": {},
+   "x": 162,
+   "y": 255,
+   "rotation": 0,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "vcc": "a10",
+     "gnd": "a11",
+     "sda": "a12",
+     "scl": "a13"
+    }
+   }
+  },
+  {
    "id": "vcc1",
    "kind": "vcc",
    "params": {},
-   "x": 60,
-   "y": 120,
+   "x": 80,
+   "y": 60,
    "rotation": 0
   },
   {
    "id": "gnd1",
    "kind": "gnd",
    "params": {},
-   "x": 140,
-   "y": 120,
+   "x": 156,
+   "y": 60,
    "rotation": 0
   }
  ],
@@ -90,8 +113,113 @@
    "fromTerminal": "gnd",
    "to": "oled1",
    "toTerminal": "gnd"
+  },
+  {
+   "from": "vcc1",
+   "fromTerminal": "vcc",
+   "to": {
+    "board": "bb1",
+    "hole": "t+2"
+   },
+   "color": "red",
+   "genPower": true
+  },
+  {
+   "from": "gnd1",
+   "fromTerminal": "gnd",
+   "to": {
+    "board": "bb1",
+    "hole": "b-2"
+   },
+   "color": "black",
+   "genPower": true
   }
  ],
- "holeWires": [],
- "generated": "benchFor+seat"
+ "holeWires": [
+  {
+   "ref": "bbw:bb1:gen_0",
+   "boardId": "bb1",
+   "a": "b10",
+   "b": "t+10",
+   "color": "red"
+  },
+  {
+   "ref": "bbw:bb1:gen_1",
+   "boardId": "bb1",
+   "a": "b11",
+   "b": "b-11",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb1:gen_2",
+   "boardId": "bb1",
+   "a": "a6",
+   "b": "b12",
+   "color": "green"
+  },
+  {
+   "ref": "bbw:bb1:gen_3",
+   "boardId": "bb1",
+   "a": "a4",
+   "b": "b13",
+   "color": "blue"
+  },
+  {
+   "ref": "bbw:bb1:gen_4",
+   "boardId": "bb1",
+   "a": "a3",
+   "b": "c10",
+   "color": "yellow"
+  },
+  {
+   "ref": "bbw:bb1:gen_5",
+   "boardId": "bb1",
+   "a": "b3",
+   "b": "t+3",
+   "color": "red"
+  },
+  {
+   "ref": "bbw:bb1:gen_6",
+   "boardId": "bb1",
+   "a": "g6",
+   "b": "b-6",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb1:gen_7",
+   "boardId": "bb1",
+   "a": "h6",
+   "b": "c11",
+   "color": "orange"
+  },
+  {
+   "ref": "bbw:bb1:gen_8",
+   "boardId": "bb1",
+   "a": "i6",
+   "b": "b-6",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb1:gen_9",
+   "boardId": "bb1",
+   "a": "c3",
+   "b": "t+3",
+   "color": "red"
+  },
+  {
+   "ref": "bbw:bb1:gen_10",
+   "boardId": "bb1",
+   "a": "d10",
+   "b": "t+10",
+   "color": "red"
+  },
+  {
+   "ref": "bbw:bb1:gen_11",
+   "boardId": "bb1",
+   "a": "d11",
+   "b": "b-11",
+   "color": "black"
+  }
+ ],
+ "generated": "benchFor+authored+seat"
 }
