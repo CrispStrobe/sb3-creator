@@ -18,9 +18,10 @@
 //
 // Requires sibling checkouts: bw-board (engine) and bw-circuit-ui (model +
 // seat generator) — paths below; adjust per environment.
-// Device→part table: pico is EXCLUDED until the pi_pico part carries gp25
-// (the onboard-LED contract, bw-board lane); machine-class (eater6502,
-// z80) is out of scope by nature — canonical benches, not generated ones.
+// Device→part table. Machine-class (eater6502, z80) is out of scope by
+// nature — canonical benches, not generated ones. Pico joined 2026-08-17:
+// the gp25 onboard-LED contract landed on both sides (engine ccfda9b,
+// sidecar cui 3750d86), and the LED needs no wires — it is on the PCB.
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import os from 'node:os';
@@ -30,6 +31,7 @@ const HOME = os.homedir();
 const BW_BOARD = process.env.BW_BOARD ?? path.join(HOME, 'code/wt/bw-board');
 const CUI = process.env.BW_CUI ?? path.join(HOME, '.claude/jobs/ef2c9a2a/tmp/cui-check');
 const DEVPART = {
+  'pico': 'pi_pico',
   'stc12c5a60s2': 'mcu', 'stc89c52rc': 'mcu', 'stc15f2k60s2': 'stc15_mcu',
   'arduino-uno': 'arduino_uno', 'arduino-nano': 'arduino_nano',
   'arduino-mega': 'arduino_mega', 'atmega168p': 'arduino_uno',

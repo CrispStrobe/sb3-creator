@@ -51,6 +51,7 @@
    "arduino-uno": "01-blink/circuit.arduino-uno.json",
    "atmega168p": "01-blink/circuit.atmega168p.json",
    "attiny88": "01-blink/circuit.attiny88.json",
+   "pico": "01-blink/circuit.pico.json",
    "stc12c5a60s2": "01-blink/circuit.stc12c5a60s2.json",
    "stc15f2k60s2": "01-blink/circuit.stc15f2k60s2.json",
    "stc89c52rc": "01-blink/circuit.stc89c52rc.json"
@@ -90,6 +91,7 @@
    "arduino-nano": "02-dimmer/circuit.arduino-nano.json",
    "arduino-uno": "02-dimmer/circuit.arduino-uno.json",
    "atmega168p": "02-dimmer/circuit.atmega168p.json",
+   "pico": "02-dimmer/circuit.pico.json",
    "stc12c5a60s2": "02-dimmer/circuit.stc12c5a60s2.json",
    "stc15f2k60s2": "02-dimmer/circuit.stc15f2k60s2.json"
   }
@@ -128,6 +130,7 @@
    "arduino-nano": "03-night-light/circuit.arduino-nano.json",
    "arduino-uno": "03-night-light/circuit.arduino-uno.json",
    "atmega168p": "03-night-light/circuit.atmega168p.json",
+   "pico": "03-night-light/circuit.pico.json",
    "stc12c5a60s2": "03-night-light/circuit.stc12c5a60s2.json",
    "stc15f2k60s2": "03-night-light/circuit.stc15f2k60s2.json"
   }
@@ -166,6 +169,7 @@
    "arduino-nano": "04-thermostat/circuit.arduino-nano.json",
    "arduino-uno": "04-thermostat/circuit.arduino-uno.json",
    "atmega168p": "04-thermostat/circuit.atmega168p.json",
+   "pico": "04-thermostat/circuit.pico.json",
    "stc12c5a60s2": "04-thermostat/circuit.stc12c5a60s2.json",
    "stc15f2k60s2": "04-thermostat/circuit.stc15f2k60s2.json"
   }
@@ -203,6 +207,7 @@
    "arduino-nano": "05-counter/circuit.arduino-nano.json",
    "arduino-uno": "05-counter/circuit.arduino-uno.json",
    "atmega168p": "05-counter/circuit.atmega168p.json",
+   "pico": "05-counter/circuit.pico.json",
    "stc12c5a60s2": "05-counter/circuit.stc12c5a60s2.json",
    "stc15f2k60s2": "05-counter/circuit.stc15f2k60s2.json",
    "stc89c52rc": "05-counter/circuit.stc89c52rc.json"
@@ -241,6 +246,7 @@
    "arduino-nano": "06-active-low-high/circuit.arduino-nano.json",
    "arduino-uno": "06-active-low-high/circuit.arduino-uno.json",
    "atmega168p": "06-active-low-high/circuit.atmega168p.json",
+   "pico": "06-active-low-high/circuit.pico.json",
    "stc12c5a60s2": "06-active-low-high/circuit.stc12c5a60s2.json",
    "stc15f2k60s2": "06-active-low-high/circuit.stc15f2k60s2.json",
    "stc89c52rc": "06-active-low-high/circuit.stc89c52rc.json"
@@ -337,6 +343,7 @@
    "arduino-nano": "09-relay-clicker/circuit.arduino-nano.json",
    "arduino-uno": "09-relay-clicker/circuit.arduino-uno.json",
    "atmega168p": "09-relay-clicker/circuit.atmega168p.json",
+   "pico": "09-relay-clicker/circuit.pico.json",
    "stc12c5a60s2": "09-relay-clicker/circuit.stc12c5a60s2.json",
    "stc15f2k60s2": "09-relay-clicker/circuit.stc15f2k60s2.json",
    "stc89c52rc": "09-relay-clicker/circuit.stc89c52rc.json"
@@ -376,6 +383,7 @@
    "arduino-nano": "10-motor-speed/circuit.arduino-nano.json",
    "arduino-uno": "10-motor-speed/circuit.arduino-uno.json",
    "atmega168p": "10-motor-speed/circuit.atmega168p.json",
+   "pico": "10-motor-speed/circuit.pico.json",
    "stc12c5a60s2": "10-motor-speed/circuit.stc12c5a60s2.json",
    "stc15f2k60s2": "10-motor-speed/circuit.stc15f2k60s2.json"
   }
@@ -413,6 +421,7 @@
    "arduino-nano": "11-toggle-button/circuit.arduino-nano.json",
    "arduino-uno": "11-toggle-button/circuit.arduino-uno.json",
    "atmega168p": "11-toggle-button/circuit.atmega168p.json",
+   "pico": "11-toggle-button/circuit.pico.json",
    "stc12c5a60s2": "11-toggle-button/circuit.stc12c5a60s2.json",
    "stc15f2k60s2": "11-toggle-button/circuit.stc15f2k60s2.json",
    "stc89c52rc": "11-toggle-button/circuit.stc89c52rc.json"
@@ -451,6 +460,7 @@
    "arduino-nano": "12-dual-blink/circuit.arduino-nano.json",
    "arduino-uno": "12-dual-blink/circuit.arduino-uno.json",
    "atmega168p": "12-dual-blink/circuit.atmega168p.json",
+   "pico": "12-dual-blink/circuit.pico.json",
    "stc12c5a60s2": "12-dual-blink/circuit.stc12c5a60s2.json",
    "stc15f2k60s2": "12-dual-blink/circuit.stc15f2k60s2.json",
    "stc89c52rc": "12-dual-blink/circuit.stc89c52rc.json"
@@ -489,6 +499,7 @@
    "arduino-nano": "13-sos-morse/circuit.arduino-nano.json",
    "arduino-uno": "13-sos-morse/circuit.arduino-uno.json",
    "atmega168p": "13-sos-morse/circuit.atmega168p.json",
+   "pico": "13-sos-morse/circuit.pico.json",
    "stc12c5a60s2": "13-sos-morse/circuit.stc12c5a60s2.json",
    "stc15f2k60s2": "13-sos-morse/circuit.stc15f2k60s2.json",
    "stc89c52rc": "13-sos-morse/circuit.stc89c52rc.json"
@@ -527,6 +538,7 @@
    "arduino-nano": "14-traffic-light/circuit.arduino-nano.json",
    "arduino-uno": "14-traffic-light/circuit.arduino-uno.json",
    "atmega168p": "14-traffic-light/circuit.atmega168p.json",
+   "pico": "14-traffic-light/circuit.pico.json",
    "stc12c5a60s2": "14-traffic-light/circuit.stc12c5a60s2.json",
    "stc15f2k60s2": "14-traffic-light/circuit.stc15f2k60s2.json",
    "stc89c52rc": "14-traffic-light/circuit.stc89c52rc.json"
@@ -566,6 +578,7 @@
    "arduino-nano": "15-voltage-divider/circuit.arduino-nano.json",
    "arduino-uno": "15-voltage-divider/circuit.arduino-uno.json",
    "atmega168p": "15-voltage-divider/circuit.atmega168p.json",
+   "pico": "15-voltage-divider/circuit.pico.json",
    "stc12c5a60s2": "15-voltage-divider/circuit.stc12c5a60s2.json",
    "stc15f2k60s2": "15-voltage-divider/circuit.stc15f2k60s2.json"
   }
@@ -604,6 +617,7 @@
    "arduino-nano": "16-ldr-bargraph/circuit.arduino-nano.json",
    "arduino-uno": "16-ldr-bargraph/circuit.arduino-uno.json",
    "atmega168p": "16-ldr-bargraph/circuit.atmega168p.json",
+   "pico": "16-ldr-bargraph/circuit.pico.json",
    "stc12c5a60s2": "16-ldr-bargraph/circuit.stc12c5a60s2.json",
    "stc15f2k60s2": "16-ldr-bargraph/circuit.stc15f2k60s2.json"
   }
@@ -642,6 +656,7 @@
    "arduino-nano": "17-comparator/circuit.arduino-nano.json",
    "arduino-uno": "17-comparator/circuit.arduino-uno.json",
    "atmega168p": "17-comparator/circuit.atmega168p.json",
+   "pico": "17-comparator/circuit.pico.json",
    "stc12c5a60s2": "17-comparator/circuit.stc12c5a60s2.json",
    "stc15f2k60s2": "17-comparator/circuit.stc15f2k60s2.json"
   }
@@ -679,6 +694,7 @@
    "arduino-nano": "18-logic-and-gate/circuit.arduino-nano.json",
    "arduino-uno": "18-logic-and-gate/circuit.arduino-uno.json",
    "atmega168p": "18-logic-and-gate/circuit.atmega168p.json",
+   "pico": "18-logic-and-gate/circuit.pico.json",
    "stc12c5a60s2": "18-logic-and-gate/circuit.stc12c5a60s2.json",
    "stc15f2k60s2": "18-logic-and-gate/circuit.stc15f2k60s2.json",
    "stc89c52rc": "18-logic-and-gate/circuit.stc89c52rc.json"
@@ -717,6 +733,7 @@
    "arduino-nano": "19-logic-or-gate/circuit.arduino-nano.json",
    "arduino-uno": "19-logic-or-gate/circuit.arduino-uno.json",
    "atmega168p": "19-logic-or-gate/circuit.atmega168p.json",
+   "pico": "19-logic-or-gate/circuit.pico.json",
    "stc12c5a60s2": "19-logic-or-gate/circuit.stc12c5a60s2.json",
    "stc15f2k60s2": "19-logic-or-gate/circuit.stc15f2k60s2.json",
    "stc89c52rc": "19-logic-or-gate/circuit.stc89c52rc.json"
@@ -755,6 +772,7 @@
    "arduino-nano": "20-shift-register-binary/circuit.arduino-nano.json",
    "arduino-uno": "20-shift-register-binary/circuit.arduino-uno.json",
    "atmega168p": "20-shift-register-binary/circuit.atmega168p.json",
+   "pico": "20-shift-register-binary/circuit.pico.json",
    "stc12c5a60s2": "20-shift-register-binary/circuit.stc12c5a60s2.json",
    "stc15f2k60s2": "20-shift-register-binary/circuit.stc15f2k60s2.json",
    "stc89c52rc": "20-shift-register-binary/circuit.stc89c52rc.json"
@@ -847,6 +865,7 @@
    "arduino-nano": "24-pwm-fade/circuit.arduino-nano.json",
    "arduino-uno": "24-pwm-fade/circuit.arduino-uno.json",
    "atmega168p": "24-pwm-fade/circuit.atmega168p.json",
+   "pico": "24-pwm-fade/circuit.pico.json",
    "stc12c5a60s2": "24-pwm-fade/circuit.stc12c5a60s2.json",
    "stc15f2k60s2": "24-pwm-fade/circuit.stc15f2k60s2.json",
    "stc89c52rc": "24-pwm-fade/circuit.stc89c52rc.json"
@@ -885,6 +904,7 @@
    "arduino-nano": "25-reaction-timer/circuit.arduino-nano.json",
    "arduino-uno": "25-reaction-timer/circuit.arduino-uno.json",
    "atmega168p": "25-reaction-timer/circuit.atmega168p.json",
+   "pico": "25-reaction-timer/circuit.pico.json",
    "stc12c5a60s2": "25-reaction-timer/circuit.stc12c5a60s2.json",
    "stc15f2k60s2": "25-reaction-timer/circuit.stc15f2k60s2.json",
    "stc89c52rc": "25-reaction-timer/circuit.stc89c52rc.json"
@@ -923,6 +943,7 @@
    "arduino-nano": "26-debounce/circuit.arduino-nano.json",
    "arduino-uno": "26-debounce/circuit.arduino-uno.json",
    "atmega168p": "26-debounce/circuit.atmega168p.json",
+   "pico": "26-debounce/circuit.pico.json",
    "stc12c5a60s2": "26-debounce/circuit.stc12c5a60s2.json",
    "stc15f2k60s2": "26-debounce/circuit.stc15f2k60s2.json",
    "stc89c52rc": "26-debounce/circuit.stc89c52rc.json"
@@ -961,6 +982,7 @@
    "arduino-nano": "27-led-dice/circuit.arduino-nano.json",
    "arduino-uno": "27-led-dice/circuit.arduino-uno.json",
    "atmega168p": "27-led-dice/circuit.atmega168p.json",
+   "pico": "27-led-dice/circuit.pico.json",
    "stc12c5a60s2": "27-led-dice/circuit.stc12c5a60s2.json",
    "stc15f2k60s2": "27-led-dice/circuit.stc15f2k60s2.json",
    "stc89c52rc": "27-led-dice/circuit.stc89c52rc.json"
@@ -1035,6 +1057,7 @@
    "arduino-nano": "30-multi-led-pattern/circuit.arduino-nano.json",
    "arduino-uno": "30-multi-led-pattern/circuit.arduino-uno.json",
    "atmega168p": "30-multi-led-pattern/circuit.atmega168p.json",
+   "pico": "30-multi-led-pattern/circuit.pico.json",
    "stc12c5a60s2": "30-multi-led-pattern/circuit.stc12c5a60s2.json",
    "stc15f2k60s2": "30-multi-led-pattern/circuit.stc15f2k60s2.json",
    "stc89c52rc": "30-multi-led-pattern/circuit.stc89c52rc.json"
@@ -1091,6 +1114,7 @@
    "arduino-nano": "32-source-vs-sink/circuit.arduino-nano.json",
    "arduino-uno": "32-source-vs-sink/circuit.arduino-uno.json",
    "atmega168p": "32-source-vs-sink/circuit.atmega168p.json",
+   "pico": "32-source-vs-sink/circuit.pico.json",
    "stc12c5a60s2": "32-source-vs-sink/circuit.stc12c5a60s2.json",
    "stc15f2k60s2": "32-source-vs-sink/circuit.stc15f2k60s2.json",
    "stc89c52rc": "32-source-vs-sink/circuit.stc89c52rc.json"
@@ -1423,6 +1447,7 @@
    "arduino-uno": "49-lcd-hello/circuit.arduino-uno.json",
    "atmega168p": "49-lcd-hello/circuit.atmega168p.json",
    "attiny88": "49-lcd-hello/circuit.attiny88.json",
+   "pico": "49-lcd-hello/circuit.pico.json",
    "stc12c5a60s2": "49-lcd-hello/circuit.stc12c5a60s2.json",
    "stc15f2k60s2": "49-lcd-hello/circuit.stc15f2k60s2.json",
    "stc89c52rc": "49-lcd-hello/circuit.stc89c52rc.json"
@@ -1478,6 +1503,7 @@
   "benches": {
    "arduino-mega": "50-7seg-chase/circuit.arduino-mega.json",
    "attiny88": "50-7seg-chase/circuit.attiny88.json",
+   "pico": "50-7seg-chase/circuit.pico.json",
    "stc12c5a60s2": "50-7seg-chase/circuit.stc12c5a60s2.json",
    "stc89c52rc": "50-7seg-chase/circuit.stc89c52rc.json"
   }
@@ -1584,6 +1610,7 @@
    "arduino-nano": "53-servo-sweep/circuit.arduino-nano.json",
    "arduino-uno": "53-servo-sweep/circuit.arduino-uno.json",
    "atmega168p": "53-servo-sweep/circuit.atmega168p.json",
+   "pico": "53-servo-sweep/circuit.pico.json",
    "stc12c5a60s2": "53-servo-sweep/circuit.stc12c5a60s2.json",
    "stc15f2k60s2": "53-servo-sweep/circuit.stc15f2k60s2.json"
   }
@@ -1624,6 +1651,7 @@
    "arduino-nano": "54-motor-driver/circuit.arduino-nano.json",
    "arduino-uno": "54-motor-driver/circuit.arduino-uno.json",
    "atmega168p": "54-motor-driver/circuit.atmega168p.json",
+   "pico": "54-motor-driver/circuit.pico.json",
    "stc12c5a60s2": "54-motor-driver/circuit.stc12c5a60s2.json",
    "stc15f2k60s2": "54-motor-driver/circuit.stc15f2k60s2.json"
   }
