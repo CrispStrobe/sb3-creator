@@ -14,9 +14,7 @@
    "expected": "eater6502-contention-bug/EXPECTED.md"
   },
   "kind": "circuit",
-  "devices": [
-   "eater6502"
-  ]
+  "devices": []
  },
  {
   "id": "01-blink",
@@ -44,8 +42,6 @@
    "arduino-mega",
    "arduino-nano",
    "pico",
-   "eater6502",
-   "z80",
    "attiny88",
    "attiny85"
   ],
@@ -89,7 +85,7 @@
    "pico"
   ],
   "refusals": {
-   "stc89c52rc": "stc89c52rc has no ADC — the analog pins cannot map"
+   "stc89c52rc": "stc89c52rc has no ADC \u2014 the analog pins cannot map"
   },
   "benches": {
    "arduino-mega": "02-dimmer/circuit.arduino-mega.json",
@@ -128,7 +124,7 @@
    "pico"
   ],
   "refusals": {
-   "stc89c52rc": "stc89c52rc has no ADC — the analog pins cannot map"
+   "stc89c52rc": "stc89c52rc has no ADC \u2014 the analog pins cannot map"
   },
   "benches": {
    "arduino-mega": "03-night-light/circuit.arduino-mega.json",
@@ -167,7 +163,7 @@
    "pico"
   ],
   "refusals": {
-   "stc89c52rc": "stc89c52rc has no ADC — the analog pins cannot map"
+   "stc89c52rc": "stc89c52rc has no ADC \u2014 the analog pins cannot map"
   },
   "benches": {
    "arduino-mega": "04-thermostat/circuit.arduino-mega.json",
@@ -183,7 +179,7 @@
   "id": "05-counter",
   "title": {
    "en": "Button counter with LED blinks",
-   "de": "Tastenzähler mit LED-Blinken"
+   "de": "Tastenz\u00e4hler mit LED-Blinken"
   },
   "category": "basics",
   "difficulty": 2,
@@ -205,8 +201,6 @@
    "arduino-mega",
    "arduino-nano",
    "pico",
-   "eater6502",
-   "z80",
    "attiny88",
    "attiny85"
   ],
@@ -249,8 +243,6 @@
    "arduino-mega",
    "arduino-nano",
    "pico",
-   "eater6502",
-   "z80",
    "attiny88",
    "attiny85"
   ],
@@ -321,8 +313,6 @@
    "arduino-mega",
    "arduino-nano",
    "pico",
-   "eater6502",
-   "z80",
    "attiny88",
    "attiny85"
   ]
@@ -353,8 +343,6 @@
    "arduino-mega",
    "arduino-nano",
    "pico",
-   "eater6502",
-   "z80",
    "attiny88",
    "attiny85"
   ],
@@ -398,7 +386,7 @@
    "pico"
   ],
   "refusals": {
-   "stc89c52rc": "stc89c52rc has no ADC — the analog pins cannot map"
+   "stc89c52rc": "stc89c52rc has no ADC \u2014 the analog pins cannot map"
   },
   "benches": {
    "arduino-mega": "10-motor-speed/circuit.arduino-mega.json",
@@ -436,8 +424,6 @@
    "arduino-mega",
    "arduino-nano",
    "pico",
-   "eater6502",
-   "z80",
    "attiny88",
    "attiny85"
   ],
@@ -480,8 +466,6 @@
    "arduino-mega",
    "arduino-nano",
    "pico",
-   "eater6502",
-   "z80",
    "attiny88",
    "attiny85"
   ],
@@ -524,8 +508,6 @@
    "arduino-mega",
    "arduino-nano",
    "pico",
-   "eater6502",
-   "z80",
    "attiny88",
    "attiny85"
   ],
@@ -568,8 +550,6 @@
    "arduino-mega",
    "arduino-nano",
    "pico",
-   "eater6502",
-   "z80",
    "attiny88",
    "attiny85"
   ],
@@ -613,7 +593,7 @@
    "pico"
   ],
   "refusals": {
-   "stc89c52rc": "stc89c52rc has no ADC — the analog pins cannot map"
+   "stc89c52rc": "stc89c52rc has no ADC \u2014 the analog pins cannot map"
   },
   "benches": {
    "arduino-mega": "15-voltage-divider/circuit.arduino-mega.json",
@@ -652,7 +632,7 @@
    "pico"
   ],
   "refusals": {
-   "stc89c52rc": "stc89c52rc has no ADC — the analog pins cannot map"
+   "stc89c52rc": "stc89c52rc has no ADC \u2014 the analog pins cannot map"
   },
   "benches": {
    "arduino-mega": "16-ldr-bargraph/circuit.arduino-mega.json",
@@ -691,7 +671,7 @@
    "pico"
   ],
   "refusals": {
-   "stc89c52rc": "stc89c52rc has no ADC — the analog pins cannot map"
+   "stc89c52rc": "stc89c52rc has no ADC \u2014 the analog pins cannot map"
   },
   "benches": {
    "arduino-mega": "17-comparator/circuit.arduino-mega.json",
@@ -729,8 +709,6 @@
    "arduino-mega",
    "arduino-nano",
    "pico",
-   "eater6502",
-   "z80",
    "attiny88",
    "attiny85"
   ],
@@ -773,8 +751,6 @@
    "arduino-mega",
    "arduino-nano",
    "pico",
-   "eater6502",
-   "z80",
    "attiny88",
    "attiny85"
   ],
@@ -795,7 +771,7 @@
   "id": "20-shift-register-binary",
   "title": {
    "en": "Binary counter on shift register",
-   "de": "Binärzähler auf Schieberegister"
+   "de": "Bin\u00e4rz\u00e4hler auf Schieberegister"
   },
   "category": "digital",
   "difficulty": 3,
@@ -817,8 +793,6 @@
    "arduino-mega",
    "arduino-nano",
    "pico",
-   "eater6502",
-   "z80",
    "attiny88",
    "attiny85"
   ],
@@ -915,8 +889,6 @@
    "arduino-mega",
    "arduino-nano",
    "pico",
-   "eater6502",
-   "z80",
    "attiny88",
    "attiny85"
   ],
@@ -959,8 +931,6 @@
    "arduino-mega",
    "arduino-nano",
    "pico",
-   "eater6502",
-   "z80",
    "attiny88",
    "attiny85"
   ],
@@ -1003,8 +973,6 @@
    "arduino-mega",
    "arduino-nano",
    "pico",
-   "eater6502",
-   "z80",
    "attiny88",
    "attiny85"
   ],
@@ -1047,8 +1015,6 @@
    "arduino-mega",
    "arduino-nano",
    "pico",
-   "eater6502",
-   "z80",
    "attiny88",
    "attiny85"
   ],
@@ -1127,8 +1093,6 @@
    "arduino-mega",
    "arduino-nano",
    "pico",
-   "eater6502",
-   "z80",
    "attiny88",
    "attiny85"
   ],
@@ -1189,8 +1153,6 @@
    "arduino-mega",
    "arduino-nano",
    "pico",
-   "eater6502",
-   "z80",
    "attiny88",
    "attiny85"
   ],
@@ -1456,8 +1418,6 @@
    "arduino-mega",
    "arduino-nano",
    "pico",
-   "eater6502",
-   "z80",
    "attiny88"
   ],
   "refusals": {
@@ -1517,7 +1477,7 @@
   "id": "49-lcd-hello",
   "title": {
    "en": "I2C LCD: hello + counter",
-   "de": "I2C-LCD: Hallo + Zähler"
+   "de": "I2C-LCD: Hallo + Z\u00e4hler"
   },
   "category": "digital",
   "difficulty": 2,
@@ -1538,8 +1498,6 @@
    "arduino-mega",
    "arduino-nano",
    "pico",
-   "eater6502",
-   "z80",
    "attiny88",
    "attiny85"
   ],
@@ -1560,7 +1518,7 @@
   "id": "55-oled-hello",
   "title": {
    "en": "I2C OLED: hello + counter",
-   "de": "I2C-OLED: Hallo + Zähler"
+   "de": "I2C-OLED: Hallo + Z\u00e4hler"
   },
   "category": "digital",
   "difficulty": 2,
@@ -1581,8 +1539,6 @@
    "arduino-mega",
    "arduino-nano",
    "pico",
-   "eater6502",
-   "z80",
    "attiny88",
    "attiny85"
   ],
@@ -1624,8 +1580,6 @@
    "arduino-mega",
    "arduino-nano",
    "pico",
-   "eater6502",
-   "z80",
    "attiny88"
   ],
   "benches": {
@@ -1728,8 +1682,8 @@
  {
   "id": "53-servo-sweep",
   "title": {
-   "en": "Servo sweep 0°–180°",
-   "de": "Servo-Schwenk 0°–180°"
+   "en": "Servo sweep 0\u00b0\u2013180\u00b0",
+   "de": "Servo-Schwenk 0\u00b0\u2013180\u00b0"
   },
   "kind": "program",
   "category": "motors",
@@ -1750,12 +1704,11 @@
    "arduino-mega",
    "arduino-nano",
    "pico",
-   "z80",
    "attiny88",
    "attiny85"
   ],
   "refusals": {
-   "stc89c52rc": "servo needs the PCA — stc89c52rc has none"
+   "stc89c52rc": "servo needs the PCA \u2014 stc89c52rc has none"
   },
   "benches": {
    "arduino-mega": "53-servo-sweep/circuit.arduino-mega.json",
@@ -1773,7 +1726,7 @@
   "id": "54-motor-driver",
   "title": {
    "en": "DC motor with L293D H-bridge",
-   "de": "DC-Motor mit L293D-H-Brücke"
+   "de": "DC-Motor mit L293D-H-Br\u00fccke"
   },
   "kind": "program",
   "category": "motors",
@@ -1794,7 +1747,6 @@
    "arduino-mega",
    "arduino-nano",
    "pico",
-   "z80",
    "attiny88",
    "attiny85"
   ],
@@ -1853,7 +1805,7 @@
   "id": "pc03-series-resistors",
   "title": {
    "en": "Resistors in series",
-   "de": "Widerstände in Reihe"
+   "de": "Widerst\u00e4nde in Reihe"
   },
   "category": "pure-circuit",
   "difficulty": 1,
@@ -2213,7 +2165,7 @@
   "id": "pc21-rc-smoothing",
   "title": {
    "en": "RC smoothing",
-   "de": "RC-Glättung"
+   "de": "RC-Gl\u00e4ttung"
   },
   "category": "pure-circuit",
   "difficulty": 2,
@@ -2230,7 +2182,7 @@
   "id": "pc22-diode-selector",
   "title": {
    "en": "Diode power selector",
-   "de": "Dioden-Stromwähler"
+   "de": "Dioden-Stromw\u00e4hler"
   },
   "category": "pure-circuit",
   "difficulty": 2,
@@ -2383,7 +2335,7 @@
   "id": "pc31-bridge-rectifier",
   "title": {
    "en": "Bridge rectifier",
-   "de": "Brückengleichrichter"
+   "de": "Br\u00fcckengleichrichter"
   },
   "category": "pure-circuit",
   "difficulty": 3,
@@ -2608,7 +2560,7 @@
   "id": "pc40-opamp-threshold",
   "title": {
    "en": "Op-amp threshold",
-   "de": "Operationsverstärker-Schwelle"
+   "de": "Operationsverst\u00e4rker-Schwelle"
   },
   "category": "pure-circuit",
   "difficulty": 3,
@@ -2846,7 +2798,7 @@
   "id": "pc54-opamp-follower",
   "title": {
    "en": "Op-amp voltage follower",
-   "de": "Operationsverstärker-Spannungsfolger"
+   "de": "Operationsverst\u00e4rker-Spannungsfolger"
   },
   "category": "pure-circuit",
   "difficulty": 3,
@@ -2880,7 +2832,7 @@
   "id": "pc56-inductor-freewheel",
   "title": {
    "en": "Inductor freewheel path",
-   "de": "Freilaufpfad für Induktivität"
+   "de": "Freilaufpfad f\u00fcr Induktivit\u00e4t"
   },
   "category": "pure-circuit",
   "difficulty": 3,
@@ -3199,8 +3151,6 @@
    "arduino-mega",
    "arduino-nano",
    "pico",
-   "eater6502",
-   "z80",
    "attiny88",
    "attiny85"
   ],
@@ -3241,8 +3191,6 @@
    "arduino-mega",
    "arduino-nano",
    "pico",
-   "eater6502",
-   "z80",
    "attiny88",
    "attiny85"
   ],
@@ -3317,8 +3265,6 @@
    "arduino-mega",
    "arduino-nano",
    "pico",
-   "eater6502",
-   "z80",
    "attiny88",
    "attiny85"
   ],
@@ -3393,8 +3339,6 @@
    "arduino-mega",
    "arduino-nano",
    "pico",
-   "eater6502",
-   "z80",
    "attiny88",
    "attiny85"
   ],
@@ -3435,8 +3379,6 @@
    "arduino-mega",
    "arduino-nano",
    "pico",
-   "eater6502",
-   "z80",
    "attiny88",
    "attiny85"
   ],
@@ -3477,8 +3419,6 @@
    "arduino-mega",
    "arduino-nano",
    "pico",
-   "eater6502",
-   "z80",
    "attiny88",
    "attiny85"
   ],
@@ -3519,8 +3459,6 @@
    "arduino-mega",
    "arduino-nano",
    "pico",
-   "eater6502",
-   "z80",
    "attiny88",
    "attiny85"
   ],
@@ -3561,8 +3499,6 @@
    "arduino-mega",
    "arduino-nano",
    "pico",
-   "eater6502",
-   "z80",
    "attiny88",
    "attiny85"
   ],
@@ -3603,8 +3539,6 @@
    "arduino-mega",
    "arduino-nano",
    "pico",
-   "eater6502",
-   "z80",
    "attiny88",
    "attiny85"
   ],
@@ -3679,8 +3613,6 @@
    "arduino-mega",
    "arduino-nano",
    "pico",
-   "eater6502",
-   "z80",
    "attiny88",
    "attiny85"
   ],
@@ -3701,7 +3633,7 @@
   "id": "arduino-02-tone-pitch-follower",
   "title": {
    "en": "Pitch Follower",
-   "de": "Tonhöhenfolger"
+   "de": "Tonh\u00f6henfolger"
   },
   "category": "digital",
   "difficulty": 2,
@@ -3823,8 +3755,6 @@
    "arduino-mega",
    "arduino-nano",
    "pico",
-   "eater6502",
-   "z80",
    "attiny88",
    "attiny85"
   ],
@@ -3899,8 +3829,6 @@
    "arduino-mega",
    "arduino-nano",
    "pico",
-   "eater6502",
-   "z80",
    "attiny88",
    "attiny85"
   ],
@@ -3921,7 +3849,7 @@
   "id": "arduino-03-smoothing",
   "title": {
    "en": "Smoothing",
-   "de": "Glättung"
+   "de": "Gl\u00e4ttung"
   },
   "category": "analog",
   "difficulty": 2,
@@ -3975,8 +3903,6 @@
    "arduino-mega",
    "arduino-nano",
    "pico",
-   "eater6502",
-   "z80",
    "attiny88"
   ],
   "benches": {
@@ -4015,8 +3941,6 @@
    "arduino-mega",
    "arduino-nano",
    "pico",
-   "eater6502",
-   "z80",
    "attiny88"
   ],
   "benches": {
@@ -4123,8 +4047,6 @@
    "arduino-mega",
    "arduino-nano",
    "pico",
-   "eater6502",
-   "z80",
    "attiny88",
    "attiny85"
   ],
@@ -4199,8 +4121,6 @@
    "arduino-mega",
    "arduino-nano",
    "pico",
-   "eater6502",
-   "z80",
    "attiny88",
    "attiny85"
   ]
@@ -4399,8 +4319,6 @@
    "arduino-mega",
    "arduino-nano",
    "pico",
-   "eater6502",
-   "z80",
    "attiny88",
    "attiny85"
   ],
@@ -4543,8 +4461,6 @@
    "arduino-mega",
    "arduino-nano",
    "pico",
-   "eater6502",
-   "z80",
    "attiny88",
    "attiny85"
   ]
@@ -4573,8 +4489,6 @@
    "arduino-mega",
    "arduino-nano",
    "pico",
-   "eater6502",
-   "z80",
    "attiny88",
    "attiny85"
   ]
@@ -4603,8 +4517,6 @@
    "arduino-mega",
    "arduino-nano",
    "pico",
-   "eater6502",
-   "z80",
    "attiny88",
    "attiny85"
   ]
@@ -4633,8 +4545,6 @@
    "arduino-mega",
    "arduino-nano",
    "pico",
-   "eater6502",
-   "z80",
    "attiny88",
    "attiny85"
   ]
@@ -4663,8 +4573,6 @@
    "arduino-mega",
    "arduino-nano",
    "pico",
-   "eater6502",
-   "z80",
    "attiny88",
    "attiny85"
   ]
@@ -4693,8 +4601,6 @@
    "arduino-mega",
    "arduino-nano",
    "pico",
-   "eater6502",
-   "z80",
    "attiny88",
    "attiny85"
   ]
@@ -4723,8 +4629,6 @@
    "arduino-mega",
    "arduino-nano",
    "pico",
-   "eater6502",
-   "z80",
    "attiny88",
    "attiny85"
   ]
@@ -4753,8 +4657,6 @@
    "arduino-mega",
    "arduino-nano",
    "pico",
-   "eater6502",
-   "z80",
    "attiny88",
    "attiny85"
   ]
@@ -4783,8 +4685,6 @@
    "arduino-mega",
    "arduino-nano",
    "pico",
-   "eater6502",
-   "z80",
    "attiny88",
    "attiny85"
   ]
@@ -4813,8 +4713,6 @@
    "arduino-mega",
    "arduino-nano",
    "pico",
-   "eater6502",
-   "z80",
    "attiny88",
    "attiny85"
   ]
@@ -4843,8 +4741,6 @@
    "arduino-mega",
    "arduino-nano",
    "pico",
-   "eater6502",
-   "z80",
    "attiny88",
    "attiny85"
   ]
@@ -4873,8 +4769,6 @@
    "arduino-mega",
    "arduino-nano",
    "pico",
-   "eater6502",
-   "z80",
    "attiny88",
    "attiny85"
   ]
@@ -4903,8 +4797,6 @@
    "arduino-mega",
    "arduino-nano",
    "pico",
-   "eater6502",
-   "z80",
    "attiny88",
    "attiny85"
   ]
@@ -4933,8 +4825,6 @@
    "arduino-mega",
    "arduino-nano",
    "pico",
-   "eater6502",
-   "z80",
    "attiny88",
    "attiny85"
   ],
@@ -5091,7 +4981,7 @@
   "id": "blinkenrocket-pendant",
   "title": {
    "en": "Blinkenrocket Pendant",
-   "de": "Blinkenrocket-Anhänger"
+   "de": "Blinkenrocket-Anh\u00e4nger"
   },
   "category": "digital",
   "difficulty": 3,
@@ -5149,8 +5039,6 @@
    "arduino-mega",
    "arduino-nano",
    "pico",
-   "eater6502",
-   "z80",
    "attiny88",
    "attiny85"
   ],
@@ -5191,8 +5079,6 @@
    "arduino-mega",
    "arduino-nano",
    "pico",
-   "eater6502",
-   "z80",
    "attiny88"
   ],
   "benches": {
@@ -5231,8 +5117,6 @@
    "arduino-mega",
    "arduino-nano",
    "pico",
-   "eater6502",
-   "z80",
    "attiny88",
    "attiny85"
   ],
@@ -5307,8 +5191,6 @@
    "arduino-mega",
    "arduino-nano",
    "pico",
-   "eater6502",
-   "z80",
    "attiny88",
    "attiny85"
   ],
@@ -5383,8 +5265,6 @@
    "arduino-mega",
    "arduino-nano",
    "pico",
-   "eater6502",
-   "z80",
    "attiny88",
    "attiny85"
   ],
@@ -5459,8 +5339,6 @@
    "arduino-mega",
    "arduino-nano",
    "pico",
-   "eater6502",
-   "z80",
    "attiny88",
    "attiny85"
   ],
@@ -5501,8 +5379,6 @@
    "arduino-mega",
    "arduino-nano",
    "pico",
-   "eater6502",
-   "z80",
    "attiny88"
   ],
   "benches": {
@@ -5541,8 +5417,6 @@
    "arduino-mega",
    "arduino-nano",
    "pico",
-   "eater6502",
-   "z80",
    "attiny88",
    "attiny85"
   ]
@@ -5571,8 +5445,6 @@
    "arduino-mega",
    "arduino-nano",
    "pico",
-   "eater6502",
-   "z80",
    "attiny88"
   ],
   "benches": {
@@ -5602,9 +5474,7 @@
    "introDE": "eater6502-vdp-hello/intro.de.md"
   },
   "kind": "full",
-  "devices": [
-   "eater6502"
-  ]
+  "devices": []
  },
  {
   "id": "z80-bench",
@@ -5999,7 +5869,7 @@
   "id": "pc83-gluecksrad",
   "title": {
    "en": "Wheel of Fortune: Shake Roulette",
-   "de": "Glücksrad: Schüttel-Roulette"
+   "de": "Gl\u00fccksrad: Sch\u00fcttel-Roulette"
   },
   "kind": "circuit",
   "category": "pure-circuit",
@@ -6122,7 +5992,7 @@
   "id": "61-console-pong",
   "title": {
    "en": "Retro console: Ball & Paddle",
-   "de": "Retro-Konsole: Ball & Schläger"
+   "de": "Retro-Konsole: Ball & Schl\u00e4ger"
   },
   "category": "digital",
   "difficulty": 3,
@@ -6169,8 +6039,6 @@
    "arduino-mega",
    "arduino-nano",
    "pico",
-   "eater6502",
-   "z80",
    "attiny88"
   ],
   "benches": {
@@ -6210,8 +6078,6 @@
    "arduino-mega",
    "arduino-nano",
    "pico",
-   "eater6502",
-   "z80",
    "attiny88",
    "attiny85"
   ],
