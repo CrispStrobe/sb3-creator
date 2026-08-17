@@ -11,11 +11,32 @@
    "rotation": 0
   },
   {
-   "id": "board",
+   "id": "VCC",
+   "kind": "vcc",
+   "params": {},
+   "terminals": [
+    "vcc"
+   ],
+   "x": 80,
+   "y": 60
+  },
+  {
+   "id": "GND",
+   "kind": "gnd",
+   "params": {},
+   "terminals": [
+    "gnd"
+   ],
+   "x": 220,
+   "y": 60
+  },
+  {
+   "id": "MCU",
    "kind": "arduino_uno",
-   "declName": "board",
-   "x": 64,
-   "y": 255,
+   "params": {},
+   "terminals": [
+    "d13"
+   ],
    "seat": {
     "boardId": "bb1",
     "leadMap": {
@@ -35,38 +56,96 @@
      "D13": "a16"
     }
    },
-   "params": {}
+   "x": 64,
+   "y": 255
   },
   {
-   "id": "vcc1",
-   "kind": "vcc",
+   "id": "R_opto",
+   "kind": "resistor",
    "params": {
-    "volts": 5
+    "ohms": 1000
    },
-   "x": 80,
-   "y": 60
+   "terminals": [
+    "a",
+    "b"
+   ],
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a20",
+     "b": "a24"
+    }
+   },
+   "x": 302,
+   "y": 255
   },
   {
-   "id": "gnd1",
-   "kind": "gnd",
-   "params": {},
-   "x": 220,
-   "y": 60
+   "id": "LED_opto",
+   "kind": "led",
+   "params": {
+    "vf": 2,
+    "color": "red"
+   },
+   "terminals": [
+    "anode",
+    "cathode"
+   ],
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "anode": "a26",
+     "cathode": "a27"
+    }
+   },
+   "x": 386,
+   "y": 255
   }
  ],
  "wires": [
   {
-   "from": "vcc1",
-   "fromTerminal": "vcc",
-   "to": "board",
-   "toTerminal": "5v"
+   "from": "MCU",
+   "fromTerminal": "d13",
+   "to": "R_opto",
+   "toTerminal": "a"
   },
   {
-   "from": "gnd1",
+   "from": "R_opto",
+   "fromTerminal": "b",
+   "to": "LED_opto",
+   "toTerminal": "anode"
+  },
+  {
+   "from": "GND",
    "fromTerminal": "gnd",
-   "to": "board",
-   "toTerminal": "gnd"
+   "to": "LED_opto",
+   "toTerminal": "cathode"
+  },
+  {
+   "from": "GND",
+   "fromTerminal": "gnd",
+   "to": {
+    "board": "bb1",
+    "hole": "b-2"
+   },
+   "color": "black",
+   "genPower": true
   }
  ],
- "holeWires": []
+ "holeWires": [
+  {
+   "ref": "bbw:bb1:gen_0",
+   "boardId": "bb1",
+   "a": "b24",
+   "b": "b26",
+   "color": "green"
+  },
+  {
+   "ref": "bbw:bb1:gen_1",
+   "boardId": "bb1",
+   "a": "b27",
+   "b": "b-27",
+   "color": "black"
+  }
+ ],
+ "generated": "benchFor+seat"
 }
