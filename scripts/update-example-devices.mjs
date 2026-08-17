@@ -18,7 +18,12 @@ const root = join(dirname(fileURLToPath(import.meta.url)), '..', 'examples');
 const indexPath = join(root, 'index.json');
 const index = JSON.parse(readFileSync(indexPath, 'utf8'));
 const items = Array.isArray(index) ? index : index.examples || [];
-const devices = Object.keys(SB3Creator.RETARGET_POOLS);
+// Same universe as test/retarget-gallery.test.mjs: pool membership means
+// the PROGRAM retargets; benchability is the app's bar. Re-add a device
+// here and in the test together, with DEVPART benches to match.
+const UNBENCHABLE = new Set(['eater6502', 'z80']);
+const devices = Object.keys(SB3Creator.RETARGET_POOLS)
+    .filter((d) => !UNBENCHABLE.has(d));
 const checkOnly = process.argv.includes('--check');
 
 let changed = 0;

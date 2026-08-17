@@ -32,8 +32,14 @@ describe('retarget-gallery: computed device lists are accurate', () => {
     for (const entry of generic) {
         test(`${entry.id}: devices list matches retarget dry-run`, () => {
             const src = readFileSync(join(EXAMPLES, entry.files.program), 'utf8');
+            // Mirror update-example-devices policy: the AUTHORED device
+            // leads, untested — running on your own chip is not a
+            // retargeting question.
+            const authored = ((src.match(/^DEVICE\s+([\w-]+)/im) || [])[1] || '').toLowerCase();
             const expected = [];
+            if (authored && (devices.includes(authored) || (entry.devices || []).includes(authored))) expected.push(authored);
             for (const dev of devices) {
+                if (dev === authored) continue;
                 const r = SB3Creator.retargetPseudocode(src, dev);
                 if (r.ok) expected.push(dev);
             }
