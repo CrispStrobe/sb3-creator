@@ -27,7 +27,7 @@
    "terminals": [
     "gnd"
    ],
-   "x": 220,
+   "x": 156,
    "y": 60
   },
   {
@@ -35,10 +35,10 @@
    "kind": "arduino_uno",
    "params": {},
    "terminals": [
-    "d13",
-    "d12"
+    "a4",
+    "a5"
    ],
-   "x": 360,
+   "x": 232,
    "y": 60
   },
   {
@@ -107,25 +107,25 @@
  "wires": [
   {
    "from": "MCU",
-   "fromTerminal": "d13",
+   "fromTerminal": "a4",
    "to": "R_PU_sda",
    "toTerminal": "b"
   },
   {
    "from": "MCU",
-   "fromTerminal": "d13",
+   "fromTerminal": "a4",
    "to": "OLED",
    "toTerminal": "sda"
   },
   {
    "from": "MCU",
-   "fromTerminal": "d12",
+   "fromTerminal": "a5",
    "to": "R_PU_scl",
    "toTerminal": "b"
   },
   {
    "from": "MCU",
-   "fromTerminal": "d12",
+   "fromTerminal": "a5",
    "to": "OLED",
    "toTerminal": "scl"
   },

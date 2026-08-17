@@ -10917,6 +10917,29 @@ SB3Creator.RETARGET_POOLS = (() => {
 })();
 
 /**
+ * The devices' HARDWARE I2C pins, by dialect coordinate. When a program
+ * declares the sda+scl bus idiom, retarget assigns THESE instead of the
+ * next free digital pool pins: the pool head is D13 on the AVR boards,
+ * and D13 carries the onboard LED — a resistor-and-LED load permanently
+ * attached to an open-drain bus line (49-lcd-hello retargeted to the
+ * Nano, 2026-08-17). Devices without a hardware I2C convention (the STC
+ * parts bit-bang on whatever the author chose; Z80/6502 machines have
+ * no convention) are simply absent — pool order applies there.
+ * (SPI's cs/dc/sck/mosi idiom could get the same treatment — sck IS
+ * D13 on the AVR hardware SPI — but bit-banged SPI has no open-drain
+ * hazard, so it keeps pool order until there's a reason.)
+ */
+SB3Creator.I2C_PINS = {
+    'arduino-uno': { sda: 'A4', scl: 'A5' },
+    'arduino-nano': { sda: 'A4', scl: 'A5' },
+    atmega168p: { sda: 'A4', scl: 'A5' },
+    'arduino-mega': { sda: 'D20', scl: 'D21' },
+    pico: { sda: 'GP4', scl: 'GP5' },       // I2C0 default pair
+    attiny85: { sda: 'PB0', scl: 'PB2' },   // USI
+    attiny88: { sda: 'PC4', scl: 'PC5' },   // TWI
+};
+
+/**
  * Retarget a pseudocode program to another device: same body, the target's
  * conventional pins. Returns { ok, pseudocode?, reasons: [], warnings: [] }.
  * `reasons` states every hard blocker (a feature the target cannot do, or
@@ -10994,6 +11017,14 @@ SB3Creator.retargetPseudocode = function retargetPseudocode(src, device) {
     if (!part || !pools) return { ok: false, reasons: [`unknown device: ${device}`], warnings: [] };
     const core = part.core === 'arduino' ? 'avr' : part.core === 'rp2040' ? 'arm' : part.core || '8051';
     if (core === 'micropython') return { ok: false, reasons: [`${device} runs MicroPython — no C retarget`], warnings: [] };
+
+    // Retargeting a program to its OWN device is the identity: the authored
+    // pins ARE the assignment. Canonicalizing them into pool order broke the
+    // pairing with the authored bench — sda=P2.1 became P1.0, every wire was
+    // in place, and the LCD stayed dark (49-lcd-hello, 2026-08-17).
+    const srcDevice = ((src.match(/^DEVICE\s+([\w-]+)/im) || [])[1] || '')
+        .toLowerCase().replace(/_/g, '-');
+    if (srcDevice === device) return { ok: true, pseudocode: src, reasons: [], warnings: [] };
     if (core === 'z80') {
         // Z80 retarget: output pins are OUT0-OUT7, input pins are IN0-IN7.
         // No ADC, no PWM, no timer tick — delay-only programs.
@@ -11046,10 +11077,23 @@ SB3Creator.retargetPseudocode = function retargetPseudocode(src, device) {
         for (const where of list) if (!taken.has(where)) { taken.add(where); return where; }
         return null;
     };
+    // The sda+scl pair is a BUS, not two ordinary outputs: it lands on the
+    // device's hardware I2C pins (I2C_PINS above) — the digital pool head
+    // is the LED pin on the AVR boards, poison for an open-drain line.
+    // Reserve the pair up front so no other pin is allocated onto it.
+    const pinLnames = new Set(stc.pins.map((p) => String(p.name).toLowerCase()));
+    const i2cConv = pinLnames.has('sda') && pinLnames.has('scl')
+        ? SB3Creator.I2C_PINS[device] : null;
+    if (i2cConv) { taken.add(i2cConv.sda); taken.add(i2cConv.scl); }
     const newPins = [];
     for (const pin of stc.pins) {
         let where = null;
         let activeLow = false;
+        const lname = String(pin.name).toLowerCase();
+        if (i2cConv && (lname === 'sda' || lname === 'scl')) {
+            newPins.push({ ...pin, where: i2cConv[lname], activeLow: false, port: undefined, bit: undefined });
+            continue;
+        }
         if (pin.direction === 'analog') {
             where = take(pools.analog);
             if (!where) reasons.push(`more analog pins than ${device}'s convention offers (${pools.analog.length})`);

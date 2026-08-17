@@ -100,6 +100,46 @@ test('retarget: more pins than the convention offers is refused, not truncated',
     assert.ok(r.reasons.some((x) => /more digital outputs/.test(x)), JSON.stringify(r.reasons));
 });
 
+test('retarget: the program\'s own device is the identity — authored pins survive', () => {
+    const src = 'DEVICE STC12C5A60S2\nPIN sda = P2.1 OUTPUT\nPIN scl = P2.2 OUTPUT\n\nWHEN flag clicked:\n  turn on sda\n';
+    const r = SB3Creator.retargetPseudocode(src, 'stc12c5a60s2');
+    assert.equal(r.ok, true);
+    // VERBATIM, not canonicalized: pool order would rewrite sda to P1.0 and
+    // the bench would pair with pins the authored program never drives
+    // (49-lcd-hello dark on the STC12, 2026-08-17).
+    assert.equal(r.pseudocode, src);
+});
+
+test('retarget: the sda/scl bus lands on the device\'s hardware I2C pins', () => {
+    const src = 'DEVICE STC12C5A60S2\nPIN sda = P2.1 OUTPUT\nPIN scl = P2.2 OUTPUT\n\nWHEN flag clicked:\n  turn on sda\n';
+    for (const [dev, sda, scl] of [
+        ['arduino-nano', 'A4', 'A5'], ['arduino-uno', 'A4', 'A5'],
+        ['arduino-mega', 'D20', 'D21'], ['pico', 'GP4', 'GP5'],
+        ['attiny85', 'PB0', 'PB2'], ['attiny88', 'PC4', 'PC5'],
+    ]) {
+        const r = SB3Creator.retargetPseudocode(src, dev);
+        assert.equal(r.ok, true, `${dev}: ${(r.reasons || []).join('; ')}`);
+        // NOT the digital pool head — D13 carries the AVR onboard LED, a
+        // permanent load on what must be an open-drain line.
+        assert.match(r.pseudocode, new RegExp(`^PIN sda = ${sda} OUTPUT$`, 'm'), dev);
+        assert.match(r.pseudocode, new RegExp(`^PIN scl = ${scl} OUTPUT$`, 'm'), dev);
+    }
+});
+
+test('retarget: other pins never collide with the reserved I2C pair', () => {
+    // Analog pins on the uno would take A4 next — the reservation must win.
+    const src = 'DEVICE STC12C5A60S2\nPIN sda = P2.1 OUTPUT\nPIN scl = P2.2 OUTPUT\nPIN pot1 = P1.0 ANALOG\nPIN pot2 = P1.1 ANALOG\nPIN pot3 = P1.2 ANALOG\nPIN pot4 = P1.3 ANALOG\nPIN pot5 = P1.4 ANALOG\n\nWHEN flag clicked:\n  print read pot1\n';
+    const r = SB3Creator.retargetPseudocode(src, 'arduino-uno');
+    assert.equal(r.ok, false, 'six analog roles cannot fit beside the reserved pair');
+    assert.ok(r.reasons.some((x) => /more analog pins/.test(x)), JSON.stringify(r.reasons));
+    const src4 = src.replace('PIN pot5 = P1.4 ANALOG\n', '');
+    const r4 = SB3Creator.retargetPseudocode(src4, 'arduino-uno');
+    assert.equal(r4.ok, true, (r4.reasons || []).join('; '));
+    const wheres = (r4.pseudocode.match(/^PIN pot\d = (\S+)/gm) || []).map((l) => l.split('= ')[1].split(' ')[0]);
+    assert.ok(!wheres.includes('A4') && !wheres.includes('A5'),
+        `analog pins skipped the I2C pair: ${wheres.join(',')}`);
+});
+
 test('retarget: every ok result re-parses clean and emits C on its target', () => {
     for (const dev of ['pico', 'arduino-uno', 'arduino-nano', 'stc12c5a60s2', 'stc15f2k60s2']) {
         const r = SB3Creator.retargetPseudocode(BLINK_POT, dev);

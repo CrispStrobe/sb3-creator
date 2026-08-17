@@ -27,7 +27,7 @@
    "terminals": [
     "gnd"
    ],
-   "x": 220,
+   "x": 156,
    "y": 60
   },
   {
@@ -35,8 +35,8 @@
    "kind": "attiny88",
    "params": {},
    "terminals": [
-    "pb0",
-    "pb1"
+    "pc4",
+    "pc5"
    ],
    "seat": {
     "boardId": "bb1",
@@ -140,25 +140,25 @@
  "wires": [
   {
    "from": "MCU",
-   "fromTerminal": "pb0",
+   "fromTerminal": "pc4",
    "to": "R_PU_sda",
    "toTerminal": "b"
   },
   {
    "from": "MCU",
-   "fromTerminal": "pb0",
+   "fromTerminal": "pc4",
    "to": "LCD",
    "toTerminal": "sda"
   },
   {
    "from": "MCU",
-   "fromTerminal": "pb1",
+   "fromTerminal": "pc5",
    "to": "R_PU_scl",
    "toTerminal": "b"
   },
   {
    "from": "MCU",
-   "fromTerminal": "pb1",
+   "fromTerminal": "pc5",
    "to": "LCD",
    "toTerminal": "scl"
   },
@@ -211,28 +211,28 @@
   {
    "ref": "bbw:bb1:gen_0",
    "boardId": "bb1",
-   "a": "g16",
+   "a": "a14",
    "b": "b24",
    "color": "green"
   },
   {
    "ref": "bbw:bb1:gen_1",
    "boardId": "bb1",
-   "a": "h16",
+   "a": "b14",
    "b": "b34",
    "color": "blue"
   },
   {
    "ref": "bbw:bb1:gen_2",
    "boardId": "bb1",
-   "a": "a3",
+   "a": "a15",
    "b": "b30",
    "color": "yellow"
   },
   {
    "ref": "bbw:bb1:gen_3",
    "boardId": "bb1",
-   "a": "b3",
+   "a": "b15",
    "b": "b35",
    "color": "orange"
   },

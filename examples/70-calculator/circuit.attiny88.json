@@ -36,7 +36,7 @@
    "terminals": [
     "gnd"
    ],
-   "x": 220,
+   "x": 156,
    "y": 60
   },
   {
@@ -44,12 +44,12 @@
    "kind": "attiny88",
    "params": {},
    "terminals": [
+    "pc4",
+    "pc5",
     "pb0",
     "pb1",
     "pb2",
     "pb3",
-    "pb4",
-    "pb5",
     "pc3",
     "pc7",
     "pc0",
@@ -525,121 +525,121 @@
  "wires": [
   {
    "from": "MCU",
-   "fromTerminal": "pb0",
+   "fromTerminal": "pc4",
    "to": "R_PU_sda",
    "toTerminal": "b"
   },
   {
    "from": "MCU",
-   "fromTerminal": "pb0",
+   "fromTerminal": "pc4",
    "to": "OLED",
    "toTerminal": "sda"
   },
   {
    "from": "MCU",
-   "fromTerminal": "pb1",
+   "fromTerminal": "pc5",
    "to": "R_PU_scl",
    "toTerminal": "b"
   },
   {
    "from": "MCU",
-   "fromTerminal": "pb1",
+   "fromTerminal": "pc5",
    "to": "OLED",
    "toTerminal": "scl"
   },
   {
    "from": "MCU",
-   "fromTerminal": "pb2",
+   "fromTerminal": "pb0",
    "to": "BTN_row0_col0",
    "toTerminal": "a"
   },
   {
    "from": "MCU",
-   "fromTerminal": "pb2",
+   "fromTerminal": "pb0",
    "to": "BTN_row0_col1",
    "toTerminal": "a"
   },
   {
    "from": "MCU",
-   "fromTerminal": "pb2",
+   "fromTerminal": "pb0",
    "to": "BTN_row0_col2",
    "toTerminal": "a"
   },
   {
    "from": "MCU",
-   "fromTerminal": "pb2",
+   "fromTerminal": "pb0",
    "to": "BTN_row0_col3",
    "toTerminal": "a"
   },
   {
    "from": "MCU",
-   "fromTerminal": "pb3",
+   "fromTerminal": "pb1",
    "to": "BTN_row1_col0",
    "toTerminal": "a"
   },
   {
    "from": "MCU",
-   "fromTerminal": "pb3",
+   "fromTerminal": "pb1",
    "to": "BTN_row1_col1",
    "toTerminal": "a"
   },
   {
    "from": "MCU",
-   "fromTerminal": "pb3",
+   "fromTerminal": "pb1",
    "to": "BTN_row1_col2",
    "toTerminal": "a"
   },
   {
    "from": "MCU",
-   "fromTerminal": "pb3",
+   "fromTerminal": "pb1",
    "to": "BTN_row1_col3",
    "toTerminal": "a"
   },
   {
    "from": "MCU",
-   "fromTerminal": "pb4",
+   "fromTerminal": "pb2",
    "to": "BTN_row2_col0",
    "toTerminal": "a"
   },
   {
    "from": "MCU",
-   "fromTerminal": "pb4",
+   "fromTerminal": "pb2",
    "to": "BTN_row2_col1",
    "toTerminal": "a"
   },
   {
    "from": "MCU",
-   "fromTerminal": "pb4",
+   "fromTerminal": "pb2",
    "to": "BTN_row2_col2",
    "toTerminal": "a"
   },
   {
    "from": "MCU",
-   "fromTerminal": "pb4",
+   "fromTerminal": "pb2",
    "to": "BTN_row2_col3",
    "toTerminal": "a"
   },
   {
    "from": "MCU",
-   "fromTerminal": "pb5",
+   "fromTerminal": "pb3",
    "to": "BTN_row3_col0",
    "toTerminal": "a"
   },
   {
    "from": "MCU",
-   "fromTerminal": "pb5",
+   "fromTerminal": "pb3",
    "to": "BTN_row3_col1",
    "toTerminal": "a"
   },
   {
    "from": "MCU",
-   "fromTerminal": "pb5",
+   "fromTerminal": "pb3",
    "to": "BTN_row3_col2",
    "toTerminal": "a"
   },
   {
    "from": "MCU",
-   "fromTerminal": "pb5",
+   "fromTerminal": "pb3",
    "to": "BTN_row3_col3",
    "toTerminal": "a"
   },
@@ -836,35 +836,35 @@
   {
    "ref": "bbw:bb1:gen_0",
    "boardId": "bb1",
-   "a": "g16",
+   "a": "a14",
    "b": "b24",
    "color": "green"
   },
   {
    "ref": "bbw:bb1:gen_1",
    "boardId": "bb1",
-   "a": "h16",
+   "a": "b14",
    "b": "b58",
    "color": "blue"
   },
   {
    "ref": "bbw:bb1:gen_2",
    "boardId": "bb1",
-   "a": "a3",
+   "a": "a15",
    "b": "b30",
    "color": "yellow"
   },
   {
    "ref": "bbw:bb1:gen_3",
    "boardId": "bb1",
-   "a": "b3",
+   "a": "b15",
    "b": "b59",
    "color": "orange"
   },
   {
    "ref": "bbw:bb1:gen_4",
    "boardId": "bb1",
-   "a": "a4",
+   "a": "g16",
    "b": "a61",
    "color": "purple"
   },

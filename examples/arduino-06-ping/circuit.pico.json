@@ -27,7 +27,7 @@
    "terminals": [
     "gnd"
    ],
-   "x": 220,
+   "x": 156,
    "y": 60
   },
   {
@@ -41,26 +41,26 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "gp0": "e3",
-     "gp1": "e4",
-     "gnd_1": "e5",
-     "gp2": "e6",
-     "gp3": "e7",
-     "gp4": "e8",
-     "gp5": "e9",
-     "gnd_2": "e10",
-     "gp6": "e11",
-     "gp7": "e12",
-     "gp8": "e13",
-     "gp9": "e14",
-     "gnd_3": "e15",
-     "gp10": "e16",
-     "gp11": "e17",
-     "gp12": "e18",
-     "gp13": "e19",
-     "gnd_4": "e20",
-     "gp14": "e21",
-     "gp15": "e22",
+     "gp0": "a3",
+     "gp1": "a4",
+     "gnd_1": "a5",
+     "gp2": "a6",
+     "gp3": "a7",
+     "gp4": "a8",
+     "gp5": "a9",
+     "gnd_2": "a10",
+     "gp6": "a11",
+     "gp7": "a12",
+     "gp8": "a13",
+     "gp9": "a14",
+     "gnd_3": "a15",
+     "gp10": "a16",
+     "gp11": "a17",
+     "gp12": "a18",
+     "gp13": "a19",
+     "gnd_4": "a20",
+     "gp14": "a21",
+     "gp15": "a22",
      "vbus": "f3",
      "vsys": "f4",
      "gnd_5": "f5",
@@ -81,13 +81,13 @@
      "gnd_7": "f20",
      "gp17": "f21",
      "gp16": "f22",
-     "swclk": "h11",
-     "swd_gnd": "h12",
-     "swdio": "h13"
+     "swclk": "d11",
+     "swd_gnd": "d12",
+     "swdio": "d13"
     }
    },
    "x": 64,
-   "y": 311
+   "y": 255
   },
   {
    "id": "R_trig",
@@ -254,7 +254,7 @@
    "ref": "bbw:bb1:gen_2",
    "boardId": "bb1",
    "a": "c36",
-   "b": "a6",
+   "b": "b6",
    "color": "yellow"
   },
   {
@@ -281,28 +281,28 @@
   {
    "ref": "bbw:bb1:gen_6",
    "boardId": "bb1",
-   "a": "a5",
+   "a": "b5",
    "b": "b-5",
    "color": "black"
   },
   {
    "ref": "bbw:bb1:gen_7",
    "boardId": "bb1",
-   "a": "a10",
+   "a": "b10",
    "b": "b-10",
    "color": "black"
   },
   {
    "ref": "bbw:bb1:gen_8",
    "boardId": "bb1",
-   "a": "a15",
+   "a": "b15",
    "b": "b-15",
    "color": "black"
   },
   {
    "ref": "bbw:bb1:gen_9",
    "boardId": "bb1",
-   "a": "a20",
+   "a": "b20",
    "b": "b-20",
    "color": "black"
   },
@@ -358,7 +358,7 @@
   {
    "ref": "bbw:bb1:gen_17",
    "boardId": "bb1",
-   "a": "g12",
+   "a": "b12",
    "b": "b-12",
    "color": "black"
   }

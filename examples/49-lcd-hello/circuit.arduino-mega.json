@@ -27,7 +27,7 @@
    "terminals": [
     "gnd"
    ],
-   "x": 220,
+   "x": 156,
    "y": 60
   },
   {
@@ -35,10 +35,10 @@
    "kind": "arduino_mega",
    "params": {},
    "terminals": [
-    "d13",
-    "d22"
+    "d20",
+    "d21"
    ],
-   "x": 360,
+   "x": 232,
    "y": 60
   },
   {
@@ -107,25 +107,25 @@
  "wires": [
   {
    "from": "MCU",
-   "fromTerminal": "d13",
+   "fromTerminal": "d20",
    "to": "R_PU_sda",
    "toTerminal": "b"
   },
   {
    "from": "MCU",
-   "fromTerminal": "d13",
+   "fromTerminal": "d20",
    "to": "LCD",
    "toTerminal": "sda"
   },
   {
    "from": "MCU",
-   "fromTerminal": "d22",
+   "fromTerminal": "d21",
    "to": "R_PU_scl",
    "toTerminal": "b"
   },
   {
    "from": "MCU",
-   "fromTerminal": "d22",
+   "fromTerminal": "d21",
    "to": "LCD",
    "toTerminal": "scl"
   },

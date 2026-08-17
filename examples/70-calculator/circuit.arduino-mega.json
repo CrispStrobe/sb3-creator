@@ -36,7 +36,7 @@
    "terminals": [
     "gnd"
    ],
-   "x": 220,
+   "x": 156,
    "y": 60
   },
   {
@@ -44,18 +44,18 @@
    "kind": "arduino_mega",
    "params": {},
    "terminals": [
+    "d20",
+    "d21",
     "d13",
     "d22",
     "d23",
     "d24",
-    "d25",
-    "d26",
     "d2",
     "d3",
     "d18",
     "d19"
    ],
-   "x": 360,
+   "x": 232,
    "y": 60
   },
   {
@@ -492,121 +492,121 @@
  "wires": [
   {
    "from": "MCU",
-   "fromTerminal": "d13",
+   "fromTerminal": "d20",
    "to": "R_PU_sda",
    "toTerminal": "b"
   },
   {
    "from": "MCU",
-   "fromTerminal": "d13",
+   "fromTerminal": "d20",
    "to": "OLED",
    "toTerminal": "sda"
   },
   {
    "from": "MCU",
-   "fromTerminal": "d22",
+   "fromTerminal": "d21",
    "to": "R_PU_scl",
    "toTerminal": "b"
   },
   {
    "from": "MCU",
-   "fromTerminal": "d22",
+   "fromTerminal": "d21",
    "to": "OLED",
    "toTerminal": "scl"
   },
   {
    "from": "MCU",
-   "fromTerminal": "d23",
+   "fromTerminal": "d13",
    "to": "BTN_row0_col0",
    "toTerminal": "a"
   },
   {
    "from": "MCU",
-   "fromTerminal": "d23",
+   "fromTerminal": "d13",
    "to": "BTN_row0_col1",
    "toTerminal": "a"
   },
   {
    "from": "MCU",
-   "fromTerminal": "d23",
+   "fromTerminal": "d13",
    "to": "BTN_row0_col2",
    "toTerminal": "a"
   },
   {
    "from": "MCU",
-   "fromTerminal": "d23",
+   "fromTerminal": "d13",
    "to": "BTN_row0_col3",
    "toTerminal": "a"
   },
   {
    "from": "MCU",
-   "fromTerminal": "d24",
+   "fromTerminal": "d22",
    "to": "BTN_row1_col0",
    "toTerminal": "a"
   },
   {
    "from": "MCU",
-   "fromTerminal": "d24",
+   "fromTerminal": "d22",
    "to": "BTN_row1_col1",
    "toTerminal": "a"
   },
   {
    "from": "MCU",
-   "fromTerminal": "d24",
+   "fromTerminal": "d22",
    "to": "BTN_row1_col2",
    "toTerminal": "a"
   },
   {
    "from": "MCU",
-   "fromTerminal": "d24",
+   "fromTerminal": "d22",
    "to": "BTN_row1_col3",
    "toTerminal": "a"
   },
   {
    "from": "MCU",
-   "fromTerminal": "d25",
+   "fromTerminal": "d23",
    "to": "BTN_row2_col0",
    "toTerminal": "a"
   },
   {
    "from": "MCU",
-   "fromTerminal": "d25",
+   "fromTerminal": "d23",
    "to": "BTN_row2_col1",
    "toTerminal": "a"
   },
   {
    "from": "MCU",
-   "fromTerminal": "d25",
+   "fromTerminal": "d23",
    "to": "BTN_row2_col2",
    "toTerminal": "a"
   },
   {
    "from": "MCU",
-   "fromTerminal": "d25",
+   "fromTerminal": "d23",
    "to": "BTN_row2_col3",
    "toTerminal": "a"
   },
   {
    "from": "MCU",
-   "fromTerminal": "d26",
+   "fromTerminal": "d24",
    "to": "BTN_row3_col0",
    "toTerminal": "a"
   },
   {
    "from": "MCU",
-   "fromTerminal": "d26",
+   "fromTerminal": "d24",
    "to": "BTN_row3_col1",
    "toTerminal": "a"
   },
   {
    "from": "MCU",
-   "fromTerminal": "d26",
+   "fromTerminal": "d24",
    "to": "BTN_row3_col2",
    "toTerminal": "a"
   },
   {
    "from": "MCU",
-   "fromTerminal": "d26",
+   "fromTerminal": "d24",
    "to": "BTN_row3_col3",
    "toTerminal": "a"
   },

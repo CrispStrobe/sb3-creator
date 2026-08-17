@@ -27,7 +27,7 @@
    "terminals": [
     "gnd"
    ],
-   "x": 220,
+   "x": 156,
    "y": 60
   },
   {
@@ -36,7 +36,7 @@
    "params": {},
    "terminals": [
     "pb0",
-    "pb1"
+    "pb2"
    ],
    "seat": {
     "boardId": "bb1",
@@ -132,13 +132,13 @@
   },
   {
    "from": "MCU",
-   "fromTerminal": "pb1",
+   "fromTerminal": "pb2",
    "to": "R_PU_scl",
    "toTerminal": "b"
   },
   {
    "from": "MCU",
-   "fromTerminal": "pb1",
+   "fromTerminal": "pb2",
    "to": "LCD",
    "toTerminal": "scl"
   },
@@ -205,14 +205,14 @@
   {
    "ref": "bbw:bb1:gen_2",
    "boardId": "bb1",
-   "a": "a17",
+   "a": "a16",
    "b": "b13",
    "color": "yellow"
   },
   {
    "ref": "bbw:bb1:gen_3",
    "boardId": "bb1",
-   "a": "b17",
+   "a": "b16",
    "b": "b25",
    "color": "orange"
   },
