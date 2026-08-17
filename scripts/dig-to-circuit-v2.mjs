@@ -62,6 +62,20 @@ const CHIPS = {
     // Sub-circuit ROM modules — emit as rom parts with contents as params
     'ROM.dig': { kind: 'rom', labels: { A0: 'a0', A1: 'a1', A2: 'a2', A3: 'a3', A4: 'a4', A5: 'a5', A6: 'a6', A7: 'a7', A8: 'a8', A9: 'a9', A10: 'a10', CE: 'ce', D0: 'd0', D1: 'd1', D2: 'd2', D3: 'd3', D4: 'd4', D5: 'd5', D6: 'd6', D7: 'd7' } },
     'ROM-Out.dig': { kind: 'rom_7seg', labels: { A: 'a', B: 'b', C: 'c', D: 'd', E: 'e', F: 'f', G: 'g', DP: 'dp', MODE: 'mode' } },
+    // 8bitsim sub-circuit modules — treated as opaque parts in Main.dig
+    'ALU.dig': { kind: 'alu', labels: { SU: 'su', '~EO': 'eo', DBG: 'dbg', CF: 'cf', '~FI': 'fi', CLR: 'clr', B_7: 'b_7', B_6: 'b_6', B_5: 'b_5', B_4: 'b_4', B_3: 'b_3', B_2: 'b_2', B_1: 'b_1', B_0: 'b_0', A_7: 'a_7', A_6: 'a_6', A_5: 'a_5', A_4: 'a_4', A_3: 'a_3', ZF: 'zf', BUS_0: 'bus_0', BUS_1: 'bus_1', BUS_2: 'bus_2', BUS_3: 'bus_3', BUS_4: 'bus_4', BUS_5: 'bus_5', BUS_6: 'bus_6', BUS_7: 'bus_7', A_2: 'a_2', A_1: 'a_1', A_0: 'a_0' } },
+    'MAR.dig': { kind: 'mar', labels: { A_0: 'a_0', A_1: 'a_1', A_2: 'a_2', A_3: 'a_3', BUS_3: 'bus_3', BUS_2: 'bus_2', BUS_1: 'bus_1', BUS_0: 'bus_0', '~MI': 'mi', CLR: 'clr', PA_0: 'pa_0', PA_1: 'pa_1', PA_2: 'pa_2', PA_3: 'pa_3', '~PROG': 'prog', DBG: 'dbg' } },
+    'RAM.dig': { kind: 'ram', labels: { A3: 'a3', A2: 'a2', A1: 'a1', A0: 'a0', DBG: 'dbg', BUS_7: 'bus_7', BUS_6: 'bus_6', BUS_5: 'bus_5', BUS_4: 'bus_4', BUS_3: 'bus_3', BUS_2: 'bus_2', BUS_1: 'bus_1', BUS_0: 'bus_0', '~PROG': 'prog', '~RO': 'ro', RI: 'ri', PDATA: 'pdata', '~PULSE': 'pulse' } },
+    'PC.dig': { kind: 'pc', labels: { '~CLR': 'clr', CE: 'ce', '~J': 'j', '~CO': 'co', BUS_3: 'bus_3', BUS_2: 'bus_2', BUS_1: 'bus_1', BUS_0: 'bus_0', DBG: 'dbg' } },
+    'Ctrl.dig': { kind: 'ctrl', labels: { HLT: 'hlt', '~MI': 'mi', RI: 'ri', '~RO': 'ro', '~IO': 'io', '~II': 'ii', '~AI': 'ai', '~AO': 'ao', '~EO': 'eo', SU: 'su', '~BI': 'bi', OI: 'oi', CE: 'ce', '~CO': 'co', '~J': 'j', '~FI': 'fi', RESET: 'reset', CLR: 'clr', '~CLR': 'clr', DBGC: 'dbgc', IR_4: 'ir_4', IR_5: 'ir_5', IR_6: 'ir_6', IR_7: 'ir_7', CF: 'cf', ZF: 'zf', DBGS: 'dbgs' } },
+    'Clock.dig': { kind: 'clock_module', labels: { CLK: 'clk', '~CLK': 'clk_inv', HLT: 'hlt', DBG: 'dbg', '~RUN': 'run', STEP: 'step' } },
+    'LED7-Driver.dig': { kind: 'led7_driver', labels: { 'LA-D': 'la_d', '~SEL': 'sel', 'A-P_in': 'a_p_in', 'LE-P': 'le_p' } },
+    'Out-Register.dig': { kind: 'out_register', labels: { BUS_0: 'bus_0', BUS_1: 'bus_1', BUS_2: 'bus_2', BUS_3: 'bus_3', BUS_4: 'bus_4', BUS_5: 'bus_5', BUS_6: 'bus_6', BUS_7: 'bus_7', '~SEL': 'sel', MODE: 'mode', '~CLR': 'clr', OI: 'oi', 'A-P': 'a_p' } },
+    'A-Register.dig': { kind: 'a_register', labels: { BUS_0: 'bus_0', BUS_1: 'bus_1', BUS_2: 'bus_2', BUS_3: 'bus_3', BUS_4: 'bus_4', BUS_5: 'bus_5', BUS_6: 'bus_6', BUS_7: 'bus_7', '~AI': 'ai', '~AO': 'ao', CLR: 'clr', DBG: 'dbg', A_7: 'a_7', A_6: 'a_6', A_5: 'a_5', A_4: 'a_4', A_3: 'a_3', A_2: 'a_2', A_1: 'a_1', A_0: 'a_0' } },
+    'B-Register.dig': { kind: 'b_register', labels: { BUS_0: 'bus_0', BUS_1: 'bus_1', BUS_2: 'bus_2', BUS_3: 'bus_3', BUS_4: 'bus_4', BUS_5: 'bus_5', BUS_6: 'bus_6', BUS_7: 'bus_7', '~BI': 'bi', '~BO': 'bo', CLK: 'clk', CLR: 'clr', DBG: 'dbg', B_7: 'b_7', B_6: 'b_6', B_5: 'b_5', B_4: 'b_4', B_3: 'b_3', B_2: 'b_2', B_1: 'b_1', B_0: 'b_0' } },
+    'I-Register.dig': { kind: 'i_register', labels: { BUS_0: 'bus_0', BUS_1: 'bus_1', BUS_2: 'bus_2', BUS_3: 'bus_3', BUS_4: 'bus_4', BUS_5: 'bus_5', BUS_6: 'bus_6', BUS_7: 'bus_7', '~IO': 'io', '~II': 'ii', IR_4: 'ir_4', IR_5: 'ir_5', IR_6: 'ir_6', IR_7: 'ir_7', DBG: 'dbg', CLR: 'clr' } },
+    'Instr-Display.dig': { kind: 'instr_display', labels: { INST: 'inst', DISP: 'disp' } },
+    'Programmer.dig': { kind: 'programmer', labels: { '~PULSE': 'pulse', PDATA: 'pdata', SDATA: 'sdata', SADDR: 'saddr', '~SPULSE': 'spulse', '~SPROG': 'sprog', '~PROG': 'prog', PADDR: 'paddr', '~LOAD': 'load' } },
 };
 
 // ── 1. Parse the .dig XML ──
@@ -556,6 +570,32 @@ for (const e of elements) {
         const val = Number(/Value<\/string>\s*<long>(\d+)/.exec(elXml)?.[1] || 0);
         const id = val ? addPart('vcc', `const_${e.i}`, { volts: 5 }) : addPart('gnd', `const_${e.i}`);
         nodes.push({ partId: id, terminal: val ? 'vcc' : 'gnd', x: e.x, y: e.y });
+    }
+    // ── Button / DipSwitch — like In, single pin at element position ──
+    if (e.name === 'Button' || e.name === 'DipSwitch') {
+        const id = `${e.name.toLowerCase()}_${e.i}`;
+        addPart('gnd', id);  // default off
+        nodes.push({ partId: id, terminal: 'gnd', x: e.x, y: e.y });
+    }
+    // ── LED (Digital's native LED) — single pin at element position ──
+    if (e.name === 'LED') {
+        const id = `led_${e.i}`;
+        addPart('led', id, { color: 'red', label: e.label });
+        nodes.push({ partId: id, terminal: 'anode', x: e.x, y: e.y });
+    }
+    // ── Seven-Seg display — 8 pins (A-G + DP) ──
+    if (e.name === 'Seven-Seg') {
+        const id = e.label || `7seg_${e.i}`;
+        addPart('seven_seg', id);
+        for (let p = 0; p < 8; p++) {
+            nodes.push({ partId: id, terminal: ['a','b','c','d','e','f','g','dp'][p], x: e.x, y: e.y + p * 20 });
+        }
+    }
+    // ── Seven-Seg-Hex — 4-bit hex input ──
+    if (e.name === 'Seven-Seg-Hex') {
+        const id = e.label || `7seghex_${e.i}`;
+        addPart('seven_seg_hex', id);
+        nodes.push({ partId: id, terminal: 'data', x: e.x, y: e.y });
     }
 }
 
