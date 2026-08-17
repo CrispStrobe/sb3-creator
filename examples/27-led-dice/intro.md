@@ -9,7 +9,7 @@ teaches: [random, led-pattern, button-trigger]
 
 Seven LEDs are arranged in the classic dice-face pattern. When you press the
 button, they cycle rapidly through patterns for a moment and then land on a
-random number from 1 to 6, lighting the LEDs that match that face of a die.
+random number from 1 to 6, lighting the LEDs that match that face of a die. This example works on all supported microcontrollers — pick a different device in the toolbar to see the adapted circuit.
 
 ## Try this
 

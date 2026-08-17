@@ -10,7 +10,7 @@ teaches: [random, led-pattern, button-trigger]
 Sieben LEDs sind im klassischen Wuerfelmuster angeordnet. Wenn du den Taster
 drueckst, wechseln sie kurz schnell durch verschiedene Muster und bleiben dann
 auf einer zufaelligen Zahl von 1 bis 6 stehen, wobei die LEDs leuchten, die zu
-dieser Wuerfelseite gehoeren.
+dieser Wuerfelseite gehoeren. Dieses Beispiel funktioniert auf allen unterstützten Mikrocontrollern — wähle ein anderes Gerät in der Werkzeugleiste, um die angepasste Schaltung zu sehen.
 
 ## Probier das aus
 
