@@ -133,7 +133,7 @@
    "kind": "led",
    "params": {
     "vf": 2,
-    "color": "red"
+    "color": "yellow"
    },
    "terminals": [
     "anode",
@@ -174,7 +174,7 @@
    "kind": "led",
    "params": {
     "vf": 2,
-    "color": "red"
+    "color": "green"
    },
    "terminals": [
     "anode",
