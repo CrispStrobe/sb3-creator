@@ -59,6 +59,9 @@ const CHIPS = {
     '74189.dig': { kind: '74ls189', labels: { A0: 'a0', A1: 'a1', A2: 'a2', A3: 'a3', D0: 'd0', D1: 'd1', D2: 'd2', D3: 'd3', Q0: 'q0', Q1: 'q1', Q2: 'q2', Q3: 'q3', '~CS': 'csb', '~WE': 'web', CS: 'csb', WE: 'web', VCC: 'vcc', GND: 'gnd' } },
     '74374.dig': { kind: '74ls374', labels: { CLK: 'clk', '~OC': 'ocb', OC: 'ocb', D0: 'd0', D1: 'd1', D2: 'd2', D3: 'd3', D4: 'd4', D5: 'd5', D6: 'd6', D7: 'd7', Q0: 'q0', Q1: 'q1', Q2: 'q2', Q3: 'q3', Q4: 'q4', Q5: 'q5', Q6: 'q6', Q7: 'q7', VCC: 'vcc', GND: 'gnd' } },
     '7476.dig': { kind: '7476', labels: { '1J': 'j1', '1K': 'k1', '1Q': 'q1', '2J': 'j2', '2K': 'k2', '2Q': 'q2', VCC: 'vcc', GND: 'gnd' } },
+    // Sub-circuit ROM modules — emit as rom parts with contents as params
+    'ROM.dig': { kind: 'rom', labels: { A0: 'a0', A1: 'a1', A2: 'a2', A3: 'a3', A4: 'a4', A5: 'a5', A6: 'a6', A7: 'a7', A8: 'a8', A9: 'a9', A10: 'a10', CE: 'ce', D0: 'd0', D1: 'd1', D2: 'd2', D3: 'd3', D4: 'd4', D5: 'd5', D6: 'd6', D7: 'd7' } },
+    'ROM-Out.dig': { kind: 'rom_7seg', labels: { A: 'a', B: 'b', C: 'c', D: 'd', E: 'e', F: 'f', G: 'g', DP: 'dp', MODE: 'mode' } },
 };
 
 // ── 1. Parse the .dig XML ──
@@ -500,6 +503,59 @@ for (const e of elements) {
         const id = `pled_${e.label || e.i}`;
         addPart('led', id, { color: 'red' });
         nodes.push({ partId: id, terminal: 'anode', x: e.x, y: e.y });
+    }
+    // ── PullUp: single-terminal VCC tie ──
+    if (e.name === 'PullUp') {
+        const id = `pullup_${e.i}`;
+        addPart('vcc', id, { volts: 5 });
+        nodes.push({ partId: id, terminal: 'vcc', x: e.x, y: e.y });
+    }
+    // ── Inline ROM element ──
+    // Digital ROM: addr "A" at (x,y), data "D" at (x+60,y+20), sel at (x,y+40)
+    if (e.name === 'ROM') {
+        const allEls = [...xml.matchAll(/<visualElement>([\s\S]*?)<\/visualElement>/g)];
+        const elXml = allEls[e.i][1];
+        const addrBits = Number(/AddrBits<\/string>\s*<int>(\d+)/.exec(elXml)?.[1] || 8);
+        const dataBits = Number(/Bits<\/string>\s*<int>(\d+)/.exec(elXml)?.[1] || 8);
+        const dataStr = /<data>([^<]+)</.exec(elXml)?.[1] || '';
+        const id = e.label || `rom_${e.i}`;
+        addPart('rom', id, { addrBits, dataBits, data: dataStr });
+        nodes.push({ partId: id, terminal: 'addr', x: e.x, y: e.y });
+        nodes.push({ partId: id, terminal: 'data', x: e.x + 60, y: e.y + 20 });
+        nodes.push({ partId: id, terminal: 'sel', x: e.x, y: e.y + 40 });
+    }
+    // ── Counter (Digital built-in) ──
+    // Pins: C at (x,y), en at (x,y+20), clr at (x,y+40), out at (x+60,y), ovf at (x+60,y+20)
+    if (e.name === 'Counter') {
+        const allEls = [...xml.matchAll(/<visualElement>([\s\S]*?)<\/visualElement>/g)];
+        const elXml = allEls[e.i][1];
+        const bits = Number(/Bits<\/string>\s*<int>(\d+)/.exec(elXml)?.[1] || 4);
+        const id = e.label || `counter_${e.i}`;
+        addPart('counter', id, { bits });
+        nodes.push({ partId: id, terminal: 'clk', x: e.x, y: e.y });
+        nodes.push({ partId: id, terminal: 'en', x: e.x, y: e.y + 20 });
+        nodes.push({ partId: id, terminal: 'clr', x: e.x, y: e.y + 40 });
+        nodes.push({ partId: id, terminal: 'out', x: e.x + 60, y: e.y });
+        nodes.push({ partId: id, terminal: 'ovf', x: e.x + 60, y: e.y + 20 });
+    }
+    // ── RS flip-flop ──
+    // Pins: S at (x,y), C at (x,y+20), R at (x,y+40), Q at (x+60,y), ~Q at (x+60,y+20)
+    if (e.name === 'RS_FF') {
+        const id = e.label || `rsff_${e.i}`;
+        addPart('rs_ff', id);
+        nodes.push({ partId: id, terminal: 's', x: e.x, y: e.y });
+        nodes.push({ partId: id, terminal: 'clk', x: e.x, y: e.y + 20 });
+        nodes.push({ partId: id, terminal: 'r', x: e.x, y: e.y + 40 });
+        nodes.push({ partId: id, terminal: 'q', x: e.x + 60, y: e.y });
+        nodes.push({ partId: id, terminal: 'qb', x: e.x + 60, y: e.y + 20 });
+    }
+    // ── Const element — fixed logic level ──
+    if (e.name === 'Const') {
+        const allEls = [...xml.matchAll(/<visualElement>([\s\S]*?)<\/visualElement>/g)];
+        const elXml = allEls[e.i][1];
+        const val = Number(/Value<\/string>\s*<long>(\d+)/.exec(elXml)?.[1] || 0);
+        const id = val ? addPart('vcc', `const_${e.i}`, { volts: 5 }) : addPart('gnd', `const_${e.i}`);
+        nodes.push({ partId: id, terminal: val ? 'vcc' : 'gnd', x: e.x, y: e.y });
     }
 }
 
