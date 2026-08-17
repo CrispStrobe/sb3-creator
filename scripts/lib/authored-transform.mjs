@@ -68,7 +68,7 @@ function fullPinSpace(device) {
   }
 }
 
-export function transformAuthored(data, targetKind, pinMap, Circuit, pools, device) {
+export function transformAuthored(data, targetKind, pinMap, Circuit, pools, device, retargetedPins) {
   const d = JSON.parse(JSON.stringify(data));
   const mcu = d.parts.find((p) => MCU_KINDS.has(p.kind));
   if (!mcu) return { ok: false, reason: 'no MCU part in authored circuit' };
@@ -147,6 +147,35 @@ export function transformAuthored(data, targetKind, pinMap, Circuit, pools, devi
     }
   }
 
+  // ACTIVE-HIGH inputs (a key wired to +) idle correctly on the RP2040
+  // through its internal pull-DOWN — but the 8051's quasi-bidirectional
+  // pins idle HIGH and the AVR has only internal pull-UPS, so on every
+  // non-Pico target the transformed key would read PRESSED forever.
+  // Synthesize the pull-down the real bench would need: 10k from the
+  // pin's net to ground, one per active-high input that is actually
+  // wired. (ACTIVE LOW inputs keep the pull-up idiom their emitters
+  // already handle.)
+  const pdParts = [];
+  const pdWires = [];
+  if (targetKind !== 'pi_pico' && Array.isArray(retargetedPins)) {
+    const gndPart = d.parts.find((p) => p.kind === 'gnd');
+    const coordOf = (q) => q.where ? String(q.where) : `P${q.port}.${q.bit}`;
+    const wiredNew = new Set(netWires.map((w) => norm(w.fromTerminal)));
+    for (const pin of retargetedPins) {
+      if (pin.direction !== 'input' || pin.activeLow) continue;
+      const nt = norm(caseTo(coordOf(pin)));
+      if (!wiredNew.has(nt) || !gndPart) continue;
+      const rId = `R_PD_${pin.name}`.replace(/[^a-zA-Z0-9_]/g, '_');
+      // 4.7k, not 10k: against the 8051's quasi weak pull-up (~20k) a
+      // 10k divider idles at 1.58 V — a hair ABOVE the 1.5 V read
+      // threshold, so the key still read pressed. 4.7k idles ~0.9 V.
+      pdParts.push({ id: rId, kind: 'resistor', params: { ohms: 4700 },
+        terminals: ['a', 'b'], x: 60, y: -120 - pdParts.length * 20, rotation: 0 });
+      pdWires.push({ from: mcu.id, fromTerminal: caseTo(coordOf(pin)), to: rId, toTerminal: 'a' });
+      pdWires.push({ from: rId, toTerminal: 'gnd', to: gndPart.id, fromTerminal: 'b' });
+    }
+  }
+
   const parts = d.parts.map((p) => {
     if (p.id !== mcu.id) return p;
     const q = { id: p.id, kind: targetKind, params: {}, x: 80, y: -60, rotation: 0 };
@@ -171,6 +200,8 @@ export function transformAuthored(data, targetKind, pinMap, Circuit, pools, devi
     !(mcuStrips.has(`${hw.boardId}:${stripKeyOf(hw.a)}`)
       || mcuStrips.has(`${hw.boardId}:${stripKeyOf(hw.b)}`)));
 
+  parts.push(...pdParts);
+  wires.push(...pdWires);
   const out = { vcc: d.vcc ?? 5, parts, wires, holeWires, generated: 'benchFor+authored' };
   const check = Circuit.fromJSON(out);
   if (check.netlistError) return { ok: false, reason: `transformed circuit rejected: ${check.netlistError}` };

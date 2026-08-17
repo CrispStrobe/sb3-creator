@@ -6,7 +6,8 @@
   "type": "module",
   "homepage": "https://crispstrobe.github.io/sb3-creator/",
   "bin": {
-    "sb3c": "bin/sb3c.mjs"
+    "sb3c": "bin/sb3c.mjs",
+    "bw": "bin/bw.mjs"
   },
   "scripts": {
     "dev": "vite",

@@ -410,6 +410,244 @@
      "b": "f51"
     }
    }
+  },
+  {
+   "id": "R_PD_b9",
+   "kind": "resistor",
+   "params": {
+    "ohms": 4700
+   },
+   "terminals": [
+    "a",
+    "b"
+   ],
+   "x": 60,
+   "y": -120,
+   "rotation": 0
+  },
+  {
+   "id": "R_PD_b0",
+   "kind": "resistor",
+   "params": {
+    "ohms": 4700
+   },
+   "terminals": [
+    "a",
+    "b"
+   ],
+   "x": 60,
+   "y": -140,
+   "rotation": 0
+  },
+  {
+   "id": "R_PD_b1",
+   "kind": "resistor",
+   "params": {
+    "ohms": 4700
+   },
+   "terminals": [
+    "a",
+    "b"
+   ],
+   "x": 60,
+   "y": -160,
+   "rotation": 0
+  },
+  {
+   "id": "R_PD_b2",
+   "kind": "resistor",
+   "params": {
+    "ohms": 4700
+   },
+   "terminals": [
+    "a",
+    "b"
+   ],
+   "x": 60,
+   "y": -180,
+   "rotation": 0
+  },
+  {
+   "id": "R_PD_b3",
+   "kind": "resistor",
+   "params": {
+    "ohms": 4700
+   },
+   "terminals": [
+    "a",
+    "b"
+   ],
+   "x": 60,
+   "y": -200,
+   "rotation": 0
+  },
+  {
+   "id": "R_PD_b4",
+   "kind": "resistor",
+   "params": {
+    "ohms": 4700
+   },
+   "terminals": [
+    "a",
+    "b"
+   ],
+   "x": 60,
+   "y": -220,
+   "rotation": 0
+  },
+  {
+   "id": "R_PD_b5",
+   "kind": "resistor",
+   "params": {
+    "ohms": 4700
+   },
+   "terminals": [
+    "a",
+    "b"
+   ],
+   "x": 60,
+   "y": -240,
+   "rotation": 0
+  },
+  {
+   "id": "R_PD_b6",
+   "kind": "resistor",
+   "params": {
+    "ohms": 4700
+   },
+   "terminals": [
+    "a",
+    "b"
+   ],
+   "x": 60,
+   "y": -260,
+   "rotation": 0
+  },
+  {
+   "id": "R_PD_b7",
+   "kind": "resistor",
+   "params": {
+    "ohms": 4700
+   },
+   "terminals": [
+    "a",
+    "b"
+   ],
+   "x": 60,
+   "y": -280,
+   "rotation": 0
+  },
+  {
+   "id": "R_PD_b8",
+   "kind": "resistor",
+   "params": {
+    "ohms": 4700
+   },
+   "terminals": [
+    "a",
+    "b"
+   ],
+   "x": 60,
+   "y": -300,
+   "rotation": 0
+  },
+  {
+   "id": "R_PD_bplus",
+   "kind": "resistor",
+   "params": {
+    "ohms": 4700
+   },
+   "terminals": [
+    "a",
+    "b"
+   ],
+   "x": 60,
+   "y": -320,
+   "rotation": 0
+  },
+  {
+   "id": "R_PD_bminus",
+   "kind": "resistor",
+   "params": {
+    "ohms": 4700
+   },
+   "terminals": [
+    "a",
+    "b"
+   ],
+   "x": 60,
+   "y": -340,
+   "rotation": 0
+  },
+  {
+   "id": "R_PD_btimes",
+   "kind": "resistor",
+   "params": {
+    "ohms": 4700
+   },
+   "terminals": [
+    "a",
+    "b"
+   ],
+   "x": 60,
+   "y": -360,
+   "rotation": 0
+  },
+  {
+   "id": "R_PD_bdiv",
+   "kind": "resistor",
+   "params": {
+    "ohms": 4700
+   },
+   "terminals": [
+    "a",
+    "b"
+   ],
+   "x": 60,
+   "y": -380,
+   "rotation": 0
+  },
+  {
+   "id": "R_PD_bexe",
+   "kind": "resistor",
+   "params": {
+    "ohms": 4700
+   },
+   "terminals": [
+    "a",
+    "b"
+   ],
+   "x": 60,
+   "y": -400,
+   "rotation": 0
+  },
+  {
+   "id": "R_PD_bclr",
+   "kind": "resistor",
+   "params": {
+    "ohms": 4700
+   },
+   "terminals": [
+    "a",
+    "b"
+   ],
+   "x": 60,
+   "y": -420,
+   "rotation": 0
+  },
+  {
+   "id": "R_PD_bac",
+   "kind": "resistor",
+   "params": {
+    "ohms": 4700
+   },
+   "terminals": [
+    "a",
+    "b"
+   ],
+   "x": 60,
+   "y": -440,
+   "rotation": 0
   }
  ],
  "wires": [
@@ -870,6 +1108,210 @@
    "fromTerminal": "VCC",
    "to": "vcc1",
    "toTerminal": "vcc"
+  },
+  {
+   "from": "pico1",
+   "fromTerminal": "P3.2",
+   "to": "R_PD_b9",
+   "toTerminal": "a"
+  },
+  {
+   "from": "R_PD_b9",
+   "toTerminal": "gnd",
+   "to": "gnd1",
+   "fromTerminal": "b"
+  },
+  {
+   "from": "pico1",
+   "fromTerminal": "P3.3",
+   "to": "R_PD_b0",
+   "toTerminal": "a"
+  },
+  {
+   "from": "R_PD_b0",
+   "toTerminal": "gnd",
+   "to": "gnd1",
+   "fromTerminal": "b"
+  },
+  {
+   "from": "pico1",
+   "fromTerminal": "P3.6",
+   "to": "R_PD_b1",
+   "toTerminal": "a"
+  },
+  {
+   "from": "R_PD_b1",
+   "toTerminal": "gnd",
+   "to": "gnd1",
+   "fromTerminal": "b"
+  },
+  {
+   "from": "pico1",
+   "fromTerminal": "P3.7",
+   "to": "R_PD_b2",
+   "toTerminal": "a"
+  },
+  {
+   "from": "R_PD_b2",
+   "toTerminal": "gnd",
+   "to": "gnd1",
+   "fromTerminal": "b"
+  },
+  {
+   "from": "pico1",
+   "fromTerminal": "P2.0",
+   "to": "R_PD_b3",
+   "toTerminal": "a"
+  },
+  {
+   "from": "R_PD_b3",
+   "toTerminal": "gnd",
+   "to": "gnd1",
+   "fromTerminal": "b"
+  },
+  {
+   "from": "pico1",
+   "fromTerminal": "P2.1",
+   "to": "R_PD_b4",
+   "toTerminal": "a"
+  },
+  {
+   "from": "R_PD_b4",
+   "toTerminal": "gnd",
+   "to": "gnd1",
+   "fromTerminal": "b"
+  },
+  {
+   "from": "pico1",
+   "fromTerminal": "P2.2",
+   "to": "R_PD_b5",
+   "toTerminal": "a"
+  },
+  {
+   "from": "R_PD_b5",
+   "toTerminal": "gnd",
+   "to": "gnd1",
+   "fromTerminal": "b"
+  },
+  {
+   "from": "pico1",
+   "fromTerminal": "P2.3",
+   "to": "R_PD_b6",
+   "toTerminal": "a"
+  },
+  {
+   "from": "R_PD_b6",
+   "toTerminal": "gnd",
+   "to": "gnd1",
+   "fromTerminal": "b"
+  },
+  {
+   "from": "pico1",
+   "fromTerminal": "P2.4",
+   "to": "R_PD_b7",
+   "toTerminal": "a"
+  },
+  {
+   "from": "R_PD_b7",
+   "toTerminal": "gnd",
+   "to": "gnd1",
+   "fromTerminal": "b"
+  },
+  {
+   "from": "pico1",
+   "fromTerminal": "P2.5",
+   "to": "R_PD_b8",
+   "toTerminal": "a"
+  },
+  {
+   "from": "R_PD_b8",
+   "toTerminal": "gnd",
+   "to": "gnd1",
+   "fromTerminal": "b"
+  },
+  {
+   "from": "pico1",
+   "fromTerminal": "P2.6",
+   "to": "R_PD_bplus",
+   "toTerminal": "a"
+  },
+  {
+   "from": "R_PD_bplus",
+   "toTerminal": "gnd",
+   "to": "gnd1",
+   "fromTerminal": "b"
+  },
+  {
+   "from": "pico1",
+   "fromTerminal": "P2.7",
+   "to": "R_PD_bminus",
+   "toTerminal": "a"
+  },
+  {
+   "from": "R_PD_bminus",
+   "toTerminal": "gnd",
+   "to": "gnd1",
+   "fromTerminal": "b"
+  },
+  {
+   "from": "pico1",
+   "fromTerminal": "P0.0",
+   "to": "R_PD_btimes",
+   "toTerminal": "a"
+  },
+  {
+   "from": "R_PD_btimes",
+   "toTerminal": "gnd",
+   "to": "gnd1",
+   "fromTerminal": "b"
+  },
+  {
+   "from": "pico1",
+   "fromTerminal": "P0.1",
+   "to": "R_PD_bdiv",
+   "toTerminal": "a"
+  },
+  {
+   "from": "R_PD_bdiv",
+   "toTerminal": "gnd",
+   "to": "gnd1",
+   "fromTerminal": "b"
+  },
+  {
+   "from": "pico1",
+   "fromTerminal": "P0.2",
+   "to": "R_PD_bexe",
+   "toTerminal": "a"
+  },
+  {
+   "from": "R_PD_bexe",
+   "toTerminal": "gnd",
+   "to": "gnd1",
+   "fromTerminal": "b"
+  },
+  {
+   "from": "pico1",
+   "fromTerminal": "P0.3",
+   "to": "R_PD_bclr",
+   "toTerminal": "a"
+  },
+  {
+   "from": "R_PD_bclr",
+   "toTerminal": "gnd",
+   "to": "gnd1",
+   "fromTerminal": "b"
+  },
+  {
+   "from": "pico1",
+   "fromTerminal": "P0.4",
+   "to": "R_PD_bac",
+   "toTerminal": "a"
+  },
+  {
+   "from": "R_PD_bac",
+   "toTerminal": "gnd",
+   "to": "gnd1",
+   "fromTerminal": "b"
   }
  ],
  "holeWires": [

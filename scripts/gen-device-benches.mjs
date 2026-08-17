@@ -83,7 +83,13 @@ async function batch() {
       if (!r.ok) { refused++; continue; }
       if (hasAuthored) {
         const data = JSON.parse(fs.readFileSync(authoredPath, 'utf8'));
-        const t = transformAuthored(data, DEVPART[device], r.pinMap || [], cmod.Circuit, SB3Creator.RETARGET_POOLS[device], device);
+        // Parse the retargeted program: the transform needs pin DIRECTIONS
+        // to synthesize pull-downs for active-high inputs on targets
+        // without internal ones.
+        const rp = new SB3Creator();
+        let rpins = null;
+        try { rp.parse(r.pseudocode ?? src); rpins = rp.project?.stc?.pins || null; } catch { /* transform degrades */ }
+        const t = transformAuthored(data, DEVPART[device], r.pinMap || [], cmod.Circuit, SB3Creator.RETARGET_POOLS[device], device, rpins);
         if (!t.ok) {
           console.log(`${e.id} x ${device}: authored transform refused — ${t.reason}`);
           refused++; continue;

@@ -123,6 +123,34 @@ export default function micropythonToPseudocode (source, opts = {}) {
             put('_i2c_sda', `GP${m[1]}`, 'output', false, 'sda');
             put('_i2c_scl', `GP${m[2]}`, 'output', false, 'scl');
         }
+        // The KEYPAD IDIOM of hand-written Pico code (the owner's
+        // calculator): a gpio->label dict plus one comprehension that
+        // constructs every Pin. Nothing here is generated evidence — it
+        // is the way people actually write many-button programs, and the
+        // labels name the pins better than gp<N> ever could.
+        //
+        //   KEYS = { 2: "9", 3: "0", ..., 16: "EXE" }
+        //   pins = {gp: Pin(gp, Pin.IN, Pin.PULL_DOWN) for gp in KEYS}
+        {
+            const comp = /\{\s*(\w+)\s*:\s*Pin\s*\(\s*\1\s*,\s*Pin\.IN(?:\s*,\s*Pin\.(PULL_UP|PULL_DOWN))?\s*\)\s*for\s+\1\s+in\s+(\w+)\s*\}/.exec(text);
+            if (comp) {
+                const dictRe = new RegExp(comp[3] + '\\s*=\\s*\\{([^}]*)\\}');
+                const dm = dictRe.exec(text);
+                if (dm) {
+                    const activeLow = comp[2] === 'PULL_UP';
+                    for (const e of dm[1].matchAll(/(\d+)\s*:\s*"([^"]*)"/g)) {
+                        const gp = e[1];
+                        const label = e[2];
+                        const name = /^\d$/.test(label) ? `k${label}`
+                            : label === '+' ? 'kplus' : label === '-' ? 'kminus'
+                            : label === '*' ? 'ktimes' : label === '/' ? 'kdiv'
+                            : /^[A-Za-z_]\w*$/.test(label) ? label.toLowerCase()
+                            : `gp${gp}`;
+                        put(`${comp[3]}_${gp}`, `GP${gp}`, 'input', activeLow, name);
+                    }
+                }
+            }
+        }
         for (const m of text.matchAll(/\b(\w+)\s*=\s*ADC\s*\(\s*(\d+)\s*\)/g)) {
             put(m[1], `GP${m[2]}`, 'analog', false, null);
         }
