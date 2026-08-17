@@ -10,7 +10,7 @@ teaches: [debounce, switch-bounce, software-filter]
 A button is wired to the MCU and a counter is displayed on a 7-segment display.
 Every press should add one to the count, but without debouncing the count jumps
 by two, three, or more on a single press. The program shows both the raw
-(bouncing) count and the debounced (clean) count side by side.
+(bouncing) count and the debounced (clean) count side by side. This example works on all supported microcontrollers — pick a different device in the toolbar to see the adapted circuit.
 
 ## Try this
 

@@ -11,7 +11,7 @@ Ein Taster ist mit dem MCU verbunden und ein Zaehler wird auf einer
 7-Segment-Anzeige dargestellt. Jeder Druck sollte den Zaehler um eins erhoehen,
 aber ohne Entprellung springt der Zaehler bei einem einzigen Druck um zwei, drei
 oder mehr. Das Programm zeigt den rohen (prellenden) Zaehlerstand und den
-entprellten (sauberen) Zaehlerstand nebeneinander.
+entprellten (sauberen) Zaehlerstand nebeneinander. Dieses Beispiel funktioniert auf allen unterstützten Mikrocontrollern — wähle ein anderes Gerät in der Werkzeugleiste, um die angepasste Schaltung zu sehen.
 
 ## Probier das aus
 
