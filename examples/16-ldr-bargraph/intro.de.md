@@ -5,7 +5,7 @@ prereqs: [03-night-light]
 teaches: [bar-graph, analog-display, threshold-levels]
 ---
 ## Was du siehst
-Vier LEDs leuchten wie ein Balkendiagramm, das die Raumhelligkeit anzeigt. Bei wenig Licht ist nur eine LED an; bei voller Helligkeit leuchten alle vier. Ein lichtabhängiger Widerstand (LDR) in einem Spannungsteiler speist den ADC des MCU.
+Vier LEDs leuchten wie ein Balkendiagramm, das die Raumhelligkeit anzeigt. Bei wenig Licht ist nur eine LED an; bei voller Helligkeit leuchten alle vier. Ein lichtabhängiger Widerstand (LDR) in einem Spannungsteiler speist den ADC des MCU. Dieses Beispiel funktioniert auf allen unterstützten Mikrocontrollern — wähle ein anderes Gerät in der Werkzeugleiste, um die angepasste Schaltung zu sehen.
 
 ## Probier das
 1. Starte das Programm und bedecke den LDR mit der Hand — beobachte, wie sich die LEDs von rechts nach links ausschalten.

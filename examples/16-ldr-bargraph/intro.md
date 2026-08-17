@@ -5,7 +5,7 @@ prereqs: [03-night-light]
 teaches: [bar-graph, analog-display, threshold-levels]
 ---
 ## What you see
-Four LEDs light up like a bar graph showing how bright the room is. In dim light only one LED is on; in full brightness all four are lit. A light-dependent resistor (LDR) in a voltage divider feeds the MCU's ADC.
+Four LEDs light up like a bar graph showing how bright the room is. In dim light only one LED is on; in full brightness all four are lit. A light-dependent resistor (LDR) in a voltage divider feeds the MCU's ADC. This example works on all supported microcontrollers — pick a different device in the toolbar to see the adapted circuit.
 
 ## Try this
 1. Run the program and cover the LDR with your hand — watch LEDs turn off from right to left.
