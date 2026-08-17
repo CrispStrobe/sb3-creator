@@ -5,7 +5,7 @@ prereqs: [03-night-light]
 teaches: [thermistor, hysteresis, control-loop]
 ---
 ## What you see
-A "heater" LED turns on when the temperature drops below a low threshold and turns off when it rises above a high threshold. An NTC thermistor in a voltage divider feeds the ADC, and the gap between the two thresholds prevents the heater from flickering on and off at the boundary.
+A "heater" LED turns on when the temperature drops below a low threshold and turns off when it rises above a high threshold. An NTC thermistor in a voltage divider feeds the ADC, and the gap between the two thresholds prevents the heater from flickering on and off at the boundary. This example works on all supported microcontrollers — pick a different device in the toolbar to see the adapted circuit.
 
 ## Try this
 1. Run the program and adjust the thermistor value. The heater LED turns on when it gets cold and off when it warms up.

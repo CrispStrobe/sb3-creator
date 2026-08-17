@@ -5,7 +5,7 @@ prereqs: [03-night-light]
 teaches: [thermistor, hysteresis, control-loop]
 ---
 ## Was du siehst
-Eine „Heizungs"-LED schaltet ein, wenn die Temperatur unter einen unteren Schwellwert fällt, und aus, wenn sie über einen oberen Schwellwert steigt. Ein NTC-Thermistor im Spannungsteiler speist den ADC, und der Abstand zwischen den beiden Schwellwerten verhindert, dass die Heizung an der Grenze flackert.
+Eine „Heizungs"-LED schaltet ein, wenn die Temperatur unter einen unteren Schwellwert fällt, und aus, wenn sie über einen oberen Schwellwert steigt. Ein NTC-Thermistor im Spannungsteiler speist den ADC, und der Abstand zwischen den beiden Schwellwerten verhindert, dass die Heizung an der Grenze flackert. Dieses Beispiel funktioniert auf allen unterstützten Mikrocontrollern — wähle ein anderes Gerät in der Werkzeugleiste, um die angepasste Schaltung zu sehen.
 
 ## Probier das
 1. Starte das Programm und verändere den Thermistor-Wert. Die Heizungs-LED geht bei Kälte an und bei Wärme aus.
