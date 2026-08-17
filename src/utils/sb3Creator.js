@@ -9948,6 +9948,23 @@ class SB3Creator {
                             '#define I2C_SCL_LO() ((void)0)',
                             '');
                     }
+                } else if (this._core === 'z80') {
+                    // Z80: shadow byte + OUT to the latch port, same discipline
+                    // as the 6502 VIA shadow. SDA/SCL on OUT port bits.
+                    const sdaPin = pins.find((p) => p.name.toLowerCase() === 'sda');
+                    const sclPin = pins.find((p) => p.name.toLowerCase() === 'scl');
+                    const sdaBit = sdaPin ? this.z80Hw(sdaPin) : 0;
+                    const sclBit = sclPin ? this.z80Hw(sclPin) : 1;
+                    out.push(
+                        '/* I2C bus: bit-banged via Z80 OUT latch (shadow-byte RMW). */',
+                        `#define I2C_SDA_MASK (1u << ${sdaBit})`,
+                        `#define I2C_SCL_MASK (1u << ${sclBit})`,
+                        '/* _z80_sh is the OUT latch shadow, already declared in the header. */',
+                        '#define I2C_SDA_HI() (_z80_sh |= I2C_SDA_MASK, BW_PORT_OUT = _z80_sh)',
+                        '#define I2C_SDA_LO() (_z80_sh &= (unsigned char)~I2C_SDA_MASK, BW_PORT_OUT = _z80_sh)',
+                        '#define I2C_SCL_HI() (_z80_sh |= I2C_SCL_MASK, BW_PORT_OUT = _z80_sh)',
+                        '#define I2C_SCL_LO() (_z80_sh &= (unsigned char)~I2C_SCL_MASK, BW_PORT_OUT = _z80_sh)',
+                        '');
                 } else {
                     // 8051: resolve from declared sda/scl pins, default P2.1/P2.2.
                     let sdaRef = 'P2_1', sclRef = 'P2_2';
@@ -10734,6 +10751,10 @@ class SB3Creator {
                 out.push(`    BW_VIA_DDR${port} |= 0x${mask.toString(16).padStart(2, '0')};  /* SDA+SCL output */`,
                     `    _i2c_sh = I2C_SDA_MASK | I2C_SCL_MASK;  /* bus idle: both HIGH */`,
                     `    BW_VIA_OR${port} = _i2c_sh;`);
+            } else if (this._core === 'z80') {
+                // Z80: SDA/SCL are OUT latch bits. Init shadow with both HIGH.
+                out.push('    _z80_sh |= I2C_SDA_MASK | I2C_SCL_MASK;  /* I2C bus idle */',
+                    '    BW_PORT_OUT = _z80_sh;');
             } else {
                 // 8051: open-drain port mode, release bus.
                 if (chip.portModes) {
