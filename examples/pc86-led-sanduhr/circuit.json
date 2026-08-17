@@ -46,8 +46,20 @@
       "kind": "decade_counter",
       "params": {},
       "terminals": [
-        "a",
-        "b"
+        "clk",
+        "rst",
+        "en",
+        "q0",
+        "q1",
+        "q2",
+        "q3",
+        "q4",
+        "q5",
+        "q6",
+        "q7",
+        "q8",
+        "q9",
+        "co"
       ],
       "x": 400,
       "y": 200,
@@ -571,6 +583,126 @@
       "to": {
         "part": "gnd_2",
         "terminal": "gnd"
+      }
+    },
+    {
+      "id": "wire_fix_1038",
+      "netId": "net_clk",
+      "from": {
+        "part": "timer_555_3",
+        "terminal": "output"
+      },
+      "to": {
+        "part": "decade_counter_4",
+        "terminal": "clk"
+      }
+    },
+    {
+      "id": "wire_fix_1039",
+      "netId": "net_8",
+      "from": {
+        "part": "decade_counter_4",
+        "terminal": "en"
+      },
+      "to": {
+        "part": "gnd_2",
+        "terminal": "gnd"
+      }
+    },
+    {
+      "id": "wire_fix_1040",
+      "netId": "net_8",
+      "from": {
+        "part": "decade_counter_4",
+        "terminal": "rst"
+      },
+      "to": {
+        "part": "gnd_2",
+        "terminal": "gnd"
+      }
+    },
+    {
+      "id": "wire_fix_1041",
+      "netId": "net_tilt",
+      "from": {
+        "part": "tilt_sensor_21",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "resistor_23",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_fix_1042",
+      "netId": "net_q0",
+      "from": {
+        "part": "decade_counter_4",
+        "terminal": "q0"
+      },
+      "to": {
+        "part": "resistor_25",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_fix_1043",
+      "netId": "net_q1",
+      "from": {
+        "part": "decade_counter_4",
+        "terminal": "q1"
+      },
+      "to": {
+        "part": "resistor_30",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_fix_1044",
+      "netId": "net_q2",
+      "from": {
+        "part": "decade_counter_4",
+        "terminal": "q2"
+      },
+      "to": {
+        "part": "resistor_35",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_fix_1045",
+      "netId": "net_q3",
+      "from": {
+        "part": "decade_counter_4",
+        "terminal": "q3"
+      },
+      "to": {
+        "part": "resistor_40",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_fix_1046",
+      "netId": "net_q4",
+      "from": {
+        "part": "decade_counter_4",
+        "terminal": "q4"
+      },
+      "to": {
+        "part": "resistor_45",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_fix_1047",
+      "netId": "net_q5",
+      "from": {
+        "part": "decade_counter_4",
+        "terminal": "q5"
+      },
+      "to": {
+        "part": "resistor_50",
+        "terminal": "a"
       }
     }
   ],

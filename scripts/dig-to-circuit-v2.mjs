@@ -504,6 +504,7 @@ for (const e of elements) {
         addPart('led', id, { color: 'red' });
         nodes.push({ partId: id, terminal: 'anode', x: e.x, y: e.y });
     }
+<<<<<<< HEAD
     // ── PullUp: single-terminal VCC tie ──
     if (e.name === 'PullUp') {
         const id = `pullup_${e.i}`;
