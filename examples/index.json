@@ -5161,5 +5161,110 @@
    "stc15f2k60s2": "72-pico-oled-hello/circuit.stc15f2k60s2.json",
    "stc89c52rc": "72-pico-oled-hello/circuit.stc89c52rc.json"
   }
+ },
+ {
+  "id": "73-voltmeter",
+  "title": {
+   "en": "Voltmeter",
+   "de": "Voltmeter"
+  },
+  "category": "analog",
+  "difficulty": 2,
+  "files": {
+   "program": "73-voltmeter/program.bw",
+   "circuit": "73-voltmeter/circuit.json",
+   "intro": "73-voltmeter/intro.md",
+   "introDE": "73-voltmeter/intro.de.md"
+  },
+  "kind": "full",
+  "devices": [
+   "arduino-nano",
+   "arduino-uno",
+   "arduino-mega",
+   "atmega168p",
+   "pico",
+   "stc12c5a60s2",
+   "stc15f2k60s2",
+   "attiny85"
+  ],
+  "benches": {
+   "arduino-mega": "73-voltmeter/circuit.arduino-mega.json",
+   "arduino-nano": "73-voltmeter/circuit.arduino-nano.json",
+   "arduino-uno": "73-voltmeter/circuit.arduino-uno.json",
+   "atmega168p": "73-voltmeter/circuit.atmega168p.json",
+   "pico": "73-voltmeter/circuit.pico.json",
+   "stc12c5a60s2": "73-voltmeter/circuit.stc12c5a60s2.json",
+   "stc15f2k60s2": "73-voltmeter/circuit.stc15f2k60s2.json"
+  }
+ },
+ {
+  "id": "74-ammeter",
+  "title": {
+   "en": "Ammeter",
+   "de": "Amperemeter"
+  },
+  "category": "analog",
+  "difficulty": 2,
+  "files": {
+   "program": "74-ammeter/program.bw",
+   "circuit": "74-ammeter/circuit.json",
+   "intro": "74-ammeter/intro.md",
+   "introDE": "74-ammeter/intro.de.md"
+  },
+  "kind": "full",
+  "devices": [
+   "arduino-nano",
+   "arduino-uno",
+   "arduino-mega",
+   "atmega168p",
+   "pico",
+   "stc12c5a60s2",
+   "stc15f2k60s2",
+   "attiny85"
+  ],
+  "benches": {
+   "arduino-mega": "74-ammeter/circuit.arduino-mega.json",
+   "arduino-nano": "74-ammeter/circuit.arduino-nano.json",
+   "arduino-uno": "74-ammeter/circuit.arduino-uno.json",
+   "atmega168p": "74-ammeter/circuit.atmega168p.json",
+   "pico": "74-ammeter/circuit.pico.json",
+   "stc12c5a60s2": "74-ammeter/circuit.stc12c5a60s2.json",
+   "stc15f2k60s2": "74-ammeter/circuit.stc15f2k60s2.json"
+  }
+ },
+ {
+  "id": "75-battery-tester",
+  "title": {
+   "en": "Battery Tester",
+   "de": "Batterietester"
+  },
+  "category": "analog",
+  "difficulty": 2,
+  "files": {
+   "program": "75-battery-tester/program.bw",
+   "circuit": "75-battery-tester/circuit.json",
+   "intro": "75-battery-tester/intro.md",
+   "introDE": "75-battery-tester/intro.de.md"
+  },
+  "kind": "full",
+  "devices": [
+   "arduino-nano",
+   "arduino-uno",
+   "arduino-mega",
+   "atmega168p",
+   "pico",
+   "stc12c5a60s2",
+   "stc15f2k60s2",
+   "attiny85"
+  ],
+  "benches": {
+   "arduino-mega": "75-battery-tester/circuit.arduino-mega.json",
+   "arduino-nano": "75-battery-tester/circuit.arduino-nano.json",
+   "arduino-uno": "75-battery-tester/circuit.arduino-uno.json",
+   "atmega168p": "75-battery-tester/circuit.atmega168p.json",
+   "pico": "75-battery-tester/circuit.pico.json",
+   "stc12c5a60s2": "75-battery-tester/circuit.stc12c5a60s2.json",
+   "stc15f2k60s2": "75-battery-tester/circuit.stc15f2k60s2.json"
+  }
  }
 ]

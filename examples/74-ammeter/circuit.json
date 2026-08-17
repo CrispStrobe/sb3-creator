@@ -1,0 +1,129 @@
+{
+ "vcc": 5,
+ "parts": [
+  {
+   "id": "bb1",
+   "kind": "breadboard",
+   "params": {},
+   "x": 470,
+   "y": 330,
+   "rotation": 0
+  },
+  {
+   "id": "nano",
+   "kind": "arduino_nano",
+   "params": {},
+   "x": 200,
+   "y": 320,
+   "rotation": 0
+  },
+  {
+   "id": "vcc1",
+   "kind": "vcc",
+   "params": {},
+   "x": 60,
+   "y": 120,
+   "rotation": 0
+  },
+  {
+   "id": "gnd1",
+   "kind": "gnd",
+   "params": {},
+   "x": 140,
+   "y": 120,
+   "rotation": 0
+  },
+  {
+   "id": "lcd1",
+   "kind": "char_lcd_i2c",
+   "params": {},
+   "x": 700,
+   "y": 300,
+   "rotation": 0
+  },
+  {
+   "id": "load1",
+   "kind": "potentiometer",
+   "params": {
+    "ohms": 1000,
+    "position": 0.5
+   },
+   "x": 430,
+   "y": 640,
+   "rotation": 0
+  },
+  {
+   "id": "shunt1",
+   "kind": "resistor",
+   "params": {
+    "ohms": 10
+   },
+   "x": 540,
+   "y": 640,
+   "rotation": 0
+  }
+ ],
+ "wires": [
+  {
+   "from": "vcc1",
+   "fromTerminal": "vcc",
+   "to": "nano",
+   "toTerminal": "5v"
+  },
+  {
+   "from": "gnd1",
+   "fromTerminal": "gnd",
+   "to": "nano",
+   "toTerminal": "gnd"
+  },
+  {
+   "from": "lcd1",
+   "fromTerminal": "sda",
+   "to": "nano",
+   "toTerminal": "a4"
+  },
+  {
+   "from": "lcd1",
+   "fromTerminal": "scl",
+   "to": "nano",
+   "toTerminal": "a5"
+  },
+  {
+   "from": "vcc1",
+   "fromTerminal": "vcc",
+   "to": "lcd1",
+   "toTerminal": "vcc"
+  },
+  {
+   "from": "gnd1",
+   "fromTerminal": "gnd",
+   "to": "lcd1",
+   "toTerminal": "gnd"
+  },
+  {
+   "from": "vcc1",
+   "fromTerminal": "vcc",
+   "to": "load1",
+   "toTerminal": "a"
+  },
+  {
+   "from": "load1",
+   "fromTerminal": "wiper",
+   "to": "shunt1",
+   "toTerminal": "a"
+  },
+  {
+   "from": "shunt1",
+   "fromTerminal": "b",
+   "to": "gnd1",
+   "toTerminal": "gnd"
+  },
+  {
+   "from": "shunt1",
+   "fromTerminal": "a",
+   "to": "nano",
+   "toTerminal": "a0"
+  }
+ ],
+ "holeWires": []
+}

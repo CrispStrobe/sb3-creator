@@ -1,0 +1,113 @@
+{
+ "vcc": 5,
+ "parts": [
+  {
+   "id": "bb1",
+   "kind": "breadboard",
+   "params": {},
+   "x": 470,
+   "y": 330,
+   "rotation": 0
+  },
+  {
+   "id": "nano",
+   "kind": "arduino_nano",
+   "params": {},
+   "x": 200,
+   "y": 320,
+   "rotation": 0
+  },
+  {
+   "id": "vcc1",
+   "kind": "vcc",
+   "params": {},
+   "x": 60,
+   "y": 120,
+   "rotation": 0
+  },
+  {
+   "id": "gnd1",
+   "kind": "gnd",
+   "params": {},
+   "x": 140,
+   "y": 120,
+   "rotation": 0
+  },
+  {
+   "id": "oled1",
+   "kind": "ssd1306",
+   "params": {},
+   "x": 700,
+   "y": 300,
+   "rotation": 0
+  },
+  {
+   "id": "probe1",
+   "kind": "potentiometer",
+   "params": {
+    "ohms": 10000,
+    "position": 0.5
+   },
+   "x": 430,
+   "y": 640,
+   "rotation": 0
+  }
+ ],
+ "wires": [
+  {
+   "from": "vcc1",
+   "fromTerminal": "vcc",
+   "to": "nano",
+   "toTerminal": "5v"
+  },
+  {
+   "from": "gnd1",
+   "fromTerminal": "gnd",
+   "to": "nano",
+   "toTerminal": "gnd"
+  },
+  {
+   "from": "oled1",
+   "fromTerminal": "sda",
+   "to": "nano",
+   "toTerminal": "a4"
+  },
+  {
+   "from": "oled1",
+   "fromTerminal": "scl",
+   "to": "nano",
+   "toTerminal": "a5"
+  },
+  {
+   "from": "vcc1",
+   "fromTerminal": "vcc",
+   "to": "oled1",
+   "toTerminal": "vcc"
+  },
+  {
+   "from": "gnd1",
+   "fromTerminal": "gnd",
+   "to": "oled1",
+   "toTerminal": "gnd"
+  },
+  {
+   "from": "vcc1",
+   "fromTerminal": "vcc",
+   "to": "probe1",
+   "toTerminal": "a"
+  },
+  {
+   "from": "probe1",
+   "fromTerminal": "b",
+   "to": "gnd1",
+   "toTerminal": "gnd"
+  },
+  {
+   "from": "probe1",
+   "fromTerminal": "wiper",
+   "to": "nano",
+   "toTerminal": "a0"
+  }
+ ],
+ "holeWires": []
+}

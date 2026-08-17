@@ -1,0 +1,32 @@
+# A battery tester: measure the cell UNDER LOAD (the 10-ohm resistor
+# draws real current - an unloaded battery lies about its health),
+# then judge it. AA thresholds: FULL above 1400 mV, GOOD above 1200,
+# WEAK above 1000, DEAD below.
+DEVICE ARDUINO-NANO
+CLOCK 16000000
+PIN sda = A4 OUTPUT
+PIN scl = A5 OUTPUT
+PIN batt = A0 ANALOG
+
+STAGE:
+  WHEN flag clicked:
+    FOREVER:
+      set mv to read batt * 5000 / 1023
+      oled clear 1
+      oled set cursor 0 0 on 1
+      oled print "BATTERY TEST" on 1
+      oled set cursor 2 2 on 1
+      oled print (mv) on 1
+      oled print " mV" on 1
+      oled set cursor 5 2 on 1
+      IF mv > 1399 THEN:
+        oled print "FULL" on 1
+      IF mv > 1199 THEN:
+        IF mv < 1400 THEN:
+          oled print "GOOD" on 1
+      IF mv > 999 THEN:
+        IF mv < 1200 THEN:
+          oled print "WEAK" on 1
+      IF mv < 1000 THEN:
+        oled print "DEAD" on 1
+      wait 0.5 seconds

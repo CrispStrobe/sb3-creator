@@ -65,7 +65,8 @@ async function batch() {
       const c = new SB3Creator();
       try { c.parse(r.pseudocode ?? r.src ?? r.text); } catch { refused++; continue; }
       if (!c.project?.stc?.pins?.length) { refused++; continue; }
-      const nl = eng.inferNetlist(c.project.stc);
+      const usesLcd = /^\s*lcd /m.test(src);
+      const nl = eng.inferNetlist(c.project.stc, { display: usesLcd ? 'lcd' : 'oled' });
       const kind = DEVPART[device];
       const ids = new Set();
       for (const p of nl.parts) if (p.kind === 'mcu') {

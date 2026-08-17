@@ -1,0 +1,25 @@
+# An ammeter the way real ones work: the current flows through a small
+# SHUNT resistor (10 ohms here), the ADC measures the voltage across
+# it, and Ohm's law gives the current: I = V / R. The potentiometer is
+# the variable load - drag it and watch the milliamps change on the
+# I2C character LCD.
+DEVICE ARDUINO-NANO
+CLOCK 16000000
+PIN sda = A4 OUTPUT
+PIN scl = A5 OUTPUT
+PIN shunt = A0 ANALOG
+
+STAGE:
+  WHEN flag clicked:
+    FOREVER:
+      # voltage across the 10-ohm shunt, in millivolts
+      set mv to read shunt * 5000 / 1023
+      # I = V / R: mV across 10 ohms -> tenths of a milliamp
+      set ma to mv / 10
+      lcd clear 1
+      lcd set cursor 0 0 on 1
+      lcd print "AMMETER" on 1
+      lcd set cursor 1 0 on 1
+      lcd print (ma) on 1
+      lcd print " mA" on 1
+      wait 0.2 seconds

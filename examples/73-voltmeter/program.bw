@@ -1,0 +1,20 @@
+# A voltmeter: the ADC reads the probe, the OLED shows millivolts.
+# In SIM the potentiometer IS the voltage under test - drag it and
+# watch the reading track the wiper.
+DEVICE ARDUINO-NANO
+CLOCK 16000000
+PIN sda = A4 OUTPUT
+PIN scl = A5 OUTPUT
+PIN probe = A0 ANALOG
+
+STAGE:
+  WHEN flag clicked:
+    FOREVER:
+      set mv to read probe * 5000 / 1023
+      oled clear 1
+      oled set cursor 0 0 on 1
+      oled print "VOLTMETER" on 1
+      oled set cursor 3 3 on 1
+      oled print (mv) on 1
+      oled print " mV" on 1
+      wait 0.2 seconds
