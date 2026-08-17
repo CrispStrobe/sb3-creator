@@ -1,0 +1,28 @@
+DEVICE EATER6502
+CLOCK 1000000
+PIN sda = PA0 OUTPUT
+PIN scl = PA1 OUTPUT
+PIN led = PA2 OUTPUT
+PIN b0 = PB0 INPUT
+PIN b1 = PB1 INPUT
+PIN b2 = PB2 INPUT
+PIN b3 = PB3 INPUT
+GLOBAL count
+STAGE:
+  WHEN flag clicked:
+    oled clear 1
+    oled print "6502 CALC" on 1
+    set count to 0
+    FOREVER:
+      oled set cursor 1 0 on 1
+      IF read b0 THEN:
+        change count by 1
+      IF read b1 THEN:
+        change count by -1
+      IF read b2 THEN:
+        set count to 0
+      oled print count on 1
+      turn on led
+      wait 0.1 seconds
+      turn off led
+      wait 0.1 seconds
