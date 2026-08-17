@@ -244,7 +244,8 @@
    "stc12c5a60s2": "06-active-low-high/circuit.stc12c5a60s2.json",
    "stc15f2k60s2": "06-active-low-high/circuit.stc15f2k60s2.json",
    "stc89c52rc": "06-active-low-high/circuit.stc89c52rc.json"
-  }
+  },
+  "tier": "arch"
  },
  {
   "id": "07-buzzer-siren",
@@ -271,7 +272,8 @@
    "arduino-uno": "tone is not ported to this core yet",
    "arduino-nano": "tone is not ported to this core yet",
    "pico": "tone is not ported to this core yet"
-  }
+  },
+  "tier": "arch"
  },
  {
   "id": "08-led-chaser-595",
@@ -1092,7 +1094,8 @@
    "stc12c5a60s2": "32-source-vs-sink/circuit.stc12c5a60s2.json",
    "stc15f2k60s2": "32-source-vs-sink/circuit.stc15f2k60s2.json",
    "stc89c52rc": "32-source-vs-sink/circuit.stc89c52rc.json"
-  }
+  },
+  "tier": "arch"
  },
  {
   "id": "33-inductive-no-flyback",
@@ -1349,7 +1352,8 @@
    "arduino-mega": "46-port-overcurrent/circuit.arduino-mega.json",
    "stc12c5a60s2": "46-port-overcurrent/circuit.stc12c5a60s2.json",
    "stc89c52rc": "46-port-overcurrent/circuit.stc89c52rc.json"
-  }
+  },
+  "tier": "arch"
  },
  {
   "id": "47-battery-led",
@@ -5009,7 +5013,8 @@
   "kind": "full",
   "devices": [
    "stc15f2k60s2"
-  ]
+  ],
+  "tier": "arch"
  },
  {
   "id": "61-console-pong",
@@ -5029,6 +5034,7 @@
   "kind": "full",
   "devices": [
    "stc15f2k60s2"
-  ]
+  ],
+  "tier": "arch"
  }
 ]
