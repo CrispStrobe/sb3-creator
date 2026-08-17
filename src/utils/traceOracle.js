@@ -478,10 +478,15 @@ export function interpretTrace(project, opts = {}) {
                     if (partCfg) {
                         const al = !!partCfg.activeLow;
                         // Record pin-level events for data/clock/latch
-                        const { data, clock, latch } = partCfg;
-                        const dataKey = `P${data.port}.${data.bit}`;
-                        const clockKey = `P${clock.port}.${clock.bit}`;
-                        const latchKey = `P${latch.port}.${latch.bit}`;
+                        // Keys are LOGICAL (part.role), not physical coordinates:
+                        // the physical shape differs per device dialect ({port,bit}
+                        // on STC, {where:"D13"} on Arduino/Pico) and cross-device
+                        // trace identity is defined over logical names — like every
+                        // other emitPin site, which uses the pin's logical name.
+                        const pfx = String(partName).toLowerCase();
+                        const dataKey = `${pfx}.data`;
+                        const clockKey = `${pfx}.clock`;
+                        const latchKey = `${pfx}.latch`;
                         // Latch low to start
                         emitPin(latchKey, al ? 1 : 0);
                         for (let bit = 7; bit >= 0; bit--) {

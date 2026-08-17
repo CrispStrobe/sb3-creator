@@ -152,7 +152,7 @@ describe('gallery: index.json is valid and covers every example', () => {
     test('every entry has required fields', () => {
         const index = JSON.parse(readFileSync(indexPath, 'utf8'));
         const CATEGORIES = new Set(['basics', 'analog', 'digital', 'display', 'motors', 'pure-circuit']);
-        const KINDS = new Set(['circuit', 'program']);
+        const KINDS = new Set(['circuit', 'program', 'full']);
         for (const entry of index) {
             assert.ok(entry.id, 'id');
             assert.ok(entry.title?.en, 'title.en');
@@ -162,7 +162,9 @@ describe('gallery: index.json is valid and covers every example', () => {
             assert.ok(KINDS.has(entry.kind), `kind "${entry.kind}" not in ${[...KINDS]}`);
             assert.ok(entry.files?.program || entry.files?.circuit, 'files.program or files.circuit');
             assert.ok(entry.files?.circuit, 'files.circuit');
-            assert.ok(entry.files?.expected, 'files.expected');
+            // 'full' entries (program + circuit lesson pages) may omit the
+            // expected-trace file; circuit/program entries never do.
+            if (entry.kind !== 'full') assert.ok(entry.files?.expected, 'files.expected');
         }
     });
 

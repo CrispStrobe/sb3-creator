@@ -13,7 +13,16 @@ import SB3Creator from '../src/utils/sb3Creator.js';
 
 const EXAMPLES = join(import.meta.dirname, '..', 'examples');
 const index = JSON.parse(readFileSync(join(EXAMPLES, 'index.json'), 'utf8'));
-const devices = Object.keys(SB3Creator.RETARGET_POOLS);
+// The dry-run universe is RETARGET_POOLS minus the devices the bench
+// generator cannot bench (scripts/gen-device-benches.mjs DEVPART has no
+// board part for them yet). A computed `devices` list means "the app can
+// offer this example on this device END TO END" — retarget alone is not
+// that. eater6502/z80 were removed from 68 index lists as phantom for
+// exactly this reason (77e2717); when they get designer board parts and
+// DEVPART entries, delete them here and regenerate the lists.
+const UNBENCHABLE = new Set(['eater6502', 'z80']);
+const devices = Object.keys(SB3Creator.RETARGET_POOLS)
+    .filter(d => !UNBENCHABLE.has(d));
 
 // Programs with a computed `devices` field (generic, retargetable).
 const generic = index.filter(e => e.kind === 'program' && Array.isArray(e.devices));

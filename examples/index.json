@@ -5488,7 +5488,8 @@
    "program": "z80-bench/program.bw",
    "circuit": "z80-bench/circuit.json",
    "intro": "z80-bench/intro.md",
-   "introDE": "z80-bench/intro.de.md"
+   "introDE": "z80-bench/intro.de.md",
+   "expected": "z80-bench/EXPECTED.md"
   },
   "kind": "circuit"
  },

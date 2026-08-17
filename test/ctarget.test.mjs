@@ -2826,8 +2826,10 @@ WHEN flag clicked:
     assert.match(out, /\/\* no PWM on/);
     assert.match(out, /\/\* no tone on this machine \*\//);
     assert.match(out, /0 \/\* no ADC:/);
-    // The reasons ride in the C itself as warning comments.
-    assert.match(out, /Timer 1 is the millisecond timebase/);
+    // The reasons ride in the C itself as warning comments. (The PWM
+    // refusal was generalized to `no PWM on the <core> machine` when the
+    // Z80 core joined and shared the path — 818221d.)
+    assert.match(out, /warning: no PWM on the 6502 machine/);
     assert.match(out, /cannot be analog: the 6502 machine has no ADC/);
 });
 

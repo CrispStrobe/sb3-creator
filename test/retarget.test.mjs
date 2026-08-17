@@ -86,11 +86,16 @@ WHEN flag clicked:
 });
 
 test('retarget: more pins than the convention offers is refused, not truncated', () => {
-    const pins = Array.from({ length: 8 }, (_, i) => `PIN led${i + 1} = D${i + 2} OUTPUT`).join('\n');
-    const on = Array.from({ length: 8 }, (_, i) => `  turn on led${i + 1}`).join('\n');
-    const src = `DEVICE ARDUINO-UNO\n${pins}\n\nWHEN flag clicked:\n${on}\n`;
+    // One more LED than the Pico convention offers, however large the pool
+    // grows (it went 7 → 22 when the full GP set joined; a literal 8 then
+    // mapped fine and tested nothing).
+    const n = SB3Creator.RETARGET_POOLS.pico.digital.length + 1;
+    const pins = Array.from({ length: n }, (_, i) => `PIN led${i + 1} = D${i + 2} OUTPUT`).join('\n');
+    const on = Array.from({ length: n }, (_, i) => `  turn on led${i + 1}`).join('\n');
+    // Source is the MEGA: D2..D24 all exist there. On an UNO, D14+ are not
+    // real pins and quietly fall out, leaving a mappable count.
+    const src = `DEVICE ARDUINO-MEGA\n${pins}\n\nWHEN flag clicked:\n${on}\n`;
     const r = SB3Creator.retargetPseudocode(src, 'pico');
-    // The Pico convention offers 7 digital pins; 8 LEDs cannot map.
     assert.equal(r.ok, false);
     assert.ok(r.reasons.some((x) => /more digital outputs/.test(x)), JSON.stringify(r.reasons));
 });

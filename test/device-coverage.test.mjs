@@ -192,6 +192,9 @@ const KNOWN_GAPS = new Set([
     'lm393',            // comparator IC — circuit-level
     'tmp36',            // analog temp sensor — read via ADC (devices_temperature)
     'cd4511',           // BCD-to-7-segment decoder — circuit-level
+    'cd4093',           // quad NAND Schmitt trigger — circuit-level
+    'mcp4725',          // I2C DAC — driven through the I2C blocks, no dedicated verb
+    'seven_seg_3',      // 3-digit seven-segment — multiplexed at circuit level
 
     // --- new kinds from engine expansion ---
     'ambient_light',    // ambient light sensor

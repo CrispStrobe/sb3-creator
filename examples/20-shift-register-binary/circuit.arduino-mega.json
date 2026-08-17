@@ -11,6 +11,15 @@
    "rotation": 0
   },
   {
+   "id": "bb2",
+   "kind": "breadboard",
+   "params": {},
+   "terminals": [],
+   "x": 470,
+   "y": 690,
+   "rotation": 0
+  },
+  {
    "id": "VCC",
    "kind": "vcc",
    "params": {},
@@ -43,10 +52,39 @@
    "y": 60
   },
   {
-   "id": "R_data",
+   "id": "SR_595",
+   "kind": "shift_register",
+   "params": {},
+   "terminals": [
+    "data",
+    "clock",
+    "latch",
+    "oe",
+    "q0",
+    "q1",
+    "q2",
+    "q3",
+    "q4",
+    "q5",
+    "q6",
+    "q7"
+   ],
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "data": "e51",
+     "clock": "e52",
+     "latch": "f51"
+    }
+   },
+   "x": 736,
+   "y": 311
+  },
+  {
+   "id": "R_595_q0",
    "kind": "resistor",
    "params": {
-    "ohms": 1000
+    "ohms": 330
    },
    "terminals": [
     "a",
@@ -63,7 +101,7 @@
    "y": 255
   },
   {
-   "id": "LED_data",
+   "id": "LED_595_q0",
    "kind": "led",
    "params": {
     "vf": 2,
@@ -76,18 +114,18 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "anode": "a21",
-     "cathode": "a22"
+     "anode": "a56",
+     "cathode": "a57"
     }
    },
-   "x": 316,
+   "x": 806,
    "y": 255
   },
   {
-   "id": "R_clock",
+   "id": "R_595_q1",
    "kind": "resistor",
    "params": {
-    "ohms": 1000
+    "ohms": 330
    },
    "terminals": [
     "a",
@@ -104,7 +142,7 @@
    "y": 255
   },
   {
-   "id": "LED_clock",
+   "id": "LED_595_q1",
    "kind": "led",
    "params": {
     "vf": 2,
@@ -117,18 +155,18 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "anode": "a24",
-     "cathode": "a25"
+     "anode": "a59",
+     "cathode": "a60"
     }
    },
-   "x": 358,
+   "x": 848,
    "y": 255
   },
   {
-   "id": "R_latch",
+   "id": "R_595_q2",
    "kind": "resistor",
    "params": {
-    "ohms": 1000
+    "ohms": 330
    },
    "terminals": [
     "a",
@@ -145,7 +183,7 @@
    "y": 255
   },
   {
-   "id": "LED_latch",
+   "id": "LED_595_q2",
    "kind": "led",
    "params": {
     "vf": 2,
@@ -158,67 +196,386 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "anode": "a27",
-     "cathode": "a28"
+     "anode": "f56",
+     "cathode": "f57"
+    }
+   },
+   "x": 806,
+   "y": 349
+  },
+  {
+   "id": "R_595_q3",
+   "kind": "resistor",
+   "params": {
+    "ohms": 330
+   },
+   "terminals": [
+    "a",
+    "b"
+   ],
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a21",
+     "b": "a25"
+    }
+   },
+   "x": 316,
+   "y": 255
+  },
+  {
+   "id": "LED_595_q3",
+   "kind": "led",
+   "params": {
+    "vf": 2,
+    "color": "red"
+   },
+   "terminals": [
+    "anode",
+    "cathode"
+   ],
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "anode": "f59",
+     "cathode": "f60"
+    }
+   },
+   "x": 848,
+   "y": 349
+  },
+  {
+   "id": "R_595_q4",
+   "kind": "resistor",
+   "params": {
+    "ohms": 330
+   },
+   "terminals": [
+    "a",
+    "b"
+   ],
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a27",
+     "b": "a31"
     }
    },
    "x": 400,
    "y": 255
+  },
+  {
+   "id": "LED_595_q4",
+   "kind": "led",
+   "params": {
+    "vf": 2,
+    "color": "red"
+   },
+   "terminals": [
+    "anode",
+    "cathode"
+   ],
+   "seat": {
+    "boardId": "bb2",
+    "leadMap": {
+     "anode": "a3",
+     "cathode": "a4"
+    }
+   },
+   "x": 64,
+   "y": 615
+  },
+  {
+   "id": "R_595_q5",
+   "kind": "resistor",
+   "params": {
+    "ohms": 330
+   },
+   "terminals": [
+    "a",
+    "b"
+   ],
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a33",
+     "b": "a37"
+    }
+   },
+   "x": 484,
+   "y": 255
+  },
+  {
+   "id": "LED_595_q5",
+   "kind": "led",
+   "params": {
+    "vf": 2,
+    "color": "red"
+   },
+   "terminals": [
+    "anode",
+    "cathode"
+   ],
+   "seat": {
+    "boardId": "bb2",
+    "leadMap": {
+     "anode": "a6",
+     "cathode": "a7"
+    }
+   },
+   "x": 106,
+   "y": 615
+  },
+  {
+   "id": "R_595_q6",
+   "kind": "resistor",
+   "params": {
+    "ohms": 330
+   },
+   "terminals": [
+    "a",
+    "b"
+   ],
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a39",
+     "b": "a43"
+    }
+   },
+   "x": 568,
+   "y": 255
+  },
+  {
+   "id": "LED_595_q6",
+   "kind": "led",
+   "params": {
+    "vf": 2,
+    "color": "red"
+   },
+   "terminals": [
+    "anode",
+    "cathode"
+   ],
+   "seat": {
+    "boardId": "bb2",
+    "leadMap": {
+     "anode": "a9",
+     "cathode": "a10"
+    }
+   },
+   "x": 148,
+   "y": 615
+  },
+  {
+   "id": "R_595_q7",
+   "kind": "resistor",
+   "params": {
+    "ohms": 330
+   },
+   "terminals": [
+    "a",
+    "b"
+   ],
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a45",
+     "b": "a49"
+    }
+   },
+   "x": 652,
+   "y": 255
+  },
+  {
+   "id": "LED_595_q7",
+   "kind": "led",
+   "params": {
+    "vf": 2,
+    "color": "red"
+   },
+   "terminals": [
+    "anode",
+    "cathode"
+   ],
+   "seat": {
+    "boardId": "bb2",
+    "leadMap": {
+     "anode": "a12",
+     "cathode": "a13"
+    }
+   },
+   "x": 190,
+   "y": 615
   }
  ],
  "wires": [
   {
    "from": "MCU",
    "fromTerminal": "d13",
-   "to": "R_data",
-   "toTerminal": "a"
-  },
-  {
-   "from": "R_data",
-   "fromTerminal": "b",
-   "to": "LED_data",
-   "toTerminal": "anode"
+   "to": "SR_595",
+   "toTerminal": "data"
   },
   {
    "from": "MCU",
    "fromTerminal": "d22",
-   "to": "R_clock",
-   "toTerminal": "a"
-  },
-  {
-   "from": "R_clock",
-   "fromTerminal": "b",
-   "to": "LED_clock",
-   "toTerminal": "anode"
+   "to": "SR_595",
+   "toTerminal": "clock"
   },
   {
    "from": "MCU",
    "fromTerminal": "d23",
-   "to": "R_latch",
+   "to": "SR_595",
+   "toTerminal": "latch"
+  },
+  {
+   "from": "SR_595",
+   "fromTerminal": "q0",
+   "to": "R_595_q0",
    "toTerminal": "a"
   },
   {
-   "from": "R_latch",
+   "from": "R_595_q0",
    "fromTerminal": "b",
-   "to": "LED_latch",
+   "to": "LED_595_q0",
+   "toTerminal": "anode"
+  },
+  {
+   "from": "SR_595",
+   "fromTerminal": "q1",
+   "to": "R_595_q1",
+   "toTerminal": "a"
+  },
+  {
+   "from": "R_595_q1",
+   "fromTerminal": "b",
+   "to": "LED_595_q1",
+   "toTerminal": "anode"
+  },
+  {
+   "from": "SR_595",
+   "fromTerminal": "q2",
+   "to": "R_595_q2",
+   "toTerminal": "a"
+  },
+  {
+   "from": "R_595_q2",
+   "fromTerminal": "b",
+   "to": "LED_595_q2",
+   "toTerminal": "anode"
+  },
+  {
+   "from": "SR_595",
+   "fromTerminal": "q3",
+   "to": "R_595_q3",
+   "toTerminal": "a"
+  },
+  {
+   "from": "R_595_q3",
+   "fromTerminal": "b",
+   "to": "LED_595_q3",
+   "toTerminal": "anode"
+  },
+  {
+   "from": "SR_595",
+   "fromTerminal": "q4",
+   "to": "R_595_q4",
+   "toTerminal": "a"
+  },
+  {
+   "from": "R_595_q4",
+   "fromTerminal": "b",
+   "to": "LED_595_q4",
+   "toTerminal": "anode"
+  },
+  {
+   "from": "SR_595",
+   "fromTerminal": "q5",
+   "to": "R_595_q5",
+   "toTerminal": "a"
+  },
+  {
+   "from": "R_595_q5",
+   "fromTerminal": "b",
+   "to": "LED_595_q5",
+   "toTerminal": "anode"
+  },
+  {
+   "from": "SR_595",
+   "fromTerminal": "q6",
+   "to": "R_595_q6",
+   "toTerminal": "a"
+  },
+  {
+   "from": "R_595_q6",
+   "fromTerminal": "b",
+   "to": "LED_595_q6",
+   "toTerminal": "anode"
+  },
+  {
+   "from": "SR_595",
+   "fromTerminal": "q7",
+   "to": "R_595_q7",
+   "toTerminal": "a"
+  },
+  {
+   "from": "R_595_q7",
+   "fromTerminal": "b",
+   "to": "LED_595_q7",
    "toTerminal": "anode"
   },
   {
    "from": "GND",
    "fromTerminal": "gnd",
-   "to": "LED_data",
+   "to": "SR_595",
+   "toTerminal": "oe"
+  },
+  {
+   "from": "GND",
+   "fromTerminal": "gnd",
+   "to": "LED_595_q0",
    "toTerminal": "cathode"
   },
   {
    "from": "GND",
    "fromTerminal": "gnd",
-   "to": "LED_clock",
+   "to": "LED_595_q1",
    "toTerminal": "cathode"
   },
   {
    "from": "GND",
    "fromTerminal": "gnd",
-   "to": "LED_latch",
+   "to": "LED_595_q2",
+   "toTerminal": "cathode"
+  },
+  {
+   "from": "GND",
+   "fromTerminal": "gnd",
+   "to": "LED_595_q3",
+   "toTerminal": "cathode"
+  },
+  {
+   "from": "GND",
+   "fromTerminal": "gnd",
+   "to": "LED_595_q4",
+   "toTerminal": "cathode"
+  },
+  {
+   "from": "GND",
+   "fromTerminal": "gnd",
+   "to": "LED_595_q5",
+   "toTerminal": "cathode"
+  },
+  {
+   "from": "GND",
+   "fromTerminal": "gnd",
+   "to": "LED_595_q6",
+   "toTerminal": "cathode"
+  },
+  {
+   "from": "GND",
+   "fromTerminal": "gnd",
+   "to": "LED_595_q7",
    "toTerminal": "cathode"
   },
   {
@@ -230,6 +587,16 @@
    },
    "color": "black",
    "genPower": true
+  },
+  {
+   "from": "GND",
+   "fromTerminal": "gnd",
+   "to": {
+    "board": "bb2",
+    "hole": "b-3"
+   },
+   "color": "black",
+   "genPower": true
   }
  ],
  "holeWires": [
@@ -237,42 +604,84 @@
    "ref": "bbw:bb1:gen_0",
    "boardId": "bb1",
    "a": "b7",
-   "b": "b21",
+   "b": "b56",
    "color": "green"
   },
   {
    "ref": "bbw:bb1:gen_1",
    "boardId": "bb1",
    "a": "b13",
-   "b": "b24",
+   "b": "b59",
    "color": "blue"
   },
   {
    "ref": "bbw:bb1:gen_2",
    "boardId": "bb1",
    "a": "b19",
-   "b": "b27",
+   "b": "g56",
    "color": "yellow"
   },
   {
    "ref": "bbw:bb1:gen_3",
    "boardId": "bb1",
-   "a": "b22",
-   "b": "b-22",
-   "color": "black"
+   "a": "b25",
+   "b": "g59",
+   "color": "orange"
   },
   {
    "ref": "bbw:bb1:gen_4",
    "boardId": "bb1",
-   "a": "b25",
-   "b": "b-25",
+   "a": "b57",
+   "b": "b-57",
    "color": "black"
   },
   {
    "ref": "bbw:bb1:gen_5",
    "boardId": "bb1",
-   "a": "b28",
-   "b": "b-28",
+   "a": "b60",
+   "b": "b-60",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb1:gen_6",
+   "boardId": "bb1",
+   "a": "g57",
+   "b": "b-57",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb1:gen_7",
+   "boardId": "bb1",
+   "a": "g60",
+   "b": "b-60",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb2:gen_8",
+   "boardId": "bb2",
+   "a": "b4",
+   "b": "b-4",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb2:gen_9",
+   "boardId": "bb2",
+   "a": "b7",
+   "b": "b-7",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb2:gen_10",
+   "boardId": "bb2",
+   "a": "b10",
+   "b": "b-10",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb2:gen_11",
+   "boardId": "bb2",
+   "a": "b13",
+   "b": "b-13",
    "color": "black"
   }
  ],

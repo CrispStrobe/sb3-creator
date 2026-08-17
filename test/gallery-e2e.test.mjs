@@ -115,70 +115,23 @@ function circuitFileFor(name) {
 
 function loadCircuit(name) {
     const data = JSON.parse(readFileSync(circuitFileFor(name), 'utf8'));
-    // Filter out visual-only parts and any wires referencing them
+    // Filter out visual-only parts and any wires referencing them BY ID —
+    // hole-endpoint wires reference breadboards, which are never visual-only.
     const visualIds = new Set(data.parts.filter(p => VISUAL_ONLY.has(p.kind)).map(p => p.id));
     data.parts = data.parts.filter(p => !VISUAL_ONLY.has(p.kind));
-    data.wires = (data.wires || []).filter(w => !visualIds.has(w.from) && !visualIds.has(w.to));
-    const hasDeviceParts = data.parts.some(p => DEVICE_TERMINALS[p.kind] || KIND_MAP[p.kind]);
-
-    if (hasDeviceParts) {
-        // Build directly on BoardImpl — Circuit's terminalsForKind doesn't know
-        // device-registry parts and _syncNetlist silently swallows the rejection.
-        const board = new BoardImpl(data.vcc || 5.0);
-        const engineParts = data.parts.map(p => {
-            const kind = KIND_MAP[p.kind] || p.kind;
-            const terms = TERMINALS[p.kind] || TERMINALS[kind];
-            // MCU terminals come from params.pins
-            const terminals = kind === 'mcu' ? (p.params?.pins || ['P1.0']) : terms || ['a', 'b'];
-            return { id: p.id, kind, params: p.params || {}, terminals };
-        });
-        // Use nets directly if available (WORE bench format), else build from wires
-        let nets;
-        if (Array.isArray(data.nets) && data.nets.length) {
-            nets = data.nets;
-        } else {
-            const netMap = new Map();
-            for (const w of data.wires) {
-                const netId = `net_${w.from}_${w.fromTerminal}_${w.to}_${w.toTerminal}`;
-                let found = null;
-                for (const [nid, terms] of netMap) {
-                    if (terms.some(t => t.part === w.from && t.terminal === w.fromTerminal) ||
-                        terms.some(t => t.part === w.to && t.terminal === w.toTerminal)) {
-                        found = nid; break;
-                    }
-                }
-                if (found) {
-                    const terms = netMap.get(found);
-                    if (!terms.some(t => t.part === w.from && t.terminal === w.fromTerminal))
-                        terms.push({ part: w.from, terminal: w.fromTerminal });
-                    if (!terms.some(t => t.part === w.to && t.terminal === w.toTerminal))
-                        terms.push({ part: w.to, terminal: w.toTerminal });
-                } else {
-                    netMap.set(netId, [
-                        { part: w.from, terminal: w.fromTerminal },
-                        { part: w.to, terminal: w.toTerminal },
-                    ]);
-                }
-            }
-            nets = [...netMap.entries()].map(([id, terminals]) => ({ id, terminals }));
-        }
-        board.setNetlist(engineParts, nets);
-        return { board, parts: engineParts };
-    }
-
-    // Standard path through Circuit for simple examples
-    const c = new Circuit(data.vcc || 5.0);
-    const idMap = new Map();
-    for (const p of data.parts) {
-        const engineKind = KIND_MAP[p.kind] || p.kind;
-        idMap.set(p.id, c.addPart(engineKind, p.params || {}, p.x || 0, p.y || 0).id);
-    }
-    for (const w of data.wires) {
-        const fromId = idMap.get(w.from);
-        const toId = idMap.get(w.to);
-        if (fromId && toId) c.addWire(fromId, w.fromTerminal, toId, w.toTerminal);
-    }
-    return c;
+    data.wires = (data.wires || []).filter(w =>
+        !(typeof w.from === 'string' && visualIds.has(w.from)) &&
+        !(typeof w.to === 'string' && visualIds.has(w.to)));
+    // ONE loader for every dialect: Circuit.fromJSON understands flat legacy
+    // wires, endpoint objects, HOLE endpoints ({board, hole}), holeWires
+    // (breadboard jumpers), seated parts (occupancy + row conduction), kind
+    // aliases and terminal aliases. The hand-rolled device branch this
+    // replaces predated all of that: the day the benches were regenerated
+    // breadboard-seated, it stringified hole endpoints into net ids
+    // ("[object Object]") and knew nothing of rows — 81 tests red.
+    // A Circuit instance destructures as { board, parts } too, so both
+    // historical return shapes of this helper keep working.
+    return Circuit.fromJSON(data);
 }
 
 // ---- blocked examples: explicitly named blockers --------------------------------
@@ -206,7 +159,7 @@ const MCU_TESTS = {
         pins: [{ pin: 'P1.0', high: false }],
         leds: [{ idx: 0, min: 0.1, label: 'heater LED on with 470Ω' }],
     },
-    '05-counter-7seg': {
+    '05-counter': {   // renamed from 05-counter-7seg with the bench regeneration
         pins: [{ pin: 'P1.0', high: false }],
         leds: [{ idx: 0, brightness: 0.1449, tol: 0.02 }],
     },
@@ -233,7 +186,9 @@ const MCU_TESTS = {
     },
     '13-sos-morse': {
         pins: [{ pin: 'P1.0', high: false }],
-        leds: [{ idx: 0, brightness: 0.2970, tol: 0.03, label: '470Ω + LED at 5V' }],
+        // The regenerated benches standardize on the 1 kΩ series resistor
+        // (bench truth beats the old 470 Ω expectation — 2026-08-17).
+        leds: [{ idx: 0, brightness: 0.1449, tol: 0.02, label: '1kΩ + LED at 5V' }],
     },
     '14-traffic-light': {
         pins: [{ pin: 'P1.0', high: false }, { pin: 'P1.1', high: true }, { pin: 'P1.2', high: true }],

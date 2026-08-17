@@ -79,12 +79,14 @@ const EXPECTED_UNSUPPORTED = new Set([
     // control_wait_until / control_repeat_until joined the referee's
     // vocabulary 2026-08-13 (1 ms re-poll, matching the C scheduler's
     // per-pass re-check within tolerance) and left this list.
-    'stc12_setpart',     // shift register
-    // The LCD verbs drive the bit-banged I2C driver in C; the js referee
-    // has no LCD model (the ENGINE does — board char_lcd_i2c — but the
-    // referee traces pins, not devices). Recorded, not a failure.
+    // The LCD/OLED verbs drive bit-banged I2C drivers in C; the js referee
+    // has no display model (the ENGINE does — board char_lcd_i2c / ssd1306 —
+    // but the referee traces pins, not displays). Recorded, not a failure.
+    // (stc12_setpart and the servo/motor verbs joined the referee's
+    // vocabulary — shift_out pin edges + trace.devices events — and left
+    // this list.)
     'devices_lcdprint', 'devices_lcdcursor', 'devices_lcdclear',
-    'devices_setservo', 'devices_setmotor', 'devices_setdirection',
+    'devices_oledprint', 'devices_oledcursor', 'devices_oledclear',
 ]);
 
 /**
@@ -129,8 +131,9 @@ describe('amplification: retarget + referee traces', () => {
                 const hasOutputPins = (c.project.stc.pins || []).some(
                     p => p.direction === 'output' || p.direction === 'pwm');
                 if (hasOutputPins && !trace.unsupported.length) {
-                    assert.ok(trace.events.length > 0 || trace.pwm.length > 0,
-                        'output pins present but trace has no events or PWM');
+                    assert.ok(trace.events.length > 0 || trace.pwm.length > 0
+                        || trace.devices.length > 0,
+                        'output pins present but trace has no events, PWM or device events');
                 }
             });
         }

@@ -41,17 +41,17 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "pb5": "f15",
-     "pb3": "f16",
-     "pb4": "f17",
-     "gnd": "f18",
-     "pb0": "e18",
-     "pb1": "e17",
-     "pb2": "e16",
-     "vcc": "e15"
+     "pb5": "f22",
+     "pb3": "f23",
+     "pb4": "f24",
+     "gnd": "f25",
+     "pb0": "e25",
+     "pb1": "e24",
+     "pb2": "e23",
+     "vcc": "e22"
     }
    },
-   "x": 232,
+   "x": 330,
    "y": 349
   },
   {
@@ -67,32 +67,55 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a3",
-     "b": "a7"
+     "a": "a10",
+     "b": "a14"
     }
    },
-   "x": 64,
+   "x": 162,
    "y": 255
   },
   {
-   "id": "LED_relay_ctrl",
-   "kind": "led",
-   "params": {
-    "vf": 2,
-    "color": "red"
-   },
+   "id": "Q_relay_ctrl",
+   "kind": "npn",
+   "params": {},
    "terminals": [
-    "anode",
-    "cathode"
+    "base",
+    "collector",
+    "emitter"
    ],
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "anode": "a22",
-     "cathode": "a23"
+     "emitter": "a29",
+     "base": "a30",
+     "collector": "a31"
     }
    },
-   "x": 330,
+   "x": 428,
+   "y": 255
+  },
+  {
+   "id": "RELAY_relay_ctrl",
+   "kind": "relay",
+   "params": {},
+   "terminals": [
+    "coil_a",
+    "coil_b",
+    "com",
+    "nc",
+    "no"
+   ],
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "coil_a": "a3",
+     "coil_b": "a4",
+     "no": "a6",
+     "com": "a7",
+     "nc": "a8"
+    }
+   },
+   "x": 64,
    "y": 255
   },
   {
@@ -108,11 +131,11 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a9",
-     "b": "a13"
+     "a": "a16",
+     "b": "a20"
     }
    },
-   "x": 148,
+   "x": 246,
    "y": 255
   },
   {
@@ -129,11 +152,11 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "anode": "a25",
-     "cathode": "a26"
+     "anode": "a33",
+     "cathode": "a34"
     }
    },
-   "x": 372,
+   "x": 484,
    "y": 255
   }
  ],
@@ -147,8 +170,14 @@
   {
    "from": "R_relay_ctrl",
    "fromTerminal": "b",
-   "to": "LED_relay_ctrl",
-   "toTerminal": "anode"
+   "to": "Q_relay_ctrl",
+   "toTerminal": "base"
+  },
+  {
+   "from": "RELAY_relay_ctrl",
+   "fromTerminal": "coil_b",
+   "to": "Q_relay_ctrl",
+   "toTerminal": "collector"
   },
   {
    "from": "MCU",
@@ -163,10 +192,16 @@
    "toTerminal": "anode"
   },
   {
+   "from": "VCC",
+   "fromTerminal": "vcc",
+   "to": "RELAY_relay_ctrl",
+   "toTerminal": "coil_a"
+  },
+  {
    "from": "GND",
    "fromTerminal": "gnd",
-   "to": "LED_relay_ctrl",
-   "toTerminal": "cathode"
+   "to": "Q_relay_ctrl",
+   "toTerminal": "emitter"
   },
   {
    "from": "GND",
@@ -199,57 +234,71 @@
   {
    "ref": "bbw:bb1:gen_0",
    "boardId": "bb1",
-   "a": "a18",
-   "b": "b3",
+   "a": "a25",
+   "b": "b10",
    "color": "green"
   },
   {
    "ref": "bbw:bb1:gen_1",
    "boardId": "bb1",
-   "a": "b7",
-   "b": "b22",
+   "a": "b14",
+   "b": "b30",
    "color": "blue"
   },
   {
    "ref": "bbw:bb1:gen_2",
    "boardId": "bb1",
-   "a": "a17",
-   "b": "b9",
+   "a": "b4",
+   "b": "b31",
    "color": "yellow"
   },
   {
    "ref": "bbw:bb1:gen_3",
    "boardId": "bb1",
-   "a": "b13",
-   "b": "b25",
+   "a": "a24",
+   "b": "b16",
    "color": "orange"
   },
   {
    "ref": "bbw:bb1:gen_4",
    "boardId": "bb1",
-   "a": "b23",
-   "b": "b-23",
-   "color": "black"
+   "a": "b20",
+   "b": "b33",
+   "color": "purple"
   },
   {
    "ref": "bbw:bb1:gen_5",
    "boardId": "bb1",
-   "a": "b26",
-   "b": "b-26",
-   "color": "black"
+   "a": "b3",
+   "b": "t+3",
+   "color": "red"
   },
   {
    "ref": "bbw:bb1:gen_6",
    "boardId": "bb1",
-   "a": "g18",
-   "b": "b-18",
+   "a": "b29",
+   "b": "b-29",
    "color": "black"
   },
   {
    "ref": "bbw:bb1:gen_7",
    "boardId": "bb1",
-   "a": "a15",
-   "b": "t+15",
+   "a": "b34",
+   "b": "b-34",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb1:gen_8",
+   "boardId": "bb1",
+   "a": "g25",
+   "b": "b-25",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb1:gen_9",
+   "boardId": "bb1",
+   "a": "a22",
+   "b": "t+22",
    "color": "red"
   }
  ],
