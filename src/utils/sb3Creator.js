@@ -9630,7 +9630,37 @@ class SB3Creator {
             }
             // TFT (ILI9341, bit-banged SPI): gated by _cUses.tft.
             if (this._cUses.tft) {
+                // Resolve the declared cs/dc/sck/mosi pins HERE, where the
+                // defines are emitted. The old resolution ran later (in the
+                // init section), so the defines always used the P1_0..P1_3
+                // DEFAULT — which happened to match the canonical 8051
+                // example and masked both the ordering bug and the missing
+                // AVR mapping entirely.
+                if (!this._tftPins) {
+                    const tftPinsSrc = (this.project?.stc?.pins) || [];
+                    const resolvedHere = {};
+                    for (const name of ['cs', 'dc', 'sck', 'mosi']) {
+                        const pin = tftPinsSrc.find((q) => q.name.toLowerCase() === name);
+                        if (!pin) continue;
+                        if (this._core === 'avr') {
+                            const table = this._cMega ? SB3Creator.AVR_PINS_MEGA : SB3Creator.AVR_PINS;
+                            const m = table[String(pin.where || '').toUpperCase()];
+                            if (m) resolvedHere[name] = `BW_BIT(PORT${m[0]}, ${m[1]})`;
+                        } else if (pin.port !== undefined) {
+                            resolvedHere[name] = `P${pin.port}_${pin.bit}`;
+                        }
+                    }
+                    if (Object.keys(resolvedHere).length === 4) this._tftPins = resolvedHere;
+                }
                 const tftPins = this._tftPins || { cs: 'P1_0', dc: 'P1_1', sck: 'P1_2', mosi: 'P1_3' };
+                if (this._core === 'avr') {
+                    out.push(
+                        '/* sbit for AVR: a bitfield view of the port register gives the',
+                        '   TFT driver its lvalue pin idiom (TFT_CS = 1) unchanged. */',
+                        'struct __bw_bits { uint8_t b0:1, b1:1, b2:1, b3:1, b4:1, b5:1, b6:1, b7:1; };',
+                        '#define BW_BIT(port, bit) (((volatile struct __bw_bits *)&(port))->b##bit)',
+                        '');
+                }
                 out.push(
                     '/* ILI9341 TFT: bit-banged SPI (4-wire: CS, DC, SCK, MOSI). */',
                     '/* ILITEK ILI9341 datasheet V1.11 §7.1.9, §8.2.20-22. */',
@@ -10285,7 +10315,18 @@ class SB3Creator {
             const resolved = {};
             for (const name of tftNames) {
                 const p = pins.find((pin) => pin.name.toLowerCase() === name);
-                if (p) resolved[name] = `P${p.port}_${p.bit}`;
+                if (p && this._core === 'avr') {
+                    // AVR pins are D-numbers; the driver's TFT_CS = 1 idiom
+                    // needs an LVALUE, which AVR gets from a bitfield view
+                    // of the port register (BW_BIT below) — the sbit
+                    // equivalent. Before this, the resolution silently
+                    // failed on AVR (no p.port/p.bit) and the driver
+                    // shipped 8051 sbit names into an ATmega program.
+                    const table = this._cMega ? SB3Creator.AVR_PINS_MEGA : SB3Creator.AVR_PINS;
+                    const m = table[String(p.where || '').toUpperCase()];
+                    if (m) resolved[name] = `BW_BIT(PORT${m[0]}, ${m[1]})`;
+                    else this.cWarn(`TFT pin "${name}" is on ${p.where}, which this board does not map`);
+                } else if (p) resolved[name] = `P${p.port}_${p.bit}`;
                 else this.cWarn(`TFT driver needs a pin named "${name}" — declare it as an OUTPUT pin`);
             }
             if (Object.keys(resolved).length === 4) {

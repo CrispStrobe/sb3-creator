@@ -1,0 +1,215 @@
+# A usable pocket calculator: ILI9341 TFT for the display, fifteen keys
+# on a 4x4 scan matrix (rows out, columns in with pull-downs), classic
+# chain arithmetic with + - = C AC. The digits are drawn seven-segment
+# style with tft fill - no font table needed, and the drawing teaches
+# exactly how a segment display forms numbers.
+DEVICE ARDUINO-NANO
+CLOCK 16000000
+PIN cs = D10 OUTPUT
+PIN dc = D9 OUTPUT
+PIN sck = D13 OUTPUT
+PIN mosi = D11 OUTPUT
+PIN row0 = D2 OUTPUT
+PIN row1 = D3 OUTPUT
+PIN row2 = D4 OUTPUT
+PIN row3 = D5 OUTPUT
+PIN col0 = D6 INPUT
+PIN col1 = D7 INPUT
+PIN col2 = D8 INPUT
+PIN col3 = D12 INPUT
+
+DEFINE FAST seg (x) (y) (w) (h):
+  tft fill (x) (y) (w) (h) R 40 G 255 B 120 on 1
+
+DEFINE FAST clear cell x (x):
+  tft fill (x) 24 33 55 R 0 G 0 B 0 on 1
+
+DEFINE FAST draw digit (d) x (x):
+  tft fill (x) 24 33 55 R 0 G 0 B 0 on 1
+  # segments: a top, b/c right, d bottom, e/f left, g middle
+  IF d = 0 THEN:
+    seg (x + 5) 24 22 6
+    seg (x + 27) 29 6 20
+    seg (x + 27) 54 6 20
+    seg (x + 5) 73 22 6
+    seg (x) 54 6 20
+    seg (x) 29 6 20
+  IF d = 1 THEN:
+    seg (x + 27) 29 6 20
+    seg (x + 27) 54 6 20
+  IF d = 2 THEN:
+    seg (x + 5) 24 22 6
+    seg (x + 27) 29 6 20
+    seg (x + 5) 49 22 6
+    seg (x) 54 6 20
+    seg (x + 5) 73 22 6
+  IF d = 3 THEN:
+    seg (x + 5) 24 22 6
+    seg (x + 27) 29 6 20
+    seg (x + 5) 49 22 6
+    seg (x + 27) 54 6 20
+    seg (x + 5) 73 22 6
+  IF d = 4 THEN:
+    seg (x) 29 6 20
+    seg (x + 5) 49 22 6
+    seg (x + 27) 29 6 20
+    seg (x + 27) 54 6 20
+  IF d = 5 THEN:
+    seg (x + 5) 24 22 6
+    seg (x) 29 6 20
+    seg (x + 5) 49 22 6
+    seg (x + 27) 54 6 20
+    seg (x + 5) 73 22 6
+  IF d = 6 THEN:
+    seg (x + 5) 24 22 6
+    seg (x) 29 6 20
+    seg (x) 54 6 20
+    seg (x + 5) 49 22 6
+    seg (x + 27) 54 6 20
+    seg (x + 5) 73 22 6
+  IF d = 7 THEN:
+    seg (x + 5) 24 22 6
+    seg (x + 27) 29 6 20
+    seg (x + 27) 54 6 20
+  IF d = 8 THEN:
+    seg (x + 5) 24 22 6
+    seg (x + 27) 29 6 20
+    seg (x + 27) 54 6 20
+    seg (x + 5) 73 22 6
+    seg (x) 54 6 20
+    seg (x) 29 6 20
+    seg (x + 5) 49 22 6
+  IF d = 9 THEN:
+    seg (x + 5) 24 22 6
+    seg (x + 27) 29 6 20
+    seg (x + 27) 54 6 20
+    seg (x + 5) 73 22 6
+    seg (x) 29 6 20
+    seg (x + 5) 49 22 6
+
+DEFINE FAST show number (n):
+  set m to n
+  IF n < 0 THEN:
+    set m to 0 - n
+  set i to 0
+  repeat 6:
+    set drawit to 0
+    IF i = 0 THEN:
+      set drawit to 1
+    IF m > 0 THEN:
+      set drawit to 1
+    IF drawit = 1 THEN:
+      draw digit (m mod 10) x (202 - i * 34)
+    IF drawit = 0 THEN:
+      clear cell x (202 - i * 34)
+    set m to m / 10
+    change i by 1
+  IF n < 0 THEN:
+    seg 4 49 22 6
+  IF n > -1 THEN:
+    tft fill 0 24 32 55 R 0 G 0 B 0 on 1
+
+DEFINE FAST apply pending:
+  IF op = 0 THEN:
+    set acc to cur
+  IF op = 1 THEN:
+    set acc to acc + cur
+  IF op = 2 THEN:
+    set acc to acc - cur
+
+DEFINE handle key (k):
+  IF k < 10 THEN:
+    IF entering = 0 THEN:
+      set cur to 0
+      set entering to 1
+    IF cur < 100000 THEN:
+      set cur to cur * 10 + k
+    show number (cur)
+  IF k = 10 THEN:
+    IF entering = 1 THEN:
+      apply pending
+      set entering to 0
+    set op to 1
+    show number (acc)
+  IF k = 11 THEN:
+    IF entering = 1 THEN:
+      apply pending
+      set entering to 0
+    set op to 2
+    show number (acc)
+  IF k = 12 THEN:
+    IF entering = 1 THEN:
+      apply pending
+      set entering to 0
+    set op to 0
+    show number (acc)
+  IF k = 13 THEN:
+    set cur to 0
+    set entering to 0
+    show number 0
+  IF k = 14 THEN:
+    set cur to 0
+    set acc to 0
+    set op to 0
+    set entering to 0
+    show number 0
+
+STAGE:
+  WHEN flag clicked:
+    tft clear 1
+    # the display bezel
+    tft fill 0 12 240 76 R 30 G 30 B 44 on 1
+    tft fill 2 14 236 72 R 0 G 0 B 0 on 1
+    set acc to 0
+    set cur to 0
+    set op to 0
+    set entering to 0
+    set held to 0
+    show number 0
+    FOREVER:
+      set key to 99
+      turn on row0
+      if read col0 then:
+        set key to 7
+      if read col1 then:
+        set key to 8
+      if read col2 then:
+        set key to 9
+      if read col3 then:
+        set key to 10
+      turn off row0
+      turn on row1
+      if read col0 then:
+        set key to 4
+      if read col1 then:
+        set key to 5
+      if read col2 then:
+        set key to 6
+      if read col3 then:
+        set key to 11
+      turn off row1
+      turn on row2
+      if read col0 then:
+        set key to 1
+      if read col1 then:
+        set key to 2
+      if read col2 then:
+        set key to 3
+      if read col3 then:
+        set key to 12
+      turn off row2
+      turn on row3
+      if read col0 then:
+        set key to 0
+      if read col1 then:
+        set key to 13
+      if read col2 then:
+        set key to 14
+      turn off row3
+      IF key = 99 THEN:
+        set held to 0
+      IF key < 99 THEN:
+        IF held = 0 THEN:
+          set held to 1
+          handle key (key)
+      wait 0.02 seconds
