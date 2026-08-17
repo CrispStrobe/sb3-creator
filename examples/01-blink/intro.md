@@ -5,7 +5,7 @@ prereqs: []
 teaches: [mcu-basics, gpio, active-low]
 ---
 ## What you see
-An LED on pin P1.0 blinks on and off once per second. The STC12 microcontroller runs a forever loop that toggles the pin, waiting 500 ms between each change.
+An LED blinks on and off once per second. The microcontroller runs a forever loop that toggles the pin, waiting 500 ms between each change. This example works on all supported microcontrollers — pick a different device in the toolbar to see the adapted circuit.
 
 ## Try this
 1. Run the program and watch the LED blink at 1 Hz.

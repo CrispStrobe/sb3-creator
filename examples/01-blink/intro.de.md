@@ -5,7 +5,7 @@ prereqs: []
 teaches: [mcu-basics, gpio, active-low]
 ---
 ## Was du siehst
-Eine LED an Pin P1.0 blinkt einmal pro Sekunde. Der STC12-Mikrocontroller führt eine Endlosschleife aus, die den Pin umschaltet und jeweils 500 ms zwischen den Zustandsänderungen wartet.
+Eine LED blinkt einmal pro Sekunde. Der Mikrocontroller führt eine Endlosschleife aus, die den Pin umschaltet und jeweils 500 ms zwischen den Zustandsänderungen wartet. Dieses Beispiel funktioniert auf allen unterstützten Mikrocontrollern — wähle ein anderes Gerät in der Werkzeugleiste, um die angepasste Schaltung zu sehen.
 
 ## Probier das
 1. Starte das Programm und beobachte, wie die LED mit 1 Hz blinkt.

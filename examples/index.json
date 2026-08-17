@@ -28,7 +28,7 @@
   "thumbnail": "01-blink/thumb.svg",
   "files": {
    "program": "01-blink/program.bw",
-   "circuit": "01-blink/circuit.json",
+   "circuit": "01-blink/circuit.stc12c5a60s2.json",
    "expected": "01-blink/EXPECTED.md",
    "intro": "01-blink/intro.md",
    "introDE": "01-blink/intro.de.md"
