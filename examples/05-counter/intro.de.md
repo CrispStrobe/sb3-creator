@@ -5,7 +5,7 @@ prereqs: [01-blink]
 teaches: [button-input, counting, debounce]
 ---
 ## Was du siehst
-Bei jedem Tastendruck auf P3.2 erhöht sich ein Zähler um eins und die LED blinkt entsprechend oft. Der MCU liest einen digitalen Eingang, zählt die Tastendrücke und nutzt den Zählerstand zur Steuerung der Ausgabe.
+Bei jedem Tastendruck auf P3.2 erhöht sich ein Zähler um eins und die LED blinkt entsprechend oft. Der MCU liest einen digitalen Eingang, zählt die Tastendrücke und nutzt den Zählerstand zur Steuerung der Ausgabe. Dieses Beispiel funktioniert auf allen unterstützten Mikrocontrollern — wähle ein anderes Gerät in der Werkzeugleiste, um die angepasste Schaltung zu sehen.
 
 ## Probier das
 1. Starte das Programm und drücke die Taste einmal — die LED blinkt einmal.

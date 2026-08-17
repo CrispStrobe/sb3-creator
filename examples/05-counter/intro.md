@@ -5,7 +5,7 @@ prereqs: [01-blink]
 teaches: [button-input, counting, debounce]
 ---
 ## What you see
-Each time you press the button on P3.2, a counter goes up by one and the LED blinks that many times. The MCU reads a digital input, counts presses, and uses the count to control output.
+Each time you press the button on P3.2, a counter goes up by one and the LED blinks that many times. The MCU reads a digital input, counts presses, and uses the count to control output. This example works on all supported microcontrollers — pick a different device in the toolbar to see the adapted circuit.
 
 ## Try this
 1. Run the program and press the button once — the LED blinks once.
