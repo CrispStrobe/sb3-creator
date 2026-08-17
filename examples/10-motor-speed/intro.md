@@ -5,7 +5,7 @@ prereqs: [09-relay-clicker, 02-dimmer]
 teaches: [motor-control, darlington, pwm]
 ---
 ## What you see
-A DC motor spins faster or slower as you turn the potentiometer. The MCU reads the pot via ADC and drives the motor through a TIP120 Darlington transistor with PWM. A flyback diode protects the transistor from the motor's inductive kickback.
+A DC motor spins faster or slower as you turn the potentiometer. The MCU reads the pot via ADC and drives the motor through a TIP120 Darlington transistor with PWM. A flyback diode protects the transistor from the motor's inductive kickback. This example works on all supported microcontrollers — pick a different device in the toolbar to see the adapted circuit.
 
 ## Try this
 1. Run the program and turn the potentiometer — the motor speeds up and slows down smoothly.

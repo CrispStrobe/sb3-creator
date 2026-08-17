@@ -5,7 +5,7 @@ prereqs: [09-relay-clicker, 02-dimmer]
 teaches: [motor-control, darlington, pwm]
 ---
 ## Was du siehst
-Ein Gleichstrommotor dreht schneller oder langsamer, wenn du am Potentiometer drehst. Der MCU liest das Poti über den ADC und treibt den Motor über einen TIP120-Darlington-Transistor mit PWM. Eine Freilaufdiode schützt den Transistor vor der induktiven Rückschlagspannung des Motors.
+Ein Gleichstrommotor dreht schneller oder langsamer, wenn du am Potentiometer drehst. Der MCU liest das Poti über den ADC und treibt den Motor über einen TIP120-Darlington-Transistor mit PWM. Eine Freilaufdiode schützt den Transistor vor der induktiven Rückschlagspannung des Motors. Dieses Beispiel funktioniert auf allen unterstützten Mikrocontrollern — wähle ein anderes Gerät in der Werkzeugleiste, um die angepasste Schaltung zu sehen.
 
 ## Probier das
 1. Starte das Programm und drehe am Potentiometer — der Motor beschleunigt und verlangsamt sich gleichmäßig.
