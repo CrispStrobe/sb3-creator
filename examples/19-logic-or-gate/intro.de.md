@@ -5,7 +5,7 @@ prereqs: [18-logic-and-gate]
 teaches: [or-logic, boolean-algebra]
 ---
 ## Was du siehst
-Zwei Taster und eine LED. Die LED leuchtet, wenn einer der beiden Taster gedrückt wird — oder wenn beide gedrückt sind. Sie geht nur aus, wenn keiner gedrückt ist.
+Zwei Taster und eine LED. Die LED leuchtet, wenn einer der beiden Taster gedrückt wird — oder wenn beide gedrückt sind. Sie geht nur aus, wenn keiner gedrückt ist. Dieses Beispiel funktioniert auf allen unterstützten Mikrocontrollern — wähle ein anderes Gerät in der Werkzeugleiste, um die angepasste Schaltung zu sehen.
 
 ## Probier das
 1. Drücke nur den linken Taster — die LED leuchtet.

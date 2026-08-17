@@ -5,7 +5,7 @@ prereqs: [18-logic-and-gate]
 teaches: [or-logic, boolean-algebra]
 ---
 ## What you see
-Two push buttons and one LED. The LED turns on when either button is pressed — or when both are pressed. It only goes dark when neither is pressed.
+Two push buttons and one LED. The LED turns on when either button is pressed — or when both are pressed. It only goes dark when neither is pressed. This example works on all supported microcontrollers — pick a different device in the toolbar to see the adapted circuit.
 
 ## Try this
 1. Press just the left button — the LED lights up.
