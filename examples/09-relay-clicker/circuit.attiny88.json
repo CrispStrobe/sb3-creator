@@ -1,0 +1,157 @@
+{
+ "vcc": 5,
+ "parts": [
+  {
+   "id": "VCC",
+   "kind": "vcc",
+   "params": {},
+   "terminals": [
+    "vcc"
+   ]
+  },
+  {
+   "id": "GND",
+   "kind": "gnd",
+   "params": {},
+   "terminals": [
+    "gnd"
+   ]
+  },
+  {
+   "id": "MCU",
+   "kind": "attiny88",
+   "params": {},
+   "terminals": [
+    "pb0",
+    "pb1"
+   ]
+  },
+  {
+   "id": "R_relay_ctrl",
+   "kind": "resistor",
+   "params": {
+    "ohms": 1000
+   },
+   "terminals": [
+    "a",
+    "b"
+   ]
+  },
+  {
+   "id": "LED_relay_ctrl",
+   "kind": "led",
+   "params": {
+    "vf": 2,
+    "color": "red"
+   },
+   "terminals": [
+    "anode",
+    "cathode"
+   ]
+  },
+  {
+   "id": "R_led1",
+   "kind": "resistor",
+   "params": {
+    "ohms": 1000
+   },
+   "terminals": [
+    "a",
+    "b"
+   ]
+  },
+  {
+   "id": "LED_led1",
+   "kind": "led",
+   "params": {
+    "vf": 2,
+    "color": "red"
+   },
+   "terminals": [
+    "anode",
+    "cathode"
+   ]
+  }
+ ],
+ "nets": [
+  {
+   "id": "net_relay_ctrl_pin_r",
+   "terminals": [
+    {
+     "part": "MCU",
+     "terminal": "pb0"
+    },
+    {
+     "part": "R_relay_ctrl",
+     "terminal": "a"
+    }
+   ]
+  },
+  {
+   "id": "net_relay_ctrl_r_led",
+   "terminals": [
+    {
+     "part": "R_relay_ctrl",
+     "terminal": "b"
+    },
+    {
+     "part": "LED_relay_ctrl",
+     "terminal": "anode"
+    }
+   ]
+  },
+  {
+   "id": "net_led1_pin_r",
+   "terminals": [
+    {
+     "part": "MCU",
+     "terminal": "pb1"
+    },
+    {
+     "part": "R_led1",
+     "terminal": "a"
+    }
+   ]
+  },
+  {
+   "id": "net_led1_r_led",
+   "terminals": [
+    {
+     "part": "R_led1",
+     "terminal": "b"
+    },
+    {
+     "part": "LED_led1",
+     "terminal": "anode"
+    }
+   ]
+  },
+  {
+   "id": "net_vcc",
+   "terminals": [
+    {
+     "part": "VCC",
+     "terminal": "vcc"
+    }
+   ]
+  },
+  {
+   "id": "net_gnd",
+   "terminals": [
+    {
+     "part": "GND",
+     "terminal": "gnd"
+    },
+    {
+     "part": "LED_relay_ctrl",
+     "terminal": "cathode"
+    },
+    {
+     "part": "LED_led1",
+     "terminal": "cathode"
+    }
+   ]
+  }
+ ],
+ "generated": "benchFor"
+}

@@ -1,0 +1,163 @@
+{
+ "vcc": 5,
+ "parts": [
+  {
+   "id": "VCC",
+   "kind": "vcc",
+   "params": {},
+   "terminals": [
+    "vcc"
+   ]
+  },
+  {
+   "id": "GND",
+   "kind": "gnd",
+   "params": {},
+   "terminals": [
+    "gnd"
+   ]
+  },
+  {
+   "id": "MCU",
+   "kind": "mcu",
+   "params": {},
+   "terminals": [
+    "P1.3",
+    "P1.4",
+    "P3.2"
+   ]
+  },
+  {
+   "id": "POT_pot1",
+   "kind": "potentiometer",
+   "params": {
+    "ohms": 10000
+   },
+   "terminals": [
+    "a",
+    "b",
+    "wiper"
+   ]
+  },
+  {
+   "id": "POT_pot2",
+   "kind": "potentiometer",
+   "params": {
+    "ohms": 10000
+   },
+   "terminals": [
+    "a",
+    "b",
+    "wiper"
+   ]
+  },
+  {
+   "id": "R_PU_btn",
+   "kind": "resistor",
+   "params": {
+    "ohms": 10000
+   },
+   "terminals": [
+    "a",
+    "b"
+   ]
+  },
+  {
+   "id": "BTN_btn",
+   "kind": "button",
+   "params": {},
+   "terminals": [
+    "a",
+    "b"
+   ]
+  }
+ ],
+ "nets": [
+  {
+   "id": "net_pot1_wiper",
+   "terminals": [
+    {
+     "part": "POT_pot1",
+     "terminal": "wiper"
+    },
+    {
+     "part": "MCU",
+     "terminal": "P1.3"
+    }
+   ]
+  },
+  {
+   "id": "net_pot2_wiper",
+   "terminals": [
+    {
+     "part": "POT_pot2",
+     "terminal": "wiper"
+    },
+    {
+     "part": "MCU",
+     "terminal": "P1.4"
+    }
+   ]
+  },
+  {
+   "id": "net_btn_pin",
+   "terminals": [
+    {
+     "part": "R_PU_btn",
+     "terminal": "b"
+    },
+    {
+     "part": "BTN_btn",
+     "terminal": "a"
+    },
+    {
+     "part": "MCU",
+     "terminal": "P3.2"
+    }
+   ]
+  },
+  {
+   "id": "net_vcc",
+   "terminals": [
+    {
+     "part": "VCC",
+     "terminal": "vcc"
+    },
+    {
+     "part": "POT_pot1",
+     "terminal": "a"
+    },
+    {
+     "part": "POT_pot2",
+     "terminal": "a"
+    },
+    {
+     "part": "R_PU_btn",
+     "terminal": "a"
+    }
+   ]
+  },
+  {
+   "id": "net_gnd",
+   "terminals": [
+    {
+     "part": "GND",
+     "terminal": "gnd"
+    },
+    {
+     "part": "POT_pot1",
+     "terminal": "b"
+    },
+    {
+     "part": "POT_pot2",
+     "terminal": "b"
+    },
+    {
+     "part": "BTN_btn",
+     "terminal": "b"
+    }
+   ]
+  }
+ ],
+ "generated": "benchFor"
+}

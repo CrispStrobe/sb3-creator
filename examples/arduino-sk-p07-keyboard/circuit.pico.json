@@ -1,0 +1,260 @@
+{
+ "vcc": 5,
+ "parts": [
+  {
+   "id": "VCC",
+   "kind": "vcc",
+   "params": {},
+   "terminals": [
+    "vcc"
+   ]
+  },
+  {
+   "id": "GND",
+   "kind": "gnd",
+   "params": {},
+   "terminals": [
+    "gnd"
+   ]
+  },
+  {
+   "id": "MCU",
+   "kind": "pi_pico",
+   "params": {},
+   "terminals": [
+    "gp2",
+    "gp3",
+    "gp4",
+    "gp5",
+    "gp25"
+   ]
+  },
+  {
+   "id": "R_PU_btn1",
+   "kind": "resistor",
+   "params": {
+    "ohms": 10000
+   },
+   "terminals": [
+    "a",
+    "b"
+   ]
+  },
+  {
+   "id": "BTN_btn1",
+   "kind": "button",
+   "params": {},
+   "terminals": [
+    "a",
+    "b"
+   ]
+  },
+  {
+   "id": "R_PU_btn2",
+   "kind": "resistor",
+   "params": {
+    "ohms": 10000
+   },
+   "terminals": [
+    "a",
+    "b"
+   ]
+  },
+  {
+   "id": "BTN_btn2",
+   "kind": "button",
+   "params": {},
+   "terminals": [
+    "a",
+    "b"
+   ]
+  },
+  {
+   "id": "R_PU_btn3",
+   "kind": "resistor",
+   "params": {
+    "ohms": 10000
+   },
+   "terminals": [
+    "a",
+    "b"
+   ]
+  },
+  {
+   "id": "BTN_btn3",
+   "kind": "button",
+   "params": {},
+   "terminals": [
+    "a",
+    "b"
+   ]
+  },
+  {
+   "id": "R_PU_btn4",
+   "kind": "resistor",
+   "params": {
+    "ohms": 10000
+   },
+   "terminals": [
+    "a",
+    "b"
+   ]
+  },
+  {
+   "id": "BTN_btn4",
+   "kind": "button",
+   "params": {},
+   "terminals": [
+    "a",
+    "b"
+   ]
+  },
+  {
+   "id": "BUZZ_speaker",
+   "kind": "buzzer",
+   "params": {},
+   "terminals": [
+    "a",
+    "b"
+   ]
+  }
+ ],
+ "nets": [
+  {
+   "id": "net_btn1_pin",
+   "terminals": [
+    {
+     "part": "R_PU_btn1",
+     "terminal": "b"
+    },
+    {
+     "part": "BTN_btn1",
+     "terminal": "a"
+    },
+    {
+     "part": "MCU",
+     "terminal": "gp2"
+    }
+   ]
+  },
+  {
+   "id": "net_btn2_pin",
+   "terminals": [
+    {
+     "part": "R_PU_btn2",
+     "terminal": "b"
+    },
+    {
+     "part": "BTN_btn2",
+     "terminal": "a"
+    },
+    {
+     "part": "MCU",
+     "terminal": "gp3"
+    }
+   ]
+  },
+  {
+   "id": "net_btn3_pin",
+   "terminals": [
+    {
+     "part": "R_PU_btn3",
+     "terminal": "b"
+    },
+    {
+     "part": "BTN_btn3",
+     "terminal": "a"
+    },
+    {
+     "part": "MCU",
+     "terminal": "gp4"
+    }
+   ]
+  },
+  {
+   "id": "net_btn4_pin",
+   "terminals": [
+    {
+     "part": "R_PU_btn4",
+     "terminal": "b"
+    },
+    {
+     "part": "BTN_btn4",
+     "terminal": "a"
+    },
+    {
+     "part": "MCU",
+     "terminal": "gp5"
+    }
+   ]
+  },
+  {
+   "id": "net_speaker_pin",
+   "terminals": [
+    {
+     "part": "MCU",
+     "terminal": "gp25"
+    },
+    {
+     "part": "BUZZ_speaker",
+     "terminal": "a"
+    }
+   ]
+  },
+  {
+   "id": "net_vcc",
+   "terminals": [
+    {
+     "part": "VCC",
+     "terminal": "vcc"
+    },
+    {
+     "part": "R_PU_btn1",
+     "terminal": "a"
+    },
+    {
+     "part": "R_PU_btn2",
+     "terminal": "a"
+    },
+    {
+     "part": "R_PU_btn3",
+     "terminal": "a"
+    },
+    {
+     "part": "R_PU_btn4",
+     "terminal": "a"
+    }
+   ]
+  },
+  {
+   "id": "net_gnd",
+   "terminals": [
+    {
+     "part": "GND",
+     "terminal": "gnd"
+    },
+    {
+     "part": "BTN_btn1",
+     "terminal": "b"
+    },
+    {
+     "part": "BTN_btn2",
+     "terminal": "b"
+    },
+    {
+     "part": "BTN_btn3",
+     "terminal": "b"
+    },
+    {
+     "part": "BTN_btn4",
+     "terminal": "b"
+    },
+    {
+     "part": "BUZZ_speaker",
+     "terminal": "b"
+    }
+   ]
+  }
+ ],
+ "generated": "benchFor"
+}

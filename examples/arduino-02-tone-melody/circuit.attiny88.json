@@ -1,0 +1,76 @@
+{
+ "vcc": 5,
+ "parts": [
+  {
+   "id": "VCC",
+   "kind": "vcc",
+   "params": {},
+   "terminals": [
+    "vcc"
+   ]
+  },
+  {
+   "id": "GND",
+   "kind": "gnd",
+   "params": {},
+   "terminals": [
+    "gnd"
+   ]
+  },
+  {
+   "id": "MCU",
+   "kind": "attiny88",
+   "params": {},
+   "terminals": [
+    "pb0"
+   ]
+  },
+  {
+   "id": "BUZZ_speaker",
+   "kind": "buzzer",
+   "params": {},
+   "terminals": [
+    "a",
+    "b"
+   ]
+  }
+ ],
+ "nets": [
+  {
+   "id": "net_speaker_pin",
+   "terminals": [
+    {
+     "part": "MCU",
+     "terminal": "pb0"
+    },
+    {
+     "part": "BUZZ_speaker",
+     "terminal": "a"
+    }
+   ]
+  },
+  {
+   "id": "net_vcc",
+   "terminals": [
+    {
+     "part": "VCC",
+     "terminal": "vcc"
+    }
+   ]
+  },
+  {
+   "id": "net_gnd",
+   "terminals": [
+    {
+     "part": "GND",
+     "terminal": "gnd"
+    },
+    {
+     "part": "BUZZ_speaker",
+     "terminal": "b"
+    }
+   ]
+  }
+ ],
+ "generated": "benchFor"
+}

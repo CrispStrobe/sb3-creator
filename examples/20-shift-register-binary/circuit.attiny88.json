@@ -1,0 +1,211 @@
+{
+ "vcc": 5,
+ "parts": [
+  {
+   "id": "VCC",
+   "kind": "vcc",
+   "params": {},
+   "terminals": [
+    "vcc"
+   ]
+  },
+  {
+   "id": "GND",
+   "kind": "gnd",
+   "params": {},
+   "terminals": [
+    "gnd"
+   ]
+  },
+  {
+   "id": "MCU",
+   "kind": "attiny88",
+   "params": {},
+   "terminals": [
+    "pb0",
+    "pb1",
+    "pb2"
+   ]
+  },
+  {
+   "id": "R_data",
+   "kind": "resistor",
+   "params": {
+    "ohms": 1000
+   },
+   "terminals": [
+    "a",
+    "b"
+   ]
+  },
+  {
+   "id": "LED_data",
+   "kind": "led",
+   "params": {
+    "vf": 2,
+    "color": "red"
+   },
+   "terminals": [
+    "anode",
+    "cathode"
+   ]
+  },
+  {
+   "id": "R_clock",
+   "kind": "resistor",
+   "params": {
+    "ohms": 1000
+   },
+   "terminals": [
+    "a",
+    "b"
+   ]
+  },
+  {
+   "id": "LED_clock",
+   "kind": "led",
+   "params": {
+    "vf": 2,
+    "color": "red"
+   },
+   "terminals": [
+    "anode",
+    "cathode"
+   ]
+  },
+  {
+   "id": "R_latch",
+   "kind": "resistor",
+   "params": {
+    "ohms": 1000
+   },
+   "terminals": [
+    "a",
+    "b"
+   ]
+  },
+  {
+   "id": "LED_latch",
+   "kind": "led",
+   "params": {
+    "vf": 2,
+    "color": "red"
+   },
+   "terminals": [
+    "anode",
+    "cathode"
+   ]
+  }
+ ],
+ "nets": [
+  {
+   "id": "net_data_pin_r",
+   "terminals": [
+    {
+     "part": "MCU",
+     "terminal": "pb0"
+    },
+    {
+     "part": "R_data",
+     "terminal": "a"
+    }
+   ]
+  },
+  {
+   "id": "net_data_r_led",
+   "terminals": [
+    {
+     "part": "R_data",
+     "terminal": "b"
+    },
+    {
+     "part": "LED_data",
+     "terminal": "anode"
+    }
+   ]
+  },
+  {
+   "id": "net_clock_pin_r",
+   "terminals": [
+    {
+     "part": "MCU",
+     "terminal": "pb1"
+    },
+    {
+     "part": "R_clock",
+     "terminal": "a"
+    }
+   ]
+  },
+  {
+   "id": "net_clock_r_led",
+   "terminals": [
+    {
+     "part": "R_clock",
+     "terminal": "b"
+    },
+    {
+     "part": "LED_clock",
+     "terminal": "anode"
+    }
+   ]
+  },
+  {
+   "id": "net_latch_pin_r",
+   "terminals": [
+    {
+     "part": "MCU",
+     "terminal": "pb2"
+    },
+    {
+     "part": "R_latch",
+     "terminal": "a"
+    }
+   ]
+  },
+  {
+   "id": "net_latch_r_led",
+   "terminals": [
+    {
+     "part": "R_latch",
+     "terminal": "b"
+    },
+    {
+     "part": "LED_latch",
+     "terminal": "anode"
+    }
+   ]
+  },
+  {
+   "id": "net_vcc",
+   "terminals": [
+    {
+     "part": "VCC",
+     "terminal": "vcc"
+    }
+   ]
+  },
+  {
+   "id": "net_gnd",
+   "terminals": [
+    {
+     "part": "GND",
+     "terminal": "gnd"
+    },
+    {
+     "part": "LED_data",
+     "terminal": "cathode"
+    },
+    {
+     "part": "LED_clock",
+     "terminal": "cathode"
+    },
+    {
+     "part": "LED_latch",
+     "terminal": "cathode"
+    }
+   ]
+  }
+ ],
+ "generated": "benchFor"
+}

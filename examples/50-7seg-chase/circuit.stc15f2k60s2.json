@@ -1,0 +1,427 @@
+{
+ "vcc": 5,
+ "parts": [
+  {
+   "id": "VCC",
+   "kind": "vcc",
+   "params": {},
+   "terminals": [
+    "vcc"
+   ]
+  },
+  {
+   "id": "GND",
+   "kind": "gnd",
+   "params": {},
+   "terminals": [
+    "gnd"
+   ]
+  },
+  {
+   "id": "MCU",
+   "kind": "stc15_mcu",
+   "params": {},
+   "terminals": [
+    "p1.0",
+    "p1.1",
+    "p1.2",
+    "p1.3",
+    "p1.4",
+    "p1.5",
+    "p2.0"
+   ]
+  },
+  {
+   "id": "R_sa",
+   "kind": "resistor",
+   "params": {
+    "ohms": 1000
+   },
+   "terminals": [
+    "a",
+    "b"
+   ]
+  },
+  {
+   "id": "LED_sa",
+   "kind": "led",
+   "params": {
+    "vf": 2,
+    "color": "red"
+   },
+   "terminals": [
+    "anode",
+    "cathode"
+   ]
+  },
+  {
+   "id": "R_sb",
+   "kind": "resistor",
+   "params": {
+    "ohms": 1000
+   },
+   "terminals": [
+    "a",
+    "b"
+   ]
+  },
+  {
+   "id": "LED_sb",
+   "kind": "led",
+   "params": {
+    "vf": 2,
+    "color": "red"
+   },
+   "terminals": [
+    "anode",
+    "cathode"
+   ]
+  },
+  {
+   "id": "R_sc",
+   "kind": "resistor",
+   "params": {
+    "ohms": 1000
+   },
+   "terminals": [
+    "a",
+    "b"
+   ]
+  },
+  {
+   "id": "LED_sc",
+   "kind": "led",
+   "params": {
+    "vf": 2,
+    "color": "red"
+   },
+   "terminals": [
+    "anode",
+    "cathode"
+   ]
+  },
+  {
+   "id": "R_sd",
+   "kind": "resistor",
+   "params": {
+    "ohms": 1000
+   },
+   "terminals": [
+    "a",
+    "b"
+   ]
+  },
+  {
+   "id": "LED_sd",
+   "kind": "led",
+   "params": {
+    "vf": 2,
+    "color": "red"
+   },
+   "terminals": [
+    "anode",
+    "cathode"
+   ]
+  },
+  {
+   "id": "R_se",
+   "kind": "resistor",
+   "params": {
+    "ohms": 1000
+   },
+   "terminals": [
+    "a",
+    "b"
+   ]
+  },
+  {
+   "id": "LED_se",
+   "kind": "led",
+   "params": {
+    "vf": 2,
+    "color": "red"
+   },
+   "terminals": [
+    "anode",
+    "cathode"
+   ]
+  },
+  {
+   "id": "R_sf",
+   "kind": "resistor",
+   "params": {
+    "ohms": 1000
+   },
+   "terminals": [
+    "a",
+    "b"
+   ]
+  },
+  {
+   "id": "LED_sf",
+   "kind": "led",
+   "params": {
+    "vf": 2,
+    "color": "red"
+   },
+   "terminals": [
+    "anode",
+    "cathode"
+   ]
+  },
+  {
+   "id": "R_sg",
+   "kind": "resistor",
+   "params": {
+    "ohms": 1000
+   },
+   "terminals": [
+    "a",
+    "b"
+   ]
+  },
+  {
+   "id": "LED_sg",
+   "kind": "led",
+   "params": {
+    "vf": 2,
+    "color": "red"
+   },
+   "terminals": [
+    "anode",
+    "cathode"
+   ]
+  }
+ ],
+ "nets": [
+  {
+   "id": "net_sa_r_led",
+   "terminals": [
+    {
+     "part": "R_sa",
+     "terminal": "b"
+    },
+    {
+     "part": "LED_sa",
+     "terminal": "anode"
+    }
+   ]
+  },
+  {
+   "id": "net_sa_pin",
+   "terminals": [
+    {
+     "part": "LED_sa",
+     "terminal": "cathode"
+    },
+    {
+     "part": "MCU",
+     "terminal": "p1.0"
+    }
+   ]
+  },
+  {
+   "id": "net_sb_r_led",
+   "terminals": [
+    {
+     "part": "R_sb",
+     "terminal": "b"
+    },
+    {
+     "part": "LED_sb",
+     "terminal": "anode"
+    }
+   ]
+  },
+  {
+   "id": "net_sb_pin",
+   "terminals": [
+    {
+     "part": "LED_sb",
+     "terminal": "cathode"
+    },
+    {
+     "part": "MCU",
+     "terminal": "p1.1"
+    }
+   ]
+  },
+  {
+   "id": "net_sc_r_led",
+   "terminals": [
+    {
+     "part": "R_sc",
+     "terminal": "b"
+    },
+    {
+     "part": "LED_sc",
+     "terminal": "anode"
+    }
+   ]
+  },
+  {
+   "id": "net_sc_pin",
+   "terminals": [
+    {
+     "part": "LED_sc",
+     "terminal": "cathode"
+    },
+    {
+     "part": "MCU",
+     "terminal": "p1.2"
+    }
+   ]
+  },
+  {
+   "id": "net_sd_r_led",
+   "terminals": [
+    {
+     "part": "R_sd",
+     "terminal": "b"
+    },
+    {
+     "part": "LED_sd",
+     "terminal": "anode"
+    }
+   ]
+  },
+  {
+   "id": "net_sd_pin",
+   "terminals": [
+    {
+     "part": "LED_sd",
+     "terminal": "cathode"
+    },
+    {
+     "part": "MCU",
+     "terminal": "p1.3"
+    }
+   ]
+  },
+  {
+   "id": "net_se_r_led",
+   "terminals": [
+    {
+     "part": "R_se",
+     "terminal": "b"
+    },
+    {
+     "part": "LED_se",
+     "terminal": "anode"
+    }
+   ]
+  },
+  {
+   "id": "net_se_pin",
+   "terminals": [
+    {
+     "part": "LED_se",
+     "terminal": "cathode"
+    },
+    {
+     "part": "MCU",
+     "terminal": "p1.4"
+    }
+   ]
+  },
+  {
+   "id": "net_sf_r_led",
+   "terminals": [
+    {
+     "part": "R_sf",
+     "terminal": "b"
+    },
+    {
+     "part": "LED_sf",
+     "terminal": "anode"
+    }
+   ]
+  },
+  {
+   "id": "net_sf_pin",
+   "terminals": [
+    {
+     "part": "LED_sf",
+     "terminal": "cathode"
+    },
+    {
+     "part": "MCU",
+     "terminal": "p1.5"
+    }
+   ]
+  },
+  {
+   "id": "net_sg_r_led",
+   "terminals": [
+    {
+     "part": "R_sg",
+     "terminal": "b"
+    },
+    {
+     "part": "LED_sg",
+     "terminal": "anode"
+    }
+   ]
+  },
+  {
+   "id": "net_sg_pin",
+   "terminals": [
+    {
+     "part": "LED_sg",
+     "terminal": "cathode"
+    },
+    {
+     "part": "MCU",
+     "terminal": "p2.0"
+    }
+   ]
+  },
+  {
+   "id": "net_vcc",
+   "terminals": [
+    {
+     "part": "VCC",
+     "terminal": "vcc"
+    },
+    {
+     "part": "R_sa",
+     "terminal": "a"
+    },
+    {
+     "part": "R_sb",
+     "terminal": "a"
+    },
+    {
+     "part": "R_sc",
+     "terminal": "a"
+    },
+    {
+     "part": "R_sd",
+     "terminal": "a"
+    },
+    {
+     "part": "R_se",
+     "terminal": "a"
+    },
+    {
+     "part": "R_sf",
+     "terminal": "a"
+    },
+    {
+     "part": "R_sg",
+     "terminal": "a"
+    }
+   ]
+  },
+  {
+   "id": "net_gnd",
+   "terminals": [
+    {
+     "part": "GND",
+     "terminal": "gnd"
+    }
+   ]
+  }
+ ],
+ "generated": "benchFor"
+}

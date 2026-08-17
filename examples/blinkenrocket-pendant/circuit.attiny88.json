@@ -1,0 +1,1005 @@
+{
+ "vcc": 5,
+ "parts": [
+  {
+   "id": "VCC",
+   "kind": "vcc",
+   "params": {},
+   "terminals": [
+    "vcc"
+   ]
+  },
+  {
+   "id": "GND",
+   "kind": "gnd",
+   "params": {},
+   "terminals": [
+    "gnd"
+   ]
+  },
+  {
+   "id": "MCU",
+   "kind": "attiny88",
+   "params": {},
+   "terminals": [
+    "pb0",
+    "pb1",
+    "pb2",
+    "pb3",
+    "pb4",
+    "pb5",
+    "pb6",
+    "pb7",
+    "pd0",
+    "pd1",
+    "pd2",
+    "pd3",
+    "pd4",
+    "pd5",
+    "pd6",
+    "pd7",
+    "pc3",
+    "pc7"
+   ]
+  },
+  {
+   "id": "R_col0",
+   "kind": "resistor",
+   "params": {
+    "ohms": 1000
+   },
+   "terminals": [
+    "a",
+    "b"
+   ]
+  },
+  {
+   "id": "LED_col0",
+   "kind": "led",
+   "params": {
+    "vf": 2,
+    "color": "red"
+   },
+   "terminals": [
+    "anode",
+    "cathode"
+   ]
+  },
+  {
+   "id": "R_col1",
+   "kind": "resistor",
+   "params": {
+    "ohms": 1000
+   },
+   "terminals": [
+    "a",
+    "b"
+   ]
+  },
+  {
+   "id": "LED_col1",
+   "kind": "led",
+   "params": {
+    "vf": 2,
+    "color": "red"
+   },
+   "terminals": [
+    "anode",
+    "cathode"
+   ]
+  },
+  {
+   "id": "R_col2",
+   "kind": "resistor",
+   "params": {
+    "ohms": 1000
+   },
+   "terminals": [
+    "a",
+    "b"
+   ]
+  },
+  {
+   "id": "LED_col2",
+   "kind": "led",
+   "params": {
+    "vf": 2,
+    "color": "red"
+   },
+   "terminals": [
+    "anode",
+    "cathode"
+   ]
+  },
+  {
+   "id": "R_col3",
+   "kind": "resistor",
+   "params": {
+    "ohms": 1000
+   },
+   "terminals": [
+    "a",
+    "b"
+   ]
+  },
+  {
+   "id": "LED_col3",
+   "kind": "led",
+   "params": {
+    "vf": 2,
+    "color": "red"
+   },
+   "terminals": [
+    "anode",
+    "cathode"
+   ]
+  },
+  {
+   "id": "R_col4",
+   "kind": "resistor",
+   "params": {
+    "ohms": 1000
+   },
+   "terminals": [
+    "a",
+    "b"
+   ]
+  },
+  {
+   "id": "LED_col4",
+   "kind": "led",
+   "params": {
+    "vf": 2,
+    "color": "red"
+   },
+   "terminals": [
+    "anode",
+    "cathode"
+   ]
+  },
+  {
+   "id": "R_col5",
+   "kind": "resistor",
+   "params": {
+    "ohms": 1000
+   },
+   "terminals": [
+    "a",
+    "b"
+   ]
+  },
+  {
+   "id": "LED_col5",
+   "kind": "led",
+   "params": {
+    "vf": 2,
+    "color": "red"
+   },
+   "terminals": [
+    "anode",
+    "cathode"
+   ]
+  },
+  {
+   "id": "R_col6",
+   "kind": "resistor",
+   "params": {
+    "ohms": 1000
+   },
+   "terminals": [
+    "a",
+    "b"
+   ]
+  },
+  {
+   "id": "LED_col6",
+   "kind": "led",
+   "params": {
+    "vf": 2,
+    "color": "red"
+   },
+   "terminals": [
+    "anode",
+    "cathode"
+   ]
+  },
+  {
+   "id": "R_col7",
+   "kind": "resistor",
+   "params": {
+    "ohms": 1000
+   },
+   "terminals": [
+    "a",
+    "b"
+   ]
+  },
+  {
+   "id": "LED_col7",
+   "kind": "led",
+   "params": {
+    "vf": 2,
+    "color": "red"
+   },
+   "terminals": [
+    "anode",
+    "cathode"
+   ]
+  },
+  {
+   "id": "R_row0",
+   "kind": "resistor",
+   "params": {
+    "ohms": 1000
+   },
+   "terminals": [
+    "a",
+    "b"
+   ]
+  },
+  {
+   "id": "LED_row0",
+   "kind": "led",
+   "params": {
+    "vf": 2,
+    "color": "red"
+   },
+   "terminals": [
+    "anode",
+    "cathode"
+   ]
+  },
+  {
+   "id": "R_row1",
+   "kind": "resistor",
+   "params": {
+    "ohms": 1000
+   },
+   "terminals": [
+    "a",
+    "b"
+   ]
+  },
+  {
+   "id": "LED_row1",
+   "kind": "led",
+   "params": {
+    "vf": 2,
+    "color": "red"
+   },
+   "terminals": [
+    "anode",
+    "cathode"
+   ]
+  },
+  {
+   "id": "R_row2",
+   "kind": "resistor",
+   "params": {
+    "ohms": 1000
+   },
+   "terminals": [
+    "a",
+    "b"
+   ]
+  },
+  {
+   "id": "LED_row2",
+   "kind": "led",
+   "params": {
+    "vf": 2,
+    "color": "red"
+   },
+   "terminals": [
+    "anode",
+    "cathode"
+   ]
+  },
+  {
+   "id": "R_row3",
+   "kind": "resistor",
+   "params": {
+    "ohms": 1000
+   },
+   "terminals": [
+    "a",
+    "b"
+   ]
+  },
+  {
+   "id": "LED_row3",
+   "kind": "led",
+   "params": {
+    "vf": 2,
+    "color": "red"
+   },
+   "terminals": [
+    "anode",
+    "cathode"
+   ]
+  },
+  {
+   "id": "R_row4",
+   "kind": "resistor",
+   "params": {
+    "ohms": 1000
+   },
+   "terminals": [
+    "a",
+    "b"
+   ]
+  },
+  {
+   "id": "LED_row4",
+   "kind": "led",
+   "params": {
+    "vf": 2,
+    "color": "red"
+   },
+   "terminals": [
+    "anode",
+    "cathode"
+   ]
+  },
+  {
+   "id": "R_row5",
+   "kind": "resistor",
+   "params": {
+    "ohms": 1000
+   },
+   "terminals": [
+    "a",
+    "b"
+   ]
+  },
+  {
+   "id": "LED_row5",
+   "kind": "led",
+   "params": {
+    "vf": 2,
+    "color": "red"
+   },
+   "terminals": [
+    "anode",
+    "cathode"
+   ]
+  },
+  {
+   "id": "R_row6",
+   "kind": "resistor",
+   "params": {
+    "ohms": 1000
+   },
+   "terminals": [
+    "a",
+    "b"
+   ]
+  },
+  {
+   "id": "LED_row6",
+   "kind": "led",
+   "params": {
+    "vf": 2,
+    "color": "red"
+   },
+   "terminals": [
+    "anode",
+    "cathode"
+   ]
+  },
+  {
+   "id": "R_row7",
+   "kind": "resistor",
+   "params": {
+    "ohms": 1000
+   },
+   "terminals": [
+    "a",
+    "b"
+   ]
+  },
+  {
+   "id": "LED_row7",
+   "kind": "led",
+   "params": {
+    "vf": 2,
+    "color": "red"
+   },
+   "terminals": [
+    "anode",
+    "cathode"
+   ]
+  },
+  {
+   "id": "R_PU_btnLeft",
+   "kind": "resistor",
+   "params": {
+    "ohms": 10000
+   },
+   "terminals": [
+    "a",
+    "b"
+   ]
+  },
+  {
+   "id": "BTN_btnLeft",
+   "kind": "button",
+   "params": {},
+   "terminals": [
+    "a",
+    "b"
+   ]
+  },
+  {
+   "id": "R_PU_btnRight",
+   "kind": "resistor",
+   "params": {
+    "ohms": 10000
+   },
+   "terminals": [
+    "a",
+    "b"
+   ]
+  },
+  {
+   "id": "BTN_btnRight",
+   "kind": "button",
+   "params": {},
+   "terminals": [
+    "a",
+    "b"
+   ]
+  }
+ ],
+ "nets": [
+  {
+   "id": "net_col0_pin_r",
+   "terminals": [
+    {
+     "part": "MCU",
+     "terminal": "pb0"
+    },
+    {
+     "part": "R_col0",
+     "terminal": "a"
+    }
+   ]
+  },
+  {
+   "id": "net_col0_r_led",
+   "terminals": [
+    {
+     "part": "R_col0",
+     "terminal": "b"
+    },
+    {
+     "part": "LED_col0",
+     "terminal": "anode"
+    }
+   ]
+  },
+  {
+   "id": "net_col1_pin_r",
+   "terminals": [
+    {
+     "part": "MCU",
+     "terminal": "pb1"
+    },
+    {
+     "part": "R_col1",
+     "terminal": "a"
+    }
+   ]
+  },
+  {
+   "id": "net_col1_r_led",
+   "terminals": [
+    {
+     "part": "R_col1",
+     "terminal": "b"
+    },
+    {
+     "part": "LED_col1",
+     "terminal": "anode"
+    }
+   ]
+  },
+  {
+   "id": "net_col2_pin_r",
+   "terminals": [
+    {
+     "part": "MCU",
+     "terminal": "pb2"
+    },
+    {
+     "part": "R_col2",
+     "terminal": "a"
+    }
+   ]
+  },
+  {
+   "id": "net_col2_r_led",
+   "terminals": [
+    {
+     "part": "R_col2",
+     "terminal": "b"
+    },
+    {
+     "part": "LED_col2",
+     "terminal": "anode"
+    }
+   ]
+  },
+  {
+   "id": "net_col3_pin_r",
+   "terminals": [
+    {
+     "part": "MCU",
+     "terminal": "pb3"
+    },
+    {
+     "part": "R_col3",
+     "terminal": "a"
+    }
+   ]
+  },
+  {
+   "id": "net_col3_r_led",
+   "terminals": [
+    {
+     "part": "R_col3",
+     "terminal": "b"
+    },
+    {
+     "part": "LED_col3",
+     "terminal": "anode"
+    }
+   ]
+  },
+  {
+   "id": "net_col4_pin_r",
+   "terminals": [
+    {
+     "part": "MCU",
+     "terminal": "pb4"
+    },
+    {
+     "part": "R_col4",
+     "terminal": "a"
+    }
+   ]
+  },
+  {
+   "id": "net_col4_r_led",
+   "terminals": [
+    {
+     "part": "R_col4",
+     "terminal": "b"
+    },
+    {
+     "part": "LED_col4",
+     "terminal": "anode"
+    }
+   ]
+  },
+  {
+   "id": "net_col5_pin_r",
+   "terminals": [
+    {
+     "part": "MCU",
+     "terminal": "pb5"
+    },
+    {
+     "part": "R_col5",
+     "terminal": "a"
+    }
+   ]
+  },
+  {
+   "id": "net_col5_r_led",
+   "terminals": [
+    {
+     "part": "R_col5",
+     "terminal": "b"
+    },
+    {
+     "part": "LED_col5",
+     "terminal": "anode"
+    }
+   ]
+  },
+  {
+   "id": "net_col6_pin_r",
+   "terminals": [
+    {
+     "part": "MCU",
+     "terminal": "pb6"
+    },
+    {
+     "part": "R_col6",
+     "terminal": "a"
+    }
+   ]
+  },
+  {
+   "id": "net_col6_r_led",
+   "terminals": [
+    {
+     "part": "R_col6",
+     "terminal": "b"
+    },
+    {
+     "part": "LED_col6",
+     "terminal": "anode"
+    }
+   ]
+  },
+  {
+   "id": "net_col7_pin_r",
+   "terminals": [
+    {
+     "part": "MCU",
+     "terminal": "pb7"
+    },
+    {
+     "part": "R_col7",
+     "terminal": "a"
+    }
+   ]
+  },
+  {
+   "id": "net_col7_r_led",
+   "terminals": [
+    {
+     "part": "R_col7",
+     "terminal": "b"
+    },
+    {
+     "part": "LED_col7",
+     "terminal": "anode"
+    }
+   ]
+  },
+  {
+   "id": "net_row0_pin_r",
+   "terminals": [
+    {
+     "part": "MCU",
+     "terminal": "pd0"
+    },
+    {
+     "part": "R_row0",
+     "terminal": "a"
+    }
+   ]
+  },
+  {
+   "id": "net_row0_r_led",
+   "terminals": [
+    {
+     "part": "R_row0",
+     "terminal": "b"
+    },
+    {
+     "part": "LED_row0",
+     "terminal": "anode"
+    }
+   ]
+  },
+  {
+   "id": "net_row1_pin_r",
+   "terminals": [
+    {
+     "part": "MCU",
+     "terminal": "pd1"
+    },
+    {
+     "part": "R_row1",
+     "terminal": "a"
+    }
+   ]
+  },
+  {
+   "id": "net_row1_r_led",
+   "terminals": [
+    {
+     "part": "R_row1",
+     "terminal": "b"
+    },
+    {
+     "part": "LED_row1",
+     "terminal": "anode"
+    }
+   ]
+  },
+  {
+   "id": "net_row2_pin_r",
+   "terminals": [
+    {
+     "part": "MCU",
+     "terminal": "pd2"
+    },
+    {
+     "part": "R_row2",
+     "terminal": "a"
+    }
+   ]
+  },
+  {
+   "id": "net_row2_r_led",
+   "terminals": [
+    {
+     "part": "R_row2",
+     "terminal": "b"
+    },
+    {
+     "part": "LED_row2",
+     "terminal": "anode"
+    }
+   ]
+  },
+  {
+   "id": "net_row3_pin_r",
+   "terminals": [
+    {
+     "part": "MCU",
+     "terminal": "pd3"
+    },
+    {
+     "part": "R_row3",
+     "terminal": "a"
+    }
+   ]
+  },
+  {
+   "id": "net_row3_r_led",
+   "terminals": [
+    {
+     "part": "R_row3",
+     "terminal": "b"
+    },
+    {
+     "part": "LED_row3",
+     "terminal": "anode"
+    }
+   ]
+  },
+  {
+   "id": "net_row4_pin_r",
+   "terminals": [
+    {
+     "part": "MCU",
+     "terminal": "pd4"
+    },
+    {
+     "part": "R_row4",
+     "terminal": "a"
+    }
+   ]
+  },
+  {
+   "id": "net_row4_r_led",
+   "terminals": [
+    {
+     "part": "R_row4",
+     "terminal": "b"
+    },
+    {
+     "part": "LED_row4",
+     "terminal": "anode"
+    }
+   ]
+  },
+  {
+   "id": "net_row5_pin_r",
+   "terminals": [
+    {
+     "part": "MCU",
+     "terminal": "pd5"
+    },
+    {
+     "part": "R_row5",
+     "terminal": "a"
+    }
+   ]
+  },
+  {
+   "id": "net_row5_r_led",
+   "terminals": [
+    {
+     "part": "R_row5",
+     "terminal": "b"
+    },
+    {
+     "part": "LED_row5",
+     "terminal": "anode"
+    }
+   ]
+  },
+  {
+   "id": "net_row6_pin_r",
+   "terminals": [
+    {
+     "part": "MCU",
+     "terminal": "pd6"
+    },
+    {
+     "part": "R_row6",
+     "terminal": "a"
+    }
+   ]
+  },
+  {
+   "id": "net_row6_r_led",
+   "terminals": [
+    {
+     "part": "R_row6",
+     "terminal": "b"
+    },
+    {
+     "part": "LED_row6",
+     "terminal": "anode"
+    }
+   ]
+  },
+  {
+   "id": "net_row7_pin_r",
+   "terminals": [
+    {
+     "part": "MCU",
+     "terminal": "pd7"
+    },
+    {
+     "part": "R_row7",
+     "terminal": "a"
+    }
+   ]
+  },
+  {
+   "id": "net_row7_r_led",
+   "terminals": [
+    {
+     "part": "R_row7",
+     "terminal": "b"
+    },
+    {
+     "part": "LED_row7",
+     "terminal": "anode"
+    }
+   ]
+  },
+  {
+   "id": "net_btnLeft_pin",
+   "terminals": [
+    {
+     "part": "R_PU_btnLeft",
+     "terminal": "b"
+    },
+    {
+     "part": "BTN_btnLeft",
+     "terminal": "a"
+    },
+    {
+     "part": "MCU",
+     "terminal": "pc3"
+    }
+   ]
+  },
+  {
+   "id": "net_btnRight_pin",
+   "terminals": [
+    {
+     "part": "R_PU_btnRight",
+     "terminal": "b"
+    },
+    {
+     "part": "BTN_btnRight",
+     "terminal": "a"
+    },
+    {
+     "part": "MCU",
+     "terminal": "pc7"
+    }
+   ]
+  },
+  {
+   "id": "net_vcc",
+   "terminals": [
+    {
+     "part": "VCC",
+     "terminal": "vcc"
+    },
+    {
+     "part": "R_PU_btnLeft",
+     "terminal": "a"
+    },
+    {
+     "part": "R_PU_btnRight",
+     "terminal": "a"
+    }
+   ]
+  },
+  {
+   "id": "net_gnd",
+   "terminals": [
+    {
+     "part": "GND",
+     "terminal": "gnd"
+    },
+    {
+     "part": "LED_col0",
+     "terminal": "cathode"
+    },
+    {
+     "part": "LED_col1",
+     "terminal": "cathode"
+    },
+    {
+     "part": "LED_col2",
+     "terminal": "cathode"
+    },
+    {
+     "part": "LED_col3",
+     "terminal": "cathode"
+    },
+    {
+     "part": "LED_col4",
+     "terminal": "cathode"
+    },
+    {
+     "part": "LED_col5",
+     "terminal": "cathode"
+    },
+    {
+     "part": "LED_col6",
+     "terminal": "cathode"
+    },
+    {
+     "part": "LED_col7",
+     "terminal": "cathode"
+    },
+    {
+     "part": "LED_row0",
+     "terminal": "cathode"
+    },
+    {
+     "part": "LED_row1",
+     "terminal": "cathode"
+    },
+    {
+     "part": "LED_row2",
+     "terminal": "cathode"
+    },
+    {
+     "part": "LED_row3",
+     "terminal": "cathode"
+    },
+    {
+     "part": "LED_row4",
+     "terminal": "cathode"
+    },
+    {
+     "part": "LED_row5",
+     "terminal": "cathode"
+    },
+    {
+     "part": "LED_row6",
+     "terminal": "cathode"
+    },
+    {
+     "part": "LED_row7",
+     "terminal": "cathode"
+    },
+    {
+     "part": "BTN_btnLeft",
+     "terminal": "b"
+    },
+    {
+     "part": "BTN_btnRight",
+     "terminal": "b"
+    }
+   ]
+  }
+ ],
+ "generated": "benchFor"
+}

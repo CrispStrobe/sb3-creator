@@ -1,0 +1,191 @@
+{
+ "vcc": 5,
+ "parts": [
+  {
+   "id": "VCC",
+   "kind": "vcc",
+   "params": {},
+   "terminals": [
+    "vcc"
+   ]
+  },
+  {
+   "id": "GND",
+   "kind": "gnd",
+   "params": {},
+   "terminals": [
+    "gnd"
+   ]
+  },
+  {
+   "id": "MCU",
+   "kind": "pi_pico",
+   "params": {},
+   "terminals": [
+    "gp26",
+    "gp25",
+    "gp15"
+   ]
+  },
+  {
+   "id": "POT_sensor",
+   "kind": "potentiometer",
+   "params": {
+    "ohms": 10000
+   },
+   "terminals": [
+    "a",
+    "b",
+    "wiper"
+   ]
+  },
+  {
+   "id": "R_led",
+   "kind": "resistor",
+   "params": {
+    "ohms": 1000
+   },
+   "terminals": [
+    "a",
+    "b"
+   ]
+  },
+  {
+   "id": "LED_led",
+   "kind": "led",
+   "params": {
+    "vf": 2,
+    "color": "red"
+   },
+   "terminals": [
+    "anode",
+    "cathode"
+   ]
+  },
+  {
+   "id": "R_statusLed",
+   "kind": "resistor",
+   "params": {
+    "ohms": 1000
+   },
+   "terminals": [
+    "a",
+    "b"
+   ]
+  },
+  {
+   "id": "LED_statusLed",
+   "kind": "led",
+   "params": {
+    "vf": 2,
+    "color": "red"
+   },
+   "terminals": [
+    "anode",
+    "cathode"
+   ]
+  }
+ ],
+ "nets": [
+  {
+   "id": "net_sensor_wiper",
+   "terminals": [
+    {
+     "part": "POT_sensor",
+     "terminal": "wiper"
+    },
+    {
+     "part": "MCU",
+     "terminal": "gp26"
+    }
+   ]
+  },
+  {
+   "id": "net_led_pin_r",
+   "terminals": [
+    {
+     "part": "MCU",
+     "terminal": "gp25"
+    },
+    {
+     "part": "R_led",
+     "terminal": "a"
+    }
+   ]
+  },
+  {
+   "id": "net_led_r_led",
+   "terminals": [
+    {
+     "part": "R_led",
+     "terminal": "b"
+    },
+    {
+     "part": "LED_led",
+     "terminal": "anode"
+    }
+   ]
+  },
+  {
+   "id": "net_statusLed_pin_r",
+   "terminals": [
+    {
+     "part": "MCU",
+     "terminal": "gp15"
+    },
+    {
+     "part": "R_statusLed",
+     "terminal": "a"
+    }
+   ]
+  },
+  {
+   "id": "net_statusLed_r_led",
+   "terminals": [
+    {
+     "part": "R_statusLed",
+     "terminal": "b"
+    },
+    {
+     "part": "LED_statusLed",
+     "terminal": "anode"
+    }
+   ]
+  },
+  {
+   "id": "net_vcc",
+   "terminals": [
+    {
+     "part": "VCC",
+     "terminal": "vcc"
+    },
+    {
+     "part": "POT_sensor",
+     "terminal": "a"
+    }
+   ]
+  },
+  {
+   "id": "net_gnd",
+   "terminals": [
+    {
+     "part": "GND",
+     "terminal": "gnd"
+    },
+    {
+     "part": "POT_sensor",
+     "terminal": "b"
+    },
+    {
+     "part": "LED_led",
+     "terminal": "cathode"
+    },
+    {
+     "part": "LED_statusLed",
+     "terminal": "cathode"
+    }
+   ]
+  }
+ ],
+ "generated": "benchFor"
+}

@@ -1,0 +1,157 @@
+{
+ "vcc": 5,
+ "parts": [
+  {
+   "id": "VCC",
+   "kind": "vcc",
+   "params": {},
+   "terminals": [
+    "vcc"
+   ]
+  },
+  {
+   "id": "GND",
+   "kind": "gnd",
+   "params": {},
+   "terminals": [
+    "gnd"
+   ]
+  },
+  {
+   "id": "MCU",
+   "kind": "attiny85",
+   "params": {},
+   "terminals": [
+    "pb0",
+    "pb1"
+   ]
+  },
+  {
+   "id": "R_led_low",
+   "kind": "resistor",
+   "params": {
+    "ohms": 1000
+   },
+   "terminals": [
+    "a",
+    "b"
+   ]
+  },
+  {
+   "id": "LED_led_low",
+   "kind": "led",
+   "params": {
+    "vf": 2,
+    "color": "red"
+   },
+   "terminals": [
+    "anode",
+    "cathode"
+   ]
+  },
+  {
+   "id": "R_led_high",
+   "kind": "resistor",
+   "params": {
+    "ohms": 1000
+   },
+   "terminals": [
+    "a",
+    "b"
+   ]
+  },
+  {
+   "id": "LED_led_high",
+   "kind": "led",
+   "params": {
+    "vf": 2,
+    "color": "red"
+   },
+   "terminals": [
+    "anode",
+    "cathode"
+   ]
+  }
+ ],
+ "nets": [
+  {
+   "id": "net_led_low_pin_r",
+   "terminals": [
+    {
+     "part": "MCU",
+     "terminal": "pb0"
+    },
+    {
+     "part": "R_led_low",
+     "terminal": "a"
+    }
+   ]
+  },
+  {
+   "id": "net_led_low_r_led",
+   "terminals": [
+    {
+     "part": "R_led_low",
+     "terminal": "b"
+    },
+    {
+     "part": "LED_led_low",
+     "terminal": "anode"
+    }
+   ]
+  },
+  {
+   "id": "net_led_high_pin_r",
+   "terminals": [
+    {
+     "part": "MCU",
+     "terminal": "pb1"
+    },
+    {
+     "part": "R_led_high",
+     "terminal": "a"
+    }
+   ]
+  },
+  {
+   "id": "net_led_high_r_led",
+   "terminals": [
+    {
+     "part": "R_led_high",
+     "terminal": "b"
+    },
+    {
+     "part": "LED_led_high",
+     "terminal": "anode"
+    }
+   ]
+  },
+  {
+   "id": "net_vcc",
+   "terminals": [
+    {
+     "part": "VCC",
+     "terminal": "vcc"
+    }
+   ]
+  },
+  {
+   "id": "net_gnd",
+   "terminals": [
+    {
+     "part": "GND",
+     "terminal": "gnd"
+    },
+    {
+     "part": "LED_led_low",
+     "terminal": "cathode"
+    },
+    {
+     "part": "LED_led_high",
+     "terminal": "cathode"
+    }
+   ]
+  }
+ ],
+ "generated": "benchFor"
+}

@@ -1,0 +1,103 @@
+{
+ "vcc": 5,
+ "parts": [
+  {
+   "id": "VCC",
+   "kind": "vcc",
+   "params": {},
+   "terminals": [
+    "vcc"
+   ]
+  },
+  {
+   "id": "GND",
+   "kind": "gnd",
+   "params": {},
+   "terminals": [
+    "gnd"
+   ]
+  },
+  {
+   "id": "MCU",
+   "kind": "stc15_mcu",
+   "params": {},
+   "terminals": [
+    "p1.0"
+   ]
+  },
+  {
+   "id": "R_opto",
+   "kind": "resistor",
+   "params": {
+    "ohms": 1000
+   },
+   "terminals": [
+    "a",
+    "b"
+   ]
+  },
+  {
+   "id": "LED_opto",
+   "kind": "led",
+   "params": {
+    "vf": 2,
+    "color": "red"
+   },
+   "terminals": [
+    "anode",
+    "cathode"
+   ]
+  }
+ ],
+ "nets": [
+  {
+   "id": "net_opto_r_led",
+   "terminals": [
+    {
+     "part": "R_opto",
+     "terminal": "b"
+    },
+    {
+     "part": "LED_opto",
+     "terminal": "anode"
+    }
+   ]
+  },
+  {
+   "id": "net_opto_pin",
+   "terminals": [
+    {
+     "part": "LED_opto",
+     "terminal": "cathode"
+    },
+    {
+     "part": "MCU",
+     "terminal": "p1.0"
+    }
+   ]
+  },
+  {
+   "id": "net_vcc",
+   "terminals": [
+    {
+     "part": "VCC",
+     "terminal": "vcc"
+    },
+    {
+     "part": "R_opto",
+     "terminal": "a"
+    }
+   ]
+  },
+  {
+   "id": "net_gnd",
+   "terminals": [
+    {
+     "part": "GND",
+     "terminal": "gnd"
+    }
+   ]
+  }
+ ],
+ "generated": "benchFor"
+}

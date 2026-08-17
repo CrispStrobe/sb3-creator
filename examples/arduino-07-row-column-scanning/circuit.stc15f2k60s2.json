@@ -1,0 +1,117 @@
+{
+ "vcc": 5,
+ "parts": [
+  {
+   "id": "VCC",
+   "kind": "vcc",
+   "params": {},
+   "terminals": [
+    "vcc"
+   ]
+  },
+  {
+   "id": "GND",
+   "kind": "gnd",
+   "params": {},
+   "terminals": [
+    "gnd"
+   ]
+  },
+  {
+   "id": "MCU",
+   "kind": "stc15_mcu",
+   "params": {},
+   "terminals": [
+    "p1.0",
+    "p1.1"
+   ]
+  },
+  {
+   "id": "POT_potX",
+   "kind": "potentiometer",
+   "params": {
+    "ohms": 10000
+   },
+   "terminals": [
+    "a",
+    "b",
+    "wiper"
+   ]
+  },
+  {
+   "id": "POT_potY",
+   "kind": "potentiometer",
+   "params": {
+    "ohms": 10000
+   },
+   "terminals": [
+    "a",
+    "b",
+    "wiper"
+   ]
+  }
+ ],
+ "nets": [
+  {
+   "id": "net_potX_wiper",
+   "terminals": [
+    {
+     "part": "POT_potX",
+     "terminal": "wiper"
+    },
+    {
+     "part": "MCU",
+     "terminal": "p1.0"
+    }
+   ]
+  },
+  {
+   "id": "net_potY_wiper",
+   "terminals": [
+    {
+     "part": "POT_potY",
+     "terminal": "wiper"
+    },
+    {
+     "part": "MCU",
+     "terminal": "p1.1"
+    }
+   ]
+  },
+  {
+   "id": "net_vcc",
+   "terminals": [
+    {
+     "part": "VCC",
+     "terminal": "vcc"
+    },
+    {
+     "part": "POT_potX",
+     "terminal": "a"
+    },
+    {
+     "part": "POT_potY",
+     "terminal": "a"
+    }
+   ]
+  },
+  {
+   "id": "net_gnd",
+   "terminals": [
+    {
+     "part": "GND",
+     "terminal": "gnd"
+    },
+    {
+     "part": "POT_potX",
+     "terminal": "b"
+    },
+    {
+     "part": "POT_potY",
+     "terminal": "b"
+    }
+   ]
+  }
+ ],
+ "generated": "benchFor"
+}

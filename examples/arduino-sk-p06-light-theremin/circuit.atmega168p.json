@@ -1,0 +1,110 @@
+{
+ "vcc": 5,
+ "parts": [
+  {
+   "id": "VCC",
+   "kind": "vcc",
+   "params": {},
+   "terminals": [
+    "vcc"
+   ]
+  },
+  {
+   "id": "GND",
+   "kind": "gnd",
+   "params": {},
+   "terminals": [
+    "gnd"
+   ]
+  },
+  {
+   "id": "MCU",
+   "kind": "arduino_uno",
+   "params": {},
+   "terminals": [
+    "a0",
+    "d13"
+   ]
+  },
+  {
+   "id": "POT_ldr",
+   "kind": "potentiometer",
+   "params": {
+    "ohms": 10000
+   },
+   "terminals": [
+    "a",
+    "b",
+    "wiper"
+   ]
+  },
+  {
+   "id": "BUZZ_speaker",
+   "kind": "buzzer",
+   "params": {},
+   "terminals": [
+    "a",
+    "b"
+   ]
+  }
+ ],
+ "nets": [
+  {
+   "id": "net_ldr_wiper",
+   "terminals": [
+    {
+     "part": "POT_ldr",
+     "terminal": "wiper"
+    },
+    {
+     "part": "MCU",
+     "terminal": "a0"
+    }
+   ]
+  },
+  {
+   "id": "net_speaker_pin",
+   "terminals": [
+    {
+     "part": "MCU",
+     "terminal": "d13"
+    },
+    {
+     "part": "BUZZ_speaker",
+     "terminal": "a"
+    }
+   ]
+  },
+  {
+   "id": "net_vcc",
+   "terminals": [
+    {
+     "part": "VCC",
+     "terminal": "vcc"
+    },
+    {
+     "part": "POT_ldr",
+     "terminal": "a"
+    }
+   ]
+  },
+  {
+   "id": "net_gnd",
+   "terminals": [
+    {
+     "part": "GND",
+     "terminal": "gnd"
+    },
+    {
+     "part": "POT_ldr",
+     "terminal": "b"
+    },
+    {
+     "part": "BUZZ_speaker",
+     "terminal": "b"
+    }
+   ]
+  }
+ ],
+ "generated": "benchFor"
+}

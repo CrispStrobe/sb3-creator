@@ -1,0 +1,345 @@
+{
+ "vcc": 5,
+ "parts": [
+  {
+   "id": "VCC",
+   "kind": "vcc",
+   "params": {},
+   "terminals": [
+    "vcc"
+   ]
+  },
+  {
+   "id": "GND",
+   "kind": "gnd",
+   "params": {},
+   "terminals": [
+    "gnd"
+   ]
+  },
+  {
+   "id": "MCU",
+   "kind": "stc15_mcu",
+   "params": {},
+   "terminals": [
+    "p1.0",
+    "p3.2",
+    "p1.1",
+    "p1.2",
+    "p1.3",
+    "p1.4"
+   ]
+  },
+  {
+   "id": "POT_piezo",
+   "kind": "potentiometer",
+   "params": {
+    "ohms": 10000
+   },
+   "terminals": [
+    "a",
+    "b",
+    "wiper"
+   ]
+  },
+  {
+   "id": "R_PU_btn",
+   "kind": "resistor",
+   "params": {
+    "ohms": 10000
+   },
+   "terminals": [
+    "a",
+    "b"
+   ]
+  },
+  {
+   "id": "BTN_btn",
+   "kind": "button",
+   "params": {},
+   "terminals": [
+    "a",
+    "b"
+   ]
+  },
+  {
+   "id": "R_ledR",
+   "kind": "resistor",
+   "params": {
+    "ohms": 1000
+   },
+   "terminals": [
+    "a",
+    "b"
+   ]
+  },
+  {
+   "id": "LED_ledR",
+   "kind": "led",
+   "params": {
+    "vf": 2,
+    "color": "red"
+   },
+   "terminals": [
+    "anode",
+    "cathode"
+   ]
+  },
+  {
+   "id": "R_ledY",
+   "kind": "resistor",
+   "params": {
+    "ohms": 1000
+   },
+   "terminals": [
+    "a",
+    "b"
+   ]
+  },
+  {
+   "id": "LED_ledY",
+   "kind": "led",
+   "params": {
+    "vf": 2,
+    "color": "red"
+   },
+   "terminals": [
+    "anode",
+    "cathode"
+   ]
+  },
+  {
+   "id": "R_ledG",
+   "kind": "resistor",
+   "params": {
+    "ohms": 1000
+   },
+   "terminals": [
+    "a",
+    "b"
+   ]
+  },
+  {
+   "id": "LED_ledG",
+   "kind": "led",
+   "params": {
+    "vf": 2,
+    "color": "red"
+   },
+   "terminals": [
+    "anode",
+    "cathode"
+   ]
+  },
+  {
+   "id": "R_servo",
+   "kind": "resistor",
+   "params": {
+    "ohms": 1000
+   },
+   "terminals": [
+    "a",
+    "b"
+   ]
+  },
+  {
+   "id": "LED_servo",
+   "kind": "led",
+   "params": {
+    "vf": 2,
+    "color": "red"
+   },
+   "terminals": [
+    "anode",
+    "cathode"
+   ]
+  }
+ ],
+ "nets": [
+  {
+   "id": "net_piezo_wiper",
+   "terminals": [
+    {
+     "part": "POT_piezo",
+     "terminal": "wiper"
+    },
+    {
+     "part": "MCU",
+     "terminal": "p1.0"
+    }
+   ]
+  },
+  {
+   "id": "net_btn_pin",
+   "terminals": [
+    {
+     "part": "R_PU_btn",
+     "terminal": "b"
+    },
+    {
+     "part": "BTN_btn",
+     "terminal": "a"
+    },
+    {
+     "part": "MCU",
+     "terminal": "p3.2"
+    }
+   ]
+  },
+  {
+   "id": "net_ledR_r_led",
+   "terminals": [
+    {
+     "part": "R_ledR",
+     "terminal": "b"
+    },
+    {
+     "part": "LED_ledR",
+     "terminal": "anode"
+    }
+   ]
+  },
+  {
+   "id": "net_ledR_pin",
+   "terminals": [
+    {
+     "part": "LED_ledR",
+     "terminal": "cathode"
+    },
+    {
+     "part": "MCU",
+     "terminal": "p1.1"
+    }
+   ]
+  },
+  {
+   "id": "net_ledY_r_led",
+   "terminals": [
+    {
+     "part": "R_ledY",
+     "terminal": "b"
+    },
+    {
+     "part": "LED_ledY",
+     "terminal": "anode"
+    }
+   ]
+  },
+  {
+   "id": "net_ledY_pin",
+   "terminals": [
+    {
+     "part": "LED_ledY",
+     "terminal": "cathode"
+    },
+    {
+     "part": "MCU",
+     "terminal": "p1.2"
+    }
+   ]
+  },
+  {
+   "id": "net_ledG_r_led",
+   "terminals": [
+    {
+     "part": "R_ledG",
+     "terminal": "b"
+    },
+    {
+     "part": "LED_ledG",
+     "terminal": "anode"
+    }
+   ]
+  },
+  {
+   "id": "net_ledG_pin",
+   "terminals": [
+    {
+     "part": "LED_ledG",
+     "terminal": "cathode"
+    },
+    {
+     "part": "MCU",
+     "terminal": "p1.3"
+    }
+   ]
+  },
+  {
+   "id": "net_servo_r_led",
+   "terminals": [
+    {
+     "part": "R_servo",
+     "terminal": "b"
+    },
+    {
+     "part": "LED_servo",
+     "terminal": "anode"
+    }
+   ]
+  },
+  {
+   "id": "net_servo_pin",
+   "terminals": [
+    {
+     "part": "LED_servo",
+     "terminal": "cathode"
+    },
+    {
+     "part": "MCU",
+     "terminal": "p1.4"
+    }
+   ]
+  },
+  {
+   "id": "net_vcc",
+   "terminals": [
+    {
+     "part": "VCC",
+     "terminal": "vcc"
+    },
+    {
+     "part": "POT_piezo",
+     "terminal": "a"
+    },
+    {
+     "part": "R_PU_btn",
+     "terminal": "a"
+    },
+    {
+     "part": "R_ledR",
+     "terminal": "a"
+    },
+    {
+     "part": "R_ledY",
+     "terminal": "a"
+    },
+    {
+     "part": "R_ledG",
+     "terminal": "a"
+    },
+    {
+     "part": "R_servo",
+     "terminal": "a"
+    }
+   ]
+  },
+  {
+   "id": "net_gnd",
+   "terminals": [
+    {
+     "part": "GND",
+     "terminal": "gnd"
+    },
+    {
+     "part": "POT_piezo",
+     "terminal": "b"
+    },
+    {
+     "part": "BTN_btn",
+     "terminal": "b"
+    }
+   ]
+  }
+ ],
+ "generated": "benchFor"
+}

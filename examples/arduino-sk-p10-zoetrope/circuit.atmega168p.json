@@ -1,0 +1,337 @@
+{
+ "vcc": 5,
+ "parts": [
+  {
+   "id": "VCC",
+   "kind": "vcc",
+   "params": {},
+   "terminals": [
+    "vcc"
+   ]
+  },
+  {
+   "id": "GND",
+   "kind": "gnd",
+   "params": {},
+   "terminals": [
+    "gnd"
+   ]
+  },
+  {
+   "id": "MCU",
+   "kind": "arduino_uno",
+   "params": {},
+   "terminals": [
+    "a0",
+    "d2",
+    "d4",
+    "d13",
+    "d12",
+    "d8"
+   ]
+  },
+  {
+   "id": "POT_pot",
+   "kind": "potentiometer",
+   "params": {
+    "ohms": 10000
+   },
+   "terminals": [
+    "a",
+    "b",
+    "wiper"
+   ]
+  },
+  {
+   "id": "R_PU_btnFwd",
+   "kind": "resistor",
+   "params": {
+    "ohms": 10000
+   },
+   "terminals": [
+    "a",
+    "b"
+   ]
+  },
+  {
+   "id": "BTN_btnFwd",
+   "kind": "button",
+   "params": {},
+   "terminals": [
+    "a",
+    "b"
+   ]
+  },
+  {
+   "id": "R_PU_btnRev",
+   "kind": "resistor",
+   "params": {
+    "ohms": 10000
+   },
+   "terminals": [
+    "a",
+    "b"
+   ]
+  },
+  {
+   "id": "BTN_btnRev",
+   "kind": "button",
+   "params": {},
+   "terminals": [
+    "a",
+    "b"
+   ]
+  },
+  {
+   "id": "R_motorEnable",
+   "kind": "resistor",
+   "params": {
+    "ohms": 1000
+   },
+   "terminals": [
+    "a",
+    "b"
+   ]
+  },
+  {
+   "id": "LED_motorEnable",
+   "kind": "led",
+   "params": {
+    "vf": 2,
+    "color": "red"
+   },
+   "terminals": [
+    "anode",
+    "cathode"
+   ]
+  },
+  {
+   "id": "R_motorDir1",
+   "kind": "resistor",
+   "params": {
+    "ohms": 1000
+   },
+   "terminals": [
+    "a",
+    "b"
+   ]
+  },
+  {
+   "id": "LED_motorDir1",
+   "kind": "led",
+   "params": {
+    "vf": 2,
+    "color": "red"
+   },
+   "terminals": [
+    "anode",
+    "cathode"
+   ]
+  },
+  {
+   "id": "R_motorDir2",
+   "kind": "resistor",
+   "params": {
+    "ohms": 1000
+   },
+   "terminals": [
+    "a",
+    "b"
+   ]
+  },
+  {
+   "id": "LED_motorDir2",
+   "kind": "led",
+   "params": {
+    "vf": 2,
+    "color": "red"
+   },
+   "terminals": [
+    "anode",
+    "cathode"
+   ]
+  }
+ ],
+ "nets": [
+  {
+   "id": "net_pot_wiper",
+   "terminals": [
+    {
+     "part": "POT_pot",
+     "terminal": "wiper"
+    },
+    {
+     "part": "MCU",
+     "terminal": "a0"
+    }
+   ]
+  },
+  {
+   "id": "net_btnFwd_pin",
+   "terminals": [
+    {
+     "part": "R_PU_btnFwd",
+     "terminal": "b"
+    },
+    {
+     "part": "BTN_btnFwd",
+     "terminal": "a"
+    },
+    {
+     "part": "MCU",
+     "terminal": "d2"
+    }
+   ]
+  },
+  {
+   "id": "net_btnRev_pin",
+   "terminals": [
+    {
+     "part": "R_PU_btnRev",
+     "terminal": "b"
+    },
+    {
+     "part": "BTN_btnRev",
+     "terminal": "a"
+    },
+    {
+     "part": "MCU",
+     "terminal": "d4"
+    }
+   ]
+  },
+  {
+   "id": "net_motorEnable_pin_r",
+   "terminals": [
+    {
+     "part": "MCU",
+     "terminal": "d13"
+    },
+    {
+     "part": "R_motorEnable",
+     "terminal": "a"
+    }
+   ]
+  },
+  {
+   "id": "net_motorEnable_r_led",
+   "terminals": [
+    {
+     "part": "R_motorEnable",
+     "terminal": "b"
+    },
+    {
+     "part": "LED_motorEnable",
+     "terminal": "anode"
+    }
+   ]
+  },
+  {
+   "id": "net_motorDir1_pin_r",
+   "terminals": [
+    {
+     "part": "MCU",
+     "terminal": "d12"
+    },
+    {
+     "part": "R_motorDir1",
+     "terminal": "a"
+    }
+   ]
+  },
+  {
+   "id": "net_motorDir1_r_led",
+   "terminals": [
+    {
+     "part": "R_motorDir1",
+     "terminal": "b"
+    },
+    {
+     "part": "LED_motorDir1",
+     "terminal": "anode"
+    }
+   ]
+  },
+  {
+   "id": "net_motorDir2_pin_r",
+   "terminals": [
+    {
+     "part": "MCU",
+     "terminal": "d8"
+    },
+    {
+     "part": "R_motorDir2",
+     "terminal": "a"
+    }
+   ]
+  },
+  {
+   "id": "net_motorDir2_r_led",
+   "terminals": [
+    {
+     "part": "R_motorDir2",
+     "terminal": "b"
+    },
+    {
+     "part": "LED_motorDir2",
+     "terminal": "anode"
+    }
+   ]
+  },
+  {
+   "id": "net_vcc",
+   "terminals": [
+    {
+     "part": "VCC",
+     "terminal": "vcc"
+    },
+    {
+     "part": "POT_pot",
+     "terminal": "a"
+    },
+    {
+     "part": "R_PU_btnFwd",
+     "terminal": "a"
+    },
+    {
+     "part": "R_PU_btnRev",
+     "terminal": "a"
+    }
+   ]
+  },
+  {
+   "id": "net_gnd",
+   "terminals": [
+    {
+     "part": "GND",
+     "terminal": "gnd"
+    },
+    {
+     "part": "POT_pot",
+     "terminal": "b"
+    },
+    {
+     "part": "BTN_btnFwd",
+     "terminal": "b"
+    },
+    {
+     "part": "BTN_btnRev",
+     "terminal": "b"
+    },
+    {
+     "part": "LED_motorEnable",
+     "terminal": "cathode"
+    },
+    {
+     "part": "LED_motorDir1",
+     "terminal": "cathode"
+    },
+    {
+     "part": "LED_motorDir2",
+     "terminal": "cathode"
+    }
+   ]
+  }
+ ],
+ "generated": "benchFor"
+}

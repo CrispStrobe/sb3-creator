@@ -1,0 +1,137 @@
+{
+ "vcc": 5,
+ "parts": [
+  {
+   "id": "VCC",
+   "kind": "vcc",
+   "params": {},
+   "terminals": [
+    "vcc"
+   ]
+  },
+  {
+   "id": "GND",
+   "kind": "gnd",
+   "params": {},
+   "terminals": [
+    "gnd"
+   ]
+  },
+  {
+   "id": "MCU",
+   "kind": "mcu",
+   "params": {},
+   "terminals": [
+    "P1.3",
+    "P1.0"
+   ]
+  },
+  {
+   "id": "POT_pot",
+   "kind": "potentiometer",
+   "params": {
+    "ohms": 10000
+   },
+   "terminals": [
+    "a",
+    "b",
+    "wiper"
+   ]
+  },
+  {
+   "id": "R_servo",
+   "kind": "resistor",
+   "params": {
+    "ohms": 1000
+   },
+   "terminals": [
+    "a",
+    "b"
+   ]
+  },
+  {
+   "id": "LED_servo",
+   "kind": "led",
+   "params": {
+    "vf": 2,
+    "color": "red"
+   },
+   "terminals": [
+    "anode",
+    "cathode"
+   ]
+  }
+ ],
+ "nets": [
+  {
+   "id": "net_pot_wiper",
+   "terminals": [
+    {
+     "part": "POT_pot",
+     "terminal": "wiper"
+    },
+    {
+     "part": "MCU",
+     "terminal": "P1.3"
+    }
+   ]
+  },
+  {
+   "id": "net_servo_r_led",
+   "terminals": [
+    {
+     "part": "R_servo",
+     "terminal": "b"
+    },
+    {
+     "part": "LED_servo",
+     "terminal": "anode"
+    }
+   ]
+  },
+  {
+   "id": "net_servo_pin",
+   "terminals": [
+    {
+     "part": "LED_servo",
+     "terminal": "cathode"
+    },
+    {
+     "part": "MCU",
+     "terminal": "P1.0"
+    }
+   ]
+  },
+  {
+   "id": "net_vcc",
+   "terminals": [
+    {
+     "part": "VCC",
+     "terminal": "vcc"
+    },
+    {
+     "part": "POT_pot",
+     "terminal": "a"
+    },
+    {
+     "part": "R_servo",
+     "terminal": "a"
+    }
+   ]
+  },
+  {
+   "id": "net_gnd",
+   "terminals": [
+    {
+     "part": "GND",
+     "terminal": "gnd"
+    },
+    {
+     "part": "POT_pot",
+     "terminal": "b"
+    }
+   ]
+  }
+ ],
+ "generated": "benchFor"
+}

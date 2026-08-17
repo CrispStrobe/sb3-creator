@@ -1,0 +1,144 @@
+{
+ "vcc": 5,
+ "parts": [
+  {
+   "id": "VCC",
+   "kind": "vcc",
+   "params": {},
+   "terminals": [
+    "vcc"
+   ]
+  },
+  {
+   "id": "GND",
+   "kind": "gnd",
+   "params": {},
+   "terminals": [
+    "gnd"
+   ]
+  },
+  {
+   "id": "MCU",
+   "kind": "arduino_mega",
+   "params": {},
+   "terminals": [
+    "a0",
+    "a1",
+    "d13"
+   ]
+  },
+  {
+   "id": "POT_sensor1",
+   "kind": "potentiometer",
+   "params": {
+    "ohms": 10000
+   },
+   "terminals": [
+    "a",
+    "b",
+    "wiper"
+   ]
+  },
+  {
+   "id": "POT_sensor2",
+   "kind": "potentiometer",
+   "params": {
+    "ohms": 10000
+   },
+   "terminals": [
+    "a",
+    "b",
+    "wiper"
+   ]
+  },
+  {
+   "id": "BUZZ_speaker",
+   "kind": "buzzer",
+   "params": {},
+   "terminals": [
+    "a",
+    "b"
+   ]
+  }
+ ],
+ "nets": [
+  {
+   "id": "net_sensor1_wiper",
+   "terminals": [
+    {
+     "part": "POT_sensor1",
+     "terminal": "wiper"
+    },
+    {
+     "part": "MCU",
+     "terminal": "a0"
+    }
+   ]
+  },
+  {
+   "id": "net_sensor2_wiper",
+   "terminals": [
+    {
+     "part": "POT_sensor2",
+     "terminal": "wiper"
+    },
+    {
+     "part": "MCU",
+     "terminal": "a1"
+    }
+   ]
+  },
+  {
+   "id": "net_speaker_pin",
+   "terminals": [
+    {
+     "part": "MCU",
+     "terminal": "d13"
+    },
+    {
+     "part": "BUZZ_speaker",
+     "terminal": "a"
+    }
+   ]
+  },
+  {
+   "id": "net_vcc",
+   "terminals": [
+    {
+     "part": "VCC",
+     "terminal": "vcc"
+    },
+    {
+     "part": "POT_sensor1",
+     "terminal": "a"
+    },
+    {
+     "part": "POT_sensor2",
+     "terminal": "a"
+    }
+   ]
+  },
+  {
+   "id": "net_gnd",
+   "terminals": [
+    {
+     "part": "GND",
+     "terminal": "gnd"
+    },
+    {
+     "part": "POT_sensor1",
+     "terminal": "b"
+    },
+    {
+     "part": "POT_sensor2",
+     "terminal": "b"
+    },
+    {
+     "part": "BUZZ_speaker",
+     "terminal": "b"
+    }
+   ]
+  }
+ ],
+ "generated": "benchFor"
+}

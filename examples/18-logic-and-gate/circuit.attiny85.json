@@ -1,0 +1,195 @@
+{
+ "vcc": 5,
+ "parts": [
+  {
+   "id": "VCC",
+   "kind": "vcc",
+   "params": {},
+   "terminals": [
+    "vcc"
+   ]
+  },
+  {
+   "id": "GND",
+   "kind": "gnd",
+   "params": {},
+   "terminals": [
+    "gnd"
+   ]
+  },
+  {
+   "id": "MCU",
+   "kind": "attiny85",
+   "params": {},
+   "terminals": [
+    "pb2",
+    "pb3",
+    "pb0"
+   ]
+  },
+  {
+   "id": "R_PU_btnA",
+   "kind": "resistor",
+   "params": {
+    "ohms": 10000
+   },
+   "terminals": [
+    "a",
+    "b"
+   ]
+  },
+  {
+   "id": "BTN_btnA",
+   "kind": "button",
+   "params": {},
+   "terminals": [
+    "a",
+    "b"
+   ]
+  },
+  {
+   "id": "R_PU_btnB",
+   "kind": "resistor",
+   "params": {
+    "ohms": 10000
+   },
+   "terminals": [
+    "a",
+    "b"
+   ]
+  },
+  {
+   "id": "BTN_btnB",
+   "kind": "button",
+   "params": {},
+   "terminals": [
+    "a",
+    "b"
+   ]
+  },
+  {
+   "id": "R_led1",
+   "kind": "resistor",
+   "params": {
+    "ohms": 1000
+   },
+   "terminals": [
+    "a",
+    "b"
+   ]
+  },
+  {
+   "id": "LED_led1",
+   "kind": "led",
+   "params": {
+    "vf": 2,
+    "color": "red"
+   },
+   "terminals": [
+    "anode",
+    "cathode"
+   ]
+  }
+ ],
+ "nets": [
+  {
+   "id": "net_btnA_pin",
+   "terminals": [
+    {
+     "part": "R_PU_btnA",
+     "terminal": "b"
+    },
+    {
+     "part": "BTN_btnA",
+     "terminal": "a"
+    },
+    {
+     "part": "MCU",
+     "terminal": "pb2"
+    }
+   ]
+  },
+  {
+   "id": "net_btnB_pin",
+   "terminals": [
+    {
+     "part": "R_PU_btnB",
+     "terminal": "b"
+    },
+    {
+     "part": "BTN_btnB",
+     "terminal": "a"
+    },
+    {
+     "part": "MCU",
+     "terminal": "pb3"
+    }
+   ]
+  },
+  {
+   "id": "net_led1_pin_r",
+   "terminals": [
+    {
+     "part": "MCU",
+     "terminal": "pb0"
+    },
+    {
+     "part": "R_led1",
+     "terminal": "a"
+    }
+   ]
+  },
+  {
+   "id": "net_led1_r_led",
+   "terminals": [
+    {
+     "part": "R_led1",
+     "terminal": "b"
+    },
+    {
+     "part": "LED_led1",
+     "terminal": "anode"
+    }
+   ]
+  },
+  {
+   "id": "net_vcc",
+   "terminals": [
+    {
+     "part": "VCC",
+     "terminal": "vcc"
+    },
+    {
+     "part": "R_PU_btnA",
+     "terminal": "a"
+    },
+    {
+     "part": "R_PU_btnB",
+     "terminal": "a"
+    }
+   ]
+  },
+  {
+   "id": "net_gnd",
+   "terminals": [
+    {
+     "part": "GND",
+     "terminal": "gnd"
+    },
+    {
+     "part": "BTN_btnA",
+     "terminal": "b"
+    },
+    {
+     "part": "BTN_btnB",
+     "terminal": "b"
+    },
+    {
+     "part": "LED_led1",
+     "terminal": "cathode"
+    }
+   ]
+  }
+ ],
+ "generated": "benchFor"
+}
