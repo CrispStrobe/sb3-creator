@@ -1,0 +1,528 @@
+{
+ "vcc": 5,
+ "parts": [
+  {
+   "id": "bb1",
+   "kind": "breadboard",
+   "params": {},
+   "x": 470,
+   "y": 330,
+   "rotation": 0
+  },
+  {
+   "id": "bb2",
+   "kind": "breadboard",
+   "params": {},
+   "x": 470,
+   "y": 690,
+   "rotation": 0
+  },
+  {
+   "id": "mcu1",
+   "kind": "stc15_mcu",
+   "params": {},
+   "x": 200,
+   "y": 320,
+   "rotation": 0
+  },
+  {
+   "id": "dis1",
+   "kind": "seven_seg_3",
+   "params": {},
+   "x": 640,
+   "y": 300,
+   "rotation": 0
+  },
+  {
+   "id": "vcc1",
+   "kind": "vcc",
+   "params": {},
+   "x": 60,
+   "y": 120,
+   "rotation": 0
+  },
+  {
+   "id": "gnd1",
+   "kind": "gnd",
+   "params": {},
+   "x": 140,
+   "y": 120,
+   "rotation": 0
+  },
+  {
+   "id": "sr0",
+   "kind": "resistor",
+   "params": {
+    "ohms": 220
+   },
+   "x": 640,
+   "y": 430,
+   "rotation": 0
+  },
+  {
+   "id": "sr1",
+   "kind": "resistor",
+   "params": {
+    "ohms": 220
+   },
+   "x": 680,
+   "y": 430,
+   "rotation": 0
+  },
+  {
+   "id": "sr2",
+   "kind": "resistor",
+   "params": {
+    "ohms": 220
+   },
+   "x": 720,
+   "y": 430,
+   "rotation": 0
+  },
+  {
+   "id": "sr3",
+   "kind": "resistor",
+   "params": {
+    "ohms": 220
+   },
+   "x": 760,
+   "y": 430,
+   "rotation": 0
+  },
+  {
+   "id": "sr4",
+   "kind": "resistor",
+   "params": {
+    "ohms": 220
+   },
+   "x": 800,
+   "y": 430,
+   "rotation": 0
+  },
+  {
+   "id": "sr5",
+   "kind": "resistor",
+   "params": {
+    "ohms": 220
+   },
+   "x": 840,
+   "y": 430,
+   "rotation": 0
+  },
+  {
+   "id": "sr6",
+   "kind": "resistor",
+   "params": {
+    "ohms": 220
+   },
+   "x": 880,
+   "y": 430,
+   "rotation": 0
+  },
+  {
+   "id": "sr7",
+   "kind": "resistor",
+   "params": {
+    "ohms": 220
+   },
+   "x": 920,
+   "y": 430,
+   "rotation": 0
+  },
+  {
+   "id": "vsrc1",
+   "kind": "potentiometer",
+   "params": {
+    "ohms": 10000,
+    "position": 0.6
+   },
+   "x": 200,
+   "y": 640,
+   "rotation": 0
+  },
+  {
+   "id": "rv1",
+   "kind": "resistor",
+   "params": {
+    "ohms": 30000
+   },
+   "x": 260,
+   "y": 640,
+   "rotation": 0
+  },
+  {
+   "id": "rv2",
+   "kind": "resistor",
+   "params": {
+    "ohms": 10000
+   },
+   "x": 320,
+   "y": 640,
+   "rotation": 0
+  },
+  {
+   "id": "load1",
+   "kind": "potentiometer",
+   "params": {
+    "ohms": 100,
+    "position": 0.5
+   },
+   "x": 200,
+   "y": 760,
+   "rotation": 0
+  },
+  {
+   "id": "shunt1",
+   "kind": "resistor",
+   "params": {
+    "ohms": 0.02
+   },
+   "x": 260,
+   "y": 760,
+   "rotation": 0
+  },
+  {
+   "id": "amp1",
+   "kind": "lm358",
+   "params": {},
+   "x": 330,
+   "y": 760,
+   "rotation": 0
+  },
+  {
+   "id": "rg1",
+   "kind": "resistor",
+   "params": {
+    "ohms": 100000
+   },
+   "x": 400,
+   "y": 760,
+   "rotation": 0
+  },
+  {
+   "id": "rg2",
+   "kind": "resistor",
+   "params": {
+    "ohms": 2200
+   },
+   "x": 460,
+   "y": 760,
+   "rotation": 0
+  },
+  {
+   "id": "ntc1",
+   "kind": "ntc",
+   "params": {
+    "ohms": 10000
+   },
+   "x": 200,
+   "y": 880,
+   "rotation": 0
+  },
+  {
+   "id": "rt1",
+   "kind": "resistor",
+   "params": {
+    "ohms": 10000
+   },
+   "x": 260,
+   "y": 880,
+   "rotation": 0
+  },
+  {
+   "id": "bz1",
+   "kind": "buzzer",
+   "params": {},
+   "x": 330,
+   "y": 880,
+   "rotation": 0
+  },
+  {
+   "id": "btn1",
+   "kind": "button",
+   "params": {},
+   "x": 400,
+   "y": 880,
+   "rotation": 0
+  }
+ ],
+ "wires": [
+  {
+   "from": "mcu1",
+   "fromTerminal": "P0.0",
+   "to": "sr0",
+   "toTerminal": "a"
+  },
+  {
+   "from": "sr0",
+   "fromTerminal": "b",
+   "to": "dis1",
+   "toTerminal": "a"
+  },
+  {
+   "from": "mcu1",
+   "fromTerminal": "P0.1",
+   "to": "sr1",
+   "toTerminal": "a"
+  },
+  {
+   "from": "sr1",
+   "fromTerminal": "b",
+   "to": "dis1",
+   "toTerminal": "b"
+  },
+  {
+   "from": "mcu1",
+   "fromTerminal": "P0.2",
+   "to": "sr2",
+   "toTerminal": "a"
+  },
+  {
+   "from": "sr2",
+   "fromTerminal": "b",
+   "to": "dis1",
+   "toTerminal": "c"
+  },
+  {
+   "from": "mcu1",
+   "fromTerminal": "P0.3",
+   "to": "sr3",
+   "toTerminal": "a"
+  },
+  {
+   "from": "sr3",
+   "fromTerminal": "b",
+   "to": "dis1",
+   "toTerminal": "d"
+  },
+  {
+   "from": "mcu1",
+   "fromTerminal": "P0.4",
+   "to": "sr4",
+   "toTerminal": "a"
+  },
+  {
+   "from": "sr4",
+   "fromTerminal": "b",
+   "to": "dis1",
+   "toTerminal": "e"
+  },
+  {
+   "from": "mcu1",
+   "fromTerminal": "P0.5",
+   "to": "sr5",
+   "toTerminal": "a"
+  },
+  {
+   "from": "sr5",
+   "fromTerminal": "b",
+   "to": "dis1",
+   "toTerminal": "f"
+  },
+  {
+   "from": "mcu1",
+   "fromTerminal": "P0.6",
+   "to": "sr6",
+   "toTerminal": "a"
+  },
+  {
+   "from": "sr6",
+   "fromTerminal": "b",
+   "to": "dis1",
+   "toTerminal": "g"
+  },
+  {
+   "from": "mcu1",
+   "fromTerminal": "P0.7",
+   "to": "sr7",
+   "toTerminal": "a"
+  },
+  {
+   "from": "sr7",
+   "fromTerminal": "b",
+   "to": "dis1",
+   "toTerminal": "dp"
+  },
+  {
+   "from": "mcu1",
+   "fromTerminal": "P2.0",
+   "to": "dis1",
+   "toTerminal": "com0"
+  },
+  {
+   "from": "mcu1",
+   "fromTerminal": "P2.1",
+   "to": "dis1",
+   "toTerminal": "com1"
+  },
+  {
+   "from": "mcu1",
+   "fromTerminal": "P2.2",
+   "to": "dis1",
+   "toTerminal": "com2"
+  },
+  {
+   "from": "vcc1",
+   "fromTerminal": "vcc",
+   "to": "vsrc1",
+   "toTerminal": "a"
+  },
+  {
+   "from": "vsrc1",
+   "fromTerminal": "b",
+   "to": "gnd1",
+   "toTerminal": "gnd"
+  },
+  {
+   "from": "vsrc1",
+   "fromTerminal": "wiper",
+   "to": "rv1",
+   "toTerminal": "a"
+  },
+  {
+   "from": "rv1",
+   "fromTerminal": "b",
+   "to": "rv2",
+   "toTerminal": "a"
+  },
+  {
+   "from": "rv2",
+   "fromTerminal": "b",
+   "to": "gnd1",
+   "toTerminal": "gnd"
+  },
+  {
+   "from": "rv1",
+   "fromTerminal": "b",
+   "to": "mcu1",
+   "toTerminal": "P1.0"
+  },
+  {
+   "from": "vcc1",
+   "fromTerminal": "vcc",
+   "to": "load1",
+   "toTerminal": "a"
+  },
+  {
+   "from": "load1",
+   "fromTerminal": "wiper",
+   "to": "shunt1",
+   "toTerminal": "a"
+  },
+  {
+   "from": "shunt1",
+   "fromTerminal": "b",
+   "to": "gnd1",
+   "toTerminal": "gnd"
+  },
+  {
+   "from": "shunt1",
+   "fromTerminal": "a",
+   "to": "amp1",
+   "toTerminal": "1_pos"
+  },
+  {
+   "from": "amp1",
+   "fromTerminal": "1_out",
+   "to": "rg1",
+   "toTerminal": "a"
+  },
+  {
+   "from": "rg1",
+   "fromTerminal": "b",
+   "to": "amp1",
+   "toTerminal": "1_neg"
+  },
+  {
+   "from": "rg1",
+   "fromTerminal": "b",
+   "to": "rg2",
+   "toTerminal": "a"
+  },
+  {
+   "from": "rg2",
+   "fromTerminal": "b",
+   "to": "gnd1",
+   "toTerminal": "gnd"
+  },
+  {
+   "from": "amp1",
+   "fromTerminal": "1_out",
+   "to": "mcu1",
+   "toTerminal": "P1.1"
+  },
+  {
+   "from": "vcc1",
+   "fromTerminal": "vcc",
+   "to": "amp1",
+   "toTerminal": "vcc"
+  },
+  {
+   "from": "gnd1",
+   "fromTerminal": "gnd",
+   "to": "amp1",
+   "toTerminal": "gnd"
+  },
+  {
+   "from": "vcc1",
+   "fromTerminal": "vcc",
+   "to": "ntc1",
+   "toTerminal": "a"
+  },
+  {
+   "from": "ntc1",
+   "fromTerminal": "b",
+   "to": "rt1",
+   "toTerminal": "a"
+  },
+  {
+   "from": "rt1",
+   "fromTerminal": "b",
+   "to": "gnd1",
+   "toTerminal": "gnd"
+  },
+  {
+   "from": "ntc1",
+   "fromTerminal": "b",
+   "to": "mcu1",
+   "toTerminal": "P1.2"
+  },
+  {
+   "from": "mcu1",
+   "fromTerminal": "P5.5",
+   "to": "bz1",
+   "toTerminal": "a"
+  },
+  {
+   "from": "bz1",
+   "fromTerminal": "b",
+   "to": "gnd1",
+   "toTerminal": "gnd"
+  },
+  {
+   "from": "vcc1",
+   "fromTerminal": "vcc",
+   "to": "mcu1",
+   "toTerminal": "VCC"
+  },
+  {
+   "from": "gnd1",
+   "fromTerminal": "gnd",
+   "to": "mcu1",
+   "toTerminal": "GND"
+  },
+  {
+   "from": "mcu1",
+   "fromTerminal": "P3.2",
+   "to": "btn1",
+   "toTerminal": "a"
+  },
+  {
+   "from": "btn1",
+   "fromTerminal": "b",
+   "to": "gnd1",
+   "toTerminal": "gnd"
+  }
+ ],
+ "holeWires": []
+}

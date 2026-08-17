@@ -10,7 +10,8 @@
   "files": {
    "circuit": "eater6502-contention-bug/circuit.json",
    "intro": "eater6502-contention-bug/intro.md",
-   "introDE": "eater6502-contention-bug/intro.de.md"
+   "introDE": "eater6502-contention-bug/intro.de.md",
+   "expected": "eater6502-contention-bug/EXPECTED.md"
   },
   "kind": "circuit",
   "devices": [
@@ -1502,6 +1503,23 @@
    "pico": "50-7seg-chase/circuit.pico.json",
    "stc12c5a60s2": "50-7seg-chase/circuit.stc12c5a60s2.json",
    "stc89c52rc": "50-7seg-chase/circuit.stc89c52rc.json"
+  }
+ },
+ {
+  "id": "51-tft-pixels",
+  "title": {
+   "en": "ILI9341 TFT: first pixels",
+   "de": "ILI9341-TFT: erste Pixel"
+  },
+  "kind": "full",
+  "category": "digital",
+  "difficulty": 3,
+  "files": {
+   "program": "51-tft-pixels/program.bw",
+   "circuit": "51-tft-pixels/circuit.json",
+   "expected": "51-tft-pixels/EXPECTED.md",
+   "intro": "51-tft-pixels/intro.md",
+   "introDE": "51-tft-pixels/intro.de.md"
   }
  },
  {
@@ -4600,7 +4618,8 @@
   "files": {
    "circuit": "ttl-clock-module/circuit.json",
    "intro": "ttl-clock-module/intro.md",
-   "introDE": "ttl-clock-module/intro.de.md"
+   "introDE": "ttl-clock-module/intro.de.md",
+   "expected": "ttl-clock-module/EXPECTED.md"
   },
   "kind": "circuit"
  },
@@ -5265,6 +5284,23 @@
    "pico": "75-battery-tester/circuit.pico.json",
    "stc12c5a60s2": "75-battery-tester/circuit.stc12c5a60s2.json",
    "stc15f2k60s2": "75-battery-tester/circuit.stc15f2k60s2.json"
+  }
+ },
+ {
+  "id": "76-multimeter",
+  "title": {
+   "en": "Bausatz Multimeter (HU-050)",
+   "de": "Bausatz-Multimeter (HU-050)"
+  },
+  "kind": "full",
+  "category": "analog",
+  "difficulty": 4,
+  "files": {
+   "program": "76-multimeter/program.bw",
+   "circuit": "76-multimeter/circuit.json",
+   "expected": "76-multimeter/EXPECTED.md",
+   "intro": "76-multimeter/intro.md",
+   "introDE": "76-multimeter/intro.de.md"
   }
  }
 ]

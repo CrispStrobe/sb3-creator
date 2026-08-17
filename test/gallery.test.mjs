@@ -15,7 +15,8 @@ const EXAMPLES_DIR = join(import.meta.dirname, '..', 'examples');
 
 // Index-based circuit path lookup (WORE contract: discover via manifest, never by glob)
 const _index = JSON.parse(readFileSync(join(EXAMPLES_DIR, 'index.json'), 'utf8'));
-const _indexByDir = new Map(_index.map(e => [e.files?.program?.split('/')[0], e]));
+const _indexByDir = new Map(_index.map(e =>
+    [(e.files?.program ?? e.files?.circuit)?.split('/')[0], e]));
 function circuitPathFor(dir, name) {
     const entry = _indexByDir.get(name);
     if (entry?.files?.circuit) return join(EXAMPLES_DIR, entry.files.circuit);
@@ -26,6 +27,11 @@ function circuitPathFor(dir, name) {
 const examples = readdirSync(EXAMPLES_DIR, { withFileTypes: true })
     .filter(d => d.isDirectory())
     .map(d => d.name)
+    // AUDIT is the auditors' workspace (findings ledgers, sweep notes) —
+    // it is not an example and is not enrolled in index.json. Gate only
+    // directories that are examples: enrolled, or carrying a program.bw.
+    .filter(name => _indexByDir.has(name)
+        || existsSync(join(EXAMPLES_DIR, name, 'program.bw')))
     .sort();
 
 describe('gallery: every example parses and compiles', () => {
@@ -34,8 +40,13 @@ describe('gallery: every example parses and compiles', () => {
         const bwPath = join(dir, 'program.bw');
         const circuitPath = circuitPathFor(dir, name);
         const expectedPath = join(dir, 'EXPECTED.md');
+        // Circuit-only examples (enrolled without files.program: contention
+        // lessons, TTL modules) have no program to gate — the program-side
+        // tests are skipped for them; circuit + EXPECTED still run below.
+        const hasProgram = existsSync(bwPath)
+            || !!_indexByDir.get(name)?.files?.program;
 
-        test(`${name}: program.bw parses with zero warnings`, () => {
+        test(`${name}: program.bw parses with zero warnings`, { skip: !hasProgram }, () => {
             assert.ok(existsSync(bwPath), `${name}/program.bw missing`);
             const src = readFileSync(bwPath, 'utf8');
             const c = new SB3Creator();
@@ -43,7 +54,7 @@ describe('gallery: every example parses and compiles', () => {
             assert.deepEqual(c.warnings, [], `${name} parse warnings`);
         });
 
-        test(`${name}: generates C with zero warnings`, () => {
+        test(`${name}: generates C with zero warnings`, { skip: !hasProgram }, () => {
             const src = readFileSync(bwPath, 'utf8');
             const c = new SB3Creator();
             c.parse(src);
@@ -52,7 +63,7 @@ describe('gallery: every example parses and compiles', () => {
             assert.ok(!/@bw-end/.test(code) || /@bw-begin/.test(code), 'marker header present');
         });
 
-        test(`${name}: C round-trips back to pseudocode`, () => {
+        test(`${name}: C round-trips back to pseudocode`, { skip: !hasProgram }, () => {
             const src = readFileSync(bwPath, 'utf8');
             const c = new SB3Creator();
             c.parse(src);
@@ -70,7 +81,7 @@ describe('gallery: every example parses and compiles', () => {
             assert.deepEqual(c2.warnings, [], `${name} recompile warnings`);
         });
 
-        test(`${name}: pseudocode → C → pseudocode is a fixed point`, () => {
+        test(`${name}: pseudocode → C → pseudocode is a fixed point`, { skip: !hasProgram }, () => {
             const src = readFileSync(bwPath, 'utf8');
             const c1 = new SB3Creator();
             c1.parse(src);
@@ -84,7 +95,7 @@ describe('gallery: every example parses and compiles', () => {
             assert.equal(ps2, ps1, `${name} is not a fixed point`);
         });
 
-        test(`${name}: generates JavaScript with simulator driver`, () => {
+        test(`${name}: generates JavaScript with simulator driver`, { skip: !hasProgram }, () => {
             const src = readFileSync(bwPath, 'utf8');
             const c = new SB3Creator();
             c.parse(src);
@@ -149,7 +160,7 @@ describe('gallery: index.json is valid and covers every example', () => {
             assert.ok(CATEGORIES.has(entry.category), `category "${entry.category}" not in ${[...CATEGORIES]}`);
             assert.ok(typeof entry.difficulty === 'number' && entry.difficulty >= 1 && entry.difficulty <= 5, 'difficulty 1-5');
             assert.ok(KINDS.has(entry.kind), `kind "${entry.kind}" not in ${[...KINDS]}`);
-            assert.ok(entry.files?.program, 'files.program');
+            assert.ok(entry.files?.program || entry.files?.circuit, 'files.program or files.circuit');
             assert.ok(entry.files?.circuit, 'files.circuit');
             assert.ok(entry.files?.expected, 'files.expected');
         }
@@ -157,7 +168,7 @@ describe('gallery: index.json is valid and covers every example', () => {
 
     test('every example directory is in the index', () => {
         const index = JSON.parse(readFileSync(indexPath, 'utf8'));
-        const indexDirs = new Set(index.map(e => e.files.program.split('/')[0]));
+        const indexDirs = new Set(index.map(e => (e.files.program ?? e.files.circuit).split('/')[0]));
         for (const name of examples) {
             assert.ok(indexDirs.has(name), `${name} is missing from index.json`);
         }
@@ -182,14 +193,15 @@ describe('gallery: index.json is valid and covers every example', () => {
 
 describe('gallery: determinism — same input, same output, twice', () => {
     for (const name of examples) {
-        test(`${name}: two compiles produce identical C`, () => {
+        const hasProgram = existsSync(join(EXAMPLES_DIR, name, 'program.bw'));
+        test(`${name}: two compiles produce identical C`, { skip: !hasProgram }, () => {
             const src = readFileSync(join(EXAMPLES_DIR, name, 'program.bw'), 'utf8');
             const c1 = new SB3Creator(); c1.parse(src);
             const c2 = new SB3Creator(); c2.parse(src);
             assert.equal(c1.generateC(), c2.generateC());
         });
 
-        test(`${name}: two compiles produce identical JS`, () => {
+        test(`${name}: two compiles produce identical JS`, { skip: !hasProgram }, () => {
             const src = readFileSync(join(EXAMPLES_DIR, name, 'program.bw'), 'utf8');
             const c1 = new SB3Creator(); c1.parse(src);
             const c2 = new SB3Creator(); c2.parse(src);
