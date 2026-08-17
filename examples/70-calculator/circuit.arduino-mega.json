@@ -59,10 +59,10 @@
    "y": 60
   },
   {
-   "id": "R_PU_col0",
+   "id": "R_PU_sda",
    "kind": "resistor",
    "params": {
-    "ohms": 10000
+    "ohms": 4700
    },
    "terminals": [
     "a",
@@ -79,10 +79,10 @@
    "y": 255
   },
   {
-   "id": "R_PU_col1",
+   "id": "R_PU_scl",
    "kind": "resistor",
    "params": {
-    "ohms": 10000
+    "ohms": 4700
    },
    "terminals": [
     "a",
@@ -99,7 +99,7 @@
    "y": 255
   },
   {
-   "id": "R_PU_col2",
+   "id": "R_PU_col0",
    "kind": "resistor",
    "params": {
     "ohms": 10000
@@ -119,7 +119,7 @@
    "y": 255
   },
   {
-   "id": "R_PU_col3",
+   "id": "R_PU_col1",
    "kind": "resistor",
    "params": {
     "ohms": 10000
@@ -139,61 +139,47 @@
    "y": 255
   },
   {
+   "id": "R_PU_col2",
+   "kind": "resistor",
+   "params": {
+    "ohms": 10000
+   },
+   "terminals": [
+    "a",
+    "b"
+   ],
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a27",
+     "b": "a31"
+    }
+   },
+   "x": 400,
+   "y": 255
+  },
+  {
+   "id": "R_PU_col3",
+   "kind": "resistor",
+   "params": {
+    "ohms": 10000
+   },
+   "terminals": [
+    "a",
+    "b"
+   ],
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a33",
+     "b": "a37"
+    }
+   },
+   "x": 484,
+   "y": 255
+  },
+  {
    "id": "BTN_row0_col0",
-   "kind": "button",
-   "params": {},
-   "terminals": [
-    "a",
-    "b"
-   ],
-   "seat": {
-    "boardId": "bb1",
-    "leadMap": {
-     "a": "e32",
-     "b": "f32"
-    }
-   },
-   "x": 470,
-   "y": 311
-  },
-  {
-   "id": "BTN_row0_col1",
-   "kind": "button",
-   "params": {},
-   "terminals": [
-    "a",
-    "b"
-   ],
-   "seat": {
-    "boardId": "bb1",
-    "leadMap": {
-     "a": "e36",
-     "b": "f36"
-    }
-   },
-   "x": 526,
-   "y": 311
-  },
-  {
-   "id": "BTN_row0_col2",
-   "kind": "button",
-   "params": {},
-   "terminals": [
-    "a",
-    "b"
-   ],
-   "seat": {
-    "boardId": "bb1",
-    "leadMap": {
-     "a": "e40",
-     "b": "f40"
-    }
-   },
-   "x": 582,
-   "y": 311
-  },
-  {
-   "id": "BTN_row0_col3",
    "kind": "button",
    "params": {},
    "terminals": [
@@ -211,7 +197,7 @@
    "y": 311
   },
   {
-   "id": "BTN_row1_col0",
+   "id": "BTN_row0_col1",
    "kind": "button",
    "params": {},
    "terminals": [
@@ -229,7 +215,7 @@
    "y": 311
   },
   {
-   "id": "BTN_row1_col1",
+   "id": "BTN_row0_col2",
    "kind": "button",
    "params": {},
    "terminals": [
@@ -247,7 +233,7 @@
    "y": 311
   },
   {
-   "id": "BTN_row1_col2",
+   "id": "BTN_row0_col3",
    "kind": "button",
    "params": {},
    "terminals": [
@@ -265,7 +251,7 @@
    "y": 311
   },
   {
-   "id": "BTN_row1_col3",
+   "id": "BTN_row1_col0",
    "kind": "button",
    "params": {},
    "terminals": [
@@ -283,7 +269,7 @@
    "y": 311
   },
   {
-   "id": "BTN_row2_col0",
+   "id": "BTN_row1_col1",
    "kind": "button",
    "params": {},
    "terminals": [
@@ -301,7 +287,7 @@
    "y": 671
   },
   {
-   "id": "BTN_row2_col1",
+   "id": "BTN_row1_col2",
    "kind": "button",
    "params": {},
    "terminals": [
@@ -319,7 +305,7 @@
    "y": 671
   },
   {
-   "id": "BTN_row2_col2",
+   "id": "BTN_row1_col3",
    "kind": "button",
    "params": {},
    "terminals": [
@@ -337,7 +323,7 @@
    "y": 671
   },
   {
-   "id": "BTN_row2_col3",
+   "id": "BTN_row2_col0",
    "kind": "button",
    "params": {},
    "terminals": [
@@ -355,7 +341,7 @@
    "y": 671
   },
   {
-   "id": "BTN_row3_col0",
+   "id": "BTN_row2_col1",
    "kind": "button",
    "params": {},
    "terminals": [
@@ -373,7 +359,7 @@
    "y": 671
   },
   {
-   "id": "BTN_row3_col1",
+   "id": "BTN_row2_col2",
    "kind": "button",
    "params": {},
    "terminals": [
@@ -391,7 +377,7 @@
    "y": 671
   },
   {
-   "id": "BTN_row3_col2",
+   "id": "BTN_row2_col3",
    "kind": "button",
    "params": {},
    "terminals": [
@@ -409,7 +395,7 @@
    "y": 671
   },
   {
-   "id": "BTN_row3_col3",
+   "id": "BTN_row3_col0",
    "kind": "button",
    "params": {},
    "terminals": [
@@ -427,6 +413,60 @@
    "y": 671
   },
   {
+   "id": "BTN_row3_col1",
+   "kind": "button",
+   "params": {},
+   "terminals": [
+    "a",
+    "b"
+   ],
+   "seat": {
+    "boardId": "bb2",
+    "leadMap": {
+     "a": "e35",
+     "b": "f35"
+    }
+   },
+   "x": 512,
+   "y": 671
+  },
+  {
+   "id": "BTN_row3_col2",
+   "kind": "button",
+   "params": {},
+   "terminals": [
+    "a",
+    "b"
+   ],
+   "seat": {
+    "boardId": "bb2",
+    "leadMap": {
+     "a": "e39",
+     "b": "f39"
+    }
+   },
+   "x": 568,
+   "y": 671
+  },
+  {
+   "id": "BTN_row3_col3",
+   "kind": "button",
+   "params": {},
+   "terminals": [
+    "a",
+    "b"
+   ],
+   "seat": {
+    "boardId": "bb2",
+    "leadMap": {
+     "a": "e43",
+     "b": "f43"
+    }
+   },
+   "x": 624,
+   "y": 671
+  },
+  {
    "id": "OLED",
    "kind": "ssd1306",
    "params": {},
@@ -439,13 +479,13 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "vcc": "a27",
-     "gnd": "a28",
-     "sda": "a29",
-     "scl": "a30"
+     "vcc": "a39",
+     "gnd": "a40",
+     "sda": "a41",
+     "scl": "a42"
     }
    },
-   "x": 400,
+   "x": 568,
    "y": 255
   }
  ],
@@ -453,8 +493,20 @@
   {
    "from": "MCU",
    "fromTerminal": "d13",
+   "to": "R_PU_sda",
+   "toTerminal": "b"
+  },
+  {
+   "from": "MCU",
+   "fromTerminal": "d13",
    "to": "OLED",
    "toTerminal": "sda"
+  },
+  {
+   "from": "MCU",
+   "fromTerminal": "d22",
+   "to": "R_PU_scl",
+   "toTerminal": "b"
   },
   {
    "from": "MCU",
@@ -681,6 +733,18 @@
   {
    "from": "VCC",
    "fromTerminal": "vcc",
+   "to": "R_PU_sda",
+   "toTerminal": "a"
+  },
+  {
+   "from": "VCC",
+   "fromTerminal": "vcc",
+   "to": "R_PU_scl",
+   "toTerminal": "a"
+  },
+  {
+   "from": "VCC",
+   "fromTerminal": "vcc",
    "to": "R_PU_col0",
    "toTerminal": "a"
   },
@@ -774,22 +838,36 @@
   {
    "ref": "bbw:bb1:gen_5",
    "boardId": "bb1",
-   "a": "b28",
-   "b": "b-28",
-   "color": "black"
+   "a": "b33",
+   "b": "t+33",
+   "color": "red"
   },
   {
    "ref": "bbw:bb1:gen_6",
    "boardId": "bb1",
-   "a": "c27",
-   "b": "t+27",
+   "a": "b39",
+   "b": "t+39",
    "color": "red"
   },
   {
    "ref": "bbw:bb1:gen_7",
    "boardId": "bb1",
-   "a": "c28",
-   "b": "b-28",
+   "a": "b40",
+   "b": "b-40",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb1:gen_8",
+   "boardId": "bb1",
+   "a": "c39",
+   "b": "t+39",
+   "color": "red"
+  },
+  {
+   "ref": "bbw:bb1:gen_9",
+   "boardId": "bb1",
+   "a": "c40",
+   "b": "b-40",
    "color": "black"
   }
  ],

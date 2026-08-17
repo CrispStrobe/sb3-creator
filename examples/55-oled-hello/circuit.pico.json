@@ -67,6 +67,46 @@
    "y": 255
   },
   {
+   "id": "R_PU_sda",
+   "kind": "resistor",
+   "params": {
+    "ohms": 4700
+   },
+   "terminals": [
+    "a",
+    "b"
+   ],
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a26",
+     "b": "a30"
+    }
+   },
+   "x": 386,
+   "y": 255
+  },
+  {
+   "id": "R_PU_scl",
+   "kind": "resistor",
+   "params": {
+    "ohms": 4700
+   },
+   "terminals": [
+    "a",
+    "b"
+   ],
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a32",
+     "b": "a36"
+    }
+   },
+   "x": 470,
+   "y": 255
+  },
+  {
    "id": "OLED",
    "kind": "ssd1306",
    "params": {},
@@ -79,17 +119,23 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "vcc": "a26",
-     "gnd": "a27",
-     "sda": "a28",
-     "scl": "a29"
+     "vcc": "a38",
+     "gnd": "a39",
+     "sda": "a40",
+     "scl": "a41"
     }
    },
-   "x": 386,
+   "x": 554,
    "y": 255
   }
  ],
  "wires": [
+  {
+   "from": "MCU",
+   "fromTerminal": "gp25",
+   "to": "R_PU_sda",
+   "toTerminal": "b"
+  },
   {
    "from": "MCU",
    "fromTerminal": "gp25",
@@ -99,8 +145,26 @@
   {
    "from": "MCU",
    "fromTerminal": "gp15",
+   "to": "R_PU_scl",
+   "toTerminal": "b"
+  },
+  {
+   "from": "MCU",
+   "fromTerminal": "gp15",
    "to": "OLED",
    "toTerminal": "scl"
+  },
+  {
+   "from": "VCC",
+   "fromTerminal": "vcc",
+   "to": "R_PU_sda",
+   "toTerminal": "a"
+  },
+  {
+   "from": "VCC",
+   "fromTerminal": "vcc",
+   "to": "R_PU_scl",
+   "toTerminal": "a"
   },
   {
    "from": "VCC",
@@ -146,22 +210,36 @@
   {
    "ref": "bbw:bb1:gen_1",
    "boardId": "bb1",
-   "a": "b27",
-   "b": "b-27",
-   "color": "black"
+   "a": "b32",
+   "b": "t+32",
+   "color": "red"
   },
   {
    "ref": "bbw:bb1:gen_2",
    "boardId": "bb1",
-   "a": "c26",
-   "b": "t+26",
+   "a": "b38",
+   "b": "t+38",
    "color": "red"
   },
   {
    "ref": "bbw:bb1:gen_3",
    "boardId": "bb1",
-   "a": "c27",
-   "b": "b-27",
+   "a": "b39",
+   "b": "b-39",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb1:gen_4",
+   "boardId": "bb1",
+   "a": "c38",
+   "b": "t+38",
+   "color": "red"
+  },
+  {
+   "ref": "bbw:bb1:gen_5",
+   "boardId": "bb1",
+   "a": "c39",
+   "b": "b-39",
    "color": "black"
   }
  ],

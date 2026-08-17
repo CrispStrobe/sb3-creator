@@ -88,6 +88,46 @@
    "y": 349
   },
   {
+   "id": "R_PU_sda",
+   "kind": "resistor",
+   "params": {
+    "ohms": 4700
+   },
+   "terminals": [
+    "a",
+    "b"
+   ],
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a26",
+     "b": "a30"
+    }
+   },
+   "x": 386,
+   "y": 255
+  },
+  {
+   "id": "R_PU_scl",
+   "kind": "resistor",
+   "params": {
+    "ohms": 4700
+   },
+   "terminals": [
+    "a",
+    "b"
+   ],
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a32",
+     "b": "a36"
+    }
+   },
+   "x": 470,
+   "y": 255
+  },
+  {
    "id": "POT_probe",
    "kind": "potentiometer",
    "params": {
@@ -101,12 +141,12 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a26",
-     "wiper": "a28",
-     "b": "a30"
+     "a": "a38",
+     "wiper": "a40",
+     "b": "a42"
     }
    },
-   "x": 386,
+   "x": 554,
    "y": 255
   },
   {
@@ -122,13 +162,13 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "vcc": "a32",
-     "gnd": "a33",
-     "sda": "a34",
-     "scl": "a35"
+     "vcc": "a44",
+     "gnd": "a45",
+     "sda": "a46",
+     "scl": "a47"
     }
    },
-   "x": 470,
+   "x": 638,
    "y": 255
   }
  ],
@@ -136,8 +176,20 @@
   {
    "from": "MCU",
    "fromTerminal": "P1.0",
+   "to": "R_PU_sda",
+   "toTerminal": "b"
+  },
+  {
+   "from": "MCU",
+   "fromTerminal": "P1.0",
    "to": "OLED",
    "toTerminal": "sda"
+  },
+  {
+   "from": "MCU",
+   "fromTerminal": "P1.1",
+   "to": "R_PU_scl",
+   "toTerminal": "b"
   },
   {
    "from": "MCU",
@@ -150,6 +202,18 @@
    "fromTerminal": "wiper",
    "to": "MCU",
    "toTerminal": "P1.3"
+  },
+  {
+   "from": "VCC",
+   "fromTerminal": "vcc",
+   "to": "R_PU_sda",
+   "toTerminal": "a"
+  },
+  {
+   "from": "VCC",
+   "fromTerminal": "vcc",
+   "to": "R_PU_scl",
+   "toTerminal": "a"
   },
   {
    "from": "VCC",
@@ -201,77 +265,105 @@
    "ref": "bbw:bb1:gen_0",
    "boardId": "bb1",
    "a": "g3",
-   "b": "b34",
+   "b": "b30",
    "color": "green"
   },
   {
    "ref": "bbw:bb1:gen_1",
    "boardId": "bb1",
-   "a": "g4",
-   "b": "b35",
+   "a": "h3",
+   "b": "b46",
    "color": "blue"
   },
   {
    "ref": "bbw:bb1:gen_2",
    "boardId": "bb1",
-   "a": "b28",
-   "b": "g6",
+   "a": "g4",
+   "b": "b36",
    "color": "yellow"
   },
   {
    "ref": "bbw:bb1:gen_3",
+   "boardId": "bb1",
+   "a": "h4",
+   "b": "b47",
+   "color": "orange"
+  },
+  {
+   "ref": "bbw:bb1:gen_4",
+   "boardId": "bb1",
+   "a": "b40",
+   "b": "g6",
+   "color": "purple"
+  },
+  {
+   "ref": "bbw:bb1:gen_5",
    "boardId": "bb1",
    "a": "b26",
    "b": "t+26",
    "color": "red"
   },
   {
-   "ref": "bbw:bb1:gen_4",
+   "ref": "bbw:bb1:gen_6",
    "boardId": "bb1",
    "a": "b32",
    "b": "t+32",
    "color": "red"
   },
   {
-   "ref": "bbw:bb1:gen_5",
-   "boardId": "bb1",
-   "a": "b30",
-   "b": "b-30",
-   "color": "black"
-  },
-  {
-   "ref": "bbw:bb1:gen_6",
-   "boardId": "bb1",
-   "a": "b33",
-   "b": "b-33",
-   "color": "black"
-  },
-  {
    "ref": "bbw:bb1:gen_7",
+   "boardId": "bb1",
+   "a": "b38",
+   "b": "t+38",
+   "color": "red"
+  },
+  {
+   "ref": "bbw:bb1:gen_8",
+   "boardId": "bb1",
+   "a": "b44",
+   "b": "t+44",
+   "color": "red"
+  },
+  {
+   "ref": "bbw:bb1:gen_9",
+   "boardId": "bb1",
+   "a": "b42",
+   "b": "b-42",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb1:gen_10",
+   "boardId": "bb1",
+   "a": "b45",
+   "b": "b-45",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb1:gen_11",
    "boardId": "bb1",
    "a": "g22",
    "b": "b-22",
    "color": "black"
   },
   {
-   "ref": "bbw:bb1:gen_8",
+   "ref": "bbw:bb1:gen_12",
    "boardId": "bb1",
    "a": "a3",
    "b": "t+3",
    "color": "red"
   },
   {
-   "ref": "bbw:bb1:gen_9",
+   "ref": "bbw:bb1:gen_13",
    "boardId": "bb1",
-   "a": "c32",
-   "b": "t+32",
+   "a": "c44",
+   "b": "t+44",
    "color": "red"
   },
   {
-   "ref": "bbw:bb1:gen_10",
+   "ref": "bbw:bb1:gen_14",
    "boardId": "bb1",
-   "a": "c33",
-   "b": "b-33",
+   "a": "c45",
+   "b": "b-45",
    "color": "black"
   }
  ],
