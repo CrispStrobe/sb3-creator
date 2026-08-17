@@ -28,3 +28,9 @@ part of the example behaves and is worth reading.
 oscillator sounds continuously at its rated tone (default 2400 Hz) when powered
 with DC above ~2 V. This is the correct behaviour for an active buzzer: it
 has its own oscillator inside, so connecting it to DC is all it takes.
+
+```assert
+# 5V -> 100R -> buzzer(100R model): half divider, 2.5V at junction
+net vsource_1.pos V 5.00 +-0.01
+net resistor_2.b V 2.50 +-0.10
+```

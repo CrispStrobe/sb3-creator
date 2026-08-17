@@ -30,3 +30,8 @@ winding. That current is why the bound sits near 10 V rather than at one diode
 drop: this engine's diode has a 10 Ω dynamic resistance, so 0.9 A through it
 costs 0.7 V + 9 V. Real silicon diodes are far stiffer. The lesson is
 *bounded versus unbounded*, not the exact bound.
+
+```assert
+# Motor running: 9V supply, steady state at switched node ~ 9V
+net src.pos V 9.00 +-0.01
+```

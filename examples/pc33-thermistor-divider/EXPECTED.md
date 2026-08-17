@@ -19,3 +19,9 @@ The values are exact against the divider formula because nothing loads the
 junction. The resistance follows `rCold · (rHot/rCold)^t`, which is why the
 midpoint lands on the *geometric* mean of 1 kΩ and 100 kΩ — 10 kΩ — and gives
 exactly half the supply.
+
+```assert
+# NTC divider at default (cold): 5 * 10k/(100k+10k) = 0.45V
+net src.pos V 5.00 +-0.01
+net r1.a V 0.45 +-0.10
+```

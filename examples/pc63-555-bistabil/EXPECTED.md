@@ -13,3 +13,8 @@ VCC (5 V) → 555 timer (bistable mode). Set button grounds trigger (pin 2). Res
 1. 555 bistable mode: trigger sets, threshold resets, no RC timing
 2. Output drives an LED through a current-limiting resistor
 3. State memory without software
+
+```assert
+# 555 bistable: VCC = 5V, output holds state (set/reset by buttons)
+net vcc_1.pos V 5.00 +-0.01
+```

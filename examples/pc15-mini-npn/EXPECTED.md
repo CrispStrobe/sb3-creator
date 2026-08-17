@@ -45,3 +45,9 @@ NPN is saturated as expected: V_ce = 0.20 V, LED forward drop 2.06 V,
 I_c = (5.0 − 2.26 − 0.20) / 470 = **5.40 mA**. The hand estimate of 5.96 mA
 used ideal drops; the Shockley model raises them slightly, reducing the current
 by about 10 % — the same pattern as every other LED example in the gallery.
+
+```assert
+# NPN saturated: Vbe ~ 0.70V, Vce ~ 0.20V
+net vsource_2.pos V 5.00 +-0.01
+net npn_5.base V 0.70 +-0.10
+```

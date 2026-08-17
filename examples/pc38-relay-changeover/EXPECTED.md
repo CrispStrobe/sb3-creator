@@ -24,3 +24,8 @@ The 2.0000 V reading on the *idle* contact is not a live signal: it is the
 disconnected LED branch floating at its own forward voltage with no current
 flowing. Read the current, not the voltage, to tell an indicator apart from
 an artefact.
+
+```assert
+# Relay changeover: coil off -> NC contact closed, NO open
+net src.pos V 5.00 +-0.01
+```

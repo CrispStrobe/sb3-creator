@@ -6,3 +6,8 @@
 ## Expected
 - Each: I = (5.0 - 2.0) / 470 ≈ 6.4 mA
 - Total: 12.8 mA
+
+```assert
+# 5V, two parallel LED branches through 470R each
+net vsource_1.pos V 5.00 +-0.01
+```

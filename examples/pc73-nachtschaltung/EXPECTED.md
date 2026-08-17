@@ -13,3 +13,8 @@ VCC → 10 kΩ → junction → LDR → GND. Junction → NPN base. VCC → 470 
 1. Swapping LDR and resistor inverts the light response
 2. Same components, opposite behaviour — divider position matters
 3. Night light turns on automatically in darkness
+
+```assert
+# Night circuit: R upper, LDR lower. Dark -> base HIGH -> LED on
+net vcc_1.pos V 5.00 +-0.01
+```

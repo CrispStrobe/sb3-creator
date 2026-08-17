@@ -24,3 +24,8 @@ follow (63 % of 5 V after one τ). The discharge is *not* a clean exponential: t
 LED stops conducting near its 2 V forward voltage, so the curve flattens against
 that floor instead of reaching 0 V — visible in the last two rows, where the
 voltage has almost stopped falling and the current has all but gone.
+
+```assert
+# Charge/discharge circuit: supply 5V, tau = 1k * 1000uF = 1s
+net src.pos V 5.00 +-0.01
+```

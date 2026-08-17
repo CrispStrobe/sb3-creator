@@ -12,3 +12,8 @@ Same as mini-roulette but tilt_sensor on reset instead of button. 6 LEDs (q0–q
 1. Tilt sensor as a shake trigger
 2. 6-position wheel via q6→reset feedback
 3. Same RC slowdown principle as roulette
+
+```assert
+# 555+CD4017 wheel: VCC = 5V, 6 positions (q6->reset)
+net vcc_1.pos V 5.00 +-0.01
+```

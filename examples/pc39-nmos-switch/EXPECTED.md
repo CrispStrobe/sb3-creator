@@ -31,3 +31,8 @@ terminal draws continuous base current.
 > it is chosen so the model's demanded current matches what this branch can
 > supply. Treat this example as *on versus off*, and do not read `k` as a
 > statement about any real part.
+
+```assert
+# NMOS gate low: transistor off, drain floats high
+net src.pos V 5.00 +-0.01
+```

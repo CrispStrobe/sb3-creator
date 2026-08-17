@@ -13,3 +13,10 @@
 1. Long monostable pulse: t = 1.1 × 1 MΩ × 100 µF = 110 s
 2. Same formula as short pulses — only component values differ
 3. Practical long-duration timer without software
+
+```assert
+# 555 monostable: pulse = 1.1 * 1M * 100uF = 110s
+pulse_duration_ms: 110000 ± 15%
+led_during_pulse: on
+led_idle: off
+```

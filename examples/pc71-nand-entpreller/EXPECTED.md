@@ -14,3 +14,8 @@ Two NAND gates cross-coupled (SR latch). Set and Reset buttons pull respective i
 1. NAND SR latch: S̄ active-low set, R̄ active-low reset
 2. Latch holds state after button release — eliminates bounce
 3. Cross-coupling: Q of gate 1 feeds gate 2, Q̄ of gate 2 feeds gate 1
+
+```assert
+# NAND SR latch debouncer: holds state after button release
+net vcc_1.pos V 5.00 +-0.01
+```

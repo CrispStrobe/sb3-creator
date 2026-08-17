@@ -13,3 +13,8 @@
 1. LDR replaces fixed R₂ in astable timing
 2. Frequency changes ~100× across LDR range
 3. Combines analog light sensing with 555 oscillator
+
+```assert
+# 555 astable with LDR as R2: blink rate tracks light level
+net vcc_1.pos V 5.00 +-0.01
+```

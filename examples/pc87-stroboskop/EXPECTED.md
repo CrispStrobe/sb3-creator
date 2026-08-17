@@ -16,3 +16,9 @@
 1. 555 astable duty cycle depends on R₁/(R₁+2R₂) ratio
 2. Small R₁ relative to R₂ gives lowest achievable duty without a diode
 3. Low series resistance (100 Ω) for bright strobe flash
+
+```assert
+# 555 astable strobe: f = 1.44/((1k+200k)*1uF) = 7.16 Hz
+buzzer_tone_hz: 7.16 ± 15%
+net vcc_1.pos V 5.00 +-0.01
+```

@@ -13,3 +13,8 @@ NAND gate (2-input) with both inputs tied together. Switch + 10 kΩ pull-down on
 1. NAND with tied inputs = NOT (inverter)
 2. NAND is a universal gate — every logic function can be built from it
 3. Pull-down resistor defines the default (LOW) input state
+
+```assert
+# NAND as inverter: input LOW -> output HIGH -> LED on
+net vcc_1.pos V 5.00 +-0.01
+```

@@ -33,3 +33,9 @@ With both sources off the node is at 0 V and the LED current is exactly
 0.000 mA, but `ledBrightness` still reports 0.1133: it is averaged over a
 trailing window and has not yet forgotten the lit period. Read **current** for
 an instantaneous answer, brightness for a perceptual one.
+
+```assert
+# Two diodes OR: both sources at 5V, shared node ~ 4.29V (5 - Vf_diode)
+net src_a.pos V 5.00 +-0.01
+net src_b.pos V 5.00 +-0.01
+```

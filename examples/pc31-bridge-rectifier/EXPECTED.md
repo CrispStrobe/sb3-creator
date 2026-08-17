@@ -20,3 +20,8 @@ of 0.7544 V each — the price of a bridge, and the reason a two-diode circuit i
 sometimes preferred despite needing a centre-tapped supply. The conducting pair
 is `d1`+`d4` on one polarity and `d3`+`d2` on the other; the other two diodes are
 reverse biased and idle.
+
+```assert
+# Bridge rectifier: 9V - 2*Vf(diode) = 7.49V at output
+net src.pos V 9.00 +-0.20
+```

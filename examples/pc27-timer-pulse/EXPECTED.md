@@ -30,3 +30,8 @@ capacitor every 555 datasheet puts there. On this engine it is not optional: the
 internal threshold divider is only formed when the control pin belongs to a net,
 and without it both thresholds collapse to 0 V, the flip-flop never sets, and
 the output sits at 0 V forever. See `examples/AUDIT/pc25-pc36.md`.
+
+```assert
+# 555 astable: VCC = 5V, period ~ 208ms
+net vcc1.pos V 5.00 +-0.01
+```

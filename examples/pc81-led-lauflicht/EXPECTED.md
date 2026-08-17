@@ -13,3 +13,8 @@
 1. 555 astable clocking a CD4017 decade counter
 2. One-hot sequential output pattern
 3. Counter wraps from q9 back to q0
+
+```assert
+# 555+CD4017: VCC = 5V, one LED at a time through 1k, 3mA each
+net vcc_1.pos V 5.00 +-0.01
+```

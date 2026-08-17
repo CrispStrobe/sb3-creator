@@ -13,3 +13,8 @@
 1. Astable frequency formula: f = 1.44 / ((R₁ + 2·R₂) × C)
 2. Potentiometer continuously adjusts frequency
 3. 555 output drives a buzzer directly
+
+```assert
+# 555 astable with pot: f = 1.44/((R1+2*R2)*C), pot sweeps frequency
+net vcc_1.pos V 5.00 +-0.01
+```

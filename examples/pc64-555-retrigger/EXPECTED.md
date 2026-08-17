@@ -13,3 +13,10 @@
 1. Monostable pulse duration: t = 1.1 × R × C = 1.1 s
 2. Retriggering extends the pulse by restarting the capacitor charge
 3. Pulse duration is independent of trigger pulse width
+
+```assert
+# 555 monostable: pulse = 1.1 * 100k * 10uF = 1.1s
+pulse_duration_ms: 1100 ± 15%
+led_during_pulse: on
+led_idle: off
+```

@@ -14,3 +14,8 @@ Battery: EMF = 9 V, r_internal = 1 Ω. Load: 100 Ω. Also 470 Ω + red LED indic
 1. V_terminal = EMF − I × r_internal
 2. Under load, terminal voltage is always less than EMF
 3. Internal resistance is invisible to the eye but measurable with a meter
+
+```assert
+# Battery with r_internal=1R: V_terminal = 9 - I*1 under load
+net battery_1.pos V 8.89 +-0.20
+```

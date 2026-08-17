@@ -13,3 +13,8 @@ VCC → LDR → junction → 10 kΩ → GND. Junction → NPN base. VCC → 470 
 1. LDR + resistor voltage divider controls transistor base
 2. NPN switches LED based on light level
 3. Divider ratio determines the light threshold
+
+```assert
+# Day circuit: LDR upper, R lower. Bright -> base HIGH -> LED on
+net vcc_1.pos V 5.00 +-0.01
+```

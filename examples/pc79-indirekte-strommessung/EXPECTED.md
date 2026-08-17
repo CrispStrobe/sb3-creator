@@ -14,3 +14,8 @@ Battery: EMF = 9 V, r_internal = 0.5 Ω. Series: 1 Ω shunt → 470 Ω load → 
 1. I = V_shunt / R_shunt — Ohm's law applied to current measurement
 2. Small shunt minimizes circuit disturbance
 3. Voltmeter across shunt replaces ammeter in series
+
+```assert
+# 1R shunt: V_shunt = I * 1R ~ 14.8mV, battery with r_internal=0.5R
+net battery_1.pos V 8.99 +-0.10
+```

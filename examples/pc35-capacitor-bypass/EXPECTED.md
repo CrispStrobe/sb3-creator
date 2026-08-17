@@ -26,3 +26,8 @@ digital circuits misbehave.
 > Do not try to demonstrate the reservoir by switching the board's power off:
 > `setPower(false)` currently annihilates stored capacitor charge on this engine
 > rather than leaving it to discharge. See `examples/AUDIT/pc25-pc36.md`.
+
+```assert
+# Bypass cap: steady state = plain R+LED, (5-2.03)/1k = 2.97mA
+net src.pos V 5.00 +-0.01
+```

@@ -38,3 +38,9 @@ The LDR declared `minOhms: 1000, maxOhms: 100000`. The device reads
 **`rDark` / `rLight`**, so both were silently ignored. Renamed to
 `rDark: 100000, rLight: 1000`; the base now reads 0.4545 V dark, as the
 declared parts say it should.
+
+```assert
+# LDR divider: dark = 5*10k/(100k+10k) = 0.45V at base (off)
+net vcc1.pos V 5.00 +-0.01
+net r1.a V 0.45 +-0.10
+```

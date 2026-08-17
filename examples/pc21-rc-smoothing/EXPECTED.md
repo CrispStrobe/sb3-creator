@@ -45,3 +45,8 @@ settling down are the same exponential.
   stimulus takes effect at the *previous* sample time. To make the step land at
   500 ms, 500 must be a sample and the schedule must be `--set@501`. Getting
   this backwards puts the step at t = 0 and the transient vanishes.
+
+```assert
+# RC smoothing: tau = 1k * 100uF = 100ms, supply 5V
+net src.pos V 5.00 +-0.01
+```

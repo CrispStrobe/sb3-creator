@@ -16,3 +16,8 @@ Battery: EMF = 9 V, r_internal = 2 Ω. Light load path: 1 kΩ + 470 Ω + green L
 1. Higher load current → larger internal voltage drop
 2. Both loads share the same terminal voltage
 3. Battery with high internal R delivers less current to heavy loads
+
+```assert
+# Battery r_internal=2R: terminal V under dual load
+net battery_1.pos V 8.96 +-0.20
+```

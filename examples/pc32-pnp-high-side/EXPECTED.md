@@ -28,3 +28,9 @@ of the 5 V rail, and the LED branch carries about (5 − 2.05) V / 1 kΩ ≈ **2
 With the switch open the base floats near the emitter, V_EB ≈ 0.01 V — the
 PNP is off and the collector shows only leakage-level voltage (no significant
 current through the LED branch).
+
+```assert
+# PNP switch open: emitter at VCC, base near VCC, transistor off
+net vcc1.pos V 5.00 +-0.01
+net q1.base V 4.99 +-0.10
+```

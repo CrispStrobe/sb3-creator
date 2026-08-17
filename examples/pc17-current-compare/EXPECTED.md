@@ -28,3 +28,8 @@ branch, for the reason above. The brightness figures are exact.
 ## Try it
 Change the 1 kΩ to 2.2 kΩ. Only the blue branch dims; the other two do not
 move at all. Parallel branches do not share.
+
+```assert
+# Three parallel LED branches: 220R/470R/1k from 5V
+net vsource_1.pos V 5.00 +-0.01
+```

@@ -16,3 +16,8 @@ Closed, the two switches pass the supply through untouched (5.0000 V at the
 resistor) and the LED runs at the usual (5 − 2.03) V / 1 kΩ = 2.97 mA. Open, the
 few millivolts left on the branch are the switch model's leakage, not a path —
 0.000 mA either way.
+
+```assert
+# Series switches both closed: 5V reaches R+LED, I = (5-2.03)/1k = 2.97mA
+net src.pos V 5.00 +-0.01
+```

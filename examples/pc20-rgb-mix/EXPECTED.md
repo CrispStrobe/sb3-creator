@@ -30,3 +30,8 @@ The engine now expands `rgb_led` into `<id>_r` / `_g` / `_b` sub-LEDs with
 real diode drops, so a composite version would also work — but the three-branch
 layout is the cleaner teaching circuit because each path is visible and
 independent.
+
+```assert
+# Three parallel LED branches: 330R/330R/470R from 5V
+net vsource_1.pos V 5.00 +-0.01
+```

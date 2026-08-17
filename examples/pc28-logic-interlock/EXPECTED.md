@@ -18,3 +18,8 @@ The output's 4.86 V rather than 5.00 V is the gate's 50 Ω output resistance
 carrying 2.83 mA. The gate switches at CMOS thresholds — below 30 % of VCC is
 low, above 70 % is high — so the 0 V and 5 V the switches produce are
 unambiguous at both ends.
+
+```assert
+# AND gate: both switches open -> output LOW, LED off
+net vcc1.pos V 5.00 +-0.01
+```

@@ -14,3 +14,9 @@ LM358 dual op-amp. Op1: integrator (R=100 kΩ, C=1 µF). Op2: comparator with hy
 1. Integrator + comparator = triangle-wave oscillator
 2. Analog dimming via triangle waveform (not PWM)
 3. LM358 dual op-amp used as two functional blocks
+
+```assert
+# LM358 triangle oscillator: VCC = 5V, triangle swings around VCC/2
+# TODO: needs engine model for dual opamp integrator/comparator interaction
+net vcc_1.pos V 5.00 +-0.01
+```

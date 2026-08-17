@@ -16,3 +16,9 @@ Battery 2: EMF = 9 V, r_int = 5.0 Ω → 470 Ω → red LED → return.
 1. Same EMF, different internal R → different terminal voltages under load
 2. The difference grows with load current
 3. Internal resistance is the battery's hidden quality metric
+
+```assert
+# Two batteries: same EMF=9V, different r_internal (0.5R vs 5R)
+net battery_1.pos V 8.99 +-0.10
+net battery_2.pos V 8.93 +-0.10
+```

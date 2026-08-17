@@ -29,3 +29,8 @@ LED dark, transistor off. Correct.
 `gnd1.gnd`, in addition to the one from `button1.b` to `rb.a`. That tied the
 whole base-drive node to ground: the base sat at 0.0000 V with the button open
 **and closed**, so the button was inert. The wire was removed.
+
+```assert
+# NPN switch, button open: base ~ 0V, collector ~ VCC (off)
+net vcc1.pos V 5.00 +-0.01
+```

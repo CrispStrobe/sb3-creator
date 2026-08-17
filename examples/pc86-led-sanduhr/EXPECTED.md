@@ -13,3 +13,8 @@
 1. Accumulating fill pattern (each output stays HIGH as the next lights)
 2. Tilt sensor as physical reset trigger
 3. 555 ~1 Hz clock for "sand grain" timing
+
+```assert
+# 555+CD4017 hourglass: f ~ 0.99Hz, 6 LEDs fill then wrap
+net vcc_1.pos V 5.00 +-0.01
+```

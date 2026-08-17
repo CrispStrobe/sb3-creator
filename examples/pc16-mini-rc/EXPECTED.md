@@ -36,3 +36,8 @@ The curve is V(t) = 5 · (1 − e^(−t/τ)) to within 0.1 % at every sample.
 Sub-millisecond samples show a flat 0 V — with τ = 1 s there is nothing to see
 in the first millisecond. The timebase has to be seconds, not the default
 1 ms, or this example looks dead when it is merely slow.
+
+```assert
+# RC: tau = 10k * 100uF = 1.0s, supply 5V
+net vsource_2.pos V 5.00 +-0.01
+```

@@ -15,3 +15,9 @@ Sound module (AO output) → 3 NPN transistor stages. Base resistors: 10 kΩ (re
 1. Different base resistors create different sensitivity thresholds
 2. Sound module AO provides analog level proportional to sound
 3. Three-band qualitative level display (not frequency separation)
+
+```assert
+# Sound-driven 3-stage NPN: thresholds at 10k/22k/47k base resistors
+# TODO: needs engine model for sound module analog output
+net vcc_1.pos V 5.00 +-0.01
+```

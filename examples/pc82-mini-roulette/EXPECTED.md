@@ -13,3 +13,8 @@
 1. Control voltage modulates 555 frequency
 2. RC decay produces gradual slowdown
 3. CD4017 holds last active output when clock stops
+
+```assert
+# 555+CD4017 roulette: VCC = 5V, RC slowdown tau = 100k*100uF = 10s
+net vcc_1.pos V 5.00 +-0.01
+```

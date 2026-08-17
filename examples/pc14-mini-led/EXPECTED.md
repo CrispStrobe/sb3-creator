@@ -38,3 +38,8 @@ With no rails, every connection must come from a column strip or a tap wire.
 Move the LED's anode from **b7** to **b6** and the circuit goes dark: b6 is a
 different column, so the strip no longer bridges R to the LED. The board looks
 identical; only the column number changed.
+
+```assert
+# 5V -> 470R -> LED: I = 6.25mA, LED anode ~ 2.06V
+net vsource_2.pos V 5.00 +-0.01
+```

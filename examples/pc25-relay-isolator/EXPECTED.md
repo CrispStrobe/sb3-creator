@@ -17,3 +17,8 @@ The coil draws 5 V / 200 Ω = 25 mA from the 5 V rail. The contact carries
 (9 − 2.07) V / 1 kΩ = 6.93 mA from the *9 V* supply — a load the 5 V side never
 touches. The gap between the 4 ms and 6 ms rows is `switchTimeMs: 5`: a real
 relay's armature takes milliseconds to move, and this one is modelled that way.
+
+```assert
+# Relay: coil supply 5V via coil_v (implicit), load supply 9V
+net load_v.pos V 9.00 +-0.01
+```
