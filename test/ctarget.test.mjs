@@ -196,7 +196,7 @@ test('one script keeps straight-line emission in main()', () => {
     // The FOREVER and its REPEAT are plain C loops.
     assert.match(c, /for \(;;\) \{/);
     assert.match(c, /for \(_i\d+ = 0; _i\d+ < \(6\); _i\d+\+\+\) \{/);
-    assert.match(c, /static int counter = 0;/);
+    assert.match(c, /static long counter = 0;/);  // long: 16-bit int overflowed real ADC math
 });
 
 test('waits fold to whole milliseconds', () => {
@@ -378,7 +378,7 @@ test('an unknown device falls back to the STC12 and says so', () => {
 
 test('an ANALOG pin brings in the polled 10-bit ADC on its own channel', () => {
     const c = cOf(SCHEDULED);
-    assert.match(c, /static unsigned int adc_read\(unsigned char channel\)/);
+    assert.match(c, /static long adc_read\(unsigned char channel\)/);  // long return promotes `raw * 5000`
     assert.match(c, /ADC_CONTR = \(unsigned char\)\(0xE8 \| channel\);/);
     assert.match(c, /return \(\(unsigned int\)ADC_RES << 2\) \| \(ADC_RESL & 0x03\);/);
     assert.match(c, /level = adc_read\(3\);/, 'ADC channel n is physically P1.n');
@@ -420,16 +420,16 @@ test('a hat with no meaning on the chip is skipped, with a warning', () => {
 
 test('C keywords and odd names survive as valid identifiers', () => {
     const c = cOf('PIN led = P1.0 OUTPUT\nGLOBAL int\nGLOBAL my score\nWHEN flag clicked:\n  set int to 1\n  change my score by 2\n  turn on led');
-    assert.match(c, /static int int_ = 0;/);
-    assert.match(c, /static int my_score = 0;/);
+    assert.match(c, /static long int_ = 0;/);
+    assert.match(c, /static long my_score = 0;/);
     assert.match(c, /int_ = 1;/);
     assert.match(c, /my_score \+= 2;/);
 });
 
-test('custom blocks become static functions with int parameters', () => {
+test('custom blocks become static functions with long parameters', () => {
     const c = cOf(SCHEDULED);
-    assert.match(c, /static void \w*do_pulse\(int ms\);/, 'prototype');
-    assert.match(c, /static void \w*do_pulse\(int ms\)\n\{/, 'definition');
+    assert.match(c, /static void \w*do_pulse\(long ms\);/, 'prototype');
+    assert.match(c, /static void \w*do_pulse\(long ms\)\n\{/, 'definition');
     assert.match(c, /\w*do_pulse\(20\);/, 'call site');
 });
 
@@ -2831,15 +2831,19 @@ WHEN flag clicked:
     assert.match(out, /cannot be analog: the 6502 machine has no ADC/);
 });
 
-test('6502: PB7 is refused — Timer 1 owns it', () => {
+test('6502: PB7 is accepted — plain I/O while ACR7 stays 0', () => {
+    // W65C22 §2.5: PB7 is ordinary port I/O unless ACR bit 7 enables the
+    // Timer-1 output; our runtime writes ACR=0x40 and never claims it.
+    // The old refusal broke Ben Eater's own walking-light demo
+    // (eater6502-blink uses all eight PB LEDs).
     const c = build(`DEVICE EATER6502
 PIN led1 = PB7 OUTPUT
 
 WHEN flag clicked:
   turn on led1
 `);
-    assert.ok((c.warnings || []).some((w) => /PB7 belongs to Timer 1|not how eater6502/.test(w)),
-        `expected a PB7 refusal, got: ${JSON.stringify(c.warnings)}`);
+    assert.deepEqual(c.warnings || [], [],
+        `PB7 must parse clean, got: ${JSON.stringify(c.warnings)}`);
 });
 
 test('6502: retarget accepts digital examples, refuses analog and PART', () => {

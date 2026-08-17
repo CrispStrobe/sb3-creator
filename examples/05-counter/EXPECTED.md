@@ -2,7 +2,10 @@
 
 ## Circuit
 
-- VCC → push button → MCU P3.2 (input), with 10 kΩ pull-down to GND.
+- VCC → 10 kΩ pull-up → MCU P3.2 (input), push button from the pin to GND.
+  Pressed = LOW; the pin is declared ACTIVE LOW so `read button` is 1 while
+  pressed. (An earlier revision described a pull-down here — the generated
+  benches always wired the pull-up form, and the program now matches them.)
 - VCC → 1 kΩ → red LED → MCU P1.0 (active-low).
 
 ## Program

@@ -1389,7 +1389,7 @@ class SB3Creator {
                 pico: [/^GP\d+$/i, 'GP0-GP28'],
                 // PB7 is Timer 1's square-wave pin and the machine's timebase
                 // guard: the emitter would refuse it anyway, refuse it here too.
-                eater6502: [/^(PA[0-7]|PB[0-6])$/i, 'PA0-PA7 or PB0-PB6 (PB7 belongs to Timer 1)'],
+                eater6502: [/^(PA[0-7]|PB[0-7])$/i, 'PA0-PA7 or PB0-PB7'],  // PB7 is plain I/O while ACR7=0 (W65C22 §2.5); our runtime sets ACR=0x40, so it never claims PB7
                 attiny88: [/^(PA[0-3]|PB[0-7]|PC[0-7]|PD[0-7])$/i, 'PA0-PA3, PB0-PB7, PC0-PC7, PD0-PD7'],
                 attiny85: [/^PB[0-4]$/i, 'PB0-PB4 (PB5 is RESET)']
             };
@@ -1405,7 +1405,7 @@ class SB3Creator {
             const LAST = { 'arduino-uno': { D: 13, A: 5 }, 'arduino-nano': { D: 13, A: 7 },
                 'atmega168p': { D: 13, A: 5 }, 'arduino-mega': { D: 53, A: 15 },
                 atmega328p: { D: 13, A: 5 }, microbit: { P: 20 }, pico: { GP: 28 },
-                eater6502: { PA: 7, PB: 6 } };
+                eater6502: { PA: 7, PB: 7 } };  // PB7: plain I/O while ACR7=0, same as the SPOKEN gate
             const edge = LAST[cfg.device] || {};
             const num = where.match(/^([A-Z]+)(\d+)$/i);
             if (num && edge[num[1].toUpperCase()] !== undefined && Number(num[2]) > edge[num[1].toUpperCase()]) {
@@ -7571,14 +7571,14 @@ class SB3Creator {
         const stateDecls = [];
         const markVars = [], markProcs = [], markScripts = [];
         for (const entry of Object.values((stage && stage.variables) || {})) {
-            stateDecls.push(`static int ${this.cName(entry[0])} = ${this.cInit(entry[1])};`);
+            stateDecls.push(`static long ${this.cName(entry[0])} = ${this.cInit(entry[1])};`);
             markVars.push(`var ${this.cName(entry[0])} ${this.pyStr(entry[0])}`);
         }
         sections.forEach((t, idx) => {
             if (t.isStage) return;
             const pfx = spritePrefix(idx);
             for (const entry of Object.values(t.variables || {})) {
-                stateDecls.push(`static int ${this.cName(pfx + entry[0])} = ${this.cInit(entry[1])};   /* ${this.cComment(t.name)}: ${this.cComment(entry[0])} */`);
+                stateDecls.push(`static long ${this.cName(pfx + entry[0])} = ${this.cInit(entry[1])};   /* ${this.cComment(t.name)}: ${this.cComment(entry[0])} */`);
                 markVars.push(`var ${this.cName(pfx + entry[0])} ${this.pyStr(entry[0])} sprite ${this.pyStr(t.name)}`);
             }
         });
@@ -7603,7 +7603,7 @@ class SB3Creator {
                     const m = proto.mutation;
                     const argNames = JSON.parse(m.argumentnames || '[]').map((a) => this.cName(a));
                     const fn = this.cName(pfx + this.pyProcRaw(m.proccode));
-                    const params = argNames.length ? argNames.map((a) => `int ${a}`).join(', ') : 'void';
+                    const params = argNames.length ? argNames.map((a) => `long ${a}`).join(', ') : 'void';
                     procProtos.push(`static void ${fn}(${params});`);
                     markProcs.push(`proc ${fn} ${this.pyStr(m.proccode)} warp=${m.warp === 'true' ? 1 : 0}`);
                     procDefs.push(`/* ${this.cComment(m.proccode.replace(/%[sb]/g, '').trim())} */`,
@@ -8519,7 +8519,7 @@ class SB3Creator {
         if (this._cUses.adc && this._core === 'avr' && this._cMega) {
             out.push('/* 10-bit ADC, polled, AVcc reference. The Mega has 16 channels;',
                 ' * channels 8-15 need MUX5 in ADCSRB on top of ADMUX MUX4:0. */',
-                'static unsigned int adc_read(unsigned char channel)',
+                'static long adc_read(unsigned char channel)',
                 '{',
                 '    ADMUX = (uint8_t)((1 << REFS0) | (channel & 0x07));',
                 '    if (channel & 0x08) ADCSRB |= (1 << MUX5); else ADCSRB &= (uint8_t)~(1 << MUX5);',
@@ -8530,7 +8530,7 @@ class SB3Creator {
         } else if (this._cUses.adc && this._core === 'arm') {
             out.push('/* 12-bit ADC, polled over APB. Channel n is GP(26+n). The datasheet',
                 ' * sequence: enable, wait READY, START_ONCE, wait READY, read RESULT. */',
-                'static unsigned int adc_read(unsigned char channel)',
+                'static long adc_read(unsigned char channel)',
                 '{',
                 '    BW_ADC_CS = 1u | ((uint32_t)channel << 12);        /* EN | AINSEL */',
                 '    while (!(BW_ADC_CS & (1u << 8))) ;                 /* READY */',
@@ -8541,7 +8541,7 @@ class SB3Creator {
         } else if (this._cUses.adc && this._core === 'avr') {
             out.push('/* 10-bit ADC, polled, AVcc reference. Channel = the A-pin number;',
                 ' * A6/A7 exist on the Nano as ADC-only pads and work here too. */',
-                'static unsigned int adc_read(unsigned char channel)',
+                'static long adc_read(unsigned char channel)',
                 '{',
                 '    ADMUX = (uint8_t)((1 << REFS0) | (channel & 0x0F));',
                 '    ADCSRA |= (1 << ADSC);',
@@ -8551,7 +8551,7 @@ class SB3Creator {
         } else if (this._cUses.adc) {
             out.push('/* 10-bit ADC, polled. Channel n is on P1.n; the channel is selected and the',
                 ' * conversion started in one write, as STC\'s own examples do. */',
-                'static unsigned int adc_read(unsigned char channel)',
+                'static long adc_read(unsigned char channel)',
                 '{',
                 `    /* Mux settle: datasheet §10.5 requires ~8 oscillator clocks after`,
                 `     * channel selection.  At FOSC ${(clock / 1e6).toFixed(4)} MHz that is`,
@@ -10045,7 +10045,7 @@ class SB3Creator {
         }
 
         if (stateDecls.length) {
-            out.push('/* Variables (16-bit signed, like Scratch\'s integers). */', ...stateDecls, '');
+            out.push('/* Variables: long, matching Scratch\'s number range — int is 16-bit on', ' * sdcc/avr-gcc/cc65 and silently wraps mid-expression (76-multimeter). */', ...stateDecls, '');
         }
         if (procProtos.length) out.push(...procProtos, '');
         if (procDefs.length) out.push(...procDefs);
