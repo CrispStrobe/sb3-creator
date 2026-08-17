@@ -26,3 +26,13 @@ Two builders, one CPU, two machines. The bus is the same, the memory decode is n
 - [z80-bench](../z80-bench) — the same CPU with an MC6850 ACIA instead. The comparison is the lesson.
 - [eater6502-bench](../eater6502-bench) — a different classic CPU, the same three questions: what clocks it, what remembers, what talks.
 - Read EXPECTED.md first: this bench models the machine faithfully but its USB FIFO has no part in the engine yet, so the computer boots and cannot speak. Which parts are real and which are missing is written down rather than hidden.
+
+
+## Stage one: lights and switches
+
+The classic first I/O of every Searle-lineage build is on the bench:
+a 74HC374 latch drives eight LEDs (`OUT (0),A`), a 74HC244 buffer
+reads four DIP switches (`IN A,(0)`), both strobed from /IORQ with
+/WR and /RD through the OR gates — one port, two directions, exactly
+how the real breadboards decode it. Build the machine, load the
+**Switch Mirror** preset, and flip the switches.

@@ -6,10 +6,11 @@
  * Requires a bw-board checkout at ../../bw-board (sibling convention) or
  * the path in BW_BOARD_DIR.
  *
- * The absence of a CHIP line is asserted, not merely tolerated: this design's
- * only I/O device is a UM245R USB FIFO and no engine part models one. If a
- * CHIP line ever appears here, either the part landed (update this file and
- * EXPECTED.md) or something was substituted for the FIFO (do not).
+ * Stage one landed (2026-08-17): the bench carries the classic OUT latch
+ * (74HC374 + LEDs) and IN buffer (74HC244 + DIP switches), strobed by
+ * OR(/IORQ,/WR) and OR(/IORQ,/RD), legally SHARING port 0 — IN and OUT
+ * decode to different silicon. Both chips are asserted below, direction
+ * and port included. The UM245R note still holds for the serial face.
  */
 import { readFileSync } from 'fs';
 import { dirname, join } from 'path';
@@ -31,18 +32,19 @@ assert.ok(result.ok, `extraction failed: ${result.reasons.join('; ')}`);
 assert.deepEqual(result.reasons, [], 'expected zero refusals');
 
 // ROM low, RAM high — /ROM_CE = /MREQ OR A15, /RAM_CE = /MREQ OR /A15.
-const expected = [
+const mapLines = result.lines.filter((l) => l.startsWith('MAP'));
+assert.deepEqual(mapLines, [
     'MAP RAM $8000-$FFFF',
     'MAP ROM $0000-$7FFF',
-];
-assert.deepEqual(result.lines, expected,
-    `extraction lines do not match the PainfulDiodes map:\n  got:  ${result.lines.join(', ')}\n  want: ${expected.join(', ')}`);
+], `memory map does not match PainfulDiodes:\n  got: ${mapLines.join(', ')}`);
 
-assert.deepEqual(result.ports, [],
-    'no port chip should be recognised — the UM245R has no engine part, and an '
-    + 'ACIA standing in for it would erase the whole point of this design');
+// Stage one: the OUT latch and the IN buffer share port 0 by direction.
+assert.deepEqual(result.ports, [
+    { kind: 'latch', name: 'latch1', at: 0 },
+    { kind: 'buffer', name: 'in1', at: 0 },
+], `stage-one ports missing or moved:\n  got: ${JSON.stringify(result.ports)}`);
 
-console.log('z80-pd-bench: extraction matches the PainfulDiodes memory map — PASS');
+console.log('z80-pd-bench: PainfulDiodes map + stage-one I/O — PASS');
 console.log('  lines:', result.lines);
-console.log('  ports:', result.ports, '(the USB FIFO is deliberately absent)');
+console.log('  ports:', result.ports);
 console.log('  notes:', result.notes);

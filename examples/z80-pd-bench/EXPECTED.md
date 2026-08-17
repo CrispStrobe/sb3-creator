@@ -16,10 +16,18 @@ MAP RAM $8000-$FFFF
 MAP ROM $0000-$7FFF
 ```
 
-No `CHIP` line. That is the honest result, not an omission — see
-"The serial face is missing" below. `check-extract.mjs` in this
-directory asserts exactly those two lines; run it with
-`node examples/z80-pd-bench/check-extract.mjs`.
+```
+CHIP latch1 = 74HC374 OUT latch AT PORT $0000
+CHIP in1 = 74HC244 IN buffer AT PORT $0000
+```
+
+Stage one (2026-08-17): the OUT latch and the IN buffer legally share
+port 0 — IN and OUT decode to different silicon, strobed by
+OR(/IORQ,/WR) and OR(/IORQ,/RD). Both mirror through the whole port
+space (partial decode, the breadboard normal). The "Switch Mirror"
+preset boots `IN A,(0); OUT (0),A; JR -6`: flip a DIP switch, watch
+its LED. `check-extract.mjs` asserts the map and both ports; run it
+with `node examples/z80-pd-bench/check-extract.mjs`.
 
 ## Faithful
 

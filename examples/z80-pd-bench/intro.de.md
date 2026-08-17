@@ -26,3 +26,13 @@ Zwei Bastler, eine CPU, zwei Maschinen. Der Bus ist derselbe, die Speicherdekodi
 - [z80-bench](../z80-bench) — dieselbe CPU, aber mit einem MC6850-ACIA. Der Vergleich ist die Lektion.
 - [eater6502-bench](../eater6502-bench) — eine andere klassische CPU, dieselben drei Fragen: was taktet sie, was erinnert sich, was spricht.
 - Lies zuerst EXPECTED.md: diese Platine bildet die Maschine originalgetreu ab, aber fuer ihren USB-FIFO gibt es noch kein Bauteil in der Engine — der Computer startet also und kann nicht sprechen. Was echt ist und was fehlt, steht dort geschrieben statt versteckt zu sein.
+
+
+## Stufe eins: Lampen und Schalter
+
+Das klassische erste I/O jedes Searle-Nachbaus ist auf dem Board:
+ein 74HC374-Latch treibt acht LEDs (`OUT (0),A`), ein 74HC244-Buffer
+liest vier DIP-Schalter (`IN A,(0)`), beide per /IORQ mit /WR bzw.
+/RD durch die ODER-Gatter gestrobt — ein Port, zwei Richtungen,
+genau wie auf dem echten Steckbrett. Maschine bauen, Preset
+**Switch Mirror** laden, Schalter umlegen.
