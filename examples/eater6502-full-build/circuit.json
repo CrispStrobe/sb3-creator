@@ -603,7 +603,8 @@
    "id": "contrast",
    "kind": "potentiometer",
    "params": {
-    "ohms": 10000
+    "ohms": 10000,
+    "position": 0.15
    },
    "x": 150,
    "y": 620,
