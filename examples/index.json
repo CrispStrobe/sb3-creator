@@ -88,7 +88,7 @@
    "pico"
   ],
   "refusals": {
-   "stc89c52rc": "stc89c52rc has no ADC — the analog pins cannot map"
+   "stc89c52rc": "stc89c52rc has no ADC \u2014 the analog pins cannot map"
   },
   "benches": {
    "arduino-mega": "02-dimmer/circuit.arduino-mega.json",
@@ -127,7 +127,7 @@
    "pico"
   ],
   "refusals": {
-   "stc89c52rc": "stc89c52rc has no ADC — the analog pins cannot map"
+   "stc89c52rc": "stc89c52rc has no ADC \u2014 the analog pins cannot map"
   },
   "benches": {
    "arduino-mega": "03-night-light/circuit.arduino-mega.json",
@@ -166,7 +166,7 @@
    "pico"
   ],
   "refusals": {
-   "stc89c52rc": "stc89c52rc has no ADC — the analog pins cannot map"
+   "stc89c52rc": "stc89c52rc has no ADC \u2014 the analog pins cannot map"
   },
   "benches": {
    "arduino-mega": "04-thermostat/circuit.arduino-mega.json",
@@ -182,7 +182,7 @@
   "id": "05-counter",
   "title": {
    "en": "Button counter with LED blinks",
-   "de": "Tastenzähler mit LED-Blinken"
+   "de": "Tastenz\u00e4hler mit LED-Blinken"
   },
   "category": "basics",
   "difficulty": 2,
@@ -282,7 +282,6 @@
    "introDE": "07-buzzer-siren/intro.de.md"
   },
   "kind": "program",
-  "devices": [],
   "refusals": {
    "stc12c5a60s2": "pin \"buzzer\" has direction tone, which does not retarget yet",
    "stc89c52rc": "pin \"buzzer\" has direction tone, which does not retarget yet",
@@ -394,7 +393,7 @@
    "pico"
   ],
   "refusals": {
-   "stc89c52rc": "stc89c52rc has no ADC — the analog pins cannot map"
+   "stc89c52rc": "stc89c52rc has no ADC \u2014 the analog pins cannot map"
   },
   "benches": {
    "arduino-mega": "10-motor-speed/circuit.arduino-mega.json",
@@ -605,7 +604,7 @@
    "pico"
   ],
   "refusals": {
-   "stc89c52rc": "stc89c52rc has no ADC — the analog pins cannot map"
+   "stc89c52rc": "stc89c52rc has no ADC \u2014 the analog pins cannot map"
   },
   "benches": {
    "arduino-mega": "15-voltage-divider/circuit.arduino-mega.json",
@@ -644,7 +643,7 @@
    "pico"
   ],
   "refusals": {
-   "stc89c52rc": "stc89c52rc has no ADC — the analog pins cannot map"
+   "stc89c52rc": "stc89c52rc has no ADC \u2014 the analog pins cannot map"
   },
   "benches": {
    "arduino-mega": "16-ldr-bargraph/circuit.arduino-mega.json",
@@ -683,7 +682,7 @@
    "pico"
   ],
   "refusals": {
-   "stc89c52rc": "stc89c52rc has no ADC — the analog pins cannot map"
+   "stc89c52rc": "stc89c52rc has no ADC \u2014 the analog pins cannot map"
   },
   "benches": {
    "arduino-mega": "17-comparator/circuit.arduino-mega.json",
@@ -785,7 +784,7 @@
   "id": "20-shift-register-binary",
   "title": {
    "en": "Binary counter on shift register",
-   "de": "Binärzähler auf Schieberegister"
+   "de": "Bin\u00e4rz\u00e4hler auf Schieberegister"
   },
   "category": "digital",
   "difficulty": 3,
@@ -1499,7 +1498,7 @@
   "id": "49-lcd-hello",
   "title": {
    "en": "I2C LCD: hello + counter",
-   "de": "I2C-LCD: Hallo + Zähler"
+   "de": "I2C-LCD: Hallo + Z\u00e4hler"
   },
   "category": "digital",
   "difficulty": 2,
@@ -1541,7 +1540,7 @@
   "id": "55-oled-hello",
   "title": {
    "en": "I2C OLED: hello + counter",
-   "de": "I2C-OLED: Hallo + Zähler"
+   "de": "I2C-OLED: Hallo + Z\u00e4hler"
   },
   "category": "digital",
   "difficulty": 2,
@@ -1707,8 +1706,8 @@
  {
   "id": "53-servo-sweep",
   "title": {
-   "en": "Servo sweep 0°–180°",
-   "de": "Servo-Schwenk 0°–180°"
+   "en": "Servo sweep 0\u00b0\u2013180\u00b0",
+   "de": "Servo-Schwenk 0\u00b0\u2013180\u00b0"
   },
   "kind": "program",
   "category": "motors",
@@ -1733,7 +1732,7 @@
    "attiny85"
   ],
   "refusals": {
-   "stc89c52rc": "servo needs the PCA — stc89c52rc has none"
+   "stc89c52rc": "servo needs the PCA \u2014 stc89c52rc has none"
   },
   "benches": {
    "arduino-mega": "53-servo-sweep/circuit.arduino-mega.json",
@@ -1751,7 +1750,7 @@
   "id": "54-motor-driver",
   "title": {
    "en": "DC motor with L293D H-bridge",
-   "de": "DC-Motor mit L293D-H-Brücke"
+   "de": "DC-Motor mit L293D-H-Br\u00fccke"
   },
   "kind": "program",
   "category": "motors",
@@ -1830,7 +1829,7 @@
   "id": "pc03-series-resistors",
   "title": {
    "en": "Resistors in series",
-   "de": "Widerstände in Reihe"
+   "de": "Widerst\u00e4nde in Reihe"
   },
   "category": "pure-circuit",
   "difficulty": 1,
@@ -2190,7 +2189,7 @@
   "id": "pc21-rc-smoothing",
   "title": {
    "en": "RC smoothing",
-   "de": "RC-Glättung"
+   "de": "RC-Gl\u00e4ttung"
   },
   "category": "pure-circuit",
   "difficulty": 2,
@@ -2207,7 +2206,7 @@
   "id": "pc22-diode-selector",
   "title": {
    "en": "Diode power selector",
-   "de": "Dioden-Stromwähler"
+   "de": "Dioden-Stromw\u00e4hler"
   },
   "category": "pure-circuit",
   "difficulty": 2,
@@ -2360,7 +2359,7 @@
   "id": "pc31-bridge-rectifier",
   "title": {
    "en": "Bridge rectifier",
-   "de": "Brückengleichrichter"
+   "de": "Br\u00fcckengleichrichter"
   },
   "category": "pure-circuit",
   "difficulty": 3,
@@ -2585,7 +2584,7 @@
   "id": "pc40-opamp-threshold",
   "title": {
    "en": "Op-amp threshold",
-   "de": "Operationsverstärker-Schwelle"
+   "de": "Operationsverst\u00e4rker-Schwelle"
   },
   "category": "pure-circuit",
   "difficulty": 3,
@@ -2823,7 +2822,7 @@
   "id": "pc54-opamp-follower",
   "title": {
    "en": "Op-amp voltage follower",
-   "de": "Operationsverstärker-Spannungsfolger"
+   "de": "Operationsverst\u00e4rker-Spannungsfolger"
   },
   "category": "pure-circuit",
   "difficulty": 3,
@@ -2857,7 +2856,7 @@
   "id": "pc56-inductor-freewheel",
   "title": {
    "en": "Inductor freewheel path",
-   "de": "Freilaufpfad für Induktivität"
+   "de": "Freilaufpfad f\u00fcr Induktivit\u00e4t"
   },
   "category": "pure-circuit",
   "difficulty": 3,
@@ -3155,8 +3154,8 @@
  {
   "id": "arduino-01-blink",
   "title": {
-   "en": "Blink (Arduino CC0)",
-   "de": "Blink (Arduino CC0)"
+   "en": "Blink",
+   "de": "Blink"
   },
   "category": "basics",
   "difficulty": 1,
@@ -3196,8 +3195,8 @@
  {
   "id": "arduino-01-fade",
   "title": {
-   "en": "Fade (Arduino CC0)",
-   "de": "Fade (Arduino CC0)"
+   "en": "Fade",
+   "de": "Fade"
   },
   "category": "basics",
   "difficulty": 1,
@@ -3237,8 +3236,8 @@
  {
   "id": "arduino-01-analog-read-serial",
   "title": {
-   "en": "Analog Read Serial (Arduino CC0)",
-   "de": "Analog seriell lesen (Arduino CC0)"
+   "en": "Analog Read Serial",
+   "de": "Analog seriell lesen"
   },
   "category": "basics",
   "difficulty": 1,
@@ -3271,8 +3270,8 @@
  {
   "id": "arduino-01-digital-read-serial",
   "title": {
-   "en": "Digital Read Serial (Arduino CC0)",
-   "de": "Digital seriell lesen (Arduino CC0)"
+   "en": "Digital Read Serial",
+   "de": "Digital seriell lesen"
   },
   "category": "basics",
   "difficulty": 1,
@@ -3312,8 +3311,8 @@
  {
   "id": "arduino-01-read-analog-voltage",
   "title": {
-   "en": "Read Analog Voltage (Arduino CC0)",
-   "de": "Analogspannung lesen (Arduino CC0)"
+   "en": "Read Analog Voltage",
+   "de": "Analogspannung lesen"
   },
   "category": "basics",
   "difficulty": 1,
@@ -3346,8 +3345,8 @@
  {
   "id": "arduino-02-blink-without-delay",
   "title": {
-   "en": "Blink Without Delay (CC0)",
-   "de": "Blink ohne Delay (CC0)"
+   "en": "Blink Without Delay",
+   "de": "Blink ohne Delay"
   },
   "category": "digital",
   "difficulty": 2,
@@ -3387,8 +3386,8 @@
  {
   "id": "arduino-02-button",
   "title": {
-   "en": "Button (CC0)",
-   "de": "Taster (CC0)"
+   "en": "Button",
+   "de": "Taster"
   },
   "category": "digital",
   "difficulty": 1,
@@ -3428,8 +3427,8 @@
  {
   "id": "arduino-02-debounce",
   "title": {
-   "en": "Debounce (CC0)",
-   "de": "Entprellen (CC0)"
+   "en": "Debounce",
+   "de": "Entprellen"
   },
   "category": "digital",
   "difficulty": 2,
@@ -3469,8 +3468,8 @@
  {
   "id": "arduino-02-digital-input-pullup",
   "title": {
-   "en": "Input Pullup (CC0)",
-   "de": "Eingabe Pullup (CC0)"
+   "en": "Input Pullup",
+   "de": "Eingabe Pullup"
   },
   "category": "digital",
   "difficulty": 1,
@@ -3510,8 +3509,8 @@
  {
   "id": "arduino-02-state-change",
   "title": {
-   "en": "State Change Detection (CC0)",
-   "de": "Zustandswechsel (CC0)"
+   "en": "State Change Detection",
+   "de": "Zustandswechsel"
   },
   "category": "digital",
   "difficulty": 2,
@@ -3551,8 +3550,8 @@
  {
   "id": "arduino-02-tone-melody",
   "title": {
-   "en": "Tone Melody (CC0)",
-   "de": "Ton-Melodie (CC0)"
+   "en": "Tone Melody",
+   "de": "Ton-Melodie"
   },
   "category": "digital",
   "difficulty": 1,
@@ -3592,8 +3591,8 @@
  {
   "id": "arduino-02-tone-keyboard",
   "title": {
-   "en": "Tone Keyboard (CC0)",
-   "de": "Ton-Tastatur (CC0)"
+   "en": "Tone Keyboard",
+   "de": "Ton-Tastatur"
   },
   "category": "digital",
   "difficulty": 2,
@@ -3626,8 +3625,8 @@
  {
   "id": "arduino-02-tone-multiple",
   "title": {
-   "en": "Tone Multiple (CC0)",
-   "de": "Mehrfachton (CC0)"
+   "en": "Tone Multiple",
+   "de": "Mehrfachton"
   },
   "category": "digital",
   "difficulty": 2,
@@ -3667,8 +3666,8 @@
  {
   "id": "arduino-02-tone-pitch-follower",
   "title": {
-   "en": "Pitch Follower (CC0)",
-   "de": "Tonhöhenfolger (CC0)"
+   "en": "Pitch Follower",
+   "de": "Tonh\u00f6henfolger"
   },
   "category": "digital",
   "difficulty": 2,
@@ -3701,8 +3700,8 @@
  {
   "id": "arduino-03-analog-input",
   "title": {
-   "en": "Analog Input (CC0)",
-   "de": "Analogeingang (CC0)"
+   "en": "Analog Input",
+   "de": "Analogeingang"
   },
   "category": "analog",
   "difficulty": 1,
@@ -3735,8 +3734,8 @@
  {
   "id": "arduino-03-analog-in-out-serial",
   "title": {
-   "en": "Analog In Out Serial (CC0)",
-   "de": "Analog Ein/Aus Seriell (CC0)"
+   "en": "Analog In Out Serial",
+   "de": "Analog Ein/Aus Seriell"
   },
   "category": "analog",
   "difficulty": 1,
@@ -3769,8 +3768,8 @@
  {
   "id": "arduino-03-analog-write-mega",
   "title": {
-   "en": "Analog Write Mega (CC0)",
-   "de": "Analog Write Mega (CC0)"
+   "en": "Analog Write Mega",
+   "de": "Analog Write Mega"
   },
   "category": "analog",
   "difficulty": 2,
@@ -3810,8 +3809,8 @@
  {
   "id": "arduino-03-calibration",
   "title": {
-   "en": "Calibration (CC0)",
-   "de": "Kalibrierung (CC0)"
+   "en": "Calibration",
+   "de": "Kalibrierung"
   },
   "category": "analog",
   "difficulty": 2,
@@ -3844,8 +3843,8 @@
  {
   "id": "arduino-03-fading",
   "title": {
-   "en": "Fading (CC0)",
-   "de": "Fading (CC0)"
+   "en": "Fading",
+   "de": "Fading"
   },
   "category": "analog",
   "difficulty": 1,
@@ -3885,8 +3884,8 @@
  {
   "id": "arduino-03-smoothing",
   "title": {
-   "en": "Smoothing (CC0)",
-   "de": "Glättung (CC0)"
+   "en": "Smoothing",
+   "de": "Gl\u00e4ttung"
   },
   "category": "analog",
   "difficulty": 2,
@@ -3919,8 +3918,8 @@
  {
   "id": "arduino-05-arrays",
   "title": {
-   "en": "Arrays (CC0)",
-   "de": "Arrays (CC0)"
+   "en": "Arrays",
+   "de": "Arrays"
   },
   "category": "digital",
   "difficulty": 2,
@@ -3958,8 +3957,8 @@
  {
   "id": "arduino-05-for-loop",
   "title": {
-   "en": "For Loop (CC0)",
-   "de": "For-Schleife (CC0)"
+   "en": "For Loop",
+   "de": "For-Schleife"
   },
   "category": "digital",
   "difficulty": 1,
@@ -3997,8 +3996,8 @@
  {
   "id": "arduino-05-if-statement",
   "title": {
-   "en": "If Statement (CC0)",
-   "de": "If-Anweisung (CC0)"
+   "en": "If Statement",
+   "de": "If-Anweisung"
   },
   "category": "analog",
   "difficulty": 1,
@@ -4031,8 +4030,8 @@
  {
   "id": "arduino-05-switch-case",
   "title": {
-   "en": "Switch Case (CC0)",
-   "de": "Switch Case (CC0)"
+   "en": "Switch Case",
+   "de": "Switch Case"
   },
   "category": "analog",
   "difficulty": 2,
@@ -4065,8 +4064,8 @@
  {
   "id": "arduino-05-switch-case-2",
   "title": {
-   "en": "Switch Case 2 (CC0)",
-   "de": "Switch Case 2 (CC0)"
+   "en": "Switch Case 2",
+   "de": "Switch Case 2"
   },
   "category": "digital",
   "difficulty": 2,
@@ -4106,8 +4105,8 @@
  {
   "id": "arduino-05-while-statement",
   "title": {
-   "en": "While Statement (CC0)",
-   "de": "While-Anweisung (CC0)"
+   "en": "While Statement",
+   "de": "While-Anweisung"
   },
   "category": "analog",
   "difficulty": 2,
@@ -4140,8 +4139,8 @@
  {
   "id": "arduino-04-ascii-table",
   "title": {
-   "en": "ASCII Table (CC0)",
-   "de": "ASCII-Tabelle (CC0)"
+   "en": "ASCII Table",
+   "de": "ASCII-Tabelle"
   },
   "category": "basics",
   "difficulty": 1,
@@ -4169,8 +4168,8 @@
  {
   "id": "arduino-04-dimmer",
   "title": {
-   "en": "Dimmer (CC0)",
-   "de": "Dimmer (CC0)"
+   "en": "Dimmer",
+   "de": "Dimmer"
   },
   "category": "analog",
   "difficulty": 1,
@@ -4203,8 +4202,8 @@
  {
   "id": "arduino-04-read-ascii-string",
   "title": {
-   "en": "RGB Color Mixer (CC0)",
-   "de": "RGB-Farbmischer (CC0)"
+   "en": "RGB Color Mixer",
+   "de": "RGB-Farbmischer"
   },
   "category": "analog",
   "difficulty": 2,
@@ -4237,8 +4236,8 @@
  {
   "id": "arduino-04-serial-call-response",
   "title": {
-   "en": "Serial Call Response (CC0)",
-   "de": "Serieller Aufruf-Antwort (CC0)"
+   "en": "Serial Call Response",
+   "de": "Serieller Aufruf-Antwort"
   },
   "category": "analog",
   "difficulty": 2,
@@ -4271,8 +4270,8 @@
  {
   "id": "arduino-04-serial-passthrough",
   "title": {
-   "en": "Serial Passthrough (CC0)",
-   "de": "Serieller Durchgang (CC0)"
+   "en": "Serial Passthrough",
+   "de": "Serieller Durchgang"
   },
   "category": "basics",
   "difficulty": 1,
@@ -4305,8 +4304,8 @@
  {
   "id": "arduino-06-knock",
   "title": {
-   "en": "Knock Sensor (CC0)",
-   "de": "Klopfsensor (CC0)"
+   "en": "Knock Sensor",
+   "de": "Klopfsensor"
   },
   "category": "analog",
   "difficulty": 1,
@@ -4339,8 +4338,8 @@
  {
   "id": "arduino-06-ping",
   "title": {
-   "en": "Ping Ultrasonic (CC0)",
-   "de": "Ping Ultraschall (CC0)"
+   "en": "Ping Ultrasonic",
+   "de": "Ping Ultraschall"
   },
   "category": "digital",
   "difficulty": 2,
@@ -4380,8 +4379,8 @@
  {
   "id": "arduino-07-bar-graph",
   "title": {
-   "en": "Bar Graph (CC0)",
-   "de": "Balkendiagramm (CC0)"
+   "en": "Bar Graph",
+   "de": "Balkendiagramm"
   },
   "category": "digital",
   "difficulty": 2,
@@ -4414,8 +4413,8 @@
  {
   "id": "arduino-07-row-column-scanning",
   "title": {
-   "en": "Row Column Scanning (CC0)",
-   "de": "Zeilen-Spalten-Abtastung (CC0)"
+   "en": "Row Column Scanning",
+   "de": "Zeilen-Spalten-Abtastung"
   },
   "category": "digital",
   "difficulty": 3,
@@ -4448,8 +4447,8 @@
  {
   "id": "arduino-08-string-addition",
   "title": {
-   "en": "String Addition (CC0)",
-   "de": "String-Verkettung (CC0)"
+   "en": "String Addition",
+   "de": "String-Verkettung"
   },
   "category": "basics",
   "difficulty": 1,
@@ -4482,8 +4481,8 @@
  {
   "id": "arduino-08-char-analysis",
   "title": {
-   "en": "char analysis (CC0)",
-   "de": "char analysis (CC0)"
+   "en": "char analysis",
+   "de": "char analysis"
   },
   "category": "basics",
   "difficulty": 1,
@@ -4511,8 +4510,8 @@
  {
   "id": "arduino-08-string-append",
   "title": {
-   "en": "string append (CC0)",
-   "de": "string append (CC0)"
+   "en": "string append",
+   "de": "string append"
   },
   "category": "basics",
   "difficulty": 1,
@@ -4540,8 +4539,8 @@
  {
   "id": "arduino-08-string-case",
   "title": {
-   "en": "string case (CC0)",
-   "de": "string case (CC0)"
+   "en": "string case",
+   "de": "string case"
   },
   "category": "basics",
   "difficulty": 1,
@@ -4569,8 +4568,8 @@
  {
   "id": "arduino-08-string-chars",
   "title": {
-   "en": "string chars (CC0)",
-   "de": "string chars (CC0)"
+   "en": "string chars",
+   "de": "string chars"
   },
   "category": "basics",
   "difficulty": 1,
@@ -4598,8 +4597,8 @@
  {
   "id": "arduino-08-string-compare",
   "title": {
-   "en": "string compare (CC0)",
-   "de": "string compare (CC0)"
+   "en": "string compare",
+   "de": "string compare"
   },
   "category": "basics",
   "difficulty": 1,
@@ -4627,8 +4626,8 @@
  {
   "id": "arduino-08-string-constructors",
   "title": {
-   "en": "string constructors (CC0)",
-   "de": "string constructors (CC0)"
+   "en": "string constructors",
+   "de": "string constructors"
   },
   "category": "basics",
   "difficulty": 1,
@@ -4656,8 +4655,8 @@
  {
   "id": "arduino-08-string-indexof",
   "title": {
-   "en": "string indexof (CC0)",
-   "de": "string indexof (CC0)"
+   "en": "string indexof",
+   "de": "string indexof"
   },
   "category": "basics",
   "difficulty": 1,
@@ -4685,8 +4684,8 @@
  {
   "id": "arduino-08-string-length",
   "title": {
-   "en": "string length (CC0)",
-   "de": "string length (CC0)"
+   "en": "string length",
+   "de": "string length"
   },
   "category": "basics",
   "difficulty": 1,
@@ -4714,8 +4713,8 @@
  {
   "id": "arduino-08-string-length-trim",
   "title": {
-   "en": "string length trim (CC0)",
-   "de": "string length trim (CC0)"
+   "en": "string length trim",
+   "de": "string length trim"
   },
   "category": "basics",
   "difficulty": 1,
@@ -4743,8 +4742,8 @@
  {
   "id": "arduino-08-string-replace",
   "title": {
-   "en": "string replace (CC0)",
-   "de": "string replace (CC0)"
+   "en": "string replace",
+   "de": "string replace"
   },
   "category": "basics",
   "difficulty": 1,
@@ -4772,8 +4771,8 @@
  {
   "id": "arduino-08-string-startswith",
   "title": {
-   "en": "string startswith (CC0)",
-   "de": "string startswith (CC0)"
+   "en": "string startswith",
+   "de": "string startswith"
   },
   "category": "basics",
   "difficulty": 1,
@@ -4801,8 +4800,8 @@
  {
   "id": "arduino-08-string-substring",
   "title": {
-   "en": "string substring (CC0)",
-   "de": "string substring (CC0)"
+   "en": "string substring",
+   "de": "string substring"
   },
   "category": "basics",
   "difficulty": 1,
@@ -4830,8 +4829,8 @@
  {
   "id": "arduino-08-string-toint",
   "title": {
-   "en": "string toint (CC0)",
-   "de": "string toint (CC0)"
+   "en": "string toint",
+   "de": "string toint"
   },
   "category": "basics",
   "difficulty": 1,
@@ -4859,8 +4858,8 @@
  {
   "id": "arduino-sk-p02-spaceship",
   "title": {
-   "en": "Spaceship Interface (CC0)",
-   "de": "Raumschiff-Interface (CC0)"
+   "en": "Spaceship Interface",
+   "de": "Raumschiff-Interface"
   },
   "category": "digital",
   "difficulty": 1,
@@ -4900,8 +4899,8 @@
  {
   "id": "arduino-sk-p03-love-o-meter",
   "title": {
-   "en": "Love-O-Meter (CC0)",
-   "de": "Love-O-Meter (CC0)"
+   "en": "Love-O-Meter",
+   "de": "Love-O-Meter"
   },
   "category": "analog",
   "difficulty": 2,
@@ -4934,8 +4933,8 @@
  {
   "id": "arduino-sk-p04-color-mixing",
   "title": {
-   "en": "Color Mixing Lamp (CC0)",
-   "de": "Farbmischlampe (CC0)"
+   "en": "Color Mixing Lamp",
+   "de": "Farbmischlampe"
   },
   "category": "analog",
   "difficulty": 2,
@@ -4968,8 +4967,8 @@
  {
   "id": "arduino-sk-p05-servo-mood",
   "title": {
-   "en": "Servo Mood Indicator (CC0)",
-   "de": "Servo-Stimmungsanzeiger (CC0)"
+   "en": "Servo Mood Indicator",
+   "de": "Servo-Stimmungsanzeiger"
   },
   "category": "motors",
   "difficulty": 2,
@@ -5002,8 +5001,8 @@
  {
   "id": "arduino-sk-p06-light-theremin",
   "title": {
-   "en": "Light Theremin (CC0)",
-   "de": "Licht-Theremin (CC0)"
+   "en": "Light Theremin",
+   "de": "Licht-Theremin"
   },
   "category": "analog",
   "difficulty": 2,
@@ -5037,7 +5036,7 @@
   "id": "blinkenrocket-pendant",
   "title": {
    "en": "Blinkenrocket Pendant",
-   "de": "Blinkenrocket-Anhänger"
+   "de": "Blinkenrocket-Anh\u00e4nger"
   },
   "category": "digital",
   "difficulty": 3,
@@ -5074,8 +5073,8 @@
  {
   "id": "arduino-sk-p07-keyboard",
   "title": {
-   "en": "Keyboard (CC0)",
-   "de": "Tastatur (CC0)"
+   "en": "Keyboard",
+   "de": "Tastatur"
   },
   "category": "digital",
   "difficulty": 1,
@@ -5115,8 +5114,8 @@
  {
   "id": "arduino-sk-p08-hourglass",
   "title": {
-   "en": "Digital Hourglass (CC0)",
-   "de": "Digitale Sanduhr (CC0)"
+   "en": "Digital Hourglass",
+   "de": "Digitale Sanduhr"
   },
   "category": "digital",
   "difficulty": 2,
@@ -5154,8 +5153,8 @@
  {
   "id": "arduino-sk-p09-motorized-pinwheel",
   "title": {
-   "en": "Motorized Pinwheel (CC0)",
-   "de": "Motorisiertes Windrad (CC0)"
+   "en": "Motorized Pinwheel",
+   "de": "Motorisiertes Windrad"
   },
   "category": "motors",
   "difficulty": 1,
@@ -5195,8 +5194,8 @@
  {
   "id": "arduino-sk-p10-zoetrope",
   "title": {
-   "en": "Zoetrope (CC0)",
-   "de": "Zoetrop (CC0)"
+   "en": "Zoetrope",
+   "de": "Zoetrop"
   },
   "category": "motors",
   "difficulty": 2,
@@ -5229,8 +5228,8 @@
  {
   "id": "arduino-sk-p11-crystal-ball",
   "title": {
-   "en": "Crystal Ball (CC0)",
-   "de": "Kristallkugel (CC0)"
+   "en": "Crystal Ball",
+   "de": "Kristallkugel"
   },
   "category": "basics",
   "difficulty": 1,
@@ -5270,8 +5269,8 @@
  {
   "id": "arduino-sk-p12-knock-lock",
   "title": {
-   "en": "Knock Lock (CC0)",
-   "de": "Klopfschloss (CC0)"
+   "en": "Knock Lock",
+   "de": "Klopfschloss"
   },
   "category": "analog",
   "difficulty": 2,
@@ -5304,8 +5303,8 @@
  {
   "id": "arduino-sk-p13-touch-lamp",
   "title": {
-   "en": "Touch Sensor Lamp (CC0)",
-   "de": "Touch-Sensor-Lampe (CC0)"
+   "en": "Touch Sensor Lamp",
+   "de": "Touch-Sensor-Lampe"
   },
   "category": "digital",
   "difficulty": 1,
@@ -5345,8 +5344,8 @@
  {
   "id": "arduino-sk-p14-serial-pot",
   "title": {
-   "en": "Serial Pot (CC0)",
-   "de": "Serielles Poti (CC0)"
+   "en": "Serial Pot",
+   "de": "Serielles Poti"
   },
   "category": "analog",
   "difficulty": 1,
@@ -5379,8 +5378,8 @@
  {
   "id": "arduino-sk-p15-hacking-buttons",
   "title": {
-   "en": "Hacking Buttons (CC0)",
-   "de": "Buttons hacken (CC0)"
+   "en": "Hacking Buttons",
+   "de": "Buttons hacken"
   },
   "category": "digital",
   "difficulty": 1,
@@ -5574,8 +5573,7 @@
    "introDE": "z80-pd-bench/intro.de.md",
    "expected": "z80-pd-bench/EXPECTED.md"
   },
-  "kind": "circuit",
-  "devices": []
+  "kind": "circuit"
  },
  {
   "id": "ttl-clock-module",
@@ -5937,7 +5935,7 @@
   "id": "pc83-gluecksrad",
   "title": {
    "en": "Wheel of Fortune: Shake Roulette",
-   "de": "Glücksrad: Schüttel-Roulette"
+   "de": "Gl\u00fccksrad: Sch\u00fcttel-Roulette"
   },
   "kind": "circuit",
   "category": "pure-circuit",
@@ -6060,7 +6058,7 @@
   "id": "61-console-pong",
   "title": {
    "en": "Retro console: Ball & Paddle",
-   "de": "Retro-Konsole: Ball & Schläger"
+   "de": "Retro-Konsole: Ball & Schl\u00e4ger"
   },
   "category": "digital",
   "difficulty": 3,
