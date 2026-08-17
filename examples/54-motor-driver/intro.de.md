@@ -5,7 +5,7 @@ prereqs: [10-motor-speed]
 teaches: [h-bridge, bidirectional-drive, motor-control]
 ---
 ## Was du siehst
-Ein Gleichstrommotor, angeschlossen ueber einen L293D-H-Bruecken-Treiber-IC. Der MCU steuert sowohl die Geschwindigkeit (per PWM am Enable-Pin) als auch die Richtung (ueber zwei Logik-Pins). Der Motor kann vorwaerts, rueckwaerts oder angehalten werden — alles programmgesteuert.
+Ein Gleichstrommotor, angeschlossen ueber einen L293D-H-Bruecken-Treiber-IC. Der MCU steuert sowohl die Geschwindigkeit (per PWM am Enable-Pin) als auch die Richtung (ueber zwei Logik-Pins). Der Motor kann vorwaerts, rueckwaerts oder angehalten werden — alles programmgesteuert. Dieses Beispiel funktioniert auf allen unterstützten Mikrocontrollern — wähle ein anderes Gerät in der Werkzeugleiste, um die angepasste Schaltung zu sehen.
 
 ## Probier das
 1. Starte die Simulation und beobachte, wie der Motor in eine Richtung dreht.

@@ -5,7 +5,7 @@ prereqs: [10-motor-speed]
 teaches: [h-bridge, bidirectional-drive, motor-control]
 ---
 ## What you see
-A DC motor connected through an L293D H-bridge driver IC. The MCU controls both the speed (via PWM on the enable pin) and the direction (via two logic pins). The motor can spin forward, reverse, or stop — all under program control.
+A DC motor connected through an L293D H-bridge driver IC. The MCU controls both the speed (via PWM on the enable pin) and the direction (via two logic pins). The motor can spin forward, reverse, or stop — all under program control. This example works on all supported microcontrollers — pick a different device in the toolbar to see the adapted circuit.
 
 ## Try this
 1. Run the simulation and observe the motor spinning in one direction.
