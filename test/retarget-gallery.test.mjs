@@ -32,10 +32,12 @@ describe('retarget-gallery: computed device lists are accurate', () => {
     for (const entry of generic) {
         test(`${entry.id}: devices list matches retarget dry-run`, () => {
             const src = readFileSync(join(EXAMPLES, entry.files.program), 'utf8');
-            // Mirror update-example-devices policy: the AUTHORED device
-            // leads, untested — running on your own chip is not a
-            // retargeting question.
-            const authored = ((src.match(/^DEVICE\s+([\w-]+)/im) || [])[1] || '').toLowerCase();
+            // The AUTHORED device leads the list (af93676): the chooser must
+            // offer an example's own chip first — and since retarget is the
+            // IDENTITY for the authored device, its dry-run is trivially ok,
+            // so 'authored leads' is a reordering, never an untested extra.
+            const authored = ((src.match(/^DEVICE\s+([\w-]+)/im) || [])[1] || '')
+                .toLowerCase().replace(/_/g, '-');
             const expected = [];
             if (authored && (devices.includes(authored) || (entry.devices || []).includes(authored))) expected.push(authored);
             for (const dev of devices) {
@@ -45,6 +47,10 @@ describe('retarget-gallery: computed device lists are accurate', () => {
             }
             assert.deepEqual(entry.devices, expected,
                 `${entry.id}: index.json devices disagrees with retargetPseudocode`);
+            if (devices.includes(authored)) {
+                assert.equal(entry.authored, authored,
+                    `${entry.id}: index entry names its authored device`);
+            }
         });
     }
 });
