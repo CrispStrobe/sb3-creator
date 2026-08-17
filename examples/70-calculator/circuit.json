@@ -34,14 +34,6 @@
    "rotation": 0
   },
   {
-   "id": "tft",
-   "kind": "ili9341",
-   "params": {},
-   "x": 780,
-   "y": 330,
-   "rotation": 0
-  },
-  {
    "id": "vcc1",
    "kind": "vcc",
    "params": {},
@@ -216,57 +208,17 @@
    "x": 710,
    "y": 1090,
    "rotation": 0
+  },
+  {
+   "id": "oled1",
+   "kind": "ssd1306",
+   "params": {},
+   "x": 780,
+   "y": 300,
+   "rotation": 0
   }
  ],
  "wires": [
-  {
-   "from": "tft",
-   "fromTerminal": "cs",
-   "to": "nano",
-   "toTerminal": "d10"
-  },
-  {
-   "from": "tft",
-   "fromTerminal": "dc",
-   "to": "nano",
-   "toTerminal": "d9"
-  },
-  {
-   "from": "tft",
-   "fromTerminal": "sck",
-   "to": "nano",
-   "toTerminal": "d13"
-  },
-  {
-   "from": "tft",
-   "fromTerminal": "mosi",
-   "to": "nano",
-   "toTerminal": "d11"
-  },
-  {
-   "from": "vcc1",
-   "fromTerminal": "vcc",
-   "to": "tft",
-   "toTerminal": "vcc"
-  },
-  {
-   "from": "vcc1",
-   "fromTerminal": "vcc",
-   "to": "tft",
-   "toTerminal": "led"
-  },
-  {
-   "from": "vcc1",
-   "fromTerminal": "vcc",
-   "to": "tft",
-   "toTerminal": "rst"
-  },
-  {
-   "from": "gnd1",
-   "fromTerminal": "gnd",
-   "to": "tft",
-   "toTerminal": "gnd"
-  },
   {
    "from": "vcc1",
    "fromTerminal": "vcc",
@@ -505,6 +457,30 @@
    "from": "pd3",
    "fromTerminal": "b",
    "to": "gnd1",
+   "toTerminal": "gnd"
+  },
+  {
+   "from": "oled1",
+   "fromTerminal": "sda",
+   "to": "nano",
+   "toTerminal": "a4"
+  },
+  {
+   "from": "oled1",
+   "fromTerminal": "scl",
+   "to": "nano",
+   "toTerminal": "a5"
+  },
+  {
+   "from": "vcc1",
+   "fromTerminal": "vcc",
+   "to": "oled1",
+   "toTerminal": "vcc"
+  },
+  {
+   "from": "gnd1",
+   "fromTerminal": "gnd",
+   "to": "oled1",
    "toTerminal": "gnd"
   }
  ],

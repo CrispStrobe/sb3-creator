@@ -9538,10 +9538,41 @@ class SB3Creator {
             // Gated by _cUses.lcd || _cUses.oled so only one copy is emitted
             // regardless of how many I2C devices a program drives.
             if (this._cUses.lcd || this._cUses.oled) {
+                // Resolve declared sda/scl pins per flavor — the P2.1/P2.2
+                // literals below are the 8051 DEFAULT, kept when no pins are
+                // declared. On AVR the default was an sbit name in an ATmega
+                // program (unbuildable, the same disease the TFT driver had);
+                // BW_BIT gives the shared open-drain idiom its lvalue.
+                let i2cSda = 'P2_1', i2cScl = 'P2_2';
+                {
+                    const i2cSrc = (this.project?.stc?.pins) || [];
+                    const findPin = (n) => i2cSrc.find((q) => q.name.toLowerCase() === n);
+                    const sdaPin = findPin('sda'), sclPin = findPin('scl');
+                    if (this._core === 'avr') {
+                        const table = this._cMega ? SB3Creator.AVR_PINS_MEGA : SB3Creator.AVR_PINS;
+                        const m1 = sdaPin && table[String(sdaPin.where || '').toUpperCase()];
+                        const m2 = sclPin && table[String(sclPin.where || '').toUpperCase()];
+                        if (m1 && m2) {
+                            i2cSda = `BW_BIT(PORT${m1[0]}, ${m1[1]})`;
+                            i2cScl = `BW_BIT(PORT${m2[0]}, ${m2[1]})`;
+                        } else {
+                            this.cWarn('I2C on AVR needs pins named "sda" and "scl" — declare them as OUTPUT pins');
+                        }
+                        out.push(
+                            'struct __bw_bits2 { uint8_t b0:1, b1:1, b2:1, b3:1, b4:1, b5:1, b6:1, b7:1; };',
+                            '#ifndef BW_BIT',
+                            '#define BW_BIT(port, bit) (((volatile struct __bw_bits2 *)&(port))->b##bit)',
+                            '#endif',
+                            '');
+                    } else if (sdaPin && sdaPin.port !== undefined && sclPin && sclPin.port !== undefined) {
+                        i2cSda = `P${sdaPin.port}_${sdaPin.bit}`;
+                        i2cScl = `P${sclPin.port}_${sclPin.bit}`;
+                    }
+                }
                 out.push(
-                    '/* I2C bus: bit-banged, SDA = P2.1, SCL = P2.2 (open-drain). */',
-                    '#define I2C_SDA  P2_1',
-                    '#define I2C_SCL  P2_2',
+                    '/* I2C bus: bit-banged, SDA/SCL from the declared pins (open-drain). */',
+                    `#define I2C_SDA  ${i2cSda}`,
+                    `#define I2C_SCL  ${i2cScl}`,
                     '',
                     `/* I2C bus timing (NXP UM10204 table 10, 100 kHz standard mode): */`,
                     `/*   t_LOW ≥ 4.7 µs — one delay covers both HIGH and LOW. */`,
