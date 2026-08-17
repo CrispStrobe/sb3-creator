@@ -107,24 +107,41 @@
    "y": 255
   },
   {
-   "id": "LED_motor_pwm",
-   "kind": "led",
-   "params": {
-    "vf": 2,
-    "color": "red"
-   },
+   "id": "Q_motor_pwm",
+   "kind": "npn",
+   "params": {},
    "terminals": [
-    "anode",
-    "cathode"
+    "base",
+    "collector",
+    "emitter"
    ],
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "anode": "a38",
-     "cathode": "a39"
+     "emitter": "a38",
+     "base": "a39",
+     "collector": "a40"
     }
    },
    "x": 554,
+   "y": 255
+  },
+  {
+   "id": "MOTOR_motor_pwm",
+   "kind": "dc_motor",
+   "params": {},
+   "terminals": [
+    "a",
+    "b"
+   ],
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a42",
+     "b": "a44"
+    }
+   },
+   "x": 610,
    "y": 255
   },
   {
@@ -152,16 +169,22 @@
  ],
  "wires": [
   {
-   "from": "R_motor_pwm",
-   "fromTerminal": "b",
-   "to": "LED_motor_pwm",
-   "toTerminal": "anode"
+   "from": "MCU",
+   "fromTerminal": "P1.0",
+   "to": "R_motor_pwm",
+   "toTerminal": "a"
   },
   {
-   "from": "LED_motor_pwm",
-   "fromTerminal": "cathode",
-   "to": "MCU",
-   "toTerminal": "P1.0"
+   "from": "R_motor_pwm",
+   "fromTerminal": "b",
+   "to": "Q_motor_pwm",
+   "toTerminal": "base"
+  },
+  {
+   "from": "MOTOR_motor_pwm",
+   "fromTerminal": "b",
+   "to": "Q_motor_pwm",
+   "toTerminal": "collector"
   },
   {
    "from": "POT_pot",
@@ -172,7 +195,7 @@
   {
    "from": "VCC",
    "fromTerminal": "vcc",
-   "to": "R_motor_pwm",
+   "to": "MOTOR_motor_pwm",
    "toTerminal": "a"
   },
   {
@@ -180,6 +203,12 @@
    "fromTerminal": "vcc",
    "to": "POT_pot",
    "toTerminal": "a"
+  },
+  {
+   "from": "GND",
+   "fromTerminal": "gnd",
+   "to": "Q_motor_pwm",
+   "toTerminal": "emitter"
   },
   {
    "from": "GND",
@@ -212,54 +241,68 @@
   {
    "ref": "bbw:bb1:gen_0",
    "boardId": "bb1",
-   "a": "b30",
-   "b": "b38",
+   "a": "g3",
+   "b": "b26",
    "color": "green"
   },
   {
    "ref": "bbw:bb1:gen_1",
    "boardId": "bb1",
-   "a": "b39",
-   "b": "g3",
+   "a": "b30",
+   "b": "b39",
    "color": "blue"
   },
   {
    "ref": "bbw:bb1:gen_2",
    "boardId": "bb1",
-   "a": "b34",
-   "b": "g6",
+   "a": "b44",
+   "b": "b40",
    "color": "yellow"
   },
   {
    "ref": "bbw:bb1:gen_3",
    "boardId": "bb1",
-   "a": "b26",
-   "b": "t+26",
-   "color": "red"
+   "a": "b34",
+   "b": "g6",
+   "color": "orange"
   },
   {
    "ref": "bbw:bb1:gen_4",
+   "boardId": "bb1",
+   "a": "b42",
+   "b": "t+42",
+   "color": "red"
+  },
+  {
+   "ref": "bbw:bb1:gen_5",
    "boardId": "bb1",
    "a": "b32",
    "b": "t+32",
    "color": "red"
   },
   {
-   "ref": "bbw:bb1:gen_5",
+   "ref": "bbw:bb1:gen_6",
+   "boardId": "bb1",
+   "a": "b38",
+   "b": "b-38",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb1:gen_7",
    "boardId": "bb1",
    "a": "b36",
    "b": "b-36",
    "color": "black"
   },
   {
-   "ref": "bbw:bb1:gen_6",
+   "ref": "bbw:bb1:gen_8",
    "boardId": "bb1",
    "a": "g22",
    "b": "b-22",
    "color": "black"
   },
   {
-   "ref": "bbw:bb1:gen_7",
+   "ref": "bbw:bb1:gen_9",
    "boardId": "bb1",
    "a": "a3",
    "b": "t+3",
