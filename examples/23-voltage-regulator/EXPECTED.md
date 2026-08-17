@@ -46,3 +46,8 @@ If VCC changes from 9 V to 12 V:
 1. Zener diode clamps voltage at its breakdown voltage
 2. Load current is independent of supply voltage (regulation)
 3. Series resistor R1 limits total current and drops excess voltage
+
+```assert
+# Zener regulator: 9V in, clamp at ~6.15V (zener + margin)
+net r1.b V 6.15 +-0.25
+```

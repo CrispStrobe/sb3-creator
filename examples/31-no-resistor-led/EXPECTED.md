@@ -36,3 +36,8 @@ A simulator that shows both LEDs as equally "on" is hiding the problem.
 1. The engine models current-limiting (or lack thereof)
 2. The resistor-limited LED has reasonable brightness (~0.65)
 3. The no-resistor LED has different (likely much higher) brightness
+
+```assert
+# Good LED (with R): anode at Shockley Vf ≈ 2.13V
+net led_ok.anode V 2.13 +-0.15
+```

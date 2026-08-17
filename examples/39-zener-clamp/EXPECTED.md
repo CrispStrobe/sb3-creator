@@ -23,3 +23,8 @@ No MCU -- zener regulates the junction voltage.
 1. Zener diode clamps voltage at its breakdown voltage
 2. Load sees regulated voltage regardless of supply
 3. Series resistor R1 must absorb (V_supply - V_zener); without it the zener would burn
+
+```assert
+# Zener clamp: breakdown at ~5.14V
+net r1.b V 5.14 +-0.20
+```

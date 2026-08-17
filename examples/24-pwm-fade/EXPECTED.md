@@ -32,3 +32,8 @@ with the LED off (1 ms each), giving a 100 ms period (10 Hz PWM).
 2. Variable arithmetic (duty cycle incrementing/decrementing)
 3. Fine-grained timing with 1 ms waits
 4. Smooth brightness transitions via duty cycle modulation
+
+```assert
+# MCU supply: VCC = 5.000V
+net MCU.VCC V 5.00 +-0.01
+```

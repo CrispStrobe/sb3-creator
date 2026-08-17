@@ -27,3 +27,8 @@ Toggles P1.0 at 1 Hz: 500 ms on, 500 ms off, forever.
 1. Active-low wiring: `turn on led1` drives P1.0 LOW (= 0), not HIGH
 2. Timer-based wait: 500 ms from Timer 0 at FOSC/12, not a cycle-counted loop
 3. The LED is in the VCC→R→LED→pin path, not pin→LED→GND (which would need push-pull)
+
+```assert
+# MCU supply: VCC = 5.000V
+net MCU.VCC V 5.00 +-0.01
+```

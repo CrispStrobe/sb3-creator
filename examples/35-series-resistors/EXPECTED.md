@@ -20,3 +20,8 @@ No MCU -- pure passive circuit, LED is always on.
 1. Series resistors add: R_total = R1 + R2
 2. Same current flows through all series components
 3. Voltage divides proportionally to resistance
+
+```assert
+# Series R: R1.b = VCC - I×R1, where I=(5-Vf)/(R1+R2)≈1mA
+net r1.b V 4.00 +-0.15
+```

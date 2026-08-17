@@ -28,3 +28,10 @@ No MCU -- all three LEDs always on.
 1. Different LED colours have different forward voltages
 2. Parallel branches with different Vf draw different currents
 3. Each LED needs its own resistor
+
+```assert
+# Red/green LEDs: Vf ≈ 2.09V at ~9mA
+net led1.anode V 2.09 +-0.15
+# Blue LED: higher Vf ≈ 3.25V
+net led3.anode V 3.25 +-0.20
+```

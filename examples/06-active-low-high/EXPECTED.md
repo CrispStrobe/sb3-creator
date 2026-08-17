@@ -31,3 +31,8 @@ of wiring — the polarity flag handles the inversion.
 2. `turn on` on a normal (active-high) pin drives the pin HIGH
 3. The polarity abstraction: same pseudocode, different wiring, same result
 4. The quasi-bidirectional 8051 pin can sink (active-low) and source (active-high)
+
+```assert
+# MCU supply: VCC = 5.000V
+net mcu1.VCC V 5.00 +-0.01
+```

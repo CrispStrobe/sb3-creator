@@ -25,3 +25,8 @@ No MCU -- demonstrates diode polarity.
 1. Diodes conduct in one direction only (anode to cathode)
 2. A reverse-biased diode blocks all current
 3. Forward-biased diode drops ~0.7 V (silicon)
+
+```assert
+# Forward diode: cathode at ~4.25V (5V - Vf)
+net d1.cathode V 4.25 +-0.20
+```

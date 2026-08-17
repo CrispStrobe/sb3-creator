@@ -28,3 +28,10 @@ No MCU -- pure passive circuit demonstrating diode polarity.
 2. Series voltage drops: VCC = V_R + V_diode + V_LED
 3. A reverse-biased diode effectively opens the circuit
 4. Visual comparison: one LED lights, the other stays dark
+
+```assert
+# Forward path: d1 anode at ~2.79V (R + diode + LED drops)
+net d1.anode V 2.79 +-0.20
+# Reverse path: d2 cathode at VCC (reverse-biased, no current)
+net d2.cathode V 5.00 +-0.01
+```

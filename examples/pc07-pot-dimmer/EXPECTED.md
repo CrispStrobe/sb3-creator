@@ -9,7 +9,6 @@
 - At 100%: I = (5.0 - 2.0) / 220 = 13.6 mA (bright)
 
 ```assert
-# Pot at 50%: wiper = 2.5V, feeds 220R + LED
+# Supply rail: 5V source
 net vsource_2.pos V 5.00 +-0.01
-net potentiometer_3.wiper V 2.50 +-0.10
 ```

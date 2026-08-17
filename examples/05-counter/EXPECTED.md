@@ -28,3 +28,9 @@ Waits for button press, increments counter (0–9, wraps), blinks LED
 2. Counter variable with wrap-around
 3. `REPEAT count:` with a variable count
 4. Sequential blink pattern
+
+```assert
+# Button pull-up at VCC, MCU supply
+net BTN_button.a V 5.00 +-0.01
+net MCU.VCC V 5.00 +-0.01
+```

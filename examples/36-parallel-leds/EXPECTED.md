@@ -21,3 +21,8 @@ No MCU -- pure passive circuit, both LEDs always on.
 1. Each parallel branch is independent -- same current as a single branch
 2. Total supply current is the sum of branch currents
 3. Each LED has its own current-limiting resistor (correct practice)
+
+```assert
+# Equal parallel branches: both LEDs at Shockley Vf ≈ 2.03V
+net led1.anode V 2.03 +-0.15
+```

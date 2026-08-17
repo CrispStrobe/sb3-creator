@@ -40,3 +40,10 @@ Two branches from VCC (5 V) to GND, no MCU:
 1. Series resistance adds: R_total = R1 + R2
 2. Parallel paths share voltage, not current
 3. Visual brightness comparison shows current difference
+
+```assert
+# Series branch: R1.b = 5 - I×R1, junction voltage
+net r1.b V 3.52 +-0.20
+# Parallel branches: LED Vf ≈ 2.06V at lower current
+net led2.anode V 2.06 +-0.15
+```

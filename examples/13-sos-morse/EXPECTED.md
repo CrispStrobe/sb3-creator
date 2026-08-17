@@ -32,3 +32,8 @@ Letter gap = 3 units off. Word gap = 7 units off.
 1. REPEAT N construct for counted loops
 2. Nested timing sequences with varying on/off durations
 3. Multiple sequential REPEAT blocks in one FOREVER loop
+
+```assert
+# MCU supply: VCC = 5.000V
+net MCU.VCC V 5.00 +-0.01
+```

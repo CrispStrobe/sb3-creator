@@ -26,3 +26,10 @@ No MCU -- all three LEDs always on at different brightness levels.
 1. Higher resistance = less current = dimmer LED
 2. LED forward voltage is constant (2.0 V) independent of current
 3. Resistor value is the primary control for LED brightness in a fixed-voltage circuit
+
+```assert
+# 220Ω LED: highest I → highest Shockley Vf ≈ 2.13V
+net led1.anode V 2.13 +-0.15
+# 1kΩ LED: lowest I → lowest Shockley Vf ≈ 2.03V
+net led3.anode V 2.03 +-0.15
+```
