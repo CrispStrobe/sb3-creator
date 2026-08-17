@@ -140,19 +140,27 @@ WHEN flag clicked:
     IF mode = 0 THEN:
       # pin sees V/4; show centivolts as X.YZ
       set mv to read vin * 5000 / 1023
-      set shown to mv * 4 / 10
+      set cand to mv * 4 / 10
       set dpOn to 1
     IF mode = 1 THEN:
       # LM358 output = shunt mV x 46.5; I = shunt mV x 50
       set mv to read ain * 5000 / 1023
-      set shown to mv * 50 / 47
+      set cand to mv * 50 / 47
       set dpOn to 0
     IF mode = 2 THEN:
-      set shown to read tin * 5000 / 1023
+      set cand to read tin * 5000 / 1023
       set dpOn to 0
-    IF shown > 999 THEN:
-      set shown to 999
-    set d0 to shown / 100
-    set d1 to shown / 10 mod 10
-    set d2 to shown mod 10
+    IF cand > 999 THEN:
+      set cand to 999
+    # one count of hysteresis: the lit display loads the rails, the load
+    # varies with the scan phase, and a boundary reading would flicker
+    # its last digit forever - every real meter damps this
+    set diff to cand - shown
+    IF diff < 0 THEN:
+      set diff to 0 - diff
+    IF diff > 1 THEN:
+      set shown to cand
+      set d0 to shown / 100
+      set d1 to shown / 10 mod 10
+      set d2 to shown mod 10
     wait 0.05 seconds
