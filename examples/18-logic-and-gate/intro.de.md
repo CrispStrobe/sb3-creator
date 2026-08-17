@@ -5,7 +5,7 @@ prereqs: [05-counter-7seg]
 teaches: [and-logic, boolean-algebra, button-input]
 ---
 ## Was du siehst
-Zwei Taster und eine LED. Die LED leuchtet nur, wenn beide Taster gleichzeitig gedrückt werden. Lässt man einen los, geht sie aus.
+Zwei Taster und eine LED. Die LED leuchtet nur, wenn beide Taster gleichzeitig gedrückt werden. Lässt man einen los, geht sie aus. Dieses Beispiel funktioniert auf allen unterstützten Mikrocontrollern — wähle ein anderes Gerät in der Werkzeugleiste, um die angepasste Schaltung zu sehen.
 
 ## Probier das
 1. Drücke nur den linken Taster — die LED bleibt aus.

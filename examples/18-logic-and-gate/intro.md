@@ -5,7 +5,7 @@ prereqs: [05-counter-7seg]
 teaches: [and-logic, boolean-algebra, button-input]
 ---
 ## What you see
-Two push buttons and one LED. The LED only turns on when both buttons are pressed at the same time. Release either one and it goes dark.
+Two push buttons and one LED. The LED only turns on when both buttons are pressed at the same time. Release either one and it goes dark. This example works on all supported microcontrollers — pick a different device in the toolbar to see the adapted circuit.
 
 ## Try this
 1. Press just the left button — the LED stays off.
