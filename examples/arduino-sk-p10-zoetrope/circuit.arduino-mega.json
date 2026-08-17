@@ -35,7 +35,20 @@
    "y": 60
   }
  ],
- "wires": [],
+ "wires": [
+  {
+   "from": "board",
+   "fromTerminal": "5v",
+   "to": "vcc1",
+   "toTerminal": "vcc"
+  },
+  {
+   "from": "board",
+   "fromTerminal": "gnd",
+   "to": "gnd1",
+   "toTerminal": "gnd"
+  }
+ ],
  "holeWires": [],
- "generated": "benchFor+seat"
+ "generated": "benchFor+authored+seat"
 }

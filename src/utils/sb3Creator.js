@@ -10526,6 +10526,35 @@ class SB3Creator {
                 '    P1M1 |=  0x02; P1M0 &= ~0x02;    /* P1.1 high-impedance */');
         }
         }
+        // AVR/ARM: the LCD/OLED init sequences above live inside the
+        // 8051/6502 setup section — these cores got the full bit-banged
+        // DRIVER but never the panel bring-up, so the display sat in its
+        // power-on state: SSD1306 with charge pump off and display off,
+        // decoding GDDRAM writes into a panel that never lit. Found by
+        // the pico-calculator chain test (owner: 'runs but OLED black'),
+        // and true on real silicon too, not just under emulation.
+        if ((this._core === 'avr' || this._core === 'arm') && (this._cUses.lcd || this._cUses.oled)) {
+            out.push('    I2C_SDA_HI(); I2C_SCL_HI();      /* release bus */');
+            if (this._cUses.lcd) {
+                out.push('    /* HD44780 init: 4-bit mode, 2-line, 5x8 font */',
+                    '    lcd_nibble(0x30, 0); lcd_nibble(0x30, 0); lcd_nibble(0x30, 0);',
+                    '    lcd_nibble(0x20, 0);             /* switch to 4-bit */',
+                    '    lcd_cmd(0x28);                    /* 2 lines, 5x8 */',
+                    '    lcd_cmd(0x0C);                    /* display on, cursor off */',
+                    '    lcd_cmd(0x06);                    /* increment, no shift */',
+                    '    lcd_cmd(0x01);                    /* clear */');
+            }
+            if (this._cUses.oled) {
+                out.push('    /* SSD1306 init: off, page mode, remap, charge pump, on, clear */',
+                    '    oled_cmd(0xAE);                    /* display off */',
+                    '    oled_cmd(0x20); oled_cmd(0x02);    /* page addressing mode */',
+                    '    oled_cmd(0xA1);                    /* segment remap */',
+                    '    oled_cmd(0xC8);                    /* COM scan direction */',
+                    '    oled_cmd(0x8D); oled_cmd(0x14);    /* charge pump enable */',
+                    '    oled_cmd(0xAF);                    /* display on */',
+                    '    bw_oled_clear(0);                  /* zero GDDRAM */');
+            }
+        }
         out.push('}', '',
             (this._core !== '8051' && this._core !== 'z80') ? 'int main(void)' : 'void main(void)',
             '{', '    bw_setup();');

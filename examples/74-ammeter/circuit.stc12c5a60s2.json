@@ -70,7 +70,98 @@
    "rotation": 0
   }
  ],
- "wires": [],
+ "wires": [
+  {
+   "from": "vcc1",
+   "fromTerminal": "vcc",
+   "to": "lcd1",
+   "toTerminal": "vcc"
+  },
+  {
+   "from": "gnd1",
+   "fromTerminal": "gnd",
+   "to": "lcd1",
+   "toTerminal": "gnd"
+  },
+  {
+   "from": "vcc1",
+   "fromTerminal": "vcc",
+   "to": "load1",
+   "toTerminal": "a"
+  },
+  {
+   "from": "load1",
+   "fromTerminal": "wiper",
+   "to": "shunt1",
+   "toTerminal": "a"
+  },
+  {
+   "from": "shunt1",
+   "fromTerminal": "b",
+   "to": "gnd1",
+   "toTerminal": "gnd"
+  },
+  {
+   "from": "nano",
+   "fromTerminal": "VCC",
+   "to": "lcd1",
+   "toTerminal": "vcc"
+  },
+  {
+   "from": "nano",
+   "fromTerminal": "VCC",
+   "to": "load1",
+   "toTerminal": "a"
+  },
+  {
+   "from": "nano",
+   "fromTerminal": "VCC",
+   "to": "vcc1",
+   "toTerminal": "vcc"
+  },
+  {
+   "from": "nano",
+   "fromTerminal": "GND",
+   "to": "gnd1",
+   "toTerminal": "gnd"
+  },
+  {
+   "from": "nano",
+   "fromTerminal": "GND",
+   "to": "lcd1",
+   "toTerminal": "gnd"
+  },
+  {
+   "from": "nano",
+   "fromTerminal": "GND",
+   "to": "shunt1",
+   "toTerminal": "b"
+  },
+  {
+   "from": "nano",
+   "fromTerminal": "P1.0",
+   "to": "lcd1",
+   "toTerminal": "sda"
+  },
+  {
+   "from": "nano",
+   "fromTerminal": "P1.1",
+   "to": "lcd1",
+   "toTerminal": "scl"
+  },
+  {
+   "from": "nano",
+   "fromTerminal": "P1.3",
+   "to": "load1",
+   "toTerminal": "wiper"
+  },
+  {
+   "from": "nano",
+   "fromTerminal": "P1.3",
+   "to": "shunt1",
+   "toTerminal": "a"
+  }
+ ],
  "holeWires": [],
- "generated": "benchFor+seat"
+ "generated": "benchFor+authored+seat"
 }

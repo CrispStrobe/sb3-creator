@@ -218,7 +218,308 @@
    "rotation": 0
   }
  ],
- "wires": [],
+ "wires": [
+  {
+   "from": "pd0",
+   "fromTerminal": "b",
+   "to": "gnd1",
+   "toTerminal": "gnd"
+  },
+  {
+   "from": "pd1",
+   "fromTerminal": "b",
+   "to": "gnd1",
+   "toTerminal": "gnd"
+  },
+  {
+   "from": "pd2",
+   "fromTerminal": "b",
+   "to": "gnd1",
+   "toTerminal": "gnd"
+  },
+  {
+   "from": "pd3",
+   "fromTerminal": "b",
+   "to": "gnd1",
+   "toTerminal": "gnd"
+  },
+  {
+   "from": "vcc1",
+   "fromTerminal": "vcc",
+   "to": "oled1",
+   "toTerminal": "vcc"
+  },
+  {
+   "from": "gnd1",
+   "fromTerminal": "gnd",
+   "to": "oled1",
+   "toTerminal": "gnd"
+  },
+  {
+   "from": "nano",
+   "fromTerminal": "5v",
+   "to": "oled1",
+   "toTerminal": "vcc"
+  },
+  {
+   "from": "nano",
+   "fromTerminal": "5v",
+   "to": "vcc1",
+   "toTerminal": "vcc"
+  },
+  {
+   "from": "nano",
+   "fromTerminal": "d24",
+   "to": "btn0",
+   "toTerminal": "a"
+  },
+  {
+   "from": "nano",
+   "fromTerminal": "d24",
+   "to": "btnAC",
+   "toTerminal": "a"
+  },
+  {
+   "from": "nano",
+   "fromTerminal": "d24",
+   "to": "btnC",
+   "toTerminal": "a"
+  },
+  {
+   "from": "nano",
+   "fromTerminal": "d20",
+   "to": "oled1",
+   "toTerminal": "sda"
+  },
+  {
+   "from": "nano",
+   "fromTerminal": "d21",
+   "to": "oled1",
+   "toTerminal": "scl"
+  },
+  {
+   "from": "nano",
+   "fromTerminal": "gnd",
+   "to": "gnd1",
+   "toTerminal": "gnd"
+  },
+  {
+   "from": "nano",
+   "fromTerminal": "gnd",
+   "to": "oled1",
+   "toTerminal": "gnd"
+  },
+  {
+   "from": "nano",
+   "fromTerminal": "gnd",
+   "to": "pd0",
+   "toTerminal": "b"
+  },
+  {
+   "from": "nano",
+   "fromTerminal": "gnd",
+   "to": "pd1",
+   "toTerminal": "b"
+  },
+  {
+   "from": "nano",
+   "fromTerminal": "gnd",
+   "to": "pd2",
+   "toTerminal": "b"
+  },
+  {
+   "from": "nano",
+   "fromTerminal": "gnd",
+   "to": "pd3",
+   "toTerminal": "b"
+  },
+  {
+   "from": "nano",
+   "fromTerminal": "d13",
+   "to": "btn7",
+   "toTerminal": "a"
+  },
+  {
+   "from": "nano",
+   "fromTerminal": "d13",
+   "to": "btn8",
+   "toTerminal": "a"
+  },
+  {
+   "from": "nano",
+   "fromTerminal": "d13",
+   "to": "btn9",
+   "toTerminal": "a"
+  },
+  {
+   "from": "nano",
+   "fromTerminal": "d13",
+   "to": "btnPlus",
+   "toTerminal": "a"
+  },
+  {
+   "from": "nano",
+   "fromTerminal": "d2",
+   "to": "btn0",
+   "toTerminal": "b"
+  },
+  {
+   "from": "nano",
+   "fromTerminal": "d2",
+   "to": "btn1",
+   "toTerminal": "b"
+  },
+  {
+   "from": "nano",
+   "fromTerminal": "d2",
+   "to": "btn4",
+   "toTerminal": "b"
+  },
+  {
+   "from": "nano",
+   "fromTerminal": "d2",
+   "to": "btn7",
+   "toTerminal": "b"
+  },
+  {
+   "from": "nano",
+   "fromTerminal": "d2",
+   "to": "pd0",
+   "toTerminal": "a"
+  },
+  {
+   "from": "nano",
+   "fromTerminal": "d3",
+   "to": "btn2",
+   "toTerminal": "b"
+  },
+  {
+   "from": "nano",
+   "fromTerminal": "d3",
+   "to": "btn5",
+   "toTerminal": "b"
+  },
+  {
+   "from": "nano",
+   "fromTerminal": "d3",
+   "to": "btn8",
+   "toTerminal": "b"
+  },
+  {
+   "from": "nano",
+   "fromTerminal": "d3",
+   "to": "btnC",
+   "toTerminal": "b"
+  },
+  {
+   "from": "nano",
+   "fromTerminal": "d3",
+   "to": "pd1",
+   "toTerminal": "a"
+  },
+  {
+   "from": "nano",
+   "fromTerminal": "d18",
+   "to": "btn3",
+   "toTerminal": "b"
+  },
+  {
+   "from": "nano",
+   "fromTerminal": "d18",
+   "to": "btn6",
+   "toTerminal": "b"
+  },
+  {
+   "from": "nano",
+   "fromTerminal": "d18",
+   "to": "btn9",
+   "toTerminal": "b"
+  },
+  {
+   "from": "nano",
+   "fromTerminal": "d18",
+   "to": "btnAC",
+   "toTerminal": "b"
+  },
+  {
+   "from": "nano",
+   "fromTerminal": "d18",
+   "to": "pd2",
+   "toTerminal": "a"
+  },
+  {
+   "from": "nano",
+   "fromTerminal": "d19",
+   "to": "btnEq",
+   "toTerminal": "b"
+  },
+  {
+   "from": "nano",
+   "fromTerminal": "d19",
+   "to": "btnMinus",
+   "toTerminal": "b"
+  },
+  {
+   "from": "nano",
+   "fromTerminal": "d19",
+   "to": "btnPlus",
+   "toTerminal": "b"
+  },
+  {
+   "from": "nano",
+   "fromTerminal": "d19",
+   "to": "pd3",
+   "toTerminal": "a"
+  },
+  {
+   "from": "nano",
+   "fromTerminal": "d22",
+   "to": "btn4",
+   "toTerminal": "a"
+  },
+  {
+   "from": "nano",
+   "fromTerminal": "d22",
+   "to": "btn5",
+   "toTerminal": "a"
+  },
+  {
+   "from": "nano",
+   "fromTerminal": "d22",
+   "to": "btn6",
+   "toTerminal": "a"
+  },
+  {
+   "from": "nano",
+   "fromTerminal": "d22",
+   "to": "btnMinus",
+   "toTerminal": "a"
+  },
+  {
+   "from": "nano",
+   "fromTerminal": "d23",
+   "to": "btn1",
+   "toTerminal": "a"
+  },
+  {
+   "from": "nano",
+   "fromTerminal": "d23",
+   "to": "btn2",
+   "toTerminal": "a"
+  },
+  {
+   "from": "nano",
+   "fromTerminal": "d23",
+   "to": "btn3",
+   "toTerminal": "a"
+  },
+  {
+   "from": "nano",
+   "fromTerminal": "d23",
+   "to": "btnEq",
+   "toTerminal": "a"
+  }
+ ],
  "holeWires": [],
- "generated": "benchFor+seat"
+ "generated": "benchFor+authored+seat"
 }

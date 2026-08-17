@@ -309,7 +309,14 @@ function seat() {
     if (d.parts.some(p => p.seat)) continue;
     const exid = f.split(path.sep)[1];
     const device = path.basename(f).replace('circuit.', '').replace('.json', '');
-    const wires = [];
+    // Wires-form benches (the authored-circuit transforms) keep their
+    // wires; nets-form benches (synthesis output) convert nets to a
+    // star of wires. Assuming nets-form unconditionally staged every
+    // TRANSFORMED bench with ZERO wires — the seat pass then wrote back
+    // a parts list with no connectivity at all (the black calculator
+    // OLED on the Pico: firmware bit-banged perfectly into a bus that
+    // did not exist).
+    const wires = [...(d.wires ?? [])];
     for (const net of d.nets ?? []) {
       const ts = net.terminals;
       for (const t of ts.slice(1)) wires.push({ from: ts[0].part, fromTerminal: ts[0].terminal,
@@ -318,12 +325,13 @@ function seat() {
     const scratch = `/tmp/wore-batch/${exid}-${device}/${exid}`;
     fs.mkdirSync(scratch, { recursive: true });
     fs.writeFileSync(path.join(scratch, 'circuit.json'),
-      JSON.stringify({ vcc: d.vcc, parts: d.parts, wires, holeWires: [] }, null, 1));
+      JSON.stringify({ vcc: d.vcc, parts: d.parts, wires, holeWires: d.holeWires ?? [] }, null, 1));
     const outText = execFileSync('node', [seatgen, '--examples',
       `/tmp/wore-batch/${exid}-${device}`, '--only', exid], { encoding: 'utf8' });
     if (outText.includes('seated')) {
       const seatedD = JSON.parse(fs.readFileSync(path.join(scratch, 'circuit.json'), 'utf8'));
-      seatedD.generated = 'benchFor+seat';
+      seatedD.generated = d.generated === 'benchFor+authored'
+        ? 'benchFor+authored+seat' : 'benchFor+seat';
       fs.writeFileSync(f, JSON.stringify(seatedD, null, 1));
       seated++;
     } else failed++;

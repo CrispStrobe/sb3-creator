@@ -42,7 +42,56 @@
    "rotation": 0
   }
  ],
- "wires": [],
+ "wires": [
+  {
+   "from": "vcc1",
+   "fromTerminal": "vcc",
+   "to": "oled1",
+   "toTerminal": "vcc"
+  },
+  {
+   "from": "gnd1",
+   "fromTerminal": "gnd",
+   "to": "oled1",
+   "toTerminal": "gnd"
+  },
+  {
+   "from": "pico1",
+   "fromTerminal": "pb0",
+   "to": "oled1",
+   "toTerminal": "sda"
+  },
+  {
+   "from": "pico1",
+   "fromTerminal": "pb2",
+   "to": "oled1",
+   "toTerminal": "scl"
+  },
+  {
+   "from": "pico1",
+   "fromTerminal": "vcc",
+   "to": "oled1",
+   "toTerminal": "vcc"
+  },
+  {
+   "from": "pico1",
+   "fromTerminal": "vcc",
+   "to": "vcc1",
+   "toTerminal": "vcc"
+  },
+  {
+   "from": "pico1",
+   "fromTerminal": "gnd",
+   "to": "gnd1",
+   "toTerminal": "gnd"
+  },
+  {
+   "from": "pico1",
+   "fromTerminal": "gnd",
+   "to": "oled1",
+   "toTerminal": "gnd"
+  }
+ ],
  "holeWires": [],
- "generated": "benchFor+seat"
+ "generated": "benchFor+authored+seat"
 }
