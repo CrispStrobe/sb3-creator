@@ -1,11 +1,15 @@
 #!/usr/bin/env node
 /**
- * Sweep all example circuits for missing breadboards.
+ * Sweep all example circuits for seating issues.
  *
- * Reports circuits that have ZERO breadboard-kind parts
- * (breadboard, mini_breadboard, half_breadboard).
+ * Two checks:
+ * 1. Circuits with ZERO breadboard-kind parts (schematic-style — reported
+ *    but not an error if intentional)
+ * 2. Circuits WITH breadboards where seatable parts lack a seat property
+ *    (these are bugs — parts float in space on the canvas)
  *
  *   node scripts/sweep-unseated.mjs
+ *   node scripts/sweep-unseated.mjs --strict   # exit 1 on any unseated
  */
 import { readFileSync, readdirSync } from 'node:fs';
 import { join, dirname } from 'node:path';
@@ -13,40 +17,52 @@ import { fileURLToPath } from 'node:url';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const examplesDir = join(root, 'examples');
+const strict = process.argv.includes('--strict');
 
 const BREADBOARD_KINDS = new Set(['breadboard', 'mini_breadboard', 'half_breadboard']);
+// Parts that don't need seating (power symbols, displays, backplanes)
+const EXEMPT_KINDS = new Set([
+    'breadboard', 'mini_breadboard', 'half_breadboard',
+    'vcc', 'gnd', 'seven_seg', 'seven_seg_hex',
+]);
 
-// Node 20 has no globSync in node:fs — manual glob
 const files = [];
 for (const d of readdirSync(examplesDir, { withFileTypes: true })) {
-  if (!d.isDirectory()) continue;
-  for (const f of readdirSync(join(examplesDir, d.name))) {
-    if (f.startsWith('circuit') && f.endsWith('.json'))
-      files.push(join('examples', d.name, f));
-  }
+    if (!d.isDirectory()) continue;
+    for (const f of readdirSync(join(examplesDir, d.name))) {
+        if (f.startsWith('circuit') && f.endsWith('.json'))
+            files.push(join('examples', d.name, f));
+    }
 }
 files.sort();
 
-let count = 0;
+let noBreadboard = 0, unseatedCount = 0;
 for (const rel of files) {
-  const abs = join(root, rel);
-  let data;
-  try {
-    data = JSON.parse(readFileSync(abs, 'utf8'));
-  } catch (e) {
-    console.log(`${rel}: PARSE ERROR — ${e.message}`);
-    count++;
-    continue;
-  }
+    const abs = join(root, rel);
+    let data;
+    try { data = JSON.parse(readFileSync(abs, 'utf8')); }
+    catch (e) { console.log(`${rel}: PARSE ERROR — ${e.message}`); continue; }
 
-  const parts = data.parts || [];
-  const bbs = parts.filter(p => BREADBOARD_KINDS.has(p.kind));
+    const parts = data.parts || [];
+    const bbs = parts.filter(p => BREADBOARD_KINDS.has(p.kind));
 
-  if (bbs.length === 0) {
-    const partKinds = [...new Set(parts.map(p => p.kind))].join(', ');
-    console.log(`${rel}: zero breadboards (parts: ${partKinds})`);
-    count++;
-  }
+    if (bbs.length === 0) {
+        noBreadboard++;
+        continue; // schematic-style: seating not applicable
+    }
+
+    // Has breadboard(s) — every seatable part must have a seat
+    const unseated = parts.filter(p =>
+        !EXEMPT_KINDS.has(p.kind) && !p.seat
+    );
+    if (unseated.length > 0) {
+        console.log(`${rel}:`);
+        for (const p of unseated) {
+            console.log(`  "${p.id}" (${p.kind}): no seat`);
+        }
+        unseatedCount += unseated.length;
+    }
 }
 
-console.log(`\n--- ${count} circuit(s) with zero breadboards out of ${files.length} total ---`);
+console.log(`\n--- ${noBreadboard} schematic-style (no breadboard), ${unseatedCount} unseated part(s) in ${files.length} circuits ---`);
+if (strict && unseatedCount > 0) process.exit(1);
