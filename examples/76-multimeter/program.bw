@@ -3,9 +3,9 @@
 # buzzer chirp:
 #   mode 0  volts through the 30k/10k divider      -> "X.YZ" (dp lit)
 #   mode 1  milliamps via 0.02R shunt + LM358 x46  -> whole mA
-#   mode 2  the NTC divider, raw millivolts        -> whole mV
-# (converting mode 2 to deg C needs the B-equation lookup - stage two,
-# like the kit's frequency counter and PWM output.)
+#   mode 2  NTC via B-equation piecewise map       -> "XY.Z" degC
+#            (dp on the middle digit; sub-zero shows "-XY" whole degrees
+#            with segment g as the minus sign)
 DEVICE STC15F2K60S2
 CLOCK 11059200
 PIN sa = P0.0 OUTPUT
@@ -95,21 +95,25 @@ DEFINE FAST render digit (n):
     turn on sd
     turn on sf
     turn on sg
+  IF n = 10 THEN:
+    turn on sg
 
 WHEN flag clicked:
   set d0 to 0
   set d1 to 0
   set d2 to 0
-  set dpOn to 0
+  set dpDig to 9
   FOREVER:
     render digit (d0)
-    IF dpOn = 1 THEN:
+    IF dpDig = 0 THEN:
       turn on sdp
     turn on dig0
     wait 0.002 seconds
     turn off dig0
     clear segments
     render digit (d1)
+    IF dpDig = 1 THEN:
+      turn on sdp
     turn on dig1
     wait 0.002 seconds
     turn off dig1
@@ -141,15 +145,72 @@ WHEN flag clicked:
       # pin sees V/4; show centivolts as X.YZ
       set mv to read vin * 5000 / 1023
       set cand to mv * 4 / 10
-      set dpOn to 1
+      set dpDig to 0
+      set showMinus to 0
     IF mode = 1 THEN:
       # LM358 output = shunt mV x 46.5; I = shunt mV x 50
       set mv to read ain * 5000 / 1023
       set cand to mv * 50 / 47
-      set dpOn to 0
+      set dpDig to 9
+      set showMinus to 0
     IF mode = 2 THEN:
-      set cand to read tin * 5000 / 1023
-      set dpOn to 0
+      # NTC B-equation (B=3950, 10k at 25C, 10k to GND) as a piecewise
+      # linear map over the divider millivolts; t10 = deci-degC. The
+      # anchors are monotonic in mv, so each IF simply overwrites the
+      # previous segment - the last match wins, no ELSE chain needed.
+      set mv to read tin * 5000 / 1023
+      set t10 to mv - 433
+      set t10 to t10 * 100 / 300
+      set t10 to t10 - 200
+      IF mv > 733 THEN:
+        set t10 to mv - 733
+        set t10 to t10 * 100 / 413
+        set t10 to t10 - 100
+      IF mv > 1146 THEN:
+        set t10 to mv - 1146
+        set t10 to t10 * 100 / 511
+      IF mv > 1657 THEN:
+        set t10 to mv - 1657
+        set t10 to t10 * 100 / 562
+        set t10 to t10 + 100
+      IF mv > 2219 THEN:
+        set t10 to mv - 2219
+        set t10 to t10 * 100 / 553
+        set t10 to t10 + 200
+      IF mv > 2772 THEN:
+        set t10 to mv - 2772
+        set t10 to t10 * 100 / 496
+        set t10 to t10 + 300
+      IF mv > 3268 THEN:
+        set t10 to mv - 3268
+        set t10 to t10 * 100 / 412
+        set t10 to t10 + 400
+      IF mv > 3680 THEN:
+        set t10 to mv - 3680
+        set t10 to t10 * 100 / 324
+        set t10 to t10 + 500
+      IF mv > 4004 THEN:
+        set t10 to mv - 4004
+        set t10 to t10 * 100 / 248
+        set t10 to t10 + 600
+      IF mv > 4252 THEN:
+        set t10 to mv - 4252
+        set t10 to t10 * 100 / 184
+        set t10 to t10 + 700
+      IF mv > 4436 THEN:
+        set t10 to mv - 4436
+        set t10 to t10 * 100 / 137
+        set t10 to t10 + 800
+      IF t10 < 0 THEN:
+        # sub-zero: "-XY" whole degrees, minus glyph on the left digit
+        set cand to 0 - t10
+        set cand to cand / 10
+        set showMinus to 1
+        set dpDig to 9
+      ELSE:
+        set cand to t10
+        set showMinus to 0
+        set dpDig to 1
     IF cand > 999 THEN:
       set cand to 999
     # one count of hysteresis: the lit display loads the rails, the load
@@ -160,7 +221,12 @@ WHEN flag clicked:
       set diff to 0 - diff
     IF diff > 1 THEN:
       set shown to cand
-      set d0 to shown / 100
-      set d1 to shown / 10 mod 10
-      set d2 to shown mod 10
+      IF showMinus = 1 THEN:
+        set d0 to 10
+        set d1 to shown / 10
+        set d2 to shown mod 10
+      ELSE:
+        set d0 to shown / 100
+        set d1 to shown / 10 mod 10
+        set d2 to shown mod 10
     wait 0.05 seconds

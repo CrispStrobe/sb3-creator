@@ -30,11 +30,25 @@ the reading for the current mode every 50 ms.
 | mode V, source pot 60% | `2.83` (pin 0.708 V × 4, dp lit) |
 | mode V, source pot 90% | `4.39` |
 | mode A | `067` (LM358 out 62 mV → mA via ×50/47) |
-| mode T | `454` (NTC divider millivolts, raw) |
+| mode T, NTC control 0 | `-19` (R=100 kΩ, −19.2 °C truth; minus = segment g) |
+| mode T, control 0.25 | `1.0` (1.16 °C truth) |
+| mode T, control 0.5 | `25.0` (R=10 kΩ = 25.00 °C truth) |
+| mode T, control 0.75 | `53.6` (53.38 °C truth) |
+| mode T, control 1.0 | `87.9` (87.72 °C truth) |
 | 3rd press | wraps back to mode V |
 
-Converting mode T to °C needs the B-equation — stage two, together with
-the kit's frequency counter, PWM output and second display.
+Mode T is real °C now (stage two, 2026-08-17): an 11-segment
+piecewise-linear map of the B-equation (B = 3950, 10 kΩ at 25 °C)
+over the divider millivolts, exact to ±0.3 °C across −19…88 °C.
+Sub-zero shows "−XY" whole degrees with segment g as the minus sign;
+positive shows "XY.Z" with the dp on the middle digit. Still to come
+from the stage-two list: second display, frequency counter, PWM
+output with pot-set frequency/duty, S8550 digit drivers, and the
+STC15W408AS part entry.
+
+These values are asserted by test/multimeter-chain.test.mjs — the
+full-chain harness (generateC → sdcc → emu8051 STC15 → board MNA →
+digit decode), env-gated on sdcc + the emu8051-stc WASM build.
 
 ## Regression notes
 
