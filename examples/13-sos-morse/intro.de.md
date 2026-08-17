@@ -5,7 +5,7 @@ prereqs: [01-blink]
 teaches: [morse-code, timing-patterns, encoding]
 ---
 ## Was du siehst
-Eine LED blinkt das SOS-Notsignal im Morsecode: drei kurze Blitze, drei lange Blitze, drei kurze Blitze, dann eine Pause, bevor es sich wiederholt. Das Timing codiert Information — ein Strich ist dreimal so lang wie ein Punkt.
+Eine LED blinkt das SOS-Notsignal im Morsecode: drei kurze Blitze, drei lange Blitze, drei kurze Blitze, dann eine Pause, bevor es sich wiederholt. Das Timing codiert Information — ein Strich ist dreimal so lang wie ein Punkt. Dieses Beispiel funktioniert auf allen unterstützten Mikrocontrollern — wähle ein anderes Gerät in der Werkzeugleiste, um die angepasste Schaltung zu sehen.
 
 ## Probier das
 1. Starte das Programm und zähle die Blitze: 3 kurz, 3 lang, 3 kurz.

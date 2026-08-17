@@ -5,7 +5,7 @@ prereqs: [01-blink]
 teaches: [morse-code, timing-patterns, encoding]
 ---
 ## What you see
-An LED blinks the SOS distress signal in Morse code: three short flashes, three long flashes, three short flashes, then a pause before repeating. The timing encodes information — a dash is three times longer than a dot.
+An LED blinks the SOS distress signal in Morse code: three short flashes, three long flashes, three short flashes, then a pause before repeating. The timing encodes information — a dash is three times longer than a dot. This example works on all supported microcontrollers — pick a different device in the toolbar to see the adapted circuit.
 
 ## Try this
 1. Run the program and count the flashes: 3 short, 3 long, 3 short.
