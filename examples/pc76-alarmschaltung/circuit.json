@@ -265,6 +265,31 @@
         "terminal": "a"
       }
     }
+    ,
+    {
+      "id": "wire_29",
+      "netId": "net_28",
+      "from": {
+        "part": "resistor_9",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "buzzer_10",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_30",
+      "netId": "net_16",
+      "from": {
+        "part": "buzzer_10",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "gnd_2",
+        "terminal": "gnd"
+      }
+    }
   ],
   "holeWires": []
 }

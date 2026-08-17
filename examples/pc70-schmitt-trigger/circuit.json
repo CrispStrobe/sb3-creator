@@ -169,6 +169,31 @@
         "terminal": "gnd"
       }
     }
+    ,
+    {
+      "id": "wire_19",
+      "netId": "net_10",
+      "from": {
+        "part": "capacitor_5",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "gate_nand_3",
+        "terminal": "in0"
+      }
+    },
+    {
+      "id": "wire_20",
+      "netId": "net_17",
+      "from": {
+        "part": "capacitor_5",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "gnd_2",
+        "terminal": "gnd"
+      }
+    }
   ],
   "holeWires": []
 }

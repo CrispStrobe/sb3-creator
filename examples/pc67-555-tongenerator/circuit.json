@@ -205,6 +205,55 @@
         "terminal": "gnd"
       }
     }
+    ,
+    {
+      "id": "wire_21",
+      "netId": "net_17",
+      "from": {
+        "part": "capacitor_6",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "timer_555_3",
+        "terminal": "threshold"
+      }
+    },
+    {
+      "id": "wire_22",
+      "netId": "net_11",
+      "from": {
+        "part": "capacitor_6",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "gnd_2",
+        "terminal": "gnd"
+      }
+    },
+    {
+      "id": "wire_24",
+      "netId": "net_23",
+      "from": {
+        "part": "timer_555_3",
+        "terminal": "output"
+      },
+      "to": {
+        "part": "buzzer_7",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_25",
+      "netId": "net_11",
+      "from": {
+        "part": "buzzer_7",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "gnd_2",
+        "terminal": "gnd"
+      }
+    }
   ],
   "holeWires": []
 }

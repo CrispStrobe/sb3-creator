@@ -259,6 +259,31 @@
         "terminal": "gnd"
       }
     }
+    ,
+    {
+      "id": "wire_27",
+      "netId": "net_18",
+      "from": {
+        "part": "capacitor_6",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "timer_555_3",
+        "terminal": "threshold"
+      }
+    },
+    {
+      "id": "wire_28",
+      "netId": "net_12",
+      "from": {
+        "part": "capacitor_6",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "gnd_2",
+        "terminal": "gnd"
+      }
+    }
   ],
   "holeWires": []
 }

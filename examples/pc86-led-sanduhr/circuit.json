@@ -705,6 +705,31 @@
         "terminal": "a"
       }
     }
+    ,
+    {
+      "id": "wire_fix_1048",
+      "netId": "net_18",
+      "from": {
+        "part": "capacitor_13",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "timer_555_3",
+        "terminal": "threshold"
+      }
+    },
+    {
+      "id": "wire_fix_1049",
+      "netId": "net_8",
+      "from": {
+        "part": "capacitor_13",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "gnd_2",
+        "terminal": "gnd"
+      }
+    }
   ],
   "holeWires": []
 }
