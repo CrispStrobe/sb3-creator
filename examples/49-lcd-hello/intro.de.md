@@ -1,5 +1,5 @@
 ## Was du siehst
-Ein 16×2-Zeichen-LCD mit I2C-Backpack: Zwei Leitungen (SDA an P2.1, SCL an P2.2) übertragen alles, was das Display zeigt. Die erste Zeile grüßt, die zweite zählt jede Sekunde hoch.
+Ein 16×2-Zeichen-LCD mit I2C-Backpack: Zwei Leitungen (SDA an P2.1, SCL an P2.2) übertragen alles, was das Display zeigt. Die erste Zeile grüßt, die zweite zählt jede Sekunde hoch. Dieses Beispiel funktioniert auf allen unterstützten Mikrocontrollern — wähle ein anderes Gerät in der Werkzeugleiste, um die angepasste Schaltung zu sehen.
 
 ## Probiere das
 1. Starte das Programm — erst erscheint "HI BRICKWRIGHT", dann tickt der Zähler.
