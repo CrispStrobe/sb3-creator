@@ -9564,6 +9564,27 @@ class SB3Creator {
                             '#define BW_BIT(port, bit) (((volatile struct __bw_bits2 *)&(port))->b##bit)',
                             '#endif',
                             '');
+                    } else if (this._core === 'arm') {
+                        // RP2040: the same lvalue idiom against SIO GPIO_OUT
+                        // (0xd0000010) — a byte-addressed bitfield view; RMW on
+                        // GPIO_OUT is architecturally fine, SET/CLR are only
+                        // atomic conveniences. The general pin init already
+                        // emits funcsel=SIO and OE for declared OUTPUT pins.
+                        const h1 = sdaPin && this.armHw(sdaPin);
+                        const h2 = sclPin && this.armHw(sclPin);
+                        if (h1 && h2) {
+                            const ref = (g) => `BW_BIT((*(volatile unsigned char *)0x${(0xd0000010 + (g >> 3)).toString(16)}u), ${g & 7})`;
+                            i2cSda = ref(h1.gpio);
+                            i2cScl = ref(h2.gpio);
+                        } else {
+                            this.cWarn('I2C on the Pico needs pins named "sda" and "scl" on GP0-GP28');
+                        }
+                        out.push(
+                            'struct __bw_bits2 { unsigned char b0:1, b1:1, b2:1, b3:1, b4:1, b5:1, b6:1, b7:1; };',
+                            '#ifndef BW_BIT',
+                            '#define BW_BIT(port, bit) (((volatile struct __bw_bits2 *)&(port))->b##bit)',
+                            '#endif',
+                            '');
                     } else if (sdaPin && sdaPin.port !== undefined && sclPin && sclPin.port !== undefined) {
                         i2cSda = `P${sdaPin.port}_${sdaPin.bit}`;
                         i2cScl = `P${sclPin.port}_${sclPin.bit}`;

@@ -1,0 +1,84 @@
+{
+ "vcc": 3.3,
+ "parts": [
+  {
+   "id": "pico1",
+   "kind": "pi_pico",
+   "params": {},
+   "x": 250,
+   "y": 330,
+   "rotation": 0
+  },
+  {
+   "id": "oled1",
+   "kind": "ssd1306",
+   "params": {},
+   "x": 640,
+   "y": 320,
+   "rotation": 0
+  },
+  {
+   "id": "bb1",
+   "kind": "breadboard",
+   "params": {},
+   "x": 470,
+   "y": 330,
+   "rotation": 0
+  },
+  {
+   "id": "vcc1",
+   "kind": "vcc",
+   "params": {},
+   "x": 60,
+   "y": 120,
+   "rotation": 0
+  },
+  {
+   "id": "gnd1",
+   "kind": "gnd",
+   "params": {},
+   "x": 140,
+   "y": 120,
+   "rotation": 0
+  }
+ ],
+ "wires": [
+  {
+   "from": "pico1",
+   "fromTerminal": "gp0",
+   "to": "oled1",
+   "toTerminal": "sda"
+  },
+  {
+   "from": "pico1",
+   "fromTerminal": "gp1",
+   "to": "oled1",
+   "toTerminal": "scl"
+  },
+  {
+   "from": "vcc1",
+   "fromTerminal": "vcc",
+   "to": "oled1",
+   "toTerminal": "vcc"
+  },
+  {
+   "from": "gnd1",
+   "fromTerminal": "gnd",
+   "to": "oled1",
+   "toTerminal": "gnd"
+  },
+  {
+   "from": "vcc1",
+   "fromTerminal": "vcc",
+   "to": "pico1",
+   "toTerminal": "vbus"
+  },
+  {
+   "from": "gnd1",
+   "fromTerminal": "gnd",
+   "to": "pico1",
+   "toTerminal": "gnd_1"
+  }
+ ],
+ "holeWires": []
+}

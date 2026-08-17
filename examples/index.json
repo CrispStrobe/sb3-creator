@@ -5107,5 +5107,25 @@
   "devices": [
    "arduino-nano"
   ]
+ },
+ {
+  "id": "72-pico-oled-hello",
+  "title": {
+   "en": "OLED on the Pico",
+   "de": "OLED am Pico"
+  },
+  "category": "digital",
+  "difficulty": 2,
+  "files": {
+   "program": "72-pico-oled-hello/program.bw",
+   "circuit": "72-pico-oled-hello/circuit.json",
+   "expected": "72-pico-oled-hello/EXPECTED.md",
+   "intro": "72-pico-oled-hello/intro.md",
+   "introDE": "72-pico-oled-hello/intro.de.md"
+  },
+  "kind": "full",
+  "devices": [
+   "pico"
+  ]
  }
 ]

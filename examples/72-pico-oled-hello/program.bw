@@ -1,0 +1,14 @@
+# The GME12864-70 OLED (SSD1306, 128x64, 4-pin I2C) on a Raspberry Pi
+# Pico, wired the usual way: board pin 1 = GP0 = SDA, pin 2 = GP1 = SCL.
+DEVICE PICO
+CLOCK 125000000
+PIN sda = GP0 OUTPUT
+PIN scl = GP1 OUTPUT
+
+STAGE:
+  WHEN flag clicked:
+    oled clear 1
+    oled set cursor 2 3 on 1
+    oled print "HELLO" on 1
+    oled set cursor 4 2 on 1
+    oled print "FROM PICO" on 1
