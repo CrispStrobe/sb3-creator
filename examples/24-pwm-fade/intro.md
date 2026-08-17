@@ -5,7 +5,7 @@ prereqs: [01-blink]
 teaches: [pwm, fading, duty-cycle]
 ---
 ## What you see
-An LED smoothly fades from off to full brightness and back, over and over. There is no flicker — the brightness changes feel continuous, like a dimmer switch.
+An LED smoothly fades from off to full brightness and back, over and over. There is no flicker — the brightness changes feel continuous, like a dimmer switch. This example works on all supported microcontrollers — pick a different device in the toolbar to see the adapted circuit.
 
 ## Try this
 1. Run the program and watch the LED breathe up and down.

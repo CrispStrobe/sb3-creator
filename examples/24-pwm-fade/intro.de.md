@@ -5,7 +5,7 @@ prereqs: [01-blink]
 teaches: [pwm, fading, duty-cycle]
 ---
 ## Was du siehst
-Eine LED wird sanft von aus bis zur vollen Helligkeit heller und wieder dunkler, immer wieder. Kein Flackern — die Helligkeitsänderungen wirken kontinuierlich, wie ein Dimmer.
+Eine LED wird sanft von aus bis zur vollen Helligkeit heller und wieder dunkler, immer wieder. Kein Flackern — die Helligkeitsänderungen wirken kontinuierlich, wie ein Dimmer. Dieses Beispiel funktioniert auf allen unterstützten Mikrocontrollern — wähle ein anderes Gerät in der Werkzeugleiste, um die angepasste Schaltung zu sehen.
 
 ## Probier das
 1. Starte das Programm und beobachte, wie die LED auf und ab atmet.
