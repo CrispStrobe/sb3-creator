@@ -1448,7 +1448,7 @@ class SB3Creator {
         // A numbered pin (D13, A0) for the boards that have them. Kept as its
         // own branch: an Arduino pin has no port and no bit, so every check
         // below it is about a coordinate system it is not in.
-        if ((m = trimmed.match(/^PIN\s+([A-Za-z_]\w*)\s*=\s*([DA]\d+|GP\d+|P[A-D]\d|P\d+|BUTTON_[AB]|(?:OUT|IN)\d)\s+(OUTPUT|INPUT|ANALOG|PWM|TONE)(?:\s+ACTIVE\s+(LOW|HIGH))?$/i))) {
+        if ((m = trimmed.match(/^PIN\s+([A-Za-z_]\w*)\s*=\s*([DA]\d+|GP\d+|P[A-D]\d|P\d+|BUTTON_[AB]|(?:OUT|IN)\d|MK\d+)\s+(OUTPUT|INPUT|ANALOG|PWM|TONE)(?:\s+ACTIVE\s+(LOW|HIGH))?$/i))) {
             const [, name, where, direction, active] = m;
             const cfg = this.stcConfig();
             const part = SB3Creator.STC_PARTS[cfg.device];
@@ -1469,7 +1469,7 @@ class SB3Creator {
                 pico: [/^GP\d+$/i, 'GP0-GP28'],
                 // PB7 is Timer 1's square-wave pin and the machine's timebase
                 // guard: the emitter would refuse it anyway, refuse it here too.
-                eater6502: [/^(PA[0-7]|PB[0-7])$/i, 'PA0-PA7 or PB0-PB7'],  // PB7 is plain I/O while ACR7=0 (W65C22 §2.5); our runtime sets ACR=0x40, so it never claims PB7
+                eater6502: [/^(PA[0-7]|PB[0-7]|MK\d+)$/i, 'PA0-PA7, PB0-PB7, or MK0-MK19 (matrix keypad)'],
                 z80: [/^(OUT[0-7]|IN[0-7])$/i, 'OUT0-OUT7 (latch) or IN0-IN7 (buffer)'],
                 attiny88: [/^(PA[0-3]|PB[0-7]|PC[0-7]|PD[0-7])$/i, 'PA0-PA3, PB0-PB7, PC0-PC7, PD0-PD7'],
                 attiny85: [/^PB[0-4]$/i, 'PB0-PB4 (PB5 is RESET)']
@@ -5421,6 +5421,12 @@ class SB3Creator {
         if (!pin) {
             this.cWarn(`read of undeclared pin "${name}" — emitted as 0`);
             return `0 /* read ${this.cComment(name)} */`;
+        }
+        // Matrix keypad virtual pin (MK0-MK19): emits a scan-based read.
+        const mkMatch = String(pin.where || '').match(/^MK(\d+)$/i);
+        if (mkMatch) {
+            this._cUses.matrixKeypad = true;
+            return `bw_key_read(${mkMatch[1]})`;
         }
         if (pin.direction === 'analog') {
             if (this._core === '6502') {
@@ -10380,6 +10386,57 @@ class SB3Creator {
                     stub('static void bw_oled_print_n(int d, long n)', 'devices_oledprint'),
                     stub('static void bw_oled_cursor(int d, int row, int col)', 'devices_oledcursor'));
             }
+            // Matrix keypad scan driver — emitted when any MK pin is read.
+            if (this._cUses.matrixKeypad) {
+                // Resolve matrix config from the retarget pool.
+                const pool = SB3Creator.RETARGET_POOLS[device] || {};
+                const mx = pool.matrix || { rows: ['PA2', 'PA3', 'PA4', 'PA5'], cols: ['PB0', 'PB1', 'PB2', 'PB3', 'PB4'] };
+                const nRows = mx.rows.length, nCols = mx.cols.length;
+                if (this._core === '6502') {
+                    // VIA: rows on port A (output), cols on port B (input).
+                    // The row pins are driven via _i2c_sh (shadow byte for ORA)
+                    // if I2C is also used, or directly via ORA otherwise.
+                    const rowBits = mx.rows.map(r => Number(r.match(/\d+/)[0]));
+                    const colBits = mx.cols.map(c => Number(c.match(/\d+/)[0]));
+                    const rowMask = rowBits.reduce((m, b) => m | (1 << b), 0);
+                    const colMask = colBits.reduce((m, b) => m | (1 << b), 0);
+                    const useI2cShadow = this._cUses.lcd || this._cUses.oled;
+                    const oraWrite = useI2cShadow
+                        ? (expr) => `_i2c_sh = (unsigned char)((unsigned char)(_i2c_sh | 0x${rowMask.toString(16).padStart(2, '0')}) & (unsigned char)~(1u << _mk_rows[r])); BW_VIA_ORA = _i2c_sh`
+                        : (expr) => `BW_VIA_ORA = (unsigned char)((unsigned char)(BW_VIA_ORA | 0x${rowMask.toString(16).padStart(2, '0')}) & (unsigned char)~(1u << _mk_rows[r]))`;
+                    out.push(
+                        `/* Matrix keypad: ${nRows} rows × ${nCols} cols = ${nRows * nCols} keys. */`,
+                        `static const unsigned char _mk_rows[${nRows}] = { ${rowBits.join(', ')} };`,
+                        `static const unsigned char _mk_cols[${nCols}] = { ${colBits.join(', ')} };`,
+                        `static unsigned char _mk_state[${nRows}];`,
+                        '',
+                        'static void bw_key_scan(void)',
+                        '{',
+                        '    unsigned char r;',
+                        `    for (r = 0; r < ${nRows}; r++) {`,
+                        `        ${oraWrite()};`,
+                        '        { unsigned char d; for (d = 0; d < 8; d++) ; }',
+                        `        _mk_state[r] = BW_VIA_IRB;`,
+                        '    }',
+                        `    ${useI2cShadow ? '_i2c_sh |= 0x' + rowMask.toString(16).padStart(2, '0') + '; BW_VIA_ORA = _i2c_sh;' : 'BW_VIA_ORA |= 0x' + rowMask.toString(16).padStart(2, '0') + ';'}  /* rows idle */`,
+                        '}',
+                        '',
+                        'static int bw_key_read(unsigned char idx)',
+                        '{',
+                        `    unsigned char row = idx / ${nCols};`,
+                        `    unsigned char col = idx % ${nCols};`,
+                        '    bw_key_scan();',
+                        '    return (_mk_state[row] >> _mk_cols[col]) & 1;',
+                        '}',
+                        '');
+                } else {
+                    // Stub for non-VIA cores — runtime refusal.
+                    out.push(
+                        '/* Matrix keypad: not implemented for this core. */',
+                        'static int bw_key_read(unsigned char idx) { (void)idx; return 0; }',
+                        '');
+                }
+            }
             // Stubs: IR (protocol decode), 7-segment, matrix, RGB.
             out.push(
                 `static int bw_device_state(int dev) { (void)dev; return ${this._cUses.relay ? '_relay_state' : '0'}; }`,
@@ -10768,6 +10825,15 @@ class SB3Creator {
                 }
                 out.push('    I2C_SDA_HI(); I2C_SCL_HI();      /* release bus */');
             }
+        }
+        // Matrix keypad: row pins as output, col pins as input.
+        if (this._cUses.matrixKeypad && this._core === '6502') {
+            const pool = SB3Creator.RETARGET_POOLS[device] || {};
+            const mx = pool.matrix || { rows: ['PA2', 'PA3', 'PA4', 'PA5'], cols: ['PB0', 'PB1', 'PB2', 'PB3', 'PB4'] };
+            const rowBits = mx.rows.map(r => Number(r.match(/\d+/)[0]));
+            const rowMask = rowBits.reduce((m, b) => m | (1 << b), 0);
+            out.push(`    BW_VIA_DDRA |= 0x${rowMask.toString(16).padStart(2, '0')};  /* matrix rows output */`,
+                `    BW_VIA_ORA  |= 0x${rowMask.toString(16).padStart(2, '0')};  /* rows idle HIGH */`);
         }
         // LCD (HD44780 via PCF8574): 4-bit mode init sequence.
         if (this._cUses.lcd) {
@@ -11248,8 +11314,16 @@ SB3Creator.RETARGET_POOLS = (() => {
         // VIA outputs are symmetric CMOS, so LEDs wire active-high. PB7 never
         // appears: Timer 1 owns it. No analog, no PWM — the VIA has neither.
         eater6502: { digital: ['PA0', 'PA1', 'PA2', 'PA3', 'PA4', 'PA5', 'PA6', 'PA7'],
-            analog: [], input: ['PB0', 'PB1', 'PB2', 'PB3', 'PB4', 'PB5', 'PB6'],
-            pwm: [], ledActiveLow: false },
+            analog: [],
+            // Direct inputs PLUS matrix-virtual inputs (MK0-MK19):
+            // a 4×5 matrix keypad on rows PA2-PA5 × cols PB0-PB4 yields
+            // 20 virtual keys from 9 pins. Direct PB inputs come first
+            // so small programs use them; the MK slots extend the pool
+            // for programs that need more than 7 keys (like the calculator).
+            input: ['PB0', 'PB1', 'PB2', 'PB3', 'PB4', 'PB5', 'PB6',
+                    ...seq('MK%', 0, 19)],
+            pwm: [], ledActiveLow: false,
+            matrix: { rows: ['PA2', 'PA3', 'PA4', 'PA5'], cols: ['PB0', 'PB1', 'PB2', 'PB3', 'PB4'] } },
         // Z80 bench: OUT latch (port 0 write) provides 8 output bits,
         // IN buffer (port 0 read) provides 8 input bits. No analog, no PWM.
         z80: { digital: seq('OUT%', 0, 7),
