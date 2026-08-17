@@ -50,7 +50,6 @@
    "arduino-nano": "01-blink/circuit.arduino-nano.json",
    "arduino-uno": "01-blink/circuit.arduino-uno.json",
    "atmega168p": "01-blink/circuit.atmega168p.json",
-   "attiny88": "01-blink/circuit.attiny88.json",
    "pico": "01-blink/circuit.pico.json",
    "stc12c5a60s2": "01-blink/circuit.stc12c5a60s2.json",
    "stc15f2k60s2": "01-blink/circuit.stc15f2k60s2.json",
@@ -1471,10 +1470,7 @@
   "kind": "program",
   "devices": [
    "stc12c5a60s2"
-  ],
-  "benches": {
-   "stc12c5a60s2": "55-oled-hello/circuit.stc12c5a60s2.json"
-  }
+  ]
  },
  {
   "id": "50-7seg-chase",
