@@ -5,7 +5,7 @@ prereqs: [01-blink]
 teaches: [relay, npn-driver, flyback-diode]
 ---
 ## Was du siehst
-Ein Relais klickt alle zwei Sekunden ein und aus. Ein NPN-Transistor treibt die Relaisspule, weil der MCU-Pin allein nicht genug Strom liefern kann. Eine Status-LED spiegelt den Relaiszustand, sodass du das Timing auch ohne Klick-Geräusch sehen kannst.
+Ein Relais klickt alle zwei Sekunden ein und aus. Ein NPN-Transistor treibt die Relaisspule, weil der MCU-Pin allein nicht genug Strom liefern kann. Eine Status-LED spiegelt den Relaiszustand, sodass du das Timing auch ohne Klick-Geräusch sehen kannst. Dieses Beispiel funktioniert auf allen unterstützten Mikrocontrollern — wähle ein anderes Gerät in der Werkzeugleiste, um die angepasste Schaltung zu sehen.
 
 ## Probier das
 1. Starte das Programm und höre, wie das Relais ein- und ausklickt.

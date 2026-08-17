@@ -5,7 +5,7 @@ prereqs: [01-blink]
 teaches: [relay, npn-driver, flyback-diode]
 ---
 ## What you see
-A relay clicks on and off every two seconds. An NPN transistor drives the relay coil because the MCU pin cannot supply enough current directly. A status LED mirrors the relay state so you can see the timing even without hearing the click.
+A relay clicks on and off every two seconds. An NPN transistor drives the relay coil because the MCU pin cannot supply enough current directly. A status LED mirrors the relay state so you can see the timing even without hearing the click. This example works on all supported microcontrollers — pick a different device in the toolbar to see the adapted circuit.
 
 ## Try this
 1. Run the program and listen for the relay clicking on and off.
