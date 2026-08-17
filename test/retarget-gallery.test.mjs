@@ -45,6 +45,15 @@ describe('retarget-gallery: computed device lists are accurate', () => {
                 const r = SB3Creator.retargetPseudocode(src, dev);
                 if (r.ok) expected.push(dev);
             }
+            // Transformability gate: for authored-circuit examples the
+            // updater drops devices whose circuit transform refuses, and
+            // LEDGERS them in entry.transformRefused — the index carries
+            // the why, and this test holds the two lists consistent.
+            for (const dev of Object.keys(entry.transformRefused || {})) {
+                const i = expected.indexOf(dev);
+                assert.ok(i >= 0, `${entry.id}: transformRefused lists ${dev}, which retarget does not even offer`);
+                expected.splice(i, 1);
+            }
             assert.deepEqual(entry.devices, expected,
                 `${entry.id}: index.json devices disagrees with retargetPseudocode`);
             if (devices.includes(authored)) {

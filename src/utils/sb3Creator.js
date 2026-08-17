@@ -10893,9 +10893,18 @@ SB3Creator.RETARGET_POOLS = (() => {
     const unoDigital = ['D13', 'D12', 'D8', 'D7', 'D4', 'D2', 'D3', 'D5', 'D6', 'D9', 'D10', 'D11', 'A0', 'A1', 'A2', 'A3', 'A4', 'A5'];
     const unoInput = ['D2', 'D4', 'D7', 'D8', 'D3', 'D5', 'D6', 'D9', 'D10', 'D11', 'D12', 'D13', 'A0', 'A1', 'A2', 'A3', 'A4', 'A5'];
     return {
-        stc12c5a60s2: { digital: ['P1.0', 'P1.1', 'P1.2', 'P1.5', 'P1.6', 'P1.7', 'P3.4', 'P3.5', ...P(2), ...P(0), 'P4.4', 'P4.5', 'P4.6', 'P4.7'],
+        // P1.3/P1.4 (the PCA/CCP pair) close BOTH the digital and input
+        // pools — appended LAST, so they are touched only when 26+ pins of
+        // a role are already taken and a PWM-less program needs the full
+        // 34-GPIO silicon truth (the retro console's 28 outputs + 5
+        // inputs = 33 distinct coordinates; the pools' previous 32 made
+        // the console refuse a chip that physically fits it). A program
+        // that dims a pin still gets the pair first via pools.pwm — only
+        // a 27-output-plus-PWM program could collide, and that refusal
+        // is honest.
+        stc12c5a60s2: { digital: ['P1.0', 'P1.1', 'P1.2', 'P1.5', 'P1.6', 'P1.7', 'P3.4', 'P3.5', ...P(2), ...P(0), 'P4.4', 'P4.5', 'P4.6', 'P4.7', 'P1.3', 'P1.4'],
             analog: ['P1.3', 'P1.4', 'P1.5', 'P1.6'],
-            input: ['P3.2', 'P3.3', 'P3.6', 'P3.7', ...P(2), ...P(0), 'P1.0', 'P1.1', 'P1.2', 'P1.5', 'P1.6', 'P1.7'],
+            input: ['P3.2', 'P3.3', 'P3.6', 'P3.7', ...P(2), ...P(0), 'P1.0', 'P1.1', 'P1.2', 'P1.5', 'P1.6', 'P1.7', 'P1.3', 'P1.4'],
             pwm: ['P1.3', 'P1.4'], ledActiveLow: true },
         stc89c52rc: { digital: [...P(1), ...P(2), ...P(0)],
             analog: [], input: ['P3.2', 'P3.3', 'P3.6', 'P3.7', ...P(2), ...P(0), ...P(1)],
