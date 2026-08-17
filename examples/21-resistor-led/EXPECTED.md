@@ -29,3 +29,8 @@ No MCU -- pure passive circuit, LED is always on.
 1. Ohm's law: V = IR applied to series circuit
 2. LED forward voltage drop is constant (2.0 V)
 3. Resistor limits current to safe LED operating range
+
+```assert
+# Ohm's law: I = (5.0 - Vf) / 220, Vf ≈ 2.13 (Shockley)
+net r1.b V 2.13 +-0.15
+```

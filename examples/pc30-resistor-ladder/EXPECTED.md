@@ -16,3 +16,9 @@ Exact to four decimals, because with nothing drawing current from the taps the
 same 9 V / 30 kΩ = **0.3 mA** flows through all three resistors and each drops
 0.3 mA × 10 kΩ = 3 V. Hang a load on a tap and the equality breaks — that is the
 lesson the intro's experiment makes visible.
+
+```assert
+# Three equal resistors: V1 = 9×2/3 = 6.0V, V2 = 9×1/3 = 3.0V
+net r1.b V 6.00 +-0.01
+net r2.b V 3.00 +-0.01
+```

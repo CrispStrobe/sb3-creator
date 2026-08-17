@@ -20,3 +20,9 @@ exactly what the solver reports. The load current is 5.625 V / 100 kΩ =
 
 The lesson: a reference is only as stiff as its source resistance. Even a
 "high-impedance" load moves this one by 6.25 %.
+
+```assert
+# Three equal 10k: upper tap = 9×2/3 = 6.0V, lower = 9×1/3 = 3.0V
+net r1.b V 6.00 +-0.01
+net r2.b V 3.00 +-0.01
+```

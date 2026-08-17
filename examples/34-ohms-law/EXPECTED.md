@@ -20,3 +20,8 @@ No MCU -- pure passive circuit, LED is always on.
 1. Ohm's law: I = (V_supply - V_f) / R
 2. KVL: V_supply = V_R + V_LED = 3.0 + 2.0 = 5.0 V
 3. The first circuit -- simplest possible LED driver
+
+```assert
+# Ohm's law: I = (5.0 - Vf) / 1000, Vf ≈ 2.03 (Shockley at ~3mA)
+net r1.b V 2.03 +-0.15
+```

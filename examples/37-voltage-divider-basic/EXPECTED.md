@@ -19,3 +19,8 @@ No MCU, no load -- pure resistive divider.
 1. Voltage divider formula: V_out = V_in x R2 / (R1 + R2)
 2. Equal resistors divide voltage in half
 3. High-value resistors keep quiescent current low
+
+```assert
+# Equal divider: Vout = VCC × R2/(R1+R2) = 5.0 × 0.5 = 2.500V
+net r1.b V 2.50 +-0.01
+```

@@ -36,3 +36,8 @@ proportion, moving from 4 V to 8 V across the same sweep.
 The junction sits slightly above the nominal 5.1 V and creeps up with current,
 because a zener's reverse characteristic is steep but not vertical. That slope
 is the regulator's imperfection, and it is visible in the table.
+
+```assert
+# Zener clamp: Vz ≈ 5.1V (breakdown), resistor drops 9-5.1=3.9V
+net resistor_2.b V 5.14 +-0.20
+```

@@ -14,3 +14,8 @@ Forward, the diode drops 9 − 8.238 = **0.762 V** and the LED runs normally.
 Reversed, no current flows at all: the LED's two terminals sit at the same
 voltage, and the engine raises the expected DRC warning ("LED appears to be
 wired backward"). That warning is the example working, not failing.
+
+```assert
+# Forward diode drop: 9V - Vf(diode) across R+LED
+net d1.cathode V 8.24 +-0.20
+```

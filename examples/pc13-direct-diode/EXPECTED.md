@@ -27,3 +27,9 @@ nominal drop.
 Delete the diode and wire R straight to the LED: current rises to about
 13.6 mA and brightness to ≈ 0.65 (that circuit is `pc01-led-resistor`). The
 difference is the ~0.8 V the diode was eating.
+
+```assert
+# Series drops: R + diode(0.8V Shockley) + LED(2.1V Shockley) = 5V
+net resistor_2.b V 2.89 +-0.15
+net diode_3.cathode V 2.10 +-0.15
+```

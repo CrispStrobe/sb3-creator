@@ -13,3 +13,8 @@ to the other branch.
 
 Both LEDs must be ON simultaneously.  If neither lights, check vsource
 wiring (pos→R→LED→GND, neg→GND).
+
+```assert
+# Supply: 9V source
+net src.pos V 9.00 +-0.01
+```
