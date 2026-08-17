@@ -8269,7 +8269,7 @@ class SB3Creator {
             for (const w of this._cWarnings) out.push(`/* warning: ${this.cComment(w)} */`);
         }
 
-        const tables = (this.project && this.project.stc && this.project.stc.tables) || [];
+        const tables = (project && project.stc && project.stc.tables) || [];
 
         // The marker header: everything the flat C form cannot say for itself, stated by the
         // emitter instead of left to be inferred. Same device as `scratch.defblock(...)` /
@@ -8469,7 +8469,7 @@ class SB3Creator {
         for (const p of pins) {
             if (Number(p.port) !== 5) continue;
             if (!chip.p5) {
-                this.cWarn(`P5 does not exist on DEVICE ${String(this.project.stc.device || '').toUpperCase()} — it is an STC15 port (STC15-PERIPHERAL-MODEL.md §3); this C will not compile`);
+                this.cWarn(`P5 does not exist on DEVICE ${String(project.stc.device || '').toUpperCase()} — it is an STC15 port (STC15-PERIPHERAL-MODEL.md §3); this C will not compile`);
             } else if (Number(p.bit) !== 4 && Number(p.bit) !== 5) {
                 this.cWarn(`P5.${p.bit} is not bonded on the DIP-40 — only P5.4 and P5.5 reach pins`);
             }
@@ -9165,7 +9165,7 @@ class SB3Creator {
         // The voxel map is unknown (stc/src/20-ledcube/README.md): the blocks work on a
         // logical grid and the mapping table (identity for now) translates at emit time.
         if (this._cUses.cube) {
-            const cube = (this.project && this.project.stc && this.project.stc.ledcube) || { size: 4, selects: 8, bits: 8 };
+            const cube = (project && project.stc && project.stc.ledcube) || { size: 4, selects: 8, bits: 8 };
             const S = cube.selects;
             const N = cube.size;   // side length (4 for a 4×4×4)
             out.push(`/* LED cube: ${cube.size}x${cube.size}x${cube.size}, ${S} select lines, multiplex scan.`,
@@ -9894,7 +9894,7 @@ class SB3Creator {
                         '');
                 } else if (this._core === 'avr') {
                     // AVR: BW_BIT lvalue gives the open-drain idiom its lvalue.
-                    const i2cSrc = (this.project?.stc?.pins) || [];
+                    const i2cSrc = (project?.stc?.pins) || [];
                     const findPin = (n) => i2cSrc.find((q) => q.name.toLowerCase() === n);
                     const sdaPin = findPin('sda'), sclPin = findPin('scl');
                     const table = this._cMega ? SB3Creator.AVR_PINS_MEGA : SB3Creator.AVR_PINS;
@@ -9922,7 +9922,7 @@ class SB3Creator {
                     }
                 } else if (this._core === 'arm') {
                     // RP2040: SIO GPIO_OUT byte-addressed bitfield view.
-                    const i2cSrc = (this.project?.stc?.pins) || [];
+                    const i2cSrc = (project?.stc?.pins) || [];
                     const findPin = (n) => i2cSrc.find((q) => q.name.toLowerCase() === n);
                     const sdaPin = findPin('sda'), sclPin = findPin('scl');
                     const h1 = sdaPin && this.armHw(sdaPin);
@@ -10084,7 +10084,7 @@ class SB3Creator {
                 // example and masked both the ordering bug and the missing
                 // AVR mapping entirely.
                 if (!this._tftPins) {
-                    const tftPinsSrc = (this.project?.stc?.pins) || [];
+                    const tftPinsSrc = (project?.stc?.pins) || [];
                     const resolvedHere = {};
                     for (const name of ['cs', 'dc', 'sck', 'mosi']) {
                         const pin = tftPinsSrc.find((q) => q.name.toLowerCase() === name);
@@ -10452,7 +10452,7 @@ class SB3Creator {
             }
             // 74HC595 PART pins: all three (data, clock, latch) are outputs.
             if (this._cUses.shiftOut) {
-                for (const p of (this.project.stc.parts || [])) {
+                for (const p of (project.stc.parts || [])) {
                     for (const role of ['data', 'clock', 'latch']) {
                         const hw = this.avrHw(p[role]);
                         if (!hw) continue;
@@ -10554,7 +10554,7 @@ class SB3Creator {
             }
             // 74HC595 PART pins: all three (data, clock, latch) are outputs.
             if (this._cUses.shiftOut) {
-                for (const p of (this.project.stc.parts || [])) {
+                for (const p of (project.stc.parts || [])) {
                     for (const role of ['data', 'clock', 'latch']) {
                         const hw = this.armHw(p[role]);
                         if (!hw) continue;
@@ -10591,7 +10591,7 @@ class SB3Creator {
             }
             // 74HC595 PART pins: all three (data, clock, latch) are outputs.
             if (this._cUses.shiftOut) {
-                for (const p of (this.project.stc.parts || [])) {
+                for (const p of (project.stc.parts || [])) {
                     for (const role of ['data', 'clock', 'latch']) {
                         const hw = this.viaHw(p[role]);
                         if (!hw) continue;
@@ -10616,7 +10616,7 @@ class SB3Creator {
         for (const p of pins) if (p.direction === 'output') outputs[p.port] = (outputs[p.port] || 0) | (1 << p.bit);
         // 74HC595 PART pins are outputs too (data, clock, latch).
         if (this._cUses.shiftOut) {
-            for (const p of (this.project.stc.parts || [])) {
+            for (const p of (project.stc.parts || [])) {
                 for (const role of ['data', 'clock', 'latch']) {
                     const pin = p[role];
                     if (pin.port !== undefined) outputs[pin.port] = (outputs[pin.port] || 0) | (1 << pin.bit);
@@ -10636,7 +10636,7 @@ class SB3Creator {
         }
         // 74HC595 PART pins start LOW (data, clock, latch all idle low).
         if (this._cUses.shiftOut) {
-            for (const p of (this.project.stc.parts || [])) {
+            for (const p of (project.stc.parts || [])) {
                 for (const role of ['data', 'clock', 'latch']) {
                     const pin = p[role];
                     if (pin.port !== undefined) out.push(`    P${pin.port}_${pin.bit} = 0;   /* ${p.name} ${role} LOW */`);
