@@ -10,7 +10,7 @@ teaches: [led-patterns, bit-manipulation, animation]
 Mehrere LEDs sind an aufeinanderfolgende MCU-Pins angeschlossen. Das Programm
 durchlaeuft eine Reihe von Mustern -- alle an, alle aus, abwechselnd, Lauflicht
 nach links, Lauflicht nach rechts, einzeln aufbauend -- und erzeugt eine
-Lichtshow, die sich in einer Schleife wiederholt.
+Lichtshow, die sich in einer Schleife wiederholt. Dieses Beispiel funktioniert auf allen unterstützten Mikrocontrollern — wähle ein anderes Gerät in der Werkzeugleiste, um die angepasste Schaltung zu sehen.
 
 ## Probier das aus
 

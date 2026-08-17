@@ -9,7 +9,7 @@ teaches: [led-patterns, bit-manipulation, animation]
 
 Several LEDs are connected to consecutive MCU pins. The program cycles through
 a series of patterns -- all on, all off, alternating, chasing left, chasing
-right, building up one by one -- creating a light show that repeats in a loop.
+right, building up one by one -- creating a light show that repeats in a loop. This example works on all supported microcontrollers — pick a different device in the toolbar to see the adapted circuit.
 
 ## Try this
 
