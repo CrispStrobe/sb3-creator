@@ -31,3 +31,9 @@ The 220 Ohm series resistor protects the LED at full rotation.
 1. Potentiometer as a variable voltage divider
 2. LED has a threshold (Vf) below which it does not conduct
 3. Series resistor limits maximum current at full rotation
+
+```assert
+# Pot at 50%: wiper = 2.50V; LED Shockley Vf ≈ 2.02V
+net pot1.wiper V 2.50 +-0.05
+net led1.anode V 2.02 +-0.15
+```

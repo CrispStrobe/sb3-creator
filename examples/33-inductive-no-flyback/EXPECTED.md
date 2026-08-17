@@ -72,3 +72,8 @@ has no `l1`: it models no winding inductance, so its collector reads a flat
 it is right because nothing is modelled, not because the diode clamps. The
 "with a flyback diode" column above was measured on *this* circuit with a diode
 added, which is the honest comparison until example 10 gains its own inductor.
+
+```assert
+# Inductor = DC short: both terminals at VCC (motor off)
+net mcu1.VCC V 5.00 +-0.01
+```

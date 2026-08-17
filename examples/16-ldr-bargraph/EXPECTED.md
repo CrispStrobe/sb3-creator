@@ -30,3 +30,9 @@ Reads ADC and lights LEDs as a bar graph with thresholds at 256, 512, and 768.
 1. ADC input with multiple threshold comparisons
 2. Bar-graph display pattern (cumulative, not exclusive)
 3. Potentiometer as analog input (simulating LDR)
+
+```assert
+# LDR (pot model at 50%): ADC input = 2.500V
+net MCU.P1.7 V 2.50 +-0.05
+net MCU.VCC V 5.00 +-0.01
+```

@@ -35,3 +35,8 @@ The capacitor charges exponentially toward VCC:
 2. Exponential charging curve toward supply voltage
 3. Current decreases as capacitor voltage rises
 4. After 5 tau the capacitor is effectively fully charged
+
+```assert
+# Supply rail; capacitor at ~0V at t=1ms (τ >> 1ms)
+net r1.a V 5.00 +-0.01
+```

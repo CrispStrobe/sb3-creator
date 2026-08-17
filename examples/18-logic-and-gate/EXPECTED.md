@@ -29,3 +29,9 @@ Implements a logical AND: LED on only when both buttons are pressed simultaneous
 1. Two digital inputs read with active-low pull-ups
 2. Nested IF implements AND logic
 3. Software logic gate matches hardware AND gate truth table
+
+```assert
+# Both buttons open: pull-ups hold at VCC = 5.000V
+net BTN_btnA.a V 5.00 +-0.01
+net BTN_btnB.a V 5.00 +-0.01
+```

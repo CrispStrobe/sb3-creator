@@ -35,3 +35,9 @@ Button on P3.2 with 10 kOhm pull-up to VCC; button press connects P3.2 to GND.
 2. Variable wrapping with IF/THEN (modulo-like cycling 1-6)
 3. REPEAT with a variable count to display a numeric result
 4. Pseudo-random outcome from high-speed counter sampling
+
+```assert
+# Button pull-up at VCC, MCU supply
+net BTN_btn.a V 5.00 +-0.01
+net MCU.VCC V 5.00 +-0.01
+```

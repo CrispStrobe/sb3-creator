@@ -35,3 +35,8 @@ creating a chaser/knight-rider effect.
 2. Sequential on/off pattern with precise timing
 3. Only one LED active at any moment (no overlap)
 4. FOREVER loop for continuous animation
+
+```assert
+# MCU supply: VCC = 5.000V (4 LEDs on port)
+net MCU.VCC V 5.00 +-0.01
+```

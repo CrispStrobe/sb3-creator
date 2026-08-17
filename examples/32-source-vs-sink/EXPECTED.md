@@ -38,3 +38,8 @@ The factor-of-13 difference in brightness IS the lesson.
 2. Active-low wiring (the correct way) produces full brightness
 3. Active-high wiring (the common mistake) produces near-zero brightness
 4. The same `turn on` command produces visibly different results
+
+```assert
+# MCU VCC supply = 5.000V
+net mcu1.VCC V 5.00 +-0.01
+```

@@ -29,3 +29,8 @@ Implements a logical OR: LED on when either (or both) buttons are pressed.
 1. OR logic via cascaded IF/ELSE (if A then on, else if B then on, else off)
 2. Contrast with AND gate (example 18) using same circuit topology
 3. Three of four input combinations produce LED ON
+
+```assert
+# Both buttons open: pull-ups hold at VCC = 5.000V
+net BTN_btnA.a V 5.00 +-0.01
+```

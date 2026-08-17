@@ -19,3 +19,8 @@ Reads D2 and mirrors its state to the LED on D13: button pressed -> LED on, butt
 1. Digital input on D2 reads button state through pull-down resistor
 2. Conditional `if read btn then: turn on led` maps input to output
 3. Active-high button wiring (VCC through button, pull-down to GND)
+
+```assert
+# Arduino 5V rail
+net board.5v V 5.00 +-0.01
+```

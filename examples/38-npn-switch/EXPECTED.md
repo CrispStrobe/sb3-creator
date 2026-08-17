@@ -29,3 +29,9 @@ No MCU -- button directly drives the transistor.
 1. NPN transistor as a switch (saturation vs cutoff)
 2. Base resistor limits base current
 3. Button controls high-current load through low-current base drive
+
+```assert
+# NPN off (button open): collector at VCC through R (LED reverse)
+net btn1.a V 5.00 +-0.01
+net led1.cathode V 4.50 +-0.20
+```

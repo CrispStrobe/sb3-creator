@@ -29,3 +29,8 @@ No MCU -- button directly drives the buzzer via transistor switch.
 1. NPN transistor switches an inductive/higher-current load
 2. Small base current controls large collector current
 3. Button provides the base drive signal without an MCU
+
+```assert
+# NPN off (button open): buzzer collector side at VCC
+net btn1.a V 5.00 +-0.01
+```

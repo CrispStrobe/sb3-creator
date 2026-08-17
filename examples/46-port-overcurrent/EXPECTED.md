@@ -49,3 +49,8 @@ this sag, or at minimum warn when aggregate current approaches the limit.
    warns on pin declarations when reading C; the circuit designer does not warn.
    `bw-board` owns the DRC path; this example is the fixture for when it ships.
 4. The example teaches the aggregate limit alongside the per-pin limit
+
+```assert
+# MCU supply: VCC = 5.000V (8 LEDs on one port)
+net mcu1.VCC V 5.00 +-0.01
+```

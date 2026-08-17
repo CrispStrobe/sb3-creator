@@ -28,3 +28,8 @@ No MCU -- pure RC charging circuit.
 1. RC time constant formula: tau = R x C
 2. Exponential charging curve V_c = V_cc x (1 - e^(-t/tau))
 3. Capacitor reaches ~63% of supply in one time constant
+
+```assert
+# Supply rail; RC τ = 1.0s, cap at ~0V at t=1ms
+net r1.a V 5.00 +-0.01
+```
