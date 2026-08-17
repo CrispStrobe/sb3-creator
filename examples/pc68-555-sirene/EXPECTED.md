@@ -9,6 +9,15 @@
 - **Pot at 47 kΩ:** f = 1.44 / ((1k + 94k) × 100n) ≈ 152 Hz — low tone.
 - Turning the pot sweeps the pitch continuously — a manual siren.
 
+## Assertions
+
+```assert
+buzzer_tone_hz_min: 151.6
+buzzer_tone_hz_max: 14400
+buzzer_tone_hz_mid: 351 ± 15%
+audio_context: running
+```
+
 ## What this verifies
 1. Variable-frequency astable via potentiometer
 2. Pitch range from ~150 Hz to several kHz

@@ -8,6 +8,15 @@ Button in VCC line → 555 astable. R₁ = 1 kΩ, R₂ = 10 kΩ, C = 100 nF. Out
 - **Button pressed:** 555 powered, astable oscillates. f ≈ 686 Hz. Buzzer sounds.
 - **Button released again:** instant silence (no stored energy in RC keeps it going).
 
+## Assertions
+
+```assert
+buzzer_tone_hz: 685.7 ± 15%
+button_unpressed: silent
+button_pressed: audible
+audio_context: running
+```
+
 ## What this verifies
 1. Button in power rail = momentary alarm
 2. Same 555 astable tone as pc67 (~686 Hz)

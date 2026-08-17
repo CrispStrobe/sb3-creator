@@ -21,6 +21,15 @@ Alternates between 440 Hz (A4) and 880 Hz (A5) every 500 ms, forever.
   (Timer 1 at FOSC/12, mode 1; the frequency is halved because the output toggles)
 - Timer 1 reload for 880 Hz: 65536 − (11059200 / 12 / 1760) ≈ 65012
 
+## Assertions
+
+```assert
+buzzer_tone_hz_phase1: 440 ± 5%
+buzzer_tone_hz_phase2: 880 ± 5%
+phase_duration_ms: 500 ± 50
+audio_context: running
+```
+
 ## What this verifies
 
 1. TONE pin declaration and `tone` command

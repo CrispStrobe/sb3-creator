@@ -10,6 +10,14 @@
 - **Duty cycle:** 0.762 / (0.762 + 0.693) ≈ 52.4 % (slightly asymmetric).
 - Buzzer produces a steady ~686 Hz tone.
 
+## Assertions
+
+```assert
+buzzer_tone_hz: 685.7 ± 15%
+duty_percent: 52.4 ± 5%
+audio_context: running
+```
+
 ## What this verifies
 1. Audible frequency from 555 astable with small C
 2. Asymmetric duty cycle: charge through R₁+R₂, discharge through R₂ only
