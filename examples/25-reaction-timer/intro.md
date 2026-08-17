@@ -10,7 +10,7 @@ teaches: [timing-measurement, random, human-interface]
 An LED sits dark while the MCU waits a random number of seconds. When the LED
 lights up, you press a button as fast as you can, and the program measures how
 many milliseconds passed between the light and your press. The 7-segment
-display (or serial output) shows your reaction time.
+display (or serial output) shows your reaction time. This example works on all supported microcontrollers — pick a different device in the toolbar to see the adapted circuit.
 
 ## Try this
 

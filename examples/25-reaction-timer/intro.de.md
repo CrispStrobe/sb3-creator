@@ -11,7 +11,7 @@ Eine LED bleibt dunkel, waehrend der MCU eine zufaellige Anzahl Sekunden
 wartet. Sobald die LED aufleuchtet, drueckst du so schnell wie moeglich den
 Taster, und das Programm misst, wie viele Millisekunden zwischen Licht und
 Tastendruck vergangen sind. Die 7-Segment-Anzeige (oder die serielle Ausgabe)
-zeigt deine Reaktionszeit.
+zeigt deine Reaktionszeit. Dieses Beispiel funktioniert auf allen unterstützten Mikrocontrollern — wähle ein anderes Gerät in der Werkzeugleiste, um die angepasste Schaltung zu sehen.
 
 ## Probier das aus
 
