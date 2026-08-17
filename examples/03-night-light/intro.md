@@ -5,7 +5,7 @@ prereqs: [01-blink]
 teaches: [ldr, analog-sensing, threshold]
 ---
 ## What you see
-An LED turns on automatically when the room goes dark. A light-dependent resistor (LDR) in a voltage divider feeds an analog signal to the MCU, which compares the reading to a threshold and switches the LED accordingly.
+An LED turns on automatically when the room goes dark. A light-dependent resistor (LDR) in a voltage divider feeds an analog signal to the MCU, which compares the reading to a threshold and switches the LED accordingly. This example works on all supported microcontrollers — pick a different device in the toolbar to see the adapted circuit.
 
 ## Try this
 1. Run the program and adjust the LDR value — the LED turns on when the reading crosses the threshold.

@@ -5,7 +5,7 @@ prereqs: [01-blink]
 teaches: [ldr, analog-sensing, threshold]
 ---
 ## Was du siehst
-Eine LED schaltet sich automatisch ein, wenn es dunkel wird. Ein lichtabhängiger Widerstand (LDR) in einem Spannungsteiler liefert ein analoges Signal an den MCU, der den Messwert mit einem Schwellwert vergleicht und die LED entsprechend schaltet.
+Eine LED schaltet sich automatisch ein, wenn es dunkel wird. Ein lichtabhängiger Widerstand (LDR) in einem Spannungsteiler liefert ein analoges Signal an den MCU, der den Messwert mit einem Schwellwert vergleicht und die LED entsprechend schaltet. Dieses Beispiel funktioniert auf allen unterstützten Mikrocontrollern — wähle ein anderes Gerät in der Werkzeugleiste, um die angepasste Schaltung zu sehen.
 
 ## Probier das
 1. Starte das Programm und verändere den LDR-Wert — die LED schaltet ein, wenn der Messwert den Schwellwert überschreitet.
