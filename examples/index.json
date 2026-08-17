@@ -45,6 +45,7 @@
    "arduino-nano",
    "pico",
    "eater6502",
+   "z80",
    "attiny88",
    "attiny85"
   ],
@@ -205,6 +206,7 @@
    "arduino-nano",
    "pico",
    "eater6502",
+   "z80",
    "attiny88",
    "attiny85"
   ],
@@ -248,6 +250,7 @@
    "arduino-nano",
    "pico",
    "eater6502",
+   "z80",
    "attiny88",
    "attiny85"
   ],
@@ -319,6 +322,7 @@
    "arduino-nano",
    "pico",
    "eater6502",
+   "z80",
    "attiny88",
    "attiny85"
   ]
@@ -350,6 +354,7 @@
    "arduino-nano",
    "pico",
    "eater6502",
+   "z80",
    "attiny88",
    "attiny85"
   ],
@@ -432,6 +437,7 @@
    "arduino-nano",
    "pico",
    "eater6502",
+   "z80",
    "attiny88",
    "attiny85"
   ],
@@ -475,6 +481,7 @@
    "arduino-nano",
    "pico",
    "eater6502",
+   "z80",
    "attiny88",
    "attiny85"
   ],
@@ -518,6 +525,7 @@
    "arduino-nano",
    "pico",
    "eater6502",
+   "z80",
    "attiny88",
    "attiny85"
   ],
@@ -561,6 +569,7 @@
    "arduino-nano",
    "pico",
    "eater6502",
+   "z80",
    "attiny88",
    "attiny85"
   ],
@@ -721,6 +730,7 @@
    "arduino-nano",
    "pico",
    "eater6502",
+   "z80",
    "attiny88",
    "attiny85"
   ],
@@ -764,6 +774,7 @@
    "arduino-nano",
    "pico",
    "eater6502",
+   "z80",
    "attiny88",
    "attiny85"
   ],
@@ -807,6 +818,7 @@
    "arduino-nano",
    "pico",
    "eater6502",
+   "z80",
    "attiny88",
    "attiny85"
   ],
@@ -904,6 +916,7 @@
    "arduino-nano",
    "pico",
    "eater6502",
+   "z80",
    "attiny88",
    "attiny85"
   ],
@@ -947,6 +960,7 @@
    "arduino-nano",
    "pico",
    "eater6502",
+   "z80",
    "attiny88",
    "attiny85"
   ],
@@ -990,6 +1004,7 @@
    "arduino-nano",
    "pico",
    "eater6502",
+   "z80",
    "attiny88",
    "attiny85"
   ],
@@ -1033,6 +1048,7 @@
    "arduino-nano",
    "pico",
    "eater6502",
+   "z80",
    "attiny88",
    "attiny85"
   ],
@@ -1112,6 +1128,7 @@
    "arduino-nano",
    "pico",
    "eater6502",
+   "z80",
    "attiny88",
    "attiny85"
   ],
@@ -1173,6 +1190,7 @@
    "arduino-nano",
    "pico",
    "eater6502",
+   "z80",
    "attiny88",
    "attiny85"
   ],
@@ -1439,6 +1457,7 @@
    "arduino-nano",
    "pico",
    "eater6502",
+   "z80",
    "attiny88"
   ],
   "refusals": {
@@ -1520,6 +1539,7 @@
    "arduino-nano",
    "pico",
    "eater6502",
+   "z80",
    "attiny88",
    "attiny85"
   ],
@@ -1562,6 +1582,7 @@
    "arduino-nano",
    "pico",
    "eater6502",
+   "z80",
    "attiny88",
    "attiny85"
   ],
@@ -1604,6 +1625,7 @@
    "arduino-nano",
    "pico",
    "eater6502",
+   "z80",
    "attiny88"
   ],
   "benches": {
@@ -1728,6 +1750,7 @@
    "arduino-mega",
    "arduino-nano",
    "pico",
+   "z80",
    "attiny88",
    "attiny85"
   ],
@@ -1771,6 +1794,7 @@
    "arduino-mega",
    "arduino-nano",
    "pico",
+   "z80",
    "attiny88",
    "attiny85"
   ],
@@ -3176,6 +3200,7 @@
    "arduino-nano",
    "pico",
    "eater6502",
+   "z80",
    "attiny88",
    "attiny85"
   ],
@@ -3217,6 +3242,7 @@
    "arduino-nano",
    "pico",
    "eater6502",
+   "z80",
    "attiny88",
    "attiny85"
   ],
@@ -3292,6 +3318,7 @@
    "arduino-nano",
    "pico",
    "eater6502",
+   "z80",
    "attiny88",
    "attiny85"
   ],
@@ -3367,6 +3394,7 @@
    "arduino-nano",
    "pico",
    "eater6502",
+   "z80",
    "attiny88",
    "attiny85"
   ],
@@ -3408,6 +3436,7 @@
    "arduino-nano",
    "pico",
    "eater6502",
+   "z80",
    "attiny88",
    "attiny85"
   ],
@@ -3449,6 +3478,7 @@
    "arduino-nano",
    "pico",
    "eater6502",
+   "z80",
    "attiny88",
    "attiny85"
   ],
@@ -3490,6 +3520,7 @@
    "arduino-nano",
    "pico",
    "eater6502",
+   "z80",
    "attiny88",
    "attiny85"
   ],
@@ -3531,6 +3562,7 @@
    "arduino-nano",
    "pico",
    "eater6502",
+   "z80",
    "attiny88",
    "attiny85"
   ],
@@ -3572,6 +3604,7 @@
    "arduino-nano",
    "pico",
    "eater6502",
+   "z80",
    "attiny88",
    "attiny85"
   ],
@@ -3647,6 +3680,7 @@
    "arduino-nano",
    "pico",
    "eater6502",
+   "z80",
    "attiny88",
    "attiny85"
   ],
@@ -3790,6 +3824,7 @@
    "arduino-nano",
    "pico",
    "eater6502",
+   "z80",
    "attiny88",
    "attiny85"
   ],
@@ -3865,6 +3900,7 @@
    "arduino-nano",
    "pico",
    "eater6502",
+   "z80",
    "attiny88",
    "attiny85"
   ],
@@ -3940,6 +3976,7 @@
    "arduino-nano",
    "pico",
    "eater6502",
+   "z80",
    "attiny88"
   ],
   "benches": {
@@ -3979,6 +4016,7 @@
    "arduino-nano",
    "pico",
    "eater6502",
+   "z80",
    "attiny88"
   ],
   "benches": {
@@ -4086,6 +4124,7 @@
    "arduino-nano",
    "pico",
    "eater6502",
+   "z80",
    "attiny88",
    "attiny85"
   ],
@@ -4161,6 +4200,7 @@
    "arduino-nano",
    "pico",
    "eater6502",
+   "z80",
    "attiny88",
    "attiny85"
   ]
@@ -4360,6 +4400,7 @@
    "arduino-nano",
    "pico",
    "eater6502",
+   "z80",
    "attiny88",
    "attiny85"
   ],
@@ -4503,6 +4544,7 @@
    "arduino-nano",
    "pico",
    "eater6502",
+   "z80",
    "attiny88",
    "attiny85"
   ]
@@ -4532,6 +4574,7 @@
    "arduino-nano",
    "pico",
    "eater6502",
+   "z80",
    "attiny88",
    "attiny85"
   ]
@@ -4561,6 +4604,7 @@
    "arduino-nano",
    "pico",
    "eater6502",
+   "z80",
    "attiny88",
    "attiny85"
   ]
@@ -4590,6 +4634,7 @@
    "arduino-nano",
    "pico",
    "eater6502",
+   "z80",
    "attiny88",
    "attiny85"
   ]
@@ -4619,6 +4664,7 @@
    "arduino-nano",
    "pico",
    "eater6502",
+   "z80",
    "attiny88",
    "attiny85"
   ]
@@ -4648,6 +4694,7 @@
    "arduino-nano",
    "pico",
    "eater6502",
+   "z80",
    "attiny88",
    "attiny85"
   ]
@@ -4677,6 +4724,7 @@
    "arduino-nano",
    "pico",
    "eater6502",
+   "z80",
    "attiny88",
    "attiny85"
   ]
@@ -4706,6 +4754,7 @@
    "arduino-nano",
    "pico",
    "eater6502",
+   "z80",
    "attiny88",
    "attiny85"
   ]
@@ -4735,6 +4784,7 @@
    "arduino-nano",
    "pico",
    "eater6502",
+   "z80",
    "attiny88",
    "attiny85"
   ]
@@ -4764,6 +4814,7 @@
    "arduino-nano",
    "pico",
    "eater6502",
+   "z80",
    "attiny88",
    "attiny85"
   ]
@@ -4793,6 +4844,7 @@
    "arduino-nano",
    "pico",
    "eater6502",
+   "z80",
    "attiny88",
    "attiny85"
   ]
@@ -4822,6 +4874,7 @@
    "arduino-nano",
    "pico",
    "eater6502",
+   "z80",
    "attiny88",
    "attiny85"
   ]
@@ -4851,6 +4904,7 @@
    "arduino-nano",
    "pico",
    "eater6502",
+   "z80",
    "attiny88",
    "attiny85"
   ]
@@ -4880,6 +4934,7 @@
    "arduino-nano",
    "pico",
    "eater6502",
+   "z80",
    "attiny88",
    "attiny85"
   ],
@@ -5095,6 +5150,7 @@
    "arduino-nano",
    "pico",
    "eater6502",
+   "z80",
    "attiny88",
    "attiny85"
   ],
@@ -5136,6 +5192,7 @@
    "arduino-nano",
    "pico",
    "eater6502",
+   "z80",
    "attiny88"
   ],
   "benches": {
@@ -5175,6 +5232,7 @@
    "arduino-nano",
    "pico",
    "eater6502",
+   "z80",
    "attiny88",
    "attiny85"
   ],
@@ -5250,6 +5308,7 @@
    "arduino-nano",
    "pico",
    "eater6502",
+   "z80",
    "attiny88",
    "attiny85"
   ],
@@ -5325,6 +5384,7 @@
    "arduino-nano",
    "pico",
    "eater6502",
+   "z80",
    "attiny88",
    "attiny85"
   ],
@@ -5400,6 +5460,7 @@
    "arduino-nano",
    "pico",
    "eater6502",
+   "z80",
    "attiny88",
    "attiny85"
   ],
@@ -5441,6 +5502,7 @@
    "arduino-nano",
    "pico",
    "eater6502",
+   "z80",
    "attiny88"
   ],
   "benches": {
@@ -5480,6 +5542,7 @@
    "arduino-nano",
    "pico",
    "eater6502",
+   "z80",
    "attiny88",
    "attiny85"
   ]
@@ -5509,6 +5572,7 @@
    "arduino-nano",
    "pico",
    "eater6502",
+   "z80",
    "attiny88"
   ],
   "benches": {
@@ -6106,6 +6170,7 @@
    "arduino-nano",
    "pico",
    "eater6502",
+   "z80",
    "attiny88"
   ],
   "benches": {
@@ -6146,6 +6211,7 @@
    "arduino-nano",
    "pico",
    "eater6502",
+   "z80",
    "attiny88",
    "attiny85"
   ],
