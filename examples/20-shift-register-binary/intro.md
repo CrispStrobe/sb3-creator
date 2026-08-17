@@ -5,7 +5,7 @@ prereqs: [08-led-chaser-595]
 teaches: [binary-counting, shift-register, digital-display]
 ---
 ## What you see
-Eight LEDs connected to a 74HC595 shift register count up in binary. The pattern starts at 00000000 (all off), advances to 00000001 (one LED on the right), 00000010, 00000011, and so on up to 11111111 (all eight on), then wraps back to zero.
+Eight LEDs connected to a 74HC595 shift register count up in binary. The pattern starts at 00000000 (all off), advances to 00000001 (one LED on the right), 00000010, 00000011, and so on up to 11111111 (all eight on), then wraps back to zero. This example works on all supported microcontrollers — pick a different device in the toolbar to see the adapted circuit.
 
 ## Try this
 1. Run the program and watch the binary count — notice how the rightmost LED toggles every step and the leftmost toggles only once every 128 steps.

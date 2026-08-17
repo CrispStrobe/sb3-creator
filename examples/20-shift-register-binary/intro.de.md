@@ -5,7 +5,7 @@ prereqs: [08-led-chaser-595]
 teaches: [binary-counting, shift-register, digital-display]
 ---
 ## Was du siehst
-Acht LEDs an einem 74HC595-Schieberegister zählen binär hoch. Das Muster beginnt bei 00000000 (alle aus), geht zu 00000001 (eine LED rechts an), 00000010, 00000011 und so weiter bis 11111111 (alle acht an), dann springt es zurück auf null.
+Acht LEDs an einem 74HC595-Schieberegister zählen binär hoch. Das Muster beginnt bei 00000000 (alle aus), geht zu 00000001 (eine LED rechts an), 00000010, 00000011 und so weiter bis 11111111 (alle acht an), dann springt es zurück auf null. Dieses Beispiel funktioniert auf allen unterstützten Mikrocontrollern — wähle ein anderes Gerät in der Werkzeugleiste, um die angepasste Schaltung zu sehen.
 
 ## Probier das
 1. Starte das Programm und beobachte die Binärzählung — die rechte LED wechselt bei jedem Schritt, die linke nur alle 128 Schritte.
