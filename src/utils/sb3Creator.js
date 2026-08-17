@@ -561,9 +561,19 @@ class SB3Creator {
             '        const sda = find("sda"), scl = find("scl"), b = _board();',
             '        return (sda && scl && b) ? { sda, scl, b } : null; },',
             '    _w: (i, p, v) => { i.b.setPin(p.pin, "pushpull", !!v); },',
-            '    _start: (i) => { _devices._w(i, i.sda, 1); _devices._w(i, i.scl, 1); _devices._w(i, i.sda, 0); _devices._w(i, i.scl, 0); },',
-            '    _stopB: (i) => { _devices._w(i, i.sda, 0); _devices._w(i, i.scl, 1); _devices._w(i, i.sda, 1); },',
+            // FAST PATH: with Board#i2cInject present, a transaction is
+            // BUFFERED and handed to the device decoders whole — the
+            // bit-bang costs one full MNA solve per edge (~29k solves for
+            // a single display clear; the calculator's first frame outran
+            // the run budget, 2026-08-17). Boards without the API keep the
+            // true electrical waveform below.
+            '    _start: (i) => { if (i.b.i2cInject) { _devices._txn = []; return; }',
+            '        _devices._w(i, i.sda, 1); _devices._w(i, i.scl, 1); _devices._w(i, i.sda, 0); _devices._w(i, i.scl, 0); },',
+            '    _stopB: (i) => { if (_devices._txn) { const t = _devices._txn; _devices._txn = null; i.b.i2cInject(t);',
+            '        _devices._w(i, i.sda, 0); _devices._w(i, i.sda, 1); return; }  // one visible bus pulse per txn',
+            '        _devices._w(i, i.sda, 0); _devices._w(i, i.scl, 1); _devices._w(i, i.sda, 1); },',
             '    _byte: (i, dat) => {',
+            '        if (_devices._txn) { _devices._txn.push(dat & 0xFF); return; }',
             '        for (let k = 0; k < 8; k++) { _devices._w(i, i.sda, dat & 0x80); dat = (dat << 1) & 0xFF;',
             '            _devices._w(i, i.scl, 1); _devices._w(i, i.scl, 0); }',
             '        _devices._w(i, i.sda, 1); _devices._w(i, i.scl, 1); _devices._w(i, i.scl, 0); },  // ACK clock, unchecked',

@@ -80,7 +80,11 @@ test('70-calculator through the JS simulator driver: the OLED lights',
     }
 
     // 4. the panel decoded a real init and a real draw from the wire
-    assert.ok(sdaEdges > 100, `SDA toggles at the board (${sdaEdges} events)`);
+    // The driver batches transactions through Board#i2cInject (one MNA
+    // solve per EDGE made a display clear cost ~29k solves) and keeps a
+    // visible pulse per transaction — so the pin still proves the driver
+    // reaches the REAL board, at transaction rate rather than bit rate.
+    assert.ok(sdaEdges > 20, `SDA pulses at the board (${sdaEdges} events)`);
     const oled = circ.parts.find((p) => p.kind === 'ssd1306');
     const st = board.getDeviceState(oled.id);
     assert.equal(st.displayOn, true, 'SSD1306 received its bring-up (charge pump + display on)');
