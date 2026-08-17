@@ -32,7 +32,7 @@ const cmd = args[0];
 const positional = [];
 const opts = {};
 for (let i = 1; i < args.length; i++) {
-    if (args[i] === '--to' || args[i] === '--device' || args[i] === '--port' || args[i] === '-o') {
+    if (args[i] === '--to' || args[i] === '--device' || args[i] === '--port' || args[i] === '--firmware' || args[i] === '-o') {
         opts[args[i].replace(/^-+/, '')] = args[++i];
     } else if (args[i].startsWith('--')) opts[args[i].slice(2)] = true;
     else positional.push(args[i]);
@@ -210,6 +210,35 @@ switch (cmd) {
         break;
     }
 
+    case 'bake-uf2': {
+        // The Safari-proof deploy, the MakeCode lesson complete: ONE file
+        // carrying MicroPython firmware AND the program, already in the
+        // filesystem. Drag onto RPI-RP2 (hold BOOTSEL while plugging in)
+        // and the program boots — no serial, no mpremote, no Chromium.
+        const file = positional[0] ?? die('bake-uf2 needs a file (.bw or .py)');
+        const fw = opts.firmware ?? die('bake-uf2 needs --firmware <MicroPython .uf2> '
+            + '(micropython.org/download/RPI_PICO/)');
+        let py;
+        if (/\.py$/i.test(file)) py = readInput(file);
+        else {
+            const c = parseBw(maybeRetarget(readInput(file), opts.device || 'pico'));
+            const r = c.generateMicroPython();
+            if (!r.ok) die(`micropython refused: ${r.reasons.join('; ')}`, 1);
+            for (const w of r.warnings || []) console.error(`warning: ${w}`);
+            py = r.py;
+        }
+        const { buildLittlefsImage, RPI_PICO_FS } = await import('../src/utils/lfsImage.js');
+        const { uf2FromBinary, uf2Concat } = await import('../src/utils/uf2.js');
+        const fsImage = await buildLittlefsImage({ 'main.py': new TextEncoder().encode(py) });
+        const fwBytes = new Uint8Array(fs.readFileSync(fw));
+        const combined = uf2Concat(fwBytes, uf2FromBinary(fsImage, RPI_PICO_FS.flashBase));
+        const out = opts.o || file.replace(/\.[^.]+$/, '') + '.uf2';
+        fs.writeFileSync(out, combined);
+        console.log(`wrote ${out} (${(combined.length / 1024 / 1024).toFixed(1)} MB) — `
+            + 'hold BOOTSEL, plug in, drag onto RPI-RP2, done');
+        break;
+    }
+
     case 'flash': {
         const file = positional[0] ?? die('flash needs a file (.bw or .py)');
         let py;
@@ -232,9 +261,39 @@ switch (cmd) {
             die('no /dev/cu.usbmodem* device — plug the Pico in (running MicroPython), '
                 + 'or pass --port', 1);
         }
+        // OUR OWN raw-REPL deploy first — no Python anywhere (the product
+        // is a Tauri app; the same picoRepl protocol rides its Rust serial
+        // there). The transport is a plain file descriptor with stty
+        // setting the line discipline — macOS/Linux; on Windows use the
+        // app or mpremote.
+        const port = ports[0];
+        try {
+            const sttyFlag = process.platform === 'darwin' ? '-f' : '-F';
+            execSync(`stty ${sttyFlag} ${port} 115200 raw -echo`, { stdio: 'pipe' });
+            const fd = fs.openSync(port, 'r+');
+            const transport = {
+                async write(text) { fs.writeSync(fd, text); },
+                read() {
+                    return new Promise((resolve) => {
+                        const buf = Buffer.alloc(4096);
+                        fs.read(fd, buf, 0, buf.length, null, (err, n) => {
+                            resolve(err || !n ? '' : buf.toString('utf8', 0, n));
+                        });
+                    });
+                },
+            };
+            const { createPicoRepl } = await import('../src/utils/picoRepl.js');
+            const repl = createPicoRepl(transport, { timeoutMs: 8000 });
+            const written = await repl.deployMainPy(py);
+            fs.closeSync(fd);
+            console.log(`deployed main.py (${written} bytes, device-verified) to ${port} and reset — the program is running`);
+            break;
+        } catch (e) {
+            console.error(`bw: direct deploy failed (${e.message}) — trying mpremote`);
+        }
         const mpremote = ['mpremote', path.join(os.homedir(), '.local/bin/mpremote')]
             .find((m) => { try { execSync(`${m} version`, { stdio: 'pipe' }); return true; } catch { return false; } });
-        if (!mpremote) die('mpremote not found — pipx install mpremote', 1);
+        if (!mpremote) die('mpremote not found either — pipx install mpremote', 1);
         const tmp = path.join(os.tmpdir(), `bw-flash-${Date.now()}.py`);
         fs.writeFileSync(tmp, py);
         execFileSync(mpremote, ['connect', ports[0], 'fs', 'cp', tmp, ':main.py'], { stdio: 'inherit' });
@@ -252,5 +311,6 @@ switch (cmd) {
         console.error('  bw read <file.c|file.py> [-o out.bw]');
         console.error('  bw compile <file.bw> [--device D] [-o out]');
         console.error('  bw flash <file.bw|file.py> [--port /dev/cu.usbmodemX]');
+        console.error('  bw bake-uf2 <file.bw|file.py> --firmware <micropython.uf2> [-o out.uf2]');
         process.exit(cmd ? 2 : 0);
 }
