@@ -15,10 +15,13 @@ import { join } from 'path';
 const EXAMPLES = join(import.meta.dirname, '..', 'examples');
 
 const CASES = [
-    // [example, authored MCU kind, device, target kind]
+    // [example, authored MCU kind, device, target kind]. Only devices the
+    // example actually OFFERS: the retro console's 27 pins exceed the
+    // stc12 pools, so its list is [stc15f2k60s2, arduino-mega] — an
+    // honest retarget refusal, not a transform gap.
     ['61-console-pong', 'stc15_mcu', 'stc12c5a60s2', 'mcu'],
     ['61-console-pong', 'stc15_mcu', 'arduino-mega', 'arduino_mega'],
-    ['60-retro-console', 'stc15_mcu', 'stc12c5a60s2', 'mcu'],
+    ['60-retro-console', 'stc15_mcu', 'arduino-mega', 'arduino_mega'],
 ];
 
 describe('authored-circuit transform: the console survives a device pick', () => {
