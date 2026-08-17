@@ -13,6 +13,15 @@ import cToPseudocode from '../src/utils/cToPseudocode.js';
 
 const EXAMPLES_DIR = join(import.meta.dirname, '..', 'examples');
 
+// Index-based circuit path lookup (WORE contract: discover via manifest, never by glob)
+const _index = JSON.parse(readFileSync(join(EXAMPLES_DIR, 'index.json'), 'utf8'));
+const _indexByDir = new Map(_index.map(e => [e.files?.program?.split('/')[0], e]));
+function circuitPathFor(dir, name) {
+    const entry = _indexByDir.get(name);
+    if (entry?.files?.circuit) return join(EXAMPLES_DIR, entry.files.circuit);
+    return join(dir, 'circuit.json');
+}
+
 // Find all example directories
 const examples = readdirSync(EXAMPLES_DIR, { withFileTypes: true })
     .filter(d => d.isDirectory())
@@ -23,7 +32,7 @@ describe('gallery: every example parses and compiles', () => {
     for (const name of examples) {
         const dir = join(EXAMPLES_DIR, name);
         const bwPath = join(dir, 'program.bw');
-        const circuitPath = join(dir, 'circuit.json');
+        const circuitPath = circuitPathFor(dir, name);
         const expectedPath = join(dir, 'EXPECTED.md');
 
         test(`${name}: program.bw parses with zero warnings`, () => {
@@ -90,18 +99,26 @@ describe('gallery: every example parses and compiles', () => {
             const hasSource = circuit.parts.some(p => /battery|vsource|vcc/.test(p.kind));
             assert.ok(circuit.vcc > 0 || hasSource, 'has a power source (vcc field, battery, vsource, or vcc part)');
             assert.ok(Array.isArray(circuit.parts), 'has parts');
-            assert.ok(Array.isArray(circuit.wires), 'has wires');
-            // Every wire references a part or board that exists.
-            // Two wire formats: legacy flat (from/to are part-id strings)
-            // and current toJSON (from/to are {part, terminal} or {board, hole}).
             const partIds = new Set(circuit.parts.map(p => p.id));
-            for (const w of circuit.wires) {
-                const fromId = typeof w.from === 'string' ? w.from : w.from?.part || w.from?.board;
-                const toId = typeof w.to === 'string' ? w.to : w.to?.part || w.to?.board;
-                assert.ok(fromId && (partIds.has(fromId) || w.from?.board),
-                    `wire from unknown part: ${JSON.stringify(w.from)}`);
-                assert.ok(toId && (partIds.has(toId) || w.to?.board),
-                    `wire to unknown part: ${JSON.stringify(w.to)}`);
+            if (Array.isArray(circuit.nets)) {
+                // Nets-format (WORE generated bench) — validate net terminals
+                for (const net of circuit.nets) {
+                    for (const t of net.terminals) {
+                        assert.ok(partIds.has(t.part),
+                            `net terminal references unknown part '${t.part}'`);
+                    }
+                }
+            } else {
+                assert.ok(Array.isArray(circuit.wires), 'has wires');
+                // Every wire references a part or board that exists.
+                for (const w of circuit.wires) {
+                    const fromId = typeof w.from === 'string' ? w.from : w.from?.part || w.from?.board;
+                    const toId = typeof w.to === 'string' ? w.to : w.to?.part || w.to?.board;
+                    assert.ok(fromId && (partIds.has(fromId) || w.from?.board),
+                        `wire from unknown part: ${JSON.stringify(w.from)}`);
+                    assert.ok(toId && (partIds.has(toId) || w.to?.board),
+                        `wire to unknown part: ${JSON.stringify(w.to)}`);
+                }
             }
         });
 

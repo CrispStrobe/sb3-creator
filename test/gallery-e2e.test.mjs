@@ -104,8 +104,17 @@ const DEVICE_TERMINALS = TERMINALS; // alias for readability
 // Visual-only part kinds: no electrical role, no terminals in the engine.
 const VISUAL_ONLY = new Set(['breadboard', 'label', 'wire_jumper']);
 
+// Index-based circuit path lookup (WORE contract: discover via manifest, never by glob)
+const _e2eIdx = JSON.parse(readFileSync(join(EXAMPLES, 'index.json'), 'utf8'));
+const _e2eByDir = new Map(_e2eIdx.map(e => [e.files?.program?.split('/')[0] ?? e.id, e]));
+function circuitFileFor(name) {
+    const entry = _e2eByDir.get(name);
+    if (entry?.files?.circuit) return join(EXAMPLES, entry.files.circuit);
+    return join(EXAMPLES, name, 'circuit.json');
+}
+
 function loadCircuit(name) {
-    const data = JSON.parse(readFileSync(join(EXAMPLES, name, 'circuit.json'), 'utf8'));
+    const data = JSON.parse(readFileSync(circuitFileFor(name), 'utf8'));
     // Filter out visual-only parts and any wires referencing them
     const visualIds = new Set(data.parts.filter(p => VISUAL_ONLY.has(p.kind)).map(p => p.id));
     data.parts = data.parts.filter(p => !VISUAL_ONLY.has(p.kind));
@@ -123,32 +132,36 @@ function loadCircuit(name) {
             const terminals = kind === 'mcu' ? (p.params?.pins || ['P1.0']) : terms || ['a', 'b'];
             return { id: p.id, kind, params: p.params || {}, terminals };
         });
-        // Build nets from wires
-        const netMap = new Map();
-        for (const w of data.wires) {
-            const netId = `net_${w.from}_${w.fromTerminal}_${w.to}_${w.toTerminal}`;
-            // Find or create a net that contains either endpoint
-            let found = null;
-            for (const [nid, terms] of netMap) {
-                if (terms.some(t => t.part === w.from && t.terminal === w.fromTerminal) ||
-                    terms.some(t => t.part === w.to && t.terminal === w.toTerminal)) {
-                    found = nid; break;
+        // Use nets directly if available (WORE bench format), else build from wires
+        let nets;
+        if (Array.isArray(data.nets) && data.nets.length) {
+            nets = data.nets;
+        } else {
+            const netMap = new Map();
+            for (const w of data.wires) {
+                const netId = `net_${w.from}_${w.fromTerminal}_${w.to}_${w.toTerminal}`;
+                let found = null;
+                for (const [nid, terms] of netMap) {
+                    if (terms.some(t => t.part === w.from && t.terminal === w.fromTerminal) ||
+                        terms.some(t => t.part === w.to && t.terminal === w.toTerminal)) {
+                        found = nid; break;
+                    }
+                }
+                if (found) {
+                    const terms = netMap.get(found);
+                    if (!terms.some(t => t.part === w.from && t.terminal === w.fromTerminal))
+                        terms.push({ part: w.from, terminal: w.fromTerminal });
+                    if (!terms.some(t => t.part === w.to && t.terminal === w.toTerminal))
+                        terms.push({ part: w.to, terminal: w.toTerminal });
+                } else {
+                    netMap.set(netId, [
+                        { part: w.from, terminal: w.fromTerminal },
+                        { part: w.to, terminal: w.toTerminal },
+                    ]);
                 }
             }
-            if (found) {
-                const terms = netMap.get(found);
-                if (!terms.some(t => t.part === w.from && t.terminal === w.fromTerminal))
-                    terms.push({ part: w.from, terminal: w.fromTerminal });
-                if (!terms.some(t => t.part === w.to && t.terminal === w.toTerminal))
-                    terms.push({ part: w.to, terminal: w.toTerminal });
-            } else {
-                netMap.set(netId, [
-                    { part: w.from, terminal: w.fromTerminal },
-                    { part: w.to, terminal: w.toTerminal },
-                ]);
-            }
+            nets = [...netMap.entries()].map(([id, terminals]) => ({ id, terminals }));
         }
-        const nets = [...netMap.entries()].map(([id, terminals]) => ({ id, terminals }));
         board.setNetlist(engineParts, nets);
         return { board, parts: engineParts };
     }

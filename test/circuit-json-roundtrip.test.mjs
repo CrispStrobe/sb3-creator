@@ -13,12 +13,21 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync, readdirSync } from 'node:fs';
+import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const examplesDir = resolve(here, '../examples');
+
+// Index-based circuit path lookup (WORE contract: discover via manifest, never by glob)
+const _idx = JSON.parse(readFileSync(resolve(examplesDir, 'index.json'), 'utf8'));
+const _idxByDir = new Map(_idx.map(e => [e.files?.program?.split('/')[0], e]));
+function circuitPathForDir(name) {
+    const entry = _idxByDir.get(name);
+    if (entry?.files?.circuit) return resolve(examplesDir, entry.files.circuit);
+    return resolve(examplesDir, name, 'circuit.json');
+}
 
 let exampleDirs;
 try {
@@ -96,7 +105,7 @@ function pathContainsKind(obj, fromId, toId, kind) {
 let circuitCount = 0;
 
 for (const name of exampleDirs) {
-    const circuitPath = resolve(examplesDir, name, 'circuit.json');
+    const circuitPath = circuitPathForDir(name);
     let src;
     try { src = readFileSync(circuitPath, 'utf8'); } catch { continue; }
     circuitCount++;
@@ -108,28 +117,38 @@ for (const name of exampleDirs) {
         }
 
         assert.ok(Array.isArray(obj.parts), `${name}: parts must be an array`);
-        assert.ok(Array.isArray(obj.wires), `${name}: wires must be an array`);
+        const isNetsFormat = Array.isArray(obj.nets);
 
         for (const part of obj.parts) {
             assert.ok(part.id, `${name}: part missing id`);
             assert.ok(part.kind, `${name}: part ${part.id} missing kind`);
-            assert.ok(typeof part.x === 'number', `${name}: part ${part.id} missing x`);
-            assert.ok(typeof part.y === 'number', `${name}: part ${part.id} missing y`);
+            if (!isNetsFormat) {
+                assert.ok(typeof part.x === 'number', `${name}: part ${part.id} missing x`);
+                assert.ok(typeof part.y === 'number', `${name}: part ${part.id} missing y`);
+            }
         }
 
         const partIds = new Set(obj.parts.map(p => p.id));
-        for (let i = 0; i < obj.wires.length; i++) {
-            const w = obj.wires[i];
-            assert.ok(w.from, `${name}: wire ${i} missing 'from'`);
-            assert.ok(w.to, `${name}: wire ${i} missing 'to'`);
-            // Wire endpoints must reference parts that exist.
-            // Endpoint can be a string id (old) or { part, terminal } / { board, hole } (new).
-            const fromPart = resolveEndpoint(w.from, w.fromTerminal).part;
-            const toPart = resolveEndpoint(w.to, w.toTerminal).part;
-            assert.ok(partIds.has(fromPart),
-                `${name}: wire ${i} 'from' references unknown part '${fromPart}'`);
-            assert.ok(partIds.has(toPart),
-                `${name}: wire ${i} 'to' references unknown part '${toPart}'`);
+        if (isNetsFormat) {
+            for (const net of obj.nets) {
+                for (const t of net.terminals) {
+                    assert.ok(partIds.has(t.part),
+                        `${name}: net terminal references unknown part '${t.part}'`);
+                }
+            }
+        } else {
+            assert.ok(Array.isArray(obj.wires), `${name}: wires must be an array`);
+            for (let i = 0; i < obj.wires.length; i++) {
+                const w = obj.wires[i];
+                assert.ok(w.from, `${name}: wire ${i} missing 'from'`);
+                assert.ok(w.to, `${name}: wire ${i} missing 'to'`);
+                const fromPart = resolveEndpoint(w.from, w.fromTerminal).part;
+                const toPart = resolveEndpoint(w.to, w.toTerminal).part;
+                assert.ok(partIds.has(fromPart),
+                    `${name}: wire ${i} 'from' references unknown part '${fromPart}'`);
+                assert.ok(partIds.has(toPart),
+                    `${name}: wire ${i} 'to' references unknown part '${toPart}'`);
+            }
         }
     });
 }
