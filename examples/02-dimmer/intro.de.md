@@ -5,7 +5,7 @@ prereqs: [01-blink]
 teaches: [adc, pwm, potentiometer]
 ---
 ## Was du siehst
-Eine LED wird heller oder dunkler, wenn du am Potentiometer drehst. Der MCU liest die Position des Potis als analoge Spannung und steuert die LED mit Software-PWM, deren Tastgrad der Spannung entspricht.
+Eine LED wird heller oder dunkler, wenn du am Potentiometer drehst. Der MCU liest die Position des Potis als analoge Spannung und steuert die LED mit Software-PWM, deren Tastgrad der Spannung entspricht. Dieses Beispiel funktioniert auf allen unterstützten Mikrocontrollern — wähle ein anderes Gerät in der Werkzeugleiste, um die angepasste Schaltung zu sehen.
 
 ## Probier das
 1. Starte das Programm und schiebe den Potentiometer-Regler von einem Ende zum anderen.

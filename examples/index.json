@@ -67,7 +67,7 @@
   "thumbnail": "02-dimmer/thumb.svg",
   "files": {
    "program": "02-dimmer/program.bw",
-   "circuit": "02-dimmer/circuit.json",
+   "circuit": "02-dimmer/circuit.stc12c5a60s2.json",
    "expected": "02-dimmer/EXPECTED.md",
    "intro": "02-dimmer/intro.md",
    "introDE": "02-dimmer/intro.de.md"
@@ -105,7 +105,7 @@
   "thumbnail": "03-night-light/thumb.svg",
   "files": {
    "program": "03-night-light/program.bw",
-   "circuit": "03-night-light/circuit.json",
+   "circuit": "03-night-light/circuit.stc12c5a60s2.json",
    "expected": "03-night-light/EXPECTED.md",
    "intro": "03-night-light/intro.md",
    "introDE": "03-night-light/intro.de.md"
@@ -143,7 +143,7 @@
   "thumbnail": "04-thermostat/thumb.svg",
   "files": {
    "program": "04-thermostat/program.bw",
-   "circuit": "04-thermostat/circuit.json",
+   "circuit": "04-thermostat/circuit.stc12c5a60s2.json",
    "expected": "04-thermostat/EXPECTED.md",
    "intro": "04-thermostat/intro.md",
    "introDE": "04-thermostat/intro.de.md"
@@ -181,7 +181,7 @@
   "thumbnail": "05-counter-7seg/thumb.svg",
   "files": {
    "program": "05-counter/program.bw",
-   "circuit": "05-counter/circuit.json",
+   "circuit": "05-counter/circuit.stc12c5a60s2.json",
    "expected": "05-counter/EXPECTED.md",
    "intro": "05-counter/intro.md",
    "introDE": "05-counter/intro.de.md"
@@ -313,7 +313,7 @@
   "thumbnail": "09-relay-clicker/thumb.svg",
   "files": {
    "program": "09-relay-clicker/program.bw",
-   "circuit": "09-relay-clicker/circuit.json",
+   "circuit": "09-relay-clicker/circuit.stc12c5a60s2.json",
    "expected": "09-relay-clicker/EXPECTED.md",
    "intro": "09-relay-clicker/intro.md",
    "introDE": "09-relay-clicker/intro.de.md"
@@ -351,7 +351,7 @@
   "thumbnail": "10-motor-speed/thumb.svg",
   "files": {
    "program": "10-motor-speed/program.bw",
-   "circuit": "10-motor-speed/circuit.json",
+   "circuit": "10-motor-speed/circuit.stc12c5a60s2.json",
    "expected": "10-motor-speed/EXPECTED.md",
    "intro": "10-motor-speed/intro.md",
    "introDE": "10-motor-speed/intro.de.md"
@@ -389,7 +389,7 @@
   "thumbnail": "11-toggle-button/thumb.svg",
   "files": {
    "program": "11-toggle-button/program.bw",
-   "circuit": "11-toggle-button/circuit.json",
+   "circuit": "11-toggle-button/circuit.stc12c5a60s2.json",
    "expected": "11-toggle-button/EXPECTED.md",
    "intro": "11-toggle-button/intro.md",
    "introDE": "11-toggle-button/intro.de.md"
@@ -427,7 +427,7 @@
   "thumbnail": "12-dual-blink/thumb.svg",
   "files": {
    "program": "12-dual-blink/program.bw",
-   "circuit": "12-dual-blink/circuit.json",
+   "circuit": "12-dual-blink/circuit.stc12c5a60s2.json",
    "expected": "12-dual-blink/EXPECTED.md",
    "intro": "12-dual-blink/intro.md",
    "introDE": "12-dual-blink/intro.de.md"
@@ -465,7 +465,7 @@
   "thumbnail": "13-sos-morse/thumb.svg",
   "files": {
    "program": "13-sos-morse/program.bw",
-   "circuit": "13-sos-morse/circuit.json",
+   "circuit": "13-sos-morse/circuit.stc12c5a60s2.json",
    "expected": "13-sos-morse/EXPECTED.md",
    "intro": "13-sos-morse/intro.md",
    "introDE": "13-sos-morse/intro.de.md"
@@ -503,7 +503,7 @@
   "thumbnail": "14-traffic-light/thumb.svg",
   "files": {
    "program": "14-traffic-light/program.bw",
-   "circuit": "14-traffic-light/circuit.json",
+   "circuit": "14-traffic-light/circuit.stc12c5a60s2.json",
    "expected": "14-traffic-light/EXPECTED.md",
    "intro": "14-traffic-light/intro.md",
    "introDE": "14-traffic-light/intro.de.md"
@@ -541,7 +541,7 @@
   "thumbnail": "15-voltage-divider/thumb.svg",
   "files": {
    "program": "15-voltage-divider/program.bw",
-   "circuit": "15-voltage-divider/circuit.json",
+   "circuit": "15-voltage-divider/circuit.stc12c5a60s2.json",
    "expected": "15-voltage-divider/EXPECTED.md",
    "intro": "15-voltage-divider/intro.md",
    "introDE": "15-voltage-divider/intro.de.md"
@@ -579,7 +579,7 @@
   "thumbnail": "16-ldr-bargraph/thumb.svg",
   "files": {
    "program": "16-ldr-bargraph/program.bw",
-   "circuit": "16-ldr-bargraph/circuit.json",
+   "circuit": "16-ldr-bargraph/circuit.stc12c5a60s2.json",
    "expected": "16-ldr-bargraph/EXPECTED.md",
    "intro": "16-ldr-bargraph/intro.md",
    "introDE": "16-ldr-bargraph/intro.de.md"
@@ -617,7 +617,7 @@
   "thumbnail": "17-comparator/thumb.svg",
   "files": {
    "program": "17-comparator/program.bw",
-   "circuit": "17-comparator/circuit.json",
+   "circuit": "17-comparator/circuit.stc12c5a60s2.json",
    "expected": "17-comparator/EXPECTED.md",
    "intro": "17-comparator/intro.md",
    "introDE": "17-comparator/intro.de.md"
@@ -655,7 +655,7 @@
   "thumbnail": "18-logic-and-gate/thumb.svg",
   "files": {
    "program": "18-logic-and-gate/program.bw",
-   "circuit": "18-logic-and-gate/circuit.json",
+   "circuit": "18-logic-and-gate/circuit.stc12c5a60s2.json",
    "expected": "18-logic-and-gate/EXPECTED.md",
    "intro": "18-logic-and-gate/intro.md",
    "introDE": "18-logic-and-gate/intro.de.md"
@@ -693,7 +693,7 @@
   "thumbnail": "19-logic-or-gate/thumb.svg",
   "files": {
    "program": "19-logic-or-gate/program.bw",
-   "circuit": "19-logic-or-gate/circuit.json",
+   "circuit": "19-logic-or-gate/circuit.stc12c5a60s2.json",
    "expected": "19-logic-or-gate/EXPECTED.md",
    "intro": "19-logic-or-gate/intro.md",
    "introDE": "19-logic-or-gate/intro.de.md"
@@ -731,7 +731,7 @@
   "thumbnail": "20-shift-register-binary/thumb.svg",
   "files": {
    "program": "20-shift-register-binary/program.bw",
-   "circuit": "20-shift-register-binary/circuit.json",
+   "circuit": "20-shift-register-binary/circuit.stc12c5a60s2.json",
    "expected": "20-shift-register-binary/EXPECTED.md",
    "intro": "20-shift-register-binary/intro.md",
    "introDE": "20-shift-register-binary/intro.de.md"
@@ -823,7 +823,7 @@
   "thumbnail": "24-pwm-fade/thumb.svg",
   "files": {
    "program": "24-pwm-fade/program.bw",
-   "circuit": "24-pwm-fade/circuit.json",
+   "circuit": "24-pwm-fade/circuit.stc12c5a60s2.json",
    "expected": "24-pwm-fade/EXPECTED.md",
    "intro": "24-pwm-fade/intro.md",
    "introDE": "24-pwm-fade/intro.de.md"
@@ -861,7 +861,7 @@
   "thumbnail": "25-reaction-timer/thumb.svg",
   "files": {
    "program": "25-reaction-timer/program.bw",
-   "circuit": "25-reaction-timer/circuit.json",
+   "circuit": "25-reaction-timer/circuit.stc12c5a60s2.json",
    "expected": "25-reaction-timer/EXPECTED.md",
    "intro": "25-reaction-timer/intro.md",
    "introDE": "25-reaction-timer/intro.de.md"
@@ -899,7 +899,7 @@
   "thumbnail": "26-debounce/thumb.svg",
   "files": {
    "program": "26-debounce/program.bw",
-   "circuit": "26-debounce/circuit.json",
+   "circuit": "26-debounce/circuit.stc12c5a60s2.json",
    "expected": "26-debounce/EXPECTED.md",
    "intro": "26-debounce/intro.md",
    "introDE": "26-debounce/intro.de.md"
@@ -937,7 +937,7 @@
   "thumbnail": "27-led-dice/thumb.svg",
   "files": {
    "program": "27-led-dice/program.bw",
-   "circuit": "27-led-dice/circuit.json",
+   "circuit": "27-led-dice/circuit.stc12c5a60s2.json",
    "expected": "27-led-dice/EXPECTED.md",
    "intro": "27-led-dice/intro.md",
    "introDE": "27-led-dice/intro.de.md"
@@ -1011,7 +1011,7 @@
   "thumbnail": "30-multi-led-pattern/thumb.svg",
   "files": {
    "program": "30-multi-led-pattern/program.bw",
-   "circuit": "30-multi-led-pattern/circuit.json",
+   "circuit": "30-multi-led-pattern/circuit.stc12c5a60s2.json",
    "expected": "30-multi-led-pattern/EXPECTED.md",
    "intro": "30-multi-led-pattern/intro.md",
    "introDE": "30-multi-led-pattern/intro.de.md"
@@ -1395,7 +1395,7 @@
   "difficulty": 2,
   "files": {
    "program": "49-lcd-hello/program.bw",
-   "circuit": "49-lcd-hello/circuit.json",
+   "circuit": "49-lcd-hello/circuit.stc12c5a60s2.json",
    "expected": "49-lcd-hello/EXPECTED.md",
    "intro": "49-lcd-hello/intro.md",
    "introDE": "49-lcd-hello/intro.de.md"
@@ -1434,7 +1434,7 @@
   "difficulty": 2,
   "files": {
    "program": "50-7seg-chase/program.bw",
-   "circuit": "50-7seg-chase/circuit.json",
+   "circuit": "50-7seg-chase/circuit.stc12c5a60s2.json",
    "expected": "50-7seg-chase/EXPECTED.md",
    "intro": "50-7seg-chase/intro.md",
    "introDE": "50-7seg-chase/intro.de.md"
@@ -1535,7 +1535,7 @@
   "thumbnail": "53-servo-sweep/thumb.svg",
   "files": {
    "program": "53-servo-sweep/program.bw",
-   "circuit": "53-servo-sweep/circuit.json",
+   "circuit": "53-servo-sweep/circuit.stc12c5a60s2.json",
    "expected": "53-servo-sweep/EXPECTED.md",
    "intro": "53-servo-sweep/intro.md",
    "introDE": "53-servo-sweep/intro.de.md"
@@ -1573,7 +1573,7 @@
   "thumbnail": "54-motor-driver/thumb.svg",
   "files": {
    "program": "54-motor-driver/program.bw",
-   "circuit": "54-motor-driver/circuit.json",
+   "circuit": "54-motor-driver/circuit.stc12c5a60s2.json",
    "expected": "54-motor-driver/EXPECTED.md",
    "intro": "54-motor-driver/intro.md",
    "introDE": "54-motor-driver/intro.de.md"

@@ -5,7 +5,7 @@ prereqs: [01-blink]
 teaches: [adc, pwm, potentiometer]
 ---
 ## What you see
-An LED gets brighter or dimmer as you turn the potentiometer knob. The MCU reads the pot's position as an analog voltage, then drives the LED with software PWM at a duty cycle matching that voltage.
+An LED gets brighter or dimmer as you turn the potentiometer knob. The MCU reads the pot's position as an analog voltage, then drives the LED with software PWM at a duty cycle matching that voltage. This example works on all supported microcontrollers — pick a different device in the toolbar to see the adapted circuit.
 
 ## Try this
 1. Run the program and drag the potentiometer slider from one end to the other.
