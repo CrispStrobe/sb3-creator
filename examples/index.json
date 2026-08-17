@@ -1429,6 +1429,29 @@
   }
  },
  {
+  "id": "55-oled-hello",
+  "title": {
+   "en": "I2C OLED: hello + counter",
+   "de": "I2C-OLED: Hallo + Z\u00e4hler"
+  },
+  "category": "digital",
+  "difficulty": 2,
+  "files": {
+   "program": "55-oled-hello/program.bw",
+   "circuit": "55-oled-hello/circuit.stc12c5a60s2.json",
+   "expected": "55-oled-hello/EXPECTED.md",
+   "intro": "55-oled-hello/intro.md",
+   "introDE": "55-oled-hello/intro.de.md"
+  },
+  "kind": "program",
+  "devices": [
+   "stc12c5a60s2"
+  ],
+  "benches": {
+   "stc12c5a60s2": "55-oled-hello/circuit.stc12c5a60s2.json"
+  }
+ },
+ {
   "id": "50-7seg-chase",
   "title": {
    "en": "7-segment: segment chase",

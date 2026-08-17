@@ -1268,6 +1268,12 @@ export default function cToPseudocode (source, opts = {}) {
             case 'bw_tft_print_s': return { text: '0', level: 99, stmt: `tft print ${a(1)} on ${a(0)}` };
             case 'bw_tft_print_n': return { text: '0', level: 99, stmt: `tft print ${a(1)} on ${a(0)}` };
             case 'bw_tft_cursor': return { text: '0', level: 99, stmt: `tft set cursor ${a(1)} ${a(2)} on ${a(0)}` };
+            // OLED (SSD1306)
+            case 'bw_oled_pixel': return { text: '0', level: 99, stmt: `oled pixel ${a(1)} ${a(2)} ${a(3)} on ${a(0)}` };
+            case 'bw_oled_clear': return { text: '0', level: 99, stmt: `oled clear ${a(0)}` };
+            case 'bw_oled_print_s': return { text: '0', level: 99, stmt: `oled print ${a(1)} on ${a(0)}` };
+            case 'bw_oled_print_n': return { text: '0', level: 99, stmt: `oled print ${a(1)} on ${a(0)}` };
+            case 'bw_oled_cursor': return { text: '0', level: 99, stmt: `oled set cursor ${a(1)} ${a(2)} on ${a(0)}` };
             // Sensors (reporters)
             case 'bw_temperature': return { text: `temperature from ${a(0)}`, level: 99 };
             case 'bw_light': return { text: `light from ${a(0)}`, level: 99 };
@@ -1819,7 +1825,8 @@ export default function cToPseudocode (source, opts = {}) {
             // Top-level declaration (not a function). Warn if it carries
             // program state that the reader cannot represent.
             const declSpan = tokens.slice(start, cur.i).map(t => t.v).join(' ');
-            if (/struct|union|enum|typedef|\*|\[/.test(declSpan) && !SFRS.test(declSpan)) {
+            const DRIVER_TABLES = /\bfont5x7\b|\b_neo_buf\b|\bbw_cube_frame\b/;
+            if (/struct|union|enum|typedef|\*|\[/.test(declSpan) && !SFRS.test(declSpan) && !DRIVER_TABLES.test(declSpan)) {
                 const brief = tokens.slice(start, Math.min(cur.i, start + 8)).map(t => t.v).join(' ');
                 warn(`top-level declaration dropped (no block equivalent): ${brief}${cur.i - start > 8 ? ' …' : ''}`);
             }
@@ -1908,6 +1915,9 @@ export default function cToPseudocode (source, opts = {}) {
         'bw_tft_print_s', 'bw_tft_print_n', 'bw_tft_cursor',
         'tft_spi_write', 'tft_cmd', 'tft_data', 'tft_set_window',
         'tft_pixel16', 'rgb565',
+        'bw_oled_pixel', 'bw_oled_clear',
+        'bw_oled_print_s', 'bw_oled_print_n', 'bw_oled_cursor',
+        'oled_cmd', 'oled_data_start', 'oled_set_page_col', 'oled_putchar',
         'board_init', 'delay_init', 'tone_set', 'tone_stop',
         'bw_cube_scan', 'bw_cube_set', 'bw_cube_get', 'bw_cube_clear',
         'bw_cube_fill_layer', 'bw_cube_shift', 'bw_cube_hold',
@@ -1923,6 +1933,9 @@ export default function cToPseudocode (source, opts = {}) {
         'bw_tft_print_s', 'bw_tft_print_n', 'bw_tft_cursor',
         'tft_spi_write', 'tft_cmd', 'tft_data', 'tft_set_window',
         'tft_pixel16', 'rgb565',
+        'bw_oled_pixel', 'bw_oled_clear',
+        'bw_oled_print_s', 'bw_oled_print_n', 'bw_oled_cursor',
+        'oled_cmd', 'oled_data_start', 'oled_set_page_col', 'oled_putchar',
         'bw_temperature', 'bw_light', 'bw_distance', 'bw_flex', 'bw_force',
         'bw_ir_code', 'bw_device_state',
         'bw_pressed', 'bw_above', 'bw_closer', 'bw_motion', 'bw_tilted', 'bw_energised',

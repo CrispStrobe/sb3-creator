@@ -1,0 +1,24 @@
+DEVICE STC12C5A60S2
+CLOCK 11059200
+PIN sda = P2.1 OUTPUT
+PIN scl = P2.2 OUTPUT
+
+GLOBAL count
+
+STAGE:
+  # SSD1306 128x64 OLED: I2C at 0x3C on P2.1/P2.2.
+  # The oled verbs drive the transpiler's bit-banged I2C driver;
+  # the board model decodes the bytes and the OLED face shows text.
+  # Pull-up resistors on SDA/SCL are required — the 8051's
+  # quasi-bidirectional port cannot source enough current for I2C.
+  WHEN flag clicked:
+    oled clear 1
+    oled print "HI BRICKWRIGHT" on 1
+    oled set cursor 1 0 on 1
+    oled print "COUNT:" on 1
+    set count to 0
+    FOREVER:
+      oled set cursor 1 7 on 1
+      oled print count on 1
+      change count by 1
+      wait 1 seconds

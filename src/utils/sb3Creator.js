@@ -2337,6 +2337,44 @@ class SB3Creator {
             block[id].inputs.DISPLAY = val(match[1]);
             return ret(block);
         }
+        // ---- oled blocks (SSD1306) ----
+        if ((match = line.match(/^oled pixel\s+(.+?)\s+(.+?)\s+(.+?)\s+on\s+(.+)$/i))) {
+            const { id, block } = cmd('devices_oledpixel');
+            block[id].inputs.X = val(match[1]);
+            block[id].inputs.Y = val(match[2]);
+            block[id].inputs.VALUE = val(match[3]);
+            block[id].inputs.DISPLAY = val(match[4]);
+            return ret(block);
+        }
+        if ((match = line.match(/^oled print\s+"([^"]*)"\s+on\s+(.+)$/i))) {
+            const { id, block } = cmd('devices_oledprint');
+            block[id].inputs.TEXT = [1, [10, match[1]]];
+            block[id].inputs.DISPLAY = val(match[2]);
+            return ret(block);
+        }
+        if ((match = line.match(/^oled print\s+(.+?)\s+on\s+(.+)$/i))) {
+            const { id, block } = cmd('devices_oledprint');
+            block[id].inputs.TEXT = val(match[1]);
+            block[id].inputs.DISPLAY = val(match[2]);
+            return ret(block);
+        }
+        if ((match = line.match(/^oled set cursor\s+(.+?)\s+(.+?)\s+on\s+(.+)$/i))) {
+            const { id, block } = cmd('devices_oledcursor');
+            block[id].inputs.ROW = val(match[1]);
+            block[id].inputs.COL = val(match[2]);
+            block[id].inputs.DISPLAY = val(match[3]);
+            return ret(block);
+        }
+        if ((match = line.match(/^oled clear\s+(.+)$/i))) {
+            const displayArg = match[1].trim();
+            if (/\s/.test(displayArg)) {
+                this.warn(null, `oled clear takes a single display name, but got "${displayArg}" (contains whitespace) — did you mean "oled clear <display>"?`);
+                return null;
+            }
+            const { id, block } = cmd('devices_oledclear');
+            block[id].inputs.DISPLAY = val(match[1]);
+            return ret(block);
+        }
         // ---- led_matrix blocks ----
         if ((match = line.match(/^set pixel\s+(.+?)\s+(.+?)\s+to\s+(.+?)\s+on\s+(.+)$/i))) {
             const { id, block } = cmd('devices_setpixel');
@@ -4130,6 +4168,10 @@ class SB3Creator {
             case 'devices_tftclear': return line(`tft clear ${v('DISPLAY')}`);
             case 'devices_tftprint': return line(`tft print ${v('TEXT')} on ${v('DISPLAY')}`);
             case 'devices_tftcursor': return line(`tft set cursor ${v('ROW')} ${v('COL')} on ${v('DISPLAY')}`);
+            case 'devices_oledpixel': return line(`oled pixel ${v('X')} ${v('Y')} ${v('VALUE')} on ${v('DISPLAY')}`);
+            case 'devices_oledclear': return line(`oled clear ${v('DISPLAY')}`);
+            case 'devices_oledprint': return line(`oled print ${v('TEXT')} on ${v('DISPLAY')}`);
+            case 'devices_oledcursor': return line(`oled set cursor ${v('ROW')} ${v('COL')} on ${v('DISPLAY')}`);
             // LED cube commands
             case 'ledcube_setvoxel': return line(`set voxel ${v('X')} ${v('Y')} ${v('Z')} to ${v('COLOUR')}`);
             case 'ledcube_clearvoxel': return line(`clear voxel ${v('X')} ${v('Y')} ${v('Z')}`);
@@ -5768,6 +5810,16 @@ class SB3Creator {
                     : `bw_tft_print_n(${v('DISPLAY')}, ${t.code});`);
             }
             case 'devices_tftcursor': { this._cUses.devices = true; this._cUses.tft = true; return line(`bw_tft_cursor(${v('DISPLAY')}, ${v('ROW')}, ${v('COL')});`); }
+            case 'devices_oledpixel': { this._cUses.devices = true; this._cUses.oled = true; return line(`bw_oled_pixel(${v('DISPLAY')}, ${v('X')}, ${v('Y')}, ${v('VALUE')});`); }
+            case 'devices_oledclear': { this._cUses.devices = true; this._cUses.oled = true; return line(`bw_oled_clear(${v('DISPLAY')});`); }
+            case 'devices_oledprint': {
+                this._cUses.devices = true; this._cUses.oled = true;
+                const t = this.cTextArg(b.inputs.TEXT, blocks);
+                return line(t.isString
+                    ? `bw_oled_print_s(${v('DISPLAY')}, ${t.code});`
+                    : `bw_oled_print_n(${v('DISPLAY')}, ${t.code});`);
+            }
+            case 'devices_oledcursor': { this._cUses.devices = true; this._cUses.oled = true; return line(`bw_oled_cursor(${v('DISPLAY')}, ${v('ROW')}, ${v('COL')});`); }
             case 'procedures_call': return line(this.cProcCall(b, blocks));
             default: {
                 const text = (this.decompileStackBlock(b, blocks, 0)[0] || b.opcode).trim();
@@ -7845,7 +7897,7 @@ class SB3Creator {
             driverPins.push({ port: 3, bit: 7, driver: 'ultrasonic echo' });
         }
         if (this._cUses.neopixel) driverPins.push({ port: 1, bit: 5, driver: 'NeoPixel data' });
-        if (this._cUses.lcd) {
+        if (this._cUses.lcd || this._cUses.oled) {
             driverPins.push({ port: 2, bit: 1, driver: 'I2C SDA' });
             driverPins.push({ port: 2, bit: 2, driver: 'I2C SCL' });
         }
@@ -9482,28 +9534,17 @@ class SB3Creator {
             // drive SDA for ACK — the driver proceeds without ACK check, which
             // is correct for write-only devices (LCD). The data reaches the
             // model regardless; the ACK is unverifiable in simulation.
-            if (this._cUses.lcd) {
+            // Shared I2C bus primitives — used by LCD (PCF8574) and OLED (SSD1306).
+            // Gated by _cUses.lcd || _cUses.oled so only one copy is emitted
+            // regardless of how many I2C devices a program drives.
+            if (this._cUses.lcd || this._cUses.oled) {
                 out.push(
-                    '/* I2C LCD (HD44780 via PCF8574 backpack): bit-banged I2C. */',
-                    '/* SDA = P2.1, SCL = P2.2 — open-drain with external pull-ups. */',
-                    '/* SIMULATOR LIMIT: board model does not drive SDA for ACK; */',
-                    '/* driver proceeds without ACK check (write-only LCD). */',
-                    '/* Moves to verifiable when bw-board adds ACK driving. */',
+                    '/* I2C bus: bit-banged, SDA = P2.1, SCL = P2.2 (open-drain). */',
                     '#define I2C_SDA  P2_1',
                     '#define I2C_SCL  P2_2',
-                    '#define LCD_ADDR 0x27   /* PCF8574 default */',
                     '',
                     `/* I2C bus timing (NXP UM10204 table 10, 100 kHz standard mode): */`,
-                    `/*   t_HIGH ≥ 4.0 µs (SCL high — delay only, no data setup) */`,
-                    `/*   t_LOW  ≥ 4.7 µs (SCL low  — delay + data setup overhead) */`,
-                    `/* One delay sized for t_LOW (4.7 µs) satisfies both: HIGH gets */`,
-                    `/* the full delay, LOW gets delay + setup → always longer. */`,
-                    `/* Measured (ucsim-stc f775869, loop=26, 1T 11.0592 MHz): */`,
-                    `/*   HIGH = 5.61 µs (+1.61 margin)  LOW = 7.26 µs (+2.56 margin) */`,
-                    `/* Predicted 6.5 µs (proportional model); measured 5.61 = 14% over. */`,
-                    `/* Two-point calibration (loop 13→3.25, 26→5.61): */`,
-                    `/*   per-iter ≈ 0.181 µs, fixed overhead ≈ 0.89 µs (call + SCL write). */`,
-                    `/* Use t = 0.89 + 0.181 * N for future predictions on this build. */`,
+                    `/*   t_LOW ≥ 4.7 µs — one delay covers both HIGH and LOW. */`,
                     `static void i2c_delay(void) { unsigned char i; for (i = 0; i < ${chip.aux1T ? Math.ceil(clock * 4.7e-6 / 2) : Math.max(2, Math.ceil(clock / 12 * 4.7e-6 / 2))}; i++) ; }`,
                     'static void i2c_start(void) { I2C_SDA = 1; I2C_SCL = 1; i2c_delay(); I2C_SDA = 0; i2c_delay(); I2C_SCL = 0; }',
                     'static void i2c_stop(void)  { I2C_SDA = 0; I2C_SCL = 1; i2c_delay(); I2C_SDA = 1; i2c_delay(); }',
@@ -9515,10 +9556,16 @@ class SB3Creator {
                     '        dat <<= 1;',
                     '        I2C_SCL = 1; i2c_delay(); I2C_SCL = 0; i2c_delay();',
                     '    }',
-                    '    /* ACK clock: release SDA, clock SCL. We do not check the ACK */',
-                    '    /* because the board model does not drive it (write-only LCD). */',
+                    '    /* ACK clock — we do not check the ACK (write-only devices). */',
                     '    I2C_SDA = 1; I2C_SCL = 1; i2c_delay(); I2C_SCL = 0; i2c_delay();',
                     '}',
+                    '');
+            }
+
+            // LCD (HD44780 via PCF8574 I2C backpack)
+            if (this._cUses.lcd) {
+                out.push(
+                    '#define LCD_ADDR 0x27   /* PCF8574 default */',
                     '',
                     '/* Send a byte to the PCF8574 at LCD_ADDR. */',
                     'static void lcd_i2c_send(unsigned char val)',
@@ -9529,7 +9576,6 @@ class SB3Creator {
                     '    i2c_stop();',
                     '}',
                     '',
-                    '/* Pulse the EN line on the PCF8574: set EN high, then low. */',
                     '/* PCF8574 bit layout: D7 D6 D5 D4 BL EN RW RS */',
                     'static void lcd_nibble(unsigned char nib, unsigned char rs)',
                     '{',
@@ -9695,6 +9741,161 @@ class SB3Creator {
                     stub('static void bw_tft_print_s(int d, const char *s)', 'devices_tftprint'),
                     stub('static void bw_tft_print_n(int d, long n)', 'devices_tftprint'),
                     stub('static void bw_tft_cursor(int d, int row, int col)', 'devices_tftcursor'));
+            }
+            // OLED (SSD1306, I2C at 0x3C): gated by _cUses.oled.
+            // Uses the shared I2C primitives emitted above.
+            if (this._cUses.oled) {
+                out.push(
+                    '/* SSD1306 OLED: 128x64, I2C at 0x3C, page addressing. */',
+                    '#define OLED_ADDR 0x3C',
+                    '#define OLED_W    128',
+                    '#define OLED_H    64',
+                    '#define OLED_PAGES (OLED_H / 8)',
+                    '',
+                    'static void oled_cmd(unsigned char cmd)',
+                    '{',
+                    '    i2c_start();',
+                    '    i2c_write((unsigned char)(OLED_ADDR << 1));',
+                    '    i2c_write(0x00);  /* control: Co=0 D/C#=0 → command */',
+                    '    i2c_write(cmd);',
+                    '    i2c_stop();',
+                    '}',
+                    '',
+                    'static void oled_data_start(void)',
+                    '{',
+                    '    i2c_start();',
+                    '    i2c_write((unsigned char)(OLED_ADDR << 1));',
+                    '    i2c_write(0x40);  /* control: Co=0 D/C#=1 → data stream */',
+                    '}',
+                    '',
+                    '/* 5x7 font — ASCII 0x20..0x7E (95 printable chars × 5 bytes). */',
+                    '/* Public domain bitmap (Adafruit GFX lineage). */',
+                    `static const ${this._core === '8051' ? '__code' : ''} unsigned char font5x7[475] = {`,
+                    '    0x00,0x00,0x00,0x00,0x00, 0x00,0x00,0x5F,0x00,0x00,',  // space, !
+                    '    0x00,0x07,0x00,0x07,0x00, 0x14,0x7F,0x14,0x7F,0x14,',  // ", #
+                    '    0x24,0x2A,0x7F,0x2A,0x12, 0x23,0x13,0x08,0x64,0x62,',  // $, %
+                    '    0x36,0x49,0x55,0x22,0x50, 0x00,0x05,0x03,0x00,0x00,',  // &, '
+                    '    0x00,0x1C,0x22,0x41,0x00, 0x00,0x41,0x22,0x1C,0x00,',  // (, )
+                    '    0x14,0x08,0x3E,0x08,0x14, 0x08,0x08,0x3E,0x08,0x08,',  // *, +
+                    '    0x00,0x50,0x30,0x00,0x00, 0x08,0x08,0x08,0x08,0x08,',  // ,, -
+                    '    0x00,0x60,0x60,0x00,0x00, 0x20,0x10,0x08,0x04,0x02,',  // ., /
+                    '    0x3E,0x51,0x49,0x45,0x3E, 0x00,0x42,0x7F,0x40,0x00,',  // 0, 1
+                    '    0x42,0x61,0x51,0x49,0x46, 0x21,0x41,0x45,0x4B,0x31,',  // 2, 3
+                    '    0x18,0x14,0x12,0x7F,0x10, 0x27,0x45,0x45,0x45,0x39,',  // 4, 5
+                    '    0x3C,0x4A,0x49,0x49,0x30, 0x01,0x71,0x09,0x05,0x03,',  // 6, 7
+                    '    0x36,0x49,0x49,0x49,0x36, 0x06,0x49,0x49,0x29,0x1E,',  // 8, 9
+                    '    0x00,0x36,0x36,0x00,0x00, 0x00,0x56,0x36,0x00,0x00,',  // :, ;
+                    '    0x08,0x14,0x22,0x41,0x00, 0x14,0x14,0x14,0x14,0x14,',  // <, =
+                    '    0x00,0x41,0x22,0x14,0x08, 0x02,0x01,0x51,0x09,0x06,',  // >, ?
+                    '    0x32,0x49,0x79,0x41,0x3E, 0x7E,0x11,0x11,0x11,0x7E,',  // @, A
+                    '    0x7F,0x49,0x49,0x49,0x36, 0x3E,0x41,0x41,0x41,0x22,',  // B, C
+                    '    0x7F,0x41,0x41,0x22,0x1C, 0x7F,0x49,0x49,0x49,0x41,',  // D, E
+                    '    0x7F,0x09,0x09,0x09,0x01, 0x3E,0x41,0x49,0x49,0x7A,',  // F, G
+                    '    0x7F,0x08,0x08,0x08,0x7F, 0x00,0x41,0x7F,0x41,0x00,',  // H, I
+                    '    0x20,0x40,0x41,0x3F,0x01, 0x7F,0x08,0x14,0x22,0x41,',  // J, K
+                    '    0x7F,0x40,0x40,0x40,0x40, 0x7F,0x02,0x0C,0x02,0x7F,',  // L, M
+                    '    0x7F,0x04,0x08,0x10,0x7F, 0x3E,0x41,0x41,0x41,0x3E,',  // N, O
+                    '    0x7F,0x09,0x09,0x09,0x06, 0x3E,0x41,0x51,0x21,0x5E,',  // P, Q
+                    '    0x7F,0x09,0x19,0x29,0x46, 0x46,0x49,0x49,0x49,0x31,',  // R, S
+                    '    0x01,0x01,0x7F,0x01,0x01, 0x3F,0x40,0x40,0x40,0x3F,',  // T, U
+                    '    0x1F,0x20,0x40,0x20,0x1F, 0x3F,0x40,0x38,0x40,0x3F,',  // V, W
+                    '    0x63,0x14,0x08,0x14,0x63, 0x07,0x08,0x70,0x08,0x07,',  // X, Y
+                    '    0x61,0x51,0x49,0x45,0x43, 0x00,0x7F,0x41,0x41,0x00,',  // Z, [
+                    '    0x02,0x04,0x08,0x10,0x20, 0x00,0x41,0x41,0x7F,0x00,',  // backslash, ]
+                    '    0x04,0x02,0x01,0x02,0x04, 0x40,0x40,0x40,0x40,0x40,',  // ^, _
+                    '    0x00,0x01,0x02,0x04,0x00, 0x20,0x54,0x54,0x54,0x78,',  // `, a
+                    '    0x7F,0x48,0x44,0x44,0x38, 0x38,0x44,0x44,0x44,0x20,',  // b, c
+                    '    0x38,0x44,0x44,0x48,0x7F, 0x38,0x54,0x54,0x54,0x18,',  // d, e
+                    '    0x08,0x7E,0x09,0x01,0x02, 0x0C,0x52,0x52,0x52,0x3E,',  // f, g
+                    '    0x7F,0x08,0x04,0x04,0x78, 0x00,0x44,0x7D,0x40,0x00,',  // h, i
+                    '    0x20,0x40,0x44,0x3D,0x00, 0x7F,0x10,0x28,0x44,0x00,',  // j, k
+                    '    0x00,0x41,0x7F,0x40,0x00, 0x7C,0x04,0x18,0x04,0x78,',  // l, m
+                    '    0x7C,0x08,0x04,0x04,0x78, 0x38,0x44,0x44,0x44,0x38,',  // n, o
+                    '    0x7C,0x14,0x14,0x14,0x08, 0x08,0x14,0x14,0x18,0x7C,',  // p, q
+                    '    0x7C,0x08,0x04,0x04,0x08, 0x48,0x54,0x54,0x54,0x20,',  // r, s
+                    '    0x04,0x3F,0x44,0x40,0x20, 0x3C,0x40,0x40,0x20,0x7C,',  // t, u
+                    '    0x1C,0x20,0x40,0x20,0x1C, 0x3C,0x40,0x30,0x40,0x3C,',  // v, w
+                    '    0x44,0x28,0x10,0x28,0x44, 0x0C,0x50,0x50,0x50,0x3C,',  // x, y
+                    '    0x44,0x64,0x54,0x4C,0x44, 0x00,0x08,0x36,0x41,0x00,',  // z, {
+                    '    0x00,0x00,0x7F,0x00,0x00, 0x00,0x41,0x36,0x08,0x00,',  // |, }
+                    '    0x10,0x08,0x08,0x10,0x08',                              // ~
+                    '};',
+                    '',
+                    'static void oled_set_page_col(unsigned char page, unsigned char col)',
+                    '{',
+                    '    oled_cmd((unsigned char)(0xB0 | (page & 0x07)));',
+                    '    oled_cmd((unsigned char)(0x00 | (col & 0x0F)));',
+                    '    oled_cmd((unsigned char)(0x10 | ((col >> 4) & 0x0F)));',
+                    '}',
+                    '',
+                    'static void bw_oled_clear(int disp)',
+                    '{',
+                    '    unsigned int i;',
+                    '    (void)disp;',
+                    '    /* Horizontal mode for bulk write, then back to page mode. */',
+                    '    oled_cmd(0x20); oled_cmd(0x00);  /* horizontal addressing */',
+                    '    oled_cmd(0x21); oled_cmd(0x00); oled_cmd(0x7F);  /* col 0-127 */',
+                    '    oled_cmd(0x22); oled_cmd(0x00); oled_cmd(0x07);  /* page 0-7 */',
+                    '    oled_data_start();',
+                    '    for (i = 0; i < 1024; i++) i2c_write(0x00);',
+                    '    i2c_stop();',
+                    '    oled_cmd(0x20); oled_cmd(0x02);  /* back to page mode */',
+                    '    oled_set_page_col(0, 0);',
+                    '}',
+                    '',
+                    'static void bw_oled_pixel(int disp, int x, int y, int val)',
+                    '{',
+                    '    unsigned char page = (unsigned char)(y >> 3);',
+                    '    unsigned char bit  = (unsigned char)(1 << (y & 7));',
+                    '    (void)disp;',
+                    '    oled_set_page_col(page, (unsigned char)x);',
+                    '    oled_data_start();',
+                    '    i2c_write(val ? bit : 0x00);',
+                    '    i2c_stop();',
+                    '}',
+                    '',
+                    'static void oled_putchar(unsigned char c)',
+                    '{',
+                    '    unsigned char i;',
+                    '    unsigned int idx;',
+                    '    if (c < 0x20 || c > 0x7E) c = 0x20;',
+                    '    idx = (unsigned int)(c - 0x20) * 5;',
+                    '    oled_data_start();',
+                    `    for (i = 0; i < 5; i++) i2c_write(font5x7[idx + i]);`,
+                    '    i2c_write(0x00);  /* 1-pixel gap */',
+                    '    i2c_stop();',
+                    '}',
+                    '',
+                    'static void bw_oled_print_s(int disp, const char *s)',
+                    '{',
+                    '    (void)disp;',
+                    '    while (*s) oled_putchar((unsigned char)*s++);',
+                    '}',
+                    '',
+                    'static void bw_oled_print_n(int disp, long n)',
+                    '{',
+                    '    char buf[12]; unsigned char i = 0; unsigned long u;',
+                    '    (void)disp;',
+                    '    if (n < 0) { oled_putchar(0x2D); u = (unsigned long)(-n); }',
+                    '    else u = (unsigned long)n;',
+                    '    if (u == 0) { oled_putchar(0x30); return; }',
+                    '    while (u) { buf[i++] = (char)(0x30 + (u % 10)); u /= 10; }',
+                    '    while (i) oled_putchar((unsigned char)buf[--i]);',
+                    '}',
+                    '',
+                    'static void bw_oled_cursor(int disp, int row, int col)',
+                    '{',
+                    '    (void)disp;',
+                    '    oled_set_page_col((unsigned char)(row & 0x07), (unsigned char)(col * 6));',
+                    '}',
+                    '');
+            } else {
+                out.push(
+                    stub('static void bw_oled_pixel(int d, int x, int y, int v)', 'devices_oledpixel'),
+                    stub('static void bw_oled_clear(int d)', 'devices_oledclear'),
+                    stub('static void bw_oled_print_s(int d, const char *s)', 'devices_oledprint'),
+                    stub('static void bw_oled_print_n(int d, long n)', 'devices_oledprint'),
+                    stub('static void bw_oled_cursor(int d, int row, int col)', 'devices_oledcursor'));
             }
             // Stubs: IR (protocol decode), 7-segment, matrix, RGB.
             out.push(
@@ -10049,13 +10250,16 @@ class SB3Creator {
             out.push('    NEO_PIN = 0;',
                 '    _neo_count = NEO_MAX;');
         }
-        // I2C LCD: P2.1 (SDA) and P2.2 (SCL) in open-drain mode.
-        if (this._cUses.lcd) {
+        // I2C bus: P2.1 (SDA) and P2.2 (SCL) in open-drain mode.
+        // Shared by LCD and OLED — one init for both.
+        if (this._cUses.lcd || this._cUses.oled) {
             if (chip.portModes) {
                 out.push('    P2M1 |=  0x06; P2M0 |=  0x06;  /* P2.1, P2.2 open-drain (I2C) */');
             }
             out.push('    I2C_SDA = 1; I2C_SCL = 1;      /* release bus */');
-            // HD44780 4-bit mode init sequence (must be sent as nibbles, not bytes).
+        }
+        // LCD (HD44780 via PCF8574): 4-bit mode init sequence.
+        if (this._cUses.lcd) {
             out.push('    /* HD44780 init: 4-bit mode, 2-line, 5x8 font */',
                 '    lcd_nibble(0x30, 0); lcd_nibble(0x30, 0); lcd_nibble(0x30, 0);',
                 '    lcd_nibble(0x20, 0);             /* switch to 4-bit */',
@@ -10063,6 +10267,17 @@ class SB3Creator {
                 '    lcd_cmd(0x0C);                    /* display on, cursor off */',
                 '    lcd_cmd(0x06);                    /* increment, no shift */',
                 '    lcd_cmd(0x01);                    /* clear */');
+        }
+        // OLED (SSD1306): init sequence.
+        if (this._cUses.oled) {
+            out.push('    /* SSD1306 init: off, page mode, remap, charge pump, on, clear */',
+                '    oled_cmd(0xAE);                    /* display off */',
+                '    oled_cmd(0x20); oled_cmd(0x02);    /* page addressing mode */',
+                '    oled_cmd(0xA1);                    /* segment remap */',
+                '    oled_cmd(0xC8);                    /* COM scan direction */',
+                '    oled_cmd(0x8D); oled_cmd(0x14);    /* charge pump enable */',
+                '    oled_cmd(0xAF);                    /* display on */',
+                '    bw_oled_clear(0);                  /* zero GDDRAM */');
         }
         // TFT (ILI9341): resolve declared pins and emit SPI init sequence.
         if (this._cUses.tft) {

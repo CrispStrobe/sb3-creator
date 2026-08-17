@@ -123,6 +123,10 @@ test('block lowering census', () => {
         'devices_tftclear',   // ILI9341 SPI TFT: clear screen (bw_tft_clear)
         'devices_tftprint',   // ILI9341 SPI TFT: text print _s/_n (bw_tft_print_s/n)
         'devices_tftcursor',  // ILI9341 SPI TFT: set cursor (bw_tft_cursor)
+        'devices_oledpixel',  // SSD1306 I2C OLED: single pixel (bw_oled_pixel)
+        'devices_oledclear',  // SSD1306 I2C OLED: clear display (bw_oled_clear)
+        'devices_oledprint',  // SSD1306 I2C OLED: text print _s/_n (bw_oled_print_s/n)
+        'devices_oledcursor', // SSD1306 I2C OLED: set cursor (bw_oled_cursor)
         'devices_devicestate', // composite: returns relay state or 0
     ]);
     const allDevices = hw.filter(op => op.startsWith('devices_'));
