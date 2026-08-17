@@ -9586,6 +9586,18 @@ class SB3Creator {
                             '#define BW_BIT(port, bit) (((volatile struct __bw_bits2 *)&(port))->b##bit)',
                             '#endif',
                             '');
+                    } else if (this._core === '6502') {
+                        // NOT YET: the lvalue idiom cannot reach the VIA
+                        // safely from cc65 — char bitfields are rejected
+                        // ("Bit-field has invalid type") and an int
+                        // bitfield's RMW touches the NEIGHBORING register
+                        // ($6001 ORA drags $6002 DDRB). The 6502 needs
+                        // masked-RMW I2C primitives (shadow byte + single
+                        // stores to ORA $6001), which belongs in the I2C
+                        // primitives refactor. Until then the warning
+                        // states the truth instead of emitting 8051 sbit
+                        // names into a cc65 program.
+                        this.cWarn('OLED/I2C is not emitted for the 6502 bench yet — the VIA needs masked-RMW primitives (see the I2C refactor)');
                     } else if (sdaPin && sdaPin.port !== undefined && sclPin && sclPin.port !== undefined) {
                         i2cSda = `P${sdaPin.port}_${sdaPin.bit}`;
                         i2cScl = `P${sclPin.port}_${sclPin.bit}`;
