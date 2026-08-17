@@ -11,141 +11,109 @@
    "rotation": 0
   },
   {
-   "id": "VCC",
-   "kind": "vcc",
-   "params": {},
-   "terminals": [
-    "vcc"
-   ],
-   "x": 80,
-   "y": 60
-  },
-  {
-   "id": "GND",
-   "kind": "gnd",
-   "params": {},
-   "terminals": [
-    "gnd"
-   ],
-   "x": 156,
-   "y": 60
-  },
-  {
-   "id": "MCU",
+   "id": "board",
    "kind": "arduino_uno",
    "params": {},
-   "terminals": [
-    "a0",
-    "d13"
-   ],
-   "x": 232,
-   "y": 60
+   "x": 80,
+   "y": -60,
+   "rotation": 0
   },
   {
-   "id": "POT_pot",
+   "id": "pot1",
    "kind": "potentiometer",
    "declName": "pot",
    "params": {
     "ohms": 10000
    },
-   "terminals": [
-    "a",
-    "b",
-    "wiper"
-   ],
+   "x": 302,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a3",
-     "wiper": "a5",
-     "b": "a7"
+     "a": "a20",
+     "wiper": "a22",
+     "b": "a24"
     }
-   },
-   "x": 64,
-   "y": 255
+   }
   },
   {
-   "id": "R_led",
-   "kind": "resistor",
-   "params": {
-    "ohms": 1000
-   },
-   "terminals": [
-    "a",
-    "b"
-   ],
-   "seat": {
-    "boardId": "bb1",
-    "leadMap": {
-     "a": "a9",
-     "b": "a13"
-    }
-   },
-   "x": 148,
-   "y": 255
-  },
-  {
-   "id": "LED_led",
+   "id": "led1",
    "kind": "led",
    "declName": "led",
    "params": {
-    "vf": 2,
     "color": "red"
    },
-   "terminals": [
-    "anode",
-    "cathode"
-   ],
+   "x": 470,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "anode": "a15",
-     "cathode": "a16"
+     "anode": "a32",
+     "cathode": "a33"
     }
+   }
+  },
+  {
+   "id": "r1",
+   "kind": "resistor",
+   "declName": "r1",
+   "params": {
+    "ohms": 220
    },
-   "x": 232,
-   "y": 255
+   "x": 386,
+   "y": 255,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a26",
+     "b": "a30"
+    }
+   }
+  },
+  {
+   "id": "vcc1",
+   "kind": "vcc",
+   "params": {
+    "volts": 5
+   },
+   "x": 80,
+   "y": 60
+  },
+  {
+   "id": "gnd1",
+   "kind": "gnd",
+   "params": {},
+   "x": 220,
+   "y": 60
   }
  ],
  "wires": [
   {
-   "from": "POT_pot",
-   "fromTerminal": "wiper",
-   "to": "MCU",
-   "toTerminal": "a0"
-  },
-  {
-   "from": "MCU",
-   "fromTerminal": "d13",
-   "to": "R_led",
+   "from": "vcc1",
+   "fromTerminal": "vcc",
+   "to": "pot1",
    "toTerminal": "a"
   },
   {
-   "from": "R_led",
+   "from": "pot1",
    "fromTerminal": "b",
-   "to": "LED_led",
+   "to": "gnd1",
+   "toTerminal": "gnd"
+  },
+  {
+   "from": "r1",
+   "fromTerminal": "b",
+   "to": "led1",
    "toTerminal": "anode"
   },
   {
-   "from": "VCC",
-   "fromTerminal": "vcc",
-   "to": "POT_pot",
-   "toTerminal": "a"
+   "from": "led1",
+   "fromTerminal": "cathode",
+   "to": "gnd1",
+   "toTerminal": "gnd"
   },
   {
-   "from": "GND",
-   "fromTerminal": "gnd",
-   "to": "POT_pot",
-   "toTerminal": "b"
-  },
-  {
-   "from": "GND",
-   "fromTerminal": "gnd",
-   "to": "LED_led",
-   "toTerminal": "cathode"
-  },
-  {
-   "from": "VCC",
+   "from": "vcc1",
    "fromTerminal": "vcc",
    "to": {
     "board": "bb1",
@@ -155,7 +123,7 @@
    "genPower": true
   },
   {
-   "from": "GND",
+   "from": "gnd1",
    "fromTerminal": "gnd",
    "to": {
     "board": "bb1",
@@ -163,37 +131,79 @@
    },
    "color": "black",
    "genPower": true
+  },
+  {
+   "from": "board",
+   "fromTerminal": "a0",
+   "to": "pot1",
+   "toTerminal": "wiper"
+  },
+  {
+   "from": "board",
+   "fromTerminal": "d13",
+   "to": "r1",
+   "toTerminal": "a"
+  },
+  {
+   "from": "board",
+   "fromTerminal": "gnd",
+   "to": "gnd1",
+   "toTerminal": "gnd"
+  },
+  {
+   "from": "board",
+   "fromTerminal": "gnd",
+   "to": "led1",
+   "toTerminal": "cathode"
+  },
+  {
+   "from": "board",
+   "fromTerminal": "gnd",
+   "to": "pot1",
+   "toTerminal": "b"
+  },
+  {
+   "from": "board",
+   "fromTerminal": "5v",
+   "to": "pot1",
+   "toTerminal": "a"
+  },
+  {
+   "from": "board",
+   "fromTerminal": "5v",
+   "to": "vcc1",
+   "toTerminal": "vcc"
   }
  ],
  "holeWires": [
   {
    "ref": "bbw:bb1:gen_0",
    "boardId": "bb1",
-   "a": "b13",
-   "b": "b15",
-   "color": "green"
+   "a": "b20",
+   "b": "t+20",
+   "color": "red"
   },
   {
    "ref": "bbw:bb1:gen_1",
    "boardId": "bb1",
-   "a": "b3",
-   "b": "t+3",
-   "color": "red"
+   "a": "b24",
+   "b": "b-24",
+   "color": "black"
   },
   {
    "ref": "bbw:bb1:gen_2",
    "boardId": "bb1",
-   "a": "b7",
-   "b": "b-7",
-   "color": "black"
+   "a": "b30",
+   "b": "b32",
+   "color": "green"
   },
   {
    "ref": "bbw:bb1:gen_3",
    "boardId": "bb1",
-   "a": "b16",
-   "b": "b-16",
+   "a": "b33",
+   "b": "b-33",
    "color": "black"
   }
  ],
- "generated": "benchFor+seat"
+ "generated": "benchFor+authored"
 }

@@ -11,273 +11,143 @@
    "rotation": 0
   },
   {
-   "id": "VCC",
-   "kind": "vcc",
+   "id": "board",
+   "kind": "arduino_mega",
    "params": {},
-   "terminals": [
-    "vcc"
-   ],
+   "x": 80,
+   "y": -60,
+   "rotation": 0
+  },
+  {
+   "id": "buz1",
+   "kind": "buzzer",
+   "declName": "spk1",
+   "params": {},
+   "x": 302,
+   "y": 255,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a20",
+     "b": "a22"
+    }
+   }
+  },
+  {
+   "id": "buz2",
+   "kind": "buzzer",
+   "declName": "spk2",
+   "params": {},
+   "x": 358,
+   "y": 255,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a24",
+     "b": "a26"
+    }
+   }
+  },
+  {
+   "id": "buz3",
+   "kind": "buzzer",
+   "declName": "spk3",
+   "params": {},
+   "x": 414,
+   "y": 255,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a28",
+     "b": "a30"
+    }
+   }
+  },
+  {
+   "id": "vcc1",
+   "kind": "vcc",
+   "params": {
+    "volts": 5
+   },
    "x": 80,
    "y": 60
   },
   {
-   "id": "GND",
+   "id": "gnd1",
    "kind": "gnd",
    "params": {},
-   "terminals": [
-    "gnd"
-   ],
-   "x": 156,
+   "x": 220,
    "y": 60
-  },
-  {
-   "id": "MCU",
-   "kind": "arduino_mega",
-   "params": {},
-   "terminals": [
-    "d13",
-    "d22",
-    "d23"
-   ],
-   "x": 232,
-   "y": 60
-  },
-  {
-   "id": "R_spk1",
-   "kind": "resistor",
-   "params": {
-    "ohms": 1000
-   },
-   "terminals": [
-    "a",
-    "b"
-   ],
-   "seat": {
-    "boardId": "bb1",
-    "leadMap": {
-     "a": "a3",
-     "b": "a7"
-    }
-   },
-   "x": 64,
-   "y": 255
-  },
-  {
-   "id": "LED_spk1",
-   "kind": "led",
-   "declName": "spk1",
-   "params": {
-    "vf": 2,
-    "color": "red"
-   },
-   "terminals": [
-    "anode",
-    "cathode"
-   ],
-   "seat": {
-    "boardId": "bb1",
-    "leadMap": {
-     "anode": "a21",
-     "cathode": "a22"
-    }
-   },
-   "x": 316,
-   "y": 255
-  },
-  {
-   "id": "R_spk2",
-   "kind": "resistor",
-   "params": {
-    "ohms": 1000
-   },
-   "terminals": [
-    "a",
-    "b"
-   ],
-   "seat": {
-    "boardId": "bb1",
-    "leadMap": {
-     "a": "a9",
-     "b": "a13"
-    }
-   },
-   "x": 148,
-   "y": 255
-  },
-  {
-   "id": "LED_spk2",
-   "kind": "led",
-   "declName": "spk2",
-   "params": {
-    "vf": 2,
-    "color": "red"
-   },
-   "terminals": [
-    "anode",
-    "cathode"
-   ],
-   "seat": {
-    "boardId": "bb1",
-    "leadMap": {
-     "anode": "a24",
-     "cathode": "a25"
-    }
-   },
-   "x": 358,
-   "y": 255
-  },
-  {
-   "id": "R_spk3",
-   "kind": "resistor",
-   "params": {
-    "ohms": 1000
-   },
-   "terminals": [
-    "a",
-    "b"
-   ],
-   "seat": {
-    "boardId": "bb1",
-    "leadMap": {
-     "a": "a15",
-     "b": "a19"
-    }
-   },
-   "x": 232,
-   "y": 255
-  },
-  {
-   "id": "LED_spk3",
-   "kind": "led",
-   "declName": "spk3",
-   "params": {
-    "vf": 2,
-    "color": "red"
-   },
-   "terminals": [
-    "anode",
-    "cathode"
-   ],
-   "seat": {
-    "boardId": "bb1",
-    "leadMap": {
-     "anode": "a27",
-     "cathode": "a28"
-    }
-   },
-   "x": 400,
-   "y": 255
   }
  ],
  "wires": [
   {
-   "from": "MCU",
+   "from": "buz1",
+   "fromTerminal": "neg",
+   "to": "gnd1",
+   "toTerminal": "gnd"
+  },
+  {
+   "from": "buz2",
+   "fromTerminal": "neg",
+   "to": "gnd1",
+   "toTerminal": "gnd"
+  },
+  {
+   "from": "buz3",
+   "fromTerminal": "neg",
+   "to": "gnd1",
+   "toTerminal": "gnd"
+  },
+  {
+   "from": "board",
    "fromTerminal": "d13",
-   "to": "R_spk1",
+   "to": "buz1",
    "toTerminal": "a"
   },
   {
-   "from": "R_spk1",
-   "fromTerminal": "b",
-   "to": "LED_spk1",
-   "toTerminal": "anode"
+   "from": "board",
+   "fromTerminal": "gnd",
+   "to": "buz1",
+   "toTerminal": "b"
   },
   {
-   "from": "MCU",
+   "from": "board",
+   "fromTerminal": "gnd",
+   "to": "buz2",
+   "toTerminal": "b"
+  },
+  {
+   "from": "board",
+   "fromTerminal": "gnd",
+   "to": "buz3",
+   "toTerminal": "b"
+  },
+  {
+   "from": "board",
+   "fromTerminal": "gnd",
+   "to": "gnd1",
+   "toTerminal": "gnd"
+  },
+  {
+   "from": "board",
    "fromTerminal": "d22",
-   "to": "R_spk2",
+   "to": "buz2",
    "toTerminal": "a"
   },
   {
-   "from": "R_spk2",
-   "fromTerminal": "b",
-   "to": "LED_spk2",
-   "toTerminal": "anode"
-  },
-  {
-   "from": "MCU",
+   "from": "board",
    "fromTerminal": "d23",
-   "to": "R_spk3",
+   "to": "buz3",
    "toTerminal": "a"
   },
   {
-   "from": "R_spk3",
-   "fromTerminal": "b",
-   "to": "LED_spk3",
-   "toTerminal": "anode"
-  },
-  {
-   "from": "GND",
-   "fromTerminal": "gnd",
-   "to": "LED_spk1",
-   "toTerminal": "cathode"
-  },
-  {
-   "from": "GND",
-   "fromTerminal": "gnd",
-   "to": "LED_spk2",
-   "toTerminal": "cathode"
-  },
-  {
-   "from": "GND",
-   "fromTerminal": "gnd",
-   "to": "LED_spk3",
-   "toTerminal": "cathode"
-  },
-  {
-   "from": "GND",
-   "fromTerminal": "gnd",
-   "to": {
-    "board": "bb1",
-    "hole": "b-2"
-   },
-   "color": "black",
-   "genPower": true
+   "from": "board",
+   "fromTerminal": "5v",
+   "to": "vcc1",
+   "toTerminal": "vcc"
   }
  ],
- "holeWires": [
-  {
-   "ref": "bbw:bb1:gen_0",
-   "boardId": "bb1",
-   "a": "b7",
-   "b": "b21",
-   "color": "green"
-  },
-  {
-   "ref": "bbw:bb1:gen_1",
-   "boardId": "bb1",
-   "a": "b13",
-   "b": "b24",
-   "color": "blue"
-  },
-  {
-   "ref": "bbw:bb1:gen_2",
-   "boardId": "bb1",
-   "a": "b19",
-   "b": "b27",
-   "color": "yellow"
-  },
-  {
-   "ref": "bbw:bb1:gen_3",
-   "boardId": "bb1",
-   "a": "b22",
-   "b": "b-22",
-   "color": "black"
-  },
-  {
-   "ref": "bbw:bb1:gen_4",
-   "boardId": "bb1",
-   "a": "b25",
-   "b": "b-25",
-   "color": "black"
-  },
-  {
-   "ref": "bbw:bb1:gen_5",
-   "boardId": "bb1",
-   "a": "b28",
-   "b": "b-28",
-   "color": "black"
-  }
- ],
- "generated": "benchFor+seat"
+ "holeWires": [],
+ "generated": "benchFor+authored"
 }

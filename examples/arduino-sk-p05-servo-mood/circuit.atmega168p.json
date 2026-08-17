@@ -11,141 +11,63 @@
    "rotation": 0
   },
   {
-   "id": "VCC",
-   "kind": "vcc",
+   "id": "board",
+   "kind": "arduino_uno",
    "params": {},
-   "terminals": [
-    "vcc"
-   ],
+   "x": 80,
+   "y": -60,
+   "rotation": 0
+  },
+  {
+   "id": "pot1",
+   "kind": "potentiometer",
+   "declName": "sensor",
+   "params": {
+    "ohms": 10000
+   },
+   "x": 302,
+   "y": 255,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a20",
+     "wiper": "a22",
+     "b": "a24"
+    }
+   }
+  },
+  {
+   "id": "vcc1",
+   "kind": "vcc",
+   "params": {
+    "volts": 5
+   },
    "x": 80,
    "y": 60
   },
   {
-   "id": "GND",
+   "id": "gnd1",
    "kind": "gnd",
    "params": {},
-   "terminals": [
-    "gnd"
-   ],
-   "x": 156,
+   "x": 220,
    "y": 60
-  },
-  {
-   "id": "MCU",
-   "kind": "arduino_uno",
-   "params": {},
-   "terminals": [
-    "a0",
-    "d13"
-   ],
-   "x": 232,
-   "y": 60
-  },
-  {
-   "id": "POT_pot",
-   "kind": "potentiometer",
-   "declName": "pot",
-   "params": {
-    "ohms": 10000
-   },
-   "terminals": [
-    "a",
-    "b",
-    "wiper"
-   ],
-   "seat": {
-    "boardId": "bb1",
-    "leadMap": {
-     "a": "a3",
-     "wiper": "a5",
-     "b": "a7"
-    }
-   },
-   "x": 64,
-   "y": 255
-  },
-  {
-   "id": "R_servo",
-   "kind": "resistor",
-   "params": {
-    "ohms": 1000
-   },
-   "terminals": [
-    "a",
-    "b"
-   ],
-   "seat": {
-    "boardId": "bb1",
-    "leadMap": {
-     "a": "a9",
-     "b": "a13"
-    }
-   },
-   "x": 148,
-   "y": 255
-  },
-  {
-   "id": "LED_servo",
-   "kind": "led",
-   "declName": "servo",
-   "params": {
-    "vf": 2,
-    "color": "red"
-   },
-   "terminals": [
-    "anode",
-    "cathode"
-   ],
-   "seat": {
-    "boardId": "bb1",
-    "leadMap": {
-     "anode": "a15",
-     "cathode": "a16"
-    }
-   },
-   "x": 232,
-   "y": 255
   }
  ],
  "wires": [
   {
-   "from": "POT_pot",
-   "fromTerminal": "wiper",
-   "to": "MCU",
-   "toTerminal": "a0"
-  },
-  {
-   "from": "MCU",
-   "fromTerminal": "d13",
-   "to": "R_servo",
-   "toTerminal": "a"
-  },
-  {
-   "from": "R_servo",
-   "fromTerminal": "b",
-   "to": "LED_servo",
-   "toTerminal": "anode"
-  },
-  {
-   "from": "VCC",
+   "from": "vcc1",
    "fromTerminal": "vcc",
-   "to": "POT_pot",
+   "to": "pot1",
    "toTerminal": "a"
   },
   {
-   "from": "GND",
-   "fromTerminal": "gnd",
-   "to": "POT_pot",
-   "toTerminal": "b"
+   "from": "pot1",
+   "fromTerminal": "b",
+   "to": "gnd1",
+   "toTerminal": "gnd"
   },
   {
-   "from": "GND",
-   "fromTerminal": "gnd",
-   "to": "LED_servo",
-   "toTerminal": "cathode"
-  },
-  {
-   "from": "VCC",
+   "from": "vcc1",
    "fromTerminal": "vcc",
    "to": {
     "board": "bb1",
@@ -155,7 +77,7 @@
    "genPower": true
   },
   {
-   "from": "GND",
+   "from": "gnd1",
    "fromTerminal": "gnd",
    "to": {
     "board": "bb1",
@@ -163,37 +85,53 @@
    },
    "color": "black",
    "genPower": true
+  },
+  {
+   "from": "board",
+   "fromTerminal": "a0",
+   "to": "pot1",
+   "toTerminal": "wiper"
+  },
+  {
+   "from": "board",
+   "fromTerminal": "gnd",
+   "to": "gnd1",
+   "toTerminal": "gnd"
+  },
+  {
+   "from": "board",
+   "fromTerminal": "gnd",
+   "to": "pot1",
+   "toTerminal": "b"
+  },
+  {
+   "from": "board",
+   "fromTerminal": "5v",
+   "to": "pot1",
+   "toTerminal": "a"
+  },
+  {
+   "from": "board",
+   "fromTerminal": "5v",
+   "to": "vcc1",
+   "toTerminal": "vcc"
   }
  ],
  "holeWires": [
   {
    "ref": "bbw:bb1:gen_0",
    "boardId": "bb1",
-   "a": "b13",
-   "b": "b15",
-   "color": "green"
+   "a": "b20",
+   "b": "t+20",
+   "color": "red"
   },
   {
    "ref": "bbw:bb1:gen_1",
    "boardId": "bb1",
-   "a": "b3",
-   "b": "t+3",
-   "color": "red"
-  },
-  {
-   "ref": "bbw:bb1:gen_2",
-   "boardId": "bb1",
-   "a": "b7",
-   "b": "b-7",
-   "color": "black"
-  },
-  {
-   "ref": "bbw:bb1:gen_3",
-   "boardId": "bb1",
-   "a": "b16",
-   "b": "b-16",
+   "a": "b24",
+   "b": "b-24",
    "color": "black"
   }
  ],
- "generated": "benchFor+seat"
+ "generated": "benchFor+authored"
 }

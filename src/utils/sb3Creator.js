@@ -11024,7 +11024,7 @@ SB3Creator.retargetPseudocode = function retargetPseudocode(src, device) {
     // in place, and the LCD stayed dark (49-lcd-hello, 2026-08-17).
     const srcDevice = ((src.match(/^DEVICE\s+([\w-]+)/im) || [])[1] || '')
         .toLowerCase().replace(/_/g, '-');
-    if (srcDevice === device) return { ok: true, pseudocode: src, reasons: [], warnings: [] };
+    if (srcDevice === device) return { ok: true, pseudocode: src, reasons: [], warnings: [], pinMap: [] };
     if (core === 'z80') {
         // Z80 retarget: output pins are OUT0-OUT7, input pins are IN0-IN7.
         // No ADC, no PWM, no timer tick — delay-only programs.
@@ -11086,11 +11086,19 @@ SB3Creator.retargetPseudocode = function retargetPseudocode(src, device) {
         ? SB3Creator.I2C_PINS[device] : null;
     if (i2cConv) { taken.add(i2cConv.sda); taken.add(i2cConv.scl); }
     const newPins = [];
+    // Old coordinate -> new coordinate, one entry per pin (and PART role).
+    // Circuit-preserving retarget consumes this to rewrite an AUTHORED
+    // circuit's MCU terminals instead of synthesizing a generic bench.
+    const pinMap = [];
+    // A declared pin's coordinate in its own dialect: where (D13/GP4/A4)
+    // on the board dialects, P<port>.<bit> on the 8051 family.
+    const coordOf = (q) => q.where ? String(q.where) : `P${q.port}.${q.bit}`;
     for (const pin of stc.pins) {
         let where = null;
         let activeLow = false;
         const lname = String(pin.name).toLowerCase();
         if (i2cConv && (lname === 'sda' || lname === 'scl')) {
+            pinMap.push({ name: pin.name, from: coordOf(pin), to: i2cConv[lname] });
             newPins.push({ ...pin, where: i2cConv[lname], activeLow: false, port: undefined, bit: undefined });
             continue;
         }
@@ -11107,6 +11115,7 @@ SB3Creator.retargetPseudocode = function retargetPseudocode(src, device) {
             if (where && core !== '8051') {
                 // The arduino/pico parsers require the PWM direction for a
                 // percent write; the 8051 dialect dims OUTPUT pins directly.
+                pinMap.push({ name: pin.name, from: coordOf(pin), to: where });
                 newPins.push({ ...pin, where, activeLow, direction: 'pwm', port: undefined, bit: undefined });
                 continue;
             }
@@ -11117,7 +11126,10 @@ SB3Creator.retargetPseudocode = function retargetPseudocode(src, device) {
         } else {
             reasons.push(`pin "${pin.name}" has direction ${pin.direction}, which does not retarget yet`);
         }
-        if (where) newPins.push({ ...pin, where, activeLow, port: undefined, bit: undefined });
+        if (where) {
+            pinMap.push({ name: pin.name, from: coordOf(pin), to: where });
+            newPins.push({ ...pin, where, activeLow, port: undefined, bit: undefined });
+        }
     }
 
     // ---- retarget PART pin coordinates ---------------------------------
@@ -11132,6 +11144,7 @@ SB3Creator.retargetPseudocode = function retargetPseudocode(src, device) {
                 reasons.push(`more PART pins than ${device}'s digital convention offers (${pools.digital.length})`);
                 break;
             }
+            if (p[role]) pinMap.push({ name: `${p.name}.${role}`, from: coordOf(p[role]), to: where });
             newPart[role] = { where };
         }
         newPart.claims = [newPart.data.where, newPart.clock.where, newPart.latch.where].filter(Boolean);
@@ -11157,7 +11170,7 @@ SB3Creator.retargetPseudocode = function retargetPseudocode(src, device) {
     if ((check.warnings || []).length) {
         return { ok: false, reasons: [`retargeted text does not re-parse clean: ${check.warnings[0]}`], warnings };
     }
-    return { ok: true, pseudocode: out, reasons: [], warnings };
+    return { ok: true, pseudocode: out, reasons: [], warnings, pinMap };
 };
 
 SB3Creator.STC_PARTS = {

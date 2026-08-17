@@ -11,94 +11,47 @@
    "rotation": 0
   },
   {
-   "id": "VCC",
-   "kind": "vcc",
-   "params": {},
-   "terminals": [
-    "vcc"
-   ],
-   "x": 80,
-   "y": 60
-  },
-  {
-   "id": "GND",
-   "kind": "gnd",
-   "params": {},
-   "terminals": [
-    "gnd"
-   ],
-   "x": 156,
-   "y": 60
-  },
-  {
-   "id": "MCU",
+   "id": "board",
    "kind": "mcu",
    "params": {},
+   "x": 80,
+   "y": -60,
+   "rotation": 0,
    "terminals": [
+    "VCC",
+    "GND",
     "P1.3",
     "P1.4",
     "P1.0"
-   ],
-   "seat": {
-    "boardId": "bb1",
-    "leadMap": {
-     "P1.0": "f3",
-     "P1.1": "f4",
-     "P1.2": "f5",
-     "P1.3": "f6",
-     "P1.4": "f7",
-     "P1.5": "f8",
-     "P1.6": "f9",
-     "P1.7": "f10",
-     "RST": "f11",
-     "P3.0": "f12",
-     "P3.1": "f13",
-     "P3.2": "f14",
-     "P3.3": "f15",
-     "P3.4": "f16",
-     "P3.5": "f17",
-     "P3.6": "f18",
-     "P3.7": "f19",
-     "XTAL2": "f20",
-     "XTAL1": "f21",
-     "GND": "f22",
-     "P2.0": "e22",
-     "P2.1": "e21",
-     "P2.2": "e20",
-     "P2.3": "e19",
-     "P2.4": "e18",
-     "P2.5": "e17",
-     "P2.6": "e16",
-     "P2.7": "e15",
-     "P4.4": "e14",
-     "P4.5": "e13",
-     "P4.6": "e12",
-     "P0.7": "e11",
-     "P0.6": "e10",
-     "P0.5": "e9",
-     "P0.4": "e8",
-     "P0.3": "e7",
-     "P0.2": "e6",
-     "P0.1": "e5",
-     "P0.0": "e4",
-     "VCC": "e3"
-    }
-   },
-   "x": 64,
-   "y": 349
+   ]
   },
   {
-   "id": "POT_sensor1",
+   "id": "pot1",
    "kind": "potentiometer",
    "declName": "sensor1",
    "params": {
     "ohms": 10000
    },
-   "terminals": [
-    "a",
-    "b",
-    "wiper"
-   ],
+   "x": 302,
+   "y": 255,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a20",
+     "wiper": "a22",
+     "b": "a24"
+    }
+   }
+  },
+  {
+   "id": "pot2",
+   "kind": "potentiometer",
+   "declName": "sensor2",
+   "params": {
+    "ohms": 10000
+   },
+   "x": 386,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
@@ -106,104 +59,73 @@
      "wiper": "a28",
      "b": "a30"
     }
-   },
-   "x": 386,
-   "y": 255
+   }
   },
   {
-   "id": "POT_sensor2",
-   "kind": "potentiometer",
-   "declName": "sensor2",
-   "params": {
-    "ohms": 10000
-   },
-   "terminals": [
-    "a",
-    "b",
-    "wiper"
-   ],
+   "id": "buz",
+   "kind": "buzzer",
+   "declName": "speaker",
+   "params": {},
+   "x": 470,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "a": "a32",
-     "wiper": "a34",
-     "b": "a36"
+     "b": "a34"
     }
-   },
-   "x": 470,
-   "y": 255
+   }
   },
   {
-   "id": "BUZZ_speaker",
-   "kind": "buzzer",
-   "declName": "speaker",
-   "params": {},
-   "terminals": [
-    "a",
-    "b"
-   ],
-   "seat": {
-    "boardId": "bb1",
-    "leadMap": {
-     "a": "a38",
-     "b": "a40"
-    }
+   "id": "vcc1",
+   "kind": "vcc",
+   "params": {
+    "volts": 5
    },
-   "x": 554,
-   "y": 255
+   "x": 80,
+   "y": 60
+  },
+  {
+   "id": "gnd1",
+   "kind": "gnd",
+   "params": {},
+   "x": 220,
+   "y": 60
   }
  ],
  "wires": [
   {
-   "from": "POT_sensor1",
-   "fromTerminal": "wiper",
-   "to": "MCU",
-   "toTerminal": "P1.3"
-  },
-  {
-   "from": "POT_sensor2",
-   "fromTerminal": "wiper",
-   "to": "MCU",
-   "toTerminal": "P1.4"
-  },
-  {
-   "from": "MCU",
-   "fromTerminal": "P1.0",
-   "to": "BUZZ_speaker",
-   "toTerminal": "a"
-  },
-  {
-   "from": "VCC",
+   "from": "vcc1",
    "fromTerminal": "vcc",
-   "to": "POT_sensor1",
+   "to": "pot1",
    "toTerminal": "a"
   },
   {
-   "from": "VCC",
+   "from": "pot1",
+   "fromTerminal": "b",
+   "to": "gnd1",
+   "toTerminal": "gnd"
+  },
+  {
+   "from": "vcc1",
    "fromTerminal": "vcc",
-   "to": "POT_sensor2",
+   "to": "pot2",
    "toTerminal": "a"
   },
   {
-   "from": "GND",
-   "fromTerminal": "gnd",
-   "to": "POT_sensor1",
-   "toTerminal": "b"
+   "from": "pot2",
+   "fromTerminal": "b",
+   "to": "gnd1",
+   "toTerminal": "gnd"
   },
   {
-   "from": "GND",
-   "fromTerminal": "gnd",
-   "to": "POT_sensor2",
-   "toTerminal": "b"
+   "from": "buz",
+   "fromTerminal": "neg",
+   "to": "gnd1",
+   "toTerminal": "gnd"
   },
   {
-   "from": "GND",
-   "fromTerminal": "gnd",
-   "to": "BUZZ_speaker",
-   "toTerminal": "b"
-  },
-  {
-   "from": "VCC",
+   "from": "vcc1",
    "fromTerminal": "vcc",
    "to": {
     "board": "bb1",
@@ -213,7 +135,7 @@
    "genPower": true
   },
   {
-   "from": "GND",
+   "from": "gnd1",
    "fromTerminal": "gnd",
    "to": {
     "board": "bb1",
@@ -221,79 +143,97 @@
    },
    "color": "black",
    "genPower": true
+  },
+  {
+   "from": "board",
+   "fromTerminal": "P1.3",
+   "to": "pot1",
+   "toTerminal": "wiper"
+  },
+  {
+   "from": "board",
+   "fromTerminal": "P1.4",
+   "to": "pot2",
+   "toTerminal": "wiper"
+  },
+  {
+   "from": "board",
+   "fromTerminal": "P1.0",
+   "to": "buz",
+   "toTerminal": "a"
+  },
+  {
+   "from": "board",
+   "fromTerminal": "GND",
+   "to": "buz",
+   "toTerminal": "b"
+  },
+  {
+   "from": "board",
+   "fromTerminal": "GND",
+   "to": "gnd1",
+   "toTerminal": "gnd"
+  },
+  {
+   "from": "board",
+   "fromTerminal": "GND",
+   "to": "pot1",
+   "toTerminal": "b"
+  },
+  {
+   "from": "board",
+   "fromTerminal": "GND",
+   "to": "pot2",
+   "toTerminal": "b"
+  },
+  {
+   "from": "board",
+   "fromTerminal": "VCC",
+   "to": "pot1",
+   "toTerminal": "a"
+  },
+  {
+   "from": "board",
+   "fromTerminal": "VCC",
+   "to": "pot2",
+   "toTerminal": "a"
+  },
+  {
+   "from": "board",
+   "fromTerminal": "VCC",
+   "to": "vcc1",
+   "toTerminal": "vcc"
   }
  ],
  "holeWires": [
   {
    "ref": "bbw:bb1:gen_0",
    "boardId": "bb1",
-   "a": "b28",
-   "b": "g6",
-   "color": "green"
+   "a": "b20",
+   "b": "t+20",
+   "color": "red"
   },
   {
    "ref": "bbw:bb1:gen_1",
    "boardId": "bb1",
-   "a": "b34",
-   "b": "g7",
-   "color": "blue"
+   "a": "b24",
+   "b": "b-24",
+   "color": "black"
   },
   {
    "ref": "bbw:bb1:gen_2",
-   "boardId": "bb1",
-   "a": "g3",
-   "b": "b38",
-   "color": "yellow"
-  },
-  {
-   "ref": "bbw:bb1:gen_3",
    "boardId": "bb1",
    "a": "b26",
    "b": "t+26",
    "color": "red"
   },
   {
-   "ref": "bbw:bb1:gen_4",
-   "boardId": "bb1",
-   "a": "b32",
-   "b": "t+32",
-   "color": "red"
-  },
-  {
-   "ref": "bbw:bb1:gen_5",
+   "ref": "bbw:bb1:gen_3",
    "boardId": "bb1",
    "a": "b30",
    "b": "b-30",
    "color": "black"
-  },
-  {
-   "ref": "bbw:bb1:gen_6",
-   "boardId": "bb1",
-   "a": "b36",
-   "b": "b-36",
-   "color": "black"
-  },
-  {
-   "ref": "bbw:bb1:gen_7",
-   "boardId": "bb1",
-   "a": "b40",
-   "b": "b-40",
-   "color": "black"
-  },
-  {
-   "ref": "bbw:bb1:gen_8",
-   "boardId": "bb1",
-   "a": "g22",
-   "b": "b-22",
-   "color": "black"
-  },
-  {
-   "ref": "bbw:bb1:gen_9",
-   "boardId": "bb1",
-   "a": "a3",
-   "b": "t+3",
-   "color": "red"
   }
  ],
- "generated": "benchFor+seat"
+ "generated": "benchFor+authored"
 }

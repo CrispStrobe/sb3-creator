@@ -27,31 +27,16 @@
    "terminals": [
     "gnd"
    ],
-   "x": 156,
+   "x": 220,
    "y": 60
   },
   {
    "id": "MCU",
    "kind": "attiny85",
    "params": {},
-   "terminals": [
-    "pb0"
-   ],
-   "seat": {
-    "boardId": "bb1",
-    "leadMap": {
-     "pb5": "f9",
-     "pb3": "f10",
-     "pb4": "f11",
-     "gnd": "f12",
-     "pb0": "e12",
-     "pb1": "e11",
-     "pb2": "e10",
-     "vcc": "e9"
-    }
-   },
-   "x": 148,
-   "y": 349
+   "x": 80,
+   "y": -60,
+   "rotation": 0
   },
   {
    "id": "R_opto",
@@ -66,17 +51,16 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a3",
-     "b": "a7"
+     "a": "a20",
+     "b": "a24"
     }
    },
-   "x": 64,
+   "x": 302,
    "y": 255
   },
   {
    "id": "LED_opto",
    "kind": "led",
-   "declName": "opto",
    "params": {
     "vf": 2,
     "color": "red"
@@ -88,21 +72,15 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "anode": "a16",
-     "cathode": "a17"
+     "anode": "a26",
+     "cathode": "a27"
     }
    },
-   "x": 246,
+   "x": 386,
    "y": 255
   }
  ],
  "wires": [
-  {
-   "from": "MCU",
-   "fromTerminal": "pb0",
-   "to": "R_opto",
-   "toTerminal": "a"
-  },
   {
    "from": "R_opto",
    "fromTerminal": "b",
@@ -116,16 +94,6 @@
    "toTerminal": "cathode"
   },
   {
-   "from": "VCC",
-   "fromTerminal": "vcc",
-   "to": {
-    "board": "bb1",
-    "hole": "t+2"
-   },
-   "color": "red",
-   "genPower": true
-  },
-  {
    "from": "GND",
    "fromTerminal": "gnd",
    "to": {
@@ -134,44 +102,29 @@
    },
    "color": "black",
    "genPower": true
+  },
+  {
+   "from": "MCU",
+   "fromTerminal": "pb1",
+   "to": "R_opto",
+   "toTerminal": "a"
   }
  ],
  "holeWires": [
   {
    "ref": "bbw:bb1:gen_0",
    "boardId": "bb1",
-   "a": "a12",
-   "b": "b3",
+   "a": "b24",
+   "b": "b26",
    "color": "green"
   },
   {
    "ref": "bbw:bb1:gen_1",
    "boardId": "bb1",
-   "a": "b7",
-   "b": "b16",
-   "color": "blue"
-  },
-  {
-   "ref": "bbw:bb1:gen_2",
-   "boardId": "bb1",
-   "a": "b17",
-   "b": "b-17",
+   "a": "b27",
+   "b": "b-27",
    "color": "black"
-  },
-  {
-   "ref": "bbw:bb1:gen_3",
-   "boardId": "bb1",
-   "a": "g12",
-   "b": "b-12",
-   "color": "black"
-  },
-  {
-   "ref": "bbw:bb1:gen_4",
-   "boardId": "bb1",
-   "a": "a9",
-   "b": "t+9",
-   "color": "red"
   }
  ],
- "generated": "benchFor+seat"
+ "generated": "benchFor+authored"
 }
