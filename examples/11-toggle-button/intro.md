@@ -5,7 +5,7 @@ prereqs: [05-counter-7seg]
 teaches: [toggle, state-machine, debounce]
 ---
 ## What you see
-Press the button once and the LED turns on. Press it again and the LED turns off. The MCU remembers the current state and flips it on each press — a toggle, the simplest state machine.
+Press the button once and the LED turns on. Press it again and the LED turns off. The MCU remembers the current state and flips it on each press — a toggle, the simplest state machine. This example works on all supported microcontrollers — pick a different device in the toolbar to see the adapted circuit.
 
 ## Try this
 1. Run the program and press the button — the LED turns on and stays on.

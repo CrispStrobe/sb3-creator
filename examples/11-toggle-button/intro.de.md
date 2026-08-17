@@ -5,7 +5,7 @@ prereqs: [05-counter-7seg]
 teaches: [toggle, state-machine, debounce]
 ---
 ## Was du siehst
-Drücke die Taste einmal und die LED geht an. Drücke nochmal und sie geht aus. Der MCU merkt sich den aktuellen Zustand und wechselt ihn bei jedem Druck — ein Toggle, die einfachste Zustandsmaschine.
+Drücke die Taste einmal und die LED geht an. Drücke nochmal und sie geht aus. Der MCU merkt sich den aktuellen Zustand und wechselt ihn bei jedem Druck — ein Toggle, die einfachste Zustandsmaschine. Dieses Beispiel funktioniert auf allen unterstützten Mikrocontrollern — wähle ein anderes Gerät in der Werkzeugleiste, um die angepasste Schaltung zu sehen.
 
 ## Probier das
 1. Starte das Programm und drücke die Taste — die LED geht an und bleibt an.
