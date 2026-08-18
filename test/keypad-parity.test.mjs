@@ -80,3 +80,13 @@ test('decompile carries the PART declaration', () => {
     const back = c.generatePseudocode ? c.generatePseudocode() : c.decompile();
     assert.match(back, /PART keys = KEYPAD4X4 ROWS P1\.7 P1\.6 P1\.5 P1\.4 COLS P1\.3 P1\.2 P1\.1 P1\.0/);
 });
+
+test('Python and JS route the keypad read through the runtime shim', () => {
+    const c = build(KEYSHOW);
+    const py = c.generatePython();
+    assert.match(py, /_stc12\.readKeypad\("keys"\)/);
+    assert.match(py, /def readKeypad/);
+    const js = c.generateJavaScript();
+    assert.match(js, /_stc12\.readKeypad\("keys"\)/);
+    assert.match(js, /readKeypad/);   // neutral stub or board driver, either flavor
+});
