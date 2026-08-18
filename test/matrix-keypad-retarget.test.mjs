@@ -5,10 +5,11 @@
  * bw_key_scan()/bw_key_read() driver for the VIA's 4×5 matrix.
  */
 import { test } from 'node:test';
+import { homedir } from 'node:os';
 import assert from 'node:assert/strict';
 import { execSync } from 'node:child_process';
 import { readFileSync, writeFileSync } from 'fs';
-import { resolve, dirname } from 'path';
+import { join, resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import SB3Creator from '../src/utils/sb3Creator.js';
 
@@ -60,6 +61,7 @@ test('retargeted calculator compiles under cl65', { skip: !hasCl65 && 'cl65 not 
     writeFileSync('/tmp/test-calc-6502.c', c.generateC());
     const cfgPaths = [
         resolve(here, '../../stc-compiler/eater.cfg'),
+        join(homedir(), 'code', 'stc-compiler', 'eater.cfg'),   // worktree checkouts
         '/mnt/volume1/code/stc-compiler/eater.cfg',
     ];
     let cfg = null;
