@@ -103,7 +103,9 @@ describe('gallery: every example parses and compiles', () => {
             assert.ok(js.length > 0, 'non-empty JS');
         });
 
-        test(`${name}: circuit.json is valid`, () => {
+        // Device-only examples (a micro:bit program is a self-contained board,
+        // not a breadboard) carry no circuit.json — nothing to validate.
+        test(`${name}: circuit.json is valid`, { skip: !existsSync(circuitPath) }, () => {
             assert.ok(existsSync(circuitPath), `${name}/circuit.json missing`);
             const circuit = JSON.parse(readFileSync(circuitPath, 'utf8'));
             // VCC is required for rail-powered circuits; battery/vsource/vcc-part circuits may omit the top-level vcc field.
@@ -151,7 +153,7 @@ describe('gallery: index.json is valid and covers every example', () => {
 
     test('every entry has required fields', () => {
         const index = JSON.parse(readFileSync(indexPath, 'utf8'));
-        const CATEGORIES = new Set(['basics', 'analog', 'digital', 'display', 'motors', 'pure-circuit']);
+        const CATEGORIES = new Set(['basics', 'analog', 'digital', 'display', 'motors', 'pure-circuit', 'microbit']);
         const KINDS = new Set(['circuit', 'program', 'full']);
         for (const entry of index) {
             assert.ok(entry.id, 'id');
@@ -161,7 +163,11 @@ describe('gallery: index.json is valid and covers every example', () => {
             assert.ok(typeof entry.difficulty === 'number' && entry.difficulty >= 1 && entry.difficulty <= 5, 'difficulty 1-5');
             assert.ok(KINDS.has(entry.kind), `kind "${entry.kind}" not in ${[...KINDS]}`);
             assert.ok(entry.files?.program || entry.files?.circuit, 'files.program or files.circuit');
-            assert.ok(entry.files?.circuit, 'files.circuit');
+            // A circuit file is required for every example EXCEPT device-only
+            // ones (a micro:bit program is a self-contained board with no
+            // breadboard circuit); those carry a program + a single device.
+            const deviceOnly = entry.authored === 'microbit';
+            assert.ok(entry.files?.circuit || deviceOnly, 'files.circuit (unless device-only)');
             // 'full' entries (program + circuit lesson pages) may omit the
             // expected-trace file; circuit/program entries never do.
             if (entry.kind !== 'full') assert.ok(entry.files?.expected, 'files.expected');
