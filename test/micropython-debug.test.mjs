@@ -22,16 +22,30 @@ test('release build carries no instrumentation (opt-in only)', () => {
     assert.equal(r.positions, undefined, 'no positions map in a release build');
 });
 
-test('the instrumentation is purely additive (release lines survive verbatim)', () => {
-    // Strip every debug-only line (the helper block + the per-block markers) and
-    // collapse blank runs; what remains must equal the release build. Proves the
-    // debug build changes nothing about the actual program, only adds markers.
-    const collapse = s => s.split('\n').filter((l, i, a) => l.trim() || (a[i - 1] || '').trim()).join('\n');
-    const isDebugLine = l => /_bw_pos|\\x1e|BrickWright debug|^\s*if bp:$/.test(l);
-    const rel = collapse(mk().generateMicroPython().py);
-    const dbg = collapse(mk().generateMicroPython(undefined, { debug: true }).py
-        .split('\n').filter(l => !isDebugLine(l)).join('\n'));
-    assert.equal(dbg, rel, 'debug build is not release + markers');
+test('the instrumentation is purely additive (release is an in-order subsequence)', () => {
+    // Every line of the release build must appear, in order, in the debug build:
+    // the debug build only ADDS lines (the helper + markers), never rewrites an
+    // existing one. Robust to the helper's exact shape.
+    const rel = mk().generateMicroPython().py.split('\n');
+    const dbg = mk().generateMicroPython(undefined, { debug: true }).py.split('\n');
+    let j = 0;
+    for (const line of rel) {
+        while (j < dbg.length && dbg[j] !== line) j++;
+        assert.ok(j < dbg.length, `release line missing from debug (in order): ${JSON.stringify(line)}`);
+        j++;
+    }
+});
+
+test('a breakpoint build emits the halt + resume loop (pause/step/continue)', () => {
+    const c = mk();
+    const bp = c.generateMicroPython(undefined, { debug: true }).positions[1].block;
+    const r = c.generateMicroPython(undefined, { debug: true, breakpoints: [bp] });
+    // the halted marker, the spin on serial-in, and both resume commands
+    assert.match(r.py, /print\('\\x1e!' \+ str\(n\)\)/, 'halted-at-block marker');
+    assert.match(r.py, /while True:[\s\S]*c = input\(\)/, 'spins on serial-in while halted');
+    assert.match(r.py, /if c == '\\x1es':[\s\S]*_bw_step = 1/, 'step resume arms the next block');
+    assert.match(r.py, /if c == '\\x1ec':/, 'continue resume');
+    assert.match(r.py, /except Exception:\n\s*return/, 'no debug host -> logpoint, never hangs');
 });
 
 test('a marker precedes every block, in order, mapped to a source block', () => {

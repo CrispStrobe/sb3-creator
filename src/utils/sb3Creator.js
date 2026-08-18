@@ -8274,20 +8274,36 @@ class SB3Creator {
         if (uses.radio) header.push('import radio');
         if (uses._pitch) header.push('', 'def _pitch():', '    x, y, z = accelerometer.get_values()', '    return math.atan2(-y, -z) * 180 / math.pi');
         if (uses._roll) header.push('', 'def _roll():', '    x, y, z = accelerometer.get_values()', '    return math.atan2(x, -z) * 180 / math.pi');
-        // BrickWright debug instrumentation: _bw_pos(n) prints a position marker
-        // over serial before each block runs. The debug host (debug-panel) reads
-        // the serial stream, splits the RS-prefixed markers from real print()
-        // output, and highlights positions[n].block. `bp` flags a block the host
-        // asked to break on; for now it emits a distinct marker (breakpoint PAUSE
-        // — spinning on a host resume over serial-in — is the next slice). The
-        // marker is RS (0x1e) so it can never collide with ordinary program text.
+        // BrickWright debug instrumentation. _bw_pos(n) prints a position marker
+        // over serial before each block runs; the debug host (debug-panel) reads
+        // the stream, splits the RS(0x1e)-prefixed markers from real print()
+        // output, and highlights positions[n].block. When a block is a breakpoint
+        // (bp=1) or a single-step is pending, the program HALTS — prints the
+        // halted marker and spins on `input()` until the host resumes over
+        // serial-in with '\x1ec' (continue) or '\x1es' (step to next block).
+        // Control uses the RS prefix so it can never be confused with a program's
+        // own input(), which anyway never runs while halted. Every byte is RS-led,
+        // so nothing here can collide with ordinary program text.
         if (dbg) {
             header.push('',
-                '# --- BrickWright debug: position markers over serial ---',
+                '# --- BrickWright debug: position markers + breakpoints over serial ---',
+                '_bw_step = 0',
                 'def _bw_pos(n, bp=0):',
+                '    global _bw_step',
                 "    print('\\x1e' + str(n))",
-                '    if bp:',
-                "        print('\\x1e!' + str(n))");
+                '    if bp or _bw_step:',
+                '        _bw_step = 0',
+                "        print('\\x1e!' + str(n))",
+                '        while True:',
+                '            try:',
+                '                c = input()',
+                '            except Exception:',
+                '                return',
+                "            if c == '\\x1es':",
+                '                _bw_step = 1',
+                '                return',
+                "            if c == '\\x1ec':",
+                '                return');
         }
         // KEYPAD4X4 scanner — per-core tri-state + pull-up, debounced.
         if (uses.keypad) {
