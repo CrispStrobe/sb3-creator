@@ -7763,7 +7763,16 @@ class SB3Creator {
      *
      * @returns {{ok: boolean, py?: string, reasons: string[], warnings: string[]}}
      */
-    generateMicroPython(project = this.project) {
+    generateMicroPython(project = this.project, opts = {}) {
+        // Debug build: instrument each block with a position marker over serial
+        // — the micro:bit analogue of the 8051's <task>_state lever (read
+        // position, do not VM-step; DEBUG-CONTROL-MODEL.md §2, MICROBIT-NATIVE.md
+        // Stage 3). `positions[n] = {block}` lets the debug host map a marker back
+        // to the source block; `breakpoints` (block ids) pause the program at
+        // those blocks until the host resumes over serial.
+        const dbg = !!(opts && opts.debug);
+        const dbgPos = [];                     // n -> { block: <scratch block id> }
+        const dbgBreaks = new Set((opts && opts.breakpoints) || []);
         // The shared pure-Python expression layer (pyVal/pyCond/varRef)
         // reads the same context generatePython sets up.
         this._pyNames = new Map();
@@ -8149,10 +8158,19 @@ class SB3Creator {
 
         const walk = (id, blocks, pad) => {
             const out = [];
-            let b = blocks[id];
+            let cur = id;
+            let b = blocks[cur];
             while (b) {
+                if (dbg) {
+                    const n = dbgPos.length;
+                    dbgPos.push({ block: cur });
+                    // Emit the marker BEFORE the statement runs; `bp=1` flags a
+                    // block the host asked to break on, so the helper can pause.
+                    out.push(`${pad}_bw_pos(${n}${dbgBreaks.has(cur) ? ', 1' : ''})`);
+                }
                 out.push(...stmt(b, blocks, pad));
-                b = blocks[b.next];
+                cur = b.next;
+                b = blocks[cur];
             }
             return out.length ? out : [`${pad}pass`];
         };
@@ -8256,6 +8274,21 @@ class SB3Creator {
         if (uses.radio) header.push('import radio');
         if (uses._pitch) header.push('', 'def _pitch():', '    x, y, z = accelerometer.get_values()', '    return math.atan2(-y, -z) * 180 / math.pi');
         if (uses._roll) header.push('', 'def _roll():', '    x, y, z = accelerometer.get_values()', '    return math.atan2(x, -z) * 180 / math.pi');
+        // BrickWright debug instrumentation: _bw_pos(n) prints a position marker
+        // over serial before each block runs. The debug host (debug-panel) reads
+        // the serial stream, splits the RS-prefixed markers from real print()
+        // output, and highlights positions[n].block. `bp` flags a block the host
+        // asked to break on; for now it emits a distinct marker (breakpoint PAUSE
+        // — spinning on a host resume over serial-in — is the next slice). The
+        // marker is RS (0x1e) so it can never collide with ordinary program text.
+        if (dbg) {
+            header.push('',
+                '# --- BrickWright debug: position markers over serial ---',
+                'def _bw_pos(n, bp=0):',
+                "    print('\\x1e' + str(n))",
+                '    if bp:',
+                "        print('\\x1e!' + str(n))");
+        }
         // KEYPAD4X4 scanner — per-core tri-state + pull-up, debounced.
         if (uses.keypad) {
             const parts = ((project.stc && project.stc.parts) || []).filter((p) => p.type === 'keypad4x4');
@@ -8424,7 +8457,7 @@ class SB3Creator {
                 '');
         }
         const py = [...header, '', ...helpers, ...stateDecls, '', ...taskDefs, ...driver].join('\n') + '\n';
-        return { ok: true, py, reasons: [], warnings };
+        return { ok: true, py, reasons: [], warnings, ...(dbg ? { positions: dbgPos } : {}) };
     }
 
     generateBASIC(project = this.project, opts = {}) {
