@@ -43,8 +43,10 @@ test('a breakpoint build emits the halt + resume loop (pause/step/continue)', ()
     // the halted marker, the spin on serial-in, and both resume commands
     assert.match(r.py, /print\('\\x1e!' \+ str\(n\)\)/, 'halted-at-block marker');
     assert.match(r.py, /while True:[\s\S]*c = input\(\)/, 'spins on serial-in while halted');
-    assert.match(r.py, /if c == '\\x1es':[\s\S]*_bw_step = 1/, 'step resume arms the next block');
-    assert.match(r.py, /if c == '\\x1ec':/, 'continue resume');
+    // The sim strips the RS prefix before input() returns; compare the last char.
+    assert.match(r.py, /c = c\[-1:\]/, 'compares the RS-stripped command char');
+    assert.match(r.py, /if c == 's':[\s\S]*_bw_step = 1/, 'step resume arms the next block');
+    assert.match(r.py, /if c == 'c':/, 'continue resume');
     assert.match(r.py, /except Exception:\n\s*return/, 'no debug host -> logpoint, never hangs');
 });
 

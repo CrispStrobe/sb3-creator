@@ -8280,10 +8280,13 @@ class SB3Creator {
         // output, and highlights positions[n].block. When a block is a breakpoint
         // (bp=1) or a single-step is pending, the program HALTS — prints the
         // halted marker and spins on `input()` until the host resumes over
-        // serial-in with '\x1ec' (continue) or '\x1es' (step to next block).
-        // Control uses the RS prefix so it can never be confused with a program's
-        // own input(), which anyway never runs while halted. Every byte is RS-led,
-        // so nothing here can collide with ordinary program text.
+        // serial-in with '\x1es\r' (step to next block) or '\x1ec\r' (continue).
+        // The host sends the RS prefix so the command can never be confused with a
+        // program's own input() (which never runs while halted anyway), and a CR
+        // terminator because the WASM sim's input() completes on CR, not LF
+        // (verified driving the real sim, 2026-08-19). The sim STRIPS the RS byte
+        // before input() returns, so we compare the last char (c[-1:] == 's'/'c'),
+        // which is robust whether or not the prefix survives.
         if (dbg) {
             header.push('',
                 '# --- BrickWright debug: position markers + breakpoints over serial ---',
@@ -8299,10 +8302,11 @@ class SB3Creator {
                 '                c = input()',
                 '            except Exception:',
                 '                return',
-                "            if c == '\\x1es':",
+                '            c = c[-1:]',
+                "            if c == 's':",
                 '                _bw_step = 1',
                 '                return',
-                "            if c == '\\x1ec':",
+                "            if c == 'c':",
                 '                return');
         }
         // KEYPAD4X4 scanner — per-core tri-state + pull-up, debounced.
