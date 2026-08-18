@@ -2040,6 +2040,13 @@ class SB3Creator {
                 this.warn(lineIndex, `${where.toUpperCase()} is a button and can only be an INPUT`);
                 return true;
             }
+            // PART-claims conflict: a keypad or other part that owns this pin.
+            const partClash = cfg.parts.find((prev) =>
+                (prev.claims || []).some((c) => typeof c === 'string' && c.toUpperCase() === where.toUpperCase()));
+            if (partClash) {
+                this.warn(lineIndex, `${where.toUpperCase()} is already claimed by "${partClash.name}"; a PART owns that pin`);
+                return true;
+            }
             cfg.pins.push({
                 name,
                 where: where.toUpperCase(),
@@ -2264,6 +2271,66 @@ class SB3Creator {
                 claims,
                 rows: claims.slice(0, 4).map(([port, bit]) => ({ port, bit })),
                 cols: claims.slice(4).map(([port, bit]) => ({ port, bit }))
+            });
+            return true;
+        }
+        // PART <name> = KEYPAD4X4 ROWS <pin> x4 COLS <pin> x4 — generic pin form
+        // for non-8051 cores (micro:bit P0-P20, Pico GP0-GP28). The scanner
+        // tri-states rows between scans (Pico: Pin.IN; micro:bit: read_digital
+        // + set_pull). Debounced two-agreeing-reads, scheduled first at 5 ms.
+        if ((m = trimmed.match(/^PART\s+([A-Za-z_]\w*)\s*=\s*KEYPAD4X4\s+ROWS\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+COLS\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)$/i))
+            && !trimmed.match(/^PART\s+\S+\s*=\s*KEYPAD4X4\s+ROWS\s+P[0-4]\.[0-7]/i)) {
+            const name = m[1];
+            const cfg = this.stcConfig();
+            const part = SB3Creator.STC_PARTS[cfg.device];
+            const core = part && part.core;
+            if (!core || (core !== 'micropython' && core !== 'rp2040')) {
+                this.warn(lineIndex, `KEYPAD4X4 with this pin syntax is for micro:bit (P0-P20) or Pico (GP0-GP28); ${cfg.device || 'this device'} uses P<port>.<bit>`);
+                return true;
+            }
+            if (this.stcPin(name) || this.stcPort(name) || this.stcPart(name)) {
+                this.warn(lineIndex, `"${name}" declared twice`);
+                return true;
+            }
+            // Validate each pin token against the device's vocabulary
+            const SPOKEN = {
+                microbit: [/^P\d+$/i, 'P0-P20'],
+                pico: [/^GP\d+$/i, 'GP0-GP28']
+            };
+            const spoken = SPOKEN[cfg.device];
+            const tokens = m.slice(2, 10);
+            const claims = [];
+            for (const tok of tokens) {
+                if (spoken && !spoken[0].test(tok)) {
+                    this.warn(lineIndex, `"${tok}" is not a valid pin for ${cfg.device}; it uses ${spoken[1]}`);
+                    return true;
+                }
+                claims.push(tok.toUpperCase());
+            }
+            if (new Set(claims).size !== 8) {
+                this.warn(lineIndex, `"${name}" names the same pin twice; a 4x4 keypad claims eight different pins`);
+                return true;
+            }
+            // Conflict: a PIN declaration on a claimed pin
+            for (const w of claims) {
+                const pinConflict = cfg.pins.find((pin) => (pin.where || '').toUpperCase() === w);
+                if (pinConflict) {
+                    this.warn(lineIndex, `${w} is already declared as "${pinConflict.name}"; a PART claims its pins`);
+                    return true;
+                }
+                for (const prev of cfg.parts) {
+                    if ((prev.claims || []).some((c) => typeof c === 'string' && c.toUpperCase() === w)) {
+                        this.warn(lineIndex, `${w} is already claimed by "${prev.name}"`);
+                        return true;
+                    }
+                }
+            }
+            cfg.parts.push({
+                name,
+                type: 'keypad4x4',
+                claims,
+                rows: claims.slice(0, 4).map((w) => ({ where: w })),
+                cols: claims.slice(4).map((w) => ({ where: w }))
             });
             return true;
         }
@@ -7840,6 +7907,12 @@ class SB3Creator {
             }
             if (rb.opcode === 'microbitplus_radiolastnum') { uses.radio = true; return '_radio_last_num'; }
             if (rb.opcode === 'microbitplus_radiolaststr') { uses.radio = true; return '_radio_last_str'; }
+            // KEYPAD4X4 reporter — the scan function is emitted in the header.
+            if (rb.opcode === 'stc12_keypad') {
+                const partName = rb.fields.PART ? rb.fields.PART[0] : '';
+                uses.keypad = partName;
+                return `_scan_keypad_${partName}()`;
+            }
             return null;
         };
         const val = (b, k, blocks) => pinReporter(b.inputs[k], blocks)
@@ -8183,6 +8256,62 @@ class SB3Creator {
         if (uses.radio) header.push('import radio');
         if (uses._pitch) header.push('', 'def _pitch():', '    x, y, z = accelerometer.get_values()', '    return math.atan2(-y, -z) * 180 / math.pi');
         if (uses._roll) header.push('', 'def _roll():', '    x, y, z = accelerometer.get_values()', '    return math.atan2(x, -z) * 180 / math.pi');
+        // KEYPAD4X4 scanner — per-core tri-state + pull-up, debounced.
+        if (uses.keypad) {
+            const parts = ((project.stc && project.stc.parts) || []).filter((p) => p.type === 'keypad4x4');
+            for (const kp of parts) {
+                const nm = kp.name;
+                if (isPico) {
+                    // Pico: rows Pin(n, Pin.OUT, value=0) to scan, Pin(n, Pin.IN) to tri-state
+                    // cols Pin(n, Pin.IN, Pin.PULL_UP), read value()
+                    const rowGpios = kp.rows.map((r) => r.where.replace(/^GP/i, ''));
+                    const colGpios = kp.cols.map((c) => c.where.replace(/^GP/i, ''));
+                    header.push('',
+                        `# ${nm}: 4x4 matrix keypad scanner (Pico)`,
+                        `# Rows: ${kp.rows.map((r) => r.where).join(', ')} — tri-state between scans`,
+                        `# Cols: ${kp.cols.map((c) => c.where).join(', ')} — pull-up, read 0 when pressed`,
+                        ...colGpios.map((g) => `_kp_c${g} = Pin(${g}, Pin.IN, Pin.PULL_UP)`),
+                        `_kp_${nm}_prev = -1`,
+                        '',
+                        `def _scan_keypad_${nm}():`,
+                        '    """Scan the 4x4 matrix: drive one row low, read cols."""');
+                    for (let ri = 0; ri < 4; ri++) {
+                        const rg = rowGpios[ri];
+                        header.push(`    _r = Pin(${rg}, Pin.OUT, value=0)`);
+                        for (let ci = 0; ci < 4; ci++) {
+                            const cg = colGpios[ci];
+                            header.push(`    if _kp_c${cg}.value() == 0: Pin(${rg}, Pin.IN); return ${ri * 4 + ci}`);
+                        }
+                        header.push(`    Pin(${rg}, Pin.IN)`);
+                    }
+                    header.push('    return -1');
+                } else {
+                    // micro:bit: rows write_digital(0) to scan, read_digital() to tri-state
+                    // cols set_pull(PULL_UP), read_digital() == 0 when pressed
+                    const rowPins = kp.rows.map((r) => `pin${r.where.replace(/^P/i, '')}`);
+                    const colPins = kp.cols.map((c) => `pin${c.where.replace(/^P/i, '')}`);
+                    header.push('',
+                        `# ${nm}: 4x4 matrix keypad scanner (micro:bit)`,
+                        `# Rows: ${kp.rows.map((r) => r.where).join(', ')} — tri-state between scans`,
+                        `# Cols: ${kp.cols.map((c) => c.where).join(', ')} — pull-up, read 0 when pressed`,
+                        ...colPins.map((p) => `${p}.set_pull(${p}.PULL_UP)`),
+                        `_kp_${nm}_prev = -1`,
+                        '',
+                        `def _scan_keypad_${nm}():`,
+                        '    """Scan the 4x4 matrix: drive one row low, read cols."""');
+                    for (let ri = 0; ri < 4; ri++) {
+                        const rp = rowPins[ri];
+                        header.push(`    ${rp}.write_digital(0)`);
+                        for (let ci = 0; ci < 4; ci++) {
+                            const cp = colPins[ci];
+                            header.push(`    if ${cp}.read_digital() == 0: ${rp}.read_digital(); return ${ri * 4 + ci}`);
+                        }
+                        header.push(`    ${rp}.read_digital()`);
+                    }
+                    header.push('    return -1');
+                }
+            }
+        }
         if (isPico) {
             // Pin objects. sda/scl by NAME feed the hardware I2C when the
             // program drives an OLED — they must not be constructed as
