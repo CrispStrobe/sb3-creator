@@ -218,6 +218,15 @@
             },
           },
           {
+            opcode: "matrix_paint",
+            blockType: Scratch.BlockType.COMMAND,
+            text: Scratch.translate("paint [GRID] on [PART]"),
+            arguments: {
+              GRID: { type: "led8x8", defaultValue: "0330033033333333333333333333333303333330003333000003300000000000" },
+              PART: { type: Scratch.ArgumentType.STRING, menu: "parts" },
+            },
+          },
+          {
             opcode: "matrix_clear",
             blockType: Scratch.BlockType.COMMAND,
             text: Scratch.translate("clear screen [PART]"),
@@ -409,6 +418,22 @@
       const img = board(this.runtime)["tab_" + args.TABLE];
       const buf = this._scr(args.PART);
       for (let y = 0; y < 8; y++) buf[y] = Array.isArray(img) ? (Number(img[y]) & 0xff) : 0;
+    }
+
+    matrix_paint(args) {
+      // The painted 8x8 grid (FieldLed8x8: 64 chars '0'..'3', row-major) blits
+      // straight onto the sim buffer — 1-bit here (lit iff level>0); the C
+      // emitter keeps per-pixel brightness via setpx. Front-end preview of what
+      // the firmware will scan.
+      const g = String(args.GRID || "");
+      const buf = this._scr(args.PART);
+      for (let y = 0; y < 8; y++) {
+        let byte = 0;
+        for (let x = 0; x < 8; x++) {
+          if ((g.charCodeAt(y * 8 + x) - 48) > 0) byte |= (0x80 >> x);
+        }
+        buf[y] = byte & 0xff;
+      }
     }
 
     matrix_scroll(args) {

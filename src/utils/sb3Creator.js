@@ -1406,6 +1406,41 @@ class SB3Creator {
         return ((cfg && cfg.parts) || []).filter((p) => p.type === 'matrix8x8');
     }
 
+    // Read a paint block's 8x8 grid as exactly 64 brightness levels (0..3),
+    // row-major top-down / column 0 left — the FieldLed8x8 value format and the
+    // IMAGE literal (docs/A2-BOARD-SUPPORT.md). Handles both carriers: a direct
+    // GRID field (the pseudocode-parsed path sets one) and a `led8x8` shadow
+    // input (the block editor path — the value rides in the shadow's inner
+    // field). This is what lets the paint EDITOR and the dialect meet: one
+    // block, two front doors, one 64-level array the C emitter expands.
+    _paintLevels(b, blocks) {
+        let s = '';
+        if (b.fields && b.fields.GRID) {
+            s = String(b.fields.GRID[0] || '');
+        } else if (b.inputs && b.inputs.GRID) {
+            const inp = b.inputs.GRID;
+            const shadowId = Array.isArray(inp) ? (inp[1] || inp[2]) : null;
+            const sh = shadowId && blocks && blocks[shadowId];
+            if (sh && sh.fields) {
+                const fld = sh.fields.MATRIX || sh.fields.GRID ||
+                    (Object.values(sh.fields)[0]);
+                if (fld) s = String(fld[0] || '');
+            }
+        }
+        const out = [];
+        for (let i = 0; i < 64; i++) {
+            let c = s.charCodeAt(i) - 48;                 // '0' -> 0
+            if (!(c >= 0 && c <= 3)) c = c > 3 ? 3 : 0;   // clamp/coerce
+            out.push(c);
+        }
+        return out;
+    }
+
+    // The 64-level grid as a compact '0'..'3' string, for the decompiler.
+    _paintStr(b, blocks) {
+        return this._paintLevels(b, blocks).join('');
+    }
+
     // MATRIX8X8 state: the depth #defines + level clamp (once), then per screen
     // the bit-plane frame buffer, the scan cursor, the global-dim byte and the
     // Q7=top row-select table. Emitted BEFORE bw_ms/bw_tick, which read them.
@@ -2611,6 +2646,16 @@ class SB3Creator {
                 const { id, block } = cmd('stc12_matrix_image');
                 block[id].fields.PART = [this.stcMatrix(match[2]).name, null];
                 block[id].fields.TABLE = [this.stcTable(match[1]).name, null];
+                return ret(block);
+            }
+            // paint <64 brightness digits '0'..'3'> on <screen>  — the editor's
+            // painted grid, round-tripped as a compact literal. GRID is a field
+            // here (the C emitter also reads it from a led8x8 shadow when the
+            // block is built in the editor); both feed _paintLevels.
+            if ((match = line.match(/^paint\s+([0-3]{64})\s+on\s+(\w+)$/i)) && this.stcMatrix(match[2])) {
+                const { id, block } = cmd('stc12_matrix_paint');
+                block[id].fields.PART = [this.stcMatrix(match[2]).name, null];
+                block[id].fields.GRID = [match[1], null];
                 return ret(block);
             }
             // scroll <screen> left|right|up|down.
@@ -4740,6 +4785,7 @@ class SB3Creator {
             case 'stc12_matrix_image': return line(`show image ${f('TABLE')} on ${f('PART')}`);
             case 'stc12_matrix_scroll': return line(`scroll ${f('PART')} ${f('DIR')}`);
             case 'stc12_matrix_dim': return line(`set ${f('PART')} brightness ${v('LEVEL')}`);
+            case 'stc12_matrix_paint': return line(`paint ${this._paintStr(b, blocks)} on ${f('PART')}`);
             case 'devices_setneopixel': return line(`set neopixel ${v('INDEX')} to R ${v('R')} G ${v('G')} B ${v('B')} on ${v('STRIP')}`);
             case 'devices_clearneopixels': return line(`clear neopixels on ${v('STRIP')}`);
             case 'devices_tftpixel': return line(`tft pixel ${v('X')} ${v('Y')} R ${v('R')} G ${v('G')} B ${v('B')} on ${v('DISPLAY')}`);
@@ -6462,6 +6508,25 @@ class SB3Creator {
                 return line(`bw_scr_${f('PART')}_scroll(${code});   /* ${f('DIR')} */`);
             }
             case 'stc12_matrix_dim': { this._cUses.matrix = true; return line(`bw_scr_${f('PART')}_dim = bw_scr_level(${v('LEVEL')});`); }
+            // The block editor's bridge to firmware: a painted 8x8 grid becomes
+            // a clear + one setpx per lit pixel, at that pixel's brightness. It
+            // rides ONLY the mirror's verified helpers (bw_scr_<n>_clear /
+            // _setpx, a91981a / 35943b0), so what the learner paints is exactly
+            // what the Timer-0 ISR scans onto the panel. Brightness is preserved
+            // per pixel (the whole point of FieldLed8x8); a compact table+loop
+            // form is a later optimization, not a correctness need.
+            case 'stc12_matrix_paint': {
+                this._cUses.matrix = true;
+                const part = f('PART');
+                const g = this._paintLevels(b, blocks);
+                const out = [pad + `bw_scr_${part}_clear();`];
+                for (let i = 0; i < 64; i++) {
+                    if (g[i] > 0) {
+                        out.push(pad + `bw_scr_${part}_setpx(${i & 7}, ${i >> 3}, ${g[i]});`);
+                    }
+                }
+                return out;
+            }
             case 'devices_setneopixel': { this._cUses.devices = true; this._cUses.neopixel = true; return line(`bw_neopixel_set(${v('STRIP')}, ${v('INDEX')}, ${v('R')}, ${v('G')}, ${v('B')});`); }
             case 'devices_clearneopixels': { this._cUses.devices = true; this._cUses.neopixel = true; return line(`bw_neopixel_clear(${v('STRIP')});`); }
             case 'devices_tftpixel': { this._cUses.devices = true; this._cUses.tft = true; return line(`bw_tft_pixel(${v('DISPLAY')}, ${v('X')}, ${v('Y')}, ${v('R')}, ${v('G')}, ${v('B')});`); }
