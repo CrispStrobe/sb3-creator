@@ -43,6 +43,10 @@ test('retargeted calculator generates C with matrix scan driver', () => {
     assert.match(out, /_mk_cols/, 'column pin table present');
     assert.match(out, /I2C_SDA_HI/, 'I2C for OLED present');
     assert.match(out, /font5x7/, '5x7 font for OLED present');
+    // OLED init must be present (was missing before the 6502 init fix)
+    assert.match(out, /oled_cmd\(0xAE\)/, 'SSD1306 display-off in init');
+    assert.match(out, /oled_cmd\(0x8D\)/, 'SSD1306 charge pump in init');
+    assert.match(out, /bw_oled_clear\(0\)/, 'GDDRAM clear in init');
 });
 
 let hasCl65 = false;

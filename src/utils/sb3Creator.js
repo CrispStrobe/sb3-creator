@@ -10906,8 +10906,12 @@ class SB3Creator {
         // decoding GDDRAM writes into a panel that never lit. Found by
         // the pico-calculator chain test (owner: 'runs but OLED black'),
         // and true on real silicon too, not just under emulation.
-        if ((this._core === 'avr' || this._core === 'arm') && (this._cUses.lcd || this._cUses.oled)) {
-            out.push('    I2C_SDA_HI(); I2C_SCL_HI();      /* release bus */');
+        if ((this._core === 'avr' || this._core === 'arm' || this._core === '6502' || this._core === 'z80') && (this._cUses.lcd || this._cUses.oled)) {
+            // 6502/Z80: bus release is already in their I2C init above.
+            // AVR/ARM: need it here.
+            if (this._core === 'avr' || this._core === 'arm') {
+                out.push('    I2C_SDA_HI(); I2C_SCL_HI();      /* release bus */');
+            }
             if (this._cUses.lcd) {
                 out.push('    /* HD44780 init: 4-bit mode, 2-line, 5x8 font */',
                     '    lcd_nibble(0x30, 0); lcd_nibble(0x30, 0); lcd_nibble(0x30, 0);',
