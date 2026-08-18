@@ -276,7 +276,7 @@
   "thumbnail": "07-buzzer-siren/thumb.svg",
   "files": {
    "program": "07-buzzer-siren/program.bw",
-   "circuit": "07-buzzer-siren/circuit.json",
+   "circuit": "07-buzzer-siren/circuit.stc12c5a60s2.json",
    "expected": "07-buzzer-siren/EXPECTED.md",
    "intro": "07-buzzer-siren/intro.md",
    "introDE": "07-buzzer-siren/intro.de.md"
@@ -290,7 +290,13 @@
    "arduino-nano": "tone is not ported to this core yet",
    "pico": "tone is not ported to this core yet"
   },
-  "tier": "arch"
+  "tier": "arch",
+  "devices": [
+   "stc12c5a60s2"
+  ],
+  "benches": {
+   "stc12c5a60s2": "07-buzzer-siren/circuit.stc12c5a60s2.json"
+  }
  },
  {
   "id": "08-led-chaser-595",
@@ -303,7 +309,7 @@
   "thumbnail": "08-led-chaser-595/thumb.svg",
   "files": {
    "program": "08-led-chaser-595/program.bw",
-   "circuit": "08-led-chaser-595/circuit.json",
+   "circuit": "08-led-chaser-595/circuit.stc12c5a60s2.json",
    "expected": "08-led-chaser-595/EXPECTED.md",
    "intro": "08-led-chaser-595/intro.md",
    "introDE": "08-led-chaser-595/intro.de.md"
@@ -330,7 +336,8 @@
    "attiny88": "08-led-chaser-595/circuit.attiny88.json",
    "pico": "08-led-chaser-595/circuit.pico.json",
    "stc15f2k60s2": "08-led-chaser-595/circuit.stc15f2k60s2.json",
-   "stc89c52rc": "08-led-chaser-595/circuit.stc89c52rc.json"
+   "stc89c52rc": "08-led-chaser-595/circuit.stc89c52rc.json",
+   "stc12c5a60s2": "08-led-chaser-595/circuit.stc12c5a60s2.json"
   },
   "authored": "stc12c5a60s2"
  },
@@ -1215,12 +1222,19 @@
   "thumbnail": "33-inductive-no-flyback/thumb.svg",
   "files": {
    "program": "33-inductive-no-flyback/program.bw",
-   "circuit": "33-inductive-no-flyback/circuit.json",
+   "circuit": "33-inductive-no-flyback/circuit.stc12c5a60s2.json",
    "expected": "33-inductive-no-flyback/EXPECTED.md",
    "intro": "33-inductive-no-flyback/intro.md",
    "introDE": "33-inductive-no-flyback/intro.de.md"
   },
-  "kind": "circuit"
+  "kind": "circuit",
+  "tier": "arch",
+  "devices": [
+   "stc12c5a60s2"
+  ],
+  "benches": {
+   "stc12c5a60s2": "33-inductive-no-flyback/circuit.stc12c5a60s2.json"
+  }
  },
  {
   "id": "34-ohms-law",
@@ -1642,10 +1656,17 @@
   "difficulty": 3,
   "files": {
    "program": "51-tft-pixels/program.bw",
-   "circuit": "51-tft-pixels/circuit.json",
+   "circuit": "51-tft-pixels/circuit.stc12c5a60s2.json",
    "expected": "51-tft-pixels/EXPECTED.md",
    "intro": "51-tft-pixels/intro.md",
    "introDE": "51-tft-pixels/intro.de.md"
+  },
+  "tier": "arch",
+  "devices": [
+   "stc12c5a60s2"
+  ],
+  "benches": {
+   "stc12c5a60s2": "51-tft-pixels/circuit.stc12c5a60s2.json"
   }
  },
  {

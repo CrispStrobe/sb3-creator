@@ -5,7 +5,7 @@ prereqs: [01-blink]
 teaches: [shift-register, serial-data, led-pattern]
 ---
 ## Was du siehst
-Acht LEDs leuchten nacheinander auf — erst nach links wandernd, dann umkehrend nach rechts — ein klassisches Lauflicht (auch „Knight Rider"-Muster). Der MCU nutzt nur drei Pins, um alle acht LEDs über ein 74HC595-Schieberegister zu steuern.
+Acht LEDs leuchten nacheinander auf — erst nach links wandernd, dann umkehrend nach rechts — ein klassisches Lauflicht (auch „Knight Rider"-Muster). Der MCU nutzt nur drei Pins, um alle acht LEDs über ein 74HC595-Schieberegister zu steuern. Dieses Beispiel funktioniert auf allen unterstützten Mikrocontrollern — wähle ein anderes Gerät in der Werkzeugleiste, um die angepasste Schaltung zu sehen.
 
 ## Probier das
 1. Starte das Programm und beobachte, wie das Licht über die acht LEDs hin- und herwandert.
