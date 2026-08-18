@@ -79,9 +79,26 @@ test('ISR: bw_ms++ is first and there is no mul/div/mod', () => {
     for (const op of ['*', '/', '%']) {
         assert.ok(!stripped.includes(op), `ISR must contain no ${op}`);
     }
-    // One row per tick, wrapping at 8.
+    // One row per tick, wrapping at 8; a completed frame steps the BCM phase.
     assert.match(body, /bw_scr_screen_scan\+\+;/);
-    assert.match(body, /if \(bw_scr_screen_scan >= 8\) bw_scr_screen_scan = 0;/);
+    assert.match(body, /if \(bw_scr_screen_scan >= 8\) \{/);
+    assert.match(body, /bw_scr_screen_scan = 0;/);
+    assert.match(body, /bw_scr_screen_phase\+\+;/);
+    assert.match(body, /if \(bw_scr_screen_phase >= MATRIX_LEVELS - 1\) bw_scr_screen_phase = 0;/);
+});
+
+test('ISR: bit-plane phase render (BCM) gives real grayscale, matching the reference', () => {
+    const code = genC(SRC).code;
+    const body = isrBody(code);
+    // The phase state and the min(level,dim) cap.
+    assert.match(code, /static unsigned char bw_scr_screen_phase;/);
+    assert.match(body, /if \(bw_scr_screen_dim > bw_scr_screen_phase\)/);
+    // The three phase masks read off the two bit-planes: level >= 1/2/3.
+    assert.match(body, /bw_scr_screen_phase == 0\) bw_lit = \(unsigned char\)\(bw_p0 \| bw_p1\)/);
+    assert.match(body, /bw_scr_screen_phase == 1\) bw_lit = bw_p1;/);
+    assert.match(body, /else bw_lit = \(unsigned char\)\(bw_p0 & bw_p1\);/);
+    // No leftover threshold-OR render.
+    assert.ok(!body.includes('bw_scr_screen_dim == 0'), 'old threshold render still present');
 });
 
 test('ISR is the SOLE writer of the 595 pins and the column port', () => {
