@@ -19,8 +19,14 @@ const circuitsDir = join(homedir(), 'code', '8bitsim', 'circuits');
 const JAR = process.env.DIGITAL_JAR || join(homedir(), 'code', 'digital-sim', 'Digital', 'Digital.jar');
 const hasJava = (() => { try { execFileSync('java', ['-version'], { stdio: 'pipe' }); return true; } catch { return false; } })();
 
-const skipReason = (!hasJava || !existsSync(JAR)) ? 'Java or Digital.jar not available' :
-    !existsSync(circuitsDir) ? '8bitsim/circuits not cloned' : false;
+// OPT-IN: the Digital.jar oracle costs ~12s of JVM per suite run and is an
+// external GPL tool. Run it deliberately: BW_TTL_ORACLE=1 npm test
+// (DIGITAL_JAR still overrides the jar location). CI and casual local runs
+// skip loudly instead of paying for it every time (owner request, 2026-08-18).
+const skipReason = !process.env.BW_TTL_ORACLE
+    ? 'opt-in: set BW_TTL_ORACLE=1 to run the Digital.jar acceptance oracle'
+    : (!hasJava || !existsSync(JAR)) ? 'Java or Digital.jar not available'
+    : !existsSync(circuitsDir) ? '8bitsim/circuits not cloned' : false;
 
 function translate(digFile, setArgs = []) {
     const tmp = mkdtempSync(join(tmpdir(), 'mod-test-'));

@@ -125,6 +125,14 @@
             },
           },
           {
+            opcode: "keypad",
+            blockType: Scratch.BlockType.REPORTER,
+            text: Scratch.translate("key on [PART]"),
+            arguments: {
+              PART: { type: Scratch.ArgumentType.STRING, menu: "parts" },
+            },
+          },
+          {
             opcode: "print",
             blockType: Scratch.BlockType.COMMAND,
             text: Scratch.translate("print [VALUE]"),
@@ -273,6 +281,15 @@
 
     setpart(args) {
       board(this.runtime)["part_" + args.PART] = Number(args.VALUE) & 0xff;
+    }
+
+    keypad(args) {
+      // The scanned key 0..15, or -1 for none — same contract as the C
+      // scanner (PART KEYPAD4X4). The circuit layer feeds keypad_<name>;
+      // absent hardware reads as "nothing pressed".
+      const b = board(this.runtime);
+      const k = "keypad_" + args.PART;
+      return Object.prototype.hasOwnProperty.call(b, k) ? Number(b[k]) : -1;
     }
 
     print(args) {

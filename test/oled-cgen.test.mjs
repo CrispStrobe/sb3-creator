@@ -152,13 +152,13 @@ STAGE:
     assert.match(result, /oled print count on 1/i);
 });
 
-test('oled print string round-trips (string degrades to 0 — same as LCD)', () => {
+test('oled print string round-trips INTACT (C reader learned string literals, 2026-08-18)', () => {
     const result = roundTrip(`STAGE:
   WHEN flag clicked:
     oled print "HELLO" on 1
 `);
-    assert.match(result, /oled print 0 on 1/i,
-        'string degrades through the C decompiler (known limitation)');
+    assert.match(result, /oled print "HELLO" on 1/i,
+        'the C reader keeps string literals now — a former known limitation');
 });
 
 test('oled set cursor round-trips exactly', () => {

@@ -131,7 +131,13 @@ switch (cmd) {
                 const { default: py2bw } = await import('../src/utils/pythonToPseudocode.js');
                 result = py2bw(src);
             }
-        } else die('read understands .c and .py');
+        } else if (/\.js$/i.test(file)) {
+            const { default: js2bw } = await import('../src/utils/javascriptToPseudocode.js');
+            result = js2bw(src);
+        } else if (/\.(bas|basic)$/i.test(file)) {
+            const { default: bas2bw } = await import('../src/utils/basicToPseudocode.js');
+            result = bas2bw(src);
+        } else die('read understands .c, .py, .js and .bas');
         for (const w of result.warnings || []) console.error(`warning: ${w}`);
         writeOut(result.pseudocode ?? '', opts.o);
         break;

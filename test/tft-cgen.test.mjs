@@ -142,17 +142,17 @@ test('tft clear round-trips exactly', () => {
     assert.match(result, /tft clear 1/i);
 });
 
-test('tft print string round-trips (string degrades to 0 — same as LCD)', () => {
-    // Known limitation: the C decompiler cannot reconstruct C string literals
-    // back to dialect strings. This matches LCD behavior: bw_lcd_print_s(1, "X")
-    // also decompiles to `lcd print 0 on 1`. The _s/_n split is a C detail;
-    // the one-way loss is at the decompiler level, not the emitter.
+test('tft print string round-trips INTACT (C reader learned string literals, 2026-08-18)', () => {
+    // The C reader now keeps string literals (`bw_print(\"key\")` came back as
+    // `print 0` until the A2 keyshow round-trip exposed it). The former
+    // known-limitation behavior — degrading to 0 — is gone for TFT, OLED
+    // and LCD alike.
     const result = roundTrip(`STAGE:
   WHEN flag clicked:
     tft print "HELLO" on 1
 `);
-    assert.match(result, /tft print 0 on 1/i,
-        'string degrades to 0 through the C decompiler (known limitation, same as LCD)');
+    assert.match(result, /tft print "HELLO" on 1/i,
+        'the C reader keeps string literals now');
 });
 
 test('tft print variable round-trips exactly', () => {

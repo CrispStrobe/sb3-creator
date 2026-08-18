@@ -118,10 +118,20 @@ class SB3Creator {
     // Strip a trailing `// comment` that is outside any double-quoted string.
     stripComment(line) {
         let inStr = false;
-        for (let i = 0; i < line.length - 1; i++) {
+        for (let i = 0; i < line.length; i++) {
             const c = line[i];
             if (c === '"') inStr = !inStr;
             else if (!inStr && c === '/' && line[i + 1] === '/') return line.slice(0, i);
+            // The reference dialect strips inline `# …` too (14-a2-keyshow.bw
+            // annotates statements this way) — but ONLY when a statement
+            // precedes it AND the `#` reads as a comment: whitespace on both
+            // sides. `#ff0000` is a COLOR LITERAL in this dialect (SHAPE, pen,
+            // touching color) and must survive; a full-line comment (any
+            // indentation) passes through to become a Scratch block comment.
+            else if (!inStr && c === '#'
+                && /[ \t]/.test(line[i - 1] || '')
+                && (i + 1 >= line.length || /[ \t]/.test(line[i + 1]))
+                && line.slice(0, i).trim() !== '') return line.slice(0, i);
         }
         return line;
     }
@@ -1072,6 +1082,14 @@ class SB3Creator {
         if ((m = s.match(/^read\s+([A-Za-z_]\w*)$/i)) && this.stcPort(m[1])) {
             return B('stc12_readport', {}, { PORT: [this.stcPort(m[1]).name, null] });
         }
+        // KEYPAD4X4 read — the scanned key 0..15, or -1 for none. The oracle
+        // dialect spells it as the bare part name; `read <name>` is accepted
+        // for symmetry with pin/port reads. A part name can never be a
+        // variable (writes to it are refused), so the bare form is safe.
+        if ((m = s.match(/^(?:read\s+)?([A-Za-z_]\w*)$/i)) && this.stcPart(m[1])
+            && this.stcPart(m[1]).type === 'keypad4x4') {
+            return B('stc12_keypad', {}, { PART: [this.stcPart(m[1]).name, null] });
+        }
         // TABLE lookup: table[index] — a constant byte from code-space flash.
         if ((m = s.match(/^([A-Za-z_]\w*)\[(.+)\]$/)) && this.stcTable(m[1])) {
             return B('stc12_tableindex', { INDEX: this.parseValue(m[2], context) },
@@ -1669,6 +1687,60 @@ class SB3Creator {
                 return true;
             }
         }
+        // PART <name> = KEYPAD4X4 ROWS P<..> x4 COLS P<..> x4 — sixteen keys for
+        // eight pins, read-only (the scanned key 0..15, or -1). The emitted
+        // scanner is the one verified on Prechin A2 silicon (2026-08-17);
+        // reference semantics: stc-compiler 58a1048. 8051 family only — the
+        // scan drives one quasi row low at a time; push-pull cores would need
+        // row tri-stating and have not opted in.
+        if ((m = trimmed.match(/^PART\s+([A-Za-z_]\w*)\s*=\s*KEYPAD4X4\s+ROWS\s+P([0-4])\.([0-7])\s+P([0-4])\.([0-7])\s+P([0-4])\.([0-7])\s+P([0-4])\.([0-7])\s+COLS\s+P([0-4])\.([0-7])\s+P([0-4])\.([0-7])\s+P([0-4])\.([0-7])\s+P([0-4])\.([0-7])$/i))) {
+            const name = m[1];
+            const cfg = this.stcConfig();
+            const part = SB3Creator.STC_PARTS[cfg.device];
+            // No explicit core key = 8051 (the P<p>.<b> pin form), same
+            // convention as the 74HC595 branches above.
+            if (!part || (part.core && part.core !== '8051')) {
+                this.warn(lineIndex, `KEYPAD4X4 is not available on ${cfg.device}: the scan relies on quasi-bidirectional rows (8051 family). Devices that have it: the STC parts.`);
+                return true;
+            }
+            if (this.stcPin(name) || this.stcPort(name) || this.stcPart(name)) {
+                this.warn(lineIndex, `"${name}" declared twice`);
+                return true;
+            }
+            const nums = m.slice(2, 18).map(Number);
+            const claims = [];
+            for (let i = 0; i < 8; i++) claims.push([nums[2 * i], nums[2 * i + 1]]);
+            if (new Set(claims.map(([p, b]) => `${p}.${b}`)).size !== 8) {
+                this.warn(lineIndex, `"${name}" names the same pin twice; a 4x4 keypad claims eight different pins`);
+                return true;
+            }
+            for (const [p, b] of claims) {
+                const pinConflict = cfg.pins.find((pin) => pin.port === p && pin.bit === b);
+                if (pinConflict) {
+                    this.warn(lineIndex, `P${p}.${b} is already declared as "${pinConflict.name}"; a PART claims its pins`);
+                    return true;
+                }
+                const portConflict = cfg.ports.find((w) => w.port === p);
+                if (portConflict) {
+                    this.warn(lineIndex, `P${p}.${b} is inside the whole port "${portConflict.name}", which would clobber it`);
+                    return true;
+                }
+                for (const prev of cfg.parts) {
+                    if ((prev.claims || []).some((c) => Array.isArray(c) && c[0] === p && c[1] === b)) {
+                        this.warn(lineIndex, `P${p}.${b} is already claimed by "${prev.name}"`);
+                        return true;
+                    }
+                }
+            }
+            cfg.parts.push({
+                name,
+                type: 'keypad4x4',
+                claims,
+                rows: claims.slice(0, 4).map(([port, bit]) => ({ port, bit })),
+                cols: claims.slice(4).map(([port, bit]) => ({ port, bit }))
+            });
+            return true;
+        }
         // TABLE <name> = <value>, <value>, ... — constant lookup table in code space.
         // Values are bytes (0–255), separated by commas. Supports hex (0x3F) and
         // binary (0b00111111) literals. The table rides in project.stc.tables and
@@ -2188,6 +2260,10 @@ class SB3Creator {
         // `set <part> to <n>` — shifts a byte out to a 74HC595.
         if ((match = line.match(/^set\s+([A-Za-z_]\w*)\s+to\s+(.+)$/i)) && this.stcPart(match[1])) {
             const part = this.stcPart(match[1]);
+            if (part.type === 'keypad4x4') {
+                this.warn(null, `"${part.name}" is a keypad and cannot be written; read it in an expression (\`set k to ${part.name}\`)`);
+                return ret(null);
+            }
             const { id, block } = cmd('stc12_setpart');
             block[id].fields.PART = [part.name, null];
             block[id].inputs.VALUE = val(match[2]);
@@ -3832,6 +3908,10 @@ class SB3Creator {
             }
             for (const p of cfg.parts || []) {
                 const pinStr = (pin) => pin.where || `P${pin.port}.${pin.bit}`;
+                if (p.type === 'keypad4x4') {
+                    out.push(`PART ${p.name} = KEYPAD4X4 ROWS ${p.rows.map(pinStr).join(' ')} COLS ${p.cols.map(pinStr).join(' ')}`);
+                    continue;
+                }
                 out.push(`PART ${p.name} = 74HC595 data ${pinStr(p.data)} clock ${pinStr(p.clock)} latch ${pinStr(p.latch)}${p.activeLow ? ' ACTIVE LOW' : ''}`);
             }
             for (const t of cfg.tables || []) {
@@ -4012,6 +4092,7 @@ class SB3Creator {
             // STC12 / 8051 pin read (digital level or ADC value).
             case 'stc12_read': return `read ${f('PIN')}`;
             case 'stc12_readport': return `read ${f('PORT')}`;
+            case 'stc12_keypad': return f('PART');
             case 'stc12_tableindex': return `${f('TABLE')}[${v('INDEX')}]`;
             case 'ledcube_readvoxel': return `voxel ${v('X')} ${v('Y')} ${v('Z')}`;
             // Device reporters
@@ -5551,6 +5632,11 @@ class SB3Creator {
                 const portCfg = this.project && this.project.stc && (this.project.stc.ports || []).find((p) => p.name.toLowerCase() === f('PORT').toLowerCase());
                 return portCfg ? `P${portCfg.port}` : `0 /* read ${this.cComment(f('PORT'))} */`;
             }
+            case 'stc12_keypad': {
+                this._cUses.keypad = true;
+                const kp = this.stcPart(f('PART'));
+                return kp ? `bw_part_${kp.name}_read()` : `(-1) /* read ${this.cComment(f('PART'))} */`;
+            }
             case 'stc12_tableindex': {
                 const tbl = this.stcTable(f('TABLE'));
                 const tName = tbl ? `bw_tab_${tbl.name}` : `bw_tab_${f('TABLE').toLowerCase()}`;
@@ -5627,6 +5713,11 @@ class SB3Creator {
             case 'stc12_readport': {
                 const portCfg = this.project && this.project.stc && (this.project.stc.ports || []).find((p) => p.name.toLowerCase() === f('PORT').toLowerCase());
                 return portCfg ? `P${portCfg.port}` : `0 /* read ${this.cComment(f('PORT'))} */`;
+            }
+            case 'stc12_keypad': {
+                this._cUses.keypad = true;
+                const kp = this.stcPart(f('PART'));
+                return kp ? `bw_part_${kp.name}_read()` : `(-1) /* read ${this.cComment(f('PART'))} */`;
             }
             case 'argument_reporter_boolean': return this.cName(f('VALUE'));
             default: return `(${this.cRep(b, blocks)})`;
@@ -8296,11 +8387,18 @@ class SB3Creator {
                 `device ${device}`,
                 `clock ${clock}`,
                 ...pins.map((p) => `pin ${p.name} ${p.where || `P${p.port}.${p.bit}`} ${p.direction}${p.activeLow ? ' active-low' : ''}`),
+                // PORTs must survive the header like PARTs do, or bare
+                // `P0 = …` writes are silently dropped on the way back
+                // (found by the A2 keyshow round-trip, 2026-08-18).
+                ...((stored.ports || []).map((w) => `port ${w.name} P${w.port} ${w.direction}${w.activeLow ? ' active-low' : ''}`)),
                 // PARTs must survive the header too, or the C reader cannot
                 // reconstruct the declaration and shift_out calls come back
                 // as nothing (found via the chaser's round-trip, 2026-08-13).
                 ...((stored.parts || []).map((pt) => {
                     const w = (x) => x.where || `P${x.port}.${x.bit}`;
+                    if (pt.type === 'keypad4x4') {
+                        return `part ${pt.name} keypad4x4 rows ${pt.rows.map(w).join(' ')} cols ${pt.cols.map(w).join(' ')}`;
+                    }
                     return `part ${pt.name} ${pt.type} ${w(pt.data)} ${w(pt.clock)} ${w(pt.latch)}${pt.activeLow ? ' active-low' : ''}`;
                 })),
                 // The declared machine survives into the header for the same
@@ -8833,6 +8931,28 @@ class SB3Creator {
                 '    }',
                 '    BW_SIO_GPIO_OUT_SET = (1UL << latch_gpio);     /* latch high — output */',
                 '}', '');
+        }
+        if (this._cUses.keypad && this._core === '8051') {
+            const parts = ((this.project && this.project.stc && this.project.stc.parts) || []).filter((p) => p.type === 'keypad4x4');
+            for (const kp of parts) {
+                out.push(`/* ${kp.name}: a 4x4 matrix keypad, sixteen keys for eight pins.`,
+                    ' * Drives one row low and reads the columns — the scanner verified',
+                    ' * on Prechin A2 silicon (06-matrix89 mapped it, 09-keyshow89',
+                    ' * consumed it). Idle rows sit quasi-high, so two keys in one',
+                    " * column short through the port's weak pull-up only. The nops",
+                    " * respect the 1T core's 4-clock I/O read-back. */",
+                    `static signed char bw_part_${kp.name}_read(void)`,
+                    '{');
+                kp.rows.forEach((r, ri) => {
+                    out.push(`    P${r.port}_${r.bit} = 0;`);
+                    out.push('    __asm__("nop"); __asm__("nop");');
+                    kp.cols.forEach((c, ci) => {
+                        out.push(`    if (!P${c.port}_${c.bit}) { P${r.port}_${r.bit} = 1; return ${ri * 4 + ci}; }`);
+                    });
+                    out.push(`    P${r.port}_${r.bit} = 1;`);
+                });
+                out.push('    return -1;', '}', '');
+            }
         }
         if (this._cUses.shiftOut && this._core === '8051') {
             // The 8051 has bit-addressable SFR lvalues: simpler signature.
