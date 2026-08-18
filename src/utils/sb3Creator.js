@@ -13058,6 +13058,16 @@ SB3Creator.retargetPseudocode = function retargetPseudocode(src, device) {
     const newParts = [];
     for (const p of (stc.parts || [])) {
         const newPart = { ...p };
+        if (!p.data && !p.clock && !p.latch) {
+            // KEYPAD4X4 / SEVENSEG8 / LEDBANK8 carry no 595-shaped roles —
+            // they keep their 8051 coordinates, and the honest refusal on a
+            // non-8051 target happens at re-parse (each is 8051-gated).
+            // Allocating data/clock/latch for them consumed pool pins and
+            // crashed on LEDBANK8, which has no pin fields at all (found
+            // authoring 79-a2-sampler, 2026-08-18).
+            newParts.push(newPart);
+            continue;
+        }
         for (const role of ['data', 'clock', 'latch']) {
             const where = take(pools.digital);
             if (!where) {

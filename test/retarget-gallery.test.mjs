@@ -78,7 +78,10 @@ describe('retarget-gallery: every retarget result is valid', () => {
                 assert.equal(r.ok, true, r.reasons.join('; '));
                 const c = new SB3Creator();
                 c.parse(r.pseudocode);
-                assert.deepEqual(c.warnings, [], `re-parse warnings on ${dev}`);
+                // Declared deliberate warnings (index expectedWarnings) pass.
+                const expected = entry.expectedWarnings || [];
+                assert.deepEqual((c.warnings || []).filter((w) =>
+                    !expected.some((pat) => w.includes(pat))), [], `re-parse warnings on ${dev}`);
                 const out = c.generateC(undefined, {});
                 assert.ok(out.length > 100, `${dev} emits non-trivial C`);
             });

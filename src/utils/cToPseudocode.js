@@ -1962,7 +1962,10 @@ export default function cToPseudocode (source, opts = {}) {
                     continue;
                 }
             }
-            const DRIVER_TABLES = /\bfont5x7\b|\b_neo_buf\b|\bbw_cube_frame\b/;
+            // Part-runtime state the emitter regenerates from the PART
+            // declaration alone — the 7-seg font + frame buffers and the
+            // matrix bit-plane buffers/row table are not information loss.
+            const DRIVER_TABLES = /\bfont5x7\b|\b_neo_buf\b|\bbw_cube_frame\b|\bbw_7seg_font\b|\bbw_\w+_fb\b|\bbw_scr_\w+\b/;
             if (/struct|union|enum|typedef|\*|\[/.test(declSpan) && !SFRS.test(declSpan) && !DRIVER_TABLES.test(declSpan)) {
                 const brief = tokens.slice(start, Math.min(cur.i, start + 8)).map(t => t.v).join(' ');
                 warn(`top-level declaration dropped (no block equivalent): ${brief}${cur.i - start > 8 ? ' …' : ''}`);

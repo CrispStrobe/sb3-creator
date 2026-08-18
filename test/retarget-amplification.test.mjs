@@ -91,6 +91,12 @@ const EXPECTED_UNSUPPORTED = new Set([
     // this list.)
     'devices_lcdprint', 'devices_lcdcursor', 'devices_lcdclear',
     'devices_oledprint', 'devices_oledcursor', 'devices_oledclear',
+    // SEVENSEG8 / LEDBANK8 / the keypad hats drive ISR-owned frame
+    // buffers and a debounced scan in C; the referee traces pins, not
+    // display internals (the reference emulator chain covers those).
+    'stc12_seg_shownum', 'stc12_seg_showdigit', 'stc12_seg_setsegs',
+    'stc12_seg_clear', 'stc12_led_on', 'stc12_led_off', 'stc12_led_set',
+    'stc12_led_only', 'stc12_whenkey', 'stc12_keypad',
 ]);
 
 /**
@@ -118,7 +124,11 @@ describe('amplification: retarget + referee traces', () => {
 
                 const c = new SB3Creator();
                 c.parse(r.pseudocode);
-                assert.deepEqual(c.warnings, [], 're-parse warnings');
+                // Declared deliberate warnings (index expectedWarnings —
+                // e.g. 79-a2-sampler's shared-P2 lesson) are not failures.
+                const expected = entry.expectedWarnings || [];
+                assert.deepEqual((c.warnings || []).filter((w) =>
+                    !expected.some((pat) => w.includes(pat))), [], 're-parse warnings');
 
                 const adc = ADC_CFG[dev];
                 const stim = defaultStimulus(c.project.stc.pins, adc);

@@ -6503,5 +6503,29 @@
    "microbit"
   ],
   "authored": "microbit"
+ },
+ {
+  "id": "79-a2-sampler",
+  "title": {
+   "en": "The A2 sampler (keypad + display + LEDs)",
+   "de": "Der A2-Sampler (Tastenfeld + Anzeige + LEDs)"
+  },
+  "category": "digital",
+  "difficulty": 3,
+  "kind": "program",
+  "devices": [
+   "stc89c52rc"
+  ],
+  "authored": "stc89c52rc",
+  "deviceOnly": true,
+  "expectedWarnings": [
+   "shares a port with"
+  ],
+  "files": {
+   "program": "79-a2-sampler/program.bw",
+   "expected": "79-a2-sampler/EXPECTED.md",
+   "intro": "79-a2-sampler/intro.md",
+   "introDE": "79-a2-sampler/intro.de.md"
+  }
  }
 ]

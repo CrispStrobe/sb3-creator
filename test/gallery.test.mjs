@@ -46,12 +46,27 @@ describe('gallery: every example parses and compiles', () => {
         const hasProgram = existsSync(bwPath)
             || !!_indexByDir.get(name)?.files?.program;
 
+        // An example may DECLARE warnings it deliberately carries — e.g.
+        // 79-a2-sampler teaches the A2's measured P2 conflict (74HC138
+        // select + LEDs on one port), and the compiler's warning about it
+        // IS the lesson. Each pattern must match at least one warning and
+        // every warning must match a pattern — still a ratchet, not a
+        // blanket allowance.
+        const expectedWarnings = _indexByDir.get(name)?.expectedWarnings || [];
+        const unexpectedWarnings = (warnings) => {
+            const unmatched = warnings.filter((w) => !expectedWarnings.some((p) => w.includes(p)));
+            const unmet = expectedWarnings.filter((p) => !warnings.some((w) => w.includes(p)));
+            return { unmatched, unmet };
+        };
+
         test(`${name}: program.bw parses with zero warnings`, { skip: !hasProgram }, () => {
             assert.ok(existsSync(bwPath), `${name}/program.bw missing`);
             const src = readFileSync(bwPath, 'utf8');
             const c = new SB3Creator();
             c.parse(src);
-            assert.deepEqual(c.warnings, [], `${name} parse warnings`);
+            const { unmatched, unmet } = unexpectedWarnings(c.warnings || []);
+            assert.deepEqual(unmatched, [], `${name} parse warnings`);
+            assert.deepEqual(unmet, [], `${name} declared expectedWarnings that did not occur`);
         });
 
         test(`${name}: generates C with zero warnings`, { skip: !hasProgram }, () => {
@@ -78,7 +93,8 @@ describe('gallery: every example parses and compiles', () => {
             assert.deepEqual(translationWarnings, [], `${name} round-trip warnings`);
             const c2 = new SB3Creator();
             c2.parse(pseudocode);
-            assert.deepEqual(c2.warnings, [], `${name} recompile warnings`);
+            const { unmatched } = unexpectedWarnings(c2.warnings || []);
+            assert.deepEqual(unmatched, [], `${name} recompile warnings`);
         });
 
         test(`${name}: pseudocode → C → pseudocode is a fixed point`, { skip: !hasProgram }, () => {
@@ -166,7 +182,7 @@ describe('gallery: index.json is valid and covers every example', () => {
             // A circuit file is required for every example EXCEPT device-only
             // ones (a micro:bit program is a self-contained board with no
             // breadboard circuit); those carry a program + a single device.
-            const deviceOnly = entry.authored === 'microbit';
+            const deviceOnly = entry.deviceOnly === true || entry.authored === 'microbit';
             assert.ok(entry.files?.circuit || deviceOnly, 'files.circuit (unless device-only)');
             // 'full' entries (program + circuit lesson pages) may omit the
             // expected-trace file; circuit/program entries never do.
