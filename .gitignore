@@ -30,3 +30,4 @@ test/browser/shots/
 # Agent context: local paths and operational detail, not for the repo.
 CLAUDE.md
 corpus/
+test/fixtures/6502-oled-counter.o

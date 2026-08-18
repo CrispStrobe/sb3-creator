@@ -296,7 +296,8 @@
   ],
   "benches": {
    "stc12c5a60s2": "07-buzzer-siren/circuit.stc12c5a60s2.json"
-  }
+  },
+  "authored": "stc12c5a60s2"
  },
  {
   "id": "08-led-chaser-595",
