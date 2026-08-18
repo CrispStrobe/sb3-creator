@@ -155,6 +155,83 @@
               EDGE: { type: Scratch.ArgumentType.STRING, menu: "edges" },
             },
           },
+          "---",
+          // ---- SEVENSEG8: 8-digit 7-seg display, ISR-scanned from an 8-byte
+          // frame buffer. All verbs write the buffer only (mirror of the C).
+          {
+            opcode: "seg_shownum",
+            blockType: Scratch.BlockType.COMMAND,
+            text: Scratch.translate("show number [NUM] on [PART]"),
+            arguments: {
+              NUM: { type: Scratch.ArgumentType.NUMBER, defaultValue: 0 },
+              PART: { type: Scratch.ArgumentType.STRING, menu: "parts" },
+            },
+          },
+          {
+            opcode: "seg_showdigit",
+            blockType: Scratch.BlockType.COMMAND,
+            text: Scratch.translate("show digit [DIGIT] = value [VALUE] on [PART]"),
+            arguments: {
+              DIGIT: { type: Scratch.ArgumentType.NUMBER, defaultValue: 0 },
+              VALUE: { type: Scratch.ArgumentType.NUMBER, defaultValue: 0 },
+              PART: { type: Scratch.ArgumentType.STRING, menu: "parts" },
+            },
+          },
+          {
+            opcode: "seg_setsegs",
+            blockType: Scratch.BlockType.COMMAND,
+            text: Scratch.translate("set digit [DIGIT] to segments [SEGS] on [PART]"),
+            arguments: {
+              DIGIT: { type: Scratch.ArgumentType.NUMBER, defaultValue: 0 },
+              SEGS: { type: Scratch.ArgumentType.NUMBER, defaultValue: 0 },
+              PART: { type: Scratch.ArgumentType.STRING, menu: "parts" },
+            },
+          },
+          {
+            opcode: "seg_clear",
+            blockType: Scratch.BlockType.COMMAND,
+            text: Scratch.translate("clear display [PART]"),
+            arguments: {
+              PART: { type: Scratch.ArgumentType.STRING, menu: "parts" },
+            },
+          },
+          // ---- LEDBANK8: 8 LEDs on a port, written through a shadow byte.
+          {
+            opcode: "led_on",
+            blockType: Scratch.BlockType.COMMAND,
+            text: Scratch.translate("turn on led [N] on [PART]"),
+            arguments: {
+              N: { type: Scratch.ArgumentType.NUMBER, defaultValue: 0 },
+              PART: { type: Scratch.ArgumentType.STRING, menu: "parts" },
+            },
+          },
+          {
+            opcode: "led_off",
+            blockType: Scratch.BlockType.COMMAND,
+            text: Scratch.translate("turn off led [N] on [PART]"),
+            arguments: {
+              N: { type: Scratch.ArgumentType.NUMBER, defaultValue: 0 },
+              PART: { type: Scratch.ArgumentType.STRING, menu: "parts" },
+            },
+          },
+          {
+            opcode: "led_set",
+            blockType: Scratch.BlockType.COMMAND,
+            text: Scratch.translate("set leds to [VALUE] on [PART]"),
+            arguments: {
+              VALUE: { type: Scratch.ArgumentType.NUMBER, defaultValue: 0 },
+              PART: { type: Scratch.ArgumentType.STRING, menu: "parts" },
+            },
+          },
+          {
+            opcode: "led_only",
+            blockType: Scratch.BlockType.COMMAND,
+            text: Scratch.translate("light only led [N] on [PART]"),
+            arguments: {
+              N: { type: Scratch.ArgumentType.NUMBER, defaultValue: 0 },
+              PART: { type: Scratch.ArgumentType.STRING, menu: "parts" },
+            },
+          },
           {
             opcode: "whenkey",
             blockType: Scratch.BlockType.HAT,
@@ -489,6 +566,79 @@
         : 0;
       const level = pin && pin.activeLow ? !raw : !!raw;
       return args.EDGE === "pressed" ? level : !level;
+    }
+
+    _segfb(part) {
+      // 8-digit frame buffer, one segment byte per digit — the same shape
+      // the C keeps in bw_<part>_fb. The board/circuit layer reads it.
+      if (!this._segs) this._segs = {};
+      if (!this._segs[part]) this._segs[part] = new Array(8).fill(0);
+      return this._segs[part];
+    }
+
+    seg_shownum(args) {
+      const FONT = [0x3f, 0x06, 0x5b, 0x4f, 0x66, 0x6d, 0x7d, 0x07,
+        0x7f, 0x6f, 0x77, 0x7c, 0x39, 0x5e, 0x79, 0x71];
+      const fb = this._segfb(args.PART);
+      fb.fill(0);
+      let n = Number(args.NUM) | 0;
+      const neg = n < 0;
+      let u = Math.abs(n), i = 7;
+      do {
+        fb[i] = FONT[u % 10];
+        u = Math.floor(u / 10);
+        if (i === 0) break;
+        i--;
+      } while (u);
+      if (neg && i > 0) fb[i - 1] = 0x40;
+    }
+
+    seg_showdigit(args) {
+      const FONT = [0x3f, 0x06, 0x5b, 0x4f, 0x66, 0x6d, 0x7d, 0x07,
+        0x7f, 0x6f, 0x77, 0x7c, 0x39, 0x5e, 0x79, 0x71];
+      const d = Number(args.DIGIT) | 0;
+      if (d < 0 || d > 7) return;
+      this._segfb(args.PART)[d] = FONT[(Number(args.VALUE) | 0) & 0x0f];
+    }
+
+    seg_setsegs(args) {
+      const d = Number(args.DIGIT) | 0;
+      if (d < 0 || d > 7) return;
+      this._segfb(args.PART)[d] = Number(args.SEGS) & 0xff;
+    }
+
+    seg_clear(args) {
+      this._segfb(args.PART).fill(0);
+    }
+
+    _bank(part) {
+      // The shadow byte, exactly the C's bw_<part>_shadow.
+      if (!this._banks) this._banks = {};
+      if (!(part in this._banks)) this._banks[part] = 0;
+      return this._banks[part];
+    }
+
+    led_on(args) {
+      const n = Number(args.N) | 0;
+      if (n < 0 || n > 7) return;
+      this._banks[args.PART] = this._bank(args.PART) | (1 << n);
+    }
+
+    led_off(args) {
+      const n = Number(args.N) | 0;
+      if (n < 0 || n > 7) return;
+      this._banks[args.PART] = this._bank(args.PART) & ~(1 << n);
+    }
+
+    led_set(args) {
+      this._bank(args.PART);
+      this._banks[args.PART] = Number(args.VALUE) & 0xff;
+    }
+
+    led_only(args) {
+      const n = Number(args.N) | 0;
+      this._bank(args.PART);
+      this._banks[args.PART] = (n < 0 || n > 7) ? 0 : (1 << n);
     }
 
     whenkey(args) {

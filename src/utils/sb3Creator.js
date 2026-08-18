@@ -1442,6 +1442,188 @@ class SB3Creator {
         return screens.length === 1 ? screens[0] : null;
     }
 
+    // The declared SEVENSEG8 / LEDBANK8 parts, for the C emitter (mirror of
+    // stc-compiler 05744c9). 8051 family only, like the matrix.
+    _cSevenSegParts() {
+        if (this._core !== '8051') return [];
+        const cfg = this.project && this.project.stc;
+        return ((cfg && cfg.parts) || []).filter((p) => p.type === 'sevenseg8');
+    }
+
+    _cLedBankParts() {
+        if (this._core !== '8051') return [];
+        const cfg = this.project && this.project.stc;
+        return ((cfg && cfg.parts) || []).filter((p) => p.type === 'ledbank8');
+    }
+
+    _stcHasSevenSeg() {
+        const cfg = this.project && this.project.stc;
+        return !!(cfg && cfg.parts && cfg.parts.some((p) => p.type === 'sevenseg8'));
+    }
+
+    _stcHasLedBank() {
+        const cfg = this.project && this.project.stc;
+        return !!(cfg && cfg.parts && cfg.parts.some((p) => p.type === 'ledbank8'));
+    }
+
+    _stcSevenSeg(name) {
+        const p = this.stcPart(name);
+        return p && p.type === 'sevenseg8' ? p : null;
+    }
+
+    _stcLedBank(name) {
+        const p = this.stcPart(name);
+        return p && p.type === 'ledbank8' ? p : null;
+    }
+
+    // SEVENSEG8 state: the shared 0-F font (once), then per display the
+    // 8-byte frame buffer + scan cursor. Verbatim mirror of
+    // Stc8051Target.runtime() in stc_pseudocode.py (05744c9).
+    _cSevenSegState() {
+        const parts = this._cSevenSegParts();
+        if (!parts.length) return [];
+        const out = [
+            '/* 7-segment font: 0-9, A-F. Common-cathode segment encoding:',
+            ' *   bit 0 = a (top), 1 = b (upper-right), 2 = c (lower-right),',
+            ' *   3 = d (bottom), 4 = e (lower-left), 5 = f (upper-left),',
+            ' *   6 = g (middle), 7 = dp (decimal point). */',
+            'static const __code unsigned char bw_7seg_font[16] = {',
+            '    0x3F, 0x06, 0x5B, 0x4F, 0x66, 0x6D, 0x7D, 0x07,',
+            '    0x7F, 0x6F, 0x77, 0x7C, 0x39, 0x5E, 0x79, 0x71',
+            '};',
+            ''
+        ];
+        for (const p of parts) {
+            out.push(
+                `/* ${p.name}: 8-digit frame buffer and scan cursor. */`,
+                `static unsigned char bw_${p.name}_fb[8];`,
+                `static unsigned char bw_${p.name}_cur;`,
+                '');
+        }
+        return out;
+    }
+
+    _cLedBankState() {
+        const parts = this._cLedBankParts();
+        const out = [];
+        for (const p of parts) {
+            out.push(
+                `/* ${p.name}: LED shadow byte — the ISR is the sole port writer. */`,
+                `static unsigned char bw_${p.name}_shadow;`,
+                '');
+        }
+        return out;
+    }
+
+    // The per-tick digit advance: blank during switch, set the 138 address,
+    // then the new digit's segments (inverted for common anode).
+    _cSevenSegScan() {
+        const out = [];
+        for (const ss of this._cSevenSegParts()) {
+            const [a, b, c] = ss.selPins;
+            const seg = `P${ss.segPort}`;
+            out.push(
+                `    /* ${ss.name}: advance one digit */`,
+                `    ${seg} = 0x00;           /* blank during switch */`,
+                `    P${a.port}_${a.bit} = bw_${ss.name}_cur & 0x01 ? 1 : 0;`,
+                `    P${b.port}_${b.bit} = bw_${ss.name}_cur & 0x02 ? 1 : 0;`,
+                `    P${c.port}_${c.bit} = bw_${ss.name}_cur & 0x04 ? 1 : 0;`,
+                ss.commonAnode
+                    ? `    ${seg} = (unsigned char)~bw_${ss.name}_fb[bw_${ss.name}_cur];`
+                    : `    ${seg} = bw_${ss.name}_fb[bw_${ss.name}_cur];`,
+                `    bw_${ss.name}_cur = (bw_${ss.name}_cur + 1) & 0x07;`);
+        }
+        return out;
+    }
+
+    _cLedBankScan() {
+        const out = [];
+        for (const lb of this._cLedBankParts()) {
+            out.push(lb.activeLow
+                ? `    P${lb.ledPort} = (unsigned char)~bw_${lb.name}_shadow;  /* LEDs active low */`
+                : `    P${lb.ledPort} = bw_${lb.name}_shadow;`);
+        }
+        return out;
+    }
+
+    _cSevenSegHelpers() {
+        const out = [];
+        for (const p of this._cSevenSegParts()) {
+            const n = p.name;
+            out.push(
+                `/* ${n}: show a decimal number right-aligned across 8 digits. */`,
+                `static void bw_${n}_show_number(int n)`,
+                '{',
+                '    unsigned char i, neg = 0;',
+                '    unsigned int u;',
+                `    for (i = 0; i < 8; i++) bw_${n}_fb[i] = 0x00;`,
+                '    if (n < 0) { neg = 1; u = (unsigned int)(-n); }',
+                '    else       { u = (unsigned int)n; }',
+                '    i = 7;',
+                '    do {',
+                `        bw_${n}_fb[i] = bw_7seg_font[u % 10];`,
+                '        u /= 10;',
+                '        if (i == 0) break;',
+                '        i--;',
+                '    } while (u);',
+                '    if (neg && i > 0)',
+                `        bw_${n}_fb[i - 1] = 0x40;  /* minus = segment g */`,
+                '}',
+                '',
+                `static void bw_${n}_show_digit(unsigned char d, unsigned char v)`,
+                '{',
+                '    if (d > 7) return;',
+                `    bw_${n}_fb[d] = bw_7seg_font[v & 0x0F];`,
+                '}',
+                '',
+                `static void bw_${n}_set_segments(unsigned char d, unsigned char segs)`,
+                '{',
+                '    if (d > 7) return;',
+                `    bw_${n}_fb[d] = segs;`,
+                '}',
+                '',
+                `static void bw_${n}_clear(void)`,
+                '{',
+                '    unsigned char i;',
+                `    for (i = 0; i < 8; i++) bw_${n}_fb[i] = 0x00;`,
+                '}',
+                '');
+        }
+        return out;
+    }
+
+    _cLedBankHelpers() {
+        const out = [];
+        for (const p of this._cLedBankParts()) {
+            const n = p.name;
+            out.push(
+                `/* ${n}: LED helpers — writes go through the shadow byte. */`,
+                `static void bw_${n}_on(unsigned char n)`,
+                '{',
+                '    if (n > 7) return;',
+                `    bw_${n}_shadow |= (unsigned char)(1 << n);`,
+                '}',
+                '',
+                `static void bw_${n}_off(unsigned char n)`,
+                '{',
+                '    if (n > 7) return;',
+                `    bw_${n}_shadow &= (unsigned char)~(1 << n);`,
+                '}',
+                '',
+                `static void bw_${n}_set(unsigned char pattern)`,
+                '{',
+                `    bw_${n}_shadow = pattern;`,
+                '}',
+                '',
+                `static void bw_${n}_only(unsigned char n)`,
+                '{',
+                `    bw_${n}_shadow = (n > 7) ? 0 : (unsigned char)(1 << n);`,
+                '}',
+                '');
+        }
+        return out;
+    }
+
     // The declared MATRIX8X8 parts, for the C emitter. 8051 family only.
     _cMatrixParts() {
         if (this._core !== '8051') return [];
@@ -2144,6 +2326,79 @@ class SB3Creator {
             cfg.parts.push({ name, type: 'matrix8x8', claims, data, clock, latch, colPort, columns });
             return true;
         }
+        // PART <name> = SEVENSEG8 SEGMENTS P<n> SELECT Pa.x Pb.y Pc.z [COMMON CATHODE|ANODE]
+        // — 8-digit 7-seg via 74HC245 (segments on a whole port) + 74HC138
+        // (3 select pins). ISR-scanned, one digit per tick. Mirror of the
+        // reference (stc-compiler 05744c9); 8051 family only, like MATRIX8X8.
+        if ((m = trimmed.match(/^PART\s+([A-Za-z_]\w*)\s*=\s*SEVENSEG8\s+SEGMENTS\s+P([0-4])\s+SELECT\s+P([0-4])\.([0-7])\s+P([0-4])\.([0-7])\s+P([0-4])\.([0-7])(?:\s+COMMON\s+(CATHODE|ANODE))?$/i))) {
+            const name = m[1];
+            const cfg = this.stcConfig();
+            const part = SB3Creator.STC_PARTS[cfg.device];
+            if (!part || (part.core && part.core !== '8051')) {
+                this.warn(lineIndex, `SEVENSEG8 is not available on ${cfg.device}: the digit scan lives in the 8051 Timer-0 ISR (8051 family). Devices that have it: the STC parts.`);
+                return true;
+            }
+            if (this.stcPin(name) || this.stcPort(name) || this.stcPart(name)) {
+                this.warn(lineIndex, `"${name}" declared twice`);
+                return true;
+            }
+            const segPort = Number(m[2]);
+            const selPins = [{ port: Number(m[3]), bit: Number(m[4]) },
+                { port: Number(m[5]), bit: Number(m[6]) },
+                { port: Number(m[7]), bit: Number(m[8]) }];
+            if (new Set(selPins.map((p) => `${p.port}.${p.bit}`)).size !== 3) {
+                this.warn(lineIndex, `"${name}" names the same select pin twice`);
+                return true;
+            }
+            const claims = selPins.map((p) => [p.port, p.bit]);
+            for (const [pp, b] of claims) {
+                const pinConflict = cfg.pins.find((pin) => pin.port === pp && pin.bit === b);
+                if (pinConflict) {
+                    this.warn(lineIndex, `P${pp}.${b} is already declared as "${pinConflict.name}"; a PART claims its pins`);
+                    return true;
+                }
+                for (const prev of cfg.parts) {
+                    if ((prev.claims || []).some((c) => Array.isArray(c) && c[0] === pp && c[1] === b)) {
+                        this.warn(lineIndex, `P${pp}.${b} is already claimed by "${prev.name}"`);
+                        return true;
+                    }
+                }
+            }
+            const portConflict = cfg.ports.find((w) => w.port === segPort);
+            if (portConflict) {
+                this.warn(lineIndex, `P${segPort} is already declared as port "${portConflict.name}"`);
+                return true;
+            }
+            cfg.parts.push({ name, type: 'sevenseg8', segPort, selPins, claims,
+                commonAnode: /anode/i.test(m[9] || '') });
+            return true;
+        }
+        // PART <name> = LEDBANK8 ON P<n> [ACTIVE LOW] — 8 LEDs on a port,
+        // written ONLY through an ISR-owned shadow byte (the ISR is the sole
+        // port writer; on the A2, P2 carries both the 138 select and the LEDs).
+        if ((m = trimmed.match(/^PART\s+([A-Za-z_]\w*)\s*=\s*LEDBANK8\s+ON\s+P([0-4])(?:\s+ACTIVE\s+(LOW|HIGH))?$/i))) {
+            const name = m[1];
+            const cfg = this.stcConfig();
+            const part = SB3Creator.STC_PARTS[cfg.device];
+            if (!part || (part.core && part.core !== '8051')) {
+                this.warn(lineIndex, `LEDBANK8 is not available on ${cfg.device}: the shadow-byte push lives in the 8051 Timer-0 ISR (8051 family). Devices that have it: the STC parts.`);
+                return true;
+            }
+            if (this.stcPin(name) || this.stcPort(name) || this.stcPart(name)) {
+                this.warn(lineIndex, `"${name}" declared twice`);
+                return true;
+            }
+            const ledPort = Number(m[2]);
+            for (const ss of cfg.parts) {
+                if (ss.type === 'sevenseg8' && (ss.selPins || []).some((p) => p.port === ledPort)) {
+                    this.warn(lineIndex, `${name} on P${ledPort} shares a port with ${ss.name}'s select pins; the ISR scan will flicker the LEDs during digit multiplexing. LED writes go through the shadow byte.`);
+                    break;
+                }
+            }
+            cfg.parts.push({ name, type: 'ledbank8', ledPort, claims: [],
+                activeLow: !/high/i.test(m[3] || '') && /low/i.test(m[3] || '') });
+            return true;
+        }
         // TABLE <name> = <value>, <value>, ... — constant lookup table in code space.
         // Values are bytes (0–255), separated by commas. Supports hex (0x3F) and
         // binary (0b00111111) literals. The table rides in project.stc.tables and
@@ -2781,6 +3036,57 @@ class SB3Creator {
                 return ret(block);
             }
         }
+        // ---- SEVENSEG8 verbs (mirror of the reference; all write the RAM
+        // frame buffer only — the Timer-0 ISR scans it). Named-part forms,
+        // placed AHEAD of the generic pin/variable catch-alls.
+        if (this._stcHasSevenSeg()) {
+            if ((match = line.match(/^show\s+number\s+(.+?)\s+on\s+(\w+)$/i)) && this._stcSevenSeg(match[2])) {
+                const { id, block } = cmd('stc12_seg_shownum');
+                block[id].fields.PART = [this._stcSevenSeg(match[2]).name, null];
+                block[id].inputs.NUM = val(match[1]);
+                return ret(block);
+            }
+            if ((match = line.match(/^show\s+digit\s+(.+?)\s*=\s*value\s+(.+?)\s+on\s+(\w+)$/i)) && this._stcSevenSeg(match[3])) {
+                const { id, block } = cmd('stc12_seg_showdigit');
+                block[id].fields.PART = [this._stcSevenSeg(match[3]).name, null];
+                block[id].inputs.DIGIT = val(match[1]);
+                block[id].inputs.VALUE = val(match[2]);
+                return ret(block);
+            }
+            if ((match = line.match(/^set\s+digit\s+(.+?)\s+to\s+segments\s+(.+?)\s+on\s+(\w+)$/i)) && this._stcSevenSeg(match[3])) {
+                const { id, block } = cmd('stc12_seg_setsegs');
+                block[id].fields.PART = [this._stcSevenSeg(match[3]).name, null];
+                block[id].inputs.DIGIT = val(match[1]);
+                block[id].inputs.SEGS = val(match[2]);
+                return ret(block);
+            }
+            if ((match = line.match(/^clear\s+(\w+)$/i)) && this._stcSevenSeg(match[1])) {
+                const { id, block } = cmd('stc12_seg_clear');
+                block[id].fields.PART = [this._stcSevenSeg(match[1]).name, null];
+                return ret(block);
+            }
+        }
+        // ---- LEDBANK8 verbs — all write the shadow byte; the ISR pushes it.
+        if (this._stcHasLedBank()) {
+            if ((match = line.match(/^turn\s+(on|off)\s+led\s+(.+?)\s+on\s+(\w+)$/i)) && this._stcLedBank(match[3])) {
+                const { id, block } = cmd(match[1].toLowerCase() === 'on' ? 'stc12_led_on' : 'stc12_led_off');
+                block[id].fields.PART = [this._stcLedBank(match[3]).name, null];
+                block[id].inputs.N = val(match[2]);
+                return ret(block);
+            }
+            if ((match = line.match(/^set\s+leds\s+to\s+(.+?)\s+on\s+(\w+)$/i)) && this._stcLedBank(match[2])) {
+                const { id, block } = cmd('stc12_led_set');
+                block[id].fields.PART = [this._stcLedBank(match[2]).name, null];
+                block[id].inputs.VALUE = val(match[1]);
+                return ret(block);
+            }
+            if ((match = line.match(/^light\s+only\s+led\s+(.+?)\s+on\s+(\w+)$/i)) && this._stcLedBank(match[2])) {
+                const { id, block } = cmd('stc12_led_only');
+                block[id].fields.PART = [this._stcLedBank(match[2]).name, null];
+                block[id].inputs.N = val(match[1]);
+                return ret(block);
+            }
+        }
         // `set <part> to <n>` — shifts a byte out to a 74HC595.
         if ((match = line.match(/^set\s+([A-Za-z_]\w*)\s+to\s+(.+)$/i)) && this.stcPart(match[1])) {
             const part = this.stcPart(match[1]);
@@ -2790,6 +3096,14 @@ class SB3Creator {
             }
             if (part.type === 'matrix8x8') {
                 this.warn(null, `"${part.name}" is an 8x8 screen; use a drawing verb (light pixel / draw row / show image / clear ${part.name}), not "set ... to"`);
+                return ret(null);
+            }
+            if (part.type === 'sevenseg8') {
+                this.warn(null, `"${part.name}" is an 8-digit display; use a display verb (show number / show digit / set digit / clear ${part.name}), not "set ... to"`);
+                return ret(null);
+            }
+            if (part.type === 'ledbank8') {
+                this.warn(null, `"${part.name}" is an LED bank; use an LED verb (turn on led / set leds to <byte> on ${part.name} / light only led), not "set ... to"`);
                 return ret(null);
             }
             const { id, block } = cmd('stc12_setpart');
@@ -4538,6 +4852,14 @@ class SB3Creator {
                     out.push(`PART ${p.name} = MATRIX8X8 ROWS 74HC595 DATA ${pinStr(p.data)} CLOCK ${pinStr(p.clock)} LATCH ${pinStr(p.latch)} COLUMNS P${p.colPort}`);
                     continue;
                 }
+                if (p.type === 'sevenseg8') {
+                    out.push(`PART ${p.name} = SEVENSEG8 SEGMENTS P${p.segPort} SELECT ${p.selPins.map(pinStr).join(' ')}${p.commonAnode ? ' COMMON ANODE' : ''}`);
+                    continue;
+                }
+                if (p.type === 'ledbank8') {
+                    out.push(`PART ${p.name} = LEDBANK8 ON P${p.ledPort}${p.activeLow ? ' ACTIVE LOW' : ''}`);
+                    continue;
+                }
                 out.push(`PART ${p.name} = 74HC595 data ${pinStr(p.data)} clock ${pinStr(p.clock)} latch ${pinStr(p.latch)}${p.activeLow ? ' ACTIVE LOW' : ''}`);
             }
             for (const t of cfg.tables || []) {
@@ -5005,6 +5327,14 @@ class SB3Creator {
             case 'devices_clearmatrix': return line(`clear matrix ${v('MATRIX')}`);
             // MATRIX8X8 drawing verbs (the PART-based 8x8 screen).
             case 'stc12_matrix_clear': return line(`clear ${f('PART')}`);
+            case 'stc12_seg_shownum': return line(`show number ${v('NUM')} on ${f('PART')}`);
+            case 'stc12_seg_showdigit': return line(`show digit ${v('DIGIT')} = value ${v('VALUE')} on ${f('PART')}`);
+            case 'stc12_seg_setsegs': return line(`set digit ${v('DIGIT')} to segments ${v('SEGS')} on ${f('PART')}`);
+            case 'stc12_seg_clear': return line(`clear ${f('PART')}`);
+            case 'stc12_led_on': return line(`turn on led ${v('N')} on ${f('PART')}`);
+            case 'stc12_led_off': return line(`turn off led ${v('N')} on ${f('PART')}`);
+            case 'stc12_led_set': return line(`set leds to ${v('VALUE')} on ${f('PART')}`);
+            case 'stc12_led_only': return line(`light only led ${v('N')} on ${f('PART')}`);
             case 'stc12_matrix_setpx': {
                 const st = f('STYLE');
                 if (st === 'light') return line(`light pixel ${v('X')} ${v('Y')}`);
@@ -6716,6 +7046,14 @@ class SB3Creator {
             // Timer-0 ISR scans the buffer onto the panel. Mirrors matrix_stmt_c
             // in stc_pseudocode.py (a91981a).
             case 'stc12_matrix_clear': { this._cUses.matrix = true; return line(`bw_scr_${f('PART')}_clear();`); }
+            case 'stc12_seg_shownum': { this._cUses.sevenseg = true; return line(`bw_${f('PART')}_show_number(${v('NUM')});`); }
+            case 'stc12_seg_showdigit': { this._cUses.sevenseg = true; return line(`bw_${f('PART')}_show_digit((unsigned char)(${v('DIGIT')}), (unsigned char)(${v('VALUE')}));`); }
+            case 'stc12_seg_setsegs': { this._cUses.sevenseg = true; return line(`bw_${f('PART')}_set_segments((unsigned char)(${v('DIGIT')}), (unsigned char)(${v('SEGS')}));`); }
+            case 'stc12_seg_clear': { this._cUses.sevenseg = true; return line(`bw_${f('PART')}_clear();`); }
+            case 'stc12_led_on': { this._cUses.ledbank = true; return line(`bw_${f('PART')}_on((unsigned char)(${v('N')}));`); }
+            case 'stc12_led_off': { this._cUses.ledbank = true; return line(`bw_${f('PART')}_off((unsigned char)(${v('N')}));`); }
+            case 'stc12_led_set': { this._cUses.ledbank = true; return line(`bw_${f('PART')}_set((unsigned char)(${v('VALUE')}));`); }
+            case 'stc12_led_only': { this._cUses.ledbank = true; return line(`bw_${f('PART')}_only((unsigned char)(${v('N')}));`); }
             case 'stc12_matrix_setpx': {
                 this._cUses.matrix = true;
                 const st = f('STYLE');
@@ -8840,7 +9178,7 @@ class SB3Creator {
         // cooperative-scheduler path emits — so its presence forces tasks even
         // for a lone WHEN that would otherwise run straight-line (gotcha #1;
         // reference: Program.has_matrix feeding the tasks decision in emit_c).
-        this._cTasks = scriptCount > 1 || hasEventHat || (scriptCount > 0 && debug) || this._stcHasMatrix();
+        this._cTasks = scriptCount > 1 || hasEventHat || (scriptCount > 0 && debug) || this._stcHasMatrix() || this._stcHasSevenSeg() || this._stcHasLedBank();
         const taskNames = Array.from({ length: scriptCount }, (_, n) => `bw_task${n}`);
         const yieldMap = [];   // only emitted for a debug build — see the marker header below
 
@@ -9333,6 +9671,12 @@ class SB3Creator {
                     if (pt.type === 'keypad4x4') {
                         return `part ${pt.name} keypad4x4 rows ${pt.rows.map(w).join(' ')} cols ${pt.cols.map(w).join(' ')}`;
                     }
+                    if (pt.type === 'sevenseg8') {
+                        return `part ${pt.name} sevenseg8 P${pt.segPort} ${pt.selPins.map(w).join(' ')}${pt.commonAnode ? ' anode' : ''}`;
+                    }
+                    if (pt.type === 'ledbank8') {
+                        return `part ${pt.name} ledbank8 P${pt.ledPort}${pt.activeLow ? ' active-low' : ''}`;
+                    }
                     return `part ${pt.name} ${pt.type} ${w(pt.data)} ${w(pt.clock)} ${w(pt.latch)}${pt.activeLow ? ' active-low' : ''}`;
                 })),
                 // The declared machine survives into the header for the same
@@ -9526,6 +9870,10 @@ class SB3Creator {
             '#define T0_RELOAD (65536UL - (FOSC_HZ / 12UL / 1000UL))', '');
         // MATRIX8X8 frame buffer(s) + level clamp, before the tick that scans them.
         out.push(...this._cMatrixState());
+        // SEVENSEG8 font + frame buffers, LEDBANK8 shadow bytes — before the
+        // tick that scans/pushes them (verbatim mirror of the reference).
+        out.push(...this._cSevenSegState());
+        out.push(...this._cLedBankState());
         }
 
         if (this._core === '6502'
@@ -9618,6 +9966,10 @@ class SB3Creator {
                     // MATRIX8X8 self-scan: one row per tick, AFTER bw_ms++ so the
                     // millisecond math is never skewed. Table-driven, no mul/div.
                     ...this._cMatrixScan(),
+                    // SEVENSEG8 digit advance + LEDBANK8 shadow push — after
+                    // bw_ms++ and the matrix scan (reference order).
+                    ...this._cSevenSegScan(),
+                    ...this._cLedBankScan(),
                     '}', ''
                 ]));
             if (this._cUses.now || this._cUses.blockDelay) {
@@ -9874,6 +10226,8 @@ class SB3Creator {
         // MATRIX8X8 drawing helpers — after bw_now, before the tables (reference
         // order). Emitted for any declared screen, verb-used or not, like the ref.
         out.push(...this._cMatrixHelpers());
+        out.push(...this._cSevenSegHelpers());
+        out.push(...this._cLedBankHelpers());
         if (this._cUses.keypad && this._core === '8051') {
             const parts = ((this.project && this.project.stc && this.project.stc.parts) || []).filter((p) => p.type === 'keypad4x4');
             for (const kp of parts) {

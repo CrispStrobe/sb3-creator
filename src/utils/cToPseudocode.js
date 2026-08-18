@@ -169,9 +169,21 @@ function readMarkers (source) {
                     rows: [kp[2], kp[3], kp[4], kp[5]].map(at),
                     cols: [kp[6], kp[7], kp[8], kp[9]].map(at) });
             }
+            // `part <name> sevenseg8 P<n> Pa.x Pb.y Pc.z [anode]`
+            const ss = kp ? null : rest.match(/^(\w+)\s+sevenseg8\s+P(\d)\s+(\S+)\s+(\S+)\s+(\S+)(\s+anode)?/i);
+            if (ss) {
+                const at = (t) => { const m8 = t.match(/^P(\d)\.(\d)$/i); return m8 ? { port: +m8[1], bit: +m8[2] } : { where: t.toUpperCase() }; };
+                h.parts.push({ name: ss[1], type: 'sevenseg8', segPort: +ss[2],
+                    selPins: [ss[3], ss[4], ss[5]].map(at), commonAnode: !!ss[6] });
+            }
+            // `part <name> ledbank8 P<n> [active-low]`
+            const lb = (kp || ss) ? null : rest.match(/^(\w+)\s+ledbank8\s+P(\d)(\s+active-low)?/i);
+            if (lb) {
+                h.parts.push({ name: lb[1], type: 'ledbank8', ledPort: +lb[2], activeLow: !!lb[3] });
+            }
             // `part <name> <type> <data> <clock> <latch> [active-low]` — pin
             // spellings are the device's own (P1.0 on 8051, GP25/PA0 elsewhere).
-            const p = kp ? null : rest.match(/^(\w+)\s+(\w+)\s+(\S+)\s+(\S+)\s+(\S+)(\s+active-low)?/);
+            const p = (kp || ss || lb) ? null : rest.match(/^(\w+)\s+(\w+)\s+(\S+)\s+(\S+)\s+(\S+)(\s+active-low)?/);
             if (p) {
                 const at = (s) => { const m8 = s.match(/^P(\d)\.(\d)$/i); return m8 ? { port: +m8[1], bit: +m8[2] } : { where: s.toUpperCase() }; };
                 h.parts.push({ name: p[1], type: p[2], data: at(p[3]), clock: at(p[4]), latch: at(p[5]), activeLow: !!p[6] });
@@ -1292,6 +1304,35 @@ export default function cToPseudocode (source, opts = {}) {
         // Reporters return a text value; statements return { stmt }.
         const MOTOR_DIRS = ['forward', 'reverse', 'brake', 'coast'];
         const a = (n) => args[n] ? args[n].text : '0';
+
+        // SEVENSEG8 / LEDBANK8: `bw_<part>_<verb>(...)` → the display/LED
+        // verbs — guarded by the part actually being declared in the header,
+        // so a helper that merely LOOKS like one (bw_lcd_clear and friends
+        // are matched by exact name below) is left alone.
+        {
+            const aa = (n) => {
+                let t = args[n] ? args[n].text : '0';
+                t = t.replace(/^\(unsigned char\)\s*/, '');
+                if (/^\(.*\)$/.test(t)) t = t.slice(1, -1);
+                return t;
+            };
+            const sv = name.match(/^bw_(\w+?)_(show_number|show_digit|set_segments|clear|on|off|set|only)$/);
+            const hp = sv && hdrParts.find(pp => pp.name === sv[1]);
+            if (sv && hp && hp.type === 'sevenseg8') {
+                const n = sv[1];
+                if (sv[2] === 'show_number') return { text: '0', level: 99, stmt: `show number ${aa(0)} on ${n}` };
+                if (sv[2] === 'show_digit') return { text: '0', level: 99, stmt: `show digit ${aa(0)} = value ${aa(1)} on ${n}` };
+                if (sv[2] === 'set_segments') return { text: '0', level: 99, stmt: `set digit ${aa(0)} to segments ${aa(1)} on ${n}` };
+                if (sv[2] === 'clear') return { text: '0', level: 99, stmt: `clear ${n}` };
+            }
+            if (sv && hp && hp.type === 'ledbank8') {
+                const n = sv[1];
+                if (sv[2] === 'on') return { text: '0', level: 99, stmt: `turn on led ${aa(0)} on ${n}` };
+                if (sv[2] === 'off') return { text: '0', level: 99, stmt: `turn off led ${aa(0)} on ${n}` };
+                if (sv[2] === 'set') return { text: '0', level: 99, stmt: `set leds to ${aa(0)} on ${n}` };
+                if (sv[2] === 'only') return { text: '0', level: 99, stmt: `light only led ${aa(0)} on ${n}` };
+            }
+        }
         switch (name) {
             // Servo
             case 'bw_servo_set': return { text: '0', level: 99, stmt: `set ${a(0)} angle to ${a(1)}` };
@@ -1962,6 +2003,14 @@ export default function cToPseudocode (source, opts = {}) {
             const at = (x) => x.where || `P${x.port}.${x.bit}`;
             if (pt.type === 'keypad4x4') {
                 out.push(`PART ${pt.name} = KEYPAD4X4 ROWS ${pt.rows.map(at).join(' ')} COLS ${pt.cols.map(at).join(' ')}`);
+                continue;
+            }
+            if (pt.type === 'sevenseg8') {
+                out.push(`PART ${pt.name} = SEVENSEG8 SEGMENTS P${pt.segPort} SELECT ${pt.selPins.map(at).join(' ')}${pt.commonAnode ? ' COMMON ANODE' : ''}`);
+                continue;
+            }
+            if (pt.type === 'ledbank8') {
+                out.push(`PART ${pt.name} = LEDBANK8 ON P${pt.ledPort}${pt.activeLow ? ' ACTIVE LOW' : ''}`);
                 continue;
             }
             out.push(`PART ${pt.name} = ${pt.type.toUpperCase()} data ${at(pt.data)} clock ${at(pt.clock)} latch ${at(pt.latch)}${pt.activeLow ? ' ACTIVE LOW' : ''}`);
