@@ -6527,5 +6527,23 @@
    "intro": "79-a2-sampler/intro.md",
    "introDE": "79-a2-sampler/intro.de.md"
   }
+ },
+ {
+  "id": "mb05-lesson",
+  "title": {
+   "en": "micro:bit First Lesson",
+   "de": "micro:bit Erste Lektion"
+  },
+  "category": "microbit",
+  "difficulty": 1,
+  "files": {
+   "program": "mb05-lesson/program.bw",
+   "expected": "mb05-lesson/EXPECTED.md"
+  },
+  "kind": "program",
+  "devices": [
+   "microbit"
+  ],
+  "authored": "microbit"
  }
 ]
