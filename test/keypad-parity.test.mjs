@@ -121,3 +121,110 @@ test('TABLE read with an expression index compiles and round-trips', () => {
     const c2 = build(bw);
     assert.equal(c2.generateC(), cc, 'pseudocode → C → pseudocode → C is a fixed point');
 });
+
+// `WHEN key N pressed/released` + the reporter sugar — the A2-BOARD-SUPPORT
+// fan-out item, mirrored from the oracle (stc-compiler dec1f17; that side's
+// test_keypad.py TestKeypadHats pins the same C shapes). The hats poll a
+// shared DEBOUNCED scan — one poll task per keypad, at most every 5 ms, a key
+// only current after two agreeing reads — then edge-detect like pin hats.
+const HAT_SRC = `DEVICE STC89C52RC:
+  CLOCK 11059200
+
+  PART keys = KEYPAD4X4 ROWS P1.7 P1.6 P1.5 P1.4 COLS P1.3 P1.2 P1.1 P1.0
+
+  PORT segments = P0 OUTPUT
+
+  WHEN started:
+    set segments to 0
+    FOREVER:
+      IF a key is pressed THEN:
+        set segments to 255
+      IF key 3 is pressed THEN:
+        set segments to 3
+      wait 20 ms
+
+  WHEN key 5 pressed:
+    set segments to 5
+
+  WHEN key 14 released:
+    set segments to 0
+`;
+
+test('key hats: debounced poll task, dispatched before the hats', () => {
+    const c = build(HAT_SRC);
+    assert.equal((c.warnings || []).length, 0, JSON.stringify(c.warnings));
+    const cc = c.generateC();
+    assert.match(cc, /static void bw_kp_keys_poll\(void\)/);
+    assert.match(cc, /if \(\(unsigned int\)\(bw_now\(\) - bw_kp_keys_t\) < 5\)/);
+    assert.match(cc, /if \(r == bw_kp_keys_raw\)/);          // two agreeing reads
+    assert.ok(cc.indexOf('bw_kp_keys_poll();') < cc.indexOf('bw_task1();'),
+        'the poll runs before the hats in the dispatch loop');
+});
+
+test('key hats: edge-detect on the debounced key, both edges', () => {
+    const cc = build(HAT_SRC).generateC();
+    assert.match(cc, /unsigned char now = \(bw_kp_keys_key == 5\) \? 1 : 0;/);
+    assert.match(cc, /unsigned char now = \(bw_kp_keys_key == 14\) \? 1 : 0;/);
+    assert.match(cc, /now && !bw_task1_prev/);               // pressed = rising
+    assert.match(cc, /!now && bw_task2_prev/);               // released = falling
+});
+
+test('reporter sugar desugars to the canonical compares', () => {
+    const cc = build(HAT_SRC).generateC();
+    // `a key is pressed` -> keys >= 0 (built as not(keys < 0) — Scratch has
+    // no native >=); `key 3 is pressed` -> keys = 3.
+    assert.match(cc, /bw_part_keys_read\(\) < 0/);
+    assert.match(cc, /bw_part_keys_read\(\) == 3/);
+});
+
+test('key hats: C round-trips as a fixed point (hat markers carry the header)', () => {
+    const c = build(HAT_SRC);
+    const cc = c.generateC();
+    assert.match(cc, /@bw script bw_task1 1 stage hat key 5 pressed/);
+    assert.match(cc, /@bw script bw_task2 2 stage hat key 14 released/);
+    const back = cToPseudocode(cc);
+    const bw = String(back.pseudocode ?? back);
+    assert.match(bw, /WHEN key 5 pressed:/);
+    assert.match(bw, /WHEN key 14 released:/);
+    const c2 = build(bw);
+    assert.equal(c2.generateC(), cc);
+});
+
+test('pin hats: the marker fix makes their round trip real too', () => {
+    const SRC = `DEVICE STC89C52RC:
+  CLOCK 11059200
+
+  PIN led1 = P1.0 OUTPUT ACTIVE LOW
+  PIN btn = P3.2 INPUT ACTIVE LOW
+
+  WHEN started:
+    turn off led1
+    FOREVER:
+      wait 100 ms
+
+  WHEN btn pressed:
+    toggle led1
+`;
+    const c = build(SRC);
+    const cc = c.generateC();
+    assert.match(cc, /@bw script bw_task1 1 stage hat pin btn pressed/);
+    const back = cToPseudocode(cc);
+    const bw = String(back.pseudocode ?? back);
+    assert.match(bw, /WHEN btn pressed:/);
+    const c2 = build(bw);
+    assert.equal(c2.generateC(), cc);
+});
+
+test('key hats: refused without a keypad; key 16 refused; variable `key` safe', () => {
+    // sb3-creator surfaces hat ParseErrors as warnings (the oracle raises) —
+    // same information, each side's own error convention.
+    const noPad = build(HAT_SRC.replace(/  PART keys = KEYPAD4X4[^\n]*\n\n/, ''));
+    assert.match((noPad.warnings || []).join('; '), /needs a KEYPAD4X4/);
+    const badKey = build(HAT_SRC.replace('WHEN key 14 released:', 'WHEN key 16 pressed:'));
+    assert.match((badKey.warnings || []).join('; '), /keys 0\.\.15/);
+    // a VARIABLE named `key` still parses as a variable
+    const src = HAT_SRC.replace('IF key 3 is pressed THEN:\n        set segments to 3\n      ',
+        'set key to 7\n      IF key = 7 THEN:\n        set segments to 7\n      ');
+    const cc = build(src).generateC();
+    assert.match(cc, /if \(\(key == 7\)\) \{|if \(key == 7\) \{/);
+});

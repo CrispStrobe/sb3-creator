@@ -1406,6 +1406,16 @@ class SB3Creator {
         return cfg.parts.find((p) => p.name.toLowerCase() === lower) || null;
     }
 
+    // The one KEYPAD4X4, for the phrases that do not name it (`a key is
+    // pressed`, `key N is pressed`, `WHEN key N pressed`). Mirrors the
+    // oracle's sole_keypad (stc-compiler dec1f17): every A2-class board has
+    // exactly one keypad, so naming it would be noise.
+    stcSoleKeypad() {
+        const cfg = this.project && this.project.stc;
+        const pads = ((cfg && cfg.parts) || []).filter((p) => p.type === 'keypad4x4');
+        return pads.length === 1 ? pads[0] : null;
+    }
+
     // Whether the program declares any MATRIX8X8 PART. A matrix refreshes
     // itself in the Timer-0 ISR, so its mere presence forces the cooperative
     // scheduler path (gotcha #1 of the parity mirror — see generateC).
@@ -2198,6 +2208,25 @@ class SB3Creator {
         let s = this.stripOuterParens((conditionStr || '').trim());
         const push = (op, inputs = {}, fields = {}) => this.pushBlock(context, op, inputs, fields);
 
+        // Keypad phrase sugar (oracle parity, stc-compiler dec1f17): rewrite
+        // to the canonical compare BEFORE any other parsing, so the blocks
+        // are identical to hand-written `keys >= 0` / `keys = N` and the
+        // printed fixed point is the desugared form on both sides. Guarded
+        // by the full phrase, so Scratch's own `key X pressed?` (no `is`)
+        // and a VARIABLE named `key` are untouched.
+        {
+            let km;
+            if (/^a key is pressed$/i.test(s) && this.stcSoleKeypad()) {
+                s = `${this.stcSoleKeypad().name} >= 0`;
+            } else if ((km = s.match(/^key\s+(\d+)\s+is\s+(pressed|released)$/i))
+                    && this.stcSoleKeypad()) {
+                if (+km[1] > 15) this.warn(null, `key ${km[1]} does not exist; a KEYPAD4X4 has keys 0..15`);
+                s = km[2].toLowerCase() === 'released'
+                    ? `not ${this.stcSoleKeypad().name} = ${km[1]}`
+                    : `${this.stcSoleKeypad().name} = ${km[1]}`;
+            }
+        }
+
         // Boolean precedence, loosest first — Python's, which is the
         // reference dialect's (stc-compiler c34ad1b): or < and < not <
         // comparisons. `not` must be checked AFTER and/or, not before:
@@ -2559,6 +2588,23 @@ class SB3Creator {
         if ((match = line.match(/^when IR received on\s+"([^"]+)"$/i))) {
             const { id, block } = this.createBlock('devices_whenirreceived', { topLevel: true });
             block[id].inputs.SENSOR = [1, [10, match[1]]];
+            return { block, extraBlocks: {} };
+        }
+        // KEYPAD4X4 event hat: `when key N pressed` / `released` on the sole
+        // keypad (oracle parity, stc-compiler dec1f17). Checked before the
+        // pin hat: the digit makes it unambiguous even if a pin is named `key`.
+        if ((match = line.match(/^when\s+key\s+(\d+)\s+(pressed|released)$/i))) {
+            const pad = this.stcSoleKeypad();
+            if (!pad) {
+                throw new ParseError(`"when key ${match[1]} ${match[2].toLowerCase()}" needs a KEYPAD4X4; `
+                    + `declare one with PART <name> = KEYPAD4X4 ROWS ... COLS ...`);
+            }
+            if (+match[1] > 15) {
+                throw new ParseError(`key ${match[1]} does not exist; a KEYPAD4X4 has keys 0..15`);
+            }
+            const { id, block } = this.createBlock('stc12_whenkey', { topLevel: true });
+            block[id].fields.KEY = [String(+match[1]), null];
+            block[id].fields.EDGE = [match[2].toLowerCase(), null];
             return { block, extraBlocks: {} };
         }
         // STC12 event hat: `when <pin> pressed` / `when <pin> released` for INPUT pins.
@@ -4779,6 +4825,7 @@ class SB3Creator {
             case 'event_whenbroadcastreceived': return `WHEN I receive "${f('BROADCAST_OPTION')}":`;
             case 'control_start_as_clone': return 'WHEN I start as a clone:';
             case 'stc12_whenpin': return `WHEN ${f('PIN')} ${f('EDGE')}:`;
+            case 'stc12_whenkey': return `WHEN key ${f('KEY')} ${f('EDGE')}:`;
             case 'devices_whenabove': return `WHEN ${v('SENSOR')} above ${v('THRESHOLD')}:`;
             case 'devices_whencloser': return `WHEN ${v('SENSOR')} closer than ${v('DISTANCE')}:`;
             case 'devices_whenmotion': return `WHEN motion on ${v('SENSOR')}:`;
@@ -5030,7 +5077,7 @@ class SB3Creator {
     isHat(op) {
         return ['event_whenflagclicked', 'event_whenkeypressed', 'event_whenthisspriteclicked',
             'event_whenbroadcastreceived', 'control_start_as_clone', 'procedures_definition',
-            'stc12_whenpin',
+            'stc12_whenpin', 'stc12_whenkey',
             'devices_whenabove', 'devices_whencloser', 'devices_whenmotion',
             'devices_whentilted', 'devices_whenirreceived'].includes(op);
     }
@@ -8773,6 +8820,9 @@ class SB3Creator {
                     const pc = this._cPins && this._cPins.get(pn.toLowerCase());
                     if (pc && pc.direction === 'input') { scriptCount++; hasEventHat = true; }
                 }
+                if (b.opcode === 'stc12_whenkey' && this.stcSoleKeypad()) {
+                    scriptCount++; hasEventHat = true;
+                }
                 if (['devices_whenabove', 'devices_whencloser', 'devices_whenmotion', 'devices_whentilted'].includes(b.opcode)) {
                     scriptCount++; hasEventHat = true;
                 }
@@ -8817,6 +8867,7 @@ class SB3Creator {
         let mainBody = [];
         let mainNote = [];   // a comment on the single script's hat
         let taskIndex = 0;
+        this._cKeyHatPads = [];
         sections.forEach((t, idx) => {
             const pfx = spritePrefix(idx);
             this._curPrefix = pfx;
@@ -8882,8 +8933,13 @@ class SB3Creator {
                         const task = taskNames[n];
                         const where = t.isStage ? '' : `, ${this.cComment(t.name)}`;
                         const hatNote = this.codeCommentLines(topId, '', '//');
+                        // `hat pin <name> <edge>` rides on the script marker so the C
+                        // reader can rebuild the WHEN header instead of degrading the
+                        // script to `WHEN flag clicked:` (which it silently did until
+                        // 2026-08-18 — the hat round trip was a fiction).
                         markScripts.push(`script ${task} ${n}`
-                            + (t.isStage ? ' stage' : ` sprite ${this.pyStr(t.name)}`));
+                            + (t.isStage ? ' stage' : ` sprite ${this.pyStr(t.name)}`)
+                            + ` hat pin ${pinName} ${edge}`);
                         const ctx = { task, state: 0, statics, tasks: taskNames, yields: debug ? yieldMap : [] };
                         if (debug) yieldMap.push({ task, state: 0, block: topId, kind: 'hat' });
                         // Body starts at case 1 — case 0 is the edge test.
@@ -8909,6 +8965,57 @@ class SB3Creator {
                             ` * is low. */`,
                             `static void ${task}(void)`, '{',
                             `    unsigned char now   = (${level}) ? 1 : 0;`,
+                            `    unsigned char fired = (${test}) ? 1 : 0;`,
+                            `    ${task}_prev = now;`,
+                            '',
+                            `    switch (${task}_state) {`,
+                            '    case 0:',
+                            '        if (!fired)',
+                            '            return;',
+                            `        ${task}_state = 1;`,
+                            '    case 1:',
+                            ...body,
+                            '    }',
+                            `    ${task}_state = 0;   /* ready for the next edge */`,
+                            '}', '');
+                    }
+                } else if (b.opcode === 'stc12_whenkey') {
+                    const keyN = b.fields.KEY ? +b.fields.KEY[0] : 0;
+                    const edge = b.fields.EDGE ? b.fields.EDGE[0] : 'pressed';
+                    const pad = this.stcSoleKeypad();
+                    if (!pad) {
+                        this.cWarn(`"when key ${keyN} ${edge}" — no KEYPAD4X4 declared; script skipped`);
+                    } else {
+                        const n = taskIndex++;
+                        const task = taskNames[n];
+                        const where = t.isStage ? '' : `, ${this.cComment(t.name)}`;
+                        const hatNote = this.codeCommentLines(topId, '', '//');
+                        markScripts.push(`script ${task} ${n}`
+                            + (t.isStage ? ' stage' : ` sprite ${this.pyStr(t.name)}`)
+                            + ` hat key ${keyN} ${edge}`);
+                        if (!this._cKeyHatPads.includes(pad.name)) this._cKeyHatPads.push(pad.name);
+                        this._cUses.now = true;   // the shared poll reads bw_now()
+                        const ctx = { task, state: 0, statics, tasks: taskNames, yields: debug ? yieldMap : [] };
+                        if (debug) yieldMap.push({ task, state: 0, block: topId, kind: 'hat' });
+                        // Body starts at case 1 — case 0 is the edge test.
+                        ctx.state = 1;
+                        const body = this.cTaskFrom(b.next, blocks, 1, ctx);
+                        const test = edge === 'pressed'
+                            ? `now && !${task}_prev`
+                            : `!now && ${task}_prev`;
+                        taskDefs.push(`static unsigned int ${task}_state;`);
+                        if (this.cHasWait(b.next, blocks)) taskDefs.push(`static unsigned int ${task}_until;`);
+                        taskDefs.push(`static unsigned char ${task}_prev;`);
+                        // Byte-shaped like the reference (stc-compiler dec1f17,
+                        // test_keypad.py TestKeypadHats pins that side's C).
+                        taskDefs.push(...hatNote,
+                            `/* WHEN key ${keyN} ${edge}: (script ${n + 1}${where})`,
+                            ' *',
+                            ' * Edge-triggered on the DEBOUNCED key from the shared poll task: a',
+                            ' * held key runs the body once, and a bouncing contact cannot fire',
+                            ' * twice, because the poll only updates after two agreeing scans. */',
+                            `static void ${task}(void)`, '{',
+                            `    unsigned char now = (bw_kp_${pad.name}_key == ${keyN}) ? 1 : 0;`,
                             `    unsigned char fired = (${test}) ? 1 : 0;`,
                             `    ${task}_prev = now;`,
                             '',
@@ -11455,6 +11562,36 @@ class SB3Creator {
                 'static void bw_print_num(long n);', '');
         }
 
+        // `WHEN key N` hats share one debounced scan per keypad: a poll task
+        // (dispatched before the hats) reads the matrix at most every 5 ms and
+        // a key only becomes current after two agreeing reads, so a scan
+        // mid-bounce — which reads -1 or a neighbour for one pass — cannot
+        // fire a hat. Mirrors the reference emitter line for line.
+        this._cPollTasks = [];
+        if (this._cKeyHatPads && this._cKeyHatPads.length) {
+            const pollDefs = [];
+            for (const padName of this._cKeyHatPads) {
+                pollDefs.push(
+                    `/* ${padName}: debounced key state shared by the \`WHEN key N\` hats. */`,
+                    `static signed char bw_kp_${padName}_raw = -1;`,
+                    `static signed char bw_kp_${padName}_key = -1;`,
+                    `static unsigned int bw_kp_${padName}_t;`,
+                    `static void bw_kp_${padName}_poll(void)`,
+                    '{',
+                    '    signed char r;',
+                    `    if ((unsigned int)(bw_now() - bw_kp_${padName}_t) < 5)`,
+                    '        return;                     /* scan every 5 ms */',
+                    `    bw_kp_${padName}_t = bw_now();`,
+                    `    r = bw_part_${padName}_read();`,
+                    `    if (r == bw_kp_${padName}_raw)`,
+                    `        bw_kp_${padName}_key = r;`,
+                    `    bw_kp_${padName}_raw = r;`,
+                    '}', '');
+                this._cPollTasks.push(`bw_kp_${padName}_poll`);
+            }
+            taskDefs.unshift(...pollDefs);
+        }
+
         if (taskDefs.length) {
             // A label must precede a STATEMENT in C. An empty script (a hat
             // with nothing under it — the default project's shape) emits
@@ -11931,13 +12068,13 @@ class SB3Creator {
         if (this._cTasks && (this._core === 'arm' || this._core === '6502')) {
             out.push('',
                 '    for (;;) {                     /* no tick to start: time is read */',
-                ...taskNames.map((n) => `        ${n}();`),
+                ...[...(this._cPollTasks || []), ...taskNames].map((n) => `        ${n}();`),
                 '    }');
         } else if (this._cTasks && this._core === 'avr') {
             out.push('    sei();                         /* tick on */',
                 '',
                 '    for (;;) {',
-                ...taskNames.map((n) => `        ${n}();`),
+                ...[...(this._cPollTasks || []), ...taskNames].map((n) => `        ${n}();`),
                 '    }');
         } else if (this._cTasks) {
             out.push('    TL0 = (unsigned char)(T0_RELOAD & 0xFF);',
@@ -11947,7 +12084,7 @@ class SB3Creator {
                 '    TR0 = 1;',
                 '',
                 '    for (;;) {',
-                ...taskNames.map((n) => `        ${n}();`),
+                ...[...(this._cPollTasks || []), ...taskNames].map((n) => `        ${n}();`),
                 '    }');
         } else if (this._core === 'avr') {
             out.push('    sei();', '');
@@ -12130,6 +12267,7 @@ SB3Creator.RUNTIME_EXTENSIONS = {
             keypad: { kind: 'reporter', method: 'readKeypad', args: ['PART'], neutral: '-1' },
             print: { kind: 'command', method: 'print', args: ['VALUE', 'MODE'] },
             whenpin: { kind: 'hat', method: 'whenpin', args: ['PIN', 'EDGE'] },
+            whenkey: { kind: 'hat', method: 'whenkey', args: ['KEY', 'EDGE'] },
             tableindex: { kind: 'reporter', method: 'tableIndex', args: ['TABLE', 'INDEX'], neutral: '0' }
         }
     },

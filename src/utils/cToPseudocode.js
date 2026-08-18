@@ -200,8 +200,12 @@ function readMarkers (source) {
             const p = rest.match(/^(\w+)\s+("(?:[^"\\]|\\.)*")\s+warp=(\d)/);
             if (p) h.procs.set(p[1], { proccode: str(p[2]), warp: p[3] === '1' });
         } else if (kind === 'script') {
-            const s = rest.match(/^(\w+)\s+(\d+)\s+(stage|sprite\s+("(?:[^"\\]|\\.)*"))/);
-            if (s) h.scripts.set(s[1], { index: +s[2], sprite: s[4] ? str(s[4]) : null });
+            // Optional trailer `hat pin <name> <edge>` / `hat key <n> <edge>`
+            // (emitter 2026-08-18): without it every hat task degraded to
+            // `WHEN flag clicked:` on the way back.
+            const s = rest.match(/^(\w+)\s+(\d+)\s+(stage|sprite\s+("(?:[^"\\]|\\.)*"))(?:\s+hat\s+(pin|key)\s+(\S+)\s+(pressed|released))?/);
+            if (s) h.scripts.set(s[1], { index: +s[2], sprite: s[4] ? str(s[4]) : null,
+                hat: s[5] ? { kind: s[5], what: s[6], edge: s[7] } : null });
         } else if (kind === 'yield') {
             // `yield <task> <state> <percent-encoded block id> <kind>` — the map from a
             // Level 1 position to the block the debugger should point at. Nothing on the
@@ -1582,10 +1586,18 @@ export default function cToPseudocode (source, opts = {}) {
     // `switch (task_state) { case 0: … }` Duff's device; this walks the interior
     // structurally, matching each shape and recovering the original pseudocode.
 
-    function taskLines (taskTokens, funcName, depth) {
+    function taskLines (taskTokens, funcName, depth, hat) {
         const tc = new Cursor(taskTokens);
         // Enter the function body: { switch (…state) { case 0: <stmts> } …end… }
         tc.expect('{');
+        if (hat) {
+            // A hat task carries an edge-test preamble before the switch
+            // (`now = …; fired = …; _prev = now;`) and its case 0 is the
+            // test (`if (!fired) return; state = 1;`) — the script body
+            // starts at case 1. All of it was reconstructed from the hat
+            // marker, so skip to the body rather than translating it.
+            while (!tc.is('switch') && tc.peek().t !== 'eof') tc.next();
+        }
         if (!tc.eat('switch')) { warn(`${funcName}: expected switch in task`); return []; }
         tc.skip('(', ')');     // skip (task_state)
         tc.expect('{');
@@ -1594,6 +1606,11 @@ export default function cToPseudocode (source, opts = {}) {
             warn(`${funcName}: expected case 0 in task`); return [];
         }
         tc.next(); tc.next(); tc.expect(':');   // eat `case 0:`
+        if (hat) {
+            // Skip the edge test up to `case 1:`, then eat that label too.
+            while (!(tc.is('case') && tc.peek(1).v === '1') && tc.peek().t !== 'eof') tc.next();
+            if (tc.is('case')) { tc.next(); tc.next(); tc.expect(':'); }
+        }
         const lines = taskBody(tc, funcName, depth);
         return lines;
     }
@@ -2172,9 +2189,12 @@ export default function cToPseudocode (source, opts = {}) {
         const hatComments = commentsFor(f.name);
         out.push('');
         for (const c of hatComments) out.push(c);
-        out.push('WHEN flag clicked:');
+        const hat = markers && markers.scripts.get(f.name) && markers.scripts.get(f.name).hat;
+        if (hat && hat.kind === 'pin') out.push(`WHEN ${hat.what} ${hat.edge}:`);
+        else if (hat && hat.kind === 'key') out.push(`WHEN key ${hat.what} ${hat.edge}:`);
+        else out.push('WHEN flag clicked:');
         if (isTask) {
-            const body = taskLines(tokens.slice(f.from, f.to), f.name, 1);
+            const body = taskLines(tokens.slice(f.from, f.to), f.name, 1, hat);
             out.push(...(body.length ? body : ['  stop']));
         } else {
             const body = linesFor(f, 1).filter((l) => l.trim() !== 'stop');

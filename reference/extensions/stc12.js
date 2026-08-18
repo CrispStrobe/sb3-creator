@@ -156,6 +156,16 @@
             },
           },
           {
+            opcode: "whenkey",
+            blockType: Scratch.BlockType.HAT,
+            text: Scratch.translate("when key [KEY] [EDGE]"),
+            isEdgeActivated: true,
+            arguments: {
+              KEY: { type: Scratch.ArgumentType.NUMBER, defaultValue: 0 },
+              EDGE: { type: Scratch.ArgumentType.STRING, menu: "edges" },
+            },
+          },
+          {
             opcode: "tableindex",
             blockType: Scratch.BlockType.REPORTER,
             text: Scratch.translate("[TABLE] [ [INDEX] ]"),
@@ -479,6 +489,21 @@
         : 0;
       const level = pin && pin.activeLow ? !raw : !!raw;
       return args.EDGE === "pressed" ? level : !level;
+    }
+
+    whenkey(args) {
+      // Edge hat on the sole KEYPAD4X4: true while the scanned key equals
+      // KEY; isEdgeActivated turns the false-to-true transition into the
+      // fire. The board layer feeds keypad_<name> (see keypad()); the
+      // sole-keypad rule means any keypad_* entry is the one. On silicon
+      // this is a shared debounced poll task (two agreeing scans, 5 ms
+      // apart) — the board layer already debounces, so the tick poll here
+      // carries the same meaning.
+      const b = board(this.runtime);
+      const k = Object.keys(b).find((n) => n.indexOf("keypad_") === 0);
+      const cur = k ? Number(b[k]) : -1;
+      const held = cur === Number(args.KEY);
+      return args.EDGE === "pressed" ? held : !held;
     }
 
     tableindex(args) {
