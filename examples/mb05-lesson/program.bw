@@ -1,0 +1,16 @@
+DEVICE MICROBIT
+
+# My first micro:bit: display + buttons + sensors
+# Shows a heart, then checks buttons in a loop:
+#   Button A → read temperature, show "T:"
+#   Button B → read light level, show "L:"
+WHEN flag clicked:
+  show pattern 09090:99999:99999:09990:00900
+  FOREVER:
+    IF read button_a > 0 THEN:
+      set val to read temperature
+      show text "T:"
+    IF read button_b > 0 THEN:
+      set val to read light
+      show text "L:"
+    wait 0.1 seconds

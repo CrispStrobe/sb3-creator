@@ -5570,6 +5570,32 @@ class SB3Creator {
             case 'planetemaths_length': return `len(str(${v('STRING')}))`;
             case 'planetemaths_sommechiffres': this._pyUses.sumdigits = true; return `_sumdigits(${v('NUM1')})`;
             // Arrays & Vectors reporters (0-based; `_arrays` registry).
+            // micro:bit+ reporters — in pyRep so they are reachable from pyCond's
+            // operator_gt/lt paths, not only from generateMicroPython's val().
+            case 'microbitplus_accel': {
+                const ax = (b.fields.AXIS ? b.fields.AXIS[0] : 'x').toLowerCase();
+                if (ax === 'strength') { this._pyUses.math = true; return 'math.sqrt(accelerometer.get_x()**2 + accelerometer.get_y()**2 + accelerometer.get_z()**2)'; }
+                return `accelerometer.get_${ax}()`;
+            }
+            case 'microbitplus_pitch': this._pyUses.math = true; return '_pitch()';
+            case 'microbitplus_roll': this._pyUses.math = true; return '_roll()';
+            case 'microbitplus_compass': return 'compass.heading()';
+            case 'microbitplus_magforce': {
+                const ax = (b.fields.AXIS ? b.fields.AXIS[0] : 'x').toLowerCase();
+                if (ax === 'absolute') { this._pyUses.math = true; return 'math.sqrt(compass.get_x()**2 + compass.get_y()**2 + compass.get_z()**2)'; }
+                return `compass.get_${ax}()`;
+            }
+            case 'microbitplus_light': return 'display.read_light_level()';
+            case 'microbitplus_temp': return 'temperature()';
+            case 'microbitplus_sound': return 'microphone.sound_level()';
+            case 'microbitplus_digitalread': return `pin${(b.fields.PIN ? b.fields.PIN[0] : '0').toLowerCase().replace(/^p/, '')}.read_digital()`;
+            case 'microbitplus_analogread': return `pin${(b.fields.PIN ? b.fields.PIN[0] : '0').toLowerCase().replace(/^p/, '')}.read_analog()`;
+            case 'microbitplus_isbutton': return `button_${(b.fields.BTN ? b.fields.BTN[0] : 'a').toLowerCase()}.is_pressed()`;
+            case 'microbitplus_ispinhigh': return `pin${(b.fields.PIN ? b.fields.PIN[0] : '0').toLowerCase().replace(/^p/, '')}.read_digital()`;
+            case 'microbitplus_isgesture': return `accelerometer.is_gesture('${(b.fields.GESTURE ? b.fields.GESTURE[0] : 'shake').toLowerCase()}')`;
+            case 'microbitplus_istouch': return `pin${(b.fields.PIN ? b.fields.PIN[0] : '0').toLowerCase().replace(/^p/, '')}.is_touched()`;
+            case 'microbitplus_radiolastnum': return '_radio_last_num';
+            case 'microbitplus_radiolaststr': return '_radio_last_str';
             // Scratch-runtime reporters (x position, mouse x, timer, …) -> scratch.<method>().
             default: {
                 const ac = this.arraysCall(b, blocks, this.pyVal);
