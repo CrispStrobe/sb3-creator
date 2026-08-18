@@ -14,3 +14,8 @@ avr-gcc (1.8 KB) → avr8js on the example board.
 The matrix scan depends on the AVR adapter's per-output-edge input
 refresh (bw-board a26ec6e); before it, no matrix key could register
 in simulation.
+
+```assert
+# Supply rail: VCC = 5.0V
+net vcc1.vcc V 5.00 +-0.01
+```

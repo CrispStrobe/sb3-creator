@@ -20,3 +20,10 @@ Reads pot on A0 (0-1023), maps to 0-255 PWM, writes to LED on D9. Prints raw sen
 1. Analog-to-PWM mapping: `(sensorValue * 255) / 1023` scales 10-bit to 8-bit
 2. `set pwm led to outputValue` controls LED brightness proportionally
 3. Simultaneous serial output and PWM output
+
+```assert
+# Supply rail: VCC = 5.0V
+net vcc1.vcc V 5.00 +-0.01
+# Pot at 50%: wiper = 5.0 × 0.5 = 2.500V
+net pot1.wiper V 2.50 +-0.05
+```

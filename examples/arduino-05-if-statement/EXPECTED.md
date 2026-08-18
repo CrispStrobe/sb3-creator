@@ -20,3 +20,10 @@ Reads pot on A0 and compares to threshold (400). If above threshold, LED on; bel
 1. Conditional: `if analogValue > threshold then: turn on led`
 2. Threshold-based digital output from an analog input
 3. Serial monitoring of the sensor value alongside LED control
+
+```assert
+# Supply rail: VCC = 5.0V
+net vcc1.vcc V 5.00 +-0.01
+# Pot at 50%: wiper = 5.0 × 0.5 = 2.500V
+net pot1.wiper V 2.50 +-0.05
+```

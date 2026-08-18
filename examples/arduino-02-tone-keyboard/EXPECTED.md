@@ -20,3 +20,12 @@ Reads two analog sensors. If sensor1 (A0) exceeds 10, plays 440 Hz. Otherwise if
 1. Analog threshold detection on two channels
 2. Priority-based tone selection (sensor1 checked first)
 3. `set tone speaker to` and `turn off speaker` control buzzer pitch
+
+```assert
+# Supply rail: VCC = 5.0V
+net vcc1.vcc V 5.00 +-0.01
+# Pot at 50%: wiper = 5.0 × 0.5 = 2.500V
+net pot1.wiper V 2.50 +-0.05
+# Pot at 50%: wiper = 5.0 × 0.5 = 2.500V
+net pot2.wiper V 2.50 +-0.05
+```

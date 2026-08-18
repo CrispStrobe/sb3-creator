@@ -24,3 +24,8 @@ Blinks the LED at 1 Hz using a millis()-style timer check instead of `wait`. The
 1. Timer-based state machine: `(timer * 1000) - previousMillis >= interval` replaces blocking `wait`
 2. Variable-driven LED toggle via `ledState` and conditional `turn on/off`
 3. Non-blocking timing pattern works correctly in the simulation
+
+```assert
+# Supply rail: VCC = 5.0V
+net vcc1.vcc V 5.00 +-0.01
+```

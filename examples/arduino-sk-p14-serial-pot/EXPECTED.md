@@ -19,3 +19,8 @@ Reads pot on A0 and prints the raw ADC value (0-1023) to serial every 10 ms, for
 1. High-frequency analog reading and serial output
 2. Pot value maps linearly to 0-1023 ADC range
 3. Simplified from original Processing-based visualisation
+
+```assert
+# Supply rail: VCC = 5.0V
+net vcc1.vcc V 5.00 +-0.01
+```

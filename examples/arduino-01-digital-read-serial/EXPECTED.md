@@ -18,3 +18,8 @@ Reads D2 as a digital input and prints the state (0 or 1) to serial every 100 ms
 1. Digital read on D2 returns 0 (LOW) or 1 (HIGH)
 2. Pull-down resistor holds the pin LOW when the button is released
 3. Button press connects D2 to VCC, overriding the pull-down
+
+```assert
+# Supply rail: VCC = 5.0V
+net vcc1.vcc V 5.00 +-0.01
+```

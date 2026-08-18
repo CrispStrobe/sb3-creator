@@ -42,3 +42,8 @@ is connected internally.
 2. Power rails run the full length of the board
 3. Translating a schematic into a physical breadboard layout
 4. The LED orientation matters: anode toward positive, cathode toward negative
+
+```assert
+# Battery: 9.0V (default for battery part)
+net bat1.pos V 9.00 +-0.01
+```

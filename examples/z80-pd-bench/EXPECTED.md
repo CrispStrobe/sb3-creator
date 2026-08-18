@@ -124,3 +124,8 @@ D1; README-DETAILED says the opposite ("/RXF as bit 0 and /TXE as bit
 1"). The tie-breaker is the companion monitor's `UM245R.asm`, which is
 not in our corpus. Nothing in this bench depends on the answer yet —
 but whoever builds the `um245r` part must pick a side and say so.
+
+```assert
+# Supply rail: VCC = 5.0V
+net vcc1.vcc V 5.00 +-0.01
+```

@@ -19,3 +19,8 @@ No MCU -- pure passive circuit powered by a real battery, not VCC.
 2. Ohm's law: I = (V_bat - V_f) / R_total
 3. Battery replaces VCC/GND as power source in a self-contained circuit
 4. Current-limiting resistor protects the LED
+
+```assert
+# Battery: 9.0V (default for battery part)
+net bat1.pos V 9.00 +-0.01
+```

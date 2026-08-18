@@ -20,3 +20,8 @@ When button on D2 is pressed, motor on D9 turns on. When released, motor turns o
 1. Digital input on D2 reads button state
 2. `if read btn then: turn on motor` drives the motor pin
 3. Simple on/off motor control without PWM
+
+```assert
+# Supply rail: VCC = 5.0V
+net vcc1.vcc V 5.00 +-0.01
+```

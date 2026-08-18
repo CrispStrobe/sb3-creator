@@ -28,3 +28,10 @@ Reads A0 (10-bit ADC, 0–1023), scales to 0–100%, sets D9 PWM brightness.
 2. PWM output on D9 (OC1A) sets duty cycle proportional to the reading
 3. The cooperative scheduler samples at 20 Hz without blocking
 4. Analog input and PWM output work together on the AVR path
+
+```assert
+# Supply rail: VCC = 5.0V
+net vcc1.vcc V 5.00 +-0.01
+# Pot at 50%: wiper = 5.0 × 0.5 = 2.500V
+net pot1.wiper V 2.50 +-0.05
+```

@@ -41,3 +41,10 @@ cooperative scheduler with two tasks and the Pico's ADC + GPIO.
 A yield breakpoint on `(bw_task0, 3)` (first wait in blink) should pause
 both tasks at exactly 500 ms program time. The coordinator proved this
 end-to-end through the rp2040js debug target.
+
+```assert
+# Supply rail: 3.3V (Pico regulates to 3.3V)
+net vcc1.vcc V 3.30 +-0.05
+# Pot at 50%: wiper = 3.3 × 0.5 = 1.650V
+net pot1.wiper V 1.65 +-0.05
+```

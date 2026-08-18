@@ -32,3 +32,10 @@ Readings print once per second, continuously.
 A0–A5 are shared with all AVR boards and exercised by the generic examples.
 A9 is Mega-only (port K, ADC MUX bits [4:0] = 01001 with MUX5 set) and
 exercises the extended MUX logic that the 2560 adds over the 328P.
+
+```assert
+# Supply rail: VCC = 5.0V
+net vcc1.vcc V 5.00 +-0.01
+# Pot at 50%: wiper = 5.0 × 0.5 = 2.500V
+net pot1.wiper V 2.50 +-0.05
+```

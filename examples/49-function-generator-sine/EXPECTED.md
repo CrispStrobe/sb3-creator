@@ -31,3 +31,8 @@ No LED -- this example is about observing waveforms.
 2. Sine wave parameters: amplitude, offset, frequency
 3. The relationship between period and frequency (T = 1/f)
 4. Voltage across a resistive load follows the source waveform exactly
+
+```assert
+# Function generator DC offset (5Vpp sine midpoint)
+net fg1.vcc V 2.50 +-2.60
+```

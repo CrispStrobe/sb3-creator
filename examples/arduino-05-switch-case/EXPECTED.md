@@ -21,3 +21,8 @@ Reads LDR on A0, divides into 4 ranges (0-3), and prints a label: "dark", "dim",
 1. Range mapping: `(sensorReading / 1024) * 3` converts ADC to a 0-3 integer
 2. Cascaded if-statements simulate switch/case
 3. LDR voltage divider reading maps to descriptive labels
+
+```assert
+# Supply rail: VCC = 5.0V
+net vcc1.vcc V 5.00 +-0.01
+```

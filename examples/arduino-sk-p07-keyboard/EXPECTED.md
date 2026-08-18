@@ -22,3 +22,8 @@ Each button plays a different note: D2 = C4 (262 Hz), D3 = D4 (294 Hz), D4 = E4 
 1. Four-key input -> four distinct tones
 2. `set tone speaker to` with different frequencies per button
 3. Buzzer silence when no button is pressed
+
+```assert
+# Supply rail: VCC = 5.0V
+net vcc1.vcc V 5.00 +-0.01
+```

@@ -21,3 +21,8 @@ Fades three LEDs in sequence: each sweeps 0-255 brightness (steps of 5, every 30
 1. PWM output on multiple Mega pins (D2, D3, D4)
 2. Sequential fading using repeat loops
 3. Arduino Mega device works as a target
+
+```assert
+# Supply rail: VCC = 5.0V
+net vcc1.vcc V 5.00 +-0.01
+```

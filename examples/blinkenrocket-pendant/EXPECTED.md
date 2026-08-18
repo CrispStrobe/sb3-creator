@@ -22,3 +22,8 @@ Column-scans a smiley face pattern across the 8x8 matrix. Two buttons scroll the
 2. Active-low columns, active-high rows for the 788AS common-anode matrix
 3. Button-driven pattern scrolling
 4. Polarity matters: wrong matrix type produces a uniformly dim display
+
+```assert
+# Supply rail: VCC = 5.0V
+net vcc1.vcc V 5.00 +-0.01
+```

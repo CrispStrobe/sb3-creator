@@ -22,3 +22,8 @@ Pot sets motor speed (0-255 PWM). Forward button spins motor one direction, reve
 1. H-bridge motor control: direction via D4/D5, speed via PWM on D9
 2. Potentiometer-based speed control
 3. Two-button forward/reverse selection
+
+```assert
+# Supply rail: VCC = 5.0V
+net vcc1.vcc V 5.00 +-0.01
+```

@@ -24,3 +24,8 @@ The program prints a demonstration string and its length (13 characters). In the
 1. String literal assignment and printing
 2. `length of testStr` returns 13 for "Hello, World!"
 3. Program runs once and completes (no forever loop)
+
+```assert
+# Supply rail: VCC = 5.0V
+net vcc1.vcc V 5.00 +-0.01
+```

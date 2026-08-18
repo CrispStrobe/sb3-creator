@@ -14,3 +14,8 @@
   continuity-tested on the physical kit; row-bus order likewise.
 - Silicon claim: none yet. This example is the flash candidate for the
   first verified-on-hardware milestone.
+
+```assert
+# Supply rail: VCC = 5.0V
+net vcc1.vcc V 5.00 +-0.01
+```

@@ -20,3 +20,10 @@ Reads A0 as a 10-bit ADC value, converts to voltage via `sensorValue * (5.0 / 10
 1. ADC reading converted to real voltage using the 5 V / 1023 scale factor
 2. Floating-point arithmetic in the voltage conversion expression works
 3. `print voltage` outputs a decimal number to the serial monitor
+
+```assert
+# Supply rail: VCC = 5.0V
+net vcc1.vcc V 5.00 +-0.01
+# Pot at 50%: wiper = 5.0 × 0.5 = 2.500V
+net pot1.wiper V 2.50 +-0.05
+```

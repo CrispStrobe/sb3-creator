@@ -20,3 +20,10 @@ Reads pot on A0, maps to 0-255, writes PWM to LED on D9. Updates every 20 ms.
 1. Pot-to-PWM mapping: `(read pot * 255) / 1023` scales the analog reading
 2. Adapted from serial-input original — pot replaces typed commands
 3. Real-time LED brightness control from an analog sensor
+
+```assert
+# Supply rail: VCC = 5.0V
+net vcc1.vcc V 5.00 +-0.01
+# Pot at 50%: wiper = 5.0 × 0.5 = 2.500V
+net pot1.wiper V 2.50 +-0.05
+```

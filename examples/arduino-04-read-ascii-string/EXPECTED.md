@@ -22,3 +22,14 @@ Reads three pots and maps each to 0-255 PWM on the red, green, and blue channels
 1. Three independent analog-to-PWM channels
 2. RGB LED colour mixing through independent PWM control
 3. Adapted from serial-input original — pots replace parsed ASCII strings
+
+```assert
+# Supply rail: VCC = 5.0V
+net vcc1.vcc V 5.00 +-0.01
+# Pot at 50%: wiper = 5.0 × 0.5 = 2.500V
+net potR.wiper V 2.50 +-0.05
+# Pot at 50%: wiper = 5.0 × 0.5 = 2.500V
+net potG.wiper V 2.50 +-0.05
+# Pot at 50%: wiper = 5.0 × 0.5 = 2.500V
+net potB.wiper V 2.50 +-0.05
+```

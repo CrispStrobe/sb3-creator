@@ -22,3 +22,10 @@ Reads three pots and maps each (0-1023) to a PWM value (0-255) for the red, gree
 1. Three-channel PWM colour mixing
 2. Independent analog-to-PWM mapping per channel
 3. Real-time colour blending from three analog inputs
+
+```assert
+# Supply rail: VCC = 5.0V
+net vcc1.vcc V 5.00 +-0.01
+# Pot at 50%: wiper = 5.0 × 0.5 = 2.500V
+net pot1.wiper V 2.50 +-0.05
+```

@@ -41,3 +41,8 @@ The PCA compare/match module generates this from a reload value.
 2. The servo takes power from the rail, signal from the pin
 3. The chip-budget warning does NOT fire (signal current only)
 4. The PCA driver produces the correct pulse width for the angle
+
+```assert
+# Supply rail: VCC = 5.0V
+net VCC.vcc V 5.00 +-0.01
+```

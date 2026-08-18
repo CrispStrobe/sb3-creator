@@ -22,3 +22,8 @@ Lights LEDs one at a time at a fixed interval (10 seconds each), building up fro
 1. Timed accumulation: one LED per interval
 2. Tilt switch as reset trigger
 3. Six-LED sequential fill pattern
+
+```assert
+# Supply rail: VCC = 5.0V
+net vcc1.vcc V 5.00 +-0.01
+```

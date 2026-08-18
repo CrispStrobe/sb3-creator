@@ -23,3 +23,10 @@ Reads pot on A0, maps to a 0-5 level, and lights that many LEDs from D2 upward. 
 1. Analog-to-level mapping: `(read pot * 5) / 1023` produces 0-5
 2. Threshold-based LED control: `if level >= N then: turn on ledN`
 3. Visual bargraph display from an analog input
+
+```assert
+# Supply rail: VCC = 5.0V
+net vcc1.vcc V 5.00 +-0.01
+# Pot at 50%: wiper = 5.0 × 0.5 = 2.500V
+net pot1.wiper V 2.50 +-0.05
+```

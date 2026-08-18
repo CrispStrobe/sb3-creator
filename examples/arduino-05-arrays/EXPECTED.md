@@ -20,3 +20,8 @@ Lights LEDs in a pattern: cycles through the six LEDs (D2, D7, D4, D5, D3, D6), 
 1. Multiple digital outputs on D2-D7
 2. Non-sequential LED addressing (simulates array-based indexing)
 3. Timed pattern with `wait 0.1 seconds` between transitions
+
+```assert
+# Supply rail: VCC = 5.0V
+net vcc1.vcc V 5.00 +-0.01
+```

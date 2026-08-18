@@ -20,3 +20,8 @@ Lights LEDs in sequence from D2 to D7 (left to right), then reverses from D7 to 
 1. Sequential LED control simulating a for-loop iteration
 2. Forward and reverse sweep across six pins
 3. Each LED turns off before the next turns on
+
+```assert
+# Supply rail: VCC = 5.0V
+net vcc1.vcc V 5.00 +-0.01
+```

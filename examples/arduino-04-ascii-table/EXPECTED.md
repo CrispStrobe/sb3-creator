@@ -27,3 +27,8 @@ Each line is the decimal value of one printable ASCII character, from ! (33) to 
 1. `repeat until thisByte > 126` loop terminates correctly
 2. Sequential integer printing to serial
 3. Program halts after the table is complete (does not loop forever)
+
+```assert
+# Supply rail: VCC = 5.0V
+net vcc1.vcc V 5.00 +-0.01
+```

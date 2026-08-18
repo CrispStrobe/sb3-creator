@@ -35,3 +35,8 @@ Increments every 250 ms. Wraps back to 0 after 255.
 2. SPI-like bit-banging protocol (data, clock, latch)
 3. Binary counting displayed on 8 LEDs
 4. REPEAT 8 for the shift loop, FOREVER for the count loop
+
+```assert
+# Supply rail: VCC = 5.0V
+net VCC.vcc V 5.00 +-0.01
+```

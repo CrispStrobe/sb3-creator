@@ -21,3 +21,8 @@ Each cycle (~1 second total):
 1. Multiple tone outputs on separate pins
 2. Each buzzer produces a distinct pitch
 3. Sequential control with explicit `turn off` between notes
+
+```assert
+# Supply rail: VCC = 5.0V
+net vcc1.vcc V 5.00 +-0.01
+```

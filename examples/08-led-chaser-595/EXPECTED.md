@@ -31,3 +31,8 @@ then reverses: 0x80 → 0x40 → … → 0x01. 100 ms per step, ~1.6 s per full 
 2. `set leds to <value>` shifts a byte to the register
 3. `shiftleft` / `shiftright` operators in a control variable
 4. Bounce logic with a direction flag
+
+```assert
+# Supply rail: VCC = 5.0V
+net vcc1.vcc V 5.00 +-0.01
+```

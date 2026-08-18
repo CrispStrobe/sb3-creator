@@ -37,3 +37,8 @@ the 555 timer generates the oscillation purely in hardware.
 3. Duty cycle is set by the R1/R2 ratio
 4. The 555 output can directly drive an LED through a resistor
 5. Hardware oscillators predate and complement MCU-based timing
+
+```assert
+# Supply rail: VCC = 5.0V
+net vcc1.vcc V 5.00 +-0.01
+```

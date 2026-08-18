@@ -30,3 +30,8 @@ turns off D13.
 2. Input pin configured with DDR cleared (high-impedance input)
 3. External pull-down resistor provides a defined LOW when released
 4. Conditional output based on input state
+
+```assert
+# Supply rail: VCC = 5.0V
+net vcc1.vcc V 5.00 +-0.01
+```

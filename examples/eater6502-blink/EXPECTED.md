@@ -22,3 +22,8 @@ Walking light: turns on one LED at a time from PB0 to PB7, each on for 100 ms, t
 2. 6502 program compiles and runs correctly on the breadboard computer
 3. Address decoding via NAND gates maps VIA to the correct address range
 4. Each LED has a real current-limiting resistor — not just a graphical indicator
+
+```assert
+# Supply rail: VCC = 5.0V
+net vcc1.vcc V 5.00 +-0.01
+```

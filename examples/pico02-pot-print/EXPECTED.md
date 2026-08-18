@@ -35,3 +35,10 @@ Reads GP26 and prints the ADC value over serial (UART0 on GP0) once per second.
 
 GP26 is ADC0, the first and most common ADC pin on Pico tutorials.
 GP27 (ADC1) and GP28 (ADC2) work identically.
+
+```assert
+# Supply rail: 3.3V (Pico regulates to 3.3V)
+net vcc1.vcc V 3.30 +-0.05
+# Pot at 50%: wiper = 3.3 × 0.5 = 1.650V
+net pot1.wiper V 1.65 +-0.05
+```

@@ -21,3 +21,10 @@ Reads A0, converts ADC to voltage, then to temperature via `(voltage - 0.5) * 10
 1. ADC -> voltage -> temperature conversion chain
 2. Threshold-based bargraph: each LED lights at a progressively higher temperature
 3. Simulated analog sensor via potentiometer
+
+```assert
+# Supply rail: VCC = 5.0V
+net vcc1.vcc V 5.00 +-0.01
+# Pot at 50%: wiper = 5.0 × 0.5 = 2.500V
+net pot1.wiper V 2.50 +-0.05
+```

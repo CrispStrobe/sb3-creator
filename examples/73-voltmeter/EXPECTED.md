@@ -24,3 +24,10 @@ Every 200 ms: read the ADC, convert to millivolts
 The arithmetic depends on the C target's `long` variables — with 16-bit
 int, `raw * 5000` wraps and the reading is garbage (the 2026-08-17
 multimeter session found and fixed exactly this).
+
+```assert
+# Supply rail: VCC = 5.0V
+net vcc1.vcc V 5.00 +-0.01
+# Pot at 50%: wiper = 5.0 × 0.5 = 2.500V
+net probe1.wiper V 2.50 +-0.05
+```

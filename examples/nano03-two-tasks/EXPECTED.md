@@ -41,3 +41,10 @@ A yield breakpoint on `(bw_task0, 2)` (first wait in blink script)
 should pause both tasks. The position should show:
 - task0 at state 2 (wait, until = bw_ms + 500)
 - task1 at its own wait state (until = bw_ms + 1000)
+
+```assert
+# Supply rail: VCC = 5.0V
+net vcc1.vcc V 5.00 +-0.01
+# Pot at 50%: wiper = 5.0 × 0.5 = 2.500V
+net pot1.wiper V 2.50 +-0.05
+```

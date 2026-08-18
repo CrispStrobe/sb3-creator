@@ -25,3 +25,8 @@ a verdict:
 - Default 1.45 V cell: shows ~1450 mV, "FULL".
 - Edit the battery's volts parameter to 1.3 → "GOOD", 1.1 → "WEAK",
   0.9 → "DEAD". The verdict follows within one refresh.
+
+```assert
+# Supply rail: VCC = 5.0V
+net vcc1.vcc V 5.00 +-0.01
+```

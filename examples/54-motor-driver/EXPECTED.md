@@ -54,3 +54,8 @@ Forward at speed 200 for 2 s, reverse for 2 s, then coast and stop.
 4. Power from the supply rail, not through the chip
 5. Chip-budget warning must NOT fire (control signals only)
 6. `bw_motor_speed` and `bw_motor_dir` round-trip through cToPseudocode
+
+```assert
+# Supply rail: VCC = 5.0V
+net VCC.vcc V 5.00 +-0.01
+```

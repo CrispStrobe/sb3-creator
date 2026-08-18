@@ -22,3 +22,8 @@ Green LED is on by default (idle state). When button is pressed, green turns off
 1. Button-driven state change: idle (green) vs alert (red alternating)
 2. Timed alternation with `wait 0.25 seconds`
 3. Multiple LED coordination across three pins
+
+```assert
+# Supply rail: VCC = 5.0V
+net vcc1.vcc V 5.00 +-0.01
+```

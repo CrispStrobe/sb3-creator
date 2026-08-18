@@ -19,3 +19,8 @@ Sends a trigger pulse on D7 (2 us low, 10 us high), then reads echo on D8. Print
 1. Trigger pulse generation: precise microsecond timing on D7
 2. Echo reading on D8 after the trigger
 3. Continuous distance monitoring via serial output
+
+```assert
+# Supply rail: VCC = 5.0V
+net vcc1.vcc V 5.00 +-0.01
+```

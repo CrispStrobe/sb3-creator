@@ -19,3 +19,8 @@ While button is held: calibrates LDR (records min/max) with status LED on. When 
 1. While-loop calibration: `repeat until not read btn` runs calibration as long as button is held
 2. Dynamic min/max tracking during calibration window
 3. Mapped PWM output from calibrated sensor range
+
+```assert
+# Supply rail: VCC = 5.0V
+net vcc1.vcc V 5.00 +-0.01
+```

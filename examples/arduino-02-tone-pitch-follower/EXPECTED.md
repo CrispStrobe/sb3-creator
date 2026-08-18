@@ -20,3 +20,8 @@ Reads LDR on A0, maps range 400-1000 to 120-1500 Hz, plays that frequency on the
 1. Analog sensor (LDR voltage divider) reads light level
 2. Linear mapping: sensor reading scaled to Hz range
 3. Continuous tone modulation: buzzer pitch follows sensor in real time
+
+```assert
+# Supply rail: VCC = 5.0V
+net vcc1.vcc V 5.00 +-0.01
+```

@@ -3,3 +3,8 @@
 - Row 2 shows `COUNT: 0`, then `COUNT: 1`, incrementing every ~1 s.
 - The debugger's pin panel shows activity bursts on P2.1/P2.2 during each print (bit-banged I2C).
 - Engine-level: `board.getDeviceState('lcd1').display` returns the two row strings; backlight stays true.
+
+```assert
+# Supply rail: VCC = 5.0V
+net VCC.vcc V 5.00 +-0.01
+```

@@ -24,3 +24,8 @@ The block version prints the test string and its length. In the original Arduino
 1. String literal assignment: `set testStr to "Hello, World!"`
 2. `length of testStr` returns the correct count (13)
 3. Serial output of string and numeric values
+
+```assert
+# Supply rail: VCC = 5.0V
+net vcc1.vcc V 5.00 +-0.01
+```

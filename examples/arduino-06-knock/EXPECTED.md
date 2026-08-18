@@ -20,3 +20,8 @@ Reads piezo on A0. When the reading exceeds threshold (100), toggles the LED sta
 1. Analog threshold detection on a piezo sensor
 2. Toggle logic: each event flips `ledState` between 0 and 1
 3. Event-driven serial output: prints only on knock, not continuously
+
+```assert
+# Supply rail: VCC = 5.0V
+net vcc1.vcc V 5.00 +-0.01
+```

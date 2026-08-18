@@ -20,3 +20,8 @@ Sweeps PWM from 0 to 255 in steps of 5 every 30 ms, then back from 255 to 0. Rep
 1. PWM fade on D9 with explicit `repeat` loops
 2. `set pwm led to fadeValue` maps 0-255 to visible brightness
 3. Symmetric fade-in and fade-out timing
+
+```assert
+# Supply rail: VCC = 5.0V
+net vcc1.vcc V 5.00 +-0.01
+```

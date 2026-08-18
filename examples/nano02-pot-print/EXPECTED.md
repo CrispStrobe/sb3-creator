@@ -37,3 +37,10 @@ Reads A6 and prints the 10-bit ADC value over serial once per second.
 A0–A5 work identically on both UNO and Nano. A6 is the pin that
 distinguishes the Nano's ADC capability and exercises the parser's
 per-device pin validation (A6 is analog-only, no digital direction allowed).
+
+```assert
+# Supply rail: VCC = 5.0V
+net vcc1.vcc V 5.00 +-0.01
+# Pot at 50%: wiper = 5.0 × 0.5 = 2.500V
+net pot1.wiper V 2.50 +-0.05
+```

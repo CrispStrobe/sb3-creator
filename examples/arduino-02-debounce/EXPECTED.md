@@ -20,3 +20,8 @@ Each stable button press toggles the LED state. A 50 ms debounce delay filters o
 1. Debounce logic: `(timer * 1000) - lastDebounceTime > debounceDelay` filters noise
 2. Toggle pattern: each accepted press flips `ledState` between 0 and 1
 3. State change detection: only triggers on `reading != buttonState`
+
+```assert
+# Supply rail: VCC = 5.0V
+net vcc1.vcc V 5.00 +-0.01
+```

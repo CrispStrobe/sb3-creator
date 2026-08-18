@@ -57,3 +57,10 @@ adapters never seated never-written pins on the board (buttons read as
 held-down forever), and the C target's 16-bit `int` wrapped
 `raw * 5000` (reading showed 4 mV instead of 708). Keep it in any
 suite that touches either.
+
+```assert
+# Supply rail: VCC = 5.0V
+net vcc1.vcc V 5.00 +-0.01
+# Pot at 50%: wiper = 5.0 × 0.5 = 2.500V
+net vsrc1.wiper V 2.50 +-0.05
+```

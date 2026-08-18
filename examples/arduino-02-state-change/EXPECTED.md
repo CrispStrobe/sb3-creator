@@ -22,3 +22,8 @@ Counts button presses. On every LOW->HIGH transition, increments a counter and p
 1. Edge detection: only counts LOW->HIGH transitions, ignores held state
 2. Modulo logic: `(buttonPushCounter mod 4) = 0` gates the LED
 3. 50 ms debounce delay on state change
+
+```assert
+# Supply rail: VCC = 5.0V
+net vcc1.vcc V 5.00 +-0.01
+```

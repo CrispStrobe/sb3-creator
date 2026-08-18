@@ -20,3 +20,12 @@ Reads two pots and maps each to a 0-7 coordinate. Prints the X and Y values to s
 1. Dual analog mapping: `(read potX * 7) / 1023` scales to 0-7 range
 2. Two-axis coordinate output simulating a matrix position
 3. Simplified from physical LED matrix — concept demonstration via serial
+
+```assert
+# Supply rail: VCC = 5.0V
+net vcc1.vcc V 5.00 +-0.01
+# Pot at 50%: wiper = 5.0 × 0.5 = 2.500V
+net potX.wiper V 2.50 +-0.05
+# Pot at 50%: wiper = 5.0 × 0.5 = 2.500V
+net potY.wiper V 2.50 +-0.05
+```

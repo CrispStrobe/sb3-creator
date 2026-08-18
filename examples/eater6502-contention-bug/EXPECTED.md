@@ -27,3 +27,8 @@ Reconnect VIA.CS2B from GND to glue1.4y (the NAND gate output that combines NOT(
 - **Actionable error messages:** the warning names the address and the colliding chips, not just "error."
 - **Chip-select logic understanding:** the learner must trace the NAND gate wiring to understand why CS2B tied to GND expands the VIA's address range into RAM territory.
 - **The difference between "looks fine" and "works correctly":** the breadboard appears identical to the working version — only the address map reveals the conflict.
+
+```assert
+# Supply rail: VCC = 5.0V
+net vcc1.vcc V 5.00 +-0.01
+```

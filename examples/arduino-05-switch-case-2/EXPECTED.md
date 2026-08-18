@@ -20,3 +20,8 @@ Cycles through five LED patterns: each LED turns on for 500 ms, then off, in seq
 1. Sequential LED cycling simulating switch/case with multiple outputs
 2. Each case activates one LED and deactivates the rest
 3. Adapted from serial-input original — cycles automatically instead
+
+```assert
+# Supply rail: VCC = 5.0V
+net vcc1.vcc V 5.00 +-0.01
+```

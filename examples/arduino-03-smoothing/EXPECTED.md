@@ -19,3 +19,10 @@ Maintains a running average of the last 10 ADC readings from A0. Prints the smoo
 1. Circular buffer using a Scratch list with `replace item` and `item of`
 2. Running average: `total / numReadings` produces a smooth output
 3. Index wrapping: `if readIndex >= numReadings then: set readIndex to 0`
+
+```assert
+# Supply rail: VCC = 5.0V
+net vcc1.vcc V 5.00 +-0.01
+# Pot at 50%: wiper = 5.0 × 0.5 = 2.500V
+net pot1.wiper V 2.50 +-0.05
+```

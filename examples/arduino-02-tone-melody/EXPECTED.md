@@ -28,3 +28,8 @@ Total duration: ~1.75 seconds. The melody plays once and the buzzer goes silent.
 1. Tone frequency control: different Hz values produce distinct pitches
 2. Timing: each `wait` sets the note duration
 3. Rest: `turn off speaker` creates a silent gap in the melody
+
+```assert
+# Supply rail: VCC = 5.0V
+net vcc1.vcc V 5.00 +-0.01
+```

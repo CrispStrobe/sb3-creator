@@ -20,3 +20,8 @@ When tilt switch is triggered, picks a random number 1-8 and prints a correspond
 1. `pick random 1 to 8` generates random selections
 2. Cascaded if-statements map number to message
 3. Event-driven output: prints only on tilt switch activation
+
+```assert
+# Supply rail: VCC = 5.0V
+net vcc1.vcc V 5.00 +-0.01
+```

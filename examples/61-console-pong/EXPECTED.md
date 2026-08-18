@@ -12,3 +12,8 @@
   digit phase after the sixteen matrix lines.
 - Circuit is byte-identical to 60-retro-console: same bench, new
   firmware — the socketed-chip story.
+
+```assert
+# Supply rail: VCC = 5.0V
+net vcc1.vcc V 5.00 +-0.01
+```

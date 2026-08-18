@@ -21,3 +21,10 @@ Reads pot on A0 and maps (0-1023) to angle (0-180). Writes the angle as PWM to D
 1. Analog-to-angle mapping: `(read pot * 180) / 1023`
 2. Servo control via PWM on D9
 3. Proportional position control from a potentiometer
+
+```assert
+# Supply rail: VCC = 5.0V
+net vcc1.vcc V 5.00 +-0.01
+# Pot at 50%: wiper = 5.0 × 0.5 = 2.500V
+net pot1.wiper V 2.50 +-0.05
+```

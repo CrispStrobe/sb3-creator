@@ -19,3 +19,8 @@ Reads D2 and prints its value to serial every 100 ms. LED is driven as the inver
 1. Internal pull-up: D2 reads HIGH when floating, LOW when grounded through button
 2. Inverted logic: `if sensorVal = 1 then: turn off led` — HIGH means not pressed
 3. Serial monitoring of digital input state
+
+```assert
+# Supply rail: VCC = 5.0V
+net vcc1.vcc V 5.00 +-0.01
+```

@@ -21,3 +21,8 @@ Starts locked (red LED on). Detects knocks on piezo (threshold 100). After 3 val
 1. Piezo knock detection with threshold
 2. Counter-based unlock logic (3 knocks required)
 3. Multi-output coordination: LEDs, servo, and serial
+
+```assert
+# Supply rail: VCC = 5.0V
+net vcc1.vcc V 5.00 +-0.01
+```

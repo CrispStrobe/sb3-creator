@@ -38,3 +38,8 @@ The input is at 100 Hz, well above the cutoff of 15.9 Hz (ratio f/fc = 6.3).
 3. Phase shift increases with frequency
 4. DC offset passes through the filter unaffected
 5. The scope reveals the difference between input and output waveforms
+
+```assert
+# Function generator DC offset (5Vpp sine midpoint at t=1ms)
+net fg1.vcc V 2.50 +-2.60
+```

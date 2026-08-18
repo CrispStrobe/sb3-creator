@@ -21,3 +21,8 @@ Each touch toggles the LED: touch once to turn on, touch again to turn off. Uses
 1. Edge detection: `touchVal = 1 and lastTouch = 0` catches only rising edges
 2. Toggle logic: each touch flips `ledState` between 0 and 1
 3. Touch sensor input via digital pin
+
+```assert
+# Supply rail: VCC = 5.0V
+net vcc1.vcc V 5.00 +-0.01
+```

@@ -31,3 +31,10 @@ junction between R1 and R2 to read the divided voltage.
 3. Battery internal resistance is negligible at low current draws
 4. A meter probe measures voltage at a node without significantly loading the circuit
    (assuming high-impedance meter)
+
+```assert
+# Battery: 9.0V (default for battery part)
+net bat1.pos V 9.00 +-0.01
+# Equal divider mid-point: Vbat × R2/(R1+R2) = 9.0 × 0.5 = 4.500V
+net r1.b V 4.50 +-0.01
+```

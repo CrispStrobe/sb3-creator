@@ -4,3 +4,8 @@
 - A single white pixel appears at (120,160).
 - The debugger's pin panel shows SPI activity on P1.0-P1.3 during each draw command.
 - Engine-level: the ILI9341 device model's GRAM receives CASET+PASET+RAMWR sequences with RGB565 pixel data.
+
+```assert
+# Supply rail: VCC = 5.0V
+net vcc1.vcc V 5.00 +-0.01
+```

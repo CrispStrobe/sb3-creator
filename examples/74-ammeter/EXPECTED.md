@@ -20,3 +20,8 @@ Every 200 ms: read the ADC, convert to shunt millivolts, divide by the
   exactly this reason, which the intro explains (burden voltage).
 - Moving the rheostat moves the mA reading the same direction within
   one refresh.
+
+```assert
+# Supply rail: VCC = 5.0V
+net vcc1.vcc V 5.00 +-0.01
+```

@@ -26,3 +26,8 @@ Sweeps PWM duty on D9 from 0 to 255 in steps of 5 every 30 ms, then reverses. Co
 1. `set pwm led to brightness` writes an 8-bit PWM value to D9
 2. PWM duty maps to visible LED brightness
 3. Variable arithmetic (direction reversal at bounds) works correctly
+
+```assert
+# Supply rail: VCC = 5.0V
+net vcc1.vcc V 5.00 +-0.01
+```
