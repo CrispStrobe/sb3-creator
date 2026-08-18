@@ -1470,7 +1470,7 @@ class SB3Creator {
                 // PB7 is Timer 1's square-wave pin and the machine's timebase
                 // guard: the emitter would refuse it anyway, refuse it here too.
                 eater6502: [/^(PA[0-7]|PB[0-7]|MK\d+)$/i, 'PA0-PA7, PB0-PB7, or MK0-MK19 (matrix keypad)'],
-                z80: [/^(OUT[0-7]|IN[0-7])$/i, 'OUT0-OUT7 (latch) or IN0-IN7 (buffer)'],
+                z80: [/^(OUT[0-7]|IN[0-7]|MK\d+)$/i, 'OUT0-OUT7 (latch), IN0-IN7 (buffer), or MK0-MK19 (matrix keypad)'],
                 attiny88: [/^(PA[0-3]|PB[0-7]|PC[0-7]|PD[0-7])$/i, 'PA0-PA3, PB0-PB7, PC0-PC7, PD0-PD7'],
                 attiny85: [/^PB[0-4]$/i, 'PB0-PB4 (PB5 is RESET)']
             };
@@ -10429,8 +10429,41 @@ class SB3Creator {
                         '    return (_mk_state[row] >> _mk_cols[col]) & 1;',
                         '}',
                         '');
+                } else if (this._core === 'z80') {
+                    // Z80: rows on OUT latch bits, cols on IN buffer bits.
+                    // Shadow byte (_z80_sh) drives rows; BW_PORT_IN reads cols.
+                    const rowBits = mx.rows.map(r => Number(r.match(/\d+/)[0]));
+                    const colBits = mx.cols.map(c => Number(c.match(/\d+/)[0]));
+                    const rowMask = rowBits.reduce((m, b) => m | (1 << b), 0);
+                    out.push(
+                        `/* Matrix keypad: ${nRows} rows × ${nCols} cols = ${nRows * nCols} keys. */`,
+                        `static const unsigned char _mk_rows[${nRows}] = { ${rowBits.join(', ')} };`,
+                        `static const unsigned char _mk_cols[${nCols}] = { ${colBits.join(', ')} };`,
+                        `static unsigned char _mk_state[${nRows}];`,
+                        '',
+                        'static void bw_key_scan(void)',
+                        '{',
+                        '    unsigned char r;',
+                        `    for (r = 0; r < ${nRows}; r++) {`,
+                        `        _z80_sh = (unsigned char)((_z80_sh | 0x${rowMask.toString(16).padStart(2, '0')}) & (unsigned char)~(1u << _mk_rows[r]));`,
+                        '        BW_PORT_OUT = _z80_sh;',
+                        '        { unsigned char d; for (d = 0; d < 8; d++) ; }',
+                        '        _mk_state[r] = BW_PORT_IN;',
+                        '    }',
+                        `    _z80_sh |= 0x${rowMask.toString(16).padStart(2, '0')};  /* rows idle */`,
+                        '    BW_PORT_OUT = _z80_sh;',
+                        '}',
+                        '',
+                        'static int bw_key_read(unsigned char idx)',
+                        '{',
+                        `    unsigned char row = idx / ${nCols};`,
+                        `    unsigned char col = idx % ${nCols};`,
+                        '    bw_key_scan();',
+                        '    return (_mk_state[row] >> _mk_cols[col]) & 1;',
+                        '}',
+                        '');
                 } else {
-                    // Stub for non-VIA cores — runtime refusal.
+                    // Stub for unsupported cores.
                     out.push(
                         '/* Matrix keypad: not implemented for this core. */',
                         'static int bw_key_read(unsigned char idx) { (void)idx; return 0; }',
@@ -10826,14 +10859,19 @@ class SB3Creator {
                 out.push('    I2C_SDA_HI(); I2C_SCL_HI();      /* release bus */');
             }
         }
-        // Matrix keypad: row pins as output, col pins as input.
-        if (this._cUses.matrixKeypad && this._core === '6502') {
+        // Matrix keypad: row pins as output, idle HIGH.
+        if (this._cUses.matrixKeypad) {
             const pool = SB3Creator.RETARGET_POOLS[device] || {};
             const mx = pool.matrix || { rows: ['PA2', 'PA3', 'PA4', 'PA5'], cols: ['PB0', 'PB1', 'PB2', 'PB3', 'PB4'] };
             const rowBits = mx.rows.map(r => Number(r.match(/\d+/)[0]));
             const rowMask = rowBits.reduce((m, b) => m | (1 << b), 0);
-            out.push(`    BW_VIA_DDRA |= 0x${rowMask.toString(16).padStart(2, '0')};  /* matrix rows output */`,
-                `    BW_VIA_ORA  |= 0x${rowMask.toString(16).padStart(2, '0')};  /* rows idle HIGH */`);
+            if (this._core === '6502') {
+                out.push(`    BW_VIA_DDRA |= 0x${rowMask.toString(16).padStart(2, '0')};  /* matrix rows output */`,
+                    `    BW_VIA_ORA  |= 0x${rowMask.toString(16).padStart(2, '0')};  /* rows idle HIGH */`);
+            } else if (this._core === 'z80') {
+                out.push(`    _z80_sh |= 0x${rowMask.toString(16).padStart(2, '0')};  /* matrix rows idle HIGH */`,
+                    '    BW_PORT_OUT = _z80_sh;');
+            }
         }
         // LCD (HD44780 via PCF8574): 4-bit mode init sequence.
         if (this._cUses.lcd) {
@@ -11330,9 +11368,12 @@ SB3Creator.RETARGET_POOLS = (() => {
             matrix: { rows: ['PA2', 'PA3', 'PA4', 'PA5'], cols: ['PB0', 'PB1', 'PB2', 'PB3', 'PB4'] } },
         // Z80 bench: OUT latch (port 0 write) provides 8 output bits,
         // IN buffer (port 0 read) provides 8 input bits. No analog, no PWM.
+        // Matrix-virtual MK0-MK19 extend the input pool for programs needing
+        // more than 8 keys (like the calculator): 4 OUT rows × 5 IN cols.
         z80: { digital: seq('OUT%', 0, 7),
-            analog: [], input: seq('IN%', 0, 7),
-            pwm: [], ledActiveLow: false },
+            analog: [], input: [...seq('IN%', 0, 7), ...seq('MK%', 0, 19)],
+            pwm: [], ledActiveLow: false,
+            matrix: { rows: ['OUT2', 'OUT3', 'OUT4', 'OUT5'], cols: ['IN0', 'IN1', 'IN2', 'IN3', 'IN4'] } },
         // ATtiny88 as the BARE CHIP: all of B/C/D bar RESET (PC6). The old
         // input pool was the PENDANT's two buttons — board truth, not chip
         // truth, and generated benches seat the chip.
