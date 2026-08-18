@@ -8288,15 +8288,64 @@ class SB3Creator {
         // before input() returns, so we compare the last char (c[-1:] == 's'/'c'),
         // which is robust whether or not the prefix survives.
         if (dbg) {
+            // The user's variables/lists (module-level globals) — read back on
+            // halt so the host can show them like the 8051 memory/register pane.
+            const dbgVnames = JSON.stringify([...seen]);
             header.push('',
-                '# --- BrickWright debug: position markers + breakpoints over serial ---',
+                '# --- BrickWright debug: state inspection over serial ---',
                 '_bw_step = 0',
+                `_bw_vnames = ${dbgVnames}`,
+                'def _bw_dump():',
+                '    # Serialize live state on halt: \\x1eV=variables, \\x1eB=board.',
+                '    try:',
+                '        import json',
+                '        g = globals()',
+                '        v = {}',
+                '        for k in _bw_vnames:',
+                '            try:',
+                '                json.dumps(g.get(k))',
+                '                v[k] = g.get(k)',
+                '            except Exception:',
+                '                v[k] = repr(g.get(k))',
+                "        print('\\x1eV' + json.dumps(v))",
+                '    except Exception:',
+                '        pass');
+            if (!isPico) {
+                // micro:bit board snapshot — the "pin status" equivalent: what
+                // the LEDs/buttons/sensors read at the moment execution halted.
+                header.push(
+                    '    try:',
+                    '        import json',
+                    '        d = {}',
+                    '        try:',
+                    '            d[\'display\'] = [[display.get_pixel(x, y) for x in range(5)] for y in range(5)]',
+                    '        except Exception:',
+                    '            pass',
+                    '        try:',
+                    "            d['buttonA'] = 1 if button_a.is_pressed() else 0",
+                    "            d['buttonB'] = 1 if button_b.is_pressed() else 0",
+                    '        except Exception:',
+                    '            pass',
+                    '        try:',
+                    "            d['accel'] = list(accelerometer.get_values())",
+                    '        except Exception:',
+                    '            pass',
+                    '        try:',
+                    "            d['temp'] = temperature()",
+                    '        except Exception:',
+                    '            pass',
+                    "        print('\\x1eB' + json.dumps(d))",
+                    '    except Exception:',
+                    '        pass');
+            }
+            header.push(
                 'def _bw_pos(n, bp=0):',
                 '    global _bw_step',
                 "    print('\\x1e' + str(n))",
                 '    if bp or _bw_step:',
                 '        _bw_step = 0',
                 "        print('\\x1e!' + str(n))",
+                '        _bw_dump()',
                 '        while True:',
                 '            try:',
                 '                c = input()',

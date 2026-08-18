@@ -80,3 +80,52 @@ test('the markers use RS (0x1e), which cannot collide with program text', () => 
     const r = mk().generateMicroPython(undefined, { debug: true });
     assert.match(r.py, /print\('\\x1e' \+ str\(n\)\)/, 'position marker is RS-prefixed');
 });
+
+// ---- state inspection on halt: the 8051-parity panes (variables, board) ----
+
+function mkVars() {
+    const c = new SB3Creator();
+    c.parse('DEVICE MICROBIT:\n  WHEN started:\n    set score to 0\n    set score to score + 1\n    show number score\n');
+    return c;
+}
+
+test('the debug build lists the user variables for readback (the memory pane)', () => {
+    const r = mkVars().generateMicroPython(undefined, { debug: true });
+    assert.match(r.py, /_bw_vnames = \["score"\]/, 'user variable names captured');
+    assert.match(r.py, /def _bw_dump\(\):/, 'dump helper emitted');
+    // \x1eV prefixes a JSON object of {name: value}
+    assert.match(r.py, /print\('\\x1eV' \+ json\.dumps\(v\)\)/, 'variables serialized as \\x1eV+json');
+});
+
+test('halting dumps state; a plain marker does not (dump only on pause)', () => {
+    const r = mkVars().generateMicroPython(undefined, { debug: true });
+    // _bw_dump() is called inside the halt branch, right after the \x1e! marker
+    assert.match(r.py, /print\('\\x1e!' \+ str\(n\)\)\n\s*_bw_dump\(\)/, 'dump fires on halt');
+    // exactly one call site (the halt), not per-marker
+    const calls = (r.py.match(/^\s*_bw_dump\(\)$/gm) || []).length;
+    assert.equal(calls, 1, `_bw_dump called once (on halt), got ${calls}`);
+});
+
+test('micro:bit debug build snapshots the board (the pin/sensor-status pane)', () => {
+    const r = mkVars().generateMicroPython(undefined, { debug: true });
+    assert.match(r.py, /print\('\\x1eB' \+ json\.dumps\(d\)\)/, 'board serialized as \\x1eB+json');
+    assert.match(r.py, /display\.get_pixel\(x, y\)/, 'display grid snapshot');
+    assert.match(r.py, /button_a\.is_pressed\(\)/, 'button state snapshot');
+    assert.match(r.py, /accelerometer\.get_values\(\)/, 'accelerometer snapshot');
+});
+
+test('a Pico debug build inspects variables but no micro:bit board', () => {
+    const c = new SB3Creator();
+    c.parse('DEVICE PICO:\n  WHEN started:\n    set score to 0\n    say score\n');
+    const r = c.generateMicroPython(undefined, { debug: true });
+    assert.match(r.py, /_bw_vnames = /, 'variables still captured on Pico');
+    assert.ok(!/display\.get_pixel/.test(r.py), 'no micro:bit display API on Pico');
+    assert.ok(!/accelerometer/.test(r.py), 'no micro:bit accelerometer on Pico');
+});
+
+test('state inspection stays opt-in: release build has no dump/vnames', () => {
+    const r = mkVars().generateMicroPython();
+    assert.ok(!/_bw_dump/.test(r.py), 'no dump helper in release');
+    assert.ok(!/_bw_vnames/.test(r.py), 'no variable list in release');
+    assert.ok(!/\\x1eV/.test(r.py) && !/\\x1eB/.test(r.py), 'no state markers in release');
+});
