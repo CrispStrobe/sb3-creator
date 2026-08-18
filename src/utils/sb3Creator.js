@@ -1087,6 +1087,20 @@ class SB3Creator {
             return B(op, {}, { VALUE: [s, null] });
         }
 
+        // ---- micro:bit+ SENSORS/MOTION reporters (DUAL-LOWERING-ORACLE M1–E3).
+        // BEFORE pin reads: `read accel x` must not fall through to stcPin. ----
+        if ((m = s.match(/^read\s+accel\s+(x|y|z|strength)$/i))) {
+            return B('microbitplus_accel', {}, { AXIS: [m[1].toLowerCase(), null] });
+        }
+        if (/^read\s+pitch$/i.test(s)) return B('microbitplus_pitch');
+        if (/^read\s+roll$/i.test(s)) return B('microbitplus_roll');
+        if (/^read\s+compass$/i.test(s)) return B('microbitplus_compass');
+        if ((m = s.match(/^read\s+magforce\s+(x|y|z|absolute)$/i))) {
+            return B('microbitplus_magforce', {}, { AXIS: [m[1].toLowerCase(), null] });
+        }
+        if (/^read\s+light$/i.test(s)) return B('microbitplus_light');
+        if (/^read\s+temperature$/i.test(s)) return B('microbitplus_temp');
+        if (/^read\s+sound$/i.test(s)) return B('microbitplus_sound');
         // STC12 pin read: digital level, or the 10-bit ADC value for an ANALOG pin.
         if ((m = s.match(/^read\s+([A-Za-z_]\w*)$/i)) && this.stcPin(m[1])) {
             return B('stc12_read', {}, { PIN: [this.stcPin(m[1]).name, null] });
@@ -4549,6 +4563,15 @@ class SB3Creator {
             case 'arrays_map': return `map ${this.dval(b.inputs.FUNC, blocks)} over array ${v('NAME')}`;
             case 'arrays_filter': return `filter array ${v('NAME')} by ${this.dval(b.inputs.FUNC, blocks)}`;
             case 'arrays_reduce': return `reduce array ${v('NAME')} with ${this.dval(b.inputs.FUNC, blocks)} from ${v('INIT')}`;
+            // micro:bit+ sensor/motion reporters (decompile to dialect).
+            case 'microbitplus_accel': return `read accel ${f('AXIS')}`;
+            case 'microbitplus_pitch': return 'read pitch';
+            case 'microbitplus_roll': return 'read roll';
+            case 'microbitplus_compass': return 'read compass';
+            case 'microbitplus_magforce': return `read magforce ${f('AXIS')}`;
+            case 'microbitplus_light': return 'read light';
+            case 'microbitplus_temp': return 'read temperature';
+            case 'microbitplus_sound': return 'read sound';
             // STC12 / 8051 pin read (digital level or ADC value).
             case 'stc12_read': return `read ${f('PIN')}`;
             case 'stc12_readport': return `read ${f('PORT')}`;
@@ -7246,6 +7269,61 @@ class SB3Creator {
                 if (isPico) { degrade(`analog read of ${p.expr} needs machine.ADC — not emitted yet`); return '0'; }
                 return `${p.expr}.read_analog()`;
             }
+            // ---- micro:bit+ SENSORS/MOTION reporters (DUAL-LOWERING-ORACLE M1–E3) ----
+            const rf = (k) => (rb.fields[k] ? rb.fields[k][0] : '');
+            if (rb.opcode === 'microbitplus_accel') {
+                const ax = String(rf('AXIS')).toLowerCase();
+                if (ax === 'strength') {
+                    uses.math = true;
+                    return 'math.sqrt(accelerometer.get_x()**2 + accelerometer.get_y()**2 + accelerometer.get_z()**2)';
+                }
+                return `accelerometer.get_${ax}()`;
+            }
+            if (rb.opcode === 'microbitplus_pitch') { uses.math = true; uses._pitch = true; return '_pitch()'; }
+            if (rb.opcode === 'microbitplus_roll')  { uses.math = true; uses._roll = true; return '_roll()'; }
+            if (rb.opcode === 'microbitplus_compass') return 'compass.heading()';
+            if (rb.opcode === 'microbitplus_magforce') {
+                const ax = String(rf('AXIS')).toLowerCase();
+                if (ax === 'absolute') {
+                    uses.math = true;
+                    return 'math.sqrt(compass.get_x()**2 + compass.get_y()**2 + compass.get_z()**2)';
+                }
+                return `compass.get_${ax}()`;
+            }
+            if (rb.opcode === 'microbitplus_light') return 'display.read_light_level()';
+            if (rb.opcode === 'microbitplus_temp') return 'temperature()';
+            if (rb.opcode === 'microbitplus_sound') return 'microphone.sound_level()';
+            // ---- micro:bit+ PIN reporters (DUAL-LOWERING-ORACLE P4) ----
+            if (rb.opcode === 'microbitplus_digitalread') {
+                const pin = String(rf('PIN')).toLowerCase();
+                const n = pin.replace(/^p/, '');
+                return `pin${n}.read_digital()`;
+            }
+            if (rb.opcode === 'microbitplus_analogread') {
+                const pin = String(rf('PIN')).toLowerCase();
+                const n = pin.replace(/^p/, '');
+                return `pin${n}.read_analog()`;
+            }
+            if (rb.opcode === 'microbitplus_isbutton') {
+                const btn = String(rf('BTN')).toLowerCase();
+                uses.buttons = true;
+                return `button_${btn}.is_pressed()`;
+            }
+            if (rb.opcode === 'microbitplus_ispinhigh') {
+                const pin = String(rf('PIN')).toLowerCase();
+                const n = pin.replace(/^p/, '');
+                return `pin${n}.read_digital()`;
+            }
+            if (rb.opcode === 'microbitplus_isgesture') {
+                return `accelerometer.is_gesture('${String(rf('GESTURE')).toLowerCase()}')`;
+            }
+            if (rb.opcode === 'microbitplus_istouch') {
+                const pin = String(rf('PIN')).toLowerCase();
+                const n = pin.replace(/^p/, '');
+                return `pin${n}.is_touched()`;
+            }
+            if (rb.opcode === 'microbitplus_radiolastnum') { uses.radio = true; return '_radio_last_num'; }
+            if (rb.opcode === 'microbitplus_radiolaststr') { uses.radio = true; return '_radio_last_str'; }
             return null;
         };
         const val = (b, k, blocks) => pinReporter(b.inputs[k], blocks)
@@ -7538,6 +7616,10 @@ class SB3Creator {
             : ['# generated for micro:bit (MicroPython)',
                 'from microbit import *'];
         if (uses.music && !isPico) header.push('import music');
+        if (uses.math) header.push('import math');
+        if (uses.radio) header.push('import radio');
+        if (uses._pitch) header.push('', 'def _pitch():', '    x, y, z = accelerometer.get_values()', '    return math.atan2(-y, -z) * 180 / math.pi');
+        if (uses._roll) header.push('', 'def _roll():', '    x, y, z = accelerometer.get_values()', '    return math.atan2(x, -z) * 180 / math.pi');
         if (isPico) {
             // Pin objects. sda/scl by NAME feed the hardware I2C when the
             // program drives an OLED — they must not be constructed as
