@@ -1,0 +1,9 @@
+DEVICE MICROBIT
+
+# Radio demo: configure, send accel X every second
+WHEN flag clicked:
+  radio on group 5 power 3
+  FOREVER:
+    set val to read accel x
+    radio send number val
+    wait 1 seconds

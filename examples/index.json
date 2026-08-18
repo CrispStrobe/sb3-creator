@@ -6431,5 +6431,77 @@
    "intro": "78-a2-calculator/intro.md",
    "introDE": "78-a2-calculator/intro.de.md"
   }
+ },
+ {
+  "id": "mb01-display",
+  "title": {
+   "en": "micro:bit Display Demo",
+   "de": "micro:bit Display-Demo"
+  },
+  "category": "microbit",
+  "difficulty": 1,
+  "files": {
+   "program": "mb01-display/program.bw",
+   "expected": "mb01-display/EXPECTED.md"
+  },
+  "kind": "program",
+  "devices": [
+   "microbit"
+  ],
+  "authored": "microbit"
+ },
+ {
+  "id": "mb02-sensors",
+  "title": {
+   "en": "micro:bit Sensor Readout",
+   "de": "micro:bit Sensor-Abfrage"
+  },
+  "category": "microbit",
+  "difficulty": 1,
+  "files": {
+   "program": "mb02-sensors/program.bw",
+   "expected": "mb02-sensors/EXPECTED.md"
+  },
+  "kind": "program",
+  "devices": [
+   "microbit"
+  ],
+  "authored": "microbit"
+ },
+ {
+  "id": "mb03-pins",
+  "title": {
+   "en": "micro:bit Pin I/O",
+   "de": "micro:bit Pin-E/A"
+  },
+  "category": "microbit",
+  "difficulty": 2,
+  "files": {
+   "program": "mb03-pins/program.bw",
+   "expected": "mb03-pins/EXPECTED.md"
+  },
+  "kind": "program",
+  "devices": [
+   "microbit"
+  ],
+  "authored": "microbit"
+ },
+ {
+  "id": "mb04-radio",
+  "title": {
+   "en": "micro:bit Radio Send",
+   "de": "micro:bit Funk-Senden"
+  },
+  "category": "microbit",
+  "difficulty": 2,
+  "files": {
+   "program": "mb04-radio/program.bw",
+   "expected": "mb04-radio/EXPECTED.md"
+  },
+  "kind": "program",
+  "devices": [
+   "microbit"
+  ],
+  "authored": "microbit"
  }
 ]

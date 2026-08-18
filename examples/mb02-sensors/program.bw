@@ -1,0 +1,9 @@
+DEVICE MICROBIT
+
+# Sensor demo: read accelerometer, light, temperature in a loop
+WHEN flag clicked:
+  FOREVER:
+    set ax to read accel x
+    set lux to read light
+    set deg to read temperature
+    wait 0.5 seconds

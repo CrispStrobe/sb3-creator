@@ -1,0 +1,9 @@
+DEVICE MICROBIT
+
+# Pins demo: digital write, digital read, analog read, analog write
+WHEN flag clicked:
+  set pin P0 to 1
+  set pin P0 to 0
+  set val to pin P0 digital
+  set aval to analog value of pin P1
+  set pin P2 analog 50 %

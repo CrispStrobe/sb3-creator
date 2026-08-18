@@ -1,0 +1,11 @@
+DEVICE MICROBIT
+
+# Display demo: pattern, text, scroll, clear
+WHEN flag clicked:
+  show pattern 09900:09900:09900:00000:00000
+  wait 2 seconds
+  show text "Hello"
+  wait 1 seconds
+  scroll text "BW" delay 80 ms
+  wait 1 seconds
+  clear display
