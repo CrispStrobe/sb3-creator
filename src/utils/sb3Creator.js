@@ -2708,6 +2708,36 @@ class SB3Creator {
             block[id].fields.MODE = ['number', null];
             return ret(block);
         }
+        // ---- micro:bit+ display group (docs/microbitplus/DUAL-LOWERING-ORACLE.md D1–D5).
+        // BEFORE the stock display/scroll parse: `scroll text "..."` must not be
+        // grabbed by the generic `scroll <expr>` rule below. ----
+        if ((match = line.match(/^show\s+pattern\s+([0-9:]+)\s*$/i))) {
+            const { id, block } = cmd('microbitplus_showmatrix');
+            block[id].fields.MATRIX = [match[1].replace(/[^0-9]/g, ''), null];
+            return ret(block);
+        }
+        if ((match = line.match(/^show\s+text\s+"([^"]*)"\s*$/i))) {
+            const { id, block } = cmd('microbitplus_showtext');
+            block[id].inputs.TEXT = [1, [10, match[1]]];
+            return ret(block);
+        }
+        if ((match = line.match(/^scroll\s+text\s+"([^"]*)"\s+delay\s+(\d+)\s*ms\s*$/i))) {
+            const { id, block } = cmd('microbitplus_scrolltext');
+            block[id].inputs.TEXT = [1, [10, match[1]]];
+            block[id].inputs.MS = [1, [4, match[2]]];
+            return ret(block);
+        }
+        if (/^clear\s+display\s*$/i.test(line)) {
+            const { id, block } = cmd('microbitplus_cleardisplay');
+            return ret(block);
+        }
+        if ((match = line.match(/^plot\s+x\s+(\d+)\s+y\s+(\d+)\s+(on|off)\s*$/i))) {
+            const { id, block } = cmd('microbitplus_plot');
+            block[id].inputs.X = [1, [4, match[1]]];
+            block[id].inputs.Y = [1, [4, match[2]]];
+            block[id].fields.STATE = [match[3].toLowerCase(), null];
+            return ret(block);
+        }
         // ---- micro:bit display (explicit device verb: say is STAGE, this is LEDs) ----
         if ((match = line.match(/^(?:display|scroll)\s+"([^"]*)"\s*$/i))) {
             const { id, block } = cmd('microbit_display');
@@ -7244,6 +7274,16 @@ class SB3Creator {
             const vs = (k) => `str(${val(b, k, blocks)})`;
             const f = (k) => (b.fields[k] ? b.fields[k][0] : '');
             const sub = (k) => (b.inputs[k] ? walk(b.inputs[k][1], blocks, pad + '    ') : [`${pad}    pass`]);
+            // A Python string literal from a text input: single-quoted for a
+            // literal text shadow ([.., [10, "..."]]) so it matches the micro:bit
+            // idiom; str(expr) for anything computed.
+            const pyText = (k) => {
+                const inp = b.inputs[k];
+                if (Array.isArray(inp) && Array.isArray(inp[1]) && inp[1][0] === 10) {
+                    return `'${String(inp[1][1]).replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`;
+                }
+                return `str(${val(b, k, blocks)})`;
+            };
             switch (b.opcode) {
                 case 'data_setvariableto': {
                     const n = declVar(f('VARIABLE'), '0');
@@ -7267,6 +7307,26 @@ class SB3Creator {
                     return [`${pad}yield int((${v('SECS')}) * 1000)  # say (stage)`];
                 case 'microbit_display':
                     return [`${pad}display.scroll(${vs('VALUE')}, wait=False, loop=False)`];
+                // micro:bit+ DISPLAY group — the REFERENCE lowering the other
+                // microbitPlus groups mirror (docs/microbitplus/DUAL-LOWERING-
+                // ORACLE.md, table D1–D3). MicroPython display API: show(Image),
+                // scroll(text), clear(), set_pixel(x,y,level).
+                case 'microbitplus_showmatrix': {
+                    // MATRIX is a 25-char '0'..'9' grid; Image() wants five
+                    // colon-separated 5-char rows.
+                    const raw = String(f('MATRIX') || val(b, 'MATRIX', blocks) || '').replace(/[^0-9]/g, '');
+                    const s = (raw + '0'.repeat(25)).slice(0, 25);
+                    const img = s.match(/.{5}/g).join(':');
+                    return [`${pad}display.show(Image('${img}'))`];
+                }
+                case 'microbitplus_showtext':
+                    return [`${pad}display.scroll(${pyText('TEXT')})`];
+                case 'microbitplus_scrolltext':
+                    return [`${pad}display.scroll(${pyText('TEXT')}, delay=int(${v('MS')}))`];
+                case 'microbitplus_cleardisplay':
+                    return [`${pad}display.clear()`];
+                case 'microbitplus_plot':
+                    return [`${pad}display.set_pixel(int(${v('X')}), int(${v('Y')}), ${f('STATE') === 'off' ? 0 : 9})`];
                 case 'stc12_print':
                     return [`${pad}print(${vs('VALUE')})`];
                 case 'stc12_setpin': {
