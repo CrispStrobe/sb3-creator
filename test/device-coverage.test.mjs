@@ -195,6 +195,7 @@ const KNOWN_GAPS = new Set([
     'cd4093',           // quad NAND Schmitt trigger — circuit-level
     'mcp4725',          // I2C DAC — driven through the I2C blocks, no dedicated verb
     'seven_seg_3',      // 3-digit seven-segment — multiplexed at circuit level
+    'seven_seg_4',      // 4-digit seven-segment — multiplexed at circuit level
 
     // --- new kinds from engine expansion ---
     'ambient_light',    // ambient light sensor

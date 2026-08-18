@@ -1,0 +1,204 @@
+# The A2 calculator: a chain calculator on the Prechin A2's own
+# hardware vocabulary — eight 7-segment digits (two 4-digit tubes,
+# segments shared on P0, one common per digit on P2), the 4x4 red
+# keypad on P1 (rows driven low, columns read back — the measured
+# A2 map), and the four black keys on P3 as memory/edit keys.
+#
+#   red keypad:  1 2 3 A(+)   black keys:  K1 clear all
+#                4 5 6 B(-)                K2 backspace
+#                7 8 9 C(x)                K3 M+  (memory add)
+#                * 0 # D(/)                K4 MR  (memory recall)
+#                * = clear entry, # = equals
+#
+# Two tasks share the chip: one multiplexes the display at ~125 Hz
+# from `shown`, the other scans the keys and runs the calculator.
+DEVICE STC89C52RC
+CLOCK 11059200
+
+TABLE font = 0b00111111, 0b00000110, 0b01011011, 0b01001111, 0b01100110, 0b01101101, 0b01111101, 0b00000111, 0b01111111, 0b01101111
+TABLE walk = 0b00000001, 0b00000010, 0b00000100, 0b00001000, 0b00010000, 0b00100000, 0b01000000, 0b10000000
+
+PORT segments = P0 OUTPUT
+PORT select = P2 OUTPUT ACTIVE LOW
+
+PIN row0 = P1.7 OUTPUT ACTIVE LOW
+PIN row1 = P1.6 OUTPUT ACTIVE LOW
+PIN row2 = P1.5 OUTPUT ACTIVE LOW
+PIN row3 = P1.4 OUTPUT ACTIVE LOW
+PIN col0 = P1.3 INPUT ACTIVE LOW
+PIN col1 = P1.2 INPUT ACTIVE LOW
+PIN col2 = P1.1 INPUT ACTIVE LOW
+PIN col3 = P1.0 INPUT ACTIVE LOW
+
+PIN k1 = P3.2 INPUT ACTIVE LOW
+PIN k2 = P3.3 INPUT ACTIVE LOW
+PIN k3 = P3.4 INPUT ACTIVE LOW
+PIN k4 = P3.5 INPUT ACTIVE LOW
+
+DEFINE read_cols:
+  set hit to 0 - 1
+  IF read col0 THEN:
+    set hit to 0
+  IF read col1 THEN:
+    set hit to 1
+  IF read col2 THEN:
+    set hit to 2
+  IF read col3 THEN:
+    set hit to 3
+
+DEFINE scan_keypad:
+  set key to 0 - 1
+  turn on row0
+  read_cols
+  turn off row0
+  IF hit >= 0 THEN:
+    set key to hit
+  turn on row1
+  read_cols
+  turn off row1
+  IF hit >= 0 AND key < 0 THEN:
+    set key to 4 + hit
+  turn on row2
+  read_cols
+  turn off row2
+  IF hit >= 0 AND key < 0 THEN:
+    set key to 8 + hit
+  turn on row3
+  read_cols
+  turn off row3
+  IF hit >= 0 AND key < 0 THEN:
+    set key to 12 + hit
+
+DEFINE apply_pending:
+  IF op = 1 THEN:
+    set acc to acc + entry
+  IF op = 2 THEN:
+    set acc to acc - entry
+  IF op = 3 THEN:
+    set acc to acc * entry
+  IF op = 4 THEN:
+    IF entry = 0 THEN:
+      set acc to 0
+    ELSE:
+      set acc to acc / entry
+  IF acc < 0 THEN:
+    set acc to 0
+  IF acc > 99999999 THEN:
+    set acc to 99999999
+
+DEFINE press_digit:
+  IF fresh = 1 THEN:
+    set entry to digit
+    set fresh to 0
+  ELSE:
+    IF entry < 10000000 THEN:
+      set entry to entry * 10 + digit
+  set shown to entry
+
+DEFINE press_op:
+  IF fresh = 0 THEN:
+    IF op = 0 THEN:
+      set acc to entry
+    ELSE:
+      apply_pending
+  set op to newop
+  set fresh to 1
+  set shown to acc
+
+WHEN flag clicked:
+  set shown to 0
+  FOREVER:
+    set idx to 0
+    REPEAT 8:
+      set copy to shown
+      REPEAT idx:
+        # (x - x mod 10) / 10 divides exactly in integer C and float JS alike
+        set copy to (copy - copy mod 10) / 10
+      IF copy = 0 AND idx > 0 THEN:
+        set segments to 0
+      ELSE:
+        set segments to font[copy mod 10]
+      set select to walk[idx]
+      wait 1 ms
+      set select to 0
+      change idx by 1
+
+WHEN flag clicked:
+  set acc to 0
+  set entry to 0
+  set op to 0
+  set fresh to 1
+  set mem to 0
+  set lastkey to 0 - 1
+  FOREVER:
+    scan_keypad
+    IF key >= 0 AND not key = lastkey THEN:
+      IF key = 0 THEN:
+        set digit to 1
+        press_digit
+      IF key = 1 THEN:
+        set digit to 2
+        press_digit
+      IF key = 2 THEN:
+        set digit to 3
+        press_digit
+      IF key = 4 THEN:
+        set digit to 4
+        press_digit
+      IF key = 5 THEN:
+        set digit to 5
+        press_digit
+      IF key = 6 THEN:
+        set digit to 6
+        press_digit
+      IF key = 8 THEN:
+        set digit to 7
+        press_digit
+      IF key = 9 THEN:
+        set digit to 8
+        press_digit
+      IF key = 10 THEN:
+        set digit to 9
+        press_digit
+      IF key = 13 THEN:
+        set digit to 0
+        press_digit
+      IF key = 3 THEN:
+        set newop to 1
+        press_op
+      IF key = 7 THEN:
+        set newop to 2
+        press_op
+      IF key = 11 THEN:
+        set newop to 3
+        press_op
+      IF key = 15 THEN:
+        set newop to 4
+        press_op
+      IF key = 14 THEN:
+        IF op > 0 AND fresh = 0 THEN:
+          apply_pending
+          set op to 0
+          set shown to acc
+        set fresh to 1
+      IF key = 12 THEN:
+        set entry to 0
+        set fresh to 1
+        set shown to 0
+    set lastkey to key
+    IF read k1 THEN:
+      set acc to 0
+      set entry to 0
+      set op to 0
+      set fresh to 1
+      set shown to 0
+    IF read k2 THEN:
+      set entry to (entry - entry mod 10) / 10
+      set shown to entry
+    IF read k3 THEN:
+      set mem to mem + shown
+    IF read k4 THEN:
+      set entry to mem
+      set fresh to 0
+      set shown to mem
+    wait 25 ms

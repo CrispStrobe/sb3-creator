@@ -6389,5 +6389,47 @@
    "intro": "76-multimeter/intro.md",
    "introDE": "76-multimeter/intro.de.md"
   }
+ },
+ {
+  "id": "77-keypad-keyshow",
+  "title": {
+   "en": "Keypad keyshow (4×4 → 7-seg)",
+   "de": "Tastenfeld-Keyshow (4×4 → 7-Segment)"
+  },
+  "category": "digital",
+  "difficulty": 2,
+  "kind": "full",
+  "devices": [
+   "stc89c52rc"
+  ],
+  "authored": "stc89c52rc",
+  "files": {
+   "program": "77-keypad-keyshow/program.bw",
+   "circuit": "77-keypad-keyshow/circuit.json",
+   "expected": "77-keypad-keyshow/EXPECTED.md",
+   "intro": "77-keypad-keyshow/intro.md",
+   "introDE": "77-keypad-keyshow/intro.de.md"
+  }
+ },
+ {
+  "id": "78-a2-calculator",
+  "title": {
+   "en": "The A2 calculator (8 digits, 4×4 keypad)",
+   "de": "Der A2-Taschenrechner (8 Ziffern, 4×4-Tastenfeld)"
+  },
+  "category": "digital",
+  "difficulty": 4,
+  "kind": "full",
+  "devices": [
+   "stc89c52rc"
+  ],
+  "authored": "stc89c52rc",
+  "files": {
+   "program": "78-a2-calculator/program.bw",
+   "circuit": "78-a2-calculator/circuit.json",
+   "expected": "78-a2-calculator/EXPECTED.md",
+   "intro": "78-a2-calculator/intro.md",
+   "introDE": "78-a2-calculator/intro.de.md"
+  }
  }
 ]

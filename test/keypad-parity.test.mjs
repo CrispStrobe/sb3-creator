@@ -90,3 +90,34 @@ test('Python and JS route the keypad read through the runtime shim', () => {
     assert.match(js, /_stc12\.readKeypad\("keys"\)/);
     assert.match(js, /readKeypad/);   // neutral stub or board driver, either flavor
 });
+
+// Expression indices inside a TABLE read — `font[copy mod 10]` — used to be
+// split by the binary-operator pass BEFORE the table-ref regex could see the
+// brackets, and compiled silently to string arithmetic (`"font[copy" % "10]"`).
+// Found authoring 78-a2-calculator (2026-08-18). splitBinary now tracks []
+// depth like () depth, so the whole bracketed atom survives to the reporter.
+test('TABLE read with an expression index compiles and round-trips', () => {
+    const SRC = `DEVICE STC89C52RC:
+  CLOCK 11059200
+
+  TABLE font = 1, 2, 3, 4
+
+  PORT segments = P0 OUTPUT
+
+  WHEN started:
+    set copy to 47
+    set segments to font[copy mod 10]
+    set segments to font[copy + 1]
+`;
+    const c = build(SRC);
+    assert.equal((c.warnings || []).length, 0, JSON.stringify(c.warnings));
+    const cc = c.generateC();
+    assert.match(cc, /bw_tab_font\[bw_clamp\(\(copy % 10\), 3\)\]/);
+    assert.match(cc, /bw_tab_font\[bw_clamp\(\(copy \+ 1\), 3\)\]/);
+    const back = cToPseudocode(cc);
+    const bw = String(back.pseudocode ?? back);
+    assert.match(bw, /set segments to font\[copy mod 10\]/);
+    assert.match(bw, /set segments to font\[copy \+ 1\]/);
+    const c2 = build(bw);
+    assert.equal(c2.generateC(), cc, 'pseudocode → C → pseudocode → C is a fixed point');
+});

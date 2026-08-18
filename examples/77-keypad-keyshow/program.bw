@@ -1,0 +1,59 @@
+# Keyshow: press a key on the 4x4 keypad, its value appears on the
+# 7-segment digit. The scan is the real thing — one row driven low at
+# a time, columns read back — the same loop that ran on the Prechin
+# A2's silicon (stc lab, 09-keyshow89). Pin map = the A2's measured
+# one: rows P1.7..P1.4, columns P1.3..P1.0, segments on P0.
+DEVICE STC89C52RC
+CLOCK 11059200
+
+TABLE font = 0b00111111, 0b00000110, 0b01011011, 0b01001111, 0b01100110, 0b01101101, 0b01111101, 0b00000111, 0b01111111, 0b01101111, 0b01110111, 0b01111100, 0b00111001, 0b01011110, 0b01111001, 0b01110001
+
+PORT segments = P0 OUTPUT
+
+PIN row0 = P1.7 OUTPUT ACTIVE LOW
+PIN row1 = P1.6 OUTPUT ACTIVE LOW
+PIN row2 = P1.5 OUTPUT ACTIVE LOW
+PIN row3 = P1.4 OUTPUT ACTIVE LOW
+PIN col0 = P1.3 INPUT ACTIVE LOW
+PIN col1 = P1.2 INPUT ACTIVE LOW
+PIN col2 = P1.1 INPUT ACTIVE LOW
+PIN col3 = P1.0 INPUT ACTIVE LOW
+
+DEFINE read_cols:
+  set hit to 0 - 1
+  IF read col0 THEN:
+    set hit to 0
+  IF read col1 THEN:
+    set hit to 1
+  IF read col2 THEN:
+    set hit to 2
+  IF read col3 THEN:
+    set hit to 3
+
+WHEN flag clicked:
+  set segments to 0
+  FOREVER:
+    set key to 0 - 1
+    turn on row0
+    read_cols
+    turn off row0
+    IF hit >= 0 THEN:
+      set key to hit
+    turn on row1
+    read_cols
+    turn off row1
+    IF hit >= 0 AND key < 0 THEN:
+      set key to 4 + hit
+    turn on row2
+    read_cols
+    turn off row2
+    IF hit >= 0 AND key < 0 THEN:
+      set key to 8 + hit
+    turn on row3
+    read_cols
+    turn off row3
+    IF hit >= 0 AND key < 0 THEN:
+      set key to 12 + hit
+    IF key >= 0 THEN:
+      set segments to font[key]
+    wait 30 ms

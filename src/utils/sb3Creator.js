@@ -959,8 +959,8 @@ class SB3Creator {
             const ch = s[i];
             if (ch === '"') { inStr = !inStr; continue; }
             if (inStr) continue;
-            if (ch === '(') { depth++; continue; }
-            if (ch === ')') { depth--; continue; }
+            if (ch === '(' || ch === '[') { depth++; continue; }
+            if (ch === ')' || ch === ']') { depth--; continue; }
             if (depth !== 0) continue;
             for (const op of ops) {
                 const seg = s.substr(i, op.length);
