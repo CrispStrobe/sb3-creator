@@ -164,6 +164,77 @@
               INDEX: { type: Scratch.ArgumentType.NUMBER, defaultValue: 0 },
             },
           },
+          // ---- MATRIX8X8: an 8x8 dot-matrix SCREEN that self-scans in the
+          // Timer-0 ISR. All verbs write the RAM frame buffer only. STYLE and
+          // DIR are FIELD menus (acceptReporters:false), the coordinates and
+          // level/bits are numeric inputs — matching what sb3-creator emits.
+          {
+            opcode: "matrix_setpx",
+            blockType: Scratch.BlockType.COMMAND,
+            text: Scratch.translate("[STYLE] pixel [X] [Y] level [LEVEL] on [PART]"),
+            arguments: {
+              STYLE: { type: Scratch.ArgumentType.STRING, menu: "pixelStyles" },
+              X: { type: Scratch.ArgumentType.NUMBER, defaultValue: 0 },
+              Y: { type: Scratch.ArgumentType.NUMBER, defaultValue: 0 },
+              LEVEL: { type: Scratch.ArgumentType.NUMBER, defaultValue: 3 },
+              PART: { type: Scratch.ArgumentType.STRING, menu: "parts" },
+            },
+          },
+          {
+            opcode: "matrix_row",
+            blockType: Scratch.BlockType.COMMAND,
+            text: Scratch.translate("draw row [Y] = [BITS] on [PART]"),
+            arguments: {
+              Y: { type: Scratch.ArgumentType.NUMBER, defaultValue: 0 },
+              BITS: { type: Scratch.ArgumentType.NUMBER, defaultValue: 255 },
+              PART: { type: Scratch.ArgumentType.STRING, menu: "parts" },
+            },
+          },
+          {
+            opcode: "matrix_image",
+            blockType: Scratch.BlockType.COMMAND,
+            text: Scratch.translate("show image [TABLE] on [PART]"),
+            arguments: {
+              TABLE: { type: Scratch.ArgumentType.STRING, menu: "tables" },
+              PART: { type: Scratch.ArgumentType.STRING, menu: "parts" },
+            },
+          },
+          {
+            opcode: "matrix_scroll",
+            blockType: Scratch.BlockType.COMMAND,
+            text: Scratch.translate("scroll [PART] [DIR]"),
+            arguments: {
+              PART: { type: Scratch.ArgumentType.STRING, menu: "parts" },
+              DIR: { type: Scratch.ArgumentType.STRING, menu: "scrollDirs" },
+            },
+          },
+          {
+            opcode: "matrix_dim",
+            blockType: Scratch.BlockType.COMMAND,
+            text: Scratch.translate("set [PART] brightness [LEVEL]"),
+            arguments: {
+              PART: { type: Scratch.ArgumentType.STRING, menu: "parts" },
+              LEVEL: { type: Scratch.ArgumentType.NUMBER, defaultValue: 3 },
+            },
+          },
+          {
+            opcode: "matrix_clear",
+            blockType: Scratch.BlockType.COMMAND,
+            text: Scratch.translate("clear screen [PART]"),
+            arguments: {
+              PART: { type: Scratch.ArgumentType.STRING, menu: "parts" },
+            },
+          },
+          {
+            opcode: "matrix_getpx",
+            blockType: Scratch.BlockType.BOOLEAN,
+            text: Scratch.translate("pixel [X] [Y] on [PART] is on"),
+            arguments: {
+              X: { type: Scratch.ArgumentType.NUMBER, defaultValue: 0 },
+              Y: { type: Scratch.ArgumentType.NUMBER, defaultValue: 0 },
+              PART: { type: Scratch.ArgumentType.STRING, menu: "parts" },
+            },
+          },
         ],
         menus: {
           // acceptReporters:false is what makes these FIELDS rather than inputs,
@@ -178,6 +249,14 @@
           printModes: { acceptReporters: false, items: ["text", "number"] },
           edges: { acceptReporters: false, items: ["pressed", "released"] },
           tables: { acceptReporters: false, items: "tableNames" },
+          pixelStyles: {
+            acceptReporters: false,
+            items: ["light", "clear", "on", "off", "brightness"],
+          },
+          scrollDirs: {
+            acceptReporters: false,
+            items: ["left", "right", "up", "down"],
+          },
         },
       };
     }
@@ -290,6 +369,69 @@
       const b = board(this.runtime);
       const k = "keypad_" + args.PART;
       return Object.prototype.hasOwnProperty.call(b, k) ? Number(b[k]) : -1;
+    }
+
+    // ---- MATRIX8X8: an 8x8 SCREEN. The editor keeps a simple 8-byte
+    // threshold frame buffer per screen on the board (scr_<name>); a face
+    // renderer reads it. bit7 of a row byte = the LEFT column, matching the C
+    // driver and the image literals. Brightness is collapsed to on/off in this
+    // preview (monochrome); the generated C carries the real 2-bit depth.
+    _scr(part) {
+      const b = board(this.runtime);
+      const k = "scr_" + part;
+      if (!Object.prototype.hasOwnProperty.call(b, k)) b[k] = [0, 0, 0, 0, 0, 0, 0, 0];
+      return b[k];
+    }
+
+    _scrpx(part, x, y, on) {
+      x = Number(x) | 0; y = Number(y) | 0;
+      if (x < 0 || x > 7 || y < 0 || y > 7) return;
+      const buf = this._scr(part);
+      const m = 0x80 >> x;
+      if (on) buf[y] |= m; else buf[y] &= ~m & 0xff;
+    }
+
+    matrix_setpx(args) {
+      const on = args.STYLE === "light" || args.STYLE === "on" ||
+        (args.STYLE === "brightness" && Number(args.LEVEL) > 0);
+      this._scrpx(args.PART, args.X, args.Y, on);
+    }
+
+    matrix_row(args) {
+      const y = Number(args.Y) | 0;
+      if (y < 0 || y > 7) return;
+      this._scr(args.PART)[y] = Number(args.BITS) & 0xff;
+    }
+
+    matrix_image(args) {
+      // The circuit layer feeds tab_<name> as an 8-byte array (the TABLE
+      // values); blit it, or clear the screen if the table is absent.
+      const img = board(this.runtime)["tab_" + args.TABLE];
+      const buf = this._scr(args.PART);
+      for (let y = 0; y < 8; y++) buf[y] = Array.isArray(img) ? (Number(img[y]) & 0xff) : 0;
+    }
+
+    matrix_scroll(args) {
+      const buf = this._scr(args.PART);
+      if (args.DIR === "left") for (let y = 0; y < 8; y++) buf[y] = (buf[y] << 1) & 0xff;
+      else if (args.DIR === "right") for (let y = 0; y < 8; y++) buf[y] = (buf[y] >> 1) & 0xff;
+      else if (args.DIR === "up") { for (let y = 0; y < 7; y++) buf[y] = buf[y + 1]; buf[7] = 0; }
+      else { for (let y = 7; y > 0; y--) buf[y] = buf[y - 1]; buf[0] = 0; }
+    }
+
+    matrix_dim(args) {
+      board(this.runtime)["scrdim_" + args.PART] = Number(args.LEVEL);
+    }
+
+    matrix_clear(args) {
+      const buf = this._scr(args.PART);
+      for (let y = 0; y < 8; y++) buf[y] = 0;
+    }
+
+    matrix_getpx(args) {
+      const x = Number(args.X) | 0, y = Number(args.Y) | 0;
+      if (x < 0 || x > 7 || y < 0 || y > 7) return false;
+      return (this._scr(args.PART)[y] & (0x80 >> x)) !== 0;
     }
 
     print(args) {
