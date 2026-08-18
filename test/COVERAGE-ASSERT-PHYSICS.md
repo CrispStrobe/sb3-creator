@@ -261,16 +261,19 @@ Generated: 2026-08-18
 | z80-bench | circuit | yes | skip (0/1) | circuit z80-bench not solvable: no circuit file |
 | z80-pd-bench | circuit | yes | skip (0/1) | circuit z80-pd-bench not solvable: no circuit file |
 
-## Uncovered Examples (no assert block)
+## Uncovered Examples (no assert block) — 8 remaining, all structurally unsolvable
 
-- **168p01-blink** (program): no explicit voltage source in circuit
-- **arduino-sk-p15-hacking-buttons** (full): no explicit voltage source in circuit
-- **avr01-blink** (program): no explicit voltage source in circuit
-- **avr03-dual-blink** (program): no explicit voltage source in circuit
-- **mega01-blink** (program): no explicit voltage source in circuit
-- **mega03-port-current** (program): no explicit voltage source in circuit
-- **nano01-blink** (program): no explicit voltage source in circuit
-- **pico01-blink** (program): no explicit voltage source in circuit
+Each of these circuits has no explicit VCC/battery part wired into the
+netlist. The MCU provides implicit power but does not expose its internal
+VCC rail as a solvable terminal (`mcu1.VCC`, `mcu1.vcc`, `mcu1.5v` all
+tested — none found by the solver). LED nodes are MCU-driven and require
+firmware simulation to determine voltage, which the DC solver cannot do.
 
-These 8 examples lack an explicit VCC/battery part, so the solver
-cannot determine a supply voltage to assert. They use implicit MCU power only.
+- **168p01-blink** (program): ATmega168P + 220Ω + LED. MCU drives D13; no VCC part, no passive divider.
+- **avr01-blink** (program): ATmega328P + 220Ω + LED. Same topology as 168p01.
+- **avr03-dual-blink** (program): ATmega328P + 2×(220Ω + LED). Two MCU-driven LEDs, no VCC part.
+- **mega01-blink** (program): ATmega2560 + 220Ω + LED. Same topology, Mega variant.
+- **mega03-port-current** (program): ATmega2560 + 8×(220Ω + LED). Eight MCU-driven LEDs, no VCC part.
+- **nano01-blink** (program): ATmega328P Nano + 220Ω + LED. Same topology, Nano variant.
+- **pico01-blink** (program): RP2040 Pico only, no external wires at all. Uses on-board GP25 LED.
+- **arduino-sk-p15-hacking-buttons** (full): Arduino Uno + 220Ω + LED. Has VCC part but no wires from it; power delivered only via breadboard rail generation, which the solver cannot trace.
