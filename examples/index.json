@@ -6646,5 +6646,25 @@
    "intro": "retro-console/intro.md",
    "introDE": "retro-console/intro.de.md"
   }
+ },
+ {
+  "id": "lego-hub-face",
+  "title": {
+   "en": "Spike Prime hub face (matrix + gauges)",
+   "de": "Spike-Prime-Hub-Bedienfeld (Matrix + Anzeigen)"
+  },
+  "category": "digital",
+  "difficulty": 2,
+  "kind": "program",
+  "devices": [
+   "stc12c5a60s2"
+  ],
+  "authored": "stc12c5a60s2",
+  "files": {
+   "program": "lego-hub-face/program.bw",
+   "controller": "lego-hub-face/controller.json",
+   "intro": "lego-hub-face/intro.md",
+   "introDE": "lego-hub-face/intro.de.md"
+  }
  }
 ]

@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "widgets": [
+    {
+      "name": "lights",
+      "type": "matrix",
+      "config": { "rows": 5, "cols": 5, "value": 0 },
+      "layout": { "x": 10, "y": 10, "w": 150, "h": 150 },
+      "binding": { "target": "variable", "variableName": "hub_matrix" }
+    },
+    {
+      "name": "motor",
+      "type": "gauge",
+      "config": { "min": -180, "max": 180, "value": 0, "label": "Motor °" },
+      "layout": { "x": 180, "y": 10, "w": 80, "h": 80 },
+      "binding": { "target": "variable", "variableName": "motor_angle" }
+    },
+    {
+      "name": "distance",
+      "type": "gauge",
+      "config": { "min": 0, "max": 200, "value": 0, "label": "Dist cm" },
+      "layout": { "x": 180, "y": 100, "w": 80, "h": 80 },
+      "binding": { "target": "variable", "variableName": "dist_cm" }
+    },
+    {
+      "name": "colour",
+      "type": "gauge",
+      "config": { "min": 0, "max": 10, "value": 0, "label": "Colour" },
+      "layout": { "x": 180, "y": 190, "w": 80, "h": 80 },
+      "binding": { "target": "variable", "variableName": "colour_id" }
+    }
+  ]
+}

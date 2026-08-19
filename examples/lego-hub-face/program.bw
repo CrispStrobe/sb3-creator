@@ -1,0 +1,61 @@
+# Spike Prime hub virtual face — representative Lego hub faceplate.
+#
+# Simulates a Spike Prime (also Robot Inventor — same hardware) with:
+#   - 5x5 light matrix (25-bit bitmask, same as micro:bit)
+#   - Motor angle gauge (-180..180 degrees)
+#   - Distance sensor gauge (0..200 cm)
+#   - Colour sensor gauge (0..10, Lego colour IDs)
+#
+# No DEVICE line: the Lego hub dialect is not yet in the compiler.
+# When it lands, add DEVICE SPIKE_PRIME and replace variable writes
+# with actual motor/sensor blocks. The widget faces are the same
+# either way — they read variables, not hardware.
+#
+# The program sweeps the motor angle and cycles through sensor readings
+# to prove the gauges are live. The matrix shows a rotating line.
+#
+# 5x5 bit layout (row-major, bit = row*5+col):
+#   row 0: bits  0- 4  (top)
+#   row 1: bits  5- 9
+#   row 2: bits 10-14
+#   row 3: bits 15-19
+#   row 4: bits 20-24  (bottom)
+
+# Precomputed rotation frames: a line sweeping 0/45/90/135 degrees.
+# Frame 0: vertical bar (col 2)    = bits 2,7,12,17,22
+# Frame 1: diagonal \              = bits 0,6,12,18,24
+# Frame 2: horizontal bar (row 2)  = bits 10,11,12,13,14
+# Frame 3: diagonal /              = bits 4,8,12,16,20
+TABLE frames = 4329604, 17043521, 31744, 1118480
+
+WHEN flag clicked:
+  set variable hub_matrix to 0
+  set variable motor_angle to 0
+  set variable dist_cm to 100
+  set variable colour_id to 0
+  set variable frame to 0
+  set variable sweep to 0
+  set variable sweep_dir to 3
+  FOREVER:
+    # Rotate the matrix pattern through 4 frames
+    set variable hub_matrix to frames[frame mod 4]
+    change frame by 1
+
+    # Sweep motor angle: -180 → +180 → -180, step 3
+    change sweep by sweep_dir
+    IF sweep > 180 THEN:
+      set variable sweep_dir to -3
+      set variable sweep to 180
+    IF sweep < -180 THEN:
+      set variable sweep_dir to 3
+      set variable sweep to -180
+    set variable motor_angle to sweep
+
+    # Simulate distance sensor: a slow triangle wave 10..190 cm
+    set variable dist_cm to 100 + sweep * 90 / 180
+
+    # Cycle colour ID: 0..10 (Lego palette: black, magenta, violet,
+    # blue, cyan, green, yellow, orange, red, white, none)
+    set variable colour_id to frame mod 11
+
+    wait 200 ms
