@@ -234,6 +234,17 @@ class SB3Creator {
     runtimeCall(b, blocks, valFn) {
         const op = this.runtimeOp(b.opcode);
         if (!op) return null;
+        // A MicroPython target has no `_stc12` runtime object — its pins are
+        // machine.Pin objects in the header. generateMicroPython installs
+        // this hook so a pin read NESTED in an expression resolves natively
+        // too. The walker only intercepts reads it sees directly, and
+        // `IF read b0 THEN` parses as `read b0 > 0`, hiding the read one
+        // level down; those emitted a call to an object that does not exist
+        // on the device.
+        if (this._nativePinExpr) {
+            const native = this._nativePinExpr(b);
+            if (native) return { kind: op.kind, call: native };
+        }
         if (!this._runtimesUsed) this._runtimesUsed = new Set();
         this._runtimesUsed.add(b.opcode.slice(0, b.opcode.indexOf('_')));
         const args = (op.args || []).map(k => this.runtimeArg(b, k, blocks, valFn));
@@ -5933,6 +5944,7 @@ class SB3Creator {
 
     generatePython(project = this.project, opts = {}) {
         this._driverPins = (project.stc && project.stc.pins) || null;
+        this._nativePinExpr = null;   // MicroPython-only; must not leak in here
         this._pyNames = new Map();
         this._pyUses = { random: false, math: false, time: false, eq: false, answer: false, arrays: false, json: false, sumdigits: false };
         this._runtimesUsed = new Set();
@@ -6269,6 +6281,7 @@ class SB3Creator {
 
     generateJavaScript(project = this.project, opts = {}) {
         this._driverPins = (project.stc && project.stc.pins) || null;
+        this._nativePinExpr = null;   // MicroPython-only; must not leak in here
         this._pyNames = new Map();
         this._jsUses = { rand: false, eq: false, answer: false, fact: false, arrays: false, sumdigits: false, multiple: false };
         this._runtimesUsed = new Set();
@@ -7910,7 +7923,8 @@ class SB3Creator {
             }
             const m = /^P(\d{1,2})$/i.exec(p.where || '');
             if (m && Number(m[1]) <= 20) {
-                pinMap.set(p.name, { expr: `pin${Number(m[1])}`, activeLow: !!p.activeLow });
+                pinMap.set(p.name, { expr: `pin${Number(m[1])}`, activeLow: !!p.activeLow,
+                    direction: p.direction });
             } else {
                 degrade(`pin ${p.name} at "${p.where}" is not a micro:bit pin (P0-P20); its operations are stubs`);
             }
@@ -7919,6 +7933,22 @@ class SB3Creator {
         const readExpr = (pin) => isPico
             ? (pin.activeLow ? `(1 - ${pin.expr}.value())` : `${pin.expr}.value()`)
             : (pin.activeLow ? `(1 - ${pin.expr}.read_digital())` : `${pin.expr}.read_digital()`);
+        // `read <pin>` is the DIGITAL level, or the ADC value for a pin
+        // declared ANALOG — the dialect's own definition, and what
+        // generateC emits. This path called read_analog() for every read,
+        // digital buttons included.
+        const readAny = (pin) => {
+            if (pin.direction === 'analog') {
+                if (isPico) { degrade(`analog read of ${pin.expr} needs machine.ADC — not emitted yet`); return '0'; }
+                return `${pin.expr}.read_analog()`;
+            }
+            return readExpr(pin);
+        };
+        this._nativePinExpr = (b) => {
+            if (b.opcode !== 'stc12_read' && b.opcode !== 'stc12_readpin') return null;
+            const pin = pinOf(b.fields && b.fields.PIN ? b.fields.PIN[0] : '');
+            return pin ? readAny(pin) : null;
+        };
 
         // Expression via the shared pure-Python layer; anything that came
         // out needing the host shim is a named degradation, not a lie.
@@ -7943,8 +7973,7 @@ class SB3Creator {
             if (rb.opcode === 'stc12_read') {
                 const p = pinOf(rb.fields.PIN ? rb.fields.PIN[0] : '');
                 if (!p) return '0';
-                if (isPico) { degrade(`analog read of ${p.expr} needs machine.ADC — not emitted yet`); return '0'; }
-                return `${p.expr}.read_analog()`;
+                return readAny(p);
             }
             // ---- micro:bit+ SENSORS/MOTION reporters (DUAL-LOWERING-ORACLE M1–E3) ----
             const rf = (k) => (rb.fields[k] ? rb.fields[k][0] : '');
@@ -8228,7 +8257,7 @@ class SB3Creator {
                     if (isPico) { uses.oled = true; return [`${pad}_oled.crow = int(${v('ROW')})`, `${pad}_oled.ccol = int(${v('COL')})`]; }
                     break;
                 case 'devices_oledprint':
-                    if (isPico) { uses.oled = true; return [`${pad}_oled_print(${v('VALUE')})`]; }
+                    if (isPico) { uses.oled = true; return [`${pad}_oled_print(${v('TEXT')})`]; }
                     break;
                 default: {
                     const desc = this.decompileBlock ? this.decompileBlock(b, blocks) : b.opcode;
@@ -8352,20 +8381,25 @@ class SB3Creator {
                     `    _bw_enter(${k})`,
                     '    try:',
                     ...body.map((l) => '    ' + l),
-                    '        if False:',
+                    '        if _bw_false:',
                     '            yield 0',
                     '    finally:',
                     '        _bw_exit()'].join('\n'));
             } else {
-                // The dead-yield generator trick, with one settrace caveat:
-                // on the settrace firmware, an `if False: yield` "generator"
-                // whose call follows a Python call made FROM the trace hook
-                // comes back None ('NoneType' isn't iterable at the yield
-                // from) — measured against the real firmware, 2026-08-19.
-                // A non-foldable guard (module flag) keeps generator-ness
-                // robust; stock builds keep the literal so they stay
-                // byte-identical.
-                const guard = trc ? '    if _bw_false:' : '    if False:';
+                // The dead-yield generator trick needs a guard the compiler
+                // cannot fold. `if False:` is NOT one: MicroPython drops the
+                // branch outright, the body keeps no yield, the function
+                // compiles as an ordinary one returning None, and the
+                // `yield from` on it dies with "'NoneType' object isn't
+                // iterable" before the first frame is drawn.
+                //
+                // This is not settrace-specific — measured 2026-08-19 on a
+                // STOCK RPI_PICO build, MicroPython v1.28.0, sys.settrace
+                // absent: `if False: yield 0` -> None, `if _bw_false: yield 0`
+                // -> generator. The whole 70-calculator died on it. So the
+                // non-foldable guard is unconditional now; `trc` only decides
+                // which flag name is in scope.
+                const guard = '    if _bw_false:';
                 taskDefs.unshift([`def ${fn}(${argNames.join(', ')}):`,
                     ...globals, ...body, guard, '        yield 0'].join('\n'));
             }
@@ -8397,7 +8431,16 @@ class SB3Creator {
             : ['# generated for micro:bit (MicroPython)',
                 'from microbit import *'];
         if (uses.music && !isPico) header.push('import music');
-        if (uses.math) header.push('import math');
+        // `uses.math` covers the microbitplus helpers below; the SHARED
+        // expression layer records math/random in _pyUses instead (`floor
+        // of`, `sqrt of`, `pi`, `factorial`, `pick random`). Consult both,
+        // or those reach the device and raise NameError at first use.
+        if (uses.math || this._pyUses.math) header.push('import math');
+        if (this._pyUses.random) header.push('import random');
+        // Non-foldable generator guard for yield-less procedures (procDefs).
+        // Unconditional: the folding is the stock compiler's, not the
+        // debugger's.
+        header.push('_bw_false = False')
         if (uses.radio) header.push('import radio');
         if (uses._pitch) header.push('', 'def _pitch():', '    x, y, z = accelerometer.get_values()', '    return math.atan2(-y, -z) * 180 / math.pi');
         if (uses._roll) header.push('', 'def _roll():', '    x, y, z = accelerometer.get_values()', '    return math.atan2(x, -z) * 180 / math.pi');
@@ -8504,7 +8547,6 @@ class SB3Creator {
                 '# --- BrickWright settrace debug: line-level tracing over serial ---',
                 'import sys',
                 '_bw_step = 0',
-                '_bw_false = False   # non-foldable generator guard (see procDefs)',
                 `_bw_vnames = ${trcVnames}`,
                 '_bw_lines = None  # @bw-lines',
                 '_bw_bl = set()  # @bw-breaks',

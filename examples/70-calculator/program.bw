@@ -3,14 +3,16 @@
 # keys — one leg on its GPIO, the other on +3V3 (NOT VBUS!), the Pico's
 # INTERNAL pull-downs doing the rest (pressed = HIGH, no external
 # resistors).
-# Chain arithmetic like a pocket calculator: + - * / EXE C AC.
+# Chain arithmetic like a pocket calculator: + - * / EXE DEL AC.
+# DEL (GP17, Pico pin 22) is a BACKSPACE - it drops the last digit.
+# AC (GP18, Pico pin 24) is the full reset.
 #
 # The pin map IS the hardware's, verbatim — this program is authored on
 # the PICO, so retargeting can never move these pins (retarget is the
 # identity for the authored device):
 #   SDA=GP0 SCL=GP1 | 9=GP2 0=GP3 1=GP4 2=GP5 3=GP6 4=GP7 5=GP8
 #   6=GP9 7=GP10 8=GP11 | +=GP12 -=GP13 *=GP14 /=GP15
-#   EXE=GP16 C=GP17 AC=GP18
+#   EXE=GP16 DEL=GP17 AC=GP18
 DEVICE PICO
 CLOCK 125000000
 PIN sda = GP0 OUTPUT
@@ -159,9 +161,16 @@ STAGE:
               show screen
           IF key = 15 THEN:
             IF error = 0 THEN:
-              set entry to 0
-              set fresh to 1
-              set digits to 0
+              IF fresh = 1 THEN:
+                set entry to 0
+                set digits to 0
+              ELSE:
+                set entry to floor of (entry / 10)
+                set digits to digits - 1
+                IF digits < 1 THEN:
+                  set entry to 0
+                  set fresh to 1
+                  set digits to 0
               show screen
           IF key = 16 THEN:
             all clear
