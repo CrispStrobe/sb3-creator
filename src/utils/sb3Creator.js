@@ -7796,7 +7796,12 @@ class SB3Creator {
         // Stage 3). `positions[n] = {block}` lets the debug host map a marker back
         // to the source block; `breakpoints` (block ids) pause the program at
         // those blocks until the host resumes over serial.
-        const dbg = !!(opts && opts.debug);
+        // settrace build ({trace:true}): NO injected markers — the firmware's
+        // sys.settrace reports real line numbers, and `lineMap` (returned)
+        // maps them back to blocks. Mutually exclusive with the marker
+        // debugger; trace wins if both are asked for.
+        const trc = !!(opts && opts.trace);
+        const dbg = !!(opts && opts.debug) && !trc;
         const dbgPos = [];                     // n -> { block: <scratch block id> }
         const dbgProcs = [];                   // k -> proc display name (call stack)
         const dbgBreaks = new Set((opts && opts.breakpoints) || []);
@@ -7811,6 +7816,9 @@ class SB3Creator {
         this._curPrefix = '';
         this._curLocals = new Set();
         const warnings = [];
+        if (opts && opts.trace && opts.debug) {
+            warnings.push('debug and trace are separate debuggers; trace wins — the marker instrumentation is not emitted');
+        }
         const reasons = [];
         const targets = project.targets || [];
         const stage = targets.find((t) => t.isStage);
@@ -8195,6 +8203,19 @@ class SB3Creator {
                     // block the host asked to break on, so the helper can pause.
                     out.push(`${pad}_bw_pos(${n}${dbgBreaks.has(cur) ? ', 1' : ''})`);
                 }
+                if (trc) {
+                    // Sentinel comment on the block's FIRST emitted line. The
+                    // final line numbers are unknowable here (the header grows
+                    // as walking discovers uses), so the sentinel rides the
+                    // text and is harvested into lineMap — then stripped —
+                    // after assembly. Encoded so an exotic block id survives.
+                    const lines = stmt(b, blocks, pad);
+                    if (lines.length) lines[0] += `  # @bw:${encodeURIComponent(cur)}`;
+                    out.push(...lines);
+                    cur = b.next;
+                    b = blocks[cur];
+                    continue;
+                }
                 out.push(...stmt(b, blocks, pad));
                 cur = b.next;
                 b = blocks[cur];
@@ -8409,6 +8430,77 @@ class SB3Creator {
                 "            if c == 'c':",
                 '                return');
         }
+        // BrickWright settrace debug ({trace:true}). No injected markers: the
+        // settrace-enabled MicroPython firmware reports REAL line numbers.
+        // On every 'line' event in a program line, `\x1eL<lineno>` goes out
+        // over serial; at a breakpoint line or while single-stepping the
+        // program halts and dumps REAL state — frame.f_locals as \x1eV+json
+        // and the f_back call chain as \x1eK+json — then spins on input()
+        // for '\x1es' (step) / '\x1ec' (continue), the same resume protocol
+        // as the marker debugger. `_bw_lines` / `_bw_bl` are placeholders
+        // here: their literals are substituted AFTER assembly, when the
+        // final line numbers exist (the '@bw-lines' / '@bw-breaks' tags).
+        if (trc) {
+            const trcVnames = JSON.stringify([...seen]);
+            header.push('',
+                '# --- BrickWright settrace debug: line-level tracing over serial ---',
+                'import sys',
+                '_bw_step = 0',
+                `_bw_vnames = ${trcVnames}`,
+                '_bw_lines = None  # @bw-lines',
+                '_bw_bl = set()  # @bw-breaks',
+                'def _bw_stack(frame):',
+                '    k = []',
+                '    f = frame',
+                '    while f:',
+                '        k.append(f.f_code.co_name)',
+                '        f = f.f_back',
+                '    return k',
+                'def _bw_halt(frame):',
+                '    global _bw_step',
+                '    _bw_step = 0',
+                '    try:',
+                '        import json',
+                "        # The user's variables are module globals (the tasks",
+                '        # declare them `global`); true frame locals — DEFINE',
+                '        # parameters, loop temporaries — overlay them.',
+                '        v = {}',
+                '        for k in _bw_vnames:',
+                '            v[k] = frame.f_globals.get(k)',
+                '        v.update(frame.f_locals)',
+                '        for k in v:',
+                '            try:',
+                '                json.dumps(v[k])',
+                '            except Exception:',
+                '                v[k] = repr(v[k])',
+                "        print('\\x1eV' + json.dumps(v))",
+                "        print('\\x1eK' + json.dumps(_bw_stack(frame)))",
+                '    except Exception:',
+                '        pass',
+                '    while True:',
+                '        try:',
+                '            c = input()',
+                '        except Exception:',
+                '            return',
+                '        c = c[-1:]',
+                "        if c == 's':",
+                '            _bw_step = 1',
+                '            return',
+                "        if c == 'c':",
+                '            return',
+                'def _bw_tr(frame, event, arg):',
+                "    if event == 'line':",
+                '        n = frame.f_lineno',
+                '        if _bw_lines is None or n in _bw_lines:',
+                "            print('\\x1eL' + str(n))",
+                '            if _bw_step or n in _bw_bl:',
+                '                _bw_halt(frame)',
+                '    return _bw_tr',
+                'try:',
+                '    sys.settrace(_bw_tr)',
+                'except AttributeError:',
+                "    pass  # firmware without settrace: program runs untraced");
+        }
         // KEYPAD4X4 scanner — per-core tri-state + pull-up, debounced.
         if (uses.keypad) {
             const parts = ((project.stc && project.stc.parts) || []).filter((p) => p.type === 'keypad4x4');
@@ -8576,8 +8668,36 @@ class SB3Creator {
                 '        return str(a).lower() == str(b).lower()',
                 '');
         }
-        const py = [...header, '', ...helpers, ...stateDecls, '', ...taskDefs, ...driver].join('\n') + '\n';
-        return { ok: true, py, reasons: [], warnings, ...(dbg ? { positions: dbgPos, procNames: dbgProcs } : {}) };
+        let py = [...header, '', ...helpers, ...stateDecls, '', ...taskDefs, ...driver].join('\n') + '\n';
+        let lineMap = null;
+        if (trc) {
+            // Harvest the sentinels into {finalLineNumber: blockId} and strip
+            // them — stripping changes no line COUNT, so the numbers hold.
+            lineMap = {};
+            const lines = py.split('\n');
+            for (let i = 0; i < lines.length; i++) {
+                const m = lines[i].match(/  # @bw:(\S+)$/);
+                if (m) {
+                    lineMap[i + 1] = decodeURIComponent(m[1]);
+                    lines[i] = lines[i].slice(0, -m[0].length);
+                }
+            }
+            // The device-side filters get their literals now that the final
+            // numbers exist. Same-line substitution: the count is unchanged.
+            const mapped = Object.keys(lineMap);
+            const linesSet = mapped.length ? `set((${mapped.join(', ')},))` : 'None';
+            const breakIds = new Set((opts && opts.breakpoints) || []);
+            const breakLines = mapped.filter((n) => breakIds.has(lineMap[n]));
+            const breaksSet = breakLines.length ? `set((${breakLines.join(', ')},))` : 'set()';
+            for (let i = 0; i < lines.length; i++) {
+                if (/# @bw-lines$/.test(lines[i])) lines[i] = `_bw_lines = ${linesSet}`;
+                else if (/# @bw-breaks$/.test(lines[i])) lines[i] = `_bw_bl = ${breaksSet}`;
+            }
+            py = lines.join('\n');
+        }
+        return { ok: true, py, reasons: [], warnings,
+            ...(dbg ? { positions: dbgPos, procNames: dbgProcs } : {}),
+            ...(trc ? { lineMap } : {}) };
     }
 
     generateBASIC(project = this.project, opts = {}) {
