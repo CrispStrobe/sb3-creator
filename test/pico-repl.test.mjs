@@ -34,7 +34,7 @@ function mockDevice() {
             if (/^f = open\("main\.py", "wb"\)$/.test(code)) files.set('main.py', Buffer.alloc(0));
             else if (/^f\.write\((b".*")\)$/s.test(code)) {
                 const lit = /^f\.write\((b".*")\)$/s.exec(code)[1];
-                // eslint-disable-next-line no-eval — the mock decodes its own literal
+                // the mock decodes its own literal via eval (intentional; no-eval is not enabled)
                 const bytes = Buffer.from(eval(lit.slice(1)), 'latin1'); // bytes literal: byte-per-char
                 files.set('main.py', Buffer.concat([files.get('main.py'), bytes]));
             } else if (/os\.stat\("main\.py"\)/.test(code)) stdout = String(files.get('main.py').length) + '\r\n';
@@ -56,8 +56,7 @@ function mockDevice() {
 
 test('pyBytesLiteral: escapes and non-ASCII round-trip as UTF-8', () => {
     const lit = pyBytesLiteral('a"b\\c\nä');
-    // decodes in JS the same way python would
-    // eslint-disable-next-line no-eval
+    // decodes in JS the same way python would (eval is intentional; no-eval is not enabled)
     const bytes = Buffer.from(eval(lit.slice(1)), 'latin1');
     assert.equal(bytes.toString('utf8'), 'a"b\\c\nä');
 });

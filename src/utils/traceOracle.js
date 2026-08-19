@@ -114,7 +114,7 @@ export function interpretTrace(project, opts = {}) {
     };
 
     /** Lookup part-param stimulus value at current time. */
-    const partStimAt = (partName, param) => {
+    const _partStimAt = (partName, param) => {
         const pk = String(partName).toLowerCase();
         const pp = String(param).toLowerCase();
         let hit = null;

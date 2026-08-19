@@ -25,7 +25,10 @@ export default defineConfig([
       },
     },
     rules: {
-      'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }],
+      'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]', argsIgnorePattern: '^_' }],
+      // Intentional zero-width space inside a JSDoc example (it keeps a `*/`
+      // in the prose from closing the block comment) — allow it in comments.
+      'no-irregular-whitespace': ['error', { skipComments: true }],
     },
   },
 ])

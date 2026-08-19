@@ -3260,7 +3260,7 @@ class SB3Creator {
             return ret(block);
         }
         if (/^clear\s+display\s*$/i.test(line)) {
-            const { id, block } = cmd('microbitplus_cleardisplay');
+            const { block } = cmd('microbitplus_cleardisplay');
             return ret(block);
         }
         if ((match = line.match(/^plot\s+x\s+(\d+)\s+y\s+(\d+)\s+(on|off)\s*$/i))) {
@@ -3302,7 +3302,7 @@ class SB3Creator {
             return ret(block);
         }
         if (/^stop\s+(?:buzzer|tone)\s*$/i.test(line)) {
-            const { id, block } = cmd('microbitplus_stoptone');
+            const { block } = cmd('microbitplus_stoptone');
             return ret(block);
         }
         if ((match = line.match(/^set\s+(?:pin\s+)?(P\d+)\s+servo(?:\s+angle)?\s+(\S+)\s*$/i))) {
@@ -8742,7 +8742,7 @@ class SB3Creator {
             lineMap = {};
             const lines = py.split('\n');
             for (let i = 0; i < lines.length; i++) {
-                const m = lines[i].match(/  # @bw:(\S+)$/);
+                const m = lines[i].match(/ {2}# @bw:(\S+)$/);
                 if (m) {
                     lineMap[i + 1] = decodeURIComponent(m[1]);
                     lines[i] = lines[i].slice(0, -m[0].length);
@@ -10222,7 +10222,7 @@ class SB3Creator {
             // Z80 breadboard machine: OUT latch + IN buffer on I/O port 0.
             // Shadow byte for the OUT latch avoids reading back the latch
             // (which would return the IN buffer on the shared port address).
-            const machine = stored.machine || null;
+            const _machine = stored.machine || null;
             const outPort = 0;  // port 0 for both OUT and IN
             out.push('#include <stdint.h>', '');
             out.push(`#define F_CPU ${clock}UL`, '');
@@ -12283,11 +12283,11 @@ class SB3Creator {
                     const rowBits = mx.rows.map(r => Number(r.match(/\d+/)[0]));
                     const colBits = mx.cols.map(c => Number(c.match(/\d+/)[0]));
                     const rowMask = rowBits.reduce((m, b) => m | (1 << b), 0);
-                    const colMask = colBits.reduce((m, b) => m | (1 << b), 0);
+                    const _colMask = colBits.reduce((m, b) => m | (1 << b), 0);
                     const useI2cShadow = this._cUses.lcd || this._cUses.oled;
                     const oraWrite = useI2cShadow
-                        ? (expr) => `_i2c_sh = (unsigned char)((unsigned char)(_i2c_sh | 0x${rowMask.toString(16).padStart(2, '0')}) & (unsigned char)~(1u << _mk_rows[r])); BW_VIA_ORA = _i2c_sh`
-                        : (expr) => `BW_VIA_ORA = (unsigned char)((unsigned char)(BW_VIA_ORA | 0x${rowMask.toString(16).padStart(2, '0')}) & (unsigned char)~(1u << _mk_rows[r]))`;
+                        ? (_expr) => `_i2c_sh = (unsigned char)((unsigned char)(_i2c_sh | 0x${rowMask.toString(16).padStart(2, '0')}) & (unsigned char)~(1u << _mk_rows[r])); BW_VIA_ORA = _i2c_sh`
+                        : (_expr) => `BW_VIA_ORA = (unsigned char)((unsigned char)(BW_VIA_ORA | 0x${rowMask.toString(16).padStart(2, '0')}) & (unsigned char)~(1u << _mk_rows[r]))`;
                     out.push(
                         `/* Matrix keypad: ${nRows} rows × ${nCols} cols = ${nRows * nCols} keys. */`,
                         `static const unsigned char _mk_rows[${nRows}] = { ${rowBits.join(', ')} };`,

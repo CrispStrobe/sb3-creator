@@ -1,5 +1,7 @@
 // picoRepl — MicroPython raw-REPL upload protocol, transport-agnostic.
 //
+/* global Buffer */ // Node global; this util also runs under the node transport + tests.
+//
 // The app's path from blocks to a live Pico over USB: generateMicroPython
 // gives main.py, THIS speaks the wire protocol, and the transport is
 // whatever can move bytes — the browser's WebSerial port, a node serial
