@@ -78,8 +78,19 @@ describe('bench invariants: every device bench, canonical loader', { skip: avail
       const bnets = (circ.board && circ.board.nets) || [];
       if (!bparts.length) { problems.push(`${rel}: engine rejected the bench (board has no parts)`); continue; }
 
+      // A device-suffixed bench NAMES a chip, so a missing MCU is a real
+      // defect. The primary circuit.json need not have one at all: the gallery
+      // ships passive examples (vsource|resistor|led, RC charge, diode
+      // polarity) whose whole point is that there is no microcontroller.
+      // Flagging those was a false positive introduced by widening the file
+      // set — 110 of them — and the MCU-reachability invariant simply does not
+      // apply where there is no MCU to reach from.
       const mcu = bparts.find((p) => MCU_KINDS.has(p.kind));
-      if (!mcu) { problems.push(`${rel}: no MCU part`); continue; }
+      if (!mcu) {
+        if (rel.endsWith('circuit.json')) continue;   // passive bench: not applicable
+        problems.push(`${rel}: no MCU part`);
+        continue;
+      }
 
       // Reachability over resolved nets: every non-structural part must
       // connect (transitively) to the component that contains the MCU.
