@@ -58,9 +58,23 @@ describe('bench invariants: every device bench, canonical loader', { skip: avail
       const data = JSON.parse(readFileSync(join(EXAMPLES, rel), 'utf8'));
       let circ;
       try { circ = Circuit.fromJSON(data); } catch (e) { problems.push(`${rel}: loader threw ${e.message}`); continue; }
-      if (circ.netlistError) { problems.push(`${rel}: netlist rejected — ${String(circ.netlistError).split('\n')[1] || circ.netlistError}`); continue; }
+      // Circuit.netlistError and Circuit.resolvedNets NO LONGER EXIST — both
+      // were removed from bw-circuit-ui's model. Reading them made this gate
+      // vacuous in the worst way: resolvedNets came back undefined for all 819
+      // benches, so every part was trivially unreachable and the suite reported
+      // 3288 violations. A gate that fails wholesale cannot report anything, and
+      // a REAL "every peripheral unreachable" regression — the exact thing this
+      // file was written to catch — would have been indistinguishable from the
+      // noise. The engine's own view lives on circ.board.
+      //
+      // An empty board is the load failure: Circuit._syncNetlist swallows engine
+      // rejection in a bare catch, so a refused bench still yields a healthy
+      // looking Circuit attached to a board holding nothing.
+      const bparts = (circ.board && circ.board.parts) || [];
+      const bnets = (circ.board && circ.board.nets) || [];
+      if (!bparts.length) { problems.push(`${rel}: engine rejected the bench (board has no parts)`); continue; }
 
-      const mcu = circ.parts.find((p) => MCU_KINDS.has(p.kind));
+      const mcu = bparts.find((p) => MCU_KINDS.has(p.kind));
       if (!mcu) { problems.push(`${rel}: no MCU part`); continue; }
 
       // Reachability over resolved nets: every non-structural part must
@@ -71,7 +85,7 @@ describe('bench invariants: every device bench, canonical loader', { skip: avail
         if (!adj.has(y)) adj.set(y, new Set());
         adj.get(x).add(y); adj.get(y).add(x);
       };
-      for (const n of circ.resolvedNets || []) {
+      for (const n of bnets) {
         const ids = [...new Set(n.terminals.map((t) => t.part))];
         for (let i = 1; i < ids.length; i++) link(ids[0], ids[i]);
       }
@@ -82,7 +96,7 @@ describe('bench invariants: every device bench, canonical loader', { skip: avail
           if (!seen.has(nb)) { seen.add(nb); queue.push(nb); }
         }
       }
-      for (const p of circ.parts) {
+      for (const p of bparts) {
         if (STRUCTURAL.has(p.kind) || p.id === mcu.id) continue;
         if (!seen.has(p.id)) problems.push(`${rel}: ${p.id} (${p.kind}) unreachable from the MCU`);
       }
@@ -92,9 +106,9 @@ describe('bench invariants: every device bench, canonical loader', { skip: avail
       // grounded gp7 through the breadboard itself — key b4 read
       // pressed-to-rail (peer probe, 2026-08-17). Power flows to GPIOs
       // through PARTS (buttons, resistors, switches), never bare.
-      for (const n of circ.resolvedNets || []) {
+      for (const n of bnets) {
         const power = n.terminals.filter((t) => {
-          const pp = circ.parts.find((x) => x.id === t.part);
+          const pp = bparts.find((x) => x.id === t.part);
           return pp && (pp.kind === 'vcc' || pp.kind === 'gnd');
         });
         if (!power.length) continue;
@@ -106,9 +120,9 @@ describe('bench invariants: every device bench, canonical loader', { skip: avail
       }
 
       // A button whose two legs share a net is permanently pressed.
-      for (const p of circ.parts) {
+      for (const p of bparts) {
         if (p.kind !== 'button') continue;
-        const netOf = (term) => (circ.resolvedNets || []).find(
+        const netOf = (term) => bnets.find(
           (n) => n.terminals.some((t) => t.part === p.id && t.terminal === term));
         const na = netOf('a'); const nb = netOf('b');
         if (na && nb && na === nb) problems.push(`${rel}: button ${p.id} shorted (both legs on one strip)`);
