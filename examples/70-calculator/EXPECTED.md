@@ -1,21 +1,32 @@
 # Expected behaviour
 
-Verified headless (2026-08-17): pseudocode → generateC (AVR) →
-avr-gcc (1.8 KB) → avr8js on the example board.
+The DEL/buffered variant: `DEL` is a backspace over the last digit, and the
+frame ends in `oled show`, so the driver buffers and blits once.
 
-- Boot: the OLED shows `CALC` and `0`.
+- Boot: the OLED shows `RECHNER`, a rule under it, and `0` right-aligned.
 - Press `5`: display shows `5`.
-- Press `+`: the `+` glyph appears top right, display shows `5`.
+- Press `+`: the upper line shows the pending `5 +`; display still `5`.
 - Press `3`: display shows `3`.
-- Press `=`: display shows `8`.
-- Press `AC`: the framebuffer returns byte-identical to the boot
-  state — the strongest equality a display test can assert.
+- Press `EXE`: display shows `8`.
+- Press `1` `2` `3` then `DEL`: display shows `12` — one digit removed, not
+  the whole entry.
+- `DEL` on a displayed RESULT zeroes it rather than editing it; the next
+  digit starts a new number.
+- Press `AC`: everything resets — accumulator, operator, entry.
 
-The matrix scan depends on the AVR adapter's per-output-edge input
-refresh (bw-board a26ec6e); before it, no matrix key could register
-in simulation.
+Division normalises an integral result back to an int, so `6 / 3 EXE` shows
+`2` and not `2.0`, and division by zero sets the error state.
+
+**Verified on hardware (2026-08-19), partially.** The program was flashed to
+a real Pico with `bw flash`, the on-device `main.py` is byte-identical to
+`bw transpile --to micropython`, and the owner confirmed it working on the
+bench. What is NOT independently confirmed is the later display revision —
+the single blit per frame and the right-aligned entry line — which is
+flashed and boots cleanly but has not been checked with a human eye.
+
+For the pre-buffered original, see `70-calculator-simple`.
 
 ```assert
-# Supply rail: VCC = 5.0V
+# Supply rail
 net vcc1.vcc V 5.00 +-0.01
 ```

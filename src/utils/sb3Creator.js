@@ -13275,6 +13275,15 @@ SB3Creator.RUNTIME_EXTENSIONS = {
             oledcursor: { kind: 'command', method: 'oledCursor', args: ['ROW', 'COL', 'DISPLAY'] },
             oledclear: { kind: 'command', method: 'oledClear', args: ['DISPLAY'] },
             oledpixel: { kind: 'command', method: 'oledPixel', args: ['X', 'Y', 'VALUE', 'DISPLAY'] },
+            // `oled show` is the frame flush and `oled hline` a rule. Both were
+            // added with native MicroPython and C lowerings but no registry
+            // entry, so the SIMULATOR driver had nothing to call and emitted
+            // them as comments — the in-app OLED simply lost its rules and its
+            // blit. Registering them here is the whole fix: the walkers keep
+            // their native forms, and JS/Python reach the board through the
+            // same swap point as every other device verb.
+            oledshow: { kind: 'command', method: 'oledShow', args: ['DISPLAY'] },
+            oledhline: { kind: 'command', method: 'oledHline', args: ['X', 'Y', 'W', 'DISPLAY'] },
             // led_matrix
             setpixel: { kind: 'command', method: 'setPixel', args: ['X', 'Y', 'BRIGHTNESS', 'MATRIX'] },
             clearmatrix: { kind: 'command', method: 'clearMatrix', args: ['MATRIX'] },
