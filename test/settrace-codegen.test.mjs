@@ -40,9 +40,16 @@ test('trace build: settrace harness present, protocol strings exact', () => {
     assert.match(r.py, /if event == 'line':/);
     assert.match(r.py, /print\('\\x1eL' \+ str\(n\)\)/);
     assert.match(r.py, /frame\.f_locals/);
-    assert.match(r.py, /print\('\\x1eV' \+ json\.dumps\(v\)\)/);
+    // json-free: the settrace firmware ships no `json` module (measured
+    // 2026-08-19), so the dumps serialize via the emitted _bw_json.
+    assert.match(r.py, /print\('\\x1eV' \+ _bw_json\(v\)\)/);
     assert.match(r.py, /f = f\.f_back/);
-    assert.match(r.py, /print\('\\x1eK' \+ json\.dumps\(_bw_stack\(frame\)\)\)/);
+    assert.match(r.py, /print\('\\x1eK' \+ _bw_json\(_bw_stack\(frame\)\)\)/);
+    assert.ok(!/import json/.test(r.py), 'no json dependency in the trace harness');
+    // dead-yield generators are fragile under the settrace firmware when a
+    // Python call happens in the trace hook — trace builds use the
+    // non-foldable guard instead.
+    assert.match(r.py, /_bw_false = False/);
     // no marker instrumentation leaked in
     assert.ok(!/_bw_pos\(/.test(r.py), 'no _bw_pos markers in a trace build');
     assert.ok(!/@bw:/.test(r.py), 'sentinels are stripped');
