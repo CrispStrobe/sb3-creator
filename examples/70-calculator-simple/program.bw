@@ -1,0 +1,168 @@
+# The REAL calculator: 3 breadboards, a Raspberry Pi Pico, a GME12864-70
+# OLED (SH1106-class 128x64, I2C on GP0/GP1) and SEVENTEEN direct-wired
+# keys — one leg on its GPIO, the other on +3V3 (NOT VBUS!), the Pico's
+# INTERNAL pull-downs doing the rest (pressed = HIGH, no external
+# resistors).
+# Chain arithmetic like a pocket calculator: + - * / EXE C AC.
+#
+# The pin map IS the hardware's, verbatim — this program is authored on
+# the PICO, so retargeting can never move these pins (retarget is the
+# identity for the authored device):
+#   SDA=GP0 SCL=GP1 | 9=GP2 0=GP3 1=GP4 2=GP5 3=GP6 4=GP7 5=GP8
+#   6=GP9 7=GP10 8=GP11 | +=GP12 -=GP13 *=GP14 /=GP15
+#   EXE=GP16 C=GP17 AC=GP18
+DEVICE PICO
+CLOCK 125000000
+PIN sda = GP0 OUTPUT
+PIN scl = GP1 OUTPUT
+PIN b9 = GP2 INPUT
+PIN b0 = GP3 INPUT
+PIN b1 = GP4 INPUT
+PIN b2 = GP5 INPUT
+PIN b3 = GP6 INPUT
+PIN b4 = GP7 INPUT
+PIN b5 = GP8 INPUT
+PIN b6 = GP9 INPUT
+PIN b7 = GP10 INPUT
+PIN b8 = GP11 INPUT
+PIN bplus = GP12 INPUT
+PIN bminus = GP13 INPUT
+PIN btimes = GP14 INPUT
+PIN bdiv = GP15 INPUT
+PIN bexe = GP16 INPUT
+PIN bclr = GP17 INPUT
+PIN bac = GP18 INPUT
+
+DEFINE FAST show screen:
+  oled clear 1
+  oled set cursor 0 0 on 1
+  oled print "RECHNER" on 1
+  oled set cursor 2 0 on 1
+  IF op > 0 THEN:
+    oled print (acc) on 1
+  IF op = 1 THEN:
+    oled print "+" on 1
+  IF op = 2 THEN:
+    oled print "-" on 1
+  IF op = 3 THEN:
+    oled print "*" on 1
+  IF op = 4 THEN:
+    oled print "/" on 1
+  oled set cursor 5 0 on 1
+  IF error = 1 THEN:
+    oled print "ERROR" on 1
+  ELSE:
+    oled print (entry) on 1
+
+DEFINE FAST apply pending:
+  IF op = 0 THEN:
+    set acc to entry
+  IF op = 1 THEN:
+    set acc to acc + entry
+  IF op = 2 THEN:
+    set acc to acc - entry
+  IF op = 3 THEN:
+    set acc to acc * entry
+  IF op = 4 THEN:
+    IF entry = 0 THEN:
+      set error to 1
+    ELSE:
+      set acc to acc / entry
+
+DEFINE handle digit (d):
+  IF error = 0 THEN:
+    IF fresh = 1 THEN:
+      set entry to d
+      set fresh to 0
+      set digits to 1
+    ELSE:
+      IF digits < 9 THEN:
+        set entry to entry * 10 + d
+        set digits to digits + 1
+    show screen
+
+DEFINE handle op (o):
+  IF error = 0 THEN:
+    IF fresh = 0 THEN:
+      apply pending
+    set op to o
+    set entry to acc
+    set fresh to 1
+    show screen
+
+DEFINE all clear:
+  set acc to 0
+  set op to 0
+  set entry to 0
+  set fresh to 1
+  set digits to 0
+  set error to 0
+  show screen
+
+STAGE:
+  WHEN flag clicked:
+    all clear
+    set held to 0
+    FOREVER:
+      set key to 99
+      IF read b0 THEN:
+        set key to 0
+      IF read b1 THEN:
+        set key to 1
+      IF read b2 THEN:
+        set key to 2
+      IF read b3 THEN:
+        set key to 3
+      IF read b4 THEN:
+        set key to 4
+      IF read b5 THEN:
+        set key to 5
+      IF read b6 THEN:
+        set key to 6
+      IF read b7 THEN:
+        set key to 7
+      IF read b8 THEN:
+        set key to 8
+      IF read b9 THEN:
+        set key to 9
+      IF read bplus THEN:
+        set key to 10
+      IF read bminus THEN:
+        set key to 11
+      IF read btimes THEN:
+        set key to 12
+      IF read bdiv THEN:
+        set key to 13
+      IF read bexe THEN:
+        set key to 14
+      IF read bclr THEN:
+        set key to 15
+      IF read bac THEN:
+        set key to 16
+      IF key = 99 THEN:
+        set held to 0
+      ELSE:
+        IF held = 0 THEN:
+          set held to 1
+          IF key < 10 THEN:
+            handle digit (key)
+          IF key > 9 THEN:
+            IF key < 14 THEN:
+              handle op (key - 9)
+          IF key = 14 THEN:
+            IF error = 0 THEN:
+              IF fresh = 0 THEN:
+                apply pending
+              set op to 0
+              set entry to acc
+              set fresh to 1
+              show screen
+          IF key = 15 THEN:
+            IF error = 0 THEN:
+              set entry to 0
+              set fresh to 1
+              set digits to 0
+              show screen
+          IF key = 16 THEN:
+            all clear
+      wait 0.02 seconds

@@ -6231,6 +6231,39 @@
   }
  },
  {
+  "id": "70-calculator-simple",
+  "title": {
+   "en": "Pocket Calculator (simple)",
+   "de": "Taschenrechner (einfach)"
+  },
+  "category": "digital",
+  "difficulty": 3,
+  "files": {
+   "program": "70-calculator-simple/program.bw",
+   "circuit": "70-calculator-simple/circuit.json",
+   "expected": "70-calculator-simple/EXPECTED.md",
+   "intro": "70-calculator-simple/intro.md",
+   "introDE": "70-calculator-simple/intro.de.md"
+  },
+  "kind": "full",
+  "devices": [
+   "pico",
+   "stc12c5a60s2",
+   "stc89c52rc",
+   "stc15f2k60s2",
+   "arduino-mega",
+   "attiny88"
+  ],
+  "authored": "pico",
+  "benches": {
+   "arduino-mega": "70-calculator-simple/circuit.arduino-mega.json",
+   "attiny88": "70-calculator-simple/circuit.attiny88.json",
+   "stc12c5a60s2": "70-calculator-simple/circuit.stc12c5a60s2.json",
+   "stc15f2k60s2": "70-calculator-simple/circuit.stc15f2k60s2.json",
+   "stc89c52rc": "70-calculator-simple/circuit.stc89c52rc.json"
+  }
+ },
+ {
   "id": "72-pico-oled-hello",
   "title": {
    "en": "OLED on the Pico",
