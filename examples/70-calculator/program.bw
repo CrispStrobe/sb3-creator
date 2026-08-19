@@ -4,8 +4,20 @@
 # INTERNAL pull-downs doing the rest (pressed = HIGH, no external
 # resistors).
 # Chain arithmetic like a pocket calculator: + - * / EXE DEL AC.
-# DEL (GP17, Pico pin 22) is a BACKSPACE - it drops the last digit.
+# DEL (GP17, Pico pin 22) is a BACKSPACE — it drops the last digit.
 # AC (GP18, Pico pin 24) is the full reset.
+#
+# The screen is drawn the way a screen should be: `oled clear` and every
+# `oled print` only touch the frame in RAM, and `oled show` blits it ONCE
+# at the end. A 128x64 frame is a 1 KB I2C transfer; this layout is six
+# verbs, so flushing after each of them sent six and the display visibly
+# tore on every keypress.
+#
+#   row 0   RECHNER                     title
+#   y 10    ------------------------    rule
+#   row 2   <acc> <op>                  the pending operation, left
+#   row 5              <entry>          what you are typing, RIGHT-aligned
+#   y 55    ------------------------    rule
 #
 # The pin map IS the hardware's, verbatim — this program is authored on
 # the PICO, so retargeting can never move these pins (retarget is the
@@ -39,22 +51,27 @@ DEFINE FAST show screen:
   oled clear 1
   oled set cursor 0 0 on 1
   oled print "RECHNER" on 1
-  oled set cursor 2 0 on 1
+  oled hline 0 10 128 on 1
   IF op > 0 THEN:
+    oled set cursor 2 0 on 1
     oled print (acc) on 1
-  IF op = 1 THEN:
-    oled print "+" on 1
-  IF op = 2 THEN:
-    oled print "-" on 1
-  IF op = 3 THEN:
-    oled print "*" on 1
-  IF op = 4 THEN:
-    oled print "/" on 1
-  oled set cursor 5 0 on 1
+    oled print " " on 1
+    IF op = 1 THEN:
+      oled print "+" on 1
+    IF op = 2 THEN:
+      oled print "-" on 1
+    IF op = 3 THEN:
+      oled print "*" on 1
+    IF op = 4 THEN:
+      oled print "/" on 1
   IF error = 1 THEN:
+    oled set cursor 5 11 on 1
     oled print "ERROR" on 1
   ELSE:
+    oled set cursor 5 (16 - length of entry) on 1
     oled print (entry) on 1
+  oled hline 0 55 128 on 1
+  oled show 1
 
 DEFINE FAST apply pending:
   IF op = 0 THEN:
@@ -70,6 +87,8 @@ DEFINE FAST apply pending:
       set error to 1
     ELSE:
       set acc to acc / entry
+      IF acc = floor of acc THEN:
+        set acc to floor of acc
 
 DEFINE handle digit (d):
   IF error = 0 THEN:
@@ -78,7 +97,7 @@ DEFINE handle digit (d):
       set fresh to 0
       set digits to 1
     ELSE:
-      IF digits < 9 THEN:
+      IF digits < 12 THEN:
         set entry to entry * 10 + d
         set digits to digits + 1
     show screen

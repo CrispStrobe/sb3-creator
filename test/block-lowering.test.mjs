@@ -127,6 +127,8 @@ test('block lowering census', () => {
         'devices_oledclear',  // SSD1306 I2C OLED: clear display (bw_oled_clear)
         'devices_oledprint',  // SSD1306 I2C OLED: text print _s/_n (bw_oled_print_s/n)
         'devices_oledcursor', // SSD1306 I2C OLED: set cursor (bw_oled_cursor)
+        'devices_oledhline',  // SSD1306 I2C OLED: horizontal line (bw_oled_hline)
+        'devices_oledshow',   // SSD1306 I2C OLED: flush the frame (bw_oled_show)
         'devices_devicestate', // composite: returns relay state or 0
     ]);
     const allDevices = hw.filter(op => op.startsWith('devices_'));

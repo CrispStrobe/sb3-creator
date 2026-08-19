@@ -3573,6 +3573,30 @@ class SB3Creator {
             block[id].inputs.DISPLAY = val(match[4]);
             return ret(block);
         }
+        // `oled show` is the flush. A buffered target (MicroPython framebuf)
+        // draws into RAM and blits ONCE here instead of after every verb —
+        // a full 128x64 frame is a 1 KB I2C transfer, so a screen built from
+        // six verbs cost six of them and visibly flickered. A program that
+        // never says `oled show` keeps the old draw-and-flush behaviour, so
+        // this is additive.
+        if ((match = line.match(/^oled show\s+(.+)$/i))) {
+            const displayArg = match[1].trim();
+            if (/\s/.test(displayArg)) {
+                this.warn(null, `oled show takes a single display name, but got "${displayArg}" (contains whitespace) — did you mean "oled show <display>"?`);
+                return null;
+            }
+            const { id, block } = cmd('devices_oledshow');
+            block[id].inputs.DISPLAY = val(match[1]);
+            return ret(block);
+        }
+        if ((match = line.match(/^oled hline\s+(.+?)\s+(.+?)\s+(.+?)\s+on\s+(.+)$/i))) {
+            const { id, block } = cmd('devices_oledhline');
+            block[id].inputs.X = val(match[1]);
+            block[id].inputs.Y = val(match[2]);
+            block[id].inputs.W = val(match[3]);
+            block[id].inputs.DISPLAY = val(match[4]);
+            return ret(block);
+        }
         if ((match = line.match(/^oled print\s+"([^"]*)"\s+on\s+(.+)$/i))) {
             const { id, block } = cmd('devices_oledprint');
             block[id].inputs.TEXT = [1, [10, match[1]]];
@@ -5488,6 +5512,8 @@ class SB3Creator {
                 return line(`raw "${t.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`);
             }
             case 'devices_oledclear': return line(`oled clear ${v('DISPLAY')}`);
+            case 'devices_oledshow': return line(`oled show ${v('DISPLAY')}`);
+            case 'devices_oledhline': return line(`oled hline ${v('X')} ${v('Y')} ${v('W')} on ${v('DISPLAY')}`);
             case 'devices_oledprint': return line(`oled print ${v('TEXT')} on ${v('DISPLAY')}`);
             case 'devices_oledcursor': return line(`oled set cursor ${v('ROW')} ${v('COL')} on ${v('DISPLAY')}`);
             // LED cube commands
@@ -6787,6 +6813,18 @@ class SB3Creator {
             case 'bitops_shr': return `(${v('NUM1')} >> ${v('NUM2')})`;
             case 'bitops_not': return `(~${v('NUM')})`;
             case 'operator_round': return v('NUM');       // integer arithmetic already
+            case 'operator_mathop': {
+                // Same reasoning as round: every scalar here is a long, so
+                // floor/ceiling/round are the identity on a value that is
+                // already integral, and abs is a conditional. The
+                // transcendental ones have no integer meaning on this
+                // backend and stay a named degradation.
+                const mop = String(f('OPERATOR') || '').toLowerCase();
+                if (mop === 'floor' || mop === 'ceiling' || mop === 'round') return v('NUM');
+                if (mop === 'abs') { const x = v('NUM'); return `((${x}) < 0 ? -(${x}) : (${x}))`; }
+                this.cWarn(`no C equivalent for "${mop} of" — emitted as 0`);
+                return `0 /* ${this.cComment(mop + ' of')} */`;
+            }
             case 'planetemaths_oppose': return `(0 - ${v('NUM1')})`;
             case 'planetemaths_pourcent': return `(${v('NUM1')} / 100)`;
             case 'stc12_read': return this.cPinRead(f('PIN'));
@@ -7267,6 +7305,8 @@ class SB3Creator {
             case 'devices_tftcursor': { this._cUses.devices = true; this._cUses.tft = true; return line(`bw_tft_cursor(${v('DISPLAY')}, ${v('ROW')}, ${v('COL')});`); }
             case 'devices_oledpixel': { this._cUses.devices = true; this._cUses.oled = true; return line(`bw_oled_pixel(${v('DISPLAY')}, ${v('X')}, ${v('Y')}, ${v('VALUE')});`); }
             case 'devices_oledclear': { this._cUses.devices = true; this._cUses.oled = true; return line(`bw_oled_clear(${v('DISPLAY')});`); }
+            case 'devices_oledshow': { this._cUses.devices = true; this._cUses.oled = true; return line(`bw_oled_show(${v('DISPLAY')});`); }
+            case 'devices_oledhline': { this._cUses.devices = true; this._cUses.oled = true; return line(`bw_oled_hline(${v('DISPLAY')}, ${v('X')}, ${v('Y')}, ${v('W')});`); }
             case 'devices_oledprint': {
                 this._cUses.devices = true; this._cUses.oled = true;
                 const t = this.cTextArg(b.inputs.TEXT, blocks);
@@ -7899,6 +7939,14 @@ class SB3Creator {
 
         const KEYMAP = { a: 'button_a', b: 'button_b' };
         const uses = { music: false, buttons: false, oled: false };
+        // Decided BEFORE the walk, not during it: `oled clear` is emitted the
+        // moment it is reached, which is generally before the `oled show`
+        // that ends the frame, so the walker cannot know yet. A program that
+        // flushes for itself gets a buffered driver — draw into RAM, one
+        // 1 KB I2C blit at `oled show`. One that never says `oled show`
+        // keeps flush-on-every-verb, so existing programs are untouched.
+        const manualFlush = targets.some((t) => Object.values(t.blocks || {})
+            .some((bl) => bl && bl.opcode === 'devices_oledshow'));
         const degrade = (msg) => { if (!warnings.includes(msg)) warnings.push(msg); };
 
         // TWO boards run MicroPython here. The micro:bit's pins are ambient
@@ -8251,7 +8299,26 @@ class SB3Creator {
                 // ignores the SSD1306 window commands; page mode works on
                 // BOTH controllers). Cursor is text cells, 8x8 font.
                 case 'devices_oledclear':
-                    if (isPico) { uses.oled = true; return [`${pad}_oled.fill(0)`, `${pad}_oled.show()`]; }
+                    if (isPico) {
+                        uses.oled = true;
+                        return manualFlush ? [`${pad}_oled.fill(0)`]
+                            : [`${pad}_oled.fill(0)`, `${pad}_oled.show()`];
+                    }
+                    break;
+                case 'devices_oledshow':
+                    if (isPico) { uses.oled = true; return [`${pad}_oled.show()`]; }
+                    break;
+                case 'devices_oledhline':
+                    if (isPico) {
+                        uses.oled = true;
+                        return [`${pad}_oled.hline(int(${v('X')}), int(${v('Y')}), int(${v('W')}), 1)`];
+                    }
+                    break;
+                case 'devices_oledpixel':
+                    if (isPico) {
+                        uses.oled = true;
+                        return [`${pad}_oled.pixel(int(${v('X')}), int(${v('Y')}), int(${v('VALUE')}))`];
+                    }
                     break;
                 case 'devices_oledcursor':
                     if (isPico) { uses.oled = true; return [`${pad}_oled.crow = int(${v('ROW')})`, `${pad}_oled.ccol = int(${v('COL')})`]; }
@@ -8729,7 +8796,7 @@ class SB3Creator {
                     '    s = _fmt(v)',
                     '    _oled.text(s, _oled.ccol * 8, _oled.crow * 8)',
                     '    _oled.ccol += len(s)',
-                    '    _oled.show()');
+                    ...(manualFlush ? [] : ['    _oled.show()']));
             }
         }
 
@@ -12303,10 +12370,36 @@ class SB3Creator {
                     '    (void)disp;',
                     '    oled_set_page_col((unsigned char)(row & 0x07), (unsigned char)(col * 6));',
                     '}',
+                    '',
+                    'static void bw_oled_hline(int disp, int x, int y, int w)',
+                    '{',
+                    '    unsigned char bit = (unsigned char)(1 << (y & 7));',
+                    '    int i;',
+                    '    (void)disp;',
+                    '    /* One page row, so the whole line is one column run. Like',
+                    '       bw_oled_pixel, this writes the byte rather than merging',
+                    '       into it: the other seven rows of the page are cleared. */',
+                    '    oled_set_page_col((unsigned char)(y >> 3), (unsigned char)x);',
+                    '    oled_data_start();',
+                    '    for (i = 0; i < w; i++) i2c_write(bit);',
+                    '    i2c_stop();',
+                    '}',
+                    '',
+                    'static void bw_oled_show(int disp)',
+                    '{',
+                    '    /* Nothing to do: this driver writes straight to the panel,',
+                    '       so the frame is already on the glass. `oled show` exists',
+                    '       for BUFFERED targets (MicroPython framebuf), where it is',
+                    '       the single blit. Keeping it a no-op here means one',
+                    '       program draws correctly on both. */',
+                    '    (void)disp;',
+                    '}',
                     '');
             } else {
                 out.push(
                     stub('static void bw_oled_pixel(int d, int x, int y, int v)', 'devices_oledpixel'),
+                    stub('static void bw_oled_hline(int d, int x, int y, int w)', 'devices_oledhline'),
+                    stub('static void bw_oled_show(int d)', 'devices_oledshow'),
                     stub('static void bw_oled_clear(int d)', 'devices_oledclear'),
                     stub('static void bw_oled_print_s(int d, const char *s)', 'devices_oledprint'),
                     stub('static void bw_oled_print_n(int d, long n)', 'devices_oledprint'),
