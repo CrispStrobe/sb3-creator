@@ -26,7 +26,6 @@
 # Frame 1: diagonal \              = bits 0,6,12,18,24
 # Frame 2: horizontal bar (row 2)  = bits 10,11,12,13,14
 # Frame 3: diagonal /              = bits 4,8,12,16,20
-TABLE frames = 4329604, 17043521, 31744, 1118480
 
 WHEN flag clicked:
   set variable hub_matrix to 0
@@ -38,7 +37,14 @@ WHEN flag clicked:
   set variable sweep_dir to 3
   FOREVER:
     # Rotate the matrix pattern through 4 frames
-    set variable hub_matrix to frames[frame mod 4]
+    IF frame mod 4 = 0 THEN:
+      set variable hub_matrix to 4329604
+    IF frame mod 4 = 1 THEN:
+      set variable hub_matrix to 17043521
+    IF frame mod 4 = 2 THEN:
+      set variable hub_matrix to 31744
+    IF frame mod 4 = 3 THEN:
+      set variable hub_matrix to 1118480
     change frame by 1
 
     # Sweep motor angle: -180 → +180 → -180, step 3

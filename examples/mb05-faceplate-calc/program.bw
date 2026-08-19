@@ -1,76 +1,210 @@
-# Calculator faceplate: 17 button widgets → OLED display widget
-# Reads button variables, builds an expression, evaluates on =, shows on OLED.
+# Calculator faceplate: 17 button widgets -> OLED display widget.
+#
+# An integer four-function calculator. Each button widget writes its
+# variable to 1 on press; the program consumes it (writes it back to 0)
+# and updates oled_text, which the OLED display widget shows.
+#
+# The dialect has no string-expression evaluator, so this keeps a running
+# accumulator (acc), the number being typed (entry), and the pending
+# operator (op: 1=+ 2=- 3=* 4=/) rather than building and eval-ing a
+# string. Pressing an operator or = applies the pending op first.
 
 WHEN flag clicked:
-  set variable expression to ""
-  set variable result to ""
-  set variable oled_text to "Ready"
+  set variable acc to 0
+  set variable entry to 0
+  set variable op to 0
+  set variable fresh to 1
+  set variable oled_text to "0"
   FOREVER:
-    # Digit buttons
-    if btn0 = 1 then
-      set variable expression to join expression "0"
+    # Digit buttons 0..9
+    IF btn0 = 1 THEN:
       set variable btn0 to 0
-    if btn1 = 1 then
-      set variable expression to join expression "1"
+      IF fresh = 1 THEN:
+        set variable entry to 0
+        set variable fresh to 0
+      ELSE:
+        IF entry < 100000000 THEN:
+          set variable entry to entry * 10 + 0
+      set variable oled_text to entry
+    IF btn1 = 1 THEN:
       set variable btn1 to 0
-    if btn2 = 1 then
-      set variable expression to join expression "2"
+      IF fresh = 1 THEN:
+        set variable entry to 1
+        set variable fresh to 0
+      ELSE:
+        IF entry < 100000000 THEN:
+          set variable entry to entry * 10 + 1
+      set variable oled_text to entry
+    IF btn2 = 1 THEN:
       set variable btn2 to 0
-    if btn3 = 1 then
-      set variable expression to join expression "3"
+      IF fresh = 1 THEN:
+        set variable entry to 2
+        set variable fresh to 0
+      ELSE:
+        IF entry < 100000000 THEN:
+          set variable entry to entry * 10 + 2
+      set variable oled_text to entry
+    IF btn3 = 1 THEN:
       set variable btn3 to 0
-    if btn4 = 1 then
-      set variable expression to join expression "4"
+      IF fresh = 1 THEN:
+        set variable entry to 3
+        set variable fresh to 0
+      ELSE:
+        IF entry < 100000000 THEN:
+          set variable entry to entry * 10 + 3
+      set variable oled_text to entry
+    IF btn4 = 1 THEN:
       set variable btn4 to 0
-    if btn5 = 1 then
-      set variable expression to join expression "5"
+      IF fresh = 1 THEN:
+        set variable entry to 4
+        set variable fresh to 0
+      ELSE:
+        IF entry < 100000000 THEN:
+          set variable entry to entry * 10 + 4
+      set variable oled_text to entry
+    IF btn5 = 1 THEN:
       set variable btn5 to 0
-    if btn6 = 1 then
-      set variable expression to join expression "6"
+      IF fresh = 1 THEN:
+        set variable entry to 5
+        set variable fresh to 0
+      ELSE:
+        IF entry < 100000000 THEN:
+          set variable entry to entry * 10 + 5
+      set variable oled_text to entry
+    IF btn6 = 1 THEN:
       set variable btn6 to 0
-    if btn7 = 1 then
-      set variable expression to join expression "7"
+      IF fresh = 1 THEN:
+        set variable entry to 6
+        set variable fresh to 0
+      ELSE:
+        IF entry < 100000000 THEN:
+          set variable entry to entry * 10 + 6
+      set variable oled_text to entry
+    IF btn7 = 1 THEN:
       set variable btn7 to 0
-    if btn8 = 1 then
-      set variable expression to join expression "8"
+      IF fresh = 1 THEN:
+        set variable entry to 7
+        set variable fresh to 0
+      ELSE:
+        IF entry < 100000000 THEN:
+          set variable entry to entry * 10 + 7
+      set variable oled_text to entry
+    IF btn8 = 1 THEN:
       set variable btn8 to 0
-    if btn9 = 1 then
-      set variable expression to join expression "9"
+      IF fresh = 1 THEN:
+        set variable entry to 8
+        set variable fresh to 0
+      ELSE:
+        IF entry < 100000000 THEN:
+          set variable entry to entry * 10 + 8
+      set variable oled_text to entry
+    IF btn9 = 1 THEN:
       set variable btn9 to 0
+      IF fresh = 1 THEN:
+        set variable entry to 9
+        set variable fresh to 0
+      ELSE:
+        IF entry < 100000000 THEN:
+          set variable entry to entry * 10 + 9
+      set variable oled_text to entry
 
-    # Decimal point
-    if btnDot = 1 then
-      set variable expression to join expression "."
-      set variable btnDot to 0
-
-    # Operators
-    if btnAdd = 1 then
-      set variable expression to join expression " + "
+    # Operators: apply the pending op, then remember the new one
+    IF btnAdd = 1 THEN:
       set variable btnAdd to 0
-    if btnSub = 1 then
-      set variable expression to join expression " - "
+      IF op > 0 AND fresh = 0 THEN:
+        IF op = 1 THEN:
+          set variable acc to acc + entry
+        IF op = 2 THEN:
+          set variable acc to acc - entry
+        IF op = 3 THEN:
+          set variable acc to acc * entry
+        IF op = 4 AND NOT entry = 0 THEN:
+          set variable acc to acc / entry
+      ELSE:
+        IF fresh = 0 THEN:
+          set variable acc to entry
+      set variable op to 1
+      set variable fresh to 1
+      set variable oled_text to acc
+    IF btnSub = 1 THEN:
       set variable btnSub to 0
-    if btnMul = 1 then
-      set variable expression to join expression " * "
+      IF op > 0 AND fresh = 0 THEN:
+        IF op = 1 THEN:
+          set variable acc to acc + entry
+        IF op = 2 THEN:
+          set variable acc to acc - entry
+        IF op = 3 THEN:
+          set variable acc to acc * entry
+        IF op = 4 AND NOT entry = 0 THEN:
+          set variable acc to acc / entry
+      ELSE:
+        IF fresh = 0 THEN:
+          set variable acc to entry
+      set variable op to 2
+      set variable fresh to 1
+      set variable oled_text to acc
+    IF btnMul = 1 THEN:
       set variable btnMul to 0
-    if btnDiv = 1 then
-      set variable expression to join expression " / "
+      IF op > 0 AND fresh = 0 THEN:
+        IF op = 1 THEN:
+          set variable acc to acc + entry
+        IF op = 2 THEN:
+          set variable acc to acc - entry
+        IF op = 3 THEN:
+          set variable acc to acc * entry
+        IF op = 4 AND NOT entry = 0 THEN:
+          set variable acc to acc / entry
+      ELSE:
+        IF fresh = 0 THEN:
+          set variable acc to entry
+      set variable op to 3
+      set variable fresh to 1
+      set variable oled_text to acc
+    IF btnDiv = 1 THEN:
       set variable btnDiv to 0
+      IF op > 0 AND fresh = 0 THEN:
+        IF op = 1 THEN:
+          set variable acc to acc + entry
+        IF op = 2 THEN:
+          set variable acc to acc - entry
+        IF op = 3 THEN:
+          set variable acc to acc * entry
+        IF op = 4 AND NOT entry = 0 THEN:
+          set variable acc to acc / entry
+      ELSE:
+        IF fresh = 0 THEN:
+          set variable acc to entry
+      set variable op to 4
+      set variable fresh to 1
+      set variable oled_text to acc
 
-    # Equals: evaluate and show result
-    if btnEq = 1 then
-      set variable result to evaluate expression
-      set variable oled_text to join expression (join "\n= " result)
+    # Equals: apply the pending op and show the result
+    IF btnEq = 1 THEN:
       set variable btnEq to 0
+      IF op > 0 AND fresh = 0 THEN:
+        IF op = 1 THEN:
+          set variable acc to acc + entry
+        IF op = 2 THEN:
+          set variable acc to acc - entry
+        IF op = 3 THEN:
+          set variable acc to acc * entry
+        IF op = 4 AND NOT entry = 0 THEN:
+          set variable acc to acc / entry
+        set variable op to 0
+        set variable oled_text to acc
+      set variable fresh to 1
 
     # Clear
-    if btnC = 1 then
-      set variable expression to ""
-      set variable result to ""
-      set variable oled_text to "Ready"
+    IF btnC = 1 THEN:
       set variable btnC to 0
+      set variable acc to 0
+      set variable entry to 0
+      set variable op to 0
+      set variable fresh to 1
+      set variable oled_text to "0"
 
-    # Update display with running expression
-    if btnEq = 0 then
-      if expression != "" then
-        set variable oled_text to expression
+    # Decimal point: this is an integer calculator, so consume and ignore
+    IF btnDot = 1 THEN:
+      set variable btnDot to 0
+
+    wait 25 ms

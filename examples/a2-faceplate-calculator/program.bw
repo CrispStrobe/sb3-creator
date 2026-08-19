@@ -42,45 +42,65 @@ WHEN flag clicked:
       IF key_input = "+" THEN:
         IF fresh = 0 AND op > 0 THEN:
           # apply pending op
-          IF op = 1 THEN: set variable acc to acc + entry
-          IF op = 2 THEN: set variable acc to acc - entry
-          IF op = 3 THEN: set variable acc to acc * entry
-          IF op = 4 AND NOT entry = 0 THEN: set variable acc to acc / entry
+          IF op = 1 THEN:
+            set variable acc to acc + entry
+          IF op = 2 THEN:
+            set variable acc to acc - entry
+          IF op = 3 THEN:
+            set variable acc to acc * entry
+          IF op = 4 AND NOT entry = 0 THEN:
+            set variable acc to acc / entry
         ELSE:
-          IF fresh = 0 THEN: set variable acc to entry
+          IF fresh = 0 THEN:
+            set variable acc to entry
         set variable op to 1
         set variable fresh to 1
         set variable lcd_text to acc
       IF key_input = "-" THEN:
         IF fresh = 0 AND op > 0 THEN:
-          IF op = 1 THEN: set variable acc to acc + entry
-          IF op = 2 THEN: set variable acc to acc - entry
-          IF op = 3 THEN: set variable acc to acc * entry
-          IF op = 4 AND NOT entry = 0 THEN: set variable acc to acc / entry
+          IF op = 1 THEN:
+            set variable acc to acc + entry
+          IF op = 2 THEN:
+            set variable acc to acc - entry
+          IF op = 3 THEN:
+            set variable acc to acc * entry
+          IF op = 4 AND NOT entry = 0 THEN:
+            set variable acc to acc / entry
         ELSE:
-          IF fresh = 0 THEN: set variable acc to entry
+          IF fresh = 0 THEN:
+            set variable acc to entry
         set variable op to 2
         set variable fresh to 1
         set variable lcd_text to acc
       IF key_input = "*" THEN:
         IF fresh = 0 AND op > 0 THEN:
-          IF op = 1 THEN: set variable acc to acc + entry
-          IF op = 2 THEN: set variable acc to acc - entry
-          IF op = 3 THEN: set variable acc to acc * entry
-          IF op = 4 AND NOT entry = 0 THEN: set variable acc to acc / entry
+          IF op = 1 THEN:
+            set variable acc to acc + entry
+          IF op = 2 THEN:
+            set variable acc to acc - entry
+          IF op = 3 THEN:
+            set variable acc to acc * entry
+          IF op = 4 AND NOT entry = 0 THEN:
+            set variable acc to acc / entry
         ELSE:
-          IF fresh = 0 THEN: set variable acc to entry
+          IF fresh = 0 THEN:
+            set variable acc to entry
         set variable op to 3
         set variable fresh to 1
         set variable lcd_text to acc
       IF key_input = "/" THEN:
         IF fresh = 0 AND op > 0 THEN:
-          IF op = 1 THEN: set variable acc to acc + entry
-          IF op = 2 THEN: set variable acc to acc - entry
-          IF op = 3 THEN: set variable acc to acc * entry
-          IF op = 4 AND NOT entry = 0 THEN: set variable acc to acc / entry
+          IF op = 1 THEN:
+            set variable acc to acc + entry
+          IF op = 2 THEN:
+            set variable acc to acc - entry
+          IF op = 3 THEN:
+            set variable acc to acc * entry
+          IF op = 4 AND NOT entry = 0 THEN:
+            set variable acc to acc / entry
         ELSE:
-          IF fresh = 0 THEN: set variable acc to entry
+          IF fresh = 0 THEN:
+            set variable acc to entry
         set variable op to 4
         set variable fresh to 1
         set variable lcd_text to acc
@@ -88,10 +108,14 @@ WHEN flag clicked:
       # Equals
       IF key_input = "=" THEN:
         IF op > 0 AND fresh = 0 THEN:
-          IF op = 1 THEN: set variable acc to acc + entry
-          IF op = 2 THEN: set variable acc to acc - entry
-          IF op = 3 THEN: set variable acc to acc * entry
-          IF op = 4 AND NOT entry = 0 THEN: set variable acc to acc / entry
+          IF op = 1 THEN:
+            set variable acc to acc + entry
+          IF op = 2 THEN:
+            set variable acc to acc - entry
+          IF op = 3 THEN:
+            set variable acc to acc * entry
+          IF op = 4 AND NOT entry = 0 THEN:
+            set variable acc to acc / entry
           set variable op to 0
           set variable lcd_text to acc
         set variable fresh to 1
