@@ -93,8 +93,11 @@ test('the debug build lists the user variables for readback (the memory pane)', 
     const r = mkVars().generateMicroPython(undefined, { debug: true });
     assert.match(r.py, /_bw_vnames = \["score"\]/, 'user variable names captured');
     assert.match(r.py, /def _bw_dump\(\):/, 'dump helper emitted');
-    // \x1eV prefixes a JSON object of {name: value}
-    assert.match(r.py, /print\('\\x1eV' \+ json\.dumps\(v\)\)/, 'variables serialized as \\x1eV+json');
+    // \x1eV prefixes a JSON object of {name: value} — serialized by the
+    // emitted _bw_json, not the json module: the sim firmware ships without
+    // json (measured 2026-08-19; the import made the dump silently vanish).
+    assert.match(r.py, /print\('\\x1eV' \+ _bw_json\(v\)\)/, 'variables serialized as \\x1eV+json');
+    assert.ok(!/import json/.test(r.py), 'no json dependency in the debug harness');
 });
 
 test('halting dumps state; a plain marker does not (dump only on pause)', () => {
@@ -108,7 +111,7 @@ test('halting dumps state; a plain marker does not (dump only on pause)', () => 
 
 test('micro:bit debug build snapshots the board (the pin/sensor-status pane)', () => {
     const r = mkVars().generateMicroPython(undefined, { debug: true });
-    assert.match(r.py, /print\('\\x1eB' \+ json\.dumps\(d\)\)/, 'board serialized as \\x1eB+json');
+    assert.match(r.py, /print\('\\x1eB' \+ _bw_json\(d\)\)/, 'board serialized as \\x1eB+json');
     assert.match(r.py, /display\.get_pixel\(x, y\)/, 'display grid snapshot');
     assert.match(r.py, /button_a\.is_pressed\(\)/, 'button state snapshot');
     assert.match(r.py, /accelerometer\.get_values\(\)/, 'accelerometer snapshot');

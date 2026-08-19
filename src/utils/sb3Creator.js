@@ -12,6 +12,13 @@ import { cHostRuntime, cShimName, C_HOST_INCLUDES } from './cHostRuntime.js';
 // drift — they already did once, and the round trip lost the block.
 import { CUBE_DIRECTIONS, cubeDirectionIndex } from './cubeDirections.js';
 
+// The emitted no-import JSON serializer (the sim firmware ships without
+// the json module — measured 2026-08-19). Shared by the marker debugger's
+// halt dump and the settrace harness.
+const BW_JSON_PY = [
+
+];
+
 
 // Structured error classes
 class SB3Error extends Error {
@@ -8367,24 +8374,24 @@ class SB3Creator {
         if (dbg) {
             // The user's variables/lists (module-level globals) — read back on
             // halt so the host can show them like the 8051 memory/register pane.
+            // Serialized via the emitted _bw_json, NOT the json module: the
+            // sim firmware ships without json (measured 2026-08-19 — the
+            // marker \\x1eV dump silently vanished on the rebuilt stock sim,
+            // caught by the debug-toggle browser gate's variables assertion).
             const dbgVnames = JSON.stringify([...seen]);
             header.push('',
                 '# --- BrickWright debug: state inspection over serial ---',
                 '_bw_step = 0',
                 `_bw_vnames = ${dbgVnames}`,
+                ...BW_JSON_PY,
                 'def _bw_dump():',
                 '    # Serialize live state on halt: \\x1eV=variables, \\x1eB=board.',
                 '    try:',
-                '        import json',
                 '        g = globals()',
                 '        v = {}',
                 '        for k in _bw_vnames:',
-                '            try:',
-                '                json.dumps(g.get(k))',
-                '                v[k] = g.get(k)',
-                '            except Exception:',
-                '                v[k] = repr(g.get(k))',
-                "        print('\\x1eV' + json.dumps(v))",
+                '            v[k] = g.get(k)',
+                "        print('\\x1eV' + _bw_json(v))",
                 '    except Exception:',
                 '        pass');
             if (!isPico) {
@@ -8392,7 +8399,6 @@ class SB3Creator {
                 // the LEDs/buttons/sensors read at the moment execution halted.
                 header.push(
                     '    try:',
-                    '        import json',
                     '        d = {}',
                     '        try:',
                     '            d[\'display\'] = [[display.get_pixel(x, y) for x in range(5)] for y in range(5)]',
@@ -8411,7 +8417,7 @@ class SB3Creator {
                     "            d['temp'] = temperature()",
                     '        except Exception:',
                     '            pass',
-                    "        print('\\x1eB' + json.dumps(d))",
+                    "        print('\\x1eB' + _bw_json(d))",
                     '    except Exception:',
                     '        pass');
             }
@@ -8459,6 +8465,17 @@ class SB3Creator {
                 `_bw_vnames = ${trcVnames}`,
                 '_bw_lines = None  # @bw-lines',
                 '_bw_bl = set()  # @bw-breaks',
+                'def _bw_stack(frame):',
+                '    k = []',
+                '    f = frame',
+                '    while f:',
+                '        try:',
+                '            k.append(f.f_code.co_name)',
+                '        except Exception:',
+                "            k.append('?')",
+                '        f = f.f_back',
+                '    return k',
+                ...BW_JSON_PY,
                 'def _bw_stack(frame):',
                 '    k = []',
                 '    f = frame',
