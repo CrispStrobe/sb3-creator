@@ -6545,5 +6545,26 @@
    "microbit"
   ],
   "authored": "microbit"
+ },
+ {
+  "id": "mb05-faceplate-matrix",
+  "title": {
+   "en": "Matrix faceplate (controller panel)",
+   "de": "Matrix-Faceplate (Controller-Panel)"
+  },
+  "category": "microbit",
+  "difficulty": 2,
+  "kind": "program",
+  "devices": [
+   "microbit"
+  ],
+  "authored": "microbit",
+  "files": {
+   "program": "mb05-faceplate-matrix/program.bw",
+   "controller": "mb05-faceplate-matrix/controller.json",
+   "expected": "mb05-faceplate-matrix/EXPECTED.md",
+   "intro": "mb05-faceplate-matrix/intro.md",
+   "introDE": "mb05-faceplate-matrix/intro.de.md"
+  }
  }
 ]

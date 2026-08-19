@@ -1,0 +1,17 @@
+DEVICE MICROBIT:
+  # The reference FACEPLATE example: no pins, no board — the Controller
+  # panel IS the hardware. Two button widgets write btnA/btnB; the
+  # program answers by writing `screen`, a 25-bit row-major bitmask the
+  # matrix display widget renders live (bit r*5+c = dot lit).
+
+  WHEN flag clicked:
+    set btnA to 0
+    set btnB to 0
+    FOREVER:
+      IF btnA = 1 THEN:
+        set screen to 18157905
+      ELSE:
+        IF btnB = 1 THEN:
+          set screen to 31744
+        ELSE:
+          set screen to 1
