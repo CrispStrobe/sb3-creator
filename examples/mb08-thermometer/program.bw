@@ -1,0 +1,13 @@
+DEVICE MICROBIT
+
+WHEN flag clicked:
+  FOREVER:
+    set temp to read temperature
+    IF temp > 25 THEN:
+      show pattern 09090:90909:09090:90909:09090
+    ELSE:
+      IF temp > 15 THEN:
+        show pattern 00000:00900:09990:00900:00000
+      ELSE:
+        show pattern 00900:09990:99999:09990:00900
+    wait 2 seconds

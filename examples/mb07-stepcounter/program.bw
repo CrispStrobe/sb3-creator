@@ -1,0 +1,17 @@
+DEVICE MICROBIT
+
+WHEN flag clicked:
+  set steps to 0
+  set was_high to 0
+  FOREVER:
+    set acc to read accel z
+    IF acc > 1500 THEN:
+      IF was_high = 0 THEN:
+        change steps by 1
+        set was_high to 1
+        show pattern 00900:00900:09990:00900:00900
+        wait 0.3 seconds
+        clear display
+    ELSE:
+      set was_high to 0
+    wait 0.1 seconds
