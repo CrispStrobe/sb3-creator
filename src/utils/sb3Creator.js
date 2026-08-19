@@ -460,6 +460,9 @@ class SB3Creator {
                 '    def setControl(self, control, value):',
                 '        b = _circuit_board()',
                 '        if b: b.setControl(control, float(value))',
+                '    def getControl(self, control):',
+                '        b = _circuit_board()',
+                '        return b.getControl(control) if b else 0',
                 '    def setPower(self, state):',
                 '        b = _circuit_board()',
                 '        if b: b.setPower(state == "on")',
@@ -479,6 +482,7 @@ class SB3Creator {
             '    buzzerTone: (part) => { const b = _circuit_board(); if (!b) return NaN;',
             '        const r = b.buzzerTone(part); return r && r.on ? r.hz : 0; },',
             '    setControl: (control, v) => { const b = _circuit_board(); if (b) b.setControl(control, Number(v)); },',
+            '    getControl: (control) => { const b = _circuit_board(); return b ? b.getControl(control) : 0; },',
             '    setPower: (state) => { const b = _circuit_board(); if (b) b.setPower(state === "on"); }',
             '};'
         ];
@@ -1170,6 +1174,13 @@ class SB3Creator {
         }
         if ((m = s.match(/^tone of\s+(.+)$/i))) {
             return B('circuit_buzzertone', { PART: this.parseValue(m[1], context) });
+        }
+        // Controller-panel READ: the live value a panel widget drives into a
+        // named control — the read mirror of `set control X to V`. Works across
+        // every runtime surface (board.getControl); compiled targets read the
+        // bound pin instead (a widget is world-facing bound to a part).
+        if ((m = s.match(/^control of\s+(.+)$/i))) {
+            return B('circuit_getcontrol', { CONTROL: this.parseValue(m[1], context) });
         }
         // LED cube voxel read: voxel <x> <y> <z>
         if ((m = s.match(/^voxel\s+(.+?)\s+(.+?)\s+(.+)$/i)) && this.project && this.project.stc && this.project.stc.ledcube) {
@@ -5153,6 +5164,7 @@ class SB3Creator {
             case 'circuit_resistance': return `resistance between ${v('A')} and ${v('B')}`;
             case 'circuit_ledbrightness': return `brightness of ${v('PART')}`;
             case 'circuit_buzzertone': return `tone of ${v('PART')}`;
+            case 'circuit_getcontrol': return `control of ${v('CONTROL')}`;
             default: return b.opcode;
         }
     }
@@ -13182,6 +13194,7 @@ SB3Creator.RUNTIME_EXTENSIONS = {
             ledbrightness: { kind: 'reporter', method: 'ledBrightness', args: ['PART'], neutral: 'NaN' },
             buzzertone: { kind: 'reporter', method: 'buzzerTone', args: ['PART'], neutral: 'NaN' },
             setcontrol: { kind: 'command', method: 'setControl', args: ['CONTROL', 'VALUE'] },
+            getcontrol: { kind: 'reporter', method: 'getControl', args: ['CONTROL'], neutral: '0' },
             setpower: { kind: 'command', method: 'setPower', args: ['STATE'] }
         }
     }
