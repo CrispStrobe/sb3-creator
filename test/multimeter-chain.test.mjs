@@ -18,7 +18,13 @@ const SB3 = join(import.meta.dirname, '..');
 const CUI = process.env.BW_CIRCUIT_UI || join(SB3, '..', 'bw-circuit-ui');
 const BWB = process.env.BW_BOARD || join(SB3, '..', 'bw-board');
 const EMU_JS = process.env.EMU8051_JS
-  || join(SB3, '..', '..', 'emu8051-stc', 'build', 'emu8051.js');
+  // One `..` from sb3-creator, not two: the sibling checkouts (bw-board,
+  // bw-circuit-ui, emu8051-stc) all live beside this repo, and every other
+  // path in this file already assumes that. The extra level pointed at
+  // ~/emu8051-stc, which does not exist, so `available` was false forever
+  // and BOTH tests below silently skipped — reporting "skipped 2" rather
+  // than "needs a build", which reads as a deliberate exclusion.
+  || join(SB3, '..', 'emu8051-stc', 'build', 'emu8051.js');
 
 function sdccAvailable() {
   try { execSync('sdcc --version', { stdio: 'pipe' }); return true; } catch { return false; }
@@ -62,7 +68,10 @@ test('49-lcd-hello: the I2C LCD shows its text through the full chain',
     const { Circuit } = await import(join(CUI, 'src/model/circuit.js'));
     const circ = Circuit.fromJSON(JSON.parse(
       readFileSync(join(SB3, 'examples/49-lcd-hello/circuit.stc12c5a60s2.json'), 'utf8')));
-    assert.equal(circ.netlistError, null, 'engine accepts the bench');
+    // netlistError no longer exists on Circuit; assert what does — a bench the
+    // engine refuses is swallowed by _syncNetlist and leaves the board empty.
+    assert.ok(circ.board && circ.board.parts.length > 0 && circ.board.nets.length > 0,
+        'engine accepts the bench (board got parts and nets)');
 
     const createEmu = (await import(EMU_JS)).default;
     const Module = await createEmu();
@@ -111,7 +120,10 @@ test('76-multimeter: full-chain EXPECTED values (V, A, T-degC, wrap)',
     const { Circuit } = await import(join(CUI, 'src/model/circuit.js'));
     const circ = Circuit.fromJSON(JSON.parse(
       readFileSync(join(SB3, 'examples/76-multimeter/circuit.json'), 'utf8')));
-    assert.equal(circ.netlistError, null, 'engine accepts the bench');
+    // netlistError no longer exists on Circuit; assert what does — a bench the
+    // engine refuses is swallowed by _syncNetlist and leaves the board empty.
+    assert.ok(circ.board && circ.board.parts.length > 0 && circ.board.nets.length > 0,
+        'engine accepts the bench (board got parts and nets)');
     const board = circ.board;
 
     // 3. emulator (STC15 part model) + adapter

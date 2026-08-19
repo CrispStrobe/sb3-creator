@@ -48,7 +48,11 @@ describe('bench invariants: every device bench, canonical loader', { skip: avail
   for (const dir of readdirSync(EXAMPLES, { withFileTypes: true })) {
     if (!dir.isDirectory()) continue;
     for (const f of readdirSync(join(EXAMPLES, dir.name))) {
-      if (/^circuit\.[\w-]+\.json$/.test(f)) benchFiles.push(join(dir.name, f));
+      // The device-suffixed benches AND the primary circuit.json. The suffix
+      // pattern alone skipped every example's default bench — 215 files, the
+      // ones the app actually opens first — so a bench could be broken in the
+      // one circuit users see and this gate would never look at it.
+      if (/^circuit\.[\w-]+\.json$/.test(f) || f === 'circuit.json') benchFiles.push(join(dir.name, f));
     }
   }
 
