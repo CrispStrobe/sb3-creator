@@ -129,3 +129,43 @@ test('state inspection stays opt-in: release build has no dump/vnames', () => {
     assert.ok(!/_bw_vnames/.test(r.py), 'no variable list in release');
     assert.ok(!/\\x1eV/.test(r.py) && !/\\x1eB/.test(r.py), 'no state markers in release');
 });
+
+// ---- call stack: proc enter/exit markers (the stack pane) ----
+
+function mkProc() {
+    const c = new SB3Creator();
+    c.parse('DEVICE MICROBIT:\n  DEFINE flash box:\n    show text "x"\n    clear display\n  WHEN started:\n    flash box\n    show text "done"\n');
+    return c;
+}
+
+test('debug build brackets each procedure with enter/exit markers (the stack)', () => {
+    const r = mkProc().generateMicroPython(undefined, { debug: true });
+    assert.match(r.py, /def _bw_enter\(k\):/, 'enter helper');
+    assert.match(r.py, /def _bw_exit\(\):/, 'exit helper');
+    assert.match(r.py, /print\('\\x1e>' \+ str\(k\)\)/, 'enter marker is RS> + index');
+    assert.match(r.py, /print\('\\x1e<'\)/, 'exit marker is RS<');
+    // the proc body is wrapped: enter, then try:, then the body, then finally: exit
+    assert.match(r.py, /_bw_enter\(0\)\n\s*try:[\s\S]*finally:\n\s*_bw_exit\(\)/,
+        'proc body wrapped in try/finally with enter/exit');
+});
+
+test('procNames maps each proc index to its display name', () => {
+    const r = mkProc().generateMicroPython(undefined, { debug: true });
+    assert.deepEqual(r.procNames, ['flash box'], 'proccode with %s/%b stripped');
+});
+
+test('release build has no call-stack instrumentation (opt-in)', () => {
+    const r = mkProc().generateMicroPython();
+    assert.ok(!/_bw_enter/.test(r.py) && !/_bw_exit/.test(r.py), 'no enter/exit in release');
+    assert.equal(r.procNames, undefined, 'no procNames in release');
+    // the release proc is the bare generator, no try/finally wrapper
+    assert.ok(!/finally:\n\s*_bw_exit/.test(r.py));
+});
+
+test('the call-stack wrap keeps the procedure a valid generator (yield survives)', () => {
+    // The `if False: yield 0` must stay inside the function so it is still a
+    // generator (calls are `yield from`). It moves under try:, not out.
+    const r = mkProc().generateMicroPython(undefined, { debug: true });
+    assert.match(r.py, /try:[\s\S]*if False:\n\s*yield 0[\s\S]*finally:/,
+        'the generator-forcing yield stays inside the try body');
+});
