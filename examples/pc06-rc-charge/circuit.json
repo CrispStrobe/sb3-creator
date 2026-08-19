@@ -1,89 +1,89 @@
 {
-  "vcc": 5,
-  "parts": [
-    {
-      "id": "breadboard_1",
-      "kind": "breadboard",
-      "params": {},
-      "terminals": [],
-      "x": 500,
-      "y": 300,
-      "rotation": 0
-    },
-    {
-      "id": "vsource_2",
-      "kind": "vsource",
-      "params": {
-        "volts": 5
-      },
-      "terminals": [
-        "pos",
-        "neg"
-      ],
-      "x": 100,
-      "y": 100,
-      "rotation": 0
-    },
-    {
-      "id": "resistor_3",
-      "kind": "resistor",
-      "params": {
-        "ohms": 10000
-      },
-      "terminals": [
-        "a",
-        "b"
-      ],
-      "x": 0,
-      "y": 0,
-      "rotation": 0,
-      "seat": {
-        "boardId": "breadboard_1",
-        "leadMap": {
-          "a": "a3",
-          "b": "a7"
-        }
-      }
-    },
-    {
-      "id": "capacitor_4",
-      "kind": "capacitor",
-      "params": {
-        "farads": 0.0001
-      },
-      "terminals": [
-        "a",
-        "b"
-      ],
-      "x": 0,
-      "y": 0,
-      "rotation": 0,
-      "seat": {
-        "boardId": "breadboard_1",
-        "leadMap": {
-          "a": "b7",
-          "b": "b11"
-        }
-      }
+ "vcc": 5,
+ "parts": [
+  {
+   "id": "breadboard_1",
+   "kind": "breadboard",
+   "params": {},
+   "terminals": [],
+   "x": 500,
+   "y": 300,
+   "rotation": 0
+  },
+  {
+   "id": "vsource_2",
+   "kind": "vsource",
+   "params": {
+    "volts": 5
+   },
+   "terminals": [
+    "pos",
+    "neg"
+   ],
+   "x": 100,
+   "y": 100,
+   "rotation": 0
+  },
+  {
+   "id": "resistor_3",
+   "kind": "resistor",
+   "params": {
+    "ohms": 10000
+   },
+   "terminals": [
+    "a",
+    "b"
+   ],
+   "x": 0,
+   "y": 0,
+   "rotation": 0,
+   "seat": {
+    "boardId": "breadboard_1",
+    "leadMap": {
+     "a": "a3",
+     "b": "a7"
     }
-  ],
-  "wires": [
-    {
-      "id": "w_5",
-      "netId": "net_6",
-      "from": "vsource_2",
-      "to": "breadboard_1",
-      "fromTerminal": "pos",
-      "toTerminal": "e3"
-    },
-    {
-      "id": "w_7",
-      "netId": "net_8",
-      "from": "vsource_2",
-      "to": "breadboard_1",
-      "fromTerminal": "neg",
-      "toTerminal": "e11"
+   }
+  },
+  {
+   "id": "capacitor_4",
+   "kind": "capacitor",
+   "params": {
+    "farads": 0.0001
+   },
+   "terminals": [
+    "a",
+    "b"
+   ],
+   "x": 0,
+   "y": 0,
+   "rotation": 0,
+   "seat": {
+    "boardId": "breadboard_1",
+    "leadMap": {
+     "a": "b7",
+     "b": "b11"
     }
-  ],
-  "holeWires": []
+   }
+  }
+ ],
+ "wires": [
+  {
+   "id": "w_5",
+   "netId": "net_6",
+   "from": "vsource_2",
+   "to": "resistor_3",
+   "fromTerminal": "pos",
+   "toTerminal": "a"
+  },
+  {
+   "id": "w_7",
+   "netId": "net_8",
+   "from": "vsource_2",
+   "to": "capacitor_4",
+   "fromTerminal": "neg",
+   "toTerminal": "b"
+  }
+ ],
+ "holeWires": []
 }

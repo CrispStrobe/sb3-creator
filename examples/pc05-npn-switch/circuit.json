@@ -1,134 +1,134 @@
 {
-  "vcc": 5,
-  "parts": [
-    {
-      "id": "breadboard_1",
-      "kind": "breadboard",
-      "params": {},
-      "terminals": [],
-      "x": 500,
-      "y": 300,
-      "rotation": 0
-    },
-    {
-      "id": "vsource_2",
-      "kind": "vsource",
-      "params": {
-        "volts": 5
-      },
-      "terminals": [
-        "pos",
-        "neg"
-      ],
-      "x": 100,
-      "y": 100,
-      "rotation": 0
-    },
-    {
-      "id": "resistor_3",
-      "kind": "resistor",
-      "params": {
-        "ohms": 470
-      },
-      "terminals": [
-        "a",
-        "b"
-      ],
-      "x": 0,
-      "y": 0,
-      "rotation": 0,
-      "seat": {
-        "boardId": "breadboard_1",
-        "leadMap": {
-          "a": "a2",
-          "b": "a6"
-        }
-      }
-    },
-    {
-      "id": "led_4",
-      "kind": "led",
-      "params": {
-        "vf": 2,
-        "color": "red"
-      },
-      "terminals": [
-        "anode",
-        "cathode"
-      ],
-      "x": 0,
-      "y": 0,
-      "rotation": 0,
-      "seat": {
-        "boardId": "breadboard_1",
-        "leadMap": {
-          "anode": "b6",
-          "cathode": "b7"
-        }
-      }
-    },
-    {
-      "id": "npn_5",
-      "kind": "npn",
-      "params": {
-        "beta": 100
-      },
-      "terminals": [
-        "base",
-        "collector",
-        "emitter"
-      ],
-      "x": 0,
-      "y": 0,
-      "rotation": 0,
-      "seat": {
-        "boardId": "breadboard_1",
-        "leadMap": {
-          "collector": "c7",
-          "base": "c9",
-          "emitter": "c10"
-        }
-      }
-    },
-    {
-      "id": "resistor_6",
-      "kind": "resistor",
-      "params": {
-        "ohms": 10000
-      },
-      "terminals": [
-        "a",
-        "b"
-      ],
-      "x": 0,
-      "y": 0,
-      "rotation": 0,
-      "seat": {
-        "boardId": "breadboard_1",
-        "leadMap": {
-          "a": "d2",
-          "b": "d9"
-        }
-      }
+ "vcc": 5,
+ "parts": [
+  {
+   "id": "breadboard_1",
+   "kind": "breadboard",
+   "params": {},
+   "terminals": [],
+   "x": 500,
+   "y": 300,
+   "rotation": 0
+  },
+  {
+   "id": "vsource_2",
+   "kind": "vsource",
+   "params": {
+    "volts": 5
+   },
+   "terminals": [
+    "pos",
+    "neg"
+   ],
+   "x": 100,
+   "y": 100,
+   "rotation": 0
+  },
+  {
+   "id": "resistor_3",
+   "kind": "resistor",
+   "params": {
+    "ohms": 470
+   },
+   "terminals": [
+    "a",
+    "b"
+   ],
+   "x": 0,
+   "y": 0,
+   "rotation": 0,
+   "seat": {
+    "boardId": "breadboard_1",
+    "leadMap": {
+     "a": "a2",
+     "b": "a6"
     }
-  ],
-  "wires": [
-    {
-      "id": "w_7",
-      "netId": "net_8",
-      "from": "vsource_2",
-      "to": "breadboard_1",
-      "fromTerminal": "pos",
-      "toTerminal": "e2"
-    },
-    {
-      "id": "w_9",
-      "netId": "net_10",
-      "from": "vsource_2",
-      "to": "breadboard_1",
-      "fromTerminal": "neg",
-      "toTerminal": "e10"
+   }
+  },
+  {
+   "id": "led_4",
+   "kind": "led",
+   "params": {
+    "vf": 2,
+    "color": "red"
+   },
+   "terminals": [
+    "anode",
+    "cathode"
+   ],
+   "x": 0,
+   "y": 0,
+   "rotation": 0,
+   "seat": {
+    "boardId": "breadboard_1",
+    "leadMap": {
+     "anode": "b6",
+     "cathode": "b7"
     }
-  ],
-  "holeWires": []
+   }
+  },
+  {
+   "id": "npn_5",
+   "kind": "npn",
+   "params": {
+    "beta": 100
+   },
+   "terminals": [
+    "base",
+    "collector",
+    "emitter"
+   ],
+   "x": 0,
+   "y": 0,
+   "rotation": 0,
+   "seat": {
+    "boardId": "breadboard_1",
+    "leadMap": {
+     "collector": "c7",
+     "base": "c9",
+     "emitter": "c10"
+    }
+   }
+  },
+  {
+   "id": "resistor_6",
+   "kind": "resistor",
+   "params": {
+    "ohms": 10000
+   },
+   "terminals": [
+    "a",
+    "b"
+   ],
+   "x": 0,
+   "y": 0,
+   "rotation": 0,
+   "seat": {
+    "boardId": "breadboard_1",
+    "leadMap": {
+     "a": "d2",
+     "b": "d9"
+    }
+   }
+  }
+ ],
+ "wires": [
+  {
+   "id": "w_7",
+   "netId": "net_8",
+   "from": "vsource_2",
+   "to": "resistor_3",
+   "fromTerminal": "pos",
+   "toTerminal": "a"
+  },
+  {
+   "id": "w_9",
+   "netId": "net_10",
+   "from": "vsource_2",
+   "to": "npn_5",
+   "fromTerminal": "neg",
+   "toTerminal": "emitter"
+  }
+ ],
+ "holeWires": []
 }

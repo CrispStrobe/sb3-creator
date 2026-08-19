@@ -1,111 +1,111 @@
 {
-  "vcc": 5,
-  "parts": [
-    {
-      "id": "breadboard_1",
-      "kind": "breadboard",
-      "params": {},
-      "terminals": [],
-      "x": 500,
-      "y": 300,
-      "rotation": 0
-    },
-    {
-      "id": "vsource_2",
-      "kind": "vsource",
-      "params": {
-        "volts": 5
-      },
-      "terminals": [
-        "pos",
-        "neg"
-      ],
-      "x": 100,
-      "y": 100,
-      "rotation": 0
-    },
-    {
-      "id": "resistor_3",
-      "kind": "resistor",
-      "params": {
-        "ohms": 220
-      },
-      "terminals": [
-        "a",
-        "b"
-      ],
-      "x": 0,
-      "y": 0,
-      "rotation": 0,
-      "seat": {
-        "boardId": "breadboard_1",
-        "leadMap": {
-          "a": "a2",
-          "b": "a6"
-        }
-      }
-    },
-    {
-      "id": "diode_4",
-      "kind": "diode",
-      "params": {
-        "vf": 0.7
-      },
-      "terminals": [
-        "anode",
-        "cathode"
-      ],
-      "x": 0,
-      "y": 0,
-      "rotation": 0,
-      "seat": {
-        "boardId": "breadboard_1",
-        "leadMap": {
-          "anode": "b6",
-          "cathode": "b8"
-        }
-      }
-    },
-    {
-      "id": "led_5",
-      "kind": "led",
-      "params": {
-        "vf": 2,
-        "color": "green"
-      },
-      "terminals": [
-        "anode",
-        "cathode"
-      ],
-      "x": 0,
-      "y": 0,
-      "rotation": 0,
-      "seat": {
-        "boardId": "breadboard_1",
-        "leadMap": {
-          "anode": "c8",
-          "cathode": "c11"
-        }
-      }
+ "vcc": 5,
+ "parts": [
+  {
+   "id": "breadboard_1",
+   "kind": "breadboard",
+   "params": {},
+   "terminals": [],
+   "x": 500,
+   "y": 300,
+   "rotation": 0
+  },
+  {
+   "id": "vsource_2",
+   "kind": "vsource",
+   "params": {
+    "volts": 5
+   },
+   "terminals": [
+    "pos",
+    "neg"
+   ],
+   "x": 100,
+   "y": 100,
+   "rotation": 0
+  },
+  {
+   "id": "resistor_3",
+   "kind": "resistor",
+   "params": {
+    "ohms": 220
+   },
+   "terminals": [
+    "a",
+    "b"
+   ],
+   "x": 0,
+   "y": 0,
+   "rotation": 0,
+   "seat": {
+    "boardId": "breadboard_1",
+    "leadMap": {
+     "a": "a2",
+     "b": "a6"
     }
-  ],
-  "wires": [
-    {
-      "id": "w_6",
-      "netId": "net_7",
-      "from": "vsource_2",
-      "to": "breadboard_1",
-      "fromTerminal": "pos",
-      "toTerminal": "e2"
-    },
-    {
-      "id": "w_8",
-      "netId": "net_9",
-      "from": "vsource_2",
-      "to": "breadboard_1",
-      "fromTerminal": "neg",
-      "toTerminal": "e11"
+   }
+  },
+  {
+   "id": "diode_4",
+   "kind": "diode",
+   "params": {
+    "vf": 0.7
+   },
+   "terminals": [
+    "anode",
+    "cathode"
+   ],
+   "x": 0,
+   "y": 0,
+   "rotation": 0,
+   "seat": {
+    "boardId": "breadboard_1",
+    "leadMap": {
+     "anode": "b6",
+     "cathode": "b8"
     }
-  ],
-  "holeWires": []
+   }
+  },
+  {
+   "id": "led_5",
+   "kind": "led",
+   "params": {
+    "vf": 2,
+    "color": "green"
+   },
+   "terminals": [
+    "anode",
+    "cathode"
+   ],
+   "x": 0,
+   "y": 0,
+   "rotation": 0,
+   "seat": {
+    "boardId": "breadboard_1",
+    "leadMap": {
+     "anode": "c8",
+     "cathode": "c11"
+    }
+   }
+  }
+ ],
+ "wires": [
+  {
+   "id": "w_6",
+   "netId": "net_7",
+   "from": "vsource_2",
+   "to": "resistor_3",
+   "fromTerminal": "pos",
+   "toTerminal": "a"
+  },
+  {
+   "id": "w_8",
+   "netId": "net_9",
+   "from": "vsource_2",
+   "to": "led_5",
+   "fromTerminal": "neg",
+   "toTerminal": "cathode"
+  }
+ ],
+ "holeWires": []
 }
