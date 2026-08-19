@@ -84,7 +84,16 @@ test('70-calculator on the Pico: the REAL build — keys to +3V3, OLED on GP0/GP
     // The pico bench IS the authored circuit — the app loads it directly.
     const circ = Circuit.fromJSON(JSON.parse(
       readFileSync(join(SB3, 'examples/70-calculator/circuit.json'), 'utf8')));
-    assert.equal(circ.netlistError, null, 'engine accepts the bench');
+    // `netlistError` was removed from the Circuit model, so this used to
+    // assert undefined === null and could never pass — failing for a reason
+    // that had nothing to do with the bench. Worse, it MASKED the real
+    // problem: Circuit._syncNetlist swallows engine rejection in a bare
+    // catch, so a bench that the engine refuses still yields a Circuit that
+    // looks fine and a board with nothing in it. Assert what actually
+    // matters — the board received the netlist.
+    assert.ok(circ.board && circ.board.parts.length > 0 && circ.board.nets.length > 0,
+        'engine accepts the bench (board got parts and nets; a rejected netlist '
+        + 'is swallowed by Circuit._syncNetlist and leaves the board empty)');
     const board = circ.board;
 
     // 3. rp2040js attached to the board; count what reaches the BOARD
