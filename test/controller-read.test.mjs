@@ -38,6 +38,6 @@ test('JavaScript emits _circuit.getControl(name)', () => {
 test('getControl is a REPORTER with a neutral 0 (no board -> never crashes)', () => {
     const c = new SB3Creator(); c.parse(SRC);
     const js = String(c.generateJavaScript());
-    // the no-board stub returns the neutral, so a program without a board runs.
-    assert.match(js, /getControl:\s*\(\)\s*=>\s*0/, 'stub returns neutral 0');
+    // the no-board stub returns the neutral (NaN) — a fake 0 reading is forbidden.
+    assert.match(js, /getControl:\s*\(\)\s*=>\s*NaN/, "stub returns neutral NaN");
 });

@@ -36,7 +36,7 @@ for (const name of cMethods) {
 // sim-only: circuit reporters/commands that talk to the board, not the chip
 const SIM_ONLY = new Set([
     'circuit_branchcurrent', 'circuit_buzzertone', 'circuit_ledbrightness',
-    'circuit_nodevoltage', 'circuit_resistance',
+    'circuit_getcontrol', 'circuit_nodevoltage', 'circuit_resistance',
     'circuit_setcontrol', 'circuit_setpower'
 ]);
 

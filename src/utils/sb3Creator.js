@@ -493,7 +493,7 @@ class SB3Creator {
                 '        if b: b.setControl(control, float(value))',
                 '    def getControl(self, control):',
                 '        b = _circuit_board()',
-                '        return b.getControl(control) if b else 0',
+                '        return b.getControl(control) if b else float("nan")',
                 '    def setPower(self, state):',
                 '        b = _circuit_board()',
                 '        if b: b.setPower(state == "on")',
@@ -513,7 +513,7 @@ class SB3Creator {
             '    buzzerTone: (part) => { const b = _circuit_board(); if (!b) return NaN;',
             '        const r = b.buzzerTone(part); return r && r.on ? r.hz : 0; },',
             '    setControl: (control, v) => { const b = _circuit_board(); if (b) b.setControl(control, Number(v)); },',
-            '    getControl: (control) => { const b = _circuit_board(); return b ? b.getControl(control) : 0; },',
+            '    getControl: (control) => { const b = _circuit_board(); return b ? b.getControl(control) : NaN; },',
             '    setPower: (state) => { const b = _circuit_board(); if (b) b.setPower(state === "on"); }',
             '};'
         ];
@@ -13183,7 +13183,7 @@ SB3Creator.RUNTIME_EXTENSIONS = {
             ledbrightness: { kind: 'reporter', method: 'ledBrightness', args: ['PART'], neutral: 'NaN' },
             buzzertone: { kind: 'reporter', method: 'buzzerTone', args: ['PART'], neutral: 'NaN' },
             setcontrol: { kind: 'command', method: 'setControl', args: ['CONTROL', 'VALUE'] },
-            getcontrol: { kind: 'reporter', method: 'getControl', args: ['CONTROL'], neutral: '0' },
+            getcontrol: { kind: 'reporter', method: 'getControl', args: ['CONTROL'], neutral: 'NaN' },
             setpower: { kind: 'command', method: 'setPower', args: ['STATE'] }
         }
     }
