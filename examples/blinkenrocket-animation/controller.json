@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "mode": "play",
+  "widgets": [
+    {
+      "name": "scr",
+      "type": "matrix",
+      "config": { "rows": 4, "cols": 8, "value": 0 },
+      "layout": { "x": 0, "y": 0 },
+      "binding": { "target": "variable", "variableName": "screen" }
+    },
+    {
+      "name": "prev",
+      "type": "button",
+      "config": { "toggle": false, "pressed": false },
+      "layout": { "x": 1, "y": 0 },
+      "binding": { "target": "variable", "variableName": "btnPrev" }
+    },
+    {
+      "name": "next",
+      "type": "button",
+      "config": { "toggle": false, "pressed": false },
+      "layout": { "x": 2, "y": 0 },
+      "binding": { "target": "variable", "variableName": "btnNext" }
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "version": 1,
+  "widgets": [
+    {
+      "name": "keys",
+      "type": "keypad",
+      "config": {
+        "cols": 4, "rows": 4,
+        "labels": ["7","8","9","/","4","5","6","*","1","2","3","-","0",".","=","+"]
+      },
+      "layout": { "x": 10, "y": 10 },
+      "binding": { "target": "variable", "variableName": "key_input" }
+    },
+    {
+      "name": "btnC",
+      "type": "button",
+      "config": { "toggle": false, "label": "C" },
+      "layout": { "x": 180, "y": 10, "w": 50, "h": 40 },
+      "binding": { "target": "variable", "variableName": "btnC" }
+    },
+    {
+      "name": "btnSign",
+      "type": "button",
+      "config": { "toggle": false, "label": "+/-" },
+      "layout": { "x": 180, "y": 60, "w": 50, "h": 40 },
+      "binding": { "target": "variable", "variableName": "btnSign" }
+    },
+    {
+      "name": "btnBack",
+      "type": "button",
+      "config": { "toggle": false, "label": "DEL" },
+      "layout": { "x": 180, "y": 110, "w": 50, "h": 40 },
+      "binding": { "target": "variable", "variableName": "btnBack" }
+    },
+    {
+      "name": "btnMem",
+      "type": "button",
+      "config": { "toggle": false, "label": "M" },
+      "layout": { "x": 180, "y": 160, "w": 50, "h": 40 },
+      "binding": { "target": "variable", "variableName": "btnMem" }
+    },
+    {
+      "name": "screen",
+      "type": "lcd",
+      "config": { "cols": 8, "rows": 2, "text": "" },
+      "layout": { "x": 10, "y": 200, "w": 220, "h": 60 },
+      "binding": { "target": "variable", "variableName": "lcd_text" }
+    }
+  ]
+}

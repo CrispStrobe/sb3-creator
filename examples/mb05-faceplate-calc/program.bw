@@ -1,0 +1,76 @@
+# Calculator faceplate: 17 button widgets → OLED display widget
+# Reads button variables, builds an expression, evaluates on =, shows on OLED.
+
+WHEN flag clicked:
+  set variable expression to ""
+  set variable result to ""
+  set variable oled_text to "Ready"
+  FOREVER:
+    # Digit buttons
+    if btn0 = 1 then
+      set variable expression to join expression "0"
+      set variable btn0 to 0
+    if btn1 = 1 then
+      set variable expression to join expression "1"
+      set variable btn1 to 0
+    if btn2 = 1 then
+      set variable expression to join expression "2"
+      set variable btn2 to 0
+    if btn3 = 1 then
+      set variable expression to join expression "3"
+      set variable btn3 to 0
+    if btn4 = 1 then
+      set variable expression to join expression "4"
+      set variable btn4 to 0
+    if btn5 = 1 then
+      set variable expression to join expression "5"
+      set variable btn5 to 0
+    if btn6 = 1 then
+      set variable expression to join expression "6"
+      set variable btn6 to 0
+    if btn7 = 1 then
+      set variable expression to join expression "7"
+      set variable btn7 to 0
+    if btn8 = 1 then
+      set variable expression to join expression "8"
+      set variable btn8 to 0
+    if btn9 = 1 then
+      set variable expression to join expression "9"
+      set variable btn9 to 0
+
+    # Decimal point
+    if btnDot = 1 then
+      set variable expression to join expression "."
+      set variable btnDot to 0
+
+    # Operators
+    if btnAdd = 1 then
+      set variable expression to join expression " + "
+      set variable btnAdd to 0
+    if btnSub = 1 then
+      set variable expression to join expression " - "
+      set variable btnSub to 0
+    if btnMul = 1 then
+      set variable expression to join expression " * "
+      set variable btnMul to 0
+    if btnDiv = 1 then
+      set variable expression to join expression " / "
+      set variable btnDiv to 0
+
+    # Equals: evaluate and show result
+    if btnEq = 1 then
+      set variable result to evaluate expression
+      set variable oled_text to join expression (join "\n= " result)
+      set variable btnEq to 0
+
+    # Clear
+    if btnC = 1 then
+      set variable expression to ""
+      set variable result to ""
+      set variable oled_text to "Ready"
+      set variable btnC to 0
+
+    # Update display with running expression
+    if btnEq = 0 then
+      if expression != "" then
+        set variable oled_text to expression

@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "widgets": [
+    {
+      "name": "game",
+      "type": "matrix",
+      "config": { "rows": 4, "cols": 4, "value": 0 },
+      "layout": { "x": 10, "y": 10, "w": 140, "h": 140 },
+      "binding": { "target": "variable", "variableName": "game_screen" }
+    },
+    {
+      "name": "status",
+      "type": "matrix",
+      "config": { "rows": 4, "cols": 4, "value": 0 },
+      "layout": { "x": 160, "y": 10, "w": 80, "h": 80 },
+      "binding": { "target": "variable", "variableName": "status_screen" }
+    },
+    {
+      "name": "pad",
+      "type": "dpad",
+      "config": { "up": false, "down": false, "left": false, "right": false },
+      "layout": { "x": 10, "y": 170, "w": 120, "h": 120 },
+      "binding": { "target": "variable", "variableName": "dpad" }
+    },
+    {
+      "name": "fire",
+      "type": "button",
+      "config": { "toggle": false, "pressed": false, "label": "FIRE" },
+      "layout": { "x": 160, "y": 100, "w": 60, "h": 60 },
+      "binding": { "target": "variable", "variableName": "btnFire" }
+    },
+    {
+      "name": "start",
+      "type": "button",
+      "config": { "toggle": false, "pressed": false, "label": "START" },
+      "layout": { "x": 160, "y": 170, "w": 60, "h": 40 },
+      "binding": { "target": "variable", "variableName": "btnStart" }
+    }
+  ]
+}

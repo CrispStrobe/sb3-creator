@@ -1,0 +1,94 @@
+# Blinkenrocket animation faceplate
+#
+# A 4×8 dot-matrix display with prev/next buttons. The program stores
+# animation frames as 32-bit row-major bitmasks (bit r*8+c = dot lit)
+# and steps through them on button press. Inspired by the Blinkenrocket
+# badge LED matrix — scaled to 4×8 (32 dots) to fit the bitmask contract.
+#
+# Frames: arrow right, arrow left, heart, diamond, smile, checker, ring, X
+
+WHEN flag clicked:
+  set btnNext to 0
+  set btnPrev to 0
+  set variable frame to 0
+
+  # 8 animation frames stored as decimal bitmasks (4 rows × 8 cols, row-major)
+  #  Frame 0: arrow right  →
+  #    ....X...  = bit 4
+  #    ..XXXX..  = bits 10,11,12,13
+  #    XXXXXXXX  = bits 16-23
+  #    ..XXXX..  = bits 26,27,28,29
+  set variable f0 to 268734480
+
+  #  Frame 1: arrow left  ←
+  #    ...X....  = bit 3
+  #    ..XXXX..  = bits 10,11,12,13
+  #    XXXXXXXX  = bits 16-23
+  #    ..XXXX..  = bits 26,27,28,29
+  set variable f1 to 268734472
+
+  #  Frame 2: heart
+  #    .XX.XX..  = bits 1,2,4,5
+  #    XXXXXXX.  = bits 8-14
+  #    .XXXXX..  = bits 17-21
+  #    ..XXX...  = bits 26,27,28
+  set variable f2 to 473759542
+
+  #  Frame 3: diamond
+  #    ...XX...  = bits 3,4
+  #    ..XXXX..  = bits 10,11,12,13
+  #    ..XXXX..  = bits 18,19,20,21
+  #    ...XX...  = bits 27,28
+  set variable f3 to 403715096
+
+  #  Frame 4: checker (alternating dots)
+  #    X.X.X.X.  = bits 0,2,4,6
+  #    .X.X.X.X  = bits 9,11,13,15
+  #    X.X.X.X.  = bits 16,18,20,22
+  #    .X.X.X.X  = bits 25,27,29,31
+  set variable f4 to 2863311530
+
+  #  Frame 5: ring
+  #    .XXXXXX.  = bits 1-6
+  #    X......X  = bits 8,15
+  #    X......X  = bits 16,23
+  #    .XXXXXX.  = bits 25-30
+  set variable f5 to 2113601406
+
+  #  Frame 6: all on
+  set variable f6 to 4294967295
+
+  #  Frame 7: all off
+  set variable f7 to 0
+
+  set variable numFrames to 8
+
+  # display first frame
+  set screen to f0
+
+  FOREVER:
+    IF btnNext = 1 THEN:
+      set btnNext to 0
+      set frame to (frame + 1) mod numFrames
+
+    IF btnPrev = 1 THEN:
+      set btnPrev to 0
+      set frame to (frame + numFrames - 1) mod numFrames
+
+    # select frame by index
+    IF frame = 0 THEN:
+      set screen to f0
+    IF frame = 1 THEN:
+      set screen to f1
+    IF frame = 2 THEN:
+      set screen to f2
+    IF frame = 3 THEN:
+      set screen to f3
+    IF frame = 4 THEN:
+      set screen to f4
+    IF frame = 5 THEN:
+      set screen to f5
+    IF frame = 6 THEN:
+      set screen to f6
+    IF frame = 7 THEN:
+      set screen to f7

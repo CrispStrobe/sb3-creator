@@ -6566,5 +6566,85 @@
    "intro": "mb05-faceplate-matrix/intro.md",
    "introDE": "mb05-faceplate-matrix/intro.de.md"
   }
+ },
+ {
+  "id": "a2-faceplate-calculator",
+  "title": {
+   "en": "A2 calculator faceplate (controller panel)",
+   "de": "A2-Rechner-Faceplate (Controller-Panel)"
+  },
+  "category": "digital",
+  "difficulty": 3,
+  "kind": "program",
+  "devices": [
+   "stc12c5a60s2"
+  ],
+  "authored": "stc12c5a60s2",
+  "files": {
+   "program": "a2-faceplate-calculator/program.bw",
+   "controller": "a2-faceplate-calculator/controller.json",
+   "intro": "a2-faceplate-calculator/intro.md",
+   "introDE": "a2-faceplate-calculator/intro.de.md"
+  }
+ },
+ {
+  "id": "mb05-faceplate-calc",
+  "title": {
+   "en": "Calculator + OLED faceplate (controller panel)",
+   "de": "Rechner + OLED-Faceplate (Controller-Panel)"
+  },
+  "category": "digital",
+  "difficulty": 3,
+  "kind": "program",
+  "devices": [
+   "stc12c5a60s2"
+  ],
+  "authored": "stc12c5a60s2",
+  "files": {
+   "program": "mb05-faceplate-calc/program.bw",
+   "controller": "mb05-faceplate-calc/controller.json",
+   "intro": "mb05-faceplate-calc/intro.md",
+   "introDE": "mb05-faceplate-calc/intro.de.md"
+  }
+ },
+ {
+  "id": "blinkenrocket-animation",
+  "title": {
+   "en": "Blinkenrocket animation (controller panel)",
+   "de": "Blinkenrocket-Animation (Controller-Panel)"
+  },
+  "category": "digital",
+  "difficulty": 2,
+  "kind": "program",
+  "devices": [
+   "attiny88"
+  ],
+  "authored": "attiny88",
+  "files": {
+   "program": "blinkenrocket-animation/program.bw",
+   "controller": "blinkenrocket-animation/controller.json",
+   "intro": "blinkenrocket-animation/intro.md",
+   "introDE": "blinkenrocket-animation/intro.de.md"
+  }
+ },
+ {
+  "id": "retro-console",
+  "title": {
+   "en": "Retro console (dual matrix faceplate)",
+   "de": "Retro-Konsole (Doppelmatrix-Faceplate)"
+  },
+  "category": "digital",
+  "difficulty": 2,
+  "kind": "program",
+  "devices": [
+   "stc12c5a60s2"
+  ],
+  "authored": "stc12c5a60s2",
+  "files": {
+   "program": "retro-console/program.bw",
+   "controller": "retro-console/controller.json",
+   "intro": "retro-console/intro.md",
+   "introDE": "retro-console/intro.de.md"
+  }
  }
 ]

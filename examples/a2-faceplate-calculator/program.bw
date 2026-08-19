@@ -1,0 +1,122 @@
+# A2 calculator — faceplate edition.
+#
+# Same logic as 78-a2-calculator but driven by the controller panel:
+# the keypad widget replaces the hardware 4x4 matrix scan, and the
+# lcd widget replaces the 8-digit 7-segment display. No pin wiring
+# needed — input and output flow through Scratch variables.
+#
+#   keypad widget:  7 8 9 /    side buttons:  C     clear all
+#                   4 5 6 *                   +/-   negate
+#                   1 2 3 -                   DEL   backspace
+#                   0 . = +                   M     memory recall
+#
+# The program polls key_input and button variables each tick.
+
+WHEN flag clicked:
+  set variable acc to 0
+  set variable entry to 0
+  set variable op to 0
+  set variable fresh to 1
+  set variable mem to 0
+  set variable lcd_text to "0"
+  set variable key_input to ""
+  set variable lastkey to ""
+  FOREVER:
+    # Keypad input: key_input is set by the widget on press
+    IF NOT key_input = "" AND NOT key_input = lastkey THEN:
+      # Digits
+      IF key_input = "0" OR key_input = "1" OR key_input = "2" OR key_input = "3" OR key_input = "4" OR key_input = "5" OR key_input = "6" OR key_input = "7" OR key_input = "8" OR key_input = "9" THEN:
+        IF fresh = 1 THEN:
+          set variable entry to key_input
+          set variable fresh to 0
+        ELSE:
+          IF entry < 10000000 THEN:
+            set variable entry to entry * 10 + key_input
+        set variable lcd_text to entry
+
+      # Decimal point (append as string)
+      IF key_input = "." THEN:
+        set variable lcd_text to join entry "."
+
+      # Operators
+      IF key_input = "+" THEN:
+        IF fresh = 0 AND op > 0 THEN:
+          # apply pending op
+          IF op = 1 THEN: set variable acc to acc + entry
+          IF op = 2 THEN: set variable acc to acc - entry
+          IF op = 3 THEN: set variable acc to acc * entry
+          IF op = 4 AND NOT entry = 0 THEN: set variable acc to acc / entry
+        ELSE:
+          IF fresh = 0 THEN: set variable acc to entry
+        set variable op to 1
+        set variable fresh to 1
+        set variable lcd_text to acc
+      IF key_input = "-" THEN:
+        IF fresh = 0 AND op > 0 THEN:
+          IF op = 1 THEN: set variable acc to acc + entry
+          IF op = 2 THEN: set variable acc to acc - entry
+          IF op = 3 THEN: set variable acc to acc * entry
+          IF op = 4 AND NOT entry = 0 THEN: set variable acc to acc / entry
+        ELSE:
+          IF fresh = 0 THEN: set variable acc to entry
+        set variable op to 2
+        set variable fresh to 1
+        set variable lcd_text to acc
+      IF key_input = "*" THEN:
+        IF fresh = 0 AND op > 0 THEN:
+          IF op = 1 THEN: set variable acc to acc + entry
+          IF op = 2 THEN: set variable acc to acc - entry
+          IF op = 3 THEN: set variable acc to acc * entry
+          IF op = 4 AND NOT entry = 0 THEN: set variable acc to acc / entry
+        ELSE:
+          IF fresh = 0 THEN: set variable acc to entry
+        set variable op to 3
+        set variable fresh to 1
+        set variable lcd_text to acc
+      IF key_input = "/" THEN:
+        IF fresh = 0 AND op > 0 THEN:
+          IF op = 1 THEN: set variable acc to acc + entry
+          IF op = 2 THEN: set variable acc to acc - entry
+          IF op = 3 THEN: set variable acc to acc * entry
+          IF op = 4 AND NOT entry = 0 THEN: set variable acc to acc / entry
+        ELSE:
+          IF fresh = 0 THEN: set variable acc to entry
+        set variable op to 4
+        set variable fresh to 1
+        set variable lcd_text to acc
+
+      # Equals
+      IF key_input = "=" THEN:
+        IF op > 0 AND fresh = 0 THEN:
+          IF op = 1 THEN: set variable acc to acc + entry
+          IF op = 2 THEN: set variable acc to acc - entry
+          IF op = 3 THEN: set variable acc to acc * entry
+          IF op = 4 AND NOT entry = 0 THEN: set variable acc to acc / entry
+          set variable op to 0
+          set variable lcd_text to acc
+        set variable fresh to 1
+
+    set variable lastkey to key_input
+
+    # Side buttons
+    IF btnC = 1 THEN:
+      set variable acc to 0
+      set variable entry to 0
+      set variable op to 0
+      set variable fresh to 1
+      set variable lcd_text to "0"
+      set variable btnC to 0
+    IF btnBack = 1 THEN:
+      set variable entry to (entry - entry mod 10) / 10
+      set variable lcd_text to entry
+      set variable btnBack to 0
+    IF btnSign = 1 THEN:
+      set variable entry to 0 - entry
+      set variable lcd_text to entry
+      set variable btnSign to 0
+    IF btnMem = 1 THEN:
+      set variable entry to mem
+      set variable fresh to 0
+      set variable lcd_text to mem
+      set variable btnMem to 0
+    wait 25 ms

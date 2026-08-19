@@ -1,0 +1,92 @@
+# Retro console — dual-matrix faceplate demo.
+#
+# The game matrix (4x4) shows a player dot that moves with the D-pad.
+# The status matrix (4x4) shows lives as a horizontal bar (top row).
+# FIRE marks the current cell (leaves a trail); START resets the board.
+#
+# Bit layout for 4x4 matrix (row-major bitmask, 16 bits):
+#   row 0: bits 0-3   (top)
+#   row 1: bits 4-7
+#   row 2: bits 8-11
+#   row 3: bits 12-15 (bottom)
+#   bit index = row * 4 + col
+
+WHEN flag clicked:
+  set variable px to 0
+  set variable py to 0
+  set variable lives to 3
+  set variable trail to 0
+  set variable game_screen to 1
+  set variable status_screen to 7
+  set variable dpad to 0
+  set variable btnFire to 0
+  set variable btnStart to 0
+  set variable lastdpad to 0
+  set variable lastfire to 0
+  FOREVER:
+    # D-pad input: bitmask up=1 down=2 left=4 right=8
+    IF NOT dpad = lastdpad THEN:
+      IF dpad / 1 mod 2 > 0 THEN:
+        IF py > 0 THEN:
+          change py by -1
+      IF dpad / 2 mod 2 > 0 THEN:
+        IF py < 3 THEN:
+          change py by 1
+      IF dpad / 4 mod 2 > 0 THEN:
+        IF px > 0 THEN:
+          change px by -1
+      IF dpad / 8 mod 2 > 0 THEN:
+        IF px < 3 THEN:
+          change px by 1
+    set variable lastdpad to dpad
+
+    # Fire button: toggle the trail bit at current position
+    IF btnFire = 1 AND lastfire = 0 THEN:
+      # Compute bit position: py * 4 + px, then toggle that bit
+      set variable bitpos to py * 4 + px
+      # Power of 2: shift by repeated doubling
+      set variable mask to 1
+      set variable shi to 0
+      REPEAT bitpos:
+        set variable mask to mask * 2
+        change shi by 1
+      # XOR via: if bit set, clear it; if clear, set it
+      IF trail / mask mod 2 > 0 THEN:
+        change trail by 0 - mask
+      ELSE:
+        change trail by mask
+    set variable lastfire to btnFire
+
+    # Start button: reset
+    IF btnStart = 1 THEN:
+      set variable px to 0
+      set variable py to 0
+      set variable trail to 0
+      set variable lives to 3
+      set variable btnStart to 0
+
+    # Render game matrix: trail + player dot
+    set variable bitpos to py * 4 + px
+    set variable playermask to 1
+    REPEAT bitpos:
+      set variable playermask to playermask * 2
+    # Combine trail and player dot (OR = add if disjoint, but player
+    # might be on a trail cell, so just OR via bitmask addition trick)
+    IF trail / playermask mod 2 > 0 THEN:
+      set variable game_screen to trail
+    ELSE:
+      set variable game_screen to trail + playermask
+
+    # Render status matrix: lives as top-row dots (bits 0..3)
+    # 1 life = bit 0, 2 lives = bits 0-1, 3 lives = bits 0-2
+    IF lives = 0 THEN:
+      set variable status_screen to 0
+    IF lives = 1 THEN:
+      set variable status_screen to 1
+    IF lives = 2 THEN:
+      set variable status_screen to 3
+    IF lives = 3 THEN:
+      set variable status_screen to 7
+    IF lives >= 4 THEN:
+      set variable status_screen to 15
+    wait 50 ms
