@@ -10,201 +10,201 @@
 # string. Pressing an operator or = applies the pending op first.
 
 WHEN flag clicked:
-  set variable acc to 0
-  set variable entry to 0
-  set variable op to 0
-  set variable fresh to 1
-  set variable oled_text to "0"
+  set acc to 0
+  set entry to 0
+  set op to 0
+  set fresh to 1
+  set oled_text to "0"
   FOREVER:
     # Digit buttons 0..9
     IF btn0 = 1 THEN:
-      set variable btn0 to 0
+      set btn0 to 0
       IF fresh = 1 THEN:
-        set variable entry to 0
-        set variable fresh to 0
+        set entry to 0
+        set fresh to 0
       ELSE:
         IF entry < 100000000 THEN:
-          set variable entry to entry * 10 + 0
-      set variable oled_text to entry
+          set entry to entry * 10 + 0
+      set oled_text to entry
     IF btn1 = 1 THEN:
-      set variable btn1 to 0
+      set btn1 to 0
       IF fresh = 1 THEN:
-        set variable entry to 1
-        set variable fresh to 0
+        set entry to 1
+        set fresh to 0
       ELSE:
         IF entry < 100000000 THEN:
-          set variable entry to entry * 10 + 1
-      set variable oled_text to entry
+          set entry to entry * 10 + 1
+      set oled_text to entry
     IF btn2 = 1 THEN:
-      set variable btn2 to 0
+      set btn2 to 0
       IF fresh = 1 THEN:
-        set variable entry to 2
-        set variable fresh to 0
+        set entry to 2
+        set fresh to 0
       ELSE:
         IF entry < 100000000 THEN:
-          set variable entry to entry * 10 + 2
-      set variable oled_text to entry
+          set entry to entry * 10 + 2
+      set oled_text to entry
     IF btn3 = 1 THEN:
-      set variable btn3 to 0
+      set btn3 to 0
       IF fresh = 1 THEN:
-        set variable entry to 3
-        set variable fresh to 0
+        set entry to 3
+        set fresh to 0
       ELSE:
         IF entry < 100000000 THEN:
-          set variable entry to entry * 10 + 3
-      set variable oled_text to entry
+          set entry to entry * 10 + 3
+      set oled_text to entry
     IF btn4 = 1 THEN:
-      set variable btn4 to 0
+      set btn4 to 0
       IF fresh = 1 THEN:
-        set variable entry to 4
-        set variable fresh to 0
+        set entry to 4
+        set fresh to 0
       ELSE:
         IF entry < 100000000 THEN:
-          set variable entry to entry * 10 + 4
-      set variable oled_text to entry
+          set entry to entry * 10 + 4
+      set oled_text to entry
     IF btn5 = 1 THEN:
-      set variable btn5 to 0
+      set btn5 to 0
       IF fresh = 1 THEN:
-        set variable entry to 5
-        set variable fresh to 0
+        set entry to 5
+        set fresh to 0
       ELSE:
         IF entry < 100000000 THEN:
-          set variable entry to entry * 10 + 5
-      set variable oled_text to entry
+          set entry to entry * 10 + 5
+      set oled_text to entry
     IF btn6 = 1 THEN:
-      set variable btn6 to 0
+      set btn6 to 0
       IF fresh = 1 THEN:
-        set variable entry to 6
-        set variable fresh to 0
+        set entry to 6
+        set fresh to 0
       ELSE:
         IF entry < 100000000 THEN:
-          set variable entry to entry * 10 + 6
-      set variable oled_text to entry
+          set entry to entry * 10 + 6
+      set oled_text to entry
     IF btn7 = 1 THEN:
-      set variable btn7 to 0
+      set btn7 to 0
       IF fresh = 1 THEN:
-        set variable entry to 7
-        set variable fresh to 0
+        set entry to 7
+        set fresh to 0
       ELSE:
         IF entry < 100000000 THEN:
-          set variable entry to entry * 10 + 7
-      set variable oled_text to entry
+          set entry to entry * 10 + 7
+      set oled_text to entry
     IF btn8 = 1 THEN:
-      set variable btn8 to 0
+      set btn8 to 0
       IF fresh = 1 THEN:
-        set variable entry to 8
-        set variable fresh to 0
+        set entry to 8
+        set fresh to 0
       ELSE:
         IF entry < 100000000 THEN:
-          set variable entry to entry * 10 + 8
-      set variable oled_text to entry
+          set entry to entry * 10 + 8
+      set oled_text to entry
     IF btn9 = 1 THEN:
-      set variable btn9 to 0
+      set btn9 to 0
       IF fresh = 1 THEN:
-        set variable entry to 9
-        set variable fresh to 0
+        set entry to 9
+        set fresh to 0
       ELSE:
         IF entry < 100000000 THEN:
-          set variable entry to entry * 10 + 9
-      set variable oled_text to entry
+          set entry to entry * 10 + 9
+      set oled_text to entry
 
     # Operators: apply the pending op, then remember the new one
     IF btnAdd = 1 THEN:
-      set variable btnAdd to 0
+      set btnAdd to 0
       IF op > 0 AND fresh = 0 THEN:
         IF op = 1 THEN:
-          set variable acc to acc + entry
+          set acc to acc + entry
         IF op = 2 THEN:
-          set variable acc to acc - entry
+          set acc to acc - entry
         IF op = 3 THEN:
-          set variable acc to acc * entry
+          set acc to acc * entry
         IF op = 4 AND NOT entry = 0 THEN:
-          set variable acc to acc / entry
+          set acc to acc / entry
       ELSE:
         IF fresh = 0 THEN:
-          set variable acc to entry
-      set variable op to 1
-      set variable fresh to 1
-      set variable oled_text to acc
+          set acc to entry
+      set op to 1
+      set fresh to 1
+      set oled_text to acc
     IF btnSub = 1 THEN:
-      set variable btnSub to 0
+      set btnSub to 0
       IF op > 0 AND fresh = 0 THEN:
         IF op = 1 THEN:
-          set variable acc to acc + entry
+          set acc to acc + entry
         IF op = 2 THEN:
-          set variable acc to acc - entry
+          set acc to acc - entry
         IF op = 3 THEN:
-          set variable acc to acc * entry
+          set acc to acc * entry
         IF op = 4 AND NOT entry = 0 THEN:
-          set variable acc to acc / entry
+          set acc to acc / entry
       ELSE:
         IF fresh = 0 THEN:
-          set variable acc to entry
-      set variable op to 2
-      set variable fresh to 1
-      set variable oled_text to acc
+          set acc to entry
+      set op to 2
+      set fresh to 1
+      set oled_text to acc
     IF btnMul = 1 THEN:
-      set variable btnMul to 0
+      set btnMul to 0
       IF op > 0 AND fresh = 0 THEN:
         IF op = 1 THEN:
-          set variable acc to acc + entry
+          set acc to acc + entry
         IF op = 2 THEN:
-          set variable acc to acc - entry
+          set acc to acc - entry
         IF op = 3 THEN:
-          set variable acc to acc * entry
+          set acc to acc * entry
         IF op = 4 AND NOT entry = 0 THEN:
-          set variable acc to acc / entry
+          set acc to acc / entry
       ELSE:
         IF fresh = 0 THEN:
-          set variable acc to entry
-      set variable op to 3
-      set variable fresh to 1
-      set variable oled_text to acc
+          set acc to entry
+      set op to 3
+      set fresh to 1
+      set oled_text to acc
     IF btnDiv = 1 THEN:
-      set variable btnDiv to 0
+      set btnDiv to 0
       IF op > 0 AND fresh = 0 THEN:
         IF op = 1 THEN:
-          set variable acc to acc + entry
+          set acc to acc + entry
         IF op = 2 THEN:
-          set variable acc to acc - entry
+          set acc to acc - entry
         IF op = 3 THEN:
-          set variable acc to acc * entry
+          set acc to acc * entry
         IF op = 4 AND NOT entry = 0 THEN:
-          set variable acc to acc / entry
+          set acc to acc / entry
       ELSE:
         IF fresh = 0 THEN:
-          set variable acc to entry
-      set variable op to 4
-      set variable fresh to 1
-      set variable oled_text to acc
+          set acc to entry
+      set op to 4
+      set fresh to 1
+      set oled_text to acc
 
     # Equals: apply the pending op and show the result
     IF btnEq = 1 THEN:
-      set variable btnEq to 0
+      set btnEq to 0
       IF op > 0 AND fresh = 0 THEN:
         IF op = 1 THEN:
-          set variable acc to acc + entry
+          set acc to acc + entry
         IF op = 2 THEN:
-          set variable acc to acc - entry
+          set acc to acc - entry
         IF op = 3 THEN:
-          set variable acc to acc * entry
+          set acc to acc * entry
         IF op = 4 AND NOT entry = 0 THEN:
-          set variable acc to acc / entry
-        set variable op to 0
-        set variable oled_text to acc
-      set variable fresh to 1
+          set acc to acc / entry
+        set op to 0
+        set oled_text to acc
+      set fresh to 1
 
     # Clear
     IF btnC = 1 THEN:
-      set variable btnC to 0
-      set variable acc to 0
-      set variable entry to 0
-      set variable op to 0
-      set variable fresh to 1
-      set variable oled_text to "0"
+      set btnC to 0
+      set acc to 0
+      set entry to 0
+      set op to 0
+      set fresh to 1
+      set oled_text to "0"
 
     # Decimal point: this is an integer calculator, so consume and ignore
     IF btnDot = 1 THEN:
-      set variable btnDot to 0
+      set btnDot to 0
 
     wait 25 ms

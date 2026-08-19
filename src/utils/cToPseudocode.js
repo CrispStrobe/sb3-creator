@@ -1378,6 +1378,8 @@ export default function cToPseudocode (source, opts = {}) {
             case 'bw_oled_print_s': return { text: '0', level: 99, stmt: `oled print ${a(1)} on ${a(0)}` };
             case 'bw_oled_print_n': return { text: '0', level: 99, stmt: `oled print ${a(1)} on ${a(0)}` };
             case 'bw_oled_cursor': return { text: '0', level: 99, stmt: `oled set cursor ${a(1)} ${a(2)} on ${a(0)}` };
+            case 'bw_oled_hline': return { text: '0', level: 99, stmt: `oled hline ${a(1)} ${a(2)} ${a(3)} on ${a(0)}` };
+            case 'bw_oled_show': return { text: '0', level: 99, stmt: `oled show ${a(0)}` };
             // Sensors (reporters)
             case 'bw_temperature': return { text: `temperature from ${a(0)}`, level: 99 };
             case 'bw_light': return { text: `light from ${a(0)}`, level: 99 };
@@ -2082,6 +2084,7 @@ export default function cToPseudocode (source, opts = {}) {
         'tft_pixel16', 'rgb565',
         'bw_oled_pixel', 'bw_oled_clear',
         'bw_oled_print_s', 'bw_oled_print_n', 'bw_oled_cursor',
+        'bw_oled_hline', 'bw_oled_show',
         'oled_cmd', 'oled_data_start', 'oled_set_page_col', 'oled_putchar',
         'board_init', 'delay_init', 'tone_set', 'tone_stop',
         'bw_cube_scan', 'bw_cube_set', 'bw_cube_get', 'bw_cube_clear',
@@ -2100,6 +2103,7 @@ export default function cToPseudocode (source, opts = {}) {
         'tft_pixel16', 'rgb565',
         'bw_oled_pixel', 'bw_oled_clear',
         'bw_oled_print_s', 'bw_oled_print_n', 'bw_oled_cursor',
+        'bw_oled_hline', 'bw_oled_show',
         'oled_cmd', 'oled_data_start', 'oled_set_page_col', 'oled_putchar',
         'bw_temperature', 'bw_light', 'bw_distance', 'bw_flex', 'bw_force',
         'bw_ir_code', 'bw_device_state',

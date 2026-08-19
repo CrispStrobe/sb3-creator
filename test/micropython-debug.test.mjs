@@ -166,9 +166,16 @@ test('release build has no call-stack instrumentation (opt-in)', () => {
 });
 
 test('the call-stack wrap keeps the procedure a valid generator (yield survives)', () => {
-    // The `if False: yield 0` must stay inside the function so it is still a
-    // generator (calls are `yield from`). It moves under try:, not out.
+    // The dead yield must stay inside the function so it is still a generator
+    // (calls are `yield from`). It moves under try:, not out.
+    //
+    // The guard is `if _bw_false:`, NOT `if False:` — this test asserted the
+    // literal `if False:` until b6eb09b, which is precisely the idiom that does
+    // not work: MicroPython constant-folds `if False:` away, the body keeps no
+    // yield, the function compiles as an ordinary one returning None, and the
+    // `yield from` on it raises "'NoneType' object isn't iterable". Measured on
+    // a stock RPI_PICO build, v1.28.0, sys.settrace absent.
     const r = mkProc().generateMicroPython(undefined, { debug: true });
-    assert.match(r.py, /try:[\s\S]*if False:\n\s*yield 0[\s\S]*finally:/,
+    assert.match(r.py, /try:[\s\S]*if _bw_false:\n\s*yield 0[\s\S]*finally:/,
         'the generator-forcing yield stays inside the try body');
 });

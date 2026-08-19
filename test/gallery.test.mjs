@@ -119,6 +119,31 @@ describe('gallery: every example parses and compiles', () => {
             assert.ok(js.length > 0, 'non-empty JS');
         });
 
+        // GREEN BUT INERT. `set variable op to 1` is not a dialect form — there
+        // is no ^set variable rule — so it parses as assigning a variable NAMED
+        // "variable op", while every read says `op`. Two variables: one written
+        // and never read, one read and never written. Five gallery examples
+        // shipped like that; each parsed with zero warnings, transpiled to
+        // plausible code, and did nothing, because the branches guarded by the
+        // read-only variable were unreachable.
+        //
+        // A declared pair (`variable_x`, `x`) is the decisive signature, and it
+        // is general: any write/read name split shows up this way, not just the
+        // `set variable` spelling that caused it here.
+        test(`${name}: no variable is written under one name and read under another`,
+            { skip: !hasProgram }, () => {
+                const c = new SB3Creator();
+                c.parse(readFileSync(bwPath, 'utf8'));
+                const py = c.generatePython(undefined, {});
+                const code = typeof py === 'string' ? py : (py.py ?? py.code ?? '');
+                const declared = new Set([...code.matchAll(/^([A-Za-z_][A-Za-z0-9_]*) = /gm)].map(m => m[1]));
+                const shadowed = [...declared]
+                    .filter(v => v.startsWith('variable_') && declared.has(v.slice('variable_'.length)));
+                assert.deepEqual(shadowed, [],
+                    `${name}: ${shadowed.join(', ')} written but never read — `
+                    + 'the source likely says `set variable X to ...` where the dialect wants `set X to ...`');
+            });
+
         // Device-only examples (a micro:bit program is a self-contained board,
         // not a breadboard) carry no circuit.json — nothing to validate.
         test(`${name}: circuit.json is valid`, { skip: !existsSync(circuitPath) }, () => {

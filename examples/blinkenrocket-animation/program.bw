@@ -10,7 +10,7 @@
 WHEN flag clicked:
   set btnNext to 0
   set btnPrev to 0
-  set variable frame to 0
+  set frame to 0
 
   # 8 animation frames stored as decimal bitmasks (4 rows × 8 cols, row-major)
   #  Frame 0: arrow right  →
@@ -18,50 +18,50 @@ WHEN flag clicked:
   #    ..XXXX..  = bits 10,11,12,13
   #    XXXXXXXX  = bits 16-23
   #    ..XXXX..  = bits 26,27,28,29
-  set variable f0 to 268734480
+  set f0 to 268734480
 
   #  Frame 1: arrow left  ←
   #    ...X....  = bit 3
   #    ..XXXX..  = bits 10,11,12,13
   #    XXXXXXXX  = bits 16-23
   #    ..XXXX..  = bits 26,27,28,29
-  set variable f1 to 268734472
+  set f1 to 268734472
 
   #  Frame 2: heart
   #    .XX.XX..  = bits 1,2,4,5
   #    XXXXXXX.  = bits 8-14
   #    .XXXXX..  = bits 17-21
   #    ..XXX...  = bits 26,27,28
-  set variable f2 to 473759542
+  set f2 to 473759542
 
   #  Frame 3: diamond
   #    ...XX...  = bits 3,4
   #    ..XXXX..  = bits 10,11,12,13
   #    ..XXXX..  = bits 18,19,20,21
   #    ...XX...  = bits 27,28
-  set variable f3 to 403715096
+  set f3 to 403715096
 
   #  Frame 4: checker (alternating dots)
   #    X.X.X.X.  = bits 0,2,4,6
   #    .X.X.X.X  = bits 9,11,13,15
   #    X.X.X.X.  = bits 16,18,20,22
   #    .X.X.X.X  = bits 25,27,29,31
-  set variable f4 to 2863311530
+  set f4 to 2863311530
 
   #  Frame 5: ring
   #    .XXXXXX.  = bits 1-6
   #    X......X  = bits 8,15
   #    X......X  = bits 16,23
   #    .XXXXXX.  = bits 25-30
-  set variable f5 to 2113601406
+  set f5 to 2113601406
 
   #  Frame 6: all on
-  set variable f6 to 4294967295
+  set f6 to 4294967295
 
   #  Frame 7: all off
-  set variable f7 to 0
+  set f7 to 0
 
-  set variable numFrames to 8
+  set numFrames to 8
 
   # display first frame
   set screen to f0

@@ -28,40 +28,40 @@
 # Frame 3: diagonal /              = bits 4,8,12,16,20
 
 WHEN flag clicked:
-  set variable hub_matrix to 0
-  set variable motor_angle to 0
-  set variable dist_cm to 100
-  set variable colour_id to 0
-  set variable frame to 0
-  set variable sweep to 0
-  set variable sweep_dir to 3
+  set hub_matrix to 0
+  set motor_angle to 0
+  set dist_cm to 100
+  set colour_id to 0
+  set frame to 0
+  set sweep to 0
+  set sweep_dir to 3
   FOREVER:
     # Rotate the matrix pattern through 4 frames
     IF frame mod 4 = 0 THEN:
-      set variable hub_matrix to 4329604
+      set hub_matrix to 4329604
     IF frame mod 4 = 1 THEN:
-      set variable hub_matrix to 17043521
+      set hub_matrix to 17043521
     IF frame mod 4 = 2 THEN:
-      set variable hub_matrix to 31744
+      set hub_matrix to 31744
     IF frame mod 4 = 3 THEN:
-      set variable hub_matrix to 1118480
+      set hub_matrix to 1118480
     change frame by 1
 
     # Sweep motor angle: -180 → +180 → -180, step 3
     change sweep by sweep_dir
     IF sweep > 180 THEN:
-      set variable sweep_dir to -3
-      set variable sweep to 180
+      set sweep_dir to -3
+      set sweep to 180
     IF sweep < -180 THEN:
-      set variable sweep_dir to 3
-      set variable sweep to -180
-    set variable motor_angle to sweep
+      set sweep_dir to 3
+      set sweep to -180
+    set motor_angle to sweep
 
     # Simulate distance sensor: a slow triangle wave 10..190 cm
-    set variable dist_cm to 100 + sweep * 90 / 180
+    set dist_cm to 100 + sweep * 90 / 180
 
     # Cycle colour ID: 0..10 (Lego palette: black, magenta, violet,
     # blue, cyan, green, yellow, orange, red, white, none)
-    set variable colour_id to frame mod 11
+    set colour_id to frame mod 11
 
     wait 200 ms
