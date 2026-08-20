@@ -166,9 +166,11 @@ test('release build has no call-stack instrumentation (opt-in)', () => {
 });
 
 test('the call-stack wrap keeps the procedure a valid generator (yield survives)', () => {
-    // The `if False: yield 0` must stay inside the function so it is still a
-    // generator (calls are `yield from`). It moves under try:, not out.
+    // The `if _bw_false: yield 0` must stay inside the function so it is still
+    // a generator (calls are `yield from`). It moves under try:, not out.
+    // Note: `_bw_false` (not `False`) — MicroPython folds `if False:` away,
+    // killing the generator; the opaque variable survives compilation.
     const r = mkProc().generateMicroPython(undefined, { debug: true });
-    assert.match(r.py, /try:[\s\S]*if False:\n\s*yield 0[\s\S]*finally:/,
+    assert.match(r.py, /try:[\s\S]*if _bw_false:\n\s*yield 0[\s\S]*finally:/,
         'the generator-forcing yield stays inside the try body');
 });
