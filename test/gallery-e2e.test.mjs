@@ -489,16 +489,11 @@ describe('e2e: servo — signal pin, not power pin', () => {
         const code = c.generateC();
         // The call IS emitted
         assert.match(code, /bw_servo_set\(/, 'bw_servo_set() call emitted');
-        // But the helper is NOT defined — this is the gap
+        // The helper definition — assert its current state so the gate goes
+        // red when the state changes (either defined or not, never ok(true)).
         const hasDefinition = /void bw_servo_set\(/.test(code) || /static.*bw_servo_set/.test(code);
-        if (hasDefinition) {
-            // When the helper lands, this branch runs and the example should compile.
-            // TODO: POST to the oracle and assert compilation succeeds.
-            assert.ok(true, 'bw_servo_set helper is now defined — update this test to assert compilation');
-        } else {
-            // The helper is missing — this is the current state. Record it as a finding.
-            assert.ok(true, 'bw_servo_set emitted but not defined — compilation would fail (expected)');
-        }
+        assert.equal(hasDefinition, false,
+            'bw_servo_set is now defined — update this test to assert compilation succeeds via the oracle');
     });
 });
 
@@ -585,12 +580,11 @@ describe('e2e: wired-machine extraction — refusals as assertions', { skip: EXT
             `refusal must name the address: ${r.reasons.join('; ')}`);
     });
 
-    test('z80-bench: extracts with zero refusals', () => {
-        const z80Dir = join(EXAMPLES, 'z80-bench');
-        if (!existsSync(join(z80Dir, 'circuit.json'))) {
-            return; // z80-bench not yet in gallery
-        }
-        const data = JSON.parse(readFileSync(join(z80Dir, 'circuit.json'), 'utf8'));
+    test('z80-bench: extracts with zero refusals', {
+        skip: existsSync(join(EXAMPLES, 'z80-bench', 'circuit.json'))
+            ? false : 'z80-bench circuit.json not yet in gallery'
+    }, () => {
+        const data = JSON.parse(readFileSync(join(EXAMPLES, 'z80-bench', 'circuit.json'), 'utf8'));
         const r = extractZ80Machine(data);
         assert.ok(r.ok, `extraction failed: ${r.reasons.join('; ')}`);
         assert.deepEqual(r.reasons, [], 'expected zero refusals');
@@ -598,12 +592,11 @@ describe('e2e: wired-machine extraction — refusals as assertions', { skip: EXT
         assert.ok(r.lines.some(l => /MAP RAM/.test(l)), 'has RAM region');
     });
 
-    test('eater6502-vdp-hello: extracts with zero refusals', () => {
-        const vdpDir = join(EXAMPLES, 'eater6502-vdp-hello');
-        if (!existsSync(join(vdpDir, 'circuit.json'))) {
-            return; // vdp example not yet in gallery
-        }
-        const data = JSON.parse(readFileSync(join(vdpDir, 'circuit.json'), 'utf8'));
+    test('eater6502-vdp-hello: extracts with zero refusals', {
+        skip: existsSync(join(EXAMPLES, 'eater6502-vdp-hello', 'circuit.json'))
+            ? false : 'vdp-hello circuit.json not yet in gallery'
+    }, () => {
+        const data = JSON.parse(readFileSync(join(EXAMPLES, 'eater6502-vdp-hello', 'circuit.json'), 'utf8'));
         const r = extract6502Machine(data);
         assert.ok(r.ok, `extraction failed: ${r.reasons.join('; ')}`);
         assert.deepEqual(r.reasons, [], 'expected zero refusals');
