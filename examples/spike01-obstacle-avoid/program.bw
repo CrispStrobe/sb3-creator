@@ -1,0 +1,16 @@
+DEVICE SPIKE
+
+WHEN flag clicked:
+  start motor A forward
+  FOREVER:
+    set dist to spike distance B
+    IF dist < 15 THEN:
+      stop motor A
+      display text "!"
+      wait 1 seconds
+      display clear
+      start motor A backward
+      wait 0.5 seconds
+      stop motor A
+      start motor A forward
+    wait 0.1 seconds

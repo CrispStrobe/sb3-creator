@@ -137,7 +137,16 @@ switch (cmd) {
         } else if (/\.(bas|basic)$/i.test(file)) {
             const { default: bas2bw } = await import('../src/utils/basicToPseudocode.js');
             result = bas2bw(src);
-        } else die('read understands .c, .py, .js and .bas');
+        } else if (/\.sb3$/i.test(file)) {
+            const { readFileSync } = await import('fs');
+            const JSZip = (await import('jszip')).default;
+            const buf = readFileSync(file);
+            const zip = await JSZip.loadAsync(buf);
+            const projJson = await zip.file('project.json').async('string');
+            const project = JSON.parse(projJson);
+            const c = new SB3Creator();
+            result = { pseudocode: c.decompile(project), warnings: [] };
+        } else die('read understands .c, .py, .js, .bas and .sb3');
         for (const w of result.warnings || []) console.error(`warning: ${w}`);
         writeOut(result.pseudocode ?? '', opts.o);
         break;
