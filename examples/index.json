@@ -6503,5 +6503,23 @@
    "microbit"
   ],
   "authored": "microbit"
+ },
+ {
+  "id": "spike01-obstacle-avoid",
+  "title": {
+   "en": "Obstacle Avoidance",
+   "de": "Hindernisvermeidung"
+  },
+  "category": "microbit",
+  "difficulty": 2,
+  "devices": [
+   "spike"
+  ],
+  "authored": "spike",
+  "kind": "program",
+  "files": {
+   "program": "spike01-obstacle-avoid/program.bw",
+   "expected": "spike01-obstacle-avoid/EXPECTED.md"
+  }
  }
 ]

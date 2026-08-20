@@ -3252,6 +3252,18 @@ class SB3Creator {
             block[id].inputs.TEXT = [1, [10, match[1]]];
             return ret(block);
         }
+        // ---- Spike Prime display commands (must precede generic display handler) ----
+        if (this.project && this.project.stc && this.project.stc.device === 'spike') {
+            if ((match = line.match(/^display\s+text\s+"([^"]*)"\s*$/i))) {
+                const { id, block } = cmd('spikeprime_displayText');
+                block[id].inputs.TEXT = [1, [10, match[1]]];
+                return ret(block);
+            }
+            if (/^display\s+clear\s*$/i.test(line)) {
+                const { id, block } = cmd('spikeprime_displayClear');
+                return ret(block);
+            }
+        }
         // ---- micro:bit display (explicit device verb: say is STAGE, this is LEDs) ----
         if ((match = line.match(/^(?:display|scroll)\s+"([^"]*)"\s*$/i))) {
             const { id, block } = cmd('microbit_display');
@@ -3302,16 +3314,7 @@ class SB3Creator {
             const { id, block } = cmd('spikeprime_stopMovement');
             return ret(block);
         }
-        // ---- Spike Prime display commands ----
-        if ((match = line.match(/^display\s+text\s+"([^"]*)"\s*$/i))) {
-            const { id, block } = cmd('spikeprime_displayText');
-            block[id].inputs.TEXT = [1, [10, match[1]]];
-            return ret(block);
-        }
-        if (/^display\s+clear\s*$/i.test(line)) {
-            const { id, block } = cmd('spikeprime_displayClear');
-            return ret(block);
-        }
+        // ---- Spike Prime pixel/sound/IMU commands ----
         if ((match = line.match(/^set\s+pixel\s+(\S+)\s+(\S+)\s+(\S+)\s*$/i))) {
             const { id, block } = cmd('spikeprime_setPixel');
             block[id].inputs.X = val(match[1]);
@@ -5193,6 +5196,24 @@ class SB3Creator {
             case 'circuit_resistance': return `resistance between ${v('A')} and ${v('B')}`;
             case 'circuit_ledbrightness': return `brightness of ${v('PART')}`;
             case 'circuit_buzzertone': return `tone of ${v('PART')}`;
+            // Spike Prime reporters
+            case 'spikeprime_getDistance': return `spike distance ${f('PORT')}`;
+            case 'spikeprime_getColor': return `spike color ${f('PORT')}`;
+            case 'spikeprime_getForce': return `spike force ${f('PORT')}`;
+            case 'spikeprime_getReflection': return `spike reflection ${f('PORT')}`;
+            case 'spikeprime_getAngle': return `spike angle ${f('AXIS')}`;
+            case 'spikeprime_getAcceleration': return `spike acceleration ${f('AXIS')}`;
+            case 'spikeprime_getPosition': return `spike motor position ${f('PORT')}`;
+            case 'spikeprime_getSpeed': return `spike motor speed ${f('PORT')}`;
+            case 'spikeprime_getOrientation': return 'spike orientation';
+            case 'spikeprime_getBatteryLevel': return 'spike battery';
+            case 'spikeprime_getTimer': return 'spike timer';
+            case 'spikeprime_getHubTemperature': return 'spike hub temperature';
+            // Spike Prime boolean reporters
+            case 'spikeprime_isForceSensorPressed': return `spike force sensor ${f('PORT')} pressed`;
+            case 'spikeprime_isButtonPressed': return `spike button ${f('BUTTON')} pressed`;
+            case 'spikeprime_isGesture': return `spike gesture ${f('GESTURE')}`;
+            case 'spikeprime_isColor': return `spike color ${f('PORT')} is ${f('COLOR')}`;
             default: return b.opcode;
         }
     }
@@ -5422,6 +5443,21 @@ class SB3Creator {
             case 'microbitplus_radioon': return line(`radio on group ${v('GROUP')} power ${v('POWER')}`);
             case 'microbitplus_radiosendnum': return line(`radio send number ${v('NUM')}`);
             case 'microbitplus_radiosendstr': return line(`radio send text "${this.dval(b.inputs.TEXT, blocks).replace(/^"|"$/g, '')}"`);
+            // ---- Spike Prime commands ----
+            case 'spikeprime_motorStart': return line(`start motor ${f('PORT')} ${f('DIRECTION')}`);
+            case 'spikeprime_motorStop': return line(`stop motor ${f('PORT')}`);
+            case 'spikeprime_motorRunFor': return line(`run motor ${f('PORT')} ${f('DIRECTION')} ${v('VALUE')} ${f('UNIT')}`);
+            case 'spikeprime_motorSetSpeed': return line(`set motor speed ${f('PORT')} ${v('SPEED')}`);
+            case 'spikeprime_moveForward': return line(`move ${f('DIRECTION')} ${v('VALUE')} ${f('UNIT')}`);
+            case 'spikeprime_stopMovement': return line('stop movement');
+            case 'spikeprime_displayText': return line(`display text "${this.dval(b.inputs.TEXT, blocks).replace(/^"|"$/g, '')}"`);
+            case 'spikeprime_displayClear': return line('display clear');
+            case 'spikeprime_setPixel': return line(`set pixel ${v('X')} ${v('Y')} ${v('BRIGHTNESS')}`);
+            case 'spikeprime_playBeep': return line(`play beep ${v('FREQUENCY')} ${v('DURATION')}`);
+            case 'spikeprime_playNote': return line(`play spike note ${v('NOTE')} ${v('SECS')}`);
+            case 'spikeprime_stopSound': return line('stop sound');
+            case 'spikeprime_resetYaw': return line('reset yaw');
+            case 'spikeprime_resetTimer': return line('reset spike timer');
             // circuit extension commands
             case 'circuit_setcontrol': return line(`set control ${v('CONTROL')} to ${v('VALUE')}`);
             case 'circuit_setpower': return line(`turn power ${f('STATE')}`);
