@@ -160,10 +160,11 @@ describe('bench invariants: every device bench, canonical loader', { skip: avail
     // Listing them keeps the gate GREEN so a NEW unreachable part is loud,
     // instead of hiding behind a permanent red — the failure mode this whole
     // file was repaired for. Only ever remove entries, never add.
-    const KNOWN_UNWIRED = new Set([
-        'eater6502-full-build/circuit.json: kbd (ps2) unreachable from the MCU',
-        'eater6502-full-build/circuit.json: bargraph (bargraph) unreachable from the MCU',
-    ]);
+    // EMPTY, and it must stay that way unless something genuinely regresses.
+    // Both entries — eater6502's ps2 keyboard and bargraph — now reach the MCU
+    // and the ledger's own "delete it from the list" assertion said so. They
+    // healed when bw-board gained device models for the parts between them.
+    const KNOWN_UNWIRED = new Set([]);
     const unexpected = problems.filter((p) => !KNOWN_UNWIRED.has(p));
     const fixed = [...KNOWN_UNWIRED].filter((k) => !problems.includes(k));
     assert.deepEqual(fixed, [],
