@@ -1,0 +1,204 @@
+{
+  "vcc": 5,
+  "parts": [
+    {
+      "id": "board",
+      "kind": "arduino_uno",
+      "params": {},
+      "rotation": 0,
+      "x": 80,
+      "y": -60
+    },
+    {
+      "id": "pot1",
+      "kind": "potentiometer",
+      "declName": "sensor1",
+      "params": {
+        "ohms": 10000
+      },
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "a": "a20",
+          "wiper": "a22",
+          "b": "a24"
+        }
+      },
+      "x": 302,
+      "y": 255
+    },
+    {
+      "id": "pot2",
+      "kind": "potentiometer",
+      "declName": "sensor2",
+      "params": {
+        "ohms": 10000
+      },
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "a": "a26",
+          "wiper": "a28",
+          "b": "a30"
+        }
+      },
+      "x": 386,
+      "y": 255
+    },
+    {
+      "id": "buz",
+      "kind": "buzzer",
+      "declName": "speaker",
+      "params": {},
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "a": "a32",
+          "b": "a34"
+        }
+      },
+      "x": 470,
+      "y": 255
+    },
+    {
+      "id": "vcc1",
+      "kind": "vcc",
+      "params": {
+        "volts": 5
+      },
+      "x": 80,
+      "y": 60
+    },
+    {
+      "id": "gnd1",
+      "kind": "gnd",
+      "params": {},
+      "x": 220,
+      "y": 60
+    }
+  ],
+  "wires": [
+    {
+      "id": "w_flat_0",
+      "netId": "bb1:n-col-t22",
+      "from": {
+        "part": "board",
+        "terminal": "a0"
+      },
+      "to": {
+        "part": "pot1",
+        "terminal": "wiper"
+      }
+    },
+    {
+      "id": "w_flat_1",
+      "netId": "bb1:n-col-t28",
+      "from": {
+        "part": "board",
+        "terminal": "a1"
+      },
+      "to": {
+        "part": "pot2",
+        "terminal": "wiper"
+      }
+    },
+    {
+      "id": "w_flat_2",
+      "netId": "bb1:n-col-t32",
+      "from": {
+        "part": "board",
+        "terminal": "d13"
+      },
+      "to": {
+        "part": "buz",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "w_flat_3",
+      "netId": "bb1:n-col-t34",
+      "from": {
+        "part": "board",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "buz",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "w_flat_4",
+      "netId": "bb1:n-col-t34",
+      "from": {
+        "part": "board",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "gnd1",
+        "terminal": "gnd"
+      }
+    },
+    {
+      "id": "w_flat_5",
+      "netId": "bb1:n-col-t34",
+      "from": {
+        "part": "board",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "pot1",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "w_flat_6",
+      "netId": "bb1:n-col-t34",
+      "from": {
+        "part": "board",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "pot2",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "w_flat_7",
+      "netId": "bb1:rail-t+",
+      "from": {
+        "part": "board",
+        "terminal": "5v"
+      },
+      "to": {
+        "part": "pot1",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "w_flat_8",
+      "netId": "bb1:rail-t+",
+      "from": {
+        "part": "board",
+        "terminal": "5v"
+      },
+      "to": {
+        "part": "pot2",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "w_flat_9",
+      "netId": "bb1:rail-t+",
+      "from": {
+        "part": "board",
+        "terminal": "5v"
+      },
+      "to": {
+        "part": "vcc1",
+        "terminal": "vcc"
+      }
+    }
+  ],
+  "holeWires": [],
+  "generated": "benchFor+authored"
+}

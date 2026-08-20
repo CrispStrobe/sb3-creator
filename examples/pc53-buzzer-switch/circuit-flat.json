@@ -1,0 +1,128 @@
+{
+  "vcc": 5,
+  "parts": [
+    {
+      "id": "src",
+      "kind": "vsource",
+      "params": {
+        "volts": 5
+      },
+      "x": 80,
+      "y": 60
+    },
+    {
+      "id": "button",
+      "kind": "button",
+      "params": {},
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "a": "e13",
+          "b": "f13"
+        }
+      },
+      "x": 204,
+      "y": 311
+    },
+    {
+      "id": "r",
+      "kind": "resistor",
+      "params": {
+        "ohms": 100
+      },
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "a": "a3",
+          "b": "a7"
+        }
+      },
+      "x": 64,
+      "y": 255
+    },
+    {
+      "id": "buzzer",
+      "kind": "buzzer",
+      "params": {},
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "a": "a9",
+          "b": "a11"
+        }
+      },
+      "x": 148,
+      "y": 255
+    },
+    {
+      "id": "gnd",
+      "kind": "gnd",
+      "params": {},
+      "x": 220,
+      "y": 60
+    }
+  ],
+  "wires": [
+    {
+      "id": "w_flat_0",
+      "netId": "bb1:n-col-b13",
+      "from": {
+        "part": "button",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "r",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "w_flat_1",
+      "netId": "bb1:n-col-t13",
+      "from": {
+        "part": "button",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "src",
+        "terminal": "pos"
+      }
+    },
+    {
+      "id": "w_flat_2",
+      "netId": "bb1:n-col-t7",
+      "from": {
+        "part": "buzzer",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "r",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "w_flat_3",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "buzzer",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "gnd",
+        "terminal": "gnd"
+      }
+    },
+    {
+      "id": "w_flat_4",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "buzzer",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "src",
+        "terminal": "neg"
+      }
+    }
+  ],
+  "holeWires": []
+}

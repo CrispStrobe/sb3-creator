@@ -1,0 +1,1346 @@
+{
+  "vcc": 5,
+  "parts": [
+    {
+      "id": "cpu",
+      "kind": "z80",
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "a11": "f3",
+          "a12": "f4",
+          "a13": "f5",
+          "a14": "f6",
+          "a15": "f7",
+          "clk": "f8",
+          "d4": "f9",
+          "d3": "f10",
+          "d5": "f11",
+          "d6": "f12",
+          "vcc": "f13",
+          "d2": "f14",
+          "d7": "f15",
+          "d0": "f16",
+          "d1": "f17",
+          "intb": "f18",
+          "nmib": "f19",
+          "haltb": "f20",
+          "mreqb": "f21",
+          "iorqb": "f22",
+          "a10": "e3",
+          "a9": "e4",
+          "a8": "e5",
+          "a7": "e6",
+          "a6": "e7",
+          "a5": "e8",
+          "a4": "e9",
+          "a3": "e10",
+          "a2": "e11",
+          "a1": "e12",
+          "a0": "e13",
+          "gnd": "e14",
+          "rfshb": "e15",
+          "m1b": "e16",
+          "resetb": "e17",
+          "busrqb": "e18",
+          "waitb": "e19",
+          "busakb": "e20",
+          "wrb": "e21",
+          "rdb": "e22"
+        }
+      },
+      "params": {},
+      "x": 64,
+      "y": 349
+    },
+    {
+      "id": "ram",
+      "kind": "62256",
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "a14": "f26",
+          "a12": "f27",
+          "a7": "f28",
+          "a6": "f29",
+          "a5": "f30",
+          "a4": "f31",
+          "a3": "f32",
+          "a2": "f33",
+          "a1": "f34",
+          "a0": "f35",
+          "d0": "f36",
+          "d1": "f37",
+          "d2": "f38",
+          "gnd": "f39",
+          "vcc": "e26",
+          "web": "e27",
+          "a13": "e28",
+          "a8": "e29",
+          "a9": "e30",
+          "a11": "e31",
+          "oeb": "e32",
+          "a10": "e33",
+          "csb": "e34",
+          "d7": "e35",
+          "d6": "e36",
+          "d5": "e37",
+          "d4": "e38",
+          "d3": "e39"
+        }
+      },
+      "params": {},
+      "x": 386,
+      "y": 349
+    },
+    {
+      "id": "rom",
+      "kind": "28c256",
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "a14": "f43",
+          "a12": "f44",
+          "a7": "f45",
+          "a6": "f46",
+          "a5": "f47",
+          "a4": "f48",
+          "a3": "f49",
+          "a2": "f50",
+          "a1": "f51",
+          "a0": "f52",
+          "d0": "f53",
+          "d1": "f54",
+          "d2": "f55",
+          "gnd": "f56",
+          "vcc": "e43",
+          "web": "e44",
+          "a13": "e45",
+          "a8": "e46",
+          "a9": "e47",
+          "a11": "e48",
+          "oeb": "e49",
+          "a10": "e50",
+          "ceb": "e51",
+          "d7": "e52",
+          "d6": "e53",
+          "d5": "e54",
+          "d4": "e55",
+          "d3": "e56"
+        }
+      },
+      "params": {},
+      "x": 624,
+      "y": 349
+    },
+    {
+      "id": "acia",
+      "kind": "mc6850",
+      "seat": {
+        "boardId": "bb2",
+        "leadMap": {
+          "vss": "f3",
+          "rxd": "f4",
+          "rxclk": "f5",
+          "txclk": "f6",
+          "rtsb": "f7",
+          "txd": "f8",
+          "irqb": "f9",
+          "cs0": "f10",
+          "cs2b": "f11",
+          "cs1": "f12",
+          "rs": "f13",
+          "vcc": "f14",
+          "ctsb": "e3",
+          "dcdb": "e4",
+          "d0": "e5",
+          "d1": "e6",
+          "d2": "e7",
+          "d3": "e8",
+          "d4": "e9",
+          "d5": "e10",
+          "d6": "e11",
+          "d7": "e12",
+          "e": "e13",
+          "rw": "e14"
+        }
+      },
+      "params": {},
+      "x": 64,
+      "y": 709
+    },
+    {
+      "id": "glue1",
+      "kind": "74hc00",
+      "seat": {
+        "boardId": "bb2",
+        "leadMap": {
+          "1a": "f18",
+          "1b": "f19",
+          "1y": "f20",
+          "2a": "f21",
+          "2b": "f22",
+          "2y": "f23",
+          "gnd": "f24",
+          "vcc": "e18",
+          "4b": "e19",
+          "4a": "e20",
+          "4y": "e21",
+          "3b": "e22",
+          "3a": "e23",
+          "3y": "e24"
+        }
+      },
+      "params": {},
+      "x": 274,
+      "y": 709
+    },
+    {
+      "id": "glue2",
+      "kind": "74hc00",
+      "seat": {
+        "boardId": "bb2",
+        "leadMap": {
+          "1a": "f28",
+          "1b": "f29",
+          "1y": "f30",
+          "2a": "f31",
+          "2b": "f32",
+          "2y": "f33",
+          "gnd": "f34",
+          "vcc": "e28",
+          "4b": "e29",
+          "4a": "e30",
+          "4y": "e31",
+          "3b": "e32",
+          "3a": "e33",
+          "3y": "e34"
+        }
+      },
+      "params": {},
+      "x": 414,
+      "y": 709
+    },
+    {
+      "id": "vcc1",
+      "kind": "vcc",
+      "params": {},
+      "x": 80,
+      "y": 60
+    },
+    {
+      "id": "gnd1",
+      "kind": "gnd",
+      "params": {},
+      "x": 220,
+      "y": 60
+    }
+  ],
+  "wires": [
+    {
+      "id": "w_flat_0",
+      "netId": "bb1:n-col-b10",
+      "from": {
+        "part": "acia",
+        "terminal": "d3"
+      },
+      "to": {
+        "part": "cpu",
+        "terminal": "d3"
+      }
+    },
+    {
+      "id": "w_flat_1",
+      "netId": "bb1:n-col-b10",
+      "from": {
+        "part": "acia",
+        "terminal": "d3"
+      },
+      "to": {
+        "part": "ram",
+        "terminal": "d3"
+      }
+    },
+    {
+      "id": "w_flat_2",
+      "netId": "bb1:n-col-b10",
+      "from": {
+        "part": "acia",
+        "terminal": "d3"
+      },
+      "to": {
+        "part": "rom",
+        "terminal": "d3"
+      }
+    },
+    {
+      "id": "w_flat_3",
+      "netId": "bb1:n-col-b11",
+      "from": {
+        "part": "acia",
+        "terminal": "d5"
+      },
+      "to": {
+        "part": "cpu",
+        "terminal": "d5"
+      }
+    },
+    {
+      "id": "w_flat_4",
+      "netId": "bb1:n-col-b11",
+      "from": {
+        "part": "acia",
+        "terminal": "d5"
+      },
+      "to": {
+        "part": "ram",
+        "terminal": "d5"
+      }
+    },
+    {
+      "id": "w_flat_5",
+      "netId": "bb1:n-col-b11",
+      "from": {
+        "part": "acia",
+        "terminal": "d5"
+      },
+      "to": {
+        "part": "rom",
+        "terminal": "d5"
+      }
+    },
+    {
+      "id": "w_flat_6",
+      "netId": "bb1:n-col-b12",
+      "from": {
+        "part": "acia",
+        "terminal": "d6"
+      },
+      "to": {
+        "part": "cpu",
+        "terminal": "d6"
+      }
+    },
+    {
+      "id": "w_flat_7",
+      "netId": "bb1:n-col-b12",
+      "from": {
+        "part": "acia",
+        "terminal": "d6"
+      },
+      "to": {
+        "part": "ram",
+        "terminal": "d6"
+      }
+    },
+    {
+      "id": "w_flat_8",
+      "netId": "bb1:n-col-b12",
+      "from": {
+        "part": "acia",
+        "terminal": "d6"
+      },
+      "to": {
+        "part": "rom",
+        "terminal": "d6"
+      }
+    },
+    {
+      "id": "w_flat_9",
+      "netId": "bb1:n-col-b14",
+      "from": {
+        "part": "acia",
+        "terminal": "d2"
+      },
+      "to": {
+        "part": "cpu",
+        "terminal": "d2"
+      }
+    },
+    {
+      "id": "w_flat_10",
+      "netId": "bb1:n-col-b14",
+      "from": {
+        "part": "acia",
+        "terminal": "d2"
+      },
+      "to": {
+        "part": "ram",
+        "terminal": "d2"
+      }
+    },
+    {
+      "id": "w_flat_11",
+      "netId": "bb1:n-col-b14",
+      "from": {
+        "part": "acia",
+        "terminal": "d2"
+      },
+      "to": {
+        "part": "rom",
+        "terminal": "d2"
+      }
+    },
+    {
+      "id": "w_flat_12",
+      "netId": "bb1:n-col-b15",
+      "from": {
+        "part": "acia",
+        "terminal": "d7"
+      },
+      "to": {
+        "part": "cpu",
+        "terminal": "d7"
+      }
+    },
+    {
+      "id": "w_flat_13",
+      "netId": "bb1:n-col-b15",
+      "from": {
+        "part": "acia",
+        "terminal": "d7"
+      },
+      "to": {
+        "part": "ram",
+        "terminal": "d7"
+      }
+    },
+    {
+      "id": "w_flat_14",
+      "netId": "bb1:n-col-b15",
+      "from": {
+        "part": "acia",
+        "terminal": "d7"
+      },
+      "to": {
+        "part": "rom",
+        "terminal": "d7"
+      }
+    },
+    {
+      "id": "w_flat_15",
+      "netId": "bb1:n-col-b16",
+      "from": {
+        "part": "acia",
+        "terminal": "d0"
+      },
+      "to": {
+        "part": "cpu",
+        "terminal": "d0"
+      }
+    },
+    {
+      "id": "w_flat_16",
+      "netId": "bb1:n-col-b16",
+      "from": {
+        "part": "acia",
+        "terminal": "d0"
+      },
+      "to": {
+        "part": "ram",
+        "terminal": "d0"
+      }
+    },
+    {
+      "id": "w_flat_17",
+      "netId": "bb1:n-col-b16",
+      "from": {
+        "part": "acia",
+        "terminal": "d0"
+      },
+      "to": {
+        "part": "rom",
+        "terminal": "d0"
+      }
+    },
+    {
+      "id": "w_flat_18",
+      "netId": "bb1:n-col-b17",
+      "from": {
+        "part": "acia",
+        "terminal": "d1"
+      },
+      "to": {
+        "part": "cpu",
+        "terminal": "d1"
+      }
+    },
+    {
+      "id": "w_flat_19",
+      "netId": "bb1:n-col-b17",
+      "from": {
+        "part": "acia",
+        "terminal": "d1"
+      },
+      "to": {
+        "part": "ram",
+        "terminal": "d1"
+      }
+    },
+    {
+      "id": "w_flat_20",
+      "netId": "bb1:n-col-b17",
+      "from": {
+        "part": "acia",
+        "terminal": "d1"
+      },
+      "to": {
+        "part": "rom",
+        "terminal": "d1"
+      }
+    },
+    {
+      "id": "w_flat_21",
+      "netId": "bb1:n-col-b18",
+      "from": {
+        "part": "acia",
+        "terminal": "vcc"
+      },
+      "to": {
+        "part": "cpu",
+        "terminal": "busrqb"
+      }
+    },
+    {
+      "id": "w_flat_22",
+      "netId": "bb1:n-col-b18",
+      "from": {
+        "part": "acia",
+        "terminal": "vcc"
+      },
+      "to": {
+        "part": "cpu",
+        "terminal": "intb"
+      }
+    },
+    {
+      "id": "w_flat_23",
+      "netId": "bb1:n-col-b18",
+      "from": {
+        "part": "acia",
+        "terminal": "vcc"
+      },
+      "to": {
+        "part": "cpu",
+        "terminal": "nmib"
+      }
+    },
+    {
+      "id": "w_flat_24",
+      "netId": "bb1:n-col-b18",
+      "from": {
+        "part": "acia",
+        "terminal": "vcc"
+      },
+      "to": {
+        "part": "cpu",
+        "terminal": "vcc"
+      }
+    },
+    {
+      "id": "w_flat_25",
+      "netId": "bb1:n-col-b18",
+      "from": {
+        "part": "acia",
+        "terminal": "vcc"
+      },
+      "to": {
+        "part": "cpu",
+        "terminal": "waitb"
+      }
+    },
+    {
+      "id": "w_flat_26",
+      "netId": "bb1:n-col-b18",
+      "from": {
+        "part": "acia",
+        "terminal": "vcc"
+      },
+      "to": {
+        "part": "glue1",
+        "terminal": "vcc"
+      }
+    },
+    {
+      "id": "w_flat_27",
+      "netId": "bb1:n-col-b18",
+      "from": {
+        "part": "acia",
+        "terminal": "vcc"
+      },
+      "to": {
+        "part": "glue2",
+        "terminal": "vcc"
+      }
+    },
+    {
+      "id": "w_flat_28",
+      "netId": "bb1:n-col-b18",
+      "from": {
+        "part": "acia",
+        "terminal": "vcc"
+      },
+      "to": {
+        "part": "ram",
+        "terminal": "vcc"
+      }
+    },
+    {
+      "id": "w_flat_29",
+      "netId": "bb1:n-col-b18",
+      "from": {
+        "part": "acia",
+        "terminal": "vcc"
+      },
+      "to": {
+        "part": "rom",
+        "terminal": "vcc"
+      }
+    },
+    {
+      "id": "w_flat_30",
+      "netId": "bb1:n-col-b18",
+      "from": {
+        "part": "acia",
+        "terminal": "vcc"
+      },
+      "to": {
+        "part": "vcc1",
+        "terminal": "vcc"
+      }
+    },
+    {
+      "id": "w_flat_31",
+      "netId": "bb1:n-col-b21",
+      "from": {
+        "part": "cpu",
+        "terminal": "mreqb"
+      },
+      "to": {
+        "part": "glue1",
+        "terminal": "1a"
+      }
+    },
+    {
+      "id": "w_flat_32",
+      "netId": "bb1:n-col-b21",
+      "from": {
+        "part": "cpu",
+        "terminal": "mreqb"
+      },
+      "to": {
+        "part": "glue1",
+        "terminal": "1b"
+      }
+    },
+    {
+      "id": "w_flat_33",
+      "netId": "bb1:n-col-b22",
+      "from": {
+        "part": "cpu",
+        "terminal": "iorqb"
+      },
+      "to": {
+        "part": "glue2",
+        "terminal": "1a"
+      }
+    },
+    {
+      "id": "w_flat_34",
+      "netId": "bb1:n-col-b22",
+      "from": {
+        "part": "cpu",
+        "terminal": "iorqb"
+      },
+      "to": {
+        "part": "glue2",
+        "terminal": "1b"
+      }
+    },
+    {
+      "id": "w_flat_35",
+      "netId": "bb1:n-col-b26",
+      "from": {
+        "part": "cpu",
+        "terminal": "a14"
+      },
+      "to": {
+        "part": "ram",
+        "terminal": "a14"
+      }
+    },
+    {
+      "id": "w_flat_36",
+      "netId": "bb1:n-col-b26",
+      "from": {
+        "part": "cpu",
+        "terminal": "a14"
+      },
+      "to": {
+        "part": "rom",
+        "terminal": "a14"
+      }
+    },
+    {
+      "id": "w_flat_37",
+      "netId": "bb1:n-col-b27",
+      "from": {
+        "part": "cpu",
+        "terminal": "a12"
+      },
+      "to": {
+        "part": "ram",
+        "terminal": "a12"
+      }
+    },
+    {
+      "id": "w_flat_38",
+      "netId": "bb1:n-col-b27",
+      "from": {
+        "part": "cpu",
+        "terminal": "a12"
+      },
+      "to": {
+        "part": "rom",
+        "terminal": "a12"
+      }
+    },
+    {
+      "id": "w_flat_39",
+      "netId": "bb1:n-col-b28",
+      "from": {
+        "part": "acia",
+        "terminal": "cs1"
+      },
+      "to": {
+        "part": "cpu",
+        "terminal": "a7"
+      }
+    },
+    {
+      "id": "w_flat_40",
+      "netId": "bb1:n-col-b28",
+      "from": {
+        "part": "acia",
+        "terminal": "cs1"
+      },
+      "to": {
+        "part": "ram",
+        "terminal": "a7"
+      }
+    },
+    {
+      "id": "w_flat_41",
+      "netId": "bb1:n-col-b28",
+      "from": {
+        "part": "acia",
+        "terminal": "cs1"
+      },
+      "to": {
+        "part": "rom",
+        "terminal": "a7"
+      }
+    },
+    {
+      "id": "w_flat_42",
+      "netId": "bb1:n-col-b29",
+      "from": {
+        "part": "cpu",
+        "terminal": "a6"
+      },
+      "to": {
+        "part": "ram",
+        "terminal": "a6"
+      }
+    },
+    {
+      "id": "w_flat_43",
+      "netId": "bb1:n-col-b29",
+      "from": {
+        "part": "cpu",
+        "terminal": "a6"
+      },
+      "to": {
+        "part": "rom",
+        "terminal": "a6"
+      }
+    },
+    {
+      "id": "w_flat_44",
+      "netId": "bb1:n-col-b3",
+      "from": {
+        "part": "cpu",
+        "terminal": "a11"
+      },
+      "to": {
+        "part": "ram",
+        "terminal": "a11"
+      }
+    },
+    {
+      "id": "w_flat_45",
+      "netId": "bb1:n-col-b3",
+      "from": {
+        "part": "cpu",
+        "terminal": "a11"
+      },
+      "to": {
+        "part": "rom",
+        "terminal": "a11"
+      }
+    },
+    {
+      "id": "w_flat_46",
+      "netId": "bb1:n-col-b30",
+      "from": {
+        "part": "cpu",
+        "terminal": "a5"
+      },
+      "to": {
+        "part": "ram",
+        "terminal": "a5"
+      }
+    },
+    {
+      "id": "w_flat_47",
+      "netId": "bb1:n-col-b30",
+      "from": {
+        "part": "cpu",
+        "terminal": "a5"
+      },
+      "to": {
+        "part": "rom",
+        "terminal": "a5"
+      }
+    },
+    {
+      "id": "w_flat_48",
+      "netId": "bb1:n-col-b31",
+      "from": {
+        "part": "cpu",
+        "terminal": "a4"
+      },
+      "to": {
+        "part": "ram",
+        "terminal": "a4"
+      }
+    },
+    {
+      "id": "w_flat_49",
+      "netId": "bb1:n-col-b31",
+      "from": {
+        "part": "cpu",
+        "terminal": "a4"
+      },
+      "to": {
+        "part": "rom",
+        "terminal": "a4"
+      }
+    },
+    {
+      "id": "w_flat_50",
+      "netId": "bb1:n-col-b32",
+      "from": {
+        "part": "cpu",
+        "terminal": "a3"
+      },
+      "to": {
+        "part": "ram",
+        "terminal": "a3"
+      }
+    },
+    {
+      "id": "w_flat_51",
+      "netId": "bb1:n-col-b32",
+      "from": {
+        "part": "cpu",
+        "terminal": "a3"
+      },
+      "to": {
+        "part": "rom",
+        "terminal": "a3"
+      }
+    },
+    {
+      "id": "w_flat_52",
+      "netId": "bb1:n-col-b33",
+      "from": {
+        "part": "cpu",
+        "terminal": "a2"
+      },
+      "to": {
+        "part": "ram",
+        "terminal": "a2"
+      }
+    },
+    {
+      "id": "w_flat_53",
+      "netId": "bb1:n-col-b33",
+      "from": {
+        "part": "cpu",
+        "terminal": "a2"
+      },
+      "to": {
+        "part": "rom",
+        "terminal": "a2"
+      }
+    },
+    {
+      "id": "w_flat_54",
+      "netId": "bb1:n-col-b34",
+      "from": {
+        "part": "cpu",
+        "terminal": "a1"
+      },
+      "to": {
+        "part": "ram",
+        "terminal": "a1"
+      }
+    },
+    {
+      "id": "w_flat_55",
+      "netId": "bb1:n-col-b34",
+      "from": {
+        "part": "cpu",
+        "terminal": "a1"
+      },
+      "to": {
+        "part": "rom",
+        "terminal": "a1"
+      }
+    },
+    {
+      "id": "w_flat_56",
+      "netId": "bb1:n-col-b35",
+      "from": {
+        "part": "acia",
+        "terminal": "rs"
+      },
+      "to": {
+        "part": "cpu",
+        "terminal": "a0"
+      }
+    },
+    {
+      "id": "w_flat_57",
+      "netId": "bb1:n-col-b35",
+      "from": {
+        "part": "acia",
+        "terminal": "rs"
+      },
+      "to": {
+        "part": "ram",
+        "terminal": "a0"
+      }
+    },
+    {
+      "id": "w_flat_58",
+      "netId": "bb1:n-col-b35",
+      "from": {
+        "part": "acia",
+        "terminal": "rs"
+      },
+      "to": {
+        "part": "rom",
+        "terminal": "a0"
+      }
+    },
+    {
+      "id": "w_flat_59",
+      "netId": "bb1:n-col-b5",
+      "from": {
+        "part": "cpu",
+        "terminal": "a13"
+      },
+      "to": {
+        "part": "ram",
+        "terminal": "a13"
+      }
+    },
+    {
+      "id": "w_flat_60",
+      "netId": "bb1:n-col-b5",
+      "from": {
+        "part": "cpu",
+        "terminal": "a13"
+      },
+      "to": {
+        "part": "rom",
+        "terminal": "a13"
+      }
+    },
+    {
+      "id": "w_flat_61",
+      "netId": "bb1:n-col-b7",
+      "from": {
+        "part": "cpu",
+        "terminal": "a15"
+      },
+      "to": {
+        "part": "glue1",
+        "terminal": "2a"
+      }
+    },
+    {
+      "id": "w_flat_62",
+      "netId": "bb1:n-col-b7",
+      "from": {
+        "part": "cpu",
+        "terminal": "a15"
+      },
+      "to": {
+        "part": "glue1",
+        "terminal": "2b"
+      }
+    },
+    {
+      "id": "w_flat_63",
+      "netId": "bb1:n-col-b7",
+      "from": {
+        "part": "cpu",
+        "terminal": "a15"
+      },
+      "to": {
+        "part": "glue1",
+        "terminal": "4b"
+      }
+    },
+    {
+      "id": "w_flat_64",
+      "netId": "bb1:n-col-b8",
+      "from": {
+        "part": "acia",
+        "terminal": "e"
+      },
+      "to": {
+        "part": "cpu",
+        "terminal": "clk"
+      }
+    },
+    {
+      "id": "w_flat_65",
+      "netId": "bb1:n-col-b9",
+      "from": {
+        "part": "acia",
+        "terminal": "d4"
+      },
+      "to": {
+        "part": "cpu",
+        "terminal": "d4"
+      }
+    },
+    {
+      "id": "w_flat_66",
+      "netId": "bb1:n-col-b9",
+      "from": {
+        "part": "acia",
+        "terminal": "d4"
+      },
+      "to": {
+        "part": "ram",
+        "terminal": "d4"
+      }
+    },
+    {
+      "id": "w_flat_67",
+      "netId": "bb1:n-col-b9",
+      "from": {
+        "part": "acia",
+        "terminal": "d4"
+      },
+      "to": {
+        "part": "rom",
+        "terminal": "d4"
+      }
+    },
+    {
+      "id": "w_flat_68",
+      "netId": "bb1:n-col-t21",
+      "from": {
+        "part": "cpu",
+        "terminal": "wrb"
+      },
+      "to": {
+        "part": "ram",
+        "terminal": "web"
+      }
+    },
+    {
+      "id": "w_flat_69",
+      "netId": "bb1:n-col-t22",
+      "from": {
+        "part": "acia",
+        "terminal": "rw"
+      },
+      "to": {
+        "part": "cpu",
+        "terminal": "rdb"
+      }
+    },
+    {
+      "id": "w_flat_70",
+      "netId": "bb1:n-col-t22",
+      "from": {
+        "part": "acia",
+        "terminal": "rw"
+      },
+      "to": {
+        "part": "ram",
+        "terminal": "oeb"
+      }
+    },
+    {
+      "id": "w_flat_71",
+      "netId": "bb1:n-col-t29",
+      "from": {
+        "part": "cpu",
+        "terminal": "a8"
+      },
+      "to": {
+        "part": "ram",
+        "terminal": "a8"
+      }
+    },
+    {
+      "id": "w_flat_72",
+      "netId": "bb1:n-col-t29",
+      "from": {
+        "part": "cpu",
+        "terminal": "a8"
+      },
+      "to": {
+        "part": "rom",
+        "terminal": "a8"
+      }
+    },
+    {
+      "id": "w_flat_73",
+      "netId": "bb1:n-col-t3",
+      "from": {
+        "part": "cpu",
+        "terminal": "a10"
+      },
+      "to": {
+        "part": "ram",
+        "terminal": "a10"
+      }
+    },
+    {
+      "id": "w_flat_74",
+      "netId": "bb1:n-col-t3",
+      "from": {
+        "part": "cpu",
+        "terminal": "a10"
+      },
+      "to": {
+        "part": "rom",
+        "terminal": "a10"
+      }
+    },
+    {
+      "id": "w_flat_75",
+      "netId": "bb1:n-col-t30",
+      "from": {
+        "part": "cpu",
+        "terminal": "a9"
+      },
+      "to": {
+        "part": "ram",
+        "terminal": "a9"
+      }
+    },
+    {
+      "id": "w_flat_76",
+      "netId": "bb1:n-col-t30",
+      "from": {
+        "part": "cpu",
+        "terminal": "a9"
+      },
+      "to": {
+        "part": "rom",
+        "terminal": "a9"
+      }
+    },
+    {
+      "id": "w_flat_77",
+      "netId": "bb1:n-col-t34",
+      "from": {
+        "part": "glue1",
+        "terminal": "4y"
+      },
+      "to": {
+        "part": "ram",
+        "terminal": "csb"
+      }
+    },
+    {
+      "id": "w_flat_78",
+      "netId": "bb1:n-col-t51",
+      "from": {
+        "part": "glue1",
+        "terminal": "3y"
+      },
+      "to": {
+        "part": "rom",
+        "terminal": "ceb"
+      }
+    },
+    {
+      "id": "w_flat_79",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "acia",
+        "terminal": "cs2b"
+      },
+      "to": {
+        "part": "acia",
+        "terminal": "vss"
+      }
+    },
+    {
+      "id": "w_flat_80",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "acia",
+        "terminal": "cs2b"
+      },
+      "to": {
+        "part": "cpu",
+        "terminal": "gnd"
+      }
+    },
+    {
+      "id": "w_flat_81",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "acia",
+        "terminal": "cs2b"
+      },
+      "to": {
+        "part": "glue1",
+        "terminal": "gnd"
+      }
+    },
+    {
+      "id": "w_flat_82",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "acia",
+        "terminal": "cs2b"
+      },
+      "to": {
+        "part": "glue2",
+        "terminal": "gnd"
+      }
+    },
+    {
+      "id": "w_flat_83",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "acia",
+        "terminal": "cs2b"
+      },
+      "to": {
+        "part": "gnd1",
+        "terminal": "gnd"
+      }
+    },
+    {
+      "id": "w_flat_84",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "acia",
+        "terminal": "cs2b"
+      },
+      "to": {
+        "part": "ram",
+        "terminal": "gnd"
+      }
+    },
+    {
+      "id": "w_flat_85",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "acia",
+        "terminal": "cs2b"
+      },
+      "to": {
+        "part": "rom",
+        "terminal": "gnd"
+      }
+    },
+    {
+      "id": "w_flat_86",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "acia",
+        "terminal": "cs2b"
+      },
+      "to": {
+        "part": "rom",
+        "terminal": "oeb"
+      }
+    },
+    {
+      "id": "w_flat_87",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "acia",
+        "terminal": "cs2b"
+      },
+      "to": {
+        "part": "rom",
+        "terminal": "web"
+      }
+    },
+    {
+      "id": "w_flat_88",
+      "netId": "bb2:n-col-b10",
+      "from": {
+        "part": "acia",
+        "terminal": "cs0"
+      },
+      "to": {
+        "part": "glue2",
+        "terminal": "1y"
+      }
+    },
+    {
+      "id": "w_flat_89",
+      "netId": "bb2:n-col-b20",
+      "from": {
+        "part": "glue1",
+        "terminal": "1y"
+      },
+      "to": {
+        "part": "glue1",
+        "terminal": "3a"
+      }
+    },
+    {
+      "id": "w_flat_90",
+      "netId": "bb2:n-col-b20",
+      "from": {
+        "part": "glue1",
+        "terminal": "1y"
+      },
+      "to": {
+        "part": "glue1",
+        "terminal": "4a"
+      }
+    },
+    {
+      "id": "w_flat_91",
+      "netId": "bb2:n-col-b23",
+      "from": {
+        "part": "glue1",
+        "terminal": "2y"
+      },
+      "to": {
+        "part": "glue1",
+        "terminal": "3b"
+      }
+    }
+  ],
+  "holeWires": []
+}

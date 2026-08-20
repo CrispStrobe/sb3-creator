@@ -1,0 +1,101 @@
+{
+  "vcc": 5,
+  "parts": [
+    {
+      "id": "vsource_2",
+      "kind": "vsource",
+      "params": {
+        "volts": 9,
+        "variant": "9v"
+      },
+      "terminals": [
+        "pos",
+        "neg"
+      ],
+      "rotation": 0,
+      "x": 100,
+      "y": 100
+    },
+    {
+      "id": "resistor_3",
+      "kind": "resistor",
+      "params": {
+        "ohms": 10000
+      },
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "rotation": 0,
+      "seat": {
+        "boardId": "breadboard_1",
+        "leadMap": {
+          "a": "a3",
+          "b": "a7"
+        }
+      },
+      "x": 0,
+      "y": 0
+    },
+    {
+      "id": "resistor_4",
+      "kind": "resistor",
+      "params": {
+        "ohms": 10000
+      },
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "rotation": 0,
+      "seat": {
+        "boardId": "breadboard_1",
+        "leadMap": {
+          "a": "b7",
+          "b": "b11"
+        }
+      },
+      "x": 0,
+      "y": 0
+    }
+  ],
+  "wires": [
+    {
+      "id": "w_flat_0",
+      "netId": "breadboard_1:n-col-t11",
+      "from": {
+        "part": "resistor_4",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "vsource_2",
+        "terminal": "neg"
+      }
+    },
+    {
+      "id": "w_flat_1",
+      "netId": "breadboard_1:n-col-t3",
+      "from": {
+        "part": "resistor_3",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "vsource_2",
+        "terminal": "pos"
+      }
+    },
+    {
+      "id": "w_flat_2",
+      "netId": "breadboard_1:n-col-t7",
+      "from": {
+        "part": "resistor_3",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "resistor_4",
+        "terminal": "a"
+      }
+    }
+  ],
+  "holeWires": []
+}

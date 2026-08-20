@@ -1,0 +1,257 @@
+{
+  "vcc": 5,
+  "parts": [
+    {
+      "id": "src",
+      "kind": "vsource",
+      "params": {
+        "volts": 5
+      },
+      "x": 80,
+      "y": 60
+    },
+    {
+      "id": "pot",
+      "kind": "potentiometer",
+      "params": {
+        "ohms": 10000
+      },
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "a": "a3",
+          "wiper": "a5",
+          "b": "a7"
+        }
+      },
+      "x": 64,
+      "y": 255
+    },
+    {
+      "id": "rref1",
+      "kind": "resistor",
+      "params": {
+        "ohms": 10000
+      },
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "a": "a9",
+          "b": "a13"
+        }
+      },
+      "x": 148,
+      "y": 255
+    },
+    {
+      "id": "rref2",
+      "kind": "resistor",
+      "params": {
+        "ohms": 10000
+      },
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "a": "a15",
+          "b": "a19"
+        }
+      },
+      "x": 232,
+      "y": 255
+    },
+    {
+      "id": "amp",
+      "kind": "opamp",
+      "params": {
+        "gain": 100000,
+        "voutHigh": 5,
+        "voutLow": 0
+      },
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "inn": "e27",
+          "inp": "e28",
+          "out": "f27"
+        }
+      },
+      "x": 400,
+      "y": 311
+    },
+    {
+      "id": "rl",
+      "kind": "resistor",
+      "params": {
+        "ohms": 1000
+      },
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "a": "a21",
+          "b": "a25"
+        }
+      },
+      "x": 316,
+      "y": 255
+    },
+    {
+      "id": "led",
+      "kind": "led",
+      "params": {
+        "vf": 2,
+        "color": "green"
+      },
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "anode": "a32",
+          "cathode": "a33"
+        }
+      },
+      "x": 470,
+      "y": 255
+    },
+    {
+      "id": "gnd",
+      "kind": "gnd",
+      "params": {},
+      "x": 220,
+      "y": 60
+    }
+  ],
+  "wires": [
+    {
+      "id": "w_flat_0",
+      "netId": "bb1:n-col-b27",
+      "from": {
+        "part": "amp",
+        "terminal": "out"
+      },
+      "to": {
+        "part": "rl",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "w_flat_1",
+      "netId": "bb1:n-col-t13",
+      "from": {
+        "part": "amp",
+        "terminal": "inn"
+      },
+      "to": {
+        "part": "rref1",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "w_flat_2",
+      "netId": "bb1:n-col-t13",
+      "from": {
+        "part": "amp",
+        "terminal": "inn"
+      },
+      "to": {
+        "part": "rref2",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "w_flat_3",
+      "netId": "bb1:n-col-t25",
+      "from": {
+        "part": "led",
+        "terminal": "anode"
+      },
+      "to": {
+        "part": "rl",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "w_flat_4",
+      "netId": "bb1:n-col-t28",
+      "from": {
+        "part": "amp",
+        "terminal": "inp"
+      },
+      "to": {
+        "part": "pot",
+        "terminal": "wiper"
+      }
+    },
+    {
+      "id": "w_flat_5",
+      "netId": "bb1:n-col-t3",
+      "from": {
+        "part": "pot",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "rref1",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "w_flat_6",
+      "netId": "bb1:n-col-t3",
+      "from": {
+        "part": "pot",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "src",
+        "terminal": "pos"
+      }
+    },
+    {
+      "id": "w_flat_7",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "gnd",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "led",
+        "terminal": "cathode"
+      }
+    },
+    {
+      "id": "w_flat_8",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "gnd",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "pot",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "w_flat_9",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "gnd",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "rref2",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "w_flat_10",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "gnd",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "src",
+        "terminal": "neg"
+      }
+    }
+  ],
+  "holeWires": []
+}

@@ -1,0 +1,484 @@
+{
+  "vcc": 5,
+  "parts": [
+    {
+      "id": "mcu",
+      "kind": "attiny88",
+      "declName": "mcu",
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "pc6": "f3",
+          "pd0": "f4",
+          "pd1": "f5",
+          "pd2": "f6",
+          "pd3": "f7",
+          "pd4": "f8",
+          "vcc": "f9",
+          "gnd": "f10",
+          "pb6": "f11",
+          "pb7": "f12",
+          "pd5": "f13",
+          "pd6": "f14",
+          "pd7": "f15",
+          "pb0": "f16",
+          "pc7": "e16",
+          "pc5": "e15",
+          "pc4": "e14",
+          "pc3": "e13",
+          "pc2": "e12",
+          "pc1": "e11",
+          "pc0": "e10",
+          "pa0": "e9",
+          "avcc": "e8",
+          "pb5": "e7",
+          "pb4": "e6",
+          "pb3": "e5",
+          "pb2": "e4",
+          "pb1": "e3"
+        }
+      },
+      "params": {},
+      "x": 64,
+      "y": 349
+    },
+    {
+      "id": "matrix",
+      "kind": "matrix8x8",
+      "declName": "matrix",
+      "params": {
+        "polarity": "788AS",
+        "colActiveHigh": false,
+        "rowActiveHigh": true
+      },
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "col0": "e20",
+          "col1": "e21",
+          "col2": "e22",
+          "col3": "e23",
+          "col4": "e24",
+          "col5": "e25",
+          "col6": "e26",
+          "col7": "e27",
+          "row0": "f20",
+          "row1": "f21",
+          "row2": "f22",
+          "row3": "f23",
+          "row4": "f24",
+          "row5": "f25",
+          "row6": "f26",
+          "row7": "f27"
+        }
+      },
+      "x": 302,
+      "y": 311
+    },
+    {
+      "id": "btnL",
+      "kind": "button",
+      "declName": "btnLeft",
+      "params": {},
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "a": "e43",
+          "b": "f43"
+        }
+      },
+      "x": 624,
+      "y": 311
+    },
+    {
+      "id": "btnR",
+      "kind": "button",
+      "declName": "btnRight",
+      "params": {},
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "a": "e47",
+          "b": "f47"
+        }
+      },
+      "x": 680,
+      "y": 311
+    },
+    {
+      "id": "rL",
+      "kind": "resistor",
+      "params": {
+        "ohms": 10000
+      },
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "a": "a31",
+          "b": "a35"
+        }
+      },
+      "x": 456,
+      "y": 255
+    },
+    {
+      "id": "rR",
+      "kind": "resistor",
+      "params": {
+        "ohms": 10000
+      },
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "a": "a37",
+          "b": "a41"
+        }
+      },
+      "x": 540,
+      "y": 255
+    },
+    {
+      "id": "vcc1",
+      "kind": "vcc",
+      "params": {
+        "volts": 5
+      },
+      "x": 80,
+      "y": 60
+    },
+    {
+      "id": "gnd1",
+      "kind": "gnd",
+      "params": {},
+      "x": 220,
+      "y": 60
+    }
+  ],
+  "wires": [
+    {
+      "id": "w_flat_0",
+      "netId": "bb1:n-col-b11",
+      "from": {
+        "part": "matrix",
+        "terminal": "col6"
+      },
+      "to": {
+        "part": "mcu",
+        "terminal": "pb6"
+      }
+    },
+    {
+      "id": "w_flat_1",
+      "netId": "bb1:n-col-b12",
+      "from": {
+        "part": "matrix",
+        "terminal": "col7"
+      },
+      "to": {
+        "part": "mcu",
+        "terminal": "pb7"
+      }
+    },
+    {
+      "id": "w_flat_2",
+      "netId": "bb1:n-col-b13",
+      "from": {
+        "part": "matrix",
+        "terminal": "row5"
+      },
+      "to": {
+        "part": "mcu",
+        "terminal": "pd5"
+      }
+    },
+    {
+      "id": "w_flat_3",
+      "netId": "bb1:n-col-b14",
+      "from": {
+        "part": "matrix",
+        "terminal": "row6"
+      },
+      "to": {
+        "part": "mcu",
+        "terminal": "pd6"
+      }
+    },
+    {
+      "id": "w_flat_4",
+      "netId": "bb1:n-col-b15",
+      "from": {
+        "part": "matrix",
+        "terminal": "row7"
+      },
+      "to": {
+        "part": "mcu",
+        "terminal": "pd7"
+      }
+    },
+    {
+      "id": "w_flat_5",
+      "netId": "bb1:n-col-b16",
+      "from": {
+        "part": "matrix",
+        "terminal": "col0"
+      },
+      "to": {
+        "part": "mcu",
+        "terminal": "pb0"
+      }
+    },
+    {
+      "id": "w_flat_6",
+      "netId": "bb1:n-col-b20",
+      "from": {
+        "part": "matrix",
+        "terminal": "row0"
+      },
+      "to": {
+        "part": "mcu",
+        "terminal": "pd0"
+      }
+    },
+    {
+      "id": "w_flat_7",
+      "netId": "bb1:n-col-b21",
+      "from": {
+        "part": "matrix",
+        "terminal": "row1"
+      },
+      "to": {
+        "part": "mcu",
+        "terminal": "pd1"
+      }
+    },
+    {
+      "id": "w_flat_8",
+      "netId": "bb1:n-col-b22",
+      "from": {
+        "part": "matrix",
+        "terminal": "row2"
+      },
+      "to": {
+        "part": "mcu",
+        "terminal": "pd2"
+      }
+    },
+    {
+      "id": "w_flat_9",
+      "netId": "bb1:n-col-b23",
+      "from": {
+        "part": "matrix",
+        "terminal": "row3"
+      },
+      "to": {
+        "part": "mcu",
+        "terminal": "pd3"
+      }
+    },
+    {
+      "id": "w_flat_10",
+      "netId": "bb1:n-col-b24",
+      "from": {
+        "part": "matrix",
+        "terminal": "row4"
+      },
+      "to": {
+        "part": "mcu",
+        "terminal": "pd4"
+      }
+    },
+    {
+      "id": "w_flat_11",
+      "netId": "bb1:n-col-b43",
+      "from": {
+        "part": "btnL",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "mcu",
+        "terminal": "pc3"
+      }
+    },
+    {
+      "id": "w_flat_12",
+      "netId": "bb1:n-col-b43",
+      "from": {
+        "part": "btnL",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "rL",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "w_flat_13",
+      "netId": "bb1:n-col-b47",
+      "from": {
+        "part": "btnR",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "mcu",
+        "terminal": "pc7"
+      }
+    },
+    {
+      "id": "w_flat_14",
+      "netId": "bb1:n-col-b47",
+      "from": {
+        "part": "btnR",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "rR",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "w_flat_15",
+      "netId": "bb1:n-col-t21",
+      "from": {
+        "part": "matrix",
+        "terminal": "col1"
+      },
+      "to": {
+        "part": "mcu",
+        "terminal": "pb1"
+      }
+    },
+    {
+      "id": "w_flat_16",
+      "netId": "bb1:n-col-t22",
+      "from": {
+        "part": "matrix",
+        "terminal": "col2"
+      },
+      "to": {
+        "part": "mcu",
+        "terminal": "pb2"
+      }
+    },
+    {
+      "id": "w_flat_17",
+      "netId": "bb1:n-col-t23",
+      "from": {
+        "part": "matrix",
+        "terminal": "col3"
+      },
+      "to": {
+        "part": "mcu",
+        "terminal": "pb3"
+      }
+    },
+    {
+      "id": "w_flat_18",
+      "netId": "bb1:n-col-t24",
+      "from": {
+        "part": "matrix",
+        "terminal": "col4"
+      },
+      "to": {
+        "part": "mcu",
+        "terminal": "pb4"
+      }
+    },
+    {
+      "id": "w_flat_19",
+      "netId": "bb1:n-col-t25",
+      "from": {
+        "part": "matrix",
+        "terminal": "col5"
+      },
+      "to": {
+        "part": "mcu",
+        "terminal": "pb5"
+      }
+    },
+    {
+      "id": "w_flat_20",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "gnd1",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "mcu",
+        "terminal": "gnd"
+      }
+    },
+    {
+      "id": "w_flat_21",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "gnd1",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "rL",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "w_flat_22",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "gnd1",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "rR",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "w_flat_23",
+      "netId": "bb1:rail-t+",
+      "from": {
+        "part": "btnL",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "btnR",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "w_flat_24",
+      "netId": "bb1:rail-t+",
+      "from": {
+        "part": "btnL",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "mcu",
+        "terminal": "avcc"
+      }
+    },
+    {
+      "id": "w_flat_25",
+      "netId": "bb1:rail-t+",
+      "from": {
+        "part": "btnL",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "mcu",
+        "terminal": "vcc"
+      }
+    },
+    {
+      "id": "w_flat_26",
+      "netId": "bb1:rail-t+",
+      "from": {
+        "part": "btnL",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "vcc1",
+        "terminal": "vcc"
+      }
+    }
+  ],
+  "holeWires": []
+}

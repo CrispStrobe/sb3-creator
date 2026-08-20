@@ -1,0 +1,90 @@
+{
+  "vcc": 5,
+  "parts": [
+    {
+      "id": "vcc1",
+      "kind": "vcc",
+      "params": {},
+      "x": 80,
+      "y": 60
+    },
+    {
+      "id": "gnd1",
+      "kind": "gnd",
+      "params": {},
+      "x": 220,
+      "y": 60
+    },
+    {
+      "id": "r1",
+      "kind": "resistor",
+      "params": {
+        "ohms": 10000
+      },
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "a": "a3",
+          "b": "a7"
+        }
+      },
+      "x": 64,
+      "y": 255
+    },
+    {
+      "id": "c1",
+      "kind": "capacitor",
+      "params": {
+        "farads": 0.0001
+      },
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "a": "a9",
+          "b": "a10"
+        }
+      },
+      "x": 148,
+      "y": 255
+    }
+  ],
+  "wires": [
+    {
+      "id": "w_flat_0",
+      "netId": "bb1:n-col-t7",
+      "from": {
+        "part": "c1",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "r1",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "w_flat_1",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "c1",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "gnd1",
+        "terminal": "gnd"
+      }
+    },
+    {
+      "id": "w_flat_2",
+      "netId": "bb1:rail-t+",
+      "from": {
+        "part": "r1",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "vcc1",
+        "terminal": "vcc"
+      }
+    }
+  ],
+  "holeWires": []
+}

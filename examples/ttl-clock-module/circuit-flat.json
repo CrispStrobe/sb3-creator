@@ -1,0 +1,403 @@
+{
+  "vcc": 5,
+  "parts": [
+    {
+      "id": "u1",
+      "kind": "timer_555",
+      "declName": "clock",
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "gnd": "e27",
+          "trigger": "e28",
+          "output": "e29",
+          "reset": "e30",
+          "vcc": "f27",
+          "discharge": "f28",
+          "threshold": "f29",
+          "control": "f30"
+        }
+      },
+      "params": {},
+      "x": 400,
+      "y": 311
+    },
+    {
+      "id": "r1",
+      "kind": "resistor",
+      "params": {
+        "ohms": 1000
+      },
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "a": "a3",
+          "b": "a7"
+        }
+      },
+      "x": 64,
+      "y": 255
+    },
+    {
+      "id": "pot1",
+      "kind": "potentiometer",
+      "params": {
+        "ohms": 100000
+      },
+      "declName": "speed",
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "a": "a9",
+          "wiper": "a11",
+          "b": "a13"
+        }
+      },
+      "x": 148,
+      "y": 255
+    },
+    {
+      "id": "c1",
+      "kind": "capacitor",
+      "params": {
+        "farads": 0.000001
+      },
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "a": "a34",
+          "b": "a35"
+        }
+      },
+      "x": 498,
+      "y": 255
+    },
+    {
+      "id": "c2",
+      "kind": "capacitor",
+      "params": {
+        "farads": 1e-7
+      },
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "a": "a37",
+          "b": "a38"
+        }
+      },
+      "x": 540,
+      "y": 255
+    },
+    {
+      "id": "led1",
+      "kind": "led",
+      "params": {
+        "color": "green"
+      },
+      "declName": "clockLed",
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "anode": "a40",
+          "cathode": "a41"
+        }
+      },
+      "x": 582,
+      "y": 255
+    },
+    {
+      "id": "r2",
+      "kind": "resistor",
+      "params": {
+        "ohms": 220
+      },
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "a": "a15",
+          "b": "a19"
+        }
+      },
+      "x": 232,
+      "y": 255
+    },
+    {
+      "id": "btn1",
+      "kind": "button",
+      "declName": "step",
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "a": "e43",
+          "b": "f43"
+        }
+      },
+      "params": {},
+      "x": 624,
+      "y": 311
+    },
+    {
+      "id": "r3",
+      "kind": "resistor",
+      "params": {
+        "ohms": 10000
+      },
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "a": "a21",
+          "b": "a25"
+        }
+      },
+      "x": 316,
+      "y": 255
+    },
+    {
+      "id": "vcc1",
+      "kind": "vcc",
+      "params": {
+        "volts": 5
+      },
+      "x": 80,
+      "y": 60
+    },
+    {
+      "id": "gnd1",
+      "kind": "gnd",
+      "params": {},
+      "x": 220,
+      "y": 60
+    }
+  ],
+  "wires": [
+    {
+      "id": "w_flat_0",
+      "netId": "bb1:n-col-b28",
+      "from": {
+        "part": "pot1",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "r1",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "w_flat_1",
+      "netId": "bb1:n-col-b28",
+      "from": {
+        "part": "pot1",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "u1",
+        "terminal": "discharge"
+      }
+    },
+    {
+      "id": "w_flat_2",
+      "netId": "bb1:n-col-b29",
+      "from": {
+        "part": "c1",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "pot1",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "w_flat_3",
+      "netId": "bb1:n-col-b29",
+      "from": {
+        "part": "c1",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "pot1",
+        "terminal": "wiper"
+      }
+    },
+    {
+      "id": "w_flat_4",
+      "netId": "bb1:n-col-b29",
+      "from": {
+        "part": "c1",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "u1",
+        "terminal": "threshold"
+      }
+    },
+    {
+      "id": "w_flat_5",
+      "netId": "bb1:n-col-b29",
+      "from": {
+        "part": "c1",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "u1",
+        "terminal": "trigger"
+      }
+    },
+    {
+      "id": "w_flat_6",
+      "netId": "bb1:n-col-b30",
+      "from": {
+        "part": "c2",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "u1",
+        "terminal": "control"
+      }
+    },
+    {
+      "id": "w_flat_7",
+      "netId": "bb1:n-col-b43",
+      "from": {
+        "part": "btn1",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "r3",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "w_flat_8",
+      "netId": "bb1:n-col-t15",
+      "from": {
+        "part": "r2",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "u1",
+        "terminal": "output"
+      }
+    },
+    {
+      "id": "w_flat_9",
+      "netId": "bb1:n-col-t19",
+      "from": {
+        "part": "led1",
+        "terminal": "anode"
+      },
+      "to": {
+        "part": "r2",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "w_flat_10",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "c1",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "c2",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "w_flat_11",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "c1",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "gnd1",
+        "terminal": "gnd"
+      }
+    },
+    {
+      "id": "w_flat_12",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "c1",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "led1",
+        "terminal": "cathode"
+      }
+    },
+    {
+      "id": "w_flat_13",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "c1",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "r3",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "w_flat_14",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "c1",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "u1",
+        "terminal": "gnd"
+      }
+    },
+    {
+      "id": "w_flat_15",
+      "netId": "bb1:rail-t+",
+      "from": {
+        "part": "btn1",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "r1",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "w_flat_16",
+      "netId": "bb1:rail-t+",
+      "from": {
+        "part": "btn1",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "u1",
+        "terminal": "reset"
+      }
+    },
+    {
+      "id": "w_flat_17",
+      "netId": "bb1:rail-t+",
+      "from": {
+        "part": "btn1",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "u1",
+        "terminal": "vcc"
+      }
+    },
+    {
+      "id": "w_flat_18",
+      "netId": "bb1:rail-t+",
+      "from": {
+        "part": "btn1",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "vcc1",
+        "terminal": "vcc"
+      }
+    }
+  ],
+  "holeWires": []
+}

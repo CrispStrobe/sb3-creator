@@ -1,0 +1,972 @@
+{
+  "vcc": 5,
+  "parts": [
+    {
+      "id": "mcu1",
+      "kind": "stc15_mcu",
+      "params": {},
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "P0.0": "e3",
+          "P0.1": "e4",
+          "P0.2": "e5",
+          "P0.3": "e6",
+          "P0.4": "e7",
+          "P0.5": "e8",
+          "P0.6": "e9",
+          "P0.7": "e10",
+          "P1.0": "e11",
+          "P1.1": "e12",
+          "P1.2": "e13",
+          "P1.3": "e14",
+          "P1.4": "e15",
+          "P1.5": "e16",
+          "P1.6": "e17",
+          "P1.7": "e18",
+          "P5.4": "e19",
+          "VCC": "e20",
+          "P5.5": "e21",
+          "GND": "e22",
+          "P4.5": "f22",
+          "P2.7": "f21",
+          "P2.6": "f20",
+          "P2.5": "f19",
+          "P2.4": "f18",
+          "P2.3": "f17",
+          "P2.2": "f16",
+          "P2.1": "f15",
+          "P2.0": "f14",
+          "P4.4": "f13",
+          "P4.2": "f12",
+          "P4.1": "f11",
+          "P3.7": "f10",
+          "P3.6": "f9",
+          "P3.5": "f8",
+          "P3.4": "f7",
+          "P3.3": "f6",
+          "P3.2": "f5",
+          "P3.1": "f4",
+          "P3.0": "f3"
+        }
+      },
+      "x": 64,
+      "y": 311
+    },
+    {
+      "id": "dis2",
+      "kind": "matrix8x8",
+      "params": {},
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "col0": "e26",
+          "col1": "e27",
+          "col2": "e28",
+          "col3": "e29",
+          "col4": "e30",
+          "col5": "e31",
+          "col6": "e32",
+          "col7": "e33",
+          "row0": "f26",
+          "row1": "f27",
+          "row2": "f28",
+          "row3": "f29",
+          "row4": "f30",
+          "row5": "f31",
+          "row6": "f32",
+          "row7": "f33"
+        }
+      },
+      "x": 386,
+      "y": 311
+    },
+    {
+      "id": "dis3",
+      "kind": "matrix8x8",
+      "params": {},
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "col0": "e37",
+          "col1": "e38",
+          "col2": "e39",
+          "col3": "e40",
+          "col4": "e41",
+          "col5": "e42",
+          "col6": "e43",
+          "col7": "e44",
+          "row0": "f37",
+          "row1": "f38",
+          "row2": "f39",
+          "row3": "f40",
+          "row4": "f41",
+          "row5": "f42",
+          "row6": "f43",
+          "row7": "f44"
+        }
+      },
+      "x": 540,
+      "y": 311
+    },
+    {
+      "id": "q1",
+      "kind": "pnp",
+      "params": {},
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "emitter": "a54",
+          "base": "a55",
+          "collector": "a56"
+        }
+      },
+      "x": 778,
+      "y": 255
+    },
+    {
+      "id": "r1",
+      "kind": "resistor",
+      "params": {
+        "ohms": 1000
+      },
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "a": "a48",
+          "b": "a52"
+        }
+      },
+      "x": 694,
+      "y": 255
+    },
+    {
+      "id": "ls1",
+      "kind": "buzzer",
+      "params": {},
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "a": "a58",
+          "b": "a60"
+        }
+      },
+      "x": 834,
+      "y": 255
+    },
+    {
+      "id": "vcc1",
+      "kind": "vcc",
+      "params": {},
+      "x": 80,
+      "y": 60
+    },
+    {
+      "id": "gnd1",
+      "kind": "gnd",
+      "params": {},
+      "x": 220,
+      "y": 60
+    },
+    {
+      "id": "s1",
+      "kind": "button",
+      "params": {},
+      "seat": {
+        "boardId": "bb2",
+        "leadMap": {
+          "a": "e3",
+          "b": "f3"
+        }
+      },
+      "x": 64,
+      "y": 671
+    },
+    {
+      "id": "s2",
+      "kind": "button",
+      "params": {},
+      "seat": {
+        "boardId": "bb2",
+        "leadMap": {
+          "a": "e7",
+          "b": "f7"
+        }
+      },
+      "x": 120,
+      "y": 671
+    },
+    {
+      "id": "s3",
+      "kind": "button",
+      "params": {},
+      "seat": {
+        "boardId": "bb2",
+        "leadMap": {
+          "a": "e11",
+          "b": "f11"
+        }
+      },
+      "x": 176,
+      "y": 671
+    },
+    {
+      "id": "s4",
+      "kind": "button",
+      "params": {},
+      "seat": {
+        "boardId": "bb2",
+        "leadMap": {
+          "a": "e15",
+          "b": "f15"
+        }
+      },
+      "x": 232,
+      "y": 671
+    },
+    {
+      "id": "s5",
+      "kind": "button",
+      "params": {},
+      "seat": {
+        "boardId": "bb2",
+        "leadMap": {
+          "a": "e19",
+          "b": "f19"
+        }
+      },
+      "x": 288,
+      "y": 671
+    },
+    {
+      "id": "dis1",
+      "kind": "seven_seg_3",
+      "params": {},
+      "x": 360,
+      "y": 60
+    }
+  ],
+  "wires": [
+    {
+      "id": "w_flat_0",
+      "netId": "bb1:n-col-b10",
+      "from": {
+        "part": "mcu1",
+        "terminal": "P3.7"
+      },
+      "to": {
+        "part": "s4",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "w_flat_1",
+      "netId": "bb1:n-col-b11",
+      "from": {
+        "part": "dis1",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "dis2",
+        "terminal": "row1"
+      }
+    },
+    {
+      "id": "w_flat_2",
+      "netId": "bb1:n-col-b11",
+      "from": {
+        "part": "dis1",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "dis3",
+        "terminal": "row1"
+      }
+    },
+    {
+      "id": "w_flat_3",
+      "netId": "bb1:n-col-b11",
+      "from": {
+        "part": "dis1",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "mcu1",
+        "terminal": "P4.1"
+      }
+    },
+    {
+      "id": "w_flat_4",
+      "netId": "bb1:n-col-b12",
+      "from": {
+        "part": "dis1",
+        "terminal": "com2"
+      },
+      "to": {
+        "part": "mcu1",
+        "terminal": "P4.2"
+      }
+    },
+    {
+      "id": "w_flat_5",
+      "netId": "bb1:n-col-b13",
+      "from": {
+        "part": "dis1",
+        "terminal": "g"
+      },
+      "to": {
+        "part": "dis2",
+        "terminal": "row6"
+      }
+    },
+    {
+      "id": "w_flat_6",
+      "netId": "bb1:n-col-b13",
+      "from": {
+        "part": "dis1",
+        "terminal": "g"
+      },
+      "to": {
+        "part": "dis3",
+        "terminal": "row6"
+      }
+    },
+    {
+      "id": "w_flat_7",
+      "netId": "bb1:n-col-b13",
+      "from": {
+        "part": "dis1",
+        "terminal": "g"
+      },
+      "to": {
+        "part": "mcu1",
+        "terminal": "P4.4"
+      }
+    },
+    {
+      "id": "w_flat_8",
+      "netId": "bb1:n-col-b14",
+      "from": {
+        "part": "dis1",
+        "terminal": "f"
+      },
+      "to": {
+        "part": "dis2",
+        "terminal": "row5"
+      }
+    },
+    {
+      "id": "w_flat_9",
+      "netId": "bb1:n-col-b14",
+      "from": {
+        "part": "dis1",
+        "terminal": "f"
+      },
+      "to": {
+        "part": "dis3",
+        "terminal": "row5"
+      }
+    },
+    {
+      "id": "w_flat_10",
+      "netId": "bb1:n-col-b14",
+      "from": {
+        "part": "dis1",
+        "terminal": "f"
+      },
+      "to": {
+        "part": "mcu1",
+        "terminal": "P2.0"
+      }
+    },
+    {
+      "id": "w_flat_11",
+      "netId": "bb1:n-col-b15",
+      "from": {
+        "part": "dis1",
+        "terminal": "e"
+      },
+      "to": {
+        "part": "dis2",
+        "terminal": "row4"
+      }
+    },
+    {
+      "id": "w_flat_12",
+      "netId": "bb1:n-col-b15",
+      "from": {
+        "part": "dis1",
+        "terminal": "e"
+      },
+      "to": {
+        "part": "dis3",
+        "terminal": "row4"
+      }
+    },
+    {
+      "id": "w_flat_13",
+      "netId": "bb1:n-col-b15",
+      "from": {
+        "part": "dis1",
+        "terminal": "e"
+      },
+      "to": {
+        "part": "mcu1",
+        "terminal": "P2.1"
+      }
+    },
+    {
+      "id": "w_flat_14",
+      "netId": "bb1:n-col-b16",
+      "from": {
+        "part": "dis1",
+        "terminal": "d"
+      },
+      "to": {
+        "part": "dis2",
+        "terminal": "row3"
+      }
+    },
+    {
+      "id": "w_flat_15",
+      "netId": "bb1:n-col-b16",
+      "from": {
+        "part": "dis1",
+        "terminal": "d"
+      },
+      "to": {
+        "part": "dis3",
+        "terminal": "row3"
+      }
+    },
+    {
+      "id": "w_flat_16",
+      "netId": "bb1:n-col-b16",
+      "from": {
+        "part": "dis1",
+        "terminal": "d"
+      },
+      "to": {
+        "part": "mcu1",
+        "terminal": "P2.2"
+      }
+    },
+    {
+      "id": "w_flat_17",
+      "netId": "bb1:n-col-b17",
+      "from": {
+        "part": "dis1",
+        "terminal": "com0"
+      },
+      "to": {
+        "part": "mcu1",
+        "terminal": "P2.3"
+      }
+    },
+    {
+      "id": "w_flat_18",
+      "netId": "bb1:n-col-b18",
+      "from": {
+        "part": "dis1",
+        "terminal": "c"
+      },
+      "to": {
+        "part": "dis2",
+        "terminal": "row2"
+      }
+    },
+    {
+      "id": "w_flat_19",
+      "netId": "bb1:n-col-b18",
+      "from": {
+        "part": "dis1",
+        "terminal": "c"
+      },
+      "to": {
+        "part": "dis3",
+        "terminal": "row2"
+      }
+    },
+    {
+      "id": "w_flat_20",
+      "netId": "bb1:n-col-b18",
+      "from": {
+        "part": "dis1",
+        "terminal": "c"
+      },
+      "to": {
+        "part": "mcu1",
+        "terminal": "P2.4"
+      }
+    },
+    {
+      "id": "w_flat_21",
+      "netId": "bb1:n-col-b19",
+      "from": {
+        "part": "dis1",
+        "terminal": "com1"
+      },
+      "to": {
+        "part": "mcu1",
+        "terminal": "P2.5"
+      }
+    },
+    {
+      "id": "w_flat_22",
+      "netId": "bb1:n-col-b20",
+      "from": {
+        "part": "dis2",
+        "terminal": "col2"
+      },
+      "to": {
+        "part": "mcu1",
+        "terminal": "P2.6"
+      }
+    },
+    {
+      "id": "w_flat_23",
+      "netId": "bb1:n-col-b21",
+      "from": {
+        "part": "dis2",
+        "terminal": "col1"
+      },
+      "to": {
+        "part": "mcu1",
+        "terminal": "P2.7"
+      }
+    },
+    {
+      "id": "w_flat_24",
+      "netId": "bb1:n-col-b22",
+      "from": {
+        "part": "dis2",
+        "terminal": "col0"
+      },
+      "to": {
+        "part": "mcu1",
+        "terminal": "P4.5"
+      }
+    },
+    {
+      "id": "w_flat_25",
+      "netId": "bb1:n-col-b26",
+      "from": {
+        "part": "dis1",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "dis2",
+        "terminal": "row0"
+      }
+    },
+    {
+      "id": "w_flat_26",
+      "netId": "bb1:n-col-b26",
+      "from": {
+        "part": "dis1",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "dis3",
+        "terminal": "row0"
+      }
+    },
+    {
+      "id": "w_flat_27",
+      "netId": "bb1:n-col-b26",
+      "from": {
+        "part": "dis1",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "mcu1",
+        "terminal": "P1.5"
+      }
+    },
+    {
+      "id": "w_flat_28",
+      "netId": "bb1:n-col-b3",
+      "from": {
+        "part": "mcu1",
+        "terminal": "P3.0"
+      },
+      "to": {
+        "part": "s1",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "w_flat_29",
+      "netId": "bb1:n-col-b33",
+      "from": {
+        "part": "dis1",
+        "terminal": "dp"
+      },
+      "to": {
+        "part": "dis2",
+        "terminal": "row7"
+      }
+    },
+    {
+      "id": "w_flat_30",
+      "netId": "bb1:n-col-b33",
+      "from": {
+        "part": "dis1",
+        "terminal": "dp"
+      },
+      "to": {
+        "part": "dis3",
+        "terminal": "row7"
+      }
+    },
+    {
+      "id": "w_flat_31",
+      "netId": "bb1:n-col-b33",
+      "from": {
+        "part": "dis1",
+        "terminal": "dp"
+      },
+      "to": {
+        "part": "mcu1",
+        "terminal": "P1.4"
+      }
+    },
+    {
+      "id": "w_flat_32",
+      "netId": "bb1:n-col-b5",
+      "from": {
+        "part": "mcu1",
+        "terminal": "P3.2"
+      },
+      "to": {
+        "part": "s2",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "w_flat_33",
+      "netId": "bb1:n-col-b6",
+      "from": {
+        "part": "mcu1",
+        "terminal": "P3.3"
+      },
+      "to": {
+        "part": "s3",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "w_flat_34",
+      "netId": "bb1:n-col-b9",
+      "from": {
+        "part": "mcu1",
+        "terminal": "P3.6"
+      },
+      "to": {
+        "part": "s5",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "w_flat_35",
+      "netId": "bb1:n-col-t10",
+      "from": {
+        "part": "dis3",
+        "terminal": "col0"
+      },
+      "to": {
+        "part": "mcu1",
+        "terminal": "P0.7"
+      }
+    },
+    {
+      "id": "w_flat_36",
+      "netId": "bb1:n-col-t11",
+      "from": {
+        "part": "dis3",
+        "terminal": "col3"
+      },
+      "to": {
+        "part": "mcu1",
+        "terminal": "P1.0"
+      }
+    },
+    {
+      "id": "w_flat_37",
+      "netId": "bb1:n-col-t12",
+      "from": {
+        "part": "dis3",
+        "terminal": "col4"
+      },
+      "to": {
+        "part": "mcu1",
+        "terminal": "P1.1"
+      }
+    },
+    {
+      "id": "w_flat_38",
+      "netId": "bb1:n-col-t13",
+      "from": {
+        "part": "dis3",
+        "terminal": "col6"
+      },
+      "to": {
+        "part": "mcu1",
+        "terminal": "P1.2"
+      }
+    },
+    {
+      "id": "w_flat_39",
+      "netId": "bb1:n-col-t14",
+      "from": {
+        "part": "dis3",
+        "terminal": "col7"
+      },
+      "to": {
+        "part": "mcu1",
+        "terminal": "P1.3"
+      }
+    },
+    {
+      "id": "w_flat_40",
+      "netId": "bb1:n-col-t17",
+      "from": {
+        "part": "dis3",
+        "terminal": "col5"
+      },
+      "to": {
+        "part": "mcu1",
+        "terminal": "P1.6"
+      }
+    },
+    {
+      "id": "w_flat_41",
+      "netId": "bb1:n-col-t21",
+      "from": {
+        "part": "mcu1",
+        "terminal": "P5.5"
+      },
+      "to": {
+        "part": "r1",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "w_flat_42",
+      "netId": "bb1:n-col-t29",
+      "from": {
+        "part": "dis2",
+        "terminal": "col3"
+      },
+      "to": {
+        "part": "mcu1",
+        "terminal": "P0.0"
+      }
+    },
+    {
+      "id": "w_flat_43",
+      "netId": "bb1:n-col-t30",
+      "from": {
+        "part": "dis2",
+        "terminal": "col4"
+      },
+      "to": {
+        "part": "mcu1",
+        "terminal": "P0.1"
+      }
+    },
+    {
+      "id": "w_flat_44",
+      "netId": "bb1:n-col-t31",
+      "from": {
+        "part": "dis2",
+        "terminal": "col5"
+      },
+      "to": {
+        "part": "mcu1",
+        "terminal": "P0.2"
+      }
+    },
+    {
+      "id": "w_flat_45",
+      "netId": "bb1:n-col-t32",
+      "from": {
+        "part": "dis2",
+        "terminal": "col6"
+      },
+      "to": {
+        "part": "mcu1",
+        "terminal": "P0.3"
+      }
+    },
+    {
+      "id": "w_flat_46",
+      "netId": "bb1:n-col-t33",
+      "from": {
+        "part": "dis2",
+        "terminal": "col7"
+      },
+      "to": {
+        "part": "mcu1",
+        "terminal": "P0.4"
+      }
+    },
+    {
+      "id": "w_flat_47",
+      "netId": "bb1:n-col-t38",
+      "from": {
+        "part": "dis3",
+        "terminal": "col1"
+      },
+      "to": {
+        "part": "mcu1",
+        "terminal": "P0.6"
+      }
+    },
+    {
+      "id": "w_flat_48",
+      "netId": "bb1:n-col-t39",
+      "from": {
+        "part": "dis3",
+        "terminal": "col2"
+      },
+      "to": {
+        "part": "mcu1",
+        "terminal": "P0.5"
+      }
+    },
+    {
+      "id": "w_flat_49",
+      "netId": "bb1:n-col-t52",
+      "from": {
+        "part": "q1",
+        "terminal": "base"
+      },
+      "to": {
+        "part": "r1",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "w_flat_50",
+      "netId": "bb1:n-col-t56",
+      "from": {
+        "part": "ls1",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "q1",
+        "terminal": "collector"
+      }
+    },
+    {
+      "id": "w_flat_51",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "gnd1",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "ls1",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "w_flat_52",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "gnd1",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "mcu1",
+        "terminal": "GND"
+      }
+    },
+    {
+      "id": "w_flat_53",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "gnd1",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "s1",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "w_flat_54",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "gnd1",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "s2",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "w_flat_55",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "gnd1",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "s3",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "w_flat_56",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "gnd1",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "s4",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "w_flat_57",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "gnd1",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "s5",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "w_flat_58",
+      "netId": "bb1:rail-t+",
+      "from": {
+        "part": "mcu1",
+        "terminal": "VCC"
+      },
+      "to": {
+        "part": "q1",
+        "terminal": "emitter"
+      }
+    },
+    {
+      "id": "w_flat_59",
+      "netId": "bb1:rail-t+",
+      "from": {
+        "part": "mcu1",
+        "terminal": "VCC"
+      },
+      "to": {
+        "part": "vcc1",
+        "terminal": "vcc"
+      }
+    }
+  ],
+  "holeWires": []
+}

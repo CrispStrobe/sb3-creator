@@ -1,0 +1,98 @@
+{
+  "vcc": 5,
+  "parts": [
+    {
+      "id": "vsource_1",
+      "kind": "vsource",
+      "params": {
+        "volts": 5
+      },
+      "terminals": [
+        "pos",
+        "neg"
+      ],
+      "rotation": 0,
+      "x": 80,
+      "y": 60
+    },
+    {
+      "id": "resistor_2",
+      "kind": "resistor",
+      "params": {
+        "ohms": 100
+      },
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "rotation": 0,
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "a": "a3",
+          "b": "a7"
+        }
+      },
+      "x": 64,
+      "y": 255
+    },
+    {
+      "id": "buzzer_3",
+      "kind": "buzzer",
+      "params": {},
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "rotation": 0,
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "a": "a9",
+          "b": "a11"
+        }
+      },
+      "x": 148,
+      "y": 255
+    }
+  ],
+  "wires": [
+    {
+      "id": "w_flat_0",
+      "netId": "bb1:n-col-t11",
+      "from": {
+        "part": "buzzer_3",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "vsource_1",
+        "terminal": "neg"
+      }
+    },
+    {
+      "id": "w_flat_1",
+      "netId": "bb1:n-col-t3",
+      "from": {
+        "part": "resistor_2",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "vsource_1",
+        "terminal": "pos"
+      }
+    },
+    {
+      "id": "w_flat_2",
+      "netId": "bb1:n-col-t7",
+      "from": {
+        "part": "buzzer_3",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "resistor_2",
+        "terminal": "b"
+      }
+    }
+  ],
+  "holeWires": []
+}

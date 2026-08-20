@@ -1,0 +1,145 @@
+{
+  "vcc": 5,
+  "parts": [
+    {
+      "id": "src",
+      "kind": "vsource",
+      "params": {
+        "volts": 5
+      },
+      "x": 80,
+      "y": 60
+    },
+    {
+      "id": "r1",
+      "kind": "resistor",
+      "params": {
+        "ohms": 1000
+      },
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "a": "a3",
+          "b": "a7"
+        }
+      },
+      "x": 64,
+      "y": 255
+    },
+    {
+      "id": "led",
+      "kind": "led",
+      "params": {
+        "vf": 2,
+        "color": "blue"
+      },
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "anode": "a9",
+          "cathode": "a10"
+        }
+      },
+      "x": 148,
+      "y": 255
+    },
+    {
+      "id": "cap",
+      "kind": "capacitor",
+      "params": {
+        "farads": 0.00047
+      },
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "a": "a12",
+          "b": "a13"
+        }
+      },
+      "x": 190,
+      "y": 255
+    },
+    {
+      "id": "gnd",
+      "kind": "gnd",
+      "params": {},
+      "x": 220,
+      "y": 60
+    }
+  ],
+  "wires": [
+    {
+      "id": "w_flat_0",
+      "netId": "bb1:n-col-t12",
+      "from": {
+        "part": "cap",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "led",
+        "terminal": "anode"
+      }
+    },
+    {
+      "id": "w_flat_1",
+      "netId": "bb1:n-col-t12",
+      "from": {
+        "part": "cap",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "r1",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "w_flat_2",
+      "netId": "bb1:n-col-t3",
+      "from": {
+        "part": "r1",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "src",
+        "terminal": "pos"
+      }
+    },
+    {
+      "id": "w_flat_3",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "cap",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "gnd",
+        "terminal": "gnd"
+      }
+    },
+    {
+      "id": "w_flat_4",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "cap",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "led",
+        "terminal": "cathode"
+      }
+    },
+    {
+      "id": "w_flat_5",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "cap",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "src",
+        "terminal": "neg"
+      }
+    }
+  ],
+  "holeWires": []
+}

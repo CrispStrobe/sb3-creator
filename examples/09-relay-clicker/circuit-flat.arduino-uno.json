@@ -1,0 +1,242 @@
+{
+  "vcc": 5,
+  "parts": [
+    {
+      "id": "VCC",
+      "kind": "vcc",
+      "params": {},
+      "terminals": [
+        "vcc"
+      ],
+      "x": 80,
+      "y": 60
+    },
+    {
+      "id": "GND",
+      "kind": "gnd",
+      "params": {},
+      "terminals": [
+        "gnd"
+      ],
+      "x": 156,
+      "y": 60
+    },
+    {
+      "id": "MCU",
+      "kind": "arduino_uno",
+      "params": {},
+      "terminals": [
+        "d13",
+        "d12"
+      ],
+      "x": 232,
+      "y": 60
+    },
+    {
+      "id": "R_relay_ctrl",
+      "kind": "resistor",
+      "params": {
+        "ohms": 1000
+      },
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "a": "a10",
+          "b": "a14"
+        }
+      },
+      "x": 162,
+      "y": 255
+    },
+    {
+      "id": "Q_relay_ctrl",
+      "kind": "npn",
+      "params": {},
+      "terminals": [
+        "base",
+        "collector",
+        "emitter"
+      ],
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "emitter": "a22",
+          "base": "a23",
+          "collector": "a24"
+        }
+      },
+      "x": 330,
+      "y": 255
+    },
+    {
+      "id": "RELAY_relay_ctrl",
+      "kind": "relay",
+      "params": {},
+      "terminals": [
+        "coil_a",
+        "coil_b",
+        "com",
+        "nc",
+        "no"
+      ],
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "coil_a": "a3",
+          "coil_b": "a4",
+          "no": "a6",
+          "com": "a7",
+          "nc": "a8"
+        }
+      },
+      "x": 64,
+      "y": 255
+    },
+    {
+      "id": "R_led1",
+      "kind": "resistor",
+      "params": {
+        "ohms": 1000
+      },
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "a": "a16",
+          "b": "a20"
+        }
+      },
+      "x": 246,
+      "y": 255
+    },
+    {
+      "id": "LED_led1",
+      "kind": "led",
+      "declName": "led1",
+      "params": {
+        "vf": 2,
+        "color": "red"
+      },
+      "terminals": [
+        "anode",
+        "cathode"
+      ],
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "anode": "a26",
+          "cathode": "a27"
+        }
+      },
+      "x": 386,
+      "y": 255
+    }
+  ],
+  "wires": [
+    {
+      "id": "w_flat_0",
+      "netId": "bb1:n-col-t10",
+      "from": {
+        "part": "MCU",
+        "terminal": "d13"
+      },
+      "to": {
+        "part": "R_relay_ctrl",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "w_flat_1",
+      "netId": "bb1:n-col-t14",
+      "from": {
+        "part": "Q_relay_ctrl",
+        "terminal": "base"
+      },
+      "to": {
+        "part": "R_relay_ctrl",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "w_flat_2",
+      "netId": "bb1:n-col-t16",
+      "from": {
+        "part": "MCU",
+        "terminal": "d12"
+      },
+      "to": {
+        "part": "R_led1",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "w_flat_3",
+      "netId": "bb1:n-col-t20",
+      "from": {
+        "part": "LED_led1",
+        "terminal": "anode"
+      },
+      "to": {
+        "part": "R_led1",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "w_flat_4",
+      "netId": "bb1:n-col-t24",
+      "from": {
+        "part": "Q_relay_ctrl",
+        "terminal": "collector"
+      },
+      "to": {
+        "part": "RELAY_relay_ctrl",
+        "terminal": "coil_b"
+      }
+    },
+    {
+      "id": "w_flat_5",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "GND",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "LED_led1",
+        "terminal": "cathode"
+      }
+    },
+    {
+      "id": "w_flat_6",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "GND",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "Q_relay_ctrl",
+        "terminal": "emitter"
+      }
+    },
+    {
+      "id": "w_flat_7",
+      "netId": "bb1:rail-t+",
+      "from": {
+        "part": "RELAY_relay_ctrl",
+        "terminal": "coil_a"
+      },
+      "to": {
+        "part": "VCC",
+        "terminal": "vcc"
+      }
+    }
+  ],
+  "holeWires": [],
+  "generated": "benchFor+seat"
+}

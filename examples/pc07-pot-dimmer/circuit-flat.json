@@ -1,0 +1,149 @@
+{
+  "vcc": 5,
+  "parts": [
+    {
+      "id": "vsource_2",
+      "kind": "vsource",
+      "params": {
+        "volts": 5
+      },
+      "terminals": [
+        "pos",
+        "neg"
+      ],
+      "rotation": 0,
+      "x": 100,
+      "y": 100
+    },
+    {
+      "id": "potentiometer_3",
+      "kind": "potentiometer",
+      "params": {
+        "ohms": 1000,
+        "position": 0.5
+      },
+      "terminals": [
+        "a",
+        "b",
+        "wiper"
+      ],
+      "rotation": 0,
+      "seat": {
+        "boardId": "breadboard_1",
+        "leadMap": {
+          "a": "a3",
+          "wiper": "a7",
+          "b": "a12"
+        }
+      },
+      "x": 0,
+      "y": 0
+    },
+    {
+      "id": "resistor_4",
+      "kind": "resistor",
+      "params": {
+        "ohms": 220
+      },
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "rotation": 0,
+      "seat": {
+        "boardId": "breadboard_1",
+        "leadMap": {
+          "a": "b8",
+          "b": "b12"
+        }
+      },
+      "x": 0,
+      "y": 0
+    },
+    {
+      "id": "led_5",
+      "kind": "led",
+      "params": {
+        "vf": 2,
+        "color": "red"
+      },
+      "terminals": [
+        "anode",
+        "cathode"
+      ],
+      "rotation": 0,
+      "seat": {
+        "boardId": "breadboard_1",
+        "leadMap": {
+          "anode": "c12",
+          "cathode": "c13"
+        }
+      },
+      "x": 0,
+      "y": 0
+    }
+  ],
+  "wires": [
+    {
+      "id": "w_flat_0",
+      "netId": "breadboard_1:n-col-t12",
+      "from": {
+        "part": "led_5",
+        "terminal": "anode"
+      },
+      "to": {
+        "part": "potentiometer_3",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "w_flat_1",
+      "netId": "breadboard_1:n-col-t12",
+      "from": {
+        "part": "led_5",
+        "terminal": "anode"
+      },
+      "to": {
+        "part": "resistor_4",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "w_flat_2",
+      "netId": "breadboard_1:n-col-t13",
+      "from": {
+        "part": "led_5",
+        "terminal": "cathode"
+      },
+      "to": {
+        "part": "potentiometer_3",
+        "terminal": "wiper"
+      }
+    },
+    {
+      "id": "w_flat_3",
+      "netId": "breadboard_1:n-col-t13",
+      "from": {
+        "part": "led_5",
+        "terminal": "cathode"
+      },
+      "to": {
+        "part": "vsource_2",
+        "terminal": "neg"
+      }
+    },
+    {
+      "id": "w_flat_4",
+      "netId": "breadboard_1:n-col-t3",
+      "from": {
+        "part": "potentiometer_3",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "vsource_2",
+        "terminal": "pos"
+      }
+    }
+  ],
+  "holeWires": []
+}

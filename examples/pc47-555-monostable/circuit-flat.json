@@ -1,0 +1,305 @@
+{
+  "vcc": 5,
+  "parts": [
+    {
+      "id": "vcc",
+      "kind": "vcc",
+      "params": {},
+      "x": 80,
+      "y": 60
+    },
+    {
+      "id": "gnd",
+      "kind": "gnd",
+      "params": {},
+      "x": 220,
+      "y": 60
+    },
+    {
+      "id": "timer",
+      "kind": "timer_555",
+      "params": {},
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "gnd": "e21",
+          "trigger": "e22",
+          "output": "e23",
+          "reset": "e24",
+          "vcc": "f21",
+          "discharge": "f22",
+          "threshold": "f23",
+          "control": "f24"
+        }
+      },
+      "x": 316,
+      "y": 311
+    },
+    {
+      "id": "button",
+      "kind": "button",
+      "params": {},
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "a": "e34",
+          "b": "f34"
+        }
+      },
+      "x": 498,
+      "y": 311
+    },
+    {
+      "id": "pull",
+      "kind": "resistor",
+      "params": {
+        "ohms": 10000
+      },
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "a": "a3",
+          "b": "a7"
+        }
+      },
+      "x": 64,
+      "y": 255
+    },
+    {
+      "id": "rt",
+      "kind": "resistor",
+      "params": {
+        "ohms": 100000
+      },
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "a": "a9",
+          "b": "a13"
+        }
+      },
+      "x": 148,
+      "y": 255
+    },
+    {
+      "id": "ct",
+      "kind": "capacitor",
+      "params": {
+        "farads": 0.00001
+      },
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "a": "a28",
+          "b": "a29"
+        }
+      },
+      "x": 414,
+      "y": 255
+    },
+    {
+      "id": "rl",
+      "kind": "resistor",
+      "params": {
+        "ohms": 1000
+      },
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "a": "a15",
+          "b": "a19"
+        }
+      },
+      "x": 232,
+      "y": 255
+    },
+    {
+      "id": "led",
+      "kind": "led",
+      "params": {
+        "vf": 2,
+        "color": "red"
+      },
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "anode": "a31",
+          "cathode": "a32"
+        }
+      },
+      "x": 456,
+      "y": 255
+    }
+  ],
+  "wires": [
+    {
+      "id": "w_flat_0",
+      "netId": "bb1:n-col-b23",
+      "from": {
+        "part": "ct",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "rt",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "w_flat_1",
+      "netId": "bb1:n-col-b23",
+      "from": {
+        "part": "ct",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "timer",
+        "terminal": "threshold"
+      }
+    },
+    {
+      "id": "w_flat_2",
+      "netId": "bb1:n-col-t15",
+      "from": {
+        "part": "rl",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "timer",
+        "terminal": "output"
+      }
+    },
+    {
+      "id": "w_flat_3",
+      "netId": "bb1:n-col-t19",
+      "from": {
+        "part": "led",
+        "terminal": "anode"
+      },
+      "to": {
+        "part": "rl",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "w_flat_4",
+      "netId": "bb1:n-col-t22",
+      "from": {
+        "part": "button",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "pull",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "w_flat_5",
+      "netId": "bb1:n-col-t22",
+      "from": {
+        "part": "button",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "timer",
+        "terminal": "trigger"
+      }
+    },
+    {
+      "id": "w_flat_6",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "button",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "ct",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "w_flat_7",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "button",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "gnd",
+        "terminal": "gnd"
+      }
+    },
+    {
+      "id": "w_flat_8",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "button",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "led",
+        "terminal": "cathode"
+      }
+    },
+    {
+      "id": "w_flat_9",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "button",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "timer",
+        "terminal": "gnd"
+      }
+    },
+    {
+      "id": "w_flat_10",
+      "netId": "bb1:rail-t+",
+      "from": {
+        "part": "pull",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "rt",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "w_flat_11",
+      "netId": "bb1:rail-t+",
+      "from": {
+        "part": "pull",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "timer",
+        "terminal": "reset"
+      }
+    },
+    {
+      "id": "w_flat_12",
+      "netId": "bb1:rail-t+",
+      "from": {
+        "part": "pull",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "timer",
+        "terminal": "vcc"
+      }
+    },
+    {
+      "id": "w_flat_13",
+      "netId": "bb1:rail-t+",
+      "from": {
+        "part": "pull",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "vcc",
+        "terminal": "vcc"
+      }
+    }
+  ],
+  "holeWires": []
+}

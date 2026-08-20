@@ -1,0 +1,136 @@
+{
+  "vcc": 5,
+  "parts": [
+    {
+      "id": "vsource_1",
+      "kind": "vsource",
+      "params": {
+        "volts": 9,
+        "variant": "9v"
+      },
+      "terminals": [
+        "pos",
+        "neg"
+      ],
+      "rotation": 0,
+      "x": 80,
+      "y": 60
+    },
+    {
+      "id": "resistor_2",
+      "kind": "resistor",
+      "params": {
+        "ohms": 470
+      },
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "rotation": 0,
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "a": "a3",
+          "b": "a7"
+        }
+      },
+      "x": 64,
+      "y": 255
+    },
+    {
+      "id": "led_3",
+      "kind": "led",
+      "params": {
+        "vf": 2,
+        "color": "red"
+      },
+      "terminals": [
+        "anode",
+        "cathode"
+      ],
+      "rotation": 0,
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "anode": "a9",
+          "cathode": "a10"
+        }
+      },
+      "x": 148,
+      "y": 255
+    },
+    {
+      "id": "led_4",
+      "kind": "led",
+      "params": {
+        "vf": 2,
+        "color": "green"
+      },
+      "terminals": [
+        "anode",
+        "cathode"
+      ],
+      "rotation": 0,
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "anode": "a12",
+          "cathode": "a13"
+        }
+      },
+      "x": 190,
+      "y": 255
+    }
+  ],
+  "wires": [
+    {
+      "id": "w_flat_0",
+      "netId": "bb1:n-col-t10",
+      "from": {
+        "part": "led_3",
+        "terminal": "cathode"
+      },
+      "to": {
+        "part": "led_4",
+        "terminal": "anode"
+      }
+    },
+    {
+      "id": "w_flat_1",
+      "netId": "bb1:n-col-t13",
+      "from": {
+        "part": "led_4",
+        "terminal": "cathode"
+      },
+      "to": {
+        "part": "vsource_1",
+        "terminal": "neg"
+      }
+    },
+    {
+      "id": "w_flat_2",
+      "netId": "bb1:n-col-t3",
+      "from": {
+        "part": "resistor_2",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "vsource_1",
+        "terminal": "pos"
+      }
+    },
+    {
+      "id": "w_flat_3",
+      "netId": "bb1:n-col-t7",
+      "from": {
+        "part": "led_3",
+        "terminal": "anode"
+      },
+      "to": {
+        "part": "resistor_2",
+        "terminal": "b"
+      }
+    }
+  ],
+  "holeWires": []
+}

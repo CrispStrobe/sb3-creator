@@ -1,0 +1,155 @@
+{
+  "vcc": 5,
+  "parts": [
+    {
+      "id": "vcc1",
+      "kind": "vcc",
+      "params": {},
+      "x": 80,
+      "y": 60
+    },
+    {
+      "id": "gnd1",
+      "kind": "gnd",
+      "params": {},
+      "x": 220,
+      "y": 60
+    },
+    {
+      "id": "buzz1",
+      "kind": "buzzer",
+      "params": {},
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "a": "a9",
+          "b": "a11"
+        }
+      },
+      "x": 148,
+      "y": 255
+    },
+    {
+      "id": "q1",
+      "kind": "npn",
+      "params": {
+        "beta": 100
+      },
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "emitter": "a13",
+          "base": "a14",
+          "collector": "a15"
+        }
+      },
+      "x": 204,
+      "y": 255
+    },
+    {
+      "id": "btn1",
+      "kind": "button",
+      "params": {},
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "a": "e17",
+          "b": "f17"
+        }
+      },
+      "x": 260,
+      "y": 311
+    },
+    {
+      "id": "rb1",
+      "kind": "resistor",
+      "params": {
+        "ohms": 10000
+      },
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "a": "a3",
+          "b": "a7"
+        }
+      },
+      "x": 64,
+      "y": 255
+    }
+  ],
+  "wires": [
+    {
+      "id": "w_flat_0",
+      "netId": "bb1:n-col-b17",
+      "from": {
+        "part": "btn1",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "rb1",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "w_flat_1",
+      "netId": "bb1:n-col-t11",
+      "from": {
+        "part": "buzz1",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "q1",
+        "terminal": "collector"
+      }
+    },
+    {
+      "id": "w_flat_2",
+      "netId": "bb1:n-col-t14",
+      "from": {
+        "part": "q1",
+        "terminal": "base"
+      },
+      "to": {
+        "part": "rb1",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "w_flat_3",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "gnd1",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "q1",
+        "terminal": "emitter"
+      }
+    },
+    {
+      "id": "w_flat_4",
+      "netId": "bb1:rail-t+",
+      "from": {
+        "part": "btn1",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "buzz1",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "w_flat_5",
+      "netId": "bb1:rail-t+",
+      "from": {
+        "part": "btn1",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "vcc1",
+        "terminal": "vcc"
+      }
+    }
+  ],
+  "holeWires": []
+}
