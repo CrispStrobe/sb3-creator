@@ -17,11 +17,11 @@ import { interpretTrace } from '../src/utils/traceOracle.js';
 
 const EXAMPLES = join(import.meta.dirname, '..', 'examples');
 const index = JSON.parse(readFileSync(join(EXAMPLES, 'index.json'), 'utf8'));
-// Device-only micro:bit examples sit outside the C-retarget family —
-// retargetPseudocode has no 'microbit' target (same exclusion as
-// retarget-gallery, a1b6030; this suite was missed by that fix).
+// Device-only micro:bit and SPIKE Prime examples sit outside the C-retarget
+// family — retargetPseudocode has no 'microbit' or 'spike' target (same
+// exclusion as retarget-gallery, a1b6030; this suite was missed by that fix).
 const generic = index.filter(e => e.kind === 'program' && Array.isArray(e.devices)
-    && e.authored !== 'microbit');
+    && e.authored !== 'microbit' && e.authored !== 'spike');
 
 /** ADC config per device: bits and reference voltage. */
 const ADC_CFG = {

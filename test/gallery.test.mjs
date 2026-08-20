@@ -205,9 +205,9 @@ describe('gallery: index.json is valid and covers every example', () => {
             assert.ok(KINDS.has(entry.kind), `kind "${entry.kind}" not in ${[...KINDS]}`);
             assert.ok(entry.files?.program || entry.files?.circuit, 'files.program or files.circuit');
             // A circuit file is required for every example EXCEPT device-only
-            // ones (a micro:bit program is a self-contained board with no
-            // breadboard circuit); those carry a program + a single device.
-            const deviceOnly = entry.deviceOnly === true || entry.authored === 'microbit';
+            // ones (a micro:bit or SPIKE Prime program is a self-contained board
+            // with no breadboard circuit); those carry a program + a single device.
+            const deviceOnly = entry.deviceOnly === true || entry.authored === 'microbit' || entry.authored === 'spike';
             assert.ok(entry.files?.circuit || deviceOnly, 'files.circuit (unless device-only)');
             // 'full' entries (program + circuit lesson pages) may omit the
             // expected-trace file; circuit/program entries never do.

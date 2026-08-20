@@ -25,11 +25,11 @@ const devices = Object.keys(SB3Creator.RETARGET_POOLS)
     .filter(d => !UNBENCHABLE.has(d));
 
 // Programs with a computed `devices` field (generic, retargetable).
-// Device-only examples (micro:bit) compile down the MicroPython path, not the
-// C-retarget family — 'microbit' is not a retarget target, so they are outside
-// this suite's cross-device dry-run entirely.
+// Device-only examples (micro:bit, SPIKE Prime) compile down a non-C path, not
+// the C-retarget family — 'microbit' and 'spike' are not retarget targets, so
+// they are outside this suite's cross-device dry-run entirely.
 const generic = index.filter(e => e.kind === 'program' && Array.isArray(e.devices) &&
-    e.authored !== 'microbit');
+    e.authored !== 'microbit' && e.authored !== 'spike');
 
 // ---- 1. Computed device lists match dry-run --------------------------------
 describe('retarget-gallery: computed device lists are accurate', () => {

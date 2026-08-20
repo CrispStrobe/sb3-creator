@@ -481,7 +481,7 @@ describe('e2e: servo — signal pin, not power pin', () => {
             'servo signal pin must not trip the chip-budget warning — power comes from the rail');
     });
 
-    test('53-servo-sweep: parses, emits bw_servo_set', () => {
+    test('53-servo-sweep: parses, emits and defines bw_servo_set', () => {
         const src = readFileSync(join(EXAMPLES, '53-servo-sweep', 'program.bw'), 'utf8');
         const c = new SB3Creator();
         c.parse(src);
@@ -489,11 +489,12 @@ describe('e2e: servo — signal pin, not power pin', () => {
         const code = c.generateC();
         // The call IS emitted
         assert.match(code, /bw_servo_set\(/, 'bw_servo_set() call emitted');
-        // The helper definition — assert its current state so the gate goes
-        // red when the state changes (either defined or not, never ok(true)).
-        const hasDefinition = /void bw_servo_set\(/.test(code) || /static.*bw_servo_set/.test(code);
-        assert.equal(hasDefinition, false,
-            'bw_servo_set is now defined — update this test to assert compilation succeeds via the oracle');
+        // The helper is now defined — assert it compiles via the oracle
+        assert.ok(
+            /void bw_servo_set\(/.test(code) || /static.*bw_servo_set/.test(code),
+            'bw_servo_set helper must be defined in the emitted C');
+        const { warnings } = cToPseudocode(code);
+        assert.deepEqual(warnings, [], 'oracle must accept the emitted C without warnings');
     });
 });
 
