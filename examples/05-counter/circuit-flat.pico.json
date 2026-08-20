@@ -1,0 +1,334 @@
+{
+  "vcc": 5,
+  "parts": [
+    {
+      "id": "VCC",
+      "kind": "vcc",
+      "params": {},
+      "terminals": [
+        "vcc"
+      ],
+      "x": 80,
+      "y": 60
+    },
+    {
+      "id": "GND",
+      "kind": "gnd",
+      "params": {},
+      "terminals": [
+        "gnd"
+      ],
+      "x": 156,
+      "y": 60
+    },
+    {
+      "id": "MCU",
+      "kind": "pi_pico",
+      "params": {},
+      "terminals": [
+        "gp2",
+        "gp25"
+      ],
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "gp0": "a3",
+          "gp1": "a4",
+          "gnd_1": "a5",
+          "gp2": "a6",
+          "gp3": "a7",
+          "gp4": "a8",
+          "gp5": "a9",
+          "gnd_2": "a10",
+          "gp6": "a11",
+          "gp7": "a12",
+          "gp8": "a13",
+          "gp9": "a14",
+          "gnd_3": "a15",
+          "gp10": "a16",
+          "gp11": "a17",
+          "gp12": "a18",
+          "gp13": "a19",
+          "gnd_4": "a20",
+          "gp14": "a21",
+          "gp15": "a22",
+          "vbus": "f3",
+          "vsys": "f4",
+          "gnd_5": "f5",
+          "3v3_en": "f6",
+          "3v3": "f7",
+          "adc_vref": "f8",
+          "gp28": "f9",
+          "agnd": "f10",
+          "gp27": "f11",
+          "gp26": "f12",
+          "run": "f13",
+          "gp22": "f14",
+          "gnd_6": "f15",
+          "gp21": "f16",
+          "gp20": "f17",
+          "gp19": "f18",
+          "gp18": "f19",
+          "gnd_7": "f20",
+          "gp17": "f21",
+          "gp16": "f22"
+        }
+      },
+      "x": 64,
+      "y": 255
+    },
+    {
+      "id": "R_PU_button",
+      "kind": "resistor",
+      "params": {
+        "ohms": 10000
+      },
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "a": "a26",
+          "b": "a30"
+        }
+      },
+      "x": 386,
+      "y": 255
+    },
+    {
+      "id": "BTN_button",
+      "kind": "button",
+      "declName": "button",
+      "params": {},
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "a": "e41",
+          "b": "f41"
+        }
+      },
+      "x": 596,
+      "y": 311
+    },
+    {
+      "id": "R_led1",
+      "kind": "resistor",
+      "params": {
+        "ohms": 1000
+      },
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "a": "a32",
+          "b": "a36"
+        }
+      },
+      "x": 470,
+      "y": 255
+    },
+    {
+      "id": "LED_led1",
+      "kind": "led",
+      "declName": "led1",
+      "params": {
+        "vf": 2,
+        "color": "red"
+      },
+      "terminals": [
+        "anode",
+        "cathode"
+      ],
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "anode": "a38",
+          "cathode": "a39"
+        }
+      },
+      "x": 554,
+      "y": 255
+    }
+  ],
+  "wires": [
+    {
+      "id": "w_flat_0",
+      "netId": "bb1:n-col-t30",
+      "from": {
+        "part": "BTN_button",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "MCU",
+        "terminal": "gp2"
+      }
+    },
+    {
+      "id": "w_flat_1",
+      "netId": "bb1:n-col-t30",
+      "from": {
+        "part": "BTN_button",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "R_PU_button",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "w_flat_2",
+      "netId": "bb1:n-col-t32",
+      "from": {
+        "part": "MCU",
+        "terminal": "gp25"
+      },
+      "to": {
+        "part": "R_led1",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "w_flat_3",
+      "netId": "bb1:n-col-t36",
+      "from": {
+        "part": "LED_led1",
+        "terminal": "anode"
+      },
+      "to": {
+        "part": "R_led1",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "w_flat_4",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "BTN_button",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "GND",
+        "terminal": "gnd"
+      }
+    },
+    {
+      "id": "w_flat_5",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "BTN_button",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "LED_led1",
+        "terminal": "cathode"
+      }
+    },
+    {
+      "id": "w_flat_6",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "BTN_button",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "MCU",
+        "terminal": "gnd_1"
+      }
+    },
+    {
+      "id": "w_flat_7",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "BTN_button",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "MCU",
+        "terminal": "gnd_2"
+      }
+    },
+    {
+      "id": "w_flat_8",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "BTN_button",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "MCU",
+        "terminal": "gnd_3"
+      }
+    },
+    {
+      "id": "w_flat_9",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "BTN_button",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "MCU",
+        "terminal": "gnd_4"
+      }
+    },
+    {
+      "id": "w_flat_10",
+      "netId": "bb1:rail-t+",
+      "from": {
+        "part": "MCU",
+        "terminal": "3v3"
+      },
+      "to": {
+        "part": "MCU",
+        "terminal": "vbus"
+      }
+    },
+    {
+      "id": "w_flat_11",
+      "netId": "bb1:rail-t+",
+      "from": {
+        "part": "MCU",
+        "terminal": "3v3"
+      },
+      "to": {
+        "part": "MCU",
+        "terminal": "vsys"
+      }
+    },
+    {
+      "id": "w_flat_12",
+      "netId": "bb1:rail-t+",
+      "from": {
+        "part": "MCU",
+        "terminal": "3v3"
+      },
+      "to": {
+        "part": "R_PU_button",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "w_flat_13",
+      "netId": "bb1:rail-t+",
+      "from": {
+        "part": "MCU",
+        "terminal": "3v3"
+      },
+      "to": {
+        "part": "VCC",
+        "terminal": "vcc"
+      }
+    }
+  ],
+  "holeWires": [],
+  "generated": "benchFor+seat"
+}

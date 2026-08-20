@@ -1,0 +1,197 @@
+{
+  "vcc": 5,
+  "parts": [
+    {
+      "id": "nano",
+      "kind": "arduino_uno",
+      "params": {},
+      "rotation": 0,
+      "x": 80,
+      "y": 60
+    },
+    {
+      "id": "vcc1",
+      "kind": "vcc",
+      "params": {},
+      "rotation": 0,
+      "x": 300,
+      "y": 60
+    },
+    {
+      "id": "gnd1",
+      "kind": "gnd",
+      "params": {},
+      "rotation": 0,
+      "x": 376,
+      "y": 60
+    },
+    {
+      "id": "oled1",
+      "kind": "ssd1306",
+      "params": {},
+      "rotation": 0,
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "vcc": "a9",
+          "gnd": "a10",
+          "sda": "a11",
+          "scl": "a12"
+        }
+      },
+      "x": 148,
+      "y": 255
+    },
+    {
+      "id": "cell1",
+      "kind": "battery_aa",
+      "params": {
+        "volts": 1.45
+      },
+      "rotation": 0,
+      "x": 452,
+      "y": 60
+    },
+    {
+      "id": "load1",
+      "kind": "resistor",
+      "params": {
+        "ohms": 10
+      },
+      "rotation": 0,
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "a": "a3",
+          "b": "a7"
+        }
+      },
+      "x": 64,
+      "y": 255
+    }
+  ],
+  "wires": [
+    {
+      "id": "w_flat_0",
+      "netId": "bb1:n-col-t11",
+      "from": {
+        "part": "nano",
+        "terminal": "a4"
+      },
+      "to": {
+        "part": "oled1",
+        "terminal": "sda"
+      }
+    },
+    {
+      "id": "w_flat_1",
+      "netId": "bb1:n-col-t12",
+      "from": {
+        "part": "nano",
+        "terminal": "a5"
+      },
+      "to": {
+        "part": "oled1",
+        "terminal": "scl"
+      }
+    },
+    {
+      "id": "w_flat_2",
+      "netId": "bb1:n-col-t3",
+      "from": {
+        "part": "cell1",
+        "terminal": "pos"
+      },
+      "to": {
+        "part": "load1",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "w_flat_3",
+      "netId": "bb1:n-col-t3",
+      "from": {
+        "part": "cell1",
+        "terminal": "pos"
+      },
+      "to": {
+        "part": "nano",
+        "terminal": "a0"
+      }
+    },
+    {
+      "id": "w_flat_4",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "cell1",
+        "terminal": "neg"
+      },
+      "to": {
+        "part": "gnd1",
+        "terminal": "gnd"
+      }
+    },
+    {
+      "id": "w_flat_5",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "cell1",
+        "terminal": "neg"
+      },
+      "to": {
+        "part": "load1",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "w_flat_6",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "cell1",
+        "terminal": "neg"
+      },
+      "to": {
+        "part": "nano",
+        "terminal": "gnd"
+      }
+    },
+    {
+      "id": "w_flat_7",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "cell1",
+        "terminal": "neg"
+      },
+      "to": {
+        "part": "oled1",
+        "terminal": "gnd"
+      }
+    },
+    {
+      "id": "w_flat_8",
+      "netId": "bb1:rail-t+",
+      "from": {
+        "part": "nano",
+        "terminal": "5v"
+      },
+      "to": {
+        "part": "oled1",
+        "terminal": "vcc"
+      }
+    },
+    {
+      "id": "w_flat_9",
+      "netId": "bb1:rail-t+",
+      "from": {
+        "part": "nano",
+        "terminal": "5v"
+      },
+      "to": {
+        "part": "vcc1",
+        "terminal": "vcc"
+      }
+    }
+  ],
+  "holeWires": [],
+  "generated": "benchFor+authored+seat"
+}

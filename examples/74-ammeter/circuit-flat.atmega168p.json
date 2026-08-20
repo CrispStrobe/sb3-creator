@@ -1,0 +1,206 @@
+{
+  "vcc": 5,
+  "parts": [
+    {
+      "id": "nano",
+      "kind": "arduino_uno",
+      "params": {},
+      "rotation": 0,
+      "x": 80,
+      "y": 60
+    },
+    {
+      "id": "vcc1",
+      "kind": "vcc",
+      "params": {},
+      "rotation": 0,
+      "x": 300,
+      "y": 60
+    },
+    {
+      "id": "gnd1",
+      "kind": "gnd",
+      "params": {},
+      "rotation": 0,
+      "x": 376,
+      "y": 60
+    },
+    {
+      "id": "lcd1",
+      "kind": "char_lcd_i2c",
+      "params": {},
+      "rotation": 0,
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "gnd": "a15",
+          "vcc": "a16",
+          "sda": "a17",
+          "scl": "a18"
+        }
+      },
+      "x": 232,
+      "y": 255
+    },
+    {
+      "id": "load1",
+      "kind": "potentiometer",
+      "params": {
+        "ohms": 1000,
+        "position": 0.5
+      },
+      "rotation": 0,
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "a": "a3",
+          "wiper": "a5",
+          "b": "a7"
+        }
+      },
+      "x": 64,
+      "y": 255
+    },
+    {
+      "id": "shunt1",
+      "kind": "resistor",
+      "params": {
+        "ohms": 10
+      },
+      "rotation": 0,
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "a": "a9",
+          "b": "a13"
+        }
+      },
+      "x": 148,
+      "y": 255
+    }
+  ],
+  "wires": [
+    {
+      "id": "w_flat_0",
+      "netId": "bb1:n-col-t17",
+      "from": {
+        "part": "lcd1",
+        "terminal": "sda"
+      },
+      "to": {
+        "part": "nano",
+        "terminal": "a4"
+      }
+    },
+    {
+      "id": "w_flat_1",
+      "netId": "bb1:n-col-t18",
+      "from": {
+        "part": "lcd1",
+        "terminal": "scl"
+      },
+      "to": {
+        "part": "nano",
+        "terminal": "a5"
+      }
+    },
+    {
+      "id": "w_flat_2",
+      "netId": "bb1:n-col-t5",
+      "from": {
+        "part": "load1",
+        "terminal": "wiper"
+      },
+      "to": {
+        "part": "nano",
+        "terminal": "a0"
+      }
+    },
+    {
+      "id": "w_flat_3",
+      "netId": "bb1:n-col-t5",
+      "from": {
+        "part": "load1",
+        "terminal": "wiper"
+      },
+      "to": {
+        "part": "shunt1",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "w_flat_4",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "gnd1",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "lcd1",
+        "terminal": "gnd"
+      }
+    },
+    {
+      "id": "w_flat_5",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "gnd1",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "nano",
+        "terminal": "gnd"
+      }
+    },
+    {
+      "id": "w_flat_6",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "gnd1",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "shunt1",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "w_flat_7",
+      "netId": "bb1:rail-t+",
+      "from": {
+        "part": "lcd1",
+        "terminal": "vcc"
+      },
+      "to": {
+        "part": "load1",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "w_flat_8",
+      "netId": "bb1:rail-t+",
+      "from": {
+        "part": "lcd1",
+        "terminal": "vcc"
+      },
+      "to": {
+        "part": "nano",
+        "terminal": "5v"
+      }
+    },
+    {
+      "id": "w_flat_9",
+      "netId": "bb1:rail-t+",
+      "from": {
+        "part": "lcd1",
+        "terminal": "vcc"
+      },
+      "to": {
+        "part": "vcc1",
+        "terminal": "vcc"
+      }
+    }
+  ],
+  "holeWires": [],
+  "generated": "benchFor+authored+seat"
+}

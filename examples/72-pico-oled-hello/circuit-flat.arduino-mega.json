@@ -1,0 +1,122 @@
+{
+  "vcc": 3.3,
+  "parts": [
+    {
+      "id": "pico1",
+      "kind": "arduino_mega",
+      "params": {},
+      "rotation": 0,
+      "x": 80,
+      "y": 60
+    },
+    {
+      "id": "oled1",
+      "kind": "ssd1306",
+      "params": {},
+      "rotation": 0,
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "vcc": "a3",
+          "gnd": "a4",
+          "sda": "a5",
+          "scl": "a6"
+        }
+      },
+      "x": 64,
+      "y": 255
+    },
+    {
+      "id": "vcc1",
+      "kind": "vcc",
+      "params": {},
+      "rotation": 0,
+      "x": 460,
+      "y": 60
+    },
+    {
+      "id": "gnd1",
+      "kind": "gnd",
+      "params": {},
+      "rotation": 0,
+      "x": 536,
+      "y": 60
+    }
+  ],
+  "wires": [
+    {
+      "id": "w_flat_0",
+      "netId": "bb1:n-col-t5",
+      "from": {
+        "part": "oled1",
+        "terminal": "sda"
+      },
+      "to": {
+        "part": "pico1",
+        "terminal": "d20"
+      }
+    },
+    {
+      "id": "w_flat_1",
+      "netId": "bb1:n-col-t6",
+      "from": {
+        "part": "oled1",
+        "terminal": "scl"
+      },
+      "to": {
+        "part": "pico1",
+        "terminal": "d21"
+      }
+    },
+    {
+      "id": "w_flat_2",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "gnd1",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "oled1",
+        "terminal": "gnd"
+      }
+    },
+    {
+      "id": "w_flat_3",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "gnd1",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "pico1",
+        "terminal": "gnd"
+      }
+    },
+    {
+      "id": "w_flat_4",
+      "netId": "bb1:rail-t+",
+      "from": {
+        "part": "oled1",
+        "terminal": "vcc"
+      },
+      "to": {
+        "part": "pico1",
+        "terminal": "5v"
+      }
+    },
+    {
+      "id": "w_flat_5",
+      "netId": "bb1:rail-t+",
+      "from": {
+        "part": "oled1",
+        "terminal": "vcc"
+      },
+      "to": {
+        "part": "vcc1",
+        "terminal": "vcc"
+      }
+    }
+  ],
+  "holeWires": [],
+  "generated": "benchFor+authored+seat"
+}

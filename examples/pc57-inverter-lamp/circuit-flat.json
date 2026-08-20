@@ -1,0 +1,183 @@
+{
+  "vcc": 5,
+  "parts": [
+    {
+      "id": "vcc",
+      "kind": "vcc",
+      "params": {},
+      "x": 80,
+      "y": 60
+    },
+    {
+      "id": "gnd",
+      "kind": "gnd",
+      "params": {},
+      "x": 220,
+      "y": 60
+    },
+    {
+      "id": "sw",
+      "kind": "switch",
+      "params": {},
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "a": "a15",
+          "b": "a18"
+        }
+      },
+      "x": 232,
+      "y": 255
+    },
+    {
+      "id": "pull",
+      "kind": "resistor",
+      "params": {
+        "ohms": 100000
+      },
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "a": "a3",
+          "b": "a7"
+        }
+      },
+      "x": 64,
+      "y": 255
+    },
+    {
+      "id": "inv",
+      "kind": "gate_not",
+      "params": {},
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "in0": "a20",
+          "out": "a22"
+        }
+      },
+      "x": 302,
+      "y": 255
+    },
+    {
+      "id": "r",
+      "kind": "resistor",
+      "params": {
+        "ohms": 1000
+      },
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "a": "a9",
+          "b": "a13"
+        }
+      },
+      "x": 148,
+      "y": 255
+    },
+    {
+      "id": "led",
+      "kind": "led",
+      "params": {
+        "vf": 2,
+        "color": "yellow"
+      },
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "anode": "a24",
+          "cathode": "a25"
+        }
+      },
+      "x": 358,
+      "y": 255
+    }
+  ],
+  "wires": [
+    {
+      "id": "w_flat_0",
+      "netId": "bb1:n-col-t13",
+      "from": {
+        "part": "led",
+        "terminal": "anode"
+      },
+      "to": {
+        "part": "r",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "w_flat_1",
+      "netId": "bb1:n-col-t18",
+      "from": {
+        "part": "inv",
+        "terminal": "in0"
+      },
+      "to": {
+        "part": "pull",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "w_flat_2",
+      "netId": "bb1:n-col-t18",
+      "from": {
+        "part": "inv",
+        "terminal": "in0"
+      },
+      "to": {
+        "part": "sw",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "w_flat_3",
+      "netId": "bb1:n-col-t22",
+      "from": {
+        "part": "inv",
+        "terminal": "out"
+      },
+      "to": {
+        "part": "r",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "w_flat_4",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "gnd",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "led",
+        "terminal": "cathode"
+      }
+    },
+    {
+      "id": "w_flat_5",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "gnd",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "pull",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "w_flat_6",
+      "netId": "bb1:rail-t+",
+      "from": {
+        "part": "sw",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "vcc",
+        "terminal": "vcc"
+      }
+    }
+  ],
+  "holeWires": []
+}

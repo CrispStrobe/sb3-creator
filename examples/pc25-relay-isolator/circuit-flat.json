@@ -1,0 +1,194 @@
+{
+  "vcc": 5,
+  "parts": [
+    {
+      "id": "coil_v",
+      "kind": "vcc",
+      "params": {},
+      "x": 80,
+      "y": 60
+    },
+    {
+      "id": "load_v",
+      "kind": "vsource",
+      "params": {
+        "volts": 9
+      },
+      "x": 220,
+      "y": 60
+    },
+    {
+      "id": "gnd1",
+      "kind": "gnd",
+      "params": {},
+      "x": 360,
+      "y": 60
+    },
+    {
+      "id": "sw1",
+      "kind": "switch",
+      "params": {},
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "a": "a16",
+          "b": "a19"
+        }
+      },
+      "x": 246,
+      "y": 255
+    },
+    {
+      "id": "relay1",
+      "kind": "relay",
+      "params": {
+        "coilR": 200,
+        "switchTimeMs": 5
+      },
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "coil_a": "a3",
+          "coil_b": "a4",
+          "no": "a6",
+          "com": "a7",
+          "nc": "a8"
+        }
+      },
+      "x": 64,
+      "y": 255
+    },
+    {
+      "id": "rl",
+      "kind": "resistor",
+      "params": {
+        "ohms": 1000
+      },
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "a": "a10",
+          "b": "a14"
+        }
+      },
+      "x": 162,
+      "y": 255
+    },
+    {
+      "id": "led1",
+      "kind": "led",
+      "params": {
+        "vf": 2,
+        "color": "blue"
+      },
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "anode": "a21",
+          "cathode": "a22"
+        }
+      },
+      "x": 316,
+      "y": 255
+    }
+  ],
+  "wires": [
+    {
+      "id": "w_flat_0",
+      "netId": "bb1:n-col-t10",
+      "from": {
+        "part": "relay1",
+        "terminal": "no"
+      },
+      "to": {
+        "part": "rl",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "w_flat_1",
+      "netId": "bb1:n-col-t14",
+      "from": {
+        "part": "led1",
+        "terminal": "anode"
+      },
+      "to": {
+        "part": "rl",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "w_flat_2",
+      "netId": "bb1:n-col-t19",
+      "from": {
+        "part": "relay1",
+        "terminal": "coil_a"
+      },
+      "to": {
+        "part": "sw1",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "w_flat_3",
+      "netId": "bb1:n-col-t7",
+      "from": {
+        "part": "load_v",
+        "terminal": "pos"
+      },
+      "to": {
+        "part": "relay1",
+        "terminal": "com"
+      }
+    },
+    {
+      "id": "w_flat_4",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "gnd1",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "led1",
+        "terminal": "cathode"
+      }
+    },
+    {
+      "id": "w_flat_5",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "gnd1",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "load_v",
+        "terminal": "neg"
+      }
+    },
+    {
+      "id": "w_flat_6",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "gnd1",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "relay1",
+        "terminal": "coil_b"
+      }
+    },
+    {
+      "id": "w_flat_7",
+      "netId": "bb1:rail-t+",
+      "from": {
+        "part": "coil_v",
+        "terminal": "vcc"
+      },
+      "to": {
+        "part": "sw1",
+        "terminal": "a"
+      }
+    }
+  ],
+  "holeWires": []
+}

@@ -1,0 +1,132 @@
+{
+  "vcc": 9,
+  "parts": [
+    {
+      "id": "src",
+      "kind": "vsource",
+      "params": {
+        "volts": 9
+      },
+      "x": 80,
+      "y": 60
+    },
+    {
+      "id": "c1",
+      "kind": "capacitor",
+      "params": {
+        "farads": 0.0001
+      },
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "a": "a9",
+          "b": "a10"
+        }
+      },
+      "x": 148,
+      "y": 255
+    },
+    {
+      "id": "c2",
+      "kind": "capacitor",
+      "params": {
+        "farads": 0.0002
+      },
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "a": "a12",
+          "b": "a13"
+        }
+      },
+      "x": 190,
+      "y": 255
+    },
+    {
+      "id": "r",
+      "kind": "resistor",
+      "params": {
+        "ohms": 1000000
+      },
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "a": "a3",
+          "b": "a7"
+        }
+      },
+      "x": 64,
+      "y": 255
+    },
+    {
+      "id": "gnd",
+      "kind": "gnd",
+      "params": {},
+      "x": 220,
+      "y": 60
+    }
+  ],
+  "wires": [
+    {
+      "id": "w_flat_0",
+      "netId": "bb1:n-col-t10",
+      "from": {
+        "part": "c1",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "c2",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "w_flat_1",
+      "netId": "bb1:n-col-t13",
+      "from": {
+        "part": "c2",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "r",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "w_flat_2",
+      "netId": "bb1:n-col-t9",
+      "from": {
+        "part": "c1",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "src",
+        "terminal": "pos"
+      }
+    },
+    {
+      "id": "w_flat_3",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "gnd",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "r",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "w_flat_4",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "gnd",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "src",
+        "terminal": "neg"
+      }
+    }
+  ],
+  "holeWires": []
+}

@@ -1,0 +1,135 @@
+{
+  "vcc": 3.3,
+  "parts": [
+    {
+      "id": "pico1",
+      "kind": "attiny85",
+      "params": {},
+      "rotation": 0,
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "pb5": "f3",
+          "pb3": "f4",
+          "pb4": "f5",
+          "gnd": "f6",
+          "pb0": "e6",
+          "pb1": "e5",
+          "pb2": "e4",
+          "vcc": "e3"
+        }
+      },
+      "x": 64,
+      "y": 349
+    },
+    {
+      "id": "oled1",
+      "kind": "ssd1306",
+      "params": {},
+      "rotation": 0,
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "vcc": "a10",
+          "gnd": "a11",
+          "sda": "a12",
+          "scl": "a13"
+        }
+      },
+      "x": 162,
+      "y": 255
+    },
+    {
+      "id": "vcc1",
+      "kind": "vcc",
+      "params": {},
+      "rotation": 0,
+      "x": 80,
+      "y": 60
+    },
+    {
+      "id": "gnd1",
+      "kind": "gnd",
+      "params": {},
+      "rotation": 0,
+      "x": 156,
+      "y": 60
+    }
+  ],
+  "wires": [
+    {
+      "id": "w_flat_0",
+      "netId": "bb1:n-col-t12",
+      "from": {
+        "part": "oled1",
+        "terminal": "sda"
+      },
+      "to": {
+        "part": "pico1",
+        "terminal": "pb0"
+      }
+    },
+    {
+      "id": "w_flat_1",
+      "netId": "bb1:n-col-t13",
+      "from": {
+        "part": "oled1",
+        "terminal": "scl"
+      },
+      "to": {
+        "part": "pico1",
+        "terminal": "pb2"
+      }
+    },
+    {
+      "id": "w_flat_2",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "gnd1",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "oled1",
+        "terminal": "gnd"
+      }
+    },
+    {
+      "id": "w_flat_3",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "gnd1",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "pico1",
+        "terminal": "gnd"
+      }
+    },
+    {
+      "id": "w_flat_4",
+      "netId": "bb1:rail-t+",
+      "from": {
+        "part": "oled1",
+        "terminal": "vcc"
+      },
+      "to": {
+        "part": "pico1",
+        "terminal": "vcc"
+      }
+    },
+    {
+      "id": "w_flat_5",
+      "netId": "bb1:rail-t+",
+      "from": {
+        "part": "oled1",
+        "terminal": "vcc"
+      },
+      "to": {
+        "part": "vcc1",
+        "terminal": "vcc"
+      }
+    }
+  ],
+  "holeWires": [],
+  "generated": "benchFor+authored+seat"
+}

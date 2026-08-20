@@ -1,0 +1,180 @@
+{
+  "vcc": 5,
+  "parts": [
+    {
+      "id": "nano",
+      "kind": "arduino_nano",
+      "params": {},
+      "rotation": 0,
+      "x": 200,
+      "y": 320
+    },
+    {
+      "id": "vcc1",
+      "kind": "vcc",
+      "params": {},
+      "rotation": 0,
+      "x": 60,
+      "y": 120
+    },
+    {
+      "id": "gnd1",
+      "kind": "gnd",
+      "params": {},
+      "rotation": 0,
+      "x": 140,
+      "y": 120
+    },
+    {
+      "id": "oled1",
+      "kind": "ssd1306",
+      "params": {},
+      "rotation": 0,
+      "x": 700,
+      "y": 300
+    },
+    {
+      "id": "cell1",
+      "kind": "battery_aa",
+      "params": {
+        "volts": 1.45
+      },
+      "rotation": 0,
+      "x": 430,
+      "y": 640
+    },
+    {
+      "id": "load1",
+      "kind": "resistor",
+      "params": {
+        "ohms": 10
+      },
+      "rotation": 0,
+      "x": 540,
+      "y": 640
+    }
+  ],
+  "wires": [
+    {
+      "id": "w_flat_0",
+      "netId": "net-lgc-1",
+      "from": {
+        "part": "nano",
+        "terminal": "5v"
+      },
+      "to": {
+        "part": "oled1",
+        "terminal": "vcc"
+      }
+    },
+    {
+      "id": "w_flat_1",
+      "netId": "net-lgc-1",
+      "from": {
+        "part": "nano",
+        "terminal": "5v"
+      },
+      "to": {
+        "part": "vcc1",
+        "terminal": "vcc"
+      }
+    },
+    {
+      "id": "w_flat_2",
+      "netId": "net-lgc-2",
+      "from": {
+        "part": "cell1",
+        "terminal": "neg"
+      },
+      "to": {
+        "part": "gnd1",
+        "terminal": "gnd"
+      }
+    },
+    {
+      "id": "w_flat_3",
+      "netId": "net-lgc-2",
+      "from": {
+        "part": "cell1",
+        "terminal": "neg"
+      },
+      "to": {
+        "part": "load1",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "w_flat_4",
+      "netId": "net-lgc-2",
+      "from": {
+        "part": "cell1",
+        "terminal": "neg"
+      },
+      "to": {
+        "part": "nano",
+        "terminal": "gnd"
+      }
+    },
+    {
+      "id": "w_flat_5",
+      "netId": "net-lgc-2",
+      "from": {
+        "part": "cell1",
+        "terminal": "neg"
+      },
+      "to": {
+        "part": "oled1",
+        "terminal": "gnd"
+      }
+    },
+    {
+      "id": "w_flat_6",
+      "netId": "net-lgc-3",
+      "from": {
+        "part": "nano",
+        "terminal": "a4"
+      },
+      "to": {
+        "part": "oled1",
+        "terminal": "sda"
+      }
+    },
+    {
+      "id": "w_flat_7",
+      "netId": "net-lgc-4",
+      "from": {
+        "part": "nano",
+        "terminal": "a5"
+      },
+      "to": {
+        "part": "oled1",
+        "terminal": "scl"
+      }
+    },
+    {
+      "id": "w_flat_8",
+      "netId": "net-lgc-5",
+      "from": {
+        "part": "cell1",
+        "terminal": "pos"
+      },
+      "to": {
+        "part": "load1",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "w_flat_9",
+      "netId": "net-lgc-5",
+      "from": {
+        "part": "cell1",
+        "terminal": "pos"
+      },
+      "to": {
+        "part": "nano",
+        "terminal": "a0"
+      }
+    }
+  ],
+  "holeWires": []
+}

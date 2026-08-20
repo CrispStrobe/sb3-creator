@@ -1,0 +1,116 @@
+{
+  "vcc": 5,
+  "parts": [
+    {
+      "id": "board",
+      "kind": "arduino_nano",
+      "params": {},
+      "rotation": 0,
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "d1": "b3",
+          "d0": "b4",
+          "reset": "b5",
+          "gnd": "b6",
+          "d2": "b7",
+          "d3": "b8",
+          "d4": "b9",
+          "d5": "b10",
+          "d6": "b11",
+          "d7": "b12",
+          "d8": "b13",
+          "d9": "b14",
+          "d10": "b15",
+          "d11": "b16",
+          "d12": "b17",
+          "vin": "f3",
+          "gnd2": "f4",
+          "reset2": "f5",
+          "5v": "f6",
+          "a7": "f7",
+          "a6": "f8",
+          "a5": "f9",
+          "a4": "f10",
+          "a3": "f11",
+          "a2": "f12",
+          "a1": "f13",
+          "a0": "f14",
+          "aref": "f15",
+          "3v3": "f16",
+          "d13": "f17"
+        }
+      },
+      "x": 64,
+      "y": 269
+    },
+    {
+      "id": "vcc1",
+      "kind": "vcc",
+      "params": {
+        "volts": 5
+      },
+      "x": 80,
+      "y": 60
+    },
+    {
+      "id": "gnd1",
+      "kind": "gnd",
+      "params": {},
+      "x": 156,
+      "y": 60
+    }
+  ],
+  "wires": [
+    {
+      "id": "w_flat_0",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "board",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "board",
+        "terminal": "gnd2"
+      }
+    },
+    {
+      "id": "w_flat_1",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "board",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "gnd1",
+        "terminal": "gnd"
+      }
+    },
+    {
+      "id": "w_flat_2",
+      "netId": "bb1:rail-t+",
+      "from": {
+        "part": "board",
+        "terminal": "3v3"
+      },
+      "to": {
+        "part": "board",
+        "terminal": "5v"
+      }
+    },
+    {
+      "id": "w_flat_3",
+      "netId": "bb1:rail-t+",
+      "from": {
+        "part": "board",
+        "terminal": "3v3"
+      },
+      "to": {
+        "part": "vcc1",
+        "terminal": "vcc"
+      }
+    }
+  ],
+  "holeWires": [],
+  "generated": "benchFor+authored+seat"
+}

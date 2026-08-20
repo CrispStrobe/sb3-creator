@@ -1,0 +1,170 @@
+{
+  "vcc": 9,
+  "parts": [
+    {
+      "id": "src",
+      "kind": "vsource",
+      "params": {
+        "volts": 9
+      },
+      "x": 80,
+      "y": 60
+    },
+    {
+      "id": "sw",
+      "kind": "switch",
+      "params": {},
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "a": "a9",
+          "b": "a12"
+        }
+      },
+      "x": 148,
+      "y": 255
+    },
+    {
+      "id": "r",
+      "kind": "resistor",
+      "params": {
+        "ohms": 100
+      },
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "a": "a3",
+          "b": "a7"
+        }
+      },
+      "x": 64,
+      "y": 255
+    },
+    {
+      "id": "l",
+      "kind": "inductor",
+      "params": {
+        "henrys": 0.01
+      },
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "a": "a14",
+          "b": "a17"
+        }
+      },
+      "x": 218,
+      "y": 255
+    },
+    {
+      "id": "d",
+      "kind": "diode",
+      "params": {
+        "vf": 0.7
+      },
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "anode": "a19",
+          "cathode": "a21"
+        }
+      },
+      "x": 288,
+      "y": 255
+    },
+    {
+      "id": "gnd",
+      "kind": "gnd",
+      "params": {},
+      "x": 220,
+      "y": 60
+    }
+  ],
+  "wires": [
+    {
+      "id": "w_flat_0",
+      "netId": "bb1:n-col-t12",
+      "from": {
+        "part": "r",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "sw",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "w_flat_1",
+      "netId": "bb1:n-col-t14",
+      "from": {
+        "part": "d",
+        "terminal": "cathode"
+      },
+      "to": {
+        "part": "l",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "w_flat_2",
+      "netId": "bb1:n-col-t14",
+      "from": {
+        "part": "d",
+        "terminal": "cathode"
+      },
+      "to": {
+        "part": "r",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "w_flat_3",
+      "netId": "bb1:n-col-t9",
+      "from": {
+        "part": "src",
+        "terminal": "pos"
+      },
+      "to": {
+        "part": "sw",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "w_flat_4",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "d",
+        "terminal": "anode"
+      },
+      "to": {
+        "part": "gnd",
+        "terminal": "gnd"
+      }
+    },
+    {
+      "id": "w_flat_5",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "d",
+        "terminal": "anode"
+      },
+      "to": {
+        "part": "l",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "w_flat_6",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "d",
+        "terminal": "anode"
+      },
+      "to": {
+        "part": "src",
+        "terminal": "neg"
+      }
+    }
+  ],
+  "holeWires": []
+}

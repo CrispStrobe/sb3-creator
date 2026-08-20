@@ -1,0 +1,177 @@
+{
+  "vcc": 5,
+  "parts": [
+    {
+      "id": "nano",
+      "kind": "arduino_mega",
+      "params": {},
+      "rotation": 0,
+      "x": 80,
+      "y": 60
+    },
+    {
+      "id": "vcc1",
+      "kind": "vcc",
+      "params": {},
+      "rotation": 0,
+      "x": 460,
+      "y": 60
+    },
+    {
+      "id": "gnd1",
+      "kind": "gnd",
+      "params": {},
+      "rotation": 0,
+      "x": 536,
+      "y": 60
+    },
+    {
+      "id": "oled1",
+      "kind": "ssd1306",
+      "params": {},
+      "rotation": 0,
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "vcc": "a9",
+          "gnd": "a10",
+          "sda": "a11",
+          "scl": "a12"
+        }
+      },
+      "x": 148,
+      "y": 255
+    },
+    {
+      "id": "probe1",
+      "kind": "potentiometer",
+      "params": {
+        "ohms": 10000,
+        "position": 0.5
+      },
+      "rotation": 0,
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "a": "a3",
+          "wiper": "a5",
+          "b": "a7"
+        }
+      },
+      "x": 64,
+      "y": 255
+    }
+  ],
+  "wires": [
+    {
+      "id": "w_flat_0",
+      "netId": "bb1:n-col-t11",
+      "from": {
+        "part": "nano",
+        "terminal": "d20"
+      },
+      "to": {
+        "part": "oled1",
+        "terminal": "sda"
+      }
+    },
+    {
+      "id": "w_flat_1",
+      "netId": "bb1:n-col-t12",
+      "from": {
+        "part": "nano",
+        "terminal": "d21"
+      },
+      "to": {
+        "part": "oled1",
+        "terminal": "scl"
+      }
+    },
+    {
+      "id": "w_flat_2",
+      "netId": "bb1:n-col-t5",
+      "from": {
+        "part": "nano",
+        "terminal": "a0"
+      },
+      "to": {
+        "part": "probe1",
+        "terminal": "wiper"
+      }
+    },
+    {
+      "id": "w_flat_3",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "gnd1",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "nano",
+        "terminal": "gnd"
+      }
+    },
+    {
+      "id": "w_flat_4",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "gnd1",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "oled1",
+        "terminal": "gnd"
+      }
+    },
+    {
+      "id": "w_flat_5",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "gnd1",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "probe1",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "w_flat_6",
+      "netId": "bb1:rail-t+",
+      "from": {
+        "part": "nano",
+        "terminal": "5v"
+      },
+      "to": {
+        "part": "oled1",
+        "terminal": "vcc"
+      }
+    },
+    {
+      "id": "w_flat_7",
+      "netId": "bb1:rail-t+",
+      "from": {
+        "part": "nano",
+        "terminal": "5v"
+      },
+      "to": {
+        "part": "probe1",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "w_flat_8",
+      "netId": "bb1:rail-t+",
+      "from": {
+        "part": "nano",
+        "terminal": "5v"
+      },
+      "to": {
+        "part": "vcc1",
+        "terminal": "vcc"
+      }
+    }
+  ],
+  "holeWires": [],
+  "generated": "benchFor+authored+seat"
+}

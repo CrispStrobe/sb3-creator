@@ -1,0 +1,171 @@
+{
+  "vcc": 9,
+  "parts": [
+    {
+      "id": "src",
+      "kind": "vsource",
+      "params": {
+        "volts": 9
+      },
+      "x": 80,
+      "y": 60
+    },
+    {
+      "id": "sw1",
+      "kind": "switch",
+      "params": {},
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "a": "a3",
+          "b": "a6"
+        }
+      },
+      "x": 64,
+      "y": 255
+    },
+    {
+      "id": "l1",
+      "kind": "inductor",
+      "params": {
+        "henrys": 0.001
+      },
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "a": "a8",
+          "b": "a11"
+        }
+      },
+      "x": 134,
+      "y": 255
+    },
+    {
+      "id": "motor1",
+      "kind": "dc_motor",
+      "params": {
+        "windingR": 10,
+        "kV": 0.01
+      },
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "a": "a13",
+          "b": "a15"
+        }
+      },
+      "x": 204,
+      "y": 255
+    },
+    {
+      "id": "d1",
+      "kind": "diode",
+      "params": {
+        "vf": 0.7
+      },
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "anode": "a17",
+          "cathode": "a19"
+        }
+      },
+      "x": 260,
+      "y": 255
+    },
+    {
+      "id": "gnd",
+      "kind": "gnd",
+      "params": {},
+      "x": 220,
+      "y": 60
+    }
+  ],
+  "wires": [
+    {
+      "id": "w_flat_0",
+      "netId": "bb1:n-col-t11",
+      "from": {
+        "part": "l1",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "motor1",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "w_flat_1",
+      "netId": "bb1:n-col-t19",
+      "from": {
+        "part": "d1",
+        "terminal": "cathode"
+      },
+      "to": {
+        "part": "l1",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "w_flat_2",
+      "netId": "bb1:n-col-t19",
+      "from": {
+        "part": "d1",
+        "terminal": "cathode"
+      },
+      "to": {
+        "part": "sw1",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "w_flat_3",
+      "netId": "bb1:n-col-t3",
+      "from": {
+        "part": "src",
+        "terminal": "pos"
+      },
+      "to": {
+        "part": "sw1",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "w_flat_4",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "d1",
+        "terminal": "anode"
+      },
+      "to": {
+        "part": "gnd",
+        "terminal": "gnd"
+      }
+    },
+    {
+      "id": "w_flat_5",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "d1",
+        "terminal": "anode"
+      },
+      "to": {
+        "part": "motor1",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "w_flat_6",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "d1",
+        "terminal": "anode"
+      },
+      "to": {
+        "part": "src",
+        "terminal": "neg"
+      }
+    }
+  ],
+  "holeWires": []
+}

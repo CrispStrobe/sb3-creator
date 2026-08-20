@@ -1,0 +1,122 @@
+{
+  "vcc": 5,
+  "parts": [
+    {
+      "id": "board",
+      "kind": "arduino_uno",
+      "params": {},
+      "rotation": 0,
+      "x": 80,
+      "y": -60
+    },
+    {
+      "id": "us",
+      "kind": "ultrasonic",
+      "declName": "us",
+      "params": {},
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "vcc": "a20",
+          "trig": "a21",
+          "echo": "a22",
+          "gnd": "a23"
+        }
+      },
+      "x": 302,
+      "y": 255
+    },
+    {
+      "id": "vcc1",
+      "kind": "vcc",
+      "params": {
+        "volts": 5
+      },
+      "x": 80,
+      "y": 60
+    },
+    {
+      "id": "gnd1",
+      "kind": "gnd",
+      "params": {},
+      "x": 220,
+      "y": 60
+    }
+  ],
+  "wires": [
+    {
+      "id": "w_flat_0",
+      "netId": "bb1:n-col-t21",
+      "from": {
+        "part": "board",
+        "terminal": "d13"
+      },
+      "to": {
+        "part": "us",
+        "terminal": "trig"
+      }
+    },
+    {
+      "id": "w_flat_1",
+      "netId": "bb1:n-col-t22",
+      "from": {
+        "part": "board",
+        "terminal": "d2"
+      },
+      "to": {
+        "part": "us",
+        "terminal": "echo"
+      }
+    },
+    {
+      "id": "w_flat_2",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "board",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "gnd1",
+        "terminal": "gnd"
+      }
+    },
+    {
+      "id": "w_flat_3",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "board",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "us",
+        "terminal": "gnd"
+      }
+    },
+    {
+      "id": "w_flat_4",
+      "netId": "bb1:rail-t+",
+      "from": {
+        "part": "board",
+        "terminal": "5v"
+      },
+      "to": {
+        "part": "us",
+        "terminal": "vcc"
+      }
+    },
+    {
+      "id": "w_flat_5",
+      "netId": "bb1:rail-t+",
+      "from": {
+        "part": "board",
+        "terminal": "5v"
+      },
+      "to": {
+        "part": "vcc1",
+        "terminal": "vcc"
+      }
+    }
+  ],
+  "holeWires": [],
+  "generated": "benchFor+authored"
+}

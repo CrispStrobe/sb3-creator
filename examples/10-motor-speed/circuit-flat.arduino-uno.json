@@ -1,0 +1,217 @@
+{
+  "vcc": 5,
+  "parts": [
+    {
+      "id": "VCC",
+      "kind": "vcc",
+      "params": {},
+      "terminals": [
+        "vcc"
+      ],
+      "x": 80,
+      "y": 60
+    },
+    {
+      "id": "GND",
+      "kind": "gnd",
+      "params": {},
+      "terminals": [
+        "gnd"
+      ],
+      "x": 156,
+      "y": 60
+    },
+    {
+      "id": "MCU",
+      "kind": "arduino_uno",
+      "params": {},
+      "terminals": [
+        "d13",
+        "a0"
+      ],
+      "x": 232,
+      "y": 60
+    },
+    {
+      "id": "R_motor_pwm",
+      "kind": "resistor",
+      "params": {
+        "ohms": 1000
+      },
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "a": "a3",
+          "b": "a7"
+        }
+      },
+      "x": 64,
+      "y": 255
+    },
+    {
+      "id": "Q_motor_pwm",
+      "kind": "npn",
+      "params": {},
+      "terminals": [
+        "base",
+        "collector",
+        "emitter"
+      ],
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "emitter": "a15",
+          "base": "a16",
+          "collector": "a17"
+        }
+      },
+      "x": 232,
+      "y": 255
+    },
+    {
+      "id": "MOTOR_motor_pwm",
+      "kind": "dc_motor",
+      "params": {},
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "a": "a19",
+          "b": "a21"
+        }
+      },
+      "x": 288,
+      "y": 255
+    },
+    {
+      "id": "POT_pot",
+      "kind": "potentiometer",
+      "declName": "pot",
+      "params": {
+        "ohms": 10000
+      },
+      "terminals": [
+        "a",
+        "b",
+        "wiper"
+      ],
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "a": "a9",
+          "wiper": "a11",
+          "b": "a13"
+        }
+      },
+      "x": 148,
+      "y": 255
+    }
+  ],
+  "wires": [
+    {
+      "id": "w_flat_0",
+      "netId": "bb1:n-col-t11",
+      "from": {
+        "part": "MCU",
+        "terminal": "a0"
+      },
+      "to": {
+        "part": "POT_pot",
+        "terminal": "wiper"
+      }
+    },
+    {
+      "id": "w_flat_1",
+      "netId": "bb1:n-col-t16",
+      "from": {
+        "part": "Q_motor_pwm",
+        "terminal": "base"
+      },
+      "to": {
+        "part": "R_motor_pwm",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "w_flat_2",
+      "netId": "bb1:n-col-t17",
+      "from": {
+        "part": "MOTOR_motor_pwm",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "Q_motor_pwm",
+        "terminal": "collector"
+      }
+    },
+    {
+      "id": "w_flat_3",
+      "netId": "bb1:n-col-t3",
+      "from": {
+        "part": "MCU",
+        "terminal": "d13"
+      },
+      "to": {
+        "part": "R_motor_pwm",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "w_flat_4",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "GND",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "POT_pot",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "w_flat_5",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "GND",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "Q_motor_pwm",
+        "terminal": "emitter"
+      }
+    },
+    {
+      "id": "w_flat_6",
+      "netId": "bb1:rail-t+",
+      "from": {
+        "part": "MOTOR_motor_pwm",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "POT_pot",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "w_flat_7",
+      "netId": "bb1:rail-t+",
+      "from": {
+        "part": "MOTOR_motor_pwm",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "VCC",
+        "terminal": "vcc"
+      }
+    }
+  ],
+  "holeWires": [],
+  "generated": "benchFor+seat"
+}

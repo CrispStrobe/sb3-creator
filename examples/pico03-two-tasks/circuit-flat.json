@@ -1,0 +1,181 @@
+{
+  "vcc": 3.3,
+  "parts": [
+    {
+      "id": "vcc1",
+      "kind": "vcc",
+      "params": {},
+      "x": 80,
+      "y": 60
+    },
+    {
+      "id": "gnd1",
+      "kind": "gnd",
+      "params": {},
+      "x": 220,
+      "y": 60
+    },
+    {
+      "id": "pot1",
+      "kind": "potentiometer",
+      "params": {
+        "ohms": 10000
+      },
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "a": "a26",
+          "wiper": "a28",
+          "b": "a30"
+        }
+      },
+      "x": 386,
+      "y": 255
+    },
+    {
+      "id": "r1",
+      "kind": "resistor",
+      "params": {
+        "ohms": 220
+      },
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "a": "a32",
+          "b": "a36"
+        }
+      },
+      "x": 470,
+      "y": 255
+    },
+    {
+      "id": "led1",
+      "kind": "led",
+      "params": {
+        "color": "green",
+        "vf": 2.1
+      },
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "anode": "a38",
+          "cathode": "a39"
+        }
+      },
+      "x": 554,
+      "y": 255
+    },
+    {
+      "id": "mcu1",
+      "kind": "pi_pico",
+      "params": {
+        "pins": [
+          "GP25",
+          "GP26"
+        ]
+      },
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "GP0": "a3",
+          "GP1": "a4",
+          "GP2": "a5",
+          "GP3": "a6",
+          "GP4": "a7",
+          "GP5": "a8",
+          "GP6": "a9",
+          "GP7": "a10",
+          "GP8": "a11",
+          "GP9": "a12",
+          "GP10": "a13",
+          "GP11": "a14",
+          "GP12": "a15",
+          "GP13": "a16",
+          "GP14": "a17",
+          "GP15": "a18",
+          "GP16": "a19",
+          "GP17": "a20",
+          "GP18": "a21",
+          "GP19": "a22"
+        }
+      },
+      "x": 64,
+      "y": 255
+    }
+  ],
+  "wires": [
+    {
+      "id": "w_flat_0",
+      "netId": "bb1:n-col-t28",
+      "from": {
+        "part": "mcu1",
+        "terminal": "gp26"
+      },
+      "to": {
+        "part": "pot1",
+        "terminal": "wiper"
+      }
+    },
+    {
+      "id": "w_flat_1",
+      "netId": "bb1:n-col-t32",
+      "from": {
+        "part": "led1",
+        "terminal": "cathode"
+      },
+      "to": {
+        "part": "r1",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "w_flat_2",
+      "netId": "bb1:n-col-t38",
+      "from": {
+        "part": "led1",
+        "terminal": "anode"
+      },
+      "to": {
+        "part": "mcu1",
+        "terminal": "gp25"
+      }
+    },
+    {
+      "id": "w_flat_3",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "gnd1",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "pot1",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "w_flat_4",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "gnd1",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "r1",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "w_flat_5",
+      "netId": "bb1:rail-t+",
+      "from": {
+        "part": "pot1",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "vcc1",
+        "terminal": "vcc"
+      }
+    }
+  ],
+  "holeWires": []
+}

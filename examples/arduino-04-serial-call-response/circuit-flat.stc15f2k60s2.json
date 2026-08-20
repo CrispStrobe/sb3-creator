@@ -1,0 +1,251 @@
+{
+  "vcc": 5,
+  "parts": [
+    {
+      "id": "board",
+      "kind": "stc15_mcu",
+      "params": {},
+      "rotation": 0,
+      "terminals": [
+        "VCC",
+        "GND",
+        "P3.2",
+        "P1.0",
+        "P1.1"
+      ],
+      "x": 80,
+      "y": -60
+    },
+    {
+      "id": "pot1",
+      "kind": "potentiometer",
+      "declName": "pot1",
+      "params": {
+        "ohms": 10000
+      },
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "a": "a20",
+          "wiper": "a22",
+          "b": "a24"
+        }
+      },
+      "x": 302,
+      "y": 255
+    },
+    {
+      "id": "pot2",
+      "kind": "potentiometer",
+      "declName": "pot2",
+      "params": {
+        "ohms": 10000
+      },
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "a": "a26",
+          "wiper": "a28",
+          "b": "a30"
+        }
+      },
+      "x": 386,
+      "y": 255
+    },
+    {
+      "id": "btn1",
+      "kind": "button",
+      "declName": "btn",
+      "params": {},
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "a": "e38",
+          "b": "f38"
+        }
+      },
+      "x": 554,
+      "y": 311
+    },
+    {
+      "id": "r1",
+      "kind": "resistor",
+      "params": {
+        "ohms": 10000
+      },
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "a": "a32",
+          "b": "a36"
+        }
+      },
+      "x": 470,
+      "y": 255
+    },
+    {
+      "id": "vcc1",
+      "kind": "vcc",
+      "params": {
+        "volts": 5
+      },
+      "x": 80,
+      "y": 60
+    },
+    {
+      "id": "gnd1",
+      "kind": "gnd",
+      "params": {},
+      "x": 220,
+      "y": 60
+    }
+  ],
+  "wires": [
+    {
+      "id": "w_flat_0",
+      "netId": "bb1:n-col-b38",
+      "from": {
+        "part": "board",
+        "terminal": "P3.2"
+      },
+      "to": {
+        "part": "btn1",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "w_flat_1",
+      "netId": "bb1:n-col-b38",
+      "from": {
+        "part": "board",
+        "terminal": "P3.2"
+      },
+      "to": {
+        "part": "r1",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "w_flat_2",
+      "netId": "bb1:n-col-t22",
+      "from": {
+        "part": "board",
+        "terminal": "P1.0"
+      },
+      "to": {
+        "part": "pot1",
+        "terminal": "wiper"
+      }
+    },
+    {
+      "id": "w_flat_3",
+      "netId": "bb1:n-col-t28",
+      "from": {
+        "part": "board",
+        "terminal": "P1.1"
+      },
+      "to": {
+        "part": "pot2",
+        "terminal": "wiper"
+      }
+    },
+    {
+      "id": "w_flat_4",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "board",
+        "terminal": "GND"
+      },
+      "to": {
+        "part": "gnd1",
+        "terminal": "gnd"
+      }
+    },
+    {
+      "id": "w_flat_5",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "board",
+        "terminal": "GND"
+      },
+      "to": {
+        "part": "pot1",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "w_flat_6",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "board",
+        "terminal": "GND"
+      },
+      "to": {
+        "part": "pot2",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "w_flat_7",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "board",
+        "terminal": "GND"
+      },
+      "to": {
+        "part": "r1",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "w_flat_8",
+      "netId": "bb1:rail-t+",
+      "from": {
+        "part": "board",
+        "terminal": "VCC"
+      },
+      "to": {
+        "part": "btn1",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "w_flat_9",
+      "netId": "bb1:rail-t+",
+      "from": {
+        "part": "board",
+        "terminal": "VCC"
+      },
+      "to": {
+        "part": "pot1",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "w_flat_10",
+      "netId": "bb1:rail-t+",
+      "from": {
+        "part": "board",
+        "terminal": "VCC"
+      },
+      "to": {
+        "part": "pot2",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "w_flat_11",
+      "netId": "bb1:rail-t+",
+      "from": {
+        "part": "board",
+        "terminal": "VCC"
+      },
+      "to": {
+        "part": "vcc1",
+        "terminal": "vcc"
+      }
+    }
+  ],
+  "holeWires": [],
+  "generated": "benchFor+authored"
+}

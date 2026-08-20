@@ -1,0 +1,267 @@
+{
+  "vcc": 5,
+  "parts": [
+    {
+      "id": "VCC",
+      "kind": "vcc",
+      "params": {},
+      "terminals": [
+        "vcc"
+      ],
+      "x": 80,
+      "y": 60
+    },
+    {
+      "id": "GND",
+      "kind": "gnd",
+      "params": {},
+      "terminals": [
+        "gnd"
+      ],
+      "x": 156,
+      "y": 60
+    },
+    {
+      "id": "MCU",
+      "kind": "attiny88",
+      "params": {},
+      "terminals": [
+        "pc4",
+        "pc5"
+      ],
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "pc6": "f3",
+          "pd0": "f4",
+          "pd1": "f5",
+          "pd2": "f6",
+          "pd3": "f7",
+          "pd4": "f8",
+          "vcc": "f9",
+          "gnd": "f10",
+          "pb6": "f11",
+          "pb7": "f12",
+          "pd5": "f13",
+          "pd6": "f14",
+          "pd7": "f15",
+          "pb0": "f16",
+          "pc7": "e16",
+          "pc5": "e15",
+          "pc4": "e14",
+          "pc3": "e13",
+          "pc2": "e12",
+          "pc1": "e11",
+          "pc0": "e10",
+          "pa0": "e9",
+          "avcc": "e8",
+          "pb5": "e7",
+          "pb4": "e6",
+          "pb3": "e5",
+          "pb2": "e4",
+          "pb1": "e3"
+        }
+      },
+      "x": 64,
+      "y": 349
+    },
+    {
+      "id": "R_PU_sda",
+      "kind": "resistor",
+      "params": {
+        "ohms": 4700
+      },
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "a": "a20",
+          "b": "a24"
+        }
+      },
+      "x": 302,
+      "y": 255
+    },
+    {
+      "id": "R_PU_scl",
+      "kind": "resistor",
+      "params": {
+        "ohms": 4700
+      },
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "a": "a26",
+          "b": "a30"
+        }
+      },
+      "x": 386,
+      "y": 255
+    },
+    {
+      "id": "LCD",
+      "kind": "char_lcd_i2c",
+      "params": {},
+      "terminals": [
+        "sda",
+        "scl",
+        "vcc",
+        "gnd"
+      ],
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "gnd": "a32",
+          "vcc": "a33",
+          "sda": "a34",
+          "scl": "a35"
+        }
+      },
+      "x": 470,
+      "y": 255
+    }
+  ],
+  "wires": [
+    {
+      "id": "w_flat_0",
+      "netId": "bb1:n-col-t14",
+      "from": {
+        "part": "LCD",
+        "terminal": "sda"
+      },
+      "to": {
+        "part": "MCU",
+        "terminal": "pc4"
+      }
+    },
+    {
+      "id": "w_flat_1",
+      "netId": "bb1:n-col-t14",
+      "from": {
+        "part": "LCD",
+        "terminal": "sda"
+      },
+      "to": {
+        "part": "R_PU_sda",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "w_flat_2",
+      "netId": "bb1:n-col-t15",
+      "from": {
+        "part": "LCD",
+        "terminal": "scl"
+      },
+      "to": {
+        "part": "MCU",
+        "terminal": "pc5"
+      }
+    },
+    {
+      "id": "w_flat_3",
+      "netId": "bb1:n-col-t15",
+      "from": {
+        "part": "LCD",
+        "terminal": "scl"
+      },
+      "to": {
+        "part": "R_PU_scl",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "w_flat_4",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "GND",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "LCD",
+        "terminal": "gnd"
+      }
+    },
+    {
+      "id": "w_flat_5",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "GND",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "MCU",
+        "terminal": "gnd"
+      }
+    },
+    {
+      "id": "w_flat_6",
+      "netId": "bb1:rail-t+",
+      "from": {
+        "part": "LCD",
+        "terminal": "vcc"
+      },
+      "to": {
+        "part": "MCU",
+        "terminal": "avcc"
+      }
+    },
+    {
+      "id": "w_flat_7",
+      "netId": "bb1:rail-t+",
+      "from": {
+        "part": "LCD",
+        "terminal": "vcc"
+      },
+      "to": {
+        "part": "MCU",
+        "terminal": "vcc"
+      }
+    },
+    {
+      "id": "w_flat_8",
+      "netId": "bb1:rail-t+",
+      "from": {
+        "part": "LCD",
+        "terminal": "vcc"
+      },
+      "to": {
+        "part": "R_PU_scl",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "w_flat_9",
+      "netId": "bb1:rail-t+",
+      "from": {
+        "part": "LCD",
+        "terminal": "vcc"
+      },
+      "to": {
+        "part": "R_PU_sda",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "w_flat_10",
+      "netId": "bb1:rail-t+",
+      "from": {
+        "part": "LCD",
+        "terminal": "vcc"
+      },
+      "to": {
+        "part": "VCC",
+        "terminal": "vcc"
+      }
+    }
+  ],
+  "holeWires": [],
+  "generated": "benchFor+seat"
+}
