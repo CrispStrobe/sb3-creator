@@ -5,7 +5,7 @@
 import { test, describe, afterEach } from 'node:test';
 import assert from 'node:assert/strict';
 import nodeVm from 'node:vm';
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import VM from 'scratch-vm';
@@ -22,6 +22,9 @@ console.warn = () => {};
 // (the same trick as scripts/gen-runtime-registry.mjs) and register the resulting instance
 // as an INTERNAL extension on the main thread, so the project loads and its blocks run.
 const REF = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'reference', 'extensions');
+const LOCAL_EXTENSIONS = new Set(readdirSync(REF)
+    .filter(file => file.endsWith('.js'))
+    .map(file => file.slice(0, -3)));
 const BlockType = { COMMAND: 'command', REPORTER: 'reporter', BOOLEAN: 'Boolean', HAT: 'hat', EVENT: 'event', CONDITIONAL: 'conditional', LOOP: 'loop', BUTTON: 'button', LABEL: 'label', XML: 'xml' };
 const ArgumentType = { NUMBER: 'number', STRING: 'string', BOOLEAN: 'Boolean', ANGLE: 'angle', COLOR: 'color', MATRIX: 'matrix', NOTE: 'note', IMAGE: 'image', COSTUME: 'costume', SOUND: 'sound' };
 const Cast = {
@@ -60,7 +63,8 @@ function patchExtensionManager (vm) {
     const em = vm.extensionManager;
     const orig = em.loadExtensionURL.bind(em);
     em.loadExtensionURL = (url) => {
-        const slug = ['arrays', 'planetemaths', 'stc12', 'devices'].find((s) => String(url).includes(s));
+        const slug = [...LOCAL_EXTENSIONS].find((name) =>
+            new RegExp(`(?:^|[/.-])${name}(?:[./?#-]|$)`).test(String(url)));
         if (slug) {
             const serviceName = em._registerInternalExtension(loadLocalExtension(slug, vm.runtime));
             em._loadedExtensions.set(url, serviceName);
@@ -119,6 +123,31 @@ for (const [name, code] of Object.entries(examples)) {
         assert.ok(vm.runtime.targets.some(t => t.isStage));
     });
 }
+
+// The hand-picked `src/utils/examples.js` programs above have deep behavioral
+// assertions below, but they are not the shipped Circuit Designer gallery.
+// Load and START every catalog program too: parse/codegen-only gates cannot see
+// a malformed SB3 archive, missing extension implementation, stale opcode, or
+// an exception in the first hardware block after Green Flag.
+const galleryRoot = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'examples');
+const galleryIndex = JSON.parse(readFileSync(path.join(galleryRoot, 'index.json'), 'utf8'));
+const galleryPrograms = galleryIndex.filter(entry => entry.files?.program);
+
+test(`vm: all ${galleryPrograms.length} shipped gallery programs load and start`, async () => {
+    const failures = [];
+    for (const entry of galleryPrograms) {
+        try {
+            const code = readFileSync(path.join(galleryRoot, entry.files.program), 'utf8');
+            const vm = await run(code, 8);
+            if (!vm.runtime.targets.some(target => target.isStage)) {
+                failures.push(`${entry.id}: project has no stage`);
+            }
+        } catch (error) {
+            failures.push(`${entry.id}: ${error && error.message || error}`);
+        }
+    }
+    assert.deepEqual(failures, []);
+});
 
 test('vm: custom block with args accumulates correctly', async () => {
     // add (n) times (k) adds n for i in 0..k inclusive.
