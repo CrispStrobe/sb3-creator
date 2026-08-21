@@ -14,8 +14,8 @@
    "id": "board",
    "kind": "arduino_uno",
    "params": {},
-   "x": 80,
-   "y": -60,
+   "x": 240,
+   "y": -12,
    "rotation": 0
   },
   {
@@ -123,15 +123,15 @@
    "params": {
     "volts": 5
    },
-   "x": 220,
-   "y": 60
+   "x": 498,
+   "y": 115
   },
   {
    "id": "gnd1",
    "kind": "gnd",
    "params": {},
-   "x": 360,
-   "y": 60
+   "x": 574,
+   "y": 115
   }
  ],
  "wires": [
@@ -170,16 +170,6 @@
    "fromTerminal": "cathode",
    "to": "gnd1",
    "toTerminal": "gnd"
-  },
-  {
-   "from": "gnd1",
-   "fromTerminal": "gnd",
-   "to": {
-    "board": "bb1",
-    "hole": "b-2"
-   },
-   "color": "black",
-   "genPower": true
   },
   {
    "from": "board",
@@ -228,6 +218,16 @@
    "fromTerminal": "gnd",
    "to": "led3",
    "toTerminal": "cathode"
+  },
+  {
+   "from": "gnd1",
+   "fromTerminal": "gnd",
+   "to": {
+    "board": "bb1",
+    "hole": "b-2"
+   },
+   "color": "black",
+   "genPower": true
   }
  ],
  "holeWires": [
@@ -274,5 +274,5 @@
    "color": "black"
   }
  ],
- "generated": "benchFor+authored"
+ "generated": "benchFor+authored+seat"
 }

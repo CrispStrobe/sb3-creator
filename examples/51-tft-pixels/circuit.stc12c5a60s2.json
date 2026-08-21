@@ -15,15 +15,15 @@
    "params": {
     "volts": 5
    },
-   "x": 80,
-   "y": 60
+   "x": 58,
+   "y": 115
   },
   {
    "id": "gnd1",
    "kind": "gnd",
    "params": {},
-   "x": 220,
-   "y": 60
+   "x": 134,
+   "y": 115
   },
   {
    "id": "mcu1",
@@ -83,18 +83,20 @@
    "kind": "ili9341",
    "declName": "tft",
    "params": {},
-   "x": 554,
+   "x": 386,
    "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "gnd": "a38",
-     "vcc": "a39",
-     "cs": "a40",
-     "dc": "a41",
-     "sck": "a42",
-     "mosi": "a43",
-     "led": "a44"
+     "vcc": "a26",
+     "gnd": "a27",
+     "cs": "a28",
+     "rst": "a29",
+     "dc": "a30",
+     "mosi": "a31",
+     "sck": "a32",
+     "miso": "a33",
+     "led": "a34"
     }
    }
   }
@@ -167,65 +169,66 @@
   {
    "ref": "bbw:bb1:gen_0",
    "boardId": "bb1",
-   "a": "a3",
-   "b": "b40",
-   "color": "white"
+   "a": "g3",
+   "b": "b28",
+   "color": "green"
   },
   {
    "ref": "bbw:bb1:gen_1",
    "boardId": "bb1",
-   "a": "a4",
-   "b": "b41",
-   "color": "green"
+   "a": "g4",
+   "b": "b30",
+   "color": "blue"
   },
   {
    "ref": "bbw:bb1:gen_2",
    "boardId": "bb1",
-   "a": "a5",
-   "b": "b42",
+   "a": "g5",
+   "b": "b32",
    "color": "yellow"
   },
   {
    "ref": "bbw:bb1:gen_3",
    "boardId": "bb1",
-   "a": "a6",
-   "b": "b43",
+   "a": "g6",
+   "b": "b31",
    "color": "orange"
   },
   {
    "ref": "bbw:bb1:gen_4",
    "boardId": "bb1",
-   "a": "b39",
-   "b": "t+39",
+   "a": "b26",
+   "b": "t+26",
    "color": "red"
   },
   {
    "ref": "bbw:bb1:gen_5",
    "boardId": "bb1",
-   "a": "b38",
-   "b": "b-38",
+   "a": "b27",
+   "b": "b-27",
    "color": "black"
   },
   {
    "ref": "bbw:bb1:gen_6",
+   "boardId": "bb1",
+   "a": "b34",
+   "b": "t+34",
+   "color": "red"
+  },
+  {
+   "ref": "bbw:bb1:gen_7",
    "boardId": "bb1",
    "a": "g22",
    "b": "b-22",
    "color": "black"
   },
   {
-   "ref": "bbw:bb1:gen_7",
+   "ref": "bbw:bb1:gen_8",
    "boardId": "bb1",
    "a": "a3",
    "b": "t+3",
    "color": "red"
-  },
-  {
-   "ref": "bbw:bb1:gen_8",
-   "boardId": "bb1",
-   "a": "b44",
-   "b": "t+44",
-   "color": "red"
   }
- ]
+ ],
+ "generated": "benchFor+seat"
 }

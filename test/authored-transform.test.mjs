@@ -6,7 +6,8 @@
 // These are assertions on the SHIPPED bench files, because the files are
 // what the app loads: every non-MCU part byte-identical to the authored
 // circuit, the MCU swapped to the target's designer kind, connectivity
-// re-expressed per retarget's pinMap.
+// re-expressed per retarget's pinMap. Generated seating may legitimately
+// change positions and seats while preserving that electrical identity.
 import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, existsSync } from 'fs';
@@ -32,13 +33,16 @@ describe('authored-circuit transform: the console survives a device pick', () =>
             const benchPath = join(EXAMPLES, id, `circuit.${device}.json`);
             assert.ok(existsSync(benchPath), `${device} bench exists`);
             const bench = JSON.parse(readFileSync(benchPath, 'utf8'));
-            assert.equal(bench.generated, 'benchFor+authored',
+            assert.match(bench.generated, /^benchFor\+authored(?:\+seat)?$/,
                 'marked as a transform, not a synthesis');
 
             // Part census: identical except the MCU kind swap.
             const census = (parts) => {
                 const m = {};
-                for (const p of parts) m[p.kind] = (m[p.kind] || 0) + 1;
+                for (const p of parts) {
+                    if (p.kind === 'breadboard') continue; // regenerated substrate, not a peripheral
+                    m[p.kind] = (m[p.kind] || 0) + 1;
+                }
                 return m;
             };
             const ca = census(authored.parts);
@@ -49,22 +53,25 @@ describe('authored-circuit transform: the console survives a device pick', () =>
             delete cb[targetKind];
             assert.deepEqual(cb, ca, 'every peripheral survives the pick');
 
-            // Every non-MCU part byte-identical (id, params, position, SEAT).
+            // Every non-MCU part is electrically identical. The seating pass
+            // is allowed to replace x/y and seat because it re-packs the real
+            // footprint onto a collision-free breadboard.
+            const electricalShape = ({x, y, seat, ...part}) => part;
             const aById = new Map(authored.parts
-                .filter((p) => p.kind !== authoredKind)
-                .map((p) => [p.id, JSON.stringify(p)]));
+                .filter((p) => p.kind !== authoredKind && p.kind !== 'breadboard')
+                .map((p) => [p.id, electricalShape(p)]));
             for (const p of bench.parts) {
-                if (p.kind === targetKind) continue;
-                assert.equal(JSON.stringify(p), aById.get(p.id),
-                    `${p.id} is byte-identical to the authored part`);
+                if (p.kind === targetKind || p.kind === 'breadboard') continue;
+                assert.deepEqual(electricalShape(p), aById.get(p.id),
+                    `${p.id} keeps its authored electrical identity`);
             }
 
-            // The swapped MCU floats (its authored seat was for a different
-            // footprint) and no wire references a terminal it lacks — the
-            // engine accepted the bench at generation time, which is the
-            // real guarantee; here we check the shape.
+            // A board without a breadboard footprint floats; a package with
+            // one is deliberately reseated. In either case the authored seat
+            // for a different footprint is never reused.
             const mcu = bench.parts.find((p) => p.kind === targetKind);
-            assert.ok(!mcu.seat, 'transformed MCU floats beside the bench');
+            if (targetKind === 'arduino_mega') assert.ok(!mcu.seat, 'Mega floats beside the bench');
+            else assert.ok(mcu.seat, 'breadboard MCU is reseated to its own footprint');
         });
     }
 

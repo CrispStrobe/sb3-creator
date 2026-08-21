@@ -17,8 +17,8 @@
    "terminals": [
     "vcc"
    ],
-   "x": 80,
-   "y": 60
+   "x": 58,
+   "y": 115
   },
   {
    "id": "GND",
@@ -27,8 +27,8 @@
    "terminals": [
     "gnd"
    ],
-   "x": 156,
-   "y": 60
+   "x": 134,
+   "y": 115
   },
   {
    "id": "MCU",
@@ -36,10 +36,12 @@
    "params": {},
    "terminals": [
     "a4",
-    "a5"
+    "a5",
+    "5v",
+    "gnd2"
    ],
-   "x": 232,
-   "y": 60
+   "x": 392,
+   "y": -12
   },
   {
    "id": "R_PU_sda",
@@ -51,15 +53,15 @@
     "a",
     "b"
    ],
+   "x": 64,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "a": "a3",
      "b": "a7"
     }
-   },
-   "x": 64,
-   "y": 255
+   }
   },
   {
    "id": "R_PU_scl",
@@ -71,15 +73,15 @@
     "a",
     "b"
    ],
+   "x": 148,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "a": "a9",
      "b": "a13"
     }
-   },
-   "x": 148,
-   "y": 255
+   }
   },
   {
    "id": "LCD",
@@ -91,6 +93,8 @@
     "vcc",
     "gnd"
    ],
+   "x": 232,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
@@ -99,9 +103,7 @@
      "sda": "a17",
      "scl": "a18"
     }
-   },
-   "x": 232,
-   "y": 255
+   }
   }
  ],
  "wires": [
@@ -156,6 +158,22 @@
   {
    "from": "VCC",
    "fromTerminal": "vcc",
+   "to": "MCU",
+   "toTerminal": "5v",
+   "color": "red",
+   "genPower": true
+  },
+  {
+   "from": "GND",
+   "fromTerminal": "gnd",
+   "to": "MCU",
+   "toTerminal": "gnd2",
+   "color": "black",
+   "genPower": true
+  },
+  {
+   "from": "VCC",
+   "fromTerminal": "vcc",
    "to": {
     "board": "bb1",
     "hole": "t+2"
@@ -202,20 +220,6 @@
    "a": "b15",
    "b": "b-15",
    "color": "black"
-  },
-  {
-   "ref": "bbw:bb1:gen_4",
-   "boardId": "bb1",
-   "a": "c15",
-   "b": "b-15",
-   "color": "black"
-  },
-  {
-   "ref": "bbw:bb1:gen_5",
-   "boardId": "bb1",
-   "a": "c16",
-   "b": "t+16",
-   "color": "red"
   }
  ],
  "generated": "benchFor+seat"

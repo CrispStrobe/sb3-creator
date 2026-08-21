@@ -74,16 +74,16 @@
    "id": "vcc1",
    "kind": "vcc",
    "params": {},
-   "x": 80,
-   "y": 60,
+   "x": 58,
+   "y": 115,
    "rotation": 0
   },
   {
    "id": "gnd1",
    "kind": "gnd",
    "params": {},
-   "x": 156,
-   "y": 60,
+   "x": 134,
+   "y": 115,
    "rotation": 0
   }
  ],
@@ -217,44 +217,16 @@
   {
    "ref": "bbw:bb1:gen_8",
    "boardId": "bb1",
-   "a": "d6",
-   "b": "b-6",
-   "color": "black"
-  },
-  {
-   "ref": "bbw:bb1:gen_9",
-   "boardId": "bb1",
    "a": "g4",
    "b": "b-4",
    "color": "black"
   },
   {
-   "ref": "bbw:bb1:gen_10",
-   "boardId": "bb1",
-   "a": "i6",
-   "b": "t+6",
-   "color": "red"
-  },
-  {
-   "ref": "bbw:bb1:gen_11",
+   "ref": "bbw:bb1:gen_9",
    "boardId": "bb1",
    "a": "g16",
    "b": "t+16",
    "color": "red"
-  },
-  {
-   "ref": "bbw:bb1:gen_12",
-   "boardId": "bb1",
-   "a": "d21",
-   "b": "t+21",
-   "color": "red"
-  },
-  {
-   "ref": "bbw:bb1:gen_13",
-   "boardId": "bb1",
-   "a": "d22",
-   "b": "b-22",
-   "color": "black"
   }
  ],
  "generated": "benchFor+authored+seat"

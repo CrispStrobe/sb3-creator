@@ -3395,7 +3395,7 @@ class SB3Creator {
                 return ret(block);
             }
             if (/^display\s+clear\s*$/i.test(line)) {
-                const { id, block } = cmd('spikeprime_displayClear');
+                const { block } = cmd('spikeprime_displayClear');
                 return ret(block);
             }
         }
@@ -3446,7 +3446,7 @@ class SB3Creator {
             return ret(block);
         }
         if (/^stop\s+movement\s*$/i.test(line)) {
-            const { id, block } = cmd('spikeprime_stopMovement');
+            const { block } = cmd('spikeprime_stopMovement');
             return ret(block);
         }
         // ---- Spike Prime pixel/sound/IMU commands ----
@@ -3471,16 +3471,16 @@ class SB3Creator {
             return ret(block);
         }
         if (/^stop\s+sound\s*$/i.test(line)) {
-            const { id, block } = cmd('spikeprime_stopSound');
+            const { block } = cmd('spikeprime_stopSound');
             return ret(block);
         }
         // ---- Spike Prime IMU commands ----
         if (/^reset\s+yaw\s*$/i.test(line)) {
-            const { id, block } = cmd('spikeprime_resetYaw');
+            const { block } = cmd('spikeprime_resetYaw');
             return ret(block);
         }
         if (/^reset\s+spike\s+timer\s*$/i.test(line)) {
-            const { id, block } = cmd('spikeprime_resetTimer');
+            const { block } = cmd('spikeprime_resetTimer');
             return ret(block);
         }
         // ---- Circuit extension commands (boundary B) --------------------------------

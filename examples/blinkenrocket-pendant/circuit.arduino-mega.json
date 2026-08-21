@@ -14,8 +14,8 @@
    "id": "mcu",
    "kind": "arduino_mega",
    "params": {},
-   "x": 80,
-   "y": -60,
+   "x": 323,
+   "y": -5,
    "rotation": 0
   },
   {
@@ -27,27 +27,27 @@
     "colActiveHigh": false,
     "rowActiveHigh": true
    },
-   "x": 302,
+   "x": 64,
    "y": 311,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "col0": "e20",
-     "col1": "e21",
-     "col2": "e22",
-     "col3": "e23",
-     "col4": "e24",
-     "col5": "e25",
-     "col6": "e26",
-     "col7": "e27",
-     "row0": "f20",
-     "row1": "f21",
-     "row2": "f22",
-     "row3": "f23",
-     "row4": "f24",
-     "row5": "f25",
-     "row6": "f26",
-     "row7": "f27"
+     "col0": "e3",
+     "col1": "e4",
+     "col2": "e5",
+     "col3": "e6",
+     "col4": "e7",
+     "col5": "e8",
+     "col6": "e9",
+     "col7": "e10",
+     "row0": "f3",
+     "row1": "f4",
+     "row2": "f5",
+     "row3": "f6",
+     "row4": "f7",
+     "row5": "f8",
+     "row6": "f9",
+     "row7": "f10"
     }
    }
   },
@@ -56,13 +56,13 @@
    "kind": "button",
    "declName": "btnLeft",
    "params": {},
-   "x": 624,
+   "x": 386,
    "y": 311,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "e43",
-     "b": "f43"
+     "a": "e26",
+     "b": "f26"
     }
    }
   },
@@ -71,13 +71,13 @@
    "kind": "button",
    "declName": "btnRight",
    "params": {},
-   "x": 680,
+   "x": 442,
    "y": 311,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "e47",
-     "b": "f47"
+     "a": "e30",
+     "b": "f30"
     }
    }
   },
@@ -87,13 +87,13 @@
    "params": {
     "ohms": 10000
    },
-   "x": 456,
+   "x": 218,
    "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a31",
-     "b": "a35"
+     "a": "a14",
+     "b": "a18"
     }
    }
   },
@@ -103,13 +103,13 @@
    "params": {
     "ohms": 10000
    },
-   "x": 540,
+   "x": 302,
    "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a37",
-     "b": "a41"
+     "a": "a20",
+     "b": "a24"
     }
    }
   },
@@ -119,15 +119,15 @@
    "params": {
     "volts": 5
    },
-   "x": 80,
-   "y": 60
+   "x": 664,
+   "y": 115
   },
   {
    "id": "gnd1",
    "kind": "gnd",
    "params": {},
-   "x": 220,
-   "y": 60
+   "x": 740,
+   "y": 115
   }
  ],
  "wires": [
@@ -154,26 +154,6 @@
    "fromTerminal": "b",
    "to": "gnd1",
    "toTerminal": "gnd"
-  },
-  {
-   "from": "vcc1",
-   "fromTerminal": "vcc",
-   "to": {
-    "board": "bb1",
-    "hole": "t+2"
-   },
-   "color": "red",
-   "genPower": true
-  },
-  {
-   "from": "gnd1",
-   "fromTerminal": "gnd",
-   "to": {
-    "board": "bb1",
-    "hole": "b-2"
-   },
-   "color": "black",
-   "genPower": true
   },
   {
    "from": "mcu",
@@ -330,37 +310,57 @@
    "fromTerminal": "5v",
    "to": "vcc1",
    "toTerminal": "vcc"
+  },
+  {
+   "from": "vcc1",
+   "fromTerminal": "vcc",
+   "to": {
+    "board": "bb1",
+    "hole": "t+2"
+   },
+   "color": "red",
+   "genPower": true
+  },
+  {
+   "from": "gnd1",
+   "fromTerminal": "gnd",
+   "to": {
+    "board": "bb1",
+    "hole": "b-2"
+   },
+   "color": "black",
+   "genPower": true
   }
  ],
  "holeWires": [
   {
-   "ref": "bbw:bb1:gen_16",
+   "ref": "bbw:bb1:gen_0",
    "boardId": "bb1",
-   "a": "a43",
-   "b": "t+43",
+   "a": "a26",
+   "b": "t+26",
    "color": "red"
   },
   {
-   "ref": "bbw:bb1:gen_19",
+   "ref": "bbw:bb1:gen_1",
    "boardId": "bb1",
-   "a": "b35",
-   "b": "b-35",
+   "a": "b18",
+   "b": "b-18",
    "color": "black"
   },
   {
-   "ref": "bbw:bb1:gen_20",
+   "ref": "bbw:bb1:gen_2",
    "boardId": "bb1",
-   "a": "a47",
-   "b": "t+47",
+   "a": "a30",
+   "b": "t+30",
    "color": "red"
   },
   {
-   "ref": "bbw:bb1:gen_23",
+   "ref": "bbw:bb1:gen_3",
    "boardId": "bb1",
-   "a": "b41",
-   "b": "b-41",
+   "a": "b24",
+   "b": "b-24",
    "color": "black"
   }
  ],
- "generated": "benchFor+authored"
+ "generated": "benchFor+authored+seat"
 }
