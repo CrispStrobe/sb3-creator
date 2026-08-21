@@ -11,6 +11,8 @@
 //   node scripts/gen-device-benches.mjs seat    — seat every unseated
 //     generated bench via the cui seat generator (nets→wires bridge,
 //     scratch dirs under /tmp/wore-batch).
+//   node scripts/gen-device-benches.mjs seat --reseat — deliberately rebuild
+//     every generated bench after a geometry/power seating migration.
 //   node scripts/gen-device-benches.mjs index   — regenerate the benches
 //     map in examples/index.json from the filesystem (the picker's
 //     contract; never hand-maintained).
@@ -131,11 +133,12 @@ async function batch() {
 
 function seat() {
   const seatgen = path.join(CUI, 'scripts/seat-examples.mjs');
+  const reseatExisting = process.argv.includes('--reseat');
   let seated = 0, failed = 0, unseated = 0;
   for (const f of fs.globSync ? fs.globSync('examples/*/circuit.*.json')
       : require('glob').sync('examples/*/circuit.*.json')) {
     const d = JSON.parse(fs.readFileSync(f, 'utf8'));
-    if (d.parts.some(p => p.seat)) continue;
+    if (!reseatExisting && d.parts.some(p => p.seat)) continue;
     const exid = f.split(path.sep)[1];
     const device = path.basename(f).replace('circuit.', '').replace('.json', '');
     // Wires-form benches (the authored-circuit transforms) keep their
@@ -162,7 +165,7 @@ function seat() {
     // UNSEATED (owner screenshot: buttons hovering between boards, no
     // visible wiring anywhere).
     const args = [seatgen, '--examples', `/tmp/wore-batch/${exid}-${device}`, '--only', exid];
-    if (d.parts.some((p) => p.kind === 'breadboard')) args.push('--reseat');
+    if (reseatExisting || d.parts.some((p) => p.kind === 'breadboard')) args.push('--reseat');
     const outText = execFileSync('node', args, { encoding: 'utf8' });
     // Success is SEATS IN THE OUTPUT, not a substring: the old
     // outText.includes('seated') matched the summary line even on a
@@ -207,4 +210,4 @@ function index() {
 if (cmd === 'batch') await batch();
 else if (cmd === 'seat') seat();
 else if (cmd === 'index') index();
-else { console.error('usage: gen-device-benches.mjs batch|seat|index'); process.exit(1); }
+else { console.error('usage: gen-device-benches.mjs batch|seat [--reseat]|index'); process.exit(1); }
