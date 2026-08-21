@@ -34,6 +34,60 @@ const Cast = {
     compare: (a, b) => { const na = Number(a), nb = Number(b); if (!Number.isNaN(na) && !Number.isNaN(nb)) return na - nb; const sa = String(a).toLowerCase(), sb = String(b).toLowerCase(); return sa < sb ? -1 : sa > sb ? 1 : 0; },
     toListIndex: (i, len) => { const n = Math.floor(Number(i)); return (n < 1 || n > len) ? 0 : n; }
 };
+
+// These extensions are built directly into brickwright-lite's scratch-vm, so there is
+// intentionally no standalone script for the upstream VM to fetch. Register a small,
+// explicit headless implementation here. Keeping the opcode inventory explicit matters:
+// a misspelled or newly unsupported generated opcode must still make the corpus gate fail.
+const HEADLESS_BUILTINS = {
+    bitops: {
+        reporter: ['and', 'or', 'xor', 'not', 'shl', 'shr'],
+        methods: {
+            and: a => (Number(a.NUM1) | 0) & (Number(a.NUM2) | 0),
+            or: a => (Number(a.NUM1) | 0) | (Number(a.NUM2) | 0),
+            xor: a => (Number(a.NUM1) | 0) ^ (Number(a.NUM2) | 0),
+            not: a => ~(Number(a.NUM) | 0),
+            shl: a => (Number(a.NUM1) | 0) << (Number(a.NUM2) | 0),
+            shr: a => (Number(a.NUM1) | 0) >> (Number(a.NUM2) | 0)
+        }
+    },
+    microbitplus: {
+        command: ['showmatrix', 'showtext', 'scrolltext', 'cleardisplay', 'plot',
+            'digitalwrite', 'analogwrite', 'setpull', 'playtone', 'playnote', 'stoptone',
+            'servo', 'servocont', 'radioon', 'radiosendnum', 'radiosendstr', 'radiosendkv'],
+        reporter: ['accel', 'pitch', 'roll', 'compass', 'magforce', 'light', 'temp', 'sound',
+            'digitalread', 'analogread', 'radiolastnum', 'radiolaststr'],
+        boolean: ['isbutton', 'isgesture', 'ispinhigh', 'istouch'],
+        hat: ['whenbutton', 'whenlogo', 'whengesture', 'whenconn', 'whenradionum',
+            'whenradiostr', 'whentouch']
+    },
+    spikeprime: {
+        command: ['motorStart', 'motorStop', 'displayText', 'displayClear'],
+        reporter: ['getDistance']
+    }
+};
+function loadHeadlessBuiltin (id) {
+    const spec = HEADLESS_BUILTINS[id];
+    if (!spec) return null;
+    const instance = {
+        getInfo: () => ({
+            id,
+            name: id,
+            blocks: Object.entries({
+                command: BlockType.COMMAND, reporter: BlockType.REPORTER,
+                boolean: BlockType.BOOLEAN, hat: BlockType.HAT
+            }).flatMap(([kind, blockType]) => (spec[kind] || []).map(opcode => ({
+                opcode, blockType, text: opcode
+            })))
+        })
+    };
+    for (const opcode of spec.command || []) instance[opcode] = () => undefined;
+    for (const opcode of spec.reporter || []) instance[opcode] = () => 0;
+    for (const opcode of spec.boolean || []) instance[opcode] = () => false;
+    for (const opcode of spec.hat || []) instance[opcode] = () => false;
+    Object.assign(instance, spec.methods || {});
+    return instance;
+}
 function permissive () {
     const p = new Proxy(function () {}, {
         get: (_, k) => { if (k === Symbol.toPrimitive) return () => ''; if (k === Symbol.toStringTag) return 'Object'; if (k === Symbol.iterator) return function* () {}; if (k === 'valueOf') return () => 0; if (k === 'toString') return () => ''; if (k === 'then') return undefined; return p; },
@@ -63,6 +117,12 @@ function patchExtensionManager (vm) {
     const em = vm.extensionManager;
     const orig = em.loadExtensionURL.bind(em);
     em.loadExtensionURL = (url) => {
+        const builtin = loadHeadlessBuiltin(String(url));
+        if (builtin) {
+            const serviceName = em._registerInternalExtension(builtin);
+            em._loadedExtensions.set(url, serviceName);
+            return Promise.resolve();
+        }
         const slug = [...LOCAL_EXTENSIONS].find((name) =>
             new RegExp(`(?:^|[/.-])${name}(?:[./?#-]|$)`).test(String(url)));
         if (slug) {
