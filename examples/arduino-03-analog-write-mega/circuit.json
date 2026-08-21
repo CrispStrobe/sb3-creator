@@ -14,8 +14,8 @@
    "id": "board",
    "kind": "arduino_mega",
    "declName": "board",
-   "x": 80,
-   "y": 60,
+   "x": 470,
+   "y": -5,
    "params": {}
   },
   {

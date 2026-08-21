@@ -49,8 +49,8 @@
      "A9"
     ]
    },
-   "x": 360,
-   "y": 60
+   "x": 470,
+   "y": -5
   }
  ],
  "wires": [
@@ -91,6 +91,18 @@
    },
    "color": "red",
    "genPower": true
+  },
+  {
+   "from": "vcc1",
+   "fromTerminal": "vcc",
+   "to": "mcu1",
+   "toTerminal": "5v"
+  },
+  {
+   "from": "gnd1",
+   "fromTerminal": "gnd",
+   "to": "mcu1",
+   "toTerminal": "gnd2"
   }
  ],
  "holeWires": [

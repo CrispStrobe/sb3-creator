@@ -35,9 +35,11 @@ const bounds = (part, width, height) => ({
 const overlaps = (a, b) => a.minX < b.maxX && a.maxX > b.minX &&
   a.minY < b.maxY && a.maxY > b.minY;
 
-test('generated controller benches have finite, non-overlapping, powered boards', () => {
+test('all controller benches have finite, non-overlapping, powered boards', () => {
   const failures = [];
-  const files = fs.globSync('examples/*/circuit.*.json');
+  // Include authored circuit.json as well as generated device variants.
+  // The old suffix-only glob let legacy primary boards overlap forever.
+  const files = fs.globSync('examples/*/circuit*.json');
   for (const file of files) {
     const circuit = JSON.parse(fs.readFileSync(file, 'utf8'));
     for (const part of circuit.parts || []) {

@@ -58,8 +58,8 @@
      "D13"
     ]
    },
-   "x": 220,
-   "y": 60
+   "x": 470,
+   "y": -5
   }
  ],
  "wires": [
@@ -90,6 +90,12 @@
    },
    "color": "black",
    "genPower": true
+  },
+  {
+   "from": "gnd1",
+   "fromTerminal": "gnd",
+   "to": "mcu1",
+   "toTerminal": "gnd2"
   }
  ],
  "holeWires": [
