@@ -122,6 +122,22 @@ describe('bench invariants: every device bench, canonical loader', { skip: avail
         }
       }
 
+      // Suppression is required in passive lessons too. Checking this before
+      // the MCU reachability early-return closes the blind spot that let
+      // hand-authored relay and motor circuits ship without flyback diodes.
+      if (!rel.startsWith('33-inductive-no-flyback/') && !rel.startsWith('pc26-motor-clamp/')) {
+        for (const load of bparts.filter(p => p.kind === 'dc_motor' || p.kind === 'relay')) {
+          const lowTerm = load.kind === 'relay' ? 'coil_b' : 'b';
+          const highTerm = load.kind === 'relay' ? 'coil_a' : 'a';
+          const low = bnets.find(n => n.terminals.some(t => t.part === load.id && t.terminal === lowTerm));
+          const high = bnets.find(n => n.terminals.some(t => t.part === load.id && t.terminal === highTerm));
+          const protectedBy = bparts.filter(p => p.kind === 'diode').find(diode =>
+            low?.terminals.some(t => t.part === diode.id && t.terminal === 'anode') &&
+            high?.terminals.some(t => t.part === diode.id && t.terminal === 'cathode'));
+          if (!protectedBy) problems.push(`${rel}: ${load.id} has no correctly oriented flyback diode`);
+        }
+      }
+
       // A device-suffixed bench NAMES a chip, so a missing MCU is a real
       // defect. The primary circuit.json need not have one at all: the gallery
       // ships passive examples (vsource|resistor|led, RC charge, diode
@@ -158,22 +174,6 @@ describe('bench invariants: every device bench, canonical loader', { skip: avail
       for (const p of bparts) {
         if (STRUCTURAL.has(p.kind) || p.id === mcu.id) continue;
         if (!seen.has(p.id)) problems.push(`${rel}: ${p.id} (${p.kind}) unreachable from the MCU`);
-      }
-
-      // Generated inductive drivers are safe by construction. The one
-      // explicitly unsafe lesson is allowed to omit its diode; every normal
-      // motor/relay bench must put a diode across the load, cathode to supply.
-      if (!rel.startsWith('33-inductive-no-flyback/')) {
-        for (const load of bparts.filter(p => p.kind === 'dc_motor' || p.kind === 'relay')) {
-          const lowTerm = load.kind === 'relay' ? 'coil_b' : 'b';
-          const highTerm = load.kind === 'relay' ? 'coil_a' : 'a';
-          const low = bnets.find(n => n.terminals.some(t => t.part === load.id && t.terminal === lowTerm));
-          const high = bnets.find(n => n.terminals.some(t => t.part === load.id && t.terminal === highTerm));
-          const protectedBy = bparts.filter(p => p.kind === 'diode').find(diode =>
-            low?.terminals.some(t => t.part === diode.id && t.terminal === 'anode') &&
-            high?.terminals.some(t => t.part === diode.id && t.terminal === 'cathode'));
-          if (!protectedBy) problems.push(`${rel}: ${load.id} has no correctly oriented flyback diode`);
-        }
       }
 
       // An MCU GPIO directly in a power net is a SHORT: the Pico's SWD

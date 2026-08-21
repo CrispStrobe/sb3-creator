@@ -99,6 +99,20 @@
      "cathode": "a22"
     }
    }
+  },
+  {
+   "id": "flyback",
+   "kind": "diode",
+   "params": {},
+   "x": 64,
+   "y": 405,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "anode": "f4",
+     "cathode": "f3"
+    }
+   }
   }
  ],
  "wires": [
@@ -149,6 +163,18 @@
    "fromTerminal": "neg",
    "to": "gnd1",
    "toTerminal": "gnd"
+  },
+  {
+   "from": "flyback",
+   "fromTerminal": "anode",
+   "to": "relay1",
+   "toTerminal": "coil_b"
+  },
+  {
+   "from": "flyback",
+   "fromTerminal": "cathode",
+   "to": "relay1",
+   "toTerminal": "coil_a"
   },
   {
    "from": "coil_v",
@@ -213,6 +239,20 @@
    "a": "b22",
    "b": "b-22",
    "color": "black"
+  },
+  {
+   "ref": "bbw:bb1:flyback_anode",
+   "boardId": "bb1",
+   "a": "g4",
+   "b": "b4",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb1:flyback_cathode",
+   "boardId": "bb1",
+   "a": "g3",
+   "b": "b3",
+   "color": "red"
   }
  ]
 }
