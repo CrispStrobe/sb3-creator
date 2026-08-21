@@ -173,7 +173,7 @@ function seat() {
     // it unseated.
     const seatedD = JSON.parse(fs.readFileSync(path.join(scratch, 'circuit.json'), 'utf8'));
     if (seatedD.parts.some((p) => p.seat)) {
-      seatedD.generated = d.generated === 'benchFor+authored'
+      seatedD.generated = String(d.generated || '').includes('authored')
         ? 'benchFor+authored+seat' : 'benchFor+seat';
       fs.writeFileSync(f, JSON.stringify(seatedD, null, 1));
       seated++;

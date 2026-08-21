@@ -14,8 +14,8 @@
    "id": "board",
    "kind": "arduino_mega",
    "params": {},
-   "x": 80,
-   "y": -60,
+   "x": 323,
+   "y": -5,
    "rotation": 0
   },
   {
@@ -25,14 +25,14 @@
    "params": {
     "ohms": 10000
    },
-   "x": 302,
+   "x": 64,
    "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a20",
-     "wiper": "a22",
-     "b": "a24"
+     "a": "a3",
+     "wiper": "a5",
+     "b": "a7"
     }
    }
   },
@@ -43,14 +43,14 @@
    "params": {
     "ohms": 10000
    },
-   "x": 386,
+   "x": 148,
    "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a26",
-     "wiper": "a28",
-     "b": "a30"
+     "a": "a9",
+     "wiper": "a11",
+     "b": "a13"
     }
    }
   },
@@ -61,14 +61,14 @@
    "params": {
     "ohms": 10000
    },
-   "x": 470,
+   "x": 232,
    "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a32",
-     "wiper": "a34",
-     "b": "a36"
+     "a": "a15",
+     "wiper": "a17",
+     "b": "a19"
     }
    }
   },
@@ -77,15 +77,15 @@
    "kind": "rgb_led",
    "declName": "rgb",
    "params": {},
-   "x": 806,
+   "x": 568,
    "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "r_anode": "a56",
-     "cathode": "a57",
-     "g_anode": "a58",
-     "b_anode": "a59"
+     "r_anode": "a39",
+     "cathode": "a40",
+     "g_anode": "a41",
+     "b_anode": "a42"
     }
    }
   },
@@ -95,13 +95,13 @@
    "params": {
     "ohms": 220
    },
-   "x": 554,
+   "x": 316,
    "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a38",
-     "b": "a42"
+     "a": "a21",
+     "b": "a25"
     }
    }
   },
@@ -111,13 +111,13 @@
    "params": {
     "ohms": 220
    },
-   "x": 638,
+   "x": 400,
    "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a44",
-     "b": "a48"
+     "a": "a27",
+     "b": "a31"
     }
    }
   },
@@ -127,13 +127,13 @@
    "params": {
     "ohms": 220
    },
-   "x": 722,
+   "x": 484,
    "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a50",
-     "b": "a54"
+     "a": "a33",
+     "b": "a37"
     }
    }
   },
@@ -143,15 +143,15 @@
    "params": {
     "volts": 5
    },
-   "x": 80,
-   "y": 60
+   "x": 664,
+   "y": 115
   },
   {
    "id": "gnd1",
    "kind": "gnd",
    "params": {},
-   "x": 220,
-   "y": 60
+   "x": 740,
+   "y": 115
   }
  ],
  "wires": [
@@ -214,26 +214,6 @@
    "fromTerminal": "cathode",
    "to": "gnd1",
    "toTerminal": "gnd"
-  },
-  {
-   "from": "vcc1",
-   "fromTerminal": "vcc",
-   "to": {
-    "board": "bb1",
-    "hole": "t+2"
-   },
-   "color": "red",
-   "genPower": true
-  },
-  {
-   "from": "gnd1",
-   "fromTerminal": "gnd",
-   "to": {
-    "board": "bb1",
-    "hole": "b-2"
-   },
-   "color": "black",
-   "genPower": true
   },
   {
    "from": "board",
@@ -324,58 +304,78 @@
    "fromTerminal": "5v",
    "to": "vcc1",
    "toTerminal": "vcc"
+  },
+  {
+   "from": "vcc1",
+   "fromTerminal": "vcc",
+   "to": {
+    "board": "bb1",
+    "hole": "t+2"
+   },
+   "color": "red",
+   "genPower": true
+  },
+  {
+   "from": "gnd1",
+   "fromTerminal": "gnd",
+   "to": {
+    "board": "bb1",
+    "hole": "b-2"
+   },
+   "color": "black",
+   "genPower": true
   }
  ],
  "holeWires": [
   {
    "ref": "bbw:bb1:gen_0",
    "boardId": "bb1",
-   "a": "b20",
-   "b": "t+20",
+   "a": "b3",
+   "b": "t+3",
    "color": "red"
   },
   {
    "ref": "bbw:bb1:gen_1",
    "boardId": "bb1",
-   "a": "b24",
-   "b": "b-24",
+   "a": "b7",
+   "b": "b-7",
    "color": "black"
   },
   {
    "ref": "bbw:bb1:gen_2",
    "boardId": "bb1",
-   "a": "b26",
-   "b": "t+26",
+   "a": "b9",
+   "b": "t+9",
    "color": "red"
   },
   {
    "ref": "bbw:bb1:gen_3",
    "boardId": "bb1",
-   "a": "b30",
-   "b": "b-30",
+   "a": "b13",
+   "b": "b-13",
    "color": "black"
   },
   {
    "ref": "bbw:bb1:gen_4",
    "boardId": "bb1",
-   "a": "b32",
-   "b": "t+32",
+   "a": "b15",
+   "b": "t+15",
    "color": "red"
   },
   {
    "ref": "bbw:bb1:gen_5",
    "boardId": "bb1",
-   "a": "b36",
-   "b": "b-36",
+   "a": "b19",
+   "b": "b-19",
    "color": "black"
   },
   {
    "ref": "bbw:bb1:gen_6",
    "boardId": "bb1",
-   "a": "b57",
-   "b": "b-57",
+   "a": "b40",
+   "b": "b-40",
    "color": "black"
   }
  ],
- "generated": "benchFor+authored"
+ "generated": "benchFor+authored+seat"
 }

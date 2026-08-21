@@ -14,15 +14,15 @@
    "id": "vcc1",
    "kind": "vcc",
    "params": {},
-   "x": 80,
-   "y": 60
+   "x": 58,
+   "y": 115
   },
   {
    "id": "gnd1",
    "kind": "gnd",
    "params": {},
-   "x": 220,
-   "y": 60
+   "x": 134,
+   "y": 115
   },
   {
    "id": "r1",
@@ -94,9 +94,54 @@
    "id": "mcu1",
    "kind": "pi_pico",
    "params": {},
-   "x": 80,
-   "y": -60,
-   "rotation": 0
+   "x": 64,
+   "y": 255,
+   "rotation": 0,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "gp0": "a3",
+     "gp1": "a4",
+     "gnd_1": "a5",
+     "gp2": "a6",
+     "gp3": "a7",
+     "gp4": "a8",
+     "gp5": "a9",
+     "gnd_2": "a10",
+     "gp6": "a11",
+     "gp7": "a12",
+     "gp8": "a13",
+     "gp9": "a14",
+     "gnd_3": "a15",
+     "gp10": "a16",
+     "gp11": "a17",
+     "gp12": "a18",
+     "gp13": "a19",
+     "gnd_4": "a20",
+     "gp14": "a21",
+     "gp15": "a22",
+     "vbus": "f3",
+     "vsys": "f4",
+     "gnd_5": "f5",
+     "3v3_en": "f6",
+     "3v3": "f7",
+     "adc_vref": "f8",
+     "gp28": "f9",
+     "agnd": "f10",
+     "gp27": "f11",
+     "gp26": "f12",
+     "run": "f13",
+     "gp22": "f14",
+     "gnd_6": "f15",
+     "gp21": "f16",
+     "gp20": "f17",
+     "gp19": "f18",
+     "gp18": "f19",
+     "gnd_7": "f20",
+     "gp17": "f21",
+     "gp16": "f22"
+    }
+   }
   }
  ],
  "wires": [
@@ -123,26 +168,6 @@
    "fromTerminal": "cathode",
    "to": "gnd1",
    "toTerminal": "gnd"
-  },
-  {
-   "from": "vcc1",
-   "fromTerminal": "vcc",
-   "to": {
-    "board": "bb1",
-    "hole": "t+2"
-   },
-   "color": "red",
-   "genPower": true
-  },
-  {
-   "from": "gnd1",
-   "fromTerminal": "gnd",
-   "to": {
-    "board": "bb1",
-    "hole": "b-2"
-   },
-   "color": "black",
-   "genPower": true
   },
   {
    "from": "mcu1",
@@ -179,6 +204,26 @@
    "fromTerminal": "vsys",
    "to": "vcc1",
    "toTerminal": "vcc"
+  },
+  {
+   "from": "vcc1",
+   "fromTerminal": "vcc",
+   "to": {
+    "board": "bb1",
+    "hole": "t+2"
+   },
+   "color": "red",
+   "genPower": true
+  },
+  {
+   "from": "gnd1",
+   "fromTerminal": "gnd",
+   "to": {
+    "board": "bb1",
+    "hole": "b-2"
+   },
+   "color": "black",
+   "genPower": true
   }
  ],
  "holeWires": [
@@ -197,19 +242,117 @@
    "color": "green"
   },
   {
-   "ref": "bbw:bb1:gen_4",
+   "ref": "bbw:bb1:gen_2",
    "boardId": "bb1",
    "a": "b36",
    "b": "b41",
-   "color": "orange"
+   "color": "blue"
   },
   {
-   "ref": "bbw:bb1:gen_5",
+   "ref": "bbw:bb1:gen_3",
    "boardId": "bb1",
    "a": "b42",
    "b": "b-42",
    "color": "black"
+  },
+  {
+   "ref": "bbw:bb1:gen_4",
+   "boardId": "bb1",
+   "a": "b22",
+   "b": "b32",
+   "color": "yellow"
+  },
+  {
+   "ref": "bbw:bb1:gen_5",
+   "boardId": "bb1",
+   "a": "b5",
+   "b": "b-5",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb1:gen_6",
+   "boardId": "bb1",
+   "a": "c5",
+   "b": "c42",
+   "color": "orange"
+  },
+  {
+   "ref": "bbw:bb1:gen_7",
+   "boardId": "bb1",
+   "a": "g4",
+   "b": "c26",
+   "color": "purple"
+  },
+  {
+   "ref": "bbw:bb1:gen_8",
+   "boardId": "bb1",
+   "a": "h4",
+   "b": "t+4",
+   "color": "red"
+  },
+  {
+   "ref": "bbw:bb1:gen_9",
+   "boardId": "bb1",
+   "a": "b10",
+   "b": "b-10",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb1:gen_10",
+   "boardId": "bb1",
+   "a": "b15",
+   "b": "b-15",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb1:gen_11",
+   "boardId": "bb1",
+   "a": "b20",
+   "b": "b-20",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb1:gen_12",
+   "boardId": "bb1",
+   "a": "g3",
+   "b": "t+3",
+   "color": "red"
+  },
+  {
+   "ref": "bbw:bb1:gen_13",
+   "boardId": "bb1",
+   "a": "g5",
+   "b": "b-5",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb1:gen_14",
+   "boardId": "bb1",
+   "a": "g7",
+   "b": "t+7",
+   "color": "red"
+  },
+  {
+   "ref": "bbw:bb1:gen_15",
+   "boardId": "bb1",
+   "a": "g10",
+   "b": "b-10",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb1:gen_16",
+   "boardId": "bb1",
+   "a": "g15",
+   "b": "b-15",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb1:gen_17",
+   "boardId": "bb1",
+   "a": "g20",
+   "b": "b-20",
+   "color": "black"
   }
  ],
- "generated": "benchFor+authored"
+ "generated": "benchFor+authored+seat"
 }

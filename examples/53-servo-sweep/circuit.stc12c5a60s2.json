@@ -17,8 +17,8 @@
    "terminals": [
     "vcc"
    ],
-   "x": 80,
-   "y": 60
+   "x": 58,
+   "y": 115
   },
   {
    "id": "GND",
@@ -27,8 +27,8 @@
    "terminals": [
     "gnd"
    ],
-   "x": 156,
-   "y": 60
+   "x": 134,
+   "y": 115
   },
   {
    "id": "MCU",
@@ -37,6 +37,8 @@
    "terminals": [
     "P1.1"
    ],
+   "x": 64,
+   "y": 349,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
@@ -81,9 +83,7 @@
      "P0.0": "e4",
      "VCC": "e3"
     }
-   },
-   "x": 64,
-   "y": 349
+   }
   },
   {
    "id": "R_signal",
@@ -95,15 +95,15 @@
     "a",
     "b"
    ],
+   "x": 386,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "a": "a26",
      "b": "a30"
     }
-   },
-   "x": 386,
-   "y": 255
+   }
   },
   {
    "id": "LED_signal",
@@ -117,15 +117,15 @@
     "anode",
     "cathode"
    ],
+   "x": 470,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "anode": "a32",
      "cathode": "a33"
     }
-   },
-   "x": 470,
-   "y": 255
+   }
   }
  ],
  "wires": [

@@ -17,8 +17,8 @@
    "terminals": [
     "vcc"
    ],
-   "x": 80,
-   "y": 60
+   "x": 58,
+   "y": 115
   },
   {
    "id": "GND",
@@ -27,8 +27,8 @@
    "terminals": [
     "gnd"
    ],
-   "x": 156,
-   "y": 60
+   "x": 134,
+   "y": 115
   },
   {
    "id": "MCU",
@@ -36,10 +36,12 @@
    "params": {},
    "terminals": [
     "a0",
-    "d13"
+    "d13",
+    "5v",
+    "gnd2"
    ],
-   "x": 232,
-   "y": 60
+   "x": 475,
+   "y": -5
   },
   {
    "id": "POT_sense",
@@ -53,6 +55,8 @@
     "b",
     "wiper"
    ],
+   "x": 64,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
@@ -60,9 +64,7 @@
      "wiper": "a5",
      "b": "a7"
     }
-   },
-   "x": 64,
-   "y": 255
+   }
   },
   {
    "id": "R_led1",
@@ -74,15 +76,15 @@
     "a",
     "b"
    ],
+   "x": 148,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "a": "a9",
      "b": "a13"
     }
-   },
-   "x": 148,
-   "y": 255
+   }
   },
   {
    "id": "LED_led1",
@@ -96,15 +98,15 @@
     "anode",
     "cathode"
    ],
+   "x": 232,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "anode": "a15",
      "cathode": "a16"
     }
-   },
-   "x": 232,
-   "y": 255
+   }
   }
  ],
  "wires": [
@@ -143,6 +145,22 @@
    "fromTerminal": "gnd",
    "to": "LED_led1",
    "toTerminal": "cathode"
+  },
+  {
+   "from": "VCC",
+   "fromTerminal": "vcc",
+   "to": "MCU",
+   "toTerminal": "5v",
+   "color": "red",
+   "genPower": true
+  },
+  {
+   "from": "GND",
+   "fromTerminal": "gnd",
+   "to": "MCU",
+   "toTerminal": "gnd2",
+   "color": "black",
+   "genPower": true
   },
   {
    "from": "VCC",

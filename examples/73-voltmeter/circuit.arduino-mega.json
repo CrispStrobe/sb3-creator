@@ -14,24 +14,24 @@
    "id": "nano",
    "kind": "arduino_mega",
    "params": {},
-   "x": 80,
-   "y": 60,
+   "x": 323,
+   "y": -5,
    "rotation": 0
   },
   {
    "id": "vcc1",
    "kind": "vcc",
    "params": {},
-   "x": 460,
-   "y": 60,
+   "x": 664,
+   "y": 115,
    "rotation": 0
   },
   {
    "id": "gnd1",
    "kind": "gnd",
    "params": {},
-   "x": 536,
-   "y": 60,
+   "x": 740,
+   "y": 115,
    "rotation": 0
   },
   {
@@ -198,20 +198,6 @@
    "boardId": "bb1",
    "a": "b7",
    "b": "b-7",
-   "color": "black"
-  },
-  {
-   "ref": "bbw:bb1:gen_4",
-   "boardId": "bb1",
-   "a": "c9",
-   "b": "t+9",
-   "color": "red"
-  },
-  {
-   "ref": "bbw:bb1:gen_5",
-   "boardId": "bb1",
-   "a": "c10",
-   "b": "b-10",
    "color": "black"
   }
  ],

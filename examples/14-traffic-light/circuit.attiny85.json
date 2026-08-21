@@ -17,8 +17,8 @@
    "terminals": [
     "vcc"
    ],
-   "x": 80,
-   "y": 60
+   "x": 58,
+   "y": 115
   },
   {
    "id": "GND",
@@ -27,8 +27,8 @@
    "terminals": [
     "gnd"
    ],
-   "x": 156,
-   "y": 60
+   "x": 134,
+   "y": 115
   },
   {
    "id": "MCU",
@@ -39,6 +39,8 @@
     "pb1",
     "pb2"
    ],
+   "x": 316,
+   "y": 349,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
@@ -51,9 +53,7 @@
      "pb2": "e22",
      "vcc": "e21"
     }
-   },
-   "x": 316,
-   "y": 349
+   }
   },
   {
    "id": "R_red",
@@ -65,15 +65,15 @@
     "a",
     "b"
    ],
+   "x": 64,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "a": "a3",
      "b": "a7"
     }
-   },
-   "x": 64,
-   "y": 255
+   }
   },
   {
    "id": "LED_red",
@@ -87,15 +87,15 @@
     "anode",
     "cathode"
    ],
+   "x": 414,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "anode": "a28",
      "cathode": "a29"
     }
-   },
-   "x": 414,
-   "y": 255
+   }
   },
   {
    "id": "R_yellow",
@@ -107,15 +107,15 @@
     "a",
     "b"
    ],
+   "x": 148,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "a": "a9",
      "b": "a13"
     }
-   },
-   "x": 148,
-   "y": 255
+   }
   },
   {
    "id": "LED_yellow",
@@ -129,15 +129,15 @@
     "anode",
     "cathode"
    ],
+   "x": 456,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "anode": "a31",
      "cathode": "a32"
     }
-   },
-   "x": 456,
-   "y": 255
+   }
   },
   {
    "id": "R_green",
@@ -149,15 +149,15 @@
     "a",
     "b"
    ],
+   "x": 232,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "a": "a15",
      "b": "a19"
     }
-   },
-   "x": 232,
-   "y": 255
+   }
   },
   {
    "id": "LED_green",
@@ -171,15 +171,15 @@
     "anode",
     "cathode"
    ],
+   "x": 498,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "anode": "a34",
      "cathode": "a35"
     }
-   },
-   "x": 498,
-   "y": 255
+   }
   }
  ],
  "wires": [

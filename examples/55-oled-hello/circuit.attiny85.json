@@ -17,8 +17,8 @@
    "terminals": [
     "vcc"
    ],
-   "x": 80,
-   "y": 60
+   "x": 58,
+   "y": 115
   },
   {
    "id": "GND",
@@ -27,8 +27,8 @@
    "terminals": [
     "gnd"
    ],
-   "x": 156,
-   "y": 60
+   "x": 134,
+   "y": 115
   },
   {
    "id": "MCU",
@@ -38,6 +38,8 @@
     "pb0",
     "pb2"
    ],
+   "x": 232,
+   "y": 349,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
@@ -50,9 +52,7 @@
      "pb2": "e16",
      "vcc": "e15"
     }
-   },
-   "x": 232,
-   "y": 349
+   }
   },
   {
    "id": "R_PU_sda",
@@ -64,15 +64,15 @@
     "a",
     "b"
    ],
+   "x": 64,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "a": "a3",
      "b": "a7"
     }
-   },
-   "x": 64,
-   "y": 255
+   }
   },
   {
    "id": "R_PU_scl",
@@ -84,15 +84,15 @@
     "a",
     "b"
    ],
+   "x": 148,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "a": "a9",
      "b": "a13"
     }
-   },
-   "x": 148,
-   "y": 255
+   }
   },
   {
    "id": "OLED",
@@ -104,6 +104,8 @@
     "sda",
     "scl"
    ],
+   "x": 330,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
@@ -112,9 +114,7 @@
      "sda": "a24",
      "scl": "a25"
     }
-   },
-   "x": 330,
-   "y": 255
+   }
   }
  ],
  "wires": [
@@ -257,20 +257,6 @@
    "a": "a15",
    "b": "t+15",
    "color": "red"
-  },
-  {
-   "ref": "bbw:bb1:gen_10",
-   "boardId": "bb1",
-   "a": "c22",
-   "b": "t+22",
-   "color": "red"
-  },
-  {
-   "ref": "bbw:bb1:gen_11",
-   "boardId": "bb1",
-   "a": "c23",
-   "b": "b-23",
-   "color": "black"
   }
  ],
  "generated": "benchFor+seat"

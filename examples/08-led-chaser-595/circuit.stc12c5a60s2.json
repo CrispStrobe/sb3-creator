@@ -23,15 +23,15 @@
    "id": "vcc1",
    "kind": "vcc",
    "params": {},
-   "x": 80,
-   "y": 60
+   "x": 58,
+   "y": 115
   },
   {
    "id": "gnd1",
    "kind": "gnd",
    "params": {},
-   "x": 220,
-   "y": 60
+   "x": 134,
+   "y": 115
   },
   {
    "id": "sr1",
@@ -665,5 +665,6 @@
    "b": "t+26",
    "color": "red"
   }
- ]
+ ],
+ "generated": "benchFor+seat"
 }

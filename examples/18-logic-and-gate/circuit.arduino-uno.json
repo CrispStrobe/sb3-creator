@@ -17,8 +17,8 @@
    "terminals": [
     "vcc"
    ],
-   "x": 80,
-   "y": 60
+   "x": 58,
+   "y": 115
   },
   {
    "id": "GND",
@@ -27,8 +27,8 @@
    "terminals": [
     "gnd"
    ],
-   "x": 156,
-   "y": 60
+   "x": 134,
+   "y": 115
   },
   {
    "id": "MCU",
@@ -37,10 +37,12 @@
    "terminals": [
     "d2",
     "d4",
-    "d13"
+    "d13",
+    "5v",
+    "gnd2"
    ],
-   "x": 232,
-   "y": 60
+   "x": 392,
+   "y": -12
   },
   {
    "id": "R_PU_btnA",
@@ -52,15 +54,15 @@
     "a",
     "b"
    ],
+   "x": 64,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "a": "a3",
      "b": "a7"
     }
-   },
-   "x": 64,
-   "y": 255
+   }
   },
   {
    "id": "BTN_btnA",
@@ -71,15 +73,15 @@
     "a",
     "b"
    ],
+   "x": 358,
+   "y": 311,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "a": "e24",
      "b": "f24"
     }
-   },
-   "x": 358,
-   "y": 311
+   }
   },
   {
    "id": "R_PU_btnB",
@@ -91,15 +93,15 @@
     "a",
     "b"
    ],
+   "x": 148,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "a": "a9",
      "b": "a13"
     }
-   },
-   "x": 148,
-   "y": 255
+   }
   },
   {
    "id": "BTN_btnB",
@@ -110,15 +112,15 @@
     "a",
     "b"
    ],
+   "x": 414,
+   "y": 311,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "a": "e28",
      "b": "f28"
     }
-   },
-   "x": 414,
-   "y": 311
+   }
   },
   {
    "id": "R_led1",
@@ -130,15 +132,15 @@
     "a",
     "b"
    ],
+   "x": 232,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "a": "a15",
      "b": "a19"
     }
-   },
-   "x": 232,
-   "y": 255
+   }
   },
   {
    "id": "LED_led1",
@@ -152,15 +154,15 @@
     "anode",
     "cathode"
    ],
+   "x": 316,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "anode": "a21",
      "cathode": "a22"
     }
-   },
-   "x": 316,
-   "y": 255
+   }
   }
  ],
  "wires": [
@@ -229,6 +231,22 @@
    "fromTerminal": "gnd",
    "to": "LED_led1",
    "toTerminal": "cathode"
+  },
+  {
+   "from": "VCC",
+   "fromTerminal": "vcc",
+   "to": "MCU",
+   "toTerminal": "5v",
+   "color": "red",
+   "genPower": true
+  },
+  {
+   "from": "GND",
+   "fromTerminal": "gnd",
+   "to": "MCU",
+   "toTerminal": "gnd2",
+   "color": "black",
+   "genPower": true
   },
   {
    "from": "VCC",
