@@ -117,13 +117,13 @@
     "anode",
     "cathode"
    ],
-   "x": 274,
+   "x": 288,
    "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "anode": "a18",
-     "cathode": "a19"
+     "anode": "a19",
+     "cathode": "a20"
     }
    }
   }
@@ -204,7 +204,7 @@
    "ref": "bbw:bb1:gen_1",
    "boardId": "bb1",
    "a": "b13",
-   "b": "b18",
+   "b": "b19",
    "color": "blue"
   },
   {
@@ -217,8 +217,8 @@
   {
    "ref": "bbw:bb1:gen_3",
    "boardId": "bb1",
-   "a": "b19",
-   "b": "b-19",
+   "a": "b20",
+   "b": "b-20",
    "color": "black"
   }
  ],

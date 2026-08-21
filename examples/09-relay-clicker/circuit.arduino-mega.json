@@ -108,6 +108,26 @@
    }
   },
   {
+   "id": "D_relay_ctrl",
+   "kind": "diode",
+   "params": {
+    "vf": 0.7
+   },
+   "terminals": [
+    "anode",
+    "cathode"
+   ],
+   "x": 400,
+   "y": 255,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "anode": "a27",
+     "cathode": "a29"
+    }
+   }
+  },
+  {
    "id": "R_led1",
    "kind": "resistor",
    "params": {
@@ -139,13 +159,13 @@
     "anode",
     "cathode"
    ],
-   "x": 386,
+   "x": 470,
    "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "anode": "a26",
-     "cathode": "a27"
+     "anode": "a32",
+     "cathode": "a33"
     }
    }
   }
@@ -170,6 +190,12 @@
    "toTerminal": "collector"
   },
   {
+   "from": "RELAY_relay_ctrl",
+   "fromTerminal": "coil_b",
+   "to": "D_relay_ctrl",
+   "toTerminal": "anode"
+  },
+  {
    "from": "MCU",
    "fromTerminal": "d22",
    "to": "R_led1",
@@ -186,6 +212,12 @@
    "fromTerminal": "vcc",
    "to": "RELAY_relay_ctrl",
    "toTerminal": "coil_a"
+  },
+  {
+   "from": "VCC",
+   "fromTerminal": "vcc",
+   "to": "D_relay_ctrl",
+   "toTerminal": "cathode"
   },
   {
    "from": "GND",
@@ -254,29 +286,43 @@
   {
    "ref": "bbw:bb1:gen_2",
    "boardId": "bb1",
-   "a": "b20",
-   "b": "b26",
+   "a": "c4",
+   "b": "b27",
    "color": "yellow"
   },
   {
    "ref": "bbw:bb1:gen_3",
+   "boardId": "bb1",
+   "a": "b20",
+   "b": "b32",
+   "color": "orange"
+  },
+  {
+   "ref": "bbw:bb1:gen_4",
    "boardId": "bb1",
    "a": "b3",
    "b": "t+3",
    "color": "red"
   },
   {
-   "ref": "bbw:bb1:gen_4",
+   "ref": "bbw:bb1:gen_5",
+   "boardId": "bb1",
+   "a": "b29",
+   "b": "t+29",
+   "color": "red"
+  },
+  {
+   "ref": "bbw:bb1:gen_6",
    "boardId": "bb1",
    "a": "b22",
    "b": "b-22",
    "color": "black"
   },
   {
-   "ref": "bbw:bb1:gen_5",
+   "ref": "bbw:bb1:gen_7",
    "boardId": "bb1",
-   "a": "b27",
-   "b": "b-27",
+   "a": "b33",
+   "b": "b-33",
    "color": "black"
   }
  ],

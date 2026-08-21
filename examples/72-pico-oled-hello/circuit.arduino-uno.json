@@ -16,7 +16,13 @@
    "params": {},
    "x": 240,
    "y": -12,
-   "rotation": 0
+   "rotation": 0,
+   "terminals": [
+    "a4",
+    "a5",
+    "5v",
+    "gnd"
+   ]
   },
   {
    "id": "oled1",

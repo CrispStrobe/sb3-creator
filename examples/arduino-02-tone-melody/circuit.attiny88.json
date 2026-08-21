@@ -56,13 +56,13 @@
    "kind": "buzzer",
    "declName": "speaker",
    "params": {},
-   "x": 302,
+   "x": 316,
    "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a20",
-     "b": "a22"
+     "a": "a21",
+     "b": "a23"
     }
    }
   },
@@ -140,14 +140,14 @@
    "ref": "bbw:bb1:gen_0",
    "boardId": "bb1",
    "a": "g16",
-   "b": "b20",
+   "b": "b21",
    "color": "green"
   },
   {
    "ref": "bbw:bb1:gen_1",
    "boardId": "bb1",
    "a": "g10",
-   "b": "b22",
+   "b": "b23",
    "color": "blue"
   },
   {

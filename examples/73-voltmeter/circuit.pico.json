@@ -83,16 +83,16 @@
    "id": "oled1",
    "kind": "ssd1306",
    "params": {},
-   "x": 470,
+   "x": 400,
    "y": 255,
    "rotation": 0,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "vcc": "a32",
-     "gnd": "a33",
-     "sda": "a34",
-     "scl": "a35"
+     "vcc": "a27",
+     "gnd": "a28",
+     "sda": "a29",
+     "scl": "a30"
     }
    }
   },
@@ -103,15 +103,15 @@
     "ohms": 10000,
     "position": 0.5
    },
-   "x": 386,
+   "x": 554,
    "y": 255,
    "rotation": 0,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a26",
-     "wiper": "a28",
-     "b": "a30"
+     "a": "a38",
+     "wiper": "a40",
+     "b": "a42"
     }
    }
   }
@@ -220,43 +220,43 @@
   {
    "ref": "bbw:bb1:gen_0",
    "boardId": "bb1",
-   "a": "b32",
-   "b": "t+32",
+   "a": "b27",
+   "b": "t+27",
    "color": "red"
   },
   {
    "ref": "bbw:bb1:gen_1",
    "boardId": "bb1",
-   "a": "b33",
-   "b": "b-33",
+   "a": "b28",
+   "b": "b-28",
    "color": "black"
   },
   {
    "ref": "bbw:bb1:gen_2",
    "boardId": "bb1",
-   "a": "b26",
-   "b": "t+26",
+   "a": "b38",
+   "b": "t+38",
    "color": "red"
   },
   {
    "ref": "bbw:bb1:gen_3",
    "boardId": "bb1",
-   "a": "b30",
-   "b": "b-30",
+   "a": "b42",
+   "b": "b-42",
    "color": "black"
   },
   {
    "ref": "bbw:bb1:gen_4",
    "boardId": "bb1",
    "a": "g4",
-   "b": "c32",
+   "b": "c27",
    "color": "green"
   },
   {
    "ref": "bbw:bb1:gen_5",
    "boardId": "bb1",
    "a": "h4",
-   "b": "c26",
+   "b": "c38",
    "color": "blue"
   },
   {
@@ -277,99 +277,43 @@
    "ref": "bbw:bb1:gen_8",
    "boardId": "bb1",
    "a": "c5",
-   "b": "c33",
+   "b": "c28",
    "color": "yellow"
   },
   {
    "ref": "bbw:bb1:gen_9",
    "boardId": "bb1",
    "a": "d5",
-   "b": "c30",
+   "b": "c42",
    "color": "orange"
   },
   {
    "ref": "bbw:bb1:gen_10",
    "boardId": "bb1",
    "a": "b8",
-   "b": "b34",
+   "b": "b29",
    "color": "purple"
   },
   {
    "ref": "bbw:bb1:gen_11",
    "boardId": "bb1",
    "a": "b9",
-   "b": "b35",
+   "b": "b30",
    "color": "green"
   },
   {
    "ref": "bbw:bb1:gen_12",
    "boardId": "bb1",
    "a": "g12",
-   "b": "b28",
+   "b": "b40",
    "color": "blue"
   },
   {
    "ref": "bbw:bb1:gen_13",
    "boardId": "bb1",
-   "a": "b10",
-   "b": "b-10",
-   "color": "black"
-  },
-  {
-   "ref": "bbw:bb1:gen_14",
-   "boardId": "bb1",
-   "a": "b15",
-   "b": "b-15",
-   "color": "black"
-  },
-  {
-   "ref": "bbw:bb1:gen_15",
-   "boardId": "bb1",
-   "a": "b20",
-   "b": "b-20",
-   "color": "black"
-  },
-  {
-   "ref": "bbw:bb1:gen_16",
-   "boardId": "bb1",
    "a": "g3",
    "b": "t+3",
    "color": "red"
-  },
-  {
-   "ref": "bbw:bb1:gen_17",
-   "boardId": "bb1",
-   "a": "g5",
-   "b": "b-5",
-   "color": "black"
-  },
-  {
-   "ref": "bbw:bb1:gen_18",
-   "boardId": "bb1",
-   "a": "g7",
-   "b": "t+7",
-   "color": "red"
-  },
-  {
-   "ref": "bbw:bb1:gen_19",
-   "boardId": "bb1",
-   "a": "g10",
-   "b": "b-10",
-   "color": "black"
-  },
-  {
-   "ref": "bbw:bb1:gen_20",
-   "boardId": "bb1",
-   "a": "g15",
-   "b": "b-15",
-   "color": "black"
-  },
-  {
-   "ref": "bbw:bb1:gen_21",
-   "boardId": "bb1",
-   "a": "g20",
-   "b": "b-20",
-   "color": "black"
   }
  ],
  "generated": "benchFor+authored+seat"

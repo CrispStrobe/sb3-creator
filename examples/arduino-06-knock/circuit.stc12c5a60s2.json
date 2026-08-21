@@ -74,13 +74,13 @@
    "kind": "piezo",
    "declName": "piezo",
    "params": {},
-   "x": 554,
+   "x": 568,
    "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a38",
-     "b": "a39"
+     "a": "a39",
+     "b": "a40"
     }
    }
   },
@@ -90,13 +90,13 @@
    "params": {
     "ohms": 1000000
    },
-   "x": 386,
+   "x": 400,
    "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a26",
-     "b": "a30"
+     "a": "a27",
+     "b": "a31"
     }
    }
   },
@@ -107,13 +107,13 @@
    "params": {
     "color": "red"
    },
-   "x": 596,
+   "x": 638,
    "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "anode": "a41",
-     "cathode": "a42"
+     "anode": "a44",
+     "cathode": "a45"
     }
    }
   },
@@ -123,13 +123,13 @@
    "params": {
     "ohms": 220
    },
-   "x": 470,
+   "x": 484,
    "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a32",
-     "b": "a36"
+     "a": "a33",
+     "b": "a37"
     }
    }
   },
@@ -248,50 +248,50 @@
   {
    "ref": "bbw:bb1:gen_0",
    "boardId": "bb1",
-   "a": "b39",
-   "b": "b-39",
+   "a": "b40",
+   "b": "b-40",
    "color": "black"
   },
   {
    "ref": "bbw:bb1:gen_1",
    "boardId": "bb1",
-   "a": "b30",
-   "b": "b-30",
+   "a": "b31",
+   "b": "b-31",
    "color": "black"
   },
   {
    "ref": "bbw:bb1:gen_2",
    "boardId": "bb1",
-   "a": "b36",
-   "b": "b41",
+   "a": "b37",
+   "b": "b44",
    "color": "green"
   },
   {
    "ref": "bbw:bb1:gen_3",
    "boardId": "bb1",
-   "a": "b42",
-   "b": "b-42",
+   "a": "b45",
+   "b": "b-45",
    "color": "black"
   },
   {
    "ref": "bbw:bb1:gen_4",
    "boardId": "bb1",
    "a": "g6",
-   "b": "b38",
+   "b": "b39",
    "color": "blue"
   },
   {
    "ref": "bbw:bb1:gen_5",
    "boardId": "bb1",
    "a": "h6",
-   "b": "b26",
+   "b": "b27",
    "color": "yellow"
   },
   {
    "ref": "bbw:bb1:gen_6",
    "boardId": "bb1",
    "a": "g3",
-   "b": "b32",
+   "b": "b33",
    "color": "orange"
   },
   {
@@ -312,21 +312,21 @@
    "ref": "bbw:bb1:gen_9",
    "boardId": "bb1",
    "a": "h22",
-   "b": "c42",
+   "b": "c45",
    "color": "purple"
   },
   {
    "ref": "bbw:bb1:gen_10",
    "boardId": "bb1",
    "a": "i22",
-   "b": "c39",
+   "b": "c40",
    "color": "green"
   },
   {
    "ref": "bbw:bb1:gen_11",
    "boardId": "bb1",
    "a": "j22",
-   "b": "c30",
+   "b": "c31",
    "color": "blue"
   }
  ],

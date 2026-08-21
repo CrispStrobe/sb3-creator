@@ -14,28 +14,15 @@
    "id": "board",
    "kind": "arduino_uno",
    "declName": "board",
-   "x": 64,
-   "y": 255,
-   "seat": {
-    "boardId": "bb1",
-    "leadMap": {
-     "D0": "a3",
-     "D1": "a4",
-     "D2": "a5",
-     "D3": "a6",
-     "D4": "a7",
-     "D5": "a8",
-     "D6": "a9",
-     "D7": "a10",
-     "D8": "a11",
-     "D9": "a12",
-     "D10": "a13",
-     "D11": "a14",
-     "D12": "a15",
-     "D13": "a16"
-    }
-   },
-   "params": {}
+   "x": 240,
+   "y": -12,
+   "params": {},
+   "terminals": [
+    "d13",
+    "d2",
+    "5v",
+    "gnd"
+   ]
   },
   {
    "id": "led1",
@@ -44,13 +31,13 @@
    "params": {
     "color": "red"
    },
-   "x": 470,
+   "x": 232,
    "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "anode": "a32",
-     "cathode": "a33"
+     "anode": "a15",
+     "cathode": "a16"
     }
    }
   },
@@ -61,13 +48,13 @@
    "params": {
     "ohms": 220
    },
-   "x": 302,
+   "x": 64,
    "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a20",
-     "b": "a24"
+     "a": "a3",
+     "b": "a7"
     }
    }
   },
@@ -76,13 +63,13 @@
    "kind": "button",
    "declName": "btn",
    "params": {},
-   "x": 512,
+   "x": 288,
    "y": 311,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "e35",
-     "b": "f35"
+     "a": "e19",
+     "b": "f19"
     }
    }
   },
@@ -93,13 +80,13 @@
    "params": {
     "ohms": 10000
    },
-   "x": 386,
+   "x": 148,
    "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a26",
-     "b": "a30"
+     "a": "a9",
+     "b": "a13"
     }
    }
   },
@@ -109,15 +96,15 @@
    "params": {
     "volts": 5
    },
-   "x": 80,
-   "y": 60
+   "x": 498,
+   "y": 115
   },
   {
    "id": "gnd1",
    "kind": "gnd",
    "params": {},
-   "x": 220,
-   "y": 60
+   "x": 574,
+   "y": 115
   }
  ],
  "wires": [
@@ -200,29 +187,29 @@
   {
    "ref": "bbw:bb1:gen_0",
    "boardId": "bb1",
-   "a": "b24",
-   "b": "b32",
+   "a": "b7",
+   "b": "b15",
    "color": "green"
   },
   {
    "ref": "bbw:bb1:gen_1",
    "boardId": "bb1",
-   "a": "b33",
-   "b": "b-33",
+   "a": "b16",
+   "b": "b-16",
    "color": "black"
   },
   {
    "ref": "bbw:bb1:gen_2",
    "boardId": "bb1",
-   "a": "a35",
-   "b": "t+35",
+   "a": "a19",
+   "b": "t+19",
    "color": "red"
   },
   {
    "ref": "bbw:bb1:gen_3",
    "boardId": "bb1",
-   "a": "b30",
-   "b": "b-30",
+   "a": "b13",
+   "b": "b-13",
    "color": "black"
   }
  ]

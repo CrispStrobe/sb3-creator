@@ -80,13 +80,13 @@
     "vf": 2,
     "color": "red"
    },
-   "x": 274,
+   "x": 288,
    "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "anode": "a18",
-     "cathode": "a19"
+     "anode": "a19",
+     "cathode": "a20"
     }
    }
   },
@@ -96,7 +96,13 @@
    "params": {},
    "x": 392,
    "y": -12,
-   "rotation": 0
+   "rotation": 0,
+   "terminals": [
+    "d13",
+    "d12",
+    "gnd",
+    "5v"
+   ]
   }
  ],
  "wires": [
@@ -200,14 +206,14 @@
    "ref": "bbw:bb1:gen_2",
    "boardId": "bb1",
    "a": "b13",
-   "b": "b18",
+   "b": "b19",
    "color": "blue"
   },
   {
    "ref": "bbw:bb1:gen_3",
    "boardId": "bb1",
-   "a": "b19",
-   "b": "b-19",
+   "a": "b20",
+   "b": "b-20",
    "color": "black"
   }
  ],

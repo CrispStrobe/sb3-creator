@@ -76,14 +76,14 @@
    "params": {
     "ohms": 10000
    },
-   "x": 386,
+   "x": 400,
    "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a26",
-     "wiper": "a28",
-     "b": "a30"
+     "a": "a27",
+     "wiper": "a29",
+     "b": "a31"
     }
    }
   },
@@ -94,13 +94,13 @@
    "params": {
     "color": "green"
    },
-   "x": 554,
+   "x": 568,
    "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "anode": "a38",
-     "cathode": "a39"
+     "anode": "a39",
+     "cathode": "a40"
     }
    }
   },
@@ -111,13 +111,13 @@
    "params": {
     "ohms": 220
    },
-   "x": 470,
+   "x": 484,
    "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a32",
-     "b": "a36"
+     "a": "a33",
+     "b": "a37"
     }
    }
   },
@@ -230,43 +230,43 @@
   {
    "ref": "bbw:bb1:gen_0",
    "boardId": "bb1",
-   "a": "b26",
-   "b": "t+26",
+   "a": "b27",
+   "b": "t+27",
    "color": "red"
   },
   {
    "ref": "bbw:bb1:gen_1",
    "boardId": "bb1",
-   "a": "b30",
-   "b": "b-30",
+   "a": "b31",
+   "b": "b-31",
    "color": "black"
   },
   {
    "ref": "bbw:bb1:gen_2",
    "boardId": "bb1",
-   "a": "b36",
-   "b": "b38",
+   "a": "b37",
+   "b": "b39",
    "color": "green"
   },
   {
    "ref": "bbw:bb1:gen_3",
    "boardId": "bb1",
-   "a": "b39",
-   "b": "b-39",
+   "a": "b40",
+   "b": "b-40",
    "color": "black"
   },
   {
    "ref": "bbw:bb1:gen_4",
    "boardId": "bb1",
    "a": "a11",
-   "b": "b28",
+   "b": "b29",
    "color": "blue"
   },
   {
    "ref": "bbw:bb1:gen_5",
    "boardId": "bb1",
    "a": "a12",
-   "b": "b32",
+   "b": "b33",
    "color": "yellow"
   },
   {
@@ -280,21 +280,21 @@
    "ref": "bbw:bb1:gen_7",
    "boardId": "bb1",
    "a": "b22",
-   "b": "c39",
+   "b": "c40",
    "color": "orange"
   },
   {
    "ref": "bbw:bb1:gen_8",
    "boardId": "bb1",
    "a": "c22",
-   "b": "c30",
+   "b": "c31",
    "color": "purple"
   },
   {
    "ref": "bbw:bb1:gen_9",
    "boardId": "bb1",
    "a": "a20",
-   "b": "c26",
+   "b": "c27",
    "color": "green"
   },
   {

@@ -14,41 +14,28 @@
    "id": "board",
    "kind": "arduino_uno",
    "declName": "board",
-   "x": 64,
-   "y": 255,
-   "seat": {
-    "boardId": "bb1",
-    "leadMap": {
-     "D0": "a3",
-     "D1": "a4",
-     "D2": "a5",
-     "D3": "a6",
-     "D4": "a7",
-     "D5": "a8",
-     "D6": "a9",
-     "D7": "a10",
-     "D8": "a11",
-     "D9": "a12",
-     "D10": "a13",
-     "D11": "a14",
-     "D12": "a15",
-     "D13": "a16"
-    }
-   },
-   "params": {}
+   "x": 240,
+   "y": -12,
+   "params": {},
+   "terminals": [
+    "a0",
+    "d9",
+    "5v",
+    "gnd"
+   ]
   },
   {
    "id": "ldr",
    "kind": "ldr",
    "declName": "ldr",
    "params": {},
-   "x": 386,
+   "x": 218,
    "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a26",
-     "b": "a28"
+     "a": "a14",
+     "b": "a16"
     }
    }
   },
@@ -59,13 +46,13 @@
    "params": {
     "ohms": 4700
    },
-   "x": 302,
+   "x": 64,
    "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a20",
-     "b": "a24"
+     "a": "a3",
+     "b": "a7"
     }
    }
   },
@@ -74,13 +61,13 @@
    "kind": "buzzer",
    "declName": "speaker",
    "params": {},
-   "x": 442,
+   "x": 148,
    "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a30",
-     "b": "a32"
+     "a": "a9",
+     "b": "a11"
     }
    }
   },
@@ -90,15 +77,15 @@
    "params": {
     "volts": 5
    },
-   "x": 80,
-   "y": 60
+   "x": 498,
+   "y": 115
   },
   {
    "id": "gnd1",
    "kind": "gnd",
    "params": {},
-   "x": 220,
-   "y": 60
+   "x": 574,
+   "y": 115
   }
  ],
  "wires": [
@@ -175,15 +162,15 @@
   {
    "ref": "bbw:bb1:gen_0",
    "boardId": "bb1",
-   "a": "b26",
-   "b": "t+26",
+   "a": "b14",
+   "b": "t+14",
    "color": "red"
   },
   {
    "ref": "bbw:bb1:gen_1",
    "boardId": "bb1",
-   "a": "b24",
-   "b": "b-24",
+   "a": "b7",
+   "b": "b-7",
    "color": "black"
   }
  ]

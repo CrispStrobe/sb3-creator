@@ -39,6 +39,9 @@ const cmd = process.argv[2];
 import { transformAuthored } from './lib/authored-transform.mjs';
 
 async function batch() {
+  const regenerate = process.argv.includes('--regenerate');
+  const onlyAt = process.argv.indexOf('--only');
+  const only = onlyAt === -1 ? null : process.argv[onlyAt + 1];
   const SB3Creator = (await import('../src/utils/sb3Creator.js')).default;
   const eng = await import(path.join(BW_BOARD, 'src/index.js'));
   (await import(path.join(BW_BOARD, 'src/register-all.js'))).registerAllDevices();
@@ -61,6 +64,7 @@ async function batch() {
   const list = Array.isArray(idx) ? idx : idx.examples;
   let gen = 0, refused = 0, transformed = 0;
   for (const e of list) {
+    if (only && e.id !== only) continue;
     if (!e.devices || e.devices.length < 2) continue;
     if (!(e.kind === 'program' || e.kind === 'full')) continue;
     let src;
@@ -72,7 +76,10 @@ async function batch() {
     for (const device of e.devices) {
       if (!DEVPART[device]) continue;
       const out = `examples/${e.id}/circuit.${device}.json`;
-      if (fs.existsSync(out)) continue;
+      if (fs.existsSync(out)) {
+        const current = JSON.parse(fs.readFileSync(out, 'utf8'));
+        if (!regenerate || !String(current.generated || '').startsWith('benchFor')) continue;
+      }
       // The authored device loads the authored circuit itself — a
       // generated file for it would never be requested and could only
       // disagree.
@@ -134,12 +141,15 @@ async function batch() {
 function seat() {
   const seatgen = path.join(CUI, 'scripts/seat-examples.mjs');
   const reseatExisting = process.argv.includes('--reseat');
+  const onlyAt = process.argv.indexOf('--only');
+  const only = onlyAt === -1 ? null : process.argv[onlyAt + 1];
   let seated = 0, failed = 0, unseated = 0;
   for (const f of fs.globSync ? fs.globSync('examples/*/circuit.*.json')
       : require('glob').sync('examples/*/circuit.*.json')) {
     const d = JSON.parse(fs.readFileSync(f, 'utf8'));
     if (!reseatExisting && d.parts.some(p => p.seat)) continue;
     const exid = f.split(path.sep)[1];
+    if (only && exid !== only) continue;
     const device = path.basename(f).replace('circuit.', '').replace('.json', '');
     // Wires-form benches (the authored-circuit transforms) keep their
     // wires; nets-form benches (synthesis output) convert nets to a
@@ -210,4 +220,4 @@ function index() {
 if (cmd === 'batch') await batch();
 else if (cmd === 'seat') seat();
 else if (cmd === 'index') index();
-else { console.error('usage: gen-device-benches.mjs batch|seat [--reseat]|index'); process.exit(1); }
+else { console.error('usage: gen-device-benches.mjs batch [--regenerate] [--only id]|seat [--reseat]|index'); process.exit(1); }

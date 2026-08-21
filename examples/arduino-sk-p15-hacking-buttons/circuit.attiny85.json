@@ -34,20 +34,20 @@
    "id": "MCU",
    "kind": "attiny85",
    "params": {},
-   "x": 148,
+   "x": 64,
    "y": 349,
    "rotation": 0,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "pb5": "f9",
-     "pb3": "f10",
-     "pb4": "f11",
-     "gnd": "f12",
-     "pb0": "e12",
-     "pb1": "e11",
-     "pb2": "e10",
-     "vcc": "e9"
+     "pb5": "f3",
+     "pb3": "f4",
+     "pb4": "f5",
+     "gnd": "f6",
+     "pb0": "e6",
+     "pb1": "e5",
+     "pb2": "e4",
+     "vcc": "e3"
     }
    }
   },
@@ -61,13 +61,13 @@
     "a",
     "b"
    ],
-   "x": 64,
+   "x": 176,
    "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a3",
-     "b": "a7"
+     "a": "a11",
+     "b": "a15"
     }
    }
   },
@@ -82,13 +82,13 @@
     "anode",
     "cathode"
    ],
-   "x": 246,
+   "x": 260,
    "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "anode": "a16",
-     "cathode": "a17"
+     "anode": "a17",
+     "cathode": "a18"
     }
    }
   }
@@ -137,36 +137,36 @@
   {
    "ref": "bbw:bb1:gen_0",
    "boardId": "bb1",
-   "a": "b7",
-   "b": "b16",
+   "a": "b15",
+   "b": "b17",
    "color": "green"
   },
   {
    "ref": "bbw:bb1:gen_1",
    "boardId": "bb1",
-   "a": "b17",
-   "b": "b-17",
+   "a": "b18",
+   "b": "b-18",
    "color": "black"
   },
   {
    "ref": "bbw:bb1:gen_2",
    "boardId": "bb1",
-   "a": "a11",
-   "b": "b3",
+   "a": "a5",
+   "b": "b11",
    "color": "blue"
   },
   {
    "ref": "bbw:bb1:gen_3",
    "boardId": "bb1",
-   "a": "g12",
-   "b": "b-12",
+   "a": "g6",
+   "b": "b-6",
    "color": "black"
   },
   {
    "ref": "bbw:bb1:gen_4",
    "boardId": "bb1",
-   "a": "a9",
-   "b": "t+9",
+   "a": "a3",
+   "b": "t+3",
    "color": "red"
   }
  ],

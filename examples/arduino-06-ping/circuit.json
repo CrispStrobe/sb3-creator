@@ -14,43 +14,30 @@
    "id": "board",
    "kind": "arduino_uno",
    "declName": "board",
-   "x": 64,
-   "y": 255,
-   "seat": {
-    "boardId": "bb1",
-    "leadMap": {
-     "D0": "a3",
-     "D1": "a4",
-     "D2": "a5",
-     "D3": "a6",
-     "D4": "a7",
-     "D5": "a8",
-     "D6": "a9",
-     "D7": "a10",
-     "D8": "a11",
-     "D9": "a12",
-     "D10": "a13",
-     "D11": "a14",
-     "D12": "a15",
-     "D13": "a16"
-    }
-   },
-   "params": {}
+   "x": 240,
+   "y": -12,
+   "params": {},
+   "terminals": [
+    "d7",
+    "d8",
+    "5v",
+    "gnd"
+   ]
   },
   {
    "id": "us",
    "kind": "ultrasonic",
    "declName": "us",
    "params": {},
-   "x": 302,
+   "x": 64,
    "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "vcc": "a20",
-     "trig": "a21",
-     "echo": "a22",
-     "gnd": "a23"
+     "vcc": "a3",
+     "trig": "a4",
+     "echo": "a5",
+     "gnd": "a6"
     }
    }
   },
@@ -60,15 +47,15 @@
    "params": {
     "volts": 5
    },
-   "x": 80,
-   "y": 60
+   "x": 498,
+   "y": 115
   },
   {
    "id": "gnd1",
    "kind": "gnd",
    "params": {},
-   "x": 220,
-   "y": 60
+   "x": 574,
+   "y": 115
   }
  ],
  "wires": [
@@ -133,29 +120,15 @@
   {
    "ref": "bbw:bb1:gen_0",
    "boardId": "bb1",
-   "a": "b20",
-   "b": "t+20",
+   "a": "b3",
+   "b": "t+3",
    "color": "red"
   },
   {
    "ref": "bbw:bb1:gen_1",
    "boardId": "bb1",
-   "a": "b23",
-   "b": "b-23",
-   "color": "black"
-  },
-  {
-   "ref": "bbw:bb1:gen_2",
-   "boardId": "bb1",
-   "a": "c20",
-   "b": "t+20",
-   "color": "red"
-  },
-  {
-   "ref": "bbw:bb1:gen_3",
-   "boardId": "bb1",
-   "a": "c23",
-   "b": "b-23",
+   "a": "b6",
+   "b": "b-6",
    "color": "black"
   }
  ]

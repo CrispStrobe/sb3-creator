@@ -70,13 +70,13 @@
    "params": {
     "color": "red"
    },
-   "x": 638,
+   "x": 652,
    "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "anode": "a44",
-     "cathode": "a45"
+     "anode": "a45",
+     "cathode": "a46"
     }
    }
   },
@@ -87,13 +87,13 @@
    "params": {
     "color": "green"
    },
-   "x": 680,
+   "x": 708,
    "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "anode": "a47",
-     "cathode": "a48"
+     "anode": "a49",
+     "cathode": "a50"
     }
    }
   },
@@ -104,13 +104,13 @@
    "params": {
     "color": "blue"
    },
-   "x": 722,
+   "x": 764,
    "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "anode": "a50",
-     "cathode": "a51"
+     "anode": "a53",
+     "cathode": "a54"
     }
    }
   },
@@ -120,13 +120,13 @@
    "params": {
     "ohms": 220
    },
-   "x": 386,
+   "x": 400,
    "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a26",
-     "b": "a30"
+     "a": "a27",
+     "b": "a31"
     }
    }
   },
@@ -136,13 +136,13 @@
    "params": {
     "ohms": 220
    },
-   "x": 470,
+   "x": 484,
    "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a32",
-     "b": "a36"
+     "a": "a33",
+     "b": "a37"
     }
    }
   },
@@ -152,13 +152,13 @@
    "params": {
     "ohms": 220
    },
-   "x": 554,
+   "x": 568,
    "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a38",
-     "b": "a42"
+     "a": "a39",
+     "b": "a43"
     }
    }
   },
@@ -289,57 +289,57 @@
   {
    "ref": "bbw:bb1:gen_0",
    "boardId": "bb1",
-   "a": "b30",
-   "b": "b44",
+   "a": "b31",
+   "b": "b45",
    "color": "green"
   },
   {
    "ref": "bbw:bb1:gen_1",
    "boardId": "bb1",
-   "a": "b45",
-   "b": "b-45",
+   "a": "b46",
+   "b": "b-46",
    "color": "black"
   },
   {
    "ref": "bbw:bb1:gen_2",
    "boardId": "bb1",
-   "a": "b36",
-   "b": "b47",
+   "a": "b37",
+   "b": "b49",
    "color": "blue"
   },
   {
    "ref": "bbw:bb1:gen_3",
    "boardId": "bb1",
-   "a": "b48",
-   "b": "b-48",
+   "a": "b50",
+   "b": "b-50",
    "color": "black"
   },
   {
    "ref": "bbw:bb1:gen_4",
    "boardId": "bb1",
-   "a": "b42",
-   "b": "b50",
+   "a": "b43",
+   "b": "b53",
    "color": "yellow"
   },
   {
    "ref": "bbw:bb1:gen_5",
    "boardId": "bb1",
-   "a": "b51",
-   "b": "b-51",
+   "a": "b54",
+   "b": "b-54",
    "color": "black"
   },
   {
    "ref": "bbw:bb1:gen_6",
    "boardId": "bb1",
    "a": "b21",
-   "b": "b38",
+   "b": "b39",
    "color": "orange"
   },
   {
    "ref": "bbw:bb1:gen_7",
    "boardId": "bb1",
    "a": "b22",
-   "b": "b32",
+   "b": "b33",
    "color": "purple"
   },
   {
@@ -360,85 +360,29 @@
    "ref": "bbw:bb1:gen_10",
    "boardId": "bb1",
    "a": "c5",
-   "b": "c45",
+   "b": "c46",
    "color": "green"
   },
   {
    "ref": "bbw:bb1:gen_11",
    "boardId": "bb1",
    "a": "d5",
-   "b": "c48",
+   "b": "c50",
    "color": "blue"
   },
   {
    "ref": "bbw:bb1:gen_12",
    "boardId": "bb1",
    "a": "e5",
-   "b": "c51",
+   "b": "c54",
    "color": "yellow"
   },
   {
    "ref": "bbw:bb1:gen_13",
    "boardId": "bb1",
-   "a": "b10",
-   "b": "b-10",
-   "color": "black"
-  },
-  {
-   "ref": "bbw:bb1:gen_14",
-   "boardId": "bb1",
-   "a": "b15",
-   "b": "b-15",
-   "color": "black"
-  },
-  {
-   "ref": "bbw:bb1:gen_15",
-   "boardId": "bb1",
-   "a": "b20",
-   "b": "b-20",
-   "color": "black"
-  },
-  {
-   "ref": "bbw:bb1:gen_16",
-   "boardId": "bb1",
    "a": "g3",
    "b": "t+3",
    "color": "red"
-  },
-  {
-   "ref": "bbw:bb1:gen_17",
-   "boardId": "bb1",
-   "a": "g5",
-   "b": "b-5",
-   "color": "black"
-  },
-  {
-   "ref": "bbw:bb1:gen_18",
-   "boardId": "bb1",
-   "a": "g7",
-   "b": "t+7",
-   "color": "red"
-  },
-  {
-   "ref": "bbw:bb1:gen_19",
-   "boardId": "bb1",
-   "a": "g10",
-   "b": "b-10",
-   "color": "black"
-  },
-  {
-   "ref": "bbw:bb1:gen_20",
-   "boardId": "bb1",
-   "a": "g15",
-   "b": "b-15",
-   "color": "black"
-  },
-  {
-   "ref": "bbw:bb1:gen_21",
-   "boardId": "bb1",
-   "a": "g20",
-   "b": "b-20",
-   "color": "black"
   }
  ],
  "generated": "benchFor+authored+seat"

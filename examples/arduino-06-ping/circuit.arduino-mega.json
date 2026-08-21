@@ -16,7 +16,13 @@
    "params": {},
    "x": 323,
    "y": -5,
-   "rotation": 0
+   "rotation": 0,
+   "terminals": [
+    "d13",
+    "d2",
+    "gnd",
+    "5v"
+   ]
   },
   {
    "id": "us",

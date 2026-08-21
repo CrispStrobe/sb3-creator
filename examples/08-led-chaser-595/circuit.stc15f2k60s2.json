@@ -39,27 +39,27 @@
    "params": {
     "outputs": 8
    },
-   "x": 386,
+   "x": 400,
    "y": 349,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "qb": "f26",
-     "qc": "f27",
-     "qd": "f28",
-     "qe": "f29",
-     "qf": "f30",
-     "qg": "f31",
-     "qh": "f32",
-     "gnd": "f33",
-     "qh_s": "e33",
-     "srclr": "e32",
-     "srclk": "e31",
-     "rclk": "e30",
-     "oe": "e29",
-     "ser": "e28",
-     "qa": "e27",
-     "vcc": "e26"
+     "qb": "f27",
+     "qc": "f28",
+     "qd": "f29",
+     "qe": "f30",
+     "qf": "f31",
+     "qg": "f32",
+     "qh": "f33",
+     "gnd": "f34",
+     "qh_s": "e34",
+     "srclr": "e33",
+     "srclk": "e32",
+     "rclk": "e31",
+     "oe": "e30",
+     "ser": "e29",
+     "qa": "e28",
+     "vcc": "e27"
     }
    }
   },
@@ -69,13 +69,13 @@
    "params": {
     "ohms": 330
    },
-   "x": 540,
+   "x": 568,
    "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a37",
-     "b": "a41"
+     "a": "a39",
+     "b": "a43"
     }
    }
   },
@@ -85,13 +85,13 @@
    "params": {
     "ohms": 330
    },
-   "x": 624,
+   "x": 652,
    "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a43",
-     "b": "a47"
+     "a": "a45",
+     "b": "a49"
     }
    }
   },
@@ -101,13 +101,13 @@
    "params": {
     "ohms": 330
    },
-   "x": 708,
+   "x": 736,
    "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a49",
-     "b": "a53"
+     "a": "a51",
+     "b": "a55"
     }
    }
   },
@@ -117,13 +117,13 @@
    "params": {
     "ohms": 330
    },
-   "x": 792,
+   "x": 820,
    "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a55",
-     "b": "a59"
+     "a": "a57",
+     "b": "a61"
     }
    }
   },
@@ -133,13 +133,13 @@
    "params": {
     "ohms": 330
    },
-   "x": 540,
+   "x": 568,
    "y": 349,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "f37",
-     "b": "f41"
+     "a": "f39",
+     "b": "f43"
     }
    }
   },
@@ -149,13 +149,13 @@
    "params": {
     "ohms": 330
    },
-   "x": 624,
+   "x": 652,
    "y": 349,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "f43",
-     "b": "f47"
+     "a": "f45",
+     "b": "f49"
     }
    }
   },
@@ -165,13 +165,13 @@
    "params": {
     "ohms": 330
    },
-   "x": 708,
+   "x": 736,
    "y": 349,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "f49",
-     "b": "f53"
+     "a": "f51",
+     "b": "f55"
     }
    }
   },
@@ -181,13 +181,13 @@
    "params": {
     "ohms": 330
    },
-   "x": 792,
+   "x": 820,
    "y": 349,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "f55",
-     "b": "f59"
+     "a": "f57",
+     "b": "f61"
     }
    }
   },
@@ -215,13 +215,13 @@
     "vf": 2,
     "color": "red"
    },
-   "x": 106,
+   "x": 120,
    "y": 615,
    "seat": {
     "boardId": "bb2",
     "leadMap": {
-     "anode": "a6",
-     "cathode": "a7"
+     "anode": "a7",
+     "cathode": "a8"
     }
    }
   },
@@ -232,35 +232,18 @@
     "vf": 2,
     "color": "red"
    },
-   "x": 148,
+   "x": 176,
    "y": 615,
    "seat": {
     "boardId": "bb2",
     "leadMap": {
-     "anode": "a9",
-     "cathode": "a10"
+     "anode": "a11",
+     "cathode": "a12"
     }
    }
   },
   {
    "id": "d4",
-   "kind": "led",
-   "params": {
-    "vf": 2,
-    "color": "red"
-   },
-   "x": 190,
-   "y": 615,
-   "seat": {
-    "boardId": "bb2",
-    "leadMap": {
-     "anode": "a12",
-     "cathode": "a13"
-    }
-   }
-  },
-  {
-   "id": "d5",
    "kind": "led",
    "params": {
     "vf": 2,
@@ -277,19 +260,36 @@
    }
   },
   {
+   "id": "d5",
+   "kind": "led",
+   "params": {
+    "vf": 2,
+    "color": "red"
+   },
+   "x": 288,
+   "y": 615,
+   "seat": {
+    "boardId": "bb2",
+    "leadMap": {
+     "anode": "a19",
+     "cathode": "a20"
+    }
+   }
+  },
+  {
    "id": "d6",
    "kind": "led",
    "params": {
     "vf": 2,
     "color": "red"
    },
-   "x": 274,
+   "x": 344,
    "y": 615,
    "seat": {
     "boardId": "bb2",
     "leadMap": {
-     "anode": "a18",
-     "cathode": "a19"
+     "anode": "a23",
+     "cathode": "a24"
     }
    }
   },
@@ -300,13 +300,13 @@
     "vf": 2,
     "color": "red"
    },
-   "x": 316,
+   "x": 400,
    "y": 615,
    "seat": {
     "boardId": "bb2",
     "leadMap": {
-     "anode": "a21",
-     "cathode": "a22"
+     "anode": "a27",
+     "cathode": "a28"
     }
    }
   },
@@ -317,13 +317,13 @@
     "vf": 2,
     "color": "red"
    },
-   "x": 358,
+   "x": 456,
    "y": 615,
    "seat": {
     "boardId": "bb2",
     "leadMap": {
-     "anode": "a24",
-     "cathode": "a25"
+     "anode": "a31",
+     "cathode": "a32"
     }
    }
   },
@@ -665,50 +665,50 @@
   {
    "ref": "bbw:bb2:gen_1",
    "boardId": "bb2",
-   "a": "b7",
-   "b": "b-7",
+   "a": "b8",
+   "b": "b-8",
    "color": "black"
   },
   {
    "ref": "bbw:bb2:gen_2",
    "boardId": "bb2",
-   "a": "b10",
-   "b": "b-10",
+   "a": "b12",
+   "b": "b-12",
    "color": "black"
   },
   {
    "ref": "bbw:bb2:gen_3",
-   "boardId": "bb2",
-   "a": "b13",
-   "b": "b-13",
-   "color": "black"
-  },
-  {
-   "ref": "bbw:bb2:gen_4",
    "boardId": "bb2",
    "a": "b16",
    "b": "b-16",
    "color": "black"
   },
   {
+   "ref": "bbw:bb2:gen_4",
+   "boardId": "bb2",
+   "a": "b20",
+   "b": "b-20",
+   "color": "black"
+  },
+  {
    "ref": "bbw:bb2:gen_5",
    "boardId": "bb2",
-   "a": "b19",
-   "b": "b-19",
+   "a": "b24",
+   "b": "b-24",
    "color": "black"
   },
   {
    "ref": "bbw:bb2:gen_6",
    "boardId": "bb2",
-   "a": "b22",
-   "b": "b-22",
+   "a": "b28",
+   "b": "b-28",
    "color": "black"
   },
   {
    "ref": "bbw:bb2:gen_7",
    "boardId": "bb2",
-   "a": "b25",
-   "b": "b-25",
+   "a": "b32",
+   "b": "b-32",
    "color": "black"
   },
   {
@@ -722,14 +722,14 @@
    "ref": "bbw:bb1:gen_9",
    "boardId": "bb1",
    "a": "b22",
-   "b": "g33",
+   "b": "g34",
    "color": "green"
   },
   {
    "ref": "bbw:bb1:gen_10",
    "boardId": "bb1",
    "a": "a20",
-   "b": "a26",
+   "b": "a27",
    "color": "blue"
   },
   {

@@ -58,13 +58,13 @@
    "params": {
     "color": "green"
    },
-   "x": 386,
+   "x": 400,
    "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "anode": "a26",
-     "cathode": "a27"
+     "anode": "a27",
+     "cathode": "a28"
     }
    }
   },
@@ -75,13 +75,13 @@
    "params": {
     "ohms": 220
    },
-   "x": 302,
+   "x": 316,
    "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a20",
-     "b": "a24"
+     "a": "a21",
+     "b": "a25"
     }
    }
   },
@@ -164,22 +164,22 @@
   {
    "ref": "bbw:bb1:gen_0",
    "boardId": "bb1",
-   "a": "b24",
-   "b": "b26",
+   "a": "b25",
+   "b": "b27",
    "color": "green"
   },
   {
    "ref": "bbw:bb1:gen_1",
    "boardId": "bb1",
-   "a": "b27",
-   "b": "b-27",
+   "a": "b28",
+   "b": "b-28",
    "color": "black"
   },
   {
    "ref": "bbw:bb1:gen_2",
    "boardId": "bb1",
    "a": "g16",
-   "b": "b20",
+   "b": "b21",
    "color": "blue"
   },
   {
@@ -200,7 +200,7 @@
    "ref": "bbw:bb1:gen_5",
    "boardId": "bb1",
    "a": "h10",
-   "b": "c27",
+   "b": "c28",
    "color": "yellow"
   },
   {

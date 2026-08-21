@@ -16,20 +16,26 @@
    "params": {},
    "x": 240,
    "y": -12,
-   "rotation": 0
+   "rotation": 0,
+   "terminals": [
+    "a0",
+    "d13",
+    "gnd",
+    "5v"
+   ]
   },
   {
    "id": "ldr",
    "kind": "ldr",
    "declName": "ldr",
    "params": {},
-   "x": 148,
+   "x": 218,
    "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a9",
-     "b": "a11"
+     "a": "a14",
+     "b": "a16"
     }
    }
   },
@@ -55,13 +61,13 @@
    "kind": "buzzer",
    "declName": "speaker",
    "params": {},
-   "x": 204,
+   "x": 148,
    "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a13",
-     "b": "a15"
+     "a": "a9",
+     "b": "a11"
     }
    }
   },
@@ -174,8 +180,8 @@
   {
    "ref": "bbw:bb1:gen_0",
    "boardId": "bb1",
-   "a": "b9",
-   "b": "t+9",
+   "a": "b14",
+   "b": "t+14",
    "color": "red"
   },
   {

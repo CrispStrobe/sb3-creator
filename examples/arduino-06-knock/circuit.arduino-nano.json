@@ -58,13 +58,13 @@
    "kind": "piezo",
    "declName": "piezo",
    "params": {},
-   "x": 484,
+   "x": 526,
    "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a33",
-     "b": "a34"
+     "a": "a36",
+     "b": "a37"
     }
    }
   },
@@ -74,13 +74,13 @@
    "params": {
     "ohms": 1000000
    },
-   "x": 316,
+   "x": 358,
    "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a21",
-     "b": "a25"
+     "a": "a24",
+     "b": "a28"
     }
    }
   },
@@ -91,13 +91,13 @@
    "params": {
     "color": "red"
    },
-   "x": 526,
+   "x": 596,
    "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "anode": "a36",
-     "cathode": "a37"
+     "anode": "a41",
+     "cathode": "a42"
     }
    }
   },
@@ -107,13 +107,13 @@
    "params": {
     "ohms": 220
    },
-   "x": 400,
+   "x": 442,
    "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a27",
-     "b": "a31"
+     "a": "a30",
+     "b": "a34"
     }
    }
   },
@@ -232,50 +232,50 @@
   {
    "ref": "bbw:bb1:gen_0",
    "boardId": "bb1",
-   "a": "b34",
-   "b": "b-34",
+   "a": "b37",
+   "b": "b-37",
    "color": "black"
   },
   {
    "ref": "bbw:bb1:gen_1",
    "boardId": "bb1",
-   "a": "b25",
-   "b": "b-25",
+   "a": "b28",
+   "b": "b-28",
    "color": "black"
   },
   {
    "ref": "bbw:bb1:gen_2",
    "boardId": "bb1",
-   "a": "b31",
-   "b": "b36",
+   "a": "b34",
+   "b": "b41",
    "color": "green"
   },
   {
    "ref": "bbw:bb1:gen_3",
    "boardId": "bb1",
-   "a": "b37",
-   "b": "b-37",
+   "a": "b42",
+   "b": "b-42",
    "color": "black"
   },
   {
    "ref": "bbw:bb1:gen_4",
    "boardId": "bb1",
    "a": "g14",
-   "b": "b33",
+   "b": "b36",
    "color": "blue"
   },
   {
    "ref": "bbw:bb1:gen_5",
    "boardId": "bb1",
    "a": "h14",
-   "b": "b21",
+   "b": "b24",
    "color": "yellow"
   },
   {
    "ref": "bbw:bb1:gen_6",
    "boardId": "bb1",
    "a": "g17",
-   "b": "b27",
+   "b": "b30",
    "color": "orange"
   },
   {
@@ -296,36 +296,22 @@
    "ref": "bbw:bb1:gen_9",
    "boardId": "bb1",
    "a": "c6",
-   "b": "c37",
+   "b": "c42",
    "color": "purple"
   },
   {
    "ref": "bbw:bb1:gen_10",
    "boardId": "bb1",
    "a": "d6",
-   "b": "c34",
+   "b": "c37",
    "color": "green"
   },
   {
    "ref": "bbw:bb1:gen_11",
    "boardId": "bb1",
    "a": "e6",
-   "b": "c25",
+   "b": "c28",
    "color": "blue"
-  },
-  {
-   "ref": "bbw:bb1:gen_12",
-   "boardId": "bb1",
-   "a": "g4",
-   "b": "b-4",
-   "color": "black"
-  },
-  {
-   "ref": "bbw:bb1:gen_13",
-   "boardId": "bb1",
-   "a": "g16",
-   "b": "t+16",
-   "color": "red"
   }
  ],
  "generated": "benchFor+authored+seat"

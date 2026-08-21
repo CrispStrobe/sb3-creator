@@ -53,13 +53,13 @@
     "a",
     "b"
    ],
-   "x": 64,
+   "x": 246,
    "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a3",
-     "b": "a7"
+     "a": "a16",
+     "b": "a20"
     }
    }
   },
@@ -73,13 +73,13 @@
     "a",
     "b"
    ],
-   "x": 148,
+   "x": 330,
    "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a9",
-     "b": "a13"
+     "a": "a22",
+     "b": "a26"
     }
    }
   },
@@ -93,15 +93,15 @@
     "vcc",
     "gnd"
    ],
-   "x": 232,
+   "x": 64,
    "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "gnd": "a15",
-     "vcc": "a16",
-     "sda": "a17",
-     "scl": "a18"
+     "gnd": "a3",
+     "vcc": "a4",
+     "sda": "a5",
+     "scl": "a6"
     }
    }
   }
@@ -196,29 +196,29 @@
   {
    "ref": "bbw:bb1:gen_0",
    "boardId": "bb1",
-   "a": "b3",
-   "b": "t+3",
-   "color": "red"
-  },
-  {
-   "ref": "bbw:bb1:gen_1",
-   "boardId": "bb1",
-   "a": "b9",
-   "b": "t+9",
-   "color": "red"
-  },
-  {
-   "ref": "bbw:bb1:gen_2",
-   "boardId": "bb1",
    "a": "b16",
    "b": "t+16",
    "color": "red"
   },
   {
+   "ref": "bbw:bb1:gen_1",
+   "boardId": "bb1",
+   "a": "b22",
+   "b": "t+22",
+   "color": "red"
+  },
+  {
+   "ref": "bbw:bb1:gen_2",
+   "boardId": "bb1",
+   "a": "b4",
+   "b": "t+4",
+   "color": "red"
+  },
+  {
    "ref": "bbw:bb1:gen_3",
    "boardId": "bb1",
-   "a": "b15",
-   "b": "b-15",
+   "a": "b3",
+   "b": "b-3",
    "color": "black"
   }
  ],

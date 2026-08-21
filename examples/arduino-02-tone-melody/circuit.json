@@ -14,41 +14,27 @@
    "id": "board",
    "kind": "arduino_uno",
    "declName": "board",
-   "x": 64,
-   "y": 255,
-   "seat": {
-    "boardId": "bb1",
-    "leadMap": {
-     "D0": "a3",
-     "D1": "a4",
-     "D2": "a5",
-     "D3": "a6",
-     "D4": "a7",
-     "D5": "a8",
-     "D6": "a9",
-     "D7": "a10",
-     "D8": "a11",
-     "D9": "a12",
-     "D10": "a13",
-     "D11": "a14",
-     "D12": "a15",
-     "D13": "a16"
-    }
-   },
-   "params": {}
+   "x": 240,
+   "y": -12,
+   "params": {},
+   "terminals": [
+    "d8",
+    "5v",
+    "gnd"
+   ]
   },
   {
    "id": "buz",
    "kind": "buzzer",
    "declName": "speaker",
    "params": {},
-   "x": 302,
+   "x": 64,
    "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a20",
-     "b": "a22"
+     "a": "a3",
+     "b": "a5"
     }
    }
   },
@@ -58,15 +44,15 @@
    "params": {
     "volts": 5
    },
-   "x": 80,
-   "y": 60
+   "x": 498,
+   "y": 115
   },
   {
    "id": "gnd1",
    "kind": "gnd",
    "params": {},
-   "x": 220,
-   "y": 60
+   "x": 574,
+   "y": 115
   }
  ],
  "wires": [

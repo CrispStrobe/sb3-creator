@@ -74,13 +74,13 @@
    "kind": "ldr",
    "declName": "ldr",
    "params": {},
-   "x": 470,
+   "x": 554,
    "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a32",
-     "b": "a34"
+     "a": "a38",
+     "b": "a40"
     }
    }
   },
@@ -91,13 +91,13 @@
    "params": {
     "ohms": 4700
    },
-   "x": 386,
+   "x": 400,
    "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a26",
-     "b": "a30"
+     "a": "a27",
+     "b": "a31"
     }
    }
   },
@@ -106,13 +106,13 @@
    "kind": "buzzer",
    "declName": "speaker",
    "params": {},
-   "x": 526,
+   "x": 484,
    "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a36",
-     "b": "a38"
+     "a": "a33",
+     "b": "a35"
     }
    }
   },
@@ -225,43 +225,43 @@
   {
    "ref": "bbw:bb1:gen_0",
    "boardId": "bb1",
-   "a": "b32",
-   "b": "t+32",
+   "a": "b38",
+   "b": "t+38",
    "color": "red"
   },
   {
    "ref": "bbw:bb1:gen_1",
    "boardId": "bb1",
-   "a": "b30",
-   "b": "b-30",
+   "a": "b31",
+   "b": "b-31",
    "color": "black"
   },
   {
    "ref": "bbw:bb1:gen_2",
    "boardId": "bb1",
    "a": "g6",
-   "b": "b34",
+   "b": "b40",
    "color": "green"
   },
   {
    "ref": "bbw:bb1:gen_3",
    "boardId": "bb1",
    "a": "h6",
-   "b": "b26",
+   "b": "b27",
    "color": "blue"
   },
   {
    "ref": "bbw:bb1:gen_4",
    "boardId": "bb1",
    "a": "g3",
-   "b": "b36",
+   "b": "b33",
    "color": "yellow"
   },
   {
    "ref": "bbw:bb1:gen_5",
    "boardId": "bb1",
    "a": "g22",
-   "b": "b38",
+   "b": "b35",
    "color": "orange"
   },
   {
@@ -275,14 +275,14 @@
    "ref": "bbw:bb1:gen_7",
    "boardId": "bb1",
    "a": "i22",
-   "b": "c30",
+   "b": "c31",
    "color": "purple"
   },
   {
    "ref": "bbw:bb1:gen_8",
    "boardId": "bb1",
    "a": "a3",
-   "b": "c32",
+   "b": "c38",
    "color": "green"
   },
   {

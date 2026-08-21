@@ -49,13 +49,13 @@
     "vf": 2,
     "color": "red"
    },
-   "x": 190,
+   "x": 218,
    "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "anode": "a12",
-     "cathode": "a13"
+     "anode": "a14",
+     "cathode": "a15"
     }
    }
   }
@@ -92,13 +92,13 @@
    "ref": "bbw:bb1:gen_1",
    "boardId": "bb1",
    "a": "b7",
-   "b": "b12",
+   "b": "b14",
    "color": "blue"
   },
   {
    "ref": "bbw:bb1:gen_2",
    "boardId": "bb1",
-   "a": "b13",
+   "a": "b15",
    "b": "b10",
    "color": "yellow"
   }

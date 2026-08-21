@@ -16,7 +16,13 @@
    "params": {},
    "x": 323,
    "y": -5,
-   "rotation": 0
+   "rotation": 0,
+   "terminals": [
+    "a0",
+    "d13",
+    "5v",
+    "gnd"
+   ]
   },
   {
    "id": "piezo",
@@ -56,13 +62,13 @@
    "params": {
     "color": "red"
    },
-   "x": 274,
+   "x": 302,
    "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "anode": "a18",
-     "cathode": "a19"
+     "anode": "a20",
+     "cathode": "a21"
     }
    }
   },
@@ -202,14 +208,14 @@
    "ref": "bbw:bb1:gen_2",
    "boardId": "bb1",
    "a": "b13",
-   "b": "b18",
+   "b": "b20",
    "color": "green"
   },
   {
    "ref": "bbw:bb1:gen_3",
    "boardId": "bb1",
-   "a": "b19",
-   "b": "b-19",
+   "a": "b21",
+   "b": "b-21",
    "color": "black"
   }
  ],

@@ -28,13 +28,13 @@
    "id": "buzzer1",
    "kind": "buzzer",
    "params": {},
-   "x": 386,
+   "x": 400,
    "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a26",
-     "b": "a28"
+     "a": "a27",
+     "b": "a29"
     }
    }
   },
@@ -133,14 +133,14 @@
   {
    "ref": "bbw:bb1:gen_0",
    "boardId": "bb1",
-   "a": "b26",
-   "b": "t+26",
+   "a": "b27",
+   "b": "t+27",
    "color": "red"
   },
   {
    "ref": "bbw:bb1:gen_1",
    "boardId": "bb1",
-   "a": "b28",
+   "a": "b29",
    "b": "g8",
    "color": "green"
   },

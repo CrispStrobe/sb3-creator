@@ -58,13 +58,13 @@
    "params": {
     "color": "red"
    },
-   "x": 470,
+   "x": 484,
    "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "anode": "a32",
-     "cathode": "a33"
+     "anode": "a33",
+     "cathode": "a34"
     }
    }
   },
@@ -75,13 +75,13 @@
    "params": {
     "ohms": 220
    },
-   "x": 302,
+   "x": 316,
    "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a20",
-     "b": "a24"
+     "a": "a21",
+     "b": "a25"
     }
    }
   },
@@ -90,13 +90,13 @@
    "kind": "button",
    "declName": "btn",
    "params": {},
-   "x": 512,
+   "x": 540,
    "y": 311,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "e35",
-     "b": "f35"
+     "a": "e37",
+     "b": "f37"
     }
    }
   },
@@ -107,13 +107,13 @@
    "params": {
     "ohms": 10000
    },
-   "x": 386,
+   "x": 400,
    "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a26",
-     "b": "a30"
+     "a": "a27",
+     "b": "a31"
     }
    }
   },
@@ -232,50 +232,50 @@
   {
    "ref": "bbw:bb1:gen_0",
    "boardId": "bb1",
-   "a": "b24",
-   "b": "b32",
+   "a": "b25",
+   "b": "b33",
    "color": "green"
   },
   {
    "ref": "bbw:bb1:gen_1",
    "boardId": "bb1",
-   "a": "b33",
-   "b": "b-33",
+   "a": "b34",
+   "b": "b-34",
    "color": "black"
   },
   {
    "ref": "bbw:bb1:gen_2",
    "boardId": "bb1",
-   "a": "a35",
-   "b": "t+35",
+   "a": "a37",
+   "b": "t+37",
    "color": "red"
   },
   {
    "ref": "bbw:bb1:gen_3",
    "boardId": "bb1",
-   "a": "b30",
-   "b": "b-30",
+   "a": "b31",
+   "b": "b-31",
    "color": "black"
   },
   {
    "ref": "bbw:bb1:gen_4",
    "boardId": "bb1",
    "a": "a3",
-   "b": "g35",
+   "b": "g37",
    "color": "blue"
   },
   {
    "ref": "bbw:bb1:gen_5",
    "boardId": "bb1",
    "a": "b3",
-   "b": "b26",
+   "b": "b27",
    "color": "yellow"
   },
   {
    "ref": "bbw:bb1:gen_6",
    "boardId": "bb1",
    "a": "g16",
-   "b": "b20",
+   "b": "b21",
    "color": "orange"
   },
   {
@@ -289,21 +289,21 @@
    "ref": "bbw:bb1:gen_8",
    "boardId": "bb1",
    "a": "h10",
-   "b": "c33",
+   "b": "c34",
    "color": "purple"
   },
   {
    "ref": "bbw:bb1:gen_9",
    "boardId": "bb1",
    "a": "i10",
-   "b": "c30",
+   "b": "c31",
    "color": "green"
   },
   {
    "ref": "bbw:bb1:gen_10",
    "boardId": "bb1",
    "a": "g9",
-   "b": "b35",
+   "b": "b37",
    "color": "blue"
   },
   {

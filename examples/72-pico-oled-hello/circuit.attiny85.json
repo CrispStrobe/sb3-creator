@@ -14,20 +14,20 @@
    "id": "pico1",
    "kind": "attiny85",
    "params": {},
-   "x": 64,
+   "x": 218,
    "y": 349,
    "rotation": 0,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "pb5": "f3",
-     "pb3": "f4",
-     "pb4": "f5",
-     "gnd": "f6",
-     "pb0": "e6",
-     "pb1": "e5",
-     "pb2": "e4",
-     "vcc": "e3"
+     "pb5": "f14",
+     "pb3": "f15",
+     "pb4": "f16",
+     "gnd": "f17",
+     "pb0": "e17",
+     "pb1": "e16",
+     "pb2": "e15",
+     "vcc": "e14"
     }
    }
   },
@@ -35,16 +35,16 @@
    "id": "oled1",
    "kind": "ssd1306",
    "params": {},
-   "x": 162,
+   "x": 64,
    "y": 255,
    "rotation": 0,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "vcc": "a10",
-     "gnd": "a11",
-     "sda": "a12",
-     "scl": "a13"
+     "vcc": "a3",
+     "gnd": "a4",
+     "sda": "a5",
+     "scl": "a6"
     }
    }
   },
@@ -139,57 +139,57 @@
   {
    "ref": "bbw:bb1:gen_0",
    "boardId": "bb1",
-   "a": "b10",
-   "b": "t+10",
-   "color": "red"
-  },
-  {
-   "ref": "bbw:bb1:gen_1",
-   "boardId": "bb1",
-   "a": "b11",
-   "b": "b-11",
-   "color": "black"
-  },
-  {
-   "ref": "bbw:bb1:gen_2",
-   "boardId": "bb1",
-   "a": "a6",
-   "b": "b12",
-   "color": "green"
-  },
-  {
-   "ref": "bbw:bb1:gen_3",
-   "boardId": "bb1",
-   "a": "a4",
-   "b": "b13",
-   "color": "blue"
-  },
-  {
-   "ref": "bbw:bb1:gen_4",
-   "boardId": "bb1",
-   "a": "a3",
-   "b": "c10",
-   "color": "yellow"
-  },
-  {
-   "ref": "bbw:bb1:gen_5",
-   "boardId": "bb1",
    "a": "b3",
    "b": "t+3",
    "color": "red"
   },
   {
+   "ref": "bbw:bb1:gen_1",
+   "boardId": "bb1",
+   "a": "b4",
+   "b": "b-4",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb1:gen_2",
+   "boardId": "bb1",
+   "a": "a17",
+   "b": "b5",
+   "color": "green"
+  },
+  {
+   "ref": "bbw:bb1:gen_3",
+   "boardId": "bb1",
+   "a": "a15",
+   "b": "b6",
+   "color": "blue"
+  },
+  {
+   "ref": "bbw:bb1:gen_4",
+   "boardId": "bb1",
+   "a": "a14",
+   "b": "c3",
+   "color": "yellow"
+  },
+  {
+   "ref": "bbw:bb1:gen_5",
+   "boardId": "bb1",
+   "a": "b14",
+   "b": "t+14",
+   "color": "red"
+  },
+  {
    "ref": "bbw:bb1:gen_6",
    "boardId": "bb1",
-   "a": "g6",
-   "b": "b-6",
+   "a": "g17",
+   "b": "b-17",
    "color": "black"
   },
   {
    "ref": "bbw:bb1:gen_7",
    "boardId": "bb1",
-   "a": "h6",
-   "b": "c11",
+   "a": "h17",
+   "b": "c4",
    "color": "orange"
   }
  ],

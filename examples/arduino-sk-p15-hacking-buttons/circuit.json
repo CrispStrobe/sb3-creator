@@ -17,8 +17,8 @@
    "terminals": [
     "vcc"
    ],
-   "x": 80,
-   "y": 60
+   "x": 58,
+   "y": 115
   },
   {
    "id": "GND",
@@ -27,37 +27,20 @@
    "terminals": [
     "gnd"
    ],
-   "x": 220,
-   "y": 60
+   "x": 134,
+   "y": 115
   },
   {
    "id": "MCU",
    "kind": "arduino_uno",
    "params": {},
    "terminals": [
-    "d13"
+    "d13",
+    "5v",
+    "gnd2"
    ],
-   "seat": {
-    "boardId": "bb1",
-    "leadMap": {
-     "D0": "a3",
-     "D1": "a4",
-     "D2": "a5",
-     "D3": "a6",
-     "D4": "a7",
-     "D5": "a8",
-     "D6": "a9",
-     "D7": "a10",
-     "D8": "a11",
-     "D9": "a12",
-     "D10": "a13",
-     "D11": "a14",
-     "D12": "a15",
-     "D13": "a16"
-    }
-   },
-   "x": 64,
-   "y": 255
+   "x": 392,
+   "y": -12
   },
   {
    "id": "R_opto",
@@ -69,15 +52,15 @@
     "a",
     "b"
    ],
+   "x": 64,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a20",
-     "b": "a24"
+     "a": "a3",
+     "b": "a7"
     }
-   },
-   "x": 302,
-   "y": 255
+   }
   },
   {
    "id": "LED_opto",
@@ -90,15 +73,15 @@
     "anode",
     "cathode"
    ],
+   "x": 148,
+   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "anode": "a26",
-     "cathode": "a27"
+     "anode": "a9",
+     "cathode": "a10"
     }
-   },
-   "x": 386,
-   "y": 255
+   }
   }
  ],
  "wires": [
@@ -121,6 +104,22 @@
    "toTerminal": "cathode"
   },
   {
+   "from": "VCC",
+   "fromTerminal": "vcc",
+   "to": "MCU",
+   "toTerminal": "5v",
+   "color": "red",
+   "genPower": true
+  },
+  {
+   "from": "GND",
+   "fromTerminal": "gnd",
+   "to": "MCU",
+   "toTerminal": "gnd2",
+   "color": "black",
+   "genPower": true
+  },
+  {
    "from": "GND",
    "fromTerminal": "gnd",
    "to": {
@@ -135,15 +134,15 @@
   {
    "ref": "bbw:bb1:gen_0",
    "boardId": "bb1",
-   "a": "b24",
-   "b": "b26",
+   "a": "b7",
+   "b": "b9",
    "color": "green"
   },
   {
    "ref": "bbw:bb1:gen_1",
    "boardId": "bb1",
-   "a": "b27",
-   "b": "b-27",
+   "a": "b10",
+   "b": "b-10",
    "color": "black"
   }
  ],

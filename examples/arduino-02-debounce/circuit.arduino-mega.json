@@ -16,7 +16,13 @@
    "params": {},
    "x": 323,
    "y": -5,
-   "rotation": 0
+   "rotation": 0,
+   "terminals": [
+    "d2",
+    "d13",
+    "gnd",
+    "5v"
+   ]
   },
   {
    "id": "led1",
@@ -57,13 +63,13 @@
    "kind": "button",
    "declName": "btn",
    "params": {},
-   "x": 274,
+   "x": 288,
    "y": 311,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "e18",
-     "b": "f18"
+     "a": "e19",
+     "b": "f19"
     }
    }
   },
@@ -213,8 +219,8 @@
   {
    "ref": "bbw:bb1:gen_2",
    "boardId": "bb1",
-   "a": "a18",
-   "b": "t+18",
+   "a": "a19",
+   "b": "t+19",
    "color": "red"
   },
   {

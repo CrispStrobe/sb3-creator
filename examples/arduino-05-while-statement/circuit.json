@@ -14,41 +14,30 @@
    "id": "board",
    "kind": "arduino_uno",
    "declName": "board",
-   "x": 64,
-   "y": 255,
-   "seat": {
-    "boardId": "bb1",
-    "leadMap": {
-     "D0": "a3",
-     "D1": "a4",
-     "D2": "a5",
-     "D3": "a6",
-     "D4": "a7",
-     "D5": "a8",
-     "D6": "a9",
-     "D7": "a10",
-     "D8": "a11",
-     "D9": "a12",
-     "D10": "a13",
-     "D11": "a14",
-     "D12": "a15",
-     "D13": "a16"
-    }
-   },
-   "params": {}
+   "x": 240,
+   "y": -12,
+   "params": {},
+   "terminals": [
+    "d2",
+    "a0",
+    "d9",
+    "d13",
+    "5v",
+    "gnd"
+   ]
   },
   {
    "id": "btn1",
    "kind": "button",
    "declName": "btn",
    "params": {},
-   "x": 778,
+   "x": 400,
    "y": 311,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "e54",
-     "b": "f54"
+     "a": "e27",
+     "b": "f27"
     }
    }
   },
@@ -58,13 +47,13 @@
    "params": {
     "ohms": 10000
    },
-   "x": 302,
+   "x": 64,
    "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a20",
-     "b": "a24"
+     "a": "a3",
+     "b": "a7"
     }
    }
   },
@@ -73,13 +62,13 @@
    "kind": "ldr",
    "declName": "ldr",
    "params": {},
-   "x": 638,
+   "x": 484,
    "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a44",
-     "b": "a46"
+     "a": "a33",
+     "b": "a35"
     }
    }
   },
@@ -89,13 +78,13 @@
    "params": {
     "ohms": 10000
    },
-   "x": 386,
+   "x": 148,
    "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a26",
-     "b": "a30"
+     "a": "a9",
+     "b": "a13"
     }
    }
   },
@@ -106,13 +95,13 @@
    "params": {
     "color": "green"
    },
-   "x": 694,
+   "x": 540,
    "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "anode": "a48",
-     "cathode": "a49"
+     "anode": "a37",
+     "cathode": "a38"
     }
    }
   },
@@ -122,13 +111,13 @@
    "params": {
     "ohms": 220
    },
-   "x": 470,
+   "x": 232,
    "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a32",
-     "b": "a36"
+     "a": "a15",
+     "b": "a19"
     }
    }
   },
@@ -139,13 +128,13 @@
    "params": {
     "color": "red"
    },
-   "x": 736,
+   "x": 596,
    "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "anode": "a51",
-     "cathode": "a52"
+     "anode": "a41",
+     "cathode": "a42"
     }
    }
   },
@@ -155,13 +144,13 @@
    "params": {
     "ohms": 220
    },
-   "x": 554,
+   "x": 316,
    "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a38",
-     "b": "a42"
+     "a": "a21",
+     "b": "a25"
     }
    }
   },
@@ -171,15 +160,15 @@
    "params": {
     "volts": 5
    },
-   "x": 80,
-   "y": 60
+   "x": 498,
+   "y": 115
   },
   {
    "id": "gnd1",
    "kind": "gnd",
    "params": {},
-   "x": 220,
-   "y": 60
+   "x": 574,
+   "y": 115
   }
  ],
  "wires": [
@@ -304,57 +293,57 @@
   {
    "ref": "bbw:bb1:gen_0",
    "boardId": "bb1",
-   "a": "a54",
-   "b": "t+54",
+   "a": "a27",
+   "b": "t+27",
    "color": "red"
   },
   {
    "ref": "bbw:bb1:gen_1",
    "boardId": "bb1",
-   "a": "b24",
-   "b": "b-24",
+   "a": "b7",
+   "b": "b-7",
    "color": "black"
   },
   {
    "ref": "bbw:bb1:gen_2",
    "boardId": "bb1",
-   "a": "b44",
-   "b": "t+44",
+   "a": "b33",
+   "b": "t+33",
    "color": "red"
   },
   {
    "ref": "bbw:bb1:gen_3",
    "boardId": "bb1",
-   "a": "b30",
-   "b": "b-30",
+   "a": "b13",
+   "b": "b-13",
    "color": "black"
   },
   {
    "ref": "bbw:bb1:gen_4",
    "boardId": "bb1",
-   "a": "b36",
-   "b": "b48",
+   "a": "b19",
+   "b": "b37",
    "color": "green"
   },
   {
    "ref": "bbw:bb1:gen_5",
    "boardId": "bb1",
-   "a": "b49",
-   "b": "b-49",
+   "a": "b38",
+   "b": "b-38",
    "color": "black"
   },
   {
    "ref": "bbw:bb1:gen_6",
    "boardId": "bb1",
-   "a": "b42",
-   "b": "b51",
+   "a": "b25",
+   "b": "b41",
    "color": "blue"
   },
   {
    "ref": "bbw:bb1:gen_7",
    "boardId": "bb1",
-   "a": "b52",
-   "b": "b-52",
+   "a": "b42",
+   "b": "b-42",
    "color": "black"
   }
  ]

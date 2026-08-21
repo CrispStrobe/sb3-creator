@@ -83,20 +83,20 @@
    "kind": "ili9341",
    "declName": "tft",
    "params": {},
-   "x": 386,
+   "x": 400,
    "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "vcc": "a26",
-     "gnd": "a27",
-     "cs": "a28",
-     "rst": "a29",
-     "dc": "a30",
-     "mosi": "a31",
-     "sck": "a32",
-     "miso": "a33",
-     "led": "a34"
+     "vcc": "a27",
+     "gnd": "a28",
+     "cs": "a29",
+     "rst": "a30",
+     "dc": "a31",
+     "mosi": "a32",
+     "sck": "a33",
+     "miso": "a34",
+     "led": "a35"
     }
    }
   }
@@ -170,49 +170,49 @@
    "ref": "bbw:bb1:gen_0",
    "boardId": "bb1",
    "a": "g3",
-   "b": "b28",
+   "b": "b29",
    "color": "green"
   },
   {
    "ref": "bbw:bb1:gen_1",
    "boardId": "bb1",
    "a": "g4",
-   "b": "b30",
+   "b": "b31",
    "color": "blue"
   },
   {
    "ref": "bbw:bb1:gen_2",
    "boardId": "bb1",
    "a": "g5",
-   "b": "b32",
+   "b": "b33",
    "color": "yellow"
   },
   {
    "ref": "bbw:bb1:gen_3",
    "boardId": "bb1",
    "a": "g6",
-   "b": "b31",
+   "b": "b32",
    "color": "orange"
   },
   {
    "ref": "bbw:bb1:gen_4",
    "boardId": "bb1",
-   "a": "b26",
-   "b": "t+26",
+   "a": "b27",
+   "b": "t+27",
    "color": "red"
   },
   {
    "ref": "bbw:bb1:gen_5",
    "boardId": "bb1",
-   "a": "b27",
-   "b": "b-27",
+   "a": "b28",
+   "b": "b-28",
    "color": "black"
   },
   {
    "ref": "bbw:bb1:gen_6",
    "boardId": "bb1",
-   "a": "b34",
-   "b": "t+34",
+   "a": "b35",
+   "b": "t+35",
    "color": "red"
   },
   {

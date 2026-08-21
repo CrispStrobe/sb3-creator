@@ -16,7 +16,14 @@
    "params": {},
    "x": 323,
    "y": -5,
-   "rotation": 0
+   "rotation": 0,
+   "terminals": [
+    "a0",
+    "d13",
+    "d22",
+    "gnd",
+    "5v"
+   ]
   },
   {
    "id": "pot1",
@@ -76,13 +83,13 @@
    "params": {
     "color": "red"
    },
-   "x": 358,
+   "x": 372,
    "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "anode": "a24",
-     "cathode": "a25"
+     "anode": "a25",
+     "cathode": "a26"
     }
    }
   },
@@ -264,14 +271,14 @@
    "ref": "bbw:bb1:gen_4",
    "boardId": "bb1",
    "a": "b19",
-   "b": "b24",
+   "b": "b25",
    "color": "blue"
   },
   {
    "ref": "bbw:bb1:gen_5",
    "boardId": "bb1",
-   "a": "b25",
-   "b": "b-25",
+   "a": "b26",
+   "b": "b-26",
    "color": "black"
   }
  ],

@@ -16,7 +16,12 @@
    "params": {},
    "x": 323,
    "y": -5,
-   "rotation": 0
+   "rotation": 0,
+   "terminals": [
+    "a0",
+    "gnd",
+    "5v"
+   ]
   },
   {
    "id": "ldr",

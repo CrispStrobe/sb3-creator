@@ -27,6 +27,7 @@ const MCU_KINDS = new Set(['mcu', 'stc_mcu', 'stc15_mcu', 'arduino_uno', 'arduin
 
 describe('bench invariants: every device bench, canonical loader', { skip: available ? false : 'needs bw-circuit-ui/bw-board checkouts' }, () => {
   let Circuit;
+  let resolveTerminal;
   test('engine + sidecars load', async () => {
     const { setEngine } = await import(join(CUI, 'src/engine.js'));
     const eng = await import(join(BWB, 'src/index.js'));
@@ -42,6 +43,7 @@ describe('bench invariants: every device bench, canonical loader', { skip: avail
       } catch { /* bw-parts' problem */ }
     }
     ({ Circuit } = await import(join(CUI, 'src/model/circuit.js')));
+    ({ resolveTerminal } = await import(join(CUI, 'src/model/terminal-aliases.js')));
   });
 
   const benchFiles = [];
@@ -60,6 +62,34 @@ describe('bench invariants: every device bench, canonical loader', { skip: avail
     const problems = [];
     for (const rel of benchFiles) {
       const data = JSON.parse(readFileSync(join(EXAMPLES, rel), 'utf8'));
+      const sourceParts = new Map((data.parts || []).map(part => [part.id, part]));
+      const endpoint = (wire, side) => {
+        const raw = wire[side];
+        if (raw && typeof raw === 'object') return raw.board
+          ? {board: raw.board, hole: raw.hole}
+          : {part: raw.part, terminal: raw.terminal};
+        return {part: raw, terminal: wire[`${side}Terminal`]};
+      };
+      // Before canonical loading can normalize anything, reject references to
+      // missing parts/boards. Terminal aliases and legacy omitted terminal
+      // arrays are resolved by the canonical loader below.
+      for (const wire of data.wires || []) for (const side of ['from', 'to']) {
+        const ep = endpoint(wire, side);
+        if (ep.board) {
+          if (sourceParts.get(ep.board)?.kind !== 'breadboard' || !ep.hole) {
+            problems.push(`${rel}: wire ${side} points to missing board/hole ${ep.board || '?'}.${ep.hole || '?'}`);
+          }
+          continue;
+        }
+        const part = sourceParts.get(ep.part);
+        if (!part) { problems.push(`${rel}: wire ${side} points to missing part ${ep.part || '?'}`); continue; }
+        if (!ep.terminal) problems.push(`${rel}: wire ${side} has no terminal on ${ep.part}`);
+      }
+      for (const jumper of data.holeWires || []) {
+        if (sourceParts.get(jumper.boardId)?.kind !== 'breadboard' || !jumper.a || !jumper.b) {
+          problems.push(`${rel}: jumper ${jumper.ref || '?'} points into nowhere`);
+        }
+      }
       let circ;
       try { circ = Circuit.fromJSON(data); } catch (e) { problems.push(`${rel}: loader threw ${e.message}`); continue; }
       // The canonical loader now exposes the rejection explicitly. Check it
@@ -76,6 +106,21 @@ describe('bench invariants: every device bench, canonical loader', { skip: avail
       const bparts = (circ.board && circ.board.parts) || [];
       const bnets = (circ.board && circ.board.nets) || [];
       if (!bparts.length) { problems.push(`${rel}: engine rejected the bench (board has no parts)`); continue; }
+
+      // After alias/sidecar resolution, every logical endpoint must appear
+      // in an actual resolved electrical net. This is the direct "no wire
+      // into nirvana" invariant and still accepts legitimate legacy aliases.
+      const boardParts = new Map(bparts.map(part => [part.id, part]));
+      for (const wire of data.wires || []) for (const side of ['from', 'to']) {
+        const ep = endpoint(wire, side);
+        if (ep.board) continue;
+        const part = boardParts.get(ep.part);
+        const terminal = part ? resolveTerminal(part.kind, ep.terminal, part.terminals || []) : ep.terminal;
+        const resolved = bnets.some(net => net.terminals.some(t => t.part === ep.part && t.terminal === terminal));
+        if (!resolved) {
+          problems.push(`${rel}: wire ${side} ends in nowhere at ${ep.part || '?'}.${ep.terminal || '?'}`);
+        }
+      }
 
       // A device-suffixed bench NAMES a chip, so a missing MCU is a real
       // defect. The primary circuit.json need not have one at all: the gallery
@@ -113,6 +158,22 @@ describe('bench invariants: every device bench, canonical loader', { skip: avail
       for (const p of bparts) {
         if (STRUCTURAL.has(p.kind) || p.id === mcu.id) continue;
         if (!seen.has(p.id)) problems.push(`${rel}: ${p.id} (${p.kind}) unreachable from the MCU`);
+      }
+
+      // Generated inductive drivers are safe by construction. The one
+      // explicitly unsafe lesson is allowed to omit its diode; every normal
+      // motor/relay bench must put a diode across the load, cathode to supply.
+      if (!rel.startsWith('33-inductive-no-flyback/')) {
+        for (const load of bparts.filter(p => p.kind === 'dc_motor' || p.kind === 'relay')) {
+          const lowTerm = load.kind === 'relay' ? 'coil_b' : 'b';
+          const highTerm = load.kind === 'relay' ? 'coil_a' : 'a';
+          const low = bnets.find(n => n.terminals.some(t => t.part === load.id && t.terminal === lowTerm));
+          const high = bnets.find(n => n.terminals.some(t => t.part === load.id && t.terminal === highTerm));
+          const protectedBy = bparts.filter(p => p.kind === 'diode').find(diode =>
+            low?.terminals.some(t => t.part === diode.id && t.terminal === 'anode') &&
+            high?.terminals.some(t => t.part === diode.id && t.terminal === 'cathode'));
+          if (!protectedBy) problems.push(`${rel}: ${load.id} has no correctly oriented flyback diode`);
+        }
       }
 
       // An MCU GPIO directly in a power net is a SHORT: the Pico's SWD

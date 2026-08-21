@@ -16,7 +16,17 @@
    "params": {},
    "x": 323,
    "y": -5,
-   "rotation": 0
+   "rotation": 0,
+   "terminals": [
+    "a0",
+    "a1",
+    "a2",
+    "d13",
+    "d22",
+    "d23",
+    "gnd",
+    "5v"
+   ]
   },
   {
    "id": "potR",

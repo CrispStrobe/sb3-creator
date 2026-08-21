@@ -58,13 +58,13 @@
    "kind": "ldr",
    "declName": "ldr",
    "params": {},
-   "x": 400,
+   "x": 442,
    "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a27",
-     "b": "a29"
+     "a": "a30",
+     "b": "a32"
     }
    }
   },
@@ -74,13 +74,13 @@
    "params": {
     "ohms": 10000
    },
-   "x": 316,
+   "x": 358,
    "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a21",
-     "b": "a25"
+     "a": "a24",
+     "b": "a28"
     }
    }
   },
@@ -175,29 +175,29 @@
   {
    "ref": "bbw:bb1:gen_0",
    "boardId": "bb1",
-   "a": "b27",
-   "b": "t+27",
+   "a": "b30",
+   "b": "t+30",
    "color": "red"
   },
   {
    "ref": "bbw:bb1:gen_1",
    "boardId": "bb1",
-   "a": "b25",
-   "b": "b-25",
+   "a": "b28",
+   "b": "b-28",
    "color": "black"
   },
   {
    "ref": "bbw:bb1:gen_2",
    "boardId": "bb1",
    "a": "g14",
-   "b": "b29",
+   "b": "b32",
    "color": "green"
   },
   {
    "ref": "bbw:bb1:gen_3",
    "boardId": "bb1",
    "a": "h14",
-   "b": "b21",
+   "b": "b24",
    "color": "blue"
   },
   {
@@ -211,14 +211,14 @@
    "ref": "bbw:bb1:gen_5",
    "boardId": "bb1",
    "a": "c6",
-   "b": "c25",
+   "b": "c28",
    "color": "yellow"
   },
   {
    "ref": "bbw:bb1:gen_6",
    "boardId": "bb1",
    "a": "g6",
-   "b": "c27",
+   "b": "c30",
    "color": "orange"
   },
   {
@@ -226,20 +226,6 @@
    "boardId": "bb1",
    "a": "h6",
    "b": "t+6",
-   "color": "red"
-  },
-  {
-   "ref": "bbw:bb1:gen_8",
-   "boardId": "bb1",
-   "a": "g4",
-   "b": "b-4",
-   "color": "black"
-  },
-  {
-   "ref": "bbw:bb1:gen_9",
-   "boardId": "bb1",
-   "a": "g16",
-   "b": "t+16",
    "color": "red"
   }
  ],

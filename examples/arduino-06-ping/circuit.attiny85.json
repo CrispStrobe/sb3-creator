@@ -36,15 +36,15 @@
    "kind": "ultrasonic",
    "declName": "us",
    "params": {},
-   "x": 162,
+   "x": 176,
    "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "vcc": "a10",
-     "trig": "a11",
-     "echo": "a12",
-     "gnd": "a13"
+     "vcc": "a11",
+     "trig": "a12",
+     "echo": "a13",
+     "gnd": "a14"
     }
    }
   },
@@ -139,29 +139,29 @@
   {
    "ref": "bbw:bb1:gen_0",
    "boardId": "bb1",
-   "a": "b10",
-   "b": "t+10",
+   "a": "b11",
+   "b": "t+11",
    "color": "red"
   },
   {
    "ref": "bbw:bb1:gen_1",
    "boardId": "bb1",
-   "a": "b13",
-   "b": "b-13",
+   "a": "b14",
+   "b": "b-14",
    "color": "black"
   },
   {
    "ref": "bbw:bb1:gen_2",
    "boardId": "bb1",
    "a": "a6",
-   "b": "b11",
+   "b": "b12",
    "color": "green"
   },
   {
    "ref": "bbw:bb1:gen_3",
    "boardId": "bb1",
    "a": "a4",
-   "b": "b12",
+   "b": "b13",
    "color": "blue"
   },
   {
@@ -175,14 +175,14 @@
    "ref": "bbw:bb1:gen_5",
    "boardId": "bb1",
    "a": "h6",
-   "b": "c13",
+   "b": "c14",
    "color": "yellow"
   },
   {
    "ref": "bbw:bb1:gen_6",
    "boardId": "bb1",
    "a": "a3",
-   "b": "c10",
+   "b": "c11",
    "color": "orange"
   },
   {

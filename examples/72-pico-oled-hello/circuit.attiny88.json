@@ -55,16 +55,16 @@
    "id": "oled1",
    "kind": "ssd1306",
    "params": {},
-   "x": 302,
+   "x": 316,
    "y": 255,
    "rotation": 0,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "vcc": "a20",
-     "gnd": "a21",
-     "sda": "a22",
-     "scl": "a23"
+     "vcc": "a21",
+     "gnd": "a22",
+     "sda": "a23",
+     "scl": "a24"
     }
    }
   },
@@ -159,36 +159,36 @@
   {
    "ref": "bbw:bb1:gen_0",
    "boardId": "bb1",
-   "a": "b20",
-   "b": "t+20",
+   "a": "b21",
+   "b": "t+21",
    "color": "red"
   },
   {
    "ref": "bbw:bb1:gen_1",
    "boardId": "bb1",
-   "a": "b21",
-   "b": "b-21",
+   "a": "b22",
+   "b": "b-22",
    "color": "black"
   },
   {
    "ref": "bbw:bb1:gen_2",
    "boardId": "bb1",
    "a": "a14",
-   "b": "b22",
+   "b": "b23",
    "color": "green"
   },
   {
    "ref": "bbw:bb1:gen_3",
    "boardId": "bb1",
    "a": "a15",
-   "b": "b23",
+   "b": "b24",
    "color": "blue"
   },
   {
    "ref": "bbw:bb1:gen_4",
    "boardId": "bb1",
    "a": "g9",
-   "b": "c20",
+   "b": "c21",
    "color": "yellow"
   },
   {
@@ -209,7 +209,7 @@
    "ref": "bbw:bb1:gen_7",
    "boardId": "bb1",
    "a": "h10",
-   "b": "c21",
+   "b": "c22",
    "color": "orange"
   },
   {
