@@ -62,18 +62,17 @@ describe('bench invariants: every device bench, canonical loader', { skip: avail
       const data = JSON.parse(readFileSync(join(EXAMPLES, rel), 'utf8'));
       let circ;
       try { circ = Circuit.fromJSON(data); } catch (e) { problems.push(`${rel}: loader threw ${e.message}`); continue; }
-      // Circuit.netlistError and Circuit.resolvedNets NO LONGER EXIST — both
-      // were removed from bw-circuit-ui's model. Reading them made this gate
-      // vacuous in the worst way: resolvedNets came back undefined for all 819
-      // benches, so every part was trivially unreachable and the suite reported
-      // 3288 violations. A gate that fails wholesale cannot report anything, and
-      // a REAL "every peripheral unreachable" regression — the exact thing this
-      // file was written to catch — would have been indistinguishable from the
-      // noise. The engine's own view lives on circ.board.
-      //
-      // An empty board is the load failure: Circuit._syncNetlist swallows engine
-      // rejection in a bare catch, so a refused bench still yields a healthy
-      // looking Circuit attached to a board holding nothing.
+      // The canonical loader now exposes the rejection explicitly. Check it
+      // before looking at the board so one malformed terminal reports the real
+      // engine error instead of turning into hundreds of reachability symptoms.
+      if (circ.netlistError != null) {
+        problems.push(`${rel}: engine rejected the bench (${circ.netlistError})`);
+        continue;
+      }
+
+      // Keep the non-empty assertion as an independent canary: a future loader
+      // could accidentally stop surfacing netlistError while still replacing
+      // the board with an empty instance.
       const bparts = (circ.board && circ.board.parts) || [];
       const bnets = (circ.board && circ.board.nets) || [];
       if (!bparts.length) { problems.push(`${rel}: engine rejected the bench (board has no parts)`); continue; }
@@ -143,31 +142,6 @@ describe('bench invariants: every device bench, canonical loader', { skip: avail
         if (na && nb && na === nb) problems.push(`${rel}: button ${p.id} shorted (both legs on one strip)`);
       }
     }
-    // KNOWN, with a reason and a ratchet — the convention block-lowering.test
-    // already uses. These two are genuinely unreachable and genuinely OUR
-    // data, but they cannot be wired without inventing hardware, because the
-    // example contradicts itself about what drives VIA PORT A:
-    //
-    //   program.bw header : "bar-graph LEDs on VIA port A"
-    //   intro.md          : "VIA PORTA (pins 2-9): PS/2 keyboard"
-    //   circuit.json      : pa5/pa6/pa7 already drive the LCD's rs/rw/e
-    //                       (which is the real Ben Eater wiring)
-    //
-    // That leaves pa0-pa4 free — five pins — against a bargraph needing 20
-    // connections (10 anodes + 10 cathodes) and a keyboard needing two. Both
-    // documents claim the same port and neither fits, so the fix is an
-    // authoring decision about what this example models, not a wiring job.
-    // Listing them keeps the gate GREEN so a NEW unreachable part is loud,
-    // instead of hiding behind a permanent red — the failure mode this whole
-    // file was repaired for. Only ever remove entries, never add.
-    const KNOWN_UNWIRED = new Set([
-        'eater6502-full-build/circuit.json: kbd (ps2) unreachable from the MCU',
-        'eater6502-full-build/circuit.json: bargraph (bargraph) unreachable from the MCU',
-    ]);
-    const unexpected = problems.filter((p) => !KNOWN_UNWIRED.has(p));
-    const fixed = [...KNOWN_UNWIRED].filter((k) => !problems.includes(k));
-    assert.deepEqual(fixed, [],
-        `KNOWN_UNWIRED lists something that now passes — delete it from the list:\n  ${fixed.join('\n  ')}`);
-    assert.deepEqual(unexpected, [], `${unexpected.length} bench invariant violations`);
+    assert.deepEqual(problems, [], `${problems.length} bench invariant violations`);
   });
 });
