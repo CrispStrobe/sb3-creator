@@ -64,8 +64,8 @@ einsteckst.
   eine Diode, eine Richtung.
 - **Zum Vergleich:** [pc34-polarity-protector](../pc34-polarity-protector) — die
   Antwort mit einer Diode: falsch herum wird gesperrt statt genutzt.
-- **Als Nächstes:** [42-diode-rectifier](../42-diode-rectifier) —
-  Gleichrichtung mit einer Quelle, die wirklich wechselt.
+- **Zum Vergleich:** [42-diode-rectifier](../42-diode-rectifier) — eine einfachere
+  Gegenüberstellung von Dioden in Durchlass- und Sperrrichtung.
 - **Zum Ausprobieren:** Lösche `d3` samt seinen zwei Drähten und dreh die Quelle
   noch einmal um. Die eine Polarität geht weiter, die andere hat ihren Weg
   verloren — und jetzt weißt du, welches Paar gearbeitet hat.

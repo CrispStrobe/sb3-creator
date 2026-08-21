@@ -61,8 +61,8 @@ inputs simply so it does not matter which way you plug the barrel jack in.
   diode, one direction.
 - **Compare:** [pc34-polarity-protector](../pc34-polarity-protector) — the
   one-diode answer: blocks the wrong way round instead of using it.
-- **Next:** [42-diode-rectifier](../42-diode-rectifier) — rectification with a
-  source that really alternates.
+- **Compare:** [42-diode-rectifier](../42-diode-rectifier) — a simpler side-by-side
+  view of forward- and reverse-biased diode paths.
 - **Experiment:** delete `d3` and its two wires, then reverse the source again.
   One polarity still works, the other has lost its path — and now you know which
   pair was doing the work.
