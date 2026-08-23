@@ -45,11 +45,19 @@ const available = !gate.skip;
  * Known shorts, with the wire that causes each. This list may only SHRINK.
  * Adding an entry means shipping a dead circuit on purpose; fix it instead.
  */
-const KNOWN_SHORTS = new Map([
-    ['pc84-led-herz/circuit.json',
-     'wire_9 puts vcc_1.vcc on net_8; scripted wire_fix_1049/1053/1063 then ' +
-     'attach gnd_2.gnd to that same net. The rail reads 0 V.'],
-]);
+const KNOWN_SHORTS = new Map([]);
+// EMPTIED 2026-08-23. The last entry was pc84-led-herz/circuit.json, where
+// `net_12` was one netId over TWO electrically separate nodes: wire_9 and
+// wire_fix_1048 put vcc_1.vcc and lm358_3.vcc on it, while ten more wires put
+// gnd_2.gnd, five LED cathodes and the integrator cap on the same label. The
+// model groups the netlist BY netId, so the rail sat at 0 V and the whole
+// example was dead — the LM358 ran with no supply while the page still drew
+// five LEDs. Repaired upstream by union-find over TERMINAL MEMBERSHIP inside
+// that netId, largest component keeping the id (scripts/split-mislabelled-nets.mjs):
+// two wires rehomed to net_12_s1, a two-line diff, no wire or part added,
+// removed or moved. The rail now reads 5.000000 V and the VCC/2 bias divider
+// 2.830876 V instead of 1.163656 V. See the ratchet note in the header:
+// this map may only shrink, and it is now empty. Keep it that way.
 
 // Only single-terminal RAIL symbols. A battery is deliberately excluded: its
 // negative terminal is SUPPOSED to meet ground, and counting it flagged all 14

@@ -274,7 +274,7 @@
   "wires": [
     {
       "id": "wire_9",
-      "netId": "net_12",
+      "netId": "net_12_s1",
       "from": {
         "part": "vcc_1",
         "terminal": "vcc"
@@ -430,7 +430,7 @@
     },
     {
       "id": "wire_fix_1048",
-      "netId": "net_12",
+      "netId": "net_12_s1",
       "from": {
         "part": "vcc_1",
         "terminal": "vcc"

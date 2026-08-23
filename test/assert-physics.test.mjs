@@ -577,13 +577,16 @@ const KNOWN_DEFECTS = new Map([
         'CLAIM wrong: pot position=0.6 -> 2.83 V loaded; claim assumes position 0.5'],
 
     // --- CIRCUIT is wrong, and here the claim is the correct side. -----------
-    // wire_9 (vcc_1.vcc -> resistor_6.a) carries netId "net_8", and a batch of
-    // scripted wire_fix_* wires later attached gnd_2.gnd to that SAME net. The
-    // supply rail is therefore shorted to ground and reads 0 V, while vcc_1.vcc
-    // also appears in net_5. Fix = re-net wire_9, do not touch the claim.
-    // Corpus-wide scan: this is the only VCC/GND short in 274 examples.
-    ['pc84-led-herz::net vcc_1.pos V 5.00 +-0.01',
-        'CIRCUIT wrong: wire_fix_* pass merged the VCC net into ground; rail reads 0 V'],
+    // The last entry of this kind — pc84-led-herz's shorted supply rail — was
+    // REPAIRED on 2026-08-23 rather than tolerated, and is therefore gone from
+    // this map. `net_12` was one netId spanning TWO electrically separate
+    // nodes: wire_9 and wire_fix_1048 put vcc_1.vcc and lm358_3.vcc on it while
+    // ten more wires put gnd_2.gnd, five LED cathodes and the integrator cap on
+    // the same label. The netlist groups BY netId, so the rail sat at 0 V and
+    // the LM358 ran with no supply. Splitting the label (largest component
+    // keeps the id) moved two wires and nothing else; `net vcc_1.pos V 5.00`
+    // now reads 5.0000 and passes on its own merits. The claim was right all
+    // along, which is what "CIRCUIT wrong" was always saying.
 ]);
 
 /** Keys actually encountered this run — guards against a stale entry. */

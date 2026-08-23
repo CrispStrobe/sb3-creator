@@ -170,7 +170,7 @@
     },
     {
       "id": "wire_9",
-      "netId": "net_8",
+      "netId": "net_8_s1",
       "from": {
         "part": "resistor_4",
         "terminal": "b"
