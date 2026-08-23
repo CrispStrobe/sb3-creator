@@ -139,11 +139,62 @@ function parseAssertions(mdText) {
                 continue;
             }
 
+            // refresh_ms / tick_ms: <value> [+- <tol>] | [+- <n>%]
+            //
+            // These are PROGRAM-LOOP periods, not circuit quantities: the
+            // interval at which the FOREVER loop repeats, which is the `wait`
+            // inside it. Checking them cross-checks the shipped documentation
+            // against the shipped program, which is a real drift class — a
+            // waveform bench once declared 100 Hz in its circuit and ran at
+            // 1000.1 Hz, and its EXPECTED.md predicted a voltage that bench
+            // could not produce.
+            const periodMatch = trimmed.match(
+                /^(refresh_ms|tick_ms)\s*:\s*([\d.]+)\s*(?:(?:\+-|±)\s*([\d.]+)(%?))?$/);
+            if (periodMatch) {
+                const expected = parseFloat(periodMatch[2]);
+                const rawTol = periodMatch[3] === undefined ? null : parseFloat(periodMatch[3]);
+                assertions.push({
+                    kind: 'loop-period', key: periodMatch[1], expected,
+                    // No stated tolerance means exact: the program either waits
+                    // that long or the document is wrong.
+                    tolerance: rawTol === null ? 0
+                        : (periodMatch[4] === '%' ? expected * rawTol / 100 : rawTol),
+                    raw: trimmed
+                });
+                continue;
+            }
+
             // Unknown assertion kind — explicit skip
             assertions.push({ kind: 'unknown', raw: trimmed });
         }
     }
     return assertions;
+}
+
+/**
+ * The period of a program's repeating loop, in ms, or a reason it cannot be read.
+ *
+ * This is deliberately a STATIC read of `wait <n> seconds` inside the program,
+ * not a measurement of the running VM. It answers "does the shipped document
+ * agree with the shipped program", which is the drift this catches. It does NOT
+ * prove the scheduler honours the wait — that is the execution gate's job, and
+ * saying so here keeps the two claims apart.
+ */
+function loopPeriodMs(exampleName) {
+    const prog = join(EXAMPLES, exampleName, "program.bw");
+    if (!existsSync(prog)) return { ok: false, reason: 'no program.bw' };
+    const src = readFileSync(prog, 'utf8');
+    const waits = [...src.matchAll(/^\s*wait\s+([\d.]+)\s+seconds?\s*$/gim)]
+        .map(m => Math.round(parseFloat(m[1]) * 1000));
+    if (waits.length === 0) return { ok: false, reason: 'program has no `wait <n> seconds`' };
+    const distinct = [...new Set(waits)];
+    // More than one distinct wait means the period is ambiguous. Report that
+    // rather than picking one and pretending — a wrong reading here would be
+    // indistinguishable from a passing check.
+    if (distinct.length > 1) {
+        return { ok: false, reason: `ambiguous: ${distinct.length} distinct waits (${distinct.join(', ')} ms)` };
+    }
+    return { ok: true, ms: distinct[0] };
 }
 
 // ---- circuit solver ----
@@ -314,6 +365,22 @@ describe('absolute-physics assertions', { skip: ENGINE_SKIP }, () => {
             for (const a of assertions) {
                 if (a.kind === 'unknown') {
                     test(`SKIP unknown assertion: ${a.raw}`, { skip: `unknown assertion kind: "${a.raw}"` }, () => {});
+                    continue;
+                }
+
+                if (a.kind === 'loop-period') {
+                    test(`${a.key} = ${a.expected} ms +-${a.tolerance}`, () => {
+                        const p = loopPeriodMs(name);
+                        // Unreadable is a FAILURE, not a skip: the document
+                        // makes a claim about a program, so if the program
+                        // cannot be read the claim is unverified.
+                        assert.ok(p.ok, `${name}: cannot read the loop period — ${p.reason}`);
+                        const delta = Math.abs(p.ms - a.expected);
+                        assert.ok(delta <= a.tolerance,
+                            `${a.key} claims ${a.expected} ms +-${a.tolerance}, but the program waits ` +
+                            `${p.ms} ms (off by ${delta}). Either the program changed and EXPECTED.md ` +
+                            `was not updated, or the claim was wrong when written.`);
+                    });
                     continue;
                 }
 
