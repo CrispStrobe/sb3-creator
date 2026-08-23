@@ -55,7 +55,12 @@ const NOT_A_CROSS_REPO_GATE = new Map([
      '— an honest in-repo answer to the same problem, and it always runs'],
     ['flat-variants-manifest.test.mjs',
      'the other honest answer: a manifest generated beside the siblings and committed, so the ' +
-     'check runs with no checkout at all. It records the engine repo it came from']
+     'check runs with no checkout at all. It records the engine repo it came from'],
+    ['index-metadata-matches-disk.test.mjs',
+     'holds index.json against this repo\'s own filesystem and its own compiler. It names the ' +
+     'siblings once, in prose, to record WHERE the search for a reader of the dead `thumbnail` ' +
+     'field went — sb3-creator, bw-board, bw-circuit-ui and lite\'s app, none of which read it. ' +
+     'Gating it on a checkout would make a filesystem check skip for no reason']
 ]);
 
 describe('gate integrity: a suite cannot skip itself into silence', () => {
