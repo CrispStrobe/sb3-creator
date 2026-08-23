@@ -13,6 +13,7 @@ import SB3Creator from '../src/utils/sb3Creator.js';
 import pythonToPseudocode from '../src/utils/pythonToPseudocode.js';
 import javascriptToPseudocode from '../src/utils/javascriptToPseudocode.js';
 import examples from '../src/utils/examples.js';
+import { corpusFloor } from './helpers/corpus-floor.mjs';
 
 const blocksFrom = (ps) => { const c = new SB3Creator(); c.parse(ps); return c.project; };
 const jsOf = (p) => new SB3Creator().generateJavaScript(p);
@@ -54,6 +55,14 @@ const CONVERGE_ONLY = new Set(['planetemaths']);
 // (PLAN §22 P5). They round-trip pseudocode <-> blocks <-> C, which is the pair that matters
 // for hardware, and `test/ctarget.test.mjs` asserts exactly that.
 const HARDWARE = new Set(Object.keys(examples).filter((n) => n.startsWith('stc_')));
+
+// Floor under the generated corpus. This file DOES go red on an empty map
+// today, but only incidentally: the last test names `snake`/`sokoban`/
+// `breakout` literally and throws on undefined. That is a guard nobody wrote
+// on purpose and nobody would notice losing. MEASURED 2026-08-23: src/utils/examples.js exports 35 examples, 30 of them non-hardware. This gate is generated from that map, so an empty or renamed export makes it emit zero subtests and report a clean pass.
+corpusFloor('examples under the permutation matrix',
+    () => Object.keys(examples).filter((n) => !HARDWARE.has(n)).length, 25,
+    'transparency.test.mjs generates one subtest per example; with none, convergence is unproven.');
 
 for (const name of Object.keys(examples).filter((n) => !HARDWARE.has(n))) {
     const strict = !CONVERGE_ONLY.has(name);

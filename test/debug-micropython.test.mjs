@@ -14,6 +14,7 @@ import { readFileSync, readdirSync, existsSync, writeFileSync, unlinkSync } from
 import { join } from 'path';
 import { execSync } from 'child_process';
 import SB3Creator from '../src/utils/sb3Creator.js';
+import { corpusFloor } from './helpers/corpus-floor.mjs';
 
 const EXAMPLES = join(import.meta.dirname, '..', 'examples');
 const TMP_PY = join(import.meta.dirname, '_debug_audit_tmp.py');
@@ -27,6 +28,14 @@ const mbExamples = idx.filter(e => {
     const bw = readFileSync(p, 'utf8');
     return /DEVICE\s+MICROBIT/i.test(bw);
 });
+
+// MEASURED 2026-08-23: 9 of 274 index.json entries. The corpus is DISCOVERED by
+// regex over program text, which is the fragile half — rename the declaration
+// keyword, or move a file out from under `files.program`, and this list empties
+// while every `for (const ex of mbExamples)` below reports a clean pass over it.
+corpusFloor('micro:bit examples discovered from examples/index.json',
+    () => mbExamples.length, 8,
+    'The filter is /DEVICE\\s+MICROBIT/i over each entry.files.program; an empty result means it stopped matching, not that micro:bit support went away.');
 
 // ---- helpers ----
 

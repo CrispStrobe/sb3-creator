@@ -40,13 +40,21 @@ describe('bench invariants: every device bench, canonical loader', { skip: gate.
     setEngine({ BoardImpl: eng.BoardImpl, inferNetlist: eng.inferNetlist,
       checkWiring: eng.checkWiring, hasDevice: eng.hasDevice });
     const { registerSidecar } = await import(join(CUI, 'src/model/parts-registry.js'));
+    let sidecars = 0;
     for (const f of readdirSync(join(CUI, 'src/parts-data'))) {
       if (!f.endsWith('.json')) continue;
       try {
         const sc = JSON.parse(readFileSync(join(CUI, 'src/parts-data', f), 'utf8'));
-        if (sc.kind) registerSidecar(sc);
+        if (sc.kind) { registerSidecar(sc); sidecars++; }
       } catch { /* bw-parts' problem */ }
     }
+    // MEASURED FLOOR. Without one, a parts-data directory that moved or emptied
+    // registers nothing, every terminal alias falls back to its raw name, and
+    // the reachability invariant below quietly stops resolving the aliases it
+    // exists to accept. bw-circuit-ui d754cfc ships 239 sidecars.
+    assert.ok(sidecars >= 200,
+      `only ${sidecars} part sidecars registered from ${join(CUI, 'src/parts-data')} ` +
+      '(expected ~239) — the alias surface this gate resolves against is not loaded');
     ({ Circuit } = await import(join(CUI, 'src/model/circuit.js')));
     ({ resolveTerminal } = await import(join(CUI, 'src/model/terminal-aliases.js')));
   });
@@ -62,6 +70,34 @@ describe('bench invariants: every device bench, canonical loader', { skip: gate.
       if (/^circuit\.[\w-]+\.json$/.test(f) || f === 'circuit.json') benchFiles.push(join(dir.name, f));
     }
   }
+
+  // VACUITY FLOOR, and it is not decoration. This whole file's verdict is
+  // `assert.deepEqual(problems, [])` over a list built by walking a directory —
+  // the single shape that reports a clean run over a corpus it never opened.
+  // Empty `examples/`, or narrow the filename test by one character, and every
+  // invariant below passes having examined nothing, under a test NAME that
+  // truthfully says "all 0 benches" and that nobody reads.
+  //
+  // That is not hypothetical here: finding #4 of test/GATE-AUDIT-REPORT.md was
+  // this exact regex matching only the device-suffixed files, so 215 primary
+  // benches — the ones the app opens first — went unchecked while the gate
+  // stayed green. The floors are split so the same mistake cannot recur
+  // silently: a total alone would still be met by the 870 suffixed files.
+  //
+  // MEASURED 2026-08-23: 1092 bench files over 275 example directories —
+  // 222 primary `circuit.json` and 870 device-suffixed. Floors sit ~10% under.
+  test('the bench corpus is actually there', () => {
+    const primary = benchFiles.filter((r) => r.endsWith('circuit.json')).length;
+    const suffixed = benchFiles.length - primary;
+    assert.ok(benchFiles.length >= 1000,
+      `only ${benchFiles.length} bench files found under ${EXAMPLES} (expected ~1092) — ` +
+      'this gate is about to report a clean run over a corpus it did not open');
+    assert.ok(primary >= 200,
+      `only ${primary} primary circuit.json benches found (expected ~222) — the file ` +
+      'set narrowed to the device-suffixed benches again; that was finding #4');
+    assert.ok(suffixed >= 800,
+      `only ${suffixed} device-suffixed benches found (expected ~870)`);
+  });
 
   test(`all ${benchFiles.length} benches: engine accepts, peripherals reachable from the MCU`, () => {
     const problems = [];

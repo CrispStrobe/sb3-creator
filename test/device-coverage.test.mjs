@@ -11,9 +11,10 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { resolve, dirname } from 'node:path';
+import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import SB3Creator from '../src/utils/sb3Creator.js';
+import { locate, IN_CI } from './helpers/siblings.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 
@@ -29,7 +30,27 @@ const here = dirname(fileURLToPath(import.meta.url));
 // name so a green run is never mistaken for a real check.
 let engineKinds = null;
 let engineSource = 'live';  // or 'snapshot'
-const boardPath = resolve(here, '../../bw-board/src/board.js');
+
+// Locate bw-board the way every other cross-repo gate does.
+//
+// THIS LINE USED TO BE `resolve(here, '../../bw-board/src/board.js')`, and that
+// spelling is why this gate has never once seen the live engine in CI. CI does
+// check bw-board out (ci.yml, pinned in test/fixtures/siblings.json) but at
+// `${workspace}/siblings/bw-board`, and hands the path over in BW_BOARD — which
+// a hardcoded `../../bw-board` cannot read. So the `boardExists` probe failed on
+// every CI run and the gate silently took the snapshot branch.
+//
+// Measured 2026-08-23 against bw-board@50c3bf7: the live engine models 118 part
+// kinds; the committed snapshot below lists 85. THIRTY-SIX kinds have therefore
+// never been checked for block coverage in CI — and "bw-board added a kind and
+// nobody added blocks for it" is the entire purpose of this file. The gate did
+// put "(snapshot)" in the test name, which is the honest half; what it could not
+// do was ever run the other branch where it mattered.
+//
+// `locate()` honours BW_BOARD absolutely, with no fallback behind it, which is
+// the property test/helpers/siblings.mjs exists to provide.
+const board = locate('bw-board');
+const boardPath = board.path ? join(board.path, 'src', 'board.js') : join(here, '..', '..', 'bw-board', 'src', 'board.js');
 let boardExists = false;
 try { readFileSync(boardPath); boardExists = true; } catch { /* not found */ }
 
@@ -235,6 +256,25 @@ const KNOWN_GAPS = new Set([
 ]);
 
 // ---- tests ------------------------------------------------------------------
+
+// In CI the snapshot branch is no longer an acceptable outcome: CI checks
+// bw-board out on purpose, so falling back there means the checkout broke and
+// this gate just stopped looking at the engine. Locally it stays a fallback and
+// still says "(snapshot)" in the test name.
+test('the engine surface is the live one, not the snapshot', () => {
+    if (!IN_CI) {
+        assert.ok(engineKinds.length >= 80,
+            `only ${engineKinds.length} engine kinds (${engineSource}) — expected >= 80`);
+        return;
+    }
+    assert.equal(engineSource, 'live',
+        `CI read the ${engineSource} device list. CI checks bw-board out at the pin in ` +
+        'test/fixtures/siblings.json and passes BW_BOARD; taking the snapshot branch here ' +
+        'means this gate is not looking at the engine at all, which is how 36 kinds went ' +
+        'unchecked for the life of this file.');
+    assert.ok(engineKinds.length >= 110,
+        `the live engine reported only ${engineKinds.length} kinds (expected ~118)`);
+});
 
 test(`device block coverage (${engineSource} — ${engineKinds ? engineKinds.length : 0} kinds)`, () => {
     const covered = new Set(Object.keys(BLOCK_COVERAGE));

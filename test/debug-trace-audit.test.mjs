@@ -16,6 +16,7 @@ import { readFileSync, existsSync, writeFileSync, unlinkSync } from 'fs';
 import { join } from 'path';
 import { execSync } from 'child_process';
 import SB3Creator from '../src/utils/sb3Creator.js';
+import { corpusFloor } from './helpers/corpus-floor.mjs';
 
 const EXAMPLES = join(import.meta.dirname, '..', 'examples');
 const TMP_PY = join(import.meta.dirname, '_debug_trace_audit_tmp.py');
@@ -28,6 +29,13 @@ const mpExamples = idx.filter(e => {
     if (!existsSync(p)) return false;
     return /DEVICE\s+(?:MICROBIT|PICO)/i.test(readFileSync(p, 'utf8'));
 });
+
+// MEASURED 2026-08-23: 16 of 274 index.json entries. Same shape as
+// debug-micropython — a regex over program text, so the corpus can empty
+// without anyone touching this file. See test/helpers/corpus-floor.mjs.
+corpusFloor('MicroPython examples discovered from examples/index.json',
+    () => mpExamples.length, 14,
+    'The filter is /DEVICE\\s+(MICROBIT|PICO)/i over each entry.files.program.');
 
 // ---- helpers ----
 
