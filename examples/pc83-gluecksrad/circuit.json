@@ -651,7 +651,7 @@
     },
     {
       "id": "wire_fix_1030",
-      "netId": "net_8",
+      "netId": "net_7",
       "from": {
         "part": "decade_counter_4",
         "terminal": "rst"
@@ -663,7 +663,7 @@
     },
     {
       "id": "wire_fix_1031",
-      "netId": "net_8",
+      "netId": "net_7",
       "from": {
         "part": "decade_counter_4",
         "terminal": "en"
@@ -744,8 +744,7 @@
         "part": "resistor_56",
         "terminal": "a"
       }
-    }
-    ,
+    },
     {
       "id": "wire_fix_1038",
       "netId": "net_23",

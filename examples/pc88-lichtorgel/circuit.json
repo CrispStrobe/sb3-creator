@@ -590,7 +590,7 @@
     },
     {
       "id": "wire_fix_1078",
-      "netId": "net_5",
+      "netId": "net_12",
       "from": {
         "part": "vcc_1",
         "terminal": "vcc"
@@ -602,7 +602,7 @@
     },
     {
       "id": "wire_fix_1079",
-      "netId": "net_8",
+      "netId": "net_22",
       "from": {
         "part": "gnd_2",
         "terminal": "gnd"

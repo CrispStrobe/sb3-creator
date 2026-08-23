@@ -1,365 +1,365 @@
 {
- "vcc": 5,
- "parts": [
-  {
-   "id": "vcc_1",
-   "kind": "vcc",
-   "params": {},
-   "terminals": [
-    "vcc"
-   ],
-   "x": 50,
-   "y": 50,
-   "rotation": 0
-  },
-  {
-   "id": "gnd_2",
-   "kind": "gnd",
-   "params": {},
-   "terminals": [
-    "gnd"
-   ],
-   "x": 50,
-   "y": 500,
-   "rotation": 0
-  },
-  {
-   "id": "lm358_3",
-   "kind": "lm358",
-   "params": {},
-   "terminals": [
-    "vcc",
-    "gnd",
-    "1_pos",
-    "1_neg",
-    "1_out",
-    "2_pos",
-    "2_neg",
-    "2_out"
-   ],
-   "x": 300,
-   "y": 200,
-   "rotation": 0
-  },
-  {
-   "id": "resistor_4",
-   "kind": "resistor",
-   "params": {
-    "ohms": 100000
-   },
-   "terminals": [
-    "a",
-    "b"
-   ],
-   "x": 100,
-   "y": 150,
-   "rotation": 0
-  },
-  {
-   "id": "resistor_5",
-   "kind": "resistor",
-   "params": {
-    "ohms": 100000
-   },
-   "terminals": [
-    "a",
-    "b"
-   ],
-   "x": 100,
-   "y": 250,
-   "rotation": 0
-  },
-  {
-   "id": "resistor_12",
-   "kind": "resistor",
-   "params": {
-    "ohms": 100000
-   },
-   "terminals": [
-    "a",
-    "b"
-   ],
-   "x": 200,
-   "y": 100,
-   "rotation": 0
-  },
-  {
-   "id": "capacitor_13",
-   "kind": "capacitor",
-   "params": {
-    "farads": 1e-06
-   },
-   "terminals": [
-    "a",
-    "b"
-   ],
-   "x": 200,
-   "y": 300,
-   "rotation": 0
-  },
-  {
-   "id": "resistor_14",
-   "kind": "resistor",
-   "params": {
-    "ohms": 100000
-   },
-   "terminals": [
-    "a",
-    "b"
-   ],
-   "x": 400,
-   "y": 100,
-   "rotation": 0
-  },
-  {
-   "id": "resistor_15",
-   "kind": "resistor",
-   "params": {
-    "ohms": 47000
-   },
-   "terminals": [
-    "a",
-    "b"
-   ],
-   "x": 400,
-   "y": 300,
-   "rotation": 0
-  },
-  {
-   "id": "resistor_17",
-   "kind": "resistor",
-   "params": {
-    "ohms": 470
-   },
-   "terminals": [
-    "a",
-    "b"
-   ],
-   "x": 500,
-   "y": 200,
-   "rotation": 0
-  },
-  {
-   "id": "led_18",
-   "kind": "led",
-   "params": {
-    "vf": 2,
-    "color": "white"
-   },
-   "terminals": [
-    "anode",
-    "cathode"
-   ],
-   "x": 500,
-   "y": 300,
-   "rotation": 0
-  }
- ],
- "wires": [
-  {
-   "id": "wire_7",
-   "netId": "net_6",
-   "from": {
-    "part": "vcc_1",
-    "terminal": "vcc"
-   },
-   "to": {
-    "part": "resistor_4",
-    "terminal": "a"
-   }
-  },
-  {
-   "id": "wire_9",
-   "netId": "net_8",
-   "from": {
-    "part": "resistor_4",
-    "terminal": "b"
-   },
-   "to": {
-    "part": "resistor_5",
-    "terminal": "a"
-   }
-  },
-  {
-   "id": "wire_11",
-   "netId": "net_10",
-   "from": {
-    "part": "resistor_5",
-    "terminal": "b"
-   },
-   "to": {
-    "part": "gnd_2",
-    "terminal": "gnd"
-   }
-  },
-  {
-   "id": "wire_20",
-   "netId": "net_19",
-   "from": {
-    "part": "resistor_17",
-    "terminal": "b"
-   },
-   "to": {
-    "part": "led_18",
-    "terminal": "anode"
-   }
-  },
-  {
-   "id": "wire_21",
-   "netId": "net_10",
-   "from": {
-    "part": "led_18",
-    "terminal": "cathode"
-   },
-   "to": {
-    "part": "gnd_2",
-    "terminal": "gnd"
-   }
-  },
-  {
-   "id": "wire_fix_1065",
-   "netId": "net_5",
-   "from": {
-    "part": "vcc_1",
-    "terminal": "vcc"
-   },
-   "to": {
-    "part": "lm358_3",
-    "terminal": "vcc"
-   }
-  },
-  {
-   "id": "wire_fix_1066",
-   "netId": "net_8",
-   "from": {
-    "part": "gnd_2",
-    "terminal": "gnd"
-   },
-   "to": {
-    "part": "lm358_3",
-    "terminal": "gnd"
-   }
-  },
-  {
-   "id": "wire_fix_1068",
-   "netId": "net_neg",
-   "from": {
-    "part": "lm358_3",
-    "terminal": "1_neg"
-   },
-   "to": {
-    "part": "resistor_12",
-    "terminal": "a"
-   }
-  },
-  {
-   "id": "wire_fix_1069",
-   "netId": "net_neg",
-   "from": {
-    "part": "lm358_3",
-    "terminal": "1_neg"
-   },
-   "to": {
-    "part": "capacitor_13",
-    "terminal": "a"
-   }
-  },
-  {
-   "id": "wire_fix_1070",
-   "netId": "net_8",
-   "from": {
-    "part": "capacitor_13",
-    "terminal": "b"
-   },
-   "to": {
-    "part": "gnd_2",
-    "terminal": "gnd"
-   }
-  },
-  {
-   "id": "wire_fix_1071",
-   "netId": "net_out",
-   "from": {
-    "part": "lm358_3",
-    "terminal": "1_out"
-   },
-   "to": {
-    "part": "resistor_12",
-    "terminal": "b"
-   }
-  },
-  {
-   "id": "wire_fix_1072",
-   "netId": "net_out",
-   "from": {
-    "part": "lm358_3",
-    "terminal": "1_out"
-   },
-   "to": {
-    "part": "resistor_14",
-    "terminal": "a"
-   }
-  },
-  {
-   "id": "wire_fix_1073",
-   "netId": "net_div",
-   "from": {
-    "part": "resistor_14",
-    "terminal": "b"
-   },
-   "to": {
-    "part": "lm358_3",
-    "terminal": "1_pos"
-   }
-  },
-  {
-   "id": "wire_fix_1074",
-   "netId": "net_out",
-   "from": {
-    "part": "lm358_3",
-    "terminal": "1_out"
-   },
-   "to": {
-    "part": "resistor_15",
-    "terminal": "a"
-   }
-  },
-  {
-   "id": "wire_fix_1075",
-   "netId": "net_led_drive",
-   "from": {
-    "part": "resistor_15",
-    "terminal": "b"
-   },
-   "to": {
-    "part": "resistor_17",
-    "terminal": "a"
-   }
-  },
-  {
-   "id": "wire_fix_1076",
-   "netId": "net_8",
-   "from": {
-    "part": "gnd_2",
-    "terminal": "gnd"
-   },
-   "to": {
-    "part": "lm358_3",
-    "terminal": "2_pos"
-   }
-  },
-  {
-   "id": "wire_fix_1077",
-   "netId": "net_8",
-   "from": {
-    "part": "gnd_2",
-    "terminal": "gnd"
-   },
-   "to": {
-    "part": "lm358_3",
-    "terminal": "2_neg"
-   }
-  }
- ],
- "holeWires": []
+  "vcc": 5,
+  "parts": [
+    {
+      "id": "vcc_1",
+      "kind": "vcc",
+      "params": {},
+      "terminals": [
+        "vcc"
+      ],
+      "x": 50,
+      "y": 50,
+      "rotation": 0
+    },
+    {
+      "id": "gnd_2",
+      "kind": "gnd",
+      "params": {},
+      "terminals": [
+        "gnd"
+      ],
+      "x": 50,
+      "y": 500,
+      "rotation": 0
+    },
+    {
+      "id": "lm358_3",
+      "kind": "lm358",
+      "params": {},
+      "terminals": [
+        "vcc",
+        "gnd",
+        "1_pos",
+        "1_neg",
+        "1_out",
+        "2_pos",
+        "2_neg",
+        "2_out"
+      ],
+      "x": 300,
+      "y": 200,
+      "rotation": 0
+    },
+    {
+      "id": "resistor_4",
+      "kind": "resistor",
+      "params": {
+        "ohms": 100000
+      },
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 100,
+      "y": 150,
+      "rotation": 0
+    },
+    {
+      "id": "resistor_5",
+      "kind": "resistor",
+      "params": {
+        "ohms": 100000
+      },
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 100,
+      "y": 250,
+      "rotation": 0
+    },
+    {
+      "id": "resistor_12",
+      "kind": "resistor",
+      "params": {
+        "ohms": 100000
+      },
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 200,
+      "y": 100,
+      "rotation": 0
+    },
+    {
+      "id": "capacitor_13",
+      "kind": "capacitor",
+      "params": {
+        "farads": 0.000001
+      },
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 200,
+      "y": 300,
+      "rotation": 0
+    },
+    {
+      "id": "resistor_14",
+      "kind": "resistor",
+      "params": {
+        "ohms": 100000
+      },
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 400,
+      "y": 100,
+      "rotation": 0
+    },
+    {
+      "id": "resistor_15",
+      "kind": "resistor",
+      "params": {
+        "ohms": 47000
+      },
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 400,
+      "y": 300,
+      "rotation": 0
+    },
+    {
+      "id": "resistor_17",
+      "kind": "resistor",
+      "params": {
+        "ohms": 470
+      },
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 500,
+      "y": 200,
+      "rotation": 0
+    },
+    {
+      "id": "led_18",
+      "kind": "led",
+      "params": {
+        "vf": 2,
+        "color": "white"
+      },
+      "terminals": [
+        "anode",
+        "cathode"
+      ],
+      "x": 500,
+      "y": 300,
+      "rotation": 0
+    }
+  ],
+  "wires": [
+    {
+      "id": "wire_7",
+      "netId": "net_6",
+      "from": {
+        "part": "vcc_1",
+        "terminal": "vcc"
+      },
+      "to": {
+        "part": "resistor_4",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_9",
+      "netId": "net_8",
+      "from": {
+        "part": "resistor_4",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "resistor_5",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_11",
+      "netId": "net_8",
+      "from": {
+        "part": "resistor_5",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "gnd_2",
+        "terminal": "gnd"
+      }
+    },
+    {
+      "id": "wire_20",
+      "netId": "net_19",
+      "from": {
+        "part": "resistor_17",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "led_18",
+        "terminal": "anode"
+      }
+    },
+    {
+      "id": "wire_21",
+      "netId": "net_8",
+      "from": {
+        "part": "led_18",
+        "terminal": "cathode"
+      },
+      "to": {
+        "part": "gnd_2",
+        "terminal": "gnd"
+      }
+    },
+    {
+      "id": "wire_fix_1065",
+      "netId": "net_6",
+      "from": {
+        "part": "vcc_1",
+        "terminal": "vcc"
+      },
+      "to": {
+        "part": "lm358_3",
+        "terminal": "vcc"
+      }
+    },
+    {
+      "id": "wire_fix_1066",
+      "netId": "net_8",
+      "from": {
+        "part": "gnd_2",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "lm358_3",
+        "terminal": "gnd"
+      }
+    },
+    {
+      "id": "wire_fix_1068",
+      "netId": "net_neg",
+      "from": {
+        "part": "lm358_3",
+        "terminal": "1_neg"
+      },
+      "to": {
+        "part": "resistor_12",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_fix_1069",
+      "netId": "net_neg",
+      "from": {
+        "part": "lm358_3",
+        "terminal": "1_neg"
+      },
+      "to": {
+        "part": "capacitor_13",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_fix_1070",
+      "netId": "net_8",
+      "from": {
+        "part": "capacitor_13",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "gnd_2",
+        "terminal": "gnd"
+      }
+    },
+    {
+      "id": "wire_fix_1071",
+      "netId": "net_out",
+      "from": {
+        "part": "lm358_3",
+        "terminal": "1_out"
+      },
+      "to": {
+        "part": "resistor_12",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "wire_fix_1072",
+      "netId": "net_out",
+      "from": {
+        "part": "lm358_3",
+        "terminal": "1_out"
+      },
+      "to": {
+        "part": "resistor_14",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_fix_1073",
+      "netId": "net_div",
+      "from": {
+        "part": "resistor_14",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "lm358_3",
+        "terminal": "1_pos"
+      }
+    },
+    {
+      "id": "wire_fix_1074",
+      "netId": "net_out",
+      "from": {
+        "part": "lm358_3",
+        "terminal": "1_out"
+      },
+      "to": {
+        "part": "resistor_15",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_fix_1075",
+      "netId": "net_led_drive",
+      "from": {
+        "part": "resistor_15",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "resistor_17",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_fix_1076",
+      "netId": "net_8",
+      "from": {
+        "part": "gnd_2",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "lm358_3",
+        "terminal": "2_pos"
+      }
+    },
+    {
+      "id": "wire_fix_1077",
+      "netId": "net_8",
+      "from": {
+        "part": "gnd_2",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "lm358_3",
+        "terminal": "2_neg"
+      }
+    }
+  ],
+  "holeWires": []
 }

@@ -274,7 +274,7 @@
   "wires": [
     {
       "id": "wire_9",
-      "netId": "net_8",
+      "netId": "net_12",
       "from": {
         "part": "vcc_1",
         "terminal": "vcc"
@@ -286,7 +286,7 @@
     },
     {
       "id": "wire_11",
-      "netId": "net_10",
+      "netId": "net_div",
       "from": {
         "part": "resistor_6",
         "terminal": "b"
@@ -430,7 +430,7 @@
     },
     {
       "id": "wire_fix_1048",
-      "netId": "net_5",
+      "netId": "net_12",
       "from": {
         "part": "vcc_1",
         "terminal": "vcc"
@@ -442,7 +442,7 @@
     },
     {
       "id": "wire_fix_1049",
-      "netId": "net_8",
+      "netId": "net_12",
       "from": {
         "part": "gnd_2",
         "terminal": "gnd"
@@ -490,7 +490,7 @@
     },
     {
       "id": "wire_fix_1053",
-      "netId": "net_8",
+      "netId": "net_12",
       "from": {
         "part": "capacitor_5",
         "terminal": "b"
@@ -610,7 +610,7 @@
     },
     {
       "id": "wire_fix_1063",
-      "netId": "net_8",
+      "netId": "net_12",
       "from": {
         "part": "gnd_2",
         "terminal": "gnd"
@@ -622,7 +622,7 @@
     },
     {
       "id": "wire_fix_1064",
-      "netId": "net_8",
+      "netId": "net_12",
       "from": {
         "part": "gnd_2",
         "terminal": "gnd"
