@@ -72,14 +72,25 @@ describe('gate integrity: a suite cannot skip itself into silence', () => {
     // file that reintroduces that shape is the regression this catches.
     // ---------------------------------------------------------------------
     test('every cross-repo test routes its skip through the shared sibling guard', () => {
+        const stripComments = (src) => src
+            .replace(/\/\*[\s\S]*?\*\//g, ' ')
+            .split('\n').map((l) => l.replace(/(^|[^:"'`\\])\/\/.*$/, '$1')).join('\n');
         const offenders = [];
         let scanned = 0, crossRepo = 0;
         for (const f of readdirSync(join(SB3, 'test'))) {
             if (!f.endsWith('.test.mjs')) continue;
             const src = readFileSync(join(SB3, 'test', f), 'utf8');
             scanned++;
-            // Does this file depend on a sibling checkout at all?
-            if (!/BW_BOARD|BW_CIRCUIT_UI|bw-circuit-ui|bw-board/.test(src)) continue;
+            // Does this file depend on a sibling checkout at all? Ask the CODE,
+            // not the prose. Matching raw source made a file that merely MENTIONS
+            // the siblings in a header comment read as depending on them:
+            // index-metadata-matches-disk.test.mjs names "sb3-creator, bw-board,
+            // bw-circuit-ui or lite's app" while importing nothing outside this
+            // repo and reading no sibling path. Demanding a sibling guard there
+            // would have added a skip to a gate that has no reason to skip — the
+            // opposite of what this check is for.
+            const code = stripComments(src);
+            if (!/BW_BOARD|BW_CIRCUIT_UI|bw-circuit-ui|bw-board/.test(code)) continue;
             crossRepo++;
             if (NOT_A_CROSS_REPO_GATE.has(f)) continue;
             if (!/siblingGuardTest\s*\(/.test(src)) {
