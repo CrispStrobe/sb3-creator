@@ -182,6 +182,45 @@ static detector does not depend on a gate producing an observable skip, which is
 it is now the instrument of record. Final tally: **20 tests in 13 files**; 18
 CI-runnable, 2 developer-only.
 
+## The measurement that matters
+
+Two rigs, both with sibling visibility verified by `existsSync` before the run rather
+than assumed, and both on Node 22 (`fs.globSync` needs it; two files use it).
+
+**Rig A — siblings pinned and present**, `bw-board@50c3bf7` + `bw-circuit-ui@d754cfc`
+checked out as detached worktrees so no other session can move them mid-run, with
+bw-board's `avr8js`/`rp2040js` installed:
+
+```
+before   6387 / 6270 / 0        (the recorded baseline)
+after    6403 / 6286 / 0        exit 0
+```
+
+`+16` tests, `+16` passing, no failures and no regressions. The sixteen are the
+thirteen `cross-repo inputs for …` guards plus three new assertions in
+`gate-integrity` (pins agree with ci.yml, pins are permissively licensed, no gate
+rolls its own skip). The skip count is unchanged at 117, and that is the expected
+result rather than a disappointing one: with the siblings present these gates were
+already running, so nothing here was ever going to move. The whole defect was
+about CI, which is where they were not.
+
+**Rig B — the CI-without-a-checkout case**, no siblings reachable, `CI=true`, running
+only the thirteen cross-repo files:
+
+```
+before   213 pass / 0 fail / 5 skipped     ← green, and the gates were not running
+after    215 pass / 13 fail / 6 skipped    ← one named failure per gate
+```
+
+That is the property, stated as a measurement: an environment that cannot run these
+gates can no longer report success. Each of the thirteen failures is the guard itself
+naming what is absent — not a cascade of derived errors from a half-loaded engine,
+which is why the guard's teeth are a separate always-running test rather than the
+`skip:` option.
+
+Note `before` shows only **5** skips for thirteen gates. That is the ctarget shape:
+several of those tests were not skipping at all, they were passing while doing nothing.
+
 ## Mutation proof
 
 `scripts/mutation-prove-conformance.mjs` now covers these too — **20/20**, run in CI.
