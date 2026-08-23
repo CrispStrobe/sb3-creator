@@ -7,28 +7,40 @@
 
 ## Program
 
-Reads the pot via ADC (10-bit, 0–1023), uses the LSB to toggle the LED at
-~1 kHz. At 50% pot position, the ADC reads ~512, so the LED toggles based
-on bit 0 of the reading.
+Reads the pot via ADC (10-bit, 0-1023) and converts it to a duty cycle
+0-100. Each PWM cycle is `duty` iterations with the LED on (1 ms each)
+and `100 - duty` with it off, so the period is 100 ms and the fraction
+of time the LED is on equals the pot position. Same software-PWM shape
+as [24-pwm-fade](../24-pwm-fade), with the pot supplying the duty
+instead of a sweep.
+
+`(read pot * 100) / 1023` multiplies BEFORE dividing on purpose. The C
+target's arithmetic is integer, so `read pot / 1023 * 100` evaluates to
+0 for every reading below 1023 and 100 at full scale — a dimmer with two
+settings. The Scratch VM would divide in floating point and hide it.
 
 ## Observable behaviour
 
-| pot position | ADC reading | P1.3 voltage | LED behaviour |
-|---|---|---|---|
-| 0% (fully CCW) | ~0 | ~0 V | bit 0 = 0 → LED off |
-| 50% | ~512 | ~2.5 V | bit 0 = 0 → LED off |
-| 51% | ~520 | ~2.54 V | bit 0 = 0 → LED off |
-| 100% (fully CW) | ~1023 | ~5.0 V | bit 0 = 1 → LED on |
+| pot position | ADC reading | P1.3 voltage | duty | LED |
+|---|---|---|---|---|
+| 0% (fully CCW) | ~0 | ~0 V | 0 | off |
+| 10% | ~102 | ~0.5 V | 9 | dim |
+| 50% | ~512 | ~2.5 V | 50 | half brightness |
+| 75% | ~767 | ~3.75 V | 74 | bright |
+| 100% (fully CW) | ~1023 | ~5.0 V | 100 | fully on |
 
-Note: this is a simplified dimmer using bit masking. A real PWM dimmer
-would use Timer 1 or the PCA. This example exercises the ADC read path
-and the `set pin to expression` construct.
+- **PWM period:** 100 ms (10 Hz), the same as 24-pwm-fade
+- **LED current when on:** (5.0 - 2.0) / 1000 = 3.0 mA
+- **Mean LED current:** 3.0 mA x duty / 100
 
 ## What this verifies
 
 1. ADC reads the pot voltage on P1.3 (channel 3) as a 10-bit value
-2. `set led1 to level bitand 1` writes a computed value to an active-low pin
-3. The analog → digital → pin-write path works end to end
+2. The duty cycle tracks the reading, so brightness is proportional to
+   pot position rather than to one bit of it
+3. Integer-safe scaling: multiply before divide, so the C target and the
+   VM compute the same duty
+4. The analog -> digital -> PWM -> brightness path works end to end
 
 ```assert
 # Pot at 50%: wiper = VCC × position = 5.0 × 0.5 = 2.500V

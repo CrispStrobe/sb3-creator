@@ -6,5 +6,8 @@ PIN led1 = D9 PWM
 # Read the pot and set the LED brightness
 WHEN flag clicked:
   FOREVER:
-    set led1 to (read pot1 / 1023 * 100) percent
+    # Multiply before dividing: the C target's arithmetic is integer, so
+    # `read pot1 / 1023 * 100` emitted `(adc_read(0) / 1023) * 100` and held the
+    # duty at 0 for every reading below full scale.
+    set led1 to ((read pot1 * 100) / 1023) percent
     wait 0.05 seconds

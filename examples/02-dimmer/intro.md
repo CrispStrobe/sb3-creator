@@ -9,11 +9,11 @@ An LED gets brighter or dimmer as you turn the potentiometer knob. The MCU reads
 
 ## Try this
 1. Run the program and drag the potentiometer slider from one end to the other.
-2. Watch the LED go from fully off to fully bright as the pot value changes from 0 to 255.
+2. Watch the LED go from fully off to fully bright as the pot reading changes from 0 to 1023.
 3. Set the pot to the middle position and notice the LED glows at roughly half brightness.
 
 ## What is going on
-The potentiometer acts as a variable voltage divider, feeding 0–5 V to the MCU's ADC input. The MCU converts that voltage to a digital number (0–255). It then rapidly switches the LED pin on and off in a loop — the fraction of time spent ON (the duty cycle) equals the ADC reading divided by 255. Your eye averages the flicker into a perceived brightness level. This is software PWM: no special timer hardware, just a fast loop.
+The potentiometer acts as a variable voltage divider, feeding 0–5 V to the MCU's ADC input. The MCU converts that voltage to a digital number (0–1023, a 10-bit ADC). It then rapidly switches the LED pin on and off in a loop — the fraction of time spent ON (the duty cycle) equals the ADC reading divided by 1023. Your eye averages the flicker into a perceived brightness level. This is software PWM: no special timer hardware, just a fast loop.
 
 ## Why it matters
 PWM is the standard way to control brightness, motor speed, and servo position in embedded systems. Reading an analog sensor and using its value to control an output is the core of most real-world MCU applications.

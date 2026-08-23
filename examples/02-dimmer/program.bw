@@ -3,9 +3,16 @@ CLOCK 11059200
 PIN led1 = P1.0 OUTPUT ACTIVE LOW
 PIN pot = P1.3 ANALOG
 
-# Read a pot and set LED brightness via software PWM
+# Read the pot and dim the LED with software PWM. The duty cycle IS the pot
+# position: `duty` of every 100 one-millisecond steps are on, the rest off.
+# Multiply before dividing — the C target's arithmetic is integer, so
+# `read pot / 1023 * 100` would truncate to 0 for every reading below 1023.
 WHEN flag clicked:
   FOREVER:
-    set level to read pot
-    set led1 to level bitand 1
-    wait 0.001 seconds
+    set duty to ((read pot * 100) / 1023)
+    REPEAT duty:
+      turn on led1
+      wait 0.001 seconds
+    REPEAT 100 - duty:
+      turn off led1
+      wait 0.001 seconds
