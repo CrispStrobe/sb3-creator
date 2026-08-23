@@ -20,7 +20,10 @@ import { resolve, dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const GATE = join(ROOT, 'test', 'stc12-conformance.test.mjs');
+const GATES = [
+    join(ROOT, 'test', 'stc12-conformance.test.mjs'),
+    join(ROOT, 'test', 'extension-coverage.test.mjs')
+];
 const DOWN = join(ROOT, 'test', 'fixtures', 'downstream');
 const MANIFEST = join(DOWN, 'MANIFEST.json');
 const sha256 = (t) => createHash('sha256').update(t, 'utf8').digest('hex');
@@ -41,7 +44,7 @@ function assertRealFile (path) {
 
 function runGate () {
     try {
-        execFileSync(process.execPath, ['--test', GATE], { cwd: ROOT, encoding: 'utf8', stdio: 'pipe' });
+        execFileSync(process.execPath, ['--test', ...GATES], { cwd: ROOT, encoding: 'utf8', stdio: 'pipe' });
         return { red: false, out: '' };
     } catch (e) { return { red: true, out: `${e.stdout || ''}${e.stderr || ''}` }; }
 }
@@ -142,11 +145,47 @@ const MUTATIONS = [
             writeFileSync(f, `${text.slice(0, at)}createBlock('stc12_brandnew', {}); b.fields.PART = 1;\n        ${text.slice(at)}`);
         },
         expect: /brandnew/
+    },
+    {
+        name: 'a shipped example authors an opcode no copy defines',
+        why: 'the gallery side of the same bug: content outrunning the extensions',
+        apply () {
+            const f = join(ROOT, 'examples', '79-a2-sampler', 'program.bw');
+            save(f);
+            // `clear display X` lowers to seg_clear; point it at a verb nothing has.
+            const text = readFileSync(f, 'utf8').replace('clear display', 'scroll display');
+            if (text === readFileSync(f, 'utf8')) throw new Error('mutation was a no-op');
+            writeFileSync(f, text);
+        },
+        expect: /authors exactly the A2 board verbs|does not define opcodes that|stc12_/
+    },
+    {
+        name: 'the example-corpus walk stops finding opcodes (instrument breaks)',
+        why: 'a walk that compiles nothing makes every coverage assertion vacuous',
+        apply () {
+            const f = join(ROOT, 'test', 'extension-coverage.test.mjs');
+            save(f);
+            writeFileSync(f, readFileSync(f, 'utf8')
+                .replace("const program = join(EXAMPLES, id, 'program.bw');",
+                    "const program = join(EXAMPLES, id, 'program.NOPE');"));
+        },
+        expect: /corpus walk is broken|examples compiled/
+    },
+    {
+        name: 'an affected example is left with no pendingFix naming the fix',
+        why: 'the cost of an open gap must stay attached to an owner',
+        apply () {
+            save(MANIFEST);
+            const m = JSON.parse(readFileSync(MANIFEST, 'utf8'));
+            delete m.snapshots['gallery-stc12'].pendingFix;
+            writeFileSync(MANIFEST, `${JSON.stringify(m, null, 2)}\n`);
+        },
+        expect: /pendingFix/
     }
 ];
 
 console.log('Instrument check');
-for (const f of [GATE, MANIFEST, join(DOWN, 'lite-stc12.js'), join(DOWN, 'gallery-stc12.js'),
+for (const f of [...GATES, MANIFEST, join(DOWN, 'lite-stc12.js'), join(DOWN, 'gallery-stc12.js'),
     join(ROOT, 'src', 'utils', 'sb3Creator.js')]) {
     assertRealFile(f);
     console.log(`  ok   real file, in-repo, not a symlink: ${f.slice(ROOT.length + 1)}`);
