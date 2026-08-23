@@ -18,12 +18,21 @@ CI does not have. Any conclusion about "what skips in CI" drawn from a worktree 
 `/tmp` on this box is wrong.
 
 ```
-# tests 5523   # pass 5476   # fail 2   # skipped 45
+# tests 5526   # pass 5478   # fail 3   # skipped 45
 ```
 
-The two failures are artefacts of the sandbox, not defects: `example-corpus-contract` and
-`generated-bench-layout` are the only two files that call `fs.globSync`, which needs Node
-22; the sandbox ran Node 20 and `.github/workflows/ci.yml` pins Node 22.
+The failures are artefacts, not defects, and both kinds are worth naming:
+
+- `example-corpus-contract` and `generated-bench-layout` are the only two files that call
+  `fs.globSync`, which needs Node 22; the sandbox ran Node 20 and `.github/workflows/ci.yml`
+  pins Node 22.
+- A second run added `registry URL resolves: universalgamepad`, which fetches
+  `crispstrobe.github.io/extensions/CrispStrobe/gamepad.js` over the network and got a
+  transient `503`. The same test passed in the first run on the same commit, and the URL
+  returns `200` on retry. **This is a third shape worth a note:** `ctarget.test.mjs` reaches
+  the live network with no retry, so it converts someone else's outage into a red build.
+  Not the failure this audit is about, but it will waste someone's afternoon: it wants a
+  retry, or to be opt-in the way the `BW_TTL_ORACLE` oracles are.
 
 ## The 45 skips, by shape
 
