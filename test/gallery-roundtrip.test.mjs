@@ -40,10 +40,20 @@ for (const name of exampleDirs) {
             const c = new SB3Creator();
             const project = c.parse(bw);
             assert.ok(project.targets.length > 0, 'parsed to at least one target');
-            // The decompile should produce only whitespace/empty.
+            // The decompile must produce nothing at all.
+            //
+            // This used to read `dc.trim() === '' || dc.trim().length < 5`, and
+            // the second disjunct was DEAD: scripts/threshold-probe.mjs moved the
+            // 5 to -1 and the gate stayed green, because the first disjunct is
+            // always the one that holds. MEASURED 2026-08-23 over all 114
+            // comment-only gallery entries: every one decompiles to exactly ""
+            // — the set of observed lengths is {0}. So the slack bounded nothing
+            // and only made the assertion unable to notice four characters of
+            // stray output. Tightened to the measured value with no headroom,
+            // which is what a fixed observation deserves.
             const dc = c.decompile(project);
-            assert.ok(dc.trim() === '' || dc.trim().length < 5,
-                'comment-only file decompiles to near-empty');
+            assert.equal(dc.trim(), '',
+                'a comment-only file must decompile to nothing; 114/114 do (2026-08-23)');
         });
     } else {
         // MCU program: must round-trip to a fixed point.

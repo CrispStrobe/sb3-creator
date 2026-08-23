@@ -163,8 +163,18 @@ WHEN flag clicked:
     assert.equal(t.unsupported.length, 0, JSON.stringify([...new Set(t.unsupported)]));
     assert.equal(t.events.length, 2);
     assert.equal(t.events[0].level, 1);
+    // MEASURED 2026-08-23 (threshold-probe --margin): the event lands on EXACTLY
+    // 300 ms — observed deviation 0, so the +-2 is pure slack and has never been
+    // needed. Kept rather than tightened to 0 because the quantity is a polled
+    // timestamp: a scheduler that granted one extra tick would be a real change
+    // but not a defect, and a tolerance of 0 on a sampled clock is a flake
+    // waiting for a slow runner. The number now says what it is worth.
     assert.ok(Math.abs(t.events[0].tMs - 300) <= 2, `on near 300, got ${t.events[0].tMs}`);
     assert.equal(t.events[1].level, 0);
+    // MEASURED 2026-08-23: observed 800 exactly, so 910 carries 12% headroom —
+    // a little over one 100 ms poll interval, which is what the message claims
+    // and is therefore the right shape. Recorded so the next reader does not
+    // have to re-derive it from the poll rate.
     assert.ok(t.events[1].tMs >= 800 && t.events[1].tMs <= 910,
         `off within one poll of 800, got ${t.events[1].tMs}`);
 });
@@ -518,6 +528,8 @@ WHEN flag clicked:
     assert.deepEqual(t.unsupported, []);
     assert.equal(t.serial.length, 1);
     assert.equal(t.serial[0].line, '42');
+    // MEASURED 2026-08-23: observed 500 exactly; 510 is 2% headroom. Tight, and
+    // it can fire — threshold-probe flips it red at 499.
     assert.ok(t.serial[0].tMs >= 500 && t.serial[0].tMs <= 510,
         `should print near 500ms, got ${t.serial[0].tMs}`);
 });

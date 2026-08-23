@@ -199,7 +199,17 @@ export function scanSource (path, repoRoot) {
             if (!rightNum && !leftNum) return;
             const num = rightNum ? n.right : n.left;
             // Only when it decides a verdict: inside an assert, or an if that throws.
+            //
+            // AND THE TWO HAVE OPPOSITE POLARITY, which cost a wrong answer before
+            // it was noticed. `assert.ok(x < 80)` says x must STAY BELOW 80 — a
+            // ceiling. `if (x < 80) throw` says x must STAY ABOVE 80 — a floor,
+            // spelled as its own negation. Classifying by the operator alone read
+            // device-coverage's `if (engineKinds.length < 80) throw` as a ceiling,
+            // and scripts/threshold-probe.mjs then dropped it to -1, where the
+            // throw can never fire, and reported CANNOT-FIRE. The probe was right
+            // that something was broken; it was the classifier.
             let decisive = false;
+            let negated = false;
             for (let i = parents.length - 1; i >= 0 && !decisive; i--) {
                 const p = parents[i];
                 if (isVerdictCall(p)) decisive = true;
@@ -208,13 +218,16 @@ export function scanSource (path, repoRoot) {
                     if (b && (b.type === 'ThrowStatement' ||
                         (b.type === 'BlockStatement' && b.body.some((x) => x.type === 'ThrowStatement')))) {
                         decisive = true;
+                        negated = true;      // the condition describes the FAILURE
                     }
                 }
                 if (p.type === 'FunctionDeclaration' || p.type === 'ForStatement') break;
             }
             if (!decisive) return;
             const isFloat = !Number.isInteger(num.value);
-            add(n, isFloat ? 'tolerance' : classifyComparison(n.operator, rightNum), num.value, src(text, n), parents);
+            let kind = classifyComparison(n.operator, rightNum);
+            if (negated) kind = kind === 'floor' ? 'ceiling' : 'floor';
+            add(n, isFloat ? 'tolerance' : kind, num.value, src(text, n), parents);
             return;
         }
 
@@ -365,7 +378,26 @@ if (invokedDirectly) {
     if (existsSync(join(LITE, 'test'))) invs.push(inventory(LITE, 'brickwright-lite'));
     else console.error('NOTE: brickwright-lite not found at ' + LITE + ' — set BW_LITE');
 
-    if (process.argv.includes('--json')) {
+    if (process.argv.includes('--markdown')) {
+        const esc = (t) => String(t).replace(/\|/g, '\\|').replace(/`/g, '\u0060');
+        for (const inv of invs) {
+            const t = allThresholds(inv);
+            console.log('\n### `' + inv.repo + '` — ' + t.length + ' bounding literals\n');
+            const byKind = {};
+            for (const x of t) (byKind[x.kind] = byKind[x.kind] || []).push(x);
+            console.log('| kind | count | with a recorded measurement |');
+            console.log('|---|---|---|');
+            for (const [k, xs] of Object.entries(byKind).sort((a, b) => b[1].length - a[1].length)) {
+                console.log('| ' + k + ' | ' + xs.length + ' | ' + xs.filter((x) => x.evidenced).length + ' |');
+            }
+            console.log('\n| where | kind | value | bounds | measurement |');
+            console.log('|---|---|---|---|---|');
+            for (const x of t) {
+                console.log('| `' + x.file + ':' + x.line + '` | ' + x.kind + ' | `' + x.value + '` | `' +
+                    esc(x.what) + '` | ' + (x.evidenced ? esc(x.quote) : '**not recorded**') + ' |');
+            }
+        }
+    } else if (process.argv.includes('--json')) {
         console.log(JSON.stringify(invs.map((i) => ({
             repo: i.repo, thresholds: allThresholds(i),
             parseErrors: i.rows.filter((r) => r.parseError).map((r) => r.file + ': ' + r.parseError)
