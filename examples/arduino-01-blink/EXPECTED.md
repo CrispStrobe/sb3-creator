@@ -16,7 +16,7 @@ Toggles D13 high/low at 1 Hz: 1 second on, 1 second off, forever.
 | 1 | LOW (0 V) | OFF | 0 mA |
 | 2 | HIGH | ON | 13.6 mA |
 
-- **Frequency:** 1 Hz (period = 2 s)
+- **Frequency:** 0.5 Hz (period = 2 s — the program waits 1 s on and 1 s off)
 - **Duty cycle:** 50 %
 - **LED brightness:** full during on phase, dark during off phase
 
