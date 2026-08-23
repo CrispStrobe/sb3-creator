@@ -14,7 +14,15 @@ export default defineConfig([
   // They must stay byte-identical to their upstream — the gate checks their sha256 — so linting
   // or reformatting them is precisely what we do not want. lite's copies are CommonJS
   // (`require`/`module.exports`), the gallery's are browser IIFEs taking a global `Scratch`.
-  globalIgnores(['dist', 'test/browser/harness.bundle.js', 'reference/**', 'test/fixtures/downstream/**']),
+  //
+  // `siblings/**` is where CI checks out bw-board and bw-circuit-ui so the cross-repo gates RUN
+  // instead of skipping (.github/workflows/ci.yml). They are separate repositories with their own
+  // lint config and their own CI; applying ours to them reported 451 errors in code this repo does
+  // not own and cannot fix here. It surfaced only once the checkout started working — while the
+  // pins were abbreviated and unfetchable, `siblings/` stayed empty and lint had nothing to walk
+  // into, so a green lint meant the siblings were MISSING.
+  globalIgnores(['dist', 'test/browser/harness.bundle.js', 'reference/**', 'test/fixtures/downstream/**',
+    'siblings/**']),
   {
     files: ['**/*.{js,jsx}'],
     extends: [

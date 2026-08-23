@@ -31,3 +31,9 @@ test/browser/shots/
 CLAUDE.md
 corpus/
 test/fixtures/6502-oled-counter.o
+
+# Where CI checks out bw-board and bw-circuit-ui so the cross-repo gates run
+# rather than skip (.github/workflows/ci.yml), and where a developer reproducing
+# a CI failure locally will put them. Two whole sibling repositories; never ours
+# to commit. eslint.config.js ignores the same path for the same reason.
+siblings/
