@@ -248,7 +248,6 @@ for (const e of valid) {
     console.log(JSON.stringify({
         id: e.name, title: { en: e.title_en, de: e.title_de },
         kind: 'circuit', category: 'pure-circuit', difficulty: 1,
-        thumbnail: `${e.name}/thumb.svg`,
         files: { program: `${e.name}/program.bw`, circuit: `${e.name}/circuit.json`, expected: `${e.name}/EXPECTED.md` }
     }));
 }

@@ -45,7 +45,6 @@ function build(name, titleEn, titleDe, difficulty, fn) {
         console.log(`  ✓ ${name}: LED=${ledB}, nets=${c.board.getNets().length}`);
         entries.push({ id: name, title: { en: titleEn, de: titleDe }, kind: 'circuit',
             category: 'pure-circuit', difficulty,
-            thumbnail: `${name}/thumb.svg`,
             files: { program: `${name}/program.bw`, circuit: `${name}/circuit.json`, expected: `${name}/EXPECTED.md` }
         });
         ok++;
