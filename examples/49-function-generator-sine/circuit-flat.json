@@ -5,9 +5,9 @@
       "kind": "vsource",
       "params": {
         "wave": "sine",
-        "frequency": 1000,
         "amplitude": 2.5,
-        "offset": 2.5
+        "offset": 2.5,
+        "freq": 1000
       },
       "x": 80,
       "y": 60

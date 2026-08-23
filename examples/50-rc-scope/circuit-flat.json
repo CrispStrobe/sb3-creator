@@ -5,9 +5,9 @@
       "kind": "vsource",
       "params": {
         "wave": "sine",
-        "frequency": 100,
         "amplitude": 2.5,
-        "offset": 2.5
+        "offset": 2.5,
+        "freq": 100
       },
       "x": 80,
       "y": 60
@@ -39,7 +39,7 @@
       "id": "c1",
       "kind": "capacitor",
       "params": {
-        "farads": 0.000001
+        "farads": 1e-06
       },
       "seat": {
         "boardId": "bb1",
