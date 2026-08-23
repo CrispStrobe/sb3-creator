@@ -46,12 +46,22 @@ if (!ENGINE_SKIP) {
     const { inferNetlist, checkWiring } = await import(new URL('src/infer-netlist.js', BOARD_URL).href);
     ({ Circuit } = await import(new URL('src/model/circuit.js', CUI_URL).href));
     ({ setEngine } = await import(new URL('src/engine.js', CUI_URL).href));
-    // Register device models
-    for (const [file, fn] of [['relay.js', 'registerRelay'], ['dc-motor.js', 'registerDCMotor'],
-        ['servo.js', 'registerServo'], ['analog-ics.js', 'registerAnalogICs']]) {
-        try { const mod = await import(new URL(`src/devices/${file}`, BOARD_URL).href); mod[fn]?.(); } catch {}
-    }
-    setEngine({ BoardImpl, inferNetlist, checkWiring });
+    // Register EVERY device model. Hand-listing four of them is how this test
+    // spent months reporting "no circuit file" for circuits that were present
+    // and fine: a 555, a 74HC00 or an SSD1306 failed netlist validation as
+    // "unknown kind", the board came back empty, and the assertions on it were
+    // skipped. src/register-all.js exists precisely for this and its own header
+    // documents the same bug found in the designer UI on 2026-08-10.
+    const { registerAllDevices } = await import(new URL('src/register-all.js', BOARD_URL).href);
+    registerAllDevices();
+    // getDevice MUST be injected: without it bw-circuit-ui's terminalsForKind
+    // cannot consult the engine and falls back to sidecar -> switch -> ['a','b'],
+    // so a battery_aa arrives at validateNetlist claiming terminals a/b against
+    // an engine that has pos/neg, and the whole netlist is rejected. Injecting
+    // only the three original keys is documented there as "exactly the old
+    // resolution order" — which is the order that produces empty boards.
+    const { getDevice } = await import(new URL('src/devices.js', BOARD_URL).href);
+    setEngine({ BoardImpl, inferNetlist, checkWiring, getDevice });
 }
 
 const EXAMPLES = join(import.meta.dirname, '..', 'examples');
@@ -151,9 +161,15 @@ function findCircuitFile(name) {
     return null;
 }
 
+/**
+ * Solve a circuit, or explain precisely why it cannot be solved.
+ * Returns {ok:true, ...} or {ok:false, reason}. The old contract returned
+ * bare null for THREE different causes and the caller printed "no circuit
+ * file" for all of them, which hid a registry bug for months.
+ */
 function solveCircuit(name, atMs = 1) {
     const circuitPath = findCircuitFile(name);
-    if (!circuitPath) return null;
+    if (!circuitPath) return { ok: false, reason: `no circuit file for "${name}"` };
     const data = JSON.parse(readFileSync(circuitPath, 'utf8'));
 
     // Filter visual-only
@@ -168,7 +184,10 @@ function solveCircuit(name, atMs = 1) {
     // If the board rejected the netlist (missing devices, breadboard fabric
     // the CUI can't resolve), getNets() returns empty — treat as unsolvable.
     const nets = board.getNets?.() || [];
-    if (nets.length === 0) return null;
+    if (nets.length === 0) {
+        return { ok: false, reason: `netlist REJECTED (board empty) for ${circuitPath.slice(circuitPath.indexOf('examples/'))} `
+            + `- ${data.parts.length} parts, 0 nets. Usually an unregistered part kind.` };
+    }
     board.advanceTo(BigInt(Math.round(atMs * 1_000_000)));
 
     // Build net label map: for each net, create labels from part.terminal
@@ -198,8 +217,59 @@ function solveCircuit(name, atMs = 1) {
         }
     }
 
-    return { board, circuit, netLabels };
+    return { ok: true, board, circuit, netLabels, circuitPath };
 }
+
+// ---- known defects (RATCHET: only ever shrinks) ----
+
+/**
+ * Assertions that are CHECKED and FAIL. Each entry names which side is wrong
+ * and why, because "the check went red" is not a finding on its own.
+ *
+ * These are not tolerated failures — they are unfixed defects with a verdict
+ * recorded. Deliberately NOT fixed by editing the claim to match the engine:
+ * that would turn a test into a tautology. The claim stays as authored until
+ * someone fixes the side that is actually wrong.
+ *
+ * Key: `${example}::${raw assertion line}`.
+ */
+const KNOWN_DEFECTS = new Map([
+    // --- CLAIM is wrong: a Pi Pico's rail is 3.3 V, not 5 V. ------------------
+    // The corpus refutes these three itself: pico02-pot-print, pico03-two-tasks
+    // and pico04-button carry `net vcc1.vcc V 3.30` on the same part and pass.
+    // Same rail, same kind, contradictory claims. Fix = correct the claim to
+    // 3.30 (a real fix, not a snapshot — 3.3 V is what a Pico's 3V3 pin is).
+    ['70-calculator::net vcc1.vcc V 5.00 +-0.01',
+        'CLAIM wrong: pi_pico rail is 3.3 V; engine reads 3.3000'],
+    ['70-calculator-simple::net vcc1.vcc V 5.00 +-0.01',
+        'CLAIM wrong: pi_pico rail is 3.3 V; engine reads 3.3000'],
+    ['72-pico-oled-hello::net vcc1.vcc V 5.00 +-0.01',
+        'CLAIM wrong: pi_pico rail is 3.3 V; engine reads 3.3000'],
+
+    // --- CLAIM is wrong: assumes a midpoint pot the circuit does not declare.
+    // contrast has params.position = 0.15 across a 5 V rail -> 0.75 V, which is
+    // exactly what the engine reads, and 0.15 is deliberate: an HD44780 contrast
+    // pot belongs near the bottom of its range. The claim assumed position 0.5.
+    ['eater6502-full-build::net contrast.wiper V 2.50 +-0.05',
+        'CLAIM wrong: pot position=0.15 -> 0.75 V; claim assumes a midpoint pot'],
+    // vsrc1 has params.position = 0.6 -> 3.0 V unloaded, 2.83 V once rv1 loads
+    // the wiper. The claim of 2.5 V matches neither, and contradicts the
+    // circuit's own declared position.
+    ['76-multimeter::net vsrc1.wiper V 2.50 +-0.05',
+        'CLAIM wrong: pot position=0.6 -> 2.83 V loaded; claim assumes position 0.5'],
+
+    // --- CIRCUIT is wrong, and here the claim is the correct side. -----------
+    // wire_9 (vcc_1.vcc -> resistor_6.a) carries netId "net_8", and a batch of
+    // scripted wire_fix_* wires later attached gnd_2.gnd to that SAME net. The
+    // supply rail is therefore shorted to ground and reads 0 V, while vcc_1.vcc
+    // also appears in net_5. Fix = re-net wire_9, do not touch the claim.
+    // Corpus-wide scan: this is the only VCC/GND short in 274 examples.
+    ['pc84-led-herz::net vcc_1.pos V 5.00 +-0.01',
+        'CIRCUIT wrong: wire_fix_* pass merged the VCC net into ground; rail reads 0 V'],
+]);
+
+/** Keys actually encountered this run — guards against a stale entry. */
+const DEFECTS_SEEN = new Set();
 
 // ---- collect examples with assert blocks ----
 
@@ -231,14 +301,15 @@ describe('absolute-physics assertions', { skip: ENGINE_SKIP }, () => {
 
     for (const { name, assertions } of examplesWithAssertions) {
         describe(`${name}`, () => {
-            let solved, solveError;
-            try { solved = solveCircuit(name); } catch (e) { solveError = e.message?.split('\n')[0] || String(e); }
+            let solved;
+            try { solved = solveCircuit(name); }
+            catch (e) { solved = { ok: false, reason: `threw: ${e.message?.split('\n')[0] || String(e)}` }; }
 
-            // If the circuit can't load (missing device models, breadboard-only, etc.)
-            // skip all its assertions rather than failing them
-            const circuitSkip = !solved
-                ? `circuit ${name} not solvable: ${solveError || 'no circuit file'}`
-                : false;
+            // A circuit that will not solve is a DEFECT, not an absence. An
+            // ```assert net ...``` line is a claim its author made about a
+            // circuit they believed exists; if we cannot solve it, the claim
+            // is unverified and must say so in red.
+            const circuitFail = solved.ok ? null : `circuit ${name} not solvable: ${solved.reason}`;
 
             for (const a of assertions) {
                 if (a.kind === 'unknown') {
@@ -247,15 +318,30 @@ describe('absolute-physics assertions', { skip: ENGINE_SKIP }, () => {
                 }
 
                 if (a.kind === 'net') {
-                    test(`net ${a.label} = ${a.expected} ${a.unit} +-${a.tolerance}`, { skip: circuitSkip }, () => {
-                        const netId = solved.netLabels.get(a.label);
-                        assert.ok(netId !== undefined, `net label "${a.label}" not found in circuit`);
-                        const measured = solved.board.nodeVoltages.get(netId) ?? NaN;
-                        assert.ok(!isNaN(measured), `no voltage for net ${netId}`);
-                        const diff = Math.abs(measured - a.expected);
-                        assert.ok(diff <= a.tolerance,
-                            `${name}: net ${a.label} = ${measured.toFixed(4)} V, ` +
-                            `expected ${a.expected} +-${a.tolerance} V (off by ${diff.toFixed(4)})`);
+                    const defectKey = `${name}::${a.raw}`;
+                    const defect = KNOWN_DEFECTS.get(defectKey);
+                    if (defect) DEFECTS_SEEN.add(defectKey);
+                    test(`net ${a.label} = ${a.expected} ${a.unit} +-${a.tolerance}`
+                        + (defect ? `  [KNOWN DEFECT: ${defect}]` : ''), () => {
+                        const check = () => {
+                            assert.ok(!circuitFail, circuitFail);
+                            const netId = solved.netLabels.get(a.label);
+                            assert.ok(netId !== undefined, `net label "${a.label}" not found in circuit`);
+                            const measured = solved.board.nodeVoltages.get(netId) ?? NaN;
+                            assert.ok(!isNaN(measured), `no voltage for net ${netId}`);
+                            const diff = Math.abs(measured - a.expected);
+                            assert.ok(diff <= a.tolerance,
+                                `${name}: net ${a.label} = ${measured.toFixed(4)} V, ` +
+                                `expected ${a.expected} +-${a.tolerance} V (off by ${diff.toFixed(4)})`);
+                        };
+                        if (!defect) return check();
+                        // Ratchet: a known defect must STILL be broken. If it
+                        // passes, the defect was fixed and the entry must go —
+                        // otherwise the list rots into a permanent excuse.
+                        let threw = false;
+                        try { check(); } catch { threw = true; }
+                        assert.ok(threw,
+                            `${defectKey}\n  now PASSES — remove it from KNOWN_DEFECTS in the same commit that fixed it.`);
                     });
                     continue;
                 }
@@ -277,6 +363,17 @@ describe('absolute-physics assertions', { skip: ENGINE_SKIP }, () => {
             }
         });
     }
+});
+
+// A KNOWN_DEFECTS key that no assertion matched is a stale entry: the example
+// was renamed or the claim reworded, and the ratchet silently stopped guarding
+// anything. That is the same failure shape as the path typo in GATE-AUDIT.
+describe('known-defect ratchet integrity', { skip: ENGINE_SKIP }, () => {
+    test('every KNOWN_DEFECTS entry matched a real assertion', () => {
+        const stale = [...KNOWN_DEFECTS.keys()].filter(k => !DEFECTS_SEEN.has(k));
+        assert.deepEqual(stale, [],
+            `stale KNOWN_DEFECTS entries (nothing in the corpus matches them):\n  ${stale.join('\n  ')}`);
+    });
 });
 
 // Export parser for other tests to use
