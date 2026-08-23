@@ -164,6 +164,17 @@ function floorFrom (node, text) {
         return null;
     }
     if (/^(equal|strictEqual|deepEqual|deepStrictEqual)$/.test(name)) {
+        // deepEqual(list.map(…), ['a','b','c']) pins the members AND the count.
+        // brickwright-lite's starter-journeys is floored exactly this way, and
+        // missing it made this screen report a healthy gate as a suspect.
+        if (a0 && a1 && a1.type === 'ArrayExpression' && a1.elements.length > 0) {
+            return {
+                expr: oneLine(src(text, node), 70),
+                threshold: a1.elements.length,
+                subject: oneLine(src(text, a0), 44),
+                via: 'pinned-list'
+            };
+        }
         if (a0 && a1 && a1.type === 'Literal' && typeof a1.value === 'number' && a1.value > 0 &&
             /\.(length|size)$/.test(src(text, a0))) {
             return { expr: oneLine(src(text, node), 70), threshold: a1.value, subject: oneLine(src(text, a0), 44) };
