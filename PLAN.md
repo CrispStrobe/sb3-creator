@@ -740,3 +740,14 @@ verdict). The mutation prover went 20 → 26.
 
 - [ ] **`ctarget.test.mjs` reaches the live network with no retry**, turning
   someone else's outage into a red build. Carried over from wave 1, still open.
+
+- [ ] **A gate whose verdict depends on machine load.** `brickwright-lite`'s
+  `lesson-numeric-contract` failed here with `11 benches outran the budget — raise
+  it or check the box` after 296 s, on a box at load 18–21. sb3-creator has the
+  same shape: eight `syntactically valid Python` failures in `debug-trace-audit`
+  were `spawnSync /bin/sh ETIMEDOUT` against a five-second ceiling, and they
+  vanished on a second run of the same commit. A wall-clock budget is a real
+  check of a real property, but its failure is indistinguishable from contention,
+  and the documented remedy in the message ("raise it") is the one that destroys
+  it. This is a fourth shape for the campaign to name, alongside never-runs,
+  cannot-fail and checks-nothing: **cannot-be-trusted-when-busy**.

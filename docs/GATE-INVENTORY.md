@@ -410,6 +410,59 @@ waiting hours, because a prover nobody runs stops being evidence.
 
 ---
 
+## The suites
+
+Two rigs, both with `BW_BOARD` and `BW_CIRCUIT_UI` pointed at **detached worktrees
+pinned to `50c3bf7` / `d754cfc`** — the revisions `ci.yml` checks out — because
+`/mnt/volume1/code/wt/` contains a shared `bw-board` worktree and a run that
+resolves `../bw-board` measures whichever revision another session left there
+(`caeac2b`, during this audit). Node 20 here; CI pins 22.
+
+**`npm run test:fast`** — this branch:
+
+```
+# tests 1173
+# pass 1168
+# fail 0
+# skipped 5
+```
+
+**`npm test`** — `origin/main` and this branch, same rig:
+
+```
+before   6403 tests   6297 pass   14 fail   92 skipped     (origin/main @ 1a83dfa)
+after    6416 tests   6318 pass    6 fail   92 skipped     (test/gate-integrity-wave2)
+```
+
+`+13` tests, `+21` passing. The after-set of failures is a strict **subset** of the
+before-set, so nothing here introduced one.
+
+**Do not read `−8` as a repair.** Those eight are `spawnSync /bin/sh ETIMEDOUT` in
+`debug-trace-audit`'s `syntactically valid Python` — a five-second ceiling on a box
+at load 18–21, which happened not to be hit the second time. They are flakes and
+the honest number for this branch's effect on failures is **zero**.
+
+The six that remain, both runs, neither caused here:
+
+| # | failure | cause |
+|---|---|---|
+| 4 | `bench file list excludes flat twins…`, `all controller benches…`, `all generated seated component bodies…`, `example-corpus-contract` | `TypeError: fs.globSync is not a function` — Node 20 on this box, Node 22 in CI |
+| 2 | `absolute-physics assertions` → `41-pot-as-dimmer`, and `every solved node obeys KCL` | the loaded-potentiometer artifact, live in `bw-board` at both the pin and HEAD. PLAN.md §27. |
+
+**`brickwright-lite`** — unchanged by this branch, run once for the record:
+
+```
+# tests 915   # pass 913   # fail 1   # skipped 1
+```
+
+The one failure is `lesson-numeric-contract`: `11 benches outran the budget — raise
+it or check the box`, after 296 s. A wall-clock budget on a saturated box, not a
+defect — and worth noting as a fourth shape this campaign should name: a gate whose
+verdict depends on how busy the machine is will eventually be raised rather than
+believed.
+
+---
+
 ## How to read a row
 
 - **runs** — `npm test` in this repo globs `test/*.test.mjs`, so every file here
