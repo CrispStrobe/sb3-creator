@@ -15,9 +15,9 @@ import { join } from 'path';
 import { execSync } from 'child_process';
 import SB3Creator from '../src/utils/sb3Creator.js';
 import { corpusFloor } from './helpers/corpus-floor.mjs';
+import { checkPythonSyntax } from './helpers/python-syntax.mjs';
 
 const EXAMPLES = join(import.meta.dirname, '..', 'examples');
-const TMP_PY = join(import.meta.dirname, '_debug_audit_tmp.py');
 
 // ---- discover micro:bit examples ----
 const idx = JSON.parse(readFileSync(join(EXAMPLES, 'index.json'), 'utf8'));
@@ -75,17 +75,6 @@ function extractDeclaredVars(py) {
     return vars;
 }
 
-function checkPythonSyntax(py) {
-    try {
-        writeFileSync(TMP_PY, py);
-        execSync(`python3 -c "import ast; ast.parse(open('${TMP_PY}').read())"`, { timeout: 5000 });
-        return { valid: true };
-    } catch (e) {
-        return { valid: false, error: e.stderr?.toString() || e.message };
-    } finally {
-        try { unlinkSync(TMP_PY); } catch {}
-    }
-}
 
 // ---- tests ----
 

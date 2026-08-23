@@ -17,9 +17,9 @@ import { join } from 'path';
 import { execSync } from 'child_process';
 import SB3Creator from '../src/utils/sb3Creator.js';
 import { corpusFloor } from './helpers/corpus-floor.mjs';
+import { checkPythonSyntax } from './helpers/python-syntax.mjs';
 
 const EXAMPLES = join(import.meta.dirname, '..', 'examples');
-const TMP_PY = join(import.meta.dirname, '_debug_trace_audit_tmp.py');
 
 // ---- discover MicroPython examples (DEVICE MICROBIT or DEVICE PICO) ----
 const idx = JSON.parse(readFileSync(join(EXAMPLES, 'index.json'), 'utf8'));
@@ -47,18 +47,6 @@ function generate(exId, opts) {
     return c.generateMicroPython(c.project, opts);
 }
 
-function checkPythonSyntax(py) {
-    try {
-        writeFileSync(TMP_PY, py);
-        execSync(`python3 -c "import ast; ast.parse(open('${TMP_PY}').read())"`,
-            { timeout: 5000, stdio: ['pipe', 'pipe', 'pipe'] });
-        return { valid: true };
-    } catch (e) {
-        return { valid: false, error: e.stderr?.toString() || e.message };
-    } finally {
-        try { unlinkSync(TMP_PY); } catch {}
-    }
-}
 
 function extractVnames(py) {
     const m = py.match(/_bw_vnames\s*=\s*(\[.*?\])/);
