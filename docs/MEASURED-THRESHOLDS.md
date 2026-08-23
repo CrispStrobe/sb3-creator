@@ -188,6 +188,28 @@ because the quantity is a polled timestamp — a tolerance of 0 on a sampled clo
 a flake waiting for a slow runner, and this campaign has just finished paying for
 one of those. The number now says what it is worth.
 
+### 5. The one exact-equality pin, re-measured
+
+`brickwright-lite`'s `circuit-corpus-invariants.test.mjs:151` is the third of the
+three thresholds that surfaced by accident when the gates came back:
+
+```js
+assert.equal(files.length, 1034, 'the gate must cover the complete vendored corpus');
+```
+
+**RE-MEASURED 2026-08-23: 1034.** It is correct today, so nothing is owed here — but
+it is worth naming as a shape, because it is the only exact equality among 459
+literals and it behaves differently from every floor beside it. An equality fires in
+**both** directions: it catches a corpus that shrank (which is the point) and also a
+corpus that legitimately grew, which is what happened when a vendor sync added 58
+circuits. The remedy that costs nothing to apply is to bump the number, and a
+ratchet whose maintenance is "bump the number" becomes a rubber stamp.
+
+A floor plus the recorded measurement — `>= 1000`, `// MEASURED 2026-08-23: 1034` —
+keeps the coverage guarantee, still fires on a corpus that shrank, and does not
+demand an edit when the gallery grows. Recorded rather than changed: the file is
+brickwright-lite's.
+
 ## Three instrument fixes, each forced by a wrong answer
 
 **Polarity.** `assert.ok(x < 80)` is a ceiling; `if (x < 80) throw` is a floor

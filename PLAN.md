@@ -785,6 +785,15 @@ is stated because 459 cannot honestly be re-measured one at a time.
   cloned `8bitsim`. Probe it on a box that has them, with
   `--env BW_TTL_ORACLE=1`.
 
+- [ ] **`brickwright-lite`'s `circuit-corpus-invariants:151` is an exact equality**
+  (`assert.equal(files.length, 1034)`) — RE-MEASURED 2026-08-23 as 1034, so it is
+  correct today. It is the only exact-equality pin among 459 bounding literals and
+  it fires in both directions: on a corpus that shrank (the point) and on one that
+  grew, which is what a vendor sync adding 58 circuits produced. The zero-cost
+  remedy is to bump the number, and a ratchet maintained that way becomes a rubber
+  stamp. A floor plus the measurement — `>= 1000`, `// MEASURED 2026-08-23: 1034` —
+  keeps the guarantee without demanding an edit when the gallery grows.
+
 - [ ] **Three CI `pin: 22` node-version literals and the `fetch-depth: 0` entries
   carry no rationale.** Not thresholds in the firing sense, but they decide what
   runs; `node-version: 22` in particular is load-bearing (`fs.globSync` needs it,
