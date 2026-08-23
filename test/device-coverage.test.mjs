@@ -50,9 +50,15 @@ let engineSource = 'live';  // or 'snapshot'
 // `locate()` honours BW_BOARD absolutely, with no fallback behind it, which is
 // the property test/helpers/siblings.mjs exists to provide.
 const board = locate('bw-board');
-const boardPath = board.path ? join(board.path, 'src', 'board.js') : join(here, '..', '..', 'bw-board', 'src', 'board.js');
+// No fallback behind locate(). It already tries BW_BOARD and then the sibling
+// directory, and a second candidate behind an explicit env pointer is the
+// fallthrough that made `BW_BOARD=/nowhere` a silent no-op — see the note in
+// test/helpers/siblings.mjs. The old spelling here was not wrong about the
+// number of dots: `../..` from test/ IS the sibling directory. It was wrong
+// about BW_BOARD, which is the pointer CI actually uses.
+const boardPath = board.path ? join(board.path, 'src', 'board.js') : null;
 let boardExists = false;
-try { readFileSync(boardPath); boardExists = true; } catch { /* not found */ }
+if (boardPath) { try { readFileSync(boardPath); boardExists = true; } catch { /* not found */ } }
 
 if (boardExists) {
     const boardSrc = readFileSync(boardPath, 'utf8');

@@ -1,21 +1,23 @@
 {
-  "note": "Pinned revisions of the sibling repositories sb3-creator's cross-repo gates consume. CI checks these exact commits out beside the repo (.github/workflows/ci.yml) so the gates RUN rather than skip; test/helpers/siblings.mjs turns an absent sibling into a failure when CI=true. Update a pin deliberately, in its own commit, with the suite green against it.",
+  "note": "Pinned revisions of the sibling repositories sb3-creator's cross-repo gates consume. CI checks these exact commits out beside the repo (.github/workflows/ci.yml) so the gates RUN rather than skip; test/helpers/siblings.mjs turns an absent sibling into a failure when CI=true. Update a pin deliberately, in its own commit, with the suite green against it. `rev` MUST be the FULL 40-character SHA: actions/checkout only recognises a full SHA as a commit, and turns anything shorter into `git fetch origin +refs/heads/<ref>*` \u2014 a branch glob that matches nothing. An abbreviated pin here took every CI run on main down at the checkout step, before lint, tests, the mutation prover or the build ran at all. gate-integrity asserts the length; `revShort` exists only for prose.",
   "siblings": {
     "bw-board": {
       "repo": "CrispStrobe/bw-board",
-      "rev": "50c3bf7",
+      "rev": "50c3bf7c2a7e0fb11cf6baaf4cc532a1b4443314",
       "marker": "src/board.js",
       "licence": "MIT",
       "why": "the device/board simulator the gallery e2e and physics gates drive",
-      "pinnedOn": "2026-08-23"
+      "pinnedOn": "2026-08-23",
+      "revShort": "50c3bf7"
     },
     "bw-circuit-ui": {
       "repo": "CrispStrobe/bw-circuit-ui",
-      "rev": "d754cfc",
+      "rev": "d754cfc5fe3359ce7ddd4c238ed54e9f73cc969f",
       "marker": "src/model/circuit.js",
       "licence": "MPL-2.0",
       "why": "the canonical circuit model and engine the bench and corpus gates load",
-      "pinnedOn": "2026-08-23"
+      "pinnedOn": "2026-08-23",
+      "revShort": "d754cfc"
     }
   }
 }

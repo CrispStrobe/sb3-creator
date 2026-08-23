@@ -220,20 +220,30 @@ export function analyseFile (path, repoRoot) {
      * manifest can — silently, from another file or another repo. Only the
      * second kind is flagged, or the sweep drowns in tables.
      */
+    //
+    // Scope is deliberately FLATTENED: every `const X = …` in the file, at any
+    // depth, lands in one map. A function-local `const FRAGMENTS = [ … ]` is as
+    // unable to arrive empty by surprise as a top-level one, and treating only
+    // module scope reported four such tables as suspects. The cost is that two
+    // same-named consts in different scopes collapse; for a screen whose output
+    // is checked by starving the gate, that is the right trade.
     const bindings = new Map();   // name -> {origin, at}
-    for (const node of ast.body) {
+    walk(ast, (node) => {
         if (node.type === 'ImportDeclaration') {
             const from = node.source.value;
-            for (const s of node.specifiers) {
-                bindings.set(s.local.name, { origin: 'imported', from, at: lineOf(text, node.start) });
+            for (const sp of node.specifiers) {
+                bindings.set(sp.local.name, { origin: 'imported', from, at: lineOf(text, node.start) });
             }
-        } else if (node.type === 'VariableDeclaration') {
-            for (const d of node.declarations) {
-                if (d.id.type !== 'Identifier' || !d.init) continue;
-                bindings.set(d.id.name, { origin: originOf(d.init), at: lineOf(text, d.start) });
+        } else if (node.type === 'VariableDeclarator' && node.id.type === 'Identifier' && node.init) {
+            const origin = originOf(node.init);
+            const prev = bindings.get(node.id.name);
+            // A name bound twice keeps the LESS reassuring answer, so a shadowing
+            // literal cannot vouch for an external one.
+            if (!prev || (prev.origin === 'literal' && origin !== 'literal')) {
+                bindings.set(node.id.name, { origin, at: lineOf(text, node.start) });
             }
         }
-    }
+    });
 
     /** Classify an initialiser: 'literal' (a table) or 'external' (a corpus). */
     function originOf (init, depth = 0) {
@@ -521,7 +531,42 @@ if (invokedDirectly) {
     if (existsSync(join(LITE, 'test'))) repos.push(inventory(LITE, 'brickwright-lite'));
     else console.error('NOTE: brickwright-lite not found at ' + LITE + ' — set BW_LITE');
 
-    if (process.argv.includes('--json')) {
+    if (process.argv.includes('--markdown')) {
+        const esc = (t) => String(t).replace(/\|/g, '\\|').replace(/\n/g, ' ');
+        for (const repo of repos) {
+            console.log('\n### `' + repo.repo + '` — ' + repo.rows.length + ' test files\n');
+            console.log('| file | runs | skips | asserts | corpus / floor |');
+            console.log('|---|---|---|---|---|');
+            for (const r of repo.rows) {
+                const runs = repo.fastSet
+                    ? (r.inFast ? 'CI + `test:fast`' : 'CI only')
+                    : 'CI (`npm test`)';
+                const skips = r.skipConditions.length
+                    ? r.skipConditions.map((s) => '`' + esc(s.cond).slice(0, 64) + '`').slice(0, 2).join('<br>') +
+                      (r.skipConditions.length > 2 ? '<br>+' + (r.skipConditions.length - 2) + ' more' : '')
+                    : '—';
+                const taut = r.tautological.length ? ' (' + r.tautological.length + ' tautological)' : '';
+                const asserts = r.assertions + taut +
+                    (r.envGates.length ? '<br>env: `' + r.envGates.join('`, `') + '`' : '');
+                const corpusDriven = r.discovery.length || r.loopDrivenTests.length || r.loopDrivenAsserts;
+                const corpus = !corpusDriven
+                    ? '—'
+                    : (r.floors.length
+                        ? 'floored (' + r.floors.length + ')'
+                        : '**NO FLOOR** — ' + esc(
+                            r.iterationSources.map((x) => x.text)
+                                .concat(r.discovery.map((d) => d.call)).join('; ')).slice(0, 70));
+                console.log('| `' + r.file.replace(/^test\//, '') + '` | ' + runs + ' | ' +
+                    skips + ' | ' + asserts + ' | ' + corpus + ' |');
+            }
+            const corpusDriven = repo.rows.filter(
+                (r) => r.discovery.length || r.loopDrivenTests.length || r.loopDrivenAsserts);
+            const noFloor = corpusDriven.filter((r) => !r.floors.length);
+            console.log('\n' + repo.rows.length + ' files; ' + corpusDriven.length +
+                ' corpus-driven, ' + (corpusDriven.length - noFloor.length) + ' floored, ' +
+                noFloor.length + ' without a floor.');
+        }
+    } else if (process.argv.includes('--json')) {
         console.log(JSON.stringify(repos.map((r) => ({
             repo: r.repo,
             root: r.root,

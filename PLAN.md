@@ -664,3 +664,67 @@ core-library changes, do clean-room):**
 `spikeprimebtc-1/-2` = old `require`-based / wrong export shape; `planetemaths-1` = undefined
 `Scratch3GamepadBlocks`) — candidates to delete from the repo. **Test with the REAL adapter, not a
 reimplementation — a simplified harness gives false negatives.**
+
+---
+
+## 27. Gate integrity — wave 2 (2026-08-23), and what is still open
+
+Full write-up, per-file tables and RED evidence: **`docs/GATE-INVENTORY.md`**.
+Wave 1 is `test/CROSS-REPO-GATE-AUDIT.md` (which gates never run); this wave is the
+question it ended on — which gates run and check nothing.
+
+Closed on `test/gate-integrity-wave2`: the CI blackout (abbreviated SHAs in
+`ci.yml`), `device-coverage`'s snapshot-only CI path, `bench-invariants`' unfloored
+1092-file corpus, and eleven gates whose corpora could arrive empty in silence.
+Instruments: `scripts/gate-inventory.mjs` (static screen) and
+`scripts/starve-gate.mjs` (the authority — empties the corpus and reads the
+verdict). The mutation prover went 20 → 26.
+
+### Open — not fixed, with the evidence
+
+- [ ] **The loaded-potentiometer artifact is live and unseen.** Against the pinned
+  `bw-board@50c3bf7` *and* the live `b1da99e`, `41-pot-as-dimmer` reports
+  `pot1.wiper = 2.5000 V` while sourcing `2.1739 mA` through it — the exact defect
+  `test/kcl-residual.test.mjs`'s header was written about. Both `kcl-residual` and
+  `assert-physics` are red on it. They have not been seen because CI has produced
+  no verdict since 13:16 UTC on 2026-08-23. The gates work; the engine does not.
+  Owned by whoever owns the bw-board solver — raised here because it is the
+  clearest demonstration this campaign has that a working gate is worth nothing
+  while CI is down.
+
+- [ ] **`bw-board` tracks `node_modules` as a symlink to an absolute macOS path.**
+  `git cat-file -p` on the tracked blob (mode `120000`) gives
+  `/Users/christianstrobele/code/bw-board/node_modules`. Every Linux clone and
+  worktree gets a dangling link and `avr8js` fails to resolve from
+  `src/avr8js-adapter.js`. sb3-creator's CI survives by accident — bw-board sits
+  *inside* the workspace, so resolution walks past it to the root `node_modules` —
+  but a sibling checkout beside the repo, which is what every developer has, does
+  not. Fix belongs in bw-board: untrack it.
+
+- [ ] **Four corpus-driven gates in `brickwright-lite` have no floor.** Outside
+  this worktree's write boundary, so recorded rather than repaired. Measured with
+  `BW_LITE=… node scripts/gate-inventory.mjs`:
+  - `no-dead-overlay-modules.test.mjs` — `readdirSync(dir)` walks the overlay tree
+    with no floor. Its CI guard already caps the dead-module waiver list because it
+    grew 5 → 16 while staying green; an empty walk is the same failure by a shorter
+    route, and would report every module as live.
+  - `stc12-pinmap.test.mjs` — `readdirSync(resolve(dir), {recursive: true})`.
+  - `starter-journeys.test.mjs` — one test, nine assertions, all inside a loop over
+    `journeys`.
+  - `debug-target-routing.test.mjs` — seven tests, **seven skip conditions**, and it
+    names a sibling without the shared guard. Worth checking whether any of it runs.
+  `test/helpers/corpus-floor.mjs` is the pattern to copy; every floor must carry the
+  date and the counted value, because a guessed threshold fires at the wrong time.
+
+- [ ] **`test:fast` still skips 66 of 88 files.** Unchanged from wave 1, which
+  recorded two regressions hiding in exactly that gap. Now measurable per file:
+  the `runs` column of `docs/GATE-INVENTORY.md` marks which are in it.
+
+- [ ] **A local run against a moved sibling reports 24 failures CI would not.**
+  `locate()` computes `matchesPin`, and `describeSiblings()` prints it, but nothing
+  asserts it — so a developer whose `bw-board` has moved past the pin sees a wall
+  of red with the explanation in an info line. Deliberate (you may want to test
+  against HEAD), but it should probably print a banner rather than a line.
+
+- [ ] **`ctarget.test.mjs` reaches the live network with no retry**, turning
+  someone else's outage into a red build. Carried over from wave 1, still open.

@@ -473,11 +473,20 @@ test('runtime convention: events switch turns an extension hat into a handler + 
 test('runtime convention: adding an extension is declarative (registry-only)', () => {
     const reg = SB3Creator.RUNTIME_EXTENSIONS;
     assert.ok(reg.universalgamepad && reg.legoboostunified && reg.ev3comprehensive, 'both registered');
-    // every op declares a kind + method
+    // MEASURED 2026-08-23: 19 extensions, 775 ops. Floor first — the two
+    // assertions below live inside a double loop over the registry, so a
+    // registry that lost its ops satisfies them by having none to check.
+    let ops = 0;
     for (const ext of Object.values(reg)) for (const op of Object.values(ext.ops)) {
+        ops++;
         assert.ok(['command', 'reporter', 'boolean', 'hat'].includes(op.kind));
         assert.ok(typeof op.method === 'string' && op.method.length);
     }
+    assert.ok(Object.keys(reg).length >= 15,
+        `only ${Object.keys(reg).length} runtime extensions registered (expected ~19)`);
+    assert.ok(ops >= 700,
+        `only ${ops} runtime-extension ops walked (expected ~775) — the declarative ` +
+        'convention above was checked against almost nothing');
 });
 
 // ---- Gamepad extension (id `universalgamepad`, runtime input -> neutral shim) ----

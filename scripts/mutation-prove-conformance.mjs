@@ -49,8 +49,20 @@ const GATES = [
     join(ROOT, 'test', 'a2-sampler-behavior.test.mjs'),
     // The cross-repo guard and the two files that police it. Added 2026-08-23 with
     // the fifteen-plus gates that skipped in CI — see test/CROSS-REPO-GATE-AUDIT.md.
-    join(ROOT, 'test', 'gate-integrity.test.mjs')
+    join(ROOT, 'test', 'gate-integrity.test.mjs'),
+    // Wave 2 (docs/GATE-INVENTORY.md): the corpus floors, and the CI-fetchability
+    // check that would have caught the blackout of 2026-08-23.
+    join(ROOT, 'test', 'device-coverage.test.mjs')
 ];
+
+/**
+ * Gates whose property is "my corpus is still there". Proven by STARVING —
+ * emptying the corpus and requiring red — because the defect is a corpus that
+ * arrives empty, and an edit to the gate would prove the edit instead.
+ */
+const CORPUS_GATES = [
+    'test/transparency.test.mjs', 'test/roundtrip.test.mjs', 'test/exec.test.mjs'
+].map((p) => join(ROOT, p));
 
 // Cross-repo gates, proven separately: their property is about what happens when
 // the SIBLINGS are absent, so they are exercised by changing the environment
@@ -359,6 +371,119 @@ const MUTATIONS = [
                     "const program = join(EXAMPLES, id, 'program.NOPE');"));
         },
         expect: /corpus walk is broken|examples compiled/
+    },
+    {
+        name: 'ci.yml pins a sibling by abbreviated SHA (the 2026-08-23 blackout)',
+        why: 'this exact edit took every CI run on main down at step two for seven commits; ' +
+             'the old check compared the two pins to each other and both were unfetchable',
+        apply () {
+            const f = join(ROOT, '.github', 'workflows', 'ci.yml');
+            const pins = join(ROOT, 'test', 'fixtures', 'siblings.json');
+            save(f); save(pins);
+            const full = '50c3bf7c2a7e0fb11cf6baaf4cc532a1b4443314';
+            const before = readFileSync(f, 'utf8');
+            const text = before.replace(`ref: ${full}`, `ref: ${full.slice(0, 7)}`);
+            if (text === before) throw new Error('mutation was a no-op — the full ref was not found');
+            writeFileSync(f, text);
+            // Abbreviate the JSON pin to match, so the "the two agree" test is NOT
+            // what fires. The point is that agreement is not fetchability, and only
+            // the new check can tell the difference.
+            const j = JSON.parse(readFileSync(pins, 'utf8'));
+            j.siblings['bw-board'].rev = full.slice(0, 7);
+            delete j.siblings['bw-board'].revShort;
+            writeFileSync(pins, `${JSON.stringify(j, null, 2)}\n`);
+        },
+        expect: /actions\/checkout resolves a commit only at the full 40|not a full 40-character SHA/
+    },
+    {
+        name: 'CI reads the committed device snapshot instead of the checked-out engine',
+        why: 'device-coverage did exactly this on every CI run it ever had — 36 of 118 ' +
+             'engine kinds were never checked, and the gate reported green',
+        env: { CI: 'true', BW_BOARD: NOWHERE, BW_CIRCUIT_UI: NOWHERE, BW_ALLOW_MISSING_SIBLINGS: '1' },
+        expectVisibility: 'none',
+        run: () => runGate([join(ROOT, 'test', 'device-coverage.test.mjs')],
+            { CI: 'true', BW_BOARD: NOWHERE, BW_CIRCUIT_UI: NOWHERE, BW_ALLOW_MISSING_SIBLINGS: '1' }),
+        expect: /CI read the snapshot device list|is not looking at the engine/
+    },
+    {
+        name: 'a gate loses the floor under its corpus',
+        why: 'the floors are the whole wave-2 repair; without the detector they can be ' +
+             'deleted one at a time and every gate stays green over nothing',
+        apply () {
+            const f = join(ROOT, 'test', 'exec.test.mjs');
+            save(f);
+            const before = readFileSync(f, 'utf8');
+            const text = before.replace(/^corpusFloor\([\s\S]*?\);$/m, '');
+            if (text === before) throw new Error('mutation was a no-op — no corpusFloor call matched');
+            writeFileSync(f, text);
+        },
+        run: () => runGate([join(ROOT, 'test', 'gate-integrity.test.mjs')]),
+        expect: /asserts no minimum on it|opens a corpus without a measured floor/
+    },
+    {
+        name: 'a corpus waiver outlives the file it names',
+        why: 'an exemption with nothing behind it is how allowlists rot; the same rule ' +
+             'the manifest gaps already carry',
+        apply () {
+            const f = join(ROOT, 'test', 'gate-integrity.test.mjs');
+            save(f);
+            const before = readFileSync(f, 'utf8');
+            const text = before.replace(
+                "        const WAIVED = new Map([\n",
+                "        const WAIVED = new Map([\n            ['test/a-gate-that-does-not-exist.test.mjs', 'stale'],\n");
+            if (text === before) throw new Error('mutation was a no-op — the WAIVED map was not found');
+            writeFileSync(f, text);
+        },
+        run: () => runGate([join(ROOT, 'test', 'gate-integrity.test.mjs')]),
+        expect: /waivers name files that are gone|no longer corpus-driven/
+    },
+    {
+        name: 'the vacuity screen itself stops recognising corpus-driven gates',
+        why: 'an instrument that finds nothing returns the same answer as a clean tree; ' +
+             'this is the yield assertion, and it is why the screen may be believed',
+        apply () {
+            const f = join(ROOT, 'scripts', 'gate-inventory.mjs');
+            save(f);
+            const before = readFileSync(f, 'utf8');
+            // Make every loop look like a literal table, so nothing is corpus-driven.
+            const text = before.replace(
+                '        if (expr.type === \'ArrayExpression\') return null;               // inline literal',
+                '        return null;');
+            if (text === before) throw new Error('mutation was a no-op — the guard line was not found');
+            writeFileSync(f, text);
+        },
+        run: () => runGate([join(ROOT, 'test', 'gate-integrity.test.mjs')]),
+        expect: /corpus-driven files recognised|the classifier stopped seeing them/
+    },
+    {
+        name: 'the examples corpus arrives empty (import-path swap, not an edit)',
+        why: 'three of the four invariants this project names — exec, roundtrip, ' +
+             'transparency — were satisfiable by an empty map',
+        run: () => {
+            // Swapping the SPECIFIER is unambiguous about which module loaded;
+            // editing examples.js would be an edit to a file that may be reached
+            // through a symlink. See scripts/starve-gate.mjs.
+            const stub = join(ROOT, 'test', 'fixtures', '__starve_empty_examples.mjs');
+            writeFileSync(stub, 'export default {};\n');
+            try {
+                const cfg = JSON.stringify({ from: join(ROOT, 'src', 'utils', 'examples.js'), to: stub });
+                const hook = join(ROOT, 'scripts', 'helpers', 'starve-hook.mjs');
+                try {
+                    execFileSync(process.execPath, ['--import', hook, '--test', ...CORPUS_GATES],
+                        { cwd: ROOT, encoding: 'utf8', stdio: 'pipe', env: { ...process.env, BW_STARVE: cfg } });
+                    return { red: false, out: '' };
+                } catch (e) {
+                    const out = `${e.stdout || ''}${e.stderr || ''}`;
+                    // Instrument check: the swap must have HAPPENED. A red run that
+                    // did not load the stub proves something else entirely.
+                    if (!/BW_STARVE: swapped/.test(out)) {
+                        throw new Error('instrument check: the import swap never fired, so this red says nothing');
+                    }
+                    return { red: true, out };
+                }
+            } finally { rmSync(stub, { force: true }); }
+        },
+        expect: /corpus floor: examples/
     },
     {
         name: 'an affected example is left with no pendingFix naming the fix',

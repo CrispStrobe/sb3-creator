@@ -18,11 +18,18 @@ import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import SB3Creator from '../src/utils/sb3Creator.js';
+import { corpusFloor } from './helpers/corpus-floor.mjs';
 import cToPseudocode from '../src/utils/cToPseudocode.js';
 import { CUBE_DIRECTIONS, cubeDirectionIndex, cubeDirectionWord }
     from '../src/utils/cubeDirections.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
+
+// MEASURED 2026-08-23: 6 directions. Several tests here are generated from
+// this imported list, and one asserts only that the mapping is injective —
+// which an empty list satisfies. Floor it where it enters the file.
+corpusFloor('cube directions', () => CUBE_DIRECTIONS.length, 6,
+    'CUBE_DIRECTIONS is imported from src/utils/cubeDirections.js; an empty export makes the direction tests generate nothing.');
 
 const program = (direction) => `DEVICE STC12C5A60S2
 CLOCK 11059200

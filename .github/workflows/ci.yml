@@ -41,18 +41,28 @@ jobs:
       # repo's verdict must not float with another repo's HEAD. Both are ours and
       # public (bw-board MIT, bw-circuit-ui MPL-2.0). Keep these `ref:` values
       # equal to test/fixtures/siblings.json — a test asserts exactly that.
+      #
+      # THE REF MUST BE THE FULL 40-CHARACTER SHA. actions/checkout recognises a
+      # commit only at full length; anything shorter it treats as a branch or tag
+      # and runs `git fetch origin +refs/heads/<ref>*:...`, which matches nothing
+      # and exits 1. These steps carried 7-character abbreviations from 90391a6
+      # (2026-08-23 12:00) and every run on main failed HERE, at step two — so
+      # lint, the whole suite, the mutation prover and the build did not run at
+      # all for seven consecutive commits. The change that did it was the fix for
+      # "fifteen cross-repo gates skip in CI"; it replaced fifteen silent skips
+      # with one loud blackout. gate-integrity now asserts the length.
       - name: Check out bw-board (pinned)
         uses: actions/checkout@v4
         with:
           repository: CrispStrobe/bw-board
-          ref: 50c3bf7
+          ref: 50c3bf7c2a7e0fb11cf6baaf4cc532a1b4443314
           path: siblings/bw-board
 
       - name: Check out bw-circuit-ui (pinned)
         uses: actions/checkout@v4
         with:
           repository: CrispStrobe/bw-circuit-ui
-          ref: d754cfc
+          ref: d754cfc5fe3359ce7ddd4c238ed54e9f73cc969f
           path: siblings/bw-circuit-ui
 
       - uses: actions/setup-node@v4
@@ -101,10 +111,12 @@ jobs:
       # against is specifically "works on the machine that has both checkouts".
       - name: Conformance gate is mutation-proven
         run: node scripts/mutation-prove-conformance.mjs
-        # Thirteen mutations, each a full run of the three gates, one of which
-        # boots the real VM. ~4 minutes; the headroom is deliberate so a slow
-        # runner reports a mutation that was missed rather than a timeout.
-        timeout-minutes: 12
+        # Twenty-six mutations, each a full run of five gates, one of which boots
+        # the real VM. The headroom is deliberate so a slow runner reports a
+        # mutation that was missed rather than a timeout — a timeout here says
+        # nothing about whether the gates can fail, which is the one thing this
+        # step exists to answer.
+        timeout-minutes: 25
 
       - name: Build
         run: npm run build
