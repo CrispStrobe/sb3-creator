@@ -7,6 +7,7 @@ import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import SB3Creator from '../src/utils/sb3Creator.js';
 import examples from '../src/utils/examples.js';
+import { corpusFloor } from './helpers/corpus-floor.mjs';
 
 // Run generated JS in a sandbox with a hard timeout. A timeout means the code ran
 // a game loop (fine); any other throw is a real runtime error and fails the test.
@@ -25,6 +26,13 @@ function runBounded (code, answers = []) {
         throw e; // real runtime error
     }
 }
+
+// Floor under the corpus these subtests are generated from — see
+// test/helpers/corpus-floor.mjs. `exec` is one of the four invariants this
+// project names, and an invariant that can be satisfied by an empty map is not
+// one. MEASURED 2026-08-23: src/utils/examples.js exports 35 examples, 30 of them non-hardware. This gate is generated from that map, so an empty or renamed export makes it emit zero subtests and report a clean pass.
+corpusFloor('examples to execute', () => Object.keys(examples).length, 30,
+    'exec.test.mjs generates one subtest per example; with none it asserts nothing.');
 
 for (const [name, code] of Object.entries(examples)) {
     test(`exec: ${name} generated JS runs without error`, () => {

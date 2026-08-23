@@ -49,8 +49,20 @@ const GATES = [
     join(ROOT, 'test', 'a2-sampler-behavior.test.mjs'),
     // The cross-repo guard and the two files that police it. Added 2026-08-23 with
     // the fifteen-plus gates that skipped in CI — see test/CROSS-REPO-GATE-AUDIT.md.
-    join(ROOT, 'test', 'gate-integrity.test.mjs')
+    join(ROOT, 'test', 'gate-integrity.test.mjs'),
+    // Wave 2 (docs/GATE-INVENTORY.md): the corpus floors, and the CI-fetchability
+    // check that would have caught the blackout of 2026-08-23.
+    join(ROOT, 'test', 'device-coverage.test.mjs')
 ];
+
+/**
+ * Gates whose property is "my corpus is still there". Proven by STARVING —
+ * emptying the corpus and requiring red — because the defect is a corpus that
+ * arrives empty, and an edit to the gate would prove the edit instead.
+ */
+const CORPUS_GATES = [
+    'test/transparency.test.mjs', 'test/roundtrip.test.mjs', 'test/exec.test.mjs'
+].map((p) => join(ROOT, p));
 
 // Cross-repo gates, proven separately: their property is about what happens when
 // the SIBLINGS are absent, so they are exercised by changing the environment
@@ -96,12 +108,34 @@ function assertRealFile (path) {
     }
 }
 
+// A HANG IS NOT A VERDICT. Without a ceiling here, one gate that never returns
+// turns the whole proof into a CI job that times out with nothing to say about
+// whether any mutation was caught — and a timeout is silence, which is the state
+// this entire campaign is about not accepting. Observed 2026-08-23: on a loaded
+// box the twelve cross-repo gates took over ten minutes for one mutation, and
+// there was no way to tell "slow" from "stuck" from the outside.
+//
+// A timeout is reported as its own outcome, never scored as caught: killing a gate
+// and calling that RED would be the same lie in the other direction.
+const GATE_TIMEOUT_MS = Number(process.env.BW_GATE_TIMEOUT_MS || 15 * 60 * 1000);
+
 function runGate (files = GATES, env = {}) {
     try {
-        execFileSync(process.execPath, ['--test', ...files],
-            { cwd: ROOT, encoding: 'utf8', stdio: 'pipe', env: { ...process.env, ...env } });
+        execFileSync(process.execPath, ['--test', ...files], {
+            cwd: ROOT, encoding: 'utf8', stdio: 'pipe',
+            timeout: GATE_TIMEOUT_MS, maxBuffer: 64 * 1024 * 1024,
+            env: { ...process.env, ...env }
+        });
         return { red: false, out: '' };
-    } catch (e) { return { red: true, out: `${e.stdout || ''}${e.stderr || ''}` }; }
+    } catch (e) {
+        if (e.killed || e.signal === 'SIGTERM') {
+            return {
+                red: false, timedOut: true,
+                out: `gate run exceeded ${GATE_TIMEOUT_MS} ms and was killed — no verdict`
+            };
+        }
+        return { red: true, out: `${e.stdout || ''}${e.stderr || ''}` };
+    }
 }
 
 // A path that cannot exist, for proving the absent-sibling case without touching
@@ -361,6 +395,160 @@ const MUTATIONS = [
         expect: /corpus walk is broken|examples compiled/
     },
     {
+        name: 'ci.yml pins a sibling by abbreviated SHA (the 2026-08-23 blackout)',
+        why: 'this exact edit took every CI run on main down at step two for seven commits; ' +
+             'the old check compared the two pins to each other and both were unfetchable',
+        apply () {
+            const f = join(ROOT, '.github', 'workflows', 'ci.yml');
+            const pins = join(ROOT, 'test', 'fixtures', 'siblings.json');
+            save(f); save(pins);
+            const full = '50c3bf7c2a7e0fb11cf6baaf4cc532a1b4443314';
+            const before = readFileSync(f, 'utf8');
+            const text = before.replace(`ref: ${full}`, `ref: ${full.slice(0, 7)}`);
+            if (text === before) throw new Error('mutation was a no-op — the full ref was not found');
+            writeFileSync(f, text);
+            // Abbreviate the JSON pin to match, so the "the two agree" test is NOT
+            // what fires. The point is that agreement is not fetchability, and only
+            // the new check can tell the difference.
+            const j = JSON.parse(readFileSync(pins, 'utf8'));
+            j.siblings['bw-board'].rev = full.slice(0, 7);
+            delete j.siblings['bw-board'].revShort;
+            writeFileSync(pins, `${JSON.stringify(j, null, 2)}\n`);
+        },
+        expect: /actions\/checkout resolves a commit only at the full 40|not a full 40-character SHA/
+    },
+    {
+        name: 'CI reads the committed device snapshot instead of the checked-out engine',
+        why: 'device-coverage did exactly this on every CI run it ever had — 36 of 118 ' +
+             'engine kinds were never checked, and the gate reported green',
+        env: { CI: 'true', BW_BOARD: NOWHERE, BW_CIRCUIT_UI: NOWHERE, BW_ALLOW_MISSING_SIBLINGS: '1' },
+        expectVisibility: 'none',
+        run: () => runGate([join(ROOT, 'test', 'device-coverage.test.mjs')],
+            { CI: 'true', BW_BOARD: NOWHERE, BW_CIRCUIT_UI: NOWHERE, BW_ALLOW_MISSING_SIBLINGS: '1' }),
+        expect: /CI read the snapshot device list|is not looking at the engine/
+    },
+    {
+        name: 'a gate loses the floor under its corpus (the screen catches it)',
+        why: 'the floors are the whole wave-2 repair; without the detector they can be ' +
+             'deleted one at a time and every gate stays green over nothing',
+        apply () {
+            // transparency.test.mjs, because its corpusFloor is its ONLY floor.
+            // See the mutation below for why that qualifier is load-bearing.
+            const f = join(ROOT, 'test', 'transparency.test.mjs');
+            save(f);
+            const before = readFileSync(f, 'utf8');
+            const text = before.replace(/^corpusFloor\([\s\S]*?\);$/m, '');
+            if (text === before) throw new Error('mutation was a no-op — no corpusFloor call matched');
+            writeFileSync(f, text);
+        },
+        run: () => runGate([join(ROOT, 'test', 'gate-integrity.test.mjs')]),
+        expect: /asserts no minimum on it|opens a corpus without a measured floor/
+    },
+    {
+        name: 'a gate loses the floor under its corpus but keeps an unrelated one ' +
+              '(only the starve catches it)',
+        why: 'THE SCREEN CANNOT SEE THIS, and pretending otherwise is the whole failure ' +
+             'mode. exec.test.mjs also asserts logs.filter(…).length === 2 in an unrelated ' +
+             'test, so the file stays "floored" while its corpus is not. This mutation ' +
+             'exists to keep that division of labour honest: it must be MISSED by ' +
+             'gate-integrity and CAUGHT by starve-gate, and if either half ever changes, ' +
+             'the claim in docs/GATE-INVENTORY.md is stale and this goes red.',
+        apply () {
+            const f = join(ROOT, 'test', 'exec.test.mjs');
+            save(f);
+            const before = readFileSync(f, 'utf8');
+            const text = before.replace(/^corpusFloor\([\s\S]*?\);$/m, '');
+            if (text === before) throw new Error('mutation was a no-op — no corpusFloor call matched');
+            writeFileSync(f, text);
+        },
+        run: async () => {
+            const screen = runGate([join(ROOT, 'test', 'gate-integrity.test.mjs')]);
+            if (screen.red) {
+                return { red: false, out: 'the screen caught it — docs/GATE-INVENTORY.md claims it cannot; update the claim' };
+            }
+            // Now the authority, on the same mutated tree.
+            const { starve } = await import(pathToFileURL(join(ROOT, 'scripts', 'starve-gate.mjs')).href);
+            const r = starve({
+                gate: 'test/exec.test.mjs',
+                why: 'proving the starve covers what the screen misses',
+                mechanism: 'module',
+                target: 'src/utils/examples.js',
+                stub: 'export default {};\n'
+            });
+            return {
+                red: r.verdict === 'RED',
+                out: `screen: GREEN (expected) | starve: ${r.verdict} ` +
+                     `(${r.before.tests} tests -> ${r.after.tests} tests)`
+            };
+        },
+        expect: /starve: RED/
+    },
+    {
+        name: 'a corpus waiver outlives the file it names',
+        why: 'an exemption with nothing behind it is how allowlists rot; the same rule ' +
+             'the manifest gaps already carry',
+        apply () {
+            const f = join(ROOT, 'test', 'gate-integrity.test.mjs');
+            save(f);
+            const before = readFileSync(f, 'utf8');
+            const text = before.replace(
+                "        const WAIVED = new Map([\n",
+                "        const WAIVED = new Map([\n            ['test/a-gate-that-does-not-exist.test.mjs', 'stale'],\n");
+            if (text === before) throw new Error('mutation was a no-op — the WAIVED map was not found');
+            writeFileSync(f, text);
+        },
+        run: () => runGate([join(ROOT, 'test', 'gate-integrity.test.mjs')]),
+        expect: /waivers name files that are gone|no longer corpus-driven/
+    },
+    {
+        name: 'the vacuity screen itself stops recognising corpus-driven gates',
+        why: 'an instrument that finds nothing returns the same answer as a clean tree; ' +
+             'this is the yield assertion, and it is why the screen may be believed',
+        apply () {
+            const f = join(ROOT, 'scripts', 'gate-inventory.mjs');
+            save(f);
+            const before = readFileSync(f, 'utf8');
+            // Make every loop look like a literal table, so nothing is corpus-driven.
+            const text = before.replace(
+                '        if (expr.type === \'ArrayExpression\') return null;               // inline literal',
+                '        return null;');
+            if (text === before) throw new Error('mutation was a no-op — the guard line was not found');
+            writeFileSync(f, text);
+        },
+        run: () => runGate([join(ROOT, 'test', 'gate-integrity.test.mjs')]),
+        expect: /corpus-driven files recognised|the classifier stopped seeing them/
+    },
+    {
+        name: 'the examples corpus arrives empty (import-path swap, not an edit)',
+        why: 'three of the four invariants this project names — exec, roundtrip, ' +
+             'transparency — were satisfiable by an empty map',
+        run: () => {
+            // Swapping the SPECIFIER is unambiguous about which module loaded;
+            // editing examples.js would be an edit to a file that may be reached
+            // through a symlink. See scripts/starve-gate.mjs.
+            const stub = join(ROOT, 'test', 'fixtures', '__starve_empty_examples.mjs');
+            writeFileSync(stub, 'export default {};\n');
+            try {
+                const cfg = JSON.stringify({ from: join(ROOT, 'src', 'utils', 'examples.js'), to: stub });
+                const hook = join(ROOT, 'scripts', 'helpers', 'starve-hook.mjs');
+                try {
+                    execFileSync(process.execPath, ['--import', hook, '--test', ...CORPUS_GATES],
+                        { cwd: ROOT, encoding: 'utf8', stdio: 'pipe', env: { ...process.env, BW_STARVE: cfg } });
+                    return { red: false, out: '' };
+                } catch (e) {
+                    const out = `${e.stdout || ''}${e.stderr || ''}`;
+                    // Instrument check: the swap must have HAPPENED. A red run that
+                    // did not load the stub proves something else entirely.
+                    if (!/BW_STARVE: swapped/.test(out)) {
+                        throw new Error('instrument check: the import swap never fired, so this red says nothing');
+                    }
+                    return { red: true, out };
+                }
+            } finally { rmSync(stub, { force: true }); }
+        },
+        expect: /corpus floor: examples/
+    },
+    {
         name: 'an affected example is left with no pendingFix naming the fix',
         why: 'the cost of an open gap must stay attached to an owner',
         apply () {
@@ -392,8 +580,23 @@ const base = runGate();
 if (base.red) { console.error('\nFAIL: the gate is already red before any mutation.'); process.exit(1); }
 console.log('\nBaseline: gate is GREEN\n');
 
+// `--only <substring>` runs a subset. Added because a full pass is 26 mutations,
+// each a full run of five gates, and on a contended box that is hours — long
+// enough that people stop running it, which is how a prover quietly stops being
+// evidence. CI still runs the whole set; this is for proving one repair.
+const ONLY = (() => {
+    const i = process.argv.indexOf('--only');
+    return i >= 0 ? process.argv[i + 1] : null;
+})();
+const SELECTED = ONLY ? MUTATIONS.filter((m) => m.name.includes(ONLY)) : MUTATIONS;
+if (ONLY && !SELECTED.length) {
+    console.error(`--only ${ONLY} matched none of the ${MUTATIONS.length} mutations`);
+    process.exit(2);
+}
+if (ONLY) console.log(`--only ${ONLY}: ${SELECTED.length} of ${MUTATIONS.length} mutations\n`);
+
 let failures = 0;
-for (const m of MUTATIONS) {
+for (const m of SELECTED) {
     let result;
     try {
         if (m.apply) m.apply();
@@ -408,7 +611,7 @@ for (const m of MUTATIONS) {
         // not evidence of robustness. So verify the environment really produced
         // the state the mutation is about before believing the verdict.
         if (m.expectVisibility) assertVisibility(m.env, m.expectVisibility, m.name);
-        result = m.run ? m.run() : runGate();
+        result = m.run ? await m.run() : runGate();
     } finally {
         if (m.restore) m.restore();
         restoreAll();
@@ -416,17 +619,20 @@ for (const m of MUTATIONS) {
     // `invert` marks a mutation that must leave the gate GREEN — the developer-box
     // and opt-out cases. A guard that failed everywhere would "catch" everything
     // and be useless, so both directions are proven.
-    const caught = m.invert
+    const caught = !result.timedOut && (m.invert
         ? !result.red
-        : (result.red && m.expect.test(result.out));
+        : (result.red && m.expect.test(result.out)));
     if (!caught) failures++;
-    console.log(`${caught ? (m.invert ? 'GREEN' : 'RED  ') : 'MISS '} ${m.name}`);
+    const label = result.timedOut ? 'HUNG ' : caught ? (m.invert ? 'GREEN' : 'RED  ') : 'MISS ';
+    console.log(`${label} ${m.name}`);
     console.log(`       ${m.why}`);
-    if (!caught) console.log(`       expected ${m.expect} in output; red=${result.red}`);
+    if (result.timedOut) console.log(`       ${result.out} — this is not a verdict, it is silence`);
+    else if (!caught) console.log(`       expected ${m.expect} in output; red=${result.red}`);
 }
 
 const after = runGate();
 if (after.red) { console.error('\nFAIL: the tree was not restored — the gate is red after the run.'); process.exit(1); }
 console.log(`\nRestored: gate is GREEN again`);
-console.log(`${MUTATIONS.length - failures}/${MUTATIONS.length} mutations caught`);
+console.log(`${SELECTED.length - failures}/${SELECTED.length} mutations caught` +
+    (ONLY ? ` (--only ${ONLY}; ${MUTATIONS.length} exist)` : ''));
 process.exit(failures === 0 ? 0 : 1);

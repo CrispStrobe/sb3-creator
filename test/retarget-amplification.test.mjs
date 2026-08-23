@@ -14,6 +14,7 @@ import { readFileSync } from 'fs';
 import { join } from 'path';
 import SB3Creator from '../src/utils/sb3Creator.js';
 import { interpretTrace } from '../src/utils/traceOracle.js';
+import { corpusFloor } from './helpers/corpus-floor.mjs';
 
 const EXAMPLES = join(import.meta.dirname, '..', 'examples');
 const index = JSON.parse(readFileSync(join(EXAMPLES, 'index.json'), 'utf8'));
@@ -22,6 +23,15 @@ const index = JSON.parse(readFileSync(join(EXAMPLES, 'index.json'), 'utf8'));
 // exclusion as retarget-gallery, a1b6030; this suite was missed by that fix).
 const generic = index.filter(e => e.kind === 'program' && Array.isArray(e.devices)
     && e.authored !== 'microbit' && e.authored !== 'spike');
+
+// MEASURED 2026-08-23: 40 of 274 index.json entries. Both halves of this filter
+// can silently go to zero — `kind === 'program'` if the index schema renames the
+// field, `Array.isArray(e.devices)` if the generator stops emitting it — and the
+// amplification checks below iterate `generic` and assert per entry, so an empty
+// list is a green run over nothing.
+corpusFloor('retargetable programs in examples/index.json',
+    () => generic.length, 35,
+    "The filter is kind === 'program' && Array.isArray(devices), minus the microbit/spike authored families.");
 
 /** ADC config per device: bits and reference voltage. */
 const ADC_CFG = {

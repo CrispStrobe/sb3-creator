@@ -9,6 +9,7 @@ import SB3Creator from '../src/utils/sb3Creator.js';
 import pythonToPseudocode from '../src/utils/pythonToPseudocode.js';
 import javascriptToPseudocode from '../src/utils/javascriptToPseudocode.js';
 import examples from '../src/utils/examples.js';
+import { corpusFloor } from './helpers/corpus-floor.mjs';
 
 const BACKENDS = [
     { name: 'python', gen: (c) => c.generatePython(), parse: (s) => pythonToPseudocode(s) },
@@ -20,6 +21,14 @@ const BACKENDS = [
 // call back into blocks — the same one-way property the registry extensions have. Their
 // round-trip is pseudocode <-> blocks <-> C, and `test/ctarget.test.mjs` asserts it there.
 const HARDWARE = (n) => n.startsWith('stc_');
+
+// The corpus this file's subtests are GENERATED from. Without a floor, an
+// empty `examples` map — or a HARDWARE predicate that widened to match
+// everything — emits zero round-trip tests and the file reports a clean pass.
+// MEASURED 2026-08-23: src/utils/examples.js exports 35 examples, 30 of them non-hardware. This file is generated from that map, so an empty or renamed export makes it emit zero subtests and report a clean pass.
+corpusFloor('examples to round-trip (non-hardware)',
+    () => Object.keys(examples).filter((n) => !HARDWARE(n)).length, 25,
+    'roundtrip.test.mjs generates one subtest per backend per example; with none, it proves nothing.');
 
 // Every other example's generated code (Python + JS) must parse back to pseudocode and
 // recompile to blocks without throwing (graphics become comments and are dropped).

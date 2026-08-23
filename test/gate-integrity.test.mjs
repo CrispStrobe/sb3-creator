@@ -126,6 +126,55 @@ describe('gate integrity: a suite cannot skip itself into silence', () => {
         }
     });
 
+    test('every pinned checkout ref is a ref actions/checkout can actually fetch', () => {
+        // THE GATE THAT WOULD HAVE CAUGHT THE BLACKOUT.
+        //
+        // The test above asserts the two pins AGREE. Both can agree and both be
+        // unfetchable, which is what happened: 90391a6 pinned `50c3bf7` and
+        // `d754cfc` in both places, they matched, and every CI run on main from
+        // 2026-08-23 12:00 failed at the checkout step. actions/checkout treats a
+        // ref as a commit ONLY at full 40-hex length; anything shorter goes down
+        // the branch/tag path and it runs
+        //
+        //   git fetch --depth=1 origin +refs/heads/50c3bf7*:refs/remotes/origin/50c3bf7*
+        //
+        // which matches nothing and exits 1. Three retries, then the job dies at
+        // step two — so lint, the entire suite, the mutation prover and the build
+        // produced no verdict at all for seven consecutive commits on main.
+        //
+        // Agreement is not fetchability. This asserts the property that actually
+        // has to hold, on the file CI reads.
+        const workflow = readFileSync(join(SB3, '.github', 'workflows', 'ci.yml'), 'utf8');
+        const pins = JSON.parse(readFileSync(join(SB3, 'test', 'fixtures', 'siblings.json'), 'utf8')).siblings;
+        const FULL_SHA = /^[0-9a-f]{40}$/;
+
+        const refs = [...workflow.matchAll(/repository:\s*(\S+)\s*\n\s*ref:\s*(\S+)/g)]
+            .map((m) => ({ repo: m[1], ref: m[2] }));
+        // Assert the walk's own yield: an empty list must never read as "all clean".
+        assert.ok(refs.length >= Object.keys(pins).length,
+            `found ${refs.length} pinned checkout steps in ci.yml but siblings.json pins ` +
+            `${Object.keys(pins).length}. Either a step was removed or this scan stopped ` +
+            'matching, and either way the check below would report a clean sweep over nothing.');
+
+        for (const { repo, ref } of refs) {
+            assert.match(ref, FULL_SHA,
+                `ci.yml checks out ${repo} at ref "${ref}" (${ref.length} chars). ` +
+                'actions/checkout resolves a commit only at the full 40 hex characters; ' +
+                'anything shorter it fetches as `+refs/heads/<ref>*`, which matches no ' +
+                'branch and fails the job before npm ci. Use the full SHA — `git rev-parse ' +
+                `${ref}` + '` gives it — and keep test/fixtures/siblings.json equal to it.');
+        }
+        for (const [name, pin] of Object.entries(pins)) {
+            assert.match(pin.rev, FULL_SHA,
+                `test/fixtures/siblings.json pins ${name} at "${pin.rev}", which is not a ` +
+                'full 40-character SHA. ci.yml copies this value verbatim and cannot fetch it.');
+            if (pin.revShort) {
+                assert.ok(pin.rev.startsWith(pin.revShort),
+                    `${name}: revShort ${pin.revShort} is not a prefix of rev ${pin.rev}`);
+            }
+        }
+    });
+
     test('every sibling this repo pins is one we are allowed to vendor or clone', () => {
         const pins = JSON.parse(readFileSync(join(SB3, 'test', 'fixtures', 'siblings.json'), 'utf8')).siblings;
         // The engine-backend licence rule: ngspice/KLU/CSparse-family code may not
@@ -150,15 +199,153 @@ describe('gate integrity: a suite cannot skip itself into silence', () => {
         // beside sb3-creator, so a second `..` silently points at nothing —
         // `available` goes false and the suite reports "skipped", which reads
         // as a deliberate exclusion instead of a broken path.
+        //
+        // TWO SPELLINGS, AND THE BASE DECIDES. This detector matched only the
+        // `join(x, '..', '..', 'name')` ARRAY form, so device-coverage's
+        // `resolve(here, '../../bw-board/src/board.js')` was invisible to it. The
+        // audit records the same escape once before, in string form, in
+        // scripts/vendor-downstream-extensions.mjs. A detector that knows one
+        // spelling of a defect reports clean on the other.
+        //
+        // But the dot count alone is not the defect, and saying so would make this
+        // cry wolf: `../..` is WRONG from the repo root and RIGHT from `test/`.
+        // Several files legitimately write `resolve(here, '../../stc-compiler/…')`
+        // and land exactly where they mean to. What is being asserted is the
+        // resolved location — one level above this repo — so the base is read
+        // together with the dots, and a base of `here`/`import.meta.dirname`/
+        // `__dirname` (which is `test/`) makes `../..` correct.
+        //
+        // Prose is excluded before matching. The lite build guard learned this the
+        // hard way counting waiver entries: an apostrophe in a comment read as a
+        // quoted string and it reported an entry in a list with none. A guard that
+        // miscounts is worse than no guard, so it does not get to read comments.
+        const SIBLINGS = /^(bw-board|bw-circuit-ui|emu8051-stc|ucsim-stc|stc-compiler|brickwright-lite|bw-parts)$/;
+        const TEST_DIR_BASE = /^(here|__dirname|import\.meta\.dirname)$/;
+        const stripComments = (src) => src
+            .replace(/\/\*[\s\S]*?\*\//g, ' ')
+            .split('\n').map((l) => l.replace(/(^|[^:"'`\\])\/\/.*$/, '$1')).join('\n');
+
+        // One pass over every `join|resolve(BASE, …up…, 'sibling')`, in both the
+        // array spelling and the string spelling, counting the `..` hops and
+        // judging them against what BASE means. `test/` needs two; the repo root
+        // needs one. Anything else lands somewhere nobody intended.
+        const EXPECTED_HOPS = (base) => (TEST_DIR_BASE.test(base) ? 2 : 1);
+        const PATH_CALL = /\b(?:join|resolve)\(\s*([\w.]+)\s*,\s*((?:(?:'\.\.'|"\.\.")\s*,\s*)+)['"`]([\w-]+)/g;
+        const PATH_STRING = /\b(?:join|resolve)\(\s*([\w.]+)\s*,\s*['"`]((?:\.\.\/)+)([\w-]+)/g;
+
         const offenders = [];
+        let scanned = 0;
+        let siblingPathsSeen = 0;
+        const judge = (f, base, hops, name, shown) => {
+            if (!SIBLINGS.test(name)) return;
+            siblingPathsSeen++;
+            const want = EXPECTED_HOPS(base);
+            if (hops === want) return;
+            offenders.push(
+                `${f}: ${shown} — ${hops} level(s) up from ${base}; ` +
+                `${TEST_DIR_BASE.test(base) ? 'test/' : 'the repo root'} needs ${want}`);
+        };
         for (const f of readdirSync(join(SB3, 'test'))) {
             if (!f.endsWith('.mjs')) continue;
-            const src = readFileSync(join(SB3, 'test', f), 'utf8');
-            for (const m of src.matchAll(/join\(\s*\w+\s*,\s*'\.\.'\s*,\s*'\.\.'\s*,\s*'([\w-]+)'/g)) {
-                offenders.push(`${f}: ../../${m[1]}`);
+            scanned++;
+            const code = stripComments(readFileSync(join(SB3, 'test', f), 'utf8'));
+            for (const m of code.matchAll(PATH_CALL)) {
+                judge(f, m[1], (m[2].match(/\.\./g) || []).length, m[3],
+                    `join(${m[1]}, ${m[2].trim().replace(/,\s*$/, '')}, '${m[3]}')`);
+            }
+            for (const m of code.matchAll(PATH_STRING)) {
+                judge(f, m[1], (m[2].match(/\.\./g) || []).length, m[3],
+                    `(${m[1]}, '${m[2]}${m[3]}…')`);
             }
         }
-        assert.deepEqual(offenders, [], `sibling checkouts are one level up, not two:\n  ${offenders.join('\n  ')}`);
+        // Assert the walk's own yield, both halves. An empty offender list must
+        // mean "looked and found none", never "found no files" or "every pattern
+        // stopped matching". MEASURED 2026-08-23: 90 files, 24 sibling paths.
+        assert.ok(scanned >= 40,
+            `only ${scanned} test files scanned (expected >= 90) — the walk, not the ` +
+            'tree, is what changed, and an empty offender list below would be a fiction');
+        assert.ok(siblingPathsSeen >= 15,
+            `the scan recognised only ${siblingPathsSeen} sibling path expressions ` +
+            '(expected ~24). Every pattern here may have stopped matching, in which ' +
+            'case a clean result says nothing.');
+        assert.deepEqual(offenders, [],
+            'a sibling checkout sits one level above this REPO, which is two levels ' +
+            `above test/ — these resolve somewhere else:\n  ${offenders.join('\n  ')}`);
+    });
+
+    test('no gate opens a corpus without a measured floor under it', async () => {
+        // THE CLASS THE PREVIOUS SWEEPS COULD NOT SEE.
+        //
+        // test/CROSS-REPO-GATE-AUDIT.md closed "the gate never runs in CI" and
+        // ended by naming what neither the skip-sweep nor the static cross-repo
+        // detector can find: a gate that iterates a DISCOVERED list which is
+        // empty. It does not skip and it does not fail — it emits zero subtests
+        // and reports a clean pass. `all 0 benches: engine accepts, peripherals
+        // reachable from the MCU` was green in this repo, over nothing.
+        //
+        // A file is corpus-driven when it discovers inputs from disk, or declares
+        // its tests inside a loop over something that is not a literal written in
+        // the file. It needs a floor: any assertion of a non-zero minimum on what
+        // it found, or a corpusFloor() call (test/helpers/corpus-floor.mjs).
+        //
+        // WHAT THIS IS NOT. It is a static screen, so it produces SUSPECTS. The
+        // authority is `node scripts/starve-gate.mjs`, which empties the corpus
+        // and reads the verdict — and which refuses to call a gate vacuous unless
+        // the starve demonstrably changed the gate's subtest count first.
+        // Everything waived below was starved or read; none is waived for being
+        // inconvenient.
+        const { inventory, classify } = await import('../scripts/gate-inventory.mjs');
+        const inv = inventory(SB3, 'sb3-creator');
+
+        // Assert the instrument's own yield before believing its silence. An
+        // acorn parse failure, a renamed directory or a broken pattern all return
+        // "no offenders", which is the answer a broken instrument gives by
+        // default. MEASURED 2026-08-23: 88 files, 47 of them corpus-driven.
+        assert.ok(inv.rows.length >= 80,
+            `the walk found only ${inv.rows.length} test files (expected ~88)`);
+        const unparsed = inv.rows.filter((r) => r.parseError);
+        assert.deepEqual(unparsed.map((r) => `${r.file}: ${r.parseError}`), [],
+            'a file this screen could not parse is a file it silently did not check');
+        const corpusDriven = inv.rows.filter(
+            (r) => r.discovery.length || r.loopDrivenTests.length || r.loopDrivenAsserts);
+        assert.ok(corpusDriven.length >= 40,
+            `only ${corpusDriven.length} corpus-driven files recognised (expected ~47) — ` +
+            'the classifier stopped seeing them, so an empty offender list means nothing');
+
+        // Waived, each with the reason it is not the shape above. A waiver here
+        // must say why an EMPTY corpus would still be caught, not merely that the
+        // corpus is unlikely to empty.
+        const WAIVED = new Map([
+            ['test/authored-transform.test.mjs',
+                'iterates bench.parts, but every case first asserts census[kind] === 1 on ' +
+                'both the authored and transformed bench — an empty parts array fails there ' +
+                'before the loop is reached.'],
+            ['test/block-lowering.test.mjs',
+                'iterates DEVICES_NO_C, a WAIVER set. Its assertion is "nothing in this gap ' +
+                'list already has a C lowering", so an empty set is the goal state, not a ' +
+                'blind spot. A floor here would forbid finishing the work.']
+        ]);
+
+        const offenders = [];
+        for (const r of corpusDriven) {
+            if (!classify(r).some((f) => f.startsWith('VACUITY-SUSPECT'))) continue;
+            if (WAIVED.has(r.file)) continue;
+            offenders.push(`${r.file} — opens [${
+                r.iterationSources.map((x) => x.text).concat(r.discovery.map((d) => d.call)).join(', ')
+            }] and asserts no minimum on it`);
+        }
+        assert.deepEqual(offenders, [],
+            'these gates iterate a corpus with nothing asserting the corpus is non-empty, so ' +
+            'they pass over an empty one:\n  ' + offenders.join('\n  ') +
+            '\nAdd a MEASURED floor (test/helpers/corpus-floor.mjs), or waive it in this test ' +
+            'with the reason an empty corpus would still be caught.');
+
+        // A waiver for a file that no longer exists, or that no longer has the
+        // shape, is an exemption outliving its cause — how allowlists rot.
+        const stale = [...WAIVED.keys()].filter(
+            (f) => !corpusDriven.some((r) => r.file === f));
+        assert.deepEqual(stale, [],
+            `these waivers name files that are gone or no longer corpus-driven: ${stale.join(', ')}`);
     });
 
     test('every skip guard names a path that exists, or a checkout that does not', () => {

@@ -41,6 +41,12 @@ test('70-calculator: MicroPython → pseudocode round-trips every PIN', () => {
     const authored = c.project.stc.pins.map((p) => ({
         name: p.name, where: p.where, direction: p.direction, activeLow: !!p.activeLow,
     }));
+    // MEASURED 2026-08-23: 70-calculator declares 19 PINs. The per-pin assertions
+    // below are inside `for (const p of authored)`, so a parse that produced no
+    // pins at all would satisfy every one of them.
+    assert.ok(authored.length >= 15,
+        `70-calculator parsed to ${authored.length} PIN declarations (expected 19) — ` +
+        'the round-trip below would check nothing');
     const r = c.generateMicroPython();
     assert.equal(r.ok, true);
 

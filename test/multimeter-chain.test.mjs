@@ -78,13 +78,19 @@ test('49-lcd-hello: the I2C LCD shows its text through the full chain',
     (await import(join(BWB, 'src/register-all.js'))).registerAllDevices();
     setEngine({ BoardImpl: eng.BoardImpl, inferNetlist: eng.inferNetlist, checkWiring: eng.checkWiring });
     const { registerSidecar } = await import(join(CUI, 'src/model/parts-registry.js'));
+    let sidecars = 0;
     for (const f of readdirSync(join(CUI, 'src/parts-data'))) {
       if (!f.endsWith('.json')) continue;
       try {
         const sc = JSON.parse(readFileSync(join(CUI, 'src/parts-data', f), 'utf8'));
-        if (sc.kind) registerSidecar(sc);
+        if (sc.kind) { registerSidecar(sc); sidecars++; }
       } catch { /* bw-parts' problem */ }
     }
+    // MEASURED 2026-08-23: 239 sidecars in bw-circuit-ui@d754cfc. Same floor as
+    // bench-invariants: a parts-data directory that moved registers nothing, and
+    // the chain below then measures a board whose aliases never resolved.
+    assert.ok(sidecars >= 200,
+      `only ${sidecars} part sidecars registered from ${join(CUI, 'src/parts-data')} (expected ~239)`);
     const { Circuit } = await import(join(CUI, 'src/model/circuit.js'));
     const circ = Circuit.fromJSON(JSON.parse(
       readFileSync(join(SB3, 'examples/49-lcd-hello/circuit.stc12c5a60s2.json'), 'utf8')));
@@ -130,13 +136,19 @@ test('76-multimeter: full-chain EXPECTED values (V, A, T-degC, wrap)',
     (await import(join(BWB, 'src/register-all.js'))).registerAllDevices();
     setEngine({ BoardImpl: eng.BoardImpl, inferNetlist: eng.inferNetlist, checkWiring: eng.checkWiring });
     const { registerSidecar } = await import(join(CUI, 'src/model/parts-registry.js'));
+    let sidecars = 0;
     for (const f of readdirSync(join(CUI, 'src/parts-data'))) {
       if (!f.endsWith('.json')) continue;
       try {
         const sc = JSON.parse(readFileSync(join(CUI, 'src/parts-data', f), 'utf8'));
-        if (sc.kind) registerSidecar(sc);
+        if (sc.kind) { registerSidecar(sc); sidecars++; }
       } catch { /* bw-parts' problem */ }
     }
+    // MEASURED 2026-08-23: 239 sidecars in bw-circuit-ui@d754cfc. Same floor as
+    // bench-invariants: a parts-data directory that moved registers nothing, and
+    // the chain below then measures a board whose aliases never resolved.
+    assert.ok(sidecars >= 200,
+      `only ${sidecars} part sidecars registered from ${join(CUI, 'src/parts-data')} (expected ~239)`);
     const { Circuit } = await import(join(CUI, 'src/model/circuit.js'));
     const circ = Circuit.fromJSON(JSON.parse(
       readFileSync(join(SB3, 'examples/76-multimeter/circuit.json'), 'utf8')));
