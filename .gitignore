@@ -31,3 +31,9 @@ test/browser/shots/
 CLAUDE.md
 corpus/
 test/fixtures/6502-oled-counter.o
+
+# Where .github/workflows/ci.yml checks bw-board and bw-circuit-ui out so the
+# cross-repo gates run instead of skipping. Not ours, never committed — and
+# ignored by eslint too (eslint.config.js), because `eslint .` from the root
+# otherwise lints 5.3 MB of two other repositories.
+siblings/

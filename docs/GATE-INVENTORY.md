@@ -116,6 +116,43 @@ Lint · test · build
 **The fix is not on `main`.** This branch has it; `main` is still dark and the
 count is still rising.
 
+#### 1b. Behind it, a second defect from the same commit: CI lints the siblings
+
+The dispatched run got past the checkout and then failed at **Lint**, with a page
+of this:
+
+```
+> eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0
+
+/home/runner/work/sb3-creator/sb3-creator/siblings/bw-board/src/board.js
+/home/runner/work/sb3-creator/sb3-creator/siblings/bw-board/src/conformance.js
+/home/runner/work/sb3-creator/sb3-creator/siblings/bw-board/src/devices/analog-ics.js
+… (5.3 MB of two other repositories)
+```
+
+`ci.yml` checks the siblings out **inside the workspace**, at `siblings/`, so the
+gates can reach them. `eslint .` lints from the workspace root. Both come from
+`90391a6` — the same commit as the unfetchable pins — and **the second was
+invisible because the first stopped the job before Lint ever ran.**
+
+That is worth stating on its own: this is the shape where repairing one defect
+exposes another that has been latent the whole time, and where fixing only the
+obvious one would have left `main` red for a different reason and looked like the
+repair had failed. `siblings/**` is now in `globalIgnores` and in `.gitignore`.
+Proven both ways with a deliberately broken file at
+`siblings/bw-board/src/deliberately-bad.js`:
+
+```
+# without the ignore
+/…/siblings/bw-board/src/deliberately-bad.js
+  2:5  error  'x' is already defined            no-redeclare
+  3:1  error  'undefinedThing' is not defined   no-undef
+✖ 3 problems
+
+# with the ignore
+(clean)
+```
+
 ### 2. `device-coverage` has never seen the live engine in CI — 36 kinds unchecked
 
 The gate exists so that "bw-board adds a device kind and nobody adds blocks for it"
