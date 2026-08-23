@@ -14,5 +14,14 @@ Licht-Theremin: kalibriert einen LDR-Sensor automatisch und bildet Licht auf die
 ## Was passiert hier
 Dieses Arduino-Starter-Kit-Projekt lehrt ein grundlegendes Interaktionsmuster.
 
+## Dreh am Potentiometer — es vertritt den Lichtsensor
+
+Das Programm liest seinen Eingang als `ldr` an A0, aber die simulierte Schaltung
+hat an A0 ein **Potentiometer** statt eines lichtabhängigen Widerstands: In eine
+Simulation kann man nicht hineinleuchten, also liefert das Poti dieselbe
+veränderliche Spannung von Hand. Dreh daran, und die Tonhöhe folgt. Auf echter
+Hardware ersetzt du das Poti durch einen LDR mit Festwiderstand als Teiler — die
+Skizze bleibt gleich.
+
 ## Weiter geht's
 - Kombiniere dies mit anderen Projekten für komplexere Interaktionen.

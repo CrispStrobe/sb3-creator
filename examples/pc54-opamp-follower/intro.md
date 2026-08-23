@@ -18,6 +18,12 @@ The op-amp drives its output to make the voltage difference between its two inpu
 ## Why it matters
 Many sensors and reference circuits produce the right voltage but cannot supply much current. A voltage follower lets you use that voltage to drive LEDs, ADC inputs, or other circuits without disturbing the source. It is one of the most common op-amp configurations in practice.
 
+## Turn the potentiometer
+
+The pot is the follower's input. Turn it to sweep the input voltage and watch
+the output track it — that is the whole point of a buffer: the output equals the
+input, but now it can drive a load the pot alone could not.
+
 ## Go further
 - [pc40-opamp-threshold](../pc40-opamp-threshold) — an op-amp used as a comparator instead of a buffer.
 - [pc55-ntc-indicator](../pc55-ntc-indicator) — a sensor output that could benefit from buffering.

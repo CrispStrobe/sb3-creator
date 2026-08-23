@@ -18,6 +18,13 @@ Der Operationsverstaerker treibt seinen Ausgang so, dass die Spannungsdifferenz 
 ## Warum das wichtig ist
 Viele Sensoren und Referenzschaltungen liefern die richtige Spannung, koennen aber kaum Strom bereitstellen. Ein Spannungsfolger erlaubt es, diese Spannung fuer LEDs, ADC-Eingaenge oder andere Schaltungen zu nutzen, ohne die Quelle zu belasten. Es ist eine der haeufigsten Op-Amp-Konfigurationen in der Praxis.
 
+## Dreh am Potentiometer
+
+Das Poti ist der Eingang des Folgers. Dreh daran, um die Eingangsspannung
+durchzufahren, und beobachte, wie der Ausgang folgt — genau das leistet ein
+Puffer: Der Ausgang ist gleich dem Eingang, kann jetzt aber eine Last treiben,
+die das Poti allein nicht schafft.
+
 ## Weiter geht's
 - [pc40-opamp-threshold](../pc40-opamp-threshold) — ein Op-Amp als Komparator statt als Puffer.
 - [pc55-ntc-indicator](../pc55-ntc-indicator) — ein Sensorausgang, der von Pufferung profitieren koennte.

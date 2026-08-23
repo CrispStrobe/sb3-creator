@@ -15,6 +15,14 @@ Light Theremin: during the first few seconds the program auto-calibrates the LDR
 ## What is going on
 The first phase records sensorMin and sensorMax — the LDR's range in your environment. The second phase maps each reading from that range to 200-5000 Hz. A narrow calibration range means small light changes produce big pitch changes; a wide range means the pitch responds gently. This is the same calibration concept as arduino-03-calibration, applied to sound.
 
+## Turn the potentiometer — it stands in for the light sensor
+
+The program reads its input as `ldr` on A0, but the simulated circuit has a
+**potentiometer** on A0 instead of a light-dependent resistor: you cannot shine
+a torch into a simulation, so the pot gives you the same varying voltage by
+hand. Turn it and the pitch follows. On real hardware, replace the pot with an
+LDR and a fixed resistor as a divider — the sketch does not change.
+
 ## Go further
 - [arduino-02-tone-pitch-follower](../arduino-02-tone-pitch-follower) — fixed-range pitch follower (no calibration).
 - [arduino-03-calibration](../arduino-03-calibration) — the calibration pattern with LEDs instead of sound.
