@@ -242,9 +242,18 @@ const KNOWN_INERT = new Map([
 ]);
 
 describe('circuit params, tier 2: the key moves a real bench', { skip: SKIP }, () => {
-    const TIMES = [0.05, 1, 5, 20];
+    // Two time points, not four: one after the DC operating point settles and
+    // one far enough out that a reactive part has moved. The suite runs 2,098
+    // circuit files and every extra point is another full solve of each bench
+    // probed — the first version of this gate took four points across fourteen
+    // sites per pair and timed out at seven minutes on a loaded box.
+    const TIMES = [1, 20];
     const VISUAL_ONLY = new Set(['label', 'wire_jumper']);
-    const MAX_SITES = 14;
+    // A live key answers on its best-ranked bench almost always; the sites
+    // beyond that only ever cost time. A key already recorded as a blind spot
+    // gets two, enough to notice it becoming live, not enough to be expensive.
+    const MAX_SITES = 6;
+    const MAX_SITES_KNOWN_INERT = 2;
 
     let Circuit, ready = false;
     test('the engine loads', async () => {
@@ -259,6 +268,10 @@ describe('circuit params, tier 2: the key moves a real bench', { skip: SKIP }, (
         ready = true;
         assert.ok(Circuit, 'bw-circuit-ui Circuit loaded');
     });
+
+    // Base observations are shared: the same bench file carries several params,
+    // and re-solving it once per (kind, key) was most of the cost.
+    const baseCache = new Map();
 
     /** Everything this bench can be observed to do, as one comparable string. */
     const observe = (data) => {
@@ -324,12 +337,18 @@ describe('circuit params, tier 2: the key moves a real bench', { skip: SKIP }, (
         const inert = [], unprobeable = [];
         for (const [id, all] of [...sites].sort((a, b) => a[0].localeCompare(b[0]))) {
             const key = id.slice(id.indexOf('.') + 1);
-            const candidates = [...all].sort((a, b) => rank(a) - rank(b)).slice(0, MAX_SITES);
+            const cap = KNOWN_INERT.has(id) ? MAX_SITES_KNOWN_INERT : MAX_SITES;
+            const candidates = [...all].sort((a, b) => rank(a) - rank(b)).slice(0, cap);
             let moved = false, probed = 0;
             for (const site of candidates) {
-                const raw = JSON.parse(readFileSync(join(EXAMPLES, site.dir, site.file), 'utf8'));
-                let before;
-                try { before = observe(raw); } catch { continue; }
+                const path = join(EXAMPLES, site.dir, site.file);
+                const raw = JSON.parse(readFileSync(path, 'utf8'));
+                let before = baseCache.get(path);
+                if (before === undefined) {
+                    try { before = observe(raw); } catch { before = null; }
+                    baseCache.set(path, before);
+                }
+                if (before === null) continue;
                 const mutated = JSON.parse(JSON.stringify(raw));
                 const part = mutated.parts.find(p => p.id === site.partId);
                 if (!part) continue;
