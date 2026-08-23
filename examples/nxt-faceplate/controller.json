@@ -1,0 +1,34 @@
+{
+  "version": 1,
+  "mode": "play",
+  "widgets": [
+    {
+      "name": "screen",
+      "type": "mono_lcd",
+      "config": { "width": 100, "height": 64 },
+      "layout": { "x": 0, "y": 0 },
+      "binding": { "target": "variable", "variableName": "nxt_display" }
+    },
+    {
+      "name": "left",
+      "type": "button",
+      "config": { "toggle": false, "label": "◀" },
+      "layout": { "x": 1, "y": 0 },
+      "binding": { "target": "variable", "variableName": "btnLeft" }
+    },
+    {
+      "name": "right",
+      "type": "button",
+      "config": { "toggle": false, "label": "▶" },
+      "layout": { "x": 2, "y": 0 },
+      "binding": { "target": "variable", "variableName": "btnRight" }
+    },
+    {
+      "name": "center",
+      "type": "button",
+      "config": { "toggle": false, "label": "●" },
+      "layout": { "x": 3, "y": 0 },
+      "binding": { "target": "variable", "variableName": "btnCenter" }
+    }
+  ]
+}

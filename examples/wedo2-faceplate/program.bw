@@ -1,0 +1,40 @@
+# WeDo 2.0 faceplate: RGB status light + tilt sensors + motors
+#
+# The WeDo 2.0 hub has no screen — just an RGB status LED, a tilt sensor,
+# a distance sensor, and two motor ports. This faceplate uses the LED as
+# visual feedback: the colour changes based on tilt angle and motor state.
+# Aligned to the wedo2unified extension's setLED / getTiltAngle / motorOn blocks.
+
+WHEN flag clicked:
+  set motorA to 0
+  set motorB to 0
+  set tilt_x to 0
+  set tilt_y to 0
+
+  # Green = idle
+  set hub_led to 65280
+
+  FOREVER:
+    # Colour responds to tilt:
+    #   Level -> green (0x00FF00 = 65280)
+    #   Tilted left/right -> blue (0x0000FF = 255)
+    #   Tilted forward/back -> red (0xFF0000 = 16711680)
+    IF tilt_x > 15 THEN:
+      set hub_led to 255
+    ELSE:
+      IF tilt_x < -15 THEN:
+        set hub_led to 255
+      ELSE:
+        IF tilt_y > 15 THEN:
+          set hub_led to 16711680
+        ELSE:
+          IF tilt_y < -15 THEN:
+            set hub_led to 16711680
+          ELSE:
+            set hub_led to 65280
+
+    # Motors running -> yellow (0xFFFF00 = 16776960)
+    IF motorA = 1 THEN:
+      set hub_led to 16776960
+    IF motorB = 1 THEN:
+      set hub_led to 16776960

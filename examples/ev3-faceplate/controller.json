@@ -1,0 +1,34 @@
+{
+  "version": 1,
+  "mode": "play",
+  "widgets": [
+    {
+      "name": "screen",
+      "type": "mono_lcd",
+      "config": { "width": 178, "height": 128 },
+      "layout": { "x": 0, "y": 0 },
+      "binding": { "target": "variable", "variableName": "ev3_display" }
+    },
+    {
+      "name": "up",
+      "type": "button",
+      "config": { "toggle": false, "label": "▲" },
+      "layout": { "x": 1, "y": 0 },
+      "binding": { "target": "variable", "variableName": "btnUp" }
+    },
+    {
+      "name": "down",
+      "type": "button",
+      "config": { "toggle": false, "label": "▼" },
+      "layout": { "x": 1, "y": 1 },
+      "binding": { "target": "variable", "variableName": "btnDown" }
+    },
+    {
+      "name": "enter",
+      "type": "button",
+      "config": { "toggle": false, "label": "OK" },
+      "layout": { "x": 2, "y": 0 },
+      "binding": { "target": "variable", "variableName": "btnEnter" }
+    }
+  ]
+}

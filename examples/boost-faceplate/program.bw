@@ -1,0 +1,31 @@
+# Boost faceplate: RGB status light + motor power/direction
+#
+# The Boost Move Hub has an RGB LED and two internal motors. This faceplate
+# provides a power slider, go/stop toggle, and direction toggle. The LED
+# colour reflects motor state: green=idle, blue=running fwd, red=running rev.
+# Aligned to the legoboostunified extension's motorOn/motorPower/motorDirection blocks.
+
+WHEN flag clicked:
+  set motor_power to 0
+  set motor_run to 0
+  set motor_dir to 0
+  set hub_led to 65280
+
+  FOREVER:
+    IF motor_run = 0 THEN:
+      # Idle: green
+      set hub_led to 65280
+    ELSE:
+      IF motor_dir = 0 THEN:
+        # Running forward: blue, brightness scales with power
+        # 0x0000FF = 255 at full; dim at low power
+        IF motor_power > 50 THEN:
+          set hub_led to 255
+        ELSE:
+          set hub_led to 128
+      ELSE:
+        # Running reverse: red, brightness scales with power
+        IF motor_power > 50 THEN:
+          set hub_led to 16711680
+        ELSE:
+          set hub_led to 8388608

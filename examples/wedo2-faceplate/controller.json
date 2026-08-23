@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "mode": "play",
+  "widgets": [
+    {
+      "name": "led",
+      "type": "rgb_light",
+      "config": { "r": 0, "g": 0, "b": 0 },
+      "layout": { "x": 0, "y": 0 },
+      "binding": { "target": "variable", "variableName": "hub_led" }
+    },
+    {
+      "name": "tiltX",
+      "type": "slider",
+      "config": { "min": -45, "max": 45, "step": 1, "value": 0 },
+      "layout": { "x": 1, "y": 0 },
+      "binding": { "target": "variable", "variableName": "tilt_x" }
+    },
+    {
+      "name": "tiltY",
+      "type": "slider",
+      "config": { "min": -45, "max": 45, "step": 1, "value": 0 },
+      "layout": { "x": 2, "y": 0 },
+      "binding": { "target": "variable", "variableName": "tilt_y" }
+    },
+    {
+      "name": "motorA",
+      "type": "button",
+      "config": { "toggle": true, "label": "Motor A" },
+      "layout": { "x": 0, "y": 1 },
+      "binding": { "target": "variable", "variableName": "motorA" }
+    },
+    {
+      "name": "motorB",
+      "type": "button",
+      "config": { "toggle": true, "label": "Motor B" },
+      "layout": { "x": 1, "y": 1 },
+      "binding": { "target": "variable", "variableName": "motorB" }
+    }
+  ]
+}

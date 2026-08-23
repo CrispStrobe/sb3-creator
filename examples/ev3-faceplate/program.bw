@@ -1,0 +1,39 @@
+# EV3 faceplate: mono LCD (178x128) + navigation buttons
+#
+# Draws simple shapes on the EV3's mono LCD via a 1bpp pixel buffer.
+# Up/Down buttons cycle through demo screens; Enter confirms.
+# The ev3_display variable holds display TEXT (the mono_lcd widget
+# renders either text or a packed 1bpp buffer; this example uses text).
+
+WHEN flag clicked:
+  set btnUp to 0
+  set btnDown to 0
+  set btnEnter to 0
+  set page to 0
+  set numPages to 3
+
+  # Page 0: "EV3" text banner (centre of 178x128 display)
+  # Simplified: set a recognisable pattern in the buffer variable.
+  # Real EV3 programs draw with the display API; the faceplate
+  # renders whatever bytes the variable holds.
+  set ev3_display to "page0"
+
+  FOREVER:
+    IF btnUp = 1 THEN:
+      set btnUp to 0
+      set page to (page + numPages - 1) mod numPages
+
+    IF btnDown = 1 THEN:
+      set btnDown to 0
+      set page to (page + 1) mod numPages
+
+    IF page = 0 THEN:
+      set ev3_display to "page0:EV3 Ready"
+    IF page = 1 THEN:
+      set ev3_display to "page1:Motor Status"
+    IF page = 2 THEN:
+      set ev3_display to "page2:Sensor Data"
+
+    IF btnEnter = 1 THEN:
+      set btnEnter to 0
+      set ev3_display to join "selected:" page

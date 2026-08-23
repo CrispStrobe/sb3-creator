@@ -1,0 +1,34 @@
+# NXT faceplate: mono LCD (100x64) + 3 navigation buttons
+#
+# The NXT brick has a 100x64 monochrome LCD and 3 buttons (left/right/center).
+# This program displays sensor readings and lets the user navigate menus.
+# Aligned to the legonxt extension's motor/sensor block set.
+
+WHEN flag clicked:
+  set btnLeft to 0
+  set btnRight to 0
+  set btnCenter to 0
+  set mode to 0
+  set numModes to 3
+
+  set nxt_display to "NXT Ready"
+
+  FOREVER:
+    IF btnRight = 1 THEN:
+      set btnRight to 0
+      set mode to (mode + 1) mod numModes
+
+    IF btnLeft = 1 THEN:
+      set btnLeft to 0
+      set mode to (mode + numModes - 1) mod numModes
+
+    IF mode = 0 THEN:
+      set nxt_display to "NXT 2.0\nTouch: --\nLight: --"
+    IF mode = 1 THEN:
+      set nxt_display to "Motor A: 0 deg\nMotor B: 0 deg\nMotor C: 0 deg"
+    IF mode = 2 THEN:
+      set nxt_display to "Battery: 100%\nBT: connected\nUSB: ready"
+
+    IF btnCenter = 1 THEN:
+      set btnCenter to 0
+      set nxt_display to join "mode " (join mode " selected")
