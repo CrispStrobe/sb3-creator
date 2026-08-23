@@ -77,10 +77,17 @@ function gitInfo (path) {
 export function locate (name) {
     const pin = PINS.siblings[name];
     if (!pin) throw new Error(`no pin recorded for sibling "${name}"`);
-    const candidates = [];
+    // An explicit env pointer WINS ABSOLUTELY — there is no fallback behind it.
+    // Falling through to `../<name>` when BW_BOARD does not resolve was a real
+    // defect: someone who points it at the wrong path silently measures a
+    // different tree than the one they asked for, and their run reports coverage
+    // of something they never selected. It also made the mutation proof lie —
+    // `BW_BOARD=/nowhere` was a no-op on any machine that happened to have the
+    // sibling beside it, so three mutations "passed" while changing nothing
+    // (17/20 in a rig with siblings, 20/20 without; the discrepancy is what
+    // exposed this).
     const fromEnv = process.env[ENV_VAR[name]];
-    if (fromEnv) candidates.push(fromEnv);
-    candidates.push(join(SB3_ROOT, '..', name));
+    const candidates = fromEnv ? [fromEnv] : [join(SB3_ROOT, '..', name)];
 
     for (const candidate of candidates) {
         if (!existsSync(join(candidate, pin.marker))) continue;

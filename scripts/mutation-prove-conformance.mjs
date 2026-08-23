@@ -17,7 +17,7 @@ import { readFileSync, writeFileSync, existsSync, lstatSync, rmSync, realpathSyn
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { resolve, dirname, join, sep } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const GATES = [
@@ -84,6 +84,30 @@ function runGate (files = GATES, env = {}) {
 // A path that cannot exist, for proving the absent-sibling case without touching
 // whatever this machine happens to have beside the repo.
 const NOWHERE = join(ROOT, 'test', 'fixtures', '__no_such_sibling__');
+
+/**
+ * Ask siblings.mjs, in a subprocess under the given env, which siblings it can
+ * see — and require the answer the mutation depends on. Without this an env
+ * mutation can quietly change nothing and score as caught.
+ */
+function assertVisibility (env, expected, label) {
+    // Absolute file: URL, not './…': a relative specifier here resolves against the
+    // cwd of the subprocess rather than this script, which is both fragile and
+    // unreadable to static import checks.
+    const helper = pathToFileURL(join(ROOT, 'test', 'helpers', 'siblings.mjs')).href;
+    const out = execFileSync(process.execPath, ['-e',
+        `import(${JSON.stringify(helper)}).then(m=>{` +
+        'const p=Object.keys(m.PINS.siblings).filter(n=>m.locate(n).path);' +
+        "console.log(p.length===0?'none':p.join(','))})"],
+    { cwd: ROOT, encoding: 'utf8', env: { ...process.env, ...env } }).trim();
+    if (out !== expected) {
+        throw new Error(
+            `instrument check: mutation "${label}" expected sibling visibility "${expected}" ` +
+            `but the environment yields "${out}". The mutation is a no-op here, so its verdict ` +
+            `would mean nothing. (This is what made the prover report 20/20 without siblings ` +
+            `and 17/20 with them.)`);
+    }
+}
 
 /** Snapshot every file a mutation may touch, so restore is exact. */
 const backups = new Map();
@@ -185,7 +209,8 @@ const MUTATIONS = [
     {
         name: 'CI runs a cross-repo gate with no sibling checkout',
         why: 'THE defect: fifteen-plus gates skipped in CI for weeks and the skip read as a pass',
-        env: true,
+        env: { CI: 'true', BW_BOARD: NOWHERE, BW_CIRCUIT_UI: NOWHERE, BW_ALLOW_MISSING_SIBLINGS: '' },
+        expectVisibility: 'none',
         run: () => runGate(CROSS_REPO_GATES,
             { CI: 'true', BW_BOARD: NOWHERE, BW_CIRCUIT_UI: NOWHERE, BW_ALLOW_MISSING_SIBLINGS: '' }),
         expect: /cannot run:.*is not beside this repo|FAILURE rather than a skip/
@@ -193,7 +218,8 @@ const MUTATIONS = [
     {
         name: 'the same run on a developer box (CI unset) skips instead of failing',
         why: 'the other half of the contract — a local checkout without siblings must not be red',
-        env: true,
+        env: { CI: '', GITHUB_ACTIONS: '', BW_BOARD: NOWHERE, BW_CIRCUIT_UI: NOWHERE },
+        expectVisibility: 'none',
         invert: true,   // this one must stay GREEN
         run: () => runGate(CROSS_REPO_GATES,
             { CI: '', GITHUB_ACTIONS: '', BW_BOARD: NOWHERE, BW_CIRCUIT_UI: NOWHERE }),
@@ -202,7 +228,8 @@ const MUTATIONS = [
     {
         name: 'the BW_ALLOW_MISSING_SIBLINGS opt-out still works in CI',
         why: 'an escape hatch nobody can use is not an escape hatch; it must be deliberate, not silent',
-        env: true,
+        env: { CI: 'true', BW_BOARD: NOWHERE, BW_CIRCUIT_UI: NOWHERE, BW_ALLOW_MISSING_SIBLINGS: '1' },
+        expectVisibility: 'none',
         invert: true,
         run: () => runGate(CROSS_REPO_GATES,
             { CI: 'true', BW_BOARD: NOWHERE, BW_CIRCUIT_UI: NOWHERE, BW_ALLOW_MISSING_SIBLINGS: '1' }),
@@ -350,6 +377,14 @@ for (const m of MUTATIONS) {
         // An env-mutation changes the inputs rather than the tree, which is the
         // right instrument for a guard whose whole subject is "what if the inputs
         // are absent". Editing the file would prove the edit, not the guard.
+        //
+        // But an env-mutation can be a no-op just as a bad replace() can, and
+        // silently — `BW_BOARD=/nowhere` did nothing on a machine that had the
+        // sibling beside the repo, so three mutations scored as passes while
+        // changing nothing. A mutation that fails to bite is an UNPROVEN CLAIM,
+        // not evidence of robustness. So verify the environment really produced
+        // the state the mutation is about before believing the verdict.
+        if (m.expectVisibility) assertVisibility(m.env, m.expectVisibility, m.name);
         result = m.run ? m.run() : runGate();
     } finally {
         if (m.restore) m.restore();
