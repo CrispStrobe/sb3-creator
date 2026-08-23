@@ -8,8 +8,8 @@
       "terminals": [
         "vcc"
       ],
-      "x": 80,
-      "y": 60
+      "x": 58,
+      "y": 115
     },
     {
       "id": "GND",
@@ -18,8 +18,8 @@
       "terminals": [
         "gnd"
       ],
-      "x": 156,
-      "y": 60
+      "x": 134,
+      "y": 115
     },
     {
       "id": "MCU",
@@ -27,10 +27,12 @@
       "params": {},
       "terminals": [
         "d13",
-        "d12"
+        "d12",
+        "5v",
+        "gnd2"
       ],
-      "x": 232,
-      "y": 60
+      "x": 392,
+      "y": -12
     },
     {
       "id": "R_relay_ctrl",
@@ -42,13 +44,6 @@
         "a",
         "b"
       ],
-      "seat": {
-        "boardId": "bb1",
-        "leadMap": {
-          "a": "a10",
-          "b": "a14"
-        }
-      },
       "x": 162,
       "y": 255
     },
@@ -61,14 +56,6 @@
         "collector",
         "emitter"
       ],
-      "seat": {
-        "boardId": "bb1",
-        "leadMap": {
-          "emitter": "a22",
-          "base": "a23",
-          "collector": "a24"
-        }
-      },
       "x": 330,
       "y": 255
     },
@@ -83,17 +70,20 @@
         "nc",
         "no"
       ],
-      "seat": {
-        "boardId": "bb1",
-        "leadMap": {
-          "coil_a": "a3",
-          "coil_b": "a4",
-          "no": "a6",
-          "com": "a7",
-          "nc": "a8"
-        }
-      },
       "x": 64,
+      "y": 255
+    },
+    {
+      "id": "D_relay_ctrl",
+      "kind": "diode",
+      "params": {
+        "vf": 0.7
+      },
+      "terminals": [
+        "anode",
+        "cathode"
+      ],
+      "x": 400,
       "y": 255
     },
     {
@@ -106,20 +96,12 @@
         "a",
         "b"
       ],
-      "seat": {
-        "boardId": "bb1",
-        "leadMap": {
-          "a": "a16",
-          "b": "a20"
-        }
-      },
       "x": 246,
       "y": 255
     },
     {
       "id": "LED_led1",
       "kind": "led",
-      "declName": "led1",
       "params": {
         "vf": 2,
         "color": "red"
@@ -128,14 +110,7 @@
         "anode",
         "cathode"
       ],
-      "seat": {
-        "boardId": "bb1",
-        "leadMap": {
-          "anode": "a26",
-          "cathode": "a27"
-        }
-      },
-      "x": 386,
+      "x": 470,
       "y": 255
     }
   ],
@@ -192,8 +167,20 @@
       "id": "w_flat_4",
       "netId": "bb1:n-col-t24",
       "from": {
+        "part": "D_relay_ctrl",
+        "terminal": "anode"
+      },
+      "to": {
         "part": "Q_relay_ctrl",
         "terminal": "collector"
+      }
+    },
+    {
+      "id": "w_flat_5",
+      "netId": "bb1:n-col-t24",
+      "from": {
+        "part": "D_relay_ctrl",
+        "terminal": "anode"
       },
       "to": {
         "part": "RELAY_relay_ctrl",
@@ -201,7 +188,7 @@
       }
     },
     {
-      "id": "w_flat_5",
+      "id": "w_flat_6",
       "netId": "bb1:rail-b-",
       "from": {
         "part": "GND",
@@ -213,7 +200,19 @@
       }
     },
     {
-      "id": "w_flat_6",
+      "id": "w_flat_7",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "GND",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "MCU",
+        "terminal": "gnd2"
+      }
+    },
+    {
+      "id": "w_flat_8",
       "netId": "bb1:rail-b-",
       "from": {
         "part": "GND",
@@ -225,11 +224,35 @@
       }
     },
     {
-      "id": "w_flat_7",
+      "id": "w_flat_9",
       "netId": "bb1:rail-t+",
       "from": {
+        "part": "D_relay_ctrl",
+        "terminal": "cathode"
+      },
+      "to": {
+        "part": "MCU",
+        "terminal": "5v"
+      }
+    },
+    {
+      "id": "w_flat_10",
+      "netId": "bb1:rail-t+",
+      "from": {
+        "part": "D_relay_ctrl",
+        "terminal": "cathode"
+      },
+      "to": {
         "part": "RELAY_relay_ctrl",
         "terminal": "coil_a"
+      }
+    },
+    {
+      "id": "w_flat_11",
+      "netId": "bb1:rail-t+",
+      "from": {
+        "part": "D_relay_ctrl",
+        "terminal": "cathode"
       },
       "to": {
         "part": "VCC",

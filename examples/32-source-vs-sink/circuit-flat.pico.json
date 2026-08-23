@@ -5,15 +5,21 @@
       "id": "vcc1",
       "kind": "vcc",
       "params": {},
-      "x": 80,
-      "y": 60
+      "terminals": [
+        "vcc"
+      ],
+      "x": 58,
+      "y": 115
     },
     {
       "id": "gnd1",
       "kind": "gnd",
       "params": {},
-      "x": 220,
-      "y": 60
+      "terminals": [
+        "gnd"
+      ],
+      "x": 134,
+      "y": 115
     },
     {
       "id": "r_sink",
@@ -21,14 +27,11 @@
       "params": {
         "ohms": 1000
       },
-      "seat": {
-        "boardId": "bb1",
-        "leadMap": {
-          "a": "a26",
-          "b": "a30"
-        }
-      },
-      "x": 386,
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 400,
       "y": 255
     },
     {
@@ -38,14 +41,11 @@
         "vf": 2,
         "color": "green"
       },
-      "seat": {
-        "boardId": "bb1",
-        "leadMap": {
-          "anode": "a38",
-          "cathode": "a39"
-        }
-      },
-      "x": 554,
+      "terminals": [
+        "anode",
+        "cathode"
+      ],
+      "x": 568,
       "y": 255
     },
     {
@@ -54,14 +54,11 @@
       "params": {
         "ohms": 1000
       },
-      "seat": {
-        "boardId": "bb1",
-        "leadMap": {
-          "a": "a32",
-          "b": "a36"
-        }
-      },
-      "x": 470,
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 484,
       "y": 255
     },
     {
@@ -71,41 +68,72 @@
         "vf": 2,
         "color": "red"
       },
-      "seat": {
-        "boardId": "bb1",
-        "leadMap": {
-          "anode": "a41",
-          "cathode": "a42"
-        }
-      },
-      "x": 596,
+      "terminals": [
+        "anode",
+        "cathode"
+      ],
+      "x": 624,
       "y": 255
     },
     {
       "id": "mcu1",
       "kind": "pi_pico",
       "params": {},
-      "rotation": 0,
-      "x": 80,
-      "y": -60
+      "terminals": [
+        "gp0",
+        "gp1",
+        "gp2",
+        "gp3",
+        "gp4",
+        "gp5",
+        "gp6",
+        "gp7",
+        "gp8",
+        "gp9",
+        "gp10",
+        "gp11",
+        "gp12",
+        "gp13",
+        "gp14",
+        "gp15",
+        "gp16",
+        "gp17",
+        "gp18",
+        "gp19",
+        "gp20",
+        "gp21",
+        "gp22",
+        "gp25",
+        "gp26",
+        "gp27",
+        "gp28",
+        "vbus",
+        "vsys",
+        "3v3",
+        "3v3_en",
+        "adc_vref",
+        "gnd_1",
+        "gnd_2",
+        "gnd_3",
+        "gnd_4",
+        "gnd_5",
+        "gnd_6",
+        "gnd_7",
+        "agnd",
+        "swd_gnd",
+        "run",
+        "swclk",
+        "swdio"
+      ],
+      "x": 64,
+      "y": 255,
+      "rotation": 0
     }
   ],
   "wires": [
     {
       "id": "w_flat_0",
-      "netId": "bb1:n-col-t30",
-      "from": {
-        "part": "led_sink",
-        "terminal": "anode"
-      },
-      "to": {
-        "part": "r_sink",
-        "terminal": "b"
-      }
-    },
-    {
-      "id": "w_flat_1",
-      "netId": "bb1:n-col-t32",
+      "netId": "bb1:n-col-t22",
       "from": {
         "part": "mcu1",
         "terminal": "gp15"
@@ -116,8 +144,20 @@
       }
     },
     {
+      "id": "w_flat_1",
+      "netId": "bb1:n-col-t31",
+      "from": {
+        "part": "led_sink",
+        "terminal": "anode"
+      },
+      "to": {
+        "part": "r_sink",
+        "terminal": "b"
+      }
+    },
+    {
       "id": "w_flat_2",
-      "netId": "bb1:n-col-t36",
+      "netId": "bb1:n-col-t37",
       "from": {
         "part": "led_source",
         "terminal": "anode"
@@ -129,7 +169,7 @@
     },
     {
       "id": "w_flat_3",
-      "netId": "bb1:n-col-t39",
+      "netId": "bb1:n-col-t40",
       "from": {
         "part": "led_sink",
         "terminal": "cathode"
@@ -168,11 +208,11 @@
       "netId": "bb1:rail-t+",
       "from": {
         "part": "mcu1",
-        "terminal": "vsys"
+        "terminal": "vbus"
       },
       "to": {
-        "part": "r_sink",
-        "terminal": "a"
+        "part": "mcu1",
+        "terminal": "vsys"
       }
     },
     {
@@ -180,7 +220,19 @@
       "netId": "bb1:rail-t+",
       "from": {
         "part": "mcu1",
-        "terminal": "vsys"
+        "terminal": "vbus"
+      },
+      "to": {
+        "part": "r_sink",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "w_flat_8",
+      "netId": "bb1:rail-t+",
+      "from": {
+        "part": "mcu1",
+        "terminal": "vbus"
       },
       "to": {
         "part": "vcc1",
@@ -189,5 +241,5 @@
     }
   ],
   "holeWires": [],
-  "generated": "benchFor+authored"
+  "generated": "benchFor+authored+seat"
 }

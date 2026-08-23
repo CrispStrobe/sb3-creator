@@ -5,57 +5,91 @@
       "id": "board",
       "kind": "pi_pico",
       "params": {},
-      "rotation": 0,
-      "x": 80,
-      "y": -60
+      "terminals": [
+        "gp0",
+        "gp1",
+        "gp2",
+        "gp3",
+        "gp4",
+        "gp5",
+        "gp6",
+        "gp7",
+        "gp8",
+        "gp9",
+        "gp10",
+        "gp11",
+        "gp12",
+        "gp13",
+        "gp14",
+        "gp15",
+        "gp16",
+        "gp17",
+        "gp18",
+        "gp19",
+        "gp20",
+        "gp21",
+        "gp22",
+        "gp25",
+        "gp26",
+        "gp27",
+        "gp28",
+        "vbus",
+        "vsys",
+        "3v3",
+        "3v3_en",
+        "adc_vref",
+        "gnd_1",
+        "gnd_2",
+        "gnd_3",
+        "gnd_4",
+        "gnd_5",
+        "gnd_6",
+        "gnd_7",
+        "agnd",
+        "swd_gnd",
+        "run",
+        "swclk",
+        "swdio"
+      ],
+      "x": 64,
+      "y": 255,
+      "rotation": 0
     },
     {
       "id": "led1",
       "kind": "led",
-      "declName": "led",
       "params": {
         "color": "red"
       },
-      "seat": {
-        "boardId": "bb1",
-        "leadMap": {
-          "anode": "a26",
-          "cathode": "a27"
-        }
-      },
-      "x": 386,
+      "terminals": [
+        "anode",
+        "cathode"
+      ],
+      "x": 484,
       "y": 255
     },
     {
       "id": "r1",
       "kind": "resistor",
-      "declName": "r1",
       "params": {
         "ohms": 220
       },
-      "seat": {
-        "boardId": "bb1",
-        "leadMap": {
-          "a": "a20",
-          "b": "a24"
-        }
-      },
-      "x": 302,
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 400,
       "y": 255
     },
     {
       "id": "btn1",
       "kind": "button",
-      "declName": "btn",
       "params": {},
-      "seat": {
-        "boardId": "bb1",
-        "leadMap": {
-          "a": "e29",
-          "b": "f29"
-        }
-      },
-      "x": 428,
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 540,
       "y": 311
     },
     {
@@ -64,21 +98,27 @@
       "params": {
         "volts": 5
       },
-      "x": 80,
-      "y": 60
+      "terminals": [
+        "vcc"
+      ],
+      "x": 58,
+      "y": 115
     },
     {
       "id": "gnd1",
       "kind": "gnd",
       "params": {},
-      "x": 220,
-      "y": 60
+      "terminals": [
+        "gnd"
+      ],
+      "x": 134,
+      "y": 115
     }
   ],
   "wires": [
     {
       "id": "w_flat_0",
-      "netId": "bb1:n-col-t20",
+      "netId": "bb1:n-col-t27",
       "from": {
         "part": "board",
         "terminal": "gp25"
@@ -90,7 +130,7 @@
     },
     {
       "id": "w_flat_1",
-      "netId": "bb1:n-col-t24",
+      "netId": "bb1:n-col-t31",
       "from": {
         "part": "led1",
         "terminal": "anode"
@@ -102,7 +142,7 @@
     },
     {
       "id": "w_flat_2",
-      "netId": "bb1:n-col-t29",
+      "netId": "bb1:n-col-t37",
       "from": {
         "part": "board",
         "terminal": "gp2"
@@ -150,10 +190,22 @@
     },
     {
       "id": "w_flat_6",
-      "netId": "net-lgc-5",
+      "netId": "bb1:rail-t+",
       "from": {
         "part": "board",
+        "terminal": "vbus"
+      },
+      "to": {
+        "part": "board",
         "terminal": "vsys"
+      }
+    },
+    {
+      "id": "w_flat_7",
+      "netId": "bb1:rail-t+",
+      "from": {
+        "part": "board",
+        "terminal": "vbus"
       },
       "to": {
         "part": "vcc1",
@@ -162,5 +214,5 @@
     }
   ],
   "holeWires": [],
-  "generated": "benchFor+authored"
+  "generated": "benchFor+authored+seat"
 }

@@ -5,15 +5,21 @@
       "id": "vcc1",
       "kind": "vcc",
       "params": {},
-      "x": 80,
-      "y": 60
+      "terminals": [
+        "vcc"
+      ],
+      "x": 58,
+      "y": 115
     },
     {
       "id": "gnd1",
       "kind": "gnd",
       "params": {},
-      "x": 220,
-      "y": 60
+      "terminals": [
+        "gnd"
+      ],
+      "x": 134,
+      "y": 115
     },
     {
       "id": "r0",
@@ -21,14 +27,11 @@
       "params": {
         "ohms": 470
       },
-      "seat": {
-        "boardId": "bb1",
-        "leadMap": {
-          "a": "a26",
-          "b": "a30"
-        }
-      },
-      "x": 386,
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 400,
       "y": 255
     },
     {
@@ -37,14 +40,11 @@
       "params": {
         "ohms": 470
       },
-      "seat": {
-        "boardId": "bb1",
-        "leadMap": {
-          "a": "a32",
-          "b": "a36"
-        }
-      },
-      "x": 470,
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 484,
       "y": 255
     },
     {
@@ -53,14 +53,11 @@
       "params": {
         "ohms": 470
       },
-      "seat": {
-        "boardId": "bb1",
-        "leadMap": {
-          "a": "a38",
-          "b": "a42"
-        }
-      },
-      "x": 554,
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 568,
       "y": 255
     },
     {
@@ -69,14 +66,11 @@
       "params": {
         "ohms": 470
       },
-      "seat": {
-        "boardId": "bb1",
-        "leadMap": {
-          "a": "a44",
-          "b": "a48"
-        }
-      },
-      "x": 638,
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 652,
       "y": 255
     },
     {
@@ -85,14 +79,11 @@
       "params": {
         "ohms": 470
       },
-      "seat": {
-        "boardId": "bb1",
-        "leadMap": {
-          "a": "a50",
-          "b": "a54"
-        }
-      },
-      "x": 722,
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 736,
       "y": 255
     },
     {
@@ -101,14 +92,11 @@
       "params": {
         "ohms": 470
       },
-      "seat": {
-        "boardId": "bb1",
-        "leadMap": {
-          "a": "a56",
-          "b": "a60"
-        }
-      },
-      "x": 806,
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 820,
       "y": 255
     },
     {
@@ -117,14 +105,11 @@
       "params": {
         "ohms": 470
       },
-      "seat": {
-        "boardId": "bb1",
-        "leadMap": {
-          "a": "f26",
-          "b": "f30"
-        }
-      },
-      "x": 386,
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 400,
       "y": 349
     },
     {
@@ -133,14 +118,11 @@
       "params": {
         "ohms": 470
       },
-      "seat": {
-        "boardId": "bb1",
-        "leadMap": {
-          "a": "f32",
-          "b": "f36"
-        }
-      },
-      "x": 470,
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 484,
       "y": 349
     },
     {
@@ -150,14 +132,11 @@
         "vf": 2,
         "color": "red"
       },
-      "seat": {
-        "boardId": "bb1",
-        "leadMap": {
-          "anode": "f38",
-          "cathode": "f39"
-        }
-      },
-      "x": 554,
+      "terminals": [
+        "anode",
+        "cathode"
+      ],
+      "x": 568,
       "y": 349
     },
     {
@@ -167,14 +146,11 @@
         "vf": 2,
         "color": "red"
       },
-      "seat": {
-        "boardId": "bb1",
-        "leadMap": {
-          "anode": "f41",
-          "cathode": "f42"
-        }
-      },
-      "x": 596,
+      "terminals": [
+        "anode",
+        "cathode"
+      ],
+      "x": 624,
       "y": 349
     },
     {
@@ -184,14 +160,11 @@
         "vf": 2,
         "color": "red"
       },
-      "seat": {
-        "boardId": "bb1",
-        "leadMap": {
-          "anode": "f44",
-          "cathode": "f45"
-        }
-      },
-      "x": 638,
+      "terminals": [
+        "anode",
+        "cathode"
+      ],
+      "x": 680,
       "y": 349
     },
     {
@@ -201,14 +174,11 @@
         "vf": 2,
         "color": "red"
       },
-      "seat": {
-        "boardId": "bb1",
-        "leadMap": {
-          "anode": "f47",
-          "cathode": "f48"
-        }
-      },
-      "x": 680,
+      "terminals": [
+        "anode",
+        "cathode"
+      ],
+      "x": 736,
       "y": 349
     },
     {
@@ -218,14 +188,11 @@
         "vf": 2,
         "color": "red"
       },
-      "seat": {
-        "boardId": "bb1",
-        "leadMap": {
-          "anode": "f50",
-          "cathode": "f51"
-        }
-      },
-      "x": 722,
+      "terminals": [
+        "anode",
+        "cathode"
+      ],
+      "x": 792,
       "y": 349
     },
     {
@@ -235,14 +202,11 @@
         "vf": 2,
         "color": "red"
       },
-      "seat": {
-        "boardId": "bb1",
-        "leadMap": {
-          "anode": "f53",
-          "cathode": "f54"
-        }
-      },
-      "x": 764,
+      "terminals": [
+        "anode",
+        "cathode"
+      ],
+      "x": 848,
       "y": 349
     },
     {
@@ -252,15 +216,12 @@
         "vf": 2,
         "color": "red"
       },
-      "seat": {
-        "boardId": "bb1",
-        "leadMap": {
-          "anode": "f56",
-          "cathode": "f57"
-        }
-      },
-      "x": 806,
-      "y": 349
+      "terminals": [
+        "anode",
+        "cathode"
+      ],
+      "x": 64,
+      "y": 615
     },
     {
       "id": "d7",
@@ -269,32 +230,87 @@
         "vf": 2,
         "color": "red"
       },
-      "seat": {
-        "boardId": "bb1",
-        "leadMap": {
-          "anode": "f59",
-          "cathode": "f60"
-        }
-      },
-      "x": 848,
-      "y": 349
+      "terminals": [
+        "anode",
+        "cathode"
+      ],
+      "x": 120,
+      "y": 615
     },
     {
       "id": "mcu1",
       "kind": "pi_pico",
       "params": {},
-      "rotation": 0,
-      "x": 80,
-      "y": -60
+      "terminals": [
+        "gp0",
+        "gp1",
+        "gp2",
+        "gp3",
+        "gp4",
+        "gp5",
+        "gp6",
+        "gp7",
+        "gp8",
+        "gp9",
+        "gp10",
+        "gp11",
+        "gp12",
+        "gp13",
+        "gp14",
+        "gp15",
+        "gp16",
+        "gp17",
+        "gp18",
+        "gp19",
+        "gp20",
+        "gp21",
+        "gp22",
+        "gp25",
+        "gp26",
+        "gp27",
+        "gp28",
+        "vbus",
+        "vsys",
+        "3v3",
+        "3v3_en",
+        "adc_vref",
+        "gnd_1",
+        "gnd_2",
+        "gnd_3",
+        "gnd_4",
+        "gnd_5",
+        "gnd_6",
+        "gnd_7",
+        "agnd",
+        "swd_gnd",
+        "run",
+        "swclk",
+        "swdio"
+      ],
+      "x": 64,
+      "y": 255,
+      "rotation": 0
     }
   ],
   "wires": [
     {
       "id": "w_flat_0",
-      "netId": "bb1:n-col-b26",
+      "netId": "bb1:n-col-b27",
       "from": {
         "part": "mcu1",
+        "terminal": "vbus"
+      },
+      "to": {
+        "part": "mcu1",
         "terminal": "vsys"
+      }
+    },
+    {
+      "id": "w_flat_1",
+      "netId": "bb1:n-col-b27",
+      "from": {
+        "part": "mcu1",
+        "terminal": "vbus"
       },
       "to": {
         "part": "r0",
@@ -302,11 +318,11 @@
       }
     },
     {
-      "id": "w_flat_1",
-      "netId": "bb1:n-col-b26",
+      "id": "w_flat_2",
+      "netId": "bb1:n-col-b27",
       "from": {
         "part": "mcu1",
-        "terminal": "vsys"
+        "terminal": "vbus"
       },
       "to": {
         "part": "r1",
@@ -314,11 +330,11 @@
       }
     },
     {
-      "id": "w_flat_2",
-      "netId": "bb1:n-col-b26",
+      "id": "w_flat_3",
+      "netId": "bb1:n-col-b27",
       "from": {
         "part": "mcu1",
-        "terminal": "vsys"
+        "terminal": "vbus"
       },
       "to": {
         "part": "r2",
@@ -326,11 +342,11 @@
       }
     },
     {
-      "id": "w_flat_3",
-      "netId": "bb1:n-col-b26",
+      "id": "w_flat_4",
+      "netId": "bb1:n-col-b27",
       "from": {
         "part": "mcu1",
-        "terminal": "vsys"
+        "terminal": "vbus"
       },
       "to": {
         "part": "r3",
@@ -338,11 +354,11 @@
       }
     },
     {
-      "id": "w_flat_4",
-      "netId": "bb1:n-col-b26",
+      "id": "w_flat_5",
+      "netId": "bb1:n-col-b27",
       "from": {
         "part": "mcu1",
-        "terminal": "vsys"
+        "terminal": "vbus"
       },
       "to": {
         "part": "r4",
@@ -350,11 +366,11 @@
       }
     },
     {
-      "id": "w_flat_5",
-      "netId": "bb1:n-col-b26",
+      "id": "w_flat_6",
+      "netId": "bb1:n-col-b27",
       "from": {
         "part": "mcu1",
-        "terminal": "vsys"
+        "terminal": "vbus"
       },
       "to": {
         "part": "r5",
@@ -362,11 +378,11 @@
       }
     },
     {
-      "id": "w_flat_6",
-      "netId": "bb1:n-col-b26",
+      "id": "w_flat_7",
+      "netId": "bb1:n-col-b27",
       "from": {
         "part": "mcu1",
-        "terminal": "vsys"
+        "terminal": "vbus"
       },
       "to": {
         "part": "r6",
@@ -374,11 +390,11 @@
       }
     },
     {
-      "id": "w_flat_7",
-      "netId": "bb1:n-col-b26",
+      "id": "w_flat_8",
+      "netId": "bb1:n-col-b27",
       "from": {
         "part": "mcu1",
-        "terminal": "vsys"
+        "terminal": "vbus"
       },
       "to": {
         "part": "r7",
@@ -386,11 +402,11 @@
       }
     },
     {
-      "id": "w_flat_8",
-      "netId": "bb1:n-col-b26",
+      "id": "w_flat_9",
+      "netId": "bb1:n-col-b27",
       "from": {
         "part": "mcu1",
-        "terminal": "vsys"
+        "terminal": "vbus"
       },
       "to": {
         "part": "vcc1",
@@ -398,8 +414,8 @@
       }
     },
     {
-      "id": "w_flat_9",
-      "netId": "bb1:n-col-b30",
+      "id": "w_flat_10",
+      "netId": "bb1:n-col-b31",
       "from": {
         "part": "d6",
         "terminal": "anode"
@@ -410,8 +426,8 @@
       }
     },
     {
-      "id": "w_flat_10",
-      "netId": "bb1:n-col-b36",
+      "id": "w_flat_11",
+      "netId": "bb1:n-col-b37",
       "from": {
         "part": "d7",
         "terminal": "anode"
@@ -422,8 +438,8 @@
       }
     },
     {
-      "id": "w_flat_11",
-      "netId": "bb1:n-col-b38",
+      "id": "w_flat_12",
+      "netId": "bb1:n-col-b39",
       "from": {
         "part": "d0",
         "terminal": "anode"
@@ -434,8 +450,8 @@
       }
     },
     {
-      "id": "w_flat_12",
-      "netId": "bb1:n-col-b39",
+      "id": "w_flat_13",
+      "netId": "bb1:n-col-b40",
       "from": {
         "part": "d0",
         "terminal": "cathode"
@@ -446,8 +462,8 @@
       }
     },
     {
-      "id": "w_flat_13",
-      "netId": "bb1:n-col-b41",
+      "id": "w_flat_14",
+      "netId": "bb1:n-col-b43",
       "from": {
         "part": "d1",
         "terminal": "anode"
@@ -458,8 +474,8 @@
       }
     },
     {
-      "id": "w_flat_14",
-      "netId": "bb1:n-col-b42",
+      "id": "w_flat_15",
+      "netId": "bb1:n-col-b44",
       "from": {
         "part": "d1",
         "terminal": "cathode"
@@ -470,8 +486,8 @@
       }
     },
     {
-      "id": "w_flat_15",
-      "netId": "bb1:n-col-b44",
+      "id": "w_flat_16",
+      "netId": "bb1:n-col-b47",
       "from": {
         "part": "d2",
         "terminal": "anode"
@@ -482,8 +498,8 @@
       }
     },
     {
-      "id": "w_flat_16",
-      "netId": "bb1:n-col-b45",
+      "id": "w_flat_17",
+      "netId": "bb1:n-col-b48",
       "from": {
         "part": "d2",
         "terminal": "cathode"
@@ -494,8 +510,8 @@
       }
     },
     {
-      "id": "w_flat_17",
-      "netId": "bb1:n-col-b47",
+      "id": "w_flat_18",
+      "netId": "bb1:n-col-b51",
       "from": {
         "part": "d3",
         "terminal": "anode"
@@ -506,8 +522,8 @@
       }
     },
     {
-      "id": "w_flat_18",
-      "netId": "bb1:n-col-b48",
+      "id": "w_flat_19",
+      "netId": "bb1:n-col-b52",
       "from": {
         "part": "d3",
         "terminal": "cathode"
@@ -518,8 +534,8 @@
       }
     },
     {
-      "id": "w_flat_19",
-      "netId": "bb1:n-col-b50",
+      "id": "w_flat_20",
+      "netId": "bb1:n-col-b55",
       "from": {
         "part": "d4",
         "terminal": "anode"
@@ -530,8 +546,8 @@
       }
     },
     {
-      "id": "w_flat_20",
-      "netId": "bb1:n-col-b51",
+      "id": "w_flat_21",
+      "netId": "bb1:n-col-b56",
       "from": {
         "part": "d4",
         "terminal": "cathode"
@@ -542,8 +558,8 @@
       }
     },
     {
-      "id": "w_flat_21",
-      "netId": "bb1:n-col-b53",
+      "id": "w_flat_22",
+      "netId": "bb1:n-col-b59",
       "from": {
         "part": "d5",
         "terminal": "anode"
@@ -554,8 +570,8 @@
       }
     },
     {
-      "id": "w_flat_22",
-      "netId": "bb1:n-col-b54",
+      "id": "w_flat_23",
+      "netId": "bb1:n-col-b60",
       "from": {
         "part": "d5",
         "terminal": "cathode"
@@ -566,8 +582,8 @@
       }
     },
     {
-      "id": "w_flat_23",
-      "netId": "bb1:n-col-b57",
+      "id": "w_flat_24",
+      "netId": "bb1:n-col-t16",
       "from": {
         "part": "d6",
         "terminal": "cathode"
@@ -578,8 +594,8 @@
       }
     },
     {
-      "id": "w_flat_24",
-      "netId": "bb1:n-col-b60",
+      "id": "w_flat_25",
+      "netId": "bb1:n-col-t3",
       "from": {
         "part": "d7",
         "terminal": "cathode"
@@ -590,8 +606,8 @@
       }
     },
     {
-      "id": "w_flat_25",
-      "netId": "n-rail-b-",
+      "id": "w_flat_26",
+      "netId": "bb1:rail-b-",
       "from": {
         "part": "gnd1",
         "terminal": "gnd"
@@ -603,5 +619,5 @@
     }
   ],
   "holeWires": [],
-  "generated": "benchFor+authored"
+  "generated": "benchFor+authored+seat"
 }

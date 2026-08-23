@@ -5,9 +5,12 @@
       "id": "vcc1",
       "kind": "vcc",
       "params": {},
-      "rotation": 0,
-      "x": 80,
-      "y": 60
+      "terminals": [
+        "vcc"
+      ],
+      "x": 58,
+      "y": 115,
+      "rotation": 0
     },
     {
       "id": "pwr",
@@ -15,33 +18,63 @@
       "params": {
         "position": 0
       },
-      "rotation": 0,
-      "seat": {
-        "boardId": "bb1",
-        "leadMap": {
-          "a": "a43",
-          "com": "a44",
-          "b": "a45"
-        }
-      },
-      "x": 624,
-      "y": 255
+      "terminals": [
+        "a",
+        "com",
+        "b"
+      ],
+      "x": 652,
+      "y": 615,
+      "rotation": 0
     },
     {
       "id": "gnd1",
       "kind": "gnd",
       "params": {},
-      "rotation": 0,
-      "x": 156,
-      "y": 60
+      "terminals": [
+        "gnd"
+      ],
+      "x": 134,
+      "y": 115,
+      "rotation": 0
     },
     {
       "id": "pico1",
       "kind": "attiny88",
       "params": {},
-      "rotation": 0,
-      "x": 80,
-      "y": -60
+      "terminals": [
+        "pc6",
+        "pd0",
+        "pd1",
+        "pd2",
+        "pd3",
+        "pd4",
+        "vcc",
+        "gnd",
+        "pb6",
+        "pb7",
+        "pd5",
+        "pd6",
+        "pd7",
+        "pb0",
+        "pb1",
+        "pb2",
+        "pb3",
+        "pb4",
+        "pb5",
+        "avcc",
+        "pa0",
+        "pc0",
+        "pc1",
+        "pc2",
+        "pc3",
+        "pc4",
+        "pc5",
+        "pc7"
+      ],
+      "x": 64,
+      "y": 349,
+      "rotation": 0
     },
     {
       "id": "oled1",
@@ -49,18 +82,15 @@
       "params": {
         "address": 60
       },
-      "rotation": 0,
-      "seat": {
-        "boardId": "bb1",
-        "leadMap": {
-          "vcc": "a38",
-          "gnd": "a39",
-          "sda": "a40",
-          "scl": "a41"
-        }
-      },
-      "x": 554,
-      "y": 255
+      "terminals": [
+        "vcc",
+        "gnd",
+        "sda",
+        "scl"
+      ],
+      "x": 316,
+      "y": 255,
+      "rotation": 0
     },
     {
       "id": "rpu_sda",
@@ -68,16 +98,13 @@
       "params": {
         "ohms": 4700
       },
-      "rotation": 0,
-      "seat": {
-        "boardId": "bb1",
-        "leadMap": {
-          "a": "a26",
-          "b": "a30"
-        }
-      },
-      "x": 386,
-      "y": 255
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 470,
+      "y": 255,
+      "rotation": 0
     },
     {
       "id": "rpu_scl",
@@ -85,288 +112,217 @@
       "params": {
         "ohms": 4700
       },
-      "rotation": 0,
-      "seat": {
-        "boardId": "bb1",
-        "leadMap": {
-          "a": "a32",
-          "b": "a36"
-        }
-      },
-      "x": 470,
-      "y": 255
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 554,
+      "y": 255,
+      "rotation": 0
     },
     {
       "id": "k_b9",
       "kind": "button",
       "params": {},
-      "rotation": 0,
-      "declName": "b9",
-      "seat": {
-        "boardId": "bb1",
-        "leadMap": {
-          "a": "e47",
-          "b": "f47"
-        }
-      },
-      "x": 680,
-      "y": 311
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 722,
+      "y": 671,
+      "rotation": 0
     },
     {
       "id": "k_b0",
       "kind": "button",
       "params": {},
-      "rotation": 0,
-      "declName": "b0",
-      "seat": {
-        "boardId": "bb1",
-        "leadMap": {
-          "a": "e51",
-          "b": "f51"
-        }
-      },
-      "x": 736,
-      "y": 311
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 806,
+      "y": 671,
+      "rotation": 0
     },
     {
       "id": "k_b1",
       "kind": "button",
       "params": {},
-      "rotation": 0,
-      "declName": "b1",
-      "seat": {
-        "boardId": "bb1",
-        "leadMap": {
-          "a": "e55",
-          "b": "f55"
-        }
-      },
-      "x": 792,
-      "y": 311
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 64,
+      "y": 1031,
+      "rotation": 0
     },
     {
       "id": "k_b2",
       "kind": "button",
       "params": {},
-      "rotation": 0,
-      "declName": "b2",
-      "seat": {
-        "boardId": "bb1",
-        "leadMap": {
-          "a": "e59",
-          "b": "f59"
-        }
-      },
-      "x": 848,
-      "y": 311
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 148,
+      "y": 1031,
+      "rotation": 0
     },
     {
       "id": "k_b3",
       "kind": "button",
       "params": {},
-      "rotation": 0,
-      "declName": "b3",
-      "seat": {
-        "boardId": "bb2",
-        "leadMap": {
-          "a": "e3",
-          "b": "f3"
-        }
-      },
-      "x": 64,
-      "y": 671
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 232,
+      "y": 1031,
+      "rotation": 0
     },
     {
       "id": "k_b4",
       "kind": "button",
       "params": {},
-      "rotation": 0,
-      "declName": "b4",
-      "seat": {
-        "boardId": "bb2",
-        "leadMap": {
-          "a": "e7",
-          "b": "f7"
-        }
-      },
-      "x": 120,
-      "y": 671
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 316,
+      "y": 1031,
+      "rotation": 0
     },
     {
       "id": "k_b5",
       "kind": "button",
       "params": {},
-      "rotation": 0,
-      "declName": "b5",
-      "seat": {
-        "boardId": "bb2",
-        "leadMap": {
-          "a": "e11",
-          "b": "f11"
-        }
-      },
-      "x": 176,
-      "y": 671
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 400,
+      "y": 1031,
+      "rotation": 0
     },
     {
       "id": "k_b6",
       "kind": "button",
       "params": {},
-      "rotation": 0,
-      "declName": "b6",
-      "seat": {
-        "boardId": "bb2",
-        "leadMap": {
-          "a": "e15",
-          "b": "f15"
-        }
-      },
-      "x": 232,
-      "y": 671
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 484,
+      "y": 1031,
+      "rotation": 0
     },
     {
       "id": "k_b7",
       "kind": "button",
       "params": {},
-      "rotation": 0,
-      "declName": "b7",
-      "seat": {
-        "boardId": "bb2",
-        "leadMap": {
-          "a": "e19",
-          "b": "f19"
-        }
-      },
-      "x": 288,
-      "y": 671
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 568,
+      "y": 1031,
+      "rotation": 0
     },
     {
       "id": "k_b8",
       "kind": "button",
       "params": {},
-      "rotation": 0,
-      "declName": "b8",
-      "seat": {
-        "boardId": "bb2",
-        "leadMap": {
-          "a": "e23",
-          "b": "f23"
-        }
-      },
-      "x": 344,
-      "y": 671
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 652,
+      "y": 1031,
+      "rotation": 0
     },
     {
       "id": "k_bplus",
       "kind": "button",
       "params": {},
-      "rotation": 0,
-      "declName": "bplus",
-      "seat": {
-        "boardId": "bb2",
-        "leadMap": {
-          "a": "e27",
-          "b": "f27"
-        }
-      },
-      "x": 400,
-      "y": 671
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 736,
+      "y": 1031,
+      "rotation": 0
     },
     {
       "id": "k_bminus",
       "kind": "button",
       "params": {},
-      "rotation": 0,
-      "declName": "bminus",
-      "seat": {
-        "boardId": "bb2",
-        "leadMap": {
-          "a": "e31",
-          "b": "f31"
-        }
-      },
-      "x": 456,
-      "y": 671
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 820,
+      "y": 1031,
+      "rotation": 0
     },
     {
       "id": "k_btimes",
       "kind": "button",
       "params": {},
-      "rotation": 0,
-      "declName": "btimes",
-      "seat": {
-        "boardId": "bb2",
-        "leadMap": {
-          "a": "e35",
-          "b": "f35"
-        }
-      },
-      "x": 512,
-      "y": 671
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 64,
+      "y": 1391,
+      "rotation": 0
     },
     {
       "id": "k_bdiv",
       "kind": "button",
       "params": {},
-      "rotation": 0,
-      "declName": "bdiv",
-      "seat": {
-        "boardId": "bb2",
-        "leadMap": {
-          "a": "e39",
-          "b": "f39"
-        }
-      },
-      "x": 568,
-      "y": 671
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 148,
+      "y": 1391,
+      "rotation": 0
     },
     {
       "id": "k_bexe",
       "kind": "button",
       "params": {},
-      "rotation": 0,
-      "declName": "bexe",
-      "seat": {
-        "boardId": "bb2",
-        "leadMap": {
-          "a": "e43",
-          "b": "f43"
-        }
-      },
-      "x": 624,
-      "y": 671
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 232,
+      "y": 1391,
+      "rotation": 0
     },
     {
       "id": "k_bclr",
       "kind": "button",
       "params": {},
-      "rotation": 0,
-      "declName": "bclr",
-      "seat": {
-        "boardId": "bb2",
-        "leadMap": {
-          "a": "e47",
-          "b": "f47"
-        }
-      },
-      "x": 680,
-      "y": 671
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 316,
+      "y": 1391,
+      "rotation": 0
     },
     {
       "id": "k_bac",
       "kind": "button",
       "params": {},
-      "rotation": 0,
-      "declName": "bac",
-      "seat": {
-        "boardId": "bb2",
-        "leadMap": {
-          "a": "e51",
-          "b": "f51"
-        }
-      },
-      "x": 736,
-      "y": 671
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 400,
+      "y": 1391,
+      "rotation": 0
     },
     {
       "id": "R_PD_b9",
@@ -378,9 +334,9 @@
         "a",
         "b"
       ],
-      "rotation": 0,
-      "x": 60,
-      "y": -120
+      "x": 638,
+      "y": 255,
+      "rotation": 0
     },
     {
       "id": "R_PD_b0",
@@ -392,9 +348,9 @@
         "a",
         "b"
       ],
-      "rotation": 0,
-      "x": 60,
-      "y": -140
+      "x": 722,
+      "y": 255,
+      "rotation": 0
     },
     {
       "id": "R_PD_b1",
@@ -406,9 +362,9 @@
         "a",
         "b"
       ],
-      "rotation": 0,
-      "x": 60,
-      "y": -160
+      "x": 806,
+      "y": 255,
+      "rotation": 0
     },
     {
       "id": "R_PD_b2",
@@ -420,9 +376,9 @@
         "a",
         "b"
       ],
-      "rotation": 0,
-      "x": 60,
-      "y": -180
+      "x": 316,
+      "y": 349,
+      "rotation": 0
     },
     {
       "id": "R_PD_b3",
@@ -434,9 +390,9 @@
         "a",
         "b"
       ],
-      "rotation": 0,
-      "x": 60,
-      "y": -200
+      "x": 400,
+      "y": 349,
+      "rotation": 0
     },
     {
       "id": "R_PD_b4",
@@ -448,9 +404,9 @@
         "a",
         "b"
       ],
-      "rotation": 0,
-      "x": 60,
-      "y": -220
+      "x": 484,
+      "y": 349,
+      "rotation": 0
     },
     {
       "id": "R_PD_b5",
@@ -462,9 +418,9 @@
         "a",
         "b"
       ],
-      "rotation": 0,
-      "x": 60,
-      "y": -240
+      "x": 568,
+      "y": 349,
+      "rotation": 0
     },
     {
       "id": "R_PD_b6",
@@ -476,9 +432,9 @@
         "a",
         "b"
       ],
-      "rotation": 0,
-      "x": 60,
-      "y": -260
+      "x": 652,
+      "y": 349,
+      "rotation": 0
     },
     {
       "id": "R_PD_b7",
@@ -490,9 +446,9 @@
         "a",
         "b"
       ],
-      "rotation": 0,
-      "x": 60,
-      "y": -280
+      "x": 736,
+      "y": 349,
+      "rotation": 0
     },
     {
       "id": "R_PD_b8",
@@ -504,9 +460,9 @@
         "a",
         "b"
       ],
-      "rotation": 0,
-      "x": 60,
-      "y": -300
+      "x": 820,
+      "y": 349,
+      "rotation": 0
     },
     {
       "id": "R_PD_bplus",
@@ -518,9 +474,9 @@
         "a",
         "b"
       ],
-      "rotation": 0,
-      "x": 60,
-      "y": -320
+      "x": 64,
+      "y": 615,
+      "rotation": 0
     },
     {
       "id": "R_PD_bminus",
@@ -532,9 +488,9 @@
         "a",
         "b"
       ],
-      "rotation": 0,
-      "x": 60,
-      "y": -340
+      "x": 148,
+      "y": 615,
+      "rotation": 0
     },
     {
       "id": "R_PD_btimes",
@@ -546,9 +502,9 @@
         "a",
         "b"
       ],
-      "rotation": 0,
-      "x": 60,
-      "y": -360
+      "x": 232,
+      "y": 615,
+      "rotation": 0
     },
     {
       "id": "R_PD_bdiv",
@@ -560,9 +516,9 @@
         "a",
         "b"
       ],
-      "rotation": 0,
-      "x": 60,
-      "y": -380
+      "x": 316,
+      "y": 615,
+      "rotation": 0
     },
     {
       "id": "R_PD_bexe",
@@ -574,9 +530,9 @@
         "a",
         "b"
       ],
-      "rotation": 0,
-      "x": 60,
-      "y": -400
+      "x": 400,
+      "y": 615,
+      "rotation": 0
     },
     {
       "id": "R_PD_bclr",
@@ -588,9 +544,9 @@
         "a",
         "b"
       ],
-      "rotation": 0,
-      "x": 60,
-      "y": -420
+      "x": 484,
+      "y": 615,
+      "rotation": 0
     },
     {
       "id": "R_PD_bac",
@@ -602,411 +558,111 @@
         "a",
         "b"
       ],
-      "rotation": 0,
-      "x": 60,
-      "y": -440
+      "x": 568,
+      "y": 615,
+      "rotation": 0
     }
   ],
   "wires": [
     {
       "id": "w_flat_0",
-      "netId": "bb1:n-col-b47",
+      "netId": "bb1:n-col-b13",
       "from": {
-        "part": "k_b0",
-        "terminal": "b"
+        "part": "k_bplus",
+        "terminal": "a"
       },
       "to": {
-        "part": "k_b1",
-        "terminal": "b"
+        "part": "pico1",
+        "terminal": "pd5"
       }
     },
     {
       "id": "w_flat_1",
-      "netId": "bb1:n-col-b47",
+      "netId": "bb1:n-col-b13",
       "from": {
-        "part": "k_b0",
-        "terminal": "b"
+        "part": "k_bplus",
+        "terminal": "a"
       },
       "to": {
-        "part": "k_b2",
-        "terminal": "b"
+        "part": "R_PD_bplus",
+        "terminal": "a"
       }
     },
     {
       "id": "w_flat_2",
-      "netId": "bb1:n-col-b47",
+      "netId": "bb1:n-col-b14",
       "from": {
-        "part": "k_b0",
-        "terminal": "b"
+        "part": "k_bminus",
+        "terminal": "a"
       },
       "to": {
-        "part": "k_b3",
-        "terminal": "b"
+        "part": "pico1",
+        "terminal": "pd6"
       }
     },
     {
       "id": "w_flat_3",
-      "netId": "bb1:n-col-b47",
+      "netId": "bb1:n-col-b14",
       "from": {
-        "part": "k_b0",
-        "terminal": "b"
+        "part": "k_bminus",
+        "terminal": "a"
       },
       "to": {
-        "part": "k_b4",
-        "terminal": "b"
+        "part": "R_PD_bminus",
+        "terminal": "a"
       }
     },
     {
       "id": "w_flat_4",
-      "netId": "bb1:n-col-b47",
+      "netId": "bb1:n-col-b15",
       "from": {
-        "part": "k_b0",
-        "terminal": "b"
+        "part": "k_btimes",
+        "terminal": "a"
       },
       "to": {
-        "part": "k_b5",
-        "terminal": "b"
+        "part": "pico1",
+        "terminal": "pd7"
       }
     },
     {
       "id": "w_flat_5",
-      "netId": "bb1:n-col-b47",
+      "netId": "bb1:n-col-b15",
       "from": {
-        "part": "k_b0",
-        "terminal": "b"
+        "part": "k_btimes",
+        "terminal": "a"
       },
       "to": {
-        "part": "k_b6",
-        "terminal": "b"
+        "part": "R_PD_btimes",
+        "terminal": "a"
       }
     },
     {
       "id": "w_flat_6",
-      "netId": "bb1:n-col-b47",
+      "netId": "bb1:n-col-b16",
       "from": {
-        "part": "k_b0",
-        "terminal": "b"
+        "part": "k_bdiv",
+        "terminal": "a"
       },
       "to": {
-        "part": "k_b7",
-        "terminal": "b"
+        "part": "pico1",
+        "terminal": "pb0"
       }
     },
     {
       "id": "w_flat_7",
-      "netId": "bb1:n-col-b47",
+      "netId": "bb1:n-col-b16",
       "from": {
-        "part": "k_b0",
-        "terminal": "b"
+        "part": "k_bdiv",
+        "terminal": "a"
       },
       "to": {
-        "part": "k_b8",
-        "terminal": "b"
+        "part": "R_PD_bdiv",
+        "terminal": "a"
       }
     },
     {
       "id": "w_flat_8",
-      "netId": "bb1:n-col-b47",
-      "from": {
-        "part": "k_b0",
-        "terminal": "b"
-      },
-      "to": {
-        "part": "k_b9",
-        "terminal": "b"
-      }
-    },
-    {
-      "id": "w_flat_9",
-      "netId": "bb1:n-col-b47",
-      "from": {
-        "part": "k_b0",
-        "terminal": "b"
-      },
-      "to": {
-        "part": "k_bac",
-        "terminal": "b"
-      }
-    },
-    {
-      "id": "w_flat_10",
-      "netId": "bb1:n-col-b47",
-      "from": {
-        "part": "k_b0",
-        "terminal": "b"
-      },
-      "to": {
-        "part": "k_bclr",
-        "terminal": "b"
-      }
-    },
-    {
-      "id": "w_flat_11",
-      "netId": "bb1:n-col-b47",
-      "from": {
-        "part": "k_b0",
-        "terminal": "b"
-      },
-      "to": {
-        "part": "k_bdiv",
-        "terminal": "b"
-      }
-    },
-    {
-      "id": "w_flat_12",
-      "netId": "bb1:n-col-b47",
-      "from": {
-        "part": "k_b0",
-        "terminal": "b"
-      },
-      "to": {
-        "part": "k_bexe",
-        "terminal": "b"
-      }
-    },
-    {
-      "id": "w_flat_13",
-      "netId": "bb1:n-col-b47",
-      "from": {
-        "part": "k_b0",
-        "terminal": "b"
-      },
-      "to": {
-        "part": "k_bminus",
-        "terminal": "b"
-      }
-    },
-    {
-      "id": "w_flat_14",
-      "netId": "bb1:n-col-b47",
-      "from": {
-        "part": "k_b0",
-        "terminal": "b"
-      },
-      "to": {
-        "part": "k_bplus",
-        "terminal": "b"
-      }
-    },
-    {
-      "id": "w_flat_15",
-      "netId": "bb1:n-col-b47",
-      "from": {
-        "part": "k_b0",
-        "terminal": "b"
-      },
-      "to": {
-        "part": "k_btimes",
-        "terminal": "b"
-      }
-    },
-    {
-      "id": "w_flat_16",
-      "netId": "bb1:n-col-b47",
-      "from": {
-        "part": "k_b0",
-        "terminal": "b"
-      },
-      "to": {
-        "part": "oled1",
-        "terminal": "vcc"
-      }
-    },
-    {
-      "id": "w_flat_17",
-      "netId": "bb1:n-col-b47",
-      "from": {
-        "part": "k_b0",
-        "terminal": "b"
-      },
-      "to": {
-        "part": "pico1",
-        "terminal": "vcc"
-      }
-    },
-    {
-      "id": "w_flat_18",
-      "netId": "bb1:n-col-b47",
-      "from": {
-        "part": "k_b0",
-        "terminal": "b"
-      },
-      "to": {
-        "part": "pwr",
-        "terminal": "a"
-      }
-    },
-    {
-      "id": "w_flat_19",
-      "netId": "bb1:n-col-b47",
-      "from": {
-        "part": "k_b0",
-        "terminal": "b"
-      },
-      "to": {
-        "part": "pwr",
-        "terminal": "com"
-      }
-    },
-    {
-      "id": "w_flat_20",
-      "netId": "bb1:n-col-b47",
-      "from": {
-        "part": "k_b0",
-        "terminal": "b"
-      },
-      "to": {
-        "part": "rpu_scl",
-        "terminal": "a"
-      }
-    },
-    {
-      "id": "w_flat_21",
-      "netId": "bb1:n-col-b47",
-      "from": {
-        "part": "k_b0",
-        "terminal": "b"
-      },
-      "to": {
-        "part": "rpu_sda",
-        "terminal": "a"
-      }
-    },
-    {
-      "id": "w_flat_22",
-      "netId": "bb1:n-col-b47",
-      "from": {
-        "part": "k_b0",
-        "terminal": "b"
-      },
-      "to": {
-        "part": "vcc1",
-        "terminal": "vcc"
-      }
-    },
-    {
-      "id": "w_flat_23",
-      "netId": "bb1:n-col-t30",
-      "from": {
-        "part": "oled1",
-        "terminal": "sda"
-      },
-      "to": {
-        "part": "pico1",
-        "terminal": "pc4"
-      }
-    },
-    {
-      "id": "w_flat_24",
-      "netId": "bb1:n-col-t30",
-      "from": {
-        "part": "oled1",
-        "terminal": "sda"
-      },
-      "to": {
-        "part": "rpu_sda",
-        "terminal": "b"
-      }
-    },
-    {
-      "id": "w_flat_25",
-      "netId": "bb1:n-col-t36",
-      "from": {
-        "part": "oled1",
-        "terminal": "scl"
-      },
-      "to": {
-        "part": "pico1",
-        "terminal": "pc5"
-      }
-    },
-    {
-      "id": "w_flat_26",
-      "netId": "bb1:n-col-t36",
-      "from": {
-        "part": "oled1",
-        "terminal": "scl"
-      },
-      "to": {
-        "part": "rpu_scl",
-        "terminal": "b"
-      }
-    },
-    {
-      "id": "w_flat_27",
-      "netId": "bb1:n-col-t47",
-      "from": {
-        "part": "k_b9",
-        "terminal": "a"
-      },
-      "to": {
-        "part": "pico1",
-        "terminal": "pc3"
-      }
-    },
-    {
-      "id": "w_flat_28",
-      "netId": "bb1:n-col-t47",
-      "from": {
-        "part": "k_b9",
-        "terminal": "a"
-      },
-      "to": {
-        "part": "R_PD_b9",
-        "terminal": "a"
-      }
-    },
-    {
-      "id": "w_flat_29",
-      "netId": "bb1:n-col-t51",
-      "from": {
-        "part": "k_b0",
-        "terminal": "a"
-      },
-      "to": {
-        "part": "pico1",
-        "terminal": "pc7"
-      }
-    },
-    {
-      "id": "w_flat_30",
-      "netId": "bb1:n-col-t51",
-      "from": {
-        "part": "k_b0",
-        "terminal": "a"
-      },
-      "to": {
-        "part": "R_PD_b0",
-        "terminal": "a"
-      }
-    },
-    {
-      "id": "w_flat_31",
-      "netId": "bb1:n-col-t55",
-      "from": {
-        "part": "k_b1",
-        "terminal": "a"
-      },
-      "to": {
-        "part": "pico1",
-        "terminal": "pc0"
-      }
-    },
-    {
-      "id": "w_flat_32",
-      "netId": "bb1:n-col-t55",
-      "from": {
-        "part": "k_b1",
-        "terminal": "a"
-      },
-      "to": {
-        "part": "R_PD_b1",
-        "terminal": "a"
-      }
-    },
-    {
-      "id": "w_flat_33",
-      "netId": "bb1:n-col-t59",
+      "netId": "bb1:n-col-b21",
       "from": {
         "part": "k_b2",
         "terminal": "a"
@@ -1017,8 +673,8 @@
       }
     },
     {
-      "id": "w_flat_34",
-      "netId": "bb1:n-col-t59",
+      "id": "w_flat_9",
+      "netId": "bb1:n-col-b21",
       "from": {
         "part": "k_b2",
         "terminal": "a"
@@ -1029,7 +685,343 @@
       }
     },
     {
+      "id": "w_flat_10",
+      "netId": "bb1:n-col-b27",
+      "from": {
+        "part": "k_b3",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "pico1",
+        "terminal": "pc2"
+      }
+    },
+    {
+      "id": "w_flat_11",
+      "netId": "bb1:n-col-b27",
+      "from": {
+        "part": "k_b3",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "R_PD_b3",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "w_flat_12",
+      "netId": "bb1:n-col-b33",
+      "from": {
+        "part": "k_b4",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "pico1",
+        "terminal": "pd0"
+      }
+    },
+    {
+      "id": "w_flat_13",
+      "netId": "bb1:n-col-b33",
+      "from": {
+        "part": "k_b4",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "R_PD_b4",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "w_flat_14",
+      "netId": "bb1:n-col-b39",
+      "from": {
+        "part": "k_b5",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "pico1",
+        "terminal": "pd1"
+      }
+    },
+    {
+      "id": "w_flat_15",
+      "netId": "bb1:n-col-b39",
+      "from": {
+        "part": "k_b5",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "R_PD_b5",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "w_flat_16",
+      "netId": "bb1:n-col-b45",
+      "from": {
+        "part": "k_b6",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "pico1",
+        "terminal": "pd2"
+      }
+    },
+    {
+      "id": "w_flat_17",
+      "netId": "bb1:n-col-b45",
+      "from": {
+        "part": "k_b6",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "R_PD_b6",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "w_flat_18",
+      "netId": "bb1:n-col-b51",
+      "from": {
+        "part": "k_b7",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "pico1",
+        "terminal": "pd3"
+      }
+    },
+    {
+      "id": "w_flat_19",
+      "netId": "bb1:n-col-b51",
+      "from": {
+        "part": "k_b7",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "R_PD_b7",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "w_flat_20",
+      "netId": "bb1:n-col-b57",
+      "from": {
+        "part": "k_b8",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "pico1",
+        "terminal": "pd4"
+      }
+    },
+    {
+      "id": "w_flat_21",
+      "netId": "bb1:n-col-b57",
+      "from": {
+        "part": "k_b8",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "R_PD_b8",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "w_flat_22",
+      "netId": "bb1:n-col-t10",
+      "from": {
+        "part": "k_b1",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "pico1",
+        "terminal": "pc0"
+      }
+    },
+    {
+      "id": "w_flat_23",
+      "netId": "bb1:n-col-t10",
+      "from": {
+        "part": "k_b1",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "R_PD_b1",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "w_flat_24",
+      "netId": "bb1:n-col-t13",
+      "from": {
+        "part": "k_b9",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "pico1",
+        "terminal": "pc3"
+      }
+    },
+    {
+      "id": "w_flat_25",
+      "netId": "bb1:n-col-t13",
+      "from": {
+        "part": "k_b9",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "R_PD_b9",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "w_flat_26",
+      "netId": "bb1:n-col-t14",
+      "from": {
+        "part": "oled1",
+        "terminal": "sda"
+      },
+      "to": {
+        "part": "pico1",
+        "terminal": "pc4"
+      }
+    },
+    {
+      "id": "w_flat_27",
+      "netId": "bb1:n-col-t14",
+      "from": {
+        "part": "oled1",
+        "terminal": "sda"
+      },
+      "to": {
+        "part": "rpu_sda",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "w_flat_28",
+      "netId": "bb1:n-col-t15",
+      "from": {
+        "part": "oled1",
+        "terminal": "scl"
+      },
+      "to": {
+        "part": "pico1",
+        "terminal": "pc5"
+      }
+    },
+    {
+      "id": "w_flat_29",
+      "netId": "bb1:n-col-t15",
+      "from": {
+        "part": "oled1",
+        "terminal": "scl"
+      },
+      "to": {
+        "part": "rpu_scl",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "w_flat_30",
+      "netId": "bb1:n-col-t16",
+      "from": {
+        "part": "k_b0",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "pico1",
+        "terminal": "pc7"
+      }
+    },
+    {
+      "id": "w_flat_31",
+      "netId": "bb1:n-col-t16",
+      "from": {
+        "part": "k_b0",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "R_PD_b0",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "w_flat_32",
+      "netId": "bb1:n-col-t3",
+      "from": {
+        "part": "k_bexe",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "pico1",
+        "terminal": "pb1"
+      }
+    },
+    {
+      "id": "w_flat_33",
+      "netId": "bb1:n-col-t3",
+      "from": {
+        "part": "k_bexe",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "R_PD_bexe",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "w_flat_34",
+      "netId": "bb1:n-col-t4",
+      "from": {
+        "part": "k_bclr",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "pico1",
+        "terminal": "pb2"
+      }
+    },
+    {
       "id": "w_flat_35",
+      "netId": "bb1:n-col-t4",
+      "from": {
+        "part": "k_bclr",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "R_PD_bclr",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "w_flat_36",
+      "netId": "bb1:n-col-t5",
+      "from": {
+        "part": "k_bac",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "pico1",
+        "terminal": "pb3"
+      }
+    },
+    {
+      "id": "w_flat_37",
+      "netId": "bb1:n-col-t5",
+      "from": {
+        "part": "k_bac",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "R_PD_bac",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "w_flat_38",
       "netId": "bb1:rail-b-",
       "from": {
         "part": "gnd1",
@@ -1041,7 +1033,7 @@
       }
     },
     {
-      "id": "w_flat_36",
+      "id": "w_flat_39",
       "netId": "bb1:rail-b-",
       "from": {
         "part": "gnd1",
@@ -1053,42 +1045,6 @@
       }
     },
     {
-      "id": "w_flat_37",
-      "netId": "bb1:rail-b-",
-      "from": {
-        "part": "gnd1",
-        "terminal": "gnd"
-      },
-      "to": {
-        "part": "R_PD_b0",
-        "terminal": "b"
-      }
-    },
-    {
-      "id": "w_flat_38",
-      "netId": "bb1:rail-b-",
-      "from": {
-        "part": "gnd1",
-        "terminal": "gnd"
-      },
-      "to": {
-        "part": "R_PD_b1",
-        "terminal": "b"
-      }
-    },
-    {
-      "id": "w_flat_39",
-      "netId": "bb1:rail-b-",
-      "from": {
-        "part": "gnd1",
-        "terminal": "gnd"
-      },
-      "to": {
-        "part": "R_PD_b2",
-        "terminal": "b"
-      }
-    },
-    {
       "id": "w_flat_40",
       "netId": "bb1:rail-b-",
       "from": {
@@ -1096,7 +1052,7 @@
         "terminal": "gnd"
       },
       "to": {
-        "part": "R_PD_b3",
+        "part": "R_PD_b0",
         "terminal": "b"
       }
     },
@@ -1108,7 +1064,7 @@
         "terminal": "gnd"
       },
       "to": {
-        "part": "R_PD_b4",
+        "part": "R_PD_b1",
         "terminal": "b"
       }
     },
@@ -1120,7 +1076,7 @@
         "terminal": "gnd"
       },
       "to": {
-        "part": "R_PD_b5",
+        "part": "R_PD_b2",
         "terminal": "b"
       }
     },
@@ -1132,7 +1088,7 @@
         "terminal": "gnd"
       },
       "to": {
-        "part": "R_PD_b6",
+        "part": "R_PD_b3",
         "terminal": "b"
       }
     },
@@ -1144,7 +1100,7 @@
         "terminal": "gnd"
       },
       "to": {
-        "part": "R_PD_b7",
+        "part": "R_PD_b4",
         "terminal": "b"
       }
     },
@@ -1156,7 +1112,7 @@
         "terminal": "gnd"
       },
       "to": {
-        "part": "R_PD_b8",
+        "part": "R_PD_b5",
         "terminal": "b"
       }
     },
@@ -1168,7 +1124,7 @@
         "terminal": "gnd"
       },
       "to": {
-        "part": "R_PD_b9",
+        "part": "R_PD_b6",
         "terminal": "b"
       }
     },
@@ -1180,7 +1136,7 @@
         "terminal": "gnd"
       },
       "to": {
-        "part": "R_PD_bac",
+        "part": "R_PD_b7",
         "terminal": "b"
       }
     },
@@ -1192,7 +1148,7 @@
         "terminal": "gnd"
       },
       "to": {
-        "part": "R_PD_bclr",
+        "part": "R_PD_b8",
         "terminal": "b"
       }
     },
@@ -1204,7 +1160,7 @@
         "terminal": "gnd"
       },
       "to": {
-        "part": "R_PD_bdiv",
+        "part": "R_PD_b9",
         "terminal": "b"
       }
     },
@@ -1216,7 +1172,7 @@
         "terminal": "gnd"
       },
       "to": {
-        "part": "R_PD_bexe",
+        "part": "R_PD_bac",
         "terminal": "b"
       }
     },
@@ -1228,7 +1184,7 @@
         "terminal": "gnd"
       },
       "to": {
-        "part": "R_PD_bminus",
+        "part": "R_PD_bclr",
         "terminal": "b"
       }
     },
@@ -1240,7 +1196,7 @@
         "terminal": "gnd"
       },
       "to": {
-        "part": "R_PD_bplus",
+        "part": "R_PD_bdiv",
         "terminal": "b"
       }
     },
@@ -1252,323 +1208,335 @@
         "terminal": "gnd"
       },
       "to": {
-        "part": "R_PD_btimes",
+        "part": "R_PD_bexe",
         "terminal": "b"
       }
     },
     {
       "id": "w_flat_54",
-      "netId": "bb2:n-col-t11",
+      "netId": "bb1:rail-b-",
       "from": {
-        "part": "k_b5",
-        "terminal": "a"
+        "part": "gnd1",
+        "terminal": "gnd"
       },
       "to": {
-        "part": "pico1",
-        "terminal": "pd1"
+        "part": "R_PD_bminus",
+        "terminal": "b"
       }
     },
     {
       "id": "w_flat_55",
-      "netId": "bb2:n-col-t11",
+      "netId": "bb1:rail-b-",
       "from": {
-        "part": "k_b5",
-        "terminal": "a"
+        "part": "gnd1",
+        "terminal": "gnd"
       },
       "to": {
-        "part": "R_PD_b5",
-        "terminal": "a"
+        "part": "R_PD_bplus",
+        "terminal": "b"
       }
     },
     {
       "id": "w_flat_56",
-      "netId": "bb2:n-col-t15",
+      "netId": "bb1:rail-b-",
       "from": {
-        "part": "k_b6",
-        "terminal": "a"
+        "part": "gnd1",
+        "terminal": "gnd"
       },
       "to": {
-        "part": "pico1",
-        "terminal": "pd2"
+        "part": "R_PD_btimes",
+        "terminal": "b"
       }
     },
     {
       "id": "w_flat_57",
-      "netId": "bb2:n-col-t15",
+      "netId": "bb1:rail-t+",
       "from": {
-        "part": "k_b6",
-        "terminal": "a"
+        "part": "k_b0",
+        "terminal": "b"
       },
       "to": {
-        "part": "R_PD_b6",
-        "terminal": "a"
+        "part": "k_b1",
+        "terminal": "b"
       }
     },
     {
       "id": "w_flat_58",
-      "netId": "bb2:n-col-t19",
+      "netId": "bb1:rail-t+",
       "from": {
-        "part": "k_b7",
-        "terminal": "a"
+        "part": "k_b0",
+        "terminal": "b"
       },
       "to": {
-        "part": "pico1",
-        "terminal": "pd3"
+        "part": "k_b2",
+        "terminal": "b"
       }
     },
     {
       "id": "w_flat_59",
-      "netId": "bb2:n-col-t19",
+      "netId": "bb1:rail-t+",
       "from": {
-        "part": "k_b7",
-        "terminal": "a"
+        "part": "k_b0",
+        "terminal": "b"
       },
       "to": {
-        "part": "R_PD_b7",
-        "terminal": "a"
+        "part": "k_b3",
+        "terminal": "b"
       }
     },
     {
       "id": "w_flat_60",
-      "netId": "bb2:n-col-t23",
+      "netId": "bb1:rail-t+",
       "from": {
-        "part": "k_b8",
-        "terminal": "a"
+        "part": "k_b0",
+        "terminal": "b"
       },
       "to": {
-        "part": "pico1",
-        "terminal": "pd4"
+        "part": "k_b4",
+        "terminal": "b"
       }
     },
     {
       "id": "w_flat_61",
-      "netId": "bb2:n-col-t23",
+      "netId": "bb1:rail-t+",
       "from": {
-        "part": "k_b8",
-        "terminal": "a"
+        "part": "k_b0",
+        "terminal": "b"
       },
       "to": {
-        "part": "R_PD_b8",
-        "terminal": "a"
+        "part": "k_b5",
+        "terminal": "b"
       }
     },
     {
       "id": "w_flat_62",
-      "netId": "bb2:n-col-t27",
+      "netId": "bb1:rail-t+",
       "from": {
-        "part": "k_bplus",
-        "terminal": "a"
+        "part": "k_b0",
+        "terminal": "b"
       },
       "to": {
-        "part": "pico1",
-        "terminal": "pd5"
+        "part": "k_b6",
+        "terminal": "b"
       }
     },
     {
       "id": "w_flat_63",
-      "netId": "bb2:n-col-t27",
+      "netId": "bb1:rail-t+",
       "from": {
-        "part": "k_bplus",
-        "terminal": "a"
+        "part": "k_b0",
+        "terminal": "b"
       },
       "to": {
-        "part": "R_PD_bplus",
-        "terminal": "a"
+        "part": "k_b7",
+        "terminal": "b"
       }
     },
     {
       "id": "w_flat_64",
-      "netId": "bb2:n-col-t3",
+      "netId": "bb1:rail-t+",
       "from": {
-        "part": "k_b3",
-        "terminal": "a"
+        "part": "k_b0",
+        "terminal": "b"
       },
       "to": {
-        "part": "pico1",
-        "terminal": "pc2"
+        "part": "k_b8",
+        "terminal": "b"
       }
     },
     {
       "id": "w_flat_65",
-      "netId": "bb2:n-col-t3",
+      "netId": "bb1:rail-t+",
       "from": {
-        "part": "k_b3",
-        "terminal": "a"
+        "part": "k_b0",
+        "terminal": "b"
       },
       "to": {
-        "part": "R_PD_b3",
-        "terminal": "a"
+        "part": "k_b9",
+        "terminal": "b"
       }
     },
     {
       "id": "w_flat_66",
-      "netId": "bb2:n-col-t31",
+      "netId": "bb1:rail-t+",
       "from": {
-        "part": "k_bminus",
-        "terminal": "a"
+        "part": "k_b0",
+        "terminal": "b"
       },
       "to": {
-        "part": "pico1",
-        "terminal": "pd6"
+        "part": "k_bac",
+        "terminal": "b"
       }
     },
     {
       "id": "w_flat_67",
-      "netId": "bb2:n-col-t31",
+      "netId": "bb1:rail-t+",
       "from": {
-        "part": "k_bminus",
-        "terminal": "a"
+        "part": "k_b0",
+        "terminal": "b"
       },
       "to": {
-        "part": "R_PD_bminus",
-        "terminal": "a"
+        "part": "k_bclr",
+        "terminal": "b"
       }
     },
     {
       "id": "w_flat_68",
-      "netId": "bb2:n-col-t35",
+      "netId": "bb1:rail-t+",
       "from": {
-        "part": "k_btimes",
-        "terminal": "a"
+        "part": "k_b0",
+        "terminal": "b"
       },
       "to": {
-        "part": "pico1",
-        "terminal": "pd7"
+        "part": "k_bdiv",
+        "terminal": "b"
       }
     },
     {
       "id": "w_flat_69",
-      "netId": "bb2:n-col-t35",
+      "netId": "bb1:rail-t+",
       "from": {
-        "part": "k_btimes",
-        "terminal": "a"
+        "part": "k_b0",
+        "terminal": "b"
       },
       "to": {
-        "part": "R_PD_btimes",
-        "terminal": "a"
+        "part": "k_bexe",
+        "terminal": "b"
       }
     },
     {
       "id": "w_flat_70",
-      "netId": "bb2:n-col-t39",
+      "netId": "bb1:rail-t+",
       "from": {
-        "part": "k_bdiv",
-        "terminal": "a"
+        "part": "k_b0",
+        "terminal": "b"
       },
       "to": {
-        "part": "pico1",
-        "terminal": "pb0"
+        "part": "k_bminus",
+        "terminal": "b"
       }
     },
     {
       "id": "w_flat_71",
-      "netId": "bb2:n-col-t39",
+      "netId": "bb1:rail-t+",
       "from": {
-        "part": "k_bdiv",
-        "terminal": "a"
+        "part": "k_b0",
+        "terminal": "b"
       },
       "to": {
-        "part": "R_PD_bdiv",
-        "terminal": "a"
+        "part": "k_bplus",
+        "terminal": "b"
       }
     },
     {
       "id": "w_flat_72",
-      "netId": "bb2:n-col-t43",
+      "netId": "bb1:rail-t+",
       "from": {
-        "part": "k_bexe",
-        "terminal": "a"
+        "part": "k_b0",
+        "terminal": "b"
       },
       "to": {
-        "part": "pico1",
-        "terminal": "pb1"
+        "part": "k_btimes",
+        "terminal": "b"
       }
     },
     {
       "id": "w_flat_73",
-      "netId": "bb2:n-col-t43",
+      "netId": "bb1:rail-t+",
       "from": {
-        "part": "k_bexe",
-        "terminal": "a"
+        "part": "k_b0",
+        "terminal": "b"
       },
       "to": {
-        "part": "R_PD_bexe",
-        "terminal": "a"
+        "part": "oled1",
+        "terminal": "vcc"
       }
     },
     {
       "id": "w_flat_74",
-      "netId": "bb2:n-col-t47",
+      "netId": "bb1:rail-t+",
       "from": {
-        "part": "k_bclr",
-        "terminal": "a"
+        "part": "k_b0",
+        "terminal": "b"
       },
       "to": {
         "part": "pico1",
-        "terminal": "pb2"
+        "terminal": "avcc"
       }
     },
     {
       "id": "w_flat_75",
-      "netId": "bb2:n-col-t47",
+      "netId": "bb1:rail-t+",
       "from": {
-        "part": "k_bclr",
-        "terminal": "a"
+        "part": "k_b0",
+        "terminal": "b"
       },
       "to": {
-        "part": "R_PD_bclr",
-        "terminal": "a"
+        "part": "pico1",
+        "terminal": "vcc"
       }
     },
     {
       "id": "w_flat_76",
-      "netId": "bb2:n-col-t51",
+      "netId": "bb1:rail-t+",
       "from": {
-        "part": "k_bac",
-        "terminal": "a"
+        "part": "k_b0",
+        "terminal": "b"
       },
       "to": {
-        "part": "pico1",
-        "terminal": "pb3"
+        "part": "pwr",
+        "terminal": "a"
       }
     },
     {
       "id": "w_flat_77",
-      "netId": "bb2:n-col-t51",
+      "netId": "bb1:rail-t+",
       "from": {
-        "part": "k_bac",
-        "terminal": "a"
+        "part": "k_b0",
+        "terminal": "b"
       },
       "to": {
-        "part": "R_PD_bac",
-        "terminal": "a"
+        "part": "pwr",
+        "terminal": "com"
       }
     },
     {
       "id": "w_flat_78",
-      "netId": "bb2:n-col-t7",
+      "netId": "bb1:rail-t+",
       "from": {
-        "part": "k_b4",
-        "terminal": "a"
+        "part": "k_b0",
+        "terminal": "b"
       },
       "to": {
-        "part": "pico1",
-        "terminal": "pd0"
+        "part": "rpu_scl",
+        "terminal": "a"
       }
     },
     {
       "id": "w_flat_79",
-      "netId": "bb2:n-col-t7",
+      "netId": "bb1:rail-t+",
       "from": {
-        "part": "k_b4",
-        "terminal": "a"
+        "part": "k_b0",
+        "terminal": "b"
       },
       "to": {
-        "part": "R_PD_b4",
+        "part": "rpu_sda",
         "terminal": "a"
+      }
+    },
+    {
+      "id": "w_flat_80",
+      "netId": "bb1:rail-t+",
+      "from": {
+        "part": "k_b0",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "vcc1",
+        "terminal": "vcc"
       }
     }
   ],
   "holeWires": [],
-  "generated": "benchFor+authored"
+  "generated": "benchFor+authored+seat"
 }

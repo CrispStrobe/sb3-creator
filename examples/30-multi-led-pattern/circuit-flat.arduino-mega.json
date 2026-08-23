@@ -8,8 +8,8 @@
       "terminals": [
         "vcc"
       ],
-      "x": 80,
-      "y": 60
+      "x": 58,
+      "y": 115
     },
     {
       "id": "GND",
@@ -18,8 +18,8 @@
       "terminals": [
         "gnd"
       ],
-      "x": 156,
-      "y": 60
+      "x": 134,
+      "y": 115
     },
     {
       "id": "MCU",
@@ -29,10 +29,12 @@
         "d13",
         "d22",
         "d23",
-        "d24"
+        "d24",
+        "5v",
+        "gnd2"
       ],
-      "x": 232,
-      "y": 60
+      "x": 475,
+      "y": -5
     },
     {
       "id": "R_led1",
@@ -44,20 +46,12 @@
         "a",
         "b"
       ],
-      "seat": {
-        "boardId": "bb1",
-        "leadMap": {
-          "a": "a3",
-          "b": "a7"
-        }
-      },
       "x": 64,
       "y": 255
     },
     {
       "id": "LED_led1",
       "kind": "led",
-      "declName": "led1",
       "params": {
         "vf": 2,
         "color": "red"
@@ -66,13 +60,6 @@
         "anode",
         "cathode"
       ],
-      "seat": {
-        "boardId": "bb1",
-        "leadMap": {
-          "anode": "a27",
-          "cathode": "a28"
-        }
-      },
       "x": 400,
       "y": 255
     },
@@ -86,20 +73,12 @@
         "a",
         "b"
       ],
-      "seat": {
-        "boardId": "bb1",
-        "leadMap": {
-          "a": "a9",
-          "b": "a13"
-        }
-      },
       "x": 148,
       "y": 255
     },
     {
       "id": "LED_led2",
       "kind": "led",
-      "declName": "led2",
       "params": {
         "vf": 2,
         "color": "red"
@@ -108,14 +87,7 @@
         "anode",
         "cathode"
       ],
-      "seat": {
-        "boardId": "bb1",
-        "leadMap": {
-          "anode": "a30",
-          "cathode": "a31"
-        }
-      },
-      "x": 442,
+      "x": 456,
       "y": 255
     },
     {
@@ -128,20 +100,12 @@
         "a",
         "b"
       ],
-      "seat": {
-        "boardId": "bb1",
-        "leadMap": {
-          "a": "a15",
-          "b": "a19"
-        }
-      },
       "x": 232,
       "y": 255
     },
     {
       "id": "LED_led3",
       "kind": "led",
-      "declName": "led3",
       "params": {
         "vf": 2,
         "color": "red"
@@ -150,14 +114,7 @@
         "anode",
         "cathode"
       ],
-      "seat": {
-        "boardId": "bb1",
-        "leadMap": {
-          "anode": "a33",
-          "cathode": "a34"
-        }
-      },
-      "x": 484,
+      "x": 512,
       "y": 255
     },
     {
@@ -170,20 +127,12 @@
         "a",
         "b"
       ],
-      "seat": {
-        "boardId": "bb1",
-        "leadMap": {
-          "a": "a21",
-          "b": "a25"
-        }
-      },
       "x": 316,
       "y": 255
     },
     {
       "id": "LED_led4",
       "kind": "led",
-      "declName": "led4",
       "params": {
         "vf": 2,
         "color": "red"
@@ -192,14 +141,7 @@
         "anode",
         "cathode"
       ],
-      "seat": {
-        "boardId": "bb1",
-        "leadMap": {
-          "anode": "a36",
-          "cathode": "a37"
-        }
-      },
-      "x": 526,
+      "x": 568,
       "y": 255
     }
   ],
@@ -346,6 +288,30 @@
       "to": {
         "part": "LED_led4",
         "terminal": "cathode"
+      }
+    },
+    {
+      "id": "w_flat_12",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "GND",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "MCU",
+        "terminal": "gnd2"
+      }
+    },
+    {
+      "id": "w_flat_13",
+      "netId": "net-lgc-10",
+      "from": {
+        "part": "MCU",
+        "terminal": "5v"
+      },
+      "to": {
+        "part": "VCC",
+        "terminal": "vcc"
       }
     }
   ],

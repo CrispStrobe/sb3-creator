@@ -5,25 +5,51 @@
       "id": "board",
       "kind": "attiny88",
       "params": {},
-      "rotation": 0,
-      "x": 80,
-      "y": -60
+      "terminals": [
+        "pc6",
+        "pd0",
+        "pd1",
+        "pd2",
+        "pd3",
+        "pd4",
+        "vcc",
+        "gnd",
+        "pb6",
+        "pb7",
+        "pd5",
+        "pd6",
+        "pd7",
+        "pb0",
+        "pb1",
+        "pb2",
+        "pb3",
+        "pb4",
+        "pb5",
+        "avcc",
+        "pa0",
+        "pc0",
+        "pc1",
+        "pc2",
+        "pc3",
+        "pc4",
+        "pc5",
+        "pc7"
+      ],
+      "x": 64,
+      "y": 349,
+      "rotation": 0
     },
     {
       "id": "us",
       "kind": "ultrasonic",
-      "declName": "us",
       "params": {},
-      "seat": {
-        "boardId": "bb1",
-        "leadMap": {
-          "vcc": "a20",
-          "trig": "a21",
-          "echo": "a22",
-          "gnd": "a23"
-        }
-      },
-      "x": 302,
+      "terminals": [
+        "vcc",
+        "gnd",
+        "trig",
+        "echo"
+      ],
+      "x": 316,
       "y": 255
     },
     {
@@ -32,21 +58,27 @@
       "params": {
         "volts": 5
       },
-      "x": 80,
-      "y": 60
+      "terminals": [
+        "vcc"
+      ],
+      "x": 58,
+      "y": 115
     },
     {
       "id": "gnd1",
       "kind": "gnd",
       "params": {},
-      "x": 220,
-      "y": 60
+      "terminals": [
+        "gnd"
+      ],
+      "x": 134,
+      "y": 115
     }
   ],
   "wires": [
     {
       "id": "w_flat_0",
-      "netId": "bb1:n-col-t21",
+      "netId": "bb1:n-col-b16",
       "from": {
         "part": "board",
         "terminal": "pb0"
@@ -58,7 +90,7 @@
     },
     {
       "id": "w_flat_1",
-      "netId": "bb1:n-col-t22",
+      "netId": "bb1:n-col-t13",
       "from": {
         "part": "board",
         "terminal": "pc3"
@@ -97,10 +129,10 @@
       "netId": "bb1:rail-t+",
       "from": {
         "part": "board",
-        "terminal": "vcc"
+        "terminal": "avcc"
       },
       "to": {
-        "part": "us",
+        "part": "board",
         "terminal": "vcc"
       }
     },
@@ -109,7 +141,19 @@
       "netId": "bb1:rail-t+",
       "from": {
         "part": "board",
+        "terminal": "avcc"
+      },
+      "to": {
+        "part": "us",
         "terminal": "vcc"
+      }
+    },
+    {
+      "id": "w_flat_6",
+      "netId": "bb1:rail-t+",
+      "from": {
+        "part": "board",
+        "terminal": "avcc"
       },
       "to": {
         "part": "vcc1",
@@ -118,5 +162,5 @@
     }
   ],
   "holeWires": [],
-  "generated": "benchFor+authored"
+  "generated": "benchFor+authored+seat"
 }

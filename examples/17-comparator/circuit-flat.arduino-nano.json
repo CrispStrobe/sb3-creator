@@ -8,8 +8,8 @@
       "terminals": [
         "vcc"
       ],
-      "x": 80,
-      "y": 60
+      "x": 58,
+      "y": 115
     },
     {
       "id": "GND",
@@ -18,8 +18,8 @@
       "terminals": [
         "gnd"
       ],
-      "x": 156,
-      "y": 60
+      "x": 134,
+      "y": 115
     },
     {
       "id": "MCU",
@@ -30,48 +30,12 @@
         "a1",
         "d13"
       ],
-      "seat": {
-        "boardId": "bb1",
-        "leadMap": {
-          "d1": "b3",
-          "d0": "b4",
-          "reset": "b5",
-          "gnd": "b6",
-          "d2": "b7",
-          "d3": "b8",
-          "d4": "b9",
-          "d5": "b10",
-          "d6": "b11",
-          "d7": "b12",
-          "d8": "b13",
-          "d9": "b14",
-          "d10": "b15",
-          "d11": "b16",
-          "d12": "b17",
-          "vin": "f3",
-          "gnd2": "f4",
-          "reset2": "f5",
-          "5v": "f6",
-          "a7": "f7",
-          "a6": "f8",
-          "a5": "f9",
-          "a4": "f10",
-          "a3": "f11",
-          "a2": "f12",
-          "a1": "f13",
-          "a0": "f14",
-          "aref": "f15",
-          "3v3": "f16",
-          "d13": "f17"
-        }
-      },
       "x": 64,
       "y": 269
     },
     {
       "id": "POT_potA",
       "kind": "potentiometer",
-      "declName": "potA",
       "params": {
         "ohms": 10000
       },
@@ -80,21 +44,12 @@
         "b",
         "wiper"
       ],
-      "seat": {
-        "boardId": "bb1",
-        "leadMap": {
-          "a": "a21",
-          "wiper": "a23",
-          "b": "a25"
-        }
-      },
-      "x": 316,
+      "x": 358,
       "y": 255
     },
     {
       "id": "POT_potB",
       "kind": "potentiometer",
-      "declName": "potB",
       "params": {
         "ohms": 10000
       },
@@ -103,15 +58,7 @@
         "b",
         "wiper"
       ],
-      "seat": {
-        "boardId": "bb1",
-        "leadMap": {
-          "a": "a27",
-          "wiper": "a29",
-          "b": "a31"
-        }
-      },
-      "x": 400,
+      "x": 442,
       "y": 255
     },
     {
@@ -124,20 +71,12 @@
         "a",
         "b"
       ],
-      "seat": {
-        "boardId": "bb1",
-        "leadMap": {
-          "a": "a33",
-          "b": "a37"
-        }
-      },
-      "x": 484,
+      "x": 526,
       "y": 255
     },
     {
       "id": "LED_led1",
       "kind": "led",
-      "declName": "led1",
       "params": {
         "vf": 2,
         "color": "red"
@@ -146,14 +85,7 @@
         "anode",
         "cathode"
       ],
-      "seat": {
-        "boardId": "bb1",
-        "leadMap": {
-          "anode": "a39",
-          "cathode": "a40"
-        }
-      },
-      "x": 568,
+      "x": 610,
       "y": 255
     }
   ],
@@ -196,7 +128,7 @@
     },
     {
       "id": "w_flat_3",
-      "netId": "bb1:n-col-t37",
+      "netId": "bb1:n-col-t40",
       "from": {
         "part": "LED_led1",
         "terminal": "anode"
@@ -238,8 +170,8 @@
         "terminal": "gnd"
       },
       "to": {
-        "part": "MCU",
-        "terminal": "gnd2"
+        "part": "POT_potA",
+        "terminal": "b"
       }
     },
     {
@@ -250,20 +182,20 @@
         "terminal": "gnd"
       },
       "to": {
-        "part": "POT_potA",
+        "part": "POT_potB",
         "terminal": "b"
       }
     },
     {
       "id": "w_flat_8",
-      "netId": "bb1:rail-b-",
+      "netId": "bb1:rail-t+",
       "from": {
-        "part": "GND",
-        "terminal": "gnd"
+        "part": "MCU",
+        "terminal": "5v"
       },
       "to": {
-        "part": "POT_potB",
-        "terminal": "b"
+        "part": "POT_potA",
+        "terminal": "a"
       }
     },
     {
@@ -271,31 +203,7 @@
       "netId": "bb1:rail-t+",
       "from": {
         "part": "MCU",
-        "terminal": "3v3"
-      },
-      "to": {
-        "part": "MCU",
         "terminal": "5v"
-      }
-    },
-    {
-      "id": "w_flat_10",
-      "netId": "bb1:rail-t+",
-      "from": {
-        "part": "MCU",
-        "terminal": "3v3"
-      },
-      "to": {
-        "part": "POT_potA",
-        "terminal": "a"
-      }
-    },
-    {
-      "id": "w_flat_11",
-      "netId": "bb1:rail-t+",
-      "from": {
-        "part": "MCU",
-        "terminal": "3v3"
       },
       "to": {
         "part": "POT_potB",
@@ -303,11 +211,11 @@
       }
     },
     {
-      "id": "w_flat_12",
+      "id": "w_flat_10",
       "netId": "bb1:rail-t+",
       "from": {
         "part": "MCU",
-        "terminal": "3v3"
+        "terminal": "5v"
       },
       "to": {
         "part": "VCC",

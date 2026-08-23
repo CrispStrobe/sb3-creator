@@ -8,8 +8,8 @@
       "terminals": [
         "vcc"
       ],
-      "x": 80,
-      "y": 60
+      "x": 58,
+      "y": 115
     },
     {
       "id": "GND",
@@ -18,8 +18,8 @@
       "terminals": [
         "gnd"
       ],
-      "x": 156,
-      "y": 60
+      "x": 134,
+      "y": 115
     },
     {
       "id": "MCU",
@@ -30,41 +30,6 @@
         "d12",
         "d8"
       ],
-      "seat": {
-        "boardId": "bb1",
-        "leadMap": {
-          "d1": "b3",
-          "d0": "b4",
-          "reset": "b5",
-          "gnd": "b6",
-          "d2": "b7",
-          "d3": "b8",
-          "d4": "b9",
-          "d5": "b10",
-          "d6": "b11",
-          "d7": "b12",
-          "d8": "b13",
-          "d9": "b14",
-          "d10": "b15",
-          "d11": "b16",
-          "d12": "b17",
-          "vin": "f3",
-          "gnd2": "f4",
-          "reset2": "f5",
-          "5v": "f6",
-          "a7": "f7",
-          "a6": "f8",
-          "a5": "f9",
-          "a4": "f10",
-          "a3": "f11",
-          "a2": "f12",
-          "a1": "f13",
-          "a0": "f14",
-          "aref": "f15",
-          "3v3": "f16",
-          "d13": "f17"
-        }
-      },
       "x": 64,
       "y": 269
     },
@@ -86,16 +51,8 @@
         "q6",
         "q7"
       ],
-      "seat": {
-        "boardId": "bb2",
-        "leadMap": {
-          "data": "e3",
-          "clock": "e4",
-          "latch": "f3"
-        }
-      },
-      "x": 64,
-      "y": 671
+      "x": 358,
+      "y": 311
     },
     {
       "id": "R_595_q0",
@@ -107,14 +64,7 @@
         "a",
         "b"
       ],
-      "seat": {
-        "boardId": "bb1",
-        "leadMap": {
-          "a": "a21",
-          "b": "a25"
-        }
-      },
-      "x": 316,
+      "x": 526,
       "y": 255
     },
     {
@@ -128,14 +78,7 @@
         "anode",
         "cathode"
       ],
-      "seat": {
-        "boardId": "bb2",
-        "leadMap": {
-          "anode": "a8",
-          "cathode": "a9"
-        }
-      },
-      "x": 134,
+      "x": 64,
       "y": 615
     },
     {
@@ -148,14 +91,7 @@
         "a",
         "b"
       ],
-      "seat": {
-        "boardId": "bb1",
-        "leadMap": {
-          "a": "a27",
-          "b": "a31"
-        }
-      },
-      "x": 400,
+      "x": 610,
       "y": 255
     },
     {
@@ -169,14 +105,7 @@
         "anode",
         "cathode"
       ],
-      "seat": {
-        "boardId": "bb2",
-        "leadMap": {
-          "anode": "a11",
-          "cathode": "a12"
-        }
-      },
-      "x": 176,
+      "x": 120,
       "y": 615
     },
     {
@@ -189,14 +118,7 @@
         "a",
         "b"
       ],
-      "seat": {
-        "boardId": "bb1",
-        "leadMap": {
-          "a": "a33",
-          "b": "a37"
-        }
-      },
-      "x": 484,
+      "x": 694,
       "y": 255
     },
     {
@@ -210,14 +132,7 @@
         "anode",
         "cathode"
       ],
-      "seat": {
-        "boardId": "bb2",
-        "leadMap": {
-          "anode": "a14",
-          "cathode": "a15"
-        }
-      },
-      "x": 218,
+      "x": 176,
       "y": 615
     },
     {
@@ -230,14 +145,7 @@
         "a",
         "b"
       ],
-      "seat": {
-        "boardId": "bb1",
-        "leadMap": {
-          "a": "a39",
-          "b": "a43"
-        }
-      },
-      "x": 568,
+      "x": 778,
       "y": 255
     },
     {
@@ -251,14 +159,7 @@
         "anode",
         "cathode"
       ],
-      "seat": {
-        "boardId": "bb2",
-        "leadMap": {
-          "anode": "a17",
-          "cathode": "a18"
-        }
-      },
-      "x": 260,
+      "x": 232,
       "y": 615
     },
     {
@@ -271,15 +172,8 @@
         "a",
         "b"
       ],
-      "seat": {
-        "boardId": "bb1",
-        "leadMap": {
-          "a": "a45",
-          "b": "a49"
-        }
-      },
-      "x": 652,
-      "y": 255
+      "x": 526,
+      "y": 349
     },
     {
       "id": "LED_595_q4",
@@ -292,14 +186,7 @@
         "anode",
         "cathode"
       ],
-      "seat": {
-        "boardId": "bb2",
-        "leadMap": {
-          "anode": "a20",
-          "cathode": "a21"
-        }
-      },
-      "x": 302,
+      "x": 288,
       "y": 615
     },
     {
@@ -312,15 +199,8 @@
         "a",
         "b"
       ],
-      "seat": {
-        "boardId": "bb1",
-        "leadMap": {
-          "a": "a51",
-          "b": "a55"
-        }
-      },
-      "x": 736,
-      "y": 255
+      "x": 610,
+      "y": 349
     },
     {
       "id": "LED_595_q5",
@@ -333,13 +213,6 @@
         "anode",
         "cathode"
       ],
-      "seat": {
-        "boardId": "bb2",
-        "leadMap": {
-          "anode": "a23",
-          "cathode": "a24"
-        }
-      },
       "x": 344,
       "y": 615
     },
@@ -353,15 +226,8 @@
         "a",
         "b"
       ],
-      "seat": {
-        "boardId": "bb1",
-        "leadMap": {
-          "a": "a57",
-          "b": "a61"
-        }
-      },
-      "x": 820,
-      "y": 255
+      "x": 694,
+      "y": 349
     },
     {
       "id": "LED_595_q6",
@@ -374,14 +240,7 @@
         "anode",
         "cathode"
       ],
-      "seat": {
-        "boardId": "bb2",
-        "leadMap": {
-          "anode": "a26",
-          "cathode": "a27"
-        }
-      },
-      "x": 386,
+      "x": 400,
       "y": 615
     },
     {
@@ -394,14 +253,7 @@
         "a",
         "b"
       ],
-      "seat": {
-        "boardId": "bb1",
-        "leadMap": {
-          "a": "f21",
-          "b": "f25"
-        }
-      },
-      "x": 316,
+      "x": 778,
       "y": 349
     },
     {
@@ -415,14 +267,7 @@
         "anode",
         "cathode"
       ],
-      "seat": {
-        "boardId": "bb2",
-        "leadMap": {
-          "anode": "a29",
-          "cathode": "a30"
-        }
-      },
-      "x": 428,
+      "x": 456,
       "y": 615
     }
   ],
@@ -441,31 +286,7 @@
     },
     {
       "id": "w_flat_1",
-      "netId": "bb1:n-col-b21",
-      "from": {
-        "part": "R_595_q7",
-        "terminal": "a"
-      },
-      "to": {
-        "part": "SR_595",
-        "terminal": "q7"
-      }
-    },
-    {
-      "id": "w_flat_2",
-      "netId": "bb1:n-col-b25",
-      "from": {
-        "part": "LED_595_q7",
-        "terminal": "anode"
-      },
-      "to": {
-        "part": "R_595_q7",
-        "terminal": "b"
-      }
-    },
-    {
-      "id": "w_flat_3",
-      "netId": "bb1:n-col-t13",
+      "netId": "bb1:n-col-b24",
       "from": {
         "part": "MCU",
         "terminal": "d8"
@@ -476,7 +297,103 @@
       }
     },
     {
+      "id": "w_flat_2",
+      "netId": "bb1:n-col-b36",
+      "from": {
+        "part": "R_595_q4",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "SR_595",
+        "terminal": "q4"
+      }
+    },
+    {
+      "id": "w_flat_3",
+      "netId": "bb1:n-col-b40",
+      "from": {
+        "part": "LED_595_q4",
+        "terminal": "anode"
+      },
+      "to": {
+        "part": "R_595_q4",
+        "terminal": "b"
+      }
+    },
+    {
       "id": "w_flat_4",
+      "netId": "bb1:n-col-b42",
+      "from": {
+        "part": "R_595_q5",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "SR_595",
+        "terminal": "q5"
+      }
+    },
+    {
+      "id": "w_flat_5",
+      "netId": "bb1:n-col-b46",
+      "from": {
+        "part": "LED_595_q5",
+        "terminal": "anode"
+      },
+      "to": {
+        "part": "R_595_q5",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "w_flat_6",
+      "netId": "bb1:n-col-b48",
+      "from": {
+        "part": "R_595_q6",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "SR_595",
+        "terminal": "q6"
+      }
+    },
+    {
+      "id": "w_flat_7",
+      "netId": "bb1:n-col-b52",
+      "from": {
+        "part": "LED_595_q6",
+        "terminal": "anode"
+      },
+      "to": {
+        "part": "R_595_q6",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "w_flat_8",
+      "netId": "bb1:n-col-b54",
+      "from": {
+        "part": "R_595_q7",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "SR_595",
+        "terminal": "q7"
+      }
+    },
+    {
+      "id": "w_flat_9",
+      "netId": "bb1:n-col-b58",
+      "from": {
+        "part": "LED_595_q7",
+        "terminal": "anode"
+      },
+      "to": {
+        "part": "R_595_q7",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "w_flat_10",
       "netId": "bb1:n-col-t17",
       "from": {
         "part": "MCU",
@@ -488,8 +405,8 @@
       }
     },
     {
-      "id": "w_flat_5",
-      "netId": "bb1:n-col-t21",
+      "id": "w_flat_11",
+      "netId": "bb1:n-col-t36",
       "from": {
         "part": "R_595_q0",
         "terminal": "a"
@@ -500,8 +417,8 @@
       }
     },
     {
-      "id": "w_flat_6",
-      "netId": "bb1:n-col-t25",
+      "id": "w_flat_12",
+      "netId": "bb1:n-col-t40",
       "from": {
         "part": "LED_595_q0",
         "terminal": "anode"
@@ -512,8 +429,8 @@
       }
     },
     {
-      "id": "w_flat_7",
-      "netId": "bb1:n-col-t27",
+      "id": "w_flat_13",
+      "netId": "bb1:n-col-t42",
       "from": {
         "part": "R_595_q1",
         "terminal": "a"
@@ -524,8 +441,8 @@
       }
     },
     {
-      "id": "w_flat_8",
-      "netId": "bb1:n-col-t31",
+      "id": "w_flat_14",
+      "netId": "bb1:n-col-t46",
       "from": {
         "part": "LED_595_q1",
         "terminal": "anode"
@@ -536,8 +453,8 @@
       }
     },
     {
-      "id": "w_flat_9",
-      "netId": "bb1:n-col-t33",
+      "id": "w_flat_15",
+      "netId": "bb1:n-col-t48",
       "from": {
         "part": "R_595_q2",
         "terminal": "a"
@@ -548,8 +465,8 @@
       }
     },
     {
-      "id": "w_flat_10",
-      "netId": "bb1:n-col-t37",
+      "id": "w_flat_16",
+      "netId": "bb1:n-col-t52",
       "from": {
         "part": "LED_595_q2",
         "terminal": "anode"
@@ -560,8 +477,8 @@
       }
     },
     {
-      "id": "w_flat_11",
-      "netId": "bb1:n-col-t39",
+      "id": "w_flat_17",
+      "netId": "bb1:n-col-t54",
       "from": {
         "part": "R_595_q3",
         "terminal": "a"
@@ -572,86 +489,14 @@
       }
     },
     {
-      "id": "w_flat_12",
-      "netId": "bb1:n-col-t43",
+      "id": "w_flat_18",
+      "netId": "bb1:n-col-t58",
       "from": {
         "part": "LED_595_q3",
         "terminal": "anode"
       },
       "to": {
         "part": "R_595_q3",
-        "terminal": "b"
-      }
-    },
-    {
-      "id": "w_flat_13",
-      "netId": "bb1:n-col-t45",
-      "from": {
-        "part": "R_595_q4",
-        "terminal": "a"
-      },
-      "to": {
-        "part": "SR_595",
-        "terminal": "q4"
-      }
-    },
-    {
-      "id": "w_flat_14",
-      "netId": "bb1:n-col-t49",
-      "from": {
-        "part": "LED_595_q4",
-        "terminal": "anode"
-      },
-      "to": {
-        "part": "R_595_q4",
-        "terminal": "b"
-      }
-    },
-    {
-      "id": "w_flat_15",
-      "netId": "bb1:n-col-t51",
-      "from": {
-        "part": "R_595_q5",
-        "terminal": "a"
-      },
-      "to": {
-        "part": "SR_595",
-        "terminal": "q5"
-      }
-    },
-    {
-      "id": "w_flat_16",
-      "netId": "bb1:n-col-t55",
-      "from": {
-        "part": "LED_595_q5",
-        "terminal": "anode"
-      },
-      "to": {
-        "part": "R_595_q5",
-        "terminal": "b"
-      }
-    },
-    {
-      "id": "w_flat_17",
-      "netId": "bb1:n-col-t57",
-      "from": {
-        "part": "R_595_q6",
-        "terminal": "a"
-      },
-      "to": {
-        "part": "SR_595",
-        "terminal": "q6"
-      }
-    },
-    {
-      "id": "w_flat_18",
-      "netId": "bb1:n-col-t61",
-      "from": {
-        "part": "LED_595_q6",
-        "terminal": "anode"
-      },
-      "to": {
-        "part": "R_595_q6",
         "terminal": "b"
       }
     },
@@ -771,40 +616,16 @@
         "terminal": "gnd"
       },
       "to": {
-        "part": "MCU",
-        "terminal": "gnd2"
-      }
-    },
-    {
-      "id": "w_flat_29",
-      "netId": "bb1:rail-b-",
-      "from": {
-        "part": "GND",
-        "terminal": "gnd"
-      },
-      "to": {
         "part": "SR_595",
         "terminal": "oe"
       }
     },
     {
-      "id": "w_flat_30",
+      "id": "w_flat_29",
       "netId": "bb1:rail-t+",
       "from": {
-        "part": "MCU",
-        "terminal": "3v3"
-      },
-      "to": {
         "part": "MCU",
         "terminal": "5v"
-      }
-    },
-    {
-      "id": "w_flat_31",
-      "netId": "bb1:rail-t+",
-      "from": {
-        "part": "MCU",
-        "terminal": "3v3"
       },
       "to": {
         "part": "VCC",

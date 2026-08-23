@@ -35,11 +35,35 @@ const bounds = (part, width, height) => ({
 const overlaps = (a, b) => a.minX < b.maxX && a.maxX > b.minX &&
   a.minY < b.maxY && a.maxY > b.minY;
 
+// `circuit-flat.*.json` is a BOARD-FREE twin of the circuit beside it: the
+// breadboard removed and its connections re-expressed as part-to-part wires.
+// Both gates below assert a BOARD invariant — finite, non-overlapping, powered
+// boards, and seated bodies disjoint in rendered geometry — so matching a
+// board-free file applies an invariant where it cannot apply. That is the same
+// false positive widening the bench-invariants glob once produced. Excluded by
+// name, at both glob sites.
+const isFlatTwin = (file) => path.basename(file).startsWith('circuit-flat');
+const benchFiles = () => fs.globSync('examples/*/circuit*.json').filter(f => !isFlatTwin(f));
+
+// The exclusion is load-bearing in both directions, so it is asserted rather
+// than trusted: it must actually drop the flat twins, and it must not quietly
+// drop everything and leave the two gates below passing over an empty list.
+test('bench file list excludes flat twins without emptying itself', () => {
+  const all = fs.globSync('examples/*/circuit*.json');
+  const kept = benchFiles();
+  const flat = all.filter(isFlatTwin);
+  assert.ok(flat.length > 0,
+    'no circuit-flat.* files found — if the twins were renamed, this exclusion is stale');
+  assert.deepEqual(kept.filter(isFlatTwin), [], 'a flat twin survived the filter');
+  assert.equal(kept.length, all.length - flat.length, 'filter dropped something other than flat twins');
+  assert.ok(kept.length > 900, `only ${kept.length} bench files left — the filter is too broad`);
+});
+
 test('all controller benches have finite, non-overlapping, powered boards', () => {
   const failures = [];
   // Include authored circuit.json as well as generated device variants.
   // The old suffix-only glob let legacy primary boards overlap forever.
-  const files = fs.globSync('examples/*/circuit*.json');
+  const files = benchFiles();
   for (const file of files) {
     const circuit = JSON.parse(fs.readFileSync(file, 'utf8'));
     for (const part of circuit.parts || []) {
@@ -91,7 +115,7 @@ test('all generated seated component bodies are disjoint in rendered geometry', 
   const {resolveSeatedParts} = await import(path.join(cui, 'src/interaction/seat-geometry.js'));
   const {partBounds} = await import(path.join(cui, 'src/interaction/hittest.js'));
   const failures = [];
-  for (const file of fs.globSync('examples/*/circuit*.json')) {
+  for (const file of benchFiles()) {
     // Device variants are wholly generated and therefore held to exact body
     // packing. Primary circuit.json also contains compact, hand-authored
     // teaching layouts whose bent leads deliberately cross coarse AABBs.

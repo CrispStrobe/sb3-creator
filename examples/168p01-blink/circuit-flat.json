@@ -5,8 +5,11 @@
       "id": "gnd1",
       "kind": "gnd",
       "params": {},
-      "x": 80,
-      "y": 60
+      "terminals": [
+        "gnd"
+      ],
+      "x": 58,
+      "y": 115
     },
     {
       "id": "r1",
@@ -14,14 +17,11 @@
       "params": {
         "ohms": 220
       },
-      "seat": {
-        "boardId": "bb1",
-        "leadMap": {
-          "a": "a20",
-          "b": "a24"
-        }
-      },
-      "x": 302,
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 64,
       "y": 255
     },
     {
@@ -31,14 +31,11 @@
         "color": "green",
         "vf": 2.1
       },
-      "seat": {
-        "boardId": "bb1",
-        "leadMap": {
-          "anode": "a26",
-          "cathode": "a27"
-        }
-      },
-      "x": 386,
+      "terminals": [
+        "anode",
+        "cathode"
+      ],
+      "x": 148,
       "y": 255
     },
     {
@@ -49,45 +46,29 @@
           "D13"
         ]
       },
-      "seat": {
-        "boardId": "bb1",
-        "leadMap": {
-          "D0": "a3",
-          "D1": "a4",
-          "D2": "a5",
-          "D3": "a6",
-          "D4": "a7",
-          "D5": "a8",
-          "D6": "a9",
-          "D7": "a10",
-          "D8": "a11",
-          "D9": "a12",
-          "D10": "a13",
-          "D11": "a14",
-          "D12": "a15",
-          "D13": "a16"
-        }
-      },
-      "x": 64,
-      "y": 255
+      "terminals": [
+        "gnd2"
+      ],
+      "x": 316,
+      "y": -12
     }
   ],
   "wires": [
     {
       "id": "w_flat_0",
-      "netId": "bb1:n-col-t16",
+      "netId": "bb1:n-col-t10",
       "from": {
         "part": "led1",
-        "terminal": "anode"
+        "terminal": "cathode"
       },
       "to": {
-        "part": "mcu1",
-        "terminal": "d13"
+        "part": "r1",
+        "terminal": "a"
       }
     },
     {
       "id": "w_flat_1",
-      "netId": "bb1:n-col-t16",
+      "netId": "bb1:n-col-t9",
       "from": {
         "part": "led1",
         "terminal": "anode"
@@ -99,14 +80,14 @@
     },
     {
       "id": "w_flat_2",
-      "netId": "bb1:n-col-t20",
+      "netId": "bb1:rail-b-",
       "from": {
-        "part": "led1",
-        "terminal": "cathode"
+        "part": "gnd1",
+        "terminal": "gnd"
       },
       "to": {
-        "part": "r1",
-        "terminal": "a"
+        "part": "mcu1",
+        "terminal": "gnd2"
       }
     },
     {

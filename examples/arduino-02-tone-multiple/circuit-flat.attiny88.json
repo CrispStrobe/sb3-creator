@@ -5,53 +5,71 @@
       "id": "board",
       "kind": "attiny88",
       "params": {},
-      "rotation": 0,
-      "x": 80,
-      "y": -60
+      "terminals": [
+        "pc6",
+        "pd0",
+        "pd1",
+        "pd2",
+        "pd3",
+        "pd4",
+        "vcc",
+        "gnd",
+        "pb6",
+        "pb7",
+        "pd5",
+        "pd6",
+        "pd7",
+        "pb0",
+        "pb1",
+        "pb2",
+        "pb3",
+        "pb4",
+        "pb5",
+        "avcc",
+        "pa0",
+        "pc0",
+        "pc1",
+        "pc2",
+        "pc3",
+        "pc4",
+        "pc5",
+        "pc7"
+      ],
+      "x": 64,
+      "y": 349,
+      "rotation": 0
     },
     {
       "id": "buz1",
       "kind": "buzzer",
-      "declName": "spk1",
       "params": {},
-      "seat": {
-        "boardId": "bb1",
-        "leadMap": {
-          "a": "a20",
-          "b": "a22"
-        }
-      },
-      "x": 302,
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 316,
       "y": 255
     },
     {
       "id": "buz2",
       "kind": "buzzer",
-      "declName": "spk2",
       "params": {},
-      "seat": {
-        "boardId": "bb1",
-        "leadMap": {
-          "a": "a24",
-          "b": "a26"
-        }
-      },
-      "x": 358,
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 386,
       "y": 255
     },
     {
       "id": "buz3",
       "kind": "buzzer",
-      "declName": "spk3",
       "params": {},
-      "seat": {
-        "boardId": "bb1",
-        "leadMap": {
-          "a": "a28",
-          "b": "a30"
-        }
-      },
-      "x": 414,
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 456,
       "y": 255
     },
     {
@@ -60,21 +78,27 @@
       "params": {
         "volts": 5
       },
-      "x": 80,
-      "y": 60
+      "terminals": [
+        "vcc"
+      ],
+      "x": 58,
+      "y": 115
     },
     {
       "id": "gnd1",
       "kind": "gnd",
       "params": {},
-      "x": 220,
-      "y": 60
+      "terminals": [
+        "gnd"
+      ],
+      "x": 134,
+      "y": 115
     }
   ],
   "wires": [
     {
       "id": "w_flat_0",
-      "netId": "bb1:n-col-t20",
+      "netId": "bb1:n-col-b16",
       "from": {
         "part": "board",
         "terminal": "pb0"
@@ -86,55 +110,7 @@
     },
     {
       "id": "w_flat_1",
-      "netId": "bb1:n-col-t22",
-      "from": {
-        "part": "board",
-        "terminal": "gnd"
-      },
-      "to": {
-        "part": "buz1",
-        "terminal": "b"
-      }
-    },
-    {
-      "id": "w_flat_2",
-      "netId": "bb1:n-col-t22",
-      "from": {
-        "part": "board",
-        "terminal": "gnd"
-      },
-      "to": {
-        "part": "buz2",
-        "terminal": "b"
-      }
-    },
-    {
-      "id": "w_flat_3",
-      "netId": "bb1:n-col-t22",
-      "from": {
-        "part": "board",
-        "terminal": "gnd"
-      },
-      "to": {
-        "part": "buz3",
-        "terminal": "b"
-      }
-    },
-    {
-      "id": "w_flat_4",
-      "netId": "bb1:n-col-t22",
-      "from": {
-        "part": "board",
-        "terminal": "gnd"
-      },
-      "to": {
-        "part": "gnd1",
-        "terminal": "gnd"
-      }
-    },
-    {
-      "id": "w_flat_5",
-      "netId": "bb1:n-col-t24",
+      "netId": "bb1:n-col-t26",
       "from": {
         "part": "board",
         "terminal": "pb1"
@@ -145,8 +121,8 @@
       }
     },
     {
-      "id": "w_flat_6",
-      "netId": "bb1:n-col-t28",
+      "id": "w_flat_2",
+      "netId": "bb1:n-col-t31",
       "from": {
         "part": "board",
         "terminal": "pb2"
@@ -157,11 +133,71 @@
       }
     },
     {
-      "id": "w_flat_7",
-      "netId": "net-lgc-5",
+      "id": "w_flat_3",
+      "netId": "bb1:rail-b-",
       "from": {
         "part": "board",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "buz1",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "w_flat_4",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "board",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "buz2",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "w_flat_5",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "board",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "buz3",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "w_flat_6",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "board",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "gnd1",
+        "terminal": "gnd"
+      }
+    },
+    {
+      "id": "w_flat_7",
+      "netId": "bb1:rail-t+",
+      "from": {
+        "part": "board",
+        "terminal": "avcc"
+      },
+      "to": {
+        "part": "board",
         "terminal": "vcc"
+      }
+    },
+    {
+      "id": "w_flat_8",
+      "netId": "bb1:rail-t+",
+      "from": {
+        "part": "board",
+        "terminal": "avcc"
       },
       "to": {
         "part": "vcc1",
@@ -170,5 +206,5 @@
     }
   ],
   "holeWires": [],
-  "generated": "benchFor+authored"
+  "generated": "benchFor+authored+seat"
 }

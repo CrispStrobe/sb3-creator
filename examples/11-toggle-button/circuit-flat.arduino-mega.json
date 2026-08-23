@@ -8,8 +8,8 @@
       "terminals": [
         "vcc"
       ],
-      "x": 80,
-      "y": 60
+      "x": 58,
+      "y": 115
     },
     {
       "id": "GND",
@@ -18,8 +18,8 @@
       "terminals": [
         "gnd"
       ],
-      "x": 156,
-      "y": 60
+      "x": 134,
+      "y": 115
     },
     {
       "id": "MCU",
@@ -27,10 +27,12 @@
       "params": {},
       "terminals": [
         "d2",
-        "d13"
+        "d13",
+        "5v",
+        "gnd2"
       ],
-      "x": 232,
-      "y": 60
+      "x": 475,
+      "y": -5
     },
     {
       "id": "R_PU_btn",
@@ -42,33 +44,18 @@
         "a",
         "b"
       ],
-      "seat": {
-        "boardId": "bb1",
-        "leadMap": {
-          "a": "a3",
-          "b": "a7"
-        }
-      },
       "x": 64,
       "y": 255
     },
     {
       "id": "BTN_btn",
       "kind": "button",
-      "declName": "btn",
       "params": {},
       "terminals": [
         "a",
         "b"
       ],
-      "seat": {
-        "boardId": "bb1",
-        "leadMap": {
-          "a": "e18",
-          "b": "f18"
-        }
-      },
-      "x": 274,
+      "x": 232,
       "y": 311
     },
     {
@@ -81,20 +68,12 @@
         "a",
         "b"
       ],
-      "seat": {
-        "boardId": "bb1",
-        "leadMap": {
-          "a": "a9",
-          "b": "a13"
-        }
-      },
       "x": 148,
       "y": 255
     },
     {
       "id": "LED_led1",
       "kind": "led",
-      "declName": "led1",
       "params": {
         "vf": 2,
         "color": "red"
@@ -103,14 +82,7 @@
         "anode",
         "cathode"
       ],
-      "seat": {
-        "boardId": "bb1",
-        "leadMap": {
-          "anode": "a15",
-          "cathode": "a16"
-        }
-      },
-      "x": 232,
+      "x": 316,
       "y": 255
     }
   ],
@@ -129,7 +101,7 @@
     },
     {
       "id": "w_flat_1",
-      "netId": "bb1:n-col-t18",
+      "netId": "bb1:n-col-t15",
       "from": {
         "part": "BTN_btn",
         "terminal": "a"
@@ -141,7 +113,7 @@
     },
     {
       "id": "w_flat_2",
-      "netId": "bb1:n-col-t18",
+      "netId": "bb1:n-col-t15",
       "from": {
         "part": "BTN_btn",
         "terminal": "a"
@@ -189,10 +161,34 @@
     },
     {
       "id": "w_flat_6",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "BTN_btn",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "MCU",
+        "terminal": "gnd2"
+      }
+    },
+    {
+      "id": "w_flat_7",
       "netId": "bb1:rail-t+",
       "from": {
+        "part": "MCU",
+        "terminal": "5v"
+      },
+      "to": {
         "part": "R_PU_btn",
         "terminal": "a"
+      }
+    },
+    {
+      "id": "w_flat_8",
+      "netId": "bb1:rail-t+",
+      "from": {
+        "part": "MCU",
+        "terminal": "5v"
       },
       "to": {
         "part": "VCC",

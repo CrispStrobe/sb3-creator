@@ -5,53 +5,87 @@
       "id": "board",
       "kind": "pi_pico",
       "params": {},
-      "rotation": 0,
-      "x": 80,
-      "y": -60
+      "terminals": [
+        "gp0",
+        "gp1",
+        "gp2",
+        "gp3",
+        "gp4",
+        "gp5",
+        "gp6",
+        "gp7",
+        "gp8",
+        "gp9",
+        "gp10",
+        "gp11",
+        "gp12",
+        "gp13",
+        "gp14",
+        "gp15",
+        "gp16",
+        "gp17",
+        "gp18",
+        "gp19",
+        "gp20",
+        "gp21",
+        "gp22",
+        "gp25",
+        "gp26",
+        "gp27",
+        "gp28",
+        "vbus",
+        "vsys",
+        "3v3",
+        "3v3_en",
+        "adc_vref",
+        "gnd_1",
+        "gnd_2",
+        "gnd_3",
+        "gnd_4",
+        "gnd_5",
+        "gnd_6",
+        "gnd_7",
+        "agnd",
+        "swd_gnd",
+        "run",
+        "swclk",
+        "swdio"
+      ],
+      "x": 64,
+      "y": 255,
+      "rotation": 0
     },
     {
       "id": "buz1",
       "kind": "buzzer",
-      "declName": "spk1",
       "params": {},
-      "seat": {
-        "boardId": "bb1",
-        "leadMap": {
-          "a": "a20",
-          "b": "a22"
-        }
-      },
-      "x": 302,
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 400,
       "y": 255
     },
     {
       "id": "buz2",
       "kind": "buzzer",
-      "declName": "spk2",
       "params": {},
-      "seat": {
-        "boardId": "bb1",
-        "leadMap": {
-          "a": "a24",
-          "b": "a26"
-        }
-      },
-      "x": 358,
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 470,
       "y": 255
     },
     {
       "id": "buz3",
       "kind": "buzzer",
-      "declName": "spk3",
       "params": {},
-      "seat": {
-        "boardId": "bb1",
-        "leadMap": {
-          "a": "a28",
-          "b": "a30"
-        }
-      },
-      "x": 414,
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 540,
       "y": 255
     },
     {
@@ -60,93 +94,27 @@
       "params": {
         "volts": 5
       },
-      "x": 80,
-      "y": 60
+      "terminals": [
+        "vcc"
+      ],
+      "x": 58,
+      "y": 115
     },
     {
       "id": "gnd1",
       "kind": "gnd",
       "params": {},
-      "x": 220,
-      "y": 60
+      "terminals": [
+        "gnd"
+      ],
+      "x": 134,
+      "y": 115
     }
   ],
   "wires": [
     {
       "id": "w_flat_0",
-      "netId": "bb1:n-col-t20",
-      "from": {
-        "part": "board",
-        "terminal": "gp25"
-      },
-      "to": {
-        "part": "buz1",
-        "terminal": "a"
-      }
-    },
-    {
-      "id": "w_flat_1",
-      "netId": "bb1:n-col-t22",
-      "from": {
-        "part": "board",
-        "terminal": "gnd_1"
-      },
-      "to": {
-        "part": "buz1",
-        "terminal": "b"
-      }
-    },
-    {
-      "id": "w_flat_2",
-      "netId": "bb1:n-col-t22",
-      "from": {
-        "part": "board",
-        "terminal": "gnd_1"
-      },
-      "to": {
-        "part": "buz2",
-        "terminal": "b"
-      }
-    },
-    {
-      "id": "w_flat_3",
-      "netId": "bb1:n-col-t22",
-      "from": {
-        "part": "board",
-        "terminal": "gnd_1"
-      },
-      "to": {
-        "part": "buz3",
-        "terminal": "b"
-      }
-    },
-    {
-      "id": "w_flat_4",
-      "netId": "bb1:n-col-t22",
-      "from": {
-        "part": "board",
-        "terminal": "gnd_1"
-      },
-      "to": {
-        "part": "gnd1",
-        "terminal": "gnd"
-      }
-    },
-    {
-      "id": "w_flat_5",
-      "netId": "bb1:n-col-t24",
-      "from": {
-        "part": "board",
-        "terminal": "gp15"
-      },
-      "to": {
-        "part": "buz2",
-        "terminal": "a"
-      }
-    },
-    {
-      "id": "w_flat_6",
-      "netId": "bb1:n-col-t28",
+      "netId": "bb1:n-col-t21",
       "from": {
         "part": "board",
         "terminal": "gp14"
@@ -157,11 +125,95 @@
       }
     },
     {
-      "id": "w_flat_7",
-      "netId": "net-lgc-5",
+      "id": "w_flat_1",
+      "netId": "bb1:n-col-t22",
       "from": {
         "part": "board",
+        "terminal": "gp15"
+      },
+      "to": {
+        "part": "buz2",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "w_flat_2",
+      "netId": "bb1:n-col-t27",
+      "from": {
+        "part": "board",
+        "terminal": "gp25"
+      },
+      "to": {
+        "part": "buz1",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "w_flat_3",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "board",
+        "terminal": "gnd_1"
+      },
+      "to": {
+        "part": "buz1",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "w_flat_4",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "board",
+        "terminal": "gnd_1"
+      },
+      "to": {
+        "part": "buz2",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "w_flat_5",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "board",
+        "terminal": "gnd_1"
+      },
+      "to": {
+        "part": "buz3",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "w_flat_6",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "board",
+        "terminal": "gnd_1"
+      },
+      "to": {
+        "part": "gnd1",
+        "terminal": "gnd"
+      }
+    },
+    {
+      "id": "w_flat_7",
+      "netId": "bb1:rail-t+",
+      "from": {
+        "part": "board",
+        "terminal": "vbus"
+      },
+      "to": {
+        "part": "board",
         "terminal": "vsys"
+      }
+    },
+    {
+      "id": "w_flat_8",
+      "netId": "bb1:rail-t+",
+      "from": {
+        "part": "board",
+        "terminal": "vbus"
       },
       "to": {
         "part": "vcc1",
@@ -170,5 +222,5 @@
     }
   ],
   "holeWires": [],
-  "generated": "benchFor+authored"
+  "generated": "benchFor+authored+seat"
 }

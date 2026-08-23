@@ -5,6 +5,9 @@
       "id": "gnd1",
       "kind": "gnd",
       "params": {},
+      "terminals": [
+        "gnd"
+      ],
       "x": 80,
       "y": 60
     },
@@ -14,14 +17,11 @@
       "params": {
         "ohms": 10000
       },
-      "seat": {
-        "boardId": "bb1",
-        "leadMap": {
-          "a": "a3",
-          "wiper": "a5",
-          "b": "a7"
-        }
-      },
+      "terminals": [
+        "a",
+        "wiper",
+        "b"
+      ],
       "x": 64,
       "y": 255
     },
@@ -29,6 +29,9 @@
       "id": "vcc1",
       "kind": "vcc",
       "params": {},
+      "terminals": [
+        "vcc"
+      ],
       "x": 220,
       "y": 60
     },
@@ -40,8 +43,88 @@
           "A9"
         ]
       },
-      "x": 360,
-      "y": 60
+      "terminals": [
+        "d0",
+        "d1",
+        "d2",
+        "d3",
+        "d4",
+        "d5",
+        "d6",
+        "d7",
+        "d8",
+        "d9",
+        "d10",
+        "d11",
+        "d12",
+        "d13",
+        "gnd",
+        "aref",
+        "d14",
+        "d15",
+        "d16",
+        "d17",
+        "d18",
+        "d19",
+        "d20",
+        "d21",
+        "reset",
+        "3v3",
+        "5v",
+        "gnd2",
+        "gnd3",
+        "vin",
+        "a0",
+        "a1",
+        "a2",
+        "a3",
+        "a4",
+        "a5",
+        "a6",
+        "a7",
+        "a8",
+        "a9",
+        "a10",
+        "a11",
+        "a12",
+        "a13",
+        "a14",
+        "a15",
+        "d22",
+        "d23",
+        "d24",
+        "d25",
+        "d26",
+        "d27",
+        "d28",
+        "d29",
+        "d30",
+        "d31",
+        "d32",
+        "d33",
+        "d34",
+        "d35",
+        "d36",
+        "d37",
+        "d38",
+        "d39",
+        "d40",
+        "d41",
+        "d42",
+        "d43",
+        "d44",
+        "d45",
+        "d46",
+        "d47",
+        "d48",
+        "d49",
+        "d50",
+        "d51",
+        "d52",
+        "d53"
+      ],
+      "x": 470,
+      "y": -5
     }
   ],
   "wires": [
@@ -65,16 +148,40 @@
         "terminal": "gnd"
       },
       "to": {
+        "part": "mcu1",
+        "terminal": "gnd2"
+      }
+    },
+    {
+      "id": "w_flat_2",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "gnd1",
+        "terminal": "gnd"
+      },
+      "to": {
         "part": "pot1",
         "terminal": "b"
       }
     },
     {
-      "id": "w_flat_2",
+      "id": "w_flat_3",
       "netId": "bb1:rail-t+",
       "from": {
+        "part": "mcu1",
+        "terminal": "5v"
+      },
+      "to": {
         "part": "pot1",
         "terminal": "a"
+      }
+    },
+    {
+      "id": "w_flat_4",
+      "netId": "bb1:rail-t+",
+      "from": {
+        "part": "mcu1",
+        "terminal": "5v"
       },
       "to": {
         "part": "vcc1",

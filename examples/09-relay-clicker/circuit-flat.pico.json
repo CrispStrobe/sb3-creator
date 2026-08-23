@@ -8,8 +8,8 @@
       "terminals": [
         "vcc"
       ],
-      "x": 80,
-      "y": 60
+      "x": 58,
+      "y": 115
     },
     {
       "id": "GND",
@@ -18,8 +18,8 @@
       "terminals": [
         "gnd"
       ],
-      "x": 156,
-      "y": 60
+      "x": 134,
+      "y": 115
     },
     {
       "id": "MCU",
@@ -29,51 +29,6 @@
         "gp25",
         "gp15"
       ],
-      "seat": {
-        "boardId": "bb1",
-        "leadMap": {
-          "gp0": "a3",
-          "gp1": "a4",
-          "gnd_1": "a5",
-          "gp2": "a6",
-          "gp3": "a7",
-          "gp4": "a8",
-          "gp5": "a9",
-          "gnd_2": "a10",
-          "gp6": "a11",
-          "gp7": "a12",
-          "gp8": "a13",
-          "gp9": "a14",
-          "gnd_3": "a15",
-          "gp10": "a16",
-          "gp11": "a17",
-          "gp12": "a18",
-          "gp13": "a19",
-          "gnd_4": "a20",
-          "gp14": "a21",
-          "gp15": "a22",
-          "vbus": "f3",
-          "vsys": "f4",
-          "gnd_5": "f5",
-          "3v3_en": "f6",
-          "3v3": "f7",
-          "adc_vref": "f8",
-          "gp28": "f9",
-          "agnd": "f10",
-          "gp27": "f11",
-          "gp26": "f12",
-          "run": "f13",
-          "gp22": "f14",
-          "gnd_6": "f15",
-          "gp21": "f16",
-          "gp20": "f17",
-          "gp19": "f18",
-          "gp18": "f19",
-          "gnd_7": "f20",
-          "gp17": "f21",
-          "gp16": "f22"
-        }
-      },
       "x": 64,
       "y": 255
     },
@@ -87,14 +42,7 @@
         "a",
         "b"
       ],
-      "seat": {
-        "boardId": "bb1",
-        "leadMap": {
-          "a": "a33",
-          "b": "a37"
-        }
-      },
-      "x": 484,
+      "x": 498,
       "y": 255
     },
     {
@@ -106,15 +54,7 @@
         "collector",
         "emitter"
       ],
-      "seat": {
-        "boardId": "bb1",
-        "leadMap": {
-          "emitter": "a45",
-          "base": "a46",
-          "collector": "a47"
-        }
-      },
-      "x": 652,
+      "x": 666,
       "y": 255
     },
     {
@@ -128,17 +68,20 @@
         "nc",
         "no"
       ],
-      "seat": {
-        "boardId": "bb1",
-        "leadMap": {
-          "coil_a": "a26",
-          "coil_b": "a27",
-          "no": "a29",
-          "com": "a30",
-          "nc": "a31"
-        }
+      "x": 400,
+      "y": 255
+    },
+    {
+      "id": "D_relay_ctrl",
+      "kind": "diode",
+      "params": {
+        "vf": 0.7
       },
-      "x": 386,
+      "terminals": [
+        "anode",
+        "cathode"
+      ],
+      "x": 736,
       "y": 255
     },
     {
@@ -151,20 +94,12 @@
         "a",
         "b"
       ],
-      "seat": {
-        "boardId": "bb1",
-        "leadMap": {
-          "a": "a39",
-          "b": "a43"
-        }
-      },
-      "x": 568,
+      "x": 582,
       "y": 255
     },
     {
       "id": "LED_led1",
       "kind": "led",
-      "declName": "led1",
       "params": {
         "vf": 2,
         "color": "red"
@@ -173,14 +108,7 @@
         "anode",
         "cathode"
       ],
-      "seat": {
-        "boardId": "bb1",
-        "leadMap": {
-          "anode": "a49",
-          "cathode": "a50"
-        }
-      },
-      "x": 708,
+      "x": 806,
       "y": 255
     }
   ],
@@ -199,10 +127,22 @@
     },
     {
       "id": "w_flat_1",
-      "netId": "bb1:n-col-t27",
+      "netId": "bb1:n-col-t28",
       "from": {
+        "part": "D_relay_ctrl",
+        "terminal": "anode"
+      },
+      "to": {
         "part": "Q_relay_ctrl",
         "terminal": "collector"
+      }
+    },
+    {
+      "id": "w_flat_2",
+      "netId": "bb1:n-col-t28",
+      "from": {
+        "part": "D_relay_ctrl",
+        "terminal": "anode"
       },
       "to": {
         "part": "RELAY_relay_ctrl",
@@ -210,8 +150,8 @@
       }
     },
     {
-      "id": "w_flat_2",
-      "netId": "bb1:n-col-t33",
+      "id": "w_flat_3",
+      "netId": "bb1:n-col-t34",
       "from": {
         "part": "MCU",
         "terminal": "gp25"
@@ -222,8 +162,8 @@
       }
     },
     {
-      "id": "w_flat_3",
-      "netId": "bb1:n-col-t37",
+      "id": "w_flat_4",
+      "netId": "bb1:n-col-t38",
       "from": {
         "part": "Q_relay_ctrl",
         "terminal": "base"
@@ -234,8 +174,8 @@
       }
     },
     {
-      "id": "w_flat_4",
-      "netId": "bb1:n-col-t43",
+      "id": "w_flat_5",
+      "netId": "bb1:n-col-t44",
       "from": {
         "part": "LED_led1",
         "terminal": "anode"
@@ -246,7 +186,7 @@
       }
     },
     {
-      "id": "w_flat_5",
+      "id": "w_flat_6",
       "netId": "bb1:rail-b-",
       "from": {
         "part": "GND",
@@ -258,7 +198,7 @@
       }
     },
     {
-      "id": "w_flat_6",
+      "id": "w_flat_7",
       "netId": "bb1:rail-b-",
       "from": {
         "part": "GND",
@@ -270,43 +210,7 @@
       }
     },
     {
-      "id": "w_flat_7",
-      "netId": "bb1:rail-b-",
-      "from": {
-        "part": "GND",
-        "terminal": "gnd"
-      },
-      "to": {
-        "part": "MCU",
-        "terminal": "gnd_2"
-      }
-    },
-    {
       "id": "w_flat_8",
-      "netId": "bb1:rail-b-",
-      "from": {
-        "part": "GND",
-        "terminal": "gnd"
-      },
-      "to": {
-        "part": "MCU",
-        "terminal": "gnd_3"
-      }
-    },
-    {
-      "id": "w_flat_9",
-      "netId": "bb1:rail-b-",
-      "from": {
-        "part": "GND",
-        "terminal": "gnd"
-      },
-      "to": {
-        "part": "MCU",
-        "terminal": "gnd_4"
-      }
-    },
-    {
-      "id": "w_flat_10",
       "netId": "bb1:rail-b-",
       "from": {
         "part": "GND",
@@ -318,11 +222,11 @@
       }
     },
     {
-      "id": "w_flat_11",
+      "id": "w_flat_9",
       "netId": "bb1:rail-t+",
       "from": {
-        "part": "MCU",
-        "terminal": "3v3"
+        "part": "D_relay_ctrl",
+        "terminal": "cathode"
       },
       "to": {
         "part": "MCU",
@@ -330,23 +234,11 @@
       }
     },
     {
-      "id": "w_flat_12",
+      "id": "w_flat_10",
       "netId": "bb1:rail-t+",
       "from": {
-        "part": "MCU",
-        "terminal": "3v3"
-      },
-      "to": {
-        "part": "MCU",
-        "terminal": "vsys"
-      }
-    },
-    {
-      "id": "w_flat_13",
-      "netId": "bb1:rail-t+",
-      "from": {
-        "part": "MCU",
-        "terminal": "3v3"
+        "part": "D_relay_ctrl",
+        "terminal": "cathode"
       },
       "to": {
         "part": "RELAY_relay_ctrl",
@@ -354,11 +246,11 @@
       }
     },
     {
-      "id": "w_flat_14",
+      "id": "w_flat_11",
       "netId": "bb1:rail-t+",
       "from": {
-        "part": "MCU",
-        "terminal": "3v3"
+        "part": "D_relay_ctrl",
+        "terminal": "cathode"
       },
       "to": {
         "part": "VCC",

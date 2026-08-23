@@ -8,8 +8,8 @@
       "terminals": [
         "vcc"
       ],
-      "x": 80,
-      "y": 60
+      "x": 58,
+      "y": 115
     },
     {
       "id": "GND",
@@ -18,8 +18,8 @@
       "terminals": [
         "gnd"
       ],
-      "x": 156,
-      "y": 60
+      "x": 134,
+      "y": 115
     },
     {
       "id": "MCU",
@@ -27,10 +27,12 @@
       "params": {},
       "terminals": [
         "d13",
-        "a0"
+        "a0",
+        "5v",
+        "gnd2"
       ],
-      "x": 232,
-      "y": 60
+      "x": 392,
+      "y": -12
     },
     {
       "id": "R_heater",
@@ -42,20 +44,12 @@
         "a",
         "b"
       ],
-      "seat": {
-        "boardId": "bb1",
-        "leadMap": {
-          "a": "a3",
-          "b": "a7"
-        }
-      },
       "x": 64,
       "y": 255
     },
     {
       "id": "LED_heater",
       "kind": "led",
-      "declName": "heater",
       "params": {
         "vf": 2,
         "color": "red"
@@ -64,20 +58,12 @@
         "anode",
         "cathode"
       ],
-      "seat": {
-        "boardId": "bb1",
-        "leadMap": {
-          "anode": "a15",
-          "cathode": "a16"
-        }
-      },
       "x": 232,
       "y": 255
     },
     {
       "id": "POT_sensor",
       "kind": "potentiometer",
-      "declName": "sensor",
       "params": {
         "ohms": 10000
       },
@@ -86,14 +72,6 @@
         "b",
         "wiper"
       ],
-      "seat": {
-        "boardId": "bb1",
-        "leadMap": {
-          "a": "a9",
-          "wiper": "a11",
-          "b": "a13"
-        }
-      },
       "x": 148,
       "y": 255
     }
@@ -155,16 +133,40 @@
         "terminal": "gnd"
       },
       "to": {
+        "part": "MCU",
+        "terminal": "gnd2"
+      }
+    },
+    {
+      "id": "w_flat_5",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "GND",
+        "terminal": "gnd"
+      },
+      "to": {
         "part": "POT_sensor",
         "terminal": "b"
       }
     },
     {
-      "id": "w_flat_5",
+      "id": "w_flat_6",
       "netId": "bb1:rail-t+",
       "from": {
+        "part": "MCU",
+        "terminal": "5v"
+      },
+      "to": {
         "part": "POT_sensor",
         "terminal": "a"
+      }
+    },
+    {
+      "id": "w_flat_7",
+      "netId": "bb1:rail-t+",
+      "from": {
+        "part": "MCU",
+        "terminal": "5v"
       },
       "to": {
         "part": "VCC",

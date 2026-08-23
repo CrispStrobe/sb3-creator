@@ -8,8 +8,8 @@
       "terminals": [
         "vcc"
       ],
-      "x": 80,
-      "y": 60
+      "x": 58,
+      "y": 115
     },
     {
       "id": "GND",
@@ -18,8 +18,8 @@
       "terminals": [
         "gnd"
       ],
-      "x": 156,
-      "y": 60
+      "x": 134,
+      "y": 115
     },
     {
       "id": "MCU",
@@ -27,10 +27,12 @@
       "params": {},
       "terminals": [
         "d13",
-        "a0"
+        "a0",
+        "5v",
+        "gnd2"
       ],
-      "x": 232,
-      "y": 60
+      "x": 392,
+      "y": -12
     },
     {
       "id": "R_motor_pwm",
@@ -42,13 +44,6 @@
         "a",
         "b"
       ],
-      "seat": {
-        "boardId": "bb1",
-        "leadMap": {
-          "a": "a3",
-          "b": "a7"
-        }
-      },
       "x": 64,
       "y": 255
     },
@@ -61,15 +56,7 @@
         "collector",
         "emitter"
       ],
-      "seat": {
-        "boardId": "bb1",
-        "leadMap": {
-          "emitter": "a15",
-          "base": "a16",
-          "collector": "a17"
-        }
-      },
-      "x": 232,
+      "x": 316,
       "y": 255
     },
     {
@@ -80,20 +67,25 @@
         "a",
         "b"
       ],
-      "seat": {
-        "boardId": "bb1",
-        "leadMap": {
-          "a": "a19",
-          "b": "a21"
-        }
+      "x": 148,
+      "y": 255
+    },
+    {
+      "id": "D_motor_pwm",
+      "kind": "diode",
+      "params": {
+        "vf": 0.7
       },
-      "x": 288,
+      "terminals": [
+        "anode",
+        "cathode"
+      ],
+      "x": 386,
       "y": 255
     },
     {
       "id": "POT_pot",
       "kind": "potentiometer",
-      "declName": "pot",
       "params": {
         "ohms": 10000
       },
@@ -102,15 +94,7 @@
         "b",
         "wiper"
       ],
-      "seat": {
-        "boardId": "bb1",
-        "leadMap": {
-          "a": "a9",
-          "wiper": "a11",
-          "b": "a13"
-        }
-      },
-      "x": 148,
+      "x": 232,
       "y": 255
     }
   ],
@@ -118,6 +102,30 @@
     {
       "id": "w_flat_0",
       "netId": "bb1:n-col-t11",
+      "from": {
+        "part": "D_motor_pwm",
+        "terminal": "anode"
+      },
+      "to": {
+        "part": "MOTOR_motor_pwm",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "w_flat_1",
+      "netId": "bb1:n-col-t11",
+      "from": {
+        "part": "D_motor_pwm",
+        "terminal": "anode"
+      },
+      "to": {
+        "part": "Q_motor_pwm",
+        "terminal": "collector"
+      }
+    },
+    {
+      "id": "w_flat_2",
+      "netId": "bb1:n-col-t17",
       "from": {
         "part": "MCU",
         "terminal": "a0"
@@ -128,8 +136,8 @@
       }
     },
     {
-      "id": "w_flat_1",
-      "netId": "bb1:n-col-t16",
+      "id": "w_flat_3",
+      "netId": "bb1:n-col-t22",
       "from": {
         "part": "Q_motor_pwm",
         "terminal": "base"
@@ -140,19 +148,7 @@
       }
     },
     {
-      "id": "w_flat_2",
-      "netId": "bb1:n-col-t17",
-      "from": {
-        "part": "MOTOR_motor_pwm",
-        "terminal": "b"
-      },
-      "to": {
-        "part": "Q_motor_pwm",
-        "terminal": "collector"
-      }
-    },
-    {
-      "id": "w_flat_3",
+      "id": "w_flat_4",
       "netId": "bb1:n-col-t3",
       "from": {
         "part": "MCU",
@@ -164,7 +160,19 @@
       }
     },
     {
-      "id": "w_flat_4",
+      "id": "w_flat_5",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "GND",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "MCU",
+        "terminal": "gnd2"
+      }
+    },
+    {
+      "id": "w_flat_6",
       "netId": "bb1:rail-b-",
       "from": {
         "part": "GND",
@@ -176,7 +184,7 @@
       }
     },
     {
-      "id": "w_flat_5",
+      "id": "w_flat_7",
       "netId": "bb1:rail-b-",
       "from": {
         "part": "GND",
@@ -188,11 +196,35 @@
       }
     },
     {
-      "id": "w_flat_6",
+      "id": "w_flat_8",
       "netId": "bb1:rail-t+",
       "from": {
+        "part": "D_motor_pwm",
+        "terminal": "cathode"
+      },
+      "to": {
+        "part": "MCU",
+        "terminal": "5v"
+      }
+    },
+    {
+      "id": "w_flat_9",
+      "netId": "bb1:rail-t+",
+      "from": {
+        "part": "D_motor_pwm",
+        "terminal": "cathode"
+      },
+      "to": {
         "part": "MOTOR_motor_pwm",
         "terminal": "a"
+      }
+    },
+    {
+      "id": "w_flat_10",
+      "netId": "bb1:rail-t+",
+      "from": {
+        "part": "D_motor_pwm",
+        "terminal": "cathode"
       },
       "to": {
         "part": "POT_pot",
@@ -200,11 +232,11 @@
       }
     },
     {
-      "id": "w_flat_7",
+      "id": "w_flat_11",
       "netId": "bb1:rail-t+",
       "from": {
-        "part": "MOTOR_motor_pwm",
-        "terminal": "a"
+        "part": "D_motor_pwm",
+        "terminal": "cathode"
       },
       "to": {
         "part": "VCC",
