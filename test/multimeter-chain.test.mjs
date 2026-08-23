@@ -12,6 +12,7 @@ import assert from 'node:assert/strict';
 import { readFileSync, readdirSync, writeFileSync, mkdtempSync, existsSync } from 'fs';
 import { execSync } from 'child_process';
 import { join } from 'path';
+import { requireSiblings, siblingGuardTest } from './helpers/siblings.mjs';
 import { tmpdir } from 'os';
 
 const SB3 = join(import.meta.dirname, '..');
@@ -29,12 +30,31 @@ const EMU_JS = process.env.EMU8051_JS
 function sdccAvailable() {
   try { execSync('sdcc --version', { stdio: 'pipe' }); return true; } catch { return false; }
 }
-const available = sdccAvailable() && existsSync(EMU_JS)
-  && existsSync(join(CUI, 'src', 'model', 'circuit.js'))
-  && existsSync(join(BWB, 'src', 'emu8051-adapter.js'));
+// Disposition (c) of test/CROSS-REPO-GATE-AUDIT.md — DEVELOPER-ONLY, said out loud.
+//
+// The sibling half is CI-enforced like every other cross-repo gate: CI checks
+// bw-circuit-ui and bw-board out at pinned revisions, and their absence fails.
+// The toolchain half genuinely cannot run in CI: this needs sdcc AND a
+// build/emu8051.js from the emu8051-stc repo, which is an EMSCRIPTEN build. An
+// emsdk install is hundreds of megabytes for two tests, and unlike the sibling
+// checkouts there is no cheap pinned form of it. So these two stay opt-in, and
+// the skip reason says which half is missing rather than lumping them together.
+const siblingGate = requireSiblings('bw-circuit-ui', 'bw-board');
+siblingGuardTest(siblingGate, 'the emu8051 multimeter chain');
+
+const toolchainMissing = [
+  sdccAvailable() ? null : 'sdcc',
+  existsSync(EMU_JS) ? null : `an emscripten build of emu8051-stc at ${EMU_JS}`
+].filter(Boolean);
+const skipReason = siblingGate.skip ||
+  (toolchainMissing.length
+    ? `DEVELOPER-ONLY: needs ${toolchainMissing.join(' and ')}. CI does not install emsdk; ` +
+      `run these locally before changing the emu8051 chain.`
+    : false);
+const available = !skipReason;
 
 test('49-lcd-hello: the I2C LCD shows its text through the full chain',
-  { skip: available ? false : 'needs sdcc + emu8051-stc build + bw-circuit-ui/bw-board checkouts' },
+  { skip: skipReason },
   async () => {
     // The bug this guards: the bench generator retargeted even to the
     // example's AUTHORED device, canonicalizing sda/scl from P2.1/P2.2
@@ -90,7 +110,7 @@ test('49-lcd-hello: the I2C LCD shows its text through the full chain',
   });
 
 test('76-multimeter: full-chain EXPECTED values (V, A, T-degC, wrap)',
-  { skip: available ? false : 'needs sdcc + emu8051-stc build + bw-circuit-ui/bw-board checkouts' },
+  { skip: skipReason },
   async () => {
     // 1. blocks → C → hex
     const SB3Creator = (await import(join(SB3, 'src/utils/sb3Creator.js'))).default;

@@ -25,6 +25,7 @@ import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, readdirSync, existsSync } from 'fs';
 import { join } from 'path';
+import { requireSiblings, siblingGuardTest } from './helpers/siblings.mjs';
 
 const SB3 = join(import.meta.dirname, '..');
 const CUI = process.env.BW_CIRCUIT_UI || join(SB3, '..', 'bw-circuit-ui');
@@ -36,8 +37,11 @@ const EXAMPLES = join(SB3, 'examples');
 // with both siblings present. The specific modules are what bw-circuit-ui's
 // own test setup imports, and Node caches by resolved path, so they are the
 // same module instances index.js would have handed back.
-const available = existsSync(join(CUI, 'src', 'model', 'circuit.js'))
-  && existsSync(join(BWB, 'src', 'board.js'));
+// Cross-repo guard: local skip, CI failure. See test/helpers/siblings.mjs
+// and test/CROSS-REPO-GATE-AUDIT.md.
+const gate = requireSiblings('bw-circuit-ui', 'bw-board');
+siblingGuardTest(gate, 'the flat-variant net gate');
+const available = !gate.skip;
 
 /** Net partition over real terminals, alias-folded. */
 function partition(c) {
@@ -53,7 +57,7 @@ function partition(c) {
 }
 
 describe('flat variants match their breadboarded twin',
-  { skip: available ? false : 'needs bw-circuit-ui/bw-board checkouts' }, () => {
+  { skip: gate.skip }, () => {
     let Circuit;
     const pairs = [];
 

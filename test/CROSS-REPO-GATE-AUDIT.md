@@ -100,12 +100,129 @@ carries `test/extension-coverage.test.mjs` (7 tests, all running in CI) approach
 same property from the gallery's side. Both are mutation-proven —
 `scripts/mutation-prove-conformance.mjs`, 12/12, run in CI.
 
+## CLOSED, 2026-08-23 — dispositions, one per gate
+
+Every gate below now has a disposition and it is implemented. The mechanism is
+`test/helpers/siblings.mjs`: a shared guard that is **asymmetric on purpose** —
+locally an absent sibling is a skip whose message says CI covers it; in CI
+(`CI=true`) it is a **failure**, because CI is configured to have them and their
+absence means the checkout step broke and the gates just went quiet.
+
+The pins live in `test/fixtures/siblings.json`; `.github/workflows/ci.yml` checks
+each sibling out at that exact revision, and a test asserts the two agree.
+
+### (a) CI-runnable — 13 tests in 10 files
+
+| file | tests | what it needed |
+|---|---|---|
+| `bench-invariants.test.mjs` | 1 | both siblings |
+| `example-corpus-contract.test.mjs` | 1 | both |
+| `gate-integrity.test.mjs` | 1 | both |
+| `gate-canary.test.mjs` | 1 | both |
+| `js-driver-oled-chain.test.mjs` | 1 | both |
+| `gallery-e2e.test.mjs` | 6 | bw-board |
+| `assert-physics.test.mjs` | 1 | both |
+| `generated-bench-layout.test.mjs` | 1 | bw-circuit-ui |
+| `rail-short.test.mjs` | 1 | both |
+| `flat-variants.test.mjs` | 1 | both |
+| `pico-oled-chain.test.mjs` | 1 | both **+ arm-none-eabi-gcc** |
+| `ctarget.test.mjs` | 1 | bw-board |
+
+Chosen over vendoring, which is what closed the stc12 gate. The property there was
+**content** — an extension's `getInfo()` — and a pinned snapshot of content is
+exact. These consume 5.3 MB of live simulator as **behaviour**, and a snapshot of a
+simulator tests the snapshot. Pinning the revision recovers the one thing vendoring
+was for: the gates run, and this repo's verdict still does not float with another
+repo's HEAD. Both siblings are ours and permissively licensed (bw-board MIT,
+bw-circuit-ui MPL-2.0), so CI may simply clone them; a test asserts that too, because
+a pin to something copyleft — or to the ngspice/KLU/CSparse family, which may not be
+used or read — would have to be argued rather than slipped in. Neither sibling
+depends on any of that family; checked, not assumed.
+
+`pico-oled-chain` needed one extra thing, `arm-none-eabi-gcc`, which is a stock apt
+package now installed in CI. It compiles ARM C and runs it under rp2040js; measured
+standalone against the pinned siblings it **passes in 41 s**, having never once run
+in CI before.
+
+### (b) Fail-not-skip — the guard itself
+
+`ctarget.test.mjs`'s wire-protocol test was the worst shape found. It was not a skip
+at all: the bw-board import sat in a `try/catch` whose `catch` did
+`console.log(' (bw-board not found, skipping…)'); return;` — so with bw-board absent
+it reported a clean **PASS**. A wire-protocol agreement test that silently agrees
+with nothing is worse than no test. It now uses the shared guard and its import
+failure is a real failure.
+
+### (c) Developer-only, said loudly — 2 tests in 1 file
+
+`multimeter-chain.test.mjs` (`49-lcd-hello`, `76-multimeter`). Its sibling half is
+CI-enforced like every other gate; its toolchain half genuinely cannot run in CI
+without an **emscripten** build of `emu8051-stc` — hundreds of megabytes for two
+tests, and unlike a checkout there is no cheap pinned form. The skip reason now
+names which half is missing and is prefixed `DEVELOPER-ONLY:` rather than reading
+like a broken path. **These 2 are the count that still cannot fire in CI.**
+
+### Not gates — allowlisted with a reason each
+
+The detector added to `gate-integrity` flags any test file that mentions a sibling
+without using the shared guard. Four are legitimate and are listed there with why:
+`gate-integrity` itself; `circuit-json-roundtrip` (a comment only);
+`device-coverage` (reads bw-board's kinds when present, else a committed snapshot,
+and puts "(snapshot)" in the **test name** so a green run cannot be mistaken for the
+real check); and `flat-variants-manifest` (a manifest generated beside the siblings
+and committed, recording the engine repo it came from). The last two are prior,
+honest answers to this same problem and are worth knowing about.
+
+### The audit undercounted, and the detector is why
+
+This document originally said 15 tests in 9 files, measured by observing skips. That
+missed `rail-short`, `flat-variants` and `ctarget` — the first two landed in main
+after the sweep, and `ctarget`'s never appeared because it reported as a pass. The
+static detector does not depend on a gate producing an observable skip, which is why
+it is now the instrument of record. Final tally: **20 tests in 13 files**; 18
+CI-runnable, 2 developer-only.
+
+## Mutation proof
+
+`scripts/mutation-prove-conformance.mjs` now covers these too — **20/20**, run in CI.
+Seven are new and, crucially, the cross-repo ones are proven by changing the
+ENVIRONMENT rather than by editing a file: the property under test is what happens
+when the siblings are absent, so editing a file would prove the edit, not the guard.
+Both directions are proven, because a guard that failed everywhere would "catch"
+everything and be worthless:
+
+```
+RED   CI runs a cross-repo gate with no sibling checkout
+GREEN the same run on a developer box (CI unset) skips instead of failing
+GREEN the BW_ALLOW_MISSING_SIBLINGS opt-out still works in CI
+RED   ci.yml stops checking out a sibling
+RED   ci.yml pins a different revision than test/fixtures/siblings.json
+RED   a cross-repo gate drops the shared guard and rolls its own skip
+RED   a sibling is pinned to a forbidden or non-permissive licence
+```
+
+## A third instrument case: partial visibility
+
+`partialVisibility()` in `test/helpers/siblings.mjs` names the configuration that
+produces a confident wrong answer rather than an obvious one: **some** siblings
+resolving and others not. On this box `/tmp/bw-board` and `/tmp/lego` are symlinks
+into the real checkouts while `/tmp/bw-circuit-ui` does not exist, so from a
+worktree under `/tmp` a gate needing both skips while a gate needing only bw-board
+runs against a live, moving tree. Neither "all present" nor "all absent" reasoning
+covers it. Raised by bw-cui2 after hitting it.
+
+Relatedly, containment is now decided on the **real** path, not the spelling.
+`resolve()` does not follow symlinks, so a literal `/tmp` check is wrong in both
+directions — it rejects a symlinked path that lands inside this very checkout, and
+accepts one that resolves into a different tree. (Refinement from bw-lessons, who
+mutation-proved both cases.)
+
 ## Recommendation, in priority order
 
-1. **Check out `bw-board` and `bw-circuit-ui` in `ci.yml`.** Fifteen tests, including
-   both gate-integrity halves and every canary, have never run in CI. This is the
-   largest single block of unexecuted verification in the repo.
-2. **Until then, stop the count from reading as coverage.** A CI step that asserts the
-   *expected* number of skips would make a new silent skip visible immediately; today a
-   46th skip would look exactly like the 45.
-3. Leave B, C, D and E as they are; they are labelled and honest.
+1. ~~Check out the siblings in `ci.yml`~~ — **done above.**
+2. **Install `sdcc` + an emscripten build of `emu8051-stc` in CI** if the two
+   developer-only tests are ever judged worth the runner minutes. Until then they are
+   labelled, not hidden.
+3. Leave the toolchain, opt-in-oracle and environment skips as they are; they are
+   named and honest. The network-dependent `registry URL resolves:` tests still want a
+   retry — someone else's outage should not redden this build.

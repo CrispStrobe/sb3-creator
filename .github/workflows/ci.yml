@@ -30,12 +30,50 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # The sibling repositories fifteen cross-repo gates consume. Without them
+      # those gates skipped on every run since they were written, and a skip is
+      # indistinguishable from a pass in the summary line — the same defect that
+      # let the stc12 extension ship eight opcodes short for five days. The sweep
+      # is test/CROSS-REPO-GATE-AUDIT.md; the guard that now FAILS instead of
+      # skipping when these are absent is test/helpers/siblings.mjs.
+      #
+      # Pinned by revision, not tracked to a branch: the gates must run, but this
+      # repo's verdict must not float with another repo's HEAD. Both are ours and
+      # public (bw-board MIT, bw-circuit-ui MPL-2.0). Keep these `ref:` values
+      # equal to test/fixtures/siblings.json — a test asserts exactly that.
+      - name: Check out bw-board (pinned)
+        uses: actions/checkout@v4
+        with:
+          repository: CrispStrobe/bw-board
+          ref: 50c3bf7
+          path: siblings/bw-board
+
+      - name: Check out bw-circuit-ui (pinned)
+        uses: actions/checkout@v4
+        with:
+          repository: CrispStrobe/bw-circuit-ui
+          ref: d754cfc
+          path: siblings/bw-circuit-ui
+
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
 
       - run: npm ci
+
+      # bw-board drives real MCU cores through these. Without them every gate that
+      # boots a board fails on a missing package rather than on a real defect —
+      # which is what a local run without them looks like, and it is not a signal.
+      - name: Install bw-board's runtime dependencies
+        run: npm install --no-save avr8js@^0.21.0 rp2040js@^1.3.3
+
+      # arm-none-eabi-gcc is a stock apt package, so the Pico chain gate becomes
+      # CI-runnable. The emu8051 chain deliberately does NOT: it needs an
+      # emscripten build, hundreds of megabytes for two tests. That one is
+      # disposition (c), developer-only, and its skip reason says so.
+      - name: Install the ARM cross-compiler
+        run: sudo apt-get update && sudo apt-get install -y gcc-arm-none-eabi
 
       # Before the tests, because the tests cannot see this: they run against a
       # checkout that has every committed file, so an import of a file that was
@@ -49,7 +87,11 @@ jobs:
 
       - name: Unit + VM tests
         run: npm test
-        timeout-minutes: 5
+        # Raised from 5: the cross-repo gates now actually run.
+        timeout-minutes: 20
+        env:
+          BW_BOARD: ${{ github.workspace }}/siblings/bw-board
+          BW_CIRCUIT_UI: ${{ github.workspace }}/siblings/bw-circuit-ui
 
       # A gate nobody has seen fail is a gate nobody should trust, and this one
       # in particular was green for five days while the extension lite ships was

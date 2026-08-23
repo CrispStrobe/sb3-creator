@@ -13,18 +13,33 @@
 //
 //   node scripts/mutation-prove-conformance.mjs
 
-import { readFileSync, writeFileSync, existsSync, lstatSync, rmSync, renameSync } from 'node:fs';
+import { readFileSync, writeFileSync, existsSync, lstatSync, rmSync, realpathSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { resolve, dirname, join } from 'node:path';
+import { resolve, dirname, join, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const GATES = [
     join(ROOT, 'test', 'stc12-conformance.test.mjs'),
     join(ROOT, 'test', 'extension-coverage.test.mjs'),
-    join(ROOT, 'test', 'a2-sampler-behavior.test.mjs')
+    join(ROOT, 'test', 'a2-sampler-behavior.test.mjs'),
+    // The cross-repo guard and the two files that police it. Added 2026-08-23 with
+    // the fifteen-plus gates that skipped in CI — see test/CROSS-REPO-GATE-AUDIT.md.
+    join(ROOT, 'test', 'gate-integrity.test.mjs')
 ];
+
+// Cross-repo gates, proven separately: their property is about what happens when
+// the SIBLINGS are absent, so they are exercised by changing the environment
+// rather than by editing a file. Editing them would prove the edit, not the guard.
+const CROSS_REPO_GATES = [
+    'test/bench-invariants.test.mjs', 'test/gate-canary.test.mjs',
+    'test/example-corpus-contract.test.mjs', 'test/js-driver-oled-chain.test.mjs',
+    'test/gallery-e2e.test.mjs', 'test/assert-physics.test.mjs',
+    'test/generated-bench-layout.test.mjs', 'test/rail-short.test.mjs',
+    'test/flat-variants.test.mjs', 'test/pico-oled-chain.test.mjs',
+    'test/multimeter-chain.test.mjs', 'test/ctarget.test.mjs'
+].map((p) => join(ROOT, p));
 const DOWN = join(ROOT, 'test', 'fixtures', 'downstream');
 const MANIFEST = join(DOWN, 'MANIFEST.json');
 const sha256 = (t) => createHash('sha256').update(t, 'utf8').digest('hex');
@@ -40,15 +55,35 @@ function assertRealFile (path) {
             `this checkout. Refusing.`);
     }
     if (!st.isFile()) throw new Error(`instrument check: ${path} is not a regular file`);
-    if (!resolve(path).startsWith(ROOT + '/')) throw new Error(`instrument check: ${path} is outside the repo`);
+
+    // Containment is decided on the REAL path, not the spelling. `resolve()` does
+    // not follow symlinks, so with /tmp/lego -> /mnt/volume1/code/lego on this box
+    // the same file has two legitimate spellings and a literal string check gets it
+    // wrong in both directions: it would reject a path through /tmp that lands
+    // inside this very checkout, and accept one that resolves into a different
+    // tree entirely. (Refinement from bw-lessons, who mutation-proved both cases:
+    // a symlinked path back into your own worktree must PASS.)
+    const realRoot = realpathSync(ROOT);
+    const realPath = realpathSync(path);
+    if (realPath !== realRoot && !realPath.startsWith(realRoot + sep)) {
+        throw new Error(
+            `instrument check: ${path} resolves to ${realPath}, which is outside this checkout ` +
+            `(${realRoot}). Mutating it would edit another tree and the verdict would say ` +
+            `nothing about this one. Refusing.`);
+    }
 }
 
-function runGate () {
+function runGate (files = GATES, env = {}) {
     try {
-        execFileSync(process.execPath, ['--test', ...GATES], { cwd: ROOT, encoding: 'utf8', stdio: 'pipe' });
+        execFileSync(process.execPath, ['--test', ...files],
+            { cwd: ROOT, encoding: 'utf8', stdio: 'pipe', env: { ...process.env, ...env } });
         return { red: false, out: '' };
     } catch (e) { return { red: true, out: `${e.stdout || ''}${e.stderr || ''}` }; }
 }
+
+// A path that cannot exist, for proving the absent-sibling case without touching
+// whatever this machine happens to have beside the repo.
+const NOWHERE = join(ROOT, 'test', 'fixtures', '__no_such_sibling__');
 
 /** Snapshot every file a mutation may touch, so restore is exact. */
 const backups = new Map();
@@ -148,6 +183,82 @@ const MUTATIONS = [
         expect: /brandnew/
     },
     {
+        name: 'CI runs a cross-repo gate with no sibling checkout',
+        why: 'THE defect: fifteen-plus gates skipped in CI for weeks and the skip read as a pass',
+        env: true,
+        run: () => runGate(CROSS_REPO_GATES,
+            { CI: 'true', BW_BOARD: NOWHERE, BW_CIRCUIT_UI: NOWHERE, BW_ALLOW_MISSING_SIBLINGS: '' }),
+        expect: /cannot run:.*is not beside this repo|FAILURE rather than a skip/
+    },
+    {
+        name: 'the same run on a developer box (CI unset) skips instead of failing',
+        why: 'the other half of the contract — a local checkout without siblings must not be red',
+        env: true,
+        invert: true,   // this one must stay GREEN
+        run: () => runGate(CROSS_REPO_GATES,
+            { CI: '', GITHUB_ACTIONS: '', BW_BOARD: NOWHERE, BW_CIRCUIT_UI: NOWHERE }),
+        expect: /.*/
+    },
+    {
+        name: 'the BW_ALLOW_MISSING_SIBLINGS opt-out still works in CI',
+        why: 'an escape hatch nobody can use is not an escape hatch; it must be deliberate, not silent',
+        env: true,
+        invert: true,
+        run: () => runGate(CROSS_REPO_GATES,
+            { CI: 'true', BW_BOARD: NOWHERE, BW_CIRCUIT_UI: NOWHERE, BW_ALLOW_MISSING_SIBLINGS: '1' }),
+        expect: /.*/
+    },
+    {
+        name: 'ci.yml stops checking out a sibling',
+        why: 'the checkout step is what makes the gates run; losing it must be caught here',
+        apply () {
+            const f = join(ROOT, '.github', 'workflows', 'ci.yml');
+            save(f);
+            const text = readFileSync(f, 'utf8')
+                .replace(/      - name: Check out bw-circuit-ui \(pinned\)\n(?:.*\n)*?          path: siblings\/bw-circuit-ui\n/, '');
+            if (text === readFileSync(f, 'utf8')) throw new Error('mutation was a no-op');
+            writeFileSync(f, text);
+        },
+        expect: /no pinned checkout step for bw-circuit-ui/
+    },
+    {
+        name: 'ci.yml pins a different revision than test/fixtures/siblings.json',
+        why: 'a drifted pin runs the gates against a revision nobody recorded',
+        apply () {
+            const f = join(ROOT, '.github', 'workflows', 'ci.yml');
+            save(f);
+            const text = readFileSync(f, 'utf8').replace('ref: 50c3bf7', 'ref: deadbee');
+            if (text === readFileSync(f, 'utf8')) throw new Error('mutation was a no-op');
+            writeFileSync(f, text);
+        },
+        expect: /but test\/fixtures\/siblings\.json pins/
+    },
+    {
+        name: 'a cross-repo gate drops the shared guard and rolls its own skip',
+        why: 'exactly how all fifteen got that way; a new file must not be able to repeat it',
+        apply () {
+            const f = join(ROOT, 'test', 'rail-short.test.mjs');
+            save(f);
+            const text = readFileSync(f, 'utf8')
+                .replace("siblingGuardTest(gate, 'the rail-short corpus gate');", '');
+            if (text === readFileSync(f, 'utf8')) throw new Error('mutation was a no-op');
+            writeFileSync(f, text);
+        },
+        expect: /do not call siblingGuardTest/
+    },
+    {
+        name: 'a sibling is pinned to a forbidden or non-permissive licence',
+        why: 'CI clones these; an ngspice/KLU-family or copyleft pin must be argued, not slipped in',
+        apply () {
+            const f = join(ROOT, 'test', 'fixtures', 'siblings.json');
+            save(f);
+            const m = JSON.parse(readFileSync(f, 'utf8'));
+            m.siblings['bw-board'].licence = 'GPL-2.0';
+            writeFileSync(f, `${JSON.stringify(m, null, 2)}\n`);
+        },
+        expect: /not on the permissive list/
+    },
+    {
         name: 'a sibling root gains a second ".." (the multimeter-chain defect)',
         why: 'one extra .. points past the code tree, so the drift check skips everywhere, forever',
         apply () {
@@ -222,6 +333,10 @@ for (const f of [...GATES, MANIFEST, join(DOWN, 'lite-stc12.js'), join(DOWN, 'ga
 // misread as covering more (or less) than it did.
 const { SOURCES, locateLive } = await import('./vendor-downstream-extensions.mjs');
 for (const s of SOURCES) console.log(`  --   sibling ${s.name}: ${locateLive(s) || 'not present (drift check will skip; conformance still runs)'}`);
+const { describeSiblings, partialVisibility } = await import('../test/helpers/siblings.mjs');
+console.log(describeSiblings());
+const partial = partialVisibility();
+if (partial) console.log(`  !!   ${partial.message}`);
 
 const base = runGate();
 if (base.red) { console.error('\nFAIL: the gate is already red before any mutation.'); process.exit(1); }
@@ -231,15 +346,23 @@ let failures = 0;
 for (const m of MUTATIONS) {
     let result;
     try {
-        m.apply();
-        result = runGate();
+        if (m.apply) m.apply();
+        // An env-mutation changes the inputs rather than the tree, which is the
+        // right instrument for a guard whose whole subject is "what if the inputs
+        // are absent". Editing the file would prove the edit, not the guard.
+        result = m.run ? m.run() : runGate();
     } finally {
         if (m.restore) m.restore();
         restoreAll();
     }
-    const caught = result.red && m.expect.test(result.out);
+    // `invert` marks a mutation that must leave the gate GREEN — the developer-box
+    // and opt-out cases. A guard that failed everywhere would "catch" everything
+    // and be useless, so both directions are proven.
+    const caught = m.invert
+        ? !result.red
+        : (result.red && m.expect.test(result.out));
     if (!caught) failures++;
-    console.log(`${caught ? 'RED  ' : 'MISS '} ${m.name}`);
+    console.log(`${caught ? (m.invert ? 'GREEN' : 'RED  ') : 'MISS '} ${m.name}`);
     console.log(`       ${m.why}`);
     if (!caught) console.log(`       expected ${m.expect} in output; red=${result.red}`);
 }

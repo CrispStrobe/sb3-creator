@@ -10,14 +10,19 @@ import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, readdirSync, existsSync } from 'fs';
 import { join } from 'path';
+import { requireSiblings, siblingGuardTest } from './helpers/siblings.mjs';
 
 const SB3 = join(import.meta.dirname, '..');
 const CUI = process.env.BW_CIRCUIT_UI || join(SB3, '..', 'bw-circuit-ui');
 const BWB = process.env.BW_BOARD || join(SB3, '..', 'bw-board');
 const EXAMPLES = join(SB3, 'examples');
 
-const available = existsSync(join(CUI, 'src', 'model', 'circuit.js'))
-  && existsSync(join(BWB, 'src', 'index.js'));
+// Cross-repo guard: skip locally, FAIL in CI. CI checks both siblings out at the
+// revisions pinned in test/fixtures/siblings.json, so an absent sibling there means
+// the checkout step broke and this gate just went silent — see
+// test/CROSS-REPO-GATE-AUDIT.md and test/helpers/siblings.mjs.
+const gate = requireSiblings('bw-circuit-ui', 'bw-board');
+siblingGuardTest(gate, 'bench invariants');
 
 // Kinds that legitimately sit outside the MCU's reach.
 const STRUCTURAL = new Set(['breadboard', 'vcc', 'gnd']);
@@ -25,7 +30,7 @@ const STRUCTURAL = new Set(['breadboard', 'vcc', 'gnd']);
 const MCU_KINDS = new Set(['mcu', 'stc_mcu', 'stc15_mcu', 'arduino_uno', 'arduino_nano',
   'arduino_mega', 'pi_pico', 'attiny85', 'attiny88']);
 
-describe('bench invariants: every device bench, canonical loader', { skip: available ? false : 'needs bw-circuit-ui/bw-board checkouts' }, () => {
+describe('bench invariants: every device bench, canonical loader', { skip: gate.skip }, () => {
   let Circuit;
   let resolveTerminal;
   test('engine + sidecars load', async () => {

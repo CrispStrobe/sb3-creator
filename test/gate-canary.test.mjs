@@ -11,14 +11,19 @@ import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, existsSync } from 'fs';
 import { join } from 'path';
+import { requireSiblings, siblingGuardTest } from './helpers/siblings.mjs';
 import SB3Creator from '../src/utils/sb3Creator.js';
 
 const SB3 = join(import.meta.dirname, '..');
 const EXAMPLES = join(SB3, 'examples');
 const CUI = process.env.BW_CIRCUIT_UI || join(SB3, '..', 'bw-circuit-ui');
 const BWB = process.env.BW_BOARD || join(SB3, '..', 'bw-board');
-const available = existsSync(join(CUI, 'src', 'model', 'circuit.js'))
-    && existsSync(join(BWB, 'src', 'index.js'));
+// Cross-repo guard: skip locally, FAIL in CI. CI checks both siblings out at the
+// revisions pinned in test/fixtures/siblings.json, so an absent sibling there means
+// the checkout step broke and this gate just went silent — see
+// test/CROSS-REPO-GATE-AUDIT.md and test/helpers/siblings.mjs.
+const gate = requireSiblings('bw-circuit-ui', 'bw-board');
+siblingGuardTest(gate, 'gate canaries');
 
 // ---------------------------------------------------------------------------
 // Canary 1: tautological assert.ok(true) in if/else branches
@@ -73,7 +78,7 @@ describe('canary: a test that returns early on missing files should use skip', (
 //  this canary verifies the guard itself is live)
 // ---------------------------------------------------------------------------
 describe('canary: gate-integrity surface checks are live',
-    { skip: available ? false : 'needs bw-circuit-ui/bw-board' }, () => {
+    { skip: gate.skip }, () => {
     test('Circuit constructor exposes netlistError', async () => {
         const { setEngine } = await import(join(CUI, 'src/engine.js'));
         const eng = await import(join(BWB, 'src/index.js'));

@@ -1,0 +1,21 @@
+{
+  "note": "Pinned revisions of the sibling repositories sb3-creator's cross-repo gates consume. CI checks these exact commits out beside the repo (.github/workflows/ci.yml) so the gates RUN rather than skip; test/helpers/siblings.mjs turns an absent sibling into a failure when CI=true. Update a pin deliberately, in its own commit, with the suite green against it.",
+  "siblings": {
+    "bw-board": {
+      "repo": "CrispStrobe/bw-board",
+      "rev": "50c3bf7",
+      "marker": "src/board.js",
+      "licence": "MIT",
+      "why": "the device/board simulator the gallery e2e and physics gates drive",
+      "pinnedOn": "2026-08-23"
+    },
+    "bw-circuit-ui": {
+      "repo": "CrispStrobe/bw-circuit-ui",
+      "rev": "d754cfc",
+      "marker": "src/model/circuit.js",
+      "licence": "MPL-2.0",
+      "why": "the canonical circuit model and engine the bench and corpus gates load",
+      "pinnedOn": "2026-08-23"
+    }
+  }
+}

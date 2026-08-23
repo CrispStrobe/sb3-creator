@@ -27,6 +27,8 @@ import { pathToFileURL } from 'url';
 // machine and throw ERR_MODULE_NOT_FOUND on every other — and a suite that is
 // red for everyone is a suite people learn to skip, which costs more than the
 // check is worth. Same candidate-list convention as ctarget.test.mjs.
+import { requireSiblings, siblingGuardTest } from './helpers/siblings.mjs';
+
 const findRepo = (envVar, probe, ...rels) => {
     for (const base of [process.env[envVar], ...rels]) {
         if (!base) continue;
@@ -43,9 +45,14 @@ const nest = (name) => new URL(`../../../${name}/`, import.meta.url).href;
 const BOARD = findRepo('BW_BOARD', 'src/board.js', sib('bw-board'), nest('bw-board'));
 const CIRCUIT = findRepo('BW_CIRCUIT_UI', 'src/engine.js', sib('bw-circuit-ui'), nest('bw-circuit-ui'));
 
+// Cross-repo guard. This file keeps its own file:-URL discovery above because it
+// imports the siblings as ES modules, but the SKIP/FAIL decision is the shared one:
+// a local box may not have them, CI always does. See test/helpers/siblings.mjs.
+const gate = requireSiblings('bw-board', 'bw-circuit-ui');
+siblingGuardTest(gate, 'the gallery end-to-end suite');
 const SKIP = BOARD && CIRCUIT ? false
-    : `needs ${!BOARD ? 'bw-board' : 'bw-circuit-ui'} checked out beside this repo `
-      + '(or BW_BOARD / BW_CIRCUIT_UI pointing at it)';
+    : (gate.skip || `needs ${!BOARD ? 'bw-board' : 'bw-circuit-ui'} checked out beside this repo `
+      + '(or BW_BOARD / BW_CIRCUIT_UI pointing at it)');
 
 let BoardImpl, inferNetlist, checkWiring, Circuit;
 const MISSING_DEVICES = [];

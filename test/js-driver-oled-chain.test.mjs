@@ -17,17 +17,22 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, readdirSync, existsSync } from 'fs';
 import { join } from 'path';
+import { requireSiblings, siblingGuardTest } from './helpers/siblings.mjs';
 import vm from 'node:vm';
 
 const SB3 = join(import.meta.dirname, '..');
 const CUI = process.env.BW_CIRCUIT_UI || join(SB3, '..', 'bw-circuit-ui');
 const BWB = process.env.BW_BOARD || join(SB3, '..', 'bw-board');
 
-const available = existsSync(join(CUI, 'src', 'model', 'circuit.js'))
-  && existsSync(join(BWB, 'src', 'index.js'));
+// Cross-repo guard: skip locally, FAIL in CI. CI checks both siblings out at the
+// revisions pinned in test/fixtures/siblings.json, so an absent sibling there means
+// the checkout step broke and this gate just went silent — see
+// test/CROSS-REPO-GATE-AUDIT.md and test/helpers/siblings.mjs.
+const gate = requireSiblings('bw-circuit-ui', 'bw-board');
+siblingGuardTest(gate, 'the JS simulator-driver OLED chain');
 
 test('70-calculator through the JS simulator driver: the OLED lights',
-  { skip: available ? false : 'needs bw-circuit-ui/bw-board checkouts beside this repo' },
+  { skip: gate.skip },
   async () => {
     // 1. blocks → simulator-driver JavaScript
     const SB3Creator = (await import(join(SB3, 'src/utils/sb3Creator.js'))).default;

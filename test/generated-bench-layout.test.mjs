@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
+import { requireSiblings, siblingGuardTest } from './helpers/siblings.mjs';
 
 const BOARD_SIZE = {
   arduino_uno: [72.58 * 14 / 2.54, 53.34 * 14 / 2.54],
@@ -97,13 +98,16 @@ test('all controller benches have finite, non-overlapping, powered boards', () =
   assert.deepEqual(failures, []);
 });
 
-test('all generated seated component bodies are disjoint in rendered geometry', async t => {
+// Cross-repo guard: local skip, CI failure. The old form was an in-body
+// `t.skip()` after an existsSync, which is the shape that reads as a pass —
+// see test/CROSS-REPO-GATE-AUDIT.md.
+const layoutGate = requireSiblings('bw-circuit-ui');
+siblingGuardTest(layoutGate, 'the generated bench layout geometry');
+
+test('all generated seated component bodies are disjoint in rendered geometry',
+  { skip: layoutGate.skip }, async () => {
   const root = path.resolve(import.meta.dirname, '..');
   const cui = process.env.BW_CIRCUIT_UI || path.join(root, '..', 'bw-circuit-ui');
-  if (!fs.existsSync(path.join(cui, 'src', 'interaction', 'hittest.js'))) {
-    t.skip('needs a bw-circuit-ui checkout');
-    return;
-  }
   const {registerSidecar} = await import(path.join(cui, 'src/model/parts-registry.js'));
   for (const file of fs.readdirSync(path.join(cui, 'src/parts-data'))) {
     if (!file.endsWith('.json')) continue;

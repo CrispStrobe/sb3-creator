@@ -24,17 +24,105 @@ import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, readdirSync, existsSync } from 'fs';
 import { join } from 'path';
+import { requireSiblings, siblingGuardTest } from './helpers/siblings.mjs';
 
 const SB3 = join(import.meta.dirname, '..');
 const CUI = process.env.BW_CIRCUIT_UI || join(SB3, '..', 'bw-circuit-ui');
 const BWB = process.env.BW_BOARD || join(SB3, '..', 'bw-board');
-const available = existsSync(join(CUI, 'src', 'model', 'circuit.js'))
-  && existsSync(join(BWB, 'src', 'index.js'));
+// Cross-repo guard: skip locally, FAIL in CI. CI checks both siblings out at the
+// revisions pinned in test/fixtures/siblings.json, so an absent sibling there means
+// the checkout step broke and this gate just went silent — see
+// test/CROSS-REPO-GATE-AUDIT.md and test/helpers/siblings.mjs.
+const gate = requireSiblings('bw-circuit-ui', 'bw-board');
+siblingGuardTest(gate, 'gate integrity');
 
 // ---------------------------------------------------------------------------
 // 1. Sibling checkouts live ONE level up. Always runs — no checkout needed.
 // ---------------------------------------------------------------------------
+// Files that MENTION a sibling but do not gate on one. Each needs a reason, so
+// the list is an argument rather than a place to hide a gate that skips.
+const NOT_A_CROSS_REPO_GATE = new Map([
+    ['gate-integrity.test.mjs',
+     'this file — its own prose names the siblings, and its cross-repo half already uses the guard'],
+    ['circuit-json-roundtrip.test.mjs',
+     'a comment saying the Circuit-model test belongs in bw-circuit-ui; no sibling is read'],
+    ['device-coverage.test.mjs',
+     'reads bw-board\'s kinds when present and otherwise falls back to a committed snapshot, ' +
+     'putting "(snapshot)" in the TEST NAME so a green run cannot be mistaken for the real check ' +
+     '— an honest in-repo answer to the same problem, and it always runs'],
+    ['flat-variants-manifest.test.mjs',
+     'the other honest answer: a manifest generated beside the siblings and committed, so the ' +
+     'check runs with no checkout at all. It records the engine repo it came from']
+]);
+
 describe('gate integrity: a suite cannot skip itself into silence', () => {
+    // ---------------------------------------------------------------------
+    // The pins CI checks out must be the pins the tests expect. These live in
+    // two files that nothing else forces to agree, and if they drift the gates
+    // run against a revision no one recorded — which is the vendoring-staleness
+    // failure in a different costume.
+    // ---------------------------------------------------------------------
+    // ---------------------------------------------------------------------
+    // Every cross-repo gate must route its skip decision through the shared
+    // guard. Before 2026-08-23 each file rolled its own `existsSync(...)` and
+    // handed the result to `skip:`, and all fifteen skipped in CI forever. A new
+    // file that reintroduces that shape is the regression this catches.
+    // ---------------------------------------------------------------------
+    test('every cross-repo test routes its skip through the shared sibling guard', () => {
+        const offenders = [];
+        for (const f of readdirSync(join(SB3, 'test'))) {
+            if (!f.endsWith('.test.mjs')) continue;
+            const src = readFileSync(join(SB3, 'test', f), 'utf8');
+            // Does this file depend on a sibling checkout at all?
+            if (!/BW_BOARD|BW_CIRCUIT_UI|bw-circuit-ui|bw-board/.test(src)) continue;
+            if (NOT_A_CROSS_REPO_GATE.has(f)) continue;
+            if (!/siblingGuardTest\s*\(/.test(src)) {
+                offenders.push(f);
+            }
+        }
+        assert.deepEqual(offenders, [],
+            'these tests depend on a sibling checkout but do not call siblingGuardTest(), so ' +
+            'they will skip in CI and the skip will read as a pass:\n  ' + offenders.join('\n  ') +
+            '\nSee test/helpers/siblings.mjs and test/CROSS-REPO-GATE-AUDIT.md.');
+    });
+
+    test('CI checks out the sibling revisions test/fixtures/siblings.json pins', () => {
+        const workflow = readFileSync(join(SB3, '.github', 'workflows', 'ci.yml'), 'utf8');
+        const pins = JSON.parse(readFileSync(join(SB3, 'test', 'fixtures', 'siblings.json'), 'utf8')).siblings;
+
+        for (const [name, pin] of Object.entries(pins)) {
+            // Find the checkout step for this sibling and read the ref it uses.
+            const step = new RegExp(
+                `repository:\\s*${pin.repo.replace('/', '\\/')}\\s*\\n\\s*ref:\\s*(\\S+)`);
+            const m = workflow.match(step);
+            assert.ok(m,
+                `ci.yml has no pinned checkout step for ${name} (${pin.repo}). Fifteen ` +
+                `cross-repo gates depend on it being checked out; without the step they fail ` +
+                `in CI by design, but the point is for them to RUN.`);
+            assert.equal(m[1], pin.rev,
+                `ci.yml checks out ${name} at ${m[1]} but test/fixtures/siblings.json pins ` +
+                `${pin.rev}. Update both together, in one commit, with the suite green.`);
+        }
+    });
+
+    test('every sibling this repo pins is one we are allowed to vendor or clone', () => {
+        const pins = JSON.parse(readFileSync(join(SB3, 'test', 'fixtures', 'siblings.json'), 'utf8')).siblings;
+        // The engine-backend licence rule: ngspice/KLU/CSparse-family code may not
+        // be used OR read, so a gate that depended on one could never be made
+        // CI-runnable and would have to stay developer-only. Neither sibling is in
+        // that family — both are ours — but assert it rather than remember it, so
+        // adding a pin to something copyleft has to be a deliberate argument.
+        const FORBIDDEN = /ngspice|klu|csparse|suitesparse/i;
+        const ALLOWED = new Set(['MIT', 'MPL-2.0', 'Apache-2.0', 'BSD-3-Clause', 'ISC']);
+        for (const [name, pin] of Object.entries(pins)) {
+            assert.ok(!FORBIDDEN.test(pin.repo),
+                `${name} names a forbidden engine family; such a gate must stay developer-only`);
+            assert.ok(ALLOWED.has(pin.licence),
+                `${name} is recorded as ${pin.licence}, which is not on the permissive list. ` +
+                `CI clones this repo — check the licence permits that before pinning it.`);
+        }
+    });
+
     test('no test resolves a sibling checkout two levels up', () => {
         // ../../<name> from this repo is the parent of the whole code tree.
         // Every sibling (bw-board, bw-circuit-ui, emu8051-stc, ucsim-stc) sits
@@ -77,7 +165,7 @@ describe('gate integrity: a suite cannot skip itself into silence', () => {
 // 2. The cross-repo surface our tests read. One clear failure, not 819.
 // ---------------------------------------------------------------------------
 describe('gate integrity: the bw-circuit-ui/bw-board surface we depend on',
-    { skip: available ? false : 'needs bw-circuit-ui/bw-board checkouts' }, () => {
+    { skip: gate.skip }, () => {
         let circ;
         test('load a known-good bench', async () => {
             const { setEngine } = await import(join(CUI, 'src/engine.js'));

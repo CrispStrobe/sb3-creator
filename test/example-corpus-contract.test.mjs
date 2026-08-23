@@ -10,6 +10,7 @@ import {describe, test} from 'node:test';
 import assert from 'node:assert/strict';
 import {existsSync, globSync, readFileSync, readdirSync} from 'node:fs';
 import {join} from 'node:path';
+import { requireSiblings, siblingGuardTest } from './helpers/siblings.mjs';
 
 import {DEVPART} from '../scripts/lib/devpart.mjs';
 
@@ -21,8 +22,12 @@ const index = JSON.parse(readFileSync(join(EXAMPLES, 'index.json'), 'utf8'));
 const circuitFiles = globSync('examples/*/circuit*.json', {cwd: ROOT}).sort();
 const generatedFiles = circuitFiles.filter(file => /\/circuit\.[\w-]+\.json$/.test(file));
 
-const available = existsSync(join(CUI, 'src', 'model', 'circuit.js'))
-    && existsSync(join(BWB, 'src', 'index.js'));
+// Cross-repo guard: skip locally, FAIL in CI. CI checks both siblings out at the
+// revisions pinned in test/fixtures/siblings.json, so an absent sibling there means
+// the checkout step broke and this gate just went silent — see
+// test/CROSS-REPO-GATE-AUDIT.md and test/helpers/siblings.mjs.
+const gate = requireSiblings('bw-circuit-ui', 'bw-board');
+siblingGuardTest(gate, 'the example corpus contract');
 
 describe('example corpus: catalog and bench inventory agree exactly', () => {
     test(`catalog covers ${index.length} examples and all ${generatedFiles.length} generated benches`, () => {
@@ -84,7 +89,7 @@ describe('example corpus: catalog and bench inventory agree exactly', () => {
 });
 
 describe('example corpus: canonical Circuit Designer load/save/load',
-    {skip: available ? false : 'needs bw-circuit-ui/bw-board checkouts'}, () => {
+    { skip: gate.skip }, () => {
         let Circuit;
 
         test('engine and all part sidecars load', async () => {

@@ -23,6 +23,8 @@ import { join } from 'path';
 import { pathToFileURL } from 'url';
 
 // ---- engine setup (same pattern as gallery-e2e) ----
+import { requireSiblings, siblingGuardTest } from './helpers/siblings.mjs';
+
 const findRepo = (envVar, probe, ...rels) => {
     for (const base of [process.env[envVar], ...rels]) {
         if (!base) continue;
@@ -37,8 +39,11 @@ const nest = (name) => new URL(`../../../${name}/`, import.meta.url).href;
 const BOARD_URL = findRepo('BW_BOARD', 'src/board.js', sib('bw-board'), nest('bw-board'));
 const CUI_URL = findRepo('BW_CIRCUIT_UI', 'src/engine.js', sib('bw-circuit-ui'), nest('bw-circuit-ui'));
 
+// Cross-repo guard: local skip, CI failure. See test/helpers/siblings.mjs.
+const gate = requireSiblings('bw-board', 'bw-circuit-ui');
+siblingGuardTest(gate, 'the absolute-physics assertions');
 const ENGINE_SKIP = BOARD_URL && CUI_URL ? false
-    : `needs bw-board + bw-circuit-ui (set BW_BOARD / BW_CIRCUIT_UI)`;
+    : (gate.skip || 'needs bw-board + bw-circuit-ui (set BW_BOARD / BW_CIRCUIT_UI)');
 
 let BoardImpl, Circuit, setEngine;
 if (!ENGINE_SKIP) {

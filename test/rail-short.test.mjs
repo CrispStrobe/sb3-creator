@@ -29,13 +29,17 @@ import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, readdirSync, existsSync } from 'fs';
 import { join } from 'path';
+import { requireSiblings, siblingGuardTest } from './helpers/siblings.mjs';
 
 const SB3 = join(import.meta.dirname, '..');
 const CUI = process.env.BW_CIRCUIT_UI || join(SB3, '..', 'bw-circuit-ui');
 const BWB = process.env.BW_BOARD || join(SB3, '..', 'bw-board');
 const EXAMPLES = join(SB3, 'examples');
-const available = existsSync(join(CUI, 'src/model/circuit.js')) &&
-                  existsSync(join(BWB, 'src/board.js'));
+// Cross-repo guard: local skip, CI failure. See test/helpers/siblings.mjs
+// and test/CROSS-REPO-GATE-AUDIT.md.
+const gate = requireSiblings('bw-circuit-ui', 'bw-board');
+siblingGuardTest(gate, 'the rail-short corpus gate');
+const available = !gate.skip;
 
 /**
  * Known shorts, with the wire that causes each. This list may only SHRINK.
@@ -54,7 +58,7 @@ const isSupply = (kind) => /^(vcc|vdd|v\+|supply)$/i.test(String(kind || ''));
 const isGround = (kind) => /^(gnd|ground|vss|v-)$/i.test(String(kind || ''));
 
 describe('no shipped circuit shorts its rail to ground',
-    { skip: available ? false : 'needs bw-circuit-ui/bw-board checkouts' }, () => {
+    { skip: gate.skip }, () => {
         let Circuit;
         const files = [];
 

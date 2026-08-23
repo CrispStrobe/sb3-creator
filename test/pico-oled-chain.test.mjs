@@ -19,6 +19,7 @@ import assert from 'node:assert/strict';
 import { readFileSync, readdirSync, writeFileSync, mkdtempSync, existsSync } from 'fs';
 import { execSync } from 'child_process';
 import { join } from 'path';
+import { requireSiblings, siblingGuardTest } from './helpers/siblings.mjs';
 import { tmpdir } from 'os';
 
 const SB3 = join(import.meta.dirname, '..');
@@ -39,12 +40,23 @@ SECTIONS {
 function gccAvailable() {
   try { execSync('arm-none-eabi-gcc --version', { stdio: 'pipe' }); return true; } catch { return false; }
 }
-const available = gccAvailable()
-  && existsSync(join(CUI, 'src', 'model', 'circuit.js'))
-  && existsSync(join(BWB, 'src', 'rp2040js-adapter.js'));
+// Disposition (a) of test/CROSS-REPO-GATE-AUDIT.md — CI-RUNNABLE.
+//
+// Unlike the emu8051 chain next door, nothing here is expensive to provide: the
+// siblings are public repos CI checks out at pinned revisions, and
+// arm-none-eabi-gcc is a stock apt package. Both are installed in
+// .github/workflows/ci.yml, so this test runs in CI rather than skipping, and an
+// absent sibling is a failure.
+const siblingGate = requireSiblings('bw-circuit-ui', 'bw-board');
+siblingGuardTest(siblingGate, 'the Pico OLED chain');
+
+const skipReason = siblingGate.skip ||
+  (gccAvailable() ? false
+    : 'needs arm-none-eabi-gcc (CI installs it; locally: apt install gcc-arm-none-eabi)');
+const available = !skipReason;
 
 test('70-calculator on the Pico: the REAL build — keys to +3V3, OLED on GP0/GP1',
-  { skip: available ? false : 'needs arm-none-eabi-gcc + bw-circuit-ui/bw-board checkouts' },
+  { skip: skipReason },
   async () => {
     // 1. blocks → pico C → SRAM image
     const SB3Creator = (await import(join(SB3, 'src/utils/sb3Creator.js'))).default;

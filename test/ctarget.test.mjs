@@ -13,6 +13,9 @@
 // STC_COMPILER_URL=off to skip (offline work). A skip is printed loudly so a green
 // run cannot be mistaken for a complete one.
 import { test } from 'node:test';
+import { join } from 'node:path';
+import { pathToFileURL } from 'node:url';
+import { requireSiblings, siblingGuardTest } from './helpers/siblings.mjs';
 import assert from 'node:assert/strict';
 import SB3Creator from '../src/utils/sb3Creator.js';
 
@@ -2022,7 +2025,15 @@ test('device C round-trip is 5/5 on the example fixtures', async () => {
 // and parse the same bytes, or a runtime driver and a debug target silently
 // disagree about what they sent.
 
-test('stc12live and bw-board frame codecs agree byte for byte', async () => {
+// Cross-repo guard. This was the worst shape found in the 2026-08-23 sweep: the
+// bw-board import sat in a try/catch whose catch console.log'd "skipping" and
+// RETURNED — so with bw-board absent the test reported a clean PASS, not even a
+// skip. A wire-protocol agreement test that silently agrees with nothing is worse
+// than no test. See test/CROSS-REPO-GATE-AUDIT.md.
+const codecGate = requireSiblings('bw-board');
+siblingGuardTest(codecGate, 'the stc12live/bw-board wire protocol');
+test('stc12live and bw-board frame codecs agree byte for byte',
+    { skip: codecGate.skip }, async () => {
     const { readFileSync } = await import('node:fs');
     const vm = await import('node:vm');
 
@@ -2048,17 +2059,14 @@ test('stc12live and bw-board frame codecs agree byte for byte', async () => {
     assert.ok(LiveDecoder, 'stc12live Decoder extracted');
 
     // Load bw-board's buildFrame and FrameReceiver.
-    const boardPath = new URL('../../bw-board/src/serial-debug.js', import.meta.url).pathname;
-    let boardBuild, BoardReceiver;
-    try {
-        const boardMod = await import(boardPath);
-        boardBuild = boardMod.buildFrame;
-        BoardReceiver = boardMod.FrameReceiver;
-    } catch {
-        // bw-board not on this machine — skip rather than fail.
-        console.log('  (bw-board not found, skipping wire-protocol comparison)');
-        return;
-    }
+    // Resolved through the shared guard rather than a hardcoded `../../`: the guard
+    // honours BW_BOARD, knows the pinned revision, and is what CI supplies. An
+    // import failure here is now a real failure — the sibling's presence was
+    // already decided above.
+    const boardPath = join(codecGate.paths['bw-board'], 'src', 'serial-debug.js');
+    const boardMod = await import(pathToFileURL(boardPath).href);
+    const boardBuild = boardMod.buildFrame;
+    const BoardReceiver = boardMod.FrameReceiver;
     assert.ok(boardBuild, 'bw-board buildFrame loaded');
     assert.ok(BoardReceiver, 'bw-board FrameReceiver loaded');
 
