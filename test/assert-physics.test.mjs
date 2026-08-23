@@ -199,6 +199,18 @@ function parseAssertions(mdText) {
                 continue;
             }
 
+            // display: <kind> [(<chip>)]   |   interface: i2c|spi|parallel
+            const dispMatch = trimmed.match(/^display\s*:\s*(.+)$/);
+            if (dispMatch) {
+                assertions.push({ kind: 'display-kind', claim: dispMatch[1].trim(), raw: trimmed });
+                continue;
+            }
+            const ifMatch = trimmed.match(/^interface\s*:\s*(i2c|spi|parallel)\s*$/i);
+            if (ifMatch) {
+                assertions.push({ kind: 'display-bus', bus: ifMatch[1].toLowerCase(), raw: trimmed });
+                continue;
+            }
+
             // Unknown assertion kind — explicit skip
             assertions.push({ kind: 'unknown', raw: trimmed });
         }
@@ -375,6 +387,50 @@ function monostable555Ms(circuit) {
         return { ok: false, reason: `${rt.id}=${ohms}ohm ${ct.id}=${farads}F — not usable values` };
     }
     return { ok: true, ms: 1.1 * ohms * farads * 1000, r: rt.id, c: ct.id, ohms, farads };
+}
+
+/**
+ * Structural display claims: which controller a bench carries, and over which bus.
+ *
+ * `display:` and `interface:` are properties of the CIRCUIT, so they are read
+ * from the netlist rather than by running anything. They catch a documentation
+ * class the electrical assertions cannot: an intro promising an SSD1306 over
+ * I2C for a bench that carries something else, or nothing.
+ *
+ * ONE alias family, and it earns its place rather than being a loosening:
+ * a claim of `hd44780` against a part of kind `char_lcd_i2c` is CORRECT — that
+ * part is an HD44780 behind an I2C backpack, and the lesson is teaching the
+ * controller. Everything else in the corpus matches exactly, including the
+ * "friendly (chip)" forms like `mono_lcd (ssd1306)` and `neopixel (ws2812)`,
+ * where either token may be the one that matches.
+ */
+const DISPLAY_ALIASES = new Map([
+    ['hd44780', ['char_lcd', 'char_lcd_i2c']],
+]);
+
+function displayKinds(circuit) {
+    return (circuit.parts || []).map(p => String(p.kind || '').toLowerCase());
+}
+
+/** Candidate tokens in a claim: the bare words and anything parenthesised. */
+function claimTokens(raw) {
+    return [...new Set(String(raw).toLowerCase().match(/[a-z0-9_]+/g) || [])];
+}
+
+/** The bus a part is wired for, from the terminals that actually carry nets. */
+function busOf(circuit, partId) {
+    const wired = new Set();
+    for (const net of (circuit.resolvedNets || [])) {
+        for (const t of (net.terminals || net.members || net)) {
+            const pid = typeof t === 'string' ? t.split(':')[0] : (t && (t.part || t.partId));
+            const trm = typeof t === 'string' ? t.split(':')[1] : (t && t.terminal);
+            if (pid === partId && trm) wired.add(String(trm).toLowerCase());
+        }
+    }
+    if (wired.has('sda') && wired.has('scl')) return 'i2c';
+    if ([...wired].some(t => /^(mosi|miso|sck|clk|din|cs|load)$/.test(t))) return 'spi';
+    if ([...wired].some(t => /^d[0-7]$/.test(t)) && (wired.has('rs') || wired.has('e'))) return 'parallel';
+    return null;
 }
 
 // ---- circuit solver ----
@@ -573,6 +629,35 @@ describe('absolute-physics assertions', { skip: ENGINE_SKIP }, () => {
                         assert.ok(delta <= a.tolerance,
                             `buzzer_tone_hz claims ${a.expected} Hz, but 1.44/((${f.r1}=${f.R1} + 2*${f.r2}=${f.R2}) * ` +
                             `${f.c}=${f.C} F) = ${f.hz.toFixed(2)} Hz (off by ${delta.toFixed(2)})`);
+                    });
+                    continue;
+                }
+
+                if (a.kind === 'display-kind') {
+                    test(`display is ${a.claim}`, () => {
+                        assert.ok(!circuitFail, circuitFail);
+                        const kinds = displayKinds(solved.circuit);
+                        const toks = claimTokens(a.claim);
+                        const hit = kinds.some(k => toks.includes(k) ||
+                            toks.some(t => (DISPLAY_ALIASES.get(t) || []).includes(k)));
+                        assert.ok(hit,
+                            `EXPECTED.md says the display is "${a.claim}", but the circuit carries ` +
+                            `[${kinds.join(', ')}]`);
+                    });
+                    continue;
+                }
+
+                if (a.kind === 'display-bus') {
+                    test(`interface is ${a.bus}`, () => {
+                        assert.ok(!circuitFail, circuitFail);
+                        const parts = (solved.circuit.parts || [])
+                            .filter(p => busOf(solved.circuit, p.id));
+                        assert.ok(parts.length,
+                            `interface claims ${a.bus}, but no part in the circuit is wired to a ` +
+                            `recognisable bus (no sda/scl, no spi pins, no parallel data bus)`);
+                        const buses = [...new Set(parts.map(p => busOf(solved.circuit, p.id)))];
+                        assert.ok(buses.includes(a.bus),
+                            `interface claims ${a.bus}, but the wired bus is ${buses.join('/')}`);
                     });
                     continue;
                 }
