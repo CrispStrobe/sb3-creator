@@ -26,10 +26,29 @@ import { pathToFileURL } from 'url';
 import { requireSiblings, siblingGuardTest } from './helpers/siblings.mjs';
 
 const findRepo = (envVar, probe, ...rels) => {
-    for (const base of [process.env[envVar], ...rels]) {
+    const asUrl = (base) => base.startsWith('file:') ? new URL(base)
+        : pathToFileURL(base.endsWith('/') ? base : base + '/');
+    // An EXPLICIT pointer is authoritative: if it is set and does not resolve,
+    // that is an error, never a fallback. The operator set it meaning to pin a
+    // specific checkout, and quietly measuring a different one produces a
+    // confident number about the wrong thing. This happened twice on
+    // 2026-08-23 — a removed worktree left BW_BOARD dangling and the suite
+    // silently used the shared checkout another session was mid-edit in, then
+    // reported a clean result I nearly attributed to a pinned sha.
+    const explicit = process.env[envVar];
+    if (explicit) {
+        const url = asUrl(explicit);
+        if (!existsSync(new URL(probe, url))) {
+            throw new Error(
+                `${envVar}=${explicit} does not contain ${probe}. An explicitly set ` +
+                `sibling path is authoritative — refusing to fall back to a sibling ` +
+                `lookup and measure a different checkout than the one you pinned.`);
+        }
+        return url;
+    }
+    for (const base of rels) {
         if (!base) continue;
-        const url = base.startsWith('file:') ? new URL(base)
-            : pathToFileURL(base.endsWith('/') ? base : base + '/');
+        const url = asUrl(base);
         if (existsSync(new URL(probe, url))) return url;
     }
     return null;
