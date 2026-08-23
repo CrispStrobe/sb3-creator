@@ -1,0 +1,116 @@
+{
+ "vcc": 5,
+ "parts": [
+  {
+   "id": "vcc1",
+   "kind": "vcc",
+   "params": {},
+   "x": 60,
+   "y": 40
+  },
+  {
+   "id": "gnd1",
+   "kind": "gnd",
+   "params": {},
+   "x": 60,
+   "y": 520
+  },
+  {
+   "id": "mcu1",
+   "kind": "mcu",
+   "params": {},
+   "x": 180,
+   "y": 280
+  },
+  {
+   "id": "px0",
+   "kind": "neopixel",
+   "params": {},
+   "x": 400,
+   "y": 240
+  },
+  {
+   "id": "px1",
+   "kind": "neopixel",
+   "params": {},
+   "x": 490,
+   "y": 240
+  },
+  {
+   "id": "px2",
+   "kind": "neopixel",
+   "params": {},
+   "x": 580,
+   "y": 240
+  }
+ ],
+ "wires": [
+  {
+   "from": "vcc1",
+   "fromTerminal": "vcc",
+   "to": "mcu1",
+   "toTerminal": "VCC"
+  },
+  {
+   "from": "gnd1",
+   "fromTerminal": "gnd",
+   "to": "mcu1",
+   "toTerminal": "GND"
+  },
+  {
+   "from": "vcc1",
+   "fromTerminal": "vcc",
+   "to": "px0",
+   "toTerminal": "vcc"
+  },
+  {
+   "from": "gnd1",
+   "fromTerminal": "gnd",
+   "to": "px0",
+   "toTerminal": "gnd"
+  },
+  {
+   "from": "vcc1",
+   "fromTerminal": "vcc",
+   "to": "px1",
+   "toTerminal": "vcc"
+  },
+  {
+   "from": "gnd1",
+   "fromTerminal": "gnd",
+   "to": "px1",
+   "toTerminal": "gnd"
+  },
+  {
+   "from": "vcc1",
+   "fromTerminal": "vcc",
+   "to": "px2",
+   "toTerminal": "vcc"
+  },
+  {
+   "from": "gnd1",
+   "fromTerminal": "gnd",
+   "to": "px2",
+   "toTerminal": "gnd"
+  },
+  {
+   "from": "mcu1",
+   "fromTerminal": "P1.0",
+   "to": "px0",
+   "toTerminal": "din"
+  },
+  {
+   "from": "px0",
+   "fromTerminal": "dout",
+   "to": "px1",
+   "toTerminal": "din"
+  },
+  {
+   "from": "px1",
+   "fromTerminal": "dout",
+   "to": "px2",
+   "toTerminal": "din"
+  }
+ ],
+ "holeWires": []
+}

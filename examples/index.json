@@ -6857,5 +6857,152 @@
       "introDE": "6502-terminal/intro.de.md",
       "expected": "6502-terminal/EXPECTED.md"
     }
+  },
+  {
+    "id": "disp-oled",
+    "title": {
+      "en": "I²C OLED showcase: text and counter",
+      "de": "I²C-OLED: Text und Zähler"
+    },
+    "category": "display",
+    "difficulty": 2,
+    "files": {
+      "program": "disp-oled/program.bw",
+      "circuit": "disp-oled/circuit.json",
+      "expected": "disp-oled/EXPECTED.md",
+      "intro": "disp-oled/intro.md",
+      "introDE": "disp-oled/intro.de.md"
+    },
+    "kind": "program",
+    "authored": "stc12c5a60s2",
+    "devices": [
+      "stc12c5a60s2"
+    ]
+  },
+  {
+    "id": "disp-mono-lcd",
+    "title": {
+      "en": "Mono graphic LCD: 128×64 frames",
+      "de": "Mono-Grafik-LCD: 128×64-Bilder"
+    },
+    "category": "display",
+    "difficulty": 2,
+    "files": {
+      "program": "disp-mono-lcd/program.bw",
+      "circuit": "disp-mono-lcd/circuit.json",
+      "expected": "disp-mono-lcd/EXPECTED.md",
+      "intro": "disp-mono-lcd/intro.md",
+      "introDE": "disp-mono-lcd/intro.de.md"
+    },
+    "kind": "program",
+    "authored": "stc12c5a60s2",
+    "devices": [
+      "stc12c5a60s2"
+    ]
+  },
+  {
+    "id": "disp-lcd",
+    "title": {
+      "en": "Character LCD over I²C (HD44780)",
+      "de": "Zeichen-LCD über I²C (HD44780)"
+    },
+    "category": "display",
+    "difficulty": 2,
+    "files": {
+      "program": "disp-lcd/program.bw",
+      "circuit": "disp-lcd/circuit.json",
+      "expected": "disp-lcd/EXPECTED.md",
+      "intro": "disp-lcd/intro.md",
+      "introDE": "disp-lcd/intro.de.md"
+    },
+    "kind": "program",
+    "authored": "stc12c5a60s2",
+    "devices": [
+      "stc12c5a60s2"
+    ]
+  },
+  {
+    "id": "disp-led-matrix",
+    "title": {
+      "en": "MAX7219 8×8 matrix: scrolling rows",
+      "de": "MAX7219-8×8-Matrix: laufende Zeilen"
+    },
+    "category": "display",
+    "difficulty": 2,
+    "files": {
+      "program": "disp-led-matrix/program.bw",
+      "circuit": "disp-led-matrix/circuit.json",
+      "expected": "disp-led-matrix/EXPECTED.md",
+      "intro": "disp-led-matrix/intro.md",
+      "introDE": "disp-led-matrix/intro.de.md"
+    },
+    "kind": "program",
+    "authored": "stc12c5a60s2",
+    "devices": [
+      "stc12c5a60s2"
+    ]
+  },
+  {
+    "id": "disp-rgb-light",
+    "title": {
+      "en": "NeoPixel rainbow: three chained pixels",
+      "de": "NeoPixel-Regenbogen: drei Pixel in Kette"
+    },
+    "category": "display",
+    "difficulty": 2,
+    "files": {
+      "program": "disp-rgb-light/program.bw",
+      "circuit": "disp-rgb-light/circuit.json",
+      "expected": "disp-rgb-light/EXPECTED.md",
+      "intro": "disp-rgb-light/intro.md",
+      "introDE": "disp-rgb-light/intro.de.md"
+    },
+    "kind": "program",
+    "authored": "stc12c5a60s2",
+    "devices": [
+      "stc12c5a60s2"
+    ]
+  },
+  {
+    "id": "disp-sevenseg",
+    "title": {
+      "en": "Seven-segment digit: counting 0–9",
+      "de": "7-Segment-Ziffer: zählt 0–9"
+    },
+    "category": "display",
+    "difficulty": 1,
+    "files": {
+      "program": "disp-sevenseg/program.bw",
+      "circuit": "disp-sevenseg/circuit.json",
+      "expected": "disp-sevenseg/EXPECTED.md",
+      "intro": "disp-sevenseg/intro.md",
+      "introDE": "disp-sevenseg/intro.de.md"
+    },
+    "kind": "program",
+    "authored": "stc12c5a60s2",
+    "devices": [
+      "stc12c5a60s2"
+    ]
+  },
+  {
+    "id": "disp-bargraph",
+    "title": {
+      "en": "LED bargraph follows the pot",
+      "de": "LED-Balken folgt dem Poti"
+    },
+    "category": "display",
+    "difficulty": 2,
+    "files": {
+      "program": "disp-bargraph/program.bw",
+      "circuit": "disp-bargraph/circuit.json",
+      "expected": "disp-bargraph/EXPECTED.md",
+      "intro": "disp-bargraph/intro.md",
+      "introDE": "disp-bargraph/intro.de.md"
+    },
+    "kind": "program",
+    "authored": "stc12c5a60s2",
+    "devices": [
+      "stc12c5a60s2"
+    ]
   }
 ]
