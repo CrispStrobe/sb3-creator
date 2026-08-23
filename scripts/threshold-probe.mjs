@@ -177,6 +177,39 @@ function runGate (gate) {
     }
 }
 
+/**
+ * Did any test in this file actually EXECUTE?
+ *
+ * A green run over an all-skipped file is not evidence about a threshold inside
+ * it. `ttl-module-acceptance.test.mjs` is the case: every test skips without
+ * `BW_TTL_ORACLE=1` plus Java, Digital.jar and a cloned 8bitsim, so moving its
+ * 30 s subprocess timeout to 1 ms changes nothing and the naive verdict is
+ * CANNOT-FIRE — which reads as "this bound is decoration" when the truth is
+ * "this bound was never reached". Wave 1 spent a whole audit on the difference
+ * between a skip and a pass; repeating the confusion inside the instrument built
+ * to find it would be poor form.
+ *
+ * A run WITHOUT `--test-only` output cannot be attributed per-threshold, so this
+ * is decided at file granularity, which is honest and sufficient: if nothing in
+ * the file ran, nothing in the file was measured.
+ */
+function executedAnything (gate) {
+    try {
+        const out = execFileSync(process.execPath, ['--test', join(ROOT, gate)], {
+            cwd: ROOT, encoding: 'utf8', stdio: 'pipe',
+            timeout: BUDGET_MS, maxBuffer: 64 * 1024 * 1024,
+            env: { ...process.env, ...EXTRA_ENV }
+        });
+        const n = (re) => { const m = out.match(re); return m ? Number(m[1]) : null; };
+        const pass = n(/^# pass (\d+)$/m);
+        const skipped = n(/^# skipped (\d+)$/m);
+        const tests = n(/^# tests (\d+)$/m);
+        return { ran: !(pass !== null && skipped !== null && pass <= skipped && skipped === tests), pass, skipped, tests };
+    } catch {
+        return { ran: true };   // it failed, so something ran
+    }
+}
+
 /* -------------------------------------------------------------------- probes */
 
 /** A value that must trip this kind of bound. */
@@ -214,10 +247,22 @@ export function probe (t, { gate = owningGate(t.file), margin = false } = {}) {
     }
     if (result.hung) return { ...base, trip, verdict: 'HUNG', detail: result.out };
     if (!result.red) {
+        // Before calling a bound decoration, ask whether anything in the file ran.
+        const ex = executedAnything(gate);
+        if (!ex.ran) {
+            return {
+                ...base, trip, verdict: 'NOT-REACHED',
+                detail: `every test in ${gate} skipped (${ex.skipped}/${ex.tests}), so this ` +
+                        'bound was never exercised. That is a fact about the environment, not ' +
+                        'about the number — supply what the file needs, or --env, and re-probe.'
+            };
+        }
         return {
             ...base, trip, verdict: 'CANNOT-FIRE',
-            detail: `${t.kind} moved ${t.value} -> ${trip} and the gate stayed green: the ` +
-                    'code path this bounds does not run, or nothing reads it'
+            detail: `${t.kind} moved ${t.value} -> ${trip} and the gate stayed green ` +
+                    `(${ex.pass} ran, ${ex.skipped} skipped of ${ex.tests}). Either the code ` +
+                    'path this bounds does not execute, or the tests that use it are among ' +
+                    'the skipped ones — check the skip reasons before calling it decoration.'
         };
     }
 

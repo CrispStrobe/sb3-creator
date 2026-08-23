@@ -50,7 +50,21 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 /** MEASURED (see header): p90 658 ms on a loaded box. ~45x that. */
-export const PY_BUDGET_MS = Number(process.env.BW_PY_TIMEOUT_MS || 30_000);
+export const PY_BUDGET_DEFAULT_MS = 30_000;
+
+/**
+ * Read at CALL time, not at module load.
+ *
+ * A budget captured at import is untestable without a cache-busting `?query`
+ * specifier, and `scripts/check-staged-imports.mjs` rejects those — correctly, in
+ * the sense that it is checking every import resolves to a committed file. The
+ * design was the problem, not the gate: a knob nothing can turn during a run is a
+ * knob no test can exercise.
+ */
+export const pyBudgetMs = () => Number(process.env.BW_PY_TIMEOUT_MS || PY_BUDGET_DEFAULT_MS);
+
+/** @deprecated the value at import time; prefer pyBudgetMs(). Kept for readers. */
+export const PY_BUDGET_MS = PY_BUDGET_DEFAULT_MS;
 
 /**
  * Raised when the subprocess could not deliver a verdict. NOT a syntax error —
@@ -91,11 +105,12 @@ export function checkPythonSyntax (py) {
     const file = join(dir, 'candidate.py');
     try {
         writeFileSync(file, py);
-        let r = runOnce(file, PY_BUDGET_MS);
+        const budget = pyBudgetMs();
+        let r = runOnce(file, budget);
         if (r.unavailable && r.killed) {
             // Deterministic property, so a retry cannot hide a real defect —
             // a SyntaxError fails identically the second time.
-            r = runOnce(file, PY_BUDGET_MS * 2);
+            r = runOnce(file, budget * 2);
         }
         if (r.unavailable) {
             if (r.missing) {
@@ -104,8 +119,8 @@ export function checkPythonSyntax (py) {
                     'environment failure, not a defect in the generated code.');
             }
             throw new PythonUnavailableError(
-                `python3 did not return a verdict within ${PY_BUDGET_MS} ms, and did not on a ` +
-                `retry at ${PY_BUDGET_MS * 2} ms. THIS IS NOT A SYNTAX ERROR — the generated ` +
+                `python3 did not return a verdict within ${budget} ms, and did not on a ` +
+                `retry at ${budget * 2} ms. THIS IS NOT A SYNTAX ERROR — the generated ` +
                 'Python was never judged. Measured cost of this call on an idle-to-loaded box ' +
                 'is 384–721 ms (25 runs, 2026-08-23), so exceeding this budget means the ' +
                 `machine, not the emitter. Detail: ${r.detail || '(none)'}`);
