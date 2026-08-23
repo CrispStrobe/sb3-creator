@@ -336,9 +336,9 @@
       "attiny85": "08-led-chaser-595/circuit.attiny85.json",
       "attiny88": "08-led-chaser-595/circuit.attiny88.json",
       "pico": "08-led-chaser-595/circuit.pico.json",
+      "stc12c5a60s2": "08-led-chaser-595/circuit.stc12c5a60s2.json",
       "stc15f2k60s2": "08-led-chaser-595/circuit.stc15f2k60s2.json",
-      "stc89c52rc": "08-led-chaser-595/circuit.stc89c52rc.json",
-      "stc12c5a60s2": "08-led-chaser-595/circuit.stc12c5a60s2.json"
+      "stc89c52rc": "08-led-chaser-595/circuit.stc89c52rc.json"
     },
     "authored": "stc12c5a60s2"
   },
@@ -1235,7 +1235,8 @@
     ],
     "benches": {
       "stc12c5a60s2": "33-inductive-no-flyback/circuit.stc12c5a60s2.json"
-    }
+    },
+    "authored": "stc12c5a60s2"
   },
   {
     "id": "34-ohms-law",
@@ -1668,7 +1669,8 @@
     ],
     "benches": {
       "stc12c5a60s2": "51-tft-pixels/circuit.stc12c5a60s2.json"
-    }
+    },
+    "authored": "stc12c5a60s2"
   },
   {
     "id": "49-function-generator-sine",
@@ -5613,10 +5615,9 @@
       "program": "eater6502-bench/program.bw",
       "circuit": "eater6502-bench/circuit.json",
       "intro": "eater6502-bench/intro.md",
-      "introDE": "eater6502-bench/intro.de.md",
-      "expected": "eater6502-bench/EXPECTED.md"
+      "introDE": "eater6502-bench/intro.de.md"
     },
-    "kind": "circuit"
+    "kind": "full"
   },
   {
     "id": "eater6502-full-build",
@@ -5646,10 +5647,9 @@
       "program": "eater6502-vdp-hello/program.bw",
       "circuit": "eater6502-vdp-hello/circuit.json",
       "intro": "eater6502-vdp-hello/intro.md",
-      "introDE": "eater6502-vdp-hello/intro.de.md",
-      "expected": "eater6502-vdp-hello/EXPECTED.md"
+      "introDE": "eater6502-vdp-hello/intro.de.md"
     },
-    "kind": "circuit"
+    "kind": "full"
   },
   {
     "id": "z80-bench",

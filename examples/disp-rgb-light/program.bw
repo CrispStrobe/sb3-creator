@@ -1,0 +1,29 @@
+DEVICE STC12C5A60S2
+CLOCK 11059200
+PIN neopixel = P1.0 OUTPUT
+
+GLOBAL r
+GLOBAL g
+GLOBAL b
+
+STAGE:
+  # NeoPixel RGB LED showcase: rainbow cycle.
+  WHEN flag clicked:
+    set r to 255
+    set g to 0
+    set b to 0
+    FOREVER:
+      set neopixel 0 to R r G g B b on 1
+      set neopixel 1 to R g G b B r on 1
+      set neopixel 2 to R b G r B g on 1
+      change r by -5
+      change g by 5
+      IF r < 0 THEN:
+        set r to 255
+        set g to 0
+      IF g > 255 THEN:
+        set g to 0
+      change b by 3
+      IF b > 255 THEN:
+        set b to 0
+      wait 0.05 seconds

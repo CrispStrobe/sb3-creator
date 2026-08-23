@@ -1,0 +1,291 @@
+{
+ "vcc": 5,
+ "parts": [
+  {
+   "id": "vcc1",
+   "kind": "vcc",
+   "params": {},
+   "x": 60,
+   "y": 40
+  },
+  {
+   "id": "gnd1",
+   "kind": "gnd",
+   "params": {},
+   "x": 60,
+   "y": 520
+  },
+  {
+   "id": "mcu1",
+   "kind": "mcu",
+   "params": {},
+   "x": 180,
+   "y": 280
+  },
+  {
+   "id": "bar1",
+   "kind": "bargraph",
+   "params": {},
+   "x": 470,
+   "y": 300
+  },
+  {
+   "id": "r0",
+   "kind": "resistor",
+   "params": {
+    "ohms": 470
+   },
+   "x": 330,
+   "y": 180
+  },
+  {
+   "id": "r1",
+   "kind": "resistor",
+   "params": {
+    "ohms": 470
+   },
+   "x": 330,
+   "y": 206
+  },
+  {
+   "id": "r2",
+   "kind": "resistor",
+   "params": {
+    "ohms": 470
+   },
+   "x": 330,
+   "y": 232
+  },
+  {
+   "id": "r3",
+   "kind": "resistor",
+   "params": {
+    "ohms": 470
+   },
+   "x": 330,
+   "y": 258
+  },
+  {
+   "id": "r4",
+   "kind": "resistor",
+   "params": {
+    "ohms": 470
+   },
+   "x": 330,
+   "y": 284
+  },
+  {
+   "id": "r5",
+   "kind": "resistor",
+   "params": {
+    "ohms": 470
+   },
+   "x": 330,
+   "y": 310
+  },
+  {
+   "id": "r6",
+   "kind": "resistor",
+   "params": {
+    "ohms": 470
+   },
+   "x": 330,
+   "y": 336
+  },
+  {
+   "id": "r7",
+   "kind": "resistor",
+   "params": {
+    "ohms": 470
+   },
+   "x": 330,
+   "y": 362
+  },
+  {
+   "id": "pot1",
+   "kind": "potentiometer",
+   "params": {
+    "ohms": 10000
+   },
+   "x": 180,
+   "y": 80
+  }
+ ],
+ "wires": [
+  {
+   "from": "vcc1",
+   "fromTerminal": "vcc",
+   "to": "mcu1",
+   "toTerminal": "VCC"
+  },
+  {
+   "from": "gnd1",
+   "fromTerminal": "gnd",
+   "to": "mcu1",
+   "toTerminal": "GND"
+  },
+  {
+   "from": "vcc1",
+   "fromTerminal": "vcc",
+   "to": "r0",
+   "toTerminal": "a"
+  },
+  {
+   "from": "r0",
+   "fromTerminal": "b",
+   "to": "bar1",
+   "toTerminal": "a0"
+  },
+  {
+   "from": "bar1",
+   "fromTerminal": "k0",
+   "to": "mcu1",
+   "toTerminal": "P2.0"
+  },
+  {
+   "from": "vcc1",
+   "fromTerminal": "vcc",
+   "to": "r1",
+   "toTerminal": "a"
+  },
+  {
+   "from": "r1",
+   "fromTerminal": "b",
+   "to": "bar1",
+   "toTerminal": "a1"
+  },
+  {
+   "from": "bar1",
+   "fromTerminal": "k1",
+   "to": "mcu1",
+   "toTerminal": "P2.1"
+  },
+  {
+   "from": "vcc1",
+   "fromTerminal": "vcc",
+   "to": "r2",
+   "toTerminal": "a"
+  },
+  {
+   "from": "r2",
+   "fromTerminal": "b",
+   "to": "bar1",
+   "toTerminal": "a2"
+  },
+  {
+   "from": "bar1",
+   "fromTerminal": "k2",
+   "to": "mcu1",
+   "toTerminal": "P2.2"
+  },
+  {
+   "from": "vcc1",
+   "fromTerminal": "vcc",
+   "to": "r3",
+   "toTerminal": "a"
+  },
+  {
+   "from": "r3",
+   "fromTerminal": "b",
+   "to": "bar1",
+   "toTerminal": "a3"
+  },
+  {
+   "from": "bar1",
+   "fromTerminal": "k3",
+   "to": "mcu1",
+   "toTerminal": "P2.3"
+  },
+  {
+   "from": "vcc1",
+   "fromTerminal": "vcc",
+   "to": "r4",
+   "toTerminal": "a"
+  },
+  {
+   "from": "r4",
+   "fromTerminal": "b",
+   "to": "bar1",
+   "toTerminal": "a4"
+  },
+  {
+   "from": "bar1",
+   "fromTerminal": "k4",
+   "to": "mcu1",
+   "toTerminal": "P2.4"
+  },
+  {
+   "from": "vcc1",
+   "fromTerminal": "vcc",
+   "to": "r5",
+   "toTerminal": "a"
+  },
+  {
+   "from": "r5",
+   "fromTerminal": "b",
+   "to": "bar1",
+   "toTerminal": "a5"
+  },
+  {
+   "from": "bar1",
+   "fromTerminal": "k5",
+   "to": "mcu1",
+   "toTerminal": "P2.5"
+  },
+  {
+   "from": "vcc1",
+   "fromTerminal": "vcc",
+   "to": "r6",
+   "toTerminal": "a"
+  },
+  {
+   "from": "r6",
+   "fromTerminal": "b",
+   "to": "bar1",
+   "toTerminal": "a6"
+  },
+  {
+   "from": "bar1",
+   "fromTerminal": "k6",
+   "to": "mcu1",
+   "toTerminal": "P2.6"
+  },
+  {
+   "from": "vcc1",
+   "fromTerminal": "vcc",
+   "to": "r7",
+   "toTerminal": "a"
+  },
+  {
+   "from": "r7",
+   "fromTerminal": "b",
+   "to": "bar1",
+   "toTerminal": "a7"
+  },
+  {
+   "from": "bar1",
+   "fromTerminal": "k7",
+   "to": "mcu1",
+   "toTerminal": "P2.7"
+  },
+  {
+   "from": "vcc1",
+   "fromTerminal": "vcc",
+   "to": "pot1",
+   "toTerminal": "a"
+  },
+  {
+   "from": "gnd1",
+   "fromTerminal": "gnd",
+   "to": "pot1",
+   "toTerminal": "b"
+  },
+  {
+   "from": "pot1",
+   "fromTerminal": "wiper",
+   "to": "mcu1",
+   "toTerminal": "P1.3"
+  }
+ ],
+ "holeWires": []
+}
