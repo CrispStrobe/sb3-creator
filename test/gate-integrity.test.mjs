@@ -70,16 +70,34 @@ describe('gate integrity: a suite cannot skip itself into silence', () => {
     // ---------------------------------------------------------------------
     test('every cross-repo test routes its skip through the shared sibling guard', () => {
         const offenders = [];
+        let scanned = 0, crossRepo = 0;
         for (const f of readdirSync(join(SB3, 'test'))) {
             if (!f.endsWith('.test.mjs')) continue;
             const src = readFileSync(join(SB3, 'test', f), 'utf8');
+            scanned++;
             // Does this file depend on a sibling checkout at all?
             if (!/BW_BOARD|BW_CIRCUIT_UI|bw-circuit-ui|bw-board/.test(src)) continue;
+            crossRepo++;
             if (NOT_A_CROSS_REPO_GATE.has(f)) continue;
             if (!/siblingGuardTest\s*\(/.test(src)) {
                 offenders.push(f);
             }
         }
+        // The instrument before the verdict. An empty offender list means either
+        // "everything is guarded" or "the walk found nothing", and those look
+        // identical. This is also the one place a NUL byte would matter: GNU grep
+        // classifies a NUL-bearing file as binary and silently searches nothing, so
+        // an absence established by grep can flip from true to permanently-false
+        // when an unrelated commit introduces a separator byte — which is exactly
+        // what a bw-board vendor bump did to another repo's sweep today. This scan
+        // uses readFileSync, which has no such blind spot; the yield assertion is
+        // what makes that checkable rather than merely claimed.
+        assert.ok(scanned >= 40,
+            `only ${scanned} test files scanned — the walk is broken and this assertion is vacuous`);
+        assert.ok(crossRepo >= 12,
+            `only ${crossRepo} files matched as cross-repo, expected at least 12 — either the ` +
+            `detector's pattern stopped matching or the gates were deleted; both make an empty ` +
+            `offender list meaningless`);
         assert.deepEqual(offenders, [],
             'these tests depend on a sibling checkout but do not call siblingGuardTest(), so ' +
             'they will skip in CI and the skip will read as a pass:\n  ' + offenders.join('\n  ') +

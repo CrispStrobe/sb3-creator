@@ -11,6 +11,29 @@
 // So every file this touches is checked with lstat for being a real file first,
 // and the sibling-visibility of the run is reported rather than assumed.
 //
+// THE RULE THIS SCRIPT LEARNED THE HARD WAY
+// ----------------------------------------
+// A mutation is only evidence if the thing it mutates is LOAD-BEARING IN THE
+// ENVIRONMENT THE MUTATION RUNS IN. Otherwise it is an unproven claim wearing a
+// pass, and it is indistinguishable from robustness.
+//
+// This script scored 20/20 in a worktree with no sibling checkouts and 17/20 in a
+// rig that had them. The three that differed were the env-mutations: locate() fell
+// through to `../<name>` when BW_BOARD did not resolve, so `BW_BOARD=/nowhere`
+// changed nothing on a machine that happened to have the sibling beside it. A
+// prover whose score depends on its environment is not measuring what it claims,
+// and the discrepancy — not either number — was the finding.
+//
+// The general source is REDUNDANCY: when two paths can supply the same fact, no
+// single-step mutation is decisive, so redundant bootstrap steps must be mutated in
+// combination. (bw-cui2 hit the same rule from the other side, where two
+// registration paths each masked the other's absence and no one-step mutation could
+// falsify the guard at all.)
+//
+// The repair, in both cases, is to assert that the mutated FACT actually changed —
+// not merely that the mutation was applied. Here that is `expectVisibility` on every
+// env-mutation, and the no-op check on every file mutation.
+//
 //   node scripts/mutation-prove-conformance.mjs
 
 import { readFileSync, writeFileSync, existsSync, lstatSync, rmSync, realpathSync } from 'node:fs';

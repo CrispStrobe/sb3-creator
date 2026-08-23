@@ -240,6 +240,35 @@ RED   a cross-repo gate drops the shared guard and rolls its own skip
 RED   a sibling is pinned to a forbidden or non-permissive licence
 ```
 
+## The prover disagreed with itself, and that was the finding
+
+Run in two environments, it scored **20/20 without sibling checkouts and 17/20 with
+them**. A prover whose score depends on its environment is not measuring what it
+claims, so neither number was the result — the discrepancy was.
+
+The three that differed were the env-mutations. `locate()` honoured `BW_BOARD` /
+`BW_CIRCUIT_UI` but **fell through** to `../<name>` when the given path did not
+resolve, so `BW_BOARD=/nowhere` changed nothing on a machine that had the sibling
+beside it: the gates skipped exactly as they would have anyway, and the mutations
+scored as caught.
+
+That fallback was a defect in its own right, independent of the prover — anyone
+pointing `BW_BOARD` at a wrong path was quietly measuring a different tree than the
+one they selected, which is the `/tmp` symlink problem arriving through the front
+door. An explicit path now wins absolutely, with nothing behind it. bw-cui2 found the
+same shape in bw-circuit-ui's corpus gates after this was reported, where the
+fallthrough target was the `/tmp/lego` symlink into another session's live tree: with
+a mistyped `EXAMPLES_DIR` a gate reported a clean 10/10 over 1,034 variants it was
+never asked about.
+
+The generalisation, now in the prover's header: **a mutation is only evidence if the
+thing it mutates is load-bearing in the environment the mutation runs in.** The
+systematic source is redundancy — when two paths supply the same fact, no single-step
+mutation is decisive, so redundant bootstrap steps must be mutated in combination.
+The repair is to assert the mutated *fact* changed, not that the mutation was
+applied: `expectVisibility` on every env-mutation, and the existing no-op check on
+every file mutation. Both environments now score 20/20.
+
 ## A third instrument case: partial visibility
 
 `partialVisibility()` in `test/helpers/siblings.mjs` names the configuration that
@@ -262,6 +291,14 @@ mutation-proved both cases.)
 2. **Install `sdcc` + an emscripten build of `emu8051-stc` in CI** if the two
    developer-only tests are ever judged worth the runner minutes. Until then they are
    labelled, not hidden.
-3. Leave the toolchain, opt-in-oracle and environment skips as they are; they are
+3. **A sweep for vacuous gates.** Neither the skip-sweep nor the static detector can
+   see a test that iterates a discovered list which is empty — it neither skips nor
+   fails, it passes having checked nothing. That is the same family as `ctarget`'s
+   catch-that-returns, and unlike "does this skip in CI" it is greppable: the shape to
+   assert is *every test that iterates a discovered list asserts that list is
+   non-empty*. Individual gates here already do this (`the opcode deriver actually
+   finds opcodes`, `the example corpus actually yields extension opcodes`); what is
+   missing is the suite-wide sweep. Raised by bw-cui2.
+4. Leave the toolchain, opt-in-oracle and environment skips as they are; they are
    named and honest. The network-dependent `registry URL resolves:` tests still want a
    retry — someone else's outage should not redden this build.
