@@ -1,0 +1,22 @@
+DEVICE STC12C5A60S2
+CLOCK 11059200
+PIN seg_a = P1.0 OUTPUT
+PIN seg_b = P1.1 OUTPUT
+PIN seg_c = P1.2 OUTPUT
+PIN seg_d = P1.3 OUTPUT
+PIN seg_e = P1.4 OUTPUT
+PIN seg_f = P1.5 OUTPUT
+PIN seg_g = P1.6 OUTPUT
+
+GLOBAL digit
+
+STAGE:
+  # 7-segment display showcase: count 0–9.
+  WHEN flag clicked:
+    set digit to 0
+    FOREVER:
+      show digit digit on 1
+      change digit by 1
+      IF digit > 9 THEN:
+        set digit to 0
+      wait 1 seconds

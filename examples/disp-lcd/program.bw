@@ -1,0 +1,22 @@
+DEVICE STC12C5A60S2
+CLOCK 11059200
+PIN sda = P2.1 OUTPUT
+PIN scl = P2.2 OUTPUT
+
+GLOBAL count
+
+STAGE:
+  # HD44780 character LCD (I²C backpack) showcase.
+  WHEN flag clicked:
+    lcd clear 1
+    lcd print "LCD DEMO" on 1
+    lcd set cursor 0 1 on 1
+    lcd print "Brickwright" on 1
+    set count to 0
+    FOREVER:
+      lcd set cursor 0 1 on 1
+      lcd print "Count: " on 1
+      lcd print count on 1
+      lcd print "   " on 1
+      change count by 1
+      wait 1 seconds

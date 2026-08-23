@@ -1,0 +1,7 @@
+DEVICE EATER6502
+MAP RAM $0000-$3FFF
+MAP ROM $8000-$FFFF
+CHIP vdp1 = TMS9918 AT $4000
+
+# SimpleVGA / TMS9918 showcase: text mode hello.
+# Scaffold — finalize after VDP widget lands.

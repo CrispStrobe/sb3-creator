@@ -1,0 +1,27 @@
+DEVICE STC12C5A60S2
+CLOCK 11059200
+PIN din = P1.5 OUTPUT
+PIN cs = P1.6 OUTPUT
+PIN clk = P1.7 OUTPUT
+
+GLOBAL row
+
+STAGE:
+  # MAX7219 8×8 LED matrix showcase: scrolling rows.
+  WHEN flag clicked:
+    clear matrix 1
+    set row to 0
+    FOREVER:
+      clear matrix 1
+      set pixel row 0 to 1 on 1
+      set pixel row 1 to 1 on 1
+      set pixel row 2 to 1 on 1
+      set pixel row 3 to 1 on 1
+      set pixel row 4 to 1 on 1
+      set pixel row 5 to 1 on 1
+      set pixel row 6 to 1 on 1
+      set pixel row 7 to 1 on 1
+      change row by 1
+      IF row > 7 THEN:
+        set row to 0
+      wait 0.2 seconds
