@@ -1,0 +1,83 @@
+{
+  "snapshots": {
+    "lite-stc12": {
+      "repo": "brickwright-lite",
+      "path": "overlay/scratch-vm/src/extensions/crispstrobe/stc12/index.js",
+      "wrapper": "makeExt",
+      "why": "the extension brickwright-lite bundles; what the desktop/mobile app loads",
+      "upstreamCommit": "e5e38bdeb09c21af66430eb4363c453a9810fbbb",
+      "sha256": "1b28266c58859765060bf64c01363dc0716849f4d5f96264aa782997720ffd2b",
+      "bytes": 18914,
+      "expectedMissing": [
+        "keypad",
+        "led_only",
+        "led_set",
+        "seg_clear",
+        "seg_setsegs",
+        "seg_showdigit",
+        "seg_shownum",
+        "whenkey"
+      ],
+      "pendingFix": "brickwright-lite branch fix/stc12-bundled-missing-opcodes (02bb5f51f) defines all eight. Recorded 2026-08-23. The KEYPAD4X4 and SEVENSEG8/LEDBANK8 waves landed in reference/extensions/stc12.js on 2026-08-18 (4962d4d, 952b623); the bundle got only the MATRIX8X8 port that day. Effect while open: examples/79-a2-sampler runs with a dead display and a dead keypad, and its two 'WHEN key N pressed' scripts never start. Delete this entry and re-vendor once that branch is on lite main."
+    },
+    "lite-stc12live": {
+      "repo": "brickwright-lite",
+      "path": "overlay/scratch-vm/src/extensions/crispstrobe/stc12live/index.js",
+      "wrapper": "makeExt",
+      "why": "bundled tethered-hardware driver; runtime-only, no emitter",
+      "upstreamCommit": "711e4744f77bc7232f99972a9eb637c1b273059a",
+      "sha256": "73361d3db15e906ef18d7a2f7c038394e1aaf3a6ce833c44e741e2ecbec9201a",
+      "bytes": 11929,
+      "expectedMissing": []
+    },
+    "gallery-stc12": {
+      "repo": "extensions",
+      "path": "extensions/CrispStrobe/stc12.js",
+      "wrapper": null,
+      "why": "deployed to crispstrobe.github.io; what web Brickwright fetches at runtime",
+      "upstreamCommit": "934728d3b73a7c9ba07de4bc55bf31890546d3b0",
+      "sha256": "f15d1fd93a4d5947be6cbc9b8dae7aa9793f3f25d82c1e36a5076c2dc6454f96",
+      "bytes": 10333,
+      "expectedMissing": [
+        "keypad",
+        "led_only",
+        "led_set",
+        "matrix_clear",
+        "matrix_dim",
+        "matrix_getpx",
+        "matrix_image",
+        "matrix_paint",
+        "matrix_row",
+        "matrix_scroll",
+        "matrix_setpx",
+        "seg_clear",
+        "seg_setsegs",
+        "seg_showdigit",
+        "seg_shownum",
+        "whenkey"
+      ],
+      "pendingFix": "extensions branch fix/stc12-publish-canonical (ece9fde) publishes reference/extensions/stc12.js, which is a strict superset of this snapshot (359 insertions, 0 deletions). Recorded 2026-08-23. This copy is two waves behind, not one: it never received MATRIX8X8 either. It is what web Brickwright and plain TurboWarp fetch at runtime, so those sixteen opcodes resolve to nothing there. Delete this entry and re-vendor once that branch is on the extensions repo's main."
+    },
+    "gallery-stc12live": {
+      "repo": "extensions",
+      "path": "extensions/CrispStrobe/stc12live.js",
+      "wrapper": null,
+      "why": "deployed tethered-hardware driver",
+      "upstreamCommit": "934728d3b73a7c9ba07de4bc55bf31890546d3b0",
+      "sha256": "d83873a2734058ae8010e780112bfff02cf657d3f6b72b7994700e715b9f4e8c",
+      "bytes": 13931,
+      "expectedMissing": []
+    },
+    "gallery-ledcube": {
+      "repo": "extensions",
+      "path": "extensions/CrispStrobe/ledcube.js",
+      "wrapper": null,
+      "why": "deployed LED-cube extension; sb3-creator emits ledcube_* opcodes",
+      "upstreamCommit": "32580986e61bb6a7f6d97710fcc61d3d4e7bdb3b",
+      "sha256": "dca0bd9d5ff62286b3caad771064b511f4eb4816dfc09208e2935a49ae2117f1",
+      "bytes": 8028,
+      "expectedMissing": []
+    }
+  },
+  "note": "Written by scripts/vendor-downstream-extensions.mjs. `expectedMissing` is maintained by hand and asserted EXACTLY by test/stc12-conformance.test.mjs: it records emitted opcodes a snapshot does not define, so a known cross-repo gap is visible here rather than hidden in a skipped test. Empty is the goal."
+}

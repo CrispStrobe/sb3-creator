@@ -1,377 +1,221 @@
-// Conformance: the two copies of the stc12 extension (gallery + bundled) must expose
-// exactly the opcodes sb3-creator emits, with identical argument shapes.
+// Conformance: every copy of an extension that a host might load must define
+// every opcode sb3Creator.js emits, with the same argument shapes and the same
+// menu kinds.
 //
-// Three things agree, or projects round-trip wrong:
-//   1. sb3-creator emits  stc12_* opcodes (derived by scanning sb3Creator.js)
-//   2. gallery copy       extensions/CrispStrobe/stc12.js (fetched at runtime)
-//   3. bundled copy       lite/overlay/.../crispstrobe/stc12/index.js (string literal)
+// Three copies exist and they are three hand-maintained forks, not derivatives:
+//   1. reference/extensions/stc12.js            in-repo, canonical
+//   2. test/fixtures/downstream/gallery-*.js    what crispstrobe.github.io serves
+//   3. test/fixtures/downstream/lite-*.js       what brickwright-lite bundles
 //
-// A menu with acceptReporters:false compiles to a FIELD. If either copy changes that,
-// saved projects silently break: fields become inputs with shadow blocks, and no longer
-// match what sb3-creator wrote.
+// A menu with acceptReporters:false compiles to a FIELD. If a copy changes that,
+// saved projects silently break: fields become inputs with shadow blocks and no
+// longer match what sb3-creator wrote.
+//
+// WHY THE DOWNSTREAM COPIES ARE VENDORED
+// --------------------------------------
+// They used to be read from sibling checkouts, and the tests carried
+// `skip: !source && 'file not found'`. sb3-creator's CI clones one repo, so five
+// of seven tests skipped and every run was green — including the five days when
+// the bundled extension was eight opcodes short and one shipped example was
+// quietly inert. A skipped gate and a passing gate look identical in the summary
+// line, so nothing here is allowed to skip. See test/STC12-CONFORMANCE-FINDING.md
+// and scripts/vendor-downstream-extensions.mjs.
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { snapshots, loadExtension, blocksByOpcode, unwrap, MANIFEST } from './helpers/downstream.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 
-// ---- helpers ----------------------------------------------------------------
-
-/** Run an extension source string in a minimal Scratch shim, return getInfo(). */
-function loadExtension(source) {
-    const registered = [];
-    const Scratch = {
-        BlockType: { COMMAND: 'command', REPORTER: 'reporter', BOOLEAN: 'boolean', HAT: 'hat' },
-        ArgumentType: { STRING: 'string', NUMBER: 'number', BOOLEAN: 'boolean', COLOR: 'color' },
-        extensions: { register(ext) { registered.push(ext); } },
-        translate: (obj) => obj.default || obj,  // identity — returns the default-locale string
-        vm: { runtime: { stc: { pins: [{ name: 'P1_0', activeLow: false }], ports: [], parts: [], tables: [{ name: 'font', values: [0x3F] }] } } }
-    };
-    const fn = new Function('Scratch', source);
-    fn(Scratch);
-    assert.ok(registered.length > 0, 'extension must register');
-    return registered[0].getInfo();
-}
-
-/** Extract the source string from a makeExt(`...`) wrapper. */
-function extractInlinedSource(wrapperCode) {
-    const m = wrapperCode.match(/makeExt\(`([\s\S]*)`\);?\s*$/);
-    assert.ok(m, 'could not extract inlined source from makeExt(...)');
-    return m[1];
-}
-
-// ---- load all three copies ---------------------------------------------------
-
-// The sibling checkouts are not laid out the same way on every machine: the VPS has
-// `extensions/` and `bw-bundle/lite/` beside this repo, a workstation has them under
-// `lego/brickwright-lite/`. A single hardcoded path means four of the five tests skip
-// silently on the other machine — and a skipped conformance test looks exactly like a
-// passing one in the summary line. So try each known layout, and let an env var win.
-function findCopy (envVar, ...candidates) {
-    const fromEnv = process.env[envVar];
-    if (fromEnv) {
-        // An explicit pointer that does not resolve is an error, not a skip: someone
-        // set it meaning to run the check, and silently skipping would hide that.
-        return { path: fromEnv, source: readFileSync(fromEnv, 'utf8') };
-    }
-    for (const rel of candidates) {
-        const path = resolve(here, rel);
-        try { return { path, source: readFileSync(path, 'utf8') }; } catch { /* next */ }
-    }
-    return {};
-}
-
-const gallery = findCopy('BW_GALLERY',
-    '../../extensions/extensions/CrispStrobe/stc12.js',
-    '../../lego/extensions/extensions/CrispStrobe/stc12.js');
-const bundled = findCopy('BW_LITE_STC12',
-    '../../bw-bundle/lite/overlay/scratch-vm/src/extensions/crispstrobe/stc12/index.js',
-    '../../lego/brickwright-lite/overlay/scratch-vm/src/extensions/crispstrobe/stc12/index.js');
-const reference = findCopy('BW_REFERENCE_STC12', '../reference/extensions/stc12.js');
-
-const gallerySource = gallery.source;
-const bundledWrapper = bundled.source;
-const referenceSource = reference.source;
-
 // ---- the opcodes sb3-creator emits (derived, not hand-maintained) ------------
-// Scan sb3Creator.js for every stc12_* opcode created by createBlock / cmd / B / push.
-// Matching the creation call rather than the bare string means no exclusion list is
-// needed (_stc12_pins is a variable name, not a createBlock call, so it never appears).
+// Scan sb3Creator.js for every opcode created by createBlock / cmd / B / push.
+// Matching the creation call rather than the bare string means no exclusion list
+// is needed (`_stc12_pins` is a variable name, not a createBlock call).
 
 const sb3CreatorSource = readFileSync(resolve(here, '../src/utils/sb3Creator.js'), 'utf8');
-const EMITTED_OPCODES = new Set();
-const EMITTER_ARGS = {};  // opcode → Set of argument names the emitter writes
 
-for (const m of sb3CreatorSource.matchAll(/(?:createBlock|cmd)\('stc12_([a-z0-9_]+)'/g)) {
-    const op = m[1];
-    EMITTED_OPCODES.add(op);
-    if (!EMITTER_ARGS[op]) EMITTER_ARGS[op] = new Set();
-    // Scan the 400 chars after the call for fields.X and inputs.X assignments.
-    const after = sb3CreatorSource.slice(m.index, m.index + 400);
-    for (const f of after.matchAll(/(?:fields|inputs)\.([A-Z_]+)\s*=/g)) EMITTER_ARGS[op].add(f[1]);
-}
-for (const m of sb3CreatorSource.matchAll(/(?:B|push)\('stc12_([a-z0-9_]+)',\s*\{[^}]*\},\s*\{([^}]*)\}/g)) {
-    const op = m[1];
-    EMITTED_OPCODES.add(op);
-    if (!EMITTER_ARGS[op]) EMITTER_ARGS[op] = new Set();
-    for (const f of m[2].matchAll(/([A-Z_]+)\s*:/g)) EMITTER_ARGS[op].add(f[1]);
-}
-
-// ---- assert a getInfo matches the emitted opcodes ---------------------------
-
-function assertConformance(info, label) {
-    const blocksByOpcode = Object.fromEntries(
-        info.blocks.filter(b => typeof b === 'object').map(b => [b.opcode, b])
-    );
-
-    // Every emitted opcode must exist in the extension
-    for (const op of EMITTED_OPCODES) {
-        assert.ok(blocksByOpcode[op], `${label}: missing opcode "${op}" (sb3-creator emits stc12_${op})`);
+function deriveEmitted (prefix, { stopAtReturn = false } = {}) {
+    const opcodes = new Set();
+    const args = {};
+    const add = (op) => { opcodes.add(op); if (!args[op]) args[op] = new Set(); return args[op]; };
+    for (const m of sb3CreatorSource.matchAll(new RegExp(`(?:createBlock|cmd)\\('${prefix}_([a-z0-9_]+)'`, 'g'))) {
+        const bag = add(m[1]);
+        // A fixed window picks up neighbouring blocks when they are packed close
+        // together, so ledcube stops at the `return ret(` that ends the call.
+        const window = sb3CreatorSource.slice(m.index, m.index + 400);
+        const cut = stopAtReturn ? window.indexOf('return ret(') : -1;
+        const after = cut > 0 ? window.slice(0, cut) : window;
+        for (const f of after.matchAll(/(?:fields|inputs)\.([A-Z_]+)\s*=/g)) bag.add(f[1]);
     }
+    for (const m of sb3CreatorSource.matchAll(new RegExp(`(?:B|push)\\('${prefix}_([a-z0-9_]+)',\\s*\\{[^}]*\\},?\\s*\\{([^}]*)\\}`, 'g'))) {
+        const bag = add(m[1]);
+        for (const f of m[2].matchAll(/([A-Z_]+)\s*:/g)) bag.add(f[1]);
+    }
+    return { opcodes, args };
+}
 
-    // The extension's argument names must match what the emitter writes.
-    // A renamed argument silently breaks every saved project's field binding.
-    for (const op of EMITTED_OPCODES) {
-        const block = blocksByOpcode[op];
-        if (!block) continue;
-        const emitterArgs = EMITTER_ARGS[op];
-        // Every stc12 opcode takes at least one argument. If the deriver found
-        // none, the 400-char scan window missed the assignments — fail loudly
-        // rather than silently skipping the argument check.
-        assert.ok(emitterArgs && emitterArgs.size > 0,
-            `${label}: stc12_${op} — deriver found no argument names (scan window too small or opcode takes none)`);
+const STC12 = deriveEmitted('stc12');
+const LEDCUBE = deriveEmitted('ledcube', { stopAtReturn: true });
+
+// The deriver is the instrument, and an instrument that reads zero is not a
+// clean bill of health. If a refactor renames createBlock, every conformance
+// assertion below would pass vacuously, so assert the instrument first.
+test('the opcode deriver actually finds opcodes', () => {
+    assert.ok(STC12.opcodes.size >= 25,
+        `expected the emitter to yield 25+ stc12 opcodes, found ${STC12.opcodes.size} — ` +
+        `the deriver has stopped matching and every conformance test below is now vacuous`);
+    assert.ok(LEDCUBE.opcodes.size >= 5,
+        `expected 5+ ledcube opcodes, found ${LEDCUBE.opcodes.size} — deriver broken`);
+    for (const op of STC12.opcodes) {
+        assert.ok(STC12.args[op] && STC12.args[op].size > 0,
+            `stc12_${op}: the deriver found no argument names, so the argument check for it ` +
+            `would pass vacuously (scan window too small, or the opcode takes none)`);
+    }
+});
+
+const PREFIX = { stc12: STC12, stc12live: null, ledcube: LEDCUBE };
+const prefixOf = (name) => (name.includes('stc12live') ? 'stc12live'
+    : name.includes('ledcube') ? 'ledcube' : 'stc12');
+
+// ---- shared assertions -------------------------------------------------------
+
+function assertArgumentsAndMenus (info, emitted, label) {
+    const blocks = blocksByOpcode(info);
+    // The extension's argument names must match what the emitter writes. A
+    // renamed argument silently breaks every saved project's field binding.
+    for (const op of emitted.opcodes) {
+        const block = blocks[op];
+        if (!block) continue;   // absence is the expectedMissing assertion's business
         const declared = new Set(Object.keys(block.arguments || {}));
-        for (const arg of emitterArgs) {
+        for (const arg of emitted.args[op]) {
             assert.ok(declared.has(arg),
-                `${label}: stc12_${op} — emitter writes "${arg}" but getInfo() does not declare it`);
+                `${label}: ${op} — emitter writes "${arg}" but getInfo() does not declare it`);
         }
     }
-
-    // Every menu referenced by any block must have acceptReporters:false (→ FIELD)
+    // Every menu a block references must exist and be a FIELD.
     const menus = info.menus || {};
-    for (const block of Object.values(blocksByOpcode)) {
+    for (const block of Object.values(blocks)) {
         for (const [argName, arg] of Object.entries(block.arguments || {})) {
-            if (arg.menu) {
-                const menu = menus[arg.menu];
-                assert.ok(menu, `${label}: ${block.opcode}.${argName} references menu "${arg.menu}" which does not exist`);
-                assert.strictEqual(menu.acceptReporters, false,
-                    `${label}: menu "${arg.menu}" must have acceptReporters:false (FIELD, not input)`);
-            }
+            if (!arg.menu) continue;
+            assert.ok(menus[arg.menu],
+                `${label}: ${block.opcode}.${argName} references menu "${arg.menu}" which does not exist`);
+            assert.strictEqual(menus[arg.menu].acceptReporters, false,
+                `${label}: menu "${arg.menu}" must have acceptReporters:false (FIELD, not input)`);
         }
     }
 }
 
-// ---- tests ------------------------------------------------------------------
+// ---- the in-repo canonical copy ----------------------------------------------
+// This one has no excuse: it lives here, so it is asserted with no exemption.
 
-test('gallery stc12 extension matches emitted opcodes', { skip: !gallerySource && 'gallery file not found' }, () => {
-    // Gallery source is an IIFE: (function(Scratch) { ... })(Scratch);
-    const info = loadExtension(gallerySource);
-    assert.strictEqual(info.id, 'stc12');
-    assertConformance(info, 'gallery');
-});
+for (const [slug, emitted] of [['stc12', STC12], ['ledcube', LEDCUBE]]) {
+    test(`reference/extensions/${slug}.js defines every emitted opcode`, () => {
+        const info = loadExtension(readFileSync(resolve(here, `../reference/extensions/${slug}.js`), 'utf8'), slug);
+        assert.strictEqual(info.id, slug);
+        const blocks = blocksByOpcode(info);
+        const missing = [...emitted.opcodes].filter((op) => !blocks[op]).sort();
+        assert.deepStrictEqual(missing, [],
+            `reference/extensions/${slug}.js is missing ${missing.length} opcode(s) the emitter ` +
+            `writes: ${missing.join(', ')}. This copy is in this repository — there is no ` +
+            `cross-repo excuse, fix it here.`);
+        assertArgumentsAndMenus(info, emitted, `reference/${slug}`);
+    });
+}
 
-test('bundled stc12 extension matches emitted opcodes', { skip: !bundledWrapper && 'bundled file not found' }, () => {
-    const source = extractInlinedSource(bundledWrapper);
-    const info = loadExtension(source);
-    assert.strictEqual(info.id, 'stc12');
-    assertConformance(info, 'bundled');
-});
+// ---- the vendored downstream copies -------------------------------------------
 
-test('reference copy matches emitted opcodes', { skip: !referenceSource && 'reference file not found' }, () => {
-    const info = loadExtension(referenceSource);
-    assert.strictEqual(info.id, 'stc12');
-    assertConformance(info, 'reference');
-});
+for (const snap of snapshots()) {
+    const emitted = PREFIX[prefixOf(snap.name)];
 
-// Compare whatever copies this machine actually has, rather than all-or-nothing.
-// Requiring all three meant a workstation without the gallery checkout skipped the
-// comparison entirely — and bundled-vs-reference disagreeing is just as much a bug as
-// all three disagreeing. Two is enough to compare; one is not a comparison.
-const availableCopies = {};
-if (gallerySource) availableCopies.gallery = () => loadExtension(gallerySource);
-if (bundledWrapper) availableCopies.bundled = () => loadExtension(extractInlinedSource(bundledWrapper));
-if (referenceSource) availableCopies.reference = () => loadExtension(referenceSource);
+    test(`${snap.name}: conformance against the emitter`, () => {
+        const info = loadExtension(snap.inner, snap.name);
+        const blocks = blocksByOpcode(info);
 
-test('the stc12 copies present on this machine have identical block shapes', {
-    skip: Object.keys(availableCopies).length < 2 &&
-        `need two copies to compare, found ${Object.keys(availableCopies).join(', ') || 'none'}`
-}, () => {
-    const copies = Object.fromEntries(
-        Object.entries(availableCopies).map(([name, load]) => [name, load()]));
+        if (emitted) {
+            const missing = [...emitted.opcodes].filter((op) => !blocks[op]).sort();
+            const expected = [...(snap.entry.expectedMissing || [])].sort();
+            // EXACT, not subset, and that is the whole point. A subset check lets a
+            // new gap hide behind an old one; an exact check also fails once a
+            // recorded gap is fixed upstream but the snapshot was never refreshed,
+            // so the exemption cannot outlive its cause.
+            assert.deepStrictEqual(missing, expected,
+                `${snap.name} (${snap.source.repo}:${snap.source.path} @ ` +
+                `${String(snap.entry.upstreamCommit).slice(0, 9)}) does not define the opcodes ` +
+                `MANIFEST.json says it does not define.\n` +
+                `  missing now:      ${missing.join(', ') || '(none)'}\n` +
+                `  expectedMissing:  ${expected.join(', ') || '(none)'}\n` +
+                (missing.length > expected.length
+                    ? `  A NEW cross-repo gap. Port the opcodes, or record them with a pendingFix.`
+                    : `  A recorded gap is closed. Re-vendor the snapshot and delete the entry.`));
+        }
+        assertArgumentsAndMenus(info, emitted || { opcodes: new Set(), args: {} }, snap.name);
+    });
 
-    // Collect blocks by opcode from each copy
-    const byOp = {};
-    for (const [name, info] of Object.entries(copies)) {
-        byOp[name] = Object.fromEntries(
-            info.blocks.filter(b => typeof b === 'object').map(b => [b.opcode, b])
-        );
+    // The snapshot must not drift away from what the sibling repo actually has.
+    // Present only on a machine with the sibling checked out; absent in CI, where
+    // the exact-expectedMissing assertion above is the guard instead. This is the
+    // one place a missing input is legitimately not a failure — it adds a check,
+    // it is not the check.
+    test(`${snap.name}: vendored snapshot matches the live sibling checkout`, {
+        skip: !snap.live && `no ${snap.source.repo} checkout on this machine — ` +
+            `conformance above still ran against the vendored snapshot`
+    }, () => {
+        const live = readFileSync(snap.live, 'utf8');
+        const liveInfo = loadExtension(unwrap(live, snap.source.wrapper), `${snap.name} (live)`);
+        const snapInfo = loadExtension(snap.inner, snap.name);
+        const shape = (info) => Object.entries(blocksByOpcode(info)).sort(([a], [b]) => a.localeCompare(b))
+            .map(([op, b]) => [op, b.blockType, Object.entries(b.arguments || {})
+                .sort(([x], [y]) => x.localeCompare(y)).map(([k, v]) => [k, v.type, v.menu || null])]);
+        assert.deepStrictEqual(shape(snapInfo), shape(liveInfo),
+            `test/fixtures/downstream/${snap.name}.js is stale against ${snap.live}. ` +
+            `Re-vendor with \`node scripts/vendor-downstream-extensions.mjs\` and update ` +
+            `MANIFEST.json's expectedMissing.`);
+    });
+}
+
+// ---- the copies must agree with each other ------------------------------------
+
+test('every copy of stc12 agrees on the shape of the blocks it shares', () => {
+    const copies = { reference: loadExtension(readFileSync(resolve(here, '../reference/extensions/stc12.js'), 'utf8'), 'reference') };
+    for (const snap of snapshots()) {
+        if (prefixOf(snap.name) !== 'stc12') continue;
+        copies[snap.name] = loadExtension(snap.inner, snap.name);
     }
-
-    // Opcodes every present copy has
     const names = Object.keys(copies);
-    const shared = Object.keys(byOp[names[0]]).filter(op => names.every(n => byOp[n][op]));
-    assert.ok(shared.length >= EMITTED_OPCODES.size,
-        `${names.join(' + ')} must share at least the ${EMITTED_OPCODES.size} emitted opcodes (shared: ${shared.length})`);
+    assert.ok(names.length >= 3,
+        `expected the canonical copy plus both downstream snapshots, got ${names.join(', ')}`);
 
-    // For each shared opcode, every present copy must agree on blockType and arg shapes
-    for (const op of shared) {
-        for (let i = 1; i < names.length; i++) {
-            const a = byOp[names[0]][op], b = byOp[names[i]][op];
+    const byOp = Object.fromEntries(names.map((n) => [n, blocksByOpcode(copies[n])]));
+    for (const other of names.slice(1)) {
+        for (const op of Object.keys(byOp[names[0]])) {
+            const a = byOp[names[0]][op], b = byOp[other][op];
+            if (!b) continue;   // absence is expectedMissing's business, not shape's
             assert.strictEqual(a.blockType, b.blockType,
-                `${op}: blockType mismatch between ${names[0]} and ${names[i]}`);
-
-            const aArgs = Object.entries(a.arguments || {}).sort(([x], [y]) => x.localeCompare(y));
-            const bArgs = Object.entries(b.arguments || {}).sort(([x], [y]) => x.localeCompare(y));
-            assert.deepStrictEqual(
-                aArgs.map(([k, v]) => [k, v.type, v.menu || null]),
-                bArgs.map(([k, v]) => [k, v.type, v.menu || null]),
-                `${op}: argument shapes differ between ${names[0]} and ${names[i]}`
-            );
+                `${op}: blockType differs between ${names[0]} and ${other}`);
+            const shape = (x) => Object.entries(x.arguments || {}).sort(([p], [q]) => p.localeCompare(q))
+                .map(([k, v]) => [k, v.type, v.menu || null]);
+            assert.deepStrictEqual(shape(a), shape(b),
+                `${op}: argument shapes differ between ${names[0]} and ${other}`);
         }
-    }
-
-    // For shared menus, acceptReporters must match across all copies
-    for (let i = 1; i < Object.keys(copies).length; i++) {
-        const nameA = Object.keys(copies)[0], nameB = Object.keys(copies)[i];
-        const menusA = copies[nameA].menus || {};
-        const menusB = copies[nameB].menus || {};
-        for (const name of Object.keys(menusA).filter(n => menusB[n])) {
-            assert.strictEqual(menusA[name].acceptReporters, menusB[name].acceptReporters,
-                `menu "${name}": acceptReporters mismatch between ${nameA} and ${nameB}`);
+        for (const menu of Object.keys(copies[names[0]].menus || {})) {
+            const m = (copies[other].menus || {})[menu];
+            if (!m) continue;
+            assert.strictEqual(copies[names[0]].menus[menu].acceptReporters, m.acceptReporters,
+                `menu "${menu}": acceptReporters differs between ${names[0]} and ${other}`);
         }
     }
 });
 
-// ---- stc12live: copy agreement (no emitter, runtime-only extension) ---------
-
-const stc12liveGallery = findCopy('BW_GALLERY_STC12LIVE',
-    '../../extensions/extensions/CrispStrobe/stc12live.js',
-    '../../lego/extensions/extensions/CrispStrobe/stc12live.js').source;
-const stc12liveBundled = findCopy('BW_LITE_STC12LIVE',
-    '../../bw-bundle/lite/overlay/scratch-vm/src/extensions/crispstrobe/stc12live/index.js',
-    '../../lego/brickwright-lite/overlay/scratch-vm/src/extensions/crispstrobe/stc12live/index.js').source;
-const stc12liveRef = findCopy('BW_REFERENCE_STC12LIVE', '../reference/extensions/stc12live.js').source;
-
-const availableLive = {};
-if (stc12liveGallery) availableLive.gallery = () => loadExtension(stc12liveGallery);
-if (stc12liveBundled) availableLive.bundled = () => loadExtension(extractInlinedSource(stc12liveBundled));
-if (stc12liveRef) availableLive.reference = () => loadExtension(stc12liveRef);
-
-test('the stc12live copies present on this machine have identical block shapes', {
-    skip: Object.keys(availableLive).length < 2 &&
-        `need two copies to compare, found ${Object.keys(availableLive).join(', ') || 'none'}`
-}, () => {
-    const copies = Object.fromEntries(
-        Object.entries(availableLive).map(([name, load]) => [name, load()]));
-
-    const names = Object.keys(copies);
-    for (const name of names) {
-        assert.strictEqual(copies[name].id, 'stc12live', `${name} copy must register as stc12live`);
+test('MANIFEST.json attributes every snapshot to an upstream commit', () => {
+    for (const snap of snapshots()) {
+        assert.match(String(snap.entry.upstreamCommit), /^[0-9a-f]{40}$/,
+            `${snap.name}: upstreamCommit must be a full sha, so the snapshot can be traced ` +
+            `to what the sibling repo actually shipped`);
+        assert.ok(snap.entry.why, `${snap.name}: MANIFEST.json must say why this copy is vendored`);
     }
-    const byOp = {};
-    for (const name of names) {
-        byOp[name] = Object.fromEntries(
-            copies[name].blocks.filter(b => typeof b === 'object').map(b => [b.opcode, b])
-        );
-    }
-
-    // All shared opcodes must have identical shapes
-    const allOps = new Set(Object.keys(byOp[names[0]]));
-    for (let i = 1; i < names.length; i++) {
-        for (const op of allOps) {
-            const a = byOp[names[0]][op], b = byOp[names[i]][op];
-            if (!b) continue; // extra in one copy is ok
-            assert.strictEqual(a.blockType, b.blockType,
-                `stc12live ${op}: blockType mismatch between ${names[0]} and ${names[i]}`);
-            const aArgs = Object.entries(a.arguments || {}).sort(([x], [y]) => x.localeCompare(y));
-            const bArgs = Object.entries(b.arguments || {}).sort(([x], [y]) => x.localeCompare(y));
-            assert.deepStrictEqual(
-                aArgs.map(([k, v]) => [k, v.type, v.menu || null]),
-                bArgs.map(([k, v]) => [k, v.type, v.menu || null]),
-                `stc12live ${op}: argument shapes differ between ${names[0]} and ${names[i]}`
-            );
-        }
-    }
-
-    // Shared menus must agree on acceptReporters
-    for (let i = 1; i < names.length; i++) {
-        const menusA = copies[names[0]].menus || {};
-        const menusB = copies[names[i]].menus || {};
-        for (const name of Object.keys(menusA).filter(n => menusB[n])) {
-            assert.strictEqual(menusA[name].acceptReporters, menusB[name].acceptReporters,
-                `stc12live menu "${name}": acceptReporters mismatch`);
-        }
-    }
-});
-
-// ---- ledcube: conformance across copies + emitter agreement ----------------
-
-const ledcubeGallery = findCopy('BW_GALLERY_LEDCUBE',
-    '../../extensions/extensions/CrispStrobe/ledcube.js');
-const ledcubeRef = findCopy('BW_REFERENCE_LEDCUBE', '../reference/extensions/ledcube.js');
-
-// Derive EMITTED_LEDCUBE_OPCODES the same way as stc12, from createBlock/cmd/B/push.
-// Use `return` as the scan boundary instead of a fixed 400-char window, because
-// ledcube blocks are packed close together and the window picks up neighbours.
-const EMITTED_LEDCUBE = new Set();
-const LEDCUBE_ARGS = {};
-for (const m of sb3CreatorSource.matchAll(/(?:createBlock|cmd)\('ledcube_([a-z0-9_]+)'/g)) {
-    EMITTED_LEDCUBE.add(m[1]);
-    if (!LEDCUBE_ARGS[m[1]]) LEDCUBE_ARGS[m[1]] = new Set();
-    const afterFull = sb3CreatorSource.slice(m.index, m.index + 400);
-    const retIdx = afterFull.indexOf('return ret(');
-    const after = retIdx > 0 ? afterFull.slice(0, retIdx) : afterFull;
-    for (const f of after.matchAll(/(?:fields|inputs)\.([A-Z_]+)\s*=/g)) LEDCUBE_ARGS[m[1]].add(f[1]);
-}
-for (const m of sb3CreatorSource.matchAll(/(?:B|push)\('ledcube_([a-z0-9_]+)',\s*\{[^}]*\},?\s*\{([^}]*)\}/g)) {
-    EMITTED_LEDCUBE.add(m[1]);
-    if (!LEDCUBE_ARGS[m[1]]) LEDCUBE_ARGS[m[1]] = new Set();
-    for (const f of m[2].matchAll(/([A-Z_]+)\s*:/g)) LEDCUBE_ARGS[m[1]].add(f[1]);
-}
-
-test('ledcube extension matches emitted opcodes', {
-    skip: !ledcubeGallery.source && !ledcubeRef.source && 'no ledcube copy found'
-}, () => {
-    const source = ledcubeGallery.source || ledcubeRef.source;
-    const info = loadExtension(source);
-    assert.strictEqual(info.id, 'ledcube');
-
-    const blocksByOpcode = Object.fromEntries(
-        info.blocks.filter(b => typeof b === 'object').map(b => [b.opcode, b])
-    );
-
-    // Every emitted opcode must exist in the extension.
-    for (const op of EMITTED_LEDCUBE) {
-        assert.ok(blocksByOpcode[op], `ledcube: missing opcode "${op}" (sb3-creator emits ledcube_${op})`);
-    }
-
-    // Argument names must match what the emitter writes.
-    for (const op of EMITTED_LEDCUBE) {
-        const block = blocksByOpcode[op];
-        if (!block) continue;
-        const emitterArgs = LEDCUBE_ARGS[op];
-        if (!emitterArgs || emitterArgs.size === 0) continue;
-        const declared = new Set(Object.keys(block.arguments || {}));
-        for (const arg of emitterArgs) {
-            assert.ok(declared.has(arg),
-                `ledcube_${op} — emitter writes "${arg}" but getInfo() does not declare it`);
-        }
-    }
-
-    // Menus must be acceptReporters:false.
-    const menus = info.menus || {};
-    for (const block of Object.values(blocksByOpcode)) {
-        for (const [argName, arg] of Object.entries(block.arguments || {})) {
-            if (arg.menu) {
-                const menu = menus[arg.menu];
-                assert.ok(menu, `ledcube: ${block.opcode}.${argName} references missing menu "${arg.menu}"`);
-                assert.strictEqual(menu.acceptReporters, false,
-                    `ledcube: menu "${arg.menu}" must have acceptReporters:false`);
-            }
-        }
-    }
-});
-
-test('ledcube copies agree on block shapes', {
-    skip: (!ledcubeGallery.source || !ledcubeRef.source) && 'need both gallery and reference copies'
-}, () => {
-    const gInfo = loadExtension(ledcubeGallery.source);
-    const rInfo = loadExtension(ledcubeRef.source);
-    const gBlocks = Object.fromEntries(gInfo.blocks.filter(b => typeof b === 'object').map(b => [b.opcode, b]));
-    const rBlocks = Object.fromEntries(rInfo.blocks.filter(b => typeof b === 'object').map(b => [b.opcode, b]));
-    for (const op of Object.keys(gBlocks)) {
-        const r = rBlocks[op];
-        if (!r) continue;
-        assert.strictEqual(gBlocks[op].blockType, r.blockType, `ledcube ${op}: blockType mismatch`);
-        const gArgs = Object.entries(gBlocks[op].arguments || {}).sort(([a],[b]) => a.localeCompare(b));
-        const rArgs = Object.entries(r.arguments || {}).sort(([a],[b]) => a.localeCompare(b));
-        assert.deepStrictEqual(
-            gArgs.map(([k,v]) => [k, v.type, v.menu || null]),
-            rArgs.map(([k,v]) => [k, v.type, v.menu || null]),
-            `ledcube ${op}: argument shapes differ`
-        );
-    }
+    assert.ok(Object.keys(MANIFEST.snapshots).length >= 5,
+        'expected at least five vendored downstream copies');
 });
