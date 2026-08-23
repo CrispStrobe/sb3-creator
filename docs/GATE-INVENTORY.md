@@ -250,6 +250,66 @@ is worth keeping.
 
 ---
 
+## What the screen misses, measured rather than asserted
+
+The screen asks whether a **file** asserts any measured minimum. It does not ask
+whether that minimum is on the corpus the file's subtests are generated from, and
+the difference is not academic:
+
+```
+$ node --input-type=module -e "import {analyseFile} …"   # against origin/main
+test/exec.test.mjs       -> floors: ["44: assert.equal(logs.filter((l) => l === 'Correct!').length, 2)"]
+test/roundtrip.test.mjs  -> floors: ["54: …length, 2, …", "73: …length, 1, …"]
+test/transparency.test.mjs -> floors: []
+```
+
+`exec` and `roundtrip` read as **floored** on the strength of an assertion about a
+sandbox's log output, in a different test, having nothing to do with the examples
+map their subtests are generated from. Both were in fact satisfiable by an empty
+map. The screen missed them; `starve-gate.mjs` did not. That is why the starve is
+the authority and the screen is only a filter.
+
+The stricter question — does a floor **name** the corpus it covers? — is
+implemented (`unflooredCorpora()`, reachable with `--strict`) and deliberately
+**not enforced**. Run it over this tree:
+
+```
+$ node scripts/gate-inventory.mjs --strict
+  --- strict (floor must name the corpus): 29 ---
+```
+
+Twenty-nine of eighty-eight, nearly all because a corpus is reached through a loop
+variable or a rename that no name-match can follow. A gate demanding a 27-entry
+waiver list will get one, and then the waiver list is the artefact nobody reads —
+which is precisely the rot this campaign exists to stop. So the enforced gate stays
+coarse, its limit is written here, and the gates whose corpora actually matter are
+covered by name in `scripts/starve-gate.mjs`, where the question is asked by
+emptying the corpus instead of by reading the source.
+
+### The detector, run against `origin/main`
+
+The "before" measurement, produced by the new gate itself:
+
+```
+not ok 6 - no gate opens a corpus without a measured floor under it
+  these gates iterate a corpus with nothing asserting the corpus is non-empty, so
+  they pass over an empty one:
+    test/bench-invariants.test.mjs — opens [readdirSync(join(CUI, 'src/parts-data')),
+      readdirSync(EXAMPLES, { withFileTypes: true }), readdirSync(join(EXAMPLES, dir.name))]
+    test/cube-directions.test.mjs — opens [CUBE_DIRECTIONS, CUBE_DIRECTIONS.entries()]
+    test/curriculum.test.mjs — opens [ch.stations, cur.trails, t.chapters]
+    test/debug-micropython.test.mjs — opens [mbExamples, normalVars, vnames]
+    test/debug-trace-audit.test.mjs — opens [mpExamples]
+    test/micropython-pico-roundtrip.test.mjs — opens [authored]
+    test/multimeter-chain.test.mjs — opens [readdirSync(join(CUI, 'src/parts-data')), …]
+    test/retarget-amplification.test.mjs — opens [entry.devices, generic]
+    test/transparency.test.mjs — opens [Object.keys(examples).filter((n) => !HARDWARE.has(n))]
+```
+
+Nine by the screen, plus `exec` and `roundtrip` by the starve: **eleven**.
+
+---
+
 ## Proofs
 
 Every repair below is shown failing. A gate nobody has seen fail is a gate nobody

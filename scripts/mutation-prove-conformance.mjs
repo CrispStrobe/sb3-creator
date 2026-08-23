@@ -108,12 +108,34 @@ function assertRealFile (path) {
     }
 }
 
+// A HANG IS NOT A VERDICT. Without a ceiling here, one gate that never returns
+// turns the whole proof into a CI job that times out with nothing to say about
+// whether any mutation was caught — and a timeout is silence, which is the state
+// this entire campaign is about not accepting. Observed 2026-08-23: on a loaded
+// box the twelve cross-repo gates took over ten minutes for one mutation, and
+// there was no way to tell "slow" from "stuck" from the outside.
+//
+// A timeout is reported as its own outcome, never scored as caught: killing a gate
+// and calling that RED would be the same lie in the other direction.
+const GATE_TIMEOUT_MS = Number(process.env.BW_GATE_TIMEOUT_MS || 15 * 60 * 1000);
+
 function runGate (files = GATES, env = {}) {
     try {
-        execFileSync(process.execPath, ['--test', ...files],
-            { cwd: ROOT, encoding: 'utf8', stdio: 'pipe', env: { ...process.env, ...env } });
+        execFileSync(process.execPath, ['--test', ...files], {
+            cwd: ROOT, encoding: 'utf8', stdio: 'pipe',
+            timeout: GATE_TIMEOUT_MS, maxBuffer: 64 * 1024 * 1024,
+            env: { ...process.env, ...env }
+        });
         return { red: false, out: '' };
-    } catch (e) { return { red: true, out: `${e.stdout || ''}${e.stderr || ''}` }; }
+    } catch (e) {
+        if (e.killed || e.signal === 'SIGTERM') {
+            return {
+                red: false, timedOut: true,
+                out: `gate run exceeded ${GATE_TIMEOUT_MS} ms and was killed — no verdict`
+            };
+        }
+        return { red: true, out: `${e.stdout || ''}${e.stderr || ''}` };
+    }
 }
 
 // A path that cannot exist, for proving the absent-sibling case without touching
@@ -541,13 +563,15 @@ for (const m of MUTATIONS) {
     // `invert` marks a mutation that must leave the gate GREEN — the developer-box
     // and opt-out cases. A guard that failed everywhere would "catch" everything
     // and be useless, so both directions are proven.
-    const caught = m.invert
+    const caught = !result.timedOut && (m.invert
         ? !result.red
-        : (result.red && m.expect.test(result.out));
+        : (result.red && m.expect.test(result.out)));
     if (!caught) failures++;
-    console.log(`${caught ? (m.invert ? 'GREEN' : 'RED  ') : 'MISS '} ${m.name}`);
+    const label = result.timedOut ? 'HUNG ' : caught ? (m.invert ? 'GREEN' : 'RED  ') : 'MISS ';
+    console.log(`${label} ${m.name}`);
     console.log(`       ${m.why}`);
-    if (!caught) console.log(`       expected ${m.expect} in output; red=${result.red}`);
+    if (result.timedOut) console.log(`       ${result.out} — this is not a verdict, it is silence`);
+    else if (!caught) console.log(`       expected ${m.expect} in output; red=${result.red}`);
 }
 
 const after = runGate();

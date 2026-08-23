@@ -309,6 +309,15 @@ export function analyseFile (path, repoRoot) {
         if (!out.iterationSources.some((x) => x.text === s.text)) out.iterationSources.push(s);
     };
 
+    /** Identifiers a floor's subject mentions, for attributing it to a corpus. */
+    const namesIn = (node, acc = new Set()) => {
+        walk(node, (n) => {
+            if (n.type === 'Identifier') acc.add(n.name);
+            if (n.type === 'Literal' && typeof n.value === 'string') acc.add(n.value);
+        });
+        return acc;
+    };
+
     /** The nearest enclosing iteration, if any: for-of/for-in/forEach/map/flatMap. */
     const enclosingLoop = (parents) => {
         for (let i = parents.length - 1; i >= 0; i--) {
@@ -340,13 +349,19 @@ export function analyseFile (path, repoRoot) {
         const root = rootName(expr);
         const b = root && bindings.get(root);
         if (b && b.origin === 'literal') return null;                   // a table, not a corpus
-        if (!b && root && !/^[A-Z_]/.test(root)) {
-            // A local (loop- or function-scoped) name we did not resolve. Keep it,
-            // but say so, because an unresolved name is exactly where a wrong
-            // "clean" answer hides.
-            return { text: oneLine(src(text, expr), 70), origin: 'unresolved' };
-        }
-        return { text: oneLine(src(text, expr), 70), origin: b ? b.origin : 'unresolved' };
+        // `root` is what a floor must mention to count as flooring THIS corpus.
+        // Without that attribution the screen was file-granular, and an unrelated
+        // `assert.equal(logs.filter(…).length, 2)` in a different test counted as
+        // a floor for the corpus the file's subtests are generated from. That is
+        // exactly how exec.test.mjs and roundtrip.test.mjs read as floored while
+        // an empty examples map made them emit nothing — the starve caught them,
+        // this screen did not, and a screen that misses what its own authority
+        // finds is worth fixing rather than explaining away.
+        return {
+            text: oneLine(src(text, expr), 70),
+            origin: b ? b.origin : 'unresolved',
+            root: root || null
+        };
     };
 
     walk(ast, (n, parents) => {
@@ -402,7 +417,8 @@ export function analyseFile (path, repoRoot) {
                     threshold: a2 && a2.type === 'Literal' ? a2.value : 1,
                     subject: n.arguments[0] && n.arguments[0].type === 'Literal'
                         ? String(n.arguments[0].value) : 'corpusFloor()',
-                    via: 'helper'
+                    via: 'helper',
+                    names: [...namesIn(n)]
                 });
             }
 
@@ -418,7 +434,12 @@ export function analyseFile (path, repoRoot) {
                     out.tautological.push({ line: lineOf(text, n.start), expr: oneLine(src(text, n), 120) });
                 }
                 const f = floorFrom(n, text);
-                if (f) out.floors.push({ line: lineOf(text, n.start), ...f });
+                if (f) {
+                    out.floors.push({
+                        line: lineOf(text, n.start), ...f,
+                        names: [...namesIn(n)]
+                    });
+                }
             }
         }
 
@@ -437,7 +458,8 @@ export function analyseFile (path, repoRoot) {
                     expr: oneLine(src(text, n.test), 70),
                     threshold: lit.value,
                     subject: oneLine(src(text, n.test.left), 44),
-                    via: 'throw-guard'
+                    via: 'throw-guard',
+                    names: [...namesIn(n.test)]
                 });
             }
         }
@@ -511,11 +533,53 @@ export function inventory (repoRoot, label) {
  * and nothing in it asserts a non-zero floor on what it found. That is exactly
  * the shape that passes over an empty corpus.
  */
+/**
+ * The corpora in `r` that no floor is ATTRIBUTED to.
+ *
+ * A floor counts for a corpus when its expression mentions that corpus's root
+ * identifier, or when the file discovers from disk and any floor exists (a
+ * readdirSync result is usually renamed on the way to the assertion, so demanding
+ * the name there would cry wolf). Anything looser makes the screen file-granular,
+ * which is how two gates read as floored while passing over an empty map.
+ */
+export function unflooredCorpora (r) {
+    if (!r.floors) return [];
+    const mentioned = new Set();
+    for (const f of r.floors) for (const n of (f.names || [])) mentioned.add(n);
+    const out = [];
+    for (const s of r.iterationSources || []) {
+        if (s.root && mentioned.has(s.root)) continue;
+        out.push(s.text);
+    }
+    // A filesystem walk with no floor anywhere in the file is unfloored too.
+    if (r.discovery && r.discovery.length && !r.floors.length) {
+        for (const d of r.discovery) out.push(d.call);
+    }
+    return out;
+}
+
 export function classify (r) {
     const flags = [];
     if (r.parseError) return ['PARSE-ERROR'];
     if (r.hasNul) flags.push('NUL-BYTE');
     const corpusDriven = r.discovery.length > 0 || r.loopDrivenTests.length > 0 || r.loopDrivenAsserts > 0;
+    // FILE-GRANULAR ON PURPOSE, and this is the screen's known limit.
+    //
+    // The stricter question — is a floor attributed to THIS corpus? — is
+    // implemented as `unflooredCorpora()` and reachable with `--strict`, but it
+    // is not what the gate enforces. Run strict over this tree and it flags 29 of
+    // 88 files, almost all of them because a corpus is reached through a loop
+    // variable or a rename that no name-match can follow. A detector that
+    // demands a 27-entry waiver list gets one, and then the list is the artefact
+    // nobody reads — which is the rot this whole campaign is about.
+    //
+    // The cost is real and is stated rather than hidden: exec.test.mjs and
+    // roundtrip.test.mjs read as floored on origin/main because of an unrelated
+    // `assert.equal(logs.filter(…).length, 2)` in a different test, while an
+    // empty examples map made both emit nothing. The screen missed them.
+    // `scripts/starve-gate.mjs` did not, and it is the authority for exactly
+    // this reason: it asks the question by emptying the corpus instead of by
+    // reading the source.
     if (corpusDriven && !r.floors.length) {
         // Distinguish the two ways in, because the remedies differ: a gate that
         // discovers from disk needs a measured floor on what it found; a gate
@@ -584,6 +648,7 @@ if (invokedDirectly) {
             rows: r.rows.map((x) => ({ ...x, flags: classify(x) }))
         })), null, 2));
     } else {
+        const strict = process.argv.includes('--strict');
         for (const repo of repos) {
             console.log('\n=== ' + repo.repo + ' — ' + repo.rows.length + ' test files ===');
             console.log('  file'.padEnd(48) + 'tests asrt disc loop floor skip fast  flags');
@@ -602,6 +667,15 @@ if (invokedDirectly) {
             }
             const susp = repo.rows.filter((r) => classify(r).some((f) => f.startsWith('VACUITY-SUSPECT')));
             console.log('  --- vacuity suspects: ' + susp.length + '/' + repo.rows.length + ' ---');
+            if (strict) {
+                // The stricter reading: a floor counts only where it MENTIONS the
+                // corpus. Diagnostic, never enforced — see the note in classify().
+                const rows = repo.rows
+                    .map((r) => [r.file, unflooredCorpora(r)])
+                    .filter(([, u]) => u.length);
+                console.log('  --- strict (floor must name the corpus): ' + rows.length + ' ---');
+                for (const [f, u] of rows) console.log('      ' + f + ': ' + u.join('; ').slice(0, 100));
+            }
         }
     }
 }
