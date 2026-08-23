@@ -93,6 +93,44 @@
             arguments: { ...n('ROW', 0), ...n('COL', 0), ...str('DISPLAY', 'display1') } },
           { opcode: 'lcdclear', blockType: Scratch.BlockType.COMMAND,
             text: 'lcd clear [DISPLAY]', arguments: str('DISPLAY', 'display1') },
+          // ---- OLED (ssd1306) and TFT (ili9341) ----
+          // The emitter has emitted these eleven opcodes all along; no
+          // extension copy defined them, so a project using them loaded with
+          // the blocks missing and the VM dispatched nothing. They are written
+          // against boundary B's verb table (bw-board spec-updates/
+          // set-device-control.md), which the board now really implements.
+          { opcode: 'oledprint', blockType: Scratch.BlockType.COMMAND,
+            text: 'oled print [TEXT] on [DISPLAY]',
+            arguments: { ...str('TEXT', 'Hello'), ...str('DISPLAY', 'display1') } },
+          { opcode: 'oledcursor', blockType: Scratch.BlockType.COMMAND,
+            text: 'oled set cursor [ROW] [COL] on [DISPLAY]',
+            arguments: { ...n('ROW', 0), ...n('COL', 0), ...str('DISPLAY', 'display1') } },
+          { opcode: 'oledclear', blockType: Scratch.BlockType.COMMAND,
+            text: 'oled clear [DISPLAY]', arguments: str('DISPLAY', 'display1') },
+          { opcode: 'oledpixel', blockType: Scratch.BlockType.COMMAND,
+            text: 'oled pixel [X] [Y] [VALUE] on [DISPLAY]',
+            arguments: { ...n('X', 0), ...n('Y', 0), ...n('VALUE', 1), ...str('DISPLAY', 'display1') } },
+          { opcode: 'oledhline', blockType: Scratch.BlockType.COMMAND,
+            text: 'oled hline [X] [Y] [W] on [DISPLAY]',
+            arguments: { ...n('X', 0), ...n('Y', 0), ...n('W', 128), ...str('DISPLAY', 'display1') } },
+          { opcode: 'oledshow', blockType: Scratch.BlockType.COMMAND,
+            text: 'oled show [DISPLAY]', arguments: str('DISPLAY', 'display1') },
+          { opcode: 'tftprint', blockType: Scratch.BlockType.COMMAND,
+            text: 'tft print [TEXT] on [DISPLAY]',
+            arguments: { ...str('TEXT', 'Hello'), ...str('DISPLAY', 'display1') } },
+          { opcode: 'tftcursor', blockType: Scratch.BlockType.COMMAND,
+            text: 'tft set cursor [ROW] [COL] on [DISPLAY]',
+            arguments: { ...n('ROW', 0), ...n('COL', 0), ...str('DISPLAY', 'display1') } },
+          { opcode: 'tftclear', blockType: Scratch.BlockType.COMMAND,
+            text: 'tft clear [DISPLAY]', arguments: str('DISPLAY', 'display1') },
+          { opcode: 'tftpixel', blockType: Scratch.BlockType.COMMAND,
+            text: 'tft pixel [X] [Y] to R [R] G [G] B [B] on [DISPLAY]',
+            arguments: { ...n('X', 0), ...n('Y', 0), ...n('R', 255), ...n('G', 255),
+                         ...n('B', 255), ...str('DISPLAY', 'display1') } },
+          { opcode: 'tftfill', blockType: Scratch.BlockType.COMMAND,
+            text: 'tft fill [X] [Y] [W] [H] to R [R] G [G] B [B] on [DISPLAY]',
+            arguments: { ...n('X', 0), ...n('Y', 0), ...n('W', 32), ...n('H', 32),
+                         ...n('R', 255), ...n('G', 0), ...n('B', 0), ...str('DISPLAY', 'display1') } },
           // NeoPixel: 8051-1T only — hidden on 12T, AVR, and Pico
           { opcode: 'setneopixel', blockType: Scratch.BlockType.COMMAND,
             hideFromPalette: is12T || isAVR || isPico,
@@ -211,6 +249,33 @@
     lcdprint(a) { const b = this._board(); if (b && b.setDeviceControl) b.setDeviceControl(a.DISPLAY, 'print', String(a.TEXT)); }
     lcdcursor(a) { const b = this._board(); if (b && b.setDeviceControl) b.setDeviceControl(a.DISPLAY, 'cursor', [num(a.ROW), num(a.COL)]); }
     lcdclear(a) { const b = this._board(); if (b && b.setDeviceControl) b.setDeviceControl(a.DISPLAY, 'clear', 1); }
+    // OLED / TFT. Note the ARGUMENT RESHAPES — the dialect and the device model
+    // do not speak the same shape, and getting this wrong draws silently in the
+    // wrong place rather than failing:
+    //   oled hline: the dialect gives X, Y, WIDTH; the model wants [x0, x1, y].
+    //   tft fill:   the dialect gives X, Y, W, H; the model wants [x0,y0,x1,y1].
+    // Both are converted here, once, rather than in each caller.
+    oledprint(a) { const b = this._board(); if (b && b.setDeviceControl) b.setDeviceControl(a.DISPLAY, 'print', String(a.TEXT)); }
+    oledcursor(a) { const b = this._board(); if (b && b.setDeviceControl) b.setDeviceControl(a.DISPLAY, 'cursor', [num(a.ROW), num(a.COL)]); }
+    oledclear(a) { const b = this._board(); if (b && b.setDeviceControl) b.setDeviceControl(a.DISPLAY, 'clear', 1); }
+    oledpixel(a) { const b = this._board(); if (b && b.setDeviceControl) b.setDeviceControl(a.DISPLAY, 'pixel', [num(a.X), num(a.Y), num(a.VALUE) ? 1 : 0]); }
+    oledhline(a) {
+        const b = this._board(); if (!(b && b.setDeviceControl)) return;
+        const x0 = num(a.X), w = num(a.W);
+        b.setDeviceControl(a.DISPLAY, 'hline', [x0, x0 + Math.max(1, w) - 1, num(a.Y)]);
+    }
+    oledshow(a) { const b = this._board(); if (b && b.setDeviceControl) b.setDeviceControl(a.DISPLAY, 'show', 1); }
+    tftprint(a) { const b = this._board(); if (b && b.setDeviceControl) b.setDeviceControl(a.DISPLAY, 'print', String(a.TEXT)); }
+    tftcursor(a) { const b = this._board(); if (b && b.setDeviceControl) b.setDeviceControl(a.DISPLAY, 'cursor', [num(a.ROW), num(a.COL)]); }
+    tftclear(a) { const b = this._board(); if (b && b.setDeviceControl) b.setDeviceControl(a.DISPLAY, 'clear', 0); }
+    tftpixel(a) { const b = this._board(); if (b && b.setDeviceControl) b.setDeviceControl(a.DISPLAY, 'pixel', [num(a.X), num(a.Y), num(a.R), num(a.G), num(a.B)]); }
+    tftfill(a) {
+        const b = this._board(); if (!(b && b.setDeviceControl)) return;
+        const x0 = num(a.X), y0 = num(a.Y);
+        b.setDeviceControl(a.DISPLAY, 'fill',
+            [x0, y0, x0 + Math.max(1, num(a.W)) - 1, y0 + Math.max(1, num(a.H)) - 1,
+             num(a.R), num(a.G), num(a.B)]);
+    }
     setneopixel(a) { const b = this._board(); if (b && b.setDeviceControl) b.setDeviceControl(a.STRIP, 'neopixel', [num(a.INDEX), num(a.R), num(a.G), num(a.B)]); }
     clearneopixels(a) { const b = this._board(); if (b && b.setDeviceControl) b.setDeviceControl(a.STRIP, 'clearNeopixels', 1); }
 
