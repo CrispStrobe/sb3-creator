@@ -259,6 +259,45 @@ Locally, `npm run test:fast` on the same commit:
 # tests 1178   # pass 1173   # fail 0   # skipped 5
 ```
 
+## A correction: I measured the wrong quantity for `--test-timeout`
+
+The full suite on this box came back **6424 tests, 6326 pass, 4 fail, 92 skipped**,
+and two of those four are the same failure:
+
+```
+not ok 16 - test/circuit-params-are-read.test.mjs
+  duration_ms: 900103.670701
+  failureType: 'testTimeoutFailure'
+  error: 'test timed out after 900000ms'
+
+not ok 38 - test/gallery-e2e.test.mjs
+  duration_ms: 900320.274198
+  failureType: 'testTimeoutFailure'
+  error: 'test timed out after 900000ms'
+```
+
+Both pass in CI. Both exceeded 900 s here, at load 26.
+
+Earlier in this campaign I measured the slowest **leaf** test at 133.5 s and
+concluded that `--test-timeout 900000` carried ~6.7x headroom. **That was the wrong
+quantity.** `failureType: 'testTimeoutFailure'` at `location: …:1:1` is the
+FILE-level test timing out: when node runs a glob of files, the bound applies to
+each file's whole wall clock, not to its slowest leaf. gallery-e2e is recorded in
+`ci.yml` as a 242 s file on an unloaded developer box — so the real ratio is ~3.7x,
+and 3.7x was not enough here.
+
+This is not a number that wants raising. It belongs to the fourth shape named in
+PLAN.md §27, **cannot-be-trusted-when-busy**: its failure is indistinguishable from
+contention, and the remedy its own message suggests is the one that destroys it.
+What it wants is the treatment the python checker got — a timeout that says *which*
+of the two it is. Recorded as an open item rather than papered over with a bigger
+constant, which is the mistake this whole campaign exists to stop.
+
+The correction is worth stating on its own terms: the measurement was careful, the
+arithmetic was right, and it was about the wrong quantity. That failure mode does
+not announce itself, and the only thing that caught it was running the suite on a
+machine slow enough to trip the bound.
+
 ## Two probes that are owed, and are not being written up as clean
 
 `gallery.test.mjs:225` (`entry.difficulty <= 5`) and `gallery-e2e.test.mjs:567`

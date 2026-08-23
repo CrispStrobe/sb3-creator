@@ -760,6 +760,18 @@ is stated because 459 cannot honestly be re-measured one at a time.
 
 ### Open — not fixed, with what it would take
 
+- [ ] **`--test-timeout 900000` bounds per-FILE wall clock, and it fired twice.**
+  On a box at load 26, `gallery-e2e` and `circuit-params-are-read` both exceeded it
+  and reported `testTimeoutFailure`; both pass in CI. An earlier note in this
+  campaign put the headroom at ~6.7x by measuring the slowest LEAF test (133.5 s) —
+  the wrong quantity, because the bound applies to the file's whole duration.
+  Against `ci.yml`'s recorded 242 s for gallery-e2e the real ratio is ~3.7x, and
+  that was not enough. Do NOT simply raise it: this is the
+  cannot-be-trusted-when-busy shape, where the failure is indistinguishable from
+  contention and the obvious remedy destroys the check. What it wants is what the
+  python checker got — a timeout that says which of the two it is, so a slow
+  machine and a hung test stop sharing a message.
+
 - [ ] **`brickwright-lite` carries 118 `timeout-ms` literals**, almost all
   Playwright/puppeteer waits in `scripts/verify-*.mjs`. None has a recorded
   measurement. Probing them needs a built editor and a browser, so it is a lane of
