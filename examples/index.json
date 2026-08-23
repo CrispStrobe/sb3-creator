@@ -24,7 +24,6 @@
     },
     "category": "basics",
     "difficulty": 1,
-    "thumbnail": "01-blink/thumb.svg",
     "files": {
       "program": "01-blink/program.bw",
       "circuit": "01-blink/circuit.stc12c5a60s2.json",
@@ -67,7 +66,6 @@
     },
     "category": "analog",
     "difficulty": 2,
-    "thumbnail": "02-dimmer/thumb.svg",
     "files": {
       "program": "02-dimmer/program.bw",
       "circuit": "02-dimmer/circuit.stc12c5a60s2.json",
@@ -107,7 +105,6 @@
     },
     "category": "analog",
     "difficulty": 2,
-    "thumbnail": "03-night-light/thumb.svg",
     "files": {
       "program": "03-night-light/program.bw",
       "circuit": "03-night-light/circuit.stc12c5a60s2.json",
@@ -147,7 +144,6 @@
     },
     "category": "analog",
     "difficulty": 3,
-    "thumbnail": "04-thermostat/thumb.svg",
     "files": {
       "program": "04-thermostat/program.bw",
       "circuit": "04-thermostat/circuit.stc12c5a60s2.json",
@@ -187,7 +183,6 @@
     },
     "category": "basics",
     "difficulty": 2,
-    "thumbnail": "05-counter-7seg/thumb.svg",
     "files": {
       "program": "05-counter/program.bw",
       "circuit": "05-counter/circuit.stc12c5a60s2.json",
@@ -230,7 +225,6 @@
     },
     "category": "basics",
     "difficulty": 2,
-    "thumbnail": "06-active-low-high/thumb.svg",
     "files": {
       "program": "06-active-low-high/program.bw",
       "circuit": "06-active-low-high/circuit.json",
@@ -273,7 +267,6 @@
     },
     "category": "basics",
     "difficulty": 2,
-    "thumbnail": "07-buzzer-siren/thumb.svg",
     "files": {
       "program": "07-buzzer-siren/program.bw",
       "circuit": "07-buzzer-siren/circuit.stc12c5a60s2.json",
@@ -283,7 +276,6 @@
     },
     "kind": "program",
     "refusals": {
-      "stc12c5a60s2": "pin \"buzzer\" has direction tone, which does not retarget yet",
       "stc89c52rc": "pin \"buzzer\" has direction tone, which does not retarget yet",
       "stc15f2k60s2": "pin \"buzzer\" has direction tone, which does not retarget yet",
       "arduino-uno": "tone is not ported to this core yet",
@@ -307,7 +299,6 @@
     },
     "category": "digital",
     "difficulty": 3,
-    "thumbnail": "08-led-chaser-595/thumb.svg",
     "files": {
       "program": "08-led-chaser-595/program.bw",
       "circuit": "08-led-chaser-595/circuit.stc12c5a60s2.json",
@@ -350,7 +341,6 @@
     },
     "category": "motors",
     "difficulty": 2,
-    "thumbnail": "09-relay-clicker/thumb.svg",
     "files": {
       "program": "09-relay-clicker/program.bw",
       "circuit": "09-relay-clicker/circuit.stc12c5a60s2.json",
@@ -393,7 +383,6 @@
     },
     "category": "motors",
     "difficulty": 3,
-    "thumbnail": "10-motor-speed/thumb.svg",
     "files": {
       "program": "10-motor-speed/program.bw",
       "circuit": "10-motor-speed/circuit.stc12c5a60s2.json",
@@ -433,7 +422,6 @@
     },
     "category": "basics",
     "difficulty": 2,
-    "thumbnail": "11-toggle-button/thumb.svg",
     "files": {
       "program": "11-toggle-button/program.bw",
       "circuit": "11-toggle-button/circuit.stc12c5a60s2.json",
@@ -476,7 +464,6 @@
     },
     "category": "basics",
     "difficulty": 2,
-    "thumbnail": "12-dual-blink/thumb.svg",
     "files": {
       "program": "12-dual-blink/program.bw",
       "circuit": "12-dual-blink/circuit.stc12c5a60s2.json",
@@ -519,7 +506,6 @@
     },
     "category": "basics",
     "difficulty": 3,
-    "thumbnail": "13-sos-morse/thumb.svg",
     "files": {
       "program": "13-sos-morse/program.bw",
       "circuit": "13-sos-morse/circuit.stc12c5a60s2.json",
@@ -562,7 +548,6 @@
     },
     "category": "basics",
     "difficulty": 3,
-    "thumbnail": "14-traffic-light/thumb.svg",
     "files": {
       "program": "14-traffic-light/program.bw",
       "circuit": "14-traffic-light/circuit.stc12c5a60s2.json",
@@ -605,7 +590,6 @@
     },
     "category": "analog",
     "difficulty": 1,
-    "thumbnail": "15-voltage-divider/thumb.svg",
     "files": {
       "program": "15-voltage-divider/program.bw",
       "circuit": "15-voltage-divider/circuit.stc12c5a60s2.json",
@@ -645,7 +629,6 @@
     },
     "category": "analog",
     "difficulty": 3,
-    "thumbnail": "16-ldr-bargraph/thumb.svg",
     "files": {
       "program": "16-ldr-bargraph/program.bw",
       "circuit": "16-ldr-bargraph/circuit.stc12c5a60s2.json",
@@ -685,7 +668,6 @@
     },
     "category": "analog",
     "difficulty": 3,
-    "thumbnail": "17-comparator/thumb.svg",
     "files": {
       "program": "17-comparator/program.bw",
       "circuit": "17-comparator/circuit.stc12c5a60s2.json",
@@ -725,7 +707,6 @@
     },
     "category": "digital",
     "difficulty": 2,
-    "thumbnail": "18-logic-and-gate/thumb.svg",
     "files": {
       "program": "18-logic-and-gate/program.bw",
       "circuit": "18-logic-and-gate/circuit.stc12c5a60s2.json",
@@ -768,7 +749,6 @@
     },
     "category": "digital",
     "difficulty": 2,
-    "thumbnail": "19-logic-or-gate/thumb.svg",
     "files": {
       "program": "19-logic-or-gate/program.bw",
       "circuit": "19-logic-or-gate/circuit.stc12c5a60s2.json",
@@ -811,7 +791,6 @@
     },
     "category": "digital",
     "difficulty": 3,
-    "thumbnail": "20-shift-register-binary/thumb.svg",
     "files": {
       "program": "20-shift-register-binary/program.bw",
       "circuit": "20-shift-register-binary/circuit.stc12c5a60s2.json",
@@ -854,7 +833,6 @@
     },
     "category": "pure-circuit",
     "difficulty": 1,
-    "thumbnail": "21-resistor-led/thumb.svg",
     "files": {
       "program": "21-resistor-led/program.bw",
       "circuit": "21-resistor-led/circuit.json",
@@ -872,7 +850,6 @@
     },
     "category": "pure-circuit",
     "difficulty": 2,
-    "thumbnail": "22-series-parallel/thumb.svg",
     "files": {
       "program": "22-series-parallel/program.bw",
       "circuit": "22-series-parallel/circuit.json",
@@ -890,7 +867,6 @@
     },
     "category": "pure-circuit",
     "difficulty": 2,
-    "thumbnail": "23-voltage-regulator/thumb.svg",
     "files": {
       "program": "23-voltage-regulator/program.bw",
       "circuit": "23-voltage-regulator/circuit.json",
@@ -908,7 +884,6 @@
     },
     "category": "basics",
     "difficulty": 3,
-    "thumbnail": "24-pwm-fade/thumb.svg",
     "files": {
       "program": "24-pwm-fade/program.bw",
       "circuit": "24-pwm-fade/circuit.stc12c5a60s2.json",
@@ -951,7 +926,6 @@
     },
     "category": "basics",
     "difficulty": 3,
-    "thumbnail": "25-reaction-timer/thumb.svg",
     "files": {
       "program": "25-reaction-timer/program.bw",
       "circuit": "25-reaction-timer/circuit.stc12c5a60s2.json",
@@ -994,7 +968,6 @@
     },
     "category": "basics",
     "difficulty": 2,
-    "thumbnail": "26-debounce/thumb.svg",
     "files": {
       "program": "26-debounce/program.bw",
       "circuit": "26-debounce/circuit.stc12c5a60s2.json",
@@ -1037,7 +1010,6 @@
     },
     "category": "basics",
     "difficulty": 3,
-    "thumbnail": "27-led-dice/thumb.svg",
     "files": {
       "program": "27-led-dice/program.bw",
       "circuit": "27-led-dice/circuit.stc12c5a60s2.json",
@@ -1080,7 +1052,6 @@
     },
     "category": "pure-circuit",
     "difficulty": 1,
-    "thumbnail": "28-diode-polarity/thumb.svg",
     "files": {
       "program": "28-diode-polarity/program.bw",
       "circuit": "28-diode-polarity/circuit.json",
@@ -1098,7 +1069,6 @@
     },
     "category": "pure-circuit",
     "difficulty": 2,
-    "thumbnail": "29-capacitor-charge/thumb.svg",
     "files": {
       "program": "29-capacitor-charge/program.bw",
       "circuit": "29-capacitor-charge/circuit.json",
@@ -1116,7 +1086,6 @@
     },
     "category": "basics",
     "difficulty": 2,
-    "thumbnail": "30-multi-led-pattern/thumb.svg",
     "files": {
       "program": "30-multi-led-pattern/program.bw",
       "circuit": "30-multi-led-pattern/circuit.stc12c5a60s2.json",
@@ -1159,7 +1128,6 @@
     },
     "category": "pure-circuit",
     "difficulty": 1,
-    "thumbnail": "31-no-resistor-led/thumb.svg",
     "files": {
       "program": "31-no-resistor-led/program.bw",
       "circuit": "31-no-resistor-led/circuit.json",
@@ -1177,7 +1145,6 @@
     },
     "category": "basics",
     "difficulty": 2,
-    "thumbnail": "32-source-vs-sink/thumb.svg",
     "files": {
       "program": "32-source-vs-sink/program.bw",
       "circuit": "32-source-vs-sink/circuit.json",
@@ -1220,7 +1187,6 @@
     },
     "category": "motors",
     "difficulty": 3,
-    "thumbnail": "33-inductive-no-flyback/thumb.svg",
     "files": {
       "program": "33-inductive-no-flyback/program.bw",
       "circuit": "33-inductive-no-flyback/circuit.stc12c5a60s2.json",
@@ -1451,7 +1417,6 @@
     "kind": "program",
     "category": "basics",
     "difficulty": 3,
-    "thumbnail": "46-port-overcurrent/thumb.svg",
     "files": {
       "program": "46-port-overcurrent/program.bw",
       "circuit": "46-port-overcurrent/circuit.json",
@@ -1470,12 +1435,6 @@
       "pico",
       "attiny88"
     ],
-    "refusals": {
-      "stc15f2k60s2": "more digital outputs than stc15f2k60s2's convention offers (6)",
-      "arduino-uno": "more digital outputs than arduino-uno's convention offers (6)",
-      "arduino-nano": "more digital outputs than arduino-nano's convention offers (6)",
-      "pico": "more digital outputs than pico's convention offers (7)"
-    },
     "benches": {
       "arduino-mega": "46-port-overcurrent/circuit.arduino-mega.json",
       "arduino-nano": "46-port-overcurrent/circuit.arduino-nano.json",
@@ -1749,7 +1708,6 @@
     "kind": "program",
     "category": "motors",
     "difficulty": 3,
-    "thumbnail": "53-servo-sweep/thumb.svg",
     "files": {
       "program": "53-servo-sweep/program.bw",
       "circuit": "53-servo-sweep/circuit.stc12c5a60s2.json",
@@ -1793,7 +1751,6 @@
     "kind": "program",
     "category": "motors",
     "difficulty": 3,
-    "thumbnail": "54-motor-driver/thumb.svg",
     "files": {
       "program": "54-motor-driver/program.bw",
       "circuit": "54-motor-driver/circuit.stc12c5a60s2.json",
@@ -1812,11 +1769,6 @@
       "attiny88",
       "attiny85"
     ],
-    "refusals": {
-      "arduino-uno": "motor blocks are stubs on this core",
-      "arduino-nano": "motor blocks are stubs on this core",
-      "pico": "motor blocks are stubs on this core"
-    },
     "benches": {
       "arduino-mega": "54-motor-driver/circuit.arduino-mega.json",
       "arduino-nano": "54-motor-driver/circuit.arduino-nano.json",
