@@ -30,8 +30,14 @@ const SB3 = join(import.meta.dirname, '..');
 const CUI = process.env.BW_CIRCUIT_UI || join(SB3, '..', 'bw-circuit-ui');
 const BWB = process.env.BW_BOARD || join(SB3, '..', 'bw-board');
 const EXAMPLES = join(SB3, 'examples');
+// board.js, not index.js: index.js re-exports the same BoardImpl/inferNetlist
+// but also pulls the avr8js adapter chain, so a bw-board checkout whose npm
+// deps are not installed made this gate FAIL on an import rather than run —
+// with both siblings present. The specific modules are what bw-circuit-ui's
+// own test setup imports, and Node caches by resolved path, so they are the
+// same module instances index.js would have handed back.
 const available = existsSync(join(CUI, 'src', 'model', 'circuit.js'))
-  && existsSync(join(BWB, 'src', 'index.js'));
+  && existsSync(join(BWB, 'src', 'board.js'));
 
 /** Net partition over real terminals, alias-folded. */
 function partition(c) {
@@ -53,10 +59,11 @@ describe('flat variants match their breadboarded twin',
 
     test('engine + sidecars load, and the pairs are found', async () => {
       const { setEngine } = await import(join(CUI, 'src/engine.js'));
-      const eng = await import(join(BWB, 'src/index.js'));
+      const { BoardImpl } = await import(join(BWB, 'src/board.js'));
+      const { inferNetlist, checkWiring } = await import(join(BWB, 'src/infer-netlist.js'));
+      const { hasDevice, getDevice } = await import(join(BWB, 'src/devices.js'));
       (await import(join(BWB, 'src/register-all.js'))).registerAllDevices();
-      setEngine({ BoardImpl: eng.BoardImpl, inferNetlist: eng.inferNetlist,
-        checkWiring: eng.checkWiring, hasDevice: eng.hasDevice, getDevice: eng.getDevice });
+      setEngine({ BoardImpl, inferNetlist, checkWiring, hasDevice, getDevice });
       const { registerSidecar } = await import(join(CUI, 'src/model/parts-registry.js'));
       for (const f of readdirSync(join(CUI, 'src/parts-data'))) {
         if (!f.endsWith('.json')) continue;
@@ -83,6 +90,13 @@ describe('flat variants match their breadboarded twin',
     });
 
     test('every flat variant is board-free and electrically identical', () => {
+      // The pair list is built by the test above. If that one failed, this one
+      // would otherwise loop over an empty array and PASS — observed 2026-08-23,
+      // when the engine import threw and this still reported ok.
+      assert.ok(pairs.length > 900,
+        `pair list is ${pairs.length} — the loader test did not run or did not finish, `
+        + 'so this gate would be asserting over nothing');
+      assert.ok(Circuit, 'Circuit was never loaded — see the loader test');
       const problems = [];
       for (const { dir, flat, twin } of pairs) {
         const tp = join(EXAMPLES, dir, twin);
