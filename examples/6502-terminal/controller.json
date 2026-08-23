@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "mode": "play",
+  "widgets": [
+    {
+      "name": "screen",
+      "type": "terminal",
+      "config": { "rows": 8, "cols": 40, "text": "" },
+      "layout": { "x": 0, "y": 0 },
+      "binding": { "target": "variable", "variableName": "serial_out" }
+    },
+    {
+      "name": "kbd",
+      "type": "keyboard",
+      "config": { "value": "" },
+      "layout": { "x": 0, "y": 1 },
+      "binding": { "target": "variable", "variableName": "serial_in" }
+    }
+  ]
+}

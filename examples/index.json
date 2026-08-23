@@ -6839,5 +6839,23 @@
       "intro": "mb08-thermometer/intro.md",
       "introDE": "mb08-thermometer/intro.de.md"
     }
+  },
+  {
+    "id": "6502-terminal",
+    "title": {
+      "en": "6502 Serial Terminal",
+      "de": "6502-Serielles Terminal"
+    },
+    "category": "digital",
+    "difficulty": 3,
+    "kind": "program",
+    "deviceOnly": true,
+    "files": {
+      "program": "6502-terminal/program.bw",
+      "controller": "6502-terminal/controller.json",
+      "intro": "6502-terminal/intro.md",
+      "introDE": "6502-terminal/intro.de.md",
+      "expected": "6502-terminal/EXPECTED.md"
+    }
   }
 ]
