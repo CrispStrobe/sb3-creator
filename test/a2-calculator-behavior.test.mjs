@@ -87,6 +87,10 @@ test('* clears the entry only; = without op starts a fresh entry', () => {
 test('display boots to "0": font[0] on digit 0, digits 1-7 blank, walk select', () => {
     const { h, portWrites } = buildHarness();
     let dticks = 0;
+    // MEASURED 2026-08-23 (scripts/threshold-probe.mjs --margin): the display
+    // routine calls wait() exactly 8 times, so this bound has ZERO headroom —
+    // green at 8, red at 7. That is the right state for a fixed sequence: one
+    // extra wait is a behaviour change and should be seen, not absorbed.
     h.scratch.wait = () => { if (++dticks > 8) throw new Done(); };
     try { h.display(); } catch (e) { if (!(e instanceof Done)) throw e; }
     const segs = portWrites.filter(w => w[0] === 'segments').map(w => w[1]).slice(0, 8);
