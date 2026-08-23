@@ -1,0 +1,20 @@
+DEVICE MICROBIT
+
+WHEN flag clicked:
+  show text "3"
+  wait 1 seconds
+  show text "2"
+  wait 1 seconds
+  show text "1"
+  wait 1 seconds
+  clear display
+  wait 2 seconds
+  show pattern 99999:99999:99999:99999:99999
+  set score to 0
+  REPEAT 20:
+    IF read button_a THEN:
+      change score by 1
+    wait 0.05 seconds
+  show text "OK"
+  wait 2 seconds
+  clear display

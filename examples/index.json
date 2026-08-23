@@ -6779,5 +6779,65 @@
       "introDE": "boost-faceplate/intro.de.md",
       "expected": "boost-faceplate/EXPECTED.md"
     }
+  },
+  {
+    "id": "mb06-reaction",
+    "title": {
+      "en": "Reaction Game",
+      "de": "Reaktionsspiel"
+    },
+    "category": "microbit",
+    "difficulty": 1,
+    "devices": [
+      "microbit"
+    ],
+    "authored": "microbit",
+    "kind": "program",
+    "files": {
+      "program": "mb06-reaction/program.bw",
+      "expected": "mb06-reaction/EXPECTED.md",
+      "intro": "mb06-reaction/intro.md",
+      "introDE": "mb06-reaction/intro.de.md"
+    }
+  },
+  {
+    "id": "mb07-stepcounter",
+    "title": {
+      "en": "Step Counter",
+      "de": "Schrittzähler"
+    },
+    "category": "microbit",
+    "difficulty": 2,
+    "devices": [
+      "microbit"
+    ],
+    "authored": "microbit",
+    "kind": "program",
+    "files": {
+      "program": "mb07-stepcounter/program.bw",
+      "expected": "mb07-stepcounter/EXPECTED.md",
+      "intro": "mb07-stepcounter/intro.md",
+      "introDE": "mb07-stepcounter/intro.de.md"
+    }
+  },
+  {
+    "id": "mb08-thermometer",
+    "title": {
+      "en": "Thermometer",
+      "de": "Thermometer"
+    },
+    "category": "microbit",
+    "difficulty": 1,
+    "devices": [
+      "microbit"
+    ],
+    "authored": "microbit",
+    "kind": "program",
+    "files": {
+      "program": "mb08-thermometer/program.bw",
+      "expected": "mb08-thermometer/EXPECTED.md",
+      "intro": "mb08-thermometer/intro.md",
+      "introDE": "mb08-thermometer/intro.de.md"
+    }
   }
 ]
