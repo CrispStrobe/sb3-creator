@@ -59,7 +59,10 @@ jobs:
       # against is specifically "works on the machine that has both checkouts".
       - name: Conformance gate is mutation-proven
         run: node scripts/mutation-prove-conformance.mjs
-        timeout-minutes: 5
+        # Thirteen mutations, each a full run of the three gates, one of which
+        # boots the real VM. ~4 minutes; the headroom is deliberate so a slow
+        # runner reports a mutation that was missed rather than a timeout.
+        timeout-minutes: 12
 
       - name: Build
         run: npm run build

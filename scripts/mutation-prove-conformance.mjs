@@ -22,7 +22,8 @@ import { fileURLToPath } from 'node:url';
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const GATES = [
     join(ROOT, 'test', 'stc12-conformance.test.mjs'),
-    join(ROOT, 'test', 'extension-coverage.test.mjs')
+    join(ROOT, 'test', 'extension-coverage.test.mjs'),
+    join(ROOT, 'test', 'a2-sampler-behavior.test.mjs')
 ];
 const DOWN = join(ROOT, 'test', 'fixtures', 'downstream');
 const MANIFEST = join(DOWN, 'MANIFEST.json');
@@ -157,6 +158,21 @@ const MUTATIONS = [
             writeFileSync(f, text);
         },
         expect: /points past the code tree|one level up from the repo root/
+    },
+    {
+        name: 'the whenkey hat is declared a COMMAND instead of a HAT',
+        why: 'the static gate cannot see this - same opcode, same arguments, same menus - '
+            + 'but the script would load and never fire, which is the defect all over again',
+        apply () {
+            const f = join(ROOT, 'reference', 'extensions', 'stc12.js');
+            save(f);
+            const text = readFileSync(f, 'utf8').replace(
+                /opcode: "whenkey",\n(\s*)blockType: Scratch\.BlockType\.HAT,/,
+                'opcode: "whenkey",\n$1blockType: Scratch.BlockType.COMMAND,');
+            if (text === readFileSync(f, 'utf8')) throw new Error('mutation was a no-op');
+            writeFileSync(f, text);
+        },
+        expect: /must register as a hat|must be a HAT|did not fire/
     },
     {
         name: 'a shipped example authors an opcode no copy defines',
