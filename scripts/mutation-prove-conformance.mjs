@@ -147,6 +147,18 @@ const MUTATIONS = [
         expect: /brandnew/
     },
     {
+        name: 'a sibling root gains a second ".." (the multimeter-chain defect)',
+        why: 'one extra .. points past the code tree, so the drift check skips everywhere, forever',
+        apply () {
+            const f = join(ROOT, 'scripts', 'vendor-downstream-extensions.mjs');
+            save(f);
+            const text = readFileSync(f, 'utf8').replace("'../lego/brickwright-lite'", "'../../lego/brickwright-lite'");
+            if (text === readFileSync(f, 'utf8')) throw new Error('mutation was a no-op');
+            writeFileSync(f, text);
+        },
+        expect: /points past the code tree|one level up from the repo root/
+    },
+    {
         name: 'a shipped example authors an opcode no copy defines',
         why: 'the gallery side of the same bug: content outrunning the extensions',
         apply () {

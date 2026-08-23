@@ -209,6 +209,29 @@ test('every copy of stc12 agrees on the shape of the blocks it shares', () => {
     }
 });
 
+// gate-integrity asserts that no test resolves a sibling checkout two levels up,
+// because a second `..` points past the whole code tree and makes a suite skip
+// itself into silence. Its detector scans test/*.mjs for the `join(x, '..', '..')`
+// form only, so it does not see scripts/, and it does not see the string-literal
+// form — and scripts/vendor-downstream-extensions.mjs was written with exactly
+// that defect: every ROOT had one `..` too many, which would have made the drift
+// check skip on every machine, silently, forever. Encode the invariant where the
+// paths live.
+test('sibling roots are one level up from the repo root, not two', async () => {
+    const source = readFileSync(resolve(here, '../scripts/vendor-downstream-extensions.mjs'), 'utf8');
+    const block = source.match(/const ROOTS = \{([\s\S]*?)\};/);
+    assert.ok(block, 'could not find the ROOTS table — this test has stopped checking anything');
+    // Values only — the table's keys are repo names, not paths.
+    const roots = [...block[1].matchAll(/'([^']+)'/g)].map((m) => m[1]).filter((v) => v.includes('/'));
+    assert.ok(roots.length >= 4, `expected several candidate roots, found ${roots.length}`);
+    for (const root of roots) {
+        assert.ok(root.startsWith('../') && !root.startsWith('../../'),
+            `ROOTS entry "${root}": siblings sit beside this repo, so a root is '../<name>'. ` +
+            `A second '..' points past the code tree, resolves to nothing on every machine, and ` +
+            `turns the drift check into a permanent silent skip.`);
+    }
+});
+
 test('MANIFEST.json attributes every snapshot to an upstream commit', () => {
     for (const snap of snapshots()) {
         assert.match(String(snap.entry.upstreamCommit), /^[0-9a-f]{40}$/,
