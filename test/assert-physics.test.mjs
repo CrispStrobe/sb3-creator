@@ -164,6 +164,26 @@ function parseAssertions(mdText) {
                 continue;
             }
 
+            // pulse_duration_ms: <value> [+- <tol>[%]]
+            //
+            // A 555 in monostable: t = 1.1 * R * C, where R and C are found by
+            // TOPOLOGY, never by name or magnitude. Every one of these circuits
+            // carries three resistors, so "the big one" would be a guess that
+            // happens to work until it does not.
+            const pulseMatch = trimmed.match(
+                /^pulse_duration_ms\s*:\s*([\d.]+)\s*(?:(?:\+-|±)\s*([\d.]+)(%?))?$/);
+            if (pulseMatch) {
+                const expected = parseFloat(pulseMatch[1]);
+                const rawTol = pulseMatch[2] === undefined ? null : parseFloat(pulseMatch[2]);
+                assertions.push({
+                    kind: 'pulse-555', expected,
+                    tolerance: rawTol === null ? expected * 0.02
+                        : (pulseMatch[3] === '%' ? expected * rawTol / 100 : rawTol),
+                    raw: trimmed
+                });
+                continue;
+            }
+
             // Unknown assertion kind — explicit skip
             assertions.push({ kind: 'unknown', raw: trimmed });
         }
@@ -195,6 +215,72 @@ function loopPeriodMs(exampleName) {
         return { ok: false, reason: `ambiguous: ${distinct.length} distinct waits (${distinct.join(', ')} ms)` };
     }
     return { ok: true, ms: distinct[0] };
+}
+
+/**
+ * The RC time constant of a 555 wired as a monostable, read from TOPOLOGY.
+ *
+ * The 555 monostable is R from the supply to THRESHOLD, and C from THRESHOLD to
+ * ground; the output pulse is t = 1.1 * R * C. Both parts are identified by
+ * where they are wired, not by id or by being the largest — pc47 carries a 10k
+ * pull-up, a 100k timing resistor and a 1k LED resistor, and picking by
+ * magnitude would be a guess that survives only until someone adds a bigger one.
+ *
+ * Returns {ok:true, ms} or {ok:false, reason}. Never guesses: an unrecognised
+ * topology is reported, because a wrong reading here would be indistinguishable
+ * from a passing check.
+ */
+function monostable555Ms(circuit) {
+    const parts = circuit.parts || [];
+    const timer = parts.find(p => /555/i.test(String(p.kind || '')));
+    if (!timer) return { ok: false, reason: 'no 555 in the circuit' };
+
+    const nets = circuit.resolvedNets || [];
+    if (!nets.length) return { ok: false, reason: 'circuit resolved to no nets' };
+    const netOf = (partId, terminal) => {
+        for (let i = 0; i < nets.length; i++) {
+            for (const t of (nets[i].terminals || nets[i].members || nets[i])) {
+                const pid = typeof t === 'string' ? t.split(':')[0] : (t && (t.part || t.partId));
+                const trm = typeof t === 'string' ? t.split(':')[1] : (t && t.terminal);
+                if (pid === partId && String(trm) === terminal) return i;
+            }
+        }
+        return -1;
+    };
+
+    const thr = netOf(timer.id, 'threshold');
+    if (thr < 0) return { ok: false, reason: `555 ${timer.id} has no wired threshold pin` };
+
+    const kindOf = new Map(parts.map(p => [p.id, String(p.kind || '')]));
+    const supplyNets = new Set(), groundNets = new Set();
+    nets.forEach((net, i) => {
+        for (const t of (net.terminals || net.members || net)) {
+            const pid = typeof t === 'string' ? t.split(':')[0] : (t && (t.part || t.partId));
+            const k = kindOf.get(pid) || '';
+            if (/^(vcc|vdd|v\+|supply)$/i.test(k)) supplyNets.add(i);
+            if (/^(gnd|ground|vss)$/i.test(k)) groundNets.add(i);
+        }
+    });
+
+    // R: one leg on THRESHOLD, the other on a supply net.
+    const legs = (p) => ['a', 'b'].map(t => netOf(p.id, t));
+    const rt = parts.filter(p => /resistor/i.test(String(p.kind || '')))
+        .find(p => { const [a, b] = legs(p);
+            return (a === thr && supplyNets.has(b)) || (b === thr && supplyNets.has(a)); });
+    if (!rt) return { ok: false, reason: 'no resistor from the supply to THRESHOLD' };
+
+    // C: one leg on THRESHOLD, the other on ground.
+    const ct = parts.filter(p => /capacitor/i.test(String(p.kind || '')))
+        .find(p => { const [a, b] = legs(p);
+            return (a === thr && groundNets.has(b)) || (b === thr && groundNets.has(a)); });
+    if (!ct) return { ok: false, reason: 'no capacitor from THRESHOLD to ground' };
+
+    const ohms = Number(rt.params?.ohms);
+    const farads = Number(ct.params?.farads);
+    if (!(ohms > 0) || !(farads > 0)) {
+        return { ok: false, reason: `${rt.id}=${ohms}ohm ${ct.id}=${farads}F — not usable values` };
+    }
+    return { ok: true, ms: 1.1 * ohms * farads * 1000, r: rt.id, c: ct.id, ohms, farads };
 }
 
 // ---- circuit solver ----
@@ -380,6 +466,22 @@ describe('absolute-physics assertions', { skip: ENGINE_SKIP }, () => {
                             `${a.key} claims ${a.expected} ms +-${a.tolerance}, but the program waits ` +
                             `${p.ms} ms (off by ${delta}). Either the program changed and EXPECTED.md ` +
                             `was not updated, or the claim was wrong when written.`);
+                    });
+                    continue;
+                }
+
+                if (a.kind === 'pulse-555') {
+                    test(`pulse_duration_ms = ${a.expected} +-${Math.round(a.tolerance)} (1.1*R*C)`, () => {
+                        assert.ok(!circuitFail, circuitFail);
+                        const t = monostable555Ms(solved.circuit);
+                        // Unreadable topology is a FAILURE: the document claims
+                        // a pulse width for a circuit, so if the circuit does
+                        // not present a monostable the claim is unverified.
+                        assert.ok(t.ok, `${name}: cannot read the 555 timing network — ${t.reason}`);
+                        const delta = Math.abs(t.ms - a.expected);
+                        assert.ok(delta <= a.tolerance,
+                            `pulse_duration_ms claims ${a.expected} ms, but 1.1 * ${t.r}(${t.ohms} ohm) * ` +
+                            `${t.c}(${t.farads} F) = ${t.ms.toFixed(1)} ms (off by ${delta.toFixed(1)})`);
                     });
                     continue;
                 }
