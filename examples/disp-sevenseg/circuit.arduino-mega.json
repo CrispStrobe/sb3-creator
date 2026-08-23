@@ -1,0 +1,289 @@
+{
+ "vcc": 5,
+ "parts": [
+  {
+   "id": "bb1",
+   "kind": "breadboard",
+   "params": {},
+   "terminals": [],
+   "x": 470,
+   "y": 330,
+   "rotation": 0
+  },
+  {
+   "id": "vcc1",
+   "kind": "vcc",
+   "params": {},
+   "x": 80,
+   "y": 60
+  },
+  {
+   "id": "gnd1",
+   "kind": "gnd",
+   "params": {},
+   "x": 156,
+   "y": 60
+  },
+  {
+   "id": "mcu1",
+   "kind": "arduino_mega",
+   "params": {},
+   "x": 232,
+   "y": 60,
+   "rotation": 0
+  },
+  {
+   "id": "dis1",
+   "kind": "seven_segment",
+   "params": {},
+   "x": 652,
+   "y": 311,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "e45",
+     "b": "f45"
+    }
+   }
+  },
+  {
+   "id": "r_a",
+   "kind": "resistor",
+   "params": {
+    "ohms": 220
+   },
+   "x": 64,
+   "y": 255,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a3",
+     "b": "a7"
+    }
+   }
+  },
+  {
+   "id": "r_b",
+   "kind": "resistor",
+   "params": {
+    "ohms": 220
+   },
+   "x": 148,
+   "y": 255,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a9",
+     "b": "a13"
+    }
+   }
+  },
+  {
+   "id": "r_c",
+   "kind": "resistor",
+   "params": {
+    "ohms": 220
+   },
+   "x": 232,
+   "y": 255,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a15",
+     "b": "a19"
+    }
+   }
+  },
+  {
+   "id": "r_d",
+   "kind": "resistor",
+   "params": {
+    "ohms": 220
+   },
+   "x": 316,
+   "y": 255,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a21",
+     "b": "a25"
+    }
+   }
+  },
+  {
+   "id": "r_e",
+   "kind": "resistor",
+   "params": {
+    "ohms": 220
+   },
+   "x": 400,
+   "y": 255,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a27",
+     "b": "a31"
+    }
+   }
+  },
+  {
+   "id": "r_f",
+   "kind": "resistor",
+   "params": {
+    "ohms": 220
+   },
+   "x": 484,
+   "y": 255,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a33",
+     "b": "a37"
+    }
+   }
+  },
+  {
+   "id": "r_g",
+   "kind": "resistor",
+   "params": {
+    "ohms": 220
+   },
+   "x": 568,
+   "y": 255,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a39",
+     "b": "a43"
+    }
+   }
+  }
+ ],
+ "wires": [
+  {
+   "from": "r_a",
+   "fromTerminal": "b",
+   "to": "dis1",
+   "toTerminal": "a"
+  },
+  {
+   "from": "r_b",
+   "fromTerminal": "b",
+   "to": "dis1",
+   "toTerminal": "b"
+  },
+  {
+   "from": "r_c",
+   "fromTerminal": "b",
+   "to": "dis1",
+   "toTerminal": "c"
+  },
+  {
+   "from": "r_d",
+   "fromTerminal": "b",
+   "to": "dis1",
+   "toTerminal": "d"
+  },
+  {
+   "from": "r_e",
+   "fromTerminal": "b",
+   "to": "dis1",
+   "toTerminal": "e"
+  },
+  {
+   "from": "r_f",
+   "fromTerminal": "b",
+   "to": "dis1",
+   "toTerminal": "f"
+  },
+  {
+   "from": "r_g",
+   "fromTerminal": "b",
+   "to": "dis1",
+   "toTerminal": "g"
+  },
+  {
+   "from": "gnd1",
+   "fromTerminal": "gnd",
+   "to": "dis1",
+   "toTerminal": "common"
+  },
+  {
+   "from": "mcu1",
+   "fromTerminal": "5v",
+   "to": "vcc1",
+   "toTerminal": "vcc"
+  },
+  {
+   "from": "mcu1",
+   "fromTerminal": "gnd",
+   "to": "gnd1",
+   "toTerminal": "gnd"
+  },
+  {
+   "from": "mcu1",
+   "fromTerminal": "gnd",
+   "to": "dis1",
+   "toTerminal": "common"
+  },
+  {
+   "from": "mcu1",
+   "fromTerminal": "d13",
+   "to": "r_a",
+   "toTerminal": "a"
+  },
+  {
+   "from": "mcu1",
+   "fromTerminal": "d22",
+   "to": "r_b",
+   "toTerminal": "a"
+  },
+  {
+   "from": "mcu1",
+   "fromTerminal": "d23",
+   "to": "r_c",
+   "toTerminal": "a"
+  },
+  {
+   "from": "mcu1",
+   "fromTerminal": "d24",
+   "to": "r_d",
+   "toTerminal": "a"
+  },
+  {
+   "from": "mcu1",
+   "fromTerminal": "d25",
+   "to": "r_e",
+   "toTerminal": "a"
+  },
+  {
+   "from": "mcu1",
+   "fromTerminal": "d26",
+   "to": "r_f",
+   "toTerminal": "a"
+  },
+  {
+   "from": "mcu1",
+   "fromTerminal": "d27",
+   "to": "r_g",
+   "toTerminal": "a"
+  }
+ ],
+ "holeWires": [
+  {
+   "ref": "bbw:bb1:gen_0",
+   "boardId": "bb1",
+   "a": "b7",
+   "b": "a45",
+   "color": "green"
+  },
+  {
+   "ref": "bbw:bb1:gen_1",
+   "boardId": "bb1",
+   "a": "b13",
+   "b": "g45",
+   "color": "blue"
+  }
+ ],
+ "generated": "benchFor+authored+seat"
+}

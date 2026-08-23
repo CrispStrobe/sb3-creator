@@ -91,6 +91,15 @@ const EXPECTED_UNSUPPORTED = new Set([
     // this list.)
     'devices_lcdprint', 'devices_lcdcursor', 'devices_lcdclear',
     'devices_oledprint', 'devices_oledcursor', 'devices_oledclear',
+    // MATRIX8X8 / NEOPIXEL / SEVENSEG8 verbs, added 2026-08-23 with the
+    // disp-* showcase. Same reason as the LCD/OLED entries above: these drive
+    // ISR-owned frame buffers and bit-banged strips in C, and the referee
+    // traces PINS, not displays. The engine models these parts; the referee
+    // does not, and recording that is not the same as excusing a defect —
+    // these opcodes are separately tracked as the devices_* stub gap in
+    // brickwright-lite's example-vm-execution ratchet.
+    'devices_setpixel', 'devices_clearmatrix', 'devices_setneopixel',
+    'devices_showdigit', 'devices_setrgb',
     // SEVENSEG8 / LEDBANK8 / the keypad hats drive ISR-owned frame
     // buffers and a debounced scan in C; the referee traces pins, not
     // display internals (the reference emulator chain covers those).
@@ -111,6 +120,11 @@ const CROSS_DEVICE_ADC_PIN_EXCEPTIONS = new Set([
     // a 10-bit range but an eighth of a 12-bit one, so the same volts
     // legally produce different behaviour per device. Genuine divergence.
     '03-night-light', '04-thermostat', '17-comparator',
+    // disp-bargraph, added 2026-08-23: the same shape as 16-ldr-bargraph
+    // above. `set level to read pot / 128` is a RAW threshold, so the same
+    // pot position lights a different number of LEDs on a 10-bit ADC than on
+    // a 12-bit one. Per-device correct; asserting identity would be wrong.
+    'disp-bargraph',
 ]);
 
 // ---- Tier 1: retarget + referee, no unsupported opcodes --------------------
