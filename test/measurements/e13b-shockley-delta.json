@@ -1,0 +1,426 @@
+[
+ {
+  "ex": "pc60-night-lamp-hardware",
+  "label": "led.cathode",
+  "exp": 3,
+  "before": 3.0249246592482395,
+  "after": 3.707763636982182,
+  "delta": 0.6828389777339425
+ },
+ {
+  "ex": "38-npn-switch",
+  "label": "led1.cathode",
+  "exp": 4.5,
+  "before": 4.496998285904996,
+  "after": 3.814263745465026,
+  "delta": -0.6827345404399701
+ },
+ {
+  "ex": "41-pot-as-dimmer",
+  "label": "pot1.wiper",
+  "exp": 2.5,
+  "before": 2.5,
+  "after": 1.8544224090946844,
+  "delta": -0.6455775909053156
+ },
+ {
+  "ex": "pc55-ntc-indicator",
+  "label": "ntc.b",
+  "exp": 2.03,
+  "before": 2.010364112789118,
+  "after": 1.7340598758505632,
+  "delta": -0.2763042369385549
+ },
+ {
+  "ex": "pc13-direct-diode",
+  "label": "resistor_2.b",
+  "exp": 2.89,
+  "before": 2.8916666665944404,
+  "after": 2.6544663502740353,
+  "delta": -0.23720031632040506
+ },
+ {
+  "ex": "41-pot-as-dimmer",
+  "label": "led1.anode",
+  "exp": 2.02,
+  "before": 2.0217391304347827,
+  "after": 1.7976115815029898,
+  "delta": -0.22412754893179287
+ },
+ {
+  "ex": "28-diode-polarity",
+  "label": "d1.anode",
+  "exp": 2.79,
+  "before": 2.793877550947177,
+  "after": 2.601149193776251,
+  "delta": -0.19272835717092596
+ },
+ {
+  "ex": "21-resistor-led",
+  "label": "r1.b",
+  "exp": 2.13,
+  "before": 2.130434782608696,
+  "after": 1.9824507660896373,
+  "delta": -0.14798401651905846
+ },
+ {
+  "ex": "31-no-resistor-led",
+  "label": "led_ok.anode",
+  "exp": 2.13,
+  "before": 2.1304347825883174,
+  "after": 1.982450766087982,
+  "delta": -0.14798401650033544
+ },
+ {
+  "ex": "45-led-current-comparison",
+  "label": "led1.anode",
+  "exp": 2.13,
+  "before": 2.1304347825883174,
+  "after": 1.982450766087982,
+  "delta": -0.14798401650033544
+ },
+ {
+  "ex": "pc13-direct-diode",
+  "label": "diode_3.cathode",
+  "exp": 2.1,
+  "before": 2.095833333286741,
+  "after": 1.9707283680302115,
+  "delta": -0.1251049652565297
+ },
+ {
+  "ex": "40-led-color-mix",
+  "label": "led1.anode",
+  "exp": 2.09,
+  "before": 2.0882352940973785,
+  "after": 1.9638701061367374,
+  "delta": -0.12436518796064111
+ },
+ {
+  "ex": "34-ohms-law",
+  "label": "r1.b",
+  "exp": 2.03,
+  "before": 2.0297029702970297,
+  "after": 1.9130563323429954,
+  "delta": -0.1166466379540343
+ },
+ {
+  "ex": "36-parallel-leds",
+  "label": "led1.anode",
+  "exp": 2.03,
+  "before": 2.0297029702769334,
+  "after": 1.9130563323429954,
+  "delta": -0.11664663793393792
+ },
+ {
+  "ex": "45-led-current-comparison",
+  "label": "led3.anode",
+  "exp": 2.03,
+  "before": 2.0297029702769334,
+  "after": 1.9130563323429954,
+  "delta": -0.11664663793393792
+ },
+ {
+  "ex": "22-series-parallel",
+  "label": "led2.anode",
+  "exp": 2.06,
+  "before": 2.0624999999798046,
+  "after": 1.947662956032722,
+  "delta": -0.1148370439470825
+ },
+ {
+  "ex": "40-led-color-mix",
+  "label": "led3.anode",
+  "exp": 3.25,
+  "before": 3.252941176439015,
+  "after": 3.1410439502525973,
+  "delta": -0.11189722618641751
+ },
+ {
+  "ex": "pc34-polarity-protector",
+  "label": "d1.cathode",
+  "exp": 8.24,
+  "before": 8.23823529403587,
+  "after": 8.329524474041103,
+  "delta": 0.09128918000523178
+ },
+ {
+  "ex": "pc31-bridge-rectifier",
+  "label": "src.pos",
+  "exp": 8.25,
+  "before": 8.245630986958105,
+  "after": 8.332344934532077,
+  "delta": 0.08671394757397266
+ },
+ {
+  "ex": "42-diode-rectifier",
+  "label": "d1.cathode",
+  "exp": 4.25,
+  "before": 4.253061224447715,
+  "after": 4.33530385932472,
+  "delta": 0.08224263487700512
+ },
+ {
+  "ex": "pc49-diode-clamp",
+  "label": "r.b",
+  "exp": 0.74,
+  "before": 0.7418397626039381,
+  "after": 0.6601080235876975,
+  "delta": -0.08173173901624065
+ },
+ {
+  "ex": "22-series-parallel",
+  "label": "r1.b",
+  "exp": 3.52,
+  "before": 3.5157894728392516,
+  "after": 3.4579463108529476,
+  "delta": -0.057843161986304015
+ },
+ {
+  "ex": "pc80-quellen-vergleich",
+  "label": "battery_2.pos",
+  "exp": 5.28,
+  "before": 5.2847246738471485,
+  "after": 5.337795126322683,
+  "delta": 0.053070452475534324
+ },
+ {
+  "ex": "23-voltage-regulator",
+  "label": "r1.b",
+  "exp": 6.15,
+  "before": 6.148146944633052,
+  "after": 6.096737529528094,
+  "delta": -0.051409415104958
+ },
+ {
+  "ex": "35-series-resistors",
+  "label": "r1.b",
+  "exp": 4,
+  "before": 4.003322259136213,
+  "after": 3.954230311204683,
+  "delta": -0.04909194793152993
+ },
+ {
+  "ex": "pc03-series-resistors",
+  "label": "resistor_3.b",
+  "exp": 4,
+  "before": 4.002196009155108,
+  "after": 3.954230311204683,
+  "delta": -0.04796569795042549
+ },
+ {
+  "ex": "39-zener-clamp",
+  "label": "r1.b",
+  "exp": 5.14,
+  "before": 5.14288235291587,
+  "after": 5.14231383946907,
+  "delta": -0.0005685134468000896
+ },
+ {
+  "ex": "pc18-zener-clamp",
+  "label": "resistor_2.b",
+  "exp": 5.14,
+  "before": 5.14288235291587,
+  "after": 5.14231383946907,
+  "delta": -0.0005685134468000896
+ },
+ {
+  "ex": "pc05-npn-switch",
+  "label": "npn_5.collector",
+  "exp": 0.2,
+  "before": 0.20058321183062736,
+  "after": 0.20060741320609757,
+  "delta": 0.00002420137547021195
+ },
+ {
+  "ex": "28-diode-polarity",
+  "label": "d2.cathode",
+  "exp": 5,
+  "before": 4.999998575926511,
+  "after": 4.999999995746044,
+  "delta": 0.0000014198195330550334
+ },
+ {
+  "ex": "05-counter",
+  "label": "BTN_button.a",
+  "exp": 5,
+  "before": 5,
+  "after": 4.999999900000002,
+  "delta": -9.999999761589606e-8
+ },
+ {
+  "ex": "11-toggle-button",
+  "label": "R_PU_btn.b",
+  "exp": 5,
+  "before": 5,
+  "after": 4.999999900000002,
+  "delta": -9.999999761589606e-8
+ },
+ {
+  "ex": "18-logic-and-gate",
+  "label": "BTN_btnA.a",
+  "exp": 5,
+  "before": 5,
+  "after": 4.999999900000002,
+  "delta": -9.999999761589606e-8
+ },
+ {
+  "ex": "18-logic-and-gate",
+  "label": "BTN_btnB.a",
+  "exp": 5,
+  "before": 5,
+  "after": 4.999999900000002,
+  "delta": -9.999999761589606e-8
+ },
+ {
+  "ex": "19-logic-or-gate",
+  "label": "BTN_btnA.a",
+  "exp": 5,
+  "before": 5,
+  "after": 4.999999900000002,
+  "delta": -9.999999761589606e-8
+ },
+ {
+  "ex": "25-reaction-timer",
+  "label": "R_PU_btn.b",
+  "exp": 5,
+  "before": 5,
+  "after": 4.999999900000002,
+  "delta": -9.999999761589606e-8
+ },
+ {
+  "ex": "26-debounce",
+  "label": "R_PU_btn.b",
+  "exp": 5,
+  "before": 5,
+  "after": 4.999999900000002,
+  "delta": -9.999999761589606e-8
+ },
+ {
+  "ex": "27-led-dice",
+  "label": "BTN_btn.a",
+  "exp": 5,
+  "before": 5,
+  "after": 4.999999900000002,
+  "delta": -9.999999761589606e-8
+ },
+ {
+  "ex": "02-dimmer",
+  "label": "POT_pot.wiper",
+  "exp": 2.5,
+  "before": 2.5,
+  "after": 2.49999999375,
+  "delta": -6.250000073038109e-9
+ },
+ {
+  "ex": "03-night-light",
+  "label": "POT_ldr.wiper",
+  "exp": 2.5,
+  "before": 2.5,
+  "after": 2.49999999375,
+  "delta": -6.250000073038109e-9
+ },
+ {
+  "ex": "04-thermostat",
+  "label": "POT_sensor.wiper",
+  "exp": 2.5,
+  "before": 2.5,
+  "after": 2.49999999375,
+  "delta": -6.250000073038109e-9
+ },
+ {
+  "ex": "15-voltage-divider",
+  "label": "POT_sense.wiper",
+  "exp": 2.5,
+  "before": 2.5,
+  "after": 2.49999999375,
+  "delta": -6.250000073038109e-9
+ },
+ {
+  "ex": "16-ldr-bargraph",
+  "label": "MCU.P1.7",
+  "exp": 2.5,
+  "before": 2.5,
+  "after": 2.49999999375,
+  "delta": -6.250000073038109e-9
+ },
+ {
+  "ex": "17-comparator",
+  "label": "POT_potA.wiper",
+  "exp": 2.5,
+  "before": 2.5,
+  "after": 2.49999999375,
+  "delta": -6.250000073038109e-9
+ },
+ {
+  "ex": "17-comparator",
+  "label": "POT_potB.wiper",
+  "exp": 2.5,
+  "before": 2.5,
+  "after": 2.49999999375,
+  "delta": -6.250000073038109e-9
+ },
+ {
+  "ex": "arduino-03-analog-in-out-serial",
+  "label": "pot1.wiper",
+  "exp": 2.5,
+  "before": 2.5,
+  "after": 2.49999999375,
+  "delta": -6.250000073038109e-9
+ },
+ {
+  "ex": "arduino-03-analog-input",
+  "label": "pot1.wiper",
+  "exp": 2.5,
+  "before": 2.5,
+  "after": 2.49999999375,
+  "delta": -6.250000073038109e-9
+ },
+ {
+  "ex": "arduino-04-dimmer",
+  "label": "pot1.wiper",
+  "exp": 2.5,
+  "before": 2.5,
+  "after": 2.49999999375,
+  "delta": -6.250000073038109e-9
+ },
+ {
+  "ex": "arduino-05-if-statement",
+  "label": "pot1.wiper",
+  "exp": 2.5,
+  "before": 2.5,
+  "after": 2.49999999375,
+  "delta": -6.250000073038109e-9
+ },
+ {
+  "ex": "avr02-dimmer",
+  "label": "pot1.wiper",
+  "exp": 2.5,
+  "before": 2.5,
+  "after": 2.49999999375,
+  "delta": -6.250000073038109e-9
+ },
+ {
+  "ex": "avr06-blink-and-print",
+  "label": "pot1.wiper",
+  "exp": 2.5,
+  "before": 2.5,
+  "after": 2.49999999375,
+  "delta": -6.250000073038109e-9
+ },
+ {
+  "ex": "nano03-two-tasks",
+  "label": "pot1.wiper",
+  "exp": 2.5,
+  "before": 2.5,
+  "after": 2.49999999375,
+  "delta": -6.250000073038109e-9
+ },
+ {
+  "ex": "pico03-two-tasks",
+  "label": "pot1.wiper",
+  "exp": 1.65,
+  "before": 1.65,
+  "after": 1.649999995875,
+  "delta": -4.1249998972148205e-9
+ }
+]
