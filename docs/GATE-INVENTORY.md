@@ -56,7 +56,10 @@ caught one here — see "the mutation that lied", below.
 
 `gh run list --branch main` showed **seven consecutive failures**, from `44531a8`
 (2026-08-23 13:19 UTC) to `1a83dfa` (16:10 UTC). The last green run was `ab243ca`
-at 13:16. Every one failed at the same place — step two, before `npm ci`:
+at 13:16. By 17:42, while this audit was being written, it was **nine** — the
+count grows with every commit that lands, because nothing on `main` reports the
+problem except a red X on a workflow whose failure looks like infrastructure.
+Every one fails at the same place — step two, before `npm ci`:
 
 ```
 Lint · test · build   Check out bw-board (pinned)
@@ -74,7 +77,9 @@ branch or tag and fetches as a branch glob, which matches nothing. The pins were
 written as seven-character abbreviations.
 
 So lint, the entire 6403-test suite, the mutation prover and the build did not run
-at all while seven commits landed on `main`.
+at all while nine commits landed on `main` — including `1577fba`, *"test: every
+solved node must obey KCL"*, the gate that would have reported finding 5 below.
+It has never run in CI.
 
 The bitter part is where it came from. This is `90391a6` — *the wave-1 fix* for
 "fifteen cross-repo gates skip in CI and a skip reads as a pass". It replaced
@@ -92,6 +97,61 @@ instead of asserting the property either had to satisfy.
 `every pinned checkout ref is a ref actions/checkout can actually fetch`, which
 asserts the length on the file CI reads, and asserts its own yield first so an
 empty scan cannot read as a clean one.
+
+**Confirmed in CI, not merely locally.** A `workflow_dispatch` of `ci.yml` on
+`test/gate-integrity-wave2` (run `32656177685`) gets past the step that had failed
+nine times:
+
+```
+Lint · test · build
+  Set up job                              success
+  Run actions/checkout@v4                 success
+  Check out bw-board (pinned)             success   <- nine consecutive failures before this
+  Check out bw-circuit-ui (pinned)        success
+  Run actions/setup-node@v4               success
+  Run npm ci                              success
+  Install bw-board's runtime dependencies success
+```
+
+**The fix is not on `main`.** This branch has it; `main` is still dark and the
+count is still rising.
+
+#### 1b. Behind it, a second defect from the same commit: CI lints the siblings
+
+The dispatched run got past the checkout and then failed at **Lint**, with a page
+of this:
+
+```
+> eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0
+
+/home/runner/work/sb3-creator/sb3-creator/siblings/bw-board/src/board.js
+/home/runner/work/sb3-creator/sb3-creator/siblings/bw-board/src/conformance.js
+/home/runner/work/sb3-creator/sb3-creator/siblings/bw-board/src/devices/analog-ics.js
+… (5.3 MB of two other repositories)
+```
+
+`ci.yml` checks the siblings out **inside the workspace**, at `siblings/`, so the
+gates can reach them. `eslint .` lints from the workspace root. Both come from
+`90391a6` — the same commit as the unfetchable pins — and **the second was
+invisible because the first stopped the job before Lint ever ran.**
+
+That is worth stating on its own: this is the shape where repairing one defect
+exposes another that has been latent the whole time, and where fixing only the
+obvious one would have left `main` red for a different reason and looked like the
+repair had failed. `siblings/**` is now in `globalIgnores` and in `.gitignore`.
+Proven both ways with a deliberately broken file at
+`siblings/bw-board/src/deliberately-bad.js`:
+
+```
+# without the ignore
+/…/siblings/bw-board/src/deliberately-bad.js
+  2:5  error  'x' is already defined            no-redeclare
+  3:1  error  'undefinedThing' is not defined   no-undef
+✖ 3 problems
+
+# with the ignore
+(clean)
+```
 
 ### 2. `device-coverage` has never seen the live engine in CI — 36 kinds unchecked
 
@@ -407,6 +467,59 @@ entirely.
 five gates; on a box at load 21 one mutation's twelve cross-repo gates ran past ten
 minutes. CI still runs the whole set — this is for proving one repair without
 waiting hours, because a prover nobody runs stops being evidence.
+
+---
+
+## The suites
+
+Two rigs, both with `BW_BOARD` and `BW_CIRCUIT_UI` pointed at **detached worktrees
+pinned to `50c3bf7` / `d754cfc`** — the revisions `ci.yml` checks out — because
+`/mnt/volume1/code/wt/` contains a shared `bw-board` worktree and a run that
+resolves `../bw-board` measures whichever revision another session left there
+(`caeac2b`, during this audit). Node 20 here; CI pins 22.
+
+**`npm run test:fast`** — this branch:
+
+```
+# tests 1173
+# pass 1168
+# fail 0
+# skipped 5
+```
+
+**`npm test`** — `origin/main` and this branch, same rig:
+
+```
+before   6403 tests   6297 pass   14 fail   92 skipped     (origin/main @ 1a83dfa)
+after    6416 tests   6318 pass    6 fail   92 skipped     (test/gate-integrity-wave2)
+```
+
+`+13` tests, `+21` passing. The after-set of failures is a strict **subset** of the
+before-set, so nothing here introduced one.
+
+**Do not read `−8` as a repair.** Those eight are `spawnSync /bin/sh ETIMEDOUT` in
+`debug-trace-audit`'s `syntactically valid Python` — a five-second ceiling on a box
+at load 18–21, which happened not to be hit the second time. They are flakes and
+the honest number for this branch's effect on failures is **zero**.
+
+The six that remain, both runs, neither caused here:
+
+| # | failure | cause |
+|---|---|---|
+| 4 | `bench file list excludes flat twins…`, `all controller benches…`, `all generated seated component bodies…`, `example-corpus-contract` | `TypeError: fs.globSync is not a function` — Node 20 on this box, Node 22 in CI |
+| 2 | `absolute-physics assertions` → `41-pot-as-dimmer`, and `every solved node obeys KCL` | the loaded-potentiometer artifact, live in `bw-board` at both the pin and HEAD. PLAN.md §27. |
+
+**`brickwright-lite`** — unchanged by this branch, run once for the record:
+
+```
+# tests 915   # pass 913   # fail 1   # skipped 1
+```
+
+The one failure is `lesson-numeric-contract`: `11 benches outran the budget — raise
+it or check the box`, after 296 s. A wall-clock budget on a saturated box, not a
+defect — and worth noting as a fourth shape this campaign should name: a gate whose
+verdict depends on how busy the machine is will eventually be raised rather than
+believed.
 
 ---
 

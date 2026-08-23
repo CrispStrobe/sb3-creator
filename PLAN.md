@@ -673,6 +673,12 @@ Full write-up, per-file tables and RED evidence: **`docs/GATE-INVENTORY.md`**.
 Wave 1 is `test/CROSS-REPO-GATE-AUDIT.md` (which gates never run); this wave is the
 question it ended on — which gates run and check nothing.
 
+**`main` IS STILL DARK.** The blackout fix is on `test/gate-integrity-wave2` and
+is confirmed working in CI there (run `32656177685`: `Check out bw-board (pinned)`
+succeeds). It has not been applied to `main`, where the count of commits with no
+verdict at all was 7 at 16:10 UTC and 9 at 17:42 and rises with every landing.
+Until that fix reaches `main`, no green claim about `main` means anything.
+
 Closed on `test/gate-integrity-wave2`: the CI blackout (abbreviated SHAs in
 `ci.yml`), `device-coverage`'s snapshot-only CI path, `bench-invariants`' unfloored
 1092-file corpus, and eleven gates whose corpora could arrive empty in silence.
@@ -740,3 +746,14 @@ verdict). The mutation prover went 20 → 26.
 
 - [ ] **`ctarget.test.mjs` reaches the live network with no retry**, turning
   someone else's outage into a red build. Carried over from wave 1, still open.
+
+- [ ] **A gate whose verdict depends on machine load.** `brickwright-lite`'s
+  `lesson-numeric-contract` failed here with `11 benches outran the budget — raise
+  it or check the box` after 296 s, on a box at load 18–21. sb3-creator has the
+  same shape: eight `syntactically valid Python` failures in `debug-trace-audit`
+  were `spawnSync /bin/sh ETIMEDOUT` against a five-second ceiling, and they
+  vanished on a second run of the same commit. A wall-clock budget is a real
+  check of a real property, but its failure is indistinguishable from contention,
+  and the documented remedy in the message ("raise it") is the one that destroys
+  it. This is a fourth shape for the campaign to name, alongside never-runs,
+  cannot-fail and checks-nothing: **cannot-be-trusted-when-busy**.

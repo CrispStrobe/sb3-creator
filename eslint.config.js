@@ -15,14 +15,19 @@ export default defineConfig([
   // or reformatting them is precisely what we do not want. lite's copies are CommonJS
   // (`require`/`module.exports`), the gallery's are browser IIFEs taking a global `Scratch`.
   //
-  // `siblings/**` is where CI checks out bw-board and bw-circuit-ui so the cross-repo gates RUN
-  // instead of skipping (.github/workflows/ci.yml). They are separate repositories with their own
-  // lint config and their own CI; applying ours to them reported 451 errors in code this repo does
-  // not own and cannot fix here. It surfaced only once the checkout started working — while the
-  // pins were abbreviated and unfetchable, `siblings/` stayed empty and lint had nothing to walk
-  // into, so a green lint meant the siblings were MISSING.
-  globalIgnores(['dist', 'test/browser/harness.bundle.js', 'reference/**', 'test/fixtures/downstream/**',
-    'siblings/**']),
+  // `siblings/**` is where .github/workflows/ci.yml checks bw-board and bw-circuit-ui out,
+  // INSIDE this workspace, so the cross-repo gates RUN instead of skipping. That puts 5.3 MB
+  // of two other repositories under `eslint .`, which lints the whole tree from its root:
+  // 460 problems, 451 of them errors, in code this repo does not own and cannot fix here.
+  // Their lint is their repo's job, and reformatting a pinned checkout would break the very
+  // revision it is pinned to.
+  //
+  // It took until 2026-08-23 to see because ONE commit (90391a6) introduced both defects: the
+  // checkout step above had been failing on an abbreviated SHA, so `siblings/` stayed empty
+  // and lint had nothing to walk into. A green Lint meant the siblings were MISSING. Repairing
+  // the first defect is what exposed the second.
+  globalIgnores(['dist', 'siblings/**', 'test/browser/harness.bundle.js', 'reference/**',
+    'test/fixtures/downstream/**']),
   {
     files: ['**/*.{js,jsx}'],
     extends: [
