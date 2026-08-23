@@ -70,3 +70,28 @@ it would have shipped a second, poorer copy. Removed on the owner's call.
   24,558 rendered pairs compared.
 - Every wire endpoint checked against the part sidecars — no circuit names a
   terminal its part does not have.
+
+---
+
+## disp-oled and disp-mono-lcd are enrolled but INERT (2026-08-23)
+
+Their circuits are correct — mcu + ssd1306 on the pins the programs declare,
+with I2C pull-ups. The gap is one level up: the dialect's OLED verbs lower to
+`devices_oledclear`, `devices_oledcursor` and `devices_oledprint`, and **no
+extension copy defines those opcodes** — not lite's bundled `devices`
+extension, not sb3-creator's reference. lite's Milestone 0 execution gate
+(`test/example-vm-execution.test.mjs`) catches it: "authors opcodes no bundled
+extension defines". Both load, draw a correct-looking circuit, and do nothing.
+
+They are enrolled because the gallery gate requires every directory with a
+program.bw to be in the index, and deleting correct circuits while the fix is
+in flight would throw away good work. They are recorded in that gate's ratchet
+instead, which makes the debt visible rather than silent.
+
+That brings the `devices_oled*` / `devices_tft*` gap to NINE examples:
+55-oled-hello, 51-tft-pixels, 70-calculator, 70-calculator-simple,
+72-pico-oled-hello, 73-voltmeter, 75-battery-tester, and now these two. All
+nine leave the ratchet together the moment the eleven verbs are defined.
+
+The five siblings — disp-bargraph, disp-lcd, disp-led-matrix, disp-rgb-light,
+disp-sevenseg — execute cleanly and need nothing.
