@@ -48,6 +48,10 @@ If VCC changes from 9 V to 12 V:
 3. Series resistor R1 limits total current and drops excess voltage
 
 ```assert
-# Zener regulator: 9V in, clamp at ~6.15V (zener + margin)
-net r1.b V 6.15 +-0.25
+# The junction IS the zener's breakdown: 9 V in, clamped to vz = 5.1 V.
+# The previous claim of 6.15 V was a snapshot of a bench with nothing
+# clamping — the zener was declared kind:"diode", so no current took its
+# branch and the junction sat at 9 - 8.642 mA x 330 = 6.148 V, which the
+# comment then rationalised as "zener + margin".
+net r1.b V 5.13 +-0.05
 ```
