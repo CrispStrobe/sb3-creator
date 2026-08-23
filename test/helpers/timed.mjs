@@ -216,6 +216,42 @@ export function achievableCpuRatio (sampleMs = 600, samples = 3) {
     return seen[Math.floor(seen.length / 2)];
 }
 
+/**
+ * CPU this process itself has consumed. The self-analogue of
+ * `reapedChildCpuSeconds()`, for budgets that bound an IN-PROCESS loop rather than
+ * a child — brickwright-lite's `lesson-numeric-contract` runs benches on a
+ * `hrtime` deadline and marks the rest `measurement-truncated`, which is a
+ * wall-clock budget with no child to measure.
+ *
+ * `process.cpuUsage()` is portable, so this half works off Linux too; only the
+ * `achievable` reference needs /proc.
+ */
+export function selfCpuSeconds () {
+    const u = process.cpuUsage();
+    return (u.user + u.system) / 1e6;
+}
+
+/**
+ * Classify an already-elapsed in-process window. Same verdicts, same cuts, same
+ * refusal to answer without a reference — the caller has done its own timing
+ * because the work is a loop it controls rather than a call this helper can wrap.
+ *
+ * Returns the verdict plus a ready-made sentence, so a caller that only wants the
+ * message does not have to reassemble it.
+ */
+export function classifyElapsed ({ what, budgetMs, wallSeconds, cpuSeconds, loadStart }) {
+    const achievable = achievableCpuRatio();
+    const { verdict, ratio, share, workCpu, wouldHaveFit } = classify({
+        wallSeconds, cpuSeconds, achievable, startupCpu: 0, budgetMs
+    });
+    const detail = {
+        what, budgetMs, wallSeconds, cpuSeconds, workCpu, wouldHaveFit, startupCpu: 0,
+        ratio, share, achievable, verdict,
+        loadStart: loadStart ?? loadavg()[0], loadEnd: loadavg()[0], nodes: nodeProcessCount()
+    };
+    return { ...detail, message: explainTimeout(detail) };
+}
+
 /** Raised when a budget is exceeded. Carries the evidence, not just the number. */
 export class BudgetExceededError extends Error {
     constructor (message, detail) {

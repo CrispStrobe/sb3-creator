@@ -312,6 +312,94 @@ pins — which the probe now enforces.
 
 ---
 
+## Which budgets now discriminate, and which cannot
+
+`PLAN.md` §27 named the fourth shape — **cannot-be-trusted-when-busy** — and
+`test/helpers/timed.mjs` is the instrument for it. A test that hung burns CPU; an
+oversubscribed machine does not give the process the CPU to burn. On Linux that
+costs one file read: `/proc/self/stat` fields 16/17 are `cutime`/`cstime`, the CPU
+of **reaped children**, so sampling either side of a synchronous `execFileSync`
+gives exactly what that child burned — including one killed on timeout, because the
+kill is followed by a reap.
+
+### Routed
+
+| budget | what it bounds | why it qualifies |
+|---|---|---|
+| `6502-oled-compile:55` — 30 s | `cl65` assembling a 6502 fixture | external compiler, expected to finish |
+| `matrix-keypad-retarget:74` — 60 s | `cl65` on the generated calculator | same |
+| `z80-calculator-retarget:67` — 60 s | `sdcc -mz80` on generated C | same |
+| `test/helpers/python-syntax.mjs` — 30 s | `python3 ast.parse` | already had a distinguishable outcome; now carries the verdict too |
+| lite `lesson-numeric-contract` — 15 s | an **in-process** bench-measurement deadline | uses `classifyElapsed()` + `selfCpuSeconds()`, the self-analogue |
+
+### Not routed, with the reason
+
+**The `vm.runInNewContext` budgets** — `exec:22` (800 ms), `extensions` ×5
+(1000 ms), `vm:112`, `a2-sampler:76`, `js-driver-oled-chain:91`. Two reasons. The
+CPU is our own thread rather than a child's, so the cheap `cutime` reading does not
+apply; and more decisively, in `exec.test.mjs` **a timeout is the accepted
+outcome** — the comment says so: a forever-loop game is "a clean *still running*,
+not an error". There is nothing to explain.
+
+**`settrace-codegen:138` — 5 s. NOT A BUDGET AT ALL, and this cost two red tests
+before it was understood.** The traced program is a micro:bit `forever` loop with
+`sleep` stubbed to a no-op: it never terminates, the 5 s is how it is **stopped**,
+and the assertions read the partial stdout collected up to that moment. A timeout
+there is the success path. Routing it turned the normal stop into a
+`BudgetExceededError`.
+
+Worth recording what did *not* catch that: `threshold-inventory.mjs` counts it as a
+`timeout-ms` and `threshold-probe.mjs` reported it `CAN-FIRE`. Both statements are
+true and both are beside the point — moving the number does change the verdict
+without the number bounding anything. What caught it was checking whether the test
+passed **before** the change at the same load, instead of assuming the red was the
+box. **Before wrapping a `timeout:`, ask whether the work is expected to finish.**
+
+**`ttl-module-acceptance:52` — 30 s.** Behind `BW_TTL_ORACLE=1` plus Java,
+`Digital.jar` and a cloned `8bitsim`, so it cannot be exercised here at all.
+
+### What the discriminator can and cannot separate
+
+Confidently: **starved from computing.** That is the question that matters, because
+a starved process called a hang sends someone hunting a defect that does not exist.
+
+Not confidently: **unbounded work from bounded-but-throttled work.** Both compute
+flat out. A third verdict was drafted for this, keyed on
+`workCpu < budget × 0.8` — and it mis-classified the helper's own spinning stub,
+because on a loaded box a genuine hang *also* fails to accumulate CPU worth 80% of
+its budget. It relabelled real hangs as throttling, silently and in the reassuring
+direction, which is the same failure as the absolute cut it was meant to improve
+on. Telling them apart needs the CPU curve over time; a synchronous helper has one
+observation. So the verdict is `cpu-bound`, reported with both numbers and the
+reading each supports, and the caller decides.
+
+Two calibrations, both measured rather than assumed, both on a deliberately busy
+box because an instrument calibrated on an idle machine is calibrated for the
+situation in which it is not needed:
+
+- **The reference is measured at failure time.** A pure spinner on 4 cpus at load
+  36 achieves ratio **0.12–0.17**, so an absolute cut of 0.5 would call every real
+  hang "contention". `achievableCpuRatio()` is the median of three 600 ms samples —
+  median rather than max or min, because max over-estimates what was achievable and
+  pushes hangs towards contention.
+- **Runtime startup is charged to the runtime.** `node -e ''` costs **min 0.040 /
+  median 0.060 / max 0.070 s** of CPU for doing nothing. Over a short budget that
+  dominates: the first version classified its own *sleeping* stub at share 0.13
+  against a 0.15 cut.
+
+### The retry became evidence-based
+
+A blanket retry is how a load-flake is hidden along with the defect beside it. Once
+the two are distinguishable the policy can be principled: `runBounded` retries once,
+**opt-in per call site and only where the work is deterministic**, when the verdict
+says the machine was at fault — never on the unbounded reading. The retry gets the
+wall time the measured share implies (`budget / achievable`, capped at 10×), which
+is not "raising the budget": the verdict is decided on **CPU consumed**, so a hang
+cannot launder itself by being given longer. Every retry prints a line, because a
+retry nobody can see hides how often the machine is the problem.
+
+---
+
 ## Every bounding literal
 
 Generated by `node scripts/threshold-inventory.mjs --markdown`, 2026-08-23, against
