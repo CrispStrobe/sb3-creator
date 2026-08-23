@@ -14,7 +14,11 @@
   // driver replaces the stub.
   const STUB = true;
 
-  class Devices {
+  const OLED_KINDS = /^(ssd1306|sh1106|oled)$/i;
+const TFT_KINDS = /^(ili9341|ili9341_par|ili9341_parallel|st7735|tft)$/i;
+const LCD_KINDS = /^(hd44780|char_lcd|char_lcd_i2c|lcd)$/i;
+
+class Devices {
     constructor() {
       this._runtime = null;
     }
@@ -244,35 +248,64 @@
     setmotor(a) { const b = this._board(); if (b && b.setDeviceControl) b.setDeviceControl(a.MOTOR, 'speed', num(a.SPEED)); }
     setdirection(a) { const b = this._board(); if (b && b.setDeviceControl) b.setDeviceControl(a.MOTOR, 'direction', String(a.DIR)); }
     setrelay(a) { const b = this._board(); if (b && b.setDeviceControl) b.setDeviceControl(a.RELAY, 'state', a.STATE === 'on' ? 1 : 0); }
+    /**
+     * Resolve a display reference to a real part id.
+     *
+     * The dialect addresses displays by ORDINAL — `oled print "Hi" on 1` — while
+     * the board looks parts up by exact id (setDeviceControl does
+     * `this.parts.find(p => p.id === partId)`). A circuit's part is called OLED
+     * or LCD, never "1", so every display verb refused with
+     * "no such part" and nothing was ever drawn. That was true of the shipped
+     * lcd verbs too, not only the new oled/tft ones.
+     *
+     * Resolution is PER FAMILY, not "the Nth display on the board": a bench
+     * carrying both an LCD and an OLED must send `lcd ... on 1` to the LCD and
+     * `oled ... on 1` to the OLED. A generic ordinal would send both to
+     * whichever came first in the netlist.
+     *
+     * An exact part id still wins, so a program that names its part keeps
+     * working and this is purely additive.
+     */
+    _device(ref, kinds) {
+        const b = this._board();
+        const s = String(ref);
+        if (!b || !Array.isArray(b.parts)) return s;
+        if (b.parts.some(p => p.id === s)) return s;      // an id beats an ordinal
+        const n = parseInt(s, 10);
+        if (!Number.isFinite(n) || n < 1) return s;
+        const family = b.parts.filter(p => kinds.test(String(p.kind || '')));
+        return family[n - 1] ? family[n - 1].id : s;      // unresolved: let the board refuse loudly
+    }
+
     activate(a) { const b = this._board(); if (b && b.setDeviceControl) b.setDeviceControl(a.DEVICE, 'state', 1); }
     deactivate(a) { const b = this._board(); if (b && b.setDeviceControl) b.setDeviceControl(a.DEVICE, 'state', 0); }
-    lcdprint(a) { const b = this._board(); if (b && b.setDeviceControl) b.setDeviceControl(a.DISPLAY, 'print', String(a.TEXT)); }
-    lcdcursor(a) { const b = this._board(); if (b && b.setDeviceControl) b.setDeviceControl(a.DISPLAY, 'cursor', [num(a.ROW), num(a.COL)]); }
-    lcdclear(a) { const b = this._board(); if (b && b.setDeviceControl) b.setDeviceControl(a.DISPLAY, 'clear', 1); }
+    lcdprint(a) { const b = this._board(); if (b && b.setDeviceControl) b.setDeviceControl(this._device(a.DISPLAY, LCD_KINDS), 'print', String(a.TEXT)); }
+    lcdcursor(a) { const b = this._board(); if (b && b.setDeviceControl) b.setDeviceControl(this._device(a.DISPLAY, LCD_KINDS), 'cursor', [num(a.ROW), num(a.COL)]); }
+    lcdclear(a) { const b = this._board(); if (b && b.setDeviceControl) b.setDeviceControl(this._device(a.DISPLAY, LCD_KINDS), 'clear', 1); }
     // OLED / TFT. Note the ARGUMENT RESHAPES — the dialect and the device model
     // do not speak the same shape, and getting this wrong draws silently in the
     // wrong place rather than failing:
     //   oled hline: the dialect gives X, Y, WIDTH; the model wants [x0, x1, y].
     //   tft fill:   the dialect gives X, Y, W, H; the model wants [x0,y0,x1,y1].
     // Both are converted here, once, rather than in each caller.
-    oledprint(a) { const b = this._board(); if (b && b.setDeviceControl) b.setDeviceControl(a.DISPLAY, 'print', String(a.TEXT)); }
-    oledcursor(a) { const b = this._board(); if (b && b.setDeviceControl) b.setDeviceControl(a.DISPLAY, 'cursor', [num(a.ROW), num(a.COL)]); }
-    oledclear(a) { const b = this._board(); if (b && b.setDeviceControl) b.setDeviceControl(a.DISPLAY, 'clear', 1); }
-    oledpixel(a) { const b = this._board(); if (b && b.setDeviceControl) b.setDeviceControl(a.DISPLAY, 'pixel', [num(a.X), num(a.Y), num(a.VALUE) ? 1 : 0]); }
+    oledprint(a) { const b = this._board(); if (b && b.setDeviceControl) b.setDeviceControl(this._device(a.DISPLAY, OLED_KINDS), 'print', String(a.TEXT)); }
+    oledcursor(a) { const b = this._board(); if (b && b.setDeviceControl) b.setDeviceControl(this._device(a.DISPLAY, OLED_KINDS), 'cursor', [num(a.ROW), num(a.COL)]); }
+    oledclear(a) { const b = this._board(); if (b && b.setDeviceControl) b.setDeviceControl(this._device(a.DISPLAY, OLED_KINDS), 'clear', 1); }
+    oledpixel(a) { const b = this._board(); if (b && b.setDeviceControl) b.setDeviceControl(this._device(a.DISPLAY, OLED_KINDS), 'pixel', [num(a.X), num(a.Y), num(a.VALUE) ? 1 : 0]); }
     oledhline(a) {
         const b = this._board(); if (!(b && b.setDeviceControl)) return;
         const x0 = num(a.X), w = num(a.W);
-        b.setDeviceControl(a.DISPLAY, 'hline', [x0, x0 + Math.max(1, w) - 1, num(a.Y)]);
+        b.setDeviceControl(this._device(a.DISPLAY, OLED_KINDS), 'hline', [x0, x0 + Math.max(1, w) - 1, num(a.Y)]);
     }
-    oledshow(a) { const b = this._board(); if (b && b.setDeviceControl) b.setDeviceControl(a.DISPLAY, 'show', 1); }
-    tftprint(a) { const b = this._board(); if (b && b.setDeviceControl) b.setDeviceControl(a.DISPLAY, 'print', String(a.TEXT)); }
-    tftcursor(a) { const b = this._board(); if (b && b.setDeviceControl) b.setDeviceControl(a.DISPLAY, 'cursor', [num(a.ROW), num(a.COL)]); }
-    tftclear(a) { const b = this._board(); if (b && b.setDeviceControl) b.setDeviceControl(a.DISPLAY, 'clear', 0); }
-    tftpixel(a) { const b = this._board(); if (b && b.setDeviceControl) b.setDeviceControl(a.DISPLAY, 'pixel', [num(a.X), num(a.Y), num(a.R), num(a.G), num(a.B)]); }
+    oledshow(a) { const b = this._board(); if (b && b.setDeviceControl) b.setDeviceControl(this._device(a.DISPLAY, OLED_KINDS), 'show', 1); }
+    tftprint(a) { const b = this._board(); if (b && b.setDeviceControl) b.setDeviceControl(this._device(a.DISPLAY, TFT_KINDS), 'print', String(a.TEXT)); }
+    tftcursor(a) { const b = this._board(); if (b && b.setDeviceControl) b.setDeviceControl(this._device(a.DISPLAY, TFT_KINDS), 'cursor', [num(a.ROW), num(a.COL)]); }
+    tftclear(a) { const b = this._board(); if (b && b.setDeviceControl) b.setDeviceControl(this._device(a.DISPLAY, TFT_KINDS), 'clear', 0); }
+    tftpixel(a) { const b = this._board(); if (b && b.setDeviceControl) b.setDeviceControl(this._device(a.DISPLAY, TFT_KINDS), 'pixel', [num(a.X), num(a.Y), num(a.R), num(a.G), num(a.B)]); }
     tftfill(a) {
         const b = this._board(); if (!(b && b.setDeviceControl)) return;
         const x0 = num(a.X), y0 = num(a.Y);
-        b.setDeviceControl(a.DISPLAY, 'fill',
+        b.setDeviceControl(this._device(a.DISPLAY, TFT_KINDS), 'fill',
             [x0, y0, x0 + Math.max(1, num(a.W)) - 1, y0 + Math.max(1, num(a.H)) - 1,
              num(a.R), num(a.G), num(a.B)]);
     }
