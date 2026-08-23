@@ -14,15 +14,15 @@
    "id": "vcc1",
    "kind": "vcc",
    "params": {},
-   "x": 80,
-   "y": 60
+   "x": 58,
+   "y": 115
   },
   {
    "id": "gnd1",
    "kind": "gnd",
    "params": {},
-   "x": 156,
-   "y": 60
+   "x": 134,
+   "y": 115
   },
   {
    "id": "mcu1",
@@ -88,17 +88,17 @@
    "id": "mx1",
    "kind": "max7219",
    "params": {},
-   "x": 386,
+   "x": 400,
    "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "vcc": "a26",
-     "gnd": "a27",
-     "din": "a28",
-     "clk": "a29",
-     "cs": "a30",
-     "dout": "a31"
+     "vcc": "a27",
+     "gnd": "a28",
+     "din": "a29",
+     "clk": "a30",
+     "cs": "a31",
+     "dout": "a32"
     }
    }
   }
@@ -183,15 +183,15 @@
   {
    "ref": "bbw:bb1:gen_0",
    "boardId": "bb1",
-   "a": "b26",
-   "b": "t+26",
+   "a": "b27",
+   "b": "t+27",
    "color": "red"
   },
   {
    "ref": "bbw:bb1:gen_1",
    "boardId": "bb1",
-   "a": "b27",
-   "b": "b-27",
+   "a": "b28",
+   "b": "b-28",
    "color": "black"
   },
   {
@@ -205,7 +205,7 @@
    "ref": "bbw:bb1:gen_3",
    "boardId": "bb1",
    "a": "b20",
-   "b": "c26",
+   "b": "c27",
    "color": "green"
   },
   {
@@ -219,28 +219,28 @@
    "ref": "bbw:bb1:gen_5",
    "boardId": "bb1",
    "a": "b22",
-   "b": "c27",
+   "b": "c28",
    "color": "blue"
   },
   {
    "ref": "bbw:bb1:gen_6",
    "boardId": "bb1",
    "a": "a11",
-   "b": "b28",
+   "b": "b29",
    "color": "yellow"
   },
   {
    "ref": "bbw:bb1:gen_7",
    "boardId": "bb1",
    "a": "a12",
-   "b": "b30",
+   "b": "b31",
    "color": "orange"
   },
   {
    "ref": "bbw:bb1:gen_8",
    "boardId": "bb1",
    "a": "a13",
-   "b": "b29",
+   "b": "b30",
    "color": "purple"
   }
  ],
