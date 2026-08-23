@@ -154,8 +154,7 @@ export function childStartupCpuSeconds () {
     return after === null ? null : Math.max(0, after - before);
 }
 
-export function achievableCpuRatio (sampleMs = 400) {
-    if (!isLinux) return null;
+function oneAchievableSample (sampleMs) {
     const before = reapedChildCpuSeconds();
     if (before === null) return null;
     const t0 = process.hrtime.bigint();
@@ -167,6 +166,35 @@ export function achievableCpuRatio (sampleMs = 400) {
     const after = reapedChildCpuSeconds();
     if (after === null || !(wall > 0)) return null;
     return Math.max(0, after - before) / wall;
+}
+
+/**
+ * MEDIAN OF THREE, not one sample, and this was not caution — it was a bug fix.
+ *
+ * A single 400 ms reference against a child measured over a different window is two
+ * samples of a quantity that swings hard on a contended box. Over six consecutive
+ * runs of the stub pair, three mis-classified: the reference happened to be taken in
+ * a quieter instant (achievable 0.215, 0.295) than the spinner had lived through, so
+ * a spinner that got everything going read as share 0.29–0.36 and fell into the
+ * inconclusive band. The instrument was flaky in exactly the conditions it exists
+ * for — which is the same failure as an absolute cut, arriving by a different route.
+ *
+ * Three samples at 600 ms, median taken. The median is the right statistic here
+ * rather than max or min: max over-estimates what was achievable and pushes real
+ * hangs towards "contention" (the reassuring, wrong direction), min does the
+ * opposite. Costs ~1.8 s, only ever on the failure path, where something has
+ * already spent its whole budget.
+ */
+export function achievableCpuRatio (sampleMs = 600, samples = 3) {
+    if (!isLinux) return null;
+    const seen = [];
+    for (let i = 0; i < samples; i++) {
+        const r = oneAchievableSample(sampleMs);
+        if (r !== null) seen.push(r);
+    }
+    if (!seen.length) return null;
+    seen.sort((a, b) => a - b);
+    return seen[Math.floor(seen.length / 2)];
 }
 
 /** Raised when a budget is exceeded. Carries the evidence, not just the number. */
