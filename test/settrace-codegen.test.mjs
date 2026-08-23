@@ -134,6 +134,21 @@ function runTraced(py, stdinText) {
     const dir = mkdtempSync(join(tmpdir(), 'bw-settrace-live-'));
     writeFileSync(join(dir, 'runner.py'), RUNNER);
     writeFileSync(join(dir, 'prog.py'), py);
+    // NOT A BUDGET — A DURATION CONTROL, and the difference matters.
+    //
+    // The traced program is a micro:bit `forever` loop with `mb.sleep` stubbed to a
+    // no-op, so it NEVER terminates on its own. This 5 s is how it is stopped, and
+    // the assertions read the partial stdout collected up to that point
+    // (`seen.length >= 3`). A timeout here is the SUCCESS path.
+    //
+    // It was briefly routed through runBounded() during the 2026-08-23 discriminator
+    // work, which turned the normal stop into a BudgetExceededError and reddened two
+    // passing tests. The instrument was fine; the classification was wrong.
+    // `scripts/threshold-inventory.mjs` counts this as a `timeout-ms` and
+    // `threshold-probe.mjs` reported it CAN-FIRE — both true and both beside the
+    // point, because moving the number does change the verdict without the number
+    // being a bound on anything. Wrapping a duration control in a budget helper is
+    // its own small category of wrong: see docs/MEASURED-THRESHOLDS.md.
     const res = spawnSync('python3', ['-u', join(dir, 'runner.py'), join(dir, 'prog.py')],
         { input: stdinText, timeout: 5000, encoding: 'utf8' });
     return String(res.stdout || '');

@@ -10,6 +10,7 @@ import { readFileSync, writeFileSync } from 'fs';
 import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import SB3Creator from '../src/utils/sb3Creator.js';
+import { runBounded } from './helpers/timed.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const calcSrc = readFileSync(resolve(here, '../examples/70-calculator/program.bw'), 'utf8');
@@ -62,10 +63,15 @@ test('retargeted Z80 calculator compiles under sdcc -mz80', { skip: !hasSdcc && 
     const c = new SB3Creator();
     c.parse(result.pseudocode);
     writeFileSync('/tmp/test-calc-z80.c', c.generateC());
-    const output = execSync(
-        'sdcc -mz80 --no-std-crt0 -c /tmp/test-calc-z80.c -o /tmp/test-calc-z80.rel 2>&1',
-        { encoding: 'utf8', timeout: 60000 }
-    );
+    // 60 s bounds sdcc on the generated Z80 source; the discriminator decides
+    // whether an overrun was the compiler or the machine.
+    const output = runBounded({
+        what: 'sdcc -mz80 compiling the retargeted calculator',
+        budgetMs: 60000,
+        run: (ms) => execSync(
+            'sdcc -mz80 --no-std-crt0 -c /tmp/test-calc-z80.c -o /tmp/test-calc-z80.rel 2>&1',
+            { encoding: 'utf8', timeout: ms })
+    });
     const errors = (output.match(/\berror\b/gi) || []).length;
     assert.equal(errors, 0, `sdcc -mz80 produced ${errors} errors`);
 });

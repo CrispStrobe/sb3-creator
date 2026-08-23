@@ -12,6 +12,7 @@ import { readFileSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import SB3Creator from '../src/utils/sb3Creator.js';
+import { runBounded } from './helpers/timed.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 
@@ -50,10 +51,15 @@ test('6502 OLED program compiles under cl65', { skip: !hasCl65 && 'cl65 not on P
     // exactly like the hasCl65 guard above (gallery-e2e's portability rule:
     // a suite that is red for everyone is a suite people learn to skip).
     if (!cfg) { console.log('SKIP: eater.cfg not found (set STC_COMPILER or clone stc-compiler beside this repo)'); return; }
-    const result = execSync(
-        `cl65 --cpu 65C02 -O -t none -C ${cfg} -o /tmp/test-6502-oled.rom ${fixture} 2>&1`,
-        { encoding: 'utf8', timeout: 30000 }
-    );
+    // 30 s bounds an external 6502 assembler. If it is exceeded, the message must
+    // say whether cl65 hung or the machine was busy — see test/helpers/timed.mjs.
+    const result = runBounded({
+        what: 'cl65 assembling the 6502 OLED fixture',
+        budgetMs: 30000,
+        run: (ms) => execSync(
+            `cl65 --cpu 65C02 -O -t none -C ${cfg} -o /tmp/test-6502-oled.rom ${fixture} 2>&1`,
+            { encoding: 'utf8', timeout: ms })
+    });
     // cl65 returns 0 on success; grep for errors
     const errors = (result.match(/error/gi) || []).length;
     assert.equal(errors, 0, `cl65 compilation produced ${errors} errors: ${result.slice(0, 200)}`);

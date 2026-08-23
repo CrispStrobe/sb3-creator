@@ -36,6 +36,15 @@
  * point: an async-only instrument would have meant rewriting every caller, and a
  * rewritten caller is a caller whose behaviour you then have to re-establish.
  *
+ * NOT EVERY `timeout:` IS A BUDGET, and wrapping the wrong ones is a real error.
+ * `settrace-codegen.test.mjs` runs a micro:bit `forever` loop with `sleep` stubbed
+ * to a no-op: the program never terminates, its 5 s `timeout:` is how it is STOPPED,
+ * and the assertions read the partial stdout collected up to that moment. There, a
+ * timeout is the success path. Routing it through this helper on 2026-08-23 turned
+ * the normal stop into a BudgetExceededError and reddened two passing tests — the
+ * instrument was fine, the classification was wrong. Before wrapping a `timeout:`,
+ * ask whether the work is expected to FINISH. If it is not, leave it alone.
+ *
  * WHAT IT CANNOT DO, said plainly
  * -------------------------------
  * - **node:test's own `--test-timeout` cannot be routed through this.** The runner
@@ -117,6 +126,16 @@ export function nodeProcessCount () {
  * what they look like they mean; at load 36 achievable is ~0.13 and they still
  * separate a spinner from a sleeper.
  */
+/**
+ * How much of the budget the work may need in pure CPU and still be judged
+ * "would have fitted on an idle machine". 0.8 leaves a fifth of the budget for the
+ * work being a little slower than its CPU time suggests; above that the work is
+ * close enough to the budget that calling the overrun someone else's fault would be
+ * generous. MEASURED case that set it: settrace-codegen's oracle needs ~1.8 s of
+ * CPU against a 5 s budget — a ratio of 0.37, comfortably inside.
+ */
+export const FIT_MARGIN = 0.8;
+
 export const CONTENTION_SHARE = 0.15;
 export const HANG_SHARE = 0.50;
 
@@ -220,20 +239,44 @@ export function isBudgetFailure (e) {
  * this stays a pure function and the tests can drive both branches without a box in
  * a particular state.
  */
-export function classify ({ wallSeconds, cpuSeconds, achievable, startupCpu = 0 }) {
+export function classify ({ wallSeconds, cpuSeconds, achievable, startupCpu = 0, budgetMs }) {
     if (cpuSeconds === null || !(wallSeconds > 0)) return { verdict: 'unknown', ratio: null, share: null };
     // Charge the runtime's fixed startup to the runtime, not to the work.
     const workCpu = Math.max(0, cpuSeconds - (startupCpu || 0));
     const ratio = workCpu / wallSeconds;
+
+    // WHAT ONE OBSERVATION CAN AND CANNOT SEPARATE.
+    //
+    // Share answers "was this starved, or was it computing?" — confidently, and that
+    // is the question worth answering, because a starved process wrongly called a
+    // hang sends someone hunting a defect that does not exist.
+    //
+    // It does NOT separate the two kinds of computing: work that is unbounded (a
+    // hang) from work that is bounded but throttled (needs 1.8 s of CPU, gets a
+    // fifth of a core, overruns a 5 s wall budget). A third verdict was drafted for
+    // that, keyed on `workCpu < budget * FIT_MARGIN`, and it was wrong: on a loaded
+    // box a genuine hang ALSO fails to accumulate CPU worth 80% of its budget, so
+    // the rule relabelled real hangs as throttling. Its own spinning stub was
+    // mis-classified, which is how it was caught.
+    //
+    // Separating them needs the CPU curve over time — a hang keeps consuming, bounded
+    // work plateaus — and that is a second observation this synchronous helper does
+    // not have. So it does not claim it. `cpu-bound` is reported with BOTH numbers
+    // and the reading each supports, and the caller decides.
+    const budgetSeconds = Number.isFinite(budgetMs) ? budgetMs / 1000 : null;
+    const wouldHaveFit = budgetSeconds !== null && workCpu < budgetSeconds * FIT_MARGIN;
+
     // Without a reference there is nothing to compare against. Guessing 1.0 here is
     // what would make a hang on a loaded box read as contention.
     if (achievable === null || achievable === undefined || !(achievable > 0.001)) {
-        return { verdict: 'unknown', ratio, share: null };
+        return { verdict: 'unknown', ratio, share: null, workCpu, wouldHaveFit };
     }
     const share = Math.min(1, ratio / achievable);
-    if (share <= CONTENTION_SHARE) return { verdict: 'contention', ratio, share, achievable, workCpu };
-    if (share >= HANG_SHARE) return { verdict: 'hang', ratio, share, achievable, workCpu };
-    return { verdict: 'inconclusive', ratio, share, achievable, workCpu };
+    const base = { ratio, share, achievable, workCpu, wouldHaveFit, budgetSeconds };
+
+    if (share <= CONTENTION_SHARE) return { verdict: 'contention', ...base };
+    if (share >= HANG_SHARE) return { verdict: 'cpu-bound', ...base };
+    return { verdict: 'inconclusive', ...base };
 }
 
 /** The message a human has to act on, in both directions. */
@@ -262,10 +305,19 @@ export function explainTimeout (d) {
             `schedule it (${where}). Re-run on a quieter box before changing anything. ` +
             'Raising the budget would hide the next real hang.';
     }
-    if (verdict === 'hang') {
+    if (verdict === 'cpu-bound') {
+        const fit = d.wouldHaveFit
+            ? `It needed only ${d.workCpu.toFixed(2)} s of CPU against a ${budgetMs} ms budget, ` +
+              'so on a machine willing to give it a core it would have FITTED — which points at ' +
+              'throttling rather than at unbounded work. Re-run on a quieter box first.'
+            : `It consumed ${d.workCpu.toFixed(2)} s of CPU against a ${budgetMs} ms budget, ` +
+              'i.e. as much CPU as the budget allows in the first place — which points at ' +
+              'UNBOUNDED WORK. Investigate the code.';
         return `${what}: timed out after ${w} s (budget ${budgetMs} ms). ${evidence}. ` +
-            'THIS IS A HANG, NOT CONTENTION: the process got the CPU that was going and spent ' +
-            `it (${where}). Investigate the code; do not raise the budget.`;
+            `THIS WAS COMPUTING, NOT STARVED (${where}). ${fit} ` +
+            'One observation cannot fully separate a hang from throttled bounded work — that ' +
+            'needs the CPU curve over time — so both numbers are given rather than a guess. ' +
+            'Either way, raising the budget is not the fix.';
     }
     if (verdict === 'inconclusive') {
         return `${what}: timed out after ${w} s (budget ${budgetMs} ms). ${evidence}, which ` +
@@ -288,7 +340,21 @@ export function explainTimeout (d) {
  * @returns whatever `run` returned
  * @throws {BudgetExceededError} on a budget failure; any other error propagates
  */
-export function runBounded ({ what, budgetMs, run }) {
+/**
+ * AN EVIDENCE-BASED RETRY, which is the payoff of having a discriminator at all.
+ *
+ * A blanket retry is the standard way to make a load-flake go away, and it is the
+ * standard way to hide a real defect with it. But once the two are distinguishable,
+ * the policy can be principled: **retry when the verdict says the machine was at
+ * fault; never retry a hang.** A hang fails identically the second time and retrying
+ * it only doubles the wait before someone reads the message.
+ *
+ * `retryOnContention` is opt-in per call site, because it is only sound where the
+ * work is DETERMINISTIC — re-running must be capable of producing the same verdict.
+ * That is the same condition python-syntax.mjs already reasons about for its own
+ * retry, and it is why this is a parameter rather than a default.
+ */
+export function runBounded ({ what, budgetMs, run, retryOnContention = false, _attempt = 1 }) {
     if (!Number.isFinite(budgetMs) || budgetMs <= 0) {
         throw new Error(`runBounded(${what}): budgetMs must be a positive number, got ${budgetMs}`);
     }
@@ -306,15 +372,70 @@ export function runBounded ({ what, budgetMs, run }) {
         // for it and the number describes this moment rather than this host.
         const achievable = achievableCpuRatio();
         const startupCpu = childStartupCpuSeconds();
-        const { verdict, ratio, share, workCpu } = classify({
-            wallSeconds, cpuSeconds, achievable, startupCpu: startupCpu ?? 0
+        const { verdict, ratio, share, workCpu, wouldHaveFit } = classify({
+            wallSeconds, cpuSeconds, achievable, startupCpu: startupCpu ?? 0, budgetMs
         });
         const detail = {
-            what, budgetMs, wallSeconds, cpuSeconds, workCpu, startupCpu, ratio, share,
-            achievable, verdict, loadStart, loadEnd: loadavg()[0], nodes: nodeProcessCount(), cause: e
+            what, budgetMs, wallSeconds, cpuSeconds, workCpu, wouldHaveFit, startupCpu, ratio,
+            share, achievable, verdict, loadStart, loadEnd: loadavg()[0], nodes: nodeProcessCount(), cause: e
         };
-        throw new BudgetExceededError(explainTimeout(detail), detail);
+        // Retry only where the machine is credibly at fault: starved outright, or
+        // computing work whose CPU demand would have fitted the budget on an idle
+        // box. Never where the CPU consumed already matches the budget — that is
+        // the unbounded reading, and a retry only doubles the wait.
+        const machineAtFault = verdict === 'contention' ||
+            (verdict === 'cpu-bound' && wouldHaveFit) ||
+            (verdict === 'inconclusive' && wouldHaveFit);
+        if (retryOnContention && machineAtFault && _attempt === 1) {
+            // THE RETRY GETS MORE WALL TIME, AND THAT IS NOT "RAISING THE BUDGET".
+            //
+            // Retrying with the same wall budget on a box that is still busy is
+            // theatre — it failed twice here before this was added. What the work
+            // needs is the wall time to spend the CPU it was always going to need,
+            // which at an achievable share of `a` is budget/a. Scaled that way, the
+            // retry can finish.
+            //
+            // This does not weaken the check, and the reason is the whole point of
+            // the discriminator: the verdict is decided on CPU CONSUMED, not on
+            // wall time. A hang consumes without bound and is still called a hang
+            // however long it is given, so extending wall time cannot launder one.
+            // The committed budget in the source is untouched; only this one
+            // attempt, on this one busy machine, is stretched.
+            const stretch = Math.min(10, Math.max(1, 1 / Math.max(achievable ?? 1, 0.05)));
+            const retryMs = Math.round(budgetMs * stretch);
+            // Say so on the way past. A retry nobody can see is a retry that hides
+            // how often the machine is the problem, and that number is worth having.
+            console.log(`# budget-retry ${what}: attempt 1 exceeded ${budgetMs} ms and the ` +
+                `discriminator says ${verdict.toUpperCase()} (used ${workCpu?.toFixed(2)} s CPU, ` +
+                `${(share * 100).toFixed(0)}% of achievable ${achievable?.toFixed(3)}). Retrying ` +
+                `once at ${retryMs} ms — the wall time that share implies. A HANG would not be ` +
+                'retried, and could not pass this way: the verdict is on CPU, not on the clock.');
+            return runBounded({ what, budgetMs: retryMs, run, retryOnContention, _attempt: 2 });
+        }
+        detail.attempts = _attempt;
+        throw new BudgetExceededError(
+            explainTimeout(detail) + (_attempt > 1 ? ` (this was attempt ${_attempt}; the first also failed.)` : ''),
+            detail);
     }
+}
+
+/**
+ * `spawnSync` does not throw on timeout — it returns with `.error` set — so a
+ * caller that only looks at `.stdout` cannot tell a timeout from empty output.
+ * This normalises it to the throwing contract `runBounded` expects.
+ *
+ * Worth its own function because the silent-return shape is the same family as the
+ * defect this whole helper exists for: a failure that does not announce itself.
+ */
+export function spawnSyncOrThrow (res) {
+    if (res && res.error) throw res.error;
+    if (res && res.signal) {
+        const e = new Error(`child killed by ${res.signal}`);
+        e.signal = res.signal;
+        e.killed = true;
+        throw e;
+    }
+    return res;
 }
 
 /**

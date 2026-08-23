@@ -45,6 +45,7 @@
  * legitimately differ between runs.
  */
 import { execFileSync } from 'node:child_process';
+import { runBounded } from './timed.mjs';
 import { writeFileSync, unlinkSync, mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -79,11 +80,23 @@ export class PythonUnavailableError extends Error {
 
 function runOnce (file, budget) {
     try {
-        execFileSync('python3', ['-c', `import ast; ast.parse(open(${JSON.stringify(file)}).read())`], {
-            timeout: budget, stdio: ['pipe', 'pipe', 'pipe'], encoding: 'utf8'
+        // Routed through runBounded so a budget failure carries the
+        // contention-vs-hang evidence instead of a bare ETIMEDOUT. The outcome
+        // contract of THIS module is unchanged — callers still get {valid} or a
+        // PythonUnavailableError — but that error now says which of the two it was,
+        // which is the whole point of test/helpers/timed.mjs.
+        runBounded({
+            what: `python3 parsing ${file}`,
+            budgetMs: budget,
+            run: (ms) => execFileSync('python3',
+                ['-c', `import ast; ast.parse(open(${JSON.stringify(file)}).read())`],
+                { timeout: ms, stdio: ['pipe', 'pipe', 'pipe'], encoding: 'utf8' })
         });
         return { valid: true };
     } catch (e) {
+        if (e.name === 'BudgetExceededError') {
+            return { unavailable: true, killed: true, missing: false, verdict: e.verdict, detail: e.message };
+        }
         // A verdict: python ran and rejected the text.
         const stderr = (e.stderr && e.stderr.toString()) || '';
         if (/SyntaxError|IndentationError|TabError/.test(stderr)) {
@@ -122,8 +135,9 @@ export function checkPythonSyntax (py) {
                 `python3 did not return a verdict within ${budget} ms, and did not on a ` +
                 `retry at ${budget * 2} ms. THIS IS NOT A SYNTAX ERROR — the generated ` +
                 'Python was never judged. Measured cost of this call on an idle-to-loaded box ' +
-                'is 384–721 ms (25 runs, 2026-08-23), so exceeding this budget means the ' +
-                `machine, not the emitter. Detail: ${r.detail || '(none)'}`);
+                'is 384–721 ms (25 runs, 2026-08-23). ' +
+                (r.verdict ? `The CPU discriminator says this was ${r.verdict.toUpperCase()}. ` : '') +
+                `Detail: ${r.detail || '(none)'}`);
         }
         return r;
     } finally {
