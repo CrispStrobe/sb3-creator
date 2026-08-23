@@ -51,6 +51,16 @@ jobs:
         run: npm test
         timeout-minutes: 5
 
+      # A gate nobody has seen fail is a gate nobody should trust, and this one
+      # in particular was green for five days while the extension lite ships was
+      # eight opcodes short. This re-introduces that exact defect and seven
+      # others, requires the gate to go red for each, and restores the tree.
+      # It runs in CI rather than on demand because the failure it guards
+      # against is specifically "works on the machine that has both checkouts".
+      - name: Conformance gate is mutation-proven
+        run: node scripts/mutation-prove-conformance.mjs
+        timeout-minutes: 5
+
       - name: Build
         run: npm run build
 
