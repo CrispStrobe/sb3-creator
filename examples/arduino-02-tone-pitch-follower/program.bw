@@ -2,7 +2,7 @@
 DEVICE ARDUINO-UNO
 CLOCK 16000000
 PIN ldr = A0 ANALOG
-PIN speaker = D9 OUTPUT
+PIN speaker = D9 TONE
 
 SPRITE Cat:
   WHEN flag clicked:
@@ -11,5 +11,5 @@ SPRITE Cat:
       print sensorReading
       # Map 400-1000 range to 120-1500 Hz
       set thisPitch to (120 + ((sensorReading - 400) * (1380 / 600)))
-      set tone speaker to thisPitch
+      set speaker to thisPitch hz
       wait 0.05 seconds

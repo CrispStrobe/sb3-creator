@@ -5613,9 +5613,10 @@
       "program": "eater6502-bench/program.bw",
       "circuit": "eater6502-bench/circuit.json",
       "intro": "eater6502-bench/intro.md",
-      "introDE": "eater6502-bench/intro.de.md"
+      "introDE": "eater6502-bench/intro.de.md",
+      "expected": "eater6502-bench/EXPECTED.md"
     },
-    "kind": "full"
+    "kind": "circuit"
   },
   {
     "id": "eater6502-full-build",
@@ -5645,9 +5646,10 @@
       "program": "eater6502-vdp-hello/program.bw",
       "circuit": "eater6502-vdp-hello/circuit.json",
       "intro": "eater6502-vdp-hello/intro.md",
-      "introDE": "eater6502-vdp-hello/intro.de.md"
+      "introDE": "eater6502-vdp-hello/intro.de.md",
+      "expected": "eater6502-vdp-hello/EXPECTED.md"
     },
-    "kind": "full"
+    "kind": "circuit"
   },
   {
     "id": "z80-bench",

@@ -4,24 +4,24 @@ CLOCK 16000000
 PIN pot = A0 ANALOG
 PIN btnFwd = D2 INPUT
 PIN btnRev = D3 INPUT
-PIN motorEnable = D9 OUTPUT
+PIN motorEnable = D9 PWM
 PIN motorDir1 = D4 OUTPUT
 PIN motorDir2 = D5 OUTPUT
 
 SPRITE Cat:
   WHEN flag clicked:
     forever:
-      set motorSpeed to ((read pot * 255) / 1023)
+      set motorSpeed to ((read pot * 100) / 1023)
       if read btnFwd then:
         turn on motorDir1
         turn off motorDir2
-        set pwm motorEnable to motorSpeed
+        set motorEnable to motorSpeed percent
       if read btnRev then:
         turn off motorDir1
         turn on motorDir2
-        set pwm motorEnable to motorSpeed
+        set motorEnable to motorSpeed percent
       if not read btnFwd and not read btnRev then:
         turn off motorDir1
         turn off motorDir2
-        turn off motorEnable
+        set motorEnable to 0 percent
       wait 0.02 seconds

@@ -6,7 +6,7 @@ Arduino Uno A0, A1, A2 <- wipers of three 10 kohm pots (VCC to GND). D3, D5, D6 
 
 ## Program
 
-Reads three pots and maps each to 0-255 PWM on the red, green, and blue channels of an RGB LED. Updates every 50 ms.
+Reads three pots and maps each to a 0-100 percent PWM duty on the red, green, and blue channels of an RGB LED. Updates every 50 ms.
 
 ## Observable behaviour
 

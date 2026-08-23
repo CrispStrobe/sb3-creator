@@ -5,14 +5,14 @@ CLOCK 16000000
 PIN potR = A0 ANALOG
 PIN potG = A1 ANALOG
 PIN potB = A2 ANALOG
-PIN ledR = D3 OUTPUT
-PIN ledG = D5 OUTPUT
-PIN ledB = D6 OUTPUT
+PIN ledR = D3 PWM
+PIN ledG = D5 PWM
+PIN ledB = D6 PWM
 
 SPRITE Cat:
   WHEN flag clicked:
     forever:
-      set pwm ledR to ((read potR * 255) / 1023)
-      set pwm ledG to ((read potG * 255) / 1023)
-      set pwm ledB to ((read potB * 255) / 1023)
+      set ledR to ((read potR * 100) / 1023) percent
+      set ledG to ((read potG * 100) / 1023) percent
+      set ledB to ((read potB * 100) / 1023) percent
       wait 0.05 seconds

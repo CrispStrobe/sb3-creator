@@ -3,7 +3,7 @@ DEVICE ARDUINO-UNO
 CLOCK 16000000
 PIN btn = D2 INPUT
 PIN ldr = A0 ANALOG
-PIN led = D9 OUTPUT
+PIN led = D9 PWM
 PIN statusLed = D13 OUTPUT
 
 SPRITE Cat:
@@ -23,6 +23,6 @@ SPRITE Cat:
       # Apply calibrated range
       set sensorValue to read ldr
       if sensorMin < sensorMax then:
-        set mapped to (((sensorValue - sensorMin) * 255) / (sensorMax - sensorMin))
-        set pwm led to mapped
+        set mapped to (((sensorValue - sensorMin) * 100) / (sensorMax - sensorMin))
+        set led to mapped percent
       wait 0.02 seconds

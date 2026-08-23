@@ -6,7 +6,7 @@ Arduino Uno A0 <- wiper of 10 kohm pot (VCC to GND). D9 (PWM) → 220 ohm → wh
 
 ## Program
 
-Reads pot on A0, maps to 0-255, writes PWM to LED on D9. Updates every 20 ms.
+Reads pot on A0, maps to a 0-100 percent duty, writes PWM to LED on D9. Updates every 20 ms.
 
 ## Observable behaviour
 
@@ -17,7 +17,7 @@ Reads pot on A0, maps to 0-255, writes PWM to LED on D9. Updates every 20 ms.
 
 ## What this verifies
 
-1. Pot-to-PWM mapping: `(read pot * 255) / 1023` scales the analog reading
+1. Pot-to-PWM mapping: `(read pot * 100) / 1023` scales the analog reading
 2. Adapted from serial-input original — pot replaces typed commands
 3. Real-time LED brightness control from an analog sensor
 

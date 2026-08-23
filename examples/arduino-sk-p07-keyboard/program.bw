@@ -5,19 +5,19 @@ PIN btn1 = D2 INPUT
 PIN btn2 = D3 INPUT
 PIN btn3 = D4 INPUT
 PIN btn4 = D5 INPUT
-PIN speaker = D8 OUTPUT
+PIN speaker = D8 TONE
 
 SPRITE Cat:
   WHEN flag clicked:
     forever:
       if read btn1 then:
-        set tone speaker to 262
+        set speaker to 262 hz
       if read btn2 then:
-        set tone speaker to 294
+        set speaker to 294 hz
       if read btn3 then:
-        set tone speaker to 330
+        set speaker to 330 hz
       if read btn4 then:
-        set tone speaker to 349
+        set speaker to 349 hz
       if not read btn1 and not read btn2 and not read btn3 and not read btn4 then:
-        turn off speaker
+        set speaker to 0 hz
       wait 0.02 seconds

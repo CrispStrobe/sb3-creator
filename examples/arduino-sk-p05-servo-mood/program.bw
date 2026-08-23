@@ -8,5 +8,5 @@ SPRITE Cat:
   WHEN flag clicked:
     forever:
       set angle to ((read pot * 180) / 1023)
-      set pwm servo to angle
+      set myservo angle to angle
       wait 0.05 seconds

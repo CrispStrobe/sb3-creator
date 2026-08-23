@@ -2,7 +2,7 @@
 DEVICE ARDUINO-UNO
 CLOCK 16000000
 PIN ldr = A0 ANALOG
-PIN speaker = D8 OUTPUT
+PIN speaker = D8 TONE
 
 WHEN flag clicked:
   set sensorMin to 1023
@@ -21,5 +21,5 @@ WHEN flag clicked:
     IF val > sensorMax THEN:
       set val to sensorMax
     set pitch to (200 + (((val - sensorMin) * 3800) / (sensorMax - sensorMin)))
-    set tone speaker to pitch
+    set speaker to pitch hz
     wait 0.02 seconds

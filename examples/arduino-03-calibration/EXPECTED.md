@@ -6,7 +6,7 @@ Arduino Uno A0 <- wiper of 10 kohm pot. D9 → 220 ohm → green LED → GND. D1
 
 ## Program
 
-Phase 1 (5 s): status LED on D13 is ON while sensor min/max are recorded. Phase 2 (run): status LED OFF, readings mapped from calibrated range to 0-255 PWM on green LED.
+Phase 1 (5 s): status LED on D13 is ON while sensor min/max are recorded. Phase 2 (run): status LED OFF, readings mapped from calibrated range to a 0-100 percent PWM duty on green LED.
 
 ## Observable behaviour
 
@@ -19,7 +19,7 @@ Phase 1 (5 s): status LED on D13 is ON while sensor min/max are recorded. Phase 
 ## What this verifies
 
 1. Auto-calibration: recording min and max over a timed window
-2. Constrained mapping: values below min clamp to 0, above max clamp to 255
+2. Constrained mapping: values below min clamp to 0, above max clamp to 100 percent
 3. Status LED indicates calibration phase
 
 ```assert

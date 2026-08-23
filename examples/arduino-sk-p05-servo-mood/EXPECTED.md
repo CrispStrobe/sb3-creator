@@ -6,7 +6,7 @@ Arduino Uno A0 <- wiper of 10 kohm pot (VCC to GND). D9 → servo control signal
 
 ## Program
 
-Reads pot on A0 and maps (0-1023) to angle (0-180). Writes the angle as PWM to D9. Updates every 50 ms.
+Reads pot on A0 and maps (0-1023) to angle (0-180). Drives the servo to that angle on D9. Updates every 50 ms.
 
 ## Observable behaviour
 
@@ -19,7 +19,7 @@ Reads pot on A0 and maps (0-1023) to angle (0-180). Writes the angle as PWM to D
 ## What this verifies
 
 1. Analog-to-angle mapping: `(read pot * 180) / 1023`
-2. Servo control via PWM on D9
+2. Servo control on D9 via the servo verb
 3. Proportional position control from a potentiometer
 
 ```assert

@@ -1,25 +1,25 @@
 # Ported from arduino-examples/examples/02.Digital/toneMelody/toneMelody.ino, CC0
 DEVICE ARDUINO-UNO
 CLOCK 16000000
-PIN speaker = D8 OUTPUT
+PIN speaker = D8 TONE
 
 SPRITE Cat:
   WHEN flag clicked:
     # C4 G3 G3 A3 G3 rest B3 C4
-    set tone speaker to 262
+    set speaker to 262 hz
     wait 0.25 seconds
-    set tone speaker to 196
+    set speaker to 196 hz
     wait 0.125 seconds
-    set tone speaker to 196
+    set speaker to 196 hz
     wait 0.125 seconds
-    set tone speaker to 220
+    set speaker to 220 hz
     wait 0.25 seconds
-    set tone speaker to 196
+    set speaker to 196 hz
     wait 0.25 seconds
-    turn off speaker
+    set speaker to 0 hz
     wait 0.25 seconds
-    set tone speaker to 247
+    set speaker to 247 hz
     wait 0.25 seconds
-    set tone speaker to 262
+    set speaker to 262 hz
     wait 0.25 seconds
-    turn off speaker
+    set speaker to 0 hz

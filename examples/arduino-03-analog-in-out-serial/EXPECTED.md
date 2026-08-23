@@ -6,7 +6,7 @@ Arduino Uno A0 <- wiper of 10 kohm pot (VCC to GND). D9 (PWM) → 220 ohm → gr
 
 ## Program
 
-Reads pot on A0 (0-1023), maps to 0-255 PWM, writes to LED on D9. Prints raw sensor value to serial every 20 ms.
+Reads pot on A0 (0-1023), maps to a 0-100 percent PWM duty, writes to LED on D9. Prints raw sensor value to serial every 20 ms.
 
 ## Observable behaviour
 
@@ -17,7 +17,7 @@ Reads pot on A0 (0-1023), maps to 0-255 PWM, writes to LED on D9. Prints raw sen
 
 ## What this verifies
 
-1. Analog-to-PWM mapping: `(sensorValue * 255) / 1023` scales 10-bit to 8-bit
+1. Analog-to-PWM mapping: `(sensorValue * 100) / 1023` scales the 10-bit reading to a duty percentage
 2. `set pwm led to outputValue` controls LED brightness proportionally
 3. Simultaneous serial output and PWM output
 

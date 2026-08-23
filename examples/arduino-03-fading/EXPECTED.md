@@ -6,7 +6,7 @@ Arduino Uno D9 (PWM) → 220 ohm → blue LED → GND. VCC = 5 V.
 
 ## Program
 
-Sweeps PWM from 0 to 255 in steps of 5 every 30 ms, then back from 255 to 0. Repeats forever.
+Sweeps PWM from 0 to 100 percent in steps of 2 every 30 ms, then back from 100 to 0. Repeats forever.
 
 ## Observable behaviour
 

@@ -1,18 +1,18 @@
 # Ported from arduino-examples/examples/03.Analog/Fading/Fading.ino, CC0
 DEVICE ARDUINO-UNO
 CLOCK 16000000
-PIN led = D9 OUTPUT
+PIN led = D9 PWM
 
 SPRITE Cat:
   WHEN flag clicked:
     forever:
       set fadeValue to 0
-      repeat 52:
-        set pwm led to fadeValue
-        change fadeValue by 5
+      repeat 51:
+        set led to fadeValue percent
+        change fadeValue by 2
         wait 0.03 seconds
-      set fadeValue to 255
-      repeat 52:
-        set pwm led to fadeValue
-        change fadeValue by -5
+      set fadeValue to 100
+      repeat 51:
+        set led to fadeValue percent
+        change fadeValue by -2
         wait 0.03 seconds

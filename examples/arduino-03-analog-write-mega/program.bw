@@ -1,18 +1,40 @@
 # Ported from arduino-examples/examples/03.Analog/AnalogWriteMega/AnalogWriteMega.ino, CC0
 DEVICE ARDUINO-MEGA
 CLOCK 16000000
-PIN led2 = D2 OUTPUT
-PIN led3 = D3 OUTPUT
-PIN led4 = D4 OUTPUT
+PIN led2 = D2 PWM
+PIN led3 = D3 PWM
+PIN led4 = D4 PWM
 
 SPRITE Cat:
   WHEN flag clicked:
     forever:
+      # Red on D2: up over ~1.5 s, down over ~1.5 s.
+      set brightness to 0
       repeat 51:
-        set pwm led2 to (brightness * 5)
-        change brightness by 1
+        set led2 to brightness percent
+        change brightness by 2
         wait 0.03 seconds
       repeat 51:
-        change brightness by -1
-        set pwm led2 to (brightness * 5)
+        change brightness by -2
+        set led2 to brightness percent
+        wait 0.03 seconds
+      # Green on D3.
+      set brightness to 0
+      repeat 51:
+        set led3 to brightness percent
+        change brightness by 2
+        wait 0.03 seconds
+      repeat 51:
+        change brightness by -2
+        set led3 to brightness percent
+        wait 0.03 seconds
+      # Blue on D4.
+      set brightness to 0
+      repeat 51:
+        set led4 to brightness percent
+        change brightness by 2
+        wait 0.03 seconds
+      repeat 51:
+        change brightness by -2
+        set led4 to brightness percent
         wait 0.03 seconds

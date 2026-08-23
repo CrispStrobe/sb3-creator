@@ -1,10 +1,10 @@
 DEVICE ARDUINO-UNO
 CLOCK 16000000
 PIN pot1 = A0 ANALOG
-PIN led1 = D9 OUTPUT
+PIN led1 = D9 PWM
 
 # Read the pot and set the LED brightness
 WHEN flag clicked:
   FOREVER:
-    set led1 brightness to (read pot1 / 1023 * 100)
+    set led1 to (read pot1 / 1023 * 100) percent
     wait 0.05 seconds

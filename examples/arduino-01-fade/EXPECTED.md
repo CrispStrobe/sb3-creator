@@ -6,7 +6,7 @@ Arduino Uno D9 (PWM) → 220 ohm resistor → green LED → GND. VCC = 5 V.
 
 ## Program
 
-Sweeps PWM duty on D9 from 0 to 255 in steps of 5 every 30 ms, then reverses. Continuous breathing effect.
+Sweeps PWM duty on D9 from 0 to 100 percent in steps of 2 every 30 ms, then reverses. Continuous breathing effect.
 
 ## Observable behaviour
 

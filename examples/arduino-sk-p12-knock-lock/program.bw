@@ -28,12 +28,12 @@ SPRITE Cat:
           set knockCount to 0
           turn off ledR
           turn on ledG
-          set pwm servo to 90
+          set myservo angle to 90
       else:
         if read btn then:
           set locked to 1
           turn off ledG
           turn on ledR
-          set pwm servo to 0
+          set myservo angle to 0
           wait 0.3 seconds
       wait 0.05 seconds

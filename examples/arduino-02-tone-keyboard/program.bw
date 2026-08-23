@@ -3,16 +3,16 @@ DEVICE ARDUINO-UNO
 CLOCK 16000000
 PIN sensor1 = A0 ANALOG
 PIN sensor2 = A1 ANALOG
-PIN speaker = D8 OUTPUT
+PIN speaker = D8 TONE
 
 SPRITE Cat:
   WHEN flag clicked:
     forever:
       if read sensor1 > 10 then:
-        set tone speaker to 440
+        set speaker to 440 hz
       else:
         if read sensor2 > 10 then:
-          set tone speaker to 494
+          set speaker to 494 hz
         else:
-          turn off speaker
+          set speaker to 0 hz
       wait 0.05 seconds

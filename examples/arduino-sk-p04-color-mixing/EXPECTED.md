@@ -6,7 +6,7 @@ Arduino Uno A0, A1, A2 <- wipers of three 10 kohm pots. D3, D5, D6 (PWM) → 220
 
 ## Program
 
-Reads three pots and maps each (0-1023) to a PWM value (0-255) for the red, green, and blue channels. Updates every 50 ms.
+Reads three pots and maps each (0-1023) to a PWM duty (0-100 percent) for the red, green, and blue channels. Updates every 50 ms.
 
 ## Observable behaviour
 

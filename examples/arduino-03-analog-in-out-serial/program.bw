@@ -2,13 +2,13 @@
 DEVICE ARDUINO-UNO
 CLOCK 16000000
 PIN pot = A0 ANALOG
-PIN led = D9 OUTPUT
+PIN led = D9 PWM
 
 SPRITE Cat:
   WHEN flag clicked:
     forever:
       set sensorValue to read pot
-      set outputValue to ((sensorValue * 255) / 1023)
-      set pwm led to outputValue
+      set outputValue to ((sensorValue * 100) / 1023)
+      set led to outputValue percent
       print sensorValue
       wait 0.02 seconds

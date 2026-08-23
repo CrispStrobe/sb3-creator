@@ -2,7 +2,7 @@
 DEVICE ARDUINO-UNO
 CLOCK 16000000
 PIN sensor = A0 ANALOG
-PIN led = D9 OUTPUT
+PIN led = D9 PWM
 PIN statusLed = D13 OUTPUT
 
 SPRITE Cat:
@@ -26,6 +26,6 @@ SPRITE Cat:
         set sensorValue to sensorMin
       if sensorValue > sensorMax then:
         set sensorValue to sensorMax
-      set outputValue to (((sensorValue - sensorMin) * 255) / (sensorMax - sensorMin))
-      set pwm led to outputValue
+      set outputValue to (((sensorValue - sensorMin) * 100) / (sensorMax - sensorMin))
+      set led to outputValue percent
       wait 0.02 seconds

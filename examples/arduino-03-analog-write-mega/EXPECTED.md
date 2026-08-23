@@ -6,7 +6,7 @@ Arduino Mega D2, D3, D4 → 220 ohm resistors → red, green, blue LEDs → GND.
 
 ## Program
 
-Fades three LEDs in sequence: each sweeps 0-255 brightness (steps of 5, every 30 ms), then back to 0, before the next starts.
+Fades three LEDs in sequence: each sweeps 0-100 percent brightness (steps of 2, every 30 ms), then back to 0, before the next starts.
 
 ## Observable behaviour
 

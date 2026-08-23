@@ -6,7 +6,7 @@ Arduino Uno A0 <- wiper of 10 kohm pot. D2 <- forward button. D3 <- reverse butt
 
 ## Program
 
-Pot sets motor speed (0-255 PWM). Forward button spins motor one direction, reverse button spins the other direction. When neither is pressed, motor stops.
+Pot sets motor speed (0-100 percent PWM duty). Forward button spins motor one direction, reverse button spins the other direction. When neither is pressed, motor stops.
 
 ## Observable behaviour
 

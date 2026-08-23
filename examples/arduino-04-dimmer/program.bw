@@ -3,11 +3,11 @@
 DEVICE ARDUINO-UNO
 CLOCK 16000000
 PIN pot = A0 ANALOG
-PIN led = D9 OUTPUT
+PIN led = D9 PWM
 
 SPRITE Cat:
   WHEN flag clicked:
     forever:
-      set brightness to ((read pot * 255) / 1023)
-      set pwm led to brightness
+      set brightness to ((read pot * 100) / 1023)
+      set led to brightness percent
       wait 0.02 seconds
