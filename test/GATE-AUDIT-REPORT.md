@@ -51,6 +51,28 @@ All five fixed by gate-integrity.test.mjs (b017648).
 - **bw-board**: No critical findings. The `assert.ok(true)` smoke tests are MEDIUM at worst — they verify no-throw but not correctness.
 - **brickwright-lite**: Not checked out; cannot audit.
 
+## Follow-up: the class this audit did not cover (2026-08-23)
+
+This audit looked for gates that *cannot fail* — tautological assertions, reads of removed
+properties, globs that match nothing. It did not look for gates that *never run*, and there
+turned out to be more of those.
+
+`test/stc12-conformance.test.mjs` was green for five days while the extension brickwright-lite
+ships was eight opcodes short, because it located its comparison targets in sibling checkouts
+and CI clones one repo: five of its seven tests skipped, and a skip is indistinguishable from
+a pass in the summary line. Finding, evidence and fix: `test/STC12-CONFORMANCE-FINDING.md`.
+
+The sweep for others is `test/CROSS-REPO-GATE-AUDIT.md`. Measured by running the suite in a
+sandbox laid out like a CI checkout: **45 skips, of which 15 in 9 files are this shape** —
+including `gate-integrity.test.mjs`'s own cross-repo half, and every canary in
+`gate-canary.test.mjs` listed below. The canaries for findings #6–#9 have never executed in CI.
+
+Note also that finding #3 above — the `../../` path typo that made multimeter-chain report
+"skipped 2" forever — has a detector in `gate-integrity`, but it scans `test/*.mjs` for the
+`join(x, '..', '..')` form only. `scripts/vendor-downstream-extensions.mjs` was written with
+exactly that defect in string-literal form and the detector could not see it; it now has its
+own assertion.
+
 ## Canaries
 
 Canary tests for findings #6–9 are in `test/gate-canary.test.mjs`. Each re-introduces the exact defect the gate exists to catch and asserts it goes red.
