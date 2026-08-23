@@ -120,6 +120,15 @@ jobs:
         # nothing about whether the gates can fail, which is the one thing this
         # step exists to answer.
         timeout-minutes: 25
+        # The siblings, for the same reason the test step has them. Without these
+        # the prover reported "bw-board: not present" and then "the gate is
+        # already red before any mutation" — which is true, and says nothing about
+        # whether any gate can fail. This step's own comment above says the failure
+        # it guards is "works on the machine that has both checkouts", so it has to
+        # be a machine that has both checkouts.
+        env:
+          BW_BOARD: ${{ github.workspace }}/siblings/bw-board
+          BW_CIRCUIT_UI: ${{ github.workspace }}/siblings/bw-circuit-ui
 
       - name: Build
         run: npm run build

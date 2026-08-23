@@ -311,8 +311,20 @@ const MUTATIONS = [
         apply () {
             const f = join(ROOT, '.github', 'workflows', 'ci.yml');
             save(f);
-            const text = readFileSync(f, 'utf8').replace('ref: 50c3bf7', 'ref: deadbee');
-            if (text === readFileSync(f, 'utf8')) throw new Error('mutation was a no-op');
+            // Derive the pin from the file rather than naming one. The first
+            // cut hardcoded 'ref: 50c3bf7' and became a silent no-op the moment
+            // that pin was legitimately bumped — the mutation stopped applying,
+            // and a mutation that does not apply proves nothing about the gate.
+            // The no-op guard below is what turned that into a loud failure
+            // instead of a passing prover, which is exactly its job.
+            const before = readFileSync(f, 'utf8');
+            const pin = (before.match(/ref: ([0-9a-f]{40})/) || [])[1];
+            if (!pin) throw new Error('no full-length ref: pin found in ci.yml to mutate');
+            // A well-formed 40-hex that is not the recorded pin, so what the gate
+            // catches is DRIFT from siblings.json, not a malformed ref.
+            const drifted = 'dead' + pin.slice(4);
+            const text = before.replace('ref: ' + pin, 'ref: ' + drifted);
+            if (text === before) throw new Error('mutation was a no-op');
             writeFileSync(f, text);
         },
         expect: /but test\/fixtures\/siblings\.json pins/
@@ -402,8 +414,12 @@ const MUTATIONS = [
             const f = join(ROOT, '.github', 'workflows', 'ci.yml');
             const pins = join(ROOT, 'test', 'fixtures', 'siblings.json');
             save(f); save(pins);
-            const full = '50c3bf7c2a7e0fb11cf6baaf4cc532a1b4443314';
+            // Read the pin out of the file instead of naming one. Hardcoding it
+            // made this mutation a no-op the first time the pin was legitimately
+            // bumped, and a mutation that does not apply proves nothing.
             const before = readFileSync(f, 'utf8');
+            const full = (before.match(/ref: ([0-9a-f]{40})/) || [])[1];
+            if (!full) throw new Error('no full-length ref: pin found in ci.yml to abbreviate');
             const text = before.replace(`ref: ${full}`, `ref: ${full.slice(0, 7)}`);
             if (text === before) throw new Error('mutation was a no-op — the full ref was not found');
             writeFileSync(f, text);
@@ -411,8 +427,13 @@ const MUTATIONS = [
             // what fires. The point is that agreement is not fetchability, and only
             // the new check can tell the difference.
             const j = JSON.parse(readFileSync(pins, 'utf8'));
-            j.siblings['bw-board'].rev = full.slice(0, 7);
-            delete j.siblings['bw-board'].revShort;
+            // Whichever sibling that first ci.yml pin belongs to — matching by
+            // rev rather than by name, so this keeps working if the order of the
+            // checkout steps ever changes.
+            const which = Object.keys(j.siblings).find(k => j.siblings[k].rev === full);
+            if (!which) throw new Error(`ci.yml pins ${full} but siblings.json records no such rev`);
+            j.siblings[which].rev = full.slice(0, 7);
+            delete j.siblings[which].revShort;
             writeFileSync(pins, `${JSON.stringify(j, null, 2)}\n`);
         },
         expect: /actions\/checkout resolves a commit only at the full 40|not a full 40-character SHA/

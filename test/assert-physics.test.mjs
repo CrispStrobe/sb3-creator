@@ -25,42 +25,30 @@ import { pathToFileURL } from 'url';
 // ---- engine setup (same pattern as gallery-e2e) ----
 import { requireSiblings, siblingGuardTest } from './helpers/siblings.mjs';
 
-const findRepo = (envVar, probe, ...rels) => {
-    const asUrl = (base) => base.startsWith('file:') ? new URL(base)
-        : pathToFileURL(base.endsWith('/') ? base : base + '/');
-    // An EXPLICIT pointer is authoritative: if it is set and does not resolve,
-    // that is an error, never a fallback. The operator set it meaning to pin a
-    // specific checkout, and quietly measuring a different one produces a
-    // confident number about the wrong thing. This happened twice on
-    // 2026-08-23 — a removed worktree left BW_BOARD dangling and the suite
-    // silently used the shared checkout another session was mid-edit in, then
-    // reported a clean result I nearly attributed to a pinned sha.
-    const explicit = process.env[envVar];
-    if (explicit) {
-        const url = asUrl(explicit);
-        if (!existsSync(new URL(probe, url))) {
-            throw new Error(
-                `${envVar}=${explicit} does not contain ${probe}. An explicitly set ` +
-                `sibling path is authoritative — refusing to fall back to a sibling ` +
-                `lookup and measure a different checkout than the one you pinned.`);
-        }
-        return url;
-    }
-    for (const base of rels) {
-        if (!base) continue;
-        const url = asUrl(base);
-        if (existsSync(new URL(probe, url))) return url;
-    }
-    return null;
-};
-const sib = (name) => new URL(`../../${name}/`, import.meta.url).href;
-const nest = (name) => new URL(`../../../${name}/`, import.meta.url).href;
-const BOARD_URL = findRepo('BW_BOARD', 'src/board.js', sib('bw-board'), nest('bw-board'));
-const CUI_URL = findRepo('BW_CIRCUIT_UI', 'src/engine.js', sib('bw-circuit-ui'), nest('bw-circuit-ui'));
-
 // Cross-repo guard: local skip, CI failure. See test/helpers/siblings.mjs.
+//
+// This file used to resolve the siblings ITSELF, with a findRepo() that threw
+// when an explicitly set BW_BOARD/BW_CIRCUIT_UI did not resolve. The RULE was
+// right and is kept — an explicit pointer is authoritative, and falling back to
+// `../bw-board` silently measures a checkout nobody asked for — but locate() in
+// the shared helper already implements exactly that rule ("an explicit env
+// pointer WINS ABSOLUTELY — there is no fallback behind it"), and implements it
+// with the disposition this file was overriding: absent siblings SKIP on a
+// developer box and FAIL in CI.
+//
+// Throwing at module scope pre-empted that choice, so a local run with a stale
+// BW_BOARD was a hard error where the contract says skip. The mutation prover
+// caught it as two MISSes ("the same run on a developer box (CI unset) skips
+// instead of failing" and "the BW_ALLOW_MISSING_SIBLINGS opt-out still works in
+// CI"), both of which point BW_BOARD at a path that does not exist and require
+// green. A gate rolling its own skip is the defect this suite has a dedicated
+// mutation for; this file was quietly an instance of it.
 const gate = requireSiblings('bw-board', 'bw-circuit-ui');
 siblingGuardTest(gate, 'the absolute-physics assertions');
+const toUrl = (p) => p && pathToFileURL(p.endsWith('/') ? p : p + '/');
+const BOARD_URL = toUrl(gate.paths['bw-board']);
+const CUI_URL = toUrl(gate.paths['bw-circuit-ui']);
+
 const ENGINE_SKIP = BOARD_URL && CUI_URL ? false
     : (gate.skip || 'needs bw-board + bw-circuit-ui (set BW_BOARD / BW_CIRCUIT_UI)');
 
