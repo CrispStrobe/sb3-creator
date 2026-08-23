@@ -740,3 +740,53 @@ verdict). The mutation prover went 20 → 26.
 
 - [ ] **`ctarget.test.mjs` reaches the live network with no retry**, turning
   someone else's outage into a red build. Carried over from wave 1, still open.
+
+---
+
+## 28. Measured thresholds — wave 3 (2026-08-23)
+
+Full write-up, per-literal tables and the probe results: **`docs/MEASURED-THRESHOLDS.md`**.
+The question is the one the CI blackout raised: **a threshold tuned while its gate
+was not running is a number with no evidence behind it.**
+
+Instruments: `scripts/threshold-inventory.mjs` (what bounds a verdict, and is a
+measurement recorded next to it) and `scripts/threshold-probe.mjs` (can it fire;
+what is the margin — the flip point IS the measurement).
+
+Counted: **221 bounding literals in sb3-creator** (37 with a recorded measurement)
+and **238 in brickwright-lite** (1). Probed: every timeout and every ceiling that
+sits in a gate, plus `device-coverage`'s floors — **25 of 459**, and the denominator
+is stated because 459 cannot honestly be re-measured one at a time.
+
+### Open — not fixed, with what it would take
+
+- [ ] **`brickwright-lite` carries 118 `timeout-ms` literals**, almost all
+  Playwright/puppeteer waits in `scripts/verify-*.mjs`. None has a recorded
+  measurement. Probing them needs a built editor and a browser, so it is a lane of
+  its own; the list is in `docs/MEASURED-THRESHOLDS.md`. The cheap first pass is to
+  time one full `npm run verify:*` sweep and write the observed p90 beside each.
+
+- [ ] **~430 bounding literals are listed and unprobed.** Most are ordinary domain
+  assertions (`assert.ok(voltage > 3.0)`) where the literal IS the specification and
+  a "measurement" would be circular. The ones worth a second pass are the `floor`
+  entries in cross-repo gates, where the quantity is a corpus size that another
+  repository controls. `node scripts/threshold-probe.mjs --kind floor --margin` does
+  it; budget roughly two gate runs per threshold plus a binary search.
+
+- [ ] **`trace-oracle:166` has 100% headroom and is deliberately kept.** The event
+  lands on exactly 300 ms, so `|tMs − 300| <= 2` has never been needed. Tightening
+  it to 0 would be wrong: the quantity is a polled timestamp and a zero tolerance on
+  a sampled clock is a flake waiting for a slow runner — the shape this same wave
+  just spent a commit removing from the python checker. Recorded rather than
+  changed, so the next reader does not "fix" it.
+
+- [ ] **`ttl-module-acceptance:52`'s 30 s subprocess timeout is unprobeable here.**
+  The four tests that reach it need `BW_TTL_ORACLE=1` plus Java, `Digital.jar` and a
+  cloned `8bitsim`. Probe it on a box that has them, with
+  `--env BW_TTL_ORACLE=1`.
+
+- [ ] **Three CI `pin: 22` node-version literals and the `fetch-depth: 0` entries
+  carry no rationale.** Not thresholds in the firing sense, but they decide what
+  runs; `node-version: 22` in particular is load-bearing (`fs.globSync` needs it,
+  and two files use it — a drop to 20 reddens four tests). Worth a comment naming
+  that dependency rather than leaving it to be rediscovered.
