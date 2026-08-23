@@ -10,13 +10,13 @@ WHEN flag clicked:
   FOREVER:
     set val to counter
     REPEAT 8:
-      IF bitand val 128 > 0 THEN:
+      IF (val bitand 128) > 0 THEN:
         turn on data
       ELSE:
         turn off data
       turn on clock
       turn off clock
-      set val to bitand shiftleft val 1 255
+      set val to (val shiftleft 1) bitand 255
     turn on latch
     turn off latch
     change counter by 1

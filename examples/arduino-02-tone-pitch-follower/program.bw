@@ -10,6 +10,9 @@ SPRITE Cat:
       set sensorReading to read ldr
       print sensorReading
       # Map 400-1000 range to 120-1500 Hz
-      set thisPitch to (120 + ((sensorReading - 400) * (1380 / 600)))
-      set speaker to thisPitch hz
+      # Divide LAST: `1380 / 600` is 2 in integer C, not 2.3, which flattened the
+      # top of the range by ~13%.
+      IF sensorReading > 400 THEN:
+        set thisPitch to (120 + (((sensorReading - 400) * 1380) / 600))
+        set speaker to thisPitch hz
       wait 0.05 seconds

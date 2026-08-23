@@ -23,8 +23,8 @@
    "id": "ntc",
    "kind": "ntc",
    "params": {
-    "minOhms": 1000,
-    "maxOhms": 100000
+    "rHot": 1000,
+    "rCold": 100000
    },
    "x": 148,
    "y": 255,

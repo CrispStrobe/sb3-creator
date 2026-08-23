@@ -7,6 +7,9 @@ SPRITE Cat:
   WHEN flag clicked:
     forever:
       set sensorValue to read pot
-      set voltage to (sensorValue * (5.0 / 1023))
-      print voltage
+      # Millivolts, not volts: the C target has no floating point, and
+      # `sensorValue * (5.0 / 1023)` emitted `sensorValue * (5 / 1023)`, which is
+      # sensorValue * 0 — the printed voltage was 0 at every pot position.
+      set millivolts to ((sensorValue * 5000) / 1023)
+      print millivolts
       wait 0.1 seconds

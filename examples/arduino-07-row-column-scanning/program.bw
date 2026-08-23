@@ -8,8 +8,8 @@ PIN potY = A1 ANALOG
 SPRITE Cat:
   WHEN flag clicked:
     forever:
-      set x to ((read potX * 7) / 1023)
-      set y to ((read potY * 7) / 1023)
-      print x
-      print y
+      set xPos to ((read potX * 7) / 1023)
+      set yPos to ((read potY * 7) / 1023)
+      print xPos
+      print yPos
       wait 0.1 seconds

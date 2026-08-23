@@ -11,8 +11,11 @@ SPRITE Cat:
     set baselineTemp to 20
     forever:
       set sensorVal to read sensor
-      set voltage to (sensorVal * (5.0 / 1024))
-      set temperature to ((voltage - 0.5) * 100)
+      # One integer expression instead of two floating-point ones. The C target
+      # emitted `sensorVal * (5 / 1024)` = 0 and truncated the 0.5 offset to 0, so
+      # the temperature was 0 at every reading and the bargraph never lit.
+      # (v - 0.5) * 100 where v = sensorVal * 5 / 1024  ==  sensorVal * 500 / 1024 - 50.
+      set temperature to (((sensorVal * 500) / 1024) - 50)
       print temperature
       if temperature < baselineTemp then:
         turn off led1

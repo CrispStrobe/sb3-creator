@@ -3,9 +3,17 @@ CLOCK 11059200
 PIN motor_pwm = P1.0 OUTPUT
 PIN pot = P1.3 ANALOG
 
-# Motor speed control via pot: read ADC, set PWM duty cycle
+# Motor speed control via pot: read the ADC, then drive the TIP120 with
+# software PWM. `speed` of every 100 one-millisecond steps are on, the rest
+# off, and the motor integrates that into a proportional speed.
+# Multiply before dividing — the C target's arithmetic is integer, so
+# `read pot / 1023 * 100` would truncate to 0 for every reading below 1023.
 WHEN flag clicked:
   FOREVER:
-    set speed to read pot
-    set motor_pwm to speed bitand 1
-    wait 0.001 seconds
+    set speed to ((read pot * 100) / 1023)
+    REPEAT speed:
+      turn on motor_pwm
+      wait 0.001 seconds
+    REPEAT 100 - speed:
+      turn off motor_pwm
+      wait 0.001 seconds

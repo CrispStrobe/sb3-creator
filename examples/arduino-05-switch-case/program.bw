@@ -7,7 +7,11 @@ SPRITE Cat:
   WHEN flag clicked:
     forever:
       set sensorReading to read ldr
-      set range to ((sensorReading / 1024) * 3)
+      # floor of (reading / 256) is the documented 0/256/512/768 mapping and is
+      # EXACT: the C target's `/` truncates and the VM's floor rounds the same way.
+      # `(reading / 1024) * 3` was neither — 0 in C, and a fraction in the VM that
+      # matched none of the four `range = N` branches below.
+      set range to floor of (sensorReading / 256)
       if range = 0 then:
         print "dark"
       if range = 1 then:

@@ -14,14 +14,17 @@ Column-scans a smiley face pattern across the 8x8 matrix. Two buttons scroll the
 - **Left button (PC3):** pattern scrolls left.
 - **Right button (PC7):** pattern scrolls right.
 - The display looks like a continuous image despite one-column-at-a-time scanning.
-- **Polarity lesson:** changing the matrix variant from 788AS to 788BS in the circuit causes every LED to glow dimly instead of showing a crisp pattern — both column and row polarity are inverted.
+- **Polarity lesson:** setting the matrix's `colActiveHigh` to `true` and `rowActiveHigh` to
+  `false` in the circuit — the 788BS common-cathode wiring — inverts both column and row
+  polarity, and every LED glows dimly instead of showing a crisp pattern. Those two params
+  are the ones the engine reads; the part number itself is not a simulated field.
 
 ## What this verifies
 
 1. Column-scanning multiplexing: 16 pins (8 columns + 8 rows) drive 64 LEDs
 2. Active-low columns, active-high rows for the 788AS common-anode matrix
 3. Button-driven pattern scrolling
-4. Polarity matters: wrong matrix type produces a uniformly dim display
+4. Polarity matters: inverted `colActiveHigh`/`rowActiveHigh` produce a uniformly dim display
 
 ```assert
 # Supply rail: VCC = 5.0V

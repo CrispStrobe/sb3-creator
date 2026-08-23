@@ -23,8 +23,8 @@
    "id": "ldr",
    "kind": "ldr",
    "params": {
-    "minOhms": 1000,
-    "maxOhms": 100000
+    "rLight": 1000,
+    "rDark": 100000
    },
    "x": 400,
    "y": 255,
@@ -89,8 +89,8 @@
    "kind": "opamp",
    "params": {
     "gain": 100000,
-    "voutHigh": 5,
-    "voutLow": 0
+    "railHigh": 5,
+    "railLow": 0
    },
    "x": 456,
    "y": 311,

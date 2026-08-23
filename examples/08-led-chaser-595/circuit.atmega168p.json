@@ -27,9 +27,7 @@
   {
    "id": "sr1",
    "kind": "74hc595",
-   "params": {
-    "outputs": 8
-   },
+   "params": {},
    "x": 64,
    "y": 349,
    "seat": {

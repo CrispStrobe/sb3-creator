@@ -23,8 +23,8 @@
    "id": "ldr",
    "kind": "ldr",
    "params": {
-    "minOhms": 1000,
-    "maxOhms": 100000
+    "rLight": 1000,
+    "rDark": 100000
    },
    "x": 232,
    "y": 255,

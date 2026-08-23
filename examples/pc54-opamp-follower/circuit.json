@@ -41,8 +41,8 @@
    "kind": "opamp",
    "params": {
     "gain": 100000,
-    "voutHigh": 5,
-    "voutLow": 0
+    "railHigh": 5,
+    "railLow": 0
    },
    "x": 232,
    "y": 311,
