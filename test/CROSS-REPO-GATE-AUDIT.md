@@ -285,6 +285,34 @@ directions — it rejects a symlinked path that lands inside this very checkout,
 accepts one that resolves into a different tree. (Refinement from bw-lessons, who
 mutation-proved both cases.)
 
+## Two rules from the fleet that this audit adopted
+
+Both came from other sessions hitting the same class of problem on the same day, and
+both are written into the artefacts rather than left as anecdotes.
+
+**A result that reverses may mean the subject moved, not that the instrument lied.**
+bw-bundle retracted a finding as an instrument error, then un-retracted it: the claim
+was true at `lite@3e87340f5` and resolved by `6f8d11c5c`, and a single vendor bump had
+landed both the method and a NUL byte that made GNU grep silently stop searching the
+file. A claim and its refutation can both be correct about different shas. This audit
+has two findings of that kind — the original count of 15 (an undercount, measured by
+observing skips) and the claim that three examples were affected by the stc12 gap (one
+was) — and both are recorded as dated corrections rather than quietly fixed.
+
+**Corroboration requires a different method, not a different person.** The same grep
+was run three times in three forms and its agreement read as three confirmations; it
+was one instrument failing three times, and a second agent then "independently
+confirmed" it with the same tool. An absence is the answer every broken instrument
+returns by default.
+
+Swept this repo for the grep half: **no gate here shells out to grep** — the single
+file matching the word contains it in a comment — and every detector reads bytes, so
+the NUL trap is structurally absent. The pinned `bw-board@50c3bf7` has zero NUL-bearing
+files in 134 scanned. That is a fact about the pin rather than about the gate, which is
+why the repair implemented was the general one: the cross-repo detector asserts its own
+yield (≥40 files scanned, ≥12 matching), so an empty offender list can never mean "the
+walk found nothing" while reading as "everything is guarded".
+
 ## Recommendation, in priority order
 
 1. ~~Check out the siblings in `ci.yml`~~ — **done above.**
