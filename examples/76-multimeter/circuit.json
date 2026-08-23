@@ -212,9 +212,7 @@
   {
    "id": "ntc1",
    "kind": "ntc",
-   "params": {
-    "ohms": 10000
-   },
+   "params": {},
    "x": 200,
    "y": 880,
    "rotation": 0

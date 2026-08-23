@@ -59,8 +59,8 @@
       "id": "ldr_5",
       "kind": "ldr",
       "params": {
-        "minOhms": 1000,
-        "maxOhms": 100000
+        "rLight": 1000,
+        "rDark": 100000
       },
       "terminals": [
         "a",
@@ -258,8 +258,7 @@
         "part": "gnd_2",
         "terminal": "gnd"
       }
-    }
-    ,
+    },
     {
       "id": "wire_27",
       "netId": "net_18",

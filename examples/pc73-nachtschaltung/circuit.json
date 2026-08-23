@@ -41,8 +41,8 @@
       "id": "ldr_4",
       "kind": "ldr",
       "params": {
-        "minOhms": 1000,
-        "maxOhms": 100000
+        "rLight": 1000,
+        "rDark": 100000
       },
       "terminals": [
         "a",

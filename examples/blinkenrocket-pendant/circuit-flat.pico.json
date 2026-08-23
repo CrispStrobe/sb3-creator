@@ -59,7 +59,6 @@
       "id": "matrix",
       "kind": "matrix8x8",
       "params": {
-        "polarity": "788AS",
         "colActiveHigh": false,
         "rowActiveHigh": true
       },
