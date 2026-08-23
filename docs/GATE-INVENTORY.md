@@ -56,7 +56,10 @@ caught one here — see "the mutation that lied", below.
 
 `gh run list --branch main` showed **seven consecutive failures**, from `44531a8`
 (2026-08-23 13:19 UTC) to `1a83dfa` (16:10 UTC). The last green run was `ab243ca`
-at 13:16. Every one failed at the same place — step two, before `npm ci`:
+at 13:16. By 17:42, while this audit was being written, it was **nine** — the
+count grows with every commit that lands, because nothing on `main` reports the
+problem except a red X on a workflow whose failure looks like infrastructure.
+Every one fails at the same place — step two, before `npm ci`:
 
 ```
 Lint · test · build   Check out bw-board (pinned)
@@ -74,7 +77,9 @@ branch or tag and fetches as a branch glob, which matches nothing. The pins were
 written as seven-character abbreviations.
 
 So lint, the entire 6403-test suite, the mutation prover and the build did not run
-at all while seven commits landed on `main`.
+at all while nine commits landed on `main` — including `1577fba`, *"test: every
+solved node must obey KCL"*, the gate that would have reported finding 5 below.
+It has never run in CI.
 
 The bitter part is where it came from. This is `90391a6` — *the wave-1 fix* for
 "fifteen cross-repo gates skip in CI and a skip reads as a pass". It replaced
@@ -92,6 +97,24 @@ instead of asserting the property either had to satisfy.
 `every pinned checkout ref is a ref actions/checkout can actually fetch`, which
 asserts the length on the file CI reads, and asserts its own yield first so an
 empty scan cannot read as a clean one.
+
+**Confirmed in CI, not merely locally.** A `workflow_dispatch` of `ci.yml` on
+`test/gate-integrity-wave2` (run `32656177685`) gets past the step that had failed
+nine times:
+
+```
+Lint · test · build
+  Set up job                              success
+  Run actions/checkout@v4                 success
+  Check out bw-board (pinned)             success   <- nine consecutive failures before this
+  Check out bw-circuit-ui (pinned)        success
+  Run actions/setup-node@v4               success
+  Run npm ci                              success
+  Install bw-board's runtime dependencies success
+```
+
+**The fix is not on `main`.** This branch has it; `main` is still dark and the
+count is still rising.
 
 ### 2. `device-coverage` has never seen the live engine in CI — 36 kinds unchecked
 

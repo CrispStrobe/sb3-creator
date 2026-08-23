@@ -673,6 +673,12 @@ Full write-up, per-file tables and RED evidence: **`docs/GATE-INVENTORY.md`**.
 Wave 1 is `test/CROSS-REPO-GATE-AUDIT.md` (which gates never run); this wave is the
 question it ended on — which gates run and check nothing.
 
+**`main` IS STILL DARK.** The blackout fix is on `test/gate-integrity-wave2` and
+is confirmed working in CI there (run `32656177685`: `Check out bw-board (pinned)`
+succeeds). It has not been applied to `main`, where the count of commits with no
+verdict at all was 7 at 16:10 UTC and 9 at 17:42 and rises with every landing.
+Until that fix reaches `main`, no green claim about `main` means anything.
+
 Closed on `test/gate-integrity-wave2`: the CI blackout (abbreviated SHAs in
 `ci.yml`), `device-coverage`'s snapshot-only CI path, `bench-invariants`' unfloored
 1092-file corpus, and eleven gates whose corpora could arrive empty in silence.
