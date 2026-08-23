@@ -52,7 +52,11 @@ const GATES = [
     join(ROOT, 'test', 'gate-integrity.test.mjs'),
     // Wave 2 (docs/GATE-INVENTORY.md): the corpus floors, and the CI-fetchability
     // check that would have caught the blackout of 2026-08-23.
-    join(ROOT, 'test', 'device-coverage.test.mjs')
+    join(ROOT, 'test', 'device-coverage.test.mjs'),
+    // Wave 3 (docs/MEASURED-THRESHOLDS.md): the tightened bounds and the contract
+    // that keeps a busy box from reading as a broken emitter.
+    join(ROOT, 'test', 'gallery-roundtrip.test.mjs'),
+    join(ROOT, 'test', 'python-syntax-contract.test.mjs')
 ];
 
 /**
@@ -568,6 +572,90 @@ const MUTATIONS = [
             } finally { rmSync(stub, { force: true }); }
         },
         expect: /corpus floor: examples/
+    },
+    {
+        name: 'a comment-only gallery entry decompiles to something',
+        why: 'the tightened bound from docs/MEASURED-THRESHOLDS.md #2. The old form was ' +
+             '`dc.trim() === \'\' || dc.trim().length < 5` and the second disjunct was dead — ' +
+             'the probe moved 5 to -1 and the gate stayed green. Measured over all 114 ' +
+             'comment-only entries the observed length set is {0}, so the slack bounded ' +
+             'nothing and only stopped the assertion noticing four characters of stray output.',
+        apply () {
+            const f = join(ROOT, 'test', 'gallery-roundtrip.test.mjs');
+            save(f);
+            const before = readFileSync(f, 'utf8');
+            const text = before.replace(
+                '            const dc = c.decompile(project);',
+                "            const dc = c.decompile(project) + 'xyz';");
+            if (text === before) throw new Error('mutation was a no-op — the decompile call did not match');
+            writeFileSync(f, text);
+        },
+        run: () => runGate([join(ROOT, 'test', 'gallery-roundtrip.test.mjs')]),
+        expect: /must decompile to nothing/
+    },
+    {
+        name: 'the engine sheds device kinds below the measured floor',
+        why: 'device-coverage floored at 80 while the live engine has 118 — a third of the ' +
+             'device surface could vanish unnoticed. Raised to 110; this proves 110 bites. ' +
+             'The mutation shrinks what the PARSE sees rather than editing the floor, so it ' +
+             'tests the guard rather than the number it was given.',
+        apply () {
+            const f = join(ROOT, 'test', 'device-coverage.test.mjs');
+            save(f);
+            const before = readFileSync(f, 'utf8');
+            // Take only the first 20 matches out of getPartKinds(), as if the
+            // engine had shrunk. Derived from the file, never hardcoded to a sha
+            // or a count — a mutation pinned to a moving value silently dies.
+            const text = before.replace(
+                "engineKinds = [...m[1].matchAll(/'([a-z0-9][a-z0-9_]+)'/g)].map(k => k[1]).sort();",
+                "engineKinds = [...m[1].matchAll(/'([a-z0-9][a-z0-9_]+)'/g)].map(k => k[1]).sort().slice(0, 20);");
+            if (text === before) throw new Error('mutation was a no-op — the kinds parse did not match');
+            writeFileSync(f, text);
+        },
+        run: () => runGate([join(ROOT, 'test', 'device-coverage.test.mjs')]),
+        expect: /parse regression|only 20 kinds|expected ~118/
+    },
+    {
+        name: 'a busy box is folded back into a syntax error',
+        why: 'THE 2026-08-23 FLAKE. Eight `syntactically valid Python` failures were ' +
+             '`spawnSync ETIMEDOUT` on a loaded box, reported as defects in the emitter and ' +
+             'absent from the next run of the same commit. The repair is that the two ' +
+             'outcomes differ; this requires the contract gate to notice if they stop.',
+        apply () {
+            const f = join(ROOT, 'test', 'helpers', 'python-syntax.mjs');
+            save(f);
+            const before = readFileSync(f, 'utf8');
+            // Cut the throw out by its two anchors rather than by a multi-line
+            // regex: the substitution must be legible in a diff, and a regex that
+            // spans a template literal is how a mutation quietly stops matching.
+            const open = before.indexOf('            throw new PythonUnavailableError(\n                `python3 did not return');
+            const close = before.indexOf("machine, not the emitter. Detail: ${r.detail || '(none)'}`);", open);
+            if (open < 0 || close < 0) throw new Error('mutation was a no-op — the throw did not match');
+            const text = before.slice(0, open) +
+                "            return { valid: false, error: r.detail || 'timed out' };" +
+                before.slice(close + "machine, not the emitter. Detail: ${r.detail || '(none)'}`);".length);
+            if (text === before) throw new Error('mutation was a no-op');
+            if (text === before) throw new Error('mutation was a no-op — the throw did not match');
+            writeFileSync(f, text);
+        },
+        run: () => runGate([join(ROOT, 'test', 'python-syntax-contract.test.mjs')]),
+        expect: /Missing expected exception|must not come back as \{ valid: false \}/i
+    },
+    {
+        name: 'the python budget is shrunk back towards the value that flaked',
+        why: 'the floor exists so nobody "fixes" a slow-runner flake by tightening the ' +
+             'budget: measured p90 is 658 ms and 5000 ms was already ~7x that and still fired',
+        apply () {
+            const f = join(ROOT, 'test', 'helpers', 'python-syntax.mjs');
+            save(f);
+            const before = readFileSync(f, 'utf8');
+            const text = before.replace('export const PY_BUDGET_DEFAULT_MS = 30_000;',
+                'export const PY_BUDGET_DEFAULT_MS = 5_000;');
+            if (text === before) throw new Error('mutation was a no-op — the budget constant did not match');
+            writeFileSync(f, text);
+        },
+        run: () => runGate([join(ROOT, 'test', 'python-syntax-contract.test.mjs')]),
+        expect: /Shrinking this is how the flake comes back|the python budget is 5000/
     },
     {
         name: 'an affected example is left with no pendingFix naming the fix',
