@@ -54,12 +54,13 @@ const SKIP = BOARD && CIRCUIT ? false
     : (gate.skip || `needs ${!BOARD ? 'bw-board' : 'bw-circuit-ui'} checked out beside this repo `
       + '(or BW_BOARD / BW_CIRCUIT_UI pointing at it)');
 
-let BoardImpl, inferNetlist, checkWiring, Circuit;
+let BoardImpl, inferNetlist, checkWiring, Circuit, wireEndpoint;
 const MISSING_DEVICES = [];
 if (!SKIP) {
     ({ BoardImpl } = await import(new URL('src/board.js', BOARD).href));
     ({ inferNetlist, checkWiring } = await import(new URL('src/infer-netlist.js', BOARD).href));
     ({ Circuit } = await import(new URL('src/model/circuit.js', CIRCUIT).href));
+    ({ wireEndpoint } = await import(new URL('src/model/wire-endpoints.js', CIRCUIT).href));
     const { setEngine } = await import(new URL('src/engine.js', CIRCUIT).href);
     // Device models — each requires an explicit call, and each is optional:
     // an older bw-board checkout simply has fewer of them. A missing one is
@@ -126,9 +127,18 @@ function loadCircuit(name) {
     // hole-endpoint wires reference breadboards, which are never visual-only.
     const visualIds = new Set(data.parts.filter(p => VISUAL_ONLY.has(p.kind)).map(p => p.id));
     data.parts = data.parts.filter(p => !VISUAL_ONLY.has(p.kind));
+    // Endpoints come in two dialects MIXED WITHIN ONE FILE, so this filter
+    // read only the flat one and let every NESTED wire to a visual-only part
+    // through — 1,039 of the 2,096 shipped circuit files are nested, and in
+    // those the part was dropped while its wires stayed, leaving the netlist
+    // referencing a part that is no longer there. wireEndpoint is the one
+    // canonical reader; a hole endpoint has no `part` and so is never
+    // visual-only, which is what the old comment was reaching for.
     data.wires = (data.wires || []).filter(w =>
-        !(typeof w.from === 'string' && visualIds.has(w.from)) &&
-        !(typeof w.to === 'string' && visualIds.has(w.to)));
+        !['from', 'to'].some((side) => {
+            const e = wireEndpoint(w, side);
+            return e && e.part && visualIds.has(e.part);
+        }));
     // ONE loader for every dialect: Circuit.fromJSON understands flat legacy
     // wires, endpoint objects, HOLE endpoints ({board, hole}), holeWires
     // (breadboard jumpers), seated parts (occupancy + row conduction), kind

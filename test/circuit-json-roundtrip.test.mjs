@@ -14,8 +14,9 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, readdirSync, existsSync } from 'node:fs';
-import { resolve, dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { resolve, dirname, join } from 'node:path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
+import { requireSiblings, siblingGuardTest, locate } from './helpers/siblings.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const examplesDir = resolve(here, '../examples');
@@ -38,18 +39,31 @@ try {
 
 // ---- helpers for wiring topology ----------------------------------------
 
-/** Resolve a wire endpoint to "partId.terminal".
- *  Old format: w.from = "led1", w.fromTerminal = "a"  → "led1.a"
- *  New format: w.from = { part: "led1", terminal: "a" } → "led1.a"
- *              w.from = { board: "breadboard_1", hole: "a5" } → "breadboard_1.a5"
- */
-function resolveEndpoint(ep, termField) {
-    if (typeof ep === 'string') return { part: ep, key: `${ep}.${termField || '?'}` };
-    if (ep && typeof ep === 'object') {
-        if (ep.part) return { part: ep.part, key: `${ep.part}.${ep.terminal || '?'}` };
-        if (ep.board) return { part: ep.board, key: `${ep.board}.${ep.hole || '?'}` };
-    }
-    return { part: String(ep), key: `${ep}.?` };
+// Wire endpoints come in two dialects, MIXED WITHIN ONE FILE, and this file
+// used to carry its own private reader for them. That is the pattern behind
+// every defect in this area — a hand-rolled scan reported 802 phantom shorts
+// across 2,040 files, and two exporters wrote schematics with no nets — so
+// the reader now comes from bw-circuit-ui, which owns the circuit.json format.
+//
+// THE COST, stated plainly: these three tests now need the sibling checkout,
+// where before they needed nothing. Locally they skip when it is absent (and
+// the guard test below says so); CI clones it at the revision pinned in
+// test/fixtures/siblings.json, so CI coverage is unchanged. That is the same
+// bargain the other cross-repo gates in this directory already make, and it
+// buys ONE definition of the format instead of two that can drift apart.
+const gate = requireSiblings('bw-circuit-ui');
+siblingGuardTest(gate, 'the circuit.json topology checks');
+const { wireEndpoint } = gate.skip ? {}
+    : await import(pathToFileURL(join(locate('bw-circuit-ui').path,
+        'src', 'model', 'wire-endpoints.js')).href);
+
+/** Resolve a wire endpoint to {part, key}, where key is "partId.terminal". */
+function resolveEndpoint(wire, side) {
+    const e = wireEndpoint(wire, side);
+    if (!e) return { part: String(wire?.[side]), key: `${wire?.[side]}.?` };
+    if (e.part) return { part: e.part, key: `${e.part}.${e.terminal}` };
+    const board = e.board || e.boardId;
+    return { part: board, key: `${board}.${e.hole}` };
 }
 
 /** Build an adjacency list from wires: part.terminal → [part.terminal, ...] */
@@ -57,8 +71,8 @@ function buildGraph(obj) {
     const adj = {};
     const add = (a, b) => { if (!adj[a]) adj[a] = []; adj[a].push(b); };
     for (const w of obj.wires || []) {
-        const from = resolveEndpoint(w.from, w.fromTerminal).key;
-        const to = resolveEndpoint(w.to, w.toTerminal).key;
+        const from = resolveEndpoint(w, 'from').key;
+        const to = resolveEndpoint(w, 'to').key;
         add(from, to);
         add(to, from);
     }
@@ -110,7 +124,7 @@ for (const name of exampleDirs) {
     try { src = readFileSync(circuitPath, 'utf8'); } catch { continue; }
     circuitCount++;
 
-    test(`circuit.json: ${name} is valid and well-formed`, () => {
+    test(`circuit.json: ${name} is valid and well-formed`, { skip: gate.skip }, () => {
         let obj;
         try { obj = JSON.parse(src); } catch (e) {
             assert.fail(`${name}/circuit.json is not valid JSON: ${e.message}`);
@@ -142,8 +156,8 @@ for (const name of exampleDirs) {
                 const w = obj.wires[i];
                 assert.ok(w.from, `${name}: wire ${i} missing 'from'`);
                 assert.ok(w.to, `${name}: wire ${i} missing 'to'`);
-                const fromPart = resolveEndpoint(w.from, w.fromTerminal).part;
-                const toPart = resolveEndpoint(w.to, w.toTerminal).part;
+                const fromPart = resolveEndpoint(w, 'from').part;
+                const toPart = resolveEndpoint(w, 'to').part;
                 assert.ok(partIds.has(fromPart),
                     `${name}: wire ${i} 'from' references unknown part '${fromPart}'`);
                 assert.ok(partIds.has(toPart),
@@ -157,7 +171,7 @@ for (const name of exampleDirs) {
 // These test the WIRING, not part names. A normaliser that "fixes" a
 // deliberate mistake destroys the lesson.
 
-test('safety: 31-no-resistor-led — the LED path to VCC has no resistor', () => {
+test('safety: 31-no-resistor-led — the LED path to VCC has no resistor', { skip: gate.skip }, () => {
     const path = resolve(examplesDir, '31-no-resistor-led', 'circuit.json');
     let obj;
     try { obj = JSON.parse(readFileSync(path, 'utf8')); } catch { return; }
@@ -175,7 +189,7 @@ test('safety: 31-no-resistor-led — the LED path to VCC has no resistor', () =>
         'the lesson requires at least one LED with no series resistor — a normaliser must not add one');
 });
 
-test('safety: 33-inductive-no-flyback — the motor has no diode across it', () => {
+test('safety: 33-inductive-no-flyback — the motor has no diode across it', { skip: gate.skip }, () => {
     const path = resolve(examplesDir, '33-inductive-no-flyback', 'circuit.json');
     let obj;
     try { obj = JSON.parse(readFileSync(path, 'utf8')); } catch { return; }

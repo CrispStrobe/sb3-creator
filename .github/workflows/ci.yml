@@ -52,7 +52,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: CrispStrobe/bw-circuit-ui
-          ref: d754cfc
+          ref: b5761ad
           path: siblings/bw-circuit-ui
 
       - uses: actions/setup-node@v4

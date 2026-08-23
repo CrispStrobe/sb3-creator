@@ -8,10 +8,26 @@ import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, readdirSync, existsSync } from 'fs';
 import { join } from 'path';
+import { pathToFileURL } from 'node:url';
+import { requireSiblings, siblingGuardTest, locate } from './helpers/siblings.mjs';
 import SB3Creator from '../src/utils/sb3Creator.js';
 import cToPseudocode from '../src/utils/cToPseudocode.js';
 
 const EXAMPLES_DIR = join(import.meta.dirname, '..', 'examples');
+
+// The circuit.json wire check below reads endpoints, which arrive in two
+// dialects MIXED WITHIN ONE FILE. It used to carry a private reader for them
+// (`typeof w.from === 'string' ? w.from : w.from?.part || w.from?.board`) —
+// one of seven such copies, and copies of this rule are what produced the
+// 802-phantom-short scan and two exporters that wrote schematics with no nets
+// in them. bw-circuit-ui owns the format, so the reader comes from there.
+// Only the `circuit.json is valid` test gains the sibling dependency; it
+// skips locally without the checkout and CI clones it at the pinned revision.
+const cuiGate = requireSiblings('bw-circuit-ui');
+siblingGuardTest(cuiGate, 'the gallery circuit.json wire check');
+const { wireEndpoint } = cuiGate.skip ? {}
+    : await import(pathToFileURL(join(locate('bw-circuit-ui').path,
+        'src', 'model', 'wire-endpoints.js')).href);
 
 // Index-based circuit path lookup (WORE contract: discover via manifest, never by glob)
 const _index = JSON.parse(readFileSync(join(EXAMPLES_DIR, 'index.json'), 'utf8'));
@@ -146,7 +162,8 @@ describe('gallery: every example parses and compiles', () => {
 
         // Device-only examples (a micro:bit program is a self-contained board,
         // not a breadboard) carry no circuit.json — nothing to validate.
-        test(`${name}: circuit.json is valid`, { skip: !existsSync(circuitPath) }, () => {
+        test(`${name}: circuit.json is valid`,
+            { skip: cuiGate.skip || !existsSync(circuitPath) }, () => {
             assert.ok(existsSync(circuitPath), `${name}/circuit.json missing`);
             const circuit = JSON.parse(readFileSync(circuitPath, 'utf8'));
             // VCC is required for rail-powered circuits; battery/vsource/vcc-part circuits may omit the top-level vcc field.
@@ -166,12 +183,16 @@ describe('gallery: every example parses and compiles', () => {
                 assert.ok(Array.isArray(circuit.wires), 'has wires');
                 // Every wire references a part or board that exists.
                 for (const w of circuit.wires) {
-                    const fromId = typeof w.from === 'string' ? w.from : w.from?.part || w.from?.board;
-                    const toId = typeof w.to === 'string' ? w.to : w.to?.part || w.to?.board;
-                    assert.ok(fromId && (partIds.has(fromId) || w.from?.board),
-                        `wire from unknown part: ${JSON.stringify(w.from)}`);
-                    assert.ok(toId && (partIds.has(toId) || w.to?.board),
-                        `wire to unknown part: ${JSON.stringify(w.to)}`);
+                    for (const side of ['from', 'to']) {
+                        const e = wireEndpoint(w, side);
+                        assert.ok(e, `wire ${side} is unreadable in either dialect: ` +
+                            `${JSON.stringify(w[side])}`);
+                        // A hole endpoint names a breadboard, not a part; it is
+                        // legal and has nothing to look up in partIds.
+                        if (!e.part) continue;
+                        assert.ok(partIds.has(e.part),
+                            `wire ${side} unknown part: ${JSON.stringify(w[side])}`);
+                    }
                 }
             }
         });

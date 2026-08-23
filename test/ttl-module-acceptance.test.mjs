@@ -10,7 +10,8 @@ import assert from 'node:assert/strict';
 import { existsSync, readFileSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { resolve, dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
+import { requireSiblings, siblingGuardTest, locate } from './helpers/siblings.mjs';
 import { homedir, tmpdir } from 'node:os';
 import { mkdtempSync } from 'node:fs';
 
@@ -23,10 +24,23 @@ const hasJava = (() => { try { execFileSync('java', ['-version'], { stdio: 'pipe
 // external GPL tool. Run it deliberately: BW_TTL_ORACLE=1 npm test
 // (DIGITAL_JAR still overrides the jar location). CI and casual local runs
 // skip loudly instead of paying for it every time (owner request, 2026-08-18).
+// Every assertion below matches wires by `w.from`/`w.fromTerminal`, the FLAT
+// dialect. That is the dialect dig-to-circuit-v2.mjs happens to emit today —
+// nothing holds it there, and a switch to endpoint objects would turn every
+// one of these structural checks into a match against zero wires. So the
+// wires are normalized ONCE, on the way out of translate(), through
+// bw-circuit-ui's canonical reader rather than an eighth private copy of it.
+const cuiGate = requireSiblings('bw-circuit-ui');
+siblingGuardTest(cuiGate, 'the .dig module acceptance oracle');
+const { flatWire } = cuiGate.skip ? {}
+    : await import(pathToFileURL(join(locate('bw-circuit-ui').path,
+        'src', 'model', 'wire-endpoints.js')).href);
+
 const skipReason = !process.env.BW_TTL_ORACLE
     ? 'opt-in: set BW_TTL_ORACLE=1 to run the Digital.jar acceptance oracle'
     : (!hasJava || !existsSync(JAR)) ? 'Java or Digital.jar not available'
-    : !existsSync(circuitsDir) ? '8bitsim/circuits not cloned' : false;
+    : !existsSync(circuitsDir) ? '8bitsim/circuits not cloned'
+    : cuiGate.skip ? cuiGate.skip : false;
 
 function translate(digFile, setArgs = []) {
     const tmp = mkdtempSync(join(tmpdir(), 'mod-test-'));
@@ -36,7 +50,10 @@ function translate(digFile, setArgs = []) {
         join(circuitsDir, digFile), outJson,
         ...setArgs
     ], { stdio: 'pipe', timeout: 30000 });
-    return JSON.parse(readFileSync(outJson, 'utf8'));
+    const circuit = JSON.parse(readFileSync(outJson, 'utf8'));
+    // Flat shape from EITHER dialect, so the assertions below stay true of
+    // what the translator means rather than of how it spells it.
+    return { ...circuit, wires: (circuit.wires || []).map(flatWire) };
 }
 
 // ── PC module ─────────────────────────────────────────────────────

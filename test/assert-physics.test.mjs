@@ -64,12 +64,13 @@ siblingGuardTest(gate, 'the absolute-physics assertions');
 const ENGINE_SKIP = BOARD_URL && CUI_URL ? false
     : (gate.skip || 'needs bw-board + bw-circuit-ui (set BW_BOARD / BW_CIRCUIT_UI)');
 
-let BoardImpl, Circuit, setEngine;
+let BoardImpl, Circuit, setEngine, wireEndpoint;
 if (!ENGINE_SKIP) {
     ({ BoardImpl } = await import(new URL('src/board.js', BOARD_URL).href));
     const { inferNetlist, checkWiring } = await import(new URL('src/infer-netlist.js', BOARD_URL).href);
     ({ Circuit } = await import(new URL('src/model/circuit.js', CUI_URL).href));
     ({ setEngine } = await import(new URL('src/engine.js', CUI_URL).href));
+    ({ wireEndpoint } = await import(new URL('src/model/wire-endpoints.js', CUI_URL).href));
     // Register EVERY device model. Hand-listing four of them is how this test
     // spent months reporting "no circuit file" for circuits that were present
     // and fine: a 555, a 74HC00 or an SSD1306 failed netlist validation as
@@ -486,9 +487,15 @@ function solveCircuit(name, atMs = 1) {
     // Filter visual-only
     const visualIds = new Set(data.parts.filter(p => VISUAL_ONLY.has(p.kind)).map(p => p.id));
     data.parts = data.parts.filter(p => !VISUAL_ONLY.has(p.kind));
+    // Through the ONE canonical dialect reader. Keying on `typeof w.from ===
+    // 'string'` saw only the flat dialect, so every NESTED wire to a
+    // visual-only part survived the filter that had just removed the part —
+    // and 1,039 of the 2,096 shipped circuit files are nested.
     data.wires = (data.wires || []).filter(w =>
-        !(typeof w.from === 'string' && visualIds.has(w.from)) &&
-        !(typeof w.to === 'string' && visualIds.has(w.to)));
+        !['from', 'to'].some((side) => {
+            const e = wireEndpoint(w, side);
+            return e && e.part && visualIds.has(e.part);
+        }));
 
     const circuit = Circuit.fromJSON(data);
     const board = circuit.board;

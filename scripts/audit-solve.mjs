@@ -33,18 +33,34 @@ const { registerAllDevices } = await import(join(BOARD, 'src', 'register-all.js'
 registerAllDevices();
 
 const doc = JSON.parse(readFileSync(join(HERE, '..', 'examples', id, 'circuit.json'), 'utf8'));
-// Normalize wire format: some examples use {from: {part, terminal}, to: {board, hole}}
-// instead of {from: "partId", fromTerminal: "t", to: "partId", toTerminal: "t"}.
+// Normalize both wire dialects to the flat {from, fromTerminal, to, toTerminal}
+// the union-find below speaks, with a breadboard treated as a part whose
+// "terminals" are its holes.
+//
+// This branched on `typeof w.from === 'object'` and converted BOTH sides on
+// that one test. A wire that is flat on `from` and nested on `to` — the mixed
+// shape that appears WITHIN single files in this corpus — fell through
+// untouched, and `key(w.to, w.toTerminal)` then keyed on the string
+// "[object Object] undefined": every such endpoint became THE SAME node, so
+// every supply met every ground. That is the defect that made a corpus scan
+// report 802 phantom shorts, and this is an audit harness whose entire job is
+// producing node voltages an auditor will trust. One canonical reader instead.
+const { wireEndpoint, isBoardEndpoint } = await import(
+    join(process.env.BW_CIRCUIT_UI || join(homedir(), 'code', 'bw-circuit-ui'),
+        'src', 'model', 'wire-endpoints.js'));
 const rawWires = doc.wires || [];
-const wires = rawWires.map((w) => {
-    if (typeof w.from === 'object') {
-        const fromPart = w.from.part;
-        const fromTerminal = w.from.terminal;
-        const toPart = w.to.part || w.to.board;
-        const toTerminal = w.to.terminal || w.to.hole;
-        return { ...w, from: fromPart, fromTerminal, to: toPart, toTerminal };
-    }
-    return w;
+const endpointSide = (e) => isBoardEndpoint(e)
+    ? { id: e.board || e.boardId, term: e.hole }
+    : { id: e.part, term: e.terminal };
+const wires = rawWires.flatMap((w) => {
+    const f = wireEndpoint(w, 'from');
+    const t = wireEndpoint(w, 'to');
+    // An endpoint neither dialect can read is DROPPED, never keyed: a wire the
+    // reader cannot resolve must become a missing connection an auditor can
+    // see, not a phantom node that silently merges half the circuit.
+    if (!f || !t) { console.error(`  ! dropped unreadable wire ${w.id || '(unnamed)'}`); return []; }
+    const a = endpointSide(f); const b = endpointSide(t);
+    return [{ ...w, from: a.id, fromTerminal: a.term, to: b.id, toTerminal: b.term }];
 });
 
 const KIND_ALIASES = { '74hc595': 'shift_register', pot: 'potentiometer' };

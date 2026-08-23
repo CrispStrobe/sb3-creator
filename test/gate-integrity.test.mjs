@@ -44,8 +44,11 @@ siblingGuardTest(gate, 'gate integrity');
 const NOT_A_CROSS_REPO_GATE = new Map([
     ['gate-integrity.test.mjs',
      'this file — its own prose names the siblings, and its cross-repo half already uses the guard'],
-    ['circuit-json-roundtrip.test.mjs',
-     'a comment saying the Circuit-model test belongs in bw-circuit-ui; no sibling is read'],
+    ['wire-endpoint-adoption.test.mjs',
+     'a GREP over this repo\'s own files for hand-rolled wire-endpoint dialect readers. ' +
+     'It names bw-circuit-ui because that is where the one canonical reader lives, but it ' +
+     'imports nothing and reads no sibling: gating it would silence the check that keeps ' +
+     'the siblings\' single reader single'],
     ['device-coverage.test.mjs',
      'reads bw-board\'s kinds when present and otherwise falls back to a committed snapshot, ' +
      'putting "(snapshot)" in the TEST NAME so a green run cannot be mistaken for the real check ' +
