@@ -97,8 +97,11 @@ jobs:
 
       - name: Unit + VM tests
         run: npm test
-        # Raised from 5: the cross-repo gates now actually run.
-        timeout-minutes: 20
+        # Raised from 5: the cross-repo gates now actually run. Raised again to
+        # 30 alongside the per-file --test-timeout, because gallery-e2e alone is
+        # a four-minute file on a developer box (measured 242 s, 45/45) and this
+        # runner is slower; 20 left no room for the rest of the suite behind it.
+        timeout-minutes: 30
         env:
           BW_BOARD: ${{ github.workspace }}/siblings/bw-board
           BW_CIRCUIT_UI: ${{ github.workspace }}/siblings/bw-circuit-ui
