@@ -298,17 +298,33 @@ arithmetic was right, and it was about the wrong quantity. That failure mode doe
 not announce itself, and the only thing that caught it was running the suite on a
 machine slow enough to trip the bound.
 
-## Two probes that are owed, and are not being written up as clean
+## The two owed probes, delivered
 
-`gallery.test.mjs:225` (`entry.difficulty <= 5`) and `gallery-e2e.test.mjs:567`
-(`tone.hz < 480`) were probed against the **stale rig** and returned UNTESTABLE.
-That verdict has been retracted — `gallery.test.mjs` is green on the current pins,
-so the "already red" was `wireEndpoint is not a function` from the old
-`bw-circuit-ui`. But neither ceiling has been **re-probed**, so whether either can
-fire is currently unknown, and unknown is what this document says rather than
-inferring it from the retraction. `node scripts/threshold-probe.mjs --file
-test/gallery-e2e.test.mjs --line 567 --margin` closes it, on a rig that matches the
-pins — which the probe now enforces.
+Recorded as owed in the previous wave: both had been probed against a **stale rig**
+(pins `d754cfc` → `b5761ad` had moved in a merge) and returned `UNTESTABLE`. That
+verdict was retracted then; retracting "already red" does not entitle anyone to
+write "fine", so they stayed open. Re-probed against the current pins
+(`bw-board@dcaf05f`, `bw-circuit-ui@0a3ec00`), on a rig the probe now refuses to run
+on unless it matches:
+
+```
+CAN-FIRE   test/gallery.test.mjs:225      floor=1    entry.difficulty >= 1
+     margin: green up to 1, red from 2 -> observed 1, headroom 0%
+CAN-FIRE   test/gallery.test.mjs:225      ceiling=5  entry.difficulty <= 5
+     margin: green up to 4, red from 3 -> observed 4, headroom 20%
+CAN-FIRE   test/gallery-e2e.test.mjs:567  floor=400  tone.hz > 400
+CAN-FIRE   test/gallery-e2e.test.mjs:567  ceiling=480 tone.hz < 480
+```
+
+All four fire. Two things worth keeping from the margins: `entry.difficulty` runs
+**1–4** across the gallery, so the declared 1–5 range has an unused slot at the top —
+the ceiling is honest but the corpus has never used its full width; and the floor at
+1 has **zero headroom**, which is correct for a scale whose bottom is defined rather
+than measured.
+
+`gallery-e2e:567` was probed without `--margin`: that file is roughly four minutes
+per run against the pinned siblings, and a binary search over it costs more than the
+answer is worth. `CAN-FIRE` is the question that was owed.
 
 ---
 
