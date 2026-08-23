@@ -35,9 +35,20 @@ sind identisch — sie zeigen, was die Variablen enthalten.
 
 ## Andere Lego-Hubs
 
-Dieses Bedienfeld ist fuer den Spike Prime gebaut, aber dasselbe Muster
-gilt fuer jeden Lego-Hub — sie unterscheiden sich in Matrixgroesse und
-Sensorausstattung, nicht im Modell. Um ein Bedienfeld fuer einen anderen
-Hub zu erstellen: dieses Beispiel klonen, Matrixgroesse anpassen (oder
-entfernen fuer Hubs ohne Gitter) und die Anzeigen an die Sensoren des
-jeweiligen Hubs anpassen.
+Jeder Lego-Hub ist ein eigenstaendiges Geraet, keine Variante dieses einen:
+sie unterscheiden sich in der Anzeige-Hardware, und darum braucht jeder sein
+eigenes Bedienfeld statt einer Umfaerbung des Spike-Prime-Felds. Alle fuenf
+werden inzwischen mitgeliefert:
+
+| Hub | Anzeige | Erweiterung | Bedienfeld |
+|-----|---------|-------------|------------|
+| **Spike Prime / Robot Inventor** | 5x5-LED-Matrix | `spikeprime` | dieses Beispiel (`matrix` + 3x `gauge`) |
+| **EV3** | 178x128 Mono-LCD | `ev3comprehensive` | `ev3-faceplate` (`mono_lcd` + 3x `button`) |
+| **NXT** | 100x64 Mono-LCD | `legonxt` | `nxt-faceplate` (`mono_lcd` + 3x `button`) |
+| **WeDo 2.0** | RGB-Statuslicht | `wedo2unified` | `wedo2-faceplate` (`rgb_light` + 2x `slider`) |
+| **Boost / Powered Up** | RGB-Statuslicht | `legoboostunified` | `boost-faceplate` (`rgb_light` + `slider`) |
+
+Geteilt wird das *Geruest* — Variablenbindung, die Widget-Pumpe und das
+Format `controller.json` — nicht der Widget-Satz. Jeder Hub bekommt sein
+eigenes Beispiel auf diesem Geruest, mit den Widgets, die seine Anzeige
+wirklich hat.

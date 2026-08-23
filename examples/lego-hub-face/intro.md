@@ -36,18 +36,18 @@ whatever the variables hold, regardless of how those variables are set.
 
 ## Other Lego hubs
 
-This faceplate is built for the Spike Prime, but the same pattern
-extends to every Lego hub — they differ in matrix size and sensor set,
-not in the model:
+Each Lego hub is a genuinely different device, not a variant of this one:
+they differ in display hardware, so each needs its own faceplate rather
+than a reskin of the Spike Prime's. All five now ship:
 
-| Hub | Matrix | Typical sensors |
-|-----|--------|-----------------|
-| **Spike Prime / Robot Inventor** | 5x5 | distance, colour, force, gyro |
-| **EV3** | none (LCD status) | ultrasonic, colour, gyro, touch |
-| **Boost / Powered Up** | none (status LED) | colour+distance combo, tilt |
-| **WeDo 2.0** | none (status LED) | tilt, distance |
-| **NXT** | none (LCD status) | ultrasonic, light, sound, touch |
+| Hub | Display | Extension | Faceplate |
+|-----|---------|-----------|-----------|
+| **Spike Prime / Robot Inventor** | 5x5 LED matrix | `spikeprime` | this example (`matrix` + 3 `gauge`) |
+| **EV3** | 178x128 mono LCD | `ev3comprehensive` | `ev3-faceplate` (`mono_lcd` + 3 `button`) |
+| **NXT** | 100x64 mono LCD | `legonxt` | `nxt-faceplate` (`mono_lcd` + 3 `button`) |
+| **WeDo 2.0** | RGB status light | `wedo2unified` | `wedo2-faceplate` (`rgb_light` + 2 `slider`) |
+| **Boost / Powered Up** | RGB status light | `legoboostunified` | `boost-faceplate` (`rgb_light` + `slider`) |
 
-To make a faceplate for another hub, clone this example and adjust the
-matrix size (or remove it for hubs without a grid) and swap the gauge
-set to match that hub's sensors. The variable-binding pattern is identical.
+What is shared is the *framework* — variable binding, the widget pump, and
+the `controller.json` format — not the widget set. Each hub gets its own
+example on that framework with the widgets its display actually has.
