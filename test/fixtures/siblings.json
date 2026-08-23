@@ -12,12 +12,12 @@
     },
     "bw-circuit-ui": {
       "repo": "CrispStrobe/bw-circuit-ui",
-      "rev": "90161eb5f60c8a6206b9604464feffd5c9854ad1",
+      "rev": "0a3ec00e848e67615eef19ff8642b86bf533780c",
       "marker": "src/model/circuit.js",
       "licence": "MPL-2.0",
       "why": "the canonical circuit model, engine, and the ONE wire-endpoint dialect reader (src/model/wire-endpoints.js) the corpus gates read circuit.json through",
       "pinnedOn": "2026-08-23",
-      "revShort": "90161eb"
+      "revShort": "0a3ec00"
     }
   }
 }
