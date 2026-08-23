@@ -1228,7 +1228,7 @@
       "intro": "33-inductive-no-flyback/intro.md",
       "introDE": "33-inductive-no-flyback/intro.de.md"
     },
-    "kind": "program",
+    "kind": "full",
     "tier": "arch",
     "devices": [
       "stc12c5a60s2"
