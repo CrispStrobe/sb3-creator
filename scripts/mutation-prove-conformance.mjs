@@ -428,11 +428,13 @@ const MUTATIONS = [
         expect: /CI read the snapshot device list|is not looking at the engine/
     },
     {
-        name: 'a gate loses the floor under its corpus',
+        name: 'a gate loses the floor under its corpus (the screen catches it)',
         why: 'the floors are the whole wave-2 repair; without the detector they can be ' +
              'deleted one at a time and every gate stays green over nothing',
         apply () {
-            const f = join(ROOT, 'test', 'exec.test.mjs');
+            // transparency.test.mjs, because its corpusFloor is its ONLY floor.
+            // See the mutation below for why that qualifier is load-bearing.
+            const f = join(ROOT, 'test', 'transparency.test.mjs');
             save(f);
             const before = readFileSync(f, 'utf8');
             const text = before.replace(/^corpusFloor\([\s\S]*?\);$/m, '');
@@ -441,6 +443,45 @@ const MUTATIONS = [
         },
         run: () => runGate([join(ROOT, 'test', 'gate-integrity.test.mjs')]),
         expect: /asserts no minimum on it|opens a corpus without a measured floor/
+    },
+    {
+        name: 'a gate loses the floor under its corpus but keeps an unrelated one ' +
+              '(only the starve catches it)',
+        why: 'THE SCREEN CANNOT SEE THIS, and pretending otherwise is the whole failure ' +
+             'mode. exec.test.mjs also asserts logs.filter(…).length === 2 in an unrelated ' +
+             'test, so the file stays "floored" while its corpus is not. This mutation ' +
+             'exists to keep that division of labour honest: it must be MISSED by ' +
+             'gate-integrity and CAUGHT by starve-gate, and if either half ever changes, ' +
+             'the claim in docs/GATE-INVENTORY.md is stale and this goes red.',
+        apply () {
+            const f = join(ROOT, 'test', 'exec.test.mjs');
+            save(f);
+            const before = readFileSync(f, 'utf8');
+            const text = before.replace(/^corpusFloor\([\s\S]*?\);$/m, '');
+            if (text === before) throw new Error('mutation was a no-op — no corpusFloor call matched');
+            writeFileSync(f, text);
+        },
+        run: async () => {
+            const screen = runGate([join(ROOT, 'test', 'gate-integrity.test.mjs')]);
+            if (screen.red) {
+                return { red: false, out: 'the screen caught it — docs/GATE-INVENTORY.md claims it cannot; update the claim' };
+            }
+            // Now the authority, on the same mutated tree.
+            const { starve } = await import(pathToFileURL(join(ROOT, 'scripts', 'starve-gate.mjs')).href);
+            const r = starve({
+                gate: 'test/exec.test.mjs',
+                why: 'proving the starve covers what the screen misses',
+                mechanism: 'module',
+                target: 'src/utils/examples.js',
+                stub: 'export default {};\n'
+            });
+            return {
+                red: r.verdict === 'RED',
+                out: `screen: GREEN (expected) | starve: ${r.verdict} ` +
+                     `(${r.before.tests} tests -> ${r.after.tests} tests)`
+            };
+        },
+        expect: /starve: RED/
     },
     {
         name: 'a corpus waiver outlives the file it names',
@@ -539,8 +580,23 @@ const base = runGate();
 if (base.red) { console.error('\nFAIL: the gate is already red before any mutation.'); process.exit(1); }
 console.log('\nBaseline: gate is GREEN\n');
 
+// `--only <substring>` runs a subset. Added because a full pass is 26 mutations,
+// each a full run of five gates, and on a contended box that is hours — long
+// enough that people stop running it, which is how a prover quietly stops being
+// evidence. CI still runs the whole set; this is for proving one repair.
+const ONLY = (() => {
+    const i = process.argv.indexOf('--only');
+    return i >= 0 ? process.argv[i + 1] : null;
+})();
+const SELECTED = ONLY ? MUTATIONS.filter((m) => m.name.includes(ONLY)) : MUTATIONS;
+if (ONLY && !SELECTED.length) {
+    console.error(`--only ${ONLY} matched none of the ${MUTATIONS.length} mutations`);
+    process.exit(2);
+}
+if (ONLY) console.log(`--only ${ONLY}: ${SELECTED.length} of ${MUTATIONS.length} mutations\n`);
+
 let failures = 0;
-for (const m of MUTATIONS) {
+for (const m of SELECTED) {
     let result;
     try {
         if (m.apply) m.apply();
@@ -555,7 +611,7 @@ for (const m of MUTATIONS) {
         // not evidence of robustness. So verify the environment really produced
         // the state the mutation is about before believing the verdict.
         if (m.expectVisibility) assertVisibility(m.env, m.expectVisibility, m.name);
-        result = m.run ? m.run() : runGate();
+        result = m.run ? await m.run() : runGate();
     } finally {
         if (m.restore) m.restore();
         restoreAll();
@@ -577,5 +633,6 @@ for (const m of MUTATIONS) {
 const after = runGate();
 if (after.red) { console.error('\nFAIL: the tree was not restored — the gate is red after the run.'); process.exit(1); }
 console.log(`\nRestored: gate is GREEN again`);
-console.log(`${MUTATIONS.length - failures}/${MUTATIONS.length} mutations caught`);
+console.log(`${SELECTED.length - failures}/${SELECTED.length} mutations caught` +
+    (ONLY ? ` (--only ${ONLY}; ${MUTATIONS.length} exist)` : ''));
 process.exit(failures === 0 ? 0 : 1);

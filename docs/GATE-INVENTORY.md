@@ -373,20 +373,40 @@ The subtest counts are the instrument check: the corpus demonstrably went away.
 ## Mutation proof
 
 `scripts/mutation-prove-conformance.mjs` went from **20 mutations over 4 gates** to
-**26 over 5**. The six added:
+**27 over 5**. Each of the seven added was run and is shown catching its defect.
 
-| mutation | the gate that must catch it |
-|---|---|
-| `ci.yml` pins a sibling by abbreviated SHA — *and* `siblings.json` is abbreviated to match, so the "the two agree" test is not what fires | `every pinned checkout ref is a ref actions/checkout can actually fetch` |
-| CI reads the committed device snapshot instead of the checked-out engine | `the engine surface is the live one, not the snapshot` |
-| a gate loses the floor under its corpus | `no gate opens a corpus without a measured floor under it` |
-| a corpus waiver outlives the file it names | the same, stale-waiver half |
-| the vacuity screen stops recognising corpus-driven gates | the same, yield assertion |
-| the examples corpus arrives empty, by import-path swap | the `corpus floor:` tests |
+| mutation | the instrument that must catch it | result |
+|---|---|---|
+| `ci.yml` pins a sibling by abbreviated SHA — *and* `siblings.json` is abbreviated to match, so the "the two agree" test is not what fires | `every pinned checkout ref is a ref actions/checkout can actually fetch` | `RED` |
+| CI reads the committed device snapshot instead of the checked-out engine | `the engine surface is the live one, not the snapshot` | `RED` |
+| a gate loses the floor under its corpus — in a file where that floor is the only one | `no gate opens a corpus without a measured floor under it` | `RED` |
+| a gate loses the floor under its corpus **but keeps an unrelated one** | the **starve**, not the screen | `RED` |
+| a corpus waiver outlives the file it names | the same gate, stale-waiver half | `RED` |
+| the vacuity screen stops recognising corpus-driven gates | the same gate, yield assertion | `RED` |
+| the examples corpus arrives empty, by import-path swap | the `corpus floor:` tests | `RED` |
 
-The last one carries its own instrument check inside the mutation: if
-`BW_STARVE: swapped` is absent from the output, the red is thrown away rather than
-scored, because a red run that never loaded the stub proves something else.
+Two of these are worth reading closely.
+
+**The fourth exists because the third was a MISS.** The first draft removed
+`exec.test.mjs`'s `corpusFloor` and expected the screen to notice. It did not, and
+suspecting the mutation was wrong: the mutation was correct and the *gate* has the
+file-granular blind spot documented above — `exec` keeps an unrelated
+`assert.equal(logs.filter(…).length, 2)`, so the file stays "floored". Rather than
+retarget the mutation and move on, the division of labour is now itself
+mutation-proven: one mutation requires the screen to catch it, and a second
+requires the screen to **miss** it and the starve to catch it. If either half ever
+changes — the screen gets smarter, or the starve stops covering `exec` — the claim
+in this document is stale and the prover goes red saying so.
+
+**The last one carries its instrument check inside the mutation.** If
+`BW_STARVE: swapped` is absent from the output, the red is discarded rather than
+scored, because a red run that never loaded the stub proves something else
+entirely.
+
+`--only <substring>` runs a subset. A full pass is 27 mutations, each a full run of
+five gates; on a box at load 21 one mutation's twelve cross-repo gates ran past ten
+minutes. CI still runs the whole set — this is for proving one repair without
+waiting hours, because a prover nobody runs stops being evidence.
 
 ---
 
