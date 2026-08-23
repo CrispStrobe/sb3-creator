@@ -184,6 +184,21 @@ function parseAssertions(mdText) {
                 continue;
             }
 
+            // buzzer_tone_hz: <value> [+- <tol>[%]] — a 555 astable's frequency
+            const toneMatch = trimmed.match(
+                /^buzzer_tone_hz\s*:\s*([\d.]+)\s*(?:(?:\+-|±)\s*([\d.]+)(%?))?$/);
+            if (toneMatch) {
+                const expected = parseFloat(toneMatch[1]);
+                const rawTol = toneMatch[2] === undefined ? null : parseFloat(toneMatch[2]);
+                assertions.push({
+                    kind: 'tone-555', expected,
+                    tolerance: rawTol === null ? expected * 0.02
+                        : (toneMatch[3] === '%' ? expected * rawTol / 100 : rawTol),
+                    raw: trimmed
+                });
+                continue;
+            }
+
             // Unknown assertion kind — explicit skip
             assertions.push({ kind: 'unknown', raw: trimmed });
         }
@@ -230,6 +245,85 @@ function loopPeriodMs(exampleName) {
  * topology is reported, because a wrong reading here would be indistinguishable
  * from a passing check.
  */
+/**
+ * The oscillation frequency of a 555 wired as an astable, read from TOPOLOGY.
+ *
+ *   f = 1.44 / ((R1 + 2*R2) * C)
+ *
+ * R1 runs supply -> DISCHARGE, R2 runs DISCHARGE -> THRESHOLD, C runs
+ * THRESHOLD -> ground. The astable is told apart from the monostable by that
+ * middle resistor: a monostable ties DISCHARGE and THRESHOLD to one net, an
+ * astable separates them with R2. So the two readers cannot be confused for
+ * each other by accident, which matters because both appear in this corpus.
+ *
+ * Returns {ok:true, hz, ...} or {ok:false, reason}. Never guesses.
+ */
+function astable555Hz(circuit) {
+    const parts = circuit.parts || [];
+    const timer = parts.find(p => /555/i.test(String(p.kind || '')));
+    if (!timer) return { ok: false, reason: 'no 555 in the circuit' };
+
+    const nets = circuit.resolvedNets || [];
+    if (!nets.length) return { ok: false, reason: 'circuit resolved to no nets' };
+    const terms = (net) => (net.terminals || net.members || net);
+    const idOf = (t) => typeof t === 'string' ? t.split(':')[0] : (t && (t.part || t.partId));
+    const trmOf = (t) => typeof t === 'string' ? t.split(':')[1] : (t && t.terminal);
+    const netOf = (partId, terminal) => {
+        for (let i = 0; i < nets.length; i++)
+            for (const t of terms(nets[i]))
+                if (idOf(t) === partId && String(trmOf(t)) === terminal) return i;
+        return -1;
+    };
+
+    const dis = netOf(timer.id, 'discharge');
+    const thr = netOf(timer.id, 'threshold');
+    if (dis < 0 || thr < 0) return { ok: false, reason: 'DISCHARGE or THRESHOLD is not wired' };
+    if (dis === thr) return { ok: false, reason: 'DISCHARGE and THRESHOLD share a net — that is a monostable, not an astable' };
+
+    const kindOf = new Map(parts.map(p => [p.id, String(p.kind || '')]));
+    const supplyNets = new Set(), groundNets = new Set();
+    nets.forEach((net, i) => {
+        for (const t of terms(net)) {
+            const k = kindOf.get(idOf(t)) || '';
+            if (/^(vcc|vdd|v\+|supply)$/i.test(k)) supplyNets.add(i);
+            if (/^(gnd|ground|vss)$/i.test(k)) groundNets.add(i);
+        }
+    });
+
+    const legs = (p) => ['a', 'b'].map(t => netOf(p.id, t));
+    const res = parts.filter(p => /resistor/i.test(String(p.kind || '')));
+    // R1 runs supply -> DISCHARGE, but the supply may be GATED: pc75-alarmgeber
+    // is an alarm, so its rail reaches R1 through a button. One hop through a
+    // two-terminal SWITCHING element counts; a hop through anything else does
+    // not, because "any path to the supply" would match half the circuit and
+    // stop being a topology check at all.
+    const SWITCHING = /^(button|switch|spst|spdt|toggle|relay|reed|pushbutton)$/i;
+    const supplyish = new Set(supplyNets);
+    for (const p of parts) {
+        if (!SWITCHING.test(String(p.kind || ''))) continue;
+        const [a, b] = legs(p);
+        if (a >= 0 && b >= 0) {
+            if (supplyNets.has(a)) supplyish.add(b);
+            if (supplyNets.has(b)) supplyish.add(a);
+        }
+    }
+    const r1 = res.find(p => { const [a, b] = legs(p);
+        return (a === dis && supplyish.has(b)) || (b === dis && supplyish.has(a)); });
+    if (!r1) return { ok: false, reason: 'no resistor from the supply to DISCHARGE (R1), even through a switch' };
+    const r2 = res.find(p => { const [a, b] = legs(p);
+        return (a === dis && b === thr) || (b === dis && a === thr); });
+    if (!r2) return { ok: false, reason: 'no resistor between DISCHARGE and THRESHOLD (R2)' };
+    const c = parts.filter(p => /capacitor/i.test(String(p.kind || '')))
+        .find(p => { const [a, b] = legs(p);
+            return (a === thr && groundNets.has(b)) || (b === thr && groundNets.has(a)); });
+    if (!c) return { ok: false, reason: 'no capacitor from THRESHOLD to ground' };
+
+    const R1 = Number(r1.params?.ohms), R2 = Number(r2.params?.ohms), C = Number(c.params?.farads);
+    if (!(R1 > 0) || !(R2 > 0) || !(C > 0))
+        return { ok: false, reason: `R1=${R1} R2=${R2} C=${C} — not usable values` };
+    return { ok: true, hz: 1.44 / ((R1 + 2 * R2) * C), r1: r1.id, r2: r2.id, c: c.id, R1, R2, C };
+}
+
 function monostable555Ms(circuit) {
     const parts = circuit.parts || [];
     const timer = parts.find(p => /555/i.test(String(p.kind || '')));
@@ -466,6 +560,19 @@ describe('absolute-physics assertions', { skip: ENGINE_SKIP }, () => {
                             `${a.key} claims ${a.expected} ms +-${a.tolerance}, but the program waits ` +
                             `${p.ms} ms (off by ${delta}). Either the program changed and EXPECTED.md ` +
                             `was not updated, or the claim was wrong when written.`);
+                    });
+                    continue;
+                }
+
+                if (a.kind === 'tone-555') {
+                    test(`buzzer_tone_hz = ${a.expected} +-${a.tolerance.toFixed(2)} (1.44/((R1+2R2)C))`, () => {
+                        assert.ok(!circuitFail, circuitFail);
+                        const f = astable555Hz(solved.circuit);
+                        assert.ok(f.ok, `${name}: cannot read the 555 astable network — ${f.reason}`);
+                        const delta = Math.abs(f.hz - a.expected);
+                        assert.ok(delta <= a.tolerance,
+                            `buzzer_tone_hz claims ${a.expected} Hz, but 1.44/((${f.r1}=${f.R1} + 2*${f.r2}=${f.R2}) * ` +
+                            `${f.c}=${f.C} F) = ${f.hz.toFixed(2)} Hz (off by ${delta.toFixed(2)})`);
                     });
                     continue;
                 }
