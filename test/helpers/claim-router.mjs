@@ -90,8 +90,7 @@ function unsettable (ctx) {
     // honouring one means scripting control changes against the clock.
     if (/--set@|--set\s|\bthen\s+(at|close|open)\b|\bstep it\b|\bstepped\b/i.test(ctx))
         return 'the operating point is a SEQUENCE of control changes against the clock (the document states it as an audit-solve --set invocation), and this gate solves at one point rather than scripting a run';
-    if (/v_?ce|saturat/i.test(ctx))
-        return "the engine's BJT model is a linearised beta source with no saturation region, so a V_CE(sat) is not a quantity it produces";
+
     if (/sound[ _-]?(module|level)|\bAO\b|microphone/i.test(ctx))
         return 'the operating point is a sound level, and no control channel sets one';
     if (/\bpwm\b|duty cycle/i.test(ctx))
