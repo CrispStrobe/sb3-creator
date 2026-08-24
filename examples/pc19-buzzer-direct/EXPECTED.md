@@ -34,3 +34,12 @@ has its own oscillator inside, so connecting it to DC is all it takes.
 net vsource_1.pos V 5.00 +-0.01
 net resistor_2.b V 2.50 +-0.10
 ```
+
+<!-- engine-provenance -->
+> **Engine provenance.** The measured numbers on this page were last held against
+> `bw-board@88e9668` and `bw-circuit-ui@410f8ce` — the revisions pinned in
+> `test/fixtures/siblings.json`. `test/expected-quantities-hold.test.mjs` compares
+> **5 of this page's 11** numeric claims against that engine
+> (0 of them disagreeing) and declines the rest with a stated reason;
+> `node scripts/expected-claim-census.mjs pc19-buzzer-direct` prints them one by one.
+<!-- engine-provenance -->

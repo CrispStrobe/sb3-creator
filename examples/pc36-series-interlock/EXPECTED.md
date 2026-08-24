@@ -21,3 +21,12 @@ few millivolts left on the branch are the switch model's leakage, not a path —
 # Series switches both closed: 5V reaches R+LED, I = (5-2.03)/1k = 2.97mA
 net src.pos V 5.00 +-0.01
 ```
+
+<!-- engine-provenance -->
+> **Engine provenance.** The measured numbers on this page were last held against
+> `bw-board@88e9668` and `bw-circuit-ui@410f8ce` — the revisions pinned in
+> `test/fixtures/siblings.json`. `test/expected-quantities-hold.test.mjs` compares
+> **4 of this page's 12** numeric claims against that engine
+> (0 of them disagreeing) and declines the rest with a stated reason;
+> `node scripts/expected-claim-census.mjs pc36-series-interlock` prints them one by one.
+<!-- engine-provenance -->

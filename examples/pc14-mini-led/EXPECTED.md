@@ -43,3 +43,12 @@ identical; only the column number changed.
 # 5V -> 470R -> LED: I = 6.25mA, LED anode ~ 2.06V
 net vsource_2.pos V 5.00 +-0.01
 ```
+
+<!-- engine-provenance -->
+> **Engine provenance.** The measured numbers on this page were last held against
+> `bw-board@88e9668` and `bw-circuit-ui@410f8ce` — the revisions pinned in
+> `test/fixtures/siblings.json`. `test/expected-quantities-hold.test.mjs` compares
+> **6 of this page's 10** numeric claims against that engine
+> (0 of them disagreeing) and declines the rest with a stated reason;
+> `node scripts/expected-claim-census.mjs pc14-mini-led` prints them one by one.
+<!-- engine-provenance -->

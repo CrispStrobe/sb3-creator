@@ -24,7 +24,8 @@ Letter gap = 3 units off. Word gap = 7 units off.
 
 - **LED current (when on):** (5.0 - 2.0) / 470 = 6.4 mA
 - **Cycle period:** 6.6 seconds per SOS sequence
-- **Duty cycle:** approximately 36% (2.4 s on out of 6.6 s)
+- **Duty cycle:** 45.5% (3.0 s lit out of 6.6 s — three dots at 0.2 s, three
+  dashes at 0.6 s, three dots at 0.2 s)
 - **Voltage across resistor (when on):** 6.4 mA x 470 = 3.0 V
 
 ## What this verifies
