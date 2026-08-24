@@ -63,6 +63,20 @@ const NOT_A_CROSS_REPO_GATE = new Map([
      'Gating it on a checkout would make a filesystem check skip for no reason']
 ]);
 
+// Waived, each with the reason it is not the shape above. A waiver here
+// must say why an EMPTY corpus would still be caught, not merely that the
+// corpus is unlikely to empty.
+const WAIVED = new Map([
+    ['test/authored-transform.test.mjs',
+        'iterates bench.parts, but every case first asserts census[kind] === 1 on ' +
+        'both the authored and transformed bench — an empty parts array fails there ' +
+        'before the loop is reached.'],
+    ['test/block-lowering.test.mjs',
+        'iterates DEVICES_NO_C, a WAIVER set. Its assertion is "nothing in this gap ' +
+        'list already has a C lowering", so an empty set is the goal state, not a ' +
+        'blind spot. A floor here would forbid finishing the work.']
+]);
+
 describe('gate integrity: a suite cannot skip itself into silence', () => {
     // ---------------------------------------------------------------------
     // The pins CI checks out must be the pins the tests expect. These live in
@@ -76,7 +90,7 @@ describe('gate integrity: a suite cannot skip itself into silence', () => {
     // handed the result to `skip:`, and all fifteen skipped in CI forever. A new
     // file that reintroduces that shape is the regression this catches.
     // ---------------------------------------------------------------------
-    test('every cross-repo test routes its skip through the shared sibling guard', () => {
+    test(`every cross-repo test routes its skip through the shared sibling guard (${NOT_A_CROSS_REPO_GATE.size} files classified not-cross-repo)`, () => {
         const stripComments = (src) => src
             .replace(/\/\*[\s\S]*?\*\//g, ' ')
             .split('\n').map((l) => l.replace(/(^|[^:"'`\\])\/\/.*$/, '$1')).join('\n');
@@ -191,6 +205,138 @@ describe('gate integrity: a suite cannot skip itself into silence', () => {
         }
     });
 
+    test('every `uses:` in ci.yml names a 40-hex action sha, not a movable tag', () => {
+        // THE SAME DEFECT AS THE BLACKOUT, ON THE OTHER HALF OF THE FILE.
+        //
+        // The test above proves the two SIBLING checkouts are pinned to commits.
+        // It says nothing about the eleven `uses:` lines, and those were all
+        // movable tags: actions/checkout@v4, setup-node@v4, deploy-pages@v4.
+        //
+        // `@v4` is a branch-like tag the publisher REPOINTS. So a run that was
+        // green last week and a run that is green today can have executed
+        // different code with nothing in this repo recording which — and the
+        // green line says "Lint · test · build" either way. That is the whole
+        // class this audit is about: a well-formed claim about what was
+        // verified, where the thing named is not the thing fetched.
+        //
+        // It is also the supply-chain hole GitHub's own hardening guide names:
+        // whoever can move `v4` can run code in a job holding this repo's
+        // `pages: write` and `id-token: write` permissions.
+        //
+        // Keep the human-readable version in the trailing comment. The comment
+        // is prose and may drift; the sha is what runs.
+        const workflow = readFileSync(join(SB3, '.github', 'workflows', 'ci.yml'), 'utf8');
+        const uses = [...workflow.matchAll(/uses:\s*(\S+)/g)].map((m) => m[1]);
+
+        // The instrument before the subject. An empty list is indistinguishable
+        // from a clean sweep, and this scan is one regex away from matching
+        // nothing at all.
+        assert.ok(uses.length >= 11,
+            `only ${uses.length} \`uses:\` lines found in ci.yml, expected at least 11 — the ` +
+            'scan stopped matching and the assertion below would report a clean sweep over ' +
+            'nothing. Fix the pattern before trusting a green run here.');
+
+        const unpinned = uses.filter((u) => !/@[0-9a-f]{40}$/.test(u));
+        assert.deepEqual(unpinned, [],
+            'these workflow steps use a MOVABLE ref. A tag like `@v4` is repointed by its ' +
+            'publisher, so CI can run different code between two green runs and this repo ' +
+            'records neither. Pin the full 40-character commit sha and put the version in a ' +
+            'trailing comment:\n  ' + unpinned.join('\n  ') +
+            '\nResolve with: gh api repos/<owner>/<repo>/commits/<tag> --jq .sha');
+    });
+
+    test('the two --no-save installs name exact versions, not ranges', () => {
+        // `npm ci` is content-addressed: package-lock.json carries an integrity
+        // hash for all 556 packages. `npm install --no-save` is the one step
+        // that bypasses it entirely — nothing is written to the lock, so nothing
+        // checks what arrived. Carrying `^0.21.0` there meant the AVR and RP2040
+        // cores every board gate executes could change under a green run.
+        //
+        // npm forbids republishing a version, so `avr8js@0.21.0` IS an immutable
+        // object; the range in front of it was the only mutable part.
+        const workflow = readFileSync(join(SB3, '.github', 'workflows', 'ci.yml'), 'utf8');
+        const installs = [...workflow.matchAll(/npm install[^\n]*--no-save([^\n]*)/g)]
+            .flatMap((m) => m[1].trim().split(/\s+/).filter(Boolean));
+        assert.ok(installs.length >= 2,
+            `found ${installs.length} packages on --no-save install lines, expected at least 2 — ` +
+            'the scan is broken and an empty offender list below means nothing.');
+        const ranged = installs.filter((spec) => !/@\d+\.\d+\.\d+$/.test(spec));
+        assert.deepEqual(ranged, [],
+            'these packages are installed OUTSIDE package-lock.json (--no-save) at a version ' +
+            'RANGE, so no integrity hash covers them and a new release changes what CI tested ' +
+            'without any record:\n  ' + ranged.join('\n  ') +
+            '\nUse an exact version and record the integrity hash in a comment beside it.');
+    });
+
+    test('every string-literal mutation target in the prover still occurs in the tree '
+        + '(string literals only; regex targets are not covered here)', () => {
+        // A MUTATION THAT DOES NOT MUTATE RETURNS THE REASSURING ANSWER.
+        //
+        // scripts/mutation-prove-conformance.mjs edits a file, runs a gate, and
+        // requires RED. Each edit is `before.replace(<literal>, …)`. When the
+        // literal stops matching — someone reindents the block, renames a
+        // constant, moves a declaration — the "mutation" is a no-op and the gate
+        // is asked to go red over an unchanged tree.
+        //
+        // The prover guards this itself (`throw new Error('mutation was a no-op')`)
+        // and that guard is what caught the real instance: WAIVED was hoisted out
+        // of a test body to column 0 so its size could be interpolated into the
+        // test NAME, and the prover's target still carried the old 8-space form.
+        // But the prover only discovers it ~25 minutes into a CI run, after the
+        // whole suite. This is the same check for the price of a readFileSync.
+        //
+        // SCOPE, STATED BECAUSE IT IS NARROWER THAN "every mutation works":
+        //   - only STRING-LITERAL targets; the prover also uses regex targets,
+        //     which this cannot evaluate without executing them.
+        //   - only that the literal occurs SOMEWHERE in the tree, not that it
+        //     occurs in the file that mutation actually edits.
+        // So a green run here does NOT mean every mutation bites. It means none
+        // of them is anchored on text that has vanished — the failure that just
+        // happened.
+        const prover = readFileSync(join(SB3, 'scripts', 'mutation-prove-conformance.mjs'), 'utf8');
+        const targets = [...prover.matchAll(/\.replace\(\s*(['"])((?:\\.|(?!\1)[\s\S])*?)\1/g)]
+            .map((m) => m[2]
+                .replace(/\\n/g, '\n').replace(/\\'/g, "'")
+                .replace(/\\"/g, '"').replace(/\\\\/g, '\\'))
+            // Short anchors are punctuation, not landmarks; they would match anywhere.
+            .filter((t) => t.length >= 8);
+
+        // The instrument before the subject: if the extractor stops matching, the
+        // loop below sweeps an empty list and reports a clean tree.
+        assert.ok(targets.length >= 8,
+            `only ${targets.length} string-literal mutation targets extracted from the prover, ` +
+            'expected at least 8 — the extractor is broken, and an empty missing-list means nothing.');
+
+        // THE PROVER ITSELF IS EXCLUDED, AND THAT EXCLUSION IS THE WHOLE GATE.
+        // Every target is a string literal sitting in mutation-prove-conformance.mjs,
+        // so searching a tree that contains that file means each target matches
+        // ITSELF and nothing can ever be reported missing. The first version of
+        // this test did exactly that and was vacuous; the mutation below is what
+        // exposed it, which is the argument for mutation-proving a gate you wrote
+        // to catch mutations that do not mutate.
+        const SELF = join(SB3, 'scripts', 'mutation-prove-conformance.mjs');
+        const files = [];
+        const walk = (dir) => {
+            for (const e of readdirSync(dir, { withFileTypes: true })) {
+                if (e.name === 'node_modules' || e.name === '.git' || e.name === 'dist') continue;
+                const p = join(dir, e.name);
+                if (p === SELF) continue;
+                if (e.isDirectory()) walk(p);
+                else if (/\.(mjs|js|json|yml|md)$/.test(e.name)) files.push(p);
+            }
+        };
+        walk(SB3);
+        assert.ok(files.length >= 200,
+            `only ${files.length} files walked — the tree scan is broken.`);
+        const blobs = files.map((f) => readFileSync(f, 'utf8'));
+
+        const missing = targets.filter((t) => !blobs.some((b) => b.includes(t)));
+        assert.deepEqual(missing.map((t) => t.slice(0, 80)), [],
+            'these mutation targets occur nowhere in the tree, so the mutations anchored on them ' +
+            'edit nothing and prove nothing. The prover will throw on each — 25 minutes into CI. ' +
+            'Re-anchor them on text that exists.');
+    });
+
     test('every sibling this repo pins is one we are allowed to vendor or clone', () => {
         const pins = JSON.parse(readFileSync(join(SB3, 'test', 'fixtures', 'siblings.json'), 'utf8')).siblings;
         // The engine-backend licence rule: ngspice/KLU/CSparse-family code may not
@@ -289,7 +435,7 @@ describe('gate integrity: a suite cannot skip itself into silence', () => {
             `above test/ — these resolve somewhere else:\n  ${offenders.join('\n  ')}`);
     });
 
-    test('no gate opens a corpus without a measured floor under it', async () => {
+    test(`no gate opens a corpus without a measured floor under it (${WAIVED.size} waived, listed in WAIVED)`, async () => {
         // THE CLASS THE PREVIOUS SWEEPS COULD NOT SEE.
         //
         // test/CROSS-REPO-GATE-AUDIT.md closed "the gate never runs in CI" and
@@ -328,19 +474,6 @@ describe('gate integrity: a suite cannot skip itself into silence', () => {
             `only ${corpusDriven.length} corpus-driven files recognised (expected ~47) — ` +
             'the classifier stopped seeing them, so an empty offender list means nothing');
 
-        // Waived, each with the reason it is not the shape above. A waiver here
-        // must say why an EMPTY corpus would still be caught, not merely that the
-        // corpus is unlikely to empty.
-        const WAIVED = new Map([
-            ['test/authored-transform.test.mjs',
-                'iterates bench.parts, but every case first asserts census[kind] === 1 on ' +
-                'both the authored and transformed bench — an empty parts array fails there ' +
-                'before the loop is reached.'],
-            ['test/block-lowering.test.mjs',
-                'iterates DEVICES_NO_C, a WAIVER set. Its assertion is "nothing in this gap ' +
-                'list already has a C lowering", so an empty set is the goal state, not a ' +
-                'blind spot. A floor here would forbid finishing the work.']
-        ]);
 
         const offenders = [];
         for (const r of corpusDriven) {

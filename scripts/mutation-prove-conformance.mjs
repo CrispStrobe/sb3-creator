@@ -516,9 +516,14 @@ const MUTATIONS = [
             const f = join(ROOT, 'test', 'gate-integrity.test.mjs');
             save(f);
             const before = readFileSync(f, 'utf8');
+            // Indentation-agnostic on purpose. WAIVED was hoisted out of the test
+            // body (to column 0) so its size could be interpolated into the test
+            // NAME; this target still carried the old 8-space form and silently
+            // matched nothing. The guard below is what turned that into a loud
+            // CI failure instead of a mutation that "passed" having done nothing.
             const text = before.replace(
-                "        const WAIVED = new Map([\n",
-                "        const WAIVED = new Map([\n            ['test/a-gate-that-does-not-exist.test.mjs', 'stale'],\n");
+                /^(\s*)const WAIVED = new Map\(\[\n/m,
+                "$1const WAIVED = new Map([\n$1    ['test/a-gate-that-does-not-exist.test.mjs', 'stale'],\n");
             if (text === before) throw new Error('mutation was a no-op — the WAIVED map was not found');
             writeFileSync(f, text);
         },

@@ -332,7 +332,7 @@ describe('circuit params, tier 2: the key moves a real bench', { skip: SKIP }, (
         : s.file === 'circuit-flat.json' ? 1
         : /^circuit\.[\w-]+\.json$/.test(s.file) ? 2 : 3;
 
-    test('every declared (kind, key) changes something in some bench', () => {
+    test(`every declared (kind, key) changes something in some bench (${KNOWN_INERT.size} exempt, listed in KNOWN_INERT)`, () => {
         assert.ok(ready, 'engine did not load');
         const inert = [], unprobeable = [];
         for (const [id, all] of [...sites].sort((a, b) => a[0].localeCompare(b[0]))) {

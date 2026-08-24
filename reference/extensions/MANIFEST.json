@@ -1,0 +1,81 @@
+{
+  "note": "Provenance for reference/extensions/. Regenerate with scripts/vendor-reference-extensions.mjs --write. `sha256` is the in-repo copy and is checked by test/reference-extensions-provenance.test.mjs WITHOUT any upstream checkout, so editing a file here without re-recording it goes red. `relationship` says whether re-fetching from upstream is safe: only `identical` is a no-op. A `local-ahead` file has work upstream does not, and re-fetching DELETES it.",
+  "upstream": {
+    "repo": "CrispStrobe/extensions",
+    "subdir": "extensions/CrispStrobe",
+    "headAtRecording": "c681d995ef521ef289bc0eb9b6b0b1a4ffabe12a"
+  },
+  "files": 8,
+  "entries": [
+    {
+      "file": "arrays.js",
+      "bytes": 34363,
+      "sha256": "676704b382c36db1fa0f47a6aae0c706e6ed1f28383c13baf5636b5ee6dc47fe",
+      "upstreamCommit": "5dcffb0bb64dadd84ee53425b07b86a8c1df7b56",
+      "upstreamSha256": "676704b382c36db1fa0f47a6aae0c706e6ed1f28383c13baf5636b5ee6dc47fe",
+      "upstreamBytes": 34363,
+      "relationship": "identical"
+    },
+    {
+      "file": "circuit.js",
+      "bytes": 13893,
+      "sha256": "84feb2ccbf67caed7993120fbdf2c534b9f949b445ee74f30357d50c74475c1d",
+      "upstreamCommit": "c681d995ef521ef289bc0eb9b6b0b1a4ffabe12a",
+      "upstreamSha256": "84feb2ccbf67caed7993120fbdf2c534b9f949b445ee74f30357d50c74475c1d",
+      "upstreamBytes": 13893,
+      "relationship": "identical"
+    },
+    {
+      "file": "devices.js",
+      "bytes": 21000,
+      "sha256": "ad5c2aeffca6210fd3bf1bcda66a792531678270d7cbe557bb7b6b530ab0707b",
+      "relationship": "not-upstream",
+      "why": "no file of this name in extensions/CrispStrobe; the origin line does not apply to it"
+    },
+    {
+      "file": "gamepad.js",
+      "bytes": 44235,
+      "sha256": "b6c065288bfeaf69c98c2285a98c7ee5e3aa78d4aaf1101957a55ada0f11b673",
+      "upstreamCommit": "5dcffb0bb64dadd84ee53425b07b86a8c1df7b56",
+      "upstreamSha256": "b6c065288bfeaf69c98c2285a98c7ee5e3aa78d4aaf1101957a55ada0f11b673",
+      "upstreamBytes": 44235,
+      "relationship": "identical"
+    },
+    {
+      "file": "ledcube.js",
+      "bytes": 8032,
+      "sha256": "dca0bd9d5ff62286b3caad771064b511f4eb4816dfc09208e2935a49ae2117f1",
+      "upstreamCommit": "32580986e61bb6a7f6d97710fcc61d3d4e7bdb3b",
+      "upstreamSha256": "dca0bd9d5ff62286b3caad771064b511f4eb4816dfc09208e2935a49ae2117f1",
+      "upstreamBytes": 8032,
+      "relationship": "identical"
+    },
+    {
+      "file": "planetemaths.js",
+      "bytes": 69123,
+      "sha256": "8c18332486cacb971ec25334d1e2906dec173e13ba5f24b3f63dae30c81922e4",
+      "upstreamCommit": "5dcffb0bb64dadd84ee53425b07b86a8c1df7b56",
+      "upstreamSha256": "8c18332486cacb971ec25334d1e2906dec173e13ba5f24b3f63dae30c81922e4",
+      "upstreamBytes": 69123,
+      "relationship": "identical"
+    },
+    {
+      "file": "stc12.js",
+      "bytes": 24467,
+      "sha256": "b099fa05f856d031a2363b45fc3ebe79c1113c4323dda77385354ac798977bf0",
+      "upstreamCommit": "934728d3b73a7c9ba07de4bc55bf31890546d3b0",
+      "upstreamSha256": "f15d1fd93a4d5947be6cbc9b8dae7aa9793f3f25d82c1e36a5076c2dc6454f96",
+      "upstreamBytes": 10335,
+      "relationship": "local-ahead"
+    },
+    {
+      "file": "stc12live.js",
+      "bytes": 13945,
+      "sha256": "d83873a2734058ae8010e780112bfff02cf657d3f6b72b7994700e715b9f4e8c",
+      "upstreamCommit": "934728d3b73a7c9ba07de4bc55bf31890546d3b0",
+      "upstreamSha256": "d83873a2734058ae8010e780112bfff02cf657d3f6b72b7994700e715b9f4e8c",
+      "upstreamBytes": 13945,
+      "relationship": "identical"
+    }
+  ]
+}
