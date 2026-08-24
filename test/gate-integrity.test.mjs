@@ -63,6 +63,20 @@ const NOT_A_CROSS_REPO_GATE = new Map([
      'Gating it on a checkout would make a filesystem check skip for no reason']
 ]);
 
+// Waived, each with the reason it is not the shape above. A waiver here
+// must say why an EMPTY corpus would still be caught, not merely that the
+// corpus is unlikely to empty.
+const WAIVED = new Map([
+    ['test/authored-transform.test.mjs',
+        'iterates bench.parts, but every case first asserts census[kind] === 1 on ' +
+        'both the authored and transformed bench — an empty parts array fails there ' +
+        'before the loop is reached.'],
+    ['test/block-lowering.test.mjs',
+        'iterates DEVICES_NO_C, a WAIVER set. Its assertion is "nothing in this gap ' +
+        'list already has a C lowering", so an empty set is the goal state, not a ' +
+        'blind spot. A floor here would forbid finishing the work.']
+]);
+
 describe('gate integrity: a suite cannot skip itself into silence', () => {
     // ---------------------------------------------------------------------
     // The pins CI checks out must be the pins the tests expect. These live in
@@ -76,7 +90,7 @@ describe('gate integrity: a suite cannot skip itself into silence', () => {
     // handed the result to `skip:`, and all fifteen skipped in CI forever. A new
     // file that reintroduces that shape is the regression this catches.
     // ---------------------------------------------------------------------
-    test('every cross-repo test routes its skip through the shared sibling guard', () => {
+    test(`every cross-repo test routes its skip through the shared sibling guard (${NOT_A_CROSS_REPO_GATE.size} files classified not-cross-repo)`, () => {
         const stripComments = (src) => src
             .replace(/\/\*[\s\S]*?\*\//g, ' ')
             .split('\n').map((l) => l.replace(/(^|[^:"'`\\])\/\/.*$/, '$1')).join('\n');
@@ -352,7 +366,7 @@ describe('gate integrity: a suite cannot skip itself into silence', () => {
             `above test/ — these resolve somewhere else:\n  ${offenders.join('\n  ')}`);
     });
 
-    test('no gate opens a corpus without a measured floor under it', async () => {
+    test(`no gate opens a corpus without a measured floor under it (${WAIVED.size} waived, listed in WAIVED)`, async () => {
         // THE CLASS THE PREVIOUS SWEEPS COULD NOT SEE.
         //
         // test/CROSS-REPO-GATE-AUDIT.md closed "the gate never runs in CI" and
@@ -391,19 +405,6 @@ describe('gate integrity: a suite cannot skip itself into silence', () => {
             `only ${corpusDriven.length} corpus-driven files recognised (expected ~47) — ` +
             'the classifier stopped seeing them, so an empty offender list means nothing');
 
-        // Waived, each with the reason it is not the shape above. A waiver here
-        // must say why an EMPTY corpus would still be caught, not merely that the
-        // corpus is unlikely to empty.
-        const WAIVED = new Map([
-            ['test/authored-transform.test.mjs',
-                'iterates bench.parts, but every case first asserts census[kind] === 1 on ' +
-                'both the authored and transformed bench — an empty parts array fails there ' +
-                'before the loop is reached.'],
-            ['test/block-lowering.test.mjs',
-                'iterates DEVICES_NO_C, a WAIVER set. Its assertion is "nothing in this gap ' +
-                'list already has a C lowering", so an empty set is the goal state, not a ' +
-                'blind spot. A floor here would forbid finishing the work.']
-        ]);
 
         const offenders = [];
         for (const r of corpusDriven) {
