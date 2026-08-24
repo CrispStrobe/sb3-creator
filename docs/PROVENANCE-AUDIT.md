@@ -261,6 +261,20 @@ statement about what was verified.
 
 ---
 
+## Verdict
+
+- **CI green**: [run 32710219295](https://github.com/CrispStrobe/sb3-creator/actions/runs/32710219295)
+  (`workflow_dispatch` on this branch — the workflow triggers on `push: main` and
+  `pull_request`, and this repo does not open PRs). The Pages job shows `skipped` by its own
+  `if:` guard, which is by design on a non-main ref, not a failure.
+- **Mutation prover: 31/31 caught, zero misses**, "Restored: gate is GREEN again". Unchanged
+  from before this branch — the five gates added here carry their own 15 mutations (§4) and are
+  test-level, not prover entries.
+- `test:fast` 1168 tests / 908 pass / 0 fail / 260 skipped (cross-repo, which run in CI).
+  `test:slow` 90 pass / 0 fail. Lint clean.
+- **The first CI run on this branch, 32708635801, was RED**, at the prover, because of a change
+  in this branch. See §4(b).
+
 ## What this branch does NOT establish
 
 - **lite is unfixed.** Four mutable sites and 47 unpinned `uses:` are reported in §1, not
