@@ -625,16 +625,53 @@ const MUTATIONS = [
             const f = join(ROOT, 'test', 'helpers', 'python-syntax.mjs');
             save(f);
             const before = readFileSync(f, 'utf8');
-            // Cut the throw out by its two anchors rather than by a multi-line
-            // regex: the substitution must be legible in a diff, and a regex that
-            // spans a template literal is how a mutation quietly stops matching.
-            const open = before.indexOf('            throw new PythonUnavailableError(\n                `python3 did not return');
-            const close = before.indexOf("machine, not the emitter. Detail: ${r.detail || '(none)'}`);", open);
-            if (open < 0 || close < 0) throw new Error('mutation was a no-op — the throw did not match');
+            // Locate the THROW STRUCTURALLY, by matching parentheses from the
+            // `throw new PythonUnavailableError(` that carries the timeout message,
+            // rather than by quoting its prose.
+            //
+            // The first version quoted two sentences from that message as anchors.
+            // Routing the same file through test/helpers/timed.mjs reworded it, the
+            // anchors stopped matching, and this mutation applied NOTHING — caught
+            // only because every mutation here asserts its edit changed the tree.
+            // Without that guard the prover's number would have stayed at 31 while
+            // its coverage quietly dropped, which is precisely how a prover stops
+            // being evidence. Same rule as the pin bump that neutered two mutations
+            // last week: derive the target from the file, never restate it.
+            const marker = 'throw new PythonUnavailableError(';
+            // Match each candidate's OWN parenthesised statement before testing its
+            // prose. A fixed look-ahead window read forward past the end of the
+            // missing-interpreter throw into the timeout throw beside it, matched
+            // "retry at" there, and neutered the WRONG one — the gate then stayed
+            // green and this scored MISS. The window has to be the statement.
+            const closeOf = (from) => {
+                let depth = 0;
+                for (let i = before.indexOf('(', from); i < before.length; i++) {
+                    if (before[i] === '(') depth++;
+                    else if (before[i] === ')') { depth--; if (depth === 0) return i; }
+                }
+                return -1;
+            };
+            let open = -1;
+            let close = -1;
+            for (let i = before.indexOf(marker); i >= 0; i = before.indexOf(marker, i + 1)) {
+                const c = closeOf(i);
+                if (c < 0) continue;
+                if (/retry at/.test(before.slice(i, c))) { open = i; close = c; break; }
+            }
+            if (open < 0) throw new Error('mutation was a no-op — no PythonUnavailableError throw mentions a retry within its own statement');
+            const stmtEnd = before.indexOf(';', close) + 1;
             const text = before.slice(0, open) +
-                "            return { valid: false, error: r.detail || 'timed out' };" +
-                before.slice(close + "machine, not the emitter. Detail: ${r.detail || '(none)'}`);".length);
+                "return { valid: false, error: r.detail || 'timed out' };" +
+                before.slice(stmtEnd);
             if (text === before) throw new Error('mutation was a no-op');
+            // Assert the mutation hit the TIMEOUT case, not its neighbour: the
+            // missing-interpreter throw must survive.
+            if (!/python3 is not on PATH/.test(text)) {
+                throw new Error('mutation removed the wrong throw — the missing-interpreter case is gone');
+            }
+            if (/retry at/.test(text)) {
+                throw new Error('mutation left the timeout throw in place');
+            }
             if (text === before) throw new Error('mutation was a no-op — the throw did not match');
             writeFileSync(f, text);
         },

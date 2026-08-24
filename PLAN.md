@@ -827,3 +827,61 @@ is stated because 459 cannot honestly be re-measured one at a time.
   runs; `node-version: 22` in particular is load-bearing (`fs.globSync` needs it,
   and two files use it — a drop to 20 reddens four tests). Worth a comment naming
   that dependency rather than leaving it to be rediscovered.
+
+---
+
+## 29. A timeout that says which failure it is — wave 4 (2026-08-23)
+
+`test/helpers/timed.mjs`, built for the shape §27 named. **A test that hung burns
+CPU; an oversubscribed machine does not give the process the CPU to burn.** On Linux
+that is one file read — `/proc/self/stat` fields 16/17, the CPU of reaped children —
+so a synchronous `execFileSync` can be measured without rewriting the caller.
+`selfCpuSeconds()` + `classifyElapsed()` do the same for a budget that bounds an
+in-process loop. Which budgets discriminate, and which cannot, is in
+`docs/MEASURED-THRESHOLDS.md`.
+
+Two calibrations, both measured on a deliberately busy box, because an instrument
+calibrated on an idle machine is calibrated for the situation in which it is not
+needed: the achievable-CPU reference (a spinner on 4 cpus at load 36 gets only
+0.12–0.17, so an absolute cut would call every real hang "contention") and the
+runtime startup charge (`node -e ''` costs 0.040–0.070 s for doing nothing).
+
+### Open
+
+- [ ] **Unbounded work and bounded-but-throttled work are not separated.** Both
+  compute flat out; the verdict is `cpu-bound`, reported with both numbers and the
+  reading each supports. Separating them needs the CPU curve OVER TIME — sample the
+  child's `/proc/<pid>/stat` two or three times during the window rather than only
+  after it, and see whether consumption plateaus. That needs an async runner, so it
+  needs the call sites to be async, which is a larger change than this wave. A
+  drafted `throttled` verdict keyed on `workCpu < budget * 0.8` was withdrawn: on a
+  loaded box a genuine hang also fails to reach 80%, so it relabelled real hangs as
+  throttling — silently, in the reassuring direction.
+
+- [ ] **`--test-timeout` still cannot be routed.** node:test raises
+  `testTimeoutFailure` itself with no hook to enrich the message, so the file-level
+  budget that took `gallery-e2e` and `circuit-params-are-read` down at load 26 is
+  still a bare timeout. `timeoutContext()` is the partial answer — a file can print
+  the load it started under — but the real fix is a custom `--test-reporter` that
+  annotates a timeout failure with the CPU evidence. Worth doing; it is the budget
+  most likely to fire and the least informative when it does.
+
+- [ ] **The vm.runInNewContext budgets are deliberately unrouted.** Our own thread,
+  and in `exec.test.mjs` a timeout is the accepted outcome. If they are ever routed,
+  the discriminator would have to read `process.cpuUsage()` around the call and
+  distinguish "the sandbox spun" from "we were starved" — which is possible but
+  answers a question nobody is currently asking.
+
+- [ ] **`ttl-module-acceptance:52` remains unprobeable here** — behind
+  `BW_TTL_ORACLE=1` plus Java, `Digital.jar` and a cloned `8bitsim`. Probe it on a
+  box that has them: `node scripts/threshold-probe.mjs --file
+  test/ttl-module-acceptance.test.mjs --line 52 --env BW_TTL_ORACLE=1`.
+
+- [ ] **NOT EVERY `timeout:` IS A BUDGET.** `settrace-codegen:138` is a duration
+  control on a program that never terminates — the timeout is how it is stopped and
+  the assertions read the partial output. Routing it reddened two passing tests.
+  Neither `threshold-inventory` nor `threshold-probe` can tell the two apart: both
+  called it a `timeout-ms` that CAN-FIRE, which is true and beside the point. A
+  static signal for "the work is expected to finish" would need to know the callee
+  terminates, which is the halting problem wearing a hat; the practical rule is the
+  one now in the helper's header — ask before wrapping.

@@ -112,15 +112,15 @@ test('HANG branch: a child that burns CPU is NEVER called contention', { skip: s
     assert.notEqual(e.verdict, 'contention',
         `a spinning child was called CONTENTION (share ${e.share}, achievable ${e.achievable}). ` +
         'That tells someone to shrug at a real defect, which is the worse of the two errors.');
-    assert.ok(['hang', 'inconclusive'].includes(e.verdict), `unexpected verdict ${e.verdict}`);
+    assert.ok(['cpu-bound', 'inconclusive'].includes(e.verdict), `unexpected verdict ${e.verdict}`);
 
     if (e.achievable !== null && e.achievable >= QUIET_ENOUGH) {
-        assert.equal(e.verdict, 'hang',
+        assert.equal(e.verdict, 'cpu-bound',
             `the box was quiet (achievable ${e.achievable.toFixed(2)}) so the evidence supports a ` +
             `sharp verdict, but this came back "${e.verdict}" at share ${e.share}`);
-        assert.ok(e.share >= HANG_SHARE, `share ${e.share} is below the hang cut on a quiet box`);
-        assert.match(e.message, /THIS IS A HANG, NOT CONTENTION/);
-        assert.match(e.message, /do not raise the budget/);
+        assert.ok(e.share >= HANG_SHARE, `share ${e.share} is below the cpu-bound cut on a quiet box`);
+        assert.match(e.message, /THIS WAS COMPUTING, NOT STARVED/);
+        assert.match(e.message, /raising the budget is not the fix/i);
         return;
     }
     // Contended box: the verdict may honestly be `inconclusive`, and then the
@@ -128,7 +128,7 @@ test('HANG branch: a child that burns CPU is NEVER called contention', { skip: s
     console.log(`    box too busy for a sharp verdict (achievable ${e.achievable?.toFixed(3)}), ` +
         `verdict ${e.verdict} at share ${e.share.toFixed(2)}`);
     if (e.verdict === 'inconclusive') assert.match(e.message, /THE DISCRIMINATOR CANNOT TELL/);
-    else assert.match(e.message, /THIS IS A HANG, NOT CONTENTION/);
+    else assert.match(e.message, /THIS WAS COMPUTING, NOT STARVED/);
 });
 
 test('the two branches are far apart in SHARE, not merely in raw ratio', { skip: skipOffLinux }, () => {
@@ -182,7 +182,7 @@ test('classify() refuses to answer without evidence', () => {
     assert.equal(classify({ wallSeconds: 10, cpuSeconds: 10 * mid, achievable: 1 }).verdict, 'inconclusive');
     // And the cuts themselves, read as shares of what is achievable. On a box where
     // a CPU-bound child only gets 0.13 of wall, a hang uses ~10 s * 0.13 = 1.3 s.
-    assert.equal(classify({ wallSeconds: 10, cpuSeconds: 1.3, achievable: 0.13 }).verdict, 'hang');
+    assert.equal(classify({ wallSeconds: 10, cpuSeconds: 1.3, achievable: 0.13 }).verdict, 'cpu-bound');
     assert.equal(classify({ wallSeconds: 10, cpuSeconds: 0.05, achievable: 0.13 }).verdict, 'contention');
     // Startup is charged to the runtime, and this is the pair that made it necessary.
     // Over a 1 s window at achievable 0.13, a child that did NOTHING but start still
@@ -196,5 +196,5 @@ test('classify() refuses to answer without evidence', () => {
         'contention', 'with startup charged to the runtime, a child that only started is contention');
     // And it must not swing the other way: real work still reads as a hang.
     assert.equal(classify({ wallSeconds: 1, cpuSeconds: 0.19, achievable: 0.13, startupCpu: 0.06 }).verdict,
-        'hang', 'subtracting startup must not mask a child that genuinely burned CPU');
+        'cpu-bound', 'subtracting startup must not mask a child that genuinely burned CPU');
 });

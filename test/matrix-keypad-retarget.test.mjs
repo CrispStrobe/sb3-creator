@@ -12,6 +12,7 @@ import { readFileSync, writeFileSync } from 'fs';
 import { join, resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import SB3Creator from '../src/utils/sb3Creator.js';
+import { runBounded } from './helpers/timed.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const calcSrc = readFileSync(resolve(here, '../examples/70-calculator/program.bw'), 'utf8');
@@ -69,10 +70,15 @@ test('retargeted calculator compiles under cl65', { skip: !hasCl65 && 'cl65 not 
         try { readFileSync(p); cfg = p; break; } catch { /* try next */ }
     }
     assert.ok(cfg, 'eater.cfg found');
-    const output = execSync(
-        `cl65 --cpu 65C02 -O -t none -C ${cfg} -o /tmp/test-calc-6502.rom /tmp/test-calc-6502.c 2>&1`,
-        { encoding: 'utf8', timeout: 60000 }
-    );
+    // 60 s bounds cl65 on the generated calculator. A budget failure here is
+    // reported as contention or as a hang rather than as a bare timeout.
+    const output = runBounded({
+        what: 'cl65 assembling the retargeted calculator',
+        budgetMs: 60000,
+        run: (ms) => execSync(
+            `cl65 --cpu 65C02 -O -t none -C ${cfg} -o /tmp/test-calc-6502.rom /tmp/test-calc-6502.c 2>&1`,
+            { encoding: 'utf8', timeout: ms })
+    });
     const errors = (output.match(/\berror\b/gi) || []).length;
     assert.equal(errors, 0, `cl65 produced ${errors} errors`);
 });
