@@ -110,6 +110,16 @@ export const ENROLMENT = [
         // `galleryIndex.filter(entry => entry.files?.program)`
         why: 'every shipped program must load and start in the real Scratch VM',
         p: (f) => !!f.entry.files?.program },
+    {   gate: 'simulator-driver-controls-respond',
+        // The gate's outer filter, expressible here: an example with BOTH files
+        // whose program declares an INPUT pin. Its INNER filter — is a button or
+        // switch on that pin's net — needs the circuit solved, which this map
+        // cannot do, so the gate carries its own floors instead (at least 33
+        // benches and 67 pins) and says so in its own message.
+        why: 'every declared INPUT pin with a control on its net must respond to it',
+        p: (f) => !!f.entry.files?.program && !!f.entry.files?.circuit && f.hasProgramFile
+            && /^\s*PIN\s+\S+\s*=[^\n]*\bINPUT\b/mi.test(
+                readFileSync(join(f.dirFor, 'program.bw'), 'utf8')) },
     {   gate: 'gallery-e2e',
         // MCU_TESTS / PURE_TESTS are hand-listed specs, not a metadata filter
         why: 'hand-picked benches driven pin by pin',
