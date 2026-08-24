@@ -34,10 +34,10 @@
  * visible as such rather than absent.
  *
  *   before this sweep      34 of 2356 claims compared  (1.4 %)
- *   after                1195 of 2356 claims compared (50.7 %)
+ *   after                1208 of 2356 claims compared (51.3 %)
  *
- * and of the 1195, exactly ONE is a claim the engine contradicts and this lane
- * did not close. It is recorded with a verdict in
+ * and of the 1208, TWO are claims the engine contradicts and this lane did not
+ * close, both recorded with a verdict in
  * test/fixtures/expected-claim-exceptions.json.
  *
  * The 34 is not a slur on the previous gate: it read three hand-written shapes
@@ -141,12 +141,12 @@ describe('EXPECTED.md quantities hold against the engine', { skip: SKIP }, () =>
         assert.deepEqual(unexplained.map(key), [],
             'a claim declined without a reason is an unverified claim nobody can see');
         const compared = L.checked.length + L.mismatched.length;
-        // The ratchet. 1195/2356 = 50.7 % on 2026-08-24, against 34 (1.4 %)
+        // The ratchet. 1208/2356 = 51.3 % on 2026-08-24, against 34 (1.4 %)
         // before this sweep. Raise this floor when the fraction rises; never
         // lower it to make a change fit.
-        assert.ok(compared >= 1150,
+        assert.ok(compared >= 1200,
             `only ${compared} of ${L.total} claims were compared (${(compared / L.total * 100).toFixed(1)} %) — `
-            + 'this gate checked 1195 when the floor was set, so coverage has gone BACKWARDS');
+            + 'this gate checked 1208 when the floor was set, so coverage has gone BACKWARDS');
     });
 
     test('no claim the engine contradicts is unrecorded', async () => {

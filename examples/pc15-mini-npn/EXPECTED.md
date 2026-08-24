@@ -56,7 +56,7 @@ net npn_5.base V 0.70 +-0.10
 > **Engine provenance.** The measured numbers on this page were last held against
 > `bw-board@88e9668` and `bw-circuit-ui@410f8ce` — the revisions pinned in
 > `test/fixtures/siblings.json`. `test/expected-quantities-hold.test.mjs` compares
-> **6 of this page's 24** numeric claims against that engine
+> **9 of this page's 24** numeric claims against that engine
 > (0 of them disagreeing) and declines the rest with a stated reason;
 > `node scripts/expected-claim-census.mjs pc15-mini-npn` prints them one by one.
 <!-- engine-provenance -->
