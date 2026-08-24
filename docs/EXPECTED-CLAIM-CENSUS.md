@@ -29,6 +29,13 @@ claim, with the reason for each.
 | before this sweep | bw-board@88e9668 | 2358 | 34 (1.4 %) | 34 | 0 | 2324 |
 | after wave 1 | bw-board@88e9668 | 2358 | 1209 (51.3 %) | 1208 | 1 | 1149 |
 | after wave 2 | bw-board@a301937 | 2356 | **1224 (52.0 %)** | 1223 | 1 | 1132 |
+| the same, on the merged tree | bw-board@a301937 | 2392 | 1230 (51.4 %) | 1229 | 1 | 1162 |
+
+The last row is wave 2 measured again after merging the lane that landed
+43-rc-timing's repeatable step and pc50's in-range Bode bench: 36 more claims in
+the denominator, 6 more compared. Both are kept, because only the `after wave 2`
+row is a like-for-like measurement of what this wave did — a percentage that
+moves because someone else added claims is not this wave's result either way.
 
 Wave 2 is the `bw-board` pin bump from `88e9668` to `a301937`, and its +15 is a
 net of two opposite movements that both belong in the record:
@@ -86,13 +93,13 @@ recorded with a verdict rather than repaired.
 
 | n | why a claim was not compared |
 |---|---|
-| 185 | condition label — the leading cell of a table row states the operating point the rest of the row answers for |
-| 139 | counterfactual or comparative prose — the number is stated about a bench other than this one, or is a rating rather than a measurement |
-| 137 | a component value outside ## Circuit — a what-if row, a derived total, or a value named in passing, not a statement about this bench |
+| 189 | condition label — the leading cell of a table row states the operating point the rest of the row answers for |
+| 148 | counterfactual or comparative prose — the number is stated about a bench other than this one, or is a rating rather than a measurement |
+| 143 | a component value outside ## Circuit — a what-if row, a derived total, or a value named in passing, not a statement about this bench |
 | 102 | no authored circuit.json to hold the declared value against |
 | 77 | no authored circuit.json to hold the claim against |
-| 66 | the example has no program.bw waits to hold a duration against |
-| 62 | a frequency with no period stated beside it and no two-wait program to derive one from |
+| 70 | a frequency with no period stated beside it and no two-wait program to derive one from |
+| 69 | the example has no program.bw waits to hold a duration against |
 | 53 | a tone the firmware commands — this gate does not run firmware, and the bench has no oscillator whose frequency it could read instead |
 | 46 | the operating point is a SEQUENCE of control changes against the clock (the document states it as an audit-solve --set invocation), and this gate solves at one point rather than scripting a run |
 | 43 | a percentage outside a table — a duty cycle or a proportion this gate does not derive |
@@ -164,7 +171,7 @@ recorded with a verdict rather than repaired.
 | 40-led-color-mix | 13 | 13 | 0 | 0 |
 | 41-pot-as-dimmer | 31 | 8 | 23 | 0 |
 | 42-diode-rectifier | 7 | 7 | 0 | 0 |
-| 43-rc-timing | 22 | 11 | 11 | 0 |
+| 43-rc-timing | 45 | 17 | 28 | 0 |
 | 44-darlington-motor | 8 | 7 | 1 | 0 |
 | 45-led-current-comparison | 16 | 13 | 3 | 0 |
 | 46-port-overcurrent | 22 | 10 | 12 | 0 |
@@ -291,6 +298,7 @@ recorded with a verdict rather than repaired.
 | pc39-nmos-switch | 14 | 4 | 10 | 0 |
 | pc42-parallel-paths | 5 | 3 | 2 | 0 |
 | pc47-555-monostable | 5 | 4 | 1 | 0 |
+| pc50-two-stage-rc | 13 | 0 | 13 | 0 |
 | pc63-555-bistabil | 6 | 3 | 3 | 0 |
 | pc64-555-retrigger | 9 | 5 | 4 | 0 |
 | pc65-555-metronom | 9 | 3 | 6 | 0 |

@@ -36,6 +36,12 @@
  *   before this sweep      34 of 2356 claims compared  (1.4 %)
  *   after wave 1         1209 of 2358 claims compared (51.3 %)
  *   after wave 2         1224 of 2356 claims compared (52.0 %)
+ *   on the merged tree   1230 of 2392 claims compared (51.4 %)
+ *
+ * The last line is the same wave measured after merging the lane that landed
+ * 43-rc-timing's repeatable step and pc50's in-range Bode bench: 36 more claims
+ * in the denominator, 6 more compared. Both numbers are kept because only the
+ * middle pair is a like-for-like measurement of what this wave did.
  *
  * and of the 1224, exactly ONE is a claim the engine contradicts and no lane
  * has closed. It is recorded with a verdict in
@@ -164,9 +170,9 @@ describe('EXPECTED.md quantities hold against the engine', { skip: SKIP }, () =>
         // taken BACK OFF the checked pile because they were passing against a
         // bench that reports no current at all, where a claim of 0 mA would
         // have passed with the lamp blazing.
-        assert.ok(compared >= 1215,
+        assert.ok(compared >= 1225,
             `only ${compared} of ${L.total} claims were compared (${(compared / L.total * 100).toFixed(1)} %) — `
-            + 'this gate checked 1224 when the floor was set, so coverage has gone BACKWARDS');
+            + 'this gate checked 1230 when the floor was set, so coverage has gone BACKWARDS');
     });
 
     test('no claim the engine contradicts is unrecorded', async () => {
