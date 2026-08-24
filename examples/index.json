@@ -6165,6 +6165,7 @@
       "program": "70-calculator/program.bw",
       "circuit": "70-calculator/circuit.json",
       "expected": "70-calculator/EXPECTED.md",
+      "controller": "70-calculator/controller.json",
       "intro": "70-calculator/intro.md",
       "introDE": "70-calculator/intro.de.md"
     },

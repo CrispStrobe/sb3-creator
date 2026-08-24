@@ -39,7 +39,7 @@
    "id": "c1",
    "kind": "capacitor",
    "params": {
-    "farads": 0.0001
+    "farads": 1e-7
    },
    "x": 316,
    "y": 255,
@@ -71,7 +71,7 @@
    "id": "c2",
    "kind": "capacitor",
    "params": {
-    "farads": 0.0001
+    "farads": 1e-7
    },
    "x": 358,
    "y": 255,

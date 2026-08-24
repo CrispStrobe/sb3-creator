@@ -55,9 +55,43 @@
      "b": "a10"
     }
    }
+  },
+  {
+   "id": "sw_discharge",
+   "kind": "switch",
+   "params": {},
+   "x": 300,
+   "y": 255
+  },
+  {
+   "id": "r_discharge",
+   "kind": "resistor",
+   "params": {
+    "ohms": 1000
+   },
+   "x": 380,
+   "y": 255
   }
  ],
  "wires": [
+  {
+   "from": "c1",
+   "fromTerminal": "a",
+   "to": "sw_discharge",
+   "toTerminal": "a"
+  },
+  {
+   "from": "sw_discharge",
+   "fromTerminal": "b",
+   "to": "r_discharge",
+   "toTerminal": "a"
+  },
+  {
+   "from": "r_discharge",
+   "fromTerminal": "b",
+   "to": "gnd1",
+   "toTerminal": "gnd"
+  },
   {
    "from": "vcc1",
    "fromTerminal": "vcc",
