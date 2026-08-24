@@ -1,11 +1,11 @@
 {
-  "note": "Claims in an EXPECTED.md that the engine CONTRADICTS and that this lane did not close. Each entry is an open corpus defect with a verdict naming which side is wrong, not a tolerance and not an excuse. The gate asserts three things about this file at once: no mismatch outside it, no entry that has stopped mismatching (a fixed defect must be deleted from here, so the list can only shrink), and the count never rises above `max`. Lower `max` whenever an entry goes. An UNVERIFIABLE claim does NOT belong here \u2014 those are declined by the adjudicator with the reason naming what the engine cannot read, and they are counted in the skipped column instead. A raise of `max` is normally forbidden \u2014 this ratchet only shrinks. The 2026-08-24 raise from 1 to 2 is recorded here rather than done quietly, because it is NOT a tolerance being loosened: it is a defect being DISCOVERED. A decline in claim-router.mjs asserted that the engine's BJT model has no saturation region, which was true of bw-board before 2026-08-15 and false of the pinned 88e9668 (params.vceSat, the region FSM, the stiff Vce clamp). Deleting the false reason let 13 silenced claims be compared: 12 agree, and this one does not. Hiding a defect behind a stale justification is not a smaller number, it is a wrong one.",
+  "note": "Claims in an EXPECTED.md that the engine CONTRADICTS and that this lane did not close. Each entry is an open corpus defect with a verdict naming which side is wrong, not a tolerance and not an excuse. The gate asserts three things about this file at once: no mismatch outside it, no entry that has stopped mismatching (a fixed defect must be deleted from here, so the list can only shrink), and the count never rises above `max`. Lower `max` whenever an entry goes. An UNVERIFIABLE claim does NOT belong here \u2014 those are declined by the adjudicator with the reason naming what the engine cannot read, and they are counted in the skipped column instead. The 2026-08-24 raise to 2 and its return to 1 are both recorded in git rather than smoothed away: deleting a decline that described an engine from before the pin (\"no saturation region\", false of 88e9668) exposed a thirteenth claim, 44-darlington-motor's asserted V_CE(sat). The bw-board lane established the verdict \u2014 the bench is titled darlington and instantiated a single NPN at beta 100, which is the counter-example the lesson's own step 2 tells the reader to try. Bench fixed, so the entry is gone and `max` is 1 again. A number that only got smaller because nobody looked is not a smaller number.",
   "measuredOn": "2026-08-24",
   "engine": {
     "bw-board": "88e966818eb9f5bc8794c24db2e795e095d93c9e",
     "bw-circuit-ui": "410f8cecdbefec6eb8a2031e193e26ddf088ac3f"
   },
-  "max": 2,
+  "max": 1,
   "open": [
     {
       "id": "arduino-sk-p04-color-mixing#5",
@@ -13,13 +13,6 @@
       "claim": "220 ohm",
       "verdict": "THE BENCH IS WRONG",
       "why": "The document describes three 10 k\u03a9 pots on A0-A2, three 220 \u03a9 resistors on D3/D5/D6 and an RGB LED. circuit.json holds a breadboard, an Arduino Uno, ONE potentiometer, a vcc and a gnd: no resistor of any value, and no LED. The assert block passes because it asserts only the rail and that one pot's wiper, so the example is enrolled as `kind: full` with a green physics gate over a bench that cannot show what the page says. It is one of fourteen arduino-sk-* examples with a stubbed bench (p07 through p14 hold nothing but an Uno, a vcc and a gnd), which is why it is recorded here rather than repaired in this lane: building out fourteen starter-kit benches is its own piece of work, and doing one of them would leave the gate green over the other thirteen."
-    },
-    {
-      "id": "44-darlington-motor#23",
-      "dir": "44-darlington-motor",
-      "claim": "0.2 V",
-      "verdict": "THE DOCUMENT IS WRONG \u2014 PENDING CONFIRMATION FROM THE bw-board LANE",
-      "why": "\"Transistor saturates (V_CE ~ 0.2 V)\" asserts saturation without establishing it. Measured on 88e9668 with the button closed: base 0.6957 V, collector 0.6957 V, emitter 0, so V_CE = 0.6957 V \u2014 not 0.2. I_B = (5 - 0.6957)/10000 = 0.4304 mA and beta*I_B = 43.04 mA, which is exactly what the collector carries, so the device sits at the edge of the active region rather than in saturation. Its neighbour 38-npn-switch makes the same argument CORRECTLY \u2014 \"saturated (V_CE ~ 0.2 V) since 5.96 mA << 43 mA\" \u2014 and the engine confirms that one at 0.2006 V, which is why this is read as an assertion rather than a derivation. OPEN QUESTION, put to the bw-board lane before any document is edited: the buzzer drops 4.30 V at 43 mA, i.e. presents about 100 ohm. If that is not the intended piezo impedance the transistor WOULD saturate, the document would be right about the physics, and the fix would belong to the bench or the device model instead. Also noted there: buzz1's branchCurrent reads 0.0000 mA while its own net carries 43 mA, so the buzzer has no branchCurrents hook \u2014 irrelevant to this verdict, which rests on node voltages, but it is a KCL-invisible part."
     }
   ]
 }

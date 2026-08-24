@@ -26,26 +26,25 @@ claim, with the reason for each.
 
 | | claims | compared | checked | mismatched | skipped |
 |---|---|---|---|---|---|
-| before this sweep | 2356 | 34 (1.4 %) | 34 | 0 | 2322 |
-| after | 2356 | **1208 (51.3 %)** | 1206 | 2 | 1148 |
+| before this sweep | 2358 | 34 (1.4 %) | 34 | 0 | 2324 |
+| after | 2358 | **1209 (51.3 %)** | 1208 | 1 | 1149 |
 
 The 34 is not a slur on the previous gate: it read three hand-written shapes out
 of the prose — a frequency beside a period, a `Frequency:` beside a two-wait
 program, and at most ONE current bullet per example — and read them well. It had
 no denominator, so nobody could see what it was not reading.
 
-The two mismatches are `arduino-sk-p04-color-mixing`, whose page describes three
+The one mismatch is `arduino-sk-p04-color-mixing`, whose page describes three
 pots, three resistors and an RGB LED over a bench holding one pot and nothing
-else (one of fourteen stubbed `arduino-sk-*` benches), and `44-darlington-motor`,
-which asserts a saturation its own numbers do not establish. Both carry a verdict
-in the fixture rather than being repaired here.
+else. It is one of fourteen stubbed `arduino-sk-*` benches, which is why it is
+recorded with a verdict rather than repaired.
 
 ## Why a claim was not compared
 
 | n | why a claim was not compared |
 |---|---|
 | 185 | condition label — the leading cell of a table row states the operating point the rest of the row answers for |
-| 144 | counterfactual or comparative prose — the number is stated about a bench other than this one, or is a rating rather than a measurement |
+| 145 | counterfactual or comparative prose — the number is stated about a bench other than this one, or is a rating rather than a measurement |
 | 141 | a component value outside ## Circuit — a what-if row, a derived total, or a value named in passing, not a statement about this bench |
 | 102 | no authored circuit.json to hold the declared value against |
 | 77 | no authored circuit.json to hold the claim against |
@@ -122,7 +121,7 @@ in the fixture rather than being repaired here.
 | 41-pot-as-dimmer | 31 | 8 | 23 | 0 |
 | 42-diode-rectifier | 7 | 7 | 0 | 0 |
 | 43-rc-timing | 22 | 11 | 11 | 0 |
-| 44-darlington-motor | 6 | 5 | 0 | 1 |
+| 44-darlington-motor | 8 | 7 | 1 | 0 |
 | 45-led-current-comparison | 16 | 13 | 3 | 0 |
 | 46-port-overcurrent | 22 | 10 | 12 | 0 |
 | 47-battery-led | 10 | 7 | 3 | 0 |
@@ -328,7 +327,7 @@ in the fixture rather than being repaired here.
 | 41-pot-as-dimmer | 31 | 8 | 23 | 0 |
 | 42-diode-rectifier | 7 | 7 | 0 | 0 |
 | 43-rc-timing | 22 | 11 | 11 | 0 |
-| 44-darlington-motor | 6 | 5 | 0 | 1 |
+| 44-darlington-motor | 8 | 7 | 1 | 0 |
 | 45-led-current-comparison | 16 | 13 | 3 | 0 |
 | 46-port-overcurrent | 22 | 10 | 12 | 0 |
 | 47-battery-led | 10 | 7 | 3 | 0 |
@@ -486,4 +485,4 @@ in the fixture rather than being repaired here.
 | spike01-obstacle-avoid | 1 | 1 | 0 | 0 |
 | z80-pd-bench | 5 | 1 | 4 | 0 |
 
-TOTAL  claims 2356  checked 1206  mismatched 2  skipped 1148  |  compared 1208 = 51.3 %
+TOTAL  claims 2358  checked 1208  mismatched 1  skipped 1149  |  compared 1209 = 51.3 %

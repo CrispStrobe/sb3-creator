@@ -27,17 +27,17 @@
  * WHAT THIS GATE DOES
  * -------------------
  * The unit of work is the CLAIM, not the check. `test/helpers/expected-claims.mjs`
- * enumerates every unit-bearing number in every EXPECTED.md — 2356 of them —
+ * enumerates every unit-bearing number in every EXPECTED.md — 2358 of them —
  * and gives each an identity. Every one is then either compared against
  * something that can contradict it or DECLINED WITH A REASON. The fraction
  * compared is reported with its denominator, and a claim nobody can check is
  * visible as such rather than absent.
  *
  *   before this sweep      34 of 2356 claims compared  (1.4 %)
- *   after                1208 of 2356 claims compared (51.3 %)
+ *   after                1209 of 2358 claims compared (51.3 %)
  *
- * and of the 1208, TWO are claims the engine contradicts and this lane did not
- * close, both recorded with a verdict in
+ * and of the 1209, exactly ONE is a claim the engine contradicts and this lane
+ * did not close. It is recorded with a verdict in
  * test/fixtures/expected-claim-exceptions.json.
  *
  * The 34 is not a slur on the previous gate: it read three hand-written shapes
@@ -141,12 +141,12 @@ describe('EXPECTED.md quantities hold against the engine', { skip: SKIP }, () =>
         assert.deepEqual(unexplained.map(key), [],
             'a claim declined without a reason is an unverified claim nobody can see');
         const compared = L.checked.length + L.mismatched.length;
-        // The ratchet. 1208/2356 = 51.3 % on 2026-08-24, against 34 (1.4 %)
+        // The ratchet. 1209/2358 = 51.3 % on 2026-08-24, against 34 (1.4 %)
         // before this sweep. Raise this floor when the fraction rises; never
         // lower it to make a change fit.
         assert.ok(compared >= 1200,
             `only ${compared} of ${L.total} claims were compared (${(compared / L.total * 100).toFixed(1)} %) — `
-            + 'this gate checked 1208 when the floor was set, so coverage has gone BACKWARDS');
+            + 'this gate checked 1209 when the floor was set, so coverage has gone BACKWARDS');
     });
 
     test('no claim the engine contradicts is unrecorded', async () => {

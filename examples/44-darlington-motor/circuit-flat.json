@@ -33,7 +33,7 @@
       "id": "q1",
       "kind": "npn",
       "params": {
-        "beta": 100
+        "beta": 1000
       },
       "seat": {
         "boardId": "bb1",
