@@ -191,7 +191,7 @@ re-fetching safe here?" is a lookup rather than a guess. Only `identical` is a n
 
 ## 4. New gates, and the mutations that prove them
 
-Four gates added, **13 mutations, every one RED, tree restored green after each**. Every gate
+Five gates added, **15 mutations, every one RED, tree restored green after each**. Every gate
 carries a floor assertion so a broken scan reports itself instead of a clean sweep.
 
 | gate | mutation | result |
@@ -211,20 +211,52 @@ carries a floor assertion so a broken scan reports itself instead of a clean swe
 | | M9 empty the slug map | RED on the floor: "only 0 slugs" |
 | scope-corrected names | M10 add a waiver | RED, name moves to "(3 waived)" |
 | | M11 strip `siblingGuardTest()` from a real cross-repo test | RED, names `flat-variants.test.mjs` |
+| `every string-literal mutation target in the prover still occurs in the tree` | M12 re-anchor a target on vanished text | RED — **and GREEN on the first version of the gate, which is how the vacuity below was found** |
+| | M13 break the target extractor | RED on the floor: "only 0 … extracted" |
 
-### A near-miss worth recording
+### The same defect three times, and the third one was in a gate I wrote to catch it
 
-**M10's first attempt was a no-op and I nearly believed it.** Hoisting `WAIVED` out of the test
-body changed its indentation; my replace target still carried the old 8-space form, so nothing
-was edited — and the *unchanged* test name read exactly like "the count is hardcoded, the fix
-does not work". A mutation that does not mutate returns the reassuring answer. Redone asserting
-the edit landed (`assert s2 != s`) before believing the result, and it then behaved correctly:
-the name moved to "(3 waived)" and the stale-waiver ratchet named the injected entry.
+**A mutation that does not mutate returns the reassuring answer.** That happened three times on
+this branch, each with a different mechanism, and it is the most transferable thing here.
 
-That is the same instrument-before-subject rule this repo already learned twice (the
-uninitialised device registry; the mutation that went through a symlink), and it applies to the
-audit's own tooling: **4 of the 7 gates my scan flagged in §2 were false positives.** An
-audit that does not check its own instrument is one more confident, well-formed, wrong
+**(a) By hand — M10's first attempt.** Hoisting `WAIVED` out of the test body changed its
+indentation; my replace target still carried the old 8-space form, so nothing was edited — and
+the *unchanged* test name read exactly like "the count is hardcoded, the fix does not work".
+Redone asserting the edit landed (`assert s2 != s`) before believing the result.
+
+**(b) In CI — the same hoist, 25 minutes later.** `scripts/mutation-prove-conformance.mjs` had a
+mutation anchored on `"        const WAIVED = new Map([\n"`. My hoist moved it to column 0, so
+the prover's own no-op guard fired:
+
+    Error: mutation was a no-op — the WAIVED map was not found
+
+**I pushed `458416f` on a run that then went red, and this is what did it.** Twenty-three
+mutations ran correctly before it; lint, the suite and the build all passed. The target is now
+indentation-agnostic (`/^(\s*)const WAIVED = new Map\(\[\n/m`) so a reindent cannot disarm it.
+
+**(c) In the gate written to catch (b).** A prover target that stops matching costs a 25-minute
+CI cycle to discover, so I added a gate asserting every string-literal target still occurs in the
+tree. **Its first version could never fail.** It walked the whole tree *including the prover* —
+where every target is, by construction, a string literal — so each target matched itself. M12
+landed its edit, the gate stayed green, and that was the tell. The prover file is now excluded,
+and that exclusion is the entire substance of the check.
+
+The general rule, now in the repo's own conventions: **whenever a check searches a corpus for
+text drawn from one file, that file must be excluded** — otherwise the check is a tautology
+wearing a gate's name, which is this audit's subject exactly.
+
+### The audit's own instrument
+
+The instrument-before-subject rule this repo already learned twice (the uninitialised device
+registry; the mutation that went through a symlink) applies to this audit's own tooling:
+
+- **4 of the 7 gates my scan flagged in §2 were false positives** — reported, with the reason
+  for each, rather than counted as findings.
+- **A ratio in this document was upside down** on first writing (§2). Caught by re-running the
+  scan against what the document claimed.
+- **The gate in (c) above was vacuous** until a mutation said so.
+
+An audit that does not check its own instrument is one more confident, well-formed, wrong
 statement about what was verified.
 
 ---
