@@ -1,5 +1,6 @@
 {
   "version": 1,
+  "mode": "play",
   "widgets": [
     { "name": "btn7", "type": "button", "config": { "toggle": false, "label": "7" }, "layout": { "x": 10, "y": 10, "w": 50, "h": 50 }, "binding": { "target": "variable", "variableName": "btn7" } },
     { "name": "btn8", "type": "button", "config": { "toggle": false, "label": "8" }, "layout": { "x": 70, "y": 10, "w": 50, "h": 50 }, "binding": { "target": "variable", "variableName": "btn8" } },
