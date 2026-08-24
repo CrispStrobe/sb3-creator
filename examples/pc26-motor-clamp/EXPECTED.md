@@ -14,16 +14,22 @@ The value depends on the sample step, so the whole sweep is the result:
 
 | sample step | no diode | with `d1` |
 |---|---|---|
-| 100 µs | −9.0 V | −3.5 V |
-| 10 µs | −90.0 V | −8.1 V |
-| 1 µs | −900.0 V | −9.5 V |
-| 0.1 µs | −9000.0 V | −9.7 V |
+| 100 µs | unbounded | −9.7 V |
+| 10 µs | unbounded | −9.7 V |
+| 1 µs | unbounded | −9.7 V |
+| 0.1 µs | unbounded | −9.7 V |
 
-Without the diode the spike grows tenfold every time the step shrinks tenfold:
-it is **unbounded**, which is the correct answer for an ideal switch opening an
-inductive current (V = L·di/dt with dt → 0). Do not quote a single number for
-it. With the diode it **converges** to about −9.7 V and stays there — bounded,
-whatever the timebase.
+Without the diode the spike is **unbounded**, which is the correct answer for an
+ideal switch opening an inductive current (V = L·di/dt with dt → 0): it grows
+without limit as the step shrinks, and a single number for it would be a number
+about the solver rather than about the circuit. Do not quote one. With the diode
+it is **bounded at about −9.7 V** whatever the timebase.
+
+(Re-measured 2026-08-24. The clamped column used to climb −3.5 / −8.1 / −9.5 /
+−9.7 V as the step shrank; it now reads −9.7 V at every step, because the motor
+winding's inductance moved onto a first-class solver inductor instead of a
+device-side companion. The bound was always the teaching point; it is simply no
+longer an artefact of the timebase.)
 
 Steady state before turn-off: 8.999 V at the node, 0.9 A through the 10 Ω
 winding. That current is why the bound sits near 10 V rather than at one diode
