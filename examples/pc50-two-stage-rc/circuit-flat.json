@@ -30,7 +30,7 @@
       "id": "c1",
       "kind": "capacitor",
       "params": {
-        "farads": 0.0001
+        "farads": 1e-7
       },
       "seat": {
         "boardId": "bb1",
@@ -62,7 +62,7 @@
       "id": "c2",
       "kind": "capacitor",
       "params": {
-        "farads": 0.0001
+        "farads": 1e-7
       },
       "seat": {
         "boardId": "bb1",
