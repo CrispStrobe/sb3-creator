@@ -2,7 +2,7 @@
   "note": "Vendored VERDICT for the flat circuit twins. CI cannot recompute the net partition (that needs bw-circuit-ui + bw-board), but it can prove neither file of a pair changed since a run that did. Regenerate with scripts/vendor-flat-partitions.mjs --write.",
   "engine": {
     "repo": "bw-circuit-ui",
-    "sha": "0a3ec00e848e67615eef19ff8642b86bf533780c"
+    "sha": "410f8cecdbefec6eb8a2031e193e26ddf088ac3f"
   },
   "pairs": 1006,
   "entries": [
@@ -7554,9 +7554,9 @@
       "dir": "pc07-pot-dimmer",
       "flat": "circuit-flat.json",
       "twin": "circuit.json",
-      "flatSha": "4c1f3bd5a623df67a68cf563b24c6b0ccf9d372558fbd89921166a45b9fe43cb",
-      "twinSha": "a8f35f3d6fd3ad0d669435036a1ee5592ec8c1e05f17e1f8d51c4530acd00156",
-      "partitionSha": "24a2bf590f4631b89f3264983380b79565bfe42f44b184c26f2fd0327163cdda"
+      "flatSha": "a4ad3b234fff4aaca9af50d26fac4fd846b363a56fa113756fb1754f19abdf68",
+      "twinSha": "d8d08ad52d9bbc243903e5f05bebc58fb959c5ece84f52922a89c68ee80bc29f",
+      "partitionSha": "99a00a678cbd2d4d6cd1feafee5249c94452230a1af65af4f4737c1d95cf5004"
     },
     {
       "dir": "pc08-diode-polarity",
@@ -8002,9 +8002,9 @@
       "dir": "pico01-blink",
       "flat": "circuit-flat.json",
       "twin": "circuit.json",
-      "flatSha": "6b9ccc28582aad4cccf1b51c4305a5ed3557822e382ae3ba33aa99671a268023",
-      "twinSha": "9a3b7b6eba514f1d6aa823a4a883b68dbf38bb375743940926cd9252f7e9594b",
-      "partitionSha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      "flatSha": "19247cec22a955b200000dd47c14470720626f3b7d3d95cd9a3ee4dc7688bf70",
+      "twinSha": "e226c317fd16af029a60c61ae81121f1b48be8d93e04d92a4fa96de9622b1e9b",
+      "partitionSha": "8a13b979fe452dfb5a41b59ac496078abc6d99ce24d90d63a4c5bee37f5bf7b1"
     },
     {
       "dir": "pico02-pot-print",

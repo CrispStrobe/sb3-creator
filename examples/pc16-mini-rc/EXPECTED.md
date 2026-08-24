@@ -41,3 +41,12 @@ in the first millisecond. The timebase has to be seconds, not the default
 # RC: tau = 10k * 100uF = 1.0s, supply 5V
 net vsource_2.pos V 5.00 +-0.01
 ```
+
+<!-- engine-provenance -->
+> **Engine provenance.** The measured numbers on this page were last held against
+> `bw-board@88e9668` and `bw-circuit-ui@410f8ce` — the revisions pinned in
+> `test/fixtures/siblings.json`. `test/expected-quantities-hold.test.mjs` compares
+> **32 of this page's 41** numeric claims against that engine
+> (0 of them disagreeing) and declines the rest with a stated reason;
+> `node scripts/expected-claim-census.mjs pc16-mini-rc` prints them one by one.
+<!-- engine-provenance -->

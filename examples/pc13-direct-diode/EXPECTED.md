@@ -33,3 +33,12 @@ difference is the ~0.8 V the diode was eating.
 net resistor_2.b V 2.89 +-0.15
 net diode_3.cathode V 2.10 +-0.15
 ```
+
+<!-- engine-provenance -->
+> **Engine provenance.** The measured numbers on this page were last held against
+> `bw-board@88e9668` and `bw-circuit-ui@410f8ce` — the revisions pinned in
+> `test/fixtures/siblings.json`. `test/expected-quantities-hold.test.mjs` compares
+> **6 of this page's 11** numeric claims against that engine
+> (0 of them disagreeing) and declines the rest with a stated reason;
+> `node scripts/expected-claim-census.mjs pc13-direct-diode` prints them one by one.
+<!-- engine-provenance -->

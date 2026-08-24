@@ -41,3 +41,12 @@ is the regulator's imperfection, and it is visible in the table.
 # Zener clamp: Vz ≈ 5.1V (breakdown), resistor drops 9-5.1=3.9V
 net resistor_2.b V 5.14 +-0.20
 ```
+
+<!-- engine-provenance -->
+> **Engine provenance.** The measured numbers on this page were last held against
+> `bw-board@88e9668` and `bw-circuit-ui@410f8ce` — the revisions pinned in
+> `test/fixtures/siblings.json`. `test/expected-quantities-hold.test.mjs` compares
+> **12 of this page's 20** numeric claims against that engine
+> (0 of them disagreeing) and declines the rest with a stated reason;
+> `node scripts/expected-claim-census.mjs pc18-zener-clamp` prints them one by one.
+<!-- engine-provenance -->

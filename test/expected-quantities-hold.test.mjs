@@ -1,249 +1,255 @@
 /**
- * The numbers in EXPECTED.md prose, held against the bench and against
- * themselves.
+ * Every numeric claim in every EXPECTED.md, re-derived from the engine.
  *
  * THE DEFECT CLASS
  * ----------------
- * `test/assert-physics.test.mjs` checks the fenced ```assert blocks. Most of
- * what an EXPECTED.md claims is not in one: it is prose, hand-derived when the
- * example was written, and the corpus has moved under it repeatedly. Two claims
- * of that kind survived every gate until this sweep:
+ * `test/assert-physics.test.mjs` checks the fenced ```assert blocks. Almost
+ * nothing an EXPECTED.md claims is in one: the claims are prose, hand-derived
+ * when the example was written, and the corpus has moved under them repeatedly.
+ * The ones already caught are all the same shape — A DOCUMENT THAT AGREED WITH
+ * A BROKEN BENCH, and therefore looked correct until the bench was fixed:
  *
- *   23-voltage-regulator could not regulate. Its "zener" is declared
+ *   23-voltage-regulator could not regulate. Its "zener" was declared
  *   `kind: "diode"` with `vf: 5.1`, and a forward diode does not clamp in
- *   reverse — so no current took the zener branch at all, both resistors
- *   carried the SAME 8.642 mA, and the document's 6.60 mA LED current was
- *   unreachable. Declared as `kind: "zener"` with `vz: 5.1` the bench measures
- *   11.739 mA through R1 and 6.513 mA through R2, against the document's
- *   hand-derived 11.82 and 6.60. The document was right about all three
- *   numbers, including the zener current it obtains by subtraction.
+ *   reverse, so no current took the zener branch and the document's 6.60 mA
+ *   was unreachable. Declared properly the bench measures it. The document was
+ *   right; the bench was wrong.
  *
- *   arduino-01-blink claimed "1 Hz (period = 2 s)", which is self-contradictory
- *   and also contradicts its program: `wait 1 seconds` twice is a 2 s period and
- *   0.5 Hz. Its own timing table already showed ON at t=0 and ON again at t=2.
+ *   41-pot-as-dimmer claimed 2.3 mA where the bench delivers 0.188 — a twelve-
+ *   fold gap whose own prose already said "unloaded divider approximation".
+ *   The document was wrong.
  *
- * Neither is exotic. Both are a number that was true when typed.
+ *   arduino-01-blink claimed "1 Hz (period = 2 s)", which contradicts itself
+ *   and its program.
  *
- * HOW THE CURRENT IS OBTAINED
- * ---------------------------
- * assert-physics skips `current` assertions entirely — "current readback not yet
- * wired" — so no current claim anywhere in the corpus has ever been checked.
- * Nothing new is needed in the engine: a resistor's current is
- * (V(a) - V(b)) / ohms from the node voltages the solver already gives, and in
- * an LED branch the series resistor's current IS the LED's. Derived that way,
- * 41-pot-as-dimmer reads 0.188 mA — the number its EXPECTED.md hand-derived
- * after the 2.3 mA claim was found wrong, reproduced here independently.
+ * None of those is exotic. Each was a number that was true when typed.
  *
- * WHAT IT DOES NOT CHECK, AND WHY
- * -------------------------------
- * Only STATIC benches. An MCU bench's current depends on firmware state and an
- * oscillator's on the instant you sample; a single solve cannot speak for
- * either, and pretending otherwise produces confident wrong numbers. Those are
- * counted and reported as not-compared rather than passed over in silence.
+ * WHAT THIS GATE DOES
+ * -------------------
+ * The unit of work is the CLAIM, not the check. `test/helpers/expected-claims.mjs`
+ * enumerates every unit-bearing number in every EXPECTED.md — 2356 of them —
+ * and gives each an identity. Every one is then either compared against
+ * something that can contradict it or DECLINED WITH A REASON. The fraction
+ * compared is reported with its denominator, and a claim nobody can check is
+ * visible as such rather than absent.
+ *
+ *   before this sweep      34 of 2356 claims compared  (1.4 %)
+ *   after                1195 of 2356 claims compared (50.7 %)
+ *
+ * and of the 1195, exactly ONE is a claim the engine contradicts and this lane
+ * did not close. It is recorded with a verdict in
+ * test/fixtures/expected-claim-exceptions.json.
+ *
+ * The 34 is not a slur on the previous gate: it read three hand-written shapes
+ * out of the prose (a frequency beside a period, a Frequency: beside a two-wait
+ * program, and at most ONE current bullet per example) and read them well. It
+ * simply had no denominator, so nobody could see what it was not reading.
+ *
+ * WHAT IT CHECKS AGAINST
+ * ----------------------
+ *   the engine        `bench-measure.mjs` solves the authored circuit.json at
+ *                     the operating point the claim names — a control value, a
+ *                     supply voltage, an MCU pin drive, a time — and reads node
+ *                     voltages and BoardImpl.branchCurrent() back out.
+ *   circuit.json      a component value under `## Circuit` is a statement about
+ *                     THIS bench and is held against the parts it declares.
+ *   program.bw        a frequency, a cycle period and a duty cycle are held
+ *                     against the program's own timeline, with REPEAT walked.
+ *   the document      a claim that shows its own arithmetic is held to that
+ *                     arithmetic exactly, which needs no bench at all.
+ *
+ * TWO THINGS THE ENGINE TURNED OUT TO HAVE, AND ONE IT DOES NOT
+ * -------------------------------------------------------------
+ * `assert-physics` retires every `current` assertion with "current readback not
+ * yet wired". That was never true: `BoardImpl.branchCurrent(partId, terminal)`
+ * has been the public face of solveMNA's `branchCurrents` the whole time. And
+ * an MCU bench is not "a firmware state" beyond reach — `setPin(pin,
+ * 'pushpull', high)` puts it at the operating point the document is describing,
+ * which is what let 120 claims across the blink benches be checked at all.
+ *
+ * What the engine does NOT have is `rInternal`. Eight batteries in the corpus
+ * declare one and no bw-board model reads it, so every source solves as ideal.
+ * Four German lessons are built on that parameter — pc77-klemmenspannung is
+ * literally about terminal voltage sagging under load — and their benches show
+ * a flat 9.0000 V. The canary at the end of this file fails when that changes,
+ * because those documents must then be re-derived.
+ *
+ * WRONG IS NOT THE SAME AS UNVERIFIABLE
+ * -------------------------------------
+ * A claim the engine contradicts is a defect in the corpus and goes in
+ * `test/fixtures/expected-claim-exceptions.json` with a verdict naming which
+ * side is wrong. A claim the engine has no readback for is a gap in the
+ * instrument, is declined by name, and is counted in the skipped column. The
+ * two never merge into one number. Nor does a MODEL DIFFERENCE become a
+ * verdict: the documents divide by a declared forward drop and a nominal rail
+ * while the engine solves a junction behind a pin's output impedance, and where
+ * those diverge the gate says so with both numbers instead of reporting a
+ * correct document as defective.
  */
 import { describe, test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync, readdirSync, existsSync, statSync } from 'node:fs';
+import { readFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
-import { pathToFileURL } from 'node:url';
 import { requireSiblings, siblingGuardTest } from './helpers/siblings.mjs';
-
-const ROOT = join(import.meta.dirname, '..');
-const EXAMPLES = join(ROOT, 'examples');
-const dirs = readdirSync(EXAMPLES)
-    .filter(d => d !== 'AUDIT' && statSync(join(EXAMPLES, d)).isDirectory()).sort();
+import { allClaims, exampleDirs, EXAMPLES } from './helpers/expected-claims.mjs';
+import { loadEngine, solveBench, declaredPool } from './helpers/bench-measure.mjs';
+import { adjudicate } from './helpers/claim-adjudicate.mjs';
 
 const gate = requireSiblings('bw-board', 'bw-circuit-ui');
 siblingGuardTest(gate, 'the EXPECTED.md quantity checks');
 const SKIP = gate.skip || false;
 
-// ---------- claims that need no engine ----------
+const EXCEPTIONS = JSON.parse(readFileSync(
+    join(import.meta.dirname, 'fixtures', 'expected-claim-exceptions.json'), 'utf8'));
 
-const toSeconds = (v, u) => u === 'ms' ? v / 1000 : (u === 'µs' || u === 'us') ? v / 1e6 : v;
-const toHertz = (v, u) => u === 'kHz' ? v * 1000 : u === 'MHz' ? v * 1e6 : v;
+/**
+ * The census, adjudicated once. Every claim lands in exactly one of three
+ * states and the totals below are what the gate reports.
+ */
+let LEDGER = null;
+async function ledger () {
+    if (LEDGER) return LEDGER;
+    await loadEngine(gate.paths);
+    const checked = [], skipped = [], mismatched = [];
+    for (const claim of allClaims()) {
+        const verdict = adjudicate(claim);
+        if (verdict.ok) checked.push({ ...claim, ...verdict });
+        else if (verdict.skip) skipped.push({ ...claim, reason: verdict.skip });
+        else mismatched.push({ ...claim, ...verdict });
+    }
+    LEDGER = { checked, skipped, mismatched, total: checked.length + skipped.length + mismatched.length };
+    return LEDGER;
+}
 
-describe('EXPECTED.md quantities agree with each other and with the program', () => {
-    test('a frequency and a period stated together are reciprocals', () => {
-        const bad = [];
-        let pairs = 0;
-        for (const dir of dirs) {
-            const path = join(EXAMPLES, dir, 'EXPECTED.md');
-            if (!existsSync(path)) continue;
-            for (const line of readFileSync(path, 'utf8').split('\n')) {
-                const f = line.match(/([\d.]+)\s*(kHz|MHz|Hz)\b/);
-                const t = line.match(/(?:period|periode)\s*[=:]?\s*~?([\d.]+)\s*(ms|µs|us|s)\b/i);
-                if (!f || !t) continue;
-                pairs++;
-                const hz = toHertz(parseFloat(f[1]), f[2]);
-                const seconds = toSeconds(parseFloat(t[1]), t[2]);
-                const implied = 1 / seconds;
-                if (Math.abs(hz - implied) / Math.max(hz, implied) > 0.02)
-                    bad.push(`${dir}: "${line.trim()}" — ${hz} Hz is a ${(1000 / hz).toFixed(0)} ms period, `
-                        + `but the line says ${(seconds * 1000).toFixed(0)} ms`);
-            }
-        }
-        assert.ok(pairs >= 5, `only ${pairs} frequency+period pairs found — the scan is broken`);
-        assert.deepEqual(bad.sort(), [], 'a document disagreeing with itself');
+const key = (c) => `${c.dir}#${c.lineNo}`;
+
+describe('EXPECTED.md quantities hold against the engine', { skip: SKIP }, () => {
+    test('the census finds a claim in most of the corpus', async () => {
+        const L = await ledger();
+        // Floors, not targets: if the extractor breaks, this must fail rather
+        // than report a tidy 100 % of nothing.
+        assert.ok(L.total > 2300,
+            `only ${L.total} unit-bearing claims found across ${exampleDirs().length} examples — the extractor is broken`);
+        const dirs = new Set(allClaims().map(c => c.dir));
+        assert.ok(dirs.size > 180,
+            `claims found in only ${dirs.size} examples — the extractor is reading a fraction of the corpus`);
     });
 
-    test('a stated blink frequency matches the program that produces it', () => {
-        const bad = [];
-        let checked = 0;
-        for (const dir of dirs) {
-            const md = join(EXAMPLES, dir, 'EXPECTED.md');
-            const bw = join(EXAMPLES, dir, 'program.bw');
-            if (!existsSync(md) || !existsSync(bw)) continue;
-            const waits = [...readFileSync(bw, 'utf8')
-                .matchAll(/^\s*wait\s+([\d.]+)\s+seconds?\s*$/gim)].map(m => parseFloat(m[1]));
-            // Only the unambiguous shape: exactly two equal waits, on then off.
-            if (waits.length !== 2 || waits[0] !== waits[1]) continue;
-            const m = readFileSync(md, 'utf8').match(/\*\*Frequency:?\*\*:?\s*~?([\d.]+)\s*(kHz|MHz|Hz)\b/i);
-            if (!m) continue;
-            checked++;
-            const claimed = toHertz(parseFloat(m[1]), m[2]);
-            const actual = 1 / (waits[0] * 2);
-            if (Math.abs(claimed - actual) / Math.max(claimed, actual) > 0.02)
-                bad.push(`${dir}: EXPECTED says ${claimed} Hz; the program waits ${waits[0]} s twice, `
-                    + `a ${waits[0] * 2} s period = ${actual} Hz`);
-        }
-        assert.ok(checked >= 5, `only ${checked} two-wait blink programs state a Frequency`);
-        assert.deepEqual(bad.sort(), [], 'a document disagreeing with its program');
+    test('every claim is either compared or declined with a stated reason', async () => {
+        const L = await ledger();
+        const unexplained = L.skipped.filter(s => !s.reason || s.reason.length < 20);
+        assert.deepEqual(unexplained.map(key), [],
+            'a claim declined without a reason is an unverified claim nobody can see');
+        const compared = L.checked.length + L.mismatched.length;
+        // The ratchet. 1195/2356 = 50.7 % on 2026-08-24, against 34 (1.4 %)
+        // before this sweep. Raise this floor when the fraction rises; never
+        // lower it to make a change fit.
+        assert.ok(compared >= 1150,
+            `only ${compared} of ${L.total} claims were compared (${(compared / L.total * 100).toFixed(1)} %) — `
+            + 'this gate checked 1195 when the floor was set, so coverage has gone BACKWARDS');
     });
 
-    test('a zener declares its breakdown voltage, and a diode is not a zener in disguise', () => {
-        // Both halves were real. 23-voltage-regulator declared its zener as a
-        // `diode` with vf 5.1 and therefore never clamped; 39-zener-clamp and
-        // pc18-zener-clamp put the breakdown voltage in `vf`, the FORWARD drop,
-        // and were right only because those benches never forward-bias it.
-        const bad = [];
-        for (const dir of dirs) {
-            for (const file of readdirSync(join(EXAMPLES, dir))) {
-                if (!/^circuit.*\.json$/.test(file)) continue;
-                let data;
-                try { data = JSON.parse(readFileSync(join(EXAMPLES, dir, file), 'utf8')); } catch { continue; }
-                for (const part of data.parts || []) {
-                    const p = part.params || {};
-                    if (part.kind === 'zener' && p.vz === undefined)
-                        bad.push(`${dir}/${file}: zener ${part.id} declares no vz (vf=${p.vf}) — mna reads vz for the breakdown`);
-                    if (part.kind === 'zener' && p.vf !== undefined && p.vf > 1.2)
-                        bad.push(`${dir}/${file}: zener ${part.id} has vf=${p.vf}; that is a breakdown voltage in the forward-drop field`);
-                    if (part.kind === 'diode' && (p.vf ?? 0.7) > 1.2)
-                        bad.push(`${dir}/${file}: diode ${part.id} has vf=${p.vf}; a forward diode does not clamp — declare kind "zener" with vz`);
-                }
-            }
-        }
-        assert.deepEqual(bad.sort(), [], 'a part that cannot do what its document says');
+    test('no claim the engine contradicts is unrecorded', async () => {
+        const L = await ledger();
+        const open = new Set(EXCEPTIONS.open.map(e => e.id.split('#')[0] + '#' + e.id.split('#')[1]));
+        const surprises = L.mismatched
+            .filter(m => !open.has(key(m)))
+            .map(m => `${key(m)} "${m.text}" — ${m.detail}\n      ${m.line.slice(0, 110)}`);
+        assert.deepEqual(surprises, [],
+            `${L.mismatched.length} claims disagree with the engine; `
+            + `${EXCEPTIONS.open.length} are recorded in test/fixtures/expected-claim-exceptions.json with a verdict. These are not:`);
+    });
+
+    test('the recorded exceptions still mismatch, and there are no more of them', async () => {
+        const L = await ledger();
+        // A ratchet has two teeth. Without the first, a fixed defect leaves a
+        // stale entry that quietly re-permits the next one; without the second,
+        // the file grows and the gate becomes a list of things it tolerates.
+        const live = new Set(L.mismatched.map(key));
+        const stale = EXCEPTIONS.open
+            .filter(e => !live.has(e.id.split('#').slice(0, 2).join('#')))
+            .map(e => `${e.id} no longer mismatches — delete it from the fixture and lower "max"`);
+        assert.deepEqual(stale, [], 'a recorded exception that has been fixed must be removed');
+        assert.ok(EXCEPTIONS.open.length <= EXCEPTIONS.max,
+            `${EXCEPTIONS.open.length} recorded exceptions against a max of ${EXCEPTIONS.max}`);
+    });
+
+    test('a document that shows its arithmetic agrees with it', async () => {
+        const L = await ledger();
+        const byOwnMaths = L.checked.filter(c => /own arithmetic/.test(c.how || ''));
+        assert.ok(byOwnMaths.length >= 175,
+            `only ${byOwnMaths.length} claims were held to their own stated derivation — the expression reader is broken`);
+    });
+
+    test('currents come from the engine, not from a hand derivation', async () => {
+        const L = await ledger();
+        const solvedCurrents = L.checked.filter(c => c.cls === 'curr' && /solved/.test(c.how || ''));
+        // The whole point: before this sweep no current claim anywhere in the
+        // corpus had ever been compared against a solve.
+        assert.ok(solvedCurrents.length >= 85,
+            `only ${solvedCurrents.length} current claims were checked against a solve — branchCurrent readback is not reaching them`);
     });
 });
 
-// ---------- claims that need a solve ----------
-
-describe('EXPECTED.md currents match the bench', { skip: SKIP }, () => {
-    const VISUAL_ONLY = new Set(['label', 'wire_jumper']);
-    let Circuit, ready = false;
-
-    test('the engine loads', async () => {
-        const board = pathToFileURL(gate.paths['bw-board'] + '/');
-        const cui = pathToFileURL(gate.paths['bw-circuit-ui'] + '/');
-        const { BoardImpl } = await import(new URL('src/board.js', board).href);
-        const { inferNetlist, checkWiring } = await import(new URL('src/infer-netlist.js', board).href);
-        const { registerAllDevices } = await import(new URL('src/register-all.js', board).href);
-        const { getDevice } = await import(new URL('src/devices.js', board).href);
-        const { setEngine } = await import(new URL('src/engine.js', cui).href);
-        ({ Circuit } = await import(new URL('src/model/circuit.js', cui).href));
-        registerAllDevices();
-        setEngine({ BoardImpl, inferNetlist, checkWiring, getDevice });
-        ready = true;
-        assert.ok(Circuit);
+describe('a measured number names the engine that measured it', { skip: SKIP }, () => {
+    test('every EXPECTED.md that quotes a solve carries the pinned revisions', async () => {
+        await loadEngine(gate.paths);
+        const { MARK, isDerived } = await import('./helpers/expected-provenance.mjs');
+        const missing = [];
+        for (const dir of exampleDirs()) {
+            const path = join(EXAMPLES, dir, 'EXPECTED.md');
+            if (!existsSync(path)) continue;
+            const text = readFileSync(path, 'utf8');
+            if (!isDerived(text)) continue;
+            if (!text.includes(MARK)) { missing.push(`${dir}: quotes a solve and names no engine revision`); continue; }
+            for (const name of ['bw-board', 'bw-circuit-ui']) {
+                const rev = JSON.parse(readFileSync(join(import.meta.dirname, 'fixtures', 'siblings.json'), 'utf8'))
+                    .siblings[name].rev.slice(0, 7);
+                if (!text.includes(`${name}@${rev}`))
+                    missing.push(`${dir}: provenance names a ${name} revision other than the pinned ${rev}`);
+            }
+        }
+        // A measured number without a revision cannot be reproduced or
+        // falsified: when pc32-pnp-high-side's V_EB drifts, nobody can tell
+        // whether the document was wrong or the engine moved. Twenty-seven
+        // pages were in that state before this sweep.
+        assert.deepEqual(missing, [],
+            'run `node scripts/stamp-expected-provenance.mjs` (and re-derive the numbers if the pin moved)');
     });
+});
 
-    /** mA through every resistor, from the node voltages the solver gives. */
-    const resistorCurrents = (dir) => {
-        const path = join(EXAMPLES, dir, 'circuit.json');
-        const data = JSON.parse(readFileSync(path, 'utf8'));
-        const hidden = new Set(data.parts.filter(p => VISUAL_ONLY.has(p.kind)).map(p => p.id));
-        data.parts = data.parts.filter(p => !VISUAL_ONLY.has(p.kind));
-        data.wires = (data.wires || []).filter(w =>
-            !(typeof w.from === 'string' && hidden.has(w.from)) &&
-            !(typeof w.to === 'string' && hidden.has(w.to)));
-        const circuit = Circuit.fromJSON(data);
-        const board = circuit.board;
-        if (!(board.getNets?.() || []).length) return null;
-        board.advanceTo(2_000_000n);
-        const netOf = (part, terminal) => {
-            for (const net of (circuit.nets || board.getNets()))
-                for (const t of (net.terminals || []))
-                    if (t.part === part && String(t.terminal) === terminal) return net.id || net.name;
-            return null;
-        };
-        const out = [];
-        for (const part of circuit.parts || []) {
-            if (part.kind !== 'resistor') continue;
-            const ohms = part.params?.ohms;
-            const a = netOf(part.id, 'a'), b = netOf(part.id, 'b');
-            if (!ohms || !a || !b) continue;
-            try { out.push(Math.abs(board.nodeVoltage(a) - board.nodeVoltage(b)) / ohms * 1000); } catch { /* unsolved */ }
+describe('the instrument says what it cannot read', { skip: SKIP }, () => {
+    test('rInternal is declared by benches and stamped by nothing', async () => {
+        await loadEngine(gate.paths);
+        const withR = exampleDirs().filter(d => {
+            const p = join(EXAMPLES, d, 'circuit.json');
+            if (!existsSync(p)) return false;
+            try {
+                return (JSON.parse(readFileSync(p, 'utf8')).parts || [])
+                    .some(x => typeof x.params?.rInternal === 'number');
+            } catch { return false; }
+        });
+        assert.ok(withR.length >= 6,
+            `only ${withR.length} benches declare rInternal — this canary has lost its subject`);
+        // A CANARY, and it is meant to fail one day. bw-board solves every
+        // source as ideal, so a bench that declares an internal resistance
+        // shows no sag at all. pc77-klemmenspannung is a lesson ABOUT that sag.
+        // When bw-board starts stamping rInternal this test fails, and the four
+        // German source-resistance lessons must be re-derived against it.
+        const sagging = [];
+        for (const dir of withR) {
+            const s = solveBench(dir);
+            if (s.error) continue;
+            const pool = declaredPool(dir);
+            const emf = pool && pool.supply.size ? Math.max(...pool.supply) : null;
+            if (!emf) continue;
+            const top = Math.max(...s.voltage.values());
+            if (Math.abs(top - emf) / emf > 0.001) sagging.push(`${dir}: ${top.toFixed(4)} V against a declared ${emf} V EMF`);
         }
-        return out;
-    };
-
-    /** The claimed milliamps on a "**… current …:**" line: after the last `=`, else the first value. */
-    const claimedMilliamps = (md) => {
-        for (const line of md.split('\n')) {
-            const label = line.match(/^- \*\*([^*]*current[^*]*)\*\*:?(.*)$/i);
-            if (!label) continue;
-            // Currents that are not the load branch, or are explicitly bounds.
-            if (/base|collector|stall|supply|total|max|min|peak|valley|trough|chip|per-port|limit/i.test(label[1])) continue;
-            const rhs = label[2];
-            const tail = rhs.includes('=') ? rhs.slice(rhs.lastIndexOf('=')) : rhs;
-            const v = tail.match(/([\d.]+)\s*mA\b/);
-            if (v) return { mA: parseFloat(v[1]), line: line.trim() };
-        }
-        return null;
-    };
-
-    test('every prose current claim on a static bench matches a resistor in it', () => {
-        assert.ok(ready, 'engine did not load');
-        const off = [], notCompared = [];
-        let claims = 0, compared = 0;
-        for (const dir of dirs) {
-            const md = join(EXAMPLES, dir, 'EXPECTED.md');
-            if (!existsSync(md)) continue;
-            const claim = claimedMilliamps(readFileSync(md, 'utf8'));
-            if (!claim) continue;
-            claims++;
-            const circuit = join(EXAMPLES, dir, 'circuit.json');
-            if (!existsSync(circuit)) { notCompared.push(`${dir}: no authored circuit.json`); continue; }
-            const data = JSON.parse(readFileSync(circuit, 'utf8'));
-            // An MCU bench's current depends on firmware state, and an
-            // oscillator's on the sampling instant. One solve speaks for
-            // neither, so say so instead of comparing.
-            if ((data.parts || []).some(p => /mcu|arduino_|pi_pico|attiny|atmega|stc/i.test(p.kind))) {
-                notCompared.push(`${dir}: MCU bench — the current depends on firmware state`); continue;
-            }
-            if ((data.parts || []).some(p => /555|vsource/i.test(p.kind))) {
-                notCompared.push(`${dir}: oscillating bench — one solve is one instant`); continue;
-            }
-            let currents;
-            try { currents = resistorCurrents(dir); } catch (e) { notCompared.push(`${dir}: ${e.message.slice(0, 40)}`); continue; }
-            if (!currents) { notCompared.push(`${dir}: netlist rejected`); continue; }
-            const live = currents.filter(v => isFinite(v) && v > 1e-4);
-            if (!live.length) { notCompared.push(`${dir}: no resistor carries current`); continue; }
-            compared++;
-            const closest = live.reduce((a, b) => Math.abs(b - claim.mA) < Math.abs(a - claim.mA) ? b : a);
-            const rel = Math.abs(closest - claim.mA) / Math.max(claim.mA, 1e-6);
-            // 10%: the documents derive from an ideal Vf while the engine uses a
-            // junction model, so a few percent is the two models disagreeing,
-            // not the document being wrong.
-            if (rel > 0.10)
-                off.push(`${dir}: "${claim.line.slice(0, 70)}" claims ${claim.mA} mA; the bench's resistors `
-                    + `carry [${live.map(v => v.toFixed(3)).join(', ')}] mA`);
-        }
-        // Floors: this must actually be comparing things.
-        assert.ok(claims >= 30, `only ${claims} prose current claims found — the extractor is broken`);
-        assert.ok(compared >= 10, `only ${compared} of ${claims} claims were compared — the solve path is broken`);
-        assert.deepEqual(off.sort(), [],
-            `${compared} of ${claims} prose current claims were compared against a solve; `
-            + `${notCompared.length} could not be (MCU or oscillating benches). These disagree:`);
+        assert.deepEqual(sagging, [],
+            'a source with a declared rInternal now sags under load — bw-board has grown the model these benches assume. '
+            + 'That is good news and a task: re-derive the internal-drop and terminal-voltage claims in 47-battery-led, '
+            + '52-battery-voltage-divider, pc77-klemmenspannung, pc78-belastete-quelle, pc79-indirekte-strommessung and '
+            + 'pc80-quellen-vergleich, then delete this canary.');
     });
 });

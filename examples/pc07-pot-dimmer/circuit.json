@@ -44,7 +44,7 @@
         "leadMap": {
           "a": "a3",
           "wiper": "a7",
-          "b": "a12"
+          "b": "a13"
         }
       }
     },
@@ -64,7 +64,7 @@
       "seat": {
         "boardId": "breadboard_1",
         "leadMap": {
-          "a": "b8",
+          "a": "b7",
           "b": "b12"
         }
       }

@@ -35,3 +35,12 @@ independent.
 # Three parallel LED branches: 330R/330R/470R from 5V
 net vsource_1.pos V 5.00 +-0.01
 ```
+
+<!-- engine-provenance -->
+> **Engine provenance.** The measured numbers on this page were last held against
+> `bw-board@88e9668` and `bw-circuit-ui@410f8ce` — the revisions pinned in
+> `test/fixtures/siblings.json`. `test/expected-quantities-hold.test.mjs` compares
+> **12 of this page's 19** numeric claims against that engine
+> (0 of them disagreeing) and declines the rest with a stated reason;
+> `node scripts/expected-claim-census.mjs pc20-rgb-mix` prints them one by one.
+<!-- engine-provenance -->
