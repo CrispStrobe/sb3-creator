@@ -814,7 +814,22 @@ test('the simulator driver makes an STC12 program drivable by a board layer', ()
     // With no board attached the program still runs; when one appears,
     // its INPUT pins are armed (pulls stamped) once per board instance.
     assert.match(js, /const _board = \(\) => \{ const b = \(typeof bwBoard !== "undefined" \? bwBoard : null\); _bw_arm\(b\); return b; \}/);
-    assert.match(js, /if \(p\.dir !== "output"\) b\.setPin\(p\.pin, _mod\(p\), false\)/);
+    // ...at the pull's own RAIL. The third argument is not a drive: a quasi pin
+    // idles HIGH (that IS the 8051 weak pull-up), and arming it low clamps the net
+    // to ~0 V so no button on it can ever move the reading. Arming with a flat
+    // `false` left 22 of the corpus's 67 wired controls dead — see
+    // test/simulator-driver-controls-respond.test.mjs, which measures all of them.
+    assert.match(js, /if \(p\.dir !== "output"\) b\.setPin\(p\.pin, m, m === "quasi"\)/);
+    // Behaviour, not only text: the rail this yields per mode.
+    const modeOf = new Function('p', 'return (p.dir === "output" ? "pushpull" : p.dir === "analog" '
+        + '? "input" : p.q ? "quasi" : (p.low ? "input-pullup" : "input-pulldown"));');
+    const rail = pin => modeOf(pin) === 'quasi';
+    assert.equal(rail({dir: 'input', q: true, low: true}), true, '8051 input idles at its pull-up');
+    assert.equal(rail({dir: 'input', q: false, low: true}), false,
+        'input-pullup carries its own rail in pin-model.js and ignores the argument');
+    assert.equal(rail({dir: 'input', q: false, low: false}), false, 'board-class active-high pulls down');
+    assert.equal(rail({dir: 'analog', q: true, low: false}), false,
+        'an analog pin is high-Z: arming it high would drive the thing being measured');
     // Python gets the same driver.
     assert.match(c.generatePython(undefined, { driver: 'simulator' }), /class _Stc12Simulated:/);
 });
