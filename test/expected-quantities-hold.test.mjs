@@ -248,8 +248,18 @@ describe('the instrument says what it cannot read', { skip: SKIP }, () => {
         }
         assert.deepEqual(sagging, [],
             'a source with a declared rInternal now sags under load — bw-board has grown the model these benches assume. '
-            + 'That is good news and a task: re-derive the internal-drop and terminal-voltage claims in 47-battery-led, '
-            + '52-battery-voltage-divider, pc77-klemmenspannung, pc78-belastete-quelle, pc79-indirekte-strommessung and '
-            + 'pc80-quellen-vergleich, then delete this canary.');
+            + 'That is good news and a task. It was MEASURED IN ADVANCE against bw-board b5c02b1 ("Source and '
+            + 'transistor current honesty") on 2026-08-24, before any pin moved, so this is a hand-over and not a hunt:\n'
+            + '  FIVE AGREE and simply become checkable — 47-battery-led (internal drop 3.5 mV claimed, 0.0035 V '
+            + 'solved), 52-battery-voltage-divider (0.225 mV / 0.0002 V), pc77-klemmenspannung (0.108 V / 0.1033 V, '
+            + 'terminal 8.89 V / 8.8967 V), pc79-indirekte-strommessung (14.84 mA / 14.538 mA), pc80-quellen-vergleich '
+            + '(14.88 mA / 14.568 mA). Delete their hand-computed framing and let this gate check them.\n'
+            + '  ONE IS WRONG: pc78-belastete-quelle claims "Total current: I = 9 / 412 = 21.8 mA" while the line above '
+            + 'it says the LED Vf is subtracted — and it is not. The engine measures 16.719 mA (light branch 4.707, '
+            + 'heavy 12.011); subtracting Vf by hand gives 17.04. Its terminal voltage of 8.96 V is right by luck, '
+            + 'because the sag is small either way. The arithmetic checker CANNOT catch this: 9/412 really is 21.8, so '
+            + 'the document agrees with itself and disagrees with the circuit.\n'
+            + 'Re-derive against whatever revision is pinned when you read this, restamp with '
+            + '`node scripts/stamp-expected-provenance.mjs`, then delete this canary.');
     });
 });
