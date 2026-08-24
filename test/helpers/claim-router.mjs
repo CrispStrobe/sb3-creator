@@ -69,6 +69,11 @@ const COUNTERFACTUAL = new RegExp([
     // a rating or a limit, which is a datasheet fact and not a measurement
     '\\brated\\b', '\\brating\\b', 'absolute maximum', '\\bexceed', 'datasheet',
     'per-port', '\\bnear max\\b', '\\bstall\\b', '\\bthreshold\\b', '\\bv_?be\\s*[=≈]',
+    // "40 mA absolute max per pin" and "12 mA max per pin" are datasheet
+    // ceilings written the short way; 'absolute maximum' and 'per-pin maximum'
+    // above only caught the long ones, so three blink pages stated a pin rating
+    // that this gate then tried to find on the bench.
+    'absolute max\\b', '\\bmax(?:imum)? per pin\\b',
     'chip budget', "chip's total", 'per-pin maximum', 'total budget', 'total capacity',
     '\\bresolution\\b', 'per step', 'stands in for', '^\\s*-\\s*\\d+\\s*(?:Ω|k)',
     '\\bat most\\b', '\\bat least\\b', '\\bsinks\\b', 'sources only', '\\bcosts\\b',
@@ -82,6 +87,18 @@ const COUNTERFACTUAL = new RegExp([
     'looking (back )?into', '\\bequivalent\\b', 'th[ée]venin', '\\bswing\\b',
     'moving from', '\\bat peak\\b', '\\bfar more\\b', '\\bfar less\\b',
 ].join('|'), 'i');
+
+/**
+ * Is this claim the RIGHT-HAND side of a much-less-than / much-greater-than?
+ *
+ * `claim.at` is the offset of the number in its own line, so this asks about
+ * the claim rather than about the sentence it shares with other claims.
+ */
+function comparedAgainst (claim) {
+    if (typeof claim.at !== 'number') return false;
+    const before = (claim.line || '').slice(0, claim.at);
+    return /(<<|>>|≪|≫)\s*~?[\d.]*\s*$/.test(before);
+}
 
 /** Conditions the engine has no control channel for — named, never guessed at. */
 function unsettable (ctx) {
@@ -312,9 +329,29 @@ export function route (claim) {
     // A sentence that wraps carries its qualifier on the previous line, so the
     // previous line is part of the claim's context. pc13-direct-diode's "the
     // number quoted at about\n1 mA" is one sentence and one counterfactual.
-    const prose = `${claim.section} ${claim.leadIn || ''} ${claim.prevLine || ''} ${claim.line}`;
+    //
+    // TWO LIST ITEMS ARE NOT ONE WRAPPED SENTENCE. A wrapped bullet continues on
+    // an unbulleted line, so requiring the previous line NOT to be a list item
+    // keeps every wrap while ending an over-reach that silenced 8 claims in 6
+    // examples: 47-battery-led writes "(9.0 - 2.0) / (1000 + 0.5) = 7.0 mA
+    // (approximately)" and then, as a SEPARATE bullet, "Voltage across
+    // resistor: 7.0 mA x 1000 = 7.0 V" — a flat statement about this bench that
+    // inherited its neighbour's "approximately" and was declined for it.
+    const isListItem = (l) => /^\s*(?:[-*+]\s|\d+[.)]\s)/.test(l || '');
+    const carriesOver = isListItem(claim.line) && isListItem(claim.prevLine) ? '' : (claim.prevLine || '');
+    const prose = `${claim.section} ${claim.leadIn || ''} ${carriesOver} ${claim.line}`;
     if (COUNTERFACTUAL.test(prose) || COUNTERFACTUAL.test(pre))
         return { decline: 'counterfactual or comparative prose — the number is stated about a bench other than this one, or is a rating rather than a measurement' };
+
+    // A number on the far side of a much-less-than is a HEADROOM REFERENCE,
+    // not a measurement of anything. 38-npn-switch writes "Transistor is
+    // saturated (V_CE ~ 0.2 V) since 5.96 mA << 43 mA": the 5.96 mA is the
+    // collector current and the engine confirms it, while the 43 mA is the
+    // beta*I_B ceiling three lines above, restated to show the margin. Marking
+    // the whole line comparative would throw away two checks that pass, so the
+    // rule reads the claim's OWN offset rather than the sentence.
+    if (comparedAgainst(claim))
+        return { decline: 'a headroom reference — the number is on the far side of a "<<" or ">>" comparison, so it is the ceiling the measured value is being held against rather than a measurement of this bench' };
 
     if (conditionIsInHeader(claim))
         return { decline: 'the operating point is named by the COLUMN header rather than the row, and this gate reads conditions from rows' };

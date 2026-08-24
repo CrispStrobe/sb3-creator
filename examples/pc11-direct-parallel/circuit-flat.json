@@ -83,8 +83,8 @@
       "id": "led_5",
       "kind": "led",
       "params": {
-        "vf": 3.1,
-        "color": "blue"
+        "vf": 2,
+        "color": "red"
       },
       "terminals": [
         "anode",

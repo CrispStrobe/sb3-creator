@@ -198,6 +198,14 @@ export function claimsOf (dir) {
                 text: m[0], value: signed(m[1], line[m.index - 1]), unit: m[2],
                 si: signed(m[1], line[m.index - 1]) * mult, cls,
                 id: `${dir}#${i + 1}:${m.index}`,
+                // Where in the line this number sits. A claim's POSITION is
+                // part of what it means: "5.96 mA << 43 mA" states one
+                // measurement and one headroom reference, and only the offset
+                // tells them apart. Offset into the TRIMMED line, because that
+                // is the string stored as `line` — indexing one string with an
+                // offset into another is exactly the class of error this gate
+                // exists to catch.
+                at: m.index - (line.length - line.trimStart().length),
                 approx: /[~≈約]|about|roughly|approx/i.test(line.slice(Math.max(0, m.index - 12), m.index + 2)),
                 table: table[i], leadIn, prevLine: (lines[i - 1] || '').trim(),
                 // Which table cell this number is in, counted rather than

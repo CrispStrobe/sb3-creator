@@ -34,11 +34,22 @@
  * visible as such rather than absent.
  *
  *   before this sweep      34 of 2356 claims compared  (1.4 %)
- *   after                1209 of 2358 claims compared (51.3 %)
+ *   after wave 1         1209 of 2358 claims compared (51.3 %)
+ *   after wave 2         1224 of 2356 claims compared (52.0 %)
  *
- * and of the 1209, exactly ONE is a claim the engine contradicts and this lane
- * did not close. It is recorded with a verdict in
+ * and of the 1224, exactly ONE is a claim the engine contradicts and no lane
+ * has closed. It is recorded with a verdict in
  * test/fixtures/expected-claim-exceptions.json.
+ *
+ * WAVE 2 IS THE bw-board a301937 PIN BUMP, and the thing it found is worth
+ * stating before the numbers: A CLAIM CHECKED AGAINST ITS OWN ARITHMETIC IS
+ * NOT A CLAIM CHECKED AGAINST THE BENCH. pc78-belastete-quelle reported 12 of
+ * 12 claims compared and nothing mismatched, because every number on the page
+ * was held to the page's own derivation and 9 / 412 really is 21.8 mA. The
+ * bench draws 16.719: the document never subtracts the LED forward drops its
+ * own previous line says it subtracts. An arithmetic-checked claim is now put
+ * to the engine as well, and the three outcomes are kept apart — the engine
+ * agrees, the engine declines (a model difference), the engine contradicts.
  *
  * The 34 is not a slur on the previous gate: it read three hand-written shapes
  * out of the prose (a frequency beside a period, a Frequency: beside a two-wait
@@ -141,12 +152,21 @@ describe('EXPECTED.md quantities hold against the engine', { skip: SKIP }, () =>
         assert.deepEqual(unexplained.map(key), [],
             'a claim declined without a reason is an unverified claim nobody can see');
         const compared = L.checked.length + L.mismatched.length;
-        // The ratchet. 1209/2358 = 51.3 % on 2026-08-24, against 34 (1.4 %)
-        // before this sweep. Raise this floor when the fraction rises; never
-        // lower it to make a change fit.
-        assert.ok(compared >= 1200,
+        // The ratchet. 1224/2356 = 52.0 % on 2026-08-24 against bw-board
+        // a301937, from 1209/2358 (51.3 %) against 88e9668 and 34 (1.4 %)
+        // before the first sweep. Raise this floor when the fraction rises;
+        // never lower it to make a change fit.
+        //
+        // Wave 2 moved it by +15 net, and the net hides two opposite movements
+        // that both belong in the record: +18 claims became checkable (the two
+        // engine declines resolved, a list item stopped inheriting its
+        // neighbour's qualifier, four German lessons re-derived), and -3 were
+        // taken BACK OFF the checked pile because they were passing against a
+        // bench that reports no current at all, where a claim of 0 mA would
+        // have passed with the lamp blazing.
+        assert.ok(compared >= 1215,
             `only ${compared} of ${L.total} claims were compared (${(compared / L.total * 100).toFixed(1)} %) — `
-            + 'this gate checked 1209 when the floor was set, so coverage has gone BACKWARDS');
+            + 'this gate checked 1224 when the floor was set, so coverage has gone BACKWARDS');
     });
 
     test('no claim the engine contradicts is unrecorded', async () => {
@@ -219,7 +239,7 @@ describe('a measured number names the engine that measured it', { skip: SKIP }, 
 });
 
 describe('the instrument says what it cannot read', { skip: SKIP }, () => {
-    test('rInternal is declared by benches and stamped by nothing', async () => {
+    test('rInternal is stamped, and the benches built on it are checkable', async () => {
         await loadEngine(gate.paths);
         const withR = exampleDirs().filter(d => {
             const p = join(EXAMPLES, d, 'circuit.json');
@@ -230,13 +250,19 @@ describe('the instrument says what it cannot read', { skip: SKIP }, () => {
             } catch { return false; }
         });
         assert.ok(withR.length >= 6,
-            `only ${withR.length} benches declare rInternal — this canary has lost its subject`);
-        // A CANARY, and it is meant to fail one day. bw-board solves every
-        // source as ideal, so a bench that declares an internal resistance
-        // shows no sag at all. pc77-klemmenspannung is a lesson ABOUT that sag.
-        // When bw-board starts stamping rInternal this test fails, and the four
-        // German source-resistance lessons must be re-derived against it.
-        const sagging = [];
+            `only ${withR.length} benches declare rInternal — this gate has lost its subject`);
+        // THIS TEST USED TO BE A CANARY THAT FAILED WHEN THE ENGINE GREW THE
+        // MODEL. It has fired and been acted on: bw-board b5c02b1 made `vsource`
+        // honour rInternal in DC and in the swept AC solve, the pin moved to
+        // a301937, and the six benches built on that parameter were re-derived
+        // against it. So the assertion is inverted — a source with a declared
+        // internal resistance must now SAG under load, and the four German
+        // source-resistance lessons state solved numbers rather than hand ones.
+        //
+        // Keeping it as a canary would have been worse than deleting it: it
+        // would go green again the day a regression stopped stamping rInternal,
+        // and read as good news.
+        const flat = [];
         for (const dir of withR) {
             const s = solveBench(dir);
             if (s.error) continue;
@@ -244,46 +270,34 @@ describe('the instrument says what it cannot read', { skip: SKIP }, () => {
             const emf = pool && pool.supply.size ? Math.max(...pool.supply) : null;
             if (!emf) continue;
             const top = Math.max(...s.voltage.values());
-            if (Math.abs(top - emf) / emf > 0.001) sagging.push(`${dir}: ${top.toFixed(4)} V against a declared ${emf} V EMF`);
+            // A bench can legitimately be unloaded; require the sag only where
+            // the source is actually delivering current.
+            const drawing = [...s.current.values()].some(i => Math.abs(i) > 1e-5);
+            if (drawing && Math.abs(top - emf) / emf <= 1e-5)
+                flat.push(`${dir}: ${top.toFixed(4)} V against a declared ${emf} V EMF while drawing current`);
         }
-        assert.deepEqual(sagging, [],
-            'a source with a declared rInternal now sags under load — bw-board has grown the model these benches assume. '
-            + 'That is good news and a task. It was MEASURED IN ADVANCE against bw-board b5c02b1 ("Source and '
-            + 'transistor current honesty") on 2026-08-24, before any pin moved, so this is a hand-over and not a hunt:\n'
-            + '  FIVE AGREE and simply become checkable — 47-battery-led (internal drop 3.5 mV claimed, 0.0035 V '
-            + 'solved), 52-battery-voltage-divider (0.225 mV / 0.0002 V), pc77-klemmenspannung (0.108 V / 0.1033 V, '
-            + 'terminal 8.89 V / 8.8967 V), pc79-indirekte-strommessung (14.84 mA / 14.538 mA), pc80-quellen-vergleich '
-            + '(14.88 mA / 14.568 mA). Delete their hand-computed framing and let this gate check them.\n'
-            + '  ONE IS WRONG: pc78-belastete-quelle claims "Total current: I = 9 / 412 = 21.8 mA" while the line above '
-            + 'it says the LED Vf is subtracted — and it is not. The engine measures 16.719 mA (light branch 4.707, '
-            + 'heavy 12.011); subtracting Vf by hand gives 17.04. Its terminal voltage of 8.96 V is right by luck, '
-            + 'because the sag is small either way. The arithmetic checker CANNOT catch this: 9/412 really is 21.8, so '
-            + 'the document agrees with itself and disagrees with the circuit.\n'
-            + 'WHAT MOVES OUTSIDE THESE SIX, measured at the same time, because this canary watches rInternal '
-            + 'and would not otherwise say: corpus-wide only TWO of 2356 claims change disposition, both from '
-            + 'declined to CHECKED and both AGREEING (47-battery-led above, and pc32-pnp-high-side\'s 0.43 mA base). '
-            + 'No claim changes the value it was checked by. The full suite goes 6488/0-fail to 6496/1-fail, and the '
-            + 'one failure is THIS test.\n'
-            + '  One reason in this gate goes STALE and must be revisited, not just re-derived: the decline for a '
-            + 'transistor terminal current says solveMNA\'s extraction "is not KCL-consistent (430 mA into a base on '
-            + 'a bench drawing 2.8 mA)". That was true, and it stopped being true IN TWO STAGES, by two different '
-            + 'commits fixing two different defects — measured on the three trees rather than inferred from the '
-            + 'endpoints of a range:\n'
-            + '                                  NPN collector      PNP base\n'
-            + '                                  (44-darlington)    (pc32)\n'
-            + '    88e9668 (pinned)              430.4253 mA        430.0000 mA\n'
-            + '    20283ab                        47.9520 mA        430.0000 mA\n'
-            + '    b5c02b1                        47.9520 mA          0.4304 mA\n'
-            + '  20283ab ("Close six defects the lite lesson reviews left open here", LESSON-REVIEW-WAVE-1 defect 6) '
-            + 'gave the SATURATED extraction its own arm, so a collector reports the clamp gS*(vOut - vceSat) it '
-            + 'passes rather than the beta*Ib the VCCS would demand. b5c02b1 ("Source and transistor current '
-            + 'honesty") fixed the PNP: stampPNP\'s saturated early-return sat above the E-B junction stamp, so a '
-            + 'saturated PNP had no base junction at all and the base floated. After both, KCL holds at the device '
-            + '(pc32 emitter 3.2024 = base 0.4304 + collector 2.7720 mA) and the base equals rb\'s own current. '
-            + 'Delete the decline once the pin is past BOTH — a pin between them fixes only half of it.\n'
-            + '  pc32-pnp-high-side\'s supply current moves 2.772 -> 3.202 mA because the base path exists again. '
-            + 'Checked: no EXPECTED.md states it, so nothing needs re-deriving for that one.\n'
-            + 'Re-derive against whatever revision is pinned when you read this, restamp with '
-            + '`node scripts/stamp-expected-provenance.mjs`, then delete this canary.');
+        assert.deepEqual(flat, [],
+            'a loaded source with a declared rInternal is sitting exactly at its open-circuit EMF again — '
+            + 'bw-board has stopped stamping the model these benches were re-derived against, and the six '
+            + 'pages that now quote solved terminal voltages (47-battery-led, 52-battery-voltage-divider, '
+            + 'pc77-klemmenspannung, pc78-belastete-quelle, pc79-indirekte-strommessung, '
+            + 'pc80-quellen-vergleich) are stating numbers the engine can no longer produce');
+    });
+
+    test('the four source-resistance lessons are checked, not merely self-consistent', async () => {
+        const L = await ledger();
+        // pc78-belastete-quelle is why this test exists. It reported 12 of 12
+        // claims compared and nothing mismatched while its central number was
+        // wrong by 30 %: every claim on the page was held to the page's OWN
+        // arithmetic, and 9 / 412 really is 21.8. A document can agree with
+        // itself perfectly and describe a different circuit. The adjudicator now
+        // puts an arithmetic-checked claim to the engine as well, and this
+        // asserts that these four pages actually go through that second door.
+        const both = L.checked.filter(c =>
+            ['pc77-klemmenspannung', 'pc78-belastete-quelle', 'pc79-indirekte-strommessung',
+                'pc80-quellen-vergleich'].includes(c.dir) && /the engine agrees/.test(c.how || ''));
+        assert.ok(both.length >= 21,
+            `only ${both.length} claims across the four source-resistance lessons are confirmed by BOTH `
+            + 'their own arithmetic and a solve — the cross-check has stopped reaching them');
     });
 });

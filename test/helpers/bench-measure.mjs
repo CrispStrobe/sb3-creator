@@ -251,20 +251,43 @@ function solveUncached (dir, controls, atMs) {
             add('volt', 'internal', `inside ${p.id}`, Math.abs(p.params.volts - Math.abs(voltage.get(ts[0].net) - voltage.get(ts[1].net))));
     }
 
-    // solveMNA's branchCurrents are exact for a two-terminal element — the same
-    // stamp the solve used — but for a BJT or a MOSFET they are an EXTRACTION
-    // from the terminal voltages through the device's own knee model, and that
-    // extraction is not KCL-consistent: on pc32-pnp-high-side with the switch
-    // closed it reports 430 mA into a base and 43 A into a collector while the
-    // supply delivers 2.772 mA in total. A gate that accepted those would
-    // contradict correct documents with impossible numbers, so they are not
-    // measurands and a claim about one is declined by name.
-    const EXTRACTED = new Set(['npn', 'pnp', 'nmos', 'pmos']);
+    // A BJT's or a MOSFET's terminal current is an EXTRACTION — solveMNA reads
+    // it back out of the solved terminal voltages through the device's own knee
+    // model rather than solving for it directly — and until bw-board a301937
+    // those extractions were excluded from the measurands here, so no claim
+    // about a base, collector, drain or source current could be checked at all.
+    //
+    // THE DECLINE THAT SAT HERE NAMED THE WRONG INVARIANT, and correcting the
+    // record matters more than deleting it. It said the extraction "is not
+    // KCL-consistent". Measured on bw-board 88e9668 — the revision it was
+    // written against — the device's OWN terminals summed to zero to machine
+    // precision in 11 of 11 samples (worst relative residual 0.0000 %). KCL at
+    // the device always held. What did not hold was agreement with the NETWORK:
+    // a saturated collector reported the beta*Ib its VCCS demanded rather than
+    // what the external branch could carry, so pc32-pnp-high-side read 43 A
+    // through a collector wired to a resistor carrying 2.772 mA. The quoted
+    // observation was real; the diagnosis attached to it was not.
+    //
+    // The invariant that actually discriminates is therefore a device terminal
+    // against THE BRANCH IT FEEDS, and it is now a gate of its own —
+    // `test/device-branch-agreement.test.mjs`, which counts the disagreements
+    // across every BJT/FET bench in the corpus at two operating points:
+    //
+    //   bw-board 88e9668  20 of 27 nets disagree     <- the pinned revision then
+    //   bw-board 20283ab   7 of 27                   saturated collector arm
+    //   bw-board b5c02b1   4 of 27                   PNP base junction restored
+    //   bw-board a301937   3 of 27                   buzzer branch extractable
+    //
+    // The three that remain are ONE class and not a transistor defect at all: a
+    // `gnd` part reports 0 A through its terminal while the emitter on the same
+    // net carries 6.26 mA. That is a device model with no current readback, the
+    // same class as `silent` below, and it is bw-engine's `device KCL-visibility`
+    // lane. So these are measurands now, and the gate above holds them to the
+    // branch they feed rather than to a promise made in a comment.
     let supplyA = null;
     for (const [k, i] of current) {
         const [pid, term] = k.split('.');
         const part = parts.find(p => p.id === pid);
-        if (part && EXTRACTED.has(part.kind)) continue;
         addOn('curr', 'branch', `through ${k}`, Math.abs(i), [pid]);
         if (part && SUPPLY_TERMINAL[part.kind] === term && Math.abs(i) > (supplyA ?? 0)) supplyA = Math.abs(i);
     }
@@ -303,18 +326,29 @@ function solveUncached (dir, controls, atMs) {
 
     // A net's throughput — the current KCL sends through it — is what a
     // "total parallel branch current" names, and no single branch carries it.
+    //
+    // HALF THE SUM OF THE MAGNITUDES, not the sum of the positive ones. The
+    // engine's branchCurrent sign is a property of the PART, not of the node:
+    // pc78-belastete-quelle's net_19 has `resistor_7.b = +12.0113 mA` and
+    // `led_5.anode = +12.0113 mA`, the same 12 mA seen from both ends, and
+    // adding the positives reported 24.0226 mA of throughput through a branch
+    // carrying 12. That is not a rounding difference, it is a number that
+    // exists nowhere in the circuit — and it is how a mutation escaped: pc78's
+    // original, wrong "I = 9 / 412 = 21.8 mA" agreed with the phantom 24.0226
+    // to within this gate's 10 % band, so restoring the defect this lane
+    // repaired left the suite GREEN. Half the sum of |i| is the throughput at
+    // any node where KCL holds, whatever the sign convention, and it gives
+    // 12.0113 here and leaves every net that was already right unchanged.
     for (const net of nets) {
         const id = net.id || net.name;
-        let into = 0;
-        let extracted = false;
+        let sum = 0, seenAny = false;
         for (const t of (net.terminals || [])) {
-            const part = parts.find(p => p.id === t.part);
-            if (part && EXTRACTED.has(part.kind)) { extracted = true; break; }
             const i = current.get(`${t.part}.${t.terminal}`);
-            if (Number.isFinite(i) && i > 0) into += i;
+            if (!Number.isFinite(i)) continue;
+            sum += Math.abs(i);
+            seenAny = true;
         }
-        if (extracted) continue;
-        if (into > 0) addOn('curr', 'net', `into ${id}`, into, partsOnNet.get(id));
+        if (seenAny && sum / 2 > 0) addOn('curr', 'net', `through ${id}`, sum / 2, partsOnNet.get(id));
     }
 
     // Two element drops that add: "the missing 1.51 V is two diode drops".
@@ -344,7 +378,7 @@ function solveUncached (dir, controls, atMs) {
             add('power', 'branch', `${rail} V x ${m.label}`, rail * m.si);
     }
 
-    return { voltage, current, measurands, parts, nets, supplyA, silent, extracted: EXTRACTED, board };
+    return { voltage, current, measurands, parts, nets, supplyA, silent, board };
 }
 
 /** Every resistance/capacitance/inductance/forward-drop/supply the bench declares. */

@@ -3,12 +3,12 @@
   "siblings": {
     "bw-board": {
       "repo": "CrispStrobe/bw-board",
-      "rev": "88e966818eb9f5bc8794c24db2e795e095d93c9e",
+      "rev": "a301937d9912a66aa4a7cdae403e39a337ac9eb2",
       "marker": "src/board.js",
       "licence": "MIT",
-      "why": "the device/board simulator the gallery e2e and physics gates drive. Advanced from 50c3bf7 for 40db90f (\"a loaded pot wiper routes to MNA\"), without which 41-pot-as-dimmer's wiper reads the UNLOADED 2.5000 V and its node violates KCL by 2.17 mA.",
-      "pinnedOn": "2026-08-23",
-      "revShort": "88e9668"
+      "why": "the device/board simulator the gallery e2e and physics gates drive. Advanced from 88e9668 for the source-and-transistor-current honesty run (20283ab, b5c02b1, a301937): vsource honours rInternal in DC and swept AC, a saturated PNP stamps its E-B junction again, FET extraction reads the region map, and a buzzer branch current is extractable. That closes BOTH declines this repo's EXPECTED.md gate had recorded against the engine \u2014 the rInternal canary and the transistor-terminal-current decline \u2014 Measured either side of the bump alone, with nothing else changed: the corpus moves 2 claims from declined to CHECKED (47-battery-led's 3.5 mV internal drop, pc32-pnp-high-side's 0.43 mA base), both AGREEING, and nothing regresses \u2014 1209 compared of 2358 to 1211. test/device-branch-agreement.test.mjs is red on 88e9668, 20283ab AND b5c02b1 and green only here, so the suite genuinely requires this revision rather than merely tolerating it.",
+      "pinnedOn": "2026-08-24",
+      "revShort": "a301937"
     },
     "bw-circuit-ui": {
       "repo": "CrispStrobe/bw-circuit-ui",

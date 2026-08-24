@@ -7586,8 +7586,8 @@
       "dir": "pc11-direct-parallel",
       "flat": "circuit-flat.json",
       "twin": "circuit.json",
-      "flatSha": "4f7f98661978fb8a6fca5ebd7e016f0d6e18abeaffe6dfe6b01bec1ae1f8cd11",
-      "twinSha": "1f1be72979f7692edfaf45a5a4b8daa451b3856b7095e378c854a92a0a6d7c44",
+      "flatSha": "0622be27c199ce6bfa63c24fc2efac32f37a926218ef435eff6bcc3c9f82d57f",
+      "twinSha": "8b4c4bce52636f00a06c48356c5fd27d4ffa869aa78ed5cb3600922c90761141",
       "partitionSha": "5c1760af33b3e13d7f99d68c854f77470b960494b34e223ba3663a62436763fc"
     },
     {

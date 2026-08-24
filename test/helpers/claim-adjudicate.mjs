@@ -111,6 +111,40 @@ function solved (claim) {
     if (r.decline) return { skip: r.decline };
     const points = r.point ? [r.point] : r.points;
     const tol = claim.approx ? 0.20 : 0.10;
+
+    // A POOL OF ZEROES IS NOT AN ANSWER, in either direction.
+    //
+    // avr01-blink solves to 4.7157 V on the pin, 2.5020 V across its 220 Ω and
+    // 2.2137 V across the LED — a bench plainly conducting about 11 mA — and
+    // every branchCurrent on it reads exactly 0.0000 mA. Two things follow, and
+    // the second is the one that made this rule worth ordering FIRST:
+    //
+    //   a non-zero claim would be CONTRADICTED by the absence of the
+    //   instrument. "no curr measurand agrees; nearest 0, 0, 0, 0" is the gate
+    //   calling a correct document wrong, which is the failure this whole sweep
+    //   exists to prevent.
+    //
+    //   a claim of ZERO would be CONFIRMED by the same absence. Both these
+    //   benches state "0 mA" for the pin-low row and both were passing on a
+    //   pool that reads 0 for every part in every state — the row would have
+    //   passed with the LED blazing. That is a check that cannot fail, and it
+    //   was counted as coverage.
+    //
+    // So a current claim on a bench that drops volts and reports no current is
+    // declined outright, and the two benches are named in
+    // test/device-branch-agreement.test.mjs so the subject cannot silently
+    // vanish. bw-engine's `device KCL-visibility` lane is what closes it.
+    if (claim.cls === 'curr') {
+        let live = false, dropping = false;
+        for (const p of points) {
+            const sp = solveBench(claim.dir, p);
+            if (sp.error) continue;
+            if ([...(sp.current || new Map()).values()].some(i => Math.abs(i) > 1e-6)) live = true;
+            if ((sp.measurands || []).some(m => m.kind === 'drop' && m.si > 0.1)) dropping = true;
+        }
+        if (!live && dropping)
+            return { skip: 'the bench solves for node voltages but every branch current on it reads exactly 0 A — the elements are dropping volts, so current is flowing and the engine simply has no readback for it here; a gap in the instrument, not a defect in the document, and a claim of 0 mA would pass against it just as wrongly' };
+    }
     const seen = [];
     let anyError = null;
     let pinned = null, terminal = null, pinnedNets = null;
@@ -152,21 +186,25 @@ function solved (claim) {
         if (hit) return { ok: true, how: `solved${p.label ? ` (${p.label})` : ''}${pinned ? ` on ${pinned}` : ''}${terminal ? `.${terminal}` : ''}`, matched: hit.label };
     }
     if (!seen.length) return { skip: anyError || `the bench exposes no ${claim.cls} the engine can read` };
-    // A declared parameter no model reads is not a claim anyone can check.
-    // `rInternal` appears in eight batteries across the corpus and NOWHERE in
-    // bw-board: every battery sits at its open-circuit EMF under any load, so
-    // an internal drop is unverifiable here — a gap in the engine, not a defect
-    // in the document. See the canary in this file's suite.
-    if (/internal resistance|r_?int(ernal)?\b|terminal voltage|klemmenspannung/i.test(`${claim.section} ${claim.line}`)) {
-        const s0 = solveBench(claim.dir, points[0]);
-        if ((s0.parts || []).some(p => typeof p.params?.rInternal === 'number'))
-            return { skip: 'the bench declares rInternal and no bw-board model stamps it — every source solves as ideal, so an internal drop or a sagging terminal voltage has no readback at all' };
-    }
-    if (claim.cls === 'curr' && /\bbase\b|\bcollector\b|\bemitter\b|\bdrain\b|\bgate\b|I_?[bcegds]\b/i.test(claim.line)) {
-        const s0 = solveBench(claim.dir, points[0]);
-        if ((s0.parts || []).some(p => (s0.extracted || new Set()).has(p.kind)))
-            return { skip: "a transistor terminal current: solveMNA EXTRACTS these from the terminal voltages through the device's knee model rather than solving for them, and the result is not KCL-consistent (430 mA into a base on a bench drawing 2.8 mA), so the engine has no trustworthy readback for it" };
-    }
+    // TWO DECLINES USED TO STAND HERE AND BOTH ARE GONE, deleted against
+    // MEASUREMENT rather than against the release note that promised them.
+    //
+    //   rInternal — "eight batteries declare one and NOWHERE in bw-board does a
+    //   model read it, so every source solves at its open-circuit EMF." True of
+    //   88e9668. `vsource` honours rInternal from b5c02b1 in DC and in the AC
+    //   sweep, so an internal drop and a sagging terminal voltage are now
+    //   solved quantities and the six benches built on that parameter are
+    //   checkable. Five of them agreed on sight; pc78-belastete-quelle did not,
+    //   and it was the DOCUMENT that was wrong (see its EXPECTED.md).
+    //
+    //   a transistor terminal current — see the long note in bench-measure.mjs.
+    //   Its stated reason ("not KCL-consistent") named an invariant that was
+    //   never violated; the real defect was the extraction disagreeing with the
+    //   external branch, which is now gated by device-branch-agreement.test.mjs.
+    //
+    // What remains genuinely unreadable is narrower and is declined below by
+    // the `silent` rule: a device model with no branchCurrents reports 0 A
+    // through a terminal the bench is plainly driving.
     if (claim.cls === 'curr') {
         const bench = solveBench(claim.dir);
         const named = [...(bench.silent || [])].filter(k => new RegExp(`\\b${k.replace(/_/g, '[ _]?')}s?\\b`, 'i').test(claim.line) || new RegExp(k.split('_')[0], 'i').test(claim.line));
@@ -180,20 +218,46 @@ function solved (claim) {
     // neither the ideal answer nor the solved one is simply wrong, and an
     // earlier cut of this rule declined those too, which cost it a mutation:
     // pc07's 12.965 mA moved to 17.965 and the gate stayed green.
+    // THE OPERATING POINT MATTERS HERE TOO. This block used to read only
+    // `points[0]`, and for a claim routed to the whole reachable set that first
+    // point is the bench AS AUTHORED — an MCU bench with no pin driven, sitting
+    // dark. A dark bench has no forward drop, so `drops` came back empty, the
+    // escape never fired, and mega01-blink, nano01-blink and pico01-blink each
+    // had their "LED current" bullet reported as contradicting the engine while
+    // the SAME number, routed to a lit row of the table above it, was correctly
+    // declined as a model difference. One document, two verdicts, from one
+    // index. So the junction is looked for across every point the claim reaches.
     const s0 = solveBench(claim.dir, points[0]);
     const pool0 = declaredPool(claim.dir);
     const rail = pool0 && pool0.supply.size ? Math.max(...pool0.supply) : null;
     if (rail && (claim.cls === 'curr' || claim.cls === 'volt')) {
         const ideal = [];
         const drops = [];
+        const lit = points.map(pt => solveBench(claim.dir, pt)).filter(x => !x.error);
         for (const p of (s0.parts || [])) {
             if (p.kind !== 'led' && p.kind !== 'diode') continue;
             const vf = p.params?.vf ?? (p.kind === 'diode' ? 0.7 : 2.0);
-            const solvedDrop = (s0.measurands || []).find(m => m.kind === 'drop' && m.label === `across ${p.id}`);
+            let solvedDrop = null;
+            for (const sp of lit) {
+                const d = (sp.measurands || []).find(m => m.kind === 'drop' && m.label === `across ${p.id}`);
+                if (d && d.si > (solvedDrop?.si ?? 0)) solvedDrop = d;
+            }
             if (solvedDrop && solvedDrop.si > 0.1 && Math.abs(solvedDrop.si - vf) / vf > 0.02) drops.push({ p, vf, solved: solvedDrop.si });
             for (const r of (s0.parts || [])) {
                 if (r.kind !== 'resistor' || typeof r.params?.ohms !== 'number') continue;
-                ideal.push((rail - vf) / r.params.ohms);
+                // THE SAME MODEL DIFFERENCE, SUMMED. 22-series-parallel writes
+                // "Total parallel branch current: 2 x 6.38 = 12.77 mA" — one
+                // ideal-Vf branch current, added up over the branches that
+                // carry it. The engine has no measurand for "the total through
+                // a SET of branches": a net's throughput answers for one node,
+                // and the two parallel cathodes land on the same ground as the
+                // series branch, so the only node that sees both also sees the
+                // third. The multiple is bounded by the number of diodes on the
+                // bench rather than by a constant, so the widening is tied to
+                // the circuit and cannot answer for a bench with one LED in it.
+                const branches = (s0.parts || []).filter(x => x.kind === 'led' || x.kind === 'diode').length;
+                for (let n = 1; n <= Math.max(1, branches); n++)
+                    ideal.push(n * (rail - vf) / r.params.ohms);
             }
         }
         if (claim.cls === 'curr' && drops.length && ideal.some(x => agrees(claim, x, 0.03))) {
@@ -320,7 +384,40 @@ export function adjudicate (claim) {
     // A claim that states its derivation is judged on that derivation first:
     // it is exact, it needs no bench, and it is what the document asserts.
     const own = arithmetic(claim);
-    if (own) return own;
+    if (own && !own.ok) return own;
+
+    // BUT SELF-CONSISTENCY IS NOT AGREEMENT WITH THE BENCH, and reporting it as
+    // "checked" was this gate's own blind spot. pc78-belastete-quelle stated
+    // "Total current: I = 9 / 412 = 21.8 mA", the arithmetic checker confirmed
+    // that 9/412 really is 21.8, and the example reported 12 of 12 claims
+    // compared and nothing mismatched — while the bench it describes draws
+    // 16.719 mA, because the document never subtracts the LED forward drops its
+    // own previous line says it subtracts. A document can agree with itself
+    // perfectly and describe a different circuit.
+    //
+    // So an arithmetic-checked claim is ALSO put to the engine. The three
+    // outcomes are kept distinct, because collapsing them is what hid pc78:
+    //
+    //   engine agrees      checked, and by both routes — the strongest verdict
+    //   engine declines    checked by the arithmetic alone. This is where the
+    //                      ideal-forward-drop claims land: `solved()` already
+    //                      recognises "the document divides by the DECLARED Vf
+    //                      while the junction solves elsewhere" and declines
+    //                      rather than accusing, so a model difference stays a
+    //                      model difference and never becomes a verdict.
+    //   engine contradicts MISMATCHED, with both numbers, and it says which
+    //                      kind of defect it is: the document is internally
+    //                      consistent and disagrees with its own bench.
+    if (own && own.ok) {
+        if (!['volt', 'curr', 'power'].includes(claim.cls)) return own;
+        const bench = solved(claim);
+        if (bench.ok) return { ok: true, how: `${own.how}, and the engine agrees (${bench.how})` };
+        if (bench.skip) return own;
+        return {
+            detail: `${own.how.replace(/^its own arithmetic/, 'the line derives')} — self-consistent, but the bench it describes disagrees: ${bench.detail}`,
+            how: 'own arithmetic vs the engine',
+        };
+    }
 
     // The leading cell of a results table is the question, whatever its unit.
     // Routing a time cell to the timing checker made a whole RC table report
