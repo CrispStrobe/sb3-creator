@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "mode": "play",
+  "comment": "The calculator's faceplate mirrors the HARDWARE: every button is bound to its circuit part (a widget press IS the board button's press, through board.setControl), and the display is bound to the circuit's SSD1306 — the widget shows the device's actual GDDRAM pixels, not a text copy. Loading the example applies this layout; nothing here needs the program's variables.",
+  "widgets": [
+    { "name": "screen", "type": "oled", "config": { "rows": 4, "cols": 21 }, "layout": { "x": 10, "y": 10, "w": 250, "h": 125 }, "binding": { "target": "part", "partId": "oled1" } },
+
+    { "name": "key7", "type": "button", "config": { "toggle": false, "label": "7" }, "layout": { "x": 10, "y": 145, "w": 56, "h": 44 }, "binding": { "target": "part", "partId": "k_b7" } },
+    { "name": "key8", "type": "button", "config": { "toggle": false, "label": "8" }, "layout": { "x": 74, "y": 145, "w": 56, "h": 44 }, "binding": { "target": "part", "partId": "k_b8" } },
+    { "name": "key9", "type": "button", "config": { "toggle": false, "label": "9" }, "layout": { "x": 138, "y": 145, "w": 56, "h": 44 }, "binding": { "target": "part", "partId": "k_b9" } },
+    { "name": "keyDiv", "type": "button", "config": { "toggle": false, "label": "÷" }, "layout": { "x": 202, "y": 145, "w": 56, "h": 44 }, "binding": { "target": "part", "partId": "k_bdiv" } },
+
+    { "name": "key4", "type": "button", "config": { "toggle": false, "label": "4" }, "layout": { "x": 10, "y": 197, "w": 56, "h": 44 }, "binding": { "target": "part", "partId": "k_b4" } },
+    { "name": "key5", "type": "button", "config": { "toggle": false, "label": "5" }, "layout": { "x": 74, "y": 197, "w": 56, "h": 44 }, "binding": { "target": "part", "partId": "k_b5" } },
+    { "name": "key6", "type": "button", "config": { "toggle": false, "label": "6" }, "layout": { "x": 138, "y": 197, "w": 56, "h": 44 }, "binding": { "target": "part", "partId": "k_b6" } },
+    { "name": "keyMul", "type": "button", "config": { "toggle": false, "label": "×" }, "layout": { "x": 202, "y": 197, "w": 56, "h": 44 }, "binding": { "target": "part", "partId": "k_btimes" } },
+
+    { "name": "key1", "type": "button", "config": { "toggle": false, "label": "1" }, "layout": { "x": 10, "y": 249, "w": 56, "h": 44 }, "binding": { "target": "part", "partId": "k_b1" } },
+    { "name": "key2", "type": "button", "config": { "toggle": false, "label": "2" }, "layout": { "x": 74, "y": 249, "w": 56, "h": 44 }, "binding": { "target": "part", "partId": "k_b2" } },
+    { "name": "key3", "type": "button", "config": { "toggle": false, "label": "3" }, "layout": { "x": 138, "y": 249, "w": 56, "h": 44 }, "binding": { "target": "part", "partId": "k_b3" } },
+    { "name": "keySub", "type": "button", "config": { "toggle": false, "label": "−" }, "layout": { "x": 202, "y": 249, "w": 56, "h": 44 }, "binding": { "target": "part", "partId": "k_bminus" } },
+
+    { "name": "key0", "type": "button", "config": { "toggle": false, "label": "0" }, "layout": { "x": 10, "y": 301, "w": 56, "h": 44 }, "binding": { "target": "part", "partId": "k_b0" } },
+    { "name": "keyExe", "type": "button", "config": { "toggle": false, "label": "=" }, "layout": { "x": 74, "y": 301, "w": 56, "h": 44 }, "binding": { "target": "part", "partId": "k_bexe" } },
+    { "name": "keyDel", "type": "button", "config": { "toggle": false, "label": "DEL" }, "layout": { "x": 138, "y": 301, "w": 56, "h": 44 }, "binding": { "target": "part", "partId": "k_bclr" } },
+    { "name": "keyAdd", "type": "button", "config": { "toggle": false, "label": "+" }, "layout": { "x": 202, "y": 301, "w": 56, "h": 44 }, "binding": { "target": "part", "partId": "k_bplus" } },
+
+    { "name": "keyAC", "type": "button", "config": { "toggle": false, "label": "AC" }, "layout": { "x": 10, "y": 353, "w": 120, "h": 36 }, "binding": { "target": "part", "partId": "k_bac" } }
+  ]
+}
