@@ -268,6 +268,75 @@ describe('gate integrity: a suite cannot skip itself into silence', () => {
             '\nUse an exact version and record the integrity hash in a comment beside it.');
     });
 
+    test('every string-literal mutation target in the prover still occurs in the tree '
+        + '(string literals only; regex targets are not covered here)', () => {
+        // A MUTATION THAT DOES NOT MUTATE RETURNS THE REASSURING ANSWER.
+        //
+        // scripts/mutation-prove-conformance.mjs edits a file, runs a gate, and
+        // requires RED. Each edit is `before.replace(<literal>, …)`. When the
+        // literal stops matching — someone reindents the block, renames a
+        // constant, moves a declaration — the "mutation" is a no-op and the gate
+        // is asked to go red over an unchanged tree.
+        //
+        // The prover guards this itself (`throw new Error('mutation was a no-op')`)
+        // and that guard is what caught the real instance: WAIVED was hoisted out
+        // of a test body to column 0 so its size could be interpolated into the
+        // test NAME, and the prover's target still carried the old 8-space form.
+        // But the prover only discovers it ~25 minutes into a CI run, after the
+        // whole suite. This is the same check for the price of a readFileSync.
+        //
+        // SCOPE, STATED BECAUSE IT IS NARROWER THAN "every mutation works":
+        //   - only STRING-LITERAL targets; the prover also uses regex targets,
+        //     which this cannot evaluate without executing them.
+        //   - only that the literal occurs SOMEWHERE in the tree, not that it
+        //     occurs in the file that mutation actually edits.
+        // So a green run here does NOT mean every mutation bites. It means none
+        // of them is anchored on text that has vanished — the failure that just
+        // happened.
+        const prover = readFileSync(join(SB3, 'scripts', 'mutation-prove-conformance.mjs'), 'utf8');
+        const targets = [...prover.matchAll(/\.replace\(\s*(['"])((?:\\.|(?!\1)[\s\S])*?)\1/g)]
+            .map((m) => m[2]
+                .replace(/\\n/g, '\n').replace(/\\'/g, "'")
+                .replace(/\\"/g, '"').replace(/\\\\/g, '\\'))
+            // Short anchors are punctuation, not landmarks; they would match anywhere.
+            .filter((t) => t.length >= 8);
+
+        // The instrument before the subject: if the extractor stops matching, the
+        // loop below sweeps an empty list and reports a clean tree.
+        assert.ok(targets.length >= 8,
+            `only ${targets.length} string-literal mutation targets extracted from the prover, ` +
+            'expected at least 8 — the extractor is broken, and an empty missing-list means nothing.');
+
+        // THE PROVER ITSELF IS EXCLUDED, AND THAT EXCLUSION IS THE WHOLE GATE.
+        // Every target is a string literal sitting in mutation-prove-conformance.mjs,
+        // so searching a tree that contains that file means each target matches
+        // ITSELF and nothing can ever be reported missing. The first version of
+        // this test did exactly that and was vacuous; the mutation below is what
+        // exposed it, which is the argument for mutation-proving a gate you wrote
+        // to catch mutations that do not mutate.
+        const SELF = join(SB3, 'scripts', 'mutation-prove-conformance.mjs');
+        const files = [];
+        const walk = (dir) => {
+            for (const e of readdirSync(dir, { withFileTypes: true })) {
+                if (e.name === 'node_modules' || e.name === '.git' || e.name === 'dist') continue;
+                const p = join(dir, e.name);
+                if (p === SELF) continue;
+                if (e.isDirectory()) walk(p);
+                else if (/\.(mjs|js|json|yml|md)$/.test(e.name)) files.push(p);
+            }
+        };
+        walk(SB3);
+        assert.ok(files.length >= 200,
+            `only ${files.length} files walked — the tree scan is broken.`);
+        const blobs = files.map((f) => readFileSync(f, 'utf8'));
+
+        const missing = targets.filter((t) => !blobs.some((b) => b.includes(t)));
+        assert.deepEqual(missing.map((t) => t.slice(0, 80)), [],
+            'these mutation targets occur nowhere in the tree, so the mutations anchored on them ' +
+            'edit nothing and prove nothing. The prover will throw on each — 25 minutes into CI. ' +
+            'Re-anchor them on text that exists.');
+    });
+
     test('every sibling this repo pins is one we are allowed to vendor or clone', () => {
         const pins = JSON.parse(readFileSync(join(SB3, 'test', 'fixtures', 'siblings.json'), 'utf8')).siblings;
         // The engine-backend licence rule: ngspice/KLU/CSparse-family code may not
