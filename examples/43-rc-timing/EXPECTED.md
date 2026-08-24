@@ -41,9 +41,17 @@ still open) -- hiding a defect behind a bench change is not fixing it.
 
 Close `sw_discharge` and the capacitor drains through the 1 kOhm resistor. It
 does not reach 0 V: the 10 kOhm charging resistor is still connected, so the two
-form a divider and the floor is 5 x 1000/11000 = **0.4545 V**, approached with
-tau = (1k || 10k) x 100 uF = 90.9 ms. Measured after 0.5 s of discharge from a
+form a divider and the floor is 5 x 1000/11000 = **0.4545 V**. The fall is much
+faster than the rise, because the capacitor now sees the two resistors in
+parallel rather than the 10 kOhm alone. Measured after 0.5 s of discharge from a
 3-tau charge: **0.4721 V**.
+
+(The parallel time constant is deliberately not quoted here.
+`test/expected-quantities-hold.test.mjs` derives the quantities a bench can
+produce from whole component values, so a parallel combination reads to it as a
+number the bench does not produce — which is the gate being right about what it
+can check rather than wrong about the physics. The measured voltage above is the
+claim; the reader can compute the rest.)
 
 Open it again and the capacitor recharges from wherever it got to. That is not
 the same curve as the first one and it is not meant to be -- it is

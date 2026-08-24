@@ -84,12 +84,18 @@ async function sweep(armDriveHigh) {
     : p.dir === 'analog' ? 'input'
       : p.q ? 'quasi' : (p.low ? 'input-pullup' : 'input-pulldown'));
 
+  const rawIndex = JSON.parse(readFileSync(join(EX, 'index.json'), 'utf8'));
+  const entries = (Array.isArray(rawIndex) ? rawIndex : rawIndex.examples)
+    .slice().sort((a, b) => a.id.localeCompare(b.id));
+
   const dead = [];
   let benches = 0;
   let pins = 0;
-  for (const id of readdirSync(EX)) {
-    const prog = join(EX, id, 'program.bw');
-    const circ = join(EX, id, 'circuit.json');
+  for (const entry of entries) {
+    const id = entry.id;
+    if (!entry.files?.program || !entry.files?.circuit) continue;
+    const prog = join(EX, entry.files.program);
+    const circ = join(EX, entry.files.circuit);
     if (!existsSync(prog) || !existsSync(circ)) continue;
     let creator;
     try {
