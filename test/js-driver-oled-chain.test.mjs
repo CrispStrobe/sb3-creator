@@ -11,6 +11,13 @@
 //   2. The simulator pin table spelled board-class pins as
 //      P<port>.<bit> with no port defined — "Pundefined.undefined" —
 //      so every setPin landed on a pin the board does not have.
+//   3. (2026-08-25) Board-class INPUT pins were mapped to "quasi" — the
+//      8051 weak PULL-UP — and nothing ever configured a read-only pin,
+//      so every Pico key net floated ~2.1 V and read pressed from boot;
+//      the firmware's scan reported its first-declared key ("9")
+//      forever. Inputs now arm per board instance with the programmed
+//      pull (activeLow → input-pullup, else input-pulldown), matching
+//      the MicroPython backend's Pin.PULL_* rule.
 //
 // Needs the bw-board/bw-circuit-ui checkouts; skips loudly without them.
 import { test } from 'node:test';
@@ -104,4 +111,20 @@ test('70-calculator through the JS simulator driver: the OLED lights',
     assert.equal(st.displayOn, true, 'SSD1306 received its bring-up (charge pump + display on)');
     const lit = st.fb.reduce((a, b) => a + (b ? 1 : 0), 0);
     assert.ok(lit >= 20, `framebuffer carries the header (${lit} non-zero bytes)`);
+
+    // 5. the keypad reads honestly (bug 3). Text level first: a Pico
+    // INPUT pin must arm a pull-down, never the 8051 quasi pull-up.
+    assert.match(js, /input-pulldown/, 'board-class inputs map to input-pulldown');
+    // The driver armed the pins during the run; at rest every key reads 0.
+    for (const gp of ['gp2', 'gp8', 'gp16']) {
+      assert.equal(board.readPin(gp), 0, `${gp} reads 0 at rest (pull-down holds the net)`);
+    }
+    // Press "5" (k_b5 → GP8): ONLY its pin goes high. The old defect made
+    // every key read 1 always, so this is the discriminating assertion —
+    // gp2 ("9", first declared) must stay LOW while gp8 reads the press.
+    board.setControl('k_b5', 1);
+    assert.equal(board.readPin('gp8'), 1, 'pressed key reads 1');
+    assert.equal(board.readPin('gp2'), 0, 'unpressed "9" stays 0 while "5" is held');
+    board.setControl('k_b5', 0);
+    assert.equal(board.readPin('gp8'), 0, 'released key falls back to 0');
   });

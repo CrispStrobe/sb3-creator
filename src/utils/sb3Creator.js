@@ -358,12 +358,20 @@ class SB3Creator {
             const pin = p.port !== undefined
                 ? `P${p.port}.${p.bit}`
                 : String(p.where || p.pin || p.name).toLowerCase();
-            table[p.name] = { pin, dir: p.direction, low: !!p.activeLow };
+            // `q` marks the 8051 family, whose INPUT pins really are
+            // quasi-bidirectional (weak pull-up). Board-class inputs
+            // (Pico, Nano, Mega) are high-Z with a PROGRAMMED pull — the
+            // same rule the MicroPython backend emits (activeLow →
+            // PULL_UP, else PULL_DOWN). Mapping them to "quasi" held
+            // every Pico key HIGH at rest: the 70-calculator's 17 keys
+            // all read pressed from boot and the firmware's scan
+            // reported its first-declared key ("9") forever.
+            table[p.name] = { pin, dir: p.direction, low: !!p.activeLow, q: p.port !== undefined };
         }
         const json = JSON.stringify(table);
         // `set high`/`set low` are levels; `turn on`/`off` are states and respect the polarity.
         const drive = 'const _drv = (p, st) => (st === "high" ? true : st === "low" ? false : ((st === "on") !== p.low));';
-        const mode = 'const _mod = (p) => (p.dir === "output" ? "pushpull" : p.dir === "analog" ? "input" : "quasi");';
+        const mode = 'const _mod = (p) => (p.dir === "output" ? "pushpull" : p.dir === "analog" ? "input" : p.q ? "quasi" : (p.low ? "input-pullup" : "input-pulldown"));';
         // Boundary A is (pins, TIME). Driving pins without advancing the clock leaves the
         // board frozen: the 20 ms brightness integrator never samples, RC never charges, and
         // the buzzer has no edges to measure a period from. So a `wait` must move the clock —
@@ -375,7 +383,7 @@ class SB3Creator {
                 `_stc12_pins = json.loads(${this.pyStr(json)})`,
                 'class _Stc12Simulated:',
                 '    def _p(self, name): return _stc12_pins.get(name)',
-                '    def _mode(self, p): return "pushpull" if p["dir"] == "output" else ("input" if p["dir"] == "analog" else "quasi")',
+                '    def _mode(self, p): return "pushpull" if p["dir"] == "output" else ("input" if p["dir"] == "analog" else ("quasi" if p.get("q") else ("input-pullup" if p["low"] else "input-pulldown")))',
                 '    def _drive(self, p, st): return True if st == "high" else False if st == "low" else ((st == "on") != p["low"])',
                 '    def setPin(self, name, state):',
                 '        p = self._p(name)',
@@ -413,7 +421,17 @@ class SB3Creator {
                 '        if mode == "text": print(value)',
                 '        else: print(int(value))',
                 '    def on(self, event, handler): pass',
-                'def _board(): return globals().get("bw_board")',
+                '# Arm INPUT pins (their pulls) once per board instance: nothing else',
+                '# ever calls setPin on a read-only pin, so without this the pin has NO',
+                '# pinState and the net floats — every Pico key read HIGH at rest.',
+                '_bw_armed = [None]',
+                'def _board():',
+                '    b = globals().get("bw_board")',
+                '    if b is not None and _bw_armed[0] is not b:',
+                '        _bw_armed[0] = b',
+                '        for _k, _p in _stc12_pins.items():',
+                '            if _p["dir"] != "output": b.setPin(_p["pin"], _stc12._mode(_p), False)',
+                '    return b',
                 '_stc12 = _Stc12Simulated()',
                 '',
                 '# Simulated time. A wait advances the board clock; without this the board is frozen.',
@@ -429,7 +447,15 @@ class SB3Creator {
             '// _stc12 driver — simulated board (boundary A). Supply `bwBoard` to attach one.',
             `const _stc12_pins = ${json};`,
             drive, mode,
-            'const _board = () => (typeof bwBoard !== "undefined" ? bwBoard : null);',
+            '// Arm INPUT pins (their pulls) once per board instance: nothing else',
+            '// ever calls setPin on a read-only pin, so without this the pin has NO',
+            '// pinState and the net floats — every Pico key read HIGH at rest. The',
+            '// board is re-armed when the host swaps it (circuit rebuild).',
+            'let _bw_armed_board = null;',
+            'const _bw_arm = (b) => { if (!b || _bw_armed_board === b) return; _bw_armed_board = b;',
+            '    for (const k in _stc12_pins) { const p = _stc12_pins[k];',
+            '        if (p.dir !== "output") b.setPin(p.pin, _mod(p), false); } };',
+            'const _board = () => { const b = (typeof bwBoard !== "undefined" ? bwBoard : null); _bw_arm(b); return b; };',
             'const _stc12 = {',
             '    setPin: (name, st) => { const p = _stc12_pins[name], b = _board();',
             '        if (p && b) b.setPin(p.pin, _mod(p), _drv(p, st)); },',

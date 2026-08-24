@@ -798,7 +798,11 @@ test('the simulator driver makes an STC12 program drivable by a board layer', ()
     const js = c.generateJavaScript(undefined, { driver: 'simulator' });
     // The pin table travels with the program: only the project knows led1 is P1.0 and
     // active-low, and boundary A speaks (pin, mode, driveHigh).
-    assert.match(js, /_stc12_pins = \{"led1":\{"pin":"P1\.0","dir":"output","low":true\}/);
+    // `q` marks the 8051 family: its INPUT pins really are quasi
+    // (weak pull-up); board-class inputs get their PROGRAMMED pull
+    // instead (the 70-calculator every-key-reads-9 defect).
+    assert.match(js, /_stc12_pins = \{"led1":\{"pin":"P1\.0","dir":"output","low":true,"q":true\}/);
+    assert.match(js, /p\.q \? "quasi" : \(p\.low \? "input-pullup" : "input-pulldown"\)/);
     assert.match(js, /b\.setPin\(p\.pin, _mod\(p\), _drv\(p, st\)\)/);
     // `turn on` on an active-low pin must resolve to a LOW drive — the inversion is the point.
     const drv = new Function('st', 'p', 'return (st === "high" ? true : st === "low" ? false : ((st === "on") !== p.low));');
@@ -807,8 +811,10 @@ test('the simulator driver makes an STC12 program drivable by a board layer', ()
     assert.equal(drv('high', { low: true }), true, 'set high is a level, not a state');
     // An analog pin reads VOLTS from the board; scaling to counts stays on the MCU side.
     assert.match(js, /b\.readAnalog\(p\.pin\) \/ 5\.0 \* 1023/);
-    // With no board attached the program still runs.
-    assert.match(js, /const _board = \(\) => \(typeof bwBoard !== "undefined" \? bwBoard : null\)/);
+    // With no board attached the program still runs; when one appears,
+    // its INPUT pins are armed (pulls stamped) once per board instance.
+    assert.match(js, /const _board = \(\) => \{ const b = \(typeof bwBoard !== "undefined" \? bwBoard : null\); _bw_arm\(b\); return b; \}/);
+    assert.match(js, /if \(p\.dir !== "output"\) b\.setPin\(p\.pin, _mod\(p\), false\)/);
     // Python gets the same driver.
     assert.match(c.generatePython(undefined, { driver: 'simulator' }), /class _Stc12Simulated:/);
 });
