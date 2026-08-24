@@ -50,7 +50,8 @@
    "id": "zener_3",
    "kind": "zener",
    "params": {
-    "vf": 5.1
+    "vz": 5.1,
+    "vf": 0.7
    },
    "terminals": [
     "anode",

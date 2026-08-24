@@ -1394,8 +1394,8 @@
       "dir": "23-voltage-regulator",
       "flat": "circuit-flat.json",
       "twin": "circuit.json",
-      "flatSha": "ec27a588477a24ea05a9bddca3764780b338408ac462b48c0892e00469a339f4",
-      "twinSha": "169f0a950e94a7a9f88fbd5602e3cbaa8bc0abd7d6004ed6687e13dc703d2e52",
+      "flatSha": "04947d6905f7de2cb9fb6ef22a8e8babec201a2812a1531d562dba3fda3a2875",
+      "twinSha": "7a6cd9edc07e11a51c96f379da2531234b897c20109aaf8a88ce75e6373e89c8",
       "partitionSha": "418a26eb51cabfb1623ab5d895bb3181af399d668fa99f113b15c9feee8097c9"
     },
     {
@@ -1954,8 +1954,8 @@
       "dir": "39-zener-clamp",
       "flat": "circuit-flat.json",
       "twin": "circuit.json",
-      "flatSha": "f05eb103d62358252a2843ceb6a2a97bf4a2baf56f9b0f2be3894de4fbbeef5d",
-      "twinSha": "5428677b661a8d42d793b58a43f105ad354eb0fe4b5b0eddcc81d69fb77fcb7d",
+      "flatSha": "f2583b094ca7c67c2e757bbc9ded6d61a1704ac93b6add35ae976e0fe2603c05",
+      "twinSha": "24b31866f2a95f9ff5281ba3c2b2abbdae2a558e84ffca82be724a4e8b854ba0",
       "partitionSha": "418a26eb51cabfb1623ab5d895bb3181af399d668fa99f113b15c9feee8097c9"
     },
     {
@@ -7642,8 +7642,8 @@
       "dir": "pc18-zener-clamp",
       "flat": "circuit-flat.json",
       "twin": "circuit.json",
-      "flatSha": "4c496994671d2665c434f6268d09c1cd263f6ca1aa2f841afaddfe133960c0f9",
-      "twinSha": "2f77ac0834b685e965110ed0c92e6906733f1ae549ff80f3c42fe474b3698788",
+      "flatSha": "ce687d7bb12a2891bfe576f20ed39cab7b6adf86abba1ae99d328f761077c5a9",
+      "twinSha": "ad0811a3ce3b5c695b2f2660bf954c1856a51a7dc38db5ecadebfdc6410b0fbf",
       "partitionSha": "cd388afef03e825fab2391507e1d77285412c5c5e639f53b3d534639dfdd98dd"
     },
     {

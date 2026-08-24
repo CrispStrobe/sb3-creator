@@ -35,7 +35,8 @@
       "id": "zd1",
       "kind": "zener",
       "params": {
-        "vf": 5.1
+        "vz": 5.1,
+        "vf": 0.7
       },
       "seat": {
         "boardId": "bb1",

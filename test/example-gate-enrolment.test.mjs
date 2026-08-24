@@ -71,9 +71,19 @@ describe('gate enrolment per example is recorded, not discovered', () => {
         // A new gate that filters examples by metadata must appear in
         // ENROLMENT, or this fails. That is the whole point: coverage cannot
         // change without the map changing with it.
+        // Comments are stripped first. A file that merely NAMES index.json in
+        // its prose is not a reader, and counting one is a false red that
+        // pushes a real finding off the list — CI found exactly that when a
+        // comment added to gate-integrity.test.mjs made it look like a reader.
+        // This is the same mistake circuit-params-are-read made earlier in the
+        // campaign, in the other direction: there a commented-out mention made
+        // a DEAD field look live.
+        const strip = (src) => src
+            .replace(/\/\*[\s\S]*?\*\//g, ' ')
+            .replace(/(^|[^:])\/\/[^\n]*/g, '$1 ');
         const readers = readdirSync(join(ROOT, 'test'))
             .filter(f => f.endsWith('.test.mjs'))
-            .filter(f => readFileSync(join(ROOT, 'test', f), 'utf8').includes('index.json'))
+            .filter(f => strip(readFileSync(join(ROOT, 'test', f), 'utf8')).includes('index.json'))
             .map(f => f.replace(/\.test\.mjs$/, ''));
         assert.ok(readers.length >= 10, `only ${readers.length} catalog readers found — the scan is broken`);
         const declared = new Set([...ENROLMENT.map(e => e.gate), ...NOT_PER_EXAMPLE.keys(), ...CORPUS_WIDE]);
