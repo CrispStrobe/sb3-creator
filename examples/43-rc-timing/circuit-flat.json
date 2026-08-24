@@ -5,6 +5,9 @@
       "id": "vcc1",
       "kind": "vcc",
       "params": {},
+      "terminals": [
+        "vcc"
+      ],
       "x": 80,
       "y": 60
     },
@@ -12,6 +15,9 @@
       "id": "gnd1",
       "kind": "gnd",
       "params": {},
+      "terminals": [
+        "gnd"
+      ],
       "x": 220,
       "y": 60
     },
@@ -21,13 +27,10 @@
       "params": {
         "ohms": 10000
       },
-      "seat": {
-        "boardId": "bb1",
-        "leadMap": {
-          "a": "a3",
-          "b": "a7"
-        }
-      },
+      "terminals": [
+        "a",
+        "b"
+      ],
       "x": 64,
       "y": 255
     },
@@ -37,14 +40,35 @@
       "params": {
         "farads": 0.0001
       },
-      "seat": {
-        "boardId": "bb1",
-        "leadMap": {
-          "a": "a9",
-          "b": "a10"
-        }
-      },
+      "terminals": [
+        "a",
+        "b"
+      ],
       "x": 148,
+      "y": 255
+    },
+    {
+      "id": "sw_discharge",
+      "kind": "switch",
+      "params": {},
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 300,
+      "y": 255
+    },
+    {
+      "id": "r_discharge",
+      "kind": "resistor",
+      "params": {
+        "ohms": 1000
+      },
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 380,
       "y": 255
     }
   ],
@@ -63,6 +87,18 @@
     },
     {
       "id": "w_flat_1",
+      "netId": "bb1:n-col-t7",
+      "from": {
+        "part": "c1",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "sw_discharge",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "w_flat_2",
       "netId": "bb1:rail-b-",
       "from": {
         "part": "c1",
@@ -74,7 +110,19 @@
       }
     },
     {
-      "id": "w_flat_2",
+      "id": "w_flat_3",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "c1",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "r_discharge",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "w_flat_4",
       "netId": "bb1:rail-t+",
       "from": {
         "part": "r1",
@@ -83,6 +131,18 @@
       "to": {
         "part": "vcc1",
         "terminal": "vcc"
+      }
+    },
+    {
+      "id": "w_flat_5",
+      "netId": "net-lgc-2",
+      "from": {
+        "part": "r_discharge",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "sw_discharge",
+        "terminal": "b"
       }
     }
   ],

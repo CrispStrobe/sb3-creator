@@ -2,7 +2,7 @@
   "note": "Vendored VERDICT for the flat circuit twins. CI cannot recompute the net partition (that needs bw-circuit-ui + bw-board), but it can prove neither file of a pair changed since a run that did. Regenerate with scripts/vendor-flat-partitions.mjs --write.",
   "engine": {
     "repo": "bw-circuit-ui",
-    "sha": "410f8cecdbefec6eb8a2031e193e26ddf088ac3f"
+    "sha": "ff2a3ab2db2290b6deae476adf9aed4021f40fce"
   },
   "pairs": 1006,
   "entries": [
@@ -1986,9 +1986,9 @@
       "dir": "43-rc-timing",
       "flat": "circuit-flat.json",
       "twin": "circuit.json",
-      "flatSha": "b5003a60c162197ad9982ca4b1cd3e47ca9240f7c5875e9beb5776f553b687b8",
-      "twinSha": "cae8d20079b3101e52d8399b69e18b8113b6d8c1d91a53601b30a2299d1aabdf",
-      "partitionSha": "e1ee0c2283d1316ee891ddfa235899ff72e9be9a3d9e72e8a21241ba36ee34a2"
+      "flatSha": "2351c2f9e46270320699457f8fe864d857c2631355e3f37a21b01e5c203fe8d5",
+      "twinSha": "783fb877407fc72b2cbaf4c2459feffdaeeeb8888b87715c74629532bf7f3cfd",
+      "partitionSha": "63e49d243cc7cd977422d51d2f4bbdcb1bb5c0e55f2921da7617f5a374c6eb47"
     },
     {
       "dir": "44-darlington-motor",
@@ -7898,8 +7898,8 @@
       "dir": "pc50-two-stage-rc",
       "flat": "circuit-flat.json",
       "twin": "circuit.json",
-      "flatSha": "421f02413b8541a95947ae3189921347bea6a6db00b354a1e6503ab05c1a4cae",
-      "twinSha": "710a194159f51de706e6948cbc65d377d8fe091e5a58fd1447c2e390fa9d0d4f",
+      "flatSha": "8b9c9cf704c2cc9266f13095bea1562afdf5800512247c89dbcf113ca4c014db",
+      "twinSha": "351d9e97fecf3b8041f25347ba07c9c5d8ba7372041d4fbb1aadc9b6565f70b0",
       "partitionSha": "15f7f2f4d8d2bf3c3c9678428d6da6dedeea619e11de9a696ca3cf91cca17313"
     },
     {
