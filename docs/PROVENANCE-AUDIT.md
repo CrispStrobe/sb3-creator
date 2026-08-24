@@ -82,7 +82,8 @@ reported, not fixed. **Denominator: 10 sync/vendor scripts + 47 `uses:` across 6
 
 ## 2. What a green run claims
 
-**Denominator: 99 test files, 825 tests. 53 tests have a NAME that is a universal claim**
+**Denominator: 99 test files, 825 tests at the base commit `4805f32`. 53 tests have a NAME
+that is a universal claim**
 ("every X", "all Y", "no Z", "never W").
 
 Of those 53, **7 consult a non-empty exemption table**. I verified all 7 by reading them rather
@@ -108,13 +109,33 @@ scope goes in the TEST NAME, so a green run cannot be mistaken for the whole cla
 The counts are **interpolated from the table, not written out**, so the name cannot drift from
 the thing it describes. `WAIVED` was hoisted out of its test body to make that possible.
 
-### The remaining 46
+### The remaining 50, and one number I got wrong first
 
-They quantify over a set they genuinely walk, and 21 of the 32 that my scan flagged for a
-narrowing construct (`continue`, `existsSync`, `.slice`) carry an explicit **floor assertion** —
-`assert.ok(scanned >= 40, 'the walk is broken and this assertion is vacuous')`. That is the
-existing convention in this repo and it is the right one; the audit adds floors to the four new
-gates below rather than proposing anything different.
+All counts above are measured at the **base commit `4805f32`**: 99 test files, 825 tests, 53
+universal-named. At this branch's HEAD they read 100 / 832 / 57, because four of the gates added
+here are themselves universal-named — stating both denominators rather than quietly reporting
+the one that flatters the sweep.
+
+Of the 53, a crude scan flags **32** for a narrowing construct (`continue`, `existsSync`,
+`.slice`, an allowlist). **Only 10 of those 32 carry a detectable floor assertion** — the
+`assert.ok(scanned >= 40, 'the walk is broken and this assertion is vacuous')` shape that is
+already this repo's convention. **22 do not.**
+
+I first wrote that sentence with the ratio the other way up (21 of 32 having floors) and caught
+it by re-running the scan against what the document claimed. The honest reading is less
+comfortable: floors are the established pattern here, but two thirds of the narrowing
+universal-named gates do not have one that a regex can see.
+
+Two caveats, because 22 is not a defect count:
+
+- **The detector is crude.** It looks for a comparison against a collected length. A gate whose
+  floor is expressed differently reads as having none. "No floor detected by a regex" is not
+  "no floor" — this is a shortlist to review, not a verdict.
+- **`continue` is usually innocent.** Skipping non-`.json` entries in a `readdir` narrows
+  nothing that the name quantified over.
+
+So this is left as a stated, sized shortlist rather than 22 corrections made on a heuristic. The
+four gates added on this branch each carry a floor, mutation-proven in §4.
 
 ---
 
