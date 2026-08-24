@@ -3,21 +3,21 @@
   "siblings": {
     "bw-board": {
       "repo": "CrispStrobe/bw-board",
-      "rev": "dcaf05fba7e54e6677c4babdacf0c5a7bf94e9b8",
+      "rev": "0060b80fc4d5522bb2a9074b744a330679ecde2c",
       "marker": "src/board.js",
       "licence": "MIT",
       "why": "the device/board simulator the gallery e2e and physics gates drive. Advanced from 50c3bf7 for 40db90f (\"a loaded pot wiper routes to MNA\"), without which 41-pot-as-dimmer's wiper reads the UNLOADED 2.5000 V and its node violates KCL by 2.17 mA.",
       "pinnedOn": "2026-08-23",
-      "revShort": "dcaf05f"
+      "revShort": "0060b80"
     },
     "bw-circuit-ui": {
       "repo": "CrispStrobe/bw-circuit-ui",
-      "rev": "0a3ec00e848e67615eef19ff8642b86bf533780c",
+      "rev": "410f8cecdbefec6eb8a2031e193e26ddf088ac3f",
       "marker": "src/model/circuit.js",
       "licence": "MPL-2.0",
       "why": "the canonical circuit model, engine, and the ONE wire-endpoint dialect reader (src/model/wire-endpoints.js) the corpus gates read circuit.json through",
       "pinnedOn": "2026-08-23",
-      "revShort": "0a3ec00"
+      "revShort": "410f8ce"
     }
   }
 }
