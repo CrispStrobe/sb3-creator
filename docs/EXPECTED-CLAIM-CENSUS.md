@@ -26,8 +26,8 @@ claim, with the reason for each.
 
 | | claims | compared | checked | mismatched | skipped |
 |---|---|---|---|---|---|
-| before this sweep | 2356 | 34 (1.4 %) | 34 | 0 | 2322 |
-| after | 2356 | **1195 (50.7 %)** | 1194 | 1 | 1161 |
+| before this sweep | 2358 | 34 (1.4 %) | 34 | 0 | 2324 |
+| after | 2358 | **1209 (51.3 %)** | 1208 | 1 | 1149 |
 
 The 34 is not a slur on the previous gate: it read three hand-written shapes out
 of the prose — a frequency beside a period, a `Frequency:` beside a two-wait
@@ -44,7 +44,7 @@ recorded with a verdict rather than repaired.
 | n | why a claim was not compared |
 |---|---|
 | 185 | condition label — the leading cell of a table row states the operating point the rest of the row answers for |
-| 144 | counterfactual or comparative prose — the number is stated about a bench other than this one, or is a rating rather than a measurement |
+| 145 | counterfactual or comparative prose — the number is stated about a bench other than this one, or is a rating rather than a measurement |
 | 141 | a component value outside ## Circuit — a what-if row, a derived total, or a value named in passing, not a statement about this bench |
 | 102 | no authored circuit.json to hold the declared value against |
 | 77 | no authored circuit.json to hold the claim against |
@@ -59,7 +59,6 @@ recorded with a verdict rather than repaired.
 | 20 | free-running oscillator — the claim is about a waveform and a solve is an instant |
 | 19 | driven bench — the source is a waveform, so a solve is an instant |
 | 17 | the row puts two switches in different states, and this gate drives every switch on a bench together |
-| 14 | the engine's BJT model is a linearised beta source with no saturation region, so a V_CE(sat) is not a quantity it produces |
 | 14 | the sentence states both switch states at once, so no single operating point is the one it is claiming about |
 | 13 | temp claims have no derivation here — nothing in the engine reads a temperature or a magnetic quantity back |
 | 10 | a PWM or servo pulse duty — a firmware-generated waveform, not a shape this gate reads from the program's waits |
@@ -69,12 +68,12 @@ recorded with a verdict rather than repaired.
 | 4 | the document divides by led1's DECLARED forward drop of 2.1 V — the ideal-model answer — while the engine's junction solves to 2.214 V here; a model difference, not a document defect, and the line's own arithmetic is what this gate holds it to |
 | 4 | a duty cycle on an example whose program states no waits |
 | 3 | a percentage of a rail the bench does not declare |
+| 2 | a transistor terminal current: solveMNA EXTRACTS these from the terminal voltages through the device's knee model rather than solving for them, and the result is not KCL-consistent (430 mA into a base on a bench drawing 2.8 mA), so the engine has no trustworthy readback for it |
 | 2 | a time constant on a bench with no single capacitor to take R x C from |
 | 2 | the bench declares no ohm — the document names a component the bench does not have |
 | 1 | a duty cycle on a program driving 2 outputs — the lit time this gate tracks is their union, not the one lamp the claim is about |
 | 1 | the bench declares rInternal and no bw-board model stamps it — every source solves as ideal, so an internal drop or a sagging terminal voltage has no readback at all |
 | 1 | the document divides by led1's DECLARED forward drop of 2 V — the ideal-model answer — while the engine's junction solves to 2.118 V here; a model difference, not a document defect, and the line's own arithmetic is what this gate holds it to |
-| 1 | a transistor terminal current: solveMNA EXTRACTS these from the terminal voltages through the device's knee model rather than solving for them, and the result is not KCL-consistent (430 mA into a base on a bench drawing 2.8 mA), so the engine has no trustworthy readback for it |
 | 1 | the document divides by led1's DECLARED forward drop of 2.1 V — the ideal-model answer — while the engine's junction solves to 2.147 V here; a model difference, not a document defect, and the line's own arithmetic is what this gate holds it to |
 | example | claims | checked | skipped | mismatched |
 |---|---|---|---|---|
@@ -116,13 +115,13 @@ recorded with a verdict rather than repaired.
 | 35-series-resistors | 13 | 13 | 0 | 0 |
 | 36-parallel-leds | 9 | 9 | 0 | 0 |
 | 37-voltage-divider-basic | 13 | 13 | 0 | 0 |
-| 38-npn-switch | 11 | 7 | 4 | 0 |
+| 38-npn-switch | 11 | 10 | 1 | 0 |
 | 39-zener-clamp | 13 | 13 | 0 | 0 |
 | 40-led-color-mix | 13 | 13 | 0 | 0 |
 | 41-pot-as-dimmer | 31 | 8 | 23 | 0 |
 | 42-diode-rectifier | 7 | 7 | 0 | 0 |
 | 43-rc-timing | 22 | 11 | 11 | 0 |
-| 44-darlington-motor | 6 | 4 | 2 | 0 |
+| 44-darlington-motor | 8 | 7 | 1 | 0 |
 | 45-led-current-comparison | 16 | 13 | 3 | 0 |
 | 46-port-overcurrent | 22 | 10 | 12 | 0 |
 | 47-battery-led | 10 | 7 | 3 | 0 |
@@ -221,7 +220,7 @@ recorded with a verdict rather than repaired.
 | pc12-direct-divider | 5 | 5 | 0 | 0 |
 | pc13-direct-diode | 11 | 6 | 5 | 0 |
 | pc14-mini-led | 10 | 6 | 4 | 0 |
-| pc15-mini-npn | 24 | 6 | 18 | 0 |
+| pc15-mini-npn | 24 | 9 | 15 | 0 |
 | pc16-mini-rc | 41 | 32 | 9 | 0 |
 | pc17-current-compare | 26 | 16 | 10 | 0 |
 | pc18-zener-clamp | 20 | 12 | 8 | 0 |
@@ -229,7 +228,7 @@ recorded with a verdict rather than repaired.
 | pc20-rgb-mix | 19 | 12 | 7 | 0 |
 | pc21-rc-smoothing | 54 | 20 | 34 | 0 |
 | pc22-diode-selector | 23 | 8 | 15 | 0 |
-| pc23-transistor-switch | 12 | 8 | 4 | 0 |
+| pc23-transistor-switch | 12 | 11 | 1 | 0 |
 | pc24-light-gate | 20 | 9 | 11 | 0 |
 | pc25-relay-isolator | 21 | 9 | 12 | 0 |
 | pc26-motor-clamp | 21 | 4 | 17 | 0 |
@@ -238,7 +237,7 @@ recorded with a verdict rather than repaired.
 | pc29-capacitor-discharge | 37 | 4 | 33 | 0 |
 | pc30-resistor-ladder | 15 | 5 | 10 | 0 |
 | pc31-bridge-rectifier | 17 | 5 | 12 | 0 |
-| pc32-pnp-high-side | 10 | 4 | 6 | 0 |
+| pc32-pnp-high-side | 10 | 6 | 4 | 0 |
 | pc33-thermistor-divider | 14 | 5 | 9 | 0 |
 | pc34-polarity-protector | 9 | 1 | 8 | 0 |
 | pc35-capacitor-bypass | 18 | 8 | 10 | 0 |
@@ -322,13 +321,13 @@ recorded with a verdict rather than repaired.
 | 35-series-resistors | 13 | 13 | 0 | 0 |
 | 36-parallel-leds | 9 | 9 | 0 | 0 |
 | 37-voltage-divider-basic | 13 | 13 | 0 | 0 |
-| 38-npn-switch | 11 | 7 | 4 | 0 |
+| 38-npn-switch | 11 | 10 | 1 | 0 |
 | 39-zener-clamp | 13 | 13 | 0 | 0 |
 | 40-led-color-mix | 13 | 13 | 0 | 0 |
 | 41-pot-as-dimmer | 31 | 8 | 23 | 0 |
 | 42-diode-rectifier | 7 | 7 | 0 | 0 |
 | 43-rc-timing | 22 | 11 | 11 | 0 |
-| 44-darlington-motor | 6 | 4 | 2 | 0 |
+| 44-darlington-motor | 8 | 7 | 1 | 0 |
 | 45-led-current-comparison | 16 | 13 | 3 | 0 |
 | 46-port-overcurrent | 22 | 10 | 12 | 0 |
 | 47-battery-led | 10 | 7 | 3 | 0 |
@@ -427,7 +426,7 @@ recorded with a verdict rather than repaired.
 | pc12-direct-divider | 5 | 5 | 0 | 0 |
 | pc13-direct-diode | 11 | 6 | 5 | 0 |
 | pc14-mini-led | 10 | 6 | 4 | 0 |
-| pc15-mini-npn | 24 | 6 | 18 | 0 |
+| pc15-mini-npn | 24 | 9 | 15 | 0 |
 | pc16-mini-rc | 41 | 32 | 9 | 0 |
 | pc17-current-compare | 26 | 16 | 10 | 0 |
 | pc18-zener-clamp | 20 | 12 | 8 | 0 |
@@ -435,7 +434,7 @@ recorded with a verdict rather than repaired.
 | pc20-rgb-mix | 19 | 12 | 7 | 0 |
 | pc21-rc-smoothing | 54 | 20 | 34 | 0 |
 | pc22-diode-selector | 23 | 8 | 15 | 0 |
-| pc23-transistor-switch | 12 | 8 | 4 | 0 |
+| pc23-transistor-switch | 12 | 11 | 1 | 0 |
 | pc24-light-gate | 20 | 9 | 11 | 0 |
 | pc25-relay-isolator | 21 | 9 | 12 | 0 |
 | pc26-motor-clamp | 21 | 4 | 17 | 0 |
@@ -444,7 +443,7 @@ recorded with a verdict rather than repaired.
 | pc29-capacitor-discharge | 37 | 4 | 33 | 0 |
 | pc30-resistor-ladder | 15 | 5 | 10 | 0 |
 | pc31-bridge-rectifier | 17 | 5 | 12 | 0 |
-| pc32-pnp-high-side | 10 | 4 | 6 | 0 |
+| pc32-pnp-high-side | 10 | 6 | 4 | 0 |
 | pc33-thermistor-divider | 14 | 5 | 9 | 0 |
 | pc34-polarity-protector | 9 | 1 | 8 | 0 |
 | pc35-capacitor-bypass | 18 | 8 | 10 | 0 |
@@ -486,4 +485,4 @@ recorded with a verdict rather than repaired.
 | spike01-obstacle-avoid | 1 | 1 | 0 | 0 |
 | z80-pd-bench | 5 | 1 | 4 | 0 |
 
-TOTAL  claims 2356  checked 1194  mismatched 1  skipped 1161  |  compared 1195 = 50.7 %
+TOTAL  claims 2358  checked 1208  mismatched 1  skipped 1149  |  compared 1209 = 51.3 %

@@ -27,16 +27,16 @@
  * WHAT THIS GATE DOES
  * -------------------
  * The unit of work is the CLAIM, not the check. `test/helpers/expected-claims.mjs`
- * enumerates every unit-bearing number in every EXPECTED.md — 2356 of them —
+ * enumerates every unit-bearing number in every EXPECTED.md — 2358 of them —
  * and gives each an identity. Every one is then either compared against
  * something that can contradict it or DECLINED WITH A REASON. The fraction
  * compared is reported with its denominator, and a claim nobody can check is
  * visible as such rather than absent.
  *
  *   before this sweep      34 of 2356 claims compared  (1.4 %)
- *   after                1195 of 2356 claims compared (50.7 %)
+ *   after                1209 of 2358 claims compared (51.3 %)
  *
- * and of the 1195, exactly ONE is a claim the engine contradicts and this lane
+ * and of the 1209, exactly ONE is a claim the engine contradicts and this lane
  * did not close. It is recorded with a verdict in
  * test/fixtures/expected-claim-exceptions.json.
  *
@@ -141,12 +141,12 @@ describe('EXPECTED.md quantities hold against the engine', { skip: SKIP }, () =>
         assert.deepEqual(unexplained.map(key), [],
             'a claim declined without a reason is an unverified claim nobody can see');
         const compared = L.checked.length + L.mismatched.length;
-        // The ratchet. 1195/2356 = 50.7 % on 2026-08-24, against 34 (1.4 %)
+        // The ratchet. 1209/2358 = 51.3 % on 2026-08-24, against 34 (1.4 %)
         // before this sweep. Raise this floor when the fraction rises; never
         // lower it to make a change fit.
-        assert.ok(compared >= 1150,
+        assert.ok(compared >= 1200,
             `only ${compared} of ${L.total} claims were compared (${(compared / L.total * 100).toFixed(1)} %) — `
-            + 'this gate checked 1195 when the floor was set, so coverage has gone BACKWARDS');
+            + 'this gate checked 1209 when the floor was set, so coverage has gone BACKWARDS');
     });
 
     test('no claim the engine contradicts is unrecorded', async () => {
@@ -248,8 +248,42 @@ describe('the instrument says what it cannot read', { skip: SKIP }, () => {
         }
         assert.deepEqual(sagging, [],
             'a source with a declared rInternal now sags under load — bw-board has grown the model these benches assume. '
-            + 'That is good news and a task: re-derive the internal-drop and terminal-voltage claims in 47-battery-led, '
-            + '52-battery-voltage-divider, pc77-klemmenspannung, pc78-belastete-quelle, pc79-indirekte-strommessung and '
-            + 'pc80-quellen-vergleich, then delete this canary.');
+            + 'That is good news and a task. It was MEASURED IN ADVANCE against bw-board b5c02b1 ("Source and '
+            + 'transistor current honesty") on 2026-08-24, before any pin moved, so this is a hand-over and not a hunt:\n'
+            + '  FIVE AGREE and simply become checkable — 47-battery-led (internal drop 3.5 mV claimed, 0.0035 V '
+            + 'solved), 52-battery-voltage-divider (0.225 mV / 0.0002 V), pc77-klemmenspannung (0.108 V / 0.1033 V, '
+            + 'terminal 8.89 V / 8.8967 V), pc79-indirekte-strommessung (14.84 mA / 14.538 mA), pc80-quellen-vergleich '
+            + '(14.88 mA / 14.568 mA). Delete their hand-computed framing and let this gate check them.\n'
+            + '  ONE IS WRONG: pc78-belastete-quelle claims "Total current: I = 9 / 412 = 21.8 mA" while the line above '
+            + 'it says the LED Vf is subtracted — and it is not. The engine measures 16.719 mA (light branch 4.707, '
+            + 'heavy 12.011); subtracting Vf by hand gives 17.04. Its terminal voltage of 8.96 V is right by luck, '
+            + 'because the sag is small either way. The arithmetic checker CANNOT catch this: 9/412 really is 21.8, so '
+            + 'the document agrees with itself and disagrees with the circuit.\n'
+            + 'WHAT MOVES OUTSIDE THESE SIX, measured at the same time, because this canary watches rInternal '
+            + 'and would not otherwise say: corpus-wide only TWO of 2356 claims change disposition, both from '
+            + 'declined to CHECKED and both AGREEING (47-battery-led above, and pc32-pnp-high-side\'s 0.43 mA base). '
+            + 'No claim changes the value it was checked by. The full suite goes 6488/0-fail to 6496/1-fail, and the '
+            + 'one failure is THIS test.\n'
+            + '  One reason in this gate goes STALE and must be revisited, not just re-derived: the decline for a '
+            + 'transistor terminal current says solveMNA\'s extraction "is not KCL-consistent (430 mA into a base on '
+            + 'a bench drawing 2.8 mA)". That was true, and it stopped being true IN TWO STAGES, by two different '
+            + 'commits fixing two different defects — measured on the three trees rather than inferred from the '
+            + 'endpoints of a range:\n'
+            + '                                  NPN collector      PNP base\n'
+            + '                                  (44-darlington)    (pc32)\n'
+            + '    88e9668 (pinned)              430.4253 mA        430.0000 mA\n'
+            + '    20283ab                        47.9520 mA        430.0000 mA\n'
+            + '    b5c02b1                        47.9520 mA          0.4304 mA\n'
+            + '  20283ab ("Close six defects the lite lesson reviews left open here", LESSON-REVIEW-WAVE-1 defect 6) '
+            + 'gave the SATURATED extraction its own arm, so a collector reports the clamp gS*(vOut - vceSat) it '
+            + 'passes rather than the beta*Ib the VCCS would demand. b5c02b1 ("Source and transistor current '
+            + 'honesty") fixed the PNP: stampPNP\'s saturated early-return sat above the E-B junction stamp, so a '
+            + 'saturated PNP had no base junction at all and the base floated. After both, KCL holds at the device '
+            + '(pc32 emitter 3.2024 = base 0.4304 + collector 2.7720 mA) and the base equals rb\'s own current. '
+            + 'Delete the decline once the pin is past BOTH — a pin between them fixes only half of it.\n'
+            + '  pc32-pnp-high-side\'s supply current moves 2.772 -> 3.202 mA because the base path exists again. '
+            + 'Checked: no EXPECTED.md states it, so nothing needs re-deriving for that one.\n'
+            + 'Re-derive against whatever revision is pinned when you read this, restamp with '
+            + '`node scripts/stamp-expected-provenance.mjs`, then delete this canary.');
     });
 });
