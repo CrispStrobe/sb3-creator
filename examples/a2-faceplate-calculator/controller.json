@@ -1,5 +1,6 @@
 {
   "version": 1,
+  "mode": "play",
   "widgets": [
     {
       "name": "keys",
