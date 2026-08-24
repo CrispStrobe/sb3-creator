@@ -191,6 +191,69 @@ describe('gate integrity: a suite cannot skip itself into silence', () => {
         }
     });
 
+    test('every `uses:` in ci.yml names a 40-hex action sha, not a movable tag', () => {
+        // THE SAME DEFECT AS THE BLACKOUT, ON THE OTHER HALF OF THE FILE.
+        //
+        // The test above proves the two SIBLING checkouts are pinned to commits.
+        // It says nothing about the eleven `uses:` lines, and those were all
+        // movable tags: actions/checkout@v4, setup-node@v4, deploy-pages@v4.
+        //
+        // `@v4` is a branch-like tag the publisher REPOINTS. So a run that was
+        // green last week and a run that is green today can have executed
+        // different code with nothing in this repo recording which — and the
+        // green line says "Lint · test · build" either way. That is the whole
+        // class this audit is about: a well-formed claim about what was
+        // verified, where the thing named is not the thing fetched.
+        //
+        // It is also the supply-chain hole GitHub's own hardening guide names:
+        // whoever can move `v4` can run code in a job holding this repo's
+        // `pages: write` and `id-token: write` permissions.
+        //
+        // Keep the human-readable version in the trailing comment. The comment
+        // is prose and may drift; the sha is what runs.
+        const workflow = readFileSync(join(SB3, '.github', 'workflows', 'ci.yml'), 'utf8');
+        const uses = [...workflow.matchAll(/uses:\s*(\S+)/g)].map((m) => m[1]);
+
+        // The instrument before the subject. An empty list is indistinguishable
+        // from a clean sweep, and this scan is one regex away from matching
+        // nothing at all.
+        assert.ok(uses.length >= 11,
+            `only ${uses.length} \`uses:\` lines found in ci.yml, expected at least 11 — the ` +
+            'scan stopped matching and the assertion below would report a clean sweep over ' +
+            'nothing. Fix the pattern before trusting a green run here.');
+
+        const unpinned = uses.filter((u) => !/@[0-9a-f]{40}$/.test(u));
+        assert.deepEqual(unpinned, [],
+            'these workflow steps use a MOVABLE ref. A tag like `@v4` is repointed by its ' +
+            'publisher, so CI can run different code between two green runs and this repo ' +
+            'records neither. Pin the full 40-character commit sha and put the version in a ' +
+            'trailing comment:\n  ' + unpinned.join('\n  ') +
+            '\nResolve with: gh api repos/<owner>/<repo>/commits/<tag> --jq .sha');
+    });
+
+    test('the two --no-save installs name exact versions, not ranges', () => {
+        // `npm ci` is content-addressed: package-lock.json carries an integrity
+        // hash for all 556 packages. `npm install --no-save` is the one step
+        // that bypasses it entirely — nothing is written to the lock, so nothing
+        // checks what arrived. Carrying `^0.21.0` there meant the AVR and RP2040
+        // cores every board gate executes could change under a green run.
+        //
+        // npm forbids republishing a version, so `avr8js@0.21.0` IS an immutable
+        // object; the range in front of it was the only mutable part.
+        const workflow = readFileSync(join(SB3, '.github', 'workflows', 'ci.yml'), 'utf8');
+        const installs = [...workflow.matchAll(/npm install[^\n]*--no-save([^\n]*)/g)]
+            .flatMap((m) => m[1].trim().split(/\s+/).filter(Boolean));
+        assert.ok(installs.length >= 2,
+            `found ${installs.length} packages on --no-save install lines, expected at least 2 — ` +
+            'the scan is broken and an empty offender list below means nothing.');
+        const ranged = installs.filter((spec) => !/@\d+\.\d+\.\d+$/.test(spec));
+        assert.deepEqual(ranged, [],
+            'these packages are installed OUTSIDE package-lock.json (--no-save) at a version ' +
+            'RANGE, so no integrity hash covers them and a new release changes what CI tested ' +
+            'without any record:\n  ' + ranged.join('\n  ') +
+            '\nUse an exact version and record the integrity hash in a comment beside it.');
+    });
+
     test('every sibling this repo pins is one we are allowed to vendor or clone', () => {
         const pins = JSON.parse(readFileSync(join(SB3, 'test', 'fixtures', 'siblings.json'), 'utf8')).siblings;
         // The engine-backend licence rule: ngspice/KLU/CSparse-family code may not
