@@ -67,6 +67,11 @@ const deviceOnly = (entry) =>
  *   device              — free-text prose on 17 entries, read by nothing.
  */
 const UNCHECKED_HERE = new Set([
+    // pcbExpectedFindings: the DRC-verdict pin for a shipped teaching
+    // board; checked exactly (gain AND loss fail) by bw-circuit-ui's
+    // test/board-corpus.test.js gallery sweep, which imports the board
+    // and compares runPcbDrc's verdict against this declaration.
+    'pcbExpectedFindings',
     'id', 'title', 'category', 'difficulty', 'kind', 'devices',
     'expectedWarnings', 'deviceOnly', 'device',
 ]);

@@ -6380,6 +6380,26 @@
     "kind": "program"
   },
   {
+    "id": "72-soldered-key",
+    "title": {
+      "en": "The soldered key (find the board fault)",
+      "de": "Die festgelötete Taste (finde den Platinenfehler)"
+    },
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "kind": "circuit",
+    "files": {
+      "circuit": "72-soldered-key/circuit.json",
+      "pcb": "72-soldered-key/board.pcb.json",
+      "expected": "72-soldered-key/EXPECTED.md",
+      "intro": "72-soldered-key/intro.md",
+      "introDE": "72-soldered-key/intro.de.md"
+    },
+    "pcbExpectedFindings": {
+      "terminal-short/danger": 1
+    }
+  },
+  {
     "id": "72-pico-oled-hello",
     "title": {
       "en": "OLED on the Pico",
