@@ -40,6 +40,7 @@
    "atmega168p",
    "arduino-mega",
    "arduino-nano",
+   "stm32f030",
    "pico",
    "attiny88",
    "attiny85"
@@ -54,7 +55,8 @@
    "pico": "01-blink/circuit.pico.json",
    "stc12c5a60s2": "01-blink/circuit.stc12c5a60s2.json",
    "stc15f2k60s2": "01-blink/circuit.stc15f2k60s2.json",
-   "stc89c52rc": "01-blink/circuit.stc89c52rc.json"
+   "stc89c52rc": "01-blink/circuit.stc89c52rc.json",
+   "stm32f030": "01-blink/circuit.stm32f030.json"
   },
   "authored": "stc12c5a60s2"
  },
@@ -81,6 +83,7 @@
    "atmega168p",
    "arduino-mega",
    "arduino-nano",
+   "stm32f030",
    "pico"
   ],
   "refusals": {
@@ -93,7 +96,8 @@
    "atmega168p": "02-dimmer/circuit.atmega168p.json",
    "pico": "02-dimmer/circuit.pico.json",
    "stc12c5a60s2": "02-dimmer/circuit.stc12c5a60s2.json",
-   "stc15f2k60s2": "02-dimmer/circuit.stc15f2k60s2.json"
+   "stc15f2k60s2": "02-dimmer/circuit.stc15f2k60s2.json",
+   "stm32f030": "02-dimmer/circuit.stm32f030.json"
   },
   "authored": "stc12c5a60s2"
  },
@@ -120,6 +124,7 @@
    "atmega168p",
    "arduino-mega",
    "arduino-nano",
+   "stm32f030",
    "pico"
   ],
   "refusals": {
@@ -132,7 +137,8 @@
    "atmega168p": "03-night-light/circuit.atmega168p.json",
    "pico": "03-night-light/circuit.pico.json",
    "stc12c5a60s2": "03-night-light/circuit.stc12c5a60s2.json",
-   "stc15f2k60s2": "03-night-light/circuit.stc15f2k60s2.json"
+   "stc15f2k60s2": "03-night-light/circuit.stc15f2k60s2.json",
+   "stm32f030": "03-night-light/circuit.stm32f030.json"
   },
   "authored": "stc12c5a60s2"
  },
@@ -159,6 +165,7 @@
    "atmega168p",
    "arduino-mega",
    "arduino-nano",
+   "stm32f030",
    "pico"
   ],
   "refusals": {
@@ -171,7 +178,8 @@
    "atmega168p": "04-thermostat/circuit.atmega168p.json",
    "pico": "04-thermostat/circuit.pico.json",
    "stc12c5a60s2": "04-thermostat/circuit.stc12c5a60s2.json",
-   "stc15f2k60s2": "04-thermostat/circuit.stc15f2k60s2.json"
+   "stc15f2k60s2": "04-thermostat/circuit.stc15f2k60s2.json",
+   "stm32f030": "04-thermostat/circuit.stm32f030.json"
   },
   "authored": "stc12c5a60s2"
  },
@@ -199,6 +207,7 @@
    "atmega168p",
    "arduino-mega",
    "arduino-nano",
+   "stm32f030",
    "pico",
    "attiny88",
    "attiny85"
@@ -213,7 +222,8 @@
    "pico": "05-counter/circuit.pico.json",
    "stc12c5a60s2": "05-counter/circuit.stc12c5a60s2.json",
    "stc15f2k60s2": "05-counter/circuit.stc15f2k60s2.json",
-   "stc89c52rc": "05-counter/circuit.stc89c52rc.json"
+   "stc89c52rc": "05-counter/circuit.stc89c52rc.json",
+   "stm32f030": "05-counter/circuit.stm32f030.json"
   },
   "authored": "stc12c5a60s2"
  },
@@ -241,6 +251,7 @@
    "atmega168p",
    "arduino-mega",
    "arduino-nano",
+   "stm32f030",
    "pico",
    "attiny88",
    "attiny85"
@@ -254,7 +265,8 @@
    "attiny88": "06-active-low-high/circuit.attiny88.json",
    "pico": "06-active-low-high/circuit.pico.json",
    "stc15f2k60s2": "06-active-low-high/circuit.stc15f2k60s2.json",
-   "stc89c52rc": "06-active-low-high/circuit.stc89c52rc.json"
+   "stc89c52rc": "06-active-low-high/circuit.stc89c52rc.json",
+   "stm32f030": "06-active-low-high/circuit.stm32f030.json"
   },
   "tier": "arch",
   "authored": "stc12c5a60s2"
@@ -276,18 +288,20 @@
   },
   "kind": "program",
   "refusals": {
-   "stc89c52rc": "pin \"buzzer\" has direction tone, which does not retarget yet",
-   "stc15f2k60s2": "pin \"buzzer\" has direction tone, which does not retarget yet",
    "arduino-uno": "tone is not ported to this core yet",
    "arduino-nano": "tone is not ported to this core yet",
    "pico": "tone is not ported to this core yet"
   },
   "tier": "arch",
   "devices": [
-   "stc12c5a60s2"
+   "stc12c5a60s2",
+   "stc89c52rc",
+   "stc15f2k60s2"
   ],
   "benches": {
-   "stc12c5a60s2": "07-buzzer-siren/circuit.stc12c5a60s2.json"
+   "stc12c5a60s2": "07-buzzer-siren/circuit.stc12c5a60s2.json",
+   "stc15f2k60s2": "07-buzzer-siren/circuit.stc15f2k60s2.json",
+   "stc89c52rc": "07-buzzer-siren/circuit.stc89c52rc.json"
   },
   "authored": "stc12c5a60s2"
  },
@@ -315,6 +329,7 @@
    "atmega168p",
    "arduino-mega",
    "arduino-nano",
+   "stm32f030",
    "pico",
    "attiny88",
    "attiny85"
@@ -329,7 +344,8 @@
    "pico": "08-led-chaser-595/circuit.pico.json",
    "stc12c5a60s2": "08-led-chaser-595/circuit.stc12c5a60s2.json",
    "stc15f2k60s2": "08-led-chaser-595/circuit.stc15f2k60s2.json",
-   "stc89c52rc": "08-led-chaser-595/circuit.stc89c52rc.json"
+   "stc89c52rc": "08-led-chaser-595/circuit.stc89c52rc.json",
+   "stm32f030": "08-led-chaser-595/circuit.stm32f030.json"
   },
   "authored": "stc12c5a60s2"
  },
@@ -357,6 +373,7 @@
    "atmega168p",
    "arduino-mega",
    "arduino-nano",
+   "stm32f030",
    "pico",
    "attiny88",
    "attiny85"
@@ -371,7 +388,8 @@
    "pico": "09-relay-clicker/circuit.pico.json",
    "stc12c5a60s2": "09-relay-clicker/circuit.stc12c5a60s2.json",
    "stc15f2k60s2": "09-relay-clicker/circuit.stc15f2k60s2.json",
-   "stc89c52rc": "09-relay-clicker/circuit.stc89c52rc.json"
+   "stc89c52rc": "09-relay-clicker/circuit.stc89c52rc.json",
+   "stm32f030": "09-relay-clicker/circuit.stm32f030.json"
   },
   "authored": "stc12c5a60s2"
  },
@@ -398,6 +416,7 @@
    "atmega168p",
    "arduino-mega",
    "arduino-nano",
+   "stm32f030",
    "pico"
   ],
   "refusals": {
@@ -410,7 +429,8 @@
    "atmega168p": "10-motor-speed/circuit.atmega168p.json",
    "pico": "10-motor-speed/circuit.pico.json",
    "stc12c5a60s2": "10-motor-speed/circuit.stc12c5a60s2.json",
-   "stc15f2k60s2": "10-motor-speed/circuit.stc15f2k60s2.json"
+   "stc15f2k60s2": "10-motor-speed/circuit.stc15f2k60s2.json",
+   "stm32f030": "10-motor-speed/circuit.stm32f030.json"
   },
   "authored": "stc12c5a60s2"
  },
@@ -438,6 +458,7 @@
    "atmega168p",
    "arduino-mega",
    "arduino-nano",
+   "stm32f030",
    "pico",
    "attiny88",
    "attiny85"
@@ -452,7 +473,8 @@
    "pico": "11-toggle-button/circuit.pico.json",
    "stc12c5a60s2": "11-toggle-button/circuit.stc12c5a60s2.json",
    "stc15f2k60s2": "11-toggle-button/circuit.stc15f2k60s2.json",
-   "stc89c52rc": "11-toggle-button/circuit.stc89c52rc.json"
+   "stc89c52rc": "11-toggle-button/circuit.stc89c52rc.json",
+   "stm32f030": "11-toggle-button/circuit.stm32f030.json"
   },
   "authored": "stc12c5a60s2"
  },
@@ -480,6 +502,7 @@
    "atmega168p",
    "arduino-mega",
    "arduino-nano",
+   "stm32f030",
    "pico",
    "attiny88",
    "attiny85"
@@ -494,7 +517,8 @@
    "pico": "12-dual-blink/circuit.pico.json",
    "stc12c5a60s2": "12-dual-blink/circuit.stc12c5a60s2.json",
    "stc15f2k60s2": "12-dual-blink/circuit.stc15f2k60s2.json",
-   "stc89c52rc": "12-dual-blink/circuit.stc89c52rc.json"
+   "stc89c52rc": "12-dual-blink/circuit.stc89c52rc.json",
+   "stm32f030": "12-dual-blink/circuit.stm32f030.json"
   },
   "authored": "stc12c5a60s2"
  },
@@ -522,6 +546,7 @@
    "atmega168p",
    "arduino-mega",
    "arduino-nano",
+   "stm32f030",
    "pico",
    "attiny88",
    "attiny85"
@@ -536,7 +561,8 @@
    "pico": "13-sos-morse/circuit.pico.json",
    "stc12c5a60s2": "13-sos-morse/circuit.stc12c5a60s2.json",
    "stc15f2k60s2": "13-sos-morse/circuit.stc15f2k60s2.json",
-   "stc89c52rc": "13-sos-morse/circuit.stc89c52rc.json"
+   "stc89c52rc": "13-sos-morse/circuit.stc89c52rc.json",
+   "stm32f030": "13-sos-morse/circuit.stm32f030.json"
   },
   "authored": "stc12c5a60s2"
  },
@@ -564,6 +590,7 @@
    "atmega168p",
    "arduino-mega",
    "arduino-nano",
+   "stm32f030",
    "pico",
    "attiny88",
    "attiny85"
@@ -578,7 +605,8 @@
    "pico": "14-traffic-light/circuit.pico.json",
    "stc12c5a60s2": "14-traffic-light/circuit.stc12c5a60s2.json",
    "stc15f2k60s2": "14-traffic-light/circuit.stc15f2k60s2.json",
-   "stc89c52rc": "14-traffic-light/circuit.stc89c52rc.json"
+   "stc89c52rc": "14-traffic-light/circuit.stc89c52rc.json",
+   "stm32f030": "14-traffic-light/circuit.stm32f030.json"
   },
   "authored": "stc12c5a60s2"
  },
@@ -605,6 +633,7 @@
    "atmega168p",
    "arduino-mega",
    "arduino-nano",
+   "stm32f030",
    "pico"
   ],
   "refusals": {
@@ -617,7 +646,8 @@
    "atmega168p": "15-voltage-divider/circuit.atmega168p.json",
    "pico": "15-voltage-divider/circuit.pico.json",
    "stc12c5a60s2": "15-voltage-divider/circuit.stc12c5a60s2.json",
-   "stc15f2k60s2": "15-voltage-divider/circuit.stc15f2k60s2.json"
+   "stc15f2k60s2": "15-voltage-divider/circuit.stc15f2k60s2.json",
+   "stm32f030": "15-voltage-divider/circuit.stm32f030.json"
   },
   "authored": "stc12c5a60s2"
  },
@@ -644,6 +674,7 @@
    "atmega168p",
    "arduino-mega",
    "arduino-nano",
+   "stm32f030",
    "pico"
   ],
   "refusals": {
@@ -656,7 +687,8 @@
    "atmega168p": "16-ldr-bargraph/circuit.atmega168p.json",
    "pico": "16-ldr-bargraph/circuit.pico.json",
    "stc12c5a60s2": "16-ldr-bargraph/circuit.stc12c5a60s2.json",
-   "stc15f2k60s2": "16-ldr-bargraph/circuit.stc15f2k60s2.json"
+   "stc15f2k60s2": "16-ldr-bargraph/circuit.stc15f2k60s2.json",
+   "stm32f030": "16-ldr-bargraph/circuit.stm32f030.json"
   },
   "authored": "stc12c5a60s2"
  },
@@ -683,6 +715,7 @@
    "atmega168p",
    "arduino-mega",
    "arduino-nano",
+   "stm32f030",
    "pico"
   ],
   "refusals": {
@@ -695,7 +728,8 @@
    "atmega168p": "17-comparator/circuit.atmega168p.json",
    "pico": "17-comparator/circuit.pico.json",
    "stc12c5a60s2": "17-comparator/circuit.stc12c5a60s2.json",
-   "stc15f2k60s2": "17-comparator/circuit.stc15f2k60s2.json"
+   "stc15f2k60s2": "17-comparator/circuit.stc15f2k60s2.json",
+   "stm32f030": "17-comparator/circuit.stm32f030.json"
   },
   "authored": "stc12c5a60s2"
  },
@@ -723,6 +757,7 @@
    "atmega168p",
    "arduino-mega",
    "arduino-nano",
+   "stm32f030",
    "pico",
    "attiny88",
    "attiny85"
@@ -737,7 +772,8 @@
    "pico": "18-logic-and-gate/circuit.pico.json",
    "stc12c5a60s2": "18-logic-and-gate/circuit.stc12c5a60s2.json",
    "stc15f2k60s2": "18-logic-and-gate/circuit.stc15f2k60s2.json",
-   "stc89c52rc": "18-logic-and-gate/circuit.stc89c52rc.json"
+   "stc89c52rc": "18-logic-and-gate/circuit.stc89c52rc.json",
+   "stm32f030": "18-logic-and-gate/circuit.stm32f030.json"
   },
   "authored": "stc12c5a60s2"
  },
@@ -765,6 +801,7 @@
    "atmega168p",
    "arduino-mega",
    "arduino-nano",
+   "stm32f030",
    "pico",
    "attiny88",
    "attiny85"
@@ -779,7 +816,8 @@
    "pico": "19-logic-or-gate/circuit.pico.json",
    "stc12c5a60s2": "19-logic-or-gate/circuit.stc12c5a60s2.json",
    "stc15f2k60s2": "19-logic-or-gate/circuit.stc15f2k60s2.json",
-   "stc89c52rc": "19-logic-or-gate/circuit.stc89c52rc.json"
+   "stc89c52rc": "19-logic-or-gate/circuit.stc89c52rc.json",
+   "stm32f030": "19-logic-or-gate/circuit.stm32f030.json"
   },
   "authored": "stc12c5a60s2"
  },
@@ -807,6 +845,7 @@
    "atmega168p",
    "arduino-mega",
    "arduino-nano",
+   "stm32f030",
    "pico",
    "attiny88",
    "attiny85"
@@ -821,7 +860,8 @@
    "pico": "20-shift-register-binary/circuit.pico.json",
    "stc12c5a60s2": "20-shift-register-binary/circuit.stc12c5a60s2.json",
    "stc15f2k60s2": "20-shift-register-binary/circuit.stc15f2k60s2.json",
-   "stc89c52rc": "20-shift-register-binary/circuit.stc89c52rc.json"
+   "stc89c52rc": "20-shift-register-binary/circuit.stc89c52rc.json",
+   "stm32f030": "20-shift-register-binary/circuit.stm32f030.json"
   },
   "authored": "stc12c5a60s2"
  },
@@ -900,6 +940,7 @@
    "atmega168p",
    "arduino-mega",
    "arduino-nano",
+   "stm32f030",
    "pico",
    "attiny88",
    "attiny85"
@@ -914,7 +955,8 @@
    "pico": "24-pwm-fade/circuit.pico.json",
    "stc12c5a60s2": "24-pwm-fade/circuit.stc12c5a60s2.json",
    "stc15f2k60s2": "24-pwm-fade/circuit.stc15f2k60s2.json",
-   "stc89c52rc": "24-pwm-fade/circuit.stc89c52rc.json"
+   "stc89c52rc": "24-pwm-fade/circuit.stc89c52rc.json",
+   "stm32f030": "24-pwm-fade/circuit.stm32f030.json"
   },
   "authored": "stc12c5a60s2"
  },
@@ -942,6 +984,7 @@
    "atmega168p",
    "arduino-mega",
    "arduino-nano",
+   "stm32f030",
    "pico",
    "attiny88",
    "attiny85"
@@ -956,7 +999,8 @@
    "pico": "25-reaction-timer/circuit.pico.json",
    "stc12c5a60s2": "25-reaction-timer/circuit.stc12c5a60s2.json",
    "stc15f2k60s2": "25-reaction-timer/circuit.stc15f2k60s2.json",
-   "stc89c52rc": "25-reaction-timer/circuit.stc89c52rc.json"
+   "stc89c52rc": "25-reaction-timer/circuit.stc89c52rc.json",
+   "stm32f030": "25-reaction-timer/circuit.stm32f030.json"
   },
   "authored": "stc12c5a60s2"
  },
@@ -984,6 +1028,7 @@
    "atmega168p",
    "arduino-mega",
    "arduino-nano",
+   "stm32f030",
    "pico",
    "attiny88",
    "attiny85"
@@ -998,7 +1043,8 @@
    "pico": "26-debounce/circuit.pico.json",
    "stc12c5a60s2": "26-debounce/circuit.stc12c5a60s2.json",
    "stc15f2k60s2": "26-debounce/circuit.stc15f2k60s2.json",
-   "stc89c52rc": "26-debounce/circuit.stc89c52rc.json"
+   "stc89c52rc": "26-debounce/circuit.stc89c52rc.json",
+   "stm32f030": "26-debounce/circuit.stm32f030.json"
   },
   "authored": "stc12c5a60s2"
  },
@@ -1026,6 +1072,7 @@
    "atmega168p",
    "arduino-mega",
    "arduino-nano",
+   "stm32f030",
    "pico",
    "attiny88",
    "attiny85"
@@ -1040,7 +1087,8 @@
    "pico": "27-led-dice/circuit.pico.json",
    "stc12c5a60s2": "27-led-dice/circuit.stc12c5a60s2.json",
    "stc15f2k60s2": "27-led-dice/circuit.stc15f2k60s2.json",
-   "stc89c52rc": "27-led-dice/circuit.stc89c52rc.json"
+   "stc89c52rc": "27-led-dice/circuit.stc89c52rc.json",
+   "stm32f030": "27-led-dice/circuit.stm32f030.json"
   },
   "authored": "stc12c5a60s2"
  },
@@ -1102,6 +1150,7 @@
    "atmega168p",
    "arduino-mega",
    "arduino-nano",
+   "stm32f030",
    "pico",
    "attiny88",
    "attiny85"
@@ -1116,7 +1165,8 @@
    "pico": "30-multi-led-pattern/circuit.pico.json",
    "stc12c5a60s2": "30-multi-led-pattern/circuit.stc12c5a60s2.json",
    "stc15f2k60s2": "30-multi-led-pattern/circuit.stc15f2k60s2.json",
-   "stc89c52rc": "30-multi-led-pattern/circuit.stc89c52rc.json"
+   "stc89c52rc": "30-multi-led-pattern/circuit.stc89c52rc.json",
+   "stm32f030": "30-multi-led-pattern/circuit.stm32f030.json"
   },
   "authored": "stc12c5a60s2"
  },
@@ -1161,6 +1211,7 @@
    "atmega168p",
    "arduino-mega",
    "arduino-nano",
+   "stm32f030",
    "pico",
    "attiny88",
    "attiny85"
@@ -1174,7 +1225,8 @@
    "attiny88": "32-source-vs-sink/circuit.attiny88.json",
    "pico": "32-source-vs-sink/circuit.pico.json",
    "stc15f2k60s2": "32-source-vs-sink/circuit.stc15f2k60s2.json",
-   "stc89c52rc": "32-source-vs-sink/circuit.stc89c52rc.json"
+   "stc89c52rc": "32-source-vs-sink/circuit.stc89c52rc.json",
+   "stm32f030": "32-source-vs-sink/circuit.stm32f030.json"
   },
   "tier": "arch",
   "authored": "stc12c5a60s2"
@@ -1197,10 +1249,30 @@
   "kind": "full",
   "tier": "arch",
   "devices": [
-   "stc12c5a60s2"
+   "stc12c5a60s2",
+   "stc89c52rc",
+   "stc15f2k60s2",
+   "arduino-uno",
+   "atmega168p",
+   "arduino-mega",
+   "arduino-nano",
+   "stm32f030",
+   "pico",
+   "attiny88",
+   "attiny85"
   ],
   "benches": {
-   "stc12c5a60s2": "33-inductive-no-flyback/circuit.stc12c5a60s2.json"
+   "arduino-mega": "33-inductive-no-flyback/circuit.arduino-mega.json",
+   "arduino-nano": "33-inductive-no-flyback/circuit.arduino-nano.json",
+   "arduino-uno": "33-inductive-no-flyback/circuit.arduino-uno.json",
+   "atmega168p": "33-inductive-no-flyback/circuit.atmega168p.json",
+   "attiny85": "33-inductive-no-flyback/circuit.attiny85.json",
+   "attiny88": "33-inductive-no-flyback/circuit.attiny88.json",
+   "pico": "33-inductive-no-flyback/circuit.pico.json",
+   "stc12c5a60s2": "33-inductive-no-flyback/circuit.stc12c5a60s2.json",
+   "stc15f2k60s2": "33-inductive-no-flyback/circuit.stc15f2k60s2.json",
+   "stc89c52rc": "33-inductive-no-flyback/circuit.stc89c52rc.json",
+   "stm32f030": "33-inductive-no-flyback/circuit.stm32f030.json"
   },
   "authored": "stc12c5a60s2"
  },
@@ -1432,6 +1504,7 @@
    "atmega168p",
    "arduino-mega",
    "arduino-nano",
+   "stm32f030",
    "pico",
    "attiny88"
   ],
@@ -1443,7 +1516,8 @@
    "attiny88": "46-port-overcurrent/circuit.attiny88.json",
    "pico": "46-port-overcurrent/circuit.pico.json",
    "stc15f2k60s2": "46-port-overcurrent/circuit.stc15f2k60s2.json",
-   "stc89c52rc": "46-port-overcurrent/circuit.stc89c52rc.json"
+   "stc89c52rc": "46-port-overcurrent/circuit.stc89c52rc.json",
+   "stm32f030": "46-port-overcurrent/circuit.stm32f030.json"
   },
   "tier": "arch",
   "authored": "stc12c5a60s2"
@@ -1590,6 +1664,7 @@
    "atmega168p",
    "arduino-mega",
    "arduino-nano",
+   "stm32f030",
    "pico",
    "attiny88"
   ],
@@ -1602,7 +1677,8 @@
    "pico": "50-7seg-chase/circuit.pico.json",
    "stc12c5a60s2": "50-7seg-chase/circuit.stc12c5a60s2.json",
    "stc15f2k60s2": "50-7seg-chase/circuit.stc15f2k60s2.json",
-   "stc89c52rc": "50-7seg-chase/circuit.stc89c52rc.json"
+   "stc89c52rc": "50-7seg-chase/circuit.stc89c52rc.json",
+   "stm32f030": "50-7seg-chase/circuit.stm32f030.json"
   },
   "authored": "stc12c5a60s2"
  },
@@ -1624,10 +1700,28 @@
   },
   "tier": "arch",
   "devices": [
-   "stc12c5a60s2"
+   "stc12c5a60s2",
+   "stc89c52rc",
+   "stc15f2k60s2",
+   "arduino-uno",
+   "atmega168p",
+   "arduino-mega",
+   "arduino-nano",
+   "pico",
+   "attiny88",
+   "attiny85"
   ],
   "benches": {
-   "stc12c5a60s2": "51-tft-pixels/circuit.stc12c5a60s2.json"
+   "arduino-mega": "51-tft-pixels/circuit.arduino-mega.json",
+   "arduino-nano": "51-tft-pixels/circuit.arduino-nano.json",
+   "arduino-uno": "51-tft-pixels/circuit.arduino-uno.json",
+   "atmega168p": "51-tft-pixels/circuit.atmega168p.json",
+   "attiny85": "51-tft-pixels/circuit.attiny85.json",
+   "attiny88": "51-tft-pixels/circuit.attiny88.json",
+   "pico": "51-tft-pixels/circuit.pico.json",
+   "stc12c5a60s2": "51-tft-pixels/circuit.stc12c5a60s2.json",
+   "stc15f2k60s2": "51-tft-pixels/circuit.stc15f2k60s2.json",
+   "stc89c52rc": "51-tft-pixels/circuit.stc89c52rc.json"
   },
   "authored": "stc12c5a60s2"
  },
@@ -3165,6 +3259,7 @@
    "atmega168p",
    "arduino-mega",
    "arduino-nano",
+   "stm32f030",
    "pico",
    "attiny88",
    "attiny85"
@@ -3178,7 +3273,8 @@
    "pico": "arduino-01-blink/circuit.pico.json",
    "stc12c5a60s2": "arduino-01-blink/circuit.stc12c5a60s2.json",
    "stc15f2k60s2": "arduino-01-blink/circuit.stc15f2k60s2.json",
-   "stc89c52rc": "arduino-01-blink/circuit.stc89c52rc.json"
+   "stc89c52rc": "arduino-01-blink/circuit.stc89c52rc.json",
+   "stm32f030": "arduino-01-blink/circuit.stm32f030.json"
   },
   "authored": "arduino-uno"
  },
@@ -3200,13 +3296,12 @@
   "devices": [
    "arduino-uno",
    "stc12c5a60s2",
-   "stc89c52rc",
    "stc15f2k60s2",
    "atmega168p",
    "arduino-mega",
    "arduino-nano",
+   "stm32f030",
    "pico",
-   "attiny88",
    "attiny85"
   ],
   "benches": {
@@ -3214,11 +3309,10 @@
    "arduino-nano": "arduino-01-fade/circuit.arduino-nano.json",
    "atmega168p": "arduino-01-fade/circuit.atmega168p.json",
    "attiny85": "arduino-01-fade/circuit.attiny85.json",
-   "attiny88": "arduino-01-fade/circuit.attiny88.json",
    "pico": "arduino-01-fade/circuit.pico.json",
    "stc12c5a60s2": "arduino-01-fade/circuit.stc12c5a60s2.json",
    "stc15f2k60s2": "arduino-01-fade/circuit.stc15f2k60s2.json",
-   "stc89c52rc": "arduino-01-fade/circuit.stc89c52rc.json"
+   "stm32f030": "arduino-01-fade/circuit.stm32f030.json"
   },
   "authored": "arduino-uno"
  },
@@ -3244,6 +3338,7 @@
    "atmega168p",
    "arduino-mega",
    "arduino-nano",
+   "stm32f030",
    "pico"
   ],
   "benches": {
@@ -3252,7 +3347,8 @@
    "atmega168p": "arduino-01-analog-read-serial/circuit.atmega168p.json",
    "pico": "arduino-01-analog-read-serial/circuit.pico.json",
    "stc12c5a60s2": "arduino-01-analog-read-serial/circuit.stc12c5a60s2.json",
-   "stc15f2k60s2": "arduino-01-analog-read-serial/circuit.stc15f2k60s2.json"
+   "stc15f2k60s2": "arduino-01-analog-read-serial/circuit.stc15f2k60s2.json",
+   "stm32f030": "arduino-01-analog-read-serial/circuit.stm32f030.json"
   },
   "authored": "arduino-uno"
  },
@@ -3279,6 +3375,7 @@
    "atmega168p",
    "arduino-mega",
    "arduino-nano",
+   "stm32f030",
    "pico",
    "attiny88",
    "attiny85"
@@ -3292,7 +3389,8 @@
    "pico": "arduino-01-digital-read-serial/circuit.pico.json",
    "stc12c5a60s2": "arduino-01-digital-read-serial/circuit.stc12c5a60s2.json",
    "stc15f2k60s2": "arduino-01-digital-read-serial/circuit.stc15f2k60s2.json",
-   "stc89c52rc": "arduino-01-digital-read-serial/circuit.stc89c52rc.json"
+   "stc89c52rc": "arduino-01-digital-read-serial/circuit.stc89c52rc.json",
+   "stm32f030": "arduino-01-digital-read-serial/circuit.stm32f030.json"
   },
   "authored": "arduino-uno"
  },
@@ -3318,6 +3416,7 @@
    "atmega168p",
    "arduino-mega",
    "arduino-nano",
+   "stm32f030",
    "pico"
   ],
   "benches": {
@@ -3326,7 +3425,8 @@
    "atmega168p": "arduino-01-read-analog-voltage/circuit.atmega168p.json",
    "pico": "arduino-01-read-analog-voltage/circuit.pico.json",
    "stc12c5a60s2": "arduino-01-read-analog-voltage/circuit.stc12c5a60s2.json",
-   "stc15f2k60s2": "arduino-01-read-analog-voltage/circuit.stc15f2k60s2.json"
+   "stc15f2k60s2": "arduino-01-read-analog-voltage/circuit.stc15f2k60s2.json",
+   "stm32f030": "arduino-01-read-analog-voltage/circuit.stm32f030.json"
   },
   "authored": "arduino-uno"
  },
@@ -3353,6 +3453,7 @@
    "atmega168p",
    "arduino-mega",
    "arduino-nano",
+   "stm32f030",
    "pico",
    "attiny88",
    "attiny85"
@@ -3366,7 +3467,8 @@
    "pico": "arduino-02-blink-without-delay/circuit.pico.json",
    "stc12c5a60s2": "arduino-02-blink-without-delay/circuit.stc12c5a60s2.json",
    "stc15f2k60s2": "arduino-02-blink-without-delay/circuit.stc15f2k60s2.json",
-   "stc89c52rc": "arduino-02-blink-without-delay/circuit.stc89c52rc.json"
+   "stc89c52rc": "arduino-02-blink-without-delay/circuit.stc89c52rc.json",
+   "stm32f030": "arduino-02-blink-without-delay/circuit.stm32f030.json"
   },
   "authored": "arduino-uno"
  },
@@ -3393,6 +3495,7 @@
    "atmega168p",
    "arduino-mega",
    "arduino-nano",
+   "stm32f030",
    "pico",
    "attiny88",
    "attiny85"
@@ -3406,7 +3509,8 @@
    "pico": "arduino-02-button/circuit.pico.json",
    "stc12c5a60s2": "arduino-02-button/circuit.stc12c5a60s2.json",
    "stc15f2k60s2": "arduino-02-button/circuit.stc15f2k60s2.json",
-   "stc89c52rc": "arduino-02-button/circuit.stc89c52rc.json"
+   "stc89c52rc": "arduino-02-button/circuit.stc89c52rc.json",
+   "stm32f030": "arduino-02-button/circuit.stm32f030.json"
   },
   "authored": "arduino-uno"
  },
@@ -3433,6 +3537,7 @@
    "atmega168p",
    "arduino-mega",
    "arduino-nano",
+   "stm32f030",
    "pico",
    "attiny88",
    "attiny85"
@@ -3446,7 +3551,8 @@
    "pico": "arduino-02-debounce/circuit.pico.json",
    "stc12c5a60s2": "arduino-02-debounce/circuit.stc12c5a60s2.json",
    "stc15f2k60s2": "arduino-02-debounce/circuit.stc15f2k60s2.json",
-   "stc89c52rc": "arduino-02-debounce/circuit.stc89c52rc.json"
+   "stc89c52rc": "arduino-02-debounce/circuit.stc89c52rc.json",
+   "stm32f030": "arduino-02-debounce/circuit.stm32f030.json"
   },
   "authored": "arduino-uno"
  },
@@ -3473,6 +3579,7 @@
    "atmega168p",
    "arduino-mega",
    "arduino-nano",
+   "stm32f030",
    "pico",
    "attiny88",
    "attiny85"
@@ -3486,7 +3593,8 @@
    "pico": "arduino-02-digital-input-pullup/circuit.pico.json",
    "stc12c5a60s2": "arduino-02-digital-input-pullup/circuit.stc12c5a60s2.json",
    "stc15f2k60s2": "arduino-02-digital-input-pullup/circuit.stc15f2k60s2.json",
-   "stc89c52rc": "arduino-02-digital-input-pullup/circuit.stc89c52rc.json"
+   "stc89c52rc": "arduino-02-digital-input-pullup/circuit.stc89c52rc.json",
+   "stm32f030": "arduino-02-digital-input-pullup/circuit.stm32f030.json"
   },
   "authored": "arduino-uno"
  },
@@ -3513,6 +3621,7 @@
    "atmega168p",
    "arduino-mega",
    "arduino-nano",
+   "stm32f030",
    "pico",
    "attiny88",
    "attiny85"
@@ -3526,7 +3635,8 @@
    "pico": "arduino-02-state-change/circuit.pico.json",
    "stc12c5a60s2": "arduino-02-state-change/circuit.stc12c5a60s2.json",
    "stc15f2k60s2": "arduino-02-state-change/circuit.stc15f2k60s2.json",
-   "stc89c52rc": "arduino-02-state-change/circuit.stc89c52rc.json"
+   "stc89c52rc": "arduino-02-state-change/circuit.stc89c52rc.json",
+   "stm32f030": "arduino-02-state-change/circuit.stm32f030.json"
   },
   "authored": "arduino-uno"
  },
@@ -3549,21 +3659,9 @@
    "arduino-uno",
    "stc12c5a60s2",
    "stc89c52rc",
-   "stc15f2k60s2",
-   "atmega168p",
-   "arduino-mega",
-   "arduino-nano",
-   "pico",
-   "attiny88",
-   "attiny85"
+   "stc15f2k60s2"
   ],
   "benches": {
-   "arduino-mega": "arduino-02-tone-melody/circuit.arduino-mega.json",
-   "arduino-nano": "arduino-02-tone-melody/circuit.arduino-nano.json",
-   "atmega168p": "arduino-02-tone-melody/circuit.atmega168p.json",
-   "attiny85": "arduino-02-tone-melody/circuit.attiny85.json",
-   "attiny88": "arduino-02-tone-melody/circuit.attiny88.json",
-   "pico": "arduino-02-tone-melody/circuit.pico.json",
    "stc12c5a60s2": "arduino-02-tone-melody/circuit.stc12c5a60s2.json",
    "stc15f2k60s2": "arduino-02-tone-melody/circuit.stc15f2k60s2.json",
    "stc89c52rc": "arduino-02-tone-melody/circuit.stc89c52rc.json"
@@ -3588,17 +3686,9 @@
   "devices": [
    "arduino-uno",
    "stc12c5a60s2",
-   "stc15f2k60s2",
-   "atmega168p",
-   "arduino-mega",
-   "arduino-nano",
-   "pico"
+   "stc15f2k60s2"
   ],
   "benches": {
-   "arduino-mega": "arduino-02-tone-keyboard/circuit.arduino-mega.json",
-   "arduino-nano": "arduino-02-tone-keyboard/circuit.arduino-nano.json",
-   "atmega168p": "arduino-02-tone-keyboard/circuit.atmega168p.json",
-   "pico": "arduino-02-tone-keyboard/circuit.pico.json",
    "stc12c5a60s2": "arduino-02-tone-keyboard/circuit.stc12c5a60s2.json",
    "stc15f2k60s2": "arduino-02-tone-keyboard/circuit.stc15f2k60s2.json"
   },
@@ -3623,21 +3713,9 @@
    "arduino-uno",
    "stc12c5a60s2",
    "stc89c52rc",
-   "stc15f2k60s2",
-   "atmega168p",
-   "arduino-mega",
-   "arduino-nano",
-   "pico",
-   "attiny88",
-   "attiny85"
+   "stc15f2k60s2"
   ],
   "benches": {
-   "arduino-mega": "arduino-02-tone-multiple/circuit.arduino-mega.json",
-   "arduino-nano": "arduino-02-tone-multiple/circuit.arduino-nano.json",
-   "atmega168p": "arduino-02-tone-multiple/circuit.atmega168p.json",
-   "attiny85": "arduino-02-tone-multiple/circuit.attiny85.json",
-   "attiny88": "arduino-02-tone-multiple/circuit.attiny88.json",
-   "pico": "arduino-02-tone-multiple/circuit.pico.json",
    "stc12c5a60s2": "arduino-02-tone-multiple/circuit.stc12c5a60s2.json",
    "stc15f2k60s2": "arduino-02-tone-multiple/circuit.stc15f2k60s2.json",
    "stc89c52rc": "arduino-02-tone-multiple/circuit.stc89c52rc.json"
@@ -3662,17 +3740,9 @@
   "devices": [
    "arduino-uno",
    "stc12c5a60s2",
-   "stc15f2k60s2",
-   "atmega168p",
-   "arduino-mega",
-   "arduino-nano",
-   "pico"
+   "stc15f2k60s2"
   ],
   "benches": {
-   "arduino-mega": "arduino-02-tone-pitch-follower/circuit.arduino-mega.json",
-   "arduino-nano": "arduino-02-tone-pitch-follower/circuit.arduino-nano.json",
-   "atmega168p": "arduino-02-tone-pitch-follower/circuit.atmega168p.json",
-   "pico": "arduino-02-tone-pitch-follower/circuit.pico.json",
    "stc12c5a60s2": "arduino-02-tone-pitch-follower/circuit.stc12c5a60s2.json",
    "stc15f2k60s2": "arduino-02-tone-pitch-follower/circuit.stc15f2k60s2.json"
   },
@@ -3700,6 +3770,7 @@
    "atmega168p",
    "arduino-mega",
    "arduino-nano",
+   "stm32f030",
    "pico"
   ],
   "benches": {
@@ -3708,7 +3779,8 @@
    "atmega168p": "arduino-03-analog-input/circuit.atmega168p.json",
    "pico": "arduino-03-analog-input/circuit.pico.json",
    "stc12c5a60s2": "arduino-03-analog-input/circuit.stc12c5a60s2.json",
-   "stc15f2k60s2": "arduino-03-analog-input/circuit.stc15f2k60s2.json"
+   "stc15f2k60s2": "arduino-03-analog-input/circuit.stc15f2k60s2.json",
+   "stm32f030": "arduino-03-analog-input/circuit.stm32f030.json"
   },
   "authored": "arduino-uno"
  },
@@ -3734,6 +3806,7 @@
    "atmega168p",
    "arduino-mega",
    "arduino-nano",
+   "stm32f030",
    "pico"
   ],
   "benches": {
@@ -3742,7 +3815,8 @@
    "atmega168p": "arduino-03-analog-in-out-serial/circuit.atmega168p.json",
    "pico": "arduino-03-analog-in-out-serial/circuit.pico.json",
    "stc12c5a60s2": "arduino-03-analog-in-out-serial/circuit.stc12c5a60s2.json",
-   "stc15f2k60s2": "arduino-03-analog-in-out-serial/circuit.stc15f2k60s2.json"
+   "stc15f2k60s2": "arduino-03-analog-in-out-serial/circuit.stc15f2k60s2.json",
+   "stm32f030": "arduino-03-analog-in-out-serial/circuit.stm32f030.json"
   },
   "authored": "arduino-uno"
  },
@@ -3763,26 +3837,18 @@
   "kind": "full",
   "devices": [
    "arduino-mega",
-   "stc12c5a60s2",
-   "stc89c52rc",
-   "stc15f2k60s2",
    "arduino-uno",
    "atmega168p",
    "arduino-nano",
-   "pico",
-   "attiny88",
-   "attiny85"
+   "stm32f030",
+   "pico"
   ],
   "benches": {
    "arduino-nano": "arduino-03-analog-write-mega/circuit.arduino-nano.json",
    "arduino-uno": "arduino-03-analog-write-mega/circuit.arduino-uno.json",
    "atmega168p": "arduino-03-analog-write-mega/circuit.atmega168p.json",
-   "attiny85": "arduino-03-analog-write-mega/circuit.attiny85.json",
-   "attiny88": "arduino-03-analog-write-mega/circuit.attiny88.json",
    "pico": "arduino-03-analog-write-mega/circuit.pico.json",
-   "stc12c5a60s2": "arduino-03-analog-write-mega/circuit.stc12c5a60s2.json",
-   "stc15f2k60s2": "arduino-03-analog-write-mega/circuit.stc15f2k60s2.json",
-   "stc89c52rc": "arduino-03-analog-write-mega/circuit.stc89c52rc.json"
+   "stm32f030": "arduino-03-analog-write-mega/circuit.stm32f030.json"
   },
   "authored": "arduino-mega"
  },
@@ -3808,6 +3874,7 @@
    "atmega168p",
    "arduino-mega",
    "arduino-nano",
+   "stm32f030",
    "pico"
   ],
   "benches": {
@@ -3816,7 +3883,8 @@
    "atmega168p": "arduino-03-calibration/circuit.atmega168p.json",
    "pico": "arduino-03-calibration/circuit.pico.json",
    "stc12c5a60s2": "arduino-03-calibration/circuit.stc12c5a60s2.json",
-   "stc15f2k60s2": "arduino-03-calibration/circuit.stc15f2k60s2.json"
+   "stc15f2k60s2": "arduino-03-calibration/circuit.stc15f2k60s2.json",
+   "stm32f030": "arduino-03-calibration/circuit.stm32f030.json"
   },
   "authored": "arduino-uno"
  },
@@ -3838,13 +3906,12 @@
   "devices": [
    "arduino-uno",
    "stc12c5a60s2",
-   "stc89c52rc",
    "stc15f2k60s2",
    "atmega168p",
    "arduino-mega",
    "arduino-nano",
+   "stm32f030",
    "pico",
-   "attiny88",
    "attiny85"
   ],
   "benches": {
@@ -3852,11 +3919,10 @@
    "arduino-nano": "arduino-03-fading/circuit.arduino-nano.json",
    "atmega168p": "arduino-03-fading/circuit.atmega168p.json",
    "attiny85": "arduino-03-fading/circuit.attiny85.json",
-   "attiny88": "arduino-03-fading/circuit.attiny88.json",
    "pico": "arduino-03-fading/circuit.pico.json",
    "stc12c5a60s2": "arduino-03-fading/circuit.stc12c5a60s2.json",
    "stc15f2k60s2": "arduino-03-fading/circuit.stc15f2k60s2.json",
-   "stc89c52rc": "arduino-03-fading/circuit.stc89c52rc.json"
+   "stm32f030": "arduino-03-fading/circuit.stm32f030.json"
   },
   "authored": "arduino-uno"
  },
@@ -3882,6 +3948,7 @@
    "atmega168p",
    "arduino-mega",
    "arduino-nano",
+   "stm32f030",
    "pico"
   ],
   "benches": {
@@ -3890,7 +3957,8 @@
    "atmega168p": "arduino-03-smoothing/circuit.atmega168p.json",
    "pico": "arduino-03-smoothing/circuit.pico.json",
    "stc12c5a60s2": "arduino-03-smoothing/circuit.stc12c5a60s2.json",
-   "stc15f2k60s2": "arduino-03-smoothing/circuit.stc15f2k60s2.json"
+   "stc15f2k60s2": "arduino-03-smoothing/circuit.stc15f2k60s2.json",
+   "stm32f030": "arduino-03-smoothing/circuit.stm32f030.json"
   },
   "authored": "arduino-uno"
  },
@@ -3917,6 +3985,7 @@
    "atmega168p",
    "arduino-mega",
    "arduino-nano",
+   "stm32f030",
    "pico",
    "attiny88"
   ],
@@ -3928,7 +3997,8 @@
    "pico": "arduino-05-arrays/circuit.pico.json",
    "stc12c5a60s2": "arduino-05-arrays/circuit.stc12c5a60s2.json",
    "stc15f2k60s2": "arduino-05-arrays/circuit.stc15f2k60s2.json",
-   "stc89c52rc": "arduino-05-arrays/circuit.stc89c52rc.json"
+   "stc89c52rc": "arduino-05-arrays/circuit.stc89c52rc.json",
+   "stm32f030": "arduino-05-arrays/circuit.stm32f030.json"
   },
   "authored": "arduino-uno"
  },
@@ -3955,6 +4025,7 @@
    "atmega168p",
    "arduino-mega",
    "arduino-nano",
+   "stm32f030",
    "pico",
    "attiny88"
   ],
@@ -3966,7 +4037,8 @@
    "pico": "arduino-05-for-loop/circuit.pico.json",
    "stc12c5a60s2": "arduino-05-for-loop/circuit.stc12c5a60s2.json",
    "stc15f2k60s2": "arduino-05-for-loop/circuit.stc15f2k60s2.json",
-   "stc89c52rc": "arduino-05-for-loop/circuit.stc89c52rc.json"
+   "stc89c52rc": "arduino-05-for-loop/circuit.stc89c52rc.json",
+   "stm32f030": "arduino-05-for-loop/circuit.stm32f030.json"
   },
   "authored": "arduino-uno"
  },
@@ -3992,6 +4064,7 @@
    "atmega168p",
    "arduino-mega",
    "arduino-nano",
+   "stm32f030",
    "pico"
   ],
   "benches": {
@@ -4000,7 +4073,8 @@
    "atmega168p": "arduino-05-if-statement/circuit.atmega168p.json",
    "pico": "arduino-05-if-statement/circuit.pico.json",
    "stc12c5a60s2": "arduino-05-if-statement/circuit.stc12c5a60s2.json",
-   "stc15f2k60s2": "arduino-05-if-statement/circuit.stc15f2k60s2.json"
+   "stc15f2k60s2": "arduino-05-if-statement/circuit.stc15f2k60s2.json",
+   "stm32f030": "arduino-05-if-statement/circuit.stm32f030.json"
   },
   "authored": "arduino-uno"
  },
@@ -4026,6 +4100,7 @@
    "atmega168p",
    "arduino-mega",
    "arduino-nano",
+   "stm32f030",
    "pico"
   ],
   "benches": {
@@ -4034,7 +4109,8 @@
    "atmega168p": "arduino-05-switch-case/circuit.atmega168p.json",
    "pico": "arduino-05-switch-case/circuit.pico.json",
    "stc12c5a60s2": "arduino-05-switch-case/circuit.stc12c5a60s2.json",
-   "stc15f2k60s2": "arduino-05-switch-case/circuit.stc15f2k60s2.json"
+   "stc15f2k60s2": "arduino-05-switch-case/circuit.stc15f2k60s2.json",
+   "stm32f030": "arduino-05-switch-case/circuit.stm32f030.json"
   },
   "authored": "arduino-uno"
  },
@@ -4061,6 +4137,7 @@
    "atmega168p",
    "arduino-mega",
    "arduino-nano",
+   "stm32f030",
    "pico",
    "attiny88"
   ],
@@ -4072,7 +4149,8 @@
    "pico": "arduino-05-switch-case-2/circuit.pico.json",
    "stc12c5a60s2": "arduino-05-switch-case-2/circuit.stc12c5a60s2.json",
    "stc15f2k60s2": "arduino-05-switch-case-2/circuit.stc15f2k60s2.json",
-   "stc89c52rc": "arduino-05-switch-case-2/circuit.stc89c52rc.json"
+   "stc89c52rc": "arduino-05-switch-case-2/circuit.stc89c52rc.json",
+   "stm32f030": "arduino-05-switch-case-2/circuit.stm32f030.json"
   },
   "authored": "arduino-uno",
   "transformRefused": {
@@ -4101,6 +4179,7 @@
    "atmega168p",
    "arduino-mega",
    "arduino-nano",
+   "stm32f030",
    "pico"
   ],
   "benches": {
@@ -4109,7 +4188,8 @@
    "atmega168p": "arduino-05-while-statement/circuit.atmega168p.json",
    "pico": "arduino-05-while-statement/circuit.pico.json",
    "stc12c5a60s2": "arduino-05-while-statement/circuit.stc12c5a60s2.json",
-   "stc15f2k60s2": "arduino-05-while-statement/circuit.stc15f2k60s2.json"
+   "stc15f2k60s2": "arduino-05-while-statement/circuit.stc15f2k60s2.json",
+   "stm32f030": "arduino-05-while-statement/circuit.stm32f030.json"
   },
   "authored": "arduino-uno"
  },
@@ -4136,6 +4216,7 @@
    "atmega168p",
    "arduino-mega",
    "arduino-nano",
+   "stm32f030",
    "pico",
    "attiny88",
    "attiny85"
@@ -4150,7 +4231,8 @@
    "pico": "arduino-04-ascii-table/circuit.pico.json",
    "stc12c5a60s2": "arduino-04-ascii-table/circuit.stc12c5a60s2.json",
    "stc15f2k60s2": "arduino-04-ascii-table/circuit.stc15f2k60s2.json",
-   "stc89c52rc": "arduino-04-ascii-table/circuit.stc89c52rc.json"
+   "stc89c52rc": "arduino-04-ascii-table/circuit.stc89c52rc.json",
+   "stm32f030": "arduino-04-ascii-table/circuit.stm32f030.json"
   }
  },
  {
@@ -4175,6 +4257,7 @@
    "atmega168p",
    "arduino-mega",
    "arduino-nano",
+   "stm32f030",
    "pico"
   ],
   "benches": {
@@ -4183,7 +4266,8 @@
    "atmega168p": "arduino-04-dimmer/circuit.atmega168p.json",
    "pico": "arduino-04-dimmer/circuit.pico.json",
    "stc12c5a60s2": "arduino-04-dimmer/circuit.stc12c5a60s2.json",
-   "stc15f2k60s2": "arduino-04-dimmer/circuit.stc15f2k60s2.json"
+   "stc15f2k60s2": "arduino-04-dimmer/circuit.stc15f2k60s2.json",
+   "stm32f030": "arduino-04-dimmer/circuit.stm32f030.json"
   },
   "authored": "arduino-uno"
  },
@@ -4204,11 +4288,10 @@
   "kind": "full",
   "devices": [
    "arduino-uno",
-   "stc12c5a60s2",
-   "stc15f2k60s2",
    "atmega168p",
    "arduino-mega",
    "arduino-nano",
+   "stm32f030",
    "pico"
   ],
   "benches": {
@@ -4216,8 +4299,7 @@
    "arduino-nano": "arduino-04-read-ascii-string/circuit.arduino-nano.json",
    "atmega168p": "arduino-04-read-ascii-string/circuit.atmega168p.json",
    "pico": "arduino-04-read-ascii-string/circuit.pico.json",
-   "stc12c5a60s2": "arduino-04-read-ascii-string/circuit.stc12c5a60s2.json",
-   "stc15f2k60s2": "arduino-04-read-ascii-string/circuit.stc15f2k60s2.json"
+   "stm32f030": "arduino-04-read-ascii-string/circuit.stm32f030.json"
   },
   "authored": "arduino-uno"
  },
@@ -4243,6 +4325,7 @@
    "atmega168p",
    "arduino-mega",
    "arduino-nano",
+   "stm32f030",
    "pico"
   ],
   "benches": {
@@ -4251,7 +4334,8 @@
    "atmega168p": "arduino-04-serial-call-response/circuit.atmega168p.json",
    "pico": "arduino-04-serial-call-response/circuit.pico.json",
    "stc12c5a60s2": "arduino-04-serial-call-response/circuit.stc12c5a60s2.json",
-   "stc15f2k60s2": "arduino-04-serial-call-response/circuit.stc15f2k60s2.json"
+   "stc15f2k60s2": "arduino-04-serial-call-response/circuit.stc15f2k60s2.json",
+   "stm32f030": "arduino-04-serial-call-response/circuit.stm32f030.json"
   },
   "authored": "arduino-uno"
  },
@@ -4277,6 +4361,7 @@
    "atmega168p",
    "arduino-mega",
    "arduino-nano",
+   "stm32f030",
    "pico"
   ],
   "benches": {
@@ -4285,7 +4370,8 @@
    "atmega168p": "arduino-04-serial-passthrough/circuit.atmega168p.json",
    "pico": "arduino-04-serial-passthrough/circuit.pico.json",
    "stc12c5a60s2": "arduino-04-serial-passthrough/circuit.stc12c5a60s2.json",
-   "stc15f2k60s2": "arduino-04-serial-passthrough/circuit.stc15f2k60s2.json"
+   "stc15f2k60s2": "arduino-04-serial-passthrough/circuit.stc15f2k60s2.json",
+   "stm32f030": "arduino-04-serial-passthrough/circuit.stm32f030.json"
   },
   "authored": "arduino-uno"
  },
@@ -4311,6 +4397,7 @@
    "atmega168p",
    "arduino-mega",
    "arduino-nano",
+   "stm32f030",
    "pico"
   ],
   "benches": {
@@ -4319,7 +4406,8 @@
    "atmega168p": "arduino-06-knock/circuit.atmega168p.json",
    "pico": "arduino-06-knock/circuit.pico.json",
    "stc12c5a60s2": "arduino-06-knock/circuit.stc12c5a60s2.json",
-   "stc15f2k60s2": "arduino-06-knock/circuit.stc15f2k60s2.json"
+   "stc15f2k60s2": "arduino-06-knock/circuit.stc15f2k60s2.json",
+   "stm32f030": "arduino-06-knock/circuit.stm32f030.json"
   },
   "authored": "arduino-uno"
  },
@@ -4346,6 +4434,7 @@
    "atmega168p",
    "arduino-mega",
    "arduino-nano",
+   "stm32f030",
    "pico",
    "attiny88",
    "attiny85"
@@ -4359,7 +4448,8 @@
    "pico": "arduino-06-ping/circuit.pico.json",
    "stc12c5a60s2": "arduino-06-ping/circuit.stc12c5a60s2.json",
    "stc15f2k60s2": "arduino-06-ping/circuit.stc15f2k60s2.json",
-   "stc89c52rc": "arduino-06-ping/circuit.stc89c52rc.json"
+   "stc89c52rc": "arduino-06-ping/circuit.stc89c52rc.json",
+   "stm32f030": "arduino-06-ping/circuit.stm32f030.json"
   },
   "authored": "arduino-uno"
  },
@@ -4395,7 +4485,10 @@
    "stc12c5a60s2": "arduino-07-bar-graph/circuit.stc12c5a60s2.json",
    "stc15f2k60s2": "arduino-07-bar-graph/circuit.stc15f2k60s2.json"
   },
-  "authored": "arduino-uno"
+  "authored": "arduino-uno",
+  "transformRefused": {
+   "stm32f030": "MCU terminal d9 is wired but has no mapping on stm32f030 — refusing rather than dropping the connection"
+  }
  },
  {
   "id": "arduino-07-row-column-scanning",
@@ -4419,6 +4512,7 @@
    "atmega168p",
    "arduino-mega",
    "arduino-nano",
+   "stm32f030",
    "pico"
   ],
   "benches": {
@@ -4427,7 +4521,8 @@
    "atmega168p": "arduino-07-row-column-scanning/circuit.atmega168p.json",
    "pico": "arduino-07-row-column-scanning/circuit.pico.json",
    "stc12c5a60s2": "arduino-07-row-column-scanning/circuit.stc12c5a60s2.json",
-   "stc15f2k60s2": "arduino-07-row-column-scanning/circuit.stc15f2k60s2.json"
+   "stc15f2k60s2": "arduino-07-row-column-scanning/circuit.stc15f2k60s2.json",
+   "stm32f030": "arduino-07-row-column-scanning/circuit.stm32f030.json"
   },
   "authored": "arduino-uno"
  },
@@ -4453,6 +4548,7 @@
    "atmega168p",
    "arduino-mega",
    "arduino-nano",
+   "stm32f030",
    "pico"
   ],
   "benches": {
@@ -4461,7 +4557,8 @@
    "atmega168p": "arduino-08-string-addition/circuit.atmega168p.json",
    "pico": "arduino-08-string-addition/circuit.pico.json",
    "stc12c5a60s2": "arduino-08-string-addition/circuit.stc12c5a60s2.json",
-   "stc15f2k60s2": "arduino-08-string-addition/circuit.stc15f2k60s2.json"
+   "stc15f2k60s2": "arduino-08-string-addition/circuit.stc15f2k60s2.json",
+   "stm32f030": "arduino-08-string-addition/circuit.stm32f030.json"
   },
   "authored": "arduino-uno"
  },
@@ -4488,6 +4585,7 @@
    "atmega168p",
    "arduino-mega",
    "arduino-nano",
+   "stm32f030",
    "pico",
    "attiny88",
    "attiny85"
@@ -4502,7 +4600,8 @@
    "pico": "arduino-08-char-analysis/circuit.pico.json",
    "stc12c5a60s2": "arduino-08-char-analysis/circuit.stc12c5a60s2.json",
    "stc15f2k60s2": "arduino-08-char-analysis/circuit.stc15f2k60s2.json",
-   "stc89c52rc": "arduino-08-char-analysis/circuit.stc89c52rc.json"
+   "stc89c52rc": "arduino-08-char-analysis/circuit.stc89c52rc.json",
+   "stm32f030": "arduino-08-char-analysis/circuit.stm32f030.json"
   }
  },
  {
@@ -4528,6 +4627,7 @@
    "atmega168p",
    "arduino-mega",
    "arduino-nano",
+   "stm32f030",
    "pico",
    "attiny88",
    "attiny85"
@@ -4542,7 +4642,8 @@
    "pico": "arduino-08-string-append/circuit.pico.json",
    "stc12c5a60s2": "arduino-08-string-append/circuit.stc12c5a60s2.json",
    "stc15f2k60s2": "arduino-08-string-append/circuit.stc15f2k60s2.json",
-   "stc89c52rc": "arduino-08-string-append/circuit.stc89c52rc.json"
+   "stc89c52rc": "arduino-08-string-append/circuit.stc89c52rc.json",
+   "stm32f030": "arduino-08-string-append/circuit.stm32f030.json"
   }
  },
  {
@@ -4568,6 +4669,7 @@
    "atmega168p",
    "arduino-mega",
    "arduino-nano",
+   "stm32f030",
    "pico",
    "attiny88",
    "attiny85"
@@ -4582,7 +4684,8 @@
    "pico": "arduino-08-string-case/circuit.pico.json",
    "stc12c5a60s2": "arduino-08-string-case/circuit.stc12c5a60s2.json",
    "stc15f2k60s2": "arduino-08-string-case/circuit.stc15f2k60s2.json",
-   "stc89c52rc": "arduino-08-string-case/circuit.stc89c52rc.json"
+   "stc89c52rc": "arduino-08-string-case/circuit.stc89c52rc.json",
+   "stm32f030": "arduino-08-string-case/circuit.stm32f030.json"
   }
  },
  {
@@ -4608,6 +4711,7 @@
    "atmega168p",
    "arduino-mega",
    "arduino-nano",
+   "stm32f030",
    "pico",
    "attiny88",
    "attiny85"
@@ -4622,7 +4726,8 @@
    "pico": "arduino-08-string-chars/circuit.pico.json",
    "stc12c5a60s2": "arduino-08-string-chars/circuit.stc12c5a60s2.json",
    "stc15f2k60s2": "arduino-08-string-chars/circuit.stc15f2k60s2.json",
-   "stc89c52rc": "arduino-08-string-chars/circuit.stc89c52rc.json"
+   "stc89c52rc": "arduino-08-string-chars/circuit.stc89c52rc.json",
+   "stm32f030": "arduino-08-string-chars/circuit.stm32f030.json"
   }
  },
  {
@@ -4648,6 +4753,7 @@
    "atmega168p",
    "arduino-mega",
    "arduino-nano",
+   "stm32f030",
    "pico",
    "attiny88",
    "attiny85"
@@ -4662,7 +4768,8 @@
    "pico": "arduino-08-string-compare/circuit.pico.json",
    "stc12c5a60s2": "arduino-08-string-compare/circuit.stc12c5a60s2.json",
    "stc15f2k60s2": "arduino-08-string-compare/circuit.stc15f2k60s2.json",
-   "stc89c52rc": "arduino-08-string-compare/circuit.stc89c52rc.json"
+   "stc89c52rc": "arduino-08-string-compare/circuit.stc89c52rc.json",
+   "stm32f030": "arduino-08-string-compare/circuit.stm32f030.json"
   }
  },
  {
@@ -4688,6 +4795,7 @@
    "atmega168p",
    "arduino-mega",
    "arduino-nano",
+   "stm32f030",
    "pico",
    "attiny88",
    "attiny85"
@@ -4702,7 +4810,8 @@
    "pico": "arduino-08-string-constructors/circuit.pico.json",
    "stc12c5a60s2": "arduino-08-string-constructors/circuit.stc12c5a60s2.json",
    "stc15f2k60s2": "arduino-08-string-constructors/circuit.stc15f2k60s2.json",
-   "stc89c52rc": "arduino-08-string-constructors/circuit.stc89c52rc.json"
+   "stc89c52rc": "arduino-08-string-constructors/circuit.stc89c52rc.json",
+   "stm32f030": "arduino-08-string-constructors/circuit.stm32f030.json"
   }
  },
  {
@@ -4728,6 +4837,7 @@
    "atmega168p",
    "arduino-mega",
    "arduino-nano",
+   "stm32f030",
    "pico",
    "attiny88",
    "attiny85"
@@ -4742,7 +4852,8 @@
    "pico": "arduino-08-string-indexof/circuit.pico.json",
    "stc12c5a60s2": "arduino-08-string-indexof/circuit.stc12c5a60s2.json",
    "stc15f2k60s2": "arduino-08-string-indexof/circuit.stc15f2k60s2.json",
-   "stc89c52rc": "arduino-08-string-indexof/circuit.stc89c52rc.json"
+   "stc89c52rc": "arduino-08-string-indexof/circuit.stc89c52rc.json",
+   "stm32f030": "arduino-08-string-indexof/circuit.stm32f030.json"
   }
  },
  {
@@ -4768,6 +4879,7 @@
    "atmega168p",
    "arduino-mega",
    "arduino-nano",
+   "stm32f030",
    "pico",
    "attiny88",
    "attiny85"
@@ -4782,7 +4894,8 @@
    "pico": "arduino-08-string-length/circuit.pico.json",
    "stc12c5a60s2": "arduino-08-string-length/circuit.stc12c5a60s2.json",
    "stc15f2k60s2": "arduino-08-string-length/circuit.stc15f2k60s2.json",
-   "stc89c52rc": "arduino-08-string-length/circuit.stc89c52rc.json"
+   "stc89c52rc": "arduino-08-string-length/circuit.stc89c52rc.json",
+   "stm32f030": "arduino-08-string-length/circuit.stm32f030.json"
   }
  },
  {
@@ -4808,6 +4921,7 @@
    "atmega168p",
    "arduino-mega",
    "arduino-nano",
+   "stm32f030",
    "pico",
    "attiny88",
    "attiny85"
@@ -4822,7 +4936,8 @@
    "pico": "arduino-08-string-length-trim/circuit.pico.json",
    "stc12c5a60s2": "arduino-08-string-length-trim/circuit.stc12c5a60s2.json",
    "stc15f2k60s2": "arduino-08-string-length-trim/circuit.stc15f2k60s2.json",
-   "stc89c52rc": "arduino-08-string-length-trim/circuit.stc89c52rc.json"
+   "stc89c52rc": "arduino-08-string-length-trim/circuit.stc89c52rc.json",
+   "stm32f030": "arduino-08-string-length-trim/circuit.stm32f030.json"
   }
  },
  {
@@ -4848,6 +4963,7 @@
    "atmega168p",
    "arduino-mega",
    "arduino-nano",
+   "stm32f030",
    "pico",
    "attiny88",
    "attiny85"
@@ -4862,7 +4978,8 @@
    "pico": "arduino-08-string-replace/circuit.pico.json",
    "stc12c5a60s2": "arduino-08-string-replace/circuit.stc12c5a60s2.json",
    "stc15f2k60s2": "arduino-08-string-replace/circuit.stc15f2k60s2.json",
-   "stc89c52rc": "arduino-08-string-replace/circuit.stc89c52rc.json"
+   "stc89c52rc": "arduino-08-string-replace/circuit.stc89c52rc.json",
+   "stm32f030": "arduino-08-string-replace/circuit.stm32f030.json"
   }
  },
  {
@@ -4888,6 +5005,7 @@
    "atmega168p",
    "arduino-mega",
    "arduino-nano",
+   "stm32f030",
    "pico",
    "attiny88",
    "attiny85"
@@ -4902,7 +5020,8 @@
    "pico": "arduino-08-string-startswith/circuit.pico.json",
    "stc12c5a60s2": "arduino-08-string-startswith/circuit.stc12c5a60s2.json",
    "stc15f2k60s2": "arduino-08-string-startswith/circuit.stc15f2k60s2.json",
-   "stc89c52rc": "arduino-08-string-startswith/circuit.stc89c52rc.json"
+   "stc89c52rc": "arduino-08-string-startswith/circuit.stc89c52rc.json",
+   "stm32f030": "arduino-08-string-startswith/circuit.stm32f030.json"
   }
  },
  {
@@ -4928,6 +5047,7 @@
    "atmega168p",
    "arduino-mega",
    "arduino-nano",
+   "stm32f030",
    "pico",
    "attiny88",
    "attiny85"
@@ -4942,7 +5062,8 @@
    "pico": "arduino-08-string-substring/circuit.pico.json",
    "stc12c5a60s2": "arduino-08-string-substring/circuit.stc12c5a60s2.json",
    "stc15f2k60s2": "arduino-08-string-substring/circuit.stc15f2k60s2.json",
-   "stc89c52rc": "arduino-08-string-substring/circuit.stc89c52rc.json"
+   "stc89c52rc": "arduino-08-string-substring/circuit.stc89c52rc.json",
+   "stm32f030": "arduino-08-string-substring/circuit.stm32f030.json"
   }
  },
  {
@@ -4968,6 +5089,7 @@
    "atmega168p",
    "arduino-mega",
    "arduino-nano",
+   "stm32f030",
    "pico",
    "attiny88",
    "attiny85"
@@ -4982,7 +5104,8 @@
    "pico": "arduino-08-string-toint/circuit.pico.json",
    "stc12c5a60s2": "arduino-08-string-toint/circuit.stc12c5a60s2.json",
    "stc15f2k60s2": "arduino-08-string-toint/circuit.stc15f2k60s2.json",
-   "stc89c52rc": "arduino-08-string-toint/circuit.stc89c52rc.json"
+   "stc89c52rc": "arduino-08-string-toint/circuit.stc89c52rc.json",
+   "stm32f030": "arduino-08-string-toint/circuit.stm32f030.json"
   }
  },
  {
@@ -5008,6 +5131,7 @@
    "atmega168p",
    "arduino-mega",
    "arduino-nano",
+   "stm32f030",
    "pico",
    "attiny88",
    "attiny85"
@@ -5021,7 +5145,8 @@
    "pico": "arduino-sk-p02-spaceship/circuit.pico.json",
    "stc12c5a60s2": "arduino-sk-p02-spaceship/circuit.stc12c5a60s2.json",
    "stc15f2k60s2": "arduino-sk-p02-spaceship/circuit.stc15f2k60s2.json",
-   "stc89c52rc": "arduino-sk-p02-spaceship/circuit.stc89c52rc.json"
+   "stc89c52rc": "arduino-sk-p02-spaceship/circuit.stc89c52rc.json",
+   "stm32f030": "arduino-sk-p02-spaceship/circuit.stm32f030.json"
   },
   "authored": "arduino-uno"
  },
@@ -5047,6 +5172,7 @@
    "atmega168p",
    "arduino-mega",
    "arduino-nano",
+   "stm32f030",
    "pico"
   ],
   "benches": {
@@ -5055,7 +5181,8 @@
    "atmega168p": "arduino-sk-p03-love-o-meter/circuit.atmega168p.json",
    "pico": "arduino-sk-p03-love-o-meter/circuit.pico.json",
    "stc12c5a60s2": "arduino-sk-p03-love-o-meter/circuit.stc12c5a60s2.json",
-   "stc15f2k60s2": "arduino-sk-p03-love-o-meter/circuit.stc15f2k60s2.json"
+   "stc15f2k60s2": "arduino-sk-p03-love-o-meter/circuit.stc15f2k60s2.json",
+   "stm32f030": "arduino-sk-p03-love-o-meter/circuit.stm32f030.json"
   },
   "authored": "arduino-uno"
  },
@@ -5076,11 +5203,10 @@
   "kind": "full",
   "devices": [
    "arduino-uno",
-   "stc12c5a60s2",
-   "stc15f2k60s2",
    "atmega168p",
    "arduino-mega",
    "arduino-nano",
+   "stm32f030",
    "pico"
   ],
   "benches": {
@@ -5088,8 +5214,7 @@
    "arduino-nano": "arduino-sk-p04-color-mixing/circuit.arduino-nano.json",
    "atmega168p": "arduino-sk-p04-color-mixing/circuit.atmega168p.json",
    "pico": "arduino-sk-p04-color-mixing/circuit.pico.json",
-   "stc12c5a60s2": "arduino-sk-p04-color-mixing/circuit.stc12c5a60s2.json",
-   "stc15f2k60s2": "arduino-sk-p04-color-mixing/circuit.stc15f2k60s2.json"
+   "stm32f030": "arduino-sk-p04-color-mixing/circuit.stm32f030.json"
   },
   "authored": "arduino-uno"
  },
@@ -5145,17 +5270,9 @@
   "devices": [
    "arduino-uno",
    "stc12c5a60s2",
-   "stc15f2k60s2",
-   "atmega168p",
-   "arduino-mega",
-   "arduino-nano",
-   "pico"
+   "stc15f2k60s2"
   ],
   "benches": {
-   "arduino-mega": "arduino-sk-p06-light-theremin/circuit.arduino-mega.json",
-   "arduino-nano": "arduino-sk-p06-light-theremin/circuit.arduino-nano.json",
-   "atmega168p": "arduino-sk-p06-light-theremin/circuit.atmega168p.json",
-   "pico": "arduino-sk-p06-light-theremin/circuit.pico.json",
    "stc12c5a60s2": "arduino-sk-p06-light-theremin/circuit.stc12c5a60s2.json",
    "stc15f2k60s2": "arduino-sk-p06-light-theremin/circuit.stc15f2k60s2.json"
   },
@@ -5218,21 +5335,9 @@
    "arduino-uno",
    "stc12c5a60s2",
    "stc89c52rc",
-   "stc15f2k60s2",
-   "atmega168p",
-   "arduino-mega",
-   "arduino-nano",
-   "pico",
-   "attiny88",
-   "attiny85"
+   "stc15f2k60s2"
   ],
   "benches": {
-   "arduino-mega": "arduino-sk-p07-keyboard/circuit.arduino-mega.json",
-   "arduino-nano": "arduino-sk-p07-keyboard/circuit.arduino-nano.json",
-   "atmega168p": "arduino-sk-p07-keyboard/circuit.atmega168p.json",
-   "attiny85": "arduino-sk-p07-keyboard/circuit.attiny85.json",
-   "attiny88": "arduino-sk-p07-keyboard/circuit.attiny88.json",
-   "pico": "arduino-sk-p07-keyboard/circuit.pico.json",
    "stc12c5a60s2": "arduino-sk-p07-keyboard/circuit.stc12c5a60s2.json",
    "stc15f2k60s2": "arduino-sk-p07-keyboard/circuit.stc15f2k60s2.json",
    "stc89c52rc": "arduino-sk-p07-keyboard/circuit.stc89c52rc.json"
@@ -5262,6 +5367,7 @@
    "atmega168p",
    "arduino-mega",
    "arduino-nano",
+   "stm32f030",
    "pico",
    "attiny88"
   ],
@@ -5273,7 +5379,8 @@
    "pico": "arduino-sk-p08-hourglass/circuit.pico.json",
    "stc12c5a60s2": "arduino-sk-p08-hourglass/circuit.stc12c5a60s2.json",
    "stc15f2k60s2": "arduino-sk-p08-hourglass/circuit.stc15f2k60s2.json",
-   "stc89c52rc": "arduino-sk-p08-hourglass/circuit.stc89c52rc.json"
+   "stc89c52rc": "arduino-sk-p08-hourglass/circuit.stc89c52rc.json",
+   "stm32f030": "arduino-sk-p08-hourglass/circuit.stm32f030.json"
   },
   "authored": "arduino-uno"
  },
@@ -5300,6 +5407,7 @@
    "atmega168p",
    "arduino-mega",
    "arduino-nano",
+   "stm32f030",
    "pico",
    "attiny88",
    "attiny85"
@@ -5313,7 +5421,8 @@
    "pico": "arduino-sk-p09-motorized-pinwheel/circuit.pico.json",
    "stc12c5a60s2": "arduino-sk-p09-motorized-pinwheel/circuit.stc12c5a60s2.json",
    "stc15f2k60s2": "arduino-sk-p09-motorized-pinwheel/circuit.stc15f2k60s2.json",
-   "stc89c52rc": "arduino-sk-p09-motorized-pinwheel/circuit.stc89c52rc.json"
+   "stc89c52rc": "arduino-sk-p09-motorized-pinwheel/circuit.stc89c52rc.json",
+   "stm32f030": "arduino-sk-p09-motorized-pinwheel/circuit.stm32f030.json"
   },
   "authored": "arduino-uno"
  },
@@ -5339,6 +5448,7 @@
    "atmega168p",
    "arduino-mega",
    "arduino-nano",
+   "stm32f030",
    "pico"
   ],
   "benches": {
@@ -5347,7 +5457,8 @@
    "atmega168p": "arduino-sk-p10-zoetrope/circuit.atmega168p.json",
    "pico": "arduino-sk-p10-zoetrope/circuit.pico.json",
    "stc12c5a60s2": "arduino-sk-p10-zoetrope/circuit.stc12c5a60s2.json",
-   "stc15f2k60s2": "arduino-sk-p10-zoetrope/circuit.stc15f2k60s2.json"
+   "stc15f2k60s2": "arduino-sk-p10-zoetrope/circuit.stc15f2k60s2.json",
+   "stm32f030": "arduino-sk-p10-zoetrope/circuit.stm32f030.json"
   },
   "authored": "arduino-uno"
  },
@@ -5374,6 +5485,7 @@
    "atmega168p",
    "arduino-mega",
    "arduino-nano",
+   "stm32f030",
    "pico",
    "attiny88",
    "attiny85"
@@ -5387,7 +5499,8 @@
    "pico": "arduino-sk-p11-crystal-ball/circuit.pico.json",
    "stc12c5a60s2": "arduino-sk-p11-crystal-ball/circuit.stc12c5a60s2.json",
    "stc15f2k60s2": "arduino-sk-p11-crystal-ball/circuit.stc15f2k60s2.json",
-   "stc89c52rc": "arduino-sk-p11-crystal-ball/circuit.stc89c52rc.json"
+   "stc89c52rc": "arduino-sk-p11-crystal-ball/circuit.stc89c52rc.json",
+   "stm32f030": "arduino-sk-p11-crystal-ball/circuit.stm32f030.json"
   },
   "authored": "arduino-uno"
  },
@@ -5448,6 +5561,7 @@
    "atmega168p",
    "arduino-mega",
    "arduino-nano",
+   "stm32f030",
    "pico",
    "attiny88",
    "attiny85"
@@ -5461,7 +5575,8 @@
    "pico": "arduino-sk-p13-touch-lamp/circuit.pico.json",
    "stc12c5a60s2": "arduino-sk-p13-touch-lamp/circuit.stc12c5a60s2.json",
    "stc15f2k60s2": "arduino-sk-p13-touch-lamp/circuit.stc15f2k60s2.json",
-   "stc89c52rc": "arduino-sk-p13-touch-lamp/circuit.stc89c52rc.json"
+   "stc89c52rc": "arduino-sk-p13-touch-lamp/circuit.stc89c52rc.json",
+   "stm32f030": "arduino-sk-p13-touch-lamp/circuit.stm32f030.json"
   },
   "authored": "arduino-uno"
  },
@@ -5487,6 +5602,7 @@
    "atmega168p",
    "arduino-mega",
    "arduino-nano",
+   "stm32f030",
    "pico"
   ],
   "benches": {
@@ -5495,7 +5611,8 @@
    "atmega168p": "arduino-sk-p14-serial-pot/circuit.atmega168p.json",
    "pico": "arduino-sk-p14-serial-pot/circuit.pico.json",
    "stc12c5a60s2": "arduino-sk-p14-serial-pot/circuit.stc12c5a60s2.json",
-   "stc15f2k60s2": "arduino-sk-p14-serial-pot/circuit.stc15f2k60s2.json"
+   "stc15f2k60s2": "arduino-sk-p14-serial-pot/circuit.stc15f2k60s2.json",
+   "stm32f030": "arduino-sk-p14-serial-pot/circuit.stm32f030.json"
   },
   "authored": "arduino-uno"
  },
@@ -5522,6 +5639,7 @@
    "atmega168p",
    "arduino-mega",
    "arduino-nano",
+   "stm32f030",
    "pico",
    "attiny88",
    "attiny85"
@@ -5535,7 +5653,8 @@
    "pico": "arduino-sk-p15-hacking-buttons/circuit.pico.json",
    "stc12c5a60s2": "arduino-sk-p15-hacking-buttons/circuit.stc12c5a60s2.json",
    "stc15f2k60s2": "arduino-sk-p15-hacking-buttons/circuit.stc15f2k60s2.json",
-   "stc89c52rc": "arduino-sk-p15-hacking-buttons/circuit.stc89c52rc.json"
+   "stc89c52rc": "arduino-sk-p15-hacking-buttons/circuit.stc89c52rc.json",
+   "stm32f030": "arduino-sk-p15-hacking-buttons/circuit.stm32f030.json"
   },
   "authored": "arduino-uno"
  },
@@ -6429,7 +6548,9 @@
   "difficulty": 2,
   "kind": "full",
   "devices": [
-   "stc89c52rc"
+   "stc89c52rc",
+   "stc12c5a60s2",
+   "stc15f2k60s2"
   ],
   "authored": "stc89c52rc",
   "files": {
@@ -6438,6 +6559,10 @@
    "expected": "77-keypad-keyshow/EXPECTED.md",
    "intro": "77-keypad-keyshow/intro.md",
    "introDE": "77-keypad-keyshow/intro.de.md"
+  },
+  "benches": {
+   "stc12c5a60s2": "77-keypad-keyshow/circuit.stc12c5a60s2.json",
+   "stc15f2k60s2": "77-keypad-keyshow/circuit.stc15f2k60s2.json"
   }
  },
  {
@@ -6475,7 +6600,18 @@
   },
   "kind": "program",
   "devices": [
-   "microbit"
+   "microbit",
+   "stc12c5a60s2",
+   "stc89c52rc",
+   "stc15f2k60s2",
+   "arduino-uno",
+   "atmega168p",
+   "arduino-mega",
+   "arduino-nano",
+   "stm32f030",
+   "pico",
+   "attiny88",
+   "attiny85"
   ],
   "authored": "microbit"
  },
@@ -6493,7 +6629,18 @@
   },
   "kind": "program",
   "devices": [
-   "microbit"
+   "microbit",
+   "stc12c5a60s2",
+   "stc89c52rc",
+   "stc15f2k60s2",
+   "arduino-uno",
+   "atmega168p",
+   "arduino-mega",
+   "arduino-nano",
+   "stm32f030",
+   "pico",
+   "attiny88",
+   "attiny85"
   ],
   "authored": "microbit"
  },
@@ -6511,7 +6658,18 @@
   },
   "kind": "program",
   "devices": [
-   "microbit"
+   "microbit",
+   "stc12c5a60s2",
+   "stc89c52rc",
+   "stc15f2k60s2",
+   "arduino-uno",
+   "atmega168p",
+   "arduino-mega",
+   "arduino-nano",
+   "stm32f030",
+   "pico",
+   "attiny88",
+   "attiny85"
   ],
   "authored": "microbit"
  },
@@ -6529,7 +6687,18 @@
   },
   "kind": "program",
   "devices": [
-   "microbit"
+   "microbit",
+   "stc12c5a60s2",
+   "stc89c52rc",
+   "stc15f2k60s2",
+   "arduino-uno",
+   "atmega168p",
+   "arduino-mega",
+   "arduino-nano",
+   "stm32f030",
+   "pico",
+   "attiny88",
+   "attiny85"
   ],
   "authored": "microbit"
  },
@@ -6554,6 +6723,11 @@
    "expected": "79-a2-sampler/EXPECTED.md",
    "intro": "79-a2-sampler/intro.md",
    "introDE": "79-a2-sampler/intro.de.md"
+  },
+  "benches": {
+   "stc12c5a60s2": "79-a2-sampler/circuit.stc12c5a60s2.json",
+   "stc15f2k60s2": "79-a2-sampler/circuit.stc15f2k60s2.json",
+   "stc89c52rc": "79-a2-sampler/circuit.stc89c52rc.json"
   }
  },
  {
@@ -6577,6 +6751,11 @@
    "expected": "80-a2-lcd-moving-text/EXPECTED.md",
    "intro": "80-a2-lcd-moving-text/intro.md",
    "introDE": "80-a2-lcd-moving-text/intro.de.md"
+  },
+  "benches": {
+   "stc12c5a60s2": "80-a2-lcd-moving-text/circuit.stc12c5a60s2.json",
+   "stc15f2k60s2": "80-a2-lcd-moving-text/circuit.stc15f2k60s2.json",
+   "stc89c52rc": "80-a2-lcd-moving-text/circuit.stc89c52rc.json"
   }
  },
  {
@@ -6600,6 +6779,11 @@
    "expected": "81-8051-lcd1602-parallel/EXPECTED.md",
    "intro": "81-8051-lcd1602-parallel/intro.md",
    "introDE": "81-8051-lcd1602-parallel/intro.de.md"
+  },
+  "benches": {
+   "stc12c5a60s2": "81-8051-lcd1602-parallel/circuit.stc12c5a60s2.json",
+   "stc15f2k60s2": "81-8051-lcd1602-parallel/circuit.stc15f2k60s2.json",
+   "stc89c52rc": "81-8051-lcd1602-parallel/circuit.stc89c52rc.json"
   }
  },
  {
@@ -6623,6 +6807,11 @@
    "expected": "82-a2-led-row/EXPECTED.md",
    "intro": "82-a2-led-row/intro.md",
    "introDE": "82-a2-led-row/intro.de.md"
+  },
+  "benches": {
+   "stc12c5a60s2": "82-a2-led-row/circuit.stc12c5a60s2.json",
+   "stc15f2k60s2": "82-a2-led-row/circuit.stc15f2k60s2.json",
+   "stc89c52rc": "82-a2-led-row/circuit.stc89c52rc.json"
   }
  },
  {
@@ -6639,7 +6828,18 @@
   },
   "kind": "program",
   "devices": [
-   "microbit"
+   "microbit",
+   "stc12c5a60s2",
+   "stc89c52rc",
+   "stc15f2k60s2",
+   "arduino-uno",
+   "atmega168p",
+   "arduino-mega",
+   "arduino-nano",
+   "stm32f030",
+   "pico",
+   "attiny88",
+   "attiny85"
   ],
   "authored": "microbit"
  },
@@ -6653,7 +6853,18 @@
   "difficulty": 2,
   "kind": "program",
   "devices": [
-   "microbit"
+   "microbit",
+   "stc12c5a60s2",
+   "stc89c52rc",
+   "stc15f2k60s2",
+   "arduino-uno",
+   "atmega168p",
+   "arduino-mega",
+   "arduino-nano",
+   "stm32f030",
+   "pico",
+   "attiny88",
+   "attiny85"
   ],
   "authored": "microbit",
   "files": {
@@ -6763,7 +6974,18 @@
   "category": "microbit",
   "difficulty": 2,
   "devices": [
-   "spike"
+   "spike",
+   "stc12c5a60s2",
+   "stc89c52rc",
+   "stc15f2k60s2",
+   "arduino-uno",
+   "atmega168p",
+   "arduino-mega",
+   "arduino-nano",
+   "stm32f030",
+   "pico",
+   "attiny88",
+   "attiny85"
   ],
   "authored": "spike",
   "kind": "program",
@@ -6853,7 +7075,18 @@
   "category": "microbit",
   "difficulty": 1,
   "devices": [
-   "microbit"
+   "microbit",
+   "stc12c5a60s2",
+   "stc89c52rc",
+   "stc15f2k60s2",
+   "arduino-uno",
+   "atmega168p",
+   "arduino-mega",
+   "arduino-nano",
+   "stm32f030",
+   "pico",
+   "attiny88",
+   "attiny85"
   ],
   "authored": "microbit",
   "kind": "program",
@@ -6873,7 +7106,18 @@
   "category": "microbit",
   "difficulty": 2,
   "devices": [
-   "microbit"
+   "microbit",
+   "stc12c5a60s2",
+   "stc89c52rc",
+   "stc15f2k60s2",
+   "arduino-uno",
+   "atmega168p",
+   "arduino-mega",
+   "arduino-nano",
+   "stm32f030",
+   "pico",
+   "attiny88",
+   "attiny85"
   ],
   "authored": "microbit",
   "kind": "program",
@@ -6893,7 +7137,18 @@
   "category": "microbit",
   "difficulty": 1,
   "devices": [
-   "microbit"
+   "microbit",
+   "stc12c5a60s2",
+   "stc89c52rc",
+   "stc15f2k60s2",
+   "arduino-uno",
+   "atmega168p",
+   "arduino-mega",
+   "arduino-nano",
+   "stm32f030",
+   "pico",
+   "attiny88",
+   "attiny85"
   ],
   "authored": "microbit",
   "kind": "program",
@@ -7097,6 +7352,7 @@
    "atmega168p",
    "arduino-mega",
    "arduino-nano",
+   "stm32f030",
    "pico",
    "attiny88",
    "attiny85"
@@ -7110,7 +7366,8 @@
    "attiny88": "disp-rgb-light/circuit.attiny88.json",
    "pico": "disp-rgb-light/circuit.pico.json",
    "stc15f2k60s2": "disp-rgb-light/circuit.stc15f2k60s2.json",
-   "stc89c52rc": "disp-rgb-light/circuit.stc89c52rc.json"
+   "stc89c52rc": "disp-rgb-light/circuit.stc89c52rc.json",
+   "stm32f030": "disp-rgb-light/circuit.stm32f030.json"
   }
  },
  {
@@ -7138,6 +7395,7 @@
    "atmega168p",
    "arduino-mega",
    "arduino-nano",
+   "stm32f030",
    "pico",
    "attiny88"
   ],
@@ -7149,7 +7407,8 @@
    "attiny88": "disp-sevenseg/circuit.attiny88.json",
    "pico": "disp-sevenseg/circuit.pico.json",
    "stc15f2k60s2": "disp-sevenseg/circuit.stc15f2k60s2.json",
-   "stc89c52rc": "disp-sevenseg/circuit.stc89c52rc.json"
+   "stc89c52rc": "disp-sevenseg/circuit.stc89c52rc.json",
+   "stm32f030": "disp-sevenseg/circuit.stm32f030.json"
   }
  },
  {
@@ -7175,6 +7434,7 @@
    "atmega168p",
    "arduino-mega",
    "arduino-nano",
+   "stm32f030",
    "pico"
   ],
   "benches": {
@@ -7182,7 +7442,8 @@
    "arduino-nano": "disp-bargraph/circuit.arduino-nano.json",
    "arduino-uno": "disp-bargraph/circuit.arduino-uno.json",
    "atmega168p": "disp-bargraph/circuit.atmega168p.json",
-   "pico": "disp-bargraph/circuit.pico.json"
+   "pico": "disp-bargraph/circuit.pico.json",
+   "stm32f030": "disp-bargraph/circuit.stm32f030.json"
   }
  }
 ]

@@ -1,0 +1,148 @@
+{
+ "vcc": 5,
+ "parts": [
+  {
+   "id": "bb1",
+   "kind": "breadboard",
+   "params": {},
+   "terminals": [],
+   "x": 470,
+   "y": 330,
+   "rotation": 0
+  },
+  {
+   "id": "VCC",
+   "kind": "vcc",
+   "params": {},
+   "terminals": [
+    "vcc"
+   ],
+   "x": 58,
+   "y": 115
+  },
+  {
+   "id": "GND",
+   "kind": "gnd",
+   "params": {},
+   "terminals": [
+    "gnd"
+   ],
+   "x": 134,
+   "y": 115
+  },
+  {
+   "id": "MCU",
+   "kind": "stm32f030",
+   "params": {},
+   "x": 80,
+   "y": -60,
+   "rotation": 0
+  },
+  {
+   "id": "R_opto",
+   "kind": "resistor",
+   "params": {
+    "ohms": 1000
+   },
+   "terminals": [
+    "a",
+    "b"
+   ],
+   "x": 64,
+   "y": 255,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a3",
+     "b": "a7"
+    }
+   }
+  },
+  {
+   "id": "LED_opto",
+   "kind": "led",
+   "params": {
+    "vf": 2,
+    "color": "red"
+   },
+   "terminals": [
+    "anode",
+    "cathode"
+   ],
+   "x": 148,
+   "y": 255,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "anode": "a9",
+     "cathode": "a10"
+    }
+   }
+  }
+ ],
+ "wires": [
+  {
+   "from": "R_opto",
+   "fromTerminal": "b",
+   "to": "LED_opto",
+   "toTerminal": "anode"
+  },
+  {
+   "from": "GND",
+   "fromTerminal": "gnd",
+   "to": "LED_opto",
+   "toTerminal": "cathode"
+  },
+  {
+   "from": "GND",
+   "fromTerminal": "gnd",
+   "to": {
+    "board": "bb1",
+    "hole": "b-2"
+   },
+   "color": "black",
+   "genPower": true
+  },
+  {
+   "from": "MCU",
+   "fromTerminal": "pa1",
+   "to": "R_opto",
+   "toTerminal": "a"
+  },
+  {
+   "from": "MCU",
+   "fromTerminal": "gnd",
+   "to": "GND",
+   "toTerminal": "gnd"
+  },
+  {
+   "from": "MCU",
+   "fromTerminal": "gnd",
+   "to": "LED_opto",
+   "toTerminal": "cathode"
+  },
+  {
+   "from": "MCU",
+   "fromTerminal": "vcc",
+   "to": "VCC",
+   "toTerminal": "vcc"
+  }
+ ],
+ "holeWires": [
+  {
+   "ref": "bbw:bb1:gen_0",
+   "boardId": "bb1",
+   "a": "b7",
+   "b": "b9",
+   "color": "green"
+  },
+  {
+   "ref": "bbw:bb1:gen_1",
+   "boardId": "bb1",
+   "a": "b10",
+   "b": "b-10",
+   "color": "black"
+  }
+ ],
+ "generated": "benchFor+authored"
+}

@@ -28,7 +28,7 @@ siblingGuardTest(gate, 'bench invariants');
 const STRUCTURAL = new Set(['breadboard', 'vcc', 'gnd']);
 // The MCU-surface kinds a bench pivots on.
 const MCU_KINDS = new Set(['mcu', 'stc_mcu', 'stc15_mcu', 'arduino_uno', 'arduino_nano',
-  'arduino_mega', 'pi_pico', 'attiny85', 'attiny88']);
+  'arduino_mega', 'pi_pico', 'attiny85', 'attiny88', 'stm32f030']);
 
 describe('bench invariants: every device bench, canonical loader', { skip: gate.skip }, () => {
   let Circuit;

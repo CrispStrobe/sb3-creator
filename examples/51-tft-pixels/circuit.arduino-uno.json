@@ -1,0 +1,198 @@
+{
+ "vcc": 5,
+ "parts": [
+  {
+   "id": "bb1",
+   "kind": "breadboard",
+   "params": {},
+   "terminals": [],
+   "x": 470,
+   "y": 330,
+   "rotation": 0
+  },
+  {
+   "id": "VCC",
+   "kind": "vcc",
+   "params": {},
+   "terminals": [
+    "vcc"
+   ],
+   "x": 58,
+   "y": 115
+  },
+  {
+   "id": "GND",
+   "kind": "gnd",
+   "params": {},
+   "terminals": [
+    "gnd"
+   ],
+   "x": 134,
+   "y": 115
+  },
+  {
+   "id": "MCU",
+   "kind": "arduino_uno",
+   "params": {},
+   "terminals": [
+    "d13",
+    "d12",
+    "d8",
+    "d7",
+    "5v",
+    "gnd2"
+   ],
+   "x": 392,
+   "y": -12
+  },
+  {
+   "id": "TFT",
+   "kind": "ili9341",
+   "params": {},
+   "terminals": [
+    "vcc",
+    "gnd",
+    "cs",
+    "rst",
+    "dc",
+    "mosi",
+    "sck",
+    "miso",
+    "led"
+   ],
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "vcc": "a3",
+     "gnd": "a4",
+     "cs": "a5",
+     "rst": "a6",
+     "dc": "a7",
+     "mosi": "a8",
+     "sck": "a9",
+     "miso": "a10",
+     "led": "a11"
+    }
+   },
+   "x": 64,
+   "y": 255
+  }
+ ],
+ "wires": [
+  {
+   "from": "MCU",
+   "fromTerminal": "d13",
+   "to": "TFT",
+   "toTerminal": "cs"
+  },
+  {
+   "from": "MCU",
+   "fromTerminal": "d12",
+   "to": "TFT",
+   "toTerminal": "dc"
+  },
+  {
+   "from": "MCU",
+   "fromTerminal": "d8",
+   "to": "TFT",
+   "toTerminal": "sck"
+  },
+  {
+   "from": "MCU",
+   "fromTerminal": "d7",
+   "to": "TFT",
+   "toTerminal": "mosi"
+  },
+  {
+   "from": "VCC",
+   "fromTerminal": "vcc",
+   "to": "TFT",
+   "toTerminal": "vcc"
+  },
+  {
+   "from": "VCC",
+   "fromTerminal": "vcc",
+   "to": "TFT",
+   "toTerminal": "led"
+  },
+  {
+   "from": "VCC",
+   "fromTerminal": "vcc",
+   "to": "TFT",
+   "toTerminal": "rst"
+  },
+  {
+   "from": "GND",
+   "fromTerminal": "gnd",
+   "to": "TFT",
+   "toTerminal": "gnd"
+  },
+  {
+   "from": "VCC",
+   "fromTerminal": "vcc",
+   "to": "MCU",
+   "toTerminal": "5v",
+   "color": "red",
+   "genPower": true
+  },
+  {
+   "from": "GND",
+   "fromTerminal": "gnd",
+   "to": "MCU",
+   "toTerminal": "gnd2",
+   "color": "black",
+   "genPower": true
+  },
+  {
+   "from": "VCC",
+   "fromTerminal": "vcc",
+   "to": {
+    "board": "bb1",
+    "hole": "t+2"
+   },
+   "color": "red",
+   "genPower": true
+  },
+  {
+   "from": "GND",
+   "fromTerminal": "gnd",
+   "to": {
+    "board": "bb1",
+    "hole": "b-2"
+   },
+   "color": "black",
+   "genPower": true
+  }
+ ],
+ "holeWires": [
+  {
+   "ref": "bbw:bb1:gen_0",
+   "boardId": "bb1",
+   "a": "b3",
+   "b": "t+3",
+   "color": "red"
+  },
+  {
+   "ref": "bbw:bb1:gen_1",
+   "boardId": "bb1",
+   "a": "b11",
+   "b": "t+11",
+   "color": "red"
+  },
+  {
+   "ref": "bbw:bb1:gen_2",
+   "boardId": "bb1",
+   "a": "b6",
+   "b": "t+6",
+   "color": "red"
+  },
+  {
+   "ref": "bbw:bb1:gen_3",
+   "boardId": "bb1",
+   "a": "b4",
+   "b": "b-4",
+   "color": "black"
+  }
+ ],
+ "generated": "benchFor+seat"
+}

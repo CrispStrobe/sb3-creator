@@ -8,7 +8,7 @@
     "index-metadata-matches-disk": 279,
     "retarget-gallery": 43,
     "retarget-amplification": 43,
-    "gen-device-benches": 114,
+    "gen-device-benches": 128,
     "example-corpus-contract": 116,
     "assert-physics": 245,
     "debug-micropython": 9,
@@ -126,6 +126,7 @@
       "example-corpus-contract",
       "example-kind-matches-content",
       "gallery",
+      "gen-device-benches",
       "index-metadata-matches-disk",
       "program-reads-what-it-writes",
       "retarget-amplification",
@@ -487,6 +488,7 @@
       "example-corpus-contract",
       "example-kind-matches-content",
       "gallery",
+      "gen-device-benches",
       "index-metadata-matches-disk",
       "program-reads-what-it-writes",
       "vm",
@@ -680,6 +682,7 @@
       "example-corpus-contract",
       "example-kind-matches-content",
       "gallery",
+      "gen-device-benches",
       "index-metadata-matches-disk",
       "program-reads-what-it-writes",
       "vm",
@@ -2680,6 +2683,7 @@
       "example-corpus-contract",
       "example-kind-matches-content",
       "gallery",
+      "gen-device-benches",
       "index-metadata-matches-disk",
       "program-reads-what-it-writes",
       "simulator-driver-controls-respond",
@@ -2702,6 +2706,7 @@
       "debug-trace-audit",
       "example-kind-matches-content",
       "gallery",
+      "gen-device-benches",
       "index-metadata-matches-disk",
       "program-reads-what-it-writes",
       "vm"
@@ -2711,6 +2716,7 @@
       "debug-trace-audit",
       "example-kind-matches-content",
       "gallery",
+      "gen-device-benches",
       "index-metadata-matches-disk",
       "program-reads-what-it-writes",
       "vm"
@@ -2720,6 +2726,7 @@
       "debug-trace-audit",
       "example-kind-matches-content",
       "gallery",
+      "gen-device-benches",
       "index-metadata-matches-disk",
       "program-reads-what-it-writes",
       "vm"
@@ -2729,6 +2736,7 @@
       "debug-trace-audit",
       "example-kind-matches-content",
       "gallery",
+      "gen-device-benches",
       "index-metadata-matches-disk",
       "program-reads-what-it-writes",
       "vm"
@@ -2782,6 +2790,7 @@
       "debug-trace-audit",
       "example-kind-matches-content",
       "gallery",
+      "gen-device-benches",
       "index-metadata-matches-disk",
       "program-reads-what-it-writes",
       "vm"
@@ -2791,6 +2800,7 @@
       "debug-trace-audit",
       "example-kind-matches-content",
       "gallery",
+      "gen-device-benches",
       "index-metadata-matches-disk",
       "program-reads-what-it-writes",
       "vm"
@@ -2833,6 +2843,7 @@
     "spike01-obstacle-avoid": [
       "example-kind-matches-content",
       "gallery",
+      "gen-device-benches",
       "index-metadata-matches-disk",
       "program-reads-what-it-writes",
       "vm"
@@ -2870,6 +2881,7 @@
       "debug-trace-audit",
       "example-kind-matches-content",
       "gallery",
+      "gen-device-benches",
       "index-metadata-matches-disk",
       "program-reads-what-it-writes",
       "vm"
@@ -2879,6 +2891,7 @@
       "debug-trace-audit",
       "example-kind-matches-content",
       "gallery",
+      "gen-device-benches",
       "index-metadata-matches-disk",
       "program-reads-what-it-writes",
       "vm"
@@ -2888,6 +2901,7 @@
       "debug-trace-audit",
       "example-kind-matches-content",
       "gallery",
+      "gen-device-benches",
       "index-metadata-matches-disk",
       "program-reads-what-it-writes",
       "vm"

@@ -5,4 +5,5 @@ export const DEVPART = {
   'arduino-uno': 'arduino_uno', 'arduino-nano': 'arduino_nano',
   'arduino-mega': 'arduino_mega', 'atmega168p': 'arduino_uno',
   'attiny88': 'attiny88', 'attiny85': 'attiny85',
+  'stm32f030': 'stm32f030',
 };

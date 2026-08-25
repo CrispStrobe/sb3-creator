@@ -14167,6 +14167,15 @@ SB3Creator.RETARGET_POOLS = (() => {
             pwm: ['D9', 'D10', 'D11', 'D12'], ledActiveLow: false },
         'arduino-nano': { digital: unoDigital, analog: ['A0', 'A1', 'A2', 'A3', 'A6', 'A7'],
             input: unoInput, pwm: ['D3', 'D11', 'D9', 'D10'], ledActiveLow: false },
+        // The F030's whole header: PA0-PA7 + PB1. PA9/PA10 stay out of
+        // every pool — they are USART1, and a retargeted program that
+        // prints must keep its serial pins (the same rule that keeps
+        // D0/D1 out of the AVR pools). PWM pins (TIM3 CH1/CH2/CH4) close
+        // the digital/input pools so plain programs leave them free.
+        stm32f030: { digital: ['PA0', 'PA1', 'PA2', 'PA3', 'PA4', 'PA5', 'PB1', 'PA6', 'PA7'],
+            analog: ['PA0', 'PA1', 'PA2', 'PA3', 'PA4', 'PA5', 'PA6', 'PA7'],
+            input: ['PA1', 'PA2', 'PA3', 'PA4', 'PA5', 'PA0', 'PB1', 'PA6', 'PA7'],
+            pwm: ['PA6', 'PA7', 'PB1'], ledActiveLow: false },
         pico: { digital: ['GP25', 'GP15', 'GP14', 'GP13', 'GP12', 'GP11', 'GP10', ...seq('GP%', 0, 9), ...seq('GP%', 18, 22)],
             analog: ['GP26', 'GP27', 'GP28'],
             input: ['GP2', 'GP3', 'GP4', 'GP5', ...seq('GP%', 6, 15), ...seq('GP%', 18, 22), 'GP0', 'GP1'],
@@ -14336,7 +14345,7 @@ SB3Creator.retargetPseudocode = function retargetPseudocode(src, device) {
 
     // ---- feature scan: what does the body actually use? -----------------
     const used = { pwmPins: new Set(), port: false, cube: false, pixel: false,
-        servo: false, motor: false, adc: false, tone: false };
+        servo: false, motor: false, adc: false, tone: false, display: false };
     for (const t of c.project.targets || []) {
         for (const b of Object.values(t.blocks || {})) {
             if (!b || !b.opcode) continue;
@@ -14346,9 +14355,12 @@ SB3Creator.retargetPseudocode = function retargetPseudocode(src, device) {
             if (/devices_(setpixel|setrgb|clearmatrix)/.test(b.opcode)) used.pixel = true;
             if (/devices_(setservo|servoangle)/.test(b.opcode)) used.servo = true;
             if (/devices_(setmotor|motordir|motorspeed)/.test(b.opcode)) used.motor = true;
+            if (/^devices_(oled|tft|lcd)/.test(b.opcode)) used.display = true;
             if (b.opcode === 'stc12_settone') used.tone = true;
         }
     }
+    // A display PART with no display blocks still binds the bus pins.
+    if ((stc.parts || []).some((p) => /oled|lcd|tft/i.test(String(p.type || p.kind || '')))) used.display = true;
     for (const pin of stc.pins) if (pin.direction === 'analog') used.adc = true;
 
     // ---- hard blockers, each with its reason ---------------------------
@@ -14360,6 +14372,11 @@ SB3Creator.retargetPseudocode = function retargetPseudocode(src, device) {
     if (used.servo && core === '8051' && !part.pca) reasons.push(`servo needs the PCA — ${device} has none`);
     if (used.motor && core === '8051' && !part.pca) reasons.push(`motor speed needs the PCA — ${device} has none`);
     if ((used.servo || used.motor) && core === 'w65c02') reasons.push('servo/motor need PWM — the VIA has no compare unit');
+    // The F0 tier cap (STM32-PATH.md): digital I/O, tick, print, ADC, PWM.
+    // Servo needs a 50 Hz frame and TIM3's 1 kHz frame IS the tick — a
+    // second timer is beyond the cap; displays need the I2C/SPI port.
+    if ((used.servo || used.motor) && device === 'stm32f030') reasons.push('servo/motor need a 50 Hz PWM frame — TIM3 is the 1 kHz tick, and a second timer is beyond the F0 tier cap');
+    if (used.display && device === 'stm32f030') reasons.push('displays need the I2C/SPI port, which is beyond the F0 tier cap');
     if (used.pwmPins.size && !pools.pwm.length) reasons.push(`${device} has no PWM-capable convention pins`);
 
     // ---- allocate pins from the pools ----------------------------------
@@ -14414,6 +14431,28 @@ SB3Creator.retargetPseudocode = function retargetPseudocode(src, device) {
             where = take(pools.digital);
             activeLow = pools.ledActiveLow;
             if (!where) reasons.push(`more digital outputs than ${device}'s convention offers (${pools.digital.length})`);
+        } else if (pin.direction === 'pwm') {
+            // A pin DECLARED `PWM` (arduino-01-fade's `PIN led = D9 PWM`)
+            // allocates from the PWM pool with its direction kept —
+            // exposed by the stm32f030 device-list recompute: this case
+            // fell through to the refusal below on EVERY device while
+            // the recorded index still offered ten, so the regression
+            // predates the F0 axis and merely surfaced with it.
+            where = take(pools.pwm);
+            activeLow = false; // percent-write semantics: high = bright
+            if (!where) reasons.push(`more PWM pins than ${device}'s convention offers (${pools.pwm.length})`);
+        } else if (pin.direction === 'tone') {
+            // Same species as the PWM case above: a pin DECLARED `TONE`
+            // (arduino-02-tone-keyboard's speaker) fell through to the
+            // refusal and dropped even the 8051s, where tone works. The
+            // pin itself is any digital pin — the timer does the tone.
+            if (core !== '8051') {
+                reasons.push(`pin "${pin.name}" is a TONE pin — tone is not ported to this core yet`);
+            } else {
+                where = take(pools.digital);
+                activeLow = false;
+                if (!where) reasons.push(`more digital outputs than ${device}'s convention offers (${pools.digital.length})`);
+            }
         } else {
             reasons.push(`pin "${pin.name}" has direction ${pin.direction}, which does not retarget yet`);
         }

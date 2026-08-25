@@ -43,6 +43,7 @@ const ADC_CFG = {
     'atmega168p':   { bits: 10, vref: 5 },
     'arduino-mega': { bits: 10, vref: 5 },
     pico:           { bits: 12, vref: 3.3 },
+    stm32f030:      { bits: 12, vref: 3.3 },
 };
 
 /** Build a default stimulus: analog pins at mid-range, digital inputs low. */
