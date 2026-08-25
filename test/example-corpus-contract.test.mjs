@@ -34,7 +34,20 @@ describe('example corpus: catalog and bench inventory agree exactly', () => {
         // Floors make an accidentally empty/partial checkout fail loudly rather
         // than proving set equality over two empty sets.
         assert.ok(index.length >= 259, `catalog shrank unexpectedly to ${index.length}`);
-        assert.ok(circuitFiles.length >= 1034, `circuit corpus shrank unexpectedly to ${circuitFiles.length}`);
+        // MEASURED 2026-08-25: circuitFiles is 2099. The floor was 1034 — set
+        // when the corpus was about that size, corrected once in 2026-08 after
+        // a vendor added 58 circuits, and never revisited while the corpus
+        // doubled. At 1034 it was 49.3 % of actual and HALF THE CORPUS COULD
+        // VANISH before it fired, which is how a floor stops being a floor with
+        // nobody touching it.
+        //
+        // 1970 is 93.9 % of 2099, which puts it inside the band its two
+        // neighbours in this same assertion already use (259/278 = 93.2 %,
+        // 819/870 = 94.1 %). That is the house allowance for a deliberate
+        // removal or two, and matching it keeps the three floors here
+        // consistent rather than inventing a new policy for one of them.
+        // Raise this when the corpus grows; never lower it to make a change fit.
+        assert.ok(circuitFiles.length >= 1970, `circuit corpus shrank unexpectedly to ${circuitFiles.length}`);
         assert.ok(generatedFiles.length >= 819, `generated bench corpus shrank unexpectedly to ${generatedFiles.length}`);
 
         const references = new Map();
