@@ -10569,6 +10569,11 @@ class SB3Creator {
                 '#define BW_PADS(n)           BW_MMIO(0x4001c004u + (uint32_t)(n) * 4u)',
                 '#define BW_TIMER_TIMELR      BW_MMIO(0x4005400cu)',
                 '#define BW_TIMER_TIMEHR      BW_MMIO(0x40054008u)',
+                '#define BW_TIMER_ALARM0      BW_MMIO(0x40054010u)',
+                '#define BW_TIMER_INTR        BW_MMIO(0x40054034u)',
+                '#define BW_TIMER_INTE        BW_MMIO(0x40054038u)',
+                '#define BW_NVIC_ISER         BW_MMIO(0xe000e100u)',
+                '#define BW_NVIC_ICPR         BW_MMIO(0xe000e280u)',
                 '#define BW_WATCHDOG_TICK     BW_MMIO(0x4005802cu)',
                 '#define BW_ADC_CS            BW_MMIO(0x4004c000u)',
                 '#define BW_ADC_RESULT        BW_MMIO(0x4004c004u)',
@@ -10700,6 +10705,9 @@ class SB3Creator {
                 ' * every loop iteration (Scratch\'s own scheduling contract). There is',
                 ' * NO tick ISR on this core: the RP2040\'s TIMER counts microseconds in',
                 ' * hardware, so program time is read, not maintained. */', '');
+            // The idle scheduler below reads the clock every pass, so the
+            // ARM tasks build always carries bw_now.
+            this._cUses.now = true;
             if (this._cUses.now || this._cUses.blockDelay) {
                 out.push('/* TIMELR latches TIMEHR: the pair is a coherent 64-bit read, so the',
                     ' * millisecond count wraps as a uint32 truncation of a monotonic count',
@@ -10721,6 +10729,30 @@ class SB3Creator {
                     '    while ((int32_t)(bw_now() - start - ms) < 0) ;',
                     '}', '');
             }
+            out.push('/* Sleep to the next millisecond edge instead of spinning against it.',
+                ' * TIMER ALARM0 is armed at the edge and the core executes WFI with',
+                ' * PRIMASK set: a pended, NVIC-enabled interrupt WAKES a masked core',
+                ' * without vectoring (ARMv6-M B1.5.5), so this freestanding build needs',
+                ' * no vector table. The pend and the latch are cleared before',
+                ' * unmasking, so nothing ever vectors. RP2040 alarms fire on EQUALITY',
+                ' * of the low counter word — an edge that slips past between the read',
+                ' * and the arm would wait 2^32 us — so a passed target skips the WFI',
+                ' * (a pend that races the check makes WFI fall through, which is fine).',
+                ' * On the simulator the emulator fast-forwards the sleep; on silicon',
+                ' * this is the standard low-power idle. */',
+                'static uint32_t bw_calm;',
+                'static void bw_idle(void)',
+                '{',
+                '    uint32_t us = BW_TIMER_TIMELR;',
+                '    uint32_t target = us + (1000u - us % 1000u);',
+                '    BW_TIMER_INTE = 1u;                /* alarm 0 may wake */',
+                '    BW_TIMER_ALARM0 = target;',
+                '    __asm volatile ("cpsid i");',
+                '    if ((int32_t)(BW_TIMER_TIMELR - target) < 0) __asm volatile ("wfi");',
+                '    BW_TIMER_INTR = 1u;                /* clear the latched alarm */',
+                '    BW_NVIC_ICPR = 1u;                 /* un-pend TIMER_IRQ_0 */',
+                '    __asm volatile ("cpsie i");',
+                '}', '');
         } else if (this._cTasks && this._core !== '6502') {
             out.push('/* One script = one cooperative task. Timer interrupts every millisecond;',
                 ' * tasks yield at every wait and at every loop iteration (Scratch\'s own',
@@ -13220,7 +13252,23 @@ class SB3Creator {
         out.push('}', '',
             (this._core !== '8051' && this._core !== 'z80') ? 'int main(void)' : 'void main(void)',
             '{', '    bw_setup();');
-        if (this._cTasks && (this._core === 'arm' || this._core === '6502')) {
+        if (this._cTasks && this._core === 'arm') {
+            out.push('',
+                '    BW_NVIC_ISER = 1u;             /* TIMER_IRQ_0 may wake bw_idle (it never vectors) */',
+                '',
+                '    for (;;) {                     /* no tick to start: time is read */',
+                '        uint32_t pass_ms = bw_now();',
+                ...[...(this._cPollTasks || []), ...taskNames].map((n) => `        ${n}();`),
+                '        /* Two full passes inside one millisecond: sleep to the next ms',
+                '         * edge instead of spinning the core against it. The reference',
+                '         * schedulers (the generated JS and MicroPython) sleep 1 ms after',
+                '         * EVERY pass, so two passes per millisecond is the more generous',
+                '         * reading of the same contract — tasks yield in milliseconds,',
+                '         * and a pass whose work crosses the edge resets the count. */',
+                '        if (bw_now() == pass_ms) { if (++bw_calm >= 2u) { bw_calm = 0u; bw_idle(); } }',
+                '        else bw_calm = 0u;',
+                '    }');
+        } else if (this._cTasks && this._core === '6502') {
             out.push('',
                 '    for (;;) {                     /* no tick to start: time is read */',
                 ...[...(this._cPollTasks || []), ...taskNames].map((n) => `        ${n}();`),
