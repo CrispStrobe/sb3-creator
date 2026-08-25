@@ -210,6 +210,36 @@ function solved (claim) {
         const named = [...(bench.silent || [])].filter(k => new RegExp(`\\b${k.replace(/_/g, '[ _]?')}s?\\b`, 'i').test(claim.line) || new RegExp(k.split('_')[0], 'i').test(claim.line));
         if (named.length) return { skip: `the current is through a ${named[0]}, whose device model does not implement branchCurrents — the engine has no readback for it, so this claim is unverifiable rather than wrong` };
     }
+
+    // A POINT ON A CURVE IS NOT AN OPERATING POINT.
+    //
+    // The engine solves DC operating points. On a bench with a reactive
+    // element that is exactly one state: an inductor is a short at DC and a
+    // capacitor an open, so pc89-rl-step's series RL has ONE reachable state
+    // and every current in it reads the final 50 mA. A document that says
+    // "63.2 % of the final value is reached at one time constant: 31.6086 mA"
+    // is naming a value on the transient curve at t = tau. No DC state can
+    // hold it, and no amount of stepping a switch would produce it either —
+    // opening and closing one gives 0 mA and 50 mA, never the value between.
+    //
+    // So this is unverifiable BY THIS INSTRUMENT, not wrong. It is declined
+    // rather than recorded in expected-claim-exceptions.json, which that
+    // file's own note reserves for claims the engine CONTRADICTS.
+    //
+    // Narrow on purpose, and per-claim rather than per-bench: pc89's other
+    // claims — the 5 V rail, the 50 mA final current, tau = 100 us — are
+    // steady-state or arithmetic and stay checkable. Declining the whole bench
+    // would buy this one claim by dropping several that hold. Named by class,
+    // like benchClass: any document naming an instant on an RC or RL curve is
+    // declined for the same stated reason instead of quietly compared.
+    if (claim.cls === 'curr' || claim.cls === 'volt') {
+        const TRANSIENT_INSTANT = /\btime constant\b|\btau\b|\b63\.2\s*%|\b36\.8\s*%/i;
+        if (TRANSIENT_INSTANT.test(claim.line || '')) {
+            const bench = solveBench(claim.dir);
+            const reactive = (bench.parts || []).find(pt => pt.kind === 'inductor' || pt.kind === 'capacitor');
+            if (reactive) return { skip: `the line names an instant on a transient (t = tau) and the bench holds a ${reactive.kind}, which the engine solves at DC — one reachable state, at the FINAL value. The number is a point on the curve, not an operating point, so no solve can hold it; unverifiable by this instrument rather than wrong` };
+        }
+    }
     // A MODEL DIFFERENCE is not a verdict, and it is not a blanket excuse
     // either. The documents divide by a DECLARED forward drop and a NOMINAL
     // rail; the engine solves a junction behind a pin's output impedance. Where
