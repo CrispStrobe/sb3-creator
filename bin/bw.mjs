@@ -156,7 +156,11 @@ switch (cmd) {
         const file = positional[0] ?? die('compile needs a file');
         const code = maybeRetarget(readInput(file), opts.device);
         const c = parseBw(code);
-        const cSrc = c.generateC(undefined, {});
+        // debug:true is the proven-correct emission (every chain test and the
+        // lite app use it): WITHOUT it an STM32 build leaks pico's BW_TIMER
+        // registers into the arm-but-not-stm32 scheduler path — a wrong image
+        // that only surfaced when `bw compile` grew a real STM32 gcc branch.
+        const cSrc = c.generateC(undefined, { debug: true });
         const dev = (opts.device || ((code.match(/^DEVICE\s+([\w-]+)/im) || [])[1] || ''))
             .toLowerCase().replace(/_/g, '-');
         const work = fs.mkdtempSync(path.join(os.tmpdir(), 'bw-compile-'));
@@ -167,7 +171,10 @@ switch (cmd) {
                 '-o', path.join(work, 'main.ihx'), path.join(work, 'main.c')], { stdio: 'inherit' });
             const out = opts.o || file.replace(/\.[^.]+$/, '') + '.ihx';
             fs.copyFileSync(path.join(work, 'main.ihx'), out);
-            console.log(`wrote ${out} (Intel HEX for stcgal)`);
+            console.log(`wrote ${out} (Intel HEX)`);
+            console.log('  flash it with the fleet\'s own stcbsl (stc repo, MIT, silicon-proven):');
+            console.log(`    stcbsl --port /dev/cu.usbserial-X ${out}`);
+            console.log('  then PULL THE POWER and reapply it — the STC ISP bootloader only answers after a cold power-on.');
         } else if (dev === 'pico' && have('arm-none-eabi-gcc')) {
             if (opts.uf2) {
                 // RAM-boot UF2, the MakeCode lesson made concrete: the
@@ -216,11 +223,49 @@ switch (cmd) {
             const out = opts.o || file.replace(/\.[^.]+$/, '') + '.bin';
             fs.copyFileSync(path.join(work, 'main.bin'), out);
             console.log(`wrote ${out} (SRAM image for the emulator chain)`);
+        } else if (dev === 'stm32f030' && have('arm-none-eabi-gcc')) {
+            // A real flash image (vectors first): the same shape the hosted
+            // service emits and stm32bsl / the browser flasher write.
+            fs.writeFileSync(path.join(work, 'stm32f030-flash.ld'),
+                'ENTRY(main)\nMEMORY { FLASH (rx) : ORIGIN = 0x08000000, LENGTH = 16K\n'
+                + '  RAM (rwx) : ORIGIN = 0x20000000, LENGTH = 4K }\n'
+                + 'SECTIONS { .text : { KEEP(*(.vectors)) *(.text*) *(.rodata*) } > FLASH\n'
+                + '  .bss : { *(.bss*) *(COMMON) } > RAM }\n');
+            execFileSync('arm-none-eabi-gcc', ['-mcpu=cortex-m0', '-mthumb', '-Os', '-ffreestanding',
+                '-nostdlib', `-T${path.join(work, 'stm32f030-flash.ld')}`,
+                '-o', path.join(work, 'main.elf'), path.join(work, 'main.c'), '-lgcc'], { stdio: 'inherit' });
+            execFileSync('arm-none-eabi-objcopy', ['-O', 'binary',
+                path.join(work, 'main.elf'), path.join(work, 'main.bin')], { stdio: 'inherit' });
+            const out = opts.o || file.replace(/\.[^.]+$/, '') + '.bin';
+            fs.copyFileSync(path.join(work, 'main.bin'), out);
+            console.log(`wrote ${out} (STM32 flash image, vectors first)`);
+            console.log('  flash it with stm32bsl (stc repo, MIT — the same AN3155 protocol as the browser):');
+            console.log(`    stm32bsl --port /dev/cu.usbserial-X ${out}`);
+            console.log('  set BOOT0 HIGH and reset first — the ROM bootloader only listens then.');
+        } else if (/^arduino|^atmega|^attiny/.test(dev) && have('avr-gcc')) {
+            const mcu = dev.includes('2560') ? 'atmega2560'
+                : dev.includes('168') ? 'atmega168p'
+                    : dev.includes('tiny88') ? 'attiny88' : dev.includes('tiny85') ? 'attiny85'
+                        : 'atmega328p';
+            execFileSync('avr-gcc', [`-mmcu=${mcu}`, '-Os', '-o', path.join(work, 'main.elf'),
+                path.join(work, 'main.c')], { stdio: 'inherit' });
+            execFileSync('avr-objcopy', ['-O', 'ihex', '-R', '.eeprom',
+                path.join(work, 'main.elf'), path.join(work, 'main.hex')], { stdio: 'inherit' });
+            const out = opts.o || file.replace(/\.[^.]+$/, '') + '.hex';
+            fs.copyFileSync(path.join(work, 'main.hex'), out);
+            console.log(`wrote ${out} (Intel HEX)`);
+            if (/^attiny/.test(dev)) {
+                console.log(`  ${mcu} has no serial bootloader — flash it with an ISP/SPI programmer:`);
+                console.log(`    avrdude -c usbasp -p ${mcu} -U flash:w:${out}`);
+            } else {
+                console.log('  flash it over the board\'s bootloader (a real board, or the browser IDE\'s Flash button):');
+                console.log(`    avrdude -c arduino -p ${mcu} -P /dev/cu.usbmodem-X -U flash:w:${out}`);
+            }
         } else {
             const out = opts.o || file.replace(/\.[^.]+$/, '') + '.c';
             fs.writeFileSync(out, cSrc);
             console.log(`wrote ${out} — no local toolchain for ${dev || 'this device'}; `
-                + 'the hosted service at stc-compiler.vercel.app builds it');
+                + 'the hosted service at stc-compiler.vercel.app builds it, and the browser IDE can flash it');
         }
         break;
     }
