@@ -2192,7 +2192,15 @@ class SB3Creator {
                 this.warn(lineIndex, `${where.toUpperCase()} is analog-input only on the Nano (the TQFP package brings out the ADC channel with no digital buffer), so it cannot be an ${direction.toUpperCase()}`);
                 return true;
             }
-            if (core === 'rp2040' && /^analog$/i.test(direction) && !/^GP2[678]$/i.test(where)) {
+            if (cfg.device === 'stm32f030' && /^analog$/i.test(direction) && !/^PA[0-7]$/i.test(where)) {
+                this.warn(lineIndex, `ANALOG on the STM32F030 means PA0-PA7 (ADC_IN0-7), not ${where.toUpperCase()}`);
+                return true;
+            }
+            if (cfg.device === 'stm32f030' && /^pwm$/i.test(direction) && !/^(PA[67]|PB1)$/i.test(where)) {
+                this.warn(lineIndex, `PWM on the STM32F030 means PA6, PA7 or PB1 (TIM3 channels), not ${where.toUpperCase()}`);
+                return true;
+            }
+            if (core === 'rp2040' && cfg.device !== 'stm32f030' && /^analog$/i.test(direction) && !/^GP2[678]$/i.test(where)) {
                 this.warn(lineIndex, `ANALOG on the Pico means GP26, GP27 or GP28 (ADC0-2), not ${where.toUpperCase()}`);
                 return true;
             }
@@ -7022,6 +7030,16 @@ class SB3Creator {
                 return `adc_read(${ch})`;
             }
             if (this._core === 'arm') {
+                if (this._cStm32) {
+                    // ADC_IN0..7 sit on PA0..PA7 — channel = the pin number.
+                    const hw = this.armHw(pin);
+                    if (!hw || hw.gpio > 7) {
+                        this.cWarn(`"${pin.name}" (${pin.where}) has no ADC channel: `
+                            + 'the F030 ADC inputs are PA0-PA7 (ADC_IN0-7)');
+                        return `0 /* no ADC on ${this.cComment(pin.where)} */`;
+                    }
+                    return `adc_read(${hw.gpio})`;
+                }
                 // GP26..GP28 carry ADC channels 0..2 on the Pico.
                 const hw = this.armHw(pin);
                 return `adc_read(${hw.gpio - 26})`;
@@ -7424,6 +7442,15 @@ class SB3Creator {
                 if (this._core === 'arm') {
                     const hw = pin ? this.armHw(pin) : null;
                     if (!hw) return line(`/* no PWM on ${this.cComment(f('PIN'))} */`);
+                    if (this._cStm32 && ![6, 7, 17].includes(hw.gpio)) {
+                        // TIM3's compare channels are the only PWM this
+                        // package routes to our header: PA6=CH1, PA7=CH2,
+                        // PB1=CH4. Refuse the rest at emit time, the same
+                        // policy as the AVR timer pins.
+                        this.cWarn(`"${pin.where}" has no usable PWM here: `
+                            + 'TIM3 drives PA6, PA7 and PB1 on the F030');
+                        return line(`/* no PWM on ${this.cComment(pin.where)} */`);
+                    }
                     return line(`pwm_set(${hw.gpio}, ${v('VALUE')});`);
                 }
                 const module = pin ? `${pin.port * 8 + pin.bit}` : '0';
@@ -10716,6 +10743,18 @@ class SB3Creator {
                 '#define USART1_BRR   BW_MMIO(0x4001380cu)',
                 '#define USART1_ISR   BW_MMIO(0x4001381cu)',
                 '#define USART1_TDR   BW_MMIO(0x40013828u)',
+                '#define TIM3_CCMR1   BW_MMIO(0x40000418u)',
+                '#define TIM3_CCMR2   BW_MMIO(0x4000041cu)',
+                '#define TIM3_CCER    BW_MMIO(0x40000420u)',
+                '#define TIM3_CCR1    BW_MMIO(0x40000434u)',
+                '#define TIM3_CCR2    BW_MMIO(0x40000438u)',
+                '#define TIM3_CCR4    BW_MMIO(0x40000440u)',
+                '#define GPIOA_AFRL   BW_MMIO(0x48000020u)',
+                '#define GPIOB_AFRL   BW_MMIO(0x48000420u)',
+                '#define ADC_ISR      BW_MMIO(0x40012400u)',
+                '#define ADC_CR       BW_MMIO(0x40012408u)',
+                '#define ADC_CHSELR   BW_MMIO(0x40012428u)',
+                '#define ADC_DR       BW_MMIO(0x40012440u)',
                 '#define NVIC_ISER    BW_MMIO(0xe000e100u)', '',
                 '/* Virtual pin n: port = n>>4 (0=A, 1=B), bit = n&15. With a',
                 ' * constant n, -Os folds each helper to a single store. */',
@@ -11333,6 +11372,21 @@ class SB3Creator {
                 '    while (ADCSRA & (1 << ADSC)) ;',
                 '    return ADC;',
                 '}', '');
+        } else if (this._cUses.adc && this._core === 'arm' && this._cStm32) {
+            out.push('/* 12-bit ADC, polled (RM0360 §12): enable, wait ADRDY, select the',
+                ' * channel, ADSTART, wait EOC, read DR. Channel n is PA(n). The RCC',
+                ' * clock came on in bw_setup; ADEN is idempotent so re-entering is',
+                ' * safe. Calibration is skipped on purpose — the emulator is exact',
+                ' * and on silicon the uncalibrated error is noise next to a pot. */',
+                'static long adc_read(unsigned char channel)',
+                '{',
+                '    ADC_CR = 1u;                              /* ADEN */',
+                '    while (!(ADC_ISR & 1u)) ;                 /* ADRDY */',
+                '    ADC_CHSELR = (1u << channel);',
+                '    ADC_CR = 1u | (1u << 2);                  /* + ADSTART */',
+                '    while (!(ADC_ISR & (1u << 2))) ;          /* EOC */',
+                '    return (long)(ADC_DR & 0xFFFu);',
+                '}', '');
         } else if (this._cUses.adc && this._core === 'arm') {
             out.push('/* 12-bit ADC, polled over APB. Channel n is GP(26+n). The datasheet',
                 ' * sequence: enable, wait READY, START_ONCE, wait READY, read RESULT. */',
@@ -11374,7 +11428,41 @@ class SB3Creator {
                 '}', '');
         }
 
-        if ((this._cUses.pwm || this._cUses.motor) && this._core === 'arm') {
+        if ((this._cUses.pwm || this._cUses.motor) && this._core === 'arm' && this._cStm32) {
+            out.push('/* PWM rides the tick timer: TIM3 already counts 0..999 at 1 MHz',
+                ' * for the millisecond interrupt, and that same frame IS a 1 kHz PWM',
+                ' * period — compare channels cost no second timer. PA6=CH1, PA7=CH2,',
+                ' * PB1=CH4 (AF1, RM0360 alternate-function table); the call site',
+                ' * refused every other pin at emit time. CCR=0 is constant low and',
+                ' * CCR=1000 (> ARR) constant high, so 0%% and 100%% need no special',
+                ' * case. MODER moves to AF here — one pin, one job per program,',
+                ' * the same takeover rule as the pico\'s funcsel and the PCA. */',
+                'static void pwm_set(unsigned char gpio, unsigned int percent)',
+                '{',
+                '    uint32_t duty;',
+                '    if (percent > 100) percent = 100;',
+                '    duty = (percent * 1000u + 50u) / 100u;',
+                '    if (gpio == 6u) {          /* PA6 = TIM3_CH1 */',
+                '        GPIOA_AFRL  = (GPIOA_AFRL & ~(0xFu << 24)) | (1u << 24);',
+                '        GPIOA_MODER = (GPIOA_MODER & ~(3u << 12)) | (2u << 12);',
+                '        TIM3_CCMR1  = (TIM3_CCMR1 & ~0x00FFu) | 0x0060u;  /* OC1M=PWM1 */',
+                '        TIM3_CCER  |= 1u;',
+                '        TIM3_CCR1   = duty;',
+                '    } else if (gpio == 7u) {   /* PA7 = TIM3_CH2 */',
+                '        GPIOA_AFRL  = (GPIOA_AFRL & ~(0xFu << 28)) | (1u << 28);',
+                '        GPIOA_MODER = (GPIOA_MODER & ~(3u << 14)) | (2u << 14);',
+                '        TIM3_CCMR1  = (TIM3_CCMR1 & ~0xFF00u) | 0x6000u;  /* OC2M=PWM1 */',
+                '        TIM3_CCER  |= (1u << 4);',
+                '        TIM3_CCR2   = duty;',
+                '    } else if (gpio == 17u) {  /* PB1 = TIM3_CH4 */',
+                '        GPIOB_AFRL  = (GPIOB_AFRL & ~(0xFu << 4)) | (1u << 4);',
+                '        GPIOB_MODER = (GPIOB_MODER & ~(3u << 2)) | (2u << 2);',
+                '        TIM3_CCMR2  = (TIM3_CCMR2 & ~0xFF00u) | 0x6000u;  /* OC4M=PWM1 */',
+                '        TIM3_CCER  |= (1u << 12);',
+                '        TIM3_CCR4   = duty;',
+                '    }',
+                '}', '');
+        } else if ((this._cUses.pwm || this._cUses.motor) && this._core === 'arm') {
             out.push('/* PWM: every RP2040 GPIO has a slice channel — slice (gpio/2)&7,',
                 ' * channel A/B by parity, CC packed A-low/B-high. TOP = 999 at a',
                 ' * 1 MHz slice clock gives 1 kHz PWM; CC = 0 is constant low and',
@@ -13211,7 +13299,11 @@ class SB3Creator {
             if (usedPorts.has(1)) ahb |= (1 << 18);
             out.push(`    RCC_AHBENR  = 0x${(ahb >>> 0).toString(16)}u;      /* GPIO clocks */`,
                 '    RCC_APB1ENR = (1u << 1);       /* TIM3: the millisecond tick */');
-            if (this._cUses.print) out.push('    RCC_APB2ENR = (1u << 14);      /* USART1 */');
+            const apb2 = (this._cUses.print ? (1 << 14) : 0) | (this._cUses.adc ? (1 << 9) : 0);
+            if (apb2) {
+                out.push(`    RCC_APB2ENR = 0x${(apb2 >>> 0).toString(16)}u;      /*${
+                    this._cUses.print ? ' USART1' : ''}${this._cUses.adc ? ' ADC' : ''} */`);
+            }
             let moderA = 0, moderB = 0, pupdrA = 0, pupdrB = 0;
             for (const p of pins) {
                 const hw = this.armHw(p);
@@ -13219,6 +13311,10 @@ class SB3Creator {
                 const bit = hw.gpio & 15;
                 if (p.direction === 'output') {
                     if ((hw.gpio >> 4) === 0) moderA |= (1 << (2 * bit)); else moderB |= (1 << (2 * bit));
+                } else if (p.direction === 'analog') {
+                    // MODER 11 = analog: the Schmitt input stage disconnects,
+                    // which is what the ADC pad wants (RM0360 §8.3.12).
+                    if ((hw.gpio >> 4) === 0) moderA |= (3 << (2 * bit)); else moderB |= (3 << (2 * bit));
                 } else if (p.direction === 'input') {
                     // ACTIVE LOW → pull-up (button to GND); active high →
                     // pull-down — the same no-external-resistor idioms the
@@ -14437,7 +14533,7 @@ SB3Creator.STC_PARTS = {
     // print; everything else refuses BY NAME (no ADC yet). See
     // bw-board's STM32-PATH.md and test/stm32f0-board.test.mjs — that
     // firmware IS this emission's contract.
-    stm32f030: { core: 'rp2040', stm32f0: true, header: null, portModes: false, aux1T: false, adc: false },
+    stm32f030: { core: 'rp2040', stm32f0: true, header: null, portModes: false, aux1T: false, adc: true },
     // core: 'w65c02' -- the composable 6502 breadboard machine (EATER6502
     // preset: W65C22 VIA at $6000, W65C51 ACIA at $5000, 1 MHz phi2).
     // generateC() emits cc65-compatible freestanding C; pins are VIA port
