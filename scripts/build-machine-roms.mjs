@@ -128,16 +128,81 @@ function z80Rom(code) {
     return rom;
 }
 
+// ---------------------------------------------------------------------------
+// eater6502-bench -- the interrupt bench (D37).
+//
+// machines-interrupts-performance asks the learner to measure interrupt
+// latency, service time, jitter and FOREGROUND IMPACT. Its bench used to be
+// z80-bench, which ships no program at all; and the corpus-wide fact behind
+// that (measured, see docs/WAVE-OPEN-DEFECTS.md D37) is that no interrupt-
+// capable device output drives any CPU interrupt input anywhere in the
+// gallery. The simulator does not need one -- M6502Machine polls every chip's
+// irqAsserted -- so what was missing was never wiring, it was a PROGRAM.
+//
+// This is that program, and it is built to be contrasted rather than merely
+// watched: the FOREGROUND increments port A in a tight loop, the ISR
+// increments port B. Two counters advancing at two rates on one machine is
+// exactly the "what does the interrupt cost the foreground" question the
+// lesson asks, and both are visible in the debugger without any instrument
+// the bench does not already have.
+//
+// The VIA's T1 in free-run mode reloads from its latch, so the period is
+// (latch + 2) cycles: $0FFF -> 4097 cycles = 4.097 ms at the Eater's 1 MHz.
+// The ISR clears the T1 flag by READING T1C-L, which is the '22's documented
+// acknowledge; forgetting it leaves IFR set and the CPU re-enters for ever,
+// which is itself worth stepping into once.
+const VIA = 0x6000;         // ORB; +1 ORA, +2 DDRB, +3 DDRA, +4/5 T1C, +B ACR, +D IFR, +E IER
+const EATER_IRQ_RESET = 0x8000;
+const EATER_IRQ_ISR = 0x8100;
+
+const EATER_IRQ = [
+    0xA9, 0xFF,             // LDA #$FF
+    0x8D, 0x02, 0x60,       //   STA $6002   DDRB: port B all output
+    0x8D, 0x03, 0x60,       //   STA $6003   DDRA: port A all output
+    0xA9, 0x00,             // LDA #$00
+    0x8D, 0x00, 0x60,       //   STA $6000   ORB = 0  (ISR counter)
+    0x8D, 0x01, 0x60,       //   STA $6001   ORA = 0  (foreground counter)
+    0xA9, 0x40,             // LDA #$40
+    0x8D, 0x0B, 0x60,       //   STA $600B   ACR: T1 free-running
+    0xA9, 0xC0,             // LDA #$C0
+    0x8D, 0x0E, 0x60,       //   STA $600E   IER: set + T1  -> T1 may interrupt
+    0xA9, 0xFF,             // LDA #$FF
+    0x8D, 0x04, 0x60,       //   STA $6004   T1C-L (latch low)
+    0xA9, 0x0F,             // LDA #$0F
+    0x8D, 0x05, 0x60,       //   STA $6005   T1C-H -> latches, clears IFR, RUNS
+    0x58,                   // CLI          the interrupt is armed from here
+    0xEE, 0x01, 0x60,       // fg: INC $6001  foreground work, on port A ($8025)
+    0x4C, 0x25, 0x80,       //     JMP fg     -- $8025, the INC, NOT the CLI at
+                            //     $8024: jumping one byte earlier re-runs CLI
+                            //     every pass. Harmless, but it makes the
+                            //     foreground period 11 cycles instead of a
+                            //     clean INC(6) + JMP(3) = 9, and this bench
+                            //     exists so that number can be reasoned about.
+];
+
+const EATER_IRQ_HANDLER = [
+    0xEE, 0x00, 0x60,       // INC $6000    service: ISR work, on port B
+    0xAD, 0x04, 0x60,       // LDA $6004    read T1C-L -- the '22's T1 acknowledge
+    0x40,                   // RTI
+];
+
 /** 32 KB at $8000 with the three vectors at the top. */
-function eaterRom(code, resetAddr = 0x8000) {
+function eaterRom(code, resetAddr = 0x8000, opts = {}) {
     const rom = new Uint8Array(0x8000).fill(0xEA);      // NOP fill, not 0x00:
     // an accidental jump into empty space then RUNS to the vectors instead of
     // executing BRK ($00) and vanishing into an interrupt.
     rom.set(code, resetAddr - 0x8000);
+    // A second blob, placed at its own address. The IRQ handler lives apart
+    // from the reset path so the vector points at a fixed, readable address
+    // rather than at whatever offset the main program happens to end on.
+    if (opts.at) for (const [addr, blob] of Object.entries(opts.at)) {
+        rom.set(blob, Number(addr) - 0x8000);
+    }
     const put = (addr, lo, hi) => { rom[addr - 0x8000] = lo; rom[addr - 0x8000 + 1] = hi; };
+    const irq = opts.irqAddr ?? resetAddr;
     put(0xFFFA, resetAddr & 0xff, resetAddr >> 8);      // NMI  -> reset entry
     put(0xFFFC, resetAddr & 0xff, resetAddr >> 8);      // RESET
-    put(0xFFFE, resetAddr & 0xff, resetAddr >> 8);      // IRQ/BRK
+    put(0xFFFE, irq & 0xff, irq >> 8);                  // IRQ/BRK
     return rom;
 }
 
@@ -224,6 +289,8 @@ export const IMAGES = [
     { example: 'eater6502-blink', file: 'rom.bin', bytes: () => eaterRom(EATER_BLINK) },
     { example: 'eater6502-vdp-hello', file: 'rom.bin', bytes: () => eaterRom(VDP_HELLO) },
     { example: 'z80-pd-bench', file: 'rom.bin', bytes: () => z80Rom(Z80_PD_WALK) },
+    { example: 'eater6502-bench', file: 'rom.bin', bytes: () => eaterRom(EATER_IRQ, EATER_IRQ_RESET,
+        {irqAddr: EATER_IRQ_ISR, at: {[EATER_IRQ_ISR]: EATER_IRQ_HANDLER}}) },
 ];
 
 let bad = 0;

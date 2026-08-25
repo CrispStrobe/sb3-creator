@@ -305,4 +305,84 @@ describe('machine benches boot the ROM they ship', { skip: gate.skip }, () => {
             'every turn on / turn off must come back as itself — a shadow-byte '
             + 'read-back is a fixed point too, and it is not this program');
     });
+
+    // ---- eater6502-bench: the interrupt bench (D37) ------------------------
+    // machines-interrupts-performance asks for latency, jitter and foreground
+    // impact. Its bench was z80-bench, which ships no program; and measured
+    // across the gallery, no interrupt-capable device output drives any CPU
+    // interrupt input anywhere. The simulator never needed one -- M6502Machine
+    // polls every chip's irqAsserted -- so the gap was a PROGRAM, not wiring.
+
+    test('eater6502-bench ships an interrupt ROM with its own IRQ vector', () => {
+        const e = entryFor('eater6502-bench');
+        assert.equal(e.files.rom, 'eater6502-bench/rom.bin');
+        const rom = readFileSync(join(EXAMPLES, e.files.rom));
+        assert.equal(rom.length, 0x8000, '32 KB');
+        const vec = (a) => rom[a - 0x8000] | (rom[a - 0x8000 + 1] << 8);
+        assert.equal(vec(0xFFFC), 0x8000, 'RESET -> $8000');
+        // The whole point of this image: IRQ does NOT land on the reset path.
+        assert.equal(vec(0xFFFE), 0x8100, 'IRQ -> $8100, a handler of its own');
+        assert.notEqual(vec(0xFFFE), vec(0xFFFC), 'an IRQ vector equal to RESET is not a handler');
+        assert.equal(rom[0x0106], 0x40, 'the handler ends in RTI');
+    });
+
+    test('eater6502-bench actually takes timer interrupts, and they jitter', async () => {
+        const { default: extract6502Machine } = await import(join(BOARD, 'src', 'm6502-extract.js'));
+        const { M6502Machine } = await import(join(BOARD, 'src', 'm6502-machine.js'));
+        const machine = extract6502Machine(
+            JSON.parse(readFileSync(join(EXAMPLES, 'eater6502-bench', 'circuit.json'), 'utf8')));
+        assert.ok(machine.ok, `extraction failed: ${machine.reasons.join('; ')}`);
+        const rom = readFileSync(join(EXAMPLES, 'eater6502-bench', 'rom.bin'));
+
+        const m = new M6502Machine({clockHz: 1e6, regions: machine.regions, chips: machine.chips});
+        m.loadRom(new Uint8Array(rom), 0x8000);
+        m.reset();
+        const via = m.chips.via;
+        assert.ok(via, 'no VIA on the bench — there is nothing to raise an interrupt');
+
+        let isr = 0, fg = 0, lastB = via.orb, lastA = via.ora;
+        const at = [];
+        // Budgeted in instructions, and every number below is in CYCLES.
+        for (let i = 0; i < 2_000_000; i++) {
+            m.step();
+            if (via.orb !== lastB) { isr++; lastB = via.orb; at.push(m.cycles); }
+            if (via.ora !== lastA) { fg++; lastA = via.ora; }
+        }
+
+        // 1. It interrupts at all. Before this bench existed, nothing in the
+        //    gallery did, and the lesson asked the learner to measure it anyway.
+        assert.ok(isr > 100, `only ${isr} interrupts — the bench is not interrupting`);
+        assert.ok(fg > 0, 'the foreground never ran — a stuck ISR, not a bench');
+
+        // 2. The period is the VIA's, not a number typed here: T1 free-running
+        //    reloads from its latch, so it is (latch + 2) = $0FFF + 2 = 4097.
+        const periods = at.slice(1).map((c, i) => c - at[i]);
+        const mean = periods.reduce((a, b) => a + b, 0) / periods.length;
+        assert.ok(Math.abs(mean - 4097) < 1,
+            `mean ISR period ${mean.toFixed(2)} is not the T1 period of 4097 cycles`);
+
+        // 3. And it JITTERS, which is the lesson's actual subject. The 6502
+        //    finishes the instruction in hand before vectoring, so entry is
+        //    quantised by instruction length -- the period is never constant.
+        //    A bench with zero jitter would teach the opposite of the truth.
+        assert.ok(new Set(periods).size > 1,
+            'every period identical — this bench exists to show that latency is a distribution');
+        assert.ok(Math.min(...periods) >= 4090 && Math.max(...periods) <= 4104,
+            `jitter ${Math.min(...periods)}..${Math.max(...periods)} is wider than instruction `
+            + 'quantisation explains — something other than entry latency is moving');
+
+        // 4. Foreground impact. The loop is INC abs (6) + JMP abs (3) = 9
+        //    cycles, so an UNINTERRUPTED foreground would advance 4097/9 times
+        //    per period. It advances measurably fewer, and that deficit is what
+        //    the interrupt costs -- entry (7) + INC (6) + LDA (4) + RTI (6).
+        const perIsr = fg / isr;
+        const uninterrupted = 4097 / 9;
+        assert.ok(perIsr < uninterrupted,
+            `foreground ${perIsr.toFixed(2)}/interrupt is not below the uninterrupted `
+            + `${uninterrupted.toFixed(2)} — the interrupt appears to cost nothing`);
+        const lostCycles = (uninterrupted - perIsr) * 9;
+        assert.ok(lostCycles > 10 && lostCycles < 40,
+            `the interrupt costs the foreground ${lostCycles.toFixed(1)} cycles, which is not `
+            + 'the ~23 that entry + handler + RTI explains');
+    });
 });

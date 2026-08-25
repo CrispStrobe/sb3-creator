@@ -5569,7 +5569,8 @@
       "circuit": "eater6502-bench/circuit.json",
       "intro": "eater6502-bench/intro.md",
       "introDE": "eater6502-bench/intro.de.md",
-      "expected": "eater6502-bench/EXPECTED.md"
+      "expected": "eater6502-bench/EXPECTED.md",
+        "rom": "eater6502-bench/rom.bin"
     },
     "kind": "circuit"
   },
