@@ -314,6 +314,7 @@ switch (cmd) {
             /^stc|^at89/.test(d) ? 'stc'
                 : d === 'stm32f030' ? 'stm32'
                     : ['arduino-uno', 'arduino-nano', 'atmega328p', 'atmega168p'].includes(d) ? 'avr'
+                        : ['arduino-mega', 'atmega2560'].includes(d) ? 'avr-mega'
                         // A 6502/Z80 breadboard has no bootloader; its ROM is
                         // burned on a Ben Eater EEPROM programmer over serial.
                         : ['eater6502', '6502', 'w65c02', 'z80'].includes(d) ? 'eeprom'
@@ -335,7 +336,7 @@ switch (cmd) {
             let imagePath = file;
             if (!artifactExt && !romExt) {
                 const outExt = family === 'stm32' ? 'bin' : family === 'eeprom' ? 'rom'
-                    : (family === 'avr' ? 'hex' : 'ihx');
+                    : (family === 'avr' || family === 'avr-mega' ? 'hex' : 'ihx');
                 imagePath = file.replace(/\.[^.]+$/, '') + '.' + outExt;
                 execFileSync(process.execPath, [fileURLToPath(import.meta.url), 'compile', file,
                     '--device', flashDevice, '-o', imagePath], { stdio: 'inherit' });
@@ -366,6 +367,11 @@ switch (cmd) {
                     const bytes = new Uint8Array(fs.readFileSync(imagePath));
                     const done = await flasher.flashEeprom(port, bytes, { log });
                     console.log(`burned ${done.bytes} bytes to the EEPROM and verified`);
+                } else if (family === 'avr-mega') {
+                    console.error('Mega (STK500v2): needs the adapter to assert DTR on open to enter the bootloader.');
+                    const hex = fs.readFileSync(imagePath, 'utf8');
+                    const done = await flasher.flashAvrMega(port, hex, { log });
+                    console.log(`flashed ${done.bytes} bytes to the ATmega2560 and verified — running`);
                 } else { // avr
                     console.error('AVR: this needs the adapter to assert DTR on open (most do). '
                         + 'If it will not sync, use the browser IDE\'s Flash button or avrdude.');

@@ -775,3 +775,127 @@ export async function flashEeprom(port, image, {
     try { await port.close(); } catch {}
   }
 }
+
+// ------------------------------------------------- ATmega2560 / Arduino Mega (STK500v2)
+//
+// The Mega's bootloader (stk500boot) speaks STK500v2, not v1 — a
+// different framing entirely — so the optiboot path above cannot touch
+// it. Clean-room from Atmel's AVR068 application note ("STK500
+// Communication Protocol"), the wire format only. avrdude calls this the
+// `wiring` programmer; the reset is the same DTR pulse as v1.
+//
+// Frame (AVR068 §2): MESSAGE_START(0x1B) SEQ SIZE_HI SIZE_LO TOKEN(0x0E)
+//   BODY... CHECKSUM(XOR of every byte from MESSAGE_START through the last
+//   body byte). Every reply echoes the command byte then STATUS_CMD_OK(0).
+
+const STK2 = {
+  MESSAGE_START: 0x1b, TOKEN: 0x0e, STATUS_CMD_OK: 0x00,
+  CMD_SIGN_ON: 0x01, CMD_LOAD_ADDRESS: 0x06,
+  CMD_ENTER_PROGMODE_ISP: 0x10, CMD_LEAVE_PROGMODE_ISP: 0x11,
+  CMD_PROGRAM_FLASH_ISP: 0x13, CMD_READ_FLASH_ISP: 0x14,
+};
+
+/** A framed STK500v2 conversation over the same byte transport. */
+export class Stk500v2 {
+  constructor(transport, { pageSize = 256, log = () => {} } = {}) {
+    this.io = transport; this.pageSize = pageSize; this.log = log;
+    this.seq = 1;
+  }
+
+  async command(body) {
+    const seq = this.seq; this.seq = (this.seq + 1) & 0xff;
+    const size = body.length;
+    const frame = [STK2.MESSAGE_START, seq, (size >> 8) & 0xff, size & 0xff, STK2.TOKEN, ...body];
+    let ck = 0; for (const b of frame) ck ^= b;
+    frame.push(ck);
+    await this.io.write(Uint8Array.from(frame));
+
+    // Read a reply frame and verify its structure + checksum.
+    const start = await this.io.read(1);
+    if (start[0] !== STK2.MESSAGE_START) throw new Error(`v2: no MESSAGE_START (got 0x${start[0].toString(16)})`);
+    const rseq = (await this.io.read(1))[0];
+    if (rseq !== seq) throw new Error(`v2: sequence ${rseq} != ${seq}`);
+    const sz = await this.io.read(2);
+    const rsize = (sz[0] << 8) | sz[1];
+    const token = (await this.io.read(1))[0];
+    if (token !== STK2.TOKEN) throw new Error(`v2: no TOKEN (got 0x${token.toString(16)})`);
+    const rbody = await this.io.read(rsize);
+    const rck = (await this.io.read(1))[0];
+    let rc = STK2.MESSAGE_START ^ rseq ^ sz[0] ^ sz[1] ^ token;
+    for (const b of rbody) rc ^= b;
+    if (rc !== rck) throw new Error('v2: reply checksum mismatch');
+    if (rbody[0] !== body[0]) throw new Error(`v2: reply for 0x${rbody[0].toString(16)}, expected 0x${body[0].toString(16)}`);
+    if (rbody[1] !== STK2.STATUS_CMD_OK) throw new Error(`v2: command 0x${body[0].toString(16)} status 0x${rbody[1].toString(16)}`);
+    return rbody;
+  }
+
+  async signOn() {
+    const r = await this.command([STK2.CMD_SIGN_ON]);
+    // body: CMD, STATUS_OK, len, signature bytes
+    return String.fromCharCode(...r.slice(3, 3 + r[2]));
+  }
+
+  /** Load a WORD address. The top byte's bit 7 is the extended-address
+   *  flag AVR068 uses for >128 KB parts — the 2560's 256 KB needs it. */
+  async loadAddress(byteOffset) {
+    const word = byteOffset >> 1;
+    await this.command([STK2.CMD_LOAD_ADDRESS,
+      ((word >> 24) & 0xff) | 0x80, (word >> 16) & 0xff, (word >> 8) & 0xff, word & 0xff]);
+  }
+
+  async program(image) {
+    await this.command([STK2.CMD_ENTER_PROGMODE_ISP, 200, 100, 25, 32, 0, 0x53, 3, 0xac, 0x53, 0, 0]);
+    for (let off = 0; off < image.length; off += this.pageSize) {
+      const page = image.subarray(off, Math.min(off + this.pageSize, image.length));
+      await this.loadAddress(off);
+      // CMD, size_hi, size_lo, mode(0xC1 = page mode + write page), delay,
+      // cmd1..3, poll1..2, then data. The bootloader ignores the ISP timing
+      // fields and writes `data` at the loaded address.
+      await this.command([STK2.CMD_PROGRAM_FLASH_ISP,
+        (page.length >> 8) & 0xff, page.length & 0xff, 0xc1, 6, 0x40, 0x4c, 0x20, 0, 0, ...page]);
+      this.log(`  wrote ${page.length} bytes at 0x${off.toString(16).padStart(4, '0')}`);
+    }
+    await this.command([STK2.CMD_LEAVE_PROGMODE_ISP, 1, 1]);
+  }
+
+  async verify(image) {
+    await this.command([STK2.CMD_ENTER_PROGMODE_ISP, 200, 100, 25, 32, 0, 0x53, 3, 0xac, 0x53, 0, 0]);
+    for (let off = 0; off < image.length; off += this.pageSize) {
+      const len = Math.min(this.pageSize, image.length - off);
+      await this.loadAddress(off);
+      const r = await this.command([STK2.CMD_READ_FLASH_ISP, (len >> 8) & 0xff, len & 0xff, 0x20]);
+      // body: CMD, STATUS_OK, data..., STATUS_OK
+      for (let i = 0; i < len; i++) {
+        if (r[2 + i] !== image[off + i]) {
+          await this.command([STK2.CMD_LEAVE_PROGMODE_ISP, 1, 1]);
+          throw new Error(`verify failed at 0x${(off + i).toString(16)}: ` +
+            `wrote 0x${image[off + i].toString(16)}, read 0x${r[2 + i].toString(16)}`);
+        }
+      }
+    }
+    await this.command([STK2.CMD_LEAVE_PROGMODE_ISP, 1, 1]);
+    return true;
+  }
+}
+
+/** Flash an ATmega2560 / Arduino Mega over its STK500v2 bootloader. */
+export async function flashAvrMega(port, hexText, {
+  baud = 115200, pageSize = 256, log = () => {}, verify = true,
+} = {}) {
+  const { image, highest } = parseIntelHex(hexText);
+  await port.open({ baudRate: baud });
+  const io = serialTransport(port, { timeout: 5000 });
+  const stk = new Stk500v2(io, { pageSize, log });
+  try {
+    if (port.setSignals) await pulseReset(port);
+    const sig = await stk.signOn();
+    log(`bootloader: ${sig}`);
+    await stk.program(image);
+    if (verify) await stk.verify(image);
+    log(`done: ${highest + 1} bytes written${verify ? ' and verified' : ''}`);
+    return { bytes: highest + 1 };
+  } finally {
+    await io.close();
+    try { await port.close(); } catch {}
+  }
+}
