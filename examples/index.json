@@ -6098,6 +6098,23 @@
     }
   },
   {
+    "id": "pc89-rl-step",
+    "title": {
+      "en": "Series RL step",
+      "de": "RL-Sprungantwort"
+    },
+    "category": "pure-circuit",
+    "difficulty": 3,
+    "kind": "circuit",
+    "files": {
+      "program": "pc89-rl-step/program.bw",
+      "circuit": "pc89-rl-step/circuit.json",
+      "expected": "pc89-rl-step/EXPECTED.md",
+      "intro": "pc89-rl-step/intro.md",
+      "introDE": "pc89-rl-step/intro.de.md"
+    }
+  },
+  {
     "id": "60-retro-console",
     "title": {
       "en": "Retro console: self-test",

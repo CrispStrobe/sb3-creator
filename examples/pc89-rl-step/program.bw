@@ -1,0 +1,3 @@
+# Standalone circuit -- series RL step
+# The inductor opposes the CHANGE in current, so the current rises
+# exponentially with tau = L/R rather than jumping to its final value.

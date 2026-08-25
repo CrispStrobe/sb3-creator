@@ -2,7 +2,7 @@
   "note": "Vendored VERDICT for the flat circuit twins. CI cannot recompute the net partition (that needs bw-circuit-ui + bw-board), but it can prove neither file of a pair changed since a run that did. Regenerate with scripts/vendor-flat-partitions.mjs --write.",
   "engine": {
     "repo": "bw-circuit-ui",
-    "sha": "ff2a3ab2db2290b6deae476adf9aed4021f40fce"
+    "sha": "29f6da65bc082676c29a05c93ae18eb11f6fa3a2"
   },
   "pairs": 1006,
   "entries": [
