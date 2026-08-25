@@ -10111,7 +10111,14 @@ class SB3Creator {
         // cooperative-scheduler path emits — so its presence forces tasks even
         // for a lone WHEN that would otherwise run straight-line (gotcha #1;
         // reference: Program.has_matrix feeding the tasks decision in emit_c).
-        this._cTasks = scriptCount > 1 || hasEventHat || (scriptCount > 0 && debug) || this._stcHasMatrix() || this._stcHasSevenSeg() || this._stcHasLedBank();
+        // STM32 forces the cooperative scheduler for any script, the same way a
+        // MATRIX8X8 does. Its correct timebase is the TIM3 tick ISR, emitted
+        // ONLY on the tasks path (`_cTasks && arm && _cStm32`); the straight-line
+        // arm delay path reads the RP2040's TIMER (BW_TIMER_TIMELR) — right for
+        // the pico, wrong silicon for the F030. Rather than grow a second,
+        // unvalidated STM32 straight-line timebase, keep STM32 on the proven
+        // scheduler so `bw transpile --to c` (debug:false) matches `bw compile`.
+        this._cTasks = scriptCount > 1 || hasEventHat || (scriptCount > 0 && debug) || (scriptCount > 0 && this._cStm32) || this._stcHasMatrix() || this._stcHasSevenSeg() || this._stcHasLedBank();
         const taskNames = Array.from({ length: scriptCount }, (_, n) => `bw_task${n}`);
         const yieldMap = [];   // only emitted for a debug build — see the marker header below
 

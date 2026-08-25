@@ -98,7 +98,11 @@ switch (cmd) {
         const code = maybeRetarget(readInput(file), opts.device);
         const c = parseBw(code);
         if (to === 'c') {
-            writeOut(c.generateC(undefined, {}), opts.o);
+            // debug:true = the proven form `bw compile` and the browser use;
+            // it forces the cooperative scheduler so `@bw` round-trip markers
+            // are present and the STM32 path takes its TIM3 timebase. Without
+            // it the two commands disagreed on the same input.
+            writeOut(c.generateC(undefined, { debug: true }), opts.o);
             for (const w of c._cWarnings || []) console.error(`warning: ${w}`);
         } else if (to === 'micropython') {
             const r = c.generateMicroPython();
