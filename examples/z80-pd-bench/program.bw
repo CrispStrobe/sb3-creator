@@ -31,9 +31,13 @@
 # the machine because they are describing the same board.
 #
 # The walking light below is the first program of every Searle-lineage build.
-# The LEDs it drives are led0..led7 on the latch's Q pins; the DIP switches on
-# the buffer are declared but idle, so the board's input half is named rather
-# than pretended-at.
+# The LEDs it drives are led0..led7 on the latch's Q pins.
+#
+# The board's INPUT half -- the DIP switches on the '244 -- is deliberately not
+# declared. An earlier draft named it as `PIN sw0 = IN0 INPUT` to show the axis
+# existed, and lite's declared-pins-wired gate was right to object: this program
+# never reads it, so the declaration promised a wire it did not use. A pin a
+# program does not read is not documentation, it is an unbacked claim.
 #
 # What is STILL absent is unchanged and still honest: the UM245R USB FIFO has
 # no engine part, so /RD_PORT_0, /RD_PORT_1 and WR_PORT_1 remain wired to
@@ -49,7 +53,6 @@ PIN l4 = OUT4 OUTPUT
 PIN l5 = OUT5 OUTPUT
 PIN l6 = OUT6 OUTPUT
 PIN l7 = OUT7 OUTPUT
-PIN sw0 = IN0 INPUT
 
 WHEN flag clicked:
   FOREVER:
