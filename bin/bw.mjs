@@ -256,11 +256,12 @@ switch (cmd) {
             fs.copyFileSync(path.join(work, 'main.hex'), out);
             console.log(`wrote ${out} (Intel HEX)`);
             if (/^attiny/.test(dev)) {
-                console.log(`  ${mcu} has no serial bootloader — flash it with an ISP/SPI programmer:`);
-                console.log(`    avrdude -c usbasp -p ${mcu} -U flash:w:${out}`);
+                console.log(`  ${mcu} has no serial bootloader — it needs a USBasp/USBISP on the ICSP header.`);
+                console.log('  The browser IDE flashes a USBasp directly over WebUSB (no extra software).');
+                console.log(`  Or, with a programmer tool you already have: e.g. avrdude -c usbasp -p ${mcu} -U flash:w:${out}`);
             } else {
-                console.log('  flash it over the board\'s bootloader (a real board, or the browser IDE\'s Flash button):');
-                console.log(`    avrdude -c arduino -p ${mcu} -P /dev/cu.usbmodem-X -U flash:w:${out}`);
+                console.log('  Flash it with the browser IDE\'s Flash button (STK500 over Web Serial, no extra software),');
+                console.log(`  or a tool you already have: e.g. avrdude -c arduino -p ${mcu} -P <port> -U flash:w:${out}`);
             }
         } else {
             const out = opts.o || file.replace(/\.[^.]+$/, '') + '.c';
@@ -374,7 +375,8 @@ switch (cmd) {
                     console.log(`flashed ${done.bytes} bytes to the ATmega2560 and verified — running`);
                 } else { // avr
                     console.error('AVR: this needs the adapter to assert DTR on open (most do). '
-                        + 'If it will not sync, use the browser IDE\'s Flash button or avrdude.');
+                        + 'If it will not sync, use the browser IDE\'s Flash button (no extra software), '
+                        + 'or your own programmer tool.');
                     const hex = fs.readFileSync(imagePath, 'utf8');
                     const done = await flasher.flashAvr(port, hex, { log });
                     console.log(`flashed ${done.bytes} bytes to the AVR and verified — running`);
