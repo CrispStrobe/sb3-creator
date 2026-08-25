@@ -25,6 +25,7 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import { execFileSync, execSync } from 'child_process';
+import { fileURLToPath } from 'node:url';
 import SB3Creator from '../src/utils/sb3Creator.js';
 
 const args = process.argv.slice(2);
@@ -300,7 +301,74 @@ switch (cmd) {
     }
 
     case 'flash': {
-        const file = positional[0] ?? die('flash needs a file (.bw or .py)');
+        const file = positional[0] ?? die('flash needs a file (.bw, .py, .hex/.ihx or .bin)');
+        // Which family are we flashing? A pre-built artifact carries its
+        // own format; a .bw/.py carries a DEVICE (or --device).
+        const artifactExt = (file.match(/\.(hex|ihx|bin)$/i) || [,''])[1].toLowerCase();
+        let flashDevice = (opts.device || '').toLowerCase().replace(/_/g, '-');
+        if (!flashDevice && !artifactExt) {
+            flashDevice = ((readInput(file).match(/^DEVICE\s+([\w-]+)/im) || [])[1] || 'pico')
+                .toLowerCase().replace(/_/g, '-');
+        }
+        const serialFamily = (d) =>
+            /^stc|^at89/.test(d) ? 'stc'
+                : d === 'stm32f030' ? 'stm32'
+                    : ['arduino-uno', 'arduino-nano', 'atmega328p', 'atmega168p'].includes(d) ? 'avr'
+                        : null;
+        // A .hex/.ihx is STC or AVR; a .bin is STM32. When flashing an
+        // artifact, --device disambiguates hex (defaults to STC).
+        const family = artifactExt
+            ? (artifactExt === 'bin' ? 'stm32' : (serialFamily(flashDevice) || 'stc'))
+            : serialFamily(flashDevice);
+
+        if (family) {
+            // ---- DIRECT serial flash, reusing the tested flasher --------
+            const { nodeSerialPort } = await import('../src/utils/nodeSerialPort.js');
+            const flasher = await import('../src/utils/flasher.js');
+            // Get the image: a given artifact, or compile the .bw by
+            // self-invoking `bw compile` (one command, end to end).
+            let imagePath = file;
+            if (!artifactExt) {
+                const outExt = family === 'stm32' ? 'bin' : (family === 'avr' ? 'hex' : 'ihx');
+                imagePath = file.replace(/\.[^.]+$/, '') + '.' + outExt;
+                execFileSync(process.execPath, [fileURLToPath(import.meta.url), 'compile', file,
+                    '--device', flashDevice, '-o', imagePath], { stdio: 'inherit' });
+            }
+            const portPath = opts.port
+                || fs.readdirSync('/dev').filter((d) => /^cu\.(usbserial|usbmodem|SLAB|wchusbserial)/.test(d))
+                    .map((d) => `/dev/${d}`)[0];
+            if (!portPath) die('no serial device found — plug the board in and/or pass --port /dev/cu.XXXX', 1);
+            const port = nodeSerialPort(portPath);
+            const log = (t) => console.log('  ' + t);
+            try {
+                if (family === 'stm32') {
+                    console.error('STM32: set BOOT0 HIGH and reset the board, then continue…');
+                    await port.open({ baudRate: 115200, parity: 'even' });
+                    const bytes = new Uint8Array(fs.readFileSync(imagePath));
+                    const done = await flasher.flashStm32(port, bytes, { log });
+                    console.log(`flashed ${done.bytes} bytes to STM32 (id 0x${done.productId.toString(16)}) — running`);
+                } else if (family === 'stc') {
+                    const hex = fs.readFileSync(imagePath, 'utf8');
+                    const done = await flasher.flashStc(port, hex, {
+                        log, onPowerCycle: () => console.error('PULL THE POWER and reapply it — the STC ISP only answers after a COLD power-on'),
+                    });
+                    console.log(`flashed ${done.bytes} bytes to the STC — running`);
+                } else { // avr
+                    console.error('AVR: this needs the adapter to assert DTR on open (most do). '
+                        + 'If it will not sync, use the browser IDE\'s Flash button or avrdude.');
+                    const hex = fs.readFileSync(imagePath, 'utf8');
+                    const done = await flasher.flashAvr(port, hex, { log });
+                    console.log(`flashed ${done.bytes} bytes to the AVR and verified — running`);
+                }
+            } catch (e) {
+                await port.close().catch(() => {});
+                die(`flashing failed: ${e.message}`, 1);
+            }
+            await port.close().catch(() => {});
+            break;
+        }
+
+        // ---- Pico / MicroPython (the original path) ---------------------
         let py;
         if (/\.py$/i.test(file)) py = readInput(file);
         else {
