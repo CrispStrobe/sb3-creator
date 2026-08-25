@@ -26,8 +26,14 @@ export default defineConfig([
   // checkout step above had been failing on an abbreviated SHA, so `siblings/` stayed empty
   // and lint had nothing to walk into. A green Lint meant the siblings were MISSING. Repairing
   // the first defect is what exposed the second.
+  // `src/utils/flasher.js` is VENDORED verbatim from CrispStrobe/stc-compiler
+  // docs/flash.js (its header says "do NOT edit here"; scripts/sync-flasher.mjs
+  // owns it and the fetch-pinning census tracks its bytes). Its lint is
+  // upstream's job — same rationale as reference/** and the downstream fixtures
+  // — and its `catch {}` guards, STK500 control-byte regexes (\x04), and any
+  // unused local are the upstream source's to change, not ours to reformat here.
   globalIgnores(['dist', 'siblings/**', 'test/browser/harness.bundle.js', 'reference/**',
-    'test/fixtures/downstream/**']),
+    'test/fixtures/downstream/**', 'src/utils/flasher.js']),
   {
     files: ['**/*.{js,jsx}'],
     extends: [
@@ -50,5 +56,13 @@ export default defineConfig([
       // in the prose from closing the block comment) — allow it in comments.
       'no-irregular-whitespace': ['error', { skipComments: true }],
     },
+  },
+  {
+    // `nodeSerialPort.js` is our OWN code but node-only (it drives a POSIX raw
+    // fd for the `bw` CLI, so it uses process/Buffer). The default browser
+    // globals mark those undefined; give this file the node globals. bin/*.mjs
+    // escape the browser rules by extension (the files glob is .js/.jsx only).
+    files: ['src/utils/nodeSerialPort.js'],
+    languageOptions: { globals: { ...globals.node } },
   },
 ])
