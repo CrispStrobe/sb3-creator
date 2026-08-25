@@ -24,6 +24,7 @@ const ROSTER = [
     ['ATTINY88', 'PD0', /sleep_cpu\(\)/],
     ['ATTINY85', 'PB0', /sleep_cpu\(\)/],
     ['PICO', 'GP25', /bw_idle\(\)/],
+    ['STM32F030', 'PA0', /bw_idle\(\)/],
     ['EATER6502', 'PA0', /bw_wai\(\)/],
 ];
 

@@ -2038,7 +2038,11 @@ class SB3Creator {
             }
             if (wasDefault && SB3Creator.STC_PARTS[device]
                 && SB3Creator.STC_PARTS[device].core === 'rp2040') {
-                cfg.clock = 125000000;
+                // The F030 is 'rp2040'-cored structurally but runs at its
+                // own 48 MHz ceiling — the pico's 125 MHz default emitted a
+                // PSC that made every timing 2.6x slow (measured: bw_ms at
+                // 0.384x, which is exactly 48/125).
+                cfg.clock = SB3Creator.STC_PARTS[device].stm32f0 ? 48000000 : 125000000;
             }
             if (wasDefault && SB3Creator.STC_PARTS[device]
                 && SB3Creator.STC_PARTS[device].core === 'w65c02') {
@@ -2149,6 +2153,7 @@ class SB3Creator {
                 atmega328p: [/^(D\d+|A\d+)$/i, 'D0-D13 or A0-A5'],
                 microbit: [/^(P\d+|BUTTON_[AB])$/i, 'P0-P20, BUTTON_A or BUTTON_B'],
                 pico: [/^GP\d+$/i, 'GP0-GP28'],
+                stm32f030: [/^P[AB]\d+$/i, 'PA0-PA7, PA9, PA10 or PB1'],
                 // PB7 is Timer 1's square-wave pin and the machine's timebase
                 // guard: the emitter would refuse it anyway, refuse it here too.
                 eater6502: [/^(PA[0-7]|PB[0-7]|MK\d+)$/i, 'PA0-PA7, PB0-PB7, or MK0-MK19 (matrix keypad)'],
@@ -5292,6 +5297,14 @@ class SB3Creator {
                 out.push('');
             }
         }
+        if (this._cStm32) {
+            // Any RP2040 vocabulary surviving into an STM32 build means a
+            // feature site was missed: warn BY NAME instead of shipping C
+            // that compiles against registers the chip does not have.
+            const body = out.join('\n');
+            const leaked = [...new Set(body.match(/BW_SIO\w*|BW_IOBANK0\w*|BW_PADS\b|BW_TIMER_\w*|BW_UART0\w*|BW_WATCHDOG\w*|BW_PWM\w*|BW_ADC_\w*|BW_SCB\w*|BW_NVIC_ICPR\w*/g) || [])];
+            for (const l of leaked) this.cWarn(`internal: RP2040 register ${l} leaked into an STM32F030 build — that feature is not ported yet`);
+        }
         return out.join('\n').replace(/\n{3,}/g, '\n\n').trim() + '\n';
     }
 
@@ -6862,9 +6875,29 @@ class SB3Creator {
 
     /** The GPIO index for a Pico pin record (GP<n> -> n), or null. */
     armHw(pin) {
+        if (this._cStm32) {
+            // F030 (TSSOP20): PA0-PA7 gpio 0-7, PA9/PA10 (USART pins,
+            // usable as GPIO when print is off) 9-10, PB1 gpio 17.
+            // Linear index: port = idx>>4 (0=A, 1=B), bit = idx&15 —
+            // the C-side bw_pin_* helpers decode the same way.
+            const m = String(pin.where || '').toUpperCase().match(/^P([AB])(\d+)$/);
+            if (!m) return null;
+            const bit = Number(m[2]);
+            const idx = (m[1] === 'B' ? 16 : 0) + bit;
+            const ok = m[1] === 'A' ? (bit <= 7 || bit === 9 || bit === 10) : bit === 1;
+            return ok ? { gpio: idx } : null;
+        }
         const m = String(pin.where || '').toUpperCase().match(/^GP(\d+)$/);
         return m && Number(m[1]) <= 28 ? { gpio: Number(m[1]) } : null;
     }
+
+    /** Single-point pin-op emission for the arm cores: the pico writes
+     *  SIO registers, the F0 goes through the bw_pin_* inline helpers
+     *  (which gcc -Os folds to one store for constant pins). */
+    armSet (hw) { return this._cStm32 ? `bw_pin_set(${hw.gpio}u);` : `BW_SIO_GPIO_OUT_SET = (1UL << ${hw.gpio});`; }
+    armClr (hw) { return this._cStm32 ? `bw_pin_clr(${hw.gpio}u);` : `BW_SIO_GPIO_OUT_CLR = (1UL << ${hw.gpio});`; }
+    armXor (hw) { return this._cStm32 ? `bw_pin_xor(${hw.gpio}u);` : `BW_SIO_GPIO_OUT_XOR = (1UL << ${hw.gpio});`; }
+    armGet (hw) { return this._cStm32 ? `bw_pin_get(${hw.gpio}u)` : `((BW_SIO_GPIO_IN >> ${hw.gpio}) & 1u)`; }
 
     /** The Arduino Mega 2560's pin map (official Arduino pin mapping):
      *  54 digital + 16 analog pins across ports A–L. D30–D37 and D42–D49
@@ -7010,7 +7043,7 @@ class SB3Creator {
                 this.cWarn(`"${pin.name}" (${pin.where}) cannot be read digitally`);
                 return `0 /* read ${this.cComment(name)} */`;
             }
-            const raw = `((BW_SIO_GPIO_IN >> ${hw.gpio}) & 1u)`;
+            const raw = `(${this.armGet(hw)})`;
             return pin.activeLow ? `!${raw}` : raw;
         }
         if (this._core === '6502') {
@@ -7053,8 +7086,8 @@ class SB3Creator {
             // SIO's set/clr registers are single-writer atomic — the RP2040's
             // own idiom, no read-modify-write anywhere.
             return high
-                ? `BW_SIO_GPIO_OUT_SET = (1UL << ${hw.gpio});`
-                : `BW_SIO_GPIO_OUT_CLR = (1UL << ${hw.gpio});`;
+                ? this.armSet(hw)
+                : this.armClr(hw);
         }
         if (this._core === '6502') {
             // Read-modify-write on ORA/ORB is safe here: one CPU, no ISR in
@@ -7328,8 +7361,7 @@ class SB3Creator {
                 }
                 if (this._core === 'arm') {
                     const hw = this.armHw(this.cPin(f('PIN')));
-                    return line(`if (${v('VALUE')}) BW_SIO_GPIO_OUT_SET = (1UL << ${hw.gpio}); `
-                        + `else BW_SIO_GPIO_OUT_CLR = (1UL << ${hw.gpio});`);
+                    return line(`if (${v('VALUE')}) ${this.armSet(hw)} else ${this.armClr(hw)}`);
                 }
                 if (this._core === '6502') {
                     const hw = this.viaHw(this.cPin(f('PIN')));
@@ -7355,7 +7387,7 @@ class SB3Creator {
                 if (this._core === 'arm') {
                     const hw = this.armHw(this.cPin(f('PIN')));
                     // GPIO_OUT_XOR: the RP2040's hardware toggle, same idiom.
-                    return line(`BW_SIO_GPIO_OUT_XOR = (1UL << ${hw.gpio});`);
+                    return line(this.armXor(hw));
                 }
                 if (this._core === '6502') {
                     const hw = this.viaHw(this.cPin(f('PIN')));
@@ -9991,6 +10023,7 @@ class SB3Creator {
         const parallelLcd = this._cLcdParallelPart();
         this._cMega = !!(part && part.mega);
         this._cTiny88 = !!(part && part.tiny88);
+        this._cStm32 = !!(part && part.stm32f0);
         if (part && part.core && part.core !== '8051' && part.core !== 'arduino'
             && part.core !== 'rp2040' && part.core !== 'w65c02' && part.core !== 'z80') {
             const how = part.core === 'micropython'
@@ -10653,6 +10686,43 @@ class SB3Creator {
                     '    }',
                     '}', '');
             }
+        } else if (this._core === 'arm' && this._cStm32) {
+            out.push('#include <stdint.h>', '');
+            out.push(`#define F_CPU ${clock}UL`, '');
+            out.push('/* Freestanding Cortex-M0: no HAL, no headers — the registers this',
+                ' * program touches, spelled as addresses from RM0360 (STM32F030).',
+                ' * A peripheral with its RCC clock off does not function; the',
+                ' * enables come FIRST in bw_setup, on silicon and emulator alike. */',
+                '#define BW_MMIO(a) (*(volatile uint32_t *)(a))',
+                '#define RCC_AHBENR   BW_MMIO(0x40021014u)',
+                '#define RCC_APB1ENR  BW_MMIO(0x4002101cu)',
+                '#define RCC_APB2ENR  BW_MMIO(0x40021018u)',
+                '#define GPIOA_MODER  BW_MMIO(0x48000000u)',
+                '#define GPIOA_PUPDR  BW_MMIO(0x4800000cu)',
+                '#define GPIOA_IDR    BW_MMIO(0x48000010u)',
+                '#define GPIOA_ODR    BW_MMIO(0x48000014u)',
+                '#define GPIOA_BSRR   BW_MMIO(0x48000018u)',
+                '#define GPIOB_MODER  BW_MMIO(0x48000400u)',
+                '#define GPIOB_PUPDR  BW_MMIO(0x4800040cu)',
+                '#define GPIOB_IDR    BW_MMIO(0x48000410u)',
+                '#define GPIOB_ODR    BW_MMIO(0x48000414u)',
+                '#define GPIOB_BSRR   BW_MMIO(0x48000418u)',
+                '#define TIM3_CR1     BW_MMIO(0x40000400u)',
+                '#define TIM3_DIER    BW_MMIO(0x4000040cu)',
+                '#define TIM3_SR      BW_MMIO(0x40000410u)',
+                '#define TIM3_PSC     BW_MMIO(0x40000428u)',
+                '#define TIM3_ARR     BW_MMIO(0x4000042cu)',
+                '#define USART1_CR1   BW_MMIO(0x40013800u)',
+                '#define USART1_BRR   BW_MMIO(0x4001380cu)',
+                '#define USART1_ISR   BW_MMIO(0x4001381cu)',
+                '#define USART1_TDR   BW_MMIO(0x40013828u)',
+                '#define NVIC_ISER    BW_MMIO(0xe000e100u)', '',
+                '/* Virtual pin n: port = n>>4 (0=A, 1=B), bit = n&15. With a',
+                ' * constant n, -Os folds each helper to a single store. */',
+                'static inline void bw_pin_set(uint32_t n) { if (n < 16u) GPIOA_BSRR = 1u << n; else GPIOB_BSRR = 1u << (n - 16u); }',
+                'static inline void bw_pin_clr(uint32_t n) { if (n < 16u) GPIOA_BSRR = 1u << (n + 16u); else GPIOB_BSRR = 1u << (n - 16u + 16u); }',
+                'static inline void bw_pin_xor(uint32_t n) { if (n < 16u) GPIOA_ODR ^= 1u << n; else GPIOB_ODR ^= 1u << (n - 16u); }',
+                'static inline uint32_t bw_pin_get(uint32_t n) { return n < 16u ? (GPIOA_IDR >> n) & 1u : (GPIOB_IDR >> (n - 16u)) & 1u; }', '');
         } else if (this._core === 'arm') {
             out.push('#include <stdint.h>', '');
             out.push(`#define F_CPU ${clock}UL`, '');
@@ -10840,7 +10910,37 @@ class SB3Creator {
                     '}', '');
             }
         }
-        if (this._cTasks && this._core === 'arm') {
+        if (this._cTasks && this._core === 'arm' && this._cStm32) {
+            out.push('/* One script = one cooperative task; tasks yield at every wait and',
+                ' * at every loop iteration. TIM3 raises IRQ16 every millisecond; the',
+                ' * handler maintains bw_ms (a 32-bit load is atomic on this core, so',
+                ' * bw_now needs no guard). WFI parks the core between ticks — the',
+                ' * vector table is real, so the wake VECTORS, unlike the pico\'s',
+                ' * masked-WFE trick. HardFault traps instead of masquerading. */',
+                'static volatile uint32_t bw_calm;',
+                'static volatile uint32_t bw_ms;',
+                'void bw_tick_irq(void) { TIM3_SR = 0; bw_ms++; }  /* rc_w0 */',
+                'void bw_fault(void) { for (;;) { } }              /* named stop, not a lie */',
+                'int main(void);',
+                'static uint32_t bw_now(void) { return bw_ms; }',
+                'static void bw_idle(void) { __asm__ volatile ("wfi"); }',
+                '__attribute__((section(".vectors"), used))',
+                'const void *bw_vectors[48] = {',
+                '    (void *)0x20001000,             /* initial SP: top of the F030\'s 4K */',
+                '    (void *)main,                   /* reset */',
+                '    [3] = (void *)bw_fault,         /* HardFault */',
+                '    [16 + 16] = (void *)bw_tick_irq /* TIM3 = IRQ16 */',
+                '};', '');
+            this._cUses.now = true;
+            if (this._cUses.blockDelay) {
+                out.push('/* A wait inside a custom block: really blocks, but on the tick. */',
+                    'static void bw_block_ms(uint32_t ms)',
+                    '{',
+                    '    uint32_t start = bw_now();',
+                    '    while ((int32_t)(bw_now() - start - ms) < 0) bw_idle();',
+                    '}', '');
+            }
+        } else if (this._cTasks && this._core === 'arm') {
             out.push('/* One script = one cooperative task; tasks yield at every wait and at',
                 ' * every loop iteration (Scratch\'s own scheduling contract). There is',
                 ' * NO tick ISR on this core: the RP2040\'s TIMER counts microseconds in',
@@ -11039,7 +11139,28 @@ class SB3Creator {
                 '    bw_putc(13); bw_putc(10);',
                 '}', '');
         }
-        if (this._core === 'arm' && this._cUses.print) {
+        if (this._core === 'arm' && this._cStm32 && this._cUses.print) {
+            out.push('/* print goes out USART1 at 9600 8N1. The model reports TXE always',
+                ' * ready; silicon paces on the ISR TXE bit the same loop checks. */',
+                'static void bw_putc(char c)',
+                '{',
+                '    while (!(USART1_ISR & (1u << 7))) { }   /* TXE */',
+                '    USART1_TDR = (uint32_t)(uint8_t)c;',
+                '}', '',
+                'static void bw_print(const char *s)',
+                '{',
+                '    while (*s) bw_putc(*s++);',
+                '    bw_putc(13); bw_putc(10);',
+                '}', '',
+                'static void bw_print_num(long n)',
+                '{',
+                '    char b[12]; int i = 0;',
+                '    unsigned long u = n < 0 ? (bw_putc(45), (unsigned long)-(n)) : (unsigned long)n;',
+                '    do { b[i++] = (char)(48 + (u % 10)); u /= 10; } while (u);',
+                '    while (i) bw_putc(b[--i]);',
+                '    bw_putc(13); bw_putc(10);',
+                '}', '');
+        } else if (this._core === 'arm' && this._cUses.print) {
             out.push('/* print goes out UART0 (GP0) at 9600 8N1 — the same wire the other',
                 ' * builds use, so the serial monitor does not care which chip talks. */',
                 'static void bw_putc(char c)',
@@ -13077,7 +13198,59 @@ class SB3Creator {
                     '    UCSR0C = (1 << UCSZ01) | (1 << UCSZ00);  /* 8N1 */');
             }
         }
-        if (this._core === 'arm') {
+        if (this._core === 'arm' && this._cStm32) {
+            // RM0360 order: clocks first — a peripheral with its RCC clock
+            // off does not function, on silicon and in the emulator alike.
+            const usedPorts = new Set();
+            for (const p of pins) {
+                const hw = this.armHw(p);
+                if (hw) usedPorts.add(hw.gpio >> 4);
+            }
+            let ahb = 0;
+            if (usedPorts.has(0)) ahb |= (1 << 17);
+            if (usedPorts.has(1)) ahb |= (1 << 18);
+            out.push(`    RCC_AHBENR  = 0x${(ahb >>> 0).toString(16)}u;      /* GPIO clocks */`,
+                '    RCC_APB1ENR = (1u << 1);       /* TIM3: the millisecond tick */');
+            if (this._cUses.print) out.push('    RCC_APB2ENR = (1u << 14);      /* USART1 */');
+            let moderA = 0, moderB = 0, pupdrA = 0, pupdrB = 0;
+            for (const p of pins) {
+                const hw = this.armHw(p);
+                if (!hw) continue;
+                const bit = hw.gpio & 15;
+                if (p.direction === 'output') {
+                    if ((hw.gpio >> 4) === 0) moderA |= (1 << (2 * bit)); else moderB |= (1 << (2 * bit));
+                } else if (p.direction === 'input') {
+                    // ACTIVE LOW → pull-up (button to GND); active high →
+                    // pull-down — the same no-external-resistor idioms the
+                    // pico build keeps.
+                    const pull = p.activeLow ? 1 : 2;
+                    if ((hw.gpio >> 4) === 0) pupdrA |= (pull << (2 * bit)); else pupdrB |= (pull << (2 * bit));
+                }
+            }
+            for (const p of pins) {
+                // Level BEFORE mode: an ACTIVE LOW load must never see a
+                // power-on glitch while MODER flips the pin to output.
+                const hw = this.armHw(p);
+                if (!hw || p.direction !== 'output') continue;
+                out.push(`    ${p.activeLow ? this.armSet(hw) : this.armClr(hw)}      /* ${p.name}: start OFF */`);
+            }
+            if (usedPorts.has(0)) {
+                out.push(`    GPIOA_MODER = 0x${(moderA >>> 0).toString(16)}u;`,
+                    `    GPIOA_PUPDR = 0x${(pupdrA >>> 0).toString(16)}u;`);
+            }
+            if (usedPorts.has(1)) {
+                out.push(`    GPIOB_MODER = 0x${(moderB >>> 0).toString(16)}u;`,
+                    `    GPIOB_PUPDR = 0x${(pupdrB >>> 0).toString(16)}u;`);
+            }
+            out.push('    TIM3_PSC = (uint16_t)(F_CPU / 1000000UL - 1UL);  /* 1 MHz count */',
+                '    TIM3_ARR = 999u;               /* update every millisecond */',
+                '    TIM3_DIER = 1u;                /* UIE: the WFI wake */',
+                '    TIM3_CR1 = 1u;                 /* CEN */');
+            if (this._cUses.print) {
+                out.push('    USART1_BRR = (uint32_t)(F_CPU / 9600UL);',
+                    '    USART1_CR1 = (1u << 3) | 1u;   /* TE + UE */');
+            }
+        } else if (this._core === 'arm') {
             out.push('    /* On real silicon the TIMER counts watchdog ticks; the bootrom',
                 '     * normally enables them. This build runs without a bootrom, so do',
                 '     * it here — the emulator does not care, the silicon will. */',
@@ -13456,9 +13629,13 @@ class SB3Creator {
             '{', '    bw_setup();');
         if (this._cTasks && this._core === 'arm') {
             out.push('',
-                '    BW_SCB_VTOR = (uint32_t)bw_vectors;  /* the wake handler owns every vector */',
-                '    BW_TIMER_INTE = 1u;            /* alarm 0 may interrupt */',
-                '    BW_NVIC_ISER = 1u;             /* TIMER_IRQ_0 wakes bw_idle */',
+                ...(this._cStm32 ? [
+                    '    NVIC_ISER = (1u << 16);        /* TIM3 wakes bw_idle (vectors are real) */'
+                ] : [
+                    '    BW_SCB_VTOR = (uint32_t)bw_vectors;  /* the wake handler owns every vector */',
+                    '    BW_TIMER_INTE = 1u;            /* alarm 0 may interrupt */',
+                    '    BW_NVIC_ISER = 1u;             /* TIMER_IRQ_0 wakes bw_idle */'
+                ]),
                 '',
                 '    for (;;) {                     /* no tick to start: time is read */',
                 '        uint32_t pass_ms = bw_now();',
@@ -13526,9 +13703,13 @@ class SB3Creator {
             out.push(...mainNote.map((l) => `    ${l}`));
             out.push(...mainBody);
         } else if (this._core === 'arm') {
-            out.push('    BW_SCB_VTOR = (uint32_t)bw_vectors;  /* the wake handler owns every vector */',
+            out.push(...(this._cStm32 ? [
+                '    NVIC_ISER = (1u << 16);        /* TIM3 wakes bw_idle (vectors are real) */'
+            ] : [
+                '    BW_SCB_VTOR = (uint32_t)bw_vectors;  /* the wake handler owns every vector */',
                 '    BW_TIMER_INTE = 1u;            /* alarm 0 may interrupt */',
-                '    BW_NVIC_ISER = 1u;             /* TIMER_IRQ_0 wakes bw_idle */',
+                '    BW_NVIC_ISER = 1u;             /* TIMER_IRQ_0 wakes bw_idle */'
+            ]),
                 '');
             out.push(...mainNote.map((l) => `    ${l}`));
             out.push(...mainBody);
@@ -14029,7 +14210,7 @@ SB3Creator.retargetPseudocode = function retargetPseudocode(src, device) {
     const part = SB3Creator.STC_PARTS[device];
     const pools = SB3Creator.RETARGET_POOLS[device];
     if (!part || !pools) return { ok: false, reasons: [`unknown device: ${device}`], warnings: [] };
-    const core = part.core === 'arduino' ? 'avr' : part.core === 'rp2040' ? 'arm' : part.core || '8051';
+    const core = part.core === 'arduino' ? 'avr' : part.core === 'rp2040' ? 'arm' : part.core || '8051'; // stm32f0 rides 'rp2040' structurally
     if (core === 'micropython') return { ok: false, reasons: [`${device} runs MicroPython — no C retarget`], warnings: [] };
 
     // Retargeting a program to its OWN device is the identity: the authored
@@ -14251,6 +14432,12 @@ SB3Creator.STC_PARTS = {
     // ADC over APB). Decided 2026-08-12 (stc docs/ROADMAP.md): bare-metal C
     // first; MicroPython stays a future SECOND runtime for the same board.
     pico: { core: 'rp2040', header: null, portModes: false, aux1T: false, adc: true },
+    // core 'rp2040' + stm32f0: the same ARMv6-M structural emission, a
+    // different register vocabulary (RM0360). v1 is digital I/O + wait +
+    // print; everything else refuses BY NAME (no ADC yet). See
+    // bw-board's STM32-PATH.md and test/stm32f0-board.test.mjs — that
+    // firmware IS this emission's contract.
+    stm32f030: { core: 'rp2040', stm32f0: true, header: null, portModes: false, aux1T: false, adc: false },
     // core: 'w65c02' -- the composable 6502 breadboard machine (EATER6502
     // preset: W65C22 VIA at $6000, W65C51 ACIA at $5000, 1 MHz phi2).
     // generateC() emits cc65-compatible freestanding C; pins are VIA port
