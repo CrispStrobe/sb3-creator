@@ -90,7 +90,14 @@ jobs:
       # bw-board's own package.json carries the ranges; keep these equal to what
       # they resolve to, and bump deliberately.
       - name: Install bw-board's runtime dependencies (exact, unlocked by --no-save)
+        # INSIDE the sibling checkout: cortex-m0-machine.js deep-imports
+        # rp2040js BY FILE PATH ('../node_modules/rp2040js/dist/esm/...')
+        # because the package's exports map hides the core — a root-level
+        # install satisfies bare 'rp2040js' imports but not that path, and
+        # the F0 chain tests failed with ERR_MODULE_NOT_FOUND on 917a0fc
+        # exactly there. Bare imports still resolve (node walks up).
         run: npm install --no-save avr8js@0.21.0 rp2040js@1.3.3
+        working-directory: siblings/bw-board
 
       # arm-none-eabi-gcc is a stock apt package, so the Pico chain gate becomes
       # CI-runnable. The emu8051 chain deliberately does NOT: it needs an
