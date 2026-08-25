@@ -1,11 +1,11 @@
 {
   "note": "Which gates enrol which example, computed from scripts/lib/example-enrolment.mjs. A diff here is a change in COVERAGE — read it before regenerating.",
   "measuredOn": "2026-08-23",
-  "examples": 279,
+  "examples": 280,
   "gates": {
     "gallery": 277,
-    "example-kind-matches-content": 279,
-    "index-metadata-matches-disk": 279,
+    "example-kind-matches-content": 280,
+    "index-metadata-matches-disk": 280,
     "retarget-gallery": 43,
     "retarget-amplification": 43,
     "gen-device-benches": 128,
@@ -13,7 +13,7 @@
     "assert-physics": 245,
     "debug-micropython": 9,
     "debug-trace-audit": 17,
-    "circuit-params-are-read": 248,
+    "circuit-params-are-read": 249,
     "program-reads-what-it-writes": 277,
     "vm-and-c-agree-on-arithmetic": 127,
     "documented-tables-are-derived": 4,
@@ -2618,6 +2618,11 @@
       "simulator-driver-controls-respond",
       "vm",
       "vm-and-c-agree-on-arithmetic"
+    ],
+    "72-soldered-key": [
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "index-metadata-matches-disk"
     ],
     "72-pico-oled-hello": [
       "assert-physics",

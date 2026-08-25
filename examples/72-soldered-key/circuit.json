@@ -9,7 +9,7 @@
     "gnd"
    ],
    "x": 60,
-   "y": {},
+   "y": 260,
    "rotation": 0
   },
   {
@@ -20,35 +20,35 @@
     "vcc"
    ],
    "x": 60,
-   "y": {},
+   "y": 60,
    "rotation": 0
   },
   {
    "id": "resistor_3",
    "kind": "resistor",
-   "params": {},
+   "params": {
+    "ohms": 220
+   },
    "terminals": [
     "a",
     "b"
    ],
    "x": 160,
-   "y": {
-    "ohms": 220
-   },
+   "y": 60,
    "rotation": 0
   },
   {
    "id": "led_4",
    "kind": "led",
-   "params": {},
+   "params": {
+    "color": "red"
+   },
    "terminals": [
     "anode",
     "cathode"
    ],
    "x": 160,
-   "y": {
-    "color": "red"
-   },
+   "y": 140,
    "rotation": 0
   },
   {
@@ -60,7 +60,7 @@
     "b"
    ],
    "x": 160,
-   "y": {},
+   "y": 220,
    "rotation": 0
   }
  ],
