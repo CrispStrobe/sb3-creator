@@ -10852,6 +10852,13 @@ class SB3Creator {
                     '}', '');
             }
         } else if (this._cTasks && this._core !== '6502') {
+            // The 8051 idle scheduler below reads the clock every pass, so the
+            // tasks build always carries bw_now — the same dependency the ARM
+            // branch declares for the same reason. Without it a TASKS program
+            // that uses neither `now` nor a blocking wait would emit a
+            // scheduler calling a function that was never defined.
+            if (this._cTasks && this._core !== 'avr' && this._core !== 'arm'
+                && this._core !== '6502') this._cUses.now = true;
             out.push('/* One script = one cooperative task. Timer interrupts every millisecond;',
                 ' * tasks yield at every wait and at every loop iteration (Scratch\'s own',
                 ' * scheduling contract), so no task can starve the others. */',
@@ -10863,7 +10870,8 @@ class SB3Creator {
                     '    bw_ms++;',
                     '}', ''
                 ] : [
-                    'static volatile unsigned int bw_ms;', '',
+                    'static volatile unsigned int bw_ms;',
+                    ...(this._cTasks ? ['static unsigned char bw_calm;'] : []), '',
                     'void bw_tick(void) __interrupt(1)',
                     '{',
                     '    TL0 = (unsigned char)(T0_RELOAD & 0xFF);',
@@ -13468,8 +13476,18 @@ class SB3Creator {
                 '    EA  = 1;',
                 '    TR0 = 1;',
                 '',
-                '    for (;;) {',
+                '    for (;;) {                     /* the tick keeps time; the core need not */',
+                '        unsigned int pass_ms = bw_now();',
                 ...[...(this._cPollTasks || []), ...taskNames].map((n) => `        ${n}();`),
+                '        /* Two full passes inside one millisecond: idle to the next tick',
+                '         * instead of spinning the core against it — the same contract the',
+                '         * pico and AVR targets keep, spelled in the 8051\'s own terms.',
+                '         * PCON.IDL stops the core; Timer 0 keeps counting and its',
+                '         * interrupt clears the bit and vectors, so bw_tick above is the',
+                '         * wake source. A pass whose work crosses the edge resets the',
+                '         * count. */',
+                '        if (bw_now() == pass_ms) { if (++bw_calm >= 2u) { bw_calm = 0u; PCON |= 0x01; } }',
+                '        else bw_calm = 0u;',
                 '    }');
         } else if (this._core === 'avr') {
             out.push('    sei();', '');

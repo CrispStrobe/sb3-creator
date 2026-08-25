@@ -265,8 +265,66 @@ test('several scripts compile to cooperative tasks over a Timer-0 millisecond ti
     // One function per script, and main() round-robins them.
     assert.match(c, /static void bw_task0\(void\)/);
     assert.match(c, /static void bw_task1\(void\)/);
-    assert.match(c, /for \(;;\) \{\n\s+bw_task0\(\);\n\s+bw_task1\(\);\n\s+\}/);
+    assert.match(c, /bw_task0\(\);\n\s+bw_task1\(\);/);
     assert.ok(!/delay_ms\(/.test(c), 'a task must never block on the old spin delay');
+});
+
+test('the 8051 scheduler idles between ticks instead of spinning', () => {
+    // The 8051 half of the sleep-not-spin wave. The pico target's DONE row
+    // carries the 110x measurement and the AVR target followed it; this core
+    // spelled the same contract as a bare `for (;;) { tasks(); }`, which
+    // grinds the emulator at full clock and burns a real chip's power for
+    // nothing. PCON.IDL is the 8051's word for it: the core stops, Timer 0
+    // keeps counting, and its interrupt clears the bit and vectors — so
+    // bw_tick IS the wake source, and no extra wiring is needed.
+    const c = cOf(SCHEDULED);
+    assert.match(c, /static unsigned char bw_calm;/,
+        'the calm counter must be declared for this core, not only for AVR/ARM');
+    assert.match(c, /PCON \|= 0x01;/, 'the idle itself');
+    // Two full passes inside one millisecond before idling, and a pass whose
+    // work crosses the edge resets the count — the same rule the ARM and AVR
+    // schedulers use, so the three cores keep one contract.
+    assert.match(c,
+        /if \(bw_now\(\) == pass_ms\) \{ if \(\+\+bw_calm >= 2u\) \{ bw_calm = 0u; PCON \|= 0x01; \} \}\n\s+else bw_calm = 0u;/);
+    // The idle reads the clock every pass, so this build must carry bw_now
+    // whether or not the program asked for it. Without this a TASKS program
+    // using neither `now` nor a blocking wait would emit a scheduler calling
+    // a function that was never defined.
+    assert.match(c, /static unsigned int bw_now\(void\)/);
+    assert.match(c, /unsigned int pass_ms = bw_now\(\);/);
+    // And the idle is in main's loop, never inside a task or the ISR: a task
+    // that idles would stop the OTHER tasks, and an ISR that idles would
+    // park with interrupts already in service.
+    const isr = c.slice(c.indexOf('__interrupt(1)'), c.indexOf('}', c.indexOf('bw_ms++')));
+    assert.ok(!/PCON/.test(isr), 'the tick ISR must not idle');
+    const tasks = c.slice(c.indexOf('static void bw_task0(void)'), c.indexOf('void main(void)'));
+    assert.ok(!/PCON \|= 0x01/.test(tasks), 'a task must not idle — it would stall its siblings');
+});
+
+test('the idle drags bw_now in even when the program never asked for it', () => {
+    // The assertion above passes for the wrong reason on SCHEDULED, which uses
+    // waits and therefore carries bw_now anyway. This fixture has two scripts
+    // and NO wait, so nothing sets _cUses.now — and the scheduler still reads
+    // the clock every pass. Measured with the forcing removed, this emits a
+    // main() that calls bw_now() when bw_now was never defined: a compile
+    // error in generated code, which is the worst kind.
+    const c = cOf(`DEVICE STC12C5A60S2
+CLOCK 11059200
+PIN led1 = P1.0 OUTPUT
+PIN led2 = P1.1 OUTPUT
+
+WHEN flag clicked:
+  FOREVER:
+    toggle led1
+
+WHEN flag clicked:
+  FOREVER:
+    toggle led2
+`);
+    assert.match(c, /void bw_tick\(void\) __interrupt\(1\)/, 'this fixture must be a tasks build');
+    assert.match(c, /unsigned int pass_ms = bw_now\(\);/, 'the scheduler reads the clock');
+    assert.match(c, /static unsigned int bw_now\(void\)/,
+        'and the function it calls must exist — no wait in this program asks for it');
 });
 
 test('deadlines are wraparound-safe signed compares', () => {
