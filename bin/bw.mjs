@@ -14,7 +14,7 @@
 //                                            C + local toolchain where present
 //                                            (sdcc for the 8051s, arm-none-eabi
 //                                            for the Pico SRAM image)
-//   bw flash <file.bw|file.py> [--port /dev/cu.usbmodemX]
+//   bw flash <file.bw|.hex|.bin|.rom> [--port /dev/cu.X] [--engine js|rust]
 //                                            Pico over USB: MicroPython main.py
 //                                            via mpremote, then reset
 //
@@ -33,7 +33,7 @@ const cmd = args[0];
 const positional = [];
 const opts = {};
 for (let i = 1; i < args.length; i++) {
-    if (args[i] === '--to' || args[i] === '--device' || args[i] === '--port' || args[i] === '--firmware' || args[i] === '-o') {
+    if (args[i] === '--to' || args[i] === '--device' || args[i] === '--port' || args[i] === '--firmware' || args[i] === '--engine' || args[i] === '--rust-bin' || args[i] === '-o') {
         opts[args[i].replace(/^-+/, '')] = args[++i];
     } else if (args[i].startsWith('--')) opts[args[i].slice(2)] = true;
     else positional.push(args[i]);
@@ -346,6 +346,29 @@ switch (cmd) {
                 || fs.readdirSync('/dev').filter((d) => /^cu\.(usbserial|usbmodem|SLAB|wchusbserial)/.test(d))
                     .map((d) => `/dev/${d}`)[0];
             if (!portPath) die('no serial device found — plug the board in and/or pass --port /dev/cu.XXXX', 1);
+
+            // --engine rust: hand off to the native Rust flasher (stcbsl /
+            // stm32bsl) instead of the JS path. Two independent flashers
+            // (the differential-oracle habit) and a robustness choice — the
+            // Rust ones own termios/tcdrain natively. Only STC and STM32 have
+            // a Rust binary today; other families say so and stay on JS.
+            if (opts.engine === 'rust') {
+                const rustTool = family === 'stc' ? 'stcbsl' : family === 'stm32' ? 'stm32bsl' : null;
+                if (!rustTool) die(`--engine rust has no native binary for the '${family}' family yet `
+                    + '(STC and STM32 only) — omit --engine to use the built-in JS flasher', 1);
+                const cand = [rustTool, `${process.env.HOME}/.cargo/bin/${rustTool}`,
+                    `${process.env.HOME}/code/stc/tools/stcbsl/target/release/${rustTool}`,
+                    `${process.env.HOME}/.cache/shared-cargo-target/release/${rustTool}`,
+                    ...(process.env.CARGO_TARGET_DIR ? [`${process.env.CARGO_TARGET_DIR}/release/${rustTool}`] : [])];
+                if (opts['rust-bin']) cand.unshift(opts['rust-bin']);
+                const found = cand.find((t) => { try { execFileSync(t, ['--help'], { stdio: 'pipe' }); return true; } catch { return false; } });
+                if (!found) die(`${rustTool} not found — build it: `
+                    + `cd stc/tools/stcbsl && cargo build --release --bin ${rustTool}, or cargo install --path .`, 1);
+                execFileSync(found, ['--port', portPath, imagePath], { stdio: 'inherit' });
+                console.log(`flashed via ${rustTool} (native Rust)`);
+                break;
+            }
+
             const port = nodeSerialPort(portPath);
             const log = (t) => console.log('  ' + t);
             try {
