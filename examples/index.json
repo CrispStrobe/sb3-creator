@@ -5640,7 +5640,7 @@
       "expected": "z80-pd-bench/EXPECTED.md",
         "rom": "z80-pd-bench/rom.bin"
     },
-    "kind": "circuit"
+    "kind": "full"
   },
   {
     "id": "ttl-clock-module",

@@ -153,6 +153,15 @@ function readMarkers (source) {
                 const r = rest.match(/^(\w+)\s+([DA]\d+|GP\d+)\s+(\w+)(\s+active-low)?/);
                 if (r) h.pins.push({ name: r[1], where: r[2].toUpperCase(), direction: r[3], activeLow: !!r[4] });
             }
+            // Z80 style: `l0 OUT0 output` / `sw0 IN0 input` / `k0 MK3 input`.
+            // The Z80 core's pins are BITS of a 74HC374 write latch and a
+            // 74HC244 read buffer (plus a matrix keypad), not port registers,
+            // so none of the three forms above can match them. Without this
+            // the whole Z80 program read back as raw shadow-byte arithmetic.
+            if (!p) {
+                const z = rest.match(/^(\w+)\s+(OUT[0-7]|IN[0-7]|MK\d+)\s+(\w+)(\s+active-low)?/i);
+                if (z) h.pins.push({ name: z[1], where: z[2].toUpperCase(), direction: z[3], activeLow: !!z[4] });
+            }
         } else if (kind === 'port') {
             // `port <name> P<n> <direction> [active-low]`
             const p = rest.match(/^(\w+)\s+P(\d)\s+(\w+)(\s+active-low)?/i);
@@ -1093,6 +1102,32 @@ export default function cToPseudocode (source, opts = {}) {
                 if (SFRS.test(name)) return [];   // register setup, not program logic
                 // Port-register pin write: PORTB |= (1 << N) → turn on pin
                 // PORTB &= ~(1 << N) → turn off pin. Uses @bw pin markers.
+                // Z80 shadow latch: `_z80_sh |= (uint8_t)(1 << N);` followed by
+                // `BW_PORT_OUT = _z80_sh;`. The '374 is WRITE-ONLY, so the
+                // emitter keeps a shadow byte and pushes it -- there is no
+                // port register to read back, which is why this needs its own
+                // case rather than the PORTx one below.
+                if (name === '_z80_sh' && markers && (op === '|=' || op === '&=' || op === '^=')) {
+                    const zb = rhs.text.match(/^(?:bitnot\s+)?\(?\s*1 shiftleft (\d+)\s*\)?$/);
+                    if (zb) {
+                        const bit = Number(zb[1]);
+                        const pin = markers.pins.find(pp => pp.where === `OUT${bit}`);
+                        if (pin) {
+                            // Swallow the `BW_PORT_OUT = _z80_sh;` push that
+                            // always follows: it is the same statement's second
+                            // half, not a program step of its own.
+                            const save = cur.i;
+                            if (cur.is('BW_PORT_OUT')) {
+                                cur.next(); 
+                                if (cur.eat('=') && cur.is('_z80_sh')) { cur.next(); cur.eat(';'); }
+                                else cur.i = save;
+                            }
+                            if (op === '|=') return [`${pad}${pinWrite(pin, '1')}`];
+                            if (op === '&=') return [`${pad}${pinWrite(pin, '0')}`];
+                            if (op === '^=') return [`${pad}toggle ${pin.name}`];
+                        }
+                    }
+                }
                 const portMatch = name.match(/^PORT([A-Z])$/);
                 if (portMatch && markers && (op === '|=' || op === '&=')) {
                     const portLetter = portMatch[1];

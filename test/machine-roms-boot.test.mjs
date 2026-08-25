@@ -275,4 +275,34 @@ describe('machine benches boot the ROM they ship', { skip: gate.skip }, () => {
         for (let i = 0x0100; i < 0x8000; i++) tail.add(rom[i]);
         assert.deepEqual([...tail], [0x00], 'unused ROM must be NOP-filled');
     });
+
+    test('the Z80 program survives the trip through C as the program it was', async () => {
+        // The corpus fixed-point gate proves the round trip CONVERGES; it does
+        // not prove it converges on the right thing. Measured: with the Z80
+        // pin form alone, `turn on l0` came back as `set z80_sh to z80_sh
+        // bitor (1 shiftleft 0)` plus a shadow push, and that degraded form is
+        // itself a fixed point — so the corpus gate stayed green while the
+        // program's meaning was gone. This asserts the meaning.
+        //
+        // It starts from what the app PRODUCES: program.bw -> generateC ->
+        // cToPseudocode. Nothing here is a literal transcribed by hand.
+        const { default: SB3Creator } = await import('../src/utils/sb3Creator.js');
+        const mod = await import('../src/utils/cToPseudocode.js');
+        const cToPseudocode = mod.cToPseudocode || mod.default;
+
+        const source = readFileSync(join(EXAMPLES, 'z80-pd-bench', 'program.bw'), 'utf8');
+        const creator = new SB3Creator();
+        creator.parse(source);
+        const back = cToPseudocode(creator.generateC()).pseudocode;
+
+        const pinLines = (text) => text.split('\n')
+            .map((l) => l.trim())
+            .filter((l) => /^(turn (on|off)|toggle) l\d$/.test(l));
+
+        const before = pinLines(source);
+        assert.ok(before.length >= 16, `the fixture must exercise the pins (${before.length} found)`);
+        assert.deepEqual(pinLines(back), before,
+            'every turn on / turn off must come back as itself — a shadow-byte '
+            + 'read-back is a fixed point too, and it is not this program');
+    });
 });

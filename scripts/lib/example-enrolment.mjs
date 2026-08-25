@@ -156,6 +156,7 @@ export const NOT_PER_EXAMPLE = new Map([
     ['curriculum', 'validates curriculum station ids against the catalog; enrols no example'],
     ['circuit-json-roundtrip', 'iterates circuit FILES found on disk; the index is only a directory lookup'],
     ['example-gate-enrolment', 'this map itself'],
+    ['machine-roms-boot', 'names the three benches that ship a ROM image and boots each on the machine extracted from its own circuit; the index is a files.rom lookup, not a per-example filter'],
 ]);
 
 /** Suites that read every example unconditionally, with no metadata filter. */
