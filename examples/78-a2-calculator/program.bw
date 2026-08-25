@@ -4,22 +4,16 @@
 # keypad on P1 (rows driven low, columns read back — the measured
 # A2 map), and the four black keys on P3 as memory/edit keys.
 #
-#   red keypad:  1 2 3 A(+)   black keys:  K1 clear all
-#                4 5 6 B(-)                K2 backspace
-#                7 8 9 C(x)                K3 M+  (memory add)
-#                * 0 # D(/)                K4 MR  (memory recall)
-#                * = clear entry, # = equals
+# The silk-screen is unusual. In row-major scan order it reads:
+#   3 7 B F / 2 6 A E / 1 5 9 D / 0 4 8 C
+# A/B/C/D are +,-,x,/; E clears entry; F equals.
+# Black keys: K1 clear all, K2 backspace, K3 M+, K4 MR.
 #
-# Two tasks share the chip: one multiplexes the display at ~125 Hz
-# from `shown`, the other scans the keys and runs the calculator.
+# SEVENSEG8 owns the 74HC245/74HC138 refresh in the timer ISR.
 DEVICE STC89C52RC
 CLOCK 11059200
 
-TABLE font = 0b00111111, 0b00000110, 0b01011011, 0b01001111, 0b01100110, 0b01101101, 0b01111101, 0b00000111, 0b01111111, 0b01101111
-TABLE walk = 0b00000001, 0b00000010, 0b00000100, 0b00001000, 0b00010000, 0b00100000, 0b01000000, 0b10000000
-
-PORT segments = P0 OUTPUT
-PORT select = P2 OUTPUT ACTIVE LOW
+PART display = SEVENSEG8 SEGMENTS P0 SELECT P2.2 P2.3 P2.4
 
 PIN row0 = P1.7 OUTPUT ACTIVE LOW
 PIN row1 = P1.6 OUTPUT ACTIVE LOW
@@ -30,10 +24,10 @@ PIN col1 = P1.2 INPUT ACTIVE LOW
 PIN col2 = P1.1 INPUT ACTIVE LOW
 PIN col3 = P1.0 INPUT ACTIVE LOW
 
-PIN k1 = P3.2 INPUT ACTIVE LOW
-PIN k2 = P3.3 INPUT ACTIVE LOW
-PIN k3 = P3.4 INPUT ACTIVE LOW
-PIN k4 = P3.5 INPUT ACTIVE LOW
+PIN k1 = P3.1 INPUT ACTIVE LOW
+PIN k2 = P3.0 INPUT ACTIVE LOW
+PIN k3 = P3.2 INPUT ACTIVE LOW
+PIN k4 = P3.3 INPUT ACTIVE LOW
 
 DEFINE read_cols:
   set hit to 0 - 1
@@ -83,16 +77,19 @@ DEFINE apply_pending:
       set acc to acc / entry
   IF acc < 0 THEN:
     set acc to 0
-  IF acc > 99999999 THEN:
-    set acc to 99999999
+  IF acc > 32767 THEN:
+    set acc to 32767
 
 DEFINE press_digit:
   IF fresh = 1 THEN:
     set entry to digit
     set fresh to 0
   ELSE:
-    IF entry < 10000000 THEN:
+    IF entry < 3276 THEN:
       set entry to entry * 10 + digit
+    ELSE:
+      IF entry = 3276 AND digit < 8 THEN:
+        set entry to entry * 10 + digit
   set shown to entry
 
 DEFINE press_op:
@@ -106,24 +103,6 @@ DEFINE press_op:
   set shown to acc
 
 WHEN flag clicked:
-  set shown to 0
-  FOREVER:
-    set idx to 0
-    REPEAT 8:
-      set copy to shown
-      REPEAT idx:
-        # (x - x mod 10) / 10 divides exactly in integer C and float JS alike
-        set copy to (copy - copy mod 10) / 10
-      IF copy = 0 AND idx > 0 THEN:
-        set segments to 0
-      ELSE:
-        set segments to font[copy mod 10]
-      set select to walk[idx]
-      wait 1 ms
-      set select to 0
-      change idx by 1
-
-WHEN flag clicked:
   set acc to 0
   set entry to 0
   set op to 0
@@ -134,54 +113,54 @@ WHEN flag clicked:
     scan_keypad
     IF key >= 0 AND not key = lastkey THEN:
       IF key = 0 THEN:
-        set digit to 1
-        press_digit
-      IF key = 1 THEN:
-        set digit to 2
-        press_digit
-      IF key = 2 THEN:
         set digit to 3
         press_digit
-      IF key = 4 THEN:
-        set digit to 4
-        press_digit
-      IF key = 5 THEN:
-        set digit to 5
-        press_digit
-      IF key = 6 THEN:
-        set digit to 6
-        press_digit
-      IF key = 8 THEN:
+      IF key = 1 THEN:
         set digit to 7
         press_digit
+      IF key = 2 THEN:
+        set newop to 2
+        press_op
+      IF key = 4 THEN:
+        set digit to 2
+        press_digit
+      IF key = 5 THEN:
+        set digit to 6
+        press_digit
+      IF key = 6 THEN:
+        set newop to 1
+        press_op
+      IF key = 8 THEN:
+        set digit to 1
+        press_digit
       IF key = 9 THEN:
-        set digit to 8
+        set digit to 5
         press_digit
       IF key = 10 THEN:
         set digit to 9
         press_digit
-      IF key = 13 THEN:
+      IF key = 12 THEN:
         set digit to 0
         press_digit
-      IF key = 3 THEN:
-        set newop to 1
-        press_op
-      IF key = 7 THEN:
-        set newop to 2
-        press_op
+      IF key = 13 THEN:
+        set digit to 4
+        press_digit
+      IF key = 14 THEN:
+        set digit to 8
+        press_digit
       IF key = 11 THEN:
-        set newop to 3
-        press_op
-      IF key = 15 THEN:
         set newop to 4
         press_op
-      IF key = 14 THEN:
+      IF key = 15 THEN:
+        set newop to 3
+        press_op
+      IF key = 3 THEN:
         IF op > 0 AND fresh = 0 THEN:
           apply_pending
           set op to 0
           set shown to acc
         set fresh to 1
-      IF key = 12 THEN:
+      IF key = 7 THEN:
         set entry to 0
         set fresh to 1
         set shown to 0
@@ -201,4 +180,5 @@ WHEN flag clicked:
       set entry to mem
       set fresh to 0
       set shown to mem
+    show number shown on display
     wait 25 ms
