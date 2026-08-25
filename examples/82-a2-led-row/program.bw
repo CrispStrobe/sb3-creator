@@ -1,0 +1,16 @@
+DEVICE STC89C52RC
+CLOCK 11059200
+PART leds = LEDBANK8 ON P2 ACTIVE LOW
+
+STAGE:
+  # The board's D1-D8 row is P2.0-P2.7, active-low. D6 shares P2.5 with
+  # BZ1, so the chase produces a short click as it crosses LED 6.
+  WHEN flag clicked:
+    set step to 0
+    FOREVER:
+      light only led step on leds
+      change step by 1
+      IF step > 7 THEN:
+        set step to 0
+      wait 150 ms
+

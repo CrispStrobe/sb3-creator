@@ -6514,25 +6514,93 @@
   {
     "id": "79-a2-sampler",
     "title": {
-      "en": "The A2 sampler (keypad + display + LEDs)",
-      "de": "Der A2-Sampler (Tastenfeld + Anzeige + LEDs)"
+      "en": "The A2 sampler (keypad + display)",
+      "de": "Der A2-Sampler (Tastenfeld + Anzeige)"
     },
     "category": "digital",
     "difficulty": 3,
     "kind": "program",
     "devices": [
-      "stc89c52rc"
+      "stc89c52rc",
+      "stc12c5a60s2",
+      "stc15f2k60s2"
     ],
     "authored": "stc89c52rc",
     "deviceOnly": true,
-    "expectedWarnings": [
-      "shares a port with"
-    ],
     "files": {
       "program": "79-a2-sampler/program.bw",
       "expected": "79-a2-sampler/EXPECTED.md",
       "intro": "79-a2-sampler/intro.md",
       "introDE": "79-a2-sampler/intro.de.md"
+    }
+  },
+  {
+    "id": "80-a2-lcd-moving-text",
+    "title": {
+      "en": "A2 LCD1602 moving text",
+      "de": "A2-LCD1602 mit Laufschrift"
+    },
+    "category": "display",
+    "difficulty": 2,
+    "kind": "program",
+    "devices": [
+      "stc89c52rc",
+      "stc12c5a60s2",
+      "stc15f2k60s2"
+    ],
+    "authored": "stc89c52rc",
+    "deviceOnly": true,
+    "files": {
+      "program": "80-a2-lcd-moving-text/program.bw",
+      "expected": "80-a2-lcd-moving-text/EXPECTED.md",
+      "intro": "80-a2-lcd-moving-text/intro.md",
+      "introDE": "80-a2-lcd-moving-text/intro.de.md"
+    }
+  },
+  {
+    "id": "81-8051-lcd1602-parallel",
+    "title": {
+      "en": "LCD1602 directly on an 8051",
+      "de": "LCD1602 direkt am 8051"
+    },
+    "category": "display",
+    "difficulty": 2,
+    "kind": "program",
+    "devices": [
+      "stc89c52rc",
+      "stc12c5a60s2",
+      "stc15f2k60s2"
+    ],
+    "authored": "stc89c52rc",
+    "deviceOnly": true,
+    "files": {
+      "program": "81-8051-lcd1602-parallel/program.bw",
+      "expected": "81-8051-lcd1602-parallel/EXPECTED.md",
+      "intro": "81-8051-lcd1602-parallel/intro.md",
+      "introDE": "81-8051-lcd1602-parallel/intro.de.md"
+    }
+  },
+  {
+    "id": "82-a2-led-row",
+    "title": {
+      "en": "A2 D1–D8 LED row",
+      "de": "A2-LED-Reihe D1–D8"
+    },
+    "category": "digital",
+    "difficulty": 1,
+    "kind": "program",
+    "devices": [
+      "stc89c52rc",
+      "stc12c5a60s2",
+      "stc15f2k60s2"
+    ],
+    "authored": "stc89c52rc",
+    "deviceOnly": true,
+    "files": {
+      "program": "82-a2-led-row/program.bw",
+      "expected": "82-a2-led-row/EXPECTED.md",
+      "intro": "82-a2-led-row/intro.md",
+      "introDE": "82-a2-led-row/intro.de.md"
     }
   },
   {

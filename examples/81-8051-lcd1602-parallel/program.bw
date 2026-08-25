@@ -1,0 +1,12 @@
+DEVICE STC89C52RC
+CLOCK 11059200
+PART lcd = LCD1602 DATA P1.4 P1.5 P1.6 P1.7 RS P2.0 EN P2.1 WRITE ONLY
+
+STAGE:
+  # Generic breadboard wiring. Tie the LCD RW pin to GND.
+  WHEN flag clicked:
+    lcd clear 1
+    lcd print "8051 + LCD1602" on 1
+    lcd set cursor 1 0 on 1
+    lcd print "4-BIT PARALLEL" on 1
+
