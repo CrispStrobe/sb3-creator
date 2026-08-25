@@ -198,10 +198,20 @@ const MUTATIONS = [
     {
         name: 'a recorded gap is fixed upstream but the snapshot was never re-vendored',
         why: 'stops an exemption outliving its cause — the way allowlists normally rot',
+        // CONSTRUCTS its own precondition instead of editing a gap it hopes is
+        // there. Until 2026-08-25 this pushed a fake opcode onto whatever
+        // `expectedMissing` happened to hold; once the snapshot was re-vendored
+        // and that list went empty, the mutation produced a gap with no
+        // `pendingFix`, which fires the ANONYMOUS-gap rule instead — a real red,
+        // for the wrong reason, so `expect` missed and the escape looked like a
+        // gate failure. Record a gap that IS closed (the snapshot defines
+        // `keypad`) and give it an owner, so the only rule left to fire is the
+        // one this mutation is about.
         apply () {
             save(MANIFEST);
             const m = JSON.parse(readFileSync(MANIFEST, 'utf8'));
-            m.snapshots['lite-stc12'].expectedMissing.push('a_gap_that_is_no_longer_there');
+            m.snapshots['lite-stc12'].expectedMissing = ['keypad'];
+            m.snapshots['lite-stc12'].pendingFix = 'a branch that closes it, named so the anonymous-gap rule stays quiet';
             writeFileSync(MANIFEST, `${JSON.stringify(m, null, 2)}\n`);
         },
         expect: /recorded gap is closed|does not define the opcodes/
@@ -209,9 +219,14 @@ const MUTATIONS = [
     {
         name: 'a gap is recorded anonymously, with no branch that closes it',
         why: 'an exemption with no owner is a permanent exemption',
+        // Also constructs its precondition. This used to `delete` a
+        // `pendingFix`, which is a no-op the moment there is no gap to own —
+        // and after the A2 re-vendor there was none, so it edited nothing and
+        // the gate stayed green over an unchanged tree.
         apply () {
             save(MANIFEST);
             const m = JSON.parse(readFileSync(MANIFEST, 'utf8'));
+            m.snapshots['lite-stc12'].expectedMissing = ['a_gap_with_no_owner'];
             delete m.snapshots['lite-stc12'].pendingFix;
             writeFileSync(MANIFEST, `${JSON.stringify(m, null, 2)}\n`);
         },
@@ -750,7 +765,36 @@ let failures = 0;
 for (const m of SELECTED) {
     let result;
     try {
-        if (m.apply) m.apply();
+        if (m.apply) {
+            m.apply();
+            // THE GUARD THIS FILE'S OWN HEADER ALREADY PROMISED, made general.
+            //
+            // Eight mutations carried their own `text === readFileSync(f)`
+            // check and two did not — and on 2026-08-25 those two both went
+            // silently no-op at once. The A2 landing re-vendored the lite-stc12
+            // snapshot, which is exactly the outcome the manifest's
+            // `expectedMissing` / `pendingFix` machinery exists to drive
+            // towards, so both fields emptied and the two mutations that EDIT
+            // those fields had nothing left to edit. The gate was asked to go
+            // red over an unchanged tree, reported green truthfully about
+            // nothing, and the prover scored it as an escape.
+            //
+            // Per-mutation guards cannot close that class: the next mutation
+            // written without one reopens it. Every mutation that `save()`s a
+            // file now has to move at least one of them.
+            // A DELETION IS A CHANGE. Reading every saved path blindly throws
+            // ENOENT on the mutation whose whole subject is a removed file
+            // ("a vendored snapshot is deleted"), which is a guard breaking the
+            // thing it guards.
+            const unchanged = [...backups].filter(([f, t]) =>
+                existsSync(f) && readFileSync(f, 'utf8') === t);
+            if (backups.size > 0 && unchanged.length === backups.size) {
+                throw new Error(`mutation "${m.name}" was a NO-OP — it saved `
+                    + `${backups.size} file(s) and changed none of them, so the gate would be `
+                    + 'asked to go red over an unchanged tree. Its target has moved; fix the '
+                    + 'mutation rather than believing its verdict.');
+            }
+        }
         // An env-mutation changes the inputs rather than the tree, which is the
         // right instrument for a guard whose whole subject is "what if the inputs
         // are absent". Editing the file would prove the edit, not the guard.

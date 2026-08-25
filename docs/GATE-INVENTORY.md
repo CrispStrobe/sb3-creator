@@ -435,6 +435,24 @@ The subtest counts are the instrument check: the corpus demonstrably went away.
 `scripts/mutation-prove-conformance.mjs` went from **20 mutations over 4 gates** to
 **27 over 5**. Each of the seven added was run and is shown catching its defect.
 
+**Now 31, and the count had gone stale here at 27** — corrected 2026-08-25 rather
+than left, since this page's own rule is that a stale claim on it goes red.
+
+**Every file mutation now carries a no-op guard, generically.** Eight carried
+their own `text === readFileSync(f)` check and two did not, and on 2026-08-25
+those two went silently no-op together: the A2 landing re-vendored the
+`lite-stc12` snapshot — which is the outcome the manifest's `expectedMissing` /
+`pendingFix` machinery exists to drive towards — so both fields emptied and the
+two mutations that EDIT those fields had nothing left to edit. CI scored 29/31
+and called them escapes. They were not escapes; the gate was asked to go red
+over an unchanged tree and truthfully reported green about nothing.
+
+Per-mutation guards cannot close that class, because the next mutation written
+without one reopens it. The check now lives in the runner: any mutation that
+`save()`s files must move at least one of them, and a deletion counts as a move.
+Both affected mutations also CONSTRUCT their own precondition now instead of
+editing a gap they hope is recorded.
+
 | mutation | the instrument that must catch it | result |
 |---|---|---|
 | `ci.yml` pins a sibling by abbreviated SHA — *and* `siblings.json` is abbreviated to match, so the "the two agree" test is not what fires | `every pinned checkout ref is a ref actions/checkout can actually fetch` | `RED` |
