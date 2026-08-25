@@ -2011,7 +2011,17 @@ class SB3Creator {
     parseStcDeclaration(trimmed, lineIndex) {
         let m;
         if ((m = trimmed.match(/^DEVICE\s+([\w-]+):?$/i))) {
-            const device = m[1].toLowerCase();
+            let device = m[1].toLowerCase();
+            // The names people actually type. DEVICE UNO used to warn and
+            // fall through to a half-configured build (no core, no tasks,
+            // no idle) — silently wrong output, found when the idle-wave
+            // coverage check walked every chip by its everyday name.
+            const DEVICE_ALIASES = {
+                uno: 'arduino-uno', nano: 'arduino-nano', mega: 'arduino-mega'
+            };
+            if (!SB3Creator.STC_PARTS[device] && DEVICE_ALIASES[device]) {
+                device = DEVICE_ALIASES[device];
+            }
             if (!SB3Creator.STC_PARTS[device]) {
                 this.warn(lineIndex, `Unknown DEVICE "${m[1]}"; known: ${Object.keys(SB3Creator.STC_PARTS).sort().join(', ')}`);
                 return true;
