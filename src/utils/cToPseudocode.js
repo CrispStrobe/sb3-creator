@@ -181,9 +181,18 @@ function readMarkers (source) {
             if (lb) {
                 h.parts.push({ name: lb[1], type: 'ledbank8', ledPort: +lb[2], activeLow: !!lb[3] });
             }
+            // `part <name> lcd1602 data D4 D5 D6 D7 rs RS [rw RW] en EN [write-only]`
+            const lcd = (kp || ss || lb) ? null : rest.match(/^(\w+)\s+lcd1602\s+data\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+rs\s+(\S+)(?:\s+rw\s+(\S+))?\s+en\s+(\S+)(\s+write-only)?/i);
+            if (lcd) {
+                const at = (s) => { const m8 = s.match(/^P(\d)\.(\d)$/i); return m8 ? { port: +m8[1], bit: +m8[2] } : { where: s.toUpperCase() }; };
+                h.parts.push({ name: lcd[1], type: 'lcd1602',
+                    data: [lcd[2], lcd[3], lcd[4], lcd[5]].map(at),
+                    rs: at(lcd[6]), rw: lcd[7] ? at(lcd[7]) : null,
+                    en: at(lcd[8]), writeOnly: !!lcd[9] });
+            }
             // `part <name> <type> <data> <clock> <latch> [active-low]` — pin
             // spellings are the device's own (P1.0 on 8051, GP25/PA0 elsewhere).
-            const p = (kp || ss || lb) ? null : rest.match(/^(\w+)\s+(\w+)\s+(\S+)\s+(\S+)\s+(\S+)(\s+active-low)?/);
+            const p = (kp || ss || lb || lcd) ? null : rest.match(/^(\w+)\s+(\w+)\s+(\S+)\s+(\S+)\s+(\S+)(\s+active-low)?/);
             if (p) {
                 const at = (s) => { const m8 = s.match(/^P(\d)\.(\d)$/i); return m8 ? { port: +m8[1], bit: +m8[2] } : { where: s.toUpperCase() }; };
                 h.parts.push({ name: p[1], type: p[2], data: at(p[3]), clock: at(p[4]), latch: at(p[5]), activeLow: !!p[6] });
@@ -2016,6 +2025,10 @@ export default function cToPseudocode (source, opts = {}) {
             }
             if (pt.type === 'ledbank8') {
                 out.push(`PART ${pt.name} = LEDBANK8 ON P${pt.ledPort}${pt.activeLow ? ' ACTIVE LOW' : ''}`);
+                continue;
+            }
+            if (pt.type === 'lcd1602') {
+                out.push(`PART ${pt.name} = LCD1602 DATA ${pt.data.map(at).join(' ')} RS ${at(pt.rs)}${pt.rw ? ` RW ${at(pt.rw)}` : ''} EN ${at(pt.en)}${pt.writeOnly ? ' WRITE ONLY' : ''}`);
                 continue;
             }
             out.push(`PART ${pt.name} = ${pt.type.toUpperCase()} data ${at(pt.data)} clock ${at(pt.clock)} latch ${at(pt.latch)}${pt.activeLow ? ' ACTIVE LOW' : ''}`);

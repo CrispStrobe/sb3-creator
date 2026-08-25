@@ -107,7 +107,7 @@ async function runSampler (extensionSource) {
     for (let i = 0; i < 20; i++) vm.runtime._step();
     const readVars = () => Object.fromEntries(vm.runtime.targets
         .flatMap((t) => Object.values(t.variables)).map((v) => [v.name, v.value]));
-    const before = readVars().running;
+    const before = readVars().hash_seen;
 
     // Stand in for the board layer's keypad scanner: press key 14, then release.
     // The example's `WHEN key 14 pressed` toggles `running`.
@@ -116,7 +116,7 @@ async function runSampler (extensionSource) {
     for (let i = 0; i < 10; i++) vm.runtime._step();
     vm.runtime._stc12Pins.keypad_keys = -1;
     for (let i = 0; i < 30; i++) vm.runtime._step();
-    const after = readVars().running;
+    const after = readVars().hash_seen;
 
     vm.quit();
     return { undefinedOpcodes, isHat: vm.runtime.getIsHat('stc12_whenkey'),
@@ -143,24 +143,18 @@ describe('79-a2-sampler in the real VM', { concurrency: 1 }, () => {
         assert.strictEqual(r.isHat, true,
             'stc12_whenkey must register as a hat, or its scripts never start');
         assert.ok(r.hatFired,
-            '`WHEN key 14 pressed` did not fire: `running` never changed while key 14 was held. ' +
+            '`WHEN key 14 pressed` did not fire: `hash_seen` never changed while key 14 was held. ' +
             'This is what an undefined or mis-typed hat looks like from the outside — the ' +
             'project still runs, it just never reacts.');
 
-        // `show number keys on display` writes the 7-seg frame buffer. Key 14 held
-        // means digits "1" and "4": 0x06 and 0x66 in the standard segment font.
+        // The polling task writes the held key's index after the edge script,
+        // so the stable final frame reads 14. hash_seen above proves the edge
+        // script itself also ran (and transiently wrote 8888).
         // Asserting the bytes, not just that something was written, is the point —
         // a display that lights the wrong thing passes any "did it run" check.
         assert.ok(r.segs?.display, 'the SEVENSEG8 frame buffer was never created');
         assert.deepStrictEqual(r.segs.display.slice(6), [0x06, 0x66],
-            `the two right-hand digits should read "14" (0x06, 0x66); got ${JSON.stringify(r.segs.display)}`);
-
-        // `light only led step on leds` writes the LEDBANK8 shadow byte, which must
-        // always be a single set bit.
-        assert.ok(r.banks && 'leds' in r.banks, 'the LEDBANK8 shadow byte was never created');
-        const shadow = r.banks.leds;
-        assert.strictEqual(shadow & (shadow - 1), 0,
-            `"light only" must leave exactly one bit set, got 0b${shadow.toString(2)}`);
+            `the two right-hand digits should read "14"; got ${JSON.stringify(r.segs.display)}`);
     });
 
     test('against the copy lite ships: exactly the recorded gap, and no more', async () => {

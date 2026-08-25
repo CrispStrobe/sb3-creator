@@ -23,17 +23,10 @@
    "y": 300
   },
   {
-   "id": "disL",
-   "kind": "seven_seg_4",
+   "id": "display",
+   "kind": "sevenseg8",
    "params": {},
    "x": 460,
-   "y": 80
-  },
-  {
-   "id": "disR",
-   "kind": "seven_seg_4",
-   "params": {},
-   "x": 620,
    "y": 80
   },
   {
@@ -230,6 +223,18 @@
    "toTerminal": "GND"
   },
   {
+   "from": "vcc1",
+   "fromTerminal": "vcc",
+   "to": "display",
+   "toTerminal": "vcc"
+  },
+  {
+   "from": "gnd1",
+   "fromTerminal": "gnd",
+   "to": "display",
+   "toTerminal": "gnd"
+  },
+  {
    "from": "mcu1",
    "fromTerminal": "P0.0",
    "to": "r_a",
@@ -238,14 +243,8 @@
   {
    "from": "r_a",
    "fromTerminal": "b",
-   "to": "disL",
-   "toTerminal": "a"
-  },
-  {
-   "from": "r_a",
-   "fromTerminal": "b",
-   "to": "disR",
-   "toTerminal": "a"
+   "to": "display",
+   "toTerminal": "seg_a"
   },
   {
    "from": "mcu1",
@@ -256,14 +255,8 @@
   {
    "from": "r_b",
    "fromTerminal": "b",
-   "to": "disL",
-   "toTerminal": "b"
-  },
-  {
-   "from": "r_b",
-   "fromTerminal": "b",
-   "to": "disR",
-   "toTerminal": "b"
+   "to": "display",
+   "toTerminal": "seg_b"
   },
   {
    "from": "mcu1",
@@ -274,14 +267,8 @@
   {
    "from": "r_c",
    "fromTerminal": "b",
-   "to": "disL",
-   "toTerminal": "c"
-  },
-  {
-   "from": "r_c",
-   "fromTerminal": "b",
-   "to": "disR",
-   "toTerminal": "c"
+   "to": "display",
+   "toTerminal": "seg_c"
   },
   {
    "from": "mcu1",
@@ -292,14 +279,8 @@
   {
    "from": "r_d",
    "fromTerminal": "b",
-   "to": "disL",
-   "toTerminal": "d"
-  },
-  {
-   "from": "r_d",
-   "fromTerminal": "b",
-   "to": "disR",
-   "toTerminal": "d"
+   "to": "display",
+   "toTerminal": "seg_d"
   },
   {
    "from": "mcu1",
@@ -310,14 +291,8 @@
   {
    "from": "r_e",
    "fromTerminal": "b",
-   "to": "disL",
-   "toTerminal": "e"
-  },
-  {
-   "from": "r_e",
-   "fromTerminal": "b",
-   "to": "disR",
-   "toTerminal": "e"
+   "to": "display",
+   "toTerminal": "seg_e"
   },
   {
    "from": "mcu1",
@@ -328,14 +303,8 @@
   {
    "from": "r_f",
    "fromTerminal": "b",
-   "to": "disL",
-   "toTerminal": "f"
-  },
-  {
-   "from": "r_f",
-   "fromTerminal": "b",
-   "to": "disR",
-   "toTerminal": "f"
+   "to": "display",
+   "toTerminal": "seg_f"
   },
   {
    "from": "mcu1",
@@ -346,14 +315,8 @@
   {
    "from": "r_g",
    "fromTerminal": "b",
-   "to": "disL",
-   "toTerminal": "g"
-  },
-  {
-   "from": "r_g",
-   "fromTerminal": "b",
-   "to": "disR",
-   "toTerminal": "g"
+   "to": "display",
+   "toTerminal": "seg_g"
   },
   {
    "from": "mcu1",
@@ -364,62 +327,26 @@
   {
    "from": "r_dp",
    "fromTerminal": "b",
-   "to": "disL",
-   "toTerminal": "dp"
-  },
-  {
-   "from": "r_dp",
-   "fromTerminal": "b",
-   "to": "disR",
-   "toTerminal": "dp"
-  },
-  {
-   "from": "mcu1",
-   "fromTerminal": "P2.0",
-   "to": "disR",
-   "toTerminal": "com3"
-  },
-  {
-   "from": "mcu1",
-   "fromTerminal": "P2.4",
-   "to": "disL",
-   "toTerminal": "com3"
-  },
-  {
-   "from": "mcu1",
-   "fromTerminal": "P2.1",
-   "to": "disR",
-   "toTerminal": "com2"
-  },
-  {
-   "from": "mcu1",
-   "fromTerminal": "P2.5",
-   "to": "disL",
-   "toTerminal": "com2"
+   "to": "display",
+   "toTerminal": "seg_dp"
   },
   {
    "from": "mcu1",
    "fromTerminal": "P2.2",
-   "to": "disR",
-   "toTerminal": "com1"
-  },
-  {
-   "from": "mcu1",
-   "fromTerminal": "P2.6",
-   "to": "disL",
-   "toTerminal": "com1"
+   "to": "display",
+   "toTerminal": "sel_a"
   },
   {
    "from": "mcu1",
    "fromTerminal": "P2.3",
-   "to": "disR",
-   "toTerminal": "com0"
+   "to": "display",
+   "toTerminal": "sel_b"
   },
   {
    "from": "mcu1",
-   "fromTerminal": "P2.7",
-   "to": "disL",
-   "toTerminal": "com0"
+   "fromTerminal": "P2.4",
+   "to": "display",
+   "toTerminal": "sel_c"
   },
   {
    "from": "mcu1",
@@ -519,7 +446,7 @@
   },
   {
    "from": "mcu1",
-   "fromTerminal": "P3.2",
+   "fromTerminal": "P3.1",
    "to": "btn_k1",
    "toTerminal": "a"
   },
@@ -543,7 +470,7 @@
   },
   {
    "from": "mcu1",
-   "fromTerminal": "P3.3",
+   "fromTerminal": "P3.0",
    "to": "btn_k2",
    "toTerminal": "a"
   },
@@ -567,7 +494,7 @@
   },
   {
    "from": "mcu1",
-   "fromTerminal": "P3.4",
+   "fromTerminal": "P3.2",
    "to": "btn_k3",
    "toTerminal": "a"
   },
@@ -591,7 +518,7 @@
   },
   {
    "from": "mcu1",
-   "fromTerminal": "P3.5",
+   "fromTerminal": "P3.3",
    "to": "btn_k4",
    "toTerminal": "a"
   },

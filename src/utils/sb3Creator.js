@@ -1608,6 +1608,13 @@ class SB3Creator {
         return !!(cfg && cfg.parts && cfg.parts.some((p) => p.type === 'ledbank8'));
     }
 
+    _cLcdParallelPart() {
+        if (this._core !== '8051') return null;
+        const cfg = this.project && this.project.stc;
+        const lcds = ((cfg && cfg.parts) || []).filter((p) => p.type === 'lcd1602');
+        return lcds.length === 1 ? lcds[0] : null;
+    }
+
     _stcSevenSeg(name) {
         const p = this.stcPart(name);
         return p && p.type === 'sevenseg8' ? p : null;
@@ -2362,6 +2369,67 @@ class SB3Creator {
                 return true;
             }
         }
+        // A directly-wired HD44780-compatible LCD in 4-bit mode. Declaring
+        // one selects the parallel driver for the existing lcd verbs; without
+        // it they retain the PCF8574 backpack driver.
+        let lcdWriteOnly = false;
+        let lcdMatch = trimmed.match(/^PART\s+([A-Za-z_]\w*)\s*=\s*LCD1602\s+DATA\s+P([0-4])\.([0-7])\s+P([0-4])\.([0-7])\s+P([0-4])\.([0-7])\s+P([0-4])\.([0-7])\s+RS\s+P([0-4])\.([0-7])\s+RW\s+P([0-4])\.([0-7])\s+EN\s+P([0-4])\.([0-7])$/i);
+        if (!lcdMatch) {
+            lcdMatch = trimmed.match(/^PART\s+([A-Za-z_]\w*)\s*=\s*LCD1602\s+DATA\s+P([0-4])\.([0-7])\s+P([0-4])\.([0-7])\s+P([0-4])\.([0-7])\s+P([0-4])\.([0-7])\s+RS\s+P([0-4])\.([0-7])\s+EN\s+P([0-4])\.([0-7])\s+WRITE\s+ONLY$/i);
+            lcdWriteOnly = !!lcdMatch;
+        }
+        if (lcdMatch) {
+            const name = lcdMatch[1];
+            const cfg = this.stcConfig();
+            const target = SB3Creator.STC_PARTS[cfg.device];
+            if (!target || (target.core && target.core !== '8051')) {
+                this.warn(lineIndex, `LCD1602 parallel pin syntax is currently available on the 8051 family; ${cfg.device} should use the I2C LCD wiring.`);
+                return true;
+            }
+            if (this.stcPin(name) || this.stcPort(name) || this.stcPart(name)) {
+                this.warn(lineIndex, `"${name}" declared twice`);
+                return true;
+            }
+            const data = [];
+            for (let i = 2; i <= 9; i += 2) data.push({ port: Number(lcdMatch[i]), bit: Number(lcdMatch[i + 1]) });
+            const rs = { port: Number(lcdMatch[10]), bit: Number(lcdMatch[11]) };
+            let rw = null, en;
+            if (lcdWriteOnly) en = { port: Number(lcdMatch[12]), bit: Number(lcdMatch[13]) };
+            else {
+                rw = { port: Number(lcdMatch[12]), bit: Number(lcdMatch[13]) };
+                en = { port: Number(lcdMatch[14]), bit: Number(lcdMatch[15]) };
+            }
+            const pins = [...data, rs, ...(rw ? [rw] : []), en];
+            const claims = pins.map(({ port, bit }) => [port, bit]);
+            if (new Set(claims.map(([port, bit]) => `${port}.${bit}`)).size !== claims.length) {
+                this.warn(lineIndex, `"${name}" names the same pin twice; LCD1602 needs distinct data and control pins`);
+                return true;
+            }
+            for (const [port, bit] of claims) {
+                const pinConflict = cfg.pins.find((pin) => pin.port === port && pin.bit === bit);
+                if (pinConflict) {
+                    this.warn(lineIndex, `P${port}.${bit} is already declared as "${pinConflict.name}"; a PART claims its pins`);
+                    return true;
+                }
+                const portConflict = cfg.ports.find((whole) => whole.port === port);
+                if (portConflict) {
+                    this.warn(lineIndex, `P${port}.${bit} is inside the whole port "${portConflict.name}", which would clobber it`);
+                    return true;
+                }
+                for (const prev of cfg.parts) {
+                    if ((prev.claims || []).some((c) => Array.isArray(c) && c[0] === port && c[1] === bit)) {
+                        this.warn(lineIndex, `P${port}.${bit} is already claimed by "${prev.name}"`);
+                        return true;
+                    }
+                }
+            }
+            if (cfg.parts.some((p) => p.type === 'lcd1602')) {
+                this.warn(lineIndex, 'only one parallel LCD1602 is supported');
+                return true;
+            }
+            cfg.parts.push({ name, type: 'lcd1602', claims, data, rs, rw, en, writeOnly: lcdWriteOnly });
+            return true;
+        }
         // PART <name> = KEYPAD4X4 ROWS P<..> x4 COLS P<..> x4 — sixteen keys for
         // eight pins, read-only (the scanned key 0..15, or -1). The emitted
         // scanner is the one verified on Prechin A2 silicon (2026-08-17);
@@ -2600,7 +2668,7 @@ class SB3Creator {
             const ledPort = Number(m[2]);
             for (const ss of cfg.parts) {
                 if (ss.type === 'sevenseg8' && (ss.selPins || []).some((p) => p.port === ledPort)) {
-                    this.warn(lineIndex, `${name} on P${ledPort} shares a port with ${ss.name}'s select pins; the ISR scan will flicker the LEDs during digit multiplexing. LED writes go through the shadow byte.`);
+                    this.warn(lineIndex, `${name} on P${ledPort} shares a port with ${ss.name}'s select pins; the 74HC138 address visibly drives those LEDs, and a full LED-bank write also overwrites the digit address. The two cannot hold independent stable patterns; use separate modes/examples.`);
                     break;
                 }
             }
@@ -5176,6 +5244,10 @@ class SB3Creator {
                     out.push(`PART ${p.name} = LEDBANK8 ON P${p.ledPort}${p.activeLow ? ' ACTIVE LOW' : ''}`);
                     continue;
                 }
+                if (p.type === 'lcd1602') {
+                    out.push(`PART ${p.name} = LCD1602 DATA ${p.data.map(pinStr).join(' ')} RS ${pinStr(p.rs)}${p.rw ? ` RW ${pinStr(p.rw)}` : ''} EN ${pinStr(p.en)}${p.writeOnly ? ' WRITE ONLY' : ''}`);
+                    continue;
+                }
                 out.push(`PART ${p.name} = 74HC595 data ${pinStr(p.data)} clock ${pinStr(p.clock)} latch ${pinStr(p.latch)}${p.activeLow ? ' ACTIVE LOW' : ''}`);
             }
             for (const t of cfg.tables || []) {
@@ -7423,13 +7495,14 @@ class SB3Creator {
             case 'devices_deactivate': { this._cUses.devices = true; this._cUses.relay = true; return line(`bw_device_deactivate(${v('DEVICE')});`); }
             case 'devices_lcdprint': {
                 this._cUses.devices = true; this._cUses.lcd = true;
+                if (this._cLcdParallelPart()) this._cUses.delay = true;
                 const t = this.cTextArg(b.inputs.TEXT, blocks);
                 return line(t.isString
                     ? `bw_lcd_print_s(${v('DISPLAY')}, ${t.code});`
                     : `bw_lcd_print_n(${v('DISPLAY')}, ${t.code});`);
             }
-            case 'devices_lcdcursor': { this._cUses.devices = true; this._cUses.lcd = true; return line(`bw_lcd_cursor(${v('DISPLAY')}, ${v('ROW')}, ${v('COL')});`); }
-            case 'devices_lcdclear': { this._cUses.devices = true; this._cUses.lcd = true; return line(`bw_lcd_clear(${v('DISPLAY')});`); }
+            case 'devices_lcdcursor': { this._cUses.devices = true; this._cUses.lcd = true; if (this._cLcdParallelPart()) this._cUses.delay = true; return line(`bw_lcd_cursor(${v('DISPLAY')}, ${v('ROW')}, ${v('COL')});`); }
+            case 'devices_lcdclear': { this._cUses.devices = true; this._cUses.lcd = true; if (this._cLcdParallelPart()) this._cUses.delay = true; return line(`bw_lcd_clear(${v('DISPLAY')});`); }
             case 'devices_showdigit': { this._cUses.devices = true; return line(`bw_7seg_show(${v('DISPLAY')}, ${v('DIGIT')});`); }
             case 'devices_setrgb': { this._cUses.devices = true; return line(`bw_rgb_set(${v('LED')}, ${v('R')}, ${v('G')}, ${v('B')});`); }
             case 'devices_setpixel': { this._cUses.devices = true; return line(`bw_matrix_set(${v('MATRIX')}, ${v('X')}, ${v('Y')}, ${v('BRIGHTNESS')});`); }
@@ -9891,6 +9964,7 @@ class SB3Creator {
             : (part && part.core === 'rp2040') ? 'arm'
                 : (part && part.core === 'w65c02') ? '6502'
                     : (part && part.core === 'z80') ? 'z80' : '8051';
+        const parallelLcd = this._cLcdParallelPart();
         this._cMega = !!(part && part.mega);
         this._cTiny88 = !!(part && part.tiny88);
         if (part && part.core && part.core !== '8051' && part.core !== 'arduino'
@@ -10346,7 +10420,7 @@ class SB3Creator {
             driverPins.push({ port: 3, bit: 7, driver: 'ultrasonic echo' });
         }
         if (this._cUses.neopixel) driverPins.push({ port: 1, bit: 5, driver: 'NeoPixel data' });
-        if (this._cUses.lcd || this._cUses.oled) {
+        if ((this._cUses.lcd && !parallelLcd) || this._cUses.oled) {
             driverPins.push({ port: 2, bit: 1, driver: 'I2C SDA' });
             driverPins.push({ port: 2, bit: 2, driver: 'I2C SCL' });
         }
@@ -10451,6 +10525,9 @@ class SB3Creator {
                     }
                     if (pt.type === 'ledbank8') {
                         return `part ${pt.name} ledbank8 P${pt.ledPort}${pt.activeLow ? ' active-low' : ''}`;
+                    }
+                    if (pt.type === 'lcd1602') {
+                        return `part ${pt.name} lcd1602 data ${pt.data.map(w).join(' ')} rs ${w(pt.rs)}${pt.rw ? ` rw ${w(pt.rw)}` : ''} en ${w(pt.en)}${pt.writeOnly ? ' write-only' : ''}`;
                     }
                     return `part ${pt.name} ${pt.type} ${w(pt.data)} ${w(pt.clock)} ${w(pt.latch)}${pt.activeLow ? ' active-low' : ''}`;
                 })),
@@ -12065,7 +12142,7 @@ class SB3Creator {
             // Shared I2C bus primitives — used by LCD (PCF8574) and OLED (SSD1306).
             // Gated by _cUses.lcd || _cUses.oled so only one copy is emitted
             // regardless of how many I2C devices a program drives.
-            if (this._cUses.lcd || this._cUses.oled) {
+            if ((this._cUses.lcd && !parallelLcd) || this._cUses.oled) {
                 // I2C pin-primitive macros — per-core flavor.
                 // The driver body below calls I2C_SDA_HI()/LO(), I2C_SCL_HI()/LO()
                 // instead of assignment, so the same code works with 8051 sbit,
@@ -12212,8 +12289,72 @@ class SB3Creator {
                     '');
             }
 
-            // LCD (HD44780 via PCF8574 I2C backpack)
-            if (this._cUses.lcd) {
+            // LCD1602 / HD44780. A PART declaration selects the direct 4-bit
+            // bus used by the A2; otherwise keep the PCF8574 backpack driver.
+            if (this._cUses.lcd && parallelLcd) {
+                const ref = (p) => `P${p.port}_${p.bit}`;
+                const [d4, d5, d6, d7] = parallelLcd.data.map(ref);
+                out.push(
+                    `#define LCD_D4 ${d4}`,
+                    `#define LCD_D5 ${d5}`,
+                    `#define LCD_D6 ${d6}`,
+                    `#define LCD_D7 ${d7}`,
+                    `#define LCD_RS ${ref(parallelLcd.rs)}`,
+                    `#define LCD_EN ${ref(parallelLcd.en)}`,
+                    ...(parallelLcd.rw ? [`#define LCD_RW ${ref(parallelLcd.rw)}`] : []),
+                    '',
+                    'static void lcd_nibble(unsigned char nib, unsigned char rs)',
+                    '{',
+                    '    LCD_RS = rs ? 1 : 0;',
+                    ...(parallelLcd.rw ? ['    LCD_RW = 0;'] : []),
+                    '    LCD_D4 = (nib & 0x10) ? 1 : 0;',
+                    '    LCD_D5 = (nib & 0x20) ? 1 : 0;',
+                    '    LCD_D6 = (nib & 0x40) ? 1 : 0;',
+                    '    LCD_D7 = (nib & 0x80) ? 1 : 0;',
+                    '    LCD_EN = 1;',
+                    '    LCD_EN = 0;',
+                    '}',
+                    '',
+                    'static void lcd_cmd(unsigned char cmd)',
+                    '{',
+                    '    lcd_nibble((unsigned char)(cmd & 0xF0), 0);',
+                    '    lcd_nibble((unsigned char)((cmd << 4) & 0xF0), 0);',
+                    '    delay_ms((cmd == 0x01 || cmd == 0x02) ? 3 : 1);',
+                    '}',
+                    '',
+                    'static void lcd_data(unsigned char dat)',
+                    '{',
+                    '    lcd_nibble((unsigned char)(dat & 0xF0), 1);',
+                    '    lcd_nibble((unsigned char)((dat << 4) & 0xF0), 1);',
+                    '    delay_ms(1);',
+                    '}',
+                    '',
+                    'static void bw_lcd_print_s(int disp, const char *s)',
+                    '{',
+                    '    (void)disp;',
+                    '    while (*s) lcd_data((unsigned char)*s++);',
+                    '}',
+                    '',
+                    'static void bw_lcd_print_n(int disp, long n)',
+                    '{',
+                    '    char buf[12]; unsigned char i = 0; unsigned long u;',
+                    '    (void)disp;',
+                    '    if (n < 0) { lcd_data(0x2D); u = (unsigned long)(-n); }',
+                    '    else u = (unsigned long)n;',
+                    '    if (u == 0) { lcd_data(0x30); return; }',
+                    '    while (u) { buf[i++] = (char)(0x30 + (u % 10)); u /= 10; }',
+                    '    while (i) lcd_data((unsigned char)buf[--i]);',
+                    '}',
+                    '',
+                    'static void bw_lcd_cursor(int disp, int row, int col)',
+                    '{',
+                    '    (void)disp;',
+                    '    lcd_cmd((unsigned char)(0x80 | ((row & 1) ? 0x40 : 0x00) | (col & 0x0F)));',
+                    '}',
+                    '',
+                    'static void bw_lcd_clear(int disp) { (void)disp; lcd_cmd(0x01); }',
+                    '');
+            } else if (this._cUses.lcd) {
                 out.push(
                     '#define LCD_ADDR 0x27   /* PCF8574 default */',
                     '',
@@ -12617,7 +12758,7 @@ class SB3Creator {
                     const colBits = mx.cols.map(c => Number(c.match(/\d+/)[0]));
                     const rowMask = rowBits.reduce((m, b) => m | (1 << b), 0);
                     const _colMask = colBits.reduce((m, b) => m | (1 << b), 0);
-                    const useI2cShadow = this._cUses.lcd || this._cUses.oled;
+                    const useI2cShadow = (this._cUses.lcd && !parallelLcd) || this._cUses.oled;
                     const oraWrite = useI2cShadow
                         ? (_expr) => `_i2c_sh = (unsigned char)((unsigned char)(_i2c_sh | 0x${rowMask.toString(16).padStart(2, '0')}) & (unsigned char)~(1u << _mk_rows[r])); BW_VIA_ORA = _i2c_sh`
                         : (_expr) => `BW_VIA_ORA = (unsigned char)((unsigned char)(BW_VIA_ORA | 0x${rowMask.toString(16).padStart(2, '0')}) & (unsigned char)~(1u << _mk_rows[r]))`;
@@ -13082,7 +13223,7 @@ class SB3Creator {
                 '    _neo_count = NEO_MAX;');
         }
         // I2C bus init — shared by LCD and OLED.
-        if (this._cUses.lcd || this._cUses.oled) {
+        if ((this._cUses.lcd && !parallelLcd) || this._cUses.oled) {
             if (this._core === '6502') {
                 // VIA: set DDR bits for SDA/SCL output, init shadow, release bus.
                 const sdaPin = pins.find((p) => p.name.toLowerCase() === 'sda');
@@ -13122,6 +13263,12 @@ class SB3Creator {
         }
         // LCD (HD44780 via PCF8574): 4-bit mode init sequence.
         if (this._cUses.lcd) {
+            if (parallelLcd) {
+                out.push('    /* Direct HD44780: power-on settle, then the datasheet 4-bit handshake. */',
+                    '    LCD_EN = 0; LCD_RS = 0;',
+                    ...(parallelLcd.rw ? ['    LCD_RW = 0;'] : []),
+                    '    delay_ms(40);');
+            }
             out.push('    /* HD44780 init: 4-bit mode, 2-line, 5x8 font */',
                 '    lcd_nibble(0x30, 0); lcd_nibble(0x30, 0); lcd_nibble(0x30, 0);',
                 '    lcd_nibble(0x20, 0);             /* switch to 4-bit */',
@@ -13869,6 +14016,15 @@ SB3Creator.retargetPseudocode = function retargetPseudocode(src, device) {
     const newParts = [];
     for (const p of (stc.parts || [])) {
         const newPart = { ...p };
+        if (p.type === 'lcd1602') {
+            // A direct LCD has four data pins plus RS/RW/EN, not the scalar
+            // data/clock/latch shape of a 74HC595. The Pn.b coordinates are
+            // valid across our 8051 targets; non-8051 parsers deliberately
+            // refuse this electrical declaration.
+            if (core !== '8051') reasons.push(`${device} does not support a directly wired LCD1602 PART`);
+            newParts.push(newPart);
+            continue;
+        }
         if (!p.data && !p.clock && !p.latch) {
             // KEYPAD4X4 / SEVENSEG8 / LEDBANK8 carry no 595-shaped roles —
             // they keep their 8051 coordinates, and the honest refusal on a

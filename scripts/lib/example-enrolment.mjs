@@ -24,6 +24,7 @@ function factsFor(EXAMPLES, entry) {
         blocks: 0,
         emitsDeviceC: false,
         declaresParams: false,
+        hasInputPins: false,
     };
     const exp = join(dir, 'EXPECTED.md');
     if (existsSync(exp)) f.assertBlock = /```assert\n[\s\S]*?```/.test(readFileSync(exp, 'utf8'));
@@ -41,6 +42,7 @@ function factsFor(EXAMPLES, entry) {
                 for (const [, b] of Object.entries(t.blocks || {}))
                     if (b && typeof b === 'object' && !Array.isArray(b) && b.opcode) f.blocks++;
             f.emitsDeviceC = /@bw-begin/.test(creator.generateC());
+            f.hasInputPins = !!creator.project?.stc?.pins?.some((p) => p.direction === 'input');
         } catch { /* a program that will not parse is another gate's finding */ }
     }
     return f;
@@ -96,6 +98,9 @@ export const ENROLMENT = [
     {   gate: 'circuit-params-are-read',
         why: 'every declared circuit param must be one the engine reads',
         p: (f) => f.declaresParams },
+    {   gate: 'simulator-driver-controls-respond',
+        why: 'full program+circuit examples with declared input pins are driven through the simulator adapter',
+        p: (f) => !!f.entry.files?.program && !!f.entry.files?.circuit && f.hasInputPins },
     {   gate: 'program-reads-what-it-writes',
         why: 'variable names and dangling reads',
         p: (f) => f.hasProgramFile },

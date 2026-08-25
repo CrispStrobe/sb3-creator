@@ -1,23 +1,24 @@
 {
   "note": "Which gates enrol which example, computed from scripts/lib/example-enrolment.mjs. A diff here is a change in COVERAGE — read it before regenerating.",
   "measuredOn": "2026-08-23",
-  "examples": 274,
+  "examples": 277,
   "gates": {
-    "gallery": 272,
-    "example-kind-matches-content": 274,
-    "index-metadata-matches-disk": 274,
-    "retarget-gallery": 40,
-    "retarget-amplification": 40,
-    "gen-device-benches": 110,
+    "gallery": 275,
+    "example-kind-matches-content": 277,
+    "index-metadata-matches-disk": 277,
+    "retarget-gallery": 43,
+    "retarget-amplification": 43,
+    "gen-device-benches": 114,
     "example-corpus-contract": 116,
     "assert-physics": 244,
     "debug-micropython": 9,
     "debug-trace-audit": 16,
     "circuit-params-are-read": 246,
-    "program-reads-what-it-writes": 272,
-    "vm-and-c-agree-on-arithmetic": 122,
+    "simulator-driver-controls-respond": 33,
+    "program-reads-what-it-writes": 275,
+    "vm-and-c-agree-on-arithmetic": 125,
     "documented-tables-are-derived": 4,
-    "vm": 272,
+    "vm": 275,
     "gallery-e2e": 27
   },
   "map": {
@@ -100,6 +101,7 @@
       "program-reads-what-it-writes",
       "retarget-amplification",
       "retarget-gallery",
+      "simulator-driver-controls-respond",
       "vm",
       "vm-and-c-agree-on-arithmetic"
     ],
@@ -186,6 +188,7 @@
       "program-reads-what-it-writes",
       "retarget-amplification",
       "retarget-gallery",
+      "simulator-driver-controls-respond",
       "vm",
       "vm-and-c-agree-on-arithmetic"
     ],
@@ -291,6 +294,7 @@
       "program-reads-what-it-writes",
       "retarget-amplification",
       "retarget-gallery",
+      "simulator-driver-controls-respond",
       "vm",
       "vm-and-c-agree-on-arithmetic"
     ],
@@ -306,6 +310,7 @@
       "program-reads-what-it-writes",
       "retarget-amplification",
       "retarget-gallery",
+      "simulator-driver-controls-respond",
       "vm",
       "vm-and-c-agree-on-arithmetic"
     ],
@@ -380,6 +385,7 @@
       "program-reads-what-it-writes",
       "retarget-amplification",
       "retarget-gallery",
+      "simulator-driver-controls-respond",
       "vm",
       "vm-and-c-agree-on-arithmetic"
     ],
@@ -395,6 +401,7 @@
       "program-reads-what-it-writes",
       "retarget-amplification",
       "retarget-gallery",
+      "simulator-driver-controls-respond",
       "vm",
       "vm-and-c-agree-on-arithmetic"
     ],
@@ -410,6 +417,7 @@
       "program-reads-what-it-writes",
       "retarget-amplification",
       "retarget-gallery",
+      "simulator-driver-controls-respond",
       "vm",
       "vm-and-c-agree-on-arithmetic"
     ],
@@ -1098,6 +1106,7 @@
       "gallery",
       "index-metadata-matches-disk",
       "program-reads-what-it-writes",
+      "simulator-driver-controls-respond",
       "vm",
       "vm-and-c-agree-on-arithmetic"
     ],
@@ -1453,6 +1462,7 @@
       "gallery",
       "index-metadata-matches-disk",
       "program-reads-what-it-writes",
+      "simulator-driver-controls-respond",
       "vm",
       "vm-and-c-agree-on-arithmetic"
     ],
@@ -1511,6 +1521,7 @@
       "gen-device-benches",
       "index-metadata-matches-disk",
       "program-reads-what-it-writes",
+      "simulator-driver-controls-respond",
       "vm",
       "vm-and-c-agree-on-arithmetic"
     ],
@@ -1548,6 +1559,7 @@
       "gen-device-benches",
       "index-metadata-matches-disk",
       "program-reads-what-it-writes",
+      "simulator-driver-controls-respond",
       "vm",
       "vm-and-c-agree-on-arithmetic"
     ],
@@ -1560,6 +1572,7 @@
       "gen-device-benches",
       "index-metadata-matches-disk",
       "program-reads-what-it-writes",
+      "simulator-driver-controls-respond",
       "vm",
       "vm-and-c-agree-on-arithmetic"
     ],
@@ -1572,6 +1585,7 @@
       "gen-device-benches",
       "index-metadata-matches-disk",
       "program-reads-what-it-writes",
+      "simulator-driver-controls-respond",
       "vm",
       "vm-and-c-agree-on-arithmetic"
     ],
@@ -1584,6 +1598,7 @@
       "gen-device-benches",
       "index-metadata-matches-disk",
       "program-reads-what-it-writes",
+      "simulator-driver-controls-respond",
       "vm",
       "vm-and-c-agree-on-arithmetic"
     ],
@@ -1777,6 +1792,7 @@
       "gen-device-benches",
       "index-metadata-matches-disk",
       "program-reads-what-it-writes",
+      "simulator-driver-controls-respond",
       "vm",
       "vm-and-c-agree-on-arithmetic"
     ],
@@ -1824,6 +1840,7 @@
       "gen-device-benches",
       "index-metadata-matches-disk",
       "program-reads-what-it-writes",
+      "simulator-driver-controls-respond",
       "vm",
       "vm-and-c-agree-on-arithmetic"
     ],
@@ -1860,6 +1877,7 @@
       "gen-device-benches",
       "index-metadata-matches-disk",
       "program-reads-what-it-writes",
+      "simulator-driver-controls-respond",
       "vm",
       "vm-and-c-agree-on-arithmetic"
     ],
@@ -2051,6 +2069,7 @@
       "gen-device-benches",
       "index-metadata-matches-disk",
       "program-reads-what-it-writes",
+      "simulator-driver-controls-respond",
       "vm",
       "vm-and-c-agree-on-arithmetic"
     ],
@@ -2111,6 +2130,7 @@
       "gen-device-benches",
       "index-metadata-matches-disk",
       "program-reads-what-it-writes",
+      "simulator-driver-controls-respond",
       "vm",
       "vm-and-c-agree-on-arithmetic"
     ],
@@ -2123,6 +2143,7 @@
       "gen-device-benches",
       "index-metadata-matches-disk",
       "program-reads-what-it-writes",
+      "simulator-driver-controls-respond",
       "vm",
       "vm-and-c-agree-on-arithmetic"
     ],
@@ -2135,6 +2156,7 @@
       "gen-device-benches",
       "index-metadata-matches-disk",
       "program-reads-what-it-writes",
+      "simulator-driver-controls-respond",
       "vm",
       "vm-and-c-agree-on-arithmetic"
     ],
@@ -2147,6 +2169,7 @@
       "gen-device-benches",
       "index-metadata-matches-disk",
       "program-reads-what-it-writes",
+      "simulator-driver-controls-respond",
       "vm",
       "vm-and-c-agree-on-arithmetic"
     ],
@@ -2159,6 +2182,7 @@
       "gen-device-benches",
       "index-metadata-matches-disk",
       "program-reads-what-it-writes",
+      "simulator-driver-controls-respond",
       "vm",
       "vm-and-c-agree-on-arithmetic"
     ],
@@ -2171,6 +2195,7 @@
       "gen-device-benches",
       "index-metadata-matches-disk",
       "program-reads-what-it-writes",
+      "simulator-driver-controls-respond",
       "vm",
       "vm-and-c-agree-on-arithmetic"
     ],
@@ -2183,6 +2208,7 @@
       "gen-device-benches",
       "index-metadata-matches-disk",
       "program-reads-what-it-writes",
+      "simulator-driver-controls-respond",
       "vm",
       "vm-and-c-agree-on-arithmetic"
     ],
@@ -2195,6 +2221,7 @@
       "gen-device-benches",
       "index-metadata-matches-disk",
       "program-reads-what-it-writes",
+      "simulator-driver-controls-respond",
       "vm",
       "vm-and-c-agree-on-arithmetic"
     ],
@@ -2523,6 +2550,7 @@
       "gen-device-benches",
       "index-metadata-matches-disk",
       "program-reads-what-it-writes",
+      "simulator-driver-controls-respond",
       "vm",
       "vm-and-c-agree-on-arithmetic"
     ],
@@ -2535,6 +2563,7 @@
       "gen-device-benches",
       "index-metadata-matches-disk",
       "program-reads-what-it-writes",
+      "simulator-driver-controls-respond",
       "vm",
       "vm-and-c-agree-on-arithmetic"
     ],
@@ -2548,6 +2577,7 @@
       "gen-device-benches",
       "index-metadata-matches-disk",
       "program-reads-what-it-writes",
+      "simulator-driver-controls-respond",
       "vm",
       "vm-and-c-agree-on-arithmetic"
     ],
@@ -2561,6 +2591,7 @@
       "gen-device-benches",
       "index-metadata-matches-disk",
       "program-reads-what-it-writes",
+      "simulator-driver-controls-respond",
       "vm",
       "vm-and-c-agree-on-arithmetic"
     ],
@@ -2619,6 +2650,7 @@
       "gallery",
       "index-metadata-matches-disk",
       "program-reads-what-it-writes",
+      "simulator-driver-controls-respond",
       "vm",
       "vm-and-c-agree-on-arithmetic"
     ],
@@ -2629,6 +2661,7 @@
       "gallery",
       "index-metadata-matches-disk",
       "program-reads-what-it-writes",
+      "simulator-driver-controls-respond",
       "vm",
       "vm-and-c-agree-on-arithmetic"
     ],
@@ -2639,6 +2672,7 @@
       "gallery",
       "index-metadata-matches-disk",
       "program-reads-what-it-writes",
+      "simulator-driver-controls-respond",
       "vm",
       "vm-and-c-agree-on-arithmetic"
     ],
@@ -2681,6 +2715,40 @@
     "79-a2-sampler": [
       "example-kind-matches-content",
       "gallery",
+      "gen-device-benches",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "retarget-amplification",
+      "retarget-gallery",
+      "vm",
+      "vm-and-c-agree-on-arithmetic"
+    ],
+    "80-a2-lcd-moving-text": [
+      "example-kind-matches-content",
+      "gallery",
+      "gen-device-benches",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "retarget-amplification",
+      "retarget-gallery",
+      "vm",
+      "vm-and-c-agree-on-arithmetic"
+    ],
+    "81-8051-lcd1602-parallel": [
+      "example-kind-matches-content",
+      "gallery",
+      "gen-device-benches",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "retarget-amplification",
+      "retarget-gallery",
+      "vm",
+      "vm-and-c-agree-on-arithmetic"
+    ],
+    "82-a2-led-row": [
+      "example-kind-matches-content",
+      "gallery",
+      "gen-device-benches",
       "index-metadata-matches-disk",
       "program-reads-what-it-writes",
       "retarget-amplification",

@@ -132,10 +132,12 @@ test('examples/79-a2-sampler authors exactly the A2 board verbs, against the can
         }
     }
     // Pinned deliberately: this example is the reason the gap was visible at all,
-    // and if it ever stops using the KEYPAD4X4/SEVENSEG8/LEDBANK8 verbs then the
-    // corpus has lost its only coverage of them and someone should notice.
+    // and if it ever stops using the KEYPAD4X4/SEVENSEG8 verbs then the
+    // corpus has lost its sampler coverage of them and someone should notice.
+    // LEDBANK8 is intentionally exercised by example 82 instead: it cannot
+    // hold an independent pattern while the A2 display decoder is scanning.
     assert.deepStrictEqual([...used].sort(), [
-        'stc12_keypad', 'stc12_led_only', 'stc12_seg_clear', 'stc12_seg_shownum', 'stc12_whenkey'
+        'stc12_keypad', 'stc12_seg_clear', 'stc12_seg_shownum', 'stc12_whenkey'
     ], 'the A2 sampler is the corpus\'s only user of the board-peripheral verbs');
 
     const info = loadExtension(readFileSync(resolve(here, '../reference/extensions/stc12.js'), 'utf8'), 'reference');

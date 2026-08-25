@@ -5,20 +5,10 @@
       "path": "overlay/scratch-vm/src/extensions/crispstrobe/stc12/index.js",
       "wrapper": "makeExt",
       "why": "the extension brickwright-lite bundles; what the desktop/mobile app loads",
-      "upstreamCommit": "e5e38bdeb09c21af66430eb4363c453a9810fbbb",
-      "sha256": "1b28266c58859765060bf64c01363dc0716849f4d5f96264aa782997720ffd2b",
-      "bytes": 18914,
-      "expectedMissing": [
-        "keypad",
-        "led_only",
-        "led_set",
-        "seg_clear",
-        "seg_setsegs",
-        "seg_showdigit",
-        "seg_shownum",
-        "whenkey"
-      ],
-      "pendingFix": "brickwright-lite branch fix/stc12-bundled-missing-opcodes (02bb5f51f) defines all eight. Recorded 2026-08-23. The KEYPAD4X4 and SEVENSEG8/LEDBANK8 waves landed in reference/extensions/stc12.js on 2026-08-18 (4962d4d, 952b623); the bundle got only the MATRIX8X8 port that day. Effect while open: examples/79-a2-sampler runs with a dead display and a dead keypad, and its two 'WHEN key N pressed' scripts never start. Delete this entry and re-vendor once that branch is on lite main."
+      "upstreamCommit": "2258847c1bc95df0bd3a7ae28d0b7f929388a54c",
+      "sha256": "c517e10892f70a74de34252bd1521827a7e730eec5aff4544235770c1bea41ab",
+      "bytes": 26757,
+      "expectedMissing": []
     },
     "lite-stc12live": {
       "repo": "brickwright-lite",

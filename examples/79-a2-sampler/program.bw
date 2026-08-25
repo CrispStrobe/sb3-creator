@@ -1,14 +1,14 @@
 DEVICE STC89C52RC:
   CLOCK 11059200
 
-  # The Prechin A2's own vocabulary, all at once: the 4x4 keypad on P1
-  # (measured rows P1.7-P1.4, cols P1.3-P1.0), the 8-digit 7-seg display
-  # behind the 74HC245/74HC138 pair (segments P0, select P2.2-P2.4), and
-  # the 8 LEDs on P2 - which SHARES the select port: the compiler warns,
-  # and the ISR-owned shadow byte is why it still works.
+  # Two peripherals that can honestly run together: the 4x4 keypad on P1
+  # (measured rows P1.7-P1.4, cols P1.3-P1.0) and the 8-digit 7-seg display
+  # behind the 74HC245/74HC138 pair (segments P0, select P2.2-P2.4).
+  # The LED row is intentionally absent: it shares all of P2, including the
+  # display select pins, and cannot hold an independent pattern while the
+  # 74HC138 is being multiplexed.
   PART keys = KEYPAD4X4 ROWS P1.7 P1.6 P1.5 P1.4 COLS P1.3 P1.2 P1.1 P1.0
   PART display = SEVENSEG8 SEGMENTS P0 SELECT P2.2 P2.3 P2.4
-  PART leds = LEDBANK8 ON P2 ACTIVE LOW
 
   WHEN started:
     show number 0 on display
@@ -17,20 +17,9 @@ DEVICE STC89C52RC:
         show number keys on display
       wait 30 ms
 
-  WHEN flag clicked:
-    set running to 1
-    set step to 0
-    FOREVER:
-      IF running = 1 THEN:
-        light only led step on leds
-        change step by 1
-        IF step > 7 THEN:
-          set step to 0
-      wait 120 ms
-
   WHEN key 12 pressed:
     clear display
     show number 0 on display
 
   WHEN key 14 pressed:
-    set running to 1 - running
+    set hash_seen to 1

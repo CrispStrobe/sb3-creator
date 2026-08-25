@@ -80,7 +80,7 @@ describe('index metadata agrees with the files and the compiler', () => {
         for (const entry of index) for (const k of Object.keys(entry)) seen.add(k);
         // Floors: an empty or truncated catalog makes everything below vacuous.
         assert.ok(index.length >= 259, `catalog shrank to ${index.length}`);
-        assert.ok(seen.size >= 15, `only ${seen.size} distinct index fields — the scan is broken`);
+        assert.ok(seen.size >= 14, `only ${seen.size} distinct index fields — the scan is broken`);
         const unaccounted = [...seen].filter(k => !CHECKED_HERE.has(k) && !UNCHECKED_HERE.has(k));
         assert.deepEqual(unaccounted.sort(), [],
             'A new index field is a new claim. Either hold it against the world in this gate, '

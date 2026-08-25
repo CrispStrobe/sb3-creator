@@ -1,0 +1,20 @@
+DEVICE STC89C52RC
+CLOCK 11059200
+PART lcd = LCD1602 DATA P0.4 P0.5 P0.6 P0.7 RS P2.6 RW P2.5 EN P2.7
+
+STAGE:
+  # Put J24 on OE-VCC and insert the LCD rotated 180 degrees, overlapping
+  # the MCU slightly. The socket's visually intuitive orientation is wrong.
+  WHEN flag clicked:
+    lcd clear 1
+    FOREVER:
+      set col to 0
+      REPEAT 6:
+        lcd clear 1
+        lcd set cursor 0 col on 1
+        lcd print "BRICKWRIGHT" on 1
+        lcd set cursor 1 0 on 1
+        lcd print "PRECHIN A2" on 1
+        change col by 1
+        wait 250 ms
+
