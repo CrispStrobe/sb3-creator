@@ -701,3 +701,77 @@ export async function openStm32Port(port, { baud = 115200 } = {}) {
   await port.open({ baudRate: baud, dataBits: 8, parity: 'even', stopBits: 1, flowControl: 'none' });
   return port;
 }
+
+// ------------------------------------------------- parallel EEPROM (Ben Eater programmer)
+//
+// The fifth path, and the odd one: it does not flash the TARGET at all.
+// A 6502 / Z80 breadboard computer has no bootloader — its program lives
+// in a parallel EEPROM (28C256) that is burned on a bench programmer and
+// physically moved to the board. Ben Eater's Arduino programmer (MIT) is
+// that bench, and the fleet's bweep.ino sketch gives it a serial upload
+// protocol (tools/eeprom-programmer/bweep.ino in the stc repo). This
+// drives that sketch: paginate the image on 64-byte page boundaries,
+// write+verify each, ACK/NACK per page (the AN3155 values, so one log
+// reads every flasher).
+//
+// The port is a plain 115200 8N1 Web Serial port (no parity, no DTR
+// dance) — the programmer is an Arduino running our sketch, not the
+// target.
+
+const EEPROM_PAGE = 64;
+
+/**
+ * @param {SerialPort} port  an OPEN 115200 8N1 Web Serial port to the programmer
+ * @param {Uint8Array} image the ROM bytes; written from base (default 0)
+ */
+export async function flashEeprom(port, image, {
+  base = 0, log = () => {}, timeout = 3000, identify = true,
+} = {}) {
+  const io = serialTransport(port, { timeout });
+  const ack = async (what) => {
+    const b = (await io.read(1))[0];
+    if (b === 0x1f) throw new Error(`${what}: NACK (write or verify failed at the programmer)`);
+    if (b !== 0x79) throw new Error(`${what}: expected ACK 0x79, got 0x${b.toString(16)}`);
+  };
+  try {
+    if (identify) {
+      await io.write(Uint8Array.of(0x56)); // 'V'
+      // "BWEEP1\n" then ACK — read the line, then the ack.
+      let banner = '';
+      for (let i = 0; i < 16; i++) {
+        const c = String.fromCharCode((await io.read(1))[0]);
+        if (c === '\n') break;
+        banner += c;
+      }
+      await ack('identify');
+      if (!/^BWEEP/.test(banner)) throw new Error(`not a bweep programmer (said "${banner}")`);
+      log(`programmer: ${banner}`);
+    }
+    let written = 0;
+    let off = 0;
+    while (off < image.length) {
+      // Never straddle a page: the chunk reaches the next page boundary,
+      // then advances by exactly what was sent (NOT a fixed page — an
+      // aligned-short first chunk would otherwise skip the tail bytes).
+      const addr = base + off;
+      const room = EEPROM_PAGE - (addr % EEPROM_PAGE);
+      const n = Math.min(room, EEPROM_PAGE, image.length - off);
+      const chunk = image.subarray(off, off + n);
+      const aHi = (addr >> 8) & 0xff, aLo = addr & 0xff;
+      let ck = n ^ aHi ^ aLo;
+      for (const b of chunk) ck ^= b;
+      await io.write(Uint8Array.of(0x57, aHi, aLo, n, ...chunk, ck & 0xff)); // 'W'
+      await ack(`write 0x${addr.toString(16)}`);
+      written += n;
+      off += n;
+      if ((off & 0x3ff) < n) log(`  ${written}/${image.length} bytes`);
+    }
+    await io.write(Uint8Array.of(0x51)); // 'Q'
+    await ack('finish');
+    log(`done: ${written} bytes burned and verified`);
+    return { bytes: written };
+  } finally {
+    await io.close();
+    try { await port.close(); } catch {}
+  }
+}
