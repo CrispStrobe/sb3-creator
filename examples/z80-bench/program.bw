@@ -5,6 +5,19 @@
 # extractZ80Machine turns exactly this wiring into the machine config
 # (memory regions + the I/O-mapped ACIA).
 #
-# There is no DEVICE Z80 program axis in the transpiler yet — when the
-# Z80 generateC/generateASM core lands, this line gains a real program;
-# until then a fake DEVICE line would only teach the gallery to lie.
+# This bench stays program-less on purpose, but NOT for the reason that
+# used to be written here. A DEVICE Z80 program axis now exists — see the
+# sibling `z80-pd-bench`, which has a real walking-light program on it.
+#
+# The axis simply does not reach THIS board. sb3Creator's `z80Hw()` maps
+# `OUT0-7` / `IN0-7` onto a 74HC374 write latch and a 74HC244 read buffer
+# at I/O port 0, and this circuit has neither: its parts are the Z80, a
+# 28C256 ROM, a 62256 RAM, a 74HC00 for decode, and an MC6850 — and
+# bw-board's extractZ80Machine accordingly reports one port here,
+# `acia6850 at 0x80`. The console is a serial ACIA, and the emitter has no
+# serial axis for the Z80, so there is no pin for a program to drive.
+#
+# That is the honest state: the bench is the deliverable, verified against
+# the bus extractor by check-extract.mjs. A DEVICE line here would still
+# only teach the gallery to lie — it would just be lying about a different
+# thing than it used to.

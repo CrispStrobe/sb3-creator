@@ -5637,7 +5637,8 @@
       "circuit": "z80-pd-bench/circuit.json",
       "intro": "z80-pd-bench/intro.md",
       "introDE": "z80-pd-bench/intro.de.md",
-      "expected": "z80-pd-bench/EXPECTED.md"
+      "expected": "z80-pd-bench/EXPECTED.md",
+        "rom": "z80-pd-bench/rom.bin"
     },
     "kind": "circuit"
   },

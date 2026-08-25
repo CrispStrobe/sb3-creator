@@ -22,6 +22,58 @@
 #   /RD_PORT_1 = /A0 OR (/RD OR /IORQ)   IN from an odd port   -> FIFO read
 #   /WR_PORT_1 = /IORQ OR /WR            OUT to any port       -> FIFO write
 #
-# There is no DEVICE Z80 program axis in the transpiler yet — when a Z80
-# generateC/generateASM core lands, this file gains a real program. Until then
-# a fake DEVICE line would only teach the gallery to lie.
+# The Z80 program axis HAS landed, so this file gains the real program the
+# older comment here promised. sb3Creator's Z80 core emits `sdcc -mz80` C for
+# exactly the silicon this board carries: `z80Hw()` maps `OUT0-7` and `IN0-7`
+# onto a 74HC374 write latch and a 74HC244 read buffer at I/O port 0, and
+# bw-board's extractZ80Machine reads that same pair off this wiring as
+# `latch1` and `in1`, both `at: 0`. The emitter and the extractor agree about
+# the machine because they are describing the same board.
+#
+# The walking light below is the first program of every Searle-lineage build.
+# The LEDs it drives are led0..led7 on the latch's Q pins; the DIP switches on
+# the buffer are declared but idle, so the board's input half is named rather
+# than pretended-at.
+#
+# What is STILL absent is unchanged and still honest: the UM245R USB FIFO has
+# no engine part, so /RD_PORT_0, /RD_PORT_1 and WR_PORT_1 remain wired to
+# unconnected gate outputs. That is a different axis from the '374/'244 pair,
+# and this program does not touch it.
+DEVICE Z80
+CLOCK 7372800
+PIN l0 = OUT0 OUTPUT
+PIN l1 = OUT1 OUTPUT
+PIN l2 = OUT2 OUTPUT
+PIN l3 = OUT3 OUTPUT
+PIN l4 = OUT4 OUTPUT
+PIN l5 = OUT5 OUTPUT
+PIN l6 = OUT6 OUTPUT
+PIN l7 = OUT7 OUTPUT
+PIN sw0 = IN0 INPUT
+
+WHEN flag clicked:
+  FOREVER:
+    turn on l0
+    wait 0.1 seconds
+    turn off l0
+    turn on l1
+    wait 0.1 seconds
+    turn off l1
+    turn on l2
+    wait 0.1 seconds
+    turn off l2
+    turn on l3
+    wait 0.1 seconds
+    turn off l3
+    turn on l4
+    wait 0.1 seconds
+    turn off l4
+    turn on l5
+    wait 0.1 seconds
+    turn off l5
+    turn on l6
+    wait 0.1 seconds
+    turn off l6
+    turn on l7
+    wait 0.1 seconds
+    turn off l7

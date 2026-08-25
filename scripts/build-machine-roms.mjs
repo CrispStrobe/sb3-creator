@@ -83,6 +83,51 @@ const EATER_BLINK = [
     0x60,                   // RTS
 ];
 
+// ---------------------------------------------------------------------------
+// z80-pd-bench — the walking light on the '374 latch.
+//
+// The bench's own I/O is the pair bw-board's extractor reports at port 0:
+// latch1 (74HC374, write-strobed, LEDs led0..led7 on Q0..Q7) and in1
+// (74HC244, read-strobed, the DIP switches). That is exactly the axis
+// sb3Creator's Z80 core emits for -- `OUT0-7` / `IN0-7`, `BW_PORT_OUT` at
+// __sfr __at 0x00 -- so program.bw and this image describe one machine.
+//
+// Hand-assembled rather than compiled: the emitted C is `sdcc -mz80`, and
+// SDCC is GPL and not in CI. The contract held here is BEHAVIOURAL -- the
+// image does what program.bw says (one lamp at a time, 0.1 s each), not
+// instruction-for-instruction what SDCC would emit for it.
+//
+// Delay arithmetic, at the SEARLE-lineage 7,372,800 Hz (T-states):
+//   inner DJNZ with B=0 -> 255*13 + 8            = 3323
+//   outer body = LD B(7) + inner + DEC C(4)      = 3334, +12 when JR taken
+//   C=220 -> 219*3346 + 3341                     = 736,115
+//   + OUT(11) + LD C(7) + RLCA(4) + JP(10)       = 736,147
+// Measured on the core: 736,147 cycles/lamp = 99.847 ms; a sweep of eight
+// is 5,889,176 cycles = 798.8 ms. (The 6502 bench's is 99,940 / 799.5 ms --
+// the two benches are deliberately comparable.)
+const Z80_PD_WALK = [
+    0x3E, 0x01,             // $0000  LD A,$01      first lamp
+    0xD3, 0x00,             // $0002  loop: OUT ($00),A   latch1 <- A
+    0x0E, 0xDC,             // $0004  LD C,220      outer count
+    0x06, 0x00,             // $0006  outer: LD B,0 inner count = 256
+    0x10, 0xFE,             // $0008  inner: DJNZ inner   (-2)
+    0x0D,                   // $000A  DEC C
+    0x20, 0xF9,             // $000B  JR NZ,outer   ($0006 - $000D = -7)
+    0x07,                   // $000D  RLCA          walk the bit, 80 -> 01
+    0xC3, 0x02, 0x00,       // $000E  JP loop
+];
+
+/** 32 KB at $0000 -- the region extractZ80Machine reads off this board.
+ *  Filled with $00, which on a Z80 is NOP: a jump into empty space runs
+ *  forward harmlessly instead of trapping, the same reasoning as the
+ *  6502 image's $EA fill. The Z80 resets to PC=$0000, so there are no
+ *  vectors to plant. */
+function z80Rom(code) {
+    const rom = new Uint8Array(0x8000);
+    rom.set(code, 0);
+    return rom;
+}
+
 /** 32 KB at $8000 with the three vectors at the top. */
 function eaterRom(code, resetAddr = 0x8000) {
     const rom = new Uint8Array(0x8000).fill(0xEA);      // NOP fill, not 0x00:
@@ -178,6 +223,7 @@ const VDP_HELLO = asm(0x8000, (a) => {
 export const IMAGES = [
     { example: 'eater6502-blink', file: 'rom.bin', bytes: () => eaterRom(EATER_BLINK) },
     { example: 'eater6502-vdp-hello', file: 'rom.bin', bytes: () => eaterRom(VDP_HELLO) },
+    { example: 'z80-pd-bench', file: 'rom.bin', bytes: () => z80Rom(Z80_PD_WALK) },
 ];
 
 let bad = 0;

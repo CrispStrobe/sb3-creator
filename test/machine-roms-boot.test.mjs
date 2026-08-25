@@ -172,4 +172,107 @@ describe('machine benches boot the ROM they ship', { skip: gate.skip }, () => {
             assert.deepEqual([...tail], [0xEA], `${id}: unused ROM must be NOP-filled`);
         }
     });
+
+    // ---- z80-pd-bench -----------------------------------------------------
+    // The third bench is a DIFFERENT decision from the two 6502 ones, and the
+    // difference is the point. The brief named `z80-bench`; measured, that is
+    // the wrong bench. Both Z80 examples used to carry the sentence "There is
+    // no DEVICE Z80 program axis in the transpiler yet" — false since the Z80
+    // core landed. But the axis it grew is narrow: z80Hw() recognises only
+    // OUT0-7 / IN0-7 (a 74HC374 latch and a 74HC244 buffer at port 0), and
+    // z80-bench's only I/O is an MC6850 ACIA. So z80-bench legitimately stays
+    // program-less, and z80-pd-bench — which HAS the '374, the '244 and eight
+    // LEDs — is the one that can run.
+
+    test('z80-pd-bench ships a ROM, and the index declares it', () => {
+        const e = entryFor('z80-pd-bench');
+        assert.ok(e, 'z80-pd-bench is not in the catalog');
+        assert.equal(e.files.rom, 'z80-pd-bench/rom.bin',
+            'the bench must DECLARE its image; a file nobody names is a file nobody loads');
+        const rom = readFileSync(join(EXAMPLES, e.files.rom));
+        assert.equal(rom.length, 0x8000, 'the ROM region this board decodes is $0000-$7FFF');
+        assert.ok(rom.some((b) => b !== 0x00), 'an all-NOP image is the defect this gate exists for');
+    });
+
+    test('the emitter and the extractor agree about the machine', async () => {
+        // program.bw and rom.bin describe one board only if the axis the
+        // emitter targets is the silicon the extractor finds. Both sides are
+        // READ here rather than restated: a port number typed into this test
+        // would prove nothing about either.
+        const { extractZ80Machine } = await import(join(BOARD, 'src', 'z80-extract.js'));
+        const circuit = JSON.parse(readFileSync(join(EXAMPLES, 'z80-pd-bench', 'circuit.json'), 'utf8'));
+        const machine = extractZ80Machine(circuit);
+        assert.ok(machine.ok, `extraction failed: ${machine.reasons.join('; ')}`);
+        const latch = machine.ports.find((p) => p.kind === 'latch');
+        const buffer = machine.ports.find((p) => p.kind === 'buffer');
+        assert.ok(latch, 'no 74HC374 found — the OUT axis has nothing to drive');
+        assert.ok(buffer, 'no 74HC244 found — the IN axis has nothing to read');
+
+        const { default: SB3Creator } = await import('../src/utils/sb3Creator.js');
+        const creator = new SB3Creator();
+        creator.parse(readFileSync(join(EXAMPLES, 'z80-pd-bench', 'program.bw'), 'utf8'));
+        const c = creator.generateC();
+        assert.deepEqual(creator.cWarnings ?? [], [],
+            'the program must emit for this board with no warnings');
+        // The emitted __sfr address must BE the extracted port, not merely
+        // resemble it — this is the join between the two halves.
+        const outAt = /__sfr\s+__at\s+(0x[0-9a-fA-F]+)\s+BW_PORT_OUT/.exec(c);
+        const inAt = /__sfr\s+__at\s+(0x[0-9a-fA-F]+)\s+BW_PORT_IN/.exec(c);
+        assert.ok(outAt && inAt, 'the Z80 core must declare both port latches');
+        assert.equal(Number(outAt[1]), latch.at, 'BW_PORT_OUT must sit on the extracted latch port');
+        assert.equal(Number(inAt[1]), buffer.at, 'BW_PORT_IN must sit on the extracted buffer port');
+    });
+
+    test('z80-pd-bench walks one lamp at a time on the machine from its own circuit', async () => {
+        const { extractZ80Machine } = await import(join(BOARD, 'src', 'z80-extract.js'));
+        const { Z80Machine } = await import(join(BOARD, 'src', 'z80-machine.js'));
+        const circuit = JSON.parse(readFileSync(join(EXAMPLES, 'z80-pd-bench', 'circuit.json'), 'utf8'));
+        const machine = extractZ80Machine(circuit);
+        const rom = readFileSync(join(EXAMPLES, 'z80-pd-bench', 'rom.bin'));
+
+        const m = new Z80Machine(
+            { clockHz: 7372800, regions: machine.regions, ports: machine.ports },
+            { onBufferRead: () => 0xFF },       // DIP switches open
+        );
+        m.load(new Uint8Array(rom), 0);
+
+        const latchName = machine.ports.find((p) => p.kind === 'latch').name;
+        const seen = [];
+        const at = [];
+        let last = null;
+        // Budgeted in CYCLES, never wall time — a wall-clock budget is
+        // load-sensitive and has produced false reds on three machines.
+        for (let i = 0; i < 40_000_000 && seen.length < 10; i++) {
+            m.step();
+            const v = m.chips[latchName].value;
+            if (v !== last) { seen.push(v); at.push(m.cycles); last = v; }
+        }
+
+        // seen[0] is the '374 powering up at 0; the walk starts after it.
+        assert.deepEqual(seen.slice(1), [0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x01],
+            'one lamp at a time, walking up and wrapping — RLCA, not a counter');
+
+        const perLamp = at.slice(2).map((c, i) => c - at[i + 1]);
+        assert.equal(new Set(perLamp).size, 1, 'every lamp must be lit for the same time');
+        // 0.1 s at 7,372,800 Hz is 737,280 cycles; the loop lands at 736,147
+        // (99.85 ms), 0.15% under. program.bw says `wait 0.1 seconds`, and
+        // this is how close the hand-assembled delay gets to it.
+        assert.equal(perLamp[0], 736147, 'measured delay loop, from the arithmetic in build-machine-roms.mjs');
+        const sweep = at[9] - at[1];
+        assert.equal(sweep, 736147 * 8, 'eight lamps make one sweep');
+        assert.ok(Math.abs(sweep / 7372800 - 0.8) < 0.005, 'a sweep is ~800 ms, as the program reads');
+    });
+
+    test('the z80 image is exactly what the generator produces', () => {
+        const rom = readFileSync(join(EXAMPLES, 'z80-pd-bench', 'rom.bin'));
+        assert.equal(rom.length, 0x8000, '32 KB');
+        // The Z80 resets to $0000, so the program starts at byte 0 — there are
+        // no vectors to plant, unlike the 6502 images.
+        assert.equal(rom[0], 0x3E, 'first opcode is LD A,n');
+        assert.equal(rom[1], 0x01, 'and the first lamp is bit 0');
+        // Fill is $00 = NOP on a Z80: a stray jump runs forward harmlessly.
+        const tail = new Set();
+        for (let i = 0x0100; i < 0x8000; i++) tail.add(rom[i]);
+        assert.deepEqual([...tail], [0x00], 'unused ROM must be NOP-filled');
+    });
 });
