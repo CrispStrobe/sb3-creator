@@ -5551,7 +5551,8 @@
       "program": "eater6502-blink/program.bw",
       "circuit": "eater6502-blink/circuit.json",
       "intro": "eater6502-blink/intro.md",
-      "introDE": "eater6502-blink/intro.de.md"
+      "introDE": "eater6502-blink/intro.de.md",
+      "rom": "eater6502-blink/rom.bin"
     },
     "kind": "full"
   },
