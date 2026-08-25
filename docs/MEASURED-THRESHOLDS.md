@@ -416,6 +416,90 @@ retry nobody can see hides how often the machine is the problem.
 
 ---
 
+## The sb3-creator classification pass (2026-08-25, bw-audit)
+
+The lite half (`brickwright-lite/docs/WAIT-CENSUS.md`) ended with a census rather than
+probes, because its two findings needed no probing: 40 of 119 literals sat in `_tmp-`
+scratch files nothing runs, and the population the inventory does not collect (249 fixed
+sleeps against 119 bounds) was twice the size of the one it does.
+
+**Both of those transferred badly, and saying so is the result.** Tested here, both
+disproved:
+
+- **No dead tier.** Of 250 sb3-creator literals, 212 unevidenced, **189 sit in files
+  `npm test` actually globs**; 4 more are in `test/helpers/` (imported by files that do
+  run), 13 in `scripts/` — several of which CI invokes — 4 in CI config, 2 in
+  `package.json`. There is no `_tmp-` equivalent. Nothing here can be classified away.
+- **No large uncollected population.** The inventory sees `> >= < <=` and named option
+  keys, so an exact equality is invisible to it, and I expected that to hide a stricter
+  class of bound. It does not. There are 1,683 exact-equality numeric sites; 562 are in a
+  vendored browser bundle, and the rest are dominated by **expected results**
+  (`assert.equal(run([…]).shown, 168)` — arithmetic, not a bound) and fixture shapes
+  (`rom.length === 0x8000`, the 28C256 the bench draws). Narrowing to equality on a
+  *measured count* leaves 143, still mostly "four comments captured" / "three scripts".
+  The inventory's definition is holding; `waitForTimeout` had no analogue here.
+
+So this half has to be probed, which is what the claim predicted: floors dominate
+(171 of 212 unevidenced), and a floor's flip point is cheap to bisect where a browser
+wait's is not.
+
+### The floors, classified
+
+**128 of the 171** guard a *population* — a `.length`, `.size`, `Object.keys`, a
+`filter().length`. Their values: 53 at ≤1 (bare non-emptiness), 16 at 2–5, 25 at 6–20,
+13 at 21–100, 16 at 101–1000, 5 above 1000. The other 43 bound something local.
+
+### Headroom, measured without the rig
+
+A corpus floor's risk is not its value but its **slack**: how much of the corpus can
+disappear before it fires. That is directly countable — no probe, no siblings — and it is
+where the pass paid off. Using each test's own glob:
+
+| floor | site | floor | actual | can vanish first |
+|---|---|---|---|---|
+| `circuitFiles.length >= 1034` | `example-corpus-contract.test.mjs:37` | 1034 | 2099 | **50.7 %** |
+| `files.length > 1500` ×4 | `kcl-residual`, `rail-short` | 1500 | 2099 | ~28.5 % |
+| `> 900` ×4 | `flat-variants*`, `generated-bench-layout`, `vendor-flat-partitions` | 900 | 1006 | ~10.5 % |
+| `dirs.length >= 250` ×2 | `program-reads-what-it-writes`, `vm-and-c-agree` | 250 | 279 | ~10.4 % |
+| `index.length >= 259` ×4 | `example-corpus-contract`, `example-gate-enrolment`, … | 259 | 278 | 6.8 % |
+| `generatedFiles.length >= 819` | `example-corpus-contract.test.mjs:38` | 819 | 870 | 5.9 % |
+| `circuitFiles >= 2000` | `circuit-params-are-read.test.mjs:167` | 2000 | 2099 | 4.7 % |
+
+**The worst one is this document's own opening story.** §1 of this page describes
+`circuit-corpus-invariants`' pin of **1034** as "correct until a vendor added 58
+circuits". It was corrected then and never revisited; the circuit corpus has since
+reached 2,099, so **half of it could vanish before that floor notices**. The floor is not
+wrong, it is *stale in the direction that costs nothing to leave alone* — which is how a
+floor stops being a floor without anyone touching it.
+
+The three rows below 7 % are the healthy shape: a ratchet close to its corpus.
+
+Approximation stated: the ×4 / ×2 rows share a value and a corpus but not necessarily an
+identical glob, so their slack is to the nearest whole corpus rather than exact. The four
+exact rows were computed with the test's own glob semantics.
+
+### What blocks the real probe, and it is not the code
+
+`threshold-probe.mjs` answers the two questions headroom cannot — *can it fire at all*,
+and where is the flip point. It refused to run:
+
+```
+RIG DOES NOT MATCH THE PINS — refusing to report:
+  bw-board: rig is at 182b26b, test/fixtures/siblings.json pins a301937
+  bw-circuit-ui: rig is at ba56542, siblings.json pins af5cc08
+  bw-circuit-ui: SOURCE is modified (…) — this run is not reproducible
+```
+
+That is the instrument being right, and it is worth recording as a *property of this box*
+rather than a defect: the sibling checkouts are other agents' live working trees, so a
+probe run here would measure their work-in-progress instead of the pinned repo.
+`--allow-rig-drift` exists and is the wrong answer.
+
+The unblock is to clone both siblings at the pinned shas into a scratch rig and point
+`BW_BOARD` / `BW_CIRCUIT_UI` at those, which touches nobody else's checkout. Until then
+the probe work-list is ready and ordered — the 27 population floors at ≥100, worst slack
+first — and the headroom column above already tells you which of them to do.
+
 ## Every bounding literal
 
 Generated by `node scripts/threshold-inventory.mjs --markdown`, 2026-08-23, against
