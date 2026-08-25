@@ -28,13 +28,13 @@
       "id": "potentiometer_3",
       "kind": "potentiometer",
       "params": {
-        "ohms": 10000,
+        "ohms": 1000,
         "position": 0.5
       },
       "terminals": [
         "a",
-        "wiper",
-        "b"
+        "b",
+        "wiper"
       ],
       "x": 0,
       "y": 0,
@@ -64,8 +64,8 @@
       "seat": {
         "boardId": "breadboard_1",
         "leadMap": {
-          "a": "b7",
-          "b": "b11"
+          "a": "b8",
+          "b": "b12"
         }
       }
     },
@@ -86,8 +86,8 @@
       "seat": {
         "boardId": "breadboard_1",
         "leadMap": {
-          "anode": "c11",
-          "cathode": "c12"
+          "anode": "c12",
+          "cathode": "c13"
         }
       }
     }
@@ -96,19 +96,42 @@
     {
       "id": "w_6",
       "netId": "net_7",
-      "from": "vsource_2",
-      "to": "breadboard_1",
-      "fromTerminal": "pos",
-      "toTerminal": "e3"
+      "from": {
+        "part": "vsource_2",
+        "terminal": "pos"
+      },
+      "to": {
+        "board": "breadboard_1",
+        "hole": "e3"
+      }
     },
     {
       "id": "w_8",
       "netId": "net_9",
-      "from": "vsource_2",
-      "to": "breadboard_1",
-      "fromTerminal": "neg",
-      "toTerminal": "e12"
+      "from": {
+        "part": "vsource_2",
+        "terminal": "neg"
+      },
+      "to": {
+        "board": "breadboard_1",
+        "hole": "e13"
+      }
     }
   ],
-  "holeWires": []
+  "holeWires": [
+    {
+      "ref": "bbw:breadboard_1:bbw_10",
+      "boardId": "breadboard_1",
+      "a": "b5",
+      "b": "c8",
+      "color": "yellow"
+    },
+    {
+      "ref": "bbw:breadboard_1:bbw_11",
+      "boardId": "breadboard_1",
+      "a": "b7",
+      "b": "d13",
+      "color": "black"
+    }
+  ]
 }

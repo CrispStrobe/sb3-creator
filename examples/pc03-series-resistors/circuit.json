@@ -57,7 +57,14 @@
       ],
       "x": 0,
       "y": 0,
-      "rotation": 0
+      "rotation": 0,
+      "seat": {
+        "boardId": "breadboard_1",
+        "leadMap": {
+          "a": "b6",
+          "b": "b10"
+        }
+      }
     },
     {
       "id": "led_5",
@@ -76,8 +83,8 @@
       "seat": {
         "boardId": "breadboard_1",
         "leadMap": {
-          "anode": "b10",
-          "cathode": "b11"
+          "anode": "c10",
+          "cathode": "c11"
         }
       }
     }
@@ -86,18 +93,26 @@
     {
       "id": "w_6",
       "netId": "net_7",
-      "from": "vsource_2",
-      "to": "breadboard_1",
-      "fromTerminal": "pos",
-      "toTerminal": "e2"
+      "from": {
+        "part": "vsource_2",
+        "terminal": "pos"
+      },
+      "to": {
+        "board": "breadboard_1",
+        "hole": "e2"
+      }
     },
     {
       "id": "w_8",
       "netId": "net_9",
-      "from": "vsource_2",
-      "to": "breadboard_1",
-      "fromTerminal": "neg",
-      "toTerminal": "e11"
+      "from": {
+        "part": "vsource_2",
+        "terminal": "neg"
+      },
+      "to": {
+        "board": "breadboard_1",
+        "hole": "e11"
+      }
     }
   ],
   "holeWires": []
