@@ -10634,6 +10634,7 @@ class SB3Creator {
         } else if (this._core === 'avr') {
             out.push('#include <avr/io.h>',
                 '#include <avr/interrupt.h>',
+                '#include <avr/sleep.h>',
                 '#include <stdint.h>', '');
             out.push(`#define F_CPU ${clock}UL`, '');
             if (this._cTiny88) {
@@ -10778,7 +10779,8 @@ class SB3Creator {
                 ' * tasks yield at every wait and at every loop iteration (Scratch\'s own',
                 ' * scheduling contract), so no task can starve the others. */',
                 ...(this._core === 'avr' ? [
-                    'static volatile uint32_t bw_ms;', '',
+                    'static volatile uint32_t bw_ms;',
+                    'static uint8_t bw_calm;', '',
                     `ISR(${this._cTiny88 ? 'TIMER1_COMPA_vect' : 'TIMER0_COMPA_vect'})`,
                     '{',
                     '    bw_ms++;',
@@ -13297,10 +13299,20 @@ class SB3Creator {
                 ...[...(this._cPollTasks || []), ...taskNames].map((n) => `        ${n}();`),
                 '    }');
         } else if (this._cTasks && this._core === 'avr') {
-            out.push('    sei();                         /* tick on */',
+            out.push('    set_sleep_mode(SLEEP_MODE_IDLE);  /* timers keep running; the tick wakes us */',
+                '    sleep_enable();',
+                '    sei();                         /* tick on */',
                 '',
                 '    for (;;) {',
+                '        uint32_t pass_ms = bw_now();',
                 ...[...(this._cPollTasks || []), ...taskNames].map((n) => `        ${n}();`),
+                '        /* Two full passes inside one millisecond: sleep to the next',
+                '         * tick instead of spinning the core against it — the same',
+                '         * contract the pico target keeps (its DONE row has the 110x',
+                '         * measurement), spelled in avr-libc. The emulator adapter',
+                '         * fast-forwards the SLEEP opcode; silicon idles. */',
+                '        if (bw_now() == pass_ms) { if (++bw_calm >= 2u) { bw_calm = 0u; sleep_cpu(); } }',
+                '        else bw_calm = 0u;',
                 '    }');
         } else if (this._cTasks) {
             out.push('    TL0 = (unsigned char)(T0_RELOAD & 0xFF);',
