@@ -23,7 +23,9 @@
     "preview": "vite preview",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d dist",
-    "audit": "node test/browser/build.mjs && node test/browser/audit.mjs"
+    "audit": "node test/browser/build.mjs && node test/browser/audit.mjs",
+    "bundle:embed": "node scripts/bundle-embed.mjs",
+    "bundle:embed:check": "node scripts/bundle-embed.mjs --check"
   },
   "dependencies": {
     "jszip": "^3.10.1",
