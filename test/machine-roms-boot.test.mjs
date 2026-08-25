@@ -121,18 +121,55 @@ describe('machine benches boot the ROM they ship', { skip: gate.skip }, () => {
             `EXPECTED.md documents an 800 ms sweep; measured ${(sweep / 1000).toFixed(1)} ms`);
     });
 
+    test('eater6502-vdp-hello writes HELLO into the TMS9918 name table', async () => {
+        // machines-source-asm's bench. Its program.c was already in the repo and
+        // documents every constant; the ROM is that program, hand-assembled with
+        // labels rather than counted offsets (four loops — counted offsets are
+        // exactly what assembles into something plausible and wrong).
+        const e = entryFor('eater6502-vdp-hello');
+        assert.equal(e.files.rom, 'eater6502-vdp-hello/rom.bin');
+        const { default: extract6502Machine } = await import(new URL('src/m6502-extract.js', `file://${BOARD}/`).href);
+        const { M6502Machine } = await import(new URL('src/m6502-machine.js', `file://${BOARD}/`).href);
+        const data = JSON.parse(readFileSync(join(EXAMPLES, 'eater6502-vdp-hello', 'circuit.json'), 'utf8'));
+        const r = extract6502Machine(data);
+        assert.ok(r.ok, `extraction failed: ${(r.reasons || []).join('; ')}`);
+        assert.ok(r.chips.some((c) => c.kind === 'vdp' && c.at === 0x4000), 'TMS9918 at $4000');
+
+        const m = new M6502Machine({ clockHz: 1_000_000, regions: r.regions, chips: r.chips });
+        m.loadRom(new Uint8Array(readFileSync(join(EXAMPLES, 'eater6502-vdp-hello', 'rom.bin'))), 0x8000);
+        m.reset?.();
+        assert.equal(m.cpu?.pc ?? m.pc, 0x8000);
+        for (let i = 0; i < 2_000_000; i++) m.step();
+
+        const vdp = m.chips.vdp1;
+        // The registers the C file sets, read back off the chip.
+        assert.equal(vdp.regs[1], 0xC0, 'R1: 16K, display on, no IRQ');
+        assert.equal(vdp.regs[2], 0x0E, 'R2: name table at $3800');
+        assert.equal(vdp.regs[7], 0xF4, 'R7: white on dark blue');
+        // And the text, where the program puts it: row 11, column 13.
+        const at = 0x3800 + 11 * 32 + 13;
+        const text = [...vdp.vram.slice(at, at + 5)].map((c) => String.fromCharCode(c)).join('');
+        assert.equal(text, 'HELLO');
+        // The rest of the name table was cleared — 768 cells less the five.
+        let spaces = 0;
+        for (let i = 0x3800; i < 0x3800 + 768; i++) if (vdp.vram[i] === 0x20) spaces++;
+        assert.equal(spaces, 763, 'the clear loop must cover the whole name table');
+    });
+
     test('the committed image is exactly what the generator produces', () => {
         // The whole reason the source ships: a .bin edited by hand, or stale
         // against a changed program, is caught here rather than discovered by
         // a learner stepping into garbage.
-        const rom = readFileSync(join(EXAMPLES, 'eater6502-blink', 'rom.bin'));
-        const fill = new Set();
-        for (let i = EATER_CODE_LEN; i < 0x7FFA; i++) fill.add(rom[i]);
-        assert.deepEqual([...fill], [0xEA],
-            'unused ROM is NOP-filled, so a stray jump runs to the vectors instead of BRK');
+        for (const id of ['eater6502-blink', 'eater6502-vdp-hello']) {
+            const rom = readFileSync(join(EXAMPLES, id, 'rom.bin'));
+            assert.equal(rom.length, 0x8000, `${id}: 32 KB`);
+            assert.equal(rom[0x7FFC], 0x00, `${id}: reset vector low`);
+            assert.equal(rom[0x7FFD], 0x80, `${id}: reset vector high — $8000`);
+            // Unused ROM is NOP-filled, so a stray jump runs to the vectors
+            // instead of executing BRK ($00) and vanishing into an interrupt.
+            const tail = new Set();
+            for (let i = 0x4000; i < 0x7FFA; i++) tail.add(rom[i]);
+            assert.deepEqual([...tail], [0xEA], `${id}: unused ROM must be NOP-filled`);
+        }
     });
 });
-
-// The assembled length of the walking-light program, kept beside the gate so a
-// change to the program has to move a number here too.
-const EATER_CODE_LEN = 32;

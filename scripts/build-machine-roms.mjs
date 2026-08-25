@@ -96,8 +96,88 @@ function eaterRom(code, resetAddr = 0x8000) {
     return rom;
 }
 
+/* ── A tiny label-resolving emitter ──────────────────────────────────────
+ * The walking light above is short enough to hand-count. The VDP program is
+ * not — ~80 bytes with four loops — and hand-counted branch offsets are
+ * exactly the kind of thing that assembles into something plausible and
+ * wrong. So the longer programs are written with labels and the offsets are
+ * computed, which is what an assembler is for.
+ */
+function asm(org, write) {
+    const out = [];
+    const labels = new Map();
+    const fixups = [];
+    const api = {
+        label: (n) => labels.set(n, org + out.length),
+        b: (...bytes) => out.push(...bytes),
+        /** relative branch to a label (resolved after the pass) */
+        rel: (op, name) => { out.push(op, 0); fixups.push({ at: out.length - 1, name, from: org + out.length }); },
+        /** absolute address operand to a label */
+        abs: (op, name) => { out.push(op, 0, 0); fixups.push({ at: out.length - 2, name, abs: true }); },
+    };
+    write(api);
+    for (const f of fixups) {
+        const target = labels.get(f.name);
+        if (target === undefined) throw new Error(`undefined label ${f.name}`);
+        if (f.abs) { out[f.at] = target & 0xff; out[f.at + 1] = target >> 8; }
+        else {
+            const d = target - f.from;
+            if (d < -128 || d > 127) throw new Error(`branch to ${f.name} out of range (${d})`);
+            out[f.at] = d & 0xff;
+        }
+    }
+    return out;
+}
+
+/* ── "HELLO" on a TMS9918, the 6502 of examples/eater6502-vdp-hello/program.c
+ * Machine: EATER6502 + TMS9918 at $4000 (DATA $4000, CTRL $4001).
+ * Every constant below is the one the C file already documents: Graphics I,
+ * name table $3800 (R2=$0E), colour table $2000 (R3=$80), patterns $0000
+ * (R4=$00), white on dark blue (R7=$F4), text at row 11 column 13.
+ */
+const VDP_DATA = 0x4000, VDP_CTRL = 0x4001;
+const VDP_HELLO = asm(0x8000, (a) => {
+    const wreg = (reg, val) => {            // CTRL = val ; CTRL = $80|reg
+        a.b(0xA9, val, 0x8D, VDP_CTRL & 0xff, VDP_CTRL >> 8);
+        a.b(0xA9, 0x80 | reg, 0x8D, VDP_CTRL & 0xff, VDP_CTRL >> 8);
+    };
+    const setAddr = (addr) => {             // CTRL = lo ; CTRL = $40|hi
+        a.b(0xA9, addr & 0xff, 0x8D, VDP_CTRL & 0xff, VDP_CTRL >> 8);
+        a.b(0xA9, 0x40 | ((addr >> 8) & 0x3f), 0x8D, VDP_CTRL & 0xff, VDP_CTRL >> 8);
+    };
+    const putData = (v) => a.b(0xA9, v, 0x8D, VDP_DATA & 0xff, VDP_DATA >> 8);
+
+    wreg(0, 0x00); wreg(1, 0xC0); wreg(2, 0x0E);
+    wreg(3, 0x80); wreg(4, 0x00); wreg(7, 0xF4);
+
+    setAddr(0x2000);                        // colour table: 32 x $F4
+    a.b(0xA2, 0x20);                        // LDX #$20
+    a.label('fillcol');
+    putData(0xF4);
+    a.b(0xCA);                              // DEX
+    a.rel(0xD0, 'fillcol');                 // BNE fillcol
+
+    setAddr(0x3800);                        // name table: 768 spaces = 3 x 256
+    a.b(0xA2, 0x03);                        // LDX #$03
+    a.label('clr_outer');
+    a.b(0xA0, 0x00);                        // LDY #$00
+    a.label('clr_inner');
+    putData(0x20);
+    a.b(0x88);                              // DEY
+    a.rel(0xD0, 'clr_inner');
+    a.b(0xCA);                              // DEX
+    a.rel(0xD0, 'clr_outer');
+
+    setAddr(0x3800 + 11 * 32 + 13);         // row 11, column 13
+    for (const ch of 'HELLO') putData(ch.charCodeAt(0));
+
+    a.label('spin');
+    a.abs(0x4C, 'spin');                    // JMP spin — the VDP scans by itself
+});
+
 export const IMAGES = [
     { example: 'eater6502-blink', file: 'rom.bin', bytes: () => eaterRom(EATER_BLINK) },
+    { example: 'eater6502-vdp-hello', file: 'rom.bin', bytes: () => eaterRom(VDP_HELLO) },
 ];
 
 let bad = 0;

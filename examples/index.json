@@ -5602,7 +5602,8 @@
       "circuit": "eater6502-vdp-hello/circuit.json",
       "intro": "eater6502-vdp-hello/intro.md",
       "introDE": "eater6502-vdp-hello/intro.de.md",
-      "expected": "eater6502-vdp-hello/EXPECTED.md"
+      "expected": "eater6502-vdp-hello/EXPECTED.md",
+      "rom": "eater6502-vdp-hello/rom.bin"
     },
     "kind": "circuit"
   },
