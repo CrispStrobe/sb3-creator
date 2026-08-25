@@ -1,23 +1,23 @@
 {
-  "note": "Pinned revisions of the sibling repositories sb3-creator's cross-repo gates consume. CI checks these exact commits out beside the repo (.github/workflows/ci.yml) so the gates RUN rather than skip; test/helpers/siblings.mjs turns an absent sibling into a failure when CI=true. Update a pin deliberately, in its own commit, with the suite green against it. `rev` MUST be the FULL 40-character SHA: actions/checkout only recognises a full SHA as a commit, and turns anything shorter into `git fetch origin +refs/heads/<ref>*` \u2014 a branch glob that matches nothing. An abbreviated pin here took every CI run on main down at the checkout step, before lint, tests, the mutation prover or the build ran at all. gate-integrity asserts the length; `revShort` exists only for prose.",
+  "note": "Pinned revisions of the sibling repositories sb3-creator's cross-repo gates consume. CI checks these exact commits out beside the repo (.github/workflows/ci.yml) so the gates RUN rather than skip; test/helpers/siblings.mjs turns an absent sibling into a failure when CI=true. Update a pin deliberately, in its own commit, with the suite green against it. `rev` MUST be the FULL 40-character SHA: actions/checkout only recognises a full SHA as a commit, and turns anything shorter into `git fetch origin +refs/heads/<ref>*` — a branch glob that matches nothing. An abbreviated pin here took every CI run on main down at the checkout step, before lint, tests, the mutation prover or the build ran at all. gate-integrity asserts the length; `revShort` exists only for prose.",
   "siblings": {
     "bw-board": {
       "repo": "CrispStrobe/bw-board",
-      "rev": "a301937d9912a66aa4a7cdae403e39a337ac9eb2",
+      "rev": "1caf8514fa59d3071b144268c440c5113a4539c5",
       "marker": "src/board.js",
       "licence": "MIT",
-      "why": "the device/board simulator the gallery e2e and physics gates drive. Advanced from 88e9668 for the source-and-transistor-current honesty run (20283ab, b5c02b1, a301937): vsource honours rInternal in DC and swept AC, a saturated PNP stamps its E-B junction again, FET extraction reads the region map, and a buzzer branch current is extractable. That closes BOTH declines this repo's EXPECTED.md gate had recorded against the engine \u2014 the rInternal canary and the transistor-terminal-current decline \u2014 Measured either side of the bump alone, with nothing else changed: the corpus moves 2 claims from declined to CHECKED (47-battery-led's 3.5 mV internal drop, pc32-pnp-high-side's 0.43 mA base), both AGREEING, and nothing regresses \u2014 1209 compared of 2358 to 1211. test/device-branch-agreement.test.mjs is red on 88e9668, 20283ab AND b5c02b1 and green only here, so the suite genuinely requires this revision rather than merely tolerating it.",
-      "pinnedOn": "2026-08-24",
-      "revShort": "a301937"
+      "why": "the device/board simulator the gallery e2e and physics gates drive. Advanced from a301937 for the STM32F030 light tier: CortexM0Machine + the F0 board (RM0360 GPIO/TIM3/USART1/ADC + TIM3-compare PWM), the boundary-A stm32-adapter, the 'stm32f0' debug-target kind, and the stm32f030 bare-chip board KIND the new circuit.stm32f030.json benches place — without which the bench gates reject every F030 bench with unknown kind and the stm32f0-chain tests cannot even import src/cortex-m0-machine.js (the exact red on 9aef707's CI run). DELIBERATELY pinned BEFORE bw-cui2's attiny88 pa0->gnd2 rename (bw-board master has since moved past this sha): the rename chain's owner stated whoever bumps past it inherits the 135-circuit re-seat, and that re-seat is sequenced to happen once, after the cui sidecar step — this pin takes the F0 work and nothing of the rename. Suite 6610/0 against exactly this pair on 2026-08-25.",
+      "pinnedOn": "2026-08-25",
+      "revShort": "1caf851"
     },
     "bw-circuit-ui": {
       "repo": "CrispStrobe/bw-circuit-ui",
-      "rev": "af5cc088dae41392533fff84fb319da639ee5de2",
+      "rev": "06c7ea7c7022030f77796ea01f0da6761e0e81a0",
       "marker": "src/model/circuit.js",
       "licence": "MPL-2.0",
-      "why": "the canonical circuit model, engine, and the ONE wire-endpoint dialect reader (src/model/wire-endpoints.js) the corpus gates read circuit.json through. Advanced from 410f8ce (40 commits) for 8c3de47's sevenseg8 sidecar, without which 78-a2-calculator's eight multiplexed digits degrade to the loader's ['a','b'] two-terminal fallback and the engine rejects the netlist with unknown terminal \"a\"/\"b\". MEASURED EITHER SIDE, because this range also carries d422426's attiny88 column-order fix: all 135 attiny88-seating files infer a BYTE-IDENTICAL netlist under both revisions, and assert-physics + kcl-residual read 365/322/0/43 either way. A seated part's saved leadMap is authoritative, so the corpus re-seat is a separate deliberate act - see bw-circuit-ui PLAN.md, which wants it AFTER the pa0->gnd2 rename so the corpus is regenerated once rather than twice.",
+      "why": "the canonical circuit model, engine, and the ONE wire-endpoint dialect reader the corpus gates read circuit.json through. Advanced from af5cc08 for the stm32f030 designer part (TSSOP20 sidecar + SVG, DIP-20 straddle footprint, passthrough kind, 3.3 V seated bench) — without which the 2133-circuit load gate cannot resolve the stm32f030 parts the new benches place. 06c7ea7 is EXACTLY the stm32f030-part commit and predates bw-cui2's attiny88 sidecar rename, for the same re-seat-once sequencing reason as the bw-board pin. Suite 6610/0 against exactly this pair on 2026-08-25.",
       "pinnedOn": "2026-08-25",
-      "revShort": "af5cc08"
+      "revShort": "06c7ea7"
     }
   }
 }
