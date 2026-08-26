@@ -58,3 +58,22 @@ test('bw transpile --to c still works for a non-ARM target (pico stays correct)'
     // registers STM32 must NOT use. This guards against "fix" over-reach.
     assert.match(c, /BW_TIMER_TIME[LH]R|RP2040|SIO/, 'pico keeps its own timebase');
 });
+
+test('bw flash --engine rust passes the native flasher its flash subcommand', () => {
+    const fake = path.join(tmp, 'fake-stcbsl.mjs');
+    const argsFile = path.join(tmp, 'native-args.json');
+    const hex = path.join(tmp, 'blink.hex');
+    fs.writeFileSync(hex, ':00000001FF\n');
+    fs.writeFileSync(fake, `#!/usr/bin/env node
+import fs from 'node:fs';
+if (process.argv[2] === '--help') process.exit(0);
+fs.writeFileSync(${JSON.stringify(argsFile)}, JSON.stringify(process.argv.slice(2)));
+`);
+    fs.chmodSync(fake, 0o755);
+
+    const out = run(['flash', hex, '--device', 'stc89c52rc',
+        '--port', '/dev/cu.fake', '--engine', 'rust', '--rust-bin', fake]);
+    assert.match(out, /flashed via stcbsl/);
+    assert.deepEqual(JSON.parse(fs.readFileSync(argsFile, 'utf8')),
+        ['--port', '/dev/cu.fake', 'flash', hex]);
+});

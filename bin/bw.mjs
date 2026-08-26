@@ -368,7 +368,7 @@ switch (cmd) {
                 const found = cand.find((t) => { try { execFileSync(t, ['--help'], { stdio: 'pipe' }); return true; } catch { return false; } });
                 if (!found) die(`${rustTool} not found — build it: `
                     + `cd stc/tools/stcbsl && cargo build --release --bin ${rustTool}, or cargo install --path .`, 1);
-                execFileSync(found, ['--port', portPath, imagePath], { stdio: 'inherit' });
+                execFileSync(found, ['--port', portPath, 'flash', imagePath], { stdio: 'inherit' });
                 console.log(`flashed via ${rustTool} (native Rust)`);
                 break;
             }
