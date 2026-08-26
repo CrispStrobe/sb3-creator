@@ -414,13 +414,8 @@ export async function flashMicroPython(port, source, {
 const STC_START = [0x46, 0xb9], STC_HOST = 0x6a, STC_MCU = 0x68, STC_END = 0x16;
 
 // The erase command carries the PART's flash size, not the image's, so the
-// model has to be recognised from the magic the bootloader announces. Only
-// the parts this project targets are listed; an unknown one falls back to the
-// image size, which erases enough to program it and no more.
-// `isp` is which protocol the part's bootloader speaks. Only "stc12" is
-// implemented here; the STC15 and STC89 families are different protocols, not
-// dialects, so they are listed in order to be REFUSED by name rather than
-// spoken to in a language they do not understand.
+// model has to be recognised from the magic the bootloader announces. `isp`
+// selects the family's genuinely different framing and command sequence.
 export const STC_MODELS = {
   0xd17e: { name: 'STC12C5A60S2', code: 61440, isp: 'stc12' },
   0xd168: { name: 'STC12C5A16S2', code: 16384, isp: 'stc12' },
@@ -436,26 +431,65 @@ export function stcPacket(data) {
                           STC_END]);
 }
 
-/** Read one MCU packet and return its payload, checksum verified. */
-export async function readStcPacket(io) {
+/** STC89 uses the same envelope but an 8-bit rather than 16-bit checksum. */
+export function stc89Packet(data) {
+  const body = [STC_HOST, ((data.length + 5) >> 8) & 0xff, (data.length + 5) & 0xff,
+                ...data];
+  const sum = body.reduce((a, b) => a + b, 0) & 0xff;
+  return Uint8Array.from([...STC_START, ...body, sum, STC_END]);
+}
+
+/** Read an STC envelope without assuming which family's checksum it uses. */
+export async function readStcRawPacket(io, { deadline = Infinity } = {}) {
   let head = (await io.read(1))[0];
-  // Some bootloader versions omit the frame start on the status packet;
-  // stcgal accepts that always, so we do too.
-  if (head !== STC_MCU) {
-    if (head !== STC_START[0]) throw new Error('bad frame start');
+  let prefix;
+  // A few old bootloaders omit 46 B9 on the unsolicited greeting.
+  if (head === STC_MCU) {
+    prefix = [STC_START[0], STC_START[1], STC_MCU];
+  } else {
+    // A running application may continuously print text. Bound one scan so
+    // the caller can pulse 0x7F again and, crucially, enforce its deadline.
+    let skipped = 0;
+    while (head !== STC_START[0]) {
+      if (Date.now() > deadline) throw new Error('STC frame scan timed out');
+      if (++skipped >= 256) throw new Error('no STC frame in serial noise');
+      head = (await io.read(1))[0];
+    }
     if ((await io.read(1))[0] !== STC_START[1]) throw new Error('bad frame start');
-    if ((await io.read(1))[0] !== STC_MCU) throw new Error('bad packet direction');
+    const direction = (await io.read(1))[0];
+    if (direction !== STC_MCU) throw new Error('bad packet direction');
+    prefix = [STC_START[0], STC_START[1], direction];
   }
   const lengthBytes = await io.read(2);
   const length = (lengthBytes[0] << 8) | lengthBytes[1];
+  if (length < 5 || length > 4096) throw new Error(`bad STC packet length ${length}`);
   const rest = await io.read(length - 3);
   if (rest[rest.length - 1] !== STC_END) throw new Error('bad frame end');
-  const data = rest.subarray(0, rest.length - 3);
-  const given = (rest[rest.length - 3] << 8) | rest[rest.length - 2];
-  const want = ([STC_MCU, lengthBytes[0], lengthBytes[1], ...data]
-                 .reduce((a, b) => a + b, 0)) & 0xffff;
+  return Uint8Array.from([...prefix, ...lengthBytes, ...rest]);
+}
+
+function decodeStcRaw(raw, checksumBytes) {
+  const length = (raw[3] << 8) | raw[4];
+  if (raw.length !== length + 2 || raw.at(-1) !== STC_END) {
+    throw new Error('bad STC packet envelope');
+  }
+  const checksumAt = raw.length - 1 - checksumBytes;
+  const data = raw.subarray(5, checksumAt);
+  const want = raw.subarray(2, checksumAt).reduce((a, b) => a + b, 0) &
+               (checksumBytes === 1 ? 0xff : 0xffff);
+  const given = checksumBytes === 1 ? raw[checksumAt] :
+    (raw[checksumAt] << 8) | raw[checksumAt + 1];
   if (given !== want) throw new Error('packet checksum mismatch');
   return data;
+}
+
+/** Read one MCU packet and return its payload, checksum verified. */
+export async function readStcPacket(io) {
+  return decodeStcRaw(await readStcRawPacket(io), 2);
+}
+
+export async function readStc89Packet(io) {
+  return decodeStcRaw(await readStcRawPacket(io), 1);
 }
 
 /** IAP wait states, straight from the datasheet table stcgal encodes. */
@@ -491,8 +525,30 @@ export function stcStatus(payload, handshakeBaud) {
   };
 }
 
+export function stc89Status(payload, handshakeBaud) {
+  const info = stcStatus(payload, handshakeBaud);
+  if (payload.length < 53 || payload[0] !== 0x00) {
+    throw new Error('invalid STC89 status packet');
+  }
+  const first = (payload[1] << 8) | payload[2];
+  for (let i = 1; i < 8; i++) {
+    const word = (payload[1 + 2 * i] << 8) | payload[2 + 2 * i];
+    if (word !== first) throw new Error('inconsistent STC89 frequency measurement');
+  }
+  return { ...info, option: payload[19] };
+}
+
+export function stc89Baud(clockHz, transferBaud) {
+  const ticks = Math.round(clockHz / (transferBaud * 32));
+  const reload = 256 - ticks;
+  if (reload < 1 || reload > 255) {
+    throw new Error(`${transferBaud} baud cannot be set from a ${clockHz} Hz clock`);
+  }
+  return reload;
+}
+
 /**
- * Program an STC12 over its ISP. `onPowerCycle` is called once, so the caller
+ * Program an STC12 or STC89 over its family-specific ISP. `onPowerCycle` is called once, so the caller
  * can tell the user to do the one thing only they can do.
  *
  * Options are deliberately NOT programmed. stcgal rewrites them on every run;
@@ -517,26 +573,122 @@ export async function flashStc(port, hexText, {
   await port.open({ baudRate: handshakeBaud });
   let io = serialTransport(port, { timeout: 4000 });
   const say = async (data) => { const p = record(stcPacket(data)); await io.write(p); };
+  const say89 = async (data) => { const p = record(stc89Packet(data)); await io.write(p); };
+  const reopen = async (baudRate) => {
+    if (sink) return;
+    await io.close();
+    await port.close();
+    await port.open({ baudRate, parity: 'none' });
+    io = serialTransport(port, { timeout: 4000 });
+  };
 
   try {
     log('waiting for the bootloader — pull the power and reapply it');
     onPowerCycle();
     const deadline = Date.now() + timeoutMs;
-    let status = null;
-    while (!status) {
-      if (Date.now() > deadline) {
-        throw new Error('no bootloader greeting: the STC ISP answers only ' +
-                        'after a COLD power-on, and a reset button is not enough');
+    let rawStatus = null;
+    let pulsing = true;
+    // Reading and pulsing must be concurrent. One pulse followed by the
+    // transport's four-second read timeout leaves almost the entire STC89
+    // cold-start window uncovered; the real YL-39 only answered when 0x7F was
+    // kept on the wire about every 20 ms.
+    const pulseTask = (async () => {
+      while (pulsing && Date.now() <= deadline) {
+        try { await io.write(Uint8Array.from([0x7f])); } catch { /* USB may re-enumerate */ }
+        await new Promise(r => setTimeout(r, 20));
       }
-      await io.write(Uint8Array.from([0x7f]));
-      try { status = await readStcPacket(io); } catch { /* keep pulsing */ }
+    })();
+    try {
+      while (!rawStatus) {
+        if (Date.now() > deadline) {
+          throw new Error('no bootloader greeting: the STC ISP answers only ' +
+                          'after a COLD power-on, and a reset button is not enough');
+        }
+        try { rawStatus = await readStcRawPacket(io, { deadline }); } catch { /* keep pulsing */ }
+      }
+    } finally {
+      pulsing = false;
+      await pulseTask;
     }
-    const info = stcStatus(status, handshakeBaud);
+    let status12 = null, status89 = null;
+    try { status12 = decodeStcRaw(rawStatus, 2); } catch { /* not STC12 framing */ }
+    try { status89 = decodeStcRaw(rawStatus, 1); } catch { /* not STC89 framing */ }
+    const candidate = status89 || status12;
+    if (!candidate || candidate.length < 22) throw new Error('unrecognised STC greeting');
+    const announcedMagic = (candidate[20] << 8) | candidate[21];
+    const announcedModel = STC_MODELS[announcedMagic];
+    const protocol = announcedModel?.isp || (status12 ? 'stc12' : 'stc89');
+    const status = protocol === 'stc89' ? status89 : status12;
+    if (!status) throw new Error(`${protocol} greeting has the wrong checksum format`);
+    const info = protocol === 'stc89' ? stc89Status(status, handshakeBaud) :
+      stcStatus(status, handshakeBaud);
     log(`bootloader: magic ${info.magic.toString(16)}, ` +
         `${(info.clockHz / 1e6).toFixed(3)} MHz, BSL ${(info.bslVersion >> 4)}.` +
         `${info.bslVersion & 0xf}`);
 
     const magicHi = (info.magic >> 8) & 0xff, magicLo = info.magic & 0xff;
+
+    if (protocol === 'stc89') {
+      const model = STC_MODELS[info.magic];
+      if (model) log(`part: ${model.name}, ${model.code} bytes of flash`);
+      const reload = stc89Baud(info.clockHz, transferBaud);
+      const reloadField = [0xff, reload];
+      const expect89 = async (command, message, check = () => true) => {
+        const reply = await readStc89Packet(io);
+        if (reply[0] !== command || !check(reply.subarray(1))) throw new Error(message);
+        return reply;
+      };
+
+      log('negotiating STC89 baud…');
+      await say89([0x8f, ...reloadField, 0x00, 0x06, 0xa0, 0x81]);
+      // The MCU echoes at the trial rate. Switch immediately after the write;
+      // close() is the only drain-and-retune operation Web Serial exposes.
+      if (transferBaud !== handshakeBaud) await reopen(transferBaud);
+      await expect89(0x8f, 'STC89 baud probe refused');
+
+      if (transferBaud !== handshakeBaud) await reopen(handshakeBaud);
+      await say89([0x8e, ...reloadField, 0x00, 0x06, 0xa0]);
+      if (transferBaud !== handshakeBaud) await reopen(transferBaud);
+      await expect89(0x8e, 'STC89 baud commit refused');
+
+      for (let attempt = 0; attempt < 4; attempt++) {
+        await say89([0x80, 0x00, 0x00, 0x36, 0x01, magicHi, magicLo]);
+        await expect89(0x80, `STC89 link test ${attempt + 1} refused`, p => p.length === 0);
+      }
+
+      const blocks = 2 * Math.ceil(image.length / 512);
+      log(`erasing ${blocks} blocks…`);
+      await say89([0x84, blocks, 0x33, 0x33, 0x33, 0x33, 0x33, 0x33]);
+      await expect89(0x80, 'STC89 erase refused',
+        p => p.length === 7 && p[0] === magicHi && p[1] === magicLo);
+
+      const BLOCK = 128;
+      for (let at = 0; at < image.length; at += BLOCK) {
+        const chunk = image.subarray(at, at + BLOCK);
+        const address = [(at >>> 24) & 0xff, (at >>> 16) & 0xff,
+                         (at >>> 8) & 0xff, at & 0xff];
+        await say89([0x00, ...address, 0x00, BLOCK, ...chunk]);
+        const checksum = chunk.reduce((a, b) => (a + b) & 0xff, 0);
+        await expect89(0x80, `STC89 write refused at 0x${at.toString(16)}`,
+          p => p.length === 1 && p[0] === checksum);
+        log(`  wrote ${chunk.length} bytes at 0x${at.toString(16).padStart(4, '0')}`);
+      }
+
+      // Echo only the option byte this bootloader just reported. This keeps
+      // the chip's ISP-pin and clock policy unchanged.
+      await say89([0x8d, info.option, 0xff, 0xff, 0xff]);
+      await expect89(0x8d, 'STC89 option echo refused',
+        p => p.length === 4 && p[0] === info.option);
+      await say89([0x82]);
+      log(`done: ${parsed.image.length} bytes (padded to ${image.length})`);
+      return { bytes: parsed.image.length, padded: image.length, sent,
+               model: model?.name, protocol };
+    }
+
+    if (protocol !== 'stc12') {
+      const model = STC_MODELS[info.magic];
+      throw new Error(`${model?.name || 'this chip'} uses ${protocol}; support is not implemented yet`);
+    }
     const { brt, csum, iap, delay } = stcBaud(info.clockHz, transferBaud);
 
     log('negotiating baud…');
@@ -558,11 +710,6 @@ export async function flashStc(port, hexText, {
     }
 
     const model = STC_MODELS[info.magic];
-    if (model && model.isp !== 'stc12') {
-      throw new Error(
-        `this is a ${model.name}, whose bootloader speaks the ${model.isp} ISP ` +
-        `protocol; only stc12 is implemented here. Use stcgal for this part.`);
-    }
     const codeSize = model ? model.code : image.length;
     if (model) log(`part: ${model.name}, ${codeSize} bytes of flash`);
     else log(`unknown magic ${info.magic.toString(16)}; erasing only what is written`);

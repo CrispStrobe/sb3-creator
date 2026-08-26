@@ -33,7 +33,7 @@ const cmd = args[0];
 const positional = [];
 const opts = {};
 for (let i = 1; i < args.length; i++) {
-    if (args[i] === '--to' || args[i] === '--device' || args[i] === '--port' || args[i] === '--firmware' || args[i] === '--engine' || args[i] === '--rust-bin' || args[i] === '-o') {
+    if (args[i] === '--to' || args[i] === '--device' || args[i] === '--port' || args[i] === '--firmware' || args[i] === '--engine' || args[i] === '--rust-bin' || args[i] === '--wait' || args[i] === '-o') {
         opts[args[i].replace(/^-+/, '')] = args[++i];
     } else if (args[i].startsWith('--')) opts[args[i].slice(2)] = true;
     else positional.push(args[i]);
@@ -172,13 +172,17 @@ switch (cmd) {
         fs.writeFileSync(path.join(work, 'main.c'), cSrc);
         const have = (tool) => { try { execSync(`${tool} --version`, { stdio: 'pipe' }); return true; } catch { return false; } };
         if (/^stc|^at89/.test(dev) && have('sdcc')) {
-            execFileSync('sdcc', ['-mmcs51', '--iram-size', '256', '--xram-size', '1024',
+            const xram = dev.startsWith('stc15') ? '1792' : dev.startsWith('stc89') ? '256' : '1024';
+            const codeSize = dev.startsWith('stc89') ? '8192' : '61440';
+            execFileSync('sdcc', ['-mmcs51', '--iram-size', '256', '--xram-size', xram,
+                '--code-size', codeSize,
                 '-o', path.join(work, 'main.ihx'), path.join(work, 'main.c')], { stdio: 'inherit' });
             const out = opts.o || file.replace(/\.[^.]+$/, '') + '.ihx';
+            fs.mkdirSync(path.dirname(out), { recursive: true });
             fs.copyFileSync(path.join(work, 'main.ihx'), out);
             console.log(`wrote ${out} (Intel HEX)`);
             console.log('  flash it with the fleet\'s own stcbsl (stc repo, MIT, silicon-proven):');
-            console.log(`    stcbsl --port /dev/cu.usbserial-X ${out}`);
+            console.log(`    stcbsl --port /dev/cu.usbserial-X flash ${out}`);
             console.log('  then PULL THE POWER and reapply it — the STC ISP bootloader only answers after a cold power-on.');
         } else if (dev === 'pico' && have('arm-none-eabi-gcc')) {
             if (opts.uf2) {
@@ -386,6 +390,9 @@ switch (cmd) {
                     const hex = fs.readFileSync(imagePath, 'utf8');
                     const done = await flasher.flashStc(port, hex, {
                         log, onPowerCycle: () => console.error('PULL THE POWER and reapply it — the STC ISP only answers after a COLD power-on'),
+                        // Interactive cold-cycling through an API/chat can take
+                        // longer than the protocol's own 30-second default.
+                        timeoutMs: Number(opts.wait ?? 120) * 1000,
                     });
                     console.log(`flashed ${done.bytes} bytes to the STC — running`);
                 } else if (family === 'eeprom') {
