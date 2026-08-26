@@ -1,11 +1,11 @@
 {
   "note": "Which gates enrol which example, computed from scripts/lib/example-enrolment.mjs. A diff here is a change in COVERAGE — read it before regenerating.",
   "measuredOn": "2026-08-23",
-  "examples": 280,
+  "examples": 288,
   "gates": {
     "gallery": 277,
-    "example-kind-matches-content": 280,
-    "index-metadata-matches-disk": 280,
+    "example-kind-matches-content": 288,
+    "index-metadata-matches-disk": 288,
     "retarget-gallery": 43,
     "retarget-amplification": 43,
     "gen-device-benches": 128,
@@ -13,7 +13,7 @@
     "assert-physics": 245,
     "debug-micropython": 9,
     "debug-trace-audit": 17,
-    "circuit-params-are-read": 249,
+    "circuit-params-are-read": 257,
     "program-reads-what-it-writes": 277,
     "vm-and-c-agree-on-arithmetic": 127,
     "documented-tables-are-derived": 4,
@@ -3014,6 +3014,46 @@
       "retarget-gallery",
       "vm",
       "vm-and-c-agree-on-arithmetic"
+    ],
+    "pc90-74hc08-and-gate": [
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "index-metadata-matches-disk"
+    ],
+    "pc91-74hc04-inverter": [
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "index-metadata-matches-disk"
+    ],
+    "pc92-and-or-xor-compared": [
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "index-metadata-matches-disk"
+    ],
+    "pc93-nand-is-universal": [
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "index-metadata-matches-disk"
+    ],
+    "pc94-half-adder": [
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "index-metadata-matches-disk"
+    ],
+    "pc95-full-adder": [
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "index-metadata-matches-disk"
+    ],
+    "pc96-four-bit-adder-74hc283": [
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "index-metadata-matches-disk"
+    ],
+    "pc97-logic-calculator": [
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "index-metadata-matches-disk"
     ]
   }
 }
