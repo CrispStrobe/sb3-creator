@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "mode": "play",
+  "comment": "Every face is part-bound: OLED mirrors SSD1306 GDDRAM, VGA mirrors the physical write-snoop card, and keyboard input becomes PS/2 Code Set 2 frames captured by the VIA.",
+  "widgets": [
+    {"name":"vgaMonitor","type":"simplevga","config":{"width":160,"height":128},"layout":{"x":10,"y":10,"w":360,"h":288},"binding":{"target":"part","partId":"vga"}},
+    {"name":"statusOled","type":"oled","config":{"rows":8,"cols":21},"layout":{"x":385,"y":10,"w":260,"h":130},"binding":{"target":"part","partId":"oled1"}},
+    {"name":"ps2Keyboard","type":"keyboard","config":{},"layout":{"x":385,"y":155,"w":260,"h":70},"binding":{"target":"part","partId":"kbd"}},
+    {"name":"hint","type":"text","config":{"text":"Type here—or press any of the 74 keys on the keyboard in the Circuit. The byte crosses PS/2 → capture → VIA PA/CA1 → 6502 firmware → both displays.","fontSize":13,"color":"#dbeafe"},"layout":{"x":385,"y":235,"w":260,"h":80}}
+  ]
+}

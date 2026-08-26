@@ -1,0 +1,7 @@
+# Aurora-65 dual-display workstation. The drawn circuit is the machine
+# definition; program.c is the complete firmware used to build rom.bin.
+DEVICE EATER6502
+
+# program.c/startup.s are the executable firmware behind rom.bin. They initialize
+# real VGA timing and the SSD1306 over VIA PB1/PB2, then consume PS/2 bytes from
+# VIA PA0..PA7 when CA1 signals DATA READY. Every key changes both displays.

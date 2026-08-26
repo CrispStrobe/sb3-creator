@@ -5694,6 +5694,25 @@
   "kind": "circuit"
  },
  {
+  "id": "aurora65-workstation",
+  "title": {
+   "en": "Aurora-65 Display Workstation",
+   "de": "Aurora-65 Display-Workstation"
+  },
+  "category": "digital",
+  "difficulty": 3,
+  "files": {
+   "program": "aurora65-workstation/program.bw",
+   "circuit": "aurora65-workstation/circuit.json",
+   "intro": "aurora65-workstation/intro.md",
+   "introDE": "aurora65-workstation/intro.de.md",
+   "expected": "aurora65-workstation/EXPECTED.md",
+   "rom": "aurora65-workstation/rom.bin",
+   "controller": "aurora65-workstation/controller.json"
+  },
+  "kind": "circuit"
+ },
+ {
   "id": "eater6502-full-build",
   "title": {
    "en": "6502 Computer with LCD",
