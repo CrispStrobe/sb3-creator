@@ -7770,5 +7770,21 @@
    "intro": "pc108-memory-walker/intro.md",
    "introDE": "pc108-memory-walker/intro.de.md"
   }
+ },
+ {
+  "id": "pc109-fetch-cycle",
+  "title": {
+   "en": "The fetch cycle — reading an instruction, and knowing what it says",
+   "de": "Der Holzyklus — einen Befehl lesen und verstehen"
+  },
+  "category": "pure-circuit",
+  "difficulty": 5,
+  "kind": "circuit",
+  "files": {
+   "circuit": "pc109-fetch-cycle/circuit.json",
+   "expected": "pc109-fetch-cycle/EXPECTED.md",
+   "intro": "pc109-fetch-cycle/intro.md",
+   "introDE": "pc109-fetch-cycle/intro.de.md"
+  }
  }
 ]
