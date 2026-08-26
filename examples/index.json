@@ -7722,5 +7722,21 @@
    "intro": "pc105-instruction-decoder/intro.md",
    "introDE": "pc105-instruction-decoder/intro.de.md"
   }
+ },
+ {
+  "id": "pc106-control-matrix",
+  "title": {
+   "en": "The control matrix — the part that decides",
+   "de": "Die Steuermatrix — der Teil, der entscheidet"
+  },
+  "category": "pure-circuit",
+  "difficulty": 5,
+  "kind": "circuit",
+  "files": {
+   "circuit": "pc106-control-matrix/circuit.json",
+   "expected": "pc106-control-matrix/EXPECTED.md",
+   "intro": "pc106-control-matrix/intro.md",
+   "introDE": "pc106-control-matrix/intro.de.md"
+  }
  }
 ]
