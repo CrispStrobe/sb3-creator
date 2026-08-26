@@ -7821,5 +7821,21 @@
    "intro": "pc110-the-machine/intro.md",
    "introDE": "pc110-the-machine/intro.de.md"
   }
+ },
+ {
+  "id": "pc111-diode-keypad",
+  "title": {
+   "en": "A decimal keypad made of diodes",
+   "de": "Eine Dezimaltastatur aus Dioden"
+  },
+  "category": "pure-circuit",
+  "difficulty": 4,
+  "kind": "circuit",
+  "files": {
+   "circuit": "pc111-diode-keypad/circuit.json",
+   "expected": "pc111-diode-keypad/EXPECTED.md",
+   "intro": "pc111-diode-keypad/intro.md",
+   "introDE": "pc111-diode-keypad/intro.de.md"
+  }
  }
 ]
