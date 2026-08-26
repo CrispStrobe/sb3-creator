@@ -411,6 +411,16 @@ function percent (claim) {
 }
 
 export function adjudicate (claim) {
+    // A shopping list is a part SPEC, not a statement about this bench. The
+    // generated intros carry a "What to buy" table whose rows name components
+    // by their rating — "LED 2V, green" is the diode you order, and the bench
+    // may never put 2 V across it. Holding a BOM row against a node voltage
+    // marks a correct document wrong, which is what it did to seven rows
+    // across three examples the day the tables were generated.
+    if (/^(what to buy|was du brauchst|to build it)$/i.test(claim.section || '')) {
+        return { skip: 'the line is a row in the parts list — a component rating you buy by, not a quantity this bench produces' };
+    }
+
     // A claim that states its derivation is judged on that derivation first:
     // it is exact, it needs no bench, and it is what the document asserts.
     const own = arithmetic(claim);

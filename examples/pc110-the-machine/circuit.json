@@ -1861,18 +1861,6 @@
   {
    "from": "vcc1",
    "fromTerminal": "vcc",
-   "to": "ring",
-   "toTerminal": "vcc"
-  },
-  {
-   "from": "gnd1",
-   "fromTerminal": "gnd",
-   "to": "ring",
-   "toTerminal": "gnd"
-  },
-  {
-   "from": "vcc1",
-   "fromTerminal": "vcc",
    "to": "pc",
    "toTerminal": "vcc"
   },

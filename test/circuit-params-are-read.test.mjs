@@ -215,6 +215,14 @@ const KNOWN_INERT = new Map([
         + 'EXPECTED.md instruction "edit the volts parameter to 1.3 -> GOOD, 1.1 -> WEAK, '
         + '0.9 -> DEAD" cannot be carried out. See PLAN.md.'],
 
+    ['simplevga_card.rows',
+        'ENGINE: nothing reads params.rows for this kind. `rows` is consumed by the character '
+        + 'displays only — hd44780.js and i2c-parts.js both do `part.params?.rows ?? 2` — and no '
+        + 'device model, face renderer or exporter reads it for simplevga_card. '
+        + 'aurora65-workstation declares rows: 128, which is the card geometry its author '
+        + 'intends; the declaration is kept rather than deleted because it states that intent, '
+        + 'and this entry records that the engine does not yet act on it.'],
+
     // Read off the solve path — geometry, rendering, export, load-time migration.
     ['arduino_mega.pins', 'BLIND SPOT: the controller pin table is consumed by terminal resolution and the exporters, not by a DC solve.'],
     ['arduino_nano.pins', 'BLIND SPOT: as arduino_mega.pins.'],
