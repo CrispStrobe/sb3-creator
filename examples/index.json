@@ -7690,5 +7690,37 @@
    "intro": "pc103-accumulator/intro.md",
    "introDE": "pc103-accumulator/intro.de.md"
   }
+ },
+ {
+  "id": "pc104-ring-counter",
+  "title": {
+   "en": "The ring counter — six beats to every instruction",
+   "de": "Der Ringzähler — sechs Takte für jeden Befehl"
+  },
+  "category": "pure-circuit",
+  "difficulty": 4,
+  "kind": "circuit",
+  "files": {
+   "circuit": "pc104-ring-counter/circuit.json",
+   "expected": "pc104-ring-counter/EXPECTED.md",
+   "intro": "pc104-ring-counter/intro.md",
+   "introDE": "pc104-ring-counter/intro.de.md"
+  }
+ },
+ {
+  "id": "pc105-instruction-decoder",
+  "title": {
+   "en": "The instruction decoder — a number becomes a meaning",
+   "de": "Der Befehlsdekoder — aus einer Zahl wird eine Bedeutung"
+  },
+  "category": "pure-circuit",
+  "difficulty": 5,
+  "kind": "circuit",
+  "files": {
+   "circuit": "pc105-instruction-decoder/circuit.json",
+   "expected": "pc105-instruction-decoder/EXPECTED.md",
+   "intro": "pc105-instruction-decoder/intro.md",
+   "introDE": "pc105-instruction-decoder/intro.de.md"
+  }
  }
 ]
