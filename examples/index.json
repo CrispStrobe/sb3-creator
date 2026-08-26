@@ -7786,5 +7786,21 @@
    "intro": "pc109-fetch-cycle/intro.md",
    "introDE": "pc109-fetch-cycle/intro.de.md"
   }
+ },
+ {
+  "id": "pc110-the-machine",
+  "title": {
+   "en": "The whole machine — it runs a program",
+   "de": "Die ganze Maschine — sie führt ein Programm aus"
+  },
+  "category": "pure-circuit",
+  "difficulty": 5,
+  "kind": "circuit",
+  "files": {
+   "circuit": "pc110-the-machine/circuit.json",
+   "expected": "pc110-the-machine/EXPECTED.md",
+   "intro": "pc110-the-machine/intro.md",
+   "introDE": "pc110-the-machine/intro.de.md"
+  }
  }
 ]
