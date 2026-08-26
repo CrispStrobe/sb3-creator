@@ -1,11 +1,11 @@
 {
   "note": "Which gates enrol which example, computed from scripts/lib/example-enrolment.mjs. A diff here is a change in COVERAGE — read it before regenerating.",
   "measuredOn": "2026-08-23",
-  "examples": 290,
+  "examples": 294,
   "gates": {
     "gallery": 277,
-    "example-kind-matches-content": 290,
-    "index-metadata-matches-disk": 290,
+    "example-kind-matches-content": 294,
+    "index-metadata-matches-disk": 294,
     "retarget-gallery": 43,
     "retarget-amplification": 43,
     "gen-device-benches": 128,
@@ -13,7 +13,7 @@
     "assert-physics": 245,
     "debug-micropython": 9,
     "debug-trace-audit": 17,
-    "circuit-params-are-read": 259,
+    "circuit-params-are-read": 263,
     "program-reads-what-it-writes": 277,
     "vm-and-c-agree-on-arithmetic": 127,
     "documented-tables-are-derived": 4,
@@ -3061,6 +3061,26 @@
       "index-metadata-matches-disk"
     ],
     "pc99-bcd-two-digit-calculator": [
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "index-metadata-matches-disk"
+    ],
+    "pc100-555-clock": [
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "index-metadata-matches-disk"
+    ],
+    "pc101-program-counter": [
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "index-metadata-matches-disk"
+    ],
+    "pc102-ram-16x4": [
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "index-metadata-matches-disk"
+    ],
+    "pc103-accumulator": [
       "circuit-params-are-read",
       "example-kind-matches-content",
       "index-metadata-matches-disk"

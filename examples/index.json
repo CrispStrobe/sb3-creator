@@ -7626,5 +7626,69 @@
    "intro": "pc99-bcd-two-digit-calculator/intro.md",
    "introDE": "pc99-bcd-two-digit-calculator/intro.de.md"
   }
+ },
+ {
+  "id": "pc100-555-clock",
+  "title": {
+   "en": "The clock — a machine needs a heartbeat",
+   "de": "Der Takt — eine Maschine braucht einen Herzschlag"
+  },
+  "category": "pure-circuit",
+  "difficulty": 2,
+  "kind": "circuit",
+  "files": {
+   "circuit": "pc100-555-clock/circuit.json",
+   "expected": "pc100-555-clock/EXPECTED.md",
+   "intro": "pc100-555-clock/intro.md",
+   "introDE": "pc100-555-clock/intro.de.md"
+  }
+ },
+ {
+  "id": "pc101-program-counter",
+  "title": {
+   "en": "The program counter — where the machine is looking",
+   "de": "Der Programmzähler — wohin die Maschine schaut"
+  },
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "kind": "circuit",
+  "files": {
+   "circuit": "pc101-program-counter/circuit.json",
+   "expected": "pc101-program-counter/EXPECTED.md",
+   "intro": "pc101-program-counter/intro.md",
+   "introDE": "pc101-program-counter/intro.de.md"
+  }
+ },
+ {
+  "id": "pc102-ram-16x4",
+  "title": {
+   "en": "Memory — sixteen places to put a number",
+   "de": "Speicher — sechzehn Plätze für eine Zahl"
+  },
+  "category": "pure-circuit",
+  "difficulty": 4,
+  "kind": "circuit",
+  "files": {
+   "circuit": "pc102-ram-16x4/circuit.json",
+   "expected": "pc102-ram-16x4/EXPECTED.md",
+   "intro": "pc102-ram-16x4/intro.md",
+   "introDE": "pc102-ram-16x4/intro.de.md"
+  }
+ },
+ {
+  "id": "pc103-accumulator",
+  "title": {
+   "en": "The accumulator — a circuit with a past",
+   "de": "Der Akkumulator — eine Schaltung mit Vergangenheit"
+  },
+  "category": "pure-circuit",
+  "difficulty": 5,
+  "kind": "circuit",
+  "files": {
+   "circuit": "pc103-accumulator/circuit.json",
+   "expected": "pc103-accumulator/EXPECTED.md",
+   "intro": "pc103-accumulator/intro.md",
+   "introDE": "pc103-accumulator/intro.de.md"
+  }
  }
 ]
