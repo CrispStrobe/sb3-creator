@@ -7594,5 +7594,37 @@
    "intro": "pc97-logic-calculator/intro.md",
    "introDE": "pc97-logic-calculator/intro.de.md"
   }
+ },
+ {
+  "id": "pc98-adder-subtractor",
+  "title": {
+   "en": "Subtraction is the same circuit",
+   "de": "Subtraktion ist dieselbe Schaltung"
+  },
+  "category": "pure-circuit",
+  "difficulty": 4,
+  "kind": "circuit",
+  "files": {
+   "circuit": "pc98-adder-subtractor/circuit.json",
+   "expected": "pc98-adder-subtractor/EXPECTED.md",
+   "intro": "pc98-adder-subtractor/intro.md",
+   "introDE": "pc98-adder-subtractor/intro.de.md"
+  }
+ },
+ {
+  "id": "pc99-bcd-two-digit-calculator",
+  "title": {
+   "en": "Two digits: the calculator that does not give up at nine",
+   "de": "Zwei Ziffern: der Rechner, der bei neun nicht aufgibt"
+  },
+  "category": "pure-circuit",
+  "difficulty": 5,
+  "kind": "circuit",
+  "files": {
+   "circuit": "pc99-bcd-two-digit-calculator/circuit.json",
+   "expected": "pc99-bcd-two-digit-calculator/EXPECTED.md",
+   "intro": "pc99-bcd-two-digit-calculator/intro.md",
+   "introDE": "pc99-bcd-two-digit-calculator/intro.de.md"
+  }
  }
 ]
