@@ -7738,5 +7738,37 @@
    "intro": "pc106-control-matrix/intro.md",
    "introDE": "pc106-control-matrix/intro.de.md"
   }
+ },
+ {
+  "id": "pc107-the-bus",
+  "title": {
+   "en": "The bus — one set of wires, many talkers",
+   "de": "Der Bus — eine Leitung, viele Sprecher"
+  },
+  "category": "pure-circuit",
+  "difficulty": 4,
+  "kind": "circuit",
+  "files": {
+   "circuit": "pc107-the-bus/circuit.json",
+   "expected": "pc107-the-bus/EXPECTED.md",
+   "intro": "pc107-the-bus/intro.md",
+   "introDE": "pc107-the-bus/intro.de.md"
+  }
+ },
+ {
+  "id": "pc108-memory-walker",
+  "title": {
+   "en": "The machine reads its own memory",
+   "de": "Die Maschine liest ihren eigenen Speicher"
+  },
+  "category": "pure-circuit",
+  "difficulty": 5,
+  "kind": "circuit",
+  "files": {
+   "circuit": "pc108-memory-walker/circuit.json",
+   "expected": "pc108-memory-walker/EXPECTED.md",
+   "intro": "pc108-memory-walker/intro.md",
+   "introDE": "pc108-memory-walker/intro.de.md"
+  }
  }
 ]

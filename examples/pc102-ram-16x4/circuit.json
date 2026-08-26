@@ -555,18 +555,18 @@
   {
    "from": "vcc1",
    "fromTerminal": "vcc",
-   "to": "swc",
-   "toTerminal": "2a"
-  },
-  {
-   "from": "swc",
-   "fromTerminal": "2b",
    "to": "rwe",
    "toTerminal": "a"
   },
   {
    "from": "rwe",
    "fromTerminal": "b",
+   "to": "swc",
+   "toTerminal": "2b"
+  },
+  {
+   "from": "swc",
+   "fromTerminal": "2a",
    "to": "gnd1",
    "toTerminal": "gnd"
   },
