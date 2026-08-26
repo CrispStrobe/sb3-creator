@@ -18,3 +18,17 @@ Jeder Chip bekommt +5 V und GND — ein IC ohne Versorgung tut nichts, und ein o
 | 1 | 0 | off | off | ON |
 | 0 | 1 | ON | off | ON |
 | 1 | 1 | off | ON | ON |
+
+## Was du brauchst
+
+| qty | part |
+|---|---|
+| 2 | 74HC00 Quad NAND |
+| 1 | 4-way DIP Switch (SPST) |
+| 1 | LED 2V, green |
+| 1 | LED 2V, red |
+| 1 | LED 2V, yellow |
+| 2 | Resistor 10kΩ |
+| 3 | Resistor 330Ω |
+
+2 integrierte Schaltkreis(e), 1 Steckbrett(er), 5 V.

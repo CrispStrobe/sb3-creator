@@ -19,3 +19,18 @@ Jeder Chip bekommt +5 V und GND — ein IC ohne Versorgung tut nichts, und ein o
 | 4 | 5 | 9 |
 | 9 | 1 | blank (10) |
 | 15 | 15 | blank, carry lit |
+
+## Was du brauchst
+
+| qty | part |
+|---|---|
+| 1 | 74HC283 4-bit Adder |
+| 1 | CD4511 BCD-to-7-Segment Decoder |
+| 1 | 4-way DIP Switch (SPST) |
+| 1 | 4-way DIP Switch (SPST) |
+| 1 | LED 2V, red |
+| 8 | Resistor 10kΩ |
+| 8 | Resistor 330Ω |
+| 1 | 7-Segment Display |
+
+2 integrierte Schaltkreis(e), 3 Steckbrett(er), 5 V.

@@ -17,3 +17,17 @@ Every chip gets +5 V and GND — an IC with no power does nothing, and a floatin
 | ~1 Hz | LED blinks |
 | bigger C | slower |
 | smaller C | faster |
+
+## What to buy
+
+| qty | part |
+|---|---|
+| 1 | 555 Timer |
+| 1 | Capacitor 10nF |
+| 1 | Capacitor 10uF |
+| 1 | LED 2V, yellow |
+| 1 | Resistor 330Ω |
+| 1 | Resistor 6.8kΩ |
+| 1 | Resistor 68kΩ |
+
+1 integrated circuit(s), 1 breadboard(s), 5 V.

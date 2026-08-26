@@ -18,3 +18,17 @@ Every chip gets +5 V and GND — an IC with no power does nothing, and a floatin
 | 1 | 0 | off | off | ON |
 | 0 | 1 | ON | off | ON |
 | 1 | 1 | off | ON | ON |
+
+## What to buy
+
+| qty | part |
+|---|---|
+| 2 | 74HC00 Quad NAND |
+| 1 | 4-way DIP Switch (SPST) |
+| 1 | LED 2V, green |
+| 1 | LED 2V, red |
+| 1 | LED 2V, yellow |
+| 2 | Resistor 10kΩ |
+| 3 | Resistor 330Ω |
+
+2 integrated circuit(s), 1 breadboard(s), 5 V.

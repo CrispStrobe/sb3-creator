@@ -20,3 +20,17 @@ Jeder Chip bekommt +5 V und GND — ein IC ohne Versorgung tut nichts, und ein o
 | 1110 | OUT |
 | 1111 | HLT |
 | 0111 | nothing — not an instruction |
+
+## Was du brauchst
+
+| qty | part |
+|---|---|
+| 2 | 74HC138 3-to-8 Decoder |
+| 1 | 4-way DIP Switch (SPST) |
+| 3 | LED 2V, green |
+| 1 | LED 2V, red |
+| 1 | LED 2V, yellow |
+| 4 | Resistor 10kΩ |
+| 5 | Resistor 330Ω |
+
+2 integrierte Schaltkreis(e), 2 Steckbrett(er), 5 V.

@@ -19,3 +19,16 @@ Every chip gets +5 V and GND — an IC with no power does nothing, and a floatin
 | 9 | 1001 |
 | 15 | 1111 + RCO lit |
 | 16 | wraps to 0000 |
+
+## What to buy
+
+| qty | part |
+|---|---|
+| 1 | 74LS161 4-bit Counter |
+| 1 | 4-way DIP Switch (SPST) |
+| 4 | LED 2V, green |
+| 1 | LED 2V, red |
+| 1 | Resistor 10kΩ |
+| 5 | Resistor 330Ω |
+
+1 integrated circuit(s), 2 breadboard(s), 5 V.

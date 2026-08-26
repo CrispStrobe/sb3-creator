@@ -18,3 +18,17 @@ Jeder Chip bekommt +5 V und GND — ein IC ohne Versorgung tut nichts, und ein o
 | 1 | 0 | ON | off |
 | 0 | 1 | ON | off |
 | 1 | 1 | off | ON |
+
+## Was du brauchst
+
+| qty | part |
+|---|---|
+| 1 | 74HC08 Quad AND |
+| 1 | 74HC86 Quad XOR |
+| 1 | 4-way DIP Switch (SPST) |
+| 1 | LED 2V, green |
+| 1 | LED 2V, red |
+| 2 | Resistor 10kΩ |
+| 2 | Resistor 330Ω |
+
+2 integrierte Schaltkreis(e), 1 Steckbrett(er), 5 V.

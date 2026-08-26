@@ -18,3 +18,16 @@ Jeder Chip bekommt +5 V und GND — ein IC ohne Versorgung tut nichts, und ein o
 | 1 | T2 |
 | 5 | T6 |
 | 6 | T1 again |
+
+## Was du brauchst
+
+| qty | part |
+|---|---|
+| 1 | CD4017 Decade Counter |
+| 1 | 4-way DIP Switch (SPST) |
+| 5 | LED 2V, green |
+| 1 | LED 2V, yellow |
+| 1 | Resistor 10kΩ |
+| 6 | Resistor 330Ω |
+
+1 integrierte Schaltkreis(e), 2 Steckbrett(er), 5 V.

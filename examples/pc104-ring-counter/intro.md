@@ -18,3 +18,16 @@ Every chip gets +5 V and GND — an IC with no power does nothing, and a floatin
 | 1 | T2 |
 | 5 | T6 |
 | 6 | T1 again |
+
+## What to buy
+
+| qty | part |
+|---|---|
+| 1 | CD4017 Decade Counter |
+| 1 | 4-way DIP Switch (SPST) |
+| 5 | LED 2V, green |
+| 1 | LED 2V, yellow |
+| 1 | Resistor 10kΩ |
+| 6 | Resistor 330Ω |
+
+1 integrated circuit(s), 2 breadboard(s), 5 V.

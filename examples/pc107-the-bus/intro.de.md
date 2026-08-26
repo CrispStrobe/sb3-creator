@@ -18,3 +18,19 @@ Jeder Chip bekommt +5 V und GND — ein IC ohne Versorgung tut nichts, und ein o
 | A only | shows A |
 | B only | shows B |
 | both | neither 1 nor 0 — contention |
+
+## Was du brauchst
+
+| qty | part |
+|---|---|
+| 1 | 74HC04 Hex NOT |
+| 2 | 74HC244 Octal Tri-State Buffer |
+| 1 | 4-way DIP Switch (SPST) |
+| 1 | 4-way DIP Switch (SPST) |
+| 1 | 4-way DIP Switch (SPST) |
+| 4 | LED 2V, yellow |
+| 4 | Resistor 100kΩ |
+| 10 | Resistor 10kΩ |
+| 4 | Resistor 330Ω |
+
+3 integrierte Schaltkreis(e), 3 Steckbrett(er), 5 V.

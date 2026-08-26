@@ -18,3 +18,17 @@ Jeder Chip bekommt +5 V und GND — ein IC ohne Versorgung tut nichts, und ein o
 | 0101 | 0011 | 0 1000 |
 | 1111 | 0001 | 1 0000 |
 | 1111 | 1111 | 1 1110 |
+
+## Was du brauchst
+
+| qty | part |
+|---|---|
+| 1 | 74HC283 4-bit Adder |
+| 1 | 4-way DIP Switch (SPST) |
+| 1 | 4-way DIP Switch (SPST) |
+| 4 | LED 2V, green |
+| 1 | LED 2V, red |
+| 8 | Resistor 10kΩ |
+| 5 | Resistor 330Ω |
+
+1 integrierte Schaltkreis(e), 2 Steckbrett(er), 5 V.

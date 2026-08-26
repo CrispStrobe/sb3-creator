@@ -16,3 +16,15 @@ Every chip gets +5 V and GND — an IC with no power does nothing, and a floatin
 |---|---|
 | 0 | ON |
 | 1 | off |
+
+## What to buy
+
+| qty | part |
+|---|---|
+| 1 | 74HC04 Hex NOT |
+| 1 | 4-way DIP Switch (SPST) |
+| 1 | LED 2V, green |
+| 1 | Resistor 10kΩ |
+| 1 | Resistor 330Ω |
+
+1 integrated circuit(s), 1 breadboard(s), 5 V.

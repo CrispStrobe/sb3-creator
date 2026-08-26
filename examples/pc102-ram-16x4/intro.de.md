@@ -17,3 +17,18 @@ Jeder Chip bekommt +5 V und GND — ein IC ohne Versorgung tut nichts, und ein o
 | store 5 | LEDs read 10 (inverted!) |
 | store 0 | LEDs read 15 |
 | clock | address advances |
+
+## Was du brauchst
+
+| qty | part |
+|---|---|
+| 1 | 74LS161 4-bit Counter |
+| 1 | 74LS189 16x4 RAM |
+| 1 | 4-way DIP Switch (SPST) |
+| 1 | 4-way DIP Switch (SPST) |
+| 4 | LED 2V, green |
+| 4 | LED 2V, yellow |
+| 6 | Resistor 10kΩ |
+| 8 | Resistor 330Ω |
+
+2 integrierte Schaltkreis(e), 3 Steckbrett(er), 5 V.

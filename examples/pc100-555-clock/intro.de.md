@@ -17,3 +17,17 @@ Jeder Chip bekommt +5 V und GND — ein IC ohne Versorgung tut nichts, und ein o
 | ~1 Hz | LED blinks |
 | bigger C | slower |
 | smaller C | faster |
+
+## Was du brauchst
+
+| qty | part |
+|---|---|
+| 1 | 555 Timer |
+| 1 | Capacitor 10nF |
+| 1 | Capacitor 10uF |
+| 1 | LED 2V, yellow |
+| 1 | Resistor 330Ω |
+| 1 | Resistor 6.8kΩ |
+| 1 | Resistor 68kΩ |
+
+1 integrierte Schaltkreis(e), 1 Steckbrett(er), 5 V.

@@ -18,3 +18,17 @@ Every chip gets +5 V and GND — an IC with no power does nothing, and a floatin
 | 0101 | 0011 | 0 1000 |
 | 1111 | 0001 | 1 0000 |
 | 1111 | 1111 | 1 1110 |
+
+## What to buy
+
+| qty | part |
+|---|---|
+| 1 | 74HC283 4-bit Adder |
+| 1 | 4-way DIP Switch (SPST) |
+| 1 | 4-way DIP Switch (SPST) |
+| 4 | LED 2V, green |
+| 1 | LED 2V, red |
+| 8 | Resistor 10kΩ |
+| 5 | Resistor 330Ω |
+
+1 integrated circuit(s), 2 breadboard(s), 5 V.

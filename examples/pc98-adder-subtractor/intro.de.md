@@ -18,3 +18,19 @@ Jeder Chip bekommt +5 V und GND — ein IC ohne Versorgung tut nichts, und ein o
 | − | 7 | 2 | 5, carry lit (no borrow) |
 | − | 2 | 7 | 11, carry dark (borrowed) |
 | + | 15 | 1 | 0, carry lit |
+
+## Was du brauchst
+
+| qty | part |
+|---|---|
+| 1 | 74HC283 4-bit Adder |
+| 1 | 74HC86 Quad XOR |
+| 1 | 4-way DIP Switch (SPST) |
+| 1 | 4-way DIP Switch (SPST) |
+| 1 | 4-way DIP Switch (SPST) |
+| 4 | LED 2V, green |
+| 1 | LED 2V, red |
+| 9 | Resistor 10kΩ |
+| 5 | Resistor 330Ω |
+
+2 integrierte Schaltkreis(e), 3 Steckbrett(er), 5 V.

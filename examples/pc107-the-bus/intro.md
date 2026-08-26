@@ -18,3 +18,19 @@ Every chip gets +5 V and GND — an IC with no power does nothing, and a floatin
 | A only | shows A |
 | B only | shows B |
 | both | neither 1 nor 0 — contention |
+
+## What to buy
+
+| qty | part |
+|---|---|
+| 1 | 74HC04 Hex NOT |
+| 2 | 74HC244 Octal Tri-State Buffer |
+| 1 | 4-way DIP Switch (SPST) |
+| 1 | 4-way DIP Switch (SPST) |
+| 1 | 4-way DIP Switch (SPST) |
+| 4 | LED 2V, yellow |
+| 4 | Resistor 100kΩ |
+| 10 | Resistor 10kΩ |
+| 4 | Resistor 330Ω |
+
+3 integrated circuit(s), 3 breadboard(s), 5 V.

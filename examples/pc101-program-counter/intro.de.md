@@ -19,3 +19,16 @@ Jeder Chip bekommt +5 V und GND — ein IC ohne Versorgung tut nichts, und ein o
 | 9 | 1001 |
 | 15 | 1111 + RCO lit |
 | 16 | wraps to 0000 |
+
+## Was du brauchst
+
+| qty | part |
+|---|---|
+| 1 | 74LS161 4-bit Counter |
+| 1 | 4-way DIP Switch (SPST) |
+| 4 | LED 2V, green |
+| 1 | LED 2V, red |
+| 1 | Resistor 10kΩ |
+| 5 | Resistor 330Ω |
+
+1 integrierte Schaltkreis(e), 2 Steckbrett(er), 5 V.
