@@ -31,7 +31,7 @@
    "y": 115
   },
   {
-   "id": "MCU",
+   "id": "attiny881",
    "kind": "attiny88",
    "params": {},
    "terminals": [
@@ -161,7 +161,7 @@
  ],
  "wires": [
   {
-   "from": "MCU",
+   "from": "attiny881",
    "fromTerminal": "pb0",
    "to": "R_led1",
    "toTerminal": "a"
@@ -173,7 +173,7 @@
    "toTerminal": "anode"
   },
   {
-   "from": "MCU",
+   "from": "attiny881",
    "fromTerminal": "pb1",
    "to": "R_led2",
    "toTerminal": "a"

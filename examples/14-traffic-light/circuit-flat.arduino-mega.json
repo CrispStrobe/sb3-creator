@@ -22,7 +22,7 @@
       "y": 115
     },
     {
-      "id": "MCU",
+      "id": "mega1",
       "kind": "arduino_mega",
       "params": {},
       "terminals": [
@@ -134,7 +134,7 @@
       "id": "w_flat_1",
       "netId": "bb1:n-col-t15",
       "from": {
-        "part": "MCU",
+        "part": "mega1",
         "terminal": "d23"
       },
       "to": {
@@ -170,7 +170,7 @@
       "id": "w_flat_4",
       "netId": "bb1:n-col-t3",
       "from": {
-        "part": "MCU",
+        "part": "mega1",
         "terminal": "d13"
       },
       "to": {
@@ -182,7 +182,7 @@
       "id": "w_flat_5",
       "netId": "bb1:n-col-t9",
       "from": {
-        "part": "MCU",
+        "part": "mega1",
         "terminal": "d22"
       },
       "to": {
@@ -234,7 +234,7 @@
         "terminal": "gnd"
       },
       "to": {
-        "part": "MCU",
+        "part": "mega1",
         "terminal": "gnd2"
       }
     },
@@ -242,7 +242,7 @@
       "id": "w_flat_10",
       "netId": "net-lgc-8",
       "from": {
-        "part": "MCU",
+        "part": "mega1",
         "terminal": "5v"
       },
       "to": {

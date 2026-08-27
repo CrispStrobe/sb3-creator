@@ -280,7 +280,7 @@
       "y": 349
     },
     {
-      "id": "mcu1",
+      "id": "uno1",
       "kind": "arduino_uno",
       "params": {},
       "rotation": 0,
@@ -293,7 +293,7 @@
       "id": "w_flat_0",
       "netId": "bb1:n-col-b26",
       "from": {
-        "part": "mcu1",
+        "part": "uno1",
         "terminal": "5v"
       },
       "to": {
@@ -305,7 +305,7 @@
       "id": "w_flat_1",
       "netId": "bb1:n-col-b26",
       "from": {
-        "part": "mcu1",
+        "part": "uno1",
         "terminal": "5v"
       },
       "to": {
@@ -317,7 +317,7 @@
       "id": "w_flat_2",
       "netId": "bb1:n-col-b26",
       "from": {
-        "part": "mcu1",
+        "part": "uno1",
         "terminal": "5v"
       },
       "to": {
@@ -329,7 +329,7 @@
       "id": "w_flat_3",
       "netId": "bb1:n-col-b26",
       "from": {
-        "part": "mcu1",
+        "part": "uno1",
         "terminal": "5v"
       },
       "to": {
@@ -341,7 +341,7 @@
       "id": "w_flat_4",
       "netId": "bb1:n-col-b26",
       "from": {
-        "part": "mcu1",
+        "part": "uno1",
         "terminal": "5v"
       },
       "to": {
@@ -353,7 +353,7 @@
       "id": "w_flat_5",
       "netId": "bb1:n-col-b26",
       "from": {
-        "part": "mcu1",
+        "part": "uno1",
         "terminal": "5v"
       },
       "to": {
@@ -365,7 +365,7 @@
       "id": "w_flat_6",
       "netId": "bb1:n-col-b26",
       "from": {
-        "part": "mcu1",
+        "part": "uno1",
         "terminal": "5v"
       },
       "to": {
@@ -377,7 +377,7 @@
       "id": "w_flat_7",
       "netId": "bb1:n-col-b26",
       "from": {
-        "part": "mcu1",
+        "part": "uno1",
         "terminal": "5v"
       },
       "to": {
@@ -389,7 +389,7 @@
       "id": "w_flat_8",
       "netId": "bb1:n-col-b26",
       "from": {
-        "part": "mcu1",
+        "part": "uno1",
         "terminal": "5v"
       },
       "to": {
@@ -441,7 +441,7 @@
         "terminal": "cathode"
       },
       "to": {
-        "part": "mcu1",
+        "part": "uno1",
         "terminal": "d13"
       }
     },
@@ -465,7 +465,7 @@
         "terminal": "cathode"
       },
       "to": {
-        "part": "mcu1",
+        "part": "uno1",
         "terminal": "d12"
       }
     },
@@ -489,7 +489,7 @@
         "terminal": "cathode"
       },
       "to": {
-        "part": "mcu1",
+        "part": "uno1",
         "terminal": "d8"
       }
     },
@@ -513,7 +513,7 @@
         "terminal": "cathode"
       },
       "to": {
-        "part": "mcu1",
+        "part": "uno1",
         "terminal": "d7"
       }
     },
@@ -537,7 +537,7 @@
         "terminal": "cathode"
       },
       "to": {
-        "part": "mcu1",
+        "part": "uno1",
         "terminal": "d4"
       }
     },
@@ -561,7 +561,7 @@
         "terminal": "cathode"
       },
       "to": {
-        "part": "mcu1",
+        "part": "uno1",
         "terminal": "d2"
       }
     },
@@ -573,7 +573,7 @@
         "terminal": "cathode"
       },
       "to": {
-        "part": "mcu1",
+        "part": "uno1",
         "terminal": "d3"
       }
     },
@@ -585,7 +585,7 @@
         "terminal": "cathode"
       },
       "to": {
-        "part": "mcu1",
+        "part": "uno1",
         "terminal": "d5"
       }
     },
@@ -597,7 +597,7 @@
         "terminal": "gnd"
       },
       "to": {
-        "part": "mcu1",
+        "part": "uno1",
         "terminal": "gnd"
       }
     }

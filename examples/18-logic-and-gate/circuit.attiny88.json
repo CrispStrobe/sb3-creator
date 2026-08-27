@@ -31,7 +31,7 @@
    "y": 115
   },
   {
-   "id": "MCU",
+   "id": "attiny881",
    "kind": "attiny88",
    "params": {},
    "terminals": [
@@ -206,7 +206,7 @@
   {
    "from": "R_PU_btnA",
    "fromTerminal": "b",
-   "to": "MCU",
+   "to": "attiny881",
    "toTerminal": "pc3"
   },
   {
@@ -218,11 +218,11 @@
   {
    "from": "R_PU_btnB",
    "fromTerminal": "b",
-   "to": "MCU",
+   "to": "attiny881",
    "toTerminal": "pc7"
   },
   {
-   "from": "MCU",
+   "from": "attiny881",
    "fromTerminal": "pb0",
    "to": "R_led1",
    "toTerminal": "a"

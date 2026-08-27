@@ -25,7 +25,7 @@
    "y": 115
   },
   {
-   "id": "mcu1",
+   "id": "stc151",
    "kind": "stc15_mcu",
    "params": {},
    "x": 64,
@@ -265,61 +265,61 @@
    "toTerminal": "common"
   },
   {
-   "from": "mcu1",
+   "from": "stc151",
    "fromTerminal": "VCC",
    "to": "vcc1",
    "toTerminal": "vcc"
   },
   {
-   "from": "mcu1",
+   "from": "stc151",
    "fromTerminal": "GND",
    "to": "gnd1",
    "toTerminal": "gnd"
   },
   {
-   "from": "mcu1",
+   "from": "stc151",
    "fromTerminal": "GND",
    "to": "dis1",
    "toTerminal": "common"
   },
   {
-   "from": "mcu1",
+   "from": "stc151",
    "fromTerminal": "P1.0",
    "to": "r_a",
    "toTerminal": "a"
   },
   {
-   "from": "mcu1",
+   "from": "stc151",
    "fromTerminal": "P1.1",
    "to": "r_b",
    "toTerminal": "a"
   },
   {
-   "from": "mcu1",
+   "from": "stc151",
    "fromTerminal": "P1.2",
    "to": "r_c",
    "toTerminal": "a"
   },
   {
-   "from": "mcu1",
+   "from": "stc151",
    "fromTerminal": "P1.3",
    "to": "r_d",
    "toTerminal": "a"
   },
   {
-   "from": "mcu1",
+   "from": "stc151",
    "fromTerminal": "P1.4",
    "to": "r_e",
    "toTerminal": "a"
   },
   {
-   "from": "mcu1",
+   "from": "stc151",
    "fromTerminal": "P1.5",
    "to": "r_f",
    "toTerminal": "a"
   },
   {
-   "from": "mcu1",
+   "from": "stc151",
    "fromTerminal": "P2.0",
    "to": "r_g",
    "toTerminal": "a"

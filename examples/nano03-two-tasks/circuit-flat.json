@@ -66,7 +66,7 @@
       "y": 255
     },
     {
-      "id": "mcu1",
+      "id": "nano1",
       "kind": "arduino_nano",
       "params": {
         "pins": [
@@ -106,7 +106,7 @@
         "terminal": "anode"
       },
       "to": {
-        "part": "mcu1",
+        "part": "nano1",
         "terminal": "d13"
       }
     },
@@ -118,7 +118,7 @@
         "terminal": "anode"
       },
       "to": {
-        "part": "mcu1",
+        "part": "nano1",
         "terminal": "D13"
       }
     },
@@ -126,7 +126,7 @@
       "id": "w_flat_2",
       "netId": "bb1:n-col-t22",
       "from": {
-        "part": "mcu1",
+        "part": "nano1",
         "terminal": "a6"
       },
       "to": {

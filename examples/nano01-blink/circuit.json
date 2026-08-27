@@ -51,7 +51,7 @@
    }
   },
   {
-   "id": "mcu1",
+   "id": "nano1",
    "kind": "arduino_nano",
    "params": {
     "pins": [
@@ -83,7 +83,7 @@
  ],
  "wires": [
   {
-   "from": "mcu1",
+   "from": "nano1",
    "fromTerminal": "D13",
    "to": "led1",
    "toTerminal": "anode"

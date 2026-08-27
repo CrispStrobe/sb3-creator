@@ -11,7 +11,7 @@
    "rotation": 0
   },
   {
-   "id": "pico1",
+   "id": "stc151",
    "kind": "stc15_mcu",
    "params": {},
    "x": 64,
@@ -117,37 +117,37 @@
    "toTerminal": "gnd"
   },
   {
-   "from": "pico1",
+   "from": "stc151",
    "fromTerminal": "P1.0",
    "to": "oled1",
    "toTerminal": "sda"
   },
   {
-   "from": "pico1",
+   "from": "stc151",
    "fromTerminal": "P1.1",
    "to": "oled1",
    "toTerminal": "scl"
   },
   {
-   "from": "pico1",
+   "from": "stc151",
    "fromTerminal": "VCC",
    "to": "oled1",
    "toTerminal": "vcc"
   },
   {
-   "from": "pico1",
+   "from": "stc151",
    "fromTerminal": "VCC",
    "to": "vcc1",
    "toTerminal": "vcc"
   },
   {
-   "from": "pico1",
+   "from": "stc151",
    "fromTerminal": "GND",
    "to": "gnd1",
    "toTerminal": "gnd"
   },
   {
-   "from": "pico1",
+   "from": "stc151",
    "fromTerminal": "GND",
    "to": "oled1",
    "toTerminal": "gnd"

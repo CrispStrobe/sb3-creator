@@ -2,7 +2,7 @@
   "vcc": 5,
   "parts": [
     {
-      "id": "mcu1",
+      "id": "stc151",
       "kind": "stc15_mcu",
       "params": {},
       "seat": {
@@ -251,7 +251,7 @@
       "id": "w_flat_0",
       "netId": "bb1:n-col-b10",
       "from": {
-        "part": "mcu1",
+        "part": "stc151",
         "terminal": "P3.7"
       },
       "to": {
@@ -291,7 +291,7 @@
         "terminal": "b"
       },
       "to": {
-        "part": "mcu1",
+        "part": "stc151",
         "terminal": "P4.1"
       }
     },
@@ -303,7 +303,7 @@
         "terminal": "com2"
       },
       "to": {
-        "part": "mcu1",
+        "part": "stc151",
         "terminal": "P4.2"
       }
     },
@@ -339,7 +339,7 @@
         "terminal": "g"
       },
       "to": {
-        "part": "mcu1",
+        "part": "stc151",
         "terminal": "P4.4"
       }
     },
@@ -375,7 +375,7 @@
         "terminal": "f"
       },
       "to": {
-        "part": "mcu1",
+        "part": "stc151",
         "terminal": "P2.0"
       }
     },
@@ -411,7 +411,7 @@
         "terminal": "e"
       },
       "to": {
-        "part": "mcu1",
+        "part": "stc151",
         "terminal": "P2.1"
       }
     },
@@ -447,7 +447,7 @@
         "terminal": "d"
       },
       "to": {
-        "part": "mcu1",
+        "part": "stc151",
         "terminal": "P2.2"
       }
     },
@@ -459,7 +459,7 @@
         "terminal": "com0"
       },
       "to": {
-        "part": "mcu1",
+        "part": "stc151",
         "terminal": "P2.3"
       }
     },
@@ -495,7 +495,7 @@
         "terminal": "c"
       },
       "to": {
-        "part": "mcu1",
+        "part": "stc151",
         "terminal": "P2.4"
       }
     },
@@ -507,7 +507,7 @@
         "terminal": "com1"
       },
       "to": {
-        "part": "mcu1",
+        "part": "stc151",
         "terminal": "P2.5"
       }
     },
@@ -519,7 +519,7 @@
         "terminal": "col2"
       },
       "to": {
-        "part": "mcu1",
+        "part": "stc151",
         "terminal": "P2.6"
       }
     },
@@ -531,7 +531,7 @@
         "terminal": "col1"
       },
       "to": {
-        "part": "mcu1",
+        "part": "stc151",
         "terminal": "P2.7"
       }
     },
@@ -543,7 +543,7 @@
         "terminal": "col0"
       },
       "to": {
-        "part": "mcu1",
+        "part": "stc151",
         "terminal": "P4.5"
       }
     },
@@ -579,7 +579,7 @@
         "terminal": "a"
       },
       "to": {
-        "part": "mcu1",
+        "part": "stc151",
         "terminal": "P1.5"
       }
     },
@@ -587,7 +587,7 @@
       "id": "w_flat_28",
       "netId": "bb1:n-col-b3",
       "from": {
-        "part": "mcu1",
+        "part": "stc151",
         "terminal": "P3.0"
       },
       "to": {
@@ -627,7 +627,7 @@
         "terminal": "dp"
       },
       "to": {
-        "part": "mcu1",
+        "part": "stc151",
         "terminal": "P1.4"
       }
     },
@@ -635,7 +635,7 @@
       "id": "w_flat_32",
       "netId": "bb1:n-col-b5",
       "from": {
-        "part": "mcu1",
+        "part": "stc151",
         "terminal": "P3.2"
       },
       "to": {
@@ -647,7 +647,7 @@
       "id": "w_flat_33",
       "netId": "bb1:n-col-b6",
       "from": {
-        "part": "mcu1",
+        "part": "stc151",
         "terminal": "P3.3"
       },
       "to": {
@@ -659,7 +659,7 @@
       "id": "w_flat_34",
       "netId": "bb1:n-col-b9",
       "from": {
-        "part": "mcu1",
+        "part": "stc151",
         "terminal": "P3.6"
       },
       "to": {
@@ -675,7 +675,7 @@
         "terminal": "col0"
       },
       "to": {
-        "part": "mcu1",
+        "part": "stc151",
         "terminal": "P0.7"
       }
     },
@@ -687,7 +687,7 @@
         "terminal": "col3"
       },
       "to": {
-        "part": "mcu1",
+        "part": "stc151",
         "terminal": "P1.0"
       }
     },
@@ -699,7 +699,7 @@
         "terminal": "col4"
       },
       "to": {
-        "part": "mcu1",
+        "part": "stc151",
         "terminal": "P1.1"
       }
     },
@@ -711,7 +711,7 @@
         "terminal": "col6"
       },
       "to": {
-        "part": "mcu1",
+        "part": "stc151",
         "terminal": "P1.2"
       }
     },
@@ -723,7 +723,7 @@
         "terminal": "col7"
       },
       "to": {
-        "part": "mcu1",
+        "part": "stc151",
         "terminal": "P1.3"
       }
     },
@@ -735,7 +735,7 @@
         "terminal": "col5"
       },
       "to": {
-        "part": "mcu1",
+        "part": "stc151",
         "terminal": "P1.6"
       }
     },
@@ -743,7 +743,7 @@
       "id": "w_flat_41",
       "netId": "bb1:n-col-t21",
       "from": {
-        "part": "mcu1",
+        "part": "stc151",
         "terminal": "P5.5"
       },
       "to": {
@@ -759,7 +759,7 @@
         "terminal": "col3"
       },
       "to": {
-        "part": "mcu1",
+        "part": "stc151",
         "terminal": "P0.0"
       }
     },
@@ -771,7 +771,7 @@
         "terminal": "col4"
       },
       "to": {
-        "part": "mcu1",
+        "part": "stc151",
         "terminal": "P0.1"
       }
     },
@@ -783,7 +783,7 @@
         "terminal": "col5"
       },
       "to": {
-        "part": "mcu1",
+        "part": "stc151",
         "terminal": "P0.2"
       }
     },
@@ -795,7 +795,7 @@
         "terminal": "col6"
       },
       "to": {
-        "part": "mcu1",
+        "part": "stc151",
         "terminal": "P0.3"
       }
     },
@@ -807,7 +807,7 @@
         "terminal": "col7"
       },
       "to": {
-        "part": "mcu1",
+        "part": "stc151",
         "terminal": "P0.4"
       }
     },
@@ -819,7 +819,7 @@
         "terminal": "col1"
       },
       "to": {
-        "part": "mcu1",
+        "part": "stc151",
         "terminal": "P0.6"
       }
     },
@@ -831,7 +831,7 @@
         "terminal": "col2"
       },
       "to": {
-        "part": "mcu1",
+        "part": "stc151",
         "terminal": "P0.5"
       }
     },
@@ -879,7 +879,7 @@
         "terminal": "gnd"
       },
       "to": {
-        "part": "mcu1",
+        "part": "stc151",
         "terminal": "GND"
       }
     },
@@ -947,7 +947,7 @@
       "id": "w_flat_58",
       "netId": "bb1:rail-t+",
       "from": {
-        "part": "mcu1",
+        "part": "stc151",
         "terminal": "VCC"
       },
       "to": {
@@ -959,7 +959,7 @@
       "id": "w_flat_59",
       "netId": "bb1:rail-t+",
       "from": {
-        "part": "mcu1",
+        "part": "stc151",
         "terminal": "VCC"
       },
       "to": {

@@ -39,7 +39,7 @@
       "rotation": 0
     },
     {
-      "id": "pico1",
+      "id": "attiny881",
       "kind": "attiny88",
       "params": {},
       "terminals": [
@@ -572,7 +572,7 @@
         "terminal": "a"
       },
       "to": {
-        "part": "pico1",
+        "part": "attiny881",
         "terminal": "pd5"
       }
     },
@@ -596,7 +596,7 @@
         "terminal": "a"
       },
       "to": {
-        "part": "pico1",
+        "part": "attiny881",
         "terminal": "pd6"
       }
     },
@@ -620,7 +620,7 @@
         "terminal": "a"
       },
       "to": {
-        "part": "pico1",
+        "part": "attiny881",
         "terminal": "pd7"
       }
     },
@@ -644,7 +644,7 @@
         "terminal": "a"
       },
       "to": {
-        "part": "pico1",
+        "part": "attiny881",
         "terminal": "pb0"
       }
     },
@@ -668,7 +668,7 @@
         "terminal": "a"
       },
       "to": {
-        "part": "pico1",
+        "part": "attiny881",
         "terminal": "pc1"
       }
     },
@@ -692,7 +692,7 @@
         "terminal": "a"
       },
       "to": {
-        "part": "pico1",
+        "part": "attiny881",
         "terminal": "pc2"
       }
     },
@@ -716,7 +716,7 @@
         "terminal": "a"
       },
       "to": {
-        "part": "pico1",
+        "part": "attiny881",
         "terminal": "pd0"
       }
     },
@@ -740,7 +740,7 @@
         "terminal": "a"
       },
       "to": {
-        "part": "pico1",
+        "part": "attiny881",
         "terminal": "pd1"
       }
     },
@@ -764,7 +764,7 @@
         "terminal": "a"
       },
       "to": {
-        "part": "pico1",
+        "part": "attiny881",
         "terminal": "pd2"
       }
     },
@@ -788,7 +788,7 @@
         "terminal": "a"
       },
       "to": {
-        "part": "pico1",
+        "part": "attiny881",
         "terminal": "pd3"
       }
     },
@@ -812,7 +812,7 @@
         "terminal": "a"
       },
       "to": {
-        "part": "pico1",
+        "part": "attiny881",
         "terminal": "pd4"
       }
     },
@@ -836,7 +836,7 @@
         "terminal": "a"
       },
       "to": {
-        "part": "pico1",
+        "part": "attiny881",
         "terminal": "pc0"
       }
     },
@@ -860,7 +860,7 @@
         "terminal": "a"
       },
       "to": {
-        "part": "pico1",
+        "part": "attiny881",
         "terminal": "pc3"
       }
     },
@@ -884,7 +884,7 @@
         "terminal": "sda"
       },
       "to": {
-        "part": "pico1",
+        "part": "attiny881",
         "terminal": "pc4"
       }
     },
@@ -908,7 +908,7 @@
         "terminal": "scl"
       },
       "to": {
-        "part": "pico1",
+        "part": "attiny881",
         "terminal": "pc5"
       }
     },
@@ -932,7 +932,7 @@
         "terminal": "a"
       },
       "to": {
-        "part": "pico1",
+        "part": "attiny881",
         "terminal": "pc7"
       }
     },
@@ -956,7 +956,7 @@
         "terminal": "a"
       },
       "to": {
-        "part": "pico1",
+        "part": "attiny881",
         "terminal": "pb1"
       }
     },
@@ -980,7 +980,7 @@
         "terminal": "a"
       },
       "to": {
-        "part": "pico1",
+        "part": "attiny881",
         "terminal": "pb2"
       }
     },
@@ -1004,7 +1004,7 @@
         "terminal": "a"
       },
       "to": {
-        "part": "pico1",
+        "part": "attiny881",
         "terminal": "pb3"
       }
     },
@@ -1040,7 +1040,7 @@
         "terminal": "gnd"
       },
       "to": {
-        "part": "pico1",
+        "part": "attiny881",
         "terminal": "gnd"
       }
     },
@@ -1460,7 +1460,7 @@
         "terminal": "b"
       },
       "to": {
-        "part": "pico1",
+        "part": "attiny881",
         "terminal": "avcc"
       }
     },
@@ -1472,7 +1472,7 @@
         "terminal": "b"
       },
       "to": {
-        "part": "pico1",
+        "part": "attiny881",
         "terminal": "vcc"
       }
     },

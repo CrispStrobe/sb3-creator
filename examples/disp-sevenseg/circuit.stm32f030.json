@@ -25,7 +25,7 @@
    "y": 115
   },
   {
-   "id": "mcu1",
+   "id": "stm321",
    "kind": "stm32f030",
    "params": {},
    "x": 64,
@@ -234,61 +234,61 @@
    "toTerminal": "common"
   },
   {
-   "from": "mcu1",
+   "from": "stm321",
    "fromTerminal": "vcc",
    "to": "vcc1",
    "toTerminal": "vcc"
   },
   {
-   "from": "mcu1",
+   "from": "stm321",
    "fromTerminal": "gnd",
    "to": "gnd1",
    "toTerminal": "gnd"
   },
   {
-   "from": "mcu1",
+   "from": "stm321",
    "fromTerminal": "gnd",
    "to": "dis1",
    "toTerminal": "common"
   },
   {
-   "from": "mcu1",
+   "from": "stm321",
    "fromTerminal": "pa0",
    "to": "r_a",
    "toTerminal": "a"
   },
   {
-   "from": "mcu1",
+   "from": "stm321",
    "fromTerminal": "pa1",
    "to": "r_b",
    "toTerminal": "a"
   },
   {
-   "from": "mcu1",
+   "from": "stm321",
    "fromTerminal": "pa2",
    "to": "r_c",
    "toTerminal": "a"
   },
   {
-   "from": "mcu1",
+   "from": "stm321",
    "fromTerminal": "pa3",
    "to": "r_d",
    "toTerminal": "a"
   },
   {
-   "from": "mcu1",
+   "from": "stm321",
    "fromTerminal": "pa4",
    "to": "r_e",
    "toTerminal": "a"
   },
   {
-   "from": "mcu1",
+   "from": "stm321",
    "fromTerminal": "pa5",
    "to": "r_f",
    "toTerminal": "a"
   },
   {
-   "from": "mcu1",
+   "from": "stm321",
    "fromTerminal": "pb1",
    "to": "r_g",
    "toTerminal": "a"

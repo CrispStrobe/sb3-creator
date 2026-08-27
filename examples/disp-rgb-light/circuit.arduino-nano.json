@@ -25,7 +25,7 @@
    "y": 115
   },
   {
-   "id": "mcu1",
+   "id": "nano1",
    "kind": "arduino_nano",
    "params": {},
    "x": 64,
@@ -166,55 +166,55 @@
    "toTerminal": "din"
   },
   {
-   "from": "mcu1",
+   "from": "nano1",
    "fromTerminal": "5v",
    "to": "vcc1",
    "toTerminal": "vcc"
   },
   {
-   "from": "mcu1",
+   "from": "nano1",
    "fromTerminal": "5v",
    "to": "px0",
    "toTerminal": "vcc"
   },
   {
-   "from": "mcu1",
+   "from": "nano1",
    "fromTerminal": "5v",
    "to": "px1",
    "toTerminal": "vcc"
   },
   {
-   "from": "mcu1",
+   "from": "nano1",
    "fromTerminal": "5v",
    "to": "px2",
    "toTerminal": "vcc"
   },
   {
-   "from": "mcu1",
+   "from": "nano1",
    "fromTerminal": "gnd",
    "to": "gnd1",
    "toTerminal": "gnd"
   },
   {
-   "from": "mcu1",
+   "from": "nano1",
    "fromTerminal": "gnd",
    "to": "px0",
    "toTerminal": "gnd"
   },
   {
-   "from": "mcu1",
+   "from": "nano1",
    "fromTerminal": "gnd",
    "to": "px1",
    "toTerminal": "gnd"
   },
   {
-   "from": "mcu1",
+   "from": "nano1",
    "fromTerminal": "gnd",
    "to": "px2",
    "toTerminal": "gnd"
   },
   {
-   "from": "mcu1",
+   "from": "nano1",
    "fromTerminal": "d13",
    "to": "px0",
    "toTerminal": "din"

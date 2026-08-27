@@ -31,7 +31,7 @@
    "y": 115
   },
   {
-   "id": "MCU",
+   "id": "stm321",
    "kind": "stm32f030",
    "params": {},
    "terminals": [
@@ -196,7 +196,7 @@
  ],
  "wires": [
   {
-   "from": "MCU",
+   "from": "stm321",
    "fromTerminal": "pa0",
    "to": "R_red",
    "toTerminal": "a"
@@ -208,7 +208,7 @@
    "toTerminal": "anode"
   },
   {
-   "from": "MCU",
+   "from": "stm321",
    "fromTerminal": "pa1",
    "to": "R_yellow",
    "toTerminal": "a"
@@ -220,7 +220,7 @@
    "toTerminal": "anode"
   },
   {
-   "from": "MCU",
+   "from": "stm321",
    "fromTerminal": "pa2",
    "to": "R_green",
    "toTerminal": "a"

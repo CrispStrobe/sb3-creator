@@ -22,7 +22,7 @@
       "y": 115
     },
     {
-      "id": "MCU",
+      "id": "nano1",
       "kind": "arduino_nano",
       "params": {},
       "terminals": [
@@ -276,7 +276,7 @@
       "id": "w_flat_0",
       "netId": "bb1:n-col-b17",
       "from": {
-        "part": "MCU",
+        "part": "nano1",
         "terminal": "d13"
       },
       "to": {
@@ -288,7 +288,7 @@
       "id": "w_flat_1",
       "netId": "bb1:n-col-b24",
       "from": {
-        "part": "MCU",
+        "part": "nano1",
         "terminal": "d8"
       },
       "to": {
@@ -396,7 +396,7 @@
       "id": "w_flat_10",
       "netId": "bb1:n-col-t17",
       "from": {
-        "part": "MCU",
+        "part": "nano1",
         "terminal": "d12"
       },
       "to": {
@@ -604,7 +604,7 @@
         "terminal": "gnd"
       },
       "to": {
-        "part": "MCU",
+        "part": "nano1",
         "terminal": "gnd"
       }
     },
@@ -624,7 +624,7 @@
       "id": "w_flat_29",
       "netId": "bb1:rail-t+",
       "from": {
-        "part": "MCU",
+        "part": "nano1",
         "terminal": "5v"
       },
       "to": {

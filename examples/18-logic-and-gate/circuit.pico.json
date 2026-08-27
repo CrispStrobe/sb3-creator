@@ -31,7 +31,7 @@
    "y": 115
   },
   {
-   "id": "MCU",
+   "id": "pico1",
    "kind": "pi_pico",
    "params": {},
    "terminals": [
@@ -218,7 +218,7 @@
   {
    "from": "R_PU_btnA",
    "fromTerminal": "b",
-   "to": "MCU",
+   "to": "pico1",
    "toTerminal": "gp2"
   },
   {
@@ -230,11 +230,11 @@
   {
    "from": "R_PU_btnB",
    "fromTerminal": "b",
-   "to": "MCU",
+   "to": "pico1",
    "toTerminal": "gp3"
   },
   {
-   "from": "MCU",
+   "from": "pico1",
    "fromTerminal": "gp25",
    "to": "R_led1",
    "toTerminal": "a"

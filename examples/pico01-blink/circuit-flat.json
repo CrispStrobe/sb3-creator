@@ -9,7 +9,7 @@
    "y": 60
   },
   {
-   "id": "mcu1",
+   "id": "pico1",
    "kind": "pi_pico",
    "params": {
     "pins": [
@@ -88,7 +88,7 @@
     "terminal": "anode"
    },
    "to": {
-    "part": "mcu1",
+    "part": "pico1",
     "terminal": "gp25"
    }
   },

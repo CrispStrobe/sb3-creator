@@ -31,7 +31,7 @@
    "y": 115
   },
   {
-   "id": "MCU",
+   "id": "stc151",
    "kind": "stc15_mcu",
    "params": {},
    "terminals": [
@@ -151,25 +151,25 @@
  ],
  "wires": [
   {
-   "from": "MCU",
+   "from": "stc151",
    "fromTerminal": "p1.0",
    "to": "R_PU_sda",
    "toTerminal": "b"
   },
   {
-   "from": "MCU",
+   "from": "stc151",
    "fromTerminal": "p1.0",
    "to": "OLED",
    "toTerminal": "sda"
   },
   {
-   "from": "MCU",
+   "from": "stc151",
    "fromTerminal": "p1.1",
    "to": "R_PU_scl",
    "toTerminal": "b"
   },
   {
-   "from": "MCU",
+   "from": "stc151",
    "fromTerminal": "p1.1",
    "to": "OLED",
    "toTerminal": "scl"

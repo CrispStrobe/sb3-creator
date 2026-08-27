@@ -42,7 +42,7 @@
    }
   },
   {
-   "id": "mcu1",
+   "id": "nano1",
    "kind": "arduino_nano",
    "params": {
     "pins": [
@@ -88,7 +88,7 @@
   {
    "from": "pot1",
    "fromTerminal": "wiper",
-   "to": "mcu1",
+   "to": "nano1",
    "toTerminal": "A6"
   },
   {

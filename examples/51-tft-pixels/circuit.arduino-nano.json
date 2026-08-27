@@ -31,7 +31,7 @@
    "y": 115
   },
   {
-   "id": "MCU",
+   "id": "nano1",
    "kind": "arduino_nano",
    "params": {},
    "terminals": [
@@ -113,25 +113,25 @@
  ],
  "wires": [
   {
-   "from": "MCU",
+   "from": "nano1",
    "fromTerminal": "d13",
    "to": "TFT",
    "toTerminal": "cs"
   },
   {
-   "from": "MCU",
+   "from": "nano1",
    "fromTerminal": "d12",
    "to": "TFT",
    "toTerminal": "dc"
   },
   {
-   "from": "MCU",
+   "from": "nano1",
    "fromTerminal": "d8",
    "to": "TFT",
    "toTerminal": "sck"
   },
   {
-   "from": "MCU",
+   "from": "nano1",
    "fromTerminal": "d7",
    "to": "TFT",
    "toTerminal": "mosi"

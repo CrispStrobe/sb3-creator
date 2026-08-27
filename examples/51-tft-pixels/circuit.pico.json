@@ -31,7 +31,7 @@
    "y": 115
   },
   {
-   "id": "MCU",
+   "id": "pico1",
    "kind": "pi_pico",
    "params": {},
    "terminals": [
@@ -123,25 +123,25 @@
  ],
  "wires": [
   {
-   "from": "MCU",
+   "from": "pico1",
    "fromTerminal": "gp25",
    "to": "TFT",
    "toTerminal": "cs"
   },
   {
-   "from": "MCU",
+   "from": "pico1",
    "fromTerminal": "gp15",
    "to": "TFT",
    "toTerminal": "dc"
   },
   {
-   "from": "MCU",
+   "from": "pico1",
    "fromTerminal": "gp14",
    "to": "TFT",
    "toTerminal": "sck"
   },
   {
-   "from": "MCU",
+   "from": "pico1",
    "fromTerminal": "gp13",
    "to": "TFT",
    "toTerminal": "mosi"

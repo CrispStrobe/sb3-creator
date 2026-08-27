@@ -22,7 +22,7 @@
       "y": 115
     },
     {
-      "id": "MCU",
+      "id": "uno1",
       "kind": "arduino_uno",
       "params": {},
       "terminals": [
@@ -81,7 +81,7 @@
       "id": "w_flat_0",
       "netId": "bb1:n-col-t11",
       "from": {
-        "part": "MCU",
+        "part": "uno1",
         "terminal": "a0"
       },
       "to": {
@@ -105,7 +105,7 @@
       "id": "w_flat_2",
       "netId": "bb1:n-col-t3",
       "from": {
-        "part": "MCU",
+        "part": "uno1",
         "terminal": "d13"
       },
       "to": {
@@ -133,7 +133,7 @@
         "terminal": "gnd"
       },
       "to": {
-        "part": "MCU",
+        "part": "uno1",
         "terminal": "gnd2"
       }
     },
@@ -153,7 +153,7 @@
       "id": "w_flat_6",
       "netId": "bb1:rail-t+",
       "from": {
-        "part": "MCU",
+        "part": "uno1",
         "terminal": "5v"
       },
       "to": {
@@ -165,7 +165,7 @@
       "id": "w_flat_7",
       "netId": "bb1:rail-t+",
       "from": {
-        "part": "MCU",
+        "part": "uno1",
         "terminal": "5v"
       },
       "to": {

@@ -51,7 +51,7 @@
    }
   },
   {
-   "id": "mcu1",
+   "id": "mega1",
    "kind": "arduino_mega",
    "params": {
     "pins": [
@@ -64,7 +64,7 @@
  ],
  "wires": [
   {
-   "from": "mcu1",
+   "from": "mega1",
    "fromTerminal": "D13",
    "to": "led1",
    "toTerminal": "anode"
@@ -94,7 +94,7 @@
   {
    "from": "gnd1",
    "fromTerminal": "gnd",
-   "to": "mcu1",
+   "to": "mega1",
    "toTerminal": "gnd2"
   }
  ],

@@ -40,7 +40,7 @@
    "y": 115
   },
   {
-   "id": "MCU",
+   "id": "stm321",
    "kind": "stm32f030",
    "params": {},
    "terminals": [
@@ -436,19 +436,19 @@
  ],
  "wires": [
   {
-   "from": "MCU",
+   "from": "stm321",
    "fromTerminal": "pa0",
    "to": "SR_leds",
    "toTerminal": "data"
   },
   {
-   "from": "MCU",
+   "from": "stm321",
    "fromTerminal": "pa1",
    "to": "SR_leds",
    "toTerminal": "clock"
   },
   {
-   "from": "MCU",
+   "from": "stm321",
    "fromTerminal": "pa2",
    "to": "SR_leds",
    "toTerminal": "latch"

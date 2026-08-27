@@ -39,7 +39,7 @@
       "y": 255
     },
     {
-      "id": "mcu1",
+      "id": "mega1",
       "kind": "arduino_mega",
       "params": {
         "pins": [
@@ -151,7 +151,7 @@
         "terminal": "anode"
       },
       "to": {
-        "part": "mcu1",
+        "part": "mega1",
         "terminal": "d13"
       }
     },
@@ -163,7 +163,7 @@
         "terminal": "gnd"
       },
       "to": {
-        "part": "mcu1",
+        "part": "mega1",
         "terminal": "gnd2"
       }
     },

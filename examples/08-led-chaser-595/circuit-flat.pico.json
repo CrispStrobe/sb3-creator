@@ -259,7 +259,7 @@
       "y": 615
     },
     {
-      "id": "mcu1",
+      "id": "pico1",
       "kind": "pi_pico",
       "params": {},
       "terminals": [
@@ -414,7 +414,7 @@
       "id": "w_flat_8",
       "netId": "bb1:n-col-t21",
       "from": {
-        "part": "mcu1",
+        "part": "pico1",
         "terminal": "gp14"
       },
       "to": {
@@ -426,7 +426,7 @@
       "id": "w_flat_9",
       "netId": "bb1:n-col-t22",
       "from": {
-        "part": "mcu1",
+        "part": "pico1",
         "terminal": "gp15"
       },
       "to": {
@@ -634,7 +634,7 @@
         "terminal": "cathode"
       },
       "to": {
-        "part": "mcu1",
+        "part": "pico1",
         "terminal": "gnd_1"
       }
     },
@@ -654,11 +654,11 @@
       "id": "w_flat_28",
       "netId": "bb1:rail-t+",
       "from": {
-        "part": "mcu1",
+        "part": "pico1",
         "terminal": "vbus"
       },
       "to": {
-        "part": "mcu1",
+        "part": "pico1",
         "terminal": "vsys"
       }
     },
@@ -666,7 +666,7 @@
       "id": "w_flat_29",
       "netId": "bb1:rail-t+",
       "from": {
-        "part": "mcu1",
+        "part": "pico1",
         "terminal": "vbus"
       },
       "to": {
@@ -678,7 +678,7 @@
       "id": "w_flat_30",
       "netId": "bb1:rail-t+",
       "from": {
-        "part": "mcu1",
+        "part": "pico1",
         "terminal": "vbus"
       },
       "to": {
@@ -690,7 +690,7 @@
       "id": "w_flat_31",
       "netId": "net-lgc-18",
       "from": {
-        "part": "mcu1",
+        "part": "pico1",
         "terminal": "gp25"
       },
       "to": {

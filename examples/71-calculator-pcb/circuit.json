@@ -25,7 +25,7 @@
    "y": 40
   },
   {
-   "id": "mcu1",
+   "id": "pico1",
    "kind": "pi_pico",
    "params": {},
    "x": 620,
@@ -206,17 +206,17 @@
   {
    "from": "pwr",
    "fromTerminal": "com",
-   "to": "mcu1",
+   "to": "pico1",
    "toTerminal": "vsys"
   },
   {
    "from": "gnd1",
    "fromTerminal": "gnd",
-   "to": "mcu1",
+   "to": "pico1",
    "toTerminal": "gnd_1"
   },
   {
-   "from": "mcu1",
+   "from": "pico1",
    "fromTerminal": "3v3",
    "to": "oled1",
    "toTerminal": "vcc"
@@ -230,17 +230,17 @@
   {
    "from": "oled1",
    "fromTerminal": "sda",
-   "to": "mcu1",
+   "to": "pico1",
    "toTerminal": "gp0"
   },
   {
    "from": "oled1",
    "fromTerminal": "scl",
-   "to": "mcu1",
+   "to": "pico1",
    "toTerminal": "gp1"
   },
   {
-   "from": "mcu1",
+   "from": "pico1",
    "fromTerminal": "3v3",
    "to": "r_led",
    "toTerminal": "a"
@@ -260,7 +260,7 @@
   {
    "from": "k_b7",
    "fromTerminal": "a",
-   "to": "mcu1",
+   "to": "pico1",
    "toTerminal": "gp10"
   },
   {
@@ -272,7 +272,7 @@
   {
    "from": "k_b8",
    "fromTerminal": "a",
-   "to": "mcu1",
+   "to": "pico1",
    "toTerminal": "gp11"
   },
   {
@@ -284,7 +284,7 @@
   {
    "from": "k_b9",
    "fromTerminal": "a",
-   "to": "mcu1",
+   "to": "pico1",
    "toTerminal": "gp2"
   },
   {
@@ -296,7 +296,7 @@
   {
    "from": "k_bplus",
    "fromTerminal": "a",
-   "to": "mcu1",
+   "to": "pico1",
    "toTerminal": "gp12"
   },
   {
@@ -308,7 +308,7 @@
   {
    "from": "k_b4",
    "fromTerminal": "a",
-   "to": "mcu1",
+   "to": "pico1",
    "toTerminal": "gp7"
   },
   {
@@ -320,7 +320,7 @@
   {
    "from": "k_b5",
    "fromTerminal": "a",
-   "to": "mcu1",
+   "to": "pico1",
    "toTerminal": "gp8"
   },
   {
@@ -332,7 +332,7 @@
   {
    "from": "k_b6",
    "fromTerminal": "a",
-   "to": "mcu1",
+   "to": "pico1",
    "toTerminal": "gp9"
   },
   {
@@ -344,7 +344,7 @@
   {
    "from": "k_bminus",
    "fromTerminal": "a",
-   "to": "mcu1",
+   "to": "pico1",
    "toTerminal": "gp13"
   },
   {
@@ -356,7 +356,7 @@
   {
    "from": "k_b1",
    "fromTerminal": "a",
-   "to": "mcu1",
+   "to": "pico1",
    "toTerminal": "gp4"
   },
   {
@@ -368,7 +368,7 @@
   {
    "from": "k_b2",
    "fromTerminal": "a",
-   "to": "mcu1",
+   "to": "pico1",
    "toTerminal": "gp5"
   },
   {
@@ -380,7 +380,7 @@
   {
    "from": "k_b3",
    "fromTerminal": "a",
-   "to": "mcu1",
+   "to": "pico1",
    "toTerminal": "gp6"
   },
   {
@@ -392,7 +392,7 @@
   {
    "from": "k_btimes",
    "fromTerminal": "a",
-   "to": "mcu1",
+   "to": "pico1",
    "toTerminal": "gp14"
   },
   {
@@ -404,7 +404,7 @@
   {
    "from": "k_bac",
    "fromTerminal": "a",
-   "to": "mcu1",
+   "to": "pico1",
    "toTerminal": "gp18"
   },
   {
@@ -416,7 +416,7 @@
   {
    "from": "k_b0",
    "fromTerminal": "a",
-   "to": "mcu1",
+   "to": "pico1",
    "toTerminal": "gp3"
   },
   {
@@ -428,7 +428,7 @@
   {
    "from": "k_bclr",
    "fromTerminal": "a",
-   "to": "mcu1",
+   "to": "pico1",
    "toTerminal": "gp17"
   },
   {
@@ -440,7 +440,7 @@
   {
    "from": "k_bdiv",
    "fromTerminal": "a",
-   "to": "mcu1",
+   "to": "pico1",
    "toTerminal": "gp15"
   },
   {
@@ -452,7 +452,7 @@
   {
    "from": "k_bexe",
    "fromTerminal": "a",
-   "to": "mcu1",
+   "to": "pico1",
    "toTerminal": "gp16"
   },
   {

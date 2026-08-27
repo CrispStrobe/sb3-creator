@@ -2,7 +2,7 @@
   "vcc": 5,
   "parts": [
     {
-      "id": "mcu",
+      "id": "mega1",
       "kind": "arduino_mega",
       "params": {},
       "rotation": 0,
@@ -129,7 +129,7 @@
         "terminal": "row0"
       },
       "to": {
-        "part": "mcu",
+        "part": "mega1",
         "terminal": "d29"
       }
     },
@@ -141,7 +141,7 @@
         "terminal": "row1"
       },
       "to": {
-        "part": "mcu",
+        "part": "mega1",
         "terminal": "d30"
       }
     },
@@ -153,7 +153,7 @@
         "terminal": "row2"
       },
       "to": {
-        "part": "mcu",
+        "part": "mega1",
         "terminal": "d31"
       }
     },
@@ -165,7 +165,7 @@
         "terminal": "row3"
       },
       "to": {
-        "part": "mcu",
+        "part": "mega1",
         "terminal": "d32"
       }
     },
@@ -177,7 +177,7 @@
         "terminal": "row4"
       },
       "to": {
-        "part": "mcu",
+        "part": "mega1",
         "terminal": "d33"
       }
     },
@@ -189,7 +189,7 @@
         "terminal": "row5"
       },
       "to": {
-        "part": "mcu",
+        "part": "mega1",
         "terminal": "d34"
       }
     },
@@ -201,7 +201,7 @@
         "terminal": "row6"
       },
       "to": {
-        "part": "mcu",
+        "part": "mega1",
         "terminal": "d35"
       }
     },
@@ -213,7 +213,7 @@
         "terminal": "row7"
       },
       "to": {
-        "part": "mcu",
+        "part": "mega1",
         "terminal": "d36"
       }
     },
@@ -225,7 +225,7 @@
         "terminal": "b"
       },
       "to": {
-        "part": "mcu",
+        "part": "mega1",
         "terminal": "d2"
       }
     },
@@ -249,7 +249,7 @@
         "terminal": "b"
       },
       "to": {
-        "part": "mcu",
+        "part": "mega1",
         "terminal": "d3"
       }
     },
@@ -273,7 +273,7 @@
         "terminal": "col0"
       },
       "to": {
-        "part": "mcu",
+        "part": "mega1",
         "terminal": "d13"
       }
     },
@@ -285,7 +285,7 @@
         "terminal": "col1"
       },
       "to": {
-        "part": "mcu",
+        "part": "mega1",
         "terminal": "d22"
       }
     },
@@ -297,7 +297,7 @@
         "terminal": "col2"
       },
       "to": {
-        "part": "mcu",
+        "part": "mega1",
         "terminal": "d23"
       }
     },
@@ -309,7 +309,7 @@
         "terminal": "col3"
       },
       "to": {
-        "part": "mcu",
+        "part": "mega1",
         "terminal": "d24"
       }
     },
@@ -321,7 +321,7 @@
         "terminal": "col4"
       },
       "to": {
-        "part": "mcu",
+        "part": "mega1",
         "terminal": "d25"
       }
     },
@@ -333,7 +333,7 @@
         "terminal": "col5"
       },
       "to": {
-        "part": "mcu",
+        "part": "mega1",
         "terminal": "d26"
       }
     },
@@ -345,7 +345,7 @@
         "terminal": "col6"
       },
       "to": {
-        "part": "mcu",
+        "part": "mega1",
         "terminal": "d27"
       }
     },
@@ -357,7 +357,7 @@
         "terminal": "col7"
       },
       "to": {
-        "part": "mcu",
+        "part": "mega1",
         "terminal": "d28"
       }
     },
@@ -369,7 +369,7 @@
         "terminal": "gnd"
       },
       "to": {
-        "part": "mcu",
+        "part": "mega1",
         "terminal": "gnd"
       }
     },
@@ -417,7 +417,7 @@
         "terminal": "a"
       },
       "to": {
-        "part": "mcu",
+        "part": "mega1",
         "terminal": "5v"
       }
     },

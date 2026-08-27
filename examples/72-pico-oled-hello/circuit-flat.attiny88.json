@@ -2,7 +2,7 @@
   "vcc": 3.3,
   "parts": [
     {
-      "id": "pico1",
+      "id": "attiny881",
       "kind": "attiny88",
       "params": {},
       "rotation": 0,
@@ -85,7 +85,7 @@
         "terminal": "sda"
       },
       "to": {
-        "part": "pico1",
+        "part": "attiny881",
         "terminal": "pc4"
       }
     },
@@ -97,7 +97,7 @@
         "terminal": "scl"
       },
       "to": {
-        "part": "pico1",
+        "part": "attiny881",
         "terminal": "pc5"
       }
     },
@@ -121,7 +121,7 @@
         "terminal": "gnd"
       },
       "to": {
-        "part": "pico1",
+        "part": "attiny881",
         "terminal": "gnd"
       }
     },
@@ -133,7 +133,7 @@
         "terminal": "vcc"
       },
       "to": {
-        "part": "pico1",
+        "part": "attiny881",
         "terminal": "avcc"
       }
     },
@@ -145,7 +145,7 @@
         "terminal": "vcc"
       },
       "to": {
-        "part": "pico1",
+        "part": "attiny881",
         "terminal": "vcc"
       }
     },

@@ -31,7 +31,7 @@
    "y": 115
   },
   {
-   "id": "MCU",
+   "id": "pico1",
    "kind": "pi_pico",
    "params": {},
    "x": 64,
@@ -139,7 +139,7 @@
    "toTerminal": "cathode"
   },
   {
-   "from": "MCU",
+   "from": "pico1",
    "fromTerminal": "gp0",
    "to": "R_opto",
    "toTerminal": "a"

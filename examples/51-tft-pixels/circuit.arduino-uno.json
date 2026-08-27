@@ -31,7 +31,7 @@
    "y": 115
   },
   {
-   "id": "MCU",
+   "id": "uno1",
    "kind": "arduino_uno",
    "params": {},
    "terminals": [
@@ -80,25 +80,25 @@
  ],
  "wires": [
   {
-   "from": "MCU",
+   "from": "uno1",
    "fromTerminal": "d13",
    "to": "TFT",
    "toTerminal": "cs"
   },
   {
-   "from": "MCU",
+   "from": "uno1",
    "fromTerminal": "d12",
    "to": "TFT",
    "toTerminal": "dc"
   },
   {
-   "from": "MCU",
+   "from": "uno1",
    "fromTerminal": "d8",
    "to": "TFT",
    "toTerminal": "sck"
   },
   {
-   "from": "MCU",
+   "from": "uno1",
    "fromTerminal": "d7",
    "to": "TFT",
    "toTerminal": "mosi"
@@ -130,7 +130,7 @@
   {
    "from": "VCC",
    "fromTerminal": "vcc",
-   "to": "MCU",
+   "to": "uno1",
    "toTerminal": "5v",
    "color": "red",
    "genPower": true
@@ -138,7 +138,7 @@
   {
    "from": "GND",
    "fromTerminal": "gnd",
-   "to": "MCU",
+   "to": "uno1",
    "toTerminal": "gnd2",
    "color": "black",
    "genPower": true

@@ -31,7 +31,7 @@
    "y": 115
   },
   {
-   "id": "MCU",
+   "id": "uno1",
    "kind": "arduino_uno",
    "params": {},
    "terminals": [
@@ -404,19 +404,19 @@
  ],
  "wires": [
   {
-   "from": "MCU",
+   "from": "uno1",
    "fromTerminal": "d13",
    "to": "SR_595",
    "toTerminal": "data"
   },
   {
-   "from": "MCU",
+   "from": "uno1",
    "fromTerminal": "d12",
    "to": "SR_595",
    "toTerminal": "clock"
   },
   {
-   "from": "MCU",
+   "from": "uno1",
    "fromTerminal": "d8",
    "to": "SR_595",
    "toTerminal": "latch"
@@ -574,7 +574,7 @@
   {
    "from": "VCC",
    "fromTerminal": "vcc",
-   "to": "MCU",
+   "to": "uno1",
    "toTerminal": "5v",
    "color": "red",
    "genPower": true
@@ -582,7 +582,7 @@
   {
    "from": "GND",
    "fromTerminal": "gnd",
-   "to": "MCU",
+   "to": "uno1",
    "toTerminal": "gnd2",
    "color": "black",
    "genPower": true

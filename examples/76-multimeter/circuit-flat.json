@@ -2,7 +2,7 @@
   "vcc": 5,
   "parts": [
     {
-      "id": "mcu1",
+      "id": "stc151",
       "kind": "stc15_mcu",
       "params": {},
       "rotation": 0,
@@ -233,7 +233,7 @@
       "id": "w_flat_0",
       "netId": "net-lgc-1",
       "from": {
-        "part": "mcu1",
+        "part": "stc151",
         "terminal": "P0.0"
       },
       "to": {
@@ -257,7 +257,7 @@
       "id": "w_flat_2",
       "netId": "net-lgc-11",
       "from": {
-        "part": "mcu1",
+        "part": "stc151",
         "terminal": "P0.5"
       },
       "to": {
@@ -281,7 +281,7 @@
       "id": "w_flat_4",
       "netId": "net-lgc-13",
       "from": {
-        "part": "mcu1",
+        "part": "stc151",
         "terminal": "P0.6"
       },
       "to": {
@@ -305,7 +305,7 @@
       "id": "w_flat_6",
       "netId": "net-lgc-15",
       "from": {
-        "part": "mcu1",
+        "part": "stc151",
         "terminal": "P0.7"
       },
       "to": {
@@ -333,7 +333,7 @@
         "terminal": "com0"
       },
       "to": {
-        "part": "mcu1",
+        "part": "stc151",
         "terminal": "P2.0"
       }
     },
@@ -345,7 +345,7 @@
         "terminal": "com1"
       },
       "to": {
-        "part": "mcu1",
+        "part": "stc151",
         "terminal": "P2.1"
       }
     },
@@ -357,7 +357,7 @@
         "terminal": "com2"
       },
       "to": {
-        "part": "mcu1",
+        "part": "stc151",
         "terminal": "P2.2"
       }
     },
@@ -393,7 +393,7 @@
         "terminal": "vcc"
       },
       "to": {
-        "part": "mcu1",
+        "part": "stc151",
         "terminal": "VCC"
       }
     },
@@ -477,7 +477,7 @@
         "terminal": "gnd"
       },
       "to": {
-        "part": "mcu1",
+        "part": "stc151",
         "terminal": "GND"
       }
     },
@@ -557,7 +557,7 @@
       "id": "w_flat_27",
       "netId": "net-lgc-23",
       "from": {
-        "part": "mcu1",
+        "part": "stc151",
         "terminal": "P1.0"
       },
       "to": {
@@ -569,7 +569,7 @@
       "id": "w_flat_28",
       "netId": "net-lgc-23",
       "from": {
-        "part": "mcu1",
+        "part": "stc151",
         "terminal": "P1.0"
       },
       "to": {
@@ -609,7 +609,7 @@
         "terminal": "1_out"
       },
       "to": {
-        "part": "mcu1",
+        "part": "stc151",
         "terminal": "P1.1"
       }
     },
@@ -653,7 +653,7 @@
       "id": "w_flat_35",
       "netId": "net-lgc-27",
       "from": {
-        "part": "mcu1",
+        "part": "stc151",
         "terminal": "P1.2"
       },
       "to": {
@@ -665,7 +665,7 @@
       "id": "w_flat_36",
       "netId": "net-lgc-27",
       "from": {
-        "part": "mcu1",
+        "part": "stc151",
         "terminal": "P1.2"
       },
       "to": {
@@ -681,7 +681,7 @@
         "terminal": "a"
       },
       "to": {
-        "part": "mcu1",
+        "part": "stc151",
         "terminal": "P5.5"
       }
     },
@@ -693,7 +693,7 @@
         "terminal": "a"
       },
       "to": {
-        "part": "mcu1",
+        "part": "stc151",
         "terminal": "P3.2"
       }
     },
@@ -701,7 +701,7 @@
       "id": "w_flat_39",
       "netId": "net-lgc-3",
       "from": {
-        "part": "mcu1",
+        "part": "stc151",
         "terminal": "P0.1"
       },
       "to": {
@@ -725,7 +725,7 @@
       "id": "w_flat_41",
       "netId": "net-lgc-5",
       "from": {
-        "part": "mcu1",
+        "part": "stc151",
         "terminal": "P0.2"
       },
       "to": {
@@ -749,7 +749,7 @@
       "id": "w_flat_43",
       "netId": "net-lgc-7",
       "from": {
-        "part": "mcu1",
+        "part": "stc151",
         "terminal": "P0.3"
       },
       "to": {
@@ -773,7 +773,7 @@
       "id": "w_flat_45",
       "netId": "net-lgc-9",
       "from": {
-        "part": "mcu1",
+        "part": "stc151",
         "terminal": "P0.4"
       },
       "to": {

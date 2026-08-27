@@ -84,7 +84,7 @@
    }
   },
   {
-   "id": "mcu1",
+   "id": "uno1",
    "kind": "arduino_uno",
    "params": {
     "pins": [
@@ -101,7 +101,7 @@
  ],
  "wires": [
   {
-   "from": "mcu1",
+   "from": "uno1",
    "fromTerminal": "D13",
    "to": "led1",
    "toTerminal": "anode"
@@ -119,7 +119,7 @@
    "toTerminal": "gnd"
   },
   {
-   "from": "mcu1",
+   "from": "uno1",
    "fromTerminal": "D12",
    "to": "led2",
    "toTerminal": "anode"
@@ -139,7 +139,7 @@
   {
    "from": "gnd1",
    "fromTerminal": "gnd",
-   "to": "mcu1",
+   "to": "uno1",
    "toTerminal": "gnd2",
    "color": "black",
    "genPower": true

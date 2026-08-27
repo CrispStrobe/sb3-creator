@@ -31,7 +31,7 @@
    "y": 115
   },
   {
-   "id": "MCU",
+   "id": "stc151",
    "kind": "stc15_mcu",
    "params": {},
    "terminals": [
@@ -215,7 +215,7 @@
  ],
  "wires": [
   {
-   "from": "MCU",
+   "from": "stc151",
    "fromTerminal": "p1.0",
    "to": "R_relay_ctrl",
    "toTerminal": "a"
@@ -247,7 +247,7 @@
   {
    "from": "LED_led1",
    "fromTerminal": "cathode",
-   "to": "MCU",
+   "to": "stc151",
    "toTerminal": "p1.1"
   },
   {

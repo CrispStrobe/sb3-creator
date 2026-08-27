@@ -2,7 +2,7 @@
   "vcc": 5,
   "parts": [
     {
-      "id": "mcu",
+      "id": "pico1",
       "kind": "pi_pico",
       "params": {},
       "terminals": [
@@ -163,7 +163,7 @@
         "terminal": "b"
       },
       "to": {
-        "part": "mcu",
+        "part": "pico1",
         "terminal": "gp18"
       }
     },
@@ -187,7 +187,7 @@
         "terminal": "row0"
       },
       "to": {
-        "part": "mcu",
+        "part": "pico1",
         "terminal": "gp1"
       }
     },
@@ -199,7 +199,7 @@
         "terminal": "row1"
       },
       "to": {
-        "part": "mcu",
+        "part": "pico1",
         "terminal": "gp2"
       }
     },
@@ -211,7 +211,7 @@
         "terminal": "row2"
       },
       "to": {
-        "part": "mcu",
+        "part": "pico1",
         "terminal": "gp3"
       }
     },
@@ -223,7 +223,7 @@
         "terminal": "row3"
       },
       "to": {
-        "part": "mcu",
+        "part": "pico1",
         "terminal": "gp4"
       }
     },
@@ -235,7 +235,7 @@
         "terminal": "row4"
       },
       "to": {
-        "part": "mcu",
+        "part": "pico1",
         "terminal": "gp5"
       }
     },
@@ -247,7 +247,7 @@
         "terminal": "row5"
       },
       "to": {
-        "part": "mcu",
+        "part": "pico1",
         "terminal": "gp6"
       }
     },
@@ -259,7 +259,7 @@
         "terminal": "row6"
       },
       "to": {
-        "part": "mcu",
+        "part": "pico1",
         "terminal": "gp7"
       }
     },
@@ -271,7 +271,7 @@
         "terminal": "row7"
       },
       "to": {
-        "part": "mcu",
+        "part": "pico1",
         "terminal": "gp8"
       }
     },
@@ -283,7 +283,7 @@
         "terminal": "b"
       },
       "to": {
-        "part": "mcu",
+        "part": "pico1",
         "terminal": "gp9"
       }
     },
@@ -307,7 +307,7 @@
         "terminal": "col6"
       },
       "to": {
-        "part": "mcu",
+        "part": "pico1",
         "terminal": "gp10"
       }
     },
@@ -319,7 +319,7 @@
         "terminal": "col5"
       },
       "to": {
-        "part": "mcu",
+        "part": "pico1",
         "terminal": "gp11"
       }
     },
@@ -331,7 +331,7 @@
         "terminal": "col4"
       },
       "to": {
-        "part": "mcu",
+        "part": "pico1",
         "terminal": "gp12"
       }
     },
@@ -343,7 +343,7 @@
         "terminal": "col3"
       },
       "to": {
-        "part": "mcu",
+        "part": "pico1",
         "terminal": "gp13"
       }
     },
@@ -355,7 +355,7 @@
         "terminal": "col2"
       },
       "to": {
-        "part": "mcu",
+        "part": "pico1",
         "terminal": "gp14"
       }
     },
@@ -367,7 +367,7 @@
         "terminal": "col1"
       },
       "to": {
-        "part": "mcu",
+        "part": "pico1",
         "terminal": "gp15"
       }
     },
@@ -379,7 +379,7 @@
         "terminal": "col0"
       },
       "to": {
-        "part": "mcu",
+        "part": "pico1",
         "terminal": "gp25"
       }
     },
@@ -391,7 +391,7 @@
         "terminal": "col7"
       },
       "to": {
-        "part": "mcu",
+        "part": "pico1",
         "terminal": "gp0"
       }
     },
@@ -403,7 +403,7 @@
         "terminal": "gnd"
       },
       "to": {
-        "part": "mcu",
+        "part": "pico1",
         "terminal": "gnd_1"
       }
     },
@@ -451,7 +451,7 @@
         "terminal": "a"
       },
       "to": {
-        "part": "mcu",
+        "part": "pico1",
         "terminal": "vbus"
       }
     },
@@ -463,7 +463,7 @@
         "terminal": "a"
       },
       "to": {
-        "part": "mcu",
+        "part": "pico1",
         "terminal": "vsys"
       }
     },

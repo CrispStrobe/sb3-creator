@@ -91,7 +91,7 @@
    }
   },
   {
-   "id": "mcu1",
+   "id": "nano1",
    "kind": "arduino_nano",
    "params": {},
    "x": 64,
@@ -160,37 +160,37 @@
    "toTerminal": "gnd"
   },
   {
-   "from": "mcu1",
+   "from": "nano1",
    "fromTerminal": "d13",
    "to": "led_sink",
    "toTerminal": "cathode"
   },
   {
-   "from": "mcu1",
+   "from": "nano1",
    "fromTerminal": "d12",
    "to": "r_source",
    "toTerminal": "a"
   },
   {
-   "from": "mcu1",
+   "from": "nano1",
    "fromTerminal": "gnd",
    "to": "gnd1",
    "toTerminal": "gnd"
   },
   {
-   "from": "mcu1",
+   "from": "nano1",
    "fromTerminal": "gnd",
    "to": "led_source",
    "toTerminal": "cathode"
   },
   {
-   "from": "mcu1",
+   "from": "nano1",
    "fromTerminal": "5v",
    "to": "r_sink",
    "toTerminal": "a"
   },
   {
-   "from": "mcu1",
+   "from": "nano1",
    "fromTerminal": "5v",
    "to": "vcc1",
    "toTerminal": "vcc"

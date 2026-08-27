@@ -91,7 +91,7 @@
    }
   },
   {
-   "id": "mcu1",
+   "id": "pico1",
    "kind": "pi_pico",
    "params": {},
    "x": 64,
@@ -170,37 +170,37 @@
    "toTerminal": "gnd"
   },
   {
-   "from": "mcu1",
+   "from": "pico1",
    "fromTerminal": "gp25",
    "to": "led_low",
    "toTerminal": "cathode"
   },
   {
-   "from": "mcu1",
+   "from": "pico1",
    "fromTerminal": "gp15",
    "to": "r2",
    "toTerminal": "a"
   },
   {
-   "from": "mcu1",
+   "from": "pico1",
    "fromTerminal": "gnd_1",
    "to": "gnd1",
    "toTerminal": "gnd"
   },
   {
-   "from": "mcu1",
+   "from": "pico1",
    "fromTerminal": "gnd_1",
    "to": "led_high",
    "toTerminal": "cathode"
   },
   {
-   "from": "mcu1",
+   "from": "pico1",
    "fromTerminal": "vsys",
    "to": "r1",
    "toTerminal": "a"
   },
   {
-   "from": "mcu1",
+   "from": "pico1",
    "fromTerminal": "vsys",
    "to": "vcc1",
    "toTerminal": "vcc"

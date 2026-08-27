@@ -2,7 +2,7 @@
   "vcc": 5,
   "parts": [
     {
-      "id": "mcu",
+      "id": "stc151",
       "kind": "stc15_mcu",
       "params": {},
       "rotation": 0,
@@ -151,7 +151,7 @@
         "terminal": "row0"
       },
       "to": {
-        "part": "mcu",
+        "part": "stc151",
         "terminal": "P2.2"
       }
     },
@@ -163,7 +163,7 @@
         "terminal": "row1"
       },
       "to": {
-        "part": "mcu",
+        "part": "stc151",
         "terminal": "P2.3"
       }
     },
@@ -175,7 +175,7 @@
         "terminal": "row2"
       },
       "to": {
-        "part": "mcu",
+        "part": "stc151",
         "terminal": "P2.4"
       }
     },
@@ -187,7 +187,7 @@
         "terminal": "row3"
       },
       "to": {
-        "part": "mcu",
+        "part": "stc151",
         "terminal": "P2.5"
       }
     },
@@ -199,7 +199,7 @@
         "terminal": "row4"
       },
       "to": {
-        "part": "mcu",
+        "part": "stc151",
         "terminal": "P2.6"
       }
     },
@@ -211,7 +211,7 @@
         "terminal": "row5"
       },
       "to": {
-        "part": "mcu",
+        "part": "stc151",
         "terminal": "P2.7"
       }
     },
@@ -223,7 +223,7 @@
         "terminal": "row6"
       },
       "to": {
-        "part": "mcu",
+        "part": "stc151",
         "terminal": "P0.0"
       }
     },
@@ -235,7 +235,7 @@
         "terminal": "row7"
       },
       "to": {
-        "part": "mcu",
+        "part": "stc151",
         "terminal": "P0.1"
       }
     },
@@ -247,7 +247,7 @@
         "terminal": "b"
       },
       "to": {
-        "part": "mcu",
+        "part": "stc151",
         "terminal": "P3.2"
       }
     },
@@ -271,7 +271,7 @@
         "terminal": "b"
       },
       "to": {
-        "part": "mcu",
+        "part": "stc151",
         "terminal": "P3.3"
       }
     },
@@ -295,7 +295,7 @@
         "terminal": "col0"
       },
       "to": {
-        "part": "mcu",
+        "part": "stc151",
         "terminal": "P1.0"
       }
     },
@@ -307,7 +307,7 @@
         "terminal": "col1"
       },
       "to": {
-        "part": "mcu",
+        "part": "stc151",
         "terminal": "P1.1"
       }
     },
@@ -319,7 +319,7 @@
         "terminal": "col2"
       },
       "to": {
-        "part": "mcu",
+        "part": "stc151",
         "terminal": "P1.2"
       }
     },
@@ -331,7 +331,7 @@
         "terminal": "col3"
       },
       "to": {
-        "part": "mcu",
+        "part": "stc151",
         "terminal": "P1.3"
       }
     },
@@ -343,7 +343,7 @@
         "terminal": "col4"
       },
       "to": {
-        "part": "mcu",
+        "part": "stc151",
         "terminal": "P1.4"
       }
     },
@@ -355,7 +355,7 @@
         "terminal": "col5"
       },
       "to": {
-        "part": "mcu",
+        "part": "stc151",
         "terminal": "P1.5"
       }
     },
@@ -367,7 +367,7 @@
         "terminal": "col6"
       },
       "to": {
-        "part": "mcu",
+        "part": "stc151",
         "terminal": "P2.0"
       }
     },
@@ -379,7 +379,7 @@
         "terminal": "col7"
       },
       "to": {
-        "part": "mcu",
+        "part": "stc151",
         "terminal": "P2.1"
       }
     },
@@ -391,7 +391,7 @@
         "terminal": "gnd"
       },
       "to": {
-        "part": "mcu",
+        "part": "stc151",
         "terminal": "GND"
       }
     },
@@ -439,7 +439,7 @@
         "terminal": "a"
       },
       "to": {
-        "part": "mcu",
+        "part": "stc151",
         "terminal": "VCC"
       }
     },

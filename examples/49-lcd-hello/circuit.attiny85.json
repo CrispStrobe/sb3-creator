@@ -31,7 +31,7 @@
    "y": 115
   },
   {
-   "id": "MCU",
+   "id": "attiny851",
    "kind": "attiny85",
    "params": {},
    "terminals": [
@@ -119,25 +119,25 @@
  ],
  "wires": [
   {
-   "from": "MCU",
+   "from": "attiny851",
    "fromTerminal": "pb0",
    "to": "R_PU_sda",
    "toTerminal": "b"
   },
   {
-   "from": "MCU",
+   "from": "attiny851",
    "fromTerminal": "pb0",
    "to": "LCD",
    "toTerminal": "sda"
   },
   {
-   "from": "MCU",
+   "from": "attiny851",
    "fromTerminal": "pb2",
    "to": "R_PU_scl",
    "toTerminal": "b"
   },
   {
-   "from": "MCU",
+   "from": "attiny851",
    "fromTerminal": "pb2",
    "to": "LCD",
    "toTerminal": "scl"

@@ -25,7 +25,7 @@
    "y": 115
   },
   {
-   "id": "mcu1",
+   "id": "pico1",
    "kind": "pi_pico",
    "params": {},
    "x": 64,
@@ -152,61 +152,61 @@
    "toTerminal": "a"
   },
   {
-   "from": "mcu1",
+   "from": "pico1",
    "fromTerminal": "vsys",
    "to": "vcc1",
    "toTerminal": "vcc"
   },
   {
-   "from": "mcu1",
+   "from": "pico1",
    "fromTerminal": "vsys",
    "to": "oled1",
    "toTerminal": "vcc"
   },
   {
-   "from": "mcu1",
+   "from": "pico1",
    "fromTerminal": "vsys",
    "to": "r_sda",
    "toTerminal": "a"
   },
   {
-   "from": "mcu1",
+   "from": "pico1",
    "fromTerminal": "vsys",
    "to": "r_scl",
    "toTerminal": "a"
   },
   {
-   "from": "mcu1",
+   "from": "pico1",
    "fromTerminal": "gnd_1",
    "to": "gnd1",
    "toTerminal": "gnd"
   },
   {
-   "from": "mcu1",
+   "from": "pico1",
    "fromTerminal": "gnd_1",
    "to": "oled1",
    "toTerminal": "gnd"
   },
   {
-   "from": "mcu1",
+   "from": "pico1",
    "fromTerminal": "gp4",
    "to": "oled1",
    "toTerminal": "sda"
   },
   {
-   "from": "mcu1",
+   "from": "pico1",
    "fromTerminal": "gp4",
    "to": "r_sda",
    "toTerminal": "b"
   },
   {
-   "from": "mcu1",
+   "from": "pico1",
    "fromTerminal": "gp5",
    "to": "oled1",
    "toTerminal": "scl"
   },
   {
-   "from": "mcu1",
+   "from": "pico1",
    "fromTerminal": "gp5",
    "to": "r_scl",
    "toTerminal": "b"

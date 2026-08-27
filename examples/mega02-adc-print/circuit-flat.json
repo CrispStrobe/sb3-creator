@@ -36,7 +36,7 @@
       "y": 60
     },
     {
-      "id": "mcu1",
+      "id": "mega1",
       "kind": "arduino_mega",
       "params": {
         "pins": [
@@ -132,7 +132,7 @@
       "id": "w_flat_0",
       "netId": "bb1:n-col-t5",
       "from": {
-        "part": "mcu1",
+        "part": "mega1",
         "terminal": "a9"
       },
       "to": {
@@ -148,7 +148,7 @@
         "terminal": "gnd"
       },
       "to": {
-        "part": "mcu1",
+        "part": "mega1",
         "terminal": "gnd2"
       }
     },
@@ -168,7 +168,7 @@
       "id": "w_flat_3",
       "netId": "bb1:rail-t+",
       "from": {
-        "part": "mcu1",
+        "part": "mega1",
         "terminal": "5v"
       },
       "to": {
@@ -180,7 +180,7 @@
       "id": "w_flat_4",
       "netId": "bb1:rail-t+",
       "from": {
-        "part": "mcu1",
+        "part": "mega1",
         "terminal": "5v"
       },
       "to": {

@@ -36,7 +36,7 @@
       "y": 60
     },
     {
-      "id": "pico1",
+      "id": "stc151",
       "kind": "stc15_mcu",
       "params": {},
       "rotation": 0,
@@ -843,7 +843,7 @@
         "terminal": "b"
       },
       "to": {
-        "part": "pico1",
+        "part": "stc151",
         "terminal": "VCC"
       }
     },
@@ -915,7 +915,7 @@
         "terminal": "sda"
       },
       "to": {
-        "part": "pico1",
+        "part": "stc151",
         "terminal": "P1.0"
       }
     },
@@ -939,7 +939,7 @@
         "terminal": "scl"
       },
       "to": {
-        "part": "pico1",
+        "part": "stc151",
         "terminal": "P1.1"
       }
     },
@@ -963,7 +963,7 @@
         "terminal": "a"
       },
       "to": {
-        "part": "pico1",
+        "part": "stc151",
         "terminal": "P3.2"
       }
     },
@@ -987,7 +987,7 @@
         "terminal": "a"
       },
       "to": {
-        "part": "pico1",
+        "part": "stc151",
         "terminal": "P3.3"
       }
     },
@@ -1011,7 +1011,7 @@
         "terminal": "a"
       },
       "to": {
-        "part": "pico1",
+        "part": "stc151",
         "terminal": "P3.6"
       }
     },
@@ -1035,7 +1035,7 @@
         "terminal": "a"
       },
       "to": {
-        "part": "pico1",
+        "part": "stc151",
         "terminal": "P3.7"
       }
     },
@@ -1071,7 +1071,7 @@
         "terminal": "gnd"
       },
       "to": {
-        "part": "pico1",
+        "part": "stc151",
         "terminal": "GND"
       }
     },
@@ -1287,7 +1287,7 @@
         "terminal": "a"
       },
       "to": {
-        "part": "pico1",
+        "part": "stc151",
         "terminal": "P2.2"
       }
     },
@@ -1311,7 +1311,7 @@
         "terminal": "a"
       },
       "to": {
-        "part": "pico1",
+        "part": "stc151",
         "terminal": "P2.3"
       }
     },
@@ -1335,7 +1335,7 @@
         "terminal": "a"
       },
       "to": {
-        "part": "pico1",
+        "part": "stc151",
         "terminal": "P2.4"
       }
     },
@@ -1359,7 +1359,7 @@
         "terminal": "a"
       },
       "to": {
-        "part": "pico1",
+        "part": "stc151",
         "terminal": "P2.5"
       }
     },
@@ -1383,7 +1383,7 @@
         "terminal": "a"
       },
       "to": {
-        "part": "pico1",
+        "part": "stc151",
         "terminal": "P2.6"
       }
     },
@@ -1407,7 +1407,7 @@
         "terminal": "a"
       },
       "to": {
-        "part": "pico1",
+        "part": "stc151",
         "terminal": "P2.0"
       }
     },
@@ -1431,7 +1431,7 @@
         "terminal": "a"
       },
       "to": {
-        "part": "pico1",
+        "part": "stc151",
         "terminal": "P2.7"
       }
     },
@@ -1455,7 +1455,7 @@
         "terminal": "a"
       },
       "to": {
-        "part": "pico1",
+        "part": "stc151",
         "terminal": "P0.0"
       }
     },
@@ -1479,7 +1479,7 @@
         "terminal": "a"
       },
       "to": {
-        "part": "pico1",
+        "part": "stc151",
         "terminal": "P0.1"
       }
     },
@@ -1503,7 +1503,7 @@
         "terminal": "a"
       },
       "to": {
-        "part": "pico1",
+        "part": "stc151",
         "terminal": "P0.2"
       }
     },
@@ -1527,7 +1527,7 @@
         "terminal": "a"
       },
       "to": {
-        "part": "pico1",
+        "part": "stc151",
         "terminal": "P0.3"
       }
     },
@@ -1551,7 +1551,7 @@
         "terminal": "a"
       },
       "to": {
-        "part": "pico1",
+        "part": "stc151",
         "terminal": "P0.4"
       }
     },
@@ -1575,7 +1575,7 @@
         "terminal": "a"
       },
       "to": {
-        "part": "pico1",
+        "part": "stc151",
         "terminal": "P2.1"
       }
     },

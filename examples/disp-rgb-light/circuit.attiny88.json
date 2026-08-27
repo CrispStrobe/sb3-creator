@@ -25,7 +25,7 @@
    "y": 115
   },
   {
-   "id": "mcu1",
+   "id": "attiny881",
    "kind": "attiny88",
    "params": {},
    "x": 64,
@@ -164,55 +164,55 @@
    "toTerminal": "din"
   },
   {
-   "from": "mcu1",
+   "from": "attiny881",
    "fromTerminal": "vcc",
    "to": "vcc1",
    "toTerminal": "vcc"
   },
   {
-   "from": "mcu1",
+   "from": "attiny881",
    "fromTerminal": "vcc",
    "to": "px0",
    "toTerminal": "vcc"
   },
   {
-   "from": "mcu1",
+   "from": "attiny881",
    "fromTerminal": "vcc",
    "to": "px1",
    "toTerminal": "vcc"
   },
   {
-   "from": "mcu1",
+   "from": "attiny881",
    "fromTerminal": "vcc",
    "to": "px2",
    "toTerminal": "vcc"
   },
   {
-   "from": "mcu1",
+   "from": "attiny881",
    "fromTerminal": "gnd",
    "to": "gnd1",
    "toTerminal": "gnd"
   },
   {
-   "from": "mcu1",
+   "from": "attiny881",
    "fromTerminal": "gnd",
    "to": "px0",
    "toTerminal": "gnd"
   },
   {
-   "from": "mcu1",
+   "from": "attiny881",
    "fromTerminal": "gnd",
    "to": "px1",
    "toTerminal": "gnd"
   },
   {
-   "from": "mcu1",
+   "from": "attiny881",
    "fromTerminal": "gnd",
    "to": "px2",
    "toTerminal": "gnd"
   },
   {
-   "from": "mcu1",
+   "from": "attiny881",
    "fromTerminal": "pb0",
    "to": "px0",
    "toTerminal": "din"

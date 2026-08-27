@@ -31,7 +31,7 @@
    "y": 115
   },
   {
-   "id": "MCU",
+   "id": "nano1",
    "kind": "arduino_nano",
    "params": {},
    "terminals": [
@@ -378,7 +378,7 @@
  ],
  "wires": [
   {
-   "from": "MCU",
+   "from": "nano1",
    "fromTerminal": "d13",
    "to": "R_sa",
    "toTerminal": "a"
@@ -390,7 +390,7 @@
    "toTerminal": "anode"
   },
   {
-   "from": "MCU",
+   "from": "nano1",
    "fromTerminal": "d12",
    "to": "R_sb",
    "toTerminal": "a"
@@ -402,7 +402,7 @@
    "toTerminal": "anode"
   },
   {
-   "from": "MCU",
+   "from": "nano1",
    "fromTerminal": "d8",
    "to": "R_sc",
    "toTerminal": "a"
@@ -414,7 +414,7 @@
    "toTerminal": "anode"
   },
   {
-   "from": "MCU",
+   "from": "nano1",
    "fromTerminal": "d7",
    "to": "R_sd",
    "toTerminal": "a"
@@ -426,7 +426,7 @@
    "toTerminal": "anode"
   },
   {
-   "from": "MCU",
+   "from": "nano1",
    "fromTerminal": "d4",
    "to": "R_se",
    "toTerminal": "a"
@@ -438,7 +438,7 @@
    "toTerminal": "anode"
   },
   {
-   "from": "MCU",
+   "from": "nano1",
    "fromTerminal": "d2",
    "to": "R_sf",
    "toTerminal": "a"
@@ -450,7 +450,7 @@
    "toTerminal": "anode"
   },
   {
-   "from": "MCU",
+   "from": "nano1",
    "fromTerminal": "d3",
    "to": "R_sg",
    "toTerminal": "a"

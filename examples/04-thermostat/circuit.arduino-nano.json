@@ -31,7 +31,7 @@
    "y": 115
   },
   {
-   "id": "MCU",
+   "id": "nano1",
    "kind": "arduino_nano",
    "params": {},
    "terminals": [
@@ -144,7 +144,7 @@
  ],
  "wires": [
   {
-   "from": "MCU",
+   "from": "nano1",
    "fromTerminal": "d13",
    "to": "R_heater",
    "toTerminal": "a"
@@ -158,7 +158,7 @@
   {
    "from": "POT_sensor",
    "fromTerminal": "wiper",
-   "to": "MCU",
+   "to": "nano1",
    "toTerminal": "a0"
   },
   {

@@ -31,7 +31,7 @@
    "y": 115
   },
   {
-   "id": "MCU",
+   "id": "stc151",
    "kind": "stc15_mcu",
    "params": {},
    "terminals": [
@@ -123,25 +123,25 @@
  ],
  "wires": [
   {
-   "from": "MCU",
+   "from": "stc151",
    "fromTerminal": "p1.0",
    "to": "TFT",
    "toTerminal": "cs"
   },
   {
-   "from": "MCU",
+   "from": "stc151",
    "fromTerminal": "p1.1",
    "to": "TFT",
    "toTerminal": "dc"
   },
   {
-   "from": "MCU",
+   "from": "stc151",
    "fromTerminal": "p1.2",
    "to": "TFT",
    "toTerminal": "sck"
   },
   {
-   "from": "MCU",
+   "from": "stc151",
    "fromTerminal": "p1.3",
    "to": "TFT",
    "toTerminal": "mosi"

@@ -282,7 +282,7 @@
    }
   },
   {
-   "id": "mcu1",
+   "id": "mega1",
    "kind": "arduino_mega",
    "params": {
     "pins": [
@@ -302,7 +302,7 @@
  ],
  "wires": [
   {
-   "from": "mcu1",
+   "from": "mega1",
    "fromTerminal": "D22",
    "to": "led1",
    "toTerminal": "anode"
@@ -320,7 +320,7 @@
    "toTerminal": "gnd"
   },
   {
-   "from": "mcu1",
+   "from": "mega1",
    "fromTerminal": "D23",
    "to": "led2",
    "toTerminal": "anode"
@@ -338,7 +338,7 @@
    "toTerminal": "gnd"
   },
   {
-   "from": "mcu1",
+   "from": "mega1",
    "fromTerminal": "D24",
    "to": "led3",
    "toTerminal": "anode"
@@ -356,7 +356,7 @@
    "toTerminal": "gnd"
   },
   {
-   "from": "mcu1",
+   "from": "mega1",
    "fromTerminal": "D25",
    "to": "led4",
    "toTerminal": "anode"
@@ -374,7 +374,7 @@
    "toTerminal": "gnd"
   },
   {
-   "from": "mcu1",
+   "from": "mega1",
    "fromTerminal": "D26",
    "to": "led5",
    "toTerminal": "anode"
@@ -392,7 +392,7 @@
    "toTerminal": "gnd"
   },
   {
-   "from": "mcu1",
+   "from": "mega1",
    "fromTerminal": "D27",
    "to": "led6",
    "toTerminal": "anode"
@@ -410,7 +410,7 @@
    "toTerminal": "gnd"
   },
   {
-   "from": "mcu1",
+   "from": "mega1",
    "fromTerminal": "D28",
    "to": "led7",
    "toTerminal": "anode"
@@ -428,7 +428,7 @@
    "toTerminal": "gnd"
   },
   {
-   "from": "mcu1",
+   "from": "mega1",
    "fromTerminal": "D29",
    "to": "led8",
    "toTerminal": "anode"
@@ -458,7 +458,7 @@
   {
    "from": "gnd1",
    "fromTerminal": "gnd",
-   "to": "mcu1",
+   "to": "mega1",
    "toTerminal": "gnd2"
   }
  ],

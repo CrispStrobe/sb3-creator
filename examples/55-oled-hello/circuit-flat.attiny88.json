@@ -22,7 +22,7 @@
       "y": 60
     },
     {
-      "id": "MCU",
+      "id": "attiny881",
       "kind": "attiny88",
       "params": {},
       "terminals": [
@@ -133,7 +133,7 @@
       "id": "w_flat_0",
       "netId": "bb1:n-col-t14",
       "from": {
-        "part": "MCU",
+        "part": "attiny881",
         "terminal": "pc4"
       },
       "to": {
@@ -145,7 +145,7 @@
       "id": "w_flat_1",
       "netId": "bb1:n-col-t14",
       "from": {
-        "part": "MCU",
+        "part": "attiny881",
         "terminal": "pc4"
       },
       "to": {
@@ -157,7 +157,7 @@
       "id": "w_flat_2",
       "netId": "bb1:n-col-t15",
       "from": {
-        "part": "MCU",
+        "part": "attiny881",
         "terminal": "pc5"
       },
       "to": {
@@ -169,7 +169,7 @@
       "id": "w_flat_3",
       "netId": "bb1:n-col-t15",
       "from": {
-        "part": "MCU",
+        "part": "attiny881",
         "terminal": "pc5"
       },
       "to": {
@@ -185,7 +185,7 @@
         "terminal": "gnd"
       },
       "to": {
-        "part": "MCU",
+        "part": "attiny881",
         "terminal": "gnd"
       }
     },
@@ -205,11 +205,11 @@
       "id": "w_flat_6",
       "netId": "bb1:rail-t+",
       "from": {
-        "part": "MCU",
+        "part": "attiny881",
         "terminal": "avcc"
       },
       "to": {
-        "part": "MCU",
+        "part": "attiny881",
         "terminal": "vcc"
       }
     },
@@ -217,7 +217,7 @@
       "id": "w_flat_7",
       "netId": "bb1:rail-t+",
       "from": {
-        "part": "MCU",
+        "part": "attiny881",
         "terminal": "avcc"
       },
       "to": {
@@ -229,7 +229,7 @@
       "id": "w_flat_8",
       "netId": "bb1:rail-t+",
       "from": {
-        "part": "MCU",
+        "part": "attiny881",
         "terminal": "avcc"
       },
       "to": {
@@ -241,7 +241,7 @@
       "id": "w_flat_9",
       "netId": "bb1:rail-t+",
       "from": {
-        "part": "MCU",
+        "part": "attiny881",
         "terminal": "avcc"
       },
       "to": {
@@ -253,7 +253,7 @@
       "id": "w_flat_10",
       "netId": "bb1:rail-t+",
       "from": {
-        "part": "MCU",
+        "part": "attiny881",
         "terminal": "avcc"
       },
       "to": {

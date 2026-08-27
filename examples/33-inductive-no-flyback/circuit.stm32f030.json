@@ -31,7 +31,7 @@
    "y": 115
   },
   {
-   "id": "MCU",
+   "id": "stm321",
    "kind": "stm32f030",
    "params": {},
    "terminals": [
@@ -146,7 +146,7 @@
  ],
  "wires": [
   {
-   "from": "MCU",
+   "from": "stm321",
    "fromTerminal": "pa0",
    "to": "R_motor_ctrl",
    "toTerminal": "a"

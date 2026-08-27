@@ -22,7 +22,7 @@
       "y": 115
     },
     {
-      "id": "MCU",
+      "id": "pico1",
       "kind": "pi_pico",
       "params": {},
       "terminals": [
@@ -81,7 +81,7 @@
         "terminal": "sda"
       },
       "to": {
-        "part": "MCU",
+        "part": "pico1",
         "terminal": "gp4"
       }
     },
@@ -105,7 +105,7 @@
         "terminal": "scl"
       },
       "to": {
-        "part": "MCU",
+        "part": "pico1",
         "terminal": "gp5"
       }
     },
@@ -141,7 +141,7 @@
         "terminal": "gnd"
       },
       "to": {
-        "part": "MCU",
+        "part": "pico1",
         "terminal": "gnd_1"
       }
     },
@@ -153,7 +153,7 @@
         "terminal": "vcc"
       },
       "to": {
-        "part": "MCU",
+        "part": "pico1",
         "terminal": "vbus"
       }
     },
