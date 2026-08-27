@@ -6263,7 +6263,20 @@ class SB3Creator {
         return this.pyName(name);
     }
 
-    scratchCall(b, blocks, valFn) { return this.runtimeObjCall(b, blocks, valFn, OP_TO_SCRATCH, 'scratch'); }
+    scratchCall(b, blocks, valFn) {
+        // Some Scratch reporters ARE available on a board, in different
+        // units — `timer` is running_time(). Without this the shared layer
+        // emits scratch.timer(), which the micro:bit generator's guard
+        // turns into 0, so a stopwatch reads zero and only a warning says
+        // so. Same reason _nativePinExpr exists: the hook has to be here,
+        // not at the walker, or a read one level down (`timer * 1000`) is
+        // missed.
+        if (this._nativeScratchExpr) {
+            const native = this._nativeScratchExpr(b);
+            if (native) return {kind: 'reporter', call: native};
+        }
+        return this.runtimeObjCall(b, blocks, valFn, OP_TO_SCRATCH, 'scratch');
+    }
     arraysCall(b, blocks, valFn) {
         if (!OP_TO_ARRAYS[b.opcode]) return null;
         if (this._pyUses) { this._pyUses.arrays = true; this._pyUses.json = true; }
@@ -6356,6 +6369,7 @@ class SB3Creator {
     generatePython(project = this.project, opts = {}) {
         this._driverPins = (project.stc && project.stc.pins) || null;
         this._nativePinExpr = null;   // MicroPython-only; must not leak in here
+        this._nativeScratchExpr = null;
         this._pyNames = new Map();
         this._pyUses = { random: false, math: false, time: false, eq: false, answer: false, arrays: false, json: false, sumdigits: false };
         this._runtimesUsed = new Set();
@@ -6693,6 +6707,7 @@ class SB3Creator {
     generateJavaScript(project = this.project, opts = {}) {
         this._driverPins = (project.stc && project.stc.pins) || null;
         this._nativePinExpr = null;   // MicroPython-only; must not leak in here
+        this._nativeScratchExpr = null;
         this._pyNames = new Map();
         this._jsUses = { rand: false, eq: false, answer: false, fact: false, arrays: false, sumdigits: false, multiple: false };
         this._runtimesUsed = new Set();
@@ -8429,6 +8444,13 @@ class SB3Creator {
                 return `${pin.expr}.read_analog()`;
             }
             return readExpr(pin);
+        };
+        this._nativeScratchExpr = (b) => {
+            // running_time() is milliseconds since boot; `timer` is seconds
+            // since the program started. Close enough to be the same clock,
+            // and it is the clock every micro:bit stopwatch actually uses.
+            if (b.opcode === 'sensing_timer') return '(running_time() / 1000)';
+            return null;
         };
         this._nativePinExpr = (b) => {
             if (b.opcode !== 'stc12_read' && b.opcode !== 'stc12_readpin') return null;

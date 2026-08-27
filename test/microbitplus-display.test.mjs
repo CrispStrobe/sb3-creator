@@ -76,3 +76,15 @@ test('arrays reach the device: the registry the reporters read is filled', () =>
     assert.match(py, /_arrays\.push\("liste", 4\)/, py);
     assert.doesNotMatch(py, /pass  # arrays_/, 'an array command lowered to nothing');
 });
+
+test('timer on a device is running_time(), not a shim call degraded to zero', () => {
+    // `timer` is not a Scratch-only idea on this board: the micro:bit has
+    // running_time(), and it means the same clock in different units. Left
+    // to the shared layer it became scratch.timer(), which the generator's
+    // guard turns into 0 — so every stopwatch read zero, and only a warning
+    // said so. Nested is the case that matters: `timer * 1000` hides the
+    // read one level down.
+    const py = mp('set startzeit to timer * 1000');
+    assert.match(py, /running_time\(\) \/ 1000/, py);
+    assert.doesNotMatch(py, /scratch\.timer/, py);
+});
