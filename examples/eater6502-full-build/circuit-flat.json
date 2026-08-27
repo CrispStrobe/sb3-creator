@@ -4,401 +4,343 @@
     {
       "id": "cpu",
       "kind": "w65c02",
-      "seat": {
-        "boardId": "bb1",
-        "leadMap": {
-          "vpb": "f3",
-          "rdy": "f4",
-          "phi1o": "f5",
-          "irqb": "f6",
-          "mlb": "f7",
-          "nmib": "f8",
-          "sync": "f9",
-          "vdd": "f10",
-          "a0": "f11",
-          "a1": "f12",
-          "a2": "f13",
-          "a3": "f14",
-          "a4": "f15",
-          "a5": "f16",
-          "a6": "f17",
-          "a7": "f18",
-          "a8": "f19",
-          "a9": "f20",
-          "a10": "f21",
-          "a11": "f22",
-          "resb": "e3",
-          "phi2o": "e4",
-          "sob": "e5",
-          "phi2": "e6",
-          "be": "e7",
-          "rwb": "e9",
-          "d0": "e10",
-          "d1": "e11",
-          "d2": "e12",
-          "d3": "e13",
-          "d4": "e14",
-          "d5": "e15",
-          "d6": "e16",
-          "d7": "e17",
-          "a15": "e18",
-          "a14": "e19",
-          "a13": "e20",
-          "a12": "e21",
-          "vss": "e22"
-        }
-      },
       "params": {},
+      "terminals": [
+        "vpb",
+        "rdy",
+        "phi1o",
+        "irqb",
+        "mlb",
+        "nmib",
+        "sync",
+        "vdd",
+        "a0",
+        "a1",
+        "a2",
+        "a3",
+        "a4",
+        "a5",
+        "a6",
+        "a7",
+        "a8",
+        "a9",
+        "a10",
+        "a11",
+        "resb",
+        "phi2o",
+        "sob",
+        "phi2",
+        "be",
+        "nc",
+        "rwb",
+        "d0",
+        "d1",
+        "d2",
+        "d3",
+        "d4",
+        "d5",
+        "d6",
+        "d7",
+        "a15",
+        "a14",
+        "a13",
+        "a12",
+        "vss"
+      ],
       "x": 64,
       "y": 349
     },
     {
       "id": "ram",
       "kind": "62256",
-      "seat": {
-        "boardId": "bb2",
-        "leadMap": {
-          "a14": "f22",
-          "a12": "f23",
-          "a7": "f24",
-          "a6": "f25",
-          "a5": "f26",
-          "a4": "f27",
-          "a3": "f28",
-          "a2": "f29",
-          "a1": "f30",
-          "a0": "f31",
-          "d0": "f32",
-          "d1": "f33",
-          "d2": "f34",
-          "gnd": "f35",
-          "vcc": "e22",
-          "web": "e23",
-          "a13": "e24",
-          "a8": "e25",
-          "a9": "e26",
-          "a11": "e27",
-          "oeb": "e28",
-          "a10": "e29",
-          "csb": "e30",
-          "d7": "e31",
-          "d6": "e32",
-          "d5": "e33",
-          "d4": "e34",
-          "d3": "e35"
-        }
-      },
       "params": {},
+      "terminals": [
+        "a14",
+        "a12",
+        "a7",
+        "a6",
+        "a5",
+        "a4",
+        "a3",
+        "a2",
+        "a1",
+        "a0",
+        "d0",
+        "d1",
+        "d2",
+        "gnd",
+        "vcc",
+        "web",
+        "a13",
+        "a8",
+        "a9",
+        "a11",
+        "oeb",
+        "a10",
+        "csb",
+        "d7",
+        "d6",
+        "d5",
+        "d4",
+        "d3"
+      ],
       "x": 330,
       "y": 709
     },
     {
       "id": "rom",
       "kind": "28c256",
-      "seat": {
-        "boardId": "bb2",
-        "leadMap": {
-          "a14": "f39",
-          "a12": "f40",
-          "a7": "f41",
-          "a6": "f42",
-          "a5": "f43",
-          "a4": "f44",
-          "a3": "f45",
-          "a2": "f46",
-          "a1": "f47",
-          "a0": "f48",
-          "d0": "f49",
-          "d1": "f50",
-          "d2": "f51",
-          "gnd": "f52",
-          "vcc": "e39",
-          "web": "e40",
-          "a13": "e41",
-          "a8": "e42",
-          "a9": "e43",
-          "a11": "e44",
-          "oeb": "e45",
-          "a10": "e46",
-          "ceb": "e47",
-          "d7": "e48",
-          "d6": "e49",
-          "d5": "e50",
-          "d4": "e51",
-          "d3": "e52"
-        }
-      },
       "params": {},
+      "terminals": [
+        "a14",
+        "a12",
+        "a7",
+        "a6",
+        "a5",
+        "a4",
+        "a3",
+        "a2",
+        "a1",
+        "a0",
+        "d0",
+        "d1",
+        "d2",
+        "gnd",
+        "vcc",
+        "web",
+        "a13",
+        "a8",
+        "a9",
+        "a11",
+        "oeb",
+        "a10",
+        "ceb",
+        "d7",
+        "d6",
+        "d5",
+        "d4",
+        "d3"
+      ],
       "x": 568,
       "y": 709
     },
     {
       "id": "via",
       "kind": "w65c22",
-      "seat": {
-        "boardId": "bb1",
-        "leadMap": {
-          "vss": "f26",
-          "pa0": "f27",
-          "pa1": "f28",
-          "pa2": "f29",
-          "pa3": "f30",
-          "pa4": "f31",
-          "pa5": "f32",
-          "pa6": "f33",
-          "pa7": "f34",
-          "pb0": "f35",
-          "pb1": "f36",
-          "pb2": "f37",
-          "pb3": "f38",
-          "pb4": "f39",
-          "pb5": "f40",
-          "pb6": "f41",
-          "pb7": "f42",
-          "cb1": "f43",
-          "cb2": "f44",
-          "vdd": "f45",
-          "ca1": "e26",
-          "ca2": "e27",
-          "rs0": "e28",
-          "rs1": "e29",
-          "rs2": "e30",
-          "rs3": "e31",
-          "resb": "e32",
-          "d0": "e33",
-          "d1": "e34",
-          "d2": "e35",
-          "d3": "e36",
-          "d4": "e37",
-          "d5": "e38",
-          "d6": "e39",
-          "d7": "e40",
-          "phi2": "e41",
-          "cs1": "e42",
-          "cs2b": "e43",
-          "rwb": "e44",
-          "irqb": "e45"
-        }
-      },
       "params": {},
+      "terminals": [
+        "vss",
+        "pa0",
+        "pa1",
+        "pa2",
+        "pa3",
+        "pa4",
+        "pa5",
+        "pa6",
+        "pa7",
+        "pb0",
+        "pb1",
+        "pb2",
+        "pb3",
+        "pb4",
+        "pb5",
+        "pb6",
+        "pb7",
+        "cb1",
+        "cb2",
+        "vdd",
+        "ca1",
+        "ca2",
+        "rs0",
+        "rs1",
+        "rs2",
+        "rs3",
+        "resb",
+        "d0",
+        "d1",
+        "d2",
+        "d3",
+        "d4",
+        "d5",
+        "d6",
+        "d7",
+        "phi2",
+        "cs1",
+        "cs2b",
+        "rwb",
+        "irqb"
+      ],
       "x": 386,
       "y": 349
     },
     {
       "id": "acia",
       "kind": "w65c51",
-      "seat": {
-        "boardId": "bb3",
-        "leadMap": {
-          "vss": "f3",
-          "cs0": "f4",
-          "cs1b": "f5",
-          "resb": "f6",
-          "rwb": "f7",
-          "irqb": "f8",
-          "phi2": "f9",
-          "d0": "f10",
-          "d1": "f11",
-          "d2": "f12",
-          "d3": "f13",
-          "d4": "f14",
-          "d5": "f15",
-          "d6": "f16",
-          "vdd": "e3",
-          "xtli": "e4",
-          "xtlo": "e5",
-          "dcdb": "e6",
-          "dsrb": "e7",
-          "rxd": "e8",
-          "dtrb": "e9",
-          "ctsb": "e10",
-          "rtsb": "e11",
-          "txd": "e13",
-          "rs1": "e14",
-          "rs0": "e15",
-          "d7": "e16"
-        }
-      },
       "params": {},
+      "terminals": [
+        "vss",
+        "cs0",
+        "cs1b",
+        "resb",
+        "rwb",
+        "irqb",
+        "phi2",
+        "d0",
+        "d1",
+        "d2",
+        "d3",
+        "d4",
+        "d5",
+        "d6",
+        "vdd",
+        "xtli",
+        "xtlo",
+        "dcdb",
+        "dsrb",
+        "rxd",
+        "dtrb",
+        "ctsb",
+        "rtsb",
+        "nc",
+        "txd",
+        "rs1",
+        "rs0",
+        "d7"
+      ],
       "x": 64,
       "y": 1069
     },
     {
       "id": "glue1",
       "kind": "74hc00",
-      "seat": {
-        "boardId": "bb3",
-        "leadMap": {
-          "1a": "f33",
-          "1b": "f34",
-          "1y": "f35",
-          "2a": "f36",
-          "2b": "f37",
-          "2y": "f38",
-          "gnd": "f39",
-          "vcc": "e33",
-          "4b": "e34",
-          "4a": "e35",
-          "4y": "e36",
-          "3b": "e37",
-          "3a": "e38",
-          "3y": "e39"
-        }
-      },
       "params": {},
+      "terminals": [
+        "1a",
+        "1b",
+        "1y",
+        "2a",
+        "2b",
+        "2y",
+        "gnd",
+        "3y",
+        "3a",
+        "3b",
+        "4y",
+        "4a",
+        "4b",
+        "vcc"
+      ],
       "x": 484,
       "y": 1069
     },
     {
       "id": "glue2",
       "kind": "74hc00",
-      "seat": {
-        "boardId": "bb3",
-        "leadMap": {
-          "1a": "f43",
-          "1b": "f44",
-          "1y": "f45",
-          "2a": "f46",
-          "2b": "f47",
-          "2y": "f48",
-          "gnd": "f49",
-          "vcc": "e43",
-          "4b": "e44",
-          "4a": "e45",
-          "4y": "e46",
-          "3b": "e47",
-          "3a": "e48",
-          "3y": "e49"
-        }
-      },
       "params": {},
+      "terminals": [
+        "1a",
+        "1b",
+        "1y",
+        "2a",
+        "2b",
+        "2y",
+        "gnd",
+        "3y",
+        "3a",
+        "3b",
+        "4y",
+        "4a",
+        "4b",
+        "vcc"
+      ],
       "x": 624,
       "y": 1069
     },
     {
       "id": "lcd",
       "kind": "hd44780",
-      "declName": "lcd",
-      "seat": {
-        "boardId": "bb2",
-        "leadMap": {
-          "vss": "a3",
-          "vdd": "a4",
-          "v0": "a5",
-          "rs": "a6",
-          "rw": "a7",
-          "e": "a8",
-          "d0": "a9",
-          "d1": "a10",
-          "d2": "a11",
-          "d3": "a12",
-          "d4": "a13",
-          "d5": "a14",
-          "d6": "a15",
-          "d7": "a16",
-          "a": "a17",
-          "k": "a18"
-        }
-      },
       "params": {},
+      "terminals": [
+        "vss",
+        "vdd",
+        "v0",
+        "rs",
+        "rw",
+        "e",
+        "d0",
+        "d1",
+        "d2",
+        "d3",
+        "d4",
+        "d5",
+        "d6",
+        "d7",
+        "a",
+        "k"
+      ],
       "x": 64,
       "y": 615
     },
     {
       "id": "kbd",
       "kind": "ps2",
-      "declName": "keyboard",
       "params": {},
+      "terminals": [
+        "d0",
+        "d1",
+        "d2",
+        "d3",
+        "d4",
+        "d5",
+        "d6",
+        "d7",
+        "da"
+      ],
       "x": 80,
       "y": 60
     },
     {
       "id": "xtal",
       "kind": "555",
-      "declName": "xtal_1.8432MHz",
-      "seat": {
-        "boardId": "bb4",
-        "leadMap": {
-          "gnd": "e3",
-          "trigger": "e4",
-          "output": "e5",
-          "reset": "e6",
-          "control": "f6",
-          "threshold": "f5",
-          "discharge": "f4",
-          "vcc": "f3"
-        }
-      },
       "params": {},
+      "terminals": [
+        "gnd",
+        "trigger",
+        "output",
+        "reset",
+        "control",
+        "threshold",
+        "discharge",
+        "vcc"
+      ],
       "x": 64,
       "y": 1391
     },
     {
-      "id": "bargraph",
-      "kind": "bargraph",
-      "declName": "statusLeds",
-      "seat": {
-        "boardId": "bb3",
-        "leadMap": {
-          "a0": "e20",
-          "a1": "e21",
-          "a2": "e22",
-          "a3": "e23",
-          "a4": "e24",
-          "a5": "e25",
-          "a6": "e26",
-          "a7": "e27",
-          "a8": "e28",
-          "a9": "e29",
-          "k0": "f20",
-          "k1": "f21",
-          "k2": "f22",
-          "k3": "f23",
-          "k4": "f24",
-          "k5": "f25",
-          "k6": "f26",
-          "k7": "f27",
-          "k8": "f28",
-          "k9": "f29"
-        }
-      },
-      "params": {},
-      "x": 302,
-      "y": 1031
-    },
-    {
       "id": "osc",
       "kind": "555",
-      "declName": "clock_1MHz",
-      "seat": {
-        "boardId": "bb4",
-        "leadMap": {
-          "gnd": "e10",
-          "trigger": "e11",
-          "output": "e12",
-          "reset": "e13",
-          "control": "f13",
-          "threshold": "f12",
-          "discharge": "f11",
-          "vcc": "f10"
-        }
-      },
       "params": {},
+      "terminals": [
+        "gnd",
+        "trigger",
+        "output",
+        "reset",
+        "control",
+        "threshold",
+        "discharge",
+        "vcc"
+      ],
       "x": 162,
       "y": 1391
     },
     {
       "id": "resetBtn",
       "kind": "button",
-      "declName": "reset",
-      "seat": {
-        "boardId": "bb4",
-        "leadMap": {
-          "a": "e38",
-          "b": "f38"
-        }
-      },
       "params": {},
+      "terminals": [
+        "a",
+        "b"
+      ],
       "x": 554,
       "y": 1391
     },
@@ -408,13 +350,10 @@
       "params": {
         "ohms": 10000
       },
-      "seat": {
-        "boardId": "bb3",
-        "leadMap": {
-          "a": "a53",
-          "b": "a57"
-        }
-      },
+      "terminals": [
+        "a",
+        "b"
+      ],
       "x": 764,
       "y": 975
     },
@@ -424,13 +363,10 @@
       "params": {
         "farads": 1e-7
       },
-      "seat": {
-        "boardId": "bb4",
-        "leadMap": {
-          "a": "a17",
-          "b": "a18"
-        }
-      },
+      "terminals": [
+        "a",
+        "b"
+      ],
       "x": 260,
       "y": 1335
     },
@@ -440,13 +376,10 @@
       "params": {
         "farads": 1e-7
       },
-      "seat": {
-        "boardId": "bb4",
-        "leadMap": {
-          "a": "a20",
-          "b": "a21"
-        }
-      },
+      "terminals": [
+        "a",
+        "b"
+      ],
       "x": 302,
       "y": 1335
     },
@@ -456,13 +389,10 @@
       "params": {
         "farads": 1e-7
       },
-      "seat": {
-        "boardId": "bb4",
-        "leadMap": {
-          "a": "a23",
-          "b": "a24"
-        }
-      },
+      "terminals": [
+        "a",
+        "b"
+      ],
       "x": 344,
       "y": 1335
     },
@@ -472,13 +402,10 @@
       "params": {
         "farads": 1e-7
       },
-      "seat": {
-        "boardId": "bb4",
-        "leadMap": {
-          "a": "a26",
-          "b": "a27"
-        }
-      },
+      "terminals": [
+        "a",
+        "b"
+      ],
       "x": 386,
       "y": 1335
     },
@@ -488,13 +415,10 @@
       "params": {
         "farads": 1e-7
       },
-      "seat": {
-        "boardId": "bb4",
-        "leadMap": {
-          "a": "a29",
-          "b": "a30"
-        }
-      },
+      "terminals": [
+        "a",
+        "b"
+      ],
       "x": 428,
       "y": 1335
     },
@@ -504,13 +428,10 @@
       "params": {
         "farads": 1e-7
       },
-      "seat": {
-        "boardId": "bb4",
-        "leadMap": {
-          "a": "a32",
-          "b": "a33"
-        }
-      },
+      "terminals": [
+        "a",
+        "b"
+      ],
       "x": 470,
       "y": 1335
     },
@@ -520,14 +441,10 @@
       "params": {
         "color": "red"
       },
-      "declName": "power",
-      "seat": {
-        "boardId": "bb4",
-        "leadMap": {
-          "anode": "a35",
-          "cathode": "a36"
-        }
-      },
+      "terminals": [
+        "anode",
+        "cathode"
+      ],
       "x": 512,
       "y": 1335
     },
@@ -537,13 +454,10 @@
       "params": {
         "ohms": 220
       },
-      "seat": {
-        "boardId": "bb1",
-        "leadMap": {
-          "a": "f49",
-          "b": "f53"
-        }
-      },
+      "terminals": [
+        "a",
+        "b"
+      ],
       "x": 708,
       "y": 349
     },
@@ -553,6 +467,9 @@
       "params": {
         "volts": 5
       },
+      "terminals": [
+        "vcc"
+      ],
       "x": 220,
       "y": 60
     },
@@ -560,6 +477,9 @@
       "id": "gnd1",
       "kind": "gnd",
       "params": {},
+      "terminals": [
+        "gnd"
+      ],
       "x": 360,
       "y": 60
     },
@@ -570,9 +490,14 @@
         "ohms": 10000,
         "position": 0.15
       },
-      "rotation": 0,
+      "terminals": [
+        "a",
+        "wiper",
+        "b"
+      ],
       "x": 150,
-      "y": 620
+      "y": 620,
+      "rotation": 0
     }
   ],
   "wires": [
@@ -938,10 +863,70 @@
     },
     {
       "id": "w_flat_30",
+      "netId": "bb1:n-col-b27",
+      "from": {
+        "part": "kbd",
+        "terminal": "d0"
+      },
+      "to": {
+        "part": "via",
+        "terminal": "pa0"
+      }
+    },
+    {
+      "id": "w_flat_31",
+      "netId": "bb1:n-col-b28",
+      "from": {
+        "part": "kbd",
+        "terminal": "d1"
+      },
+      "to": {
+        "part": "via",
+        "terminal": "pa1"
+      }
+    },
+    {
+      "id": "w_flat_32",
+      "netId": "bb1:n-col-b29",
+      "from": {
+        "part": "kbd",
+        "terminal": "d2"
+      },
+      "to": {
+        "part": "via",
+        "terminal": "pa2"
+      }
+    },
+    {
+      "id": "w_flat_33",
+      "netId": "bb1:n-col-b30",
+      "from": {
+        "part": "kbd",
+        "terminal": "d3"
+      },
+      "to": {
+        "part": "via",
+        "terminal": "pa3"
+      }
+    },
+    {
+      "id": "w_flat_34",
+      "netId": "bb1:n-col-b31",
+      "from": {
+        "part": "kbd",
+        "terminal": "d4"
+      },
+      "to": {
+        "part": "via",
+        "terminal": "pa4"
+      }
+    },
+    {
+      "id": "w_flat_35",
       "netId": "bb1:n-col-b32",
       "from": {
-        "part": "lcd",
-        "terminal": "rs"
+        "part": "kbd",
+        "terminal": "d5"
       },
       "to": {
         "part": "via",
@@ -949,11 +934,11 @@
       }
     },
     {
-      "id": "w_flat_31",
+      "id": "w_flat_36",
       "netId": "bb1:n-col-b33",
       "from": {
-        "part": "lcd",
-        "terminal": "rw"
+        "part": "kbd",
+        "terminal": "d6"
       },
       "to": {
         "part": "via",
@@ -961,11 +946,11 @@
       }
     },
     {
-      "id": "w_flat_32",
+      "id": "w_flat_37",
       "netId": "bb1:n-col-b34",
       "from": {
-        "part": "lcd",
-        "terminal": "e"
+        "part": "kbd",
+        "terminal": "d7"
       },
       "to": {
         "part": "via",
@@ -973,11 +958,11 @@
       }
     },
     {
-      "id": "w_flat_33",
+      "id": "w_flat_38",
       "netId": "bb1:n-col-b35",
       "from": {
         "part": "lcd",
-        "terminal": "d0"
+        "terminal": "rs"
       },
       "to": {
         "part": "via",
@@ -985,11 +970,11 @@
       }
     },
     {
-      "id": "w_flat_34",
+      "id": "w_flat_39",
       "netId": "bb1:n-col-b36",
       "from": {
         "part": "lcd",
-        "terminal": "d1"
+        "terminal": "rw"
       },
       "to": {
         "part": "via",
@@ -997,11 +982,11 @@
       }
     },
     {
-      "id": "w_flat_35",
+      "id": "w_flat_40",
       "netId": "bb1:n-col-b37",
       "from": {
         "part": "lcd",
-        "terminal": "d2"
+        "terminal": "e"
       },
       "to": {
         "part": "via",
@@ -1009,19 +994,7 @@
       }
     },
     {
-      "id": "w_flat_36",
-      "netId": "bb1:n-col-b38",
-      "from": {
-        "part": "lcd",
-        "terminal": "d3"
-      },
-      "to": {
-        "part": "via",
-        "terminal": "pb3"
-      }
-    },
-    {
-      "id": "w_flat_37",
+      "id": "w_flat_41",
       "netId": "bb1:n-col-b39",
       "from": {
         "part": "lcd",
@@ -1033,54 +1006,6 @@
       }
     },
     {
-      "id": "w_flat_38",
-      "netId": "bb1:n-col-b4",
-      "from": {
-        "part": "acia",
-        "terminal": "vdd"
-      },
-      "to": {
-        "part": "c_acia",
-        "terminal": "a"
-      }
-    },
-    {
-      "id": "w_flat_39",
-      "netId": "bb1:n-col-b4",
-      "from": {
-        "part": "acia",
-        "terminal": "vdd"
-      },
-      "to": {
-        "part": "c_cpu",
-        "terminal": "a"
-      }
-    },
-    {
-      "id": "w_flat_40",
-      "netId": "bb1:n-col-b4",
-      "from": {
-        "part": "acia",
-        "terminal": "vdd"
-      },
-      "to": {
-        "part": "c_glue1",
-        "terminal": "a"
-      }
-    },
-    {
-      "id": "w_flat_41",
-      "netId": "bb1:n-col-b4",
-      "from": {
-        "part": "acia",
-        "terminal": "vdd"
-      },
-      "to": {
-        "part": "c_ram",
-        "terminal": "a"
-      }
-    },
-    {
       "id": "w_flat_42",
       "netId": "bb1:n-col-b4",
       "from": {
@@ -1088,7 +1013,7 @@
         "terminal": "vdd"
       },
       "to": {
-        "part": "c_rom",
+        "part": "c_acia",
         "terminal": "a"
       }
     },
@@ -1100,7 +1025,7 @@
         "terminal": "vdd"
       },
       "to": {
-        "part": "c_via",
+        "part": "c_cpu",
         "terminal": "a"
       }
     },
@@ -1112,7 +1037,7 @@
         "terminal": "vdd"
       },
       "to": {
-        "part": "contrast",
+        "part": "c_glue1",
         "terminal": "a"
       }
     },
@@ -1124,8 +1049,8 @@
         "terminal": "vdd"
       },
       "to": {
-        "part": "cpu",
-        "terminal": "be"
+        "part": "c_ram",
+        "terminal": "a"
       }
     },
     {
@@ -1136,8 +1061,8 @@
         "terminal": "vdd"
       },
       "to": {
-        "part": "cpu",
-        "terminal": "irqb"
+        "part": "c_rom",
+        "terminal": "a"
       }
     },
     {
@@ -1148,8 +1073,8 @@
         "terminal": "vdd"
       },
       "to": {
-        "part": "cpu",
-        "terminal": "nmib"
+        "part": "c_via",
+        "terminal": "a"
       }
     },
     {
@@ -1160,8 +1085,8 @@
         "terminal": "vdd"
       },
       "to": {
-        "part": "cpu",
-        "terminal": "rdy"
+        "part": "contrast",
+        "terminal": "a"
       }
     },
     {
@@ -1173,7 +1098,7 @@
       },
       "to": {
         "part": "cpu",
-        "terminal": "vdd"
+        "terminal": "be"
       }
     },
     {
@@ -1184,8 +1109,8 @@
         "terminal": "vdd"
       },
       "to": {
-        "part": "glue1",
-        "terminal": "vcc"
+        "part": "cpu",
+        "terminal": "irqb"
       }
     },
     {
@@ -1196,8 +1121,8 @@
         "terminal": "vdd"
       },
       "to": {
-        "part": "glue2",
-        "terminal": "vcc"
+        "part": "cpu",
+        "terminal": "nmib"
       }
     },
     {
@@ -1208,8 +1133,8 @@
         "terminal": "vdd"
       },
       "to": {
-        "part": "lcd",
-        "terminal": "a"
+        "part": "cpu",
+        "terminal": "rdy"
       }
     },
     {
@@ -1220,7 +1145,7 @@
         "terminal": "vdd"
       },
       "to": {
-        "part": "lcd",
+        "part": "cpu",
         "terminal": "vdd"
       }
     },
@@ -1232,7 +1157,7 @@
         "terminal": "vdd"
       },
       "to": {
-        "part": "osc",
+        "part": "glue1",
         "terminal": "vcc"
       }
     },
@@ -1244,8 +1169,8 @@
         "terminal": "vdd"
       },
       "to": {
-        "part": "pwrR",
-        "terminal": "a"
+        "part": "glue2",
+        "terminal": "vcc"
       }
     },
     {
@@ -1256,8 +1181,8 @@
         "terminal": "vdd"
       },
       "to": {
-        "part": "ram",
-        "terminal": "vcc"
+        "part": "lcd",
+        "terminal": "a"
       }
     },
     {
@@ -1268,8 +1193,8 @@
         "terminal": "vdd"
       },
       "to": {
-        "part": "resetR",
-        "terminal": "a"
+        "part": "lcd",
+        "terminal": "vdd"
       }
     },
     {
@@ -1280,7 +1205,7 @@
         "terminal": "vdd"
       },
       "to": {
-        "part": "rom",
+        "part": "osc",
         "terminal": "vcc"
       }
     },
@@ -1292,12 +1217,60 @@
         "terminal": "vdd"
       },
       "to": {
+        "part": "pwrR",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "w_flat_60",
+      "netId": "bb1:n-col-b4",
+      "from": {
+        "part": "acia",
+        "terminal": "vdd"
+      },
+      "to": {
+        "part": "ram",
+        "terminal": "vcc"
+      }
+    },
+    {
+      "id": "w_flat_61",
+      "netId": "bb1:n-col-b4",
+      "from": {
+        "part": "acia",
+        "terminal": "vdd"
+      },
+      "to": {
+        "part": "resetR",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "w_flat_62",
+      "netId": "bb1:n-col-b4",
+      "from": {
+        "part": "acia",
+        "terminal": "vdd"
+      },
+      "to": {
+        "part": "rom",
+        "terminal": "vcc"
+      }
+    },
+    {
+      "id": "w_flat_63",
+      "netId": "bb1:n-col-b4",
+      "from": {
+        "part": "acia",
+        "terminal": "vdd"
+      },
+      "to": {
         "part": "vcc1",
         "terminal": "vcc"
       }
     },
     {
-      "id": "w_flat_60",
+      "id": "w_flat_64",
       "netId": "bb1:n-col-b4",
       "from": {
         "part": "acia",
@@ -1309,7 +1282,7 @@
       }
     },
     {
-      "id": "w_flat_61",
+      "id": "w_flat_65",
       "netId": "bb1:n-col-b4",
       "from": {
         "part": "acia",
@@ -1321,7 +1294,7 @@
       }
     },
     {
-      "id": "w_flat_62",
+      "id": "w_flat_66",
       "netId": "bb1:n-col-b40",
       "from": {
         "part": "lcd",
@@ -1333,7 +1306,7 @@
       }
     },
     {
-      "id": "w_flat_63",
+      "id": "w_flat_67",
       "netId": "bb1:n-col-b41",
       "from": {
         "part": "lcd",
@@ -1345,7 +1318,7 @@
       }
     },
     {
-      "id": "w_flat_64",
+      "id": "w_flat_68",
       "netId": "bb1:n-col-b42",
       "from": {
         "part": "lcd",
@@ -1357,7 +1330,7 @@
       }
     },
     {
-      "id": "w_flat_65",
+      "id": "w_flat_69",
       "netId": "bb1:n-col-b53",
       "from": {
         "part": "pwrLed",
@@ -1369,7 +1342,7 @@
       }
     },
     {
-      "id": "w_flat_66",
+      "id": "w_flat_70",
       "netId": "bb1:n-col-t18",
       "from": {
         "part": "cpu",
@@ -1381,7 +1354,7 @@
       }
     },
     {
-      "id": "w_flat_67",
+      "id": "w_flat_71",
       "netId": "bb1:n-col-t18",
       "from": {
         "part": "cpu",
@@ -1393,7 +1366,7 @@
       }
     },
     {
-      "id": "w_flat_68",
+      "id": "w_flat_72",
       "netId": "bb1:n-col-t19",
       "from": {
         "part": "cpu",
@@ -1405,7 +1378,7 @@
       }
     },
     {
-      "id": "w_flat_69",
+      "id": "w_flat_73",
       "netId": "bb1:n-col-t19",
       "from": {
         "part": "cpu",
@@ -1417,7 +1390,7 @@
       }
     },
     {
-      "id": "w_flat_70",
+      "id": "w_flat_74",
       "netId": "bb1:n-col-t19",
       "from": {
         "part": "cpu",
@@ -1429,7 +1402,7 @@
       }
     },
     {
-      "id": "w_flat_71",
+      "id": "w_flat_75",
       "netId": "bb1:n-col-t19",
       "from": {
         "part": "cpu",
@@ -1441,7 +1414,7 @@
       }
     },
     {
-      "id": "w_flat_72",
+      "id": "w_flat_76",
       "netId": "bb1:n-col-t19",
       "from": {
         "part": "cpu",
@@ -1453,7 +1426,7 @@
       }
     },
     {
-      "id": "w_flat_73",
+      "id": "w_flat_77",
       "netId": "bb1:n-col-t20",
       "from": {
         "part": "cpu",
@@ -1465,7 +1438,7 @@
       }
     },
     {
-      "id": "w_flat_74",
+      "id": "w_flat_78",
       "netId": "bb1:n-col-t20",
       "from": {
         "part": "cpu",
@@ -1477,7 +1450,7 @@
       }
     },
     {
-      "id": "w_flat_75",
+      "id": "w_flat_79",
       "netId": "bb1:n-col-t20",
       "from": {
         "part": "cpu",
@@ -1489,7 +1462,7 @@
       }
     },
     {
-      "id": "w_flat_76",
+      "id": "w_flat_80",
       "netId": "bb1:n-col-t20",
       "from": {
         "part": "cpu",
@@ -1501,7 +1474,7 @@
       }
     },
     {
-      "id": "w_flat_77",
+      "id": "w_flat_81",
       "netId": "bb1:n-col-t20",
       "from": {
         "part": "cpu",
@@ -1513,7 +1486,7 @@
       }
     },
     {
-      "id": "w_flat_78",
+      "id": "w_flat_82",
       "netId": "bb1:n-col-t21",
       "from": {
         "part": "acia",
@@ -1525,7 +1498,7 @@
       }
     },
     {
-      "id": "w_flat_79",
+      "id": "w_flat_83",
       "netId": "bb1:n-col-t21",
       "from": {
         "part": "acia",
@@ -1537,7 +1510,7 @@
       }
     },
     {
-      "id": "w_flat_80",
+      "id": "w_flat_84",
       "netId": "bb1:n-col-t21",
       "from": {
         "part": "acia",
@@ -1549,7 +1522,19 @@
       }
     },
     {
-      "id": "w_flat_81",
+      "id": "w_flat_85",
+      "netId": "bb1:n-col-t26",
+      "from": {
+        "part": "kbd",
+        "terminal": "da"
+      },
+      "to": {
+        "part": "via",
+        "terminal": "ca1"
+      }
+    },
+    {
+      "id": "w_flat_86",
       "netId": "bb1:n-col-t3",
       "from": {
         "part": "cpu",
@@ -1561,7 +1546,7 @@
       }
     },
     {
-      "id": "w_flat_82",
+      "id": "w_flat_87",
       "netId": "bb1:n-col-t3",
       "from": {
         "part": "cpu",
@@ -1573,7 +1558,7 @@
       }
     },
     {
-      "id": "w_flat_83",
+      "id": "w_flat_88",
       "netId": "bb1:n-col-t43",
       "from": {
         "part": "glue1",
@@ -1585,7 +1570,7 @@
       }
     },
     {
-      "id": "w_flat_84",
+      "id": "w_flat_89",
       "netId": "bb1:n-col-t43",
       "from": {
         "part": "glue1",
@@ -1597,7 +1582,7 @@
       }
     },
     {
-      "id": "w_flat_85",
+      "id": "w_flat_90",
       "netId": "bb1:n-col-t43",
       "from": {
         "part": "glue1",
@@ -1609,7 +1594,7 @@
       }
     },
     {
-      "id": "w_flat_86",
+      "id": "w_flat_91",
       "netId": "bb1:rail-b-",
       "from": {
         "part": "acia",
@@ -1621,7 +1606,7 @@
       }
     },
     {
-      "id": "w_flat_87",
+      "id": "w_flat_92",
       "netId": "bb1:rail-b-",
       "from": {
         "part": "acia",
@@ -1633,7 +1618,7 @@
       }
     },
     {
-      "id": "w_flat_88",
+      "id": "w_flat_93",
       "netId": "bb1:rail-b-",
       "from": {
         "part": "acia",
@@ -1645,7 +1630,7 @@
       }
     },
     {
-      "id": "w_flat_89",
+      "id": "w_flat_94",
       "netId": "bb1:rail-b-",
       "from": {
         "part": "acia",
@@ -1657,7 +1642,7 @@
       }
     },
     {
-      "id": "w_flat_90",
+      "id": "w_flat_95",
       "netId": "bb1:rail-b-",
       "from": {
         "part": "acia",
@@ -1669,7 +1654,7 @@
       }
     },
     {
-      "id": "w_flat_91",
+      "id": "w_flat_96",
       "netId": "bb1:rail-b-",
       "from": {
         "part": "acia",
@@ -1681,7 +1666,7 @@
       }
     },
     {
-      "id": "w_flat_92",
+      "id": "w_flat_97",
       "netId": "bb1:rail-b-",
       "from": {
         "part": "acia",
@@ -1693,7 +1678,7 @@
       }
     },
     {
-      "id": "w_flat_93",
+      "id": "w_flat_98",
       "netId": "bb1:rail-b-",
       "from": {
         "part": "acia",
@@ -1705,66 +1690,6 @@
       }
     },
     {
-      "id": "w_flat_94",
-      "netId": "bb1:rail-b-",
-      "from": {
-        "part": "acia",
-        "terminal": "vss"
-      },
-      "to": {
-        "part": "glue1",
-        "terminal": "gnd"
-      }
-    },
-    {
-      "id": "w_flat_95",
-      "netId": "bb1:rail-b-",
-      "from": {
-        "part": "acia",
-        "terminal": "vss"
-      },
-      "to": {
-        "part": "glue2",
-        "terminal": "gnd"
-      }
-    },
-    {
-      "id": "w_flat_96",
-      "netId": "bb1:rail-b-",
-      "from": {
-        "part": "acia",
-        "terminal": "vss"
-      },
-      "to": {
-        "part": "gnd1",
-        "terminal": "gnd"
-      }
-    },
-    {
-      "id": "w_flat_97",
-      "netId": "bb1:rail-b-",
-      "from": {
-        "part": "acia",
-        "terminal": "vss"
-      },
-      "to": {
-        "part": "lcd",
-        "terminal": "k"
-      }
-    },
-    {
-      "id": "w_flat_98",
-      "netId": "bb1:rail-b-",
-      "from": {
-        "part": "acia",
-        "terminal": "vss"
-      },
-      "to": {
-        "part": "lcd",
-        "terminal": "vss"
-      }
-    },
-    {
       "id": "w_flat_99",
       "netId": "bb1:rail-b-",
       "from": {
@@ -1772,7 +1697,7 @@
         "terminal": "vss"
       },
       "to": {
-        "part": "osc",
+        "part": "glue1",
         "terminal": "gnd"
       }
     },
@@ -1784,8 +1709,8 @@
         "terminal": "vss"
       },
       "to": {
-        "part": "pwrLed",
-        "terminal": "cathode"
+        "part": "glue2",
+        "terminal": "gnd"
       }
     },
     {
@@ -1796,7 +1721,7 @@
         "terminal": "vss"
       },
       "to": {
-        "part": "ram",
+        "part": "gnd1",
         "terminal": "gnd"
       }
     },
@@ -1808,12 +1733,72 @@
         "terminal": "vss"
       },
       "to": {
+        "part": "lcd",
+        "terminal": "k"
+      }
+    },
+    {
+      "id": "w_flat_103",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "acia",
+        "terminal": "vss"
+      },
+      "to": {
+        "part": "lcd",
+        "terminal": "vss"
+      }
+    },
+    {
+      "id": "w_flat_104",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "acia",
+        "terminal": "vss"
+      },
+      "to": {
+        "part": "osc",
+        "terminal": "gnd"
+      }
+    },
+    {
+      "id": "w_flat_105",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "acia",
+        "terminal": "vss"
+      },
+      "to": {
+        "part": "pwrLed",
+        "terminal": "cathode"
+      }
+    },
+    {
+      "id": "w_flat_106",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "acia",
+        "terminal": "vss"
+      },
+      "to": {
+        "part": "ram",
+        "terminal": "gnd"
+      }
+    },
+    {
+      "id": "w_flat_107",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "acia",
+        "terminal": "vss"
+      },
+      "to": {
         "part": "resetBtn",
         "terminal": "b"
       }
     },
     {
-      "id": "w_flat_103",
+      "id": "w_flat_108",
       "netId": "bb1:rail-b-",
       "from": {
         "part": "acia",
@@ -1825,7 +1810,7 @@
       }
     },
     {
-      "id": "w_flat_104",
+      "id": "w_flat_109",
       "netId": "bb1:rail-b-",
       "from": {
         "part": "acia",
@@ -1837,7 +1822,7 @@
       }
     },
     {
-      "id": "w_flat_105",
+      "id": "w_flat_110",
       "netId": "bb1:rail-b-",
       "from": {
         "part": "acia",
@@ -1849,7 +1834,7 @@
       }
     },
     {
-      "id": "w_flat_106",
+      "id": "w_flat_111",
       "netId": "bb2:n-col-t30",
       "from": {
         "part": "glue1",
@@ -1861,7 +1846,7 @@
       }
     },
     {
-      "id": "w_flat_107",
+      "id": "w_flat_112",
       "netId": "bb2:n-col-t47",
       "from": {
         "part": "glue1",
@@ -1873,7 +1858,7 @@
       }
     },
     {
-      "id": "w_flat_108",
+      "id": "w_flat_113",
       "netId": "bb2:n-col-t47",
       "from": {
         "part": "glue1",
@@ -1885,7 +1870,7 @@
       }
     },
     {
-      "id": "w_flat_109",
+      "id": "w_flat_114",
       "netId": "bb2:n-col-t47",
       "from": {
         "part": "glue1",
@@ -1897,7 +1882,7 @@
       }
     },
     {
-      "id": "w_flat_110",
+      "id": "w_flat_115",
       "netId": "bb2:n-col-t5",
       "from": {
         "part": "contrast",
@@ -1909,7 +1894,7 @@
       }
     },
     {
-      "id": "w_flat_111",
+      "id": "w_flat_116",
       "netId": "bb3:n-col-b38",
       "from": {
         "part": "glue1",
@@ -1921,7 +1906,7 @@
       }
     },
     {
-      "id": "w_flat_112",
+      "id": "w_flat_117",
       "netId": "bb3:n-col-b45",
       "from": {
         "part": "glue2",
@@ -1933,7 +1918,7 @@
       }
     },
     {
-      "id": "w_flat_113",
+      "id": "w_flat_118",
       "netId": "bb3:n-col-b48",
       "from": {
         "part": "glue2",
@@ -1945,7 +1930,7 @@
       }
     },
     {
-      "id": "w_flat_114",
+      "id": "w_flat_119",
       "netId": "bb3:n-col-b5",
       "from": {
         "part": "acia",

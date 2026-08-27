@@ -15,7 +15,7 @@
     "debug-trace-audit": 17,
     "circuit-params-are-read": 276,
     "program-reads-what-it-writes": 278,
-    "vm-and-c-agree-on-arithmetic": 127,
+    "vm-and-c-agree-on-arithmetic": 126,
     "documented-tables-are-derived": 4,
     "vm": 278,
     "simulator-driver-controls-respond": 34,
@@ -2285,8 +2285,7 @@
       "gallery",
       "index-metadata-matches-disk",
       "program-reads-what-it-writes",
-      "vm",
-      "vm-and-c-agree-on-arithmetic"
+      "vm"
     ],
     "eater6502-vdp-hello": [
       "assert-physics",

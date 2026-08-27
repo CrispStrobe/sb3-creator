@@ -7098,9 +7098,9 @@
       "dir": "eater6502-full-build",
       "flat": "circuit-flat.json",
       "twin": "circuit.json",
-      "flatSha": "621ccb9b8a61b1486d6c0d4772755c701fd7327a713facf7f26f2438f08357dc",
-      "twinSha": "4f78e21579216c7b1ab92a238e173f531e65b4b1ca4a85a23955ea01933f3917",
-      "partitionSha": "2032ef32cbe012fcd7e81bf0fdabf8d2452aed263bd9c16f7d6d9a428741db60"
+      "flatSha": "7047e26ecdc2f6193d407ed3143295cebb19cb3fd5f2e2d05d6529950fce2ce7",
+      "twinSha": "2552b539e88f810cd9c4de3fdb7e9a5fe9eb29600f2a200a16abf1d11d145d00",
+      "partitionSha": "6c27741633c7451615896836c100219aea850d1e30bfa9fc60deb988615d1baf"
     },
     {
       "dir": "eater6502-vdp-hello",
