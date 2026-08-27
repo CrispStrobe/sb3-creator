@@ -59,3 +59,20 @@ test('a literal plot still lowers exactly as it did', () => {
     const py = mp('plot x 2 y 3 on');
     assert.ok(py.includes('display.set_pixel(int(2), int(3), 9)'), py);
 });
+
+test('arrays reach the device: the registry the reporters read is filled', () => {
+    // Two halves of one bug. The reporters emitted `_arrays.length(…)`
+    // whether or not anything defined `_arrays` — a NameError at the first
+    // array read, reported as nothing — and the array COMMANDS fell through
+    // to `pass`, so even with a registry it would have been empty.
+    const py = mp([
+        'new array "liste" = [1, 2, 3]',
+        '    push 4 to array "liste"',
+        '    show text (length of array "liste")'
+    ].join('\n'));
+    assert.match(py, /_arrays = _Arrays\(\)/, 'the registry is used but never defined');
+    assert.match(py, /import json/, 'the shim parses its literal with json');
+    assert.match(py, /_arrays\.create1d\("liste"/, py);
+    assert.match(py, /_arrays\.push\("liste", 4\)/, py);
+    assert.doesNotMatch(py, /pass  # arrays_/, 'an array command lowered to nothing');
+});

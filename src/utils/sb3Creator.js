@@ -8765,6 +8765,14 @@ class SB3Creator {
                     if (isPico) { uses.oled = true; return [`${pad}_oled_print(${v('TEXT')})`]; }
                     break;
                 default: {
+                    // The Arrays & Vectors commands lower through the same
+                    // reversible-op table the reporters already use, so the
+                    // registry the reporters read actually gets filled. Left
+                    // to the fall-through they became `pass`, and a program
+                    // that pushed to an array then read its length got the
+                    // length of an array nothing had ever written to.
+                    const ac = this.arraysCall(b, blocks, this.pyVal);
+                    if (ac) return [`${pad}${ac.call}`];
                     const desc = this.decompileBlock ? this.decompileBlock(b, blocks) : b.opcode;
                     degrade(`${b.opcode} has no ${isPico ? 'Pico' : 'micro:bit'} form yet (${String(desc).slice(0, 40)})`);
                     return [`${pad}pass  # ${b.opcode}`];
@@ -8947,6 +8955,13 @@ class SB3Creator {
         // debugger's.
         header.push('_bw_false = False')
         if (uses.radio) header.push('import radio');
+        // The reporters emit `_arrays.<method>(…)` whether or not anything
+        // defines `_arrays`. Without this the device raised NameError at the
+        // first array read, and nothing in the result said so.
+        if (this._pyUses.arrays) {
+            if (!header.includes('import json')) header.push('import json');
+            header.push('', ...this.arraysShimPy(), '_arrays = _Arrays()');
+        }
         if (uses._pitch) header.push('', 'def _pitch():', '    x, y, z = accelerometer.get_values()', '    return math.atan2(-y, -z) * 180 / math.pi');
         if (uses._roll) header.push('', 'def _roll():', '    x, y, z = accelerometer.get_values()', '    return math.atan2(x, -z) * 180 / math.pi');
         // BrickWright debug instrumentation. _bw_pos(n) prints a position marker
