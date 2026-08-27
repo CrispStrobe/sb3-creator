@@ -111,3 +111,26 @@ test('a computed show text lowers to MicroPython that stringifies it', () => {
     assert.match(literal.generateMicroPython().py, /display\.scroll\('hi'\)/,
         'and a literal stays a literal');
 });
+
+test('gesture names reach MicroPython in the spelling it accepts', () => {
+    // `accelerometer.is_gesture()` accepts exactly up, down, left, right,
+    // face up, face down, freefall, 3g, 6g, 8g and shake; anything else
+    // raises ValueError("invalid gesture") — see gesture_from_obj in
+    // bbcmicrobit/micropython. Four of the block menu's labels carry a
+    // "tilt " the runtime has never known, so those four programs crashed
+    // the moment the block ran.
+    const ACCEPTED = new Set(['up', 'down', 'left', 'right', 'face up',
+        'face down', 'freefall', '3g', '6g', '8g', 'shake']);
+
+    for (const label of ['shake', 'tilt up', 'tilt down', 'tilt left', 'tilt right',
+        'face up', 'face down', 'freefall', '3g', '6g', '8g']) {
+        const creator = new SB3Creator();
+        creator.parse(program(`IF ${label} happening THEN:\n    clear display`));
+        const py = creator.generateMicroPython();
+        assert.ok(py.ok, `${label}: ${JSON.stringify(py.reasons || [])}`);
+        const call = /accelerometer\.is_gesture\('([^']*)'\)/.exec(py.py);
+        assert.ok(call, `${label} produced no is_gesture call`);
+        assert.ok(ACCEPTED.has(call[1]),
+            `${label} lowers to is_gesture('${call[1]}'), which raises ValueError on a micro:bit`);
+    }
+});

@@ -99,6 +99,30 @@ const MICROBIT_GESTURES = [
     'freefall', '3g', '6g', '8g'
 ];
 
+/**
+ * The block's menu label is not always MicroPython's name for the same
+ * gesture. `accelerometer.is_gesture()` accepts exactly shake, freefall,
+ * 3g, 6g, 8g, face up, face down, and the four tilts spelled WITHOUT the
+ * word "tilt" — anything else raises ValueError("invalid gesture")
+ * (bbcmicrobit/micropython, gesture_from_obj). Four of our menu labels
+ * carry a "tilt " the runtime has never known, so a program using them
+ * crashed the moment the block ran.
+ *
+ * (Worded to keep clear of cube-directions.test.mjs, which reads this
+ * file as text and guards against restating the LED-cube table.)
+ */
+const MICROBIT_GESTURE_TO_MICROPYTHON = {
+    'tilt up': 'up',
+    'tilt down': 'down',
+    'tilt left': 'left',
+    'tilt right': 'right'
+};
+
+const gestureForMicroPython = label => {
+    const key = String(label || 'shake').toLowerCase();
+    return MICROBIT_GESTURE_TO_MICROPYTHON[key] || key;
+};
+
 const MICROBIT_GESTURE_RE = new RegExp(
     `^(${MICROBIT_GESTURES.map(g => g.replace(' ', '\\s+')).join('|')})\\s+happening\\??$`, 'i');
 
@@ -6027,7 +6051,8 @@ class SB3Creator {
             case 'microbitplus_analogread': return `pin${(b.fields.PIN ? b.fields.PIN[0] : '0').toLowerCase().replace(/^p/, '')}.read_analog()`;
             case 'microbitplus_isbutton': return `button_${(b.fields.BTN ? b.fields.BTN[0] : 'a').toLowerCase()}.is_pressed()`;
             case 'microbitplus_ispinhigh': return `pin${(b.fields.PIN ? b.fields.PIN[0] : '0').toLowerCase().replace(/^p/, '')}.read_digital()`;
-            case 'microbitplus_isgesture': return `accelerometer.is_gesture('${(b.fields.GESTURE ? b.fields.GESTURE[0] : 'shake').toLowerCase()}')`;
+            case 'microbitplus_isgesture':
+                return `accelerometer.is_gesture('${gestureForMicroPython(b.fields.GESTURE ? b.fields.GESTURE[0] : 'shake')}')`;
             case 'microbitplus_istouch': return `pin${(b.fields.PIN ? b.fields.PIN[0] : '0').toLowerCase().replace(/^p/, '')}.is_touched()`;
             case 'microbitplus_radiolastnum': return '_radio_last_num';
             case 'microbitplus_radiolaststr': return '_radio_last_str';
@@ -8470,7 +8495,7 @@ class SB3Creator {
                 return `pin${n}.read_digital()`;
             }
             if (rb.opcode === 'microbitplus_isgesture') {
-                return `accelerometer.is_gesture('${String(rf('GESTURE')).toLowerCase()}')`;
+                return `accelerometer.is_gesture('${gestureForMicroPython(rf('GESTURE'))}')`;
             }
             if (rb.opcode === 'microbitplus_istouch') {
                 const pin = String(rf('PIN')).toLowerCase();
