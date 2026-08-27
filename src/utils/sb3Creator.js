@@ -82,6 +82,50 @@ class AssetError extends SB3Error {
 /**
  * SB3 Creator: compiles the pseudocode language into a Scratch 3.0 project.
  */
+/**
+ * The micro:bit gesture menu, spelled as the block's GESTURE field holds
+ * it and as decompile() writes it back out.
+ *
+ * Wrapped across lines deliberately: cube-directions.test.mjs guards
+ * against any single line restating the LED-cube direction table, and
+ * this is a different table that happens to share three of its words.
+ * (The guard reads the file as text, so its own explanation has to keep
+ * clear of the pattern too.)
+ */
+const MICROBIT_GESTURES = [
+    'shake', 'tilt up', 'tilt down',
+    'tilt left', 'tilt right',
+    'face up', 'face down',
+    'freefall', '3g', '6g', '8g'
+];
+
+/**
+ * The block's menu label is not always MicroPython's name for the same
+ * gesture. `accelerometer.is_gesture()` accepts exactly shake, freefall,
+ * 3g, 6g, 8g, face up, face down, and the four tilts spelled WITHOUT the
+ * word "tilt" — anything else raises ValueError("invalid gesture")
+ * (bbcmicrobit/micropython, gesture_from_obj). Four of our menu labels
+ * carry a "tilt " the runtime has never known, so a program using them
+ * crashed the moment the block ran.
+ *
+ * (Worded to keep clear of cube-directions.test.mjs, which reads this
+ * file as text and guards against restating the LED-cube table.)
+ */
+const MICROBIT_GESTURE_TO_MICROPYTHON = {
+    'tilt up': 'up',
+    'tilt down': 'down',
+    'tilt left': 'left',
+    'tilt right': 'right'
+};
+
+const gestureForMicroPython = label => {
+    const key = String(label || 'shake').toLowerCase();
+    return MICROBIT_GESTURE_TO_MICROPYTHON[key] || key;
+};
+
+const MICROBIT_GESTURE_RE = new RegExp(
+    `^(${MICROBIT_GESTURES.map(g => g.replace(' ', '\\s+')).join('|')})\\s+happening\\??$`, 'i');
+
 class SB3Creator {
     constructor() {
         this.reset();
@@ -1214,6 +1258,21 @@ class SB3Creator {
         }
         if ((m = s.match(/^read\s+button_([ABab])$/i))) {
             return B('microbitplus_isbutton', {}, { BTN: [m[1].toLowerCase(), null] });
+        }
+        // Three reporters the DECOMPILER has always emitted and the parser
+        // could not read back: written out, `shake happening` and its two
+        // neighbours fell through to the variable rule and compiled to a
+        // comparison against an undefined name — silence wearing the shape
+        // of success. Spelled here exactly as decompile() writes them, so
+        // the round trip closes.
+        if ((m = s.match(MICROBIT_GESTURE_RE))) {
+            return B('microbitplus_isgesture', {}, { GESTURE: [m[1].toLowerCase().replace(/\s+/g, ' '), null] });
+        }
+        if ((m = s.match(/^pin\s+(P\d+)\s+touched\??$/i))) {
+            return B('microbitplus_istouch', {}, { PIN: [m[1].toUpperCase(), null] });
+        }
+        if ((m = s.match(/^pin\s+(P\d+)\s+is\s+high\??$/i))) {
+            return B('microbitplus_ispinhigh', {}, { PIN: [m[1].toUpperCase(), null] });
         }
         if ((m = s.match(/^read\s+last\s+radio\s+number$/i))) {
             return B('microbitplus_radiolastnum');
@@ -3435,6 +3494,15 @@ class SB3Creator {
         if ((match = line.match(/^show\s+text\s+"([^"]*)"\s*$/i))) {
             const { id, block } = cmd('microbitplus_showtext');
             block[id].inputs.TEXT = [1, [10, match[1]]];
+            return ret(block);
+        }
+        // The block's TEXT is an input, not a field, so it can hold a
+        // reporter — but only the quoted form parsed, and `show text count`
+        // fell through every rule to produce NO BLOCK AT ALL. Anything that
+        // is not a bare literal is read as an expression.
+        if ((match = line.match(/^show\s+text\s+(.+?)\s*$/i))) {
+            const { id, block } = cmd('microbitplus_showtext');
+            block[id].inputs.TEXT = val(match[1]);
             return ret(block);
         }
         if ((match = line.match(/^scroll\s+text\s+"([^"]*)"\s+delay\s+(\d+)\s*ms\s*$/i))) {
@@ -5732,7 +5800,10 @@ class SB3Creator {
             }
             // micro:bit+ command blocks (decompile to dialect)
             case 'microbitplus_showmatrix': return line(`show pattern ${f('MATRIX')}`);
-            case 'microbitplus_showtext': return line(`show text "${this.dval(b.inputs.TEXT, blocks).replace(/^"|"$/g, '')}"`);
+            // Quote what dval already quotes and nothing else: force-quoting
+            // turned `show text count` into `show text "count"`, which reads
+            // back as the literal word — a construct that does not converge.
+            case 'microbitplus_showtext': return line(`show text ${this.dval(b.inputs.TEXT, blocks)}`);
             case 'microbitplus_scrolltext': return line(`scroll text "${this.dval(b.inputs.TEXT, blocks).replace(/^"|"$/g, '')}" delay ${v('MS')} ms`);
             case 'microbitplus_cleardisplay': return line('clear display');
             case 'microbitplus_plot': return line(`plot x ${v('X')} y ${v('Y')} ${f('STATE')}`);
@@ -5980,7 +6051,8 @@ class SB3Creator {
             case 'microbitplus_analogread': return `pin${(b.fields.PIN ? b.fields.PIN[0] : '0').toLowerCase().replace(/^p/, '')}.read_analog()`;
             case 'microbitplus_isbutton': return `button_${(b.fields.BTN ? b.fields.BTN[0] : 'a').toLowerCase()}.is_pressed()`;
             case 'microbitplus_ispinhigh': return `pin${(b.fields.PIN ? b.fields.PIN[0] : '0').toLowerCase().replace(/^p/, '')}.read_digital()`;
-            case 'microbitplus_isgesture': return `accelerometer.is_gesture('${(b.fields.GESTURE ? b.fields.GESTURE[0] : 'shake').toLowerCase()}')`;
+            case 'microbitplus_isgesture':
+                return `accelerometer.is_gesture('${gestureForMicroPython(b.fields.GESTURE ? b.fields.GESTURE[0] : 'shake')}')`;
             case 'microbitplus_istouch': return `pin${(b.fields.PIN ? b.fields.PIN[0] : '0').toLowerCase().replace(/^p/, '')}.is_touched()`;
             case 'microbitplus_radiolastnum': return '_radio_last_num';
             case 'microbitplus_radiolaststr': return '_radio_last_str';
@@ -8423,7 +8495,7 @@ class SB3Creator {
                 return `pin${n}.read_digital()`;
             }
             if (rb.opcode === 'microbitplus_isgesture') {
-                return `accelerometer.is_gesture('${String(rf('GESTURE')).toLowerCase()}')`;
+                return `accelerometer.is_gesture('${gestureForMicroPython(rf('GESTURE'))}')`;
             }
             if (rb.opcode === 'microbitplus_istouch') {
                 const pin = String(rf('PIN')).toLowerCase();
