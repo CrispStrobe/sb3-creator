@@ -31,7 +31,7 @@
    "y": 115
   },
   {
-   "id": "MCU",
+   "id": "pico1",
    "kind": "pi_pico",
    "params": {},
    "terminals": [
@@ -156,11 +156,11 @@
   {
    "from": "POT_sense",
    "fromTerminal": "wiper",
-   "to": "MCU",
+   "to": "pico1",
    "toTerminal": "gp26"
   },
   {
-   "from": "MCU",
+   "from": "pico1",
    "fromTerminal": "gp25",
    "to": "R_led1",
    "toTerminal": "a"

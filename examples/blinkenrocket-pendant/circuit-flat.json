@@ -2,9 +2,8 @@
   "vcc": 5,
   "parts": [
     {
-      "id": "mcu",
+      "id": "attiny881",
       "kind": "attiny88",
-      "declName": "mcu",
       "seat": {
         "boardId": "bb1",
         "leadMap": {
@@ -162,7 +161,7 @@
         "terminal": "col6"
       },
       "to": {
-        "part": "mcu",
+        "part": "attiny881",
         "terminal": "pb6"
       }
     },
@@ -174,7 +173,7 @@
         "terminal": "col7"
       },
       "to": {
-        "part": "mcu",
+        "part": "attiny881",
         "terminal": "pb7"
       }
     },
@@ -186,7 +185,7 @@
         "terminal": "row5"
       },
       "to": {
-        "part": "mcu",
+        "part": "attiny881",
         "terminal": "pd5"
       }
     },
@@ -198,7 +197,7 @@
         "terminal": "row6"
       },
       "to": {
-        "part": "mcu",
+        "part": "attiny881",
         "terminal": "pd6"
       }
     },
@@ -210,7 +209,7 @@
         "terminal": "row7"
       },
       "to": {
-        "part": "mcu",
+        "part": "attiny881",
         "terminal": "pd7"
       }
     },
@@ -222,7 +221,7 @@
         "terminal": "col0"
       },
       "to": {
-        "part": "mcu",
+        "part": "attiny881",
         "terminal": "pb0"
       }
     },
@@ -234,7 +233,7 @@
         "terminal": "row0"
       },
       "to": {
-        "part": "mcu",
+        "part": "attiny881",
         "terminal": "pd0"
       }
     },
@@ -246,7 +245,7 @@
         "terminal": "row1"
       },
       "to": {
-        "part": "mcu",
+        "part": "attiny881",
         "terminal": "pd1"
       }
     },
@@ -258,7 +257,7 @@
         "terminal": "row2"
       },
       "to": {
-        "part": "mcu",
+        "part": "attiny881",
         "terminal": "pd2"
       }
     },
@@ -270,7 +269,7 @@
         "terminal": "row3"
       },
       "to": {
-        "part": "mcu",
+        "part": "attiny881",
         "terminal": "pd3"
       }
     },
@@ -282,7 +281,7 @@
         "terminal": "row4"
       },
       "to": {
-        "part": "mcu",
+        "part": "attiny881",
         "terminal": "pd4"
       }
     },
@@ -294,7 +293,7 @@
         "terminal": "b"
       },
       "to": {
-        "part": "mcu",
+        "part": "attiny881",
         "terminal": "pc3"
       }
     },
@@ -318,7 +317,7 @@
         "terminal": "b"
       },
       "to": {
-        "part": "mcu",
+        "part": "attiny881",
         "terminal": "pc7"
       }
     },
@@ -342,7 +341,7 @@
         "terminal": "col1"
       },
       "to": {
-        "part": "mcu",
+        "part": "attiny881",
         "terminal": "pb1"
       }
     },
@@ -354,7 +353,7 @@
         "terminal": "col2"
       },
       "to": {
-        "part": "mcu",
+        "part": "attiny881",
         "terminal": "pb2"
       }
     },
@@ -366,7 +365,7 @@
         "terminal": "col3"
       },
       "to": {
-        "part": "mcu",
+        "part": "attiny881",
         "terminal": "pb3"
       }
     },
@@ -378,7 +377,7 @@
         "terminal": "col4"
       },
       "to": {
-        "part": "mcu",
+        "part": "attiny881",
         "terminal": "pb4"
       }
     },
@@ -390,7 +389,7 @@
         "terminal": "col5"
       },
       "to": {
-        "part": "mcu",
+        "part": "attiny881",
         "terminal": "pb5"
       }
     },
@@ -402,7 +401,7 @@
         "terminal": "gnd"
       },
       "to": {
-        "part": "mcu",
+        "part": "attiny881",
         "terminal": "gnd"
       }
     },
@@ -450,7 +449,7 @@
         "terminal": "a"
       },
       "to": {
-        "part": "mcu",
+        "part": "attiny881",
         "terminal": "avcc"
       }
     },
@@ -462,7 +461,7 @@
         "terminal": "a"
       },
       "to": {
-        "part": "mcu",
+        "part": "attiny881",
         "terminal": "vcc"
       }
     },

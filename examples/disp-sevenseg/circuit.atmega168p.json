@@ -25,7 +25,7 @@
    "y": 115
   },
   {
-   "id": "mcu1",
+   "id": "uno1",
    "kind": "arduino_uno",
    "params": {},
    "x": 392,
@@ -220,61 +220,61 @@
    "toTerminal": "common"
   },
   {
-   "from": "mcu1",
+   "from": "uno1",
    "fromTerminal": "5v",
    "to": "vcc1",
    "toTerminal": "vcc"
   },
   {
-   "from": "mcu1",
+   "from": "uno1",
    "fromTerminal": "gnd",
    "to": "gnd1",
    "toTerminal": "gnd"
   },
   {
-   "from": "mcu1",
+   "from": "uno1",
    "fromTerminal": "gnd",
    "to": "dis1",
    "toTerminal": "common"
   },
   {
-   "from": "mcu1",
+   "from": "uno1",
    "fromTerminal": "d13",
    "to": "r_a",
    "toTerminal": "a"
   },
   {
-   "from": "mcu1",
+   "from": "uno1",
    "fromTerminal": "d12",
    "to": "r_b",
    "toTerminal": "a"
   },
   {
-   "from": "mcu1",
+   "from": "uno1",
    "fromTerminal": "d8",
    "to": "r_c",
    "toTerminal": "a"
   },
   {
-   "from": "mcu1",
+   "from": "uno1",
    "fromTerminal": "d7",
    "to": "r_d",
    "toTerminal": "a"
   },
   {
-   "from": "mcu1",
+   "from": "uno1",
    "fromTerminal": "d4",
    "to": "r_e",
    "toTerminal": "a"
   },
   {
-   "from": "mcu1",
+   "from": "uno1",
    "fromTerminal": "d2",
    "to": "r_f",
    "toTerminal": "a"
   },
   {
-   "from": "mcu1",
+   "from": "uno1",
    "fromTerminal": "d3",
    "to": "r_g",
    "toTerminal": "a"

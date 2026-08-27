@@ -42,7 +42,7 @@
    }
   },
   {
-   "id": "mcu1",
+   "id": "pico1",
    "kind": "pi_pico",
    "params": {
     "pins": [
@@ -94,7 +94,7 @@
   {
    "from": "pot1",
    "fromTerminal": "wiper",
-   "to": "mcu1",
+   "to": "pico1",
    "toTerminal": "GP26"
   },
   {

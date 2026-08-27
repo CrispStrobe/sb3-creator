@@ -31,7 +31,7 @@
    "y": 115
   },
   {
-   "id": "MCU",
+   "id": "uno1",
    "kind": "arduino_uno",
    "params": {},
    "terminals": [
@@ -137,17 +137,17 @@
   {
    "from": "POT_potA",
    "fromTerminal": "wiper",
-   "to": "MCU",
+   "to": "uno1",
    "toTerminal": "a0"
   },
   {
    "from": "POT_potB",
    "fromTerminal": "wiper",
-   "to": "MCU",
+   "to": "uno1",
    "toTerminal": "a1"
   },
   {
-   "from": "MCU",
+   "from": "uno1",
    "fromTerminal": "d13",
    "to": "R_led1",
    "toTerminal": "a"
@@ -191,7 +191,7 @@
   {
    "from": "VCC",
    "fromTerminal": "vcc",
-   "to": "MCU",
+   "to": "uno1",
    "toTerminal": "5v",
    "color": "red",
    "genPower": true
@@ -199,7 +199,7 @@
   {
    "from": "GND",
    "fromTerminal": "gnd",
-   "to": "MCU",
+   "to": "uno1",
    "toTerminal": "gnd2",
    "color": "black",
    "genPower": true

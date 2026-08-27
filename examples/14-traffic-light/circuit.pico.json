@@ -31,7 +31,7 @@
    "y": 115
   },
   {
-   "id": "MCU",
+   "id": "pico1",
    "kind": "pi_pico",
    "params": {},
    "terminals": [
@@ -216,7 +216,7 @@
  ],
  "wires": [
   {
-   "from": "MCU",
+   "from": "pico1",
    "fromTerminal": "gp25",
    "to": "R_red",
    "toTerminal": "a"
@@ -228,7 +228,7 @@
    "toTerminal": "anode"
   },
   {
-   "from": "MCU",
+   "from": "pico1",
    "fromTerminal": "gp15",
    "to": "R_yellow",
    "toTerminal": "a"
@@ -240,7 +240,7 @@
    "toTerminal": "anode"
   },
   {
-   "from": "MCU",
+   "from": "pico1",
    "fromTerminal": "gp14",
    "to": "R_green",
    "toTerminal": "a"

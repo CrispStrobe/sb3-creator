@@ -82,7 +82,7 @@
       "y": 255
     },
     {
-      "id": "mcu1",
+      "id": "stc151",
       "kind": "stc15_mcu",
       "params": {},
       "rotation": 0,
@@ -113,7 +113,7 @@
       "id": "w_flat_1",
       "netId": "bb1:n-col-t32",
       "from": {
-        "part": "mcu1",
+        "part": "stc151",
         "terminal": "P1.1"
       },
       "to": {
@@ -141,7 +141,7 @@
         "terminal": "cathode"
       },
       "to": {
-        "part": "mcu1",
+        "part": "stc151",
         "terminal": "P1.0"
       }
     },
@@ -165,7 +165,7 @@
         "terminal": "gnd"
       },
       "to": {
-        "part": "mcu1",
+        "part": "stc151",
         "terminal": "GND"
       }
     },
@@ -173,7 +173,7 @@
       "id": "w_flat_6",
       "netId": "bb1:rail-t+",
       "from": {
-        "part": "mcu1",
+        "part": "stc151",
         "terminal": "VCC"
       },
       "to": {
@@ -185,7 +185,7 @@
       "id": "w_flat_7",
       "netId": "bb1:rail-t+",
       "from": {
-        "part": "mcu1",
+        "part": "stc151",
         "terminal": "VCC"
       },
       "to": {

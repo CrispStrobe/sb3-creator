@@ -72,7 +72,7 @@
    "rotation": 0
   },
   {
-   "id": "pico1",
+   "id": "attiny881",
    "kind": "attiny88",
    "params": {},
    "x": 64,
@@ -929,283 +929,283 @@
    "toTerminal": "com"
   },
   {
-   "from": "pico1",
+   "from": "attiny881",
    "fromTerminal": "vcc",
    "to": "k_b0",
    "toTerminal": "b"
   },
   {
-   "from": "pico1",
+   "from": "attiny881",
    "fromTerminal": "vcc",
    "to": "k_b1",
    "toTerminal": "b"
   },
   {
-   "from": "pico1",
+   "from": "attiny881",
    "fromTerminal": "vcc",
    "to": "k_b2",
    "toTerminal": "b"
   },
   {
-   "from": "pico1",
+   "from": "attiny881",
    "fromTerminal": "vcc",
    "to": "k_b3",
    "toTerminal": "b"
   },
   {
-   "from": "pico1",
+   "from": "attiny881",
    "fromTerminal": "vcc",
    "to": "k_b4",
    "toTerminal": "b"
   },
   {
-   "from": "pico1",
+   "from": "attiny881",
    "fromTerminal": "vcc",
    "to": "k_b5",
    "toTerminal": "b"
   },
   {
-   "from": "pico1",
+   "from": "attiny881",
    "fromTerminal": "vcc",
    "to": "k_b6",
    "toTerminal": "b"
   },
   {
-   "from": "pico1",
+   "from": "attiny881",
    "fromTerminal": "vcc",
    "to": "k_b7",
    "toTerminal": "b"
   },
   {
-   "from": "pico1",
+   "from": "attiny881",
    "fromTerminal": "vcc",
    "to": "k_b8",
    "toTerminal": "b"
   },
   {
-   "from": "pico1",
+   "from": "attiny881",
    "fromTerminal": "vcc",
    "to": "k_b9",
    "toTerminal": "b"
   },
   {
-   "from": "pico1",
+   "from": "attiny881",
    "fromTerminal": "vcc",
    "to": "k_bac",
    "toTerminal": "b"
   },
   {
-   "from": "pico1",
+   "from": "attiny881",
    "fromTerminal": "vcc",
    "to": "k_bclr",
    "toTerminal": "b"
   },
   {
-   "from": "pico1",
+   "from": "attiny881",
    "fromTerminal": "vcc",
    "to": "k_bdiv",
    "toTerminal": "b"
   },
   {
-   "from": "pico1",
+   "from": "attiny881",
    "fromTerminal": "vcc",
    "to": "k_bexe",
    "toTerminal": "b"
   },
   {
-   "from": "pico1",
+   "from": "attiny881",
    "fromTerminal": "vcc",
    "to": "k_bminus",
    "toTerminal": "b"
   },
   {
-   "from": "pico1",
+   "from": "attiny881",
    "fromTerminal": "vcc",
    "to": "k_bplus",
    "toTerminal": "b"
   },
   {
-   "from": "pico1",
+   "from": "attiny881",
    "fromTerminal": "vcc",
    "to": "k_btimes",
    "toTerminal": "b"
   },
   {
-   "from": "pico1",
+   "from": "attiny881",
    "fromTerminal": "vcc",
    "to": "oled1",
    "toTerminal": "vcc"
   },
   {
-   "from": "pico1",
+   "from": "attiny881",
    "fromTerminal": "vcc",
    "to": "pwr",
    "toTerminal": "com"
   },
   {
-   "from": "pico1",
+   "from": "attiny881",
    "fromTerminal": "vcc",
    "to": "rpu_scl",
    "toTerminal": "a"
   },
   {
-   "from": "pico1",
+   "from": "attiny881",
    "fromTerminal": "vcc",
    "to": "rpu_sda",
    "toTerminal": "a"
   },
   {
-   "from": "pico1",
+   "from": "attiny881",
    "fromTerminal": "pb3",
    "to": "k_bac",
    "toTerminal": "a"
   },
   {
-   "from": "pico1",
+   "from": "attiny881",
    "fromTerminal": "pb2",
    "to": "k_bclr",
    "toTerminal": "a"
   },
   {
-   "from": "pico1",
+   "from": "attiny881",
    "fromTerminal": "pb1",
    "to": "k_bexe",
    "toTerminal": "a"
   },
   {
-   "from": "pico1",
+   "from": "attiny881",
    "fromTerminal": "pc2",
    "to": "k_b3",
    "toTerminal": "a"
   },
   {
-   "from": "pico1",
+   "from": "attiny881",
    "fromTerminal": "pd1",
    "to": "k_b5",
    "toTerminal": "a"
   },
   {
-   "from": "pico1",
+   "from": "attiny881",
    "fromTerminal": "pd0",
    "to": "k_b4",
    "toTerminal": "a"
   },
   {
-   "from": "pico1",
+   "from": "attiny881",
    "fromTerminal": "pd2",
    "to": "k_b6",
    "toTerminal": "a"
   },
   {
-   "from": "pico1",
+   "from": "attiny881",
    "fromTerminal": "pd3",
    "to": "k_b7",
    "toTerminal": "a"
   },
   {
-   "from": "pico1",
+   "from": "attiny881",
    "fromTerminal": "pd4",
    "to": "k_b8",
    "toTerminal": "a"
   },
   {
-   "from": "pico1",
+   "from": "attiny881",
    "fromTerminal": "pd5",
    "to": "k_bplus",
    "toTerminal": "a"
   },
   {
-   "from": "pico1",
+   "from": "attiny881",
    "fromTerminal": "pd6",
    "to": "k_bminus",
    "toTerminal": "a"
   },
   {
-   "from": "pico1",
+   "from": "attiny881",
    "fromTerminal": "pd7",
    "to": "k_btimes",
    "toTerminal": "a"
   },
   {
-   "from": "pico1",
+   "from": "attiny881",
    "fromTerminal": "pb0",
    "to": "k_bdiv",
    "toTerminal": "a"
   },
   {
-   "from": "pico1",
+   "from": "attiny881",
    "fromTerminal": "pc4",
    "to": "oled1",
    "toTerminal": "sda"
   },
   {
-   "from": "pico1",
+   "from": "attiny881",
    "fromTerminal": "pc4",
    "to": "rpu_sda",
    "toTerminal": "b"
   },
   {
-   "from": "pico1",
+   "from": "attiny881",
    "fromTerminal": "pc5",
    "to": "oled1",
    "toTerminal": "scl"
   },
   {
-   "from": "pico1",
+   "from": "attiny881",
    "fromTerminal": "pc5",
    "to": "rpu_scl",
    "toTerminal": "b"
   },
   {
-   "from": "pico1",
+   "from": "attiny881",
    "fromTerminal": "pc3",
    "to": "k_b9",
    "toTerminal": "a"
   },
   {
-   "from": "pico1",
+   "from": "attiny881",
    "fromTerminal": "pc7",
    "to": "k_b0",
    "toTerminal": "a"
   },
   {
-   "from": "pico1",
+   "from": "attiny881",
    "fromTerminal": "pc0",
    "to": "k_b1",
    "toTerminal": "a"
   },
   {
-   "from": "pico1",
+   "from": "attiny881",
    "fromTerminal": "pc1",
    "to": "k_b2",
    "toTerminal": "a"
   },
   {
-   "from": "pico1",
+   "from": "attiny881",
    "fromTerminal": "gnd",
    "to": "gnd1",
    "toTerminal": "gnd"
   },
   {
-   "from": "pico1",
+   "from": "attiny881",
    "fromTerminal": "gnd",
    "to": "oled1",
    "toTerminal": "gnd"
   },
   {
-   "from": "pico1",
+   "from": "attiny881",
    "fromTerminal": "vcc",
    "to": "pwr",
    "toTerminal": "a"
   },
   {
-   "from": "pico1",
+   "from": "attiny881",
    "fromTerminal": "vcc",
    "to": "vcc1",
    "toTerminal": "vcc"
   },
   {
-   "from": "pico1",
+   "from": "attiny881",
    "fromTerminal": "pc3",
    "to": "R_PD_b9",
    "toTerminal": "a"
@@ -1217,7 +1217,7 @@
    "fromTerminal": "b"
   },
   {
-   "from": "pico1",
+   "from": "attiny881",
    "fromTerminal": "pc7",
    "to": "R_PD_b0",
    "toTerminal": "a"
@@ -1229,7 +1229,7 @@
    "fromTerminal": "b"
   },
   {
-   "from": "pico1",
+   "from": "attiny881",
    "fromTerminal": "pc0",
    "to": "R_PD_b1",
    "toTerminal": "a"
@@ -1241,7 +1241,7 @@
    "fromTerminal": "b"
   },
   {
-   "from": "pico1",
+   "from": "attiny881",
    "fromTerminal": "pc1",
    "to": "R_PD_b2",
    "toTerminal": "a"
@@ -1253,7 +1253,7 @@
    "fromTerminal": "b"
   },
   {
-   "from": "pico1",
+   "from": "attiny881",
    "fromTerminal": "pc2",
    "to": "R_PD_b3",
    "toTerminal": "a"
@@ -1265,7 +1265,7 @@
    "fromTerminal": "b"
   },
   {
-   "from": "pico1",
+   "from": "attiny881",
    "fromTerminal": "pd0",
    "to": "R_PD_b4",
    "toTerminal": "a"
@@ -1277,7 +1277,7 @@
    "fromTerminal": "b"
   },
   {
-   "from": "pico1",
+   "from": "attiny881",
    "fromTerminal": "pd1",
    "to": "R_PD_b5",
    "toTerminal": "a"
@@ -1289,7 +1289,7 @@
    "fromTerminal": "b"
   },
   {
-   "from": "pico1",
+   "from": "attiny881",
    "fromTerminal": "pd2",
    "to": "R_PD_b6",
    "toTerminal": "a"
@@ -1301,7 +1301,7 @@
    "fromTerminal": "b"
   },
   {
-   "from": "pico1",
+   "from": "attiny881",
    "fromTerminal": "pd3",
    "to": "R_PD_b7",
    "toTerminal": "a"
@@ -1313,7 +1313,7 @@
    "fromTerminal": "b"
   },
   {
-   "from": "pico1",
+   "from": "attiny881",
    "fromTerminal": "pd4",
    "to": "R_PD_b8",
    "toTerminal": "a"
@@ -1325,7 +1325,7 @@
    "fromTerminal": "b"
   },
   {
-   "from": "pico1",
+   "from": "attiny881",
    "fromTerminal": "pd5",
    "to": "R_PD_bplus",
    "toTerminal": "a"
@@ -1337,7 +1337,7 @@
    "fromTerminal": "b"
   },
   {
-   "from": "pico1",
+   "from": "attiny881",
    "fromTerminal": "pd6",
    "to": "R_PD_bminus",
    "toTerminal": "a"
@@ -1349,7 +1349,7 @@
    "fromTerminal": "b"
   },
   {
-   "from": "pico1",
+   "from": "attiny881",
    "fromTerminal": "pd7",
    "to": "R_PD_btimes",
    "toTerminal": "a"
@@ -1361,7 +1361,7 @@
    "fromTerminal": "b"
   },
   {
-   "from": "pico1",
+   "from": "attiny881",
    "fromTerminal": "pb0",
    "to": "R_PD_bdiv",
    "toTerminal": "a"
@@ -1373,7 +1373,7 @@
    "fromTerminal": "b"
   },
   {
-   "from": "pico1",
+   "from": "attiny881",
    "fromTerminal": "pb1",
    "to": "R_PD_bexe",
    "toTerminal": "a"
@@ -1385,7 +1385,7 @@
    "fromTerminal": "b"
   },
   {
-   "from": "pico1",
+   "from": "attiny881",
    "fromTerminal": "pb2",
    "to": "R_PD_bclr",
    "toTerminal": "a"
@@ -1397,7 +1397,7 @@
    "fromTerminal": "b"
   },
   {
-   "from": "pico1",
+   "from": "attiny881",
    "fromTerminal": "pb3",
    "to": "R_PD_bac",
    "toTerminal": "a"

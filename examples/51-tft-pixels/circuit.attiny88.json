@@ -31,7 +31,7 @@
    "y": 115
   },
   {
-   "id": "MCU",
+   "id": "attiny881",
    "kind": "attiny88",
    "params": {},
    "terminals": [
@@ -111,25 +111,25 @@
  ],
  "wires": [
   {
-   "from": "MCU",
+   "from": "attiny881",
    "fromTerminal": "pb0",
    "to": "TFT",
    "toTerminal": "cs"
   },
   {
-   "from": "MCU",
+   "from": "attiny881",
    "fromTerminal": "pb1",
    "to": "TFT",
    "toTerminal": "dc"
   },
   {
-   "from": "MCU",
+   "from": "attiny881",
    "fromTerminal": "pb2",
    "to": "TFT",
    "toTerminal": "sck"
   },
   {
-   "from": "MCU",
+   "from": "attiny881",
    "fromTerminal": "pb3",
    "to": "TFT",
    "toTerminal": "mosi"

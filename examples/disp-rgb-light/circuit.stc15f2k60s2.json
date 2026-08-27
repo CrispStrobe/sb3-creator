@@ -25,7 +25,7 @@
    "y": 115
   },
   {
-   "id": "mcu1",
+   "id": "stc151",
    "kind": "stc15_mcu",
    "params": {},
    "x": 64,
@@ -181,55 +181,55 @@
    "toTerminal": "din"
   },
   {
-   "from": "mcu1",
+   "from": "stc151",
    "fromTerminal": "VCC",
    "to": "vcc1",
    "toTerminal": "vcc"
   },
   {
-   "from": "mcu1",
+   "from": "stc151",
    "fromTerminal": "VCC",
    "to": "px0",
    "toTerminal": "vcc"
   },
   {
-   "from": "mcu1",
+   "from": "stc151",
    "fromTerminal": "VCC",
    "to": "px1",
    "toTerminal": "vcc"
   },
   {
-   "from": "mcu1",
+   "from": "stc151",
    "fromTerminal": "VCC",
    "to": "px2",
    "toTerminal": "vcc"
   },
   {
-   "from": "mcu1",
+   "from": "stc151",
    "fromTerminal": "GND",
    "to": "gnd1",
    "toTerminal": "gnd"
   },
   {
-   "from": "mcu1",
+   "from": "stc151",
    "fromTerminal": "GND",
    "to": "px0",
    "toTerminal": "gnd"
   },
   {
-   "from": "mcu1",
+   "from": "stc151",
    "fromTerminal": "GND",
    "to": "px1",
    "toTerminal": "gnd"
   },
   {
-   "from": "mcu1",
+   "from": "stc151",
    "fromTerminal": "GND",
    "to": "px2",
    "toTerminal": "gnd"
   },
   {
-   "from": "mcu1",
+   "from": "stc151",
    "fromTerminal": "P1.0",
    "to": "px0",
    "toTerminal": "din"

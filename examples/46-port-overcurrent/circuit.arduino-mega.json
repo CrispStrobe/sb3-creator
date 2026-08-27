@@ -289,7 +289,7 @@
    }
   },
   {
-   "id": "mcu1",
+   "id": "mega1",
    "kind": "arduino_mega",
    "params": {},
    "x": 475,
@@ -407,109 +407,109 @@
    "toTerminal": "anode"
   },
   {
-   "from": "mcu1",
+   "from": "mega1",
    "fromTerminal": "d28",
    "to": "d7",
    "toTerminal": "cathode"
   },
   {
-   "from": "mcu1",
+   "from": "mega1",
    "fromTerminal": "d13",
    "to": "d0",
    "toTerminal": "cathode"
   },
   {
-   "from": "mcu1",
+   "from": "mega1",
    "fromTerminal": "d22",
    "to": "d1",
    "toTerminal": "cathode"
   },
   {
-   "from": "mcu1",
+   "from": "mega1",
    "fromTerminal": "d23",
    "to": "d2",
    "toTerminal": "cathode"
   },
   {
-   "from": "mcu1",
+   "from": "mega1",
    "fromTerminal": "d24",
    "to": "d3",
    "toTerminal": "cathode"
   },
   {
-   "from": "mcu1",
+   "from": "mega1",
    "fromTerminal": "d25",
    "to": "d4",
    "toTerminal": "cathode"
   },
   {
-   "from": "mcu1",
+   "from": "mega1",
    "fromTerminal": "d26",
    "to": "d5",
    "toTerminal": "cathode"
   },
   {
-   "from": "mcu1",
+   "from": "mega1",
    "fromTerminal": "d27",
    "to": "d6",
    "toTerminal": "cathode"
   },
   {
-   "from": "mcu1",
+   "from": "mega1",
    "fromTerminal": "gnd",
    "to": "gnd1",
    "toTerminal": "gnd"
   },
   {
-   "from": "mcu1",
+   "from": "mega1",
    "fromTerminal": "5v",
    "to": "r0",
    "toTerminal": "a"
   },
   {
-   "from": "mcu1",
+   "from": "mega1",
    "fromTerminal": "5v",
    "to": "r1",
    "toTerminal": "a"
   },
   {
-   "from": "mcu1",
+   "from": "mega1",
    "fromTerminal": "5v",
    "to": "r2",
    "toTerminal": "a"
   },
   {
-   "from": "mcu1",
+   "from": "mega1",
    "fromTerminal": "5v",
    "to": "r3",
    "toTerminal": "a"
   },
   {
-   "from": "mcu1",
+   "from": "mega1",
    "fromTerminal": "5v",
    "to": "r4",
    "toTerminal": "a"
   },
   {
-   "from": "mcu1",
+   "from": "mega1",
    "fromTerminal": "5v",
    "to": "r5",
    "toTerminal": "a"
   },
   {
-   "from": "mcu1",
+   "from": "mega1",
    "fromTerminal": "5v",
    "to": "r6",
    "toTerminal": "a"
   },
   {
-   "from": "mcu1",
+   "from": "mega1",
    "fromTerminal": "5v",
    "to": "r7",
    "toTerminal": "a"
   },
   {
-   "from": "mcu1",
+   "from": "mega1",
    "fromTerminal": "5v",
    "to": "vcc1",
    "toTerminal": "vcc"

@@ -31,7 +31,7 @@
    "y": 115
   },
   {
-   "id": "MCU",
+   "id": "uno1",
    "kind": "arduino_uno",
    "params": {},
    "terminals": [
@@ -108,25 +108,25 @@
  ],
  "wires": [
   {
-   "from": "MCU",
+   "from": "uno1",
    "fromTerminal": "a4",
    "to": "R_PU_sda",
    "toTerminal": "b"
   },
   {
-   "from": "MCU",
+   "from": "uno1",
    "fromTerminal": "a4",
    "to": "LCD",
    "toTerminal": "sda"
   },
   {
-   "from": "MCU",
+   "from": "uno1",
    "fromTerminal": "a5",
    "to": "R_PU_scl",
    "toTerminal": "b"
   },
   {
-   "from": "MCU",
+   "from": "uno1",
    "fromTerminal": "a5",
    "to": "LCD",
    "toTerminal": "scl"
@@ -158,7 +158,7 @@
   {
    "from": "VCC",
    "fromTerminal": "vcc",
-   "to": "MCU",
+   "to": "uno1",
    "toTerminal": "5v",
    "color": "red",
    "genPower": true
@@ -166,7 +166,7 @@
   {
    "from": "GND",
    "fromTerminal": "gnd",
-   "to": "MCU",
+   "to": "uno1",
    "toTerminal": "gnd2",
    "color": "black",
    "genPower": true

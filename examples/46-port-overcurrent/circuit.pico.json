@@ -298,7 +298,7 @@
    }
   },
   {
-   "id": "mcu1",
+   "id": "pico1",
    "kind": "pi_pico",
    "params": {},
    "x": 64,
@@ -449,109 +449,109 @@
    "toTerminal": "anode"
   },
   {
-   "from": "mcu1",
+   "from": "pico1",
    "fromTerminal": "gp0",
    "to": "d7",
    "toTerminal": "cathode"
   },
   {
-   "from": "mcu1",
+   "from": "pico1",
    "fromTerminal": "gp25",
    "to": "d0",
    "toTerminal": "cathode"
   },
   {
-   "from": "mcu1",
+   "from": "pico1",
    "fromTerminal": "gp15",
    "to": "d1",
    "toTerminal": "cathode"
   },
   {
-   "from": "mcu1",
+   "from": "pico1",
    "fromTerminal": "gp14",
    "to": "d2",
    "toTerminal": "cathode"
   },
   {
-   "from": "mcu1",
+   "from": "pico1",
    "fromTerminal": "gp13",
    "to": "d3",
    "toTerminal": "cathode"
   },
   {
-   "from": "mcu1",
+   "from": "pico1",
    "fromTerminal": "gp12",
    "to": "d4",
    "toTerminal": "cathode"
   },
   {
-   "from": "mcu1",
+   "from": "pico1",
    "fromTerminal": "gp11",
    "to": "d5",
    "toTerminal": "cathode"
   },
   {
-   "from": "mcu1",
+   "from": "pico1",
    "fromTerminal": "gp10",
    "to": "d6",
    "toTerminal": "cathode"
   },
   {
-   "from": "mcu1",
+   "from": "pico1",
    "fromTerminal": "gnd_1",
    "to": "gnd1",
    "toTerminal": "gnd"
   },
   {
-   "from": "mcu1",
+   "from": "pico1",
    "fromTerminal": "vsys",
    "to": "r0",
    "toTerminal": "a"
   },
   {
-   "from": "mcu1",
+   "from": "pico1",
    "fromTerminal": "vsys",
    "to": "r1",
    "toTerminal": "a"
   },
   {
-   "from": "mcu1",
+   "from": "pico1",
    "fromTerminal": "vsys",
    "to": "r2",
    "toTerminal": "a"
   },
   {
-   "from": "mcu1",
+   "from": "pico1",
    "fromTerminal": "vsys",
    "to": "r3",
    "toTerminal": "a"
   },
   {
-   "from": "mcu1",
+   "from": "pico1",
    "fromTerminal": "vsys",
    "to": "r4",
    "toTerminal": "a"
   },
   {
-   "from": "mcu1",
+   "from": "pico1",
    "fromTerminal": "vsys",
    "to": "r5",
    "toTerminal": "a"
   },
   {
-   "from": "mcu1",
+   "from": "pico1",
    "fromTerminal": "vsys",
    "to": "r6",
    "toTerminal": "a"
   },
   {
-   "from": "mcu1",
+   "from": "pico1",
    "fromTerminal": "vsys",
    "to": "r7",
    "toTerminal": "a"
   },
   {
-   "from": "mcu1",
+   "from": "pico1",
    "fromTerminal": "vsys",
    "to": "vcc1",
    "toTerminal": "vcc"

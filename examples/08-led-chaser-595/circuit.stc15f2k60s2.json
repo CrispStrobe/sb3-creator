@@ -326,7 +326,7 @@
    }
   },
   {
-   "id": "mcu1",
+   "id": "stc151",
    "kind": "stc15_mcu",
    "params": {},
    "x": 64,
@@ -532,91 +532,91 @@
    "toTerminal": "gnd"
   },
   {
-   "from": "mcu1",
+   "from": "stc151",
    "fromTerminal": "P1.0",
    "to": "sr1",
    "toTerminal": "data"
   },
   {
-   "from": "mcu1",
+   "from": "stc151",
    "fromTerminal": "P1.1",
    "to": "sr1",
    "toTerminal": "clock"
   },
   {
-   "from": "mcu1",
+   "from": "stc151",
    "fromTerminal": "P1.2",
    "to": "sr1",
    "toTerminal": "latch"
   },
   {
-   "from": "mcu1",
+   "from": "stc151",
    "fromTerminal": "GND",
    "to": "d1",
    "toTerminal": "cathode"
   },
   {
-   "from": "mcu1",
+   "from": "stc151",
    "fromTerminal": "GND",
    "to": "d2",
    "toTerminal": "cathode"
   },
   {
-   "from": "mcu1",
+   "from": "stc151",
    "fromTerminal": "GND",
    "to": "d3",
    "toTerminal": "cathode"
   },
   {
-   "from": "mcu1",
+   "from": "stc151",
    "fromTerminal": "GND",
    "to": "d4",
    "toTerminal": "cathode"
   },
   {
-   "from": "mcu1",
+   "from": "stc151",
    "fromTerminal": "GND",
    "to": "d5",
    "toTerminal": "cathode"
   },
   {
-   "from": "mcu1",
+   "from": "stc151",
    "fromTerminal": "GND",
    "to": "d6",
    "toTerminal": "cathode"
   },
   {
-   "from": "mcu1",
+   "from": "stc151",
    "fromTerminal": "GND",
    "to": "d7",
    "toTerminal": "cathode"
   },
   {
-   "from": "mcu1",
+   "from": "stc151",
    "fromTerminal": "GND",
    "to": "d8",
    "toTerminal": "cathode"
   },
   {
-   "from": "mcu1",
+   "from": "stc151",
    "fromTerminal": "GND",
    "to": "gnd1",
    "toTerminal": "gnd"
   },
   {
-   "from": "mcu1",
+   "from": "stc151",
    "fromTerminal": "GND",
    "to": "sr1",
    "toTerminal": "gnd"
   },
   {
-   "from": "mcu1",
+   "from": "stc151",
    "fromTerminal": "VCC",
    "to": "sr1",
    "toTerminal": "vcc"
   },
   {
-   "from": "mcu1",
+   "from": "stc151",
    "fromTerminal": "VCC",
    "to": "vcc1",
    "toTerminal": "vcc"

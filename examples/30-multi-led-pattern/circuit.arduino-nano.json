@@ -31,7 +31,7 @@
    "y": 115
   },
   {
-   "id": "MCU",
+   "id": "nano1",
    "kind": "arduino_nano",
    "params": {},
    "terminals": [
@@ -249,7 +249,7 @@
  ],
  "wires": [
   {
-   "from": "MCU",
+   "from": "nano1",
    "fromTerminal": "d13",
    "to": "R_led1",
    "toTerminal": "a"
@@ -261,7 +261,7 @@
    "toTerminal": "anode"
   },
   {
-   "from": "MCU",
+   "from": "nano1",
    "fromTerminal": "d12",
    "to": "R_led2",
    "toTerminal": "a"
@@ -273,7 +273,7 @@
    "toTerminal": "anode"
   },
   {
-   "from": "MCU",
+   "from": "nano1",
    "fromTerminal": "d8",
    "to": "R_led3",
    "toTerminal": "a"
@@ -285,7 +285,7 @@
    "toTerminal": "anode"
   },
   {
-   "from": "MCU",
+   "from": "nano1",
    "fromTerminal": "d7",
    "to": "R_led4",
    "toTerminal": "a"

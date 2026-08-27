@@ -289,7 +289,7 @@
    }
   },
   {
-   "id": "mcu1",
+   "id": "stm321",
    "kind": "stm32f030",
    "params": {},
    "x": 80,
@@ -415,109 +415,109 @@
    "genPower": true
   },
   {
-   "from": "mcu1",
+   "from": "stm321",
    "fromTerminal": "pa6",
    "to": "d7",
    "toTerminal": "cathode"
   },
   {
-   "from": "mcu1",
+   "from": "stm321",
    "fromTerminal": "vcc",
    "to": "r0",
    "toTerminal": "a"
   },
   {
-   "from": "mcu1",
+   "from": "stm321",
    "fromTerminal": "vcc",
    "to": "r1",
    "toTerminal": "a"
   },
   {
-   "from": "mcu1",
+   "from": "stm321",
    "fromTerminal": "vcc",
    "to": "r2",
    "toTerminal": "a"
   },
   {
-   "from": "mcu1",
+   "from": "stm321",
    "fromTerminal": "vcc",
    "to": "r3",
    "toTerminal": "a"
   },
   {
-   "from": "mcu1",
+   "from": "stm321",
    "fromTerminal": "vcc",
    "to": "r4",
    "toTerminal": "a"
   },
   {
-   "from": "mcu1",
+   "from": "stm321",
    "fromTerminal": "vcc",
    "to": "r5",
    "toTerminal": "a"
   },
   {
-   "from": "mcu1",
+   "from": "stm321",
    "fromTerminal": "vcc",
    "to": "r6",
    "toTerminal": "a"
   },
   {
-   "from": "mcu1",
+   "from": "stm321",
    "fromTerminal": "vcc",
    "to": "r7",
    "toTerminal": "a"
   },
   {
-   "from": "mcu1",
+   "from": "stm321",
    "fromTerminal": "vcc",
    "to": "vcc1",
    "toTerminal": "vcc"
   },
   {
-   "from": "mcu1",
+   "from": "stm321",
    "fromTerminal": "pa0",
    "to": "d0",
    "toTerminal": "cathode"
   },
   {
-   "from": "mcu1",
+   "from": "stm321",
    "fromTerminal": "pa1",
    "to": "d1",
    "toTerminal": "cathode"
   },
   {
-   "from": "mcu1",
+   "from": "stm321",
    "fromTerminal": "pa2",
    "to": "d2",
    "toTerminal": "cathode"
   },
   {
-   "from": "mcu1",
+   "from": "stm321",
    "fromTerminal": "pa3",
    "to": "d3",
    "toTerminal": "cathode"
   },
   {
-   "from": "mcu1",
+   "from": "stm321",
    "fromTerminal": "pa4",
    "to": "d4",
    "toTerminal": "cathode"
   },
   {
-   "from": "mcu1",
+   "from": "stm321",
    "fromTerminal": "pa5",
    "to": "d5",
    "toTerminal": "cathode"
   },
   {
-   "from": "mcu1",
+   "from": "stm321",
    "fromTerminal": "pb1",
    "to": "d6",
    "toTerminal": "cathode"
   },
   {
-   "from": "mcu1",
+   "from": "stm321",
    "fromTerminal": "gnd",
    "to": "gnd1",
    "toTerminal": "gnd"

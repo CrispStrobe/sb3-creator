@@ -91,7 +91,7 @@
    }
   },
   {
-   "id": "mcu1",
+   "id": "stc151",
    "kind": "stc15_mcu",
    "params": {},
    "x": 64,
@@ -176,37 +176,37 @@
    "toTerminal": "gnd"
   },
   {
-   "from": "mcu1",
+   "from": "stc151",
    "fromTerminal": "P1.0",
    "to": "led_low",
    "toTerminal": "cathode"
   },
   {
-   "from": "mcu1",
+   "from": "stc151",
    "fromTerminal": "P1.1",
    "to": "r2",
    "toTerminal": "a"
   },
   {
-   "from": "mcu1",
+   "from": "stc151",
    "fromTerminal": "GND",
    "to": "gnd1",
    "toTerminal": "gnd"
   },
   {
-   "from": "mcu1",
+   "from": "stc151",
    "fromTerminal": "GND",
    "to": "led_high",
    "toTerminal": "cathode"
   },
   {
-   "from": "mcu1",
+   "from": "stc151",
    "fromTerminal": "VCC",
    "to": "r1",
    "toTerminal": "a"
   },
   {
-   "from": "mcu1",
+   "from": "stc151",
    "fromTerminal": "VCC",
    "to": "vcc1",
    "toTerminal": "vcc"

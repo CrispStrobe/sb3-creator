@@ -22,7 +22,7 @@
       "y": 115
     },
     {
-      "id": "MCU",
+      "id": "nano1",
       "kind": "arduino_nano",
       "params": {},
       "terminals": [
@@ -81,7 +81,7 @@
         "terminal": "sda"
       },
       "to": {
-        "part": "MCU",
+        "part": "nano1",
         "terminal": "a4"
       }
     },
@@ -105,7 +105,7 @@
         "terminal": "scl"
       },
       "to": {
-        "part": "MCU",
+        "part": "nano1",
         "terminal": "a5"
       }
     },
@@ -141,7 +141,7 @@
         "terminal": "gnd"
       },
       "to": {
-        "part": "MCU",
+        "part": "nano1",
         "terminal": "gnd"
       }
     },
@@ -153,7 +153,7 @@
         "terminal": "vcc"
       },
       "to": {
-        "part": "MCU",
+        "part": "nano1",
         "terminal": "5v"
       }
     },

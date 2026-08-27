@@ -91,7 +91,7 @@
    }
   },
   {
-   "id": "mcu1",
+   "id": "mega1",
    "kind": "arduino_mega",
    "params": {},
    "x": 475,
@@ -131,37 +131,37 @@
    "toTerminal": "gnd"
   },
   {
-   "from": "mcu1",
+   "from": "mega1",
    "fromTerminal": "d13",
    "to": "led_low",
    "toTerminal": "cathode"
   },
   {
-   "from": "mcu1",
+   "from": "mega1",
    "fromTerminal": "d22",
    "to": "r2",
    "toTerminal": "a"
   },
   {
-   "from": "mcu1",
+   "from": "mega1",
    "fromTerminal": "gnd",
    "to": "gnd1",
    "toTerminal": "gnd"
   },
   {
-   "from": "mcu1",
+   "from": "mega1",
    "fromTerminal": "gnd",
    "to": "led_high",
    "toTerminal": "cathode"
   },
   {
-   "from": "mcu1",
+   "from": "mega1",
    "fromTerminal": "5v",
    "to": "r1",
    "toTerminal": "a"
   },
   {
-   "from": "mcu1",
+   "from": "mega1",
    "fromTerminal": "5v",
    "to": "vcc1",
    "toTerminal": "vcc"

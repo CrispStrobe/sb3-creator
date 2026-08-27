@@ -31,7 +31,7 @@
    "y": 115
   },
   {
-   "id": "MCU",
+   "id": "stm321",
    "kind": "stm32f030",
    "params": {},
    "x": 80,
@@ -104,25 +104,25 @@
    "genPower": true
   },
   {
-   "from": "MCU",
+   "from": "stm321",
    "fromTerminal": "pa1",
    "to": "R_opto",
    "toTerminal": "a"
   },
   {
-   "from": "MCU",
+   "from": "stm321",
    "fromTerminal": "gnd",
    "to": "GND",
    "toTerminal": "gnd"
   },
   {
-   "from": "MCU",
+   "from": "stm321",
    "fromTerminal": "gnd",
    "to": "LED_opto",
    "toTerminal": "cathode"
   },
   {
-   "from": "MCU",
+   "from": "stm321",
    "fromTerminal": "vcc",
    "to": "VCC",
    "toTerminal": "vcc"

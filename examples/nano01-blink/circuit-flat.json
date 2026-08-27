@@ -42,7 +42,7 @@
       "y": 255
     },
     {
-      "id": "mcu1",
+      "id": "nano1",
       "kind": "arduino_nano",
       "params": {
         "pins": [
@@ -81,7 +81,7 @@
         "terminal": "anode"
       },
       "to": {
-        "part": "mcu1",
+        "part": "nano1",
         "terminal": "d13"
       }
     },
@@ -93,7 +93,7 @@
         "terminal": "anode"
       },
       "to": {
-        "part": "mcu1",
+        "part": "nano1",
         "terminal": "D13"
       }
     },

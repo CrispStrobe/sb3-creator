@@ -2,7 +2,7 @@
   "vcc": 5,
   "parts": [
     {
-      "id": "nano",
+      "id": "stc151",
       "kind": "stc15_mcu",
       "params": {},
       "rotation": 0,
@@ -140,7 +140,7 @@
         "terminal": "sda"
       },
       "to": {
-        "part": "nano",
+        "part": "stc151",
         "terminal": "P1.0"
       }
     },
@@ -152,7 +152,7 @@
         "terminal": "scl"
       },
       "to": {
-        "part": "nano",
+        "part": "stc151",
         "terminal": "P1.1"
       }
     },
@@ -164,7 +164,7 @@
         "terminal": "wiper"
       },
       "to": {
-        "part": "nano",
+        "part": "stc151",
         "terminal": "P1.2"
       }
     },
@@ -200,7 +200,7 @@
         "terminal": "gnd"
       },
       "to": {
-        "part": "nano",
+        "part": "stc151",
         "terminal": "GND"
       }
     },
@@ -236,7 +236,7 @@
         "terminal": "vcc"
       },
       "to": {
-        "part": "nano",
+        "part": "stc151",
         "terminal": "VCC"
       }
     },

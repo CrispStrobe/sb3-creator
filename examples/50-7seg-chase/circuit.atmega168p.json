@@ -31,7 +31,7 @@
    "y": 115
   },
   {
-   "id": "MCU",
+   "id": "uno1",
    "kind": "arduino_uno",
    "params": {},
    "terminals": [
@@ -345,7 +345,7 @@
  ],
  "wires": [
   {
-   "from": "MCU",
+   "from": "uno1",
    "fromTerminal": "d13",
    "to": "R_sa",
    "toTerminal": "a"
@@ -357,7 +357,7 @@
    "toTerminal": "anode"
   },
   {
-   "from": "MCU",
+   "from": "uno1",
    "fromTerminal": "d12",
    "to": "R_sb",
    "toTerminal": "a"
@@ -369,7 +369,7 @@
    "toTerminal": "anode"
   },
   {
-   "from": "MCU",
+   "from": "uno1",
    "fromTerminal": "d8",
    "to": "R_sc",
    "toTerminal": "a"
@@ -381,7 +381,7 @@
    "toTerminal": "anode"
   },
   {
-   "from": "MCU",
+   "from": "uno1",
    "fromTerminal": "d7",
    "to": "R_sd",
    "toTerminal": "a"
@@ -393,7 +393,7 @@
    "toTerminal": "anode"
   },
   {
-   "from": "MCU",
+   "from": "uno1",
    "fromTerminal": "d4",
    "to": "R_se",
    "toTerminal": "a"
@@ -405,7 +405,7 @@
    "toTerminal": "anode"
   },
   {
-   "from": "MCU",
+   "from": "uno1",
    "fromTerminal": "d2",
    "to": "R_sf",
    "toTerminal": "a"
@@ -417,7 +417,7 @@
    "toTerminal": "anode"
   },
   {
-   "from": "MCU",
+   "from": "uno1",
    "fromTerminal": "d3",
    "to": "R_sg",
    "toTerminal": "a"
@@ -473,7 +473,7 @@
   {
    "from": "VCC",
    "fromTerminal": "vcc",
-   "to": "MCU",
+   "to": "uno1",
    "toTerminal": "5v",
    "color": "red",
    "genPower": true
@@ -481,7 +481,7 @@
   {
    "from": "GND",
    "fromTerminal": "gnd",
-   "to": "MCU",
+   "to": "uno1",
    "toTerminal": "gnd2",
    "color": "black",
    "genPower": true

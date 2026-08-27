@@ -40,7 +40,7 @@
    "y": 115
   },
   {
-   "id": "MCU",
+   "id": "nano1",
    "kind": "arduino_nano",
    "params": {},
    "terminals": [
@@ -446,19 +446,19 @@
  ],
  "wires": [
   {
-   "from": "MCU",
+   "from": "nano1",
    "fromTerminal": "d13",
    "to": "SR_595",
    "toTerminal": "data"
   },
   {
-   "from": "MCU",
+   "from": "nano1",
    "fromTerminal": "d12",
    "to": "SR_595",
    "toTerminal": "clock"
   },
   {
-   "from": "MCU",
+   "from": "nano1",
    "fromTerminal": "d8",
    "to": "SR_595",
    "toTerminal": "latch"

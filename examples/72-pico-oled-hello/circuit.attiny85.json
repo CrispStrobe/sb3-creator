@@ -11,7 +11,7 @@
    "rotation": 0
   },
   {
-   "id": "pico1",
+   "id": "attiny851",
    "kind": "attiny85",
    "params": {},
    "x": 218,
@@ -79,37 +79,37 @@
    "toTerminal": "gnd"
   },
   {
-   "from": "pico1",
+   "from": "attiny851",
    "fromTerminal": "pb0",
    "to": "oled1",
    "toTerminal": "sda"
   },
   {
-   "from": "pico1",
+   "from": "attiny851",
    "fromTerminal": "pb2",
    "to": "oled1",
    "toTerminal": "scl"
   },
   {
-   "from": "pico1",
+   "from": "attiny851",
    "fromTerminal": "vcc",
    "to": "oled1",
    "toTerminal": "vcc"
   },
   {
-   "from": "pico1",
+   "from": "attiny851",
    "fromTerminal": "vcc",
    "to": "vcc1",
    "toTerminal": "vcc"
   },
   {
-   "from": "pico1",
+   "from": "attiny851",
    "fromTerminal": "gnd",
    "to": "gnd1",
    "toTerminal": "gnd"
   },
   {
-   "from": "pico1",
+   "from": "attiny851",
    "fromTerminal": "gnd",
    "to": "oled1",
    "toTerminal": "gnd"

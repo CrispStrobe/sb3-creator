@@ -34,7 +34,7 @@
    "y": 115
   },
   {
-   "id": "mcu1",
+   "id": "pico1",
    "kind": "pi_pico",
    "params": {},
    "x": 64,
@@ -374,127 +374,127 @@
    "toTerminal": "b"
   },
   {
-   "from": "mcu1",
+   "from": "pico1",
    "fromTerminal": "vsys",
    "to": "vcc1",
    "toTerminal": "vcc"
   },
   {
-   "from": "mcu1",
+   "from": "pico1",
    "fromTerminal": "vsys",
    "to": "r0",
    "toTerminal": "a"
   },
   {
-   "from": "mcu1",
+   "from": "pico1",
    "fromTerminal": "vsys",
    "to": "r1",
    "toTerminal": "a"
   },
   {
-   "from": "mcu1",
+   "from": "pico1",
    "fromTerminal": "vsys",
    "to": "r2",
    "toTerminal": "a"
   },
   {
-   "from": "mcu1",
+   "from": "pico1",
    "fromTerminal": "vsys",
    "to": "r3",
    "toTerminal": "a"
   },
   {
-   "from": "mcu1",
+   "from": "pico1",
    "fromTerminal": "vsys",
    "to": "r4",
    "toTerminal": "a"
   },
   {
-   "from": "mcu1",
+   "from": "pico1",
    "fromTerminal": "vsys",
    "to": "r5",
    "toTerminal": "a"
   },
   {
-   "from": "mcu1",
+   "from": "pico1",
    "fromTerminal": "vsys",
    "to": "r6",
    "toTerminal": "a"
   },
   {
-   "from": "mcu1",
+   "from": "pico1",
    "fromTerminal": "vsys",
    "to": "r7",
    "toTerminal": "a"
   },
   {
-   "from": "mcu1",
+   "from": "pico1",
    "fromTerminal": "vsys",
    "to": "pot1",
    "toTerminal": "a"
   },
   {
-   "from": "mcu1",
+   "from": "pico1",
    "fromTerminal": "gnd_1",
    "to": "gnd1",
    "toTerminal": "gnd"
   },
   {
-   "from": "mcu1",
+   "from": "pico1",
    "fromTerminal": "gnd_1",
    "to": "pot1",
    "toTerminal": "b"
   },
   {
-   "from": "mcu1",
+   "from": "pico1",
    "fromTerminal": "gp25",
    "to": "bar1",
    "toTerminal": "k0"
   },
   {
-   "from": "mcu1",
+   "from": "pico1",
    "fromTerminal": "gp15",
    "to": "bar1",
    "toTerminal": "k1"
   },
   {
-   "from": "mcu1",
+   "from": "pico1",
    "fromTerminal": "gp14",
    "to": "bar1",
    "toTerminal": "k2"
   },
   {
-   "from": "mcu1",
+   "from": "pico1",
    "fromTerminal": "gp13",
    "to": "bar1",
    "toTerminal": "k3"
   },
   {
-   "from": "mcu1",
+   "from": "pico1",
    "fromTerminal": "gp12",
    "to": "bar1",
    "toTerminal": "k4"
   },
   {
-   "from": "mcu1",
+   "from": "pico1",
    "fromTerminal": "gp11",
    "to": "bar1",
    "toTerminal": "k5"
   },
   {
-   "from": "mcu1",
+   "from": "pico1",
    "fromTerminal": "gp10",
    "to": "bar1",
    "toTerminal": "k6"
   },
   {
-   "from": "mcu1",
+   "from": "pico1",
    "fromTerminal": "gp0",
    "to": "bar1",
    "toTerminal": "k7"
   },
   {
-   "from": "mcu1",
+   "from": "pico1",
    "fromTerminal": "gp26",
    "to": "pot1",
    "toTerminal": "wiper"

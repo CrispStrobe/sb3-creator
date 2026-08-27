@@ -31,7 +31,7 @@
    "y": 115
   },
   {
-   "id": "MCU",
+   "id": "attiny881",
    "kind": "attiny88",
    "params": {},
    "terminals": [
@@ -376,7 +376,7 @@
  ],
  "wires": [
   {
-   "from": "MCU",
+   "from": "attiny881",
    "fromTerminal": "pb0",
    "to": "R_sa",
    "toTerminal": "a"
@@ -388,7 +388,7 @@
    "toTerminal": "anode"
   },
   {
-   "from": "MCU",
+   "from": "attiny881",
    "fromTerminal": "pb1",
    "to": "R_sb",
    "toTerminal": "a"
@@ -400,7 +400,7 @@
    "toTerminal": "anode"
   },
   {
-   "from": "MCU",
+   "from": "attiny881",
    "fromTerminal": "pb2",
    "to": "R_sc",
    "toTerminal": "a"
@@ -412,7 +412,7 @@
    "toTerminal": "anode"
   },
   {
-   "from": "MCU",
+   "from": "attiny881",
    "fromTerminal": "pb3",
    "to": "R_sd",
    "toTerminal": "a"
@@ -424,7 +424,7 @@
    "toTerminal": "anode"
   },
   {
-   "from": "MCU",
+   "from": "attiny881",
    "fromTerminal": "pb4",
    "to": "R_se",
    "toTerminal": "a"
@@ -436,7 +436,7 @@
    "toTerminal": "anode"
   },
   {
-   "from": "MCU",
+   "from": "attiny881",
    "fromTerminal": "pb5",
    "to": "R_sf",
    "toTerminal": "a"
@@ -448,7 +448,7 @@
    "toTerminal": "anode"
   },
   {
-   "from": "MCU",
+   "from": "attiny881",
    "fromTerminal": "pb6",
    "to": "R_sg",
    "toTerminal": "a"

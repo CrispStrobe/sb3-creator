@@ -2,7 +2,7 @@
   "vcc": 3.3,
   "parts": [
     {
-      "id": "pico1",
+      "id": "stc151",
       "kind": "stc15_mcu",
       "params": {},
       "rotation": 0,
@@ -103,7 +103,7 @@
         "terminal": "sda"
       },
       "to": {
-        "part": "pico1",
+        "part": "stc151",
         "terminal": "P1.0"
       }
     },
@@ -115,7 +115,7 @@
         "terminal": "scl"
       },
       "to": {
-        "part": "pico1",
+        "part": "stc151",
         "terminal": "P1.1"
       }
     },
@@ -139,7 +139,7 @@
         "terminal": "gnd"
       },
       "to": {
-        "part": "pico1",
+        "part": "stc151",
         "terminal": "GND"
       }
     },
@@ -151,7 +151,7 @@
         "terminal": "vcc"
       },
       "to": {
-        "part": "pico1",
+        "part": "stc151",
         "terminal": "VCC"
       }
     },

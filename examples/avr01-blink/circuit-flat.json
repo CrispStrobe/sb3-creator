@@ -39,7 +39,7 @@
       "y": 255
     },
     {
-      "id": "mcu1",
+      "id": "uno1",
       "kind": "arduino_uno",
       "params": {
         "pins": [
@@ -74,7 +74,7 @@
         "terminal": "anode"
       },
       "to": {
-        "part": "mcu1",
+        "part": "uno1",
         "terminal": "D13"
       }
     },
@@ -86,7 +86,7 @@
         "terminal": "gnd"
       },
       "to": {
-        "part": "mcu1",
+        "part": "uno1",
         "terminal": "gnd2"
       }
     },

@@ -31,7 +31,7 @@
    "y": 115
   },
   {
-   "id": "MCU",
+   "id": "attiny851",
    "kind": "attiny85",
    "params": {},
    "terminals": [
@@ -146,11 +146,11 @@
   {
    "from": "R_PU_btn",
    "fromTerminal": "b",
-   "to": "MCU",
+   "to": "attiny851",
    "toTerminal": "pb2"
   },
   {
-   "from": "MCU",
+   "from": "attiny851",
    "fromTerminal": "pb0",
    "to": "R_led1",
    "toTerminal": "a"

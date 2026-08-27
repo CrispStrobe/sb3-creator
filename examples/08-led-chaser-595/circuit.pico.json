@@ -326,7 +326,7 @@
    }
   },
   {
-   "id": "mcu1",
+   "id": "pico1",
    "kind": "pi_pico",
    "params": {},
    "x": 64,
@@ -525,91 +525,91 @@
    "toTerminal": "gnd"
   },
   {
-   "from": "mcu1",
+   "from": "pico1",
    "fromTerminal": "gp25",
    "to": "sr1",
    "toTerminal": "data"
   },
   {
-   "from": "mcu1",
+   "from": "pico1",
    "fromTerminal": "gp15",
    "to": "sr1",
    "toTerminal": "clock"
   },
   {
-   "from": "mcu1",
+   "from": "pico1",
    "fromTerminal": "gp14",
    "to": "sr1",
    "toTerminal": "latch"
   },
   {
-   "from": "mcu1",
+   "from": "pico1",
    "fromTerminal": "gnd_1",
    "to": "d1",
    "toTerminal": "cathode"
   },
   {
-   "from": "mcu1",
+   "from": "pico1",
    "fromTerminal": "gnd_1",
    "to": "d2",
    "toTerminal": "cathode"
   },
   {
-   "from": "mcu1",
+   "from": "pico1",
    "fromTerminal": "gnd_1",
    "to": "d3",
    "toTerminal": "cathode"
   },
   {
-   "from": "mcu1",
+   "from": "pico1",
    "fromTerminal": "gnd_1",
    "to": "d4",
    "toTerminal": "cathode"
   },
   {
-   "from": "mcu1",
+   "from": "pico1",
    "fromTerminal": "gnd_1",
    "to": "d5",
    "toTerminal": "cathode"
   },
   {
-   "from": "mcu1",
+   "from": "pico1",
    "fromTerminal": "gnd_1",
    "to": "d6",
    "toTerminal": "cathode"
   },
   {
-   "from": "mcu1",
+   "from": "pico1",
    "fromTerminal": "gnd_1",
    "to": "d7",
    "toTerminal": "cathode"
   },
   {
-   "from": "mcu1",
+   "from": "pico1",
    "fromTerminal": "gnd_1",
    "to": "d8",
    "toTerminal": "cathode"
   },
   {
-   "from": "mcu1",
+   "from": "pico1",
    "fromTerminal": "gnd_1",
    "to": "gnd1",
    "toTerminal": "gnd"
   },
   {
-   "from": "mcu1",
+   "from": "pico1",
    "fromTerminal": "gnd_1",
    "to": "sr1",
    "toTerminal": "gnd"
   },
   {
-   "from": "mcu1",
+   "from": "pico1",
    "fromTerminal": "vsys",
    "to": "sr1",
    "toTerminal": "vcc"
   },
   {
-   "from": "mcu1",
+   "from": "pico1",
    "fromTerminal": "vsys",
    "to": "vcc1",
    "toTerminal": "vcc"

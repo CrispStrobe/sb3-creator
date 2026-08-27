@@ -308,7 +308,7 @@
       "y": 615
     },
     {
-      "id": "mcu1",
+      "id": "attiny851",
       "kind": "attiny85",
       "params": {},
       "rotation": 0,
@@ -613,7 +613,7 @@
         "terminal": "cathode"
       },
       "to": {
-        "part": "mcu1",
+        "part": "attiny851",
         "terminal": "gnd"
       }
     },
@@ -633,7 +633,7 @@
       "id": "w_flat_26",
       "netId": "bb1:rail-t+",
       "from": {
-        "part": "mcu1",
+        "part": "attiny851",
         "terminal": "vcc"
       },
       "to": {
@@ -645,7 +645,7 @@
       "id": "w_flat_27",
       "netId": "bb1:rail-t+",
       "from": {
-        "part": "mcu1",
+        "part": "attiny851",
         "terminal": "vcc"
       },
       "to": {
@@ -657,7 +657,7 @@
       "id": "w_flat_28",
       "netId": "net-lgc-19",
       "from": {
-        "part": "mcu1",
+        "part": "attiny851",
         "terminal": "pb0"
       },
       "to": {
@@ -669,7 +669,7 @@
       "id": "w_flat_29",
       "netId": "net-lgc-20",
       "from": {
-        "part": "mcu1",
+        "part": "attiny851",
         "terminal": "pb1"
       },
       "to": {
@@ -681,7 +681,7 @@
       "id": "w_flat_30",
       "netId": "net-lgc-21",
       "from": {
-        "part": "mcu1",
+        "part": "attiny851",
         "terminal": "pb2"
       },
       "to": {

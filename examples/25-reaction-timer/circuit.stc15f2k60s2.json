@@ -31,7 +31,7 @@
    "y": 115
   },
   {
-   "id": "MCU",
+   "id": "stc151",
    "kind": "stc15_mcu",
    "params": {},
    "terminals": [
@@ -178,7 +178,7 @@
   {
    "from": "LED_led1",
    "fromTerminal": "cathode",
-   "to": "MCU",
+   "to": "stc151",
    "toTerminal": "p1.0"
   },
   {
@@ -190,7 +190,7 @@
   {
    "from": "R_PU_btn",
    "fromTerminal": "b",
-   "to": "MCU",
+   "to": "stc151",
    "toTerminal": "p3.2"
   },
   {

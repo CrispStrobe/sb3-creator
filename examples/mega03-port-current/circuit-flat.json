@@ -228,7 +228,7 @@
       "y": 349
     },
     {
-      "id": "mcu1",
+      "id": "mega1",
       "kind": "arduino_mega",
       "params": {
         "pins": [
@@ -347,7 +347,7 @@
         "terminal": "anode"
       },
       "to": {
-        "part": "mcu1",
+        "part": "mega1",
         "terminal": "d29"
       }
     },
@@ -371,7 +371,7 @@
         "terminal": "anode"
       },
       "to": {
-        "part": "mcu1",
+        "part": "mega1",
         "terminal": "d26"
       }
     },
@@ -395,7 +395,7 @@
         "terminal": "anode"
       },
       "to": {
-        "part": "mcu1",
+        "part": "mega1",
         "terminal": "d27"
       }
     },
@@ -419,7 +419,7 @@
         "terminal": "anode"
       },
       "to": {
-        "part": "mcu1",
+        "part": "mega1",
         "terminal": "d28"
       }
     },
@@ -467,7 +467,7 @@
         "terminal": "anode"
       },
       "to": {
-        "part": "mcu1",
+        "part": "mega1",
         "terminal": "d22"
       }
     },
@@ -479,7 +479,7 @@
         "terminal": "anode"
       },
       "to": {
-        "part": "mcu1",
+        "part": "mega1",
         "terminal": "d23"
       }
     },
@@ -503,7 +503,7 @@
         "terminal": "anode"
       },
       "to": {
-        "part": "mcu1",
+        "part": "mega1",
         "terminal": "d24"
       }
     },
@@ -515,7 +515,7 @@
         "terminal": "anode"
       },
       "to": {
-        "part": "mcu1",
+        "part": "mega1",
         "terminal": "d25"
       }
     },
@@ -527,7 +527,7 @@
         "terminal": "gnd"
       },
       "to": {
-        "part": "mcu1",
+        "part": "mega1",
         "terminal": "gnd2"
       }
     },

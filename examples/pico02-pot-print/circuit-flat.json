@@ -33,7 +33,7 @@
       "y": 255
     },
     {
-      "id": "mcu1",
+      "id": "pico1",
       "kind": "pi_pico",
       "params": {
         "pins": [
@@ -74,7 +74,7 @@
       "id": "w_flat_0",
       "netId": "bb1:n-col-t28",
       "from": {
-        "part": "mcu1",
+        "part": "pico1",
         "terminal": "gp26"
       },
       "to": {

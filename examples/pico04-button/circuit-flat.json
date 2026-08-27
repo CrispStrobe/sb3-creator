@@ -86,7 +86,7 @@
       "y": 255
     },
     {
-      "id": "mcu1",
+      "id": "pico1",
       "kind": "pi_pico",
       "params": {
         "pins": [
@@ -132,7 +132,7 @@
         "terminal": "b"
       },
       "to": {
-        "part": "mcu1",
+        "part": "pico1",
         "terminal": "gp3"
       }
     },
@@ -144,7 +144,7 @@
         "terminal": "b"
       },
       "to": {
-        "part": "mcu1",
+        "part": "pico1",
         "terminal": "GP3"
       }
     },
@@ -168,7 +168,7 @@
         "terminal": "anode"
       },
       "to": {
-        "part": "mcu1",
+        "part": "pico1",
         "terminal": "gp15"
       }
     },
@@ -180,7 +180,7 @@
         "terminal": "anode"
       },
       "to": {
-        "part": "mcu1",
+        "part": "pico1",
         "terminal": "GP15"
       }
     },

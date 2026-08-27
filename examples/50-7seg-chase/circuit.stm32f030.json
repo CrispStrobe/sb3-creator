@@ -31,7 +31,7 @@
    "y": 115
   },
   {
-   "id": "MCU",
+   "id": "stm321",
    "kind": "stm32f030",
    "params": {},
    "terminals": [
@@ -368,7 +368,7 @@
  ],
  "wires": [
   {
-   "from": "MCU",
+   "from": "stm321",
    "fromTerminal": "pa0",
    "to": "R_sa",
    "toTerminal": "a"
@@ -380,7 +380,7 @@
    "toTerminal": "anode"
   },
   {
-   "from": "MCU",
+   "from": "stm321",
    "fromTerminal": "pa1",
    "to": "R_sb",
    "toTerminal": "a"
@@ -392,7 +392,7 @@
    "toTerminal": "anode"
   },
   {
-   "from": "MCU",
+   "from": "stm321",
    "fromTerminal": "pa2",
    "to": "R_sc",
    "toTerminal": "a"
@@ -404,7 +404,7 @@
    "toTerminal": "anode"
   },
   {
-   "from": "MCU",
+   "from": "stm321",
    "fromTerminal": "pa3",
    "to": "R_sd",
    "toTerminal": "a"
@@ -416,7 +416,7 @@
    "toTerminal": "anode"
   },
   {
-   "from": "MCU",
+   "from": "stm321",
    "fromTerminal": "pa4",
    "to": "R_se",
    "toTerminal": "a"
@@ -428,7 +428,7 @@
    "toTerminal": "anode"
   },
   {
-   "from": "MCU",
+   "from": "stm321",
    "fromTerminal": "pa5",
    "to": "R_sf",
    "toTerminal": "a"
@@ -440,7 +440,7 @@
    "toTerminal": "anode"
   },
   {
-   "from": "MCU",
+   "from": "stm321",
    "fromTerminal": "pb1",
    "to": "R_sg",
    "toTerminal": "a"

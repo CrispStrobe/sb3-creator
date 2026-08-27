@@ -22,7 +22,7 @@
       "y": 60
     },
     {
-      "id": "MCU",
+      "id": "stc151",
       "kind": "stc15_mcu",
       "params": {},
       "terminals": [
@@ -382,7 +382,7 @@
       "id": "w_flat_0",
       "netId": "bb1:n-col-b26",
       "from": {
-        "part": "MCU",
+        "part": "stc151",
         "terminal": "VCC"
       },
       "to": {
@@ -394,7 +394,7 @@
       "id": "w_flat_1",
       "netId": "bb1:n-col-b26",
       "from": {
-        "part": "MCU",
+        "part": "stc151",
         "terminal": "VCC"
       },
       "to": {
@@ -406,7 +406,7 @@
       "id": "w_flat_2",
       "netId": "bb1:n-col-b26",
       "from": {
-        "part": "MCU",
+        "part": "stc151",
         "terminal": "VCC"
       },
       "to": {
@@ -418,7 +418,7 @@
       "id": "w_flat_3",
       "netId": "bb1:n-col-b26",
       "from": {
-        "part": "MCU",
+        "part": "stc151",
         "terminal": "VCC"
       },
       "to": {
@@ -430,7 +430,7 @@
       "id": "w_flat_4",
       "netId": "bb1:n-col-b26",
       "from": {
-        "part": "MCU",
+        "part": "stc151",
         "terminal": "VCC"
       },
       "to": {
@@ -442,7 +442,7 @@
       "id": "w_flat_5",
       "netId": "bb1:n-col-b26",
       "from": {
-        "part": "MCU",
+        "part": "stc151",
         "terminal": "VCC"
       },
       "to": {
@@ -454,7 +454,7 @@
       "id": "w_flat_6",
       "netId": "bb1:n-col-b26",
       "from": {
-        "part": "MCU",
+        "part": "stc151",
         "terminal": "VCC"
       },
       "to": {
@@ -466,7 +466,7 @@
       "id": "w_flat_7",
       "netId": "bb1:n-col-b26",
       "from": {
-        "part": "MCU",
+        "part": "stc151",
         "terminal": "VCC"
       },
       "to": {
@@ -506,7 +506,7 @@
         "terminal": "cathode"
       },
       "to": {
-        "part": "MCU",
+        "part": "stc151",
         "terminal": "p1.0"
       }
     },
@@ -530,7 +530,7 @@
         "terminal": "cathode"
       },
       "to": {
-        "part": "MCU",
+        "part": "stc151",
         "terminal": "p1.1"
       }
     },
@@ -554,7 +554,7 @@
         "terminal": "cathode"
       },
       "to": {
-        "part": "MCU",
+        "part": "stc151",
         "terminal": "p1.2"
       }
     },
@@ -578,7 +578,7 @@
         "terminal": "cathode"
       },
       "to": {
-        "part": "MCU",
+        "part": "stc151",
         "terminal": "p1.3"
       }
     },
@@ -602,7 +602,7 @@
         "terminal": "cathode"
       },
       "to": {
-        "part": "MCU",
+        "part": "stc151",
         "terminal": "p1.4"
       }
     },
@@ -626,7 +626,7 @@
         "terminal": "cathode"
       },
       "to": {
-        "part": "MCU",
+        "part": "stc151",
         "terminal": "p1.5"
       }
     },
@@ -638,7 +638,7 @@
         "terminal": "cathode"
       },
       "to": {
-        "part": "MCU",
+        "part": "stc151",
         "terminal": "p2.0"
       }
     },
@@ -650,7 +650,7 @@
         "terminal": "gnd"
       },
       "to": {
-        "part": "MCU",
+        "part": "stc151",
         "terminal": "GND"
       }
     }

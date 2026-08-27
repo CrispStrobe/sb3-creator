@@ -31,7 +31,7 @@
    "y": 115
   },
   {
-   "id": "MCU",
+   "id": "attiny851",
    "kind": "attiny85",
    "params": {},
    "terminals": [
@@ -134,7 +134,7 @@
  ],
  "wires": [
   {
-   "from": "MCU",
+   "from": "attiny851",
    "fromTerminal": "pb0",
    "to": "R_motor_ctrl",
    "toTerminal": "a"

@@ -42,7 +42,7 @@
    "y": 60
   },
   {
-   "id": "mcu1",
+   "id": "mega1",
    "kind": "arduino_mega",
    "params": {
     "pins": [
@@ -63,7 +63,7 @@
   {
    "from": "pot1",
    "fromTerminal": "wiper",
-   "to": "mcu1",
+   "to": "mega1",
    "toTerminal": "A9"
   },
   {
@@ -95,13 +95,13 @@
   {
    "from": "vcc1",
    "fromTerminal": "vcc",
-   "to": "mcu1",
+   "to": "mega1",
    "toTerminal": "5v"
   },
   {
    "from": "gnd1",
    "fromTerminal": "gnd",
-   "to": "mcu1",
+   "to": "mega1",
    "toTerminal": "gnd2"
   }
  ],

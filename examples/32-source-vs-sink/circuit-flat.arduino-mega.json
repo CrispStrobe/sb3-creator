@@ -82,7 +82,7 @@
       "y": 255
     },
     {
-      "id": "mcu1",
+      "id": "mega1",
       "kind": "arduino_mega",
       "params": {},
       "rotation": 0,
@@ -107,7 +107,7 @@
       "id": "w_flat_1",
       "netId": "bb1:n-col-t32",
       "from": {
-        "part": "mcu1",
+        "part": "mega1",
         "terminal": "d22"
       },
       "to": {
@@ -135,7 +135,7 @@
         "terminal": "cathode"
       },
       "to": {
-        "part": "mcu1",
+        "part": "mega1",
         "terminal": "d13"
       }
     },
@@ -159,7 +159,7 @@
         "terminal": "gnd"
       },
       "to": {
-        "part": "mcu1",
+        "part": "mega1",
         "terminal": "gnd"
       }
     },
@@ -167,7 +167,7 @@
       "id": "w_flat_6",
       "netId": "bb1:rail-t+",
       "from": {
-        "part": "mcu1",
+        "part": "mega1",
         "terminal": "5v"
       },
       "to": {
@@ -179,7 +179,7 @@
       "id": "w_flat_7",
       "netId": "bb1:rail-t+",
       "from": {
-        "part": "mcu1",
+        "part": "mega1",
         "terminal": "5v"
       },
       "to": {

@@ -2,7 +2,7 @@
   "vcc": 5,
   "parts": [
     {
-      "id": "nano",
+      "id": "stc151",
       "kind": "stc15_mcu",
       "params": {},
       "rotation": 0,
@@ -127,7 +127,7 @@
       "id": "w_flat_0",
       "netId": "bb1:n-col-t11",
       "from": {
-        "part": "nano",
+        "part": "stc151",
         "terminal": "P1.0"
       },
       "to": {
@@ -139,7 +139,7 @@
       "id": "w_flat_1",
       "netId": "bb1:n-col-t12",
       "from": {
-        "part": "nano",
+        "part": "stc151",
         "terminal": "P1.1"
       },
       "to": {
@@ -167,7 +167,7 @@
         "terminal": "pos"
       },
       "to": {
-        "part": "nano",
+        "part": "stc151",
         "terminal": "P1.2"
       }
     },
@@ -203,7 +203,7 @@
         "terminal": "neg"
       },
       "to": {
-        "part": "nano",
+        "part": "stc151",
         "terminal": "GND"
       }
     },
@@ -223,7 +223,7 @@
       "id": "w_flat_8",
       "netId": "bb1:rail-t+",
       "from": {
-        "part": "nano",
+        "part": "stc151",
         "terminal": "VCC"
       },
       "to": {
@@ -235,7 +235,7 @@
       "id": "w_flat_9",
       "netId": "bb1:rail-t+",
       "from": {
-        "part": "nano",
+        "part": "stc151",
         "terminal": "VCC"
       },
       "to": {

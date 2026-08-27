@@ -31,7 +31,7 @@
    "y": 115
   },
   {
-   "id": "MCU",
+   "id": "mega1",
    "kind": "arduino_mega",
    "params": {},
    "terminals": [
@@ -216,7 +216,7 @@
  ],
  "wires": [
   {
-   "from": "MCU",
+   "from": "mega1",
    "fromTerminal": "d13",
    "to": "R_led1",
    "toTerminal": "a"
@@ -228,7 +228,7 @@
    "toTerminal": "anode"
   },
   {
-   "from": "MCU",
+   "from": "mega1",
    "fromTerminal": "d22",
    "to": "R_led2",
    "toTerminal": "a"
@@ -240,7 +240,7 @@
    "toTerminal": "anode"
   },
   {
-   "from": "MCU",
+   "from": "mega1",
    "fromTerminal": "d23",
    "to": "R_led3",
    "toTerminal": "a"
@@ -252,7 +252,7 @@
    "toTerminal": "anode"
   },
   {
-   "from": "MCU",
+   "from": "mega1",
    "fromTerminal": "d24",
    "to": "R_led4",
    "toTerminal": "a"
@@ -290,7 +290,7 @@
   {
    "from": "VCC",
    "fromTerminal": "vcc",
-   "to": "MCU",
+   "to": "mega1",
    "toTerminal": "5v",
    "color": "red",
    "genPower": true
@@ -298,7 +298,7 @@
   {
    "from": "GND",
    "fromTerminal": "gnd",
-   "to": "MCU",
+   "to": "mega1",
    "toTerminal": "gnd2",
    "color": "black",
    "genPower": true

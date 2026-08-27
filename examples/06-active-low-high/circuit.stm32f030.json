@@ -91,7 +91,7 @@
    }
   },
   {
-   "id": "mcu1",
+   "id": "stm321",
    "kind": "stm32f030",
    "params": {},
    "x": 80,
@@ -145,37 +145,37 @@
    "genPower": true
   },
   {
-   "from": "mcu1",
+   "from": "stm321",
    "fromTerminal": "pa0",
    "to": "led_low",
    "toTerminal": "cathode"
   },
   {
-   "from": "mcu1",
+   "from": "stm321",
    "fromTerminal": "pa1",
    "to": "r2",
    "toTerminal": "a"
   },
   {
-   "from": "mcu1",
+   "from": "stm321",
    "fromTerminal": "gnd",
    "to": "gnd1",
    "toTerminal": "gnd"
   },
   {
-   "from": "mcu1",
+   "from": "stm321",
    "fromTerminal": "gnd",
    "to": "led_high",
    "toTerminal": "cathode"
   },
   {
-   "from": "mcu1",
+   "from": "stm321",
    "fromTerminal": "vcc",
    "to": "r1",
    "toTerminal": "a"
   },
   {
-   "from": "mcu1",
+   "from": "stm321",
    "fromTerminal": "vcc",
    "to": "vcc1",
    "toTerminal": "vcc"

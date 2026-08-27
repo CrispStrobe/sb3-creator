@@ -31,7 +31,7 @@
    "y": 115
   },
   {
-   "id": "MCU",
+   "id": "attiny851",
    "kind": "attiny85",
    "params": {},
    "x": 64,
@@ -107,7 +107,7 @@
    "toTerminal": "cathode"
   },
   {
-   "from": "MCU",
+   "from": "attiny851",
    "fromTerminal": "pb1",
    "to": "R_opto",
    "toTerminal": "a"

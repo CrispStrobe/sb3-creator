@@ -11,9 +11,8 @@
    "rotation": 0
   },
   {
-   "id": "mcu",
+   "id": "attiny881",
    "kind": "attiny88",
-   "declName": "mcu",
    "x": 64,
    "y": 349,
    "seat": {
@@ -164,97 +163,97 @@
  ],
  "wires": [
   {
-   "from": "mcu",
+   "from": "attiny881",
    "fromTerminal": "pb0",
    "to": "matrix",
    "toTerminal": "col0"
   },
   {
-   "from": "mcu",
+   "from": "attiny881",
    "fromTerminal": "pb1",
    "to": "matrix",
    "toTerminal": "col1"
   },
   {
-   "from": "mcu",
+   "from": "attiny881",
    "fromTerminal": "pb2",
    "to": "matrix",
    "toTerminal": "col2"
   },
   {
-   "from": "mcu",
+   "from": "attiny881",
    "fromTerminal": "pb3",
    "to": "matrix",
    "toTerminal": "col3"
   },
   {
-   "from": "mcu",
+   "from": "attiny881",
    "fromTerminal": "pb4",
    "to": "matrix",
    "toTerminal": "col4"
   },
   {
-   "from": "mcu",
+   "from": "attiny881",
    "fromTerminal": "pb5",
    "to": "matrix",
    "toTerminal": "col5"
   },
   {
-   "from": "mcu",
+   "from": "attiny881",
    "fromTerminal": "pb6",
    "to": "matrix",
    "toTerminal": "col6"
   },
   {
-   "from": "mcu",
+   "from": "attiny881",
    "fromTerminal": "pb7",
    "to": "matrix",
    "toTerminal": "col7"
   },
   {
-   "from": "mcu",
+   "from": "attiny881",
    "fromTerminal": "pd0",
    "to": "matrix",
    "toTerminal": "row0"
   },
   {
-   "from": "mcu",
+   "from": "attiny881",
    "fromTerminal": "pd1",
    "to": "matrix",
    "toTerminal": "row1"
   },
   {
-   "from": "mcu",
+   "from": "attiny881",
    "fromTerminal": "pd2",
    "to": "matrix",
    "toTerminal": "row2"
   },
   {
-   "from": "mcu",
+   "from": "attiny881",
    "fromTerminal": "pd3",
    "to": "matrix",
    "toTerminal": "row3"
   },
   {
-   "from": "mcu",
+   "from": "attiny881",
    "fromTerminal": "pd4",
    "to": "matrix",
    "toTerminal": "row4"
   },
   {
-   "from": "mcu",
+   "from": "attiny881",
    "fromTerminal": "pd5",
    "to": "matrix",
    "toTerminal": "row5"
   },
   {
-   "from": "mcu",
+   "from": "attiny881",
    "fromTerminal": "pd6",
    "to": "matrix",
    "toTerminal": "row6"
   },
   {
-   "from": "mcu",
+   "from": "attiny881",
    "fromTerminal": "pd7",
    "to": "matrix",
    "toTerminal": "row7"
@@ -268,11 +267,11 @@
   {
    "from": "btnL",
    "fromTerminal": "b",
-   "to": "mcu",
+   "to": "attiny881",
    "toTerminal": "pc3"
   },
   {
-   "from": "mcu",
+   "from": "attiny881",
    "fromTerminal": "pc3",
    "to": "rL",
    "toTerminal": "a"
@@ -292,11 +291,11 @@
   {
    "from": "btnR",
    "fromTerminal": "b",
-   "to": "mcu",
+   "to": "attiny881",
    "toTerminal": "pc7"
   },
   {
-   "from": "mcu",
+   "from": "attiny881",
    "fromTerminal": "pc7",
    "to": "rR",
    "toTerminal": "a"
@@ -310,13 +309,13 @@
   {
    "from": "vcc1",
    "fromTerminal": "vcc",
-   "to": "mcu",
+   "to": "attiny881",
    "toTerminal": "VCC"
   },
   {
    "from": "gnd1",
    "fromTerminal": "gnd",
-   "to": "mcu",
+   "to": "attiny881",
    "toTerminal": "GND"
   },
   {

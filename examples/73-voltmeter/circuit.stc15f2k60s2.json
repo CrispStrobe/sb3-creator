@@ -11,7 +11,7 @@
    "rotation": 0
   },
   {
-   "id": "nano",
+   "id": "stc151",
    "kind": "stc15_mcu",
    "params": {},
    "x": 64,
@@ -149,55 +149,55 @@
    "toTerminal": "gnd"
   },
   {
-   "from": "nano",
+   "from": "stc151",
    "fromTerminal": "VCC",
    "to": "oled1",
    "toTerminal": "vcc"
   },
   {
-   "from": "nano",
+   "from": "stc151",
    "fromTerminal": "VCC",
    "to": "probe1",
    "toTerminal": "a"
   },
   {
-   "from": "nano",
+   "from": "stc151",
    "fromTerminal": "VCC",
    "to": "vcc1",
    "toTerminal": "vcc"
   },
   {
-   "from": "nano",
+   "from": "stc151",
    "fromTerminal": "GND",
    "to": "gnd1",
    "toTerminal": "gnd"
   },
   {
-   "from": "nano",
+   "from": "stc151",
    "fromTerminal": "GND",
    "to": "oled1",
    "toTerminal": "gnd"
   },
   {
-   "from": "nano",
+   "from": "stc151",
    "fromTerminal": "GND",
    "to": "probe1",
    "toTerminal": "b"
   },
   {
-   "from": "nano",
+   "from": "stc151",
    "fromTerminal": "P1.0",
    "to": "oled1",
    "toTerminal": "sda"
   },
   {
-   "from": "nano",
+   "from": "stc151",
    "fromTerminal": "P1.1",
    "to": "oled1",
    "toTerminal": "scl"
   },
   {
-   "from": "nano",
+   "from": "stc151",
    "fromTerminal": "P1.2",
    "to": "probe1",
    "toTerminal": "wiper"

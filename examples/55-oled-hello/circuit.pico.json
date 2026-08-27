@@ -31,7 +31,7 @@
    "y": 115
   },
   {
-   "id": "MCU",
+   "id": "pico1",
    "kind": "pi_pico",
    "params": {},
    "terminals": [
@@ -151,25 +151,25 @@
  ],
  "wires": [
   {
-   "from": "MCU",
+   "from": "pico1",
    "fromTerminal": "gp4",
    "to": "R_PU_sda",
    "toTerminal": "b"
   },
   {
-   "from": "MCU",
+   "from": "pico1",
    "fromTerminal": "gp4",
    "to": "OLED",
    "toTerminal": "sda"
   },
   {
-   "from": "MCU",
+   "from": "pico1",
    "fromTerminal": "gp5",
    "to": "R_PU_scl",
    "toTerminal": "b"
   },
   {
-   "from": "MCU",
+   "from": "pico1",
    "fromTerminal": "gp5",
    "to": "OLED",
    "toTerminal": "scl"

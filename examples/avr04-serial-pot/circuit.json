@@ -42,7 +42,7 @@
    }
   },
   {
-   "id": "mcu1",
+   "id": "uno1",
    "kind": "arduino_uno",
    "params": {
     "pins": [
@@ -73,13 +73,13 @@
   {
    "from": "pot1",
    "fromTerminal": "wiper",
-   "to": "mcu1",
+   "to": "uno1",
    "toTerminal": "A0"
   },
   {
    "from": "vcc1",
    "fromTerminal": "vcc",
-   "to": "mcu1",
+   "to": "uno1",
    "toTerminal": "5v",
    "color": "red",
    "genPower": true
@@ -87,7 +87,7 @@
   {
    "from": "gnd1",
    "fromTerminal": "gnd",
-   "to": "mcu1",
+   "to": "uno1",
    "toTerminal": "gnd2",
    "color": "black",
    "genPower": true

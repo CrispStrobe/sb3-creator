@@ -31,7 +31,7 @@
    "y": 115
   },
   {
-   "id": "MCU",
+   "id": "uno1",
    "kind": "arduino_uno",
    "params": {},
    "terminals": [
@@ -127,7 +127,7 @@
  ],
  "wires": [
   {
-   "from": "MCU",
+   "from": "uno1",
    "fromTerminal": "d13",
    "to": "R_led1",
    "toTerminal": "a"
@@ -147,7 +147,7 @@
   {
    "from": "R_PU_btn",
    "fromTerminal": "b",
-   "to": "MCU",
+   "to": "uno1",
    "toTerminal": "d2"
   },
   {
@@ -171,7 +171,7 @@
   {
    "from": "VCC",
    "fromTerminal": "vcc",
-   "to": "MCU",
+   "to": "uno1",
    "toTerminal": "5v",
    "color": "red",
    "genPower": true
@@ -179,7 +179,7 @@
   {
    "from": "GND",
    "fromTerminal": "gnd",
-   "to": "MCU",
+   "to": "uno1",
    "toTerminal": "gnd2",
    "color": "black",
    "genPower": true

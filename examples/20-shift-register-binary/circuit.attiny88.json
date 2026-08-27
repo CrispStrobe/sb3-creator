@@ -40,7 +40,7 @@
    "y": 115
   },
   {
-   "id": "MCU",
+   "id": "attiny881",
    "kind": "attiny88",
    "params": {},
    "terminals": [
@@ -444,19 +444,19 @@
  ],
  "wires": [
   {
-   "from": "MCU",
+   "from": "attiny881",
    "fromTerminal": "pb0",
    "to": "SR_595",
    "toTerminal": "data"
   },
   {
-   "from": "MCU",
+   "from": "attiny881",
    "fromTerminal": "pb1",
    "to": "SR_595",
    "toTerminal": "clock"
   },
   {
-   "from": "MCU",
+   "from": "attiny881",
    "fromTerminal": "pb2",
    "to": "SR_595",
    "toTerminal": "latch"

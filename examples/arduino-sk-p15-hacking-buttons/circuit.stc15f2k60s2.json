@@ -31,7 +31,7 @@
    "y": 115
   },
   {
-   "id": "MCU",
+   "id": "stc151",
    "kind": "stc15_mcu",
    "params": {},
    "x": 64,
@@ -144,7 +144,7 @@
    "toTerminal": "cathode"
   },
   {
-   "from": "MCU",
+   "from": "stc151",
    "fromTerminal": "P0.0",
    "to": "R_opto",
    "toTerminal": "a"

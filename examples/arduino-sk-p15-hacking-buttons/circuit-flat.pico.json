@@ -22,7 +22,7 @@
       "y": 115
     },
     {
-      "id": "MCU",
+      "id": "pico1",
       "kind": "pi_pico",
       "params": {},
       "terminals": [
@@ -108,7 +108,7 @@
       "id": "w_flat_0",
       "netId": "bb1:n-col-t27",
       "from": {
-        "part": "MCU",
+        "part": "pico1",
         "terminal": "gp0"
       },
       "to": {
@@ -148,7 +148,7 @@
         "terminal": "gnd"
       },
       "to": {
-        "part": "MCU",
+        "part": "pico1",
         "terminal": "gnd_1"
       }
     },
@@ -156,7 +156,7 @@
       "id": "w_flat_4",
       "netId": "bb1:rail-t+",
       "from": {
-        "part": "MCU",
+        "part": "pico1",
         "terminal": "vbus"
       },
       "to": {

@@ -40,7 +40,7 @@
    "y": 115
   },
   {
-   "id": "MCU",
+   "id": "pico1",
    "kind": "pi_pico",
    "params": {},
    "terminals": [
@@ -456,19 +456,19 @@
  ],
  "wires": [
   {
-   "from": "MCU",
+   "from": "pico1",
    "fromTerminal": "gp25",
    "to": "SR_595",
    "toTerminal": "data"
   },
   {
-   "from": "MCU",
+   "from": "pico1",
    "fromTerminal": "gp15",
    "to": "SR_595",
    "toTerminal": "clock"
   },
   {
-   "from": "MCU",
+   "from": "pico1",
    "fromTerminal": "gp14",
    "to": "SR_595",
    "toTerminal": "latch"

@@ -326,7 +326,7 @@
    }
   },
   {
-   "id": "mcu1",
+   "id": "attiny851",
    "kind": "attiny85",
    "params": {},
    "x": 64,
@@ -493,91 +493,91 @@
    "toTerminal": "gnd"
   },
   {
-   "from": "mcu1",
+   "from": "attiny851",
    "fromTerminal": "pb0",
    "to": "sr1",
    "toTerminal": "data"
   },
   {
-   "from": "mcu1",
+   "from": "attiny851",
    "fromTerminal": "pb1",
    "to": "sr1",
    "toTerminal": "clock"
   },
   {
-   "from": "mcu1",
+   "from": "attiny851",
    "fromTerminal": "pb2",
    "to": "sr1",
    "toTerminal": "latch"
   },
   {
-   "from": "mcu1",
+   "from": "attiny851",
    "fromTerminal": "gnd",
    "to": "d1",
    "toTerminal": "cathode"
   },
   {
-   "from": "mcu1",
+   "from": "attiny851",
    "fromTerminal": "gnd",
    "to": "d2",
    "toTerminal": "cathode"
   },
   {
-   "from": "mcu1",
+   "from": "attiny851",
    "fromTerminal": "gnd",
    "to": "d3",
    "toTerminal": "cathode"
   },
   {
-   "from": "mcu1",
+   "from": "attiny851",
    "fromTerminal": "gnd",
    "to": "d4",
    "toTerminal": "cathode"
   },
   {
-   "from": "mcu1",
+   "from": "attiny851",
    "fromTerminal": "gnd",
    "to": "d5",
    "toTerminal": "cathode"
   },
   {
-   "from": "mcu1",
+   "from": "attiny851",
    "fromTerminal": "gnd",
    "to": "d6",
    "toTerminal": "cathode"
   },
   {
-   "from": "mcu1",
+   "from": "attiny851",
    "fromTerminal": "gnd",
    "to": "d7",
    "toTerminal": "cathode"
   },
   {
-   "from": "mcu1",
+   "from": "attiny851",
    "fromTerminal": "gnd",
    "to": "d8",
    "toTerminal": "cathode"
   },
   {
-   "from": "mcu1",
+   "from": "attiny851",
    "fromTerminal": "gnd",
    "to": "gnd1",
    "toTerminal": "gnd"
   },
   {
-   "from": "mcu1",
+   "from": "attiny851",
    "fromTerminal": "gnd",
    "to": "sr1",
    "toTerminal": "gnd"
   },
   {
-   "from": "mcu1",
+   "from": "attiny851",
    "fromTerminal": "vcc",
    "to": "sr1",
    "toTerminal": "vcc"
   },
   {
-   "from": "mcu1",
+   "from": "attiny851",
    "fromTerminal": "vcc",
    "to": "vcc1",
    "toTerminal": "vcc"

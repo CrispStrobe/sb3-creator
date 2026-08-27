@@ -25,7 +25,7 @@
    "y": 115
   },
   {
-   "id": "mcu1",
+   "id": "mega1",
    "kind": "arduino_mega",
    "params": {},
    "x": 475,
@@ -333,127 +333,127 @@
    "toTerminal": "b"
   },
   {
-   "from": "mcu1",
+   "from": "mega1",
    "fromTerminal": "5v",
    "to": "vcc1",
    "toTerminal": "vcc"
   },
   {
-   "from": "mcu1",
+   "from": "mega1",
    "fromTerminal": "5v",
    "to": "r0",
    "toTerminal": "a"
   },
   {
-   "from": "mcu1",
+   "from": "mega1",
    "fromTerminal": "5v",
    "to": "r1",
    "toTerminal": "a"
   },
   {
-   "from": "mcu1",
+   "from": "mega1",
    "fromTerminal": "5v",
    "to": "r2",
    "toTerminal": "a"
   },
   {
-   "from": "mcu1",
+   "from": "mega1",
    "fromTerminal": "5v",
    "to": "r3",
    "toTerminal": "a"
   },
   {
-   "from": "mcu1",
+   "from": "mega1",
    "fromTerminal": "5v",
    "to": "r4",
    "toTerminal": "a"
   },
   {
-   "from": "mcu1",
+   "from": "mega1",
    "fromTerminal": "5v",
    "to": "r5",
    "toTerminal": "a"
   },
   {
-   "from": "mcu1",
+   "from": "mega1",
    "fromTerminal": "5v",
    "to": "r6",
    "toTerminal": "a"
   },
   {
-   "from": "mcu1",
+   "from": "mega1",
    "fromTerminal": "5v",
    "to": "r7",
    "toTerminal": "a"
   },
   {
-   "from": "mcu1",
+   "from": "mega1",
    "fromTerminal": "5v",
    "to": "pot1",
    "toTerminal": "a"
   },
   {
-   "from": "mcu1",
+   "from": "mega1",
    "fromTerminal": "gnd",
    "to": "gnd1",
    "toTerminal": "gnd"
   },
   {
-   "from": "mcu1",
+   "from": "mega1",
    "fromTerminal": "gnd",
    "to": "pot1",
    "toTerminal": "b"
   },
   {
-   "from": "mcu1",
+   "from": "mega1",
    "fromTerminal": "d13",
    "to": "bar1",
    "toTerminal": "k0"
   },
   {
-   "from": "mcu1",
+   "from": "mega1",
    "fromTerminal": "d22",
    "to": "bar1",
    "toTerminal": "k1"
   },
   {
-   "from": "mcu1",
+   "from": "mega1",
    "fromTerminal": "d23",
    "to": "bar1",
    "toTerminal": "k2"
   },
   {
-   "from": "mcu1",
+   "from": "mega1",
    "fromTerminal": "d24",
    "to": "bar1",
    "toTerminal": "k3"
   },
   {
-   "from": "mcu1",
+   "from": "mega1",
    "fromTerminal": "d25",
    "to": "bar1",
    "toTerminal": "k4"
   },
   {
-   "from": "mcu1",
+   "from": "mega1",
    "fromTerminal": "d26",
    "to": "bar1",
    "toTerminal": "k5"
   },
   {
-   "from": "mcu1",
+   "from": "mega1",
    "fromTerminal": "d27",
    "to": "bar1",
    "toTerminal": "k6"
   },
   {
-   "from": "mcu1",
+   "from": "mega1",
    "fromTerminal": "d28",
    "to": "bar1",
    "toTerminal": "k7"
   },
   {
-   "from": "mcu1",
+   "from": "mega1",
    "fromTerminal": "a0",
    "to": "pot1",
    "toTerminal": "wiper"

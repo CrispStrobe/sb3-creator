@@ -18,7 +18,7 @@
    "rotation": 0
   },
   {
-   "id": "mcu1",
+   "id": "stc151",
    "kind": "stc15_mcu",
    "params": {},
    "x": 200,
@@ -246,7 +246,7 @@
  ],
  "wires": [
   {
-   "from": "mcu1",
+   "from": "stc151",
    "fromTerminal": "P0.0",
    "to": "sr0",
    "toTerminal": "a"
@@ -258,7 +258,7 @@
    "toTerminal": "a"
   },
   {
-   "from": "mcu1",
+   "from": "stc151",
    "fromTerminal": "P0.1",
    "to": "sr1",
    "toTerminal": "a"
@@ -270,7 +270,7 @@
    "toTerminal": "b"
   },
   {
-   "from": "mcu1",
+   "from": "stc151",
    "fromTerminal": "P0.2",
    "to": "sr2",
    "toTerminal": "a"
@@ -282,7 +282,7 @@
    "toTerminal": "c"
   },
   {
-   "from": "mcu1",
+   "from": "stc151",
    "fromTerminal": "P0.3",
    "to": "sr3",
    "toTerminal": "a"
@@ -294,7 +294,7 @@
    "toTerminal": "d"
   },
   {
-   "from": "mcu1",
+   "from": "stc151",
    "fromTerminal": "P0.4",
    "to": "sr4",
    "toTerminal": "a"
@@ -306,7 +306,7 @@
    "toTerminal": "e"
   },
   {
-   "from": "mcu1",
+   "from": "stc151",
    "fromTerminal": "P0.5",
    "to": "sr5",
    "toTerminal": "a"
@@ -318,7 +318,7 @@
    "toTerminal": "f"
   },
   {
-   "from": "mcu1",
+   "from": "stc151",
    "fromTerminal": "P0.6",
    "to": "sr6",
    "toTerminal": "a"
@@ -330,7 +330,7 @@
    "toTerminal": "g"
   },
   {
-   "from": "mcu1",
+   "from": "stc151",
    "fromTerminal": "P0.7",
    "to": "sr7",
    "toTerminal": "a"
@@ -342,19 +342,19 @@
    "toTerminal": "dp"
   },
   {
-   "from": "mcu1",
+   "from": "stc151",
    "fromTerminal": "P2.0",
    "to": "dis1",
    "toTerminal": "com0"
   },
   {
-   "from": "mcu1",
+   "from": "stc151",
    "fromTerminal": "P2.1",
    "to": "dis1",
    "toTerminal": "com1"
   },
   {
-   "from": "mcu1",
+   "from": "stc151",
    "fromTerminal": "P2.2",
    "to": "dis1",
    "toTerminal": "com2"
@@ -392,7 +392,7 @@
   {
    "from": "rv1",
    "fromTerminal": "b",
-   "to": "mcu1",
+   "to": "stc151",
    "toTerminal": "P1.0"
   },
   {
@@ -446,7 +446,7 @@
   {
    "from": "amp1",
    "fromTerminal": "1_out",
-   "to": "mcu1",
+   "to": "stc151",
    "toTerminal": "P1.1"
   },
   {
@@ -482,11 +482,11 @@
   {
    "from": "ntc1",
    "fromTerminal": "b",
-   "to": "mcu1",
+   "to": "stc151",
    "toTerminal": "P1.2"
   },
   {
-   "from": "mcu1",
+   "from": "stc151",
    "fromTerminal": "P5.5",
    "to": "bz1",
    "toTerminal": "a"
@@ -500,17 +500,17 @@
   {
    "from": "vcc1",
    "fromTerminal": "vcc",
-   "to": "mcu1",
+   "to": "stc151",
    "toTerminal": "VCC"
   },
   {
    "from": "gnd1",
    "fromTerminal": "gnd",
-   "to": "mcu1",
+   "to": "stc151",
    "toTerminal": "GND"
   },
   {
-   "from": "mcu1",
+   "from": "stc151",
    "fromTerminal": "P3.2",
    "to": "btn1",
    "toTerminal": "a"

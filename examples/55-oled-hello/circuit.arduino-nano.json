@@ -31,7 +31,7 @@
    "y": 115
   },
   {
-   "id": "MCU",
+   "id": "nano1",
    "kind": "arduino_nano",
    "params": {},
    "terminals": [
@@ -141,25 +141,25 @@
  ],
  "wires": [
   {
-   "from": "MCU",
+   "from": "nano1",
    "fromTerminal": "a4",
    "to": "R_PU_sda",
    "toTerminal": "b"
   },
   {
-   "from": "MCU",
+   "from": "nano1",
    "fromTerminal": "a4",
    "to": "OLED",
    "toTerminal": "sda"
   },
   {
-   "from": "MCU",
+   "from": "nano1",
    "fromTerminal": "a5",
    "to": "R_PU_scl",
    "toTerminal": "b"
   },
   {
-   "from": "MCU",
+   "from": "nano1",
    "fromTerminal": "a5",
    "to": "OLED",
    "toTerminal": "scl"

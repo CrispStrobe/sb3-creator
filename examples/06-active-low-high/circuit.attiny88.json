@@ -91,7 +91,7 @@
    }
   },
   {
-   "id": "mcu1",
+   "id": "attiny881",
    "kind": "attiny88",
    "params": {},
    "x": 64,
@@ -158,37 +158,37 @@
    "toTerminal": "gnd"
   },
   {
-   "from": "mcu1",
+   "from": "attiny881",
    "fromTerminal": "pb0",
    "to": "led_low",
    "toTerminal": "cathode"
   },
   {
-   "from": "mcu1",
+   "from": "attiny881",
    "fromTerminal": "pb1",
    "to": "r2",
    "toTerminal": "a"
   },
   {
-   "from": "mcu1",
+   "from": "attiny881",
    "fromTerminal": "gnd",
    "to": "gnd1",
    "toTerminal": "gnd"
   },
   {
-   "from": "mcu1",
+   "from": "attiny881",
    "fromTerminal": "gnd",
    "to": "led_high",
    "toTerminal": "cathode"
   },
   {
-   "from": "mcu1",
+   "from": "attiny881",
    "fromTerminal": "vcc",
    "to": "r1",
    "toTerminal": "a"
   },
   {
-   "from": "mcu1",
+   "from": "attiny881",
    "fromTerminal": "vcc",
    "to": "vcc1",
    "toTerminal": "vcc"

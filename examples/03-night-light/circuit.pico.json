@@ -31,7 +31,7 @@
    "y": 115
   },
   {
-   "id": "MCU",
+   "id": "pico1",
    "kind": "pi_pico",
    "params": {},
    "terminals": [
@@ -154,7 +154,7 @@
  ],
  "wires": [
   {
-   "from": "MCU",
+   "from": "pico1",
    "fromTerminal": "gp25",
    "to": "R_led1",
    "toTerminal": "a"
@@ -168,7 +168,7 @@
   {
    "from": "POT_ldr",
    "fromTerminal": "wiper",
-   "to": "MCU",
+   "to": "pico1",
    "toTerminal": "gp26"
   },
   {

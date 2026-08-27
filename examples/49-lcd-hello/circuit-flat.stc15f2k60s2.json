@@ -22,7 +22,7 @@
       "y": 60
     },
     {
-      "id": "MCU",
+      "id": "stc151",
       "kind": "stc15_mcu",
       "params": {},
       "terminals": [
@@ -149,7 +149,7 @@
         "terminal": "sda"
       },
       "to": {
-        "part": "MCU",
+        "part": "stc151",
         "terminal": "p1.0"
       }
     },
@@ -173,7 +173,7 @@
         "terminal": "scl"
       },
       "to": {
-        "part": "MCU",
+        "part": "stc151",
         "terminal": "p1.1"
       }
     },
@@ -209,7 +209,7 @@
         "terminal": "gnd"
       },
       "to": {
-        "part": "MCU",
+        "part": "stc151",
         "terminal": "GND"
       }
     },
@@ -221,7 +221,7 @@
         "terminal": "vcc"
       },
       "to": {
-        "part": "MCU",
+        "part": "stc151",
         "terminal": "VCC"
       }
     },
