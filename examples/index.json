@@ -7901,5 +7901,21 @@
    "intro": "pc115-the-stack/intro.md",
    "introDE": "pc115-the-stack/intro.de.md"
   }
+ },
+ {
+  "id": "pc116-call-and-return",
+  "title": {
+   "en": "CALL and RET — the microcode moves the pointer",
+   "de": "CALL und RET — der Mikrocode bewegt den Zeiger"
+  },
+  "category": "pure-circuit",
+  "difficulty": 5,
+  "kind": "circuit",
+  "files": {
+   "circuit": "pc116-call-and-return/circuit.json",
+   "expected": "pc116-call-and-return/EXPECTED.md",
+   "intro": "pc116-call-and-return/intro.md",
+   "introDE": "pc116-call-and-return/intro.de.md"
+  }
  }
 ]
