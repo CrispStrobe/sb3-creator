@@ -223,6 +223,18 @@ const KNOWN_INERT = new Map([
         + 'intends; the declaration is kept rather than deleted because it states that intent, '
         + 'and this entry records that the engine does not yet act on it.'],
 
+    ['28c256.contents',
+        'BLIND SPOT: the array perturbation is v.slice(0, -1), which drops the LAST byte. A '
+        + 'microcode image is 128 bytes addressed by (opcode, step) and pc112 reads the low ones, '
+        + 'so removing byte 127 — opcode 15, step 7, which no switch setting reaches — is a change '
+        + 'the bench cannot see. The param is emphatically live: the same image drives every '
+        + 'control line in that rung, and bw-circuit-ui asserts all 24 cells of the control table '
+        + 'against it. Perturbing a byte the circuit ADDRESSES would move it.'],
+    ['28c256.readOnly',
+        'BLIND SPOT: no bench writes. readOnly refuses /WE writes, and both probed sites tie /WE high — '
+        + 'a control store is never written. Flipping it changes nothing because nothing writes, '
+        + 'which is the point of a control store. A bench that pulses /WE would move it.'],
+
     // Read off the solve path — geometry, rendering, export, load-time migration.
     ['arduino_mega.pins', 'BLIND SPOT: the controller pin table is consumed by terminal resolution and the exporters, not by a DC solve.'],
     ['arduino_nano.pins', 'BLIND SPOT: as arduino_mega.pins.'],

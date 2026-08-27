@@ -7837,5 +7837,21 @@
    "intro": "pc111-diode-keypad/intro.md",
    "introDE": "pc111-diode-keypad/intro.de.md"
   }
+ },
+ {
+  "id": "pc112-control-rom",
+  "title": {
+   "en": "The control ROM — a control word you can program",
+   "de": "Das Steuer-ROM — ein Steuerwort, das man programmieren kann"
+  },
+  "category": "pure-circuit",
+  "difficulty": 5,
+  "kind": "circuit",
+  "files": {
+   "circuit": "pc112-control-rom/circuit.json",
+   "expected": "pc112-control-rom/EXPECTED.md",
+   "intro": "pc112-control-rom/intro.md",
+   "introDE": "pc112-control-rom/intro.de.md"
+  }
  }
 ]

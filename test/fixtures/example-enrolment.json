@@ -1,11 +1,11 @@
 {
   "note": "Which gates enrol which example, computed from scripts/lib/example-enrolment.mjs. A diff here is a change in COVERAGE — read it before regenerating.",
   "measuredOn": "2026-08-23",
-  "examples": 303,
+  "examples": 304,
   "gates": {
     "gallery": 278,
-    "example-kind-matches-content": 303,
-    "index-metadata-matches-disk": 303,
+    "example-kind-matches-content": 304,
+    "index-metadata-matches-disk": 304,
     "retarget-gallery": 43,
     "retarget-amplification": 43,
     "gen-device-benches": 128,
@@ -13,7 +13,7 @@
     "assert-physics": 246,
     "debug-micropython": 9,
     "debug-trace-audit": 17,
-    "circuit-params-are-read": 272,
+    "circuit-params-are-read": 273,
     "program-reads-what-it-writes": 278,
     "vm-and-c-agree-on-arithmetic": 127,
     "documented-tables-are-derived": 4,
@@ -3130,6 +3130,11 @@
       "index-metadata-matches-disk"
     ],
     "pc111-diode-keypad": [
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "index-metadata-matches-disk"
+    ],
+    "pc112-control-rom": [
       "circuit-params-are-read",
       "example-kind-matches-content",
       "index-metadata-matches-disk"
