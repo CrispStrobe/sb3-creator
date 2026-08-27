@@ -7869,5 +7869,21 @@
    "intro": "pc113-conditional-jump/intro.md",
    "introDE": "pc113-conditional-jump/intro.de.md"
   }
+ },
+ {
+  "id": "pc114-alu-flags",
+  "title": {
+   "en": "Eight bits, and flags the machine works out for itself",
+   "de": "Acht Bit, und Flags, die die Maschine selbst ermittelt"
+  },
+  "category": "pure-circuit",
+  "difficulty": 5,
+  "kind": "circuit",
+  "files": {
+   "circuit": "pc114-alu-flags/circuit.json",
+   "expected": "pc114-alu-flags/EXPECTED.md",
+   "intro": "pc114-alu-flags/intro.md",
+   "introDE": "pc114-alu-flags/intro.de.md"
+  }
  }
 ]

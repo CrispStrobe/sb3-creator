@@ -1,11 +1,11 @@
 {
   "note": "Which gates enrol which example, computed from scripts/lib/example-enrolment.mjs. A diff here is a change in COVERAGE — read it before regenerating.",
   "measuredOn": "2026-08-23",
-  "examples": 305,
+  "examples": 306,
   "gates": {
     "gallery": 278,
-    "example-kind-matches-content": 305,
-    "index-metadata-matches-disk": 305,
+    "example-kind-matches-content": 306,
+    "index-metadata-matches-disk": 306,
     "retarget-gallery": 43,
     "retarget-amplification": 43,
     "gen-device-benches": 128,
@@ -13,7 +13,7 @@
     "assert-physics": 246,
     "debug-micropython": 9,
     "debug-trace-audit": 17,
-    "circuit-params-are-read": 274,
+    "circuit-params-are-read": 275,
     "program-reads-what-it-writes": 278,
     "vm-and-c-agree-on-arithmetic": 127,
     "documented-tables-are-derived": 4,
@@ -3140,6 +3140,11 @@
       "index-metadata-matches-disk"
     ],
     "pc113-conditional-jump": [
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "index-metadata-matches-disk"
+    ],
+    "pc114-alu-flags": [
       "circuit-params-are-read",
       "example-kind-matches-content",
       "index-metadata-matches-disk"
