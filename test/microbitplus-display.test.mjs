@@ -45,3 +45,46 @@ test('`scroll text "x" delay N ms` is NOT grabbed by the stock scroll rule', () 
     assert.ok(py.includes("display.scroll('wave', delay=int(80))"), py);
     assert.ok(!py.includes('text \\"wave\\"'), 'stock scroll hijacked the line');
 });
+
+test('plot takes a computed x and y, not only two literals', () => {
+    // Regression: X and Y are inputs on microbitplus_plot, so the block can
+    // hold a reporter — but only `plot x <digits> y <digits>` parsed, and
+    // `plot x col y row on` matched no rule at all, producing NO BLOCK. The
+    // same shape of gap as `show text <reporter>`.
+    const py = mp('set col to 1\n    set row to 2\n    plot x col y row on');
+    assert.match(py, /display\.set_pixel\(int\(col\), int\(row\), 9\)/, py);
+});
+
+test('a literal plot still lowers exactly as it did', () => {
+    const py = mp('plot x 2 y 3 on');
+    assert.ok(py.includes('display.set_pixel(int(2), int(3), 9)'), py);
+});
+
+test('arrays reach the device: the registry the reporters read is filled', () => {
+    // Two halves of one bug. The reporters emitted `_arrays.length(…)`
+    // whether or not anything defined `_arrays` — a NameError at the first
+    // array read, reported as nothing — and the array COMMANDS fell through
+    // to `pass`, so even with a registry it would have been empty.
+    const py = mp([
+        'new array "liste" = [1, 2, 3]',
+        '    push 4 to array "liste"',
+        '    show text (length of array "liste")'
+    ].join('\n'));
+    assert.match(py, /_arrays = _Arrays\(\)/, 'the registry is used but never defined');
+    assert.match(py, /import json/, 'the shim parses its literal with json');
+    assert.match(py, /_arrays\.create1d\("liste"/, py);
+    assert.match(py, /_arrays\.push\("liste", 4\)/, py);
+    assert.doesNotMatch(py, /pass  # arrays_/, 'an array command lowered to nothing');
+});
+
+test('timer on a device is running_time(), not a shim call degraded to zero', () => {
+    // `timer` is not a Scratch-only idea on this board: the micro:bit has
+    // running_time(), and it means the same clock in different units. Left
+    // to the shared layer it became scratch.timer(), which the generator's
+    // guard turns into 0 — so every stopwatch read zero, and only a warning
+    // said so. Nested is the case that matters: `timer * 1000` hides the
+    // read one level down.
+    const py = mp('set startzeit to timer * 1000');
+    assert.match(py, /running_time\(\) \/ 1000/, py);
+    assert.doesNotMatch(py, /scratch\.timer/, py);
+});

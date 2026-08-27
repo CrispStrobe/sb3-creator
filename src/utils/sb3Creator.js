@@ -3522,6 +3522,18 @@ class SB3Creator {
             block[id].fields.STATE = [match[3].toLowerCase(), null];
             return ret(block);
         }
+        // X and Y are inputs, not fields, so the block can hold a reporter —
+        // but only the two-literal form parsed, and `plot x col y row on`
+        // fell through every rule to produce NO BLOCK AT ALL. Same shape as
+        // the `show text <reporter>` gap above: literals keep the exact
+        // path they had, anything else is read as an expression.
+        if ((match = line.match(/^plot\s+x\s+(.+?)\s+y\s+(.+?)\s+(on|off)\s*$/i))) {
+            const { id, block } = cmd('microbitplus_plot');
+            block[id].inputs.X = val(match[1]);
+            block[id].inputs.Y = val(match[2]);
+            block[id].fields.STATE = [match[3].toLowerCase(), null];
+            return ret(block);
+        }
         // ---- micro:bit+ PINS group (DUAL-LOWERING-ORACLE P1–P7) ----
         if ((match = line.match(/^set\s+pin\s+(P\d+)\s+(?:to\s+|digital\s+)([01])\s*$/i))) {
             const { id, block } = cmd('microbitplus_digitalwrite');
@@ -6251,7 +6263,20 @@ class SB3Creator {
         return this.pyName(name);
     }
 
-    scratchCall(b, blocks, valFn) { return this.runtimeObjCall(b, blocks, valFn, OP_TO_SCRATCH, 'scratch'); }
+    scratchCall(b, blocks, valFn) {
+        // Some Scratch reporters ARE available on a board, in different
+        // units — `timer` is running_time(). Without this the shared layer
+        // emits scratch.timer(), which the micro:bit generator's guard
+        // turns into 0, so a stopwatch reads zero and only a warning says
+        // so. Same reason _nativePinExpr exists: the hook has to be here,
+        // not at the walker, or a read one level down (`timer * 1000`) is
+        // missed.
+        if (this._nativeScratchExpr) {
+            const native = this._nativeScratchExpr(b);
+            if (native) return {kind: 'reporter', call: native};
+        }
+        return this.runtimeObjCall(b, blocks, valFn, OP_TO_SCRATCH, 'scratch');
+    }
     arraysCall(b, blocks, valFn) {
         if (!OP_TO_ARRAYS[b.opcode]) return null;
         if (this._pyUses) { this._pyUses.arrays = true; this._pyUses.json = true; }
@@ -6344,6 +6369,7 @@ class SB3Creator {
     generatePython(project = this.project, opts = {}) {
         this._driverPins = (project.stc && project.stc.pins) || null;
         this._nativePinExpr = null;   // MicroPython-only; must not leak in here
+        this._nativeScratchExpr = null;
         this._pyNames = new Map();
         this._pyUses = { random: false, math: false, time: false, eq: false, answer: false, arrays: false, json: false, sumdigits: false };
         this._runtimesUsed = new Set();
@@ -6681,6 +6707,7 @@ class SB3Creator {
     generateJavaScript(project = this.project, opts = {}) {
         this._driverPins = (project.stc && project.stc.pins) || null;
         this._nativePinExpr = null;   // MicroPython-only; must not leak in here
+        this._nativeScratchExpr = null;
         this._pyNames = new Map();
         this._jsUses = { rand: false, eq: false, answer: false, fact: false, arrays: false, sumdigits: false, multiple: false };
         this._runtimesUsed = new Set();
@@ -8418,6 +8445,13 @@ class SB3Creator {
             }
             return readExpr(pin);
         };
+        this._nativeScratchExpr = (b) => {
+            // running_time() is milliseconds since boot; `timer` is seconds
+            // since the program started. Close enough to be the same clock,
+            // and it is the clock every micro:bit stopwatch actually uses.
+            if (b.opcode === 'sensing_timer') return '(running_time() / 1000)';
+            return null;
+        };
         this._nativePinExpr = (b) => {
             if (b.opcode !== 'stc12_read' && b.opcode !== 'stc12_readpin') return null;
             const pin = pinOf(b.fields && b.fields.PIN ? b.fields.PIN[0] : '');
@@ -8753,6 +8787,14 @@ class SB3Creator {
                     if (isPico) { uses.oled = true; return [`${pad}_oled_print(${v('TEXT')})`]; }
                     break;
                 default: {
+                    // The Arrays & Vectors commands lower through the same
+                    // reversible-op table the reporters already use, so the
+                    // registry the reporters read actually gets filled. Left
+                    // to the fall-through they became `pass`, and a program
+                    // that pushed to an array then read its length got the
+                    // length of an array nothing had ever written to.
+                    const ac = this.arraysCall(b, blocks, this.pyVal);
+                    if (ac) return [`${pad}${ac.call}`];
                     const desc = this.decompileBlock ? this.decompileBlock(b, blocks) : b.opcode;
                     degrade(`${b.opcode} has no ${isPico ? 'Pico' : 'micro:bit'} form yet (${String(desc).slice(0, 40)})`);
                     return [`${pad}pass  # ${b.opcode}`];
@@ -8935,6 +8977,13 @@ class SB3Creator {
         // debugger's.
         header.push('_bw_false = False')
         if (uses.radio) header.push('import radio');
+        // The reporters emit `_arrays.<method>(…)` whether or not anything
+        // defines `_arrays`. Without this the device raised NameError at the
+        // first array read, and nothing in the result said so.
+        if (this._pyUses.arrays) {
+            if (!header.includes('import json')) header.push('import json');
+            header.push('', ...this.arraysShimPy(), '_arrays = _Arrays()');
+        }
         if (uses._pitch) header.push('', 'def _pitch():', '    x, y, z = accelerometer.get_values()', '    return math.atan2(-y, -z) * 180 / math.pi');
         if (uses._roll) header.push('', 'def _roll():', '    x, y, z = accelerometer.get_values()', '    return math.atan2(x, -z) * 180 / math.pi');
         // BrickWright debug instrumentation. _bw_pos(n) prints a position marker
