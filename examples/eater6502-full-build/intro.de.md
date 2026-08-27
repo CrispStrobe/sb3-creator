@@ -2,15 +2,15 @@
 level: advanced
 age: 14+
 prereqs: [eater6502-bench]
-teaches: [full-build, binary-counting, bar-graph, lcd-4bit, ps2-keyboard, acia-serial, decoupling, reset-circuit]
+teaches: [full-build, lcd-4bit, ps2-keyboard, acia-serial, decoupling, reset-circuit]
 ---
 ## Was du siehst
-Der vollständige Ben-Eater-6502-Breadboard-Computer mit der BeebEater-Peripherie-Verdrahtung: W65C02-CPU, 16 KB RAM (62256, untere Hälfte), 32 KB ROM (28C256), W65C22 VIA mit HD44780-LCD im 4-Bit-Modus an PORTB und PS/2-Tastatur an PORTA, W65C51 ACIA mit 115200 Baud und 1,8432-MHz-Quarz, zwei 74HC00-NAND-Dekodier-Gatter, Entkopplungskondensatoren pro Chip, Reset-Taster, Balkendiagramm-Status-LEDs und 1-MHz-Taktoszillator.
+Der vollständige Ben-Eater-6502-Breadboard-Computer mit der BeebEater-Peripherie-Verdrahtung: W65C02-CPU, 16 KB RAM (62256, untere Hälfte), 32 KB ROM (28C256), W65C22 VIA mit HD44780-LCD im 4-Bit-Modus an PORTB und PS/2-Tastaturschnittstelle an PORTA, W65C51 ACIA mit 115200 Baud und 1,8432-MHz-Quarz, zwei 74HC00-NAND-Dekodier-Gatter, Entkopplungskondensatoren pro Chip, Reset-Taster und 1-MHz-Taktoszillator.
 
 Dieselbe Schaltung, auf der BeebEater (chelsea6502, MIT) läuft — und später das lieferbare MIT-MS-BASIC-ROM.
 
 ## Probier das
-1. Starte das Programm — das Balkendiagramm zählt binär am VIA-Port-A-Ausgang.
+1. Starte das Testprogramm — die serielle ACIA-Konsole zählt von 0 bis 255.
 2. Drücke Reset — der Zähler startet bei 0 neu.
 3. Prüfe das Warnungen-Panel: RAM $0000–$3FFF, ROM $8000–$FFFF, VIA $6000, ACIA $5000.
 

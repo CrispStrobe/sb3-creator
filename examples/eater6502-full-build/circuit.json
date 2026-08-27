@@ -370,39 +370,6 @@
    "params": {}
   },
   {
-   "id": "bargraph",
-   "kind": "bargraph",
-   "declName": "statusLeds",
-   "x": 302,
-   "y": 1031,
-   "seat": {
-    "boardId": "bb3",
-    "leadMap": {
-     "a0": "e20",
-     "a1": "e21",
-     "a2": "e22",
-     "a3": "e23",
-     "a4": "e24",
-     "a5": "e25",
-     "a6": "e26",
-     "a7": "e27",
-     "a8": "e28",
-     "a9": "e29",
-     "k0": "f20",
-     "k1": "f21",
-     "k2": "f22",
-     "k3": "f23",
-     "k4": "f24",
-     "k5": "f25",
-     "k6": "f26",
-     "k7": "f27",
-     "k8": "f28",
-     "k9": "f29"
-    }
-   },
-   "params": {}
-  },
-  {
    "id": "osc",
    "kind": "555",
    "declName": "clock_1MHz",
@@ -1182,25 +1149,19 @@
    "from": "via",
    "fromTerminal": "pb0",
    "to": "lcd",
-   "toTerminal": "d0"
+   "toTerminal": "rs"
   },
   {
    "from": "via",
    "fromTerminal": "pb1",
    "to": "lcd",
-   "toTerminal": "d1"
+   "toTerminal": "rw"
   },
   {
    "from": "via",
    "fromTerminal": "pb2",
    "to": "lcd",
-   "toTerminal": "d2"
-  },
-  {
-   "from": "via",
-   "fromTerminal": "pb3",
-   "to": "lcd",
-   "toTerminal": "d3"
+   "toTerminal": "e"
   },
   {
    "from": "via",
@@ -1228,21 +1189,57 @@
   },
   {
    "from": "via",
+   "fromTerminal": "pa0",
+   "to": "kbd",
+   "toTerminal": "d0"
+  },
+  {
+   "from": "via",
+   "fromTerminal": "pa1",
+   "to": "kbd",
+   "toTerminal": "d1"
+  },
+  {
+   "from": "via",
+   "fromTerminal": "pa2",
+   "to": "kbd",
+   "toTerminal": "d2"
+  },
+  {
+   "from": "via",
+   "fromTerminal": "pa3",
+   "to": "kbd",
+   "toTerminal": "d3"
+  },
+  {
+   "from": "via",
+   "fromTerminal": "pa4",
+   "to": "kbd",
+   "toTerminal": "d4"
+  },
+  {
+   "from": "via",
    "fromTerminal": "pa5",
-   "to": "lcd",
-   "toTerminal": "rs"
+   "to": "kbd",
+   "toTerminal": "d5"
   },
   {
    "from": "via",
    "fromTerminal": "pa6",
-   "to": "lcd",
-   "toTerminal": "rw"
+   "to": "kbd",
+   "toTerminal": "d6"
   },
   {
    "from": "via",
    "fromTerminal": "pa7",
-   "to": "lcd",
-   "toTerminal": "e"
+   "to": "kbd",
+   "toTerminal": "d7"
+  },
+  {
+   "from": "via",
+   "fromTerminal": "ca1",
+   "to": "kbd",
+   "toTerminal": "da"
   },
   {
    "from": "vcc1",
