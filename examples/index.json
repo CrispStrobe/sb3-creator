@@ -7885,5 +7885,21 @@
    "intro": "pc114-alu-flags/intro.md",
    "introDE": "pc114-alu-flags/intro.de.md"
   }
+ },
+ {
+  "id": "pc115-the-stack",
+  "title": {
+   "en": "A stack — the thing CALL and RET are made of",
+   "de": "Ein Stapel — das, woraus CALL und RET gemacht sind"
+  },
+  "category": "pure-circuit",
+  "difficulty": 5,
+  "kind": "circuit",
+  "files": {
+   "circuit": "pc115-the-stack/circuit.json",
+   "expected": "pc115-the-stack/EXPECTED.md",
+   "intro": "pc115-the-stack/intro.md",
+   "introDE": "pc115-the-stack/intro.de.md"
+  }
  }
 ]
