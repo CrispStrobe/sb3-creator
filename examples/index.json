@@ -7917,5 +7917,21 @@
    "intro": "pc116-call-and-return/intro.md",
    "introDE": "pc116-call-and-return/intro.de.md"
   }
+ },
+ {
+  "id": "pc117-microcoded-machine",
+  "title": {
+   "en": "The machine again, with a ROM where the matrix was",
+   "de": "Dieselbe Maschine, nur mit einem ROM statt der Matrix"
+  },
+  "category": "pure-circuit",
+  "difficulty": 5,
+  "kind": "circuit",
+  "files": {
+   "circuit": "pc117-microcoded-machine/circuit.json",
+   "expected": "pc117-microcoded-machine/EXPECTED.md",
+   "intro": "pc117-microcoded-machine/intro.md",
+   "introDE": "pc117-microcoded-machine/intro.de.md"
+  }
  }
 ]
