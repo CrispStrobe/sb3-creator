@@ -7853,5 +7853,21 @@
    "intro": "pc112-control-rom/intro.md",
    "introDE": "pc112-control-rom/intro.de.md"
   }
+ },
+ {
+  "id": "pc113-conditional-jump",
+  "title": {
+   "en": "Flags — the same ROM, now with an opinion",
+   "de": "Flags — dasselbe ROM, jetzt mit einer Meinung"
+  },
+  "category": "pure-circuit",
+  "difficulty": 5,
+  "kind": "circuit",
+  "files": {
+   "circuit": "pc113-conditional-jump/circuit.json",
+   "expected": "pc113-conditional-jump/EXPECTED.md",
+   "intro": "pc113-conditional-jump/intro.md",
+   "introDE": "pc113-conditional-jump/intro.de.md"
+  }
  }
 ]
