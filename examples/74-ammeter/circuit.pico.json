@@ -11,7 +11,7 @@
    "rotation": 0
   },
   {
-   "id": "nano",
+   "id": "pico1",
    "kind": "pi_pico",
    "params": {},
    "x": 64,
@@ -165,61 +165,61 @@
    "toTerminal": "gnd"
   },
   {
-   "from": "nano",
+   "from": "pico1",
    "fromTerminal": "vsys",
    "to": "lcd1",
    "toTerminal": "vcc"
   },
   {
-   "from": "nano",
+   "from": "pico1",
    "fromTerminal": "vsys",
    "to": "load1",
    "toTerminal": "a"
   },
   {
-   "from": "nano",
+   "from": "pico1",
    "fromTerminal": "vsys",
    "to": "vcc1",
    "toTerminal": "vcc"
   },
   {
-   "from": "nano",
+   "from": "pico1",
    "fromTerminal": "gnd_1",
    "to": "gnd1",
    "toTerminal": "gnd"
   },
   {
-   "from": "nano",
+   "from": "pico1",
    "fromTerminal": "gnd_1",
    "to": "lcd1",
    "toTerminal": "gnd"
   },
   {
-   "from": "nano",
+   "from": "pico1",
    "fromTerminal": "gnd_1",
    "to": "shunt1",
    "toTerminal": "b"
   },
   {
-   "from": "nano",
+   "from": "pico1",
    "fromTerminal": "gp4",
    "to": "lcd1",
    "toTerminal": "sda"
   },
   {
-   "from": "nano",
+   "from": "pico1",
    "fromTerminal": "gp5",
    "to": "lcd1",
    "toTerminal": "scl"
   },
   {
-   "from": "nano",
+   "from": "pico1",
    "fromTerminal": "gp26",
    "to": "load1",
    "toTerminal": "wiper"
   },
   {
-   "from": "nano",
+   "from": "pico1",
    "fromTerminal": "gp26",
    "to": "shunt1",
    "toTerminal": "a"

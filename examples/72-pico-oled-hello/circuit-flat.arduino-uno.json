@@ -2,7 +2,7 @@
   "vcc": 3.3,
   "parts": [
     {
-      "id": "pico1",
+      "id": "uno1",
       "kind": "arduino_uno",
       "params": {},
       "rotation": 0,
@@ -52,7 +52,7 @@
         "terminal": "sda"
       },
       "to": {
-        "part": "pico1",
+        "part": "uno1",
         "terminal": "a4"
       }
     },
@@ -64,7 +64,7 @@
         "terminal": "scl"
       },
       "to": {
-        "part": "pico1",
+        "part": "uno1",
         "terminal": "a5"
       }
     },
@@ -88,7 +88,7 @@
         "terminal": "gnd"
       },
       "to": {
-        "part": "pico1",
+        "part": "uno1",
         "terminal": "gnd"
       }
     },
@@ -100,7 +100,7 @@
         "terminal": "vcc"
       },
       "to": {
-        "part": "pico1",
+        "part": "uno1",
         "terminal": "5v"
       }
     },

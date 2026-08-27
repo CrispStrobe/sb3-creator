@@ -63,7 +63,7 @@
    "rotation": 0
   },
   {
-   "id": "pico1",
+   "id": "mega1",
    "kind": "arduino_mega",
    "params": {},
    "x": 475,
@@ -910,283 +910,283 @@
    "toTerminal": "com"
   },
   {
-   "from": "pico1",
+   "from": "mega1",
    "fromTerminal": "5v",
    "to": "k_b0",
    "toTerminal": "b"
   },
   {
-   "from": "pico1",
+   "from": "mega1",
    "fromTerminal": "5v",
    "to": "k_b1",
    "toTerminal": "b"
   },
   {
-   "from": "pico1",
+   "from": "mega1",
    "fromTerminal": "5v",
    "to": "k_b2",
    "toTerminal": "b"
   },
   {
-   "from": "pico1",
+   "from": "mega1",
    "fromTerminal": "5v",
    "to": "k_b3",
    "toTerminal": "b"
   },
   {
-   "from": "pico1",
+   "from": "mega1",
    "fromTerminal": "5v",
    "to": "k_b4",
    "toTerminal": "b"
   },
   {
-   "from": "pico1",
+   "from": "mega1",
    "fromTerminal": "5v",
    "to": "k_b5",
    "toTerminal": "b"
   },
   {
-   "from": "pico1",
+   "from": "mega1",
    "fromTerminal": "5v",
    "to": "k_b6",
    "toTerminal": "b"
   },
   {
-   "from": "pico1",
+   "from": "mega1",
    "fromTerminal": "5v",
    "to": "k_b7",
    "toTerminal": "b"
   },
   {
-   "from": "pico1",
+   "from": "mega1",
    "fromTerminal": "5v",
    "to": "k_b8",
    "toTerminal": "b"
   },
   {
-   "from": "pico1",
+   "from": "mega1",
    "fromTerminal": "5v",
    "to": "k_b9",
    "toTerminal": "b"
   },
   {
-   "from": "pico1",
+   "from": "mega1",
    "fromTerminal": "5v",
    "to": "k_bac",
    "toTerminal": "b"
   },
   {
-   "from": "pico1",
+   "from": "mega1",
    "fromTerminal": "5v",
    "to": "k_bclr",
    "toTerminal": "b"
   },
   {
-   "from": "pico1",
+   "from": "mega1",
    "fromTerminal": "5v",
    "to": "k_bdiv",
    "toTerminal": "b"
   },
   {
-   "from": "pico1",
+   "from": "mega1",
    "fromTerminal": "5v",
    "to": "k_bexe",
    "toTerminal": "b"
   },
   {
-   "from": "pico1",
+   "from": "mega1",
    "fromTerminal": "5v",
    "to": "k_bminus",
    "toTerminal": "b"
   },
   {
-   "from": "pico1",
+   "from": "mega1",
    "fromTerminal": "5v",
    "to": "k_bplus",
    "toTerminal": "b"
   },
   {
-   "from": "pico1",
+   "from": "mega1",
    "fromTerminal": "5v",
    "to": "k_btimes",
    "toTerminal": "b"
   },
   {
-   "from": "pico1",
+   "from": "mega1",
    "fromTerminal": "5v",
    "to": "oled1",
    "toTerminal": "vcc"
   },
   {
-   "from": "pico1",
+   "from": "mega1",
    "fromTerminal": "5v",
    "to": "pwr",
    "toTerminal": "com"
   },
   {
-   "from": "pico1",
+   "from": "mega1",
    "fromTerminal": "5v",
    "to": "rpu_scl",
    "toTerminal": "a"
   },
   {
-   "from": "pico1",
+   "from": "mega1",
    "fromTerminal": "5v",
    "to": "rpu_sda",
    "toTerminal": "a"
   },
   {
-   "from": "pico1",
+   "from": "mega1",
    "fromTerminal": "d34",
    "to": "k_bac",
    "toTerminal": "a"
   },
   {
-   "from": "pico1",
+   "from": "mega1",
    "fromTerminal": "d33",
    "to": "k_bclr",
    "toTerminal": "a"
   },
   {
-   "from": "pico1",
+   "from": "mega1",
    "fromTerminal": "d32",
    "to": "k_bexe",
    "toTerminal": "a"
   },
   {
-   "from": "pico1",
+   "from": "mega1",
    "fromTerminal": "d22",
    "to": "k_b3",
    "toTerminal": "a"
   },
   {
-   "from": "pico1",
+   "from": "mega1",
    "fromTerminal": "d24",
    "to": "k_b5",
    "toTerminal": "a"
   },
   {
-   "from": "pico1",
+   "from": "mega1",
    "fromTerminal": "d23",
    "to": "k_b4",
    "toTerminal": "a"
   },
   {
-   "from": "pico1",
+   "from": "mega1",
    "fromTerminal": "d25",
    "to": "k_b6",
    "toTerminal": "a"
   },
   {
-   "from": "pico1",
+   "from": "mega1",
    "fromTerminal": "d26",
    "to": "k_b7",
    "toTerminal": "a"
   },
   {
-   "from": "pico1",
+   "from": "mega1",
    "fromTerminal": "d27",
    "to": "k_b8",
    "toTerminal": "a"
   },
   {
-   "from": "pico1",
+   "from": "mega1",
    "fromTerminal": "d28",
    "to": "k_bplus",
    "toTerminal": "a"
   },
   {
-   "from": "pico1",
+   "from": "mega1",
    "fromTerminal": "d29",
    "to": "k_bminus",
    "toTerminal": "a"
   },
   {
-   "from": "pico1",
+   "from": "mega1",
    "fromTerminal": "d30",
    "to": "k_btimes",
    "toTerminal": "a"
   },
   {
-   "from": "pico1",
+   "from": "mega1",
    "fromTerminal": "d31",
    "to": "k_bdiv",
    "toTerminal": "a"
   },
   {
-   "from": "pico1",
+   "from": "mega1",
    "fromTerminal": "d20",
    "to": "oled1",
    "toTerminal": "sda"
   },
   {
-   "from": "pico1",
+   "from": "mega1",
    "fromTerminal": "d20",
    "to": "rpu_sda",
    "toTerminal": "b"
   },
   {
-   "from": "pico1",
+   "from": "mega1",
    "fromTerminal": "d21",
    "to": "oled1",
    "toTerminal": "scl"
   },
   {
-   "from": "pico1",
+   "from": "mega1",
    "fromTerminal": "d21",
    "to": "rpu_scl",
    "toTerminal": "b"
   },
   {
-   "from": "pico1",
+   "from": "mega1",
    "fromTerminal": "d2",
    "to": "k_b9",
    "toTerminal": "a"
   },
   {
-   "from": "pico1",
+   "from": "mega1",
    "fromTerminal": "d3",
    "to": "k_b0",
    "toTerminal": "a"
   },
   {
-   "from": "pico1",
+   "from": "mega1",
    "fromTerminal": "d18",
    "to": "k_b1",
    "toTerminal": "a"
   },
   {
-   "from": "pico1",
+   "from": "mega1",
    "fromTerminal": "d19",
    "to": "k_b2",
    "toTerminal": "a"
   },
   {
-   "from": "pico1",
+   "from": "mega1",
    "fromTerminal": "gnd",
    "to": "gnd1",
    "toTerminal": "gnd"
   },
   {
-   "from": "pico1",
+   "from": "mega1",
    "fromTerminal": "gnd",
    "to": "oled1",
    "toTerminal": "gnd"
   },
   {
-   "from": "pico1",
+   "from": "mega1",
    "fromTerminal": "5v",
    "to": "pwr",
    "toTerminal": "a"
   },
   {
-   "from": "pico1",
+   "from": "mega1",
    "fromTerminal": "5v",
    "to": "vcc1",
    "toTerminal": "vcc"
   },
   {
-   "from": "pico1",
+   "from": "mega1",
    "fromTerminal": "d2",
    "to": "R_PD_b9",
    "toTerminal": "a"
@@ -1198,7 +1198,7 @@
    "fromTerminal": "b"
   },
   {
-   "from": "pico1",
+   "from": "mega1",
    "fromTerminal": "d3",
    "to": "R_PD_b0",
    "toTerminal": "a"
@@ -1210,7 +1210,7 @@
    "fromTerminal": "b"
   },
   {
-   "from": "pico1",
+   "from": "mega1",
    "fromTerminal": "d18",
    "to": "R_PD_b1",
    "toTerminal": "a"
@@ -1222,7 +1222,7 @@
    "fromTerminal": "b"
   },
   {
-   "from": "pico1",
+   "from": "mega1",
    "fromTerminal": "d19",
    "to": "R_PD_b2",
    "toTerminal": "a"
@@ -1234,7 +1234,7 @@
    "fromTerminal": "b"
   },
   {
-   "from": "pico1",
+   "from": "mega1",
    "fromTerminal": "d22",
    "to": "R_PD_b3",
    "toTerminal": "a"
@@ -1246,7 +1246,7 @@
    "fromTerminal": "b"
   },
   {
-   "from": "pico1",
+   "from": "mega1",
    "fromTerminal": "d23",
    "to": "R_PD_b4",
    "toTerminal": "a"
@@ -1258,7 +1258,7 @@
    "fromTerminal": "b"
   },
   {
-   "from": "pico1",
+   "from": "mega1",
    "fromTerminal": "d24",
    "to": "R_PD_b5",
    "toTerminal": "a"
@@ -1270,7 +1270,7 @@
    "fromTerminal": "b"
   },
   {
-   "from": "pico1",
+   "from": "mega1",
    "fromTerminal": "d25",
    "to": "R_PD_b6",
    "toTerminal": "a"
@@ -1282,7 +1282,7 @@
    "fromTerminal": "b"
   },
   {
-   "from": "pico1",
+   "from": "mega1",
    "fromTerminal": "d26",
    "to": "R_PD_b7",
    "toTerminal": "a"
@@ -1294,7 +1294,7 @@
    "fromTerminal": "b"
   },
   {
-   "from": "pico1",
+   "from": "mega1",
    "fromTerminal": "d27",
    "to": "R_PD_b8",
    "toTerminal": "a"
@@ -1306,7 +1306,7 @@
    "fromTerminal": "b"
   },
   {
-   "from": "pico1",
+   "from": "mega1",
    "fromTerminal": "d28",
    "to": "R_PD_bplus",
    "toTerminal": "a"
@@ -1318,7 +1318,7 @@
    "fromTerminal": "b"
   },
   {
-   "from": "pico1",
+   "from": "mega1",
    "fromTerminal": "d29",
    "to": "R_PD_bminus",
    "toTerminal": "a"
@@ -1330,7 +1330,7 @@
    "fromTerminal": "b"
   },
   {
-   "from": "pico1",
+   "from": "mega1",
    "fromTerminal": "d30",
    "to": "R_PD_btimes",
    "toTerminal": "a"
@@ -1342,7 +1342,7 @@
    "fromTerminal": "b"
   },
   {
-   "from": "pico1",
+   "from": "mega1",
    "fromTerminal": "d31",
    "to": "R_PD_bdiv",
    "toTerminal": "a"
@@ -1354,7 +1354,7 @@
    "fromTerminal": "b"
   },
   {
-   "from": "pico1",
+   "from": "mega1",
    "fromTerminal": "d32",
    "to": "R_PD_bexe",
    "toTerminal": "a"
@@ -1366,7 +1366,7 @@
    "fromTerminal": "b"
   },
   {
-   "from": "pico1",
+   "from": "mega1",
    "fromTerminal": "d33",
    "to": "R_PD_bclr",
    "toTerminal": "a"
@@ -1378,7 +1378,7 @@
    "fromTerminal": "b"
   },
   {
-   "from": "pico1",
+   "from": "mega1",
    "fromTerminal": "d34",
    "to": "R_PD_bac",
    "toTerminal": "a"

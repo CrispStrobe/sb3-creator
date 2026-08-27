@@ -11,7 +11,7 @@
    "rotation": 0
   },
   {
-   "id": "nano",
+   "id": "mega1",
    "kind": "arduino_mega",
    "params": {},
    "x": 323,
@@ -118,61 +118,61 @@
    "toTerminal": "gnd"
   },
   {
-   "from": "nano",
+   "from": "mega1",
    "fromTerminal": "5v",
    "to": "oled1",
    "toTerminal": "vcc"
   },
   {
-   "from": "nano",
+   "from": "mega1",
    "fromTerminal": "5v",
    "to": "vcc1",
    "toTerminal": "vcc"
   },
   {
-   "from": "nano",
+   "from": "mega1",
    "fromTerminal": "gnd",
    "to": "cell1",
    "toTerminal": "neg"
   },
   {
-   "from": "nano",
+   "from": "mega1",
    "fromTerminal": "gnd",
    "to": "gnd1",
    "toTerminal": "gnd"
   },
   {
-   "from": "nano",
+   "from": "mega1",
    "fromTerminal": "gnd",
    "to": "load1",
    "toTerminal": "b"
   },
   {
-   "from": "nano",
+   "from": "mega1",
    "fromTerminal": "gnd",
    "to": "oled1",
    "toTerminal": "gnd"
   },
   {
-   "from": "nano",
+   "from": "mega1",
    "fromTerminal": "d20",
    "to": "oled1",
    "toTerminal": "sda"
   },
   {
-   "from": "nano",
+   "from": "mega1",
    "fromTerminal": "d21",
    "to": "oled1",
    "toTerminal": "scl"
   },
   {
-   "from": "nano",
+   "from": "mega1",
    "fromTerminal": "a0",
    "to": "cell1",
    "toTerminal": "pos"
   },
   {
-   "from": "nano",
+   "from": "mega1",
    "fromTerminal": "a0",
    "to": "load1",
    "toTerminal": "a"

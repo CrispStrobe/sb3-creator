@@ -2,7 +2,7 @@
   "vcc": 5,
   "parts": [
     {
-      "id": "nano",
+      "id": "uno1",
       "kind": "arduino_uno",
       "params": {},
       "rotation": 0,
@@ -75,7 +75,7 @@
       "id": "w_flat_0",
       "netId": "bb1:n-col-t11",
       "from": {
-        "part": "nano",
+        "part": "uno1",
         "terminal": "a4"
       },
       "to": {
@@ -87,7 +87,7 @@
       "id": "w_flat_1",
       "netId": "bb1:n-col-t12",
       "from": {
-        "part": "nano",
+        "part": "uno1",
         "terminal": "a5"
       },
       "to": {
@@ -115,7 +115,7 @@
         "terminal": "pos"
       },
       "to": {
-        "part": "nano",
+        "part": "uno1",
         "terminal": "a0"
       }
     },
@@ -151,7 +151,7 @@
         "terminal": "neg"
       },
       "to": {
-        "part": "nano",
+        "part": "uno1",
         "terminal": "gnd"
       }
     },
@@ -171,7 +171,7 @@
       "id": "w_flat_8",
       "netId": "bb1:rail-t+",
       "from": {
-        "part": "nano",
+        "part": "uno1",
         "terminal": "5v"
       },
       "to": {
@@ -183,7 +183,7 @@
       "id": "w_flat_9",
       "netId": "bb1:rail-t+",
       "from": {
-        "part": "nano",
+        "part": "uno1",
         "terminal": "5v"
       },
       "to": {

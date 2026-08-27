@@ -2,7 +2,7 @@
   "vcc": 5,
   "parts": [
     {
-      "id": "nano",
+      "id": "pico1",
       "kind": "pi_pico",
       "params": {},
       "terminals": [
@@ -131,7 +131,7 @@
         "terminal": "wiper"
       },
       "to": {
-        "part": "nano",
+        "part": "pico1",
         "terminal": "gp26"
       }
     },
@@ -155,7 +155,7 @@
         "terminal": "sda"
       },
       "to": {
-        "part": "nano",
+        "part": "pico1",
         "terminal": "gp4"
       }
     },
@@ -167,7 +167,7 @@
         "terminal": "scl"
       },
       "to": {
-        "part": "nano",
+        "part": "pico1",
         "terminal": "gp5"
       }
     },
@@ -191,7 +191,7 @@
         "terminal": "gnd"
       },
       "to": {
-        "part": "nano",
+        "part": "pico1",
         "terminal": "gnd_1"
       }
     },
@@ -227,7 +227,7 @@
         "terminal": "vcc"
       },
       "to": {
-        "part": "nano",
+        "part": "pico1",
         "terminal": "vbus"
       }
     },
@@ -239,7 +239,7 @@
         "terminal": "vcc"
       },
       "to": {
-        "part": "nano",
+        "part": "pico1",
         "terminal": "vsys"
       }
     },

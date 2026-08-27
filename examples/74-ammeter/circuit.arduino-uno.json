@@ -11,7 +11,7 @@
    "rotation": 0
   },
   {
-   "id": "nano",
+   "id": "uno1",
    "kind": "arduino_uno",
    "params": {},
    "x": 240,
@@ -127,61 +127,61 @@
    "toTerminal": "gnd"
   },
   {
-   "from": "nano",
+   "from": "uno1",
    "fromTerminal": "5v",
    "to": "lcd1",
    "toTerminal": "vcc"
   },
   {
-   "from": "nano",
+   "from": "uno1",
    "fromTerminal": "5v",
    "to": "load1",
    "toTerminal": "a"
   },
   {
-   "from": "nano",
+   "from": "uno1",
    "fromTerminal": "5v",
    "to": "vcc1",
    "toTerminal": "vcc"
   },
   {
-   "from": "nano",
+   "from": "uno1",
    "fromTerminal": "gnd",
    "to": "gnd1",
    "toTerminal": "gnd"
   },
   {
-   "from": "nano",
+   "from": "uno1",
    "fromTerminal": "gnd",
    "to": "lcd1",
    "toTerminal": "gnd"
   },
   {
-   "from": "nano",
+   "from": "uno1",
    "fromTerminal": "gnd",
    "to": "shunt1",
    "toTerminal": "b"
   },
   {
-   "from": "nano",
+   "from": "uno1",
    "fromTerminal": "a4",
    "to": "lcd1",
    "toTerminal": "sda"
   },
   {
-   "from": "nano",
+   "from": "uno1",
    "fromTerminal": "a5",
    "to": "lcd1",
    "toTerminal": "scl"
   },
   {
-   "from": "nano",
+   "from": "uno1",
    "fromTerminal": "a0",
    "to": "load1",
    "toTerminal": "wiper"
   },
   {
-   "from": "nano",
+   "from": "uno1",
    "fromTerminal": "a0",
    "to": "shunt1",
    "toTerminal": "a"

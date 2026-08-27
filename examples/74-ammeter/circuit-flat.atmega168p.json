@@ -2,7 +2,7 @@
   "vcc": 5,
   "parts": [
     {
-      "id": "nano",
+      "id": "uno1",
       "kind": "arduino_uno",
       "params": {},
       "rotation": 0,
@@ -88,7 +88,7 @@
         "terminal": "sda"
       },
       "to": {
-        "part": "nano",
+        "part": "uno1",
         "terminal": "a4"
       }
     },
@@ -100,7 +100,7 @@
         "terminal": "scl"
       },
       "to": {
-        "part": "nano",
+        "part": "uno1",
         "terminal": "a5"
       }
     },
@@ -112,7 +112,7 @@
         "terminal": "wiper"
       },
       "to": {
-        "part": "nano",
+        "part": "uno1",
         "terminal": "a0"
       }
     },
@@ -148,7 +148,7 @@
         "terminal": "gnd"
       },
       "to": {
-        "part": "nano",
+        "part": "uno1",
         "terminal": "gnd"
       }
     },
@@ -184,7 +184,7 @@
         "terminal": "vcc"
       },
       "to": {
-        "part": "nano",
+        "part": "uno1",
         "terminal": "5v"
       }
     },

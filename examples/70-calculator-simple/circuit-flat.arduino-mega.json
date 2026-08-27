@@ -36,7 +36,7 @@
       "y": 60
     },
     {
-      "id": "pico1",
+      "id": "mega1",
       "kind": "arduino_mega",
       "params": {},
       "rotation": 0,
@@ -820,7 +820,7 @@
         "terminal": "b"
       },
       "to": {
-        "part": "pico1",
+        "part": "mega1",
         "terminal": "5v"
       }
     },
@@ -892,7 +892,7 @@
         "terminal": "sda"
       },
       "to": {
-        "part": "pico1",
+        "part": "mega1",
         "terminal": "d20"
       }
     },
@@ -916,7 +916,7 @@
         "terminal": "scl"
       },
       "to": {
-        "part": "pico1",
+        "part": "mega1",
         "terminal": "d21"
       }
     },
@@ -940,7 +940,7 @@
         "terminal": "a"
       },
       "to": {
-        "part": "pico1",
+        "part": "mega1",
         "terminal": "d2"
       }
     },
@@ -964,7 +964,7 @@
         "terminal": "a"
       },
       "to": {
-        "part": "pico1",
+        "part": "mega1",
         "terminal": "d3"
       }
     },
@@ -988,7 +988,7 @@
         "terminal": "a"
       },
       "to": {
-        "part": "pico1",
+        "part": "mega1",
         "terminal": "d18"
       }
     },
@@ -1012,7 +1012,7 @@
         "terminal": "a"
       },
       "to": {
-        "part": "pico1",
+        "part": "mega1",
         "terminal": "d19"
       }
     },
@@ -1048,7 +1048,7 @@
         "terminal": "gnd"
       },
       "to": {
-        "part": "pico1",
+        "part": "mega1",
         "terminal": "gnd"
       }
     },
@@ -1264,7 +1264,7 @@
         "terminal": "a"
       },
       "to": {
-        "part": "pico1",
+        "part": "mega1",
         "terminal": "d24"
       }
     },
@@ -1288,7 +1288,7 @@
         "terminal": "a"
       },
       "to": {
-        "part": "pico1",
+        "part": "mega1",
         "terminal": "d25"
       }
     },
@@ -1312,7 +1312,7 @@
         "terminal": "a"
       },
       "to": {
-        "part": "pico1",
+        "part": "mega1",
         "terminal": "d26"
       }
     },
@@ -1336,7 +1336,7 @@
         "terminal": "a"
       },
       "to": {
-        "part": "pico1",
+        "part": "mega1",
         "terminal": "d27"
       }
     },
@@ -1360,7 +1360,7 @@
         "terminal": "a"
       },
       "to": {
-        "part": "pico1",
+        "part": "mega1",
         "terminal": "d28"
       }
     },
@@ -1384,7 +1384,7 @@
         "terminal": "a"
       },
       "to": {
-        "part": "pico1",
+        "part": "mega1",
         "terminal": "d22"
       }
     },
@@ -1408,7 +1408,7 @@
         "terminal": "a"
       },
       "to": {
-        "part": "pico1",
+        "part": "mega1",
         "terminal": "d29"
       }
     },
@@ -1432,7 +1432,7 @@
         "terminal": "a"
       },
       "to": {
-        "part": "pico1",
+        "part": "mega1",
         "terminal": "d30"
       }
     },
@@ -1456,7 +1456,7 @@
         "terminal": "a"
       },
       "to": {
-        "part": "pico1",
+        "part": "mega1",
         "terminal": "d31"
       }
     },
@@ -1480,7 +1480,7 @@
         "terminal": "a"
       },
       "to": {
-        "part": "pico1",
+        "part": "mega1",
         "terminal": "d32"
       }
     },
@@ -1504,7 +1504,7 @@
         "terminal": "a"
       },
       "to": {
-        "part": "pico1",
+        "part": "mega1",
         "terminal": "d33"
       }
     },
@@ -1528,7 +1528,7 @@
         "terminal": "a"
       },
       "to": {
-        "part": "pico1",
+        "part": "mega1",
         "terminal": "d34"
       }
     },
@@ -1552,7 +1552,7 @@
         "terminal": "a"
       },
       "to": {
-        "part": "pico1",
+        "part": "mega1",
         "terminal": "d23"
       }
     },

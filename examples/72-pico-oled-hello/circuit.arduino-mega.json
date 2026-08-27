@@ -11,7 +11,7 @@
    "rotation": 0
   },
   {
-   "id": "pico1",
+   "id": "mega1",
    "kind": "arduino_mega",
    "params": {},
    "x": 323,
@@ -72,37 +72,37 @@
    "toTerminal": "gnd"
   },
   {
-   "from": "pico1",
+   "from": "mega1",
    "fromTerminal": "d20",
    "to": "oled1",
    "toTerminal": "sda"
   },
   {
-   "from": "pico1",
+   "from": "mega1",
    "fromTerminal": "d21",
    "to": "oled1",
    "toTerminal": "scl"
   },
   {
-   "from": "pico1",
+   "from": "mega1",
    "fromTerminal": "5v",
    "to": "oled1",
    "toTerminal": "vcc"
   },
   {
-   "from": "pico1",
+   "from": "mega1",
    "fromTerminal": "5v",
    "to": "vcc1",
    "toTerminal": "vcc"
   },
   {
-   "from": "pico1",
+   "from": "mega1",
    "fromTerminal": "gnd",
    "to": "gnd1",
    "toTerminal": "gnd"
   },
   {
-   "from": "pico1",
+   "from": "mega1",
    "fromTerminal": "gnd",
    "to": "oled1",
    "toTerminal": "gnd"
