@@ -3522,6 +3522,18 @@ class SB3Creator {
             block[id].fields.STATE = [match[3].toLowerCase(), null];
             return ret(block);
         }
+        // X and Y are inputs, not fields, so the block can hold a reporter —
+        // but only the two-literal form parsed, and `plot x col y row on`
+        // fell through every rule to produce NO BLOCK AT ALL. Same shape as
+        // the `show text <reporter>` gap above: literals keep the exact
+        // path they had, anything else is read as an expression.
+        if ((match = line.match(/^plot\s+x\s+(.+?)\s+y\s+(.+?)\s+(on|off)\s*$/i))) {
+            const { id, block } = cmd('microbitplus_plot');
+            block[id].inputs.X = val(match[1]);
+            block[id].inputs.Y = val(match[2]);
+            block[id].fields.STATE = [match[3].toLowerCase(), null];
+            return ret(block);
+        }
         // ---- micro:bit+ PINS group (DUAL-LOWERING-ORACLE P1–P7) ----
         if ((match = line.match(/^set\s+pin\s+(P\d+)\s+(?:to\s+|digital\s+)([01])\s*$/i))) {
             const { id, block } = cmd('microbitplus_digitalwrite');

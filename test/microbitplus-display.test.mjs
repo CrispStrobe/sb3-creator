@@ -45,3 +45,17 @@ test('`scroll text "x" delay N ms` is NOT grabbed by the stock scroll rule', () 
     assert.ok(py.includes("display.scroll('wave', delay=int(80))"), py);
     assert.ok(!py.includes('text \\"wave\\"'), 'stock scroll hijacked the line');
 });
+
+test('plot takes a computed x and y, not only two literals', () => {
+    // Regression: X and Y are inputs on microbitplus_plot, so the block can
+    // hold a reporter — but only `plot x <digits> y <digits>` parsed, and
+    // `plot x col y row on` matched no rule at all, producing NO BLOCK. The
+    // same shape of gap as `show text <reporter>`.
+    const py = mp('set col to 1\n    set row to 2\n    plot x col y row on');
+    assert.match(py, /display\.set_pixel\(int\(col\), int\(row\), 9\)/, py);
+});
+
+test('a literal plot still lowers exactly as it did', () => {
+    const py = mp('plot x 2 y 3 on');
+    assert.ok(py.includes('display.set_pixel(int(2), int(3), 9)'), py);
+});
