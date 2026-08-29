@@ -8,6 +8,8 @@ Arduino Uno D2 <- pushbutton -> GND (no external pull-up — uses internal pull-
 
 Reads D2 and prints its value to serial every 100 ms. LED is driven as the inverse of the button: pressed (LOW) -> LED on, released (HIGH) -> LED off.
 
+D2 is declared `INPUT ACTIVE LOW`, which is what `pinMode(2, INPUT_PULLUP)` plus a button to ground means: the pull is inside the chip and the button pulls the pin down. `read btn` therefore reports the LOGICAL level (1 = pressed), and `1 - read btn` recovers the RAW pin value the sketch prints. Declared active HIGH instead, the simulator driver programs a pull-DOWN on D2 and both sides of the button sit at 0 V, so the button cannot be seen at all (defect D36).
+
 ## Observable behaviour
 
 - **Button released:** D2 reads HIGH (1) via internal pull-up. Serial prints **1**. LED is **OFF**.

@@ -1,13 +1,21 @@
 # Ported from arduino-examples/examples/02.Digital/DigitalInputPullup/DigitalInputPullup.ino, CC0
 DEVICE ARDUINO-UNO
 CLOCK 16000000
-PIN btn = D2 INPUT
+# ACTIVE LOW is what `pinMode(2, INPUT_PULLUP)` plus a button to ground MEANS:
+# the pull comes from inside the chip and the button pulls the pin DOWN. It is
+# also what this repo's own C reader emits for that sketch (cToPseudocode:
+# "INPUT_PULLUP is a button wired to ground: pressed reads 0. That is ACTIVE LOW").
+PIN btn = D2 INPUT ACTIVE LOW
 PIN led = D13 OUTPUT
 
 SPRITE Cat:
   WHEN flag clicked:
     forever:
-      set sensorVal to read btn
+      # `read btn` is the LOGICAL level, so the declaration's polarity is already
+      # applied: it is 1 when the button is PRESSED. The Arduino sketch prints the
+      # RAW pin instead, which is its complement — and that complement is the
+      # inverted logic this example is about.
+      set sensorVal to (1 - read btn)
       print sensorVal
       if sensorVal = 1 then:
         turn off led

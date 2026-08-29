@@ -15,6 +15,8 @@ A button on D2 drives an LED — but with no external pull-up resistor. The Ardu
 ## What is going on
 Every Arduino digital pin has a built-in ~20 kOhm pull-up resistor that can be enabled in software. When enabled, the pin reads HIGH by default. The button connects the pin to ground when pressed, pulling it LOW. This saves a resistor but inverts the logic: pressed is 0, not 1. Understanding this is essential because most real-world buttons are wired active-low.
 
+The declaration says so: `PIN btn = D2 INPUT ACTIVE LOW`. That is not decoration — it is what tells the simulator to pull the pin UP rather than down, and it makes `read btn` mean "pressed". The program prints `1 - read btn` so the serial output is still the raw pin, the way the original sketch prints it.
+
 ## Go further
 - [arduino-02-button](../arduino-02-button) — external pull-down, non-inverted logic.
 - [06-active-low-high](../06-active-low-high) — the active-low lesson with LEDs.

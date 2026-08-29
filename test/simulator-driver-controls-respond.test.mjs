@@ -15,10 +15,23 @@
 //
 //   no arming at all            (before 0777a17)   43 / 67 dead
 //   arm with driveHigh=false    (0777a17)          22 / 67 dead
-//   arm quasi HIGH              (this commit)       1 / 67 dead
+//   arm quasi HIGH              (553a639)           1 / 67 dead
+//   the last declaration fixed  (this commit)       0 / 67 dead
 //
-// The last one is a real and separate example defect, named in EXPECTED_DEAD
-// below rather than tolerated silently.
+// The last one was `arduino-02-digital-input-pullup:btn` (D36), and it was an
+// EXAMPLE defect rather than a driver one: the sketch it ports is
+// `pinMode(2, INPUT_PULLUP)` with the button to ground and no external pull, so
+// the pin is ACTIVE LOW — but the example declared `PIN btn = D2 INPUT`, i.e.
+// active HIGH, which the driver correctly honours as a programmed pull-DOWN,
+// leaving both sides of the button at 0 V. The declaration now says ACTIVE LOW,
+// which is what this repo's own C reader already emitted for that sketch
+// (`cToPseudocode`, and `ctarget.test.mjs`'s "an Arduino pin is discovered from
+// the calls that use it": `PIN button = D2 INPUT ACTIVE LOW`). So the example
+// had been contradicting the reader that reads its own source language.
+//
+// RATCHET, now at zero: EXPECTED_DEAD must stay EMPTY. There is no longer a
+// "known dead" tier to add to — a control that stops responding is a failure,
+// not a list entry.
 //
 // WHAT "RESPOND" MEANS, and why it is not "reads 0 at rest".
 // This gate is deliberately declaration-agnostic: it never assumes which level
@@ -45,20 +58,14 @@ const gate = requireSiblings('bw-circuit-ui', 'bw-board');
 siblingGuardTest(gate, 'the simulator driver control-response sweep');
 
 /**
- * The one bench whose control still cannot respond, with the reason and the
- * owner. `arduino-02-digital-input-pullup` is the Arduino sketch whose whole
- * subject is `pinMode(2, INPUT_PULLUP)`: the button goes to ground and there
- * is no external pull resistor, so the pull has to come from inside the MCU.
- * Its declaration is `PIN btn = D2 INPUT` — active HIGH — which the driver
- * correctly honours as a programmed pull-DOWN, and both sides of the button
- * then sit at 0 V. The fix is the declaration (`INPUT ACTIVE LOW`, which is
- * what INPUT_PULLUP plus button-to-ground means), not the driver, and it
- * changes what the example emits for a real board, so it is a separate change
- * with its own verdict rather than a drive-by edit inside a driver fix.
+ * Benches whose control cannot respond, each with a reason and an owner.
  *
- * RATCHET: this list may only shrink.
+ * EMPTY, and it must stay empty — see the ratchet note in this file's header.
+ * The last entry, `arduino-02-digital-input-pullup:btn`, was removed in the
+ * commit that repaired its declaration. A new entry here is not a way to land
+ * a bench whose control does nothing; it is a way to hide one.
  */
-const EXPECTED_DEAD = new Set(['arduino-02-digital-input-pullup:btn']);
+const EXPECTED_DEAD = new Set([]);
 
 const MS = 1000000n;
 
@@ -160,10 +167,14 @@ test('every wired control moves the pin the program reads', { skip: gate.skip },
     + 'released — the 70-calculator symptom, on a different bench.\n  '
     + unexpected.join('\n  '));
 
-  const fixed = [...EXPECTED_DEAD].filter((d) => !dead.includes(d));
-  assert.deepEqual(fixed, [],
-    `${fixed.join(', ')} now responds. This ratchet may only shrink: delete the entry from `
-    + 'EXPECTED_DEAD in the same commit that fixed it.');
+  // The ratchet reached zero on 2026-08-29 and is pinned there. Re-adding an
+  // entry is the failure mode this asserts against: it would let a bench whose
+  // control does nothing land as "known", which is how the previous 22 survived
+  // a gate that already existed for one of them.
+  assert.deepEqual([...EXPECTED_DEAD], [],
+    'EXPECTED_DEAD is at zero and may not grow. A control that does not move its '
+    + 'pin is a defect in the bench or the driver — fix it, or open a row for it, '
+    + 'but do not exempt it here.');
 });
 
 test('the arming rail is what fixes it, and each half of the repair is measurable',
@@ -181,6 +192,12 @@ test('the arming rail is what fixes it, and each half of the repair is measurabl
     assert.ok(low.dead.length > rail.dead.length,
       'arming a quasi pin at its own idle rail must help again: '
       + `${low.dead.length} dead armed-low vs ${rail.dead.length} armed at the rail`);
-    assert.equal(rail.dead.length, EXPECTED_DEAD.size,
-      `${rail.dead.length} dead controls remain; EXPECTED_DEAD names ${EXPECTED_DEAD.size}`);
+    assert.equal(rail.dead.length, 0,
+      `${rail.dead.length} dead controls remain, and the corpus is at zero: ${rail.dead.join(', ')}`);
+    // The fourth row of this file's table: the last dead control was an example
+    // declaration, not an arming rule, so it does not move with `armDriveHigh`.
+    // Both armed sweeps see the repaired bench respond.
+    assert.ok(!low.dead.includes('arduino-02-digital-input-pullup:btn')
+      && !rail.dead.includes('arduino-02-digital-input-pullup:btn'),
+    'the D36 bench must respond under either arming rule once its declaration is right');
   });

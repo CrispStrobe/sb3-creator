@@ -15,6 +15,8 @@ Nutzt den internen Pull-Up-Widerstand des Arduino an D2 — kein externer Widers
 ## Was passiert hier
 Dieser Sketch demonstriert ein grundlegendes Arduino-Programmiermuster. Siehe die Quellkommentare in der .bw-Datei für die detaillierte Erklärung.
 
+Die Deklaration sagt es ausdrücklich: `PIN btn = D2 INPUT ACTIVE LOW`. Das ist keine Zierde — sie sorgt dafür, dass der Simulator den Pin nach oben und nicht nach unten zieht, und sie gibt `read btn` die Bedeutung „gedrückt". Ausgegeben wird `1 - read btn`, also weiterhin der rohe Pinwert wie im Original-Sketch.
+
 ## Warum das wichtig ist
 Dieses Muster zu verstehen ist unverzichtbar für echte Embedded-Projekte, in denen Timing, Eingabeverarbeitung und Zustandsverwaltung zählen.
 
