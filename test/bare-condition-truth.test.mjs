@@ -254,8 +254,32 @@ describe('a comparison in value position says so', () => {
  * the dialect, and it wants the four-backend agreement test above extended to
  * value position rather than a one-emitter patch.
  *
- * DELETE THIS TEST when the form is supported, and add the value-position row
- * to the agreement table.
+ * DECIDED 2026-08-29, and the decision is written up in
+ * `docs/BOOLEAN-IN-VALUE-POSITION.md`: DO NOT implement a value form. The bar
+ * — one spelling that round-trips faithfully AND four backends agreeing —
+ * cannot be met, because the two halves of the project disagree about what a
+ * boolean IS. Scratch stores the strings "true"/"false" (which is what
+ * `boolishTruthTest` above treats as authoritative), and a `long` on the chip
+ * stores 1/0. Pick the strings and the device C cannot compile them; pick 1/0
+ * and `print` disagrees with the browser, which is the disease D26 was.
+ *
+ * And the dialect already answers this. The comparison warning three describes
+ * above ends "to keep a truth value in a variable, branch on it and assign 1
+ * or 0" — so a value form would be a SECOND spelling for a meaning that has
+ * one, which is the same reason the prefix `bitand a b` was refused rather
+ * than accepted.
+ *
+ * The memo's recommendation is to refuse this shape with that same warning and
+ * to repair `cToPseudocode` to emit the branch form, which round-trips. That
+ * is NOT done here: it changes the identifier rule every program goes through,
+ * and a discriminator that cannot tell `not read btn` from a variable called
+ * `not found` would warn across the corpus. It needs its own commit and its
+ * own false-positive sweep.
+ *
+ * So this test still stands and is still accurate. When the refusal lands, do
+ * not delete it — REPLACE it with the refusal assertion, and add the
+ * value-position row to the agreement table as "all four backends refuse
+ * identically", which is the only agreement available here.
  */
 describe('OPEN DEFECT: a boolean used where a value is expected', () => {
     test('`set x to not <cond>` is swallowed as a variable name, silently', () => {

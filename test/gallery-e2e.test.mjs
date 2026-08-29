@@ -421,11 +421,26 @@ describe('e2e: device-state examples — relay, motor, 595', { skip: DEVICE_SKIP
         assert.ok(bSink > bSource * 5, `sink (${bSink.toFixed(4)}) must be much brighter than source (${bSource.toFixed(4)})`);
     });
 
+    // Either kind is a shift register, and WHICH one is the point of the
+    // bw-circuit-ui 14efc75 de-alias. 08-led-chaser-595 saves `74hc595`; it
+    // used to be rewritten to the built-in `shift_register` at load, which
+    // declares no vcc and no gnd while this bench wires both. Accepting the
+    // pair rather than pinning one keeps the test about "the bench has a shift
+    // register and eight LEDs", which is what it is for; the identity itself
+    // is asserted where it belongs, in bw-circuit-ui's
+    // test/kind-alias-engine-model.test.js.
+    const SHIFT_REGISTER_KINDS = new Set(['shift_register', '74hc595']);
+
     test('08-led-chaser-595: shift register circuit accepted with LEDs', () => {
         const { board, parts } = loadCircuit('08-led-chaser-595');
         assert.ok(board.parts.length > 0, 'board accepted the shift register circuit');
-        const sr = parts.find(p => p.kind === 'shift_register');
-        assert.ok(sr, 'circuit has a shift_register part');
+        const sr = parts.find(p => SHIFT_REGISTER_KINDS.has(p.kind));
+        assert.ok(sr, `circuit has a shift register part (kinds: ${parts.map(p => p.kind).join(', ')})`);
+        // The de-alias is what this bench needed: the saved kind survives, so
+        // the part declares the power pins its seat puts in the rails.
+        assert.equal(sr.kind, '74hc595',
+            'this bench saves 74hc595 and the pinned engine has a model for it, ' +
+            'so it must not be collapsed to the power-less built-in');
         const leds = board.getLeds();
         // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, batch 2 under the fleet build
         // lock, box load 16-19): leds.length >= 8 -> observed 8.
@@ -435,8 +450,13 @@ describe('e2e: device-state examples — relay, motor, 595', { skip: DEVICE_SKIP
     test('20-shift-register-binary: shift register circuit loads', () => {
         const { board, parts } = loadCircuit('20-shift-register-binary');
         assert.ok(board.parts.length > 0, 'board accepted the shift register circuit');
-        const sr = parts.find(p => p.kind === 'shift_register');
-        assert.ok(sr, 'circuit has a shift_register part');
+        const sr = parts.find(p => SHIFT_REGISTER_KINDS.has(p.kind));
+        assert.ok(sr, `circuit has a shift register part (kinds: ${parts.map(p => p.kind).join(', ')})`);
+        // This bench saves the ABSTRACT kind, and keeps it: the de-alias only
+        // fires for a saved `74hc595`, so the two spellings in this corpus stay
+        // two spellings and neither is rewritten into the other.
+        assert.equal(sr.kind, 'shift_register',
+            'a bench that saves shift_register must still load as shift_register');
     });
 });
 

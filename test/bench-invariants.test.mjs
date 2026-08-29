@@ -25,6 +25,35 @@ const EXAMPLES = join(SB3, 'examples');
 const gate = requireSiblings('bw-circuit-ui', 'bw-board');
 siblingGuardTest(gate, 'bench invariants');
 
+/**
+ * Endpoints that name a terminal the engine and the catalog both deny.
+ *
+ * MEASURED 2026-08-29 at bw-board 4ae89b5 + bw-circuit-ui 14efc75: the whole
+ * corpus is 2162 circuit files and 55561 wire endpoints, and this is the
+ * entire list. It may only SHRINK.
+ *
+ * `mcu1.P4.7` is a real finding and an open question, not a typo. P4.7 EXISTS
+ * on the STC12C5A60S2 — `stc/docs/PINOUT.md` puts it on PDIP-40 pin 9 — but
+ * that pin is RST by default and can only be repurposed as GPIO under
+ * `P4SW`, so bw-circuit-ui's generic `mcu` catalog names pin 9 `RST` and
+ * offers P4.4/P4.5/P4.6 only. The bench therefore wires a pin that physically
+ * exists under a name the catalog does not carry.
+ *
+ * Deliberately NOT resolved here, and the reasons are on the record: a
+ * TERMINAL_ALIAS `P4.7 -> RST` would silently move a chip-select onto the
+ * reset pin, which is a product decision belonging to bw-parts/bw-circuit-ui
+ * and not to this gate; and 60-retro-console's own EXPECTED.md says its
+ * wiring is "PROVISIONAL until continuity-tested on the physical kit". The
+ * honest state is a named exception with the measurement, so the next person
+ * inherits the question instead of re-finding it.
+ *
+ * Two entries, one per file — the two variants share the wire.
+ */
+const INVENTED_TERMINALS = new Set([
+  '60-retro-console/circuit.stc12c5a60s2.json:mcu1.P4.7',
+  '60-retro-console/circuit-flat.stc12c5a60s2.json:mcu1.P4.7',
+]);
+
 // Kinds that legitimately sit outside the MCU's reach.
 const STRUCTURAL = new Set(['breadboard', 'vcc', 'gnd']);
 // The MCU-surface kinds a bench pivots on.
@@ -33,7 +62,7 @@ const MCU_KINDS = new Set(['mcu', 'stc_mcu', 'stc15_mcu', 'arduino_uno', 'arduin
 
 describe('bench invariants: every device bench, canonical loader', { skip: gate.skip }, () => {
   let Circuit;
-  let resolveTerminal;
+  let resolveTerminal, engineTerminals, terminalsForKind;
   test('engine + sidecars load', async () => {
     // getDevice, not hasDevice. bw-circuit-ui's engineKindFor asks the injected
     // engine whether a passthrough kind has a registered model, and the name it
@@ -59,6 +88,8 @@ describe('bench invariants: every device bench, canonical loader', { skip: gate.
       `only ${sidecars} part sidecars registered from ${join(CUI, 'src/parts-data')} ` +
       '(expected ~239) — the alias surface this gate resolves against is not loaded');
     ({ resolveTerminal } = await import(join(CUI, 'src/model/terminal-aliases.js')));
+    ({ engineTerminals } = await import(join(CUI, 'src/engine.js')));
+    ({ terminalsForKind } = await import(join(CUI, 'src/model/circuit.js')));
   });
 
   const benchFiles = [];
@@ -174,25 +205,54 @@ describe('bench invariants: every device bench, canonical loader', { skip: gate.
         // spelling difference as a disconnection is reporting on the string,
         // not the circuit. It still catches a terminal that is genuinely in no
         // net at all.
-        //
-        // WHAT THIS LINE CANNOT SEE, measured while making it case-blind so the
-        // relaxation is not mistaken for a loss of teeth it never had:
-        // inferNetlist adds a wire endpoint to its net VERBATIM, so an invented
-        // terminal joins the net it was invented on. Renaming `r1.a` to `r1.zz`
-        // in avr01-blink gives the net `led1.cathode, r1.a, r1.zz`,
-        // netlistError null, and this assertion green — the mutation is not
-        // caught, and was not caught before this change either. Requiring the
-        // endpoint to appear in the loaded part's terminal list is the obvious
-        // strengthening and it is NOT free: a seated 74hc595's `vcc`/`gnd` sit
-        // in real breadboard nets while the engine's shift_register model
-        // declares neither, so 08-led-chaser-595 reports 18 power pins across
-        // nine variants. That needs the model and the seat reconciled first;
-        // named here rather than half-enforced.
         const lower = String(terminal).toLowerCase();
         const resolved = bnets.some(net => net.terminals.some(t =>
           t.part === ep.part && String(t.terminal).toLowerCase() === lower));
         if (!resolved) {
           problems.push(`${rel}: wire ${side} ends in nowhere at ${ep.part || '?'}.${ep.terminal || '?'}`);
+        }
+
+        // THE SECOND CHECK, and the one with the teeth. The line above cannot
+        // see an INVENTED terminal: inferNetlist adds a wire endpoint to its
+        // net verbatim, so a terminal that exists nowhere joins the net it was
+        // invented on. Renaming `r1.a` to `r1.zz` in avr01-blink gives the net
+        // `led1.cathode, r1.a, r1.zz`, netlistError null, and the assertion
+        // above green — measured, and true before this file was made
+        // case-blind as well, so the relaxation cost nothing that was there.
+        //
+        // The obvious strengthening — "the endpoint must be in the loaded
+        // part's terminal list" — is the WRONG rule, and that too is measured:
+        // it reports 574 endpoints across 167 files, almost all of them a
+        // board kind's power pin (mcu.VCC 130, stc15_mcu.VCC 82, attiny88.avcc
+        // 50, arduino_nano.5v 46, pi_pico.vbus 46...). Those files are
+        // UNDER-DECLARED, not wrong: aa87c81 measured that class and left it
+        // deliberately, because board-kind power drives are built in init()
+        // from the MODEL's terminal list and protected by _staticDrives, so a
+        // nano bench reads rail-t+ = 5.0000 with only `d13` declared.
+        //
+        // So the authority is the ENGINE's terminal list for the kind (the
+        // catalog when the engine has no model), not the file's saved array.
+        // That distinguishes exactly the right two things: `nano1.5v` is a pin
+        // the model HAS and the file forgot to list, while `r1.zz` is a pin
+        // nothing has. Measured across the whole corpus at the pinned pair:
+        // 2162 files, 55561 endpoints, TWO offenders.
+        const authority = (() => {
+          try {
+            const eng = engineTerminals(part.kind, part.params);
+            if (Array.isArray(eng) && eng.length) return eng;
+            const cat = terminalsForKind(part.kind, part.params);
+            if (Array.isArray(cat) && cat.length) return cat;
+          } catch { /* no opinion */ }
+          return part.terminals || [];
+        })();
+        const authResolved = resolveTerminal(part.kind, ep.terminal, authority);
+        const authLower = String(authResolved).toLowerCase();
+        if (!authority.some(t => String(t).toLowerCase() === authLower)) {
+          const key = `${rel}:${ep.part}.${ep.terminal}`;
+          if (!INVENTED_TERMINALS.has(key)) {
+            problems.push(`${rel}: wire ${side} names ${ep.part}.${ep.terminal}, which no ` +
+              `${part.kind} has (engine/catalog offers ${authority.length} terminals)`);
+          }
         }
       }
 
