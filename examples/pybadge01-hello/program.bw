@@ -1,0 +1,72 @@
+# Hello PyBadge (Arcade) — the console's first program.
+#
+# The Arcade console is a self-contained board: the screen and the D-pad /
+# A / B buttons are the whole device, so there is nothing to wire and this
+# example ships no circuit.
+#
+# A cursor walks a 4x4 grid. A stamps the cell it is on (and counts the
+# stamp), B clears the board. The grid is a row-major 16-bit mask:
+#   row 0: bits 0-3 (top)   row 1: bits 4-7
+#   row 2: bits 8-11        row 3: bits 12-15
+#   bit index = row * 4 + col
+#
+# D-pad bitmask: up=1 down=2 left=4 right=8.
+
+WHEN flag clicked:
+  set cx to 0
+  set cy to 0
+  set stamps to 0
+  set board to 0
+  set screen to 1
+  set dpad to 0
+  set btnA to 0
+  set btnB to 0
+  set lastdpad to 0
+  set lastA to 0
+  FOREVER:
+    # D-pad: move on the EDGE, so holding a direction steps once
+    IF NOT dpad = lastdpad THEN:
+      IF dpad / 1 mod 2 > 0 THEN:
+        IF cy > 0 THEN:
+          change cy by -1
+      IF dpad / 2 mod 2 > 0 THEN:
+        IF cy < 3 THEN:
+          change cy by 1
+      IF dpad / 4 mod 2 > 0 THEN:
+        IF cx > 0 THEN:
+          change cx by -1
+      IF dpad / 8 mod 2 > 0 THEN:
+        IF cx < 3 THEN:
+          change cx by 1
+    set lastdpad to dpad
+
+    # A stamps the current cell (edge-triggered, so one press = one stamp)
+    IF btnA = 1 AND lastA = 0 THEN:
+      set bitpos to cy * 4 + cx
+      set mask to 1
+      REPEAT bitpos:
+        set mask to mask * 2
+      IF board / mask mod 2 > 0 THEN:
+        change board by 0 - mask
+        change stamps by -1
+      ELSE:
+        change board by mask
+        change stamps by 1
+    set lastA to btnA
+
+    # B clears the board and the count
+    IF btnB = 1 THEN:
+      set board to 0
+      set stamps to 0
+      set btnB to 0
+
+    # Render: the stamped cells plus the cursor
+    set bitpos to cy * 4 + cx
+    set cursor to 1
+    REPEAT bitpos:
+      set cursor to cursor * 2
+    IF board / cursor mod 2 > 0 THEN:
+      set screen to board
+    ELSE:
+      set screen to board + cursor
+    wait 50 ms

@@ -6627,6 +6627,21 @@
   }
  },
  {
+  "id": "microbit01-hello",
+  "title": {
+   "en": "Hello micro:bit",
+   "de": "Hallo micro:bit"
+  },
+  "category": "microbit",
+  "difficulty": 1,
+  "kind": "program",
+  "authored": "microbit",
+  "files": {
+   "program": "microbit01-hello/program.bw",
+   "expected": "microbit01-hello/EXPECTED.md"
+  }
+ },
+ {
   "id": "mb01-display",
   "title": {
    "en": "micro:bit Display Demo",
@@ -6967,6 +6982,21 @@
    "intro": "blinkenrocket-animation/intro.md",
    "introDE": "blinkenrocket-animation/intro.de.md",
    "expected": "blinkenrocket-animation/EXPECTED.md"
+  }
+ },
+ {
+  "id": "pybadge01-hello",
+  "title": {
+   "en": "Hello Arcade console (PyBadge)",
+   "de": "Hallo Arcade-Konsole (PyBadge)"
+  },
+  "category": "digital",
+  "difficulty": 1,
+  "kind": "program",
+  "deviceOnly": true,
+  "files": {
+   "program": "pybadge01-hello/program.bw",
+   "expected": "pybadge01-hello/EXPECTED.md"
   }
  },
  {
