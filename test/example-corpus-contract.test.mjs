@@ -34,6 +34,8 @@ describe('example corpus: catalog and bench inventory agree exactly', () => {
     test(`catalog covers ${index.length} examples and all ${generatedFiles.length} generated benches`, () => {
         // Floors make an accidentally empty/partial checkout fail loudly rather
         // than proving set equality over two empty sets.
+        // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, batch 2 under the fleet build
+        // lock, box load 16-19): index.length >= 259 -> observed 310.
         assert.ok(index.length >= 259, `catalog shrank unexpectedly to ${index.length}`);
         // MEASURED 2026-08-25: circuitFiles is 2099. The floor was 1034 — set
         // when the corpus was about that size, corrected once in 2026-08 after
@@ -49,6 +51,8 @@ describe('example corpus: catalog and bench inventory agree exactly', () => {
         // consistent rather than inventing a new policy for one of them.
         // Raise this when the corpus grows; never lower it to make a change fit.
         assert.ok(circuitFiles.length >= 1970, `circuit corpus shrank unexpectedly to ${circuitFiles.length}`);
+        // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, batch 2 under the fleet build
+        // lock, box load 16-19): generatedFiles.length >= 819 -> observed 946.
         assert.ok(generatedFiles.length >= 819, `generated bench corpus shrank unexpectedly to ${generatedFiles.length}`);
 
         const references = new Map();

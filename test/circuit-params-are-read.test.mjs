@@ -162,10 +162,18 @@ describe('circuit params, tier 1: no key the engine never mentions', { skip: SKI
         // Floors: an empty engine tree or an empty corpus makes the subset
         // assertion below trivially true, which is the shape of a gate that
         // cannot fail.
+        // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, batch 2 under the fleet build
+        // lock, box load 16-19): engineFiles.length >= 100 -> observed 280.
         assert.ok(engineFiles.length >= 100,
             `only ${engineFiles.length} engine sources — the sibling checkout looks wrong`);
+        // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, batch 2 under the fleet build
+        // lock, box load 16-19): read.size >= 50 -> observed 265.
         assert.ok(read.size >= 50, `only ${read.size} param reads extracted — the extractor is broken`);
+        // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, batch 2 under the fleet build
+        // lock, box load 16-19): circuitFiles >= 2000 -> observed 2162.
         assert.ok(circuitFiles >= 2000, `only ${circuitFiles} circuit files — the corpus looks truncated`);
+        // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, batch 2 under the fleet build
+        // lock, box load 16-19): sites.size >= 30 -> observed 56.
         assert.ok(sites.size >= 30, `only ${sites.size} (kind, key) pairs — the scan is broken`);
         for (const canary of ['ohms', 'farads', 'freq', 'rDark', 'railHigh', 'rCold'])
             assert.ok(read.has(canary), `extractor missed a known engine read: ${canary}`);

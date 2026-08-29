@@ -81,6 +81,9 @@ test('Z80 matrix: pin-count reduction — 17 keys from 12 pins (4 rows + 5 cols 
     assert.ok(pools.matrix, 'matrix config exists');
     assert.equal(pools.matrix.rows.length, 4, '4 matrix rows');
     assert.equal(pools.matrix.cols.length, 5, '5 matrix cols');
+    // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, batch 2 under the fleet build lock,
+    // box load 16-19): pools.matrix.rows.length * pools.matrix.cols.length >= 17 -> observed
+    // 20.
     assert.ok(pools.matrix.rows.length * pools.matrix.cols.length >= 17,
         `${pools.matrix.rows.length}×${pools.matrix.cols.length} = ${pools.matrix.rows.length * pools.matrix.cols.length} ≥ 17 keys`);
 });

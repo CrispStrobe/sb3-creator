@@ -339,6 +339,8 @@ test('every wait AND every loop back-edge is a numbered yield', () => {
     const c = cOf(SCHEDULED);
     const task = c.slice(c.indexOf('static void bw_task0(void)'), c.indexOf('static unsigned int bw_task1_state'));
     const labels = [...task.matchAll(/^\s*case (\d+):$/gm)].map((m) => Number(m[1]));
+    // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, batch 2 under the fleet build lock,
+    // box load 16-19): labels.length >= 4 -> observed 4.
     assert.ok(labels.length >= 4, `expected several yields, got ${labels.length}`);
     assert.equal(new Set(labels).size, labels.length, 'case labels must be unique within a task');
     assert.equal(labels[0], 0, 'entry is state 0 — the zero-initialized static, never assigned');
@@ -1018,6 +1020,8 @@ test('a pin name wins over the variable and motion readings of `set X to`', () =
 test('every stc_ example compiles to C with no warnings at all', async () => {
     const examples = (await import('../src/utils/examples.js')).default;
     const hardware = Object.keys(examples).filter((n) => n.startsWith('stc_'));
+    // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, batch 2 under the fleet build lock,
+    // box load 16-19): hardware.length >= 5 -> observed 5.
     assert.ok(hardware.length >= 5, 'the C target ships real examples');
     for (const name of hardware) {
         const c = build(examples[name]);
@@ -1048,6 +1052,8 @@ test('a Scratch program gets the host target, not a lecture about the chip', asy
     const forced = build(examples.minesweeper).generateC(undefined, { target: 'device' });
     assert.match(forced, /THIS PROJECT IS NOT AN STC12 PROGRAM/);
     assert.match(forced, /and \d+ more of the same kind/, 'the rest are summarised');
+    // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, batch 2 under the fleet build lock,
+    // box load 16-19): (forced.match(/warning:/g) || []).length <= 5 -> observed 4.
     assert.ok((forced.match(/warning:/g) || []).length <= 5, 'the noise is bounded');
     // …and a project that DOES declare pins still gets every warning in full.
     const withPins = build('PIN led = P1.0 OUTPUT\nWHEN flag clicked:\n  say "a"\n  move 4 steps\n  turn on led').generateC();

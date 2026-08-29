@@ -105,6 +105,12 @@ brickwright-lite   238 bounding literals in 69 files —   1 carries a recorded 
 | concurrency | 2 | 0 | — | — |
 | timeout-min | 2 | 1 | 1 | 0 |
 
+> **These counts are the 2026-08-23 photograph and are kept as one.** Both
+> denominators have since moved a long way — sb3-creator to 281 and
+> brickwright-lite to 447 — and the sb3-creator half is now measured rather than
+> merely counted. Skip to *Phase 2* below for the current state; the table at the
+> end of this page is regenerated against it.
+
 **459 is more than can be individually re-measured, and pretending otherwise would
 be the same sin this campaign is about.** So the denominator is stated and the work
 is prioritised by what an unevidenced number costs:
@@ -546,501 +552,1101 @@ probe — the three bisections above establish that for a `>=` floor over a coun
 the flip point *is* the count, so the 50.7 % holds by the same arithmetic the instrument
 just confirmed three times.
 
+## Phase 2 (2026-08-29, fab-thresh): the rig re-pinned, the sweep made cheap, and the treadmill stopped
+
+Phase 1 above ends parked, with a list of what it could not reach: three targets
+unprobeable for want of node 22, twenty-five can-fire'd floors with no margin, and
+everything below the `>= 100` cut untouched. This is that list, worked.
+
+It opens with a number that says why the list mattered. Phase 1 counted **250**
+bounding literals on 2026-08-25. Four days later the same instrument counts
+**275**. Twenty-five arrived in between and not one arrived with evidence.
+Measuring a backlog that grows faster than it is measured is not a campaign, and
+the most important thing built in this phase is not a measurement at all — it is
+`test/threshold-ratchet.test.mjs`, which stops the growth.
+
+**Where it ended: 126 literals owed a measurement at the start, 27 at the end.**
+
+### The first decision: the rig was four defect-waves stale
+
+`/mnt/volume1/code/wt/rig-thresholds` was kept from phase 1 at `bw-board a301937`
+and `bw-circuit-ui af5cc08`. `test/fixtures/siblings.json` now pins
+`bw-board 4ae89b5` and `bw-circuit-ui 60fd117` — four defect waves later,
+including the op-amp secant convergence, the gated output-limit change,
+first-solve capacitor semantics, the attiny88 `pa0`→`gnd2` rename with its
+135-circuit re-seat, and `engineKindFor`'s `hasDevice` collapse. Probing floors
+against engines the suite no longer runs would measure the wrong repository, so
+the rig was re-pinned before anything else was done with it.
+
+Rebuilt as phase 1 describes it: both siblings fetched from the local checkouts
+and detached at the pinned shas, `bw-board`'s dependencies installed with
+`npm ci` **from its own lockfile**. That second half is not ceremony. The old
+rig's `node_modules` held `avr8js` alone; the pinned `bw-board` also requires
+`rp2040js`, so the stale rig could not have loaded the engine at all and every
+verdict from it would have been about a missing module rather than about a
+threshold. 73 MB, nobody else's checkout touched. `threshold-probe.mjs` accepts
+it: *matches pin*, both clean.
+
+**Verified with a known answer before it was trusted**, which is the discipline
+phase 1 paid for when a drifted rig produced two findings that had to be
+retracted. `generated-bench-layout:60` — `kept.length > 900` — bisected on the
+re-pinned rig: green up to 1198, red from 1199. An independent `globSync` counts
+1199 non-flat bench files. Two methods, one answer, and the answer sits exactly
+where a strict `>` must flip.
+
+### The three unprobeable targets, delivered
+
+All three needed node 22 for `globSync`, which this box now has as a shared
+toolchain at `/mnt/volume1/toolchain/local/node-v22.12.0-linux-x64`.
+
+| target | bound | observed | flip point | can vanish first |
+|---|---|---|---|---|
+| `example-corpus-contract:36` | `index.length >= 259` | 310 | green 310, red 311 | 16.5 % |
+| `example-corpus-contract:51` | `generatedFiles.length >= 819` | 946 | green 946, red 947 | 13.4 % |
+| `generated-bench-layout:60` | `kept.length > 900` | 1199 | green 1198, red 1199 | 24.9 % |
+
+**Zero unprobed targets remain.** All three CAN FIRE, which continues phase 1's
+clean negative result: across both phases every floor tested guards a path that
+actually runs, and not one is decoration.
+
+### The count IS the flip point, so stop searching for it
+
+Phase 1's most useful sentence is buried in its park-state: for a `>=` floor over
+a countable corpus the flip point *is* the count. It bisected three floors to
+establish that, at roughly two and a half minutes each, and every one landed on a
+number a `globSync` had already produced in milliseconds.
+
+`threshold-probe.mjs --expect-count` turns that finding into the method. Hand it
+the count; it derives where the gate must flip and checks exactly that — green at
+the flip point, red one past it. Two runs instead of a twenty-run binary search
+over a range whose top end is a million. The off-by-one between `>` and `>=`, and
+for a floor spelled as its own negation (`if (n < F) throw`), is written out in
+the source rather than felt, and `test/threshold-ratchet.test.mjs` pins it against
+margins that were actually observed — so a regression in the arithmetic would have
+to contradict a measurement already in this document.
+
+### A false RED, caught on the disagreement check's first outing
+
+`example-corpus-contract:51` came back `CAN-FIRE` with its margin marked **NOT
+CONFIRMED**: predicted flip at 946 from a count of 946, gate RED at 946 *and* RED
+at 947. Both red is impossible for a floor whose corpus is 946.
+
+Re-run alone, the identical edit is green — `# pass 4  # fail 0`. The confirm runs
+had executed at load 40–70 with a second sweep of this lane's own on the box, and
+a child killed under memory pressure exits non-zero, which `runGate` reads as RED.
+
+The finding is not about that literal. It is that **a probe run beside other heavy
+work produces false reds, and false reds in this instrument read as findings.** A
+binary search would have swallowed it silently: it would have converged on a wrong
+flip point and printed it with exactly the same confidence. What caught it was
+having two methods and requiring them to agree. That is phase 1's lesson — *an
+instrument that disagrees with the world is more often wrong than the world is,
+and the way to tell is to have two of them* — arriving from the other direction,
+because here the instrument disagreed with **itself**, and said so.
+
+Consequently every probe batch in this phase records the box's load, and batch 2
+onward ran under the fleet's `mkdir` build lock (`/mnt/volume1/code/wt/.build-lock`,
+owner directive of the same day). A timing measurement taken next to a competing
+build is not a measurement; a red/green one, it turns out, is no better.
+
+| batch | what | under the lock | box load |
+|---|---|---|---|
+| rig rebuild (`npm ci`, 2 packages, 5 s) | re-pinning the siblings | no — predates the directive | 14 |
+| probe batch 1 — the three globSync targets | `--margin`, `--expect-count` | no — predates the directive | 28 → 40 → 70 |
+| observe batch 1 — 40 files | the whole countable sweep | yes (acquired mid-flight) | 53 → 16 |
+| observe batch 2 — 8 files | the slow and awkward remainder | yes | 16 → 19 |
+| `engine-surface-adoption` | one new file, see below | no — single targeted run | 14 |
+
+The one measurement in this phase that a busy box could have corrupted is the
+false RED above, and it is reported as a defect of the method rather than as a
+finding about the code. Everything else the sweep produced is a **count**, which
+does not care how loaded the machine is.
+
+### One run, every bound: `scripts/threshold-observe.mjs`
+
+The probe answers one literal per gate run. With 126 owing a measurement, that is
+not a sweep. The new instrument moves no threshold at all — it rewrites each
+decisive comparison into one that reports the quantity it bounds on the way past:
+
+```js
+files.length > 1500
+// becomes
+((__thrV) => (globalThis.__thrObserve('test/kcl-residual.test.mjs:101', __thrV), __thrV > 1500))(files.length)
+```
+
+so **one run of a file yields the observed value of every bound in it**, with the
+verdict unchanged — and a run whose verdict *did* change has its numbers
+discarded, because measurements of a program we do not have are not measurements.
+The bounded expression is evaluated exactly once; the more obvious
+`(report(x), x > 1500)` shape would have run
+`readYieldMap(cOf(SCHEDULED, {debug: true})).length` twice, and that is a compile.
+
+**49 files run; 48 of them stayed green under the rewrite, and 150 of the 166
+bounds in those green runs were observed.** The forty-ninth is `gate-integrity`,
+which reads this tree's own source — instrumenting the tree changes its subject,
+so it went red and its twelve numbers were discarded, exactly as the instrument is
+built to do. Sixteen bounds came back NOT REACHED; twelve of those are the whole
+of `ttl-module-acceptance`, and the other four are discussed below.
+
+Cross-checks, because one instrument agreeing with itself is not evidence:
+`kcl-residual:101` observed **2162** against an independent glob of 2162; three
+separate `index.length >= 259` sites observed **310** against a catalog of 310;
+and `ctarget:1051` observed **4**, which is what phase 1 recorded for that ceiling
+by binary search with a different instrument.
+
+`scripts/threshold-stamp.mjs` writes the results back next to the numbers — 98
+lines stamped. That is this campaign's actual unit of work: these values are
+rarely wrong, but nobody could tell where they came from. It stamps **only the two
+dispositions that owe a measurement**; putting "observed 963" above
+`flat.length > 0` would be the rubber stamp the whole campaign exists to prevent.
+
+### What the sweep found
+
+**Bounds sitting exactly on their observed value — zero headroom, which is the
+correct state for a ratchet and is now recorded as such:**
+
+| where | bound | observed |
+|---|---|---|
+| `ctarget:342` / `ctarget:1021` | `labels.length >= 4` / `hardware.length >= 5` | 4 / 5 |
+| `device-branch-agreement:121 / :124 / :154` | `>= 14` / `>= 27` / `<= 3` | 14 / 27 / 3 |
+| `engine-surface-adoption:186` | `ENGINE_SURFACE.length >= 10` | 10 |
+| `expected-quantities-hold:305` | `both.length >= 21` | 21 |
+| `gallery-e2e:426` | `leds.length >= 8` | 8 |
+| `input-polarity-survives:98` | `entry.devices.length >= 11` | 11 |
+| `machine-roms-boot:303` | `before.length >= 16` | 16 |
+| `reference-extensions-provenance:54 / :82 / :137` | `>= 8` / `>= 8` / `>= 17` | 8 / 8 / 17 |
+| `settrace-codegen:62 / :94` | `>= 6` / `>= 6` | 6 / 6 |
+| `stc12-conformance:188 / :242` | `>= 3` / `>= 5` | 3 / 5 |
+| `vm:598` | `filled >= 4` | 4 |
+
+**And the one that looks worst and must not be touched.**
+`settrace-codegen:161` reads `seen.length >= 3` and observed **2266** — a floor at
+0.13 % of the measured value, 755× of slack, by a wide margin the largest ratio in
+the sweep. Every rule of thumb in this document says raise it.
+
+It must not be raised, and the reason is a few lines above it in its own file:
+`seen` counts line events streamed out of a Python program that **is stopped by a
+5 s timeout**. The quantity is not a corpus; it is however much work the box got
+through before the clock ran out. 2266 is what a machine at load 40 managed. A
+quiet one would produce far more and a starved one far less, and a floor anywhere
+near the observed value would fire on the first busy afternoon. The floor of 3 is
+correct as written: it asks whether any line events arrived at all, which is the
+only question a timeout-truncated stream can answer.
+
+That deserves stating as a rule, because the sweep makes the class easy to
+mistake: **the classifier sorts by SHAPE, and shape does not tell you whether the
+quantity is stable.** `seen.length` looks exactly like `files.length`. What
+separates them is reading what produced the number — and the observation is what
+made the question askable in the first place.
+
+The same reading *clears* two others that look similar and are not:
+`machine-roms-boot:384` (`10 < lostCycles < 40`, observed 21.5 — a bracket around
+a measured quantity with both sides live) and `pico-oled-chain:127`
+(`sclEdges > 1000`, observed 45371), where the simulation runs for a fixed
+*simulated* duration, so the count is deterministic and the slack is real. Those
+are reported, not repaired — phase 1's bar for moving a value was a floor at half
+its corpus, and nothing here reaches it.
+
+**A recorded finding updated by the sweep.** Phase 1 measured `gallery.test.mjs:225`
+and reported that `entry.difficulty` ran **1–4** across the gallery, so the declared
+1–5 range had an unused slot at the top. It now observes **1…5 over 310 reaches**:
+the corpus has since used its full declared width, and the ceiling is exactly tight.
+
+### `arduino-import` produced zero tests and reported green
+
+The sweep flagged `arduino-import:79` — the only bound in the file — as
+**NOT REACHED** in a passing run. The file explains itself in one line:
+
+```
+# tests 0   # pass 0   # fail 0   # skipped 0
+```
+
+Every test there is generated inside `for (const ex of examples)`; `corpus/` is
+gitignored and machine-local, and CI clones this repo alone. So on a fresh
+checkout and in CI the loop generates nothing and the summary reports success.
+Not a skip, which node:test prints — **zero tests, which it does not.** A skip is
+indistinguishable from a pass, and an empty generator is worse, because it is
+indistinguishable from both. This is the defect `test/CROSS-REPO-GATE-AUDIT.md`
+was written about, arriving through a different door.
+
+Repaired the way the sibling guards already do it: make the state visible rather
+than invent a corpus requirement CI was never configured to meet. The file now
+reports `# tests 1  # skipped 1` with the reason and the script that fetches the
+corpus, so a reader of the summary can tell *the importer was exercised* from
+*the importer was not there to exercise*.
+
+The other three NOT REACHED bounds are honest and need no repair:
+`circuit-json-roundtrip:198` and `corpus-generator:367` sit behind a `||` whose
+left side short-circuits, and `retarget-gallery:58` is in a branch the corpus does
+not take.
+
+### What is owed, and the ratchet that stops it growing
+
+Phase 1 left every unevidenced literal in one undifferentiated pile of 212. That
+pile is not homogeneous, and treating it as if it were is what makes a sweep
+unfinishable: it demands a measurement from numbers that are not measurements.
+`threshold-inventory.mjs --classified` now sorts them by disposition:
+
+| disposition | phase-2 start | phase-2 end | owes a measurement |
+|---|---|---|---|
+| evidenced | 39 | **142** | no |
+| definitional (`length > 0`, `=== 0`) | 77 | 78 | no — the value is fixed by the type, not the world |
+| load-sensitive (timeouts) | 24 | 24 | no — a quiet-box number in this document, never a bigger constant |
+| no-trip (pins, size caps, concurrency) | 9 | 10 | no — the probe has no safe tripping value |
+| countable | 80 | 19 | **yes** |
+| runtime | 46 | 8 | **yes** |
+| **total owing** | **126** | **27** | |
+
+The 78 definitional literals are why the ratchet is survivable. `list.length > 0`
+is not a threshold anybody guessed; a list is empty or it is not, there is no flip
+point to find, and demanding a `MEASURED` comment on 78 correct assertions is
+precisely how an evidence rule turns into a rubber stamp.
+
+`test/threshold-ratchet.test.mjs` ratchets the last two rows at **zero headroom**,
+deliberately the same shape as the four `brickwright-lite` waiver ceilings this
+document holds up as correct. The population that owes a measurement cannot grow.
+It may shrink freely, and a second test requires the ceiling to follow it down, so
+a stale ceiling cannot quietly re-open the door it was installed to shut.
+
+It is mutation-proven rather than asserted to work, in both directions and against
+the real tree: planting `assert.ok(files.length >= 4321)` in `codegen.test.mjs`
+takes it to **28 against a ceiling of 27** and reddens it; reverting returns it to
+green; and unit cases plant the same floor *with* a measurement above it and
+require the debt discharged, and a bare `length > 0` and require it to be free.
+
+**The ratchet's first catch was its own author.** Its staleness bound
+(`CEILING - owed <= 20`) is a bounding literal like any other, and the first run
+came back 127 against a ceiling of 126 because of it. The response was the one
+this document argues for throughout: record what the number is measured against —
+a lane's output is ~100 discharged literals, so 20 is a fifth of one — rather than
+raise the ceiling to fit it.
+
+**It also caught a live one.** `test/engine-surface-adoption.test.mjs` arrived on
+`main` from another lane while this phase ran, carrying two unevidenced countable
+floors. They were measured (`files.length > 100` → 187, `ENGINE_SURFACE.length >= 10`
+→ 10, the second at zero headroom) rather than allowed to raise the ceiling. That
+is the ratchet doing its whole job on its first day.
+
+### The 27 still owing, and why each is not a probe away
+
+Not a backlog nobody looked at — every one is accounted for:
+
+| n | where | why it is not measured |
+|---|---|---|
+| 12 | `ttl-module-acceptance` | behind `BW_TTL_ORACLE=1` plus Java, `Digital.jar` and a cloned `8bitsim`. All twelve reported NOT REACHED, which is the same verdict phase 1 recorded for that file's timeout. A fact about the environment, not about the numbers. |
+| 6 | `gate-integrity` | it reads **this tree's own source** and asserts patterns over it, so instrumenting the tree changes its subject. The observed run went RED and its numbers were discarded, exactly as the instrument is built to do. These need the probe, one gate run each. |
+| 4 | `assert-physics` | `tolerance:` values on option objects rather than comparisons — there is no comparison for the sweep to wrap. They are also *parsed from the fixture's own text* (`rawTol`), so the literal is a default, not a bound on a measured quantity. |
+| 3 | `scripts/*` (`build-machine-roms`, `normalize-controller-seating`, `vendor-flat-partitions`) | no owning gate, so there is nothing to run them under. `--gate` can supply one; none of the three is reached by a test today. |
+| 1 | `curriculum:21` | a `corpusFloor()` call. Its count sits behind a thunk rather than in a comparison, so the sweep sees no span. The helper already prints the count in its own failure message, which is the shape this campaign asks for. |
+| 1 | `arduino-import:114` | the corpus is gitignored and absent here and in CI — see above. Now a visible skip rather than a silent zero. |
+
+None of these is "unmeasured because nobody got to it". Two of the six groups are
+environment, one is a self-reference the instrument correctly refuses to fake, and
+three are shapes the sweep cannot see and says so.
+
+### The counterpart repository, for the record
+
+`brickwright-lite` now reports **447** bounding literals, up from 238 when this
+document was first written. That is another lane's repository and its half of the
+campaign is `brickwright-lite/docs/WAIT-CENSUS.md`; the number is recorded here
+only so the next reader knows the denominator moved, and moved a long way, while
+this half was being closed.
+
+---
+
 ## Every bounding literal
 
-Generated by `node scripts/threshold-inventory.mjs --markdown`, 2026-08-23, against
-`sb3-creator@4abeadb` and `brickwright-lite@2e294ceaf`.
+Generated by `node scripts/threshold-inventory.mjs --markdown`, **2026-08-29**,
+against `sb3-creator@9f3c6d5` and `brickwright-lite@dd5debbd7`. It replaces the
+2026-08-23 table, which described 221 sb3-creator literals against a repository
+that now has 281.
+
+Two things to read it with:
 
 A row saying **not recorded** is a QUESTION, not a verdict — see the four lite
-ratchets above, which are unrecorded and perfectly tight. Rows with a measurement
-quote it from the comment block or the assertion message.
+ratchets above, which are unrecorded and perfectly tight.
 
-### `sb3-creator` — 221 bounding literals
+The **disposition** column is the answer to that question where phase 2 could
+give one. `evidenced` means a measurement is written beside the number;
+`definitional` means there is nothing to measure, because the bound is fixed by
+the type rather than by the world; `load-sensitive` and `no-trip` mean the number
+must not be moved on the strength of a probe; and `countable` or `runtime` mean
+the literal still owes a measurement and is one of the 27 accounted for above.
+
+
+### `sb3-creator` — 281 bounding literals
 
 | kind | count | with a recorded measurement |
 |---|---|---|
-| floor | 176 | 31 |
-| timeout-ms | 19 | 0 |
-| ceiling | 9 | 5 |
-| tolerance | 6 | 0 |
-| size-cap | 4 | 0 |
+| floor | 219 | 123 |
+| timeout-ms | 22 | 0 |
+| ceiling | 18 | 14 |
+| tolerance | 10 | 6 |
+| size-cap | 5 | 0 |
 | pin | 3 | 0 |
 | concurrency | 2 | 0 |
 | timeout-min | 2 | 1 |
 
-| where | kind | value | bounds | measurement |
-|---|---|---|---|---|
-| `test/6502-oled-compile.test.mjs:55` | timeout-ms | `30000` | `timeout: 30000` | **not recorded** |
-| `test/a2-calculator-behavior.test.mjs:94` | ceiling | `8` | `++dticks > 8` | // MEASURED 2026-08-23 (scripts/threshold-probe.mjs --margin): the display |
-| `test/a2-sampler-behavior.test.mjs:76` | timeout-ms | `5000` | `timeout: 5000` | **not recorded** |
-| `test/a2-sampler-behavior.test.mjs:135` | concurrency | `1` | `concurrency: 1` | **not recorded** |
-| `test/arduino-import.test.mjs:79` | floor | `10` | `r.pseudocode.length > 10` | **not recorded** |
-| `test/assert-physics.test.mjs:117` | tolerance | `0.003` | `tolerance: parseFloat(netMvMatch[3]) / 1000` | **not recorded** |
-| `test/assert-physics.test.mjs:173` | tolerance | `0` | `tolerance: rawTol === null ? 0 : (periodMatch[4] === '%' ? expected * rawTol / 100 : rawTol)` | **not recorded** |
-| `test/assert-physics.test.mjs:193` | tolerance | `0.02` | `tolerance: rawTol === null ? expected * 0.02 : (pulseMatch[3] === '%' ? expected * rawTol / 100…` | **not recorded** |
-| `test/assert-physics.test.mjs:208` | tolerance | `0.02` | `tolerance: rawTol === null ? expected * 0.02 : (toneMatch[3] === '%' ? expected * rawTol / 100 …` | **not recorded** |
-| `test/basic-linemap.test.mjs:93` | floor | `1` | `idx >= 1` | **not recorded** |
-| `test/basic-linemap.test.mjs:115` | floor | `0` | `Object.keys(r.lineMap).length > 0` | **not recorded** |
-| `test/basic-sweep.test.mjs:27` | floor | `0` | `r.basic.length > 0` | **not recorded** |
-| `test/basic-sweep.test.mjs:34` | floor | `0` | `r.basic.length > 0` | **not recorded** |
-| `test/basic-sweep.test.mjs:50` | floor | `0` | `rb.pseudocode.length > 0` | **not recorded** |
-| `test/basic-sweep.test.mjs:62` | floor | `0` | `rb.pseudocode.length > 0` | **not recorded** |
-| `test/basic-sweep.test.mjs:75` | floor | `0` | `w.length > 0` | **not recorded** |
-| `test/bench-invariants.test.mjs:55` | floor | `200` | `sidecars >= 200` | // MEASURED FLOOR. Without one, a parts-data directory that moved or emptied |
-| `test/bench-invariants.test.mjs:92` | floor | `1000` | `benchFiles.length >= 1000` | `only ${benchFiles.length} bench files found under ${EXAMPLES} (expected ~1092) — ` + |
-| `test/bench-invariants.test.mjs:95` | floor | `200` | `primary >= 200` | `only ${primary} primary circuit.json benches found (expected ~222) — the file ` + |
-| `test/bench-invariants.test.mjs:98` | floor | `800` | `suffixed >= 800` | `only ${suffixed} device-suffixed benches found (expected ~870)`) |
-| `test/calculator-frame.test.mjs:120` | floor | `1` | `blits > 1` | **not recorded** |
-| `test/chost.test.mjs:69` | floor | `25` | `compiled >= 25` | **not recorded** |
-| `test/chost.test.mjs:227` | floor | `30` | `identical >= 30` | **not recorded** |
-| `test/circuit-json-roundtrip.test.mjs:182` | floor | `0` | `leds.length > 0` | **not recorded** |
-| `test/circuit-json-roundtrip.test.mjs:198` | floor | `0` | `motors.length > 0` | **not recorded** |
-| `test/circuit-json-roundtrip.test.mjs:213` | floor | `30` | `circuitCount >= 30` | **not recorded** |
-| `test/circuit-params-are-read.test.mjs:164` | floor | `100` | `engineFiles.length >= 100` | **not recorded** |
-| `test/circuit-params-are-read.test.mjs:166` | floor | `50` | `read.size >= 50` | **not recorded** |
-| `test/circuit-params-are-read.test.mjs:167` | floor | `2000` | `circuitFiles >= 2000` | **not recorded** |
-| `test/circuit-params-are-read.test.mjs:168` | floor | `30` | `sites.size >= 30` | **not recorded** |
-| `test/codegen.test.mjs:27` | floor | `20` | `py.length > 20` | **not recorded** |
-| `test/corpus-generator.test.mjs:367` | floor | `0` | `trace.events.length > 0` | **not recorded** |
-| `test/corpus-generator.test.mjs:367` | floor | `0` | `trace.serial.length > 0` | **not recorded** |
-| `test/corpus-generator.test.mjs:381` | floor | `100` | `code.length > 100` | **not recorded** |
-| `test/ctarget.test.mjs:284` | floor | `4` | `labels.length >= 4` | **not recorded** |
-| `test/ctarget.test.mjs:942` | floor | `5` | `hardware.length >= 5` | **not recorded** |
-| `test/ctarget.test.mjs:972` | ceiling | `5` | `(forced.match(/warning:/g) \|\| []).length <= 5` | **not recorded** |
-| `test/ctarget.test.mjs:1770` | floor | `0` | `map.length > 0` | **not recorded** |
-| `test/ctarget.test.mjs:1814` | floor | `0` | `readYieldMap(cOf(SCHEDULED, {debug: true})).length > 0` | **not recorded** |
-| `test/ctarget.test.mjs:1826` | floor | `0` | `readYieldMap(debug).length > 0` | **not recorded** |
-| `test/ctarget.test.mjs:1895` | floor | `0` | `yields.length > 0` | **not recorded** |
-| `test/ctarget.test.mjs:1900` | floor | `0` | `y.block.length > 0` | **not recorded** |
-| `test/ctarget.test.mjs:3190` | floor | `0` | `first >= 0` | **not recorded** |
-| `test/ctarget.test.mjs:3202` | floor | `0` | `r.stats.mapped > 0` | **not recorded** |
-| `test/cube-directions.test.mjs:31` | floor | `6` | `corpusFloor("cube directions")` | // MEASURED 2026-08-23: 6 directions. Several tests here are generated from |
-| `test/curriculum.test.mjs:18` | floor | `45` | `corpusFloor("curriculum stations")` | // MEASURED 2026-08-23: 5 trails, 15 chapters, 53 stations; 274 index entries. |
-| `test/curriculum.test.mjs:21` | floor | `250` | `corpusFloor("example ids the curriculum is checked against")` | **not recorded** |
-| `test/debug-micropython.test.mjs:36` | floor | `8` | `corpusFloor("micro:bit examples discovered from examples/index.json")` | // MEASURED 2026-08-23: 9 of 274 index.json entries. The corpus is DISCOVERED by |
-| `test/debug-trace-audit.test.mjs:36` | floor | `14` | `corpusFloor("MicroPython examples discovered from examples/index.json")` | // MEASURED 2026-08-23: 16 of 274 index.json entries. Same shape as |
-| `test/decompile.test.mjs:98` | floor | `0` | `c.warnings.length > 0` | **not recorded** |
-| `test/device-coverage.test.mjs:82` | floor | `110` | `engineKinds.length < 110` | // 80 was measured in the snapshot era and went stale: MEASURED 2026-08-23 |
-| `test/device-coverage.test.mjs:284` | floor | `78` | `engineKinds.length >= 78` | // MEASURED 2026-08-23 against bw-board@caeac2b: 118 kinds live, 82 in the |
-| `test/device-coverage.test.mjs:293` | floor | `110` | `engineKinds.length >= 110` | `the live engine reported only ${engineKinds.length} kinds (expected ~118)`) |
-| `test/example-corpus-contract.test.mjs:36` | floor | `259` | `index.length >= 259` | **not recorded** |
-| `test/example-corpus-contract.test.mjs:37` | floor | `1034` | `circuitFiles.length >= 1034` | **not recorded** |
-| `test/example-corpus-contract.test.mjs:38` | floor | `819` | `generatedFiles.length >= 819` | **not recorded** |
-| `test/example-kind-matches-content.test.mjs:75` | floor | `259` | `index.length >= 259` | **not recorded** |
-| `test/example-kind-matches-content.test.mjs:77` | floor | `100` | `withBlocks >= 100` | **not recorded** |
-| `test/example-kind-matches-content.test.mjs:79` | floor | `100` | `without >= 100` | **not recorded** |
-| `test/exec.test.mjs:22` | timeout-ms | `800` | `timeout: 800` | **not recorded** |
-| `test/exec.test.mjs:34` | floor | `30` | `corpusFloor("examples to execute")` | // one. MEASURED 2026-08-23: src/utils/examples.js exports 35 examples, 30 of them non-ha… |
-| `test/extension-coverage.test.mjs:68` | floor | `100` | `COMPILED >= 100` | **not recorded** |
-| `test/extension-coverage.test.mjs:71` | floor | `10` | `AUTHORED.stc12.size >= 10` | **not recorded** |
-| `test/extensions.test.mjs:66` | timeout-ms | `1000` | `timeout: 1000` | **not recorded** |
-| `test/extensions.test.mjs:189` | timeout-ms | `1000` | `timeout: 1000` | **not recorded** |
-| `test/extensions.test.mjs:276` | timeout-ms | `1000` | `timeout: 1000` | **not recorded** |
-| `test/extensions.test.mjs:338` | timeout-ms | `1000` | `timeout: 1000` | **not recorded** |
-| `test/extensions.test.mjs:410` | timeout-ms | `1000` | `timeout: 1000` | **not recorded** |
-| `test/extensions.test.mjs:485` | floor | `15` | `Object.keys(reg).length >= 15` | `only ${Object.keys(reg).length} runtime extensions registered (expected ~19)`) |
-| `test/extensions.test.mjs:487` | floor | `700` | `ops >= 700` | `only ${ops} runtime-extension ops walked (expected ~775) — the declarative ` + |
-| `test/features.test.mjs:207` | floor | `0` | `jump.sampleCount > 0` | **not recorded** |
-| `test/features.test.mjs:208` | floor | `0` | `meow.sampleCount > 0` | **not recorded** |
-| `test/features.test.mjs:241` | floor | `5` | `base.n > 5` | **not recorded** |
-| `test/features.test.mjs:331` | floor | `2` | `c.project.monitors.length >= 2` | **not recorded** |
-| `test/flat-variants-manifest.test.mjs:65` | floor | `900` | `MANIFEST.entries.length > 900` | **not recorded** |
-| `test/flat-variants-manifest.test.mjs:125` | floor | `0` | `mutated.wires.length > 0` | **not recorded** |
-| `test/flat-variants.test.mjs:92` | floor | `900` | `pairs.length > 900` | **not recorded** |
-| `test/flat-variants.test.mjs:100` | floor | `900` | `pairs.length > 900` | // would otherwise loop over an empty array and PASS — observed 2026-08-23, |
-| `test/gallery-e2e.test.mjs:378` | floor | `0` | `board.parts.length > 0` | **not recorded** |
-| `test/gallery-e2e.test.mjs:409` | floor | `0` | `board.parts.length > 0` | **not recorded** |
-| `test/gallery-e2e.test.mjs:417` | floor | `0` | `state.omega >= 0` | **not recorded** |
-| `test/gallery-e2e.test.mjs:430` | tolerance | `0.1` | `bSink > 0.1` | **not recorded** |
-| `test/gallery-e2e.test.mjs:431` | tolerance | `0.02` | `bSource < 0.02` | **not recorded** |
-| `test/gallery-e2e.test.mjs:437` | floor | `0` | `board.parts.length > 0` | **not recorded** |
-| `test/gallery-e2e.test.mjs:441` | floor | `8` | `leds.length >= 8` | **not recorded** |
-| `test/gallery-e2e.test.mjs:446` | floor | `0` | `board.parts.length > 0` | **not recorded** |
-| `test/gallery-e2e.test.mjs:552` | floor | `0` | `board.parts.length > 0` | **not recorded** |
-| `test/gallery-e2e.test.mjs:554` | floor | `0` | `buzzers.length > 0` | **not recorded** |
-| `test/gallery-e2e.test.mjs:567` | floor | `400` | `tone.hz > 400` | `expected ~440 Hz, got ${tone.hz.toFixed(1)} Hz`) |
-| `test/gallery-e2e.test.mjs:567` | ceiling | `480` | `tone.hz < 480` | `expected ~440 Hz, got ${tone.hz.toFixed(1)} Hz`) |
-| `test/gallery-e2e.test.mjs:592` | floor | `0` | `r.reasons.length > 0` | **not recorded** |
-| `test/gallery-roundtrip.test.mjs:42` | floor | `0` | `project.targets.length > 0` | **not recorded** |
-| `test/gallery-roundtrip.test.mjs:71` | floor | `40` | `exampleDirs.length >= 40` | **not recorded** |
-| `test/gallery.test.mjs:93` | floor | `0` | `code.length > 0` | **not recorded** |
-| `test/gallery.test.mjs:135` | floor | `0` | `js.length > 0` | **not recorded** |
-| `test/gallery.test.mjs:171` | floor | `0` | `circuit.vcc > 0` | **not recorded** |
-| `test/gallery.test.mjs:203` | floor | `100` | `content.length > 100` | **not recorded** |
-| `test/gallery.test.mjs:225` | floor | `1` | `entry.difficulty >= 1` | **not recorded** |
-| `test/gallery.test.mjs:225` | ceiling | `5` | `entry.difficulty <= 5` | **not recorded** |
-| `test/gate-integrity.test.mjs:98` | floor | `40` | `scanned >= 40` | **not recorded** |
-| `test/gate-integrity.test.mjs:100` | floor | `12` | `crossRepo >= 12` | **not recorded** |
-| `test/gate-integrity.test.mjs:264` | floor | `40` | `scanned >= 40` | // stopped matching". MEASURED 2026-08-23: 90 files, 24 sibling paths. |
-| `test/gate-integrity.test.mjs:267` | floor | `15` | `siblingPathsSeen >= 15` | '(expected ~24). Every pattern here may have stopped matching, in which ' + |
-| `test/gate-integrity.test.mjs:304` | floor | `80` | `inv.rows.length >= 80` | // default. MEASURED 2026-08-23: 88 files, 47 of them corpus-driven. |
-| `test/gate-integrity.test.mjs:311` | floor | `40` | `corpusDriven.length >= 40` | `only ${corpusDriven.length} corpus-driven files recognised (expected ~47) — ` + |
-| `test/gate-integrity.test.mjs:427` | floor | `0` | `circ.board.parts.length > 0` | **not recorded** |
-| `test/gate-integrity.test.mjs:427` | floor | `0` | `circ.board.nets.length > 0` | **not recorded** |
-| `test/generated-bench-layout.test.mjs:56` | floor | `0` | `flat.length > 0` | **not recorded** |
-| `test/generated-bench-layout.test.mjs:60` | floor | `900` | `kept.length > 900` | **not recorded** |
-| `test/js-driver-oled-chain.test.mjs:71` | floor | `0` | `circ.board.parts.length > 0` | **not recorded** |
-| `test/js-driver-oled-chain.test.mjs:71` | floor | `0` | `circ.board.nets.length > 0` | **not recorded** |
-| `test/js-driver-oled-chain.test.mjs:91` | timeout-ms | `8000` | `timeout: 8000` | **not recorded** |
-| `test/js-driver-oled-chain.test.mjs:101` | floor | `20` | `sdaEdges > 20` | **not recorded** |
-| `test/js-driver-oled-chain.test.mjs:106` | floor | `20` | `lit >= 20` | **not recorded** |
-| `test/kcl-residual.test.mjs:101` | floor | `1500` | `files.length > 1500` | **not recorded** |
-| `test/kcl-residual.test.mjs:107` | floor | `1500` | `files.length > 1500` | **not recorded** |
-| `test/kcl-residual.test.mjs:188` | floor | `1900` | `circuitsSolved > 1900` | // Floors are MEASURED, not invented. On 2026-08-23 this corpus gives |
-| `test/kcl-residual.test.mjs:190` | floor | `30` | `netsChecked >= 30` | 'only ' + netsChecked + ' nets were checkable (expected ~37) - either the ' + |
-| `test/live.test.mjs:44` | floor | `0` | `size > 0` | **not recorded** |
-| `test/live.test.mjs:46` | floor | `1` | `project.targets.length >= 1` | **not recorded** |
-| `test/live.test.mjs:89` | floor | `1` | `Object.keys(stage.broadcasts).length >= 1` | **not recorded** |
-| `test/matrix-keypad-retarget.test.mjs:27` | floor | `1` | `pbPins.length >= 1` | **not recorded** |
-| `test/matrix-keypad-retarget.test.mjs:28` | floor | `1` | `mkPins.length >= 1` | **not recorded** |
-| `test/matrix-keypad-retarget.test.mjs:74` | timeout-ms | `60000` | `timeout: 60000` | **not recorded** |
-| `test/matrix-keypad-retarget.test.mjs:85` | floor | `17` | `pools.matrix.rows.length * pools.matrix.cols.length >= 17` | **not recorded** |
-| `test/micropython-pico-roundtrip.test.mjs:47` | floor | `15` | `authored.length >= 15` | // MEASURED 2026-08-23: 70-calculator declares 19 PINs. The per-pin assertions |
-| `test/multimeter-chain.test.mjs:92` | floor | `200` | `sidecars >= 200` | // MEASURED 2026-08-23: 239 sidecars in bw-circuit-ui@d754cfc. Same floor as |
-| `test/multimeter-chain.test.mjs:99` | floor | `0` | `circ.board.parts.length > 0` | **not recorded** |
-| `test/multimeter-chain.test.mjs:99` | floor | `0` | `circ.board.nets.length > 0` | **not recorded** |
-| `test/multimeter-chain.test.mjs:150` | floor | `200` | `sidecars >= 200` | // MEASURED 2026-08-23: 239 sidecars in bw-circuit-ui@d754cfc. Same floor as |
-| `test/multimeter-chain.test.mjs:157` | floor | `0` | `circ.board.parts.length > 0` | **not recorded** |
-| `test/multimeter-chain.test.mjs:157` | floor | `0` | `circ.board.nets.length > 0` | **not recorded** |
-| `test/oled-flush.test.mjs:78` | floor | `1` | `count(py, '_oled.show()') > 1` | **not recorded** |
-| `test/pico-oled-chain.test.mjs:106` | floor | `0` | `circ.board.parts.length > 0` | **not recorded** |
-| `test/pico-oled-chain.test.mjs:106` | floor | `0` | `circ.board.nets.length > 0` | **not recorded** |
-| `test/pico-oled-chain.test.mjs:127` | floor | `1000` | `sclEdges > 1000` | **not recorded** |
-| `test/pico-oled-chain.test.mjs:128` | floor | `100` | `sdaEdges > 100` | **not recorded** |
-| `test/pico-oled-chain.test.mjs:129` | floor | `3` | `board.readAnalog('GP0') > 3` | **not recorded** |
-| `test/pico-oled-chain.test.mjs:134` | floor | `20` | `lit0 >= 20` | **not recorded** |
-| `test/program-reads-what-it-writes.test.mjs:108` | floor | `250` | `dirs.length >= 250` | **not recorded** |
-| `test/program-reads-what-it-writes.test.mjs:112` | floor | `80` | `withVars >= 80` | **not recorded** |
-| `test/python-syntax-contract.test.mjs:74` | floor | `20000` | `PY_BUDGET_DEFAULT_MS >= 20_000` | // MEASURED 2026-08-23, 25 consecutive runs of the exact command on a box at |
-| `test/rail-short.test.mjs:97` | floor | `1500` | `files.length > 1500` | **not recorded** |
-| `test/rail-short.test.mjs:103` | floor | `1500` | `files.length > 1500` | **not recorded** |
-| `test/retarget-amplification.test.mjs:32` | floor | `35` | `corpusFloor("retargetable programs in examples/index.json")` | // MEASURED 2026-08-23: 40 of 274 index.json entries. Both halves of this filter |
-| `test/retarget-amplification.test.mjs:172` | floor | `0` | `trace.events.length > 0` | **not recorded** |
-| `test/retarget-amplification.test.mjs:172` | floor | `0` | `trace.pwm.length > 0` | **not recorded** |
-| `test/retarget-amplification.test.mjs:173` | floor | `0` | `trace.devices.length > 0` | **not recorded** |
-| `test/retarget-gallery.test.mjs:58` | floor | `0` | `i >= 0` | **not recorded** |
-| `test/retarget-gallery.test.mjs:86` | floor | `100` | `out.length > 100` | **not recorded** |
-| `test/retarget.test.mjs:151` | floor | `200` | `out.length > 200` | **not recorded** |
-| `test/roundtrip.test.mjs:29` | floor | `25` | `corpusFloor("examples to round-trip (non-hardware)")` | // MEASURED 2026-08-23: src/utils/examples.js exports 35 examples, 30 of them non-hardwar… |
-| `test/settrace-codegen.test.mjs:62` | floor | `6` | `entries.length >= 6` | **not recorded** |
-| `test/settrace-codegen.test.mjs:94` | floor | `6` | `d.positions.length >= 6` | **not recorded** |
-| `test/settrace-codegen.test.mjs:138` | timeout-ms | `5000` | `timeout: 5000` | **not recorded** |
-| `test/settrace-codegen.test.mjs:146` | floor | `3` | `seen.length >= 3` | **not recorded** |
-| `test/settrace-codegen.test.mjs:168` | floor | `2` | `stack.length >= 2` | **not recorded** |
-| `test/shape-coverage.test.mjs:92` | floor | `0` | `kinds > 0` | **not recorded** |
-| `test/shape-coverage.test.mjs:93` | floor | `0` | `filled > 0` | **not recorded** |
-| `test/shape-coverage.test.mjs:100` | floor | `0` | `description.length > 0` | **not recorded** |
-| `test/stc12-conformance.test.mjs:67` | floor | `25` | `STC12.opcodes.size >= 25` | **not recorded** |
-| `test/stc12-conformance.test.mjs:70` | floor | `5` | `LEDCUBE.opcodes.size >= 5` | **not recorded** |
-| `test/stc12-conformance.test.mjs:73` | floor | `0` | `STC12.args[op].size > 0` | **not recorded** |
-| `test/stc12-conformance.test.mjs:188` | floor | `3` | `names.length >= 3` | **not recorded** |
-| `test/stc12-conformance.test.mjs:226` | floor | `4` | `roots.length >= 4` | **not recorded** |
-| `test/stc12-conformance.test.mjs:242` | floor | `5` | `Object.keys(MANIFEST.snapshots).length >= 5` | **not recorded** |
-| `test/trace-oracle.test.mjs:172` | ceiling | `2` | `Math.abs(t.events[0].tMs - 300) <= 2` | // MEASURED 2026-08-23 (threshold-probe --margin): the event lands on EXACTLY |
-| `test/trace-oracle.test.mjs:178` | floor | `800` | `t.events[1].tMs >= 800` | // MEASURED 2026-08-23: observed 800 exactly, so 910 carries 12% headroom — |
-| `test/trace-oracle.test.mjs:178` | ceiling | `910` | `t.events[1].tMs <= 910` | // MEASURED 2026-08-23: observed 800 exactly, so 910 carries 12% headroom — |
-| `test/trace-oracle.test.mjs:303` | floor | `0` | `t.events.length > 0` | **not recorded** |
-| `test/trace-oracle.test.mjs:533` | floor | `500` | `t.serial[0].tMs >= 500` | // MEASURED 2026-08-23: observed 500 exactly; 510 is 2% headroom. Tight, and |
-| `test/trace-oracle.test.mjs:533` | ceiling | `510` | `t.serial[0].tMs <= 510` | // MEASURED 2026-08-23: observed 500 exactly; 510 is 2% headroom. Tight, and |
-| `test/transparency.test.mjs:63` | floor | `25` | `corpusFloor("examples under the permutation matrix")` | // on purpose and nobody would notice losing. MEASURED 2026-08-23: src/utils/examples.js … |
-| `test/ttl-module-acceptance.test.mjs:52` | timeout-ms | `30000` | `timeout: 30000` | **not recorded** |
-| `test/ttl-module-acceptance.test.mjs:65` | floor | `5` | `circuit.parts.length >= 5` | **not recorded** |
-| `test/ttl-module-acceptance.test.mjs:66` | floor | `10` | `circuit.wires.length >= 10` | **not recorded** |
-| `test/ttl-module-acceptance.test.mjs:72` | floor | `4` | `leds.length >= 4` | **not recorded** |
-| `test/ttl-module-acceptance.test.mjs:79` | floor | `5` | `clockWires.length >= 5` | **not recorded** |
-| `test/ttl-module-acceptance.test.mjs:91` | floor | `4` | `aSide.length >= 4` | **not recorded** |
-| `test/ttl-module-acceptance.test.mjs:126` | floor | `4` | `muxYWires.length >= 4` | **not recorded** |
-| `test/ttl-module-acceptance.test.mjs:130` | floor | `4` | `leds.length >= 4` | **not recorded** |
-| `test/ttl-module-acceptance.test.mjs:133` | floor | `20` | `circuit.wires.length >= 20` | **not recorded** |
-| `test/ttl-module-acceptance.test.mjs:147` | floor | `10` | `circuit.parts.length >= 10` | **not recorded** |
-| `test/ttl-module-acceptance.test.mjs:148` | floor | `20` | `circuit.wires.length >= 20` | **not recorded** |
-| `test/ttl-module-acceptance.test.mjs:162` | floor | `10` | `circuit.parts.length >= 10` | **not recorded** |
-| `test/ttl-module-acceptance.test.mjs:163` | floor | `20` | `circuit.wires.length >= 20` | **not recorded** |
-| `test/vm-and-c-agree-on-arithmetic.test.mjs:109` | floor | `250` | `dirs.length >= 250` | **not recorded** |
-| `test/vm-and-c-agree-on-arithmetic.test.mjs:110` | floor | `100` | `targets >= 100` | **not recorded** |
-| `test/vm.test.mjs:112` | timeout-ms | `5000` | `timeout: 5000` | **not recorded** |
-| `test/vm.test.mjs:170` | concurrency | `1` | `concurrency: 1` | **not recorded** |
-| `test/vm.test.mjs:182` | floor | `1` | `vm.runtime.targets.length >= 1` | **not recorded** |
-| `test/vm.test.mjs:488` | floor | `0` | `tgt >= 0` | **not recorded** |
-| `test/vm.test.mjs:498` | floor | `3` | `revealed > 3` | **not recorded** |
-| `test/vm.test.mjs:591` | floor | `18` | `lowest >= 18` | **not recorded** |
-| `test/vm.test.mjs:598` | floor | `4` | `filled >= 4` | **not recorded** |
-| `test/wire-endpoint-adoption.test.mjs:100` | floor | `100` | `files.length > 100` | **not recorded** |
-| `test/wire-endpoint-adoption.test.mjs:104` | floor | `0` | `hits.size > 0` | **not recorded** |
-| `test/z80-calculator-retarget.test.mjs:24` | floor | `1` | `inPins.length >= 1` | **not recorded** |
-| `test/z80-calculator-retarget.test.mjs:25` | floor | `1` | `mkPins.length >= 1` | **not recorded** |
-| `test/z80-calculator-retarget.test.mjs:67` | timeout-ms | `60000` | `timeout: 60000` | **not recorded** |
-| `test/z80-calculator-retarget.test.mjs:78` | floor | `17` | `pools.matrix.rows.length * pools.matrix.cols.length >= 17` | **not recorded** |
-| `test/helpers/corpus-floor.mjs:44` | floor | `1` | `floor < 1` | **not recorded** |
-| `test/helpers/downstream.mjs:62` | ceiling | `0` | `missing.length > 0` | **not recorded** |
-| `scripts/gen-runtime-registry.mjs:103` | timeout-ms | `8000` | `timeout: 8000` | **not recorded** |
-| `scripts/mutation-prove-conformance.mjs:126` | size-cap | `67108864` | `maxBuffer: 64 * 1024 * 1024` | **not recorded** |
-| `scripts/mutation-prove-conformance.mjs:261` | floor | `0` | `at < 0` | **not recorded** |
-| `scripts/oracle-bbcsdl.mjs:73` | timeout-ms | `30000` | `timeout: 30000` | **not recorded** |
-| `scripts/settrace-smoke.mjs:131` | timeout-ms | `15000` | `timeout: 15000` | **not recorded** |
-| `scripts/settrace-smoke.mjs:141` | timeout-ms | `15000` | `timeout: 15000` | **not recorded** |
-| `scripts/starve-gate.mjs:156` | size-cap | `67108864` | `maxBuffer: 64 * 1024 * 1024` | **not recorded** |
-| `scripts/threshold-probe.mjs:130` | floor | `0` | `idx < 0` | **not recorded** |
-| `scripts/threshold-probe.mjs:170` | size-cap | `67108864` | `maxBuffer: 64 * 1024 * 1024` | **not recorded** |
-| `scripts/threshold-probe.mjs:200` | size-cap | `67108864` | `maxBuffer: 64 * 1024 * 1024` | **not recorded** |
-| `scripts/vendor-flat-partitions.mjs:134` | floor | `900` | `pairs.length < 900` | **not recorded** |
-| `.github/workflows/ci.yml:104` | timeout-min | `30` | `job/step timeout` | # a four-minute file on a developer box (measured 242 s, 45/45) and this |
-| `.github/workflows/ci.yml:122` | timeout-min | `25` | `job/step timeout` | **not recorded** |
-| `.github/workflows/ci.yml:70` | pin | `22` | `node-version` | **not recorded** |
-| `.github/workflows/ci.yml:147` | pin | `22` | `node-version` | **not recorded** |
-| `.github/workflows/ci.yml:177` | pin | `22` | `node-version` | **not recorded** |
-| `package.json:14` | timeout-ms | `900000` | `--test-timeout` | **not recorded** |
-| `package.json:22` | ceiling | `0` | `eslint --max-warnings` | **not recorded** |
+| disposition | count | owes a measurement |
+|---|---|---|
+| evidenced | 142 | no |
+| definitional | 78 | no |
+| countable | 19 | **yes** |
+| runtime | 8 | **yes** |
+| load-sensitive | 24 | no |
+| no-trip | 10 | no |
 
-### `brickwright-lite` — 238 bounding literals
+| where | kind | value | bounds | disposition | measurement |
+|---|---|---|---|---|---|
+| `test/a2-sampler-behavior.test.mjs:76` | timeout-ms | `5000` | `timeout: 5000` | load-sensitive | **not recorded** |
+| `test/a2-sampler-behavior.test.mjs:135` | concurrency | `1` | `concurrency: 1` | no-trip | **not recorded** |
+| `test/arduino-import.test.mjs:80` | floor | `0` | `examples.length > 0` | definitional | **not recorded** |
+| `test/arduino-import.test.mjs:114` | floor | `10` | `r.pseudocode.length > 10` | countable | **not recorded** |
+| `test/assert-physics.test.mjs:109` | tolerance | `0.003` | `tolerance: parseFloat(netMvMatch[3]) / 1000` | runtime | **not recorded** |
+| `test/assert-physics.test.mjs:165` | tolerance | `0` | `tolerance: rawTol === null ? 0 : (periodMatch[4] === '%' ? expected * rawTol / 100 : rawTol)` | runtime | **not recorded** |
+| `test/assert-physics.test.mjs:185` | tolerance | `0.02` | `tolerance: rawTol === null ? expected * 0.02 : (pulseMatch[3] === '%' ? expected * rawTol / 100…` | runtime | **not recorded** |
+| `test/assert-physics.test.mjs:200` | tolerance | `0.02` | `tolerance: rawTol === null ? expected * 0.02 : (toneMatch[3] === '%' ? expected * rawTol / 100 …` | runtime | **not recorded** |
+| `test/bare-condition-truth.test.mjs:86` | timeout-ms | `2000` | `timeout: 2000` | load-sensitive | **not recorded** |
+| `test/bare-condition-truth.test.mjs:97` | timeout-ms | `15000` | `timeout: 15000` | load-sensitive | **not recorded** |
+| `test/basic-linemap.test.mjs:93` | floor | `1` | `idx >= 1` | definitional | **not recorded** |
+| `test/basic-linemap.test.mjs:115` | floor | `0` | `Object.keys(r.lineMap).length > 0` | definitional | **not recorded** |
+| `test/basic-sweep.test.mjs:27` | floor | `0` | `r.basic.length > 0` | definitional | **not recorded** |
+| `test/basic-sweep.test.mjs:34` | floor | `0` | `r.basic.length > 0` | definitional | **not recorded** |
+| `test/basic-sweep.test.mjs:50` | floor | `0` | `rb.pseudocode.length > 0` | definitional | **not recorded** |
+| `test/basic-sweep.test.mjs:62` | floor | `0` | `rb.pseudocode.length > 0` | definitional | **not recorded** |
+| `test/basic-sweep.test.mjs:75` | floor | `0` | `w.length > 0` | definitional | **not recorded** |
+| `test/bench-invariants.test.mjs:58` | floor | `200` | `sidecars >= 200` | evidenced | // MEASURED FLOOR. Without one, a parts-data directory that moved or emptied |
+| `test/bench-invariants.test.mjs:94` | floor | `1000` | `benchFiles.length >= 1000` | evidenced | `only ${benchFiles.length} bench files found under ${EXAMPLES} (expected ~1092) — ` + |
+| `test/bench-invariants.test.mjs:97` | floor | `200` | `primary >= 200` | evidenced | `only ${primary} primary circuit.json benches found (expected ~222) — the file ` + |
+| `test/bench-invariants.test.mjs:100` | floor | `800` | `suffixed >= 800` | evidenced | `only ${suffixed} device-suffixed benches found (expected ~870)`) |
+| `test/calculator-frame.test.mjs:120` | floor | `1` | `blits > 1` | definitional | **not recorded** |
+| `test/chost.test.mjs:71` | floor | `25` | `compiled >= 25` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53): |
+| `test/chost.test.mjs:231` | floor | `30` | `identical >= 30` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53): |
+| `test/circuit-json-roundtrip.test.mjs:182` | floor | `0` | `leds.length > 0` | definitional | **not recorded** |
+| `test/circuit-json-roundtrip.test.mjs:198` | floor | `0` | `motors.length > 0` | definitional | **not recorded** |
+| `test/circuit-json-roundtrip.test.mjs:215` | floor | `30` | `circuitCount >= 30` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53): |
+| `test/circuit-params-are-read.test.mjs:167` | floor | `100` | `engineFiles.length >= 100` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, batch 2 under the fleet build |
+| `test/circuit-params-are-read.test.mjs:171` | floor | `50` | `read.size >= 50` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, batch 2 under the fleet build |
+| `test/circuit-params-are-read.test.mjs:174` | floor | `2000` | `circuitFiles >= 2000` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, batch 2 under the fleet build |
+| `test/circuit-params-are-read.test.mjs:177` | floor | `30` | `sites.size >= 30` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, batch 2 under the fleet build |
+| `test/codegen.test.mjs:29` | floor | `20` | `py.length > 20` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53): |
+| `test/corpus-generator.test.mjs:367` | floor | `0` | `trace.events.length > 0` | definitional | **not recorded** |
+| `test/corpus-generator.test.mjs:367` | floor | `0` | `trace.serial.length > 0` | definitional | **not recorded** |
+| `test/corpus-generator.test.mjs:383` | floor | `100` | `code.length > 100` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load |
+| `test/ctarget.test.mjs:344` | floor | `4` | `labels.length >= 4` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, batch 2 under the fleet build lock, |
+| `test/ctarget.test.mjs:1025` | floor | `5` | `hardware.length >= 5` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, batch 2 under the fleet build lock, |
+| `test/ctarget.test.mjs:1057` | ceiling | `5` | `(forced.match(/warning:/g) \|\| []).length <= 5` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, batch 2 under the fleet build lock, |
+| `test/ctarget.test.mjs:1855` | floor | `0` | `map.length > 0` | definitional | **not recorded** |
+| `test/ctarget.test.mjs:1899` | floor | `0` | `readYieldMap(cOf(SCHEDULED, {debug: true})).length > 0` | definitional | **not recorded** |
+| `test/ctarget.test.mjs:1911` | floor | `0` | `readYieldMap(debug).length > 0` | definitional | **not recorded** |
+| `test/ctarget.test.mjs:1980` | floor | `0` | `yields.length > 0` | definitional | **not recorded** |
+| `test/ctarget.test.mjs:1985` | floor | `0` | `y.block.length > 0` | definitional | **not recorded** |
+| `test/ctarget.test.mjs:3275` | floor | `0` | `first >= 0` | definitional | **not recorded** |
+| `test/ctarget.test.mjs:3287` | floor | `0` | `r.stats.mapped > 0` | definitional | **not recorded** |
+| `test/cube-directions.test.mjs:31` | floor | `6` | `corpusFloor("cube directions")` | evidenced | // MEASURED 2026-08-23: 6 directions. Several tests here are generated from |
+| `test/curriculum.test.mjs:18` | floor | `45` | `corpusFloor("curriculum stations")` | evidenced | // MEASURED 2026-08-23: 5 trails, 15 chapters, 53 stations; 274 index entries. |
+| `test/curriculum.test.mjs:21` | floor | `250` | `corpusFloor("example ids the curriculum is checked against")` | runtime | **not recorded** |
+| `test/debug-micropython.test.mjs:36` | floor | `8` | `corpusFloor("micro:bit examples discovered from examples/index.json")` | evidenced | // MEASURED 2026-08-23: 9 of 274 index.json entries. The corpus is DISCOVERED by |
+| `test/debug-trace-audit.test.mjs:36` | floor | `14` | `corpusFloor("MicroPython examples discovered from examples/index.json")` | evidenced | // MEASURED 2026-08-23: 16 of 274 index.json entries. Same shape as |
+| `test/decompile.test.mjs:98` | floor | `0` | `c.warnings.length > 0` | definitional | **not recorded** |
+| `test/device-branch-agreement.test.mjs:123` | floor | `14` | `benches.length >= 14` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53): |
+| `test/device-branch-agreement.test.mjs:128` | floor | `27` | `s.length >= 27` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53): |
+| `test/device-branch-agreement.test.mjs:160` | ceiling | `3` | `left.length <= 3` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53): |
+| `test/device-branch-agreement.test.mjs:195` | floor | `69` | `reached.size >= 69` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53): |
+| `test/device-coverage.test.mjs:82` | floor | `110` | `engineKinds.length < 110` | evidenced | // 80 was measured in the snapshot era and went stale: MEASURED 2026-08-23 |
+| `test/device-coverage.test.mjs:284` | floor | `78` | `engineKinds.length >= 78` | evidenced | // MEASURED 2026-08-23 against bw-board@caeac2b: 118 kinds live, 82 in the |
+| `test/device-coverage.test.mjs:293` | floor | `110` | `engineKinds.length >= 110` | evidenced | `the live engine reported only ${engineKinds.length} kinds (expected ~118)`) |
+| `test/embed-bundle.test.mjs:55` | timeout-ms | `20000` | `timeout: 20000` | load-sensitive | **not recorded** |
+| `test/embed-bundle.test.mjs:83` | timeout-ms | `20000` | `timeout: 20000` | load-sensitive | **not recorded** |
+| `test/embed-bundle.test.mjs:87` | floor | `5` | `devices.length > 5` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53): |
+| `test/engine-surface-adoption.test.mjs:122` | floor | `100` | `files.length > 100` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, quiet-ish box, load 14): |
+| `test/engine-surface-adoption.test.mjs:190` | floor | `10` | `ENGINE_SURFACE.length >= 10` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, quiet-ish box, load 14): |
+| `test/example-corpus-contract.test.mjs:39` | floor | `259` | `index.length >= 259` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, batch 2 under the fleet build |
+| `test/example-corpus-contract.test.mjs:53` | floor | `1970` | `circuitFiles.length >= 1970` | evidenced | // MEASURED 2026-08-25: circuitFiles is 2099. The floor was 1034 — set |
+| `test/example-corpus-contract.test.mjs:56` | floor | `819` | `generatedFiles.length >= 819` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, batch 2 under the fleet build |
+| `test/example-gate-enrolment.test.mjs:63` | floor | `259` | `Object.keys(computed.map).length >= 259` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53): |
+| `test/example-gate-enrolment.test.mjs:67` | floor | `10` | `ENROLMENT.length >= 10` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53): |
+| `test/example-gate-enrolment.test.mjs:94` | floor | `10` | `readers.length >= 10` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53): |
+| `test/example-kind-matches-content.test.mjs:77` | floor | `259` | `index.length >= 259` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53): |
+| `test/example-kind-matches-content.test.mjs:81` | floor | `100` | `withBlocks >= 100` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53): |
+| `test/example-kind-matches-content.test.mjs:85` | floor | `100` | `without >= 100` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53): |
+| `test/exec.test.mjs:22` | timeout-ms | `800` | `timeout: 800` | load-sensitive | **not recorded** |
+| `test/exec.test.mjs:34` | floor | `30` | `corpusFloor("examples to execute")` | evidenced | // one. MEASURED 2026-08-23: src/utils/examples.js exports 35 examples, 30 of them non-ha… |
+| `test/expected-quantities-hold.test.mjs:150` | floor | `2300` | `L.total > 2300` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53): |
+| `test/expected-quantities-hold.test.mjs:155` | floor | `180` | `dirs.size > 180` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53): |
+| `test/expected-quantities-hold.test.mjs:177` | floor | `1225` | `compared >= 1225` | evidenced | // The ratchet. 1224/2356 = 52.0 % on 2026-08-24 against bw-board |
+| `test/expected-quantities-hold.test.mjs:212` | floor | `175` | `byOwnMaths.length >= 175` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53): |
+| `test/expected-quantities-hold.test.mjs:223` | floor | `85` | `solvedCurrents.length >= 85` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53): |
+| `test/expected-quantities-hold.test.mjs:268` | floor | `6` | `withR.length >= 6` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53): |
+| `test/expected-quantities-hold.test.mjs:317` | floor | `21` | `both.length >= 21` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53): |
+| `test/extension-coverage.test.mjs:70` | floor | `100` | `COMPILED >= 100` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53): |
+| `test/extension-coverage.test.mjs:75` | floor | `10` | `AUTHORED.stc12.size >= 10` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53): |
+| `test/extensions.test.mjs:66` | timeout-ms | `1000` | `timeout: 1000` | load-sensitive | **not recorded** |
+| `test/extensions.test.mjs:189` | timeout-ms | `1000` | `timeout: 1000` | load-sensitive | **not recorded** |
+| `test/extensions.test.mjs:276` | timeout-ms | `1000` | `timeout: 1000` | load-sensitive | **not recorded** |
+| `test/extensions.test.mjs:338` | timeout-ms | `1000` | `timeout: 1000` | load-sensitive | **not recorded** |
+| `test/extensions.test.mjs:410` | timeout-ms | `1000` | `timeout: 1000` | load-sensitive | **not recorded** |
+| `test/extensions.test.mjs:485` | floor | `15` | `Object.keys(reg).length >= 15` | evidenced | `only ${Object.keys(reg).length} runtime extensions registered (expected ~19)`) |
+| `test/extensions.test.mjs:487` | floor | `700` | `ops >= 700` | evidenced | `only ${ops} runtime-extension ops walked (expected ~775) — the declarative ` + |
+| `test/faceplate-layouts.test.mjs:40` | floor | `11` | `layouts.length >= 11` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53): |
+| `test/features.test.mjs:207` | floor | `0` | `jump.sampleCount > 0` | definitional | **not recorded** |
+| `test/features.test.mjs:208` | floor | `0` | `meow.sampleCount > 0` | definitional | **not recorded** |
+| `test/features.test.mjs:243` | floor | `5` | `base.n > 5` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53): |
+| `test/features.test.mjs:335` | floor | `2` | `c.project.monitors.length >= 2` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53): |
+| `test/flat-variants-manifest.test.mjs:67` | floor | `900` | `MANIFEST.entries.length > 900` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53): |
+| `test/flat-variants-manifest.test.mjs:127` | floor | `0` | `mutated.wires.length > 0` | definitional | **not recorded** |
+| `test/flat-variants.test.mjs:82` | floor | `900` | `pairs.length > 900` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53): |
+| `test/flat-variants.test.mjs:90` | floor | `900` | `pairs.length > 900` | evidenced | // would otherwise loop over an empty array and PASS — observed 2026-08-23, |
+| `test/gallery-e2e.test.mjs:363` | floor | `0` | `board.parts.length > 0` | definitional | **not recorded** |
+| `test/gallery-e2e.test.mjs:394` | floor | `0` | `board.parts.length > 0` | definitional | **not recorded** |
+| `test/gallery-e2e.test.mjs:402` | floor | `0` | `state.omega >= 0` | definitional | **not recorded** |
+| `test/gallery-e2e.test.mjs:417` | tolerance | `0.1` | `bSink > 0.1` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, batch 2 under the fleet build |
+| `test/gallery-e2e.test.mjs:420` | tolerance | `0.02` | `bSource < 0.02` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, batch 2 under the fleet build |
+| `test/gallery-e2e.test.mjs:426` | floor | `0` | `board.parts.length > 0` | definitional | **not recorded** |
+| `test/gallery-e2e.test.mjs:432` | floor | `8` | `leds.length >= 8` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, batch 2 under the fleet build |
+| `test/gallery-e2e.test.mjs:437` | floor | `0` | `board.parts.length > 0` | definitional | **not recorded** |
+| `test/gallery-e2e.test.mjs:543` | floor | `0` | `board.parts.length > 0` | definitional | **not recorded** |
+| `test/gallery-e2e.test.mjs:545` | floor | `0` | `buzzers.length > 0` | definitional | **not recorded** |
+| `test/gallery-e2e.test.mjs:558` | floor | `400` | `tone.hz > 400` | evidenced | `expected ~440 Hz, got ${tone.hz.toFixed(1)} Hz`) |
+| `test/gallery-e2e.test.mjs:558` | ceiling | `480` | `tone.hz < 480` | evidenced | `expected ~440 Hz, got ${tone.hz.toFixed(1)} Hz`) |
+| `test/gallery-e2e.test.mjs:583` | floor | `0` | `r.reasons.length > 0` | definitional | **not recorded** |
+| `test/gallery-roundtrip.test.mjs:42` | floor | `0` | `project.targets.length > 0` | definitional | **not recorded** |
+| `test/gallery-roundtrip.test.mjs:73` | floor | `40` | `exampleDirs.length >= 40` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53): |
+| `test/gallery.test.mjs:93` | floor | `0` | `code.length > 0` | definitional | **not recorded** |
+| `test/gallery.test.mjs:135` | floor | `0` | `js.length > 0` | definitional | **not recorded** |
+| `test/gallery.test.mjs:171` | floor | `0` | `circuit.vcc > 0` | definitional | **not recorded** |
+| `test/gallery.test.mjs:205` | floor | `100` | `content.length > 100` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load |
+| `test/gallery.test.mjs:229` | floor | `1` | `entry.difficulty >= 1` | definitional | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load |
+| `test/gallery.test.mjs:229` | ceiling | `5` | `entry.difficulty <= 5` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load |
+| `test/gate-integrity.test.mjs:129` | floor | `40` | `scanned >= 40` | runtime | **not recorded** |
+| `test/gate-integrity.test.mjs:131` | floor | `12` | `crossRepo >= 12` | runtime | **not recorded** |
+| `test/gate-integrity.test.mjs:235` | floor | `11` | `uses.length >= 11` | countable | **not recorded** |
+| `test/gate-integrity.test.mjs:261` | floor | `2` | `installs.length >= 2` | countable | **not recorded** |
+| `test/gate-integrity.test.mjs:307` | floor | `8` | `targets.length >= 8` | countable | **not recorded** |
+| `test/gate-integrity.test.mjs:330` | floor | `200` | `files.length >= 200` | countable | **not recorded** |
+| `test/gate-integrity.test.mjs:427` | floor | `40` | `scanned >= 40` | evidenced | // stopped matching". MEASURED 2026-08-23: 90 files, 24 sibling paths. |
+| `test/gate-integrity.test.mjs:430` | floor | `15` | `siblingPathsSeen >= 15` | evidenced | '(expected ~24). Every pattern here may have stopped matching, in which ' + |
+| `test/gate-integrity.test.mjs:467` | floor | `80` | `inv.rows.length >= 80` | evidenced | // default. MEASURED 2026-08-23: 88 files, 47 of them corpus-driven. |
+| `test/gate-integrity.test.mjs:474` | floor | `40` | `corpusDriven.length >= 40` | evidenced | `only ${corpusDriven.length} corpus-driven files recognised (expected ~47) — ` + |
+| `test/gate-integrity.test.mjs:566` | floor | `0` | `circ.board.parts.length > 0` | definitional | **not recorded** |
+| `test/gate-integrity.test.mjs:566` | floor | `0` | `circ.board.nets.length > 0` | definitional | **not recorded** |
+| `test/generated-bench-layout.test.mjs:56` | floor | `0` | `flat.length > 0` | definitional | **not recorded** |
+| `test/generated-bench-layout.test.mjs:62` | floor | `900` | `kept.length > 900` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53): |
+| `test/index-metadata-matches-disk.test.mjs:89` | floor | `259` | `index.length >= 259` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53): |
+| `test/index-metadata-matches-disk.test.mjs:92` | floor | `14` | `seen.size >= 14` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53): |
+| `test/input-polarity-survives.test.mjs:100` | floor | `11` | `entry.devices.length >= 11` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53): |
+| `test/input-polarity-survives.test.mjs:169` | floor | `10` | `checked >= 10` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53): |
+| `test/js-driver-oled-chain.test.mjs:68` | floor | `0` | `circ.board.parts.length > 0` | definitional | **not recorded** |
+| `test/js-driver-oled-chain.test.mjs:68` | floor | `0` | `circ.board.nets.length > 0` | definitional | **not recorded** |
+| `test/js-driver-oled-chain.test.mjs:88` | timeout-ms | `8000` | `timeout: 8000` | load-sensitive | **not recorded** |
+| `test/js-driver-oled-chain.test.mjs:100` | floor | `20` | `sdaEdges > 20` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53): |
+| `test/js-driver-oled-chain.test.mjs:107` | floor | `20` | `lit >= 20` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53): lit |
+| `test/kcl-residual.test.mjs:91` | floor | `1500` | `files.length > 1500` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load |
+| `test/kcl-residual.test.mjs:99` | floor | `1500` | `files.length > 1500` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load |
+| `test/kcl-residual.test.mjs:180` | floor | `1900` | `circuitsSolved > 1900` | evidenced | // Floors are MEASURED, not invented. On 2026-08-23 this corpus gives |
+| `test/kcl-residual.test.mjs:182` | floor | `30` | `netsChecked >= 30` | evidenced | 'only ' + netsChecked + ' nets were checkable (expected ~37) - either the ' + |
+| `test/live.test.mjs:44` | floor | `0` | `size > 0` | definitional | **not recorded** |
+| `test/live.test.mjs:46` | floor | `1` | `project.targets.length >= 1` | definitional | **not recorded** |
+| `test/live.test.mjs:89` | floor | `1` | `Object.keys(stage.broadcasts).length >= 1` | definitional | **not recorded** |
+| `test/machine-roms-boot.test.mjs:116` | ceiling | `1000` | `Math.abs(g - 100_000) < 1000` | evidenced | `each lamp is ~100,000 cycles at 1 MHz; measured ${g}`) |
+| `test/machine-roms-boot.test.mjs:120` | ceiling | `8000` | `Math.abs(sweep - 800_000) < 8000` | evidenced | `EXPECTED.md documents an 800 ms sweep; measured ${(sweep / 1000).toFixed(1)} ms`) |
+| `test/machine-roms-boot.test.mjs:265` | tolerance | `0.005` | `Math.abs(sweep / 7372800 - 0.8) < 0.005` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53): |
+| `test/machine-roms-boot.test.mjs:307` | floor | `16` | `before.length >= 16` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53): |
+| `test/machine-roms-boot.test.mjs:360` | floor | `100` | `isr > 100` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53): |
+| `test/machine-roms-boot.test.mjs:361` | floor | `0` | `fg > 0` | definitional | **not recorded** |
+| `test/machine-roms-boot.test.mjs:369` | ceiling | `1` | `Math.abs(mean - 4097) < 1` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53): |
+| `test/machine-roms-boot.test.mjs:376` | floor | `1` | `new Set(periods).size > 1` | definitional | **not recorded** |
+| `test/machine-roms-boot.test.mjs:381` | floor | `4090` | `Math.min(...periods) >= 4090` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53): |
+| `test/machine-roms-boot.test.mjs:381` | ceiling | `4104` | `Math.max(...periods) <= 4104` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53): |
+| `test/machine-roms-boot.test.mjs:398` | floor | `10` | `lostCycles > 10` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53): |
+| `test/machine-roms-boot.test.mjs:398` | ceiling | `40` | `lostCycles < 40` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53): |
+| `test/matrix-keypad-retarget.test.mjs:28` | floor | `1` | `pbPins.length >= 1` | definitional | **not recorded** |
+| `test/matrix-keypad-retarget.test.mjs:29` | floor | `1` | `mkPins.length >= 1` | definitional | **not recorded** |
+| `test/matrix-keypad-retarget.test.mjs:93` | floor | `17` | `pools.matrix.rows.length * pools.matrix.cols.length >= 17` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53): |
+| `test/micropython-pico-roundtrip.test.mjs:47` | floor | `15` | `authored.length >= 15` | evidenced | // MEASURED 2026-08-23: 70-calculator declares 19 PINs. The per-pin assertions |
+| `test/multimeter-chain.test.mjs:82` | floor | `200` | `sidecars >= 200` | evidenced | // MEASURED 2026-08-23: 239 sidecars in bw-circuit-ui@d754cfc. Same floor as |
+| `test/multimeter-chain.test.mjs:88` | floor | `0` | `circ.board.parts.length > 0` | definitional | **not recorded** |
+| `test/multimeter-chain.test.mjs:88` | floor | `0` | `circ.board.nets.length > 0` | definitional | **not recorded** |
+| `test/multimeter-chain.test.mjs:128` | floor | `200` | `sidecars >= 200` | evidenced | // MEASURED 2026-08-23: 239 sidecars in bw-circuit-ui@d754cfc. Same floor as |
+| `test/multimeter-chain.test.mjs:134` | floor | `0` | `circ.board.parts.length > 0` | definitional | **not recorded** |
+| `test/multimeter-chain.test.mjs:134` | floor | `0` | `circ.board.nets.length > 0` | definitional | **not recorded** |
+| `test/oled-flush.test.mjs:78` | floor | `1` | `count(py, '_oled.show()') > 1` | definitional | **not recorded** |
+| `test/pico-oled-chain.test.mjs:96` | floor | `0` | `circ.board.parts.length > 0` | definitional | **not recorded** |
+| `test/pico-oled-chain.test.mjs:96` | floor | `0` | `circ.board.nets.length > 0` | definitional | **not recorded** |
+| `test/pico-oled-chain.test.mjs:119` | floor | `1000` | `sclEdges > 1000` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53): |
+| `test/pico-oled-chain.test.mjs:122` | floor | `100` | `sdaEdges > 100` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53): |
+| `test/pico-oled-chain.test.mjs:125` | floor | `3` | `board.readAnalog('GP0') > 3` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53): |
+| `test/pico-oled-chain.test.mjs:132` | floor | `20` | `lit0 >= 20` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53): li… |
+| `test/program-reads-what-it-writes.test.mjs:110` | floor | `250` | `dirs.length >= 250` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53): |
+| `test/program-reads-what-it-writes.test.mjs:116` | floor | `80` | `withVars >= 80` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53): |
+| `test/python-syntax-contract.test.mjs:74` | floor | `20000` | `PY_BUDGET_DEFAULT_MS >= 20_000` | evidenced | // MEASURED 2026-08-23, 25 consecutive runs of the exact command on a box at |
+| `test/rail-short.test.mjs:87` | floor | `1500` | `files.length > 1500` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load |
+| `test/rail-short.test.mjs:95` | floor | `1500` | `files.length > 1500` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load |
+| `test/reference-extensions-provenance.test.mjs:56` | floor | `8` | `onDisk.length >= 8` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53): |
+| `test/reference-extensions-provenance.test.mjs:86` | floor | `8` | `manifest.entries.length >= 8` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53): |
+| `test/reference-extensions-provenance.test.mjs:143` | floor | `17` | `slugs.length >= 17` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53): |
+| `test/retarget-amplification.test.mjs:32` | floor | `35` | `corpusFloor("retargetable programs in examples/index.json")` | evidenced | // MEASURED 2026-08-23: 40 of 274 index.json entries. Both halves of this filter |
+| `test/retarget-amplification.test.mjs:173` | floor | `0` | `trace.events.length > 0` | definitional | **not recorded** |
+| `test/retarget-amplification.test.mjs:173` | floor | `0` | `trace.pwm.length > 0` | definitional | **not recorded** |
+| `test/retarget-amplification.test.mjs:174` | floor | `0` | `trace.devices.length > 0` | definitional | **not recorded** |
+| `test/retarget-gallery.test.mjs:58` | floor | `0` | `i >= 0` | definitional | **not recorded** |
+| `test/retarget-gallery.test.mjs:88` | floor | `100` | `out.length > 100` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load |
+| `test/retarget.test.mjs:153` | floor | `200` | `out.length > 200` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53): |
+| `test/roundtrip.test.mjs:29` | floor | `25` | `corpusFloor("examples to round-trip (non-hardware)")` | evidenced | // MEASURED 2026-08-23: src/utils/examples.js exports 35 examples, 30 of them non-hardwar… |
+| `test/settrace-codegen.test.mjs:64` | floor | `6` | `entries.length >= 6` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53): |
+| `test/settrace-codegen.test.mjs:98` | floor | `6` | `d.positions.length >= 6` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53): |
+| `test/settrace-codegen.test.mjs:157` | timeout-ms | `5000` | `timeout: 5000` | load-sensitive | **not recorded** |
+| `test/settrace-codegen.test.mjs:167` | floor | `3` | `seen.length >= 3` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53): |
+| `test/settrace-codegen.test.mjs:191` | floor | `2` | `stack.length >= 2` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53): |
+| `test/shape-coverage.test.mjs:92` | floor | `0` | `kinds > 0` | definitional | **not recorded** |
+| `test/shape-coverage.test.mjs:93` | floor | `0` | `filled > 0` | definitional | **not recorded** |
+| `test/shape-coverage.test.mjs:100` | floor | `0` | `description.length > 0` | definitional | **not recorded** |
+| `test/simulator-driver-controls-respond.test.mjs:152` | floor | `33` | `benches >= 33` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53): be… |
+| `test/simulator-driver-controls-respond.test.mjs:155` | floor | `67` | `pins >= 67` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53): pi… |
+| `test/stc12-conformance.test.mjs:69` | floor | `25` | `STC12.opcodes.size >= 25` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53): |
+| `test/stc12-conformance.test.mjs:74` | floor | `5` | `LEDCUBE.opcodes.size >= 5` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53): |
+| `test/stc12-conformance.test.mjs:77` | floor | `0` | `STC12.args[op].size > 0` | definitional | **not recorded** |
+| `test/stc12-conformance.test.mjs:194` | floor | `3` | `names.length >= 3` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53): |
+| `test/stc12-conformance.test.mjs:234` | floor | `4` | `roots.length >= 4` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53): |
+| `test/stc12-conformance.test.mjs:252` | floor | `5` | `Object.keys(MANIFEST.snapshots).length >= 5` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53): |
+| `test/stm32f0-chain.test.mjs:76` | floor | `6` | `pa0.changes >= 6` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53): |
+| `test/stm32f0-chain.test.mjs:76` | ceiling | `9` | `pa0.changes <= 9` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53): |
+| `test/stm32f0-chain.test.mjs:81` | tolerance | `0.9` | `Number(m.stats.sleptNs) / 3e9 > 0.9` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53): |
+| `test/stm32f0-chain.test.mjs:145` | floor | `3` | `nums.length >= 3` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53): |
+| `test/stm32f0-chain.test.mjs:161` | tolerance | `0.03` | `Math.abs(duty - 0.3) < 0.03` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53): |
+| `test/threshold-ratchet.test.mjs:92` | floor | `200` | `all.length >= 200` | evidenced | `only ${all.length} bounding literals found (counted 275 on 2026-08-29) — ` + |
+| `test/threshold-ratchet.test.mjs:144` | ceiling | `20` | `CEILING - owed.length <= 20` | evidenced | // MEASURED 2026-08-29: 99 literals discharged in one sweep; 20 is a fifth |
+| `test/timeout-discriminator.test.mjs:155` | tolerance | `0.5` | `spin.share - sleep.share > 0.5` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53): |
+| `test/timeout-discriminator.test.mjs:166` | timeout-ms | `30000` | `timeout: 30_000` | load-sensitive | **not recorded** |
+| `test/trace-oracle.test.mjs:172` | ceiling | `2` | `Math.abs(t.events[0].tMs - 300) <= 2` | evidenced | // MEASURED 2026-08-23 (threshold-probe --margin): the event lands on EXACTLY |
+| `test/trace-oracle.test.mjs:178` | floor | `800` | `t.events[1].tMs >= 800` | evidenced | // MEASURED 2026-08-23: observed 800 exactly, so 910 carries 12% headroom — |
+| `test/trace-oracle.test.mjs:178` | ceiling | `910` | `t.events[1].tMs <= 910` | evidenced | // MEASURED 2026-08-23: observed 800 exactly, so 910 carries 12% headroom — |
+| `test/trace-oracle.test.mjs:303` | floor | `0` | `t.events.length > 0` | definitional | **not recorded** |
+| `test/trace-oracle.test.mjs:533` | floor | `500` | `t.serial[0].tMs >= 500` | evidenced | // MEASURED 2026-08-23: observed 500 exactly; 510 is 2% headroom. Tight, and |
+| `test/trace-oracle.test.mjs:533` | ceiling | `510` | `t.serial[0].tMs <= 510` | evidenced | // MEASURED 2026-08-23: observed 500 exactly; 510 is 2% headroom. Tight, and |
+| `test/transparency.test.mjs:63` | floor | `25` | `corpusFloor("examples under the permutation matrix")` | evidenced | // on purpose and nobody would notice losing. MEASURED 2026-08-23: src/utils/examples.js … |
+| `test/ttl-module-acceptance.test.mjs:52` | timeout-ms | `30000` | `timeout: 30000` | load-sensitive | **not recorded** |
+| `test/ttl-module-acceptance.test.mjs:65` | floor | `5` | `circuit.parts.length >= 5` | countable | **not recorded** |
+| `test/ttl-module-acceptance.test.mjs:66` | floor | `10` | `circuit.wires.length >= 10` | countable | **not recorded** |
+| `test/ttl-module-acceptance.test.mjs:72` | floor | `4` | `leds.length >= 4` | countable | **not recorded** |
+| `test/ttl-module-acceptance.test.mjs:79` | floor | `5` | `clockWires.length >= 5` | countable | **not recorded** |
+| `test/ttl-module-acceptance.test.mjs:91` | floor | `4` | `aSide.length >= 4` | countable | **not recorded** |
+| `test/ttl-module-acceptance.test.mjs:126` | floor | `4` | `muxYWires.length >= 4` | countable | **not recorded** |
+| `test/ttl-module-acceptance.test.mjs:130` | floor | `4` | `leds.length >= 4` | countable | **not recorded** |
+| `test/ttl-module-acceptance.test.mjs:133` | floor | `20` | `circuit.wires.length >= 20` | countable | **not recorded** |
+| `test/ttl-module-acceptance.test.mjs:147` | floor | `10` | `circuit.parts.length >= 10` | countable | **not recorded** |
+| `test/ttl-module-acceptance.test.mjs:148` | floor | `20` | `circuit.wires.length >= 20` | countable | **not recorded** |
+| `test/ttl-module-acceptance.test.mjs:162` | floor | `10` | `circuit.parts.length >= 10` | countable | **not recorded** |
+| `test/ttl-module-acceptance.test.mjs:163` | floor | `20` | `circuit.wires.length >= 20` | countable | **not recorded** |
+| `test/vm-and-c-agree-on-arithmetic.test.mjs:111` | floor | `250` | `dirs.length >= 250` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53): |
+| `test/vm-and-c-agree-on-arithmetic.test.mjs:114` | floor | `100` | `targets >= 100` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53): |
+| `test/vm.test.mjs:112` | timeout-ms | `5000` | `timeout: 5000` | load-sensitive | **not recorded** |
+| `test/vm.test.mjs:170` | concurrency | `1` | `concurrency: 1` | no-trip | **not recorded** |
+| `test/vm.test.mjs:182` | floor | `1` | `vm.runtime.targets.length >= 1` | definitional | **not recorded** |
+| `test/vm.test.mjs:488` | floor | `0` | `tgt >= 0` | definitional | **not recorded** |
+| `test/vm.test.mjs:500` | floor | `3` | `revealed > 3` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53): |
+| `test/vm.test.mjs:595` | floor | `18` | `lowest >= 18` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53): |
+| `test/vm.test.mjs:604` | floor | `4` | `filled >= 4` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53): |
+| `test/wire-endpoint-adoption.test.mjs:102` | floor | `100` | `files.length > 100` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53): |
+| `test/wire-endpoint-adoption.test.mjs:106` | floor | `0` | `hits.size > 0` | definitional | **not recorded** |
+| `test/z80-calculator-retarget.test.mjs:25` | floor | `1` | `inPins.length >= 1` | definitional | **not recorded** |
+| `test/z80-calculator-retarget.test.mjs:26` | floor | `1` | `mkPins.length >= 1` | definitional | **not recorded** |
+| `test/z80-calculator-retarget.test.mjs:87` | floor | `17` | `pools.matrix.rows.length * pools.matrix.cols.length >= 17` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, batch 2 under the fleet build lock, |
+| `test/helpers/corpus-floor.mjs:44` | floor | `1` | `floor < 1` | definitional | **not recorded** |
+| `test/helpers/downstream.mjs:62` | ceiling | `0` | `missing.length > 0` | definitional | **not recorded** |
+| `test/helpers/timed.mjs:170` | timeout-ms | `30000` | `timeout: 30_000` | load-sensitive | **not recorded** |
+| `test/helpers/timed.mjs:394` | floor | `0` | `budgetMs <= 0` | definitional | **not recorded** |
+| `scripts/build-machine-roms.mjs:235` | ceiling | `127` | `d > 127` | runtime | **not recorded** |
+| `scripts/gen-runtime-registry.mjs:143` | timeout-ms | `8000` | `timeout: 8000` | load-sensitive | **not recorded** |
+| `scripts/mutation-prove-conformance.mjs:130` | size-cap | `67108864` | `maxBuffer: 64 * 1024 * 1024` | no-trip | **not recorded** |
+| `scripts/mutation-prove-conformance.mjs:280` | floor | `0` | `at < 0` | definitional | **not recorded** |
+| `scripts/mutation-prove-conformance.mjs:681` | floor | `0` | `open < 0` | definitional | **not recorded** |
+| `scripts/mutation-prove-conformance.mjs:791` | ceiling | `0` | `backups.size > 0` | definitional | **not recorded** |
+| `scripts/normalize-controller-seating.mjs:35` | floor | `900` | `files.length < 900` | countable | **not recorded** |
+| `scripts/oracle-bbcsdl.mjs:73` | timeout-ms | `30000` | `timeout: 30000` | load-sensitive | **not recorded** |
+| `scripts/settrace-smoke.mjs:131` | timeout-ms | `15000` | `timeout: 15000` | load-sensitive | **not recorded** |
+| `scripts/settrace-smoke.mjs:141` | timeout-ms | `15000` | `timeout: 15000` | load-sensitive | **not recorded** |
+| `scripts/starve-gate.mjs:156` | size-cap | `67108864` | `maxBuffer: 64 * 1024 * 1024` | no-trip | **not recorded** |
+| `scripts/threshold-observe.mjs:152` | size-cap | `67108864` | `maxBuffer: 64 * 1024 * 1024` | no-trip | **not recorded** |
+| `scripts/threshold-probe.mjs:174` | floor | `0` | `idx < 0` | definitional | **not recorded** |
+| `scripts/threshold-probe.mjs:217` | size-cap | `67108864` | `maxBuffer: 64 * 1024 * 1024` | no-trip | **not recorded** |
+| `scripts/threshold-probe.mjs:247` | size-cap | `67108864` | `maxBuffer: 64 * 1024 * 1024` | no-trip | **not recorded** |
+| `scripts/vendor-flat-partitions.mjs:125` | floor | `900` | `pairs.length < 900` | countable | **not recorded** |
+| `.github/workflows/ci.yml:125` | timeout-min | `30` | `job/step timeout` | load-sensitive | # a four-minute file on a developer box (measured 242 s, 45/45) and this |
+| `.github/workflows/ci.yml:143` | timeout-min | `25` | `job/step timeout` | load-sensitive | **not recorded** |
+| `.github/workflows/ci.yml:70` | pin | `22` | `node-version` | no-trip | **not recorded** |
+| `.github/workflows/ci.yml:168` | pin | `22` | `node-version` | no-trip | **not recorded** |
+| `.github/workflows/ci.yml:198` | pin | `22` | `node-version` | no-trip | **not recorded** |
+| `package.json:14` | timeout-ms | `900000` | `--test-timeout` | load-sensitive | **not recorded** |
+| `package.json:22` | ceiling | `0` | `eslint --max-warnings` | definitional | **not recorded** |
+
+### `brickwright-lite` — 447 bounding literals
 
 | kind | count | with a recorded measurement |
 |---|---|---|
-| timeout-ms | 118 | 0 |
-| floor | 65 | 1 |
-| ceiling | 22 | 0 |
-| tolerance | 19 | 0 |
-| pin | 7 | 0 |
-| size-cap | 6 | 0 |
-| timeout-min | 1 | 0 |
+| floor | 202 | 4 |
+| timeout-ms | 158 | 0 |
+| tolerance | 35 | 2 |
+| ceiling | 31 | 0 |
+| size-cap | 11 | 0 |
+| pin | 8 | 0 |
+| timeout-min | 2 | 0 |
 
-| where | kind | value | bounds | measurement |
-|---|---|---|---|---|
-| `test/about-data.test.mjs:23` | floor | `8` | `titles.length >= 8` | **not recorded** |
-| `test/app-store-metadata.test.mjs:29` | floor | `500` | `copy.length > 500` | **not recorded** |
-| `test/app-store-metadata.test.mjs:30` | ceiling | `4000` | `copy.length <= 4000` | **not recorded** |
-| `test/circuit-hit-test.test.mjs:43` | ceiling | `300` | `b.minX < 300` | **not recorded** |
-| `test/circuit-hit-test.test.mjs:43` | floor | `300` | `b.maxX > 300` | **not recorded** |
-| `test/circuit-hit-test.test.mjs:44` | ceiling | `240` | `b.minY < 240` | **not recorded** |
-| `test/circuit-hit-test.test.mjs:44` | floor | `240` | `b.maxY > 240` | **not recorded** |
-| `test/circuit-hit-test.test.mjs:47` | ceiling | `300` | `rotated.minX < 300` | **not recorded** |
-| `test/circuit-hit-test.test.mjs:47` | floor | `300` | `rotated.maxX > 300` | **not recorded** |
-| `test/circuit-rendering-regressions.test.mjs:30` | ceiling | `300` | `b.minX < 300` | **not recorded** |
-| `test/circuit-rendering-regressions.test.mjs:30` | floor | `300` | `b.maxX > 300` | **not recorded** |
-| `test/circuit-rendering-regressions.test.mjs:30` | ceiling | `200` | `b.minY < 200` | **not recorded** |
-| `test/circuit-rendering-regressions.test.mjs:30` | floor | `200` | `b.maxY > 200` | **not recorded** |
-| `test/circuit-tab-index.test.mjs:14` | floor | `0` | `circuitPos > 0` | **not recorded** |
-| `test/condition.test.mjs:120` | floor | `0` | `why.length > 0` | **not recorded** |
-| `test/controller-board-face.test.mjs:29` | tolerance | `39.9` | `breadboardTop - unoBottom >= 39.9` | **not recorded** |
-| `test/controller-integration.test.mjs:108` | floor | `0` | `last.value > 0` | **not recorded** |
-| `test/controller-panel.test.mjs:670` | tolerance | `0.01` | `Math.abs(partCalls[0].value - 128 / 255) < 0.01` | **not recorded** |
-| `test/controller-panel.test.mjs:976` | tolerance | `0.01` | `Math.abs(pinCalls[0].value - 0.75) < 0.01` | **not recorded** |
-| `test/corpus-differential.test.mjs:34` | timeout-ms | `180000` | `timeout: 180_000` | **not recorded** |
-| `test/declared-pins-wired.test.mjs:229` | ceiling | `1` | `unresolved.length <= 1` | **not recorded** |
-| `test/declared-pins-wired.test.mjs:264` | tolerance | `0.25` | `withPins.length / ROWS.length >= 0.25` | **not recorded** |
-| `test/declared-pins-wired.test.mjs:267` | tolerance | `0.5` | `withCircuit.length / ROWS.length >= 0.5` | **not recorded** |
-| `test/declared-pins-wired.test.mjs:435` | floor | `0` | `KNOWN_UNWIRED.size > 0` | **not recorded** |
-| `test/declared-pins-wired.test.mjs:435` | floor | `0` | `KNOWN_UNREAD.size > 0` | **not recorded** |
-| `test/example-execution.test.mjs:309` | floor | `0` | `written.size > 0` | **not recorded** |
-| `test/example-execution.test.mjs:310` | floor | `0` | `read.size > 0` | **not recorded** |
-| `test/example-execution.test.mjs:387` | floor | `0` | `goodTrace.events.length > 0` | **not recorded** |
-| `test/example-vm-execution.test.mjs:271` | floor | `20` | `ids.size >= 20` | **not recorded** |
-| `test/example-vm-execution.test.mjs:291` | floor | `20` | `probe.opcodes.size >= 20` | **not recorded** |
-| `test/example-vm-execution.test.mjs:333` | floor | `50` | `board.size > 50` | **not recorded** |
-| `test/example-vm-execution.test.mjs:335` | floor | `0` | `guards.size > 0` | **not recorded** |
-| `test/example-vm-execution.test.mjs:378` | floor | `10` | `addressable.size >= 10` | **not recorded** |
-| `test/example-vm-execution.test.mjs:420` | floor | `259` | `entries.length >= 259` | **not recorded** |
-| `test/example-vm-execution.test.mjs:421` | floor | `257` | `withProgram.length >= 257` | **not recorded** |
-| `test/example-vm-execution.test.mjs:506` | floor | `0` | `run.threadsStarted > 0` | **not recorded** |
-| `test/example-vm-execution.test.mjs:535` | floor | `0` | `authored.length > 0` | **not recorded** |
-| `test/example-vm-execution.test.mjs:649` | floor | `117` | `report.executed.length >= 117` | `defect; expected 117+ (the measurement of 2026-08-23). Either the corpus shrank or ` + |
-| `test/faceplate-thermostat.test.mjs:67` | floor | `35` | `io.get('temp') >= 35` | **not recorded** |
-| `test/faceplate-thermostat.test.mjs:79` | ceiling | `35` | `panel.getValue('temp') < 35` | **not recorded** |
-| `test/l10n-parity.test.mjs:52` | floor | `0` | `keys.en.size > 0` | **not recorded** |
-| `test/l10n-parity.test.mjs:53` | floor | `0` | `keys.de.size > 0` | **not recorded** |
-| `test/lesson-bench-claims-wave2.test.mjs:139` | floor | `100` | `Math.abs(board.resistance(netId(board, 'vcc1', 'vcc'), netId(board, 'gnd1', 'gnd')) - 235) > 100` | **not recorded** |
-| `test/lesson-bench-claims-wave2.test.mjs:153` | ceiling | `1000` | `board.resistance(netId(board, 'vcc1', 'vcc'), netId(board, 'gnd1', 'gnd')) < 1000` | **not recorded** |
-| `test/lesson-bench-claims-wave2.test.mjs:155` | floor | `100000000` | `board.resistance(netId(board, 'btn1', 'a'), netId(board, 'btn1', 'b')) > 1e8` | **not recorded** |
-| `test/lesson-bench-claims-wave2.test.mjs:157` | floor | `100000000` | `board.resistance(netId(board, 'mcu1', 'p0.0'), netId(board, 'mcu1', 'p0.1')) > 1e8` | **not recorded** |
-| `test/lesson-bench-claims-wave2.test.mjs:195` | floor | `2` | `Math.max(...gains) - Math.min(...gains) > 2` | **not recorded** |
-| `test/lesson-bench-claims-wave2.test.mjs:268` | ceiling | `1` | `(oMax - oMin) < 1.0` | **not recorded** |
-| `test/lesson-bench-claims-wave2.test.mjs:268` | tolerance | `0.5` | `(oMax - oMin) > 0.5` | **not recorded** |
-| `test/lesson-bench-claims-wave2.test.mjs:294` | tolerance | `4.7` | `charged > 4.7` | **not recorded** |
-| `test/lesson-bench-claims-wave2.test.mjs:328` | floor | `1000000` | `board.resistance(gnd, hot) > 1e6` | **not recorded** |
-| `test/lesson-bench-claims.test.mjs:66` | floor | `100` | `registeredKinds().length > 100` | **not recorded** |
-| `test/lesson-bench-claims.test.mjs:113` | tolerance | `0.2` | `onA > 0.2` | **not recorded** |
-| `test/lesson-bench-claims.test.mjs:113` | tolerance | `0.001` | `offA < 0.001` | **not recorded** |
-| `test/lesson-bench-claims.test.mjs:115` | tolerance | `0.001` | `offB < 0.001` | **not recorded** |
-| `test/lesson-bench-claims.test.mjs:115` | tolerance | `0.001` | `offB2 < 0.001` | **not recorded** |
-| `test/lesson-bench-claims.test.mjs:117` | tolerance | `0.2` | `onC > 0.2` | **not recorded** |
-| `test/lesson-bench-claims.test.mjs:117` | tolerance | `0.2` | `onC2 > 0.2` | **not recorded** |
-| `test/lesson-bench-claims.test.mjs:129` | tolerance | `0.4` | `b[0] - b[2] > 0.4` | **not recorded** |
-| `test/lesson-bench-claims.test.mjs:143` | tolerance | `0.2` | `errorPct > 0.2` | **not recorded** |
-| `test/lesson-bench-claims.test.mjs:143` | ceiling | `5` | `errorPct < 5` | **not recorded** |
-| `test/lesson-bench-claims.test.mjs:161` | floor | `3` | `Math.abs(supply - (p1 + p2)) > 3` | **not recorded** |
-| `test/lesson-bench-claims.test.mjs:186` | tolerance | `4.8` | `volts(board, 'cap', 'a') > 4.8` | **not recorded** |
-| `test/lesson-bench-claims.test.mjs:191` | tolerance | `2.5` | `first > 2.5` | **not recorded** |
-| `test/lesson-bench-claims.test.mjs:206` | tolerance | `0.001` | `Math.abs(before - after) < 0.001` | **not recorded** |
-| `test/lesson-bench-claims.test.mjs:218` | floor | `3` | `edgeBefore - edgeAfter > 3` | **not recorded** |
-| `test/lesson-bench-claims.test.mjs:277` | floor | `30` | `Math.abs(atCollector - inBranch) > 30` | **not recorded** |
-| `test/lesson-bench-claims.test.mjs:335` | tolerance | `0.3` | `board.ledBrightness('led1') > 0.3` | **not recorded** |
-| `test/lesson-debugger-surface.test.mjs:124` | floor | `0` | `readFileSync(path.join(EX, rel), 'utf8').length > 0` | **not recorded** |
-| `test/lesson-defect-detector.test.mjs:73` | floor | `1` | `blocking.length >= 1` | **not recorded** |
-| `test/lesson-defect-detector.test.mjs:247` | floor | `180` | `report.checkpoints >= 180` | **not recorded** |
-| `test/lesson-language-matrix.test.mjs:77` | floor | `3` | `source.split('\n').length > 3` | **not recorded** |
-| `test/lesson-language-matrix.test.mjs:83` | floor | `0` | `blocks > 0` | **not recorded** |
-| `test/lesson-language-matrix.test.mjs:92` | floor | `40` | `out.length > 40` | **not recorded** |
-| `test/lesson-language-matrix.test.mjs:97` | floor | `60` | `variants >= 60` | **not recorded** |
-| `test/lesson-numeric-contract.test.mjs:61` | floor | `40` | `examined >= 40` | **not recorded** |
-| `test/lesson-numeric-contract.test.mjs:62` | floor | `10` | `quoting >= 10` | **not recorded** |
-| `test/lesson-numeric-contract.test.mjs:70` | ceiling | `4` | `(skipped['measurement-truncated'] \|\| 0) <= 4` | **not recorded** |
-| `test/lessons.test.mjs:42` | floor | `8` | `catalog.lessons.length >= 8` | **not recorded** |
-| `test/lessons.test.mjs:45` | floor | `0` | `lesson.version > 0` | **not recorded** |
-| `test/lessons.test.mjs:130` | floor | `2` | `lesson.checkpoints.length >= 2` | **not recorded** |
-| `test/lessons.test.mjs:136` | floor | `2` | `diodeLesson.version >= 2` | **not recorded** |
-| `test/lessons.test.mjs:147` | floor | `2` | `capacitorLesson.version >= 2` | **not recorded** |
-| `test/no-dead-overlay-modules.test.mjs:225` | floor | `20` | `reason.length > 20` | **not recorded** |
-| `test/no-dead-overlay-modules.test.mjs:229` | floor | `20` | `reason.length > 20` | **not recorded** |
-| `test/pane-divider-math.test.mjs:115` | floor | `0` | `half > 0` | **not recorded** |
-| `test/pane-divider-math.test.mjs:115` | ceiling | `1` | `half < 1` | **not recorded** |
-| `test/pane-divider-math.test.mjs:125` | floor | `0` | `got > 0` | **not recorded** |
-| `test/pane-divider-math.test.mjs:125` | ceiling | `1` | `got < 1` | **not recorded** |
-| `test/rp2040-debug.test.mjs:45` | floor | `1` | `handle >= 1` | **not recorded** |
-| `test/sb3-creator-motion-target.test.mjs:13` | floor | `0` | `allBlocks.length > 0` | **not recorded** |
-| `test/schematic-projection.test.mjs:68` | ceiling | `1200` | `projected.height < 1200` | **not recorded** |
-| `test/schematic-projection.test.mjs:69` | floor | `500` | `projected.width > 500` | **not recorded** |
-| `test/stale-build-recovery.test.mjs:31` | floor | `0` | `start > 0` | **not recorded** |
-| `test/stale-build-recovery.test.mjs:35` | floor | `0` | `open > 0` | **not recorded** |
-| `test/stale-build-recovery.test.mjs:132` | floor | `0` | `state.cachesDeleted > 0` | **not recorded** |
-| `test/tab-index-contract.test.mjs:84` | floor | `4` | `panelCount >= 4` | **not recorded** |
-| `test/upstream-selectors.test.mjs:82` | floor | `30` | `r.why.length > 30` | **not recorded** |
-| `test/upstream-selectors.test.mjs:100` | floor | `0` | `used.length > 0` | **not recorded** |
-| `scripts/_tmp-eyes.mjs:10` | timeout-ms | `90000` | `timeout: 90000` | **not recorded** |
-| `scripts/_tmp-eyes.mjs:11` | timeout-ms | `60000` | `timeout: 60000` | **not recorded** |
-| `scripts/_tmp-lcd-probe.mjs:11` | timeout-ms | `90000` | `timeout: 90000` | **not recorded** |
-| `scripts/_tmp-lcd-probe.mjs:12` | timeout-ms | `60000` | `timeout: 60000` | **not recorded** |
-| `scripts/_tmp-lcd-probe.mjs:18` | timeout-ms | `4000` | `timeout: 4000` | **not recorded** |
-| `scripts/_tmp-machine-probe.mjs:12` | timeout-ms | `90000` | `timeout: 90000` | **not recorded** |
-| `scripts/_tmp-machine-probe.mjs:13` | timeout-ms | `60000` | `timeout: 60000` | **not recorded** |
-| `scripts/_tmp-machine-probe.mjs:16` | timeout-ms | `4000` | `timeout: 4000` | **not recorded** |
-| `scripts/_tmp-machine-probe.mjs:19` | timeout-ms | `6000` | `timeout: 6000` | **not recorded** |
-| `scripts/_tmp-paint-test.mjs:7` | timeout-ms | `90000` | `timeout: 90000` | **not recorded** |
-| `scripts/_tmp-paint-test.mjs:8` | timeout-ms | `60000` | `timeout: 60000` | **not recorded** |
-| `scripts/_tmp-pendant-stale.mjs:12` | timeout-ms | `90000` | `timeout: 90000` | **not recorded** |
-| `scripts/_tmp-pendant-stale.mjs:13` | timeout-ms | `60000` | `timeout: 60000` | **not recorded** |
-| `scripts/_tmp-pendant-stale.mjs:16` | timeout-ms | `4000` | `timeout: 4000` | **not recorded** |
-| `scripts/_tmp-pendant-stale.mjs:20` | timeout-ms | `4000` | `timeout: 4000` | **not recorded** |
-| `scripts/_tmp-pendant-stale.mjs:22` | timeout-ms | `4000` | `timeout: 4000` | **not recorded** |
-| `scripts/_tmp-preset-probe.mjs:16` | timeout-ms | `90000` | `timeout: 90000` | **not recorded** |
-| `scripts/_tmp-preset-probe.mjs:17` | timeout-ms | `60000` | `timeout: 60000` | **not recorded** |
-| `scripts/_tmp-preset-probe.mjs:20` | timeout-ms | `4000` | `timeout: 4000` | **not recorded** |
-| `scripts/_tmp-preset-probe.mjs:23` | timeout-ms | `8000` | `timeout: 8000` | **not recorded** |
-| `scripts/_tmp-preset-probe.mjs:31` | timeout-ms | `8000` | `timeout: 8000` | **not recorded** |
-| `scripts/_tmp-rightpane.mjs:10` | timeout-ms | `90000` | `timeout: 90000` | **not recorded** |
-| `scripts/_tmp-rightpane.mjs:11` | timeout-ms | `60000` | `timeout: 60000` | **not recorded** |
-| `scripts/_tmp-rightpane.mjs:17` | timeout-ms | `4000` | `timeout: 4000` | **not recorded** |
-| `scripts/_tmp-sweep-probe.mjs:9` | timeout-ms | `90000` | `timeout: 90000` | **not recorded** |
-| `scripts/_tmp-sweep-probe.mjs:10` | timeout-ms | `60000` | `timeout: 60000` | **not recorded** |
-| `scripts/_tmp-sweep-probe.mjs:13` | timeout-ms | `4000` | `timeout: 4000` | **not recorded** |
-| `scripts/_tmp-vdp-asm-probe.mjs:43` | timeout-ms | `90000` | `timeout: 90000` | **not recorded** |
-| `scripts/_tmp-vdp-asm-probe.mjs:44` | timeout-ms | `60000` | `timeout: 60000` | **not recorded** |
-| `scripts/_tmp-vdp-asm-probe.mjs:48` | timeout-ms | `4000` | `timeout: 4000` | **not recorded** |
-| `scripts/_tmp-vdp-asm-probe.mjs:51` | timeout-ms | `6000` | `timeout: 6000` | **not recorded** |
-| `scripts/_tmp-vdp-asm-probe.mjs:72` | timeout-ms | `3000` | `timeout: 3000` | **not recorded** |
-| `scripts/_tmp-vdp-probe.mjs:21` | timeout-ms | `90000` | `timeout: 90000` | **not recorded** |
-| `scripts/_tmp-vdp-probe.mjs:22` | timeout-ms | `60000` | `timeout: 60000` | **not recorded** |
-| `scripts/_tmp-vdp-probe.mjs:25` | timeout-ms | `10000` | `timeout: 10000` | **not recorded** |
-| `scripts/_tmp-vdp-probe.mjs:30` | timeout-ms | `6000` | `timeout: 6000` | **not recorded** |
-| `scripts/_tmp-vdp-probe.mjs:34` | timeout-ms | `3000` | `timeout: 3000` | **not recorded** |
-| `scripts/_tmp-vdp-probe.mjs:39` | timeout-ms | `8000` | `timeout: 8000` | **not recorded** |
-| `scripts/_tmp-vdp-probe.mjs:52` | timeout-ms | `6000` | `timeout: 6000` | **not recorded** |
-| `scripts/_tmp-vdp-probe.mjs:59` | timeout-ms | `3000` | `timeout: 3000` | **not recorded** |
-| `scripts/gen-rust-notices.mjs:17` | size-cap | `67108864` | `maxBuffer: 1024 * 1024 * 64` | **not recorded** |
-| `scripts/oracle-simavr.mjs:42` | size-cap | `4194304` | `maxBuffer: 4 * 1024 * 1024` | **not recorded** |
-| `scripts/probe-layout.mjs:82` | timeout-ms | `90000` | `timeout: 90000` | **not recorded** |
-| `scripts/probe-microbit-resume.mjs:85` | timeout-ms | `20000` | `timeout: 20000` | **not recorded** |
-| `scripts/proof-production.mjs:79` | timeout-ms | `60000` | `timeout: 60000` | **not recorded** |
-| `scripts/sync-emu8051-wasm.mjs:51` | ceiling | `4` | `attempt >= 4` | **not recorded** |
-| `scripts/verify-about-dialog.mjs:49` | timeout-ms | `60000` | `timeout: 60000` | **not recorded** |
-| `scripts/verify-basic-run.mjs:25` | timeout-ms | `60000` | `timeout: 60000` | **not recorded** |
-| `scripts/verify-chrome-sweep.mjs:31` | timeout-ms | `60000` | `timeout: 60000` | **not recorded** |
-| `scripts/verify-circuit-rendering.mjs:20` | timeout-ms | `60000` | `timeout: 60000` | **not recorded** |
-| `scripts/verify-circuit-rendering.mjs:21` | timeout-ms | `60000` | `timeout: 60000` | **not recorded** |
-| `scripts/verify-circuit-rendering.mjs:29` | timeout-ms | `60000` | `timeout: 60000` | **not recorded** |
-| `scripts/verify-circuit-rendering.mjs:61` | timeout-ms | `10000` | `timeout: 10000` | **not recorded** |
-| `scripts/verify-circuit-rendering.mjs:94` | timeout-ms | `3000` | `timeout: 3000` | **not recorded** |
-| `scripts/verify-circuit-rendering.mjs:102` | timeout-ms | `3000` | `timeout: 3000` | **not recorded** |
-| `scripts/verify-circuit-rendering.mjs:121` | timeout-ms | `3000` | `timeout: 3000` | **not recorded** |
-| `scripts/verify-circuit-rendering.mjs:134` | timeout-ms | `3000` | `timeout: 3000` | **not recorded** |
-| `scripts/verify-circuit-rendering.mjs:155` | timeout-ms | `10000` | `timeout: 10000` | **not recorded** |
-| `scripts/verify-circuit-ux.mjs:44` | timeout-ms | `60000` | `timeout: 60000` | **not recorded** |
-| `scripts/verify-circuit-ux.mjs:45` | timeout-ms | `60000` | `timeout: 60000` | **not recorded** |
-| `scripts/verify-circuit-ux.mjs:83` | timeout-ms | `5000` | `timeout: 5000` | **not recorded** |
-| `scripts/verify-circuit-ux.mjs:185` | timeout-ms | `3000` | `timeout: 3000` | **not recorded** |
-| `scripts/verify-circuit-ux.mjs:192` | timeout-ms | `3000` | `timeout: 3000` | **not recorded** |
-| `scripts/verify-circuit-ux.mjs:240` | timeout-ms | `2000` | `timeout: 2000` | **not recorded** |
-| `scripts/verify-controller-panel.mjs:25` | timeout-ms | `60000` | `timeout: 60000` | **not recorded** |
-| `scripts/verify-controller-panel.mjs:29` | timeout-ms | `15000` | `timeout: 15000` | **not recorded** |
-| `scripts/verify-controller-panel.mjs:98` | timeout-ms | `10000` | `timeout: 10000` | **not recorded** |
-| `scripts/verify-controller-panel.mjs:126` | timeout-ms | `5000` | `timeout: 5000` | **not recorded** |
-| `scripts/verify-controller-panel.mjs:221` | timeout-ms | `10000` | `timeout: 10000` | **not recorded** |
-| `scripts/verify-controller-panel.mjs:232` | timeout-ms | `20000` | `timeout: 20000` | **not recorded** |
-| `scripts/verify-debug-dock.mjs:126` | timeout-ms | `90000` | `timeout: 90000` | **not recorded** |
-| `scripts/verify-debug-dock.mjs:127` | timeout-ms | `60000` | `timeout: 60000` | **not recorded** |
-| `scripts/verify-debug-dock.mjs:186` | timeout-ms | `90000` | `timeout: 90000` | **not recorded** |
-| `scripts/verify-debug-dock.mjs:187` | timeout-ms | `60000` | `timeout: 60000` | **not recorded** |
-| `scripts/verify-debug-dock.mjs:192` | timeout-ms | `4000` | `timeout: 4000` | **not recorded** |
-| `scripts/verify-debug-dock.mjs:200` | timeout-ms | `5000` | `timeout: 5000` | **not recorded** |
-| `scripts/verify-debug-dock.mjs:203` | timeout-ms | `15000` | `timeout: 15000` | **not recorded** |
-| `scripts/verify-debug-dock.mjs:205` | timeout-ms | `15000` | `timeout: 15000` | **not recorded** |
-| `scripts/verify-debugger-solo.mjs:49` | timeout-ms | `60000` | `timeout: 60000` | **not recorded** |
-| `scripts/verify-debugger-solo.mjs:50` | timeout-ms | `60000` | `timeout: 60000` | **not recorded** |
-| `scripts/verify-editor.mjs:35` | timeout-ms | `60000` | `timeout: 60000` | **not recorded** |
-| `scripts/verify-faceplate-blinkenrocket.mjs:87` | ceiling | `32` | `scr.config.rows * scr.config.cols <= 32` | **not recorded** |
-| `scripts/verify-faceplate-matrix.mjs:50` | timeout-ms | `60000` | `timeout: 60000` | **not recorded** |
-| `scripts/verify-faceplate-matrix.mjs:58` | timeout-ms | `30000` | `timeout: 30000` | **not recorded** |
-| `scripts/verify-faceplate-matrix.mjs:94` | timeout-ms | `10000` | `timeout: 10000` | **not recorded** |
-| `scripts/verify-faceplate-matrix.mjs:105` | timeout-ms | `15000` | `timeout: 15000` | **not recorded** |
-| `scripts/verify-faceplate-matrix.mjs:119` | timeout-ms | `10000` | `timeout: 10000` | **not recorded** |
-| `scripts/verify-faceplate-matrix.mjs:126` | timeout-ms | `10000` | `timeout: 10000` | **not recorded** |
-| `scripts/verify-faceplate-matrix.mjs:133` | timeout-ms | `10000` | `timeout: 10000` | **not recorded** |
-| `scripts/verify-faceplate-matrix.mjs:198` | timeout-ms | `10000` | `timeout: 10000` | **not recorded** |
-| `scripts/verify-faceplate-matrix.mjs:203` | timeout-ms | `15000` | `timeout: 15000` | **not recorded** |
-| `scripts/verify-faceplate-matrix.mjs:214` | timeout-ms | `10000` | `timeout: 10000` | **not recorded** |
-| `scripts/verify-instruments-scroll.mjs:30` | timeout-ms | `60000` | `timeout: 60000` | **not recorded** |
-| `scripts/verify-instruments-scroll.mjs:31` | timeout-ms | `60000` | `timeout: 60000` | **not recorded** |
-| `scripts/verify-instruments-scroll.mjs:35` | timeout-ms | `60000` | `timeout: 60000` | **not recorded** |
-| `scripts/verify-instruments-scroll.mjs:69` | floor | `0` | `after.scrollTop <= 0` | **not recorded** |
-| `scripts/verify-interaction.mjs:55` | timeout-ms | `60000` | `timeout: 60000` | **not recorded** |
-| `scripts/verify-interaction.mjs:56` | timeout-ms | `60000` | `timeout: 60000` | **not recorded** |
-| `scripts/verify-interaction.mjs:61` | timeout-ms | `2000` | `timeout: 2000` | **not recorded** |
-| `scripts/verify-interaction.mjs:62` | timeout-ms | `2000` | `timeout: 2000` | **not recorded** |
-| `scripts/verify-interaction.mjs:213` | ceiling | `20` | `zoomShift <= 20` | **not recorded** |
-| `scripts/verify-intro.mjs:30` | timeout-ms | `60000` | `timeout: 60000` | **not recorded** |
-| `scripts/verify-microbit-debug-toggle.mjs:58` | timeout-ms | `60000` | `timeout: 60000` | **not recorded** |
-| `scripts/verify-microbit-debug-toggle.mjs:69` | timeout-ms | `30000` | `timeout: 30000` | **not recorded** |
-| `scripts/verify-microbit-debug-toggle.mjs:100` | timeout-ms | `15000` | `timeout: 15000` | **not recorded** |
-| `scripts/verify-microbit-debug-toggle.mjs:217` | timeout-ms | `20000` | `timeout: 20000` | **not recorded** |
-| `scripts/verify-microbit-debug-toggle.mjs:241` | timeout-ms | `25000` | `timeout: 25000` | **not recorded** |
-| `scripts/verify-microbit-debug-toggle.mjs:265` | timeout-ms | `20000` | `timeout: 20000` | **not recorded** |
-| `scripts/verify-microbit-debug-toggle.mjs:273` | timeout-ms | `25000` | `timeout: 25000` | **not recorded** |
-| `scripts/verify-microbit-debug-toggle.mjs:305` | timeout-ms | `10000` | `timeout: 10000` | **not recorded** |
-| `scripts/verify-microbit-debug-toggle.mjs:310` | timeout-ms | `15000` | `timeout: 15000` | **not recorded** |
-| `scripts/verify-microbit.mjs:32` | timeout-ms | `60000` | `timeout: 60000` | **not recorded** |
-| `scripts/verify-schematic.mjs:48` | timeout-ms | `60000` | `timeout: 60000` | **not recorded** |
-| `scripts/verify-schematic.mjs:49` | timeout-ms | `60000` | `timeout: 60000` | **not recorded** |
-| `scripts/verify-schematic.mjs:56` | timeout-ms | `2000` | `timeout: 2000` | **not recorded** |
-| `scripts/verify-schematic.mjs:60` | timeout-ms | `2000` | `timeout: 2000` | **not recorded** |
-| `scripts/verify-starter-journeys.mjs:17` | timeout-ms | `30000` | `timeout: 30000` | **not recorded** |
-| `scripts/verify-starter-journeys.mjs:49` | timeout-ms | `45000` | `timeout: 45000` | **not recorded** |
-| `scripts/verify-starter-journeys.mjs:60` | timeout-ms | `30000` | `timeout: 30000` | **not recorded** |
-| `scripts/verify-starter-journeys.mjs:64` | timeout-ms | `45000` | `timeout: 45000` | **not recorded** |
-| `scripts/verify-starter-journeys.mjs:66` | timeout-ms | `10000` | `timeout: 10000` | **not recorded** |
-| `scripts/verify-view-buttons.mjs:33` | timeout-ms | `60000` | `timeout: 60000` | **not recorded** |
-| `scripts/verify-view-buttons.mjs:41` | timeout-ms | `60000` | `timeout: 60000` | **not recorded** |
-| `.github/workflows/build.yml:17` | timeout-min | `30` | `job/step timeout` | **not recorded** |
-| `.github/workflows/build.yml:200` | size-cap | `2560` | `node heap cap` | **not recorded** |
-| `.github/workflows/build.yml:168` | ceiling | `4` | `ceiling KNOWN_INERT` | **not recorded** |
-| `.github/workflows/build.yml:168` | ceiling | `19` | `ceiling KNOWN_SHADOWED_WRITES` | **not recorded** |
-| `.github/workflows/build.yml:168` | ceiling | `2` | `ceiling KNOWN_NO_BLOCKS` | **not recorded** |
-| `.github/workflows/build.yml:168` | ceiling | `2` | `ceiling TIME_GATED` | **not recorded** |
-| `.github/workflows/mobile.yml:26` | pin | `22` | `node-version` | **not recorded** |
-| `.github/workflows/mobile.yml:42` | pin | `22` | `node-version` | **not recorded** |
-| `.github/workflows/mobile.yml:118` | pin | `22` | `node-version` | **not recorded** |
-| `.github/workflows/mobile.yml:212` | pin | `22` | `node-version` | **not recorded** |
-| `.github/workflows/release.yml:20` | pin | `22` | `node-version` | **not recorded** |
-| `.github/workflows/release.yml:42` | pin | `22` | `node-version` | **not recorded** |
-| `.github/workflows/vendor-freshness.yml:32` | size-cap | `0` | `checkout fetch-depth` | **not recorded** |
-| `.github/workflows/vendor-freshness.yml:37` | size-cap | `0` | `checkout fetch-depth` | **not recorded** |
-| `.github/workflows/vendor-freshness.yml:42` | size-cap | `0` | `checkout fetch-depth` | **not recorded** |
-| `.github/workflows/vendor-freshness.yml:56` | pin | `22` | `node-version` | **not recorded** |
+| disposition | count | owes a measurement |
+|---|---|---|
+| evidenced | 5 | no |
+| definitional | 101 | no |
+| countable | 49 | **yes** |
+| runtime | 113 | **yes** |
+| load-sensitive | 160 | no |
+| no-trip | 19 | no |
+
+| where | kind | value | bounds | disposition | measurement |
+|---|---|---|---|---|---|
+| `test/about-data.test.mjs:23` | floor | `8` | `titles.length >= 8` | countable | **not recorded** |
+| `test/app-icon.test.mjs:117` | floor | `244` | `r > 244` | runtime | **not recorded** |
+| `test/app-icon.test.mjs:117` | floor | `244` | `g > 244` | runtime | **not recorded** |
+| `test/app-icon.test.mjs:117` | floor | `244` | `b > 244` | runtime | **not recorded** |
+| `test/app-icon.test.mjs:127` | floor | `120` | `b > 120` | runtime | **not recorded** |
+| `test/app-store-metadata.test.mjs:29` | floor | `500` | `copy.length > 500` | countable | **not recorded** |
+| `test/app-store-metadata.test.mjs:30` | ceiling | `4000` | `copy.length <= 4000` | countable | **not recorded** |
+| `test/app-store-metadata.test.mjs:112` | floor | `3` | `body.split('\n').length > 3` | countable | **not recorded** |
+| `test/app-store-metadata.test.mjs:115` | ceiling | `4000` | `body.length <= 4000` | countable | **not recorded** |
+| `test/arduboy.test.mjs:80` | floor | `20000` | `game.bytesToDisplay > 20_000` | runtime | **not recorded** |
+| `test/arduboy.test.mjs:83` | floor | `200` | `lit > 200` | runtime | **not recorded** |
+| `test/arduboy.test.mjs:84` | ceiling | `8000` | `lit < 8000` | runtime | **not recorded** |
+| `test/arduboy.test.mjs:94` | floor | `45` | `fps > 45` | runtime | **not recorded** |
+| `test/arduboy.test.mjs:94` | ceiling | `75` | `fps < 75` | runtime | **not recorded** |
+| `test/arduboy.test.mjs:190` | floor | `100` | `sound.edges > 100` | runtime | **not recorded** |
+| `test/arduboy.test.mjs:194` | floor | `100` | `sound.hz > 100` | runtime | **not recorded** |
+| `test/arduboy.test.mjs:194` | ceiling | `4000` | `sound.hz < 4000` | runtime | **not recorded** |
+| `test/arduboy.test.mjs:203` | floor | `0` | `first.edges > 0` | definitional | **not recorded** |
+| `test/arduboy.test.mjs:231` | floor | `0` | `seen.length > 0` | definitional | **not recorded** |
+| `test/arduboy.test.mjs:236` | floor | `0` | `led[channel] >= 0` | definitional | **not recorded** |
+| `test/arduboy.test.mjs:236` | ceiling | `1` | `led[channel] <= 1` | runtime | **not recorded** |
+| `test/arduboy.test.mjs:241` | tolerance | `0.02` | `brightest > 0.02` | runtime | **not recorded** |
+| `test/arduboy.test.mjs:241` | tolerance | `0.5` | `brightest < 0.5` | runtime | **not recorded** |
+| `test/asm-examples.test.mjs:49` | floor | `0` | `asmExamplesFor(device).length > 0` | definitional | **not recorded** |
+| `test/asm-examples.test.mjs:85` | floor | `0` | `out.bytes > 0` | definitional | **not recorded** |
+| `test/audio-context-unblock.test.mjs:118` | floor | `3000` | `DECODE_TIMEOUT_MS >= 3000` | runtime | **not recorded** |
+| `test/circuit-hit-test.test.mjs:43` | ceiling | `300` | `b.minX < 300` | runtime | **not recorded** |
+| `test/circuit-hit-test.test.mjs:43` | floor | `300` | `b.maxX > 300` | runtime | **not recorded** |
+| `test/circuit-hit-test.test.mjs:44` | ceiling | `240` | `b.minY < 240` | runtime | **not recorded** |
+| `test/circuit-hit-test.test.mjs:44` | floor | `240` | `b.maxY > 240` | runtime | **not recorded** |
+| `test/circuit-hit-test.test.mjs:47` | ceiling | `300` | `rotated.minX < 300` | runtime | **not recorded** |
+| `test/circuit-hit-test.test.mjs:47` | floor | `300` | `rotated.maxX > 300` | runtime | **not recorded** |
+| `test/circuit-rendering-regressions.test.mjs:30` | ceiling | `300` | `b.minX < 300` | runtime | **not recorded** |
+| `test/circuit-rendering-regressions.test.mjs:30` | floor | `300` | `b.maxX > 300` | runtime | **not recorded** |
+| `test/circuit-rendering-regressions.test.mjs:30` | ceiling | `200` | `b.minY < 200` | runtime | **not recorded** |
+| `test/circuit-rendering-regressions.test.mjs:30` | floor | `200` | `b.maxY > 200` | runtime | **not recorded** |
+| `test/circuit-tab-index.test.mjs:14` | floor | `0` | `circuitPos > 0` | definitional | **not recorded** |
+| `test/compile-cache.test.mjs:67` | floor | `2` | `calls <= 2` | runtime | **not recorded** |
+| `test/compile-cache.test.mjs:74` | floor | `1` | `compileCacheLoad().length >= 1` | definitional | **not recorded** |
+| `test/condition.test.mjs:120` | floor | `0` | `why.length > 0` | definitional | **not recorded** |
+| `test/controller-board-face.test.mjs:29` | tolerance | `39.9` | `breadboardTop - unoBottom >= 39.9` | runtime | **not recorded** |
+| `test/controller-integration.test.mjs:108` | floor | `0` | `last.value > 0` | definitional | **not recorded** |
+| `test/controller-panel.test.mjs:670` | tolerance | `0.01` | `Math.abs(partCalls[0].value - 128 / 255) < 0.01` | runtime | **not recorded** |
+| `test/controller-panel.test.mjs:976` | tolerance | `0.01` | `Math.abs(pinCalls[0].value - 0.75) < 0.01` | runtime | **not recorded** |
+| `test/corpus-differential.test.mjs:34` | timeout-ms | `180000` | `timeout: 180_000` | load-sensitive | **not recorded** |
+| `test/declared-pins-wired.test.mjs:275` | ceiling | `1` | `unresolved.length <= 1` | countable | **not recorded** |
+| `test/declared-pins-wired.test.mjs:310` | tolerance | `0.25` | `withPins.length / ROWS.length >= 0.25` | runtime | **not recorded** |
+| `test/declared-pins-wired.test.mjs:313` | tolerance | `0.5` | `withCircuit.length / ROWS.length >= 0.5` | runtime | **not recorded** |
+| `test/declared-pins-wired.test.mjs:483` | floor | `0` | `KNOWN_UNWIRED.size > 0` | definitional | **not recorded** |
+| `test/declared-pins-wired.test.mjs:483` | floor | `0` | `KNOWN_UNREAD.size > 0` | definitional | **not recorded** |
+| `test/device-choice-contract.test.mjs:35` | floor | `15` | `ids.length > 15` | countable | **not recorded** |
+| `test/example-execution.test.mjs:300` | floor | `0` | `written.size > 0` | definitional | **not recorded** |
+| `test/example-execution.test.mjs:301` | floor | `0` | `read.size > 0` | definitional | **not recorded** |
+| `test/example-execution.test.mjs:378` | floor | `0` | `goodTrace.events.length > 0` | definitional | **not recorded** |
+| `test/example-rom-autoload.test.mjs:29` | floor | `0` | `anchor > 0` | definitional | **not recorded** |
+| `test/example-rom-autoload.test.mjs:35` | floor | `0` | `start > 0` | definitional | **not recorded** |
+| `test/example-vm-execution.test.mjs:276` | floor | `20` | `ids.size >= 20` | countable | **not recorded** |
+| `test/example-vm-execution.test.mjs:296` | floor | `20` | `probe.opcodes.size >= 20` | countable | **not recorded** |
+| `test/example-vm-execution.test.mjs:338` | floor | `50` | `board.size > 50` | countable | **not recorded** |
+| `test/example-vm-execution.test.mjs:340` | floor | `0` | `guards.size > 0` | definitional | **not recorded** |
+| `test/example-vm-execution.test.mjs:383` | floor | `10` | `addressable.size >= 10` | countable | **not recorded** |
+| `test/example-vm-execution.test.mjs:430` | floor | `259` | `entries.length >= 259` | countable | **not recorded** |
+| `test/example-vm-execution.test.mjs:431` | floor | `257` | `withProgram.length >= 257` | countable | **not recorded** |
+| `test/example-vm-execution.test.mjs:516` | floor | `0` | `run.threadsStarted > 0` | definitional | **not recorded** |
+| `test/example-vm-execution.test.mjs:545` | floor | `0` | `authored.length > 0` | definitional | **not recorded** |
+| `test/example-vm-execution.test.mjs:659` | floor | `117` | `report.executed.length >= 117` | evidenced | `defect; expected 117+ (the measurement of 2026-08-23). Either the corpus shrank or ` + |
+| `test/faceplate-thermostat.test.mjs:67` | floor | `35` | `io.get('temp') >= 35` | runtime | **not recorded** |
+| `test/faceplate-thermostat.test.mjs:79` | ceiling | `35` | `panel.getValue('temp') < 35` | runtime | **not recorded** |
+| `test/fetch-pinning.test.mjs:118` | size-cap | `1` | `maxBuffer: 1 << 28` | no-trip | **not recorded** |
+| `test/fetch-pinning.test.mjs:358` | floor | `400` | `files.length >= 400` | countable | **not recorded** |
+| `test/fetch-pinning.test.mjs:367` | size-cap | `1` | `maxBuffer: 1 << 28` | no-trip | **not recorded** |
+| `test/fetch-pinning.test.mjs:392` | floor | `48` | `uses.length >= 48` | countable | **not recorded** |
+| `test/fetch-pinning.test.mjs:429` | floor | `80` | `(r.why \|\| '').length > 80` | countable | **not recorded** |
+| `test/fetch-pinning.test.mjs:461` | floor | `3` | `names.length >= 3` | countable | **not recorded** |
+| `test/gallery-extension-integrity.test.mjs:56` | floor | `0` | `fetched >= 0` | definitional | **not recorded** |
+| `test/ios-share-popover.test.mjs:22` | floor | `0` | `anchor >= 0` | definitional | **not recorded** |
+| `test/l10n-parity.test.mjs:52` | floor | `0` | `keys.en.size > 0` | definitional | **not recorded** |
+| `test/l10n-parity.test.mjs:53` | floor | `0` | `keys.de.size > 0` | definitional | **not recorded** |
+| `test/lesson-bench-claims-wave2.test.mjs:152` | floor | `100` | `Math.abs(board.resistance(netId(board, 'vcc1', 'vcc'), netId(board, 'gnd1', 'gnd')) - 235) > 100` | runtime | **not recorded** |
+| `test/lesson-bench-claims-wave2.test.mjs:166` | ceiling | `1000` | `board.resistance(netId(board, 'vcc1', 'vcc'), netId(board, 'gnd1', 'gnd')) < 1000` | runtime | **not recorded** |
+| `test/lesson-bench-claims-wave2.test.mjs:168` | floor | `100000000` | `board.resistance(netId(board, 'btn1', 'a'), netId(board, 'btn1', 'b')) > 1e8` | runtime | **not recorded** |
+| `test/lesson-bench-claims-wave2.test.mjs:170` | floor | `100000000` | `board.resistance(netId(board, 'stc151', 'p0.0'), netId(board, 'stc151', 'p0.1')) > 1e8` | runtime | **not recorded** |
+| `test/lesson-bench-claims-wave2.test.mjs:208` | floor | `2` | `Math.max(...gains) - Math.min(...gains) > 2` | runtime | **not recorded** |
+| `test/lesson-bench-claims-wave2.test.mjs:281` | ceiling | `1` | `(oMax - oMin) < 1.0` | runtime | **not recorded** |
+| `test/lesson-bench-claims-wave2.test.mjs:281` | tolerance | `0.5` | `(oMax - oMin) > 0.5` | runtime | **not recorded** |
+| `test/lesson-bench-claims-wave2.test.mjs:334` | tolerance | `1.5` | `oneTau > 1.5` | runtime | **not recorded** |
+| `test/lesson-bench-claims-wave2.test.mjs:398` | floor | `1000000` | `board.resistance(gnd, hot) > 1e6` | runtime | **not recorded** |
+| `test/lesson-bench-claims-wave6.test.mjs:67` | floor | `1` | `r.rows.length >= 1` | definitional | // is the one measured throughout this review. |
+| `test/lesson-bench-claims-wave6.test.mjs:157` | floor | `5` | `slowRecordS > 5` | runtime | **not recorded** |
+| `test/lesson-bench-claims-wave6.test.mjs:159` | tolerance | `4.5` | `Math.max(...seen) > 4.5` | runtime | **not recorded** |
+| `test/lesson-bench-claims-wave6.test.mjs:203` | tolerance | `0.9999` | `ratio > 0.9999` | evidenced | `at ${us} us the measured current is ${(ratio * 100).toFixed(4)} % of the ideal RL curve`) |
+| `test/lesson-bench-claims-wave6.test.mjs:203` | tolerance | `1.0002` | `ratio < 1.0002` | evidenced | `at ${us} us the measured current is ${(ratio * 100).toFixed(4)} % of the ideal RL curve`) |
+| `test/lesson-bench-claims-wave6.test.mjs:250` | tolerance | `0.25` | `iAt1Tau / (0.05 * (1 - Math.exp(-1))) < 0.25` | runtime | **not recorded** |
+| `test/lesson-bench-claims-wave6.test.mjs:289` | tolerance | `81.92` | `periodBelowMs > 81.92` | runtime | **not recorded** |
+| `test/lesson-bench-claims-wave6.test.mjs:293` | tolerance | `81.92` | `1000 / fc < 81.92` | runtime | **not recorded** |
+| `test/lesson-bench-claims-wave6.test.mjs:330` | ceiling | `1` | `secondsPerPoint(fc / 10) < 1` | runtime | **not recorded** |
+| `test/lesson-bench-claims-wave6.test.mjs:436` | floor | `8` | `swept.rows.length >= 8` | evidenced | assert.ok(swept.rows.length >= 8, `${swept.rows.length} points measured`); |
+| `test/lesson-bench-claims-wave6.test.mjs:453` | floor | `6` | `String(swept.rows[0].magDb).length > 6` | countable | **not recorded** |
+| `test/lesson-bench-claims-wave6.test.mjs:459` | ceiling | `12` | `shown.length <= 12` | countable | **not recorded** |
+| `test/lesson-bench-claims-wave6.test.mjs:527` | floor | `0` | `peak.magDb > 0` | definitional | **not recorded** |
+| `test/lesson-bench-claims-wave6.test.mjs:623` | floor | `2` | `v / 1 > 2` | runtime | **not recorded** |
+| `test/lesson-bench-claims-wave6.test.mjs:630` | floor | `2` | `filters.length >= 2` | countable | **not recorded** |
+| `test/lesson-bench-claims-wave7.test.mjs:129` | floor | `100` | `byPin.clock > 100` | runtime | **not recorded** |
+| `test/lesson-bench-claims-wave7.test.mjs:130` | floor | `10` | `byPin.latch > 10` | runtime | **not recorded** |
+| `test/lesson-bench-claims-wave7.test.mjs:131` | floor | `10` | `byPin.data > 10` | runtime | **not recorded** |
+| `test/lesson-bench-claims-wave7.test.mjs:189` | floor | `6` | `edges.length >= 6` | countable | **not recorded** |
+| `test/lesson-bench-claims-wave7.test.mjs:207` | floor | `45` | `duty > 45` | runtime | **not recorded** |
+| `test/lesson-bench-claims-wave7.test.mjs:207` | ceiling | `55` | `duty < 55` | runtime | **not recorded** |
+| `test/lesson-bench-claims-wave7.test.mjs:210` | tolerance | `81.92` | `slow.period > 81.92` | runtime | **not recorded** |
+| `test/lesson-bench-claims-wave7.test.mjs:211` | tolerance | `81.92` | `mid.period < 81.92` | runtime | **not recorded** |
+| `test/lesson-bench-claims-wave7.test.mjs:211` | tolerance | `81.92` | `fast.period < 81.92` | runtime | **not recorded** |
+| `test/lesson-bench-claims-wave7.test.mjs:367` | floor | `0` | `applyAt > 0` | definitional | **not recorded** |
+| `test/lesson-bench-claims.test.mjs:66` | floor | `100` | `registeredKinds().length > 100` | countable | **not recorded** |
+| `test/lesson-bench-claims.test.mjs:113` | tolerance | `0.2` | `onA > 0.2` | runtime | **not recorded** |
+| `test/lesson-bench-claims.test.mjs:113` | tolerance | `0.001` | `offA < 0.001` | runtime | **not recorded** |
+| `test/lesson-bench-claims.test.mjs:115` | tolerance | `0.001` | `offB < 0.001` | runtime | **not recorded** |
+| `test/lesson-bench-claims.test.mjs:115` | tolerance | `0.001` | `offB2 < 0.001` | runtime | **not recorded** |
+| `test/lesson-bench-claims.test.mjs:117` | tolerance | `0.2` | `onC > 0.2` | runtime | **not recorded** |
+| `test/lesson-bench-claims.test.mjs:117` | tolerance | `0.2` | `onC2 > 0.2` | runtime | **not recorded** |
+| `test/lesson-bench-claims.test.mjs:129` | tolerance | `0.4` | `b[0] - b[2] > 0.4` | runtime | **not recorded** |
+| `test/lesson-bench-claims.test.mjs:143` | tolerance | `0.2` | `errorPct > 0.2` | runtime | **not recorded** |
+| `test/lesson-bench-claims.test.mjs:143` | ceiling | `5` | `errorPct < 5` | runtime | **not recorded** |
+| `test/lesson-bench-claims.test.mjs:161` | floor | `3` | `Math.abs(supply - (p1 + p2)) > 3` | runtime | **not recorded** |
+| `test/lesson-bench-claims.test.mjs:186` | tolerance | `4.8` | `volts(board, 'cap', 'a') > 4.8` | runtime | **not recorded** |
+| `test/lesson-bench-claims.test.mjs:191` | tolerance | `2.5` | `first > 2.5` | runtime | **not recorded** |
+| `test/lesson-bench-claims.test.mjs:206` | tolerance | `0.001` | `Math.abs(before - after) < 0.001` | runtime | **not recorded** |
+| `test/lesson-bench-claims.test.mjs:218` | floor | `3` | `edgeBefore - edgeAfter > 3` | runtime | **not recorded** |
+| `test/lesson-bench-claims.test.mjs:349` | tolerance | `0.3` | `board.ledBrightness('led1') > 0.3` | runtime | **not recorded** |
+| `test/lesson-debugger-surface.test.mjs:97` | floor | `0` | `readFileSync(path.join(EX, rel), 'utf8').length > 0` | definitional | **not recorded** |
+| `test/lesson-defect-detector.test.mjs:73` | floor | `1` | `blocking.length >= 1` | definitional | **not recorded** |
+| `test/lesson-defect-detector.test.mjs:260` | floor | `180` | `report.checkpoints >= 180` | runtime | **not recorded** |
+| `test/lesson-language-matrix.test.mjs:77` | floor | `3` | `source.split('\n').length > 3` | countable | **not recorded** |
+| `test/lesson-language-matrix.test.mjs:83` | floor | `0` | `blocks > 0` | definitional | **not recorded** |
+| `test/lesson-language-matrix.test.mjs:92` | floor | `40` | `out.length > 40` | countable | **not recorded** |
+| `test/lesson-language-matrix.test.mjs:97` | floor | `60` | `variants >= 60` | runtime | **not recorded** |
+| `test/lesson-numeric-contract.test.mjs:68` | floor | `40` | `examined >= 40` | runtime | **not recorded** |
+| `test/lesson-numeric-contract.test.mjs:69` | floor | `10` | `quoting >= 10` | runtime | **not recorded** |
+| `test/lesson-panel-claims-wave4.test.mjs:502` | tolerance | `0.001` | `Math.abs(wiper(0) - 0.0005) < 1e-3` | runtime | **not recorded** |
+| `test/lesson-panel-claims-wave4.test.mjs:503` | tolerance | `0.001` | `Math.abs(wiper(0.5) - 2.5) < 1e-3` | runtime | **not recorded** |
+| `test/lesson-panel-claims-wave4.test.mjs:504` | tolerance | `0.001` | `Math.abs(wiper(1) - 4.9995) < 1e-3` | runtime | **not recorded** |
+| `test/lessons.test.mjs:42` | floor | `8` | `catalog.lessons.length >= 8` | countable | **not recorded** |
+| `test/lessons.test.mjs:45` | floor | `0` | `lesson.version > 0` | definitional | **not recorded** |
+| `test/lessons.test.mjs:130` | floor | `2` | `lesson.checkpoints.length >= 2` | countable | **not recorded** |
+| `test/lessons.test.mjs:136` | floor | `2` | `diodeLesson.version >= 2` | runtime | **not recorded** |
+| `test/lessons.test.mjs:147` | floor | `2` | `capacitorLesson.version >= 2` | runtime | **not recorded** |
+| `test/machine-media-order.test.mjs:14` | floor | `0` | `start >= 0` | definitional | **not recorded** |
+| `test/machine-runner-board.test.mjs:13` | floor | `0` | `start >= 0` | definitional | **not recorded** |
+| `test/makecode-arcade-runs.test.mjs:49` | floor | `0` | `run.threadsStarted > 0` | definitional | **not recorded** |
+| `test/makecode-arcade-runs.test.mjs:50` | floor | `40` | `run.blockCount > 40` | runtime | **not recorded** |
+| `test/makecode-arcade-runs.test.mjs:52` | floor | `0` | `run.variablesChanged > 0` | definitional | **not recorded** |
+| `test/makecode-arcade-runs.test.mjs:64` | floor | `0` | `run.threadsStarted > 0` | definitional | **not recorded** |
+| `test/makecode-arcade-runs.test.mjs:73` | floor | `0` | `run.threadsStarted > 0` | definitional | **not recorded** |
+| `test/makecode-arcade.test.mjs:71` | floor | `2` | `names.length >= 2` | countable | **not recorded** |
+| `test/makecode-arcade.test.mjs:153` | floor | `5` | `out.unsupported.length > 5` | countable | **not recorded** |
+| `test/makecode-arcade.test.mjs:155` | floor | `10` | `u.length > 10` | countable | **not recorded** |
+| `test/makecode-arcade.test.mjs:197` | floor | `2` | `Object.keys(maps).length >= 2` | countable | **not recorded** |
+| `test/makecode-arcade.test.mjs:203` | floor | `4` | `level.tiles.length >= 4` | countable | **not recorded** |
+| `test/makecode-arcade.test.mjs:231` | floor | `10000` | `backdrop.svg.length > 10000` | countable | **not recorded** |
+| `test/makecode-arcade.test.mjs:300` | floor | `10` | `hero.length > 10` | countable | **not recorded** |
+| `test/makecode-calliope.test.mjs:193` | floor | `0` | `files.length > 0` | definitional | **not recorded** |
+| `test/makecode-export.test.mjs:287` | floor | `0` | `files.length > 0` | definitional | **not recorded** |
+| `test/makecode-import.test.mjs:118` | floor | `256` | `bin.buf.length >= 256` | countable | **not recorded** |
+| `test/makecode-import.test.mjs:253` | floor | `100` | `res.files['main.ts'].length > 100` | countable | **not recorded** |
+| `test/makecode-import.test.mjs:262` | floor | `2` | `res.costumes.length >= 2` | countable | **not recorded** |
+| `test/makecode-microbit-runs.test.mjs:46` | floor | `0` | `run.threadsStarted > 0` | definitional | **not recorded** |
+| `test/makecode-microbit-runs.test.mjs:49` | floor | `0` | `run.calls.get('microbitplus_analogread') > 0` | definitional | **not recorded** |
+| `test/makecode-microbit-runs.test.mjs:69` | floor | `0` | `run.extensionCalls > 0` | definitional | **not recorded** |
+| `test/makecode-microbit-runs.test.mjs:86` | floor | `0` | `run.threadsStarted > 0` | definitional | **not recorded** |
+| `test/makecode-microbit-runs.test.mjs:91` | floor | `0` | `run.extensionCalls > 0` | definitional | **not recorded** |
+| `test/makecode-microbit-runs.test.mjs:110` | floor | `0` | `run.calls.get('bitops_and') > 0` | definitional | **not recorded** |
+| `test/makecode-microbit-runs.test.mjs:111` | floor | `0` | `run.calls.get('bitops_shl') > 0` | definitional | **not recorded** |
+| `test/makecode-nothing-vanishes.test.mjs:93` | floor | `3` | `files.length >= 3` | countable | **not recorded** |
+| `test/makecode-nothing-vanishes.test.mjs:115` | floor | `3` | `files.length >= 3` | countable | **not recorded** |
+| `test/makecode-nothing-vanishes.test.mjs:139` | floor | `0` | `vanished.size > 0` | definitional | **not recorded** |
+| `test/makecode-ui-contract.test.mjs:126` | floor | `5` | `literals.length >= 5` | countable | **not recorded** |
+| `test/makecode-ui-contract.test.mjs:136` | floor | `0` | `start > 0` | definitional | **not recorded** |
+| `test/makecode-ui-contract.test.mjs:143` | floor | `12` | `keys.length >= 12` | countable | **not recorded** |
+| `test/microbit-pins-drive-circuit.test.mjs:194` | tolerance | `0.1` | `brightness > 0.1` | runtime | **not recorded** |
+| `test/microbit-pins-drive-circuit.test.mjs:199` | floor | `4` | `mA > 4` | runtime | **not recorded** |
+| `test/microbit-pins-drive-circuit.test.mjs:199` | tolerance | `6.5` | `mA < 6.5` | runtime | **not recorded** |
+| `test/native-bluetooth.test.mjs:602` | ceiling | `8000` | `elapsed < 8000` | runtime | **not recorded** |
+| `test/no-dead-overlay-modules.test.mjs:225` | floor | `20` | `reason.length > 20` | countable | **not recorded** |
+| `test/no-dead-overlay-modules.test.mjs:229` | floor | `20` | `reason.length > 20` | countable | **not recorded** |
+| `test/overlay-packages-pairs.test.mjs:19` | size-cap | `1` | `maxBuffer: 1 << 28` | no-trip | **not recorded** |
+| `test/pane-divider-math.test.mjs:115` | floor | `0` | `half > 0` | definitional | **not recorded** |
+| `test/pane-divider-math.test.mjs:115` | ceiling | `1` | `half < 1` | runtime | **not recorded** |
+| `test/pane-divider-math.test.mjs:125` | floor | `0` | `got > 0` | definitional | **not recorded** |
+| `test/pane-divider-math.test.mjs:125` | ceiling | `1` | `got < 1` | runtime | **not recorded** |
+| `test/project-bundle-roundtrip.test.mjs:70` | floor | `0` | `project.targets.length > 0` | definitional | **not recorded** |
+| `test/pseudocode-game-examples.test.mjs:55` | floor | `0` | `source.length > 0` | definitional | **not recorded** |
+| `test/pseudocode-game-examples.test.mjs:162` | floor | `0` | `Number(value) > 0` | definitional | **not recorded** |
+| `test/pseudocode-game-examples.test.mjs:167` | floor | `0` | `Number(value) > 0` | definitional | **not recorded** |
+| `test/pseudocode-game-examples.test.mjs:173` | floor | `0` | `Number(value) > 0` | definitional | **not recorded** |
+| `test/pseudocode-game-examples.test.mjs:321` | floor | `0` | `Number(value('ballVY').value) > 0` | definitional | **not recorded** |
+| `test/pseudocode-game-examples.test.mjs:329` | floor | `2` | `Number(value('ballVX').value) > 2` | runtime | **not recorded** |
+| `test/pseudocode-game-examples.test.mjs:330` | floor | `0` | `Number(value('ballVY').value) > 0` | definitional | **not recorded** |
+| `test/pseudocode-game-examples.test.mjs:407` | floor | `0` | `Number(value('ballVY').value) > 0` | definitional | **not recorded** |
+| `test/pseudocode-game-examples.test.mjs:503` | floor | `9` | `Number(value('pushes').value) >= 9` | runtime | **not recorded** |
+| `test/pseudocode-game-examples.test.mjs:838` | floor | `0` | `Number(value) > 0` | definitional | **not recorded** |
+| `test/pseudocode-game-examples.test.mjs:1202` | floor | `0` | `Number(value('mineStun').value) > 0` | definitional | **not recorded** |
+| `test/pseudocode-game-examples.test.mjs:1589` | floor | `0` | `Number(value) > 0` | definitional | **not recorded** |
+| `test/pseudocode-game-examples.test.mjs:1612` | floor | `0` | `Number(value) > 0` | definitional | **not recorded** |
+| `test/pseudocode-game-examples.test.mjs:1626` | floor | `0` | `Number(stageValue(relay, 'overdrive').value) > 0` | definitional | **not recorded** |
+| `test/pseudocode-game-examples.test.mjs:1680` | floor | `0` | `Number(value(rift, 'ly').value) > 0` | definitional | **not recorded** |
+| `test/pseudocode-game-examples.test.mjs:1681` | floor | `0` | `Number(value(rift, 'ry').value) > 0` | definitional | **not recorded** |
+| `test/pseudocode-game-examples.test.mjs:1696` | ceiling | `0` | `Number(value(circuit, 'lane').value) < 0` | definitional | **not recorded** |
+| `test/pseudocode-game-examples.test.mjs:1712` | floor | `70` | `Number(value(circuit, 'fuel').value) > 70` | runtime | **not recorded** |
+| `test/pseudocode-game-examples.test.mjs:1833` | floor | `0` | `Number(value(pantry, 'alert').value) > 0` | definitional | **not recorded** |
+| `test/pseudocode-game-examples.test.mjs:1841` | floor | `80` | `distance(cheese, tunnel) > 80` | runtime | **not recorded** |
+| `test/pseudocode-game-examples.test.mjs:1842` | floor | `70` | `distance(cheese, cat) > 70` | runtime | **not recorded** |
+| `test/pseudocode-game-examples.test.mjs:1968` | ceiling | `100` | `Number(value(tidegate, 'charge').value) < 100` | runtime | **not recorded** |
+| `test/pseudocode-game-examples.test.mjs:2011` | floor | `0` | `Number(value(rink, 'vy').value) > 0` | definitional | **not recorded** |
+| `test/pseudocode-game-examples.test.mjs:2012` | floor | `0` | `Number(value(rink, 'skaterY').value) > 0` | definitional | **not recorded** |
+| `test/pseudocode-game-examples.test.mjs:2038` | floor | `2` | `Number(value(hoops, 'charge').value) > 2` | runtime | **not recorded** |
+| `test/pseudocode-game-examples.test.mjs:2078` | floor | `43` | `Number(value(comet, 'matchTime').value) >= 43` | runtime | **not recorded** |
+| `test/pseudocode-game-examples.test.mjs:2084` | floor | `0` | `Number(value(comet, 'strikerY').value) > 0` | definitional | **not recorded** |
+| `test/pseudocode-game-examples.test.mjs:2331` | floor | `0` | `Number(value(halo, 'shieldAngle').value) > 0` | definitional | **not recorded** |
+| `test/pseudocode-game-examples.test.mjs:2355` | floor | `0` | `Number(value(kestrel, 'driftX').value) > 0` | definitional | **not recorded** |
+| `test/pseudocode-game-examples.test.mjs:2356` | floor | `0` | `Number(value(kestrel, 'driftY').value) > 0` | definitional | **not recorded** |
+| `test/pseudocode-game-examples.test.mjs:2358` | floor | `0` | `Number(value(kestrel, 'droneY').value) > 0` | definitional | **not recorded** |
+| `test/pseudocode-game-examples.test.mjs:2489` | floor | `0` | `value(coil, 'trailX').value.length > 0` | definitional | **not recorded** |
+| `test/pseudocode-game-examples.test.mjs:2512` | floor | `0` | `Number(value(lift, 'flyerVY').value) > 0` | definitional | **not recorded** |
+| `test/pseudocode-game-examples.test.mjs:2543` | floor | `1` | `targets.length >= 1` | definitional | **not recorded** |
+| `test/pseudocode-game-examples.test.mjs:2544` | floor | `70` | `blocks.length >= 70` | countable | **not recorded** |
+| `test/pseudocode-game-examples.test.mjs:2654` | floor | `70` | `run.blockCount >= 70` | runtime | **not recorded** |
+| `test/pseudocode-game-examples.test.mjs:2655` | floor | `0` | `run.threadsStarted > 0` | definitional | **not recorded** |
+| `test/pseudocode-game-examples.test.mjs:2657` | floor | `0` | `run.variablesChanged > 0` | definitional | **not recorded** |
+| `test/remote-extension-sandbox.test.mjs:34` | floor | `0` | `bytes >= 0` | definitional | **not recorded** |
+| `test/rp2040-bootrom.test.mjs:44` | floor | `256` | `view.getUint16(0x14, true) > 0x100` | runtime | **not recorded** |
+| `test/rp2040-bootrom.test.mjs:45` | floor | `256` | `view.getUint16(0x18, true) > 0x100` | runtime | **not recorded** |
+| `test/rp2040-bootrom.test.mjs:47` | floor | `0` | `view.getUint32(0x04, true) > 0` | definitional | **not recorded** |
+| `test/rp2040-bootrom.test.mjs:65` | floor | `4` | `entries >= 4` | countable | **not recorded** |
+| `test/rp2040-bootrom.test.mjs:92` | floor | `0` | `run(lookup, {0: table, 1: ROM_FUNC.MEMCPY}) >= 0` | definitional | **not recorded** |
+| `test/rp2040-bootrom.test.mjs:94` | floor | `256` | `found > 0x100` | runtime | **not recorded** |
+| `test/rp2040-bootrom.test.mjs:97` | floor | `0` | `run(lookup, {0: table, 1: 0x5A5A}) >= 0` | definitional | **not recorded** |
+| `test/rp2040-bootrom.test.mjs:113` | floor | `0` | `steps >= 0` | definitional | **not recorded** |
+| `test/rp2040-bootrom.test.mjs:131` | floor | `0` | `run(memcpy, {0: dst, 1: 0x20002000, 2: 0}) >= 0` | definitional | **not recorded** |
+| `test/rp2040-bootrom.test.mjs:144` | floor | `0` | `steps >= 0` | definitional | **not recorded** |
+| `test/rp2040-bootrom.test.mjs:157` | floor | `256` | `fn > 0x100` | runtime | **not recorded** |
+| `test/rp2040-bootrom.test.mjs:160` | floor | `0` | `steps >= 0` | definitional | **not recorded** |
+| `test/rp2040-bootrom.test.mjs:217` | floor | `256` | `lookup > 0x100` | runtime | **not recorded** |
+| `test/rp2040-debug.test.mjs:45` | floor | `1` | `handle >= 1` | definitional | **not recorded** |
+| `test/sb3-creator-motion-target.test.mjs:13` | floor | `0` | `allBlocks.length > 0` | definitional | **not recorded** |
+| `test/schematic-projection.test.mjs:68` | ceiling | `1200` | `projected.height < 1200` | runtime | **not recorded** |
+| `test/schematic-projection.test.mjs:69` | floor | `500` | `projected.width > 500` | runtime | **not recorded** |
+| `test/scratchlink-protocol-parity.test.mjs:164` | floor | `0` | `start >= 0` | definitional | **not recorded** |
+| `test/scratchlink-transport.test.mjs:42` | floor | `3` | `t.label.length > 3` | countable | **not recorded** |
+| `test/scratchlink-transport.test.mjs:43` | floor | `20` | `t.detail.length > 20` | countable | **not recorded** |
+| `test/simulator-driver-controls-respond.test.mjs:246` | floor | `33` | `benches >= 33` | runtime | **not recorded** |
+| `test/simulator-driver-controls-respond.test.mjs:247` | floor | `67` | `pins >= 67` | runtime | **not recorded** |
+| `test/stale-build-recovery.test.mjs:31` | floor | `0` | `start > 0` | definitional | **not recorded** |
+| `test/stale-build-recovery.test.mjs:35` | floor | `0` | `open > 0` | definitional | **not recorded** |
+| `test/stale-build-recovery.test.mjs:132` | floor | `0` | `state.cachesDeleted > 0` | definitional | **not recorded** |
+| `test/tab-index-contract.test.mjs:84` | floor | `4` | `panelCount >= 4` | runtime | **not recorded** |
+| `test/upstream-selectors.test.mjs:82` | floor | `30` | `r.why.length > 30` | countable | **not recorded** |
+| `test/upstream-selectors.test.mjs:100` | floor | `0` | `used.length > 0` | definitional | **not recorded** |
+| `test/wait-census.test.mjs:41` | size-cap | `1` | `maxBuffer: 1 << 26` | no-trip | **not recorded** |
+| `test/wait-census.test.mjs:77` | floor | `100` | `c.census.parsed >= 100` | runtime | **not recorded** |
+| `test/wait-census.test.mjs:80` | floor | `100` | `c.census.bounds.length >= 100` | evidenced | `only ${c.census.bounds.length} bounding literals found; expected ~119. The Property ` |
+| `test/wait-census.test.mjs:83` | floor | `0` | `ciSleeps.length > 0` | definitional | **not recorded** |
+| `test/wave-open-defects.test.mjs:45` | floor | `30` | `rows.length >= 30` | countable | **not recorded** |
+| `test/wave-open-defects.test.mjs:175` | floor | `0` | `nonField.size > 0` | definitional | **not recorded** |
+| `test/wave-open-defects.test.mjs:241` | floor | `6` | `offered.length >= 6` | countable | **not recorded** |
+| `test/wave-open-defects.test.mjs:285` | floor | `0` | `sites.length > 0` | definitional | **not recorded** |
+| `test/helpers/timed.mjs:178` | timeout-ms | `30000` | `timeout: 30_000` | load-sensitive | **not recorded** |
+| `test/helpers/timed.mjs:402` | floor | `0` | `budgetMs <= 0` | definitional | **not recorded** |
+| `scripts/_tmp-eyes.mjs:10` | timeout-ms | `90000` | `timeout: 90000` | load-sensitive | **not recorded** |
+| `scripts/_tmp-eyes.mjs:11` | timeout-ms | `60000` | `timeout: 60000` | load-sensitive | **not recorded** |
+| `scripts/_tmp-lcd-probe.mjs:11` | timeout-ms | `90000` | `timeout: 90000` | load-sensitive | **not recorded** |
+| `scripts/_tmp-lcd-probe.mjs:12` | timeout-ms | `60000` | `timeout: 60000` | load-sensitive | **not recorded** |
+| `scripts/_tmp-lcd-probe.mjs:18` | timeout-ms | `4000` | `timeout: 4000` | load-sensitive | **not recorded** |
+| `scripts/_tmp-machine-probe.mjs:12` | timeout-ms | `90000` | `timeout: 90000` | load-sensitive | **not recorded** |
+| `scripts/_tmp-machine-probe.mjs:13` | timeout-ms | `60000` | `timeout: 60000` | load-sensitive | **not recorded** |
+| `scripts/_tmp-machine-probe.mjs:16` | timeout-ms | `4000` | `timeout: 4000` | load-sensitive | **not recorded** |
+| `scripts/_tmp-machine-probe.mjs:19` | timeout-ms | `6000` | `timeout: 6000` | load-sensitive | **not recorded** |
+| `scripts/_tmp-paint-test.mjs:7` | timeout-ms | `90000` | `timeout: 90000` | load-sensitive | **not recorded** |
+| `scripts/_tmp-paint-test.mjs:8` | timeout-ms | `60000` | `timeout: 60000` | load-sensitive | **not recorded** |
+| `scripts/_tmp-pendant-stale.mjs:12` | timeout-ms | `90000` | `timeout: 90000` | load-sensitive | **not recorded** |
+| `scripts/_tmp-pendant-stale.mjs:13` | timeout-ms | `60000` | `timeout: 60000` | load-sensitive | **not recorded** |
+| `scripts/_tmp-pendant-stale.mjs:16` | timeout-ms | `4000` | `timeout: 4000` | load-sensitive | **not recorded** |
+| `scripts/_tmp-pendant-stale.mjs:20` | timeout-ms | `4000` | `timeout: 4000` | load-sensitive | **not recorded** |
+| `scripts/_tmp-pendant-stale.mjs:22` | timeout-ms | `4000` | `timeout: 4000` | load-sensitive | **not recorded** |
+| `scripts/_tmp-preset-probe.mjs:16` | timeout-ms | `90000` | `timeout: 90000` | load-sensitive | **not recorded** |
+| `scripts/_tmp-preset-probe.mjs:17` | timeout-ms | `60000` | `timeout: 60000` | load-sensitive | **not recorded** |
+| `scripts/_tmp-preset-probe.mjs:20` | timeout-ms | `4000` | `timeout: 4000` | load-sensitive | **not recorded** |
+| `scripts/_tmp-preset-probe.mjs:23` | timeout-ms | `8000` | `timeout: 8000` | load-sensitive | **not recorded** |
+| `scripts/_tmp-preset-probe.mjs:31` | timeout-ms | `8000` | `timeout: 8000` | load-sensitive | **not recorded** |
+| `scripts/_tmp-rightpane.mjs:10` | timeout-ms | `90000` | `timeout: 90000` | load-sensitive | **not recorded** |
+| `scripts/_tmp-rightpane.mjs:11` | timeout-ms | `60000` | `timeout: 60000` | load-sensitive | **not recorded** |
+| `scripts/_tmp-rightpane.mjs:17` | timeout-ms | `4000` | `timeout: 4000` | load-sensitive | **not recorded** |
+| `scripts/_tmp-sweep-probe.mjs:9` | timeout-ms | `90000` | `timeout: 90000` | load-sensitive | **not recorded** |
+| `scripts/_tmp-sweep-probe.mjs:10` | timeout-ms | `60000` | `timeout: 60000` | load-sensitive | **not recorded** |
+| `scripts/_tmp-sweep-probe.mjs:13` | timeout-ms | `4000` | `timeout: 4000` | load-sensitive | **not recorded** |
+| `scripts/_tmp-vdp-asm-probe.mjs:43` | timeout-ms | `90000` | `timeout: 90000` | load-sensitive | **not recorded** |
+| `scripts/_tmp-vdp-asm-probe.mjs:44` | timeout-ms | `60000` | `timeout: 60000` | load-sensitive | **not recorded** |
+| `scripts/_tmp-vdp-asm-probe.mjs:48` | timeout-ms | `4000` | `timeout: 4000` | load-sensitive | **not recorded** |
+| `scripts/_tmp-vdp-asm-probe.mjs:51` | timeout-ms | `6000` | `timeout: 6000` | load-sensitive | **not recorded** |
+| `scripts/_tmp-vdp-asm-probe.mjs:72` | timeout-ms | `3000` | `timeout: 3000` | load-sensitive | **not recorded** |
+| `scripts/_tmp-vdp-probe.mjs:21` | timeout-ms | `90000` | `timeout: 90000` | load-sensitive | **not recorded** |
+| `scripts/_tmp-vdp-probe.mjs:22` | timeout-ms | `60000` | `timeout: 60000` | load-sensitive | **not recorded** |
+| `scripts/_tmp-vdp-probe.mjs:25` | timeout-ms | `10000` | `timeout: 10000` | load-sensitive | **not recorded** |
+| `scripts/_tmp-vdp-probe.mjs:30` | timeout-ms | `6000` | `timeout: 6000` | load-sensitive | **not recorded** |
+| `scripts/_tmp-vdp-probe.mjs:34` | timeout-ms | `3000` | `timeout: 3000` | load-sensitive | **not recorded** |
+| `scripts/_tmp-vdp-probe.mjs:39` | timeout-ms | `8000` | `timeout: 8000` | load-sensitive | **not recorded** |
+| `scripts/_tmp-vdp-probe.mjs:52` | timeout-ms | `6000` | `timeout: 6000` | load-sensitive | **not recorded** |
+| `scripts/_tmp-vdp-probe.mjs:59` | timeout-ms | `3000` | `timeout: 3000` | load-sensitive | **not recorded** |
+| `scripts/aggregate-timeouts.mjs:118` | floor | `50` | `parsed < 50` | runtime | **not recorded** |
+| `scripts/gen-rust-notices.mjs:17` | size-cap | `67108864` | `maxBuffer: 1024 * 1024 * 64` | no-trip | **not recorded** |
+| `scripts/lib-code-actions.mjs:26` | timeout-ms | `30000` | `timeout = 30000` | load-sensitive | **not recorded** |
+| `scripts/make-ios-icons.mjs:140` | size-cap | `1` | `maxBuffer: 1 << 28` | no-trip | **not recorded** |
+| `scripts/oracle-simavr.mjs:42` | size-cap | `4194304` | `maxBuffer: 4 * 1024 * 1024` | no-trip | **not recorded** |
+| `scripts/probe-layout.mjs:89` | timeout-ms | `90000` | `timeout: 90000` | load-sensitive | **not recorded** |
+| `scripts/probe-layout.mjs:98` | timeout-ms | `15000` | `timeout: 15000` | load-sensitive | **not recorded** |
+| `scripts/probe-layout.mjs:120` | timeout-ms | `15000` | `timeout: 15000` | load-sensitive | **not recorded** |
+| `scripts/probe-microbit-resume.mjs:85` | timeout-ms | `20000` | `timeout: 20000` | load-sensitive | **not recorded** |
+| `scripts/proof-production.mjs:79` | timeout-ms | `60000` | `timeout: 60000` | load-sensitive | **not recorded** |
+| `scripts/verify-about-dialog.mjs:49` | timeout-ms | `60000` | `timeout: 60000` | load-sensitive | **not recorded** |
+| `scripts/verify-arduboy.mjs:103` | timeout-ms | `90000` | `timeout: 90000` | load-sensitive | **not recorded** |
+| `scripts/verify-arduboy.mjs:104` | timeout-ms | `60000` | `timeout: 60000` | load-sensitive | **not recorded** |
+| `scripts/verify-arduboy.mjs:109` | timeout-ms | `30000` | `timeout: 30000` | load-sensitive | **not recorded** |
+| `scripts/verify-arduboy.mjs:120` | timeout-ms | `30000` | `timeout: 30000` | load-sensitive | **not recorded** |
+| `scripts/verify-aurora65-workstation.mjs:40` | timeout-ms | `60000` | `timeout: 60000` | load-sensitive | **not recorded** |
+| `scripts/verify-aurora65-workstation.mjs:41` | timeout-ms | `60000` | `timeout: 60000` | load-sensitive | **not recorded** |
+| `scripts/verify-aurora65-workstation.mjs:65` | timeout-ms | `30000` | `timeout: 30000` | load-sensitive | **not recorded** |
+| `scripts/verify-aurora65-workstation.mjs:77` | timeout-ms | `20000` | `timeout: 20000` | load-sensitive | **not recorded** |
+| `scripts/verify-aurora65-workstation.mjs:116` | timeout-ms | `15000` | `timeout: 15000` | load-sensitive | **not recorded** |
+| `scripts/verify-aurora65-workstation.mjs:127` | timeout-ms | `30000` | `timeout: Number(process.env.AURORA_BOOT_TIMEOUT \|\| 30000)` | load-sensitive | **not recorded** |
+| `scripts/verify-aurora65-workstation.mjs:130` | timeout-ms | `10000` | `timeout: 10000` | load-sensitive | **not recorded** |
+| `scripts/verify-aurora65-workstation.mjs:131` | timeout-ms | `10000` | `timeout: 10000` | load-sensitive | **not recorded** |
+| `scripts/verify-aurora65-workstation.mjs:146` | timeout-ms | `10000` | `timeout: 10000` | load-sensitive | **not recorded** |
+| `scripts/verify-basic-run.mjs:25` | timeout-ms | `60000` | `timeout: 60000` | load-sensitive | **not recorded** |
+| `scripts/verify-bluetooth.mjs:85` | timeout-ms | `60000` | `timeout: 60000` | load-sensitive | **not recorded** |
+| `scripts/verify-chrome-sweep.mjs:31` | timeout-ms | `60000` | `timeout: 60000` | load-sensitive | **not recorded** |
+| `scripts/verify-circuit-rendering.mjs:20` | timeout-ms | `60000` | `timeout: 60000` | load-sensitive | **not recorded** |
+| `scripts/verify-circuit-rendering.mjs:21` | timeout-ms | `60000` | `timeout: 60000` | load-sensitive | **not recorded** |
+| `scripts/verify-circuit-rendering.mjs:29` | timeout-ms | `60000` | `timeout: 60000` | load-sensitive | **not recorded** |
+| `scripts/verify-circuit-rendering.mjs:61` | timeout-ms | `10000` | `timeout: 10000` | load-sensitive | **not recorded** |
+| `scripts/verify-circuit-rendering.mjs:94` | timeout-ms | `3000` | `timeout: 3000` | load-sensitive | **not recorded** |
+| `scripts/verify-circuit-rendering.mjs:102` | timeout-ms | `3000` | `timeout: 3000` | load-sensitive | **not recorded** |
+| `scripts/verify-circuit-rendering.mjs:121` | timeout-ms | `3000` | `timeout: 3000` | load-sensitive | **not recorded** |
+| `scripts/verify-circuit-rendering.mjs:134` | timeout-ms | `3000` | `timeout: 3000` | load-sensitive | **not recorded** |
+| `scripts/verify-circuit-rendering.mjs:155` | timeout-ms | `10000` | `timeout: 10000` | load-sensitive | **not recorded** |
+| `scripts/verify-circuit-ux.mjs:53` | timeout-ms | `60000` | `timeout: 60000` | load-sensitive | **not recorded** |
+| `scripts/verify-circuit-ux.mjs:54` | timeout-ms | `60000` | `timeout: 60000` | load-sensitive | **not recorded** |
+| `scripts/verify-circuit-ux.mjs:92` | timeout-ms | `5000` | `timeout: 5000` | load-sensitive | **not recorded** |
+| `scripts/verify-circuit-ux.mjs:194` | timeout-ms | `3000` | `timeout: 3000` | load-sensitive | **not recorded** |
+| `scripts/verify-circuit-ux.mjs:201` | timeout-ms | `3000` | `timeout: 3000` | load-sensitive | **not recorded** |
+| `scripts/verify-circuit-ux.mjs:257` | timeout-ms | `2000` | `timeout: 2000` | load-sensitive | **not recorded** |
+| `scripts/verify-controller-panel.mjs:25` | timeout-ms | `60000` | `timeout: 60000` | load-sensitive | **not recorded** |
+| `scripts/verify-controller-panel.mjs:29` | timeout-ms | `15000` | `timeout: 15000` | load-sensitive | **not recorded** |
+| `scripts/verify-controller-panel.mjs:98` | timeout-ms | `10000` | `timeout: 10000` | load-sensitive | **not recorded** |
+| `scripts/verify-controller-panel.mjs:126` | timeout-ms | `5000` | `timeout: 5000` | load-sensitive | **not recorded** |
+| `scripts/verify-controller-panel.mjs:221` | timeout-ms | `10000` | `timeout: 10000` | load-sensitive | **not recorded** |
+| `scripts/verify-controller-panel.mjs:232` | timeout-ms | `20000` | `timeout: 20000` | load-sensitive | **not recorded** |
+| `scripts/verify-debug-dock.mjs:135` | timeout-ms | `90000` | `timeout: 90000` | load-sensitive | **not recorded** |
+| `scripts/verify-debug-dock.mjs:136` | timeout-ms | `60000` | `timeout: 60000` | load-sensitive | **not recorded** |
+| `scripts/verify-debug-dock.mjs:195` | timeout-ms | `90000` | `timeout: 90000` | load-sensitive | **not recorded** |
+| `scripts/verify-debug-dock.mjs:196` | timeout-ms | `60000` | `timeout: 60000` | load-sensitive | **not recorded** |
+| `scripts/verify-debug-dock.mjs:201` | timeout-ms | `4000` | `timeout: 4000` | load-sensitive | **not recorded** |
+| `scripts/verify-debug-dock.mjs:209` | timeout-ms | `5000` | `timeout: 5000` | load-sensitive | **not recorded** |
+| `scripts/verify-debug-dock.mjs:212` | timeout-ms | `15000` | `timeout: 15000` | load-sensitive | **not recorded** |
+| `scripts/verify-debug-dock.mjs:214` | timeout-ms | `15000` | `timeout: 15000` | load-sensitive | **not recorded** |
+| `scripts/verify-debugger-solo.mjs:65` | timeout-ms | `60000` | `timeout: 60000` | load-sensitive | **not recorded** |
+| `scripts/verify-debugger-solo.mjs:66` | timeout-ms | `60000` | `timeout: 60000` | load-sensitive | **not recorded** |
+| `scripts/verify-debugger-solo.mjs:84` | timeout-ms | `8000` | `timeout: 8000` | load-sensitive | **not recorded** |
+| `scripts/verify-editor.mjs:35` | timeout-ms | `60000` | `timeout: 60000` | load-sensitive | **not recorded** |
+| `scripts/verify-example-selector.mjs:29` | timeout-ms | `60000` | `timeout: 60000` | load-sensitive | **not recorded** |
+| `scripts/verify-example-selector.mjs:30` | timeout-ms | `60000` | `timeout: 60000` | load-sensitive | **not recorded** |
+| `scripts/verify-example-selector.mjs:42` | timeout-ms | `60000` | `timeout: 60000` | load-sensitive | **not recorded** |
+| `scripts/verify-example-selector.mjs:46` | timeout-ms | `10000` | `timeout: 10000` | load-sensitive | **not recorded** |
+| `scripts/verify-example-selector.mjs:66` | timeout-ms | `10000` | `timeout: 10000` | load-sensitive | **not recorded** |
+| `scripts/verify-example-selector.mjs:75` | timeout-ms | `10000` | `timeout: 10000` | load-sensitive | **not recorded** |
+| `scripts/verify-example-selector.mjs:80` | timeout-ms | `15000` | `timeout: 15000` | load-sensitive | **not recorded** |
+| `scripts/verify-example-selector.mjs:98` | timeout-ms | `10000` | `timeout: 10000` | load-sensitive | **not recorded** |
+| `scripts/verify-example-selector.mjs:101` | timeout-ms | `10000` | `timeout: 10000` | load-sensitive | **not recorded** |
+| `scripts/verify-example-selector.mjs:117` | timeout-ms | `15000` | `timeout: 15000` | load-sensitive | **not recorded** |
+| `scripts/verify-extension-sandbox.mjs:14` | timeout-ms | `60000` | `timeout: 60000` | load-sensitive | **not recorded** |
+| `scripts/verify-faceplate-blinkenrocket.mjs:87` | ceiling | `32` | `scr.config.rows * scr.config.cols <= 32` | runtime | **not recorded** |
+| `scripts/verify-faceplate-matrix.mjs:52` | timeout-ms | `60000` | `timeout: 60000` | load-sensitive | **not recorded** |
+| `scripts/verify-faceplate-matrix.mjs:60` | timeout-ms | `30000` | `timeout: 30000` | load-sensitive | **not recorded** |
+| `scripts/verify-faceplate-matrix.mjs:96` | timeout-ms | `10000` | `timeout: 10000` | load-sensitive | **not recorded** |
+| `scripts/verify-faceplate-matrix.mjs:107` | timeout-ms | `15000` | `timeout: 15000` | load-sensitive | **not recorded** |
+| `scripts/verify-faceplate-matrix.mjs:121` | timeout-ms | `10000` | `timeout: 10000` | load-sensitive | **not recorded** |
+| `scripts/verify-faceplate-matrix.mjs:128` | timeout-ms | `10000` | `timeout: 10000` | load-sensitive | **not recorded** |
+| `scripts/verify-faceplate-matrix.mjs:135` | timeout-ms | `10000` | `timeout: 10000` | load-sensitive | **not recorded** |
+| `scripts/verify-faceplate-matrix.mjs:204` | timeout-ms | `10000` | `timeout: 10000` | load-sensitive | **not recorded** |
+| `scripts/verify-faceplate-matrix.mjs:209` | timeout-ms | `15000` | `timeout: 15000` | load-sensitive | **not recorded** |
+| `scripts/verify-faceplate-matrix.mjs:220` | timeout-ms | `10000` | `timeout: 10000` | load-sensitive | **not recorded** |
+| `scripts/verify-instruments-scroll.mjs:39` | timeout-ms | `60000` | `timeout: 60000` | load-sensitive | **not recorded** |
+| `scripts/verify-instruments-scroll.mjs:40` | timeout-ms | `60000` | `timeout: 60000` | load-sensitive | **not recorded** |
+| `scripts/verify-instruments-scroll.mjs:44` | timeout-ms | `60000` | `timeout: 60000` | load-sensitive | **not recorded** |
+| `scripts/verify-instruments-scroll.mjs:78` | floor | `0` | `after.scrollTop <= 0` | definitional | **not recorded** |
+| `scripts/verify-interaction.mjs:55` | timeout-ms | `60000` | `timeout: 60000` | load-sensitive | **not recorded** |
+| `scripts/verify-interaction.mjs:56` | timeout-ms | `60000` | `timeout: 60000` | load-sensitive | **not recorded** |
+| `scripts/verify-interaction.mjs:61` | timeout-ms | `2000` | `timeout: 2000` | load-sensitive | **not recorded** |
+| `scripts/verify-interaction.mjs:62` | timeout-ms | `2000` | `timeout: 2000` | load-sensitive | **not recorded** |
+| `scripts/verify-interaction.mjs:213` | ceiling | `20` | `zoomShift <= 20` | runtime | **not recorded** |
+| `scripts/verify-intro.mjs:30` | timeout-ms | `60000` | `timeout: 60000` | load-sensitive | **not recorded** |
+| `scripts/verify-labwired-engine.mjs:92` | timeout-ms | `60000` | `timeout: 60000` | load-sensitive | **not recorded** |
+| `scripts/verify-labwired-engine.mjs:93` | timeout-ms | `60000` | `timeout: 60000` | load-sensitive | **not recorded** |
+| `scripts/verify-labwired-engine.mjs:101` | timeout-ms | `60000` | `timeout: 60000` | load-sensitive | **not recorded** |
+| `scripts/verify-labwired-engine.mjs:116` | timeout-ms | `8000` | `timeout: 8000` | load-sensitive | **not recorded** |
+| `scripts/verify-labwired-engine.mjs:120` | timeout-ms | `2500` | `timeout: 2500` | load-sensitive | **not recorded** |
+| `scripts/verify-labwired-engine.mjs:152` | timeout-ms | `2500` | `timeout: 2500` | load-sensitive | **not recorded** |
+| `scripts/verify-labwired-engine.mjs:192` | timeout-ms | `3000` | `timeout: 3000` | load-sensitive | **not recorded** |
+| `scripts/verify-makecode.mjs:109` | timeout-ms | `90000` | `timeout: 90000` | load-sensitive | **not recorded** |
+| `scripts/verify-makecode.mjs:110` | timeout-ms | `60000` | `timeout: 60000` | load-sensitive | **not recorded** |
+| `scripts/verify-makecode.mjs:115` | timeout-ms | `30000` | `timeout: 30000` | load-sensitive | **not recorded** |
+| `scripts/verify-microbit-debug-toggle.mjs:67` | timeout-ms | `60000` | `timeout: 60000` | load-sensitive | **not recorded** |
+| `scripts/verify-microbit-debug-toggle.mjs:78` | timeout-ms | `30000` | `timeout: 30000` | load-sensitive | **not recorded** |
+| `scripts/verify-microbit-debug-toggle.mjs:109` | timeout-ms | `15000` | `timeout: 15000` | load-sensitive | **not recorded** |
+| `scripts/verify-microbit-debug-toggle.mjs:226` | timeout-ms | `20000` | `timeout: 20000` | load-sensitive | **not recorded** |
+| `scripts/verify-microbit-debug-toggle.mjs:250` | timeout-ms | `25000` | `timeout: 25000` | load-sensitive | **not recorded** |
+| `scripts/verify-microbit-debug-toggle.mjs:274` | timeout-ms | `20000` | `timeout: 20000` | load-sensitive | **not recorded** |
+| `scripts/verify-microbit-debug-toggle.mjs:282` | timeout-ms | `25000` | `timeout: 25000` | load-sensitive | **not recorded** |
+| `scripts/verify-microbit-debug-toggle.mjs:314` | timeout-ms | `10000` | `timeout: 10000` | load-sensitive | **not recorded** |
+| `scripts/verify-microbit-debug-toggle.mjs:319` | timeout-ms | `15000` | `timeout: 15000` | load-sensitive | **not recorded** |
+| `scripts/verify-microbit.mjs:42` | timeout-ms | `60000` | `timeout: 60000` | load-sensitive | **not recorded** |
+| `scripts/verify-schematic.mjs:48` | timeout-ms | `60000` | `timeout: 60000` | load-sensitive | **not recorded** |
+| `scripts/verify-schematic.mjs:49` | timeout-ms | `60000` | `timeout: 60000` | load-sensitive | **not recorded** |
+| `scripts/verify-schematic.mjs:56` | timeout-ms | `2000` | `timeout: 2000` | load-sensitive | **not recorded** |
+| `scripts/verify-schematic.mjs:60` | timeout-ms | `2000` | `timeout: 2000` | load-sensitive | **not recorded** |
+| `scripts/verify-starter-journeys.mjs:17` | timeout-ms | `30000` | `timeout: 30000` | load-sensitive | **not recorded** |
+| `scripts/verify-starter-journeys.mjs:49` | timeout-ms | `45000` | `timeout: 45000` | load-sensitive | **not recorded** |
+| `scripts/verify-starter-journeys.mjs:60` | timeout-ms | `30000` | `timeout: 30000` | load-sensitive | **not recorded** |
+| `scripts/verify-starter-journeys.mjs:64` | timeout-ms | `45000` | `timeout: 45000` | load-sensitive | **not recorded** |
+| `scripts/verify-starter-journeys.mjs:66` | timeout-ms | `10000` | `timeout: 10000` | load-sensitive | **not recorded** |
+| `scripts/verify-view-buttons.mjs:33` | timeout-ms | `60000` | `timeout: 60000` | load-sensitive | **not recorded** |
+| `scripts/verify-view-buttons.mjs:41` | timeout-ms | `60000` | `timeout: 60000` | load-sensitive | **not recorded** |
+| `.github/workflows/build.yml:60` | timeout-min | `30` | `job/step timeout` | load-sensitive | **not recorded** |
+| `.github/workflows/build.yml:354` | size-cap | `2560` | `node heap cap` | no-trip | **not recorded** |
+| `.github/workflows/build.yml:261` | ceiling | `0` | `ceiling KNOWN_INERT` | definitional | **not recorded** |
+| `.github/workflows/build.yml:261` | ceiling | `0` | `ceiling KNOWN_SHADOWED_WRITES` | definitional | **not recorded** |
+| `.github/workflows/build.yml:261` | ceiling | `0` | `ceiling KNOWN_NO_BLOCKS` | definitional | **not recorded** |
+| `.github/workflows/build.yml:261` | ceiling | `2` | `ceiling TIME_GATED` | runtime | **not recorded** |
+| `.github/workflows/deploy-daily.yml:22` | timeout-min | `30` | `job/step timeout` | load-sensitive | **not recorded** |
+| `.github/workflows/deploy-daily.yml:35` | pin | `22` | `node-version` | no-trip | **not recorded** |
+| `.github/workflows/mobile.yml:26` | pin | `22` | `node-version` | no-trip | **not recorded** |
+| `.github/workflows/mobile.yml:42` | pin | `22` | `node-version` | no-trip | **not recorded** |
+| `.github/workflows/mobile.yml:123` | pin | `22` | `node-version` | no-trip | **not recorded** |
+| `.github/workflows/mobile.yml:233` | pin | `22` | `node-version` | no-trip | **not recorded** |
+| `.github/workflows/release.yml:20` | pin | `22` | `node-version` | no-trip | **not recorded** |
+| `.github/workflows/release.yml:42` | pin | `22` | `node-version` | no-trip | **not recorded** |
+| `.github/workflows/vendor-freshness.yml:69` | size-cap | `0` | `checkout fetch-depth` | no-trip | **not recorded** |
+| `.github/workflows/vendor-freshness.yml:74` | size-cap | `0` | `checkout fetch-depth` | no-trip | **not recorded** |
+| `.github/workflows/vendor-freshness.yml:79` | size-cap | `0` | `checkout fetch-depth` | no-trip | **not recorded** |
+| `.github/workflows/vendor-freshness.yml:93` | pin | `22` | `node-version` | no-trip | **not recorded** |

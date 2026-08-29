@@ -412,7 +412,11 @@ describe('e2e: device-state examples — relay, motor, 595', { skip: DEVICE_SKIP
         const leds = board.getLeds();
         const bSink = board.ledBrightness(leds[0]);
         const bSource = board.ledBrightness(leds[1]);
+        // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, batch 2 under the fleet build
+        // lock, box load 16-19): bSink > 0.1 -> observed 0.14492753623188406.
         assert.ok(bSink > 0.1, `sink LED brightness ${bSink.toFixed(4)} should be > 0.1`);
+        // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, batch 2 under the fleet build
+        // lock, box load 16-19): bSource < 0.02 -> observed 0.006605019815059445.
         assert.ok(bSource < 0.02, `source LED brightness ${bSource.toFixed(4)} should be < 0.02 (quasi-bidirectional ~230 µA)`);
         assert.ok(bSink > bSource * 5, `sink (${bSink.toFixed(4)}) must be much brighter than source (${bSource.toFixed(4)})`);
     });
@@ -423,6 +427,8 @@ describe('e2e: device-state examples — relay, motor, 595', { skip: DEVICE_SKIP
         const sr = parts.find(p => p.kind === 'shift_register');
         assert.ok(sr, 'circuit has a shift_register part');
         const leds = board.getLeds();
+        // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, batch 2 under the fleet build
+        // lock, box load 16-19): leds.length >= 8 -> observed 8.
         assert.ok(leds.length >= 8, `should have 8 LEDs, got ${leds.length}`);
     });
 

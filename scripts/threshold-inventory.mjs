@@ -470,11 +470,20 @@ if (invokedDirectly) {
             for (const [k, xs] of Object.entries(byKind).sort((a, b) => b[1].length - a[1].length)) {
                 console.log('| ' + k + ' | ' + xs.length + ' | ' + xs.filter((x) => x.evidenced).length + ' |');
             }
-            console.log('\n| where | kind | value | bounds | measurement |');
-            console.log('|---|---|---|---|---|');
+            const byClass = {};
+            for (const x of t) byClass[x.klass] = (byClass[x.klass] || 0) + 1;
+            console.log('\n| disposition | count | owes a measurement |');
+            console.log('|---|---|---|');
+            for (const k of ['evidenced', 'definitional', 'countable', 'runtime', 'load-sensitive', 'no-trip']) {
+                if (!byClass[k]) continue;
+                console.log('| ' + k + ' | ' + byClass[k] + ' | ' + (OWES_EVIDENCE.has(k) ? '**yes**' : 'no') + ' |');
+            }
+            console.log('\n| where | kind | value | bounds | disposition | measurement |');
+            console.log('|---|---|---|---|---|---|');
             for (const x of t) {
                 console.log('| `' + x.file + ':' + x.line + '` | ' + x.kind + ' | `' + x.value + '` | `' +
-                    esc(x.what) + '` | ' + (x.evidenced ? esc(x.quote) : '**not recorded**') + ' |');
+                    esc(x.what) + '` | ' + x.klass + ' | ' +
+                    (x.evidenced ? esc(x.quote) : '**not recorded**') + ' |');
             }
         }
     } else if (process.argv.includes('--classified')) {

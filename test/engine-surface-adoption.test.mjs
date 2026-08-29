@@ -117,6 +117,8 @@ for (const f of files) {
 
 describe('the engine injection has one source of truth', () => {
     test('the scanner works at all (anti-vacuity)', () => {
+        // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, quiet-ish box, load 14):
+        // files.length > 100 -> observed 187.
         assert.ok(files.length > 100,
             `only ${files.length} files scanned across ${SCANNED.join(', ')} — the walk found nothing`);
         assert.equal(HAND_ROLLED.source, HAND_ROLLED_ONE.source,
@@ -183,6 +185,8 @@ describe('the engine injection has one source of truth', () => {
 describe('ENGINE_SURFACE is the app\'s surface, and nothing else', () => {
     test('the list is frozen, non-empty, and free of duplicates', () => {
         assert.ok(Object.isFrozen(ENGINE_SURFACE), 'ENGINE_SURFACE must be frozen');
+        // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, quiet-ish box, load 14):
+        // ENGINE_SURFACE.length >= 10 -> observed 10.
         assert.ok(ENGINE_SURFACE.length >= 10, `only ${ENGINE_SURFACE.length} keys`);
         assert.equal(new Set(ENGINE_SURFACE).size, ENGINE_SURFACE.length, 'duplicate key');
         // The three bw-circuit-ui REQUIRES. Everything else it treats as
