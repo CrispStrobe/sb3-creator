@@ -2,7 +2,7 @@
   "note": "Vendored VERDICT for the flat circuit twins. CI cannot recompute the net partition (that needs bw-circuit-ui + bw-board), but it can prove neither file of a pair changed since a run that did. Regenerate with scripts/vendor-flat-partitions.mjs --write.",
   "engine": {
     "repo": "bw-circuit-ui",
-    "sha": "232981bb5ce212ce280aa575d84fc66699e1a972"
+    "sha": "06c7ea7c7022030f77796ea01f0da6761e0e81a0"
   },
   "pairs": 963,
   "entries": [
@@ -7690,9 +7690,9 @@
       "dir": "ttl-clock-module",
       "flat": "circuit-flat.json",
       "twin": "circuit.json",
-      "flatSha": "4391136507d238543a94de0f37a7c7f34131953e8f5bd3315bb735aeb999a3c0",
-      "twinSha": "14e19422579fb529da5e0212337f162187eb040defe7271b192137c2fa140f6f",
-      "partitionSha": "78e190f522e5ccabfe7fc1d6479e16d7a21000ad2a455d8575b3e0d6e39f6cf5"
+      "flatSha": "e8dbc971df1c34fd8d8db82bf6e560830149cb0df85c16bc020fd8cefdd54e07",
+      "twinSha": "c519fdc16379855c03d70872cd3c530ba1070dd78ee8b0cbf7bcca5539a872e1",
+      "partitionSha": "b310b4dd79cf3abb82f6aeddc671f7e5fff3fad771f3f0b859a81d28f29ad8a3"
     },
     {
       "dir": "z80-bench",
