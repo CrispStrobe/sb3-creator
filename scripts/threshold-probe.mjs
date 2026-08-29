@@ -31,9 +31,21 @@
  *   - a run that exceeds its budget is HUNG, never "caught". Killing a gate and
  *     calling that RED is a lie facing the other way.
  *
+ * A THIRD WAY TO ASK THE SECOND QUESTION, and it is the cheap one. Where the
+ * bounded quantity is a countable corpus, count it first and hand the count in
+ * with `--expect-count`: the probe derives where the gate MUST flip and checks
+ * exactly that, green at the flip point and red one past it. Two runs instead of
+ * a twenty-run binary search over a range whose top end is a million. Phase 1 of
+ * this campaign bisected three floors and every one of them landed on a number a
+ * `globSync` had already produced — so the search was re-deriving a count. The
+ * confirmation keeps both methods, and a disagreement is reported loudly, because
+ * "the count and the gate disagree" means the quantity counted is not the
+ * quantity bounded.
+ *
  *   node scripts/threshold-probe.mjs --file test/ctarget.test.mjs --line 972
  *   node scripts/threshold-probe.mjs --kind ceiling          # every ceiling
  *   node scripts/threshold-probe.mjs --kind timeout-ms --margin
+ *   node scripts/threshold-probe.mjs --file test/x.test.mjs --line 60 --expect-count 1199
  */
 
 import { execFileSync } from 'node:child_process';
@@ -122,6 +134,38 @@ function assertProbeable (rel) {
     return p;
 }
 
+/**
+ * Files this process has edited and not yet put back.
+ *
+ * PAID FOR ON 2026-08-29. A `--margin` run was killed by an outer timeout in the
+ * middle of its binary search. The `finally` that restores the source never got
+ * to run — a default SIGTERM terminates the process, it does not unwind it — so
+ * `generated-bench-layout.test.mjs` was left on disk reading `kept.length >
+ * 125900`, a bisection midpoint. The NEXT probe of that same line then reported
+ * UNTESTABLE, "gate is already red before the probe", which is the instrument
+ * faithfully describing damage the instrument itself had done.
+ *
+ * A probe that rewrites source under a `finally` is only as safe as its exit
+ * paths, and a killed process has no `finally`. So the pending edits are held
+ * here and replayed from a signal handler as well.
+ */
+const PENDING_RESTORES = new Set();
+
+function restoreAllPending (why) {
+    for (const r of Array.from(PENDING_RESTORES)) {
+        try { r(); } catch (e) { console.error('  RESTORE FAILED during ' + why + ': ' + e.message); }
+    }
+}
+
+for (const sig of ['SIGINT', 'SIGTERM', 'SIGHUP']) {
+    process.on(sig, () => {
+        console.error(`\n${sig} — restoring ${PENDING_RESTORES.size} edited file(s) before exiting.`);
+        restoreAllPending(sig);
+        process.exit(130);
+    });
+}
+process.on('exit', () => restoreAllPending('exit'));
+
 /** Replace the Nth number on one line. Asserts the edit changed the file. */
 function rewriteLiteral (path, line, from, to) {
     const before = readFileSync(path, 'utf8');
@@ -139,10 +183,13 @@ function rewriteLiteral (path, line, from, to) {
     const after = lines.join('\n');
     if (after === before) throw new Error('instrument check: rewrite was a no-op');
     writeFileSync(path, after);
-    return () => {
+    const restore = () => {
+        PENDING_RESTORES.delete(restore);
         writeFileSync(path, before);
         if (readFileSync(path, 'utf8') !== before) throw new Error(`RESTORE FAILED for ${path}`);
     };
+    PENDING_RESTORES.add(restore);
+    return restore;
 }
 
 /** Which test file owns a threshold. A helper or script is probed via its gate. */
@@ -225,7 +272,75 @@ export function trippingValue (kind, value) {
     }
 }
 
-export function probe (t, { gate = owningGate(t.file), margin = false } = {}) {
+/**
+ * Where a bound of `count` items must flip, given how the comparison is spelled.
+ *
+ * WHY THIS IS ARITHMETIC AND NOT A SEARCH. The park-state of this campaign
+ * records the finding that paid for it: for a floor over a COUNTABLE corpus the
+ * flip point IS the count. Three bisections in phase 1 (kcl-residual 2099,
+ * flat-variants 1006, expected-quantities 2447) each landed exactly on a number
+ * a `globSync` had already produced in milliseconds. So counting first and
+ * confirming in two runs answers the same question as a twenty-run binary
+ * search — and it keeps the two independent methods that make either believable,
+ * because a disagreement here is loud rather than silent.
+ *
+ * The off-by-one is the whole content, so it is written out rather than felt:
+ *
+ *   floor  `n >  F`   green iff F <  n   tightest still-green F = count - 1
+ *   floor  `n >= F`   green iff F <= n   tightest still-green F = count
+ *   floor  `if (n <  F) throw`   green iff F <= n   -> count      (negated spelling)
+ *   floor  `if (n <= F) throw`   green iff F <  n   -> count - 1
+ *   ceiling `n <  F`  green iff n <  F   tightest still-green F = count + 1
+ *   ceiling `n <= F`  green iff n <= F   -> count
+ *   ceiling `if (n >  F) throw`  -> count
+ *   ceiling `if (n >= F) throw`  -> count + 1
+ *
+ * which collapses to: a floor flips at `count` when the operator has an equals
+ * in it XOR the guard is negated, and a ceiling mirrors it.
+ */
+export function flipPointFor (what, kind, count) {
+    const m = String(what).match(/(>=|<=|>|<)/);
+    if (!m) return null;
+    const op = m[1];
+    if (kind === 'floor') return ['>=', '<'].includes(op) ? count : count - 1;
+    if (kind === 'ceiling') return ['<=', '>'].includes(op) ? count : count + 1;
+    return null;
+}
+
+/**
+ * Confirm a counted margin in two runs: green at the predicted flip point, red
+ * one step past it. Either half failing means the count and the gate disagree,
+ * and that is a finding rather than a nuisance — it says the quantity the gate
+ * bounds is not the quantity that was counted.
+ */
+function confirmCount (t, path, gate, count) {
+    const flip = flipPointFor(t.what, t.kind, count);
+    if (flip === null) return { error: `cannot derive a flip point from "${t.what}"` };
+    const past = t.kind === 'ceiling' ? flip - 1 : flip + 1;
+    const at = (v) => {
+        let restore = null;
+        try {
+            restore = rewriteLiteral(path, t.line, t.value, v);
+            return runGate(gate);
+        } finally { if (restore) restore(); }
+    };
+    const green = flip === t.value ? { red: false } : at(flip);
+    if (green.hung) return { error: 'the run at the flip point hung; margin unknown' };
+    const red = at(past);
+    if (red.hung) return { error: 'the run past the flip point hung; margin unknown' };
+    const confirmed = !green.red && red.red;
+    return {
+        count, greenUpTo: flip, redFrom: past, observed: count, confirmed,
+        headroomPct: t.value ? Math.round((Math.abs(flip - t.value) / Math.abs(t.value || 1)) * 100) : null,
+        slackPct: count ? Math.round(((count - t.value) / count) * 1000) / 10 : null,
+        detail: confirmed ? null
+            : `COUNT DISAGREES WITH THE GATE: predicted flip at ${flip} from a count of ${count}, ` +
+              `but the gate was ${green.red ? 'RED' : 'green'} at ${flip} and ` +
+              `${red.red ? 'RED' : 'GREEN'} at ${past}. The counted quantity is not the bounded one.`
+    };
+}
+
+export function probe (t, { gate = owningGate(t.file), margin = false, expectCount = null } = {}) {
     const base = { ...t, gate };
     if (!gate) return { ...base, verdict: 'NO-GATE' };
     const path = assertProbeable(t.file);
@@ -267,7 +382,8 @@ export function probe (t, { gate = owningGate(t.file), margin = false } = {}) {
     }
 
     const out = { ...base, trip, verdict: 'CAN-FIRE' };
-    if (margin) out.margin = findMargin(t, path, gate);
+    if (expectCount !== null) out.margin = confirmCount(t, path, gate, expectCount);
+    else if (margin) out.margin = findMargin(t, path, gate);
     return out;
 }
 
@@ -317,6 +433,7 @@ if (invokedDirectly) {
     const wantKind = arg('--kind');
     const gateArg = arg('--gate');
     const margin = process.argv.includes('--margin');
+    const expectCount = arg('--expect-count') !== null ? Number(arg('--expect-count')) : null;
     for (let i = 0; i < process.argv.length; i++) {
         if (process.argv[i] !== '--env') continue;
         const [k, ...v] = String(process.argv[i + 1] || '').split('=');
@@ -340,7 +457,7 @@ if (invokedDirectly) {
     for (const t of ts) {
         process.stderr.write(`  ${t.file}:${t.line} ${t.kind}=${t.value} … `);
         let r;
-        try { r = probe(t, { gate: gateArg || owningGate(t.file), margin }); }
+        try { r = probe(t, { gate: gateArg || owningGate(t.file), margin, expectCount }); }
         catch (e) { r = { ...t, verdict: 'INSTRUMENT-FAILED', detail: e.message }; }
         process.stderr.write(r.verdict + '\n');
         results.push(r);
@@ -349,9 +466,15 @@ if (invokedDirectly) {
     for (const r of results) {
         console.log(`${r.verdict.padEnd(17)} ${r.file}:${r.line}  ${r.kind}=${r.value}  ${r.what || ''}`);
         if (r.detail) console.log('     ' + r.detail);
-        if (r.margin) {
+        if (r.margin && r.margin.error) console.log('     margin: ' + r.margin.error);
+        else if (r.margin) {
             console.log(`     margin: green up to ${r.margin.greenUpTo}, red from ${r.margin.redFrom} ` +
-                `-> observed ${r.margin.observed}, headroom ${r.margin.headroomPct}%`);
+                `-> observed ${r.margin.observed}, headroom ${r.margin.headroomPct}%` +
+                (r.margin.count !== undefined
+                    ? ` (counted ${r.margin.count}, ${r.margin.confirmed ? 'CONFIRMED' : 'NOT CONFIRMED'}` +
+                      `; ${r.margin.slackPct}% of the corpus can vanish first)`
+                    : ''));
+            if (r.margin.detail) console.log('     ' + r.margin.detail);
         }
     }
     const can = results.filter((r) => r.verdict === 'CAN-FIRE').length;

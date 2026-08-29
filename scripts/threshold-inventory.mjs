@@ -129,6 +129,71 @@ function evidenceFor (lines, lineNo, ownText = '') {
     return { evidenced: true, quote: oneLine(hit || m[0], 90) };
 }
 
+/* --------------------------------------------------------------- the classes */
+
+/**
+ * WHAT KIND OF NUMBER IS THIS, and does it owe anyone a measurement?
+ *
+ * Phase 1 of this campaign answered "is a measurement recorded?" and stopped
+ * there, which left 235 literals in one undifferentiated pile marked
+ * **not recorded**. That pile is not homogeneous, and treating it as if it were
+ * is what makes a sweep unfinishable: it demands 235 measurements when most of
+ * the numbers in it are not measurements at all.
+ *
+ *   definitional   `list.length > 0`, `missing.length === 0`, `--max-warnings 0`.
+ *                  The value is fixed by the TYPE, not by the world: a list is
+ *                  empty or it is not. There is no flip point to find and no
+ *                  corpus to count — 0 and 1 are the only values these can hold
+ *                  and still mean "non-empty". Demanding a MEASURED comment here
+ *                  would add noise to 60-odd correct assertions and teach people
+ *                  to stamp the comment without doing the work, which is how an
+ *                  evidence rule becomes a rubber stamp. Phase 1 already noticed
+ *                  this shape — "53 at <=1 (bare non-emptiness)" — without
+ *                  drawing the conclusion.
+ *
+ *   evidenced      a measurement is recorded next to it (the phase-1 question).
+ *
+ *   countable      it bounds a population — a `.length`, `.size`, `Object.keys`,
+ *                  a `filter().length` — at a value above the definitional band.
+ *                  Its flip point IS the count, established three times over in
+ *                  phase 1, so it is answerable in milliseconds by a glob and
+ *                  confirmable in two runs (threshold-probe --expect-count).
+ *
+ *   runtime        it bounds something only a RUN produces: edge counts, lost
+ *                  cycles, warning counts, measured milliseconds inside a trace.
+ *                  No glob answers it; it needs the probe.
+ *
+ *   load-sensitive `timeout`s, of either unit. A timeout is load-sensitive BY
+ *                  NATURE — its correct value on a quiet box is not its correct
+ *                  value on a busy one, and this campaign has already recorded
+ *                  (docs/MEASURED-THRESHOLDS.md, "a correction") that raising one
+ *                  is the remedy that destroys it. What is owed is the
+ *                  classification and a quiet-box number, never a bigger constant.
+ *
+ *   no-trip        pins, size caps and concurrency limits. threshold-probe has no
+ *                  safe tripping value for these: moving a node-version pin or a
+ *                  maxBuffer does not test the bound, it tests something else.
+ *
+ * The class decides what is OWED, and only `countable` and `runtime` owe a
+ * measurement. That is the population test/threshold-ratchet.test.mjs ratchets.
+ */
+const POPULATION = /\.(length|size)\b|Object\.keys|\.filter\(|\bcount\b|\bfiles\b|\bdirs\b|\bentries\b/i;
+
+export function classify (t) {
+    if (t.kind === 'timeout-ms' || t.kind === 'timeout-min') return 'load-sensitive';
+    if (t.kind === 'pin' || t.kind === 'size-cap' || t.kind === 'concurrency') return 'no-trip';
+    // Non-emptiness, spelled either way round. `x > 0` and `x >= 1` are the same
+    // assertion; so is a ceiling of 0 ("this list must be empty").
+    if (t.kind === 'floor' && t.value <= 1) return 'definitional';
+    if (t.kind === 'ceiling' && t.value <= 0) return 'definitional';
+    if (t.evidenced) return 'evidenced';
+    if (t.kind === 'tolerance') return 'runtime';
+    return POPULATION.test(t.what || '') ? 'countable' : 'runtime';
+}
+
+/** Only these two classes owe a measurement nobody has taken. */
+export const OWES_EVIDENCE = new Set(['countable', 'runtime']);
+
 /* ------------------------------------------------------------------- sources */
 
 /** Option keys whose numeric value is a bound on time, size or parallelism. */
@@ -183,11 +248,12 @@ export function scanSource (path, repoRoot) {
         return '';
     };
 
-    const add = (node, kind, value, what, parents = []) => {
+    const add = (node, kind, value, what, parents = [], extra = {}) => {
         const line = lineOf(text, node.start);
         out.push({
             file: rel, line, kind, value, what: oneLine(what, 96),
-            ...evidenceFor(lines, line, enclosingCallText(parents))
+            ...evidenceFor(lines, line, enclosingCallText(parents)),
+            ...extra
         });
     };
 
@@ -227,7 +293,16 @@ export function scanSource (path, repoRoot) {
             const isFloat = !Number.isInteger(num.value);
             let kind = classifyComparison(n.operator, rightNum);
             if (negated) kind = kind === 'floor' ? 'ceiling' : 'floor';
-            add(n, isFloat ? 'tolerance' : kind, num.value, src(text, n), parents);
+            // The SPAN and which side the literal sits on are what lets
+            // scripts/threshold-observe.mjs rewrite this comparison to report the
+            // quantity it bounds. Carried here rather than re-parsed there, so the
+            // two instruments cannot disagree about which comparisons are decisive.
+            add(n, isFloat ? 'tolerance' : kind, num.value, src(text, n), parents, {
+                span: [n.start, n.end],
+                operator: n.operator,
+                numOnRight: rightNum,
+                otherSrc: src(text, rightNum ? n.left : n.right)
+            });
             return;
         }
 
@@ -365,7 +440,12 @@ export function inventory (repoRoot, label) {
     return { repo: label, root: repoRoot, rows };
 }
 
-export const allThresholds = (inv) => inv.rows.flatMap((r) => (r.thresholds || []).map((t) => ({ ...t, sort: r.sort })));
+export const allThresholds = (inv) => inv.rows.flatMap((r) => (r.thresholds || [])
+    .map((t) => ({ ...t, sort: r.sort })))
+    .map((t) => ({ ...t, klass: classify(t) }));
+
+/** The literals that owe a measurement nobody has taken. The ratchet's subject. */
+export const owing = (inv) => allThresholds(inv).filter((t) => OWES_EVIDENCE.has(t.klass));
 
 /* --------------------------------------------------------------------- main */
 
@@ -395,6 +475,24 @@ if (invokedDirectly) {
             for (const x of t) {
                 console.log('| `' + x.file + ':' + x.line + '` | ' + x.kind + ' | `' + x.value + '` | `' +
                     esc(x.what) + '` | ' + (x.evidenced ? esc(x.quote) : '**not recorded**') + ' |');
+            }
+        }
+    } else if (process.argv.includes('--classified')) {
+        for (const inv of invs) {
+            const t = allThresholds(inv);
+            const by = {};
+            for (const x of t) (by[x.klass] = by[x.klass] || []).push(x);
+            console.log('\n=== ' + inv.repo + ' — ' + t.length + ' bounding literals, by disposition ===\n');
+            for (const k of ['evidenced', 'definitional', 'countable', 'runtime', 'load-sensitive', 'no-trip']) {
+                const xs = by[k] || [];
+                console.log('  ' + k.padEnd(16) + String(xs.length).padStart(4) +
+                    (OWES_EVIDENCE.has(k) ? '   OWES A MEASUREMENT' : ''));
+            }
+            const owed = t.filter((x) => OWES_EVIDENCE.has(x.klass));
+            console.log('\n  ' + owed.length + ' owe a measurement.\n');
+            for (const x of owed) {
+                console.log('    ' + x.klass.padEnd(10) + x.file + ':' + x.line + '  ' +
+                    String(x.value).padStart(7) + '  ' + x.what);
             }
         }
     } else if (process.argv.includes('--json')) {
