@@ -7,21 +7,17 @@
 import { writeFileSync, mkdirSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
+import { injectEngine } from './lib/engine-surface.mjs';
 const __here = dirname(fileURLToPath(import.meta.url));
-const { BoardImpl } = await import(join(__here, '..', '..', 'bw-board', 'src', 'board.js'));
-const { inferNetlist, checkWiring } = await import(join(__here, '..', '..', 'bw-board', 'src', 'infer-netlist.js'));
-const { setEngine } = await import(join(__here, '..', '..', 'bw-circuit-ui', 'src', 'engine.js'));
-const { Circuit, resetIds } = await import(join(__here, '..', '..', 'bw-circuit-ui', 'src', 'model', 'circuit.js'));
-const { FOOTPRINTS, computeLeadMap } = await import(join(__here, '..', '..', 'bw-circuit-ui', 'src', 'model', 'footprints.js'));
-const devDir = join(__here, '..', '..', 'bw-board', 'src', 'devices') + '/';
-for (const m of ['relay','dc-motor','servo','timer-555','logic-gates','power',
-    'analog-ics','h-bridge','sensors','display','digital-ics','chip-composer',
-    'motor-drivers','misc-parts','named-parts','tier1-parts','i2c-parts']) {
-    try { const mod = await import(devDir + m + '.js');
-        const fn = Object.values(mod).find(v => typeof v === 'function' && v.name.startsWith('register'));
-        if (fn) fn(); } catch {}
-}
-setEngine({ BoardImpl, inferNetlist, checkWiring });
+// The engine surface production injects, applied in one place. This script
+// used to import three keys by hand and register a HAND-LISTED SUBSET of the
+// device models, so it generated benches against an engine the app does not
+// build. See scripts/lib/engine-surface.mjs.
+const { Circuit, resetIds, cuiURL } = await injectEngine();
+// Footprints come from the SAME checkout the engine did — importing them by a
+// hardcoded `../../bw-circuit-ui` while the engine honoured BW_CIRCUIT_UI is
+// how a generator seats parts by one repo's pitch and solves them with another.
+const { FOOTPRINTS, computeLeadMap } = await import(new URL('src/model/footprints.js', cuiURL).href);
 const HERE = dirname(fileURLToPath(import.meta.url));
 const EXAMPLES = join(HERE, '..', 'examples');
 let ok = 0, fail = 0;

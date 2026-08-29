@@ -52,6 +52,7 @@ import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { requireSiblings, siblingGuardTest } from './helpers/siblings.mjs';
+import { injectEngine } from '../scripts/lib/engine-surface.mjs';
 
 const ROOT = join(import.meta.dirname, '..');
 const EXAMPLES = join(ROOT, 'examples');
@@ -277,14 +278,9 @@ describe('circuit params, tier 2: the key moves a real bench', { skip: SKIP }, (
 
     let Circuit, ready = false;
     test('the engine loads', async () => {
-        const { BoardImpl } = await import(new URL('src/board.js', repoURL('bw-board')).href);
-        const { inferNetlist, checkWiring } = await import(new URL('src/infer-netlist.js', repoURL('bw-board')).href);
-        const { registerAllDevices } = await import(new URL('src/register-all.js', repoURL('bw-board')).href);
-        const { getDevice } = await import(new URL('src/devices.js', repoURL('bw-board')).href);
-        const { setEngine } = await import(new URL('src/engine.js', repoURL('bw-circuit-ui')).href);
-        ({ Circuit } = await import(new URL('src/model/circuit.js', repoURL('bw-circuit-ui')).href));
-        registerAllDevices();
-        setEngine({ BoardImpl, inferNetlist, checkWiring, getDevice });
+        ({ Circuit } = await injectEngine({
+            board: gate.paths['bw-board'], cui: gate.paths['bw-circuit-ui'],
+        }));
         ready = true;
         assert.ok(Circuit, 'bw-circuit-ui Circuit loaded');
     });

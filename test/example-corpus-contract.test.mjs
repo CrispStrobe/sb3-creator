@@ -8,11 +8,12 @@
  */
 import {describe, test} from 'node:test';
 import assert from 'node:assert/strict';
-import {existsSync, globSync, readFileSync, readdirSync} from 'node:fs';
+import {existsSync, globSync, readFileSync} from 'node:fs';
 import {join} from 'node:path';
 import { requireSiblings, siblingGuardTest } from './helpers/siblings.mjs';
 
 import {DEVPART} from '../scripts/lib/devpart.mjs';
+import {injectEngine, registerSidecars} from '../scripts/lib/engine-surface.mjs';
 
 const ROOT = join(import.meta.dirname, '..');
 const EXAMPLES = join(ROOT, 'examples');
@@ -106,24 +107,8 @@ describe('example corpus: canonical Circuit Designer load/save/load',
         let Circuit;
 
         test('engine and all part sidecars load', async () => {
-            const {setEngine} = await import(join(CUI, 'src/engine.js'));
-            const eng = await import(join(BWB, 'src/index.js'));
-            (await import(join(BWB, 'src/register-all.js'))).registerAllDevices();
-            setEngine({
-                BoardImpl: eng.BoardImpl,
-                inferNetlist: eng.inferNetlist,
-                checkWiring: eng.checkWiring,
-                hasDevice: eng.hasDevice
-            });
-            const {registerSidecar} = await import(join(CUI, 'src/model/parts-registry.js'));
-            for (const file of readdirSync(join(CUI, 'src/parts-data'))) {
-                if (!file.endsWith('.json')) continue;
-                try {
-                    const sidecar = JSON.parse(readFileSync(join(CUI, 'src/parts-data', file), 'utf8'));
-                    if (sidecar.kind) registerSidecar(sidecar);
-                } catch { /* a malformed sidecar is covered by bw-circuit-ui */ }
-            }
-            ({Circuit} = await import(join(CUI, 'src/model/circuit.js')));
+            ({Circuit} = await injectEngine({board: BWB, cui: CUI}));
+            await registerSidecars(CUI);
         });
 
         test(`all ${circuitFiles.length} circuits load, preserve data, and reload electrically`, () => {

@@ -44,9 +44,10 @@
  */
 import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync, readdirSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { requireSiblings, siblingGuardTest } from './helpers/siblings.mjs';
+import { injectEngine, registerSidecars } from '../scripts/lib/engine-surface.mjs';
 
 const SB3 = join(import.meta.dirname, '..');
 const CUI = process.env.BW_CIRCUIT_UI || join(SB3, '..', 'bw-circuit-ui');
@@ -59,19 +60,8 @@ siblingGuardTest(gate, "ttl-clock-module's step button");
 const MS = 1000000n;
 
 async function load () {
-    const { setEngine } = await import(join(CUI, 'src/engine.js'));
-    const eng = await import(join(BWB, 'src/index.js'));
-    (await import(join(BWB, 'src/register-all.js'))).registerAllDevices();
-    setEngine({ BoardImpl: eng.BoardImpl, inferNetlist: eng.inferNetlist, checkWiring: eng.checkWiring });
-    const { registerSidecar } = await import(join(CUI, 'src/model/parts-registry.js'));
-    for (const f of readdirSync(join(CUI, 'src/parts-data'))) {
-        if (!f.endsWith('.json')) continue;
-        try {
-            const sc = JSON.parse(readFileSync(join(CUI, 'src/parts-data', f), 'utf8'));
-            if (sc.kind) registerSidecar(sc);
-        } catch { /* bw-parts' problem */ }
-    }
-    const { Circuit } = await import(join(CUI, 'src/model/circuit.js'));
+    const { Circuit } = await injectEngine({ board: BWB, cui: CUI });
+    await registerSidecars(CUI);
     return Circuit.fromJSON(JSON.parse(readFileSync(CIRCUIT, 'utf8')));
 }
 

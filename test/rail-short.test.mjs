@@ -30,6 +30,7 @@ import assert from 'node:assert/strict';
 import { readFileSync, readdirSync, existsSync } from 'fs';
 import { join } from 'path';
 import { requireSiblings, siblingGuardTest } from './helpers/siblings.mjs';
+import { injectEngine, registerSidecars } from '../scripts/lib/engine-surface.mjs';
 
 const SB3 = join(import.meta.dirname, '..');
 const CUI = process.env.BW_CIRCUIT_UI || join(SB3, '..', 'bw-circuit-ui');
@@ -71,21 +72,8 @@ describe('no shipped circuit shorts its rail to ground',
         const files = [];
 
         test('engine + sidecars load, and the circuits are found', async () => {
-            const { setEngine } = await import(join(CUI, 'src/engine.js'));
-            const { BoardImpl } = await import(join(BWB, 'src/board.js'));
-            const { inferNetlist, checkWiring } = await import(join(BWB, 'src/infer-netlist.js'));
-            const { hasDevice, getDevice } = await import(join(BWB, 'src/devices.js'));
-            (await import(join(BWB, 'src/register-all.js'))).registerAllDevices();
-            setEngine({ BoardImpl, inferNetlist, checkWiring, hasDevice, getDevice });
-            const { registerSidecar } = await import(join(CUI, 'src/model/parts-registry.js'));
-            for (const f of readdirSync(join(CUI, 'src/parts-data'))) {
-                if (!f.endsWith('.json')) continue;
-                try {
-                    const sc = JSON.parse(readFileSync(join(CUI, 'src/parts-data', f), 'utf8'));
-                    if (sc.kind) registerSidecar(sc);
-                } catch { /* bw-parts' problem */ }
-            }
-            ({ Circuit } = await import(join(CUI, 'src/model/circuit.js')));
+            ({ Circuit } = await injectEngine({ board: BWB, cui: CUI }));
+            await registerSidecars(CUI);
 
             for (const d of readdirSync(EXAMPLES, { withFileTypes: true })) {
                 if (!d.isDirectory()) continue;

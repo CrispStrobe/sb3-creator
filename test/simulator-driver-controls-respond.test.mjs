@@ -45,9 +45,10 @@
 // Needs the bw-board/bw-circuit-ui checkouts; skips locally, FAILS in CI.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync, readdirSync, existsSync } from 'fs';
+import { readFileSync, existsSync } from 'fs';
 import { join } from 'path';
 import { requireSiblings, siblingGuardTest } from './helpers/siblings.mjs';
+import { injectEngine, registerSidecars } from '../scripts/lib/engine-surface.mjs';
 
 const SB3 = join(import.meta.dirname, '..');
 const CUI = process.env.BW_CIRCUIT_UI || join(SB3, '..', 'bw-circuit-ui');
@@ -71,19 +72,8 @@ const MS = 1000000n;
 
 async function sweep(armDriveHigh) {
   const SB3Creator = (await import(join(SB3, 'src/utils/sb3Creator.js'))).default;
-  const { setEngine } = await import(join(CUI, 'src/engine.js'));
-  const eng = await import(join(BWB, 'src/index.js'));
-  (await import(join(BWB, 'src/register-all.js'))).registerAllDevices();
-  setEngine({ BoardImpl: eng.BoardImpl, inferNetlist: eng.inferNetlist, checkWiring: eng.checkWiring });
-  const { registerSidecar } = await import(join(CUI, 'src/model/parts-registry.js'));
-  for (const f of readdirSync(join(CUI, 'src/parts-data'))) {
-    if (!f.endsWith('.json')) continue;
-    try {
-      const sc = JSON.parse(readFileSync(join(CUI, 'src/parts-data', f), 'utf8'));
-      if (sc.kind) registerSidecar(sc);
-    } catch { /* bw-parts' problem */ }
-  }
-  const { Circuit } = await import(join(CUI, 'src/model/circuit.js'));
+  const { Circuit } = await injectEngine({ board: BWB, cui: CUI });
+  await registerSidecars(CUI);
 
   // The driver's own mode rule, read off the emitted text rather than restated
   // here, so this gate cannot drift from the thing it measures.

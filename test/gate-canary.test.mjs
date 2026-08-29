@@ -12,6 +12,7 @@ import assert from 'node:assert/strict';
 import { readFileSync, existsSync } from 'fs';
 import { join } from 'path';
 import { requireSiblings, siblingGuardTest } from './helpers/siblings.mjs';
+import { injectEngine } from '../scripts/lib/engine-surface.mjs';
 import SB3Creator from '../src/utils/sb3Creator.js';
 
 const SB3 = join(import.meta.dirname, '..');
@@ -80,10 +81,7 @@ describe('canary: a test that returns early on missing files should use skip', (
 describe('canary: gate-integrity surface checks are live',
     { skip: gate.skip }, () => {
     test('Circuit constructor exposes netlistError', async () => {
-        const { setEngine } = await import(join(CUI, 'src/engine.js'));
-        const eng = await import(join(BWB, 'src/index.js'));
-        setEngine({ BoardImpl: eng.BoardImpl, inferNetlist: eng.inferNetlist, checkWiring: eng.checkWiring });
-        const { Circuit } = await import(join(CUI, 'src/model/circuit.js'));
+        const { Circuit } = await injectEngine({ board: BWB, cui: CUI });
         const c = Circuit.fromJSON({ parts: [], wires: [] });
         // netlistError should be a property (null on success, string on error)
         assert.ok('netlistError' in c,

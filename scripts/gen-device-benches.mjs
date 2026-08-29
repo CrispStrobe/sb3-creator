@@ -29,10 +29,14 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 
-const HOME = os.homedir();
-const BW_BOARD = process.env.BW_BOARD ?? path.join(HOME, 'code/wt/bw-board');
-const CUI = process.env.BW_CUI ?? path.join(HOME, '.claude/jobs/ef2c9a2a/tmp/cui-check');
+// Resolved the way every gate in this repo resolves them (BW_BOARD /
+// BW_CIRCUIT_UI, else the sibling checkout). The defaults used to be one
+// machine's home directory and a DEAD agent scratch path under ~/.claude/jobs
+// — this script could not run anywhere, including here.
+const BW_BOARD = locateSibling('bw-board');
+const CUI = locateSibling('bw-circuit-ui');
 import { DEVPART } from './lib/devpart.mjs';
+import { injectEngine, registerSidecars, locateSibling } from './lib/engine-surface.mjs';
 
 const cmd = process.argv[2];
 
@@ -43,23 +47,15 @@ async function batch() {
   const onlyAt = process.argv.indexOf('--only');
   const only = onlyAt === -1 ? null : process.argv[onlyAt + 1];
   const SB3Creator = (await import('../src/utils/sb3Creator.js')).default;
-  const eng = await import(path.join(BW_BOARD, 'src/index.js'));
-  (await import(path.join(BW_BOARD, 'src/register-all.js'))).registerAllDevices();
-  const engmod = await import(path.join(CUI, 'src/engine.js'));
-  engmod.setEngine({ BoardImpl: eng.BoardImpl, inferNetlist: eng.inferNetlist,
-    checkWiring: eng.checkWiring, hasDevice: eng.hasDevice });
-  const cmod = await import(path.join(CUI, 'src/model/circuit.js'));
+  // hasDevice WITHOUT getDevice was the stale surface: bw-circuit-ui's
+  // engineKindFor asks for getDevice, so every registered board kind collapsed
+  // to a generic 'mcu' and this generator wrote benches whose pin sources were
+  // keyed by the netlist's own spelling rather than the part's terminal list.
+  const cmod = await injectEngine({ board: BW_BOARD, cui: CUI });
   // Authored circuits omit terminals on sidecar-known kinds — register the
   // sidecars so Circuit.fromJSON resolves them (same bulk-load as the
   // seat generator).
-  const preg = await import(path.join(CUI, 'src/model/parts-registry.js'));
-  for (const f of fs.readdirSync(path.join(CUI, 'src/parts-data'))) {
-    if (!f.endsWith('.json')) continue;
-    try {
-      const sc = JSON.parse(fs.readFileSync(path.join(CUI, 'src/parts-data', f), 'utf8'));
-      if (sc.kind) preg.registerSidecar(sc);
-    } catch { /* bw-parts' problem */ }
-  }
+  await registerSidecars(CUI);
   const idx = JSON.parse(fs.readFileSync('examples/index.json', 'utf8'));
   const list = Array.isArray(idx) ? idx : idx.examples;
   let gen = 0, refused = 0, transformed = 0;

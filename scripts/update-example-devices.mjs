@@ -16,29 +16,21 @@ import { fileURLToPath } from 'node:url';
 import SB3Creator from '../src/utils/sb3Creator.js';
 import { transformAuthored } from './lib/authored-transform.mjs';
 import { DEVPART } from './lib/devpart.mjs';
+import { injectEngine, registerSidecars, locateSibling } from './lib/engine-surface.mjs';
 
 // The transform dry-run needs the engine + circuit model (same env
 // contract as gen-device-benches): a device stays LISTED for an
 // authored-circuit example only if its transform succeeds — offering a
 // pick whose bench cannot exist sends the app to the authored circuit
 // with a retargeted program, the pairing mismatch all over again.
-const HOME = os.homedir();
-const BW_BOARD = process.env.BW_BOARD ?? join(HOME, 'code/wt/bw-board');
-const CUI = process.env.BW_CUI ?? join(HOME, '.claude/jobs/ef2c9a2a/tmp/cui-check');
-const eng = await import(join(BW_BOARD, 'src/index.js'));
-(await import(join(BW_BOARD, 'src/register-all.js'))).registerAllDevices();
-const engmod = await import(join(CUI, 'src/engine.js'));
-engmod.setEngine({ BoardImpl: eng.BoardImpl, inferNetlist: eng.inferNetlist,
-    checkWiring: eng.checkWiring, hasDevice: eng.hasDevice });
-const cmod = await import(join(CUI, 'src/model/circuit.js'));
-const preg = await import(join(CUI, 'src/model/parts-registry.js'));
-for (const f of readdirSync(join(CUI, 'src/parts-data'))) {
-    if (!f.endsWith('.json')) continue;
-    try {
-        const sc = JSON.parse(readFileSync(join(CUI, 'src/parts-data', f), 'utf8'));
-        if (sc.kind) preg.registerSidecar(sc);
-    } catch { /* bw-parts' problem */ }
-}
+// Resolved the way every gate in this repo resolves them. The defaults used to
+// be one machine's home directory and a DEAD agent scratch path under
+// ~/.claude/jobs, and the surface was hasDevice-without-getDevice — the exact
+// stale pair that collapsed board kinds to a generic 'mcu'.
+const BW_BOARD = locateSibling('bw-board');
+const CUI = locateSibling('bw-circuit-ui');
+const cmod = await injectEngine({ board: BW_BOARD, cui: CUI });
+await registerSidecars(CUI);
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..', 'examples');
 const indexPath = join(root, 'index.json');

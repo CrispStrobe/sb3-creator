@@ -20,7 +20,7 @@ import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, readdirSync, existsSync } from 'fs';
 import { join } from 'path';
-import { pathToFileURL } from 'url';
+import { pathToFileURL, fileURLToPath } from 'url';
 
 // Two checkouts this repo does not own, found wherever the machine keeps them.
 // They were imported by absolute path, which made this file pass on exactly one
@@ -28,6 +28,7 @@ import { pathToFileURL } from 'url';
 // red for everyone is a suite people learn to skip, which costs more than the
 // check is worth. Same candidate-list convention as ctarget.test.mjs.
 import { requireSiblings, siblingGuardTest } from './helpers/siblings.mjs';
+import { injectEngine } from '../scripts/lib/engine-surface.mjs';
 
 const findRepo = (envVar, probe, ...rels) => {
     for (const base of [process.env[envVar], ...rels]) {
@@ -55,36 +56,20 @@ const SKIP = BOARD && CIRCUIT ? false
       + '(or BW_BOARD / BW_CIRCUIT_UI pointing at it)');
 
 let BoardImpl, inferNetlist, checkWiring, Circuit, wireEndpoint;
-const MISSING_DEVICES = [];
-if (!SKIP) {
-    ({ BoardImpl } = await import(new URL('src/board.js', BOARD).href));
-    ({ inferNetlist, checkWiring } = await import(new URL('src/infer-netlist.js', BOARD).href));
-    ({ Circuit } = await import(new URL('src/model/circuit.js', CIRCUIT).href));
-    ({ wireEndpoint } = await import(new URL('src/model/wire-endpoints.js', CIRCUIT).href));
-    const { setEngine } = await import(new URL('src/engine.js', CIRCUIT).href);
-    // Device models — each requires an explicit call, and each is optional:
-    // an older bw-board checkout simply has fewer of them. A missing one is
-    // recorded and named, not thrown, so the suites that do not need it still
-    // run and the one that does says which file it wanted.
-    for (const [file, fn] of [['relay.js', 'registerRelay'], ['dc-motor.js', 'registerDCMotor'],
-        ['servo.js', 'registerServo'], ['analog-ics.js', 'registerAnalogICs']]) {
-        try {
-            const mod = await import(new URL(`src/devices/${file}`, BOARD).href);
-            try { mod[fn](); } catch { /* already registered */ }
-        } catch { MISSING_DEVICES.push(file); }
-    }
-    setEngine({ BoardImpl, inferNetlist, checkWiring });
-}
-
 let extract6502Machine, extractZ80Machine;
+// The per-file `register*` loop this used to run registered FOUR device models
+// and left the rest of the registry empty, so a bench with a 74hc595 or a
+// stepper was solved against kinds the app has and this gate did not.
+// `injectEngine` calls `registerAllDevices()` exactly where the app does, and
+// the whole ENGINE_SURFACE goes in — see scripts/lib/engine-surface.mjs.
 let EXTRACTOR_SKIP = SKIP;
 if (!SKIP) {
-    try {
-        ({ extract6502Machine } = await import(new URL('src/m6502-extract.js', BOARD).href));
-        ({ extractZ80Machine } = await import(new URL('src/z80-extract.js', BOARD).href));
-    } catch {
-        EXTRACTOR_SKIP = 'bw-board has no m6502-extract.js / z80-extract.js';
-    }
+    const injected = await injectEngine({
+        board: fileURLToPath(BOARD), cui: fileURLToPath(CIRCUIT),
+    });
+    ({ BoardImpl, inferNetlist, checkWiring, extract6502Machine, extractZ80Machine } = injected.surface);
+    ({ Circuit } = injected);
+    ({ wireEndpoint } = await import(new URL('src/model/wire-endpoints.js', CIRCUIT).href));
 }
 
 const EXAMPLES = join(import.meta.dirname, '..', 'examples');
@@ -369,8 +354,8 @@ describe('e2e: pure-circuit examples — no MCU, always on', { skip: SKIP }, () 
     }
 });
 
-const DEVICE_SKIP = SKIP || (MISSING_DEVICES.length
-    ? `bw-board here has no src/devices/${MISSING_DEVICES.join(', ')} — needs a newer checkout`
+const DEVICE_SKIP = SKIP || (typeof BoardImpl !== 'function'
+    ? 'bw-board here did not yield the full engine surface — needs a newer checkout'
     : false);
 describe('e2e: device-state examples — relay, motor, 595', { skip: DEVICE_SKIP }, () => {
     test('09-relay-clicker: TIP120-driven relay circuit accepted and has state', () => {

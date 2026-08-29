@@ -11,6 +11,7 @@ import assert from 'node:assert/strict';
 import { readFileSync, readdirSync, existsSync } from 'fs';
 import { join } from 'path';
 import { requireSiblings, siblingGuardTest } from './helpers/siblings.mjs';
+import { injectEngine, registerSidecars } from '../scripts/lib/engine-surface.mjs';
 
 const SB3 = join(import.meta.dirname, '..');
 const CUI = process.env.BW_CIRCUIT_UI || join(SB3, '..', 'bw-circuit-ui');
@@ -34,9 +35,6 @@ describe('bench invariants: every device bench, canonical loader', { skip: gate.
   let Circuit;
   let resolveTerminal;
   test('engine + sidecars load', async () => {
-    const { setEngine } = await import(join(CUI, 'src/engine.js'));
-    const eng = await import(join(BWB, 'src/index.js'));
-    (await import(join(BWB, 'src/register-all.js'))).registerAllDevices();
     // getDevice, not hasDevice. bw-circuit-ui's engineKindFor asks the injected
     // engine whether a passthrough kind has a registered model, and the name it
     // asks for is `getDevice` — `engine.js` has never documented a `hasDevice`.
@@ -48,18 +46,11 @@ describe('bench invariants: every device bench, canonical loader', { skip: gate.
     // the first collapsed one was picked up by MCU_KINDS as "the MCU", and its
     // address lines tied to the rails read as 32 GPIO-to-power shorts. The
     // injected surface has to be the one the app injects, or the gate is
-    // answering a question nobody asked.
-    setEngine({ BoardImpl: eng.BoardImpl, inferNetlist: eng.inferNetlist,
-      checkWiring: eng.checkWiring, getDevice: eng.getDevice });
-    const { registerSidecar } = await import(join(CUI, 'src/model/parts-registry.js'));
-    let sidecars = 0;
-    for (const f of readdirSync(join(CUI, 'src/parts-data'))) {
-      if (!f.endsWith('.json')) continue;
-      try {
-        const sc = JSON.parse(readFileSync(join(CUI, 'src/parts-data', f), 'utf8'));
-        if (sc.kind) { registerSidecar(sc); sidecars++; }
-      } catch { /* bw-parts' problem */ }
-    }
+    // answering a question nobody asked — which is now enforced rather than
+    // restated: injectEngine() applies ENGINE_SURFACE and nothing else, and it
+    // wraps getDevice the way circuit-tab.jsx does (stc_mcu answers null).
+    ({ Circuit } = await injectEngine({ board: BWB, cui: CUI }));
+    const sidecars = await registerSidecars(CUI);
     // MEASURED FLOOR. Without one, a parts-data directory that moved or emptied
     // registers nothing, every terminal alias falls back to its raw name, and
     // the reachability invariant below quietly stops resolving the aliases it
@@ -67,7 +58,6 @@ describe('bench invariants: every device bench, canonical loader', { skip: gate.
     assert.ok(sidecars >= 200,
       `only ${sidecars} part sidecars registered from ${join(CUI, 'src/parts-data')} ` +
       '(expected ~239) — the alias surface this gate resolves against is not loaded');
-    ({ Circuit } = await import(join(CUI, 'src/model/circuit.js')));
     ({ resolveTerminal } = await import(join(CUI, 'src/model/terminal-aliases.js')));
   });
 

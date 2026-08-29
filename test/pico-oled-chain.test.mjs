@@ -16,10 +16,11 @@
 // whole file SKIPS loudly where they are absent.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync, readdirSync, writeFileSync, mkdtempSync, existsSync } from 'fs';
+import { readFileSync, writeFileSync, mkdtempSync, existsSync } from 'fs';
 import { execSync } from 'child_process';
 import { join } from 'path';
 import { requireSiblings, siblingGuardTest } from './helpers/siblings.mjs';
+import { injectEngine, registerSidecars } from '../scripts/lib/engine-surface.mjs';
 import { tmpdir } from 'os';
 
 const SB3 = join(import.meta.dirname, '..');
@@ -80,19 +81,8 @@ test('70-calculator on the Pico: the REAL build — keys to +3V3, OLED on GP0/GP
     const program = new Uint16Array(bin.buffer, bin.byteOffset, Math.floor(bin.length / 2));
 
     // 2. bench → board (sidecars bulk-loaded)
-    const { setEngine } = await import(join(CUI, 'src/engine.js'));
-    const eng = await import(join(BWB, 'src/index.js'));
-    (await import(join(BWB, 'src/register-all.js'))).registerAllDevices();
-    setEngine({ BoardImpl: eng.BoardImpl, inferNetlist: eng.inferNetlist, checkWiring: eng.checkWiring });
-    const { registerSidecar } = await import(join(CUI, 'src/model/parts-registry.js'));
-    for (const f of readdirSync(join(CUI, 'src/parts-data'))) {
-      if (!f.endsWith('.json')) continue;
-      try {
-        const sc = JSON.parse(readFileSync(join(CUI, 'src/parts-data', f), 'utf8'));
-        if (sc.kind) registerSidecar(sc);
-      } catch { /* bw-parts' problem */ }
-    }
-    const { Circuit } = await import(join(CUI, 'src/model/circuit.js'));
+    const { Circuit } = await injectEngine({ board: BWB, cui: CUI });
+    await registerSidecars(CUI);
     // The pico bench IS the authored circuit — the app loads it directly.
     const circ = Circuit.fromJSON(JSON.parse(
       readFileSync(join(SB3, 'examples/70-calculator/circuit.json'), 'utf8')));

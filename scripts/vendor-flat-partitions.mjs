@@ -28,6 +28,7 @@ import { execFileSync } from 'node:child_process';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { injectEngine, registerSidecars } from './lib/engine-surface.mjs';
 const here = dirname(fileURLToPath(import.meta.url));
 const SB3 = join(here, '..');
 const EXAMPLES = join(SB3, 'examples');
@@ -46,25 +47,15 @@ for (const [label, p] of [['bw-circuit-ui', join(CUI, 'src/model/circuit.js')],
 
 export const sha256 = (s) => createHash('sha256').update(s).digest('hex');
 
-// bw-board/src/index.js pulls the avr8js adapter chain; the specific modules
-// below are what bw-circuit-ui's own test setup imports and need no such dep.
-const { setEngine } = await import(join(CUI, 'src/engine.js'));
-const { BoardImpl } = await import(join(BWB, 'src/board.js'));
-const { inferNetlist, checkWiring } = await import(join(BWB, 'src/infer-netlist.js'));
-const { getDevice } = await import(join(BWB, 'src/devices.js'));
-const { registerAllDevices } = await import(join(BWB, 'src/register-all.js'));
-const { getMaxCurrent, PORT_LIMITS } = await import(join(BWB, 'src/current-ratings.js'));
-registerAllDevices();
-setEngine({ BoardImpl, inferNetlist, checkWiring, getMaxCurrent, PORT_LIMITS, getDevice });
-const { registerSidecar } = await import(join(CUI, 'src/model/parts-registry.js'));
-for (const f of readdirSync(join(CUI, 'src/parts-data'))) {
-  if (!f.endsWith('.json')) continue;
-  try {
-    const sc = JSON.parse(readFileSync(join(CUI, 'src/parts-data', f), 'utf8'));
-    if (sc.kind) registerSidecar(sc);
-  } catch { /* the sidecar repo has its own gate */ }
-}
-const { Circuit, resetIds } = await import(join(CUI, 'src/model/circuit.js'));
+// getMaxCurrent + PORT_LIMITS used to be injected here and are NOT in
+// ENGINE_SURFACE, because circuit-tab.jsx does not pass them: with them absent
+// bw-circuit-ui's drc.js falls back to `getMaxCurrent: () => null` ("unknown =
+// cannot sum"). Injecting them made this generator run a current-budget DRC the
+// app does not have. Measured either way when this changed: the manifest is
+// byte-identical, because partitioning is a netlist question and the DRC does
+// not touch the netlist.
+const { Circuit, resetIds } = await injectEngine({ board: BWB, cui: CUI });
+await registerSidecars(CUI);
 
 /** Net partition over real terminals, alias-folded — the same shape the
  *  engine-backed gate compares. */

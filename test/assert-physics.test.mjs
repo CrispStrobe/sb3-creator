@@ -24,6 +24,7 @@ import { pathToFileURL } from 'url';
 
 // ---- engine setup (same pattern as gallery-e2e) ----
 import { requireSiblings, siblingGuardTest } from './helpers/siblings.mjs';
+import { injectEngine } from '../scripts/lib/engine-surface.mjs';
 
 // Cross-repo guard: local skip, CI failure. See test/helpers/siblings.mjs.
 //
@@ -52,29 +53,20 @@ const CUI_URL = toUrl(gate.paths['bw-circuit-ui']);
 const ENGINE_SKIP = BOARD_URL && CUI_URL ? false
     : (gate.skip || 'needs bw-board + bw-circuit-ui (set BW_BOARD / BW_CIRCUIT_UI)');
 
-let BoardImpl, Circuit, setEngine, wireEndpoint;
+let BoardImpl, Circuit, wireEndpoint;
 if (!ENGINE_SKIP) {
-    ({ BoardImpl } = await import(new URL('src/board.js', BOARD_URL).href));
-    const { inferNetlist, checkWiring } = await import(new URL('src/infer-netlist.js', BOARD_URL).href);
-    ({ Circuit } = await import(new URL('src/model/circuit.js', CUI_URL).href));
-    ({ setEngine } = await import(new URL('src/engine.js', CUI_URL).href));
+    // Every device model, and the app's whole injection surface — hand-listing
+    // four `register*` calls is how this test spent months reporting "no circuit
+    // file" for circuits that were present and fine, and hand-listing three
+    // engine keys is how a battery_aa reached validateNetlist claiming terminals
+    // a/b against an engine that has pos/neg. Both hazards now live in exactly
+    // one place: scripts/lib/engine-surface.mjs.
+    const injected = await injectEngine({
+        board: gate.paths['bw-board'], cui: gate.paths['bw-circuit-ui'],
+    });
+    ({ BoardImpl } = injected.surface);
+    ({ Circuit } = injected);
     ({ wireEndpoint } = await import(new URL('src/model/wire-endpoints.js', CUI_URL).href));
-    // Register EVERY device model. Hand-listing four of them is how this test
-    // spent months reporting "no circuit file" for circuits that were present
-    // and fine: a 555, a 74HC00 or an SSD1306 failed netlist validation as
-    // "unknown kind", the board came back empty, and the assertions on it were
-    // skipped. src/register-all.js exists precisely for this and its own header
-    // documents the same bug found in the designer UI on 2026-08-10.
-    const { registerAllDevices } = await import(new URL('src/register-all.js', BOARD_URL).href);
-    registerAllDevices();
-    // getDevice MUST be injected: without it bw-circuit-ui's terminalsForKind
-    // cannot consult the engine and falls back to sidecar -> switch -> ['a','b'],
-    // so a battery_aa arrives at validateNetlist claiming terminals a/b against
-    // an engine that has pos/neg, and the whole netlist is rejected. Injecting
-    // only the three original keys is documented there as "exactly the old
-    // resolution order" — which is the order that produces empty boards.
-    const { getDevice } = await import(new URL('src/devices.js', BOARD_URL).href);
-    setEngine({ BoardImpl, inferNetlist, checkWiring, getDevice });
 }
 
 const EXAMPLES = join(import.meta.dirname, '..', 'examples');

@@ -38,8 +38,8 @@
  */
 import { readFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
-import { pathToFileURL } from 'node:url';
 import { EXAMPLES } from './expected-claims.mjs';
+import { injectEngine } from '../../scripts/lib/engine-surface.mjs';
 
 /** Drawn but currents nothing; these must never reach the netlist. */
 const VISUAL_ONLY = new Set(['label', 'wire_jumper']);
@@ -56,16 +56,9 @@ let engine = null;
 
 export async function loadEngine (paths) {
     if (engine) return engine;
-    const board = pathToFileURL(paths['bw-board'] + '/');
-    const cui = pathToFileURL(paths['bw-circuit-ui'] + '/');
-    const { BoardImpl } = await import(new URL('src/board.js', board).href);
-    const { inferNetlist, checkWiring } = await import(new URL('src/infer-netlist.js', board).href);
-    const { registerAllDevices } = await import(new URL('src/register-all.js', board).href);
-    const { getDevice } = await import(new URL('src/devices.js', board).href);
-    const { setEngine } = await import(new URL('src/engine.js', cui).href);
-    const { Circuit } = await import(new URL('src/model/circuit.js', cui).href);
-    registerAllDevices();
-    setEngine({ BoardImpl, inferNetlist, checkWiring, getDevice });
+    const { Circuit } = await injectEngine({
+        board: paths['bw-board'], cui: paths['bw-circuit-ui'],
+    });
     engine = { Circuit };
     return engine;
 }
