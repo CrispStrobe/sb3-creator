@@ -19,9 +19,27 @@ SPRITE Cat:
         set sensorMin to sensorValue
       wait 0.05 seconds
     turn off statusLed
-    # Main loop: map calibrated range to LED
+    # The filter, sized so its cost can be STATED rather than guessed.
+    # Four samples, written as an explicit shift register rather than with a
+    # list: the device C emitter has no lists, so the list form used in
+    # arduino-03-smoothing lowers to comments and a constant 0 — a filter that
+    # is present in the simulator and absent on the chip. This one lowers to
+    # four `long` assignments and behaves the same in both.
+    # The loop below runs every 20 ms, so this window takes
+    # 4 x 20 ms = 80 ms to follow a step all the way, and lags a steady ramp
+    # by (4 - 1) / 2 x 20 ms = 30 ms. Shorten the window and the light is
+    # twitchier and sooner; lengthen it and it is calmer and later.
+    set sample1 to 0
+    set sample2 to 0
+    set sample3 to 0
+    set sample4 to 0
+    # Main loop: average the raw reading, then map the calibrated range to the LED
     forever:
-      set sensorValue to read sensor
+      set sample4 to sample3
+      set sample3 to sample2
+      set sample2 to sample1
+      set sample1 to read sensor
+      set sensorValue to (((sample1 + sample2) + (sample3 + sample4)) / 4)
       if sensorValue < sensorMin then:
         set sensorValue to sensorMin
       if sensorValue > sensorMax then:
