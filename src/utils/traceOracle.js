@@ -298,7 +298,21 @@ export function interpretTrace(project, opts = {}) {
                         ? Math.max(0, Math.min(full, Math.round((s.volts / adc.vref) * full)))
                         : 0;
                 }
-                return s ? (s.level ? 1 : 0) : 0;
+                // `read <pin>` is the LOGICAL level everywhere else in this
+                // project — `cPinRead` emits `!P3_2` for an ACTIVE LOW pin, the
+                // simulator driver emits `p.low ? (readPin ? 0 : 1) : readPin`,
+                // and the hat-edge test says so in its own comment. The referee
+                // returned the RAW level, so an ACTIVE LOW input meant the
+                // opposite here to what it means on the chip. Found 2026-08-29
+                // while repairing D36, whose bench is the first in the corpus to
+                // declare `INPUT ACTIVE LOW` on a pin a test stimulates.
+                //
+                // An UNSTIMULATED input idles at its INACTIVE rail, which is the
+                // high one when the pull is up — so the logical answer is 0 for
+                // either polarity, exactly as before.
+                const idleRaw = pin && pin.activeLow ? 1 : 0;
+                const raw = s ? (s.level ? 1 : 0) : idleRaw;
+                return pin && pin.activeLow ? (raw ? 0 : 1) : raw;
             }
             case 'devices_servoangle': {
                 const ds = deviceState.get(nameInput(b.inputs && b.inputs.SERVO).toLowerCase());

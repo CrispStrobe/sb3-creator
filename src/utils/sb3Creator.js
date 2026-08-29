@@ -14678,6 +14678,22 @@ SB3Creator.retargetPseudocode = function retargetPseudocode(src, device) {
             if (!where) reasons.push(`more analog pins than ${device}'s convention offers (${pools.analog.length})`);
         } else if (pin.direction === 'input') {
             where = take(pools.input);
+            // An INPUT's polarity is the BUTTON's wiring, and unlike an LED it
+            // has no per-device convention to follow: every generated bench in
+            // this corpus wires a button the same way on every device — pull-up
+            // to the rail, button to ground, the `R_PU_<name>` resistor the
+            // shipped circuit.<device>.json files all carry. So the source's
+            // declaration must SURVIVE the retarget, or the retargeted program
+            // reads its own button inverted.
+            //
+            // It did not. Measured 2026-08-29: `05-counter` declares
+            // `PIN button = P3.2 INPUT ACTIVE LOW` and keeps it only on its own
+            // device; on the other TEN it came out as plain `INPUT`, so
+            // `wait until read button` was satisfied at rest and the counter ran
+            // free without anyone pressing anything. Invisible until the referee
+            // learned to apply input polarity at all (same day), because until
+            // then the referee read every input raw and could not disagree.
+            activeLow = !!pin.activeLow;
             if (!where) reasons.push(`more input pins than ${device}'s convention offers (${pools.input.length})`);
         } else if (pin.direction === 'output' && used.pwmPins.has(String(pin.name).toLowerCase())) {
             where = take(pools.pwm);

@@ -157,6 +157,7 @@ export const NOT_PER_EXAMPLE = new Map([
     ['circuit-json-roundtrip', 'iterates circuit FILES found on disk; the index is only a directory lookup'],
     ['example-gate-enrolment', 'this map itself'],
     ['machine-roms-boot', 'names the three benches that ship a ROM image and boots each on the machine extracted from its own circuit; the index is a files.rom lookup, not a per-example filter'],
+    ['input-polarity-survives', 'names ONE example (05-counter) and reads the index only for its `devices` list, to retarget that one program to each of them; no example is selected by metadata, and the file asserts its own floor on the device count'],
 ]);
 
 /** Suites that read every example unconditionally, with no metadata filter. */
