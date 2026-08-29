@@ -577,6 +577,13 @@ class Translator {
         if (f.type === 'Name') {
             const id = f.id;
             if (id === '_eq') return `(${this.expr(a[0])} = ${this.expr(a[1])})`;
+            // `_truthy(x)` is what a BARE VALUE used as a condition lowers to
+            // (see SB3Creator.boolishTruthTest). Its block form is
+            // `x = "true"`, so that is what reads back — reconstructing the
+            // block rather than the shorthand keeps the hop exact. Without this
+            // the helper call fell through to a name lookup and the whole
+            // condition read back as the empty string.
+            if (id === '_truthy') return `(${this.expr(a[0])} = "true")`;
             if (id === '_rand') return `(pick random ${this.expr(a[0])} to ${this.expr(a[1])})`;
             if (id === '_fact') return `(factorial of ${this.expr(a[0])})`;
             if (id === '_sumdigits') return `(sum of digits of ${this.expr(a[0])})`;

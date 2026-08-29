@@ -143,6 +143,38 @@ export function interpretTrace(project, opts = {}) {
     // ---- expression evaluation -------------------------------------------
     function num(v) { const n = Number(v); return Number.isFinite(n) ? n : 0; }
 
+    /**
+     * Scratch's cast-to-boolean. The referee needs it because `IF <value> THEN:`
+     * lowers to `<value> = "true"` and `num("true")` is 0 — so the old reading,
+     * `num(x) === num("true")`, was true exactly when x was ZERO. A bare
+     * reporter used as a condition meant the opposite of itself here while the
+     * device C emitter read it correctly (defect D26).
+     */
+    function truthy(v) {
+        if (typeof v === 'boolean') return v;
+        if (v === undefined || v === null) return false;
+        const s = String(v);
+        if (s.trim() === '') return false;
+        const n = Number(s);
+        if (!Number.isNaN(n)) return n !== 0;
+        return s.toLowerCase() !== 'false';
+    }
+
+    /** Mirrors SB3Creator.boolishTruthTest — the same rule, read off the same shape. */
+    function boolishTruthTest(b) {
+        if (!b || b.opcode !== 'operator_equals' || !b.inputs) return null;
+        const lit = (k) => {
+            const inner = Array.isArray(b.inputs[k]) ? b.inputs[k][1] : null;
+            return Array.isArray(inner) && (inner[0] === 10 || inner[0] === 4) ? String(inner[1]) : null;
+        };
+        const l = lit('OPERAND1'), r = lit('OPERAND2');
+        if (/^true$/i.test(r || '')) return { key: 'OPERAND1', negate: false };
+        if (/^false$/i.test(r || '')) return { key: 'OPERAND1', negate: true };
+        if (/^true$/i.test(l || '')) return { key: 'OPERAND2', negate: false };
+        if (/^false$/i.test(l || '')) return { key: 'OPERAND2', negate: true };
+        return null;
+    }
+
     /** Extract a device/part name from an input (type 12/13 = variable-reference format). */
     function nameInput(input) {
         if (!input) return '';
@@ -185,7 +217,11 @@ export function interpretTrace(project, opts = {}) {
             case 'operator_mod': { const d = num(inp('NUM2')); return d ? num(inp('NUM1')) % d : 0; }
             case 'operator_gt': return num(inp('OPERAND1')) > num(inp('OPERAND2'));
             case 'operator_lt': return num(inp('OPERAND1')) < num(inp('OPERAND2'));
-            case 'operator_equals': return num(inp('OPERAND1')) === num(inp('OPERAND2'));
+            case 'operator_equals': {
+                const t = boolishTruthTest(b);
+                if (t) { const r = truthy(inp(t.key)); return t.negate ? !r : r; }
+                return num(inp('OPERAND1')) === num(inp('OPERAND2'));
+            }
             case 'operator_and': return !!(evalInput(task, b.inputs.OPERAND1) && evalInput(task, b.inputs.OPERAND2));
             case 'operator_or': return !!(evalInput(task, b.inputs.OPERAND1) || evalInput(task, b.inputs.OPERAND2));
             case 'operator_not': return !evalInput(task, b.inputs.OPERAND);

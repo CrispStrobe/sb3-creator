@@ -162,6 +162,7 @@ class SB3Creator {
         // so it survives compile → From-blocks (decompile) round-trips.
         this._pendingComment = '';
         this._commentSeq = 0;
+        this._lineIndex = 0;
     }
 
     // Use Scratch's character set for IDs
@@ -195,6 +196,87 @@ class SB3Creator {
     // Push a warning tagged with its 1-based source line number.
     warn(lineIndex, message) {
         this.warnings.push(`Line ${lineIndex + 1}: ${message}`);
+    }
+
+    /**
+     * Is this `operator_equals` really a BARE VALUE used as a condition?
+     *
+     * `IF <value> THEN:` has no Scratch shape of its own — a round reporter
+     * cannot be dropped into a hexagonal slot — so `parseCondition`'s last
+     * resort builds `<value> = "true"`. That is the standard Scratch idiom and
+     * it round-trips, but it is not an equality: it is a request for the
+     * value's TRUTH, and every backend has to read it that way or the same
+     * program means different things in different places.
+     *
+     * It did. Measured 2026-08-29 on `IF (val bitand 128) THEN:` with val=128,
+     * i.e. plainly true:
+     *
+     *   device C   `if (((val & 128)))`             -> true   (this rule)
+     *   host C     `bw_cmp(x, "true") == 0`         -> false
+     *   JavaScript `_eq(x, "true")`                 -> false  (128 != "true")
+     *   Python     `_eq(x, "true")`                 -> false
+     *   referee    `num(x) === num("true")`         -> TRUE WHEN x IS ZERO,
+     *                                                  because num("true") is 0
+     *
+     * Three different answers and one of them exactly inverted — which is why
+     * the D26 row read "the INFIX form does not work bare": it was measured
+     * through the referee. The rule the device C emitter already had is the
+     * right one, so it lives here now and every backend asks for it.
+     *
+     * @returns {{key: 'OPERAND1'|'OPERAND2', negate: boolean}|null}
+     */
+    static boolishTruthTest(b) {
+        if (!b || b.opcode !== 'operator_equals' || !b.inputs) return null;
+        const lit = (k) => {
+            const inner = Array.isArray(b.inputs[k]) ? b.inputs[k][1] : null;
+            return Array.isArray(inner) && (inner[0] === 10 || inner[0] === 4) ? String(inner[1]) : null;
+        };
+        const l = lit('OPERAND1'), r = lit('OPERAND2');
+        // Right-hand literal wins, which is the order the device C emitter has
+        // used since this rule was written; the others now follow it exactly
+        // rather than each inventing one.
+        if (/^true$/i.test(r || '')) return { key: 'OPERAND1', negate: false };
+        if (/^false$/i.test(r || '')) return { key: 'OPERAND1', negate: true };
+        if (/^true$/i.test(l || '')) return { key: 'OPERAND2', negate: false };
+        if (/^false$/i.test(l || '')) return { key: 'OPERAND2', negate: true };
+        return null;
+    }
+
+    /**
+     * Scratch's own cast-to-boolean, for the backends that have strings.
+     * A number is true when it is not 0; a string is true unless it is empty,
+     * "0" or "false". The C targets do not need this — their values are `long`,
+     * so `(x)` already says it.
+     */
+    static get JS_TRUTHY_HELPER() {
+        return 'function _truthy(v) { if (typeof v === \'boolean\') return v; '
+            + 'if (v === undefined || v === null) return false; '
+            + 'const s = String(v); if (s.trim() === \'\') return false; '
+            + 'const n = Number(s); if (!Number.isNaN(n)) return n !== 0; '
+            + 'return s.toLowerCase() !== \'false\'; }';
+    }
+
+    /**
+     * A multi-word identifier one of whose words is a bit operator — i.e. the
+     * PREFIX spelling of an infix operator, swallowed as a variable name.
+     */
+    static get PREFIX_BITOP() {
+        return /(^|\s)(bitand|bitor|bitxor|bitnot|shiftleft|shiftright)(\s|$)/i;
+    }
+
+    /** The same rule in Python, as source lines. */
+    static pyTruthyHelper() {
+        return [
+            'def _truthy(v):  # Scratch-style cast to boolean',
+            '    if isinstance(v, bool): return v',
+            '    if v is None: return False',
+            '    s = str(v)',
+            '    if s.strip() == "": return False',
+            '    try:',
+            '        return float(s) != 0',
+            '    except (ValueError, TypeError):',
+            '        return s.strip().lower() != "false"',
+        ];
     }
 
     // Strip a trailing `// comment` that is outside any double-quoted string.
@@ -1205,11 +1287,37 @@ class SB3Creator {
                 const list = this.getOrCreateList(s, context.target);
                 return [3, [13, list.name, list.id], [10, ""]];
             }
+            // A NEW multi-word name containing a bit operator is not a name. It
+            // is the PREFIX spelling of an operator this dialect writes INFIX,
+            // and inventing a variable from it is silent: `20-shift-register-
+            // binary` shipped `IF bitand val 128 > 0` and counted to zero for
+            // 64 seconds with eight dark LEDs, zero warnings and valid C
+            // (`if ((bitand_val_128 > 0))`). Refusing to be quiet is the fix —
+            // accepting the prefix form would give the dialect two spellings
+            // for one operator while the decompiler emits only one.
+            if (SB3Creator.PREFIX_BITOP.test(s) && !this.variableExists(s, context.target)) {
+                this.warn(this._lineIndex,
+                    `"${s}" reads as a VARIABLE NAME, and nothing ever writes it. `
+                    + 'The bit operators are infix in this dialect — write '
+                    + `\`${s.trim().split(/\s+/).slice(1, 2)} ${s.trim().split(/\s+/)[0]} `
+                    + `${s.trim().split(/\s+/).slice(2).join(' ')}\` (\`a bitand b\`), not \`bitand a b\`.`);
+            }
             const variable = this.getOrCreateVariable(s, context.target);
             return [3, [12, variable.name, variable.id], [10, ""]];
         }
 
-        // Fallback: string literal
+        // Fallback: string literal — and say so when it plainly is not one.
+        // A comparison has no VALUE form in this dialect (`parseCondition` owns
+        // `<`, `>` and `=`), so `set flag to (val > 5)` lands here and is
+        // emitted as the constant string "val > 5" — `flag = 0 /* val > 5 */;`
+        // in C. Measured 2026-08-29, no warning anywhere.
+        if (!/^".*"$/.test(s) && this.splitBinary(s, ['<=', '>=', '<', '>', '='])) {
+            this.warn(this._lineIndex,
+                `"${s}" is a COMPARISON used where a value is expected, and it is emitted as `
+                + 'the literal text rather than evaluated. Comparisons belong in a condition '
+                + '(`IF …`, `wait until …`); to keep a truth value in a variable, branch on it '
+                + 'and assign 1 or 0.');
+        }
         return [1, [10, s]];
     }
 
@@ -4697,6 +4805,10 @@ class SB3Creator {
                 }
 
                 const trimmed = line.trim();
+                // The line a statement-level warning is attributed to. Set here rather
+                // than threaded through parseCommand/parseValue, which take no index
+                // and are reached from a dozen call sites.
+                this._lineIndex = i;
 
                 if (trimmed.endsWith(':')) {
                     let newBlockData;
@@ -4808,6 +4920,7 @@ class SB3Creator {
         while (i < lines.length) {
             const line = lines[i];
             const trimmed = line.trim();
+            this._lineIndex = i;
 
             if (!trimmed) { i++; continue; }
             // A `# comment` before a hat (or sprite) buffers onto the next block created.
@@ -6089,7 +6202,17 @@ class SB3Creator {
         switch (b.opcode) {
             case 'operator_gt': return `(${v('OPERAND1')} > ${v('OPERAND2')})`;
             case 'operator_lt': return `(${v('OPERAND1')} < ${v('OPERAND2')})`;
-            case 'operator_equals': this._pyUses.eq = true; return `_eq(${v('OPERAND1')}, ${v('OPERAND2')})`;
+            case 'operator_equals': {
+                // A bare value used as a condition is a TRUTH test, not an
+                // equality against the string "true" — see boolishTruthTest.
+                const t = SB3Creator.boolishTruthTest(b);
+                if (t) {
+                    this._pyUses.truthy = true;
+                    return t.negate ? `(not _truthy(${v(t.key)}))` : `_truthy(${v(t.key)})`;
+                }
+                this._pyUses.eq = true;
+                return `_eq(${v('OPERAND1')}, ${v('OPERAND2')})`;
+            }
             case 'operator_and': return `(${c('OPERAND1')} and ${c('OPERAND2')})`;
             case 'operator_or': return `(${c('OPERAND1')} or ${c('OPERAND2')})`;
             case 'operator_not': return `(not ${c('OPERAND')})`;
@@ -6371,7 +6494,7 @@ class SB3Creator {
         this._nativePinExpr = null;   // MicroPython-only; must not leak in here
         this._nativeScratchExpr = null;
         this._pyNames = new Map();
-        this._pyUses = { random: false, math: false, time: false, eq: false, answer: false, arrays: false, json: false, sumdigits: false };
+        this._pyUses = { random: false, math: false, time: false, eq: false, truthy: false, answer: false, arrays: false, json: false, sumdigits: false, multiple: false };
         this._runtimesUsed = new Set();
         this._async = !!(opts && opts.async);
         this._events = !!(opts && opts.events);
@@ -6476,6 +6599,7 @@ class SB3Creator {
             out.push('        return str(a).lower() == str(b).lower()');
             out.push('');
         }
+        if (this._pyUses.truthy) { out.push(...SB3Creator.pyTruthyHelper()); out.push(''); }
         // Pluggable driver shim(s) for any runtime/hardware extensions used.
         for (const extId of this._runtimesUsed) { out.push(...this.runtimeShim(extId, 'py', opts.driver || 'shim')); out.push(''); }
         // module state
@@ -6610,7 +6734,17 @@ class SB3Creator {
         switch (b.opcode) {
             case 'operator_gt': return `(${v('OPERAND1')} > ${v('OPERAND2')})`;
             case 'operator_lt': return `(${v('OPERAND1')} < ${v('OPERAND2')})`;
-            case 'operator_equals': this._jsUses.eq = true; return `_eq(${v('OPERAND1')}, ${v('OPERAND2')})`;
+            case 'operator_equals': {
+                // A bare value used as a condition is a TRUTH test, not an
+                // equality against the string "true" — see boolishTruthTest.
+                const t = SB3Creator.boolishTruthTest(b);
+                if (t) {
+                    this._jsUses.truthy = true;
+                    return t.negate ? `(!_truthy(${v(t.key)}))` : `_truthy(${v(t.key)})`;
+                }
+                this._jsUses.eq = true;
+                return `_eq(${v('OPERAND1')}, ${v('OPERAND2')})`;
+            }
             case 'operator_and': return `(${c('OPERAND1')} && ${c('OPERAND2')})`;
             case 'operator_or': return `(${c('OPERAND1')} || ${c('OPERAND2')})`;
             case 'operator_not': return `(!${c('OPERAND')})`;
@@ -6709,7 +6843,7 @@ class SB3Creator {
         this._nativePinExpr = null;   // MicroPython-only; must not leak in here
         this._nativeScratchExpr = null;
         this._pyNames = new Map();
-        this._jsUses = { rand: false, eq: false, answer: false, fact: false, arrays: false, sumdigits: false, multiple: false };
+        this._jsUses = { rand: false, eq: false, truthy: false, answer: false, fact: false, arrays: false, sumdigits: false, multiple: false };
         this._runtimesUsed = new Set();
         this._async = !!(opts && opts.async);
         this._events = !!(opts && opts.events);
@@ -6788,10 +6922,11 @@ class SB3Creator {
         // block that means the same thing, and the way back cannot guess which.
         if (this._jsUses.multiple) out.push('function _multiple(a, b) { return Number(b) !== 0 && Number(a) % Number(b) === 0; }');
         if (this._jsUses.eq) out.push('function _eq(a, b) { const x = Number(a), y = Number(b); if (!Number.isNaN(x) && !Number.isNaN(y)) return x === y; return String(a).toLowerCase() === String(b).toLowerCase(); }');
+        if (this._jsUses.truthy) out.push(SB3Creator.JS_TRUTHY_HELPER);
         if (this._jsUses.rand) out.push('function _rand(a, b) { a = Number(a); b = Number(b); return Math.floor(Math.random() * (b - a + 1)) + a; }');
         if (this._jsUses.fact) out.push('function _fact(n) { n = Number(n); let r = 1; for (let i = 2; i <= n; i++) r *= i; return r; }');
         if (this._jsUses.sumdigits) out.push("function _sumdigits(n) { return String(n).split('').filter(d => d >= '0' && d <= '9').reduce((s, d) => s + Number(d), 0); }");
-        if (this._jsUses.eq || this._jsUses.rand || this._jsUses.fact || this._jsUses.sumdigits) out.push('');
+        if (this._jsUses.eq || this._jsUses.truthy || this._jsUses.rand || this._jsUses.fact || this._jsUses.sumdigits) out.push('');
         out.push(...this.scratchShimJs());
         out.push('');
         if (this._jsUses.arrays) { out.push(...this.arraysShimJs()); out.push(''); }
@@ -7323,15 +7458,8 @@ class SB3Creator {
             case 'operator_lt': return `(${v('OPERAND1')} < ${v('OPERAND2')})`;
             case 'operator_equals': {
                 // `IF <boolean-ish> THEN:` parses to `x = true`; on a chip that is just `x`.
-                const lit = (k) => {
-                    const inner = Array.isArray(b.inputs[k]) ? b.inputs[k][1] : null;
-                    return Array.isArray(inner) && (inner[0] === 10 || inner[0] === 4) ? String(inner[1]) : null;
-                };
-                const l = lit('OPERAND1'), r = lit('OPERAND2');
-                if (/^true$/i.test(r || '')) return `(${v('OPERAND1')})`;
-                if (/^false$/i.test(r || '')) return `(!(${v('OPERAND1')}))`;
-                if (/^true$/i.test(l || '')) return `(${v('OPERAND2')})`;
-                if (/^false$/i.test(l || '')) return `(!(${v('OPERAND2')}))`;
+                const t = SB3Creator.boolishTruthTest(b);
+                if (t) return t.negate ? `(!(${v(t.key)}))` : `(${v(t.key)})`;
                 return `(${v('OPERAND1')} == ${v('OPERAND2')})`;
             }
             case 'planetemaths_equals': return `(${v('NUM1')} == ${v('NUM2')})`;
@@ -8046,7 +8174,13 @@ class SB3Creator {
         switch (b.opcode) {
             case 'operator_gt': return `(bw_cmp(${v('OPERAND1')}, ${v('OPERAND2')}) > 0)`;
             case 'operator_lt': return `(bw_cmp(${v('OPERAND1')}, ${v('OPERAND2')}) < 0)`;
-            case 'operator_equals': return `(bw_cmp(${v('OPERAND1')}, ${v('OPERAND2')}) == 0)`;
+            case 'operator_equals': {
+                // A bare value used as a condition is a TRUTH test, not an
+                // equality against the string "true" — see boolishTruthTest.
+                const t = SB3Creator.boolishTruthTest(b);
+                if (t) return t.negate ? `(!${truthy(v(t.key))})` : truthy(v(t.key));
+                return `(bw_cmp(${v('OPERAND1')}, ${v('OPERAND2')}) == 0)`;
+            }
             case 'operator_and': return `(${c('OPERAND1')} && ${c('OPERAND2')})`;
             case 'operator_or': return `(${c('OPERAND1')} || ${c('OPERAND2')})`;
             case 'operator_not': return `(!${c('OPERAND')})`;
@@ -8364,7 +8498,7 @@ class SB3Creator {
         // The shared pure-Python expression layer (pyVal/pyCond/varRef)
         // reads the same context generatePython sets up.
         this._pyNames = new Map();
-        this._pyUses = { random: false, math: false, time: false, eq: false, answer: false, arrays: false, json: false, sumdigits: false };
+        this._pyUses = { random: false, math: false, time: false, eq: false, truthy: false, answer: false, arrays: false, json: false, sumdigits: false, multiple: false };
         this._runtimesUsed = new Set();
         this._async = false;
         this._emitComments = false;
@@ -9318,6 +9452,7 @@ class SB3Creator {
                 '        return str(a).lower() == str(b).lower()',
                 '');
         }
+        if (this._pyUses.truthy) helpers.push(...SB3Creator.pyTruthyHelper(), '');
         let py = [...header, '', ...helpers, ...stateDecls, '', ...taskDefs, ...driver].join('\n') + '\n';
         let lineMap = null;
         if (trc) {
