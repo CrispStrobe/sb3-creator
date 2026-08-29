@@ -32,6 +32,9 @@ execFileSync(process.execPath, [seatgen, '--examples', 'examples', '--reseat', '
 // the seats stamped by the deleted footprint stubs (uppercase D0..D13 legs).
 // A check whose scope equals its subject's scope cannot find a miss.
 const files = fs.globSync('examples/*/circuit*.json');
+// MEASURED 2026-08-29 (direct count with this same glob): 2162 circuit files, so
+// the guard sits at 41.6 % of actual — a deliberately loose sanity bound on the
+// GLOB rather than a ratchet on the corpus, which is why it is not tightened.
 if (files.length < 900) throw new Error(`only ${files.length} circuit files found — the glob is wrong`);
 
 // Strip stale controller seats from the derived twins. In a flat variant the

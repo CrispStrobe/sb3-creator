@@ -122,6 +122,9 @@ for (const d of readdirSync(EXAMPLES, { withFileTypes: true })) {
   }
 }
 pairs.sort((a, b) => (a.dir + '/' + a.flat).localeCompare(b.dir + '/' + b.flat));
+// MEASURED 2026-08-29 (direct count of circuit-flat* under examples/): 963 flat
+// twins. 900 is 93.5 % of that, which is the band this repo's other corpus
+// floors use, so this one is already tight and is left alone.
 if (pairs.length < 900) throw new Error(`only ${pairs.length} flat twins found — refusing to vendor a manifest over a corpus that shrank`);
 
 const engineSha = (() => {

@@ -55,11 +55,11 @@ const SB3 = join(import.meta.dirname, '..');
  * MEASURED 2026-08-29 (scripts/threshold-inventory.mjs --classified, phase 2 of
  * docs/MEASURED-THRESHOLDS.md). Phase 2 opened at 275 bounding literals of which
  * **126 owed a measurement**; it swept 49 test files with
- * scripts/threshold-observe.mjs, stamped 98 bounds with what was observed, and
- * closed at 281 literals of which **27** still owe one.
+ * scripts/threshold-observe.mjs, stamped 101 bounds with what was observed, and
+ * closed at 281 literals of which **24** still owe one.
  *
- * Those 27 are not a backlog nobody looked at — every one is accounted for in
- * docs/MEASURED-THRESHOLDS.md, in five groups:
+ * Those 24 are not a backlog nobody looked at — every one is accounted for in
+ * docs/MEASURED-THRESHOLDS.md, in four groups:
  *
  *   12  ttl-module-acceptance   behind BW_TTL_ORACLE=1 plus Java, Digital.jar and
  *                               a cloned 8bitsim; all twelve reported NOT REACHED
@@ -68,16 +68,20 @@ const SB3 = join(import.meta.dirname, '..');
  *                               went red and its numbers were discarded
  *    4  assert-physics          `tolerance:` option properties, not comparisons;
  *                               there is no comparison for the sweep to wrap
- *    3  scripts/*               no owning gate, so nothing to run them under
- *    2  curriculum, arduino-import  a corpusFloor() shape, and a bound whose
- *                               corpus is gitignored and absent in CI
+ *    1  arduino-import          its corpus is gitignored and absent in CI
+ *    1  build-machine-roms      `d > 127` is the signed relative-branch range of
+ *                               the instruction set. Nothing measured it and
+ *                               nothing can; the classifier sorts by shape and
+ *                               this shape does not announce that it is an
+ *                               architectural constant. Left owing on purpose,
+ *                               rather than stamped with a date to silence it.
  *
  * A ceiling rather than an equality on purpose: an equality fires in the good
  * direction too, and a ratchet whose maintenance is "bump the number" becomes a
  * rubber stamp — the finding this document's own §5 records about the one
  * exact-equality pin in the sweep.
  */
-const CEILING = 27;
+const CEILING = 24;
 
 describe('bounding literals arrive with evidence', () => {
     const inv = inventory(SB3, 'sb3-creator');
@@ -133,13 +137,13 @@ describe('bounding literals arrive with evidence', () => {
     // document argues for — is to record what the number is measured against
     // rather than raise the ceiling to fit it.
     //
-    // MEASURED 2026-08-29: phase 2 discharged 99 literals in a single sweep
-    // (126 owing before, 27 after), so one lane's output is ~100. An allowance of
+    // MEASURED 2026-08-29: phase 2 discharged 102 literals in a single sweep
+    // (126 owing before, 24 after), so one lane's output is ~100. An allowance of
     // 20 is a fifth of that: comfortably more than the one or two a normal change
     // discharges, and far less than a lane's worth — so a ceiling this far above
     // its subject means somebody finished a sweep and forgot to lower it.
     test('the ratchet has not gone stale against a shrinking backlog', () => {
-        // MEASURED 2026-08-29: 99 literals discharged in one sweep; 20 is a fifth
+        // MEASURED 2026-08-29: 102 literals discharged in one sweep; 20 is a fifth
         // of a lane's output. See the block above for why this number is here.
         assert.ok(CEILING - owed.length <= 20,
             `the backlog is down to ${owed.length} but CEILING is still ${CEILING}. ` +

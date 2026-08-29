@@ -565,7 +565,7 @@ Measuring a backlog that grows faster than it is measured is not a campaign, and
 the most important thing built in this phase is not a measurement at all — it is
 `test/threshold-ratchet.test.mjs`, which stops the growth.
 
-**Where it ended: 126 literals owed a measurement at the start, 27 at the end.**
+**Where it ended: 126 literals owed a measurement at the start, 24 at the end.**
 
 ### The first decision: the rig was four defect-waves stale
 
@@ -695,7 +695,7 @@ and `ctarget:1051` observed **4**, which is what phase 1 recorded for that ceili
 by binary search with a different instrument.
 
 `scripts/threshold-stamp.mjs` writes the results back next to the numbers — 98
-lines stamped. That is this campaign's actual unit of work: these values are
+lines stamped by it, and three more counted by hand where no gate could run them. That is this campaign's actual unit of work: these values are
 rarely wrong, but nobody could tell where they came from. It stamps **only the two
 dispositions that owe a measurement**; putting "observed 963" above
 `flat.length > 0` would be the rubber stamp the whole campaign exists to prevent.
@@ -789,13 +789,13 @@ unfinishable: it demands a measurement from numbers that are not measurements.
 
 | disposition | phase-2 start | phase-2 end | owes a measurement |
 |---|---|---|---|
-| evidenced | 39 | **142** | no |
+| evidenced | 39 | **145** | no |
 | definitional (`length > 0`, `=== 0`) | 77 | 78 | no — the value is fixed by the type, not the world |
 | load-sensitive (timeouts) | 24 | 24 | no — a quiet-box number in this document, never a bigger constant |
 | no-trip (pins, size caps, concurrency) | 9 | 10 | no — the probe has no safe tripping value |
-| countable | 80 | 19 | **yes** |
-| runtime | 46 | 8 | **yes** |
-| **total owing** | **126** | **27** | |
+| countable | 80 | 17 | **yes** |
+| runtime | 46 | 7 | **yes** |
+| **total owing** | **126** | **24** | |
 
 The 78 definitional literals are why the ratchet is survivable. `list.length > 0`
 is not a threshold anybody guessed; a list is empty or it is not, there is no flip
@@ -827,7 +827,7 @@ floors. They were measured (`files.length > 100` → 187, `ENGINE_SURFACE.length
 → 10, the second at zero headroom) rather than allowed to raise the ceiling. That
 is the ratchet doing its whole job on its first day.
 
-### The 27 still owing, and why each is not a probe away
+### The 24 still owing, and why each is not a probe away
 
 Not a backlog nobody looked at — every one is accounted for:
 
@@ -836,13 +836,23 @@ Not a backlog nobody looked at — every one is accounted for:
 | 12 | `ttl-module-acceptance` | behind `BW_TTL_ORACLE=1` plus Java, `Digital.jar` and a cloned `8bitsim`. All twelve reported NOT REACHED, which is the same verdict phase 1 recorded for that file's timeout. A fact about the environment, not about the numbers. |
 | 6 | `gate-integrity` | it reads **this tree's own source** and asserts patterns over it, so instrumenting the tree changes its subject. The observed run went RED and its numbers were discarded, exactly as the instrument is built to do. These need the probe, one gate run each. |
 | 4 | `assert-physics` | `tolerance:` values on option objects rather than comparisons — there is no comparison for the sweep to wrap. They are also *parsed from the fixture's own text* (`rawTol`), so the literal is a default, not a bound on a measured quantity. |
-| 3 | `scripts/*` (`build-machine-roms`, `normalize-controller-seating`, `vendor-flat-partitions`) | no owning gate, so there is nothing to run them under. `--gate` can supply one; none of the three is reached by a test today. |
-| 1 | `curriculum:21` | a `corpusFloor()` call. Its count sits behind a thunk rather than in a comparison, so the sweep sees no span. The helper already prints the count in its own failure message, which is the shape this campaign asks for. |
 | 1 | `arduino-import:114` | the corpus is gitignored and absent here and in CI — see above. Now a visible skip rather than a silent zero. |
+| 1 | `build-machine-roms:235` | `d > 127` is the **signed relative-branch range of the instruction set**. Nothing measured it and nothing can. It is left owing rather than stamped with a date to silence it, because a third "nothing to measure" shape exists that the classifier cannot see — an architectural constant looks exactly like a bound on a quantity. One literal is a cheap price for not teaching the taxonomy to lie. |
 
-None of these is "unmeasured because nobody got to it". Two of the six groups are
-environment, one is a self-reference the instrument correctly refuses to fake, and
-three are shapes the sweep cannot see and says so.
+Three more were closed by hand while writing this, because a count needs no gate:
+`normalize-controller-seating:35` (`files.length < 900`, counted 2162 — a loose
+sanity bound on the glob, deliberately not tightened), `vendor-flat-partitions:125`
+(`pairs.length < 900`, counted 963, already at 93.5 % and tight), and
+`curriculum:26` (`ids.size >= 250`, counted **310**). That last one is this
+document's opening story repeating itself in miniature: the comment above it read
+*MEASURED 2026-08-23 … 274 index entries*, the index has since grown to 310, and
+the floor stayed at 250 — 91.2 % of actual when it was written, 80.6 % now. **A
+measurement recorded once and never revisited is how a floor stops being a floor.**
+Re-measured and re-dated rather than moved.
+
+None of the remaining 24 is "unmeasured because nobody got to it". Two groups are
+the environment, one is a self-reference the instrument correctly refuses to fake,
+and two are shapes the sweep cannot see and says so.
 
 ### The counterpart repository, for the record
 
@@ -857,7 +867,7 @@ this half was being closed.
 ## Every bounding literal
 
 Generated by `node scripts/threshold-inventory.mjs --markdown`, **2026-08-29**,
-against `sb3-creator@9f3c6d5` and `brickwright-lite@dd5debbd7`. It replaces the
+against `sb3-creator@06a2792` and `brickwright-lite@dd5debbd7`. It replaces the
 2026-08-23 table, which described 221 sb3-creator literals against a repository
 that now has 281.
 
@@ -871,14 +881,15 @@ give one. `evidenced` means a measurement is written beside the number;
 `definitional` means there is nothing to measure, because the bound is fixed by
 the type rather than by the world; `load-sensitive` and `no-trip` mean the number
 must not be moved on the strength of a probe; and `countable` or `runtime` mean
-the literal still owes a measurement and is one of the 27 accounted for above.
+the literal still owes a measurement and is one of the 24 accounted for above.
+
 
 
 ### `sb3-creator` — 281 bounding literals
 
 | kind | count | with a recorded measurement |
 |---|---|---|
-| floor | 219 | 123 |
+| floor | 219 | 126 |
 | timeout-ms | 22 | 0 |
 | ceiling | 18 | 14 |
 | tolerance | 10 | 6 |
@@ -889,10 +900,10 @@ the literal still owes a measurement and is one of the 27 accounted for above.
 
 | disposition | count | owes a measurement |
 |---|---|---|
-| evidenced | 142 | no |
+| evidenced | 145 | no |
 | definitional | 78 | no |
-| countable | 19 | **yes** |
-| runtime | 8 | **yes** |
+| countable | 17 | **yes** |
+| runtime | 7 | **yes** |
 | load-sensitive | 24 | no |
 | no-trip | 10 | no |
 
@@ -944,8 +955,8 @@ the literal still owes a measurement and is one of the 27 accounted for above.
 | `test/ctarget.test.mjs:3275` | floor | `0` | `first >= 0` | definitional | **not recorded** |
 | `test/ctarget.test.mjs:3287` | floor | `0` | `r.stats.mapped > 0` | definitional | **not recorded** |
 | `test/cube-directions.test.mjs:31` | floor | `6` | `corpusFloor("cube directions")` | evidenced | // MEASURED 2026-08-23: 6 directions. Several tests here are generated from |
-| `test/curriculum.test.mjs:18` | floor | `45` | `corpusFloor("curriculum stations")` | evidenced | // MEASURED 2026-08-23: 5 trails, 15 chapters, 53 stations; 274 index entries. |
-| `test/curriculum.test.mjs:21` | floor | `250` | `corpusFloor("example ids the curriculum is checked against")` | runtime | **not recorded** |
+| `test/curriculum.test.mjs:23` | floor | `45` | `corpusFloor("curriculum stations")` | evidenced | // MEASURED 2026-08-29 (direct count; re-measured because the 2026-08-23 figure |
+| `test/curriculum.test.mjs:28` | floor | `250` | `corpusFloor("example ids the curriculum is checked against")` | evidenced | // MEASURED 2026-08-29 (direct count of examples/index.json): 310 unique ids, |
 | `test/debug-micropython.test.mjs:36` | floor | `8` | `corpusFloor("micro:bit examples discovered from examples/index.json")` | evidenced | // MEASURED 2026-08-23: 9 of 274 index.json entries. The corpus is DISCOVERED by |
 | `test/debug-trace-audit.test.mjs:36` | floor | `14` | `corpusFloor("MicroPython examples discovered from examples/index.json")` | evidenced | // MEASURED 2026-08-23: 16 of 274 index.json entries. Same shape as |
 | `test/decompile.test.mjs:98` | floor | `0` | `c.warnings.length > 0` | definitional | **not recorded** |
@@ -1114,8 +1125,8 @@ the literal still owes a measurement and is one of the 27 accounted for above.
 | `test/stm32f0-chain.test.mjs:81` | tolerance | `0.9` | `Number(m.stats.sleptNs) / 3e9 > 0.9` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53): |
 | `test/stm32f0-chain.test.mjs:145` | floor | `3` | `nums.length >= 3` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53): |
 | `test/stm32f0-chain.test.mjs:161` | tolerance | `0.03` | `Math.abs(duty - 0.3) < 0.03` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53): |
-| `test/threshold-ratchet.test.mjs:92` | floor | `200` | `all.length >= 200` | evidenced | `only ${all.length} bounding literals found (counted 275 on 2026-08-29) — ` + |
-| `test/threshold-ratchet.test.mjs:144` | ceiling | `20` | `CEILING - owed.length <= 20` | evidenced | // MEASURED 2026-08-29: 99 literals discharged in one sweep; 20 is a fifth |
+| `test/threshold-ratchet.test.mjs:96` | floor | `200` | `all.length >= 200` | evidenced | `only ${all.length} bounding literals found (counted 275 on 2026-08-29) — ` + |
+| `test/threshold-ratchet.test.mjs:148` | ceiling | `20` | `CEILING - owed.length <= 20` | evidenced | // MEASURED 2026-08-29: 102 literals discharged in one sweep; 20 is a fifth |
 | `test/timeout-discriminator.test.mjs:155` | tolerance | `0.5` | `spin.share - sleep.share > 0.5` | evidenced | // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53): |
 | `test/timeout-discriminator.test.mjs:166` | timeout-ms | `30000` | `timeout: 30_000` | load-sensitive | **not recorded** |
 | `test/trace-oracle.test.mjs:172` | ceiling | `2` | `Math.abs(t.events[0].tMs - 300) <= 2` | evidenced | // MEASURED 2026-08-23 (threshold-probe --margin): the event lands on EXACTLY |
@@ -1162,7 +1173,7 @@ the literal still owes a measurement and is one of the 27 accounted for above.
 | `scripts/mutation-prove-conformance.mjs:280` | floor | `0` | `at < 0` | definitional | **not recorded** |
 | `scripts/mutation-prove-conformance.mjs:681` | floor | `0` | `open < 0` | definitional | **not recorded** |
 | `scripts/mutation-prove-conformance.mjs:791` | ceiling | `0` | `backups.size > 0` | definitional | **not recorded** |
-| `scripts/normalize-controller-seating.mjs:35` | floor | `900` | `files.length < 900` | countable | **not recorded** |
+| `scripts/normalize-controller-seating.mjs:38` | floor | `900` | `files.length < 900` | evidenced | // MEASURED 2026-08-29 (direct count with this same glob): 2162 circuit files, so |
 | `scripts/oracle-bbcsdl.mjs:73` | timeout-ms | `30000` | `timeout: 30000` | load-sensitive | **not recorded** |
 | `scripts/settrace-smoke.mjs:131` | timeout-ms | `15000` | `timeout: 15000` | load-sensitive | **not recorded** |
 | `scripts/settrace-smoke.mjs:141` | timeout-ms | `15000` | `timeout: 15000` | load-sensitive | **not recorded** |
@@ -1171,7 +1182,7 @@ the literal still owes a measurement and is one of the 27 accounted for above.
 | `scripts/threshold-probe.mjs:174` | floor | `0` | `idx < 0` | definitional | **not recorded** |
 | `scripts/threshold-probe.mjs:217` | size-cap | `67108864` | `maxBuffer: 64 * 1024 * 1024` | no-trip | **not recorded** |
 | `scripts/threshold-probe.mjs:247` | size-cap | `67108864` | `maxBuffer: 64 * 1024 * 1024` | no-trip | **not recorded** |
-| `scripts/vendor-flat-partitions.mjs:125` | floor | `900` | `pairs.length < 900` | countable | **not recorded** |
+| `scripts/vendor-flat-partitions.mjs:128` | floor | `900` | `pairs.length < 900` | evidenced | // MEASURED 2026-08-29 (direct count of circuit-flat* under examples/): 963 flat |
 | `.github/workflows/ci.yml:125` | timeout-min | `30` | `job/step timeout` | load-sensitive | # a four-minute file on a developer box (measured 242 s, 45/45) and this |
 | `.github/workflows/ci.yml:143` | timeout-min | `25` | `job/step timeout` | load-sensitive | **not recorded** |
 | `.github/workflows/ci.yml:70` | pin | `22` | `node-version` | no-trip | **not recorded** |
