@@ -1074,8 +1074,8 @@
       "dir": "168p01-blink",
       "flat": "circuit-flat.json",
       "twin": "circuit.json",
-      "flatSha": "2252aa7561051c50d8afbee30063fdf12fb14209b8b6d95a258a51a69e5e2584",
-      "twinSha": "6b28f83fca46c7d7fb16d22b36aae9f6eaec091ce3b4ed3cc8aa53a0db19c819",
+      "flatSha": "85874f2174c156bd1b25ea95652be1105da04045a71298d931ad1e41e4ddb346",
+      "twinSha": "a7c4ea5a66f63991f42ca814eeb263bbd89337e28b8595d71fb8df442e177219",
       "partitionSha": "29c74adfc18856ed88c3691c6154fa07b7ad3412b1c97144cda2100842443d17"
     },
     {
@@ -6954,48 +6954,48 @@
       "dir": "avr01-blink",
       "flat": "circuit-flat.json",
       "twin": "circuit.json",
-      "flatSha": "2252aa7561051c50d8afbee30063fdf12fb14209b8b6d95a258a51a69e5e2584",
-      "twinSha": "6b28f83fca46c7d7fb16d22b36aae9f6eaec091ce3b4ed3cc8aa53a0db19c819",
+      "flatSha": "85874f2174c156bd1b25ea95652be1105da04045a71298d931ad1e41e4ddb346",
+      "twinSha": "a7c4ea5a66f63991f42ca814eeb263bbd89337e28b8595d71fb8df442e177219",
       "partitionSha": "29c74adfc18856ed88c3691c6154fa07b7ad3412b1c97144cda2100842443d17"
     },
     {
       "dir": "avr02-dimmer",
       "flat": "circuit-flat.json",
       "twin": "circuit.json",
-      "flatSha": "f5a85caeb88893de8ec43030434cb47279733fa5bfd3dabc8e26fe8dca77b145",
-      "twinSha": "007c0369a0acc5e47a5e04af22131c511feb03c7ac1de6a3219a3c11daf7ee7a",
+      "flatSha": "fe769c26b1d852f70f2107c541d1dc8fcc283e52f73e27650d9e03101bb11bfa",
+      "twinSha": "6acbee34c023757f2dd5eb98eaefb0918415b424c904d8b5b7d2ac4385db0706",
       "partitionSha": "4d0946d17447677007d99a94045ffe3c9688fdfe10cd365b7e6593c5c92a1a59"
     },
     {
       "dir": "avr03-dual-blink",
       "flat": "circuit-flat.json",
       "twin": "circuit.json",
-      "flatSha": "ca87d29d55dec43418468bb8c035b017f0816abd3134f95a080368b986c09ad1",
-      "twinSha": "89b4b49bcbc264cb13644a74854ae2840d897e604b3d2cdac9b875d17876f16a",
+      "flatSha": "04e42b27053d2d00bb7f6615979a14cca5b56ff233a91e631f78ea777d165f26",
+      "twinSha": "adb19c27535b978e85893b5b1bab7468888bc9b5c42599ce4d6f324401f6ec0e",
       "partitionSha": "3d6077d3ff8bfb9e1a385163b3bdf0d1d9583197b701e1a85816b4f4929bb795"
     },
     {
       "dir": "avr04-serial-pot",
       "flat": "circuit-flat.json",
       "twin": "circuit.json",
-      "flatSha": "20b72e49f6d6638282bcaa551a4c846024b6db252eac98b895228ecdfe95e48f",
-      "twinSha": "4d54498b513aa1aca6d8b614560b6df590422cd9290fb0140204a329a969b7ff",
+      "flatSha": "70e907cbb7ee002f75360cc9d88bba4c5653d1f68585e9d63b883d21387568fc",
+      "twinSha": "8d6e59bdc83355a0bb17db6a09f613123b112fb40dc862bfdc5f3526a953220b",
       "partitionSha": "e81ad2c24e27b7a1bdb81304a2b954beb653338aec15742c5d128ddb41ca0604"
     },
     {
       "dir": "avr05-button-led",
       "flat": "circuit-flat.json",
       "twin": "circuit.json",
-      "flatSha": "c31baa43c07a179f7c738c3880ac12a16bcf454f87f60aaf85ac06d4cbb55a5b",
-      "twinSha": "00c66e8bcc95322ecd52232f46dbf331dde1ffa9defd489b6852f3ee3fc618d0",
+      "flatSha": "14fe566165a80078438cb2b7748981a0a0ae64cbdf24d91a5627f4f058858576",
+      "twinSha": "d277d54e164aa030880710f4a6356afa505990943c44900848946e584f4dc22e",
       "partitionSha": "942c9b52e5aaa58a9bf88e0352fd1107658aeb0330e3f3a4ad077578ace1eb75"
     },
     {
       "dir": "avr06-blink-and-print",
       "flat": "circuit-flat.json",
       "twin": "circuit.json",
-      "flatSha": "b6a23e09e408d0b58bc4abafbf94d1020b0ee992fcb5b0828b1f7ebaf21de3ed",
-      "twinSha": "7352d76cb74abfed6fb5cd7b14989c60078a5ce9871ac70f3ab84331eed9c449",
+      "flatSha": "b14a057025371e76a3fc5772ccd34345aa59d1d6a968d3426314cca0d4090bce",
+      "twinSha": "97e3d79cd48c8941347be237894b04b84866ce5b576469f59bf0de1b772c51f6",
       "partitionSha": "1d5a855149101afc2e1bcb13694c77c80e49b2b1c797d2dbd671efc89cfa5ab0"
     },
     {

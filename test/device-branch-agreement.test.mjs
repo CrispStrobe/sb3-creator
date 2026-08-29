@@ -186,11 +186,20 @@ describe('a bench that drops volts and reports no current', { skip: SKIP }, () =
         }
         assert.ok(reached.size >= 69,
             `only ${reached.size} benches are reached by a current claim — the router has changed under this gate`);
-        // 2 of 69 on bw-board a301937. Named, because a decline whose subject
-        // has silently disappeared is a rule that reads as load-bearing and is
-        // not — and because when the KCL-visibility lane lands, this list is
-        // where it shows up.
-        assert.deepEqual(dead.sort(), ['168p01-blink', 'avr01-blink'],
+        // 2 of 69 on bw-board a301937; 0 of 69 since 2026-08-29. Named, because
+        // a decline whose subject has silently disappeared is a rule that reads
+        // as load-bearing and is not — and because when the KCL-visibility lane
+        // lands, this list is where it shows up. The two that left were not the
+        // engine gaining a readback: both benches declared `terminals: ["gnd2"]`
+        // on an arduino_uno they wired to D13, so the board-kind device drove no
+        // GPIO at all and every branch on them was genuinely 0 A. The corpus
+        // files now declare what they wire, and both benches' current claims are
+        // declined for an honest model reason (the document divides by the LED's
+        // declared 2.1 V, the junction solves to 2.214 V) instead of for a
+        // missing instrument. The rule itself still has three subjects corpus-
+        // wide, so it stays; `node scripts/expected-claim-census.mjs --reasons`
+        // is where its count lives.
+        assert.deepEqual(dead.sort(), [],
             'the set of benches that solve for volts and report no current at all has changed. '
             + 'Growing means a new bench lost its readback; shrinking is good news and means the '
             + 'decline in claim-adjudicate.mjs ("every branch current on it reads exactly 0 A") '
