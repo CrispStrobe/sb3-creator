@@ -257,6 +257,71 @@ class SB3Creator {
     }
 
     /**
+     * The vector-art registry the `art` costume verb draws from.
+     *
+     * EMPTY HERE, AND THAT IS THE DESIGN. `SHAPE art <name>` builds a costume
+     * from an authored SVG looked up by name. The VERB is a dialect feature and
+     * belongs upstream; the ARTWORK is a downstream product decision — a game
+     * gallery's 264 hand-drawn sprites are not something every consumer of this
+     * transpiler should carry, and vendoring them here would make the compiler
+     * grow by a megabyte of one app's illustrations.
+     *
+     * So a host registers its own:
+     *
+     *     SB3Creator.registerVectorArt({ 'nova-grid/core': '<svg …>' });
+     *
+     * With nothing registered, `SHAPE art x` warns by name — the same refusal
+     * an unknown geometric kind gets — rather than failing silently or baking a
+     * blank costume. A host that registers art gets the verb; one that does not
+     * gets a clear message naming the art it asked for.
+     *
+     * WHY THIS SHAPE RATHER THAN A VENDORED MODULE. brickwright-lite carried
+     * this verb as a 113-line downstream patch on its vendored copy of this
+     * file, importing an `sb3-creator-vector-art.js` that only exists there.
+     * Re-vendoring silently ATE it: every import the sync left behind still
+     * resolved, because there were none, and the first symptom was fourteen
+     * game tests failing with `Unknown SHAPE "art"` three commits later. An
+     * injectable registry is what lets the verb live here and the art live
+     * there, so the next sync has nothing to eat.
+     *
+     * @type {Map<string, string>} lower-cased name -> SVG source
+     */
+    static _vectorArt = new Map();
+
+    /**
+     * Register vector art for the `art` costume verb.
+     *
+     * Names are matched case-insensitively, as `family/name`. Calling this
+     * again ADDS to the registry rather than replacing it, so a host can load
+     * art in several passes; `clearVectorArt()` is the reset, and tests use it
+     * so one file's registration cannot leak into another's.
+     *
+     * @param {Record<string, string>|Map<string, string>|Array<[string, string]>} art
+     * @returns {number} how many entries the registry now holds
+     */
+    static registerVectorArt(art) {
+        const entries = art instanceof Map ? art.entries()
+            : Array.isArray(art) ? art
+                : Object.entries(art || {});
+        for (const [name, svg] of entries) {
+            if (typeof name !== 'string' || typeof svg !== 'string' || !svg.trim()) continue;
+            SB3Creator._vectorArt.set(name.toLowerCase(), svg);
+        }
+        return SB3Creator._vectorArt.size;
+    }
+
+    /** Forget all registered art. */
+    static clearVectorArt() { SB3Creator._vectorArt.clear(); }
+
+    /** The registered names, for a host that wants to list or test them. */
+    static vectorArtNames() { return [...SB3Creator._vectorArt.keys()]; }
+
+    /** One piece of registered art, or null. Case-insensitive. */
+    static getVectorArt(name) {
+        return SB3Creator._vectorArt.get(String(name || '').toLowerCase()) || null;
+    }
+
+    /**
      * A multi-word identifier one of whose words is a bit operator — i.e. the
      * PREFIX spelling of an infix operator, swallowed as a variable name.
      */
@@ -2301,7 +2366,7 @@ class SB3Creator {
         // A numbered pin (D13, A0) for the boards that have them. Kept as its
         // own branch: an Arduino pin has no port and no bit, so every check
         // below it is about a coordinate system it is not in.
-        if ((m = trimmed.match(/^PIN\s+([A-Za-z_]\w*)\s*=\s*([DA]\d+|GP\d+|P[A-D]\d|P\d+|BUTTON_[AB]|(?:OUT|IN)\d|MK\d+)\s+(OUTPUT|INPUT|ANALOG|PWM|TONE)(?:\s+ACTIVE\s+(LOW|HIGH))?$/i))) {
+        if ((m = trimmed.match(/^PIN\s+([A-Za-z_]\w*)\s*=\s*([DA]\d+|GP\d+|P[A-D]\d+|P\d+|BUTTON_[AB]|SDA|SCL|(?:OUT|IN)\d|MK\d+)\s+(OUTPUT|INPUT|ANALOG|PWM|TONE)(?:\s+ACTIVE\s+(LOW|HIGH))?$/i))) {
             const [, name, where, direction, active] = m;
             const cfg = this.stcConfig();
             const part = SB3Creator.STC_PARTS[cfg.device];
@@ -2319,8 +2384,25 @@ class SB3Creator {
                 'arduino-nano': [/^(D\d+|A\d+)$/i, 'D0-D13 or A0-A7'],
                 atmega328p: [/^(D\d+|A\d+)$/i, 'D0-D13 or A0-A5'],
                 microbit: [/^(P\d+|BUTTON_[AB])$/i, 'P0-P20, BUTTON_A or BUTTON_B'],
+                // The Arcade console is a SOFTWARE target (160x120). D0-D31 are
+                // deliberately virtual GPIO: they keep a pin-based lesson
+                // runnable when it is moved into the console without pretending
+                // the console has a physical header. PyBadge is a concrete
+                // ATSAMD51J19 board and uses the labels silkscreened on its
+                // Feather and JST breakouts; PyBadge LC exposes no GPIO headers
+                // at all and is virtual for the same reason Arcade is.
+                arcade: [/^D\d+$/i, 'virtual D0-D31'],
+                pybadge: [/^(?:D(?:2|3|5|6|9|10|11|12|13)|A[0-5]|SDA|SCL)$/i,
+                    'D2, D3, D5, D6, D9-D13, A0-A5, SDA or SCL'],
+                'pybadge-lc': [/^D\d+$/i, 'virtual D0-D31'],
+                samd51: [/^P[AB]\d+$/i, 'PA0-PA31 or PB0-PB31'],
                 pico: [/^GP\d+$/i, 'GP0-GP28'],
-                stm32f030: [/^P[AB]\d+$/i, 'PA0-PA7, PA9, PA10 or PB1'],
+                // Spelled out rather than `P[AB]\d+`, which accepted PB9 and
+                // PB19 while this very message said PB1. Widening the outer PIN
+                // regex from `P[A-D]\d` to `P[A-D]\d+` (needed for the SAMD51's
+                // PA23/PB23) would have carried that looseness from one digit to
+                // two, so the row now says what its own message says.
+                stm32f030: [/^(PA[0-7]|PA9|PA10|PB1)$/i, 'PA0-PA7, PA9, PA10 or PB1'],
                 // PB7 is Timer 1's square-wave pin and the machine's timebase
                 // guard: the emitter would refuse it anyway, refuse it here too.
                 eater6502: [/^(PA[0-7]|PB[0-7]|MK\d+)$/i, 'PA0-PA7, PB0-PB7, or MK0-MK19 (matrix keypad)'],
@@ -2340,6 +2422,8 @@ class SB3Creator {
             const LAST = { 'arduino-uno': { D: 13, A: 5 }, 'arduino-nano': { D: 13, A: 7 },
                 'atmega168p': { D: 13, A: 5 }, 'arduino-mega': { D: 53, A: 15 },
                 atmega328p: { D: 13, A: 5 }, microbit: { P: 20 }, pico: { GP: 28 },
+                arcade: { D: 31 }, pybadge: { D: 13, A: 5 }, 'pybadge-lc': { D: 31 },
+                samd51: { PA: 31, PB: 31 },
                 eater6502: { PA: 7, PB: 7 } };  // PB7: plain I/O while ACR7=0, same as the SPOKEN gate
             const edge = LAST[cfg.device] || {};
             const num = where.match(/^([A-Z]+)(\d+)$/i);
@@ -4575,6 +4659,46 @@ class SB3Creator {
         return { assetId, name, md5ext: `${assetId}.svg`, dataFormat: 'svg', rotationCenterX: 240, rotationCenterY: 180 };
     }
 
+    /**
+     * Bake a registered authored SVG into a costume.
+     *
+     * The result is an ordinary, self-contained Scratch costume: the SVG goes
+     * into `assets` like any other, and the produced .sb3 needs no runtime
+     * renderer and no network. The rotation centre is the artwork's true centre
+     * (unlike buildBackdrop, which hardcodes 240/180 for a full-stage rect).
+     *
+     * Returns null when nothing is registered under that name, which is how
+     * each of the three call sites detects an unknown one and says so.
+     *
+     * @param {string} artName  `family/name`, matched case-insensitively
+     * @param {string} costumeName
+     * @returns {object|null}
+     */
+    buildArtCostume(artName, costumeName) {
+        const svg = SB3Creator.getVectorArt(artName);
+        if (!svg) return null;
+        const { width, height } = this.svgDimensions(svg);
+        const assetId = this.generateAssetId();
+        this.assets.set(assetId, { type: 'svg', data: svg, filename: `${assetId}.svg`, metadata: { width, height } });
+        return {
+            assetId, name: costumeName, md5ext: `${assetId}.svg`, dataFormat: 'svg',
+            rotationCenterX: width / 2, rotationCenterY: height / 2,
+        };
+    }
+
+    /**
+     * The message an unknown art name gets. One wording, three call sites, and
+     * it distinguishes the two very different causes: no host registered any
+     * art at all, versus this particular name not being among the art that is.
+     */
+    _unknownArt(artName) {
+        const n = SB3Creator._vectorArt.size;
+        return n === 0
+            ? `Unknown vector art "${artName || ''}" — no art is registered. `
+              + 'A host supplies it with SB3Creator.registerVectorArt({name: svg}).'
+            : `Unknown vector art "${artName || ''}" (${n} registered).`;
+    }
+
     // Build a plain geometric costume at true size. Kinds: rect/square/circle/ellipse/
     // triangle, or `polygon` with an arbitrary list of x,y points (custom SVG art).
     buildShapeCostume(color, kind, dims) {
@@ -4614,8 +4738,20 @@ class SB3Creator {
         if (target.isStage) { this.warn(lineIndex, 'SHAPE has no effect on the Stage (use BACKDROP)'); return; }
         const tokens = spec.split(/\s+/).filter(Boolean);
         const kind = (tokens[0] || '').toLowerCase();
+        // `SHAPE art <name>` replaces costume 0 with authored artwork the host
+        // registered. Handled before the geometric whitelist because it takes a
+        // NAME rather than dimensions and a colour.
+        if (kind === 'art') {
+            const costume = this.buildArtCostume(tokens[1], 'costume1');
+            if (!costume) { this.warn(lineIndex, this._unknownArt(tokens[1])); return; }
+            const prev = target.costumes[0];
+            if (prev && prev.assetId) this.assets.delete(prev.assetId);
+            target.costumes[0] = costume;
+            target.costumes[0]._shapeSpec = spec.trim();   // lossless round-trip
+            return;
+        }
         if (!['rect', 'square', 'circle', 'ellipse', 'triangle', 'polygon'].includes(kind)) {
-            this.warn(lineIndex, `Unknown SHAPE "${tokens[0]}" (use rect/square/circle/ellipse/triangle/polygon)`);
+            this.warn(lineIndex, `Unknown SHAPE "${tokens[0]}" (use art/rect/square/circle/ellipse/triangle/polygon)`);
             return;
         }
         const hex = tokens.find((t) => /^#[0-9a-fA-F]{6}$/.test(t));
@@ -4637,6 +4773,13 @@ class SB3Creator {
         if (target.isStage) {
             const tks = this.tokenizeCostumeSpec(spec);
             const name = this.unquote(tks[0] || 'backdrop');
+            if ((tks[1] || '').toLowerCase() === 'art') {
+                const bd = this.buildArtCostume(tks[2], name);
+                if (!bd) { this.warnings.push(this._unknownArt(tks[2])); return; }
+                bd._spec = spec.trim();
+                target.costumes.push(bd);
+                return;
+            }
             const hex = tks.find((t) => /^#[0-9a-fA-F]{6}$/.test(t));
             const palette = ['#576065', '#4a6fa5', '#8a5a83', '#3d7068', '#a5794a'];
             const color = hex || palette[(target.costumes.length - 1) % palette.length];
@@ -4649,7 +4792,10 @@ class SB3Creator {
         const name = this.unquote(tokens[0] || `costume${target.costumes.length + 1}`);
         const kind = (tokens[1] || '').toLowerCase();
         let costume;
-        if (kind === 'tile' || kind === 'label') {
+        if (kind === 'art') {
+            costume = this.buildArtCostume(tokens[2], name);
+            if (!costume) { this.warnings.push(this._unknownArt(tokens[2])); return; }
+        } else if (kind === 'tile' || kind === 'label') {
             const text = this.unquote(tokens[2] || '');
             const colors = tokens.slice(3).filter((t) => /^#[0-9a-fA-F]{6}$/.test(t));
             const bg = kind === 'tile' ? (colors[0] || '#cccccc') : 'none';
@@ -10311,7 +10457,11 @@ class SB3Creator {
             && part.core !== 'rp2040' && part.core !== 'w65c02' && part.core !== 'z80') {
             const how = part.core === 'micropython'
                 ? 'runs MicroPython, where the program IS the artefact and there is nothing to compile'
-                : 'has numbered pins and no 8051 registers';
+                : part.arcade
+                    ? 'is an Arcade-family target with no C back end here — emitting for it '
+                      + 'would mean producing firmware for a DIFFERENT ARM part, which is worse '
+                      + 'than refusing'
+                    : 'has numbered pins and no 8051 registers';
             this.cWarn(`DEVICE ${device.toUpperCase()} ${how} — `
                 + 'this back end emits bare-metal 8051 only. The project is unchanged; '
                 + 'build it with stc-compiler, which has a target for this board.');
@@ -14444,6 +14594,36 @@ SB3Creator.RETARGET_POOLS = (() => {
             input: ['GP2', 'GP3', 'GP4', 'GP5', ...seq('GP%', 6, 15), ...seq('GP%', 18, 22), 'GP0', 'GP1'],
             // GP16/GP17 stay out: they are the servo pins (slice 0, 50 Hz).
             pwm: ['GP15', 'GP14', 'GP13', 'GP12'], ledActiveLow: false },
+        // ---- the Arcade family (ATSAMD51J19) -------------------------------
+        // `virtual: true` is a pool property with no upstream precedent, and it
+        // is a WARNING rather than a refusal: these targets retarget fine, they
+        // just have no circuit header for the result to be wired to.
+        //
+        // The abstract Arcade console has no header at all. Its D pins are
+        // virtual Scratch-runtime GPIO, useful when moving a pin-based lesson
+        // into the playable console.
+        arcade: { digital: seq('D%', 0, 31), analog: [], input: seq('D%', 0, 31),
+            pwm: seq('D%', 0, 31), ledActiveLow: false, virtual: true },
+        // PyBadge's real Feather and JST breakouts. The serial and SPI pins sit
+        // LATE in each list on purpose, so an ordinary example does not steal a
+        // bus before a program that needs one asks for it.
+        pybadge: { digital: ['D13', 'D12', 'D11', 'D10', 'D9', 'D6', 'D5', 'D3', 'D2', 'A0', 'A1', 'A2', 'A3', 'A4', 'A5'],
+            analog: ['A0', 'A1', 'A2', 'A3', 'A4', 'A5', 'D2', 'D3'],
+            input: ['D2', 'D3', 'A0', 'A1', 'A2', 'A3', 'A4', 'A5', 'D5', 'D6', 'D9', 'D10', 'D11', 'D12', 'D13'],
+            pwm: ['D5', 'D6', 'D9', 'D10', 'D11', 'D12', 'D13', 'D2', 'D3', 'A0', 'A1', 'A2', 'A3', 'A4'],
+            ledActiveLow: false },
+        // LC exposes no Feather/JST GPIO headers. Keep pin lessons runnable in
+        // its console simulation, but never synthesize fake circuit pads.
+        'pybadge-lc': { digital: seq('D%', 0, 31), analog: seq('A%', 0, 7), input: seq('D%', 0, 31),
+            pwm: seq('D%', 0, 31), ledActiveLow: false, virtual: true },
+        // The bare ATSAMD51J19 package, in its own port coordinates. USB sits
+        // on PA24/PA25 and SWD on PA30/PA31, so neither is offered; the
+        // conventional analog bank is PA02-PA07.
+        samd51: { digital: [...seq('PA%', 8, 23), ...seq('PB%', 0, 23), 'PA2', 'PA3', 'PA4', 'PA5', 'PA6', 'PA7'],
+            analog: ['PA2', 'PA3', 'PA4', 'PA5', 'PA6', 'PA7', 'PB0', 'PB1', 'PB2', 'PB3'],
+            input: [...seq('PA%', 8, 23), ...seq('PB%', 0, 23), 'PA2', 'PA3', 'PA4', 'PA5', 'PA6', 'PA7'],
+            pwm: ['PA8', 'PA9', 'PA10', 'PA11', 'PA12', 'PA13', 'PA14', 'PA15', 'PB8', 'PB9', 'PB10', 'PB11'],
+            ledActiveLow: false },
         // VIA outputs are symmetric CMOS, so LEDs wire active-high. PB7 never
         // appears: Timer 1 owns it. No analog, no PWM — the VIA has neither.
         eater6502: { digital: ['PA0', 'PA1', 'PA2', 'PA3', 'PA4', 'PA5', 'PA6', 'PA7'],
@@ -14498,6 +14678,10 @@ SB3Creator.I2C_PINS = {
     atmega168p: { sda: 'A4', scl: 'A5' },
     'arduino-mega': { sda: 'D20', scl: 'D21' },
     pico: { sda: 'GP4', scl: 'GP5' },       // I2C0 default pair
+    // Only PyBadge of the Arcade family gets a pair: it is the one with real
+    // pads, and they are silkscreened SDA/SCL rather than numbered. Arcade and
+    // PyBadge LC are deliberately absent — a virtual target has no bus to name.
+    pybadge: { sda: 'SDA', scl: 'SCL' },
     attiny85: { sda: 'PB0', scl: 'PB2' },   // USI
     attiny88: { sda: 'PC4', scl: 'PC5' },   // TWI
 };
@@ -14579,7 +14763,17 @@ SB3Creator.retargetPseudocode = function retargetPseudocode(src, device) {
     const pools = SB3Creator.RETARGET_POOLS[device];
     if (!part || !pools) return { ok: false, reasons: [`unknown device: ${device}`], warnings: [] };
     const core = part.core === 'arduino' ? 'avr' : part.core === 'rp2040' ? 'arm' : part.core || '8051'; // stm32f0 rides 'rp2040' structurally
-    if (core === 'micropython') return { ok: false, reasons: [`${device} runs MicroPython — no C retarget`], warnings: [] };
+    // A `core === 'micropython'` refusal used to sit here. It was DEAD CODE and
+    // was deleted rather than kept as decoration: `microbit` is the only part
+    // with that core, it is not a key of RETARGET_POOLS, so the `!pools` line
+    // above returns `unknown device: microbit` one line earlier and this branch
+    // could not be reached by any shipped device. It also had no test, which is
+    // exactly why nobody noticed — brickwright-lite deleted the same line while
+    // ADDING micro:bit pools, and nothing here would have gone red either way.
+    // What retargetPseudocode does with a MicroPython board is now pinned by
+    // name in test/retarget.test.mjs; generateC()'s micro:bit refusal ("the
+    // program IS the artefact") is a different guard, is reachable, is tested
+    // in test/ctarget.test.mjs, and is untouched.
 
     // Retargeting a program to its OWN device is the identity: the authored
     // pins ARE the assignment. Canonicalizing them into pool order broke the
@@ -14601,6 +14795,12 @@ SB3Creator.retargetPseudocode = function retargetPseudocode(src, device) {
     }
     const reasons = [];
     const warnings = [...(c.warnings || [])];
+    // A virtual target retargets successfully and is annotated, not refused:
+    // the pins are real to the runtime and imaginary to a circuit, so a lesson
+    // moved onto one still runs and nobody goes looking for a header.
+    if (pools.virtual) {
+        warnings.push(`${device} uses simulated GPIO; it has no exposed circuit header`);
+    }
     if ((stc.ports || []).length && core !== '8051') {
         reasons.push('whole-port declarations (PORT x = Pn) are an 8051 construct — no port registers here');
     }
@@ -14788,7 +14988,8 @@ SB3Creator.retargetPseudocode = function retargetPseudocode(src, device) {
     stc.device = device;
     stc.clock = core === 'avr' ? 16000000 : core === 'arm' ? 125000000
         : core === 'w65c02' ? 1000000
-            : device.startsWith('stc15') ? 11059200 : 11059200;
+            : core === 'samd51' ? 120000000        // ATSAMD51J19 at its rated max
+                : device.startsWith('stc15') ? 11059200 : 11059200;
     stc.pins = newPins;
     const out = c.decompile();
 
@@ -14841,6 +15042,18 @@ SB3Creator.STC_PARTS = {
     // two buttons on a micro:bit.
     microbit: { core: 'micropython', header: null, portModes: false, aux1T: false, adc: true },
     spike: { core: 'spikepython', header: null, portModes: false, aux1T: false, adc: false },
+    // core: 'samd51' -- Arcade is a software console (160x120); PyBadge and
+    // PyBadge LC are concrete ATSAMD51J19 boards. None has a C emitter here,
+    // and that is enforced rather than promised: generateC() refuses every core
+    // it does not name, so selecting one of these can never silently produce
+    // firmware for a different ARM part. `arcade: true` marks the console
+    // faceplate the runtime draws.
+    arcade: { core: 'samd51', header: null, portModes: false, aux1T: false, adc: false, arcade: true },
+    pybadge: { core: 'samd51', header: null, portModes: false, aux1T: false, adc: true, arcade: true,
+        display: 'st7735', displayWidth: 160, displayHeight: 128, neopixels: 5, accelerometer: 'lis3dh' },
+    'pybadge-lc': { core: 'samd51', header: null, portModes: false, aux1T: false, adc: true, arcade: true,
+        display: 'st7735', displayWidth: 160, displayHeight: 128, neopixels: 1, accelerometer: null },
+    samd51: { core: 'samd51', header: null, portModes: false, aux1T: false, adc: true },
     // core: 'rp2040' -- GP0-GP28, and generateC() emits freestanding Cortex-M0
     // bare metal (SIO GPIO, the 1 MHz TIMER as an ISR-free timebase, UART0,
     // ADC over APB). Decided 2026-08-12 (stc docs/ROADMAP.md): bare-metal C

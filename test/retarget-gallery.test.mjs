@@ -20,7 +20,14 @@ const index = JSON.parse(readFileSync(join(EXAMPLES, 'index.json'), 'utf8'));
 // that. eater6502/z80 were removed from 68 index lists as phantom for
 // exactly this reason (77e2717); when they get designer board parts and
 // DEVPART entries, delete them here and regenerate the lists.
-const UNBENCHABLE = new Set(['eater6502', 'z80']);
+// The Arcade family joins for the SAME reason and on the same terms: arcade,
+// pybadge, pybadge-lc and samd51 are retarget targets with no designer board
+// part and no DEVPART entry, so offering them in a gallery list would promise a
+// bench that cannot be built. arcade and pybadge-lc additionally declare
+// `virtual: true` — they have no circuit header at all, which is a stronger
+// version of the same fact. Delete them from here when they get board parts.
+const UNBENCHABLE = new Set(['eater6502', 'z80',
+    'arcade', 'pybadge', 'pybadge-lc', 'samd51']);
 const devices = Object.keys(SB3Creator.RETARGET_POOLS)
     .filter(d => !UNBENCHABLE.has(d));
 

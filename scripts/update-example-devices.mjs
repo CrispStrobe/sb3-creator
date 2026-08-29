@@ -39,7 +39,14 @@ const items = Array.isArray(index) ? index : index.examples || [];
 // Same universe as test/retarget-gallery.test.mjs: pool membership means
 // the PROGRAM retargets; benchability is the app's bar. Re-add a device
 // here and in the test together, with DEVPART benches to match.
-const UNBENCHABLE = new Set(['eater6502', 'z80']);
+// The Arcade family joins for the SAME reason and on the same terms: arcade,
+// pybadge, pybadge-lc and samd51 are retarget targets with no designer board
+// part and no DEVPART entry, so offering them in a gallery list would promise a
+// bench that cannot be built. arcade and pybadge-lc additionally declare
+// `virtual: true` — they have no circuit header at all, which is a stronger
+// version of the same fact. Delete them from here when they get board parts.
+const UNBENCHABLE = new Set(['eater6502', 'z80',
+    'arcade', 'pybadge', 'pybadge-lc', 'samd51']);
 const devices = Object.keys(SB3Creator.RETARGET_POOLS)
     .filter((d) => !UNBENCHABLE.has(d));
 const checkOnly = process.argv.includes('--check');
