@@ -8,6 +8,7 @@ import { writeFileSync, mkdirSync, existsSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { injectEngine } from './lib/engine-surface.mjs';
+import { refuseToRevertRepairs, forced } from './lib/generator-guard.mjs';
 const __here = dirname(fileURLToPath(import.meta.url));
 // The engine surface production injects, applied in one place. This script
 // used to import three keys by hand and register a HAND-LISTED SUBSET of the
@@ -30,6 +31,9 @@ function build(name, titleDe, titleEn, difficulty, fn) {
         const leds = c.board.getLeds();
         const ledB = leds.length ? c.board.ledBrightness(leds[0]).toFixed(4) : 'n/a';
         mkdirSync(join(EXAMPLES, name), { recursive: true });
+        // A generator that would revert a landed repair refuses. See
+        // scripts/lib/generator-guard.mjs for the measurement behind this.
+        refuseToRevertRepairs(join(EXAMPLES, name, 'circuit.json'), { force: forced() });
         writeFileSync(join(EXAMPLES, name, 'circuit.json'), JSON.stringify(json, null, 2) + '\n');
         writeFileSync(join(EXAMPLES, name, 'program.bw'), '# Pure circuit — no MCU\n');
         const exp = join(EXAMPLES, name, 'EXPECTED.md');

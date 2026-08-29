@@ -1,4 +1,37 @@
-# Assert-Physics Coverage Report
+# Assert-Physics Coverage Report — RETRACTED 2026-08-29
+
+> **DO NOT READ THE "Skip reason" COLUMN. IT IS WRONG IN EVERY ROW THAT USES
+> IT.** This snapshot was generated on 2026-08-18 by a harness that is no
+> longer in the tree (nothing in `scripts/` produces it), and its
+> circuit-discovery step was broken.
+>
+> Measured on 2026-08-29, at the pinned sibling pair (bw-board `4ae89b5`,
+> bw-circuit-ui `60fd117`): **46 rows say `circuit <name> not solvable: no
+> circuit file`, and all 46 of those examples have a circuit file** — 43 of
+> them a plain `examples/<name>/circuit.json`, the other three only
+> device-suffixed variants such as `circuit.stc12c5a60s2.json`, which is what
+> the discovery step failed to look for. So the column does not record a
+> coverage hole; it records a harness that could not find files that were
+> there all along.
+>
+> Two of those rows were about to be believed. `60-retro-console` and
+> `61-console-pong` are listed here as `skip (0/1) — not solvable: no circuit
+> file`; they each ship six circuit files, every seat survives `fromJSON` at
+> the pinned pair, and **`test/assert-physics.test.mjs` passes both today**.
+> A separate report that they had "silently become unseated" at `60fd117` was
+> chased on the strength of this table and did not reproduce: the seats are
+> intact (`seat`-on-disk equals `seat`-after-load on all six primary benches)
+> and the nets are `bb1:n-col-*`. The only `net-lgc-*` nets in the pair are
+> three, in the mega and stc12 VARIANTS, joining an `arduino_mega` to a
+> `seven_seg_3` — two kinds with no breadboard footprint at all, for which a
+> logical net is the only correct answer.
+>
+> **The live answer is `node --test test/assert-physics.test.mjs`**, which
+> reports 365 tests with the skip reason computed at run time. This file is
+> kept only so the retraction is discoverable from the same place the wrong
+> numbers were; the totals in the Summary below are as unreliable as the
+> column, since they were counted from it.
+
 
 Generated: 2026-08-18
 
