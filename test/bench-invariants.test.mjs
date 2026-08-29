@@ -37,8 +37,20 @@ describe('bench invariants: every device bench, canonical loader', { skip: gate.
     const { setEngine } = await import(join(CUI, 'src/engine.js'));
     const eng = await import(join(BWB, 'src/index.js'));
     (await import(join(BWB, 'src/register-all.js'))).registerAllDevices();
+    // getDevice, not hasDevice. bw-circuit-ui's engineKindFor asks the injected
+    // engine whether a passthrough kind has a registered model, and the name it
+    // asks for is `getDevice` — `engine.js` has never documented a `hasDevice`.
+    // Injecting only hasDevice here made this gate prove the feature against an
+    // engine the app does not build: a 28c256 kept its identity under THIS test
+    // while production collapsed it to a generic 'mcu' (bw-circuit-ui fbe7338).
+    // With the fix in, the inversion came out the other way and this file was
+    // the one that went red: pc112/pc113/pc117/pc118 place two 28c256 ROMs,
+    // the first collapsed one was picked up by MCU_KINDS as "the MCU", and its
+    // address lines tied to the rails read as 32 GPIO-to-power shorts. The
+    // injected surface has to be the one the app injects, or the gate is
+    // answering a question nobody asked.
     setEngine({ BoardImpl: eng.BoardImpl, inferNetlist: eng.inferNetlist,
-      checkWiring: eng.checkWiring, hasDevice: eng.hasDevice });
+      checkWiring: eng.checkWiring, getDevice: eng.getDevice });
     const { registerSidecar } = await import(join(CUI, 'src/model/parts-registry.js'));
     let sidecars = 0;
     for (const f of readdirSync(join(CUI, 'src/parts-data'))) {
@@ -157,7 +169,38 @@ describe('bench invariants: every device bench, canonical loader', { skip: gate.
         if (ep.board) continue;
         const part = boardParts.get(ep.part);
         const terminal = part ? resolveTerminal(part.kind, ep.terminal, part.terminals || []) : ep.terminal;
-        const resolved = bnets.some(net => net.terminals.some(t => t.part === ep.part && t.terminal === terminal));
+        // CASE-BLIND, because the engine is. bw-board's setPin says it in the
+        // code — "the solver joins case-blind, the UI shows what the caller
+        // wrote" — and the netlist stores the author's spelling, which need not
+        // be the device model's. bw-board's stc15_mcu declares BOTH `P0.0` and
+        // `p0.0` in one terminal list; once bw-circuit-ui fbe7338 let that kind
+        // keep its identity instead of collapsing to a generic 'mcu',
+        // resolveTerminal started returning the uppercase spelling while the
+        // resolved nets carry the lowercase one, and this line reported 120
+        // wires "ending in nowhere" across 76-multimeter, 60-retro-console and
+        // 61-console-pong — every one of them case-only, every one of those
+        // benches solving correctly (76-multimeter's LM358 stage measures to
+        // five decimals either side of the pin bump). A gate that reads a
+        // spelling difference as a disconnection is reporting on the string,
+        // not the circuit. It still catches a terminal that is genuinely in no
+        // net at all.
+        //
+        // WHAT THIS LINE CANNOT SEE, measured while making it case-blind so the
+        // relaxation is not mistaken for a loss of teeth it never had:
+        // inferNetlist adds a wire endpoint to its net VERBATIM, so an invented
+        // terminal joins the net it was invented on. Renaming `r1.a` to `r1.zz`
+        // in avr01-blink gives the net `led1.cathode, r1.a, r1.zz`,
+        // netlistError null, and this assertion green — the mutation is not
+        // caught, and was not caught before this change either. Requiring the
+        // endpoint to appear in the loaded part's terminal list is the obvious
+        // strengthening and it is NOT free: a seated 74hc595's `vcc`/`gnd` sit
+        // in real breadboard nets while the engine's shift_register model
+        // declares neither, so 08-led-chaser-595 reports 18 power pins across
+        // nine variants. That needs the model and the seat reconciled first;
+        // named here rather than half-enforced.
+        const lower = String(terminal).toLowerCase();
+        const resolved = bnets.some(net => net.terminals.some(t =>
+          t.part === ep.part && String(t.terminal).toLowerCase() === lower));
         if (!resolved) {
           problems.push(`${rel}: wire ${side} ends in nowhere at ${ep.part || '?'}.${ep.terminal || '?'}`);
         }

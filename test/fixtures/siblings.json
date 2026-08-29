@@ -3,21 +3,21 @@
   "siblings": {
     "bw-board": {
       "repo": "CrispStrobe/bw-board",
-      "rev": "1caf8514fa59d3071b144268c440c5113a4539c5",
+      "rev": "4ae89b520d1f16ffb9778648e7ec271c4735b073",
       "marker": "src/board.js",
       "licence": "MIT",
-      "why": "the device/board simulator the gallery e2e and physics gates drive. Advanced from a301937 for the STM32F030 light tier: CortexM0Machine + the F0 board (RM0360 GPIO/TIM3/USART1/ADC + TIM3-compare PWM), the boundary-A stm32-adapter, the 'stm32f0' debug-target kind, and the stm32f030 bare-chip board KIND the new circuit.stm32f030.json benches place — without which the bench gates reject every F030 bench with unknown kind and the stm32f0-chain tests cannot even import src/cortex-m0-machine.js (the exact red on 9aef707's CI run). DELIBERATELY pinned BEFORE bw-cui2's attiny88 pa0->gnd2 rename (bw-board master has since moved past this sha): the rename chain's owner stated whoever bumps past it inherits the 135-circuit re-seat, and that re-seat is sequenced to happen once, after the cui sidecar step — this pin takes the F0 work and nothing of the rename. Suite 6610/0 against exactly this pair on 2026-08-25.",
-      "pinnedOn": "2026-08-25",
-      "revShort": "1caf851"
+      "why": "the device/board simulator the gallery e2e and physics gates drive. Advanced from 1caf851 (which took the STM32F030 light tier and deliberately stopped short of the attiny88 pa0->gnd2 rename) to master's tip after the defect wave: D18 op-amp secant convergence (999eb66/187694f — the LM358 now realises 1 + Rf/Rg = 46.4545455545 at every input instead of a damped 31.06, which is the whole of 76-multimeter's A-mode arithmetic), D20 output limiting (18555e7/5abf9ea, GATED: spec-updates/opamp-output-limit.md + oracles in the same commit, rout + iShort 40 mA), D23 first-solve capacitor semantics (f87adcc), the capture:'sample' scope channels (9441e4f/2169d9b), the bargraph that never lit and was not a diode (3c7cbe8), and the attiny88 pin-22 rename (e1bda3f) whose 135-circuit re-seat is carried on the cui side by TERMINAL_ALIASES + migrateTerminals — measured here, not assumed: all 2162 corpus circuits load and the claim census is byte-identical either side of the bump. Corpus measured against exactly this pair: 2635 claims, compared 1239, mismatched 1 (the pre-existing arduino-sk-p04-color-mixing one) on 2026-08-29.",
+      "pinnedOn": "2026-08-29",
+      "revShort": "4ae89b5"
     },
     "bw-circuit-ui": {
       "repo": "CrispStrobe/bw-circuit-ui",
-      "rev": "06c7ea7c7022030f77796ea01f0da6761e0e81a0",
+      "rev": "60fd1178a099b537de58a68608687da55fd11b86",
       "marker": "src/model/circuit.js",
       "licence": "MPL-2.0",
-      "why": "the canonical circuit model, engine, and the ONE wire-endpoint dialect reader the corpus gates read circuit.json through. Advanced from af5cc08 for the stm32f030 designer part (TSSOP20 sidecar + SVG, DIP-20 straddle footprint, passthrough kind, 3.3 V seated bench) — without which the 2133-circuit load gate cannot resolve the stm32f030 parts the new benches place. 06c7ea7 is EXACTLY the stm32f030-part commit and predates bw-cui2's attiny88 sidecar rename, for the same re-seat-once sequencing reason as the bw-board pin. Suite 6610/0 against exactly this pair on 2026-08-25.",
-      "pinnedOn": "2026-08-25",
-      "revShort": "06c7ea7"
+      "why": "the canonical circuit model, engine, and the ONE wire-endpoint dialect reader the corpus gates read circuit.json through. Advanced from 06c7ea7 (the stm32f030-part commit) to master's tip: the attiny88 pa0->gnd2 migration on this side (be6361d + ea91228 — a saved terminals array is now resolved against what the engine offers NOW, which is what carries the 135 shipped circuits forward), D21 meter input impedance (3f1d194 — a meter is 10 MOhm and no longer empties the board), per-channel V/div and FFT (7696656), worker sweeps (134cad0), and fbe7338, which is the one to know about: engineKindFor tested `typeof eng.hasDevice === 'function'` and the engine has never exported hasDevice, so EVERY passthrough kind silently collapsed to a generic 'mcu'. With that fixed, a board kind reaches the solver as its registered device, and a board-kind device drives only the GPIO terminals the part DECLARES — which found six benches in this corpus whose uno1 declared `terminals: [\"gnd2\"]` while wiring D13/D9/A0/D2/D12, repaired in the same commit as this bump. Corpus measured against exactly this pair: 2635 claims, compared 1239, mismatched 1, identical to 1caf851+06c7ea7 claim for claim, on 2026-08-29.",
+      "pinnedOn": "2026-08-29",
+      "revShort": "60fd117"
     }
   }
 }

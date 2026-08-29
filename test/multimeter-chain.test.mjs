@@ -200,7 +200,16 @@ test('76-multimeter: full-chain EXPECTED values (V, A, T-degC, wrap)',
     assert.deepEqual(decode(), { text: '439', dp: 0 }, 'mode V, pot 90% → 4.39');
 
     press(); runMs(600);
-    assert.deepEqual(decode(), { text: '067', dp: -1 }, 'mode A → 67 mA');
+    // 097, not 067. `067` was the LM358 defect showing through the whole chain:
+    // the op-amp's damped integrator realised gain 31.06 instead of 46.4545, so
+    // the stage put out 62.10 mV and the ADC read 13 counts — while this same
+    // document stated ×46.5 for a current that measures 99.96 mA. bw-board
+    // `999eb66` (D18) makes the amplifier halt on its INPUT error, and the
+    // reading follows the arithmetic in EXPECTED.md: 5/50.02 = 99.9600 mA →
+    // 1.99920 mV across the 0.02 Ω shunt → ×46.4545 = 92.8719 mV → ADC raw 19 →
+    // 19×5000/1023 = 92 mV → 92×50/47 = 97. The 3 mA short of the true 99.96 is
+    // the firmware's own 50/47 scale plus two integer truncations.
+    assert.deepEqual(decode(), { text: '097', dp: -1 }, 'mode A → 97 mA');
 
     press(); runMs(600);
     // T mode: piecewise B-equation (B=3950, 10k@25C). Engine NTC control
