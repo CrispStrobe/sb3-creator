@@ -58,8 +58,12 @@ describe('gate enrolment per example is recorded, not discovered', () => {
 
     test('the map covers the whole catalog and no example falls through every gate', () => {
         // Floors: an empty map would make the comparison below trivially true.
+        // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53):
+        // Object.keys(computed.map).length >= 259 -> observed 310.
         assert.ok(Object.keys(computed.map).length >= 259,
             `only ${Object.keys(computed.map).length} examples enrolled — the builder is broken`);
+        // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53):
+        // ENROLMENT.length >= 10 -> observed 17.
         assert.ok(ENROLMENT.length >= 10, `only ${ENROLMENT.length} predicates declared`);
         const orphans = Object.entries(computed.map)
             .filter(([, gates]) => gates.length === 0).map(([id]) => id);
@@ -85,6 +89,8 @@ describe('gate enrolment per example is recorded, not discovered', () => {
             .filter(f => f.endsWith('.test.mjs'))
             .filter(f => strip(readFileSync(join(ROOT, 'test', f), 'utf8')).includes('index.json'))
             .map(f => f.replace(/\.test\.mjs$/, ''));
+        // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53):
+        // readers.length >= 10 -> observed 17.
         assert.ok(readers.length >= 10, `only ${readers.length} catalog readers found — the scan is broken`);
         const declared = new Set([...ENROLMENT.map(e => e.gate), ...NOT_PER_EXAMPLE.keys(), ...CORPUS_WIDE]);
         const unaccounted = readers.filter(r => !declared.has(r));

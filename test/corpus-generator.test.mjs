@@ -378,6 +378,8 @@ describe('corpus generator: generateC on every generated program', () => {
             const c = new SB3Creator();
             c.parse(source);
             const code = c.generateC(undefined, {});
+            // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load
+            // 16-53): code.length > 100 -> observed 1198…18367 over 200 reaches.
             assert.ok(code.length > 100,
                 `seed ${seed}: C output too short (${code.length} chars)`);
         });

@@ -82,6 +82,8 @@ test('bwDevices reaches the retarget pool through the embed surface', () => {
     vm.createContext(sandbox);
     vm.runInContext(readFileSync(bundlePath, 'utf8'), sandbox, { timeout: 20000 });
     const devices = sandbox.bwDevices();
+    // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53):
+    // devices.length > 5 -> observed 13.
     assert.ok(Array.isArray(devices) && devices.length > 5, 'returns the device id list');
     assert.ok(devices.includes('pico') && devices.includes('z80'), 'the known ids are present');
 });

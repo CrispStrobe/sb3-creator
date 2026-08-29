@@ -114,13 +114,21 @@ test('70-calculator on the Pico: the REAL build — keys to +3V3, OLED on GP0/GP
 
     // 4. the assertions that catch a publish gap AND a dead bus —
     // on the REAL pins (GP0 sda, GP1 scl)
+    // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53):
+    // sclEdges > 1000 -> observed 45371.
     assert.ok(sclEdges > 1000, `SCL toggles at the board (${sclEdges} events)`);
+    // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53):
+    // sdaEdges > 100 -> observed 5710.
     assert.ok(sdaEdges > 100, `SDA toggles at the board (${sdaEdges} events)`);
+    // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53):
+    // board.readAnalog('GP0') > 3 -> observed 3.3.
     assert.ok(board.readAnalog('GP0') > 3, 'bus idles HIGH through the pull-ups');
     const oled = circ.parts.find((p) => p.kind === 'ssd1306');
     const st = board.getDeviceState(oled.id);
     assert.equal(st.displayOn, true, 'SSD1306 received its bring-up (charge pump + display on)');
     const lit0 = st.fb.reduce((a, b) => a + (b ? 1 : 0), 0);
+    // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53): lit0
+    // >= 20 -> observed 296.
     assert.ok(lit0 >= 20, `framebuffer carries the RECHNER header (${lit0} non-zero bytes)`);
     const before = st.fb.join(',');
 

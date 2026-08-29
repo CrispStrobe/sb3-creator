@@ -71,9 +71,13 @@ test('STM32F030: generated blink runs on the F0 machine, parked and honest',
 
         const pa0 = pins.get('PA0');
         assert.ok(pa0 && pa0.mode === 'pushpull', 'PA0 drives as an output');
+        // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53):
+        // pa0.changes <= 9 -> observed 8; pa0.changes >= 6 -> observed 8.
         assert.ok(pa0.changes >= 6 && pa0.changes <= 9, `PA0 blinks on the grid (${pa0.changes} changes in 3 s)`);
         const pa1 = pins.get('PA1');
         assert.equal(pa1 && pa1.mode, 'input-pullup', 'ACTIVE LOW button gets the pull-up');
+        // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53):
+        // Number(m.stats.sleptNs) / 3e9 > 0.9 -> observed 0.997710843.
         assert.ok(Number(m.stats.sleptNs) / 3e9 > 0.9,
             `WFI parks the core (${(Number(m.stats.sleptNs) / 3e7).toFixed(1)}% slept)`);
         assert.deepEqual(m.unmapped, [], 'no unmapped accesses');
@@ -136,6 +140,8 @@ test('STM32F030: ADC + PWM — the cap vocabulary, blocks to pad and back',
         // The pot at mid-rail reads mid-scale, and `say` carries it out
         // the USART: 2047 or 2048 depending on rounding.
         const nums = (serial.match(/\d+/g) || []).map(Number);
+        // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53):
+        // nums.length >= 3 -> observed 10.
         assert.ok(nums.length >= 3, `several prints arrived (${JSON.stringify(serial.slice(0, 60))})`);
         assert.ok(nums.every((n) => n === 2047 || n === 2048),
             `mid-rail reads mid-scale (${nums.slice(0, 5)})`);
@@ -150,6 +156,8 @@ test('STM32F030: ADC + PWM — the cap vocabulary, blocks to pad and back',
             if (tail[i - 1].high) high += dt;
         }
         const duty = high / total;
+        // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53):
+        // Math.abs(duty - 0.3) < 0.03 -> observed 0.022580645161290325.
         assert.ok(Math.abs(duty - 0.3) < 0.03,
             `the pad carries the asked-for duty (${(duty * 100).toFixed(1)}% vs 30%)`);
         assert.deepEqual(m.unmapped, [], 'no unmapped accesses');

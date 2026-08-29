@@ -83,6 +83,8 @@ describe('retarget-gallery: every retarget result is valid', () => {
                 assert.deepEqual((c.warnings || []).filter((w) =>
                     !expected.some((pat) => w.includes(pat))), [], `re-parse warnings on ${dev}`);
                 const out = c.generateC(undefined, {});
+                // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load
+                // 16-53): out.length > 100 -> observed 1538…18701 over 388 reaches.
                 assert.ok(out.length > 100, `${dev} emits non-trivial C`);
             });
         }

@@ -147,7 +147,11 @@ test('every wired control moves the pin the program reads', { skip: gate.skip },
   const { benches, pins, dead } = await sweep((mode) => mode === 'quasi');
 
   // Denominators, so a shrinking population cannot look like a repair.
+  // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53): benches
+  // >= 33 -> observed 34.
   assert.ok(benches >= 33, `${benches} benches swept (expected at least 33)`);
+  // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53): pins >=
+  // 67 -> observed 84.
   assert.ok(pins >= 67, `${pins} declared input pins carry a control (expected at least 67)`);
 
   const unexpected = dead.filter((d) => !EXPECTED_DEAD.has(d));

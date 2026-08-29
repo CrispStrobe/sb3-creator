@@ -77,6 +77,8 @@ describe('flat variants match their breadboarded twin',
       }
       // Vacuity guard: if the naming changes or the files go, this must fail
       // rather than pass over an empty list.
+      // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53):
+      // pairs.length > 900 -> observed 963.
       assert.ok(pairs.length > 900,
         `only ${pairs.length} flat variants found — expected one per breadboarded circuit`);
     });

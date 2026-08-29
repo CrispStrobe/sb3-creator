@@ -45,6 +45,41 @@ for (const cat of CATEGORIES) {
     }
 }
 
+/**
+ * THIS FILE PRODUCES ZERO TESTS WHEN THE CORPUS IS ABSENT, AND USED TO SAY SO TO
+ * NOBODY.
+ *
+ * Found 2026-08-29 by `scripts/threshold-observe.mjs` while sweeping bounding
+ * literals for docs/MEASURED-THRESHOLDS.md. It reported `arduino-import:79`
+ * (`r.pseudocode.length > 10`) as **NOT REACHED** in a green run — the one bound
+ * in the file, never evaluated. `node --test test/arduino-import.test.mjs` then
+ * gives the whole story:
+ *
+ *     # tests 0   # pass 0   # fail 0   # skipped 0
+ *
+ * Every test here is generated inside `for (const ex of examples)`. `corpus/` is
+ * gitignored and machine-local (`scripts/update-arduino-import-fixtures.mjs`
+ * regenerates it), and CI clones this repo alone — so on a fresh checkout and in
+ * CI the loop generates nothing at all and the file reports success. Not a skip,
+ * which node:test would print; zero tests, which it does not. That is the exact
+ * defect test/CROSS-REPO-GATE-AUDIT.md was written about, arriving through a
+ * different door: a skip is indistinguishable from a pass, and an empty
+ * generator is worse, because it is indistinguishable from both.
+ *
+ * The guard does not invent a corpus requirement CI was never configured to
+ * meet. It makes the state VISIBLE — node:test prints the skip reason — so a
+ * reader of the summary can tell "the importer was exercised" from "the importer
+ * was not there to exercise".
+ */
+const corpusReason = examples.length ? null
+    : `no Arduino corpus at ${CORPUS_SRC} — this file's tests are GENERATED from it, so ` +
+      'without it this gate produces zero tests and reports green. Run ' +
+      'scripts/update-arduino-import-fixtures.mjs to fetch and record it.';
+
+test('arduino corpus: this gate is not silently empty', { skip: corpusReason }, () => {
+    assert.ok(examples.length > 0, 'the corpus resolved but discovered no .ino files');
+});
+
 // Examples that don't re-parse clean (no pins found, or parse warnings).
 // Recorded, not a test failure — they exercise the importer's refusal path.
 const PARSE_WARN_EXPECTED = new Set([

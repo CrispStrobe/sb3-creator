@@ -95,11 +95,15 @@ test('70-calculator through the JS simulator driver: the OLED lights',
     // solve per EDGE made a display clear cost ~29k solves) and keeps a
     // visible pulse per transaction — so the pin still proves the driver
     // reaches the REAL board, at transaction rate rather than bit rate.
+    // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53):
+    // sdaEdges > 20 -> observed 2148.
     assert.ok(sdaEdges > 20, `SDA pulses at the board (${sdaEdges} events)`);
     const oled = circ.parts.find((p) => p.kind === 'ssd1306');
     const st = board.getDeviceState(oled.id);
     assert.equal(st.displayOn, true, 'SSD1306 received its bring-up (charge pump + display on)');
     const lit = st.fb.reduce((a, b) => a + (b ? 1 : 0), 0);
+    // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53): lit
+    // >= 20 -> observed 296.
     assert.ok(lit >= 20, `framebuffer carries the header (${lit} non-zero bytes)`);
 
     // 5. the keypad reads honestly (bug 3). Text level first: a Pico

@@ -238,6 +238,8 @@ test('4-space, tab, and CRLF indentation parse like 2-space', () => {
         return { n: Object.keys(b).length, warns: c.warnings.length, ig: c.checkIntegrity().length };
     };
     const base = shape(two);
+    // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53):
+    // base.n > 5 -> observed 7.
     assert.ok(base.warns === 0 && base.ig === 0 && base.n > 5);
     for (const variant of [four, tabs, crlf]) assert.deepEqual(shape(variant), base);
 });
@@ -328,6 +330,8 @@ test('variable/list monitors are hidden by default', () => {
     add 2 to items`);
     // every monitor the compiler creates starts hidden — games declare lots of
     // internal state that should not clutter the stage.
+    // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53):
+    // c.project.monitors.length >= 2 -> observed 2.
     assert.ok(c.project.monitors.length >= 2, 'monitors should exist');
     assert.equal(c.project.monitors.filter(m => m.visible).length, 0, 'none visible by default');
 });

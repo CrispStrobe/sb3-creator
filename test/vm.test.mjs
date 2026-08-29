@@ -495,6 +495,8 @@ test('vm: Minesweeper flood-fill reveals a connected empty region', async () => 
     for (let i = 0; i < 10; i++) vm.runtime._step();
     const revealed = list('revealed').filter((x) => String(x) === '1').length;
     vm.quit();
+    // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53):
+    // revealed > 3 -> observed 9.
     assert.ok(revealed > 3, `flood-fill should reveal a region, got ${revealed}`);
 });
 
@@ -588,6 +590,8 @@ test('tetris: pieces are real tetrominoes and all four keys respond', async () =
     let prev = '';
     for (let i = 0; i < 25 && prev !== cells(); i++) { prev = cells(); fire('down arrow'); }
     const lowest = Math.max(...[1, 2, 3, 4].map(i => Number(get('cr' + i))));
+    // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53):
+    // lowest >= 18 -> observed 19.
     assert.ok(lowest >= 18, `piece soft-dropped to the floor (row ${lowest})`);
 
     // gravity lock: advance 100 ms per step so the 0.4 s wait expires,
@@ -595,6 +599,8 @@ test('tetris: pieces are real tetrominoes and all four keys respond', async () =
     for (let i = 0; i < 60; i++) step(100);
     const board = get('board') || [];
     const filled = board.filter(x => Number(x) > 0).length;
+    // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53):
+    // filled >= 4 -> observed 4.
     assert.ok(filled >= 4, `a locked piece fills >= 4 board cells (got ${filled})`);
     vm.quit();
 });

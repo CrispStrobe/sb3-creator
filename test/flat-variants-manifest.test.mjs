@@ -62,6 +62,8 @@ describe('flat twins are guarded without sibling checkouts', () => {
     assert.equal(MANIFEST.engine?.repo, 'bw-circuit-ui');
     assert.match(MANIFEST.engine?.sha ?? '', /^[0-9a-f]{40}$/,
       'engine SHA must be recorded — an unattributed verdict cannot be re-derived');
+    // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53):
+    // MANIFEST.entries.length > 900 -> observed 963.
     assert.ok(Array.isArray(MANIFEST.entries) && MANIFEST.entries.length > 900,
       `only ${MANIFEST.entries?.length} entries — refusing to pass over a shrunken corpus`);
   });

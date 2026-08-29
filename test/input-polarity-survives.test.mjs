@@ -95,6 +95,8 @@ describe('a retarget keeps the button it was given', () => {
 
     test('the subject really is an ACTIVE LOW input on a multi-device example', () => {
         assert.match(src, /^PIN button = P3\.2 INPUT ACTIVE LOW$/m);
+        // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53):
+        // entry.devices.length >= 11 -> observed 11.
         assert.ok(entry.devices.length >= 11,
             `05-counter must still carry its device list (${entry.devices.length})`);
     });
@@ -162,6 +164,8 @@ describe('a retarget keeps the button it was given', () => {
                 `${device}: the button does not go to ground`);
             checked++;
         }
+        // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53):
+        // checked >= 10 -> observed 11.
         assert.ok(checked >= 10,
             `only ${checked} per-device benches were read (expected at least 10) — an empty `
             + 'sweep would make the two assertions above say nothing');

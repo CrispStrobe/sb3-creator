@@ -145,9 +145,13 @@ describe('EXPECTED.md quantities hold against the engine', { skip: SKIP }, () =>
         const L = await ledger();
         // Floors, not targets: if the extractor breaks, this must fail rather
         // than report a tidy 100 % of nothing.
+        // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53):
+        // L.total > 2300 -> observed 2644.
         assert.ok(L.total > 2300,
             `only ${L.total} unit-bearing claims found across ${exampleDirs().length} examples — the extractor is broken`);
         const dirs = new Set(allClaims().map(c => c.dir));
+        // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53):
+        // dirs.size > 180 -> observed 232.
         assert.ok(dirs.size > 180,
             `claims found in only ${dirs.size} examples — the extractor is reading a fraction of the corpus`);
     });
@@ -203,6 +207,8 @@ describe('EXPECTED.md quantities hold against the engine', { skip: SKIP }, () =>
     test('a document that shows its arithmetic agrees with it', async () => {
         const L = await ledger();
         const byOwnMaths = L.checked.filter(c => /own arithmetic/.test(c.how || ''));
+        // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53):
+        // byOwnMaths.length >= 175 -> observed 194.
         assert.ok(byOwnMaths.length >= 175,
             `only ${byOwnMaths.length} claims were held to their own stated derivation — the expression reader is broken`);
     });
@@ -212,6 +218,8 @@ describe('EXPECTED.md quantities hold against the engine', { skip: SKIP }, () =>
         const solvedCurrents = L.checked.filter(c => c.cls === 'curr' && /solved/.test(c.how || ''));
         // The whole point: before this sweep no current claim anywhere in the
         // corpus had ever been compared against a solve.
+        // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53):
+        // solvedCurrents.length >= 85 -> observed 160.
         assert.ok(solvedCurrents.length >= 85,
             `only ${solvedCurrents.length} current claims were checked against a solve — branchCurrent readback is not reaching them`);
     });
@@ -255,6 +263,8 @@ describe('the instrument says what it cannot read', { skip: SKIP }, () => {
                     .some(x => typeof x.params?.rInternal === 'number');
             } catch { return false; }
         });
+        // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53):
+        // withR.length >= 6 -> observed 7.
         assert.ok(withR.length >= 6,
             `only ${withR.length} benches declare rInternal — this gate has lost its subject`);
         // THIS TEST USED TO BE A CANARY THAT FAILED WHEN THE ENGINE GREW THE
@@ -302,6 +312,8 @@ describe('the instrument says what it cannot read', { skip: SKIP }, () => {
         const both = L.checked.filter(c =>
             ['pc77-klemmenspannung', 'pc78-belastete-quelle', 'pc79-indirekte-strommessung',
                 'pc80-quellen-vergleich'].includes(c.dir) && /the engine agrees/.test(c.how || ''));
+        // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53):
+        // both.length >= 21 -> observed 21.
         assert.ok(both.length >= 21,
             `only ${both.length} claims across the four source-resistance lessons are confirmed by BOTH `
             + 'their own arithmetic and a solve — the cross-check has stopped reaching them');

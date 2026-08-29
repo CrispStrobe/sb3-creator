@@ -86,12 +86,16 @@ describe('every solved node obeys KCL',
                     if (/^circuit.*\.json$/.test(fn)) files.push(d.name + '/' + fn);
                 }
             }
+            // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load
+            // 16-53): files.length > 1500 -> observed 2162.
             assert.ok(files.length > 1500,
                 'only ' + files.length + ' circuits found - expected the whole corpus');
             assert.ok(Circuit, 'Circuit failed to load');
         });
 
         test('no net sources or sinks current it cannot account for', () => {
+            // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load
+            // 16-53): files.length > 1500 -> observed 2162.
             assert.ok(files.length > 1500 && Circuit, 'the discovery test did not run');
 
             const violations = [];

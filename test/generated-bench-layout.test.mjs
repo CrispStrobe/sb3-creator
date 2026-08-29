@@ -57,6 +57,8 @@ test('bench file list excludes flat twins without emptying itself', () => {
     'no circuit-flat.* files found — if the twins were renamed, this exclusion is stale');
   assert.deepEqual(kept.filter(isFlatTwin), [], 'a flat twin survived the filter');
   assert.equal(kept.length, all.length - flat.length, 'filter dropped something other than flat twins');
+  // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53):
+  // kept.length > 900 -> observed 1199.
   assert.ok(kept.length > 900, `only ${kept.length} bench files left — the filter is too broad`);
 });
 

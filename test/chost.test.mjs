@@ -66,6 +66,8 @@ test('the emitted C compiles, warnings and all', { skip: !HAS_CC }, async () => 
         compiled++;
     }
     fs.rmSync(dir, { recursive: true, force: true });
+    // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53):
+    // compiled >= 25 -> observed 30.
     assert.ok(compiled >= 25, `expected the whole example set, compiled ${compiled}`);
 });
 
@@ -224,5 +226,7 @@ test('and all of them come back byte-identical', async () => {
         if (a.project.stc && a.project.stc.pins && a.project.stc.pins.length) continue;
         if (build(cHostToPseudocode(a.generateC())).decompile() === a.decompile()) identical++;
     }
+    // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53):
+    // identical >= 30 -> observed 30.
     assert.ok(identical >= 30, `only ${identical} of 30 are byte-identical`);
 });

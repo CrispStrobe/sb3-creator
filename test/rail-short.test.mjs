@@ -82,12 +82,16 @@ describe('no shipped circuit shorts its rail to ground',
                 }
             }
             // Vacuity guard: this must fail rather than pass over an empty list.
+            // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load
+            // 16-53): files.length > 1500 -> observed 2162.
             assert.ok(files.length > 1500,
                 `only ${files.length} circuit files found — expected the whole corpus`);
             assert.ok(Circuit, 'Circuit failed to load');
         });
 
         test('every supply net is distinct from every ground net', () => {
+            // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load
+            // 16-53): files.length > 1500 -> observed 2162.
             assert.ok(files.length > 1500, 'the discovery test did not run');
             assert.ok(Circuit, 'the discovery test did not run');
 

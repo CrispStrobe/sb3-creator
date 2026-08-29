@@ -64,9 +64,13 @@ const LEDCUBE = deriveEmitted('ledcube', { stopAtReturn: true });
 // clean bill of health. If a refactor renames createBlock, every conformance
 // assertion below would pass vacuously, so assert the instrument first.
 test('the opcode deriver actually finds opcodes', () => {
+    // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53):
+    // STC12.opcodes.size >= 25 -> observed 28.
     assert.ok(STC12.opcodes.size >= 25,
         `expected the emitter to yield 25+ stc12 opcodes, found ${STC12.opcodes.size} — ` +
         `the deriver has stopped matching and every conformance test below is now vacuous`);
+    // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53):
+    // LEDCUBE.opcodes.size >= 5 -> observed 9.
     assert.ok(LEDCUBE.opcodes.size >= 5,
         `expected 5+ ledcube opcodes, found ${LEDCUBE.opcodes.size} — deriver broken`);
     for (const op of STC12.opcodes) {
@@ -185,6 +189,8 @@ test('every copy of stc12 agrees on the shape of the blocks it shares', () => {
         copies[snap.name] = loadExtension(snap.inner, snap.name);
     }
     const names = Object.keys(copies);
+    // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53):
+    // names.length >= 3 -> observed 3.
     assert.ok(names.length >= 3,
         `expected the canonical copy plus both downstream snapshots, got ${names.join(', ')}`);
 
@@ -223,6 +229,8 @@ test('sibling roots are one level up from the repo root, not two', async () => {
     assert.ok(block, 'could not find the ROOTS table — this test has stopped checking anything');
     // Values only — the table's keys are repo names, not paths.
     const roots = [...block[1].matchAll(/'([^']+)'/g)].map((m) => m[1]).filter((v) => v.includes('/'));
+    // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53):
+    // roots.length >= 4 -> observed 5.
     assert.ok(roots.length >= 4, `expected several candidate roots, found ${roots.length}`);
     for (const root of roots) {
         assert.ok(root.startsWith('../') && !root.startsWith('../../'),
@@ -239,6 +247,8 @@ test('MANIFEST.json attributes every snapshot to an upstream commit', () => {
             `to what the sibling repo actually shipped`);
         assert.ok(snap.entry.why, `${snap.name}: MANIFEST.json must say why this copy is vendored`);
     }
+    // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53):
+    // Object.keys(MANIFEST.snapshots).length >= 5 -> observed 5.
     assert.ok(Object.keys(MANIFEST.snapshots).length >= 5,
         'expected at least five vendored downstream copies');
 });

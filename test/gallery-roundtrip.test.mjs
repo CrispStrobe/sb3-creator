@@ -68,6 +68,8 @@ for (const name of exampleDirs) {
 }
 
 test('gallery has at least 40 examples', () => {
+    // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53):
+    // exampleDirs.length >= 40 -> observed 317.
     assert.ok(exampleDirs.length >= 40,
         `expected >= 40 gallery examples, found ${exampleDirs.length}`);
 });

@@ -105,10 +105,14 @@ describe('programs read the variables they write', () => {
     test('the instrument parsed a real corpus', () => {
         // Floors: with no programs or no variables, both assertions below are
         // vacuously true, which is the shape of a gate that cannot fail.
+        // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53):
+        // dirs.length >= 250 -> observed 280.
         assert.ok(dirs.length >= 250, `only ${dirs.length} programs found`);
         const broken = [...parsed].filter(([, s]) => !s.ok).map(([d, s]) => `${d}: ${s.reason}`);
         assert.deepEqual(broken, [], 'every program.bw must parse for its symbols to be readable');
         const withVars = [...parsed.values()].filter(s => s.ok && s.written.size).length;
+        // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53):
+        // withVars >= 80 -> observed 98.
         assert.ok(withVars >= 80, `only ${withVars} programs write any variable — the walker is wrong`);
     });
 

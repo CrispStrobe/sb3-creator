@@ -148,6 +148,8 @@ test('retarget: every ok result re-parses clean and emits C on its target', () =
         c.parse(r.pseudocode);
         assert.deepEqual(c.warnings, [], `${dev} re-parses clean`);
         const out = c.generateC(undefined, {});
+        // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53):
+        // out.length > 200 -> observed 2539…6677 over 5 reaches.
         assert.ok(out.length > 200, `${dev} emits C`);
         assert.deepEqual(c._cWarnings, [], `${dev} emits clean: ${JSON.stringify(c._cWarnings)}`);
     }

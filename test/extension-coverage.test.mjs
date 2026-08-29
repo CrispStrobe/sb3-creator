@@ -65,9 +65,13 @@ const { byslug: AUTHORED, compiled: COMPILED } = authoredOpcodes();
 // The instrument first. If the corpus walk compiles nothing, or the gallery
 // stops using these extensions at all, every assertion below passes vacuously.
 test('the example corpus actually yields extension opcodes', () => {
+    // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53):
+    // COMPILED >= 100 -> observed 280.
     assert.ok(COMPILED >= 100,
         `only ${COMPILED} examples compiled — the corpus walk is broken and the coverage ` +
         `assertions below are vacuous`);
+    // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53):
+    // AUTHORED.stc12.size >= 10 -> observed 14.
     assert.ok(AUTHORED.stc12.size >= 10,
         `only ${AUTHORED.stc12.size} distinct stc12 opcodes found across ${COMPILED} examples — ` +
         `expected the hardware gallery to use many more; the walk is not seeing block opcodes`);

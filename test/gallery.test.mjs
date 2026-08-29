@@ -200,6 +200,8 @@ describe('gallery: every example parses and compiles', () => {
         test(`${name}: EXPECTED.md exists`, () => {
             assert.ok(existsSync(expectedPath), `${name}/EXPECTED.md missing`);
             const content = readFileSync(expectedPath, 'utf8');
+            // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load
+            // 16-53): content.length > 100 -> observed 143…6121 over 310 reaches.
             assert.ok(content.length > 100, 'EXPECTED.md has substantive content');
         });
     }
@@ -222,6 +224,8 @@ describe('gallery: index.json is valid and covers every example', () => {
             assert.ok(entry.title?.en, 'title.en');
             assert.ok(entry.title?.de, 'title.de');
             assert.ok(CATEGORIES.has(entry.category), `category "${entry.category}" not in ${[...CATEGORIES]}`);
+            // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load
+            // 16-53): entry.difficulty <= 5 -> observed 1…5 over 310 reaches.
             assert.ok(typeof entry.difficulty === 'number' && entry.difficulty >= 1 && entry.difficulty <= 5, 'difficulty 1-5');
             assert.ok(KINDS.has(entry.kind), `kind "${entry.kind}" not in ${[...KINDS]}`);
             assert.ok(entry.files?.program || entry.files?.circuit, 'files.program or files.circuit');

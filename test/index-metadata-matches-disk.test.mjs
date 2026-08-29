@@ -84,7 +84,11 @@ describe('index metadata agrees with the files and the compiler', () => {
         const seen = new Set();
         for (const entry of index) for (const k of Object.keys(entry)) seen.add(k);
         // Floors: an empty or truncated catalog makes everything below vacuous.
+        // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53):
+        // index.length >= 259 -> observed 310.
         assert.ok(index.length >= 259, `catalog shrank to ${index.length}`);
+        // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53):
+        // seen.size >= 14 -> observed 15.
         assert.ok(seen.size >= 14, `only ${seen.size} distinct index fields — the scan is broken`);
         const unaccounted = [...seen].filter(k => !CHECKED_HERE.has(k) && !UNCHECKED_HERE.has(k));
         assert.deepEqual(unaccounted.sort(), [],

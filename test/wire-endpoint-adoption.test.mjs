@@ -97,6 +97,8 @@ describe('circuit.json wire endpoints have one reader', () => {
     }
 
     test('the scanner works at all (anti-vacuity)', () => {
+        // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53):
+        // files.length > 100 -> observed 215.
         assert.ok(files.length > 100,
             `only ${files.length} files scanned across ${SCANNED.join(', ')} — the walk found nothing`);
         assert.match('key(w.from.part, w.fromTerminal)', DIALECT_FIELD);

@@ -51,6 +51,8 @@ describe('reference/extensions provenance (in-repo hashes; upstream drift needs 
             'reference/extensions/MANIFEST.json is missing. Generate it with ' +
             'BW_EXTENSIONS=… node scripts/vendor-reference-extensions.mjs --write');
         const onDisk = readdirSync(REF).filter((f) => f.endsWith('.js'));
+        // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53):
+        // onDisk.length >= 8 -> observed 8.
         assert.ok(onDisk.length >= 8,
             `only ${onDisk.length} .js files found in reference/extensions — expected at least 8. ` +
             'The scan is broken and the comparisons below would pass over an empty set.');
@@ -79,6 +81,8 @@ describe('reference/extensions provenance (in-repo hashes; upstream drift needs 
             const actual = sha256(readFileSync(join(REF, e.file)));
             if (actual !== e.sha256) drifted.push(`${e.file}: recorded ${e.sha256.slice(0, 12)}, on disk ${actual.slice(0, 12)}`);
         }
+        // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53):
+        // manifest.entries.length >= 8 -> observed 8.
         assert.ok(manifest.entries.length >= 8,
             `the manifest carries only ${manifest.entries.length} entries — too few to be the ` +
             'whole directory, so an empty drift list below means nothing.');
@@ -134,6 +138,8 @@ describe('the generated runtime registry names a revision, not a repository', ()
 
         const slugs = Object.entries(src.slugs ?? {});
         // Floor: an empty slug map makes every check below vacuous.
+        // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53):
+        // slugs.length >= 17 -> observed 17.
         assert.ok(slugs.length >= 17,
             `only ${slugs.length} slugs recorded, expected at least 17 — either the generator ` +
             'stopped recording provenance or the walk is broken; both make the checks below ' +

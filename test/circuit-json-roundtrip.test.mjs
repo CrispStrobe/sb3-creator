@@ -210,6 +210,8 @@ test('safety: 33-inductive-no-flyback — the motor has no diode across it', { s
 });
 
 test(`circuit.json gallery has at least 30 files`, () => {
+    // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53):
+    // circuitCount >= 30 -> observed 284.
     assert.ok(circuitCount >= 30,
         `expected >= 30 circuit.json files, found ${circuitCount}`);
 });

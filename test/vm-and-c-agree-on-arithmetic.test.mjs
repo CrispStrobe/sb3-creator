@@ -106,7 +106,11 @@ describe('the VM and the emitted C agree on arithmetic', () => {
 
     test('the instrument compiled a real corpus', () => {
         const targets = [...emitted.values()].filter(Boolean).length;
+        // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53):
+        // dirs.length >= 250 -> observed 280.
         assert.ok(dirs.length >= 250, `only ${dirs.length} programs found`);
+        // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53):
+        // targets >= 100 -> observed 126.
         assert.ok(targets >= 100, `only ${targets} programs emit device C — generateC is not running`);
         // The detector must fire on a known-bad expression, or its regexes have
         // rotted and every assertion below is vacuous.

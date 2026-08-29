@@ -72,10 +72,16 @@ describe('example kind agrees with example content', () => {
     test('the instrument is measuring a real catalog', () => {
         // Floors: without these the two assertions below hold vacuously over
         // an empty or truncated catalog.
+        // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53):
+        // index.length >= 259 -> observed 310.
         assert.ok(index.length >= 259, `catalog shrank to ${index.length}`);
         const withBlocks = [...counts.values()].filter(c => c.ok && c.blocks > 0).length;
+        // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53):
+        // withBlocks >= 100 -> observed 163.
         assert.ok(withBlocks >= 100, `only ${withBlocks} examples parse to any blocks — the parser call is wrong`);
         const without = [...counts.values()].filter(c => c.ok && c.blocks === 0).length;
+        // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53):
+        // without >= 100 -> observed 147.
         assert.ok(without >= 100, `only ${without} examples parse to zero blocks — the placeholder convention is gone`);
     });
 

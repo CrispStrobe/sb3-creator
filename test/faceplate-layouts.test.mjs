@@ -35,6 +35,8 @@ const layouts = readdirSync(EX, { withFileTypes: true })
     .map(file => ({ id: path.basename(path.dirname(file)), file, data: JSON.parse(readFileSync(file, 'utf8')) }));
 
 test('the corpus still ships faceplate layouts for this gate to check', () => {
+    // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53):
+    // layouts.length >= 11 -> observed 13.
     assert.ok(layouts.length >= 11, `only ${layouts.length} controller.json layouts found`);
 });
 

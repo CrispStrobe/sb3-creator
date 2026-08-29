@@ -260,6 +260,8 @@ describe('machine benches boot the ROM they ship', { skip: gate.skip }, () => {
         assert.equal(perLamp[0], 736147, 'measured delay loop, from the arithmetic in build-machine-roms.mjs');
         const sweep = at[9] - at[1];
         assert.equal(sweep, 736147 * 8, 'eight lamps make one sweep');
+        // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53):
+        // Math.abs(sweep / 7372800 - 0.8) < 0.005 -> observed 0.0012293836805555847.
         assert.ok(Math.abs(sweep / 7372800 - 0.8) < 0.005, 'a sweep is ~800 ms, as the program reads');
     });
 
@@ -300,6 +302,8 @@ describe('machine benches boot the ROM they ship', { skip: gate.skip }, () => {
             .filter((l) => /^(turn (on|off)|toggle) l\d$/.test(l));
 
         const before = pinLines(source);
+        // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53):
+        // before.length >= 16 -> observed 16.
         assert.ok(before.length >= 16, `the fixture must exercise the pins (${before.length} found)`);
         assert.deepEqual(pinLines(back), before,
             'every turn on / turn off must come back as itself — a shadow-byte '
@@ -351,6 +355,8 @@ describe('machine benches boot the ROM they ship', { skip: gate.skip }, () => {
 
         // 1. It interrupts at all. Before this bench existed, nothing in the
         //    gallery did, and the lesson asked the learner to measure it anyway.
+        // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53):
+        // isr > 100 -> observed 2201.
         assert.ok(isr > 100, `only ${isr} interrupts — the bench is not interrupting`);
         assert.ok(fg > 0, 'the foreground never ran — a stuck ISR, not a bench');
 
@@ -358,6 +364,8 @@ describe('machine benches boot the ROM they ship', { skip: gate.skip }, () => {
         //    reloads from its latch, so it is (latch + 2) = $0FFF + 2 = 4097.
         const periods = at.slice(1).map((c, i) => c - at[i]);
         const mean = periods.reduce((a, b) => a + b, 0) / periods.length;
+        // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53):
+        // Math.abs(mean - 4097) < 1 -> observed 0.0013636363637488103.
         assert.ok(Math.abs(mean - 4097) < 1,
             `mean ISR period ${mean.toFixed(2)} is not the T1 period of 4097 cycles`);
 
@@ -367,6 +375,9 @@ describe('machine benches boot the ROM they ship', { skip: gate.skip }, () => {
         //    A bench with zero jitter would teach the opposite of the truth.
         assert.ok(new Set(periods).size > 1,
             'every period identical — this bench exists to show that latency is a distribution');
+        // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53):
+        // Math.max(...periods) <= 4104 -> observed 4100; Math.min(...periods) >= 4090 ->
+        // observed 4094.
         assert.ok(Math.min(...periods) >= 4090 && Math.max(...periods) <= 4104,
             `jitter ${Math.min(...periods)}..${Math.max(...periods)} is wider than instruction `
             + 'quantisation explains — something other than entry latency is moving');
@@ -381,6 +392,9 @@ describe('machine benches boot the ROM they ship', { skip: gate.skip }, () => {
             `foreground ${perIsr.toFixed(2)}/interrupt is not below the uninterrupted `
             + `${uninterrupted.toFixed(2)} — the interrupt appears to cost nothing`);
         const lostCycles = (uninterrupted - perIsr) * 9;
+        // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53):
+        // lostCycles < 40 -> observed 21.48023625624711; lostCycles > 10 -> observed
+        // 21.48023625624711.
         assert.ok(lostCycles > 10 && lostCycles < 40,
             `the interrupt costs the foreground ${lostCycles.toFixed(1)} cycles, which is not `
             + 'the ~23 that entry + handler + RTI explains');

@@ -150,6 +150,8 @@ test('the two branches are far apart in SHARE, not merely in raw ratio', { skip:
         `${sleep.share.toFixed(2)}, spin ${spin.share.toFixed(2)}, achievable ` +
         `${spin.achievable?.toFixed(3)}. The cut ${CONTENTION_SHARE} is no longer justified.`);
     if (spin.achievable !== null && spin.achievable >= QUIET_ENOUGH) {
+        // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53):
+        // spin.share - sleep.share > 0.5 -> observed 0.9891787488662402.
         assert.ok(spin.share - sleep.share > 0.5,
             `on a quiet box (achievable ${spin.achievable.toFixed(2)}) the two observables are ` +
             `only ${(spin.share - sleep.share).toFixed(2)} apart in share; the cuts ` +

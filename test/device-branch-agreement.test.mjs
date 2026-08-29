@@ -118,9 +118,13 @@ describe('a device terminal current equals the branch it feeds', { skip: SKIP },
     test('the population is the one this gate was measured over', async () => {
         await loadEngine(gate.paths);
         const benches = deviceBenches();
+        // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53):
+        // benches.length >= 14 -> observed 14.
         assert.ok(benches.length >= 14,
             `only ${benches.length} benches declare a BJT or a MOSFET — this gate has lost its subject`);
         const s = samples();
+        // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53):
+        // s.length >= 27 -> observed 27.
         assert.ok(s.length >= 27,
             `only ${s.length} device-touching two-terminal nets carry more than ${FLOOR * 1e3} mA — `
             + 'the extractor or the netlist reader has changed under this gate');
@@ -151,6 +155,8 @@ describe('a device terminal current equals the branch it feeds', { skip: SKIP },
         // bw-engine's `device KCL-visibility` lane makes every stamping model
         // KCL-visible; when that lands and the pin moves, this number drops and
         // this line is what says so.
+        // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53):
+        // left.length <= 3 -> observed 3.
         assert.ok(left.length <= 3,
             `${left.length} device/branch disagreements against a recorded 3:\n  ` +
             left.map(x => `${x.dir} ${x.net} — ${x.detail}`).join('\n  '));
@@ -184,6 +190,8 @@ describe('a bench that drops volts and reports no current', { skip: SKIP }, () =
             }
             if (!live && dropping) dead.push(dir);
         }
+        // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53):
+        // reached.size >= 69 -> observed 71.
         assert.ok(reached.size >= 69,
             `only ${reached.size} benches are reached by a current claim — the router has changed under this gate`);
         // 2 of 69 on bw-board a301937; 0 of 69 since 2026-08-29. Named, because

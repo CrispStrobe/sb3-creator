@@ -59,6 +59,8 @@ test('lineMap: every entry points at a real statement and a real block', () => {
     const c = build();
     const r = c.generateMicroPython(c.project, { trace: true });
     const entries = Object.entries(r.lineMap);
+    // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53):
+    // entries.length >= 6 -> observed 6.
     assert.ok(entries.length >= 6, `expected >= 6 mapped statements, got ${entries.length}`);
     const lines = r.py.split('\n');
     const allBlocks = new Set();
@@ -91,6 +93,8 @@ test('marker debugger is untouched; plain build carries neither', () => {
     const d = gen({ debug: true });
     assert.match(d.py, /_bw_pos\(/);
     assert.ok(!/settrace/.test(d.py), 'no settrace in a marker build');
+    // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53):
+    // d.positions.length >= 6 -> observed 6.
     assert.ok(Array.isArray(d.positions) && d.positions.length >= 6);
     const p = gen({});
     assert.ok(!/_bw_pos\(|settrace/.test(p.py), 'plain build is uninstrumented');
@@ -158,6 +162,8 @@ test('live: line events stream with mapped numbers', { skip: !hasPython }, () =>
     const r = gen({ trace: true });
     const out = runTraced(r.py, '');
     const seen = [...out.matchAll(/\x1eL(\d+)/g)].map((m) => m[1]);
+    // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53):
+    // seen.length >= 3 -> observed 2266.
     assert.ok(seen.length >= 3, `expected line events, got: ${JSON.stringify(out.slice(0, 200))}`);
     for (const n of new Set(seen)) {
         assert.ok(r.lineMap[n], `reported line ${n} is not in lineMap`);
@@ -180,6 +186,8 @@ test('live: breakpoint halts with real locals and call stack, resumes on c', { s
     const kDump = out.match(/\x1eK(\[.*\])/);
     assert.ok(kDump, 'call-stack dump present at halt');
     const stack = JSON.parse(kDump[1]);
+    // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53):
+    // stack.length >= 2 -> observed 4.
     assert.ok(stack.length >= 2, `stack walks f_back: ${kDump[1]}`);
     // resumed: more line events follow the first halt
     const firstHalt = out.indexOf('\x1eV');
