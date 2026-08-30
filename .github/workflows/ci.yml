@@ -1,11 +1,25 @@
 name: CI
 
+# `paths-ignore` must not cover the Markdown the GATES READ.
+#
+# `**.md` used to, and it left main with a red verdict nobody could clear.
+# `test/expected-quantities-hold.test.mjs` asserts on the CONTENT of
+# `examples/*/EXPECTED.md` — that every page quoting a solve names the pinned
+# engine revisions. Bumping a sibling pin made 31 of those pages stale, CI went
+# red and said so; the repair restamped exactly those 31 files and touched
+# nothing else, so it matched `**.md`, so it never ran. The fix for a red main
+# was unverifiable by the thing that reddened it, and the tip sat with no
+# verdict at all until a manual dispatch.
+#
+# So documentation stays ignored and the corpus does not: `examples/**` is
+# INPUT to the suite, whatever its extension. Ignoring `docs/**` and top-level
+# `*.md` keeps the cheap case cheap — a prose commit still runs nothing.
 on:
   push:
     branches: [main]
-    paths-ignore: ['**.md']
+    paths-ignore: ['*.md', 'docs/**.md', 'test/*.md']
   pull_request:
-    paths-ignore: ['**.md']
+    paths-ignore: ['*.md', 'docs/**.md', 'test/*.md']
   workflow_dispatch:
 
 # Cancel superseded runs on a branch, but never on main.
