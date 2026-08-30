@@ -3,12 +3,12 @@
   "siblings": {
     "bw-board": {
       "repo": "CrispStrobe/bw-board",
-      "rev": "4ae89b520d1f16ffb9778648e7ec271c4735b073",
+      "rev": "6571648aa161f7088e0de6b746528acaaa1f3655",
       "marker": "src/board.js",
       "licence": "MIT",
-      "why": "the device/board simulator the gallery e2e and physics gates drive. Advanced from 1caf851 (which took the STM32F030 light tier and deliberately stopped short of the attiny88 pa0->gnd2 rename) to master's tip after the defect wave: D18 op-amp secant convergence (999eb66/187694f — the LM358 now realises 1 + Rf/Rg = 46.4545455545 at every input instead of a damped 31.06, which is the whole of 76-multimeter's A-mode arithmetic), D20 output limiting (18555e7/5abf9ea, GATED: spec-updates/opamp-output-limit.md + oracles in the same commit, rout + iShort 40 mA), D23 first-solve capacitor semantics (f87adcc), the capture:'sample' scope channels (9441e4f/2169d9b), the bargraph that never lit and was not a diode (3c7cbe8), and the attiny88 pin-22 rename (e1bda3f) whose 135-circuit re-seat is carried on the cui side by TERMINAL_ALIASES + migrateTerminals — measured here, not assumed: all 2162 corpus circuits load and the claim census is byte-identical either side of the bump. Corpus measured against exactly this pair: 2635 claims, compared 1239, mismatched 1 (the pre-existing arduino-sk-p04-color-mixing one) on 2026-08-29.",
-      "pinnedOn": "2026-08-29",
-      "revShort": "4ae89b5"
+      "why": "the device/board simulator the gallery e2e and physics gates drive. Advanced from 4ae89b5 to 6571648 for battery_aa parameter honesty: declared volts and rInternal now feed one two-terminal Thevenin source rather than a fixed, double-stamped ground reference. Hand oracles cover the unchanged 1.5 V / 0.3 ohm default and an override; 75-battery-tester's 1.45/1.30/1.10/0.90 V settings reach FULL/GOOD/WEAK/DEAD under its real 10 ohm load. The tier-2 param ratchet is strengthened in the same commit so any future KNOWN_INERT entry that begins moving a bench makes the gate red.",
+      "pinnedOn": "2026-08-30",
+      "revShort": "6571648"
     },
     "bw-circuit-ui": {
       "repo": "CrispStrobe/bw-circuit-ui",

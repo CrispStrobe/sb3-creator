@@ -217,13 +217,6 @@ describe('circuit params, tier 1: no key the engine never mentions', { skip: SKI
  * May only SHRINK.
  */
 const KNOWN_INERT = new Map([
-    ['battery_aa.volts',
-        'ENGINE: bw-board registers battery_aa as a fixed 1.5 V / 0.3 Ω Thevenin and reads '
-        + 'neither volts nor rInternal (devices/named-parts.js). 75-battery-tester declares '
-        + '1.45 V and measures 1.4778 V for every value of volts from 1.45 down to 0.5, so its '
-        + 'EXPECTED.md instruction "edit the volts parameter to 1.3 -> GOOD, 1.1 -> WEAK, '
-        + '0.9 -> DEAD" cannot be carried out. See PLAN.md.'],
-
     ['simplevga_card.rows',
         'ENGINE: nothing reads params.rows for this kind. `rows` is consumed by the character '
         + 'displays only — hd44780.js and i2c-parts.js both do `part.params?.rows ?? 2` — and no '
@@ -232,13 +225,6 @@ const KNOWN_INERT = new Map([
         + 'intends; the declaration is kept rather than deleted because it states that intent, '
         + 'and this entry records that the engine does not yet act on it.'],
 
-    ['28c256.contents',
-        'BLIND SPOT: the array perturbation is v.slice(0, -1), which drops the LAST byte. A '
-        + 'microcode image is 128 bytes addressed by (opcode, step) and pc112 reads the low ones, '
-        + 'so removing byte 127 — opcode 15, step 7, which no switch setting reaches — is a change '
-        + 'the bench cannot see. The param is emphatically live: the same image drives every '
-        + 'control line in that rung, and bw-circuit-ui asserts all 24 cells of the control table '
-        + 'against it. Perturbing a byte the circuit ADDRESSES would move it.'],
     ['28c256.readOnly',
         'BLIND SPOT: no bench writes. readOnly refuses /WE writes, and both probed sites tie /WE high — '
         + 'a control store is never written. Flipping it changes nothing because nothing writes, '
@@ -260,12 +246,7 @@ const KNOWN_INERT = new Map([
     ['opamp.railHigh', 'BLIND SPOT: mna clamps to it, but no shipped op-amp bench drives the output into saturation during the probe window.'],
     ['npn.vbe',     'BLIND SPOT: the probed benches are saturated or cut off either side of the perturbation.'],
     ['pnp.vbe',     'BLIND SPOT: as npn.vbe.'],
-    ['nmos.vth',    'BLIND SPOT: as npn.vbe.'],
-    ['nmos.k',      'BLIND SPOT: the two nmos benches switch fully; the triode-region constant never sets the operating point.'],
     ['zener.vf',    'BLIND SPOT: the zener benches operate in reverse breakdown, where vz sets the voltage and vf does not.'],
-    ['battery.rInternal', 'BLIND SPOT: mna reads it (devices/power.js); the probed benches draw too little current for 0.5 Ω vs 2.35 Ω to show.'],
-    ['dc_motor.kV',       'BLIND SPOT: read by the dc-motor model as back-EMF per rad/s; the probed benches never spin the motor.'],
-    ['dc_motor.windingR', 'BLIND SPOT: as dc_motor.kV.'],
     ['relay.switchTimeMs','BLIND SPOT: read by the relay model; no probed bench transitions the coil inside the probe window.'],
     ['ssd1306.address',   'BLIND SPOT: read by the I2C address decoder; the probe drives no I2C traffic.'],
 ]);
@@ -358,7 +339,7 @@ describe('circuit params, tier 2: the key moves a real bench', { skip: SKIP }, (
 
     test(`every declared (kind, key) changes something in some bench (${KNOWN_INERT.size} exempt, listed in KNOWN_INERT)`, () => {
         assert.ok(ready, 'engine did not load');
-        const inert = [], unprobeable = [];
+        const inert = [], unprobeable = [], healed = [];
         for (const [id, all] of [...sites].sort((a, b) => a[0].localeCompare(b[0]))) {
             const key = id.slice(id.indexOf('.') + 1);
             const cap = KNOWN_INERT.has(id) ? MAX_SITES_KNOWN_INERT : MAX_SITES;
@@ -383,7 +364,10 @@ describe('circuit params, tier 2: the key moves a real bench', { skip: SKIP }, (
                 try { after = observe(mutated); } catch { moved = true; break; }
                 if (after !== before) { moved = true; break; }
             }
-            if (moved) continue;
+            if (moved) {
+                if (KNOWN_INERT.has(id)) healed.push(id);
+                continue;
+            }
             if (probed === 0) unprobeable.push(`${id} — no solvable site among ${all.length}`);
             else if (!KNOWN_INERT.has(id)) inert.push(`${id} — ${probed} site(s) probed, none moved`);
         }
@@ -393,6 +377,8 @@ describe('circuit params, tier 2: the key moves a real bench', { skip: SKIP }, (
             + 'Either the engine ignores the key on this kind (fix the circuit or the engine), or '
             + 'no bench exercises it (add one). An entry may only be added to KNOWN_INERT with a '
             + 'written verdict saying which of those it is.');
+        assert.deepEqual(healed.sort(), [],
+            'RATCHET: these KNOWN_INERT entries now move a real bench; remove their exemptions.');
     });
 
     test('KNOWN_INERT carries nothing that no longer reproduces', () => {
