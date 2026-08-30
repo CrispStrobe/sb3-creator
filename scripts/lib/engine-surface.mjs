@@ -119,6 +119,11 @@ export function circuitGetDevice (getDevice) {
  *   `extract6502Machine` / `extractZ80Machine` if they are not on it.
  * @returns {Record<string, any>} exactly the ENGINE_SURFACE keys
  */
+// PORT_LIMITS is the one non-callable in the app's call: a constants table
+// (per-port current ceilings) that drc.js reads as data. Everything else is
+// a function, and stays type-checked as one.
+const VALUE_KEYS = new Set(['PORT_LIMITS']);
+
 export function engineSurfaceFrom (eng) {
     const surface = {};
     const missing = [];
@@ -126,6 +131,11 @@ export function engineSurfaceFrom (eng) {
         const value = key === 'getDevice'
             ? (typeof eng.getDevice === 'function' ? circuitGetDevice(eng.getDevice) : undefined)
             : eng[key];
+        if (VALUE_KEYS.has(key)) {
+            if (value === undefined || value === null) { missing.push(key); continue; }
+            surface[key] = value;
+            continue;
+        }
         if (typeof value !== 'function') { missing.push(key); continue; }
         surface[key] = value;
     }

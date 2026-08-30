@@ -218,10 +218,22 @@ describe('ENGINE_SURFACE is the app\'s surface, and nothing else', () => {
     });
 
     test('engineSurfaceFrom yields exactly the listed keys', () => {
-        const fake = Object.fromEntries(ENGINE_SURFACE.map((k) => [k, () => k]));
+        const fake = Object.fromEntries(ENGINE_SURFACE.map((k) => [
+            k, k === 'PORT_LIMITS' ? { P0: 0.12 } : () => k,
+        ]));
         const surface = engineSurfaceFrom(fake);
         assert.deepEqual(Object.keys(surface).sort(), [...ENGINE_SURFACE].sort());
-        for (const k of ENGINE_SURFACE) assert.equal(typeof surface[k], 'function', k);
+        for (const k of ENGINE_SURFACE) {
+            if (k === 'PORT_LIMITS') {
+                assert.equal(typeof surface[k], 'object', k);
+            } else {
+                assert.equal(typeof surface[k], 'function', k);
+            }
+        }
+        // A function offered where the app passes DATA is the same drift in
+        // the other direction — engineSurfaceFrom must still hand it through
+        // untouched rather than call it.
+        assert.deepEqual(surface.PORT_LIMITS, { P0: 0.12 });
     });
 
     test('MUTATION: a missing key is refused, not passed through as undefined', () => {
