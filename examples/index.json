@@ -7947,5 +7947,21 @@
    "intro": "pc118-eight-bit-machine/intro.md",
    "introDE": "pc118-eight-bit-machine/intro.de.md"
   }
+ },
+ {
+  "id": "logic-74c922-keypad",
+  "title": {
+   "en": "74C922 physical matrix-keypad encoder",
+   "de": "74C922-Matrixtastaturencoder"
+  },
+  "category": "pure-circuit",
+  "difficulty": 4,
+  "kind": "circuit",
+  "files": {
+   "circuit": "logic-74c922-keypad/circuit.json",
+   "expected": "logic-74c922-keypad/EXPECTED.md",
+   "intro": "logic-74c922-keypad/intro.md",
+   "introDE": "logic-74c922-keypad/intro.de.md"
+  }
  }
 ]
