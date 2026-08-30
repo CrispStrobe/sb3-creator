@@ -285,22 +285,15 @@ describe('the Arcade family retargets, and refuses C', () => {
     });
 });
 
-describe('the MicroPython retarget refusal was dead code, and is gone', () => {
-    test('a MicroPython board refuses as an unknown retarget target', () => {
-        // It refused before this change too, one line earlier and for a
-        // different stated reason: `microbit` is in STC_PARTS and NOT in
-        // RETARGET_POOLS, so `!pools` answered first and the core check below
-        // it could not be reached by any shipped device. Deleting an
-        // unreachable branch changes nothing; this pins what actually happens
-        // so the next person does not have to re-derive it.
-        const r = SB3Creator.retargetPseudocode('WHEN flag clicked:\n  say "x"\n', 'microbit');
-        assert.equal(r.ok, false);
-        assert.deepEqual(r.reasons, ['unknown device: microbit']);
+describe('MicroPython retargeting is explicit and remains distinct from C generation', () => {
+    test('micro:bit has a reachable retarget pool', () => {
+        const r = SB3Creator.retargetPseudocode(
+            'DEVICE ARDUINO-NANO\nPIN led = D13 OUTPUT\n\nWHEN flag clicked:\n  turn on led\n',
+            'microbit');
+        assert.equal(r.ok, true, r.reasons.join('; '));
+        assert.match(r.pseudocode, /^PIN led = P0 OUTPUT$/m);
         assert.equal(SB3Creator.STC_PARTS.microbit.core, 'micropython');
-        assert.equal(SB3Creator.RETARGET_POOLS.microbit, undefined,
-            'if micro:bit ever GAINS a pool, the refusal question reopens: read '
-            + 'docs/BOOLEAN-IN-VALUE-POSITION.md for the house rule on this shape '
-            + 'of decision, and decide deliberately rather than by deletion');
+        assert.ok(SB3Creator.RETARGET_POOLS.microbit);
     });
 
     test('generateC still refuses a MicroPython board, and that guard is reachable', () => {

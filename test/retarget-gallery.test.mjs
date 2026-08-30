@@ -26,15 +26,15 @@ const index = JSON.parse(readFileSync(join(EXAMPLES, 'index.json'), 'utf8'));
 // bench that cannot be built. arcade and pybadge-lc additionally declare
 // `virtual: true` — they have no circuit header at all, which is a stronger
 // version of the same fact. Delete them from here when they get board parts.
-const UNBENCHABLE = new Set(['eater6502', 'z80',
+const UNBENCHABLE = new Set(['eater6502', 'z80', 'microbit', 'calliopemini',
     'arcade', 'pybadge', 'pybadge-lc', 'samd51']);
 const devices = Object.keys(SB3Creator.RETARGET_POOLS)
     .filter(d => !UNBENCHABLE.has(d));
 
 // Programs with a computed `devices` field (generic, retargetable).
-// Device-only examples (micro:bit, SPIKE Prime) compile down a non-C path, not
-// the C-retarget family — 'microbit' and 'spike' are not retarget targets, so
-// they are outside this suite's cross-device dry-run entirely.
+// Device-only examples (micro:bit, SPIKE Prime) compile down a non-C path.
+// MicroPython boards can retarget program text, but stay outside this gallery
+// sweep until the circuit transformer can build their matching benches.
 const generic = index.filter(e => e.kind === 'program' && Array.isArray(e.devices) &&
     e.authored !== 'microbit' && e.authored !== 'spike');
 
