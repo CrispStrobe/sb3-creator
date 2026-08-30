@@ -42,6 +42,19 @@ test('retarget: nano -> pico maps roles to GP pins, body untouched', () => {
     assert.match(out, /adc_read\(0\)/);
 });
 
+for (const device of ['microbit', 'calliopemini']) {
+    test(`retarget: nano -> ${device} maps onto its real edge pins`, () => {
+        const r = SB3Creator.retargetPseudocode(BLINK_POT, device);
+        assert.equal(r.ok, true, r.reasons.join('; '));
+        assert.match(r.pseudocode, new RegExp(`^DEVICE ${device.toUpperCase()}$`, 'm'));
+        assert.match(r.pseudocode, /^PIN led1 = P0 OUTPUT$/m);
+        assert.match(r.pseudocode, /^PIN pot1 = P1 ANALOG$/m);
+        const check = new SB3Creator();
+        check.parse(r.pseudocode);
+        assert.deepEqual(check.warnings, [], 'the retargeted MicroPython device reparses cleanly');
+    });
+}
+
 test('retarget: nano -> stc12 gains the active-low wiring convention', () => {
     const r = SB3Creator.retargetPseudocode(BLINK_POT, 'stc12c5a60s2');
     assert.equal(r.ok, true, r.reasons.join('; '));

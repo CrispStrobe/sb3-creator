@@ -2384,6 +2384,7 @@ class SB3Creator {
                 'arduino-nano': [/^(D\d+|A\d+)$/i, 'D0-D13 or A0-A7'],
                 atmega328p: [/^(D\d+|A\d+)$/i, 'D0-D13 or A0-A5'],
                 microbit: [/^(P\d+|BUTTON_[AB])$/i, 'P0-P20, BUTTON_A or BUTTON_B'],
+                calliopemini: [/^(P\d+|BUTTON_[AB])$/i, 'P0-P20, BUTTON_A or BUTTON_B'],
                 // The Arcade console is a SOFTWARE target (160x120). D0-D31 are
                 // deliberately virtual GPIO: they keep a pin-based lesson
                 // runnable when it is moved into the console without pretending
@@ -2421,7 +2422,7 @@ class SB3Creator {
             // place and not the other.
             const LAST = { 'arduino-uno': { D: 13, A: 5 }, 'arduino-nano': { D: 13, A: 7 },
                 'atmega168p': { D: 13, A: 5 }, 'arduino-mega': { D: 53, A: 15 },
-                atmega328p: { D: 13, A: 5 }, microbit: { P: 20 }, pico: { GP: 28 },
+                atmega328p: { D: 13, A: 5 }, microbit: { P: 20 }, calliopemini: { P: 20 }, pico: { GP: 28 },
                 arcade: { D: 31 }, pybadge: { D: 13, A: 5 }, 'pybadge-lc': { D: 31 },
                 samd51: { PA: 31, PB: 31 },
                 eater6502: { PA: 7, PB: 7 } };  // PB7: plain I/O while ACR7=0, same as the SPOKEN gate
@@ -2779,6 +2780,7 @@ class SB3Creator {
             // Validate each pin token against the device's vocabulary
             const SPOKEN = {
                 microbit: [/^P\d+$/i, 'P0-P20'],
+                calliopemini: [/^P\d+$/i, 'P0-P20'],
                 pico: [/^GP\d+$/i, 'GP0-GP28']
             };
             const spoken = SPOKEN[cfg.device];
@@ -14594,6 +14596,18 @@ SB3Creator.RETARGET_POOLS = (() => {
             input: ['GP2', 'GP3', 'GP4', 'GP5', ...seq('GP%', 6, 15), ...seq('GP%', 18, 22), 'GP0', 'GP1'],
             // GP16/GP17 stay out: they are the servo pins (slice 0, 50 Hz).
             pwm: ['GP15', 'GP14', 'GP13', 'GP12'], ledActiveLow: false },
+        // The uncomplicated edge pins come first. Pins shared with the LED
+        // matrix remain available, but only after the dedicated pads.
+        microbit: { digital: ['P0', 'P1', 'P2', 'P8', 'P12', 'P13', 'P14', 'P15', 'P16', 'P3', 'P4', 'P6', 'P7', 'P9', 'P10'],
+            analog: ['P0', 'P1', 'P2', 'P3', 'P4', 'P10'],
+            input: ['P0', 'P1', 'P2', 'P5', 'P8', 'P11', 'P12', 'P13', 'P14', 'P15', 'P16', 'P3', 'P4', 'P6', 'P7', 'P9', 'P10'],
+            pwm: ['P0', 'P1', 'P2', 'P8', 'P12', 'P13', 'P14', 'P15', 'P16'], ledActiveLow: false },
+        // Calliope's MicroPython route uses the same P0-P20 vocabulary, but
+        // the picker passes its own device id and therefore needs a real entry.
+        calliopemini: { digital: ['P0', 'P1', 'P2', 'P8', 'P12', 'P13', 'P14', 'P15', 'P16', 'P3', 'P4', 'P6', 'P7', 'P9', 'P10'],
+            analog: ['P0', 'P1', 'P2', 'P3', 'P4', 'P10'],
+            input: ['P0', 'P1', 'P2', 'P5', 'P8', 'P11', 'P12', 'P13', 'P14', 'P15', 'P16', 'P3', 'P4', 'P6', 'P7', 'P9', 'P10'],
+            pwm: ['P0', 'P1', 'P2', 'P8', 'P12', 'P13', 'P14', 'P15', 'P16'], ledActiveLow: false },
         // ---- the Arcade family (ATSAMD51J19) -------------------------------
         // `virtual: true` is a pool property with no upstream precedent, and it
         // is a WARNING rather than a refusal: these targets retarget fine, they
@@ -15041,6 +15055,7 @@ SB3Creator.STC_PARTS = {
     // end for these by definition, not merely not yet. Pins are P0-P20 and the
     // two buttons on a micro:bit.
     microbit: { core: 'micropython', header: null, portModes: false, aux1T: false, adc: true },
+    calliopemini: { core: 'micropython', header: null, portModes: false, aux1T: false, adc: true },
     spike: { core: 'spikepython', header: null, portModes: false, aux1T: false, adc: false },
     // core: 'samd51' -- Arcade is a software console (160x120); PyBadge and
     // PyBadge LC are concrete ATSAMD51J19 boards. None has a C emitter here,
