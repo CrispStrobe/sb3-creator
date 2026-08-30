@@ -197,10 +197,20 @@ describe('ENGINE_SURFACE is the app\'s surface, and nothing else', () => {
         // getDevice is the key whose absence produced both wrong verdicts.
         assert.ok(ENGINE_SURFACE.includes('getDevice'),
             'getDevice is the whole point of this file');
-        // getMaxCurrent/PORT_LIMITS are deliberately ABSENT: circuit-tab.jsx
-        // does not pass them, so drc.js falls back to "unknown = cannot sum"
-        // in the browser. A rig that injects them measures a DRC nobody has.
-        for (const notInjected of ['getMaxCurrent', 'PORT_LIMITS', 'createSweepWorker']) {
+        // getMaxCurrent/PORT_LIMITS joined the app's call in lite fce761908
+        // (fab-parity: rule 8 summed 0 mA in the deployed DRC without them,
+        // proven by a browser gate that failed against pre-fix production).
+        // The earlier revision of THIS check pinned their absence for the
+        // same reason it now pins their presence: the list mirrors what the
+        // app passes, in both directions.
+        for (const injected of ['getMaxCurrent', 'PORT_LIMITS']) {
+            assert.ok(ENGINE_SURFACE.includes(injected),
+                `${injected} is in lite's setEngine since fce761908 — ` +
+                'a rig without it measures a DRC production no longer has');
+        }
+        // createSweepWorker stays deliberately ABSENT: the app builds it per
+        // session, not from the engine namespace.
+        for (const notInjected of ['createSweepWorker']) {
             assert.ok(!ENGINE_SURFACE.includes(notInjected),
                 `${notInjected} is in ENGINE_SURFACE but the app does not pass it — ` +
                 'adding it here makes every gate measure a build production is not running');

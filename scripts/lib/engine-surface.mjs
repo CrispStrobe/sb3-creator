@@ -73,6 +73,10 @@ export const ENGINE_SURFACE = Object.freeze([
     'runDcSweep',
     'runAcSweep',
     'logSpace',
+    // Appended 2026-08-30 with lite fce761908: the app now injects the DRC's
+    // current authority (fab-parity's lane — rule 8 summed 0 mA without it).
+    'getMaxCurrent',
+    'PORT_LIMITS',
 ]);
 
 /**
