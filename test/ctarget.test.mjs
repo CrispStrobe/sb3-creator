@@ -327,6 +327,48 @@ WHEN flag clicked:
         'and the function it calls must exist — no wait in this program asks for it');
 });
 
+test('every AVR task-only idle carries exactly one clock helper', () => {
+    for (const device of ['ARDUINO-UNO', 'ARDUINO-NANO', 'ARDUINO-MEGA', 'ATMEGA168P']) {
+        const source = `DEVICE ${device}
+CLOCK 16000000
+PIN led1 = D12 OUTPUT
+PIN led2 = D13 OUTPUT
+
+WHEN flag clicked:
+  FOREVER:
+    toggle led1
+
+WHEN flag clicked:
+  FOREVER:
+    toggle led2
+`;
+        const c = cOf(source);
+        assert.match(c, /ISR\(TIMER[01]_COMPA_vect\)/, `${device}: fixture must use the task scheduler`);
+        assert.match(c, /uint32_t pass_ms = bw_now\(\);/, `${device}: idle reads the clock`);
+        assert.equal((c.match(/static uint32_t bw_now\(void\)/g) || []).length, 1,
+            `${device}: define exactly one helper without a wait asking for it`);
+        assert.ok(!/TMOD|PCON|__interrupt/.test(c), `${device}: do not leak 8051 setup`);
+    }
+});
+
+test('AVR debug forcing receives the task helper without bloating a release single-main program', () => {
+    const source = `DEVICE ARDUINO-UNO
+PIN led = D13 OUTPUT
+
+WHEN flag clicked:
+  FOREVER:
+    toggle led
+`;
+    const debug = cOf(source, {debug: true});
+    assert.match(debug, /uint32_t pass_ms = bw_now\(\);/,
+        'the browser debugger forces a task scheduler even for one script');
+    assert.equal((debug.match(/static uint32_t bw_now\(void\)/g) || []).length, 1);
+
+    const release = cOf(source);
+    assert.doesNotMatch(release, /ISR\(TIMER0_COMPA_vect\)|static uint32_t bw_now\(void\)/,
+        'a release single-main program has no scheduler and needs no clock helper');
+});
+
 test('deadlines are wraparound-safe signed compares', () => {
     const c = cOf(SCHEDULED);
     assert.match(c, /bw_task0_until = bw_now\(\) \+ \(150\);/);

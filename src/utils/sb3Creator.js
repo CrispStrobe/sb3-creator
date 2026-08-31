@@ -11449,13 +11449,11 @@ class SB3Creator {
                     '}', '');
             }
         } else if (this._cTasks && this._core !== '6502') {
-            // The 8051 idle scheduler below reads the clock every pass, so the
-            // tasks build always carries bw_now — the same dependency the ARM
-            // branch declares for the same reason. Without it a TASKS program
-            // that uses neither `now` nor a blocking wait would emit a
-            // scheduler calling a function that was never defined.
-            if (this._cTasks && this._core !== 'avr' && this._core !== 'arm'
-                && this._core !== '6502') this._cUses.now = true;
+            // Every idle scheduler in this branch reads the clock every pass,
+            // so the tasks build itself depends on bw_now. Do not make that
+            // helper accidental on a wait/timer block: an AVR task-only build
+            // used to call an undefined function at link time (D38).
+            this._cUses.now = true;
             out.push('/* One script = one cooperative task. Timer interrupts every millisecond;',
                 ' * tasks yield at every wait and at every loop iteration (Scratch\'s own',
                 ' * scheduling contract), so no task can starve the others. */',
