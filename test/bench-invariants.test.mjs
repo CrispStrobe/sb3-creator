@@ -29,30 +29,47 @@ siblingGuardTest(gate, 'bench invariants');
  * Endpoints that name a terminal the engine and the catalog both deny.
  *
  * MEASURED 2026-08-29 at bw-board 4ae89b5 + bw-circuit-ui 14efc75: the whole
- * corpus is 2162 circuit files and 55561 wire endpoints, and this is the
- * entire list. It may only SHRINK.
+ * corpus is 2162 circuit files and 55561 wire endpoints, and there were TWO.
+ * It may only SHRINK — and it has, to nothing.
  *
- * `mcu1.P4.7` is a real finding and an open question, not a typo. P4.7 EXISTS
- * on the STC12C5A60S2 — `stc/docs/PINOUT.md` puts it on PDIP-40 pin 9 — but
- * that pin is RST by default and can only be repurposed as GPIO under
- * `P4SW`, so bw-circuit-ui's generic `mcu` catalog names pin 9 `RST` and
- * offers P4.4/P4.5/P4.6 only. The bench therefore wires a pin that physically
- * exists under a name the catalog does not carry.
+ * BOTH ENTRIES WERE `mcu1.P4.7`, one per 60-retro-console variant, and they
+ * were held open as a question rather than a defect: P4.7 exists on the
+ * STC12C5A60S2 (PDIP-40 pin 9) but that pin is RST by default and becomes
+ * GPIO only under `P4SW`, so bw-circuit-ui's generic `mcu` catalog names pin
+ * 9 `RST` and offers P4.4/P4.5/P4.6 only. The note here recorded the reason
+ * for not resolving it: a blind `P4.7 -> RST` terminal alias would have
+ * moved a live output onto the reset pin.
  *
- * Deliberately NOT resolved here, and the reasons are on the record: a
- * TERMINAL_ALIAS `P4.7 -> RST` would silently move a chip-select onto the
- * reset pin, which is a product decision belonging to bw-parts/bw-circuit-ui
- * and not to this gate; and 60-retro-console's own EXPECTED.md says its
- * wiring is "PROVISIONAL until continuity-tested on the physical kit". The
- * honest state is a named exception with the measurement, so the next person
- * inherits the question instead of re-finding it.
+ * CLOSED 2026-08-31 by MEASUREMENT, not by choosing a name. Driven through
+ * the engine on the shipped bench, a fresh board per drive, volts at
+ * r1.a / q1.base / q1.collector (the 1 kOhm into the buzzer PNP's base):
  *
- * Two entries, one per file — the two variants share the wire.
+ *   nothing driven                  4.990020 / 4.990020 / 0.000000
+ *   setPin('P4.7', pushpull, LOW)   0.103865 / 4.258454 / 4.795205
+ *   setPin('P4.7', pushpull, HIGH)  5.000000 / 5.000000 / 0.000000
+ *   setPin('RST',  pushpull, any)   4.990020 / 4.990020 / 0.000000
+ *   setPin('ZZ.NOPE', any)          4.990020 / 4.990020 / 0.000000
+ *
+ * The engine modelled that pin as a drivable GPIO all along, under the
+ * spelling `P4.7` and only that one — `RST` was bit-identical to the
+ * nonexistent-terminal control. The 8051 adapter emits `P${port}.${bit}`, so
+ * `P4.7` is also what firmware writes to P4^7 produce. And the bench means
+ * GPIO there: circuit.json drives the same PNP from P5.5 on an stc15_mcu
+ * and the program declares `PIN buzzer = P5.5 OUTPUT ACTIVE LOW`, so P4.7 is
+ * the STC12 retarget of an output. Renaming the wire to RST would have
+ * silenced the buzzer, which is what the table above would have measured.
+ *
+ * The repair went where names live: bw-board `3160a10` declares pin 9's two
+ * datasheet names as one pin (unique match — the alias fires only when the
+ * part declares exactly one of the pair, so it can never merge terminals a
+ * netlist kept apart), and `338ac5d` exports that surface so this gate can
+ * ASK rather than re-declare. The authority check below consults it.
+ *
+ * The list stays, empty, as the ratchet: a genuinely invented terminal still
+ * reddens this gate, and the empty set is asserted so the check cannot be
+ * quietly widened again.
  */
-const INVENTED_TERMINALS = new Set([
-  '60-retro-console/circuit.stc12c5a60s2.json:mcu1.P4.7',
-  '60-retro-console/circuit-flat.stc12c5a60s2.json:mcu1.P4.7',
-]);
+const INVENTED_TERMINALS = new Set([]);
 
 // Kinds that legitimately sit outside the MCU's reach.
 const STRUCTURAL = new Set(['breadboard', 'vcc', 'gnd']);
@@ -63,6 +80,11 @@ const MCU_KINDS = new Set(['mcu', 'stc_mcu', 'stc15_mcu', 'arduino_uno', 'arduin
 describe('bench invariants: every device bench, canonical loader', { skip: gate.skip }, () => {
   let Circuit;
   let resolveTerminal, engineTerminals, terminalsForKind;
+  // The engine's dual-function pin table (bw-board 338ac5d). Taken from the
+  // ENGINE namespace, not re-declared here: a copy of the pair would drift
+  // from the one the solver drives through, and the whole point of asking is
+  // that names are the engine's to own.
+  let dualFunctionAlias;
   test('engine + sidecars load', async () => {
     // getDevice, not hasDevice. bw-circuit-ui's engineKindFor asks the injected
     // engine whether a passthrough kind has a registered model, and the name it
@@ -78,7 +100,14 @@ describe('bench invariants: every device bench, canonical loader', { skip: gate.
     // answering a question nobody asked — which is now enforced rather than
     // restated: injectEngine() applies ENGINE_SURFACE and nothing else, and it
     // wraps getDevice the way circuit-tab.jsx does (stc_mcu answers null).
-    ({ Circuit } = await injectEngine({ board: BWB, cui: CUI }));
+    const injected = await injectEngine({ board: BWB, cui: CUI });
+    ({ Circuit } = injected);
+    ({ dualFunctionAlias } = injected.board);
+    assert.equal(typeof dualFunctionAlias, 'function',
+      'bw-board no longer exports dualFunctionAlias — without it the authority ' +
+      'check below cannot tell a datasheet-true second spelling from an ' +
+      'invented terminal, and would silently start reporting the first as the ' +
+      'second (that is exactly the P4.7/RST finding this gate carried open)');
     const sidecars = await registerSidecars(CUI);
     // MEASURED FLOOR. Without one, a parts-data directory that moved or emptied
     // registers nothing, every terminal alias falls back to its raw name, and
@@ -103,6 +132,17 @@ describe('bench invariants: every device bench, canonical loader', { skip: gate.
       if (/^circuit\.[\w-]+\.json$/.test(f) || f === 'circuit.json') benchFiles.push(join(dir.name, f));
     }
   }
+
+  // THE RATCHET, asserted rather than described. The exception list reached
+  // empty on 2026-08-31 and may never grow again: any future endpoint the
+  // catalog denies is either a real defect or a real dual-function pin, and
+  // the second belongs in bw-board's table where the solver can see it, not
+  // in a per-file waiver here.
+  test('the invented-terminal exception list is empty and stays empty', () => {
+    assert.deepEqual([...INVENTED_TERMINALS], [],
+      'a new waiver was added instead of fixing the bench or teaching the ' +
+      'engine the pin — see the P4.7/RST measurement at the top of this file');
+  });
 
   // VACUITY FLOOR, and it is not decoration. This whole file's verdict is
   // `assert.deepEqual(problems, [])` over a list built by walking a directory —
@@ -247,7 +287,16 @@ describe('bench invariants: every device bench, canonical loader', { skip: gate.
         })();
         const authResolved = resolveTerminal(part.kind, ep.terminal, authority);
         const authLower = String(authResolved).toLowerCase();
-        if (!authority.some(t => String(t).toLowerCase() === authLower)) {
+        // A dual-function package pin has TWO datasheet names for one
+        // physical pin, and the catalog carries one of them. The ENGINE owns
+        // names — it is what a drive is addressed to — so ask it rather than
+        // re-declaring the pair here, where a copy would drift from the one
+        // the solver uses. This is what closed the P4.7/RST question above;
+        // it accepts a spelling the catalog omits, never a pin nothing has.
+        const alias = dualFunctionAlias(authLower);
+        const known = (n) => n !== undefined &&
+          authority.some(t => String(t).toLowerCase() === n);
+        if (!known(authLower) && !known(alias)) {
           const key = `${rel}:${ep.part}.${ep.terminal}`;
           if (!INVENTED_TERMINALS.has(key)) {
             problems.push(`${rel}: wire ${side} names ${ep.part}.${ep.terminal}, which no ` +

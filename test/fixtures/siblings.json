@@ -3,12 +3,12 @@
   "siblings": {
     "bw-board": {
       "repo": "CrispStrobe/bw-board",
-      "rev": "6571648aa161f7088e0de6b746528acaaa1f3655",
+      "rev": "338ac5d8548f1ac779335cdf3bf3168e93a35f74",
       "marker": "src/board.js",
       "licence": "MIT",
-      "why": "the device/board simulator the gallery e2e and physics gates drive. Advanced from 4ae89b5 to 6571648 for battery_aa parameter honesty: declared volts and rInternal now feed one two-terminal Thevenin source rather than a fixed, double-stamped ground reference. Hand oracles cover the unchanged 1.5 V / 0.3 ohm default and an override; 75-battery-tester's 1.45/1.30/1.10/0.90 V settings reach FULL/GOOD/WEAK/DEAD under its real 10 ohm load. The tier-2 param ratchet is strengthened in the same commit so any future KNOWN_INERT entry that begins moving a bench makes the gate red.",
-      "pinnedOn": "2026-08-30",
-      "revShort": "6571648"
+      "why": "the device/board simulator the gallery e2e and physics gates drive. Advanced from 6571648 to 338ac5d, and the bump is FORCED by this repo's own ratchet rather than routine: bench-invariants carried two open 'invented terminal' endpoints, both mcu1.P4.7 in 60-retro-console's STC12 variants, because bw-circuit-ui's generic mcu catalog names PDIP-40 pin 9 RST and the bench wires P4.7. MEASURED through the engine before choosing anything, a fresh board per drive: setPin('P4.7') moves the buzzer PNP's base net (r1.a 4.990020 idle -> 0.103865 low -> 5.000000 high, collector 0 -> 4.795205), setPin('RST') was bit-identical to a nonexistent-terminal control at 4.990020 on every mode. So the engine modelled that pin as a GPIO under one spelling only, and the 8051 adapter emits P${port}.${bit} — P4.7 is the name a write to P4^7 arrives under. 3160a10 declares pin 9's two datasheet names as ONE pin with a unique-match rule (the alias fires only when the part declares exactly one of the pair, so it can never merge terminals a netlist kept apart; the declared spelling always outranks the alias) and routes every electrical MCU-terminal lookup through one helper — the MNA path, both closed-form source traces, and the two DRC checks — with a hand oracle (5*25/1025 = 0.1219512195121951) and three mutations. 338ac5d exports that table so bench-invariants can ASK the engine which two names are one pin instead of re-declaring the pair. Corpus census at the previous pair: 2163 circuit files, exactly three kind-'mcu' parts name either spelling and ZERO name both, so the ambiguous case does not occur and nothing previously driven is driven differently. The range also carries other lanes' landed work — 1987d6d (74C922 physical keypad matrix), b6df775 (the E4.1 hazard oracle), e537bd7+9b2fc40+5f79057 (open drain on both tiers, corpus impact counted as zero: OTYPER is absent from the codegen vocabulary), and 3f47825 (the double-entry repair and the tightened band) — all validated against this corpus at this pin before the bump.",
+      "pinnedOn": "2026-08-31",
+      "revShort": "338ac5d"
     },
     "bw-circuit-ui": {
       "repo": "CrispStrobe/bw-circuit-ui",
