@@ -10784,11 +10784,36 @@ class SB3Creator {
             }
         });
         this._curPrefix = ''; this._curLocals = null;
-        // The cube scan kernel needs delay_ms unconditionally — it is a blocking
-        // per-line dwell, not a scheduler wait. Flag it so the assembly emits it
-        // even when the scheduler is active (which normally suppresses delay_ms
-        // in favour of the ISR-based bw_now/bw_block_ms).
-        if (this._cUses.cube) this._cUses.cubeDelay = true;
+        // Blocking-delay callers. `delay_ms` is normally emitted only when the
+        // program has a wait block AND the cooperative scheduler is absent
+        // (`!_cTasks && _cUses.delay`); with the scheduler active it is
+        // suppressed in favour of the ISR-based bw_now/bw_block_ms. Some
+        // DRIVERS call it anyway, from bw_setup, before the scheduler's tick
+        // is running — those callers have to flag it themselves or the
+        // generated program calls a function that was never emitted.
+        //
+        // The cube scan kernel is one: a blocking per-line dwell, not a
+        // scheduler wait.
+        //
+        // The ILI9341 bring-up is the other, and it was MISSING (found by
+        // compiling examples/51-tft-pixels: the panel init emits
+        // `tft_cmd(0x01); delay_ms(5);` and `tft_cmd(0x11); delay_ms(120);`
+        // into bw_setup, and that program has no wait block and does have a
+        // task, so delay_ms was never defined). SDCC then implicitly declares
+        // `int delay_ms()` — a no-parameter function — and reports the ARGUMENT
+        // as the fault: "error 101: too many parameters" on exactly the two
+        // lines that carry a delay, which reads like a tft_cmd arity bug and
+        // is not one. tft_cmd is declared and called with one argument at all
+        // eight of its sites. The two SWRESET/SLPOUT dwells are real: ILI9341
+        // §8.2 requires 5 ms after software reset and 120 ms after sleep-out,
+        // so the repair is to emit the helper, not to drop the waits.
+        //
+        // Gated on the 8051 because the block below is the 8051 Timer-0
+        // implementation and the TFT bring-up is emitted only for that core
+        // today. When the bring-up reaches the other cores (see the LCD/OLED
+        // cross-core branch), this condition moves with it.
+        if (this._cUses.cube) this._cUses.blockingDelay = true;
+        if (this._cUses.tft && this._core === '8051') this._cUses.blockingDelay = true;
         if (this._cUses.adc && !chip.adc) this.cWarn(`ANALOG pins need an ADC, and the ${device} has none`);
         // PCA: servo (16-bit compare/match) and motor (8-bit PWM) need the PCA.
         // STC89 has no PCA — these blocks silently produce 0 edges (ucsim-stc
@@ -11545,12 +11570,16 @@ class SB3Creator {
                 '}', ''
             ]));
         }
-        // The cube scan kernel always needs delay_ms (blocking per-line dwell).
+        // Drivers that block from bw_setup always need delay_ms (the cube
+        // scan kernel's per-line dwell; the ILI9341 SWRESET/SLPOUT waits).
         // The normal path emits it only when !_cTasks && _cUses.delay; if the
         // scheduler is active (or no wait blocks exist), it was not emitted.
         const delayAlreadyEmitted = !this._cTasks && this._cUses.delay;
-        if (this._cUses.cubeDelay && !delayAlreadyEmitted) {
-            out.push('/* Blocking delay for the cube scan kernel (per-line dwell). */',
+        if (this._cUses.blockingDelay && !delayAlreadyEmitted) {
+            out.push('/* Blocking delay for drivers that dwell in bw_setup:',
+                ' * the cube scan kernel (per-line dwell) and the ILI9341',
+                ' * bring-up (5 ms after SWRESET, 120 ms after SLPOUT). Runs',
+                ' * before main() starts the scheduler tick, so Timer 0 is free. */',
                 'static void delay_ms(unsigned int ms)',
                 '{',
                 '    while (ms--) {',

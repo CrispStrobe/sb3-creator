@@ -7,6 +7,10 @@
  */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { execFileSync } from 'node:child_process';
+import { mkdtempSync, writeFileSync, existsSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import SB3Creator from '../src/utils/sb3Creator.js';
 import cToPseudocode from '../src/utils/cToPseudocode.js';
 
@@ -202,4 +206,77 @@ STAGE:
         'TFT SPI driver present');
     assert.match(out, /i2c_write/,
         'I2C LCD driver present');
+});
+
+// ---- The bring-up's blocking delay must be DEFINED, not just called -------
+//
+// The panel init emits `tft_cmd(0x01); delay_ms(5);` and
+// `tft_cmd(0x11); delay_ms(120);` into bw_setup. `delay_ms` is normally
+// emitted only when the program has a wait block AND has no cooperative
+// scheduler; every TFT gallery program has a task and no wait, so the helper
+// was never defined and SDCC implicitly declared `int delay_ms()` — a
+// NO-PARAMETER function. It then reported the argument as the fault,
+// "error 101: too many parameters", on exactly the two lines that also carry
+// a `tft_cmd(...)`. That reads like a tft_cmd arity bug and is not one:
+// tft_cmd is declared with one parameter and called with one argument at all
+// eight of its sites. Assert both halves so the misdiagnosis cannot recur.
+test('the TFT bring-up defines every helper it calls', () => {
+    const out = generateC(`STAGE:
+  WHEN flag clicked:
+    tft clear 1
+`);
+    assert.match(out, /tft_cmd\(0x01\); delay_ms\(5\);/,
+        'ILI9341 §8.2: 5 ms dwell after SWRESET');
+    assert.match(out, /tft_cmd\(0x11\); delay_ms\(120\);/,
+        'ILI9341 §8.2: 120 ms dwell after SLPOUT');
+    assert.match(out, /static void delay_ms\(unsigned int ms\)/,
+        'delay_ms is CALLED by the bring-up and must therefore be DEFINED — ' +
+        'without it SDCC implicitly declares a no-parameter delay_ms() and ' +
+        'blames the call site with error 101');
+    // Exactly one definition: the cube kernel flags the same helper, and a
+    // program using both must not emit it twice.
+    assert.equal((out.match(/static void delay_ms\(/g) || []).length, 1,
+        'delay_ms defined more than once');
+    // tft_cmd's own arity, pinned so the real defect stays distinguishable
+    // from the one it was mistaken for.
+    assert.match(out, /static void tft_cmd\(unsigned char cmd\)/);
+    for (const m of out.match(/\btft_cmd\([^)]*\)/g) || []) {
+        assert.ok(!m.includes(','), `tft_cmd called with more than one argument: ${m}`);
+    }
+});
+
+test('a TFT program with its own wait block still defines delay_ms once', () => {
+    const out = generateC(`STAGE:
+  WHEN flag clicked:
+    tft clear 1
+    wait 1 seconds
+`);
+    assert.equal((out.match(/static void delay_ms\(/g) || []).length, 1,
+        'delay_ms defined more than once when the program also waits');
+});
+
+test('the emitted TFT C builds under sdcc with no errors (if sdcc present)', (t) => {
+    let sdcc = true;
+    try { execFileSync('sdcc', ['--version'], { stdio: 'pipe' }); } catch { sdcc = false; }
+    if (!sdcc) return t.skip('sdcc not installed');
+    const dir = mkdtempSync(join(tmpdir(), 'tft-cgen-'));
+    const path = join(dir, 't.c');
+    writeFileSync(path, generateC(`STAGE:
+  WHEN flag clicked:
+    tft clear 1
+    tft fill 10 10 40 30 R 255 G 0 B 0 on 1
+    tft pixel 120 160 R 255 G 255 B 255 on 1
+`));
+    let out = '';
+    try {
+        execFileSync('sdcc', ['-mmcs51', '--std-c99', path],
+            { cwd: dir, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] });
+    } catch (e) {
+        out = `${e.stdout || ''}${e.stderr || ''}`;
+    }
+    // The bw_* device stubs legitimately warn 85 (unreferenced argument);
+    // an ERROR is the thing this gate exists for.
+    const errors = (out.match(/^.*error \d+:.*$/gm) || []);
+    assert.deepEqual(errors, [], `sdcc reported errors:\n${out}`);
+    assert.ok(existsSync(join(dir, 't.ihx')), 'sdcc produced no .ihx');
 });
