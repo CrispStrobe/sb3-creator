@@ -55,6 +55,15 @@ const parseBw = (code) => {
 };
 const maybeRetarget = (code, device) => {
     if (!device) return code;
+    // `spikeprime` is the extension/device name users see; the dialect header
+    // predates it and is spelled `DEVICE SPIKE`. This target has domain verbs,
+    // not a pin-retarget pool, so selecting it either confirms that header or
+    // supplies it to an otherwise device-free SPIKE program.
+    if (/^spike(?:prime)?$/i.test(device)) {
+        const declared = code.match(/^DEVICE\s+(\S+)/im);
+        if (!declared) return `DEVICE SPIKE\n\n${code}`;
+        if (/^spike$/i.test(declared[1])) return code;
+    }
     const r = SB3Creator.retargetPseudocode(code, device);
     if (!r.ok) die(`retarget to ${device} refused: ${r.reasons.join('; ')}`, 1);
     for (const w of r.warnings || []) console.error(`warning: ${w}`);

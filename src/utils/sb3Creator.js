@@ -99,6 +99,17 @@ const MICROBIT_GESTURES = [
     'freefall', '3g', '6g', '8g'
 ];
 
+// The canonical spikeprime extension stores motor direction as the stable
+// menu values "1" and "-1". Its English labels are forward/backward, but
+// placing those labels in the field makes the runtime multiply by a word and
+// drive NaN. Keep readable dialect words at the boundary and canonical values
+// inside the Scratch block.
+const SPIKE_MOTOR_DIRECTION = Object.freeze({
+    forward: '1', clockwise: '1',
+    backward: '-1', counterclockwise: '-1'
+});
+const spikeMotorDirectionWord = value => String(value) === '-1' ? 'backward' : 'forward';
+
 /**
  * The block's menu label is not always MicroPython's name for the same
  * gesture. `accelerometer.is_gesture()` accepts exactly shake, freefall,
@@ -3821,7 +3832,7 @@ class SB3Creator {
         if ((match = line.match(/^start\s+motor\s+([A-F])\s+(forward|backward|clockwise|counterclockwise)\s*$/i))) {
             const { id, block } = cmd('spikeprime_motorStart');
             block[id].fields.PORT = [match[1].toUpperCase(), null];
-            block[id].fields.DIRECTION = [match[2].toLowerCase(), null];
+            block[id].fields.DIRECTION = [SPIKE_MOTOR_DIRECTION[match[2].toLowerCase()], null];
             return ret(block);
         }
         if ((match = line.match(/^stop\s+motor\s+([A-F])\s*$/i))) {
@@ -3832,7 +3843,7 @@ class SB3Creator {
         if ((match = line.match(/^run\s+motor\s+([A-F])\s+(forward|backward|clockwise|counterclockwise)\s+(\S+)\s+(rotations?|degrees|seconds?)\s*$/i))) {
             const { id, block } = cmd('spikeprime_motorRunFor');
             block[id].fields.PORT = [match[1].toUpperCase(), null];
-            block[id].fields.DIRECTION = [match[2].toLowerCase(), null];
+            block[id].fields.DIRECTION = [SPIKE_MOTOR_DIRECTION[match[2].toLowerCase()], null];
             block[id].inputs.VALUE = val(match[3]);
             block[id].fields.UNIT = [match[4].toLowerCase().replace(/s$/, ''), null];
             return ret(block);
@@ -6091,9 +6102,9 @@ class SB3Creator {
             case 'microbitplus_radiosendnum': return line(`radio send number ${v('NUM')}`);
             case 'microbitplus_radiosendstr': return line(`radio send text "${this.dval(b.inputs.TEXT, blocks).replace(/^"|"$/g, '')}"`);
             // ---- Spike Prime commands ----
-            case 'spikeprime_motorStart': return line(`start motor ${f('PORT')} ${f('DIRECTION')}`);
+            case 'spikeprime_motorStart': return line(`start motor ${f('PORT')} ${spikeMotorDirectionWord(f('DIRECTION'))}`);
             case 'spikeprime_motorStop': return line(`stop motor ${f('PORT')}`);
-            case 'spikeprime_motorRunFor': return line(`run motor ${f('PORT')} ${f('DIRECTION')} ${v('VALUE')} ${f('UNIT')}`);
+            case 'spikeprime_motorRunFor': return line(`run motor ${f('PORT')} ${spikeMotorDirectionWord(f('DIRECTION'))} ${v('VALUE')} ${f('UNIT')}`);
             case 'spikeprime_motorSetSpeed': return line(`set motor speed ${f('PORT')} ${v('SPEED')}`);
             case 'spikeprime_moveForward': return line(`move ${f('DIRECTION')} ${v('VALUE')} ${f('UNIT')}`);
             case 'spikeprime_stopMovement': return line('stop movement');
