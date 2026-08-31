@@ -35,6 +35,8 @@ const Cast = {
     toListIndex: (i, len) => { const n = Math.floor(Number(i)); return (n < 1 || n > len) ? 0 : n; }
 };
 
+const headlessSpikeCalls = [];
+
 // These extensions are built directly into brickwright-lite's scratch-vm, so there is
 // intentionally no standalone script for the upstream VM to fetch. Register a small,
 // explicit headless implementation here. Keeping the opcode inventory explicit matters:
@@ -63,7 +65,17 @@ const HEADLESS_BUILTINS = {
     },
     spikeprime: {
         command: ['motorStart', 'motorStop', 'displayText', 'displayClear'],
-        reporter: ['getDistance']
+        reporter: ['getDistance'],
+        methods: {
+            motorStart: args => headlessSpikeCalls.push(['motorStart', args.PORT, args.DIRECTION]),
+            motorStop: args => headlessSpikeCalls.push(['motorStop', args.PORT]),
+            displayText: args => headlessSpikeCalls.push(['displayText', args.TEXT]),
+            displayClear: () => headlessSpikeCalls.push(['displayClear']),
+            getDistance: args => {
+                headlessSpikeCalls.push(['getDistance', args.PORT]);
+                return 12;
+            }
+        }
     }
 };
 function loadHeadlessBuiltin (id) {
@@ -88,6 +100,38 @@ function loadHeadlessBuiltin (id) {
     Object.assign(instance, spec.methods || {});
     return instance;
 }
+
+test('vm: serialized SPIKE program executes commands and consumes its reporter in order', async () => {
+    headlessSpikeCalls.length = 0;
+    const creator = new SB3Creator();
+    creator.parse(`DEVICE SPIKE
+
+GLOBAL dist = 0
+
+WHEN flag clicked:
+  start motor A forward
+  set dist to spike distance B
+  display text "GO"
+  stop motor A`);
+    const vm = new VM();
+    patchExtensionManager(vm);
+    await vm.loadProject(Buffer.from(await (await creator.generateSB3()).arrayBuffer()));
+    vm.start();
+    vm.greenFlag();
+    for (let step = 0; step < 50 && headlessSpikeCalls.length < 4; step++) {
+        vm.runtime._step();
+    }
+    const dist = vm.runtime.targets.flatMap(target => Object.values(target.variables))
+        .find(variable => variable.name === 'dist');
+    vm.quit();
+    assert.equal(Number(dist.value), 12, 'the nested distance reporter result reaches the variable');
+    assert.deepEqual(headlessSpikeCalls, [
+        ['motorStart', 'A', '1'],
+        ['getDistance', 'B'],
+        ['displayText', 'GO'],
+        ['motorStop', 'A']
+    ]);
+});
 function permissive () {
     const p = new Proxy(function () {}, {
         get: (_, k) => { if (k === Symbol.toPrimitive) return () => ''; if (k === Symbol.toStringTag) return 'Object'; if (k === Symbol.iterator) return function* () {}; if (k === 'valueOf') return () => 0; if (k === 'toString') return () => ''; if (k === 'then') return undefined; return p; },
