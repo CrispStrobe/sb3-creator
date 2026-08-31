@@ -353,10 +353,13 @@ built on TurboWarp. The compiler (`src/lib/sb3-creator.js`) is vendored from thi
   output. Wired into the TurboWarp Pseudocode tab as a **⟵ From blocks** button next to
   **Compile & Load**, making the tab a true two-way block⇄code view (verified live at
   crispstrobe.github.io/brickwright via Playwright).
-- [ ] **Extension-aware compilation** — read loaded extensions' block metadata
-  (`vm.runtime._blockInfo`: opcode + text template + typed args) and auto-derive pseudocode
-  grammar, so a LEGO walker gait can be written in pseudocode and emit `spikeprimeble_*`
-  opcodes + `extensions[]`.
+- [~] **Extension-aware compilation** — the canonical `spikeprime` dialect now has an explicit,
+  bidirectional pseudocode map for **30 of 84** extension opcodes, real `extensions[]`/URL metadata,
+  CLI archive proof and Scratch VM execution. The immutable census at extension commit
+  `c681d995` classifies the remainder as 21 host-control blocks, 4 event hats and 29 honest
+  learner-facing gaps (`test/spikeprime-census.test.mjs`). This closes a useful SPIKE slice, not
+  the generic project: metadata-derived grammar, the other SPIKE-family schemas, and EV3/NXT/
+  Boost/WeDo/Powered Up mappings remain open.
 - [ ] **Later:** mirror Makeblock's device-connection UX for the LEGO extensions;
   MakeCode-style micro:bit support (simulator + upload + device panel) in the GUI.
 - [~] **Multi-target code generation (blocks → Python / JavaScript)** — in progress; see §22.
