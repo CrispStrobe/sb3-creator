@@ -1045,7 +1045,64 @@ class SB3Creator {
         return target.isStage;
     }
 
-    getOrCreateVariable(name, target) {
+    /**
+     * Split `name = value` on the FIRST top-level `=`. Scratch names may contain spaces, so the
+     * split point is the equals sign and not whitespace. A bare declaration returns no initial,
+     * which is what every existing program relies on.
+     */
+    splitDeclaration(text) {
+        const raw = String(text);
+        const at = raw.indexOf('=');
+        if (at === -1) return { name: raw.trim(), initial: undefined };
+        const name = raw.slice(0, at).trim();
+        const initial = raw.slice(at + 1).trim();
+        // `GLOBAL = 3` has no name and `GLOBAL x =` has no value; neither is a declaration with
+        // an initializer, and silently inventing one would be worse than keeping the old text.
+        if (!name || !initial) return { name: raw.trim(), initial: undefined };
+        return { name, initial };
+    }
+
+    /**
+     * `[name, value]` back to declaration text. The initializer is emitted only when it is NOT
+     * the default the parser would produce anyway — otherwise every project would grow a
+     * `= 0` on every variable, and the canonical form would drift for no gain.
+     */
+    declarationText(entry) {
+        const [name, value] = entry;
+        if (Array.isArray(value)) {
+            return value.length ? `${name} = [${value.map(item => this.literalText(item)).join(', ')}]` : name;
+        }
+        if (value === 0 || value === '0' || value === '' || value === undefined || value === null) return name;
+        return `${name} = ${this.literalText(value)}`;
+    }
+
+    /** Quote a value only when it would not read back as the same thing bare. */
+    literalText(value) {
+        if (typeof value === 'number') return String(value);
+        const text = String(value);
+        return /^-?\d+(\.\d+)?$/.test(text) && text !== '' ? text : JSON.stringify(text);
+    }
+
+    /** A scalar initial value: number when it round-trips as one, otherwise the literal text. */
+    parseScalarInitial(initial) {
+        if (initial === undefined) return undefined;
+        const unquoted = /^"([\s\S]*)"$|^'([\s\S]*)'$/.exec(initial);
+        if (unquoted) return unquoted[1] !== undefined ? unquoted[1] : unquoted[2];
+        const asNumber = Number(initial);
+        return Number.isFinite(asNumber) && initial !== '' ? asNumber : initial;
+    }
+
+    /** A list initial value: `[a, b]` becomes its items; anything else declares an empty list. */
+    parseListInitial(initial) {
+        if (initial === undefined) return undefined;
+        const bracketed = /^\[([\s\S]*)\]$/.exec(initial.trim());
+        if (!bracketed) return undefined;
+        const body = bracketed[1].trim();
+        if (!body) return [];
+        return body.split(',').map(item => this.parseScalarInitial(item.trim()));
+    }
+
+    getOrCreateVariable(name, target, initial) {
         const isGlobal = this.isGlobalVariable(name, target);
         const scope = isGlobal ? 'Stage' : target.name;
         const key = `${scope}:${name}`;
@@ -1057,7 +1114,7 @@ class SB3Creator {
             const varTarget = isGlobal ? this.project.targets.find(t => t.isStage) : target;
             if (varTarget) {
                 if (!varTarget.variables) varTarget.variables = {};
-                varTarget.variables[id] = [name, 0];
+                varTarget.variables[id] = [name, initial === undefined ? 0 : initial];
 
                 // Create monitor for global variables
                 if (isGlobal) {
@@ -1068,7 +1125,7 @@ class SB3Creator {
         return this.variables.get(key);
     }
 
-    getOrCreateList(name, target) {
+    getOrCreateList(name, target, initial) {
         const isGlobal = this.isGlobalList(name, target);
         const scope = isGlobal ? 'Stage' : target.name;
         const key = `${scope}:${name}`;
@@ -1080,7 +1137,7 @@ class SB3Creator {
             const listTarget = isGlobal ? this.project.targets.find(t => t.isStage) : target;
             if (listTarget) {
                 if (!listTarget.lists) listTarget.lists = {};
-                listTarget.lists[id] = [name, []];
+                listTarget.lists[id] = [name, Array.isArray(initial) ? initial : []];
                 this.createMonitor(id, name, 'data_listcontents');
             }
         }
@@ -5090,27 +5147,31 @@ class SB3Creator {
                 continue;
             }
 
-            // Explicit scope declarations
+            // Explicit scope declarations. `(.+)$` used to swallow an initializer into the
+            // NAME, so `GLOBAL dist = 0` declared a variable literally called "dist = 0" and
+            // threw the initial value away — then a second, correct-but-uninitialized `dist`
+            // appeared the moment the program used it. Four forms had it: GLOBAL, LOCAL and
+            // both LIST spellings. Split the declaration first, and the name is a name again.
             let decl;
             if ((decl = trimmed.match(/^(GLOBAL|LOCAL)\s+LIST\s+(.+)$/i))) {
-                const name = decl[2].trim();
+                const { name, initial } = this.splitDeclaration(decl[2]);
                 if (decl[1].toUpperCase() === 'GLOBAL') this.declaredGlobalLists.add(name);
                 else this.declaredLocalLists.add(`${currentTarget.name}:${name}`);
-                this.getOrCreateList(name, currentTarget);
+                this.getOrCreateList(name, currentTarget, this.parseListInitial(initial));
                 i++; continue;
             }
             if ((decl = trimmed.match(/^LIST\s+(.+)$/i))) {
-                const name = decl[1].trim();
+                const { name, initial } = this.splitDeclaration(decl[1]);
                 if (currentTarget.isStage) this.declaredGlobalLists.add(name);
                 else this.declaredLocalLists.add(`${currentTarget.name}:${name}`);
-                this.getOrCreateList(name, currentTarget);
+                this.getOrCreateList(name, currentTarget, this.parseListInitial(initial));
                 i++; continue;
             }
             if ((decl = trimmed.match(/^(GLOBAL|LOCAL)\s+(.+)$/i))) {
-                const name = decl[2].trim();
+                const { name, initial } = this.splitDeclaration(decl[2]);
                 if (decl[1].toUpperCase() === 'GLOBAL') this.declaredGlobals.add(name);
                 else this.declaredLocals.add(`${currentTarget.name}:${name}`);
-                this.getOrCreateVariable(name, currentTarget);
+                this.getOrCreateVariable(name, currentTarget, this.parseScalarInitial(initial));
                 i++; continue;
             }
 
@@ -5632,8 +5693,8 @@ class SB3Creator {
             if (cfg.ledcube) out.push(`LEDCUBE ${cfg.ledcube.size}`);
             out.push('');
         }
-        for (const v of Object.values(stage.variables || {})) out.push(`GLOBAL ${v[0]}`);
-        for (const l of Object.values(stage.lists || {})) out.push(`GLOBAL LIST ${l[0]}`);
+        for (const v of Object.values(stage.variables || {})) out.push(`GLOBAL ${this.declarationText(v)}`);
+        for (const l of Object.values(stage.lists || {})) out.push(`GLOBAL LIST ${this.declarationText(l)}`);
         for (const bd of (stage.costumes || []).slice(1)) out.push(`BACKDROP ${bd._spec || bd.name}`);
         for (const snd of (stage.sounds || []).slice(1)) out.push(`SOUND ${snd.name}`);
         if (out.length) out.push('');
@@ -5649,8 +5710,8 @@ class SB3Creator {
             } else {
                 out.push(`SPRITE ${t.name}:`);
                 if (t.costumes && t.costumes[0] && t.costumes[0]._shapeSpec) out.push(`  SHAPE ${t.costumes[0]._shapeSpec}`);
-                for (const v of Object.values(t.variables || {})) out.push(`  LOCAL ${v[0]}`);
-                for (const l of Object.values(t.lists || {})) out.push(`  LOCAL LIST ${l[0]}`);
+                for (const v of Object.values(t.variables || {})) out.push(`  LOCAL ${this.declarationText(v)}`);
+                for (const l of Object.values(t.lists || {})) out.push(`  LOCAL LIST ${this.declarationText(l)}`);
                 for (const cos of (t.costumes || []).slice(1)) out.push(`  COSTUME ${cos._spec || cos.name}`);
                 for (const snd of (t.sounds || []).slice(1)) out.push(`  SOUND ${snd.name}`);
                 out.push(...scripts.map(l => (l ? `  ${l}` : l)));
