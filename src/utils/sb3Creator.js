@@ -137,6 +137,11 @@ const gestureForMicroPython = label => {
 const MICROBIT_GESTURE_RE = new RegExp(
     `^(${MICROBIT_GESTURES.map(g => g.replace(' ', '\\s+')).join('|')})\\s+happening\\??$`, 'i');
 
+const OPENS_A_BODY = new Set([
+    'control_if', 'control_if_else', 'control_repeat',
+    'control_repeat_until', 'control_forever'
+]);
+
 class SB3Creator {
     constructor() {
         this.reset();
@@ -2785,8 +2790,8 @@ class SB3Creator {
             const part = SB3Creator.STC_PARTS[cfg.device];
             // No explicit core key = 8051 (the P<p>.<b> pin form), same
             // convention as the 74HC595 branches above.
-            if (!part || (part.core && part.core !== '8051')) {
-                this.warn(lineIndex, `KEYPAD4X4 is not available on ${cfg.device}: the scan relies on quasi-bidirectional rows (8051 family). Devices that have it: the STC parts.`);
+            if (!part || !(part.keypad || !part.core || part.core === '8051')) {
+                this.warn(lineIndex, `KEYPAD4X4 is not available on ${cfg.device}: the scan has to drive four rows while reading four columns, and this device has no way to do both. Devices that have it: the STC parts, and i8086 (through its 8255).`);
                 return true;
             }
             if (this.stcPin(name) || this.stcPort(name) || this.stcPart(name)) {
@@ -2955,8 +2960,8 @@ class SB3Creator {
             const name = m[1];
             const cfg = this.stcConfig();
             const part = SB3Creator.STC_PARTS[cfg.device];
-            if (!part || (part.core && part.core !== '8051')) {
-                this.warn(lineIndex, `SEVENSEG8 is not available on ${cfg.device}: the digit scan lives in the 8051 Timer-0 ISR (8051 family). Devices that have it: the STC parts.`);
+            if (!part || !(part.sevenseg || !part.core || part.core === '8051')) {
+                this.warn(lineIndex, `SEVENSEG8 is not available on ${cfg.device}: a multiplexed display needs a timer to scan the digits one at a time, and this device has none. Devices that have it: the STC parts, and i8086.`);
                 return true;
             }
             if (this.stcPin(name) || this.stcPort(name) || this.stcPart(name)) {
@@ -5099,8 +5104,12 @@ class SB3Creator {
                             newBlockData.block[blockId].inputs.SUBSTACK = [2, childResult.firstBlockId];
                             childResult.blocks[childResult.firstBlockId].parent = blockId;
                             Object.assign(newBlockData.extraBlocks, childResult.blocks);
+                        } else if (OPENS_A_BODY.has(newBlockData.block[blockId].opcode)) {
+                            this.warn(i, `Empty body: "${trimmed}" has no indented lines under it, `
+                                + 'so it does nothing. If the following lines were meant to be its '
+                                + 'body, indent them further than this line.');
                         }
-                        
+
                         this._pendingComment = ownComment;   // …and hand it to the block it was written for
                         linkBlock(newBlockData);
                         i = childResult.endIndex;
@@ -15205,6 +15214,10 @@ SB3Creator.STC_PARTS = {
     // generateC() emits sdcc -mz80 compatible C: __sfr __at port declarations,
     // shadow byte + OUT for pin writes, IN & mask for pin reads.
     z80: { core: 'z80', header: null, portModes: false, aux1T: false, adc: false },
+    // P1/P2/P3 map onto an attached 8255's ports A/B/C, allowing the same pin
+    // declarations to be reseated between an 8051 and an 8086 board.
+    i8086: { core: 'i8086', header: null, portModes: false, aux1T: false, adc: false,
+        keypad: true, sevenseg: true },
     // ATtiny88: 28-pin DIP, avr25 family. Pins are PB0-7/PC0-7/PD0-7/PA0-3
     // (port/bit, not Arduino Dn numbering). Timer0 has NO CTC mode — the ms
     // tick uses Timer1 CTC instead. ADC on PC0-PC5 (channels 0-5).
