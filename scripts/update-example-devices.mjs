@@ -111,7 +111,13 @@ for (const e of items) {
     }
 }
 if (changed && !checkOnly) {
-    writeFileSync(indexPath, JSON.stringify(index, null, 2) + '\n');
+    // ONE space, which is what the committed file uses. This wrote two, so
+    // the documented regeneration command reformatted all ~7900 lines every
+    // time it ran and buried its own change: updating 24 device lists produced
+    // a 15,678-line diff. A script whose output cannot be read is a script
+    // nobody runs, which is part of why the stm32f030 crash above sat
+    // undiscovered.
+    writeFileSync(indexPath, JSON.stringify(index, null, 1) + '\n');
     console.log(`updated ${changed} entries`);
 } else if (changed && checkOnly) {
     console.error(`${changed} entries drifted — run scripts/update-example-devices.mjs`);
