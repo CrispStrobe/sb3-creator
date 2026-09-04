@@ -104,7 +104,15 @@ test('every DEVPART target kind has a POWER_EQUIV row', async () => {
     const mapped = new Set(
         [...block.slice(0, block.indexOf('\n};')).matchAll(/^\s*([A-Za-z_][\w]*):\s*\{/gm)]
             .map((m) => m[1]));
-    assert.ok(mapped.size >= 9, `POWER_EQUIV parsed as ${mapped.size} rows — the parse broke, not the data`);
+    // A parse check, not a data check: it catches the regex silently matching
+    // nothing, which would make the real assertion below pass vacuously.
+    // MEASURED 2026-09-04: POWER_EQUIV holds 10 rows — mcu, stc_mcu, stc15_mcu,
+    // arduino_uno, arduino_nano, arduino_mega, pi_pico, attiny88, attiny85 and
+    // the stm32f030 added in this change. The floor is 9 so that deleting one
+    // row does not break the parse check instead of the assertion that names it.
+    assert.ok(mapped.size >= 9,
+        `POWER_EQUIV parsed as ${mapped.size} rows, expected ~10 (MEASURED 2026-09-04) — ` +
+        `the parse broke, not the data`);
 
     const missing = [...new Set(Object.values(DEVPART))].filter((kind) => !mapped.has(kind));
     assert.deepEqual(missing, [],
