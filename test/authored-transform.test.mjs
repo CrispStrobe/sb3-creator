@@ -80,3 +80,34 @@ describe('authored-circuit transform: the console survives a device pick', () =>
             'a generated file for the authored device could only disagree');
     });
 });
+
+// ── every DEVPART kind needs a power/ground mapping ──────────────────────
+
+test('every DEVPART target kind has a POWER_EQUIV row', async () => {
+    // `transformAuthored` does `const equiv = POWER_EQUIV[targetKind]` and then
+    // dereferences `equiv.power` / `equiv.ground` unguarded. A device family
+    // added to DEVPART without a row here therefore does not degrade — it
+    // throws `Cannot read properties of undefined (reading 'ground')` on the
+    // first authored circuit reached, which is how `stm32f030` stopped
+    // `scripts/update-example-devices.mjs` from running AT ALL on main. That
+    // script is the only way to regenerate the gallery's `devices` lists, so
+    // the whole device-family workflow was blocked by one absent line, and
+    // nothing failed until someone ran it.
+    //
+    // Asserted as a set relationship rather than a list of names, so adding a
+    // device to DEVPART fails HERE — cheaply, by name — instead of crashing a
+    // script somebody runs months later.
+    const {DEVPART} = await import('../scripts/lib/devpart.mjs');
+    const src = readFileSync(join(import.meta.dirname, '..', 'scripts', 'lib',
+        'authored-transform.mjs'), 'utf8');
+    const block = src.slice(src.indexOf('const POWER_EQUIV = {'));
+    const mapped = new Set(
+        [...block.slice(0, block.indexOf('\n};')).matchAll(/^\s*([A-Za-z_][\w]*):\s*\{/gm)]
+            .map((m) => m[1]));
+    assert.ok(mapped.size >= 9, `POWER_EQUIV parsed as ${mapped.size} rows — the parse broke, not the data`);
+
+    const missing = [...new Set(Object.values(DEVPART))].filter((kind) => !mapped.has(kind));
+    assert.deepEqual(missing, [],
+        `these DEVPART target kinds have no POWER_EQUIV row, so transformAuthored ` +
+        `throws on the first authored circuit that reaches them: ${missing.join(', ')}`);
+});

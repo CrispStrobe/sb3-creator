@@ -27,6 +27,16 @@ const POWER_EQUIV = {
   pi_pico: { power: 'vsys', ground: 'gnd_1' },
   attiny88: { power: 'vcc', ground: 'gnd' },
   attiny85: { power: 'vcc', ground: 'gnd' },
+  // Added 2026-09-04. `DEVPART` has carried `stm32f030` for some time and this
+  // table did not, so `POWER_EQUIV[targetKind]` was undefined and every run of
+  // update-example-devices.mjs died on the first authored circuit it reached:
+  //   TypeError: Cannot read properties of undefined (reading 'ground')
+  // — which meant the script the header calls "the single command that widening
+  // the device family requires" could not be run at all, on main, by anyone.
+  // Names taken from the part rather than guessed: bw-circuit-ui's
+  // parts-data/stm32f030.json declares terminals `vcc`, `vcc2` and `gnd`, and
+  // this is a board target so `caseTo` lowercases anyway.
+  stm32f030: { power: 'vcc', ground: 'gnd' },
 };
 
 // A hole's electrical strip: rail name, or column + block half.
