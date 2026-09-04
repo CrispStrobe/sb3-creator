@@ -533,3 +533,82 @@ WHEN flag clicked:
     assert.ok(t.serial[0].tMs >= 500 && t.serial[0].tMs <= 510,
         `should print near 500ms, got ${t.serial[0].tMs}`);
 });
+
+// ── findings: the KIND of a disagreement, not just its sentence ──────────
+
+/**
+ * `compareTraces` decides, for every disagreement, whether the two traces
+ * differ in WHAT happened or only in WHEN — and it used to throw that away,
+ * returning `diffs` as English. A consumer could then only fail on everything
+ * or nothing.
+ *
+ * That is not hypothetical. lite's corpus differential compares the emitter
+ * against this referee over the gallery, and nine of forty pairs disagree ONLY
+ * in timing, for a reason that is neither side's bug: the referee's walk of the
+ * blocks is free, and a real MCU spends time per loop pass (measured
+ * 2026-09-04: 0 ms/s on 01-blink, ~9.95 on three PWM/motor programs, 21.50 on
+ * 20-shift-register-binary — a per-iteration cost, not a per-device rate). With
+ * no way to separate those from a wrong level, the gate stayed switched off and
+ * covered nothing.
+ */
+const evAt = (tMs, level, pin = 'led') => ({tMs, pin, level});
+const traceOf = (events, extra = {}) =>
+    ({horizon: 5000, events, serial: [], pwm: [], ...extra});
+
+test('a pure timing skew is kind "time"; a wrong level is kind "level"', () => {
+    const ref = traceOf([evAt(0, 1), evAt(100, 0), evAt(200, 1)]);
+
+    const late = traceOf([evAt(0, 1), evAt(160, 0), evAt(260, 1)]);
+    const lateCmp = compareTraces(ref, late, {tolMs: 5});
+    assert.equal(lateCmp.ok, false);
+    assert.deepEqual([...new Set(lateCmp.findings.map((f) => f.kind))], ['time'],
+        'the levels agree in order and value; only the clock differs');
+
+    const wrong = traceOf([evAt(0, 1), evAt(100, 1), evAt(200, 1)]);
+    const wrongCmp = compareTraces(ref, wrong, {tolMs: 5});
+    assert.equal(wrongCmp.ok, false);
+    assert.ok(wrongCmp.findings.some((f) => f.kind === 'level'),
+        'a level that disagrees is a statement about WHAT the program did');
+    assert.ok(!wrongCmp.findings.every((f) => f.kind === 'time'),
+        'and must never be reported as merely late');
+});
+
+test('a consumer can gate on semantics while tolerating the known timing gap', () => {
+    // The whole point: this predicate is what lets the corpus differential run.
+    const semantic = (cmp) => cmp.findings.filter((f) => f.kind !== 'time');
+
+    const ref = traceOf([evAt(0, 1), evAt(500, 0)]);
+    const onlyLate = compareTraces(ref, traceOf([evAt(0, 1), evAt(560, 0)]), {tolMs: 5});
+    assert.equal(onlyLate.ok, false, 'still not equal…');
+    assert.deepEqual(semantic(onlyLate), [], '…but nothing about it is semantic');
+
+    const alsoWrong = compareTraces(ref, traceOf([evAt(0, 0), evAt(560, 0)]), {tolMs: 5});
+    assert.ok(semantic(alsoWrong).length > 0,
+        'a semantic disagreement must survive the same filter');
+});
+
+test('findings and diffs stay in step, and every kind is a known one', () => {
+    // If these drift apart, `diffs` and `findings` are describing different
+    // runs and the English stops matching the data a gate acts on.
+    const KINDS = new Set(['level', 'time', 'count', 'value']);
+    const ref = traceOf([evAt(0, 1), evAt(100, 0)], {serial: [{tMs: 10, line: 'a'}]});
+    const actual = traceOf([evAt(0, 0), evAt(180, 0), evAt(400, 1)],
+        {serial: [{tMs: 90, line: 'b'}]});
+    const cmp = compareTraces(ref, actual, {tolMs: 5});
+
+    assert.ok(cmp.findings.length > 0, 'this input is meant to disagree several ways');
+    assert.equal(cmp.findings.length, cmp.diffs.length,
+        'one finding per diff, in the same order');
+    assert.deepEqual(cmp.findings.map((f) => f.text), cmp.diffs,
+        'the finding carries the same sentence the diff does');
+    for (const f of cmp.findings) {
+        assert.ok(KINDS.has(f.kind), `unknown finding kind "${f.kind}" for: ${f.text}`);
+    }
+});
+
+test('agreement reports no findings at all', () => {
+    const ref = traceOf([evAt(0, 1), evAt(100, 0)]);
+    const cmp = compareTraces(ref, traceOf([evAt(0, 1), evAt(100, 0)]), {tolMs: 5});
+    assert.equal(cmp.ok, true);
+    assert.deepEqual(cmp.findings, [], 'no disagreement, nothing to classify');
+});

@@ -689,6 +689,23 @@ export function compareTraces(ref, actual, opts = {}) {
         .reduce((a, sLine) => a + String(sLine.line).length + 2, 0);
     const tolAt = (t) => tolMs + startup + bytesBefore(t) * msPerByte + (t / 1000) * driftPerSec;
     const diffs = [];
+    // Every disagreement is ALSO recorded with its kind, because the kind is
+    // decided here and was being thrown away at the boundary. `diffs` is
+    // English for a human; a consumer that wants to treat "the levels differ"
+    // (a semantic disagreement — the program did something else) differently
+    // from "the levels agree and the timing differs by 6 ms" (a real device
+    // spending real time where the referee's walk is free) had no way to tell
+    // them apart except by parsing these sentences.
+    //
+    // That cost lite's corpus differential its whole gate: it could only fail
+    // on everything or nothing, so it failed on nine known-benign timing
+    // divergences and stayed switched off. `kind: 'time'` is the one that is
+    // about WHEN; every other kind is about WHAT.
+    const findings = [];
+    const note = (kind, text, extra = {}) => {
+        diffs.push(text);
+        findings.push({kind, text, ...extra});
+    };
     const horizon = Math.min(ref.horizon ?? Infinity, actual.horizon ?? Infinity);
     const inWindow = (e) => e.tMs < horizon;
 
@@ -718,15 +735,15 @@ export function compareTraces(ref, actual, opts = {}) {
         const n = Math.min(re.length, ae.length);
         for (let i = 0; i < n; i++) {
             if (re[i].level !== ae[i].level) {
-                diffs.push(`${pin}[${i}]: referee level ${re[i].level}@${re[i].tMs}, actual ${ae[i].level}@${ae[i].tMs}`);
+                note('level', `${pin}[${i}]: referee level ${re[i].level}@${re[i].tMs}, actual ${ae[i].level}@${ae[i].tMs}`);
             } else if (Math.abs(re[i].tMs - ae[i].tMs) > tolAt(re[i].tMs)) {
-                diffs.push(`${pin}[${i}] (level ${re[i].level}): time ${re[i].tMs} vs ${ae[i].tMs}`);
+                note('time', `${pin}[${i}] (level ${re[i].level}): time ${re[i].tMs} vs ${ae[i].tMs}`);
             }
         }
         const extraRef = re.slice(n).filter((e) => e.tMs < horizon - tolMs);
         const extraAct = ae.slice(n).filter((e) => e.tMs < horizon - tolMs);
-        if (extraRef.length) diffs.push(`${pin}: referee has ${extraRef.length} events the actual lacks (first: ${JSON.stringify(extraRef[0])})`);
-        if (extraAct.length) diffs.push(`${pin}: actual has ${extraAct.length} events the referee lacks (first: ${JSON.stringify(extraAct[0])})`);
+        if (extraRef.length) note('count', `${pin}: referee has ${extraRef.length} events the actual lacks (first: ${JSON.stringify(extraRef[0])})`);
+        if (extraAct.length) note('count', `${pin}: actual has ${extraAct.length} events the referee lacks (first: ${JSON.stringify(extraAct[0])})`);
     }
 
     const rs = (ref.serial ?? []).filter(inWindow);
@@ -734,22 +751,22 @@ export function compareTraces(ref, actual, opts = {}) {
     const m = Math.min(rs.length, as_.length);
     for (let i = 0; i < m; i++) {
         if (String(rs[i].line) !== String(as_[i].line)) {
-            diffs.push(`serial ${i}: "${rs[i].line}" vs "${as_[i].line}"`);
+            note('value', `serial ${i}: "${rs[i].line}" vs "${as_[i].line}"`);
         } else if (Math.abs(rs[i].tMs - as_[i].tMs) > tolAt(rs[i].tMs)) {
-            diffs.push(`serial ${i} ("${rs[i].line}"): time ${rs[i].tMs} vs ${as_[i].tMs}`);
+            note('time', `serial ${i} ("${rs[i].line}"): time ${rs[i].tMs} vs ${as_[i].tMs}`);
         }
     }
     if (rs.length !== as_.length &&
         Math.abs(rs.length - as_.length) > 0 &&
         !(Math.abs(rs.length - as_.length) === 1 &&
           Math.max(rs[rs.length - 1]?.tMs ?? 0, as_[as_.length - 1]?.tMs ?? 0) >= horizon - tolMs)) {
-        diffs.push(`serial count: referee ${rs.length} vs actual ${as_.length}`);
+        note('count', `serial count: referee ${rs.length} vs actual ${as_.length}`);
     }
 
     const rp = ref.pwm ?? [], ap = actual.pwm ?? [];
     for (let i = 0; i < Math.min(rp.length, ap.length); i++) {
         if (rp[i].pin !== ap[i].pin || Math.abs(rp[i].percent - ap[i].percent) > 2) {
-            diffs.push(`pwm ${i}: ${JSON.stringify(rp[i])} vs ${JSON.stringify(ap[i])}`);
+            note('value', `pwm ${i}: ${JSON.stringify(rp[i])} vs ${JSON.stringify(ap[i])}`);
         }
     }
 
@@ -757,15 +774,15 @@ export function compareTraces(ref, actual, opts = {}) {
     const rt = ref.tones ?? [], at_ = actual.tones ?? [];
     for (let i = 0; i < Math.min(rt.length, at_.length); i++) {
         if (rt[i].pin !== at_[i].pin) {
-            diffs.push(`tone ${i}: pin "${rt[i].pin}" vs "${at_[i].pin}"`);
+            note('value', `tone ${i}: pin "${rt[i].pin}" vs "${at_[i].pin}"`);
         } else if (Math.abs(rt[i].hz - at_[i].hz) > 5) {
-            diffs.push(`tone ${i} ("${rt[i].pin}"): ${rt[i].hz} Hz vs ${at_[i].hz} Hz`);
+            note('value', `tone ${i} ("${rt[i].pin}"): ${rt[i].hz} Hz vs ${at_[i].hz} Hz`);
         } else if (Math.abs(rt[i].tMs - at_[i].tMs) > tolAt(rt[i].tMs)) {
-            diffs.push(`tone ${i} ("${rt[i].pin}"): time ${rt[i].tMs} vs ${at_[i].tMs}`);
+            note('time', `tone ${i} ("${rt[i].pin}"): time ${rt[i].tMs} vs ${at_[i].tMs}`);
         }
     }
     if (rt.length !== at_.length) {
-        diffs.push(`tone count: referee ${rt.length} vs actual ${at_.length}`);
+        note('count', `tone count: referee ${rt.length} vs actual ${at_.length}`);
     }
 
     // Device events: servo angle, motor speed/direction, shift_out value.
@@ -775,29 +792,29 @@ export function compareTraces(ref, actual, opts = {}) {
     const md = Math.min(rd.length, ad.length);
     for (let i = 0; i < md; i++) {
         if (rd[i].kind !== ad[i].kind || rd[i].name !== ad[i].name) {
-            diffs.push(`device ${i}: ${JSON.stringify(rd[i])} vs ${JSON.stringify(ad[i])}`);
+            note('value', `device ${i}: ${JSON.stringify(rd[i])} vs ${JSON.stringify(ad[i])}`);
         } else {
             // Kind-specific value comparison
             const rde = rd[i], ade = ad[i];
             if (rde.kind === 'servo' && rde.angle !== ade.angle) {
-                diffs.push(`device ${i} servo "${rde.name}": angle ${rde.angle} vs ${ade.angle}`);
+                note('value', `device ${i} servo "${rde.name}": angle ${rde.angle} vs ${ade.angle}`);
             } else if (rde.kind === 'motor_speed' && rde.speed !== ade.speed) {
-                diffs.push(`device ${i} motor "${rde.name}": speed ${rde.speed} vs ${ade.speed}`);
+                note('value', `device ${i} motor "${rde.name}": speed ${rde.speed} vs ${ade.speed}`);
             } else if (rde.kind === 'motor_dir' && rde.dir !== ade.dir) {
-                diffs.push(`device ${i} motor "${rde.name}": dir ${rde.dir} vs ${ade.dir}`);
+                note('value', `device ${i} motor "${rde.name}": dir ${rde.dir} vs ${ade.dir}`);
             } else if (rde.kind === 'shift_out' && rde.value !== ade.value) {
-                diffs.push(`device ${i} shift_out "${rde.name}": value ${rde.value} vs ${ade.value}`);
+                note('value', `device ${i} shift_out "${rde.name}": value ${rde.value} vs ${ade.value}`);
             }
             if (Math.abs(rde.tMs - ade.tMs) > tolAt(rde.tMs)) {
-                diffs.push(`device ${i} ${rde.kind} "${rde.name}": time ${rde.tMs} vs ${ade.tMs}`);
+                note('time', `device ${i} ${rde.kind} "${rde.name}": time ${rde.tMs} vs ${ade.tMs}`);
             }
         }
     }
     if (rd.length !== ad.length) {
         const extra = rd.length > ad.length ? 'referee' : 'actual';
         const diff = Math.abs(rd.length - ad.length);
-        diffs.push(`device count: referee ${rd.length} vs actual ${ad.length} (${extra} has ${diff} extra)`);
+        note('count', `device count: referee ${rd.length} vs actual ${ad.length} (${extra} has ${diff} extra)`);
     }
 
-    return { ok: diffs.length === 0, diffs };
+    return { ok: diffs.length === 0, diffs, findings };
 }
