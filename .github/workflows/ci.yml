@@ -141,6 +141,28 @@ jobs:
           BW_BOARD: ${{ github.workspace }}/siblings/bw-board
           BW_CIRCUIT_UI: ${{ github.workspace }}/siblings/bw-circuit-ui
 
+      # `update-example-devices.mjs` is, by its own header, "the single command
+      # that widening the device family requires" — and NOTHING ran it. It needs
+      # both sibling checkouts, which this job already has and a contributor's
+      # machine may not, so it is exactly the "works on the machine that has both
+      # checkouts" hazard the mutation step below is argued from.
+      #
+      # It was broken. DEVPART carried `stm32f030` while POWER_EQUIV did not, so
+      # the script died on the first authored circuit it reached and had been
+      # uncallable on main by anyone. Nothing failed, because nothing ran it.
+      # 27 s measured, against a suite already budgeted 30 minutes.
+      #
+      # --check writes nothing: it recomputes every example's device list from
+      # the dry-runs and fails if index.json disagrees. So a program edited
+      # without regenerating is caught here rather than shipping a chooser that
+      # offers a device the example no longer retargets to.
+      - name: Gallery device lists agree with the dry-runs
+        run: node scripts/update-example-devices.mjs --check
+        timeout-minutes: 10
+        env:
+          BW_BOARD: ${{ github.workspace }}/siblings/bw-board
+          BW_CIRCUIT_UI: ${{ github.workspace }}/siblings/bw-circuit-ui
+
       # A gate nobody has seen fail is a gate nobody should trust, and this one
       # in particular was green for five days while the extension lite ships was
       # eight opcodes short. This re-introduces that exact defect and seven
