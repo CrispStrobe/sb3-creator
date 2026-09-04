@@ -1890,10 +1890,19 @@ export default function cToPseudocode (source, opts = {}) {
     // REPEAT n: `if (bw_iK) { <body> bw_iK--; state = S; return; }`
     function taskRepeat (tc, task, depth, stateNum, counterName, countExpr) {
         const pad = '  '.repeat(depth);
-        // Expect: if (counterName) {
+        // Expect: if (counterName > 0) {   — or, in C generated before the
+        // counter became signed, the bare `if (counterName) {`. BOTH are read:
+        // the emitter now writes `> 0` because an unsigned counter made
+        // `repeat (-5)` loop about four billion times instead of zero, but a
+        // reader that only accepted the new form would refuse every C file
+        // emitted before that, and this round-trip is asserted as a FIXED
+        // POINT — refusing to read our own older output would break it in the
+        // direction that looks like a parser bug rather than a version skew.
         tc.expect('if'); tc.expect('(');
         if (tc.peek().v !== counterName) { warn(`${task}: expected ${counterName} in REPEAT`); return []; }
-        tc.next(); tc.expect(')'); tc.expect('{');
+        tc.next();
+        if (tc.peek().v === '>') { tc.next(); tc.eat('0'); }
+        tc.expect(')'); tc.expect('{');
 
         // Parse body until we hit `counterName--;` then `state = S; return;`
         const body = [];

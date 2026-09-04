@@ -612,3 +612,32 @@ test('agreement reports no findings at all', () => {
     assert.equal(cmp.ok, true);
     assert.deepEqual(cmp.findings, [], 'no disagreement, nothing to classify');
 });
+
+test('REPEAT with a non-positive count runs the body zero times, as Scratch does', () => {
+    // Not an oracle test by subject — an EMITTER one, kept here because the
+    // oracle is the definition being matched. `repeat (n)` with n <= 0 runs
+    // zero times in Scratch and in interpretTrace; the C emitted it as
+    //     static unsigned int bw_i1;   bw_i1 = (n);   if (bw_i1) { … bw_i1--; }
+    // so a negative count converted to a huge positive and counted DOWN from
+    // it. `REPEAT (100 - duty)` with duty 340 — which a 12-bit ADC produces
+    // through 02-dimmer's 10-bit divisor — became REPEAT 4294967196, an
+    // effectively infinite loop. Measured on rp2040js: the device stopped
+    // emitting events part-way through the run while the referee continued.
+    //
+    // Asserted on the generated C rather than by running a device, because the
+    // defect IS the generated C and this suite has no emulator. The behavioural
+    // half is lite's corpus differential, which is what found it.
+    const src = 'DEVICE PICO\nPIN led1 = GP15 OUTPUT\n\n' +
+        'WHEN flag clicked:\n  set n to 0 - 5\n  REPEAT n:\n    turn on led1\n    wait 0.05 seconds\n';
+    const creator = new SB3Creator();
+    creator.parse(src);
+    const c = creator.generateC(undefined, {debug: true});
+
+    assert.match(c, /static long bw_i1;/,
+        'the counter must be SIGNED, or a negative count wraps to a huge positive');
+    assert.doesNotMatch(c, /static unsigned int bw_i\d+;/,
+        'no repeat counter may be unsigned');
+    assert.match(c, /if \(bw_i1 > 0\) \{/,
+        'the guard must test the SIGN — `if (n)` is true for every non-zero n');
+    assert.doesNotMatch(c, /if \(bw_i1\) \{/, 'truthiness is not the repeat contract');
+});

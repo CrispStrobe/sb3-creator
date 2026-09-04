@@ -391,8 +391,17 @@ test('every wait AND every loop back-edge is a numbered yield', () => {
     }
     // The FOREVER's back-edge returns to its own state -> a busy loop cannot starve task1.
     assert.match(task, /bw_task0_state = 1;\n\s+return;/);
-    // The REPEAT counter survives the yield, so it is a static.
-    assert.match(c, /static unsigned int bw_i\d+;/);
+    // The REPEAT counter survives the yield, so it is a static — and it is
+    // SIGNED. This asserted `unsigned int` until 2026-09-04, which is what the
+    // emitter wrote and what made `repeat (n)` with n <= 0 run about four
+    // billion times instead of zero: the count converted to a huge positive and
+    // the guard tested truthiness rather than the sign. The claim this line is
+    // making — the counter outlives the yield — is unchanged; the type is now
+    // pinned deliberately rather than incidentally, and the negative case is
+    // pinned in test/trace-oracle.test.mjs.
+    assert.match(c, /static long bw_i\d+;/);
+    assert.doesNotMatch(c, /static unsigned int bw_i\d+;/,
+        'an unsigned repeat counter cannot represent a non-positive count');
     assert.match(task, /bw_i\d+--;/);
 });
 

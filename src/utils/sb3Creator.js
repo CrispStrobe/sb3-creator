@@ -8201,7 +8201,13 @@ class SB3Creator {
                 return [`${pad}${name} = (${v('TIMES')});`,
                     `${pad}${task}_state = ${s};`,
                     `${pad}case ${s}:`,
-                    `${pad}if (${name}) {`,
+                    // `> 0`, not truthiness: `repeat (-5)` runs the body zero
+                    // times in Scratch and in the trace oracle, and `if (n)` is
+                    // true for every non-zero n. Testing the sign here rather
+                    // than clamping at the assignment keeps `v('TIMES')`
+                    // evaluated exactly once — it can be a side-effecting read
+                    // such as an ADC sample.
+                    `${pad}if (${name} > 0) {`,
                     ...sub('SUBSTACK', level + 1),
                     `${pad}    ${name}--;`,
                     `${pad}    ${task}_state = ${s};`,
@@ -13649,8 +13655,16 @@ class SB3Creator {
         if (procProtos.length) out.push(...procProtos, '');
         if (procDefs.length) out.push(...procDefs);
         if (statics.length) {
+            // SIGNED, and `long` to match the type generated variables use.
+            // These were `unsigned int`, so a negative repeat count did not run
+            // zero times as Scratch says — it converted to a huge positive and
+            // counted down from it. `REPEAT (100 - duty)` with duty 340 became
+            // REPEAT 4294967196: an effectively infinite loop. Found by the
+            // corpus differential once it could tell a semantic disagreement
+            // from a timing one (lite D-CORPUS1); 02-dimmer and 10-motor-speed
+            // on pico both stopped emitting events part-way through the run.
             out.push('/* REPEAT counters live across yields. */',
-                ...statics.map((n) => `static unsigned int ${n};`), '');
+                ...statics.map((n) => `static long ${n};`), '');
         }
         // Forward-declare the print helpers when used inside task bodies.
         // The definitions come later (after the timer/print-library section),
