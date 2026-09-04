@@ -54,7 +54,8 @@ const CONVERGE_ONLY = new Set(['planetemaths']);
 // a driver call back into blocks — the same one-way property the registry extensions have
 // (PLAN §22 P5). They round-trip pseudocode <-> blocks <-> C, which is the pair that matters
 // for hardware, and `test/ctarget.test.mjs` asserts exactly that.
-const HARDWARE = new Set(Object.keys(examples).filter((n) => n.startsWith('stc_')));
+const HARDWARE = new Set(Object.keys(examples).filter((n) =>
+    n.startsWith('stc_') || n.startsWith('i8086_')));
 
 // Floor under the generated corpus. This file DOES go red on an empty map
 // today, but only incidentally: the last test names `snake`/`sokoban`/
