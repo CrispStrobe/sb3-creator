@@ -2350,6 +2350,76 @@ SPRITE Game:
     // read that back. They round-trip pseudocode <-> blocks <-> C, which is the pair that
     // matters for hardware.
 
+    // ── 8086 ────────────────────────────────────────────────────────────
+    // These compile to 8086 assembly through BrickWright's assembler.
+    i8086_blink: `DEVICE i8086
+
+PIN led1 = P1.0 OUTPUT
+PIN led2 = P1.1 OUTPUT
+
+# THE SAME PROGRAM AS THE STC BLINK BELOW, WITH ONE LINE CHANGED: the DEVICE.
+# P1, P2 and P3 map onto the 8255's ports A, B and C, so a pin declaration
+# means the same wire on either chip.
+WHEN flag clicked:
+  FOREVER:
+    turn on led1
+    turn off led2
+    wait 0.15 secs
+    turn off led1
+    turn on led2
+    wait 0.15 secs`,
+
+    i8086_keypad: `DEVICE i8086
+
+PART pad = KEYPAD4X4 ROWS P3.0 P3.1 P3.2 P3.3 COLS P2.0 P2.1 P2.2 P2.3
+PIN led = P1.0 OUTPUT
+GLOBAL k
+
+# A matrix keypad is eight wires. Each row is driven low in turn while the
+# columns are read. Rows and columns use different 8255 ports because its
+# direction is configured a whole port at a time.
+WHEN flag clicked:
+  FOREVER:
+    set k to read pad
+    IF k = 0 THEN:
+      turn on led
+    IF k = -1 THEN:
+      turn off led`,
+
+    i8086_events: `DEVICE i8086
+
+PIN sw = P2.0 INPUT ACTIVE LOW
+
+# Four scripts run on a preemptive scheduler. The build supplies the 8259
+# interrupt controller and 8254 timer needed for scheduling.
+WHEN flag clicked:
+  REPEAT 5:
+    print "tick"
+    wait 0.2 secs
+  stop all
+
+WHEN sw pressed:
+  print "button"
+
+WHEN a key pressed:
+  broadcast "typed"
+
+WHEN I receive "typed":
+  print "you pressed A"`,
+
+    i8086_analog: `DEVICE i8086
+
+PIN pot = P1.3 ANALOG
+GLOBAL v
+
+# An analog pin adds an ADC0809 at 300h. Its eight-bit reading is scaled to
+# 0..1023 to agree with the ten-bit STC12 interface.
+WHEN flag clicked:
+  REPEAT 5:
+    set v to read pot
+    print v
+    wait 0.2 secs`,
+
     stc_blink: `DEVICE STC12C5A60S2
 CLOCK 11059200
 
