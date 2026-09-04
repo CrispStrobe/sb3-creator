@@ -20,7 +20,9 @@ const BACKENDS = [
 // `_stc12.setPin(...)` against the pluggable driver, and neither front end can read a driver
 // call back into blocks — the same one-way property the registry extensions have. Their
 // round-trip is pseudocode <-> blocks <-> C, and `test/ctarget.test.mjs` asserts it there.
-const HARDWARE = (n) => n.startsWith('stc_');
+// The 8086 examples likewise target a dedicated assembly backend, not the
+// generic Python/JavaScript emitters exercised by this matrix.
+const HARDWARE = (n) => n.startsWith('stc_') || n.startsWith('i8086_');
 
 // The corpus this file's subtests are GENERATED from. Without a floor, an
 // empty `examples` map — or a HARDWARE predicate that widened to match

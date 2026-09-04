@@ -2143,6 +2143,7 @@ test('device C round-trip is 5/5 on the example fixtures', async () => {
     for (const [name, src] of Object.entries(examples)) {
         const c1 = new SB3Creator(); c1.parse(src);
         if (!c1.project.stc?.pins?.length && !c1.project.stc?.ledcube) continue;
+        if (c1.project.stc?.device === 'i8086') continue; // dedicated assembly backend
         total++;
         const ps0 = c1.decompile();
         const c0b = new SB3Creator(); c0b.parse(ps0);
