@@ -240,6 +240,12 @@ export default function micropythonToPseudocode (source, opts = {}) {
         // arithmetic detail of one board in the portable text.
         e = e.replace(/\b(\w+)\.read_u16\s*\(\s*\)\s*>>\s*6/g, (_, o) => `read ${nameOf(o) || o}`);
         e = e.replace(/\b(\w+)\.value\s*\(\s*\)/g, (_, o) => `read ${nameOf(o) || o}`);
+        // MicroPython emitted for an STC-targeted program drives the pins through
+        // the `_stc*` driver shim: a pin read is `_stc12.readPin("name")`, and the
+        // pin's dialect name is the string literal itself. Left unmapped it comes
+        // back quoted as a string; mapped, it is the same `read <name>` reporter
+        // the native boards produce.
+        e = e.replace(/\b_stc\d*\.readPin\s*\(\s*"([^"]+)"\s*\)/g, (_, name) => `read ${name}`);
         e = e.replace(/\btime\.ticks_ms\s*\(\s*\)|\brunning_time\s*\(\s*\)/g, 'timer');
         e = e.replace(/\bnot\s+/g, 'not ');
         e = e.replace(/\bTrue\b/g, '1').replace(/\bFalse\b/g, '0');
@@ -259,6 +265,21 @@ export default function micropythonToPseudocode (source, opts = {}) {
     // ---- statements -------------------------------------------------------
     const out = [];
     const emit = (depth, s) => out.push('  '.repeat(depth) + s);
+
+    // `print` coerces with `str(...)`, so the emitter writes `print(str(X))`.
+    // Strip ONE `str(...)` layer when it wraps the whole argument, or the wrap
+    // doubles on re-emission. `str(a) + str(b)` (a join) is not wrapped whole,
+    // and is left alone.
+    const stripOuterStr = (a) => {
+        a = a.trim();
+        if (!a.startsWith('str(') || !a.endsWith(')')) return a;
+        let d = 0;
+        for (let k = 3; k < a.length; k++) {
+            if (a[k] === '(') d++;
+            else if (a[k] === ')') { d--; if (d === 0) return k === a.length - 1 ? a.slice(4, -1).trim() : a; }
+        }
+        return a;
+    };
 
     // The generated program puts each script in its own task function — older
     // output named the single one `bw_script()`, current output emits one
@@ -361,7 +382,7 @@ export default function micropythonToPseudocode (source, opts = {}) {
         if ((m = s.match(/^time\.sleep\s*\(\s*(.+?)\s*\)$/))) {
             emit(depth, `wait ${expr(m[1])} seconds`); continue;
         }
-        if ((m = s.match(/^print\s*\(\s*(.*)\s*\)$/))) { emit(depth, `print ${expr(m[1])}`); continue; }
+        if ((m = s.match(/^print\s*\(\s*(.*)\s*\)$/))) { emit(depth, `print ${expr(stripOuterStr(m[1]))}`); continue; }
 
         // A toggle is two statements on the micro:bit; the dictionary write is
         // bookkeeping and the pin write is the act, so the pair collapses.
@@ -407,9 +428,25 @@ export default function micropythonToPseudocode (source, opts = {}) {
         }
         if (/^if\s+_hz\s*:$|^music\.stop\s*\(/.test(s)) continue;
 
+        // `change v by X` is emitted as `v = v + X` with the operand UNwrapped;
+        // a genuine `set v to (v + X)` keeps the reporter's parentheses (`v =
+        // (v + X)`). The bare-`+` form after `=` is therefore the change verb,
+        // and lifting it as such is both the right block and byte-exact on
+        // re-emission.
+        if ((m = s.match(/^([A-Za-z_]\w*)\s*=\s*\1\s*\+\s*(.+)$/))) {
+            emit(depth, `change ${m[1]} by ${expr(m[2])}`); continue;
+        }
         // Plain assignment.
         if ((m = s.match(/^([A-Za-z_]\w*)\s*=\s*(.+)$/)) && !/[=<>!]=/.test(m[0].slice(m[1].length))) {
             emit(depth, `set ${m[1]} to ${expr(m[2])}`); continue;
+        }
+        // A scheduler task spells `wait N seconds` as a yield of milliseconds
+        // (`yield int((N) * 1000)`); the emitter's own form, reversed here so the
+        // wait is not lost. The bare `yield 0` at a loop back-edge, and every
+        // other yield, is control flow rather than a statement and rides on to
+        // the skip below.
+        if ((m = s.match(/^yield\s+int\s*\(\s*\((.+)\)\s*\*\s*1000\s*\)$/))) {
+            emit(depth, `wait ${expr(m[1])} seconds`); continue;
         }
         if (/^(yield|pass|global|return)\b/.test(s)) continue;
 
