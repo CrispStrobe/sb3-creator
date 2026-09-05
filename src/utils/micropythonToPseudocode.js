@@ -38,6 +38,31 @@ function splitComment (line) {
     return [line, null];
 }
 
+/** Lift the emitter's `_eq(a, b)` loose-equality helper back to `(a = b)`,
+ *  recursively and with balanced parentheses so nested and readPin arguments
+ *  survive. Left in place it reads back as an unknown call. */
+function liftEq (str) {
+    let out = '', i = 0;
+    while (i < str.length) {
+        if (str.startsWith('_eq(', i)) {
+            let d = 0, comma = -1, j = i + 3;
+            for (; j < str.length; j++) {
+                const c = str[j];
+                if (c === '(') d++;
+                else if (c === ')') { d--; if (d === 0) break; }
+                else if (c === ',' && d === 1 && comma === -1) comma = j;
+            }
+            if (comma !== -1 && j < str.length) {
+                out += `(${liftEq(str.slice(i + 4, comma)).trim()} = ${liftEq(str.slice(comma + 1, j)).trim()})`;
+                i = j + 1;
+                continue;
+            }
+        }
+        out += str[i++];
+    }
+    return out;
+}
+
 export default function micropythonToPseudocode (source, opts = {}) {
     const warnings = [];
     const warn = (m) => { if (!warnings.includes(m)) warnings.push(m); };
@@ -246,6 +271,7 @@ export default function micropythonToPseudocode (source, opts = {}) {
         // back quoted as a string; mapped, it is the same `read <name>` reporter
         // the native boards produce.
         e = e.replace(/\b_stc\d*\.readPin\s*\(\s*"([^"]+)"\s*\)/g, (_, name) => `read ${name}`);
+        e = liftEq(e);
         e = e.replace(/\btime\.ticks_ms\s*\(\s*\)|\brunning_time\s*\(\s*\)/g, 'timer');
         e = e.replace(/\bnot\s+/g, 'not ');
         e = e.replace(/\bTrue\b/g, '1').replace(/\bFalse\b/g, '0');
@@ -369,7 +395,15 @@ export default function micropythonToPseudocode (source, opts = {}) {
             emit(depth, `set _hz to ${hz}`); continue;
         }
         if (/^while\s+True\s*:$/.test(s)) { emit(depth, 'FOREVER:'); continue; }
-        if ((m = s.match(/^while\s+(.+?)\s*:$/))) { emit(depth, `REPEAT UNTIL not (${expr(m[1])}):`); continue; }
+        if ((m = s.match(/^while\s+(.+?)\s*:$/))) {
+            // `repeat until X` and `wait until X` are both emitted as
+            // `while not (X):`. Lifting `while C` as `REPEAT UNTIL not (C)` is
+            // right in general, but for the emitter's own `not (X)` it doubles
+            // the negation; strip the pair and read the UNTIL condition straight.
+            const neg = m[1].match(/^not\s*\((.+)\)$/);
+            if (neg) { emit(depth, `REPEAT UNTIL ${expr(neg[1])}:`); continue; }
+            emit(depth, `REPEAT UNTIL not (${expr(m[1])}):`); continue;
+        }
         if ((m = s.match(/^if\s+(.+?)\s*:$/))) { emit(depth, `IF ${expr(m[1])} THEN:`); continue; }
         if ((m = s.match(/^elif\s+(.+?)\s*:$/))) { emit(depth, `ELSE IF ${expr(m[1])} THEN:`); continue; }
         if (/^else\s*:$/.test(s)) { emit(depth, 'ELSE:'); continue; }
