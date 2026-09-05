@@ -260,16 +260,28 @@ export default function micropythonToPseudocode (source, opts = {}) {
     const out = [];
     const emit = (depth, s) => out.push('  '.repeat(depth) + s);
 
-    // The generated program puts the script in bw_script(); a hand-written one
-    // is usually just a `while True:` at module level. Both are one script.
+    // The generated program puts each script in its own task function — older
+    // output named the single one `bw_script()`, current output emits one
+    // `_task_N()` per script and drives them from a `_run(...)` scheduler that
+    // is pure infrastructure. A hand-written program is usually just a
+    // `while True:` at module level. In every case the reader lifts ONE script
+    // body; the scheduler, the `_run([...])` kickoff and the `_pending`/
+    // `_receivers`/`_bw_*` runtime vars are ours, and are dropped because the
+    // body loop stops at the end of the task function (its dedent to column 0).
     let start = 0, bodyIndent = 0;
-    const fn = lines.findIndex((l) => /^def\s+bw_script\s*\(/.test(l.code));
+    const fn = lines.findIndex((l) => /^def\s+(?:bw_script|_task_0)\s*\(/.test(l.code));
     if (fn !== -1) { start = fn + 1; bodyIndent = 4; } else {
         const w = lines.findIndex((l) => /^\s*while\s+True\s*:/.test(l.code));
         if (w === -1) warn('no bw_script() and no `while True:` — nothing that looks like a script');
         start = w === -1 ? lines.length : w;
         bodyIndent = lines[start] ? lines[start].indent : 0;
     }
+    // The emitter writes one `_task_N()` per script and this reader lifts the
+    // first. When there is more than one, the others are the learner's scripts,
+    // NOT runtime — they must not be swallowed silently. Name them, and leave
+    // the program degraded for a real reason.
+    const taskCount = lines.filter((l) => /^def\s+_task_\d+\s*\(/.test(l.code)).length;
+    if (taskCount > 1) warn(`${taskCount - 1} more WHEN script(s) not lifted — this reader lifts one script per program`);
 
     // ---- module-level setup BEFORE the script: grey-block preserved ------
     // Imports of unknown modules, helper defs, setup calls — everything the
