@@ -49,3 +49,19 @@ test('a procedure WITH parameters is refused by name, not dropped silently', () 
     assert.ok(r.warnings.some(w => /procedure call with arguments not lifted/.test(w)),
         `the parameterised call was not named: ${JSON.stringify(r.warnings)}`);
 });
+
+test('a refused parameterised def is KEPT as a grey block, not only named', () => {
+    // The reader's convention is warn AND keep: a statement it cannot lift stays
+    // visible in the program as a `raw` grey block, so the def is both named in a
+    // warning AND present in the pseudocode — not named into an empty program.
+    // (The no-arg case lifts to a DEFINE; only the parameterised def rides along.)
+    const {pseudocode} = roundtrips('DEVICE MICROBIT\nDEFINE show (v):\n  display v\n\nWHEN flag clicked:\n  show (7)\n');
+    // The def's own line survives verbatim as a grey block...
+    assert.match(pseudocode, /raw "def proc_do_show\(v\):"/,
+        `the parameterised def line was dropped from the pseudocode:\n${pseudocode}`);
+    // ...and so does its body (kept as the emitted lines, nothing lost). The
+    // mutation that this guards: revert the def-refusal to `warn(...); continue;`
+    // and the def vanishes from the pseudocode again — this assertion goes red.
+    assert.match(pseudocode, /raw "display\.scroll\(str\(v\)/,
+        `the parameterised def body was dropped from the pseudocode:\n${pseudocode}`);
+});

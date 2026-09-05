@@ -709,7 +709,24 @@ export default function micropythonToPseudocode (source, opts = {}) {
         const dm = lines[j].code.match(/^def (proc_do_\w+)\s*\(([^)]*)\)\s*:$/);
         if (!dm) continue;
         const name = dm[1].replace(/^proc_do_/, '');
-        if (dm[2].trim()) { warn(`procedure ${name} with parameters not lifted yet`); continue; }
+        if (dm[2].trim()) {
+            // Refused by name, but KEPT visible. The reader's convention is warn
+            // AND keep as a grey block: the definition is both named in a warning
+            // and present in the program, never dropped. The parameter round-trip
+            // is not lifted yet, so the def line and its body ride along verbatim
+            // as `raw` — nothing is lost, and the learner sees the block that the
+            // warning names instead of an empty program.
+            const esc = (t) => t.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+            const block = ['', `raw "${esc(lines[j].code)}"`];
+            for (let k = j + 1; k < lines.length; k++) {
+                if (!lines[k].code.trim()) continue;
+                if (lines[k].indent < 4) break;
+                block.push(`  raw "${esc(lines[k].code.trim())}"`);
+            }
+            defineBlocks.push(...block);
+            warn(`procedure ${name} with parameters not lifted yet — kept as a grey block`);
+            continue;
+        }
         const procSink = [];
         liftInto(j + 1, 4, procSink, true);
         if (procSink.length) defineBlocks.push('', `DEFINE ${name}:`, ...procSink);
