@@ -339,7 +339,10 @@ export default function micropythonToPseudocode (source, opts = {}) {
 
     // ---- statements -------------------------------------------------------
     const out = [];
-    const emit = (depth, s) => out.push('  '.repeat(depth) + s);
+    // The statement lifter writes to a swappable sink so it can lift a
+    // procedure body into its own DEFINE block, not only the main script.
+    let curSink = out;
+    const emit = (depth, s) => curSink.push('  '.repeat(depth) + s);
 
     // `print` coerces with `str(...)`, so the emitter writes `print(str(X))`.
     // Strip ONE `str(...)` layer when it wraps the whole argument, or the wrap
@@ -431,12 +434,17 @@ export default function micropythonToPseudocode (source, opts = {}) {
         return true;
     };
 
+    // Lift the statements from `startLine` (whose block body sits at `indent`)
+    // into `sink`. Used for the main script and, once per procedure, for a
+    // DEFINE body. `stopAtDedent` ends the run when the enclosing def closes.
+    const liftInto = (startLine, indent, sink, stopAtDedent) => {
+    const prevSink = curSink; curSink = sink;
     let oledDrawAt = -2; // index of the last lifted OLED draw; its emitter flush follows at +1
-    for (let i = start; i < lines.length; i++) {
+    for (let i = startLine; i < lines.length; i++) {
         const l = lines[i];
         if (!l.code.trim()) continue;
-        if (l.indent < bodyIndent && fn !== -1) break;        // out of the function
-        const depth = Math.max(0, Math.floor((l.indent - bodyIndent) / 4)) + 1;
+        if (l.indent < indent && stopAtDedent) break;        // out of the function
+        const depth = Math.max(0, Math.floor((l.indent - indent) / 4)) + 1;
         const s = l.code.trim();
         let m;
 
@@ -485,6 +493,10 @@ export default function micropythonToPseudocode (source, opts = {}) {
             }
             emit(depth, `REPEAT UNTIL not (${expr(m[1])}):`); continue;
         }
+        // `if _bw_false:` guards a bare `yield 0` that only makes a yield-less
+        // procedure a generator — emitter scaffolding, dropped before the
+        // generic if. Its `yield 0` child then skips to nothing.
+        if (/^if\s+_bw_false\s*:$/.test(s)) continue;
         if ((m = s.match(/^if\s+(.+?)\s*:$/))) { emit(depth, `IF ${expr(m[1])} THEN:`); continue; }
         if ((m = s.match(/^elif\s+(.+?)\s*:$/))) { emit(depth, `ELSE IF ${expr(m[1])} THEN:`); continue; }
         if (/^else\s*:$/.test(s)) { emit(depth, 'ELSE:'); continue; }
@@ -664,6 +676,18 @@ export default function micropythonToPseudocode (source, opts = {}) {
             warn(why);
             continue;
         }
+        // A procedure call: `yield from proc_do_<name>()` is the call verb
+        // `<name>` (the name the emitter's own rule, pyProcRaw, produced from
+        // the DEFINE). A call WITH arguments is refused by name — the argument
+        // round-trip is not lifted yet — rather than skipped silently by the
+        // yield rule below, which would drop the call.
+        if ((m = s.match(/^yield from (proc_do_\w+)\s*\(\s*\)$/))) {
+            emit(depth, m[1].replace(/^proc_do_/, '')); continue;
+        }
+        if ((m = s.match(/^yield from proc_do_\w+\s*\(.+\)$/))) {
+            emit(depth, `raw "${s.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`);
+            warn(`procedure call with arguments not lifted yet: "${s.slice(0, 60)}"`); continue;
+        }
         if (/^(yield|pass|global|return)\b/.test(s)) continue;
 
         // GREY BLOCK: what this reader cannot translate it PRESERVES —
@@ -673,6 +697,25 @@ export default function micropythonToPseudocode (source, opts = {}) {
         emit(depth, `raw "${s.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`);
         warn(`kept verbatim as a grey block: "${s.slice(0, 60)}"`);
     }
+    curSink = prevSink;
+    };
+
+    // Procedures: a `def proc_do_<name>(...)` before the script becomes a
+    // `DEFINE <name>:` block. No-arg definitions are lifted; one WITH parameters
+    // is refused by name (the argument round-trip is not lifted yet). The
+    // scheduler's own defs (_run/_task/_eq/…) are not `proc_do_` and are ignored.
+    const defineBlocks = [];
+    for (let j = 0; j < lines.length; j++) {
+        const dm = lines[j].code.match(/^def (proc_do_\w+)\s*\(([^)]*)\)\s*:$/);
+        if (!dm) continue;
+        const name = dm[1].replace(/^proc_do_/, '');
+        if (dm[2].trim()) { warn(`procedure ${name} with parameters not lifted yet`); continue; }
+        const procSink = [];
+        liftInto(j + 1, 4, procSink, true);
+        if (procSink.length) defineBlocks.push('', `DEFINE ${name}:`, ...procSink);
+    }
+
+    liftInto(start, bodyIndent, out, fn !== -1);
 
     // `x * 1023 // 100` is how a percentage was written to the hardware. Undoing
     // it is not cosmetic: leaving it in would make the pseudocode say a duty of
@@ -694,6 +737,7 @@ export default function micropythonToPseudocode (source, opts = {}) {
         }
     } else warn('no pins found — this reader discovers them from Pin()/pinN calls');
 
-    const body = out.length ? ['', 'WHEN flag clicked:', ...out] : ['', 'WHEN flag clicked:', '  stop'];
+    const script = out.length ? ['', 'WHEN flag clicked:', ...out] : ['', 'WHEN flag clicked:', '  stop'];
+    const body = [...defineBlocks, ...script];
     return { pseudocode: [...head, ...body].join('\n').replace(/\n{3,}/g, '\n\n').trim() + '\n', warnings };
 }
