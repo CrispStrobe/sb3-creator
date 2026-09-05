@@ -63,6 +63,25 @@ function liftEq (str) {
     return out;
 }
 
+/** Unwrap the emitter's `_truthy(X)` boolean-coercion helper: in a condition
+ *  the coercion is implicit, so `_truthy(X)` reads back as just `X`. Balanced,
+ *  recursive, like liftEq. */
+function liftTruthy (str) {
+    let out = '', i = 0;
+    while (i < str.length) {
+        if (str.startsWith('_truthy(', i)) {
+            let d = 0, j = i + 7;
+            for (; j < str.length; j++) {
+                if (str[j] === '(') d++;
+                else if (str[j] === ')') { d--; if (d === 0) break; }
+            }
+            if (j < str.length) { out += liftTruthy(str.slice(i + 8, j)).trim(); i = j + 1; continue; }
+        }
+        out += str[i++];
+    }
+    return out;
+}
+
 export default function micropythonToPseudocode (source, opts = {}) {
     const warnings = [];
     const warn = (m) => { if (!warnings.includes(m)) warnings.push(m); };
@@ -301,6 +320,7 @@ export default function micropythonToPseudocode (source, opts = {}) {
             return `read ${name}`;
         });
         e = liftEq(e);
+        e = liftTruthy(e);
         e = e.replace(/\btime\.ticks_ms\s*\(\s*\)|\brunning_time\s*\(\s*\)/g, 'timer');
         e = e.replace(/\bnot\s+/g, 'not ');
         e = e.replace(/\bTrue\b/g, '1').replace(/\bFalse\b/g, '0');
@@ -395,6 +415,18 @@ export default function micropythonToPseudocode (source, opts = {}) {
         }
     }
 
+    // The body of the loop starting at line `at` (indent `ind`) is nothing but
+    // the `yield 0` back-edge — i.e. the loop has no statements of its own.
+    const bodyIsOnlyYield0 = (at, ind) => {
+        for (let j = at + 1; j < lines.length; j++) {
+            const t = lines[j];
+            if (!t.code.trim()) continue;
+            if (t.indent <= ind) return true;             // body ended, only yields seen
+            if (!/^yield\s+0$/.test(t.code.trim())) return false;   // a real statement -> not empty
+        }
+        return true;
+    };
+
     for (let i = start; i < lines.length; i++) {
         const l = lines[i];
         if (!l.code.trim()) continue;
@@ -424,13 +456,28 @@ export default function micropythonToPseudocode (source, opts = {}) {
             emit(depth, `set _hz to ${hz}`); continue;
         }
         if (/^while\s+True\s*:$/.test(s)) { emit(depth, 'FOREVER:'); continue; }
+        // `repeat N` is a counted loop: `for _ in range(int(N)):` with a
+        // `yield 0` back-edge. Lift it back; the body reads on as usual.
+        if ((m = s.match(/^for\s+_\s+in\s+range\s*\(\s*int\s*\(\s*(.+)\s*\)\s*\)\s*:$/))) {
+            emit(depth, `REPEAT ${expr(m[1])}:`); continue;
+        }
         if ((m = s.match(/^while\s+(.+?)\s*:$/))) {
             // `repeat until X` and `wait until X` are both emitted as
             // `while not (X):`. Lifting `while C` as `REPEAT UNTIL not (C)` is
             // right in general, but for the emitter's own `not (X)` it doubles
             // the negation; strip the pair and read the UNTIL condition straight.
             const neg = m[1].match(/^not\s*\((.+)\)$/);
-            if (neg) { emit(depth, `REPEAT UNTIL ${expr(neg[1])}:`); continue; }
+            if (neg) {
+                // A `while not (X):` whose ONLY body is the `yield 0` back-edge
+                // is a `wait until X`, not a bodyless `repeat until`; the two
+                // emit differently, so telling them apart keeps the round trip.
+                if (bodyIsOnlyYield0(i, l.indent)) {
+                    emit(depth, `wait until ${expr(neg[1])}`);
+                    while (i + 1 < lines.length && (!lines[i + 1].code.trim() || lines[i + 1].indent > l.indent)) i++;
+                    continue;
+                }
+                emit(depth, `REPEAT UNTIL ${expr(neg[1])}:`); continue;
+            }
             emit(depth, `REPEAT UNTIL not (${expr(m[1])}):`); continue;
         }
         if ((m = s.match(/^if\s+(.+?)\s*:$/))) { emit(depth, `IF ${expr(m[1])} THEN:`); continue; }
