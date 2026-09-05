@@ -587,7 +587,6 @@ export default function micropythonToPseudocode (source, opts = {}) {
             if (lines[i + 1] && /^radio\.on\s*\(\s*\)$/.test(lines[i + 1].code.trim())) i++;
             continue;
         }
-        if (/^radio\.on\s*\(\s*\)$/.test(s)) continue;
         if ((m = s.match(/^radio\.send\s*\(\s*str\(\s*(.+?)\s*\)\s*\)$/))) { emit(depth, `radio send number ${expr(m[1])}`); continue; }
         if ((m = s.match(/^radio\.send\s*\(\s*'([^']*)'\s*\)$/)) || (m = s.match(/^radio\.send\s*\(\s*"([^"]*)"\s*\)$/))) {
             emit(depth, `radio send text "${m[1]}"`); continue;

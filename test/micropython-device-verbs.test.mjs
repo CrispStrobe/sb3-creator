@@ -53,3 +53,13 @@ test('radio verbs round-trip: on (config+on), send number, send text', () => {
     assert.match(r.pseudocode, /radio send text "hi"/);
     assert.equal(r.src1, r.src0, 'radio emit -> read -> emit was not identical');
 });
+
+test('a lone radio.on() with no config is NOT dropped — it stays a grey block', () => {
+    // The pair lifts as `radio on group G power P`; an on() with no config has
+    // no dialect verb, so it must survive as a grey block, not vanish. A reader
+    // that deletes a statement it cannot lift is worse than one that keeps it.
+    const src = 'from microbit import *\nimport radio\n\ndef bw_script():\n    radio.on()\n    display.clear()\n\nbw_script()\n';
+    const {pseudocode, warnings} = micropythonToPseudocode(src);
+    assert.ok(warnings.some(w => /grey block: "radio\.on\(\)/.test(w)), `not grey-blocked: ${JSON.stringify(warnings)}`);
+    assert.match(pseudocode, /radio\.on\(\)/, 'the statement is gone from the pseudocode');
+});
