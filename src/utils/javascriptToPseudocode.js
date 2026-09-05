@@ -16,8 +16,11 @@ const JS_KEYWORDS = new Set(['function', 'if', 'else', 'while', 'for', 'return',
     'const', 'var', 'true', 'false', 'null', 'undefined', 'new', 'typeof', 'break', 'continue']);
 
 const JS_OPS = ['===', '!==', '=>', '**', '==', '!=', '<=', '>=', '&&', '||', '++', '--',
-    '+=', '-=', '*=', '/=', '%=', '(', ')', '{', '}', '[', ']', ';', ',', '.',
-    '+', '-', '*', '/', '%', '<', '>', '=', '!', '?', ':'];
+    // '<<' / '>>' precede '<' / '>' so the tokenizer matches the shift operator
+    // whole; the single-char bitwise ops follow '&&' / '||' in the list but the
+    // longest-match loop still takes '&&' over '&' because it appears first.
+    '<<', '>>', '+=', '-=', '*=', '/=', '%=', '(', ')', '{', '}', '[', ']', ';', ',', '.',
+    '+', '-', '*', '/', '%', '<', '>', '=', '!', '?', ':', '&', '|', '^', '~'];
 
 class JsTokenizer {
     constructor (src) { this.s = src.replace(/\r\n?/g, '\n'); this.i = 0; this.line = 1; this.toks = []; this._pendingComment = ''; }
@@ -245,7 +248,12 @@ class JsParser {
         return c;
     }
     parseOr () { let l = this.parseAnd(); while (this.at('OP', '||')) { this.next(); l = { type: 'Bool', op: 'or', left: l, right: this.parseAnd() }; } return l; }
-    parseAnd () { let l = this.parseEquality(); while (this.at('OP', '&&')) { this.next(); l = { type: 'Bool', op: 'and', left: l, right: this.parseEquality() }; } return l; }
+    parseAnd () { let l = this.parseBitOr(); while (this.at('OP', '&&')) { this.next(); l = { type: 'Bool', op: 'and', left: l, right: this.parseBitOr() }; } return l; }
+    // Bitwise |, ^, & sit between && and equality in JS precedence; the shared
+    // Translator renders BinOp('&'|'|'|'^') to bitand/bitor/bitxor.
+    parseBitOr () { let l = this.parseBitXor(); while (this.at('OP', '|')) { const op = this.next().value; l = { type: 'BinOp', op, left: l, right: this.parseBitXor() }; } return l; }
+    parseBitXor () { let l = this.parseBitAnd(); while (this.at('OP', '^')) { const op = this.next().value; l = { type: 'BinOp', op, left: l, right: this.parseBitAnd() }; } return l; }
+    parseBitAnd () { let l = this.parseEquality(); while (this.at('OP', '&')) { const op = this.next().value; l = { type: 'BinOp', op, left: l, right: this.parseEquality() }; } return l; }
     parseEquality () {
         let l = this.parseRel();
         for (;;) {
@@ -256,21 +264,23 @@ class JsParser {
         return l;
     }
     parseRel () {
-        let l = this.parseAdd();
+        let l = this.parseShift();
         for (;;) {
             let op = null;
             if (this.at('OP', '<=')) op = '<='; else if (this.at('OP', '>=')) op = '>='; else if (this.at('OP', '<')) op = '<'; else if (this.at('OP', '>')) op = '>';
             if (!op) break;
             this.next();
-            l = { type: 'Compare', op, left: l, right: this.parseAdd() };
+            l = { type: 'Compare', op, left: l, right: this.parseShift() };
         }
         return l;
     }
+    // Shift sits between relational and additive; renders to shiftleft/shiftright.
+    parseShift () { let l = this.parseAdd(); while (this.at('OP', '<<') || this.at('OP', '>>')) { const op = this.next().value; l = { type: 'BinOp', op, left: l, right: this.parseAdd() }; } return l; }
     parseAdd () { let l = this.parseMul(); while (this.at('OP', '+') || this.at('OP', '-')) { const op = this.next().value; l = { type: 'BinOp', op, left: l, right: this.parseMul() }; } return l; }
     parseMul () { let l = this.parseUnary(); while (this.at('OP', '*') || this.at('OP', '/') || this.at('OP', '%')) { const op = this.next().value; l = { type: 'BinOp', op, left: l, right: this.parseUnary() }; } return l; }
     parseUnary () {
         if (this.at('OP', '!')) { this.next(); return { type: 'Not', operand: this.parseUnary() }; }
-        if (this.at('OP', '-') || this.at('OP', '+')) { const op = this.next().value; return { type: 'Unary', op, operand: this.parseUnary() }; }
+        if (this.at('OP', '-') || this.at('OP', '+') || this.at('OP', '~')) { const op = this.next().value; return { type: 'Unary', op, operand: this.parseUnary() }; }
         if (this.at('typeof')) { this.next(); this.parseUnary(); return { type: 'Str', value: 'number' }; }
         return this.parsePower();
     }

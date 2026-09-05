@@ -24,9 +24,12 @@ const KEYWORDS = new Set([
 ]);
 
 const OPS = [
-    '**', '//', '==', '!=', '<=', '>=', '+=', '-=', '*=', '/=', '%=',
+    // Multi-char operators MUST precede their single-char prefixes: '<<' before
+    // '<', '>>' before '>', so the tokenizer's longest-match loop sees the shift
+    // operator whole instead of two comparisons.
+    '**', '//', '<<', '>>', '==', '!=', '<=', '>=', '+=', '-=', '*=', '/=', '%=',
     '(', ')', '[', ']', '{', '}', ',', ':', '.', '+', '-', '*', '/', '%',
-    '<', '>', '='
+    '<', '>', '=', '&', '|', '^', '~'
 ];
 
 class Tokenizer {
@@ -326,7 +329,7 @@ class Parser {
     parseAnd () { let l = this.parseNot(); while (this.at('and')) { this.next(); l = { type: 'Bool', op: 'and', left: l, right: this.parseNot() }; } return l; }
     parseNot () { if (this.at('not')) { this.next(); return { type: 'Not', operand: this.parseNot() }; } return this.parseCompare(); }
     parseCompare () {
-        let l = this.parseAdd();
+        let l = this.parseBitOr();
         const cmp = () => {
             if (this.at('OP', '<')) return '<'; if (this.at('OP', '>')) return '>';
             if (this.at('OP', '<=')) return '<='; if (this.at('OP', '>=')) return '>=';
@@ -338,14 +341,21 @@ class Parser {
         let op;
         while ((op = cmp())) {
             if (op === 'notin') { this.next(); this.next(); } else if (op === 'in') this.next(); else this.next();
-            const right = this.parseAdd();
+            const right = this.parseBitOr();
             l = { type: 'Compare', op, left: l, right };
         }
         return l;
     }
+    // Bitwise and shift, in Python precedence (low -> high): | , ^ , & , << >> ,
+    // then add/sub. These read back the &, |, ^, <<, >> the generators emit for
+    // the bitand/bitor/bitxor/shiftleft/shiftright blocks.
+    parseBitOr () { let l = this.parseBitXor(); while (this.at('OP', '|')) { const op = this.next().value; l = { type: 'BinOp', op, left: l, right: this.parseBitXor() }; } return l; }
+    parseBitXor () { let l = this.parseBitAnd(); while (this.at('OP', '^')) { const op = this.next().value; l = { type: 'BinOp', op, left: l, right: this.parseBitAnd() }; } return l; }
+    parseBitAnd () { let l = this.parseShift(); while (this.at('OP', '&')) { const op = this.next().value; l = { type: 'BinOp', op, left: l, right: this.parseShift() }; } return l; }
+    parseShift () { let l = this.parseAdd(); while (this.at('OP', '<<') || this.at('OP', '>>')) { const op = this.next().value; l = { type: 'BinOp', op, left: l, right: this.parseAdd() }; } return l; }
     parseAdd () { let l = this.parseMul(); while (this.at('OP', '+') || this.at('OP', '-')) { const op = this.next().value; l = { type: 'BinOp', op, left: l, right: this.parseMul() }; } return l; }
     parseMul () { let l = this.parseUnary(); while (this.at('OP', '*') || this.at('OP', '/') || this.at('OP', '%') || this.at('OP', '//')) { const op = this.next().value; l = { type: 'BinOp', op, left: l, right: this.parseUnary() }; } return l; }
-    parseUnary () { if (this.at('OP', '-') || this.at('OP', '+')) { const op = this.next().value; return { type: 'Unary', op, operand: this.parseUnary() }; } return this.parsePower(); }
+    parseUnary () { if (this.at('OP', '-') || this.at('OP', '+') || this.at('OP', '~')) { const op = this.next().value; return { type: 'Unary', op, operand: this.parseUnary() }; } return this.parsePower(); }
     parsePower () { let l = this.parseAtom(); if (this.at('OP', '**')) { this.next(); l = { type: 'BinOp', op: '**', left: l, right: this.parseUnary() }; } return l; }
 
     parseAtom () {
@@ -487,6 +497,7 @@ class Translator {
             case 'Unary': {
                 const x = this.expr(node.operand);
                 if (node.op === '-') return node.operand.type === 'Num' ? `-${x}` : `(0 - ${x})`;
+                if (node.op === '~') return `(bitnot ${x})`;
                 return x;
             }
             case 'Not': return `(not ${this.expr(node.operand)})`;
@@ -527,7 +538,10 @@ class Translator {
         if (node.op === '+' && this.isStrCall(L) && this.isStrCall(R)) return `(${this.expr(L.args[0])} join ${this.expr(R.args[0])})`;
         // a ** b  ->  Planète Maths "to the power of" (no standard Scratch power)
         if (node.op === '**') return `(${this.expr(L)} to the power of ${this.expr(R)})`;
-        const map = { '+': '+', '-': '-', '*': '*', '/': '/', '%': 'mod', '//': '/' };
+        const map = {
+            '+': '+', '-': '-', '*': '*', '/': '/', '%': 'mod', '//': '/',
+            '&': 'bitand', '|': 'bitor', '^': 'bitxor', '<<': 'shiftleft', '>>': 'shiftright'
+        };
         return `(${this.expr(L)} ${map[node.op] || node.op} ${this.expr(R)})`;
     }
 
