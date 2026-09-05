@@ -45,3 +45,15 @@ test('the emitter-inserted flush (_oled.show()) is dropped, not turned into a ve
     assert.match(r.src0, /_oled\.show\(\)/, 'precondition: the emitter inserts a flush');
     assert.ok(!/oled show/.test(r.pseudocode), 'the auto-flush was invented into an `oled show` verb');
 });
+
+test('_oled.show() is dropped only as the flush right after a lifted draw; anywhere else it stays a grey block', () => {
+    const drv = 'import time\nfrom machine import Pin, I2C\n\ndef bw_script():\n';
+    // After a draw: the emitter's own flush-on-draw; dropped, nothing lost.
+    const after = micropythonToPseudocode(drv + "    _oled_print('hi')\n    _oled.show()\n\nbw_script()\n");
+    assert.ok(!after.warnings.some(w => /grey block: "_oled\.show/.test(w)), `flush after a draw was grey-blocked: ${JSON.stringify(after.warnings)}`);
+    assert.doesNotMatch(after.pseudocode, /_oled\.show/);
+    // After a wait: nobody but the learner writes that; it survives as a grey block.
+    const alone = micropythonToPseudocode(drv + "    _oled_print('hi')\n    time.sleep(1)\n    _oled.show()\n\nbw_script()\n");
+    assert.ok(alone.warnings.some(w => /grey block: "_oled\.show/.test(w)), `a learner's show() vanished: ${JSON.stringify(alone.warnings)}`);
+    assert.match(alone.pseudocode, /_oled\.show\(\)/);
+});

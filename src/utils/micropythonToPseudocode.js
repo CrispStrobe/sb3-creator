@@ -431,6 +431,7 @@ export default function micropythonToPseudocode (source, opts = {}) {
         return true;
     };
 
+    let oledDrawAt = -2; // index of the last lifted OLED draw; its emitter flush follows at +1
     for (let i = start; i < lines.length; i++) {
         const l = lines[i];
         if (!l.code.trim()) continue;
@@ -526,7 +527,7 @@ export default function micropythonToPseudocode (source, opts = {}) {
         // here is not one the emitter produces, so it rides on to the grey block
         // that names it rather than being mis-lifted.
         {
-            if (/^_oled\.fill\s*\(\s*0\s*\)$/.test(s)) { emit(depth, 'oled clear 1'); continue; }
+            if (/^_oled\.fill\s*\(\s*0\s*\)$/.test(s)) { emit(depth, 'oled clear 1'); oledDrawAt = i; continue; }
             // `_oled.show()` is the driver flush. In flush-on-draw mode (the
             // program never says `oled show`) the emitter inserts it itself, so
             // it is not a learner verb; lifting it would invent an `oled show`
@@ -536,14 +537,19 @@ export default function micropythonToPseudocode (source, opts = {}) {
             // not lift, so its show is out of reach here either way; no LIFTED
             // program has an explicit show to lose. If the reader ever lifts
             // procedures, revisit this (the token alone cannot tell the two apart).
-            if (/^_oled\.show\s*\(\s*\)$/.test(s)) continue;
+            // Refinement (lego-ac): the token alone cannot tell the two apart, but
+            // POSITION can halfway. The emitter's own flush always follows a draw
+            // it just wrote, so a show() right after a lifted draw is dropped;
+            // a show() anywhere else (after a wait, at the top of a loop) is
+            // something the learner wrote and stays a grey block, not lost.
+            if (/^_oled\.show\s*\(\s*\)$/.test(s) && oledDrawAt === i - 1) continue;
             if ((m = s.match(/^_oled\.crow\s*=\s*int\(\s*(.+?)\s*\)$/))) {
                 const nxt = lines[i + 1] && lines[i + 1].code.trim().match(/^_oled\.ccol\s*=\s*int\(\s*(.+?)\s*\)$/);
-                if (nxt) { emit(depth, `oled set cursor ${expr(m[1])} ${expr(nxt[1])} on 1`); i++; continue; }
+                if (nxt) { emit(depth, `oled set cursor ${expr(m[1])} ${expr(nxt[1])} on 1`); i++; oledDrawAt = i; continue; }
             }
-            if ((m = s.match(/^_oled_print\s*\(\s*(.+?)\s*\)$/))) { emit(depth, `oled print ${asText(m[1])} on 1`); continue; }
+            if ((m = s.match(/^_oled_print\s*\(\s*(.+?)\s*\)$/))) { emit(depth, `oled print ${asText(m[1])} on 1`); oledDrawAt = i; continue; }
             if ((m = s.match(/^_oled\.hline\s*\(\s*int\(\s*(.+?)\s*\)\s*,\s*int\(\s*(.+?)\s*\)\s*,\s*int\(\s*(.+?)\s*\)\s*,\s*1\s*\)$/))) {
-                emit(depth, `oled hline ${expr(m[1])} ${expr(m[2])} ${expr(m[3])} on 1`); continue;
+                emit(depth, `oled hline ${expr(m[1])} ${expr(m[2])} ${expr(m[3])} on 1`); oledDrawAt = i; continue;
             }
         }
 
