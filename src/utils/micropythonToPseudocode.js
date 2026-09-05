@@ -494,6 +494,29 @@ export default function micropythonToPseudocode (source, opts = {}) {
         }
         if ((m = s.match(/^print\s*\(\s*(.*)\s*\)$/))) { emit(depth, `print ${expr(stripOuterStr(m[1]))}`); continue; }
 
+        // micro:bit display verbs. A `display.scroll(...)` is one of three
+        // dialect verbs told apart by its keyword args: `wait=False, loop=False`
+        // is `display <value>`, `delay=int(N)` is `scroll text ... delay N ms`,
+        // and a bare argument is `show text ...`. A python string literal ('x'
+        // or "x") reads back as the dialect's double-quoted text; anything else
+        // is an expression.
+        {
+            const asText = (a) => { const q = a.match(/^'([^']*)'$/) || a.match(/^"([^"]*)"$/); return q ? `"${q[1]}"` : expr(a); };
+            if (/^display\.clear\s*\(\s*\)$/.test(s)) { emit(depth, 'clear display'); continue; }
+            if ((m = s.match(/^display\.show\s*\(\s*Image\s*\(\s*'([^']*)'\s*\)\s*\)$/))) {
+                emit(depth, `show pattern ${m[1].replace(/:/g, '')}`); continue;
+            }
+            if ((m = s.match(/^display\.scroll\s*\(\s*(.+?)\s*,\s*wait=False\s*,\s*loop=False\s*\)$/))) {
+                emit(depth, `display ${expr(stripOuterStr(m[1]))}`); continue;
+            }
+            if ((m = s.match(/^display\.scroll\s*\(\s*(.+?)\s*,\s*delay=int\(\s*(.+?)\s*\)\s*\)$/))) {
+                emit(depth, `scroll text ${asText(m[1])} delay ${expr(m[2])} ms`); continue;
+            }
+            if ((m = s.match(/^display\.scroll\s*\(\s*(.+?)\s*\)$/))) {
+                emit(depth, `show text ${asText(m[1])}`); continue;
+            }
+        }
+
         // A toggle is two statements on the micro:bit; the dictionary write is
         // bookkeeping and the pin write is the act, so the pair collapses.
         if ((m = s.match(/^_level\s*\[\s*'([^']+)'\s*\]\s*=\s*1\s*-\s*_level/))) {
@@ -547,11 +570,28 @@ export default function micropythonToPseudocode (source, opts = {}) {
             if (rec && rec.direction === 'tone') { emit(depth, `set ${rec.name} to ${expr(m[2])} hz`); continue; }
             continue;   // the 1 kHz carrier a PWM pin is set up with
         }
-        if ((m = s.match(/^music\.pitch\s*\(\s*(\d+)/))) {
+        // A tone. The scheduler emitter writes `music.pitch(int(N), wait=False)`,
+        // so the frequency is wrapped in int(...) — the old bare-digit match
+        // missed it and the whole line grey-blocked.
+        if ((m = s.match(/^music\.pitch\s*\(\s*int\(\s*(.+?)\s*\)\s*(?:,|\))/)) || (m = s.match(/^music\.pitch\s*\(\s*(\d+)/))) {
             const tone = [...pins.values()].find((p) => p.direction === 'tone');
-            emit(depth, `set ${tone ? tone.name : 'buzzer'} to ${m[1]} hz`); continue;
+            emit(depth, `set ${tone ? tone.name : 'buzzer'} to ${expr(m[1])} hz`); continue;
         }
         if (/^if\s+_hz\s*:$|^music\.stop\s*\(/.test(s)) continue;
+
+        // micro:bit radio. `radio on group G power P` emits a config + an on();
+        // the two lift together. `radio send number N` is send(str(N)); `radio
+        // send text "..."` is send('...').
+        if ((m = s.match(/^radio\.config\s*\(\s*group=int\(\s*(.+?)\s*\)\s*,\s*power=int\(\s*(.+?)\s*\)\s*\)$/))) {
+            emit(depth, `radio on group ${expr(m[1])} power ${expr(m[2])}`);
+            if (lines[i + 1] && /^radio\.on\s*\(\s*\)$/.test(lines[i + 1].code.trim())) i++;
+            continue;
+        }
+        if (/^radio\.on\s*\(\s*\)$/.test(s)) continue;
+        if ((m = s.match(/^radio\.send\s*\(\s*str\(\s*(.+?)\s*\)\s*\)$/))) { emit(depth, `radio send number ${expr(m[1])}`); continue; }
+        if ((m = s.match(/^radio\.send\s*\(\s*'([^']*)'\s*\)$/)) || (m = s.match(/^radio\.send\s*\(\s*"([^"]*)"\s*\)$/))) {
+            emit(depth, `radio send text "${m[1]}"`); continue;
+        }
 
         // `change v by X` is emitted as `v = v + X` with the operand UNwrapped;
         // a genuine `set v to (v + X)` keeps the reporter's parentheses (`v =
