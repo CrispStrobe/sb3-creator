@@ -448,6 +448,22 @@ export default function micropythonToPseudocode (source, opts = {}) {
         if ((m = s.match(/^yield\s+int\s*\(\s*\((.+)\)\s*\*\s*1000\s*\)$/))) {
             emit(depth, `wait ${expr(m[1])} seconds`); continue;
         }
+        // A `pass` the emitter left a comment on is a block it could NOT
+        // translate for this board — overwhelmingly an 8051 pin write with no
+        // micro:bit/Pico equivalent. Dropping it silently is the exact loss the
+        // coverage audit exists to end, so name it: a `#` pseudocode comment
+        // (which parse() ignores, so it is not re-emitted) plus a degraded
+        // warning. This does not round-trip and is not meant to — a named loss,
+        // not a recovered one.
+        if (s === 'pass' && l.comment) {
+            const pin = l.comment.match(/^pin\s+(.+)$/i);
+            const why = pin
+                ? `pin ${pin[1]}: no equivalent on this board; the 8051 pin block was not translated`
+                : `${l.comment}: no equivalent on this board; the block was not translated`;
+            emit(depth, `# ${why}`);
+            warn(why);
+            continue;
+        }
         if (/^(yield|pass|global|return)\b/.test(s)) continue;
 
         // GREY BLOCK: what this reader cannot translate it PRESERVES —
