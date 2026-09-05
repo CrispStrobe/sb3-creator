@@ -9045,7 +9045,13 @@ class SB3Creator {
                     return [`${pad}print(${vs('VALUE')})`];
                 case 'stc12_setpin': {
                     const p = pinOf(f('PIN'));
-                    if (!p) { degrade(`undeclared pin ${f('PIN')}`); return [`${pad}pass  # pin ${f('PIN')}`]; }
+                    // Not a board pin: resolve it against the STC driver (now
+                    // emitted) by NAME, the way the read does, so the write is
+                    // not silently dropped and the driver applies the polarity.
+                    if (!p) {
+                        if (this._driverPins) { this._runtimesUsed.add("stc12"); return [`${pad}_stc12.setPin("${f('PIN')}", "${f('STATE')}")`]; }
+                        degrade(`undeclared pin ${f('PIN')}`); return [`${pad}pass  # pin ${f('PIN')}`];
+                    }
                     const st = f('STATE');
                     // on/off logical (ACTIVE LOW inverts); high/low physical.
                     const level = st === 'high' ? 1 : st === 'low' ? 0
@@ -9054,12 +9060,18 @@ class SB3Creator {
                 }
                 case 'stc12_toggle': {
                     const p = pinOf(f('PIN'));
-                    if (!p) { degrade(`undeclared pin ${f('PIN')}`); return [`${pad}pass`]; }
+                    if (!p) {
+                        if (this._driverPins) { this._runtimesUsed.add("stc12"); return [`${pad}_stc12.togglePin("${f('PIN')}")`]; }
+                        degrade(`undeclared pin ${f('PIN')}`); return [`${pad}pass`];
+                    }
                     return [`${pad}${p.expr}.write_digital(1 - ${p.expr}.read_digital())`];
                 }
                 case 'stc12_writepin': {
                     const p = pinOf(f('PIN'));
-                    if (!p) { degrade(`undeclared pin ${f('PIN')}`); return [`${pad}pass`]; }
+                    if (!p) {
+                        if (this._driverPins) { this._runtimesUsed.add("stc12"); return [`${pad}_stc12.writePin("${f('PIN')}", ${v('VALUE')})`]; }
+                        degrade(`undeclared pin ${f('PIN')}`); return [`${pad}pass`];
+                    }
                     return [`${pad}${p.expr}.write_digital(1 if (${v('VALUE')}) else 0)`];
                 }
                 case 'stc12_setpwm': {
@@ -9352,6 +9364,16 @@ class SB3Creator {
         if (this._pyUses.arrays) {
             if (!header.includes('import json')) header.push('import json');
             header.push('', ...this.arraysShimPy(), '_arrays = _Arrays()');
+        }
+        // An STC program on a board that is not an STC still resolves its pin
+        // reads through `_stc12.readPin(...)`, but generateMicroPython emitted
+        // that call WITHOUT the driver that defines `_stc12` — so the program
+        // referenced an undefined name and would NameError on the board. The
+        // driver and its pin table are exactly what the simulator path already
+        // builds; emit them here too, so `_stc12`/`_stc12_pins` are defined and
+        // the read resolves (neutral until a `bw_board` is attached).
+        if (this._runtimesUsed.has('stc12') && this._driverPins) {
+            header.push('', ...this.stc12SimulatorDriver('py', this._driverPins));
         }
         if (uses._pitch) header.push('', 'def _pitch():', '    x, y, z = accelerometer.get_values()', '    return math.atan2(-y, -z) * 180 / math.pi');
         if (uses._roll) header.push('', 'def _roll():', '    x, y, z = accelerometer.get_values()', '    return math.atan2(x, -z) * 180 / math.pi');

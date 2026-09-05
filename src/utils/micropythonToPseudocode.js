@@ -194,6 +194,25 @@ export default function micropythonToPseudocode (source, opts = {}) {
         }
     }
 
+    // An STC program driven on a non-STC board resolves its pins through the
+    // `_stc12` driver, whose pin table the emitter now emits beside it:
+    //   _stc12_pins = json.loads("{\"led1\": {\"pin\": \"P1.0\", \"dir\": ...}}")
+    // The table carries the port/bit and polarity the board's own pins never
+    // could, so the pins are declared straight from it and `read <name>`/writes
+    // resolve to a declared pin instead of re-parsing as a variable.
+    const stcTable = text.match(/_stc\d*_pins\s*=\s*json\.loads\(\s*("(?:[^"\\]|\\.)*")\s*\)/);
+    if (stcTable) {
+        let table = null;
+        try { table = JSON.parse(JSON.parse(stcTable[1])); } catch { table = null; }
+        if (table && typeof table === 'object') {
+            for (const [name, p] of Object.entries(table)) {
+                if (!p || !p.pin) continue;
+                const dir = p.dir === 'analog' ? 'analog' : p.dir === 'output' ? 'output' : 'input';
+                put(name, p.pin, dir, !!p.low, name);
+            }
+        }
+    }
+
     // ---- the header, when the writer left one ------------------------------
     // Everything below this recovers facts from the code, which works and is
     // what a hand-written program gets. But a pin that is never parked has its
@@ -271,14 +290,14 @@ export default function micropythonToPseudocode (source, opts = {}) {
         // back quoted as a string; mapped, it is the same `read <name>` reporter
         // the native boards produce.
         e = e.replace(/\b_stc\d*\.readPin\s*\(\s*"([^"]+)"\s*\)/g, (_, name) => {
-            // MEASURED (all 129 L3 programs): generateMicroPython emits this
-            // `_stc*.readPin("name")` call for an STC pin read but NEVER emits
-            // the `_stc12_pins` driver table beside it, so the port/bit that
-            // `project.stc.pins` holds does not reach this text. The read lifts
-            // to `read <name>`, but with no declaration to bind it the name
-            // re-parses as a variable. Rather than invent a pin map (there is no
-            // port/bit here to trust), name the loss so it is a degraded row.
-            warn(`pin ${name}: read through the STC driver, but this MicroPython carries no pin table — the port/bit is not in the source, so it cannot be declared and re-parses as a variable`);
+            // An STC pin read. When the `_stc12_pins` table is present it was
+            // already turned into a `PIN <name>` declaration above, so `read
+            // <name>` binds to a real pin and round-trips. Only when the table
+            // is absent (an older emit) is the port/bit unrecoverable — then the
+            // read still lifts, but the loss of its declaration is named.
+            if (![...pins.values()].some((p) => p.name === name)) {
+                warn(`pin ${name}: read through the STC driver, but this MicroPython carries no pin table — the port/bit is not in the source, so it cannot be declared and re-parses as a variable`);
+            }
             return `read ${name}`;
         });
         e = liftEq(e);
@@ -435,6 +454,21 @@ export default function micropythonToPseudocode (source, opts = {}) {
             if (next && /\.write_digital\s*\(\s*_level\s*\[/.test(next.code)) {
                 emit(depth, `toggle ${m[1]}`); i++; continue;
             }
+        }
+
+        // STC driver writes. When a pin is not one of the board's own, the
+        // emitter routes the write through the `_stc12` driver by name; lift
+        // those back to the same verbs the decompiler emits (turn on/off, set
+        // <pin> high/low, set <pin> to <expr>, toggle).
+        if ((m = s.match(/^_stc\d*\.setPin\s*\(\s*"([^"]+)"\s*,\s*"(on|off|high|low)"\s*\)$/))) {
+            emit(depth, (m[2] === 'on' || m[2] === 'off') ? `turn ${m[2]} ${m[1]}` : `set ${m[1]} ${m[2]}`);
+            continue;
+        }
+        if ((m = s.match(/^_stc\d*\.writePin\s*\(\s*"([^"]+)"\s*,\s*(.+?)\s*\)$/))) {
+            emit(depth, `set ${m[1]} to ${expr(m[2])}`); continue;
+        }
+        if ((m = s.match(/^_stc\d*\.togglePin\s*\(\s*"([^"]+)"\s*\)$/))) {
+            emit(depth, `toggle ${m[1]}`); continue;
         }
 
         // Digital writes. A literal is on/off (through the polarity); anything
