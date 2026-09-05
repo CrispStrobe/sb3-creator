@@ -270,7 +270,17 @@ export default function micropythonToPseudocode (source, opts = {}) {
         // pin's dialect name is the string literal itself. Left unmapped it comes
         // back quoted as a string; mapped, it is the same `read <name>` reporter
         // the native boards produce.
-        e = e.replace(/\b_stc\d*\.readPin\s*\(\s*"([^"]+)"\s*\)/g, (_, name) => `read ${name}`);
+        e = e.replace(/\b_stc\d*\.readPin\s*\(\s*"([^"]+)"\s*\)/g, (_, name) => {
+            // MEASURED (all 129 L3 programs): generateMicroPython emits this
+            // `_stc*.readPin("name")` call for an STC pin read but NEVER emits
+            // the `_stc12_pins` driver table beside it, so the port/bit that
+            // `project.stc.pins` holds does not reach this text. The read lifts
+            // to `read <name>`, but with no declaration to bind it the name
+            // re-parses as a variable. Rather than invent a pin map (there is no
+            // port/bit here to trust), name the loss so it is a degraded row.
+            warn(`pin ${name}: read through the STC driver, but this MicroPython carries no pin table — the port/bit is not in the source, so it cannot be declared and re-parses as a variable`);
+            return `read ${name}`;
+        });
         e = liftEq(e);
         e = e.replace(/\btime\.ticks_ms\s*\(\s*\)|\brunning_time\s*\(\s*\)/g, 'timer');
         e = e.replace(/\bnot\s+/g, 'not ');
