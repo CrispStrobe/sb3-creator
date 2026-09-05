@@ -356,6 +356,10 @@ export default function micropythonToPseudocode (source, opts = {}) {
         return a;
     };
 
+    // A python string literal ('x' or "x") reads back as the dialect's double-
+    // quoted text; anything else is an expression.
+    const asText = (a) => { const q = a.match(/^'([^']*)'$/) || a.match(/^"([^"]*)"$/); return q ? `"${q[1]}"` : expr(a); };
+
     // The generated program puts each script in its own task function — older
     // output named the single one `bw_script()`, current output emits one
     // `_task_N()` per script and drives them from a `_run(...)` scheduler that
@@ -501,7 +505,6 @@ export default function micropythonToPseudocode (source, opts = {}) {
         // or "x") reads back as the dialect's double-quoted text; anything else
         // is an expression.
         {
-            const asText = (a) => { const q = a.match(/^'([^']*)'$/) || a.match(/^"([^"]*)"$/); return q ? `"${q[1]}"` : expr(a); };
             if (/^display\.clear\s*\(\s*\)$/.test(s)) { emit(depth, 'clear display'); continue; }
             if ((m = s.match(/^display\.show\s*\(\s*Image\s*\(\s*'([^']*)'\s*\)\s*\)$/))) {
                 emit(depth, `show pattern ${m[1].replace(/:/g, '')}`); continue;
@@ -514,6 +517,33 @@ export default function micropythonToPseudocode (source, opts = {}) {
             }
             if ((m = s.match(/^display\.scroll\s*\(\s*(.+?)\s*\)$/))) {
                 emit(depth, `show text ${asText(m[1])}`); continue;
+            }
+        }
+
+        // Pico OLED verbs. The Pico backend drives a single `_oled`, so the
+        // display number is implicit (1). `oled set cursor R C` is two lines
+        // (crow then ccol) that lift together. An `_oled.*` shape not written
+        // here is not one the emitter produces, so it rides on to the grey block
+        // that names it rather than being mis-lifted.
+        {
+            if (/^_oled\.fill\s*\(\s*0\s*\)$/.test(s)) { emit(depth, 'oled clear 1'); continue; }
+            // `_oled.show()` is the driver flush. In flush-on-draw mode (the
+            // program never says `oled show`) the emitter inserts it itself, so
+            // it is not a learner verb; lifting it would invent an `oled show`
+            // and flip the program to buffered mode on re-emit. It is dropped —
+            // the emitter re-adds its own flush. The one corpus program that DOES
+            // say `oled show` keeps its oled inside a procedure this reader does
+            // not lift, so its show is out of reach here either way; no LIFTED
+            // program has an explicit show to lose. If the reader ever lifts
+            // procedures, revisit this (the token alone cannot tell the two apart).
+            if (/^_oled\.show\s*\(\s*\)$/.test(s)) continue;
+            if ((m = s.match(/^_oled\.crow\s*=\s*int\(\s*(.+?)\s*\)$/))) {
+                const nxt = lines[i + 1] && lines[i + 1].code.trim().match(/^_oled\.ccol\s*=\s*int\(\s*(.+?)\s*\)$/);
+                if (nxt) { emit(depth, `oled set cursor ${expr(m[1])} ${expr(nxt[1])} on 1`); i++; continue; }
+            }
+            if ((m = s.match(/^_oled_print\s*\(\s*(.+?)\s*\)$/))) { emit(depth, `oled print ${asText(m[1])} on 1`); continue; }
+            if ((m = s.match(/^_oled\.hline\s*\(\s*int\(\s*(.+?)\s*\)\s*,\s*int\(\s*(.+?)\s*\)\s*,\s*int\(\s*(.+?)\s*\)\s*,\s*1\s*\)$/))) {
+                emit(depth, `oled hline ${expr(m[1])} ${expr(m[2])} ${expr(m[3])} on 1`); continue;
             }
         }
 
