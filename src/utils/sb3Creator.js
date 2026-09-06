@@ -7464,7 +7464,28 @@ class SB3Creator {
         if (this._core === 'z80') {
             return `BW_Z80:${pin.name}`;   // same non-lvalue discipline
         }
+        if (this._core === 'i8086') {
+            const hw = this.i8255Hw(pin);
+            if (!hw) {
+                this.cWarn(`"${pin.name}" (P${pin.port}.${pin.bit}) is not an 8255 port pin — `
+                    + 'P1/P2/P3 map to ports A/B/C; P0 is the multiplexed address/data bus');
+                return null;
+            }
+            return `BW_I8255:${pin.name}`;   // same non-lvalue discipline
+        }
         return `P${pin.port}_${pin.bit}`;
+    }
+
+    /**
+     * An i8086 pin -> its 8255 port. P1/P2/P3 map to ports A/B/C at I/O
+     * 0x60/0x61/0x62 (the IBM-XT addresses the pseudocode-8086 ASM lowering
+     * uses); anything else has no 8255 port. Mirrors viaHw for the 6502.
+     * @returns {{addr: number, letter: string, bit: number, mask: number}|null}
+     */
+    i8255Hw(pin) {
+        if (!pin || pin.port < 1 || pin.port > 3 || pin.bit < 0 || pin.bit > 7) return null;
+        return {addr: 0x60 + (pin.port - 1), letter: ['a', 'b', 'c'][pin.port - 1],
+            bit: pin.bit, mask: 1 << pin.bit};
     }
 
     // Reading a pin: the ADC for an ANALOG pin, otherwise the level — inverted when the
@@ -7544,6 +7565,18 @@ class SB3Creator {
             const raw = `((BW_PORT_IN >> ${bit}) & 1)`;
             return pin.activeLow ? `!${raw}` : raw;
         }
+        if (this._core === 'i8086') {
+            // IN from the 8255 port and test the bit — the read bypasses the
+            // shadow (it reads the live pins), same as pseudocode-8086.js. via
+            // the bw_inb port-I/O primitive the C route supplies.
+            const hw = this.i8255Hw(pin);
+            if (!hw) {
+                this.cWarn(`"${pin.name}" (P${pin.port}.${pin.bit}) is not an 8255 port pin`);
+                return `0 /* read ${this.cComment(name)} */`;
+            }
+            const raw = `((bw_inb(0x${hw.addr.toString(16)}u) >> ${hw.bit}) & 1)`;
+            return pin.activeLow ? `!${raw}` : raw;
+        }
         const sfr = `P${pin.port}_${pin.bit}`;
         return pin.activeLow ? `!${sfr}` : sfr;
     }
@@ -7584,6 +7617,18 @@ class SB3Creator {
             return high
                 ? `_z80_sh |= (uint8_t)(1 << ${bit}); BW_PORT_OUT = _z80_sh;`
                 : `_z80_sh &= (uint8_t)~(1 << ${bit}); BW_PORT_OUT = _z80_sh;`;
+        }
+        if (this._core === 'i8086') {
+            // The 8255 output latch is write-only, so drive it through one
+            // shadow byte per port: read-modify-write the shadow, then OUT it —
+            // the exact discipline pseudocode-8086.js emits inline, here via the
+            // bw_outb port-I/O primitive the C route supplies.
+            const hw = this.i8255Hw(pin);
+            const sh = `bw_port_${hw.letter}`;
+            const addr = `0x${hw.addr.toString(16)}u`;
+            return high
+                ? `${sh} |= 0x${hw.mask.toString(16)}u; bw_outb(${addr}, ${sh});`
+                : `${sh} &= 0x${((~hw.mask) & 0xff).toString(16)}u; bw_outb(${addr}, ${sh});`;
         }
         return `${sfr} = ${high ? 1 : 0};`;
     }
@@ -10559,13 +10604,15 @@ class SB3Creator {
         this._core = (part && part.core === 'arduino') ? 'avr'
             : (part && part.core === 'rp2040') ? 'arm'
                 : (part && part.core === 'w65c02') ? '6502'
-                    : (part && part.core === 'z80') ? 'z80' : '8051';
+                    : (part && part.core === 'z80') ? 'z80'
+                        : (part && part.core === 'i8086') ? 'i8086' : '8051';
         const parallelLcd = this._cLcdParallelPart();
         this._cMega = !!(part && part.mega);
         this._cTiny88 = !!(part && part.tiny88);
         this._cStm32 = !!(part && part.stm32f0);
         if (part && part.core && part.core !== '8051' && part.core !== 'arduino'
-            && part.core !== 'rp2040' && part.core !== 'w65c02' && part.core !== 'z80') {
+            && part.core !== 'rp2040' && part.core !== 'w65c02' && part.core !== 'z80'
+            && part.core !== 'i8086') {
             const how = part.core === 'micropython'
                 ? 'runs MicroPython, where the program IS the artefact and there is nothing to compile'
                 : part.arcade
@@ -11262,6 +11309,20 @@ class SB3Creator {
                     '    }',
                     '}', '');
             }
+        } else if (this._core === 'i8086') {
+            // 8255 PPI on the XT bus: ports A/B/C at I/O 0x60/0x61/0x62, control
+            // at 0x63. The output latch is write-only, so each port carries a
+            // shadow byte for read-modify-write. Port access uses the bw_outb/
+            // bw_inb primitives the C route supplies (SmallerC has no inline
+            // asm); the ASM route does the same OUT/IN inline -- one idiom, two
+            // routes. See pseudocode-8086.js for the reference discipline.
+            out.push(
+                'extern void bw_outb(unsigned port, unsigned value);',
+                'extern unsigned bw_inb(unsigned port);',
+                'static unsigned char bw_port_a = 0;   /* shadow of 8255 port A output latch */',
+                'static unsigned char bw_port_b = 0;   /* shadow of port B */',
+                'static unsigned char bw_port_c = 0;   /* shadow of port C */',
+                '');
         } else if (this._core === 'arm' && this._cStm32) {
             out.push('#include <stdint.h>', '');
             out.push(`#define F_CPU ${clock}UL`, '');
@@ -14010,6 +14071,22 @@ class SB3Creator {
                     '    BW_ACIA_CMD  = 0x0b;           /* DTR active, no RX IRQ, no parity */');
             }
         }
+        if (this._core === 'i8086') {
+            // 8255 mode 0, direction bits per PIN declaration, written ONCE: a
+            // mode word CLEARS every output latch, so a second would blink every
+            // pin off. No initial-level writes -- the latches and the shadow
+            // bytes both power up at 0, and the program body sets what it needs,
+            // which is exactly what pseudocode-8086.js does, so the C and ASM
+            // routes leave identical 8255 state.
+            let ctrl = 0x80;   // base: mode 0, all ports output
+            for (const p of pins) {
+                if (p.direction !== 'input') continue;
+                if (p.port === 1) ctrl |= 0x10;            // port A input
+                else if (p.port === 2) ctrl |= 0x02;       // port B input
+                else if (p.port === 3) ctrl |= (p.bit >= 4 ? 0x08 : 0x01);  // C upper/lower
+            }
+            out.push(`    bw_outb(0x63u, 0x${ctrl.toString(16)}u);   /* 8255 control word (mode 0, dir per PIN) */`);
+        }
         if (this._core === '8051') {
         const outputs = {};
         for (const p of pins) if (p.direction === 'output') outputs[p.port] = (outputs[p.port] || 0) | (1 << p.bit);
@@ -14374,6 +14451,28 @@ class SB3Creator {
             out.push(...mainBody);
         }
         out.push('}', '');
+        // i8086 emits 8255 PIN I/O only, for now. Every other verb falls to the
+        // 8051 default above, which would be wrong 8051 code on an 8086 -- so if
+        // the program used ANY hardware/util verb (each sets a `_cUses` flag; a
+        // bare set/read pin sets none), refuse the whole program by name rather
+        // than ship that. This is the one choke point that keeps the i8086 gap
+        // map honest without an i8086 refusal at all nineteen verb sites.
+        if (this._core === 'i8086') {
+            const used = Object.keys(this._cUses).filter((k) => this._cUses[k]);
+            if (used.length) {
+                this.cWarn(`the i8086 C back end emits 8255 pin I/O only for now — `
+                    + `${used.join(', ')} ${used.length > 1 ? 'are' : 'is'} not emitted for this board; `
+                    + 'the ASM route (pseudocode-8086.js) supports more');
+                return `/* No C emitted for DEVICE ${String(device || 'i8086').toUpperCase()}.\n`
+                    + ' *\n'
+                    + ' * The i8086 C back end currently emits 8255 PIN I/O only (set or read a\n'
+                    + ' * pin through the PPI). This program also uses: ' + used.join(', ') + '.\n'
+                    + ' * Those have no i8086 C branch yet, and emitting the 8051 default for\n'
+                    + ' * them would be wrong on an 8086. The pseudocode is unchanged; the ASM\n'
+                    + ' * route supports more of them today.\n'
+                    + ' */\n';
+            }
+        }
         return out.join('\n').replace(/\n{3,}/g, '\n\n').trim() + '\n';
     }
 

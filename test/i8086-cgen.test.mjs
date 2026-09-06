@@ -1,0 +1,103 @@
+// blocks -> C for the 8086, through an attached 8255 PPI (generateC's
+// `this._core === 'i8086'` branch).
+//
+// The 8086 board has numbered pins on an 8255, not 8051 SFRs, so `pin` gets its
+// own emission: a shadow byte per port, read-modify-write then OUT to set, IN to
+// read, and the mode-0 control word written once at init. Port access goes
+// through two port-I/O primitives, bw_outb(port, value) and bw_inb(port) — the
+// consuming project (brickwright-lite) supplies their asm bodies, because the
+// 8255 is I/O-mapped and the C compiler (SmallerC) has no inline asm. This test
+// pins the EMITTED C: the port addresses, the control word written once, the
+// shadow discipline, and the refusal for every verb that is not yet a pin.
+//
+// P1/P2/P3 map onto the 8255's ports A/B/C at I/O 0x60/0x61/0x62, control 0x63 —
+// the IBM-XT addresses. The same PIN declarations reseat between an 8051 and an
+// 8086 board (STC_PARTS.i8086), which is why the pin surface is shared.
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import SB3Creator from '../src/utils/sb3Creator.js';
+
+const build = (src) => { const c = new SB3Creator(); c.parse(src); return c; };
+const cOf = (src) => build(src).generateC();
+
+const OUT_PINS = `DEVICE i8086
+PIN led = P1.0 OUTPUT
+PIN buzz = P2.3 OUTPUT
+
+WHEN flag clicked:
+  turn on led
+  turn on buzz
+  turn off buzz
+`;
+
+test('i8086 pin: the emitter declares the port-I/O API and a shadow byte per port', () => {
+    const c = cOf(OUT_PINS);
+    assert.match(c, /extern void bw_outb\(unsigned port, unsigned value\);/, 'bw_outb is not declared');
+    assert.match(c, /extern unsigned bw_inb\(unsigned port\);/, 'bw_inb is not declared');
+    assert.match(c, /static unsigned char bw_port_a = 0;/, 'no shadow byte for port A');
+    assert.match(c, /static unsigned char bw_port_b = 0;/, 'no shadow byte for port B');
+});
+
+test('i8086 pin: set high/low is a shadow read-modify-write then OUT to the port', () => {
+    const c = cOf(OUT_PINS);
+    // P1.0 high: OR the mask into the port A shadow, then OUT to 0x60.
+    assert.match(c, /bw_port_a \|= 0x1u; bw_outb\(0x60u, bw_port_a\);/, 'set-high is not shadow-OR then OUT to port A');
+    // P2.3 low (turn off): AND the inverted mask (0xf7) into the port B shadow.
+    assert.match(c, /bw_port_b &= 0xf7u; bw_outb\(0x61u, bw_port_b\);/, 'set-low is not shadow-AND then OUT to port B');
+});
+
+test('i8086 pin: the 8255 control word is written exactly once, at init', () => {
+    const c = cOf(OUT_PINS);
+    const writes = (c.match(/bw_outb\(0x63u,/g) || []).length;
+    assert.equal(writes, 1, `the control word (port 0x63) is written ${writes} times; it must be once (a mode word clears the latches)`);
+    // all-output here: base 0x80, no input bits.
+    assert.match(c, /bw_outb\(0x63u, 0x80u\);/, 'the all-output control word should be 0x80');
+});
+
+test('i8086 pin: an INPUT pin sets its port-C direction bit in the control word, and reads via IN', () => {
+    const c = cOf(`DEVICE i8086
+PIN led = P1.0 OUTPUT
+PIN btn = P3.0 INPUT
+
+WHEN flag clicked:
+  turn on led
+  set state to read btn
+`);
+    // P3.0 INPUT -> port C lower nibble input: 0x80 | 0x01 = 0x81.
+    assert.match(c, /bw_outb\(0x63u, 0x81u\);/, 'a P3.0 INPUT pin should make the control word 0x81');
+    // the read is an IN from port C (0x62), bit 0.
+    assert.match(c, /\(bw_inb\(0x62u\) >> 0\) & 1\)/, 'reading P3.0 should IN from port C address 0x62');
+});
+
+test('i8086 pin: a pin outside the 8255 ports (P0, or P4/P5) is refused by name', () => {
+    const c = build(`DEVICE i8086
+PIN bad = P0.0 OUTPUT
+
+WHEN flag clicked:
+  turn on bad
+`);
+    assert.ok(c.warnings.some((w) => /8255 port pin/.test(w)) || /8255 port pin/.test(c.generateC()),
+        'P0 (not an 8255 port) should be refused by name, never emitted as a port write');
+});
+
+test('i8086: every verb that is not yet a pin refuses the whole program by name', () => {
+    // A non-pin verb (wait -> the delay helper) falls to the 8051 default, which
+    // would be wrong on an 8086. The choke point refuses instead.
+    const c = cOf(`DEVICE i8086
+PIN led = P1.0 OUTPUT
+
+WHEN flag clicked:
+  turn on led
+  wait 1 seconds
+  turn off led
+`);
+    assert.match(c, /No C emitted for DEVICE I8086/, 'a non-pin verb on i8086 must refuse, not emit 8051 code');
+    assert.match(c, /PIN I\/O only/i, 'the refusal should say the i8086 back end is pin-only for now');
+    assert.match(c, /also uses: delay/, 'the refusal should name the verb that is not emitted');
+});
+
+test('i8086 pin-only programs still emit (the choke point does not over-refuse)', () => {
+    const c = cOf(OUT_PINS);
+    assert.doesNotMatch(c, /No C emitted/, 'a pin-only i8086 program must emit C, not be refused');
+    assert.match(c, /int main\(void\)/, 'the emitted program should have a main');
+});
