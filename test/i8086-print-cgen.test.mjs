@@ -191,8 +191,10 @@ test('cross-variable provenance cycles remain refused while direct numeric self-
 
 test('a string written through a list cannot acquire numeric print provenance', () => {
     const {code} = emit(program([
+        'set readIndex to 0',
+        'delete all of readings',
         'add "abc" to readings',
-        'set value to (item (1) of readings)',
+        'set value to (item (readIndex + 1) of readings)',
         'print value'
     ]));
     assert.match(code, /No C emitted/);
