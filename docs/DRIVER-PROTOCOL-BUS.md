@@ -21,13 +21,30 @@ uint8_t *` port pointer, an ADC/timer register); **protocol** otherwise (the
 loop, the bit maths, the comments, the sequencing). "Duplicated protocol" is a
 protocol line that appears in two or more of a verb's family variants.
 
+**A refusal is not a variant.** A `this._core === F` branch counts only if it
+IMPLEMENTS the verb. A branch that warns (`cWarn`) or emits a "no X on this
+machine" stub is a refusal — and so is a body that does nothing (`(void)freq;`,
+an empty function, a "not yet implemented" stub): it drives no hardware. Those
+are excluded from the variant count, the same rule that kept P1's per-verb
+counts honest. (This is why the block-matching sweep over- and under-counts —
+see the tone and motor footnotes — and why the per-verb figures here are
+measured on the real bodies at conversion time.)
+
 | verb | family variants | protocol lines | bus lines | duplicated protocol |
 |---|---|---|---|---|
 | motor | 4 | 74 | 18 | **46**† |
-| tone | 3 | 39 | 2 | **27** |
-| servo | 6 | 57 | 7 | **23** |
+| servo | 4 real | 57 | 7 | **30**‡ |
 | shiftOut | 4 (3 bodies) | 28 | 23 | **17** |
 | adc | 5 | 35 | 8 | **10** |
+| ~~tone~~ | 1 real | — | — | **0**§ |
+
+§ tone is NOT a split candidate. Only **avr** implements it (Timer2 CTC + ISR);
+the 8051 branch is a stub (`/* tone_set stub: 8051 tone not yet implemented. */`,
+a `(void)freq;` body) and the arm branch is an empty no-op
+(`static void tone_set(unsigned int freq) { (void)freq; }`); 6502 refuses by
+name. A stub or a no-op is a REFUSAL, not an implementation, so there is one
+real body and nothing to deduplicate — the earlier "3 variants / 27 duplicated"
+was the block sweep counting refusal bodies as variants.
 
 † motor was first estimated at 40 by the block-matching sweep, which counted a
 collision-check block (it also matches `_cUses.motor &&`) and MISSED the 8051
@@ -38,8 +55,19 @@ families — both getters, the speed clamp/store, the dir store/switch skeleton,
 the two statics). The refinement raises the multi-variant floor, it does not
 lower it.
 
-The multi-variant verbs alone carry **123 duplicated protocol lines** by this
-classification (the table's last column, with the refined motor row) — a device
+‡ servo, measured on its four real bodies (arm, avr-Mega, avr, 8051), carries
+**30** strict byte-identical duplicated copies — dominated by avr and avr-Mega,
+whose entire Timer-1 driver body is identical and differs only in the header
+routing comment. Note servo's split is net **+16 source lines**, not a
+reduction: its four families diverge more than motor's (arm hardware PWM vs the
+8051's software compare/match ISR), so the per-family bus descriptors carry most
+of the code and the shared protocol is thin. The win is real but is
+*maintainability* — avr/avr-Mega now share ONE body, and the protocol boundary
+is explicit — not line count. A verb earns the split by real cross-family
+duplication (here 30 copies), not by shrinking the file.
+
+The multi-variant verbs alone carry **103 duplicated protocol lines** by this
+classification (the table's last column, tone excluded as refusals) — a device
 sequence hand-copied across families, kept in sync by hand.
 
 Two methods, so the number is not cherry-picked:
@@ -52,19 +80,19 @@ Two methods, so the number is not cherry-picked:
   matcher both over- and under-counts per verb (see the motor footnote), so the
   precise per-verb figures measured at conversion time run higher (shiftOut and
   motor together already account for 46 + 17 by exact block diff).
-- **Protocol-classified — 123 lines.** Classify each line bus/protocol (the
+- **Protocol-classified — 103 lines.** Classify each line bus/protocol (the
   rule above), then count protocol lines that recur across family blocks — this
   catches near-copies that differ only in whitespace or a comment but are the
-  same protocol step. Broken down in the table.
+  same protocol step. Broken down in the table (tone excluded — refusals).
 
-So the duplicated-protocol figure is **~80–123** depending on how strictly you
+So the duplicated-protocol figure is **~80–103** depending on how strictly you
 count; both are the same story. The single-family verbs (relay, neopixel, lcd,
 oled, tft, matrix, sevenseg, ledbank, cube, keypad, sensor, ultrasonic — all
 8051-only today) have no cross-family duplication yet, but every one is a driver
 that will be copied the first time it gains a second family. That is the
 recurring cost P2 removes.
 
-**The number is the case FOR P2**: ~80–123 duplicated lines is not a rounding
+**The number is the case FOR P2**: ~80–103 duplicated lines is not a rounding
 error, and it grows with every family × verb the matrix opens. Splitting
 protocol from bus turns "add a family to a verb" from "re-copy the driver" into
 "add one bus primitive", and "add a verb to a family" into "write the protocol
@@ -134,4 +162,13 @@ to prove it. The parts matrix count moves only when a cell is proved on the benc
   an H-bridge, and the 8086 back end has neither a `pwm_set` primitive nor a bench
   part (the only "motor" on the DOS bench is the floppy spindle on the UPD765,
   unrelated) — so motor stays a measured gap in the 8086 column, not a promise.
-- **tone** — next (27 duplicated lines, 3 variants).
+- **servo** — done. bw_servo_set + bw_servo_get (plus the 8051's PCA ISR) over
+  four bus primitives; byte-identical (`test/servo-golden.test.mjs`). avr and
+  avr-Mega share ONE bus body (the dominant duplication removed); arm and 8051
+  diverge, so this one is net +16 lines — the win is the shared avr body and the
+  explicit boundary, not golf. No i8086 cell (same reason as motor).
+- **tone** — SKIPPED, not a split candidate: one real body (avr); 8051 and arm
+  are stubs, 6502 refused (see the § footnote). A byte-identical golden over one
+  body against two do-nothing stubs proves nothing.
+- **adc** — next real candidate (10 duplicated lines; avr/arm implement, 6502
+  refuses).
