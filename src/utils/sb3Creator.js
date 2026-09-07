@@ -7684,6 +7684,40 @@ class SB3Creator {
         return { isString: false, code: this.cVal(input, blocks) };
     }
 
+    /** Fail closed before an i8086 numeric print reaches cRep. Scratch's
+     *  reporter sockets are dynamically typed, while SmallerC's helper takes
+     *  one signed 16-bit int. In particular, operator_join used to fall
+     *  through cRep as a commented zero, making a string program look emitted.
+     *  The allow-list is the set of reporters this C back end actually lowers
+     *  as numbers; nested inputs are checked too, so `1 + join(...)` cannot
+     *  smuggle a string through an arithmetic parent. */
+    cI8086NumericPrint(input, blocks, seen = new Set()) {
+        const inner = Array.isArray(input) ? input[1] : null;
+        if (Array.isArray(inner)) {
+            const type = inner[0];
+            if (type === 12) return {ok: true};           // scalar variable
+            if (type >= 4 && type <= 8 && Number.isFinite(Number(inner[1]))) return {ok: true};
+            if (type === 10 && String(inner[1]).trim() !== '' && Number.isFinite(Number(inner[1]))) {
+                return {ok: true};
+            }
+            return {ok: false, reason: type === 13 ? 'a list value' : 'a non-numeric literal'};
+        }
+        if (typeof inner !== 'string' || !blocks[inner]) {
+            return {ok: false, reason: 'an unknown reporter'};
+        }
+        if (seen.has(inner)) return {ok: false, reason: 'a cyclic reporter'};
+        const block = blocks[inner];
+        if (!SB3Creator.C_I8086_NUMERIC_PRINT_REPORTERS.has(block.opcode)) {
+            return {ok: false, reason: `${block.opcode} is string-valued or has no numeric C lowering`};
+        }
+        const nextSeen = new Set(seen).add(inner);
+        for (const child of Object.values(block.inputs || {})) {
+            const result = this.cI8086NumericPrint(child, blocks, nextSeen);
+            if (!result.ok) return result;
+        }
+        return {ok: true};
+    }
+
     cNum(value) {
         const n = Number(value);
         if (!Number.isFinite(n)) return `0 /* ${this.cComment(value)} */`;
@@ -7713,6 +7747,20 @@ class SB3Creator {
     static I16_MIN = -32768;
     static I16_MAX = 32767;
     static I8086_WAIT_MAX_MS = 65535;
+    static C_I8086_NUMERIC_PRINT_REPORTERS = new Set([
+        'operator_add', 'operator_subtract', 'operator_multiply', 'operator_divide', 'operator_mod',
+        'operator_round', 'operator_mathop',
+        'planetemaths_add', 'planetemaths_substract', 'planetemaths_multiply',
+        'planetemaths_divide', 'planetemaths_oppose', 'planetemaths_pourcent',
+        'bitops_and', 'bitops_or', 'bitops_xor', 'bitops_shl', 'bitops_shr', 'bitops_not',
+        'stc12_read', 'stc12_readport', 'stc12_keypad', 'stc12_matrix_getpx',
+        'stc12_tableindex', 'ledcube_readvoxel',
+        'argument_reporter_string_number', 'argument_reporter_boolean',
+        'devices_servoangle', 'devices_motorspeed', 'devices_motordirection',
+        'devices_temperature', 'devices_light', 'devices_distance', 'devices_flex',
+        'devices_force', 'devices_ircode', 'devices_devicestate', 'devices_pressed',
+        'devices_above', 'devices_closer', 'devices_motion', 'devices_tilted', 'devices_energised'
+    ]);
 
     /** The C scalar type a Scratch number gets on the current core. */
     cIntType() {
@@ -8441,13 +8489,48 @@ class SB3Creator {
                 return line(`shift_out(P${data.port}_${data.bit}, P${clock.port}_${clock.bit}, P${latch.port}_${latch.bit}, ${al}, ${val});`);
             }
             case 'stc12_print': {
-                this._cUses.print = true;
                 const mode = f('MODE');
+                if (this._core === 'i8086') {
+                    if (mode === 'text') {
+                        const value = b.inputs.VALUE && b.inputs.VALUE[1];
+                        if (!Array.isArray(value) || value[0] !== 10) {
+                            if (!this._cPrintRefused) this._cPrintRefused = [];
+                            const reason = 'text-mode print requires literal text';
+                            if (!this._cPrintRefused.includes(reason)) this._cPrintRefused.push(reason);
+                            return line(`/* print refused: ${reason} */`);
+                        }
+                        this._cUses.printText = true;
+                        const text = value[1];
+                        return line(`bw_puts(${this.cCString(text)});`);
+                    }
+                    const numeric = this.cI8086NumericPrint(b.inputs.VALUE, blocks);
+                    if (!numeric.ok) {
+                        if (!this._cPrintRefused) this._cPrintRefused = [];
+                        if (!this._cPrintRefused.includes(numeric.reason)) {
+                            this._cPrintRefused.push(numeric.reason);
+                        }
+                        return line(`/* print refused: ${this.cComment(numeric.reason)} */`);
+                    }
+                    this._cUses.printNumber = true;
+                    return line(`bw_print_num(${v('VALUE')});`);
+                }
+                this._cUses.print = true;
                 if (mode === 'text') {
                     const text = this.dval(b.inputs.VALUE, blocks).replace(/^"|"$/g, '');
                     return line(`bw_print("${this.cComment(text)}");`);
                 }
                 return line(`bw_print_num(${v('VALUE')});`);
+            }
+            case 'looks_sayforsecs': {
+                if (this._core === 'i8086') {
+                    if (!this._cPrintRefused) this._cPrintRefused = [];
+                    const reason = 'say for seconds is stage speech, not DOS terminal output';
+                    if (!this._cPrintRefused.includes(reason)) this._cPrintRefused.push(reason);
+                    return line(`/* ${reason} */`);
+                }
+                const text = (this.decompileStackBlock(b, blocks, 0)[0] || b.opcode).trim();
+                this.cWarn(`no C equivalent for "${text}" — emitted as a comment`);
+                return line(`/* ${this.cComment(text)} */`);
             }
             // LED cube commands — manipulate the working frame, then hold to play.
             case 'ledcube_setvoxel': {
@@ -11770,6 +11853,14 @@ class SB3Creator {
                     ' * Literal waits above 65535 ms refuse by name; computed waits are not emitted. */',
                     'extern void bw_delay_ms(unsigned ms);'
                 ] : []),
+                ...(this._cUses.printText ? [
+                    '/* DOS terminal text: every character (including $), then CRLF. */',
+                    'extern void bw_puts(const char *s);'
+                ] : []),
+                ...(this._cUses.printNumber ? [
+                    '/* DOS terminal signed-16 decimal, then CRLF. */',
+                    'extern void bw_print_num(int n);'
+                ] : []),
                 'static unsigned char bw_port_a = 0;   /* shadow of 8255 port A output latch */',
                 'static unsigned char bw_port_b = 0;   /* shadow of port B */',
                 'static unsigned char bw_port_c = 0;   /* shadow of port C */',
@@ -14612,7 +14703,7 @@ class SB3Creator {
         if (this._core === 'i8086') {
             // Verbs with a real i8086 C branch are NOT a reason to refuse. As
             // each verb gains its 8086 bus, add it here (P2: shiftOut).
-            const I8086_IMPLEMENTED = new Set(['shiftOut', 'delay']);
+            const I8086_IMPLEMENTED = new Set(['shiftOut', 'delay', 'printText', 'printNumber']);
             const used = Object.keys(this._cUses).filter((k) => this._cUses[k] && !I8086_IMPLEMENTED.has(k));
             if (used.length) {
                 this.cWarn(`the i8086 C back end emits 8255 pin I/O only for now — `
@@ -14625,6 +14716,17 @@ class SB3Creator {
                     + ' * Those have no i8086 C branch yet, and emitting the 8051 default for\n'
                     + ' * them would be wrong on an 8086. The pseudocode is unchanged; the ASM\n'
                     + ' * route supports more of them today.\n'
+                    + ' */\n';
+            }
+            if (this._cPrintRefused && this._cPrintRefused.length) {
+                const list = this._cPrintRefused.join(', ');
+                this.cWarn(`the 8086 C print helper accepts literal text or a signed-16 numeric expression; `
+                    + `${list} cannot use the numeric helper, so no C is emitted`);
+                return `/* No C emitted for DEVICE ${String(device || 'i8086').toUpperCase()}.\n`
+                    + ' *\n'
+                    + ' * The 8086 C print boundary accepts literal text or a signed-16 number.\n'
+                    + ` * This program supplies: ${list}.\n`
+                    + ' * String-valued and unknown reporters are refused instead of printing zero.\n'
                     + ' */\n';
             }
             // `bw_delay_ms` has one word-sized argument. Literals that do not
