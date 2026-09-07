@@ -7717,8 +7717,10 @@ class SB3Creator {
         if (block.opcode === 'data_itemoflist') {
             const listResult = this.cI8086NumericList(block.fields && block.fields.LIST, seen, allowedSelf);
             if (!listResult.ok) return listResult;
-            return this.cI8086NumericPrint(block.inputs && block.inputs.INDEX, blocks,
+            const indexResult = this.cI8086NumericPrint(block.inputs && block.inputs.INDEX, blocks,
                 new Set(seen).add(inner), allowedSelf, checkLowering);
+            if (!indexResult.ok) return indexResult;
+            return checkLowering ? this.cI8086CompleteLowering(block, blocks) : {ok: true};
         }
         if (!SB3Creator.C_I8086_NUMERIC_PRINT_REPORTERS.has(block.opcode)) {
             return {ok: false, reason: `${block.opcode} is string-valued or has no numeric C lowering`};
@@ -7732,10 +7734,16 @@ class SB3Creator {
         // classification is insufficient if cRep falls back to a commented
         // zero or leaks an architecture-specific token into 8086 C.
         if (checkLowering) {
-            const lowered = this.cRep(block, blocks);
-            if (/\/\*|\bP[0-3]\b|\bBW_[A-Z0-9_]+:/.test(lowered)) {
-                return {ok: false, reason: `${block.opcode} has no complete numeric i8086 C lowering`};
-            }
+            const complete = this.cI8086CompleteLowering(block, blocks);
+            if (!complete.ok) return complete;
+        }
+        return {ok: true};
+    }
+
+    cI8086CompleteLowering(block, blocks) {
+        const lowered = this.cRep(block, blocks);
+        if (/\/\*|\bP[0-3]\b|\bBW_[A-Z0-9_]+:/.test(lowered)) {
+            return {ok: false, reason: `${block.opcode} has no complete numeric i8086 C lowering`};
         }
         return {ok: true};
     }

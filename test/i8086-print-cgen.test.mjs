@@ -290,6 +290,18 @@ test('a string written through a list cannot acquire numeric print provenance', 
     assert.doesNotMatch(code, /bw_print_num/);
 });
 
+test('a direct numeric list item still refuses when its i8086 C lowering is absent', () => {
+    const {code} = emit(program([
+        'set readIndex to 0',
+        'delete all of readings',
+        'add 7 to readings',
+        'print (item (readIndex + 1) of readings)'
+    ]));
+    assert.match(code, /No C emitted/);
+    assert.match(code, /data_itemoflist has no complete numeric i8086 C lowering/);
+    assert.doesNotMatch(code, /bw_print_num/);
+});
+
 test('a variable-list provenance cycle is refused rather than treated as a self-update', () => {
     const {code} = emit(program([
         'set readIndex to 0',
