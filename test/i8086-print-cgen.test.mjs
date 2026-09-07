@@ -1,9 +1,8 @@
 // N2d — the measured i8086 C print boundary.
 //
-// Only literal text and genuinely numeric signed-16 values cross into the
-// consumer's DOS helpers. Scratch string reporters are refused rather than
-// falling through cRep as zero. Text and numeric declarations stay separate
-// so a program pays only for the conversion code it calls.
+// Only genuinely numeric signed-16 values cross into the consumer's DOS
+// helper. Scratch text and string reporters are refused rather than falling
+// through cRep as zero.
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
@@ -27,17 +26,12 @@ const emit = (src, mutateProject) => {
     };
 };
 
-test('literal text preserves dollar and empty strings behind the text-only DOS boundary', () => {
+test('literal text is refused by name outside the numeric-only boundary', () => {
     const {code, warnings} = emit(program(['print "cost=$5"', 'print ""']));
-    assert.match(code, /^extern void bw_puts\(const char \*s\);$/m);
-    assert.doesNotMatch(code, /extern void bw_print_num/, 'numeric conversion leaked into a text-only program');
-    assert.match(code, /^    bw_puts\("cost=\$5"\);$/m,
-        '$ must be ordinary character data, not a DOS function-09 terminator');
-    assert.match(code, /^    bw_puts\(""\);$/m, 'empty output must still reach the helper');
-    assert.match(code, /every character \(including \$\), then CRLF/,
-        'the emitted boundary does not state its observable termination contract');
-    assert.doesNotMatch(code, /No C emitted/);
-    assert.deepEqual(warnings, []);
+    assert.match(code, /No C emitted/);
+    assert.match(code, /text-mode print is outside the numeric-only i8086 C print boundary/);
+    assert.doesNotMatch(code, /bw_(?:puts|print_num)/);
+    assert.equal(warnings.length, 1);
 });
 
 test('numeric print admits the complete signed-16 boundary without a text helper', () => {
@@ -63,12 +57,12 @@ test('numeric print reuses the N2b int-16 refusal one step past either boundary'
     }
 });
 
-test('text and numeric helper-use flags are independent and compose when both are used', () => {
-    const {code} = emit(program(['print "n="', 'print 7']));
-    assert.match(code, /extern void bw_puts\(const char \*s\);/);
-    assert.match(code, /extern void bw_print_num\(int n\);/);
-    assert.match(code, /bw_puts\("n="\);/);
-    assert.match(code, /bw_print_num\(7\);/);
+test('literal text refuses the whole program even beside an otherwise valid number', () => {
+    const {code, warnings} = emit(program(['print "n="', 'print 7']));
+    assert.match(code, /No C emitted/);
+    assert.match(code, /text-mode print is outside the numeric-only i8086 C print boundary/);
+    assert.doesNotMatch(code, /bw_(?:puts|print_num)/);
+    assert.equal(warnings.length, 1);
 });
 
 test('a string reporter is refused by name instead of becoming numeric zero', () => {
@@ -160,7 +154,7 @@ test('a loaded text-mode block with a reporter is refused rather than printed as
     const generated = creator.generateC();
     const code = typeof generated === 'string' ? generated : generated.code;
     assert.match(code, /No C emitted/);
-    assert.match(code, /text-mode print requires literal text/);
+    assert.match(code, /text-mode print is outside the numeric-only i8086 C print boundary/);
     assert.doesNotMatch(code, /bw_puts\(""\)/);
 });
 
@@ -391,7 +385,7 @@ test('smoothing is named as a numeric-list dependency instead of counted as emit
     assert.doesNotMatch(code, /bw_print_num/);
 });
 
-test('project-wide provenance preserves the measured literal print candidate', async () => {
+test('the measured crystal-ball text program remains a named refusal', async () => {
     const name = 'arduino-sk-p11-crystal-ball';
     const source = await readFile(new URL(`../examples/${name}/program.bw`, import.meta.url), 'utf8');
     const retargeted = SB3Creator.retargetPseudocode(source, 'stc12c5a60s2');
@@ -399,8 +393,9 @@ test('project-wide provenance preserves the measured literal print candidate', a
     const text = typeof retargeted === 'string' ? retargeted :
         retargeted.pseudocode || retargeted.text || retargeted.source || retargeted.code;
     const {code} = emit(text.replace(/^DEVICE .*$/m, 'DEVICE i8086'));
-    assert.doesNotMatch(code, /No C emitted/, `${name}: literal candidate narrowed`);
-    assert.match(code, /bw_puts\(/, `${name}: text print call absent`);
+    assert.match(code, /No C emitted/);
+    assert.match(code, /text-mode print is outside the numeric-only i8086 C print boundary/);
+    assert.doesNotMatch(code, /bw_(?:puts|print_num)/);
 });
 
 test('the measured string-addition program remains an exact named refusal', async () => {

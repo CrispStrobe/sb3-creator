@@ -8639,16 +8639,10 @@ class SB3Creator {
                 const mode = f('MODE');
                 if (this._core === 'i8086') {
                     if (mode === 'text') {
-                        const value = b.inputs.VALUE && b.inputs.VALUE[1];
-                        if (!Array.isArray(value) || value[0] !== 10) {
-                            if (!this._cPrintRefused) this._cPrintRefused = [];
-                            const reason = 'text-mode print requires literal text';
-                            if (!this._cPrintRefused.includes(reason)) this._cPrintRefused.push(reason);
-                            return line(`/* print refused: ${reason} */`);
-                        }
-                        this._cUses.printText = true;
-                        const text = value[1];
-                        return line(`bw_puts(${this.cCString(text)});`);
+                        if (!this._cPrintRefused) this._cPrintRefused = [];
+                        const reason = 'text-mode print is outside the numeric-only i8086 C print boundary';
+                        if (!this._cPrintRefused.includes(reason)) this._cPrintRefused.push(reason);
+                        return line(`/* print refused: ${reason} */`);
                     }
                     const numeric = this.cI8086NumericPrint(b.inputs.VALUE, blocks);
                     if (!numeric.ok) {
@@ -12000,10 +11994,6 @@ class SB3Creator {
                     ' * Literal waits above 65535 ms refuse by name; computed waits are not emitted. */',
                     'extern void bw_delay_ms(unsigned ms);'
                 ] : []),
-                ...(this._cUses.printText ? [
-                    '/* DOS terminal text: every character (including $), then CRLF. */',
-                    'extern void bw_puts(const char *s);'
-                ] : []),
                 ...(this._cUses.printNumber ? [
                     '/* DOS terminal signed-16 decimal, then CRLF. */',
                     'extern void bw_print_num(int n);'
@@ -14850,7 +14840,7 @@ class SB3Creator {
         if (this._core === 'i8086') {
             // Verbs with a real i8086 C branch are NOT a reason to refuse. As
             // each verb gains its 8086 bus, add it here (P2: shiftOut).
-            const I8086_IMPLEMENTED = new Set(['shiftOut', 'delay', 'printText', 'printNumber']);
+            const I8086_IMPLEMENTED = new Set(['shiftOut', 'delay', 'printNumber']);
             const used = Object.keys(this._cUses).filter((k) => this._cUses[k] && !I8086_IMPLEMENTED.has(k));
             // Report an unsafe print value before the broader feature choke.
             // A second script may both poison the value provenance and use a
@@ -14858,11 +14848,11 @@ class SB3Creator {
             // that must remain visible rather than being masked by `used`.
             if (this._cPrintRefused && this._cPrintRefused.length) {
                 const list = this._cPrintRefused.join(', ');
-                this.cWarn(`the 8086 C print helper accepts literal text or a signed-16 numeric expression; `
+                this.cWarn(`the 8086 C print helper accepts a signed-16 numeric expression; `
                     + `${list} cannot use the numeric helper, so no C is emitted`);
                 return `/* No C emitted for DEVICE ${String(device || 'i8086').toUpperCase()}.\n`
                     + ' *\n'
-                    + ' * The 8086 C print boundary accepts literal text or a signed-16 number.\n'
+                    + ' * The 8086 C print boundary accepts a signed-16 number.\n'
                     + ` * This program supplies: ${list}.\n`
                     + ' * String-valued and unknown reporters are refused instead of printing zero.\n'
                     + ' */\n';
