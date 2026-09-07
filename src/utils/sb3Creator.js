@@ -7691,7 +7691,7 @@ class SB3Creator {
      *  The allow-list is the set of reporters this C back end actually lowers
      *  as numbers; nested inputs are checked too, so `1 + join(...)` cannot
      *  smuggle a string through an arithmetic parent. */
-    cI8086NumericPrint(input, blocks, seen = new Set(), allowedSelf = null, checkLowering = true) {
+    cI8086NumericPrint(input, blocks, seen = new Set(), allowedSelf = null) {
         const inner = Array.isArray(input) ? input[1] : null;
         if (Array.isArray(inner)) {
             const type = inner[0];
@@ -7718,26 +7718,22 @@ class SB3Creator {
             const listResult = this.cI8086NumericList(block.fields && block.fields.LIST, seen, allowedSelf);
             if (!listResult.ok) return listResult;
             const indexResult = this.cI8086NumericPrint(block.inputs && block.inputs.INDEX, blocks,
-                new Set(seen).add(inner), allowedSelf, checkLowering);
+                new Set(seen).add(inner), allowedSelf);
             if (!indexResult.ok) return indexResult;
-            return checkLowering ? this.cI8086CompleteLowering(block, blocks) : {ok: true};
+            return this.cI8086CompleteLowering(block, blocks);
         }
         if (!SB3Creator.C_I8086_NUMERIC_PRINT_REPORTERS.has(block.opcode)) {
             return {ok: false, reason: `${block.opcode} is string-valued or has no numeric C lowering`};
         }
         const nextSeen = new Set(seen).add(inner);
         for (const child of Object.values(block.inputs || {})) {
-            const result = this.cI8086NumericPrint(child, blocks, nextSeen, allowedSelf, checkLowering);
+            const result = this.cI8086NumericPrint(child, blocks, nextSeen, allowedSelf);
             if (!result.ok) return result;
         }
         // Keep the classifier tied to the actual lowerer. A positive opcode
         // classification is insufficient if cRep falls back to a commented
         // zero or leaks an architecture-specific token into 8086 C.
-        if (checkLowering) {
-            const complete = this.cI8086CompleteLowering(block, blocks);
-            if (!complete.ok) return complete;
-        }
-        return {ok: true};
+        return this.cI8086CompleteLowering(block, blocks);
     }
 
     cI8086CompleteLowering(block, blocks) {
@@ -7794,7 +7790,7 @@ class SB3Creator {
             }
         }
         for (const write of writes) {
-            const result = this.cI8086NumericPrint(write.input, write.blocks, nextSeen, token, false);
+            const result = this.cI8086NumericPrint(write.input, write.blocks, nextSeen, token);
             if (!result.ok) {
                 return {ok: false, reason: `list "${name}" has a non-numeric ${write.kind}: ${result.reason}`};
             }
@@ -7867,7 +7863,7 @@ class SB3Creator {
         for (const write of writes) {
             // A numeric update may read its own prior value. Keep only this
             // one back-edge open; A -> B -> A remains a refused cycle.
-            const result = this.cI8086NumericPrint(write.input, write.blocks, nextSeen, token, false);
+            const result = this.cI8086NumericPrint(write.input, write.blocks, nextSeen, token);
             if (!result.ok) {
                 return {ok: false, reason: `variable "${name}" has a non-numeric ${write.kind}: ${result.reason}`};
             }

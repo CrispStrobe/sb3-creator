@@ -128,6 +128,19 @@ test('the actual-lowerer backstop refuses a missing pin fallback comment', () =>
     assert.doesNotMatch(code, /bw_print_num\(.*\/\*/);
 });
 
+test('an invalid pin hidden behind a scalar write refuses the whole program', () => {
+    const {code} = emit(program(['set value to read led', 'print value']), project => {
+        for (const target of project.targets || []) {
+            for (const block of Object.values(target.blocks || {})) {
+                if (block.opcode === 'stc12_read') block.fields.PIN[0] = 'missing';
+            }
+        }
+    });
+    assert.match(code, /No C emitted/);
+    assert.match(code, /stc12_read has no complete numeric i8086 C lowering/);
+    assert.doesNotMatch(code, /bw_print_num/);
+});
+
 for (const expression of ['letter 1 of "abc"', 'length of "abc"']) {
     test(`${expression} remains a named refusal outside the numeric print boundary`, () => {
         const {code, warnings} = emit(program([`print ${expression}`]));
@@ -302,6 +315,31 @@ test('a direct numeric list item still refuses when its i8086 C lowering is abse
     assert.doesNotMatch(code, /bw_print_num/);
 });
 
+for (const listWrite of [
+    'add read led to readings',
+    'replace item (readIndex + 1) of readings with read led'
+]) {
+    test(`an invalid pin hidden behind "${listWrite}" refuses the whole program`, () => {
+        const {code} = emit(program([
+            'set readIndex to 0',
+            'delete all of readings',
+            'add 0 to readings',
+            listWrite,
+            'set value to (item (readIndex + 1) of readings)',
+            'print value'
+        ]), project => {
+            for (const target of project.targets || []) {
+                for (const block of Object.values(target.blocks || {})) {
+                    if (block.opcode === 'stc12_read') block.fields.PIN[0] = 'missing';
+                }
+            }
+        });
+        assert.match(code, /No C emitted/);
+        assert.match(code, /stc12_read has no complete numeric i8086 C lowering/);
+        assert.doesNotMatch(code, /bw_print_num/);
+    });
+}
+
 test('a variable-list provenance cycle is refused rather than treated as a self-update', () => {
     const {code} = emit(program([
         'set readIndex to 0',
@@ -319,11 +357,10 @@ const MEASURED_NUMERIC = [
     'arduino-01-digital-read-serial',
     'arduino-02-digital-input-pullup',
     'arduino-02-state-change',
-    'arduino-03-smoothing',
     'arduino-06-ping'
 ];
 
-test('project-wide provenance preserves all five measured numeric print candidates', async () => {
+test('project-wide provenance preserves all four honest measured numeric print candidates', async () => {
     for (const name of MEASURED_NUMERIC) {
         const source = await readFile(new URL(`../examples/${name}/program.bw`, import.meta.url), 'utf8');
         const retargeted = SB3Creator.retargetPseudocode(source, 'stc12c5a60s2');
@@ -340,6 +377,18 @@ test('project-wide provenance preserves all five measured numeric print candidat
         assert.ok(!warnings.some(warning => /print helper|value provenance/.test(warning)),
             `${name}: print provenance refused: ${warnings.join(' | ')}`);
     }
+});
+
+test('smoothing is named as a numeric-list dependency instead of counted as emitted', async () => {
+    const name = 'arduino-03-smoothing';
+    const source = await readFile(new URL(`../examples/${name}/program.bw`, import.meta.url), 'utf8');
+    const retargeted = SB3Creator.retargetPseudocode(source, 'stc12c5a60s2');
+    const text = typeof retargeted === 'string' ? retargeted :
+        retargeted.pseudocode || retargeted.text || retargeted.source || retargeted.code;
+    const {code} = emit(text.replace(/^DEVICE .*$/m, 'DEVICE i8086'));
+    assert.match(code, /No C emitted/);
+    assert.match(code, /data_itemoflist has no complete numeric i8086 C lowering/);
+    assert.doesNotMatch(code, /bw_print_num/);
 });
 
 test('project-wide provenance preserves the measured literal print candidate', async () => {
