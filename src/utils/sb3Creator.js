@@ -7691,7 +7691,7 @@ class SB3Creator {
      *  The allow-list is the set of reporters this C back end actually lowers
      *  as numbers; nested inputs are checked too, so `1 + join(...)` cannot
      *  smuggle a string through an arithmetic parent. */
-    cI8086NumericPrint(input, blocks, seen = new Set(), allowedSelf = null) {
+    cI8086NumericPrint(input, blocks, seen = new Set(), allowedSelf = null, checkLowering = true) {
         const inner = Array.isArray(input) ? input[1] : null;
         if (Array.isArray(inner)) {
             const type = inner[0];
@@ -7707,19 +7707,35 @@ class SB3Creator {
         }
         if (seen.has(inner)) return {ok: false, reason: 'a cyclic reporter'};
         const block = blocks[inner];
+        if (block.opcode === 'operator_mathop') {
+            const op = String(block.fields && block.fields.OPERATOR &&
+                block.fields.OPERATOR[0] || '').toLowerCase();
+            if (!new Set(['floor', 'ceiling', 'round', 'abs']).has(op)) {
+                return {ok: false, reason: `${op || 'unknown'} of has no numeric C lowering`};
+            }
+        }
         if (block.opcode === 'data_itemoflist') {
             const listResult = this.cI8086NumericList(block.fields && block.fields.LIST, seen, allowedSelf);
             if (!listResult.ok) return listResult;
             return this.cI8086NumericPrint(block.inputs && block.inputs.INDEX, blocks,
-                new Set(seen).add(inner), allowedSelf);
+                new Set(seen).add(inner), allowedSelf, checkLowering);
         }
         if (!SB3Creator.C_I8086_NUMERIC_PRINT_REPORTERS.has(block.opcode)) {
             return {ok: false, reason: `${block.opcode} is string-valued or has no numeric C lowering`};
         }
         const nextSeen = new Set(seen).add(inner);
         for (const child of Object.values(block.inputs || {})) {
-            const result = this.cI8086NumericPrint(child, blocks, nextSeen, allowedSelf);
+            const result = this.cI8086NumericPrint(child, blocks, nextSeen, allowedSelf, checkLowering);
             if (!result.ok) return result;
+        }
+        // Keep the classifier tied to the actual lowerer. A positive opcode
+        // classification is insufficient if cRep falls back to a commented
+        // zero or leaks an architecture-specific token into 8086 C.
+        if (checkLowering) {
+            const lowered = this.cRep(block, blocks);
+            if (/\/\*|\bP[0-3]\b|\bBW_[A-Z0-9_]+:/.test(lowered)) {
+                return {ok: false, reason: `${block.opcode} has no complete numeric i8086 C lowering`};
+            }
         }
         return {ok: true};
     }
@@ -7738,10 +7754,12 @@ class SB3Creator {
         const nextSeen = new Set(seen).add(token);
         let initial;
         let found = false;
+        let ambiguous = false;
         const writes = [];
         for (const target of (this.project && this.project.targets) || []) {
             for (const [listId, value] of Object.entries(target.lists || {})) {
-                if ((id && listId === id) || (!id && value[0] === name)) {
+                if (this.cI8086IdentityMatches(id, name, listId, value[0])) {
+                    if (found) ambiguous = true;
                     initial = value[1];
                     found = true;
                 }
@@ -7752,12 +7770,13 @@ class SB3Creator {
                 const listName = listField && String(listField[0]);
                 const inputName = block.opcode === 'data_replaceitemoflist' ? 'ITEM' :
                     (block.opcode === 'data_addtolist' || block.opcode === 'data_insertatlist' ? 'ITEM' : null);
-                if (inputName && ((id && listId === id) || (!id && listName === name))) {
+                if (inputName && this.cI8086IdentityMatches(id, name, listId, listName)) {
                     writes.push({input: block.inputs && block.inputs[inputName], blocks: target.blocks,
                         kind: block.opcode});
                 }
             }
         }
+        if (ambiguous) return {ok: false, reason: `list "${name}" has ambiguous identity`};
         if (!found || !Array.isArray(initial)) {
             return {ok: false, reason: `list "${name}" has unknown value provenance`};
         }
@@ -7767,12 +7786,21 @@ class SB3Creator {
             }
         }
         for (const write of writes) {
-            const result = this.cI8086NumericPrint(write.input, write.blocks, nextSeen, token);
+            const result = this.cI8086NumericPrint(write.input, write.blocks, nextSeen, token, false);
             if (!result.ok) {
                 return {ok: false, reason: `list "${name}" has a non-numeric ${write.kind}: ${result.reason}`};
             }
         }
         return {ok: true};
+    }
+
+    /** IDs are authoritative when both sides carry one. If either side is a
+     *  legacy shape without an ID, the same name must conservatively match;
+     *  ignoring that write can turn a dropped string assignment into zero. */
+    cI8086IdentityMatches(id, name, candidateId, candidateName) {
+        const otherId = candidateId === undefined || candidateId === null ? null : String(candidateId);
+        if (id && otherId) return id === otherId;
+        return name === String(candidateName);
     }
 
     /** A printed Scratch scalar is numeric only when its initial value and
@@ -7796,10 +7824,12 @@ class SB3Creator {
         const nextSeen = new Set(seen).add(token);
         let initial;
         let found = false;
+        let ambiguous = false;
         const writes = [];
         for (const target of (this.project && this.project.targets) || []) {
             for (const [variableId, value] of Object.entries(target.variables || {})) {
-                if ((id && variableId === id) || (!id && value[0] === name)) {
+                if (this.cI8086IdentityMatches(id, name, variableId, value[0])) {
+                    if (found) ambiguous = true;
                     initial = value[1];
                     found = true;
                 }
@@ -7809,7 +7839,7 @@ class SB3Creator {
                 const fieldId = field && field[1] != null ? String(field[1]) : null;
                 const fieldName = field && String(field[0]);
                 if ((block.opcode === 'data_setvariableto' || block.opcode === 'data_changevariableby') &&
-                    ((id && fieldId === id) || (!id && fieldName === name))) {
+                    this.cI8086IdentityMatches(id, name, fieldId, fieldName)) {
                     writes.push({input: block.inputs && block.inputs.VALUE, blocks: target.blocks,
                         kind: block.opcode === 'data_setvariableto' ? 'set' : 'change'});
                 }
@@ -7822,13 +7852,14 @@ class SB3Creator {
             }
         }
         const n = Number(initial);
+        if (ambiguous) return {ok: false, reason: `variable "${name}" has ambiguous identity`};
         if (!found || String(initial).trim() === '' || !Number.isFinite(n)) {
             return {ok: false, reason: `variable "${name}" has a non-numeric initial value`};
         }
         for (const write of writes) {
             // A numeric update may read its own prior value. Keep only this
             // one back-edge open; A -> B -> A remains a refused cycle.
-            const result = this.cI8086NumericPrint(write.input, write.blocks, nextSeen, token);
+            const result = this.cI8086NumericPrint(write.input, write.blocks, nextSeen, token, false);
             if (!result.ok) {
                 return {ok: false, reason: `variable "${name}" has a non-numeric ${write.kind}: ${result.reason}`};
             }
@@ -7871,13 +7902,7 @@ class SB3Creator {
         'planetemaths_add', 'planetemaths_substract', 'planetemaths_multiply',
         'planetemaths_divide', 'planetemaths_oppose', 'planetemaths_pourcent',
         'bitops_and', 'bitops_or', 'bitops_xor', 'bitops_shl', 'bitops_shr', 'bitops_not',
-        'stc12_read', 'stc12_readport', 'stc12_keypad', 'stc12_matrix_getpx',
-        'stc12_tableindex', 'ledcube_readvoxel',
-        'argument_reporter_boolean',
-        'devices_servoangle', 'devices_motorspeed', 'devices_motordirection',
-        'devices_temperature', 'devices_light', 'devices_distance', 'devices_flex',
-        'devices_force', 'devices_ircode', 'devices_devicestate', 'devices_pressed',
-        'devices_above', 'devices_closer', 'devices_motion', 'devices_tilted', 'devices_energised'
+        'stc12_read'
     ]);
 
     /** The C scalar type a Scratch number gets on the current core. */

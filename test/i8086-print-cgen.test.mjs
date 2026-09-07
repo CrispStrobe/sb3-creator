@@ -16,9 +16,10 @@ const program = lines => [
     ...lines.map(line => `  ${line}`)
 ].join('\n');
 
-const emit = src => {
+const emit = (src, mutateProject) => {
     const creator = new SB3Creator();
     creator.parse(src);
+    if (mutateProject) mutateProject(creator.project);
     const generated = creator.generateC();
     return {
         code: typeof generated === 'string' ? generated : generated.code,
@@ -87,6 +88,44 @@ test('a nested string reporter cannot hide below an arithmetic parent', () => {
     assert.match(code, /No C emitted/);
     assert.match(code, /operator_join/);
     assert.doesNotMatch(code, /bw_print_num/);
+});
+
+test('math operators share the numeric lowerer boundary instead of falling back to zero', () => {
+    const admitted = emit(program(['print (floor of 9)']));
+    assert.doesNotMatch(admitted.code, /No C emitted/);
+    assert.match(admitted.code, /bw_print_num\(9\)/);
+
+    for (const op of ['sqrt', 'sin']) {
+        const refused = emit(program([`print (${op} of 9)`]));
+        assert.match(refused.code, /No C emitted/, `${op} fell through as numeric zero`);
+        assert.match(refused.code, new RegExp(`${op} of has no numeric C lowering`));
+        assert.doesNotMatch(refused.code, /bw_print_num/);
+    }
+});
+
+test('an 8051-only port reporter cannot leak an unresolved token into i8086 C', () => {
+    const {code} = emit([
+        'DEVICE i8086',
+        'PORT bus = P1 INPUT',
+        'WHEN flag clicked:',
+        '  print read bus'
+    ].join('\n'));
+    assert.match(code, /No C emitted/);
+    assert.match(code, /stc12_readport/);
+    assert.doesNotMatch(code, /bw_print_num\(P1\)/);
+});
+
+test('the actual-lowerer backstop refuses a missing pin fallback comment', () => {
+    const {code} = emit(program(['print read led']), project => {
+        for (const target of project.targets || []) {
+            for (const block of Object.values(target.blocks || {})) {
+                if (block.opcode === 'stc12_read') block.fields.PIN[0] = 'missing';
+            }
+        }
+    });
+    assert.match(code, /No C emitted/);
+    assert.match(code, /stc12_read has no complete numeric i8086 C lowering/);
+    assert.doesNotMatch(code, /bw_print_num\(.*\/\*/);
 });
 
 for (const expression of ['letter 1 of "abc"', 'length of "abc"']) {
@@ -158,6 +197,32 @@ test('the x-assignment grammar ambiguity cannot turn a string into printed zero'
     assert.doesNotMatch(code, /bw_print_num/);
 });
 
+test('a legacy write missing its ID still poisons the same-name variable', () => {
+    const {code} = emit(program(['set value to "abc"', 'print value']), project => {
+        for (const target of project.targets || []) {
+            for (const block of Object.values(target.blocks || {})) {
+                if (block.opcode === 'data_setvariableto') block.fields.VARIABLE[1] = null;
+            }
+        }
+    });
+    assert.match(code, /No C emitted/);
+    assert.match(code, /variable "value" has a non-numeric set/);
+    assert.doesNotMatch(code, /bw_print_num/);
+});
+
+test('a missing reporter ID refuses same-name declaration ambiguity', () => {
+    const {code} = emit(program(['set value to 1', 'print value']), project => {
+        const target = project.targets[0];
+        target.variables['legacy-alias'] = ['value', 0];
+        for (const block of Object.values(target.blocks || {})) {
+            if (block.opcode === 'stc12_print') block.inputs.VALUE[1][2] = null;
+        }
+    });
+    assert.match(code, /No C emitted/);
+    assert.match(code, /variable "value" has ambiguous identity/);
+    assert.doesNotMatch(code, /bw_print_num/);
+});
+
 test('a string-or-number procedure argument is refused until call-site provenance exists', () => {
     const src = [
         'DEVICE i8086',
@@ -174,6 +239,21 @@ test('a string-or-number procedure argument is refused until call-site provenanc
     assert.ok(warnings.some(warning => /argument_reporter_string_number/.test(warning)));
 });
 
+test('a boolean procedure argument is refused until the i8086 parameter ABI is proven', () => {
+    const src = [
+        'DEVICE i8086',
+        'PIN led = P1.0 OUTPUT',
+        'DEFINE show <flag>:',
+        '  print flag',
+        'WHEN flag clicked:',
+        '  show true'
+    ].join('\n');
+    const {code} = emit(src);
+    assert.match(code, /No C emitted/);
+    assert.match(code, /argument_reporter_boolean/);
+    assert.doesNotMatch(code, /bw_print_num/);
+});
+
 test('cross-variable provenance cycles remain refused while direct numeric self-updates are allowed', () => {
     const cyclic = emit(program([
         'set first to (second + 0)',
@@ -187,6 +267,14 @@ test('cross-variable provenance cycles remain refused while direct numeric self-
     const selfUpdate = emit(program(['change value by 1', 'print value']));
     assert.doesNotMatch(selfUpdate.code, /No C emitted/);
     assert.match(selfUpdate.code, /bw_print_num\(value\)/);
+
+    const selfSet = emit(program(['set value to (value + 1)', 'print value']));
+    assert.doesNotMatch(selfSet.code, /No C emitted/);
+    assert.match(selfSet.code, /bw_print_num\(value\)/);
+
+    const acyclic = emit(program(['set first to (second + 1)', 'print first']));
+    assert.doesNotMatch(acyclic.code, /No C emitted/);
+    assert.match(acyclic.code, /bw_print_num\(first\)/);
 });
 
 test('a string written through a list cannot acquire numeric print provenance', () => {
@@ -199,6 +287,19 @@ test('a string written through a list cannot acquire numeric print provenance', 
     ]));
     assert.match(code, /No C emitted/);
     assert.match(code, /non-numeric/, 'the dynamically string-valued list path must be named');
+    assert.doesNotMatch(code, /bw_print_num/);
+});
+
+test('a variable-list provenance cycle is refused rather than treated as a self-update', () => {
+    const {code} = emit(program([
+        'set readIndex to 0',
+        'delete all of readings',
+        'add value to readings',
+        'set value to (item (readIndex + 1) of readings)',
+        'print value'
+    ]));
+    assert.match(code, /No C emitted/);
+    assert.match(code, /cyclic value provenance/);
     assert.doesNotMatch(code, /bw_print_num/);
 });
 
@@ -220,6 +321,10 @@ test('project-wide provenance preserves all five measured numeric print candidat
         const {code, warnings} = emit(text.replace(/^DEVICE .*$/m, 'DEVICE i8086'));
         assert.doesNotMatch(code, /No C emitted/, `${name}: provenance narrowed measured reach`);
         assert.match(code, /bw_print_num\(/, `${name}: numeric print call absent`);
+        for (const call of code.matchAll(/^\s*bw_print_num\((.*)\);$/gm)) {
+            assert.doesNotMatch(call[1], /\/\*|\bP[0-3]\b|\bBW_[A-Z0-9_]+:/,
+                `${name}: numeric helper contains an unresolved lowering: ${call[1]}`);
+        }
         assert.ok(!warnings.some(warning => /print helper|value provenance/.test(warning)),
             `${name}: print provenance refused: ${warnings.join(' | ')}`);
     }
@@ -235,4 +340,16 @@ test('project-wide provenance preserves the measured literal print candidate', a
     const {code} = emit(text.replace(/^DEVICE .*$/m, 'DEVICE i8086'));
     assert.doesNotMatch(code, /No C emitted/, `${name}: literal candidate narrowed`);
     assert.match(code, /bw_puts\(/, `${name}: text print call absent`);
+});
+
+test('the measured string-addition program remains an exact named refusal', async () => {
+    const name = 'arduino-08-string-addition';
+    const source = await readFile(new URL(`../examples/${name}/program.bw`, import.meta.url), 'utf8');
+    const retargeted = SB3Creator.retargetPseudocode(source, 'stc12c5a60s2');
+    const text = typeof retargeted === 'string' ? retargeted :
+        retargeted.pseudocode || retargeted.text || retargeted.source || retargeted.code;
+    const {code} = emit(text.replace(/^DEVICE .*$/m, 'DEVICE i8086'));
+    assert.match(code, /No C emitted/);
+    assert.match(code, /operator_join is string-valued/);
+    assert.doesNotMatch(code, /bw_print_num/);
 });
