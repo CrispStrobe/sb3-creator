@@ -47,9 +47,24 @@ test('i8086: a literal outside 16 bits refuses the whole program BY NAME, never 
 });
 
 test('i8086: the boundary values are admitted; one past each is refused, each named once', () => {
-    assert.match(emit(NUMERIC.replace('300', '32767').replace('-5', '-32768')).code, /^static int counter/m);
+    const boundary = emit(NUMERIC.replace('300', '32767').replace('-5', '-32768')).code;
+    assert.match(boundary, /^static int counter/m);
+    assert.match(boundary, /counter \+= \(-32767 - 1\);/,
+        'INT16_MIN must not contain the positive token 32768 that SmallerC refuses');
+    assert.doesNotMatch(boundary, /counter \+= -32768;/);
     const { code } = emit(NUMERIC.replace('300', '32768').replace('-5', '-32769').replace('REPEAT 3', 'REPEAT 32768'));
     assert.match(code, /This program has: 32768, -32769\./, 'each refused literal is named exactly once, in order');
+});
+
+test('i8086: an INT16_MIN initial value uses the SmallerC-safe exact spelling too', () => {
+    const c = new SB3Creator();
+    c.parse(NUMERIC);
+    const stage = c.project.targets.find((t) => t.isStage);
+    for (const value of Object.values(stage.variables)) if (value[0] === 'counter') value[1] = -32768;
+    const generated = c.generateC();
+    const code = typeof generated === 'string' ? generated : generated.code;
+    assert.match(code, /^static int counter = \(-32767 - 1\);$/m);
+    assert.doesNotMatch(code, /^static int counter = -32768;$/m);
 });
 
 test('i8086: a variable INITIAL value outside 16 bits is refused too (cInit shares the check)', () => {

@@ -7874,12 +7874,20 @@ class SB3Creator {
     cNum(value) {
         const n = Number(value);
         if (!Number.isFinite(n)) return `0 /* ${this.cComment(value)} */`;
-        return String(this.cI16Check(Math.trunc(n)));
+        const checked = this.cI16Check(Math.trunc(n));
+        // SmallerC parses the positive token before unary minus, so `-32768`
+        // is rejected as a too-large signed-16 constant. This equivalent
+        // spelling keeps every token in range while preserving INT16_MIN.
+        if (this._core === 'i8086' && checked === SB3Creator.I16_MIN) return '(-32767 - 1)';
+        return String(checked);
     }
 
     cInit(value) {
         const n = Number(value);
-        return Number.isFinite(n) ? String(this.cI16Check(Math.trunc(n))) : '0';
+        if (!Number.isFinite(n)) return '0';
+        const checked = this.cI16Check(Math.trunc(n));
+        if (this._core === 'i8086' && checked === SB3Creator.I16_MIN) return '(-32767 - 1)';
+        return String(checked);
     }
 
     // ---- The i8086 numeric model (N2b) -----------------------------------------

@@ -40,7 +40,10 @@ test('numeric print admits the complete signed-16 boundary without a text helper
     ]));
     assert.match(code, /^extern void bw_print_num\(int n\);$/m);
     assert.doesNotMatch(code, /extern void bw_puts\(const char/, 'text traversal leaked into numeric-only C');
-    for (const n of ['-32768', '-1', '0', '32767']) {
+    assert.match(code, /^    bw_print_num\(\(-32767 - 1\)\);$/m,
+        'INT16_MIN must use the SmallerC-safe general literal spelling');
+    assert.doesNotMatch(code, /^    bw_print_num\(-32768\);$/m);
+    for (const n of ['-1', '0', '32767']) {
         assert.match(code, new RegExp(`^    bw_print_num\\(${n}\\);$`, 'm'));
     }
     assert.match(code, /signed-16 decimal, then CRLF/);
