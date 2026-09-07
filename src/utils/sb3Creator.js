@@ -7687,12 +7687,44 @@ class SB3Creator {
     cNum(value) {
         const n = Number(value);
         if (!Number.isFinite(n)) return `0 /* ${this.cComment(value)} */`;
-        return String(Math.trunc(n));
+        return String(this.cI16Check(Math.trunc(n)));
     }
 
     cInit(value) {
         const n = Number(value);
-        return Number.isFinite(n) ? String(Math.trunc(n)) : '0';
+        return Number.isFinite(n) ? String(this.cI16Check(Math.trunc(n))) : '0';
+    }
+
+    // ---- The i8086 numeric model (N2b) -----------------------------------------
+    //
+    // Every other family types a Scratch number as `long`: int is 16-bit on
+    // sdcc/avr-gcc/cc65 and wraps mid-expression. SmallerC's tiny (.COM) model,
+    // the only one that yields the image the DOS bench loads, has NO 32-bit
+    // integer type at all -- `long` is a parse error there ("Unexpected token
+    // long"), so on the 8086 the choice is int-16 or no numbers. Int-16 it is,
+    // with the range STATED, not hidden: a literal (or a variable's initial
+    // value) outside -32768..32767 REFUSES the whole program by name below
+    // (cI16Check collects, generateC refuses), never wraps. Runtime overflow
+    // wraps at 16 bits, the way `long` wraps at 32 on every other family; the
+    // emitted header says so. The ASM route for the same board
+    // (pseudocode-8086.js, in brickwright-lite) keeps 32-bit DX:AX pairs, so the
+    // two routes agree on every value that fits 16 bits and DISAGREE past it --
+    // a width disagreement the differential names rather than papers over.
+    static I16_MIN = -32768;
+    static I16_MAX = 32767;
+
+    /** The C scalar type a Scratch number gets on the current core. */
+    cIntType() {
+        return this._core === 'i8086' ? 'int' : 'long';
+    }
+
+    /** Record an integer literal the i8086 model cannot hold; return it unchanged. */
+    cI16Check(t) {
+        if (this._core === 'i8086' && (t < SB3Creator.I16_MIN || t > SB3Creator.I16_MAX)) {
+            if (!this._cI16Refused) this._cI16Refused = [];
+            if (!this._cI16Refused.includes(t)) this._cI16Refused.push(t);
+        }
+        return t;
     }
 
     cVal(input, blocks) {
@@ -10972,6 +11004,7 @@ class SB3Creator {
         this._cNames = new Map();
         this._cCounter = 0;
         this._cWarnings = [];
+        this._cI16Refused = [];
         this._cUses = { adc: false, delay: false, blockDelay: false, now: false };
         this._emitComments = !(opts && opts.comments === false);
         const targets = project.targets || [];
@@ -11081,14 +11114,14 @@ class SB3Creator {
         const stateDecls = [];
         const markVars = [], markProcs = [], markScripts = [];
         for (const entry of Object.values((stage && stage.variables) || {})) {
-            stateDecls.push(`static long ${this.cName(entry[0])} = ${this.cInit(entry[1])};`);
+            stateDecls.push(`static ${this.cIntType()} ${this.cName(entry[0])} = ${this.cInit(entry[1])};`);
             markVars.push(`var ${this.cName(entry[0])} ${this.pyStr(entry[0])}`);
         }
         sections.forEach((t, idx) => {
             if (t.isStage) return;
             const pfx = spritePrefix(idx);
             for (const entry of Object.values(t.variables || {})) {
-                stateDecls.push(`static long ${this.cName(pfx + entry[0])} = ${this.cInit(entry[1])};   /* ${this.cComment(t.name)}: ${this.cComment(entry[0])} */`);
+                stateDecls.push(`static ${this.cIntType()} ${this.cName(pfx + entry[0])} = ${this.cInit(entry[1])};   /* ${this.cComment(t.name)}: ${this.cComment(entry[0])} */`);
                 markVars.push(`var ${this.cName(pfx + entry[0])} ${this.pyStr(entry[0])} sprite ${this.pyStr(t.name)}`);
             }
         });
@@ -13826,7 +13859,14 @@ class SB3Creator {
         }
 
         if (stateDecls.length) {
-            out.push('/* Variables: long, matching Scratch\'s number range — int is 16-bit on', ' * sdcc/avr-gcc/cc65 and silently wraps mid-expression (76-multimeter). */', ...stateDecls, '');
+            if (this._core === 'i8086') {
+                out.push('/* Variables: int, 16-bit signed (-32768..32767). SmallerC\'s tiny (.COM) model',
+                    ' * has no 32-bit integer type, so this is the widest number the 8086 C route',
+                    ' * has. A literal outside the range refuses the program by name; arithmetic',
+                    ' * that overflows at run time wraps at 16 bits (N2b). */', ...stateDecls, '');
+            } else {
+                out.push('/* Variables: long, matching Scratch\'s number range — int is 16-bit on', ' * sdcc/avr-gcc/cc65 and silently wraps mid-expression (76-multimeter). */', ...stateDecls, '');
+            }
         }
         if (procProtos.length) out.push(...procProtos, '');
         if (procDefs.length) out.push(...procDefs);
@@ -13840,7 +13880,7 @@ class SB3Creator {
             // from a timing one (lite D-CORPUS1); 02-dimmer and 10-motor-speed
             // on pico both stopped emitting events part-way through the run.
             out.push('/* REPEAT counters live across yields. */',
-                ...statics.map((n) => `static long ${n};`), '');
+                ...statics.map((n) => `static ${this.cIntType()} ${n};`), '');
         }
         // Forward-declare the print helpers when used inside task bodies.
         // The definitions come later (after the timer/print-library section),
@@ -14557,6 +14597,22 @@ class SB3Creator {
                     + ' * Those have no i8086 C branch yet, and emitting the 8051 default for\n'
                     + ' * them would be wrong on an 8086. The pseudocode is unchanged; the ASM\n'
                     + ' * route supports more of them today.\n'
+                    + ' */\n';
+            }
+            // The numeric model's one refusal: a number the 16-bit int cannot hold.
+            // Refused by name, whole program, never wrapped -- see cI16Check.
+            if (this._cI16Refused && this._cI16Refused.length) {
+                const list = this._cI16Refused.join(', ');
+                this.cWarn(`the 8086 C route stores numbers as 16-bit int (${SB3Creator.I16_MIN} to `
+                    + `${SB3Creator.I16_MAX}) and this program has ${list} in it; storing that would wrap `
+                    + 'silently, so no C is emitted (N2b). The ASM route (pseudocode-8086.js) keeps 32 bits');
+                return `/* No C emitted for DEVICE ${String(device || 'i8086').toUpperCase()}.\n`
+                    + ' *\n'
+                    + ' * The 8086 C back end stores every number as a 16-bit int\n'
+                    + ` * (${SB3Creator.I16_MIN} to ${SB3Creator.I16_MAX}): SmallerC's tiny (.COM) model has no 32-bit type.\n`
+                    + ` * This program has: ${list}. Storing that would wrap silently, so\n`
+                    + ' * nothing is emitted rather than a wrong number. Keep values within the\n'
+                    + ' * range, or use the ASM route, which keeps 32 bits (N2b).\n'
                     + ' */\n';
             }
         }
