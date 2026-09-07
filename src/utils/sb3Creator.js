@@ -7712,6 +7712,7 @@ class SB3Creator {
     // a width disagreement the differential names rather than papers over.
     static I16_MIN = -32768;
     static I16_MAX = 32767;
+    static I8086_WAIT_MAX_MS = 65535;
 
     /** The C scalar type a Scratch number gets on the current core. */
     cIntType() {
@@ -8185,8 +8186,17 @@ class SB3Creator {
         const inner = Array.isArray(input) ? input[1] : null;
         if (Array.isArray(inner)) {
             const n = Number(inner[1]);
-            if (inner[0] !== 12 && inner[0] !== 13 && Number.isFinite(n)) return String(Math.round(n * 1000));
+            if (inner[0] !== 12 && inner[0] !== 13) {
+                const ms = Math.round(n * 1000);
+                if (this._core === 'i8086' && (!Number.isFinite(n) || n < 0 || ms > SB3Creator.I8086_WAIT_MAX_MS)) {
+                    if (!this._cWaitRefused) this._cWaitRefused = [];
+                    const shown = String(inner[1]);
+                    if (!this._cWaitRefused.includes(shown)) this._cWaitRefused.push(shown);
+                }
+                if (Number.isFinite(n)) return String(ms);
+            }
         }
+        if (this._core === 'i8086') this._cWaitComputed = true;
         return `(unsigned int)((${this.cVal(input, blocks)}) * 1000)`;
     }
 
@@ -8262,7 +8272,8 @@ class SB3Creator {
             case 'control_wait': {
                 if (this._cTasks) { this._cUses.blockDelay = true; return line(`bw_block_ms(${this.cMs(b.inputs.DURATION, blocks)});`); }
                 this._cUses.delay = true;
-                return line(`delay_ms(${this.cMs(b.inputs.DURATION, blocks)});`);
+                const wait = this._core === 'i8086' ? 'bw_delay_ms' : 'delay_ms';
+                return line(`${wait}(${this.cMs(b.inputs.DURATION, blocks)});`);
             }
             case 'control_wait_until': {
                 if (this._core === 'arm') return line(`while (!(${cond()})) bw_idle();  /* poll at the ms edge */`);
@@ -11005,6 +11016,8 @@ class SB3Creator {
         this._cCounter = 0;
         this._cWarnings = [];
         this._cI16Refused = [];
+        this._cWaitRefused = [];
+        this._cWaitComputed = false;
         this._cUses = { adc: false, delay: false, blockDelay: false, now: false };
         this._emitComments = !(opts && opts.comments === false);
         const targets = project.targets || [];
@@ -11742,6 +11755,11 @@ class SB3Creator {
             out.push(
                 'extern void bw_outb(unsigned port, unsigned value);',
                 'extern unsigned bw_inb(unsigned port);',
+                ...(this._cUses.delay ? [
+                    '/* INT 15h/86h receives this unsigned millisecond argument through the C route.',
+                    ' * Literal waits above 65535 ms refuse by name; computed waits are not emitted. */',
+                    'extern void bw_delay_ms(unsigned ms);'
+                ] : []),
                 'static unsigned char bw_port_a = 0;   /* shadow of 8255 port A output latch */',
                 'static unsigned char bw_port_b = 0;   /* shadow of port B */',
                 'static unsigned char bw_port_c = 0;   /* shadow of port C */',
@@ -12130,7 +12148,7 @@ class SB3Creator {
                 '    uint32_t start = bw_now();',
                 '    while ((int32_t)(bw_now() - start - ms) < 0) bw_idle();',
                 '}', '');
-        } else if (this._cUses.delay && this._core !== '6502' && this._core !== 'z80') {
+        } else if (this._cUses.delay && this._core !== '6502' && this._core !== 'z80' && this._core !== 'i8086') {
             out.push(...(this._core === 'avr' ? [
                 '/* No scheduler in this build; the tick still runs (main() starts it),',
                 ' * so a blocking delay is a wait on bw_ms, never on a cycle count. */',
@@ -14584,7 +14602,7 @@ class SB3Creator {
         if (this._core === 'i8086') {
             // Verbs with a real i8086 C branch are NOT a reason to refuse. As
             // each verb gains its 8086 bus, add it here (P2: shiftOut).
-            const I8086_IMPLEMENTED = new Set(['shiftOut']);
+            const I8086_IMPLEMENTED = new Set(['shiftOut', 'delay']);
             const used = Object.keys(this._cUses).filter((k) => this._cUses[k] && !I8086_IMPLEMENTED.has(k));
             if (used.length) {
                 this.cWarn(`the i8086 C back end emits 8255 pin I/O only for now — `
@@ -14597,6 +14615,29 @@ class SB3Creator {
                     + ' * Those have no i8086 C branch yet, and emitting the 8051 default for\n'
                     + ' * them would be wrong on an 8086. The pseudocode is unchanged; the ASM\n'
                     + ' * route supports more of them today.\n'
+                    + ' */\n';
+            }
+            // `bw_delay_ms` has one word-sized argument. Literals that do not
+            // fit and computed values whose product cannot be checked here
+            // must not wrap before INT 15h sees the duration.
+            if (this._cWaitComputed || (this._cWaitRefused && this._cWaitRefused.length)) {
+                const list = (this._cWaitRefused || []).join(', ');
+                const problem = [
+                    ...(this._cWaitComputed ? ['a computed duration'] : []),
+                    ...(list ? [`${list} seconds`] : [])
+                ].join(' and ');
+                this.cWarn(`the 8086 C route supports literal waits from 0 to `
+                    + `${SB3Creator.I8086_WAIT_MAX_MS} milliseconds; ${problem} cannot be represented safely, `
+                    + 'so no C is emitted. Use a literal in range or the ASM route');
+                return `/* No C emitted for DEVICE ${String(device || 'i8086').toUpperCase()}.\n`
+                    + ' *\n'
+                    + ' * The 8086 C wait helper accepts a literal from 0 to 65535 milliseconds.\n'
+                    + (this._cWaitComputed
+                        ? ' * This program computes a wait duration at run time; its multiply could overflow.\n'
+                        : '')
+                    + (list ? ` * This program also asks for: ${list} seconds.\n` : '')
+                    + ' * Nothing is emitted rather than wrapping before INT 15h/86h sees the duration.\n'
+                    + ' * Use a literal in range, or the ASM route (N2c).\n'
                     + ' */\n';
             }
             // The numeric model's one refusal: a number the 16-bit int cannot hold.

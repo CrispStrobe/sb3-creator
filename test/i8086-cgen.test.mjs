@@ -80,9 +80,7 @@ WHEN flag clicked:
         'P0 (not an 8255 port) should be refused by name, never emitted as a port write');
 });
 
-test('i8086: every verb that is not yet a pin refuses the whole program by name', () => {
-    // A non-pin verb (wait -> the delay helper) falls to the 8051 default, which
-    // would be wrong on an 8086. The choke point refuses instead.
+test('i8086: wait is the one non-pin verb admitted by N2c and uses no 8051 timer code', () => {
     const c = cOf(`DEVICE i8086
 PIN led = P1.0 OUTPUT
 
@@ -91,9 +89,9 @@ WHEN flag clicked:
   wait 1 seconds
   turn off led
 `);
-    assert.match(c, /No C emitted for DEVICE I8086/, 'a non-pin verb on i8086 must refuse, not emit 8051 code');
-    assert.match(c, /PIN I\/O only/i, 'the refusal should say the i8086 back end is pin-only for now');
-    assert.match(c, /also uses: delay/, 'the refusal should name the verb that is not emitted');
+    assert.doesNotMatch(c, /No C emitted/, 'N2c wait still hits the i8086 verb choke');
+    assert.match(c, /bw_delay_ms\(1000\)/, 'wait does not cross the C-route helper boundary');
+    assert.doesNotMatch(c, /TL0|TH0|TF0|TR0/, '8051 Timer 0 code leaked into the i8086 output');
 });
 
 test('i8086 pin-only programs still emit (the choke point does not over-refuse)', () => {
