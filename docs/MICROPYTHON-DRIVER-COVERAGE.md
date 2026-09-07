@@ -21,7 +21,8 @@ the part":
 
 The device-part cases that exist (Pico/rp2040): `stc12_setpin`,
 `stc12_writepin`, `stc12_toggle`, `stc12_setpwm`, `stc12_settone`,
-`stc12_print`, `devices_oledclear|cursor|hline|pixel|print|show`, and the
+`stc12_print`, `stc12_setpart` (74HC595 shift-out, plan P3 part 2),
+`devices_oledclear|cursor|hline|pixel|print|show`, and the
 `stc12_keypad` reporter. Nothing else.
 
 | part / verb | C (generateC) | MicroPython (Pico) |
@@ -35,7 +36,7 @@ The device-part cases that exist (Pico/rp2040): `stc12_setpin`,
 | **adc / analog read** | ✓ | ✗ `degrade` → 0 (needs `machine.ADC`) |
 | **servo** | ✓ | ✗ `pass # devices_setservo` |
 | **motor (L293D)** | ✓ | ✗ `pass # devices_setmotor` |
-| **shiftOut (74HC595)** | ✓ | ✗ `pass # stc12_setpart` |
+| **shiftOut (74HC595)** | ✓ | ✓ (`_shift_out`, from the shared `_shiftOutProtocol()`) |
 | **relay** (as a named part) | ✓ | ✗ (no case) |
 | **neopixel (WS2812)** | ✓ | ✗ (no case) |
 | **lcd (HD44780 / char_lcd)** | ✓ | ✗ (no case; only OLED has a display driver) |
@@ -95,5 +96,5 @@ degrades to a bare `pass` or a variable assignment that a naive grep reads as
 "driver present". And the two stub mechanisms (`pass # <opcode>` and
 `degrade`/return-0) need BOTH be checked. The `case` list in
 `generateMicroPython` is the authority; the table above is read from it and
-spot-checked with valid programs (pin/pwm/tone/oled emit real drivers;
-servo/motor/shiftOut emit `pass # <opcode>`; analog read degrades to 0).
+spot-checked with valid programs (pin/pwm/tone/oled/shiftOut emit real drivers;
+servo/motor emit `pass # <opcode>`; analog read degrades to 0).
