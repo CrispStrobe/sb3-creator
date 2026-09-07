@@ -6,6 +6,7 @@
 // so a program pays only for the conversion code it calls.
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
+import {readFile} from 'node:fs/promises';
 import SB3Creator from '../src/utils/sb3Creator.js';
 
 const program = lines => [
@@ -125,4 +126,111 @@ test('say-for-seconds is refused by name instead of being mistaken for print plu
     assert.match(code, /No C emitted/);
     assert.match(code, /say for seconds is stage speech, not DOS terminal output/);
     assert.equal(warnings.length, 1);
+});
+
+for (const [name, lines] of Object.entries({
+    'direct string assignment': ['set value to "abc"', 'print value'],
+    'string assignment after print': ['print value', 'set value to "abc"'],
+    'join assigned before print': ['set value to ("a" join "b")', 'print value']
+})) {
+    test(`${name} makes the printed variable a named whole-program refusal`, () => {
+        const {code, warnings} = emit(program(lines));
+        assert.match(code, /No C emitted/);
+        assert.match(code, /variable "value" has a non-numeric set/);
+        assert.doesNotMatch(code, /bw_print_num/);
+        assert.ok(warnings.some(warning => /variable "value"/.test(warning)));
+    });
+}
+
+test('a string assignment in another script is still part of numeric provenance', () => {
+    const src = program(['print value']) + '\n\nWHEN flag clicked:\n  set value to "later"';
+    const {code, warnings} = emit(src);
+    assert.match(code, /No C emitted/);
+    assert.match(code, /variable "value" has a non-numeric set/);
+    assert.doesNotMatch(code, /bw_print_num/);
+    assert.ok(warnings.some(warning => /variable "value"/.test(warning)));
+});
+
+test('the x-assignment grammar ambiguity cannot turn a string into printed zero', () => {
+    const {code} = emit(program(['set x to "abc"', 'print x']));
+    assert.match(code, /No C emitted/);
+    assert.match(code, /variable "x" has a non-numeric set x/);
+    assert.doesNotMatch(code, /bw_print_num/);
+});
+
+test('a string-or-number procedure argument is refused until call-site provenance exists', () => {
+    const src = [
+        'DEVICE i8086',
+        'PIN led = P1.0 OUTPUT',
+        'DEFINE show (value):',
+        '  print value',
+        'WHEN flag clicked:',
+        '  show "abc"'
+    ].join('\n');
+    const {code, warnings} = emit(src);
+    assert.match(code, /No C emitted/);
+    assert.match(code, /argument_reporter_string_number/);
+    assert.doesNotMatch(code, /bw_print_num/);
+    assert.ok(warnings.some(warning => /argument_reporter_string_number/.test(warning)));
+});
+
+test('cross-variable provenance cycles remain refused while direct numeric self-updates are allowed', () => {
+    const cyclic = emit(program([
+        'set first to (second + 0)',
+        'set second to (first + 0)',
+        'print first'
+    ]));
+    assert.match(cyclic.code, /No C emitted/);
+    assert.match(cyclic.code, /cyclic value provenance/);
+    assert.doesNotMatch(cyclic.code, /bw_print_num/);
+
+    const selfUpdate = emit(program(['change value by 1', 'print value']));
+    assert.doesNotMatch(selfUpdate.code, /No C emitted/);
+    assert.match(selfUpdate.code, /bw_print_num\(value\)/);
+});
+
+test('a string written through a list cannot acquire numeric print provenance', () => {
+    const {code} = emit(program([
+        'add "abc" to readings',
+        'set value to (item (1) of readings)',
+        'print value'
+    ]));
+    assert.match(code, /No C emitted/);
+    assert.match(code, /non-numeric/, 'the dynamically string-valued list path must be named');
+    assert.doesNotMatch(code, /bw_print_num/);
+});
+
+const MEASURED_NUMERIC = [
+    'arduino-01-digital-read-serial',
+    'arduino-02-digital-input-pullup',
+    'arduino-02-state-change',
+    'arduino-03-smoothing',
+    'arduino-06-ping'
+];
+
+test('project-wide provenance preserves all five measured numeric print candidates', async () => {
+    for (const name of MEASURED_NUMERIC) {
+        const source = await readFile(new URL(`../examples/${name}/program.bw`, import.meta.url), 'utf8');
+        const retargeted = SB3Creator.retargetPseudocode(source, 'stc12c5a60s2');
+        assert.notEqual(retargeted && retargeted.ok, false, `${name}: retarget refused`);
+        const text = typeof retargeted === 'string' ? retargeted :
+            retargeted.pseudocode || retargeted.text || retargeted.source || retargeted.code;
+        const {code, warnings} = emit(text.replace(/^DEVICE .*$/m, 'DEVICE i8086'));
+        assert.doesNotMatch(code, /No C emitted/, `${name}: provenance narrowed measured reach`);
+        assert.match(code, /bw_print_num\(/, `${name}: numeric print call absent`);
+        assert.ok(!warnings.some(warning => /print helper|value provenance/.test(warning)),
+            `${name}: print provenance refused: ${warnings.join(' | ')}`);
+    }
+});
+
+test('project-wide provenance preserves the measured literal print candidate', async () => {
+    const name = 'arduino-sk-p11-crystal-ball';
+    const source = await readFile(new URL(`../examples/${name}/program.bw`, import.meta.url), 'utf8');
+    const retargeted = SB3Creator.retargetPseudocode(source, 'stc12c5a60s2');
+    assert.notEqual(retargeted && retargeted.ok, false, `${name}: retarget refused`);
+    const text = typeof retargeted === 'string' ? retargeted :
+        retargeted.pseudocode || retargeted.text || retargeted.source || retargeted.code;
+    const {code} = emit(text.replace(/^DEVICE .*$/m, 'DEVICE i8086'));
+    assert.doesNotMatch(code, /No C emitted/, `${name}: literal candidate narrowed`);
+    assert.match(code, /bw_puts\(/, `${name}: text print call absent`);
 });

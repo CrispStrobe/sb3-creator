@@ -7691,11 +7691,11 @@ class SB3Creator {
      *  The allow-list is the set of reporters this C back end actually lowers
      *  as numbers; nested inputs are checked too, so `1 + join(...)` cannot
      *  smuggle a string through an arithmetic parent. */
-    cI8086NumericPrint(input, blocks, seen = new Set()) {
+    cI8086NumericPrint(input, blocks, seen = new Set(), allowedSelf = null) {
         const inner = Array.isArray(input) ? input[1] : null;
         if (Array.isArray(inner)) {
             const type = inner[0];
-            if (type === 12) return {ok: true};           // scalar variable
+            if (type === 12) return this.cI8086NumericVariable(inner, seen, allowedSelf);
             if (type >= 4 && type <= 8 && Number.isFinite(Number(inner[1]))) return {ok: true};
             if (type === 10 && String(inner[1]).trim() !== '' && Number.isFinite(Number(inner[1]))) {
                 return {ok: true};
@@ -7707,13 +7707,131 @@ class SB3Creator {
         }
         if (seen.has(inner)) return {ok: false, reason: 'a cyclic reporter'};
         const block = blocks[inner];
+        if (block.opcode === 'data_itemoflist') {
+            const listResult = this.cI8086NumericList(block.fields && block.fields.LIST, seen, allowedSelf);
+            if (!listResult.ok) return listResult;
+            return this.cI8086NumericPrint(block.inputs && block.inputs.INDEX, blocks,
+                new Set(seen).add(inner), allowedSelf);
+        }
         if (!SB3Creator.C_I8086_NUMERIC_PRINT_REPORTERS.has(block.opcode)) {
             return {ok: false, reason: `${block.opcode} is string-valued or has no numeric C lowering`};
         }
         const nextSeen = new Set(seen).add(inner);
         for (const child of Object.values(block.inputs || {})) {
-            const result = this.cI8086NumericPrint(child, blocks, nextSeen);
+            const result = this.cI8086NumericPrint(child, blocks, nextSeen, allowedSelf);
             if (!result.ok) return result;
+        }
+        return {ok: true};
+    }
+
+    /** Lists are dynamically typed in Scratch but numeric arrays in the C
+     *  back end. Prove every initial item and every value-producing mutation
+     *  numeric before a list item contributes to a printed scalar. */
+    cI8086NumericList(field, seen, allowedSelf = null) {
+        const name = field ? String(field[0]) : '';
+        const id = field && field[1] != null ? String(field[1]) : null;
+        const token = `list:${id || name}`;
+        if (seen.has(token)) {
+            return token === allowedSelf ? {ok: true} :
+                {ok: false, reason: `list "${name}" has cyclic value provenance`};
+        }
+        const nextSeen = new Set(seen).add(token);
+        let initial;
+        let found = false;
+        const writes = [];
+        for (const target of (this.project && this.project.targets) || []) {
+            for (const [listId, value] of Object.entries(target.lists || {})) {
+                if ((id && listId === id) || (!id && value[0] === name)) {
+                    initial = value[1];
+                    found = true;
+                }
+            }
+            for (const block of Object.values(target.blocks || {})) {
+                const listField = block.fields && block.fields.LIST;
+                const listId = listField && listField[1] != null ? String(listField[1]) : null;
+                const listName = listField && String(listField[0]);
+                const inputName = block.opcode === 'data_replaceitemoflist' ? 'ITEM' :
+                    (block.opcode === 'data_addtolist' || block.opcode === 'data_insertatlist' ? 'ITEM' : null);
+                if (inputName && ((id && listId === id) || (!id && listName === name))) {
+                    writes.push({input: block.inputs && block.inputs[inputName], blocks: target.blocks,
+                        kind: block.opcode});
+                }
+            }
+        }
+        if (!found || !Array.isArray(initial)) {
+            return {ok: false, reason: `list "${name}" has unknown value provenance`};
+        }
+        for (const value of initial) {
+            if (String(value).trim() === '' || !Number.isFinite(Number(value))) {
+                return {ok: false, reason: `list "${name}" has a non-numeric initial item`};
+            }
+        }
+        for (const write of writes) {
+            const result = this.cI8086NumericPrint(write.input, write.blocks, nextSeen, token);
+            if (!result.ok) {
+                return {ok: false, reason: `list "${name}" has a non-numeric ${write.kind}: ${result.reason}`};
+            }
+        }
+        return {ok: true};
+    }
+
+    /** A printed Scratch scalar is numeric only when its initial value and
+     *  every write in every target/script are numeric. The scan is deliberately
+     *  independent of statement order: a string assignment after the print, or
+     *  in a second script, is still a possible run-time value. Variable ids are
+     *  authoritative; the name fallback covers hand-built/legacy projects.
+     *
+     *  `set x to ...` is parsed as Scratch motion's x assignment. If the same
+     *  loaded project also has a scalar called x, treat that ambiguous write as
+     *  provenance too; otherwise the source `set x to "abc"; print x` silently
+     *  drops the write and prints the scalar's default zero. */
+    cI8086NumericVariable(inner, seen, allowedSelf = null) {
+        const name = String(inner[1]);
+        const id = inner[2] === undefined || inner[2] === null ? null : String(inner[2]);
+        const token = `variable:${id || name}`;
+        if (seen.has(token)) {
+            return token === allowedSelf ? {ok: true} :
+                {ok: false, reason: `variable "${name}" has cyclic value provenance`};
+        }
+        const nextSeen = new Set(seen).add(token);
+        let initial;
+        let found = false;
+        const writes = [];
+        for (const target of (this.project && this.project.targets) || []) {
+            for (const [variableId, value] of Object.entries(target.variables || {})) {
+                if ((id && variableId === id) || (!id && value[0] === name)) {
+                    initial = value[1];
+                    found = true;
+                }
+            }
+            for (const block of Object.values(target.blocks || {})) {
+                const field = block.fields && block.fields.VARIABLE;
+                const fieldId = field && field[1] != null ? String(field[1]) : null;
+                const fieldName = field && String(field[0]);
+                if ((block.opcode === 'data_setvariableto' || block.opcode === 'data_changevariableby') &&
+                    ((id && fieldId === id) || (!id && fieldName === name))) {
+                    writes.push({input: block.inputs && block.inputs.VALUE, blocks: target.blocks,
+                        kind: block.opcode === 'data_setvariableto' ? 'set' : 'change'});
+                }
+                const ambiguous = (name === 'x' && block.opcode === 'motion_setx') ||
+                    (name === 'y' && block.opcode === 'motion_sety');
+                if (ambiguous) {
+                    writes.push({input: block.inputs && block.inputs[name.toUpperCase()],
+                        blocks: target.blocks, kind: `set ${name}`});
+                }
+            }
+        }
+        const n = Number(initial);
+        if (!found || String(initial).trim() === '' || !Number.isFinite(n)) {
+            return {ok: false, reason: `variable "${name}" has a non-numeric initial value`};
+        }
+        for (const write of writes) {
+            // A numeric update may read its own prior value. Keep only this
+            // one back-edge open; A -> B -> A remains a refused cycle.
+            const result = this.cI8086NumericPrint(write.input, write.blocks, nextSeen, token);
+            if (!result.ok) {
+                return {ok: false, reason: `variable "${name}" has a non-numeric ${write.kind}: ${result.reason}`};
+            }
         }
         return {ok: true};
     }
@@ -7755,7 +7873,7 @@ class SB3Creator {
         'bitops_and', 'bitops_or', 'bitops_xor', 'bitops_shl', 'bitops_shr', 'bitops_not',
         'stc12_read', 'stc12_readport', 'stc12_keypad', 'stc12_matrix_getpx',
         'stc12_tableindex', 'ledcube_readvoxel',
-        'argument_reporter_string_number', 'argument_reporter_boolean',
+        'argument_reporter_boolean',
         'devices_servoangle', 'devices_motorspeed', 'devices_motordirection',
         'devices_temperature', 'devices_light', 'devices_distance', 'devices_flex',
         'devices_force', 'devices_ircode', 'devices_devicestate', 'devices_pressed',
@@ -14705,6 +14823,21 @@ class SB3Creator {
             // each verb gains its 8086 bus, add it here (P2: shiftOut).
             const I8086_IMPLEMENTED = new Set(['shiftOut', 'delay', 'printText', 'printNumber']);
             const used = Object.keys(this._cUses).filter((k) => this._cUses[k] && !I8086_IMPLEMENTED.has(k));
+            // Report an unsafe print value before the broader feature choke.
+            // A second script may both poison the value provenance and use a
+            // still-unimplemented verb; the type-safety refusal is the cause
+            // that must remain visible rather than being masked by `used`.
+            if (this._cPrintRefused && this._cPrintRefused.length) {
+                const list = this._cPrintRefused.join(', ');
+                this.cWarn(`the 8086 C print helper accepts literal text or a signed-16 numeric expression; `
+                    + `${list} cannot use the numeric helper, so no C is emitted`);
+                return `/* No C emitted for DEVICE ${String(device || 'i8086').toUpperCase()}.\n`
+                    + ' *\n'
+                    + ' * The 8086 C print boundary accepts literal text or a signed-16 number.\n'
+                    + ` * This program supplies: ${list}.\n`
+                    + ' * String-valued and unknown reporters are refused instead of printing zero.\n'
+                    + ' */\n';
+            }
             if (used.length) {
                 this.cWarn(`the i8086 C back end emits 8255 pin I/O only for now — `
                     + `${used.join(', ')} ${used.length > 1 ? 'are' : 'is'} not emitted for this board; `
@@ -14716,17 +14849,6 @@ class SB3Creator {
                     + ' * Those have no i8086 C branch yet, and emitting the 8051 default for\n'
                     + ' * them would be wrong on an 8086. The pseudocode is unchanged; the ASM\n'
                     + ' * route supports more of them today.\n'
-                    + ' */\n';
-            }
-            if (this._cPrintRefused && this._cPrintRefused.length) {
-                const list = this._cPrintRefused.join(', ');
-                this.cWarn(`the 8086 C print helper accepts literal text or a signed-16 numeric expression; `
-                    + `${list} cannot use the numeric helper, so no C is emitted`);
-                return `/* No C emitted for DEVICE ${String(device || 'i8086').toUpperCase()}.\n`
-                    + ' *\n'
-                    + ' * The 8086 C print boundary accepts literal text or a signed-16 number.\n'
-                    + ` * This program supplies: ${list}.\n`
-                    + ' * String-valued and unknown reporters are refused instead of printing zero.\n'
                     + ' */\n';
             }
             // `bw_delay_ms` has one word-sized argument. Literals that do not
