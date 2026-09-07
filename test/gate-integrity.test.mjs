@@ -75,7 +75,12 @@ const WAIVED = new Map([
     ['test/block-lowering.test.mjs',
         'iterates DEVICES_NO_C, a WAIVER set. Its assertion is "nothing in this gap ' +
         'list already has a C lowering", so an empty set is the goal state, not a ' +
-        'blind spot. A floor here would forbid finishing the work.']
+        'blind spot. A floor here would forbid finishing the work.'],
+    ['test/micropython-stc-pins.test.mjs',
+        'iterates `used`, the _stc* names one fixed program\'s emit references, but ' +
+        'the line before the loop asserts the emit calls _stc12.readPin/setPin — so ' +
+        'an empty `used` fails there first (measured 2026-09-07: 2 names, _stc12 and ' +
+        '_stc12_pins; a floor of 2 would be the same fact stated twice).']
 ]);
 
 describe('gate integrity: a suite cannot skip itself into silence', () => {
