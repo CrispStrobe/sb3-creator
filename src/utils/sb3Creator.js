@@ -2320,9 +2320,20 @@ class SB3Creator {
         return null;
     }
 
+    // The 74HC595 PROTOCOL, written ONCE and shared by every backend — the C
+    // families (over _cShiftOutBus) and now generateMicroPython's Pico path (over
+    // _mpyShiftOutBus). MSB-first: latch low, then per bit {clock low, present the
+    // bit on DATA, shift, clock high}, then latch high. Each backend supplies only
+    // the bus that RENDERS these tokens; the SEQUENCE is not hand-typed a second
+    // time. `bits` is the loop count; `pre`/`post` bracket the loop.
+    _shiftOutProtocol() {
+        return {bits: 8, pre: 'latchLow', loop: ['clockLow', 'driveBit', 'shift', 'clockHigh'], post: 'latchHigh'};
+    }
+
     _cShiftOutHelper(core) {
         const bus = this._cShiftOutBus(core);
         if (!bus) return [];
+        const proto = this._shiftOutProtocol();
         const cm = (stmt, comment) => stmt + ' '.repeat(bus.commentCol - stmt.length) + comment;
         // The register families compute the bit once, then SET or CLR the pin;
         // a family whose bus spells out its own drive lines (the 8051) overrides.
@@ -2332,20 +2343,68 @@ class SB3Creator {
             '        if (bit) ' + bus.dataDrive.set + ';',
             '        else     ' + bus.dataDrive.clr + ';',
         ];
+        const render = (tok) => {
+            switch (tok) {
+            case 'latchLow':  return [cm(bus.latchLow,  '/* latch low */')];
+            case 'clockLow':  return [cm(bus.clockLow,  '/* clock low */')];
+            case 'driveBit':  return data;
+            case 'shift':     return ['        value <<= 1;'];
+            case 'clockHigh': return [cm(bus.clockHigh, '/* clock high — shift */')];
+            case 'latchHigh': return [cm(bus.latchHigh, '/* latch high — output */')];
+            default: return [];
+            }
+        };
         return [
             '/* 74HC595 shift-out: MSB first, rising-edge clock, latch pulse. */',
             ...bus.signature,
             '{',
             '    ' + bus.ctr + ' i;',
-            cm(bus.latchLow,  '/* latch low */'),
-            '    for (i = 0; i < 8; i++) {',
-            cm(bus.clockLow,  '/* clock low */'),
-            ...data,
-            '        value <<= 1;',
-            cm(bus.clockHigh, '/* clock high — shift */'),
+            ...render(proto.pre),
+            `    for (i = 0; i < ${proto.bits}; i++) {`,
+            ...proto.loop.flatMap(render),
             '    }',
-            cm(bus.latchHigh, '/* latch high — output */'),
+            ...render(proto.post),
             '}', '',
+        ];
+    }
+
+    // The MicroPython (Pico) shift-out driver, rendered from the SAME
+    // _shiftOutProtocol() the C helper uses — the sequence is not typed a second
+    // time; only the bus differs (machine.Pin .value() instead of SIO registers).
+    // Pins come in as machine.Pin objects; value is masked to a byte each shift so
+    // the MSB test matches C's uint8_t `value <<= 1`.
+    _mpyShiftOutHelper() {
+        const proto = this._shiftOutProtocol();
+        const bus = {
+            latchLow:  '    latch.value(0)',
+            clockLow:  '        clock.value(0)',
+            clockHigh: '        clock.value(1)',
+            latchHigh: '    latch.value(1)',
+            driveBit: [
+                '        bit = 1 if (value & 0x80) else 0',
+                '        if active_low: bit ^= 1',
+                '        data.value(bit)',
+            ],
+            shift: '        value = (value << 1) & 0xff',
+        };
+        const render = (tok) => {
+            switch (tok) {
+            case 'latchLow':  return [bus.latchLow];
+            case 'clockLow':  return [bus.clockLow];
+            case 'driveBit':  return bus.driveBit;
+            case 'shift':     return [bus.shift];
+            case 'clockHigh': return [bus.clockHigh];
+            case 'latchHigh': return [bus.latchHigh];
+            default: return [];
+            }
+        };
+        return [
+            'def _shift_out(data, clock, latch, active_low, value):',
+            '    # 74HC595 shift-out: MSB first, rising-edge clock, latch pulse.',
+            ...render(proto.pre),
+            `    for _ in range(${proto.bits}):`,
+            ...proto.loop.flatMap(render),
+            ...render(proto.post),
         ];
     }
 
@@ -9916,6 +9975,27 @@ class SB3Creator {
                 case 'devices_oledprint':
                     if (isPico) { uses.oled = true; return [`${pad}_oled_print(${v('TEXT')})`]; }
                     break;
+                // 74HC595 shift-out (plan P3 part 2): the Pico MicroPython driver,
+                // bit-banging data/clock/latch through machine.Pin from the SAME
+                // _shiftOutProtocol() the C helper renders — the gap the measurement
+                // named (stc12_setpart was a silent degrade on Pico). The three Pin
+                // objects are installed in the header (uses.shiftOutParts); a
+                // non-Pico target or a non-595 part falls through to the degrade.
+                case 'stc12_setpart': {
+                    if (!isPico) break;
+                    const partName = f('PART');
+                    const partCfg = this.project && this.project.stc
+                        && (this.project.stc.parts || []).find((p) => p.name.toLowerCase() === String(partName).toLowerCase());
+                    if (!partCfg || partCfg.type !== '74hc595') break;
+                    const dg = this.armHw(partCfg.data), cg = this.armHw(partCfg.clock), lg = this.armHw(partCfg.latch);
+                    if (!dg || !cg || !lg) { degrade(`${partName} has a PART pin that is not a Pico GP pin`); break; }
+                    uses.shiftOut = true;
+                    if (!uses.shiftOutParts) uses.shiftOutParts = new Map();
+                    uses.shiftOutParts.set(partCfg.name, {data: dg.gpio, clock: cg.gpio, latch: lg.gpio});
+                    const al = partCfg.activeLow ? 'True' : 'False';
+                    const px = `_pin_${partCfg.name}`;
+                    return [`${pad}_shift_out(${px}_data, ${px}_clock, ${px}_latch, ${al}, int(${v('VALUE')}))`];
+                }
                 default: {
                     // The Arrays & Vectors commands lower through the same
                     // reversible-op table the reporters already use, so the
@@ -10360,6 +10440,18 @@ class SB3Creator {
                 } else {
                     header.push(`${p.expr} = Pin(${p.gpio}, Pin.OUT)`);
                 }
+            }
+            // 74HC595 parts (plan P3 part 2): the three bus pins as outputs, then
+            // the shared-protocol driver once. Emitted only when a `set <part> to`
+            // actually ran (uses.shiftOutParts), so an unused declaration costs
+            // nothing — the same rule the declared pins above follow.
+            if (uses.shiftOutParts) {
+                for (const [name, gp] of uses.shiftOutParts) {
+                    header.push(`_pin_${name}_data = Pin(${gp.data}, Pin.OUT)`,
+                        `_pin_${name}_clock = Pin(${gp.clock}, Pin.OUT)`,
+                        `_pin_${name}_latch = Pin(${gp.latch}, Pin.OUT)`);
+                }
+                header.push('', ...this._mpyShiftOutHelper());
             }
             if (uses.oled) {
                 const sdaPin = [...pinMap.entries()].find(([n]) => n.toLowerCase() === 'sda');
