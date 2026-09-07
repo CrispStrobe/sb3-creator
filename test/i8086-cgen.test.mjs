@@ -17,6 +17,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
 import SB3Creator from '../src/utils/sb3Creator.js';
+import {corpusFloor} from './helpers/corpus-floor.mjs';
 
 const build = (src) => { const c = new SB3Creator(); c.parse(src); return c; };
 const cOf = (src) => build(src).generateC();
@@ -74,6 +75,9 @@ const TOGGLE_GOLDENS = Object.freeze({
     avr: ['ARDUINO-UNO', 'D13', '704419a1e1f7c9b7dfd416620f23e8344e3a27018982140c35d378b0565b8591'],
     arm: ['PICO', 'GP25', '962878552628d5390ec2748beea458d2e07d5fad58301b1cdf35d1281f0366a4']
 });
+corpusFloor('legacy device families protected by i8086 toggle byte goldens',
+    () => Object.keys(TOGGLE_GOLDENS).length, 4,
+    'Measured 2026-09-07: all four required non-i8086 families (6502, 8051, AVR, ARM) were present; losing one removes a preservation proof.');
 for (const [family, [device, pin, golden]] of Object.entries(TOGGLE_GOLDENS)) {
     test(`i8086 toggle branch preserves the pre-change ${family} C bytes`, () => {
         const code = cOf(`DEVICE ${device}\nPIN led = ${pin} OUTPUT ACTIVE LOW\nWHEN flag clicked:\n  toggle led\n`);
