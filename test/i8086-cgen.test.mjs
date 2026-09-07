@@ -101,3 +101,47 @@ test('i8086 pin-only programs still emit (the choke point does not over-refuse)'
     assert.doesNotMatch(c, /No C emitted/, 'a pin-only i8086 program must emit C, not be refused');
     assert.match(c, /int main\(void\)/, 'the emitted program should have a main');
 });
+
+// P2: shift_out is the SECOND verb the 8086 column implements (after pin). Its
+// protocol body is shared with avr/6502/arm/8051 (test/shiftout-golden.test.mjs
+// pins those byte-for-byte); here only the i8086 BUS — the 8255 shadows driven
+// through bw_outb — is asserted.
+const SHIFT_SRC = `DEVICE i8086
+PIN led = P1.0 OUTPUT
+PART sr = 74HC595 data P2.0 clock P2.1 latch P2.2
+
+WHEN flag clicked:
+  set sr to 128
+`;
+
+test('i8086 shift_out: emitted, not refused (it is an implemented verb now)', () => {
+    const c = cOf(SHIFT_SRC);
+    assert.doesNotMatch(c, /No C emitted/, 'shift_out on i8086 must emit — the choke exempts it');
+    assert.match(c, /static void shift_out\(unsigned char \*dsh, unsigned dport, unsigned dm,/,
+        'the i8086 shift_out helper takes (shadow*, port, mask) per pin');
+});
+
+test('i8086 shift_out: pins drive their 8255 port shadow through bw_outb', () => {
+    const c = cOf(SHIFT_SRC);
+    // data/clock/latch are P2.0/2.1/2.2 -> port B (0x61), masks 0x1/0x2/0x4.
+    assert.match(c, /shift_out\(&bw_port_b, 0x61u, 0x1u, &bw_port_b, 0x61u, 0x2u, &bw_port_b, 0x61u, 0x4u, 0, \(unsigned char\)\(128\)\);/,
+        'the call site passes each PART pin as its port-B shadow, I/O address and bit mask');
+    // The bus drives a pin by read-modify-write of the shadow, then OUT.
+    assert.match(c, /\*csh \|= cm; bw_outb\(cport, \*csh\);/, 'clock-high is a shadow-OR then bw_outb');
+    assert.match(c, /\*lsh &= \(unsigned char\)~lm; bw_outb\(lport, \*lsh\);/, 'latch-low is a shadow-AND-NOT then bw_outb');
+});
+
+test('i8086 shift_out: no byte-width parameters (they would force an 80386 MOVZX)', () => {
+    // SmallerC zero-extends a byte parameter read with MOVZX, which the 8086
+    // assembler rejects; the scalar params are `unsigned` for that reason.
+    const c = cOf(SHIFT_SRC);
+    const sig = c.slice(c.indexOf('static void shift_out'), c.indexOf('{', c.indexOf('static void shift_out')));
+    assert.doesNotMatch(sig, /unsigned char (dport|dm|cport|cm|lport|lm|activeLow|value)\b/,
+        'no scalar shift_out parameter may be unsigned char — only the shadow pointers are byte-wide');
+});
+
+test('i8086 shift_out: the 8255 control word is still written exactly once', () => {
+    const c = cOf(SHIFT_SRC);
+    const writes = (c.match(/bw_outb\(0x63u,/g) || []).length;
+    assert.equal(writes, 1, `control word written ${writes} times; must be once`);
+});

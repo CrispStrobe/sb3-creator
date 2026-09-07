@@ -2228,6 +2228,127 @@ class SB3Creator {
         return out;
     }
 
+    // ---- shift_out (74HC595): one PROTOCOL body over per-family BUS primitives.
+    //
+    // The device protocol — MSB-first, clock LOW/set-DATA/clock HIGH per bit,
+    // a latch pulse after the 8th bit — is the SAME on every family. Only the
+    // BUS differs: how a pin is driven (a port pointer+bit on AVR/6502, a SIO
+    // register on the RP2040, a bit-addressable SFR lvalue on the 8051, an 8255
+    // port through bw_outb on the 8086). Before P2 this whole function was
+    // hand-copied once per family; now the protocol is written once here and
+    // each family contributes only its bus. The emitted C is byte-for-byte the
+    // same as the old hand-written variants (test/shiftout-golden.test.mjs).
+    //
+    // _cShiftOutBus(core) returns the family's bus:
+    //   signature : the full `static void shift_out(...)` lines (the pin repr)
+    //   ctr       : the loop-counter type
+    //   commentCol: the column the trailing /* ... */ comments align to
+    //   latchLow/clockLow/clockHigh/latchHigh: the four indented pin statements
+    //   dataDrive : the bit-presentation lines, OR {set,clr} for the shared
+    //               register idiom (compute a bit, then SET or CLR the pin)
+    _cShiftOutBus(core) {
+        if (core === 'avr' || core === '6502') {
+            // AVR and 6502 share the same pointer+bit signature.
+            return {
+                signature: ['static void shift_out(volatile uint8_t *dp, uint8_t db,',
+                    '                      volatile uint8_t *cp, uint8_t cb,',
+                    '                      volatile uint8_t *lp, uint8_t lb,',
+                    '                      uint8_t activeLow, uint8_t value)'],
+                ctr: 'uint8_t', commentCol: 51,
+                latchLow:  '    *lp &= (uint8_t)~(1 << lb);',
+                clockLow:  '        *cp &= (uint8_t)~(1 << cb);',
+                clockHigh: '        *cp |= (uint8_t)(1 << cb);',
+                latchHigh: '    *lp |= (uint8_t)(1 << lb);',
+                dataDrive: {set: '*dp |= (uint8_t)(1 << db)', clr: '*dp &= (uint8_t)~(1 << db)'},
+            };
+        }
+        if (core === 'arm') {
+            return {
+                signature: ['static void shift_out(uint8_t data_gpio, uint8_t clock_gpio, uint8_t latch_gpio,',
+                    '                      uint8_t activeLow, uint8_t value)'],
+                ctr: 'uint8_t', commentCol: 51,
+                latchLow:  '    BW_SIO_GPIO_OUT_CLR = (1UL << latch_gpio);',
+                clockLow:  '        BW_SIO_GPIO_OUT_CLR = (1UL << clock_gpio);',
+                clockHigh: '        BW_SIO_GPIO_OUT_SET = (1UL << clock_gpio);',
+                latchHigh: '    BW_SIO_GPIO_OUT_SET = (1UL << latch_gpio);',
+                dataDrive: {set: 'BW_SIO_GPIO_OUT_SET = (1UL << data_gpio)', clr: 'BW_SIO_GPIO_OUT_CLR = (1UL << data_gpio)'},
+            };
+        }
+        if (core === '8051') {
+            // The 8051 has bit-addressable SFR lvalues: simpler signature, and
+            // the data pin is written directly, so its bus supplies the drive.
+            return {
+                signature: ['static void shift_out(__sbit data_pin, __sbit clock_pin, __sbit latch_pin,',
+                    '                      unsigned char activeLow, unsigned char value)'],
+                ctr: 'unsigned char', commentCol: 52,
+                latchLow:  '    latch_pin = 0;',
+                clockLow:  '        clock_pin = 0;',
+                clockHigh: '        clock_pin = 1;',
+                latchHigh: '    latch_pin = 1;',
+                dataDrive: ['        if (activeLow) data_pin = !(value & 0x80);',
+                    '        else           data_pin =  (value & 0x80) ? 1 : 0;'],
+            };
+        }
+        if (core === 'i8086') {
+            // The 8255 output latch is write-only, so each pin is a
+            // read-modify-write of its port shadow, then an OUT via bw_outb —
+            // the same discipline cSetPin emits inline for a lone pin, here
+            // over three pins passed as (shadow*, port, mask). The C route
+            // (compileC8086) supplies bw_outb's asm body. No stdint on the
+            // 8086 back end, so the counter and bit temp are unsigned char.
+            // Scalar params are `unsigned` (word), not `unsigned char`: reading
+            // a byte parameter makes SmallerC emit MOVZX, an 80386 instruction
+            // the 8086 assembler rejects. Word params read with a plain MOV, and
+            // the values are small (masks) or only ever tested at bit 7 (value),
+            // so widening changes no result. Only the shadow pointers stay byte.
+            return {
+                signature: ['static void shift_out(unsigned char *dsh, unsigned dport, unsigned dm,',
+                    '                      unsigned char *csh, unsigned cport, unsigned cm,',
+                    '                      unsigned char *lsh, unsigned lport, unsigned lm,',
+                    '                      unsigned activeLow, unsigned value)'],
+                ctr: 'unsigned', commentCol: 59,
+                latchLow:  '    *lsh &= (unsigned char)~lm; bw_outb(lport, *lsh);',
+                clockLow:  '        *csh &= (unsigned char)~cm; bw_outb(cport, *csh);',
+                clockHigh: '        *csh |= cm; bw_outb(cport, *csh);',
+                latchHigh: '    *lsh |= lm; bw_outb(lport, *lsh);',
+                dataDrive: ['        unsigned bit = (value & 0x80) ? 1 : 0;',
+                    '        if (activeLow) bit = !bit;',
+                    '        if (bit) { *dsh |= dm; bw_outb(dport, *dsh); }',
+                    '        else     { *dsh &= (unsigned char)~dm; bw_outb(dport, *dsh); }'],
+            };
+        }
+        return null;
+    }
+
+    _cShiftOutHelper(core) {
+        const bus = this._cShiftOutBus(core);
+        if (!bus) return [];
+        const cm = (stmt, comment) => stmt + ' '.repeat(bus.commentCol - stmt.length) + comment;
+        // The register families compute the bit once, then SET or CLR the pin;
+        // a family whose bus spells out its own drive lines (the 8051) overrides.
+        const data = Array.isArray(bus.dataDrive) ? bus.dataDrive : [
+            '        uint8_t bit = (value & 0x80) ? 1 : 0;',
+            '        if (activeLow) bit = !bit;',
+            '        if (bit) ' + bus.dataDrive.set + ';',
+            '        else     ' + bus.dataDrive.clr + ';',
+        ];
+        return [
+            '/* 74HC595 shift-out: MSB first, rising-edge clock, latch pulse. */',
+            ...bus.signature,
+            '{',
+            '    ' + bus.ctr + ' i;',
+            cm(bus.latchLow,  '/* latch low */'),
+            '    for (i = 0; i < 8; i++) {',
+            cm(bus.clockLow,  '/* clock low */'),
+            ...data,
+            '        value <<= 1;',
+            cm(bus.clockHigh, '/* clock high — shift */'),
+            '    }',
+            cm(bus.latchHigh, '/* latch high — output */'),
+            '}', '',
+        ];
+    }
+
     // The drawing verbs for each screen: plain frame-buffer writes the ISR
     // scans. Emitted AFTER bw_now, BEFORE the tables (matching the reference).
     _cMatrixHelpers() {
@@ -7994,6 +8115,17 @@ class SB3Creator {
                     if (!dh || !ch || !lh) return line(`/* set ${this.cComment(part)} — bad PART pin */`);
                     return line(`shift_out(&BW_VIA_OR${dh.port}, ${dh.bit}, &BW_VIA_OR${ch.port}, ${ch.bit}, &BW_VIA_OR${lh.port}, ${lh.bit}, ${al}, ${val});`);
                 }
+                if (this._core === 'i8086') {
+                    // Each PART pin -> its 8255 port shadow, I/O address, and bit
+                    // mask (the same i8255Hw mapping the pin verbs use).
+                    const dh = this.i8255Hw(data), ch = this.i8255Hw(clock), lh = this.i8255Hw(latch);
+                    if (!dh || !ch || !lh) {
+                        this.cWarn(`"${part}" has a PART pin outside the 8255 ports (P1-P3) — not emitted`);
+                        return line(`/* set ${this.cComment(part)} — PART pin not on an 8255 port */`);
+                    }
+                    const arg = (h) => `&bw_port_${h.letter}, 0x${h.addr.toString(16)}u, 0x${h.mask.toString(16)}u`;
+                    return line(`shift_out(${arg(dh)}, ${arg(ch)}, ${arg(lh)}, ${al}, ${val});`);
+                }
                 // 8051: SFR bit lvalues
                 return line(`shift_out(P${data.port}_${data.bit}, P${clock.port}_${clock.bit}, P${latch.port}_${latch.bit}, ${al}, ${val});`);
             }
@@ -11887,46 +12019,12 @@ class SB3Creator {
         // The activeLow param inverts the DATA line only (common-cathode vs
         // common-anode LED arrays). Edge order: clock LOW, set DATA, clock HIGH.
         // Latch pulse after the 8th bit makes the shift register output visible.
-        if (this._cUses.shiftOut && (this._core === 'avr' || this._core === '6502')) {
-            // AVR and 6502 share the same pointer+bit signature.
-            out.push('/* 74HC595 shift-out: MSB first, rising-edge clock, latch pulse. */',
-                'static void shift_out(volatile uint8_t *dp, uint8_t db,',
-                '                      volatile uint8_t *cp, uint8_t cb,',
-                '                      volatile uint8_t *lp, uint8_t lb,',
-                '                      uint8_t activeLow, uint8_t value)',
-                '{',
-                '    uint8_t i;',
-                '    *lp &= (uint8_t)~(1 << lb);                    /* latch low */',
-                '    for (i = 0; i < 8; i++) {',
-                '        *cp &= (uint8_t)~(1 << cb);                /* clock low */',
-                '        uint8_t bit = (value & 0x80) ? 1 : 0;',
-                '        if (activeLow) bit = !bit;',
-                '        if (bit) *dp |= (uint8_t)(1 << db);',
-                '        else     *dp &= (uint8_t)~(1 << db);',
-                '        value <<= 1;',
-                '        *cp |= (uint8_t)(1 << cb);                 /* clock high — shift */',
-                '    }',
-                '    *lp |= (uint8_t)(1 << lb);                     /* latch high — output */',
-                '}', '');
-        }
-        if (this._cUses.shiftOut && this._core === 'arm') {
-            out.push('/* 74HC595 shift-out: MSB first, rising-edge clock, latch pulse. */',
-                'static void shift_out(uint8_t data_gpio, uint8_t clock_gpio, uint8_t latch_gpio,',
-                '                      uint8_t activeLow, uint8_t value)',
-                '{',
-                '    uint8_t i;',
-                '    BW_SIO_GPIO_OUT_CLR = (1UL << latch_gpio);     /* latch low */',
-                '    for (i = 0; i < 8; i++) {',
-                '        BW_SIO_GPIO_OUT_CLR = (1UL << clock_gpio); /* clock low */',
-                '        uint8_t bit = (value & 0x80) ? 1 : 0;',
-                '        if (activeLow) bit = !bit;',
-                '        if (bit) BW_SIO_GPIO_OUT_SET = (1UL << data_gpio);',
-                '        else     BW_SIO_GPIO_OUT_CLR = (1UL << data_gpio);',
-                '        value <<= 1;',
-                '        BW_SIO_GPIO_OUT_SET = (1UL << clock_gpio); /* clock high — shift */',
-                '    }',
-                '    BW_SIO_GPIO_OUT_SET = (1UL << latch_gpio);     /* latch high — output */',
-                '}', '');
+        // Protocol/bus split (P2): one shift_out protocol, per-family bus. The
+        // avr/6502/arm variants emit HERE (before the matrix helpers), exactly
+        // where they always did; the 8051 variant emits below, after them, so
+        // no program's byte output moves.
+        if (this._cUses.shiftOut && (this._core === 'avr' || this._core === '6502' || this._core === 'arm' || this._core === 'i8086')) {
+            out.push(...this._cShiftOutHelper(this._core));
         }
         // MATRIX8X8 drawing helpers — after bw_now, before the tables (reference
         // order). Emitted for any declared screen, verb-used or not, like the ref.
@@ -11955,23 +12053,10 @@ class SB3Creator {
                 out.push('    return -1;', '}', '');
             }
         }
+        // 8051 shift_out (protocol/bus split, P2) — emitted here, after the
+        // matrix/keypad helpers, exactly where the hand-written 8051 variant was.
         if (this._cUses.shiftOut && this._core === '8051') {
-            // The 8051 has bit-addressable SFR lvalues: simpler signature.
-            out.push('/* 74HC595 shift-out: MSB first, rising-edge clock, latch pulse. */',
-                'static void shift_out(__sbit data_pin, __sbit clock_pin, __sbit latch_pin,',
-                '                      unsigned char activeLow, unsigned char value)',
-                '{',
-                '    unsigned char i;',
-                '    latch_pin = 0;                                  /* latch low */',
-                '    for (i = 0; i < 8; i++) {',
-                '        clock_pin = 0;                              /* clock low */',
-                '        if (activeLow) data_pin = !(value & 0x80);',
-                '        else           data_pin =  (value & 0x80) ? 1 : 0;',
-                '        value <<= 1;',
-                '        clock_pin = 1;                              /* clock high — shift */',
-                '    }',
-                '    latch_pin = 1;                                  /* latch high — output */',
-                '}', '');
+            out.push(...this._cShiftOutHelper(this._core));
         }
         if (this._cUses.adc && this._core === 'avr' && this._cMega) {
             out.push('/* 10-bit ADC, polled, AVcc reference. The Mega has 16 channels;',
@@ -14458,7 +14543,10 @@ class SB3Creator {
         // than ship that. This is the one choke point that keeps the i8086 gap
         // map honest without an i8086 refusal at all nineteen verb sites.
         if (this._core === 'i8086') {
-            const used = Object.keys(this._cUses).filter((k) => this._cUses[k]);
+            // Verbs with a real i8086 C branch are NOT a reason to refuse. As
+            // each verb gains its 8086 bus, add it here (P2: shiftOut).
+            const I8086_IMPLEMENTED = new Set(['shiftOut']);
+            const used = Object.keys(this._cUses).filter((k) => this._cUses[k] && !I8086_IMPLEMENTED.has(k));
             if (used.length) {
                 this.cWarn(`the i8086 C back end emits 8255 pin I/O only for now — `
                     + `${used.join(', ')} ${used.length > 1 ? 'are' : 'is'} not emitted for this board; `
