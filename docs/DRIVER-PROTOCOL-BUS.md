@@ -23,36 +23,48 @@ protocol line that appears in two or more of a verb's family variants.
 
 | verb | family variants | protocol lines | bus lines | duplicated protocol |
 |---|---|---|---|---|
-| motor | 4 | 74 | 18 | **40** |
+| motor | 4 | 74 | 18 | **46**† |
 | tone | 3 | 39 | 2 | **27** |
 | servo | 6 | 57 | 7 | **23** |
 | shiftOut | 4 (3 bodies) | 28 | 23 | **17** |
 | adc | 5 | 35 | 8 | **10** |
 
-The multi-variant verbs alone carry **117 duplicated protocol lines** by this
-classification — a device sequence hand-copied across families, kept in sync by
-hand.
+† motor was first estimated at 40 by the block-matching sweep, which counted a
+collision-check block (it also matches `_cUses.motor &&`) and MISSED the 8051
+driver (its branch is an `else if (this._cUses.motor)` with no `&& _core`).
+Measured on the four REAL driver blocks after the split, the strict
+byte-for-byte duplication is **46** copies (15 lines identical across all four
+families — both getters, the speed clamp/store, the dir store/switch skeleton,
+the two statics). The refinement raises the multi-variant floor, it does not
+lower it.
+
+The multi-variant verbs alone carry **123 duplicated protocol lines** by this
+classification (the table's last column, with the refined motor row) — a device
+sequence hand-copied across families, kept in sync by hand.
 
 Two methods, so the number is not cherry-picked:
 
-- **Strict floor — 79 lines.** Count only lines that are *byte-for-byte
-  identical* across two or more of a verb's family helper blocks (no
-  classification, no judgement). Bus lines name different registers per family
-  and so are almost never identical, which makes this a lower bound on
-  duplicated protocol. Across all helper defs: **79** identical copies.
-- **Protocol-classified — 117 lines.** Classify each line bus/protocol (the
+- **Strict floor — 79 lines (sweep) / higher per verb.** Count only lines that
+  are *byte-for-byte identical* across two or more of a verb's family helper
+  blocks (no classification, no judgement). Bus lines name different registers
+  per family and so are almost never identical, which makes this a lower bound.
+  The whole-corpus sweep found **79** identical copies — but that sweep's block
+  matcher both over- and under-counts per verb (see the motor footnote), so the
+  precise per-verb figures measured at conversion time run higher (shiftOut and
+  motor together already account for 46 + 17 by exact block diff).
+- **Protocol-classified — 123 lines.** Classify each line bus/protocol (the
   rule above), then count protocol lines that recur across family blocks — this
   catches near-copies that differ only in whitespace or a comment but are the
-  same protocol step. Broken down in the table: **117**.
+  same protocol step. Broken down in the table.
 
-So the duplicated-protocol figure is **79–117** depending on how strictly you
+So the duplicated-protocol figure is **~80–123** depending on how strictly you
 count; both are the same story. The single-family verbs (relay, neopixel, lcd,
 oled, tft, matrix, sevenseg, ledbank, cube, keypad, sensor, ultrasonic — all
 8051-only today) have no cross-family duplication yet, but every one is a driver
 that will be copied the first time it gains a second family. That is the
 recurring cost P2 removes.
 
-**The number is the case FOR P2**: 79–117 duplicated lines is not a rounding
+**The number is the case FOR P2**: ~80–123 duplicated lines is not a rounding
 error, and it grows with every family × verb the matrix opens. Splitting
 protocol from bus turns "add a family to a verb" from "re-copy the driver" into
 "add one bus primitive", and "add a verb to a family" into "write the protocol
@@ -98,3 +110,28 @@ primitives, the whole-port writes); those follow the same protocol/bus shape and
 are folded in as each verb is converted. shift_out is converted here as the
 pattern; the rest follow verb by verb, each gated by the same golden test so no
 emitted byte moves until a family is deliberately added.
+
+## Landed, verb by verb (largest duplication first)
+
+Each verb is split on its own commit: one protocol body over per-family bus,
+a golden test pinning every existing family's pre-refactor bytes, and an i8086
+bus variant ONLY where the 8086 has the primitive and the DOS bench has the part
+to prove it. The parts matrix count moves only when a cell is proved on the bench.
+
+- **shiftOut** — done. One protocol (MSB-first shift + latch) over four bus
+  primitives (avr/6502/arm/8051), byte-identical; the i8086 bus added on top
+  through `bw_outb`, so shiftOut is the second i8086 cell and the matrix moved
+  56 → 57. Bench differential reconstructs the transmitted byte at each clock
+  edge. (`test/shiftout-golden.test.mjs`, `test/i8086-cgen.test.mjs`.)
+- **motor** — done (this commit). The L293D driver — `bw_motor_speed`,
+  `bw_motor_get_speed`, `bw_motor_dir`, `bw_motor_get_dir` — becomes one protocol
+  body over four bus primitives (arm, avr-Mega, avr-Uno, 8051). The two getters
+  are byte-identical everywhere; speed differs only in the PWM pin it hands to
+  `pwm_set`; dir differs only in how IN1/IN2 are set up and driven. Byte-identical
+  for all four (`test/motor-golden.test.mjs`); the shared protocol body is written
+  once instead of four times (≈23 lines × 3 copies removed; net −17 source lines
+  after the four bus descriptors). **No i8086 cell**: motor needs a PWM source and
+  an H-bridge, and the 8086 back end has neither a `pwm_set` primitive nor a bench
+  part (the only "motor" on the DOS bench is the floppy spindle on the UPD765,
+  unrelated) — so motor stays a measured gap in the 8086 column, not a promise.
+- **tone** — next (27 duplicated lines, 3 variants).
