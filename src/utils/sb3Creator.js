@@ -555,6 +555,20 @@ class SB3Creator {
     // The host supplies `bwBoard`; with none attached the driver stays neutral, so the program
     // still runs standalone.
     stc12SimulatorDriver(lang, pins) {
+        // TONE IS SILENT ON THIS TARGET, AND THE PROGRAM MUST SAY SO.
+        // `set <buzzer> to N hz` emits `_board().setTone(...)`, and the simulated
+        // boards this driver speaks to do not define setTone — they offer a
+        // buzzerTone() READER that measures a square wave the circuit already
+        // carries. So a TONE pin on the 8051 (and on the Pico) produces nothing,
+        // and the compiled-C path agrees: tone_set is emitted only for AVR.
+        // Measured on brickwright-lite's 07-buzzer-siren, where the referee shows
+        // nine tone events and the board never hears one.
+        if (pins.some(p => p.direction === 'tone')) {
+            this.warnings.push(
+                'This program drives a TONE pin, and tone has no driver on the 8051 or the Pico: ' +
+                'it is SILENT here, with no error. Only the Arduino/AVR build makes sound. ' +
+                'Nothing is broken in your program.');
+        }
         const table = {};
         for (const p of pins) {
             // 8051 pins are spelled P<port>.<bit>; board-class devices
@@ -620,7 +634,12 @@ class SB3Creator {
                 '        if p and _board(): _board().setPwm(p["pin"], int(value))',
                 '    def setTone(self, name, value):',
                 '        p = self._p(name)',
-                '        if p and _board(): _board().setTone(p["pin"], int(value))',
+                // Guarded like the JS driver below. Unguarded this raised
+                // AttributeError on a board with no setTone, while the JS driver
+                // skipped silently — the same program was silent in one language
+                // and a crash in the other.
+                '        b = _board()',
+                '        if p and b and hasattr(b, "setTone"): b.setTone(p["pin"], int(value))',
                 '    def setPort(self, name, value): pass  # TODO: whole-port sim',
                 '    def readPort(self, name): return 0  # TODO: whole-port sim',
                 '    def setPart(self, name, value): pass  # TODO: shift-register sim',
