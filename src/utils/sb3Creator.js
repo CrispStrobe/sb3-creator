@@ -555,19 +555,24 @@ class SB3Creator {
     // The host supplies `bwBoard`; with none attached the driver stays neutral, so the program
     // still runs standalone.
     stc12SimulatorDriver(lang, pins) {
-        // TONE IS SILENT ON THIS TARGET, AND THE PROGRAM MUST SAY SO.
-        // `set <buzzer> to N hz` emits `_board().setTone(...)`, and the simulated
-        // boards this driver speaks to do not define setTone — they offer a
-        // buzzerTone() READER that measures a square wave the circuit already
-        // carries. So a TONE pin on the 8051 (and on the Pico) produces nothing,
-        // and the compiled-C path agrees: tone_set is emitted only for AVR.
+        // A TONE PIN HAS TWO DIFFERENT ANSWERS, AND THE PROGRAM MUST SAY WHICH.
+        // `set <buzzer> to N hz` emits `_board().setTone(...)`. Originally no
+        // board defined setTone at all, so every target was silent; bw-board now
+        // implements it and matches the pin by name, so the SIMULATOR sounds on
+        // any family that can declare a TONE pin — 8051, AVR, RP2040, STM32.
+        // The COMPILED path did not change and still disagrees: this emitter
+        // produces tone_set only when the core is AVR (asserted by
+        // test/tone-gap-is-stated.test.mjs, which fails the day that stops being
+        // true). So the same program sounds in simulation and is silent on real
+        // 8051 or Pico hardware, and only the warning can tell the two apart.
         // Measured on brickwright-lite's 07-buzzer-siren, where the referee shows
-        // nine tone events and the board never hears one.
+        // nine tone events on schedule.
         if (pins.some(p => p.direction === 'tone')) {
             this.warnings.push(
-                'This program drives a TONE pin, and tone has no driver on the 8051 or the Pico: ' +
-                'it is SILENT here, with no error. Only the Arduino/AVR build makes sound. ' +
-                'Nothing is broken in your program.');
+                'This program drives a TONE pin. In the simulator it sounds, on this and every ' +
+                'other target, provided the attached board implements setTone. The COMPILED ' +
+                'firmware is a different answer: only the Arduino/AVR build emits tone code, so ' +
+                'real 8051 or Pico hardware stays SILENT. Nothing is broken in your program.');
         }
         const table = {};
         for (const p of pins) {
@@ -602,6 +607,8 @@ class SB3Creator {
                 '# _stc12 driver — simulated board (boundary A). Supply `bw_board` to attach one.',
                 'import json',
                 `_stc12_pins = json.loads(${this.pyStr(json)})`,
+                // Same one-shot notice as the JS driver: the two must fail alike.
+                '_bw_tone_unsupported = False',
                 'class _Stc12Simulated:',
                 '    def _p(self, name): return _stc12_pins.get(name)',
                 '    def _mode(self, p): return "pushpull" if p["dir"] == "output" else ("input" if p["dir"] == "analog" else ("quasi" if p.get("q") else ("input-pullup" if p["low"] else "input-pulldown")))',
@@ -639,7 +646,15 @@ class SB3Creator {
                 // skipped silently — the same program was silent in one language
                 // and a crash in the other.
                 '        b = _board()',
-                '        if p and b and hasattr(b, "setTone"): b.setTone(p["pin"], int(value))',
+                '        if not p or not b: return',
+                '        if not hasattr(b, "setTone"):',
+                '            global _bw_tone_unsupported',
+                '            if not _bw_tone_unsupported:',
+                '                _bw_tone_unsupported = True',
+                '                print("TONE: this board has no setTone(), so the buzzer stays "',
+                '                      "silent. The program is fine; the board predates tone support.")',
+                '            return',
+                '        b.setTone(p["pin"], int(value))',
                 '    def setPort(self, name, value): pass  # TODO: whole-port sim',
                 '    def readPort(self, name): return 0  # TODO: whole-port sim',
                 '    def setPart(self, name, value): pass  # TODO: shift-register sim',
@@ -696,6 +711,9 @@ class SB3Creator {
             '    for (const k in _stc12_pins) { const p = _stc12_pins[k]; const m = _mod(p);',
             '        if (p.dir !== "output") b.setPin(p.pin, m, m === "quasi"); } };',
             'const _board = () => { const b = (typeof bwBoard !== "undefined" ? bwBoard : null); _bw_arm(b); return b; };',
+            // A board too old to sound a tone is the reason a CORRECT program is
+            // silent, and silence alone can never say that. Said once, not per note.
+            'let _bw_toneUnsupported = false;',
             'const _stc12 = {',
             '    setPin: (name, st) => { const p = _stc12_pins[name], b = _board();',
             '        if (p && b) b.setPin(p.pin, _mod(p), _drv(p, st)); },',
@@ -716,7 +734,12 @@ class SB3Creator {
             '    setPwm: (name, v) => { const p = _stc12_pins[name], b = _board();',
             '        if (p && b && b.setPwm) b.setPwm(p.pin, Number(v)); },',
             '    setTone: (name, v) => { const p = _stc12_pins[name], b = _board();',
-            '        if (p && b && b.setTone) b.setTone(p.pin, Number(v)); },',
+            '        if (!p || !b) return;',
+            '        if (!b.setTone) { if (!_bw_toneUnsupported) { _bw_toneUnsupported = true;',
+            '            console.warn("TONE: this board has no setTone(), so the buzzer stays "',
+            '                + "silent. The program is fine; the board predates tone support."); }',
+            '            return; }',
+            '        b.setTone(p.pin, Number(v)); },',
             '    setPort: (name, v) => {},',  // TODO: whole-port sim
             '    readPort: (name) => 0,',     // TODO: whole-port sim
             '    setPart: (name, v) => {},',   // TODO: shift-register sim
