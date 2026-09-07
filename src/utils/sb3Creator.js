@@ -8338,6 +8338,16 @@ class SB3Creator {
                     const bit = this.z80Hw(this.cPin(f('PIN')));
                     return line(`_z80_sh ^= (uint8_t)(1 << ${bit}); BW_PORT_OUT = _z80_sh;`);
                 }
+                if (this._core === 'i8086') {
+                    // The 8255 output latch is write-only. Toggle the shadow,
+                    // then publish that byte through the same bw_outb boundary
+                    // as turn-on/off. XOR toggles the logical state for both
+                    // active-high and active-low pins.
+                    const hw = this.i8255Hw(this.cPin(f('PIN')));
+                    const sh = `bw_port_${hw.letter}`;
+                    return line(`${sh} ^= 0x${hw.mask.toString(16)}u; `
+                        + `bw_outb(0x${hw.addr.toString(16)}u, ${sh});`);
+                }
                 return line(`${sfr} = !${sfr};`);
             }
             case 'stc12_setpwm': {

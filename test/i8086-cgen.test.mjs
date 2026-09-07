@@ -15,6 +15,7 @@
 // 8086 board (STC_PARTS.i8086), which is why the pin surface is shared.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import {createHash} from 'node:crypto';
 import SB3Creator from '../src/utils/sb3Creator.js';
 
 const build = (src) => { const c = new SB3Creator(); c.parse(src); return c; };
@@ -45,6 +46,41 @@ test('i8086 pin: set high/low is a shadow read-modify-write then OUT to the port
     // P2.3 low (turn off): AND the inverted mask (0xf7) into the port B shadow.
     assert.match(c, /bw_port_b &= 0xf7u; bw_outb\(0x61u, bw_port_b\);/, 'set-low is not shadow-AND then OUT to port B');
 });
+
+test('i8086 pin: toggle XORs the 8255 shadow then writes it, including active-low pins', () => {
+    const c = cOf(`DEVICE i8086
+PIN led = P1.0 OUTPUT ACTIVE LOW
+PIN relay = P2.3 OUTPUT
+PIN lamp = P3.7 OUTPUT
+
+WHEN flag clicked:
+  toggle led
+  toggle relay
+  toggle lamp
+`);
+    assert.match(c, /bw_port_a \^= 0x1u; bw_outb\(0x60u, bw_port_a\);/,
+        'toggle is not shadow-XOR then OUT to port A');
+    assert.match(c, /bw_port_b \^= 0x8u; bw_outb\(0x61u, bw_port_b\);/,
+        'toggle hard-coded the port-A address or P1.0 mask instead of mapping port B');
+    assert.match(c, /bw_port_c \^= 0x80u; bw_outb\(0x62u, bw_port_c\);/,
+        'toggle hard-coded the port-A address or P1.0 mask instead of mapping port C');
+    assert.doesNotMatch(c, /BW_I8255:/,
+        'the non-lvalue sentinel escaped because the i8086 toggle branch was skipped');
+});
+
+const TOGGLE_GOLDENS = Object.freeze({
+    '6502': ['EATER6502', 'PA0', '63c561bdbaa8e48b0a6f8b49f2f26fa073535aa889822a2cad472e82ad633900'],
+    '8051': ['STC12C5A60S2', 'P1.0', 'ce69b29a216c4bde14ca670d3074d9ac9477cd262165d8cbdddcf93694e1e66b'],
+    avr: ['ARDUINO-UNO', 'D13', '704419a1e1f7c9b7dfd416620f23e8344e3a27018982140c35d378b0565b8591'],
+    arm: ['PICO', 'GP25', '962878552628d5390ec2748beea458d2e07d5fad58301b1cdf35d1281f0366a4']
+});
+for (const [family, [device, pin, golden]] of Object.entries(TOGGLE_GOLDENS)) {
+    test(`i8086 toggle branch preserves the pre-change ${family} C bytes`, () => {
+        const code = cOf(`DEVICE ${device}\nPIN led = ${pin} OUTPUT ACTIVE LOW\nWHEN flag clicked:\n  toggle led\n`);
+        assert.equal(createHash('sha256').update(code).digest('hex'), golden,
+            `${family} toggle emission moved while adding the i8086-only branch`);
+    });
+}
 
 test('i8086 pin: the 8255 control word is written exactly once, at init', () => {
     const c = cOf(OUT_PINS);
