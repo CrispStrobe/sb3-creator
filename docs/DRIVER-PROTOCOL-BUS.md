@@ -170,5 +170,54 @@ to prove it. The parts matrix count moves only when a cell is proved on the benc
 - **tone** — SKIPPED, not a split candidate: one real body (avr); 8051 and arm
   are stubs, 6502 refused (see the § footnote). A byte-identical golden over one
   body against two do-nothing stubs proves nothing.
-- **adc** — next real candidate (10 duplicated lines; avr/arm implement, 6502
-  refuses).
+- **adc** — MEASURED, left unsplit. Its five bodies (avr, avr-Mega, arm,
+  arm-STM32, 8051) are entirely different silicon ADCs; strict byte-identical
+  duplication is 15 copies, but 3 are just the `static long adc_read(unsigned
+  char channel)` signature and its braces shared across all five, and the rest a
+  small avr∩avr-Mega overlap (the `ADCSRA`-start/poll/`return ADC` lines). A
+  split would be scaffolding over ~6 real dedup lines — under the line by the
+  "earns it by duplication, not by shrinking" rule. Its one motivation for the
+  bus pattern, a clean i8086 addition, is blocked anyway (Finding 2).
+
+## P2 closed (2026-09-07)
+
+The split landed for the three verbs that had a REAL shared protocol; each
+protocol body is now written once instead of per-family. Duplicated
+protocol-line copies removed, by both counting methods:
+
+| verb | strict byte-identical | protocol-classified |
+|---|---|---|
+| shiftOut | 35 | 17 |
+| motor | 46 | 46 |
+| servo | 30 | 30 |
+| **removed** | **111** | **93** |
+
+What remains duplicated is `adc` (15 strict / 10 classified — divergent silicon,
+left unsplit) and nothing else; `tone` was 0 (its non-avr branches are stubs).
+So across the multi-variant verbs the duplication went **126 → 15** (strict) /
+**103 → 10** (classified): P2 removed the duplication everywhere it was real
+protocol, and named the two places it was not.
+
+**Two findings the lane surfaced:**
+
+1. **A no-op is a refusal.** `tone`'s 8051 branch is a "not yet implemented"
+   stub and its arm branch a `(void)freq` no-op; the coverage matrix was counting
+   both as cells. The attribution rule gained a no-op clause (bracket-matched)
+   that also overrides the 8051 base-dialect default where a verb's own 8051
+   branch is a stub — tone is avr-only, and the parts matrix corrected 57 → 54.
+   Product finding: `set <buzzer> to N hz` compiles to a SILENT no-op on the
+   STC12/Pico, now a named gap in the matrix row and the C tab's 8051 note.
+
+2. **The i8086 C route cannot compile a numeric variable yet (lane N2b).**
+   adc·i8086 is blocked NOT by the peripheral — the ADC0809 model is ideal
+   (8-channel, I/O-mapped at 0x300, P1.n→channel n, polled EOC on a PIC-less
+   bench) — but by the type model: SmallerC's tiny (`.COM`) model has no `long`,
+   and generateC emits `static long` for every Scratch number. `set myvar to 5`
+   alone emits `static long myvar` and fails "Unexpected token long". `pin` and
+   `shiftOut`, the only i8086 cells, use no numeric variable, so this ceiling was
+   untested until adc reached for one. It is the i8086 C route's real limit and
+   the next lane: measure the exclusion (how many corpus programs it blocks) and
+   the two fixes (a SmallerC model/flag with 32-bit `long` in a `.COM`, vs an
+   i8086 int-16 numeric model in the emitter with documented wrap), cost each by
+   the corpus pass count it buys, then build the cheaper one with goldens for
+   every other family and a bench differential for i8086.
