@@ -357,6 +357,55 @@ const MEASURED_NUMERIC = [
     'arduino-06-ping'
 ];
 
+test('state-change retarget preserves not-equal as a real block graph and semantic i8086 C', async () => {
+    const source = await readFile(new URL('../examples/arduino-02-state-change/program.bw', import.meta.url), 'utf8');
+    const retargeted = SB3Creator.retargetPseudocode(source, 'stc12c5a60s2');
+    assert.notEqual(retargeted && retargeted.ok, false, 'state-change retarget refused');
+    const text = typeof retargeted === 'string' ? retargeted :
+        retargeted.pseudocode || retargeted.text || retargeted.source || retargeted.code;
+    assert.match(text, /^      IF not \(buttonState = lastButtonState\) THEN:$/m);
+    assert.doesNotMatch(text, /"buttonState !"/);
+
+    const creator = new SB3Creator();
+    creator.parse(text.replace(/^DEVICE .*$/m, 'DEVICE i8086'));
+    const cat = creator.project.targets.find(target => target.name === 'Cat');
+    const not = Object.values(cat.blocks).find(block => block.opcode === 'operator_not');
+    assert.ok(not, 'state-change condition lost its operator_not block');
+    const equals = cat.blocks[not.inputs.OPERAND[1]];
+    assert.equal(equals.opcode, 'operator_equals');
+    assert.equal(equals.inputs.OPERAND1[1][1], 'buttonState');
+    assert.equal(equals.inputs.OPERAND2[1][1], 'lastButtonState');
+
+    const generated = creator.generateC();
+    const code = typeof generated === 'string' ? generated : generated.code;
+    assert.deepEqual(creator.warnings, []);
+    assert.deepEqual(creator._cWarnings || [], []);
+    assert.match(code, /if \(\(!\(s0_buttonState == s0_lastButtonState\)\)\) \{/);
+    assert.doesNotMatch(code, /0 \/\* buttonState ! \*\//,
+        'not-equal silently fell through to a numeric-zero string comment');
+});
+
+test('i8086 refuses a comparison operand that falls through to a commented zero', () => {
+    const creator = new SB3Creator();
+    creator.parse(program([
+        'IF a = b THEN:',
+        '  turn on led'
+    ]));
+    const stage = creator.project.targets.find(target => target.isStage);
+    const equals = Object.values(stage.blocks).find(block => block.opcode === 'operator_equals');
+    assert.ok(equals, 'defence fixture did not produce an equality block');
+    // The exact graph the old `!=` tokenizer made: its left side was the
+    // literal text `a !`, which cNum represented as a diagnostic zero.
+    equals.inputs.OPERAND1 = [1, [10, 'a !']];
+    const generated = creator.generateC();
+    const code = typeof generated === 'string' ? generated : generated.code;
+    assert.match(code, /^\/\* No C emitted for DEVICE I8086\./);
+    assert.match(code, /This program supplies: a !\./);
+    assert.doesNotMatch(code, /0 \/\* a ! \*\/ ==/,
+        'commented-zero comparison escaped the whole-program refusal');
+    assert.match((creator._cWarnings || []).join(' | '), /operand\(s\) a ! completely/);
+});
+
 test('project-wide provenance preserves all four honest measured numeric print candidates', async () => {
     for (const name of MEASURED_NUMERIC) {
         const source = await readFile(new URL(`../examples/${name}/program.bw`, import.meta.url), 'utf8');

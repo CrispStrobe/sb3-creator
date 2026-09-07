@@ -1336,7 +1336,7 @@ class SB3Creator {
                 }
                 if (op === '<' && s[i + 1] === '=') continue;
                 if (op === '>' && s[i + 1] === '=') continue;
-                if (op === '=' && (s[i - 1] === '<' || s[i - 1] === '>' || s[i + 1] === '=')) continue;
+                if (op === '=' && (s[i - 1] === '<' || s[i - 1] === '>' || s[i - 1] === '!' || s[i + 1] === '=')) continue;
                 if (!s.slice(0, i).trim() || !s.slice(i + op.length).trim()) continue;
                 best = { index: i, op };
             }
@@ -1449,7 +1449,7 @@ class SB3Creator {
         // `<`, `>` and `=`), so `set flag to (val > 5)` lands here and is
         // emitted as the constant string "val > 5" — `flag = 0 /* val > 5 */;`
         // in C. Measured 2026-08-29, no warning anywhere.
-        if (!/^".*"$/.test(s) && this.splitBinary(s, ['<=', '>=', '<', '>', '='])) {
+        if (!/^".*"$/.test(s) && this.splitBinary(s, ['!=', '<=', '>=', '<', '>', '='])) {
             this.warn(this._lineIndex,
                 `"${s}" is a COMPARISON used where a value is expected, and it is emitted as `
                 + 'the literal text rather than evaluated. Comparisons belong in a condition '
@@ -3522,7 +3522,16 @@ class SB3Creator {
             return push('arrays_contains', { NAME: [1, [10, mm[1]]], VALUE: this.parseValue(mm[2], context) });
         }
 
-        // Comparisons. Scratch 3.0 has no native <= / >=, so build them from not().
+        // Comparisons. Scratch 3.0 has no native != / <= / >=, so build them
+        // from not(). `!=` must be claimed before bare `=`; splitBinary also
+        // refuses to let `=` consume the second token as a defensive invariant.
+        if ((sp = this.splitBinary(s, ['!=']))) {
+            const eq = push('operator_equals', {
+                OPERAND1: this.parseValue(sp.left, context),
+                OPERAND2: this.parseValue(sp.right, context)
+            });
+            return push('operator_not', { OPERAND: [2, eq] });
+        }
         if ((sp = this.splitBinary(s, ['<=']))) {
             const gt = push('operator_gt', { OPERAND1: this.parseValue(sp.left, context), OPERAND2: this.parseValue(sp.right, context) });
             return push('operator_not', { OPERAND: [2, gt] });
@@ -7934,13 +7943,29 @@ class SB3Creator {
     cVal(input, blocks) {
         if (!Array.isArray(input)) return '0';
         const inner = input[1];
+        let lowered;
         if (Array.isArray(inner)) {
             const [type, a] = inner;
-            if (type === 12) return this.cRef(a);
-            if (type === 13) { this.cWarn('lists have no C equivalent — emitted as 0'); return '0'; }
-            return this.cNum(a);
+            if (type === 12) lowered = this.cRef(a);
+            else if (type === 13) {
+                this.cWarn('lists have no C equivalent — emitted as 0');
+                lowered = '0';
+            } else lowered = this.cNum(a);
+        } else {
+            lowered = this.cRep(blocks[inner], blocks);
         }
-        return this.cRep(blocks[inner], blocks);
+        // A commented zero is diagnostic text, not a numeric value. On i8086
+        // it used to enter comparisons as a plausible constant and compile a
+        // different condition with no refusal (`a != b` became
+        // `0 /* a ! */ == b`). Derive this backstop from the actual lowering,
+        // so the next unsupported reporter is covered without an opcode list.
+        if (this._core === 'i8086' && /\/\*/.test(lowered)) {
+            const shown = String(this.dval(input, blocks) || lowered)
+                .replace(/^"|"$/g, '');
+            if (!this._cLoweringRefused) this._cLoweringRefused = [];
+            if (!this._cLoweringRefused.includes(shown)) this._cLoweringRefused.push(shown);
+        }
+        return lowered;
     }
 
     // ---- AVR (Arduino Nano/Uno) pin plumbing --------------------------------
@@ -8395,6 +8420,10 @@ class SB3Creator {
                     if (!this._cWaitRefused) this._cWaitRefused = [];
                     const shown = String(inner[1]);
                     if (!this._cWaitRefused.includes(shown)) this._cWaitRefused.push(shown);
+                    // The refusal above owns a non-finite literal. Do not send
+                    // it through cVal as well, where its diagnostic commented
+                    // zero would obscure the more specific duration error.
+                    if (!Number.isFinite(n)) return '0';
                 }
                 if (Number.isFinite(n)) return String(ms);
             }
@@ -11259,6 +11288,7 @@ class SB3Creator {
         this._cWarnings = [];
         this._cI16Refused = [];
         this._cWaitRefused = [];
+        this._cLoweringRefused = [];
         this._cWaitComputed = false;
         this._cUses = { adc: false, delay: false, blockDelay: false, now: false };
         this._emitComments = !(opts && opts.comments === false);
@@ -14863,6 +14893,18 @@ class SB3Creator {
                     + ' * The 8086 C print boundary accepts a signed-16 number.\n'
                     + ` * This program supplies: ${list}.\n`
                     + ' * String-valued and unknown reporters are refused instead of printing zero.\n'
+                    + ' */\n';
+            }
+            if (this._cLoweringRefused && this._cLoweringRefused.length) {
+                const list = this._cLoweringRefused.join(', ');
+                this.cWarn(`the 8086 C route cannot lower the numeric or comparison operand(s) `
+                    + `${list} completely; a commented zero is diagnostic text, not a value, so no C is emitted`);
+                return `/* No C emitted for DEVICE ${String(device || 'i8086').toUpperCase()}.\n`
+                    + ' *\n'
+                    + ' * The 8086 C back end requires every numeric and comparison operand to have\n'
+                    + ' * a complete lowering. A commented zero would silently change the program.\n'
+                    + ` * This program supplies: ${list}.\n`
+                    + ' * Nothing is emitted instead of compiling the wrong condition.\n'
                     + ' */\n';
             }
             if (used.length) {
