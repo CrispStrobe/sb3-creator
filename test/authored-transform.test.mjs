@@ -12,7 +12,7 @@ import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, existsSync } from 'fs';
 import { join } from 'path';
-import { alignAuthoredBenchPolarity } from '../scripts/lib/authored-transform.mjs';
+import { alignAuthoredBenchPolarity, parseRetargetedPins } from '../scripts/lib/authored-transform.mjs';
 
 const EXAMPLES = join(import.meta.dirname, '..', 'examples');
 
@@ -156,6 +156,32 @@ test('a polarity rewrite reverses only its LED branch, not its active-high neigh
     ]);
     assert.equal(refused.ok, false, 'a shared branch must not be silently re-authored');
     assert.match(refused.reason, /shared branch/);
+
+    const missingMetadata = alignAuthoredBenchPolarity(data, circuitFixture(data, nets));
+    assert.equal(missingMetadata.ok, false, 'missing polarity metadata must fail closed');
+    assert.match(missingMetadata.reason, /missing retargeted pin metadata/);
+
+    const noGround = {...data, parts: data.parts.filter(part => part.kind !== 'gnd')};
+    const missingRail = alignAuthoredBenchPolarity(noGround, circuitFixture(noGround, nets), [
+        {name: 'low', where: 'D13', direction: 'output', activeLow: false}
+    ]);
+    assert.equal(missingRail.ok, false, 'a reversal without its required rail must fail closed');
+    assert.match(missingRail.reason, /requires a gnd part/);
+});
+
+test('generation and device-list dry runs share the fail-closed pin parser', () => {
+    class Creator {
+        parse (text) { this.project = text === 'pins' ? {stc: {pins: [{where: 'D13'}]}} : {}; }
+    }
+    assert.deepEqual(parseRetargetedPins(Creator, 'pins'), {ok: true, pins: [{where: 'D13'}]});
+    assert.equal(parseRetargetedPins(Creator, 'missing').ok, false);
+    for (const file of ['../scripts/gen-device-benches.mjs', '../scripts/update-example-devices.mjs']) {
+        const source = readFileSync(join(import.meta.dirname, file), 'utf8');
+        assert.match(source, /parseRetargetedPins\(SB3Creator,/,
+            `${file} must use the shared pin parser before its authored transform`);
+        assert.match(source, /transformAuthored\([\s\S]{0,300}parsed\.pins\)/,
+            `${file} must pass the parsed pins to the authored transform`);
+    }
 });
 
 test('an Arduino active-high branch becomes a sinking 8051 branch', () => {

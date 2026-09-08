@@ -43,7 +43,7 @@ import { injectEngine, registerSidecars, locateSibling } from './lib/engine-surf
 
 const cmd = process.argv[2];
 
-import { alignAuthoredBenchPolarity, transformAuthored } from './lib/authored-transform.mjs';
+import { alignAuthoredBenchPolarity, parseRetargetedPins, transformAuthored } from './lib/authored-transform.mjs';
 
 async function batch() {
   const regenerate = process.argv.includes('--regenerate');
@@ -94,10 +94,13 @@ async function batch() {
         // Parse the retargeted program: the transform needs pin DIRECTIONS
         // to synthesize pull-downs for active-high inputs on targets
         // without internal ones.
-        const rp = new SB3Creator();
-        let rpins = null;
-        try { rp.parse(r.pseudocode ?? src); rpins = rp.project?.stc?.pins || null; } catch { /* transform degrades */ }
-        const t = transformAuthored(data, DEVPART[device], r.pinMap || [], cmod.Circuit, SB3Creator.RETARGET_POOLS[device], device, rpins);
+        const parsed = parseRetargetedPins(SB3Creator, r.pseudocode ?? src);
+        if (!parsed.ok) {
+          console.log(`${e.id} x ${device}: authored transform refused — ${parsed.reason}`);
+          refused++; continue;
+        }
+        const t = transformAuthored(data, DEVPART[device], r.pinMap || [], cmod.Circuit,
+          SB3Creator.RETARGET_POOLS[device], device, parsed.pins);
         if (!t.ok) {
           console.log(`${e.id} x ${device}: authored transform refused — ${t.reason}`);
           refused++; continue;
@@ -225,9 +228,9 @@ async function polarity() {
     if (!retargeted.ok) {
       throw new Error(`${exid} x ${device}: shipped authored bench no longer retargets — ${retargeted.reason || 'unknown refusal'}`);
     }
-    const creator = new SB3Creator();
-    creator.parse(retargeted.pseudocode ?? src);
-    const aligned = alignAuthoredBenchPolarity(d, cmod.Circuit, creator.project?.stc?.pins || []);
+    const parsed = parseRetargetedPins(SB3Creator, retargeted.pseudocode ?? src);
+    if (!parsed.ok) throw new Error(`${exid} x ${device}: ${parsed.reason}`);
+    const aligned = alignAuthoredBenchPolarity(d, cmod.Circuit, parsed.pins);
     if (!aligned.ok) throw new Error(`${exid} x ${device}: ${aligned.reason}`);
     if (!aligned.polarityRewrites) continue;
     fs.writeFileSync(f, JSON.stringify(aligned.out, null, 1));

@@ -83,6 +83,21 @@ const SERIES_TERMINALS = {
   led: ['anode', 'cathode'],
 };
 
+/** Parse the retargeted program once, with a fail-closed pin-metadata result. */
+export function parseRetargetedPins(SB3Creator, pseudocode) {
+  try {
+    const creator = new SB3Creator();
+    creator.parse(pseudocode);
+    const pins = creator.project?.stc?.pins;
+    if (!Array.isArray(pins)) {
+      return {ok: false, reason: 'retargeted program did not expose pin metadata'};
+    }
+    return {ok: true, pins};
+  } catch (error) {
+    return {ok: false, reason: `retargeted program pin parse failed: ${String(error?.message ?? error)}`};
+  }
+}
+
 // Find simple LED branches from one MCU net to a supply rail. Generated lesson
 // benches use a series resistor + LED (or a bare LED); refusing shared/branched
 // interiors is safer than silently re-authoring a topology we did not prove.
@@ -168,7 +183,10 @@ function polarityRewrites(d, circ, mcu, pinMap, retargetedPins, caseTo) {
       }
       const railKind = pin.activeLow ? 'vcc' : 'gnd';
       const rail = d.parts.find(p => p.kind === railKind);
-      if (!rail) continue;
+      if (!rail) {
+        unsupported.push(`${from}: polarity reversal requires a ${railKind} part`);
+        continue;
+      }
       const first = path.chain[0];
       const last = path.chain[path.chain.length - 1];
       rewrites.push({from, to: caseTo(coordOf(pin)), rail, railTerminal: railKind,
@@ -186,6 +204,9 @@ function polarityRewrites(d, circ, mcu, pinMap, retargetedPins, caseTo) {
 
 /** Align an already-targeted authored bench with the target program's output polarity. */
 export function alignAuthoredBenchPolarity(data, Circuit, retargetedPins) {
+  if (!Array.isArray(retargetedPins)) {
+    return {ok: false, reason: 'LED polarity transform refused: missing retargeted pin metadata'};
+  }
   const d = JSON.parse(JSON.stringify(data));
   const mcu = d.parts.find(p => MCU_KINDS.has(p.kind));
   if (!mcu) return {ok: false, reason: 'no MCU part in authored circuit'};
