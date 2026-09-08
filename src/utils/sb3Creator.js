@@ -2537,6 +2537,7 @@ class SB3Creator {
 
     _cMotorHelper(core) {
         const bus = this._cMotorBus(core);
+        const p = this._motorProtocol();   // the clamp is shared with the MicroPython driver
         return [
             ...bus.header,
             ...bus.preamble,
@@ -2546,8 +2547,8 @@ class SB3Creator {
             'static void bw_motor_speed(int motor, int speed)',
             '{',
             '    (void)motor;',
-            '    if (speed < 0) speed = 0;',
-            '    if (speed > 100) speed = 100;',
+            '    if (speed < ' + p.speedMin + ') speed = ' + p.speedMin + ';',
+            '    if (speed > ' + p.speedMax + ') speed = ' + p.speedMax + ';',
             '    _motor_speed = speed;',
             '    ' + bus.pwmSet,
             '}',
@@ -2603,6 +2604,7 @@ class SB3Creator {
 
     _cServoBus(core) {
         if (core === 'arm') {
+            const p = this._servoProtocol();   // shared with the MicroPython servo driver
             return {
                 header: ['/* Servo driver: PWM slice 0 at 50 Hz — servo 1 = GP16 (channel A),',
                     ' * servo 2 = GP17 (channel B). TOP 19999 at the 1 MHz slice clock is',
@@ -2614,7 +2616,7 @@ class SB3Creator {
                 bounds: ['    if (servo < 1 || servo > 2) return;'],
                 store: ['    _servo_angle[servo - 1] = angle;'],
                 pwmBody: ['    gpio = 15u + (uint32_t)servo;            /* 1 -> GP16, 2 -> GP17 */',
-                    '    us = 500u + (uint32_t)angle * 2000u / 180u;',
+                    '    us = ' + p.usMin + 'u + (uint32_t)angle * ' + p.usSpan + 'u / ' + p.angleMax + 'u;',
                     '    BW_IOBANK0_CTRL(gpio) = 4u;              /* funcsel PWM */',
                     '    BW_PWM_DIV(0) = 125u << 4;               /* 1 MHz slice clock */',
                     '    BW_PWM_TOP(0) = 19999u;                  /* 20 ms frame */',
@@ -2688,6 +2690,7 @@ class SB3Creator {
 
     _cServoHelper(core) {
         const bus = this._cServoBus(core);
+        const p = this._servoProtocol();   // the clamp is shared with the MicroPython driver
         return [
             ...bus.header,
             ...bus.decls,
@@ -2696,8 +2699,8 @@ class SB3Creator {
             '{',
             ...bus.setLocals,
             ...bus.bounds,
-            '    if (angle < 0) angle = 0;',
-            '    if (angle > 180) angle = 180;',
+            '    if (angle < ' + p.angleMin + ') angle = ' + p.angleMin + ';',
+            '    if (angle > ' + p.angleMax + ') angle = ' + p.angleMax + ';',
             ...bus.store,
             ...bus.pwmBody,
             '}',
@@ -2705,6 +2708,67 @@ class SB3Creator {
             ...bus.getFn,
             ...(bus.isr.length ? ['', ...bus.isr] : []),
             '',
+        ];
+    }
+
+    // ---- PWM protocol (plan P3 part 3): the numeric contract the C helpers and
+    // the MicroPython (Pico) drivers BOTH realise, so the pulse maths and the
+    // clamp are not hand-typed twice. The C bus writes the pulse in its family's
+    // native units; the Pico writes machine.PWM.duty_u16 derived from the SAME
+    // formula. test/servo-micropython.test.mjs and test/motor-micropython.test.mjs
+    // bound the difference to one duty_u16 LSB (frame/65536), proving it is
+    // quantisation and nothing else — not a second, hand-typed formula.
+    _servoProtocol() {
+        // 50 Hz frame (20000 µs). angle angleMin..angleMax -> pulse usMin..usMax µs.
+        // us = usMin + angle * usSpan / angleMax, integer division (matches C).
+        return {frameUs: 20000, usMin: 500, usMax: 2500, usSpan: 2000, angleMin: 0, angleMax: 180, u16: 65536};
+    }
+
+    _motorProtocol() {
+        // speed clamp speedMin..speedMax -> duty = speed/speedMax of full scale.
+        // Full scale is the max duty_u16 (65535) so 100 % maps to the top code.
+        return {speedMin: 0, speedMax: 100, u16Full: 65535};
+    }
+
+    // The MicroPython (Pico) servo driver, rendered from the SAME _servoProtocol()
+    // the C arm bus renders. machine.PWM at 50 Hz; the pulse is written as duty_u16
+    // over the 20 ms frame. The pin selection (servo 1 = GP16, 2 = GP17) is the
+    // per-platform BUS in the header, not this shared body.
+    _mpyServoHelper() {
+        const p = this._servoProtocol();
+        return [
+            'def _servo_set(servo, angle):',
+            '    # 50 Hz frame; angle 0-180 deg over a ' + p.usMin + '-' + p.usMax + ' us pulse.',
+            '    pwm = _servos.get(servo)',
+            '    if pwm is None: return',
+            '    if angle < 0: angle = 0',
+            '    if angle > ' + p.angleMax + ': angle = ' + p.angleMax,
+            '    us = ' + p.usMin + ' + angle * ' + p.usSpan + ' // ' + p.angleMax,
+            '    pwm.duty_u16((us * ' + p.u16 + ') // ' + p.frameUs + ')',
+        ];
+    }
+
+    // The MicroPython (Pico) motor driver, from _motorProtocol(). Speed 0..100 is
+    // clamped and written as duty_u16 at 1 kHz; direction drives IN1/IN2 of an
+    // L293D-style H-bridge with the same 0=fwd 1=rev 2=brake 3=coast convention as
+    // the C bus. Pins (GP18 speed, GP19/GP20 direction) are the header's bus.
+    _mpyMotorHelper() {
+        const p = this._motorProtocol();
+        return [
+            'def _motor_speed(speed):',
+            '    if speed < 0: speed = 0',
+            '    if speed > ' + p.speedMax + ': speed = ' + p.speedMax,
+            '    _motor_pwm.duty_u16((speed * ' + p.u16Full + ') // ' + p.speedMax + ')',
+            'def _motor_dir(d):',
+            '    # 0=forward 1=reverse 2=brake 3=coast',
+            '    if d == 0:',
+            '        _motor_in1.value(1); _motor_in2.value(0)',
+            '    elif d == 1:',
+            '        _motor_in1.value(0); _motor_in2.value(1)',
+            '    elif d == 2:',
+            '        _motor_in1.value(1); _motor_in2.value(1)',
+            '    else:',
+            '        _motor_in1.value(0); _motor_in2.value(0)',
         ];
     }
 
@@ -10135,6 +10199,26 @@ class SB3Creator {
                     const px = `_pin_${partCfg.name}`;
                     return [`${pad}_shift_out(${px}_data, ${px}_clock, ${px}_latch, ${al}, int(${v('VALUE')}))`];
                 }
+                // P3 part 3: servo + DC motor on the Pico. The pulse maths and the
+                // clamp are the shared _servoProtocol()/_motorProtocol() the C
+                // helpers also render; the pins (servo 1=GP16, 2=GP17; motor speed
+                // GP18, dir GP19/GP20) are set up once in the header.
+                case 'devices_setservo': {
+                    if (!isPico) break;
+                    uses.servo = true;
+                    return [`${pad}_servo_set(int(${v('SERVO')}), int(${v('ANGLE')}))`];
+                }
+                case 'devices_setmotor': {
+                    if (!isPico) break;
+                    uses.motor = true;
+                    return [`${pad}_motor_speed(int(${v('SPEED')}))`];
+                }
+                case 'devices_setdirection': {
+                    if (!isPico) break;
+                    uses.motor = true;
+                    const d = ({ forward: 0, reverse: 1, brake: 2, coast: 3 })[f('DIR')] || 0;
+                    return [`${pad}_motor_dir(${d})`];
+                }
                 default: {
                     // The Arrays & Vectors commands lower through the same
                     // reversible-op table the reporters already use, so the
@@ -10302,7 +10386,7 @@ class SB3Creator {
 
         const header = isPico
             ? ['# generated for Raspberry Pi Pico (MicroPython)',
-                'from machine import Pin, I2C',
+                'from machine import Pin, I2C' + ((uses.servo || uses.motor) ? ', PWM' : ''),
                 'import time',
                 '',
                 '# The shared scheduler speaks micro:bit; two shims make the',
@@ -10591,6 +10675,19 @@ class SB3Creator {
                         `_pin_${name}_latch = Pin(${gp.latch}, Pin.OUT)`);
                 }
                 header.push('', ...this._mpyShiftOutHelper());
+            }
+            // P3 part 3: servo (GP16/GP17 at 50 Hz) and DC motor (GP18 speed at
+            // 1 kHz, GP19/GP20 direction) — the objects once, then the shared-
+            // protocol driver, emitted only when a servo/motor verb actually ran.
+            if (uses.servo) {
+                header.push('', '_servos = {1: PWM(Pin(16), freq=50), 2: PWM(Pin(17), freq=50)}',
+                    ...this._mpyServoHelper());
+            }
+            if (uses.motor) {
+                header.push('', '_motor_pwm = PWM(Pin(18), freq=1000)',
+                    '_motor_in1 = Pin(19, Pin.OUT)',
+                    '_motor_in2 = Pin(20, Pin.OUT)',
+                    ...this._mpyMotorHelper());
             }
             if (uses.oled) {
                 const sdaPin = [...pinMap.entries()].find(([n]) => n.toLowerCase() === 'sda');
