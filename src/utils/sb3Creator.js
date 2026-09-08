@@ -8059,6 +8059,7 @@ class SB3Creator {
     static I8086_WAIT_MAX_MS = 65535;
     static C_I8086_NUMERIC_PRINT_REPORTERS = new Set([
         'operator_add', 'operator_subtract', 'operator_multiply', 'operator_divide', 'operator_mod',
+        'operator_random',
         'operator_round', 'operator_mathop',
         'planetemaths_add', 'planetemaths_substract', 'planetemaths_multiply',
         'planetemaths_divide', 'planetemaths_oppose', 'planetemaths_pourcent',
@@ -8431,6 +8432,19 @@ class SB3Creator {
             case 'bitops_shl': return `(${v('NUM1')} << ${v('NUM2')})`;
             case 'bitops_shr': return `(${v('NUM1')} >> ${v('NUM2')})`;
             case 'bitops_not': return `(~${v('NUM')})`;
+            case 'operator_random': {
+                if (this._core === 'i8086') {
+                    // N2f: the consumer supplies a narrow cdecl helper whose
+                    // 16x16 MUL high word implements unbiased multiply-high
+                    // rejection. SmallerC's tiny model has no 32-bit integer
+                    // type, so spelling the product here would truncate it.
+                    this._cUses.random = true;
+                    return `bw_random(${v('FROM')}, ${v('TO')})`;
+                }
+                const text = this.drep(b, blocks) || b.opcode;
+                this.cWarn(`no C equivalent for "${text}" — emitted as 0`);
+                return `0 /* ${this.cComment(text)} */`;
+            }
             case 'operator_round': return v('NUM');       // integer arithmetic already
             case 'operator_mathop': {
                 // Same reasoning as round: every scalar here is a long, so
@@ -8835,8 +8849,13 @@ class SB3Creator {
                 const mode = f('MODE');
                 if (this._core === 'i8086') {
                     if (mode === 'text') {
+                        const inner = b.inputs && b.inputs.VALUE && b.inputs.VALUE[1];
+                        if (Array.isArray(inner) && inner[0] === 10) {
+                            this._cUses.printText = true;
+                            return line(`bw_print(${this.cCString(inner[1])});`);
+                        }
                         if (!this._cPrintRefused) this._cPrintRefused = [];
-                        const reason = 'text-mode print is outside the numeric-only i8086 C print boundary';
+                        const reason = 'text-mode print requires direct literal text on the i8086 C route';
                         if (!this._cPrintRefused.includes(reason)) this._cPrintRefused.push(reason);
                         return line(`/* print refused: ${reason} */`);
                     }
@@ -12293,6 +12312,17 @@ class SB3Creator {
                     '/* DOS terminal signed-16 decimal, then CRLF. */',
                     'extern void bw_print_num(int n);'
                 ] : []),
+                ...(this._cUses.printText ? [
+                    '/* Route-specific declaration: host C defines the same bw_print name',
+                    ' * statically; the i8086 consumer supplies this conditional helper. */',
+                    '/* DOS terminal direct literal text, then CRLF. */',
+                    'extern void bw_print(const char *text);'
+                ] : []),
+                ...(this._cUses.random ? [
+                    '/* Deterministic signed-16 inclusive random; fixed seed 0x4d3d.',
+                    ' * The consumer implements unbiased multiply-high rejection with 16x16 MUL. */',
+                    'extern int bw_random(int from, int to);'
+                ] : []),
                 ...(this._cUses.numericLists ? [
                     '/* N2e numeric lists: 32 signed words per list. An invalid one-based',
                     ' * index is a checked no-op (or zero when read), matching Scratch numeric',
@@ -15173,7 +15203,9 @@ class SB3Creator {
         if (this._core === 'i8086') {
             // Verbs with a real i8086 C branch are NOT a reason to refuse. As
             // each verb gains its 8086 bus, add it here (P2: shiftOut).
-            const I8086_IMPLEMENTED = new Set(['shiftOut', 'delay', 'printNumber', 'numericLists']);
+            const I8086_IMPLEMENTED = new Set([
+                'shiftOut', 'delay', 'printNumber', 'printText', 'numericLists', 'random'
+            ]);
             const used = Object.keys(this._cUses).filter((k) => this._cUses[k] && !I8086_IMPLEMENTED.has(k));
             if (this._cListRefused && this._cListRefused.length) {
                 const list = this._cListRefused.join(', ');
