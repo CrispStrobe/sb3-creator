@@ -918,3 +918,12 @@ Acceptance remains incomplete until the generated helpers compile with SmallerC,
 the resulting `.COM` size and stack/data margin are recorded, a live differential
 proves bounds and mutation behavior, unchanged non-i8086 goldens pass, and hosted
 CI is green on the exact promoted head. Heavy corpus/compiler work belongs in CI.
+
+The first real local toolchain probe now passes: the full add/insert/replace/item/
+delete program compiles through SmallerC and the 80186 assembler to a 772-byte
+`.COM`, terminates after 327 bench steps, and prints `20`. A ceiling probe with 15
+lists × 32 initialized items compiles to 1,628 bytes. Its declared list state is
+990 bytes and leaves 63,652 bytes between the end of the load image and the top of
+the 64 KiB `.COM` segment (before stack use). These are local feasibility receipts,
+not the final oracle: the committed Lite differential and hosted mutation evidence
+remain required.

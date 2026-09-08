@@ -19,6 +19,7 @@ SPRITE Cat:
     add 10 to readings
     insert 5 at 1 of readings
     replace item 2 of readings with 20
+    set count to (length of readings)
     set value to (item 2 of readings)
     delete 1 of readings
     print value
@@ -34,10 +35,13 @@ test('i8086 numeric lists use bounded storage and checked one-based helpers', ()
     assert.match(code, /bw_list_add\([^\n]+, 10\);/);
     assert.match(code, /bw_list_insert\([^\n]+, 1, 5\);/);
     assert.match(code, /bw_list_replace\([^\n]+, 2, 20\);/);
+    assert.match(code, /count = \(int\)bw_list_.*_len;/);
     assert.match(code, /bw_list_item\([^\n]+, 2\)/);
     assert.match(code, /bw_list_delete\([^\n]+, 1\);/);
     assert.match(code, /bw_list_overflow\(\)/,
         'a full list must trap rather than silently drop an add/insert');
+    assert.doesNotMatch(code, /\+\+\*len|--\*len/,
+        'the helpers use unambiguous SmallerC-compatible pointer assignments');
     assert.deepEqual(creator._cListRefused, []);
 });
 
