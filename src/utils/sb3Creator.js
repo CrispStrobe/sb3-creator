@@ -7728,6 +7728,21 @@ class SB3Creator {
         return final;
     }
 
+    // Claim a fresh identifier with the requested spelling even when that
+    // spelling was already memoized for a Scratch-visible name. Internal
+    // generated objects (list backing state, hats) have a distinct identity;
+    // reusing cName's string key would incorrectly alias them to that object.
+    cFresh(base) {
+        let id = sanitizeIdent(base) || 'generated';
+        if (SB3Creator.C_RESERVED.has(id)) id += '_';
+        const used = new Set(this._cNames ? this._cNames.values() : []);
+        let final = id, n = 2;
+        while (used.has(final)) final = id + '_' + n++;
+        if (!this._cNames) this._cNames = new Map();
+        this._cNames.set(Symbol(base), final);
+        return final;
+    }
+
     // Prefix-aware variable reference (sprite locals are `s<idx>_`-prefixed, as in Python/JS).
     cRef(name) {
         if (this._curLocals && this._curLocals.has(name)) return this.cName(this._curPrefix + name);
@@ -7748,7 +7763,10 @@ class SB3Creator {
         if (!this._cListRefused) this._cListRefused = [];
         const reason = `list "${name}" has no unambiguous scoped C storage`;
         if (!this._cListRefused.includes(reason)) this._cListRefused.push(reason);
-        return this.cName(`bw_list_missing_${scoped}`);
+        return {
+            data: this.cName(`bw_list_missing_${scoped}_data`),
+            len: this.cName(`bw_list_missing_${scoped}_len`)
+        };
     }
 
     // Make arbitrary text safe to drop inside a /* ... */ comment.
@@ -7841,12 +7859,16 @@ class SB3Creator {
                 return {ok: false, reason: `${op || 'unknown'} of has no numeric C lowering`};
             }
         }
-        if (block.opcode === 'data_itemoflist') {
+        // List reporters are their own authority: unlike generic numeric
+        // reporters they must also prove the referenced list's provenance.
+        if (block.opcode === 'data_itemoflist' || block.opcode === 'data_lengthoflist') {
             const listResult = this.cI8086NumericList(block.fields && block.fields.LIST, seen, allowedSelf);
             if (!listResult.ok) return listResult;
-            const indexResult = this.cI8086NumericPrint(block.inputs && block.inputs.INDEX, blocks,
-                new Set(seen).add(inner), allowedSelf);
-            if (!indexResult.ok) return indexResult;
+            if (block.opcode === 'data_itemoflist') {
+                const indexResult = this.cI8086NumericPrint(block.inputs && block.inputs.INDEX, blocks,
+                    new Set(seen).add(inner), allowedSelf);
+                if (!indexResult.ok) return indexResult;
+            }
             return this.cI8086CompleteLowering(block, blocks);
         }
         if (!SB3Creator.C_I8086_NUMERIC_PRINT_REPORTERS.has(block.opcode)) {
@@ -8428,7 +8450,7 @@ class SB3Creator {
                 if (this._core === 'i8086') {
                     this._cUses.numericLists = true;
                     const list = this.cI8086ListRef(b.fields && b.fields.LIST);
-                    return `bw_list_item(${list}_data, ${list}_len, ${v('INDEX')})`;
+                    return `bw_list_item(${list.data}, ${list.len}, ${v('INDEX')})`;
                 }
                 const text = this.drep(b, blocks) || b.opcode;
                 this.cWarn(`no C equivalent for "${text}" — emitted as 0`);
@@ -8437,7 +8459,7 @@ class SB3Creator {
             case 'data_lengthoflist': {
                 if (this._core === 'i8086') {
                     this._cUses.numericLists = true;
-                    return `(int)${this.cI8086ListRef(b.fields && b.fields.LIST)}_len`;
+                    return `(int)${this.cI8086ListRef(b.fields && b.fields.LIST).len}`;
                 }
                 const text = this.drep(b, blocks) || b.opcode;
                 this.cWarn(`no C equivalent for "${text}" — emitted as 0`);
@@ -9017,27 +9039,27 @@ class SB3Creator {
                     if (b.opcode === 'data_addtolist') {
                         this._cUses.numericLists = true;
                         const list = this.cI8086ListRef(b.fields && b.fields.LIST);
-                        return line(`bw_list_add(${list}_data, &${list}_len, ${v('ITEM')});`);
+                        return line(`bw_list_add(${list.data}, &${list.len}, ${v('ITEM')});`);
                     }
                     if (b.opcode === 'data_deleteoflist') {
                         this._cUses.numericLists = true;
                         const list = this.cI8086ListRef(b.fields && b.fields.LIST);
-                        return line(`bw_list_delete(${list}_data, &${list}_len, ${v('INDEX')});`);
+                        return line(`bw_list_delete(${list.data}, &${list.len}, ${v('INDEX')});`);
                     }
                     if (b.opcode === 'data_deletealloflist') {
                         this._cUses.numericLists = true;
                         const list = this.cI8086ListRef(b.fields && b.fields.LIST);
-                        return line(`${list}_len = 0;`);
+                        return line(`${list.len} = 0;`);
                     }
                     if (b.opcode === 'data_insertatlist') {
                         this._cUses.numericLists = true;
                         const list = this.cI8086ListRef(b.fields && b.fields.LIST);
-                        return line(`bw_list_insert(${list}_data, &${list}_len, ${v('INDEX')}, ${v('ITEM')});`);
+                        return line(`bw_list_insert(${list.data}, &${list.len}, ${v('INDEX')}, ${v('ITEM')});`);
                     }
                     if (b.opcode === 'data_replaceitemoflist') {
                         this._cUses.numericLists = true;
                         const list = this.cI8086ListRef(b.fields && b.fields.LIST);
-                        return line(`bw_list_replace(${list}_data, ${list}_len, ${v('INDEX')}, ${v('ITEM')});`);
+                        return line(`bw_list_replace(${list.data}, ${list.len}, ${v('INDEX')}, ${v('ITEM')});`);
                     }
                 }
                 const text = (this.decompileStackBlock(b, blocks, 0)[0] || b.opcode).trim();
@@ -9188,14 +9210,7 @@ class SB3Creator {
     // Unique C identifier for a function (two `when flag clicked` hats in one
     // sprite would otherwise collide, exactly as pyFreshName guards against).
     hcFresh(base) {
-        let id = sanitizeIdent(base) || 'f';
-        if (SB3Creator.C_RESERVED.has(id)) id += '_';
-        const used = new Set(this._cNames ? this._cNames.values() : []);
-        let final = id, n = 2;
-        while (used.has(final)) final = id + '_' + n++;
-        if (!this._cNames) this._cNames = new Map();
-        this._cNames.set(Symbol(base), final);
-        return final;
+        return this.cFresh(base);
     }
 
     hcVal(input, blocks) {
@@ -11623,7 +11638,11 @@ class SB3Creator {
                 for (const [id, entry] of Object.entries(target.lists || {})) {
                     const name = String(entry[0]);
                     const initial = Array.isArray(entry[1]) ? entry[1] : [];
-                    const ref = this.cName(`bw_list_${prefix}${name}`);
+                    const base = `bw_list_${prefix}${name}`;
+                    const ref = {
+                        data: this.cFresh(`${base}_data`),
+                        len: this.cFresh(`${base}_len`)
+                    };
                     this._cI8086ListNames.set(`id:${id}`, ref);
                     this._cI8086ListNames.set(`name:${prefix}:${name}`, ref);
                     lists.push({id, name, initial, ref, prefix});
@@ -11644,8 +11663,8 @@ class SB3Creator {
                 }
                 for (const value of list.initial) this.cI16Check(Math.trunc(Number(value)));
                 const init = list.initial.length ? list.initial.map(value => this.cInit(value)).join(', ') : '0';
-                stateDecls.push(`static int ${list.ref}_data[32] = { ${init} };`);
-                stateDecls.push(`static unsigned ${list.ref}_len = ${Math.min(list.initial.length, 32)}u;`);
+                stateDecls.push(`static int ${list.ref.data}[32] = { ${init} };`);
+                stateDecls.push(`static unsigned ${list.ref.len} = ${Math.min(list.initial.length, 32)}u;`);
             }
         }
 

@@ -50,12 +50,44 @@ test('same-named sprite lists receive distinct prefix-safe storage', () => {
         const stage = project.targets.find(target => target.isStage);
         stage.lists['stage-readings'] = ['readings', []];
     });
-    const names = [...code.matchAll(/^static int (bw_list_[A-Za-z0-9_]+)_data\[32\]/gm)].map(match => match[1]);
+    const names = [...code.matchAll(/^static int (bw_list_[A-Za-z0-9_]+_data)\[32\]/gm)].map(match => match[1]);
     assert.equal(names.length, 2);
     assert.equal(new Set(names).size, 2, 'sprite-local list backing arrays collided');
     const local = names.find(name => /s0/.test(name));
     assert.ok(local, `sprite prefix missing from ${names.join(', ')}`);
-    assert.match(code, new RegExp(`bw_list_add\\(${local}_data, &${local}_len`));
+    const len = local.replace(/_data$/, '_len');
+    assert.match(code, new RegExp(`bw_list_add\\(${local}, &${len}`));
+});
+
+test('derived data and length identifiers cannot collide with Scratch scalar names', () => {
+    const source = `DEVICE i8086
+PIN led = P1.0 OUTPUT
+GLOBAL bw_list_readings_data = 1
+GLOBAL bw_list_readings_len = 2
+GLOBAL LIST readings
+WHEN flag clicked:
+  add 10 to readings`;
+    const {code} = emit(source);
+    assert.match(code, /static int bw_list_readings_data = 1;/);
+    assert.match(code, /static int bw_list_readings_data_2\[32\]/);
+    assert.match(code, /static unsigned bw_list_readings_len_2 = 0u;/);
+    assert.match(code, /bw_list_add\(bw_list_readings_data_2, &bw_list_readings_len_2/);
+});
+
+test('length of a proved numeric list is numeric in every i8086 provenance context', () => {
+    for (const statement of [
+        'print length of readings',
+        'set count to (length of readings)\n    print count',
+        'IF length of readings = 0 THEN:\n      print 1'
+    ]) {
+        const body = statement.split('\n').map(line => `  ${line}`).join('\n');
+        const {code} = emit(`DEVICE i8086\nPIN led = P1.0 OUTPUT\nGLOBAL LIST readings\nWHEN flag clicked:\n${body}`);
+        assert.doesNotMatch(code, /No C emitted/, statement);
+        assert.match(code, /\(int\)bw_list_readings_len/, statement);
+    }
+    const text = emit(`DEVICE i8086\nPIN led = P1.0 OUTPUT\nGLOBAL LIST readings = ["text"]\nWHEN flag clicked:\n  print length of readings`).code;
+    assert.match(text, /non-numeric initial item/);
+    assert.match(text, /No C emitted/);
 });
 
 test('numeric-list storage refuses the explicit aggregate .COM data ceiling', () => {
