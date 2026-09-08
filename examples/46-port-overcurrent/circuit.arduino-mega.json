@@ -311,54 +311,6 @@
  ],
  "wires": [
   {
-   "from": "vcc1",
-   "fromTerminal": "vcc",
-   "to": "r0",
-   "toTerminal": "a"
-  },
-  {
-   "from": "vcc1",
-   "fromTerminal": "vcc",
-   "to": "r1",
-   "toTerminal": "a"
-  },
-  {
-   "from": "vcc1",
-   "fromTerminal": "vcc",
-   "to": "r2",
-   "toTerminal": "a"
-  },
-  {
-   "from": "vcc1",
-   "fromTerminal": "vcc",
-   "to": "r3",
-   "toTerminal": "a"
-  },
-  {
-   "from": "vcc1",
-   "fromTerminal": "vcc",
-   "to": "r4",
-   "toTerminal": "a"
-  },
-  {
-   "from": "vcc1",
-   "fromTerminal": "vcc",
-   "to": "r5",
-   "toTerminal": "a"
-  },
-  {
-   "from": "vcc1",
-   "fromTerminal": "vcc",
-   "to": "r6",
-   "toTerminal": "a"
-  },
-  {
-   "from": "vcc1",
-   "fromTerminal": "vcc",
-   "to": "r7",
-   "toTerminal": "a"
-  },
-  {
    "from": "r0",
    "fromTerminal": "b",
    "to": "d0",
@@ -408,105 +360,9 @@
   },
   {
    "from": "mega1",
-   "fromTerminal": "d28",
-   "to": "d7",
-   "toTerminal": "cathode"
-  },
-  {
-   "from": "mega1",
-   "fromTerminal": "d13",
-   "to": "d0",
-   "toTerminal": "cathode"
-  },
-  {
-   "from": "mega1",
-   "fromTerminal": "d22",
-   "to": "d1",
-   "toTerminal": "cathode"
-  },
-  {
-   "from": "mega1",
-   "fromTerminal": "d23",
-   "to": "d2",
-   "toTerminal": "cathode"
-  },
-  {
-   "from": "mega1",
-   "fromTerminal": "d24",
-   "to": "d3",
-   "toTerminal": "cathode"
-  },
-  {
-   "from": "mega1",
-   "fromTerminal": "d25",
-   "to": "d4",
-   "toTerminal": "cathode"
-  },
-  {
-   "from": "mega1",
-   "fromTerminal": "d26",
-   "to": "d5",
-   "toTerminal": "cathode"
-  },
-  {
-   "from": "mega1",
-   "fromTerminal": "d27",
-   "to": "d6",
-   "toTerminal": "cathode"
-  },
-  {
-   "from": "mega1",
    "fromTerminal": "gnd",
    "to": "gnd1",
    "toTerminal": "gnd"
-  },
-  {
-   "from": "mega1",
-   "fromTerminal": "5v",
-   "to": "r0",
-   "toTerminal": "a"
-  },
-  {
-   "from": "mega1",
-   "fromTerminal": "5v",
-   "to": "r1",
-   "toTerminal": "a"
-  },
-  {
-   "from": "mega1",
-   "fromTerminal": "5v",
-   "to": "r2",
-   "toTerminal": "a"
-  },
-  {
-   "from": "mega1",
-   "fromTerminal": "5v",
-   "to": "r3",
-   "toTerminal": "a"
-  },
-  {
-   "from": "mega1",
-   "fromTerminal": "5v",
-   "to": "r4",
-   "toTerminal": "a"
-  },
-  {
-   "from": "mega1",
-   "fromTerminal": "5v",
-   "to": "r5",
-   "toTerminal": "a"
-  },
-  {
-   "from": "mega1",
-   "fromTerminal": "5v",
-   "to": "r6",
-   "toTerminal": "a"
-  },
-  {
-   "from": "mega1",
-   "fromTerminal": "5v",
-   "to": "r7",
-   "toTerminal": "a"
   },
   {
    "from": "mega1",
@@ -523,62 +379,158 @@
    },
    "color": "red",
    "genPower": true
+  },
+  {
+   "from": "mega1",
+   "fromTerminal": "d13",
+   "to": "r0",
+   "toTerminal": "a"
+  },
+  {
+   "from": "gnd1",
+   "fromTerminal": "gnd",
+   "to": "d0",
+   "toTerminal": "cathode"
+  },
+  {
+   "from": "mega1",
+   "fromTerminal": "d22",
+   "to": "r1",
+   "toTerminal": "a"
+  },
+  {
+   "from": "gnd1",
+   "fromTerminal": "gnd",
+   "to": "d1",
+   "toTerminal": "cathode"
+  },
+  {
+   "from": "mega1",
+   "fromTerminal": "d23",
+   "to": "r2",
+   "toTerminal": "a"
+  },
+  {
+   "from": "gnd1",
+   "fromTerminal": "gnd",
+   "to": "d2",
+   "toTerminal": "cathode"
+  },
+  {
+   "from": "mega1",
+   "fromTerminal": "d24",
+   "to": "r3",
+   "toTerminal": "a"
+  },
+  {
+   "from": "gnd1",
+   "fromTerminal": "gnd",
+   "to": "d3",
+   "toTerminal": "cathode"
+  },
+  {
+   "from": "mega1",
+   "fromTerminal": "d25",
+   "to": "r4",
+   "toTerminal": "a"
+  },
+  {
+   "from": "gnd1",
+   "fromTerminal": "gnd",
+   "to": "d4",
+   "toTerminal": "cathode"
+  },
+  {
+   "from": "mega1",
+   "fromTerminal": "d26",
+   "to": "r5",
+   "toTerminal": "a"
+  },
+  {
+   "from": "gnd1",
+   "fromTerminal": "gnd",
+   "to": "d5",
+   "toTerminal": "cathode"
+  },
+  {
+   "from": "mega1",
+   "fromTerminal": "d27",
+   "to": "r6",
+   "toTerminal": "a"
+  },
+  {
+   "from": "gnd1",
+   "fromTerminal": "gnd",
+   "to": "d6",
+   "toTerminal": "cathode"
+  },
+  {
+   "from": "mega1",
+   "fromTerminal": "d28",
+   "to": "r7",
+   "toTerminal": "a"
+  },
+  {
+   "from": "gnd1",
+   "fromTerminal": "gnd",
+   "to": "d7",
+   "toTerminal": "cathode"
   }
  ],
  "holeWires": [
   {
    "ref": "bbw:bb1:gen_0",
    "boardId": "bb1",
-   "a": "b3",
+   "a": "a52",
    "b": "t+3",
    "color": "red"
   },
   {
    "ref": "bbw:bb1:gen_1",
    "boardId": "bb1",
-   "a": "b9",
+   "a": "a56",
    "b": "t+9",
    "color": "red"
   },
   {
    "ref": "bbw:bb1:gen_2",
    "boardId": "bb1",
-   "a": "b15",
+   "a": "a60",
    "b": "t+15",
    "color": "red"
   },
   {
    "ref": "bbw:bb1:gen_3",
    "boardId": "bb1",
-   "a": "b21",
+   "a": "f4",
    "b": "t+21",
    "color": "red"
   },
   {
    "ref": "bbw:bb1:gen_4",
    "boardId": "bb1",
-   "a": "b27",
+   "a": "f8",
    "b": "t+27",
    "color": "red"
   },
   {
    "ref": "bbw:bb1:gen_5",
    "boardId": "bb1",
-   "a": "b33",
+   "a": "f12",
    "b": "t+33",
    "color": "red"
   },
   {
    "ref": "bbw:bb1:gen_6",
    "boardId": "bb1",
-   "a": "b39",
+   "a": "f16",
    "b": "t+39",
    "color": "red"
   },
   {
    "ref": "bbw:bb1:gen_7",
    "boardId": "bb1",
-   "a": "b45",
+   "a": "f20",
    "b": "t+45",
    "color": "red"
   },

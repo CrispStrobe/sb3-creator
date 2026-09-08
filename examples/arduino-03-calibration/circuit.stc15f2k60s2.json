@@ -203,12 +203,6 @@
    "toTerminal": "anode"
   },
   {
-   "from": "led2",
-   "fromTerminal": "cathode",
-   "to": "gnd1",
-   "toTerminal": "gnd"
-  },
-  {
    "from": "board",
    "fromTerminal": "P1.0",
    "to": "pot1",
@@ -222,12 +216,6 @@
   },
   {
    "from": "board",
-   "fromTerminal": "P1.2",
-   "to": "r2",
-   "toTerminal": "a"
-  },
-  {
-   "from": "board",
    "fromTerminal": "GND",
    "to": "gnd1",
    "toTerminal": "gnd"
@@ -236,12 +224,6 @@
    "from": "board",
    "fromTerminal": "GND",
    "to": "led1",
-   "toTerminal": "cathode"
-  },
-  {
-   "from": "board",
-   "fromTerminal": "GND",
-   "to": "led2",
    "toTerminal": "cathode"
   },
   {
@@ -281,6 +263,18 @@
    },
    "color": "black",
    "genPower": true
+  },
+  {
+   "from": "board",
+   "fromTerminal": "P1.2",
+   "to": "led2",
+   "toTerminal": "cathode"
+  },
+  {
+   "from": "vcc1",
+   "fromTerminal": "vcc",
+   "to": "r2",
+   "toTerminal": "a"
   }
  ],
  "holeWires": [
@@ -322,7 +316,7 @@
   {
    "ref": "bbw:bb1:gen_5",
    "boardId": "bb1",
-   "a": "b50",
+   "a": "a39",
    "b": "b-50",
    "color": "black"
   },
@@ -344,7 +338,7 @@
    "ref": "bbw:bb1:gen_8",
    "boardId": "bb1",
    "a": "a13",
-   "b": "b39",
+   "b": "a50",
    "color": "purple"
   },
   {
@@ -365,7 +359,7 @@
    "ref": "bbw:bb1:gen_11",
    "boardId": "bb1",
    "a": "c22",
-   "b": "c50",
+   "b": "a39",
    "color": "blue"
   },
   {
