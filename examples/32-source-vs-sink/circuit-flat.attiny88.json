@@ -100,7 +100,7 @@
         "pb4",
         "pb5",
         "avcc",
-        "pa0",
+        "gnd2",
         "pc0",
         "pc1",
         "pc2",
@@ -119,12 +119,12 @@
       "id": "w_flat_0",
       "netId": "bb1:n-col-b16",
       "from": {
-        "part": "led_sink",
-        "terminal": "cathode"
-      },
-      "to": {
         "part": "attiny881",
         "terminal": "pb0"
+      },
+      "to": {
+        "part": "r_sink",
+        "terminal": "a"
       }
     },
     {
@@ -165,38 +165,38 @@
     },
     {
       "id": "w_flat_4",
-      "netId": "bb1:rail-b-",
+      "netId": "bb1:n-col-t34",
       "from": {
+        "part": "attiny881",
+        "terminal": "gnd"
+      },
+      "to": {
         "part": "gnd1",
+        "terminal": "gnd"
+      }
+    },
+    {
+      "id": "w_flat_5",
+      "netId": "bb1:n-col-t34",
+      "from": {
+        "part": "attiny881",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "led_sink",
+        "terminal": "cathode"
+      }
+    },
+    {
+      "id": "w_flat_6",
+      "netId": "bb1:n-col-t34",
+      "from": {
+        "part": "attiny881",
         "terminal": "gnd"
       },
       "to": {
         "part": "led_source",
         "terminal": "cathode"
-      }
-    },
-    {
-      "id": "w_flat_5",
-      "netId": "bb1:rail-b-",
-      "from": {
-        "part": "gnd1",
-        "terminal": "gnd"
-      },
-      "to": {
-        "part": "attiny881",
-        "terminal": "gnd"
-      }
-    },
-    {
-      "id": "w_flat_6",
-      "netId": "bb1:rail-t+",
-      "from": {
-        "part": "attiny881",
-        "terminal": "avcc"
-      },
-      "to": {
-        "part": "attiny881",
-        "terminal": "vcc"
       }
     },
     {
@@ -207,8 +207,8 @@
         "terminal": "avcc"
       },
       "to": {
-        "part": "r_sink",
-        "terminal": "a"
+        "part": "attiny881",
+        "terminal": "vcc"
       }
     },
     {
