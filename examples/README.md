@@ -118,9 +118,9 @@ The pin drives the transistor's base (~3.6 mA); the transistor drives the relay
 coil (~43 mA from the supply rail). Without the driver, the pin cannot deliver
 enough current and the relay stays dead — the simulator catches this.
 
-Open **`46-port-overcurrent`**. Eight 160 Ω LED branches on STC12 Port 1 draw
-about 16.2 mA each in the model — individually below 20 mA, but about
-129.7 mA together, above the chip model's 120 mA total budget. The compiler
+Open **`46-port-overcurrent`**. Eight 140 Ω LED branches on STC12 Port 1 draw
+about 17.14 mA each in the pinned model — individually below 20 mA, but about
+137.14 mA together, above the chip model's 120 mA total budget. The compiler
 also emits its conservative eight-output worst-case warning.
 
 ---

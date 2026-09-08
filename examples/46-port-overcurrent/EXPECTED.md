@@ -2,19 +2,20 @@
 
 ## Circuit
 
-8 LEDs on Port 1 (P1.0–P1.7), all active-low with 160 Ω resistors.
-VCC → 160 Ω → LED → MCU pin, for each of the 8 pins.
+8 LEDs on Port 1 (P1.0–P1.7), all active-low with 140 Ω resistors.
+VCC → 140 Ω → LED → MCU pin, for each of the 8 pins.
 This is deliberately an STC12C5A60S2-only lesson: its aggregate Port 1
 sink-current limit is the subject, so retargeting it to unrelated GPIO ports
 or source-driven LED conventions would teach a different electrical claim.
 
 ## The lesson
 
-Ideal resistor arithmetic gives (5.0 − 2.0) / 160 = 18.75 mA per pin,
-below the 20 mA per-pin maximum. The engine also models the pin's output
-resistance, producing a slightly lower current per branch, but the sum of all
-eight branches is still greater than the chip's approximately 120 mA I/O
-budget (STC12C5A60S2 datasheet §4.6).
+The pinned engine models the pin's output resistance as part of the current
+path. With 140 Ω external resistors it solves about 17.143 mA per branch and
+137.143 mA across all eight: 14.3% below the 20 mA per-pin maximum and 14.3%
+above the chip's approximately 120 mA I/O budget (STC12C5A60S2 datasheet
+§4.6). These are model-fixture values, not a substitute for a hardware design
+calculation against the actual chip and LED tolerances.
 
 An absolute-maximum violation is a design error even if a simulator continues
 to solve the circuit. On hardware it can cause voltage sag, resets, overheating,
@@ -33,7 +34,7 @@ or permanent damage. Use larger resistors or an external driver.
 
 | all 8 on | per-LED current | total Port 1 | % of chip budget |
 |---|---|---|---|
-| 160 Ω | below 20 mA | above 120 mA total | over 100% |
+| 140 Ω | about 17.143 mA | about 137.143 mA total | about 114.3% |
 
 All 8 LEDs light simultaneously. The model-backed gate checks the actual
 branch currents: each stays below 20 mA and their sum exceeds 120 mA.

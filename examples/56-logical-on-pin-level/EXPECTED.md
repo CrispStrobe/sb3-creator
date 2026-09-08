@@ -12,6 +12,10 @@ Every supported target runs the same body: 500 ms logically on, 500 ms logically
 | push-pull MCU | `OUTPUT` | HIGH | pin → resistor → LED → GND |
 
 The pin name and device clock also change to the target's supported values. The `WHEN`/`FOREVER` body must remain identical after retargeting.
+Both the seated `circuit.<device>.json` bench and its board-free
+`circuit-flat.<device>.json` twin must implement the same polarity. The flat
+surface is included deliberately because an earlier polarity regression hid
+there after the seated benches were already correct.
 
 ## Observable sequence
 

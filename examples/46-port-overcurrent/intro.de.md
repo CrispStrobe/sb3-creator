@@ -5,7 +5,7 @@ prereqs: [01-blink]
 teaches: [port-current-limit, aggregate-current, chip-protection]
 ---
 ## Was du siehst
-Acht LEDs an Port 1 eines STC12C5A60S2, alle gleichzeitig eingeschaltet. Mit 160-Ohm-Widerstaenden zieht im Schaltungsmodell jeder Zweig etwa 16,2 mA. Das liegt unter dem 20-mA-Maximum pro Pin, ergibt zusammen aber etwa 129,7 mA und ueberschreitet damit das 120-mA-Gesamtbudget des Chips.
+Acht LEDs an Port 1 eines STC12C5A60S2, alle gleichzeitig eingeschaltet. Mit 140-Ohm-Widerstaenden zieht im festgelegten Schaltungsmodell jeder Zweig etwa 17,14 mA. Das liegt unter dem 20-mA-Maximum pro Pin, ergibt zusammen aber etwa 137,14 mA und ueberschreitet damit das 120-mA-Gesamtbudget des Chips.
 
 ## Probier das
 1. Starte die Simulation mit allen acht LEDs an und addiere die acht Zweigstroeme.

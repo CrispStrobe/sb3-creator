@@ -5,7 +5,7 @@ prereqs: [01-blink]
 teaches: [port-current-limit, aggregate-current, chip-protection]
 ---
 ## What you see
-Eight LEDs are connected to a single STC12 port through 160 Ω resistors and turned on together. Each branch remains below the 20 mA per-pin limit, but the modeled branches total more than the chip's approximately 120 mA I/O budget. Every pin can look acceptable while their sum is not.
+Eight LEDs are connected to a single STC12 port through 140 Ω resistors and turned on together. At the pinned circuit model, each branch draws about 17.14 mA and remains below the 20 mA per-pin limit, but the eight branches total about 137.14 mA — above the chip's approximately 120 mA I/O budget. Every pin can look acceptable while their sum is not.
 
 ## Try this
 1. Run the simulation with all eight LEDs on and inspect the branch currents.

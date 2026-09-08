@@ -124,8 +124,8 @@ treibt die Relaisspule (~43 mA von der Versorgungsschiene). Ohne den Treiber
 kann der Pin nicht genug Strom liefern, und das Relais bleibt tot — der
 Simulator fängt das ab.
 
-Öffne **`46-port-overcurrent`**. Acht 160-Ω-LED-Zweige an STC12-Port 1 ziehen
-im Modell je etwa 16,2 mA — einzeln unter 20 mA, zusammen aber etwa 129,7 mA
+Öffne **`46-port-overcurrent`**. Acht 140-Ω-LED-Zweige an STC12-Port 1 ziehen
+im festgelegten Modell je etwa 17,14 mA — einzeln unter 20 mA, zusammen aber etwa 137,14 mA
 und damit mehr als das 120-mA-Gesamtbudget des Chipmodells. Der Compiler gibt
 zusätzlich seine konservative Worst-Case-Warnung für acht Ausgänge aus.
 

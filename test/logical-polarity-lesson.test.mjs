@@ -17,14 +17,33 @@ const endpoint = (wire, side) => ({
 });
 
 function connected(data, aPart, aTerminal, bPart, bTerminal) {
-    return (data.wires || []).some(wire => {
+    const graph = new Map();
+    const link = (a, b) => {
+        if (!graph.has(a)) graph.set(a, new Set());
+        graph.get(a).add(b);
+    };
+    for (const wire of data.wires || []) {
         const from = endpoint(wire, 'from');
         const to = endpoint(wire, 'to');
-        return (from.part === aPart && from.terminal === aTerminal
-                && to.part === bPart && to.terminal === bTerminal)
-            || (to.part === aPart && to.terminal === aTerminal
-                && from.part === bPart && from.terminal === bTerminal);
-    });
+        const a = `${from.part}.${from.terminal}`;
+        const b = `${to.part}.${to.terminal}`;
+        link(a, b);
+        link(b, a);
+    }
+    const start = `${aPart}.${aTerminal}`;
+    const goal = `${bPart}.${bTerminal}`;
+    const seen = new Set([start]);
+    const pending = [start];
+    while (pending.length) {
+        const here = pending.shift();
+        if (here === goal) return true;
+        for (const next of graph.get(here) || []) {
+            if (seen.has(next)) continue;
+            seen.add(next);
+            pending.push(next);
+        }
+    }
+    return false;
 }
 
 function benchMatchesPolarity(data, activeLow) {
@@ -59,15 +78,17 @@ describe('56-logical-on-pin-level keeps intent while changing electrical polarit
             assert.equal(/\bACTIVE LOW\b/.test(pinLine), pool.ledActiveLow === true,
                 `${device} declaration follows its LED polarity convention`);
 
-            const bench = JSON.parse(readFileSync(
-                join(EXAMPLES, ID, `circuit.${device}.json`), 'utf8'));
-            assert.equal(benchMatchesPolarity(bench, pool.ledActiveLow === true), true,
-                `${device} bench wiring follows its declaration`);
+            for (const surface of ['circuit', 'circuit-flat']) {
+                const bench = JSON.parse(readFileSync(
+                    join(EXAMPLES, ID, `${surface}.${device}.json`), 'utf8'));
+                assert.equal(benchMatchesPolarity(bench, pool.ledActiveLow === true), true,
+                    `${device} ${surface} wiring follows its declaration`);
 
-            // Mutation proof: interpreting the same bench as the opposite
-            // convention must fail, so this is not merely checking file presence.
-            assert.equal(benchMatchesPolarity(bench, pool.ledActiveLow !== true), false,
-                `${device} bench must not satisfy both polarities`);
+                // Mutation proof: interpreting the same bench as the opposite
+                // convention must fail, so this is not merely checking file presence.
+                assert.equal(benchMatchesPolarity(bench, pool.ledActiveLow !== true), false,
+                    `${device} ${surface} must not satisfy both polarities`);
+            }
         }
     });
 });

@@ -4,7 +4,7 @@
     "repo": "bw-circuit-ui",
     "sha": "c276c0dbfdc26fa858e22e7642217411c2398fa9"
   },
-  "pairs": 937,
+  "pairs": 948,
   "entries": [
     {
       "dir": "01-blink",
@@ -1866,8 +1866,8 @@
       "dir": "46-port-overcurrent",
       "flat": "circuit-flat.json",
       "twin": "circuit.json",
-      "flatSha": "5019c77fe92acbbf42783bb937e8be872b02d8df0fcf37d17f133e7635edb09e",
-      "twinSha": "2102749c26dbe775364ab1a1d12e1ffc15ee1bd3fee8f1f2cb76a6c726dcbaaf",
+      "flatSha": "f8f15917e8b63bd10d87eb270564e713b772c334dce01c64589bddbfb9628284",
+      "twinSha": "23cb55ecc62aff288bdf06a33ef3ffac06a17399e5156f6c51b54b73a05dfc19",
       "partitionSha": "57d26586d5abec956f79964ae7fd549b687c208fe9fe86d269844f6a2cfe8837"
     },
     {
@@ -2301,6 +2301,94 @@
       "flatSha": "5fdb65fae8aabecce6db35fdae6af1a1bbc1d44feed2fb19895c27ab6844d05c",
       "twinSha": "86b57777a1ba37e57cb64cbb96bd1d71c9d38377c0c6c8301ad1bbf35c3a9ad3",
       "partitionSha": "f797e77d5970904797a529a6e266168c939583ba3f267c5aac98fe1ee1d6dc7f"
+    },
+    {
+      "dir": "56-logical-on-pin-level",
+      "flat": "circuit-flat.arduino-mega.json",
+      "twin": "circuit.arduino-mega.json",
+      "flatSha": "68d5e987ea0d8a0eb202159e9d4b469bc93d91d240021c1e0c87b2a325a60467",
+      "twinSha": "5012c9d054321f82c71370ea9f54b92c7dd6c4c21310348548ba37a03de44cf4",
+      "partitionSha": "67e8ff23c48757b9e9903d56d7e5c4c519fb3d3e4c415c703c5ca7091e73de95"
+    },
+    {
+      "dir": "56-logical-on-pin-level",
+      "flat": "circuit-flat.arduino-nano.json",
+      "twin": "circuit.arduino-nano.json",
+      "flatSha": "f268909e05987a6b5d6f093db6815fafdb3639f9fe9ce94c7e7cfd7e43c58bae",
+      "twinSha": "a6926df73e082567b4e240dbf12b7a412a08910524de8b289469024fa652907b",
+      "partitionSha": "91bf196a04735d55d2c7a77322249321084fb93402099084725f352660634e15"
+    },
+    {
+      "dir": "56-logical-on-pin-level",
+      "flat": "circuit-flat.arduino-uno.json",
+      "twin": "circuit.arduino-uno.json",
+      "flatSha": "a75c197ab78650558e7bd0eda9125a81aa60ffd0212d406f84af1d4e8dcc6894",
+      "twinSha": "b97c095ffdbff950a088fe7731e5d220459e839102a3b1ef7c6ca942ebfdeb4e",
+      "partitionSha": "67e8ff23c48757b9e9903d56d7e5c4c519fb3d3e4c415c703c5ca7091e73de95"
+    },
+    {
+      "dir": "56-logical-on-pin-level",
+      "flat": "circuit-flat.atmega168p.json",
+      "twin": "circuit.atmega168p.json",
+      "flatSha": "a75c197ab78650558e7bd0eda9125a81aa60ffd0212d406f84af1d4e8dcc6894",
+      "twinSha": "b97c095ffdbff950a088fe7731e5d220459e839102a3b1ef7c6ca942ebfdeb4e",
+      "partitionSha": "67e8ff23c48757b9e9903d56d7e5c4c519fb3d3e4c415c703c5ca7091e73de95"
+    },
+    {
+      "dir": "56-logical-on-pin-level",
+      "flat": "circuit-flat.attiny85.json",
+      "twin": "circuit.attiny85.json",
+      "flatSha": "ceaa4178f3ad2ea3f5fdda7f6876b9b0cf41f1cbde0ec214b6b1924b141ae768",
+      "twinSha": "40102fb3c40806fa5f29e8ec564f666f73b0a1af33ae25201f1623399049a1c8",
+      "partitionSha": "e9fb740135b0b28260724bb58248f8c73a38866de3db5479d5249dcaf192a106"
+    },
+    {
+      "dir": "56-logical-on-pin-level",
+      "flat": "circuit-flat.attiny88.json",
+      "twin": "circuit.attiny88.json",
+      "flatSha": "07cb468c2df03f26caa165aa5e6c0f4ff1652b8ee8211144c8c5b0d56ba89e36",
+      "twinSha": "e48dfdb184b05f0cedd25d2e88b1f1336dfdb4c7ae726e3a8ffb2291226273b7",
+      "partitionSha": "72f9425c5d9e99b1230daaf6c37702b35d0f9e77e5672dccb4549b9d8c343fc9"
+    },
+    {
+      "dir": "56-logical-on-pin-level",
+      "flat": "circuit-flat.pico.json",
+      "twin": "circuit.pico.json",
+      "flatSha": "e6e49f769361990f36bba6adf0e33f8c92b012c0ac966f812f72a17dda00de3c",
+      "twinSha": "c856a916f407acc3a6ba52acd5037ca150015d2a9a7f00099b1481c554dfad8b",
+      "partitionSha": "1780f81ade9436e39e6fed31d920f0516de79baea912372fbee3097a65ab3b66"
+    },
+    {
+      "dir": "56-logical-on-pin-level",
+      "flat": "circuit-flat.stc12c5a60s2.json",
+      "twin": "circuit.stc12c5a60s2.json",
+      "flatSha": "0953e7eaf0f9af65eb5db4a0cd13de7d1934a27cd2d23b2f9589a3741d1fc850",
+      "twinSha": "5b8c873cb02f61de8141ee9e754ddb5c6b9e516aef71814c7d96d69503c65bc4",
+      "partitionSha": "022237acec5d36b87b6e9dcb1032bc5d61945666d41fe23ec960984e8362ecdd"
+    },
+    {
+      "dir": "56-logical-on-pin-level",
+      "flat": "circuit-flat.stc15f2k60s2.json",
+      "twin": "circuit.stc15f2k60s2.json",
+      "flatSha": "7166ad21a26902c5e3a7d7add6021f189353e7ad11ecb4c180c7dacc102d6b2f",
+      "twinSha": "b42b96d8ac3b601f19e4e42b1f45b44d32073e06d52bde972cc18af47a8c1c90",
+      "partitionSha": "022237acec5d36b87b6e9dcb1032bc5d61945666d41fe23ec960984e8362ecdd"
+    },
+    {
+      "dir": "56-logical-on-pin-level",
+      "flat": "circuit-flat.stc89c52rc.json",
+      "twin": "circuit.stc89c52rc.json",
+      "flatSha": "0953e7eaf0f9af65eb5db4a0cd13de7d1934a27cd2d23b2f9589a3741d1fc850",
+      "twinSha": "5b8c873cb02f61de8141ee9e754ddb5c6b9e516aef71814c7d96d69503c65bc4",
+      "partitionSha": "022237acec5d36b87b6e9dcb1032bc5d61945666d41fe23ec960984e8362ecdd"
+    },
+    {
+      "dir": "56-logical-on-pin-level",
+      "flat": "circuit-flat.stm32f030.json",
+      "twin": "circuit.stm32f030.json",
+      "flatSha": "9617f6f9ca079e2b8cc1ba3c2fbe43767c129ccd8341376fa09ab4db0b2d86b8",
+      "twinSha": "7bad486f2f854f6e15125c6383cb97b999a4a8e31a41a0f88c0b055a7d2683f9",
+      "partitionSha": "c1eadb96606655e943ec53c227cbb5bc78f30735f0ed6603498df4560ce88b95"
     },
     {
       "dir": "60-retro-console",

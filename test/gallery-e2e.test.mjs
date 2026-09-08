@@ -507,18 +507,22 @@ describe('e2e: port-overcurrent fixture crosses the modeled aggregate limit', { 
             Math.abs(circuit.board.branchCurrent(`r${bit}`, 'a')));
     };
 
-    test('160 ohm keeps every branch below 20 mA while their sum exceeds 120 mA', () => {
+    test('140 ohm keeps every branch below 20 mA while their sum exceeds 120 mA', () => {
         const data = JSON.parse(readFileSync(circuitFileFor('46-port-overcurrent'), 'utf8'));
         const currents = measure(data);
         for (const [bit, current] of currents.entries()) {
             assert.ok(current > 0 && current < 0.020,
                 `P1.${bit} branch is ${(current * 1000).toFixed(2)} mA; `
-                + 'MEASURED 2026-09-08: observed ~16.22 mA, expected 0..20 mA');
+                + 'MEASURED 2026-09-08 at bw-board@7b7f3b50f45bdbe3f8e6e4ed924840fa3f2983c7 '
+                + '+ bw-circuit-ui@c276c0dbfdc26fa858e22e7642217411c2398fa9: '
+                + 'actual: ~17.143 mA, expected 0..20 mA');
         }
         const total = currents.reduce((sum, current) => sum + current, 0);
         assert.ok(total > 0.120,
             `eight modeled branches total ${(total * 1000).toFixed(2)} mA; `
-            + 'MEASURED 2026-09-08: actual: ~129.7 mA, expected >120 mA');
+            + 'MEASURED 2026-09-08 at bw-board@7b7f3b50f45bdbe3f8e6e4ed924840fa3f2983c7 '
+            + '+ bw-circuit-ui@c276c0dbfdc26fa858e22e7642217411c2398fa9: '
+            + 'actual: ~137.143 mA, expected >120 mA');
 
         // Mutation proof: restoring the old 470 ohm value must put the same
         // circuit below the aggregate threshold, which is why that fixture
@@ -528,7 +532,9 @@ describe('e2e: port-overcurrent fixture crosses the modeled aggregate limit', { 
         const oldTotal = measure(restored).reduce((sum, current) => sum + current, 0);
         assert.ok(oldTotal < 0.120,
             `the 470 ohm mutant totals ${(oldTotal * 1000).toFixed(2)} mA; `
-            + 'MEASURED 2026-09-08: actual: ~51.2 mA, expected <120 mA');
+            + 'MEASURED 2026-09-08 at bw-board@7b7f3b50f45bdbe3f8e6e4ed924840fa3f2983c7 '
+            + '+ bw-circuit-ui@c276c0dbfdc26fa858e22e7642217411c2398fa9: '
+            + 'actual: ~47.525 mA, expected <120 mA');
     });
 });
 

@@ -19,7 +19,7 @@
       "id": "r0",
       "kind": "resistor",
       "params": {
-        "ohms": 160
+        "ohms": 140
       },
       "seat": {
         "boardId": "bb1",
@@ -35,7 +35,7 @@
       "id": "r1",
       "kind": "resistor",
       "params": {
-        "ohms": 160
+        "ohms": 140
       },
       "seat": {
         "boardId": "bb1",
@@ -51,7 +51,7 @@
       "id": "r2",
       "kind": "resistor",
       "params": {
-        "ohms": 160
+        "ohms": 140
       },
       "seat": {
         "boardId": "bb1",
@@ -67,7 +67,7 @@
       "id": "r3",
       "kind": "resistor",
       "params": {
-        "ohms": 160
+        "ohms": 140
       },
       "seat": {
         "boardId": "bb1",
@@ -83,7 +83,7 @@
       "id": "r4",
       "kind": "resistor",
       "params": {
-        "ohms": 160
+        "ohms": 140
       },
       "seat": {
         "boardId": "bb1",
@@ -99,7 +99,7 @@
       "id": "r5",
       "kind": "resistor",
       "params": {
-        "ohms": 160
+        "ohms": 140
       },
       "seat": {
         "boardId": "bb1",
@@ -115,7 +115,7 @@
       "id": "r6",
       "kind": "resistor",
       "params": {
-        "ohms": 160
+        "ohms": 140
       },
       "seat": {
         "boardId": "bb1",
@@ -131,7 +131,7 @@
       "id": "r7",
       "kind": "resistor",
       "params": {
-        "ohms": 160
+        "ohms": 140
       },
       "seat": {
         "boardId": "bb1",
