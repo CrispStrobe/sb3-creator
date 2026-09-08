@@ -27,6 +27,7 @@ import SB3Creator from '../src/utils/sb3Creator.js';
 import cHostToPseudocode from '../src/utils/cHostToPseudocode.js';
 
 const build = (src) => { const c = new SB3Creator(); c.parse(src); return c; };
+const isDeviceProject = (creator) => Boolean(creator.project.stc?.device);
 const has = (cmd) => spawnSync(cmd, ['--version'], { stdio: 'ignore' }).status === 0;
 const HAS_CC = has('cc');
 const HAS_PY = has('python3');
@@ -41,8 +42,7 @@ test('every example emits host C, and only the known extension gaps warn', async
     const warned = [];
     for (const [name, ex] of Object.entries(examples)) {
         const c = build(ex.code ?? ex);
-        const isDevice = !!(c.project.stc && c.project.stc.pins && c.project.stc.pins.length);
-        if (isDevice) continue;                       // the chip target has its own suite
+        if (isDeviceProject(c)) continue;             // the chip target has its own suite
         const out = c.generateC();
         assert.match(out, /blocks → C \(host\)/, `${name} takes the host target`);
         if ((c._hcWarnings || []).length) warned.push(name);
@@ -57,7 +57,7 @@ test('the emitted C compiles, warnings and all', { skip: !HAS_CC }, async () => 
     let compiled = 0;
     for (const [name, ex] of Object.entries(examples)) {
         const c = build(ex.code ?? ex);
-        if (c.project.stc && c.project.stc.pins && c.project.stc.pins.length) continue;
+        if (isDeviceProject(c)) continue;
         const file = path.join(dir, name.replace(/[^\w-]/g, '_') + '.c');
         fs.writeFileSync(file, c.generateC());
         const r = spawnSync('cc', ['-std=c99', '-Wall', '-Wextra', '-Werror',
@@ -202,7 +202,7 @@ test('host C loses nothing the dialect does not already lose', async () => {
     const worse = [];
     for (const [name, ex] of Object.entries(examples)) {
         const a = build(ex.code ?? ex);
-        if (a.project.stc && a.project.stc.pins && a.project.stc.pins.length) continue;
+        if (isDeviceProject(a)) continue;
         const direct = a.decompile();
         const viaPseudocode = build(direct).decompile();          // the dialect's own ceiling
         const viaC = build(cHostToPseudocode(a.generateC())).decompile();
@@ -223,7 +223,7 @@ test('and all of them come back byte-identical', async () => {
     for (const [name, ex] of Object.entries(examples)) {
         void name;
         const a = build(ex.code ?? ex);
-        if (a.project.stc && a.project.stc.pins && a.project.stc.pins.length) continue;
+        if (isDeviceProject(a)) continue;
         if (build(cHostToPseudocode(a.generateC())).decompile() === a.decompile()) identical++;
     }
     // MEASURED 2026-08-29 (scripts/threshold-observe.mjs, 40-file sweep, box load 16-53):
