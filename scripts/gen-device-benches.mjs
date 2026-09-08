@@ -13,6 +13,9 @@
 //     scratch dirs under /tmp/wore-batch).
 //   node scripts/gen-device-benches.mjs seat --reseat — deliberately rebuild
 //     every generated bench after a geometry/power seating migration.
+//   node scripts/gen-device-benches.mjs polarity — align existing authored
+//     transforms with each target program's declared output polarity without
+//     disturbing seats or internal branch wiring.
 //   node scripts/gen-device-benches.mjs index   — regenerate the benches
 //     map in examples/index.json from the filesystem (the picker's
 //     contract; never hand-maintained).
@@ -40,7 +43,7 @@ import { injectEngine, registerSidecars, locateSibling } from './lib/engine-surf
 
 const cmd = process.argv[2];
 
-import { transformAuthored } from './lib/authored-transform.mjs';
+import { alignAuthoredBenchPolarity, transformAuthored } from './lib/authored-transform.mjs';
 
 async function batch() {
   const regenerate = process.argv.includes('--regenerate');
@@ -198,6 +201,42 @@ function seat() {
   if (failed) process.exit(1);
 }
 
+async function polarity() {
+  const onlyAt = process.argv.indexOf('--only');
+  const only = onlyAt === -1 ? null : process.argv[onlyAt + 1];
+  const SB3Creator = (await import('../src/utils/sb3Creator.js')).default;
+  const cmod = await injectEngine({board: BW_BOARD, cui: CUI});
+  await registerSidecars(CUI);
+  let files = 0, branches = 0;
+  const candidates = fs.readdirSync('examples', {withFileTypes: true})
+    .filter(entry => entry.isDirectory())
+    .flatMap(entry => fs.readdirSync(path.join('examples', entry.name))
+      .filter(name => /^circuit\..+\.json$/.test(name))
+      .map(name => path.join('examples', entry.name, name)))
+    .sort();
+  for (const f of candidates) {
+    const exid = f.split(path.sep)[1];
+    if (only && exid !== only) continue;
+    const d = JSON.parse(fs.readFileSync(f, 'utf8'));
+    if (!String(d.generated || '').startsWith('benchFor+authored')) continue;
+    const device = path.basename(f).replace('circuit.', '').replace('.json', '');
+    const src = fs.readFileSync(`examples/${exid}/program.bw`, 'utf8');
+    const retargeted = SB3Creator.retargetPseudocode(src, device);
+    if (!retargeted.ok) {
+      throw new Error(`${exid} x ${device}: shipped authored bench no longer retargets — ${retargeted.reason || 'unknown refusal'}`);
+    }
+    const creator = new SB3Creator();
+    creator.parse(retargeted.pseudocode ?? src);
+    const aligned = alignAuthoredBenchPolarity(d, cmod.Circuit, creator.project?.stc?.pins || []);
+    if (!aligned.ok) throw new Error(`${exid} x ${device}: ${aligned.reason}`);
+    if (!aligned.polarityRewrites) continue;
+    fs.writeFileSync(f, JSON.stringify(aligned.out, null, 1));
+    files++;
+    branches += aligned.polarityRewrites;
+  }
+  console.log(`polarity: aligned ${branches} LED branches across ${files} authored benches`);
+}
+
 function index() {
   const p = 'examples/index.json';
   const d = JSON.parse(fs.readFileSync(p, 'utf8'));
@@ -215,5 +254,6 @@ function index() {
 
 if (cmd === 'batch') await batch();
 else if (cmd === 'seat') seat();
+else if (cmd === 'polarity') await polarity();
 else if (cmd === 'index') index();
-else { console.error('usage: gen-device-benches.mjs batch [--regenerate] [--only id]|seat [--reseat]|index'); process.exit(1); }
+else { console.error('usage: gen-device-benches.mjs batch [--regenerate] [--only id]|seat [--reseat] [--only id]|polarity [--only id]|index'); process.exit(1); }
