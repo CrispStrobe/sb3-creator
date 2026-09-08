@@ -38,7 +38,7 @@ import assert from 'node:assert/strict';
 import { readFileSync, readdirSync, existsSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import SB3Creator from '../src/utils/sb3Creator.js';
-import { isRetargetableExample } from '../scripts/lib/authored-transform.mjs';
+import { allowsRetargeting, isRetargetableExample } from '../scripts/lib/authored-transform.mjs';
 
 const EXAMPLES = join(import.meta.dirname, '..', 'examples');
 const index = JSON.parse(readFileSync(join(EXAMPLES, 'index.json'), 'utf8'));
@@ -93,8 +93,11 @@ describe('index metadata agrees with the files and the compiler', () => {
         // Mutation proof: widening the catalog device list alone must not make
         // this chip-current lesson eligible for the batch generator again.
         const widened = {...lesson, devices: [...lesson.devices, 'arduino-uno']};
+        assert.equal(allowsRetargeting(widened), false);
         assert.equal(isRetargetableExample(widened), false);
-        assert.equal(isRetargetableExample({...widened, retarget: true}), true,
+        const optedIn = {...widened, retarget: true};
+        assert.equal(allowsRetargeting(optedIn), true);
+        assert.equal(isRetargetableExample(optedIn), true,
             'the test must exercise the retarget guard rather than a one-device shortcut');
 
         const program = readFileSync(join(EXAMPLES, lesson.id, 'program.bw'), 'utf8');

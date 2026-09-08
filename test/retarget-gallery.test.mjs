@@ -10,6 +10,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 import SB3Creator from '../src/utils/sb3Creator.js';
+import { allowsRetargeting } from '../scripts/lib/authored-transform.mjs';
 
 const EXAMPLES = join(import.meta.dirname, '..', 'examples');
 const index = JSON.parse(readFileSync(join(EXAMPLES, 'index.json'), 'utf8'));
@@ -36,7 +37,7 @@ const devices = Object.keys(SB3Creator.RETARGET_POOLS)
 // MicroPython boards can retarget program text, but stay outside this gallery
 // sweep until the circuit transformer can build their matching benches.
 const generic = index.filter(e => e.kind === 'program' && Array.isArray(e.devices) &&
-    e.authored !== 'microbit' && e.authored !== 'spike');
+    allowsRetargeting(e) && e.authored !== 'microbit' && e.authored !== 'spike');
 
 // ---- 1. Computed device lists match dry-run --------------------------------
 describe('retarget-gallery: computed device lists are accurate', () => {

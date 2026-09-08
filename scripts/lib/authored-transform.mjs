@@ -6,8 +6,13 @@ import { DEVPART } from './devpart.mjs';
 
 /** Whether a gallery entry authorizes cross-device bench generation. */
 export function isRetargetableExample(entry) {
-  return entry?.retarget !== false && Array.isArray(entry?.devices) && entry.devices.length >= 2 &&
+  return allowsRetargeting(entry) && Array.isArray(entry?.devices) && entry.devices.length >= 2 &&
     (entry.kind === 'program' || entry.kind === 'full');
+}
+
+/** Whether catalog maintenance may recompute an entry across device families. */
+export function allowsRetargeting(entry) {
+  return entry?.retarget !== false;
 }
 
 // ── Circuit-preserving retarget ──────────────────────────────────────

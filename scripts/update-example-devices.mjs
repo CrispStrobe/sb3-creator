@@ -14,7 +14,7 @@ import { join, dirname } from 'node:path';
 import os from 'node:os';
 import { fileURLToPath } from 'node:url';
 import SB3Creator from '../src/utils/sb3Creator.js';
-import { parseRetargetedPins, transformAuthored } from './lib/authored-transform.mjs';
+import { allowsRetargeting, parseRetargetedPins, transformAuthored } from './lib/authored-transform.mjs';
 import { DEVPART } from './lib/devpart.mjs';
 import { injectEngine, registerSidecars, locateSibling } from './lib/engine-surface.mjs';
 
@@ -54,6 +54,9 @@ const checkOnly = process.argv.includes('--check');
 let changed = 0;
 for (const e of items) {
     if (!e.files || !e.files.program || !Array.isArray(e.devices)) continue;
+    // A false pin marks a lesson whose claim belongs to its authored chip.
+    // Its explicit devices list is source data, not recomputable syntax reach.
+    if (!allowsRetargeting(e)) continue;
     const src = readFileSync(join(root, e.files.program), 'utf8');
     // Machine-authored examples (6502/Z80 computers) load AS AUTHORED:
     // the circuit IS the computer, retargeting the program to an stc12
