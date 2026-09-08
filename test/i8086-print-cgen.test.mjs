@@ -300,16 +300,16 @@ test('a string written through a list cannot acquire numeric print provenance', 
     assert.doesNotMatch(code, /bw_print_num/);
 });
 
-test('a direct numeric list item still refuses when its i8086 C lowering is absent', () => {
+test('a direct numeric list item crosses the bounded N2e i8086 C lowering', () => {
     const {code} = emit(program([
         'set readIndex to 0',
         'delete all of readings',
         'add 7 to readings',
         'print (item (readIndex + 1) of readings)'
     ]));
-    assert.match(code, /No C emitted/);
-    assert.match(code, /data_itemoflist has no complete numeric i8086 C lowering/);
-    assert.doesNotMatch(code, /bw_print_num/);
+    assert.doesNotMatch(code, /No C emitted/);
+    assert.match(code, /bw_list_add\(/);
+    assert.match(code, /bw_print_num\(bw_list_item\(/);
 });
 
 for (const listWrite of [
@@ -425,7 +425,7 @@ test('project-wide provenance preserves all four honest measured numeric print c
     }
 });
 
-test('smoothing is named as a numeric-list dependency instead of counted as emitted', async () => {
+test('smoothing crosses N2e list lowering and remains honestly stopped by the ADC choke', async () => {
     const name = 'arduino-03-smoothing';
     const source = await readFile(new URL(`../examples/${name}/program.bw`, import.meta.url), 'utf8');
     const retargeted = SB3Creator.retargetPseudocode(source, 'stc12c5a60s2');
@@ -433,8 +433,8 @@ test('smoothing is named as a numeric-list dependency instead of counted as emit
         retargeted.pseudocode || retargeted.text || retargeted.source || retargeted.code;
     const {code} = emit(text.replace(/^DEVICE .*$/m, 'DEVICE i8086'));
     assert.match(code, /No C emitted/);
-    assert.match(code, /data_itemoflist has no complete numeric i8086 C lowering/);
-    assert.doesNotMatch(code, /bw_print_num/);
+    assert.match(code, /This program also uses: adc/);
+    assert.doesNotMatch(code, /data_itemoflist has no complete numeric i8086 C lowering/);
 });
 
 test('the measured crystal-ball text program remains a named refusal', async () => {

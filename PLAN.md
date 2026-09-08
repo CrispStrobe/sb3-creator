@@ -888,3 +888,33 @@ runtime startup charge (`node -e ''` costs 0.040–0.070 s for doing nothing).
   static signal for "the work is expected to finish" would need to know the callee
   terminates, which is the halting problem wearing a hat; the practical rule is the
   one now in the helper's header — ask before wrapping.
+
+---
+
+## 30. N2e — bounded numeric lists on the i8086 C route (2026-09-08)
+
+The i8086 C emitter previously rendered every Scratch list operation as a comment
+or zero. The bounded route now has an explicit contract: signed-16 values, checked
+one-based indices, a 32-item capacity per list, and at most 15 lists (990 bytes of
+static list state). Invalid item reads coerce to numeric zero; invalid delete,
+insert and replace operations are no-ops. An add or insert beyond capacity traps
+instead of silently losing a write. Initial values and every value that can reach
+a list must pass the existing conservative numeric-provenance analysis.
+
+Names are backed by target-prefixed storage and resolved by Scratch list id first,
+so same-named stage and sprite lists cannot alias. A missing/ambiguous mapping,
+non-numeric value, oversized initial list, or aggregate storage above the ceiling
+refuses the whole i8086 C program rather than emitting partial behavior.
+
+**Measured reach before claiming support.** On upstream main `6bda3b3`, the corpus
+contains 281 programs. Exactly one reaches list operations:
+`arduino-03-smoothing`, with one empty list and `delete all` (1), `add` (1),
+`item` (2), and `replace` (1). List lowering alone adds **zero** newly emitted
+programs because that example still requires unsupported ADC input. This lane is
+therefore a semantics/correctness prerequisite, not a reach increase; documentation
+and downstream gates must not count it as another emitted program.
+
+Acceptance remains incomplete until the generated helpers compile with SmallerC,
+the resulting `.COM` size and stack/data margin are recorded, a live differential
+proves bounds and mutation behavior, unchanged non-i8086 goldens pass, and hosted
+CI is green on the exact promoted head. Heavy corpus/compiler work belongs in CI.

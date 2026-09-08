@@ -7734,6 +7734,23 @@ class SB3Creator {
         return this.cName(name);
     }
 
+    /** The fixed-storage identity for an i8086 numeric list. Scratch list IDs
+     *  are authoritative; the scoped-name fallback is only for legacy graphs
+     *  without IDs. Allocating these through cName keeps a scalar called
+     *  `readings_data` from colliding with the list's backing array. */
+    cI8086ListRef(field) {
+        const name = field ? String(field[0]) : '';
+        const id = field && field[1] != null ? String(field[1]) : null;
+        const scoped = `${this._curPrefix || ''}:${name}`;
+        const ref = (id && this._cI8086ListNames && this._cI8086ListNames.get(`id:${id}`)) ||
+            (this._cI8086ListNames && this._cI8086ListNames.get(`name:${scoped}`));
+        if (ref) return ref;
+        if (!this._cListRefused) this._cListRefused = [];
+        const reason = `list "${name}" has no unambiguous scoped C storage`;
+        if (!this._cListRefused.includes(reason)) this._cListRefused.push(reason);
+        return this.cName(`bw_list_missing_${scoped}`);
+    }
+
     // Make arbitrary text safe to drop inside a /* ... */ comment.
     cComment(text) {
         return String(text).replace(/\*\//g, '* /').replace(/\/\*/g, '/ *');
@@ -8407,6 +8424,25 @@ class SB3Creator {
             }
             case 'planetemaths_oppose': return `(0 - ${v('NUM1')})`;
             case 'planetemaths_pourcent': return `(${v('NUM1')} / 100)`;
+            case 'data_itemoflist': {
+                if (this._core === 'i8086') {
+                    this._cUses.numericLists = true;
+                    const list = this.cI8086ListRef(b.fields && b.fields.LIST);
+                    return `bw_list_item(${list}_data, ${list}_len, ${v('INDEX')})`;
+                }
+                const text = this.drep(b, blocks) || b.opcode;
+                this.cWarn(`no C equivalent for "${text}" — emitted as 0`);
+                return `0 /* ${this.cComment(text)} */`;
+            }
+            case 'data_lengthoflist': {
+                if (this._core === 'i8086') {
+                    this._cUses.numericLists = true;
+                    return `(int)${this.cI8086ListRef(b.fields && b.fields.LIST)}_len`;
+                }
+                const text = this.drep(b, blocks) || b.opcode;
+                this.cWarn(`no C equivalent for "${text}" — emitted as 0`);
+                return `0 /* ${this.cComment(text)} */`;
+            }
             case 'stc12_read': return this.cPinRead(f('PIN'));
             case 'stc12_readport': {
                 const portCfg = this.project && this.project.stc && (this.project.stc.ports || []).find((p) => p.name.toLowerCase() === f('PORT').toLowerCase());
@@ -8977,6 +9013,33 @@ class SB3Creator {
             case 'devices_oledcursor': { this._cUses.devices = true; this._cUses.oled = true; return line(`bw_oled_cursor(${v('DISPLAY')}, ${v('ROW')}, ${v('COL')});`); }
             case 'procedures_call': return line(this.cProcCall(b, blocks));
             default: {
+                if (this._core === 'i8086') {
+                    if (b.opcode === 'data_addtolist') {
+                        this._cUses.numericLists = true;
+                        const list = this.cI8086ListRef(b.fields && b.fields.LIST);
+                        return line(`bw_list_add(${list}_data, &${list}_len, ${v('ITEM')});`);
+                    }
+                    if (b.opcode === 'data_deleteoflist') {
+                        this._cUses.numericLists = true;
+                        const list = this.cI8086ListRef(b.fields && b.fields.LIST);
+                        return line(`bw_list_delete(${list}_data, &${list}_len, ${v('INDEX')});`);
+                    }
+                    if (b.opcode === 'data_deletealloflist') {
+                        this._cUses.numericLists = true;
+                        const list = this.cI8086ListRef(b.fields && b.fields.LIST);
+                        return line(`${list}_len = 0;`);
+                    }
+                    if (b.opcode === 'data_insertatlist') {
+                        this._cUses.numericLists = true;
+                        const list = this.cI8086ListRef(b.fields && b.fields.LIST);
+                        return line(`bw_list_insert(${list}_data, &${list}_len, ${v('INDEX')}, ${v('ITEM')});`);
+                    }
+                    if (b.opcode === 'data_replaceitemoflist') {
+                        this._cUses.numericLists = true;
+                        const list = this.cI8086ListRef(b.fields && b.fields.LIST);
+                        return line(`bw_list_replace(${list}_data, ${list}_len, ${v('INDEX')}, ${v('ITEM')});`);
+                    }
+                }
                 const text = (this.decompileStackBlock(b, blocks, 0)[0] || b.opcode).trim();
                 this.cWarn(`no C equivalent for "${text}" — emitted as a comment`);
                 return line(`/* ${this.cComment(text)} */`);
@@ -11421,6 +11484,8 @@ class SB3Creator {
         this._cCounter = 0;
         this._cWarnings = [];
         this._cI16Refused = [];
+        this._cListRefused = [];
+        this._cI8086ListNames = new Map();
         this._cWaitRefused = [];
         this._cLoweringRefused = [];
         this._cWaitComputed = false;
@@ -11544,6 +11609,45 @@ class SB3Creator {
                 markVars.push(`var ${this.cName(pfx + entry[0])} ${this.pyStr(entry[0])} sprite ${this.pyStr(t.name)}`);
             }
         });
+
+        // N2e: only the i8086 route gains bounded numeric lists. Each list owns
+        // 32 signed words plus one length word (66 bytes); at most fifteen fit
+        // inside the explicit 990-byte list-state budget. The .COM compiler and
+        // hosted size gate still measure the complete code+data image. Overflow
+        // traps instead of dropping a write, while ordinary out-of-range Scratch
+        // indices remain a checked no-op (or numeric zero for a reporter).
+        if (this._core === 'i8086') {
+            const lists = [];
+            const register = (target, idx) => {
+                const prefix = target.isStage ? '' : spritePrefix(idx);
+                for (const [id, entry] of Object.entries(target.lists || {})) {
+                    const name = String(entry[0]);
+                    const initial = Array.isArray(entry[1]) ? entry[1] : [];
+                    const ref = this.cName(`bw_list_${prefix}${name}`);
+                    this._cI8086ListNames.set(`id:${id}`, ref);
+                    this._cI8086ListNames.set(`name:${prefix}:${name}`, ref);
+                    lists.push({id, name, initial, ref, prefix});
+                }
+            };
+            if (stage) register(stage, -1);
+            sections.forEach((target, idx) => { if (!target.isStage) register(target, idx); });
+            if (lists.length > 15) {
+                this._cListRefused.push(`${lists.length} lists need ${lists.length * 66} bytes; the i8086 C list-state ceiling is 990 bytes (15 lists)`);
+            }
+            for (const list of lists) {
+                if (list.initial.length > 32) {
+                    this._cListRefused.push(`list "${list.name}" starts with ${list.initial.length} items; the i8086 C capacity is 32`);
+                }
+                const numeric = this.cI8086NumericList([list.name, list.id], new Set());
+                if (!numeric.ok && !this._cListRefused.includes(numeric.reason)) {
+                    this._cListRefused.push(numeric.reason);
+                }
+                for (const value of list.initial) this.cI16Check(Math.trunc(Number(value)));
+                const init = list.initial.length ? list.initial.map(value => this.cInit(value)).join(', ') : '0';
+                stateDecls.push(`static int ${list.ref}_data[32] = { ${init} };`);
+                stateDecls.push(`static unsigned ${list.ref}_len = ${Math.min(list.initial.length, 32)}u;`);
+            }
+        }
 
         // Pass 3 — walk the scripts.
         const procProtos = [], procDefs = [], taskDefs = [];
@@ -12169,6 +12273,44 @@ class SB3Creator {
                 ...(this._cUses.printNumber ? [
                     '/* DOS terminal signed-16 decimal, then CRLF. */',
                     'extern void bw_print_num(int n);'
+                ] : []),
+                ...(this._cUses.numericLists ? [
+                    '/* N2e numeric lists: 32 signed words per list. An invalid one-based',
+                    ' * index is a checked no-op (or zero when read), matching Scratch numeric',
+                    ' * coercion. Capacity overflow traps instead of dropping a write. */',
+                    '#define BW_LIST_CAPACITY 32u',
+                    'static void bw_list_overflow(void) { for (;;) ; }',
+                    'static int bw_list_item(int *data, unsigned len, int index)',
+                    '{',
+                    '    if (index < 1 || (unsigned)index > len) return 0;',
+                    '    return data[(unsigned)index - 1u];',
+                    '}',
+                    'static void bw_list_add(int *data, unsigned *len, int value)',
+                    '{',
+                    '    if (*len >= BW_LIST_CAPACITY) bw_list_overflow();',
+                    '    data[*len] = value; *len = *len + 1u;',
+                    '}',
+                    'static void bw_list_delete(int *data, unsigned *len, int index)',
+                    '{',
+                    '    unsigned i;',
+                    '    if (index < 1 || (unsigned)index > *len) return;',
+                    '    for (i = (unsigned)index; i < *len; ++i) data[i - 1u] = data[i];',
+                    '    *len = *len - 1u;',
+                    '}',
+                    'static void bw_list_insert(int *data, unsigned *len, int index, int value)',
+                    '{',
+                    '    unsigned i;',
+                    '    if (index < 1 || (unsigned)index > *len + 1u) return;',
+                    '    if (*len >= BW_LIST_CAPACITY) bw_list_overflow();',
+                    '    i = *len; while (i >= (unsigned)index) { data[i] = data[i - 1u]; --i; }',
+                    '    data[(unsigned)index - 1u] = value; *len = *len + 1u;',
+                    '}',
+                    'static void bw_list_replace(int *data, unsigned len, int index, int value)',
+                    '{',
+                    '    if (index < 1 || (unsigned)index > len) return;',
+                    '    data[(unsigned)index - 1u] = value;',
+                    '}',
+                    ''
                 ] : []),
                 'static unsigned char bw_port_a = 0;   /* shadow of 8255 port A output latch */',
                 'static unsigned char bw_port_b = 0;   /* shadow of port B */',
@@ -15012,8 +15154,18 @@ class SB3Creator {
         if (this._core === 'i8086') {
             // Verbs with a real i8086 C branch are NOT a reason to refuse. As
             // each verb gains its 8086 bus, add it here (P2: shiftOut).
-            const I8086_IMPLEMENTED = new Set(['shiftOut', 'delay', 'printNumber']);
+            const I8086_IMPLEMENTED = new Set(['shiftOut', 'delay', 'printNumber', 'numericLists']);
             const used = Object.keys(this._cUses).filter((k) => this._cUses[k] && !I8086_IMPLEMENTED.has(k));
+            if (this._cListRefused && this._cListRefused.length) {
+                const list = this._cListRefused.join(', ');
+                this.cWarn(`the 8086 C route supports bounded signed-16 numeric lists only; ${list}; no C is emitted`);
+                return `/* No C emitted for DEVICE ${String(device || 'i8086').toUpperCase()}.\n`
+                    + ' *\n'
+                    + ' * The 8086 C list boundary is 32 signed-16 items per list and 990 bytes total.\n'
+                    + ` * This program supplies: ${list}.\n`
+                    + ' * Invalid indices are checked; overflow and non-numeric values are refused.\n'
+                    + ' */\n';
+            }
             // Report an unsafe print value before the broader feature choke.
             // A second script may both poison the value provenance and use a
             // still-unimplemented verb; the type-safety refusal is the cause
