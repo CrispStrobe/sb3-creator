@@ -1,0 +1,12 @@
+DEVICE i8086
+PIN led = P2.0 OUTPUT
+
+# Blink one of the eight LEDs on the 8255's port B (P2.0).
+# The other seven — P2.1..P2.7 — are the rest of that port; a learner can
+# drive them together with `PORT leds = P2 OUTPUT` and `set leds to <n>`.
+WHEN flag clicked:
+  FOREVER:
+    turn on led
+    wait 0.5 seconds
+    turn off led
+    wait 0.5 seconds

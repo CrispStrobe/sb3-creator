@@ -1,11 +1,11 @@
 {
   "note": "Which gates enrol which example, computed from scripts/lib/example-enrolment.mjs. A diff here is a change in COVERAGE — read it before regenerating.",
   "measuredOn": "2026-08-23",
-  "examples": 311,
+  "examples": 312,
   "gates": {
-    "gallery": 280,
-    "example-kind-matches-content": 311,
-    "index-metadata-matches-disk": 311,
+    "gallery": 281,
+    "example-kind-matches-content": 312,
+    "index-metadata-matches-disk": 312,
     "retarget-gallery": 43,
     "retarget-amplification": 43,
     "gen-device-benches": 128,
@@ -13,11 +13,11 @@
     "assert-physics": 246,
     "debug-micropython": 10,
     "debug-trace-audit": 18,
-    "circuit-params-are-read": 278,
-    "program-reads-what-it-writes": 280,
-    "vm-and-c-agree-on-arithmetic": 126,
+    "circuit-params-are-read": 279,
+    "program-reads-what-it-writes": 281,
+    "vm-and-c-agree-on-arithmetic": 127,
     "documented-tables-are-derived": 4,
-    "vm": 280,
+    "vm": 281,
     "simulator-driver-controls-respond": 34,
     "gallery-e2e": 27
   },
@@ -2253,6 +2253,15 @@
     ],
     "eater6502-blink": [
       "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm",
+      "vm-and-c-agree-on-arithmetic"
+    ],
+    "i8086-blink": [
       "circuit-params-are-read",
       "example-kind-matches-content",
       "gallery",

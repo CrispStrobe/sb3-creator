@@ -5676,6 +5676,23 @@
   "kind": "full"
  },
  {
+  "id": "i8086-blink",
+  "title": {
+   "en": "Blink an LED on the 8086",
+   "de": "Eine LED am 8086 blinken lassen"
+  },
+  "category": "basics",
+  "difficulty": 2,
+  "files": {
+   "program": "i8086-blink/program.bw",
+   "circuit": "i8086-blink/circuit.json",
+   "expected": "i8086-blink/EXPECTED.md",
+   "intro": "i8086-blink/intro.md",
+   "introDE": "i8086-blink/intro.de.md"
+  },
+  "kind": "program"
+ },
+ {
   "id": "eater6502-bench",
   "title": {
    "en": "6502 Breadboard Computer",

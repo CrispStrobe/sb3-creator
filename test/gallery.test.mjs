@@ -100,9 +100,11 @@ describe('gallery: every example parses and compiles', () => {
             c.parse(src);
             const cCode = c.generateC();
             // Skip round-trip for host C (no @bw marker → not device C → different reader)
-            // and for AVR targets (cToPseudocode only reads STC12/8051 C)
+            // and for targets cToPseudocode does not read (it reads STC12/8051 C):
+            // the AVR/Arduino/Pico dialects, and the 8086 (whose C is 8086 asm-shaped
+            // with bw_outb/bw_inb port I/O, degraded in READER-COVERAGE, not STC12 C).
             if (!/@bw-begin/.test(cCode)) return;
-            if (/@bw device (arduino|atmega|pico|rp2040)/m.test(cCode)) return;
+            if (/@bw device (arduino|atmega|pico|rp2040|i8086)/m.test(cCode)) return;
             const { pseudocode, warnings } = cToPseudocode(cCode);
             // Aggregate current warnings are about the declarations, not translation errors.
             const translationWarnings = warnings.filter(w => !/worst-case|output pins/.test(w));
@@ -119,7 +121,7 @@ describe('gallery: every example parses and compiles', () => {
             c1.parse(src);
             const cCode = c1.generateC();
             if (!/@bw-begin/.test(cCode)) return;
-            if (/@bw device (arduino|atmega|pico|rp2040)/m.test(cCode)) return;
+            if (/@bw device (arduino|atmega|pico|rp2040|i8086)/m.test(cCode)) return;
             const { pseudocode: ps1 } = cToPseudocode(cCode);
             const c2 = new SB3Creator();
             c2.parse(ps1);
