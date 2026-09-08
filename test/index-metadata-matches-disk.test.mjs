@@ -38,6 +38,7 @@ import assert from 'node:assert/strict';
 import { readFileSync, readdirSync, existsSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import SB3Creator from '../src/utils/sb3Creator.js';
+import { isRetargetableExample } from '../scripts/lib/authored-transform.mjs';
 
 const EXAMPLES = join(import.meta.dirname, '..', 'examples');
 const index = JSON.parse(readFileSync(join(EXAMPLES, 'index.json'), 'utf8'));
@@ -65,6 +66,8 @@ const deviceOnly = (entry) =>
  *   deviceOnly          — a declaration about the example's nature, not about a
  *                         file; consumed here to excuse a missing circuit.
  *   device              — free-text prose on 17 entries, read by nothing.
+ *   retarget            — generator eligibility, checked below against the
+ *                         device-specific lesson that requires it.
  */
 const UNCHECKED_HERE = new Set([
     // pcbExpectedFindings: the DRC-verdict pin for a shipped teaching
@@ -77,9 +80,32 @@ const UNCHECKED_HERE = new Set([
 ]);
 
 /** Fields this gate DOES hold against the world. */
-const CHECKED_HERE = new Set(['files', 'thumbnail', 'benches', 'authored', 'refusals', 'transformRefused', 'tier']);
+const CHECKED_HERE = new Set(['files', 'thumbnail', 'benches', 'authored', 'refusals',
+    'transformRefused', 'tier', 'retarget']);
 
 describe('index metadata agrees with the files and the compiler', () => {
+    test('device-specific electrical lessons cannot regrow cross-family benches', () => {
+        const lesson = index.find(entry => entry.id === '46-port-overcurrent');
+        assert.deepEqual(lesson.devices, ['stc12c5a60s2']);
+        assert.equal(lesson.retarget, false);
+        assert.equal(lesson.benches, undefined);
+
+        // Mutation proof: widening the catalog device list alone must not make
+        // this chip-current lesson eligible for the batch generator again.
+        const widened = {...lesson, devices: [...lesson.devices, 'arduino-uno']};
+        assert.equal(isRetargetableExample(widened), false);
+        assert.equal(isRetargetableExample({...widened, retarget: true}), true,
+            'the test must exercise the retarget guard rather than a one-device shortcut');
+
+        const program = readFileSync(join(EXAMPLES, lesson.id, 'program.bw'), 'utf8');
+        assert.match(program, /^DEVICE STC12C5A60S2$/m);
+        for (const name of ['arduino-mega', 'arduino-nano', 'arduino-uno', 'atmega168p',
+            'attiny88', 'pico', 'stc15f2k60s2', 'stc89c52rc', 'stm32f030']) {
+            assert.equal(existsSync(join(EXAMPLES, lesson.id, `circuit.${name}.json`)), false);
+            assert.equal(existsSync(join(EXAMPLES, lesson.id, `circuit-flat.${name}.json`)), false);
+        }
+    });
+
     test('the denominator: every field the index uses is either checked here or named as not', () => {
         const seen = new Set();
         for (const entry of index) for (const k of Object.keys(entry)) seen.add(k);

@@ -4,6 +4,12 @@
 // refuses would send the app to a bench that does not exist).
 import { DEVPART } from './devpart.mjs';
 
+/** Whether a gallery entry authorizes cross-device bench generation. */
+export function isRetargetableExample(entry) {
+  return entry?.retarget !== false && Array.isArray(entry?.devices) && entry.devices.length >= 2 &&
+    (entry.kind === 'program' || entry.kind === 'full');
+}
+
 // ── Circuit-preserving retarget ──────────────────────────────────────
 // A device pick on an example WITH an authored circuit must not
 // synthesize a generic bench: it transforms the authored circuit — every

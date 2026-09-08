@@ -1497,28 +1497,9 @@
    "introDE": "46-port-overcurrent/intro.de.md"
   },
   "devices": [
-   "stc12c5a60s2",
-   "stc89c52rc",
-   "stc15f2k60s2",
-   "arduino-uno",
-   "atmega168p",
-   "arduino-mega",
-   "arduino-nano",
-   "stm32f030",
-   "pico",
-   "attiny88"
+   "stc12c5a60s2"
   ],
-  "benches": {
-   "arduino-mega": "46-port-overcurrent/circuit.arduino-mega.json",
-   "arduino-nano": "46-port-overcurrent/circuit.arduino-nano.json",
-   "arduino-uno": "46-port-overcurrent/circuit.arduino-uno.json",
-   "atmega168p": "46-port-overcurrent/circuit.atmega168p.json",
-   "attiny88": "46-port-overcurrent/circuit.attiny88.json",
-   "pico": "46-port-overcurrent/circuit.pico.json",
-   "stc15f2k60s2": "46-port-overcurrent/circuit.stc15f2k60s2.json",
-   "stc89c52rc": "46-port-overcurrent/circuit.stc89c52rc.json",
-   "stm32f030": "46-port-overcurrent/circuit.stm32f030.json"
-  },
+  "retarget": false,
   "tier": "arch",
   "authored": "stc12c5a60s2"
  },

@@ -43,7 +43,8 @@ import { injectEngine, registerSidecars, locateSibling } from './lib/engine-surf
 
 const cmd = process.argv[2];
 
-import { alignAuthoredBenchPolarity, parseRetargetedPins, transformAuthored } from './lib/authored-transform.mjs';
+import { alignAuthoredBenchPolarity, isRetargetableExample, parseRetargetedPins,
+  transformAuthored } from './lib/authored-transform.mjs';
 
 async function batch() {
   const regenerate = process.argv.includes('--regenerate');
@@ -64,8 +65,11 @@ async function batch() {
   let gen = 0, refused = 0, transformed = 0;
   for (const e of list) {
     if (only && e.id !== only) continue;
-    if (!e.devices || e.devices.length < 2) continue;
-    if (!(e.kind === 'program' || e.kind === 'full')) continue;
+    // Some lessons are claims about one concrete chip, not portable syntax.
+    // `retarget: false` remains authoritative even if somebody later widens
+    // `devices`: otherwise a catalog recompute silently manufactures benches
+    // that teach a different electrical limit.
+    if (!isRetargetableExample(e)) continue;
     let src;
     try { src = fs.readFileSync(`examples/${e.id}/program.bw`, 'utf8'); } catch { continue; }
     const authoredPath = `examples/${e.id}/circuit.json`;

@@ -4,6 +4,9 @@
 
 8 LEDs on Port 1 (P1.0–P1.7), all active-low with 470 Ω resistors.
 VCC → 470 Ω → LED → MCU pin, for each of the 8 pins.
+This is deliberately an STC12C5A60S2-only lesson: its aggregate Port 1
+sink-current limit is the subject, so retargeting it to unrelated GPIO ports
+or source-driven LED conventions would teach a different electrical claim.
 
 ## The lesson
 

@@ -4,7 +4,7 @@
     "repo": "bw-circuit-ui",
     "sha": "c276c0dbfdc26fa858e22e7642217411c2398fa9"
   },
-  "pairs": 963,
+  "pairs": 955,
   "entries": [
     {
       "dir": "01-blink",
@@ -2008,74 +2008,10 @@
     },
     {
       "dir": "46-port-overcurrent",
-      "flat": "circuit-flat.arduino-mega.json",
-      "twin": "circuit.arduino-mega.json",
-      "flatSha": "37432d1e0c9d1722995129a1d8c97056cce36f7004ad2591197d4ef7f79f2d8a",
-      "twinSha": "aa0c91149525bcc90c69dfdfd3c518bbd108bbde1351e57b8db9daf716d1d574",
-      "partitionSha": "90bdc5a9f71405d4d056cf736b2e47b7547c7c0aacc7263beb57502858f95cf6"
-    },
-    {
-      "dir": "46-port-overcurrent",
-      "flat": "circuit-flat.arduino-nano.json",
-      "twin": "circuit.arduino-nano.json",
-      "flatSha": "38b1b335171b940e0e24a0ebffc34de485c4f655146d4dbbdd81043d093731ab",
-      "twinSha": "0b500617922539f9b295fca9a7dba8e51d5429c4252be080e5e07d4fe461a1c9",
-      "partitionSha": "b973aa6e57584ecc454c84ff832dd30d8ab6f24c7ee1d324a7d27001910c7d08"
-    },
-    {
-      "dir": "46-port-overcurrent",
-      "flat": "circuit-flat.arduino-uno.json",
-      "twin": "circuit.arduino-uno.json",
-      "flatSha": "ca451cfd734a7bd5f64d4e192624978e186d11277b65a915ccfd30ea6d9a5889",
-      "twinSha": "f6639cf1d1e9764b082fae06b140c767b1f49c7027d3c7af4aa8923af9bc2ab2",
-      "partitionSha": "dea82804838d88fbdf0e4bbc074e92e17c6da83522e9cc2d955868ed9e9289a2"
-    },
-    {
-      "dir": "46-port-overcurrent",
-      "flat": "circuit-flat.atmega168p.json",
-      "twin": "circuit.atmega168p.json",
-      "flatSha": "ca451cfd734a7bd5f64d4e192624978e186d11277b65a915ccfd30ea6d9a5889",
-      "twinSha": "f6639cf1d1e9764b082fae06b140c767b1f49c7027d3c7af4aa8923af9bc2ab2",
-      "partitionSha": "dea82804838d88fbdf0e4bbc074e92e17c6da83522e9cc2d955868ed9e9289a2"
-    },
-    {
-      "dir": "46-port-overcurrent",
-      "flat": "circuit-flat.attiny88.json",
-      "twin": "circuit.attiny88.json",
-      "flatSha": "fc547cf017cff749a1d0e5d26dba1a7d92118db3ccd774b8306c39adb4f791a7",
-      "twinSha": "9c8d5404138794f3754e446a4729100491dfbe43e4482327a6ef0174906ad8cf",
-      "partitionSha": "5ff17cfd7c40ff53188d2677bede5547c94d0a865c447389ca4b5ca638532bda"
-    },
-    {
-      "dir": "46-port-overcurrent",
       "flat": "circuit-flat.json",
       "twin": "circuit.json",
       "flatSha": "e28b4fb8f9398fbaf8ce2b7f6abcdbd61585f090f3909e5a5c1c56fadeebf9fc",
       "twinSha": "40dfa082edca56c167ec60d135f4778f6528ca4b9f8f258685d3a7b425478ad1",
-      "partitionSha": "57d26586d5abec956f79964ae7fd549b687c208fe9fe86d269844f6a2cfe8837"
-    },
-    {
-      "dir": "46-port-overcurrent",
-      "flat": "circuit-flat.pico.json",
-      "twin": "circuit.pico.json",
-      "flatSha": "919c86148f4a3591b4a66349f67ad17d739ef38bbac8fd740b5f710c0732825a",
-      "twinSha": "34908529a45da75590212ab277281a58833127c79b1e5a794ea3d4469960ae19",
-      "partitionSha": "73b5687d1955a15b8de13800d5330c2364bd1763c80e71b85ee51cd678c06cdb"
-    },
-    {
-      "dir": "46-port-overcurrent",
-      "flat": "circuit-flat.stc15f2k60s2.json",
-      "twin": "circuit.stc15f2k60s2.json",
-      "flatSha": "b10db1897943ee6d8ef77a1974d743b5ea1e6b3d855702f8185f86c476818234",
-      "twinSha": "0e84cf1a2a32a13cbd6b604435a76903765e28ae06390c9d076c151056b57abc",
-      "partitionSha": "8785c8ae1ffef4a8020429c9fbddd356f27f11ab0eca2793a4d5e89a944d3f39"
-    },
-    {
-      "dir": "46-port-overcurrent",
-      "flat": "circuit-flat.stc89c52rc.json",
-      "twin": "circuit.stc89c52rc.json",
-      "flatSha": "50d1de564fb1cdaf5b7fe6f833474d1da281413c3dfda613b88922b1486b5679",
-      "twinSha": "aad9dd3b942300daca17f369360b38f12e5e02c670d1438924da17d08ebb93fc",
       "partitionSha": "57d26586d5abec956f79964ae7fd549b687c208fe9fe86d269844f6a2cfe8837"
     },
     {
