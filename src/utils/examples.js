@@ -2407,6 +2407,31 @@ WHEN a key pressed:
 WHEN I receive "typed":
   print "you pressed A"`,
 
+    i8086_counter: `DEVICE i8086
+
+PART disp = SEVENSEG8 SEGMENTS P1 SELECT P2.0 P2.1 P2.2
+GLOBAL n
+
+# EIGHT DIGITS ON ONE PORT, which only works because they are never all lit
+# at once. A multiplexed display shows ONE digit at a time and relies on the
+# eye to blend them -- so the build adds a script whose whole job is to scan
+# it, and at about 1 kHz each of the eight is refreshed 125 times a second.
+#
+# THREE PINS SELECT EIGHT DIGITS. They drive a 74HC138, whose eight outputs
+# are the digit commons; that decoder is the entire reason three wires are
+# enough. The segments come from a whole port through a '245.
+#
+# On an 8051 the scan lives in the Timer-0 interrupt. Here it is one of the
+# scheduler's scripts, which is why this needs no interrupt handler you can
+# see -- and why counting and displaying can be written as if nothing else
+# were happening.
+WHEN flag clicked:
+  set n to 0
+  FOREVER:
+    show number n on disp
+    change n by 1
+    wait 0.25 secs`,
+
     i8086_analog: `DEVICE i8086
 
 PIN pot = P1.3 ANALOG
