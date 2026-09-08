@@ -11786,6 +11786,13 @@ class SB3Creator {
 
         // Pass 3 — walk the scripts.
         const procProtos = [], procDefs = [], taskDefs = [];
+        // Debuggers read scheduler state and deadlines by their linked RAM
+        // addresses. SDCC can otherwise keep a single 8051 task's file-static
+        // deadline out of the linked CDB, leaving a valid image that cannot be
+        // attached. Preserve the historical non-volatile 8051 release shape;
+        // debug builds pay for stable, externally observable storage.
+        const taskWord = (task, field) =>
+            `static ${(debug || this._core !== '8051') ? 'volatile ' : ''}unsigned int ${task}_${field};`;
         const statics = [];
         let mainBody = [];
         let mainNote = [];   // a comment on the single script's hat
@@ -11832,8 +11839,8 @@ class SB3Creator {
                     const ctx = { task, state: 0, statics, tasks: taskNames, yields: debug ? yieldMap : [] };
                     if (debug) yieldMap.push({ task, state: 0, block: topId, kind: 'hat' });
                     const body = this.cTaskFrom(b.next, blocks, 1, ctx);
-                    taskDefs.push(`static ${this._core !== '8051' ? 'volatile ' : ''}unsigned int ${task}_state;`);
-                    if (this.cHasWait(b.next, blocks)) taskDefs.push(`static ${this._core !== '8051' ? 'volatile ' : ''}unsigned int ${task}_until;`);
+                    taskDefs.push(taskWord(task, 'state'));
+                    if (this.cHasWait(b.next, blocks)) taskDefs.push(taskWord(task, 'until'));
                     taskDefs.push(...hatNote,
                         `/* when green flag clicked (script ${n + 1}${where}) */`,
                         `static void ${task}(void)`, '{',
@@ -11875,8 +11882,8 @@ class SB3Creator {
                         const test = edge === 'pressed'
                             ? `now && !${task}_prev`
                             : `!now && ${task}_prev`;
-                        taskDefs.push(`static ${this._core !== '8051' ? 'volatile ' : ''}unsigned int ${task}_state;`);
-                        if (this.cHasWait(b.next, blocks)) taskDefs.push(`static ${this._core !== '8051' ? 'volatile ' : ''}unsigned int ${task}_until;`);
+                        taskDefs.push(taskWord(task, 'state'));
+                        if (this.cHasWait(b.next, blocks)) taskDefs.push(taskWord(task, 'until'));
                         taskDefs.push(`static unsigned char ${task}_prev;`);
                         taskDefs.push(...hatNote,
                             `/* WHEN ${this.cComment(pinName)} ${edge}: (script ${n + 1}${where})`,
@@ -11926,8 +11933,8 @@ class SB3Creator {
                         const test = edge === 'pressed'
                             ? `now && !${task}_prev`
                             : `!now && ${task}_prev`;
-                        taskDefs.push(`static unsigned int ${task}_state;`);
-                        if (this.cHasWait(b.next, blocks)) taskDefs.push(`static unsigned int ${task}_until;`);
+                        taskDefs.push(taskWord(task, 'state'));
+                        if (this.cHasWait(b.next, blocks)) taskDefs.push(taskWord(task, 'until'));
                         taskDefs.push(`static unsigned char ${task}_prev;`);
                         // Byte-shaped like the reference (stc-compiler dec1f17,
                         // test_keypad.py TestKeypadHats pins that side's C).
@@ -11996,8 +12003,8 @@ class SB3Creator {
                             break;
                         }
                     }
-                    taskDefs.push(`static ${this._core !== '8051' ? 'volatile ' : ''}unsigned int ${task}_state;`);
-                    if (this.cHasWait(b.next, blocks)) taskDefs.push(`static ${this._core !== '8051' ? 'volatile ' : ''}unsigned int ${task}_until;`);
+                    taskDefs.push(taskWord(task, 'state'));
+                    if (this.cHasWait(b.next, blocks)) taskDefs.push(taskWord(task, 'until'));
                     taskDefs.push(`static unsigned char ${task}_prev;`);
                     taskDefs.push(...hatNote,
                         `/* ${this.cComment(this.decompileHat(b, blocks) || b.opcode)} (script ${n + 1}${where}) */`,

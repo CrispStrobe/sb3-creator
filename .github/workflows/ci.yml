@@ -117,8 +117,10 @@ jobs:
       # CI-runnable. The emu8051 chain deliberately does NOT: it needs an
       # emscripten build, hundreds of megabytes for two tests. That one is
       # disposition (c), developer-only, and its skip reason says so.
-      - name: Install the ARM cross-compiler
-        run: sudo apt-get update && sudo apt-get install -y gcc-arm-none-eabi
+      - name: Install the ARM and 8051 cross-compilers
+        # SDCC is also small enough to make the single-task debugger-symbol
+        # regression exercise a real linked CDB in hosted CI, not just inspect C.
+        run: sudo apt-get update && sudo apt-get install -y gcc-arm-none-eabi sdcc
 
       # Before the tests, because the tests cannot see this: they run against a
       # checkout that has every committed file, so an import of a file that was
