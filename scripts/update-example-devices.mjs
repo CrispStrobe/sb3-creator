@@ -14,7 +14,7 @@ import { join, dirname } from 'node:path';
 import os from 'node:os';
 import { fileURLToPath } from 'node:url';
 import SB3Creator from '../src/utils/sb3Creator.js';
-import { transformAuthored } from './lib/authored-transform.mjs';
+import { parseRetargetedPins, transformAuthored } from './lib/authored-transform.mjs';
 import { DEVPART } from './lib/devpart.mjs';
 import { injectEngine, registerSidecars, locateSibling } from './lib/engine-surface.mjs';
 
@@ -89,8 +89,14 @@ for (const e of items) {
             if (!DEVPART[dev]) continue;
             const r = SB3Creator.retargetPseudocode(src, dev);
             if (!r.ok) continue; // already filtered above
+            const parsed = parseRetargetedPins(SB3Creator, r.pseudocode ?? src);
+            if (!parsed.ok) {
+                refused[dev] = parsed.reason;
+                computed.splice(computed.indexOf(dev), 1);
+                continue;
+            }
             const t = transformAuthored(circuitData, DEVPART[dev], r.pinMap || [],
-                cmod.Circuit, SB3Creator.RETARGET_POOLS[dev], dev);
+                cmod.Circuit, SB3Creator.RETARGET_POOLS[dev], dev, parsed.pins);
             if (!t.ok) {
                 refused[dev] = t.reason;
                 computed.splice(computed.indexOf(dev), 1);

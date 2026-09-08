@@ -78,6 +78,208 @@ function fullPinSpace(device) {
   }
 }
 
+const SERIES_TERMINALS = {
+  resistor: ['a', 'b'],
+  led: ['anode', 'cathode'],
+};
+
+/** Parse the retargeted program once, with a fail-closed pin-metadata result. */
+export function parseRetargetedPins(SB3Creator, pseudocode) {
+  try {
+    const creator = new SB3Creator();
+    creator.parse(pseudocode);
+    const pins = creator.project?.stc?.pins;
+    if (!Array.isArray(pins)) {
+      return {ok: false, reason: 'retargeted program did not expose pin metadata'};
+    }
+    return {ok: true, pins};
+  } catch (error) {
+    return {ok: false, reason: `retargeted program pin parse failed: ${String(error?.message ?? error)}`};
+  }
+}
+
+// Find simple LED branches from one MCU net to a supply rail. Generated lesson
+// benches use a series resistor + LED (or a bare LED); refusing shared/branched
+// interiors is safer than silently re-authoring a topology we did not prove.
+function ledPathsFrom(nets, partsById, mcuId, startNet) {
+  const netOf = new Map();
+  const netById = new Map(nets.map(n => [n.id, n]));
+  for (const net of nets) for (const t of net.terminals || []) {
+    netOf.set(`${t.part}\0${t.terminal}`, net.id);
+  }
+  const railOf = net => (net.terminals || []).map(t => partsById.get(t.part))
+    .find(p => p && (p.kind === 'vcc' || p.kind === 'gnd'));
+  const found = [];
+  const walk = (netId, chain, used) => {
+    const net = netById.get(netId);
+    if (!net) return;
+    const rail = railOf(net);
+    if (rail && chain.some(step => partsById.get(step.part)?.kind === 'led')) {
+      found.push({chain, rail});
+      return;
+    }
+    for (const t of net.terminals || []) {
+      if (t.part === mcuId || used.has(t.part)) continue;
+      const part = partsById.get(t.part);
+      const terms = part && SERIES_TERMINALS[part.kind];
+      if (!terms || !terms.includes(t.terminal)) continue;
+      const far = terms[0] === t.terminal ? terms[1] : terms[0];
+      const next = netOf.get(`${t.part}\0${far}`);
+      if (!next) continue;
+      const nextUsed = new Set(used);
+      nextUsed.add(t.part);
+      walk(next, [...chain, {part: t.part, near: t.terminal, far}], nextUsed);
+    }
+  };
+  walk(startNet, [], new Set());
+  return found;
+}
+
+function polarityRewrites(d, circ, mcu, pinMap, retargetedPins, caseTo) {
+  if (!Array.isArray(retargetedPins)) return {rewrites: [], unsupported: [], endpointStrips: new Set()};
+  const norm = t => String(t).toLowerCase();
+  const coordOf = p => p.where ? String(p.where) : `P${p.port}.${p.bit}`;
+  const targetPins = new Map(retargetedPins
+    .filter(p => p.direction === 'output')
+    .map(p => [norm(coordOf(p)), p]));
+  const targetOf = new Map(pinMap.map(p => [norm(p.from), norm(p.to)]));
+  const partsById = new Map(d.parts.map(p => [p.id, p]));
+  const terminalNet = new Map();
+  for (const net of circ.resolvedNets || []) for (const t of net.terminals || []) {
+    terminalNet.set(`${t.part}\0${norm(t.terminal)}`, net.id);
+  }
+  const rewrites = [];
+  const unsupported = [];
+  const endpointStrips = new Set();
+  const seenLeds = new Set();
+  for (const [from, to] of targetOf) {
+    const pin = targetPins.get(to);
+    if (!pin) continue;
+    const startNet = terminalNet.get(`${mcu.id}\0${from}`);
+    if (!startNet) continue;
+    for (const path of ledPathsFrom(circ.resolvedNets || [], partsById, mcu.id, startNet)) {
+      const ledSteps = path.chain.filter(step => partsById.get(step.part)?.kind === 'led');
+      if (ledSteps.length !== 1 || seenLeds.has(ledSteps[0].part)) continue;
+      const currentLow = path.rail.kind === 'vcc';
+      if (currentLow === !!pin.activeLow) continue;
+      const led = ledSteps[0];
+      const oriented = currentLow ? led.near === 'cathode' && led.far === 'anode'
+        : led.near === 'anode' && led.far === 'cathode';
+      if (!oriented) {
+        unsupported.push(`${from}: LED ${led.part} has an unproved orientation`);
+        continue;
+      }
+      // Interior nets may not branch. A shared net needs a circuit-specific
+      // transform; treating it as a series chain would silently drop hardware.
+      let simple = true;
+      for (let i = 0; i < path.chain.length - 1; i++) {
+        const netId = terminalNet.get(`${path.chain[i].part}\0${norm(path.chain[i].far)}`);
+        const net = (circ.resolvedNets || []).find(n => n.id === netId);
+        if (!net || net.terminals.length !== 2) { simple = false; break; }
+      }
+      if (!simple) {
+        unsupported.push(`${from}: LED ${led.part} is on a shared branch`);
+        continue;
+      }
+      const railKind = pin.activeLow ? 'vcc' : 'gnd';
+      const rail = d.parts.find(p => p.kind === railKind);
+      if (!rail) {
+        unsupported.push(`${from}: polarity reversal requires a ${railKind} part`);
+        continue;
+      }
+      const first = path.chain[0];
+      const last = path.chain[path.chain.length - 1];
+      rewrites.push({from, to: caseTo(coordOf(pin)), rail, railTerminal: railKind,
+        chain: path.chain, first, last});
+      seenLeds.add(led.part);
+      for (const endpoint of [first, last]) {
+        const part = partsById.get(endpoint.part);
+        const hole = part?.seat?.leadMap?.[endpoint === first ? endpoint.near : endpoint.far];
+        if (hole) endpointStrips.add(`${part.seat.boardId}:${stripKeyOf(hole)}`);
+      }
+    }
+  }
+  return {rewrites, unsupported, endpointStrips};
+}
+
+/** Align an already-targeted authored bench with the target program's output polarity. */
+export function alignAuthoredBenchPolarity(data, Circuit, retargetedPins) {
+  if (!Array.isArray(retargetedPins)) {
+    return {ok: false, reason: 'LED polarity transform refused: missing retargeted pin metadata'};
+  }
+  const d = JSON.parse(JSON.stringify(data));
+  const mcu = d.parts.find(p => MCU_KINDS.has(p.kind));
+  if (!mcu) return {ok: false, reason: 'no MCU part in authored circuit'};
+  // Some registered device models canonicalise terminal aliases in-place
+  // while loading. Measurement must not rewrite part/seat metadata.
+  const circ = Circuit.fromJSON(JSON.parse(JSON.stringify(d)));
+  if (circ.netlistError) return {ok: false, reason: `authored circuit invalid: ${circ.netlistError}`};
+  const isBoardTarget = !['mcu', 'stc_mcu', 'stc15_mcu'].includes(mcu.kind);
+  const caseTo = t => isBoardTarget ? String(t).toLowerCase() : String(t);
+  const coordOf = p => p.where ? String(p.where) : `P${p.port}.${p.bit}`;
+  const identityMap = (retargetedPins || []).map(p => ({from: coordOf(p), to: coordOf(p)}));
+  const polarity = polarityRewrites(d, circ, mcu, identityMap, retargetedPins, caseTo);
+  if (polarity.unsupported.length) {
+    return {ok: false, reason: `LED polarity transform refused: ${polarity.unsupported.join('; ')}`};
+  }
+  if (!polarity.rewrites.length) return {ok: true, out: d, polarityRewrites: 0};
+
+  const norm = t => String(t).toLowerCase();
+  const endpointKeys = new Set(polarity.rewrites.flatMap(r => [
+    `${r.first.part}\0${norm(r.first.near)}`, `${r.last.part}\0${norm(r.last.far)}`
+  ]));
+  const endpointKey = (wire, side) => {
+    const value = wire[side];
+    if (typeof value === 'string') return `${value}\0${norm(wire[`${side}Terminal`])}`;
+    if (value && value.part) return `${value.part}\0${norm(value.terminal)}`;
+    return '';
+  };
+  d.wires = (d.wires || []).filter(w =>
+    !endpointKeys.has(endpointKey(w, 'from')) && !endpointKeys.has(endpointKey(w, 'to')));
+  // A seated bench has physical jumpers in addition to its logical wires.
+  // Keep each jumpers' external end and move only its branch end to the
+  // opposite terminal. Dropping the old jumpers would leave a logically valid
+  // circuit that is visibly unwired in the designer.
+  const partsById = new Map(d.parts.map(part => [part.id, part]));
+  const touching = (boardId, hole) => (d.holeWires || []).flatMap((hw, index) => {
+    if (hw.boardId !== boardId) return [];
+    const strip = stripKeyOf(hole);
+    return ['a', 'b'].filter(side => stripKeyOf(hw[side]) === strip)
+      .map(side => ({index, side}));
+  });
+  const removeHoleWires = new Set();
+  for (const r of polarity.rewrites) {
+    const firstPart = partsById.get(r.first.part);
+    const lastPart = partsById.get(r.last.part);
+    const firstHole = firstPart?.seat?.leadMap?.[r.first.near];
+    const lastHole = lastPart?.seat?.leadMap?.[r.last.far];
+    const firstBoard = firstPart?.seat?.boardId;
+    const lastBoard = lastPart?.seat?.boardId;
+    const fromFirst = firstHole ? touching(firstBoard, firstHole) : [];
+    const fromLast = lastHole ? touching(lastBoard, lastHole) : [];
+    if (!lastHole || firstBoard !== lastBoard) {
+      for (const {index} of fromFirst) removeHoleWires.add(index);
+    } else {
+      for (const {index, side} of fromFirst) d.holeWires[index][side] = lastHole;
+    }
+    if (!firstHole || firstBoard !== lastBoard) {
+      for (const {index} of fromLast) removeHoleWires.add(index);
+    } else {
+      for (const {index, side} of fromLast) d.holeWires[index][side] = firstHole;
+    }
+  }
+  d.holeWires = (d.holeWires || []).filter((_, index) => !removeHoleWires.has(index));
+  for (const r of polarity.rewrites) {
+    d.wires.push({from: mcu.id, fromTerminal: r.to,
+      to: r.last.part, toTerminal: r.last.far});
+    d.wires.push({from: r.rail.id, fromTerminal: r.railTerminal,
+      to: r.first.part, toTerminal: r.first.near});
+  }
+  const check = Circuit.fromJSON(JSON.parse(JSON.stringify(d)));
+  if (check.netlistError) return {ok: false, reason: `polarity-aligned circuit rejected: ${check.netlistError}`};
+  return {ok: true, out: d, polarityRewrites: polarity.rewrites.length};
+}
+
 export function transformAuthored(data, targetKind, pinMap, Circuit, pools, device, retargetedPins) {
   const d = JSON.parse(JSON.stringify(data));
   const mcu = d.parts.find((p) => MCU_KINDS.has(p.kind));
@@ -215,6 +417,5 @@ export function transformAuthored(data, targetKind, pinMap, Circuit, pools, devi
   const out = { vcc: d.vcc ?? 5, parts, wires, holeWires, generated: 'benchFor+authored' };
   const check = Circuit.fromJSON(out);
   if (check.netlistError) return { ok: false, reason: `transformed circuit rejected: ${check.netlistError}` };
-  return { ok: true, out };
+  return alignAuthoredBenchPolarity(out, Circuit, retargetedPins);
 }
-

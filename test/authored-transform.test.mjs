@@ -12,6 +12,7 @@ import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, existsSync } from 'fs';
 import { join } from 'path';
+import { alignAuthoredBenchPolarity, parseRetargetedPins } from '../scripts/lib/authored-transform.mjs';
 
 const EXAMPLES = join(import.meta.dirname, '..', 'examples');
 
@@ -79,6 +80,144 @@ describe('authored-circuit transform: the console survives a device pick', () =>
         assert.ok(!existsSync(join(EXAMPLES, '61-console-pong', 'circuit.stc15f2k60s2.json')),
             'a generated file for the authored device could only disagree');
     });
+});
+
+const circuitFixture = (data, nets) => {
+    let first = true;
+    return {fromJSON: doc => {
+        if (first) {
+            first = false;
+            assert.deepEqual(doc, data, 'the transform measures the authored circuit first');
+        }
+        return {netlistError: null, resolvedNets: nets};
+    }};
+};
+
+test('a polarity rewrite reverses only its LED branch, not its active-high neighbour', () => {
+    const data = {
+        vcc: 5,
+        parts: [
+            {id: 'cpu', kind: 'arduino_uno', params: {}},
+            {id: 'rLow', kind: 'resistor', params: {ohms: 1000}, terminals: ['a', 'b'],
+                seat: {boardId: 'bb', leadMap: {a: 'a3', b: 'a7'}}},
+            {id: 'ledLow', kind: 'led', params: {}, terminals: ['anode', 'cathode'],
+                seat: {boardId: 'bb', leadMap: {anode: 'a15', cathode: 'a16'}}},
+            {id: 'rHigh', kind: 'resistor', params: {ohms: 1000}, terminals: ['a', 'b']},
+            {id: 'ledHigh', kind: 'led', params: {}, terminals: ['anode', 'cathode']},
+            {id: 'supply', kind: 'vcc', params: {}, terminals: ['vcc']},
+            {id: 'ground', kind: 'gnd', params: {}, terminals: ['gnd']}
+        ],
+        wires: [
+            {from: 'cpu', fromTerminal: 'd13', to: 'ledLow', toTerminal: 'cathode'},
+            {from: 'ledLow', fromTerminal: 'anode', to: 'rLow', toTerminal: 'b'},
+            {from: 'rLow', fromTerminal: 'a', to: 'supply', toTerminal: 'vcc'},
+            {from: 'cpu', fromTerminal: 'd12', to: 'rHigh', toTerminal: 'a'},
+            {from: 'rHigh', fromTerminal: 'b', to: 'ledHigh', toTerminal: 'anode'},
+            {from: 'ledHigh', fromTerminal: 'cathode', to: 'ground', toTerminal: 'gnd'}
+        ],
+        holeWires: [
+            {ref: 'pin-jumper', boardId: 'bb', a: 'b16', b: 'j30', color: 'green'},
+            {ref: 'rail-jumper', boardId: 'bb', a: 'b3', b: 't+3', color: 'red'}
+        ]
+    };
+    const nets = [
+        {id: 'low-pin', terminals: [{part: 'cpu', terminal: 'd13'}, {part: 'ledLow', terminal: 'cathode'}]},
+        {id: 'low-mid', terminals: [{part: 'ledLow', terminal: 'anode'}, {part: 'rLow', terminal: 'b'}]},
+        {id: 'low-rail', terminals: [{part: 'rLow', terminal: 'a'}, {part: 'supply', terminal: 'vcc'}]},
+        {id: 'high-pin', terminals: [{part: 'cpu', terminal: 'd12'}, {part: 'rHigh', terminal: 'a'}]},
+        {id: 'high-mid', terminals: [{part: 'rHigh', terminal: 'b'}, {part: 'ledHigh', terminal: 'anode'}]},
+        {id: 'high-rail', terminals: [{part: 'ledHigh', terminal: 'cathode'}, {part: 'ground', terminal: 'gnd'}]}
+    ];
+    const result = alignAuthoredBenchPolarity(data, circuitFixture(data, nets), [
+        {name: 'low', where: 'D13', direction: 'output', activeLow: false},
+        {name: 'high', where: 'D12', direction: 'output', activeLow: false}
+    ]);
+    assert.equal(result.ok, true, result.reason);
+    assert.deepEqual(result.out.parts, data.parts, 'polarity alignment preserves every part and seat');
+    assert.deepEqual(result.out.holeWires, [
+        {ref: 'pin-jumper', boardId: 'bb', a: 'a3', b: 'j30', color: 'green'},
+        {ref: 'rail-jumper', boardId: 'bb', a: 'a16', b: 't+3', color: 'red'}
+    ], 'physical jumper external ends survive while their branch ends swap');
+    const wires = result.out.wires.map(w =>
+        `${w['from']}.${w['fromTerminal']}->${w['to']}.${w['toTerminal']}`);
+    const connects = (a, b) => wires.includes(`${a}->${b}`) || wires.includes(`${b}->${a}`);
+    assert.ok(wires.includes('cpu.d13->rLow.a'), 'mapped pin takes the old rail end');
+    assert.ok(wires.includes('ground.gnd->ledLow.cathode'), 'opposite rail takes the old pin end');
+    assert.ok(connects('rLow.b', 'ledLow.anode'), 'series interior survives');
+    assert.ok(wires.includes('cpu.d12->rHigh.a'), 'unchanged neighbour keeps its own mapped pin');
+    assert.ok(wires.includes('ledHigh.cathode->ground.gnd'), 'unchanged neighbour keeps its rail');
+    assert.equal(wires.some(w => /supply\.vcc->rLow\.a|rLow\.a->supply\.vcc/.test(w)), false,
+        'old active-low rail connection is gone');
+
+    const sharedNets = structuredClone(nets);
+    sharedNets[1].terminals.push({part: 'probe', terminal: 'in'});
+    const refused = alignAuthoredBenchPolarity(data, circuitFixture(data, sharedNets), [
+        {name: 'low', where: 'D13', direction: 'output', activeLow: false}
+    ]);
+    assert.equal(refused.ok, false, 'a shared branch must not be silently re-authored');
+    assert.match(refused.reason, /shared branch/);
+
+    const missingMetadata = alignAuthoredBenchPolarity(data, circuitFixture(data, nets));
+    assert.equal(missingMetadata.ok, false, 'missing polarity metadata must fail closed');
+    assert.match(missingMetadata.reason, /missing retargeted pin metadata/);
+
+    const noGround = {...data, parts: data.parts.filter(part => part.kind !== 'gnd')};
+    const missingRail = alignAuthoredBenchPolarity(noGround, circuitFixture(noGround, nets), [
+        {name: 'low', where: 'D13', direction: 'output', activeLow: false}
+    ]);
+    assert.equal(missingRail.ok, false, 'a reversal without its required rail must fail closed');
+    assert.match(missingRail.reason, /requires a gnd part/);
+});
+
+test('generation and device-list dry runs share the fail-closed pin parser', () => {
+    class Creator {
+        parse (text) { this.project = text === 'pins' ? {stc: {pins: [{where: 'D13'}]}} : {}; }
+    }
+    assert.deepEqual(parseRetargetedPins(Creator, 'pins'), {ok: true, pins: [{where: 'D13'}]});
+    assert.equal(parseRetargetedPins(Creator, 'missing').ok, false);
+    for (const file of ['../scripts/gen-device-benches.mjs', '../scripts/update-example-devices.mjs']) {
+        const source = readFileSync(join(import.meta.dirname, file), 'utf8');
+        assert.match(source, /parseRetargetedPins\(SB3Creator,/,
+            `${file} must use the shared pin parser before its authored transform`);
+        assert.match(source, /transformAuthored\([\s\S]{0,300}parsed\.pins\)/,
+            `${file} must pass the parsed pins to the authored transform`);
+    }
+});
+
+test('an Arduino active-high branch becomes a sinking 8051 branch', () => {
+    const data = {
+        vcc: 5,
+        parts: [
+            {id: 'cpu', kind: 'mcu', params: {}},
+            {id: 'r1', kind: 'resistor', params: {ohms: 1000}, terminals: ['a', 'b']},
+            {id: 'led1', kind: 'led', params: {}, terminals: ['anode', 'cathode']},
+            {id: 'supply', kind: 'vcc', params: {}, terminals: ['vcc']},
+            {id: 'ground', kind: 'gnd', params: {}, terminals: ['gnd']}
+        ],
+        wires: [
+            {from: 'cpu', fromTerminal: 'P1.0', to: 'r1', toTerminal: 'a'},
+            {from: 'r1', fromTerminal: 'b', to: 'led1', toTerminal: 'anode'},
+            {from: 'led1', fromTerminal: 'cathode', to: 'ground', toTerminal: 'gnd'}
+        ],
+        holeWires: []
+    };
+    const nets = [
+        {id: 'pin', terminals: [{part: 'cpu', terminal: 'P1.0'}, {part: 'r1', terminal: 'a'}]},
+        {id: 'mid', terminals: [{part: 'r1', terminal: 'b'}, {part: 'led1', terminal: 'anode'}]},
+        {id: 'rail', terminals: [{part: 'led1', terminal: 'cathode'}, {part: 'ground', terminal: 'gnd'}]}
+    ];
+    const result = alignAuthoredBenchPolarity(data, circuitFixture(data, nets), [
+            {name: 'led', port: 1, bit: 0, direction: 'output', activeLow: true}
+        ]);
+    assert.equal(result.ok, true, result.reason);
+    const wires = result.out.wires.map(w =>
+        `${w['from']}.${w['fromTerminal']}->${w['to']}.${w['toTerminal']}`);
+    const connects = (a, b) => wires.includes(`${a}->${b}`) || wires.includes(`${b}->${a}`);
+    assert.ok(wires.includes('cpu.P1.0->led1.cathode'), 'mapped 8051 pin takes the cathode end');
+    assert.ok(wires.includes('supply.vcc->r1.a'), 'VCC takes the resistor end');
+    assert.ok(connects('r1.b', 'led1.anode'), 'series interior survives');
+    assert.equal(wires.some(w => /led1\.cathode->ground\.gnd|ground\.gnd->led1\.cathode/.test(w)), false,
+        'old active-high rail connection is gone');
 });
 
 // ── every DEVPART kind needs a power/ground mapping ──────────────────────

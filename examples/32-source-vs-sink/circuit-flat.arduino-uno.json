@@ -5,15 +5,21 @@
       "id": "vcc1",
       "kind": "vcc",
       "params": {},
-      "x": 80,
-      "y": 60
+      "terminals": [
+        "vcc"
+      ],
+      "x": 58,
+      "y": 115
     },
     {
       "id": "gnd1",
       "kind": "gnd",
       "params": {},
-      "x": 220,
-      "y": 60
+      "terminals": [
+        "gnd"
+      ],
+      "x": 134,
+      "y": 115
     },
     {
       "id": "r_sink",
@@ -21,14 +27,11 @@
       "params": {
         "ohms": 1000
       },
-      "seat": {
-        "boardId": "bb1",
-        "leadMap": {
-          "a": "a26",
-          "b": "a30"
-        }
-      },
-      "x": 386,
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 64,
       "y": 255
     },
     {
@@ -38,14 +41,11 @@
         "vf": 2,
         "color": "green"
       },
-      "seat": {
-        "boardId": "bb1",
-        "leadMap": {
-          "anode": "a38",
-          "cathode": "a39"
-        }
-      },
-      "x": 554,
+      "terminals": [
+        "anode",
+        "cathode"
+      ],
+      "x": 232,
       "y": 255
     },
     {
@@ -54,14 +54,11 @@
       "params": {
         "ohms": 1000
       },
-      "seat": {
-        "boardId": "bb1",
-        "leadMap": {
-          "a": "a32",
-          "b": "a36"
-        }
-      },
-      "x": 470,
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 148,
       "y": 255
     },
     {
@@ -71,53 +68,32 @@
         "vf": 2,
         "color": "red"
       },
-      "seat": {
-        "boardId": "bb1",
-        "leadMap": {
-          "anode": "a41",
-          "cathode": "a42"
-        }
-      },
-      "x": 596,
+      "terminals": [
+        "anode",
+        "cathode"
+      ],
+      "x": 288,
       "y": 255
     },
     {
       "id": "uno1",
       "kind": "arduino_uno",
       "params": {},
-      "rotation": 0,
-      "x": 80,
-      "y": -60
+      "terminals": [
+        "d13",
+        "d12",
+        "gnd",
+        "5v"
+      ],
+      "x": 392,
+      "y": -12,
+      "rotation": 0
     }
   ],
   "wires": [
     {
       "id": "w_flat_0",
-      "netId": "bb1:n-col-t30",
-      "from": {
-        "part": "led_sink",
-        "terminal": "anode"
-      },
-      "to": {
-        "part": "r_sink",
-        "terminal": "b"
-      }
-    },
-    {
-      "id": "w_flat_1",
-      "netId": "bb1:n-col-t32",
-      "from": {
-        "part": "uno1",
-        "terminal": "d12"
-      },
-      "to": {
-        "part": "r_source",
-        "terminal": "a"
-      }
-    },
-    {
-      "id": "w_flat_2",
-      "netId": "bb1:n-col-t36",
+      "netId": "bb1:n-col-t13",
       "from": {
         "part": "led_source",
         "terminal": "anode"
@@ -128,11 +104,59 @@
       }
     },
     {
-      "id": "w_flat_3",
-      "netId": "bb1:n-col-t39",
+      "id": "w_flat_1",
+      "netId": "bb1:n-col-t15",
       "from": {
         "part": "led_sink",
+        "terminal": "anode"
+      },
+      "to": {
+        "part": "r_sink",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "w_flat_2",
+      "netId": "bb1:n-col-t16",
+      "from": {
+        "part": "gnd1",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "led_sink",
         "terminal": "cathode"
+      }
+    },
+    {
+      "id": "w_flat_3",
+      "netId": "bb1:n-col-t16",
+      "from": {
+        "part": "gnd1",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "led_source",
+        "terminal": "cathode"
+      }
+    },
+    {
+      "id": "w_flat_4",
+      "netId": "bb1:n-col-t16",
+      "from": {
+        "part": "gnd1",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "uno1",
+        "terminal": "gnd"
+      }
+    },
+    {
+      "id": "w_flat_5",
+      "netId": "bb1:n-col-t3",
+      "from": {
+        "part": "r_sink",
+        "terminal": "a"
       },
       "to": {
         "part": "uno1",
@@ -140,44 +164,20 @@
       }
     },
     {
-      "id": "w_flat_4",
-      "netId": "bb1:rail-b-",
-      "from": {
-        "part": "gnd1",
-        "terminal": "gnd"
-      },
-      "to": {
-        "part": "led_source",
-        "terminal": "cathode"
-      }
-    },
-    {
-      "id": "w_flat_5",
-      "netId": "bb1:rail-b-",
-      "from": {
-        "part": "gnd1",
-        "terminal": "gnd"
-      },
-      "to": {
-        "part": "uno1",
-        "terminal": "gnd"
-      }
-    },
-    {
       "id": "w_flat_6",
-      "netId": "bb1:rail-t+",
+      "netId": "bb1:n-col-t9",
       "from": {
-        "part": "uno1",
-        "terminal": "5v"
+        "part": "r_source",
+        "terminal": "a"
       },
       "to": {
-        "part": "r_sink",
-        "terminal": "a"
+        "part": "uno1",
+        "terminal": "d12"
       }
     },
     {
       "id": "w_flat_7",
-      "netId": "bb1:rail-t+",
+      "netId": "n-rail-t+",
       "from": {
         "part": "uno1",
         "terminal": "5v"
@@ -189,5 +189,5 @@
     }
   ],
   "holeWires": [],
-  "generated": "benchFor+authored"
+  "generated": "benchFor+authored+seat"
 }

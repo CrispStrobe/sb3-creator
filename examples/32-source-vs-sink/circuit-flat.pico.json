@@ -145,6 +145,18 @@
     },
     {
       "id": "w_flat_1",
+      "netId": "bb1:n-col-t27",
+      "from": {
+        "part": "pico1",
+        "terminal": "gp25"
+      },
+      "to": {
+        "part": "r_sink",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "w_flat_2",
       "netId": "bb1:n-col-t31",
       "from": {
         "part": "led_sink",
@@ -156,7 +168,7 @@
       }
     },
     {
-      "id": "w_flat_2",
+      "id": "w_flat_3",
       "netId": "bb1:n-col-t37",
       "from": {
         "part": "led_source",
@@ -168,20 +180,20 @@
       }
     },
     {
-      "id": "w_flat_3",
+      "id": "w_flat_4",
       "netId": "bb1:n-col-t40",
       "from": {
-        "part": "led_sink",
-        "terminal": "cathode"
+        "part": "gnd1",
+        "terminal": "gnd"
       },
       "to": {
-        "part": "pico1",
-        "terminal": "gp25"
+        "part": "led_sink",
+        "terminal": "cathode"
       }
     },
     {
-      "id": "w_flat_4",
-      "netId": "bb1:rail-b-",
+      "id": "w_flat_5",
+      "netId": "bb1:n-col-t40",
       "from": {
         "part": "gnd1",
         "terminal": "gnd"
@@ -192,8 +204,8 @@
       }
     },
     {
-      "id": "w_flat_5",
-      "netId": "bb1:rail-b-",
+      "id": "w_flat_6",
+      "netId": "bb1:n-col-t40",
       "from": {
         "part": "gnd1",
         "terminal": "gnd"
@@ -204,7 +216,7 @@
       }
     },
     {
-      "id": "w_flat_6",
+      "id": "w_flat_7",
       "netId": "bb1:rail-t+",
       "from": {
         "part": "pico1",
@@ -213,18 +225,6 @@
       "to": {
         "part": "pico1",
         "terminal": "vsys"
-      }
-    },
-    {
-      "id": "w_flat_7",
-      "netId": "bb1:rail-t+",
-      "from": {
-        "part": "pico1",
-        "terminal": "vbus"
-      },
-      "to": {
-        "part": "r_sink",
-        "terminal": "a"
       }
     },
     {
