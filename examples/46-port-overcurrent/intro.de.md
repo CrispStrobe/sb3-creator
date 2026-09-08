@@ -5,15 +5,15 @@ prereqs: [01-blink]
 teaches: [port-current-limit, aggregate-current, chip-protection]
 ---
 ## Was du siehst
-Acht LEDs an einem einzigen MCU-Port, alle gleichzeitig eingeschaltet. Jede LED zieht etwa 20 mA, zusammen 160 mA — aber der Port ist nur fuer 100 mA Gesamtstrom ausgelegt. Die Simulation zeigt, wie der Gesamtstrom das absolute Maximum des Chips ueberschreitet, ein Zustand, der echte Hardware beschaedigen wuerde.
+Acht LEDs an Port 1 eines STC12C5A60S2, alle gleichzeitig eingeschaltet. Mit 160-Ohm-Widerstaenden zieht im Schaltungsmodell jeder Zweig etwa 16,2 mA. Das liegt unter dem 20-mA-Maximum pro Pin, ergibt zusammen aber etwa 129,7 mA und ueberschreitet damit das 120-mA-Gesamtbudget des Chips.
 
 ## Probier das
-1. Starte die Simulation mit allen acht LEDs an und lies den gesamten Portstrom ab.
-2. Schalte die Haelfte der LEDs aus und bestaetie, dass der Gesamtstrom auf ein sicheres Niveau sinkt.
-3. Fuege einen Transistortreiber fuer eine LED hinzu und beobachte, dass deren Strom nicht mehr gegen das Portlimit zaehlt.
+1. Starte die Simulation mit allen acht LEDs an und addiere die acht Zweigstroeme.
+2. Schalte die Haelfte der LEDs aus und bestaetige, dass der Gesamtstrom unter 120 mA sinkt.
+3. Fuege einen Transistortreiber fuer eine LED hinzu und beobachte, dass deren Laststrom nicht mehr durch den MCU-Pin fliesst.
 
 ## Was passiert hier
-Jedes Mikrocontroller-Datenblatt nennt zwei Stromgrenzen: pro Pin (typisch 20 mA) und pro Port (typisch 100 mA). Man kann das Pro-Pin-Limit an jedem Pin einhalten und trotzdem das Pro-Port-Limit ueberschreiten, wenn zu viele Pins gleichzeitig Strom liefern. Das Ueberschreiten des Gesamtlimits fuehrt dazu, dass der Chip ueberhitzt, Spannungsregler einbrechen und im Extremfall Bonddraehte im Gehaeuse durchschmelzen. Die Loesung sind Transistoren oder Treiber-ICs fuer Hochstromlasten, damit der Strom von der Versorgung fliesst, nicht durch den Chip.
+Dieses Beispiel ist bewusst STC12-spezifisch. Sein Datenmodell verwendet 20 mA als Maximum pro Pin und 120 mA als Gesamtbudget. Acht Zweige koennen also einzeln unter 20 mA bleiben und zusammen trotzdem das Gesamtbudget ueberschreiten. Die Deklarationswarnung rechnet konservativ mit achtmal 20 mA; die Schaltungsmessung prueft zusaetzlich die tatsaechlichen Modellstroeme. Andere Controller haben andere Grenzwerte und Ausgangsstufen — lies immer ihr Datenblatt. Fuer groessere Lasten nutzt man Transistoren oder Treiber-ICs.
 
 ## Warum das wichtig ist
 Das ist einer der haeufigsten Anfaengerfehler im Embedded-Design. Ein Projekt funktioniert mit ein oder zwei LEDs, versagt aber raetselhaft beim Hochskalieren. Gesamtstromgrenzen zu verstehen verhindert verbrannte Chips und lehrt, Datenblaetter sorgfaeltig zu lesen.
@@ -21,4 +21,4 @@ Das ist einer der haeufigsten Anfaengerfehler im Embedded-Design. Ein Projekt fu
 ## Weiter geht's
 - [38-npn-switch](../38-npn-switch) — nutze einen Transistor, um eine LED anzutreiben, ohne den MCU-Pin zu belasten.
 - [08-led-chaser-595](../08-led-chaser-595) — nutze ein Schieberegister, um viele LEDs mit nur wenigen MCU-Pins anzusteuern.
-- Experiment: Schlag im Datenblatt deines MCU die Stromgrenzen pro Pin und pro Port nach und berechne die maximale Anzahl von 20-mA-LEDs, die du direkt treiben kannst.
+- Experiment: Schlag im Datenblatt deines MCU die Grenzwerte pro Pin und insgesamt nach und berechne daraus eine sichere Zahl direkt getriebener LEDs.

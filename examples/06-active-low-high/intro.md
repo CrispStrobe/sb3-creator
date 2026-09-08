@@ -8,8 +8,8 @@ teaches: [active-low, active-high, port-mode]
 Two LEDs on the same board, wired differently. One is active-low (lights up when the pin goes LOW), the other is active-high (lights up when the pin goes HIGH). The program turns both "on" but only one command means the same electrical thing for both.
 
 ## Try this
-1. Run the program and watch both LEDs light up at the same time.
-2. Look at the pin values in the simulator — one pin is 0 (low) and the other is 1 (high), yet both LEDs are on.
+1. Run the program: the active-low LED is bright while the active-high LED is only faint, and both blink in sync.
+2. Look at the pin values in the simulator — one pin is 0 (low) and the other is 1 (high), yet both are logically on.
 3. Swap the wiring style of one LED in the circuit and notice it now behaves in reverse.
 
 ## What is going on
@@ -21,4 +21,5 @@ Misunderstanding active-low versus active-high is the most common wiring mistake
 ## Go further
 - [01-blink](../01-blink) — the simplest active-low example.
 - [12-dual-blink](../12-dual-blink) — two active-low LEDs alternating.
-- Experiment: measure the current through each LED in the simulator and confirm that the active-low LED is much brighter.
+- [56-logical-on-pin-level](../56-logical-on-pin-level) — portable logical polarity without an electrical-asymmetry claim.
+- Experiment: compare the brightness of each LED and confirm that the active-low LED is much brighter on this STC12 bench.

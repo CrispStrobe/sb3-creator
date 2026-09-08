@@ -9,12 +9,10 @@ PIN led5 = P1.5 OUTPUT ACTIVE LOW
 PIN led6 = P1.6 OUTPUT ACTIVE LOW
 PIN led7 = P1.7 OUTPUT ACTIVE LOW
 
-# 8 LEDs on one port, all active-low with 470Ω resistors.
-# Each draws (5.0 - 2.0) / 470 ≈ 6.4 mA.
-# Total: 8 × 6.4 = 51 mA from Port 1 alone.
-# With 1kΩ resistors: 8 × 3.0 = 24 mA — safe.
-# With 330Ω resistors: 8 × 9.1 = 73 mA — over half the chip budget.
-# The datasheet says: total chip current should stay under ~120 mA.
+# 8 LEDs on one port, all active-low with 160Ω resistors.
+# Ideal resistor arithmetic gives 18.75 mA per pin, below the 20 mA pin limit.
+# The modeled pin resistance lowers that slightly, but all eight together still
+# exceed the STC12's ~120 mA total-chip I/O budget.
 WHEN flag clicked:
   FOREVER:
     turn on led0

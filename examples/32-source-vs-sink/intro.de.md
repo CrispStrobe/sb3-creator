@@ -7,21 +7,17 @@ teaches: [source-current, sink-current, wiring-conventions]
 
 ## Was du siehst
 
-Zwei LEDs sind an denselben MCU-Pin angeschlossen, aber in entgegengesetzter
-Richtung. Eine LED ist vom Pin nach Masse verdrahtet (Source-Beschaltung: Strom
-fliesst aus dem Pin heraus). Die andere ist von VCC zum Pin verdrahtet
-(Sink-Beschaltung: Strom fliesst in den Pin hinein). Wenn der Pin auf High geht,
-leuchtet die Source-LED und die Sink-LED erlischt. Wenn der Pin auf Low geht,
-ist es umgekehrt.
+Zwei LEDs verwenden zwei benachbarte MCU-Pins und denselben Widerstandswert.
+Eine LED ist vom Pin nach Masse verdrahtet (Source-Beschaltung), die andere von
+VCC zum Pin (Sink-Beschaltung). Das Programm schaltet beide dauerhaft ein:
+P1.0 bleibt zum Senken auf LOW, P1.1 zum Liefern auf HIGH.
 
 ## Probier das aus
 
-1. Klick auf **Sim**. Eine LED ist an, die andere aus.
-2. Warte, bis der Pin umschaltet. Die LEDs tauschen -- die, die an war, geht
-   aus, und die, die aus war, geht an.
-3. Schau dir die Stromwerte beider LEDs an. Bei den meisten Mikrocontrollern
-   ist die Sink-Strombelastbarkeit etwas hoeher als die Source-Belastbarkeit,
-   weshalb aktiv-niedrige (Sink-)Beschaltung in der Praxis ueblicher ist.
+1. Klick auf **Sim**. Die Sink-LED ist hell, die Source-LED ist schwach.
+2. Pruefe beide Pinpegel: P1.0 ist LOW und P1.1 HIGH; keiner schaltet um.
+3. Vergleiche die Helligkeit. Der grosse Unterschied gehoert zum
+   quasi-bidirektionalen STC12-Ausgang und gilt nicht allgemein fuer GPIOs.
 
 ## Was passiert hier
 
@@ -30,8 +26,10 @@ ziehen (Sink). Im Source-Modus ist der Pin High und der Strom fliesst durch die
 LED nach Masse. Im Sink-Modus ist der Pin Low und der Strom fliesst von VCC
 durch die LED in den Pin. Beides funktioniert, aber die LED leuchtet bei
 entgegengesetzten Logikpegeln. Die aktiv-niedrige Konvention (LED an bei Low)
-nutzt den Sink-Modus und ist Standard auf den meisten Entwicklungsboards, weil
-der Pin typischerweise mehr Strom senken als sourcen kann.
+nutzt den Sink-Modus. Beim STC12 ist das besonders wichtig: Das
+quasi-bidirektionale HIGH ist ein schwacher Pull-up, LOW dagegen eine starke
+Senke. Push-Pull-GPIOs koennen nahezu symmetrisch sein und gehoeren in die
+separate portable Polaritaetslektion.
 
 ## Warum das wichtig ist
 
@@ -48,6 +46,5 @@ bestimmte Polaritaet erwarten.
 - **Wenn Ueberstrom wichtig wird:**
   [31-no-resistor-led](../31-no-resistor-led) -- Ueberschreitung der
   Strombelastbarkeit des Pins.
-- **Zum Ausprobieren:** Miss den genauen Strom im Source- und Sink-Modus mit
-  dem gleichen Widerstandswert. Auf einem STC12 ist der Unterschied klein, aber
-  messbar -- der Pin-Treiber ist nicht perfekt symmetrisch.
+- **Zum Ausprobieren:** Vergleiche beide LED-Helligkeiten, ohne das Programm zu
+  aendern. Beim STC12 ist der Unterschied gross und sichtbar.

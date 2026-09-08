@@ -1,0 +1,11 @@
+DEVICE STC12C5A60S2
+CLOCK 11059200
+PIN led = P1.0 OUTPUT ACTIVE LOW
+
+# Logical LED state is portable even when the electrical pin level changes.
+WHEN flag clicked:
+  FOREVER:
+    turn on led
+    wait 0.5 seconds
+    turn off led
+    wait 0.5 seconds

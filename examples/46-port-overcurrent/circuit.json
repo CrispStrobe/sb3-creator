@@ -28,7 +28,7 @@
    "id": "r0",
    "kind": "resistor",
    "params": {
-    "ohms": 470
+    "ohms": 160
    },
    "x": 386,
    "y": 255,
@@ -44,7 +44,7 @@
    "id": "r1",
    "kind": "resistor",
    "params": {
-    "ohms": 470
+    "ohms": 160
    },
    "x": 470,
    "y": 255,
@@ -60,7 +60,7 @@
    "id": "r2",
    "kind": "resistor",
    "params": {
-    "ohms": 470
+    "ohms": 160
    },
    "x": 554,
    "y": 255,
@@ -76,7 +76,7 @@
    "id": "r3",
    "kind": "resistor",
    "params": {
-    "ohms": 470
+    "ohms": 160
    },
    "x": 638,
    "y": 255,
@@ -92,7 +92,7 @@
    "id": "r4",
    "kind": "resistor",
    "params": {
-    "ohms": 470
+    "ohms": 160
    },
    "x": 722,
    "y": 255,
@@ -108,7 +108,7 @@
    "id": "r5",
    "kind": "resistor",
    "params": {
-    "ohms": 470
+    "ohms": 160
    },
    "x": 806,
    "y": 255,
@@ -124,7 +124,7 @@
    "id": "r6",
    "kind": "resistor",
    "params": {
-    "ohms": 470
+    "ohms": 160
    },
    "x": 386,
    "y": 349,
@@ -140,7 +140,7 @@
    "id": "r7",
    "kind": "resistor",
    "params": {
-    "ohms": 470
+    "ohms": 160
    },
    "x": 470,
    "y": 349,

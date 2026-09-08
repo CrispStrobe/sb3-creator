@@ -5,15 +5,15 @@ prereqs: [01-blink]
 teaches: [port-current-limit, aggregate-current, chip-protection]
 ---
 ## What you see
-Eight LEDs connected to a single MCU port, all turned on at once. Each LED draws about 20 mA, totalling 160 mA — but the port is only rated for 100 mA aggregate. The simulation shows the aggregate current exceeding the chip's absolute maximum, a condition that would damage real hardware.
+Eight LEDs are connected to a single STC12 port through 160 Ω resistors and turned on together. Each branch remains below the 20 mA per-pin limit, but the modeled branches total more than the chip's approximately 120 mA I/O budget. Every pin can look acceptable while their sum is not.
 
 ## Try this
-1. Run the simulation with all eight LEDs on and read the total port current.
-2. Turn off half the LEDs and confirm the total drops to a safe level.
-3. Add a transistor driver to one LED and observe that its current no longer counts against the port limit.
+1. Run the simulation with all eight LEDs on and inspect the branch currents.
+2. Add the eight readings: their total crosses the chip budget even though no branch crosses 20 mA.
+3. Turn off half the LEDs and confirm the calculated total drops below the budget.
 
 ## What is going on
-Every microcontroller datasheet specifies two current limits: per-pin (typically 20 mA) and per-port (typically 100 mA). You can stay within the per-pin limit on every pin and still exceed the per-port limit if too many pins source current simultaneously. Exceeding the aggregate limit causes the chip to overheat, voltage regulators to sag, and in extreme cases, bond wires inside the package to fuse. The fix is to use transistors or driver ICs for high-current loads so the current flows from the supply, not through the chip.
+The STC12 datasheet specifies both per-pin and aggregate I/O limits. You can stay within the per-pin limit on every pin and still exceed the chip limit when too many pins sink current simultaneously. Exceeding an absolute maximum can overheat or permanently damage real hardware. The fix is to raise the resistor values or use a transistor or driver IC so the load current does not pass through the MCU pins.
 
 ## Why it matters
 This is one of the most common beginner mistakes in embedded design. A project works with one or two LEDs but fails mysteriously when scaled up. Understanding aggregate current limits prevents burnt chips and teaches you to read datasheets carefully.

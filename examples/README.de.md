@@ -86,10 +86,11 @@ Die LED blinkt mit 1 Hz. Jede Zeile entspricht einem Scratch-Block.
 fünfmal schneller. Ändere `turn on` / `turn off` zu einfach `toggle led1` —
 dasselbe Ergebnis, kürzeres Programm.
 
-**Was `ACTIVE LOW` bedeutet:** Die LED ist von VCC über einen Widerstand zum
-Pin verdrahtet. `turn on` treibt den Pin auf LOW (0 V), wodurch Strom von
-VCC durch die LED in den Pin fließt. Der STC12 kann 20 mA senken, aber nur
-~230 µA liefern — Active-Low nutzt die starke Richtung.
+**Was `ACTIVE LOW` bei diesem STC12-Aufbau bedeutet:** Die LED ist von VCC
+über einen Widerstand zum Pin verdrahtet. `turn on` treibt den Pin auf LOW
+(0 V), sodass Strom in den Pin fließt. Andere Zielgeräte können Active-High
+nutzen; `56-logical-on-pin-level` zeigt, warum dieselben logischen Befehle bei
+beiden Beschaltungen funktionieren.
 
 ## Schritt 7: Eingabe
 
@@ -99,13 +100,14 @@ das Lauschen; `change count by 1` ist das Merken.
 
 ## Schritt 8: Die Senke/Quelle-Lektion
 
-Öffne **`32-source-vs-sink`**. Zwei LEDs, gleicher Widerstand, gleicher
-`turn on`-Befehl. Eine ist hell (3 mA, Active-Low-Senke), die andere fast
-dunkel (0,23 mA, Active-High-Quelle). Der Faktor-13-Unterschied in der
-Helligkeit IST die Lektion.
+Öffne **`32-source-vs-sink`**. Zwei LEDs an benachbarten STC12-Pins haben
+gleiche Widerstände. Der Active-Low-Senkpfad ist hell; der
+quasi-bidirektionale Active-High-Quellpfad ist schwach. Die Asymmetrie der
+Ausgangsstufe ist die Lektion.
 
-Das ist die wichtigste Eigenschaft des STC12: Er senkt 20 mA, liefert aber
-nur ~230 µA. Deshalb ist jede LED in diesem Projekt active-low verdrahtet.
+Das ist eine chipspezifische elektrische Lektion, keine allgemeine Regel.
+Öffne danach **`56-logical-on-pin-level`**: Sein logisches LED-Programm wird
+mit der passenden Polarität und Beschaltung auf jedes Zielgerät übertragen.
 
 ## Schritt 9: Mehrere Aufgaben
 
@@ -122,10 +124,10 @@ treibt die Relaisspule (~43 mA von der Versorgungsschiene). Ohne den Treiber
 kann der Pin nicht genug Strom liefern, und das Relais bleibt tot — der
 Simulator fängt das ab.
 
-Öffne **`46-port-overcurrent`**. Acht LEDs an einem Port. Jede zieht 6,4 mA —
-einzeln in Ordnung. Zusammen 51,2 mA von einem Port, nahe am Gesamtbudget
-des Chips von ~120 mA. Der Simulator warnt, wenn die Deklarationen das Limit
-überschreiten.
+Öffne **`46-port-overcurrent`**. Acht 160-Ω-LED-Zweige an STC12-Port 1 ziehen
+im Modell je etwa 16,2 mA — einzeln unter 20 mA, zusammen aber etwa 129,7 mA
+und damit mehr als das 120-mA-Gesamtbudget des Chipmodells. Der Compiler gibt
+zusätzlich seine konservative Worst-Case-Warnung für acht Ausgänge aus.
 
 ---
 

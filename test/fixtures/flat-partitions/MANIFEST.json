@@ -4,7 +4,7 @@
     "repo": "bw-circuit-ui",
     "sha": "c276c0dbfdc26fa858e22e7642217411c2398fa9"
   },
-  "pairs": 955,
+  "pairs": 937,
   "entries": [
     {
       "dir": "01-blink",
@@ -336,83 +336,11 @@
     },
     {
       "dir": "06-active-low-high",
-      "flat": "circuit-flat.arduino-mega.json",
-      "twin": "circuit.arduino-mega.json",
-      "flatSha": "0066d4e363eb058397a650954a3bdad297a69203bf7f8c213dd60b2fbd86dca5",
-      "twinSha": "efba6d2fdba3831aff68d61d26e61cd8deea60bb6019d586b6defe1316fb8dac",
-      "partitionSha": "14c13e3e0503ca214d614661643b1affc65be38a03bc4962598fb6d82de7d29d"
-    },
-    {
-      "dir": "06-active-low-high",
-      "flat": "circuit-flat.arduino-nano.json",
-      "twin": "circuit.arduino-nano.json",
-      "flatSha": "6dca04fdac641aeff14c5dc95f2f9187d7f3e303f0714e7c2379cc19ea02044b",
-      "twinSha": "eeacf1af07710201e5b8ea9e0a7ac33a193ddcb8a39b33e0157b5ceef1b2db3d",
-      "partitionSha": "4339d85656358d9f576b6199d03b7fd15364faf787efbdb6d0780ecd585df374"
-    },
-    {
-      "dir": "06-active-low-high",
-      "flat": "circuit-flat.arduino-uno.json",
-      "twin": "circuit.arduino-uno.json",
-      "flatSha": "b178afe5f0a2fd6cf4ce66bc8120aea58a1db8e185afb3df4220433465e6c8a3",
-      "twinSha": "670e11c3d1e01784cb56ddb9a35804aed72aff7fba94e3f7fee3e02b3250ea50",
-      "partitionSha": "24f144248165c269b1bf25438f253351ebd956deea26cd54ba2f974e71519592"
-    },
-    {
-      "dir": "06-active-low-high",
-      "flat": "circuit-flat.atmega168p.json",
-      "twin": "circuit.atmega168p.json",
-      "flatSha": "b178afe5f0a2fd6cf4ce66bc8120aea58a1db8e185afb3df4220433465e6c8a3",
-      "twinSha": "670e11c3d1e01784cb56ddb9a35804aed72aff7fba94e3f7fee3e02b3250ea50",
-      "partitionSha": "24f144248165c269b1bf25438f253351ebd956deea26cd54ba2f974e71519592"
-    },
-    {
-      "dir": "06-active-low-high",
-      "flat": "circuit-flat.attiny85.json",
-      "twin": "circuit.attiny85.json",
-      "flatSha": "70e633a10b7c973c9da330c240576bd4ea97bab7d662baa949c092af213aa8bc",
-      "twinSha": "4ba1d3daeb6f14924dbe4fa50d921253ee93649a47f8a203668a482b3d26d898",
-      "partitionSha": "fe410d9383e22457eb202dba7b44dea94dcbf0e4553a0058ca24fcabffd3c049"
-    },
-    {
-      "dir": "06-active-low-high",
-      "flat": "circuit-flat.attiny88.json",
-      "twin": "circuit.attiny88.json",
-      "flatSha": "70407ba76979ff0222222aeac0274d378e15cb720806decd5a87874d3a32ebe6",
-      "twinSha": "8c0ef17618d1b9944b372f2a108c780d7aeadd79f6ef712160a625e95bff5ddd",
-      "partitionSha": "a3c82e91a5c6815c5e6bb4923bdd64b11ca50763912800a04c590030d0870ac9"
-    },
-    {
-      "dir": "06-active-low-high",
       "flat": "circuit-flat.json",
       "twin": "circuit.json",
       "flatSha": "daf747dccaae28063417700c52f398938f42e88bd11b7a7a6da694f73993741d",
       "twinSha": "715782149a004ea557af38da2c949c1359265f9689e6a837c46bed76fd4ebb1c",
       "partitionSha": "63ffb3123fb10dc84b17ff4579c2beed67e5970d5c2a0b825456a9cc595615f4"
-    },
-    {
-      "dir": "06-active-low-high",
-      "flat": "circuit-flat.pico.json",
-      "twin": "circuit.pico.json",
-      "flatSha": "55053ff91043dc89d15866e2267ad9169eff8f74e2f0f73ea6297863d985c9f8",
-      "twinSha": "6002909e71c4c973ca1d873070324a61e6519730521f4cb0b0eeb252a1649095",
-      "partitionSha": "7112c0e2e01d3ba37127f3dbc3cbb75ed9ef01354dadebd813c94d88ee1c2def"
-    },
-    {
-      "dir": "06-active-low-high",
-      "flat": "circuit-flat.stc15f2k60s2.json",
-      "twin": "circuit.stc15f2k60s2.json",
-      "flatSha": "3976bad3110877063f4f26b941b18c24bb0e3c96c739327abe1bc564c5cd69e6",
-      "twinSha": "185c4c5e45a90bb438f720d67d516dee33c92b487c706c75c74b244c1a4fa43b",
-      "partitionSha": "3afea448abe0712e6e2a9ff6b6e738e690aee6a1bf7c802ae3542064b1cb8f45"
-    },
-    {
-      "dir": "06-active-low-high",
-      "flat": "circuit-flat.stc89c52rc.json",
-      "twin": "circuit.stc89c52rc.json",
-      "flatSha": "3d30341cab40f5188746f273cd97ae8007820496876b2e166273dcbbe9f5c108",
-      "twinSha": "fd1fddfef7bf8079b379b4b5692cdcc17c0c37d71b6ba57204fda1192b5901f2",
-      "partitionSha": "818050230dcecb6685bb0ef32ba787dc927528968866890c2eb259c842c65dd8"
     },
     {
       "dir": "07-buzzer-siren",
@@ -1824,83 +1752,11 @@
     },
     {
       "dir": "32-source-vs-sink",
-      "flat": "circuit-flat.arduino-mega.json",
-      "twin": "circuit.arduino-mega.json",
-      "flatSha": "3d75d5dbcc0802b52cdfe66710ae9758b76b87d59f54f7fddb2d5fbc9c1d8608",
-      "twinSha": "eda515327c2b989db77317fc0ae9b664f99439032b1c9b46f0e89ba436e3d78b",
-      "partitionSha": "c84484e82b8d8dd6b3f77634d4ccc5dc05d8325e10873092075909be4ef6adcf"
-    },
-    {
-      "dir": "32-source-vs-sink",
-      "flat": "circuit-flat.arduino-nano.json",
-      "twin": "circuit.arduino-nano.json",
-      "flatSha": "912973bcc6a30fbc979b959620783562f74de7a9e6de4d1eb2f044dc2cce3f6e",
-      "twinSha": "a3d1f3618cd3fc5f02c5d01af91839121618783b5d694d6b15f8611c5a3d96d1",
-      "partitionSha": "e73a2b1e12b7c96e5a974d6d235a9aec4748f2ce914ad14ca0c3dd149d213fe9"
-    },
-    {
-      "dir": "32-source-vs-sink",
-      "flat": "circuit-flat.arduino-uno.json",
-      "twin": "circuit.arduino-uno.json",
-      "flatSha": "b6473ce0da4ca932cec22e129a62e2e9e101f6a51033126e45419484f07cc711",
-      "twinSha": "4869a659f99aabcff5ce2f1cdf8ce67826f9b0836568ee6b75e6c6fa86b349a6",
-      "partitionSha": "065aed0ea4db459d2f4dad19ec27a2740761172557dab3a24ac4f06356e20cae"
-    },
-    {
-      "dir": "32-source-vs-sink",
-      "flat": "circuit-flat.atmega168p.json",
-      "twin": "circuit.atmega168p.json",
-      "flatSha": "b6473ce0da4ca932cec22e129a62e2e9e101f6a51033126e45419484f07cc711",
-      "twinSha": "4869a659f99aabcff5ce2f1cdf8ce67826f9b0836568ee6b75e6c6fa86b349a6",
-      "partitionSha": "065aed0ea4db459d2f4dad19ec27a2740761172557dab3a24ac4f06356e20cae"
-    },
-    {
-      "dir": "32-source-vs-sink",
-      "flat": "circuit-flat.attiny85.json",
-      "twin": "circuit.attiny85.json",
-      "flatSha": "470813a6071ea3215267ac968baad567c4bc5a3293aeb6296d86b085f7e1d9f8",
-      "twinSha": "0b5cf85bdc02c13073862e12a4b50b9e7a0fd71885aad5699f690e6b1fb6aaf0",
-      "partitionSha": "4b17622c51177d0f49aa83a0364c63842c37b9ce79d7d2ddfac071929d1b58d8"
-    },
-    {
-      "dir": "32-source-vs-sink",
-      "flat": "circuit-flat.attiny88.json",
-      "twin": "circuit.attiny88.json",
-      "flatSha": "2a41ac4c9845fe1c7ba7846bc1d1da7ec957ddf40ee571d436aa0aff5e4e558a",
-      "twinSha": "ae91889f7eecccd3515c3e77620f1959d67d4d0fa4d5ed6e261844f1813d39d2",
-      "partitionSha": "11cc573e5812848e108594df8cd7b3d67f8114339f1ae1c3182af58efe43de2e"
-    },
-    {
-      "dir": "32-source-vs-sink",
       "flat": "circuit-flat.json",
       "twin": "circuit.json",
       "flatSha": "ce65b2e8fd126f13b1a1bf83e2b81f09b538f912f8bb993a40594c1081821ed1",
       "twinSha": "186a4195066fb33aedc1491ded007bee9fc95a425d9070ddf3c9bb02d87ceec9",
       "partitionSha": "2e79b64891c1d09fc40da2e397e2f0560bd782a91c7aa79ce8ac1833d7fc5699"
-    },
-    {
-      "dir": "32-source-vs-sink",
-      "flat": "circuit-flat.pico.json",
-      "twin": "circuit.pico.json",
-      "flatSha": "5d5f2cd3478e264b778008f7d4b738b555241706ee7a4c0039fe2bc8cb676606",
-      "twinSha": "330b2cf2a9767ed3b21eb620ef4d072cc9fa8ea1b07846646d9b5237f2e422b9",
-      "partitionSha": "b73d6297a6dd9cff53488ea43eb55196e97b55df32ed1ceb8ac53ad29a52636c"
-    },
-    {
-      "dir": "32-source-vs-sink",
-      "flat": "circuit-flat.stc15f2k60s2.json",
-      "twin": "circuit.stc15f2k60s2.json",
-      "flatSha": "a26f9685f7bf28095b40de3c2caccd251816d6af291e0badb6ab3864a5d37a22",
-      "twinSha": "dd2c1689624a4d5db650bd0d97af9504fbb1045ed3304abc0889429f8643fbfa",
-      "partitionSha": "045390e3f1ff6251fa66dc33aac5dc0da8bd370ae6b87e86360309e5f2665160"
-    },
-    {
-      "dir": "32-source-vs-sink",
-      "flat": "circuit-flat.stc89c52rc.json",
-      "twin": "circuit.stc89c52rc.json",
-      "flatSha": "a094f2ead815b8e6ad07aad343b150eb074fad00cc5d9c5f784a6b323732a9a9",
-      "twinSha": "dbd6cc8ba94000f4b3b0458b6edf31d42d34f7e5b795425c48450e3d92330bba",
-      "partitionSha": "818e3045e61636824b384a112366d411081903c083669488b70bfdf088119b4c"
     },
     {
       "dir": "33-inductive-no-flyback",
@@ -2010,8 +1866,8 @@
       "dir": "46-port-overcurrent",
       "flat": "circuit-flat.json",
       "twin": "circuit.json",
-      "flatSha": "e28b4fb8f9398fbaf8ce2b7f6abcdbd61585f090f3909e5a5c1c56fadeebf9fc",
-      "twinSha": "40dfa082edca56c167ec60d135f4778f6528ca4b9f8f258685d3a7b425478ad1",
+      "flatSha": "5019c77fe92acbbf42783bb937e8be872b02d8df0fcf37d17f133e7635edb09e",
+      "twinSha": "2102749c26dbe775364ab1a1d12e1ffc15ee1bd3fee8f1f2cb76a6c726dcbaaf",
       "partitionSha": "57d26586d5abec956f79964ae7fd549b687c208fe9fe86d269844f6a2cfe8837"
     },
     {

@@ -106,8 +106,7 @@ function circuitFileFor(name) {
     return join(EXAMPLES, name, 'circuit.json');
 }
 
-function loadCircuit(name) {
-    const data = JSON.parse(readFileSync(circuitFileFor(name), 'utf8'));
+function loadCircuitData(data) {
     // Filter out visual-only parts and any wires referencing them BY ID —
     // hole-endpoint wires reference breadboards, which are never visual-only.
     const visualIds = new Set(data.parts.filter(p => VISUAL_ONLY.has(p.kind)).map(p => p.id));
@@ -134,6 +133,10 @@ function loadCircuit(name) {
     // A Circuit instance destructures as { board, parts } too, so both
     // historical return shapes of this helper keep working.
     return Circuit.fromJSON(data);
+}
+
+function loadCircuit(name) {
+    return loadCircuitData(JSON.parse(readFileSync(circuitFileFor(name), 'utf8')));
 }
 
 // ---- blocked examples: explicitly named blockers --------------------------------
@@ -492,6 +495,37 @@ describe('e2e: aggregate current check (STC12 §4.6)', () => {
 void main(void) { }`);
         assert.ok(!warnings.some(w => /worst-case/.test(w)),
             '4 pins × 20 mA = 80 mA — under the 120 mA budget');
+    });
+});
+
+describe('e2e: port-overcurrent fixture crosses the modeled aggregate limit', { skip: SKIP }, () => {
+    const measure = (data) => {
+        const circuit = loadCircuitData(data);
+        for (let bit = 0; bit < 8; bit++) circuit.board.setPin(`P1.${bit}`, 'quasi', false);
+        circuit.board.advanceTo(25n * MS);
+        return Array.from({length: 8}, (_, bit) =>
+            Math.abs(circuit.board.branchCurrent(`r${bit}`, 'a')));
+    };
+
+    test('160 ohm keeps every branch below 20 mA while their sum exceeds 120 mA', () => {
+        const data = JSON.parse(readFileSync(circuitFileFor('46-port-overcurrent'), 'utf8'));
+        const currents = measure(data);
+        for (const [bit, current] of currents.entries()) {
+            assert.ok(current > 0 && current < 0.020,
+                `P1.${bit} branch is ${(current * 1000).toFixed(2)} mA, expected 0..20 mA`);
+        }
+        const total = currents.reduce((sum, current) => sum + current, 0);
+        assert.ok(total > 0.120,
+            `eight modeled branches total ${(total * 1000).toFixed(2)} mA, expected >120 mA`);
+
+        // Mutation proof: restoring the old 470 ohm value must put the same
+        // circuit below the aggregate threshold, which is why that fixture
+        // could not prove the lesson it claimed to teach.
+        const restored = structuredClone(data);
+        for (const part of restored.parts) if (part.kind === 'resistor') part.params.ohms = 470;
+        const oldTotal = measure(restored).reduce((sum, current) => sum + current, 0);
+        assert.ok(oldTotal < 0.120,
+            `the 470 ohm mutant totals ${(oldTotal * 1000).toFixed(2)} mA, expected <120 mA`);
     });
 });
 

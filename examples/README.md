@@ -82,10 +82,11 @@ The LED blinks at 1 Hz. Every line maps to a Scratch block.
 five times faster. Change `turn on` / `turn off` to just `toggle led1` — same
 result, shorter program.
 
-**What `ACTIVE LOW` means:** the LED is wired from VCC through a resistor to
-the pin. `turn on` drives the pin LOW (0 V), which lets current flow from VCC
-through the LED into the pin. This is because the STC12's pins can sink 20 mA
-but source only ~230 µA — wiring active-low uses the strong direction.
+**What `ACTIVE LOW` means on this STC12 bench:** the LED is wired from VCC
+through a resistor to the pin. `turn on` drives the pin LOW (0 V), which lets
+current flow into the pin. Other targets may use active-high wiring; the
+portable `56-logical-on-pin-level` lesson shows why the same logical commands
+still work on both.
 
 ## Step 7: Input
 
@@ -95,13 +96,13 @@ listens; `change count by 1` is how it remembers.
 
 ## Step 8: The sink/source lesson
 
-Open **`32-source-vs-sink`**. Two LEDs, same resistor, same `turn on` command.
-One is bright (3 mA, active-low sink), the other is nearly dark (0.23 mA,
-active-high source). The factor-of-13 difference in brightness IS the lesson.
+Open **`32-source-vs-sink`**. Two LEDs on adjacent STC12 pins use equal
+resistors. The active-low sink path is bright; the quasi-bidirectional
+active-high source path is faint. The output-stage asymmetry is the lesson.
 
-This is the single most important fact about the STC12: it sinks 20 mA but
-sources only ~230 µA. Every LED in this project is wired active-low for
-exactly this reason.
+This is a chip-specific electrical lesson, not a portable rule. Then open
+**`56-logical-on-pin-level`**: its one logical LED program is retargeted with
+the polarity and wiring convention appropriate to each supported device.
 
 ## Step 9: Multiple scripts
 
@@ -117,10 +118,10 @@ The pin drives the transistor's base (~3.6 mA); the transistor drives the relay
 coil (~43 mA from the supply rail). Without the driver, the pin cannot deliver
 enough current and the relay stays dead — the simulator catches this.
 
-Open **`46-port-overcurrent`**. Eight LEDs on one port. Each draws 6.4 mA —
-individually fine. Together, 51.2 mA from one port, approaching the chip's
-total budget of ~120 mA. The simulator warns when the declarations exceed
-the limit.
+Open **`46-port-overcurrent`**. Eight 160 Ω LED branches on STC12 Port 1 draw
+about 16.2 mA each in the model — individually below 20 mA, but about
+129.7 mA together, above the chip model's 120 mA total budget. The compiler
+also emits its conservative eight-output worst-case warning.
 
 ---
 

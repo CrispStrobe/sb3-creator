@@ -22,8 +22,12 @@ of wiring — the polarity flag handles the inversion.
 | 500 ms | HIGH (1) | LOW (0) | OFF | OFF |
 | 1000 ms | LOW (0) | HIGH (1) | ON | ON |
 
-- Both LEDs have the same current: (5.0 − 2.0) / 1000 = 3.0 mA
-- Both appear to blink in sync despite opposite pin levels
+- The active-low LED uses the strong sink path and reaches about `0.1449`
+  model brightness. The active-high LED uses the quasi-bidirectional weak
+  pull-up and reaches only about `0.0066` brightness.
+- Both blink in sync despite opposite pin levels, but they are intentionally
+  not equally bright. That electrical asymmetry is specific to this STC12
+  bench; it is not a generic push-pull GPIO claim.
 
 ## What this verifies
 

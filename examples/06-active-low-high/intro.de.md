@@ -8,8 +8,8 @@ teaches: [active-low, active-high, port-mode]
 Zwei LEDs auf derselben Platine, unterschiedlich verdrahtet. Eine ist active-low (leuchtet, wenn der Pin LOW ist), die andere active-high (leuchtet, wenn der Pin HIGH ist). Das Programm schaltet beide „ein", aber der Befehl bedeutet elektrisch für jede LED etwas anderes.
 
 ## Probier das
-1. Starte das Programm und beobachte, wie beide LEDs gleichzeitig aufleuchten.
-2. Schau dir die Pinwerte im Simulator an — ein Pin ist 0 (low), der andere 1 (high), trotzdem leuchten beide LEDs.
+1. Starte das Programm: Die Active-Low-LED ist hell, die Active-High-LED nur schwach; beide blinken synchron.
+2. Schau dir die Pinwerte im Simulator an — ein Pin ist 0 (low), der andere 1 (high), trotzdem sind beide logisch eingeschaltet.
 3. Tausche die Beschaltungsart einer LED in der Schaltung und beachte, dass sie sich jetzt umgekehrt verhält.
 
 ## Was passiert hier
@@ -21,4 +21,5 @@ Das Verwechseln von Active-Low und Active-High ist der häufigste Verdrahtungsfe
 ## Weiter geht's
 - [01-blink](../01-blink) — das einfachste Active-Low-Beispiel.
 - [12-dual-blink](../12-dual-blink) — zwei Active-Low-LEDs im Wechsel.
-- Experiment: Miss den Strom durch jede LED im Simulator und bestätige, dass die Active-Low-LED deutlich heller ist.
+- [56-logical-on-pin-level](../56-logical-on-pin-level) — portable logische Polaritaet ohne eine Behauptung zur Strom-Asymmetrie.
+- Experiment: Vergleiche die Helligkeit beider LEDs und bestaetige, dass die Active-Low-LED auf diesem STC12 deutlich heller ist.

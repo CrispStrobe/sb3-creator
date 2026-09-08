@@ -244,30 +244,9 @@
   },
   "kind": "program",
   "devices": [
-   "stc12c5a60s2",
-   "stc89c52rc",
-   "stc15f2k60s2",
-   "arduino-uno",
-   "atmega168p",
-   "arduino-mega",
-   "arduino-nano",
-   "stm32f030",
-   "pico",
-   "attiny88",
-   "attiny85"
+   "stc12c5a60s2"
   ],
-  "benches": {
-   "arduino-mega": "06-active-low-high/circuit.arduino-mega.json",
-   "arduino-nano": "06-active-low-high/circuit.arduino-nano.json",
-   "arduino-uno": "06-active-low-high/circuit.arduino-uno.json",
-   "atmega168p": "06-active-low-high/circuit.atmega168p.json",
-   "attiny85": "06-active-low-high/circuit.attiny85.json",
-   "attiny88": "06-active-low-high/circuit.attiny88.json",
-   "pico": "06-active-low-high/circuit.pico.json",
-   "stc15f2k60s2": "06-active-low-high/circuit.stc15f2k60s2.json",
-   "stc89c52rc": "06-active-low-high/circuit.stc89c52rc.json",
-   "stm32f030": "06-active-low-high/circuit.stm32f030.json"
-  },
+  "retarget": false,
   "tier": "arch",
   "authored": "stc12c5a60s2"
  },
@@ -1204,30 +1183,9 @@
   },
   "kind": "program",
   "devices": [
-   "stc12c5a60s2",
-   "stc89c52rc",
-   "stc15f2k60s2",
-   "arduino-uno",
-   "atmega168p",
-   "arduino-mega",
-   "arduino-nano",
-   "stm32f030",
-   "pico",
-   "attiny88",
-   "attiny85"
+   "stc12c5a60s2"
   ],
-  "benches": {
-   "arduino-mega": "32-source-vs-sink/circuit.arduino-mega.json",
-   "arduino-nano": "32-source-vs-sink/circuit.arduino-nano.json",
-   "arduino-uno": "32-source-vs-sink/circuit.arduino-uno.json",
-   "atmega168p": "32-source-vs-sink/circuit.atmega168p.json",
-   "attiny85": "32-source-vs-sink/circuit.attiny85.json",
-   "attiny88": "32-source-vs-sink/circuit.attiny88.json",
-   "pico": "32-source-vs-sink/circuit.pico.json",
-   "stc15f2k60s2": "32-source-vs-sink/circuit.stc15f2k60s2.json",
-   "stc89c52rc": "32-source-vs-sink/circuit.stc89c52rc.json",
-   "stm32f030": "32-source-vs-sink/circuit.stm32f030.json"
-  },
+  "retarget": false,
   "tier": "arch",
   "authored": "stc12c5a60s2"
  },
@@ -1620,6 +1578,50 @@
    "stc89c52rc": "55-oled-hello/circuit.stc89c52rc.json"
   },
   "authored": "stc12c5a60s2"
+ },
+ {
+  "id": "56-logical-on-pin-level",
+  "title": {
+   "en": "Logical LED state vs pin level",
+   "de": "Logischer LED-Zustand und Pinpegel"
+  },
+  "category": "basics",
+  "difficulty": 1,
+  "files": {
+   "program": "56-logical-on-pin-level/program.bw",
+   "circuit": "56-logical-on-pin-level/circuit.stc12c5a60s2.json",
+   "expected": "56-logical-on-pin-level/EXPECTED.md",
+   "intro": "56-logical-on-pin-level/intro.md",
+   "introDE": "56-logical-on-pin-level/intro.de.md"
+  },
+  "kind": "program",
+  "devices": [
+   "stc12c5a60s2",
+   "stc89c52rc",
+   "stc15f2k60s2",
+   "arduino-uno",
+   "atmega168p",
+   "arduino-mega",
+   "arduino-nano",
+   "stm32f030",
+   "pico",
+   "attiny88",
+   "attiny85"
+  ],
+  "authored": "stc12c5a60s2",
+  "benches": {
+   "arduino-mega": "56-logical-on-pin-level/circuit.arduino-mega.json",
+   "arduino-nano": "56-logical-on-pin-level/circuit.arduino-nano.json",
+   "arduino-uno": "56-logical-on-pin-level/circuit.arduino-uno.json",
+   "atmega168p": "56-logical-on-pin-level/circuit.atmega168p.json",
+   "attiny85": "56-logical-on-pin-level/circuit.attiny85.json",
+   "attiny88": "56-logical-on-pin-level/circuit.attiny88.json",
+   "pico": "56-logical-on-pin-level/circuit.pico.json",
+   "stc12c5a60s2": "56-logical-on-pin-level/circuit.stc12c5a60s2.json",
+   "stc15f2k60s2": "56-logical-on-pin-level/circuit.stc15f2k60s2.json",
+   "stc89c52rc": "56-logical-on-pin-level/circuit.stc89c52rc.json",
+   "stm32f030": "56-logical-on-pin-level/circuit.stm32f030.json"
+  }
  },
  {
   "id": "50-7seg-chase",

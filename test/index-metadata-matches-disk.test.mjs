@@ -18,8 +18,8 @@
  *   `thumbnail` is not in there.
  *
  *   8 `refusals` entries named a device the catalog OFFERS. 46-port-overcurrent
- *   said arduino-uno "has more digital outputs than its convention offers" while
- *   listing arduino-uno in `devices` and shipping it a bench; 54-motor-driver
+ *   once said arduino-uno "has more digital outputs than its convention offers"
+ *   while listing arduino-uno in `devices` and shipping it a bench; 54-motor-driver
  *   said "motor blocks are stubs on this core" for three devices it ships;
  *   07-buzzer-siren refused its OWN AUTHORED CHIP, for which retarget is the
  *   identity. All eight were measured against `retargetPseudocode` and all eight
@@ -67,7 +67,7 @@ const deviceOnly = (entry) =>
  *                         file; consumed here to excuse a missing circuit.
  *   device              — free-text prose on 17 entries, read by nothing.
  *   retarget            — generator eligibility, checked below against the
- *                         device-specific lesson that requires it.
+ *                         device-specific electrical lessons that require it.
  */
 const UNCHECKED_HERE = new Set([
     // pcbExpectedFindings: the DRC-verdict pin for a shipped teaching
@@ -85,27 +85,29 @@ const CHECKED_HERE = new Set(['files', 'thumbnail', 'benches', 'authored', 'refu
 
 describe('index metadata agrees with the files and the compiler', () => {
     test('device-specific electrical lessons cannot regrow cross-family benches', () => {
-        const lesson = index.find(entry => entry.id === '46-port-overcurrent');
-        assert.deepEqual(lesson.devices, ['stc12c5a60s2']);
-        assert.equal(lesson.retarget, false);
-        assert.equal(lesson.benches, undefined);
+        const ids = ['06-active-low-high', '32-source-vs-sink', '46-port-overcurrent'];
+        for (const id of ids) {
+            const lesson = index.find(entry => entry.id === id);
+            assert.ok(lesson, `${id} is present`);
+            assert.deepEqual(lesson.devices, ['stc12c5a60s2'], `${id} stays STC12-specific`);
+            assert.equal(lesson.retarget, false, `${id} cannot be retargeted`);
+            assert.equal(lesson.benches, undefined, `${id} has no generated bench map`);
 
-        // Mutation proof: widening the catalog device list alone must not make
-        // this chip-current lesson eligible for the batch generator again.
-        const widened = {...lesson, devices: [...lesson.devices, 'arduino-uno']};
-        assert.equal(allowsRetargeting(widened), false);
-        assert.equal(isRetargetableExample(widened), false);
-        const optedIn = {...widened, retarget: true};
-        assert.equal(allowsRetargeting(optedIn), true);
-        assert.equal(isRetargetableExample(optedIn), true,
-            'the test must exercise the retarget guard rather than a one-device shortcut');
+            // Mutation proof: widening the catalog device list alone must not make
+            // a chip-electrical lesson eligible for the batch generator again.
+            const widened = {...lesson, devices: [...lesson.devices, 'arduino-uno']};
+            assert.equal(allowsRetargeting(widened), false);
+            assert.equal(isRetargetableExample(widened), false);
+            const optedIn = {...widened, retarget: true};
+            assert.equal(allowsRetargeting(optedIn), true);
+            assert.equal(isRetargetableExample(optedIn), true,
+                'the test must exercise the retarget guard rather than a one-device shortcut');
 
-        const program = readFileSync(join(EXAMPLES, lesson.id, 'program.bw'), 'utf8');
-        assert.match(program, /^DEVICE STC12C5A60S2$/m);
-        for (const name of ['arduino-mega', 'arduino-nano', 'arduino-uno', 'atmega168p',
-            'attiny88', 'pico', 'stc15f2k60s2', 'stc89c52rc', 'stm32f030']) {
-            assert.equal(existsSync(join(EXAMPLES, lesson.id, `circuit.${name}.json`)), false);
-            assert.equal(existsSync(join(EXAMPLES, lesson.id, `circuit-flat.${name}.json`)), false);
+            const program = readFileSync(join(EXAMPLES, id, 'program.bw'), 'utf8');
+            assert.match(program, /^DEVICE STC12C5A60S2$/m);
+            const generated = readdirSync(join(EXAMPLES, id)).filter(name =>
+                /^circuit(?:-flat)?\.[^.]+\.json$/.test(name));
+            assert.deepEqual(generated, [], `${id} must not retain a cross-family generated circuit`);
         }
     });
 

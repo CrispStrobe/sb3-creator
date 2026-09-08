@@ -19,4 +19,4 @@ The declaration says so: `PIN btn = D2 INPUT ACTIVE LOW`. That is not decoration
 
 ## Go further
 - [arduino-02-button](../arduino-02-button) — external pull-down, non-inverted logic.
-- [06-active-low-high](../06-active-low-high) — the active-low lesson with LEDs.
+- [56-logical-on-pin-level](../56-logical-on-pin-level) — the same logical output across active-low and active-high LED wiring.

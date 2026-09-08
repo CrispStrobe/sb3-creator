@@ -29,8 +29,15 @@
 // sidecar cui 3750d86), and the LED needs no wires — it is on the PCB.
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
+import { createRequire } from 'node:module';
 import os from 'node:os';
 import path from 'node:path';
+
+// Node 22 supplies fs.globSync; the documented Node 20 fallback must use an
+// ESM-compatible require rather than referencing the undefined global.
+const globSync = fs.globSync
+  ? fs.globSync.bind(fs)
+  : createRequire(import.meta.url)('glob').sync;
 
 // Resolved the way every gate in this repo resolves them (BW_BOARD /
 // BW_CIRCUIT_UI, else the sibling checkout). The defaults used to be one
@@ -56,6 +63,7 @@ async function batch() {
   // to a generic 'mcu' and this generator wrote benches whose pin sources were
   // keyed by the netlist's own spelling rather than the part's terminal list.
   const cmod = await injectEngine({ board: BW_BOARD, cui: CUI });
+  const eng = cmod.surface;
   // Authored circuits omit terminals on sidecar-known kinds — register the
   // sidecars so Circuit.fromJSON resolves them (same bulk-load as the
   // seat generator).
@@ -150,8 +158,7 @@ function seat() {
   const onlyAt = process.argv.indexOf('--only');
   const only = onlyAt === -1 ? null : process.argv[onlyAt + 1];
   let seated = 0, failed = 0, unseated = 0;
-  for (const f of fs.globSync ? fs.globSync('examples/*/circuit.*.json')
-      : require('glob').sync('examples/*/circuit.*.json')) {
+  for (const f of globSync('examples/*/circuit.*.json')) {
     const d = JSON.parse(fs.readFileSync(f, 'utf8'));
     if (!reseatExisting && d.parts.some(p => p.seat)) continue;
     const exid = f.split(path.sep)[1];
@@ -250,12 +257,12 @@ function index() {
   const list = Array.isArray(d) ? d : d.examples;
   let touched = 0;
   for (const e of list) {
-    const files = fs.globSync(`examples/${e.id}/circuit.*.json`).sort();
+    const files = globSync(`examples/${e.id}/circuit.*.json`).sort();
     const devs = files.map(f => path.basename(f).replace('circuit.', '').replace('.json', ''));
     if (devs.length) { e.benches = Object.fromEntries(devs.map(v => [v, `${e.id}/circuit.${v}.json`])); touched++; }
     else if (e.benches) { delete e.benches; touched++; }
   }
-  fs.writeFileSync(p, JSON.stringify(d, null, 1));
+  fs.writeFileSync(p, JSON.stringify(d, null, 1) + '\n');
   console.log(`index: ${touched} entries carry a benches map`);
 }
 
