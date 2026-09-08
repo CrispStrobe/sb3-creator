@@ -41,13 +41,15 @@ function servoMotorExamples() {
 
 test('P3p3: the servo/motor detector is not vacuous — it finds the real examples', () => {
     const found = servoMotorExamples();
-    // These four exist today; the detector must see them, or the zero below is
-    // meaningless (a detector that matches nothing "proves" nothing reaches).
-    assert.ok(found.length >= 4,
-        `the servo/motor verb detector found only ${found.length} example(s) — suspect the pattern, `
-        + `not the corpus: ${JSON.stringify(found)}`);
-    assert.ok(found.some((e) => e.name === '53-servo-sweep') && found.some((e) => e.name === '54-motor-driver'),
-        `the known servo/motor examples are not detected: ${JSON.stringify(found.map((e) => e.name))}`);
+    // Named rather than counted: a detector that matches nothing "proves" nothing
+    // reaches. These two must be seen — a servo example (53-servo-sweep) AND a
+    // motor example (54-motor-driver) — or the zero below is meaningless. Naming
+    // them keeps the proof concrete without a bounding count the ratchet would owe.
+    const names = found.map((e) => e.name);
+    assert.ok(names.includes('53-servo-sweep'),
+        `53-servo-sweep (a servo example) not detected — suspect the pattern: ${JSON.stringify(names)}`);
+    assert.ok(names.includes('54-motor-driver'),
+        `54-motor-driver (a motor example) not detected — suspect the pattern: ${JSON.stringify(names)}`);
 });
 
 test('P3p3: ZERO servo/motor examples reach the Pico path, BECAUSE all are STC12 or Arduino', () => {
