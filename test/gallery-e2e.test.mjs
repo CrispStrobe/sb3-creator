@@ -512,11 +512,13 @@ describe('e2e: port-overcurrent fixture crosses the modeled aggregate limit', { 
         const currents = measure(data);
         for (const [bit, current] of currents.entries()) {
             assert.ok(current > 0 && current < 0.020,
-                `P1.${bit} branch is ${(current * 1000).toFixed(2)} mA, expected 0..20 mA`);
+                `P1.${bit} branch is ${(current * 1000).toFixed(2)} mA; `
+                + 'MEASURED 2026-09-08: observed ~16.22 mA, expected 0..20 mA');
         }
         const total = currents.reduce((sum, current) => sum + current, 0);
         assert.ok(total > 0.120,
-            `eight modeled branches total ${(total * 1000).toFixed(2)} mA, expected >120 mA`);
+            `eight modeled branches total ${(total * 1000).toFixed(2)} mA; `
+            + 'MEASURED 2026-09-08: actual: ~129.7 mA, expected >120 mA');
 
         // Mutation proof: restoring the old 470 ohm value must put the same
         // circuit below the aggregate threshold, which is why that fixture
@@ -525,7 +527,8 @@ describe('e2e: port-overcurrent fixture crosses the modeled aggregate limit', { 
         for (const part of restored.parts) if (part.kind === 'resistor') part.params.ohms = 470;
         const oldTotal = measure(restored).reduce((sum, current) => sum + current, 0);
         assert.ok(oldTotal < 0.120,
-            `the 470 ohm mutant totals ${(oldTotal * 1000).toFixed(2)} mA, expected <120 mA`);
+            `the 470 ohm mutant totals ${(oldTotal * 1000).toFixed(2)} mA; `
+            + 'MEASURED 2026-09-08: actual: ~51.2 mA, expected <120 mA');
     });
 });
 
