@@ -1,7 +1,7 @@
 // Shared workflow census, maintained in CrispStrobe/bw-circuit-ui.
 // MIT. Keep consumer copies byte-identical when adopting changes.
 import {readdirSync, readFileSync} from 'node:fs';
-import {join, relative} from 'node:path';
+import {join, relative, posix} from 'node:path';
 
 export function workflowSources(root) {
     const walk = dir => readdirSync(dir, {withFileTypes: true}).flatMap(entry => {
@@ -59,4 +59,31 @@ export function assertNoRawClones(workflows) {
             throw new Error(`${file}: unreviewed raw clone; record and enforce its exact pin contract`);
         }
     }
+}
+
+// Follow direct workflow script invocations and relative module imports. This
+// complements the checkout census without treating test fixture strings as CI.
+export function assertInvokedScriptsPinned(workflows, readScript) {
+    const pending = [...workflows.values()].flatMap(source =>
+        [...source.matchAll(/\b(?:node|bash|sh)\s+(scripts\/[\w./-]+\.(?:mjs|js|sh))\b/g)].map(m => m[1]));
+    const visited = new Set();
+    while (pending.length) {
+        const file = pending.pop();
+        if (visited.has(file)) continue;
+        visited.add(file);
+        const source = readScript(file);
+        const code = source.split('\n').filter(line => !/^\s*(?:#|\/\/|\*)/.test(line)).join('\n');
+        if (/\bgit\s+clone\b/.test(code)
+            || /\(\s*['"]git['"]\s*,\s*\[\s*['"]clone['"]/.test(code)
+            || /\bgit\(\s*['"]clone['"]/.test(code)) {
+            throw new Error(`${file}: unreviewed script clone; enforce an exact pin contract before adding this site`);
+        }
+        for (const match of code.matchAll(/(?:\bfrom\s*|\bimport\s*\(?\s*)['"](\.[^'"]+\.(?:mjs|js))['"]/g)) {
+            const dependency = posix.normalize(posix.join(posix.dirname(file), match[1]));
+            // Sibling modules belong to the separately pinned repository, not
+            // this repository's script corpus.
+            if (!dependency.startsWith('../')) pending.push(dependency);
+        }
+    }
+    return [...visited].sort();
 }
