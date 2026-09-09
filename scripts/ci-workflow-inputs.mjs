@@ -34,6 +34,8 @@ export function checkoutSites(workflows) {
             const refs = lines.slice(start, end)
                 .filter(line => line.search(/\S/) === indent)
                 .map(line => line.match(/^\s*ref:\s*(.*?)\s*(?:#.*)?$/)?.[1]).filter(Boolean);
+            // Observed by duplicate-ref fixture: one ref accepted, two refused.
+            // This is checkout field cardinality, not a performance threshold.
             if (refs.length > 1) throw new Error(`${file}:${i + 1}: duplicate checkout ref`);
             const unquote = value => value?.replace(/^(['"])(.*)\1$/, '$2');
             sites.push({file, line: i + 1, repository: unquote(repository), ref: unquote(refs[0])});

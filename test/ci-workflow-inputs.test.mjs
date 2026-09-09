@@ -31,3 +31,9 @@ test('workflow-invoked scripts cannot hide an unreviewed clone', () => {
     assert.throws(() => assertInvokedScriptsPinned(fixture, file => file === 'scripts/new.mjs'
         ? "import './nested.mjs';" : "git('clone', 'example.invalid');"), /scripts\/nested.mjs: unreviewed script clone/);
 });
+
+test('duplicate-ref fixture: a checkout has exactly one ref field', () => {
+    const base = 'steps:\n  - uses: actions/checkout@full\n    with:\n      repository: Acme/duplicate\n      ref: ' + 'a'.repeat(40) + '\n';
+    assert.equal(assertCheckoutPins(new Map([['duplicate.yml', base]])).length, 1);
+    assert.throws(() => assertCheckoutPins(new Map([['duplicate.yml', base + '      ref: ' + 'b'.repeat(40) + '\n']])), /duplicate checkout ref/);
+});
