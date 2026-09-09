@@ -1,0 +1,21 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {workflowSources, assertCheckoutPins, assertNoRawClones} from '../scripts/ci-workflow-inputs.mjs';
+
+test('every workflow external checkout is immutable and new raw clones fail closed', () => {
+    const workflows = workflowSources(new URL('..', import.meta.url).pathname);
+    const sites = assertCheckoutPins(workflows);
+    assertNoRawClones(workflows);
+    console.log(`Audited ${sites.length} external checkout sites in ${workflows.size} workflows`);
+});
+
+test('new workflows and adjacent checkout steps cannot bypass the derived gate', () => {
+    const base = 'steps:\n  - uses: actions/checkout@full\n    with:\n      repository: Acme/new\n';
+    const audit = source => assertCheckoutPins(new Map([['new.yml', source]]));
+    assert.throws(() => audit(base), /Acme\/new: expected a full/);
+    assert.throws(() => audit(base + '      ref: main\n'), /got main/);
+    assert.throws(() => audit(base + '      ref: abc1234\n'), /got abc1234/);
+    assert.equal(audit(base + '      ref: ' + 'a'.repeat(40) + '\n').length, 1);
+    assert.throws(() => audit(base + '  - uses: actions/checkout@full\n    with:\n      repository: Acme/pinned\n      ref: ' + 'a'.repeat(40) + '\n'), /Acme\/new: expected a full/);
+    assert.throws(() => assertNoRawClones(new Map([['new.yml', 'run: git clone https://example.invalid/new.git']])), /new.yml: unreviewed raw clone/);
+});
