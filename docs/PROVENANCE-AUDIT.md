@@ -2,6 +2,14 @@
 
 2026-08-24, branch `test/verified-what-exactly`, from `main` at `4805f32`.
 
+> **Historical measurement, not current instructions.** Every denominator and
+> verdict below is pinned to the named 2026-08-24 tree. In particular, its Lite
+> sync inventory predates the migration of `bw-board` and `bw-circuit-ui` to
+> exact-SHA npm dependencies and later pin-guard repairs. Re-measure before
+> acting on any listed finding. The current ownership/adoption rule is
+> [`UPSTREAM-WIP.md`](UPSTREAM-WIP.md); Brickwright Lite's current mechanical
+> regime is its `docs/VENDORING-REGIME.md`.
+
 Three defects this campaign found share one root, and it is not "a gate that passes wrongly".
 It is **a confident, well-formed, wrong statement of what was verified**:
 

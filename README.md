@@ -8,6 +8,20 @@ tested rather than hoped for.
 **▶ Live editor: <https://crispstrobe.github.io/sb3-creator/>** — nothing to
 install; write pseudocode, download the `.sb3`.
 
+## Repository role and adoption
+
+This repository is the source of truth for the BrickWright language IR,
+generators, readers, gallery programs, and the shared contracts in `reference/`.
+Reusable changes to those surfaces land and pass here first. Brickwright Lite
+then adopts a reviewed exact git SHA and derives its transformed vendored files;
+it must not implement a private second copy of the compiler behavior.
+
+Cross-repository gates here use full-SHA `bw-board` and `bw-circuit-ui`
+checkouts recorded in both CI and `test/fixtures/siblings.json`. Those are fixed
+test inputs, not moving-HEAD dependencies and not necessarily Lite's shipping
+pins. See [`docs/UPSTREAM-WIP.md`](docs/UPSTREAM-WIP.md) for the complete
+ownership and adoption procedure.
+
 ## What it converts
 
 ```
