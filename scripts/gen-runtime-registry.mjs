@@ -69,7 +69,7 @@ const BLOCK_KIND = { command: 'command', reporter: 'reporter', Boolean: 'boolean
 // extensions are read from. A full 40-hex sha, never a branch: a branch name would
 // put us back to quoting a freshness we do not have.
 const EXTENSIONS_REPO = 'CrispStrobe/extensions';
-const EXTENSIONS_COMMIT = 'c681d995ef521ef289bc0eb9b6b0b1a4ffabe12a';
+const EXTENSIONS_COMMIT = '3c7eabc094af516c9dba2c4c721667c048779860';
 if (!/^[0-9a-f]{40}$/.test(EXTENSIONS_COMMIT))
     throw new Error(`EXTENSIONS_COMMIT must be a full 40-character sha, got "${EXTENSIONS_COMMIT}"`);
 

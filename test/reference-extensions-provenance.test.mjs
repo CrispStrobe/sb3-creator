@@ -11,13 +11,23 @@
  *     Origin: github.com/CrispStrobe/extensions -> extensions/CrispStrobe/*.js
  *     To refresh: re-fetch from the repo above. Do not edit these by hand.
  *
- * Following that would have destroyed work. reference/extensions/stc12.js is
- * 24,467 bytes; the file it names upstream is 10,335. The local copy is AHEAD —
- * it carries the `keypad` reporter and the entire SEVENSEG8 surface that
- * upstream has not received. And test/stc12-conformance.test.mjs, the gate whose
- * whole purpose is to catch the emitter and the extension disagreeing about
- * opcodes, treats this very file as canonical. The repair instruction pointed at
- * the thing being repaired.
+ * Following that would have destroyed work. reference/extensions/stc12.js was
+ * 24,467 bytes against an upstream 10,335 — the local copy carried the `keypad`
+ * reporter and the entire SEVENSEG8 surface that upstream had not received. And
+ * test/stc12-conformance.test.mjs, the gate whose whole purpose is to catch the
+ * emitter and the extension disagreeing about opcodes, treats this very file as
+ * canonical. The repair instruction pointed at the thing being repaired.
+ *
+ * UPDATE 2026-09-20. Upstream received keypad and SEVENSEG8, and kept going: it
+ * is now 26,799 bytes, LARGER than the local copy. The byte-length heuristic
+ * that first caught the defect would at that moment have declared the file
+ * `local-behind` and the refresh safe — and it is not. Upstream deleted the
+ * five `this._live()` call sites that forward pin writes to a tethered board,
+ * and stc12live's named-pin API (`pinDecls`, `PORT_SFR`, `drivePin`) that they
+ * call into. Both files now record `diverged`, computed from line sets rather
+ * than size. The lesson is the one the directory already taught, one level up:
+ * a proxy for "who is ahead" eventually points the wrong way, and the label is
+ * read as an instruction.
  *
  * WHAT THIS GATE ESTABLISHES, EXACTLY
  * -----------------------------------
@@ -40,7 +50,7 @@ import { join } from 'node:path';
 const REF = join(import.meta.dirname, '..', 'reference', 'extensions');
 const MANIFEST = join(REF, 'MANIFEST.json');
 const sha256 = (b) => createHash('sha256').update(b).digest('hex');
-const RELATIONSHIPS = new Set(['identical', 'local-ahead', 'local-behind', 'not-upstream']);
+const RELATIONSHIPS = new Set(['identical', 'local-ahead', 'local-behind', 'diverged', 'not-upstream']);
 
 describe('reference/extensions provenance (in-repo hashes; upstream drift needs the checkout)', () => {
     test('the manifest exists and the walk found the files it is about', () => {
@@ -91,7 +101,7 @@ describe('reference/extensions provenance (in-repo hashes; upstream drift needs 
             'became a word rather than a fact. Re-run scripts/vendor-reference-extensions.mjs --write.');
     });
 
-    test('every entry carries a relationship, and every local-ahead one records what it is ahead OF', () => {
+    test('every entry carries a relationship, and every non-identical one records what it differs FROM', () => {
         const manifest = JSON.parse(readFileSync(MANIFEST, 'utf8'));
         for (const e of manifest.entries) {
             assert.ok(RELATIONSHIPS.has(e.relationship),
@@ -104,12 +114,63 @@ describe('reference/extensions provenance (in-repo hashes; upstream drift needs 
                 `${e.file} records no upstream hash, so "has upstream caught up?" is unanswerable ` +
                 'without re-deriving it — which is the state this manifest exists to end.');
         }
-        // The one that would delete work if the README's old advice were followed.
-        const ahead = manifest.entries.filter((e) => e.relationship === 'local-ahead');
-        assert.ok(ahead.some((e) => e.file === 'stc12.js'),
-            'stc12.js is no longer recorded as local-ahead. If upstream really has caught up that ' +
-            'is good news and this expectation should be updated in the same commit that proves ' +
-            'it — but a silent flip means the manifest was regenerated against the wrong tree.');
+        // The pair that would delete work if the README's old advice were followed.
+        //
+        // This expectation was `local-ahead` for stc12.js until 2026-09-20, and
+        // it is worth saying exactly why it moved, because a relaxed gate and a
+        // corrected one look alike in a diff.
+        //
+        // It did NOT move because upstream caught up. Upstream's stc12.js grew
+        // to 26,799 bytes against the local 24,467, and the OLD byte-length
+        // classifier would therefore have flipped the file to `local-behind` —
+        // "safe to refresh". Checked against the source rather than the size:
+        // upstream had gained multi-family device support (6502 / pico / mega /
+        // avr), and had DELETED the five `this._live()` call sites that forward
+        // pin writes to the tethered board, along with stc12live's `drivePin` /
+        // `PORT_SFR` / `pinDecls` named-pin API that they call into. Every one
+        // of the 30 stc12 opcodes and all 5 stc12live opcodes survive on both
+        // sides, so a surface comparison alone would also have called this
+        // clean. The bridge is what is at stake, and it is local-only.
+        //
+        // So both files are `diverged`: each side holds work the other lacks,
+        // and the label refuses to recommend a direction. If a future commit
+        // moves either to `identical`, that is a real merge and should arrive
+        // with the merge, not with a regeneration.
+        const byFile = Object.fromEntries(manifest.entries.map((e) => [e.file, e]));
+        for (const file of ['stc12.js', 'stc12live.js']) {
+            assert.equal(byFile[file]?.relationship, 'diverged',
+                `${file} is no longer recorded as diverged. If the two sides really were ` +
+                'reconciled that is good news and this expectation should be updated in the ' +
+                'same commit that proves it — but a silent flip means the manifest was ' +
+                'regenerated against the wrong tree, and "refresh from upstream" would delete ' +
+                'the live-tethering bridge.');
+            assert.ok(byFile[file].localOnlyLines > 0 && byFile[file].upstreamOnlyLines > 0,
+                `${file} is labelled diverged but its own counts do not show both sides ` +
+                'holding exclusive content — the label and its evidence disagree.');
+        }
+    });
+
+    test('the relationship is derived from line sets, not byte length, and a reformat is not substance', async () => {
+        // The classifier is the thing that was wrong, so it is tested directly
+        // rather than only through the manifest it produced.
+        const { exclusiveLines } = await import('../scripts/vendor-reference-extensions.mjs');
+        const b = (s) => Buffer.from(s, 'utf8');
+
+        // Byte length says the first is "ahead"; the lines say it is behind.
+        // This is the stc12 shape, reduced.
+        assert.deepEqual(exclusiveLines(b('aaaaaaaaaaaaaaaaaaaa\nlocalOnly'), b('aaaaaaaaaaaaaaaaaaaa\nupOnly\nupTwo')),
+            [1, 2], 'each side must be counted on its own, not inferred from the other');
+
+        // Re-indentation and blank lines are not content. devices.js went
+        // through prettier upstream and a raw line diff called 201 lines
+        // missing while every opcode and argument name was still present.
+        assert.deepEqual(exclusiveLines(b('  const A = 1;\n\n    const B = 2;'), b('const A = 1;\nconst B = 2;\n')),
+            [0, 0]);
+
+        // A line that merely MOVED belongs to neither side.
+        assert.deepEqual(exclusiveLines(b('one\ntwo\nthree'), b('three\none\ntwo')), [0, 0]);
+
+        assert.deepEqual(exclusiveLines(b('same'), b('same')), [0, 0]);
     });
 });
 
