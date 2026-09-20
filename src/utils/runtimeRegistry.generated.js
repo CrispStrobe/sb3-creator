@@ -3,7 +3,7 @@
 // in sb3Creator.js. See reference/runtime-drivers.md.
 //
 // Sources: in-repo copies under reference/extensions/, else CrispStrobe/extensions pinned at
-// c681d995ef521ef289bc0eb9b6b0b1a4ffabe12a. RUNTIME_EXTENSION_SOURCES below records, per
+// 3c7eabc094af516c9dba2c4c721667c048779860. RUNTIME_EXTENSION_SOURCES below records, per
 // slug, WHICH of those answered and the sha256 of the bytes that were parsed — so this
 // file names a revision rather than a repository. Regenerate to change it.
 export const RUNTIME_EXTENSIONS = {
@@ -3234,6 +3234,60 @@ export const RUNTIME_EXTENSIONS = {
     "spikeprime": {
         "runtime": "spikeprime",
         "ops": {
+            "connectHub": {
+                "kind": "command",
+                "method": "connectHub",
+                "args": []
+            },
+            "connectHubAt": {
+                "kind": "command",
+                "method": "connectHubAt",
+                "args": [
+                    "URL"
+                ]
+            },
+            "disconnectHub": {
+                "kind": "command",
+                "method": "disconnectHub",
+                "args": []
+            },
+            "isConnected": {
+                "kind": "boolean",
+                "method": "isConnected",
+                "args": []
+            },
+            "getHubType": {
+                "kind": "reporter",
+                "method": "getHubType",
+                "args": []
+            },
+            "getFirmwareVersion": {
+                "kind": "reporter",
+                "method": "getFirmwareVersion",
+                "args": []
+            },
+            "getConnectionMode": {
+                "kind": "reporter",
+                "method": "getConnectionMode",
+                "args": []
+            },
+            "setConnectionMode": {
+                "kind": "command",
+                "method": "setConnectionMode",
+                "args": [
+                    "MODE"
+                ]
+            },
+            "enableStreamingMode": {
+                "kind": "command",
+                "method": "enableStreamingMode",
+                "args": []
+            },
+            "disableStreamingMode": {
+                "kind": "command",
+                "method": "disableStreamingMode",
+                "args": []
+            },
             "transpileProject": {
                 "kind": "command",
                 "method": "transpileProject",
@@ -3317,6 +3371,14 @@ export const RUNTIME_EXTENSIONS = {
                     "STEERING"
                 ]
             },
+            "motorPairMove": {
+                "kind": "command",
+                "method": "motorPairMove",
+                "args": [
+                    "STEERING",
+                    "SPEED"
+                ]
+            },
             "startTank": {
                 "kind": "command",
                 "method": "startTank",
@@ -3368,6 +3430,22 @@ export const RUNTIME_EXTENSIONS = {
                 "method": "motorStop",
                 "args": [
                     "PORT"
+                ]
+            },
+            "startMotor": {
+                "kind": "command",
+                "method": "startMotor",
+                "args": [
+                    "PORT",
+                    "SPEED"
+                ]
+            },
+            "stopMotor": {
+                "kind": "command",
+                "method": "stopMotor",
+                "args": [
+                    "PORT",
+                    "ACTION"
                 ]
             },
             "motorSetSpeed": {
@@ -3447,6 +3525,13 @@ export const RUNTIME_EXTENSIONS = {
                 "kind": "command",
                 "method": "displayClear",
                 "args": []
+            },
+            "displayShowImage": {
+                "kind": "command",
+                "method": "displayShowImage",
+                "args": [
+                    "IMAGE"
+                ]
             },
             "setPixel": {
                 "kind": "command",
@@ -3558,6 +3643,16 @@ export const RUNTIME_EXTENSIONS = {
                     "PORT"
                 ]
             },
+            "setLightMatrixPixel": {
+                "kind": "command",
+                "method": "setLightMatrixPixel",
+                "args": [
+                    "PORT",
+                    "X",
+                    "Y",
+                    "BRIGHTNESS"
+                ]
+            },
             "whenGesture": {
                 "kind": "hat",
                 "method": "whenGesture",
@@ -3575,6 +3670,11 @@ export const RUNTIME_EXTENSIONS = {
             "getOrientation": {
                 "kind": "reporter",
                 "method": "getOrientation",
+                "args": []
+            },
+            "getFaceUp": {
+                "kind": "reporter",
+                "method": "getFaceUp",
                 "args": []
             },
             "playHubSound": {
@@ -3661,6 +3761,14 @@ export const RUNTIME_EXTENSIONS = {
                 "method": "getDistance",
                 "args": [
                     "PORT"
+                ]
+            },
+            "getDistanceIn": {
+                "kind": "reporter",
+                "method": "getDistanceIn",
+                "args": [
+                    "PORT",
+                    "UNIT"
                 ]
             },
             "setDistanceLights": {
@@ -5066,67 +5174,67 @@ export const RUNTIME_EXTENSION_URLS = {
 
 export const RUNTIME_EXTENSION_SOURCES = {
     "repo": "CrispStrobe/extensions",
-    "commit": "c681d995ef521ef289bc0eb9b6b0b1a4ffabe12a",
+    "commit": "3c7eabc094af516c9dba2c4c721667c048779860",
     "slugs": {
         "CrispStrobe/gamepad": {
             "from": "reference/extensions/gamepad.js",
             "sha256": "b6c065288bfeaf69c98c2285a98c7ee5e3aa78d4aaf1101957a55ada0f11b673"
         },
         "CrispStrobe/legoboost_universal": {
-            "from": "https://raw.githubusercontent.com/CrispStrobe/extensions/c681d995ef521ef289bc0eb9b6b0b1a4ffabe12a/extensions/CrispStrobe/legoboost_universal.js",
-            "sha256": "b1005ee188bcf86f6b7b0e9198b35ad3989ee8c483e2e05952c770035e9617da"
+            "from": "https://raw.githubusercontent.com/CrispStrobe/extensions/3c7eabc094af516c9dba2c4c721667c048779860/extensions/CrispStrobe/legoboost_universal.js",
+            "sha256": "4b8a10e9f90058bab2aa4fda172b2142d9cdd24ec569dee4d70f5f093b7ccf5f"
         },
         "CrispStrobe/lego_poweredup": {
-            "from": "https://raw.githubusercontent.com/CrispStrobe/extensions/c681d995ef521ef289bc0eb9b6b0b1a4ffabe12a/extensions/CrispStrobe/lego_poweredup.js",
-            "sha256": "55ab3c1e6379afd7aa7a9ca45dbe4c0e109a9680c55864912136811ada674143"
+            "from": "https://raw.githubusercontent.com/CrispStrobe/extensions/3c7eabc094af516c9dba2c4c721667c048779860/extensions/CrispStrobe/lego_poweredup.js",
+            "sha256": "12ac9885970ef522bb12d9993f519ce5f1409c4f5da32f4a3400d39ded0688c5"
         },
         "CrispStrobe/lego_wedo2_universal": {
-            "from": "https://raw.githubusercontent.com/CrispStrobe/extensions/c681d995ef521ef289bc0eb9b6b0b1a4ffabe12a/extensions/CrispStrobe/lego_wedo2_universal.js",
-            "sha256": "355939d75d05bf1b5531314094a86b97d84cce620cb7d285f6323092f9583814"
+            "from": "https://raw.githubusercontent.com/CrispStrobe/extensions/3c7eabc094af516c9dba2c4c721667c048779860/extensions/CrispStrobe/lego_wedo2_universal.js",
+            "sha256": "dd2d31ac03164b4b04da525baceef4499350b5fa0582698909e14ddcdfb12572"
         },
         "CrispStrobe/legospikeprime_ble": {
-            "from": "https://raw.githubusercontent.com/CrispStrobe/extensions/c681d995ef521ef289bc0eb9b6b0b1a4ffabe12a/extensions/CrispStrobe/legospikeprime_ble.js",
-            "sha256": "a210e71e594e265fe15e26dfcb7c2535500a4d730517a18babc92f11407443b1"
+            "from": "https://raw.githubusercontent.com/CrispStrobe/extensions/3c7eabc094af516c9dba2c4c721667c048779860/extensions/CrispStrobe/legospikeprime_ble.js",
+            "sha256": "61b115535723157bc357d69a8f177f56960edcd867786f70b786dcf8639a4763"
         },
         "CrispStrobe/legospike_ble": {
-            "from": "https://raw.githubusercontent.com/CrispStrobe/extensions/c681d995ef521ef289bc0eb9b6b0b1a4ffabe12a/extensions/CrispStrobe/legospike_ble.js",
-            "sha256": "931d0ce578a8e436fc2c75f02717dc90cf8b6d537f7e6ff3fa1819c6a0c72a1a"
+            "from": "https://raw.githubusercontent.com/CrispStrobe/extensions/3c7eabc094af516c9dba2c4c721667c048779860/extensions/CrispStrobe/legospike_ble.js",
+            "sha256": "f75acfab5c184fe81aec511259be3f63ae0f8fdec8e43a67d5482b6491ffde40"
         },
         "CrispStrobe/legospikeprime_btc_scratchlink": {
-            "from": "https://raw.githubusercontent.com/CrispStrobe/extensions/c681d995ef521ef289bc0eb9b6b0b1a4ffabe12a/extensions/CrispStrobe/legospikeprime_btc_scratchlink.js",
-            "sha256": "0f457d74cd6b3696921607c30b65f0dbb0f17af3f7988151aa74b9e4058cea15"
+            "from": "https://raw.githubusercontent.com/CrispStrobe/extensions/3c7eabc094af516c9dba2c4c721667c048779860/extensions/CrispStrobe/legospikeprime_btc_scratchlink.js",
+            "sha256": "cfbe99510ae876f32cd0661a40299580795f556c81c9c51e496512b865a603bd"
         },
         "CrispStrobe/legospike_bridge": {
-            "from": "https://raw.githubusercontent.com/CrispStrobe/extensions/c681d995ef521ef289bc0eb9b6b0b1a4ffabe12a/extensions/CrispStrobe/legospike_bridge.js",
-            "sha256": "a4a23c73c1a049db39d6acb7e0fa11f4434a9fb3f55777972534aad8686512e8"
+            "from": "https://raw.githubusercontent.com/CrispStrobe/extensions/3c7eabc094af516c9dba2c4c721667c048779860/extensions/CrispStrobe/legospike_bridge.js",
+            "sha256": "6bdcafe3925b8d7ea08681cd41f14d36ba13d551999809c43bd7b0b6348c6155"
         },
         "CrispStrobe/ev3_universal": {
-            "from": "https://raw.githubusercontent.com/CrispStrobe/extensions/c681d995ef521ef289bc0eb9b6b0b1a4ffabe12a/extensions/CrispStrobe/ev3_universal.js",
-            "sha256": "f6ebb18ece958a2aaddc010b84f3dad9811c1cab25d34e8b6be8722b9ccc1298"
+            "from": "https://raw.githubusercontent.com/CrispStrobe/extensions/3c7eabc094af516c9dba2c4c721667c048779860/extensions/CrispStrobe/ev3_universal.js",
+            "sha256": "68a74fca1011908936be948d946a297d494277b9a7585d0d703eb129ca248e71"
         },
         "CrispStrobe/ev3_direct": {
-            "from": "https://raw.githubusercontent.com/CrispStrobe/extensions/c681d995ef521ef289bc0eb9b6b0b1a4ffabe12a/extensions/CrispStrobe/ev3_direct.js",
+            "from": "https://raw.githubusercontent.com/CrispStrobe/extensions/3c7eabc094af516c9dba2c4c721667c048779860/extensions/CrispStrobe/ev3_direct.js",
             "sha256": "6db50660bd64aa851c9f904d09f08642c42ef1984520f41be8f4bd5de03ce825"
         },
         "CrispStrobe/legonxt_transpile_universal": {
-            "from": "https://raw.githubusercontent.com/CrispStrobe/extensions/c681d995ef521ef289bc0eb9b6b0b1a4ffabe12a/extensions/CrispStrobe/legonxt_transpile_universal.js",
-            "sha256": "093a758c1fca3a3032129a2b0a794d3902e3d9c88e4d97bb581696363c75330a"
+            "from": "https://raw.githubusercontent.com/CrispStrobe/extensions/3c7eabc094af516c9dba2c4c721667c048779860/extensions/CrispStrobe/legonxt_transpile_universal.js",
+            "sha256": "f8892b23782f5614657517a59acb162996dff95bb09c8a52235216459919f394"
         },
         "CrispStrobe/legospike_turbowarp_transpile": {
-            "from": "https://raw.githubusercontent.com/CrispStrobe/extensions/c681d995ef521ef289bc0eb9b6b0b1a4ffabe12a/extensions/CrispStrobe/legospike_turbowarp_transpile.js",
-            "sha256": "0fd6757cc4072381afb748dbd14ed101c7a72eb7e19ab3cad8939e5a1b6be65e"
+            "from": "https://raw.githubusercontent.com/CrispStrobe/extensions/3c7eabc094af516c9dba2c4c721667c048779860/extensions/CrispStrobe/legospike_turbowarp_transpile.js",
+            "sha256": "984d6f36f283e46dba009777730d1d4b9e86f077f29b19d83779140fedce3dae"
         },
         "CrispStrobe/ev3dev_py_transpile": {
-            "from": "https://raw.githubusercontent.com/CrispStrobe/extensions/c681d995ef521ef289bc0eb9b6b0b1a4ffabe12a/extensions/CrispStrobe/ev3dev_py_transpile.js",
+            "from": "https://raw.githubusercontent.com/CrispStrobe/extensions/3c7eabc094af516c9dba2c4c721667c048779860/extensions/CrispStrobe/ev3dev_py_transpile.js",
             "sha256": "7261fa2181b4942eb03319fd36db634f4da3f2324cc6949dfa32ab4eec80b638"
         },
         "CrispStrobe/ev3_lms_transpile": {
-            "from": "https://raw.githubusercontent.com/CrispStrobe/extensions/c681d995ef521ef289bc0eb9b6b0b1a4ffabe12a/extensions/CrispStrobe/ev3_lms_transpile.js",
+            "from": "https://raw.githubusercontent.com/CrispStrobe/extensions/3c7eabc094af516c9dba2c4c721667c048779860/extensions/CrispStrobe/ev3_lms_transpile.js",
             "sha256": "cdbdd0513b35202c7a401201de7988b38e37e1e811e3103df4c61bb70606f0a3"
         },
         "CrispStrobe/circuit": {
             "from": "reference/extensions/circuit.js",
-            "sha256": "84feb2ccbf67caed7993120fbdf2c534b9f949b445ee74f30357d50c74475c1d"
+            "sha256": "619c3f97ac86bfb4b1d10bc177f87565882de12769aa094393ab2026673b6461"
         },
         "CrispStrobe/ledcube": {
             "from": "reference/extensions/ledcube.js",

@@ -16,6 +16,16 @@
 
   const translations = {
     en: {
+      "arrays.showTable": "show table [NAME] at x [X] y [Y]",
+      "arrays.hideTable": "hide table [NAME]",
+      "arrays.setTableTitle": "set table [NAME] title to [TITLE]",
+      "arrays.setTableStyle":
+        "set table [NAME] cell [W] by [H] text size [SIZE]",
+      "arrays.markCell": "mark [NAME] row [ROW] col [COL]",
+      "arrays.unmarkCell": "unmark [NAME] row [ROW] col [COL]",
+      "arrays.clearMarks": "clear all marks on [NAME]",
+      "arrays.isMarked": "[NAME] row [ROW] col [COL] marked?",
+      "arrays.markedCount": "marks on [NAME]",
       "arrays.name": "Arrays & Tensors",
       "arrays.create1D": "create 1D array [NAME] from JSON [JSON]",
       "arrays.create2D": "create 2D array [NAME] from JSON [JSON]",
@@ -59,6 +69,17 @@
       "arrays.descending": "descending",
     },
     de: {
+      "arrays.showTable": "Tabelle [NAME] bei x [X] y [Y] zeigen",
+      "arrays.hideTable": "Tabelle [NAME] verbergen",
+      "arrays.setTableTitle": "Titel von Tabelle [NAME] auf [TITLE] setzen",
+      "arrays.setTableStyle":
+        "Tabelle [NAME] Zelle [W] mal [H] Schriftgröße [SIZE]",
+      "arrays.markCell": "[NAME] Zeile [ROW] Spalte [COL] markieren",
+      "arrays.unmarkCell":
+        "Markierung [NAME] Zeile [ROW] Spalte [COL] entfernen",
+      "arrays.clearMarks": "alle Markierungen auf [NAME] löschen",
+      "arrays.isMarked": "[NAME] Zeile [ROW] Spalte [COL] markiert?",
+      "arrays.markedCount": "Markierungen auf [NAME]",
       "arrays.name": "Arrays & Tensoren",
       "arrays.create1D": "1D-Array [NAME] aus JSON [JSON] erstellen",
       "arrays.create2D": "2D-Array [NAME] aus JSON [JSON] erstellen",
@@ -104,6 +125,16 @@
       "arrays.descending": "absteigend",
     },
     fr: {
+      "arrays.showTable": "afficher le tableau [NAME] à x [X] y [Y]",
+      "arrays.hideTable": "cacher le tableau [NAME]",
+      "arrays.setTableTitle": "définir le titre du tableau [NAME] à [TITLE]",
+      "arrays.setTableStyle":
+        "tableau [NAME] cellule [W] sur [H] taille du texte [SIZE]",
+      "arrays.markCell": "marquer [NAME] ligne [ROW] colonne [COL]",
+      "arrays.unmarkCell": "démarquer [NAME] ligne [ROW] colonne [COL]",
+      "arrays.clearMarks": "effacer toutes les marques sur [NAME]",
+      "arrays.isMarked": "[NAME] ligne [ROW] colonne [COL] marquée ?",
+      "arrays.markedCount": "marques sur [NAME]",
       "arrays.name": "Tableaux et Tenseurs",
       "arrays.create1D": "créer tableau 1D [NAME] depuis JSON [JSON]",
       "arrays.create2D": "créer tableau 2D [NAME] depuis JSON [JSON]",
@@ -229,6 +260,9 @@
 
   // Storage for arrays (keyed by name)
   const arrays = {};
+  // Per-table display state, keyed by array name. Separate from `arrays`
+  // so styling and marks survive the array being rewritten in place.
+  const tables = {};
   let _nextTempId = 0;
 
   class ArrayExtension {
@@ -720,6 +754,120 @@
             blockType: Scratch.BlockType.REPORTER,
             text: t("arrays.listAll"),
           },
+          {
+            opcode: "showTable",
+            blockType: Scratch.BlockType.COMMAND,
+            text: t("arrays.showTable"),
+            arguments: {
+              NAME: {
+                type: Scratch.ArgumentType.STRING,
+                defaultValue: "myArray",
+              },
+              X: { type: Scratch.ArgumentType.NUMBER, defaultValue: 0 },
+              Y: { type: Scratch.ArgumentType.NUMBER, defaultValue: 0 },
+            },
+          },
+          {
+            opcode: "hideTable",
+            blockType: Scratch.BlockType.COMMAND,
+            text: t("arrays.hideTable"),
+            arguments: {
+              NAME: {
+                type: Scratch.ArgumentType.STRING,
+                defaultValue: "myArray",
+              },
+            },
+          },
+          {
+            opcode: "setTableTitle",
+            blockType: Scratch.BlockType.COMMAND,
+            text: t("arrays.setTableTitle"),
+            arguments: {
+              NAME: {
+                type: Scratch.ArgumentType.STRING,
+                defaultValue: "myArray",
+              },
+              TITLE: {
+                type: Scratch.ArgumentType.STRING,
+                defaultValue: "Player 1",
+              },
+            },
+          },
+          {
+            opcode: "setTableStyle",
+            blockType: Scratch.BlockType.COMMAND,
+            text: t("arrays.setTableStyle"),
+            arguments: {
+              NAME: {
+                type: Scratch.ArgumentType.STRING,
+                defaultValue: "myArray",
+              },
+              W: { type: Scratch.ArgumentType.NUMBER, defaultValue: 44 },
+              H: { type: Scratch.ArgumentType.NUMBER, defaultValue: 30 },
+              SIZE: { type: Scratch.ArgumentType.NUMBER, defaultValue: 16 },
+            },
+          },
+          {
+            opcode: "markCell",
+            blockType: Scratch.BlockType.COMMAND,
+            text: t("arrays.markCell"),
+            arguments: {
+              NAME: {
+                type: Scratch.ArgumentType.STRING,
+                defaultValue: "myArray",
+              },
+              ROW: { type: Scratch.ArgumentType.NUMBER, defaultValue: 1 },
+              COL: { type: Scratch.ArgumentType.NUMBER, defaultValue: 1 },
+            },
+          },
+          {
+            opcode: "unmarkCell",
+            blockType: Scratch.BlockType.COMMAND,
+            text: t("arrays.unmarkCell"),
+            arguments: {
+              NAME: {
+                type: Scratch.ArgumentType.STRING,
+                defaultValue: "myArray",
+              },
+              ROW: { type: Scratch.ArgumentType.NUMBER, defaultValue: 1 },
+              COL: { type: Scratch.ArgumentType.NUMBER, defaultValue: 1 },
+            },
+          },
+          {
+            opcode: "clearMarks",
+            blockType: Scratch.BlockType.COMMAND,
+            text: t("arrays.clearMarks"),
+            arguments: {
+              NAME: {
+                type: Scratch.ArgumentType.STRING,
+                defaultValue: "myArray",
+              },
+            },
+          },
+          {
+            opcode: "isMarked",
+            blockType: Scratch.BlockType.BOOLEAN,
+            text: t("arrays.isMarked"),
+            arguments: {
+              NAME: {
+                type: Scratch.ArgumentType.STRING,
+                defaultValue: "myArray",
+              },
+              ROW: { type: Scratch.ArgumentType.NUMBER, defaultValue: 1 },
+              COL: { type: Scratch.ArgumentType.NUMBER, defaultValue: 1 },
+            },
+          },
+          {
+            opcode: "markedCount",
+            blockType: Scratch.BlockType.REPORTER,
+            text: t("arrays.markedCount"),
+            arguments: {
+              NAME: {
+                type: Scratch.ArgumentType.STRING,
+                defaultValue: "myArray",
+              },
+            },
+          },
         ],
         menus: {
           sortOrder: {
@@ -1081,7 +1229,261 @@
     listAll() {
       return JSON.stringify(Object.keys(arrays));
     }
+
+    // ========================================================================
+    // TABLE DISPLAY
+    //
+    // Renders a stored array onto the stage as a grid, using an SVG skin on
+    // the pen layer so sprites still draw over it. The renderer is optional:
+    // every entry point tolerates its absence (Node tests, headless VM runs)
+    // by keeping the table STATE and skipping only the draw, so a project
+    // that marks cells off-screen still reports the right answers.
+    // ========================================================================
+
+    _tableState(name) {
+      if (!tables[name]) {
+        tables[name] = {
+          x: 0,
+          y: 0,
+          cellW: 44,
+          cellH: 30,
+          fontSize: 16,
+          title: "",
+          marks: {},
+          skinId: null,
+          drawableId: null,
+          visible: false,
+        };
+      }
+      return tables[name];
+    }
+
+    // A stored array as rows. A 1D array is one row; anything else is empty.
+    _tableRows(name) {
+      const value = arrays[name];
+      if (!Array.isArray(value)) return [];
+      if (value.length === 0) return [];
+      return Array.isArray(value[0]) ? value.filter(Array.isArray) : [value];
+    }
+
+    _esc(text) {
+      return String(text)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    // Pure: rows + state in, SVG out. Kept free of renderer calls so it can be
+    // asserted directly rather than through a GL context.
+    _tableSVG(rows, st) {
+      const cols = rows.reduce(
+        (widest, row) => Math.max(widest, row.length),
+        0
+      );
+      if (!rows.length || !cols) return null;
+      const cw = Math.max(8, Number(st.cellW) || 44);
+      const ch = Math.max(8, Number(st.cellH) || 30);
+      const fs = Math.max(4, Number(st.fontSize) || 16);
+      const pad = 4;
+      const titleH = st.title ? fs + 8 : 0;
+      const w = cols * cw + pad * 2;
+      const h = rows.length * ch + pad * 2 + titleH;
+      const parts = [];
+      parts.push(
+        '<svg xmlns="http://www.w3.org/2000/svg" width="' +
+          w +
+          '" height="' +
+          h +
+          '" viewBox="0 0 ' +
+          w +
+          " " +
+          h +
+          '">'
+      );
+      parts.push(
+        '<rect x="0" y="0" width="' +
+          w +
+          '" height="' +
+          h +
+          '" rx="6" fill="#ffffff" fill-opacity="0.92" stroke="#4c4c4c" stroke-width="2"/>'
+      );
+      if (st.title) {
+        parts.push(
+          '<text x="' +
+            w / 2 +
+            '" y="' +
+            (pad + fs) +
+            '" font-family="sans-serif" font-size="' +
+            fs +
+            '" font-weight="bold" text-anchor="middle" fill="#111111">' +
+            this._esc(st.title) +
+            "</text>"
+        );
+      }
+      for (let r = 0; r < rows.length; r++) {
+        for (let c = 0; c < cols; c++) {
+          const x = pad + c * cw;
+          const y = pad + titleH + r * ch;
+          const marked = st.marks[r + 1 + "," + (c + 1)] === true;
+          parts.push(
+            '<rect x="' +
+              x +
+              '" y="' +
+              y +
+              '" width="' +
+              cw +
+              '" height="' +
+              ch +
+              '" fill="' +
+              (marked ? "#ff8c1a" : "#f2f2f2") +
+              '" stroke="#4c4c4c" stroke-width="1"/>'
+          );
+          const cell = rows[r][c];
+          if (cell !== undefined && cell !== null && cell !== "") {
+            parts.push(
+              '<text x="' +
+                (x + cw / 2) +
+                '" y="' +
+                (y + ch / 2 + fs * 0.35) +
+                '" font-family="sans-serif" font-size="' +
+                fs +
+                '" text-anchor="middle" fill="' +
+                (marked ? "#ffffff" : "#111111") +
+                '">' +
+                this._esc(cell) +
+                "</text>"
+            );
+          }
+        }
+      }
+      parts.push("</svg>");
+      return parts.join("");
+    }
+
+    _renderer() {
+      try {
+        return (
+          (Scratch.vm && Scratch.vm.runtime && Scratch.vm.runtime.renderer) ||
+          null
+        );
+      } catch (e) {
+        return null;
+      }
+    }
+
+    // Redraw a table that is currently shown. Silent when hidden or headless.
+    _redrawTable(name) {
+      const st = tables[name];
+      if (!st || !st.visible) return;
+      const renderer = this._renderer();
+      if (!renderer) return;
+      const svg = this._tableSVG(this._tableRows(name), st);
+      if (svg === null) return;
+      try {
+        if (st.skinId === null) {
+          st.skinId = renderer.createSVGSkin(svg);
+          st.drawableId = renderer.createDrawable("pen");
+          renderer.updateDrawableSkinId(st.drawableId, st.skinId);
+        } else {
+          renderer.updateSVGSkin(st.skinId, svg);
+        }
+        renderer.updateDrawablePosition(st.drawableId, [st.x, st.y]);
+        renderer.updateDrawableVisible(st.drawableId, true);
+      } catch (e) {
+        // A renderer that refuses a skin must not take the project down with
+        // it: the table stays in STATE, so marks and reporters keep working.
+      }
+    }
+
+    showTable(args) {
+      const name = String(args.NAME);
+      const st = this._tableState(name);
+      st.x = Number(args.X) || 0;
+      st.y = Number(args.Y) || 0;
+      st.visible = true;
+      this._redrawTable(name);
+    }
+
+    hideTable(args) {
+      const st = tables[String(args.NAME)];
+      if (!st) return;
+      st.visible = false;
+      const renderer = this._renderer();
+      if (!renderer || st.drawableId === null) return;
+      try {
+        renderer.updateDrawableVisible(st.drawableId, false);
+      } catch (e) {
+        // Already gone (project reload destroyed it); nothing to hide.
+      }
+    }
+
+    setTableTitle(args) {
+      this._tableState(String(args.NAME)).title = String(args.TITLE);
+      this._redrawTable(String(args.NAME));
+    }
+
+    setTableStyle(args) {
+      const st = this._tableState(String(args.NAME));
+      st.cellW = Number(args.W) || 44;
+      st.cellH = Number(args.H) || 30;
+      st.fontSize = Number(args.SIZE) || 16;
+      this._redrawTable(String(args.NAME));
+    }
+
+    markCell(args) {
+      const name = String(args.NAME);
+      this._tableState(name).marks[
+        Math.round(Number(args.ROW)) + "," + Math.round(Number(args.COL))
+      ] = true;
+      this._redrawTable(name);
+    }
+
+    unmarkCell(args) {
+      const name = String(args.NAME);
+      delete this._tableState(name).marks[
+        Math.round(Number(args.ROW)) + "," + Math.round(Number(args.COL))
+      ];
+      this._redrawTable(name);
+    }
+
+    clearMarks(args) {
+      const name = String(args.NAME);
+      this._tableState(name).marks = {};
+      this._redrawTable(name);
+    }
+
+    isMarked(args) {
+      const st = tables[String(args.NAME)];
+      if (!st) return false;
+      return (
+        st.marks[
+          Math.round(Number(args.ROW)) + "," + Math.round(Number(args.COL))
+        ] === true
+      );
+    }
+
+    markedCount(args) {
+      const st = tables[String(args.NAME)];
+      return st ? Object.keys(st.marks).length : 0;
+    }
   }
 
   Scratch.extensions.register(new ArrayExtension());
+
+  // A project load disposes the runtime and takes every drawable with it. Drop
+  // our handles so the next `show table` builds a fresh skin rather than
+  // updating an id the renderer has already freed -- which throws, and used to
+  // leave the board invisible with no error the learner could act on.
+  try {
+    Scratch.vm.runtime.on("RUNTIME_DISPOSED", () => {
+      for (const name of Object.keys(tables)) {
+        tables[name].skinId = null;
+        tables[name].drawableId = null;
+        tables[name].visible = false;
+      }
+    });
+  } catch (e) {
+    // No runtime to listen on (unit tests); nothing to reset.
+  }
 })(Scratch);

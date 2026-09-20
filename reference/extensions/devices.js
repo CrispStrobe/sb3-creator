@@ -3,24 +3,31 @@
 // Description: Servo, motor, relay, sensor, display and NeoPixel blocks for circuit projects.
 // By: CrispStrobe <https://github.com/CrispStrobe>
 // License: MPL-2.0
+
+// Block text here is English-only, as it was in brickwright-lite where these
+// extensions were written. Wrapping every string in Scratch.translate with no
+// translations behind it would add the machinery and none of the benefit — the
+// same judgement bitwise.js, fetch.js, cloudlink.js, gamejolt.js and
+// steamworks.js already make in this gallery. Worth revisiting when there are
+// translations to carry.
+/* eslint-disable extension/should-translate */
 (function (Scratch) {
   "use strict";
 
   const Cast = Scratch.Cast;
   const num = (v) => Cast.toNumber(v);
+  const OLED_KINDS = /^(ssd1306|sh1106|oled)$/i;
+  const TFT_KINDS = /^(ili9341|ili9341_par|ili9341_parallel|st7735|tft)$/i;
+  const LCD_KINDS = /^(hd44780|char_lcd|char_lcd_i2c|lcd)$/i;
 
   // Stubs: blocks with no real C driver.  Hidden from palette, methods
   // still exist so saved projects load.  Remove from this set when a
   // driver replaces the stub.
   const STUB = true;
 
-  const OLED_KINDS = /^(ssd1306|sh1106|oled)$/i;
-const TFT_KINDS = /^(ili9341|ili9341_par|ili9341_parallel|st7735|tft)$/i;
-const LCD_KINDS = /^(hd44780|char_lcd|char_lcd_i2c|lcd)$/i;
-
-class Devices {
-    constructor() {
-      this._runtime = null;
+  class Devices {
+    constructor(runtime) {
+      this._runtime = runtime;
     }
 
     /** Is the current target a 12T core (STC89)? No PCA, no WS2812. */
@@ -48,8 +55,12 @@ class Devices {
     }
 
     getInfo() {
-      const str = (name, def) => ({ [name]: { type: Scratch.ArgumentType.STRING, defaultValue: def || '' } });
-      const n = (name, def) => ({ [name]: { type: Scratch.ArgumentType.NUMBER, defaultValue: def ?? 0 } });
+      const str = (name, def) => ({
+        [name]: { type: Scratch.ArgumentType.STRING, defaultValue: def || "" },
+      });
+      const n = (name, def) => ({
+        [name]: { type: Scratch.ArgumentType.NUMBER, defaultValue: def ?? 0 },
+      });
       const is12T = this._is12T();
       const isAVR = this._isAVR();
       const isPico = this._isPico();
@@ -59,178 +70,441 @@ class Devices {
       const noPCA = is12T;
 
       return {
-        id: 'devices',
-        name: 'Devices',
-        color1: '#CF6A1D',
+        id: "devices",
+        name: "Devices",
+        color1: "#CF6A1D",
         blocks: [
           // ---- Commands: real drivers ----
           // Servo and motor: real on 1T-8051 (PCA), AVR (Timer 1/2), Pico (PWM slices).
           // Hidden only on STC89 (no PCA, 0 edges).
-          { opcode: 'setservo', blockType: Scratch.BlockType.COMMAND,
+          {
+            opcode: "setservo",
+            blockType: Scratch.BlockType.COMMAND,
             hideFromPalette: noPCA,
-            text: 'set [SERVO] angle to [ANGLE]',
-            arguments: { ...str('SERVO', 'servo1'), ...n('ANGLE', 90) } },
-          { opcode: 'setmotor', blockType: Scratch.BlockType.COMMAND,
+            text: "set [SERVO] angle to [ANGLE]",
+            arguments: { ...str("SERVO", "servo1"), ...n("ANGLE", 90) },
+          },
+          {
+            opcode: "setmotor",
+            blockType: Scratch.BlockType.COMMAND,
             hideFromPalette: noPCA,
-            text: 'set [MOTOR] speed to [SPEED]',
-            arguments: { ...str('MOTOR', 'motor1'), ...n('SPEED', 50) } },
-          { opcode: 'setdirection', blockType: Scratch.BlockType.COMMAND,
+            text: "set [MOTOR] speed to [SPEED]",
+            arguments: { ...str("MOTOR", "motor1"), ...n("SPEED", 50) },
+          },
+          {
+            opcode: "setdirection",
+            blockType: Scratch.BlockType.COMMAND,
             hideFromPalette: noPCA,
-            text: 'set [MOTOR] direction [DIR]',
-            arguments: { ...str('MOTOR', 'motor1'),
-              DIR: { type: Scratch.ArgumentType.STRING, defaultValue: 'forward',
-                menu: 'dirMenu' } } },
-          { opcode: 'setrelay', blockType: Scratch.BlockType.COMMAND,
-            text: 'set relay [RELAY] [STATE]',
-            arguments: { ...str('RELAY', 'relay1'),
-              STATE: { type: Scratch.ArgumentType.STRING, defaultValue: 'on',
-                menu: 'onoffMenu' } } },
-          { opcode: 'activate', blockType: Scratch.BlockType.COMMAND,
-            text: 'activate [DEVICE]', arguments: str('DEVICE', 'device1') },
-          { opcode: 'deactivate', blockType: Scratch.BlockType.COMMAND,
-            text: 'deactivate [DEVICE]', arguments: str('DEVICE', 'device1') },
-          { opcode: 'lcdprint', blockType: Scratch.BlockType.COMMAND,
-            text: 'lcd print [TEXT] on [DISPLAY]',
-            arguments: { ...str('TEXT', 'Hello'), ...str('DISPLAY', 'display1') } },
-          { opcode: 'lcdcursor', blockType: Scratch.BlockType.COMMAND,
-            text: 'lcd set cursor [ROW] [COL] on [DISPLAY]',
-            arguments: { ...n('ROW', 0), ...n('COL', 0), ...str('DISPLAY', 'display1') } },
-          { opcode: 'lcdclear', blockType: Scratch.BlockType.COMMAND,
-            text: 'lcd clear [DISPLAY]', arguments: str('DISPLAY', 'display1') },
+            text: "set [MOTOR] direction [DIR]",
+            arguments: {
+              ...str("MOTOR", "motor1"),
+              DIR: {
+                type: Scratch.ArgumentType.STRING,
+                defaultValue: "forward",
+                menu: "dirMenu",
+              },
+            },
+          },
+          {
+            opcode: "setrelay",
+            blockType: Scratch.BlockType.COMMAND,
+            text: "set relay [RELAY] [STATE]",
+            arguments: {
+              ...str("RELAY", "relay1"),
+              STATE: {
+                type: Scratch.ArgumentType.STRING,
+                defaultValue: "on",
+                menu: "onoffMenu",
+              },
+            },
+          },
+          {
+            opcode: "activate",
+            blockType: Scratch.BlockType.COMMAND,
+            text: "activate [DEVICE]",
+            arguments: str("DEVICE", "device1"),
+          },
+          {
+            opcode: "deactivate",
+            blockType: Scratch.BlockType.COMMAND,
+            text: "deactivate [DEVICE]",
+            arguments: str("DEVICE", "device1"),
+          },
+          {
+            opcode: "lcdprint",
+            blockType: Scratch.BlockType.COMMAND,
+            text: "lcd print [TEXT] on [DISPLAY]",
+            arguments: {
+              ...str("TEXT", "Hello"),
+              ...str("DISPLAY", "display1"),
+            },
+          },
+          {
+            opcode: "lcdcursor",
+            blockType: Scratch.BlockType.COMMAND,
+            text: "lcd set cursor [ROW] [COL] on [DISPLAY]",
+            arguments: {
+              ...n("ROW", 0),
+              ...n("COL", 0),
+              ...str("DISPLAY", "display1"),
+            },
+          },
+          {
+            opcode: "lcdclear",
+            blockType: Scratch.BlockType.COMMAND,
+            text: "lcd clear [DISPLAY]",
+            arguments: str("DISPLAY", "display1"),
+          },
           // ---- OLED (ssd1306) and TFT (ili9341) ----
           // The emitter has emitted these eleven opcodes all along; no
-          // extension copy defined them, so a project using them loaded with
-          // the blocks missing and the VM dispatched nothing. They are written
-          // against boundary B's verb table (bw-board spec-updates/
-          // set-device-control.md), which the board now really implements.
-          { opcode: 'oledprint', blockType: Scratch.BlockType.COMMAND,
-            text: 'oled print [TEXT] on [DISPLAY]',
-            arguments: { ...str('TEXT', 'Hello'), ...str('DISPLAY', 'display1') } },
-          { opcode: 'oledcursor', blockType: Scratch.BlockType.COMMAND,
-            text: 'oled set cursor [ROW] [COL] on [DISPLAY]',
-            arguments: { ...n('ROW', 0), ...n('COL', 0), ...str('DISPLAY', 'display1') } },
-          { opcode: 'oledclear', blockType: Scratch.BlockType.COMMAND,
-            text: 'oled clear [DISPLAY]', arguments: str('DISPLAY', 'display1') },
-          { opcode: 'oledpixel', blockType: Scratch.BlockType.COMMAND,
-            text: 'oled pixel [X] [Y] [VALUE] on [DISPLAY]',
-            arguments: { ...n('X', 0), ...n('Y', 0), ...n('VALUE', 1), ...str('DISPLAY', 'display1') } },
-          { opcode: 'oledhline', blockType: Scratch.BlockType.COMMAND,
-            text: 'oled hline [X] [Y] [W] on [DISPLAY]',
-            arguments: { ...n('X', 0), ...n('Y', 0), ...n('W', 128), ...str('DISPLAY', 'display1') } },
-          { opcode: 'oledshow', blockType: Scratch.BlockType.COMMAND,
-            text: 'oled show [DISPLAY]', arguments: str('DISPLAY', 'display1') },
-          { opcode: 'tftprint', blockType: Scratch.BlockType.COMMAND,
-            text: 'tft print [TEXT] on [DISPLAY]',
-            arguments: { ...str('TEXT', 'Hello'), ...str('DISPLAY', 'display1') } },
-          { opcode: 'tftcursor', blockType: Scratch.BlockType.COMMAND,
-            text: 'tft set cursor [ROW] [COL] on [DISPLAY]',
-            arguments: { ...n('ROW', 0), ...n('COL', 0), ...str('DISPLAY', 'display1') } },
-          { opcode: 'tftclear', blockType: Scratch.BlockType.COMMAND,
-            text: 'tft clear [DISPLAY]', arguments: str('DISPLAY', 'display1') },
-          { opcode: 'tftpixel', blockType: Scratch.BlockType.COMMAND,
-            text: 'tft pixel [X] [Y] to R [R] G [G] B [B] on [DISPLAY]',
-            arguments: { ...n('X', 0), ...n('Y', 0), ...n('R', 255), ...n('G', 255),
-                         ...n('B', 255), ...str('DISPLAY', 'display1') } },
-          { opcode: 'tftfill', blockType: Scratch.BlockType.COMMAND,
-            text: 'tft fill [X] [Y] [W] [H] to R [R] G [G] B [B] on [DISPLAY]',
-            arguments: { ...n('X', 0), ...n('Y', 0), ...n('W', 32), ...n('H', 32),
-                         ...n('R', 255), ...n('G', 0), ...n('B', 0), ...str('DISPLAY', 'display1') } },
+          // extension copy defined them, so a project using an OLED or TFT
+          // loaded with the blocks missing and the VM dispatched nothing.
+          // Written against boundary B's verb table, which the board now
+          // really implements (bw-board spec-updates/set-device-control.md).
+          {
+            opcode: "oledprint",
+            blockType: Scratch.BlockType.COMMAND,
+            text: "oled print [TEXT] on [DISPLAY]",
+            arguments: {
+              ...str("TEXT", "Hello"),
+              ...str("DISPLAY", "display1"),
+            },
+          },
+          {
+            opcode: "oledcursor",
+            blockType: Scratch.BlockType.COMMAND,
+            text: "oled set cursor [ROW] [COL] on [DISPLAY]",
+            arguments: {
+              ...n("ROW", 0),
+              ...n("COL", 0),
+              ...str("DISPLAY", "display1"),
+            },
+          },
+          {
+            opcode: "oledclear",
+            blockType: Scratch.BlockType.COMMAND,
+            text: "oled clear [DISPLAY]",
+            arguments: str("DISPLAY", "display1"),
+          },
+          {
+            opcode: "oledpixel",
+            blockType: Scratch.BlockType.COMMAND,
+            text: "oled pixel [X] [Y] [VALUE] on [DISPLAY]",
+            arguments: {
+              ...n("X", 0),
+              ...n("Y", 0),
+              ...n("VALUE", 1),
+              ...str("DISPLAY", "display1"),
+            },
+          },
+          {
+            opcode: "oledhline",
+            blockType: Scratch.BlockType.COMMAND,
+            text: "oled hline [X] [Y] [W] on [DISPLAY]",
+            arguments: {
+              ...n("X", 0),
+              ...n("Y", 0),
+              ...n("W", 128),
+              ...str("DISPLAY", "display1"),
+            },
+          },
+          {
+            opcode: "oledshow",
+            blockType: Scratch.BlockType.COMMAND,
+            text: "oled show [DISPLAY]",
+            arguments: str("DISPLAY", "display1"),
+          },
+          {
+            opcode: "tftprint",
+            blockType: Scratch.BlockType.COMMAND,
+            text: "tft print [TEXT] on [DISPLAY]",
+            arguments: {
+              ...str("TEXT", "Hello"),
+              ...str("DISPLAY", "display1"),
+            },
+          },
+          {
+            opcode: "tftcursor",
+            blockType: Scratch.BlockType.COMMAND,
+            text: "tft set cursor [ROW] [COL] on [DISPLAY]",
+            arguments: {
+              ...n("ROW", 0),
+              ...n("COL", 0),
+              ...str("DISPLAY", "display1"),
+            },
+          },
+          {
+            opcode: "tftclear",
+            blockType: Scratch.BlockType.COMMAND,
+            text: "tft clear [DISPLAY]",
+            arguments: str("DISPLAY", "display1"),
+          },
+          {
+            opcode: "tftpixel",
+            blockType: Scratch.BlockType.COMMAND,
+            text: "tft pixel [X] [Y] to R [R] G [G] B [B] on [DISPLAY]",
+            arguments: {
+              ...n("X", 0),
+              ...n("Y", 0),
+              ...n("R", 255),
+              ...n("G", 255),
+              ...n("B", 255),
+              ...str("DISPLAY", "display1"),
+            },
+          },
+          {
+            opcode: "tftfill",
+            blockType: Scratch.BlockType.COMMAND,
+            text: "tft fill [X] [Y] [W] [H] to R [R] G [G] B [B] on [DISPLAY]",
+            arguments: {
+              ...n("X", 0),
+              ...n("Y", 0),
+              ...n("W", 32),
+              ...n("H", 32),
+              ...n("R", 255),
+              ...n("G", 0),
+              ...n("B", 0),
+              ...str("DISPLAY", "display1"),
+            },
+          },
           // NeoPixel: 8051-1T only — hidden on 12T, AVR, and Pico
-          { opcode: 'setneopixel', blockType: Scratch.BlockType.COMMAND,
+          {
+            opcode: "setneopixel",
+            blockType: Scratch.BlockType.COMMAND,
             hideFromPalette: is12T || isAVR || isPico,
-            text: 'set neopixel [INDEX] to R [R] G [G] B [B] on [STRIP]',
-            arguments: { ...n('INDEX', 0), ...n('R', 255), ...n('G', 0), ...n('B', 0), ...str('STRIP', 'strip1') } },
-          { opcode: 'clearneopixels', blockType: Scratch.BlockType.COMMAND,
+            text: "set neopixel [INDEX] to R [R] G [G] B [B] on [STRIP]",
+            arguments: {
+              ...n("INDEX", 0),
+              ...n("R", 255),
+              ...n("G", 0),
+              ...n("B", 0),
+              ...str("STRIP", "strip1"),
+            },
+          },
+          {
+            opcode: "clearneopixels",
+            blockType: Scratch.BlockType.COMMAND,
             hideFromPalette: is12T || isAVR || isPico,
-            text: 'clear neopixels on [STRIP]', arguments: str('STRIP', 'strip1') },
+            text: "clear neopixels on [STRIP]",
+            arguments: str("STRIP", "strip1"),
+          },
+          // 8x8 dot matrix: the micro:bit-style paintable grid. IMAGE is a
+          // 64-char '0'..'3' brightness string (row-major, top-down/left);
+          // the led8x8 argument renders the FieldLed8x8 editor grid.
+          {
+            opcode: "showimage",
+            blockType: Scratch.BlockType.COMMAND,
+            text: "show image [IMAGE] on [MATRIX]",
+            arguments: {
+              IMAGE: {
+                type: "led8x8",
+                defaultValue:
+                  "03300330" +
+                  "33333333" +
+                  "33333333" +
+                  "33333333" +
+                  "03333330" +
+                  "00333300" +
+                  "00033000" +
+                  "00000000",
+              },
+              ...str("MATRIX", "matrix1"),
+            },
+          },
 
           // ---- Commands: stubs (hidden from palette) ----
-          { opcode: 'showdigit', blockType: Scratch.BlockType.COMMAND,
+          {
+            opcode: "showdigit",
+            blockType: Scratch.BlockType.COMMAND,
             hideFromPalette: STUB,
-            text: 'show digit [DIGIT] on [DISPLAY]',
-            arguments: { ...n('DIGIT', 0), ...str('DISPLAY', 'display1') } },
-          { opcode: 'setrgb', blockType: Scratch.BlockType.COMMAND,
+            text: "show digit [DIGIT] on [DISPLAY]",
+            arguments: { ...n("DIGIT", 0), ...str("DISPLAY", "display1") },
+          },
+          {
+            opcode: "setrgb",
+            blockType: Scratch.BlockType.COMMAND,
             hideFromPalette: STUB,
-            text: 'set [LED] colour to R [R] G [G] B [B]',
-            arguments: { ...str('LED', 'led1'), ...n('R', 255), ...n('G', 0), ...n('B', 0) } },
-          { opcode: 'setpixel', blockType: Scratch.BlockType.COMMAND,
+            text: "set [LED] colour to R [R] G [G] B [B]",
+            arguments: {
+              ...str("LED", "led1"),
+              ...n("R", 255),
+              ...n("G", 0),
+              ...n("B", 0),
+            },
+          },
+          {
+            opcode: "setpixel",
+            blockType: Scratch.BlockType.COMMAND,
             hideFromPalette: STUB,
-            text: 'set pixel [X] [Y] to [BRIGHTNESS] on [MATRIX]',
-            arguments: { ...n('X', 0), ...n('Y', 0), ...n('BRIGHTNESS', 100), ...str('MATRIX', 'matrix1') } },
-          { opcode: 'clearmatrix', blockType: Scratch.BlockType.COMMAND,
+            text: "set pixel [X] [Y] to [BRIGHTNESS] on [MATRIX]",
+            arguments: {
+              ...n("X", 0),
+              ...n("Y", 0),
+              ...n("BRIGHTNESS", 100),
+              ...str("MATRIX", "matrix1"),
+            },
+          },
+          {
+            opcode: "clearmatrix",
+            blockType: Scratch.BlockType.COMMAND,
             hideFromPalette: STUB,
-            text: 'clear matrix [MATRIX]', arguments: str('MATRIX', 'matrix1') },
+            text: "clear matrix [MATRIX]",
+            arguments: str("MATRIX", "matrix1"),
+          },
 
           // ---- Reporters: real drivers ----
-          { opcode: 'servoangle', blockType: Scratch.BlockType.REPORTER,
+          {
+            opcode: "servoangle",
+            blockType: Scratch.BlockType.REPORTER,
             hideFromPalette: noPCA,
-            text: 'angle of [SERVO]', arguments: str('SERVO', 'servo1') },
-          { opcode: 'motorspeed', blockType: Scratch.BlockType.REPORTER,
+            text: "angle of [SERVO]",
+            arguments: str("SERVO", "servo1"),
+          },
+          {
+            opcode: "motorspeed",
+            blockType: Scratch.BlockType.REPORTER,
             hideFromPalette: noPCA,
-            text: 'speed of [MOTOR]', arguments: str('MOTOR', 'motor1') },
-          { opcode: 'motordirection', blockType: Scratch.BlockType.REPORTER,
+            text: "speed of [MOTOR]",
+            arguments: str("MOTOR", "motor1"),
+          },
+          {
+            opcode: "motordirection",
+            blockType: Scratch.BlockType.REPORTER,
             hideFromPalette: noPCA,
-            text: 'direction of [MOTOR]', arguments: str('MOTOR', 'motor1') },
-          { opcode: 'temperature', blockType: Scratch.BlockType.REPORTER,
-            text: 'temperature from [SENSOR]', arguments: str('SENSOR', 'sensor1') },
-          { opcode: 'light', blockType: Scratch.BlockType.REPORTER,
-            text: 'light from [SENSOR]', arguments: str('SENSOR', 'sensor1') },
-          { opcode: 'distance', blockType: Scratch.BlockType.REPORTER,
-            text: 'distance from [SENSOR]', arguments: str('SENSOR', 'sensor1') },
-          { opcode: 'flex', blockType: Scratch.BlockType.REPORTER,
-            text: 'flex of [SENSOR]', arguments: str('SENSOR', 'sensor1') },
-          { opcode: 'force', blockType: Scratch.BlockType.REPORTER,
-            text: 'force on [SENSOR]', arguments: str('SENSOR', 'sensor1') },
+            text: "direction of [MOTOR]",
+            arguments: str("MOTOR", "motor1"),
+          },
+          {
+            opcode: "temperature",
+            blockType: Scratch.BlockType.REPORTER,
+            text: "temperature from [SENSOR]",
+            arguments: str("SENSOR", "sensor1"),
+          },
+          {
+            opcode: "light",
+            blockType: Scratch.BlockType.REPORTER,
+            text: "light from [SENSOR]",
+            arguments: str("SENSOR", "sensor1"),
+          },
+          {
+            opcode: "distance",
+            blockType: Scratch.BlockType.REPORTER,
+            text: "distance from [SENSOR]",
+            arguments: str("SENSOR", "sensor1"),
+          },
+          {
+            opcode: "flex",
+            blockType: Scratch.BlockType.REPORTER,
+            text: "flex of [SENSOR]",
+            arguments: str("SENSOR", "sensor1"),
+          },
+          {
+            opcode: "force",
+            blockType: Scratch.BlockType.REPORTER,
+            text: "force on [SENSOR]",
+            arguments: str("SENSOR", "sensor1"),
+          },
 
           // ---- Reporters: stubs (hidden) ----
-          { opcode: 'devicestate', blockType: Scratch.BlockType.REPORTER,
+          {
+            opcode: "devicestate",
+            blockType: Scratch.BlockType.REPORTER,
             hideFromPalette: STUB,
-            text: 'state of [DEVICE]', arguments: str('DEVICE', 'device1') },
-          { opcode: 'ircode', blockType: Scratch.BlockType.REPORTER,
+            text: "state of [DEVICE]",
+            arguments: str("DEVICE", "device1"),
+          },
+          {
+            opcode: "ircode",
+            blockType: Scratch.BlockType.REPORTER,
             hideFromPalette: STUB,
-            text: 'ir code from [SENSOR]', arguments: str('SENSOR', 'sensor1') },
+            text: "ir code from [SENSOR]",
+            arguments: str("SENSOR", "sensor1"),
+          },
 
           // ---- Booleans: real drivers ----
-          { opcode: 'pressed', blockType: Scratch.BlockType.BOOLEAN,
-            text: '[BUTTON] pressed?', arguments: str('BUTTON', 'btn1') },
-          { opcode: 'above', blockType: Scratch.BlockType.BOOLEAN,
-            text: '[SENSOR] above [THRESHOLD]',
-            arguments: { ...str('SENSOR', 'sensor1'), ...n('THRESHOLD', 30) } },
-          { opcode: 'closer', blockType: Scratch.BlockType.BOOLEAN,
-            text: '[SENSOR] closer than [DISTANCE]',
-            arguments: { ...str('SENSOR', 'sensor1'), ...n('DISTANCE', 20) } },
-          { opcode: 'motion', blockType: Scratch.BlockType.BOOLEAN,
-            text: 'motion detected on [SENSOR]', arguments: str('SENSOR', 'sensor1') },
-          { opcode: 'tilted', blockType: Scratch.BlockType.BOOLEAN,
-            text: '[SENSOR] tilted?', arguments: str('SENSOR', 'sensor1') },
-          { opcode: 'energised', blockType: Scratch.BlockType.BOOLEAN,
-            text: '[DEVICE] energised?', arguments: str('DEVICE', 'device1') },
+          {
+            opcode: "pressed",
+            blockType: Scratch.BlockType.BOOLEAN,
+            text: "[BUTTON] pressed?",
+            arguments: str("BUTTON", "btn1"),
+          },
+          {
+            opcode: "above",
+            blockType: Scratch.BlockType.BOOLEAN,
+            text: "[SENSOR] above [THRESHOLD]",
+            arguments: { ...str("SENSOR", "sensor1"), ...n("THRESHOLD", 30) },
+          },
+          {
+            opcode: "closer",
+            blockType: Scratch.BlockType.BOOLEAN,
+            text: "[SENSOR] closer than [DISTANCE]",
+            arguments: { ...str("SENSOR", "sensor1"), ...n("DISTANCE", 20) },
+          },
+          {
+            opcode: "motion",
+            blockType: Scratch.BlockType.BOOLEAN,
+            text: "motion detected on [SENSOR]",
+            arguments: str("SENSOR", "sensor1"),
+          },
+          {
+            opcode: "tilted",
+            blockType: Scratch.BlockType.BOOLEAN,
+            text: "[SENSOR] tilted?",
+            arguments: str("SENSOR", "sensor1"),
+          },
+          {
+            opcode: "energised",
+            blockType: Scratch.BlockType.BOOLEAN,
+            text: "[DEVICE] energised?",
+            arguments: str("DEVICE", "device1"),
+          },
 
           // ---- Hats: real drivers ----
-          { opcode: 'whenabove', blockType: Scratch.BlockType.HAT,
-            text: 'when [SENSOR] above [THRESHOLD]',
-            arguments: { ...str('SENSOR', 'sensor1'), ...n('THRESHOLD', 30) },
-            isEdgeActivated: true },
-          { opcode: 'whencloser', blockType: Scratch.BlockType.HAT,
-            text: 'when [SENSOR] closer than [DISTANCE]',
-            arguments: { ...str('SENSOR', 'sensor1'), ...n('DISTANCE', 20) },
-            isEdgeActivated: true },
-          { opcode: 'whenmotion', blockType: Scratch.BlockType.HAT,
-            text: 'when motion on [SENSOR]', arguments: str('SENSOR', 'sensor1'),
-            isEdgeActivated: true },
-          { opcode: 'whentilted', blockType: Scratch.BlockType.HAT,
-            text: 'when [SENSOR] tilted', arguments: str('SENSOR', 'sensor1'),
-            isEdgeActivated: true },
+          {
+            opcode: "whenabove",
+            blockType: Scratch.BlockType.HAT,
+            text: "when [SENSOR] above [THRESHOLD]",
+            arguments: { ...str("SENSOR", "sensor1"), ...n("THRESHOLD", 30) },
+            isEdgeActivated: true,
+          },
+          {
+            opcode: "whencloser",
+            blockType: Scratch.BlockType.HAT,
+            text: "when [SENSOR] closer than [DISTANCE]",
+            arguments: { ...str("SENSOR", "sensor1"), ...n("DISTANCE", 20) },
+            isEdgeActivated: true,
+          },
+          {
+            opcode: "whenmotion",
+            blockType: Scratch.BlockType.HAT,
+            text: "when motion on [SENSOR]",
+            arguments: str("SENSOR", "sensor1"),
+            isEdgeActivated: true,
+          },
+          {
+            opcode: "whentilted",
+            blockType: Scratch.BlockType.HAT,
+            text: "when [SENSOR] tilted",
+            arguments: str("SENSOR", "sensor1"),
+            isEdgeActivated: true,
+          },
           // whenirreceived: stub (hidden)
-          { opcode: 'whenirreceived', blockType: Scratch.BlockType.HAT,
+          {
+            opcode: "whenirreceived",
+            blockType: Scratch.BlockType.HAT,
             hideFromPalette: STUB,
-            text: 'when IR received on [SENSOR]', arguments: str('SENSOR', 'sensor1'),
-            isEdgeActivated: true }
+            text: "when IR received on [SENSOR]",
+            arguments: str("SENSOR", "sensor1"),
+            isEdgeActivated: true,
+          },
         ],
         menus: {
-          dirMenu: { acceptReporters: false, items: ['forward', 'reverse', 'brake', 'coast'] },
-          onoffMenu: { acceptReporters: false, items: ['on', 'off'] }
-        }
+          dirMenu: {
+            acceptReporters: false,
+            items: ["forward", "reverse", "brake", "coast"],
+          },
+          onoffMenu: { acceptReporters: false, items: ["on", "off"] },
+        },
       };
     }
 
@@ -244,73 +518,200 @@ class Devices {
     }
 
     // ---- Commands (real) ----
-    setservo(a) { const b = this._board(); if (b && b.setDeviceControl) b.setDeviceControl(a.SERVO, 'angle', num(a.ANGLE)); }
-    setmotor(a) { const b = this._board(); if (b && b.setDeviceControl) b.setDeviceControl(a.MOTOR, 'speed', num(a.SPEED)); }
-    setdirection(a) { const b = this._board(); if (b && b.setDeviceControl) b.setDeviceControl(a.MOTOR, 'direction', String(a.DIR)); }
-    setrelay(a) { const b = this._board(); if (b && b.setDeviceControl) b.setDeviceControl(a.RELAY, 'state', a.STATE === 'on' ? 1 : 0); }
+    setservo(a) {
+      const b = this._board();
+      if (b && b.setDeviceControl)
+        b.setDeviceControl(a.SERVO, "angle", num(a.ANGLE));
+    }
+    setmotor(a) {
+      const b = this._board();
+      if (b && b.setDeviceControl)
+        b.setDeviceControl(a.MOTOR, "speed", num(a.SPEED));
+    }
+    setdirection(a) {
+      const b = this._board();
+      if (b && b.setDeviceControl)
+        b.setDeviceControl(a.MOTOR, "direction", String(a.DIR));
+    }
+    setrelay(a) {
+      const b = this._board();
+      if (b && b.setDeviceControl)
+        b.setDeviceControl(a.RELAY, "state", a.STATE === "on" ? 1 : 0);
+    }
     /**
      * Resolve a display reference to a real part id.
      *
-     * The dialect addresses displays by ORDINAL — `oled print "Hi" on 1` — while
-     * the board looks parts up by exact id (setDeviceControl does
-     * `this.parts.find(p => p.id === partId)`). A circuit's part is called OLED
-     * or LCD, never "1", so every display verb refused with
-     * "no such part" and nothing was ever drawn. That was true of the shipped
-     * lcd verbs too, not only the new oled/tft ones.
+     * The dialect addresses displays by ORDINAL - "oled print on 1" - while the
+     * board looks parts up by exact id. A circuit's part is called OLED or LCD,
+     * never "1", so every display verb refused with "no such part" and nothing
+     * was ever drawn. That was true of the shipped lcd verbs too, not only the
+     * new oled/tft ones.
      *
-     * Resolution is PER FAMILY, not "the Nth display on the board": a bench
-     * carrying both an LCD and an OLED must send `lcd ... on 1` to the LCD and
-     * `oled ... on 1` to the OLED. A generic ordinal would send both to
-     * whichever came first in the netlist.
-     *
-     * An exact part id still wins, so a program that names its part keeps
-     * working and this is purely additive.
+     * Resolution is PER FAMILY, not "the Nth display": a bench carrying both an
+     * LCD and an OLED must send lcd verbs to the LCD and oled verbs to the OLED.
+     * An exact part id still wins, so naming a part keeps working.
      */
     _device(ref, kinds) {
-        const b = this._board();
-        const s = String(ref);
-        if (!b || !Array.isArray(b.parts)) return s;
-        if (b.parts.some(p => p.id === s)) return s;      // an id beats an ordinal
-        const n = parseInt(s, 10);
-        if (!Number.isFinite(n) || n < 1) return s;
-        const family = b.parts.filter(p => kinds.test(String(p.kind || '')));
-        return family[n - 1] ? family[n - 1].id : s;      // unresolved: let the board refuse loudly
+      const b = this._board();
+      const s = String(ref);
+      if (!b || !Array.isArray(b.parts)) return s;
+      if (b.parts.some((p) => p.id === s)) return s;
+      const n = parseInt(s, 10);
+      if (!Number.isFinite(n) || n < 1) return s;
+      const family = b.parts.filter((p) => kinds.test(String(p.kind || "")));
+      return family[n - 1] ? family[n - 1].id : s;
     }
 
-    activate(a) { const b = this._board(); if (b && b.setDeviceControl) b.setDeviceControl(a.DEVICE, 'state', 1); }
-    deactivate(a) { const b = this._board(); if (b && b.setDeviceControl) b.setDeviceControl(a.DEVICE, 'state', 0); }
-    lcdprint(a) { const b = this._board(); if (b && b.setDeviceControl) b.setDeviceControl(this._device(a.DISPLAY, LCD_KINDS), 'print', String(a.TEXT)); }
-    lcdcursor(a) { const b = this._board(); if (b && b.setDeviceControl) b.setDeviceControl(this._device(a.DISPLAY, LCD_KINDS), 'cursor', [num(a.ROW), num(a.COL)]); }
-    lcdclear(a) { const b = this._board(); if (b && b.setDeviceControl) b.setDeviceControl(this._device(a.DISPLAY, LCD_KINDS), 'clear', 1); }
-    // OLED / TFT. Note the ARGUMENT RESHAPES — the dialect and the device model
+    activate(a) {
+      const b = this._board();
+      if (b && b.setDeviceControl) b.setDeviceControl(a.DEVICE, "state", 1);
+    }
+    deactivate(a) {
+      const b = this._board();
+      if (b && b.setDeviceControl) b.setDeviceControl(a.DEVICE, "state", 0);
+    }
+    lcdprint(a) {
+      const b = this._board();
+      if (b && b.setDeviceControl)
+        b.setDeviceControl(
+          this._device(a.DISPLAY, LCD_KINDS),
+          "print",
+          String(a.TEXT)
+        );
+    }
+    lcdcursor(a) {
+      const b = this._board();
+      if (b && b.setDeviceControl)
+        b.setDeviceControl(this._device(a.DISPLAY, LCD_KINDS), "cursor", [
+          num(a.ROW),
+          num(a.COL),
+        ]);
+    }
+    lcdclear(a) {
+      const b = this._board();
+      if (b && b.setDeviceControl)
+        b.setDeviceControl(this._device(a.DISPLAY, LCD_KINDS), "clear", 1);
+    }
+    // OLED / TFT. Note the ARGUMENT RESHAPES - the dialect and the device model
     // do not speak the same shape, and getting this wrong draws silently in the
     // wrong place rather than failing:
-    //   oled hline: the dialect gives X, Y, WIDTH; the model wants [x0, x1, y].
-    //   tft fill:   the dialect gives X, Y, W, H; the model wants [x0,y0,x1,y1].
-    // Both are converted here, once, rather than in each caller.
-    oledprint(a) { const b = this._board(); if (b && b.setDeviceControl) b.setDeviceControl(this._device(a.DISPLAY, OLED_KINDS), 'print', String(a.TEXT)); }
-    oledcursor(a) { const b = this._board(); if (b && b.setDeviceControl) b.setDeviceControl(this._device(a.DISPLAY, OLED_KINDS), 'cursor', [num(a.ROW), num(a.COL)]); }
-    oledclear(a) { const b = this._board(); if (b && b.setDeviceControl) b.setDeviceControl(this._device(a.DISPLAY, OLED_KINDS), 'clear', 1); }
-    oledpixel(a) { const b = this._board(); if (b && b.setDeviceControl) b.setDeviceControl(this._device(a.DISPLAY, OLED_KINDS), 'pixel', [num(a.X), num(a.Y), num(a.VALUE) ? 1 : 0]); }
+    //   oled hline: the dialect gives X, Y, WIDTH; the model wants x0, x1, y.
+    //   tft fill:   the dialect gives X, Y, W, H; the model wants x0, y0, x1, y1.
+    oledprint(a) {
+      const b = this._board();
+      if (b && b.setDeviceControl)
+        b.setDeviceControl(
+          this._device(a.DISPLAY, OLED_KINDS),
+          "print",
+          String(a.TEXT)
+        );
+    }
+    oledcursor(a) {
+      const b = this._board();
+      if (b && b.setDeviceControl)
+        b.setDeviceControl(this._device(a.DISPLAY, OLED_KINDS), "cursor", [
+          num(a.ROW),
+          num(a.COL),
+        ]);
+    }
+    oledclear(a) {
+      const b = this._board();
+      if (b && b.setDeviceControl)
+        b.setDeviceControl(this._device(a.DISPLAY, OLED_KINDS), "clear", 1);
+    }
+    oledpixel(a) {
+      const b = this._board();
+      if (b && b.setDeviceControl)
+        b.setDeviceControl(this._device(a.DISPLAY, OLED_KINDS), "pixel", [
+          num(a.X),
+          num(a.Y),
+          num(a.VALUE) ? 1 : 0,
+        ]);
+    }
     oledhline(a) {
-        const b = this._board(); if (!(b && b.setDeviceControl)) return;
-        const x0 = num(a.X), w = num(a.W);
-        b.setDeviceControl(this._device(a.DISPLAY, OLED_KINDS), 'hline', [x0, x0 + Math.max(1, w) - 1, num(a.Y)]);
+      const b = this._board();
+      if (!(b && b.setDeviceControl)) return;
+      const x0 = num(a.X),
+        w = num(a.W);
+      b.setDeviceControl(this._device(a.DISPLAY, OLED_KINDS), "hline", [
+        x0,
+        x0 + Math.max(1, w) - 1,
+        num(a.Y),
+      ]);
     }
-    oledshow(a) { const b = this._board(); if (b && b.setDeviceControl) b.setDeviceControl(this._device(a.DISPLAY, OLED_KINDS), 'show', 1); }
-    tftprint(a) { const b = this._board(); if (b && b.setDeviceControl) b.setDeviceControl(this._device(a.DISPLAY, TFT_KINDS), 'print', String(a.TEXT)); }
-    tftcursor(a) { const b = this._board(); if (b && b.setDeviceControl) b.setDeviceControl(this._device(a.DISPLAY, TFT_KINDS), 'cursor', [num(a.ROW), num(a.COL)]); }
-    tftclear(a) { const b = this._board(); if (b && b.setDeviceControl) b.setDeviceControl(this._device(a.DISPLAY, TFT_KINDS), 'clear', 0); }
-    tftpixel(a) { const b = this._board(); if (b && b.setDeviceControl) b.setDeviceControl(this._device(a.DISPLAY, TFT_KINDS), 'pixel', [num(a.X), num(a.Y), num(a.R), num(a.G), num(a.B)]); }
+    oledshow(a) {
+      const b = this._board();
+      if (b && b.setDeviceControl)
+        b.setDeviceControl(this._device(a.DISPLAY, OLED_KINDS), "show", 1);
+    }
+    tftprint(a) {
+      const b = this._board();
+      if (b && b.setDeviceControl)
+        b.setDeviceControl(
+          this._device(a.DISPLAY, TFT_KINDS),
+          "print",
+          String(a.TEXT)
+        );
+    }
+    tftcursor(a) {
+      const b = this._board();
+      if (b && b.setDeviceControl)
+        b.setDeviceControl(this._device(a.DISPLAY, TFT_KINDS), "cursor", [
+          num(a.ROW),
+          num(a.COL),
+        ]);
+    }
+    tftclear(a) {
+      const b = this._board();
+      if (b && b.setDeviceControl)
+        b.setDeviceControl(this._device(a.DISPLAY, TFT_KINDS), "clear", 0);
+    }
+    tftpixel(a) {
+      const b = this._board();
+      if (b && b.setDeviceControl)
+        b.setDeviceControl(this._device(a.DISPLAY, TFT_KINDS), "pixel", [
+          num(a.X),
+          num(a.Y),
+          num(a.R),
+          num(a.G),
+          num(a.B),
+        ]);
+    }
     tftfill(a) {
-        const b = this._board(); if (!(b && b.setDeviceControl)) return;
-        const x0 = num(a.X), y0 = num(a.Y);
-        b.setDeviceControl(this._device(a.DISPLAY, TFT_KINDS), 'fill',
-            [x0, y0, x0 + Math.max(1, num(a.W)) - 1, y0 + Math.max(1, num(a.H)) - 1,
-             num(a.R), num(a.G), num(a.B)]);
+      const b = this._board();
+      if (!(b && b.setDeviceControl)) return;
+      const x0 = num(a.X),
+        y0 = num(a.Y);
+      b.setDeviceControl(this._device(a.DISPLAY, TFT_KINDS), "fill", [
+        x0,
+        y0,
+        x0 + Math.max(1, num(a.W)) - 1,
+        y0 + Math.max(1, num(a.H)) - 1,
+        num(a.R),
+        num(a.G),
+        num(a.B),
+      ]);
     }
-    setneopixel(a) { const b = this._board(); if (b && b.setDeviceControl) b.setDeviceControl(a.STRIP, 'neopixel', [num(a.INDEX), num(a.R), num(a.G), num(a.B)]); }
-    clearneopixels(a) { const b = this._board(); if (b && b.setDeviceControl) b.setDeviceControl(a.STRIP, 'clearNeopixels', 1); }
+    setneopixel(a) {
+      const b = this._board();
+      if (b && b.setDeviceControl)
+        b.setDeviceControl(a.STRIP, "neopixel", [
+          num(a.INDEX),
+          num(a.R),
+          num(a.G),
+          num(a.B),
+        ]);
+    }
+    clearneopixels(a) {
+      const b = this._board();
+      if (b && b.setDeviceControl)
+        b.setDeviceControl(a.STRIP, "clearNeopixels", 1);
+    }
+    showimage(a) {
+      const b = this._board();
+      if (b && b.setDeviceControl)
+        b.setDeviceControl(a.MATRIX, "image", String(a.IMAGE));
+    }
 
     // ---- Commands (stubs — methods exist so saved projects load) ----
     showdigit() {}
@@ -319,34 +720,94 @@ class Devices {
     clearmatrix() {}
 
     // ---- Reporters (real) ----
-    servoangle(a) { const st = this._state(a.SERVO); return st ? (st.targetAngle ?? 0) : 0; }
-    motorspeed(a) { const st = this._state(a.MOTOR); return st ? (st.omega ?? 0) : 0; }
-    motordirection(a) { const st = this._state(a.MOTOR); return st ? (st.direction ?? 'stopped') : 'stopped'; }
-    temperature(a) { const st = this._state(a.SENSOR); return st ? (st.temperature ?? 0) : 0; }
-    light(a) { const st = this._state(a.SENSOR); return st ? (st.lux ?? 0) : 0; }
-    distance(a) { const st = this._state(a.SENSOR); return st ? (st.distance ?? 0) : 0; }
-    flex(a) { const st = this._state(a.SENSOR); return st ? (st.flex ?? 0) : 0; }
-    force(a) { const st = this._state(a.SENSOR); return st ? (st.force ?? 0) : 0; }
+    servoangle(a) {
+      const st = this._state(a.SERVO);
+      return st ? (st.targetAngle ?? 0) : 0;
+    }
+    motorspeed(a) {
+      const st = this._state(a.MOTOR);
+      return st ? (st.omega ?? 0) : 0;
+    }
+    motordirection(a) {
+      const st = this._state(a.MOTOR);
+      return st ? (st.direction ?? "stopped") : "stopped";
+    }
+    temperature(a) {
+      const st = this._state(a.SENSOR);
+      return st ? (st.temperature ?? 0) : 0;
+    }
+    light(a) {
+      const st = this._state(a.SENSOR);
+      return st ? (st.lux ?? 0) : 0;
+    }
+    distance(a) {
+      const st = this._state(a.SENSOR);
+      return st ? (st.distance ?? 0) : 0;
+    }
+    flex(a) {
+      const st = this._state(a.SENSOR);
+      return st ? (st.flex ?? 0) : 0;
+    }
+    force(a) {
+      const st = this._state(a.SENSOR);
+      return st ? (st.force ?? 0) : 0;
+    }
 
     // ---- Reporters (stubs) ----
-    devicestate(a) { const st = this._state(a.DEVICE); if (!st) return 'unknown'; return ('energized' in st) ? (st.energized ? 'on' : 'off') : 'unknown'; }
-    ircode(a) { const st = this._state(a.SENSOR); return st ? (st.code ?? 0) : 0; }
+    devicestate(a) {
+      const st = this._state(a.DEVICE);
+      if (!st) return "unknown";
+      return "energized" in st ? (st.energized ? "on" : "off") : "unknown";
+    }
+    ircode(a) {
+      const st = this._state(a.SENSOR);
+      return st ? (st.code ?? 0) : 0;
+    }
 
     // ---- Booleans (real) ----
-    pressed(a) { const st = this._state(a.BUTTON); return !!(st && st.pressed); }
-    above(a) { const st = this._state(a.SENSOR); return ((st && st.value) ?? 0) > num(a.THRESHOLD); }
-    closer(a) { const st = this._state(a.SENSOR); return ((st && st.distance) ?? 999) < num(a.DISTANCE); }
-    motion(a) { const st = this._state(a.SENSOR); return !!(st && st.motion); }
-    tilted(a) { const st = this._state(a.SENSOR); return !!(st && st.tilted); }
-    energised(a) { const st = this._state(a.DEVICE); return !!(st && st.energized); }
+    pressed(a) {
+      const st = this._state(a.BUTTON);
+      return !!(st && st.pressed);
+    }
+    above(a) {
+      const st = this._state(a.SENSOR);
+      return ((st && st.value) ?? 0) > num(a.THRESHOLD);
+    }
+    closer(a) {
+      const st = this._state(a.SENSOR);
+      return ((st && st.distance) ?? 999) < num(a.DISTANCE);
+    }
+    motion(a) {
+      const st = this._state(a.SENSOR);
+      return !!(st && st.motion);
+    }
+    tilted(a) {
+      const st = this._state(a.SENSOR);
+      return !!(st && st.tilted);
+    }
+    energised(a) {
+      const st = this._state(a.DEVICE);
+      return !!(st && st.energized);
+    }
 
     // ---- Hats (edge-activated, polled by the runtime) ----
-    whenabove(a) { return this.above(a); }
-    whencloser(a) { return this.closer(a); }
-    whenmotion(a) { return this.motion(a); }
-    whentilted(a) { return this.tilted(a); }
-    whenirreceived(a) { const st = this._state(a.SENSOR); return !!(st && st.irReceived); }
+    whenabove(a) {
+      return this.above(a);
+    }
+    whencloser(a) {
+      return this.closer(a);
+    }
+    whenmotion(a) {
+      return this.motion(a);
+    }
+    whentilted(a) {
+      return this.tilted(a);
+    }
+    whenirreceived(a) {
+      const st = this._state(a.SENSOR);
+      return !!(st && st.irReceived);
+    }
   }
 
-  Scratch.extensions.register(new Devices());
+  Scratch.extensions.register(new Devices(Scratch.vm && Scratch.vm.runtime));
 })(Scratch);
