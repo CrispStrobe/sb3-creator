@@ -2,65 +2,9 @@
   "vcc": 5,
   "parts": [
     {
-      "id": "board",
-      "kind": "pi_pico",
-      "params": {},
-      "terminals": [
-        "gp0",
-        "gp1",
-        "gp2",
-        "gp3",
-        "gp4",
-        "gp5",
-        "gp6",
-        "gp7",
-        "gp8",
-        "gp9",
-        "gp10",
-        "gp11",
-        "gp12",
-        "gp13",
-        "gp14",
-        "gp15",
-        "gp16",
-        "gp17",
-        "gp18",
-        "gp19",
-        "gp20",
-        "gp21",
-        "gp22",
-        "gp25",
-        "gp26",
-        "gp27",
-        "gp28",
-        "vbus",
-        "vsys",
-        "3v3",
-        "3v3_en",
-        "adc_vref",
-        "gnd_1",
-        "gnd_2",
-        "gnd_3",
-        "gnd_4",
-        "gnd_5",
-        "gnd_6",
-        "gnd_7",
-        "agnd",
-        "swd_gnd",
-        "run",
-        "swclk",
-        "swdio"
-      ],
-      "x": 64,
-      "y": 255,
-      "rotation": 0
-    },
-    {
-      "id": "vcc1",
+      "id": "VCC",
       "kind": "vcc",
-      "params": {
-        "volts": 5
-      },
+      "params": {},
       "terminals": [
         "vcc"
       ],
@@ -68,7 +12,7 @@
       "y": 115
     },
     {
-      "id": "gnd1",
+      "id": "GND",
       "kind": "gnd",
       "params": {},
       "terminals": [
@@ -76,46 +20,116 @@
       ],
       "x": 134,
       "y": 115
+    },
+    {
+      "id": "MCU",
+      "kind": "pi_pico",
+      "params": {},
+      "terminals": [
+        "gp2"
+      ],
+      "x": 64,
+      "y": 255
+    },
+    {
+      "id": "R_PU_tilt",
+      "kind": "resistor",
+      "params": {
+        "ohms": 10000
+      },
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 400,
+      "y": 255
+    },
+    {
+      "id": "BTN_tilt",
+      "kind": "button",
+      "params": {},
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 484,
+      "y": 311
     }
   ],
   "wires": [
     {
       "id": "w_flat_0",
-      "netId": "bb1:rail-b-",
+      "netId": "bb1:n-col-t31",
       "from": {
-        "part": "board",
-        "terminal": "gnd_1"
+        "part": "BTN_tilt",
+        "terminal": "a"
       },
       "to": {
-        "part": "gnd1",
-        "terminal": "gnd"
+        "part": "MCU",
+        "terminal": "gp2"
       }
     },
     {
       "id": "w_flat_1",
-      "netId": "bb1:rail-t+",
+      "netId": "bb1:n-col-t31",
       "from": {
-        "part": "board",
-        "terminal": "vbus"
+        "part": "BTN_tilt",
+        "terminal": "a"
       },
       "to": {
-        "part": "board",
-        "terminal": "vsys"
+        "part": "R_PU_tilt",
+        "terminal": "b"
       }
     },
     {
       "id": "w_flat_2",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "BTN_tilt",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "GND",
+        "terminal": "gnd"
+      }
+    },
+    {
+      "id": "w_flat_3",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "BTN_tilt",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "MCU",
+        "terminal": "gnd_1"
+      }
+    },
+    {
+      "id": "w_flat_4",
       "netId": "bb1:rail-t+",
       "from": {
-        "part": "board",
+        "part": "MCU",
         "terminal": "vbus"
       },
       "to": {
-        "part": "vcc1",
+        "part": "R_PU_tilt",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "w_flat_5",
+      "netId": "bb1:rail-t+",
+      "from": {
+        "part": "MCU",
+        "terminal": "vbus"
+      },
+      "to": {
+        "part": "VCC",
         "terminal": "vcc"
       }
     }
   ],
   "holeWires": [],
-  "generated": "benchFor+authored+seat"
+  "generated": "benchFor+seat"
 }

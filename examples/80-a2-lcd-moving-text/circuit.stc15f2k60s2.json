@@ -31,7 +31,7 @@
    "y": 115
   },
   {
-   "id": "stc151",
+   "id": "MCU",
    "kind": "stc15_mcu",
    "params": {},
    "terminals": [],
@@ -82,9 +82,118 @@
    },
    "x": 64,
    "y": 311
+  },
+  {
+   "id": "LCD_lcd",
+   "kind": "char_lcd",
+   "declName": "lcd",
+   "params": {},
+   "terminals": [
+    "rs",
+    "rw",
+    "e",
+    "d0",
+    "d1",
+    "d2",
+    "d3",
+    "d4",
+    "d5",
+    "d6",
+    "d7",
+    "vcc",
+    "gnd",
+    "vo",
+    "bl_a",
+    "bl_k"
+   ],
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "rs": "a27",
+     "e": "a28",
+     "d4": "a29",
+     "d5": "a30",
+     "d6": "a31",
+     "d7": "a32"
+    }
+   },
+   "x": 400,
+   "y": 255
   }
  ],
  "wires": [
+  {
+   "from": "MCU",
+   "fromTerminal": "p0.4",
+   "to": "LCD_lcd",
+   "toTerminal": "d4"
+  },
+  {
+   "from": "MCU",
+   "fromTerminal": "p0.5",
+   "to": "LCD_lcd",
+   "toTerminal": "d5"
+  },
+  {
+   "from": "MCU",
+   "fromTerminal": "p0.6",
+   "to": "LCD_lcd",
+   "toTerminal": "d6"
+  },
+  {
+   "from": "MCU",
+   "fromTerminal": "p0.7",
+   "to": "LCD_lcd",
+   "toTerminal": "d7"
+  },
+  {
+   "from": "MCU",
+   "fromTerminal": "p2.6",
+   "to": "LCD_lcd",
+   "toTerminal": "rs"
+  },
+  {
+   "from": "MCU",
+   "fromTerminal": "p2.7",
+   "to": "LCD_lcd",
+   "toTerminal": "e"
+  },
+  {
+   "from": "MCU",
+   "fromTerminal": "p2.5",
+   "to": "LCD_lcd",
+   "toTerminal": "rw"
+  },
+  {
+   "from": "VCC",
+   "fromTerminal": "vcc",
+   "to": "LCD_lcd",
+   "toTerminal": "vcc"
+  },
+  {
+   "from": "VCC",
+   "fromTerminal": "vcc",
+   "to": "LCD_lcd",
+   "toTerminal": "bl_a"
+  },
+  {
+   "from": "GND",
+   "fromTerminal": "gnd",
+   "to": "LCD_lcd",
+   "toTerminal": "gnd"
+  },
+  {
+   "from": "GND",
+   "fromTerminal": "gnd",
+   "to": "LCD_lcd",
+   "toTerminal": "bl_k"
+  },
+  {
+   "from": "GND",
+   "fromTerminal": "gnd",
+   "to": "LCD_lcd",
+   "toTerminal": "vo"
+  },
   {
    "from": "VCC",
    "fromTerminal": "vcc",

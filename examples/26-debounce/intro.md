@@ -7,18 +7,22 @@ teaches: [debounce, switch-bounce, software-filter]
 
 ## What you see
 
-A button is wired to the MCU and a counter is displayed on a 7-segment display.
-Every press should add one to the count, but without debouncing the count jumps
-by two, three, or more on a single press. The program shows both the raw
-(bouncing) count and the debounced (clean) count side by side. This example works on all supported microcontrollers — pick a different device in the toolbar to see the adapted circuit.
+A button toggles an LED: press once, the LED changes state once. That sounds
+too simple to need a program, and it is exactly the thing a bare
+`wait until pressed` gets wrong. A real switch does not close cleanly — its
+contacts bounce for a few milliseconds, and the MCU is fast enough to read
+every bounce as a separate press, so the LED flickers or ends up in the wrong
+state. The 50 ms wait in this program is what makes one press mean one toggle. This example works on all supported microcontrollers — pick a different device in the toolbar to see the adapted circuit.
 
 ## Try this
 
-1. Click **Sim** and press the button once. Watch the raw counter -- it likely
-   jumps by more than one.
-2. Look at the debounced counter next to it. It increments by exactly one per
-   press.
-3. Try pressing the button rapidly several times and compare both counters.
+1. Click **Sim** and press the button once. The LED changes state exactly
+   once, however quickly you release.
+2. Press it rapidly several times. Each press is still one toggle -- the
+   program waits for the contacts to settle before it believes either edge.
+3. Delete the two `wait 0.05 seconds` lines and press again. On hardware the
+   LED now lands on the wrong state about as often as the right one, which is
+   the bug this pattern exists to remove.
    The raw count races ahead; the clean count stays accurate.
 
 ## What is going on

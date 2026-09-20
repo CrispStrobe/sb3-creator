@@ -1,6 +1,6 @@
 DEVICE STC12C5A60S2
 CLOCK 11059200
-PIN signal = P1.1 OUTPUT
+PIN servo = P1.1 OUTPUT
 
 # Servo sweep: move from 0° to 180° in 10° steps, then back.
 # Power comes from the SUPPLY RAIL (VCC/GND), not from the chip pin.
@@ -11,9 +11,9 @@ WHEN flag clicked:
   FOREVER:
     REPEAT 18:
       change pos by 10
-      set myservo angle to pos
+      set 1 angle to pos
       wait 0.1 seconds
     REPEAT 18:
       change pos by -10
-      set myservo angle to pos
+      set 1 angle to pos
       wait 0.1 seconds

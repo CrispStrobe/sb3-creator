@@ -31,7 +31,7 @@
    "y": 115
   },
   {
-   "id": "stc151",
+   "id": "MCU",
    "kind": "stc15_mcu",
    "params": {},
    "terminals": [],
@@ -82,9 +82,178 @@
    },
    "x": 64,
    "y": 311
+  },
+  {
+   "id": "KEYPAD_keys",
+   "kind": "keypad_4x4",
+   "declName": "keys",
+   "params": {},
+   "terminals": [
+    "r0",
+    "r1",
+    "r2",
+    "r3",
+    "c0",
+    "c1",
+    "c2",
+    "c3"
+   ],
+   "x": 220,
+   "y": 99
+  },
+  {
+   "id": "DISP_display",
+   "kind": "sevenseg8",
+   "declName": "display",
+   "params": {
+    "commonAnode": false
+   },
+   "terminals": [
+    "vcc",
+    "gnd",
+    "seg_a",
+    "seg_b",
+    "seg_c",
+    "seg_d",
+    "seg_e",
+    "seg_f",
+    "seg_g",
+    "seg_dp",
+    "sel_a",
+    "sel_b",
+    "sel_c"
+   ],
+   "x": 344,
+   "y": 101
   }
  ],
  "wires": [
+  {
+   "from": "MCU",
+   "fromTerminal": "p1.7",
+   "to": "KEYPAD_keys",
+   "toTerminal": "r0"
+  },
+  {
+   "from": "MCU",
+   "fromTerminal": "p1.6",
+   "to": "KEYPAD_keys",
+   "toTerminal": "r1"
+  },
+  {
+   "from": "MCU",
+   "fromTerminal": "p1.5",
+   "to": "KEYPAD_keys",
+   "toTerminal": "r2"
+  },
+  {
+   "from": "MCU",
+   "fromTerminal": "p1.4",
+   "to": "KEYPAD_keys",
+   "toTerminal": "r3"
+  },
+  {
+   "from": "MCU",
+   "fromTerminal": "p1.3",
+   "to": "KEYPAD_keys",
+   "toTerminal": "c0"
+  },
+  {
+   "from": "MCU",
+   "fromTerminal": "p1.2",
+   "to": "KEYPAD_keys",
+   "toTerminal": "c1"
+  },
+  {
+   "from": "MCU",
+   "fromTerminal": "p1.1",
+   "to": "KEYPAD_keys",
+   "toTerminal": "c2"
+  },
+  {
+   "from": "MCU",
+   "fromTerminal": "p1.0",
+   "to": "KEYPAD_keys",
+   "toTerminal": "c3"
+  },
+  {
+   "from": "MCU",
+   "fromTerminal": "p0.0",
+   "to": "DISP_display",
+   "toTerminal": "seg_a"
+  },
+  {
+   "from": "MCU",
+   "fromTerminal": "p0.1",
+   "to": "DISP_display",
+   "toTerminal": "seg_b"
+  },
+  {
+   "from": "MCU",
+   "fromTerminal": "p0.2",
+   "to": "DISP_display",
+   "toTerminal": "seg_c"
+  },
+  {
+   "from": "MCU",
+   "fromTerminal": "p0.3",
+   "to": "DISP_display",
+   "toTerminal": "seg_d"
+  },
+  {
+   "from": "MCU",
+   "fromTerminal": "p0.4",
+   "to": "DISP_display",
+   "toTerminal": "seg_e"
+  },
+  {
+   "from": "MCU",
+   "fromTerminal": "p0.5",
+   "to": "DISP_display",
+   "toTerminal": "seg_f"
+  },
+  {
+   "from": "MCU",
+   "fromTerminal": "p0.6",
+   "to": "DISP_display",
+   "toTerminal": "seg_g"
+  },
+  {
+   "from": "MCU",
+   "fromTerminal": "p0.7",
+   "to": "DISP_display",
+   "toTerminal": "seg_dp"
+  },
+  {
+   "from": "MCU",
+   "fromTerminal": "p2.2",
+   "to": "DISP_display",
+   "toTerminal": "sel_a"
+  },
+  {
+   "from": "MCU",
+   "fromTerminal": "p2.3",
+   "to": "DISP_display",
+   "toTerminal": "sel_b"
+  },
+  {
+   "from": "MCU",
+   "fromTerminal": "p2.4",
+   "to": "DISP_display",
+   "toTerminal": "sel_c"
+  },
+  {
+   "from": "VCC",
+   "fromTerminal": "vcc",
+   "to": "DISP_display",
+   "toTerminal": "vcc"
+  },
+  {
+   "from": "GND",
+   "fromTerminal": "gnd",
+   "to": "DISP_display",
+   "toTerminal": "gnd"
+  },
   {
    "from": "VCC",
    "fromTerminal": "vcc",

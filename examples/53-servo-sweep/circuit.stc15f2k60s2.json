@@ -31,14 +31,12 @@
    "y": 115
   },
   {
-   "id": "stc151",
+   "id": "MCU",
    "kind": "stc15_mcu",
    "params": {},
    "terminals": [
     "p1.0"
    ],
-   "x": 64,
-   "y": 311,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
@@ -83,69 +81,49 @@
      "P3.1": "f4",
      "P3.0": "f3"
     }
-   }
+   },
+   "x": 64,
+   "y": 311
   },
   {
-   "id": "R_signal",
-   "kind": "resistor",
-   "params": {
-    "ohms": 1000
-   },
+   "id": "SERVO_servo",
+   "kind": "servo",
+   "params": {},
    "terminals": [
-    "a",
-    "b"
+    "signal",
+    "vcc",
+    "gnd"
    ],
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "signal": "a27",
+     "vcc": "a28",
+     "gnd": "a29"
+    }
+   },
    "x": 400,
-   "y": 255,
-   "seat": {
-    "boardId": "bb1",
-    "leadMap": {
-     "a": "a27",
-     "b": "a31"
-    }
-   }
-  },
-  {
-   "id": "LED_signal",
-   "kind": "led",
-   "declName": "signal",
-   "params": {
-    "vf": 2,
-    "color": "red"
-   },
-   "terminals": [
-    "anode",
-    "cathode"
-   ],
-   "x": 484,
-   "y": 255,
-   "seat": {
-    "boardId": "bb1",
-    "leadMap": {
-     "anode": "a33",
-     "cathode": "a34"
-    }
-   }
+   "y": 255
   }
  ],
  "wires": [
   {
-   "from": "R_signal",
-   "fromTerminal": "b",
-   "to": "LED_signal",
-   "toTerminal": "anode"
-  },
-  {
-   "from": "LED_signal",
-   "fromTerminal": "cathode",
-   "to": "stc151",
-   "toTerminal": "p1.0"
+   "from": "MCU",
+   "fromTerminal": "p1.0",
+   "to": "SERVO_servo",
+   "toTerminal": "signal"
   },
   {
    "from": "VCC",
    "fromTerminal": "vcc",
-   "to": "R_signal",
-   "toTerminal": "a"
+   "to": "SERVO_servo",
+   "toTerminal": "vcc"
+  },
+  {
+   "from": "GND",
+   "fromTerminal": "gnd",
+   "to": "SERVO_servo",
+   "toTerminal": "gnd"
   },
   {
    "from": "VCC",
@@ -172,16 +150,16 @@
   {
    "ref": "bbw:bb1:gen_0",
    "boardId": "bb1",
-   "a": "b31",
-   "b": "b33",
-   "color": "green"
+   "a": "b28",
+   "b": "t+28",
+   "color": "red"
   },
   {
    "ref": "bbw:bb1:gen_1",
    "boardId": "bb1",
-   "a": "b27",
-   "b": "t+27",
-   "color": "red"
+   "a": "b29",
+   "b": "b-29",
+   "color": "black"
   },
   {
    "ref": "bbw:bb1:gen_2",

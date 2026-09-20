@@ -82,9 +82,106 @@
    },
    "x": 64,
    "y": 349
+  },
+  {
+   "id": "LEDS_leds",
+   "kind": "ledbank8",
+   "declName": "leds",
+   "params": {
+    "activeLow": true
+   },
+   "terminals": [
+    "vcc",
+    "gnd",
+    "d0",
+    "d1",
+    "d2",
+    "d3",
+    "d4",
+    "d5",
+    "d6",
+    "d7"
+   ],
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "d0": "a27",
+     "d1": "a28",
+     "d2": "a29",
+     "d3": "a30",
+     "d4": "a31",
+     "d5": "a32",
+     "d6": "a33",
+     "d7": "a34",
+     "vcc": "a35",
+     "gnd": "a36"
+    }
+   },
+   "x": 400,
+   "y": 255
   }
  ],
  "wires": [
+  {
+   "from": "MCU",
+   "fromTerminal": "P2.0",
+   "to": "LEDS_leds",
+   "toTerminal": "d0"
+  },
+  {
+   "from": "MCU",
+   "fromTerminal": "P2.1",
+   "to": "LEDS_leds",
+   "toTerminal": "d1"
+  },
+  {
+   "from": "MCU",
+   "fromTerminal": "P2.2",
+   "to": "LEDS_leds",
+   "toTerminal": "d2"
+  },
+  {
+   "from": "MCU",
+   "fromTerminal": "P2.3",
+   "to": "LEDS_leds",
+   "toTerminal": "d3"
+  },
+  {
+   "from": "MCU",
+   "fromTerminal": "P2.4",
+   "to": "LEDS_leds",
+   "toTerminal": "d4"
+  },
+  {
+   "from": "MCU",
+   "fromTerminal": "P2.5",
+   "to": "LEDS_leds",
+   "toTerminal": "d5"
+  },
+  {
+   "from": "MCU",
+   "fromTerminal": "P2.6",
+   "to": "LEDS_leds",
+   "toTerminal": "d6"
+  },
+  {
+   "from": "MCU",
+   "fromTerminal": "P2.7",
+   "to": "LEDS_leds",
+   "toTerminal": "d7"
+  },
+  {
+   "from": "VCC",
+   "fromTerminal": "vcc",
+   "to": "LEDS_leds",
+   "toTerminal": "vcc"
+  },
+  {
+   "from": "GND",
+   "fromTerminal": "gnd",
+   "to": "LEDS_leds",
+   "toTerminal": "gnd"
+  },
   {
    "from": "VCC",
    "fromTerminal": "vcc",
@@ -110,12 +207,82 @@
   {
    "ref": "bbw:bb1:gen_0",
    "boardId": "bb1",
+   "a": "a22",
+   "b": "b27",
+   "color": "green"
+  },
+  {
+   "ref": "bbw:bb1:gen_1",
+   "boardId": "bb1",
+   "a": "a21",
+   "b": "b28",
+   "color": "blue"
+  },
+  {
+   "ref": "bbw:bb1:gen_2",
+   "boardId": "bb1",
+   "a": "a20",
+   "b": "b29",
+   "color": "yellow"
+  },
+  {
+   "ref": "bbw:bb1:gen_3",
+   "boardId": "bb1",
+   "a": "a19",
+   "b": "b30",
+   "color": "orange"
+  },
+  {
+   "ref": "bbw:bb1:gen_4",
+   "boardId": "bb1",
+   "a": "a18",
+   "b": "b31",
+   "color": "purple"
+  },
+  {
+   "ref": "bbw:bb1:gen_5",
+   "boardId": "bb1",
+   "a": "a17",
+   "b": "b32",
+   "color": "green"
+  },
+  {
+   "ref": "bbw:bb1:gen_6",
+   "boardId": "bb1",
+   "a": "a16",
+   "b": "b33",
+   "color": "blue"
+  },
+  {
+   "ref": "bbw:bb1:gen_7",
+   "boardId": "bb1",
+   "a": "a15",
+   "b": "b34",
+   "color": "yellow"
+  },
+  {
+   "ref": "bbw:bb1:gen_8",
+   "boardId": "bb1",
+   "a": "b35",
+   "b": "t+35",
+   "color": "red"
+  },
+  {
+   "ref": "bbw:bb1:gen_9",
+   "boardId": "bb1",
+   "a": "b36",
+   "b": "b-36",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb1:gen_10",
+   "boardId": "bb1",
    "a": "g22",
    "b": "b-22",
    "color": "black"
   },
   {
-   "ref": "bbw:bb1:gen_1",
+   "ref": "bbw:bb1:gen_11",
    "boardId": "bb1",
    "a": "a3",
    "b": "t+3",

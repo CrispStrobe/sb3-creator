@@ -1,7 +1,7 @@
 # Ported from arduino-examples/examples/10.StarterKit_BasicKit/p03_LoveOMeter, CC0
 DEVICE ARDUINO-UNO
 CLOCK 16000000
-PIN sensor = A0 ANALOG
+PIN thermistor = A0 ANALOG
 PIN led1 = D2 OUTPUT
 PIN led2 = D3 OUTPUT
 PIN led3 = D4 OUTPUT
@@ -10,7 +10,7 @@ SPRITE Cat:
   WHEN flag clicked:
     set baselineTemp to 20
     forever:
-      set sensorVal to read sensor
+      set sensorVal to read thermistor
       # One integer expression instead of two floating-point ones. The C target
       # emitted `sensorVal * (5 / 1024)` = 0 and truncated the 0.5 offset to 0, so
       # the temperature was 0 at every reading and the bargraph never lit.

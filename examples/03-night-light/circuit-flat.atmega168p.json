@@ -22,7 +22,7 @@
       "y": 115
     },
     {
-      "id": "uno1",
+      "id": "MCU",
       "kind": "arduino_uno",
       "params": {},
       "terminals": [
@@ -62,15 +62,25 @@
       "y": 255
     },
     {
-      "id": "POT_ldr",
-      "kind": "potentiometer",
+      "id": "LDR_ldr",
+      "kind": "ldr",
+      "params": {},
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 288,
+      "y": 255
+    },
+    {
+      "id": "R_DIV_ldr",
+      "kind": "resistor",
       "params": {
         "ohms": 10000
       },
       "terminals": [
         "a",
-        "b",
-        "wiper"
+        "b"
       ],
       "x": 148,
       "y": 255
@@ -79,18 +89,6 @@
   "wires": [
     {
       "id": "w_flat_0",
-      "netId": "bb1:n-col-t11",
-      "from": {
-        "part": "uno1",
-        "terminal": "a0"
-      },
-      "to": {
-        "part": "POT_ldr",
-        "terminal": "wiper"
-      }
-    },
-    {
-      "id": "w_flat_1",
       "netId": "bb1:n-col-t15",
       "from": {
         "part": "LED_led1",
@@ -102,10 +100,34 @@
       }
     },
     {
+      "id": "w_flat_1",
+      "netId": "bb1:n-col-t21",
+      "from": {
+        "part": "LDR_ldr",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "MCU",
+        "terminal": "a0"
+      }
+    },
+    {
       "id": "w_flat_2",
+      "netId": "bb1:n-col-t21",
+      "from": {
+        "part": "LDR_ldr",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "R_DIV_ldr",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "w_flat_3",
       "netId": "bb1:n-col-t3",
       "from": {
-        "part": "uno1",
+        "part": "MCU",
         "terminal": "d13"
       },
       "to": {
@@ -114,7 +136,7 @@
       }
     },
     {
-      "id": "w_flat_3",
+      "id": "w_flat_4",
       "netId": "bb1:rail-b-",
       "from": {
         "part": "GND",
@@ -126,18 +148,6 @@
       }
     },
     {
-      "id": "w_flat_4",
-      "netId": "bb1:rail-b-",
-      "from": {
-        "part": "GND",
-        "terminal": "gnd"
-      },
-      "to": {
-        "part": "uno1",
-        "terminal": "gnd2"
-      }
-    },
-    {
       "id": "w_flat_5",
       "netId": "bb1:rail-b-",
       "from": {
@@ -145,28 +155,40 @@
         "terminal": "gnd"
       },
       "to": {
-        "part": "POT_ldr",
-        "terminal": "b"
+        "part": "MCU",
+        "terminal": "gnd2"
       }
     },
     {
       "id": "w_flat_6",
-      "netId": "bb1:rail-t+",
+      "netId": "bb1:rail-b-",
       "from": {
-        "part": "uno1",
-        "terminal": "5v"
+        "part": "GND",
+        "terminal": "gnd"
       },
       "to": {
-        "part": "POT_ldr",
-        "terminal": "a"
+        "part": "R_DIV_ldr",
+        "terminal": "b"
       }
     },
     {
       "id": "w_flat_7",
       "netId": "bb1:rail-t+",
       "from": {
-        "part": "uno1",
+        "part": "LDR_ldr",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "MCU",
         "terminal": "5v"
+      }
+    },
+    {
+      "id": "w_flat_8",
+      "netId": "bb1:rail-t+",
+      "from": {
+        "part": "LDR_ldr",
+        "terminal": "a"
       },
       "to": {
         "part": "VCC",

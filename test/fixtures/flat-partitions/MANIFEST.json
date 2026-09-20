@@ -2,7 +2,7 @@
   "note": "Vendored VERDICT for the flat circuit twins. CI cannot recompute the net partition (that needs bw-circuit-ui + bw-board), but it can prove neither file of a pair changed since a run that did. Regenerate with scripts/vendor-flat-partitions.mjs --write.",
   "engine": {
     "repo": "bw-circuit-ui",
-    "sha": "c276c0dbfdc26fa858e22e7642217411c2398fa9"
+    "sha": "6a37f7ba2bfb7a2cef9b92b301b2336dbd61d888"
   },
   "pairs": 948,
   "entries": [
@@ -146,113 +146,113 @@
       "dir": "03-night-light",
       "flat": "circuit-flat.arduino-mega.json",
       "twin": "circuit.arduino-mega.json",
-      "flatSha": "bee97f5ffa7b590f0d7bead6d0771f520814594a63b6e424ea2c4d9fd06551cf",
-      "twinSha": "14332a63a18801fdd30244c3f142271572d6bbda05b6609dd22eb1fda2199936",
-      "partitionSha": "86141b4f255d09d0facff47355867c2a07e58a8827fbe4b41efa906a46010b5e"
+      "flatSha": "34720885ae8433140e1b37ef58c74f19dcb749b7bdf9fe895d2885c5352e1462",
+      "twinSha": "93acbc88e48dffed8ce1bedc2c3174a0705d8dd382e0fd2b4268c5e9cca3de63",
+      "partitionSha": "884b105ca960254c6794306779633256080fcffd598e3142b2a5f9967f0aaf86"
     },
     {
       "dir": "03-night-light",
       "flat": "circuit-flat.arduino-nano.json",
       "twin": "circuit.arduino-nano.json",
-      "flatSha": "3230bbc619407336e6b2f3800b341298ceef13623c4be25ed9e43fd53c09d7bb",
-      "twinSha": "9cb28a6ded33976fdcc20018b09a2dadf2353469e0fa7fc8285211aa2e6c41d4",
-      "partitionSha": "b9694ccf28400deb063802ccb9dde310e0773c371020f2edee546e7b06734d65"
+      "flatSha": "b93e342a1510e8792f37a20db83060b20dfbc2b881f6e810e6c649e15d326d69",
+      "twinSha": "e470c6e25732972d93da678f02320743264510f6b9e65019bcaa9702b45c62bb",
+      "partitionSha": "20a509bd0aa88f084295315332a69b5b1f990d3e64913decadcc462ca9bcbc67"
     },
     {
       "dir": "03-night-light",
       "flat": "circuit-flat.arduino-uno.json",
       "twin": "circuit.arduino-uno.json",
-      "flatSha": "34490c27a6f85b99f3eeb1a5c7ca2c2884306b0d5ee45d90997f527c338762de",
-      "twinSha": "ffd1cd1972538e32d670ad0f53062113e11fed986ba1fac2e6ed3fe31f9db0d1",
-      "partitionSha": "3f758ea33eb4c8d247a0dd0afacae71402258b03bd7efb1c41bbeac4469dc22a"
+      "flatSha": "3bb7933dcdac09fde568e2de0adfd19b8746f01fdc6b941a55466e58ee872507",
+      "twinSha": "4a316e27fb44b4918e09ea4b6d42391e06b72c07b8f010dfa99b271ef494513f",
+      "partitionSha": "884b105ca960254c6794306779633256080fcffd598e3142b2a5f9967f0aaf86"
     },
     {
       "dir": "03-night-light",
       "flat": "circuit-flat.atmega168p.json",
       "twin": "circuit.atmega168p.json",
-      "flatSha": "34490c27a6f85b99f3eeb1a5c7ca2c2884306b0d5ee45d90997f527c338762de",
-      "twinSha": "ffd1cd1972538e32d670ad0f53062113e11fed986ba1fac2e6ed3fe31f9db0d1",
-      "partitionSha": "3f758ea33eb4c8d247a0dd0afacae71402258b03bd7efb1c41bbeac4469dc22a"
+      "flatSha": "3bb7933dcdac09fde568e2de0adfd19b8746f01fdc6b941a55466e58ee872507",
+      "twinSha": "4a316e27fb44b4918e09ea4b6d42391e06b72c07b8f010dfa99b271ef494513f",
+      "partitionSha": "884b105ca960254c6794306779633256080fcffd598e3142b2a5f9967f0aaf86"
     },
     {
       "dir": "03-night-light",
       "flat": "circuit-flat.pico.json",
       "twin": "circuit.pico.json",
-      "flatSha": "e3f25b1dd3fe12b62796c9636a8497f29f5e9f7e3ee578613e5d6966ef2e2320",
-      "twinSha": "3181646b9897282d41278263e0adbd7fb3ca1eca8448e5b715360e9f8eb507f8",
-      "partitionSha": "9e292097dd40f2aedd84fd4fc4b326008db9d2783eb4026928ab6adf0594da53"
+      "flatSha": "0791eed6c347e3738e69a6d11e43de5cb68d0e285def0c1ad0ac13f77132b537",
+      "twinSha": "94435599db8a00cb65b3843b1a349a203fa4ba776a8681f955b0792054689747",
+      "partitionSha": "b37908eccaba5546e54b4fbeb71bdb7134fdb52e45c34eb125c30d654910e800"
     },
     {
       "dir": "03-night-light",
       "flat": "circuit-flat.stc12c5a60s2.json",
       "twin": "circuit.stc12c5a60s2.json",
-      "flatSha": "8f34f7cfcf0488ad3c14c8fd214ad64e78e6a095740a7aeaae5d632bceb85f99",
-      "twinSha": "589a5c413e7f30d3b5f4a0ff94e146179979e4e18091999d7f67b3e1efa0e684",
-      "partitionSha": "3bb9acfe8eff0684e8453d332d4182b2a8cd8db2e1fa9be1d114f053d1c4d13a"
+      "flatSha": "cb6b2ccb160d5a8974dd9395054e5f3d68d3754d17844c7632066f4593cc7169",
+      "twinSha": "b9cd16a3fcbc8a564cd642c6b507bf0c6e9ca5e04a67a752d197f32a5a0a3830",
+      "partitionSha": "6bd0294ffe2c1a65972e3738231bee672c0002c22a3cd4b557054594fd7f0fbd"
     },
     {
       "dir": "03-night-light",
       "flat": "circuit-flat.stc15f2k60s2.json",
       "twin": "circuit.stc15f2k60s2.json",
-      "flatSha": "de2c52adf0af009fc5d1e5dd419c35e732b1494e0a5be3dbe3d62008a9cef742",
-      "twinSha": "8c7fc5a3e9fc07a69802d518b52dda3f166ad39488fd5e36f98ce3ebe973ec4f",
-      "partitionSha": "6c0f61bb3c46148813c75c082e69c95a15252439833b43c8b9cc8fae13b2f322"
+      "flatSha": "0f90ff178977203c92002de9d5a25acb41cfdaad3d7bcc4d5cab4fce23ad001c",
+      "twinSha": "07ae4557fa6c090b009565ade6b04ed23144aaa3f69795f384561c3b9fc48fc4",
+      "partitionSha": "56d7f6c5f414664a601a799ec1c26a46fc7acedb82ba6682911a5898cf8c439b"
     },
     {
       "dir": "04-thermostat",
       "flat": "circuit-flat.arduino-mega.json",
       "twin": "circuit.arduino-mega.json",
-      "flatSha": "491ae86d3d29e9ba6a0b3add0d5256e9e31d696c22405f79a74eb480ff016394",
-      "twinSha": "560b87bf7c5853e649c6c0366d353d39a6601dbe9c0e9f8d56ca59f77838e1e7",
-      "partitionSha": "8ef65638e1e9f982d90346bd09c8d021ea2042ded079268d6e79d2f1f2bdfc05"
+      "flatSha": "1b0900031eea1fda7286e16012442011d9c084d4212629e0435b525a41768b24",
+      "twinSha": "715f583d70536680a373881e307bc9c15b00f90a7831dea9e39c81a0c6332811",
+      "partitionSha": "30b8e0e1b273a27033b42469132b167ea8af8149ca76c6787c3760eeb8ea94ab"
     },
     {
       "dir": "04-thermostat",
       "flat": "circuit-flat.arduino-nano.json",
       "twin": "circuit.arduino-nano.json",
-      "flatSha": "223c577312c14ca17ae4ba05753307dd9c8191115d2cb3f5c6eab354cfeffaf9",
-      "twinSha": "be6e73cdde57b0bf482282253f144a86391483244c5994fe83b02076cc63cf67",
-      "partitionSha": "73a2f6426f9604020691fecbffc5e2e46ef812e6031bb0ccb9bf0b566d6aa559"
+      "flatSha": "2ed4ab43dad28ec00856bf3c8fc0fb8f6bd1b245359f3ad8c21e5d8b476c7241",
+      "twinSha": "d223d3b012a1364d340fbe2139a02a523ab555461b0e77ac7ba1abc9f8ab465c",
+      "partitionSha": "d5c6bb0da1e3cf3351071095c904f6b087302e64a122df26461d50ef3be4acd9"
     },
     {
       "dir": "04-thermostat",
       "flat": "circuit-flat.arduino-uno.json",
       "twin": "circuit.arduino-uno.json",
-      "flatSha": "4509b2c93eb1d37e9941c857300809d33d7a6bc158c9b8e789e7d35c158553e4",
-      "twinSha": "895dfc5f72e14c8075459f32f59d559d88115c8b475c0fe3bacd8b40fe41d47d",
-      "partitionSha": "b0574e247da4ea3d2ed2b0a7d39d82f97fcb016a1d11fdedbe23d1e8ad2bd1a2"
+      "flatSha": "bad39c398ebef1994ce837e5b465ff54f8fb9b4a711c81e953821abddad85805",
+      "twinSha": "6d89b0a975e0d023a14c198859669c512873102984d6da1f7e89883d5457e1e8",
+      "partitionSha": "30b8e0e1b273a27033b42469132b167ea8af8149ca76c6787c3760eeb8ea94ab"
     },
     {
       "dir": "04-thermostat",
       "flat": "circuit-flat.atmega168p.json",
       "twin": "circuit.atmega168p.json",
-      "flatSha": "4509b2c93eb1d37e9941c857300809d33d7a6bc158c9b8e789e7d35c158553e4",
-      "twinSha": "895dfc5f72e14c8075459f32f59d559d88115c8b475c0fe3bacd8b40fe41d47d",
-      "partitionSha": "b0574e247da4ea3d2ed2b0a7d39d82f97fcb016a1d11fdedbe23d1e8ad2bd1a2"
+      "flatSha": "bad39c398ebef1994ce837e5b465ff54f8fb9b4a711c81e953821abddad85805",
+      "twinSha": "6d89b0a975e0d023a14c198859669c512873102984d6da1f7e89883d5457e1e8",
+      "partitionSha": "30b8e0e1b273a27033b42469132b167ea8af8149ca76c6787c3760eeb8ea94ab"
     },
     {
       "dir": "04-thermostat",
       "flat": "circuit-flat.pico.json",
       "twin": "circuit.pico.json",
-      "flatSha": "c2153a3e5f95025fc45676d41a69c3e5c230165d35d9c023ae7b620d185807d5",
-      "twinSha": "b67ae4e58bf817742e095cff0e3f73e2de551b353fe51e126d40d46afc2e2fb6",
-      "partitionSha": "bcda3a934286dad1053024512aa5898c73f88b5fc15151ebd44f38573367be83"
+      "flatSha": "8f844e676cd3438df0dc75c745e39415a97e94156788ad5857e1de4df31b306d",
+      "twinSha": "ee2917ed311ef187d3d858d92e13965bb35343379ac49674267d94f857f68279",
+      "partitionSha": "eb65b3baa5980cd48208f43200962e871c4a091c50521ddb49fcfe8c3ad33578"
     },
     {
       "dir": "04-thermostat",
       "flat": "circuit-flat.stc12c5a60s2.json",
       "twin": "circuit.stc12c5a60s2.json",
-      "flatSha": "f23d1511db22c293816d0a1bf2fbd5026de75feb154f1b162926ea22125d0821",
-      "twinSha": "01f16cb49120bf823055974eee845beb1469e9fff2545d813173da3b1be8788b",
-      "partitionSha": "aa86cfc9ae515d11cafda3f24232d75f02bf57960461d1377b4847e4bbd9de6b"
+      "flatSha": "28ba6adbe6ec50c551b5c35dadec388e079c6a44be27506cb15d27cb545583fa",
+      "twinSha": "c2f41cfcf0087ef0db6e6df128a11199f1595b75b7443ab38d467c87e19524ef",
+      "partitionSha": "00e259519b05be7c78f8b655e6265de5ef6ccf3b6a10d0cf936b189375fbac8e"
     },
     {
       "dir": "04-thermostat",
       "flat": "circuit-flat.stc15f2k60s2.json",
       "twin": "circuit.stc15f2k60s2.json",
-      "flatSha": "337f8795eb993bab0d8067dc72887215741c1bbd98c2868589f1318181915c0e",
-      "twinSha": "e6a2071b27f667909d941a901d0a1700c7a0a4bd181beb6554829f62c19252f0",
-      "partitionSha": "f3d3243edb1314cff434b8e83a06c53647deac1d4250aa9a95ac962cb87b2898"
+      "flatSha": "39b6af7723c00d0ca0ad48179080f28ea1f0282cce5ee051292fda195aca455e",
+      "twinSha": "6a3b49aa74c6884422033f8cad8755d5e568f1b02945f65f0c1ae868f18c283a",
+      "partitionSha": "cd88161a597e5cab1b61cff1d28423a12a3a3d46ec67f14d378813088c928aca"
     },
     {
       "dir": "05-counter",
@@ -946,57 +946,57 @@
       "dir": "16-ldr-bargraph",
       "flat": "circuit-flat.arduino-mega.json",
       "twin": "circuit.arduino-mega.json",
-      "flatSha": "1ebfd8a6db59046aaa261185215634df36d0e65e9ed0311c37d1ddf51e6e0365",
-      "twinSha": "ae34894db0be466245c9dea62173c08fe8d3dfc150a686bc58489c57b0f691ec",
-      "partitionSha": "2bd67fef99d5c7850cf8d49ab69d9cb893208bb5f17e91e886364515deb96744"
+      "flatSha": "af1b1c6c3bae7cc6331dac4a3b6c4d77e7060302d5df17de5efac371687ee966",
+      "twinSha": "2f568d3a482757f39ee468561e21cb504f5d777e5f70a18ede4c92eced4a3eb6",
+      "partitionSha": "a961b7bc5e8382658677f792dbab3c934fe7a0f6e11609a0d1318d1730ed227b"
     },
     {
       "dir": "16-ldr-bargraph",
       "flat": "circuit-flat.arduino-nano.json",
       "twin": "circuit.arduino-nano.json",
-      "flatSha": "011b28d4a0fa0a3a1212e218ef059a1cda9dd475707089e5d233cff2ad2d4bc2",
-      "twinSha": "3db44dce4cae251212c94c8f58d71bbda392c5f1f4dea17bc5420484c2b6c55a",
-      "partitionSha": "4ca487d48f03e9d6b52140c80fe1939740f362894195706a214b234be9ab29fc"
+      "flatSha": "c9612935dd09ba09e9f6660cbbfd1b77b37c649c1332fe02548c503db293d7e0",
+      "twinSha": "cce5fc0f4081edaec6c6a70df53565410f8cf2e6e7a9164050a1c27128cdba4a",
+      "partitionSha": "b8efb5adc4c3f6558c4a9e81a1fb13f0f7d2d1a5c2eb0fe8f6ee8141d4491c93"
     },
     {
       "dir": "16-ldr-bargraph",
       "flat": "circuit-flat.arduino-uno.json",
       "twin": "circuit.arduino-uno.json",
-      "flatSha": "3b6dabc92f2b88aa5cc86598f124b838cce256373794baf4221ff60cd9359c11",
-      "twinSha": "d2ca56b5b1de43e538644227478b758265a73bc09964c46efb9d66cdc01aed4d",
-      "partitionSha": "915cfdf022e63625d711105346c176e5f2ee5c1aa792ed90ca2ea9002aa51ce2"
+      "flatSha": "7a4fa59132ba8d4370852f969e1ed5250603b5c730a923a05a9fbf22a46478bc",
+      "twinSha": "bbaf0340c57d23d2b02975972e07b4f13b8348a0107702baffccca41e4088346",
+      "partitionSha": "4c0bff577b6ea41613c9353f2a7e0357172b53f778f59e0d0e919d329c7ec14a"
     },
     {
       "dir": "16-ldr-bargraph",
       "flat": "circuit-flat.atmega168p.json",
       "twin": "circuit.atmega168p.json",
-      "flatSha": "3b6dabc92f2b88aa5cc86598f124b838cce256373794baf4221ff60cd9359c11",
-      "twinSha": "d2ca56b5b1de43e538644227478b758265a73bc09964c46efb9d66cdc01aed4d",
-      "partitionSha": "915cfdf022e63625d711105346c176e5f2ee5c1aa792ed90ca2ea9002aa51ce2"
+      "flatSha": "7a4fa59132ba8d4370852f969e1ed5250603b5c730a923a05a9fbf22a46478bc",
+      "twinSha": "bbaf0340c57d23d2b02975972e07b4f13b8348a0107702baffccca41e4088346",
+      "partitionSha": "4c0bff577b6ea41613c9353f2a7e0357172b53f778f59e0d0e919d329c7ec14a"
     },
     {
       "dir": "16-ldr-bargraph",
       "flat": "circuit-flat.pico.json",
       "twin": "circuit.pico.json",
-      "flatSha": "22536d4aa34861a86bcae6a151731aedd2c0c4e97e5edba0e5c37e6375e16294",
-      "twinSha": "f0b1d3b375ccbc421d8dd23c2619842017b1539a878297c072e040e4f4cd0053",
-      "partitionSha": "8652901be26a3b16ebfa760221206a2b9b6c11ef695f9f34bbf2cbc01b6106f2"
+      "flatSha": "762ec65e1b845cd56fa996fca00513f4ec049cd3e8c5a73d65de2670a0a2177e",
+      "twinSha": "3ce0330aff70e2713c9b6007dab653c9d890e6f0800f1b74555d65dfd438ffdb",
+      "partitionSha": "d183373899a968cd33198afae718c7972bd770d0157544d6d6bdef76967f9fb7"
     },
     {
       "dir": "16-ldr-bargraph",
       "flat": "circuit-flat.stc12c5a60s2.json",
       "twin": "circuit.stc12c5a60s2.json",
-      "flatSha": "7eb0f86f941894412757dba054954f5c3c404fd2d33deb166eadec9f3d90e685",
-      "twinSha": "ee3e9a80d49c8adb40c41a77caf3eef91da46d9624de7b090f8940b988610acf",
-      "partitionSha": "8e1493085429aa17ca97e0ecd911e9cb81a2cd5c3abacdd0acb1f7dc1f2e41ef"
+      "flatSha": "f865b50b9717d17220274e373644e1ef78fc9d47dfa2d53385265025627434f1",
+      "twinSha": "26a7a1d6a8c96b3ab8066dc849436f88cd78b4ae1a6914d8cdab4f431a57f950",
+      "partitionSha": "33c9ddda5d3d766bcc4de72381be2664cc76a86bf93e03dd8545da3acd47a261"
     },
     {
       "dir": "16-ldr-bargraph",
       "flat": "circuit-flat.stc15f2k60s2.json",
       "twin": "circuit.stc15f2k60s2.json",
-      "flatSha": "4e91cb2a41939f358e28cb84f1af6efeab8192a101012cfe71634edd0fbb6ff6",
-      "twinSha": "6da75680efec6716d0efaf4a6a624cd1abd4e259edc7cedf1cc91065923ecef6",
-      "partitionSha": "af063af37640ed879ef05763f8ad9b963dcacbb3003a7a4a6505a4794dcb4ee0"
+      "flatSha": "b5ea0eccd3ed876fccccdc403298b3fb0c9053a35b69c370764239b0543e57fe",
+      "twinSha": "a96af5e39df1c0e4f5d4f391ab4a8ce73621638ec3f19b601719b662e24ea40b",
+      "partitionSha": "3073a7b4909530f93577cea1f03b1670b9cd3f4f450215c7e7a7dc102ad5b4a5"
     },
     {
       "dir": "168p01-blink",
@@ -2082,113 +2082,113 @@
       "dir": "53-servo-sweep",
       "flat": "circuit-flat.arduino-mega.json",
       "twin": "circuit.arduino-mega.json",
-      "flatSha": "07141786446608f29830937fcb3e7132f84ca9d14ee1c3c18c942a52bebb2758",
-      "twinSha": "c821f75e4ae5bf33daef86aa7e5d93a4a3b75424b1db20746f542deb2ba0e68d",
-      "partitionSha": "03fdf4462be784e2db7f2e1e1bc55b82cad1685a3a02e37e32700b2833dfce59"
+      "flatSha": "afaba0f28d8668d78f447f36a3832cf6546e9887ead7dcb48ece71881623f324",
+      "twinSha": "c337d7c569857918539df495201fe7f4d3e834252899050ced36351688e46ce5",
+      "partitionSha": "8261255b3c2a34c5894e4f13b9e3c0757c12fed4a4b8759b9d1ceda345e441be"
     },
     {
       "dir": "53-servo-sweep",
       "flat": "circuit-flat.arduino-nano.json",
       "twin": "circuit.arduino-nano.json",
-      "flatSha": "f364ffe7938c622ebe95afc3db2c13089d8f63f1b75c95e36a28526c0e0cf797",
-      "twinSha": "353abbbe902f19e45dfe1fbdbc88154c87b86d4c5741c19ec4a9c3355e1b5443",
-      "partitionSha": "e1e935719993abcface7bc7da5cf1492ae8f82b4e4ab578de50db8319613920f"
+      "flatSha": "390c1718012b17a4f4d4c997bc35d41fe2593e61137d9f831a950782e857a4c6",
+      "twinSha": "cdea1c73c408d197a8aac3466c8eabb01b88eb9f95ee0735fe829e07c12329c7",
+      "partitionSha": "7182fcf1bbc7f3f90dbdd98b22860986f6efbba35fbefe4f83870832ce03fe20"
     },
     {
       "dir": "53-servo-sweep",
       "flat": "circuit-flat.arduino-uno.json",
       "twin": "circuit.arduino-uno.json",
-      "flatSha": "aaf32330fd7843213adc6dd8ad3c58bacced4365e794f5af254226b359d923ec",
-      "twinSha": "7b573a07b9a00ec16074474023ee7e7fd9774ad0640551c93e1659052e301c38",
-      "partitionSha": "a043975d324162970ecab1c60844c24f163b149f57bbf6d71eefabd8989f7890"
+      "flatSha": "057292187cf4ac788ee07a632631987c1ab86995fb25ff983251a73166b69f00",
+      "twinSha": "618bde53ec71415745c4e7a7b55e195a1a80ad29f9046e4334d645673f00a3a4",
+      "partitionSha": "8261255b3c2a34c5894e4f13b9e3c0757c12fed4a4b8759b9d1ceda345e441be"
     },
     {
       "dir": "53-servo-sweep",
       "flat": "circuit-flat.atmega168p.json",
       "twin": "circuit.atmega168p.json",
-      "flatSha": "aaf32330fd7843213adc6dd8ad3c58bacced4365e794f5af254226b359d923ec",
-      "twinSha": "7b573a07b9a00ec16074474023ee7e7fd9774ad0640551c93e1659052e301c38",
-      "partitionSha": "a043975d324162970ecab1c60844c24f163b149f57bbf6d71eefabd8989f7890"
+      "flatSha": "057292187cf4ac788ee07a632631987c1ab86995fb25ff983251a73166b69f00",
+      "twinSha": "618bde53ec71415745c4e7a7b55e195a1a80ad29f9046e4334d645673f00a3a4",
+      "partitionSha": "8261255b3c2a34c5894e4f13b9e3c0757c12fed4a4b8759b9d1ceda345e441be"
     },
     {
       "dir": "53-servo-sweep",
       "flat": "circuit-flat.attiny85.json",
       "twin": "circuit.attiny85.json",
-      "flatSha": "26d2cb1bb1f3c613a43bfdf6097f282d14b5b43dc5a1659b5508e6f32c0f2b6e",
-      "twinSha": "d45489eb30c25a88640297d99f48ecc037394e3688821b0455c61cd1259765fa",
-      "partitionSha": "485ba8288a018aa4404d882e292c5de033ad40ace6a38e0646e31b94bf05551d"
+      "flatSha": "61088c9fcca291c7bcb81783e4cd782c55f2fca015a6f6a9bcd44d4a2b7a44f6",
+      "twinSha": "630c93df1679ed8caddc65f5e9489eb439d83a955c400a8fed9ae7798136721d",
+      "partitionSha": "91985281b0a5b5a638b87c59288fa211785ff9af96b0491cbddd1118dbda337e"
     },
     {
       "dir": "53-servo-sweep",
       "flat": "circuit-flat.attiny88.json",
       "twin": "circuit.attiny88.json",
-      "flatSha": "a53f77252e2d619af3ca871e2c1c58acfb983c922a90f6510ec02c6df4adc817",
-      "twinSha": "5342be69ac21f7a2d391cc0392266f291ece163c401481f69404059d37db7400",
-      "partitionSha": "bfd316379fc0837cf8a328dbbf44397ffc3f1b43b73d844960aa776e0f0666cf"
+      "flatSha": "d9f25dd036c8b540b061ac178673ad1924a49b881524d3953b61e4124a152a32",
+      "twinSha": "24dcb99d5da81eaaab6b01b6751116f3e78975caaa21c6cccf0ac5a4427789a3",
+      "partitionSha": "84eb1bc89e5f365b225ee7805b65709b42e1a2ff836e5999d3eb436cb36adc79"
     },
     {
       "dir": "53-servo-sweep",
       "flat": "circuit-flat.pico.json",
       "twin": "circuit.pico.json",
-      "flatSha": "9c9fd78233afe2b2114ce0865bd293c467f8546a5be09483e656d1d077456d7c",
-      "twinSha": "64f3103424c4aaa8b20e43ceb0f8ae2133402cb6377277a3505c64626e9b12be",
-      "partitionSha": "094b546940c9218f628af8bea0ee6d63c5c5d48cb772b05b7ea80251b120e22e"
+      "flatSha": "559dea22e0adf4c24a24c344122a7c7e1d47e1f2d71468211150745aa97be8d4",
+      "twinSha": "91d5964814e844ddae85c84398c556e3e62f7c9836d2b8c649c2f1a7bf2ec1c4",
+      "partitionSha": "7a60176ffa3e285822a141259ca59e0cd86b9607d4eb08375680f71d69e3302d"
     },
     {
       "dir": "53-servo-sweep",
       "flat": "circuit-flat.stc12c5a60s2.json",
       "twin": "circuit.stc12c5a60s2.json",
-      "flatSha": "b325771a59967a10dfb273b4e0b2cf001ca7b646fdd5e521d30e5e07b0d26fd2",
-      "twinSha": "656dc590a17e619662849870943b2b18dea0049ce19c5656a76609b212a33922",
-      "partitionSha": "2ff7d46aa65b72ce45b31d2c0bbac3b629ed36e1abf9456c59385d80fd2f3241"
+      "flatSha": "7cfea0717ab3c1aca8819254d9cba5b03ad807a273fb65c78b2bb0181809612c",
+      "twinSha": "43a88d1340cb0a68c9d9a1f6e7060c2f3590ab63f396386c9269690c57368aff",
+      "partitionSha": "fc0ed2a99d5b7bec5cab9791a91c2a1ceafc373b2be89733af17434e728dacd4"
     },
     {
       "dir": "53-servo-sweep",
       "flat": "circuit-flat.stc15f2k60s2.json",
       "twin": "circuit.stc15f2k60s2.json",
-      "flatSha": "b1a8cc6d2eaac85ddd9b914d95f38e9161efc057aed42a4bdbcad3fd7bdc1a7e",
-      "twinSha": "ee2c2cc3ed55d12ec96bbcadc3297e5abb3c11f99aa60deffe57f9cbe6090bdb",
-      "partitionSha": "358840f03b01687d17068a7385115144bd9e667634bbb82e002eb24e4ce77068"
+      "flatSha": "82662114dfb35b49a2fb694ab5a63c7488f54eab95a1e29b15e8fb21ff900ab5",
+      "twinSha": "3f6fd7c629f91a215fe851f76396d8616545bb51ee671058c4217b8be973220c",
+      "partitionSha": "731b0e700de4eed5ccc9c9733c56a27b74e396fdbd041c493ff23747f93ec2aa"
     },
     {
       "dir": "54-motor-driver",
       "flat": "circuit-flat.arduino-mega.json",
       "twin": "circuit.arduino-mega.json",
-      "flatSha": "0aacda8a55bd373608070f55b73385ba49a1a6de2cefce11f24a9ba1ace415aa",
-      "twinSha": "e370da832f63d6c95b4361cbb3cfc90ab30430613421ac8daa400efad0cbaa33",
-      "partitionSha": "26ddaed02488bde227c53876a9af83dd5a7ea9be68fa6efba0559b05da14128a"
+      "flatSha": "d64a00cbc451240c525139d77ce24a833ee3d8d544b71ae7f4de05c67bfbe87b",
+      "twinSha": "f2649d42ae5fa3ccdcb039a4eacde95005e800c109c16f2c2ed3f2bdc16e1ad3",
+      "partitionSha": "60433ccac66889a8ecec8c33a71286166eaca94bca24562cf7c096a3c0892e9a"
     },
     {
       "dir": "54-motor-driver",
       "flat": "circuit-flat.arduino-nano.json",
       "twin": "circuit.arduino-nano.json",
-      "flatSha": "d38a8a838d8296788eafc1f0768151effa2ba02432bb07317f3a5210eab7b8ed",
-      "twinSha": "f5f50da683d6298acab880b0bfd7ddc9d4d5d9368fbb59c3186c972b09753559",
-      "partitionSha": "a3237341941c484a6a055a8097e97e0f988bbb579c7947da5ea94dd1f4f10ce6"
+      "flatSha": "82a4556fd721a4564fa873b31620ab025f47e3ff47a70d2e4c5e2630c41a5f35",
+      "twinSha": "a8ce049976705e80f6367f1d9ad9f1f75bf465cecce5bf09c51725b33c5020ae",
+      "partitionSha": "b4bbffdebdfaadba04a48050753910961d635f14ee052dfd4c4c39e9b38a587c"
     },
     {
       "dir": "54-motor-driver",
       "flat": "circuit-flat.arduino-uno.json",
       "twin": "circuit.arduino-uno.json",
-      "flatSha": "b40d9c4981f41b8aa048fb693410e6d7c2dc9dacb1812b1bcdce854e6fd1e181",
-      "twinSha": "6f38f5b41204276d85d2c87a32ea7533c713060dc15d3616bc43922448a40a6b",
-      "partitionSha": "b34434ae9a98fbb3129280ed8823095bc3915e946d82bcd4a5fb86c64dcad6eb"
+      "flatSha": "49197dcc65231b712e9710e8976fe7ed5e0633f1d8fe47c840df4ae0d0cc7655",
+      "twinSha": "4df825d9eb13283ddff95aa60e023fa9b25ce581df405c73e2db19b239fc813c",
+      "partitionSha": "94e730b12311753e7aa7fb0a4006e37e0b786550214dd463dba5ffea8ad27ab9"
     },
     {
       "dir": "54-motor-driver",
       "flat": "circuit-flat.atmega168p.json",
       "twin": "circuit.atmega168p.json",
-      "flatSha": "b40d9c4981f41b8aa048fb693410e6d7c2dc9dacb1812b1bcdce854e6fd1e181",
-      "twinSha": "6f38f5b41204276d85d2c87a32ea7533c713060dc15d3616bc43922448a40a6b",
-      "partitionSha": "b34434ae9a98fbb3129280ed8823095bc3915e946d82bcd4a5fb86c64dcad6eb"
+      "flatSha": "49197dcc65231b712e9710e8976fe7ed5e0633f1d8fe47c840df4ae0d0cc7655",
+      "twinSha": "4df825d9eb13283ddff95aa60e023fa9b25ce581df405c73e2db19b239fc813c",
+      "partitionSha": "94e730b12311753e7aa7fb0a4006e37e0b786550214dd463dba5ffea8ad27ab9"
     },
     {
       "dir": "54-motor-driver",
       "flat": "circuit-flat.attiny85.json",
       "twin": "circuit.attiny85.json",
-      "flatSha": "f16d70d2aa28aee69e4e549211c87ce2b718404879980d0a161f181e1fa76273",
-      "twinSha": "86d86805bf6bc4f178689188b3867de8466a03c46ef175476829704ffba8156e",
-      "partitionSha": "3fe21440ca1189567b5330d83848ea084d319ed59ef0c8afd05b965391b562c0"
+      "flatSha": "af08e08052d41e275e8047d056f9a5b80e2930ce8579840029ca3e1340d33565",
+      "twinSha": "94bba0ec2cd3c3f261529d486953d3524cd362f0f48ec19c89f6be1ab4887bd3",
+      "partitionSha": "48872a6bc1540df79f72be764fafbdb706d9c9a2a218445201243f35ae56754a"
     },
     {
       "dir": "54-motor-driver",
@@ -2202,25 +2202,25 @@
       "dir": "54-motor-driver",
       "flat": "circuit-flat.pico.json",
       "twin": "circuit.pico.json",
-      "flatSha": "51623ae52134226b278371a28f47ea91d868945f7165131693d562b6383be86f",
-      "twinSha": "811a5634df3c14a3ab5fa72e451a6bacf6814be1d1e2bcb449f26f00b4337886",
-      "partitionSha": "4e86614fe793a5b1fe60cdd379f4e029cb1d802e6a94ec8909e17e0f95a5a952"
+      "flatSha": "2ecadb7af716456327ae47ffc7b17533495b13ec7352c0edc5be787a61b5a7ab",
+      "twinSha": "dc5436851e6a80a1167cee8cda9d5e1f470a5ff29c8d2ac60d48a4dc29d58967",
+      "partitionSha": "6ff398c8e96bf598dd2a60d3735830a12ac79cf99f682f6ae251e21606abb307"
     },
     {
       "dir": "54-motor-driver",
       "flat": "circuit-flat.stc12c5a60s2.json",
       "twin": "circuit.stc12c5a60s2.json",
-      "flatSha": "de1451c6b29101f688c6ad0048043b42f67ba1307a8844fba64a1840eb5ea4cb",
-      "twinSha": "d2074f7529f55a5bb28ddd1d861d890e54389f8f262014a17abbcd7aa20b719c",
-      "partitionSha": "022237acec5d36b87b6e9dcb1032bc5d61945666d41fe23ec960984e8362ecdd"
+      "flatSha": "70c4a6e8bc0e9b55ed1e4ed786b1bdfe777787fcfd7fb6546b9df385f724decf",
+      "twinSha": "d398be91f93be18a9f404db090c6f326c67b5d252e4e88dfe724f231046b2aca",
+      "partitionSha": "6ac2f49274646c7eb1fab00db86e858c3613cb400b4b9edfa8792293b42efc85"
     },
     {
       "dir": "54-motor-driver",
       "flat": "circuit-flat.stc15f2k60s2.json",
       "twin": "circuit.stc15f2k60s2.json",
-      "flatSha": "e89c3be8a194b762ec65201f948559586cf867abce3f7f5463521c194ff97fe0",
-      "twinSha": "ed852eab0d49470b6230ac289cbe7bb4db719b185bc01fb150a84854b4d61faa",
-      "partitionSha": "b75f464b72e9ee8bcb91fb5c528a2bd46583d0bf8e684e8b27eb0ebf6bf25df1"
+      "flatSha": "3cf2aeb2e2582d1d62dbed7291c1e6c4c24e4745b9859c4c38cbe96360cbc66b",
+      "twinSha": "7a6d77eb7bba3d5f6c2dce36f6fa217d4dd36545d37dc3ec66207984e28c04be",
+      "partitionSha": "dc80ade9f504c016c9c7d909598f15e55133f7cc1da1b11b510d24ccbce8657e"
     },
     {
       "dir": "55-oled-hello",
@@ -6066,57 +6066,57 @@
       "dir": "arduino-sk-p03-love-o-meter",
       "flat": "circuit-flat.arduino-mega.json",
       "twin": "circuit.arduino-mega.json",
-      "flatSha": "701eb468640f8a143476e60d7a39b51eec7dc8e1ef1eadcf8b46c13cc7784735",
-      "twinSha": "f63095e0d591646f910d2f4cd250e723b1761032ca32070fb751dcf667201a6a",
-      "partitionSha": "a4c389f55d90b9ad235838b415644e53f71dcc75ce398b1e40070e273baa52d2"
+      "flatSha": "e80da8279fc69140f74d8f0e5ada1ba72b9e8f75c6c0020b1348e65177e614e6",
+      "twinSha": "2cf978b3e757e93396731d0976baf8db6f9d66278160c24e255d5b6b8440b1e2",
+      "partitionSha": "0d7e963cff1a1cc19164137e87b7b3216932553638e6210b3aed5a8a63d3efe8"
     },
     {
       "dir": "arduino-sk-p03-love-o-meter",
       "flat": "circuit-flat.arduino-nano.json",
       "twin": "circuit.arduino-nano.json",
-      "flatSha": "e04e4849ba5ae348eeba4ac1be361b4ca4f516a0f46cc4bfff2ec993e3fb04a5",
-      "twinSha": "2b10b551e789ccf5ccada4e4e0f28ce48cdc5d35007df51619303d92699bc280",
-      "partitionSha": "a4c389f55d90b9ad235838b415644e53f71dcc75ce398b1e40070e273baa52d2"
+      "flatSha": "b60e1d3d1435a7f71770980f70de4eb75b2fa8a96687c732ebc8e99c3b33d9db",
+      "twinSha": "9875fc04550742a98fa5a697580fc56a539d775e94fe820567fc255cbc838854",
+      "partitionSha": "cc812a2da077fff1a98e07b85eebc35d4091de0b6464684bd83d41897f0bfced"
     },
     {
       "dir": "arduino-sk-p03-love-o-meter",
       "flat": "circuit-flat.atmega168p.json",
       "twin": "circuit.atmega168p.json",
-      "flatSha": "8156f7e204ac595ba716552711973922728bd03e4d8a479fd672dddc302aec51",
-      "twinSha": "b4ad60c4c2b388e855cf17601c312e49a36f0ce2987fb8425c45b3d91c416da7",
-      "partitionSha": "a4c389f55d90b9ad235838b415644e53f71dcc75ce398b1e40070e273baa52d2"
+      "flatSha": "4710f52fabc14e9ef901640cd77877ba3cab8d7bfcdb47320273ed6c57590f30",
+      "twinSha": "11ee2ee8c959fa552e395cfdc894bb69f061b7d352d2d142572ad74aa1635530",
+      "partitionSha": "5615302518e6888596724d21ed6129d85e537816d802a72f1ceb95425829a5cb"
     },
     {
       "dir": "arduino-sk-p03-love-o-meter",
       "flat": "circuit-flat.json",
       "twin": "circuit.json",
-      "flatSha": "f88bf2080ce46f97162f17db8b10350b45a3f3b75693218aba0e513f5eeed268",
-      "twinSha": "b51c3b7df42254bf9c53ea0bf2ad7f8eac52e01cc6c433dc5b747be4f23f2cdb",
-      "partitionSha": "a4c389f55d90b9ad235838b415644e53f71dcc75ce398b1e40070e273baa52d2"
+      "flatSha": "e80da8279fc69140f74d8f0e5ada1ba72b9e8f75c6c0020b1348e65177e614e6",
+      "twinSha": "2cf978b3e757e93396731d0976baf8db6f9d66278160c24e255d5b6b8440b1e2",
+      "partitionSha": "0d7e963cff1a1cc19164137e87b7b3216932553638e6210b3aed5a8a63d3efe8"
     },
     {
       "dir": "arduino-sk-p03-love-o-meter",
       "flat": "circuit-flat.pico.json",
       "twin": "circuit.pico.json",
-      "flatSha": "f5ee862160f4c476badbd67ec84b94bbfb67e19c8fc348ad716449a569377a0f",
-      "twinSha": "5b742df7047b0572e2f004600adf3798d59fd550713286c759e901de2ef2d86a",
-      "partitionSha": "809325cbcc75b22560d9be1b3cf0b7593432853e57869019c845d915e914100b"
+      "flatSha": "93d0ef216ee80b0e45e0f7c0b68e1c287e869f1327dada5d4bb9521c0bd3e6fe",
+      "twinSha": "27fbbb224da96f90e8ede538223a1c23c68e47ff6ba0d5f3330a1dccd1e4bf1f",
+      "partitionSha": "b52d2a21ad0ff2b2ad45416c4c7bde1133822a87c8638d6b621299e8c3f404e8"
     },
     {
       "dir": "arduino-sk-p03-love-o-meter",
       "flat": "circuit-flat.stc12c5a60s2.json",
       "twin": "circuit.stc12c5a60s2.json",
-      "flatSha": "8495b582af1150600a3c91e832d8632426e5852b7af096995ec200c88fe86279",
-      "twinSha": "14b8874b00f6f3a7110ebff6ad361fe18e916a97bd0eef77a2d2688739aaa01d",
-      "partitionSha": "173c54a947e3f2ee4e89c143cb23951ff9514e6d09b86986abb1d7414f06f584"
+      "flatSha": "8f73ccd248bbe977307366f1b1ccfb26b08755881067b521a5d7b988f4329529",
+      "twinSha": "b7e867c33fe281d2dfca2d052cfd9454ca3539732562c201445e8a2e3a6635a0",
+      "partitionSha": "a4ddc72f7554971e83026652625e01b3dd24397e83870c9b4cae65cdaddb5168"
     },
     {
       "dir": "arduino-sk-p03-love-o-meter",
       "flat": "circuit-flat.stc15f2k60s2.json",
       "twin": "circuit.stc15f2k60s2.json",
-      "flatSha": "b438697895a3958d4e15d439955bc9301cc9d21c9dd25c27cae80cfbe22bc06b",
-      "twinSha": "e06e33c3b0ed42531d143bd8fef43b271d280cb39018bea82de678874ebbdf14",
-      "partitionSha": "c3c6b02d26a6f0a3a26db642deeaa2823cb05b10b974a50322c8835fb57f7b58"
+      "flatSha": "93f89d303e8544a39aa8f6297b7c77a319cabd519e02498b55bd314f7d656be1",
+      "twinSha": "bb9a1f473f3f037cbb5097472f9baab082e58726f163defb1c68b677d408bfb5",
+      "partitionSha": "f4a359d3a2499cc9d14cd7e7eff5f971154781930085ae1b4b6116941c399342"
     },
     {
       "dir": "arduino-sk-p04-color-mixing",
@@ -6162,593 +6162,593 @@
       "dir": "arduino-sk-p05-servo-mood",
       "flat": "circuit-flat.arduino-mega.json",
       "twin": "circuit.arduino-mega.json",
-      "flatSha": "701eb468640f8a143476e60d7a39b51eec7dc8e1ef1eadcf8b46c13cc7784735",
-      "twinSha": "f63095e0d591646f910d2f4cd250e723b1761032ca32070fb751dcf667201a6a",
-      "partitionSha": "a4c389f55d90b9ad235838b415644e53f71dcc75ce398b1e40070e273baa52d2"
+      "flatSha": "b47bbf6cdfbe6179cb97b5868ce9238b3b7c9f5de6d2cbc4b51c3636d78c1fb3",
+      "twinSha": "7f12b7b48966e7cf0ec911f86f1eeab986113de8a9cafb68be15f910ba28d017",
+      "partitionSha": "74b71312c9b5753af09db7034f3e96b5a6fdb9f89fa1d4f10dc0b53cc274c68a"
     },
     {
       "dir": "arduino-sk-p05-servo-mood",
       "flat": "circuit-flat.arduino-nano.json",
       "twin": "circuit.arduino-nano.json",
-      "flatSha": "e04e4849ba5ae348eeba4ac1be361b4ca4f516a0f46cc4bfff2ec993e3fb04a5",
-      "twinSha": "2b10b551e789ccf5ccada4e4e0f28ce48cdc5d35007df51619303d92699bc280",
-      "partitionSha": "a4c389f55d90b9ad235838b415644e53f71dcc75ce398b1e40070e273baa52d2"
+      "flatSha": "f9254d65de5f9cda4fb9d3fe6dc2fa5c9d8b3e6aedd09b0abf0c309fb4699e75",
+      "twinSha": "052b8693286dd6ce86ebb786b3703b4e22fc622dc5b6ce02bb0bbf2132461c7b",
+      "partitionSha": "ea71c4c764f0f9fc9c4c8cf23d856a6ebb80d860a8992309d98abeba237a2d35"
     },
     {
       "dir": "arduino-sk-p05-servo-mood",
       "flat": "circuit-flat.atmega168p.json",
       "twin": "circuit.atmega168p.json",
-      "flatSha": "8156f7e204ac595ba716552711973922728bd03e4d8a479fd672dddc302aec51",
-      "twinSha": "b4ad60c4c2b388e855cf17601c312e49a36f0ce2987fb8425c45b3d91c416da7",
-      "partitionSha": "a4c389f55d90b9ad235838b415644e53f71dcc75ce398b1e40070e273baa52d2"
+      "flatSha": "2800226c496a020494cea36ea72074f187548952fe5db08d23e08a714aff7199",
+      "twinSha": "595f983a0f08d1a0082ab6c4f552f89ef6124ddebc907024dd7470f44cd1da51",
+      "partitionSha": "74b71312c9b5753af09db7034f3e96b5a6fdb9f89fa1d4f10dc0b53cc274c68a"
     },
     {
       "dir": "arduino-sk-p05-servo-mood",
       "flat": "circuit-flat.json",
       "twin": "circuit.json",
-      "flatSha": "f88bf2080ce46f97162f17db8b10350b45a3f3b75693218aba0e513f5eeed268",
-      "twinSha": "b51c3b7df42254bf9c53ea0bf2ad7f8eac52e01cc6c433dc5b747be4f23f2cdb",
-      "partitionSha": "a4c389f55d90b9ad235838b415644e53f71dcc75ce398b1e40070e273baa52d2"
+      "flatSha": "b47bbf6cdfbe6179cb97b5868ce9238b3b7c9f5de6d2cbc4b51c3636d78c1fb3",
+      "twinSha": "7f12b7b48966e7cf0ec911f86f1eeab986113de8a9cafb68be15f910ba28d017",
+      "partitionSha": "74b71312c9b5753af09db7034f3e96b5a6fdb9f89fa1d4f10dc0b53cc274c68a"
     },
     {
       "dir": "arduino-sk-p05-servo-mood",
       "flat": "circuit-flat.pico.json",
       "twin": "circuit.pico.json",
-      "flatSha": "f5ee862160f4c476badbd67ec84b94bbfb67e19c8fc348ad716449a569377a0f",
-      "twinSha": "5b742df7047b0572e2f004600adf3798d59fd550713286c759e901de2ef2d86a",
-      "partitionSha": "809325cbcc75b22560d9be1b3cf0b7593432853e57869019c845d915e914100b"
+      "flatSha": "4806f550ed680a6c0cf6a48f3305cf2566c416095cf86d41c81d2fe966eb59ed",
+      "twinSha": "23451b18f2e755322538cabc987113acd540b234349ca4551d171ed662fcfa62",
+      "partitionSha": "ff1dc3b9809775a1cbc17c297c293938b809d85af00e5ec235d9be28c2e6aeea"
     },
     {
       "dir": "arduino-sk-p05-servo-mood",
       "flat": "circuit-flat.stc12c5a60s2.json",
       "twin": "circuit.stc12c5a60s2.json",
-      "flatSha": "8495b582af1150600a3c91e832d8632426e5852b7af096995ec200c88fe86279",
-      "twinSha": "14b8874b00f6f3a7110ebff6ad361fe18e916a97bd0eef77a2d2688739aaa01d",
-      "partitionSha": "173c54a947e3f2ee4e89c143cb23951ff9514e6d09b86986abb1d7414f06f584"
+      "flatSha": "28b1adb5196727fdd20843f8cfa6a903adefbf1b2f6499deb996611ee238ed65",
+      "twinSha": "03c3e15fb4d8f7674f7c4c7e0ef98aa5a542466c0e980f19db6f6a7f96371f8e",
+      "partitionSha": "4c62d2d67582bf43551e1a254f4766b6fc25bae4faceb3e668eb6f181efb3ccc"
     },
     {
       "dir": "arduino-sk-p05-servo-mood",
       "flat": "circuit-flat.stc15f2k60s2.json",
       "twin": "circuit.stc15f2k60s2.json",
-      "flatSha": "b438697895a3958d4e15d439955bc9301cc9d21c9dd25c27cae80cfbe22bc06b",
-      "twinSha": "e06e33c3b0ed42531d143bd8fef43b271d280cb39018bea82de678874ebbdf14",
-      "partitionSha": "c3c6b02d26a6f0a3a26db642deeaa2823cb05b10b974a50322c8835fb57f7b58"
+      "flatSha": "9357f2aed48eb25a43366ef1c2887301bd166628aa971269e05589c3f4b72890",
+      "twinSha": "b7c819f161f31570990ac0b2ebacc551725b39d124ecb4fe36d7248a40ee7aa1",
+      "partitionSha": "1a7002b316a4922edd391ca854c0fdcb33d0e7ef7fcd1a9e837bc9964418b300"
     },
     {
       "dir": "arduino-sk-p06-light-theremin",
       "flat": "circuit-flat.json",
       "twin": "circuit.json",
-      "flatSha": "f88bf2080ce46f97162f17db8b10350b45a3f3b75693218aba0e513f5eeed268",
-      "twinSha": "b51c3b7df42254bf9c53ea0bf2ad7f8eac52e01cc6c433dc5b747be4f23f2cdb",
-      "partitionSha": "a4c389f55d90b9ad235838b415644e53f71dcc75ce398b1e40070e273baa52d2"
+      "flatSha": "fa4a4ecad79c4e3f9e6ec0d89ad1016b5977f5ed6e3c6b4d8c55ff206a61ee64",
+      "twinSha": "a9222d5c4f04baf65bbe9aa4c9cc1e8c876c60d73a7148bc695180b7fdacb3b4",
+      "partitionSha": "dfdf9408b870a4212c1c1dc2973d47f371f4b73da6e8c1b804b29c6c41af08f1"
     },
     {
       "dir": "arduino-sk-p06-light-theremin",
       "flat": "circuit-flat.stc12c5a60s2.json",
       "twin": "circuit.stc12c5a60s2.json",
-      "flatSha": "8495b582af1150600a3c91e832d8632426e5852b7af096995ec200c88fe86279",
-      "twinSha": "14b8874b00f6f3a7110ebff6ad361fe18e916a97bd0eef77a2d2688739aaa01d",
-      "partitionSha": "173c54a947e3f2ee4e89c143cb23951ff9514e6d09b86986abb1d7414f06f584"
+      "flatSha": "2a7a9ed3fff4c8385af99457133cd19974657af70011c436d2db54af7c1cf2e7",
+      "twinSha": "c842534e4f9ae5d317ba60614403f4932467adc241fdcb1718f8280dd4792dca",
+      "partitionSha": "63bd0261f5451de48e7b69b8d0b0cde556b55d6c66a162e32559c08b68f591d3"
     },
     {
       "dir": "arduino-sk-p06-light-theremin",
       "flat": "circuit-flat.stc15f2k60s2.json",
       "twin": "circuit.stc15f2k60s2.json",
-      "flatSha": "b438697895a3958d4e15d439955bc9301cc9d21c9dd25c27cae80cfbe22bc06b",
-      "twinSha": "e06e33c3b0ed42531d143bd8fef43b271d280cb39018bea82de678874ebbdf14",
-      "partitionSha": "c3c6b02d26a6f0a3a26db642deeaa2823cb05b10b974a50322c8835fb57f7b58"
+      "flatSha": "c7cc18d91b59db7181104b103903f1f305168bdc1c5a50f1d7c039ad60430c63",
+      "twinSha": "513099e755ee2fe736d2e2af6b42b04010dcc64cc69791a6cc6df280dd15c540",
+      "partitionSha": "84fb23b6996b45374d1c85f7eb0b6e486806f272334c06b20bb8e5e1ac3620b4"
     },
     {
       "dir": "arduino-sk-p07-keyboard",
       "flat": "circuit-flat.json",
       "twin": "circuit.json",
-      "flatSha": "d7da40d072c5702947d9346f5ba108878f42efee7d7e8e1356cda1cce06fe54d",
-      "twinSha": "3fda885f4d08934398475abaf87c7e1cc394753dbcd113ad2edae1cd6f0dbafd",
-      "partitionSha": "8534a88bb32a63ccf70156493219f0cb78ee0e3868be801d60256192cca5e7c0"
+      "flatSha": "9750aaecff449a0a692fe356810741f730386b60559145a55482fe32fd4d367e",
+      "twinSha": "83ae67834a9875c9f71adc216f5b48ca3b483c5f6043afe8dbd33034188e9f7c",
+      "partitionSha": "b224f3e5548aa5dbc59b40bbadaabea302be0cdaac24fa9f3e3e3abea3ec05fb"
     },
     {
       "dir": "arduino-sk-p07-keyboard",
       "flat": "circuit-flat.stc12c5a60s2.json",
       "twin": "circuit.stc12c5a60s2.json",
-      "flatSha": "37f3db9a4a95653a9a8278e37e253a43e32f331c3f54402c64bf29b883af2d91",
-      "twinSha": "6cd368ad21c2ed28b27c5401a165d485fe51ec8d5f9b2f9ae42908f9e7f38941",
-      "partitionSha": "832ca49d8f073886a69251c07b04e5549e68dd5481c013012eb6d935c66d72cb"
+      "flatSha": "7ca238cb87951a84be64905d126fab997e7794dc1c499488bce3b8f5e4dba672",
+      "twinSha": "879728b713ed54d9fb30ba35d00b124334cde36f69d5b1cfba6c51c5c636710d",
+      "partitionSha": "73746cae8705aad1f3c73a7d587b394a9be431808dc9bdd54440456bf4a6397c"
     },
     {
       "dir": "arduino-sk-p07-keyboard",
       "flat": "circuit-flat.stc15f2k60s2.json",
       "twin": "circuit.stc15f2k60s2.json",
-      "flatSha": "3d2e18868f6263321049d402d659d48014399ddbbac1f2c5484df9356b4a5300",
-      "twinSha": "54f69f52d2cdfcea20915916d9f5271b3e706c1774e5db512279db81b3a98e2a",
-      "partitionSha": "832ca49d8f073886a69251c07b04e5549e68dd5481c013012eb6d935c66d72cb"
+      "flatSha": "c353a37e8b32d688f627138b9c6e915a41a69b773a3a71fdd536efba77dc6f6e",
+      "twinSha": "201422fd3a48ea6294cfd2c6a4a98b621461b16888de89535d5337ab347ee9c8",
+      "partitionSha": "73746cae8705aad1f3c73a7d587b394a9be431808dc9bdd54440456bf4a6397c"
     },
     {
       "dir": "arduino-sk-p07-keyboard",
       "flat": "circuit-flat.stc89c52rc.json",
       "twin": "circuit.stc89c52rc.json",
-      "flatSha": "37f3db9a4a95653a9a8278e37e253a43e32f331c3f54402c64bf29b883af2d91",
-      "twinSha": "6cd368ad21c2ed28b27c5401a165d485fe51ec8d5f9b2f9ae42908f9e7f38941",
-      "partitionSha": "832ca49d8f073886a69251c07b04e5549e68dd5481c013012eb6d935c66d72cb"
+      "flatSha": "7ca238cb87951a84be64905d126fab997e7794dc1c499488bce3b8f5e4dba672",
+      "twinSha": "879728b713ed54d9fb30ba35d00b124334cde36f69d5b1cfba6c51c5c636710d",
+      "partitionSha": "73746cae8705aad1f3c73a7d587b394a9be431808dc9bdd54440456bf4a6397c"
     },
     {
       "dir": "arduino-sk-p08-hourglass",
       "flat": "circuit-flat.arduino-mega.json",
       "twin": "circuit.arduino-mega.json",
-      "flatSha": "e1efc67353dd9595e6521bc2d3da5fe4731b3f7c8115a0f867571e1c483ec4cd",
-      "twinSha": "fd3d75a43962d095f6a56a903fd5491229ab614a73d0ab35b120c519869b8c45",
-      "partitionSha": "8534a88bb32a63ccf70156493219f0cb78ee0e3868be801d60256192cca5e7c0"
+      "flatSha": "70e7cc91478dd08409dd2e605e8d5131672a379312e23f6b99ca2511d1529f20",
+      "twinSha": "8681eb15cd24552133dda2cac870718280051ce67a5c3f7d59bba9b3906b3a37",
+      "partitionSha": "2e1bb9008c8baea37ba428e1220ee4189158f78a19e4450db8846c3b1455c3cd"
     },
     {
       "dir": "arduino-sk-p08-hourglass",
       "flat": "circuit-flat.arduino-nano.json",
       "twin": "circuit.arduino-nano.json",
-      "flatSha": "b845eb7a4793c811031d003b5bfec0077af13cf7ca7308ff889181356f56afba",
-      "twinSha": "2e12a9036c48cf7c9fa941e080faca3b81e6c43ec20bb96d31997b8fd8c34ffd",
-      "partitionSha": "8534a88bb32a63ccf70156493219f0cb78ee0e3868be801d60256192cca5e7c0"
+      "flatSha": "35d9f087affad3ceed69f09b512edd2a0df66c1623a988e4861ad6da6e1c4cbe",
+      "twinSha": "3ff237cd6cd94c56c224d5114be751f4c364b37518018dc6b65d84132ca3b7ee",
+      "partitionSha": "f4e0bf674a4e8f3fcdf7efe69565f763a5a1b23b093d33f6fde9a69867673b3f"
     },
     {
       "dir": "arduino-sk-p08-hourglass",
       "flat": "circuit-flat.atmega168p.json",
       "twin": "circuit.atmega168p.json",
-      "flatSha": "17924214af4bb267df9753299c7ac274013f41e54f19eacdaa12209a715a5185",
-      "twinSha": "ac7eed1aab5cd98095b0a243cd86e050d73445a177926b0b0802a12c910b34dc",
-      "partitionSha": "8534a88bb32a63ccf70156493219f0cb78ee0e3868be801d60256192cca5e7c0"
+      "flatSha": "8a1f150d2266597ff82bf08d0ece8e74320238142a8c4b10dd97794f1a01618b",
+      "twinSha": "d417d7e8828b17b8feb16c2041949531b545d9168996d5f3b42ceb14f9999a6e",
+      "partitionSha": "a09e518f877eac610ccf6c2f850bf098e7103382d32f308f045517de9e9a0821"
     },
     {
       "dir": "arduino-sk-p08-hourglass",
       "flat": "circuit-flat.attiny88.json",
       "twin": "circuit.attiny88.json",
-      "flatSha": "1823c90f397b352e08f38e765d6f4619e9214a9762e2a4180b32d16d8e0167a0",
-      "twinSha": "29bc6fca03ae10c1da8860a1e126ed59f399fa267e174651cccd00e076561a98",
-      "partitionSha": "7a69e4d3fefe3989319f77058bca35681a9a4000a027c118f7f6844a9d64556c"
+      "flatSha": "79f2ea24fb47cb11e505fc045fb34fdcf140f4600b9ceea68655848bc32c859e",
+      "twinSha": "d86091d291882d669ba2b11b86087b43d0e9477799e80da463e306a1271bcac6",
+      "partitionSha": "87a111ed273c348d5a5ee200357f8bf24013efd9b51273d33b4ae855eae6e7ad"
     },
     {
       "dir": "arduino-sk-p08-hourglass",
       "flat": "circuit-flat.json",
       "twin": "circuit.json",
-      "flatSha": "d7da40d072c5702947d9346f5ba108878f42efee7d7e8e1356cda1cce06fe54d",
-      "twinSha": "3fda885f4d08934398475abaf87c7e1cc394753dbcd113ad2edae1cd6f0dbafd",
-      "partitionSha": "8534a88bb32a63ccf70156493219f0cb78ee0e3868be801d60256192cca5e7c0"
+      "flatSha": "7d367e618052f0bfd8de8147b38744261016f28cd6c4284d8caadc3973014e95",
+      "twinSha": "f282f924e20a0dd54c616ed09947f9665068e8e046a1526d729eef0056dc8b50",
+      "partitionSha": "f3481eeccb459fd1a0aff0c34b83c20cffe4c953296941e4fb081397113c0e86"
     },
     {
       "dir": "arduino-sk-p08-hourglass",
       "flat": "circuit-flat.pico.json",
       "twin": "circuit.pico.json",
-      "flatSha": "ace81e8e891f4ea8c920faf2b87266adb066203000f8f53138db0573e48b21da",
-      "twinSha": "2cefab7bd70ed0e0a2af6d3a6618382128fc4eaa1a2a25b01f8c94c0fb136e5b",
-      "partitionSha": "dd0138c7f401c3c02f46a7472994c394eaeba35749c315d3dd9b5a4e179fbb7b"
+      "flatSha": "a40122eccd606968aeafe4232b9707654f100b1ba46783ba41b380609cf0aa27",
+      "twinSha": "d33c7716f0a61e72ca987f1eb6da58485fcdc11f63df6e32513e1f5bbca60c73",
+      "partitionSha": "7abe80e5b477775198700f7f11e4070319eb5085f8d94bca709dd2c26b1d35fe"
     },
     {
       "dir": "arduino-sk-p08-hourglass",
       "flat": "circuit-flat.stc12c5a60s2.json",
       "twin": "circuit.stc12c5a60s2.json",
-      "flatSha": "37f3db9a4a95653a9a8278e37e253a43e32f331c3f54402c64bf29b883af2d91",
-      "twinSha": "6cd368ad21c2ed28b27c5401a165d485fe51ec8d5f9b2f9ae42908f9e7f38941",
-      "partitionSha": "832ca49d8f073886a69251c07b04e5549e68dd5481c013012eb6d935c66d72cb"
+      "flatSha": "771514bce86ef5adcdde349fd1496ca99b2b1f9e3a430bccbd6b8586f1def5d9",
+      "twinSha": "6e1031a03b675823892257ee3b6ea116c1402234df6ff9159599f4d8b3269757",
+      "partitionSha": "dc71e47e033400ee80437cf536854cea44c42600a70852dce3e04a20f00c7f8d"
     },
     {
       "dir": "arduino-sk-p08-hourglass",
       "flat": "circuit-flat.stc15f2k60s2.json",
       "twin": "circuit.stc15f2k60s2.json",
-      "flatSha": "3d2e18868f6263321049d402d659d48014399ddbbac1f2c5484df9356b4a5300",
-      "twinSha": "54f69f52d2cdfcea20915916d9f5271b3e706c1774e5db512279db81b3a98e2a",
-      "partitionSha": "832ca49d8f073886a69251c07b04e5549e68dd5481c013012eb6d935c66d72cb"
+      "flatSha": "6cf46a9ea156310682ef56a68c6d0ba69eaf4ead0966f94d92c2a5f21c878332",
+      "twinSha": "0f76c30bee70349ad51e405f6d7365e5af9b86d4901eb09488a94f53ccf1c8bd",
+      "partitionSha": "b73bec2d0c77283a41f76e341fd9f4e10ff787212e0adebff3b6a259e383bb07"
     },
     {
       "dir": "arduino-sk-p08-hourglass",
       "flat": "circuit-flat.stc89c52rc.json",
       "twin": "circuit.stc89c52rc.json",
-      "flatSha": "37f3db9a4a95653a9a8278e37e253a43e32f331c3f54402c64bf29b883af2d91",
-      "twinSha": "6cd368ad21c2ed28b27c5401a165d485fe51ec8d5f9b2f9ae42908f9e7f38941",
-      "partitionSha": "832ca49d8f073886a69251c07b04e5549e68dd5481c013012eb6d935c66d72cb"
+      "flatSha": "c223c1e6bcc82653791b5c7e5a35afedaaba928545fbd08efa3faa37e58ff2df",
+      "twinSha": "5ca194b6340f6b7ed8c7d27e5d7c681016cf0c989276e0ddfa96d312fca156ba",
+      "partitionSha": "b73bec2d0c77283a41f76e341fd9f4e10ff787212e0adebff3b6a259e383bb07"
     },
     {
       "dir": "arduino-sk-p09-motorized-pinwheel",
       "flat": "circuit-flat.arduino-mega.json",
       "twin": "circuit.arduino-mega.json",
-      "flatSha": "e1efc67353dd9595e6521bc2d3da5fe4731b3f7c8115a0f867571e1c483ec4cd",
-      "twinSha": "fd3d75a43962d095f6a56a903fd5491229ab614a73d0ab35b120c519869b8c45",
-      "partitionSha": "8534a88bb32a63ccf70156493219f0cb78ee0e3868be801d60256192cca5e7c0"
+      "flatSha": "1f6de3908f46cb7e99cb1a36019511b9b4656e48b08ed82ddb5a1f1e8981b91e",
+      "twinSha": "537d03e17112f5e0e217450ed06e29f33bce0d2afd612e0011c917c08bb11386",
+      "partitionSha": "d0c02260c8da83e6547858264071881e4aeaee99c933b2f1663c93539f76a9aa"
     },
     {
       "dir": "arduino-sk-p09-motorized-pinwheel",
       "flat": "circuit-flat.arduino-nano.json",
       "twin": "circuit.arduino-nano.json",
-      "flatSha": "b845eb7a4793c811031d003b5bfec0077af13cf7ca7308ff889181356f56afba",
-      "twinSha": "2e12a9036c48cf7c9fa941e080faca3b81e6c43ec20bb96d31997b8fd8c34ffd",
-      "partitionSha": "8534a88bb32a63ccf70156493219f0cb78ee0e3868be801d60256192cca5e7c0"
+      "flatSha": "95bb85a1d99ce1045166978e736496ab6e787640d0e3e7666fc2f8cf6a4550fd",
+      "twinSha": "b48d77b610f4e0dd888b73dcdb57853de957e8f46213656615c7eed96542be1e",
+      "partitionSha": "355b5eed9e982ae853d89bf51452f6e8c1abcab92918e2fa647fbfd7057c762e"
     },
     {
       "dir": "arduino-sk-p09-motorized-pinwheel",
       "flat": "circuit-flat.atmega168p.json",
       "twin": "circuit.atmega168p.json",
-      "flatSha": "17924214af4bb267df9753299c7ac274013f41e54f19eacdaa12209a715a5185",
-      "twinSha": "ac7eed1aab5cd98095b0a243cd86e050d73445a177926b0b0802a12c910b34dc",
-      "partitionSha": "8534a88bb32a63ccf70156493219f0cb78ee0e3868be801d60256192cca5e7c0"
+      "flatSha": "11d2a934190239a5b550f220ec7fb6c85b79d9d86f10ef1523cad6491394097a",
+      "twinSha": "1c02e291a9193a8d982424397580ee8c7b8cffe8e411a571a52e877af14077bf",
+      "partitionSha": "d0c02260c8da83e6547858264071881e4aeaee99c933b2f1663c93539f76a9aa"
     },
     {
       "dir": "arduino-sk-p09-motorized-pinwheel",
       "flat": "circuit-flat.attiny85.json",
       "twin": "circuit.attiny85.json",
-      "flatSha": "3f8b3787e9d2310f49863b5c8e2ac907124c7fe7003cf8bf7d4ac4f88e4728f4",
-      "twinSha": "8e6419a9421e9f73c120e16d71214b1445dc99f9ae7b8a178dea77ac1c9a57f2",
-      "partitionSha": "832ca49d8f073886a69251c07b04e5549e68dd5481c013012eb6d935c66d72cb"
+      "flatSha": "ee736bada3ac8cf195ebe8b1677f40645a7be5b825d5bf3759432cd72bb01b3c",
+      "twinSha": "da96b5aefbcec2c9b8533048b0a5d600cb130d34615ed837ab015af57994ab0b",
+      "partitionSha": "221d3b7375d0b2023874e4fab1225307302d5720d1d06b82162f013d9cd54988"
     },
     {
       "dir": "arduino-sk-p09-motorized-pinwheel",
       "flat": "circuit-flat.attiny88.json",
       "twin": "circuit.attiny88.json",
-      "flatSha": "1823c90f397b352e08f38e765d6f4619e9214a9762e2a4180b32d16d8e0167a0",
-      "twinSha": "29bc6fca03ae10c1da8860a1e126ed59f399fa267e174651cccd00e076561a98",
-      "partitionSha": "7a69e4d3fefe3989319f77058bca35681a9a4000a027c118f7f6844a9d64556c"
+      "flatSha": "83c2ac2b4deab91d9a42f7388d520ef688c83036937211a13e7bdba3a5bb4db0",
+      "twinSha": "a52d20e40c87240cd7a5e1548d6be3aa9e77c4a8831b9dab1d881168a8adf985",
+      "partitionSha": "34a202f940849a079b5884e1a7399711ca2c0ea05ff9fade5715aaafd8042bcf"
     },
     {
       "dir": "arduino-sk-p09-motorized-pinwheel",
       "flat": "circuit-flat.json",
       "twin": "circuit.json",
-      "flatSha": "d7da40d072c5702947d9346f5ba108878f42efee7d7e8e1356cda1cce06fe54d",
-      "twinSha": "3fda885f4d08934398475abaf87c7e1cc394753dbcd113ad2edae1cd6f0dbafd",
-      "partitionSha": "8534a88bb32a63ccf70156493219f0cb78ee0e3868be801d60256192cca5e7c0"
+      "flatSha": "0e8d470efd7fa7bbdacc2f2a07fc6729b9b71257f9d20551bcc876eb6bb52a78",
+      "twinSha": "5e7048c8a8852c9d8fdf47c6f5b3892b8877c125970e6a2cef94ddffbaa08769",
+      "partitionSha": "b1cf725e6a94daf413feb947533d2ff7fba5e5ab23a4a164511e2c932e2da15f"
     },
     {
       "dir": "arduino-sk-p09-motorized-pinwheel",
       "flat": "circuit-flat.pico.json",
       "twin": "circuit.pico.json",
-      "flatSha": "ace81e8e891f4ea8c920faf2b87266adb066203000f8f53138db0573e48b21da",
-      "twinSha": "2cefab7bd70ed0e0a2af6d3a6618382128fc4eaa1a2a25b01f8c94c0fb136e5b",
-      "partitionSha": "dd0138c7f401c3c02f46a7472994c394eaeba35749c315d3dd9b5a4e179fbb7b"
+      "flatSha": "d1451235f1d62140a4da7c85870ff532bcba6559a0558548fa66ff95bf90e2e7",
+      "twinSha": "332dfb30be71799178c00e46f8df3e4c54136218974df49c66d358325e980278",
+      "partitionSha": "29542aa45013a181d61e36a5540b52d3096572ae088b735f8e4aa3031fa5bc2f"
     },
     {
       "dir": "arduino-sk-p09-motorized-pinwheel",
       "flat": "circuit-flat.stc12c5a60s2.json",
       "twin": "circuit.stc12c5a60s2.json",
-      "flatSha": "37f3db9a4a95653a9a8278e37e253a43e32f331c3f54402c64bf29b883af2d91",
-      "twinSha": "6cd368ad21c2ed28b27c5401a165d485fe51ec8d5f9b2f9ae42908f9e7f38941",
-      "partitionSha": "832ca49d8f073886a69251c07b04e5549e68dd5481c013012eb6d935c66d72cb"
+      "flatSha": "ab81003ae5086ed5e61cd09ed45373d1d09ab0d7096b8ceaca98f03b5232c65f",
+      "twinSha": "c9f8f7842ca5c5f86733319a6ce4f306429e333324e8da0757d067b029806fd5",
+      "partitionSha": "43cf83f0ea45dcc13204b950c58c3b8e7a9860c306cc69e2441bd6fbe728bdec"
     },
     {
       "dir": "arduino-sk-p09-motorized-pinwheel",
       "flat": "circuit-flat.stc15f2k60s2.json",
       "twin": "circuit.stc15f2k60s2.json",
-      "flatSha": "3d2e18868f6263321049d402d659d48014399ddbbac1f2c5484df9356b4a5300",
-      "twinSha": "54f69f52d2cdfcea20915916d9f5271b3e706c1774e5db512279db81b3a98e2a",
-      "partitionSha": "832ca49d8f073886a69251c07b04e5549e68dd5481c013012eb6d935c66d72cb"
+      "flatSha": "d8ae1b4e65610ae84f132e08080e0fd64d4a9d253621b8ba34e5929557471efc",
+      "twinSha": "03bd2d1288722129d675c69a5c58252d05f828136278a60c4b24e2600bf9dc9e",
+      "partitionSha": "43cf83f0ea45dcc13204b950c58c3b8e7a9860c306cc69e2441bd6fbe728bdec"
     },
     {
       "dir": "arduino-sk-p09-motorized-pinwheel",
       "flat": "circuit-flat.stc89c52rc.json",
       "twin": "circuit.stc89c52rc.json",
-      "flatSha": "37f3db9a4a95653a9a8278e37e253a43e32f331c3f54402c64bf29b883af2d91",
-      "twinSha": "6cd368ad21c2ed28b27c5401a165d485fe51ec8d5f9b2f9ae42908f9e7f38941",
-      "partitionSha": "832ca49d8f073886a69251c07b04e5549e68dd5481c013012eb6d935c66d72cb"
+      "flatSha": "ab81003ae5086ed5e61cd09ed45373d1d09ab0d7096b8ceaca98f03b5232c65f",
+      "twinSha": "c9f8f7842ca5c5f86733319a6ce4f306429e333324e8da0757d067b029806fd5",
+      "partitionSha": "43cf83f0ea45dcc13204b950c58c3b8e7a9860c306cc69e2441bd6fbe728bdec"
     },
     {
       "dir": "arduino-sk-p10-zoetrope",
       "flat": "circuit-flat.arduino-mega.json",
       "twin": "circuit.arduino-mega.json",
-      "flatSha": "e1efc67353dd9595e6521bc2d3da5fe4731b3f7c8115a0f867571e1c483ec4cd",
-      "twinSha": "fd3d75a43962d095f6a56a903fd5491229ab614a73d0ab35b120c519869b8c45",
-      "partitionSha": "8534a88bb32a63ccf70156493219f0cb78ee0e3868be801d60256192cca5e7c0"
+      "flatSha": "2b1c053d527273018acc9ba604fef30592598915938b5ef7d937f5e217844952",
+      "twinSha": "be889e7640896069da9309b82c46ce5c4ffdc33a224a75a2e62814e4379f7ee4",
+      "partitionSha": "c80943cf30c65d7ac6beef55b46d2f049497df5713fd0ecb2807e5df0217f4f8"
     },
     {
       "dir": "arduino-sk-p10-zoetrope",
       "flat": "circuit-flat.arduino-nano.json",
       "twin": "circuit.arduino-nano.json",
-      "flatSha": "b845eb7a4793c811031d003b5bfec0077af13cf7ca7308ff889181356f56afba",
-      "twinSha": "2e12a9036c48cf7c9fa941e080faca3b81e6c43ec20bb96d31997b8fd8c34ffd",
-      "partitionSha": "8534a88bb32a63ccf70156493219f0cb78ee0e3868be801d60256192cca5e7c0"
+      "flatSha": "4198291242e66a73b9a835bca0055bb897f8179e518cf95a588d474f7fdd7377",
+      "twinSha": "fa86d534cb15cb0ee43498a534349dbdcea0f2f0d28b7456164f130ce5fccc2c",
+      "partitionSha": "d173d05d99e336ba5b424b70746139dbbe8658514a896fed808e10c7b45550f7"
     },
     {
       "dir": "arduino-sk-p10-zoetrope",
       "flat": "circuit-flat.atmega168p.json",
       "twin": "circuit.atmega168p.json",
-      "flatSha": "17924214af4bb267df9753299c7ac274013f41e54f19eacdaa12209a715a5185",
-      "twinSha": "ac7eed1aab5cd98095b0a243cd86e050d73445a177926b0b0802a12c910b34dc",
-      "partitionSha": "8534a88bb32a63ccf70156493219f0cb78ee0e3868be801d60256192cca5e7c0"
+      "flatSha": "3a736dc43f3b2fec76323573ce648a098dfed244279d87e6fe25058907a6fea8",
+      "twinSha": "0def3294c41644e583e724326df4e2b04d0618155b2917572f5d4f89c30fef03",
+      "partitionSha": "8854dda698690bed215fec7c1476529df2702dc5dc43bdc76c1cc646d1f659d9"
     },
     {
       "dir": "arduino-sk-p10-zoetrope",
       "flat": "circuit-flat.json",
       "twin": "circuit.json",
-      "flatSha": "d7da40d072c5702947d9346f5ba108878f42efee7d7e8e1356cda1cce06fe54d",
-      "twinSha": "3fda885f4d08934398475abaf87c7e1cc394753dbcd113ad2edae1cd6f0dbafd",
-      "partitionSha": "8534a88bb32a63ccf70156493219f0cb78ee0e3868be801d60256192cca5e7c0"
+      "flatSha": "3dd1781935eeb1d616adaab55e2839aeb0241eb6a50d6d30b3f8a52371c894c9",
+      "twinSha": "c764a420857a60e7d14655573b37164ff18d2a07e01ebd5396baa2fcfd9b3133",
+      "partitionSha": "cbe2dcc2c4b8bfad4fa8c4ff62c764f24e618c90731395bb41c1eb2590a0ee44"
     },
     {
       "dir": "arduino-sk-p10-zoetrope",
       "flat": "circuit-flat.pico.json",
       "twin": "circuit.pico.json",
-      "flatSha": "ace81e8e891f4ea8c920faf2b87266adb066203000f8f53138db0573e48b21da",
-      "twinSha": "2cefab7bd70ed0e0a2af6d3a6618382128fc4eaa1a2a25b01f8c94c0fb136e5b",
-      "partitionSha": "dd0138c7f401c3c02f46a7472994c394eaeba35749c315d3dd9b5a4e179fbb7b"
+      "flatSha": "e9da9585f617df32fc921a9945b8760c0ea354c80dba6cb7eb05d003ec709cfb",
+      "twinSha": "8b57fff32f1b2256033eddc547f97df15213b7b2c0746bfbf8b9bf8c74c820a4",
+      "partitionSha": "2db02d7eb44883ae12b97fa46dd4643008ac7d1e1c0472e68e168a24c3e3643c"
     },
     {
       "dir": "arduino-sk-p10-zoetrope",
       "flat": "circuit-flat.stc12c5a60s2.json",
       "twin": "circuit.stc12c5a60s2.json",
-      "flatSha": "37f3db9a4a95653a9a8278e37e253a43e32f331c3f54402c64bf29b883af2d91",
-      "twinSha": "6cd368ad21c2ed28b27c5401a165d485fe51ec8d5f9b2f9ae42908f9e7f38941",
-      "partitionSha": "832ca49d8f073886a69251c07b04e5549e68dd5481c013012eb6d935c66d72cb"
+      "flatSha": "acc95e3b554f9c99460b043515e2ae4c0e8b25fc47f7e586bd2b521140ddbc8d",
+      "twinSha": "5c0b7962a75aa4102b3433d625f04b1184e64cef8a92f41a7a7a82fcb3da236c",
+      "partitionSha": "5a28b52b9fbcca0e0f03948e1867b1bd4c347675af3f079a67a61b7b94de78b9"
     },
     {
       "dir": "arduino-sk-p10-zoetrope",
       "flat": "circuit-flat.stc15f2k60s2.json",
       "twin": "circuit.stc15f2k60s2.json",
-      "flatSha": "3d2e18868f6263321049d402d659d48014399ddbbac1f2c5484df9356b4a5300",
-      "twinSha": "54f69f52d2cdfcea20915916d9f5271b3e706c1774e5db512279db81b3a98e2a",
-      "partitionSha": "832ca49d8f073886a69251c07b04e5549e68dd5481c013012eb6d935c66d72cb"
+      "flatSha": "58bf54121d3176e83dd112392a046908889b3a309bdedef7bbf7c90a86170622",
+      "twinSha": "9f8fa3a14971859b58ac262a1cc0afb41cdf5f5efd1cc3d8ace7e49823d923d1",
+      "partitionSha": "1f569d9378f3658fe9d6c2d48fd385d6f75504bb196b57b8bcbbc07a077a2e40"
     },
     {
       "dir": "arduino-sk-p11-crystal-ball",
       "flat": "circuit-flat.arduino-mega.json",
       "twin": "circuit.arduino-mega.json",
-      "flatSha": "e1efc67353dd9595e6521bc2d3da5fe4731b3f7c8115a0f867571e1c483ec4cd",
-      "twinSha": "fd3d75a43962d095f6a56a903fd5491229ab614a73d0ab35b120c519869b8c45",
-      "partitionSha": "8534a88bb32a63ccf70156493219f0cb78ee0e3868be801d60256192cca5e7c0"
+      "flatSha": "d952065a34d49c7c24b468ed4182beb6af4ef163e50ce2ae5f258d1b495c45e5",
+      "twinSha": "90964b2722c1f2eed20110a3500130da30daf25ff356d5d20bf49e3d688ea910",
+      "partitionSha": "74dff200259dc13b53ab321d0a38af81b0c9e34006c4dca77c4df78a124d6cab"
     },
     {
       "dir": "arduino-sk-p11-crystal-ball",
       "flat": "circuit-flat.arduino-nano.json",
       "twin": "circuit.arduino-nano.json",
-      "flatSha": "b845eb7a4793c811031d003b5bfec0077af13cf7ca7308ff889181356f56afba",
-      "twinSha": "2e12a9036c48cf7c9fa941e080faca3b81e6c43ec20bb96d31997b8fd8c34ffd",
-      "partitionSha": "8534a88bb32a63ccf70156493219f0cb78ee0e3868be801d60256192cca5e7c0"
+      "flatSha": "4eef323b9c76ba5d8abec780a16a94393c692966443aadc3b898f11507569224",
+      "twinSha": "1432cc1d4899cbb4537b743e53956b42d0ca2995beeeae54493402c9ac2b90d6",
+      "partitionSha": "7c9686cfbdd438128b57f837d63fd5fc64fb6f862735e1d5efd2994aea4d7d07"
     },
     {
       "dir": "arduino-sk-p11-crystal-ball",
       "flat": "circuit-flat.atmega168p.json",
       "twin": "circuit.atmega168p.json",
-      "flatSha": "17924214af4bb267df9753299c7ac274013f41e54f19eacdaa12209a715a5185",
-      "twinSha": "ac7eed1aab5cd98095b0a243cd86e050d73445a177926b0b0802a12c910b34dc",
-      "partitionSha": "8534a88bb32a63ccf70156493219f0cb78ee0e3868be801d60256192cca5e7c0"
+      "flatSha": "003519266a0e87c6ab321ec958f76f1b4d302ca4645a0076d1bfaec664480217",
+      "twinSha": "6c481627269c146e26db2303a4e10842ff506ea08a765c80de4f046d496f7a51",
+      "partitionSha": "74dff200259dc13b53ab321d0a38af81b0c9e34006c4dca77c4df78a124d6cab"
     },
     {
       "dir": "arduino-sk-p11-crystal-ball",
       "flat": "circuit-flat.attiny85.json",
       "twin": "circuit.attiny85.json",
-      "flatSha": "3f8b3787e9d2310f49863b5c8e2ac907124c7fe7003cf8bf7d4ac4f88e4728f4",
-      "twinSha": "8e6419a9421e9f73c120e16d71214b1445dc99f9ae7b8a178dea77ac1c9a57f2",
-      "partitionSha": "832ca49d8f073886a69251c07b04e5549e68dd5481c013012eb6d935c66d72cb"
+      "flatSha": "cd7ea6caa8dbfb369b6999fbb0c87445244750abd2c136faa80ae21b96e71e1c",
+      "twinSha": "1f6513632adecfa9bf2203cb9a5367a610ffdefcd598d31b63252cc3a8e59e0b",
+      "partitionSha": "f1abf7bdec69be7d3930c9878ae00872e7b121afcd3672c970296dec1116545e"
     },
     {
       "dir": "arduino-sk-p11-crystal-ball",
       "flat": "circuit-flat.attiny88.json",
       "twin": "circuit.attiny88.json",
-      "flatSha": "1823c90f397b352e08f38e765d6f4619e9214a9762e2a4180b32d16d8e0167a0",
-      "twinSha": "29bc6fca03ae10c1da8860a1e126ed59f399fa267e174651cccd00e076561a98",
-      "partitionSha": "7a69e4d3fefe3989319f77058bca35681a9a4000a027c118f7f6844a9d64556c"
+      "flatSha": "f63e2c6a1a6144d5e3e1f26d3948dd2e975c774108ffe1bde59338f4e958fb34",
+      "twinSha": "e22b0416e6d219a594beaad18249b2b41cd34fc4acee0128eb423a4b3bbbaff2",
+      "partitionSha": "3655ef888333e2c7b5cd118b83cfd003f73938812ff35e761b5775bfc406d2a4"
     },
     {
       "dir": "arduino-sk-p11-crystal-ball",
       "flat": "circuit-flat.json",
       "twin": "circuit.json",
-      "flatSha": "d7da40d072c5702947d9346f5ba108878f42efee7d7e8e1356cda1cce06fe54d",
-      "twinSha": "3fda885f4d08934398475abaf87c7e1cc394753dbcd113ad2edae1cd6f0dbafd",
-      "partitionSha": "8534a88bb32a63ccf70156493219f0cb78ee0e3868be801d60256192cca5e7c0"
+      "flatSha": "6e9238d72affc69fd11e9bee84af06ee07923664cf7f0e30d0fadcb20a0b0ff2",
+      "twinSha": "1916201a9df94b2dc7ca0a587ade248c6e7175907be92e278e1b43c7f5696dbd",
+      "partitionSha": "5e5dcca15f09ab049df440a15fc644060024aa3a5760e6883f8a88e5d2a9a84d"
     },
     {
       "dir": "arduino-sk-p11-crystal-ball",
       "flat": "circuit-flat.pico.json",
       "twin": "circuit.pico.json",
-      "flatSha": "ace81e8e891f4ea8c920faf2b87266adb066203000f8f53138db0573e48b21da",
-      "twinSha": "2cefab7bd70ed0e0a2af6d3a6618382128fc4eaa1a2a25b01f8c94c0fb136e5b",
-      "partitionSha": "dd0138c7f401c3c02f46a7472994c394eaeba35749c315d3dd9b5a4e179fbb7b"
+      "flatSha": "470b5ea306df26935628f346655d2aa4c757f52a58a8e6e7dfd00396e29f4647",
+      "twinSha": "9552d658438fa8f159e3834083293e2fdd35655f7773a54ad4b5e48c14028f5a",
+      "partitionSha": "54aecc3631c501b276fdb3094c36e54b03c9563ed28f588485fef2da6f67f2d0"
     },
     {
       "dir": "arduino-sk-p11-crystal-ball",
       "flat": "circuit-flat.stc12c5a60s2.json",
       "twin": "circuit.stc12c5a60s2.json",
-      "flatSha": "37f3db9a4a95653a9a8278e37e253a43e32f331c3f54402c64bf29b883af2d91",
-      "twinSha": "6cd368ad21c2ed28b27c5401a165d485fe51ec8d5f9b2f9ae42908f9e7f38941",
-      "partitionSha": "832ca49d8f073886a69251c07b04e5549e68dd5481c013012eb6d935c66d72cb"
+      "flatSha": "7e5b73f8d1d91b9339c415e4cbfe73083b224325a900b5509f1c70683f508807",
+      "twinSha": "159f984cedf29bad369ac3ef8318c3c0c0f7b766528761c1611fdc6732927f58",
+      "partitionSha": "aec5da34fb5d7b24254605b0fbaa0004595204784dee5ffa4a3fbdb68ec4cded"
     },
     {
       "dir": "arduino-sk-p11-crystal-ball",
       "flat": "circuit-flat.stc15f2k60s2.json",
       "twin": "circuit.stc15f2k60s2.json",
-      "flatSha": "3d2e18868f6263321049d402d659d48014399ddbbac1f2c5484df9356b4a5300",
-      "twinSha": "54f69f52d2cdfcea20915916d9f5271b3e706c1774e5db512279db81b3a98e2a",
-      "partitionSha": "832ca49d8f073886a69251c07b04e5549e68dd5481c013012eb6d935c66d72cb"
+      "flatSha": "8c29753bda8a6c9ac4ce056a5c910cb18ef6313b142c1f3636f3649e9b394d34",
+      "twinSha": "e66dfdd676ec9fea1f611b3b975c2601bf9a4baa6b793651dd3fe824d40f6852",
+      "partitionSha": "aec5da34fb5d7b24254605b0fbaa0004595204784dee5ffa4a3fbdb68ec4cded"
     },
     {
       "dir": "arduino-sk-p11-crystal-ball",
       "flat": "circuit-flat.stc89c52rc.json",
       "twin": "circuit.stc89c52rc.json",
-      "flatSha": "37f3db9a4a95653a9a8278e37e253a43e32f331c3f54402c64bf29b883af2d91",
-      "twinSha": "6cd368ad21c2ed28b27c5401a165d485fe51ec8d5f9b2f9ae42908f9e7f38941",
-      "partitionSha": "832ca49d8f073886a69251c07b04e5549e68dd5481c013012eb6d935c66d72cb"
+      "flatSha": "7e5b73f8d1d91b9339c415e4cbfe73083b224325a900b5509f1c70683f508807",
+      "twinSha": "159f984cedf29bad369ac3ef8318c3c0c0f7b766528761c1611fdc6732927f58",
+      "partitionSha": "aec5da34fb5d7b24254605b0fbaa0004595204784dee5ffa4a3fbdb68ec4cded"
     },
     {
       "dir": "arduino-sk-p12-knock-lock",
       "flat": "circuit-flat.arduino-mega.json",
       "twin": "circuit.arduino-mega.json",
-      "flatSha": "e1efc67353dd9595e6521bc2d3da5fe4731b3f7c8115a0f867571e1c483ec4cd",
-      "twinSha": "fd3d75a43962d095f6a56a903fd5491229ab614a73d0ab35b120c519869b8c45",
-      "partitionSha": "8534a88bb32a63ccf70156493219f0cb78ee0e3868be801d60256192cca5e7c0"
+      "flatSha": "cad63fec6d53488f0ad5dccb85dddc834dbc1fa72a673e46e8d6a6a8e3edc1ab",
+      "twinSha": "ac192b2ed373ff9a0a1aa6dc7ab6ebdd83ae91e7e5c878bf4dbdfdc59baf0f6a",
+      "partitionSha": "aa5e4b91c519ca9a00a9e85421600083410e587286ac8598ea0c0bdd6672dab0"
     },
     {
       "dir": "arduino-sk-p12-knock-lock",
       "flat": "circuit-flat.arduino-nano.json",
       "twin": "circuit.arduino-nano.json",
-      "flatSha": "b845eb7a4793c811031d003b5bfec0077af13cf7ca7308ff889181356f56afba",
-      "twinSha": "2e12a9036c48cf7c9fa941e080faca3b81e6c43ec20bb96d31997b8fd8c34ffd",
-      "partitionSha": "8534a88bb32a63ccf70156493219f0cb78ee0e3868be801d60256192cca5e7c0"
+      "flatSha": "74ca46a4fe036ca34d50c6b3de3f92ad91210a7bdbf1aa077f851735e0f9799e",
+      "twinSha": "6f6f600bb37d1d3a2670fe0ae6b4946f20e9bb576cc9589536422e7615bc03d7",
+      "partitionSha": "9ef57c784f28865fbc40db10339219b6930b7dd177faa98901bb8c8a7cdbda22"
     },
     {
       "dir": "arduino-sk-p12-knock-lock",
       "flat": "circuit-flat.atmega168p.json",
       "twin": "circuit.atmega168p.json",
-      "flatSha": "17924214af4bb267df9753299c7ac274013f41e54f19eacdaa12209a715a5185",
-      "twinSha": "ac7eed1aab5cd98095b0a243cd86e050d73445a177926b0b0802a12c910b34dc",
-      "partitionSha": "8534a88bb32a63ccf70156493219f0cb78ee0e3868be801d60256192cca5e7c0"
+      "flatSha": "6602560720770f679ed3473c51004411cfafee756272b582aa6a17f5f818b9db",
+      "twinSha": "d1caea5d25aa39d699408aa90610bba26781f7c57e8fba255efff0afa083caf8",
+      "partitionSha": "27b6e0cf5d3124909dde3496b757fe219870adbb97df58787cd8ae47a99630a0"
     },
     {
       "dir": "arduino-sk-p12-knock-lock",
       "flat": "circuit-flat.json",
       "twin": "circuit.json",
-      "flatSha": "d7da40d072c5702947d9346f5ba108878f42efee7d7e8e1356cda1cce06fe54d",
-      "twinSha": "3fda885f4d08934398475abaf87c7e1cc394753dbcd113ad2edae1cd6f0dbafd",
-      "partitionSha": "8534a88bb32a63ccf70156493219f0cb78ee0e3868be801d60256192cca5e7c0"
+      "flatSha": "cad63fec6d53488f0ad5dccb85dddc834dbc1fa72a673e46e8d6a6a8e3edc1ab",
+      "twinSha": "ac192b2ed373ff9a0a1aa6dc7ab6ebdd83ae91e7e5c878bf4dbdfdc59baf0f6a",
+      "partitionSha": "aa5e4b91c519ca9a00a9e85421600083410e587286ac8598ea0c0bdd6672dab0"
     },
     {
       "dir": "arduino-sk-p12-knock-lock",
       "flat": "circuit-flat.pico.json",
       "twin": "circuit.pico.json",
-      "flatSha": "ace81e8e891f4ea8c920faf2b87266adb066203000f8f53138db0573e48b21da",
-      "twinSha": "2cefab7bd70ed0e0a2af6d3a6618382128fc4eaa1a2a25b01f8c94c0fb136e5b",
-      "partitionSha": "dd0138c7f401c3c02f46a7472994c394eaeba35749c315d3dd9b5a4e179fbb7b"
+      "flatSha": "e22bdd62cb175adf8581d36773c7a6477f5311cd3eb42b78490d74b607bf0d1e",
+      "twinSha": "4108acfbb2195e91330e6c2f6866db4e6bbafaae604e3e67feefb611db0685f1",
+      "partitionSha": "b3f6d7d86bec0d72f848ffc20db5a87f649347bcb7196dabc43f047d898895ce"
     },
     {
       "dir": "arduino-sk-p12-knock-lock",
       "flat": "circuit-flat.stc12c5a60s2.json",
       "twin": "circuit.stc12c5a60s2.json",
-      "flatSha": "37f3db9a4a95653a9a8278e37e253a43e32f331c3f54402c64bf29b883af2d91",
-      "twinSha": "6cd368ad21c2ed28b27c5401a165d485fe51ec8d5f9b2f9ae42908f9e7f38941",
-      "partitionSha": "832ca49d8f073886a69251c07b04e5549e68dd5481c013012eb6d935c66d72cb"
+      "flatSha": "3849a9dee1338725bd7d5a9683014543e3b36f85052c6af306a89f3f9e8ea680",
+      "twinSha": "13fe992789eb6fe1e2d58c6996e2d51d81909ec1b0da4097c2b8d66c9a4fdfd3",
+      "partitionSha": "32ec2a37e51d23c58a81d8a7ac12c7033687636d662637d7977e9ad69bf16823"
     },
     {
       "dir": "arduino-sk-p12-knock-lock",
       "flat": "circuit-flat.stc15f2k60s2.json",
       "twin": "circuit.stc15f2k60s2.json",
-      "flatSha": "3d2e18868f6263321049d402d659d48014399ddbbac1f2c5484df9356b4a5300",
-      "twinSha": "54f69f52d2cdfcea20915916d9f5271b3e706c1774e5db512279db81b3a98e2a",
-      "partitionSha": "832ca49d8f073886a69251c07b04e5549e68dd5481c013012eb6d935c66d72cb"
+      "flatSha": "a29f2ed55429f4085d9748d89ca36fa1cd19672dd942129660ec2ceb77e33368",
+      "twinSha": "fb84578dd89fc7d7ee43dae17d0aa07314ca16950e2a17153c97f3d6a009438e",
+      "partitionSha": "75cf87ccf43d7b9926f59843bf7315e07e3b43060422316b692bd19cd0c49a6a"
     },
     {
       "dir": "arduino-sk-p13-touch-lamp",
       "flat": "circuit-flat.arduino-mega.json",
       "twin": "circuit.arduino-mega.json",
-      "flatSha": "e1efc67353dd9595e6521bc2d3da5fe4731b3f7c8115a0f867571e1c483ec4cd",
-      "twinSha": "fd3d75a43962d095f6a56a903fd5491229ab614a73d0ab35b120c519869b8c45",
-      "partitionSha": "8534a88bb32a63ccf70156493219f0cb78ee0e3868be801d60256192cca5e7c0"
+      "flatSha": "ecc305a03672b1386c33811bf79ca3ee1e070fc6704284a517cc89afe084caa2",
+      "twinSha": "2d899c7e487dfc6c35081855313a84235a52f1b3406d41729e47071de4ab9655",
+      "partitionSha": "56d9ec522e40a98999eb4d918e9ec22e560e17b696317c7fca9747de6acd5acb"
     },
     {
       "dir": "arduino-sk-p13-touch-lamp",
       "flat": "circuit-flat.arduino-nano.json",
       "twin": "circuit.arduino-nano.json",
-      "flatSha": "b845eb7a4793c811031d003b5bfec0077af13cf7ca7308ff889181356f56afba",
-      "twinSha": "2e12a9036c48cf7c9fa941e080faca3b81e6c43ec20bb96d31997b8fd8c34ffd",
-      "partitionSha": "8534a88bb32a63ccf70156493219f0cb78ee0e3868be801d60256192cca5e7c0"
+      "flatSha": "917f7ae8459ffb40013329dca10ea67fcc8df9e01743f1f6bf82280f49ed2470",
+      "twinSha": "17be9bc691078e7dd0a6be0fc123d57e2d59a64a3abc648698803bdf04276aa3",
+      "partitionSha": "b02fd6199003283ef3a2eb86199511be9434e54d1d9f612c257188b3e49fe1f0"
     },
     {
       "dir": "arduino-sk-p13-touch-lamp",
       "flat": "circuit-flat.atmega168p.json",
       "twin": "circuit.atmega168p.json",
-      "flatSha": "17924214af4bb267df9753299c7ac274013f41e54f19eacdaa12209a715a5185",
-      "twinSha": "ac7eed1aab5cd98095b0a243cd86e050d73445a177926b0b0802a12c910b34dc",
-      "partitionSha": "8534a88bb32a63ccf70156493219f0cb78ee0e3868be801d60256192cca5e7c0"
+      "flatSha": "67f6f753956f6a6e0b47e90c2a08b6b27fc61d6560357c98f20c5bba4c2a6d54",
+      "twinSha": "97f3f93df462fd410e2ad88fb9690b80016a7c9e0d29c815d17d8208fda624a8",
+      "partitionSha": "56d9ec522e40a98999eb4d918e9ec22e560e17b696317c7fca9747de6acd5acb"
     },
     {
       "dir": "arduino-sk-p13-touch-lamp",
       "flat": "circuit-flat.attiny85.json",
       "twin": "circuit.attiny85.json",
-      "flatSha": "3f8b3787e9d2310f49863b5c8e2ac907124c7fe7003cf8bf7d4ac4f88e4728f4",
-      "twinSha": "8e6419a9421e9f73c120e16d71214b1445dc99f9ae7b8a178dea77ac1c9a57f2",
-      "partitionSha": "832ca49d8f073886a69251c07b04e5549e68dd5481c013012eb6d935c66d72cb"
+      "flatSha": "32e90b6b7a7feaad38cc4ce3b4e36972878f60eab90a45bc6cf9e1c88606e930",
+      "twinSha": "0f949ac71ea26a723fd3e2c8d6026145144654c7090da58306ea351926be5601",
+      "partitionSha": "550e9beb13ac73cf788179cee4b398718d722a31b9ceff4bdfb5250ba7ce6515"
     },
     {
       "dir": "arduino-sk-p13-touch-lamp",
       "flat": "circuit-flat.attiny88.json",
       "twin": "circuit.attiny88.json",
-      "flatSha": "1823c90f397b352e08f38e765d6f4619e9214a9762e2a4180b32d16d8e0167a0",
-      "twinSha": "29bc6fca03ae10c1da8860a1e126ed59f399fa267e174651cccd00e076561a98",
-      "partitionSha": "7a69e4d3fefe3989319f77058bca35681a9a4000a027c118f7f6844a9d64556c"
+      "flatSha": "6fff8000604cacf7e268e911ad03f07825f5ce8bb830a2aa92f932d8c39c2a57",
+      "twinSha": "924081ca494403f7448587b2229ce2863ae800e313c68b859235d8afebc02088",
+      "partitionSha": "01527e2bdd40fb63dc8b8abb8fe547f2c60751f0ad990b9406d58a269d514f33"
     },
     {
       "dir": "arduino-sk-p13-touch-lamp",
       "flat": "circuit-flat.json",
       "twin": "circuit.json",
-      "flatSha": "d7da40d072c5702947d9346f5ba108878f42efee7d7e8e1356cda1cce06fe54d",
-      "twinSha": "3fda885f4d08934398475abaf87c7e1cc394753dbcd113ad2edae1cd6f0dbafd",
-      "partitionSha": "8534a88bb32a63ccf70156493219f0cb78ee0e3868be801d60256192cca5e7c0"
+      "flatSha": "d2bd852ddd7a4358fbe79000d83abbe9278c0855a07ecb3067149a963f61c673",
+      "twinSha": "5d74f83188702dbbf1fc89103865fc318f2b137040e3a8d86c18b8c4e51c95b4",
+      "partitionSha": "3a58614ffd21c69abba615a1bf00eb9000ee3bc2e15e9f77a8a049614ff2e34f"
     },
     {
       "dir": "arduino-sk-p13-touch-lamp",
       "flat": "circuit-flat.pico.json",
       "twin": "circuit.pico.json",
-      "flatSha": "ace81e8e891f4ea8c920faf2b87266adb066203000f8f53138db0573e48b21da",
-      "twinSha": "2cefab7bd70ed0e0a2af6d3a6618382128fc4eaa1a2a25b01f8c94c0fb136e5b",
-      "partitionSha": "dd0138c7f401c3c02f46a7472994c394eaeba35749c315d3dd9b5a4e179fbb7b"
+      "flatSha": "ebd5c20ff27f0e9dde5de7c4facd65c7a7a12f3869d8409e8971702fa9f53fe7",
+      "twinSha": "ef751bbd891b6a74bca7b713dfd56f9178aec88bc007f127d634f77ac6f32557",
+      "partitionSha": "f30476dbf71745e3fbbe3b2cd238a1d35a70411b6b2a5708db27576ec143e24d"
     },
     {
       "dir": "arduino-sk-p13-touch-lamp",
       "flat": "circuit-flat.stc12c5a60s2.json",
       "twin": "circuit.stc12c5a60s2.json",
-      "flatSha": "37f3db9a4a95653a9a8278e37e253a43e32f331c3f54402c64bf29b883af2d91",
-      "twinSha": "6cd368ad21c2ed28b27c5401a165d485fe51ec8d5f9b2f9ae42908f9e7f38941",
-      "partitionSha": "832ca49d8f073886a69251c07b04e5549e68dd5481c013012eb6d935c66d72cb"
+      "flatSha": "3ef390bc7a6b7bafc3cb2a6f737b374a57a69ad34b9711c312276a91e146d64d",
+      "twinSha": "b618b6e76c0e6b9ca8c8601f5a8337b1a420e33c1b805c6bafc83612e3d2dd45",
+      "partitionSha": "4c7d4d048ed01a96ddf1e7990112769883d1cb0e76d55ad45bc57a4ab71c77d3"
     },
     {
       "dir": "arduino-sk-p13-touch-lamp",
       "flat": "circuit-flat.stc15f2k60s2.json",
       "twin": "circuit.stc15f2k60s2.json",
-      "flatSha": "3d2e18868f6263321049d402d659d48014399ddbbac1f2c5484df9356b4a5300",
-      "twinSha": "54f69f52d2cdfcea20915916d9f5271b3e706c1774e5db512279db81b3a98e2a",
-      "partitionSha": "832ca49d8f073886a69251c07b04e5549e68dd5481c013012eb6d935c66d72cb"
+      "flatSha": "33f150461ae9e4f9f1412a148f8c04c33376fc24a2d174928aaa31b0669b5ea1",
+      "twinSha": "46db92a08d9c8da2d3d96d22665fa5bdd1ddf3fb2689a713a8f3165aebd4e62a",
+      "partitionSha": "4c7d4d048ed01a96ddf1e7990112769883d1cb0e76d55ad45bc57a4ab71c77d3"
     },
     {
       "dir": "arduino-sk-p13-touch-lamp",
       "flat": "circuit-flat.stc89c52rc.json",
       "twin": "circuit.stc89c52rc.json",
-      "flatSha": "37f3db9a4a95653a9a8278e37e253a43e32f331c3f54402c64bf29b883af2d91",
-      "twinSha": "6cd368ad21c2ed28b27c5401a165d485fe51ec8d5f9b2f9ae42908f9e7f38941",
-      "partitionSha": "832ca49d8f073886a69251c07b04e5549e68dd5481c013012eb6d935c66d72cb"
+      "flatSha": "3ef390bc7a6b7bafc3cb2a6f737b374a57a69ad34b9711c312276a91e146d64d",
+      "twinSha": "b618b6e76c0e6b9ca8c8601f5a8337b1a420e33c1b805c6bafc83612e3d2dd45",
+      "partitionSha": "4c7d4d048ed01a96ddf1e7990112769883d1cb0e76d55ad45bc57a4ab71c77d3"
     },
     {
       "dir": "arduino-sk-p14-serial-pot",
       "flat": "circuit-flat.arduino-mega.json",
       "twin": "circuit.arduino-mega.json",
-      "flatSha": "e1efc67353dd9595e6521bc2d3da5fe4731b3f7c8115a0f867571e1c483ec4cd",
-      "twinSha": "fd3d75a43962d095f6a56a903fd5491229ab614a73d0ab35b120c519869b8c45",
-      "partitionSha": "8534a88bb32a63ccf70156493219f0cb78ee0e3868be801d60256192cca5e7c0"
+      "flatSha": "1849c40e37fa1d395e39fe63a0bace0d87d4ec4135edd358513ff629ac3e7582",
+      "twinSha": "7f6ba8e97a617898155bc11794a092abe99aa7e04d0c8f262832ab9ca431357f",
+      "partitionSha": "70f30370744f6da2eafb93f981cd95e9cea3bbb7b62b8071fe5ccdcce8f4cd31"
     },
     {
       "dir": "arduino-sk-p14-serial-pot",
       "flat": "circuit-flat.arduino-nano.json",
       "twin": "circuit.arduino-nano.json",
-      "flatSha": "b845eb7a4793c811031d003b5bfec0077af13cf7ca7308ff889181356f56afba",
-      "twinSha": "2e12a9036c48cf7c9fa941e080faca3b81e6c43ec20bb96d31997b8fd8c34ffd",
-      "partitionSha": "8534a88bb32a63ccf70156493219f0cb78ee0e3868be801d60256192cca5e7c0"
+      "flatSha": "d98e7a0ab02e8f4d54a79b3e9cb6de3832fcd08b1c9237188922496e6d50ac29",
+      "twinSha": "625257323fa02123d2962a064224b420ff923a62aa9f13e98256082414bd0b63",
+      "partitionSha": "56e54ab811b3fec1aed1fe2dffe53fa9f28f8315245ffd57ef915596f8282188"
     },
     {
       "dir": "arduino-sk-p14-serial-pot",
       "flat": "circuit-flat.atmega168p.json",
       "twin": "circuit.atmega168p.json",
-      "flatSha": "17924214af4bb267df9753299c7ac274013f41e54f19eacdaa12209a715a5185",
-      "twinSha": "ac7eed1aab5cd98095b0a243cd86e050d73445a177926b0b0802a12c910b34dc",
-      "partitionSha": "8534a88bb32a63ccf70156493219f0cb78ee0e3868be801d60256192cca5e7c0"
+      "flatSha": "edc78e9b2f32b51b4832e1b5255213511eb8f7483fde1d125d93a331dfe5b150",
+      "twinSha": "8108b6247bee3181c16c0872d3159e55f020a216bbafac477f7390ae79c51df2",
+      "partitionSha": "70f30370744f6da2eafb93f981cd95e9cea3bbb7b62b8071fe5ccdcce8f4cd31"
     },
     {
       "dir": "arduino-sk-p14-serial-pot",
       "flat": "circuit-flat.json",
       "twin": "circuit.json",
-      "flatSha": "d7da40d072c5702947d9346f5ba108878f42efee7d7e8e1356cda1cce06fe54d",
-      "twinSha": "3fda885f4d08934398475abaf87c7e1cc394753dbcd113ad2edae1cd6f0dbafd",
-      "partitionSha": "8534a88bb32a63ccf70156493219f0cb78ee0e3868be801d60256192cca5e7c0"
+      "flatSha": "1849c40e37fa1d395e39fe63a0bace0d87d4ec4135edd358513ff629ac3e7582",
+      "twinSha": "8108b6247bee3181c16c0872d3159e55f020a216bbafac477f7390ae79c51df2",
+      "partitionSha": "70f30370744f6da2eafb93f981cd95e9cea3bbb7b62b8071fe5ccdcce8f4cd31"
     },
     {
       "dir": "arduino-sk-p14-serial-pot",
       "flat": "circuit-flat.pico.json",
       "twin": "circuit.pico.json",
-      "flatSha": "ace81e8e891f4ea8c920faf2b87266adb066203000f8f53138db0573e48b21da",
-      "twinSha": "2cefab7bd70ed0e0a2af6d3a6618382128fc4eaa1a2a25b01f8c94c0fb136e5b",
-      "partitionSha": "dd0138c7f401c3c02f46a7472994c394eaeba35749c315d3dd9b5a4e179fbb7b"
+      "flatSha": "f84c87d8667ced3efde9b6a78a025a6a8dcb4116cd8b09043f900b0d0a3e143d",
+      "twinSha": "23254ba2ff000de7924f077f4b9ad70bd85fcef358ef811519ee00a9cd09816d",
+      "partitionSha": "b73137789b195aca59c96724e861d219971ac4f5afb53abeade07231ec037fdf"
     },
     {
       "dir": "arduino-sk-p14-serial-pot",
       "flat": "circuit-flat.stc12c5a60s2.json",
       "twin": "circuit.stc12c5a60s2.json",
-      "flatSha": "37f3db9a4a95653a9a8278e37e253a43e32f331c3f54402c64bf29b883af2d91",
-      "twinSha": "6cd368ad21c2ed28b27c5401a165d485fe51ec8d5f9b2f9ae42908f9e7f38941",
-      "partitionSha": "832ca49d8f073886a69251c07b04e5549e68dd5481c013012eb6d935c66d72cb"
+      "flatSha": "b70f58b02242ade3606b3bbfe0020a3f29a0b4ca4e599b447cfc0f41d337a59f",
+      "twinSha": "9bb67c04767f24b70b10826d35a3985bfdd0beb5e93345bc37ac1d7f2453a500",
+      "partitionSha": "4b3be434280f02f31f23207f416540286fdb8ec673fd64dc05cc557764079a7e"
     },
     {
       "dir": "arduino-sk-p14-serial-pot",
       "flat": "circuit-flat.stc15f2k60s2.json",
       "twin": "circuit.stc15f2k60s2.json",
-      "flatSha": "3d2e18868f6263321049d402d659d48014399ddbbac1f2c5484df9356b4a5300",
-      "twinSha": "54f69f52d2cdfcea20915916d9f5271b3e706c1774e5db512279db81b3a98e2a",
-      "partitionSha": "832ca49d8f073886a69251c07b04e5549e68dd5481c013012eb6d935c66d72cb"
+      "flatSha": "da1c2fb6c1d2d25626bcf934441e3ac7b5b97ed24411d8e75ab235afb9d3dd91",
+      "twinSha": "f027cb9bdc6d59c1bfd87c384fa79bf47eba455744ede4708af3ba730fd2be0b",
+      "partitionSha": "b3494d114f913332756a74f6e56baa02b2affff9ecb67bce5b20e16a29990b8f"
     },
     {
       "dir": "arduino-sk-p15-hacking-buttons",

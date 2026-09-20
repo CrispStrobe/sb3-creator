@@ -7,20 +7,24 @@ teaches: [debounce, switch-bounce, software-filter]
 
 ## Was du siehst
 
-Ein Taster ist mit dem MCU verbunden und ein Zaehler wird auf einer
-7-Segment-Anzeige dargestellt. Jeder Druck sollte den Zaehler um eins erhoehen,
-aber ohne Entprellung springt der Zaehler bei einem einzigen Druck um zwei, drei
-oder mehr. Das Programm zeigt den rohen (prellenden) Zaehlerstand und den
-entprellten (sauberen) Zaehlerstand nebeneinander. Dieses Beispiel funktioniert auf allen unterstützten Mikrocontrollern — wähle ein anderes Gerät in der Werkzeugleiste, um die angepasste Schaltung zu sehen.
+Ein Taster schaltet eine LED um: einmal druecken, einmal umschalten. Das klingt
+zu einfach fuer ein Programm, und genau daran scheitert ein blosses
+`wait until pressed`. Ein echter Schalter schliesst nicht sauber -- seine
+Kontakte prellen einige Millisekunden lang, und der MCU ist schnell genug, jedes
+Prellen als eigenen Druck zu lesen. Dann flackert die LED oder bleibt im
+falschen Zustand. Die 50 ms Wartezeit in diesem Programm sorgen dafuer, dass ein
+Druck genau ein Umschalten bedeutet. Dieses Beispiel funktioniert auf allen unterstützten Mikrocontrollern — wähle ein anderes Gerät in der Werkzeugleiste, um die angepasste Schaltung zu sehen.
 
 ## Probier das aus
 
-1. Klick auf **Sim** und drueck den Taster einmal. Beobachte den rohen
-   Zaehler -- er springt wahrscheinlich um mehr als eins.
-2. Schau dir den entprellten Zaehler daneben an. Er zaehlt pro Druck genau
-   um eins hoch.
-3. Drueck den Taster mehrmals schnell hintereinander und vergleiche beide
-   Zaehler. Der rohe Zaehler eilt voraus; der saubere bleibt genau.
+1. Klick auf **Sim** und drueck den Taster einmal. Die LED wechselt genau
+   einmal den Zustand, egal wie schnell du loslaesst.
+2. Drueck ihn mehrmals schnell hintereinander. Jeder Druck bleibt ein
+   Umschalten -- das Programm wartet, bis die Kontakte zur Ruhe kommen, bevor
+   es eine Flanke glaubt.
+3. Loesch die beiden `wait 0.05 seconds` Zeilen und drueck noch einmal. Auf
+   echter Hardware landet die LED dann etwa so oft im falschen wie im richtigen
+   Zustand -- genau der Fehler, den dieses Muster beseitigt.
 
 ## Was passiert hier
 

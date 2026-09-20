@@ -5,7 +5,7 @@ prereqs: [arduino-06-knock]
 teaches: [piezo-sensor, servo, state-machine, lock, threshold]
 ---
 ## What you see
-Knock the piezo sensor 3 times above the threshold to unlock a servo (green LED lights). Press the button to re-lock (red LED). Yellow LED shows knock detection.
+Three knocks above the threshold unlock the servo and light the green LED. Press the button to re-lock, which lights the red LED; the yellow one flashes on every knock the program counts. A knock sensor is a piezo disc, which this bench stands in for with a potentiometer on the same analog pin — turn it past the threshold three times and the lock opens exactly as a knock would.
 
 ## Try this
 1. Set the piezo stimulus above the threshold 3 times to trigger the unlock sequence.

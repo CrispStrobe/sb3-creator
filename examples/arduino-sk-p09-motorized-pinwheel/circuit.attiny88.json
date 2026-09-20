@@ -11,12 +11,33 @@
    "rotation": 0
   },
   {
-   "id": "board",
+   "id": "VCC",
+   "kind": "vcc",
+   "params": {},
+   "terminals": [
+    "vcc"
+   ],
+   "x": 58,
+   "y": 115
+  },
+  {
+   "id": "GND",
+   "kind": "gnd",
+   "params": {},
+   "terminals": [
+    "gnd"
+   ],
+   "x": 134,
+   "y": 115
+  },
+  {
+   "id": "MCU",
    "kind": "attiny88",
    "params": {},
-   "x": 64,
-   "y": 349,
-   "rotation": 0,
+   "terminals": [
+    "pc3",
+    "pb0"
+   ],
    "seat": {
     "boardId": "bb1",
     "leadMap": {
@@ -34,55 +55,212 @@
      "pd6": "f14",
      "pd7": "f15",
      "pb0": "f16",
-     "pc7": "e16",
-     "pc5": "e15",
-     "pc4": "e14",
-     "pc3": "e13",
-     "pc2": "e12",
-     "pc1": "e11",
-     "pc0": "e10",
-     "pa0": "e9",
-     "avcc": "e8",
-     "pb5": "e7",
-     "pb4": "e6",
-     "pb3": "e5",
-     "pb2": "e4",
-     "pb1": "e3"
+     "pc5": "e3",
+     "pc4": "e4",
+     "pc3": "e5",
+     "pc2": "e6",
+     "pc1": "e7",
+     "pc0": "e8",
+     "gnd2": "e9",
+     "pc7": "e10",
+     "avcc": "e11",
+     "pb5": "e12",
+     "pb4": "e13",
+     "pb3": "e14",
+     "pb2": "e15",
+     "pb1": "e16"
     }
-   }
-  },
-  {
-   "id": "vcc1",
-   "kind": "vcc",
-   "params": {
-    "volts": 5
    },
-   "x": 58,
-   "y": 115
+   "x": 64,
+   "y": 349
   },
   {
-   "id": "gnd1",
-   "kind": "gnd",
+   "id": "R_PU_btn",
+   "kind": "resistor",
+   "params": {
+    "ohms": 10000
+   },
+   "terminals": [
+    "a",
+    "b"
+   ],
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a21",
+     "b": "a25"
+    }
+   },
+   "x": 316,
+   "y": 255
+  },
+  {
+   "id": "BTN_btn",
+   "kind": "button",
+   "declName": "btn",
    "params": {},
-   "x": 134,
-   "y": 115
+   "terminals": [
+    "a",
+    "b"
+   ],
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "e49",
+     "b": "f49"
+    }
+   },
+   "x": 708,
+   "y": 311
+  },
+  {
+   "id": "R_motor",
+   "kind": "resistor",
+   "params": {
+    "ohms": 1000
+   },
+   "terminals": [
+    "a",
+    "b"
+   ],
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a27",
+     "b": "a31"
+    }
+   },
+   "x": 400,
+   "y": 255
+  },
+  {
+   "id": "Q_motor",
+   "kind": "npn",
+   "params": {},
+   "terminals": [
+    "base",
+    "collector",
+    "emitter"
+   ],
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "emitter": "a39",
+     "base": "a40",
+     "collector": "a41"
+    }
+   },
+   "x": 568,
+   "y": 255
+  },
+  {
+   "id": "MOTOR_motor",
+   "kind": "dc_motor",
+   "params": {},
+   "terminals": [
+    "a",
+    "b"
+   ],
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a33",
+     "b": "a35"
+    }
+   },
+   "x": 484,
+   "y": 255
+  },
+  {
+   "id": "D_motor",
+   "kind": "diode",
+   "params": {
+    "vf": 0.7
+   },
+   "terminals": [
+    "anode",
+    "cathode"
+   ],
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "anode": "a44",
+     "cathode": "a46"
+    }
+   },
+   "x": 638,
+   "y": 255
   }
  ],
  "wires": [
   {
-   "from": "board",
+   "from": "R_PU_btn",
+   "fromTerminal": "b",
+   "to": "BTN_btn",
+   "toTerminal": "a"
+  },
+  {
+   "from": "R_PU_btn",
+   "fromTerminal": "b",
+   "to": "MCU",
+   "toTerminal": "pc3"
+  },
+  {
+   "from": "MCU",
+   "fromTerminal": "pb0",
+   "to": "R_motor",
+   "toTerminal": "a"
+  },
+  {
+   "from": "R_motor",
+   "fromTerminal": "b",
+   "to": "Q_motor",
+   "toTerminal": "base"
+  },
+  {
+   "from": "MOTOR_motor",
+   "fromTerminal": "b",
+   "to": "Q_motor",
+   "toTerminal": "collector"
+  },
+  {
+   "from": "MOTOR_motor",
+   "fromTerminal": "b",
+   "to": "D_motor",
+   "toTerminal": "anode"
+  },
+  {
+   "from": "VCC",
    "fromTerminal": "vcc",
-   "to": "vcc1",
-   "toTerminal": "vcc"
+   "to": "R_PU_btn",
+   "toTerminal": "a"
   },
   {
-   "from": "board",
+   "from": "VCC",
+   "fromTerminal": "vcc",
+   "to": "MOTOR_motor",
+   "toTerminal": "a"
+  },
+  {
+   "from": "VCC",
+   "fromTerminal": "vcc",
+   "to": "D_motor",
+   "toTerminal": "cathode"
+  },
+  {
+   "from": "GND",
    "fromTerminal": "gnd",
-   "to": "gnd1",
-   "toTerminal": "gnd"
+   "to": "BTN_btn",
+   "toTerminal": "b"
   },
   {
-   "from": "vcc1",
+   "from": "GND",
+   "fromTerminal": "gnd",
+   "to": "Q_motor",
+   "toTerminal": "emitter"
+  },
+  {
+   "from": "VCC",
    "fromTerminal": "vcc",
    "to": {
     "board": "bb1",
@@ -92,7 +270,7 @@
    "genPower": true
   },
   {
-   "from": "gnd1",
+   "from": "GND",
    "fromTerminal": "gnd",
    "to": {
     "board": "bb1",
@@ -106,24 +284,108 @@
   {
    "ref": "bbw:bb1:gen_0",
    "boardId": "bb1",
+   "a": "b25",
+   "b": "a49",
+   "color": "green"
+  },
+  {
+   "ref": "bbw:bb1:gen_1",
+   "boardId": "bb1",
+   "a": "c25",
+   "b": "a5",
+   "color": "blue"
+  },
+  {
+   "ref": "bbw:bb1:gen_2",
+   "boardId": "bb1",
+   "a": "g16",
+   "b": "b27",
+   "color": "yellow"
+  },
+  {
+   "ref": "bbw:bb1:gen_3",
+   "boardId": "bb1",
+   "a": "b31",
+   "b": "b40",
+   "color": "orange"
+  },
+  {
+   "ref": "bbw:bb1:gen_4",
+   "boardId": "bb1",
+   "a": "b35",
+   "b": "b41",
+   "color": "purple"
+  },
+  {
+   "ref": "bbw:bb1:gen_5",
+   "boardId": "bb1",
+   "a": "c35",
+   "b": "b44",
+   "color": "green"
+  },
+  {
+   "ref": "bbw:bb1:gen_6",
+   "boardId": "bb1",
+   "a": "b21",
+   "b": "t+21",
+   "color": "red"
+  },
+  {
+   "ref": "bbw:bb1:gen_7",
+   "boardId": "bb1",
+   "a": "b33",
+   "b": "t+33",
+   "color": "red"
+  },
+  {
+   "ref": "bbw:bb1:gen_8",
+   "boardId": "bb1",
+   "a": "b46",
+   "b": "t+46",
+   "color": "red"
+  },
+  {
+   "ref": "bbw:bb1:gen_9",
+   "boardId": "bb1",
+   "a": "g49",
+   "b": "b-49",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb1:gen_10",
+   "boardId": "bb1",
+   "a": "b39",
+   "b": "b-39",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb1:gen_11",
+   "boardId": "bb1",
    "a": "g9",
    "b": "t+9",
    "color": "red"
   },
   {
-   "ref": "bbw:bb1:gen_1",
+   "ref": "bbw:bb1:gen_12",
    "boardId": "bb1",
    "a": "g10",
    "b": "b-10",
    "color": "black"
   },
   {
-   "ref": "bbw:bb1:gen_2",
+   "ref": "bbw:bb1:gen_13",
    "boardId": "bb1",
-   "a": "a8",
-   "b": "t+8",
+   "a": "a9",
+   "b": "b-9",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb1:gen_14",
+   "boardId": "bb1",
+   "a": "a11",
+   "b": "t+11",
    "color": "red"
   }
  ],
- "generated": "benchFor+authored+seat"
+ "generated": "benchFor+seat"
 }

@@ -22,7 +22,7 @@
       "y": 115
     },
     {
-      "id": "mega1",
+      "id": "MCU",
       "kind": "arduino_mega",
       "params": {},
       "terminals": [
@@ -34,30 +34,15 @@
       "y": -5
     },
     {
-      "id": "R_signal",
-      "kind": "resistor",
-      "params": {
-        "ohms": 1000
-      },
+      "id": "SERVO_servo",
+      "kind": "servo",
+      "params": {},
       "terminals": [
-        "a",
-        "b"
+        "signal",
+        "vcc",
+        "gnd"
       ],
       "x": 64,
-      "y": 255
-    },
-    {
-      "id": "LED_signal",
-      "kind": "led",
-      "params": {
-        "vf": 2,
-        "color": "red"
-      },
-      "terminals": [
-        "anode",
-        "cathode"
-      ],
-      "x": 148,
       "y": 255
     }
   ],
@@ -66,24 +51,24 @@
       "id": "w_flat_0",
       "netId": "bb1:n-col-t3",
       "from": {
-        "part": "mega1",
+        "part": "MCU",
         "terminal": "d13"
       },
       "to": {
-        "part": "R_signal",
-        "terminal": "a"
+        "part": "SERVO_servo",
+        "terminal": "signal"
       }
     },
     {
       "id": "w_flat_1",
-      "netId": "bb1:n-col-t7",
+      "netId": "bb1:rail-b-",
       "from": {
-        "part": "LED_signal",
-        "terminal": "anode"
+        "part": "GND",
+        "terminal": "gnd"
       },
       "to": {
-        "part": "R_signal",
-        "terminal": "b"
+        "part": "MCU",
+        "terminal": "gnd2"
       }
     },
     {
@@ -94,27 +79,27 @@
         "terminal": "gnd"
       },
       "to": {
-        "part": "LED_signal",
-        "terminal": "cathode"
+        "part": "SERVO_servo",
+        "terminal": "gnd"
       }
     },
     {
       "id": "w_flat_3",
-      "netId": "bb1:rail-b-",
+      "netId": "bb1:rail-t+",
       "from": {
-        "part": "GND",
-        "terminal": "gnd"
+        "part": "MCU",
+        "terminal": "5v"
       },
       "to": {
-        "part": "mega1",
-        "terminal": "gnd2"
+        "part": "SERVO_servo",
+        "terminal": "vcc"
       }
     },
     {
       "id": "w_flat_4",
-      "netId": "net-lgc-4",
+      "netId": "bb1:rail-t+",
       "from": {
-        "part": "mega1",
+        "part": "MCU",
         "terminal": "5v"
       },
       "to": {

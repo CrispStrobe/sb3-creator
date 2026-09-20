@@ -11,15 +11,32 @@
    "rotation": 0
   },
   {
-   "id": "board",
+   "id": "VCC",
+   "kind": "vcc",
+   "params": {},
+   "terminals": [
+    "vcc"
+   ],
+   "x": 58,
+   "y": 115
+  },
+  {
+   "id": "GND",
+   "kind": "gnd",
+   "params": {},
+   "terminals": [
+    "gnd"
+   ],
+   "x": 134,
+   "y": 115
+  },
+  {
+   "id": "MCU",
    "kind": "mcu",
    "params": {},
-   "x": 64,
-   "y": 349,
-   "rotation": 0,
    "terminals": [
-    "VCC",
-    "GND"
+    "P3.2",
+    "P1.0"
    ],
    "seat": {
     "boardId": "bb1",
@@ -65,40 +82,197 @@
      "P0.0": "e4",
      "VCC": "e3"
     }
-   }
-  },
-  {
-   "id": "vcc1",
-   "kind": "vcc",
-   "params": {
-    "volts": 5
    },
-   "x": 58,
-   "y": 115
+   "x": 64,
+   "y": 349
   },
   {
-   "id": "gnd1",
-   "kind": "gnd",
+   "id": "R_PU_btn",
+   "kind": "resistor",
+   "params": {
+    "ohms": 10000
+   },
+   "terminals": [
+    "a",
+    "b"
+   ],
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a27",
+     "b": "a31"
+    }
+   },
+   "x": 400,
+   "y": 255
+  },
+  {
+   "id": "BTN_btn",
+   "kind": "button",
+   "declName": "btn",
    "params": {},
-   "x": 134,
-   "y": 115
+   "terminals": [
+    "a",
+    "b"
+   ],
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "e55",
+     "b": "f55"
+    }
+   },
+   "x": 792,
+   "y": 311
+  },
+  {
+   "id": "R_motor",
+   "kind": "resistor",
+   "params": {
+    "ohms": 1000
+   },
+   "terminals": [
+    "a",
+    "b"
+   ],
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a33",
+     "b": "a37"
+    }
+   },
+   "x": 484,
+   "y": 255
+  },
+  {
+   "id": "Q_motor",
+   "kind": "npn",
+   "params": {},
+   "terminals": [
+    "base",
+    "collector",
+    "emitter"
+   ],
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "emitter": "a45",
+     "base": "a46",
+     "collector": "a47"
+    }
+   },
+   "x": 652,
+   "y": 255
+  },
+  {
+   "id": "MOTOR_motor",
+   "kind": "dc_motor",
+   "params": {},
+   "terminals": [
+    "a",
+    "b"
+   ],
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a39",
+     "b": "a41"
+    }
+   },
+   "x": 568,
+   "y": 255
+  },
+  {
+   "id": "D_motor",
+   "kind": "diode",
+   "params": {
+    "vf": 0.7
+   },
+   "terminals": [
+    "anode",
+    "cathode"
+   ],
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "anode": "a50",
+     "cathode": "a52"
+    }
+   },
+   "x": 722,
+   "y": 255
   }
  ],
  "wires": [
   {
-   "from": "board",
-   "fromTerminal": "VCC",
-   "to": "vcc1",
-   "toTerminal": "vcc"
+   "from": "R_PU_btn",
+   "fromTerminal": "b",
+   "to": "BTN_btn",
+   "toTerminal": "a"
   },
   {
-   "from": "board",
-   "fromTerminal": "GND",
-   "to": "gnd1",
-   "toTerminal": "gnd"
+   "from": "R_PU_btn",
+   "fromTerminal": "b",
+   "to": "MCU",
+   "toTerminal": "P3.2"
   },
   {
-   "from": "vcc1",
+   "from": "MCU",
+   "fromTerminal": "P1.0",
+   "to": "R_motor",
+   "toTerminal": "a"
+  },
+  {
+   "from": "R_motor",
+   "fromTerminal": "b",
+   "to": "Q_motor",
+   "toTerminal": "base"
+  },
+  {
+   "from": "MOTOR_motor",
+   "fromTerminal": "b",
+   "to": "Q_motor",
+   "toTerminal": "collector"
+  },
+  {
+   "from": "MOTOR_motor",
+   "fromTerminal": "b",
+   "to": "D_motor",
+   "toTerminal": "anode"
+  },
+  {
+   "from": "VCC",
+   "fromTerminal": "vcc",
+   "to": "R_PU_btn",
+   "toTerminal": "a"
+  },
+  {
+   "from": "VCC",
+   "fromTerminal": "vcc",
+   "to": "MOTOR_motor",
+   "toTerminal": "a"
+  },
+  {
+   "from": "VCC",
+   "fromTerminal": "vcc",
+   "to": "D_motor",
+   "toTerminal": "cathode"
+  },
+  {
+   "from": "GND",
+   "fromTerminal": "gnd",
+   "to": "BTN_btn",
+   "toTerminal": "b"
+  },
+  {
+   "from": "GND",
+   "fromTerminal": "gnd",
+   "to": "Q_motor",
+   "toTerminal": "emitter"
+  },
+  {
+   "from": "VCC",
    "fromTerminal": "vcc",
    "to": {
     "board": "bb1",
@@ -108,7 +282,7 @@
    "genPower": true
   },
   {
-   "from": "gnd1",
+   "from": "GND",
    "fromTerminal": "gnd",
    "to": {
     "board": "bb1",
@@ -122,17 +296,94 @@
   {
    "ref": "bbw:bb1:gen_0",
    "boardId": "bb1",
-   "a": "a3",
-   "b": "t+3",
-   "color": "red"
+   "a": "b31",
+   "b": "a55",
+   "color": "green"
   },
   {
    "ref": "bbw:bb1:gen_1",
    "boardId": "bb1",
+   "a": "c31",
+   "b": "g14",
+   "color": "blue"
+  },
+  {
+   "ref": "bbw:bb1:gen_2",
+   "boardId": "bb1",
+   "a": "g3",
+   "b": "b33",
+   "color": "yellow"
+  },
+  {
+   "ref": "bbw:bb1:gen_3",
+   "boardId": "bb1",
+   "a": "b37",
+   "b": "b46",
+   "color": "orange"
+  },
+  {
+   "ref": "bbw:bb1:gen_4",
+   "boardId": "bb1",
+   "a": "b41",
+   "b": "b47",
+   "color": "purple"
+  },
+  {
+   "ref": "bbw:bb1:gen_5",
+   "boardId": "bb1",
+   "a": "c41",
+   "b": "b50",
+   "color": "green"
+  },
+  {
+   "ref": "bbw:bb1:gen_6",
+   "boardId": "bb1",
+   "a": "b27",
+   "b": "t+27",
+   "color": "red"
+  },
+  {
+   "ref": "bbw:bb1:gen_7",
+   "boardId": "bb1",
+   "a": "b39",
+   "b": "t+39",
+   "color": "red"
+  },
+  {
+   "ref": "bbw:bb1:gen_8",
+   "boardId": "bb1",
+   "a": "b52",
+   "b": "t+52",
+   "color": "red"
+  },
+  {
+   "ref": "bbw:bb1:gen_9",
+   "boardId": "bb1",
+   "a": "g55",
+   "b": "b-55",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb1:gen_10",
+   "boardId": "bb1",
+   "a": "b45",
+   "b": "b-45",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb1:gen_11",
+   "boardId": "bb1",
    "a": "g22",
    "b": "b-22",
    "color": "black"
+  },
+  {
+   "ref": "bbw:bb1:gen_12",
+   "boardId": "bb1",
+   "a": "a3",
+   "b": "t+3",
+   "color": "red"
   }
  ],
- "generated": "benchFor+authored+seat"
+ "generated": "benchFor+seat"
 }

@@ -31,14 +31,13 @@
    "y": 115
   },
   {
-   "id": "nano1",
+   "id": "MCU",
    "kind": "arduino_nano",
    "params": {},
    "terminals": [
-    "d13"
+    "d13",
+    "d3"
    ],
-   "x": 64,
-   "y": 269,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
@@ -73,7 +72,9 @@
      "3v3": "f16",
      "d13": "f17"
     }
-   }
+   },
+   "x": 64,
+   "y": 269
   },
   {
    "id": "R_led",
@@ -85,15 +86,15 @@
     "a",
     "b"
    ],
-   "x": 358,
-   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "a": "a24",
      "b": "a28"
     }
-   }
+   },
+   "x": 358,
+   "y": 255
   },
   {
    "id": "LED_led",
@@ -107,20 +108,98 @@
     "anode",
     "cathode"
    ],
-   "x": 442,
-   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "anode": "a30",
-     "cathode": "a31"
+     "anode": "a52",
+     "cathode": "a53"
     }
-   }
+   },
+   "x": 750,
+   "y": 255
+  },
+  {
+   "id": "R_motor",
+   "kind": "resistor",
+   "params": {
+    "ohms": 1000
+   },
+   "terminals": [
+    "a",
+    "b"
+   ],
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a30",
+     "b": "a34"
+    }
+   },
+   "x": 442,
+   "y": 255
+  },
+  {
+   "id": "Q_motor",
+   "kind": "npn",
+   "params": {},
+   "terminals": [
+    "base",
+    "collector",
+    "emitter"
+   ],
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "emitter": "a42",
+     "base": "a43",
+     "collector": "a44"
+    }
+   },
+   "x": 610,
+   "y": 255
+  },
+  {
+   "id": "MOTOR_motor",
+   "kind": "dc_motor",
+   "params": {},
+   "terminals": [
+    "a",
+    "b"
+   ],
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a36",
+     "b": "a38"
+    }
+   },
+   "x": 526,
+   "y": 255
+  },
+  {
+   "id": "D_motor",
+   "kind": "diode",
+   "params": {
+    "vf": 0.7
+   },
+   "terminals": [
+    "anode",
+    "cathode"
+   ],
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "anode": "a47",
+     "cathode": "a49"
+    }
+   },
+   "x": 680,
+   "y": 255
   }
  ],
  "wires": [
   {
-   "from": "nano1",
+   "from": "MCU",
    "fromTerminal": "d13",
    "to": "R_led",
    "toTerminal": "a"
@@ -132,10 +211,52 @@
    "toTerminal": "anode"
   },
   {
+   "from": "MCU",
+   "fromTerminal": "d3",
+   "to": "R_motor",
+   "toTerminal": "a"
+  },
+  {
+   "from": "R_motor",
+   "fromTerminal": "b",
+   "to": "Q_motor",
+   "toTerminal": "base"
+  },
+  {
+   "from": "MOTOR_motor",
+   "fromTerminal": "b",
+   "to": "Q_motor",
+   "toTerminal": "collector"
+  },
+  {
+   "from": "MOTOR_motor",
+   "fromTerminal": "b",
+   "to": "D_motor",
+   "toTerminal": "anode"
+  },
+  {
+   "from": "VCC",
+   "fromTerminal": "vcc",
+   "to": "MOTOR_motor",
+   "toTerminal": "a"
+  },
+  {
+   "from": "VCC",
+   "fromTerminal": "vcc",
+   "to": "D_motor",
+   "toTerminal": "cathode"
+  },
+  {
    "from": "GND",
    "fromTerminal": "gnd",
    "to": "LED_led",
    "toTerminal": "cathode"
+  },
+  {
+   "from": "GND",
+   "fromTerminal": "gnd",
+   "to": "Q_motor",
+   "toTerminal": "emitter"
   },
   {
    "from": "VCC",
@@ -170,25 +291,74 @@
    "ref": "bbw:bb1:gen_1",
    "boardId": "bb1",
    "a": "b28",
-   "b": "b30",
+   "b": "b52",
    "color": "blue"
   },
   {
    "ref": "bbw:bb1:gen_2",
    "boardId": "bb1",
-   "a": "b31",
-   "b": "b-31",
-   "color": "black"
+   "a": "a8",
+   "b": "b30",
+   "color": "yellow"
   },
   {
    "ref": "bbw:bb1:gen_3",
+   "boardId": "bb1",
+   "a": "b34",
+   "b": "b43",
+   "color": "orange"
+  },
+  {
+   "ref": "bbw:bb1:gen_4",
+   "boardId": "bb1",
+   "a": "b38",
+   "b": "b44",
+   "color": "purple"
+  },
+  {
+   "ref": "bbw:bb1:gen_5",
+   "boardId": "bb1",
+   "a": "c38",
+   "b": "b47",
+   "color": "green"
+  },
+  {
+   "ref": "bbw:bb1:gen_6",
+   "boardId": "bb1",
+   "a": "b36",
+   "b": "t+36",
+   "color": "red"
+  },
+  {
+   "ref": "bbw:bb1:gen_7",
+   "boardId": "bb1",
+   "a": "b49",
+   "b": "t+49",
+   "color": "red"
+  },
+  {
+   "ref": "bbw:bb1:gen_8",
+   "boardId": "bb1",
+   "a": "b53",
+   "b": "b-53",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb1:gen_9",
+   "boardId": "bb1",
+   "a": "b42",
+   "b": "b-42",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb1:gen_10",
    "boardId": "bb1",
    "a": "a6",
    "b": "b-6",
    "color": "black"
   },
   {
-   "ref": "bbw:bb1:gen_4",
+   "ref": "bbw:bb1:gen_11",
    "boardId": "bb1",
    "a": "g6",
    "b": "t+6",

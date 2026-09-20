@@ -11,12 +11,32 @@
    "rotation": 0
   },
   {
-   "id": "board",
+   "id": "VCC",
+   "kind": "vcc",
+   "params": {},
+   "terminals": [
+    "vcc"
+   ],
+   "x": 58,
+   "y": 115
+  },
+  {
+   "id": "GND",
+   "kind": "gnd",
+   "params": {},
+   "terminals": [
+    "gnd"
+   ],
+   "x": 134,
+   "y": 115
+  },
+  {
+   "id": "MCU",
    "kind": "pi_pico",
    "params": {},
-   "x": 64,
-   "y": 255,
-   "rotation": 0,
+   "terminals": [
+    "gp2"
+   ],
    "seat": {
     "boardId": "bb1",
     "leadMap": {
@@ -61,40 +81,77 @@
      "gp17": "f21",
      "gp16": "f22"
     }
-   }
-  },
-  {
-   "id": "vcc1",
-   "kind": "vcc",
-   "params": {
-    "volts": 5
    },
-   "x": 58,
-   "y": 115
+   "x": 64,
+   "y": 255
   },
   {
-   "id": "gnd1",
-   "kind": "gnd",
+   "id": "R_PU_tilt",
+   "kind": "resistor",
+   "params": {
+    "ohms": 10000
+   },
+   "terminals": [
+    "a",
+    "b"
+   ],
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a27",
+     "b": "a31"
+    }
+   },
+   "x": 400,
+   "y": 255
+  },
+  {
+   "id": "BTN_tilt",
+   "kind": "button",
+   "declName": "tilt",
    "params": {},
-   "x": 134,
-   "y": 115
+   "terminals": [
+    "a",
+    "b"
+   ],
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "e33",
+     "b": "f33"
+    }
+   },
+   "x": 484,
+   "y": 311
   }
  ],
  "wires": [
   {
-   "from": "board",
-   "fromTerminal": "vsys",
-   "to": "vcc1",
-   "toTerminal": "vcc"
+   "from": "R_PU_tilt",
+   "fromTerminal": "b",
+   "to": "BTN_tilt",
+   "toTerminal": "a"
   },
   {
-   "from": "board",
-   "fromTerminal": "gnd_1",
-   "to": "gnd1",
-   "toTerminal": "gnd"
+   "from": "R_PU_tilt",
+   "fromTerminal": "b",
+   "to": "MCU",
+   "toTerminal": "gp2"
   },
   {
-   "from": "vcc1",
+   "from": "VCC",
+   "fromTerminal": "vcc",
+   "to": "R_PU_tilt",
+   "toTerminal": "a"
+  },
+  {
+   "from": "GND",
+   "fromTerminal": "gnd",
+   "to": "BTN_tilt",
+   "toTerminal": "b"
+  },
+  {
+   "from": "VCC",
    "fromTerminal": "vcc",
    "to": {
     "board": "bb1",
@@ -104,7 +161,7 @@
    "genPower": true
   },
   {
-   "from": "gnd1",
+   "from": "GND",
    "fromTerminal": "gnd",
    "to": {
     "board": "bb1",
@@ -118,24 +175,45 @@
   {
    "ref": "bbw:bb1:gen_0",
    "boardId": "bb1",
-   "a": "g4",
-   "b": "t+4",
-   "color": "red"
+   "a": "b31",
+   "b": "a33",
+   "color": "green"
   },
   {
    "ref": "bbw:bb1:gen_1",
+   "boardId": "bb1",
+   "a": "c31",
+   "b": "b6",
+   "color": "blue"
+  },
+  {
+   "ref": "bbw:bb1:gen_2",
+   "boardId": "bb1",
+   "a": "b27",
+   "b": "t+27",
+   "color": "red"
+  },
+  {
+   "ref": "bbw:bb1:gen_3",
+   "boardId": "bb1",
+   "a": "g33",
+   "b": "b-33",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb1:gen_4",
    "boardId": "bb1",
    "a": "b5",
    "b": "b-5",
    "color": "black"
   },
   {
-   "ref": "bbw:bb1:gen_2",
+   "ref": "bbw:bb1:gen_5",
    "boardId": "bb1",
    "a": "g3",
    "b": "t+3",
    "color": "red"
   }
  ],
- "generated": "benchFor+authored+seat"
+ "generated": "benchFor+seat"
 }

@@ -2,115 +2,170 @@
   "vcc": 5,
   "parts": [
     {
-      "id": "board",
-      "kind": "stc15_mcu",
+      "id": "VCC",
+      "kind": "vcc",
       "params": {},
-      "rotation": 0,
       "terminals": [
-        "VCC",
-        "GND",
-        "P1.0"
+        "vcc"
       ],
-      "x": 80,
-      "y": -60
+      "x": 58,
+      "y": 115
     },
     {
-      "id": "pot1",
-      "kind": "potentiometer",
-      "declName": "sensor",
-      "params": {
-        "ohms": 10000
-      },
-      "seat": {
-        "boardId": "bb1",
-        "leadMap": {
-          "a": "a20",
-          "wiper": "a22",
-          "b": "a24"
-        }
-      },
-      "x": 302,
+      "id": "GND",
+      "kind": "gnd",
+      "params": {},
+      "terminals": [
+        "gnd"
+      ],
+      "x": 134,
+      "y": 115
+    },
+    {
+      "id": "MCU",
+      "kind": "stc15_mcu",
+      "params": {},
+      "terminals": [
+        "p1.0",
+        "p1.1"
+      ],
+      "x": 64,
+      "y": 311
+    },
+    {
+      "id": "LDR_ldr",
+      "kind": "ldr",
+      "params": {},
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 554,
       "y": 255
     },
     {
-      "id": "vcc1",
-      "kind": "vcc",
+      "id": "R_DIV_ldr",
+      "kind": "resistor",
       "params": {
-        "volts": 5
+        "ohms": 10000
       },
-      "x": 80,
-      "y": 60
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 400,
+      "y": 255
     },
     {
-      "id": "gnd1",
-      "kind": "gnd",
+      "id": "BUZZ_speaker",
+      "kind": "buzzer",
       "params": {},
-      "x": 220,
-      "y": 60
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 484,
+      "y": 255
     }
   ],
   "wires": [
     {
       "id": "w_flat_0",
-      "netId": "bb1:n-col-t22",
+      "netId": "bb1:n-col-t11",
       "from": {
-        "part": "board",
-        "terminal": "P1.0"
+        "part": "LDR_ldr",
+        "terminal": "b"
       },
       "to": {
-        "part": "pot1",
-        "terminal": "wiper"
+        "part": "MCU",
+        "terminal": "p1.0"
       }
     },
     {
       "id": "w_flat_1",
-      "netId": "bb1:rail-b-",
+      "netId": "bb1:n-col-t11",
       "from": {
-        "part": "board",
-        "terminal": "GND"
-      },
-      "to": {
-        "part": "gnd1",
-        "terminal": "gnd"
-      }
-    },
-    {
-      "id": "w_flat_2",
-      "netId": "bb1:rail-b-",
-      "from": {
-        "part": "board",
-        "terminal": "GND"
-      },
-      "to": {
-        "part": "pot1",
+        "part": "LDR_ldr",
         "terminal": "b"
-      }
-    },
-    {
-      "id": "w_flat_3",
-      "netId": "bb1:rail-t+",
-      "from": {
-        "part": "board",
-        "terminal": "VCC"
       },
       "to": {
-        "part": "pot1",
+        "part": "R_DIV_ldr",
         "terminal": "a"
       }
     },
     {
-      "id": "w_flat_4",
-      "netId": "bb1:rail-t+",
+      "id": "w_flat_2",
+      "netId": "bb1:n-col-t12",
       "from": {
-        "part": "board",
-        "terminal": "VCC"
+        "part": "BUZZ_speaker",
+        "terminal": "a"
       },
       "to": {
-        "part": "vcc1",
+        "part": "MCU",
+        "terminal": "p1.1"
+      }
+    },
+    {
+      "id": "w_flat_3",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "BUZZ_speaker",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "GND",
+        "terminal": "gnd"
+      }
+    },
+    {
+      "id": "w_flat_4",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "BUZZ_speaker",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "MCU",
+        "terminal": "GND"
+      }
+    },
+    {
+      "id": "w_flat_5",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "BUZZ_speaker",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "R_DIV_ldr",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "w_flat_6",
+      "netId": "bb1:rail-t+",
+      "from": {
+        "part": "LDR_ldr",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "MCU",
+        "terminal": "VCC"
+      }
+    },
+    {
+      "id": "w_flat_7",
+      "netId": "bb1:rail-t+",
+      "from": {
+        "part": "LDR_ldr",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "VCC",
         "terminal": "vcc"
       }
     }
   ],
   "holeWires": [],
-  "generated": "benchFor+authored"
+  "generated": "benchFor+seat"
 }

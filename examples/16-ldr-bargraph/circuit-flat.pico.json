@@ -22,7 +22,7 @@
       "y": 115
     },
     {
-      "id": "pico1",
+      "id": "MCU",
       "kind": "pi_pico",
       "params": {},
       "terminals": [
@@ -35,15 +35,25 @@
       "y": 255
     },
     {
-      "id": "POT_ldr",
-      "kind": "potentiometer",
+      "id": "LDR_ldr",
+      "kind": "ldr",
+      "params": {},
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 736,
+      "y": 255
+    },
+    {
+      "id": "R_DIV_ldr",
+      "kind": "resistor",
       "params": {
         "ohms": 10000
       },
       "terminals": [
         "a",
-        "b",
-        "wiper"
+        "b"
       ],
       "x": 400,
       "y": 255
@@ -72,7 +82,7 @@
         "anode",
         "cathode"
       ],
-      "x": 736,
+      "x": 792,
       "y": 255
     },
     {
@@ -99,7 +109,7 @@
         "anode",
         "cathode"
       ],
-      "x": 792,
+      "x": 848,
       "y": 255
     },
     {
@@ -126,8 +136,8 @@
         "anode",
         "cathode"
       ],
-      "x": 848,
-      "y": 255
+      "x": 400,
+      "y": 349
     }
   ],
   "wires": [
@@ -135,19 +145,43 @@
       "id": "w_flat_0",
       "netId": "bb1:n-col-b12",
       "from": {
-        "part": "pico1",
-        "terminal": "gp26"
+        "part": "LDR_ldr",
+        "terminal": "b"
       },
       "to": {
-        "part": "POT_ldr",
-        "terminal": "wiper"
+        "part": "MCU",
+        "terminal": "gp26"
       }
     },
     {
       "id": "w_flat_1",
+      "netId": "bb1:n-col-b12",
+      "from": {
+        "part": "LDR_ldr",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "R_DIV_ldr",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "w_flat_2",
+      "netId": "bb1:n-col-b27",
+      "from": {
+        "part": "LED_led3",
+        "terminal": "anode"
+      },
+      "to": {
+        "part": "R_led3",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "w_flat_3",
       "netId": "bb1:n-col-t21",
       "from": {
-        "part": "pico1",
+        "part": "MCU",
         "terminal": "gp14"
       },
       "to": {
@@ -156,10 +190,10 @@
       }
     },
     {
-      "id": "w_flat_2",
+      "id": "w_flat_4",
       "netId": "bb1:n-col-t22",
       "from": {
-        "part": "pico1",
+        "part": "MCU",
         "terminal": "gp15"
       },
       "to": {
@@ -168,10 +202,10 @@
       }
     },
     {
-      "id": "w_flat_3",
+      "id": "w_flat_5",
       "netId": "bb1:n-col-t33",
       "from": {
-        "part": "pico1",
+        "part": "MCU",
         "terminal": "gp25"
       },
       "to": {
@@ -180,7 +214,7 @@
       }
     },
     {
-      "id": "w_flat_4",
+      "id": "w_flat_6",
       "netId": "bb1:n-col-t37",
       "from": {
         "part": "LED_led1",
@@ -192,7 +226,7 @@
       }
     },
     {
-      "id": "w_flat_5",
+      "id": "w_flat_7",
       "netId": "bb1:n-col-t43",
       "from": {
         "part": "LED_led2",
@@ -204,19 +238,7 @@
       }
     },
     {
-      "id": "w_flat_6",
-      "netId": "bb1:n-col-t49",
-      "from": {
-        "part": "LED_led3",
-        "terminal": "anode"
-      },
-      "to": {
-        "part": "R_led3",
-        "terminal": "b"
-      }
-    },
-    {
-      "id": "w_flat_7",
+      "id": "w_flat_8",
       "netId": "bb1:rail-b-",
       "from": {
         "part": "GND",
@@ -228,7 +250,7 @@
       }
     },
     {
-      "id": "w_flat_8",
+      "id": "w_flat_9",
       "netId": "bb1:rail-b-",
       "from": {
         "part": "GND",
@@ -240,7 +262,7 @@
       }
     },
     {
-      "id": "w_flat_9",
+      "id": "w_flat_10",
       "netId": "bb1:rail-b-",
       "from": {
         "part": "GND",
@@ -252,18 +274,6 @@
       }
     },
     {
-      "id": "w_flat_10",
-      "netId": "bb1:rail-b-",
-      "from": {
-        "part": "GND",
-        "terminal": "gnd"
-      },
-      "to": {
-        "part": "pico1",
-        "terminal": "gnd_1"
-      }
-    },
-    {
       "id": "w_flat_11",
       "netId": "bb1:rail-b-",
       "from": {
@@ -271,28 +281,40 @@
         "terminal": "gnd"
       },
       "to": {
-        "part": "POT_ldr",
-        "terminal": "b"
+        "part": "MCU",
+        "terminal": "gnd_1"
       }
     },
     {
       "id": "w_flat_12",
-      "netId": "bb1:rail-t+",
+      "netId": "bb1:rail-b-",
       "from": {
-        "part": "pico1",
-        "terminal": "vbus"
+        "part": "GND",
+        "terminal": "gnd"
       },
       "to": {
-        "part": "POT_ldr",
-        "terminal": "a"
+        "part": "R_DIV_ldr",
+        "terminal": "b"
       }
     },
     {
       "id": "w_flat_13",
       "netId": "bb1:rail-t+",
       "from": {
-        "part": "pico1",
+        "part": "LDR_ldr",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "MCU",
         "terminal": "vbus"
+      }
+    },
+    {
+      "id": "w_flat_14",
+      "netId": "bb1:rail-t+",
+      "from": {
+        "part": "LDR_ldr",
+        "terminal": "a"
       },
       "to": {
         "part": "VCC",

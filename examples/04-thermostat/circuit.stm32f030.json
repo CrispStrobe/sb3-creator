@@ -31,7 +31,7 @@
    "y": 115
   },
   {
-   "id": "stm321",
+   "id": "MCU",
    "kind": "stm32f030",
    "params": {},
    "terminals": [
@@ -109,22 +109,38 @@
    "y": 255
   },
   {
-   "id": "POT_sensor",
-   "kind": "potentiometer",
-   "declName": "sensor",
+   "id": "NTC_thermistor",
+   "kind": "ntc",
+   "declName": "thermistor",
+   "params": {},
+   "terminals": [
+    "a",
+    "b"
+   ],
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a32",
+     "b": "a33"
+    }
+   },
+   "x": 470,
+   "y": 255
+  },
+  {
+   "id": "R_DIV_thermistor",
+   "kind": "resistor",
    "params": {
     "ohms": 10000
    },
    "terminals": [
     "a",
-    "b",
-    "wiper"
+    "b"
    ],
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "a": "a22",
-     "wiper": "a24",
      "b": "a26"
     }
    },
@@ -134,7 +150,7 @@
  ],
  "wires": [
   {
-   "from": "stm321",
+   "from": "MCU",
    "fromTerminal": "pa0",
    "to": "R_heater",
    "toTerminal": "a"
@@ -146,15 +162,21 @@
    "toTerminal": "anode"
   },
   {
-   "from": "POT_sensor",
-   "fromTerminal": "wiper",
-   "to": "stm321",
+   "from": "NTC_thermistor",
+   "fromTerminal": "b",
+   "to": "R_DIV_thermistor",
+   "toTerminal": "a"
+  },
+  {
+   "from": "NTC_thermistor",
+   "fromTerminal": "b",
+   "to": "MCU",
    "toTerminal": "pa1"
   },
   {
    "from": "VCC",
    "fromTerminal": "vcc",
-   "to": "POT_sensor",
+   "to": "NTC_thermistor",
    "toTerminal": "a"
   },
   {
@@ -166,7 +188,7 @@
   {
    "from": "GND",
    "fromTerminal": "gnd",
-   "to": "POT_sensor",
+   "to": "R_DIV_thermistor",
    "toTerminal": "b"
   },
   {
@@ -208,40 +230,47 @@
   {
    "ref": "bbw:bb1:gen_2",
    "boardId": "bb1",
-   "a": "b24",
-   "b": "g9",
+   "a": "b33",
+   "b": "b22",
    "color": "yellow"
   },
   {
    "ref": "bbw:bb1:gen_3",
    "boardId": "bb1",
-   "a": "b22",
-   "b": "t+22",
-   "color": "red"
+   "a": "c33",
+   "b": "g9",
+   "color": "orange"
   },
   {
    "ref": "bbw:bb1:gen_4",
+   "boardId": "bb1",
+   "a": "b32",
+   "b": "t+32",
+   "color": "red"
+  },
+  {
+   "ref": "bbw:bb1:gen_5",
    "boardId": "bb1",
    "a": "b29",
    "b": "b-29",
    "color": "black"
   },
   {
-   "ref": "bbw:bb1:gen_5",
+   "ref": "bbw:bb1:gen_6",
    "boardId": "bb1",
    "a": "b26",
    "b": "b-26",
    "color": "black"
   },
   {
-   "ref": "bbw:bb1:gen_6",
+   "ref": "bbw:bb1:gen_7",
    "boardId": "bb1",
    "a": "a7",
    "b": "t+7",
    "color": "red"
   },
   {
-   "ref": "bbw:bb1:gen_7",
+   "ref": "bbw:bb1:gen_8",
    "boardId": "bb1",
    "a": "a8",
    "b": "b-8",

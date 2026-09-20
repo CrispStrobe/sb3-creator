@@ -45,34 +45,33 @@ const CLAIMS = [
   { id: 'temp', re: /\b(temperature sensor|thermistor|NTC|DS18B20|LM35)\b/i,
     kinds: [/ntc/, /temp_sensor/, /ds18b20/, /lm35/, /thermistor/] },
   { id: 'servo', re: /\bservo\b/i, kinds: [/servo/] },
-  { id: 'motor', re: /\b(motor|fan spins)\b/i, kinds: [/motor/, /fan/, /relay/] },
+  // "servo motor" is a servo, which has its own row above; without the guard
+  // the motor row claims it and 53-servo-sweep reads as missing a DC motor it
+  // never described.
+  { id: 'motor', re: /(?<!servo )\b(motor|fan spins)\b/i, kinds: [/motor/, /fan/, /relay/, /servo/] },
   { id: 'relay', re: /\brelay\b/i, kinds: [/relay/] },
 ];
 
-// MEASURED 2026-09-20 by the check below, then read one by one against each
-// example's circuits. `${id}:${claim}`.
-const KNOWN_DIVERGENCES = new Set([
-  // A potentiometer stands in for the sensor, and the text does not say so.
-  '03-night-light:ldr', '04-thermostat:temp', '16-ldr-bargraph:ldr',
-  'arduino-sk-p03-love-o-meter:temp', 'arduino-sk-p06-light-theremin:ldr',
-  // The named part is simply absent from every variant.
-  '26-debounce:display', '53-servo-sweep:servo', '53-servo-sweep:motor',
-  '54-motor-driver:motor', 'arduino-03-fading:pot', 'arduino-sk-p05-servo-mood:servo',
-  'arduino-sk-p06-light-theremin:buzzer', 'arduino-sk-p14-serial-pot:pot',
-  'pc58-555-audio-pulse:pot',
-  // Ports whose bench holds nothing but an MCU, power and a breadboard, while
-  // the text describes a whole project. See EMPTY_BENCHES below.
-  'arduino-sk-p07-keyboard:button', 'arduino-sk-p09-motorized-pinwheel:button',
-  'arduino-sk-p09-motorized-pinwheel:motor', 'arduino-sk-p10-zoetrope:motor',
-  'arduino-sk-p12-knock-lock:buzzer', 'arduino-sk-p12-knock-lock:button',
-  'arduino-sk-p12-knock-lock:servo', 'arduino-sk-p15-hacking-buttons:button',
-]);
+// MEASURED 2026-09-20, and now EMPTY. Twenty-two intros named a component no
+// circuit variant had. Sixteen were fixed by BUILDING the part — the pin was
+// named `signal` where the text said servo, or `sensor` where it said
+// thermistor, so the generator had nothing to go on — and six were intros
+// describing a different program than the one beside them. Keep this at zero.
+const KNOWN_DIVERGENCES = new Set([]);
 
 // Intros that name a component and then say, in the same breath, what actually
 // stands in for it. Not divergences: the reader is told the truth. Each one is
 // quoted so a later edit that removes the explanation stops being exempt.
 const EXPLAINS_ITS_STAND_IN = new Map([
   ['50-7seg-chase:display', /every segment is just an LED/i],
+  // The button is on ANOTHER device — the whole point of an optocoupler is
+  // that the thing it presses is not on this board.
+  ['arduino-sk-p15-hacking-buttons:button', /button press on another device/i],
+  // Says outright that the part is NOT needed, which is the opposite of a
+  // claim that it is on the bench.
+  ['arduino-03-fading:pot', /no potentiometer needed/i],
+  // Names the piezo AND the potentiometer standing in for it on the same pin.
+  ['arduino-sk-p12-knock-lock:buzzer', /piezo disc, which this bench stands in for/i],
 ]);
 
 // Kinds that are scaffolding rather than something to look at.
@@ -90,11 +89,13 @@ const SERIAL_ONLY = new Set(['arduino-04-ascii-table', 'arduino-08-char-analysis
 
 // MEASURED 2026-09-20: benches carrying no component at all whose text still
 // describes a project. Shrinks as each is either built out or rewritten.
-const KNOWN_EMPTY_BENCHES = new Set(['79-a2-sampler', '80-a2-lcd-moving-text',
-  '81-8051-lcd1602-parallel', '82-a2-led-row', 'arduino-sk-p07-keyboard',
-  'arduino-sk-p08-hourglass', 'arduino-sk-p09-motorized-pinwheel', 'arduino-sk-p10-zoetrope',
-  'arduino-sk-p11-crystal-ball', 'arduino-sk-p12-knock-lock', 'arduino-sk-p13-touch-lamp',
-  'arduino-sk-p14-serial-pot']);
+// MEASURED 2026-09-20, and now EMPTY. Every bench that described a project it
+// did not contain was rebuilt from the program's own declarations by
+// `scripts/gen-device-benches.mjs`, which is why the fix was an engine one:
+// inferNetlist learned servos, light and temperature sensors, and the LCD1602 /
+// LEDBANK8 / KEYPAD4X4 / SEVENSEG8 part bindings (bw-board 4582948c). Keep this
+// at zero — a new entry means a bench shipped with nothing on it.
+const KNOWN_EMPTY_BENCHES = new Set([]);
 
 function exampleDirs() {
   return readdirSync(EXAMPLES).filter(id => {
@@ -127,7 +128,14 @@ function describedSections(intro) {
     for (let i = start + 1; i < lines.length; i++) if (/^##\s/.test(lines[i])) { end = i; break; }
     return lines.slice(start + 1, end).join('\n');
   };
-  return `${grab('What you see')}\n${grab('Try this')}`;
+  // A "Try this" step that tells the reader to REPLACE or ADD a part is an
+  // instruction, not a claim that the part is already there — pc58-555-audio-
+  // pulse says "Replace the fixed resistor with a potentiometer", which is
+  // true precisely because the bench ships the fixed resistor.
+  const instructions = /^\s*(?:[-*]|\d+\.)\s*(replace|swap|substitute|add|try adding)\b/i;
+  const tryThis = grab('Try this').split('\n')
+    .filter(line => !instructions.test(line)).join('\n');
+  return `${grab('What you see')}\n${tryThis}`;
 }
 
 function divergences() {
@@ -186,6 +194,27 @@ describe('example intros describe the bench in front of the reader', () => {
     const fixed = [...KNOWN_EMPTY_BENCHES].filter(id => !now.has(id));
     assert.deepEqual(fixed, [], 'these now carry components — delete them from '
       + 'KNOWN_EMPTY_BENCHES:\n  ' + fixed.join('\n  '));
+  });
+
+  test('every servo call names a servo that exists', () => {
+    // bw_servo_set opens with `if (servo < 1 || servo > 2) return;`, and the
+    // generator declares an unknown identifier as a variable initialised to 0.
+    // So `set myservo angle to 90` compiled to a call that returned without
+    // doing anything: 53-servo-sweep, arduino-sk-p05-servo-mood and
+    // arduino-sk-p12-knock-lock all drove a servo that never moved, silently.
+    // The motor is the opposite case — bw_motor_speed ignores its index with
+    // `(void)motor` — so `mymotor` stays correct there and is not checked here.
+    const bad = [];
+    for (const id of exampleDirs()) {
+      const prog = join(EXAMPLES, id, 'program.bw');
+      if (!existsSync(prog)) continue;
+      for (const line of readFileSync(prog, 'utf8').split('\n')) {
+        const m = /^\s*set\s+(\S+)\s+angle to\b/.exec(line.replace(/#.*$/, ''));
+        if (m && !/^[12]$/.test(m[1])) bad.push(`${id}: ${line.trim()}`);
+      }
+    }
+    assert.deepEqual(bad, [], 'a servo index outside 1..2 makes the call a no-op:\n  '
+      + bad.join('\n  '));
   });
 
   test('the two examples this gate was written for stay fixed', () => {

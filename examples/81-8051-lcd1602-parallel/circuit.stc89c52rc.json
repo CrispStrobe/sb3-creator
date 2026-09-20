@@ -82,9 +82,118 @@
    },
    "x": 64,
    "y": 349
+  },
+  {
+   "id": "LCD_lcd",
+   "kind": "char_lcd",
+   "declName": "lcd",
+   "params": {},
+   "terminals": [
+    "rs",
+    "rw",
+    "e",
+    "d0",
+    "d1",
+    "d2",
+    "d3",
+    "d4",
+    "d5",
+    "d6",
+    "d7",
+    "vcc",
+    "gnd",
+    "vo",
+    "bl_a",
+    "bl_k"
+   ],
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "rs": "a27",
+     "e": "a28",
+     "d4": "a29",
+     "d5": "a30",
+     "d6": "a31",
+     "d7": "a32"
+    }
+   },
+   "x": 400,
+   "y": 255
   }
  ],
  "wires": [
+  {
+   "from": "MCU",
+   "fromTerminal": "P1.4",
+   "to": "LCD_lcd",
+   "toTerminal": "d4"
+  },
+  {
+   "from": "MCU",
+   "fromTerminal": "P1.5",
+   "to": "LCD_lcd",
+   "toTerminal": "d5"
+  },
+  {
+   "from": "MCU",
+   "fromTerminal": "P1.6",
+   "to": "LCD_lcd",
+   "toTerminal": "d6"
+  },
+  {
+   "from": "MCU",
+   "fromTerminal": "P1.7",
+   "to": "LCD_lcd",
+   "toTerminal": "d7"
+  },
+  {
+   "from": "MCU",
+   "fromTerminal": "P2.0",
+   "to": "LCD_lcd",
+   "toTerminal": "rs"
+  },
+  {
+   "from": "MCU",
+   "fromTerminal": "P2.1",
+   "to": "LCD_lcd",
+   "toTerminal": "e"
+  },
+  {
+   "from": "VCC",
+   "fromTerminal": "vcc",
+   "to": "LCD_lcd",
+   "toTerminal": "vcc"
+  },
+  {
+   "from": "VCC",
+   "fromTerminal": "vcc",
+   "to": "LCD_lcd",
+   "toTerminal": "bl_a"
+  },
+  {
+   "from": "GND",
+   "fromTerminal": "gnd",
+   "to": "LCD_lcd",
+   "toTerminal": "rw"
+  },
+  {
+   "from": "GND",
+   "fromTerminal": "gnd",
+   "to": "LCD_lcd",
+   "toTerminal": "gnd"
+  },
+  {
+   "from": "GND",
+   "fromTerminal": "gnd",
+   "to": "LCD_lcd",
+   "toTerminal": "bl_k"
+  },
+  {
+   "from": "GND",
+   "fromTerminal": "gnd",
+   "to": "LCD_lcd",
+   "toTerminal": "vo"
+  },
   {
    "from": "VCC",
    "fromTerminal": "vcc",
@@ -110,12 +219,54 @@
   {
    "ref": "bbw:bb1:gen_0",
    "boardId": "bb1",
+   "a": "g7",
+   "b": "b29",
+   "color": "green"
+  },
+  {
+   "ref": "bbw:bb1:gen_1",
+   "boardId": "bb1",
+   "a": "g8",
+   "b": "b30",
+   "color": "blue"
+  },
+  {
+   "ref": "bbw:bb1:gen_2",
+   "boardId": "bb1",
+   "a": "g9",
+   "b": "b31",
+   "color": "yellow"
+  },
+  {
+   "ref": "bbw:bb1:gen_3",
+   "boardId": "bb1",
+   "a": "g10",
+   "b": "b32",
+   "color": "orange"
+  },
+  {
+   "ref": "bbw:bb1:gen_4",
+   "boardId": "bb1",
+   "a": "a22",
+   "b": "b27",
+   "color": "purple"
+  },
+  {
+   "ref": "bbw:bb1:gen_5",
+   "boardId": "bb1",
+   "a": "a21",
+   "b": "b28",
+   "color": "green"
+  },
+  {
+   "ref": "bbw:bb1:gen_6",
+   "boardId": "bb1",
    "a": "g22",
    "b": "b-22",
    "color": "black"
   },
   {
-   "ref": "bbw:bb1:gen_1",
+   "ref": "bbw:bb1:gen_7",
    "boardId": "bb1",
    "a": "a3",
    "b": "t+3",

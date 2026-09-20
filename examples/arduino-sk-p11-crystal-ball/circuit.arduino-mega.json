@@ -11,44 +11,161 @@
    "rotation": 0
   },
   {
-   "id": "board",
-   "kind": "arduino_mega",
-   "params": {},
-   "x": 80,
-   "y": -60,
-   "rotation": 0
-  },
-  {
-   "id": "vcc1",
+   "id": "VCC",
    "kind": "vcc",
-   "params": {
-    "volts": 5
-   },
-   "x": 80,
-   "y": 120
+   "params": {},
+   "terminals": [
+    "vcc"
+   ],
+   "x": 58,
+   "y": 115
   },
   {
-   "id": "gnd1",
+   "id": "GND",
    "kind": "gnd",
    "params": {},
-   "x": 220,
-   "y": 120
+   "terminals": [
+    "gnd"
+   ],
+   "x": 134,
+   "y": 115
+  },
+  {
+   "id": "MCU",
+   "kind": "arduino_mega",
+   "params": {},
+   "terminals": [
+    "d2",
+    "5v",
+    "gnd2"
+   ],
+   "x": 475,
+   "y": -5
+  },
+  {
+   "id": "R_PU_tilt",
+   "kind": "resistor",
+   "params": {
+    "ohms": 10000
+   },
+   "terminals": [
+    "a",
+    "b"
+   ],
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a3",
+     "b": "a7"
+    }
+   },
+   "x": 64,
+   "y": 255
+  },
+  {
+   "id": "BTN_tilt",
+   "kind": "button",
+   "declName": "tilt",
+   "params": {},
+   "terminals": [
+    "a",
+    "b"
+   ],
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "e9",
+     "b": "f9"
+    }
+   },
+   "x": 148,
+   "y": 311
   }
  ],
  "wires": [
   {
-   "from": "board",
-   "fromTerminal": "5v",
-   "to": "vcc1",
-   "toTerminal": "vcc"
+   "from": "R_PU_tilt",
+   "fromTerminal": "b",
+   "to": "BTN_tilt",
+   "toTerminal": "a"
   },
   {
-   "from": "board",
+   "from": "R_PU_tilt",
+   "fromTerminal": "b",
+   "to": "MCU",
+   "toTerminal": "d2"
+  },
+  {
+   "from": "VCC",
+   "fromTerminal": "vcc",
+   "to": "R_PU_tilt",
+   "toTerminal": "a"
+  },
+  {
+   "from": "GND",
    "fromTerminal": "gnd",
-   "to": "gnd1",
-   "toTerminal": "gnd"
+   "to": "BTN_tilt",
+   "toTerminal": "b"
+  },
+  {
+   "from": "VCC",
+   "fromTerminal": "vcc",
+   "to": "MCU",
+   "toTerminal": "5v",
+   "color": "red",
+   "genPower": true
+  },
+  {
+   "from": "GND",
+   "fromTerminal": "gnd",
+   "to": "MCU",
+   "toTerminal": "gnd2",
+   "color": "black",
+   "genPower": true
+  },
+  {
+   "from": "VCC",
+   "fromTerminal": "vcc",
+   "to": {
+    "board": "bb1",
+    "hole": "t+2"
+   },
+   "color": "red",
+   "genPower": true
+  },
+  {
+   "from": "GND",
+   "fromTerminal": "gnd",
+   "to": {
+    "board": "bb1",
+    "hole": "b-2"
+   },
+   "color": "black",
+   "genPower": true
   }
  ],
- "holeWires": [],
- "generated": "benchFor+authored+seat"
+ "holeWires": [
+  {
+   "ref": "bbw:bb1:gen_0",
+   "boardId": "bb1",
+   "a": "b7",
+   "b": "a9",
+   "color": "green"
+  },
+  {
+   "ref": "bbw:bb1:gen_1",
+   "boardId": "bb1",
+   "a": "b3",
+   "b": "t+3",
+   "color": "red"
+  },
+  {
+   "ref": "bbw:bb1:gen_2",
+   "boardId": "bb1",
+   "a": "g9",
+   "b": "b-9",
+   "color": "black"
+  }
+ ],
+ "generated": "benchFor+seat"
 }

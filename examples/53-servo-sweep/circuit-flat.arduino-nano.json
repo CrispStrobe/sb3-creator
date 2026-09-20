@@ -22,7 +22,7 @@
       "y": 115
     },
     {
-      "id": "nano1",
+      "id": "MCU",
       "kind": "arduino_nano",
       "params": {},
       "terminals": [
@@ -32,30 +32,15 @@
       "y": 269
     },
     {
-      "id": "R_signal",
-      "kind": "resistor",
-      "params": {
-        "ohms": 1000
-      },
+      "id": "SERVO_servo",
+      "kind": "servo",
+      "params": {},
       "terminals": [
-        "a",
-        "b"
+        "signal",
+        "vcc",
+        "gnd"
       ],
       "x": 358,
-      "y": 255
-    },
-    {
-      "id": "LED_signal",
-      "kind": "led",
-      "params": {
-        "vf": 2,
-        "color": "red"
-      },
-      "terminals": [
-        "anode",
-        "cathode"
-      ],
-      "x": 442,
       "y": 255
     }
   ],
@@ -64,24 +49,24 @@
       "id": "w_flat_0",
       "netId": "bb1:n-col-b17",
       "from": {
-        "part": "nano1",
+        "part": "MCU",
         "terminal": "d13"
       },
       "to": {
-        "part": "R_signal",
-        "terminal": "a"
+        "part": "SERVO_servo",
+        "terminal": "signal"
       }
     },
     {
       "id": "w_flat_1",
-      "netId": "bb1:n-col-t28",
+      "netId": "bb1:rail-b-",
       "from": {
-        "part": "LED_signal",
-        "terminal": "anode"
+        "part": "GND",
+        "terminal": "gnd"
       },
       "to": {
-        "part": "R_signal",
-        "terminal": "b"
+        "part": "MCU",
+        "terminal": "gnd"
       }
     },
     {
@@ -92,27 +77,27 @@
         "terminal": "gnd"
       },
       "to": {
-        "part": "LED_signal",
-        "terminal": "cathode"
+        "part": "SERVO_servo",
+        "terminal": "gnd"
       }
     },
     {
       "id": "w_flat_3",
-      "netId": "bb1:rail-b-",
+      "netId": "bb1:rail-t+",
       "from": {
-        "part": "GND",
-        "terminal": "gnd"
+        "part": "MCU",
+        "terminal": "5v"
       },
       "to": {
-        "part": "nano1",
-        "terminal": "gnd"
+        "part": "SERVO_servo",
+        "terminal": "vcc"
       }
     },
     {
       "id": "w_flat_4",
       "netId": "bb1:rail-t+",
       "from": {
-        "part": "nano1",
+        "part": "MCU",
         "terminal": "5v"
       },
       "to": {

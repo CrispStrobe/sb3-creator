@@ -31,7 +31,7 @@
    "y": 115
   },
   {
-   "id": "uno1",
+   "id": "MCU",
    "kind": "arduino_uno",
    "params": {},
    "terminals": [
@@ -53,15 +53,15 @@
     "a",
     "b"
    ],
-   "x": 64,
-   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "a": "a3",
      "b": "a7"
     }
-   }
+   },
+   "x": 64,
+   "y": 255
   },
   {
    "id": "LED_heater",
@@ -75,43 +75,59 @@
     "anode",
     "cathode"
    ],
-   "x": 232,
-   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "anode": "a15",
      "cathode": "a16"
     }
-   }
+   },
+   "x": 232,
+   "y": 255
   },
   {
-   "id": "POT_sensor",
-   "kind": "potentiometer",
-   "declName": "sensor",
+   "id": "NTC_thermistor",
+   "kind": "ntc",
+   "declName": "thermistor",
+   "params": {},
+   "terminals": [
+    "a",
+    "b"
+   ],
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a19",
+     "b": "a20"
+    }
+   },
+   "x": 288,
+   "y": 255
+  },
+  {
+   "id": "R_DIV_thermistor",
+   "kind": "resistor",
    "params": {
     "ohms": 10000
    },
    "terminals": [
     "a",
-    "b",
-    "wiper"
+    "b"
    ],
-   "x": 148,
-   "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "a": "a9",
-     "wiper": "a11",
      "b": "a13"
     }
-   }
+   },
+   "x": 148,
+   "y": 255
   }
  ],
  "wires": [
   {
-   "from": "uno1",
+   "from": "MCU",
    "fromTerminal": "d13",
    "to": "R_heater",
    "toTerminal": "a"
@@ -123,15 +139,21 @@
    "toTerminal": "anode"
   },
   {
-   "from": "POT_sensor",
-   "fromTerminal": "wiper",
-   "to": "uno1",
+   "from": "NTC_thermistor",
+   "fromTerminal": "b",
+   "to": "R_DIV_thermistor",
+   "toTerminal": "a"
+  },
+  {
+   "from": "NTC_thermistor",
+   "fromTerminal": "b",
+   "to": "MCU",
    "toTerminal": "a0"
   },
   {
    "from": "VCC",
    "fromTerminal": "vcc",
-   "to": "POT_sensor",
+   "to": "NTC_thermistor",
    "toTerminal": "a"
   },
   {
@@ -143,13 +165,13 @@
   {
    "from": "GND",
    "fromTerminal": "gnd",
-   "to": "POT_sensor",
+   "to": "R_DIV_thermistor",
    "toTerminal": "b"
   },
   {
    "from": "VCC",
    "fromTerminal": "vcc",
-   "to": "uno1",
+   "to": "MCU",
    "toTerminal": "5v",
    "color": "red",
    "genPower": true
@@ -157,7 +179,7 @@
   {
    "from": "GND",
    "fromTerminal": "gnd",
-   "to": "uno1",
+   "to": "MCU",
    "toTerminal": "gnd2",
    "color": "black",
    "genPower": true
@@ -194,19 +216,26 @@
   {
    "ref": "bbw:bb1:gen_1",
    "boardId": "bb1",
-   "a": "b9",
-   "b": "t+9",
-   "color": "red"
+   "a": "b20",
+   "b": "b9",
+   "color": "blue"
   },
   {
    "ref": "bbw:bb1:gen_2",
+   "boardId": "bb1",
+   "a": "b19",
+   "b": "t+19",
+   "color": "red"
+  },
+  {
+   "ref": "bbw:bb1:gen_3",
    "boardId": "bb1",
    "a": "b16",
    "b": "b-16",
    "color": "black"
   },
   {
-   "ref": "bbw:bb1:gen_3",
+   "ref": "bbw:bb1:gen_4",
    "boardId": "bb1",
    "a": "b13",
    "b": "b-13",

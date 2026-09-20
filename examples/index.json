@@ -5161,6 +5161,7 @@
   "benches": {
    "arduino-mega": "arduino-sk-p03-love-o-meter/circuit.arduino-mega.json",
    "arduino-nano": "arduino-sk-p03-love-o-meter/circuit.arduino-nano.json",
+   "arduino-uno": "arduino-sk-p03-love-o-meter/circuit.arduino-uno.json",
    "atmega168p": "arduino-sk-p03-love-o-meter/circuit.atmega168p.json",
    "pico": "arduino-sk-p03-love-o-meter/circuit.pico.json",
    "stc12c5a60s2": "arduino-sk-p03-love-o-meter/circuit.stc12c5a60s2.json",
@@ -5228,6 +5229,7 @@
   "benches": {
    "arduino-mega": "arduino-sk-p05-servo-mood/circuit.arduino-mega.json",
    "arduino-nano": "arduino-sk-p05-servo-mood/circuit.arduino-nano.json",
+   "arduino-uno": "arduino-sk-p05-servo-mood/circuit.arduino-uno.json",
    "atmega168p": "arduino-sk-p05-servo-mood/circuit.atmega168p.json",
    "pico": "arduino-sk-p05-servo-mood/circuit.pico.json",
    "stc12c5a60s2": "arduino-sk-p05-servo-mood/circuit.stc12c5a60s2.json",
@@ -5256,6 +5258,7 @@
    "stc15f2k60s2"
   ],
   "benches": {
+   "arduino-uno": "arduino-sk-p06-light-theremin/circuit.arduino-uno.json",
    "stc12c5a60s2": "arduino-sk-p06-light-theremin/circuit.stc12c5a60s2.json",
    "stc15f2k60s2": "arduino-sk-p06-light-theremin/circuit.stc15f2k60s2.json"
   },
@@ -5321,6 +5324,7 @@
    "stc15f2k60s2"
   ],
   "benches": {
+   "arduino-uno": "arduino-sk-p07-keyboard/circuit.arduino-uno.json",
    "stc12c5a60s2": "arduino-sk-p07-keyboard/circuit.stc12c5a60s2.json",
    "stc15f2k60s2": "arduino-sk-p07-keyboard/circuit.stc15f2k60s2.json",
    "stc89c52rc": "arduino-sk-p07-keyboard/circuit.stc89c52rc.json"
@@ -5357,6 +5361,7 @@
   "benches": {
    "arduino-mega": "arduino-sk-p08-hourglass/circuit.arduino-mega.json",
    "arduino-nano": "arduino-sk-p08-hourglass/circuit.arduino-nano.json",
+   "arduino-uno": "arduino-sk-p08-hourglass/circuit.arduino-uno.json",
    "atmega168p": "arduino-sk-p08-hourglass/circuit.atmega168p.json",
    "attiny88": "arduino-sk-p08-hourglass/circuit.attiny88.json",
    "pico": "arduino-sk-p08-hourglass/circuit.pico.json",
@@ -5398,6 +5403,7 @@
   "benches": {
    "arduino-mega": "arduino-sk-p09-motorized-pinwheel/circuit.arduino-mega.json",
    "arduino-nano": "arduino-sk-p09-motorized-pinwheel/circuit.arduino-nano.json",
+   "arduino-uno": "arduino-sk-p09-motorized-pinwheel/circuit.arduino-uno.json",
    "atmega168p": "arduino-sk-p09-motorized-pinwheel/circuit.atmega168p.json",
    "attiny85": "arduino-sk-p09-motorized-pinwheel/circuit.attiny85.json",
    "attiny88": "arduino-sk-p09-motorized-pinwheel/circuit.attiny88.json",
@@ -5437,6 +5443,7 @@
   "benches": {
    "arduino-mega": "arduino-sk-p10-zoetrope/circuit.arduino-mega.json",
    "arduino-nano": "arduino-sk-p10-zoetrope/circuit.arduino-nano.json",
+   "arduino-uno": "arduino-sk-p10-zoetrope/circuit.arduino-uno.json",
    "atmega168p": "arduino-sk-p10-zoetrope/circuit.atmega168p.json",
    "pico": "arduino-sk-p10-zoetrope/circuit.pico.json",
    "stc12c5a60s2": "arduino-sk-p10-zoetrope/circuit.stc12c5a60s2.json",
@@ -5476,6 +5483,7 @@
   "benches": {
    "arduino-mega": "arduino-sk-p11-crystal-ball/circuit.arduino-mega.json",
    "arduino-nano": "arduino-sk-p11-crystal-ball/circuit.arduino-nano.json",
+   "arduino-uno": "arduino-sk-p11-crystal-ball/circuit.arduino-uno.json",
    "atmega168p": "arduino-sk-p11-crystal-ball/circuit.atmega168p.json",
    "attiny85": "arduino-sk-p11-crystal-ball/circuit.attiny85.json",
    "attiny88": "arduino-sk-p11-crystal-ball/circuit.attiny88.json",
@@ -5514,6 +5522,7 @@
   "benches": {
    "arduino-mega": "arduino-sk-p12-knock-lock/circuit.arduino-mega.json",
    "arduino-nano": "arduino-sk-p12-knock-lock/circuit.arduino-nano.json",
+   "arduino-uno": "arduino-sk-p12-knock-lock/circuit.arduino-uno.json",
    "atmega168p": "arduino-sk-p12-knock-lock/circuit.atmega168p.json",
    "pico": "arduino-sk-p12-knock-lock/circuit.pico.json",
    "stc12c5a60s2": "arduino-sk-p12-knock-lock/circuit.stc12c5a60s2.json",
@@ -5552,6 +5561,7 @@
   "benches": {
    "arduino-mega": "arduino-sk-p13-touch-lamp/circuit.arduino-mega.json",
    "arduino-nano": "arduino-sk-p13-touch-lamp/circuit.arduino-nano.json",
+   "arduino-uno": "arduino-sk-p13-touch-lamp/circuit.arduino-uno.json",
    "atmega168p": "arduino-sk-p13-touch-lamp/circuit.atmega168p.json",
    "attiny85": "arduino-sk-p13-touch-lamp/circuit.attiny85.json",
    "attiny88": "arduino-sk-p13-touch-lamp/circuit.attiny88.json",
@@ -5591,6 +5601,7 @@
   "benches": {
    "arduino-mega": "arduino-sk-p14-serial-pot/circuit.arduino-mega.json",
    "arduino-nano": "arduino-sk-p14-serial-pot/circuit.arduino-nano.json",
+   "arduino-uno": "arduino-sk-p14-serial-pot/circuit.arduino-uno.json",
    "atmega168p": "arduino-sk-p14-serial-pot/circuit.atmega168p.json",
    "pico": "arduino-sk-p14-serial-pot/circuit.pico.json",
    "stc12c5a60s2": "arduino-sk-p14-serial-pot/circuit.stc12c5a60s2.json",

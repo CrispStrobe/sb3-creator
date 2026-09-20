@@ -11,12 +11,35 @@
    "rotation": 0
   },
   {
-   "id": "board",
+   "id": "VCC",
+   "kind": "vcc",
+   "params": {},
+   "terminals": [
+    "vcc"
+   ],
+   "x": 58,
+   "y": 115
+  },
+  {
+   "id": "GND",
+   "kind": "gnd",
+   "params": {},
+   "terminals": [
+    "gnd"
+   ],
+   "x": 134,
+   "y": 115
+  },
+  {
+   "id": "MCU",
    "kind": "arduino_nano",
    "params": {},
-   "x": 64,
-   "y": 269,
-   "rotation": 0,
+   "terminals": [
+    "a0",
+    "d13",
+    "d12",
+    "d8"
+   ],
    "seat": {
     "boardId": "bb1",
     "leadMap": {
@@ -51,88 +74,257 @@
      "3v3": "f16",
      "d13": "f17"
     }
-   }
+   },
+   "x": 64,
+   "y": 269
   },
   {
-   "id": "pot1",
-   "kind": "potentiometer",
-   "declName": "sensor",
+   "id": "NTC_thermistor",
+   "kind": "ntc",
+   "declName": "thermistor",
+   "params": {},
+   "terminals": [
+    "a",
+    "b"
+   ],
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a48",
+     "b": "a49"
+    }
+   },
+   "x": 694,
+   "y": 255
+  },
+  {
+   "id": "R_DIV_thermistor",
+   "kind": "resistor",
    "params": {
     "ohms": 10000
    },
-   "x": 358,
-   "y": 255,
+   "terminals": [
+    "a",
+    "b"
+   ],
    "seat": {
     "boardId": "bb1",
     "leadMap": {
      "a": "a24",
-     "wiper": "a26",
      "b": "a28"
     }
-   }
-  },
-  {
-   "id": "vcc1",
-   "kind": "vcc",
-   "params": {
-    "volts": 5
    },
-   "x": 58,
-   "y": 115
+   "x": 358,
+   "y": 255
   },
   {
-   "id": "gnd1",
-   "kind": "gnd",
-   "params": {},
-   "x": 134,
-   "y": 115
+   "id": "R_led1",
+   "kind": "resistor",
+   "params": {
+    "ohms": 1000
+   },
+   "terminals": [
+    "a",
+    "b"
+   ],
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a30",
+     "b": "a34"
+    }
+   },
+   "x": 442,
+   "y": 255
+  },
+  {
+   "id": "LED_led1",
+   "kind": "led",
+   "declName": "led1",
+   "params": {
+    "vf": 2,
+    "color": "red"
+   },
+   "terminals": [
+    "anode",
+    "cathode"
+   ],
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "anode": "a52",
+     "cathode": "a53"
+    }
+   },
+   "x": 750,
+   "y": 255
+  },
+  {
+   "id": "R_led2",
+   "kind": "resistor",
+   "params": {
+    "ohms": 1000
+   },
+   "terminals": [
+    "a",
+    "b"
+   ],
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a36",
+     "b": "a40"
+    }
+   },
+   "x": 526,
+   "y": 255
+  },
+  {
+   "id": "LED_led2",
+   "kind": "led",
+   "declName": "led2",
+   "params": {
+    "vf": 2,
+    "color": "red"
+   },
+   "terminals": [
+    "anode",
+    "cathode"
+   ],
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "anode": "a56",
+     "cathode": "a57"
+    }
+   },
+   "x": 806,
+   "y": 255
+  },
+  {
+   "id": "R_led3",
+   "kind": "resistor",
+   "params": {
+    "ohms": 1000
+   },
+   "terminals": [
+    "a",
+    "b"
+   ],
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a42",
+     "b": "a46"
+    }
+   },
+   "x": 610,
+   "y": 255
+  },
+  {
+   "id": "LED_led3",
+   "kind": "led",
+   "declName": "led3",
+   "params": {
+    "vf": 2,
+    "color": "red"
+   },
+   "terminals": [
+    "anode",
+    "cathode"
+   ],
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "anode": "f24",
+     "cathode": "f25"
+    }
+   },
+   "x": 358,
+   "y": 349
   }
  ],
  "wires": [
   {
-   "from": "vcc1",
-   "fromTerminal": "vcc",
-   "to": "pot1",
+   "from": "NTC_thermistor",
+   "fromTerminal": "b",
+   "to": "R_DIV_thermistor",
    "toTerminal": "a"
   },
   {
-   "from": "pot1",
+   "from": "NTC_thermistor",
    "fromTerminal": "b",
-   "to": "gnd1",
-   "toTerminal": "gnd"
+   "to": "MCU",
+   "toTerminal": "a0"
   },
   {
-   "from": "board",
-   "fromTerminal": "a0",
-   "to": "pot1",
-   "toTerminal": "wiper"
+   "from": "MCU",
+   "fromTerminal": "d13",
+   "to": "R_led1",
+   "toTerminal": "a"
   },
   {
-   "from": "board",
+   "from": "R_led1",
+   "fromTerminal": "b",
+   "to": "LED_led1",
+   "toTerminal": "anode"
+  },
+  {
+   "from": "MCU",
+   "fromTerminal": "d12",
+   "to": "R_led2",
+   "toTerminal": "a"
+  },
+  {
+   "from": "R_led2",
+   "fromTerminal": "b",
+   "to": "LED_led2",
+   "toTerminal": "anode"
+  },
+  {
+   "from": "MCU",
+   "fromTerminal": "d8",
+   "to": "R_led3",
+   "toTerminal": "a"
+  },
+  {
+   "from": "R_led3",
+   "fromTerminal": "b",
+   "to": "LED_led3",
+   "toTerminal": "anode"
+  },
+  {
+   "from": "VCC",
+   "fromTerminal": "vcc",
+   "to": "NTC_thermistor",
+   "toTerminal": "a"
+  },
+  {
+   "from": "GND",
    "fromTerminal": "gnd",
-   "to": "gnd1",
-   "toTerminal": "gnd"
-  },
-  {
-   "from": "board",
-   "fromTerminal": "gnd",
-   "to": "pot1",
+   "to": "R_DIV_thermistor",
    "toTerminal": "b"
   },
   {
-   "from": "board",
-   "fromTerminal": "5v",
-   "to": "pot1",
-   "toTerminal": "a"
+   "from": "GND",
+   "fromTerminal": "gnd",
+   "to": "LED_led1",
+   "toTerminal": "cathode"
   },
   {
-   "from": "board",
-   "fromTerminal": "5v",
-   "to": "vcc1",
-   "toTerminal": "vcc"
+   "from": "GND",
+   "fromTerminal": "gnd",
+   "to": "LED_led2",
+   "toTerminal": "cathode"
   },
   {
-   "from": "vcc1",
+   "from": "GND",
+   "fromTerminal": "gnd",
+   "to": "LED_led3",
+   "toTerminal": "cathode"
+  },
+  {
+   "from": "VCC",
    "fromTerminal": "vcc",
    "to": {
     "board": "bb1",
@@ -142,7 +334,7 @@
    "genPower": true
   },
   {
-   "from": "gnd1",
+   "from": "GND",
    "fromTerminal": "gnd",
    "to": {
     "board": "bb1",
@@ -156,52 +348,108 @@
   {
    "ref": "bbw:bb1:gen_0",
    "boardId": "bb1",
-   "a": "b24",
-   "b": "t+24",
-   "color": "red"
+   "a": "b49",
+   "b": "b24",
+   "color": "green"
   },
   {
    "ref": "bbw:bb1:gen_1",
+   "boardId": "bb1",
+   "a": "c49",
+   "b": "g14",
+   "color": "blue"
+  },
+  {
+   "ref": "bbw:bb1:gen_2",
+   "boardId": "bb1",
+   "a": "g17",
+   "b": "b30",
+   "color": "yellow"
+  },
+  {
+   "ref": "bbw:bb1:gen_3",
+   "boardId": "bb1",
+   "a": "b34",
+   "b": "b52",
+   "color": "orange"
+  },
+  {
+   "ref": "bbw:bb1:gen_4",
+   "boardId": "bb1",
+   "a": "a17",
+   "b": "b36",
+   "color": "purple"
+  },
+  {
+   "ref": "bbw:bb1:gen_5",
+   "boardId": "bb1",
+   "a": "b40",
+   "b": "b56",
+   "color": "green"
+  },
+  {
+   "ref": "bbw:bb1:gen_6",
+   "boardId": "bb1",
+   "a": "a13",
+   "b": "b42",
+   "color": "blue"
+  },
+  {
+   "ref": "bbw:bb1:gen_7",
+   "boardId": "bb1",
+   "a": "b46",
+   "b": "g24",
+   "color": "yellow"
+  },
+  {
+   "ref": "bbw:bb1:gen_8",
+   "boardId": "bb1",
+   "a": "b48",
+   "b": "t+48",
+   "color": "red"
+  },
+  {
+   "ref": "bbw:bb1:gen_9",
    "boardId": "bb1",
    "a": "b28",
    "b": "b-28",
    "color": "black"
   },
   {
-   "ref": "bbw:bb1:gen_2",
+   "ref": "bbw:bb1:gen_10",
    "boardId": "bb1",
-   "a": "g14",
-   "b": "b26",
-   "color": "green"
+   "a": "b53",
+   "b": "b-53",
+   "color": "black"
   },
   {
-   "ref": "bbw:bb1:gen_3",
+   "ref": "bbw:bb1:gen_11",
+   "boardId": "bb1",
+   "a": "b57",
+   "b": "b-57",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb1:gen_12",
+   "boardId": "bb1",
+   "a": "g25",
+   "b": "b-25",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb1:gen_13",
    "boardId": "bb1",
    "a": "a6",
    "b": "b-6",
    "color": "black"
   },
   {
-   "ref": "bbw:bb1:gen_4",
-   "boardId": "bb1",
-   "a": "c6",
-   "b": "c28",
-   "color": "blue"
-  },
-  {
-   "ref": "bbw:bb1:gen_5",
+   "ref": "bbw:bb1:gen_14",
    "boardId": "bb1",
    "a": "g6",
-   "b": "c24",
-   "color": "yellow"
-  },
-  {
-   "ref": "bbw:bb1:gen_6",
-   "boardId": "bb1",
-   "a": "h6",
    "b": "t+6",
    "color": "red"
   }
  ],
- "generated": "benchFor+authored+seat"
+ "generated": "benchFor+seat"
 }

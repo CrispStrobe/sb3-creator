@@ -22,7 +22,7 @@
       "y": 115
     },
     {
-      "id": "pico1",
+      "id": "MCU",
       "kind": "pi_pico",
       "params": {},
       "terminals": [
@@ -32,30 +32,15 @@
       "y": 255
     },
     {
-      "id": "R_signal",
-      "kind": "resistor",
-      "params": {
-        "ohms": 1000
-      },
+      "id": "SERVO_servo",
+      "kind": "servo",
+      "params": {},
       "terminals": [
-        "a",
-        "b"
+        "signal",
+        "vcc",
+        "gnd"
       ],
       "x": 400,
-      "y": 255
-    },
-    {
-      "id": "LED_signal",
-      "kind": "led",
-      "params": {
-        "vf": 2,
-        "color": "red"
-      },
-      "terminals": [
-        "anode",
-        "cathode"
-      ],
-      "x": 484,
       "y": 255
     }
   ],
@@ -64,24 +49,24 @@
       "id": "w_flat_0",
       "netId": "bb1:n-col-t27",
       "from": {
-        "part": "pico1",
+        "part": "MCU",
         "terminal": "gp25"
       },
       "to": {
-        "part": "R_signal",
-        "terminal": "a"
+        "part": "SERVO_servo",
+        "terminal": "signal"
       }
     },
     {
       "id": "w_flat_1",
-      "netId": "bb1:n-col-t31",
+      "netId": "bb1:rail-b-",
       "from": {
-        "part": "LED_signal",
-        "terminal": "anode"
+        "part": "GND",
+        "terminal": "gnd"
       },
       "to": {
-        "part": "R_signal",
-        "terminal": "b"
+        "part": "MCU",
+        "terminal": "gnd_1"
       }
     },
     {
@@ -92,27 +77,27 @@
         "terminal": "gnd"
       },
       "to": {
-        "part": "LED_signal",
-        "terminal": "cathode"
+        "part": "SERVO_servo",
+        "terminal": "gnd"
       }
     },
     {
       "id": "w_flat_3",
-      "netId": "bb1:rail-b-",
+      "netId": "bb1:rail-t+",
       "from": {
-        "part": "GND",
-        "terminal": "gnd"
+        "part": "MCU",
+        "terminal": "vbus"
       },
       "to": {
-        "part": "pico1",
-        "terminal": "gnd_1"
+        "part": "SERVO_servo",
+        "terminal": "vcc"
       }
     },
     {
       "id": "w_flat_4",
       "netId": "bb1:rail-t+",
       "from": {
-        "part": "pico1",
+        "part": "MCU",
         "terminal": "vbus"
       },
       "to": {

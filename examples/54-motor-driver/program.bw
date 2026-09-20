@@ -1,6 +1,7 @@
 DEVICE STC12C5A60S2
 CLOCK 11059200
 PIN led = P1.0 OUTPUT ACTIVE LOW
+PIN motor = P1.4 PWM
 
 # DC motor driver via L293D H-bridge.
 # PCA CCP1 (P1.4) for PWM speed, P3.4/P3.5 for direction via L293D inputs.
