@@ -1669,16 +1669,19 @@ class SB3Creator {
             return B('devices_light', { SENSOR: this.parseValue(m[1], context) });
         }
         if ((m = s.match(/^angle of\s+(.+)$/i))) {
-            return B('devices_servoangle', { SERVO: this.parseValue(m[1], context) });
+            const ch = this.stcActuatorChannel(m[1].trim(), 'servo');
+            return B('devices_servoangle', { SERVO: this.parseValue(ch == null ? m[1] : String(ch), context) });
         }
         if ((m = s.match(/^distance from\s+(.+)$/i))) {
             return B('devices_distance', { SENSOR: this.parseValue(m[1], context) });
         }
         if ((m = s.match(/^speed of\s+(.+)$/i))) {
-            return B('devices_motorspeed', { MOTOR: this.parseValue(m[1], context) });
+            const ch = this.stcActuatorChannel(m[1].trim(), 'motor');
+            return B('devices_motorspeed', { MOTOR: this.parseValue(ch == null ? m[1] : String(ch), context) });
         }
         if ((m = s.match(/^direction of\s+(.+)$/i))) {
-            return B('devices_motordirection', { MOTOR: this.parseValue(m[1], context) });
+            const ch = this.stcActuatorChannel(m[1].trim(), 'motor');
+            return B('devices_motordirection', { MOTOR: this.parseValue(ch == null ? m[1] : String(ch), context) });
         }
         if ((m = s.match(/^state of\s+(.+)$/i))) {
             return B('devices_devicestate', { DEVICE: this.parseValue(m[1], context) });
@@ -1893,6 +1896,25 @@ class SB3Creator {
         if (!cfg || !cfg.parts || !name) return null;
         const lower = String(name).trim().toLowerCase();
         return cfg.parts.find((p) => p.name.toLowerCase() === lower) || null;
+    }
+
+    /**
+     * The CHANNEL a named actuator block should address, or null.
+     *
+     * Servos and motors were the only devices with no way to point a block at
+     * one: every other kind — 74HC595, LCD1602, LEDBANK8, MATRIX8X8, SEVENSEG8,
+     * KEYPAD4X4 — is declared with a name and addressed by it, while these took
+     * a bare channel number. So `set myservo angle to 90` compiled `myservo` as
+     * an ordinary variable, the emitter declared it `static long myservo = 0;`,
+     * and bw_servo_set opens `if (servo < 1 || servo > 2) return;`. Three
+     * shipped examples drove a servo that never moved, and nothing said so.
+     *
+     * @param {string} name @param {'servo'|'motor'} type
+     * @returns {number|null} the 1-based channel
+     */
+    stcActuatorChannel(name, type) {
+        const part = this.stcPart(name);
+        return part && part.type === type ? part.channel : null;
     }
 
     // The one KEYPAD4X4, for the phrases that do not name it (`a key is
@@ -3322,6 +3344,33 @@ class SB3Creator {
             cfg.parts.push({ name, type: 'lcd1602', claims, data, rs, rw, en, writeOnly: lcdWriteOnly });
             return true;
         }
+        // PART <name> = SERVO <1|2>  /  PART <name> = MOTOR <1|2>
+        //
+        // The channel, given a name. Both drivers address a fixed hardware
+        // channel — bw_servo_set writes OCR1A for servo 1 and OCR1B for servo
+        // 2, so the PIN is decided by the channel and not the other way round —
+        // which is why this declares the channel rather than a pin, unlike
+        // every other PART here. What it adds is the thing that was missing:
+        // something for a block to point AT. An undeclared name in `set <x>
+        // angle to` used to compile to a variable worth 0, and 0 is outside the
+        // driver's own 1..2 guard, so the call returned having done nothing.
+        if ((m = trimmed.match(/^PART\s+([A-Za-z_]\w*)\s*=\s*(SERVO|MOTOR)\s+([12])$/i))) {
+            const name = m[1];
+            const type = m[2].toLowerCase();
+            const channel = Number(m[3]);
+            const cfg = this.stcConfig();
+            const clash = cfg.parts.find((q) => q.type === type && q.channel === channel);
+            if (clash) {
+                this.warn(lineIndex, `${type} channel ${channel} is already declared as "${clash.name}"`);
+                return true;
+            }
+            if (cfg.parts.some((q) => q.name.toLowerCase() === name.toLowerCase())) {
+                this.warn(lineIndex, `"${name}" is already a declared part`);
+                return true;
+            }
+            cfg.parts.push({ name, type, channel, claims: [] });
+            return true;
+        }
         // PART <name> = KEYPAD4X4 ROWS P<..> x4 COLS P<..> x4 — sixteen keys for
         // eight pins, read-only (the scanned key 0..15, or -1). The emitted
         // scanner is the one verified on Prechin A2 silicon (2026-08-17);
@@ -4600,13 +4649,17 @@ class SB3Creator {
         }
         if ((match = line.match(/^set\s+(.+?)\s+angle to\s+(.+)$/i))) {
             const { id, block } = cmd('devices_setservo');
-            block[id].inputs.SERVO = val(match[1]);
+            // A declared SERVO part addresses its channel; anything else is
+            // still an ordinary value, so `set 1 angle to 90` keeps working.
+            const servoCh = this.stcActuatorChannel(match[1].trim(), 'servo');
+            block[id].inputs.SERVO = servoCh == null ? val(match[1]) : val(String(servoCh));
             block[id].inputs.ANGLE = val(match[2]);
             return ret(block);
         }
         if ((match = line.match(/^set\s+(.+?)\s+speed to\s+(.+)$/i))) {
             const { id, block } = cmd('devices_setmotor');
-            block[id].inputs.MOTOR = val(match[1]);
+            const motorCh = this.stcActuatorChannel(match[1].trim(), 'motor');
+            block[id].inputs.MOTOR = motorCh == null ? val(match[1]) : val(String(motorCh));
             block[id].inputs.SPEED = val(match[2]);
             return ret(block);
         }
@@ -4618,7 +4671,8 @@ class SB3Creator {
         }
         if ((match = line.match(/^set\s+(.+?)\s+direction\s+(forward|reverse|brake|coast)$/i))) {
             const { id, block } = cmd('devices_setdirection');
-            block[id].inputs.MOTOR = val(match[1]);
+            const dirCh = this.stcActuatorChannel(match[1].trim(), 'motor');
+            block[id].inputs.MOTOR = dirCh == null ? val(match[1]) : val(String(dirCh));
             block[id].fields.DIR = [match[2].toLowerCase(), null];
             return ret(block);
         }
@@ -12293,6 +12347,12 @@ class SB3Creator {
                     }
                     if (pt.type === 'ledbank8') {
                         return `part ${pt.name} ledbank8 P${pt.ledPort}${pt.activeLow ? ' active-low' : ''}`;
+                    }
+                    // A named actuator carries a CHANNEL, not pins: the driver
+                    // owns the pin (OCR1A for servo 1, OCR1B for servo 2), so
+                    // there is nothing else to round-trip.
+                    if (pt.type === 'servo' || pt.type === 'motor') {
+                        return `part ${pt.name} ${pt.type} ${pt.channel}`;
                     }
                     if (pt.type === 'lcd1602') {
                         return `part ${pt.name} lcd1602 data ${pt.data.map(w).join(' ')} rs ${w(pt.rs)}${pt.rw ? ` rw ${w(pt.rw)}` : ''} en ${w(pt.en)}${pt.writeOnly ? ' write-only' : ''}`;

@@ -204,13 +204,25 @@ describe('example intros describe the bench in front of the reader', () => {
     // arduino-sk-p12-knock-lock all drove a servo that never moved, silently.
     // The motor is the opposite case — bw_motor_speed ignores its index with
     // `(void)motor` — so `mymotor` stays correct there and is not checked here.
+    // 53-servo-sweep now declares `PART arm = SERVO 1` and says `set arm angle
+    // to pos`, which is the point of the declaration: a block pointing at a
+    // part rather than at a bare number.
     const bad = [];
     for (const id of exampleDirs()) {
       const prog = join(EXAMPLES, id, 'program.bw');
       if (!existsSync(prog)) continue;
-      for (const line of readFileSync(prog, 'utf8').split('\n')) {
+      const text = readFileSync(prog, 'utf8');
+      // A name DECLARED as a servo channel resolves to that channel, which is
+      // what `PART <name> = SERVO <n>` exists for. Anything else must be a
+      // literal 1 or 2, because an unresolvable name lowers to a variable and
+      // a variable is 0 until something assigns it.
+      const declared = new Set([...text.matchAll(/^\s*PART\s+(\w+)\s*=\s*SERVO\s+[12]\s*$/gim)]
+        .map(m => m[1].toLowerCase()));
+      for (const line of text.split('\n')) {
         const m = /^\s*set\s+(\S+)\s+angle to\b/.exec(line.replace(/#.*$/, ''));
-        if (m && !/^[12]$/.test(m[1])) bad.push(`${id}: ${line.trim()}`);
+        if (m && !/^[12]$/.test(m[1]) && !declared.has(m[1].toLowerCase())) {
+          bad.push(`${id}: ${line.trim()}`);
+        }
       }
     }
     assert.deepEqual(bad, [], 'a servo index outside 1..2 makes the call a no-op:\n  '

@@ -190,8 +190,13 @@ function readMarkers (source) {
             if (lb) {
                 h.parts.push({ name: lb[1], type: 'ledbank8', ledPort: +lb[2], activeLow: !!lb[3] });
             }
+            // `part <name> servo|motor <channel>` — a name for a driver channel.
+            const act = (kp || ss || lb) ? null : rest.match(/^(\w+)\s+(servo|motor)\s+([12])\s*$/i);
+            if (act) {
+                h.parts.push({ name: act[1], type: act[2].toLowerCase(), channel: +act[3] });
+            }
             // `part <name> lcd1602 data D4 D5 D6 D7 rs RS [rw RW] en EN [write-only]`
-            const lcd = (kp || ss || lb) ? null : rest.match(/^(\w+)\s+lcd1602\s+data\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+rs\s+(\S+)(?:\s+rw\s+(\S+))?\s+en\s+(\S+)(\s+write-only)?/i);
+            const lcd = (kp || ss || lb || act) ? null : rest.match(/^(\w+)\s+lcd1602\s+data\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+rs\s+(\S+)(?:\s+rw\s+(\S+))?\s+en\s+(\S+)(\s+write-only)?/i);
             if (lcd) {
                 const at = (s) => { const m8 = s.match(/^P(\d)\.(\d)$/i); return m8 ? { port: +m8[1], bit: +m8[2] } : { where: s.toUpperCase() }; };
                 h.parts.push({ name: lcd[1], type: 'lcd1602',
@@ -1377,15 +1382,22 @@ export default function cToPseudocode (source, opts = {}) {
                 if (sv[2] === 'only') return { text: '0', level: 99, stmt: `light only led ${aa(0)} on ${n}` };
             }
         }
+        // A channel the header gave a NAME to reads back as that name, so the
+        // round trip returns the program that was written rather than the
+        // number it lowered to. An undeclared channel stays a number.
+        const actuator = (type, arg) => {
+            const pt = hdrParts.find(q => q.type === type && String(q.channel) === String(arg));
+            return pt ? pt.name : arg;
+        };
         switch (name) {
             // Servo
-            case 'bw_servo_set': return { text: '0', level: 99, stmt: `set ${a(0)} angle to ${a(1)}` };
-            case 'bw_servo_get': return { text: `angle of ${a(0)}`, level: 99 };
+            case 'bw_servo_set': return { text: '0', level: 99, stmt: `set ${actuator('servo', a(0))} angle to ${a(1)}` };
+            case 'bw_servo_get': return { text: `angle of ${actuator('servo', a(0))}`, level: 99 };
             // Motor
-            case 'bw_motor_speed': return { text: '0', level: 99, stmt: `set ${a(0)} speed to ${a(1)}` };
-            case 'bw_motor_dir': return { text: '0', level: 99, stmt: `set ${a(0)} direction ${MOTOR_DIRS[Number(a(1))] || a(1)}` };
-            case 'bw_motor_get_speed': return { text: `speed of ${a(0)}`, level: 99 };
-            case 'bw_motor_get_dir': return { text: `direction of ${a(0)}`, level: 99 };
+            case 'bw_motor_speed': return { text: '0', level: 99, stmt: `set ${actuator('motor', a(0))} speed to ${a(1)}` };
+            case 'bw_motor_dir': return { text: '0', level: 99, stmt: `set ${actuator('motor', a(0))} direction ${MOTOR_DIRS[Number(a(1))] || a(1)}` };
+            case 'bw_motor_get_speed': return { text: `speed of ${actuator('motor', a(0))}`, level: 99 };
+            case 'bw_motor_get_dir': return { text: `direction of ${actuator('motor', a(0))}`, level: 99 };
             // Relay
             case 'bw_relay_set': return { text: '0', level: 99, stmt: `set relay ${a(0)} ${Number(a(1)) ? 'on' : 'off'}` };
             // Activate / deactivate (generic device)
@@ -2069,6 +2081,11 @@ export default function cToPseudocode (source, opts = {}) {
             }
             if (pt.type === 'ledbank8') {
                 out.push(`PART ${pt.name} = LEDBANK8 ON P${pt.ledPort}${pt.activeLow ? ' ACTIVE LOW' : ''}`);
+                continue;
+            }
+            if (pt.type === 'servo' || pt.type === 'motor') {
+                // Channel, not pins — the driver owns the pin.
+                out.push(`PART ${pt.name} = ${pt.type.toUpperCase()} ${pt.channel}`);
                 continue;
             }
             if (pt.type === 'lcd1602') {
