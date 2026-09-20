@@ -11,8 +11,11 @@ const here = dirname(fileURLToPath(import.meta.url));
 const cur = JSON.parse(readFileSync(join(here, '../examples/curriculum.json'), 'utf8'));
 const ids = new Set(JSON.parse(readFileSync(join(here, '../examples/index.json'), 'utf8')).map(e => e.id));
 
-// MEASURED 2026-08-29 (direct count; re-measured because the 2026-08-23 figure
-// below had gone stale in the one place it mattered): 5 trails, 15 chapters,
+// MEASURED 2026-09-20 (direct count): 8 trails, 25 chapters, 88 stations, and
+// 313 index entries. Three trails were added for the digital and MCU domain,
+// which had no trail at all — the pin, the shift register, and displays — so
+// the count moved from 53. Re-measured rather than assumed, which is the point
+// this comment has been making since 2026-08-29: 5 trails, 15 chapters,
 // 53 stations, and 310 index entries — the index grew from 274 while the floor
 // of 250 stayed put, so it now sits at 80.6 % of actual rather than 91.2 %.
 // A measurement recorded once and never revisited is how a floor stops being a
