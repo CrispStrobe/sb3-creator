@@ -3,7 +3,11 @@ CLOCK 11059200
 PIN led1 = P1.0 OUTPUT ACTIVE LOW
 PIN btn = P3.2 INPUT
 
-# Reaction timer: wait random time, light LED, count until button press
+# Reaction timer: fixed 3 s wait, light LED, count until button press.
+# The counter ticks in 10 ms units, so a typical 250 ms reaction reads as ~25
+# and blinks back in about five seconds. At the 1 ms unit this used to carry,
+# the same reaction blinked 250 times -- fifty seconds of blinking, which reads
+# as a hang rather than a result.
 WHEN flag clicked:
   FOREVER:
     turn off led1
@@ -15,7 +19,7 @@ WHEN flag clicked:
     set counter to 0
     REPEAT UNTIL read btn = 0:
       change counter by 1
-      wait 0.001 seconds
+      wait 0.01 seconds
     turn off led1
     REPEAT counter:
       turn on led1

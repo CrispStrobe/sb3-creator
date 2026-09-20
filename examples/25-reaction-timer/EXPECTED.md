@@ -7,8 +7,9 @@ Button on P3.2 with 10 kOhm pull-up to VCC; button press connects P3.2 to GND.
 
 ## Program
 
-1. LED off. Wait a fixed delay (30 x 100 ms = 3 seconds).
-2. Turn LED on and start counting in 1 ms increments.
+1. LED off. Wait a fixed delay (30 x 100 ms = 3 seconds). NOT random: intro.md
+   claimed a random delay for a long time, and the program never had one.
+2. Turn LED on and start counting in 10 ms increments.
 3. When button is pressed (P3.2 goes LOW), stop counting.
 4. Blink the LED `counter` times to display the reaction time.
 5. Wait 2 seconds, then repeat.
@@ -22,8 +23,10 @@ Button on P3.2 with 10 kOhm pull-up to VCC; button press connects P3.2 to GND.
 | result blinks   | toggling   | blinking  | counter x 200 ms |
 | pause           | high (1)   | OFF       | 2 s              |
 
-- **Counter resolution:** ~1 ms per count
-- **Example:** 250 ms reaction time = counter reaches ~250, LED blinks 250 times
+- **Counter resolution:** ~10 ms per count
+- **Example:** 250 ms reaction time = counter reaches ~25, LED blinks 25 times
+  (about 5 s of blinking; at the former 1 ms count it was 250 blinks, ~50 s,
+  which reads as a hang rather than a result)
 - **LED current (when on):** (5.0 - 2.0) / 1000 = 3.0 mA
 - **Pull-up current (idle):** 5.0 / 10000 = 0.5 mA
 

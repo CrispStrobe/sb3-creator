@@ -2,7 +2,10 @@ DEVICE STC12C5A60S2
 CLOCK 11059200
 PIN led1 = P1.0 OUTPUT ACTIVE LOW
 
-# Software PWM LED fade-in then fade-out
+# Software PWM LED fade-in then fade-out.
+# The tick sets the PWM PERIOD: 100 duty steps x 0.1 ms = 10 ms = 100 Hz, above
+# the flicker fusion threshold. At the 1 ms tick this used to carry, the period
+# was 100 ms -- a 10 Hz square wave, which is visible flicker, not a dimmer.
 WHEN flag clicked:
   FOREVER:
     set duty to 0
@@ -10,20 +13,20 @@ WHEN flag clicked:
       set i to 0
       REPEAT duty:
         turn on led1
-        wait 0.001 seconds
+        wait 0.0001 seconds
       set i to 0
       REPEAT 100 - duty:
         turn off led1
-        wait 0.001 seconds
+        wait 0.0001 seconds
       change duty by 1
     set duty to 100
     REPEAT 100:
       set i to 0
       REPEAT duty:
         turn on led1
-        wait 0.001 seconds
+        wait 0.0001 seconds
       set i to 0
       REPEAT 100 - duty:
         turn off led1
-        wait 0.001 seconds
+        wait 0.0001 seconds
       change duty by -1
