@@ -4,7 +4,9 @@
     {
       "id": "VCC",
       "kind": "vcc",
-      "params": {},
+      "params": {
+        "volts": 5
+      },
       "terminals": [
         "vcc"
       ],
@@ -22,7 +24,7 @@
       "y": 115
     },
     {
-      "id": "attiny851",
+      "id": "uno1",
       "kind": "attiny85",
       "params": {},
       "terminals": [
@@ -53,6 +55,32 @@
       "y": 255
     },
     {
+      "id": "OPTO1",
+      "kind": "optocoupler",
+      "params": {},
+      "terminals": [
+        "anode",
+        "cathode",
+        "collector",
+        "emitter"
+      ],
+      "x": 344,
+      "y": 255
+    },
+    {
+      "id": "R_load",
+      "kind": "resistor",
+      "params": {
+        "ohms": 1000
+      },
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 260,
+      "y": 255
+    },
+    {
       "id": "LED_opto",
       "kind": "led",
       "params": {
@@ -63,7 +91,7 @@
         "anode",
         "cathode"
       ],
-      "x": 260,
+      "x": 414,
       "y": 255
     }
   ],
@@ -72,19 +100,19 @@
       "id": "w_flat_0",
       "netId": "bb1:n-col-t11",
       "from": {
-        "part": "attiny851",
-        "terminal": "pb1"
-      },
-      "to": {
         "part": "R_opto",
         "terminal": "a"
+      },
+      "to": {
+        "part": "uno1",
+        "terminal": "pb0"
       }
     },
     {
       "id": "w_flat_1",
       "netId": "bb1:n-col-t15",
       "from": {
-        "part": "LED_opto",
+        "part": "OPTO1",
         "terminal": "anode"
       },
       "to": {
@@ -94,34 +122,82 @@
     },
     {
       "id": "w_flat_2",
-      "netId": "bb1:rail-b-",
+      "netId": "bb1:n-col-t21",
       "from": {
-        "part": "GND",
-        "terminal": "gnd"
+        "part": "LED_opto",
+        "terminal": "anode"
       },
       "to": {
-        "part": "LED_opto",
-        "terminal": "cathode"
+        "part": "R_load",
+        "terminal": "b"
       }
     },
     {
       "id": "w_flat_3",
+      "netId": "bb1:n-col-t26",
+      "from": {
+        "part": "LED_opto",
+        "terminal": "cathode"
+      },
+      "to": {
+        "part": "OPTO1",
+        "terminal": "collector"
+      }
+    },
+    {
+      "id": "w_flat_4",
       "netId": "bb1:rail-b-",
       "from": {
         "part": "GND",
         "terminal": "gnd"
       },
       "to": {
-        "part": "attiny851",
+        "part": "OPTO1",
+        "terminal": "cathode"
+      }
+    },
+    {
+      "id": "w_flat_5",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "GND",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "OPTO1",
+        "terminal": "emitter"
+      }
+    },
+    {
+      "id": "w_flat_6",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "GND",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "uno1",
         "terminal": "gnd"
       }
     },
     {
-      "id": "w_flat_4",
+      "id": "w_flat_7",
       "netId": "bb1:rail-t+",
       "from": {
-        "part": "attiny851",
+        "part": "R_load",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "uno1",
         "terminal": "vcc"
+      }
+    },
+    {
+      "id": "w_flat_8",
+      "netId": "bb1:rail-t+",
+      "from": {
+        "part": "R_load",
+        "terminal": "a"
       },
       "to": {
         "part": "VCC",

@@ -13,7 +13,9 @@
   {
    "id": "VCC",
    "kind": "vcc",
-   "params": {},
+   "params": {
+    "volts": 5
+   },
    "terminals": [
     "vcc"
    ],
@@ -31,7 +33,7 @@
    "y": 115
   },
   {
-   "id": "attiny881",
+   "id": "uno1",
    "kind": "attiny88",
    "params": {},
    "x": 64,
@@ -54,20 +56,20 @@
      "pd6": "f14",
      "pd7": "f15",
      "pb0": "f16",
-     "pc7": "e16",
-     "pc5": "e15",
-     "pc4": "e14",
-     "pc3": "e13",
-     "pc2": "e12",
-     "pc1": "e11",
-     "pc0": "e10",
-     "pa0": "e9",
-     "avcc": "e8",
-     "pb5": "e7",
-     "pb4": "e6",
-     "pb3": "e5",
-     "pb2": "e4",
-     "pb1": "e3"
+     "pc5": "e3",
+     "pc4": "e4",
+     "pc3": "e5",
+     "pc2": "e6",
+     "pc1": "e7",
+     "pc0": "e8",
+     "gnd2": "e9",
+     "pc7": "e10",
+     "avcc": "e11",
+     "pb5": "e12",
+     "pb4": "e13",
+     "pb3": "e14",
+     "pb2": "e15",
+     "pb1": "e16"
     }
    }
   },
@@ -92,6 +94,49 @@
    }
   },
   {
+   "id": "OPTO1",
+   "kind": "optocoupler",
+   "declName": "opto",
+   "params": {},
+   "terminals": [
+    "anode",
+    "cathode",
+    "collector",
+    "emitter"
+   ],
+   "x": 484,
+   "y": 255,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "anode": "a33",
+     "cathode": "a34",
+     "emitter": "a35",
+     "collector": "a36"
+    }
+   }
+  },
+  {
+   "id": "R_load",
+   "kind": "resistor",
+   "params": {
+    "ohms": 1000
+   },
+   "terminals": [
+    "a",
+    "b"
+   ],
+   "x": 400,
+   "y": 255,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a27",
+     "b": "a31"
+    }
+   }
+  },
+  {
    "id": "LED_opto",
    "kind": "led",
    "params": {
@@ -102,13 +147,13 @@
     "anode",
     "cathode"
    ],
-   "x": 400,
+   "x": 554,
    "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "anode": "a27",
-     "cathode": "a28"
+     "anode": "a38",
+     "cathode": "a39"
     }
    }
   }
@@ -117,20 +162,74 @@
   {
    "from": "R_opto",
    "fromTerminal": "b",
-   "to": "LED_opto",
+   "to": "OPTO1",
    "toTerminal": "anode"
   },
   {
    "from": "GND",
    "fromTerminal": "gnd",
-   "to": "LED_opto",
+   "to": "OPTO1",
    "toTerminal": "cathode"
   },
   {
-   "from": "attiny881",
-   "fromTerminal": "pb1",
+   "from": "VCC",
+   "fromTerminal": "vcc",
+   "to": "R_load",
+   "toTerminal": "a"
+  },
+  {
+   "from": "R_load",
+   "fromTerminal": "b",
+   "to": "LED_opto",
+   "toTerminal": "anode"
+  },
+  {
+   "from": "LED_opto",
+   "fromTerminal": "cathode",
+   "to": "OPTO1",
+   "toTerminal": "collector"
+  },
+  {
+   "from": "GND",
+   "fromTerminal": "gnd",
+   "to": "OPTO1",
+   "toTerminal": "emitter"
+  },
+  {
+   "from": "uno1",
+   "fromTerminal": "pb0",
    "to": "R_opto",
    "toTerminal": "a"
+  },
+  {
+   "from": "uno1",
+   "fromTerminal": "gnd",
+   "to": "GND",
+   "toTerminal": "gnd"
+  },
+  {
+   "from": "uno1",
+   "fromTerminal": "gnd",
+   "to": "OPTO1",
+   "toTerminal": "cathode"
+  },
+  {
+   "from": "uno1",
+   "fromTerminal": "gnd",
+   "to": "OPTO1",
+   "toTerminal": "emitter"
+  },
+  {
+   "from": "uno1",
+   "fromTerminal": "vcc",
+   "to": "R_load",
+   "toTerminal": "a"
+  },
+  {
+   "from": "uno1",
+   "fromTerminal": "vcc",
+   "to": "VCC",
+   "toTerminal": "vcc"
   },
   {
    "from": "VCC",
@@ -158,42 +257,98 @@
    "ref": "bbw:bb1:gen_0",
    "boardId": "bb1",
    "a": "b25",
-   "b": "b27",
+   "b": "b33",
    "color": "green"
   },
   {
    "ref": "bbw:bb1:gen_1",
    "boardId": "bb1",
-   "a": "b28",
-   "b": "b-28",
+   "a": "b34",
+   "b": "b-34",
    "color": "black"
   },
   {
    "ref": "bbw:bb1:gen_2",
    "boardId": "bb1",
-   "a": "a3",
-   "b": "b21",
-   "color": "blue"
+   "a": "b27",
+   "b": "t+27",
+   "color": "red"
   },
   {
    "ref": "bbw:bb1:gen_3",
    "boardId": "bb1",
-   "a": "g9",
-   "b": "t+9",
-   "color": "red"
+   "a": "b31",
+   "b": "b38",
+   "color": "blue"
   },
   {
    "ref": "bbw:bb1:gen_4",
+   "boardId": "bb1",
+   "a": "b39",
+   "b": "b36",
+   "color": "yellow"
+  },
+  {
+   "ref": "bbw:bb1:gen_5",
+   "boardId": "bb1",
+   "a": "b35",
+   "b": "b-35",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb1:gen_6",
+   "boardId": "bb1",
+   "a": "g16",
+   "b": "b21",
+   "color": "orange"
+  },
+  {
+   "ref": "bbw:bb1:gen_7",
    "boardId": "bb1",
    "a": "g10",
    "b": "b-10",
    "color": "black"
   },
   {
-   "ref": "bbw:bb1:gen_5",
+   "ref": "bbw:bb1:gen_8",
    "boardId": "bb1",
-   "a": "a8",
-   "b": "t+8",
+   "a": "h10",
+   "b": "c34",
+   "color": "purple"
+  },
+  {
+   "ref": "bbw:bb1:gen_9",
+   "boardId": "bb1",
+   "a": "i10",
+   "b": "c35",
+   "color": "green"
+  },
+  {
+   "ref": "bbw:bb1:gen_10",
+   "boardId": "bb1",
+   "a": "g9",
+   "b": "c27",
+   "color": "blue"
+  },
+  {
+   "ref": "bbw:bb1:gen_11",
+   "boardId": "bb1",
+   "a": "h9",
+   "b": "t+9",
+   "color": "red"
+  },
+  {
+   "ref": "bbw:bb1:gen_12",
+   "boardId": "bb1",
+   "a": "a9",
+   "b": "b-9",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb1:gen_13",
+   "boardId": "bb1",
+   "a": "a11",
+   "b": "t+11",
    "color": "red"
   }
  ],

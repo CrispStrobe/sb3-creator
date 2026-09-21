@@ -1,18 +1,10 @@
 {
-  "note": "Claims in an EXPECTED.md that the engine CONTRADICTS and that this lane did not close. Each entry is an open corpus defect with a verdict naming which side is wrong, not a tolerance and not an excuse. The gate asserts three things about this file at once: no mismatch outside it, no entry that has stopped mismatching (a fixed defect must be deleted from here, so the list can only shrink), and the count never rises above `max`. Lower `max` whenever an entry goes. An UNVERIFIABLE claim does NOT belong here \u2014 those are declined by the adjudicator with the reason naming what the engine cannot read, and they are counted in the skipped column instead. The 2026-08-24 raise to 2 and its return to 1 are both recorded in git rather than smoothed away: deleting a decline that described an engine from before the pin (\"no saturation region\", false of 88e9668) exposed a thirteenth claim, 44-darlington-motor's asserted V_CE(sat). The bw-board lane established the verdict \u2014 the bench is titled darlington and instantiated a single NPN at beta 100, which is the counter-example the lesson's own step 2 tells the reader to try. Bench fixed, so the entry is gone and `max` is 1 again. A number that only got smaller because nobody looked is not a smaller number.",
-  "measuredOn": "2026-08-24",
-  "engine": {
-    "bw-board": "88e966818eb9f5bc8794c24db2e795e095d93c9e",
-    "bw-circuit-ui": "410f8cecdbefec6eb8a2031e193e26ddf088ac3f"
-  },
-  "max": 1,
-  "open": [
-    {
-      "id": "arduino-sk-p04-color-mixing#5",
-      "dir": "arduino-sk-p04-color-mixing",
-      "claim": "220 ohm",
-      "verdict": "THE BENCH IS WRONG",
-      "why": "The document describes three 10 k\u03a9 pots on A0-A2, three 220 \u03a9 resistors on D3/D5/D6 and an RGB LED. circuit.json holds a breadboard, an Arduino Uno, ONE potentiometer, a vcc and a gnd: no resistor of any value, and no LED. The assert block passes because it asserts only the rail and that one pot's wiper, so the example is enrolled as `kind: full` with a green physics gate over a bench that cannot show what the page says. It is one of fourteen arduino-sk-* examples with a stubbed bench (p07 through p14 hold nothing but an Uno, a vcc and a gnd), which is why it is recorded here rather than repaired in this lane: building out fourteen starter-kit benches is its own piece of work, and doing one of them would leave the gate green over the other thirteen."
-    }
-  ]
+ "note": "Claims in an EXPECTED.md that the engine CONTRADICTS and that this lane did not close. Each entry is an open corpus defect with a verdict naming which side is wrong, not a tolerance and not an excuse. The gate asserts three things about this file at once: no mismatch outside it, no entry that has stopped mismatching (a fixed defect must be deleted from here, so the list can only shrink), and the count never rises above `max`. Lower `max` whenever an entry goes. An UNVERIFIABLE claim does NOT belong here \u2014 those are declined by the adjudicator with the reason naming what the engine cannot read, and they are counted in the skipped column instead. The 2026-08-24 raise to 2 and its return to 1 are both recorded in git rather than smoothed away: deleting a decline that described an engine from before the pin (\"no saturation region\", false of 88e9668) exposed a thirteenth claim, 44-darlington-motor's asserted V_CE(sat). The bw-board lane established the verdict \u2014 the bench is titled darlington and instantiated a single NPN at beta 100, which is the counter-example the lesson's own step 2 tells the reader to try. Bench fixed, so the entry is gone and `max` is 1 again. A number that only got smaller because nobody looked is not a smaller number. 2026-09-21: the last entry is gone and `max` is 0. arduino-sk-p04-color-mixing's bench was the open defect \u2014 the page described three 10 k\u03a9 pots, three 220 \u03a9 resistors and an RGB LED, and circuit.json held ONE pot. It now holds all of it, wired: pot1/pot2/pot3 wipers to A0/A1/A2, D3/D5/D6 each through 220 \u03a9 into the r/g/b anode of an rgb_led whose cathode is on the ground rail. The reason recorded here for NOT repairing it \u2014 \"one of fourteen arduino-sk-* examples with a stubbed bench (p07 through p14 hold nothing but an Uno, a vcc and a gnd)\" \u2014 had stopped being true: p07 carries 13 parts and p10 carries 22. Thirteen of the fourteen had been built out while this sentence went unre-read, which is the hazard a ledger entry carries: a justification measured once and quoted forever. With `max` at 0 the next mismatch is a failure, not a row.",
+ "measuredOn": "2026-08-24",
+ "engine": {
+  "bw-board": "88e966818eb9f5bc8794c24db2e795e095d93c9e",
+  "bw-circuit-ui": "410f8cecdbefec6eb8a2031e193e26ddf088ac3f"
+ },
+ "max": 0,
+ "open": []
 }

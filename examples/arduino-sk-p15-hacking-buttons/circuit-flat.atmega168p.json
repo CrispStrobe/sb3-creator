@@ -4,7 +4,9 @@
     {
       "id": "VCC",
       "kind": "vcc",
-      "params": {},
+      "params": {
+        "volts": 5
+      },
       "terminals": [
         "vcc"
       ],
@@ -26,9 +28,9 @@
       "kind": "arduino_uno",
       "params": {},
       "terminals": [
-        "5v",
-        "gnd2",
-        "d2"
+        "d13",
+        "gnd",
+        "5v"
       ],
       "x": 392,
       "y": -12,
@@ -48,6 +50,32 @@
       "y": 255
     },
     {
+      "id": "OPTO1",
+      "kind": "optocoupler",
+      "params": {},
+      "terminals": [
+        "anode",
+        "cathode",
+        "collector",
+        "emitter"
+      ],
+      "x": 232,
+      "y": 255
+    },
+    {
+      "id": "R_load",
+      "kind": "resistor",
+      "params": {
+        "ohms": 1000
+      },
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 148,
+      "y": 255
+    },
+    {
       "id": "LED_opto",
       "kind": "led",
       "params": {
@@ -58,28 +86,28 @@
         "anode",
         "cathode"
       ],
-      "x": 148,
+      "x": 302,
       "y": 255
     }
   ],
   "wires": [
     {
       "id": "w_flat_0",
-      "netId": "bb1:n-col-t3",
+      "netId": "bb1:n-col-t13",
       "from": {
-        "part": "uno1",
-        "terminal": "d2"
+        "part": "LED_opto",
+        "terminal": "anode"
       },
       "to": {
-        "part": "R_opto",
-        "terminal": "a"
+        "part": "R_load",
+        "terminal": "b"
       }
     },
     {
       "id": "w_flat_1",
-      "netId": "bb1:n-col-t7",
+      "netId": "bb1:n-col-t15",
       "from": {
-        "part": "LED_opto",
+        "part": "OPTO1",
         "terminal": "anode"
       },
       "to": {
@@ -89,18 +117,54 @@
     },
     {
       "id": "w_flat_2",
-      "netId": "bb1:rail-b-",
+      "netId": "bb1:n-col-t18",
       "from": {
-        "part": "GND",
-        "terminal": "gnd"
-      },
-      "to": {
         "part": "LED_opto",
         "terminal": "cathode"
+      },
+      "to": {
+        "part": "OPTO1",
+        "terminal": "collector"
       }
     },
     {
       "id": "w_flat_3",
+      "netId": "bb1:n-col-t3",
+      "from": {
+        "part": "R_opto",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "uno1",
+        "terminal": "d13"
+      }
+    },
+    {
+      "id": "w_flat_4",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "GND",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "OPTO1",
+        "terminal": "cathode"
+      }
+    },
+    {
+      "id": "w_flat_5",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "GND",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "OPTO1",
+        "terminal": "emitter"
+      }
+    },
+    {
+      "id": "w_flat_6",
       "netId": "bb1:rail-b-",
       "from": {
         "part": "GND",
@@ -108,15 +172,27 @@
       },
       "to": {
         "part": "uno1",
-        "terminal": "gnd2"
+        "terminal": "gnd"
       }
     },
     {
-      "id": "w_flat_4",
-      "netId": "net-lgc-4",
+      "id": "w_flat_7",
+      "netId": "bb1:rail-t+",
       "from": {
+        "part": "R_load",
+        "terminal": "a"
+      },
+      "to": {
         "part": "uno1",
         "terminal": "5v"
+      }
+    },
+    {
+      "id": "w_flat_8",
+      "netId": "bb1:rail-t+",
+      "from": {
+        "part": "R_load",
+        "terminal": "a"
       },
       "to": {
         "part": "VCC",

@@ -13,7 +13,9 @@
   {
    "id": "VCC",
    "kind": "vcc",
-   "params": {},
+   "params": {
+    "volts": 5
+   },
    "terminals": [
     "vcc"
    ],
@@ -31,7 +33,7 @@
    "y": 115
   },
   {
-   "id": "pico1",
+   "id": "uno1",
    "kind": "pi_pico",
    "params": {},
    "x": 64,
@@ -104,6 +106,49 @@
    }
   },
   {
+   "id": "OPTO1",
+   "kind": "optocoupler",
+   "declName": "opto",
+   "params": {},
+   "terminals": [
+    "anode",
+    "cathode",
+    "collector",
+    "emitter"
+   ],
+   "x": 568,
+   "y": 255,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "anode": "a39",
+     "cathode": "a40",
+     "emitter": "a41",
+     "collector": "a42"
+    }
+   }
+  },
+  {
+   "id": "R_load",
+   "kind": "resistor",
+   "params": {
+    "ohms": 1000
+   },
+   "terminals": [
+    "a",
+    "b"
+   ],
+   "x": 484,
+   "y": 255,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a33",
+     "b": "a37"
+    }
+   }
+  },
+  {
    "id": "LED_opto",
    "kind": "led",
    "params": {
@@ -114,13 +159,13 @@
     "anode",
     "cathode"
    ],
-   "x": 484,
+   "x": 638,
    "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "anode": "a33",
-     "cathode": "a34"
+     "anode": "a44",
+     "cathode": "a45"
     }
    }
   }
@@ -129,20 +174,74 @@
   {
    "from": "R_opto",
    "fromTerminal": "b",
-   "to": "LED_opto",
+   "to": "OPTO1",
    "toTerminal": "anode"
   },
   {
    "from": "GND",
    "fromTerminal": "gnd",
-   "to": "LED_opto",
+   "to": "OPTO1",
    "toTerminal": "cathode"
   },
   {
-   "from": "pico1",
-   "fromTerminal": "gp0",
+   "from": "VCC",
+   "fromTerminal": "vcc",
+   "to": "R_load",
+   "toTerminal": "a"
+  },
+  {
+   "from": "R_load",
+   "fromTerminal": "b",
+   "to": "LED_opto",
+   "toTerminal": "anode"
+  },
+  {
+   "from": "LED_opto",
+   "fromTerminal": "cathode",
+   "to": "OPTO1",
+   "toTerminal": "collector"
+  },
+  {
+   "from": "GND",
+   "fromTerminal": "gnd",
+   "to": "OPTO1",
+   "toTerminal": "emitter"
+  },
+  {
+   "from": "uno1",
+   "fromTerminal": "gp25",
    "to": "R_opto",
    "toTerminal": "a"
+  },
+  {
+   "from": "uno1",
+   "fromTerminal": "gnd_1",
+   "to": "GND",
+   "toTerminal": "gnd"
+  },
+  {
+   "from": "uno1",
+   "fromTerminal": "gnd_1",
+   "to": "OPTO1",
+   "toTerminal": "cathode"
+  },
+  {
+   "from": "uno1",
+   "fromTerminal": "gnd_1",
+   "to": "OPTO1",
+   "toTerminal": "emitter"
+  },
+  {
+   "from": "uno1",
+   "fromTerminal": "vsys",
+   "to": "R_load",
+   "toTerminal": "a"
+  },
+  {
+   "from": "uno1",
+   "fromTerminal": "vsys",
+   "to": "VCC",
+   "toTerminal": "vcc"
   },
   {
    "from": "VCC",
@@ -170,32 +269,81 @@
    "ref": "bbw:bb1:gen_0",
    "boardId": "bb1",
    "a": "b31",
-   "b": "b33",
+   "b": "b39",
    "color": "green"
   },
   {
    "ref": "bbw:bb1:gen_1",
    "boardId": "bb1",
-   "a": "b34",
-   "b": "b-34",
+   "a": "b40",
+   "b": "b-40",
    "color": "black"
   },
   {
    "ref": "bbw:bb1:gen_2",
    "boardId": "bb1",
-   "a": "b3",
-   "b": "b27",
-   "color": "blue"
+   "a": "b33",
+   "b": "t+33",
+   "color": "red"
   },
   {
    "ref": "bbw:bb1:gen_3",
+   "boardId": "bb1",
+   "a": "b37",
+   "b": "b44",
+   "color": "blue"
+  },
+  {
+   "ref": "bbw:bb1:gen_4",
+   "boardId": "bb1",
+   "a": "b45",
+   "b": "b42",
+   "color": "yellow"
+  },
+  {
+   "ref": "bbw:bb1:gen_5",
+   "boardId": "bb1",
+   "a": "b41",
+   "b": "b-41",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb1:gen_6",
    "boardId": "bb1",
    "a": "b5",
    "b": "b-5",
    "color": "black"
   },
   {
-   "ref": "bbw:bb1:gen_4",
+   "ref": "bbw:bb1:gen_7",
+   "boardId": "bb1",
+   "a": "c5",
+   "b": "c40",
+   "color": "orange"
+  },
+  {
+   "ref": "bbw:bb1:gen_8",
+   "boardId": "bb1",
+   "a": "d5",
+   "b": "c41",
+   "color": "purple"
+  },
+  {
+   "ref": "bbw:bb1:gen_9",
+   "boardId": "bb1",
+   "a": "g4",
+   "b": "c33",
+   "color": "green"
+  },
+  {
+   "ref": "bbw:bb1:gen_10",
+   "boardId": "bb1",
+   "a": "h4",
+   "b": "t+4",
+   "color": "red"
+  },
+  {
+   "ref": "bbw:bb1:gen_11",
    "boardId": "bb1",
    "a": "g3",
    "b": "t+3",
