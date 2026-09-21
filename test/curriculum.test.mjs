@@ -11,8 +11,11 @@ const here = dirname(fileURLToPath(import.meta.url));
 const cur = JSON.parse(readFileSync(join(here, '../examples/curriculum.json'), 'utf8'));
 const ids = new Set(JSON.parse(readFileSync(join(here, '../examples/index.json'), 'utf8')).map(e => e.id));
 
-// MEASURED 2026-09-20 (direct count): 8 trails, 25 chapters, 88 stations, and
-// 313 index entries. Three trails were added for the digital and MCU domain,
+// MEASURED 2026-09-21 (direct count): 10 trails, 32 chapters, 117 stations, and
+// 313 index entries. Two more trails — reading the world as a number, and making
+// things move — so every category the gallery has now has at least one trail;
+// motors went from nothing to eight and analog from nothing to fourteen.
+// Previously 2026-09-20: 8 trails, 25 chapters, 88 stations. Three trails were added for the digital and MCU domain,
 // which had no trail at all — the pin, the shift register, and displays — so
 // the count moved from 53. Re-measured rather than assumed, which is the point
 // this comment has been making since 2026-08-29: 5 trails, 15 chapters,

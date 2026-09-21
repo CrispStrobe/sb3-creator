@@ -878,6 +878,278 @@
      ]
     }
    ]
+  },
+  {
+   "id": "die-welt-als-zahl",
+   "title": {
+    "en": "Reading the world as a number",
+    "de": "Die Welt als Zahl lesen"
+   },
+   "audience": "12+",
+   "chapters": [
+    {
+     "title": {
+      "en": "A voltage becomes a number",
+      "de": "Aus Spannung wird eine Zahl"
+     },
+     "stations": [
+      {
+       "interlude": {
+        "en": "A pin that only knows HIGH and LOW cannot tell you how bright a room is. The converter beside it can: it compares the voltage on the pin against the supply and reports where it falls, as a whole number. Everything on this trail is that one trick — turn the quantity you care about into a voltage, and the chip can count it.",
+        "de": "Ein Pin, der nur HIGH und LOW kennt, kann dir nicht sagen, wie hell ein Raum ist. Der Wandler daneben schon: er vergleicht die Spannung am Pin mit der Versorgung und meldet als ganze Zahl, wo sie liegt. Dieser ganze Pfad ist dieser eine Trick — verwandle die Größe, die dich interessiert, in eine Spannung, und der Chip kann sie zählen."
+       }
+      },
+      {
+       "example": "15-voltage-divider",
+       "lead": {
+        "en": "Two resistors and a tap between them. The number the chip reads is the ratio, and the ratio is all a divider ever is.",
+        "de": "Zwei Widerstände und ein Abgriff dazwischen. Die Zahl, die der Chip liest, ist das Verhältnis — und mehr ist ein Spannungsteiler nie."
+       }
+      },
+      {
+       "example": "arduino-03-analog-input",
+       "lead": {
+        "en": "The same reading steering something: a knob becomes a delay you can see.",
+        "de": "Dieselbe Messung steuert etwas: aus einem Drehknopf wird eine sichtbare Wartezeit."
+       }
+      },
+      {
+       "example": "02-dimmer",
+       "lead": {
+        "en": "Reading in, PWM out — the two halves of the previous trail meeting in one program.",
+        "de": "Messen rein, PWM raus — die beiden Hälften des vorigen Pfads treffen sich in einem Programm."
+       }
+      }
+     ]
+    },
+    {
+     "title": {
+      "en": "The number is never clean",
+      "de": "Die Zahl ist nie sauber"
+     },
+     "stations": [
+      {
+       "interlude": {
+        "en": "A real reading jitters, and it rarely uses the whole range the chip can report. Both are ordinary, and both have standard answers: average several readings to settle the jitter, and learn the range in use instead of assuming it. Neither is a trick — they are what separates a demo from an instrument.",
+        "de": "Eine echte Messung zittert, und sie nutzt selten den ganzen Bereich, den der Chip melden kann. Beides ist normal, und beides hat Standardantworten: mittle mehrere Messungen, um das Zittern zu beruhigen, und lerne den tatsächlich genutzten Bereich, statt ihn anzunehmen. Kein Trick — das ist der Unterschied zwischen einer Demo und einem Messgerät."
+       }
+      },
+      {
+       "example": "arduino-03-smoothing",
+       "lead": {
+        "en": "Ten readings averaged. Watch the last digit stop dancing.",
+        "de": "Zehn Messungen gemittelt. Sieh zu, wie die letzte Stelle aufhört zu tanzen."
+       }
+      },
+      {
+       "example": "arduino-03-calibration",
+       "lead": {
+        "en": "The program learns the smallest and largest it has ever seen, then maps everything between.",
+        "de": "Das Programm lernt den kleinsten und größten je gesehenen Wert und bildet alles dazwischen darauf ab."
+       }
+      },
+      {
+       "example": "17-comparator",
+       "lead": {
+        "en": "Sometimes you do not want a number at all, only \"which of these two is bigger\".",
+        "de": "Manchmal willst du gar keine Zahl, sondern nur: „welcher von beiden ist größer“."
+       }
+      }
+     ]
+    },
+    {
+     "title": {
+      "en": "Sensors are just resistors that listen",
+      "de": "Sensoren sind nur Widerstände, die zuhören"
+     },
+     "stations": [
+      {
+       "interlude": {
+        "en": "An LDR and a thermistor are resistors whose value depends on light and on heat. Put either one in the divider you just built, and the number the chip reads becomes a measurement of the room. That is the whole of most sensing: the physics happens in the divider, and the program only has to decide what the number means.",
+        "de": "Ein LDR und ein Thermistor sind Widerstände, deren Wert von Licht und Wärme abhängt. Setz einen davon in den eben gebauten Teiler, und die Zahl, die der Chip liest, wird zur Messung des Raums. Das ist fast das ganze Messen: die Physik passiert im Teiler, und das Programm muss nur entscheiden, was die Zahl bedeutet."
+       }
+      },
+      {
+       "example": "03-night-light",
+       "lead": {
+        "en": "A real LDR in the divider, and a threshold that switches a lamp.",
+        "de": "Ein echter LDR im Teiler und eine Schwelle, die eine Lampe schaltet."
+       }
+      },
+      {
+       "example": "16-ldr-bargraph",
+       "lead": {
+        "en": "The same sensor, shown as a row of LEDs instead of a decision.",
+        "de": "Derselbe Sensor, als LED-Reihe gezeigt statt als Entscheidung."
+       }
+      },
+      {
+       "example": "04-thermostat",
+       "lead": {
+        "en": "A thermistor, and the reason a thermostat needs TWO thresholds: one alone chatters at the boundary.",
+        "de": "Ein Thermistor — und der Grund, warum ein Thermostat ZWEI Schwellen braucht: eine allein klappert an der Grenze."
+       }
+      },
+      {
+       "example": "arduino-sk-p06-light-theremin",
+       "lead": {
+        "en": "Light straight into pitch, with nothing in between to hide the mapping.",
+        "de": "Licht direkt in Tonhöhe, ohne etwas dazwischen, das die Zuordnung verstecken könnte."
+       }
+      }
+     ]
+    },
+    {
+     "title": {
+      "en": "Building the instrument",
+      "de": "Das Messgerät selbst bauen"
+     },
+     "stations": [
+      {
+       "interlude": {
+        "en": "Once a voltage is a number, the meter on your bench stops being magic — it is a divider, a converter, and a decision about what to print. These four build it up in order, and the last one is a real kit whose schematic you can compare against what you just built.",
+        "de": "Sobald eine Spannung eine Zahl ist, hört das Messgerät auf deinem Tisch auf, Magie zu sein: es ist ein Teiler, ein Wandler und eine Entscheidung darüber, was angezeigt wird. Diese vier bauen es der Reihe nach auf, und das letzte ist ein echter Bausatz, dessen Schaltplan du mit dem vergleichen kannst, was du gerade gebaut hast."
+       }
+      },
+      {
+       "example": "73-voltmeter",
+       "lead": {
+        "en": "Measuring volts is the divider you already understand, plus a scale.",
+        "de": "Spannung messen ist der Teiler, den du schon verstehst, plus eine Skala."
+       }
+      },
+      {
+       "example": "74-ammeter",
+       "lead": {
+        "en": "Current is measured as the voltage across a known small resistor — you never measure current directly.",
+        "de": "Strom wird als Spannung über einem bekannten kleinen Widerstand gemessen — direkt misst man Strom nie."
+       }
+      },
+      {
+       "example": "75-battery-tester",
+       "lead": {
+        "en": "A battery under load tells the truth; unloaded it flatters itself.",
+        "de": "Eine Batterie unter Last sagt die Wahrheit; unbelastet schmeichelt sie sich."
+       }
+      },
+      {
+       "example": "76-multimeter",
+       "lead": {
+        "en": "A kit multimeter, the same ideas in a box somebody sells.",
+        "de": "Ein Multimeter-Bausatz: dieselben Ideen in einem Gerät, das jemand verkauft."
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "bewegung",
+   "title": {
+    "en": "Making things move",
+    "de": "Dinge in Bewegung bringen"
+   },
+   "audience": "12+",
+   "chapters": [
+    {
+     "title": {
+      "en": "A pin cannot do this alone",
+      "de": "Ein Pin schafft das nicht allein"
+     },
+     "stations": [
+      {
+       "interlude": {
+        "en": "Everything that moves needs more current than a pin can give. A pin offers milliamps; a motor wants hundreds. So every circuit on this trail has the same shape: the pin carries a SIGNAL to something else, and that something else carries the CURRENT. Miss the distinction and the chip is what breaks.",
+        "de": "Alles, was sich bewegt, braucht mehr Strom, als ein Pin liefern kann. Ein Pin gibt Milliampere; ein Motor will Hunderte. Deshalb haben alle Schaltungen auf diesem Pfad dieselbe Form: der Pin trägt ein SIGNAL zu etwas anderem, und dieses andere trägt den STROM. Wer den Unterschied übersieht, zerstört den Chip."
+       }
+      },
+      {
+       "example": "09-relay-clicker",
+       "lead": {
+        "en": "A relay: the pin closes a tiny coil, and the coil closes a contact that could switch a lamp.",
+        "de": "Ein Relais: der Pin schließt eine winzige Spule, und die Spule schließt einen Kontakt, der eine Lampe schalten könnte."
+       }
+      },
+      {
+       "example": "33-inductive-no-flyback",
+       "lead": {
+        "en": "Leave out the flyback diode and watch what a coil does when you stop it — this is why that diode is never optional.",
+        "de": "Lass die Freilaufdiode weg und sieh, was eine Spule tut, wenn du sie abschaltest — deshalb ist diese Diode nie optional."
+       }
+      },
+      {
+       "example": "54-motor-driver",
+       "lead": {
+        "en": "A transistor between pin and motor, with the diode in place: the pattern every motor circuit repeats.",
+        "de": "Ein Transistor zwischen Pin und Motor, mit Diode: das Muster, das jede Motorschaltung wiederholt."
+       }
+      }
+     ]
+    },
+    {
+     "title": {
+      "en": "Speed, and which way round",
+      "de": "Geschwindigkeit, und in welche Richtung"
+     },
+     "stations": [
+      {
+       "interlude": {
+        "en": "Two questions, two different answers. Speed is the PWM you already know, applied to a motor instead of an LED. Direction needs the current to run through the motor BOTH ways, which one transistor cannot do — that is what an H-bridge is for, and why it has four.",
+        "de": "Zwei Fragen, zwei verschiedene Antworten. Geschwindigkeit ist die PWM, die du schon kennst, nur an einem Motor statt an einer LED. Für die Richtung muss der Strom BEIDE Wege durch den Motor nehmen können, was ein einzelner Transistor nicht kann — dafür gibt es die H-Brücke, und darum hat sie vier."
+       }
+      },
+      {
+       "example": "10-motor-speed",
+       "lead": {
+        "en": "A knob to a duty cycle to a speed, straight through.",
+        "de": "Vom Drehknopf über das Tastverhältnis zur Drehzahl, geradeaus durch."
+       }
+      },
+      {
+       "example": "arduino-sk-p10-zoetrope",
+       "lead": {
+        "en": "Speed and direction together, with two buttons deciding which way.",
+        "de": "Geschwindigkeit und Richtung zusammen, zwei Taster entscheiden die Richtung."
+       }
+      },
+      {
+       "example": "arduino-sk-p09-motorized-pinwheel",
+       "lead": {
+        "en": "The simplest possible version, to see the driver on its own.",
+        "de": "Die einfachste Fassung, um den Treiber für sich allein zu sehen."
+       }
+      }
+     ]
+    },
+    {
+     "title": {
+      "en": "Telling it an angle instead",
+      "de": "Ihm stattdessen einen Winkel sagen"
+     },
+     "stations": [
+      {
+       "interlude": {
+        "en": "A servo is a motor that already contains the argument: it has its own gearbox, its own position sensor and its own controller, and it only wants to be told WHERE to point. You send that as a pulse width, fifty times a second, and the pin carries no current worth mentioning — which is why a servo hangs off the supply rail and not off the chip.",
+        "de": "Ein Servo ist ein Motor, der die Diskussion schon enthält: er hat sein eigenes Getriebe, seinen eigenen Lagesensor und seinen eigenen Regler und will nur wissen, WOHIN er zeigen soll. Das schickst du als Pulsbreite, fünfzigmal pro Sekunde, und der Pin trägt keinen nennenswerten Strom — deshalb hängt ein Servo an der Versorgung und nicht am Chip."
+       }
+      },
+      {
+       "example": "53-servo-sweep",
+       "lead": {
+        "en": "Zero to a hundred and eighty and back. The pulse is the whole message.",
+        "de": "Von null auf hundertachtzig und zurück. Der Impuls ist die ganze Botschaft."
+       }
+      },
+      {
+       "example": "arduino-sk-p05-servo-mood",
+       "lead": {
+        "en": "A knob straight onto an angle: the reading from the last trail, pointed at a position.",
+        "de": "Ein Drehknopf direkt auf einen Winkel: die Messung vom letzten Pfad, auf eine Stellung gerichtet."
+       }
+      }
+     ]
+    }
+   ]
   }
  ]
 }
