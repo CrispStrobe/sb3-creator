@@ -258,7 +258,6 @@ const KNOWN_INERT = new Map([
     ['vsource.variant',   'BLIND SPOT: read only by bw-circuit-ui starter-migration at load time; volts carries the electrical meaning and is live.'],
 
     // Read by the model, but no shipped bench reaches the state that uses it.
-    ['opamp.railHigh', 'BLIND SPOT: mna clamps to it, but no shipped op-amp bench drives the output into saturation during the probe window.'],
     ['zener.vf',    'BLIND SPOT: the zener benches operate in reverse breakdown, where vz sets the voltage and vf does not.'],
     ['relay.switchTimeMs','BLIND SPOT: read by the relay model; no probed bench transitions the coil inside the probe window.'],
     ['ssd1306.address',   'BLIND SPOT: read by the I2C address decoder; the probe drives no I2C traffic.'],
