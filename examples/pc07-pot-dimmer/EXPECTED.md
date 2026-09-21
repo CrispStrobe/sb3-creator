@@ -50,7 +50,7 @@ net led_5.anode V 1.813 +-0.03
 > **Engine provenance.** The measured numbers on this page were last held against
 > `bw-board@4ae99be` and `bw-circuit-ui@a2b1cb2` — the revisions pinned in
 > `test/fixtures/siblings.json`. `test/expected-quantities-hold.test.mjs` compares
-> **15 of this page's 28** numeric claims against that engine
-> (2 of them disagreeing) and declines the rest with a stated reason;
+> **17 of this page's 30** numeric claims against that engine
+> (0 of them disagreeing) and declines the rest with a stated reason;
 > `node scripts/expected-claim-census.mjs pc07-pot-dimmer` prints them one by one.
 <!-- engine-provenance -->

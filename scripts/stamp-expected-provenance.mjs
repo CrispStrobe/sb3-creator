@@ -26,7 +26,7 @@ import { allClaims, exampleDirs, EXAMPLES } from '../test/helpers/expected-claim
 import { loadEngine } from '../test/helpers/bench-measure.mjs';
 import { adjudicate } from '../test/helpers/claim-adjudicate.mjs';
 import { locate, PINS } from '../test/helpers/siblings.mjs';
-import { MARK, isDerived } from '../test/helpers/expected-provenance.mjs';
+import { MARK, isDerived, provenanceStamp } from '../test/helpers/expected-provenance.mjs';
 
 const paths = Object.fromEntries(['bw-board', 'bw-circuit-ui'].map(n => [n, locate(n).path]));
 if (Object.values(paths).some(p => !p)) {
@@ -36,16 +36,8 @@ if (Object.values(paths).some(p => !p)) {
 await loadEngine(paths);
 
 const short = (n) => PINS.siblings[n].rev.slice(0, 7);
-const stamp = (checked, mismatched, total) => [
-    MARK,
-    `> **Engine provenance.** The measured numbers on this page were last held against`,
-    `> \`bw-board@${short('bw-board')}\` and \`bw-circuit-ui@${short('bw-circuit-ui')}\` — the revisions pinned in`,
-    `> \`test/fixtures/siblings.json\`. \`test/expected-quantities-hold.test.mjs\` compares`,
-    `> **${checked + mismatched} of this page's ${total}** numeric claims against that engine`,
-    `> (${mismatched} of them disagreeing) and declines the rest with a stated reason;`,
-    `> \`node scripts/expected-claim-census.mjs ${'%DIR%'}\` prints them one by one.`,
-    MARK,
-].join('\n');
+const stamp = (checked, mismatched, total) =>
+    provenanceStamp(short('bw-board'), short('bw-circuit-ui'), checked, mismatched, total);
 
 const rows = new Map();
 for (const claim of allClaims()) {

@@ -41,7 +41,7 @@ net diode_3.cathode V 1.91 +-0.15
 > **Engine provenance.** The measured numbers on this page were last held against
 > `bw-board@4ae99be` and `bw-circuit-ui@a2b1cb2` — the revisions pinned in
 > `test/fixtures/siblings.json`. `test/expected-quantities-hold.test.mjs` compares
-> **6 of this page's 11** numeric claims against that engine
-> (2 of them disagreeing) and declines the rest with a stated reason;
+> **6 of this page's 14** numeric claims against that engine
+> (0 of them disagreeing) and declines the rest with a stated reason;
 > `node scripts/expected-claim-census.mjs pc13-direct-diode` prints them one by one.
 <!-- engine-provenance -->

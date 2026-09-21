@@ -28,6 +28,6 @@ net load_v.pos V 9.00 +-0.01
 > `bw-board@4ae99be` and `bw-circuit-ui@a2b1cb2` — the revisions pinned in
 > `test/fixtures/siblings.json`. `test/expected-quantities-hold.test.mjs` compares
 > **8 of this page's 21** numeric claims against that engine
-> (1 of them disagreeing) and declines the rest with a stated reason;
+> (0 of them disagreeing) and declines the rest with a stated reason;
 > `node scripts/expected-claim-census.mjs pc25-relay-isolator` prints them one by one.
 <!-- engine-provenance -->
