@@ -52,6 +52,14 @@ const BW_JSON_PY = [
 
 
 // Structured error classes
+// Write a double-quoted literal that this file's own parser can read back.
+// The decompiler used to interpolate raw text between bare quotes, so a value
+// containing a quote produced a line that failed to re-parse and was silently
+// retargeted to another device's block. Round-tripping is the whole contract
+// of a decompiler, so it escapes what it emits.
+const escapeTextLiteral = (value) =>
+    '"' + String(value ?? '').replace(/\\/g, '\\\\').replace(/"/g, '\\"') + '"';
+
 class SB3Error extends Error {
     constructor(message, type = 'SB3Error') {
         super(message);
@@ -4462,16 +4470,27 @@ class SB3Creator {
             block[id].inputs.NUM = val(match[1]);
             return ret(block);
         }
-        if ((match = line.match(/^radio\s+send\s+text\s+"([^"]*)"\s*$/i))) {
+        // A double-quoted literal that may contain escaped quotes or
+        // backslashes. `[^"]*` stops at the FIRST quote, so a line like
+        //   display text "say \"hi\""
+        // did not match its own rule at all and fell through to the generic
+        // display handler -- silently retargeting the block to micro:bit and
+        // swallowing the whole phrase as its value, with no warning raised.
+        // Free-text rules use this instead; identifier rules (array and
+        // function names) keep the simpler pattern deliberately.
+        const TEXT_LITERAL = '"((?:[^"\\\\]|\\\\.)*)"';
+        const unescapeText = (raw) => String(raw).replace(/\\(.)/g, '$1');
+
+        if ((match = line.match(new RegExp('^radio\\s+send\\s+text\\s+' + TEXT_LITERAL + '\\s*$', 'i')))) {
             const { id, block } = cmd('microbitplus_radiosendstr');
-            block[id].inputs.TEXT = [1, [10, match[1]]];
+            block[id].inputs.TEXT = [1, [10, unescapeText(match[1])]];
             return ret(block);
         }
         // ---- Spike Prime display commands (must precede generic display handler) ----
         if (this.project && this.project.stc && this.project.stc.device === 'spike') {
-            if ((match = line.match(/^display\s+text\s+"([^"]*)"\s*$/i))) {
+            if ((match = line.match(new RegExp('^display\\s+text\\s+' + TEXT_LITERAL + '\\s*$', 'i')))) {
                 const { id, block } = cmd('spikeprime_displayText');
-                block[id].inputs.TEXT = [1, [10, match[1]]];
+                block[id].inputs.TEXT = [1, [10, unescapeText(match[1])]];
                 return ret(block);
             }
             if (/^display\s+clear\s*$/i.test(line)) {
@@ -6786,7 +6805,7 @@ class SB3Creator {
             case 'microbitplus_servo': return line(`set pin ${f('PIN')} servo ${v('DEG')}`);
             case 'microbitplus_radioon': return line(`radio on group ${v('GROUP')} power ${v('POWER')}`);
             case 'microbitplus_radiosendnum': return line(`radio send number ${v('NUM')}`);
-            case 'microbitplus_radiosendstr': return line(`radio send text "${this.dval(b.inputs.TEXT, blocks).replace(/^"|"$/g, '')}"`);
+            case 'microbitplus_radiosendstr': return line(`radio send text ${escapeTextLiteral(this.dval(b.inputs.TEXT, blocks).replace(/^"|"$/g, ''))}`);
             // ---- Spike Prime commands ----
             case 'spikeprime_motorStart': return line(`start motor ${f('PORT')} ${spikeMotorDirectionWord(f('DIRECTION'))}`);
             case 'spikeprime_motorStop': return line(`stop motor ${f('PORT')}`);
@@ -6794,7 +6813,7 @@ class SB3Creator {
             case 'spikeprime_motorSetSpeed': return line(`set motor speed ${f('PORT')} ${v('SPEED')}`);
             case 'spikeprime_moveForward': return line(`move ${f('DIRECTION')} ${v('VALUE')} ${f('UNIT')}`);
             case 'spikeprime_stopMovement': return line('stop movement');
-            case 'spikeprime_displayText': return line(`display text "${this.dval(b.inputs.TEXT, blocks).replace(/^"|"$/g, '')}"`);
+            case 'spikeprime_displayText': return line(`display text ${escapeTextLiteral(this.dval(b.inputs.TEXT, blocks).replace(/^"|"$/g, ''))}`);
             case 'spikeprime_displayClear': return line('display clear');
             case 'spikeprime_setPixel': return line(`set pixel ${v('X')} ${v('Y')} ${v('BRIGHTNESS')}`);
             case 'spikeprime_playBeep': return line(`play beep ${v('FREQUENCY')} ${v('DURATION')}`);
