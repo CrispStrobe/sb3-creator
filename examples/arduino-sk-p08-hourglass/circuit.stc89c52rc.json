@@ -11,15 +11,6 @@
    "rotation": 0
   },
   {
-   "id": "bb2",
-   "kind": "breadboard",
-   "params": {},
-   "terminals": [],
-   "x": 470,
-   "y": 690,
-   "rotation": 0
-  },
-  {
    "id": "VCC",
    "kind": "vcc",
    "params": {},
@@ -373,8 +364,8 @@
    "y": 349
   },
   {
-   "id": "BTN_tilt",
-   "kind": "button",
+   "id": "TILT_tilt",
+   "kind": "tilt_sensor",
    "declName": "tilt",
    "params": {},
    "terminals": [
@@ -382,14 +373,14 @@
     "b"
    ],
    "seat": {
-    "boardId": "bb2",
+    "boardId": "bb1",
     "leadMap": {
-     "a": "e3",
-     "b": "f3"
+     "a": "f57",
+     "b": "f58"
     }
    },
-   "x": 64,
-   "y": 671
+   "x": 820,
+   "y": 349
   }
  ],
  "wires": [
@@ -468,7 +459,7 @@
   {
    "from": "R_PU_tilt",
    "fromTerminal": "b",
-   "to": "BTN_tilt",
+   "to": "TILT_tilt",
    "toTerminal": "a"
   },
   {
@@ -522,7 +513,7 @@
   {
    "from": "GND",
    "fromTerminal": "gnd",
-   "to": "BTN_tilt",
+   "to": "TILT_tilt",
    "toTerminal": "b"
   },
   {
@@ -541,16 +532,6 @@
    "to": {
     "board": "bb1",
     "hole": "b-2"
-   },
-   "color": "black",
-   "genPower": true
-  },
-  {
-   "from": "GND",
-   "fromTerminal": "gnd",
-   "to": {
-    "board": "bb2",
-    "hole": "b-3"
    },
    "color": "black",
    "genPower": true
@@ -645,74 +626,81 @@
    "ref": "bbw:bb1:gen_12",
    "boardId": "bb1",
    "a": "g31",
-   "b": "g14",
+   "b": "g57",
    "color": "yellow"
   },
   {
    "ref": "bbw:bb1:gen_13",
+   "boardId": "bb1",
+   "a": "h31",
+   "b": "g14",
+   "color": "orange"
+  },
+  {
+   "ref": "bbw:bb1:gen_14",
    "boardId": "bb1",
    "a": "b27",
    "b": "t+27",
    "color": "red"
   },
   {
-   "ref": "bbw:bb1:gen_14",
+   "ref": "bbw:bb1:gen_15",
    "boardId": "bb1",
    "a": "b33",
    "b": "t+33",
    "color": "red"
   },
   {
-   "ref": "bbw:bb1:gen_15",
+   "ref": "bbw:bb1:gen_16",
    "boardId": "bb1",
    "a": "b39",
    "b": "t+39",
    "color": "red"
   },
   {
-   "ref": "bbw:bb1:gen_16",
+   "ref": "bbw:bb1:gen_17",
    "boardId": "bb1",
    "a": "b45",
    "b": "t+45",
    "color": "red"
   },
   {
-   "ref": "bbw:bb1:gen_17",
+   "ref": "bbw:bb1:gen_18",
    "boardId": "bb1",
    "a": "b51",
    "b": "t+51",
    "color": "red"
   },
   {
-   "ref": "bbw:bb1:gen_18",
+   "ref": "bbw:bb1:gen_19",
    "boardId": "bb1",
    "a": "b57",
    "b": "t+57",
    "color": "red"
   },
   {
-   "ref": "bbw:bb1:gen_19",
+   "ref": "bbw:bb1:gen_20",
    "boardId": "bb1",
    "a": "g27",
    "b": "t+27",
    "color": "red"
   },
   {
-   "ref": "bbw:bb2:gen_20",
-   "boardId": "bb2",
-   "a": "g3",
-   "b": "b-3",
+   "ref": "bbw:bb1:gen_21",
+   "boardId": "bb1",
+   "a": "g58",
+   "b": "b-58",
    "color": "black"
   },
   {
-   "ref": "bbw:bb1:gen_21",
+   "ref": "bbw:bb1:gen_22",
    "boardId": "bb1",
    "a": "g22",
    "b": "b-22",
    "color": "black"
   },
   {
-   "ref": "bbw:bb1:gen_22",
+   "ref": "bbw:bb1:gen_23",
    "boardId": "bb1",
    "a": "a3",
    "b": "t+3",

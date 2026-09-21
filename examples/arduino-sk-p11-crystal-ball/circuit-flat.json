@@ -23,15 +23,15 @@
     },
     {
       "id": "MCU",
-      "kind": "arduino_uno",
+      "kind": "arduino_mega",
       "params": {},
       "terminals": [
-        "d6",
+        "d2",
         "5v",
         "gnd2"
       ],
-      "x": 392,
-      "y": -12
+      "x": 475,
+      "y": -5
     },
     {
       "id": "R_PU_tilt",
@@ -47,15 +47,15 @@
       "y": 255
     },
     {
-      "id": "BTN_tilt",
-      "kind": "button",
+      "id": "TILT_tilt",
+      "kind": "tilt_sensor",
       "params": {},
       "terminals": [
         "a",
         "b"
       ],
       "x": 148,
-      "y": 311
+      "y": 255
     }
   ],
   "wires": [
@@ -63,20 +63,8 @@
       "id": "w_flat_0",
       "netId": "bb1:n-col-t7",
       "from": {
-        "part": "BTN_tilt",
-        "terminal": "a"
-      },
-      "to": {
         "part": "MCU",
-        "terminal": "d6"
-      }
-    },
-    {
-      "id": "w_flat_1",
-      "netId": "bb1:n-col-t7",
-      "from": {
-        "part": "BTN_tilt",
-        "terminal": "a"
+        "terminal": "d2"
       },
       "to": {
         "part": "R_PU_tilt",
@@ -84,27 +72,39 @@
       }
     },
     {
+      "id": "w_flat_1",
+      "netId": "bb1:n-col-t7",
+      "from": {
+        "part": "MCU",
+        "terminal": "d2"
+      },
+      "to": {
+        "part": "TILT_tilt",
+        "terminal": "a"
+      }
+    },
+    {
       "id": "w_flat_2",
       "netId": "bb1:rail-b-",
       "from": {
-        "part": "BTN_tilt",
-        "terminal": "b"
-      },
-      "to": {
         "part": "GND",
         "terminal": "gnd"
+      },
+      "to": {
+        "part": "MCU",
+        "terminal": "gnd2"
       }
     },
     {
       "id": "w_flat_3",
       "netId": "bb1:rail-b-",
       "from": {
-        "part": "BTN_tilt",
-        "terminal": "b"
+        "part": "GND",
+        "terminal": "gnd"
       },
       "to": {
-        "part": "MCU",
-        "terminal": "gnd2"
+        "part": "TILT_tilt",
+        "terminal": "b"
       }
     },
     {

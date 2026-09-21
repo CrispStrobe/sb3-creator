@@ -215,20 +215,44 @@
       "y": 255
     },
     {
-      "id": "BTN_tilt",
-      "kind": "button",
+      "id": "TILT_tilt",
+      "kind": "tilt_sensor",
       "params": {},
       "terminals": [
         "a",
         "b"
       ],
-      "x": 64,
-      "y": 671
+      "x": 176,
+      "y": 349
     }
   ],
   "wires": [
     {
       "id": "w_flat_0",
+      "netId": "bb1:n-col-b11",
+      "from": {
+        "part": "MCU",
+        "terminal": "d2"
+      },
+      "to": {
+        "part": "R_PU_tilt",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "w_flat_1",
+      "netId": "bb1:n-col-b11",
+      "from": {
+        "part": "MCU",
+        "terminal": "d2"
+      },
+      "to": {
+        "part": "TILT_tilt",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "w_flat_2",
       "netId": "bb1:n-col-b3",
       "from": {
         "part": "LED_led6",
@@ -240,7 +264,7 @@
       }
     },
     {
-      "id": "w_flat_1",
+      "id": "w_flat_3",
       "netId": "bb1:n-col-b7",
       "from": {
         "part": "LED_led7",
@@ -252,7 +276,7 @@
       }
     },
     {
-      "id": "w_flat_2",
+      "id": "w_flat_4",
       "netId": "bb1:n-col-t13",
       "from": {
         "part": "LED_led3",
@@ -264,7 +288,7 @@
       }
     },
     {
-      "id": "w_flat_3",
+      "id": "w_flat_5",
       "netId": "bb1:n-col-t15",
       "from": {
         "part": "MCU",
@@ -276,7 +300,7 @@
       }
     },
     {
-      "id": "w_flat_4",
+      "id": "w_flat_6",
       "netId": "bb1:n-col-t19",
       "from": {
         "part": "LED_led4",
@@ -288,7 +312,7 @@
       }
     },
     {
-      "id": "w_flat_5",
+      "id": "w_flat_7",
       "netId": "bb1:n-col-t21",
       "from": {
         "part": "MCU",
@@ -300,7 +324,7 @@
       }
     },
     {
-      "id": "w_flat_6",
+      "id": "w_flat_8",
       "netId": "bb1:n-col-t25",
       "from": {
         "part": "LED_led5",
@@ -312,7 +336,7 @@
       }
     },
     {
-      "id": "w_flat_7",
+      "id": "w_flat_9",
       "netId": "bb1:n-col-t27",
       "from": {
         "part": "MCU",
@@ -324,7 +348,7 @@
       }
     },
     {
-      "id": "w_flat_8",
+      "id": "w_flat_10",
       "netId": "bb1:n-col-t3",
       "from": {
         "part": "MCU",
@@ -336,7 +360,7 @@
       }
     },
     {
-      "id": "w_flat_9",
+      "id": "w_flat_11",
       "netId": "bb1:n-col-t33",
       "from": {
         "part": "MCU",
@@ -345,30 +369,6 @@
       "to": {
         "part": "R_led7",
         "terminal": "a"
-      }
-    },
-    {
-      "id": "w_flat_10",
-      "netId": "bb1:n-col-t43",
-      "from": {
-        "part": "BTN_tilt",
-        "terminal": "a"
-      },
-      "to": {
-        "part": "MCU",
-        "terminal": "d2"
-      }
-    },
-    {
-      "id": "w_flat_11",
-      "netId": "bb1:n-col-t43",
-      "from": {
-        "part": "BTN_tilt",
-        "terminal": "a"
-      },
-      "to": {
-        "part": "R_PU_tilt",
-        "terminal": "b"
       }
     },
     {
@@ -399,20 +399,8 @@
       "id": "w_flat_14",
       "netId": "bb1:rail-b-",
       "from": {
-        "part": "BTN_tilt",
-        "terminal": "b"
-      },
-      "to": {
         "part": "GND",
         "terminal": "gnd"
-      }
-    },
-    {
-      "id": "w_flat_15",
-      "netId": "bb1:rail-b-",
-      "from": {
-        "part": "BTN_tilt",
-        "terminal": "b"
       },
       "to": {
         "part": "LED_led2",
@@ -420,11 +408,11 @@
       }
     },
     {
-      "id": "w_flat_16",
+      "id": "w_flat_15",
       "netId": "bb1:rail-b-",
       "from": {
-        "part": "BTN_tilt",
-        "terminal": "b"
+        "part": "GND",
+        "terminal": "gnd"
       },
       "to": {
         "part": "LED_led3",
@@ -432,11 +420,11 @@
       }
     },
     {
-      "id": "w_flat_17",
+      "id": "w_flat_16",
       "netId": "bb1:rail-b-",
       "from": {
-        "part": "BTN_tilt",
-        "terminal": "b"
+        "part": "GND",
+        "terminal": "gnd"
       },
       "to": {
         "part": "LED_led4",
@@ -444,11 +432,11 @@
       }
     },
     {
-      "id": "w_flat_18",
+      "id": "w_flat_17",
       "netId": "bb1:rail-b-",
       "from": {
-        "part": "BTN_tilt",
-        "terminal": "b"
+        "part": "GND",
+        "terminal": "gnd"
       },
       "to": {
         "part": "LED_led5",
@@ -456,11 +444,11 @@
       }
     },
     {
-      "id": "w_flat_19",
+      "id": "w_flat_18",
       "netId": "bb1:rail-b-",
       "from": {
-        "part": "BTN_tilt",
-        "terminal": "b"
+        "part": "GND",
+        "terminal": "gnd"
       },
       "to": {
         "part": "LED_led6",
@@ -468,11 +456,11 @@
       }
     },
     {
-      "id": "w_flat_20",
+      "id": "w_flat_19",
       "netId": "bb1:rail-b-",
       "from": {
-        "part": "BTN_tilt",
-        "terminal": "b"
+        "part": "GND",
+        "terminal": "gnd"
       },
       "to": {
         "part": "LED_led7",
@@ -480,15 +468,27 @@
       }
     },
     {
-      "id": "w_flat_21",
+      "id": "w_flat_20",
       "netId": "bb1:rail-b-",
       "from": {
-        "part": "BTN_tilt",
-        "terminal": "b"
+        "part": "GND",
+        "terminal": "gnd"
       },
       "to": {
         "part": "MCU",
         "terminal": "gnd2"
+      }
+    },
+    {
+      "id": "w_flat_21",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "GND",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "TILT_tilt",
+        "terminal": "b"
       }
     },
     {

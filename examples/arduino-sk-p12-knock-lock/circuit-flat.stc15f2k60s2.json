@@ -37,15 +37,25 @@
       "y": 311
     },
     {
-      "id": "POT_piezo",
-      "kind": "potentiometer",
+      "id": "PIEZO_piezo",
+      "kind": "piezo",
+      "params": {},
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 400,
+      "y": 349
+    },
+    {
+      "id": "R_DIV_piezo",
+      "kind": "resistor",
       "params": {
         "ohms": 10000
       },
       "terminals": [
         "a",
-        "b",
-        "wiper"
+        "b"
       ],
       "x": 400,
       "y": 255
@@ -171,6 +181,30 @@
   "wires": [
     {
       "id": "w_flat_0",
+      "netId": "bb1:n-col-b28",
+      "from": {
+        "part": "MCU",
+        "terminal": "p1.0"
+      },
+      "to": {
+        "part": "PIEZO_piezo",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "w_flat_1",
+      "netId": "bb1:n-col-b28",
+      "from": {
+        "part": "MCU",
+        "terminal": "p1.0"
+      },
+      "to": {
+        "part": "R_DIV_piezo",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "w_flat_2",
       "netId": "bb1:n-col-b5",
       "from": {
         "part": "BTN_btn",
@@ -182,7 +216,7 @@
       }
     },
     {
-      "id": "w_flat_1",
+      "id": "w_flat_3",
       "netId": "bb1:n-col-b5",
       "from": {
         "part": "BTN_btn",
@@ -194,19 +228,7 @@
       }
     },
     {
-      "id": "w_flat_2",
-      "netId": "bb1:n-col-t11",
-      "from": {
-        "part": "MCU",
-        "terminal": "p1.0"
-      },
-      "to": {
-        "part": "POT_piezo",
-        "terminal": "wiper"
-      }
-    },
-    {
-      "id": "w_flat_3",
+      "id": "w_flat_4",
       "netId": "bb1:n-col-t12",
       "from": {
         "part": "LED_ledR",
@@ -218,7 +240,7 @@
       }
     },
     {
-      "id": "w_flat_4",
+      "id": "w_flat_5",
       "netId": "bb1:n-col-t13",
       "from": {
         "part": "LED_ledY",
@@ -230,7 +252,7 @@
       }
     },
     {
-      "id": "w_flat_5",
+      "id": "w_flat_6",
       "netId": "bb1:n-col-t14",
       "from": {
         "part": "LED_ledG",
@@ -242,7 +264,7 @@
       }
     },
     {
-      "id": "w_flat_6",
+      "id": "w_flat_7",
       "netId": "bb1:n-col-t15",
       "from": {
         "part": "MCU",
@@ -254,7 +276,7 @@
       }
     },
     {
-      "id": "w_flat_7",
+      "id": "w_flat_8",
       "netId": "bb1:n-col-t43",
       "from": {
         "part": "LED_ledR",
@@ -266,7 +288,7 @@
       }
     },
     {
-      "id": "w_flat_8",
+      "id": "w_flat_9",
       "netId": "bb1:n-col-t49",
       "from": {
         "part": "LED_ledY",
@@ -278,7 +300,7 @@
       }
     },
     {
-      "id": "w_flat_9",
+      "id": "w_flat_10",
       "netId": "bb1:n-col-t55",
       "from": {
         "part": "LED_ledG",
@@ -290,7 +312,7 @@
       }
     },
     {
-      "id": "w_flat_10",
+      "id": "w_flat_11",
       "netId": "bb1:rail-b-",
       "from": {
         "part": "BTN_btn",
@@ -302,7 +324,7 @@
       }
     },
     {
-      "id": "w_flat_11",
+      "id": "w_flat_12",
       "netId": "bb1:rail-b-",
       "from": {
         "part": "BTN_btn",
@@ -314,19 +336,19 @@
       }
     },
     {
-      "id": "w_flat_12",
+      "id": "w_flat_13",
       "netId": "bb1:rail-b-",
       "from": {
         "part": "BTN_btn",
         "terminal": "b"
       },
       "to": {
-        "part": "POT_piezo",
+        "part": "R_DIV_piezo",
         "terminal": "b"
       }
     },
     {
-      "id": "w_flat_13",
+      "id": "w_flat_14",
       "netId": "bb1:rail-b-",
       "from": {
         "part": "BTN_btn",
@@ -338,18 +360,6 @@
       }
     },
     {
-      "id": "w_flat_14",
-      "netId": "bb1:rail-t+",
-      "from": {
-        "part": "MCU",
-        "terminal": "VCC"
-      },
-      "to": {
-        "part": "POT_piezo",
-        "terminal": "a"
-      }
-    },
-    {
       "id": "w_flat_15",
       "netId": "bb1:rail-t+",
       "from": {
@@ -357,7 +367,7 @@
         "terminal": "VCC"
       },
       "to": {
-        "part": "R_ledG",
+        "part": "PIEZO_piezo",
         "terminal": "a"
       }
     },
@@ -369,7 +379,7 @@
         "terminal": "VCC"
       },
       "to": {
-        "part": "R_ledR",
+        "part": "R_ledG",
         "terminal": "a"
       }
     },
@@ -381,7 +391,7 @@
         "terminal": "VCC"
       },
       "to": {
-        "part": "R_ledY",
+        "part": "R_ledR",
         "terminal": "a"
       }
     },
@@ -393,7 +403,7 @@
         "terminal": "VCC"
       },
       "to": {
-        "part": "R_PU_btn",
+        "part": "R_ledY",
         "terminal": "a"
       }
     },
@@ -405,12 +415,24 @@
         "terminal": "VCC"
       },
       "to": {
+        "part": "R_PU_btn",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "w_flat_20",
+      "netId": "bb1:rail-t+",
+      "from": {
+        "part": "MCU",
+        "terminal": "VCC"
+      },
+      "to": {
         "part": "SERVO_servo",
         "terminal": "vcc"
       }
     },
     {
-      "id": "w_flat_20",
+      "id": "w_flat_21",
       "netId": "bb1:rail-t+",
       "from": {
         "part": "MCU",

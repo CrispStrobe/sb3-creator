@@ -96,8 +96,8 @@
    "y": 255
   },
   {
-   "id": "BTN_tilt",
-   "kind": "button",
+   "id": "TILT_tilt",
+   "kind": "tilt_sensor",
    "declName": "tilt",
    "params": {},
    "terminals": [
@@ -107,19 +107,19 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "e30",
-     "b": "f30"
+     "a": "a30",
+     "b": "a31"
     }
    },
    "x": 442,
-   "y": 311
+   "y": 255
   }
  ],
  "wires": [
   {
    "from": "R_PU_tilt",
    "fromTerminal": "b",
-   "to": "BTN_tilt",
+   "to": "TILT_tilt",
    "toTerminal": "a"
   },
   {
@@ -137,7 +137,7 @@
   {
    "from": "GND",
    "fromTerminal": "gnd",
-   "to": "BTN_tilt",
+   "to": "TILT_tilt",
    "toTerminal": "b"
   },
   {
@@ -166,7 +166,7 @@
    "ref": "bbw:bb1:gen_0",
    "boardId": "bb1",
    "a": "b28",
-   "b": "a30",
+   "b": "b30",
    "color": "green"
   },
   {
@@ -186,8 +186,8 @@
   {
    "ref": "bbw:bb1:gen_3",
    "boardId": "bb1",
-   "a": "g30",
-   "b": "b-30",
+   "a": "b31",
+   "b": "b-31",
    "color": "black"
   },
   {

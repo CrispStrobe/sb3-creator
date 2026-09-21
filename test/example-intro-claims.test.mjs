@@ -70,8 +70,6 @@ const EXPLAINS_ITS_STAND_IN = new Map([
   // Says outright that the part is NOT needed, which is the opposite of a
   // claim that it is on the bench.
   ['arduino-03-fading:pot', /no potentiometer needed/i],
-  // Names the piezo AND the potentiometer standing in for it on the same pin.
-  ['arduino-sk-p12-knock-lock:buzzer', /piezo disc, which this bench stands in for/i],
 ]);
 
 // Kinds that are scaffolding rather than something to look at.

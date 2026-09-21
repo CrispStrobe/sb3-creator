@@ -213,15 +213,15 @@
       "y": 349
     },
     {
-      "id": "BTN_tilt",
-      "kind": "button",
+      "id": "TILT_tilt",
+      "kind": "tilt_sensor",
       "params": {},
       "terminals": [
         "a",
         "b"
       ],
-      "x": 64,
-      "y": 671
+      "x": 820,
+      "y": 349
     }
   ],
   "wires": [
@@ -241,24 +241,24 @@
       "id": "w_flat_1",
       "netId": "bb1:n-col-b14",
       "from": {
-        "part": "BTN_tilt",
-        "terminal": "a"
-      },
-      "to": {
         "part": "MCU",
         "terminal": "P3.2"
+      },
+      "to": {
+        "part": "R_PU_tilt",
+        "terminal": "b"
       }
     },
     {
       "id": "w_flat_2",
       "netId": "bb1:n-col-b14",
       "from": {
-        "part": "BTN_tilt",
-        "terminal": "a"
+        "part": "MCU",
+        "terminal": "P3.2"
       },
       "to": {
-        "part": "R_PU_tilt",
-        "terminal": "b"
+        "part": "TILT_tilt",
+        "terminal": "a"
       }
     },
     {
@@ -493,24 +493,24 @@
       "id": "w_flat_22",
       "netId": "bb1:rail-b-",
       "from": {
-        "part": "BTN_tilt",
-        "terminal": "b"
-      },
-      "to": {
         "part": "GND",
         "terminal": "gnd"
+      },
+      "to": {
+        "part": "MCU",
+        "terminal": "GND"
       }
     },
     {
       "id": "w_flat_23",
       "netId": "bb1:rail-b-",
       "from": {
-        "part": "BTN_tilt",
-        "terminal": "b"
+        "part": "GND",
+        "terminal": "gnd"
       },
       "to": {
-        "part": "MCU",
-        "terminal": "GND"
+        "part": "TILT_tilt",
+        "terminal": "b"
       }
     }
   ],
