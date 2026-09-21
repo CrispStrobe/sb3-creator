@@ -5350,6 +5350,7 @@
    "atmega168p",
    "arduino-mega",
    "arduino-nano",
+   "stm32f030",
    "pico",
    "attiny88"
   ],
@@ -5361,12 +5362,10 @@
    "pico": "arduino-sk-p08-hourglass/circuit.pico.json",
    "stc12c5a60s2": "arduino-sk-p08-hourglass/circuit.stc12c5a60s2.json",
    "stc15f2k60s2": "arduino-sk-p08-hourglass/circuit.stc15f2k60s2.json",
-   "stc89c52rc": "arduino-sk-p08-hourglass/circuit.stc89c52rc.json"
+   "stc89c52rc": "arduino-sk-p08-hourglass/circuit.stc89c52rc.json",
+   "stm32f030": "arduino-sk-p08-hourglass/circuit.stm32f030.json"
   },
-  "authored": "arduino-uno",
-  "transformRefused": {
-   "stm32f030": "MCU terminal d25 is wired but has no mapping on stm32f030 — refusing rather than dropping the connection"
-  }
+  "authored": "arduino-uno"
  },
  {
   "id": "arduino-sk-p09-motorized-pinwheel",
