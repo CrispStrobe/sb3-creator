@@ -242,6 +242,23 @@ const KNOWN_INERT = new Map([
         + '`commonAnode`, which the device never read at all; that was a real defect and is '
         + 'fixed upstream.)'],
 
+    ['nmos.vth',
+        'BLIND SPOT: the one bench that declares it never turns the MOSFET on. pc39-nmos-switch '
+        + 'is the only circuit in the corpus with an nmos carrying params, and its gate sits behind '
+        + 'a switch this probe does not close, so every state it samples has the device OFF. '
+        + 'MEASURED 2026-09-21 at bw-board 4ae99bea: with the switch OPEN, vth 2 and the perturbed '
+        + '8.4 both leave the drain at 4.9950 V — identical, because an off MOSFET is off whatever '
+        + 'its threshold is. With the switch CLOSED the same perturbation moves the drain from '
+        + '1.3243 V to 4.9950 V, a 3.67 V swing, so the engine reads the key perfectly well. '
+        + 'This entry appeared when bw-board stopped LEAKING through an off MOSFET: at the previous '
+        + 'pin the drain sat at 3.0245 V with the switch open, a soft turn-off that depended on vth '
+        + 'and made the perturbation visible by accident. The cleaner model is the better one, and '
+        + 'it took the accident away. A probe point with the switch closed removes this entry.'],
+
+    ['nmos.k',
+        'BLIND SPOT: as nmos.vth — same bench, same open switch, same measurement. pc39-nmos-switch '
+        + 'is the only nmos site in the corpus and the probe never turns it on.'],
+
     ['28c256.readOnly',
         'BLIND SPOT: no bench writes. readOnly refuses /WE writes, and both probed sites tie /WE high — '
         + 'a control store is never written. Flipping it changes nothing because nothing writes, '

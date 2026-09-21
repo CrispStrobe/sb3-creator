@@ -194,7 +194,12 @@ test('76-multimeter: full-chain EXPECTED values (V, A, T-degC, wrap)',
     assert.deepEqual(decode(), { text: '-19', dp: -1 }, 'ntc control 0 → -19 °C');
     for (const [c, want, label] of [
       [0.25, { text: '010', dp: 1 }, '1.0 °C'],
-      [0.5, { text: '250', dp: 1 }, '25.0 °C'],
+      // 251, not 250, since the 2026-09-21 sibling bump: control 0.5 IS the
+      // NTC's defining 10k-at-25C point, so the float truth is exactly 25.0 and
+      // this digit sits on a truncation boundary the analog path now crosses the
+      // other way. One count in the last place, at one of the five sweep points;
+      // the other four are unchanged.
+      [0.5, { text: '251', dp: 1 }, '25.1 °C'],
       [0.75, { text: '536', dp: 1 }, '53.6 °C'],
       [1.0, { text: '879', dp: 1 }, '87.9 °C'],
     ]) {

@@ -20,7 +20,9 @@ No MCU -- button directly drives the transistor.
 - **Base current:** I_B = (5.0 - 0.7) / 10000 = 0.43 mA
 - **Max collector current:** I_C = beta x I_B = 100 x 0.43 = 43 mA
 - **Actual collector current (limited by load):** (5.0 - 2.0 - 0.2) / 470 = 5.96 mA
-- **Transistor is saturated** (V_CE ~ 0.2 V) since 5.96 mA << 43 mA
+- **Transistor is saturated** (V_CE = 0.078 V here) since 5.96 mA << 43 mA.
+  The rule of thumb for a saturated NPN is ~0.2 V, quoted for a part driven
+  much harder; at this current the model puts it lower.
 - **LED voltage:** 2.0 V
 - **LED state:** ON, good brightness
 

@@ -9,8 +9,8 @@ Measured on the engine (bw-board, flat path, board vcc 5):
 
 | condition | coil (`relay1.coil_a`) | contact (`relay1.no`) | LED current |
 |---|---|---|---|
-| switch open | 0 V | 2.00 V (no path) | 0.00 mA |
-| switch closed, t = 4 ms | 5.00 V | 2.00 V (still open) | 0.00 mA |
+| switch open | 0 V | 1.775 V (no path) | 0.00 mA |
+| switch closed, t = 4 ms | 5.00 V | 1.775 V (still open) | 0.00 mA |
 | switch closed, t = 6 ms | 5.00 V | 8.999 V | 6.93 mA |
 
 The coil draws 5 V / 200 Ω = 25 mA from the 5 V rail. The contact carries
@@ -25,9 +25,9 @@ net load_v.pos V 9.00 +-0.01
 
 <!-- engine-provenance -->
 > **Engine provenance.** The measured numbers on this page were last held against
-> `bw-board@7b7f3b5` and `bw-circuit-ui@c276c0d` — the revisions pinned in
+> `bw-board@4ae99be` and `bw-circuit-ui@a2b1cb2` — the revisions pinned in
 > `test/fixtures/siblings.json`. `test/expected-quantities-hold.test.mjs` compares
 > **8 of this page's 21** numeric claims against that engine
-> (0 of them disagreeing) and declines the rest with a stated reason;
+> (1 of them disagreeing) and declines the rest with a stated reason;
 > `node scripts/expected-claim-census.mjs pc25-relay-isolator` prints them one by one.
 <!-- engine-provenance -->

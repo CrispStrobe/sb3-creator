@@ -25,7 +25,7 @@ of the 5 V rail, and the LED branch carries about (5 − 2.05) V / 1 kΩ ≈ **2
 | rl bottom / LED anode | 0.9960 |
 | GND | 0.0000 |
 
-With the switch open the base floats near the emitter, V_EB ≈ 0.01 V — the
+With the switch open the base floats near the emitter, V_EB ≈ 0.005 V — the
 PNP is off and the collector shows only leakage-level voltage (no significant
 current through the LED branch).
 
@@ -37,9 +37,9 @@ net q1.base V 4.99 +-0.10
 
 <!-- engine-provenance -->
 > **Engine provenance.** The measured numbers on this page were last held against
-> `bw-board@7b7f3b5` and `bw-circuit-ui@c276c0d` — the revisions pinned in
+> `bw-board@4ae99be` and `bw-circuit-ui@a2b1cb2` — the revisions pinned in
 > `test/fixtures/siblings.json`. `test/expected-quantities-hold.test.mjs` compares
 > **7 of this page's 10** numeric claims against that engine
-> (0 of them disagreeing) and declines the rest with a stated reason;
+> (1 of them disagreeing) and declines the rest with a stated reason;
 > `node scripts/expected-claim-census.mjs pc32-pnp-high-side` prints them one by one.
 <!-- engine-provenance -->

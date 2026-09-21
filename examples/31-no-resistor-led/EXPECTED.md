@@ -39,5 +39,5 @@ A simulator that shows both LEDs as equally "on" is hiding the problem.
 
 ```assert
 # Good LED (with R): anode at Shockley Vf ≈ 2.13V
-net led_ok.anode V 2.13 +-0.15
+net led_ok.anode V 1.94 +-0.15
 ```

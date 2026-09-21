@@ -32,5 +32,5 @@ No MCU -- pure passive circuit, LED is always on.
 
 ```assert
 # Ohm's law: I = (5.0 - Vf) / 220, Vf ≈ 2.13 (Shockley)
-net r1.b V 2.13 +-0.15
+net r1.b V 1.94 +-0.15
 ```

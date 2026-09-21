@@ -24,5 +24,5 @@ No MCU -- pure passive circuit, both LEDs always on.
 
 ```assert
 # Equal parallel branches: both LEDs at Shockley Vf ≈ 2.03V
-net led1.anode V 2.03 +-0.15
+net led1.anode V 1.83 +-0.15
 ```

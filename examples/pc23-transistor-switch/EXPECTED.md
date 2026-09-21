@@ -9,7 +9,10 @@ the transistor turns the LED on.
 - Button open: no base current, transistor off, LED dark.
 - Button closed: I_b = (5.0 − 0.7) / 10 000 = **0.43 mA**. β · I_b = 43 mA is
   more than the collector branch can pass — (5.0 − 2.0 − 0.2) / 470 ≈
-  **6.0 mA** — so the transistor saturates, V_ce ≈ 0.2 V, LED lit at ~6 mA.
+  **6.5 mA** — so the transistor saturates, V_ce = 0.078 V, LED lit at ~6.5 mA.
+  The figure usually quoted for a saturated transistor belongs to a part
+  driven much harder; saturated means as far down as this one will go at the
+  current it passes, which the engine solves for rather than looks up.
 
 ## Measured (`audit-solve pc23-transistor-switch`)
 
@@ -37,9 +40,9 @@ net vcc1.pos V 5.00 +-0.01
 
 <!-- engine-provenance -->
 > **Engine provenance.** The measured numbers on this page were last held against
-> `bw-board@7b7f3b5` and `bw-circuit-ui@c276c0d` — the revisions pinned in
+> `bw-board@4ae99be` and `bw-circuit-ui@a2b1cb2` — the revisions pinned in
 > `test/fixtures/siblings.json`. `test/expected-quantities-hold.test.mjs` compares
 > **11 of this page's 12** numeric claims against that engine
-> (0 of them disagreeing) and declines the rest with a stated reason;
+> (1 of them disagreeing) and declines the rest with a stated reason;
 > `node scripts/expected-claim-census.mjs pc23-transistor-switch` prints them one by one.
 <!-- engine-provenance -->

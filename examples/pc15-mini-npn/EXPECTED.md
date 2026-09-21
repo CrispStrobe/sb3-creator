@@ -36,15 +36,20 @@ Supply leads tap **e2** (+5 V) and **e7** (return).
 | node | volts |
 |---|---|
 | supply (col-t2) | 5.0000 |
-| base (col-t8) | 0.7043 |
-| collector (col-t9) | 0.2006 |
-| LED anode (col-t12) | 2.2589 |
+| base (col-t8) | 0.6957 |
+| collector (col-t9) | 0.0783 |
+| LED anode (col-t12) | 1.9433 |
 | emitter (col-t7) | 0.0000 |
 
-NPN is saturated as expected: V_ce = 0.20 V, LED forward drop 2.06 V,
-I_c = (5.0 − 2.26 − 0.20) / 470 = **5.40 mA**. The hand estimate of 5.96 mA
-used ideal drops; the Shockley model raises them slightly, reducing the current
-by about 10 % — the same pattern as every other LED example in the gallery.
+NPN is saturated as expected: V_ce = 0.078 V, LED forward drop 1.865 V,
+I_c = (5.0 − 1.9433) / 470 = **6.50 mA**. Two things are worth reading off
+that. The hand estimate of 5.96 mA used ideal drops and lands about 9 % LOW,
+because the solved junctions sit BELOW the figures a table quotes — 2.0 V is a
+red LED at its rated 20 mA and this one runs at 6.5 mA. And the rule of thumb
+for a saturated transistor, V_ce ≈ 0.2 V, is quoted for a part worked much
+harder than this one; at 6.5 mA with plenty of base drive the model puts it at
+0.078 V. Saturated means "as far down as this transistor will go", not a
+particular number.
 
 ```assert
 # NPN saturated: Vbe ~ 0.70V, Vce ~ 0.20V
@@ -54,9 +59,9 @@ net npn_5.base V 0.70 +-0.10
 
 <!-- engine-provenance -->
 > **Engine provenance.** The measured numbers on this page were last held against
-> `bw-board@7b7f3b5` and `bw-circuit-ui@c276c0d` — the revisions pinned in
+> `bw-board@4ae99be` and `bw-circuit-ui@a2b1cb2` — the revisions pinned in
 > `test/fixtures/siblings.json`. `test/expected-quantities-hold.test.mjs` compares
 > **9 of this page's 24** numeric claims against that engine
-> (0 of them disagreeing) and declines the rest with a stated reason;
+> (2 of them disagreeing) and declines the rest with a stated reason;
 > `node scripts/expected-claim-census.mjs pc15-mini-npn` prints them one by one.
 <!-- engine-provenance -->

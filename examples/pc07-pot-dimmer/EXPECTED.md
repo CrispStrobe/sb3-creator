@@ -11,14 +11,19 @@ the only control, and every row below is one `setControl` away from the last.
 | position | wiper | LED anode | LED current |
 |---|---|---|---|
 | 0.0 | 0.0050 V | 0.0050 V | 0.000 mA |
-| 0.5 | 2.2380 V | 2.0074 V | 1.048 mA |
-| 1.0 | 4.9821 V | 2.1297 V | 12.965 mA |
+| 0.5 | 2.1347 V | 1.8132 V | 1.461 mA |
+| 1.0 | 4.9812 V | 1.9383 V | 13.831 mA |
 
 At mid-travel the wiper does **not** sit at 2.5 V. Looking back into it the
 divider is a 2.5 V source behind 500 Ω || 500 Ω = 250 Ω, and the 220 Ω + LED
-hanging off that is a comparable load, so the node is pulled down to 2.2380 V
-and the LED gets 1.048 mA — a dim but visible glow. At full travel the pot is
-out of the way and the branch is the plain 220 Ω one, at 12.965 mA.
+hanging off that is a comparable load, so the node is pulled down to 2.1347 V
+and the LED gets 1.461 mA — a dim but visible glow. At full travel the pot is
+out of the way and the branch is the plain 220 Ω one, at 13.831 mA.
+
+The LED's own drop moves across the sweep — 1.8132 V at mid-travel, 1.9383 V
+at full — because the engine solves the junction at whatever current the
+divider delivers rather than holding it at a fixed forward voltage. A dimmer
+dims by moving along that curve, so the drop cannot be a constant.
 
 That loading is the reason this bench uses a **1 kΩ** pot rather than the 10 kΩ
 one a dimmer is usually drawn with. [41-pot-as-dimmer](../41-pot-as-dimmer) is
@@ -37,15 +42,15 @@ and at 1 kΩ the knob still visibly dims.
 # Supply rail: 5V source
 net vsource_2.pos V 5.00 +-0.01
 # Pot at its authored 50 %: the wiper sits BELOW the unloaded 2.5 V.
-net potentiometer_3.wiper V 2.238 +-0.03
-net led_5.anode V 2.007 +-0.03
+net potentiometer_3.wiper V 2.135 +-0.03
+net led_5.anode V 1.813 +-0.03
 ```
 
 <!-- engine-provenance -->
 > **Engine provenance.** The measured numbers on this page were last held against
-> `bw-board@7b7f3b5` and `bw-circuit-ui@c276c0d` — the revisions pinned in
+> `bw-board@4ae99be` and `bw-circuit-ui@a2b1cb2` — the revisions pinned in
 > `test/fixtures/siblings.json`. `test/expected-quantities-hold.test.mjs` compares
 > **15 of this page's 28** numeric claims against that engine
-> (0 of them disagreeing) and declines the rest with a stated reason;
+> (2 of them disagreeing) and declines the rest with a stated reason;
 > `node scripts/expected-claim-census.mjs pc07-pot-dimmer` prints them one by one.
 <!-- engine-provenance -->
