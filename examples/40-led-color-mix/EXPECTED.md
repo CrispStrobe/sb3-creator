@@ -31,7 +31,7 @@ No MCU -- all three LEDs always on.
 
 ```assert
 # Red/green LEDs: Vf ≈ 2.09V at ~9mA
-net led1.anode V 2.09 +-0.15
+net led1.anode V 1.89 +-0.15
 # Blue LED: higher Vf ≈ 3.25V
-net led3.anode V 3.25 +-0.20
+net led3.anode V 3.00 +-0.20
 ```

@@ -20,11 +20,16 @@ No MCU -- button directly drives the buzzer via transistor switch.
 ### Button pressed (closed)
 - **Base current:** I_B = (5.0 - 0.7) / 10000 = 0.43 mA
 - **Available collector current:** beta x I_B = 1000 x 0.43 = 430 mA
-- **Transistor saturates** (V_CE ~ 0.2 V) since the buzzer can only pass
+- **Transistor saturates** (V_CE = 0.131 V here) since the buzzer can only pass
   (5.0 - 0.2) / 100 = 48 mA and the pair can deliver 430 mA -- the load, not the
   gain, is what sets the current
 - Buzzer receives ~4.8 V and sounds
 - **Buzzer state:** ON
+
+A saturated transistor is often quoted at V_CE of about two tenths of a volt.
+That figure belongs to a part driven much harder than this one; saturated means
+"as far down as this transistor will go" at the current it is actually passing,
+not a fixed number, and the engine solves for it.
 
 ## What this verifies
 

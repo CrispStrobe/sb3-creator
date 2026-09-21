@@ -7,9 +7,9 @@ Measured on the engine (board vcc 5, `--at 1`):
 
 | `sw1` | `sw2` | `r1.a` | LED current |
 |---|---|---|---|
-| open | open | 0.0017 V | 0.000 mA |
+| open | open | 0.0025 V | 0.000 mA |
 | closed | open | 0.0050 V | 0.000 mA |
-| open | closed | 0.0017 V | 0.000 mA |
+| open | closed | 0.0025 V | 0.000 mA |
 | closed | closed | 5.0000 V | 2.970 mA |
 
 Closed, the two switches pass the supply through untouched (5.0000 V at the
@@ -24,9 +24,9 @@ net src.pos V 5.00 +-0.01
 
 <!-- engine-provenance -->
 > **Engine provenance.** The measured numbers on this page were last held against
-> `bw-board@7b7f3b5` and `bw-circuit-ui@c276c0d` — the revisions pinned in
+> `bw-board@4ae99be` and `bw-circuit-ui@a2b1cb2` — the revisions pinned in
 > `test/fixtures/siblings.json`. `test/expected-quantities-hold.test.mjs` compares
 > **3 of this page's 12** numeric claims against that engine
-> (0 of them disagreeing) and declines the rest with a stated reason;
+> (1 of them disagreeing) and declines the rest with a stated reason;
 > `node scripts/expected-claim-census.mjs pc36-series-interlock` prints them one by one.
 <!-- engine-provenance -->

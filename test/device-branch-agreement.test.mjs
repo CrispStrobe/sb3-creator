@@ -67,6 +67,26 @@ const SKIP = gate.skip || false;
 const DEVICE = new Set(['npn', 'pnp', 'nmos', 'pmos']);
 /** Below this both sides of a comparison are numerical noise, not a reading. */
 const FLOOR = 1e-6;
+/**
+ * How far two readings of the SAME current may differ before it is a defect.
+ *
+ * This was 1e-6 — one part per million — which was true of an engine that
+ * clamped a diode at a knee: the two sides came out of the same linear solve
+ * and agreed to the last bit. bw-board now solves the junction with Newton
+ * iteration, so both sides carry a convergence residual and agree only to
+ * about four decimal places.
+ *
+ * MEASURED 2026-09-21 across the 27 device-touching nets at bw-board
+ * 4ae99bea + bw-circuit-ui a2b1cb2: the largest relative disagreement with no
+ * silent side is 8.19e-5 (buzz1.b 48.6934 mA against q1.collector 48.6974 mA
+ * in 44-darlington-motor). The DEFECT this gate exists to catch was
+ * pc32-pnp-high-side reading 43 A through a 2.772 mA resistor — a relative
+ * difference of 1.55e4. Nine orders of magnitude separate the two, and 1e-3
+ * sits twelve times above the worst residual and seven orders below the
+ * defect. It is a separation between two measured numbers, not a tolerance
+ * chosen to make a red go away.
+ */
+const AGREE_REL = 1e-3;
 const POINTS = [{}, { controls: { button: 1, __pins: 'high' } }];
 
 function deviceBenches () {
@@ -133,7 +153,7 @@ describe('a device terminal current equals the branch it feeds', { skip: SKIP },
     test('no disagreement between two parts that both report a current', async () => {
         await loadEngine(gate.paths);
         const bad = samples()
-            .filter(x => x.rel > 1e-6 && !x.silentSide)
+            .filter(x => x.rel > AGREE_REL && !x.silentSide)
             .map(x => `${x.dir} ${x.net} at ${x.at || '{}'}: ${(x.rel * 100).toFixed(2)} % — ${x.detail}`);
         // This is the assertion the deleted decline should have been. On
         // bw-board 88e9668 it fails 17 times; on a301937 it must not fail at
@@ -147,7 +167,7 @@ describe('a device terminal current equals the branch it feeds', { skip: SKIP },
 
     test('what is left is a part with no current readback, and it only shrinks', async () => {
         await loadEngine(gate.paths);
-        const left = samples().filter(x => x.rel > 1e-6);
+        const left = samples().filter(x => x.rel > AGREE_REL);
         for (const x of left)
             assert.ok(x.silentSide, `${x.dir} ${x.net}: disagreement with no silent side — ${x.detail}`);
         // A RATCHET WITH A NAMED OWNER. 3 on bw-board a301937, all of them a

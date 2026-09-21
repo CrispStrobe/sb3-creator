@@ -45,5 +45,5 @@ Two branches from VCC (5 V) to GND, no MCU:
 # Series branch: R1.b = 5 - I×R1, junction voltage
 net r1.b V 3.52 +-0.20
 # Parallel branches: LED Vf ≈ 2.06V at lower current
-net led2.anode V 2.06 +-0.15
+net led2.anode V 1.87 +-0.15
 ```

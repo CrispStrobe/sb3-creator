@@ -24,9 +24,9 @@ Toggles GP25 at 1 Hz: 500 ms on, 500 ms off, forever.
 - **LED current:** 5.5 mA (within the RP2040's 12 mA max per pin)
 
 The 5.5 mA above is the ideal-forward-drop arithmetic. Solved on bw-board
-`88e9668`, with GP25 driven push-pull high, the branch measures **4.706 mA**:
-the pin sits at 3.1824 V behind its output impedance rather than at a clean
-3.3 V, and the engine's junction takes 2.147 V rather than the declared 2.1.
+`4ae99be`, with GP25 driven push-pull high, the branch measures **5.583 mA**:
+the pin sits at 3.1246 V behind its output impedance rather than at a clean
+3.3 V, and the engine's junction takes 1.896 V rather than the declared 2.1.
 Both numbers are right about different models, and neither is a defect — the
 declared Vf is the drop at rated current, and 4.7 mA is not the rated current.
 

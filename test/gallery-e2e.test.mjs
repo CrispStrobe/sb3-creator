@@ -513,16 +513,18 @@ describe('e2e: port-overcurrent fixture crosses the modeled aggregate limit', { 
         for (const [bit, current] of currents.entries()) {
             assert.ok(current > 0 && current < 0.020,
                 `P1.${bit} branch is ${(current * 1000).toFixed(2)} mA; `
-                + 'MEASURED 2026-09-08 at bw-board@7b7f3b50f45bdbe3f8e6e4ed924840fa3f2983c7 '
-                + '+ bw-circuit-ui@c276c0dbfdc26fa858e22e7642217411c2398fa9: '
-                + 'actual: ~17.143 mA, expected 0..20 mA');
+                + 'RE-MEASURED 2026-09-21 at bw-board@4ae99bea247a5a5fcb1a24e2b22eb1a1cba9f99e '
+                + '+ bw-circuit-ui@a2b1cb2db785437dffcf4644f6b5d37bc31b0533: '
+                + 'actual: ~18.286 mA, expected 0..20 mA (was ~17.143 mA at the '
+                + '2026-09-08 pins; the LED junction solve drops less, so every '
+                + 'branch carries more and the 20 mA margin narrowed to 1.7 mA)');
         }
         const total = currents.reduce((sum, current) => sum + current, 0);
         assert.ok(total > 0.120,
             `eight modeled branches total ${(total * 1000).toFixed(2)} mA; `
-            + 'MEASURED 2026-09-08 at bw-board@7b7f3b50f45bdbe3f8e6e4ed924840fa3f2983c7 '
-            + '+ bw-circuit-ui@c276c0dbfdc26fa858e22e7642217411c2398fa9: '
-            + 'actual: ~137.143 mA, expected >120 mA');
+            + 'RE-MEASURED 2026-09-21 at bw-board@4ae99bea247a5a5fcb1a24e2b22eb1a1cba9f99e '
+            + '+ bw-circuit-ui@a2b1cb2db785437dffcf4644f6b5d37bc31b0533: '
+            + 'actual: ~146.286 mA, expected >120 mA (was ~137.143 mA at the 2026-09-08 pins)');
 
         // Mutation proof: restoring the old 470 ohm value must put the same
         // circuit below the aggregate threshold, which is why that fixture
@@ -532,9 +534,9 @@ describe('e2e: port-overcurrent fixture crosses the modeled aggregate limit', { 
         const oldTotal = measure(restored).reduce((sum, current) => sum + current, 0);
         assert.ok(oldTotal < 0.120,
             `the 470 ohm mutant totals ${(oldTotal * 1000).toFixed(2)} mA; `
-            + 'MEASURED 2026-09-08 at bw-board@7b7f3b50f45bdbe3f8e6e4ed924840fa3f2983c7 '
-            + '+ bw-circuit-ui@c276c0dbfdc26fa858e22e7642217411c2398fa9: '
-            + 'actual: ~47.525 mA, expected <120 mA');
+            + 'RE-MEASURED 2026-09-21 at bw-board@4ae99bea247a5a5fcb1a24e2b22eb1a1cba9f99e '
+            + '+ bw-circuit-ui@a2b1cb2db785437dffcf4644f6b5d37bc31b0533: '
+            + 'actual: ~50.693 mA, expected <120 mA (was ~47.525 mA at the 2026-09-08 pins)');
     });
 });
 

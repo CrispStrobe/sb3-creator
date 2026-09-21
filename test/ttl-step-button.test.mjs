@@ -117,10 +117,18 @@ describe("ttl-clock-module: the step button clocks a register", { skip: gate.ski
             seen.push(held);
         }
         // Divide-by-two: four presses give ON, OFF, ON, OFF, and the ON level is
-        // the hand-computed 4.4643 V, not merely "something non-zero".
-        assert.deepEqual(seen, [4.4643, 0, 4.4643, 0],
-            '5 V behind R_OUT = 50 Ω into 220 Ω + a red LED settles at 10.714 mA, '
-            + 'so Q sits 0.5357 V below the rail');
+        // the hand-computed 4.4286 V, not merely "something non-zero".
+        //
+        // RE-DERIVED 2026-09-21 with the sibling pins. It was 4.4643 V while the
+        // engine clamped an LED at its knee: 10.714 mA through R_OUT's 50 Ω is a
+        // 0.5357 V sag, which puts the LED at 2.107 V. bw-board now solves the
+        // junction, the LED takes 1.914 V at this current instead, and the loop
+        // carries more — so the sag grows with it. The number moved because the
+        // LED model did, and this line is derived from the same three components
+        // it always was.
+        assert.deepEqual(seen, [4.4286, 0, 4.4286, 0],
+            '5 V behind R_OUT = 50 Ω into 220 Ω + a red LED settles at 11.43 mA, '
+            + 'so Q sits 0.5714 V below the rail');
     });
 
     test('the 555 half is untouched by the repair', async () => {

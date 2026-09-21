@@ -30,7 +30,7 @@ net battery_1.pos V 8.96 +-0.20
 
 <!-- engine-provenance -->
 > **Engine provenance.** The measured numbers on this page were last held against
-> `bw-board@7b7f3b5` and `bw-circuit-ui@c276c0d` — the revisions pinned in
+> `bw-board@4ae99be` and `bw-circuit-ui@a2b1cb2` — the revisions pinned in
 > `test/fixtures/siblings.json`. `test/expected-quantities-hold.test.mjs` compares
 > **14 of this page's 16** numeric claims against that engine
 > (0 of them disagreeing) and declines the rest with a stated reason;

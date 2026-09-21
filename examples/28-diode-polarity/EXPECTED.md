@@ -31,7 +31,7 @@ No MCU -- pure passive circuit demonstrating diode polarity.
 
 ```assert
 # Forward path: d1 anode at ~2.79V (R + diode + LED drops)
-net d1.anode V 2.79 +-0.20
+net d1.anode V 2.54 +-0.20
 # Reverse path: d2 cathode at VCC (reverse-biased, no current)
 net d2.cathode V 5.00 +-0.01
 ```

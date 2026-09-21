@@ -29,7 +29,7 @@ No MCU -- all three LEDs always on at different brightness levels.
 
 ```assert
 # 220Ω LED: highest I → highest Shockley Vf ≈ 2.13V
-net led1.anode V 2.13 +-0.15
+net led1.anode V 1.94 +-0.15
 # 1kΩ LED: lowest I → lowest Shockley Vf ≈ 2.03V
-net led3.anode V 2.03 +-0.15
+net led3.anode V 1.83 +-0.15
 ```

@@ -10,34 +10,41 @@ No MCU -- pure passive voltage regulation circuit.
 
 ## Observable behaviour
 
+The zener's 5.1 V and the LED's 2.0 V are both RATINGS, quoted at a test
+current. The engine solves each junction at the current this circuit actually
+delivers, so the junction settles slightly above the zener's nameplate and the
+green LED sits below its own. The numbers below are that solve, and the lesson
+is that a clamp is a steep curve rather than a flat line.
+
 ### Regulated junction voltage
-- **Zener clamps junction to:** 5.1 V
-- **Voltage across R1:** 9.0 - 5.1 = 3.9 V
+- **Zener holds the junction at:** 5.1627 V (rated 5.1 V)
+- **Voltage across R1:** 9.0 - 5.1627 = 3.8373 V
 
 ### Load path (LED branch)
-- **Voltage available for R2 + LED:** 5.1 V
-- **LED current:** (5.1 - 2.0) / 470 = 6.60 mA
-- **Voltage across R2:** 6.60 mA x 470 = 3.1 V
+- **Voltage available for R2 + LED:** 5.1627 V
+- **LED forward voltage at this current:** 1.8701 V
+- **LED current:** (5.1627 - 1.8701) / 470 = 7.006 mA
+- **Voltage across R2:** 7.006 mA x 470 = 3.2926 V
 
 ### Zener path
-- **Total current through R1:** (9.0 - 5.1) / 330 = 11.82 mA
-- **Zener current:** 11.82 - 6.60 = 5.22 mA
-- **Zener power:** 5.1 x 5.22 = 26.6 mW
+- **Total current through R1:** (9.0 - 5.1627) / 330 = 11.628 mA
+- **Zener current:** 11.628 - 7.006 = 4.622 mA
+- **Zener power:** 5.1627 x 4.622 = 23.9 mW
 
 ### Power budget
 
 | component | voltage (V) | current (mA) | power (mW) |
 |-----------|-------------|-------------|------------|
-| R1        | 3.9         | 11.82       | 46.1       |
-| Zener     | 5.1         | 5.22        | 26.6       |
-| R2        | 3.1         | 6.60        | 20.5       |
-| LED       | 2.0         | 6.60        | 13.2       |
-| **total** | 9.0         | --          | 106.4      |
+| R1        | 3.8373      | 11.628      | 44.6       |
+| Zener     | 5.1627      | 4.622       | 23.9       |
+| R2        | 3.2926      | 7.006       | 23.1       |
+| LED       | 1.8701      | 7.006       | 13.1       |
+| **total** | 9.0         | --          | 104.7      |
 
 ### Regulation test
 If VCC changes from 9 V to 12 V:
-- Junction stays at 5.1 V (zener clamps)
-- LED current unchanged: still 6.60 mA
+- Junction stays near 5.16 V (zener clamps)
+- LED current essentially unchanged: still about 7.0 mA
 - R1 current increases: (12.0 - 5.1) / 330 = 20.91 mA
 - Extra current absorbed by zener: 20.91 - 6.60 = 14.31 mA
 
