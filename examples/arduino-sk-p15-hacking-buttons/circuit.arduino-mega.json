@@ -13,7 +13,9 @@
   {
    "id": "VCC",
    "kind": "vcc",
-   "params": {},
+   "params": {
+    "volts": 5
+   },
    "terminals": [
     "vcc"
    ],
@@ -31,16 +33,16 @@
    "y": 115
   },
   {
-   "id": "mega1",
+   "id": "uno1",
    "kind": "arduino_mega",
    "params": {},
    "x": 475,
    "y": -5,
    "rotation": 0,
    "terminals": [
-    "5v",
-    "gnd2",
-    "d2"
+    "d13",
+    "gnd",
+    "5v"
    ]
   },
   {
@@ -64,6 +66,49 @@
    }
   },
   {
+   "id": "OPTO1",
+   "kind": "optocoupler",
+   "declName": "opto",
+   "params": {},
+   "terminals": [
+    "anode",
+    "cathode",
+    "collector",
+    "emitter"
+   ],
+   "x": 232,
+   "y": 255,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "anode": "a15",
+     "cathode": "a16",
+     "emitter": "a17",
+     "collector": "a18"
+    }
+   }
+  },
+  {
+   "id": "R_load",
+   "kind": "resistor",
+   "params": {
+    "ohms": 1000
+   },
+   "terminals": [
+    "a",
+    "b"
+   ],
+   "x": 148,
+   "y": 255,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a9",
+     "b": "a13"
+    }
+   }
+  },
+  {
    "id": "LED_opto",
    "kind": "led",
    "params": {
@@ -74,13 +119,13 @@
     "anode",
     "cathode"
    ],
-   "x": 148,
+   "x": 302,
    "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "anode": "a9",
-     "cathode": "a10"
+     "anode": "a20",
+     "cathode": "a21"
     }
    }
   }
@@ -89,35 +134,83 @@
   {
    "from": "R_opto",
    "fromTerminal": "b",
-   "to": "LED_opto",
+   "to": "OPTO1",
    "toTerminal": "anode"
   },
   {
    "from": "GND",
    "fromTerminal": "gnd",
-   "to": "LED_opto",
+   "to": "OPTO1",
    "toTerminal": "cathode"
-  },
-  {
-   "from": "mega1",
-   "fromTerminal": "d2",
-   "to": "R_opto",
-   "toTerminal": "a"
   },
   {
    "from": "VCC",
    "fromTerminal": "vcc",
-   "to": "mega1",
-   "toTerminal": "5v",
-   "color": "red",
-   "genPower": true
+   "to": "R_load",
+   "toTerminal": "a"
+  },
+  {
+   "from": "R_load",
+   "fromTerminal": "b",
+   "to": "LED_opto",
+   "toTerminal": "anode"
+  },
+  {
+   "from": "LED_opto",
+   "fromTerminal": "cathode",
+   "to": "OPTO1",
+   "toTerminal": "collector"
   },
   {
    "from": "GND",
    "fromTerminal": "gnd",
-   "to": "mega1",
-   "toTerminal": "gnd2",
-   "color": "black",
+   "to": "OPTO1",
+   "toTerminal": "emitter"
+  },
+  {
+   "from": "uno1",
+   "fromTerminal": "d13",
+   "to": "R_opto",
+   "toTerminal": "a"
+  },
+  {
+   "from": "uno1",
+   "fromTerminal": "gnd",
+   "to": "GND",
+   "toTerminal": "gnd"
+  },
+  {
+   "from": "uno1",
+   "fromTerminal": "gnd",
+   "to": "OPTO1",
+   "toTerminal": "cathode"
+  },
+  {
+   "from": "uno1",
+   "fromTerminal": "gnd",
+   "to": "OPTO1",
+   "toTerminal": "emitter"
+  },
+  {
+   "from": "uno1",
+   "fromTerminal": "5v",
+   "to": "R_load",
+   "toTerminal": "a"
+  },
+  {
+   "from": "uno1",
+   "fromTerminal": "5v",
+   "to": "VCC",
+   "toTerminal": "vcc"
+  },
+  {
+   "from": "VCC",
+   "fromTerminal": "vcc",
+   "to": {
+    "board": "bb1",
+    "hole": "t+2"
+   },
+   "color": "red",
    "genPower": true
   },
   {
@@ -136,14 +229,42 @@
    "ref": "bbw:bb1:gen_0",
    "boardId": "bb1",
    "a": "b7",
-   "b": "b9",
+   "b": "b15",
    "color": "green"
   },
   {
    "ref": "bbw:bb1:gen_1",
    "boardId": "bb1",
-   "a": "b10",
-   "b": "b-10",
+   "a": "b16",
+   "b": "b-16",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb1:gen_2",
+   "boardId": "bb1",
+   "a": "b9",
+   "b": "t+9",
+   "color": "red"
+  },
+  {
+   "ref": "bbw:bb1:gen_3",
+   "boardId": "bb1",
+   "a": "b13",
+   "b": "b20",
+   "color": "blue"
+  },
+  {
+   "ref": "bbw:bb1:gen_4",
+   "boardId": "bb1",
+   "a": "b21",
+   "b": "b18",
+   "color": "yellow"
+  },
+  {
+   "ref": "bbw:bb1:gen_5",
+   "boardId": "bb1",
+   "a": "b17",
+   "b": "b-17",
    "color": "black"
   }
  ],

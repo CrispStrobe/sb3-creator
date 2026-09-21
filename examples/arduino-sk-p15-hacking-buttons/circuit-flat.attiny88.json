@@ -4,7 +4,9 @@
     {
       "id": "VCC",
       "kind": "vcc",
-      "params": {},
+      "params": {
+        "volts": 5
+      },
       "terminals": [
         "vcc"
       ],
@@ -22,7 +24,7 @@
       "y": 115
     },
     {
-      "id": "attiny881",
+      "id": "uno1",
       "kind": "attiny88",
       "params": {},
       "terminals": [
@@ -46,7 +48,7 @@
         "pb4",
         "pb5",
         "avcc",
-        "pa0",
+        "gnd2",
         "pc0",
         "pc1",
         "pc2",
@@ -73,6 +75,32 @@
       "y": 255
     },
     {
+      "id": "OPTO1",
+      "kind": "optocoupler",
+      "params": {},
+      "terminals": [
+        "anode",
+        "cathode",
+        "collector",
+        "emitter"
+      ],
+      "x": 484,
+      "y": 255
+    },
+    {
+      "id": "R_load",
+      "kind": "resistor",
+      "params": {
+        "ohms": 1000
+      },
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 400,
+      "y": 255
+    },
+    {
       "id": "LED_opto",
       "kind": "led",
       "params": {
@@ -83,28 +111,28 @@
         "anode",
         "cathode"
       ],
-      "x": 400,
+      "x": 554,
       "y": 255
     }
   ],
   "wires": [
     {
       "id": "w_flat_0",
-      "netId": "bb1:n-col-t21",
+      "netId": "bb1:n-col-b16",
       "from": {
-        "part": "attiny881",
-        "terminal": "pb1"
-      },
-      "to": {
         "part": "R_opto",
         "terminal": "a"
+      },
+      "to": {
+        "part": "uno1",
+        "terminal": "pb0"
       }
     },
     {
       "id": "w_flat_1",
       "netId": "bb1:n-col-t25",
       "from": {
-        "part": "LED_opto",
+        "part": "OPTO1",
         "terminal": "anode"
       },
       "to": {
@@ -114,46 +142,106 @@
     },
     {
       "id": "w_flat_2",
-      "netId": "bb1:rail-b-",
+      "netId": "bb1:n-col-t31",
       "from": {
-        "part": "GND",
-        "terminal": "gnd"
+        "part": "LED_opto",
+        "terminal": "anode"
       },
       "to": {
-        "part": "LED_opto",
-        "terminal": "cathode"
+        "part": "R_load",
+        "terminal": "b"
       }
     },
     {
       "id": "w_flat_3",
+      "netId": "bb1:n-col-t36",
+      "from": {
+        "part": "LED_opto",
+        "terminal": "cathode"
+      },
+      "to": {
+        "part": "OPTO1",
+        "terminal": "collector"
+      }
+    },
+    {
+      "id": "w_flat_4",
       "netId": "bb1:rail-b-",
       "from": {
         "part": "GND",
         "terminal": "gnd"
       },
       "to": {
-        "part": "attiny881",
-        "terminal": "gnd"
-      }
-    },
-    {
-      "id": "w_flat_4",
-      "netId": "bb1:rail-t+",
-      "from": {
-        "part": "attiny881",
-        "terminal": "avcc"
-      },
-      "to": {
-        "part": "attiny881",
-        "terminal": "vcc"
+        "part": "OPTO1",
+        "terminal": "cathode"
       }
     },
     {
       "id": "w_flat_5",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "GND",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "OPTO1",
+        "terminal": "emitter"
+      }
+    },
+    {
+      "id": "w_flat_6",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "GND",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "uno1",
+        "terminal": "gnd"
+      }
+    },
+    {
+      "id": "w_flat_7",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "GND",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "uno1",
+        "terminal": "gnd2"
+      }
+    },
+    {
+      "id": "w_flat_8",
       "netId": "bb1:rail-t+",
       "from": {
-        "part": "attiny881",
+        "part": "R_load",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "uno1",
         "terminal": "avcc"
+      }
+    },
+    {
+      "id": "w_flat_9",
+      "netId": "bb1:rail-t+",
+      "from": {
+        "part": "R_load",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "uno1",
+        "terminal": "vcc"
+      }
+    },
+    {
+      "id": "w_flat_10",
+      "netId": "bb1:rail-t+",
+      "from": {
+        "part": "R_load",
+        "terminal": "a"
       },
       "to": {
         "part": "VCC",

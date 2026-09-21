@@ -26,6 +26,13 @@ Reads three pots and maps each (0-1023) to a PWM duty (0-100 percent) for the re
 ```assert
 # Supply rail: VCC = 5.0V
 net vcc1.vcc V 5.00 +-0.01
-# Pot at 50%: wiper = 5.0 × 0.5 = 2.500V
+# Each pot at 50%: wiper = 5.0 x 0.5 = 2.500V, one per analog channel
 net pot1.wiper V 2.50 +-0.05
+net pot2.wiper V 2.50 +-0.05
+net pot3.wiper V 2.50 +-0.05
+# At rest every PWM pad is low, so no channel of the RGB LED is forward
+# biased: each anode sits at ground through its own 220 ohm resistor.
+net RGB1.r_anode V 0.00 +-0.01
+net RGB1.g_anode V 0.00 +-0.01
+net RGB1.b_anode V 0.00 +-0.01
 ```

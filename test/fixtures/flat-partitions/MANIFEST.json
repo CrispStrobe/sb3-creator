@@ -2,7 +2,7 @@
   "note": "Vendored VERDICT for the flat circuit twins. CI cannot recompute the net partition (that needs bw-circuit-ui + bw-board), but it can prove neither file of a pair changed since a run that did. Regenerate with scripts/vendor-flat-partitions.mjs --write.",
   "engine": {
     "repo": "bw-circuit-ui",
-    "sha": "90b1ebc97dfd91418d7dbb7d7c4d4c8c29dbfeec"
+    "sha": "a2b1cb2db785437dffcf4644f6b5d37bc31b0533"
   },
   "pairs": 947,
   "entries": [
@@ -6114,41 +6114,41 @@
       "dir": "arduino-sk-p04-color-mixing",
       "flat": "circuit-flat.arduino-mega.json",
       "twin": "circuit.arduino-mega.json",
-      "flatSha": "701eb468640f8a143476e60d7a39b51eec7dc8e1ef1eadcf8b46c13cc7784735",
-      "twinSha": "f63095e0d591646f910d2f4cd250e723b1761032ca32070fb751dcf667201a6a",
-      "partitionSha": "a4c389f55d90b9ad235838b415644e53f71dcc75ce398b1e40070e273baa52d2"
+      "flatSha": "651a5ebe9ba687f47852e48fe9bb4f06074ecc1a1254e9adeec0688f40f46a45",
+      "twinSha": "8a68f84c388187b93a459d10d3bac428ae71809ae40ea7602685fcbf959f3274",
+      "partitionSha": "63b882110fb8958d32ea2343beda0d484c38654d0f3b8fb75f5f1f3c2999c135"
     },
     {
       "dir": "arduino-sk-p04-color-mixing",
       "flat": "circuit-flat.arduino-nano.json",
       "twin": "circuit.arduino-nano.json",
-      "flatSha": "e04e4849ba5ae348eeba4ac1be361b4ca4f516a0f46cc4bfff2ec993e3fb04a5",
-      "twinSha": "2b10b551e789ccf5ccada4e4e0f28ce48cdc5d35007df51619303d92699bc280",
-      "partitionSha": "a4c389f55d90b9ad235838b415644e53f71dcc75ce398b1e40070e273baa52d2"
+      "flatSha": "9157336de642e24368dde289a97cedcba8166fcb95876df56cd4e102885c94bd",
+      "twinSha": "f01a1713afdce8b1578eb56da3cad026067348c750bb1a79396b7206cea7923e",
+      "partitionSha": "f3d995f2e8a54df322719c132aa6e2c3376186c542b43ffb068ca0f8edc0e2cf"
     },
     {
       "dir": "arduino-sk-p04-color-mixing",
       "flat": "circuit-flat.atmega168p.json",
       "twin": "circuit.atmega168p.json",
-      "flatSha": "8156f7e204ac595ba716552711973922728bd03e4d8a479fd672dddc302aec51",
-      "twinSha": "b4ad60c4c2b388e855cf17601c312e49a36f0ce2987fb8425c45b3d91c416da7",
-      "partitionSha": "a4c389f55d90b9ad235838b415644e53f71dcc75ce398b1e40070e273baa52d2"
+      "flatSha": "6c4b01213c6ab44cb0779835ae55238d1cfa63017f71c9961617b7b6d303f596",
+      "twinSha": "f7a9dc38087edcd5f2e740c15123462a39e15b65238bd0be082aced0c6c2bee8",
+      "partitionSha": "f3d995f2e8a54df322719c132aa6e2c3376186c542b43ffb068ca0f8edc0e2cf"
     },
     {
       "dir": "arduino-sk-p04-color-mixing",
       "flat": "circuit-flat.json",
       "twin": "circuit.json",
-      "flatSha": "f88bf2080ce46f97162f17db8b10350b45a3f3b75693218aba0e513f5eeed268",
-      "twinSha": "b51c3b7df42254bf9c53ea0bf2ad7f8eac52e01cc6c433dc5b747be4f23f2cdb",
-      "partitionSha": "a4c389f55d90b9ad235838b415644e53f71dcc75ce398b1e40070e273baa52d2"
+      "flatSha": "870e9ebed19b9d6ea20e2964e6b1d8176b571a5c8a08f5f6a0ababb48ec222b9",
+      "twinSha": "106655c8afc3a22c4bd378f170a480e0c79e3f35b4754f3a0bec6947a99786e1",
+      "partitionSha": "9a52b1b6a2d0e67fcfbb0afc92c80b728dec7495fa8a745fb2f1cb405b2b5c01"
     },
     {
       "dir": "arduino-sk-p04-color-mixing",
       "flat": "circuit-flat.pico.json",
       "twin": "circuit.pico.json",
-      "flatSha": "f5ee862160f4c476badbd67ec84b94bbfb67e19c8fc348ad716449a569377a0f",
-      "twinSha": "5b742df7047b0572e2f004600adf3798d59fd550713286c759e901de2ef2d86a",
-      "partitionSha": "809325cbcc75b22560d9be1b3cf0b7593432853e57869019c845d915e914100b"
+      "flatSha": "73fc0fde91d0e937f4ef7c98d10e93bca76dd7cdf716ab0e86fe7a92f0c613cf",
+      "twinSha": "5b388a15e817fbe4427cdafccf27a0ea3b610d45e8f29eb73cc2b85d80b00411",
+      "partitionSha": "08890624e450dbfac7d717e3f6f1685291956b2566fc5dd26a5edbe7036e15d5"
     },
     {
       "dir": "arduino-sk-p05-servo-mood",
@@ -6746,81 +6746,81 @@
       "dir": "arduino-sk-p15-hacking-buttons",
       "flat": "circuit-flat.arduino-mega.json",
       "twin": "circuit.arduino-mega.json",
-      "flatSha": "567f06662b2566042a92dabeb0be9d00d12162b8b31f55efbf295f0dbb13f253",
-      "twinSha": "bf3a672937d6a7874a42d69f266ccfcf5c7776fe84ba49b994ae85bf50f31679",
-      "partitionSha": "8178d14b202ea717186a0e8da5a88ad994c70fdc31fd8449ba88e145934b10b7"
+      "flatSha": "3a8b79b027347115ed00168164081ceedec9bd96697a0bf9aa1ef42e65193f0f",
+      "twinSha": "8b4b8a627eee8bad87eceab850090139dca2513bfa310529cc178158ff402f87",
+      "partitionSha": "6284ff78e54f9867097b02734bf8cc62d22b15ab47114434c37d6df91d85bcb3"
     },
     {
       "dir": "arduino-sk-p15-hacking-buttons",
       "flat": "circuit-flat.arduino-nano.json",
       "twin": "circuit.arduino-nano.json",
-      "flatSha": "33856551c24a0b8b8787730f58ebda27b06dc38b6d529e086ca4511e108085db",
-      "twinSha": "a50d5debb29f10695cbcd1b303f4c255568ba441e936f4a38af294f7b16631f4",
-      "partitionSha": "ff155badd73656f10b42aab127bb18deebd618f0d11df79f90ee1b19338354a3"
+      "flatSha": "5ae7644baf815d11426269af032600b465b82f15f21a90a2450e4b69fe520463",
+      "twinSha": "11e0a7d1a0772bf2bbae2f50980664fa28880926823357a82dfffda0f4269bea",
+      "partitionSha": "6284ff78e54f9867097b02734bf8cc62d22b15ab47114434c37d6df91d85bcb3"
     },
     {
       "dir": "arduino-sk-p15-hacking-buttons",
       "flat": "circuit-flat.atmega168p.json",
       "twin": "circuit.atmega168p.json",
-      "flatSha": "882eb673afd346efe605544f28a01929f8ad1d6e8be2576ccf7352c8662f75db",
-      "twinSha": "9affa197f3e1e6dc7f94a21b59c5e1d9f047600010bbd7a660dc377c4cef552d",
-      "partitionSha": "5b29387f28c5affebfeec890ca56d59dad7d30efc99ff41f09f8eb4de0aac5f1"
+      "flatSha": "0ed42f4b16bbb8f3c83d5d9333a3bae3e36b58e942953af080f9ece109c67dbb",
+      "twinSha": "43bd1cd6e3c6279f269180b002b4960e5d690648e4f5669555f79867df1135bd",
+      "partitionSha": "6284ff78e54f9867097b02734bf8cc62d22b15ab47114434c37d6df91d85bcb3"
     },
     {
       "dir": "arduino-sk-p15-hacking-buttons",
       "flat": "circuit-flat.attiny85.json",
       "twin": "circuit.attiny85.json",
-      "flatSha": "e8d0722e13fb15002670f5f33ad8924ee6903f1215520bc79b0d62c214931fb4",
-      "twinSha": "fffac0a42a4680cc218fe02202a319010025fcc234837abcc7a0d27a52d39bad",
-      "partitionSha": "517a615407cfc1831df7207831f9239b6544dfa829b5130a4f081c7582a25e2f"
+      "flatSha": "5ff32682704d31e6991d45bc7ed787e4c61e33f13b74516d70a0deb8f0725e7d",
+      "twinSha": "355d41db63824706347d548dff425e59d39769232f83fa96db8c0d4c6ec54e71",
+      "partitionSha": "d34af2ae7f5a0c39e626654545cf435281c5fb7b3c7d6bfc435ffd4c3d1b0102"
     },
     {
       "dir": "arduino-sk-p15-hacking-buttons",
       "flat": "circuit-flat.attiny88.json",
       "twin": "circuit.attiny88.json",
-      "flatSha": "5409123a412e9e92a94e23902ebb140f9a2350933bffb8feac4696fa6596c27c",
-      "twinSha": "1e9530ccac6df891b05a77c8723f62fc3a37b95fcaa72a93c61d7563027354cd",
-      "partitionSha": "e2e71f241508741683c1570ce0a909cfc69b80f80688c952cba2f319ae053751"
+      "flatSha": "946caf68e2a82e07bca7445234804e36d6d37817a541b5a0db738ac362537cf0",
+      "twinSha": "87436704678b37c25f976720dd92782f08dd9a7a4ba1cd1d6309ddd09bc0e538",
+      "partitionSha": "5f61102a49cbbe5bddb1927f927133add4772b4858535d43b0d6085ed8caee50"
     },
     {
       "dir": "arduino-sk-p15-hacking-buttons",
       "flat": "circuit-flat.json",
       "twin": "circuit.json",
-      "flatSha": "b03f287db566ecdde3ed51f2d88b1e268d558c6ea0af1366c56bdd403aa494bf",
-      "twinSha": "c1eb346c714a0f39e1662d19a4497e8dcdac989823c073be86e7cbaa3be280d3",
-      "partitionSha": "5b43e766226a03e9f918628f99ac9f024c2a6791de915daa4403ea0b52012b8d"
+      "flatSha": "7122532d66b3bd6a5c49bc76c80dd84e4741f884020cf175d5ab3975f81c951d",
+      "twinSha": "b5b090e4806e699e7aa03d08aec81afb1f7b431b2e188d6900caf476bd6112df",
+      "partitionSha": "db0bb54cb89fa884ecf5a30094a49cdb644a43ea39202b2ca6f40563839d9af7"
     },
     {
       "dir": "arduino-sk-p15-hacking-buttons",
       "flat": "circuit-flat.pico.json",
       "twin": "circuit.pico.json",
-      "flatSha": "9ba52b4afd9f48ffba5f664b58bba4ffdce2f79b8ea2c6fedc52d0bccf39a070",
-      "twinSha": "f02697a8e11a0d6f51821bffcf784a62c35a30846833da6ccdbfb7852f4fc74b",
-      "partitionSha": "3ab1a19c6326ca52b1952986c6490f02c669531a1d3ce57cd95f5a3ef1bf20a1"
+      "flatSha": "9383302d9be1fa24a3036f180bc170356d5da7587019cf2f84a17dc6910ccbbd",
+      "twinSha": "43845435288b23f80c1b735c9980eb72720c471e50011057f4a7e403642a267f",
+      "partitionSha": "1be82fba99cf63c1f76df0a8f788e97c6ec230066c454896811a1b3d46913b03"
     },
     {
       "dir": "arduino-sk-p15-hacking-buttons",
       "flat": "circuit-flat.stc12c5a60s2.json",
       "twin": "circuit.stc12c5a60s2.json",
-      "flatSha": "ce5decf1dc64761cbcc42d506008fd513c57f3c3678eb3ffd003a839b8aa6edf",
-      "twinSha": "dd02fcbfa7dd04eb84472cc0313c5fbe7d8c32bdf994bd980edbbea9e5f12de1",
-      "partitionSha": "e53b9c181799ae99588d39feb039d726a89e7b811e13b019618496092ef30588"
+      "flatSha": "874191a0659d3d59a9289419940dcfa1a5ca23e246df359168645a104a5c094b",
+      "twinSha": "5976f5d93916409e28f66b3af977d1ed25bdb3f44c8c3dbd835e10bb4267e0c2",
+      "partitionSha": "f79d0a4655a039d0ff11fb4e3986eae473214abed83a0ceaac262cd29ad615db"
     },
     {
       "dir": "arduino-sk-p15-hacking-buttons",
       "flat": "circuit-flat.stc15f2k60s2.json",
       "twin": "circuit.stc15f2k60s2.json",
-      "flatSha": "a5d0ff180a632e2b519756ad8b17f986dc28403b1ed1cef5b2f2c034311d1adb",
-      "twinSha": "e7d1621437447270f9e74f25f840a149a625b5884bbcc3fdb0fdc9af77c60703",
-      "partitionSha": "7bdae40fd9d381acbdaef119f721b71690690951ae1f6b42b982b7cd127e8f9b"
+      "flatSha": "c48c9c38d74c9ba9bd5207dafd5cf3aadbe6df1008fa9e3781007732fa515320",
+      "twinSha": "022dd54e1ffb4f54d42f615cb7c3cb64aaf618b38b691585d89aab91552f0250",
+      "partitionSha": "f79d0a4655a039d0ff11fb4e3986eae473214abed83a0ceaac262cd29ad615db"
     },
     {
       "dir": "arduino-sk-p15-hacking-buttons",
       "flat": "circuit-flat.stc89c52rc.json",
       "twin": "circuit.stc89c52rc.json",
-      "flatSha": "ce5decf1dc64761cbcc42d506008fd513c57f3c3678eb3ffd003a839b8aa6edf",
-      "twinSha": "dd02fcbfa7dd04eb84472cc0313c5fbe7d8c32bdf994bd980edbbea9e5f12de1",
-      "partitionSha": "e53b9c181799ae99588d39feb039d726a89e7b811e13b019618496092ef30588"
+      "flatSha": "874191a0659d3d59a9289419940dcfa1a5ca23e246df359168645a104a5c094b",
+      "twinSha": "5976f5d93916409e28f66b3af977d1ed25bdb3f44c8c3dbd835e10bb4267e0c2",
+      "partitionSha": "f79d0a4655a039d0ff11fb4e3986eae473214abed83a0ceaac262cd29ad615db"
     },
     {
       "dir": "avr01-blink",

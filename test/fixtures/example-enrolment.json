@@ -10,7 +10,7 @@
     "retarget-amplification": 44,
     "gen-device-benches": 126,
     "example-corpus-contract": 117,
-    "assert-physics": 246,
+    "assert-physics": 247,
     "debug-micropython": 10,
     "debug-trace-audit": 18,
     "circuit-params-are-read": 281,
@@ -2250,6 +2250,7 @@
       "vm-and-c-agree-on-arithmetic"
     ],
     "arduino-sk-p15-hacking-buttons": [
+      "assert-physics",
       "circuit-params-are-read",
       "example-corpus-contract",
       "example-kind-matches-content",
