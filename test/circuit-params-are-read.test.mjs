@@ -258,8 +258,6 @@ const KNOWN_INERT = new Map([
     ['vsource.variant',   'BLIND SPOT: read only by bw-circuit-ui starter-migration at load time; volts carries the electrical meaning and is live.'],
 
     // Read by the model, but no shipped bench reaches the state that uses it.
-    ['ldr.rLight',  'BLIND SPOT: mna reads it, but every LDR bench probes at light control 0, where the resistance is rDark.'],
-    ['ntc.rHot',    'BLIND SPOT: as ldr.rLight, at temperature control 0, where the resistance is rCold.'],
     ['opamp.railHigh', 'BLIND SPOT: mna clamps to it, but no shipped op-amp bench drives the output into saturation during the probe window.'],
     ['zener.vf',    'BLIND SPOT: the zener benches operate in reverse breakdown, where vz sets the voltage and vf does not.'],
     ['relay.switchTimeMs','BLIND SPOT: read by the relay model; no probed bench transitions the coil inside the probe window.'],
@@ -304,7 +302,7 @@ describe('circuit params, tier 2: the key moves a real bench', { skip: SKIP }, (
         const circuit = Circuit.fromJSON(d);
         const board = circuit.board;
         const frames = [];
-        // Every manual control CLOSED for the second half of the sweep.
+        // Every manual control DRIVEN for the second half of the sweep.
         //
         // A param behind an open switch is unobservable for a reason that has
         // nothing to do with the engine: an off MOSFET is off whatever its
@@ -319,16 +317,28 @@ describe('circuit params, tier 2: the key moves a real bench', { skip: SKIP }, (
         // The times must stay MONOTONIC — advanceTo does not go backwards, so
         // the closed pass samples later instants rather than replaying TIMES.
         // Only benches that HAVE a manual control pay for the second pass: with
-        // nothing to close it would re-solve an identical circuit for no
-        // observation. MEASURED across examples/*/circuit*.json: 530 of 2139
-        // bench files carry a button or a switch, so three quarters of the
-        // corpus skip the extra solve entirely.
-        const controls = (circuit.parts || []).filter(p => p.kind === 'button' || p.kind === 'switch');
+        // nothing to drive it would re-solve an identical circuit for no
+        // observation. MEASURED across examples/*/circuit*.json: 631 of 2139
+        // bench files carry one, so two thirds of the corpus skip the extra
+        // solve entirely.
+        //
+        // A CONTROL NEED NOT BE OPEN/CLOSED. ldr and ntc are continuous — the
+        // pass drives them to full deflection rather than closing them — and
+        // leaving them out left `ldr.rLight` and `ntc.rHot` ratcheted as
+        // engine blind spots for exactly the reason a switch did: their
+        // exemptions read "every LDR bench probes at light control 0, where
+        // the resistance is rDark". That is a fact about where the probe
+        // looked. MEASURED at bw-board 4ae99bea, perturbing as this gate does,
+        // on four independent benches: pc24-light-gate and pc48-ldr-comparator
+        // (rLight) and pc33-thermistor-divider and pc55-ntc-indicator (rHot)
+        // are all INERT at the authored control and all LIVE at control 1.
+        const CONTROLLED = new Set(['button', 'switch', 'ldr', 'ntc']);
+        const controls = (circuit.parts || []).filter(p => CONTROLLED.has(p.kind));
         const last = TIMES[TIMES.length - 1];
         const sweep = [...TIMES.map(t => [false, t]),
             ...(controls.length ? TIMES.map(t => [true, t + last]) : [])];
-        for (const [closed, ms] of sweep) {
-            if (closed) for (const c of controls) board.setControl(c.id, 1);
+        for (const [driven, ms] of sweep) {
+            if (driven) for (const c of controls) board.setControl(c.id, 1);
             board.advanceTo(BigInt(Math.round(ms * 1e6)));
             const frame = {};
             for (const net of (circuit.nets || board.getNets())) {
