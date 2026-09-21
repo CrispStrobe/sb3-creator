@@ -261,8 +261,6 @@ const KNOWN_INERT = new Map([
     ['ldr.rLight',  'BLIND SPOT: mna reads it, but every LDR bench probes at light control 0, where the resistance is rDark.'],
     ['ntc.rHot',    'BLIND SPOT: as ldr.rLight, at temperature control 0, where the resistance is rCold.'],
     ['opamp.railHigh', 'BLIND SPOT: mna clamps to it, but no shipped op-amp bench drives the output into saturation during the probe window.'],
-    ['npn.vbe',     'BLIND SPOT: the probed benches are saturated or cut off either side of the perturbation.'],
-    ['pnp.vbe',     'BLIND SPOT: as npn.vbe.'],
     ['zener.vf',    'BLIND SPOT: the zener benches operate in reverse breakdown, where vz sets the voltage and vf does not.'],
     ['relay.switchTimeMs','BLIND SPOT: read by the relay model; no probed bench transitions the coil inside the probe window.'],
     ['ssd1306.address',   'BLIND SPOT: read by the I2C address decoder; the probe drives no I2C traffic.'],
