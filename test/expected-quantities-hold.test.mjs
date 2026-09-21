@@ -228,7 +228,19 @@ describe('EXPECTED.md quantities hold against the engine', { skip: SKIP }, () =>
 describe('a measured number names the engine that measured it', { skip: SKIP }, () => {
     test('every EXPECTED.md that quotes a solve carries the pinned revisions', async () => {
         await loadEngine(gate.paths);
-        const { MARK, isDerived } = await import('./helpers/expected-provenance.mjs');
+        const { MARK, isDerived, provenanceStamp } = await import('./helpers/expected-provenance.mjs');
+        const L = await ledger();
+        const pins = JSON.parse(readFileSync(join(import.meta.dirname, 'fixtures', 'siblings.json'), 'utf8'));
+        const short = (n) => pins.siblings[n].rev.slice(0, 7);
+        // Per-directory counts, from the SAME adjudication the stamp quotes.
+        const rows = new Map();
+        const bump = (list, field) => {
+            for (const c of list) {
+                const r = rows.get(c.dir) || { checked: 0, skipped: 0, mismatched: 0 };
+                r[field]++; rows.set(c.dir, r);
+            }
+        };
+        bump(L.checked, 'checked'); bump(L.skipped, 'skipped'); bump(L.mismatched, 'mismatched');
         const missing = [];
         for (const dir of exampleDirs()) {
             const path = join(EXAMPLES, dir, 'EXPECTED.md');
@@ -236,12 +248,16 @@ describe('a measured number names the engine that measured it', { skip: SKIP }, 
             const text = readFileSync(path, 'utf8');
             if (!isDerived(text)) continue;
             if (!text.includes(MARK)) { missing.push(`${dir}: quotes a solve and names no engine revision`); continue; }
-            for (const name of ['bw-board', 'bw-circuit-ui']) {
-                const rev = JSON.parse(readFileSync(join(import.meta.dirname, 'fixtures', 'siblings.json'), 'utf8'))
-                    .siblings[name].rev.slice(0, 7);
-                if (!text.includes(`${name}@${rev}`))
-                    missing.push(`${dir}: provenance names a ${name} revision other than the pinned ${rev}`);
-            }
+            // The WHOLE block, not just the two revisions. Checking only the
+            // revisions left the three counts beside them unheld, and six
+            // pages shipped counts that no longer described the page — two of
+            // them still advertising disagreements that had been fixed.
+            const r = rows.get(dir) || { checked: 0, skipped: 0, mismatched: 0 };
+            const want = provenanceStamp(short('bw-board'), short('bw-circuit-ui'),
+                r.checked, r.mismatched, r.checked + r.skipped + r.mismatched)
+                .replaceAll('%DIR%', dir);
+            const got = text.match(new RegExp(`${MARK}[\\s\\S]*?${MARK}`))?.[0];
+            if (got !== want) missing.push(`${dir}: provenance block is stale\n--- on the page\n${got}\n--- measured now\n${want}`);
         }
         // A measured number without a revision cannot be reproduced or
         // falsified: when pc32-pnp-high-side's V_EB drifts, nobody can tell

@@ -27,6 +27,6 @@ net src.pos V 5.00 +-0.01
 > `bw-board@4ae99be` and `bw-circuit-ui@a2b1cb2` — the revisions pinned in
 > `test/fixtures/siblings.json`. `test/expected-quantities-hold.test.mjs` compares
 > **3 of this page's 12** numeric claims against that engine
-> (1 of them disagreeing) and declines the rest with a stated reason;
+> (0 of them disagreeing) and declines the rest with a stated reason;
 > `node scripts/expected-claim-census.mjs pc36-series-interlock` prints them one by one.
 <!-- engine-provenance -->
