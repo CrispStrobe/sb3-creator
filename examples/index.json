@@ -1843,7 +1843,6 @@
    "arduino-mega",
    "arduino-nano",
    "pico",
-   "attiny88",
    "attiny85"
   ],
   "benches": {
@@ -1852,7 +1851,6 @@
    "arduino-uno": "54-motor-driver/circuit.arduino-uno.json",
    "atmega168p": "54-motor-driver/circuit.atmega168p.json",
    "attiny85": "54-motor-driver/circuit.attiny85.json",
-   "attiny88": "54-motor-driver/circuit.attiny88.json",
    "pico": "54-motor-driver/circuit.pico.json",
    "stc12c5a60s2": "54-motor-driver/circuit.stc12c5a60s2.json",
    "stc15f2k60s2": "54-motor-driver/circuit.stc15f2k60s2.json"
@@ -5161,7 +5159,6 @@
   "benches": {
    "arduino-mega": "arduino-sk-p03-love-o-meter/circuit.arduino-mega.json",
    "arduino-nano": "arduino-sk-p03-love-o-meter/circuit.arduino-nano.json",
-   "arduino-uno": "arduino-sk-p03-love-o-meter/circuit.arduino-uno.json",
    "atmega168p": "arduino-sk-p03-love-o-meter/circuit.atmega168p.json",
    "pico": "arduino-sk-p03-love-o-meter/circuit.pico.json",
    "stc12c5a60s2": "arduino-sk-p03-love-o-meter/circuit.stc12c5a60s2.json",
@@ -5229,7 +5226,6 @@
   "benches": {
    "arduino-mega": "arduino-sk-p05-servo-mood/circuit.arduino-mega.json",
    "arduino-nano": "arduino-sk-p05-servo-mood/circuit.arduino-nano.json",
-   "arduino-uno": "arduino-sk-p05-servo-mood/circuit.arduino-uno.json",
    "atmega168p": "arduino-sk-p05-servo-mood/circuit.atmega168p.json",
    "pico": "arduino-sk-p05-servo-mood/circuit.pico.json",
    "stc12c5a60s2": "arduino-sk-p05-servo-mood/circuit.stc12c5a60s2.json",
@@ -5354,23 +5350,23 @@
    "atmega168p",
    "arduino-mega",
    "arduino-nano",
-   "stm32f030",
    "pico",
    "attiny88"
   ],
   "benches": {
    "arduino-mega": "arduino-sk-p08-hourglass/circuit.arduino-mega.json",
    "arduino-nano": "arduino-sk-p08-hourglass/circuit.arduino-nano.json",
-   "arduino-uno": "arduino-sk-p08-hourglass/circuit.arduino-uno.json",
    "atmega168p": "arduino-sk-p08-hourglass/circuit.atmega168p.json",
    "attiny88": "arduino-sk-p08-hourglass/circuit.attiny88.json",
    "pico": "arduino-sk-p08-hourglass/circuit.pico.json",
    "stc12c5a60s2": "arduino-sk-p08-hourglass/circuit.stc12c5a60s2.json",
    "stc15f2k60s2": "arduino-sk-p08-hourglass/circuit.stc15f2k60s2.json",
-   "stc89c52rc": "arduino-sk-p08-hourglass/circuit.stc89c52rc.json",
-   "stm32f030": "arduino-sk-p08-hourglass/circuit.stm32f030.json"
+   "stc89c52rc": "arduino-sk-p08-hourglass/circuit.stc89c52rc.json"
   },
-  "authored": "arduino-uno"
+  "authored": "arduino-uno",
+  "transformRefused": {
+   "stm32f030": "MCU terminal d25 is wired but has no mapping on stm32f030 — refusing rather than dropping the connection"
+  }
  },
  {
   "id": "arduino-sk-p09-motorized-pinwheel",
@@ -5483,7 +5479,6 @@
   "benches": {
    "arduino-mega": "arduino-sk-p11-crystal-ball/circuit.arduino-mega.json",
    "arduino-nano": "arduino-sk-p11-crystal-ball/circuit.arduino-nano.json",
-   "arduino-uno": "arduino-sk-p11-crystal-ball/circuit.arduino-uno.json",
    "atmega168p": "arduino-sk-p11-crystal-ball/circuit.atmega168p.json",
    "attiny85": "arduino-sk-p11-crystal-ball/circuit.attiny85.json",
    "attiny88": "arduino-sk-p11-crystal-ball/circuit.attiny88.json",
@@ -5522,7 +5517,6 @@
   "benches": {
    "arduino-mega": "arduino-sk-p12-knock-lock/circuit.arduino-mega.json",
    "arduino-nano": "arduino-sk-p12-knock-lock/circuit.arduino-nano.json",
-   "arduino-uno": "arduino-sk-p12-knock-lock/circuit.arduino-uno.json",
    "atmega168p": "arduino-sk-p12-knock-lock/circuit.atmega168p.json",
    "pico": "arduino-sk-p12-knock-lock/circuit.pico.json",
    "stc12c5a60s2": "arduino-sk-p12-knock-lock/circuit.stc12c5a60s2.json",

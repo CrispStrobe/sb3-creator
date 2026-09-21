@@ -1,6 +1,6 @@
 {
   "note": "Which gates enrol which example, computed from scripts/lib/example-enrolment.mjs. A diff here is a change in COVERAGE — read it before regenerating.",
-  "measuredOn": "2026-09-08",
+  "measuredOn": "2026-08-23",
   "examples": 313,
   "gates": {
     "gallery": 282,
@@ -13,7 +13,7 @@
     "assert-physics": 246,
     "debug-micropython": 10,
     "debug-trace-audit": 18,
-    "circuit-params-are-read": 280,
+    "circuit-params-are-read": 281,
     "program-reads-what-it-writes": 282,
     "vm-and-c-agree-on-arithmetic": 128,
     "documented-tables-are-derived": 4,
@@ -736,7 +736,6 @@
     ],
     "53-servo-sweep": [
       "assert-physics",
-      "circuit-params-are-read",
       "example-corpus-contract",
       "example-kind-matches-content",
       "gallery",
@@ -2783,6 +2782,7 @@
       "vm"
     ],
     "79-a2-sampler": [
+      "circuit-params-are-read",
       "example-kind-matches-content",
       "gallery",
       "gen-device-benches",
@@ -2816,6 +2816,7 @@
       "vm-and-c-agree-on-arithmetic"
     ],
     "82-a2-led-row": [
+      "circuit-params-are-read",
       "example-kind-matches-content",
       "gallery",
       "gen-device-benches",

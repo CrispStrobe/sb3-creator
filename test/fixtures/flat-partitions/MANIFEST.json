@@ -4,7 +4,7 @@
     "repo": "bw-circuit-ui",
     "sha": "90b1ebc97dfd91418d7dbb7d7c4d4c8c29dbfeec"
   },
-  "pairs": 948,
+  "pairs": 947,
   "entries": [
     {
       "dir": "01-blink",
@@ -2189,14 +2189,6 @@
       "flatSha": "af08e08052d41e275e8047d056f9a5b80e2930ce8579840029ca3e1340d33565",
       "twinSha": "94bba0ec2cd3c3f261529d486953d3524cd362f0f48ec19c89f6be1ab4887bd3",
       "partitionSha": "48872a6bc1540df79f72be764fafbdb706d9c9a2a218445201243f35ae56754a"
-    },
-    {
-      "dir": "54-motor-driver",
-      "flat": "circuit-flat.attiny88.json",
-      "twin": "circuit.attiny88.json",
-      "flatSha": "39ed2373b06c90dee1359d715f342549a382cae2d148891e8036eaa2c9227850",
-      "twinSha": "a7246ea80521ec9fce7ab5bca6c00ee185ddd087e8a1a958f2dceb67887e3e71",
-      "partitionSha": "77da67d35b418f64f9a87d8b5082f93bd7445bce115a1534d0e7c6b8728b5121"
     },
     {
       "dir": "54-motor-driver",
@@ -6090,9 +6082,9 @@
       "dir": "arduino-sk-p03-love-o-meter",
       "flat": "circuit-flat.json",
       "twin": "circuit.json",
-      "flatSha": "e80da8279fc69140f74d8f0e5ada1ba72b9e8f75c6c0020b1348e65177e614e6",
-      "twinSha": "2cf978b3e757e93396731d0976baf8db6f9d66278160c24e255d5b6b8440b1e2",
-      "partitionSha": "0d7e963cff1a1cc19164137e87b7b3216932553638e6210b3aed5a8a63d3efe8"
+      "flatSha": "6872d783d2e81ee05d50cacb0dad0244b89d495b32d580bc8976b274f5fde539",
+      "twinSha": "0cb53e460481ccff873560aceeb376f725e291f98b1372bfff8847fcd4d667e4",
+      "partitionSha": "e31a6da584105b8b594cb3e852792255ea963ddecd10df71a800373d2edf1a9a"
     },
     {
       "dir": "arduino-sk-p03-love-o-meter",
@@ -6186,9 +6178,9 @@
       "dir": "arduino-sk-p05-servo-mood",
       "flat": "circuit-flat.json",
       "twin": "circuit.json",
-      "flatSha": "b47bbf6cdfbe6179cb97b5868ce9238b3b7c9f5de6d2cbc4b51c3636d78c1fb3",
-      "twinSha": "613f7457c688d2baa401d1f8c11cfe30a1e0a90be3977adb8b3602c32c542d21",
-      "partitionSha": "74b71312c9b5753af09db7034f3e96b5a6fdb9f89fa1d4f10dc0b53cc274c68a"
+      "flatSha": "267087aaf9932df529c28b4740f3dee123260a8f59e15b84883363de4a245de6",
+      "twinSha": "8424de0d51a2ffd24094e3229428b25e1c4890db349f4c8b6ce831a5cdd5cd56",
+      "partitionSha": "52a32b42cc7de9878d13181711825e833f62482571574efc60b751a9f8e8001b"
     },
     {
       "dir": "arduino-sk-p05-servo-mood",
@@ -6306,9 +6298,9 @@
       "dir": "arduino-sk-p08-hourglass",
       "flat": "circuit-flat.json",
       "twin": "circuit.json",
-      "flatSha": "bde1e995b4617753b303713dfa9878bf68644d32ff08a4fa0bf713beb1de643c",
-      "twinSha": "111e83eac27cbb02ade4a6c1c979bb431533f44ad7a5b0b820799def8bfa560d",
-      "partitionSha": "8b4bfb2eeb9e2e2fdee6ffd7dbd1cc0202936bb8f6bfa29965d711af50bf3043"
+      "flatSha": "8c140fa59da6353009252a95097b60833cac3ad2a9a7bc2425d72d15610454e3",
+      "twinSha": "daffc08146958cd4c8986b7d3c6f8157aeca807e919d60b6e90c5a0e64b97339",
+      "partitionSha": "6ee2148afc0bba896433dcc0042ccd2bd6dd480beddd0dbb15048be673b54e58"
     },
     {
       "dir": "arduino-sk-p08-hourglass",
@@ -6522,9 +6514,9 @@
       "dir": "arduino-sk-p11-crystal-ball",
       "flat": "circuit-flat.json",
       "twin": "circuit.json",
-      "flatSha": "a392cff9524fbadf523c7e053a765d8a55d10c849f00983f1dcd972e4546e016",
-      "twinSha": "68c5473a26b8a0c620ea40b3b0fda748f7984cdd7d1adb43b8af985c3d419050",
-      "partitionSha": "38034608ce01b49f861de7cf441cd441614b92d7e41e4c44b60ea4f0cadb17b5"
+      "flatSha": "a4d4f94c12ae84d630a00eb805969703b48b2fb445310b893cea917ccefdee2b",
+      "twinSha": "edadbbe16f44060b8682761ab30cb0e93b2d84baa3863f7ad97138f9c3f1ab19",
+      "partitionSha": "19f3f0f4be61d8731caa4967ce8d50df78fba025a0839012d5c071f6c0e1a07d"
     },
     {
       "dir": "arduino-sk-p11-crystal-ball",
@@ -6586,9 +6578,9 @@
       "dir": "arduino-sk-p12-knock-lock",
       "flat": "circuit-flat.json",
       "twin": "circuit.json",
-      "flatSha": "6c084a04922d480cf870897837eb50136746fd3149048148e34ef84421e9bc89",
-      "twinSha": "48f2e9008195c95ece8488c4e1bb508bd9507173ee43e47687cb29b3b826a3e6",
-      "partitionSha": "5bc3394951532b2f5b27e358fcf62f2a93193f7e699a8d3547cc2923a268164e"
+      "flatSha": "3eca3aed611761caf4adb2a4f0b45b5dd08080babe2218ba8be97ae11b9e787d",
+      "twinSha": "424efcc3aeaf64f5ae10221f4256a1d58994580350996cf4a946e5fb246f636d",
+      "partitionSha": "875169d6ae22ba0336e6da27c5872adc5d95dff77f2db0a6e82a083682b1e493"
     },
     {
       "dir": "arduino-sk-p12-knock-lock",

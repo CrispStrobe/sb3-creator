@@ -22,5 +22,5 @@ Reads pot on A0 and prints the raw ADC value (0-1023) to serial every 10 ms, for
 
 ```assert
 # Supply rail: VCC = 5.0V
-net vcc1.vcc V 5.00 +-0.01
+net VCC.vcc V 5.00 +-0.01
 ```

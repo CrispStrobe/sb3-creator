@@ -32,20 +32,20 @@
   },
   {
    "id": "MCU",
-   "kind": "arduino_mega",
+   "kind": "arduino_uno",
    "params": {},
    "terminals": [
     "a0",
     "d2",
-    "d13",
-    "d22",
-    "d23",
-    "d24",
+    "d3",
+    "d4",
+    "d5",
+    "d9",
     "5v",
     "gnd2"
    ],
-   "x": 475,
-   "y": -5
+   "x": 392,
+   "y": -12
   },
   {
    "id": "PIEZO_piezo",
@@ -299,7 +299,7 @@
   },
   {
    "from": "MCU",
-   "fromTerminal": "d13",
+   "fromTerminal": "d3",
    "to": "R_ledR",
    "toTerminal": "a"
   },
@@ -311,7 +311,7 @@
   },
   {
    "from": "MCU",
-   "fromTerminal": "d22",
+   "fromTerminal": "d4",
    "to": "R_ledY",
    "toTerminal": "a"
   },
@@ -323,7 +323,7 @@
   },
   {
    "from": "MCU",
-   "fromTerminal": "d23",
+   "fromTerminal": "d5",
    "to": "R_ledG",
    "toTerminal": "a"
   },
@@ -335,7 +335,7 @@
   },
   {
    "from": "MCU",
-   "fromTerminal": "d24",
+   "fromTerminal": "d9",
    "to": "SERVO_servo",
    "toTerminal": "signal"
   },

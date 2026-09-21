@@ -25,5 +25,5 @@ Lights LEDs one at a time at a fixed interval (10 seconds each), building up fro
 
 ```assert
 # Supply rail: VCC = 5.0V
-net vcc1.vcc V 5.00 +-0.01
+net VCC.vcc V 5.00 +-0.01
 ```

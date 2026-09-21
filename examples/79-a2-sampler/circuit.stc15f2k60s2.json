@@ -106,7 +106,7 @@
    "kind": "sevenseg8",
    "declName": "display",
    "params": {
-    "commonAnode": false
+    "common": "cathode"
    },
    "terminals": [
     "vcc",

@@ -32,6 +32,9 @@ adjusts it to see the hysteresis behaviour.
 3. ADC + threshold + pin-drive end-to-end path
 
 ```assert
-# NTC divider (modeled as pot at 50%): sensor = 2.500V
-net POT_sensor.wiper V 2.50 +-0.05
+# A real ntc now, not a potentiometer standing in for one. With no
+# temperature control set the engine holds it at rCold (100 kOhm) against the
+# 10k pulldown: 5 V * 10k/110k = 0.4545 V, the cold end of the lesson. Hot
+# (rHot 1 kOhm) drives the same node to 4.55 V.
+net NTC_thermistor.b V 0.4545 +-0.005
 ```

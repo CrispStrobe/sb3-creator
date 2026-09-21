@@ -78,7 +78,11 @@ function declaredParams() {
                 for (const key of Object.keys(part.params || {})) {
                     const id = `${part.kind}.${key}`;
                     if (!sites.has(id)) sites.set(id, []);
-                    sites.get(id).push({ dir, file, partId: part.id });
+                    // `generated` is the bench generator's own stamp
+                    // (benchFor+seat and friends). It is what separates an
+                    // AUTHORED bench from one built from a program — see rank().
+                    sites.get(id).push({ dir, file, partId: part.id,
+                        generated: !!data.generated });
                 }
             }
         }
@@ -225,6 +229,19 @@ const KNOWN_INERT = new Map([
         + 'intends; the declaration is kept rather than deleted because it states that intent, '
         + 'and this entry records that the engine does not yet act on it.'],
 
+    ['sevenseg8.common',
+        'BLIND SPOT: no bench declares COMMON ANODE. registerSevenseg8 reads it as '
+        + '/anode/i.test(params.common) and inverts every segment when it matches, and '
+        + "bw-board's test/infer-declared-params drives that init() with the value "
+        + 'inferNetlist emits, so the read is proved where it can be. All four declaring '
+        + 'benches are 79-a2-sampler, whose display is common CATHODE — and no generic '
+        + 'perturbation of the string "cathode" can produce an ANODE value, so this gate '
+        + 'cannot flip it from here — the value is read, but nothing in the corpus asks it '
+        + 'the question. A bench declaring COMMON ANODE would move it, and this '
+        + 'entry must go when one lands. (Before 2026-09-21 the key was emitted as '
+        + '`commonAnode`, which the device never read at all; that was a real defect and is '
+        + 'fixed upstream.)'],
+
     ['28c256.readOnly',
         'BLIND SPOT: no bench writes. readOnly refuses /WE writes, and both probed sites tie /WE high — '
         + 'a control store is never written. Flipping it changes nothing because nothing writes, '
@@ -324,7 +341,12 @@ describe('circuit params, tier 2: the key moves a real bench', { skip: SKIP }, (
     const perturb = (v) =>
         typeof v === 'number' ? (v === 0 ? 1.7 : v * 3.7 + 1)
         : typeof v === 'boolean' ? !v
-        : typeof v === 'string' ? v + '_ZZ'
+        // REPLACE a string, do not extend it. `sevenseg8.common` is read as
+        // /anode/i.test(value), so 'anode' + '_ZZ' still says anode and the
+        // perturbation was a no-op that read as "the engine ignores this key".
+        // A substring test is the normal shape for a string param, so
+        // extending one is the weaker probe everywhere, not just here.
+        : typeof v === 'string' ? (v === 'ZZ' ? 'YY' : 'ZZ')
         : Array.isArray(v) ? (v.length ? v.slice(0, -1) : ['zz'])
         : (v && typeof v === 'object') ? { ...v, __zz: 1 }
         : 'ZZ';
@@ -333,9 +355,20 @@ describe('circuit params, tier 2: the key moves a real bench', { skip: SKIP }, (
     // driving it, so nothing moves there whatever the key does. Ordering by
     // observability is what stops "no current flows in this bench" from being
     // reported as "the engine ignores this key".
-    const rank = (s) => s.file === 'circuit.json' ? 0
+    //
+    // AUTHORED-NESS IS THE `generated` STAMP, NOT THE FILE NAME. The name was a
+    // proxy, and the proxy broke: when 26 examples were rebuilt from their own
+    // programs their `circuit.json` became a GENERATED bench, and ten such
+    // benches — all of them dark at the probe instant, because no firmware runs
+    // — took every one of the six slots for `led.vf` and reported the key
+    // inert while the authored benches that deliberately vary it, 28-diode-
+    // polarity and 45-led-current-comparison among them, were never reached.
+    // Reading the stamp puts those back in front, which is what the paragraph
+    // above always meant.
+    const rank = (s) => (s.generated ? 4 : 0)
+        + (s.file === 'circuit.json' ? 0
         : s.file === 'circuit-flat.json' ? 1
-        : /^circuit\.[\w-]+\.json$/.test(s.file) ? 2 : 3;
+        : /^circuit\.[\w-]+\.json$/.test(s.file) ? 2 : 3);
 
     test(`every declared (kind, key) changes something in some bench (${KNOWN_INERT.size} exempt, listed in KNOWN_INERT)`, () => {
         assert.ok(ready, 'engine did not load');

@@ -23,5 +23,5 @@ When tilt switch is triggered, picks a random number 1-8 and prints a correspond
 
 ```assert
 # Supply rail: VCC = 5.0V
-net vcc1.vcc V 5.00 +-0.01
+net VCC.vcc V 5.00 +-0.01
 ```

@@ -24,7 +24,7 @@ Reads pot on A0 and maps (0-1023) to angle (0-180). Drives the servo to that ang
 
 ```assert
 # Supply rail: VCC = 5.0V
-net vcc1.vcc V 5.00 +-0.01
+net VCC.vcc V 5.00 +-0.01
 # Pot at 50%: wiper = 5.0 × 0.5 = 2.500V
-net pot1.wiper V 2.50 +-0.05
+net POT_pot.wiper V 2.50 +-0.05
 ```

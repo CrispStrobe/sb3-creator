@@ -24,5 +24,5 @@ Starts locked (red LED on). Detects knocks on piezo (threshold 100). After 3 val
 
 ```assert
 # Supply rail: VCC = 5.0V
-net vcc1.vcc V 5.00 +-0.01
+net VCC.vcc V 5.00 +-0.01
 ```

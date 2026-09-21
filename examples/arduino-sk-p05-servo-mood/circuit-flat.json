@@ -23,16 +23,16 @@
     },
     {
       "id": "MCU",
-      "kind": "arduino_mega",
+      "kind": "arduino_uno",
       "params": {},
       "terminals": [
         "a0",
-        "d13",
+        "d9",
         "5v",
         "gnd2"
       ],
-      "x": 475,
-      "y": -5
+      "x": 392,
+      "y": -12
     },
     {
       "id": "POT_pot",
@@ -57,13 +57,25 @@
         "vcc",
         "gnd"
       ],
-      "x": 148,
+      "x": 176,
       "y": 255
     }
   ],
   "wires": [
     {
       "id": "w_flat_0",
+      "netId": "bb1:n-col-t11",
+      "from": {
+        "part": "MCU",
+        "terminal": "d9"
+      },
+      "to": {
+        "part": "SERVO_servo",
+        "terminal": "signal"
+      }
+    },
+    {
+      "id": "w_flat_1",
       "netId": "bb1:n-col-t5",
       "from": {
         "part": "MCU",
@@ -72,18 +84,6 @@
       "to": {
         "part": "POT_pot",
         "terminal": "wiper"
-      }
-    },
-    {
-      "id": "w_flat_1",
-      "netId": "bb1:n-col-t9",
-      "from": {
-        "part": "MCU",
-        "terminal": "d13"
-      },
-      "to": {
-        "part": "SERVO_servo",
-        "terminal": "signal"
       }
     },
     {

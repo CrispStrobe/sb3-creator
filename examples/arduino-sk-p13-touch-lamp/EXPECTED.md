@@ -24,5 +24,5 @@ Each touch toggles the LED: touch once to turn on, touch again to turn off. Uses
 
 ```assert
 # Supply rail: VCC = 5.0V
-net vcc1.vcc V 5.00 +-0.01
+net VCC.vcc V 5.00 +-0.01
 ```

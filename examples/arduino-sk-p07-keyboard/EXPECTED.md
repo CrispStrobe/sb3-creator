@@ -25,5 +25,5 @@ Each button plays a different note: D2 = C4 (262 Hz), D3 = D4 (294 Hz), D4 = E4 
 
 ```assert
 # Supply rail: VCC = 5.0V
-net vcc1.vcc V 5.00 +-0.01
+net VCC.vcc V 5.00 +-0.01
 ```

@@ -30,6 +30,12 @@ corresponds to ~1.0 V at the divider junction.
 3. Active-low LED control based on sensor input
 
 ```assert
-# LDR divider (modeled as pot at 50%): sensor = 2.500V
-net POT_ldr.wiper V 2.50 +-0.05
+# The bench seats a REAL ldr now, not a potentiometer standing in for one,
+# so this number is the divider's, not a 50% fiction. With no light control
+# set the engine holds the LDR at rDark (1 MOhm) against the 10k pulldown,
+# which is the dark end of the lesson: 5 V * 10k/1.01M = 0.0495 V, and the
+# program turns the LED ON. Full light (rLight 100 Ohm) drives the same node
+# to 4.95 V.
+net LDR_ldr.b V 0.0495 +-0.005
+net MCU.P1.3 V 0.0495 +-0.005
 ```

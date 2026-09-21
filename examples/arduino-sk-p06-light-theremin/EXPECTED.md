@@ -24,7 +24,10 @@ Phase 1 (5 s): calibrates sensor range by recording min/max over 100 readings. P
 
 ```assert
 # Supply rail: VCC = 5.0V
-net vcc1.vcc V 5.00 +-0.01
-# Pot at 50%: wiper = 5.0 × 0.5 = 2.500V
-net pot1.wiper V 2.50 +-0.05
+net VCC.vcc V 5.00 +-0.01
+# The bench seats a real ldr, not a potentiometer standing in for one. Dark
+# is the engine's default (no light control set): rDark 1 MOhm against the
+# 10k pulldown gives 5 V * 10k/1.01M = 0.0495 V, and the pitch rises as the
+# LDR is lit.
+net LDR_ldr.b V 0.0495 +-0.005
 ```

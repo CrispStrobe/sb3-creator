@@ -38,7 +38,11 @@ bargraph lives in a narrow band of pot travel: 20 C is ADC 143, 22 C is 147 and
 
 ```assert
 # Supply rail: VCC = 5.0V
-net vcc1.vcc V 5.00 +-0.01
-# Pot at 50%: wiper = 5.0 × 0.5 = 2.500V
-net pot1.wiper V 2.50 +-0.05
+net VCC.vcc V 5.00 +-0.01
+# The bench seats the REAL temperature sensor the project is about, not a
+# potentiometer standing in for one. With no temperature control set the
+# engine holds the ntc at rCold (100 kOhm) against the 10k pulldown:
+# 5 V * 10k/110k = 0.4545 V. A warm hand drives the same node upward, which
+# is the whole lesson.
+net NTC_thermistor.b V 0.4545 +-0.005
 ```

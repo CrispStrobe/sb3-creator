@@ -32,15 +32,15 @@
   },
   {
    "id": "MCU",
-   "kind": "arduino_mega",
+   "kind": "arduino_uno",
    "params": {},
    "terminals": [
-    "d2",
+    "d6",
     "5v",
     "gnd2"
    ],
-   "x": 475,
-   "y": -5
+   "x": 392,
+   "y": -12
   },
   {
    "id": "R_PU_tilt",
@@ -93,7 +93,7 @@
    "from": "R_PU_tilt",
    "fromTerminal": "b",
    "to": "MCU",
-   "toTerminal": "d2"
+   "toTerminal": "d6"
   },
   {
    "from": "VCC",

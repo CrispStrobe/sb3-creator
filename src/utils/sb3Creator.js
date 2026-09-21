@@ -6292,6 +6292,15 @@ class SB3Creator {
                     out.push(`PART ${p.name} = SEVENSEG8 SEGMENTS P${p.segPort} SELECT ${p.selPins.map(pinStr).join(' ')}${p.commonAnode ? ' COMMON ANODE' : ''}`);
                     continue;
                 }
+                if (p.type === 'servo' || p.type === 'motor') {
+                    // The one PART that declares a CHANNEL rather than pins —
+                    // see the parser's note. Without this branch the writer
+                    // fell through to the 74HC595 line below and dereferenced
+                    // p.data, so every retarget of a program with a declared
+                    // servo crashed in decompile rather than round-tripping.
+                    out.push(`PART ${p.name} = ${p.type.toUpperCase()} ${p.channel}`);
+                    continue;
+                }
                 if (p.type === 'ledbank8') {
                     out.push(`PART ${p.name} = LEDBANK8 ON P${p.ledPort}${p.activeLow ? ' ACTIVE LOW' : ''}`);
                     continue;

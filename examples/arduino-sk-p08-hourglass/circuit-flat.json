@@ -23,21 +23,21 @@
     },
     {
       "id": "MCU",
-      "kind": "arduino_mega",
+      "kind": "arduino_uno",
       "params": {},
       "terminals": [
-        "d13",
-        "d22",
-        "d23",
-        "d24",
-        "d25",
-        "d26",
         "d2",
+        "d3",
+        "d4",
+        "d5",
+        "d6",
+        "d7",
+        "d8",
         "5v",
         "gnd2"
       ],
-      "x": 475,
-      "y": -5
+      "x": 392,
+      "y": -12
     },
     {
       "id": "R_led2",
@@ -232,7 +232,7 @@
       "netId": "bb1:n-col-b11",
       "from": {
         "part": "MCU",
-        "terminal": "d2"
+        "terminal": "d8"
       },
       "to": {
         "part": "R_PU_tilt",
@@ -244,7 +244,7 @@
       "netId": "bb1:n-col-b11",
       "from": {
         "part": "MCU",
-        "terminal": "d2"
+        "terminal": "d8"
       },
       "to": {
         "part": "TILT_tilt",
@@ -292,7 +292,7 @@
       "netId": "bb1:n-col-t15",
       "from": {
         "part": "MCU",
-        "terminal": "d23"
+        "terminal": "d4"
       },
       "to": {
         "part": "R_led4",
@@ -316,7 +316,7 @@
       "netId": "bb1:n-col-t21",
       "from": {
         "part": "MCU",
-        "terminal": "d24"
+        "terminal": "d5"
       },
       "to": {
         "part": "R_led5",
@@ -340,7 +340,7 @@
       "netId": "bb1:n-col-t27",
       "from": {
         "part": "MCU",
-        "terminal": "d25"
+        "terminal": "d6"
       },
       "to": {
         "part": "R_led6",
@@ -352,7 +352,7 @@
       "netId": "bb1:n-col-t3",
       "from": {
         "part": "MCU",
-        "terminal": "d13"
+        "terminal": "d2"
       },
       "to": {
         "part": "R_led2",
@@ -364,7 +364,7 @@
       "netId": "bb1:n-col-t33",
       "from": {
         "part": "MCU",
-        "terminal": "d26"
+        "terminal": "d7"
       },
       "to": {
         "part": "R_led7",
@@ -388,7 +388,7 @@
       "netId": "bb1:n-col-t9",
       "from": {
         "part": "MCU",
-        "terminal": "d22"
+        "terminal": "d3"
       },
       "to": {
         "part": "R_led3",

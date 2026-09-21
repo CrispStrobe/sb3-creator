@@ -32,7 +32,10 @@ Reads ADC and lights LEDs as a bar graph with thresholds at 256, 512, and 768.
 3. Potentiometer as analog input (simulating LDR)
 
 ```assert
-# LDR (pot model at 50%): ADC input = 2.500V
-net MCU.P1.7 V 2.50 +-0.05
+# A real ldr on a real divider, read by the authored STC bench on P1.7. Dark is
+# the engine's default (no light control set): rDark 1 MOhm against the 10k
+# pulldown gives 5 V * 10k/1.01M = 0.0495 V, so the bargraph reads empty and
+# lights as the LDR is lit.
+net MCU.P1.7 V 0.0495 +-0.005
 net MCU.VCC V 5.00 +-0.01
 ```

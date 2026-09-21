@@ -25,5 +25,5 @@ Pot sets motor speed (0-100 percent PWM duty). Forward button spins motor one di
 
 ```assert
 # Supply rail: VCC = 5.0V
-net vcc1.vcc V 5.00 +-0.01
+net VCC.vcc V 5.00 +-0.01
 ```
