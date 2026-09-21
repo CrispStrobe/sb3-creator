@@ -242,23 +242,6 @@ const KNOWN_INERT = new Map([
         + '`commonAnode`, which the device never read at all; that was a real defect and is '
         + 'fixed upstream.)'],
 
-    ['nmos.vth',
-        'BLIND SPOT: the one bench that declares it never turns the MOSFET on. pc39-nmos-switch '
-        + 'is the only circuit in the corpus with an nmos carrying params, and its gate sits behind '
-        + 'a switch this probe does not close, so every state it samples has the device OFF. '
-        + 'MEASURED 2026-09-21 at bw-board 4ae99bea: with the switch OPEN, vth 2 and the perturbed '
-        + '8.4 both leave the drain at 4.9950 V — identical, because an off MOSFET is off whatever '
-        + 'its threshold is. With the switch CLOSED the same perturbation moves the drain from '
-        + '1.3243 V to 4.9950 V, a 3.67 V swing, so the engine reads the key perfectly well. '
-        + 'This entry appeared when bw-board stopped LEAKING through an off MOSFET: at the previous '
-        + 'pin the drain sat at 3.0245 V with the switch open, a soft turn-off that depended on vth '
-        + 'and made the perturbation visible by accident. The cleaner model is the better one, and '
-        + 'it took the accident away. A probe point with the switch closed removes this entry.'],
-
-    ['nmos.k',
-        'BLIND SPOT: as nmos.vth — same bench, same open switch, same measurement. pc39-nmos-switch '
-        + 'is the only nmos site in the corpus and the probe never turns it on.'],
-
     ['28c256.readOnly',
         'BLIND SPOT: no bench writes. readOnly refuses /WE writes, and both probed sites tie /WE high — '
         + 'a control store is never written. Flipping it changes nothing because nothing writes, '
@@ -323,7 +306,31 @@ describe('circuit params, tier 2: the key moves a real bench', { skip: SKIP }, (
         const circuit = Circuit.fromJSON(d);
         const board = circuit.board;
         const frames = [];
-        for (const ms of TIMES) {
+        // Every manual control CLOSED for the second half of the sweep.
+        //
+        // A param behind an open switch is unobservable for a reason that has
+        // nothing to do with the engine: an off MOSFET is off whatever its
+        // threshold is. pc39-nmos-switch is the whole nmos population of this
+        // corpus and its gate sits behind a switch, so nmos.vth and nmos.k
+        // were ratcheted as blind spots — MEASURED at bw-board 4ae99bea, with
+        // the switch OPEN vth 2 and the perturbed 8.4 BOTH leave the drain at
+        // 4.9950 V, and with it CLOSED the same perturbation moves the drain
+        // 1.3243 V -> 4.9950 V. The key was live the whole time; the probe
+        // never asked. This is generic, not an nmos special case: anything a
+        // button or switch gates was equally invisible.
+        // The times must stay MONOTONIC — advanceTo does not go backwards, so
+        // the closed pass samples later instants rather than replaying TIMES.
+        // Only benches that HAVE a manual control pay for the second pass: with
+        // nothing to close it would re-solve an identical circuit for no
+        // observation. MEASURED across examples/*/circuit*.json: 530 of 2139
+        // bench files carry a button or a switch, so three quarters of the
+        // corpus skip the extra solve entirely.
+        const controls = (circuit.parts || []).filter(p => p.kind === 'button' || p.kind === 'switch');
+        const last = TIMES[TIMES.length - 1];
+        const sweep = [...TIMES.map(t => [false, t]),
+            ...(controls.length ? TIMES.map(t => [true, t + last]) : [])];
+        for (const [closed, ms] of sweep) {
+            if (closed) for (const c of controls) board.setControl(c.id, 1);
             board.advanceTo(BigInt(Math.round(ms * 1e6)));
             const frame = {};
             for (const net of (circuit.nets || board.getNets())) {
