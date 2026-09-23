@@ -26,7 +26,9 @@ Implements a logical OR: LED on when either (or both) buttons are pressed.
 
 ## What this verifies
 
-1. OR logic via cascaded IF/ELSE (if A then on, else if B then on, else off)
+1. OR logic as a single `OR` expression over two 1-bit inputs — the same
+   thing a gate is (it was a cascaded IF/ELSE, which computed the same
+   function less legibly)
 2. Contrast with AND gate (example 18) using same circuit topology
 3. Three of four input combinations produce LED ON
 
