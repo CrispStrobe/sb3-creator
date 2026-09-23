@@ -27,7 +27,8 @@ Implements a logical AND: LED on only when both buttons are pressed simultaneous
 ## What this verifies
 
 1. Two digital inputs read with active-low pull-ups
-2. Nested IF implements AND logic
+2. A single `AND` expression implements AND logic — one boolean over two
+   1-bit inputs, which is the same thing a gate is
 3. Software logic gate matches hardware AND gate truth table
 
 ```assert
