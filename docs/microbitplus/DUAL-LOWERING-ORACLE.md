@@ -42,6 +42,20 @@ converge on.
 | D4 | `clear display` | `cleardisplay` | `display.clear()` |
 | D5 | `plot x 2 y 3 on` | `plot 2 3 on` | `display.set_pixel(2, 3, 9)` |
 | D6 | `plot x 2 y 3 off` | `plot 2 3 off` | `display.set_pixel(2, 3, 0)` |
+| D7 | `plot bar graph of V up to H` | `plotbargraph V H` | `_bw_bar_graph(V, H)` — MakeCode's led.plotBarGraph, H = 0 auto-scales |
+| D8 | `toggle x 1 y 2` | `toggle 1 2` | `_bw_toggle(1, 2)` |
+| D9 | `set display brightness to B` | `setbrightness B` | `_bw_set_brightness(B)` — 0..255 scales every 0..9 level drawn |
+| D10 | `stop animation` | `stopanimation` | `_bw_stop_animation()` |
+
+### Game score and lives (MakeCode `game`)
+
+| # | dialect | microbitPlus block | MicroPython |
+|---|---------|-------------------|-------------|
+| G1 | `change game score by N` | `addscore N` | `_bw_add_score(N)` (clamped at 0, as game.setScore) |
+| G1b | `set game score to N` | `setscore N` | `_bw_set_score(N)` (clamped at 0) |
+| G2 | `game score` | `score` | `_bw_score` |
+| G3 | `remove game life N` | `removelife N` | `yield from _bw_remove_life(N)` — 3 lives; the last one is game over |
+| G4 | `game over` | `gameover` | `yield from _bw_game_over()` — flashes, then scrolls GAME OVER and the score, forever |
 
 ### Buttons, logo, gestures
 
@@ -87,6 +101,7 @@ converge on.
 | P5 | `set pin P2 analog 50 %` | `analogwrite P2 50` | `pin2.write_analog(512)` |
 | P6 | `set pin P0 pull up` | `setpull P0 up` | `pin0.set_pull(pin0.PULL_UP)` |
 | P7 | `when pin P0 touched` | `whentouch P0` | `if pin0.is_touched():` (edge-poll) |
+| P8 | `map V from low A high B to low C high D` | `map V A B C D` | `((V - A) * (D - C) / (B - A) + C)` — MakeCode's pins.map |
 
 ### Actuators
 

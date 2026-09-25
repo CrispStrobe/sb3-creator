@@ -81,6 +81,18 @@ const ORACLE_TABLE = [
     ['D4', 'scroll text "hi" delay 100 ms', "display.scroll('hi', delay=int(100))"],
     ['D5', 'plot x 2 y 3 on',              'display.set_pixel(int(2), int(3), 9)'],
     ['D6', 'plot x 0 y 4 off',             'display.set_pixel(int(0), int(4), 0)'],
+    // MakeCode's led namespace beyond plot (the MakeCode census, 2026-09-25)
+    ['D7', 'plot bar graph of 4 up to 16',  '_bw_bar_graph(4, 16)'],
+    ['D8', 'toggle x 1 y 2',                '_bw_toggle(int(1), int(2))'],
+    ['D9', 'set display brightness to 128', '_bw_set_brightness(128)'],
+    ['D10','stop animation',                '_bw_stop_animation()'],
+
+    // ---- Game score and lives (G1–G4, MakeCode's `game`) ----
+    ['G1', 'change game score by 2',        '_bw_add_score(2)'],
+    ['G1b','set game score to 5',           '_bw_set_score(5)'],
+    ['G2', 'set val to game score',         'val = _bw_score'],
+    ['G3', 'remove game life 1',            'yield from _bw_remove_life(1)'],
+    ['G4', 'game over',                     'yield from _bw_game_over()'],
 
     // ---- Buttons (B2) ----
     ['B2', 'set val to read button_a',      'button_a.is_pressed()'],
@@ -113,6 +125,8 @@ const ORACLE_TABLE = [
     // Pin reporters
     ['Pr1','set val to pin P0 digital',      'pin0.read_digital()'],
     ['Pr2','set val to analog value of pin P1', 'pin1.read_analog()'],
+    ['P8', 'set val to map 512 from low 0 high 1023 to low 0 high 4',
+        'val = (((512) - (0)) * ((4) - (0)) / ((1023) - (0)) + (0))'],
 
     // ---- Actuators (A1–A4) ----
     ['A1', 'set buzzer to 440 hz',           'music.pitch(int(440), pin=pin0)'],
