@@ -51,6 +51,134 @@ const BW_JSON_PY = [
 ];
 
 
+/**
+ * The header helpers behind MakeCode's `led` and `game` blocks on the
+ * micro:bit (generateMicroPython), each emitted only when a block uses it.
+ *
+ * Written from MakeCode's own source (pxt-microbit 9.1.1, libs/core/led.ts
+ * and game.ts), because the documentation leaves out the parts a program can
+ * see: the bar graph grows from the bottom row outward from the centre column
+ * and auto-scales against a maximum that decays after 10 s; setScore clamps
+ * at 0; losing the last life IS game over.
+ *
+ * BRIGHTNESS. MicroPython has no global brightness — every pixel carries its
+ * own 0..9 level. So "brightness" is a scale applied to every level drawn
+ * (`_bw_lvl`) and, when it changes, to what is on the screen now. The
+ * full-brightness picture is remembered (`_bw_base`) and re-derived only when
+ * something else drew since the last change (`_bw_drawn` differs), so fading
+ * to 0 and back restores the picture instead of losing it to rounding.
+ *
+ * Deliberately not reproduced: the little animations MakeCode plays on
+ * addScore/removeLife and the wipe before GAME OVER (decoration, and each one
+ * would hold the display for ~1 s of a program that did not ask for it), and
+ * plotBarGraph's echo of the value to the serial console.
+ *
+ * @param {object} uses the generator's per-board flags (dim, bargraph, toggle, stopanim)
+ * @param {object} pyUses the shared layer's flags (game)
+ * @returns {string[]} header lines
+ */
+function microbitLedHelpersPy (uses, pyUses) {
+    const out = [];
+    if (uses.dim) {
+        out.push('',
+            '_bw_bright = 255',
+            '_bw_base = None',
+            '_bw_drawn = None',
+            'def _bw_lvl(p):',
+            '    # a 0..9 level at the display brightness; anything lit stays lit above 0',
+            '    return (p * _bw_bright + 254) // 255',
+            'def _bw_img(s):',
+            "    return Image(':'.join([''.join([str(_bw_lvl(int(c))) for c in row]) for row in s.split(':')]))",
+            'def _bw_set_brightness(b):',
+            '    global _bw_bright, _bw_base, _bw_drawn',
+            '    b = min(255, max(0, int(b)))',
+            '    now = [display.get_pixel(i % 5, i // 5) for i in range(25)]',
+            '    if now != _bw_drawn:',
+            '        _bw_base = [min(9, (p * 255 + _bw_bright - 1) // _bw_bright) if _bw_bright else p for p in now]',
+            '    _bw_bright = b',
+            '    _bw_drawn = [_bw_lvl(p) for p in _bw_base]',
+            '    for i in range(25):',
+            '        display.set_pixel(i % 5, i // 5, _bw_drawn[i])');
+    }
+    if (uses.bargraph) {
+        out.push('',
+            '_bw_bar_high = 0',
+            '_bw_bar_last = 0',
+            'def _bw_bar_graph(value, high):',
+            '    global _bw_bar_high, _bw_bar_last',
+            '    now = running_time()',
+            '    if value != value:',
+            '        display.clear()',
+            '        return',
+            '    value = abs(value)',
+            '    if high > 0:',
+            '        _bw_bar_high = high',
+            '    elif value > _bw_bar_high or now - _bw_bar_last > 10000:',
+            '        _bw_bar_high = value',
+            '        _bw_bar_last = now',
+            '    if _bw_bar_high < 3.552713678800501e-15:',
+            '        _bw_bar_high = 1',
+            '    v = value / _bw_bar_high',
+            '    on = _bw_lvl(9)',
+            '    k = 0',
+            '    for y in range(4, -1, -1):',
+            '        for x in range(3):',
+            '            level = 0 if k > v else on',
+            '            display.set_pixel(2 - x, y, level)',
+            '            display.set_pixel(2 + x, y, level)',
+            '            k += 1 / 16');
+    }
+    if (uses.toggle) {
+        out.push('',
+            'def _bw_toggle(x, y):',
+            '    display.set_pixel(x, y, 0 if display.get_pixel(x, y) else _bw_lvl(9))');
+    }
+    if (uses.stopanim) {
+        out.push('',
+            'def _bw_stop_animation():',
+            '    # display.show() cancels a scroll or animation in progress, so',
+            '    # showing the frame on screen now stops it and keeps that frame.',
+            "    display.show(Image(':'.join([''.join([str(display.get_pixel(x, y)) for x in range(5)]) for y in range(5)])))");
+    }
+    if (pyUses.game) {
+        out.push('',
+            '_bw_score = 0',
+            '_bw_life = 3',
+            '_bw_is_over = False',
+            'def _bw_add_score(n):',
+            '    global _bw_score',
+            '    _bw_score = max(0, _bw_score + n)',
+            'def _bw_set_score(n):',
+            '    global _bw_score',
+            '    _bw_score = max(0, n)',
+            'def _bw_remove_life(n):',
+            '    global _bw_life',
+            '    _bw_life = max(0, _bw_life - n)',
+            '    if _bw_life <= 0:',
+            '        yield from _bw_game_over()',
+            'def _bw_game_over():',
+            '    global _bw_is_over, _bw_bright',
+            '    if _bw_is_over:',
+            '        while True:',
+            '            yield 10000',
+            '    _bw_is_over = True',
+            '    _bw_bright = 255',
+            '    while True:',
+            '        for i in range(8):',
+            '            display.clear()',
+            '            yield 100',
+            "            display.show(Image('99999:99999:99999:99999:99999'))",
+            '            yield 300',
+            '        for j in range(3):',
+            "            display.scroll(' GAMEOVER ', delay=100)",
+            "            display.scroll(' SCORE ', delay=100)",
+            '            display.scroll(str(_bw_score), delay=150)',
+            "            display.scroll(' ', delay=150)",
+            '            yield 0');
+    }
+    return out;
+}
+
 // Structured error classes
 // Write a double-quoted literal that this file's own parser can read back.
 // The decompiler used to interpolate raw text between bare quotes, so a value
@@ -1575,6 +1703,18 @@ class SB3Creator {
         }
         if ((m = s.match(/^read\s+last\s+radio\s+text$/i))) {
             return B('microbitplus_radiolaststr');
+        }
+        if (/^game\s+score$/i.test(s)) return B('microbitplus_score');
+        // MakeCode's `pins.map` block text, word for word. Every slot is
+        // bounded by the next keyword, so an argument may be any expression.
+        if ((m = s.match(/^map\s+(.+?)\s+from\s+low\s+(.+?)\s+high\s+(.+?)\s+to\s+low\s+(.+?)\s+high\s+(.+)$/i))) {
+            return B('microbitplus_map', {
+                VALUE: this.parseValue(m[1], context),
+                FROMLOW: this.parseValue(m[2], context),
+                FROMHIGH: this.parseValue(m[3], context),
+                TOLOW: this.parseValue(m[4], context),
+                TOHIGH: this.parseValue(m[5], context)
+            });
         }
         // ---- Spike Prime sensor reporters ----
         if ((m = s.match(/^spike\s+distance\s+([A-F])\s*$/i)))
@@ -4411,6 +4551,58 @@ class SB3Creator {
             block[id].fields.STATE = [match[3].toLowerCase(), null];
             return ret(block);
         }
+        // The rest of MakeCode's `led` namespace that real programs use —
+        // measured, not guessed: across the 215 micro:bit apps in MakeCode's
+        // own docs these were the most common calls an import had to refuse
+        // (plotBarGraph 15, setBrightness 9, stopAnimation 6, toggle 3).
+        // Spelled after MakeCode's own block text, so a reader who knows the
+        // MakeCode block recognises the line.
+        if ((match = line.match(/^plot\s+bar\s+graph\s+of\s+(.+?)\s+up\s+to\s+(.+?)\s*$/i))) {
+            const { id, block } = cmd('microbitplus_plotbargraph');
+            block[id].inputs.VALUE = val(match[1]);
+            block[id].inputs.HIGH = val(match[2]);
+            return ret(block);
+        }
+        if ((match = line.match(/^toggle\s+x\s+(.+?)\s+y\s+(.+?)\s*$/i))) {
+            const { id, block } = cmd('microbitplus_toggle');
+            block[id].inputs.X = val(match[1]);
+            block[id].inputs.Y = val(match[2]);
+            return ret(block);
+        }
+        // `display brightness`, not `brightness`: `set brightness to 50`
+        // already means a VARIABLE called brightness, and quietly turning
+        // every such program into a display call would be the worse surprise.
+        if ((match = line.match(/^set\s+display\s+brightness\s+to\s+(.+?)\s*$/i))) {
+            const { id, block } = cmd('microbitplus_setbrightness');
+            block[id].inputs.BRIGHTNESS = val(match[1]);
+            return ret(block);
+        }
+        if (/^stop\s+animation\s*$/i.test(line)) {
+            const { block } = cmd('microbitplus_stopanimation');
+            return ret(block);
+        }
+        // MakeCode's `game` score and lives. `game score`, not `score`, for
+        // the reason `display brightness` is qualified: `change score by 1`
+        // is how any program counts in a variable of that name.
+        if ((match = line.match(/^change\s+game\s+score\s+by\s+(.+?)\s*$/i))) {
+            const { id, block } = cmd('microbitplus_addscore');
+            block[id].inputs.POINTS = val(match[1]);
+            return ret(block);
+        }
+        if ((match = line.match(/^set\s+game\s+score\s+to\s+(.+?)\s*$/i))) {
+            const { id, block } = cmd('microbitplus_setscore');
+            block[id].inputs.VALUE = val(match[1]);
+            return ret(block);
+        }
+        if ((match = line.match(/^remove\s+game\s+life\s+(.+?)\s*$/i))) {
+            const { id, block } = cmd('microbitplus_removelife');
+            block[id].inputs.LIFE = val(match[1]);
+            return ret(block);
+        }
+        if (/^game\s+over\s*$/i.test(line)) {
+            const { block } = cmd('microbitplus_gameover');
+            return ret(block);
+        }
         // ---- micro:bit+ PINS group (DUAL-LOWERING-ORACLE P1–P7) ----
         if ((match = line.match(/^set\s+pin\s+(P\d+)\s+(?:to\s+|digital\s+)([01])\s*$/i))) {
             const { id, block } = cmd('microbitplus_digitalwrite');
@@ -6531,6 +6723,8 @@ class SB3Creator {
             case 'microbitplus_istouch': return `pin ${f('PIN')} touched`;
             case 'microbitplus_radiolastnum': return 'read last radio number';
             case 'microbitplus_radiolaststr': return 'read last radio text';
+            case 'microbitplus_score': return 'game score';
+            case 'microbitplus_map': return `map ${v('VALUE')} from low ${v('FROMLOW')} high ${v('FROMHIGH')} to low ${v('TOLOW')} high ${v('TOHIGH')}`;
             // STC12 / 8051 pin read (digital level or ADC value).
             case 'stc12_read': return `read ${f('PIN')}`;
             case 'stc12_readport': return `read ${f('PORT')}`;
@@ -6796,6 +6990,14 @@ class SB3Creator {
             case 'microbitplus_scrolltext': return line(`scroll text "${this.dval(b.inputs.TEXT, blocks).replace(/^"|"$/g, '')}" delay ${v('MS')} ms`);
             case 'microbitplus_cleardisplay': return line('clear display');
             case 'microbitplus_plot': return line(`plot x ${v('X')} y ${v('Y')} ${f('STATE')}`);
+            case 'microbitplus_plotbargraph': return line(`plot bar graph of ${v('VALUE')} up to ${v('HIGH')}`);
+            case 'microbitplus_toggle': return line(`toggle x ${v('X')} y ${v('Y')}`);
+            case 'microbitplus_setbrightness': return line(`set display brightness to ${v('BRIGHTNESS')}`);
+            case 'microbitplus_stopanimation': return line('stop animation');
+            case 'microbitplus_addscore': return line(`change game score by ${v('POINTS')}`);
+            case 'microbitplus_setscore': return line(`set game score to ${v('VALUE')}`);
+            case 'microbitplus_removelife': return line(`remove game life ${v('LIFE')}`);
+            case 'microbitplus_gameover': return line('game over');
             case 'microbitplus_digitalwrite': return line(`set pin ${f('PIN')} to ${f('LEVEL')}`);
             case 'microbitplus_analogwrite': return line(`set pin ${f('PIN')} analog ${v('PCT')} %`);
             case 'microbitplus_setpull': return line(`set pin ${f('PIN')} pull ${f('MODE')}`);
@@ -7045,6 +7247,13 @@ class SB3Creator {
             case 'microbitplus_istouch': return `pin${(b.fields.PIN ? b.fields.PIN[0] : '0').toLowerCase().replace(/^p/, '')}.is_touched()`;
             case 'microbitplus_radiolastnum': return '_radio_last_num';
             case 'microbitplus_radiolaststr': return '_radio_last_str';
+            // MakeCode's game score lives in the module the helpers keep it in
+            // (generateMicroPython's `_bw_score`); reading it needs no `global`.
+            case 'microbitplus_score': this._pyUses.game = true; return '_bw_score';
+            // pins.map, exactly as MakeCode computes it:
+            // ((value - fromLow) * (toHigh - toLow)) / (fromHigh - fromLow) + toLow
+            case 'microbitplus_map':
+                return `(((${v('VALUE')}) - (${v('FROMLOW')})) * ((${v('TOHIGH')}) - (${v('TOLOW')})) / ((${v('FROMHIGH')}) - (${v('FROMLOW')})) + (${v('TOLOW')}))`;
             // Scratch-runtime reporters (x position, mouse x, timer, …) -> scratch.<method>().
             default: {
                 const ac = this.arraysCall(b, blocks, this.pyVal);
@@ -9863,6 +10072,13 @@ class SB3Creator {
         const manualFlush = targets.some((t) => Object.values(t.blocks || {})
             .some((bl) => bl && bl.opcode === 'devices_oledshow'));
         const degrade = (msg) => { if (!warnings.includes(msg)) warnings.push(msg); };
+        // Decided BEFORE the walk, for the reason manualFlush is: a program
+        // that sets the display brightness must draw EVERY pixel through it,
+        // and the plots come before the set more often than after. A program
+        // that never dims keeps drawing plain level 9, byte for byte as before.
+        const dimmable = targets.some((t) => Object.values(t.blocks || {})
+            .some((bl) => bl && bl.opcode === 'microbitplus_setbrightness'));
+        if (dimmable) uses.dim = true;
 
         // TWO boards run MicroPython here. The micro:bit's pins are ambient
         // objects (pin0..pin20); the Pico's are CONSTRUCTED — Pin(n, Pin.IN,
@@ -10077,7 +10293,7 @@ class SB3Creator {
                     const raw = String(f('MATRIX') || val(b, 'MATRIX', blocks) || '').replace(/[^0-9]/g, '');
                     const s = (raw + '0'.repeat(25)).slice(0, 25);
                     const img = s.match(/.{5}/g).join(':');
-                    return [`${pad}display.show(Image('${img}'))`];
+                    return [`${pad}display.show(${dimmable ? '_bw_img' : 'Image'}('${img}'))`];
                 }
                 case 'microbitplus_showtext':
                     return [`${pad}display.scroll(${pyText('TEXT')})`];
@@ -10086,7 +10302,39 @@ class SB3Creator {
                 case 'microbitplus_cleardisplay':
                     return [`${pad}display.clear()`];
                 case 'microbitplus_plot':
-                    return [`${pad}display.set_pixel(int(${v('X')}), int(${v('Y')}), ${f('STATE') === 'off' ? 0 : 9})`];
+                    return [`${pad}display.set_pixel(int(${v('X')}), int(${v('Y')}), ${f('STATE') === 'off' ? 0 : (dimmable ? '_bw_lvl(9)' : 9)})`];
+                // MakeCode's led.plotBarGraph / toggle / setBrightness /
+                // stopAnimation and its game score. MicroPython has no global
+                // brightness and no bar graph, so each is a small helper in
+                // the header (emitted only when used), written from MakeCode's
+                // own source rather than from its documentation.
+                case 'microbitplus_plotbargraph':
+                    uses.bargraph = true; uses.dim = true;
+                    return [`${pad}_bw_bar_graph(${v('VALUE')}, ${v('HIGH')})`];
+                case 'microbitplus_toggle':
+                    uses.dim = true; uses.toggle = true;
+                    return [`${pad}_bw_toggle(int(${v('X')}), int(${v('Y')}))`];
+                case 'microbitplus_setbrightness':
+                    uses.dim = true;
+                    return [`${pad}_bw_set_brightness(${v('BRIGHTNESS')})`];
+                case 'microbitplus_stopanimation':
+                    uses.stopanim = true;
+                    return [`${pad}_bw_stop_animation()`];
+                case 'microbitplus_addscore':
+                    this._pyUses.game = true;
+                    return [`${pad}_bw_add_score(${v('POINTS')})`];
+                case 'microbitplus_setscore':
+                    this._pyUses.game = true;
+                    return [`${pad}_bw_set_score(${v('VALUE')})`];
+                // Both of these can end in game over, which never returns and
+                // WAITS — so they are generators, reached with `yield from`
+                // like a DEFINE, and the other scripts keep being scheduled.
+                case 'microbitplus_removelife':
+                    this._pyUses.game = true; uses.dim = true;
+                    return [`${pad}yield from _bw_remove_life(${v('LIFE')})`];
+                case 'microbitplus_gameover':
+                    this._pyUses.game = true; uses.dim = true;
+                    return [`${pad}yield from _bw_game_over()`];
                 // micro:bit+ PINS group (DUAL-LOWERING-ORACLE P1–P7)
                 case 'microbitplus_digitalwrite': {
                     const pin = String(f('PIN')).toLowerCase().replace(/^p/, '');
@@ -10509,6 +10757,7 @@ class SB3Creator {
         if (this._runtimesUsed.has('stc12') && this._driverPins) {
             header.push('', ...this.stc12SimulatorDriver('py', this._driverPins));
         }
+        if (!isPico) header.push(...microbitLedHelpersPy(uses, this._pyUses));
         if (uses._pitch) header.push('', 'def _pitch():', '    x, y, z = accelerometer.get_values()', '    return math.atan2(-y, -z) * 180 / math.pi');
         if (uses._roll) header.push('', 'def _roll():', '    x, y, z = accelerometer.get_values()', '    return math.atan2(x, -z) * 180 / math.pi');
         // BrickWright debug instrumentation. _bw_pos(n) prints a position marker
