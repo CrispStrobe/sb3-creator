@@ -65,6 +65,7 @@ converge on.
 | B2 | `read button_a` | `isbutton A` | `button_a.is_pressed()` |
 | B3 | `when logo touched` | `whenlogo touched` | `if pin_logo.is_touched():` (edge-poll) |
 | B4 | `when shake` | `whengesture shake` | `if accelerometer.was_gesture('shake'):` (edge-poll) |
+| B5 | `read button_ab` | `isbutton AB` | `(button_a.is_pressed() and button_b.is_pressed())` — MakeCode's Button.AB |
 
 ### Motion / orientation (sensors)
 
@@ -111,6 +112,13 @@ converge on.
 | A2 | `play note C4` | `playnote C4` | `music.pitch(262, 500, pin=pin0)` |
 | A3 | `stop buzzer` | `stoptone` | `music.stop()` |
 | A4 | `set servo to 90` | `servo P1 90` | `pin1.write_analog(int(90/180*1023))` |
+| A1c | `play tone F hz for D ms` | `playtone F D` | `music.pitch(int(F), int(D), pin=pin0)` — F and D may be expressions (`frequency of note C`, `beat quarter`); no `for … ms` rings until the next tone (MakeCode's ringTone) |
+| A5 | `rest for 250 ms` | `rest 250` | `music.stop()` then `yield int(250)` — MakeCode's music.rest, other scripts keep running |
+| A6 | `set music tempo to 90` / `change music tempo by 20` | `settempo 90` / `changetempo 20` | `_bw_set_tempo(90)` — ignored unless above 0, floored at 1 (music.setTempo); moves music.set_tempo too |
+| A7 | `beat quarter` (reporter) | `beat quarter` | `_bw_beat(2)` — int(60000 / tempo) shifted, as music.beat: whole, half, quarter, eighth, sixteenth, double, breve |
+| A8 | `frequency of note A` (reporter) | `notefreq A` | `440` — MakeCode's Note enum by member name (C = C4 = 262, FSharp5 = 740, …) |
+| A9 | `music tempo` (reporter) | `tempo` | `_bw_tempo` |
+| A10 | `play melody Dadadadum in background` | `playmelody Dadadadum in background` | `music.play(music.DADADADUM, pin=pin0, wait=False)` — MakeCode's Melodies; `until done` waits, `looping in background` loops |
 
 ### Radio
 
@@ -119,8 +127,9 @@ converge on.
 | R1 | `radio on group 5 power 3` | `radioon 5 3` | `import radio; radio.config(group=5, power=3); radio.on()` |
 | R2 | `radio send number 42` | `radiosendnum 42` | `radio.send(str(42))` |
 | R3 | `radio send text "hi"` | `radiosendstr "hi"` | `radio.send('hi')` |
-| R4 | `when radio receives a number` | `whenradionum` | `if (_r := radio.receive()) is not None:` (edge-poll) |
-| R5 | `read last radio number` | `radiolastnum` | `_radio_last_num` (variable) |
+| R4 | `WHEN radio receives number:` (hat) | `whenradionum` | a `_bw_radio_rx` task receives; each packet that reads as a number starts the handler with that value as `_bw_rx` (MakeCode's receivedNumber parameter) |
+| R4b | `WHEN radio receives text:` (hat) | `whenradiostr` | the same, for a packet that does not read as a number |
+| R5 | `read last radio number` | `radiolastnum` | `_radio_last_num` (variable, defined as 0 until a packet comes); inside a radio hat, that hat's own packet |
 
 ---
 
