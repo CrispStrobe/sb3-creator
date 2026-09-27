@@ -59,6 +59,34 @@ converge on.
 | G2 | `game score` | `score` | `_bw_score` |
 | G3 | `remove game life N` | `removelife N` | `yield from _bw_remove_life(N)` — 3 lives; the last one is game over |
 | G4 | `game over` | `gameover` | `yield from _bw_game_over()` — flashes, then scrolls GAME OVER and the score, forever |
+| G5 | `start countdown N ms` | `startcountdown N` | `yield from _bw_start_countdown(N)` — MakeCode's nine-frame intro (400 ms each, the caller waits 3.6 s), then game over max(500, N) ms later; a second countdown is ignored |
+| G6 | `set game life to N` / `add game life N` | `setlife N` / `addlife N` | `yield from _bw_set_life(N)` — clamped at 0; 0 is game over (game.setLife / addLife) |
+| G7 | `game life` | `life` | `_bw_life` |
+| G8 | `pause game` / `resume game` | `pausegame` / `resumegame` | `_bw_game_pause()` / `_bw_game_resume()` — the sprite engine stops / restarts drawing |
+| G9 | `game is over` / `game is running` / `game is paused` | `isgameover` / `isrunning` / `ispaused` | `_bw_is_over` / `(not _bw_is_over and not _bw_paused and _bw_engine)` / `_bw_paused` — running needs a sprite, as MakeCode's needs its engine |
+
+### LED sprites (MakeCode `game.LedSprite`)
+
+A sprite is a numbered handle — 1, 2, 3 in creation order, 0 for none — held in
+an ordinary variable or array. The model (`microbitSpriteHelpersPy`) is written
+from pxt-microbit 9.1.1 libs/core/game.ts: created pointing right (90) at 255,
+clamped onto the grid; direction floored to a multiple of 45 and folded into
+-135..180; MakeCode's bounce table; touching needs both sprites alive; the
+screen is the live sprites' summed brightness, redrawn on every change and
+every 30 ms, blinking while floor(now / blink) is even. P is one of `x`, `y`,
+`direction`, `brightness`, `blink` (slots 0..4).
+
+| # | dialect | microbitPlus block | MicroPython |
+|---|---------|-------------------|-------------|
+| S1 | `create sprite at x X y Y` | `createsprite X Y` | `_bw_sprite(X, Y)` — the new handle |
+| S2 | `P of sprite S` | `spriteget S P` | `_bw_sget(S, slot)` |
+| S3 | `set sprite S P to V` / `change sprite S P by V` | `spriteset` / `spritechange` | `_bw_sset(S, slot, V)` / `_bw_schange(S, slot, V)` — x/y clamp to 0..4, brightness to 0..255, blink to 0..10000; change direction turns right |
+| S4 | `move sprite S by N` | `spritemove S N` | `_bw_smove(S, N)` |
+| S5 | `turn sprite S right\|left by D degrees` | `spriteturn S right D` | `_bw_sturn(S, True, D)` |
+| S6 | `bounce sprite S if on edge` | `spritebounce S` | `_bw_sbounce(S)` |
+| S7 | `delete sprite S` | `spritedelete S` | `_bw_sdelete(S)` |
+| S8 | `sprite S touching sprite T` / `sprite S touching edge` | `spritetouching` / `spritetouchingedge` | `_bw_stouching(S, T)` / `_bw_sedge(S)` |
+| S9 | `sprite S deleted` | `spritedeleted S` | `_bw_sdeleted(S)` |
 
 ### Buttons, logo, gestures
 

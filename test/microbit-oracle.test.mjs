@@ -95,6 +95,26 @@ const ORACLE_TABLE = [
     ['G2', 'set val to game score',         'val = _bw_score'],
     ['G3', 'remove game life 1',            'yield from _bw_remove_life(1)'],
     ['G4', 'game over',                     'yield from _bw_game_over()'],
+    ['G5', 'start countdown 10000 ms',      'yield from _bw_start_countdown(10000)'],
+    ['G6', 'set game life to 2',            'yield from _bw_set_life(2)'],
+    ['G6b','add game life 1',               'yield from _bw_set_life(_bw_life + 1)'],
+    ['G7', 'set val to game life',          'val = _bw_life'],
+    ['G8', 'pause game',                    '_bw_game_pause()'],
+    ['G8b','resume game',                   '_bw_game_resume()'],
+    ['G9', 'set val to game is over',       'val = _bw_is_over'],
+
+    // ---- LED sprites (S1–S9, MakeCode's game.LedSprite) ----
+    ['S1', 'set s to create sprite at x 2 y 3', 's = _bw_sprite(2, 3)'],
+    ['S2', 'set val to direction of sprite s',  'val = _bw_sget(s, 2)'],
+    ['S3', 'set sprite s brightness to 8',      '_bw_sset(s, 3, 8)'],
+    ['S3b','change sprite s blink by 100',      '_bw_schange(s, 4, 100)'],
+    ['S4', 'move sprite s by 1',                '_bw_smove(s, 1)'],
+    ['S5', 'turn sprite s left by 45 degrees',  '_bw_sturn(s, False, 45)'],
+    ['S6', 'bounce sprite s if on edge',        '_bw_sbounce(s)'],
+    ['S7', 'delete sprite s',                   '_bw_sdelete(s)'],
+    ['S8', 'set val to sprite s touching sprite t', '_bw_stouching(s, t)'],
+    ['S8b','set val to sprite s touching edge', '_bw_sedge(s)'],
+    ['S9', 'set val to sprite s deleted',       '_bw_sdeleted(s)'],
 
     // ---- Buttons (B2) ----
     ['B2', 'set val to read button_a',      'button_a.is_pressed()'],
