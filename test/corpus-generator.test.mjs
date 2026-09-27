@@ -34,6 +34,7 @@ const ADC_CFG = {
     'arduino-mega': { bits: 10, vref: 5 },
     'atmega168p':   { bits: 10, vref: 5 },
     pico:           { bits: 12, vref: 3.3 },
+    attiny88:       { bits: 10, vref: 5 },
 };
 
 const CLOCKS = {

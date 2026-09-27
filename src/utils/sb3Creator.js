@@ -3195,7 +3195,10 @@ class SB3Creator {
                 // guard: the emitter would refuse it anyway, refuse it here too.
                 eater6502: [/^(PA[0-7]|PB[0-7]|MK\d+)$/i, 'PA0-PA7, PB0-PB7, or MK0-MK19 (matrix keypad)'],
                 z80: [/^(OUT[0-7]|IN[0-7]|MK\d+)$/i, 'OUT0-OUT7 (latch), IN0-IN7 (buffer), or MK0-MK19 (matrix keypad)'],
-                attiny88: [/^(PA[0-3]|PB[0-7]|PC[0-7]|PD[0-7])$/i, 'PA0-PA3, PB0-PB7, PC0-PC7, PD0-PD7'],
+                // DEVICE ATTINY88 describes the common 28-pin package. PA0/PA1
+                // (ADC6/ADC7) only exist on the 32-lead package and are circuit
+                // terminals, not general digital pins accepted by this DSL.
+                attiny88: [/^(PB[0-7]|PC[0-5]|PC7|PD[0-7])$/i, 'PB0-PB7, PC0-PC5, PC7 or PD0-PD7'],
                 attiny85: [/^PB[0-4]$/i, 'PB0-PB4 (PB5 is RESET)']
             };
             const spoken = SPOKEN[cfg.device];
@@ -3243,7 +3246,8 @@ class SB3Creator {
                 this.warn(lineIndex, `ANALOG on the Pico means GP26, GP27 or GP28 (ADC0-2), not ${where.toUpperCase()}`);
                 return true;
             }
-            if (core === 'arduino' && /^analog$/i.test(direction) && !/^A/i.test(where)) {
+            const avrAnalogPin = cfg.device === 'attiny88' && /^PC[0-5]$/i.test(where);
+            if (core === 'arduino' && /^analog$/i.test(direction) && !/^A/i.test(where) && !avrAnalogPin) {
                 this.warn(lineIndex, `ANALOG needs an analog input (A0 and up), not ${where.toUpperCase()}`);
                 return true;
             }
@@ -8529,7 +8533,7 @@ class SB3Creator {
 
     /** {reg, bit} for an AVR pin record, or null (A6/A7 and unknowns).
      *  Device-aware: the Mega speaks ports A–L, the 328/168 B–D,
-     *  the ATtiny88 speaks PB0-PB7/PC0-PC7/PD0-PD7/PA0-PA3. */
+     *  and the 28-pin ATtiny88 speaks PB0-PB7/PC0-PC5/PC7/PD0-PD7. */
     avrHw(pin) {
         // ATtiny88 pins are port/bit names directly (PB0, PC3, PD7, PA2)
         const where = String(pin.where || '').toUpperCase();
@@ -16171,7 +16175,7 @@ SB3Creator.RETARGET_POOLS = (() => {
         // input pool was the PENDANT's two buttons — board truth, not chip
         // truth, and generated benches seat the chip.
         attiny88: { digital: [...seq('PB%', 0, 7), ...seq('PD%', 0, 7), ...seq('PC%', 0, 5), 'PC7'],
-            analog: [], input: ['PC3', 'PC7', ...seq('PC%', 0, 2), 'PC4', 'PC5', ...seq('PD%', 0, 7), ...seq('PB%', 0, 7)],
+            analog: [...seq('PC%', 0, 5)], input: ['PC3', 'PC7', ...seq('PC%', 0, 2), 'PC4', 'PC5', ...seq('PD%', 0, 7), ...seq('PB%', 0, 7)],
             pwm: [], ledActiveLow: false },
         // ATtiny85: five usable pins, PB5 is RESET. Honest refusals are the
         // point — a 12-pin program cannot fit and should say so.
@@ -16604,8 +16608,9 @@ SB3Creator.STC_PARTS = {
     // declarations to be reseated between an 8051 and an 8086 board.
     i8086: { core: 'i8086', header: null, portModes: false, aux1T: false, adc: false,
         keypad: true, sevenseg: true },
-    // ATtiny88: 28-pin DIP, avr25 family. Pins are PB0-7/PC0-7/PD0-7/PA0-3
-    // (port/bit, not Arduino Dn numbering). Timer0 has NO CTC mode — the ms
+    // ATtiny88: 28-pin DIP, avr25 family. User GPIO is PB0-7, PC0-5/PC7,
+    // and PD0-7 (port/bit, not Arduino Dn numbering; PC6 is RESET). The
+    // 32-lead package additionally bonds PA0/ADC6 and PA1/ADC7. Timer0 has NO CTC mode — the ms
     // tick uses Timer1 CTC instead. ADC on PC0-PC5 (channels 0-5).
     // The Blinkenrocket pendant uses PORTB=cols, PORTD=rows for an 8x8 matrix.
     attiny88: { core: 'arduino', header: 'avr/io.h', portModes: false, aux1T: false, adc: true,

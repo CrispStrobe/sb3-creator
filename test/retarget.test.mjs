@@ -42,6 +42,22 @@ test('retarget: nano -> pico maps roles to GP pins, body untouched', () => {
     assert.match(out, /adc_read\(0\)/);
 });
 
+test('retarget: ATtiny88 exposes its real ADC bank and excludes non-GPIO package pins', () => {
+    assert.deepEqual(SB3Creator.RETARGET_POOLS.attiny88.analog,
+        ['PC0', 'PC1', 'PC2', 'PC3', 'PC4', 'PC5']);
+
+    const moved = SB3Creator.retargetPseudocode(BLINK_POT, 'attiny88');
+    assert.equal(moved.ok, true, moved.reasons.join('; '));
+    assert.match(moved.pseudocode, /^PIN pot1 = PC0 ANALOG$/m);
+
+    for (const pin of ['PA0', 'PA1', 'PC6']) {
+        const creator = new SB3Creator();
+        creator.parse(`DEVICE ATTINY88\nPIN bad = ${pin} OUTPUT\nWHEN flag clicked:\n  turn on bad\n`);
+        assert.ok(creator.warnings.some((warning) => warning.includes('not how attiny88 names a pin')),
+            `${pin} was incorrectly accepted as ATtiny88 GPIO`);
+    }
+});
+
 for (const device of ['microbit', 'calliopemini']) {
     test(`retarget: nano -> ${device} maps onto its real edge pins`, () => {
         const r = SB3Creator.retargetPseudocode(BLINK_POT, device);
