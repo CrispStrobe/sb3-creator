@@ -502,9 +502,9 @@ function microbitLedHelpersPy (uses, pyUses) {
     // truncated (Math.idiv), the fractions shift it (libs/core/music.ts).
     // setTempo ignores a tempo that is not above 0 and floors it at 1. The
     // music module's own tempo follows, so a built-in melody keeps pace.
-    if (pyUses.clamp) {
+    if (pyUses.limit) {
         out.push('',
-            'def _bw_clamp(v, hi):',
+            'def _bw_limit(v, hi):',
             '    return min(hi, max(0, int(v)))');
     }
     if (pyUses.tempo) {
@@ -11102,8 +11102,8 @@ class SB3Creator {
                     // measured: MakeCode's jonnys-bird plays volume 0..1024 and
                     // stopped. So the clamp is written out. The duration is
                     // evaluated once, for the sound and for the wait.
-                    const c = (x, hi) => `_bw_clamp(${x}, ${hi})`;
-                    this._pyUses.clamp = true;
+                    const c = (x, hi) => `_bw_limit(${x}, ${hi})`;
+                    this._pyUses.limit = true;
                     const fx = `audio.SoundEffect(freq_start=${c(v('FROM'), 9999)}, freq_end=${c(v('TO'), 9999)}, duration=_bw_d, ` +
                         `vol_start=${c(v('VFROM'), 255)}, vol_end=${c(v('VTO'), 255)}, waveform=audio.SoundEffect.${W[f('WAVE')] || 'WAVEFORM_SQUARE'}, ` +
                         `fx=audio.SoundEffect.${X[f('FX')] || 'FX_NONE'}, shape=audio.SoundEffect.${C[f('CURVE')] || 'SHAPE_LINEAR'})`;

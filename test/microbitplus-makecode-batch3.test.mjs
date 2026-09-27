@@ -307,3 +307,14 @@ test('a computed length is evaluated once: the wait is the sound\'s own length',
     assert.equal((py.match(/random\.randint\(40, 100\)/g) || []).length, 2, py);
     assert.match(py, /yield _bw_d/);
 });
+
+test('a sound effect beside an LED sprite: each keeps its own helper (the two _bw_clamp collided)', () => {
+    // The sprite model's _bw_clamp(lo, hi, v) and a sound effect's limit were
+    // both emitted under one name; the later definition won and the sprite
+    // raised TypeError. The sound's is _bw_limit.
+    const { played, texts } = run(['set s to create sprite at x 2 y 2',
+        'play sound effect square from 1600 to 1 hz volume 1024 to 0 for 100 ms effect none curve linear',
+        'display 1', 'wait 0.01 seconds']);
+    assert.deepEqual(texts, ['1']);
+    assert.equal(played[0][1][3], 255);
+});

@@ -153,7 +153,7 @@ every 30 ms, blinking while floor(now / blink) is even. P is one of `x`, `y`,
 | A10 | `play melody Dadadadum in background` | `playmelody Dadadadum in background` | `music.play(music.DADADADUM, pin=pin0, wait=False)` — MakeCode's Melodies; `until done` waits, `looping in background` loops |
 | A11 | `play tone F hz for D ms until done` / `in background` | `playtonemode F D mode` | `_bw_d = int(D)`, `music.pitch(F, _bw_d, wait=False)`, then `yield _bw_d` until done — MakeCode's music.play(music.tonePlayable(F, D), mode) |
 | A12 | `play sound giggle [until done \| in background]` | `playsound giggle mode` | `audio.play(Sound.GIGGLE, wait=…)` — the ten V2 built-in sounds, MakeCode's soundExpression.X |
-| A13 | `play sound effect WAVE from F1 to F2 hz volume V1 to V2 for D ms effect FX curve C [mode]` | `playsoundeffect …` | `audio.play(audio.SoundEffect(…, waveform=WAVEFORM_*, fx=FX_*, shape=SHAPE_*), wait=False)`, then `yield` its duration until done; each number clamped as MakeCode clamps it (`_bw_clamp`) — MakeCode's createSoundEffect |
+| A13 | `play sound effect WAVE from F1 to F2 hz volume V1 to V2 for D ms effect FX curve C [mode]` | `playsoundeffect …` | `audio.play(audio.SoundEffect(…, waveform=WAVEFORM_*, fx=FX_*, shape=SHAPE_*), wait=False)`, then `yield` its duration until done; each number clamped as MakeCode clamps it (`_bw_limit`) — MakeCode's createSoundEffect |
 
 ### Radio
 
