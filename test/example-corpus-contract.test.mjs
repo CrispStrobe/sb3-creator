@@ -12,7 +12,7 @@ import {existsSync, globSync, readFileSync} from 'node:fs';
 import {join} from 'node:path';
 import { requireSiblings, siblingGuardTest } from './helpers/siblings.mjs';
 
-import {DEVPART} from '../scripts/lib/devpart.mjs';
+import {DEVPART, partKindsForDevice} from '../scripts/lib/devpart.mjs';
 import {injectEngine, registerSidecars} from '../scripts/lib/engine-surface.mjs';
 
 const ROOT = join(import.meta.dirname, '..');
@@ -89,9 +89,11 @@ describe('example corpus: catalog and bench inventory agree exactly', () => {
 
             if (entry.files?.circuit && entry.authored && DEVPART[entry.authored]) {
                 const primary = JSON.parse(readFileSync(join(EXAMPLES, entry.files.circuit), 'utf8'));
-                const controllers = (primary.parts || []).filter(part => part.kind === DEVPART[entry.authored]);
+                const authoredKinds = partKindsForDevice(entry.authored);
+                const controllers = (primary.parts || []).filter(part => authoredKinds.has(part.kind));
                 if (controllers.length !== 1) {
-                    problems.push(`${entry.id}: primary circuit has ${controllers.length} ${DEVPART[entry.authored]} controllers`);
+                    problems.push(`${entry.id}: primary circuit has ${controllers.length} ` +
+                        `${[...authoredKinds].join('/')} controllers`);
                 }
             }
         }

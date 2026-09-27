@@ -11,33 +11,36 @@
    "rotation": 0
   },
   {
-   "id": "mega1",
+   "id": "attiny881",
    "kind": "arduino_mega",
    "params": {},
    "x": 323,
    "y": -5,
    "rotation": 0,
    "terminals": [
-    "d27",
-    "d28",
-    "d34",
-    "d35",
-    "d36",
     "d13",
-    "d29",
-    "d30",
-    "d31",
-    "d32",
-    "d33",
-    "d2",
-    "d3",
     "d22",
     "d23",
     "d24",
     "d25",
     "d26",
+    "d27",
+    "d28",
+    "d29",
+    "d30",
+    "d31",
+    "d32",
+    "d33",
+    "d34",
+    "d35",
+    "d36",
+    "5v",
+    "d2",
     "gnd",
-    "5v"
+    "d3",
+    "d4",
+    "d5",
+    "d6"
    ]
   },
   {
@@ -77,13 +80,13 @@
    "kind": "button",
    "declName": "btnLeft",
    "params": {},
-   "x": 400,
+   "x": 680,
    "y": 311,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "e27",
-     "b": "f27"
+     "a": "e47",
+     "b": "f47"
     }
    }
   },
@@ -92,13 +95,13 @@
    "kind": "button",
    "declName": "btnRight",
    "params": {},
-   "x": 484,
+   "x": 764,
    "y": 311,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "e33",
-     "b": "f33"
+     "a": "e53",
+     "b": "f53"
     }
    }
   },
@@ -135,20 +138,99 @@
    }
   },
   {
+   "id": "eeprom",
+   "kind": "at24c64",
+   "declName": "animationStore",
+   "params": {},
+   "x": 400,
+   "y": 349,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a0": "f27",
+     "a1": "f28",
+     "a2": "f29",
+     "gnd": "f30",
+     "sda": "e30",
+     "scl": "e29",
+     "wp": "e28",
+     "vcc": "e27"
+    }
+   }
+  },
+  {
+   "id": "modemIn",
+   "kind": "vsource",
+   "declName": "audioModem",
+   "params": {
+    "wave": "pcm",
+    "samples": [],
+    "rate": 44100,
+    "gain": 2,
+    "offset": 2.5,
+    "start": 0,
+    "loop": false
+   },
+   "x": 670,
+   "y": 107
+  },
+  {
    "id": "vcc1",
    "kind": "vcc",
    "params": {
     "volts": 5
    },
-   "x": 664,
+   "x": 752,
    "y": 115
   },
   {
    "id": "gnd1",
    "kind": "gnd",
    "params": {},
-   "x": 740,
+   "x": 828,
    "y": 115
+  },
+  {
+   "id": "R_PD_btnLeft",
+   "kind": "resistor",
+   "params": {
+    "ohms": 4700
+   },
+   "terminals": [
+    "a",
+    "b"
+   ],
+   "x": 512,
+   "y": 255,
+   "rotation": 0,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a35",
+     "b": "a39"
+    }
+   }
+  },
+  {
+   "id": "R_PD_btnRight",
+   "kind": "resistor",
+   "params": {
+    "ohms": 4700
+   },
+   "terminals": [
+    "a",
+    "b"
+   ],
+   "x": 596,
+   "y": 255,
+   "rotation": 0,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a41",
+     "b": "a45"
+    }
+   }
   }
  ],
  "wires": [
@@ -177,160 +259,286 @@
    "toTerminal": "gnd"
   },
   {
-   "from": "mega1",
-   "fromTerminal": "d27",
-   "to": "matrix",
-   "toTerminal": "col6"
+   "from": "vcc1",
+   "fromTerminal": "vcc",
+   "to": "eeprom",
+   "toTerminal": "vcc"
   },
   {
-   "from": "mega1",
-   "fromTerminal": "d28",
-   "to": "matrix",
-   "toTerminal": "col7"
+   "from": "gnd1",
+   "fromTerminal": "gnd",
+   "to": "eeprom",
+   "toTerminal": "gnd"
   },
   {
-   "from": "mega1",
-   "fromTerminal": "d34",
-   "to": "matrix",
-   "toTerminal": "row5"
+   "from": "gnd1",
+   "fromTerminal": "gnd",
+   "to": "eeprom",
+   "toTerminal": "a0"
   },
   {
-   "from": "mega1",
-   "fromTerminal": "d35",
-   "to": "matrix",
-   "toTerminal": "row6"
+   "from": "gnd1",
+   "fromTerminal": "gnd",
+   "to": "eeprom",
+   "toTerminal": "a1"
   },
   {
-   "from": "mega1",
-   "fromTerminal": "d36",
-   "to": "matrix",
-   "toTerminal": "row7"
+   "from": "gnd1",
+   "fromTerminal": "gnd",
+   "to": "eeprom",
+   "toTerminal": "a2"
   },
   {
-   "from": "mega1",
+   "from": "gnd1",
+   "fromTerminal": "gnd",
+   "to": "eeprom",
+   "toTerminal": "wp"
+  },
+  {
+   "from": "modemIn",
+   "fromTerminal": "neg",
+   "to": "gnd1",
+   "toTerminal": "gnd"
+  },
+  {
+   "from": "attiny881",
    "fromTerminal": "d13",
    "to": "matrix",
    "toTerminal": "col0"
   },
   {
-   "from": "mega1",
-   "fromTerminal": "d29",
-   "to": "matrix",
-   "toTerminal": "row0"
-  },
-  {
-   "from": "mega1",
-   "fromTerminal": "d30",
-   "to": "matrix",
-   "toTerminal": "row1"
-  },
-  {
-   "from": "mega1",
-   "fromTerminal": "d31",
-   "to": "matrix",
-   "toTerminal": "row2"
-  },
-  {
-   "from": "mega1",
-   "fromTerminal": "d32",
-   "to": "matrix",
-   "toTerminal": "row3"
-  },
-  {
-   "from": "mega1",
-   "fromTerminal": "d33",
-   "to": "matrix",
-   "toTerminal": "row4"
-  },
-  {
-   "from": "mega1",
-   "fromTerminal": "d2",
-   "to": "btnL",
-   "toTerminal": "b"
-  },
-  {
-   "from": "mega1",
-   "fromTerminal": "d2",
-   "to": "rL",
-   "toTerminal": "a"
-  },
-  {
-   "from": "mega1",
-   "fromTerminal": "d3",
-   "to": "btnR",
-   "toTerminal": "b"
-  },
-  {
-   "from": "mega1",
-   "fromTerminal": "d3",
-   "to": "rR",
-   "toTerminal": "a"
-  },
-  {
-   "from": "mega1",
+   "from": "attiny881",
    "fromTerminal": "d22",
    "to": "matrix",
    "toTerminal": "col1"
   },
   {
-   "from": "mega1",
+   "from": "attiny881",
    "fromTerminal": "d23",
    "to": "matrix",
    "toTerminal": "col2"
   },
   {
-   "from": "mega1",
+   "from": "attiny881",
    "fromTerminal": "d24",
    "to": "matrix",
    "toTerminal": "col3"
   },
   {
-   "from": "mega1",
+   "from": "attiny881",
    "fromTerminal": "d25",
    "to": "matrix",
    "toTerminal": "col4"
   },
   {
-   "from": "mega1",
+   "from": "attiny881",
    "fromTerminal": "d26",
    "to": "matrix",
    "toTerminal": "col5"
   },
   {
-   "from": "mega1",
-   "fromTerminal": "gnd",
-   "to": "gnd1",
-   "toTerminal": "gnd"
+   "from": "attiny881",
+   "fromTerminal": "d27",
+   "to": "matrix",
+   "toTerminal": "col6"
   },
   {
-   "from": "mega1",
-   "fromTerminal": "gnd",
-   "to": "rL",
-   "toTerminal": "b"
+   "from": "attiny881",
+   "fromTerminal": "d28",
+   "to": "matrix",
+   "toTerminal": "col7"
   },
   {
-   "from": "mega1",
-   "fromTerminal": "gnd",
-   "to": "rR",
-   "toTerminal": "b"
+   "from": "attiny881",
+   "fromTerminal": "d29",
+   "to": "matrix",
+   "toTerminal": "row0"
   },
   {
-   "from": "mega1",
+   "from": "attiny881",
+   "fromTerminal": "d30",
+   "to": "matrix",
+   "toTerminal": "row1"
+  },
+  {
+   "from": "attiny881",
+   "fromTerminal": "d31",
+   "to": "matrix",
+   "toTerminal": "row2"
+  },
+  {
+   "from": "attiny881",
+   "fromTerminal": "d32",
+   "to": "matrix",
+   "toTerminal": "row3"
+  },
+  {
+   "from": "attiny881",
+   "fromTerminal": "d33",
+   "to": "matrix",
+   "toTerminal": "row4"
+  },
+  {
+   "from": "attiny881",
+   "fromTerminal": "d34",
+   "to": "matrix",
+   "toTerminal": "row5"
+  },
+  {
+   "from": "attiny881",
+   "fromTerminal": "d35",
+   "to": "matrix",
+   "toTerminal": "row6"
+  },
+  {
+   "from": "attiny881",
+   "fromTerminal": "d36",
+   "to": "matrix",
+   "toTerminal": "row7"
+  },
+  {
+   "from": "attiny881",
+   "fromTerminal": "5v",
+   "to": "vcc1",
+   "toTerminal": "vcc"
+  },
+  {
+   "from": "attiny881",
    "fromTerminal": "5v",
    "to": "btnL",
    "toTerminal": "a"
   },
   {
-   "from": "mega1",
+   "from": "attiny881",
    "fromTerminal": "5v",
    "to": "btnR",
    "toTerminal": "a"
   },
   {
-   "from": "mega1",
+   "from": "attiny881",
    "fromTerminal": "5v",
-   "to": "vcc1",
+   "to": "eeprom",
    "toTerminal": "vcc"
+  },
+  {
+   "from": "attiny881",
+   "fromTerminal": "d2",
+   "to": "btnL",
+   "toTerminal": "b"
+  },
+  {
+   "from": "attiny881",
+   "fromTerminal": "d2",
+   "to": "rL",
+   "toTerminal": "a"
+  },
+  {
+   "from": "attiny881",
+   "fromTerminal": "gnd",
+   "to": "rL",
+   "toTerminal": "b"
+  },
+  {
+   "from": "attiny881",
+   "fromTerminal": "gnd",
+   "to": "gnd1",
+   "toTerminal": "gnd"
+  },
+  {
+   "from": "attiny881",
+   "fromTerminal": "gnd",
+   "to": "rR",
+   "toTerminal": "b"
+  },
+  {
+   "from": "attiny881",
+   "fromTerminal": "gnd",
+   "to": "eeprom",
+   "toTerminal": "gnd"
+  },
+  {
+   "from": "attiny881",
+   "fromTerminal": "gnd",
+   "to": "eeprom",
+   "toTerminal": "a0"
+  },
+  {
+   "from": "attiny881",
+   "fromTerminal": "gnd",
+   "to": "eeprom",
+   "toTerminal": "a1"
+  },
+  {
+   "from": "attiny881",
+   "fromTerminal": "gnd",
+   "to": "eeprom",
+   "toTerminal": "a2"
+  },
+  {
+   "from": "attiny881",
+   "fromTerminal": "gnd",
+   "to": "eeprom",
+   "toTerminal": "wp"
+  },
+  {
+   "from": "attiny881",
+   "fromTerminal": "gnd",
+   "to": "modemIn",
+   "toTerminal": "neg"
+  },
+  {
+   "from": "attiny881",
+   "fromTerminal": "d3",
+   "to": "btnR",
+   "toTerminal": "b"
+  },
+  {
+   "from": "attiny881",
+   "fromTerminal": "d3",
+   "to": "rR",
+   "toTerminal": "a"
+  },
+  {
+   "from": "attiny881",
+   "fromTerminal": "d4",
+   "to": "eeprom",
+   "toTerminal": "sda"
+  },
+  {
+   "from": "attiny881",
+   "fromTerminal": "d5",
+   "to": "eeprom",
+   "toTerminal": "scl"
+  },
+  {
+   "from": "attiny881",
+   "fromTerminal": "d6",
+   "to": "modemIn",
+   "toTerminal": "pos"
+  },
+  {
+   "from": "attiny881",
+   "fromTerminal": "d2",
+   "to": "R_PD_btnLeft",
+   "toTerminal": "a"
+  },
+  {
+   "from": "R_PD_btnLeft",
+   "toTerminal": "gnd",
+   "to": "gnd1",
+   "fromTerminal": "b"
+  },
+  {
+   "from": "attiny881",
+   "fromTerminal": "d3",
+   "to": "R_PD_btnRight",
+   "toTerminal": "a"
+  },
+  {
+   "from": "R_PD_btnRight",
+   "toTerminal": "gnd",
+   "to": "gnd1",
+   "fromTerminal": "b"
   },
   {
    "from": "vcc1",
@@ -357,8 +565,8 @@
   {
    "ref": "bbw:bb1:gen_0",
    "boardId": "bb1",
-   "a": "a27",
-   "b": "t+27",
+   "a": "a47",
+   "b": "t+47",
    "color": "red"
   },
   {
@@ -371,8 +579,8 @@
   {
    "ref": "bbw:bb1:gen_2",
    "boardId": "bb1",
-   "a": "a33",
-   "b": "t+33",
+   "a": "a53",
+   "b": "t+53",
    "color": "red"
   },
   {
@@ -380,6 +588,62 @@
    "boardId": "bb1",
    "a": "b25",
    "b": "b-25",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb1:gen_4",
+   "boardId": "bb1",
+   "a": "a27",
+   "b": "t+27",
+   "color": "red"
+  },
+  {
+   "ref": "bbw:bb1:gen_5",
+   "boardId": "bb1",
+   "a": "g30",
+   "b": "b-30",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb1:gen_6",
+   "boardId": "bb1",
+   "a": "g27",
+   "b": "b-27",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb1:gen_7",
+   "boardId": "bb1",
+   "a": "g28",
+   "b": "b-28",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb1:gen_8",
+   "boardId": "bb1",
+   "a": "g29",
+   "b": "b-29",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb1:gen_9",
+   "boardId": "bb1",
+   "a": "a28",
+   "b": "b-28",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb1:gen_10",
+   "boardId": "bb1",
+   "a": "b39",
+   "b": "b-39",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb1:gen_11",
+   "boardId": "bb1",
+   "a": "b45",
+   "b": "b-45",
    "color": "black"
   }
  ],

@@ -5,7 +5,9 @@ prereqs: [arduino-01-blink, arduino-05-for-loop]
 teaches: [multiplexing, led-matrix, polarity, column-scanning, attiny88]
 ---
 ## What you see
-A pendant badge with an ATtiny88 driving a bare 8x8 LED matrix (788AS) through column scanning. It beats a heart: a big frame and a small frame alternate about three times a second. Two buttons slow the beat while held. The matrix is multiplexed: only one column is on at any instant, but scanning all 8 fast enough makes the whole image appear solid.
+A pendant badge with the real 32-lead ATtiny88 package driving a bare 8x8 LED matrix (788AS) through column scanning. It beats a heart: a big frame and a small frame alternate about three times a second. Two buttons slow the beat while held. The circuit also models the badge's AT24C64 animation EEPROM and PA0/ADC6 audio-modem input. The included heartbeat is our own small BSD-3-Clause program; no Blinkenrocket GPL firmware is bundled.
+
+To exercise the full badge protocol, load a firmware HEX that you are entitled to use with the debugger's firmware picker. When an ATtiny88 image is running on this circuit, the debugger shows a **Blinkenrocket audio modem** input: enter a message and transmit it as the encoded PCM waveform that reaches PA0/ADC6 on the hardware.
 
 ## Try this
 1. Run the program — a heart beats on the matrix, big frame then small frame.

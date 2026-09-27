@@ -2,9 +2,9 @@
   "note": "Vendored VERDICT for the flat circuit twins. CI cannot recompute the net partition (that needs bw-circuit-ui + bw-board), but it can prove neither file of a pair changed since a run that did. Regenerate with scripts/vendor-flat-partitions.mjs --write.",
   "engine": {
     "repo": "bw-circuit-ui",
-    "sha": "a2b1cb2db785437dffcf4644f6b5d37bc31b0533"
+    "sha": "ea94554dc0fd8d329bc3349d8abe5be6601ddfcb"
   },
-  "pairs": 947,
+  "pairs": 944,
   "entries": [
     {
       "dir": "01-blink",
@@ -6874,73 +6874,49 @@
       "dir": "blinkenrocket-pendant",
       "flat": "circuit-flat.arduino-mega.json",
       "twin": "circuit.arduino-mega.json",
-      "flatSha": "98b9f1118f1a47ca09391b5a2fa82b866b1002434a8d8efd60c13a8adb47e55b",
-      "twinSha": "2d6c990d29c20c7b51c90ef42c4931af0d6b4564d284c16942359d00d54ca724",
-      "partitionSha": "4475b17515e73e4311d4185bb4a8b6252dc998bfa653f8d9e1f79c9cc979474d"
-    },
-    {
-      "dir": "blinkenrocket-pendant",
-      "flat": "circuit-flat.arduino-nano.json",
-      "twin": "circuit.arduino-nano.json",
-      "flatSha": "347c3822d3e6b464e43a5a976a896e9d6ebc516b514cda009dc828d6c659af95",
-      "twinSha": "46d36299f548405e65d3b6540b40de21df6443d97a6ce280311aacd8fbda3853",
-      "partitionSha": "805f4af9cbe2bec1a6f2caa32e0b6350e5494a1427ddc35d8e9256e883d847bf"
-    },
-    {
-      "dir": "blinkenrocket-pendant",
-      "flat": "circuit-flat.arduino-uno.json",
-      "twin": "circuit.arduino-uno.json",
-      "flatSha": "a5ce32a0046e12401039792da7b84539b16ae170c1ff6b18e34c9b136e7453c4",
-      "twinSha": "8d8ee540281245c9e269e3f2a0732e78a57bf98f4fd551d9f1c0f78f61b92711",
-      "partitionSha": "9a1f1757a51c73d822efbee0c5a8cdeeba45e8697316a997f8ad8149eeb41896"
-    },
-    {
-      "dir": "blinkenrocket-pendant",
-      "flat": "circuit-flat.atmega168p.json",
-      "twin": "circuit.atmega168p.json",
-      "flatSha": "a5ce32a0046e12401039792da7b84539b16ae170c1ff6b18e34c9b136e7453c4",
-      "twinSha": "8d8ee540281245c9e269e3f2a0732e78a57bf98f4fd551d9f1c0f78f61b92711",
-      "partitionSha": "9a1f1757a51c73d822efbee0c5a8cdeeba45e8697316a997f8ad8149eeb41896"
+      "flatSha": "bfe937e2d07db18740d0133d3ee2ada2bea511bf7018fceb08d6175abd9f2c90",
+      "twinSha": "ad1c8231d58046f6e99decba6e73dceab69a0fe157103331d6179bf13b4e13d3",
+      "partitionSha": "b69b1ffabd97f1c381133ac58a908823eaba335300362eab11f4e383b754af2b"
     },
     {
       "dir": "blinkenrocket-pendant",
       "flat": "circuit-flat.json",
       "twin": "circuit.json",
-      "flatSha": "f8c1220d88e4fc4dc75facd7b142ebdbae67a04e22a3a4bcad38e54f913857b4",
-      "twinSha": "d5c876265bc88335e07aeac282a3c4b0ec6b692c8dd2e5799f16d6757a366f84",
-      "partitionSha": "9ec73afe4418c2f68a6d5c2de9788b13c6935bbad9c09e0fdf0835b3455b7c1b"
+      "flatSha": "9a5d560541b6c8f190d1eb4fec90b0142f71dd5b6c26186f2b9ecf019efaaa35",
+      "twinSha": "9a5d560541b6c8f190d1eb4fec90b0142f71dd5b6c26186f2b9ecf019efaaa35",
+      "partitionSha": "1715475c34fd879c5aaae5669a4feeb84d0fcf8aa9fb015357162cbba2232fed"
     },
     {
       "dir": "blinkenrocket-pendant",
       "flat": "circuit-flat.pico.json",
       "twin": "circuit.pico.json",
-      "flatSha": "eb727d146cff47a410af71bc5861bccd5cb3072c04bd6c38177a3e30fae6ae34",
-      "twinSha": "bdc2f37e03258fbf4444313d80392c5aafd61f0c657b150f6319b2832912762c",
-      "partitionSha": "60583388be75682666ca18fe83e60fdc0f05bbe73cb8f3273019af33ec2cc850"
+      "flatSha": "481d7b9720be8865aba839842e78709b201b6b2446f6d08daf4cabb1822598b8",
+      "twinSha": "8a05b4dbeecb052800e1f92fa584849f969e317ba7ec414bda2bd8dea5e6dd4e",
+      "partitionSha": "5f8e13e0c3980895de7d02f272f3db656b2f9b1bf74bccbfce1368adc2921b2c"
     },
     {
       "dir": "blinkenrocket-pendant",
       "flat": "circuit-flat.stc12c5a60s2.json",
       "twin": "circuit.stc12c5a60s2.json",
-      "flatSha": "362faeec93cbb02f3315b7415578cfb4d77d05c74d5f86eaed809e99f406554e",
-      "twinSha": "69fd4f2c45219268a5067a58667aedc4140a6b1dbd8207f4fd5d5a72b7800e7f",
-      "partitionSha": "2928c89fb4267660851e87feb2ac9143077f06958e7dac75366417bf889aad80"
+      "flatSha": "203665a3f2b89ca90731991869fea95a6bfa7c305acda329dd0c10cfd9319df8",
+      "twinSha": "72c16ee5457bd61c1980152f68f4399f9024f8dd1ae7b90b214d3b6014206959",
+      "partitionSha": "15a7193dad7d24b8762a3959bcdbba9bbf8ff5f7b1d893c5d9e9266f75f4dd57"
     },
     {
       "dir": "blinkenrocket-pendant",
       "flat": "circuit-flat.stc15f2k60s2.json",
       "twin": "circuit.stc15f2k60s2.json",
-      "flatSha": "bcef604728cc98a5823194ec2fcaa005cee8c596407ce4e1cdea3f9733a98e78",
-      "twinSha": "245a27afa5a65e35a18ff304263a8225af740ffbe85c52f752100d5e1c04af08",
-      "partitionSha": "aaba7937cb9a46a456189646a5b28fed32f6e1e856dd30ec52f1b4edd313c220"
+      "flatSha": "456c52a40cf8cfcac3cf163a7a3a5b708ce4613060b4db1353bd18f731eaf470",
+      "twinSha": "a4b3fabd07d6f832249e24cefcaaa8c4e77439065d42e4a173eae9ff3066964e",
+      "partitionSha": "10a2c3280713b17bd3f7616a4caa97d4ad60200fefb923ade62843968a371f2c"
     },
     {
       "dir": "blinkenrocket-pendant",
       "flat": "circuit-flat.stc89c52rc.json",
       "twin": "circuit.stc89c52rc.json",
-      "flatSha": "3d494301f5775b09f4272baffecbc3c4db3d14896bb1c4cc0208471338e6bf04",
-      "twinSha": "f664e16d58348f7eeb1a1a27de0a0afaf5b819e0fb4e101d1921e71b485d91e7",
-      "partitionSha": "a5a059a47c8d0b5f76f551b931cb3645f678eb896bc0fdeffbd7f7ce1780b32b"
+      "flatSha": "71bfa29b4c374f6e6b02a888e936aeb1be1930d395ebba89d63b7181ea46b866",
+      "twinSha": "9b482a6c8f225b19dc210280fcfb5df5d7fe26cec85d9dc3e3bf209047785c63",
+      "partitionSha": "7b0aff072b66df8075f626e814bdd70a61f7fb8c4c7269317e6a201e98628f64"
     },
     {
       "dir": "eater6502-bench",
