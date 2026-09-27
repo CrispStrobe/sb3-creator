@@ -332,7 +332,9 @@ test('startCountdown plays MakeCode\'s nine 400 ms intro frames, then game over 
     // the screen at 4200 (+1: the timer task starts on the scheduler's next 1 ms pass).
     const [when, frame] = r.shown[9] || [];
     assert.equal(frame, on, JSON.stringify(r.shown.slice(8)));
-    assert.ok(when >= 4200 && when <= 4202, `game over filled the screen at ${when}, not 4200`);
+    // pxt-microbit's simulator fills it at 4200 (measured 2026-09-27); here one
+    // scheduler pass later, as the countdown task starts on the next 1 ms pass.
+    assert.equal(when, 4200 + 1, `game over filled the screen at ${when}`);
     const twice = run(['start countdown 1000 ms', 'start countdown 1000 ms', 'print "second returned"'], 4000);
     assert.deepEqual(twice.log, [[3600, 'second returned']], 'a second countdown is ignored, as checkStart() refuses it');
 });
