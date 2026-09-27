@@ -5,7 +5,7 @@ prereqs: [arduino-01-blink, arduino-05-for-loop]
 teaches: [multiplexing, led-matrix, polarity, column-scanning, attiny88]
 ---
 ## Was du siehst
-Ein Anhänger-Badge mit einem ATtiny88-Mikrocontroller, der eine 8×8-LED-Matrix (788AS) durch Spalten-Scanning ansteuert. Es schlägt ein Herz: ein großes und ein kleines Bild wechseln sich etwa dreimal pro Sekunde ab. Zwei Taster verlangsamen den Schlag, solange sie gedrückt sind. Das ist dieselbe Architektur wie der blinkenrocket-LED-Badge, von Grund auf mit unserer eigenen Firmware neu gebaut.
+Ein Anhänger-Badge mit dem echten 32-poligen ATtiny88-Gehäuse, das eine 8×8-LED-Matrix (788AS) durch Spalten-Scanning ansteuert. Es schlägt ein Herz: ein großes und ein kleines Bild wechseln sich etwa dreimal pro Sekunde ab. Zwei Taster verlangsamen den Schlag, solange sie gedrückt sind. Der Schaltkreis enthält außerdem den AT24C64-Animationsspeicher und den PA0/ADC6-Audiomodemeingang. Das mitgelieferte Herzprogramm ist unser eigenes kleines BSD-3-Clause-Programm; die GPL-Firmware von Blinkenrocket wird nicht mitgeliefert.
 
 ## Probier das
 1. Starte das Programm — ein Herz schlägt auf der Matrix, großes Bild, dann kleines.

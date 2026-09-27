@@ -7,3 +7,13 @@ export const DEVPART = {
   'attiny88': 'attiny88', 'attiny85': 'attiny85',
   'stm32f030': 'stm32f030',
 };
+
+// A device can have more than one electrically equivalent package in the
+// designer. DEVPART remains the default generated-bench package; authored
+// circuits may deliberately use one of these real package variants.
+export const DEVICE_PART_KINDS = {
+  'attiny88': new Set(['attiny88', 'attiny88_qfn32']),
+};
+
+export const partKindsForDevice = device =>
+  DEVICE_PART_KINDS[device] || new Set(DEVPART[device] ? [DEVPART[device]] : []);

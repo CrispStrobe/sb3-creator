@@ -2,96 +2,87 @@
   "vcc": 5,
   "parts": [
     {
-      "id": "mcu",
+      "id": "attiny881",
       "kind": "mcu",
       "params": {},
-      "rotation": 0,
       "terminals": [
         "VCC",
         "GND",
+        "P1.0",
+        "P1.1",
+        "P1.2",
+        "P1.5",
+        "P1.6",
+        "P1.7",
         "P3.4",
         "P3.5",
-        "P2.5",
-        "P2.6",
-        "P2.7",
-        "P1.0",
         "P2.0",
         "P2.1",
         "P2.2",
         "P2.3",
         "P2.4",
+        "P2.5",
+        "P2.6",
+        "P2.7",
         "P3.2",
         "P3.3",
-        "P1.1",
-        "P1.2",
-        "P1.5",
-        "P1.6",
-        "P1.7"
+        "P0.0",
+        "P0.1",
+        "P0.2"
       ],
-      "x": 80,
-      "y": -60
+      "x": 64,
+      "y": 349,
+      "rotation": 0
     },
     {
       "id": "matrix",
       "kind": "matrix8x8",
-      "declName": "matrix",
       "params": {
         "colActiveHigh": false,
         "rowActiveHigh": true
       },
-      "seat": {
-        "boardId": "bb1",
-        "leadMap": {
-          "col0": "e20",
-          "col1": "e21",
-          "col2": "e22",
-          "col3": "e23",
-          "col4": "e24",
-          "col5": "e25",
-          "col6": "e26",
-          "col7": "e27",
-          "row0": "f20",
-          "row1": "f21",
-          "row2": "f22",
-          "row3": "f23",
-          "row4": "f24",
-          "row5": "f25",
-          "row6": "f26",
-          "row7": "f27"
-        }
-      },
-      "x": 302,
+      "terminals": [
+        "col0",
+        "col1",
+        "col2",
+        "col3",
+        "col4",
+        "col5",
+        "col6",
+        "col7",
+        "row0",
+        "row1",
+        "row2",
+        "row3",
+        "row4",
+        "row5",
+        "row6",
+        "row7"
+      ],
+      "x": 400,
       "y": 311
     },
     {
       "id": "btnL",
       "kind": "button",
-      "declName": "btnLeft",
       "params": {},
-      "seat": {
-        "boardId": "bb1",
-        "leadMap": {
-          "a": "e43",
-          "b": "f43"
-        }
-      },
-      "x": 624,
-      "y": 311
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 232,
+      "y": 671
     },
     {
       "id": "btnR",
       "kind": "button",
-      "declName": "btnRight",
       "params": {},
-      "seat": {
-        "boardId": "bb1",
-        "leadMap": {
-          "a": "e47",
-          "b": "f47"
-        }
-      },
-      "x": 680,
-      "y": 311
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 316,
+      "y": 671
     },
     {
       "id": "rL",
@@ -99,14 +90,11 @@
       "params": {
         "ohms": 10000
       },
-      "seat": {
-        "boardId": "bb1",
-        "leadMap": {
-          "a": "a31",
-          "b": "a35"
-        }
-      },
-      "x": 456,
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 568,
       "y": 255
     },
     {
@@ -115,15 +103,48 @@
       "params": {
         "ohms": 10000
       },
-      "seat": {
-        "boardId": "bb1",
-        "leadMap": {
-          "a": "a37",
-          "b": "a41"
-        }
-      },
-      "x": 540,
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 652,
       "y": 255
+    },
+    {
+      "id": "eeprom",
+      "kind": "at24c64",
+      "params": {},
+      "terminals": [
+        "a0",
+        "a1",
+        "a2",
+        "gnd",
+        "sda",
+        "scl",
+        "wp",
+        "vcc"
+      ],
+      "x": 736,
+      "y": 349
+    },
+    {
+      "id": "modemIn",
+      "kind": "vsource",
+      "params": {
+        "wave": "pcm",
+        "samples": [],
+        "rate": 44100,
+        "gain": 2,
+        "offset": 2.5,
+        "start": 0,
+        "loop": false
+      },
+      "terminals": [
+        "pos",
+        "neg"
+      ],
+      "x": 64,
+      "y": 107
     },
     {
       "id": "vcc1",
@@ -131,276 +152,454 @@
       "params": {
         "volts": 5
       },
-      "x": 80,
-      "y": 60
+      "terminals": [
+        "vcc"
+      ],
+      "x": 146,
+      "y": 115
     },
     {
       "id": "gnd1",
       "kind": "gnd",
       "params": {},
-      "x": 220,
-      "y": 60
+      "terminals": [
+        "gnd"
+      ],
+      "x": 222,
+      "y": 115
+    },
+    {
+      "id": "R_PD_btnLeft",
+      "kind": "resistor",
+      "params": {
+        "ohms": 4700
+      },
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 64,
+      "y": 615,
+      "rotation": 0
+    },
+    {
+      "id": "R_PD_btnRight",
+      "kind": "resistor",
+      "params": {
+        "ohms": 4700
+      },
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 148,
+      "y": 615,
+      "rotation": 0
     }
   ],
   "wires": [
     {
       "id": "w_flat_0",
-      "netId": "bb1:n-col-b20",
+      "netId": "bb1:n-col-b10",
       "from": {
-        "part": "matrix",
-        "terminal": "row0"
+        "part": "attiny881",
+        "terminal": "P1.7"
       },
       "to": {
-        "part": "mcu",
-        "terminal": "P2.0"
+        "part": "matrix",
+        "terminal": "col5"
       }
     },
     {
       "id": "w_flat_1",
-      "netId": "bb1:n-col-b21",
+      "netId": "bb1:n-col-b14",
       "from": {
-        "part": "matrix",
-        "terminal": "row1"
+        "part": "attiny881",
+        "terminal": "P3.2"
       },
       "to": {
-        "part": "mcu",
-        "terminal": "P2.1"
+        "part": "btnL",
+        "terminal": "b"
       }
     },
     {
       "id": "w_flat_2",
-      "netId": "bb1:n-col-b22",
+      "netId": "bb1:n-col-b14",
       "from": {
-        "part": "matrix",
-        "terminal": "row2"
+        "part": "attiny881",
+        "terminal": "P3.2"
       },
       "to": {
-        "part": "mcu",
-        "terminal": "P2.2"
+        "part": "R_PD_btnLeft",
+        "terminal": "a"
       }
     },
     {
       "id": "w_flat_3",
-      "netId": "bb1:n-col-b23",
+      "netId": "bb1:n-col-b14",
       "from": {
-        "part": "matrix",
-        "terminal": "row3"
+        "part": "attiny881",
+        "terminal": "P3.2"
       },
       "to": {
-        "part": "mcu",
-        "terminal": "P2.3"
+        "part": "rL",
+        "terminal": "a"
       }
     },
     {
       "id": "w_flat_4",
-      "netId": "bb1:n-col-b24",
+      "netId": "bb1:n-col-b15",
       "from": {
-        "part": "matrix",
-        "terminal": "row4"
+        "part": "attiny881",
+        "terminal": "P3.3"
       },
       "to": {
-        "part": "mcu",
-        "terminal": "P2.4"
+        "part": "btnR",
+        "terminal": "b"
       }
     },
     {
       "id": "w_flat_5",
-      "netId": "bb1:n-col-b25",
+      "netId": "bb1:n-col-b15",
       "from": {
-        "part": "matrix",
-        "terminal": "row5"
+        "part": "attiny881",
+        "terminal": "P3.3"
       },
       "to": {
-        "part": "mcu",
-        "terminal": "P2.5"
+        "part": "R_PD_btnRight",
+        "terminal": "a"
       }
     },
     {
       "id": "w_flat_6",
-      "netId": "bb1:n-col-b26",
+      "netId": "bb1:n-col-b15",
       "from": {
-        "part": "matrix",
-        "terminal": "row6"
+        "part": "attiny881",
+        "terminal": "P3.3"
       },
       "to": {
-        "part": "mcu",
-        "terminal": "P2.6"
+        "part": "rR",
+        "terminal": "a"
       }
     },
     {
       "id": "w_flat_7",
-      "netId": "bb1:n-col-b27",
+      "netId": "bb1:n-col-b16",
       "from": {
-        "part": "matrix",
-        "terminal": "row7"
+        "part": "attiny881",
+        "terminal": "P3.4"
       },
       "to": {
-        "part": "mcu",
-        "terminal": "P2.7"
+        "part": "matrix",
+        "terminal": "col6"
       }
     },
     {
       "id": "w_flat_8",
-      "netId": "bb1:n-col-b43",
+      "netId": "bb1:n-col-b17",
       "from": {
-        "part": "btnL",
-        "terminal": "b"
+        "part": "attiny881",
+        "terminal": "P3.5"
       },
       "to": {
-        "part": "mcu",
-        "terminal": "P3.2"
+        "part": "matrix",
+        "terminal": "col7"
       }
     },
     {
       "id": "w_flat_9",
-      "netId": "bb1:n-col-b43",
+      "netId": "bb1:n-col-b27",
       "from": {
-        "part": "btnL",
-        "terminal": "b"
+        "part": "attiny881",
+        "terminal": "P2.0"
       },
       "to": {
-        "part": "rL",
-        "terminal": "a"
+        "part": "matrix",
+        "terminal": "row0"
       }
     },
     {
       "id": "w_flat_10",
-      "netId": "bb1:n-col-b47",
+      "netId": "bb1:n-col-b28",
       "from": {
-        "part": "btnR",
-        "terminal": "b"
+        "part": "attiny881",
+        "terminal": "P2.1"
       },
       "to": {
-        "part": "mcu",
-        "terminal": "P3.3"
+        "part": "matrix",
+        "terminal": "row1"
       }
     },
     {
       "id": "w_flat_11",
-      "netId": "bb1:n-col-b47",
+      "netId": "bb1:n-col-b29",
       "from": {
-        "part": "btnR",
-        "terminal": "b"
+        "part": "attiny881",
+        "terminal": "P2.2"
       },
       "to": {
-        "part": "rR",
-        "terminal": "a"
+        "part": "matrix",
+        "terminal": "row2"
       }
     },
     {
       "id": "w_flat_12",
-      "netId": "bb1:n-col-t20",
+      "netId": "bb1:n-col-b3",
       "from": {
-        "part": "matrix",
-        "terminal": "col0"
+        "part": "attiny881",
+        "terminal": "P1.0"
       },
       "to": {
-        "part": "mcu",
-        "terminal": "P1.0"
+        "part": "matrix",
+        "terminal": "col0"
       }
     },
     {
       "id": "w_flat_13",
-      "netId": "bb1:n-col-t21",
+      "netId": "bb1:n-col-b30",
       "from": {
-        "part": "matrix",
-        "terminal": "col1"
+        "part": "attiny881",
+        "terminal": "P2.3"
       },
       "to": {
-        "part": "mcu",
-        "terminal": "P1.1"
+        "part": "matrix",
+        "terminal": "row3"
       }
     },
     {
       "id": "w_flat_14",
-      "netId": "bb1:n-col-t22",
+      "netId": "bb1:n-col-b31",
       "from": {
-        "part": "matrix",
-        "terminal": "col2"
+        "part": "attiny881",
+        "terminal": "P2.4"
       },
       "to": {
-        "part": "mcu",
-        "terminal": "P1.2"
+        "part": "matrix",
+        "terminal": "row4"
       }
     },
     {
       "id": "w_flat_15",
-      "netId": "bb1:n-col-t23",
+      "netId": "bb1:n-col-b32",
       "from": {
-        "part": "matrix",
-        "terminal": "col3"
+        "part": "attiny881",
+        "terminal": "P2.5"
       },
       "to": {
-        "part": "mcu",
-        "terminal": "P1.5"
+        "part": "matrix",
+        "terminal": "row5"
       }
     },
     {
       "id": "w_flat_16",
-      "netId": "bb1:n-col-t24",
+      "netId": "bb1:n-col-b33",
       "from": {
-        "part": "matrix",
-        "terminal": "col4"
+        "part": "attiny881",
+        "terminal": "P2.6"
       },
       "to": {
-        "part": "mcu",
-        "terminal": "P1.6"
+        "part": "matrix",
+        "terminal": "row6"
       }
     },
     {
       "id": "w_flat_17",
-      "netId": "bb1:n-col-t25",
+      "netId": "bb1:n-col-b34",
       "from": {
-        "part": "matrix",
-        "terminal": "col5"
+        "part": "attiny881",
+        "terminal": "P2.7"
       },
       "to": {
-        "part": "mcu",
-        "terminal": "P1.7"
+        "part": "matrix",
+        "terminal": "row7"
       }
     },
     {
       "id": "w_flat_18",
-      "netId": "bb1:n-col-t26",
+      "netId": "bb1:n-col-b4",
       "from": {
-        "part": "matrix",
-        "terminal": "col6"
+        "part": "attiny881",
+        "terminal": "P1.1"
       },
       "to": {
-        "part": "mcu",
-        "terminal": "P3.4"
+        "part": "matrix",
+        "terminal": "col1"
       }
     },
     {
       "id": "w_flat_19",
-      "netId": "bb1:n-col-t27",
+      "netId": "bb1:n-col-b5",
       "from": {
-        "part": "matrix",
-        "terminal": "col7"
+        "part": "attiny881",
+        "terminal": "P1.2"
       },
       "to": {
-        "part": "mcu",
-        "terminal": "P3.5"
+        "part": "matrix",
+        "terminal": "col2"
       }
     },
     {
       "id": "w_flat_20",
-      "netId": "bb1:rail-b-",
+      "netId": "bb1:n-col-b8",
       "from": {
-        "part": "gnd1",
-        "terminal": "gnd"
+        "part": "attiny881",
+        "terminal": "P1.5"
       },
       "to": {
-        "part": "mcu",
-        "terminal": "GND"
+        "part": "matrix",
+        "terminal": "col3"
       }
     },
     {
       "id": "w_flat_21",
-      "netId": "bb1:rail-b-",
+      "netId": "bb1:n-col-b9",
       "from": {
+        "part": "attiny881",
+        "terminal": "P1.6"
+      },
+      "to": {
+        "part": "matrix",
+        "terminal": "col4"
+      }
+    },
+    {
+      "id": "w_flat_22",
+      "netId": "bb1:n-col-t4",
+      "from": {
+        "part": "attiny881",
+        "terminal": "P0.0"
+      },
+      "to": {
+        "part": "eeprom",
+        "terminal": "sda"
+      }
+    },
+    {
+      "id": "w_flat_23",
+      "netId": "bb1:n-col-t5",
+      "from": {
+        "part": "attiny881",
+        "terminal": "P0.1"
+      },
+      "to": {
+        "part": "eeprom",
+        "terminal": "scl"
+      }
+    },
+    {
+      "id": "w_flat_24",
+      "netId": "bb1:n-col-t52",
+      "from": {
+        "part": "attiny881",
+        "terminal": "GND"
+      },
+      "to": {
+        "part": "eeprom",
+        "terminal": "a0"
+      }
+    },
+    {
+      "id": "w_flat_25",
+      "netId": "bb1:n-col-t52",
+      "from": {
+        "part": "attiny881",
+        "terminal": "GND"
+      },
+      "to": {
+        "part": "eeprom",
+        "terminal": "a1"
+      }
+    },
+    {
+      "id": "w_flat_26",
+      "netId": "bb1:n-col-t52",
+      "from": {
+        "part": "attiny881",
+        "terminal": "GND"
+      },
+      "to": {
+        "part": "eeprom",
+        "terminal": "a2"
+      }
+    },
+    {
+      "id": "w_flat_27",
+      "netId": "bb1:n-col-t52",
+      "from": {
+        "part": "attiny881",
+        "terminal": "GND"
+      },
+      "to": {
+        "part": "eeprom",
+        "terminal": "gnd"
+      }
+    },
+    {
+      "id": "w_flat_28",
+      "netId": "bb1:n-col-t52",
+      "from": {
+        "part": "attiny881",
+        "terminal": "GND"
+      },
+      "to": {
+        "part": "eeprom",
+        "terminal": "wp"
+      }
+    },
+    {
+      "id": "w_flat_29",
+      "netId": "bb1:n-col-t52",
+      "from": {
+        "part": "attiny881",
+        "terminal": "GND"
+      },
+      "to": {
         "part": "gnd1",
         "terminal": "gnd"
+      }
+    },
+    {
+      "id": "w_flat_30",
+      "netId": "bb1:n-col-t52",
+      "from": {
+        "part": "attiny881",
+        "terminal": "GND"
+      },
+      "to": {
+        "part": "modemIn",
+        "terminal": "neg"
+      }
+    },
+    {
+      "id": "w_flat_31",
+      "netId": "bb1:n-col-t52",
+      "from": {
+        "part": "attiny881",
+        "terminal": "GND"
+      },
+      "to": {
+        "part": "R_PD_btnLeft",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "w_flat_32",
+      "netId": "bb1:n-col-t52",
+      "from": {
+        "part": "attiny881",
+        "terminal": "GND"
+      },
+      "to": {
+        "part": "R_PD_btnRight",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "w_flat_33",
+      "netId": "bb1:n-col-t52",
+      "from": {
+        "part": "attiny881",
+        "terminal": "GND"
       },
       "to": {
         "part": "rL",
@@ -408,11 +607,11 @@
       }
     },
     {
-      "id": "w_flat_22",
-      "netId": "bb1:rail-b-",
+      "id": "w_flat_34",
+      "netId": "bb1:n-col-t52",
       "from": {
-        "part": "gnd1",
-        "terminal": "gnd"
+        "part": "attiny881",
+        "terminal": "GND"
       },
       "to": {
         "part": "rR",
@@ -420,11 +619,35 @@
       }
     },
     {
-      "id": "w_flat_23",
+      "id": "w_flat_35",
+      "netId": "bb1:n-col-t6",
+      "from": {
+        "part": "attiny881",
+        "terminal": "P0.2"
+      },
+      "to": {
+        "part": "modemIn",
+        "terminal": "pos"
+      }
+    },
+    {
+      "id": "w_flat_36",
       "netId": "bb1:rail-t+",
       "from": {
+        "part": "attiny881",
+        "terminal": "VCC"
+      },
+      "to": {
         "part": "btnL",
         "terminal": "a"
+      }
+    },
+    {
+      "id": "w_flat_37",
+      "netId": "bb1:rail-t+",
+      "from": {
+        "part": "attiny881",
+        "terminal": "VCC"
       },
       "to": {
         "part": "btnR",
@@ -432,23 +655,23 @@
       }
     },
     {
-      "id": "w_flat_24",
+      "id": "w_flat_38",
       "netId": "bb1:rail-t+",
       "from": {
-        "part": "btnL",
-        "terminal": "a"
+        "part": "attiny881",
+        "terminal": "VCC"
       },
       "to": {
-        "part": "mcu",
-        "terminal": "VCC"
+        "part": "eeprom",
+        "terminal": "vcc"
       }
     },
     {
-      "id": "w_flat_25",
+      "id": "w_flat_39",
       "netId": "bb1:rail-t+",
       "from": {
-        "part": "btnL",
-        "terminal": "a"
+        "part": "attiny881",
+        "terminal": "VCC"
       },
       "to": {
         "part": "vcc1",
@@ -457,5 +680,5 @@
     }
   ],
   "holeWires": [],
-  "generated": "benchFor+authored"
+  "generated": "benchFor+authored+seat"
 }

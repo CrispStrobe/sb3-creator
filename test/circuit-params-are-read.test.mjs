@@ -256,6 +256,11 @@ const KNOWN_INERT = new Map([
     ['breadboard.size',   'BLIND SPOT: read by bw-circuit-ui hit-testing and layout, never by the solver.'],
     ['led.color',         'BLIND SPOT: read by the renderer; the LED model uses vf.'],
     ['vsource.variant',   'BLIND SPOT: read only by bw-circuit-ui starter-migration at load time; volts carries the electrical meaning and is live.'],
+    ['vsource.gain',      'BLIND SPOT: PCM input control; the shipped source has no samples until the debugger injects a waveform.'],
+    ['vsource.loop',      'BLIND SPOT: PCM input control; an empty sample buffer cannot loop during this static probe.'],
+    ['vsource.rate',      'BLIND SPOT: PCM input control; the shipped source has no samples until the debugger injects a waveform.'],
+    ['vsource.samples',   'BLIND SPOT: the static probe cannot synthesize a replacement PCM array; debugger integration covers waveform injection.'],
+    ['vsource.start',     'BLIND SPOT: PCM input control; start time has no effect before the debugger injects samples.'],
 
     // Read by the model, but no shipped bench reaches the state that uses it.
     ['zener.vf',    'BLIND SPOT: the zener benches operate in reverse breakdown, where vz sets the voltage and vf does not.'],

@@ -24,7 +24,9 @@ export function allowsRetargeting(entry) {
 // of LEDs (owner report, 2026-08-17). Synthesis remains the fallback
 // for examples with no authored circuit.
 
-export const MCU_KINDS = new Set(['mcu', 'stc_mcu', 'stc15_mcu', ...Object.values(DEVPART)]);
+export const MCU_KINDS = new Set([
+  'mcu', 'stc_mcu', 'stc15_mcu', 'attiny88_qfn32', ...Object.values(DEVPART)
+]);
 const POWER_NAMES = new Set(['vcc', '5v', 'vdd', 'avcc', 'vbus', 'vsys', '3v3']);
 const GROUND_NAMES = new Set(['gnd', 'gnd2', 'gnd3', 'vss', 'agnd', 'swd_gnd',
   'gnd_1', 'gnd_2', 'gnd_3', 'gnd_4', 'gnd_5', 'gnd_6', 'gnd_7']);

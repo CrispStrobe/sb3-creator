@@ -5322,23 +5322,22 @@
    "stc12c5a60s2",
    "stc89c52rc",
    "stc15f2k60s2",
-   "arduino-uno",
-   "atmega168p",
    "arduino-mega",
-   "arduino-nano",
    "pico"
   ],
   "benches": {
    "arduino-mega": "blinkenrocket-pendant/circuit.arduino-mega.json",
-   "arduino-nano": "blinkenrocket-pendant/circuit.arduino-nano.json",
-   "arduino-uno": "blinkenrocket-pendant/circuit.arduino-uno.json",
-   "atmega168p": "blinkenrocket-pendant/circuit.atmega168p.json",
    "pico": "blinkenrocket-pendant/circuit.pico.json",
    "stc12c5a60s2": "blinkenrocket-pendant/circuit.stc12c5a60s2.json",
    "stc15f2k60s2": "blinkenrocket-pendant/circuit.stc15f2k60s2.json",
    "stc89c52rc": "blinkenrocket-pendant/circuit.stc89c52rc.json"
   },
-  "authored": "attiny88"
+  "authored": "attiny88",
+  "transformRefused": {
+   "arduino-uno": "MCU terminal pc4 is wired but has no mapping on arduino_uno — refusing rather than dropping the connection",
+   "atmega168p": "MCU terminal pc4 is wired but has no mapping on arduino_uno — refusing rather than dropping the connection",
+   "arduino-nano": "MCU terminal pc4 is wired but has no mapping on arduino_nano — refusing rather than dropping the connection"
+  }
  },
  {
   "id": "arduino-sk-p07-keyboard",

@@ -2,7 +2,7 @@
 
 ## Circuit
 
-ATtiny88 driving an 8x8 LED matrix (788AS, common-anode columns active-low, common-cathode rows active-high). Two buttons on PC3 and PC7 with 10 kohm pull-downs.
+32-lead ATtiny88 driving an 8x8 LED matrix (788AS, common-anode columns active-low, common-cathode rows active-high). Two buttons sit on PC3 and PC7 with 10 kohm pull-downs. An AT24C64 is connected to PC4/SDA and PC5/SCL, and the audio-modem PCM source drives PA0/ADC6.
 
 ## Program
 
@@ -46,6 +46,7 @@ declared for the wiring and never driven.
 2. Active-low columns, active-high rows for the 788AS common-anode matrix
 3. Button-driven timing: reading an INPUT pin changes the frame rate
 4. Polarity matters: inverted `colActiveHigh`/`rowActiveHigh` produce a uniformly dim display
+5. The package-only PA0/ADC6 modem input and external I²C EEPROM are wired without pretending the 32-lead device can sit in a DIP breadboard
 
 ```assert
 # Supply rail: VCC = 5.0V

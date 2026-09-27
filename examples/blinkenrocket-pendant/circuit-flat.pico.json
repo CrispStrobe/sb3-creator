@@ -2,7 +2,7 @@
   "vcc": 5,
   "parts": [
     {
-      "id": "pico1",
+      "id": "attiny881",
       "kind": "pi_pico",
       "params": {},
       "terminals": [
@@ -91,7 +91,7 @@
         "a",
         "b"
       ],
-      "x": 736,
+      "x": 848,
       "y": 311
     },
     {
@@ -102,8 +102,8 @@
         "a",
         "b"
       ],
-      "x": 820,
-      "y": 311
+      "x": 64,
+      "y": 671
     },
     {
       "id": "rL",
@@ -132,6 +132,42 @@
       "y": 255
     },
     {
+      "id": "eeprom",
+      "kind": "at24c64",
+      "params": {},
+      "terminals": [
+        "a0",
+        "a1",
+        "a2",
+        "gnd",
+        "sda",
+        "scl",
+        "wp",
+        "vcc"
+      ],
+      "x": 736,
+      "y": 349
+    },
+    {
+      "id": "modemIn",
+      "kind": "vsource",
+      "params": {
+        "wave": "pcm",
+        "samples": [],
+        "rate": 44100,
+        "gain": 2,
+        "offset": 2.5,
+        "start": 0,
+        "loop": false
+      },
+      "terminals": [
+        "pos",
+        "neg"
+      ],
+      "x": 64,
+      "y": 107
+    },
+    {
       "id": "vcc1",
       "kind": "vcc",
       "params": {
@@ -140,7 +176,7 @@
       "terminals": [
         "vcc"
       ],
-      "x": 58,
+      "x": 146,
       "y": 115
     },
     {
@@ -150,149 +186,185 @@
       "terminals": [
         "gnd"
       ],
-      "x": 134,
+      "x": 222,
       "y": 115
     }
   ],
   "wires": [
     {
       "id": "w_flat_0",
-      "netId": "bb1:n-col-b19",
+      "netId": "bb1:n-col-b18",
       "from": {
-        "part": "btnR",
-        "terminal": "b"
+        "part": "attiny881",
+        "terminal": "gp19"
       },
       "to": {
-        "part": "pico1",
-        "terminal": "gp18"
+        "part": "modemIn",
+        "terminal": "pos"
       }
     },
     {
       "id": "w_flat_1",
       "netId": "bb1:n-col-b19",
       "from": {
-        "part": "btnR",
-        "terminal": "b"
+        "part": "attiny881",
+        "terminal": "gp18"
       },
       "to": {
-        "part": "rR",
-        "terminal": "a"
+        "part": "btnR",
+        "terminal": "b"
       }
     },
     {
       "id": "w_flat_2",
-      "netId": "bb1:n-col-b27",
+      "netId": "bb1:n-col-b19",
       "from": {
-        "part": "matrix",
-        "terminal": "row0"
+        "part": "attiny881",
+        "terminal": "gp18"
       },
       "to": {
-        "part": "pico1",
-        "terminal": "gp1"
+        "part": "rR",
+        "terminal": "a"
       }
     },
     {
       "id": "w_flat_3",
-      "netId": "bb1:n-col-b28",
+      "netId": "bb1:n-col-b21",
       "from": {
-        "part": "matrix",
-        "terminal": "row1"
+        "part": "attiny881",
+        "terminal": "gp17"
       },
       "to": {
-        "part": "pico1",
-        "terminal": "gp2"
+        "part": "eeprom",
+        "terminal": "scl"
       }
     },
     {
       "id": "w_flat_4",
-      "netId": "bb1:n-col-b29",
+      "netId": "bb1:n-col-b22",
       "from": {
-        "part": "matrix",
-        "terminal": "row2"
+        "part": "attiny881",
+        "terminal": "gp16"
       },
       "to": {
-        "part": "pico1",
-        "terminal": "gp3"
+        "part": "eeprom",
+        "terminal": "sda"
       }
     },
     {
       "id": "w_flat_5",
-      "netId": "bb1:n-col-b30",
+      "netId": "bb1:n-col-b27",
       "from": {
-        "part": "matrix",
-        "terminal": "row3"
+        "part": "attiny881",
+        "terminal": "gp1"
       },
       "to": {
-        "part": "pico1",
-        "terminal": "gp4"
+        "part": "matrix",
+        "terminal": "row0"
       }
     },
     {
       "id": "w_flat_6",
-      "netId": "bb1:n-col-b31",
+      "netId": "bb1:n-col-b28",
       "from": {
-        "part": "matrix",
-        "terminal": "row4"
+        "part": "attiny881",
+        "terminal": "gp2"
       },
       "to": {
-        "part": "pico1",
-        "terminal": "gp5"
+        "part": "matrix",
+        "terminal": "row1"
       }
     },
     {
       "id": "w_flat_7",
-      "netId": "bb1:n-col-b32",
+      "netId": "bb1:n-col-b29",
       "from": {
-        "part": "matrix",
-        "terminal": "row5"
+        "part": "attiny881",
+        "terminal": "gp3"
       },
       "to": {
-        "part": "pico1",
-        "terminal": "gp6"
+        "part": "matrix",
+        "terminal": "row2"
       }
     },
     {
       "id": "w_flat_8",
-      "netId": "bb1:n-col-b33",
+      "netId": "bb1:n-col-b30",
       "from": {
-        "part": "matrix",
-        "terminal": "row6"
+        "part": "attiny881",
+        "terminal": "gp4"
       },
       "to": {
-        "part": "pico1",
-        "terminal": "gp7"
+        "part": "matrix",
+        "terminal": "row3"
       }
     },
     {
       "id": "w_flat_9",
-      "netId": "bb1:n-col-b34",
+      "netId": "bb1:n-col-b31",
       "from": {
-        "part": "matrix",
-        "terminal": "row7"
+        "part": "attiny881",
+        "terminal": "gp5"
       },
       "to": {
-        "part": "pico1",
-        "terminal": "gp8"
+        "part": "matrix",
+        "terminal": "row4"
       }
     },
     {
       "id": "w_flat_10",
-      "netId": "bb1:n-col-b51",
+      "netId": "bb1:n-col-b32",
       "from": {
-        "part": "btnL",
-        "terminal": "b"
+        "part": "attiny881",
+        "terminal": "gp6"
       },
       "to": {
-        "part": "pico1",
-        "terminal": "gp9"
+        "part": "matrix",
+        "terminal": "row5"
       }
     },
     {
       "id": "w_flat_11",
-      "netId": "bb1:n-col-b51",
+      "netId": "bb1:n-col-b33",
       "from": {
+        "part": "attiny881",
+        "terminal": "gp7"
+      },
+      "to": {
+        "part": "matrix",
+        "terminal": "row6"
+      }
+    },
+    {
+      "id": "w_flat_12",
+      "netId": "bb1:n-col-b34",
+      "from": {
+        "part": "attiny881",
+        "terminal": "gp8"
+      },
+      "to": {
+        "part": "matrix",
+        "terminal": "row7"
+      }
+    },
+    {
+      "id": "w_flat_13",
+      "netId": "bb1:n-col-b59",
+      "from": {
+        "part": "attiny881",
+        "terminal": "gp9"
+      },
+      "to": {
         "part": "btnL",
         "terminal": "b"
+      }
+    },
+    {
+      "id": "w_flat_14",
+      "netId": "bb1:n-col-b59",
+      "from": {
+        "part": "attiny881",
+        "terminal": "gp9"
       },
       "to": {
         "part": "rL",
@@ -300,119 +372,191 @@
       }
     },
     {
-      "id": "w_flat_12",
+      "id": "w_flat_15",
       "netId": "bb1:n-col-t16",
       "from": {
+        "part": "attiny881",
+        "terminal": "gp10"
+      },
+      "to": {
         "part": "matrix",
         "terminal": "col6"
-      },
-      "to": {
-        "part": "pico1",
-        "terminal": "gp10"
-      }
-    },
-    {
-      "id": "w_flat_13",
-      "netId": "bb1:n-col-t17",
-      "from": {
-        "part": "matrix",
-        "terminal": "col5"
-      },
-      "to": {
-        "part": "pico1",
-        "terminal": "gp11"
-      }
-    },
-    {
-      "id": "w_flat_14",
-      "netId": "bb1:n-col-t18",
-      "from": {
-        "part": "matrix",
-        "terminal": "col4"
-      },
-      "to": {
-        "part": "pico1",
-        "terminal": "gp12"
-      }
-    },
-    {
-      "id": "w_flat_15",
-      "netId": "bb1:n-col-t19",
-      "from": {
-        "part": "matrix",
-        "terminal": "col3"
-      },
-      "to": {
-        "part": "pico1",
-        "terminal": "gp13"
       }
     },
     {
       "id": "w_flat_16",
-      "netId": "bb1:n-col-t21",
+      "netId": "bb1:n-col-t17",
       "from": {
-        "part": "matrix",
-        "terminal": "col2"
+        "part": "attiny881",
+        "terminal": "gp11"
       },
       "to": {
-        "part": "pico1",
-        "terminal": "gp14"
+        "part": "matrix",
+        "terminal": "col5"
       }
     },
     {
       "id": "w_flat_17",
-      "netId": "bb1:n-col-t22",
+      "netId": "bb1:n-col-t18",
       "from": {
-        "part": "matrix",
-        "terminal": "col1"
+        "part": "attiny881",
+        "terminal": "gp12"
       },
       "to": {
-        "part": "pico1",
-        "terminal": "gp15"
+        "part": "matrix",
+        "terminal": "col4"
       }
     },
     {
       "id": "w_flat_18",
-      "netId": "bb1:n-col-t27",
+      "netId": "bb1:n-col-t19",
       "from": {
-        "part": "matrix",
-        "terminal": "col0"
+        "part": "attiny881",
+        "terminal": "gp13"
       },
       "to": {
-        "part": "pico1",
-        "terminal": "gp25"
+        "part": "matrix",
+        "terminal": "col3"
       }
     },
     {
       "id": "w_flat_19",
-      "netId": "bb1:n-col-t3",
+      "netId": "bb1:n-col-t21",
       "from": {
-        "part": "matrix",
-        "terminal": "col7"
+        "part": "attiny881",
+        "terminal": "gp14"
       },
       "to": {
-        "part": "pico1",
-        "terminal": "gp0"
+        "part": "matrix",
+        "terminal": "col2"
       }
     },
     {
       "id": "w_flat_20",
-      "netId": "bb1:rail-b-",
+      "netId": "bb1:n-col-t22",
       "from": {
-        "part": "gnd1",
-        "terminal": "gnd"
+        "part": "attiny881",
+        "terminal": "gp15"
       },
       "to": {
-        "part": "pico1",
-        "terminal": "gnd_1"
+        "part": "matrix",
+        "terminal": "col1"
       }
     },
     {
       "id": "w_flat_21",
-      "netId": "bb1:rail-b-",
+      "netId": "bb1:n-col-t27",
       "from": {
+        "part": "attiny881",
+        "terminal": "gp25"
+      },
+      "to": {
+        "part": "matrix",
+        "terminal": "col0"
+      }
+    },
+    {
+      "id": "w_flat_22",
+      "netId": "bb1:n-col-t3",
+      "from": {
+        "part": "attiny881",
+        "terminal": "gp0"
+      },
+      "to": {
+        "part": "matrix",
+        "terminal": "col7"
+      }
+    },
+    {
+      "id": "w_flat_23",
+      "netId": "bb1:n-col-t52",
+      "from": {
+        "part": "attiny881",
+        "terminal": "gnd_1"
+      },
+      "to": {
+        "part": "eeprom",
+        "terminal": "a0"
+      }
+    },
+    {
+      "id": "w_flat_24",
+      "netId": "bb1:n-col-t52",
+      "from": {
+        "part": "attiny881",
+        "terminal": "gnd_1"
+      },
+      "to": {
+        "part": "eeprom",
+        "terminal": "a1"
+      }
+    },
+    {
+      "id": "w_flat_25",
+      "netId": "bb1:n-col-t52",
+      "from": {
+        "part": "attiny881",
+        "terminal": "gnd_1"
+      },
+      "to": {
+        "part": "eeprom",
+        "terminal": "a2"
+      }
+    },
+    {
+      "id": "w_flat_26",
+      "netId": "bb1:n-col-t52",
+      "from": {
+        "part": "attiny881",
+        "terminal": "gnd_1"
+      },
+      "to": {
+        "part": "eeprom",
+        "terminal": "gnd"
+      }
+    },
+    {
+      "id": "w_flat_27",
+      "netId": "bb1:n-col-t52",
+      "from": {
+        "part": "attiny881",
+        "terminal": "gnd_1"
+      },
+      "to": {
+        "part": "eeprom",
+        "terminal": "wp"
+      }
+    },
+    {
+      "id": "w_flat_28",
+      "netId": "bb1:n-col-t52",
+      "from": {
+        "part": "attiny881",
+        "terminal": "gnd_1"
+      },
+      "to": {
         "part": "gnd1",
         "terminal": "gnd"
+      }
+    },
+    {
+      "id": "w_flat_29",
+      "netId": "bb1:n-col-t52",
+      "from": {
+        "part": "attiny881",
+        "terminal": "gnd_1"
+      },
+      "to": {
+        "part": "modemIn",
+        "terminal": "neg"
+      }
+    },
+    {
+      "id": "w_flat_30",
+      "netId": "bb1:n-col-t52",
+      "from": {
+        "part": "attiny881",
+        "terminal": "gnd_1"
       },
       "to": {
         "part": "rL",
@@ -420,11 +564,11 @@
       }
     },
     {
-      "id": "w_flat_22",
-      "netId": "bb1:rail-b-",
+      "id": "w_flat_31",
+      "netId": "bb1:n-col-t52",
       "from": {
-        "part": "gnd1",
-        "terminal": "gnd"
+        "part": "attiny881",
+        "terminal": "gnd_1"
       },
       "to": {
         "part": "rR",
@@ -432,11 +576,35 @@
       }
     },
     {
-      "id": "w_flat_23",
+      "id": "w_flat_32",
       "netId": "bb1:rail-t+",
       "from": {
+        "part": "attiny881",
+        "terminal": "vbus"
+      },
+      "to": {
+        "part": "attiny881",
+        "terminal": "vsys"
+      }
+    },
+    {
+      "id": "w_flat_33",
+      "netId": "bb1:rail-t+",
+      "from": {
+        "part": "attiny881",
+        "terminal": "vbus"
+      },
+      "to": {
         "part": "btnL",
         "terminal": "a"
+      }
+    },
+    {
+      "id": "w_flat_34",
+      "netId": "bb1:rail-t+",
+      "from": {
+        "part": "attiny881",
+        "terminal": "vbus"
       },
       "to": {
         "part": "btnR",
@@ -444,35 +612,23 @@
       }
     },
     {
-      "id": "w_flat_24",
+      "id": "w_flat_35",
       "netId": "bb1:rail-t+",
       "from": {
-        "part": "btnL",
-        "terminal": "a"
-      },
-      "to": {
-        "part": "pico1",
+        "part": "attiny881",
         "terminal": "vbus"
-      }
-    },
-    {
-      "id": "w_flat_25",
-      "netId": "bb1:rail-t+",
-      "from": {
-        "part": "btnL",
-        "terminal": "a"
       },
       "to": {
-        "part": "pico1",
-        "terminal": "vsys"
+        "part": "eeprom",
+        "terminal": "vcc"
       }
     },
     {
-      "id": "w_flat_26",
+      "id": "w_flat_36",
       "netId": "bb1:rail-t+",
       "from": {
-        "part": "btnL",
-        "terminal": "a"
+        "part": "attiny881",
+        "terminal": "vbus"
       },
       "to": {
         "part": "vcc1",

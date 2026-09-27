@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: BSD-3-Clause
 # OUR OWN heartbeat firmware for the blinkenrocket pendant.
 # NOT derived from the blinkenrocket GPL firmware.
 #
