@@ -389,3 +389,37 @@ test('reading past the end of an array is empty, as the extension reports it', (
         'display item 0 of array "a"', 'wait 0.01 seconds']);
     assert.deepEqual(texts, ['', '', '3']);
 });
+
+// ── showLeds and showIcon, each as itself ─────────────────────────────────
+//
+// MakeCode's basic.showLeds pauses 400 ms after drawing and showIcon 600 ms
+// (pxt-microbit libs/core/basic.ts, the `interval` defaults). `show pattern`
+// draws and moves on, so neither came across exactly, and a picture could not
+// say which call it had been on the way back.
+
+for (const [opcode, line] of [['microbitplus_showleds', 'show leds 0909099999999990999000900'],
+    ['microbitplus_showicon', 'show icon 0909099999999990999000900']]) {
+    test(`${opcode}: \`${line.slice(0, 9)}…\` parses to its block and prints back to itself`, () => {
+        const c = new SB3Creator();
+        c.parse(program([line]));
+        assert.ok(c.project.targets.flatMap((t) => Object.values(t.blocks)).some((b) => b.opcode === opcode));
+        const printed = c.decompile();
+        assert.ok(printed.includes(line), printed);
+        const again = new SB3Creator();
+        again.parse(printed);
+        assert.equal(again.decompile(), printed);
+    });
+}
+
+test('show leds waits 400 ms and show icon 600 ms; show pattern does not wait (MakeCode basic.ts)', () => {
+    const { scrolled, grid } = run(['show leds 90000:00000:00000:00000:00000', 'display 1',
+        'show icon 00009:00000:00000:00000:00000', 'display 2', 'show pattern 00000:00000:00900:00000:00000',
+        'display 3', 'wait 0.01 seconds']);
+    assert.deepEqual(scrolled, [[400, '1'], [1000, '2'], [1000, '3']]);
+    assert.equal(grid, '00000:00000:00900:00000:00000');
+});
+
+test('show pattern lowers exactly as before', () => {
+    const py = micropython(['show pattern 90000:00000:00000:00000:00000', 'display 1']);
+    assert.ok(py.includes("    display.show(Image('90000:00000:00000:00000:00000'))\n    display.scroll("), py);
+});

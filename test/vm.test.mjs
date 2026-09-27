@@ -54,7 +54,7 @@ const HEADLESS_BUILTINS = {
         }
     },
     microbitplus: {
-        command: ['showmatrix', 'showtext', 'scrolltext', 'cleardisplay', 'plot',
+        command: ['showmatrix', 'showleds', 'showicon', 'showtext', 'scrolltext', 'cleardisplay', 'plot',
             'digitalwrite', 'analogwrite', 'setpull', 'playtone', 'playnote', 'stoptone',
             'servo', 'servocont', 'radioon', 'radiosendnum', 'radiosendstr', 'radiosendkv',
             'rest', 'settempo', 'changetempo', 'playmelody'],

@@ -4610,6 +4610,16 @@ class SB3Creator {
             block[id].fields.MATRIX = [match[1].replace(/[^0-9]/g, ''), null];
             return ret(block);
         }
+        // MakeCode's basic.showLeds and basic.showIcon/showArrow draw a picture
+        // and then PAUSE — 400 ms and 600 ms by default (pxt-microbit
+        // libs/core/basic.ts). `show pattern` draws and moves on, so neither
+        // came across exactly, and a picture exported back could not say which
+        // of the two it had been. Each has its own block now.
+        if ((match = line.match(/^show\s+(leds|icon)\s+([0-9:]+)\s*$/i))) {
+            const { id, block } = cmd(match[1].toLowerCase() === 'leds' ? 'microbitplus_showleds' : 'microbitplus_showicon');
+            block[id].fields.MATRIX = [match[2].replace(/[^0-9]/g, ''), null];
+            return ret(block);
+        }
         if ((match = line.match(/^show\s+text\s+"([^"]*)"\s*$/i))) {
             const { id, block } = cmd('microbitplus_showtext');
             block[id].inputs.TEXT = [1, [10, match[1]]];
@@ -7128,6 +7138,8 @@ class SB3Creator {
             }
             // micro:bit+ command blocks (decompile to dialect)
             case 'microbitplus_showmatrix': return line(`show pattern ${f('MATRIX')}`);
+            case 'microbitplus_showleds': return line(`show leds ${f('MATRIX')}`);
+            case 'microbitplus_showicon': return line(`show icon ${f('MATRIX')}`);
             // Quote what dval already quotes and nothing else: force-quoting
             // turned `show text count` into `show text "count"`, which reads
             // back as the literal word — a construct that does not converge.
@@ -10448,13 +10460,20 @@ class SB3Creator {
                 // microbitPlus groups mirror (docs/microbitplus/DUAL-LOWERING-
                 // ORACLE.md, table D1–D3). MicroPython display API: show(Image),
                 // scroll(text), clear(), set_pixel(x,y,level).
-                case 'microbitplus_showmatrix': {
+                case 'microbitplus_showmatrix':
+                case 'microbitplus_showleds':
+                case 'microbitplus_showicon': {
                     // MATRIX is a 25-char '0'..'9' grid; Image() wants five
                     // colon-separated 5-char rows.
                     const raw = String(f('MATRIX') || val(b, 'MATRIX', blocks) || '').replace(/[^0-9]/g, '');
                     const s = (raw + '0'.repeat(25)).slice(0, 25);
                     const img = s.match(/.{5}/g).join(':');
-                    return [`${pad}display.show(${dimmable ? '_bw_img' : 'Image'}('${img}'))`];
+                    const show = `${pad}display.show(${dimmable ? '_bw_img' : 'Image'}('${img}'))`;
+                    // showLeds / showIcon then pause, as MakeCode's do; the
+                    // wait is a yield, so other scripts run meanwhile.
+                    if (b.opcode === 'microbitplus_showleds') return [show, `${pad}yield 400`];
+                    if (b.opcode === 'microbitplus_showicon') return [show, `${pad}yield 600`];
+                    return [show];
                 }
                 case 'microbitplus_showtext':
                     return [`${pad}display.scroll(${pyText('TEXT')})`];
