@@ -42,6 +42,7 @@ converge on.
 | D4 | `clear display` | `cleardisplay` | `display.clear()` |
 | D5 | `plot x 2 y 3 on` | `plot 2 3 on` | `display.set_pixel(2, 3, 9)` |
 | D6 | `plot x 2 y 3 off` | `plot 2 3 off` | `display.set_pixel(2, 3, 0)` |
+| D5b | `plot x X y Y on` (X, Y computed) | `plot X Y on` | `if 0 <= int(X) < 5 and 0 <= int(Y) < 5: display.set_pixel(…)` — a variable is checked, an expression goes through `_bw_plot`; off the grid nothing is drawn, as MakeCode's led.plot (set_pixel would raise) |
 | D7 | `plot bar graph of V up to H` | `plotbargraph V H` | `_bw_bar_graph(V, H)` — MakeCode's led.plotBarGraph, H = 0 auto-scales |
 | D8 | `toggle x 1 y 2` | `toggle 1 2` | `_bw_toggle(1, 2)` |
 | D9 | `set display brightness to B` | `setbrightness B` | `_bw_set_brightness(B)` — 0..255 scales every 0..9 level drawn |

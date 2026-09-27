@@ -52,6 +52,9 @@ class Image:
 class _Display:
     def __init__(self):
         self.px = [[0] * 5 for _ in range(5)]
+    def _check(self, x, y):
+        if not (0 <= x < 5 and 0 <= y < 5):
+            raise ValueError('index out of bounds')
     def show(self, img):
         self.px = [row[:] for row in img.rows]
     def clear(self):
@@ -59,8 +62,10 @@ class _Display:
     def scroll(self, text, delay=150, wait=True, loop=False):
         _scrolled.append([_clock[0], str(text)])
     def set_pixel(self, x, y, v):
+        self._check(x, y)
         self.px[y][x] = v
     def get_pixel(self, x, y):
+        self._check(x, y)
         return self.px[y][x]
 display = _Display()
 class _Button:
@@ -117,7 +122,7 @@ for _name in ['DADADADUM', 'ENTERTAINER', 'PRELUDE', 'ODE', 'NYAN', 'RINGTONE', 
     globals()[_name] = _name
 `;
 
-function run(body, { untilMs = 3000, inbox = [], buttons = '' } = {}) {
+function run(body, { untilMs = 3000, inbox = [], buttons = '', noJson = false } = {}) {
     const py = micropython(body);
     const dir = mkdtempSync(join(tmpdir(), 'bw-mbmusic-'));
     try {
@@ -128,6 +133,8 @@ function run(body, { untilMs = 3000, inbox = [], buttons = '' } = {}) {
         writeFileSync(join(dir, 'harness.py'), [
             'import sys, json',
             `sys.path.insert(0, ${JSON.stringify(dir)})`,
+            // The simulator firmware has no json module; the device does.
+            ...(noJson ? ["sys.modules['json'] = None"] : []),
             'import microbit, radio, music',
             `microbit._limit[0] = ${untilMs}`,
             `radio._inbox.extend(${JSON.stringify(inbox)})`,
@@ -137,7 +144,7 @@ function run(body, { untilMs = 3000, inbox = [], buttons = '' } = {}) {
             `    exec(open(${JSON.stringify(join(dir, 'main.py'))}).read(), {'__name__': '__main__'})`,
             'except microbit._Stop:',
             '    pass',
-            "print(json.dumps({'scrolled': microbit._scrolled, 'music': music._log, 'sent': radio._sent}))"
+            "print(json.dumps({'scrolled': microbit._scrolled, 'music': music._log, 'sent': radio._sent, 'px': microbit.display.px}))"
         ].join('\n'));
         let out;
         try {
@@ -149,7 +156,7 @@ function run(body, { untilMs = 3000, inbox = [], buttons = '' } = {}) {
             throw new Error(`the emitted MicroPython raised:\n${e.stderr || e.message}\n---\n${py}`);
         }
         const state = JSON.parse(out.trim().split('\n').pop());
-        return { ...state, texts: state.scrolled.map(([, t]) => t), py };
+        return { ...state, texts: state.scrolled.map(([, t]) => t), grid: state.px.map((r) => r.join('')).join(':'), py };
     } finally {
         rmSync(dir, { recursive: true, force: true });
     }
@@ -345,4 +352,40 @@ test('`read button_ab` is both buttons held, not a variable', () => {
     assert.deepEqual(run(body, { buttons: 'ab' }).texts, ['1']);
     assert.deepEqual(run(body, { buttons: 'a' }).texts, ['0']);
     assert.deepEqual(run(body, { buttons: 'b' }).texts, ['0']);
+});
+
+// ── what stopped MakeCode's own programs in the simulator ─────────────────
+//
+// Measured by running every one of MakeCode's 206 compiling doc apps, as lite
+// imports them, in lite's micro:bit simulator firmware (2026-09-27): before
+// this change 111 stopped with a Python error — 95 on the yield-less task
+// above, 8 on `import json`, 7 on the undefined `_radio_last_*`. After it,
+// none.
+
+test('a point off the grid is not drawn, and does not stop the program (MakeCode led.plot)', () => {
+    // MakeCode ignores it; MicroPython's set_pixel raises ValueError. A falling
+    // egg is drawn at y = 5 before the program checks `> 4`.
+    const { texts, grid } = run(['set r to 5', 'plot x 2 y r on', 'plot x 0 - 1 y 0 on', 'plot x (r - 1) y 4 on',
+        'toggle x 7 y 0', 'display 1', 'wait 0.01 seconds']);
+    assert.deepEqual(texts, ['1']);
+    assert.equal(grid, '00000:00000:00000:00000:00009');
+});
+
+test('a point plainly on the grid draws exactly as before', () => {
+    const py = micropython(['plot x 2 y 3 on', 'plot x 4 y 0 off']);
+    assert.ok(py.includes('    display.set_pixel(int(2), int(3), 9)\n'), py);
+    assert.ok(py.includes('    display.set_pixel(int(4), int(0), 0)\n'), py);
+    assert.doesNotMatch(py, /_bw_plot|if 0 <= int/, 'a literal on-grid point grew a check');
+});
+
+test('arrays work where there is no json module (the simulator firmware)', () => {
+    const { texts } = run(['new array "a" = [3, 1, 2]', 'push 7 to array "a"', 'display item 3 of array "a"',
+        'display length of array "a"', 'wait 0.01 seconds'], { noJson: true });
+    assert.deepEqual(texts, ['7', '4']);
+});
+
+test('reading past the end of an array is empty, as the extension reports it', () => {
+    const { texts } = run(['new array "a" = [3, 1, 2]', 'show text item 3 of array "a"', 'show text item 0 - 1 of array "a"',
+        'display item 0 of array "a"', 'wait 0.01 seconds']);
+    assert.deepEqual(texts, ['', '', '3']);
 });

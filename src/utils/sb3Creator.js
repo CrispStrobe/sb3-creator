@@ -176,7 +176,18 @@ function microbitLedHelpersPy (uses, pyUses) {
     if (uses.toggle) {
         out.push('',
             'def _bw_toggle(x, y):',
-            '    display.set_pixel(x, y, 0 if display.get_pixel(x, y) else _bw_lvl(9))');
+            '    # off the 5x5 grid, MakeCode\'s led.toggle does nothing',
+            '    if 0 <= x < 5 and 0 <= y < 5:',
+            '        display.set_pixel(x, y, 0 if display.get_pixel(x, y) else _bw_lvl(9))');
+    }
+    if (uses.plot) {
+        out.push('',
+            'def _bw_plot(x, y, v):',
+            '    # MakeCode\'s led.plot ignores a point off the 5x5 grid',
+            '    x = int(x)',
+            '    y = int(y)',
+            '    if 0 <= x < 5 and 0 <= y < 5:',
+            '        display.set_pixel(x, y, v)');
     }
     if (uses.stopanim) {
         out.push('',
@@ -10451,8 +10462,24 @@ class SB3Creator {
                     return [`${pad}display.scroll(${pyText('TEXT')}, delay=int(${v('MS')}))`];
                 case 'microbitplus_cleardisplay':
                     return [`${pad}display.clear()`];
-                case 'microbitplus_plot':
-                    return [`${pad}display.set_pixel(int(${v('X')}), int(${v('Y')}), ${f('STATE') === 'off' ? 0 : (dimmable ? '_bw_lvl(9)' : 9)})`];
+                case 'microbitplus_plot': {
+                    // MakeCode's led.plot/unplot IGNORE a point off the 5x5
+                    // grid; MicroPython's set_pixel raises ValueError and the
+                    // program stops (a falling egg drawn at y = 5 before the
+                    // `> 4` check). A point that is plainly on the grid draws
+                    // exactly as before; a variable one is checked first; an
+                    // expression goes through a helper so it is evaluated once.
+                    const x = v('X');
+                    const y = v('Y');
+                    const lvl = f('STATE') === 'off' ? 0 : (dimmable ? '_bw_lvl(9)' : 9);
+                    const set = `display.set_pixel(int(${x}), int(${y}), ${lvl})`;
+                    const onGrid = (n) => /^[0-4]$/.test(n);
+                    if (onGrid(x) && onGrid(y)) return [`${pad}${set}`];
+                    const simple = (n) => /^-?[\w.]+$/.test(n);
+                    if (simple(x) && simple(y)) return [`${pad}if 0 <= int(${x}) < 5 and 0 <= int(${y}) < 5:`, `${pad}    ${set}`];
+                    uses.plot = true;
+                    return [`${pad}_bw_plot(${x}, ${y}, ${lvl})`];
+                }
                 // MakeCode's led.plotBarGraph / toggle / setBrightness /
                 // stopAnimation and its game score. MicroPython has no global
                 // brightness and no bar graph, so each is a small helper in
@@ -10976,7 +11003,20 @@ class SB3Creator {
         // defines `_arrays`. Without this the device raised NameError at the
         // first array read, and nothing in the result said so.
         if (this._pyUses.arrays) {
-            if (!header.includes('import json')) header.push('import json');
+            // The shim parses and prints its arrays with json, which the
+            // device firmware has and the SIMULATOR firmware does not (the
+            // debugger found the same, see BW_JSON_PY): every program that
+            // used an array stopped at `import json` in the simulator. The
+            // fallback reads only what the shim writes — JSON literals.
+            if (!header.includes('import json')) {
+                header.push('try:', '    import json', 'except ImportError:',
+                    ...BW_JSON_PY.map((l) => `    ${l}`),
+                    '    class json:',
+                    '        def loads(s):',
+                    "            return eval(s, {'true': True, 'false': False, 'null': None})",
+                    '        def dumps(o):',
+                    '            return _bw_json(o)');
+            }
             header.push('', ...this.arraysShimPy(), '_arrays = _Arrays()');
         }
         // An STC program on a board that is not an STC still resolves its pin
@@ -15997,7 +16037,14 @@ class SB3Creator {
             '    def insert(self, n, i, v): self._d[n].insert(int(i), v)',
             '    def remove(self, n, i): del self._d[n][int(i)]',
             '    def drop(self, n): self._d.pop(n, None)',
-            '    def get(self, n, i): return self._d[n][int(i)]',
+            // Out of range is EMPTY, as the extension reports it (arrays.js get:
+            // JSON.stringify(arr[i]) of a missing item) and as MakeCode reads an
+            // index past the end. Python raised IndexError and stopped the
+            // program, and a negative index read from the far end instead.
+            "    def get(self, n, i):",
+            "        a = self._d[n]",
+            "        i = int(i)",
+            "        return a[i] if 0 <= i < len(a) else ''",
             '    def pop(self, n): return self._d[n].pop()',
             '    def length(self, n): return len(self._d[n])',
             '    def sum(self, n): return sum(self._d[n])',
