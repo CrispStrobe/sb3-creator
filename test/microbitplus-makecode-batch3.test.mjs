@@ -293,3 +293,17 @@ test('a slot\'s own `to` inside parentheses does not end the slot (the volume wa
     const { played } = run([line, 'wait 0.01 seconds']);
     assert.deepEqual([played[0][1][1], played[0][1][4]], [3, 0], JSON.stringify(played));
 });
+
+test('out-of-range numbers are clamped as MakeCode clamps them (MicroPython raised ValueError)', () => {
+    // MakeCode's jonnys-bird plays a volume of `pick random 0 to 1024`.
+    const { played } = run(['play sound effect sine from 12000 to 0 - 5 hz volume 1024 to 300 for 20000 ms effect none curve linear in background',
+        'wait 0.01 seconds']);
+    assert.deepEqual(played[0][1].slice(0, 5), [9999, 0, 9999, 255, 255]);
+});
+
+test('a computed length is evaluated once: the wait is the sound\'s own length', () => {
+    const py = micropython(['play sound effect sine from 100 to 200 hz volume 255 to 0 for (pick random 40 to 100) ms effect none curve linear',
+        'play tone 262 hz for (pick random 40 to 100) ms until done']);
+    assert.equal((py.match(/random\.randint\(40, 100\)/g) || []).length, 2, py);
+    assert.match(py, /yield _bw_d/);
+});

@@ -261,6 +261,11 @@ function microbitLedHelpersPy (uses, pyUses) {
     // truncated (Math.idiv), the fractions shift it (libs/core/music.ts).
     // setTempo ignores a tempo that is not above 0 and floors it at 1. The
     // music module's own tempo follows, so a built-in melody keeps pace.
+    if (pyUses.clamp) {
+        out.push('',
+            'def _bw_clamp(v, hi):',
+            '    return min(hi, max(0, int(v)))');
+    }
     if (pyUses.tempo) {
         out.push('',
             '_bw_tempo = 120',
@@ -10645,8 +10650,11 @@ class SB3Creator {
                 case 'microbitplus_playtonemode': {
                     uses.music = true;
                     const bg = f('MODE') === 'in background';
-                    return [`${pad}music.pitch(int(${v('FREQ')}), int(${v('MS')}), pin=pin0, wait=False)`,
-                        ...(bg ? [] : [`${pad}yield int(${v('MS')})`])];
+                    // The length is evaluated ONCE: the wait must be the tone's
+                    // own length even when it is `pick random …`.
+                    return [`${pad}_bw_d = int(${v('MS')})`,
+                        `${pad}music.pitch(int(${v('FREQ')}), _bw_d, pin=pin0, wait=False)`,
+                        ...(bg ? [] : [`${pad}yield _bw_d`])];
                 }
                 case 'microbitplus_playsound': {
                     const bg = f('MODE') === 'in background';
@@ -10662,10 +10670,18 @@ class SB3Creator {
                     const W = { sine: 'WAVEFORM_SINE', sawtooth: 'WAVEFORM_SAWTOOTH', triangle: 'WAVEFORM_TRIANGLE', square: 'WAVEFORM_SQUARE', noise: 'WAVEFORM_NOISE' };
                     const X = { none: 'FX_NONE', vibrato: 'FX_VIBRATO', tremolo: 'FX_TREMOLO', warble: 'FX_WARBLE' };
                     const C = { linear: 'SHAPE_LINEAR', curve: 'SHAPE_CURVE', logarithmic: 'SHAPE_LOG' };
-                    const fx = `audio.SoundEffect(freq_start=int(${v('FROM')}), freq_end=int(${v('TO')}), duration=int(${v('MS')}), ` +
-                        `vol_start=int(${v('VFROM')}), vol_end=int(${v('VTO')}), waveform=audio.SoundEffect.${W[f('WAVE')] || 'WAVEFORM_SQUARE'}, ` +
+                    // MakeCode CLAMPS each number into the sound's fields
+                    // (soundexpressions.ts: volume 0..255 scaled, frequency and
+                    // duration 0..9999); MicroPython raises ValueError instead —
+                    // measured: MakeCode's jonnys-bird plays volume 0..1024 and
+                    // stopped. So the clamp is written out. The duration is
+                    // evaluated once, for the sound and for the wait.
+                    const c = (x, hi) => `_bw_clamp(${x}, ${hi})`;
+                    this._pyUses.clamp = true;
+                    const fx = `audio.SoundEffect(freq_start=${c(v('FROM'), 9999)}, freq_end=${c(v('TO'), 9999)}, duration=_bw_d, ` +
+                        `vol_start=${c(v('VFROM'), 255)}, vol_end=${c(v('VTO'), 255)}, waveform=audio.SoundEffect.${W[f('WAVE')] || 'WAVEFORM_SQUARE'}, ` +
                         `fx=audio.SoundEffect.${X[f('FX')] || 'FX_NONE'}, shape=audio.SoundEffect.${C[f('CURVE')] || 'SHAPE_LINEAR'})`;
-                    return [`${pad}audio.play(${fx}, wait=False)`, ...(bg ? [] : [`${pad}yield int(${v('MS')})`])];
+                    return [`${pad}_bw_d = ${c(v('MS'), 9999)}`, `${pad}audio.play(${fx}, wait=False)`, ...(bg ? [] : [`${pad}yield _bw_d`])];
                 }
                 case 'microbitplus_settempo':
                     uses.music = true; this._pyUses.tempo = true; this._pyUses.settempo = true;
