@@ -86,6 +86,8 @@ const ORACLE_TABLE = [
     ['D8', 'toggle x 1 y 2',                '_bw_toggle(int(1), int(2))'],
     ['D9', 'set display brightness to 128', '_bw_set_brightness(128)'],
     ['D10','stop animation',                '_bw_stop_animation()'],
+    ['D11','show leds 09900:09900:09900:00000:00000', 'yield 400'],
+    ['D12','show icon 09900:09900:09900:00000:00000', 'yield 600'],
 
     // ---- Game score and lives (G1–G4, MakeCode's `game`) ----
     ['G1', 'change game score by 2',        '_bw_add_score(2)'],

@@ -47,6 +47,8 @@ converge on.
 | D8 | `toggle x 1 y 2` | `toggle 1 2` | `_bw_toggle(1, 2)` |
 | D9 | `set display brightness to B` | `setbrightness B` | `_bw_set_brightness(B)` — 0..255 scales every 0..9 level drawn |
 | D10 | `stop animation` | `stopanimation` | `_bw_stop_animation()` |
+| D11 | `show leds P` | `showleds P` | `display.show(Image(P))` then `yield 400` — MakeCode's basic.showLeds and its default pause |
+| D12 | `show icon P` | `showicon P` | `display.show(Image(P))` then `yield 600` — MakeCode's basic.showIcon/showArrow and its default pause |
 
 ### Game score and lives (MakeCode `game`)
 
