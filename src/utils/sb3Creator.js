@@ -115,6 +115,28 @@ function microbitMelody (name) {
     return key ? { name: key, py: MAKECODE_MELODIES[key] } : null;
 }
 
+/**
+ * `line.match(re)` where the keywords must sit OUTSIDE parentheses and
+ * quotes. A slot bounded by the next keyword is lazy, so `volume (pick
+ * random 0 to 1024) to 255` split at the `to` INSIDE the parentheses and the
+ * volume became the text "(pick random 0". The contents of every (...) and
+ * "..." are masked before matching, and the groups are cut from the real line.
+ */
+function matchTopLevel(line, re) {
+    let depth = 0, inStr = false, masked = '';
+    for (const ch of line) {
+        if (ch === '"') { inStr = !inStr; masked += ch; continue; }
+        if (!inStr && ch === '(') { depth++; masked += depth === 1 ? ch : '\u0001'; continue; }
+        if (!inStr && ch === ')') { masked += depth === 1 ? ch : '\u0001'; depth = Math.max(0, depth - 1); continue; }
+        masked += (inStr || depth > 0) ? '\u0001' : ch;
+    }
+    const m = new RegExp(re.source, re.flags.includes('d') ? re.flags : re.flags + 'd').exec(masked);
+    if (!m) return null;
+    const out = m.indices.map((span) => (span ? line.slice(span[0], span[1]) : undefined));
+    out.index = m.index;
+    return out;
+}
+
 /** The V2 built-in sounds: MakeCode's soundExpression.X and MicroPython's Sound.X are the same ten. */
 const MICROBIT_SOUNDS = ['giggle', 'happy', 'hello', 'mysterious', 'sad', 'slide', 'soaring', 'spring', 'twinkle', 'yawn'];
 
@@ -4754,7 +4776,7 @@ class SB3Creator {
         // built-in sound). The PLAYBACK MODE is part of each: until done waits,
         // in background does not.
         const MODE = '(?:\\s+(until\\s+done|in\\s+background))?';
-        if ((match = line.match(new RegExp('^play\\s+tone\\s+(.+?)\\s*hz\\s+for\\s+(.+?)\\s*ms\\s+(until\\s+done|in\\s+background)\\s*$', 'i')))) {
+        if ((match = matchTopLevel(line, new RegExp('^play\\s+tone\\s+(.+?)\\s*hz\\s+for\\s+(.+?)\\s*ms\\s+(until\\s+done|in\\s+background)\\s*$', 'i')))) {
             const { id, block } = cmd('microbitplus_playtonemode');
             block[id].inputs.FREQ = val(match[1]);
             block[id].inputs.MS = val(match[2]);
@@ -4767,7 +4789,7 @@ class SB3Creator {
             block[id].fields.MODE = [(match[2] || 'until done').toLowerCase().replace(/\s+/g, ' '), null];
             return ret(block);
         }
-        if ((match = line.match(new RegExp('^play\\s+sound\\s+effect\\s+(sine|sawtooth|triangle|square|noise)\\s+from\\s+(.+?)\\s+to\\s+(.+?)\\s*hz\\s+volume\\s+(.+?)\\s+to\\s+(.+?)\\s+for\\s+(.+?)\\s*ms\\s+effect\\s+(none|vibrato|tremolo|warble)\\s+curve\\s+(linear|curve|logarithmic)' + MODE + '\\s*$', 'i')))) {
+        if ((match = matchTopLevel(line, new RegExp('^play\\s+sound\\s+effect\\s+(sine|sawtooth|triangle|square|noise)\\s+from\\s+(.+?)\\s+to\\s+(.+?)\\s*hz\\s+volume\\s+(.+?)\\s+to\\s+(.+?)\\s+for\\s+(.+?)\\s*ms\\s+effect\\s+(none|vibrato|tremolo|warble)\\s+curve\\s+(linear|curve|logarithmic)' + MODE + '\\s*$', 'i')))) {
             const { id, block } = cmd('microbitplus_playsoundeffect');
             block[id].fields.WAVE = [match[1].toLowerCase(), null];
             block[id].inputs.FROM = val(match[2]);

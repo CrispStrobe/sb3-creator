@@ -276,3 +276,20 @@ test('a program that never reads the signal strength keeps the plain receiver', 
     assert.doesNotMatch(py, /receive_full|_radio_last_rssi/);
     assert.match(py, /m = radio\.receive\(\)/);
 });
+
+test('a slot\'s own `to` inside parentheses does not end the slot (the volume was the text "(pick random 0")', () => {
+    const line = 'play sound effect sine from (pick random 100 to 200) to 3 hz volume (pick random 0 to 255) to 0 ' +
+        'for (pick random 40 to 100) ms effect none curve linear until done';
+    const c = new SB3Creator();
+    c.parse(program([line, 'play tone (pick random 1 to 9) hz for (pick random 0 to 5) ms in background']));
+    const blocks = c.project.targets.flatMap((t) => Object.values(t.blocks));
+    const fx = blocks.find((b) => b.opcode === 'microbitplus_playsoundeffect');
+    const tone = blocks.find((b) => b.opcode === 'microbitplus_playtonemode');
+    for (const [b, keys] of [[fx, ['FROM', 'VFROM', 'MS']], [tone, ['FREQ', 'MS']]]) {
+        for (const k of keys) assert.equal(c.project.targets[0].blocks[b.inputs[k][1]].opcode, 'operator_random', k);
+    }
+    assert.deepEqual(c.warnings, []);
+    // and it runs: the end frequency and volume that are literals arrive as themselves
+    const { played } = run([line, 'wait 0.01 seconds']);
+    assert.deepEqual([played[0][1][1], played[0][1][4]], [3, 0], JSON.stringify(played));
+});
