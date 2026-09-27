@@ -115,6 +115,9 @@ function microbitMelody (name) {
     return key ? { name: key, py: MAKECODE_MELODIES[key] } : null;
 }
 
+/** The V2 built-in sounds: MakeCode's soundExpression.X and MicroPython's Sound.X are the same ten. */
+const MICROBIT_SOUNDS = ['giggle', 'happy', 'hello', 'mysterious', 'sad', 'slide', 'soaring', 'spring', 'twinkle', 'yawn'];
+
 /** micro:bit+ `isbutton` in MicroPython: A, B, or AB (both held, MakeCode's Button.AB). */
 function microbitButtonPy (btn) {
     const b = String(btn || 'a').toLowerCase();
@@ -1783,6 +1786,11 @@ class SB3Creator {
             return B('microbitplus_radiolaststr');
         }
         if (/^game\s+score$/i.test(s)) return B('microbitplus_score');
+        // The V2 touch logo (MakeCode input.logoIsPressed / onLogoEvent).
+        if (/^logo\s+touched\??$/i.test(s)) return B('microbitplus_islogo');
+        // MakeCode radio.receivedPacket(RadioPacketProperty.SignalStrength):
+        // the last packet's RSSI in dBm, as MicroPython's receive_full reports it.
+        if (/^last\s+radio\s+signal\s+strength$/i.test(s)) return B('microbitplus_radiorssi');
         // MakeCode's music reporters: a beat's length in ms at the current
         // tempo, a note's frequency, the tempo itself.
         if ((m = s.match(/^beat\s+(whole|half|quarter|eighth|sixteenth|double|breve)$/i))) {
@@ -4741,6 +4749,37 @@ class SB3Creator {
             block[id].inputs.MS = [1, [4, match[2] || '-1']];
             return ret(block);
         }
+        // MakeCode's music.play(music.tonePlayable(F, D), mode) and its sound
+        // effects (music.playSoundEffect / music.play of createSoundEffect or a
+        // built-in sound). The PLAYBACK MODE is part of each: until done waits,
+        // in background does not.
+        const MODE = '(?:\\s+(until\\s+done|in\\s+background))?';
+        if ((match = line.match(new RegExp('^play\\s+tone\\s+(.+?)\\s*hz\\s+for\\s+(.+?)\\s*ms\\s+(until\\s+done|in\\s+background)\\s*$', 'i')))) {
+            const { id, block } = cmd('microbitplus_playtonemode');
+            block[id].inputs.FREQ = val(match[1]);
+            block[id].inputs.MS = val(match[2]);
+            block[id].fields.MODE = [match[3].toLowerCase().replace(/\s+/g, ' '), null];
+            return ret(block);
+        }
+        if ((match = line.match(new RegExp('^play\\s+sound\\s+([a-z]+)' + MODE + '\\s*$', 'i'))) && MICROBIT_SOUNDS.includes(match[1].toLowerCase())) {
+            const { id, block } = cmd('microbitplus_playsound');
+            block[id].fields.SOUND = [match[1].toLowerCase(), null];
+            block[id].fields.MODE = [(match[2] || 'until done').toLowerCase().replace(/\s+/g, ' '), null];
+            return ret(block);
+        }
+        if ((match = line.match(new RegExp('^play\\s+sound\\s+effect\\s+(sine|sawtooth|triangle|square|noise)\\s+from\\s+(.+?)\\s+to\\s+(.+?)\\s*hz\\s+volume\\s+(.+?)\\s+to\\s+(.+?)\\s+for\\s+(.+?)\\s*ms\\s+effect\\s+(none|vibrato|tremolo|warble)\\s+curve\\s+(linear|curve|logarithmic)' + MODE + '\\s*$', 'i')))) {
+            const { id, block } = cmd('microbitplus_playsoundeffect');
+            block[id].fields.WAVE = [match[1].toLowerCase(), null];
+            block[id].inputs.FROM = val(match[2]);
+            block[id].inputs.TO = val(match[3]);
+            block[id].inputs.VFROM = val(match[4]);
+            block[id].inputs.VTO = val(match[5]);
+            block[id].inputs.MS = val(match[6]);
+            block[id].fields.FX = [match[7].toLowerCase(), null];
+            block[id].fields.CURVE = [match[8].toLowerCase(), null];
+            block[id].fields.MODE = [(match[9] || 'until done').toLowerCase().replace(/\s+/g, ' '), null];
+            return ret(block);
+        }
         // `play tone` takes an EXPRESSION in both slots — they are inputs on
         // the block — because MakeCode's own tone is almost never two
         // literals: it is `playTone(noteFrequency(Note.C), beat(Quarter))`.
@@ -6877,6 +6916,8 @@ class SB3Creator {
             case 'microbitplus_beat': return `beat ${f('FRACTION')}`;
             case 'microbitplus_notefreq': return `frequency of note ${f('NOTE')}`;
             case 'microbitplus_tempo': return 'music tempo';
+            case 'microbitplus_islogo': return 'logo touched';
+            case 'microbitplus_radiorssi': return 'last radio signal strength';
             case 'microbitplus_map': return `map ${v('VALUE')} from low ${v('FROMLOW')} high ${v('FROMHIGH')} to low ${v('TOLOW')} high ${v('TOHIGH')}`;
             // STC12 / 8051 pin read (digital level or ADC value).
             case 'stc12_read': return `read ${f('PIN')}`;
@@ -7165,6 +7206,11 @@ class SB3Creator {
                 return line(ms === '-1' ? `play tone ${v('FREQ')} hz` : `play tone ${v('FREQ')} hz for ${ms} ms`);
             }
             case 'microbitplus_rest': return line(`rest for ${v('MS')} ms`);
+            case 'microbitplus_playtonemode': return line(`play tone ${v('FREQ')} hz for ${v('MS')} ms ${f('MODE') || 'until done'}`);
+            case 'microbitplus_playsound': return line(`play sound ${f('SOUND')} ${f('MODE') || 'until done'}`);
+            case 'microbitplus_playsoundeffect':
+                return line(`play sound effect ${f('WAVE')} from ${v('FROM')} to ${v('TO')} hz volume ${v('VFROM')} to ${v('VTO')} ` +
+                    `for ${v('MS')} ms effect ${f('FX')} curve ${f('CURVE')} ${f('MODE') || 'until done'}`);
             case 'microbitplus_settempo': return line(`set music tempo to ${v('BPM')}`);
             case 'microbitplus_changetempo': return line(`change music tempo by ${v('BPM')}`);
             case 'microbitplus_playmelody': return line(`play melody ${f('MELODY')} ${f('MODE') || 'until done'}`);
@@ -7424,6 +7470,8 @@ class SB3Creator {
                 return `_bw_beat(${MAKECODE_BEAT_SHIFT[String(f('FRACTION')).toLowerCase()] ?? 0})`;
             case 'microbitplus_notefreq': return String((microbitNote(f('NOTE')) || { hz: 262 }).hz);
             case 'microbitplus_tempo': this._pyUses.tempo = true; return '_bw_tempo';
+            case 'microbitplus_islogo': return 'pin_logo.is_touched()';
+            case 'microbitplus_radiorssi': this._pyUses.radio = true; this._pyUses.rssi = true; return '_radio_last_rssi';
             // pins.map, exactly as MakeCode computes it:
             // ((value - fromLow) * (toHigh - toLow)) / (fromHigh - fromLow) + toLow
             case 'microbitplus_map':
@@ -10569,6 +10617,34 @@ class SB3Creator {
                 case 'microbitplus_rest':
                     uses.music = true;
                     return [`${pad}music.stop()`, `${pad}yield int(${v('MS')})`];
+                // Until done WAITS as a yield for the known length, so the
+                // other scripts keep running (a blocking call would stop them);
+                // in background starts it and goes on.
+                case 'microbitplus_playtonemode': {
+                    uses.music = true;
+                    const bg = f('MODE') === 'in background';
+                    return [`${pad}music.pitch(int(${v('FREQ')}), int(${v('MS')}), pin=pin0, wait=False)`,
+                        ...(bg ? [] : [`${pad}yield int(${v('MS')})`])];
+                }
+                case 'microbitplus_playsound': {
+                    const bg = f('MODE') === 'in background';
+                    const name = String(f('SOUND') || 'giggle').toUpperCase();
+                    return [`${pad}audio.play(Sound.${name}, wait=${bg ? 'False' : 'True'})`];
+                }
+                case 'microbitplus_playsoundeffect': {
+                    // MakeCode's createSoundEffect and MicroPython V2's
+                    // audio.SoundEffect take the same eight things: waveform,
+                    // start/end frequency, start/end volume (0..255), duration,
+                    // effect, interpolation.
+                    const bg = f('MODE') === 'in background';
+                    const W = { sine: 'WAVEFORM_SINE', sawtooth: 'WAVEFORM_SAWTOOTH', triangle: 'WAVEFORM_TRIANGLE', square: 'WAVEFORM_SQUARE', noise: 'WAVEFORM_NOISE' };
+                    const X = { none: 'FX_NONE', vibrato: 'FX_VIBRATO', tremolo: 'FX_TREMOLO', warble: 'FX_WARBLE' };
+                    const C = { linear: 'SHAPE_LINEAR', curve: 'SHAPE_CURVE', logarithmic: 'SHAPE_LOG' };
+                    const fx = `audio.SoundEffect(freq_start=int(${v('FROM')}), freq_end=int(${v('TO')}), duration=int(${v('MS')}), ` +
+                        `vol_start=int(${v('VFROM')}), vol_end=int(${v('VTO')}), waveform=audio.SoundEffect.${W[f('WAVE')] || 'WAVEFORM_SQUARE'}, ` +
+                        `fx=audio.SoundEffect.${X[f('FX')] || 'FX_NONE'}, shape=audio.SoundEffect.${C[f('CURVE')] || 'SHAPE_LINEAR'})`;
+                    return [`${pad}audio.play(${fx}, wait=False)`, ...(bg ? [] : [`${pad}yield int(${v('MS')})`])];
+                }
                 case 'microbitplus_settempo':
                     uses.music = true; this._pyUses.tempo = true; this._pyUses.settempo = true;
                     return [`${pad}_bw_set_tempo(${v('BPM')})`];
@@ -10957,10 +11033,22 @@ class SB3Creator {
             const txt = keys('text').map((k) => `${k}m)`);
             taskDefs.push([
                 'def _bw_radio_rx():',
-                '    global _radio_last_num, _radio_last_str',
+                `    global _radio_last_num, _radio_last_str${this._pyUses.rssi ? ', _radio_last_rssi' : ''}`,
                 '    radio.on()',
                 '    while True:',
-                '        m = radio.receive()',
+                // The signal strength is only in receive_full(), which keeps
+                // the three-byte header receive() strips; asked for only when
+                // a program reads it, so every other receiver is as it was.
+                ...(this._pyUses.rssi ? [
+                    '        f = radio.receive_full()',
+                    '        m = None',
+                    '        if f:',
+                    '            _radio_last_rssi = f[1]',
+                    '            try:',
+                    "                m = str(f[0][3:], 'utf8')",
+                    '            except Exception:',
+                    '                m = None'
+                ] : ['        m = radio.receive()']),
                 '        if m is not None:',
                 '            try:',
                 '                n = float(m)',
@@ -11018,6 +11106,7 @@ class SB3Creator {
         // stopped with a NameError on its first read.
         if (uses.radio) header.push('import radio');
         if (this._pyUses.radio || radioHandlers.length) header.push('_radio_last_num = 0', "_radio_last_str = ''");
+        if (this._pyUses.rssi) header.push('_radio_last_rssi = 0');
         // The reporters emit `_arrays.<method>(…)` whether or not anything
         // defines `_arrays`. Without this the device raised NameError at the
         // first array read, and nothing in the result said so.
