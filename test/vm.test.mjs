@@ -56,9 +56,10 @@ const HEADLESS_BUILTINS = {
     microbitplus: {
         command: ['showmatrix', 'showtext', 'scrolltext', 'cleardisplay', 'plot',
             'digitalwrite', 'analogwrite', 'setpull', 'playtone', 'playnote', 'stoptone',
-            'servo', 'servocont', 'radioon', 'radiosendnum', 'radiosendstr', 'radiosendkv'],
+            'servo', 'servocont', 'radioon', 'radiosendnum', 'radiosendstr', 'radiosendkv',
+            'rest', 'settempo', 'changetempo', 'playmelody'],
         reporter: ['accel', 'pitch', 'roll', 'compass', 'magforce', 'light', 'temp', 'sound',
-            'digitalread', 'analogread', 'radiolastnum', 'radiolaststr'],
+            'digitalread', 'analogread', 'radiolastnum', 'radiolaststr', 'beat', 'notefreq', 'tempo'],
         boolean: ['isbutton', 'isgesture', 'ispinhigh', 'istouch'],
         hat: ['whenbutton', 'whenlogo', 'whengesture', 'whenconn', 'whenradionum',
             'whenradiostr', 'whentouch']

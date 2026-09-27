@@ -96,6 +96,7 @@ const ORACLE_TABLE = [
 
     // ---- Buttons (B2) ----
     ['B2', 'set val to read button_a',      'button_a.is_pressed()'],
+    ['B5', 'set val to read button_ab',     '(button_a.is_pressed() and button_b.is_pressed())'],
 
     // ---- Motion / orientation (M1–M11) ----
     ['M1',  'set val to read accel x',        'accelerometer.get_x()'],
@@ -134,6 +135,15 @@ const ORACLE_TABLE = [
     ['A2', 'play note C4',                   'music.pitch(262, 500, pin=pin0)'],
     ['A3', 'stop buzzer',                    'music.stop()'],
     ['A4', 'set servo to 90',               'pin1.write_analog(int(90 / 180 * 1023))'],
+    // MakeCode's music timing and melodies (the MakeCode census, batch 2)
+    ['A1c','play tone frequency of note C hz for beat quarter ms', 'music.pitch(int(262), int(_bw_beat(2)), pin=pin0)'],
+    ['A5', 'rest for 250 ms',                'yield int(250)'],
+    ['A6', 'set music tempo to 90',          '_bw_set_tempo(90)'],
+    ['A6b','change music tempo by 20',       '_bw_set_tempo(_bw_tempo + (20))'],
+    ['A7', 'set val to beat half',           'val = _bw_beat(1)'],
+    ['A8', 'set val to frequency of note A', 'val = 440'],
+    ['A9', 'set val to music tempo',         'val = _bw_tempo'],
+    ['A10','play melody Dadadadum in background', 'music.play(music.DADADADUM, pin=pin0, wait=False)'],
 
     // ---- Radio (R1–R3, R5) ----
     ['R1', 'radio on group 5 power 3',      'radio.config(group=int(5), power=int(3))'],

@@ -77,6 +77,51 @@ const BW_JSON_PY = [
  * @param {object} pyUses the shared layer's flags (game)
  * @returns {string[]} header lines
  */
+/**
+ * MakeCode's Note enum, member -> frequency, exactly as pxt-microbit 9.1.1
+ * declares it (libs/core/music.ts). The member name IS the dialect's spelling,
+ * so `frequency of note FSharp5` is Note.FSharp5 and nothing is renamed on
+ * the way to MakeCode or back. Unsuffixed names are octave 4 (Note.C = C4).
+ */
+const MAKECODE_NOTES = {
+    C: 262, CSharp: 277, D: 294, Eb: 311, E: 330, F: 349, FSharp: 370, G: 392, GSharp: 415, A: 440, Bb: 466, B: 494,
+    C3: 131, CSharp3: 139, D3: 147, Eb3: 156, E3: 165, F3: 175, FSharp3: 185, G3: 196, GSharp3: 208, A3: 220, Bb3: 233, B3: 247,
+    C4: 262, CSharp4: 277, D4: 294, Eb4: 311, E4: 330, F4: 349, FSharp4: 370, G4: 392, GSharp4: 415, A4: 440, Bb4: 466, B4: 494,
+    C5: 523, CSharp5: 555, D5: 587, Eb5: 622, E5: 659, F5: 698, FSharp5: 740, G5: 784, GSharp5: 831, A5: 880, Bb5: 932, B5: 988
+};
+/** A note name, case-insensitively, as {name, hz} in MakeCode's own spelling — or null. */
+function microbitNote (name) {
+    const key = Object.keys(MAKECODE_NOTES).find((k) => k.toLowerCase() === String(name).toLowerCase());
+    return key ? { name: key, hz: MAKECODE_NOTES[key] } : null;
+}
+/**
+ * MakeCode's BeatFraction as a shift of one beat (60000 / tempo ms): music.beat()
+ * is `beat >> 1` for a half, `beat << 1` for a double, and so on.
+ */
+const MAKECODE_BEAT_SHIFT = { whole: 0, half: 1, quarter: 2, eighth: 3, sixteenth: 4, double: -1, breve: -2 };
+/**
+ * MakeCode's built-in Melodies (libs/core/melodies.ts), each with the
+ * MicroPython music-module constant of the same melody.
+ */
+const MAKECODE_MELODIES = {
+    Dadadadum: 'DADADADUM', Entertainer: 'ENTERTAINER', Prelude: 'PRELUDE', Ode: 'ODE', Nyan: 'NYAN',
+    Ringtone: 'RINGTONE', Funk: 'FUNK', Blues: 'BLUES', Birthday: 'BIRTHDAY', Wedding: 'WEDDING',
+    Funeral: 'FUNERAL', Punchline: 'PUNCHLINE', Baddy: 'BADDY', Chase: 'CHASE', BaDing: 'BA_DING',
+    Wawawawaa: 'WAWAWAWAA', JumpUp: 'JUMP_UP', JumpDown: 'JUMP_DOWN', PowerUp: 'POWER_UP', PowerDown: 'POWER_DOWN'
+};
+/** A melody name, case-insensitively, as {name, py} — or null. */
+function microbitMelody (name) {
+    const key = Object.keys(MAKECODE_MELODIES).find((k) => k.toLowerCase() === String(name).toLowerCase());
+    return key ? { name: key, py: MAKECODE_MELODIES[key] } : null;
+}
+
+/** micro:bit+ `isbutton` in MicroPython: A, B, or AB (both held, MakeCode's Button.AB). */
+function microbitButtonPy (btn) {
+    const b = String(btn || 'a').toLowerCase();
+    if (b === 'ab') return '(button_a.is_pressed() and button_b.is_pressed())';
+    return `button_${b}.is_pressed()`;
+}
+
 function microbitLedHelpersPy (uses, pyUses) {
     const out = [];
     if (uses.dim) {
@@ -131,7 +176,18 @@ function microbitLedHelpersPy (uses, pyUses) {
     if (uses.toggle) {
         out.push('',
             'def _bw_toggle(x, y):',
-            '    display.set_pixel(x, y, 0 if display.get_pixel(x, y) else _bw_lvl(9))');
+            '    # off the 5x5 grid, MakeCode\'s led.toggle does nothing',
+            '    if 0 <= x < 5 and 0 <= y < 5:',
+            '        display.set_pixel(x, y, 0 if display.get_pixel(x, y) else _bw_lvl(9))');
+    }
+    if (uses.plot) {
+        out.push('',
+            'def _bw_plot(x, y, v):',
+            '    # MakeCode\'s led.plot ignores a point off the 5x5 grid',
+            '    x = int(x)',
+            '    y = int(y)',
+            '    if 0 <= x < 5 and 0 <= y < 5:',
+            '        display.set_pixel(x, y, v)');
     }
     if (uses.stopanim) {
         out.push('',
@@ -175,6 +231,25 @@ function microbitLedHelpersPy (uses, pyUses) {
             '            display.scroll(str(_bw_score), delay=150)',
             "            display.scroll(' ', delay=150)",
             '            yield 0');
+    }
+    // MakeCode's tempo: 120 bpm until set, a beat is 60000 / tempo ms
+    // truncated (Math.idiv), the fractions shift it (libs/core/music.ts).
+    // setTempo ignores a tempo that is not above 0 and floors it at 1. The
+    // music module's own tempo follows, so a built-in melody keeps pace.
+    if (pyUses.tempo) {
+        out.push('',
+            '_bw_tempo = 120',
+            'def _bw_beat(shift):',
+            '    b = int(60000 / _bw_tempo)',
+            '    return b >> shift if shift >= 0 else b << -shift');
+    }
+    if (pyUses.settempo) {
+        out.push('',
+            'def _bw_set_tempo(bpm):',
+            '    global _bw_tempo',
+            '    if bpm > 0:',
+            '        _bw_tempo = max(1, bpm)',
+            '        music.set_tempo(bpm=int(_bw_tempo))');
     }
     return out;
 }
@@ -1677,10 +1752,13 @@ class SB3Creator {
         if ((m = s.match(/^analog\s+(?:value\s+of\s+)?pin\s+(P\d+)$/i))) {
             return B('microbitplus_analogread', {}, { PIN: [m[1].toUpperCase(), null] });
         }
-        if ((m = s.match(/^button\s+([ABab])\s+pressed\??$/i))) {
+        // `ab` is MakeCode's Button.AB — both held at once. It was not a
+        // spelling here, so `read button_ab` fell through to the VARIABLE rule
+        // and a handler for A+B became a test of a name nothing ever set.
+        if ((m = s.match(/^button\s+(a|b|ab)\s+pressed\??$/i))) {
             return B('microbitplus_isbutton', {}, { BTN: [m[1].toLowerCase(), null] });
         }
-        if ((m = s.match(/^read\s+button_([ABab])$/i))) {
+        if ((m = s.match(/^read\s+button_(a|b|ab)$/i))) {
             return B('microbitplus_isbutton', {}, { BTN: [m[1].toLowerCase(), null] });
         }
         // Three reporters the DECOMPILER has always emitted and the parser
@@ -1705,6 +1783,15 @@ class SB3Creator {
             return B('microbitplus_radiolaststr');
         }
         if (/^game\s+score$/i.test(s)) return B('microbitplus_score');
+        // MakeCode's music reporters: a beat's length in ms at the current
+        // tempo, a note's frequency, the tempo itself.
+        if ((m = s.match(/^beat\s+(whole|half|quarter|eighth|sixteenth|double|breve)$/i))) {
+            return B('microbitplus_beat', {}, { FRACTION: [m[1].toLowerCase(), null] });
+        }
+        if ((m = s.match(/^frequency\s+of\s+note\s+([A-Za-z]+\d?)$/i)) && microbitNote(m[1])) {
+            return B('microbitplus_notefreq', {}, { NOTE: [microbitNote(m[1]).name, null] });
+        }
+        if (/^music\s+tempo$/i.test(s)) return B('microbitplus_tempo');
         // MakeCode's `pins.map` block text, word for word. Every slot is
         // bounded by the next keyword, so an argument may be any expression.
         if ((m = s.match(/^map\s+(.+?)\s+from\s+low\s+(.+?)\s+high\s+(.+?)\s+to\s+low\s+(.+?)\s+high\s+(.+)$/i))) {
@@ -4178,6 +4265,17 @@ class SB3Creator {
             block[id].fields.BROADCAST_OPTION = [bc.name, bc.id];
             return { block, extraBlocks: {} };
         }
+        // MakeCode's radio.onReceivedNumber / onReceivedString as the micro:bit+
+        // hats they always were in the block set. Without them an imported
+        // handler could only be POLLED, and polling runs the body on every pass
+        // whether or not anything arrived — a counter that should step once per
+        // packet counted the loop instead.
+        if (/^when\s+radio\s+receives\s+(?:a\s+)?number$/i.test(line)) {
+            return { block: this.createBlock('microbitplus_whenradionum', { topLevel: true }).block, extraBlocks: {} };
+        }
+        if (/^when\s+radio\s+receives\s+(?:a\s+)?text$/i.test(line)) {
+            return { block: this.createBlock('microbitplus_whenradiostr', { topLevel: true }).block, extraBlocks: {} };
+        }
         if (/^when (this )?sprite clicked$/i.test(line)) {
             return { block: this.createBlock('event_whenthisspriteclicked', { topLevel: true }).block, extraBlocks: {} };
         }
@@ -4627,10 +4725,48 @@ class SB3Creator {
             return ret(block);
         }
         // ---- micro:bit+ ACTUATORS group (DUAL-LOWERING-ORACLE A1–A4) ----
-        if ((match = line.match(/^(?:set\s+buzzer\s+to|play\s+tone)\s+(\S+)\s*hz(?:\s+for\s+(\S+)\s*ms)?\s*$/i))) {
+        if ((match = line.match(/^set\s+buzzer\s+to\s+(\S+)\s*hz(?:\s+for\s+(\S+)\s*ms)?\s*$/i))) {
             const { id, block } = cmd('microbitplus_playtone');
             block[id].inputs.FREQ = val(match[1]);
             block[id].inputs.MS = [1, [4, match[2] || '-1']];
+            return ret(block);
+        }
+        // `play tone` takes an EXPRESSION in both slots — they are inputs on
+        // the block — because MakeCode's own tone is almost never two
+        // literals: it is `playTone(noteFrequency(Note.C), beat(Quarter))`.
+        // A bare literal parses exactly as it always did. No `for … ms` is a
+        // tone that rings until the next one (MakeCode's ringTone).
+        if ((match = line.match(/^play\s+tone\s+(.+?)\s*hz(?:\s+for\s+(.+?)\s*ms)?\s*$/i))) {
+            const { id, block } = cmd('microbitplus_playtone');
+            block[id].inputs.FREQ = val(match[1]);
+            block[id].inputs.MS = match[2] ? val(match[2]) : [1, [4, '-1']];
+            return ret(block);
+        }
+        // MakeCode's music timing: a beat is 60000 / tempo ms, and the
+        // fractions are MakeCode's (pxt-microbit libs/core/music.ts). `music
+        // tempo`, not `tempo`: `set tempo to` is the Scratch music block.
+        if ((match = line.match(/^rest\s+for\s+(.+?)\s*ms\s*$/i))) {
+            const { id, block } = cmd('microbitplus_rest');
+            block[id].inputs.MS = val(match[1]);
+            return ret(block);
+        }
+        if ((match = line.match(/^set\s+music\s+tempo\s+to\s+(.+?)\s*$/i))) {
+            const { id, block } = cmd('microbitplus_settempo');
+            block[id].inputs.BPM = val(match[1]);
+            return ret(block);
+        }
+        if ((match = line.match(/^change\s+music\s+tempo\s+by\s+(.+?)\s*$/i))) {
+            const { id, block } = cmd('microbitplus_changetempo');
+            block[id].inputs.BPM = val(match[1]);
+            return ret(block);
+        }
+        // A built-in melody, by MakeCode's name for it; MicroPython's music
+        // module carries the same set under the same names.
+        if ((match = line.match(/^play\s+melody\s+([A-Za-z]+)(?:\s+(until\s+done|in\s+background|looping\s+in\s+background))?\s*$/i))
+            && microbitMelody(match[1])) {
+            const { id, block } = cmd('microbitplus_playmelody');
+            block[id].fields.MELODY = [microbitMelody(match[1]).name, null];
+            block[id].fields.MODE = [(match[2] || 'until done').toLowerCase().replace(/\s+/g, ' '), null];
             return ret(block);
         }
         if ((match = line.match(/^play\s+note\s+([A-G]#?\d)\s*$/i))) {
@@ -6728,6 +6864,9 @@ class SB3Creator {
             case 'microbitplus_radiolastnum': return 'read last radio number';
             case 'microbitplus_radiolaststr': return 'read last radio text';
             case 'microbitplus_score': return 'game score';
+            case 'microbitplus_beat': return `beat ${f('FRACTION')}`;
+            case 'microbitplus_notefreq': return `frequency of note ${f('NOTE')}`;
+            case 'microbitplus_tempo': return 'music tempo';
             case 'microbitplus_map': return `map ${v('VALUE')} from low ${v('FROMLOW')} high ${v('FROMHIGH')} to low ${v('TOLOW')} high ${v('TOHIGH')}`;
             // STC12 / 8051 pin read (digital level or ADC value).
             case 'stc12_read': return `read ${f('PIN')}`;
@@ -6846,6 +6985,8 @@ class SB3Creator {
             case 'devices_whenmotion': return `WHEN motion on ${v('SENSOR')}:`;
             case 'devices_whentilted': return `WHEN ${v('SENSOR')} tilted:`;
             case 'devices_whenirreceived': return `WHEN IR received on ${v('SENSOR')}:`;
+            case 'microbitplus_whenradionum': return 'WHEN radio receives number:';
+            case 'microbitplus_whenradiostr': return 'WHEN radio receives text:';
             case 'procedures_definition': {
                 const proto = blocks[b.inputs.custom_block[1]];
                 const m = proto.mutation;
@@ -7005,7 +7146,16 @@ class SB3Creator {
             case 'microbitplus_digitalwrite': return line(`set pin ${f('PIN')} to ${f('LEVEL')}`);
             case 'microbitplus_analogwrite': return line(`set pin ${f('PIN')} analog ${v('PCT')} %`);
             case 'microbitplus_setpull': return line(`set pin ${f('PIN')} pull ${f('MODE')}`);
-            case 'microbitplus_playtone': return line(`play tone ${v('FREQ')} hz for ${v('MS')} ms`);
+            case 'microbitplus_playtone': {
+                // -1 is "until the next tone" (MakeCode's ringTone), which is
+                // the spelling with no duration, not `for -1 ms`.
+                const ms = v('MS');
+                return line(ms === '-1' ? `play tone ${v('FREQ')} hz` : `play tone ${v('FREQ')} hz for ${ms} ms`);
+            }
+            case 'microbitplus_rest': return line(`rest for ${v('MS')} ms`);
+            case 'microbitplus_settempo': return line(`set music tempo to ${v('BPM')}`);
+            case 'microbitplus_changetempo': return line(`change music tempo by ${v('BPM')}`);
+            case 'microbitplus_playmelody': return line(`play melody ${f('MELODY')} ${f('MODE') || 'until done'}`);
             case 'microbitplus_playnote': return line(`play note ${f('NOTE')}`);
             case 'microbitplus_stoptone': return line('stop buzzer');
             case 'microbitplus_servo': return line(`set pin ${f('PIN')} servo ${v('DEG')}`);
@@ -7130,7 +7280,8 @@ class SB3Creator {
             'event_whenbroadcastreceived', 'control_start_as_clone', 'procedures_definition',
             'stc12_whenpin', 'stc12_whenkey',
             'devices_whenabove', 'devices_whencloser', 'devices_whenmotion',
-            'devices_whentilted', 'devices_whenirreceived'].includes(op);
+            'devices_whentilted', 'devices_whenirreceived',
+            'microbitplus_whenradionum', 'microbitplus_whenradiostr'].includes(op);
     }
 
     pyName(name) {
@@ -7244,16 +7395,23 @@ class SB3Creator {
             case 'microbitplus_sound': return 'microphone.sound_level()';
             case 'microbitplus_digitalread': return `pin${(b.fields.PIN ? b.fields.PIN[0] : '0').toLowerCase().replace(/^p/, '')}.read_digital()`;
             case 'microbitplus_analogread': return `pin${(b.fields.PIN ? b.fields.PIN[0] : '0').toLowerCase().replace(/^p/, '')}.read_analog()`;
-            case 'microbitplus_isbutton': return `button_${(b.fields.BTN ? b.fields.BTN[0] : 'a').toLowerCase()}.is_pressed()`;
+            case 'microbitplus_isbutton': return microbitButtonPy(b.fields.BTN ? b.fields.BTN[0] : 'a');
             case 'microbitplus_ispinhigh': return `pin${(b.fields.PIN ? b.fields.PIN[0] : '0').toLowerCase().replace(/^p/, '')}.read_digital()`;
             case 'microbitplus_isgesture':
                 return `accelerometer.is_gesture('${gestureForMicroPython(b.fields.GESTURE ? b.fields.GESTURE[0] : 'shake')}')`;
             case 'microbitplus_istouch': return `pin${(b.fields.PIN ? b.fields.PIN[0] : '0').toLowerCase().replace(/^p/, '')}.is_touched()`;
-            case 'microbitplus_radiolastnum': return '_radio_last_num';
-            case 'microbitplus_radiolaststr': return '_radio_last_str';
+            case 'microbitplus_radiolastnum': this._pyUses.radio = true; return '_radio_last_num';
+            case 'microbitplus_radiolaststr': this._pyUses.radio = true; return '_radio_last_str';
             // MakeCode's game score lives in the module the helpers keep it in
             // (generateMicroPython's `_bw_score`); reading it needs no `global`.
             case 'microbitplus_score': this._pyUses.game = true; return '_bw_score';
+            // MakeCode's music.beat / noteFrequency / tempo. A note's frequency
+            // is a constant (Note.C IS 262 in MakeCode); a beat follows the tempo.
+            case 'microbitplus_beat':
+                this._pyUses.tempo = true;
+                return `_bw_beat(${MAKECODE_BEAT_SHIFT[String(f('FRACTION')).toLowerCase()] ?? 0})`;
+            case 'microbitplus_notefreq': return String((microbitNote(f('NOTE')) || { hz: 262 }).hz);
+            case 'microbitplus_tempo': this._pyUses.tempo = true; return '_bw_tempo';
             // pins.map, exactly as MakeCode computes it:
             // ((value - fromLow) * (toHigh - toLow)) / (fromHigh - fromLow) + toLow
             case 'microbitplus_map':
@@ -10201,9 +10359,8 @@ class SB3Creator {
                 return `pin${n}.read_analog()`;
             }
             if (rb.opcode === 'microbitplus_isbutton') {
-                const btn = String(rf('BTN')).toLowerCase();
                 uses.buttons = true;
-                return `button_${btn}.is_pressed()`;
+                return microbitButtonPy(rf('BTN'));
             }
             if (rb.opcode === 'microbitplus_ispinhigh') {
                 const pin = String(rf('PIN')).toLowerCase();
@@ -10218,8 +10375,8 @@ class SB3Creator {
                 const n = pin.replace(/^p/, '');
                 return `pin${n}.is_touched()`;
             }
-            if (rb.opcode === 'microbitplus_radiolastnum') { uses.radio = true; return '_radio_last_num'; }
-            if (rb.opcode === 'microbitplus_radiolaststr') { uses.radio = true; return '_radio_last_str'; }
+            if (rb.opcode === 'microbitplus_radiolastnum') { uses.radio = true; this._pyUses.radio = true; return '_radio_last_num'; }
+            if (rb.opcode === 'microbitplus_radiolaststr') { uses.radio = true; this._pyUses.radio = true; return '_radio_last_str'; }
             // KEYPAD4X4 reporter — the scan function is emitted in the header.
             if (rb.opcode === 'stc12_keypad') {
                 const partName = rb.fields.PART ? rb.fields.PART[0] : '';
@@ -10305,8 +10462,24 @@ class SB3Creator {
                     return [`${pad}display.scroll(${pyText('TEXT')}, delay=int(${v('MS')}))`];
                 case 'microbitplus_cleardisplay':
                     return [`${pad}display.clear()`];
-                case 'microbitplus_plot':
-                    return [`${pad}display.set_pixel(int(${v('X')}), int(${v('Y')}), ${f('STATE') === 'off' ? 0 : (dimmable ? '_bw_lvl(9)' : 9)})`];
+                case 'microbitplus_plot': {
+                    // MakeCode's led.plot/unplot IGNORE a point off the 5x5
+                    // grid; MicroPython's set_pixel raises ValueError and the
+                    // program stops (a falling egg drawn at y = 5 before the
+                    // `> 4` check). A point that is plainly on the grid draws
+                    // exactly as before; a variable one is checked first; an
+                    // expression goes through a helper so it is evaluated once.
+                    const x = v('X');
+                    const y = v('Y');
+                    const lvl = f('STATE') === 'off' ? 0 : (dimmable ? '_bw_lvl(9)' : 9);
+                    const set = `display.set_pixel(int(${x}), int(${y}), ${lvl})`;
+                    const onGrid = (n) => /^[0-4]$/.test(n);
+                    if (onGrid(x) && onGrid(y)) return [`${pad}${set}`];
+                    const simple = (n) => /^-?[\w.]+$/.test(n);
+                    if (simple(x) && simple(y)) return [`${pad}if 0 <= int(${x}) < 5 and 0 <= int(${y}) < 5:`, `${pad}    ${set}`];
+                    uses.plot = true;
+                    return [`${pad}_bw_plot(${x}, ${y}, ${lvl})`];
+                }
                 // MakeCode's led.plotBarGraph / toggle / setBrightness /
                 // stopAnimation and its game score. MicroPython has no global
                 // brightness and no bar graph, so each is a small helper in
@@ -10372,6 +10545,25 @@ class SB3Creator {
                 case 'microbitplus_stoptone':
                     uses.music = true;
                     return [`${pad}music.stop()`];
+                // MakeCode's rest is a silent tone for that long: whatever rings
+                // stops, and the script waits (others keep running).
+                case 'microbitplus_rest':
+                    uses.music = true;
+                    return [`${pad}music.stop()`, `${pad}yield int(${v('MS')})`];
+                case 'microbitplus_settempo':
+                    uses.music = true; this._pyUses.tempo = true; this._pyUses.settempo = true;
+                    return [`${pad}_bw_set_tempo(${v('BPM')})`];
+                case 'microbitplus_changetempo':
+                    uses.music = true; this._pyUses.tempo = true; this._pyUses.settempo = true;
+                    return [`${pad}_bw_set_tempo(_bw_tempo + (${v('BPM')}))`];
+                case 'microbitplus_playmelody': {
+                    uses.music = true;
+                    const tune = (microbitMelody(f('MELODY')) || { py: 'DADADADUM' }).py;
+                    const mode = String(f('MODE') || 'until done').toLowerCase();
+                    const flags = mode === 'in background' ? 'wait=False'
+                        : mode === 'looping in background' ? 'wait=False, loop=True' : 'wait=True';
+                    return [`${pad}music.play(music.${tune}, pin=pin0, ${flags})`];
+                }
                 case 'microbitplus_servo': {
                     const pin = String(f('PIN')).toLowerCase().replace(/^p/, '');
                     return [`${pad}pin${pin}.write_analog(int(${v('DEG')} / 180 * 1023))`];
@@ -10610,22 +10802,49 @@ class SB3Creator {
                                  // globalsFor sees the complete variable set
         const starts = [];       // started at flag
         const receivers = [];    // [message, fnName]
+        const radioHandlers = [];  // [{kind: 'number'|'text', key}] — radio hats
         let taskSeq = 0;
+        // Every task is driven with next(), so it has to be a GENERATOR. A script
+        // with no wait, loop or yield-from compiled to a plain function, and the
+        // scheduler died on it with "'NoneType' object is not an iterator" before
+        // any other script ran — `WHEN flag clicked: show pattern …` beside a
+        // FOREVER was enough. The same non-foldable guard the DEFINEs use (see
+        // the procDefs comment below) makes the body a generator and does nothing.
+        const asTask = (body) => (body.some((l) => /\byield\b/.test(l))
+            ? body : [...body, '    if _bw_false:', '        yield 0']);
         for (const t of targets) {
             const blocks = t.blocks || {};
             for (const b of Object.values(blocks)) {
                 if (!b.topLevel) continue;
                 if (b.opcode === 'event_whenflagclicked') {
                     const fn = `_task_${taskSeq++}`;
-                    const body = walk(b.next, blocks, '    ');
+                    const body = asTask(walk(b.next, blocks, '    '));
                     taskDefs.push([`def ${fn}():`, ...globalsFor(this, body), ...body].join('\n'));
                     starts.push(fn);
                 } else if (b.opcode === 'event_whenbroadcastreceived') {
                     const fn = `_task_${taskSeq++}`;
                     const msg = b.fields.BROADCAST_OPTION ? b.fields.BROADCAST_OPTION[0] : '';
-                    const body = walk(b.next, blocks, '    ');
+                    const body = asTask(walk(b.next, blocks, '    '));
                     taskDefs.push([`def ${fn}():`, ...globalsFor(this, body), ...body].join('\n'));
                     receivers.push([msg, fn]);
+                } else if (b.opcode === 'microbitplus_whenradionum' || b.opcode === 'microbitplus_whenradiostr') {
+                    // MakeCode's radio.onReceivedNumber/String. One receiver task
+                    // (below) takes packets off the air and starts each matching
+                    // handler as a new task, handing it THAT packet's value. The
+                    // handler reads it from its own argument, not the shared
+                    // `_radio_last_*`: in MakeCode it is the handler's parameter,
+                    // and a second packet arriving while the first handler waits
+                    // must not change what the first one sees.
+                    uses.radio = true;
+                    const kind = b.opcode === 'microbitplus_whenradionum' ? 'number' : 'text';
+                    const own = kind === 'number' ? '_radio_last_num' : '_radio_last_str';
+                    const fn = `_task_${taskSeq++}`;
+                    const body = asTask(walk(b.next, blocks, '    ')
+                        .map((l) => l.replace(new RegExp(`\\b${own}\\b`, 'g'), '_bw_rx')));
+                    taskDefs.push([`def ${fn}(_bw_rx):`, ...globalsFor(this, body), ...body].join('\n'));
+                    const key = `__bw_radio_${kind}_${radioHandlers.length}`;
+                    radioHandlers.push({ kind, key });
+                    receivers.push([key, fn]);
                 } else if (b.opcode === 'stc12_whenpin') {
                     // Edge-triggered pin hat as an edge-polling generator:
                     // the body (yields and all) runs on each matching edge.
@@ -10706,6 +10925,38 @@ class SB3Creator {
                     ...globals, ...body, guard, '        yield 0'].join('\n'));
             }
         }
+        if (radioHandlers.length) {
+            // The receiver: one packet per scheduler pass, each handler of the
+            // matching kind started with the packet's value. MicroPython's radio
+            // carries text only and `radio send number` sends str(n), so a packet
+            // that reads as a number IS a number; anything else is text. (MakeCode
+            // tags the packet type instead, so there a sent string "42" stays a
+            // string — the one case the two disagree on.)
+            const keys = (kind) => radioHandlers.filter((h) => h.kind === kind)
+                .map((h) => `(${this.pyStr(h.key)}, `);
+            const num = keys('number').map((k) => `${k}n)`);
+            const txt = keys('text').map((k) => `${k}m)`);
+            taskDefs.push([
+                'def _bw_radio_rx():',
+                '    global _radio_last_num, _radio_last_str',
+                '    radio.on()',
+                '    while True:',
+                '        m = radio.receive()',
+                '        if m is not None:',
+                '            try:',
+                '                n = float(m)',
+                '                n = int(n) if n == int(n) else n',
+                '            except (ValueError, OverflowError):',
+                '                n = None',
+                '            if n is None:',
+                '                _radio_last_str = m',
+                ...(txt.length ? [`                _pending.extend([${txt.join(', ')}])`] : []),
+                '            else:',
+                '                _radio_last_num = n',
+                ...(num.length ? [`                _pending.extend([${num.join(', ')}])`] : []),
+                '        yield 0'].join('\n'));
+            starts.push('_bw_radio_rx');
+        }
         if (!taskDefs.length) reasons.push('no runnable scripts (a when-flag-clicked hat is required)');
         if (reasons.length) return { ok: false, reasons, warnings };
 
@@ -10743,12 +10994,29 @@ class SB3Creator {
         // Unconditional: the folding is the stock compiler's, not the
         // debugger's.
         header.push('_bw_false = False')
+        // `read last radio number/text` read these names, and nothing defined
+        // them unless a radio hat did: a program that polled the last packet
+        // stopped with a NameError on its first read.
         if (uses.radio) header.push('import radio');
+        if (this._pyUses.radio || radioHandlers.length) header.push('_radio_last_num = 0', "_radio_last_str = ''");
         // The reporters emit `_arrays.<method>(…)` whether or not anything
         // defines `_arrays`. Without this the device raised NameError at the
         // first array read, and nothing in the result said so.
         if (this._pyUses.arrays) {
-            if (!header.includes('import json')) header.push('import json');
+            // The shim parses and prints its arrays with json, which the
+            // device firmware has and the SIMULATOR firmware does not (the
+            // debugger found the same, see BW_JSON_PY): every program that
+            // used an array stopped at `import json` in the simulator. The
+            // fallback reads only what the shim writes — JSON literals.
+            if (!header.includes('import json')) {
+                header.push('try:', '    import json', 'except ImportError:',
+                    ...BW_JSON_PY.map((l) => `    ${l}`),
+                    '    class json:',
+                    '        def loads(s):',
+                    "            return eval(s, {'true': True, 'false': False, 'null': None})",
+                    '        def dumps(o):',
+                    '            return _bw_json(o)');
+            }
             header.push('', ...this.arraysShimPy(), '_arrays = _Arrays()');
         }
         // An STC program on a board that is not an STC still resolves its pin
@@ -11089,7 +11357,17 @@ class SB3Creator {
             '    tasks = [[t, 0] for t in tasks]',
             '    while tasks:',
             '        while _pending:',
-            '            fn = _receivers.get(_pending.pop(0))',
+            // A radio packet arrives as (handler key, value): the handler is
+            // started WITH its value. Emitted only when there is one, so every
+            // other program's driver is byte-for-byte what it was.
+            ...(radioHandlers.length ? [
+                '            item = _pending.pop(0)',
+                '            if isinstance(item, tuple):',
+                '                fn = _receivers.get(item[0])',
+                '                if fn: tasks.append([fn(item[1]), 0])',
+                '                continue',
+                '            fn = _receivers.get(item)'
+            ] : ['            fn = _receivers.get(_pending.pop(0))']),
             '            if fn: tasks.append([fn(), 0])',
             '        now = running_time()',
             '        alive = []',
@@ -15759,7 +16037,14 @@ class SB3Creator {
             '    def insert(self, n, i, v): self._d[n].insert(int(i), v)',
             '    def remove(self, n, i): del self._d[n][int(i)]',
             '    def drop(self, n): self._d.pop(n, None)',
-            '    def get(self, n, i): return self._d[n][int(i)]',
+            // Out of range is EMPTY, as the extension reports it (arrays.js get:
+            // JSON.stringify(arr[i]) of a missing item) and as MakeCode reads an
+            // index past the end. Python raised IndexError and stopped the
+            // program, and a negative index read from the far end instead.
+            "    def get(self, n, i):",
+            "        a = self._d[n]",
+            "        i = int(i)",
+            "        return a[i] if 0 <= i < len(a) else ''",
             '    def pop(self, n): return self._d[n].pop()',
             '    def length(self, n): return len(self._d[n])',
             '    def sum(self, n): return sum(self._d[n])',
