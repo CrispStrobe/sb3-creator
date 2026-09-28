@@ -34,17 +34,17 @@ describe('canonical SPIKE dialect census', () => {
         // be absorbed by quietly mapping a few and calling the slice wider, and
         // the union check alone would still pass. It did not widen — every new
         // opcode landed in an exclusion class, and the classes say why.
-        assert.equal(SPIKE_DIALECT_OPS.length, 42,
+        assert.equal(SPIKE_DIALECT_OPS.length, 43,
             'counted 30 bidirectional dialect mappings on 2026-08-31, unchanged on 2026-09-20; ' +
-            '42 on 2026-09-28, when twelve learner-gap opcodes gained dialect words for SPIKE 3 Python');
+            '43 on 2026-09-28, when thirteen learner-gap opcodes gained dialect words for SPIKE 3 Python');
         assert.deepEqual(Object.fromEntries(Object.entries(SPIKE_DIALECT_EXCLUSIONS)
             .map(([kind, ops]) => [kind, ops.length])), {
             // +10 transport-control and +7 learner-gap on 2026-09-20 = the 17
             // opcodes the unified extension brought. host-control and event-hat
             // are untouched, which is the check that the new connection blocks
             // were not swept into the editor/REPL class to avoid naming them.
-            // learner-gap 36 -> 24 on 2026-09-28: exactly the twelve now mapped.
-            'host-control': 21, 'transport-control': 10, 'event-hat': 4, 'learner-gap': 24
+            // learner-gap 36 -> 23 on 2026-09-28: exactly the thirteen now mapped.
+            'host-control': 21, 'transport-control': 10, 'event-hat': 4, 'learner-gap': 23
         });
     });
 

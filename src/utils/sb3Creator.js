@@ -5415,6 +5415,13 @@ class SB3Creator {
             block[id].inputs.SPEED = val(match[1]);
             return ret(block);
         }
+        // The drive base's own steered start (MotorPair.start): the hub applies
+        // the steering and the mirrored left motor, at the movement speed.
+        if ((match = line.match(/^start\s+steering\s+(.+)$/i))) {
+            const { id, block } = cmd('spikeprime_steer');
+            block[id].inputs.STEERING = val(match[1]);
+            return ret(block);
+        }
         if ((match = line.match(/^start\s+moving\s+steering\s+(\S+)\s+at\s+speed\s+(.+)$/i))) {
             const { id, block } = cmd('spikeprime_motorPairMove');
             block[id].inputs.STEERING = val(match[1]);
@@ -7779,6 +7786,7 @@ class SB3Creator {
             case 'spikeprime_setMovementMotors': return line(`set movement motors ${f('PORT_A')} ${f('PORT_B')}`);
             case 'spikeprime_setMovementSpeed': return line(`set movement speed ${v('SPEED')}`);
             case 'spikeprime_motorPairMove': return line(`start moving steering ${v('STEERING')} at speed ${v('SPEED')}`);
+            case 'spikeprime_steer': return line(`start steering ${v('STEERING')}`);
             case 'spikeprime_startTank': return line(`start tank drive left ${v('LEFT_SPEED')} right ${v('RIGHT_SPEED')}`);
             case 'spikeprime_motorRunToPosition': return line(`run motor ${f('PORT')} to position ${v('POSITION')}`);
             case 'spikeprime_resetMotorPosition': return line(`reset motor position ${f('PORT')} to ${v('POSITION')}`);

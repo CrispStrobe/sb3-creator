@@ -32,7 +32,10 @@ export const SPIKE_DIALECT_OPS = Object.freeze([
     // named unit and the up face. Each is mapped in both directions.
     'displayShowImage', 'getDistanceIn', 'getFaceUp', 'getRelativePosition',
     'motorPairMove', 'motorRunToPosition', 'motorSetStopAction', 'presetYaw',
-    'resetMotorPosition', 'setMovementMotors', 'setMovementSpeed', 'startTank'
+    'resetMotorPosition', 'setMovementMotors', 'setMovementSpeed', 'startTank',
+    // SPIKE 3's motor_pair.move is the drive base's steered start, which the
+    // hub applies to its mirrored pair; motorPairMove drives each motor raw.
+    'steer'
 ]);
 
 export const SPIKE_DIALECT_EXCLUSIONS = Object.freeze({
@@ -75,7 +78,7 @@ export const SPIKE_DIALECT_EXCLUSIONS = Object.freeze({
     // Keeping them enumerated makes the denominator honest and gives the next
     // expansion a finite list instead of an implied blanket promise.
     'learner-gap': Object.freeze([
-        'steer', 'getAbsolutePosition', 'displayImage',
+        'getAbsolutePosition', 'displayImage',
         'displayPattern', 'rotateDisplay', 'setCenterButtonColor', 'getGyroRate',
         'getFilteredGyroRate', 'getFilteredAcceleration',
         'setMatrix3x3ColorGrid', 'setMatrix3x3Custom',

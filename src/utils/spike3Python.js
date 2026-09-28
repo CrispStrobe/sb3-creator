@@ -727,16 +727,16 @@ function translatorClass () {
                 if (v !== null) return { lines: [`set motor speed ${P} ${fmt(Math.abs(v) / VELOCITY_PER_PERCENT)}`], sign: v < 0 ? -1 : 1 };
                 return { lines: [`set motor speed ${P} ${this.tok(this.scaledDown(velocity, VELOCITY_PER_PERCENT))}`], sign: 1 };
             };
-            const moveSpeed = (velocity) => {
-                const sign = this.markerVelocity(velocity, '_bw_move_speed');
-                if (sign) return { lines: [], sign };
+            /** `set movement speed` for a velocity (default 360 deg/s), times a sign; none for the exporter's marker. */
+            const signedMoveSpeed = (velocity, sign) => {
+                const marker = this.markerVelocity(velocity, '_bw_move_speed');
+                if (marker && marker * sign > 0) return { lines: [] };
                 this.note(VELOCITY_NOTE);
-                if (velocity === undefined) {
-                    return { lines: [`set movement speed ${fmt(360 / VELOCITY_PER_PERCENT)}`], sign: 1 };
-                }
-                const v = lit(velocity);
-                if (v !== null) return { lines: [`set movement speed ${fmt(Math.abs(v) / VELOCITY_PER_PERCENT)}`], sign: v < 0 ? -1 : 1 };
-                return { lines: [`set movement speed ${this.scaledDown(velocity, VELOCITY_PER_PERCENT)}`], sign: 1 };
+                if (marker) return { lines: ['set movement speed (0 - _bw_move_speed)'] };
+                const v = velocity === undefined ? 360 : lit(velocity);
+                if (v !== null) return { lines: [`set movement speed ${fmt(sign * v / VELOCITY_PER_PERCENT)}`] };
+                const text = this.scaledDown(velocity, VELOCITY_PER_PERCENT);
+                return { lines: [`set movement speed ${sign < 0 ? `(0 - ${text})` : text}`] };
             };
             const notAwaited = () => {
                 if (!awaited) this.note(`${fn}() without await: the block waits for it to finish, where SPIKE 3 carries on at once`);
@@ -871,11 +871,9 @@ function translatorClass () {
                     const sel = selectPair(call.args[0]);
                     if (!sel.ok) return sel.lines;
                     this.extraKeywords(call, fn, ['velocity', 'steering']);
-                    const steering = this.tok(this.expr(this.arg(call, 1, 'steering')));
-                    const velocity = this.kw(call, 'velocity');
-                    if (velocity === undefined) this.note(VELOCITY_NOTE);
-                    const speed = velocity === undefined ? fmt(360 / VELOCITY_PER_PERCENT) : this.scaledDown(velocity, VELOCITY_PER_PERCENT);
-                    return [...sel.lines, `start moving steering ${steering} at speed ${speed}`];
+                    const steering = this.expr(this.arg(call, 1, 'steering'));
+                    const { lines } = signedMoveSpeed(this.kw(call, 'velocity'), 1);
+                    return [...sel.lines, ...lines, `start steering ${steering}`];
                 }
                 case 'motor_pair.move_tank': {
                     const sel = selectPair(call.args[0]);
@@ -887,6 +885,10 @@ function translatorClass () {
                 }
                 case 'motor_pair.move_for_degrees':
                 case 'motor_pair.move_for_time': {
+                    // Start the drive base's steered move, wait for the time or for
+                    // either wheel to have turned that far, stop: the awaited move,
+                    // exactly, whatever the extension's own move block does about
+                    // waiting (the virtual hub's `move` returns before it arrives).
                     const sel = selectPair(call.args[0]);
                     if (!sel.ok) return sel.lines;
                     notAwaited();
@@ -894,36 +896,11 @@ function translatorClass () {
                     this.extraKeywords(call, fn, ['velocity', 'stop', 'steering', 'degrees', 'duration']);
                     if (this.kw(call, 'stop')) this.note(`${fn}: stop= is not carried; the drive base's stop action is used`);
                     const amount = this.arg(call, 1, timed ? 'duration' : 'degrees');
-                    const steerNode = this.arg(call, 2, 'steering');
-                    const velocity = this.kw(call, 'velocity');
-                    if (lit(steerNode) === 0) {
-                        const { lines, sign } = moveSpeed(velocity);
-                        if (timed) return [...sel.lines, ...lines, `move ${sign < 0 ? 'backward' : 'forward'} ${this.tok(this.seconds(amount))} seconds`];
-                        const n = lit(amount);
-                        let s = sign, value, unit = 'degrees';
-                        if (n !== null) { value = fmt(Math.abs(n)); if (n < 0) s = -s; } else {
-                            const inner = this.unwrap(amount);
-                            const cm = inner.type === 'BinOp' && inner.op === '/' && inner.left.type === 'BinOp' && inner.left.op === '*' &&
-                                lit(inner.left.right) === 360 ? lit(inner.right) : null;
-                            if (cm === CM_PER_ROTATION || cm === IN_PER_ROTATION) {
-                                value = this.expr(inner.left.left); unit = cm === CM_PER_ROTATION ? 'cm' : 'inches';
-                            } else if (inner.type === 'BinOp' && inner.op === '*' && lit(inner.right) === 360) {
-                                value = this.expr(inner.left); unit = 'rotations';
-                            } else {
-                                value = this.expr(amount);
-                                this.note(`${fn}: a computed degree count keeps its sign in the block; the direction is taken from the velocity`);
-                            }
-                        }
-                        return [...sel.lines, ...lines, `move ${s < 0 ? 'backward' : 'forward'} ${this.tok(value)} ${unit}`];
-                    }
-                    // Steered: no single block. Start the steered move, wait for the
-                    // wheels (or the time), stop — which is the move it describes.
-                    const steering = this.tok(this.expr(steerNode));
-                    if (velocity === undefined) this.note(VELOCITY_NOTE);
-                    const speed = velocity === undefined ? fmt(360 / VELOCITY_PER_PERCENT) : this.scaledDown(velocity, VELOCITY_PER_PERCENT);
+                    const steering = this.expr(this.arg(call, 2, 'steering'));
                     const n = lit(amount);
-                    const signedSpeed = n !== null && n < 0 && !timed ? this.tok(`0 - ${speed}`) : speed;
-                    const start = [`start moving steering ${steering} at speed ${signedSpeed}`];
+                    if (!timed && n === null) this.note(`${fn}: a computed degree count drives in the velocity's direction; its own sign is not applied`);
+                    const { lines } = signedMoveSpeed(this.kw(call, 'velocity'), !timed && n !== null && n < 0 ? -1 : 1);
+                    const start = [...lines, `start steering ${steering}`];
                     if (timed) return [...sel.lines, ...start, `wait ${this.seconds(amount)} seconds`, 'stop movement'];
                     return [...sel.lines, ...turnWheels(sel.pair, n !== null ? fmt(Math.abs(n)) : `(${this.expr(amount)})`, start)];
                 }
@@ -1426,6 +1403,7 @@ export function projectToSpike3Python (project) {
                     return line(`await motor_pair.move_for_degrees(motor_pair.PAIR_1, ${deg}, 0, ${v})`);
                 }
                 case 'spikeprime_motorPairMove': return line(`motor_pair.move(motor_pair.PAIR_1, ${val(b.inputs.STEERING)}, velocity=${times(b.inputs.SPEED, VPP)})`);
+                case 'spikeprime_steer': return line(`motor_pair.move(motor_pair.PAIR_1, ${val(b.inputs.STEERING)}, velocity=_bw_move_speed * ${VPP})`);
                 case 'spikeprime_startTank': return line(`motor_pair.move_tank(motor_pair.PAIR_1, ${times(b.inputs.LEFT_SPEED, VPP)}, ${times(b.inputs.RIGHT_SPEED, VPP)})`);
                 case 'spikeprime_stopMovement': return line('motor_pair.stop(motor_pair.PAIR_1)');
                 case 'spikeprime_displayText': return line(`await light_matrix.write(${wrapStr(val(b.inputs.TEXT))})`);
