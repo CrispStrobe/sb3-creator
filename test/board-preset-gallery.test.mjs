@@ -3,6 +3,7 @@ import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import test from 'node:test';
+import { corpusFloor } from './helpers/corpus-floor.mjs';
 
 const ROOT = join(import.meta.dirname, '..', 'examples');
 const INDEX = JSON.parse(readFileSync(join(ROOT, 'index.json'), 'utf8'));
@@ -24,6 +25,11 @@ const CASES = [
     requiredKinds: ['stc_mcu', '74hc595', 'matrix8x8', 'keypad_4x4', 'ds1302', 'ds18b20', 'at24c02', 'char_lcd', 'xpt2046']
   }
 ];
+
+// MEASURED 2026-09-28: two reviewed full-board presets. The structure checks
+// below are generated from CASES, so an empty list would otherwise pass.
+corpusFloor('reviewed full-board gallery presets', () => CASES.length, 2,
+  'The gallery addition is exactly the YL-39 and PRECHIN A2 presets; losing either must be visible.');
 
 test('board presets retain their reviewed source bytes and full authored structure', () => {
   for (const expected of CASES) {
