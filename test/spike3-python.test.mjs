@@ -227,6 +227,14 @@ describe('corpus', () => {
     }
 });
 
+describe('print', () => {
+    test('print(a, b) joins with a space, as Python does', () => {
+        const r = spike3PythonToPseudocode(inMain('d = 5', 'print("mm", d)'));
+        assert.ok(body(r.pseudocode).includes('say (("mm" join " ") join d)'), r.pseudocode);
+        assert.deepEqual(compile(r.pseudocode).c.warnings, []);
+    });
+});
+
 describe('export', () => {
     test('a boolean reporter used as a condition is exported as the truth value itself', () => {
         const { project } = compile('DEVICE SPIKE\n\nWHEN flag clicked:\n  IF spike force sensor E pressed THEN:\n    stop motor A\n' +

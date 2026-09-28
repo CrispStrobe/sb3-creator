@@ -704,8 +704,10 @@ function translatorClass () {
                 return this.withPre(indent, [`${e.func.id}${args.length ? ' ' + args.join(' ') : ''}`]);
             }
             if (e.func.type === 'Name' && e.func.id === 'print') {
+                // print(a, b) writes them with a space between, as Python does.
                 const parts = e.args.map((a) => this.expr(a));
-                const text = parts.length ? parts.reduce((acc, x) => `(${acc} join ${x})`) : '""';
+                const text = parts.length ? parts.reduce((acc, x) => `((${acc} join " ") join ${x})`) : '""';
+                if ((e.keywords || []).length) this.note('print(): sep= and end= are not carried; values are joined with a space');
                 return this.withPre(indent, [`say ${text}`]);
             }
             if (path === 'time.sleep_ms') return this.withPre(indent, [`wait ${this.seconds(e.args[0])} seconds`]);
