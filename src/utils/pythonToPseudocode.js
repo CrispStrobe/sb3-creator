@@ -1,4 +1,5 @@
 import micropythonToPseudocode from './micropythonToPseudocode.js';
+import { isSpike3Python, spike3PythonToPseudocode } from './spike3Python.js';
 import { scratchCallToPseudo, arraysCallToPseudo, stripSpritePrefix, unq, sanitizeIdent } from './scratchRuntime.js';
 
 // Python (restricted subset) -> Brickwright pseudocode.
@@ -160,6 +161,14 @@ class Tokenizer {
         const s = this.src;
         let out = '';
         while (this.i < s.length && /[A-Za-z0-9_]/.test(s[this.i])) { out += s[this.i]; this.i++; }
+        // f"…{x}…": the string is read whole and re-marked, so the parser can
+        // split the {} fields out of it. Without this `print(f"d={d}")` was the
+        // name `f` followed by a stray string, which is a parse error.
+        if (/^[fF]$/.test(out) && (s[this.i] === '"' || s[this.i] === "'")) {
+            this.readString(s[this.i]);
+            this.tokens[this.tokens.length - 1].type = 'FSTRING';
+            return;
+        }
         this.push(KEYWORDS.has(out) ? out : 'NAME', out);
     }
 
@@ -177,6 +186,32 @@ class Tokenizer {
 }
 
 // ---- Parser (statements + Pratt expressions) -------------------------------------
+
+/**
+ * The literal text and {expression} fields of an f-string, in order. A field's
+ * format spec (`{x:.1f}`) and conversion (`{x!r}`) are dropped: the pseudocode
+ * joins values as text and has no formatting of its own.
+ */
+function parseFStringParts (text) {
+    const parts = [];
+    let lit = '';
+    for (let i = 0; i < text.length; i++) {
+        const c = text[i];
+        if (c === '{' && text[i + 1] === '{') { lit += '{'; i++; continue; }
+        if (c === '}' && text[i + 1] === '}') { lit += '}'; i++; continue; }
+        if (c !== '{') { lit += c; continue; }
+        let depth = 1, j = i + 1;
+        while (j < text.length && depth) { if (text[j] === '{') depth++; else if (text[j] === '}') depth--; if (depth) j++; }
+        let inner = text.slice(i + 1, j);
+        inner = inner.replace(/(![rsa])?(:[^:{}]*)?$/, '');
+        if (lit) { parts.push(lit); lit = ''; }
+        const toks = new Tokenizer(inner).tokenize();
+        parts.push(new Parser(toks).parseExpr());
+        i = j;
+    }
+    if (lit) parts.push(lit);
+    return parts;
+}
 
 class Parser {
     constructor (tokens) { this.toks = tokens; this.p = 0; }
@@ -224,6 +259,8 @@ class Parser {
         const lead = t.comment; // captured leading `# comment`
         const st = this.parseStatementInner(t);
         if (st && lead && !st.comment) st.comment = lead;
+        // The source line, so a front end can say WHERE it could not translate.
+        if (st && t.line && st.line === undefined) st.line = t.line;
         return st;
     }
 
@@ -232,6 +269,15 @@ class Parser {
         if (t.type === 'while') return this.parseWhile();
         if (t.type === 'for') return this.parseFor();
         if (t.type === 'def') return this.parseDef();
+        // `async def` is a def whose calls are awaited. Scratch scripts already
+        // run concurrently and a block that takes time already makes its script
+        // wait, so the body reads exactly like a plain def's.
+        if (t.type === 'NAME' && t.value === 'async' && this.peek(1).type === 'def') {
+            this.next();
+            const d = this.parseDef();
+            if (d) d.isAsync = true;
+            return d;
+        }
         if (t.type === 'import' || t.type === 'from') { this.skipToNewline(); return null; }
         if (t.type === 'global') { this.skipToNewline(); return null; }
         // Generated driver classes (`class _BoostDriver:`) are re-emitted — skip them.
@@ -311,7 +357,12 @@ class Parser {
         if (t.type === 'return') { this.next(); let val = null; if (!this.at('NEWLINE') && !this.at('EOF')) val = this.parseExpr(); this.endSimple(); return { type: 'Return', value: val }; }
         if (t.type === 'del') { this.next(); const target = this.parseExpr(); this.endSimple(); return { type: 'Del', target }; }
         // expression / assignment / aug-assign
-        const target = this.parseExpr();
+        let target = this.parseExpr();
+        if (this.at('OP', ',')) {
+            const elts = [target];
+            while (this.at('OP', ',')) { this.next(); if (this.at('OP', '=') || this.at('NEWLINE')) break; elts.push(this.parseExpr()); }
+            target = { type: 'Tuple', elts };
+        }
         if (this.at('OP', '=')) { this.next(); const value = this.parseExpr(); this.endSimple(); return { type: 'Assign', target, value }; }
         for (const aug of ['+=', '-=', '*=', '/=', '%=']) {
             if (this.at('OP', aug)) { this.next(); const value = this.parseExpr(); this.endSimple(); return { type: 'AugAssign', op: aug[0], target, value }; }
@@ -324,7 +375,18 @@ class Parser {
 
     // Pratt-style expression parser. Precedence low->high: or, and, not, compare,
     // add/sub, mul/div/mod, unary, power, atom (call/subscript/attribute).
-    parseExpr () { return this.parseOr(); }
+    parseExpr () {
+        // `lambda a, b: expr` — kept as a node so a front end that knows what
+        // the callee does with it (runloop.until) can use the body.
+        if (this.at('NAME', 'lambda')) {
+            this.next();
+            const args = [];
+            while (!this.at('OP', ':')) { args.push(this.eat('NAME').value); if (this.at('OP', ',')) this.next(); }
+            this.eat('OP', ':');
+            return { type: 'Lambda', args, body: this.parseExpr() };
+        }
+        return this.parseOr();
+    }
     parseOr () { let l = this.parseAnd(); while (this.at('or')) { this.next(); l = { type: 'Bool', op: 'or', left: l, right: this.parseAnd() }; } return l; }
     parseAnd () { let l = this.parseNot(); while (this.at('and')) { this.next(); l = { type: 'Bool', op: 'and', left: l, right: this.parseNot() }; } return l; }
     parseNot () { if (this.at('not')) { this.next(); return { type: 'Not', operand: this.parseNot() }; } return this.parseCompare(); }
@@ -335,14 +397,19 @@ class Parser {
             if (this.at('OP', '<=')) return '<='; if (this.at('OP', '>=')) return '>=';
             if (this.at('OP', '==')) return '=='; if (this.at('OP', '!=')) return '!=';
             if (this.at('in')) return 'in';
+            // `is` / `is not` compare identity; on the small ints and constants a
+            // program compares this way (`color_sensor.color(p) is color.RED`)
+            // identity and equality agree, so they read as = and not =.
+            if (this.at('NAME', 'is')) return this.peek(1).type === 'not' ? 'isnot' : 'is';
             if (this.at('not') && this.peek(1).type === 'in') return 'notin';
             return null;
         };
         let op;
         while ((op = cmp())) {
-            if (op === 'notin') { this.next(); this.next(); } else if (op === 'in') this.next(); else this.next();
+            if (op === 'notin' || op === 'isnot') { this.next(); this.next(); } else this.next();
             const right = this.parseBitOr();
-            l = { type: 'Compare', op, left: l, right };
+            if (op === 'is' || op === 'isnot') l = { type: 'Compare', op: op === 'is' ? '==' : '!=', identity: true, left: l, right };
+            else l = { type: 'Compare', op, left: l, right };
         }
         return l;
     }
@@ -356,7 +423,9 @@ class Parser {
     parseAdd () { let l = this.parseMul(); while (this.at('OP', '+') || this.at('OP', '-')) { const op = this.next().value; l = { type: 'BinOp', op, left: l, right: this.parseMul() }; } return l; }
     parseMul () { let l = this.parseUnary(); while (this.at('OP', '*') || this.at('OP', '/') || this.at('OP', '%') || this.at('OP', '//')) { const op = this.next().value; l = { type: 'BinOp', op, left: l, right: this.parseUnary() }; } return l; }
     parseUnary () { if (this.at('OP', '-') || this.at('OP', '+') || this.at('OP', '~')) { const op = this.next().value; return { type: 'Unary', op, operand: this.parseUnary() }; } return this.parsePower(); }
-    parsePower () { let l = this.parseAtom(); if (this.at('OP', '**')) { this.next(); l = { type: 'BinOp', op: '**', left: l, right: this.parseUnary() }; } return l; }
+    parsePower () {
+        if (this.at('NAME', 'await')) { this.next(); return { type: 'Await', value: this.parsePower() }; }
+        let l = this.parseAtom(); if (this.at('OP', '**')) { this.next(); l = { type: 'BinOp', op: '**', left: l, right: this.parseUnary() }; } return l; }
 
     parseAtom () {
         let node = this.parsePrimary();
@@ -365,9 +434,20 @@ class Parser {
             if (this.at('OP', '(')) {
                 this.next();
                 const args = [];
-                while (!this.at('OP', ')')) { args.push(this.parseExpr()); if (this.at('OP', ',')) this.next(); }
+                const keywords = [];
+                while (!this.at('OP', ')')) {
+                    // name=value — kept apart from the positionals, so a front end
+                    // that does not understand one can say so instead of reading it
+                    // as the next positional argument.
+                    if (this.at('NAME') && this.peek(1).type === 'OP' && this.peek(1).value === '=') {
+                        const name = this.next().value;
+                        this.next();
+                        keywords.push({ name, value: this.parseExpr() });
+                    } else args.push(this.parseExpr());
+                    if (this.at('OP', ',')) this.next();
+                }
                 this.eat('OP', ')');
-                node = { type: 'Call', func: node, args };
+                node = { type: 'Call', func: node, args, keywords };
             } else if (this.at('OP', '[')) {
                 this.next();
                 const index = this.parseExpr();
@@ -391,7 +471,19 @@ class Parser {
         if (t.type === 'None') { this.next(); return { type: 'Const', value: null }; }
         if (t.type === 'range') { this.next(); return { type: 'Name', id: 'range' }; }
         if (t.type === 'NAME') { this.next(); return { type: 'Name', id: t.value }; }
-        if (this.at('OP', '(')) { this.next(); const e = this.parseExpr(); this.eat('OP', ')'); return e; }
+        if (t.type === 'FSTRING') { this.next(); return { type: 'FStr', parts: parseFStringParts(t.value) }; }
+        if (this.at('OP', '(')) {
+            this.next();
+            const e = this.parseExpr();
+            if (this.at('OP', ',')) {
+                const elts = [e];
+                while (this.at('OP', ',')) { this.next(); if (this.at('OP', ')')) break; elts.push(this.parseExpr()); }
+                this.eat('OP', ')');
+                return { type: 'Tuple', elts };
+            }
+            this.eat('OP', ')');
+            return e;
+        }
         if (this.at('OP', '[')) {
             this.next();
             const elts = [];
@@ -504,8 +596,16 @@ class Translator {
             case 'Bool': return `(${this.expr(node.left)} ${node.op} ${this.expr(node.right)})`;
             case 'Compare': return this.compare(node);
             case 'BinOp': return this.binop(node);
-            case 'Call': return this.callExpr(node);
+            case 'Call':
+                if (node.keywords && node.keywords.length) this.warn(`keyword arguments ignored: ${node.keywords.map((k) => k.name).join(', ')}`);
+                return this.callExpr(node);
             case 'Subscript': return this.subscript(node);
+            // A Scratch block that takes time already makes its script wait, so
+            // awaiting it is what the block does anyway.
+            case 'Await': return this.expr(node.value);
+            case 'FStr': return this.fstring(node);
+            case 'Lambda': this.warn('lambda is not supported'); return '""';
+            case 'Tuple': this.warn('tuple is not supported'); return '""';
             case 'List': return node.elts.length ? `[${node.elts.map((e) => this.expr(e)).join(', ')}]` : '""';
             case 'Ternary': this.warn('ternary expression flattened to its true branch'); return this.expr(node.then);
             case 'Attribute':
@@ -543,6 +643,13 @@ class Translator {
             '&': 'bitand', '|': 'bitor', '^': 'bitxor', '<<': 'shiftleft', '>>': 'shiftright'
         };
         return `(${this.expr(L)} ${map[node.op] || node.op} ${this.expr(R)})`;
+    }
+
+    /** f"a{x}b" as the join it is: text and values, left to right. */
+    fstring (node) {
+        const parts = node.parts.map((p) => (typeof p === 'string' ? JSON.stringify(p) : this.expr(p)));
+        if (!parts.length) return '""';
+        return parts.reduce((acc, p) => `(${acc} join ${p})`);
     }
 
     isStrCall (n) { return n && n.type === 'Call' && n.func.type === 'Name' && n.func.id === 'str' && n.args.length === 1; }
@@ -714,9 +821,11 @@ class Translator {
         return [p + `set ${name} to ${this.expr(s.value)}`];
     }
 
-    exprStmt (e, indent) {
+    exprStmt (eRaw, indent) {
         const p = this.pad(indent);
+        const e = eRaw && eRaw.type === 'Await' ? eRaw.value : eRaw;
         if (e.type !== 'Call') return [];
+        if (e.keywords && e.keywords.length) this.warn(`keyword arguments ignored: ${e.keywords.map((k) => k.name).join(', ')}`);
         const f = e.func;
         // scratch.<command>(...) -> pseudocode statement (motion/looks/pen/sound/clones/…).
         // Structure markers (sprite/stage/local/costume) are consumed at the program level.
@@ -1021,6 +1130,9 @@ export default function pythonToPseudocode (source) {
         || /^\s*from\s+machine\s+import\b/m.test(source)) {
         return micropythonToPseudocode(source);
     }
+    // LEGO SPIKE App 3 Python: the same shape of argument — its motors, sensors
+    // and runloop are the hub's, and they read into the SPIKE vocabulary.
+    if (isSpike3Python(source)) return spike3PythonToPseudocode(source);
     const tokens = new Tokenizer(source).tokenize();
     const ast = new Parser(tokens).parseProgram();
     const t = new Translator();
@@ -1030,4 +1142,4 @@ export default function pythonToPseudocode (source) {
 
 // The AST -> pseudocode translator is language-agnostic: the JavaScript front-end
 // (javascriptToPseudocode.js) produces the same node shapes and reuses it.
-export { Translator };
+export { Translator, Tokenizer, Parser };

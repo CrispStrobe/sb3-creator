@@ -652,6 +652,24 @@ const SPIKE_MOTOR_DIRECTION = Object.freeze({
 });
 const spikeMotorDirectionWord = value => String(value) === '-1' ? 'backward' : 'forward';
 
+// The UNIT menus of motorRunFor (`rotations|degrees|seconds`) and moveForward
+// (`cm|in|rotations|degrees|seconds`) compare the field against exactly those
+// strings. The dialect used to store the word with its plural `s` stripped, so
+// `run motor A forward 90 degrees` compiled to UNIT "degree", which matches no
+// branch of motorRunFor: it computed 0 degrees and turned the motor by nothing.
+// Store the menu's own value; read old singular fields back as the same word.
+const SPIKE_UNIT = Object.freeze({
+    rotation: 'rotations', rotations: 'rotations',
+    degree: 'degrees', degrees: 'degrees',
+    second: 'seconds', seconds: 'seconds',
+    cm: 'cm', inches: 'in', in: 'in'
+});
+const spikeUnitWord = value => ({ in: 'inches', inche: 'inches' })[String(value)] ||
+    (SPIKE_UNIT[String(value)] || String(value));
+/** getDistanceIn's DISTANCE_UNIT menu (`cm|mm|in|%`) <-> dialect words. */
+const SPIKE_DISTANCE_UNIT = Object.freeze({ mm: 'mm', cm: 'cm', inches: 'in', percent: '%' });
+const SPIKE_DISTANCE_UNIT_WORD = Object.freeze({ mm: 'mm', cm: 'cm', in: 'inches', '%': 'percent' });
+
 /**
  * The block's menu label is not always MicroPython's name for the same
  * gesture. `accelerometer.is_gesture()` accepts exactly shake, freefall,
@@ -2201,6 +2219,12 @@ class SB3Creator {
             return B('spikeprime_getSpeed', {}, { PORT: [m[1].toUpperCase(), null] });
         if (/^spike\s+orientation$/i.test(s))
             return B('spikeprime_getOrientation');
+        if ((m = s.match(/^spike\s+motor\s+relative\s+position\s+([A-F])\s*$/i)))
+            return B('spikeprime_getRelativePosition', {}, { PORT: [m[1].toUpperCase(), null] });
+        if ((m = s.match(/^spike\s+distance\s+([A-F])\s+in\s+(mm|cm|inches|percent)\s*$/i)))
+            return B('spikeprime_getDistanceIn', {}, { PORT: [m[1].toUpperCase(), null], UNIT: [SPIKE_DISTANCE_UNIT[m[2].toLowerCase()], null] });
+        if (/^spike\s+face\s+up$/i.test(s))
+            return B('spikeprime_getFaceUp');
         if (/^spike\s+battery$/i.test(s))
             return B('spikeprime_getBatteryLevel');
         if (/^spike\s+timer$/i.test(s))
@@ -5315,6 +5339,19 @@ class SB3Creator {
                 const { block } = cmd('spikeprime_displayClear');
                 return ret(block);
             }
+            // A value that is not a quoted literal: `display text (join "d=" d)`.
+            // The literal form above keeps its spelling; anything else is an
+            // expression, which the block's TEXT input takes as a reporter.
+            if ((match = line.match(/^display\s+text\s+([^"\s].*)$/i))) {
+                const { id, block } = cmd('spikeprime_displayText');
+                block[id].inputs.TEXT = val(match[1]);
+                return ret(block);
+            }
+            if ((match = line.match(/^display\s+image\s+(.+)$/i))) {
+                const { id, block } = cmd('spikeprime_displayShowImage');
+                block[id].inputs.IMAGE = val(match[1]);
+                return ret(block);
+            }
         }
         // ---- micro:bit display (explicit device verb: say is STAGE, this is LEDs) ----
         if ((match = line.match(/^(?:display|scroll)\s+"([^"]*)"\s*$/i))) {
@@ -5341,12 +5378,12 @@ class SB3Creator {
             block[id].fields.PORT = [match[1].toUpperCase(), null];
             return ret(block);
         }
-        if ((match = line.match(/^run\s+motor\s+([A-F])\s+(forward|backward|clockwise|counterclockwise)\s+(\S+)\s+(rotations?|degrees|seconds?)\s*$/i))) {
+        if ((match = line.match(/^run\s+motor\s+([A-F])\s+(forward|backward|clockwise|counterclockwise)\s+(\S+)\s+(rotations?|degrees?|seconds?)\s*$/i))) {
             const { id, block } = cmd('spikeprime_motorRunFor');
             block[id].fields.PORT = [match[1].toUpperCase(), null];
             block[id].fields.DIRECTION = [SPIKE_MOTOR_DIRECTION[match[2].toLowerCase()], null];
             block[id].inputs.VALUE = val(match[3]);
-            block[id].fields.UNIT = [match[4].toLowerCase().replace(/s$/, ''), null];
+            block[id].fields.UNIT = [SPIKE_UNIT[match[4].toLowerCase()], null];
             return ret(block);
         }
         if ((match = line.match(/^set\s+motor\s+speed\s+([A-F])\s+(\S+)\s*$/i))) {
@@ -5355,15 +5392,58 @@ class SB3Creator {
             block[id].inputs.SPEED = val(match[2]);
             return ret(block);
         }
-        if ((match = line.match(/^move\s+(forward|backward)\s+(\S+)\s+(cm|inches|rotations?|degrees|seconds?)\s*$/i))) {
+        if ((match = line.match(/^move\s+(forward|backward)\s+(\S+)\s+(cm|inches|rotations?|degrees?|seconds?)\s*$/i))) {
             const { id, block } = cmd('spikeprime_moveForward');
             block[id].fields.DIRECTION = [match[1].toLowerCase(), null];
             block[id].inputs.VALUE = val(match[2]);
-            block[id].fields.UNIT = [match[3].toLowerCase().replace(/s$/, ''), null];
+            block[id].fields.UNIT = [SPIKE_UNIT[match[3].toLowerCase()], null];
             return ret(block);
         }
         if (/^stop\s+movement\s*$/i.test(line)) {
             const { block } = cmd('spikeprime_stopMovement');
+            return ret(block);
+        }
+        // ---- Spike Prime drive base (motor pair) ----
+        if ((match = line.match(/^set\s+movement\s+motors\s+([A-F])\s+([A-F])\s*$/i))) {
+            const { id, block } = cmd('spikeprime_setMovementMotors');
+            block[id].fields.PORT_A = [match[1].toUpperCase(), null];
+            block[id].fields.PORT_B = [match[2].toUpperCase(), null];
+            return ret(block);
+        }
+        if ((match = line.match(/^set\s+movement\s+speed\s+(.+)$/i))) {
+            const { id, block } = cmd('spikeprime_setMovementSpeed');
+            block[id].inputs.SPEED = val(match[1]);
+            return ret(block);
+        }
+        if ((match = line.match(/^start\s+moving\s+steering\s+(\S+)\s+at\s+speed\s+(.+)$/i))) {
+            const { id, block } = cmd('spikeprime_motorPairMove');
+            block[id].inputs.STEERING = val(match[1]);
+            block[id].inputs.SPEED = val(match[2]);
+            return ret(block);
+        }
+        if ((match = line.match(/^start\s+tank\s+drive\s+left\s+(\S+)\s+right\s+(.+)$/i))) {
+            const { id, block } = cmd('spikeprime_startTank');
+            block[id].inputs.LEFT_SPEED = val(match[1]);
+            block[id].inputs.RIGHT_SPEED = val(match[2]);
+            return ret(block);
+        }
+        // ---- Spike Prime motor position and stop action ----
+        if ((match = line.match(/^run\s+motor\s+([A-F])\s+to\s+position\s+(.+)$/i))) {
+            const { id, block } = cmd('spikeprime_motorRunToPosition');
+            block[id].fields.PORT = [match[1].toUpperCase(), null];
+            block[id].inputs.POSITION = val(match[2]);
+            return ret(block);
+        }
+        if ((match = line.match(/^reset\s+motor\s+position\s+([A-F])\s+to\s+(.+)$/i))) {
+            const { id, block } = cmd('spikeprime_resetMotorPosition');
+            block[id].fields.PORT = [match[1].toUpperCase(), null];
+            block[id].inputs.POSITION = val(match[2]);
+            return ret(block);
+        }
+        if ((match = line.match(/^set\s+motor\s+stop\s+action\s+([A-F])\s+(coast|brake|hold)\s*$/i))) {
+            const { id, block } = cmd('spikeprime_motorSetStopAction');
+            block[id].fields.PORT = [match[1].toUpperCase(), null];
+            block[id].fields.ACTION = [match[2].toLowerCase(), null];
             return ret(block);
         }
         // ---- Spike Prime pixel/sound/IMU commands ----
@@ -5394,6 +5474,11 @@ class SB3Creator {
         // ---- Spike Prime IMU commands ----
         if (/^reset\s+yaw\s*$/i.test(line)) {
             const { block } = cmd('spikeprime_resetYaw');
+            return ret(block);
+        }
+        if ((match = line.match(/^preset\s+yaw\s+to\s+(.+)$/i))) {
+            const { id, block } = cmd('spikeprime_presetYaw');
+            block[id].inputs.ANGLE = val(match[1]);
             return ret(block);
         }
         if (/^reset\s+spike\s+timer\s*$/i.test(line)) {
@@ -7400,6 +7485,9 @@ class SB3Creator {
             case 'spikeprime_getPosition': return `spike motor position ${f('PORT')}`;
             case 'spikeprime_getSpeed': return `spike motor speed ${f('PORT')}`;
             case 'spikeprime_getOrientation': return 'spike orientation';
+            case 'spikeprime_getRelativePosition': return `spike motor relative position ${f('PORT')}`;
+            case 'spikeprime_getDistanceIn': return `spike distance ${f('PORT')} in ${SPIKE_DISTANCE_UNIT_WORD[f('UNIT')] || f('UNIT')}`;
+            case 'spikeprime_getFaceUp': return 'spike face up';
             case 'spikeprime_getBatteryLevel': return 'spike battery';
             case 'spikeprime_getTimer': return 'spike timer';
             case 'spikeprime_getHubTemperature': return 'spike hub temperature';
@@ -7684,11 +7772,26 @@ class SB3Creator {
             // ---- Spike Prime commands ----
             case 'spikeprime_motorStart': return line(`start motor ${f('PORT')} ${spikeMotorDirectionWord(f('DIRECTION'))}`);
             case 'spikeprime_motorStop': return line(`stop motor ${f('PORT')}`);
-            case 'spikeprime_motorRunFor': return line(`run motor ${f('PORT')} ${spikeMotorDirectionWord(f('DIRECTION'))} ${v('VALUE')} ${f('UNIT')}`);
+            case 'spikeprime_motorRunFor': return line(`run motor ${f('PORT')} ${spikeMotorDirectionWord(f('DIRECTION'))} ${v('VALUE')} ${spikeUnitWord(f('UNIT'))}`);
             case 'spikeprime_motorSetSpeed': return line(`set motor speed ${f('PORT')} ${v('SPEED')}`);
-            case 'spikeprime_moveForward': return line(`move ${f('DIRECTION')} ${v('VALUE')} ${f('UNIT')}`);
+            case 'spikeprime_moveForward': return line(`move ${f('DIRECTION')} ${v('VALUE')} ${spikeUnitWord(f('UNIT'))}`);
             case 'spikeprime_stopMovement': return line('stop movement');
-            case 'spikeprime_displayText': return line(`display text ${escapeTextLiteral(this.dval(b.inputs.TEXT, blocks).replace(/^"|"$/g, ''))}`);
+            case 'spikeprime_setMovementMotors': return line(`set movement motors ${f('PORT_A')} ${f('PORT_B')}`);
+            case 'spikeprime_setMovementSpeed': return line(`set movement speed ${v('SPEED')}`);
+            case 'spikeprime_motorPairMove': return line(`start moving steering ${v('STEERING')} at speed ${v('SPEED')}`);
+            case 'spikeprime_startTank': return line(`start tank drive left ${v('LEFT_SPEED')} right ${v('RIGHT_SPEED')}`);
+            case 'spikeprime_motorRunToPosition': return line(`run motor ${f('PORT')} to position ${v('POSITION')}`);
+            case 'spikeprime_resetMotorPosition': return line(`reset motor position ${f('PORT')} to ${v('POSITION')}`);
+            case 'spikeprime_motorSetStopAction': return line(`set motor stop action ${f('PORT')} ${f('ACTION')}`);
+            case 'spikeprime_presetYaw': return line(`preset yaw to ${v('ANGLE')}`);
+            case 'spikeprime_displayText': {
+                const text = b.inputs.TEXT;
+                // A reporter in the TEXT slot is written as the expression it is;
+                // quoting it would turn `(spike distance A)` into those words.
+                if (Array.isArray(text) && text[1] && !Array.isArray(text[1])) return line(`display text ${v('TEXT')}`);
+                return line(`display text ${escapeTextLiteral(this.dval(text, blocks).replace(/^"|"$/g, ''))}`);
+            }
+            case 'spikeprime_displayShowImage': return line(`display image ${v('IMAGE')}`);
             case 'spikeprime_displayClear': return line('display clear');
             case 'spikeprime_setPixel': return line(`set pixel ${v('X')} ${v('Y')} ${v('BRIGHTNESS')}`);
             case 'spikeprime_playBeep': return line(`play beep ${v('FREQUENCY')} ${v('DURATION')}`);
