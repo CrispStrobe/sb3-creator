@@ -927,3 +927,22 @@ lists × 32 initialized items compiles to 1,628 bytes. Its declared list state i
 the 64 KiB `.COM` segment (before stack use). These are local feasibility receipts,
 not the final oracle: the committed Lite differential and hosted mutation evidence
 remain required.
+
+---
+
+## 31. PRECHIN A2 preset parameter closure (2026-09-28)
+
+The reviewed upstream board preset is useful and structurally executable, but its
+source exposes three parameter-evidence debts that the gallery's behavioural gate
+correctly found. `ldr.ohms` and `ntc.ohms` are legacy declarations: bw-board uses
+`rDark`/`rLight` and `rCold`/`rHot`, respectively, so those two fields currently
+state values that do not control the simulation. The source producer must migrate
+them to supported, provenance-backed ranges; sb3 must then refresh the exact preset
+instead of inventing a conversion.
+
+`xpt2046.vbatDivider` is different: bw-board reads it on an XPT2046 VBAT command,
+but this no-program gallery preset never issues SPI traffic. Add a focused device
+transaction receipt that reaches the VBAT command and proves the divided and direct
+paths. Until those upstream/source and coverage items land, the three declarations
+remain explicitly classified in `KNOWN_INERT`; none counts as demonstrated gallery
+behaviour.
