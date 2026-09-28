@@ -234,6 +234,10 @@ describe('print', () => {
         const r = spike3PythonToPseudocode(inMain('d = 5', 'print("mm", d)'));
         assert.ok(body(r.pseudocode).includes('say (("mm" join " ") join d)'), r.pseudocode);
         assert.deepEqual(compile(r.pseudocode).c.warnings, []);
+        const { project } = compile(r.pseudocode);
+        const sayer = project.targets.find((t) => Object.values(t.blocks).some((b) => b.opcode === 'looks_say'));
+        assert.equal(sayer.isStage, false, 'a program that prints runs on a sprite: the Stage has no speech bubble');
+        assert.equal(sayer.name, 'Hub');
     });
 });
 

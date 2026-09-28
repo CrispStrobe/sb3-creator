@@ -1110,6 +1110,14 @@ function translatorClass () {
                 lines.push('WHEN flag clicked:', ...(body.length ? body : [this.pad(1) + 'stop this script']), '');
             });
             if (!flagScripts.length) this.note('no runloop.run() and no module-level statements: nothing runs');
+            // print() is a `say` block. On the Stage, where DEVICE SPIKE scripts
+            // otherwise live, a speech bubble has nothing to hang from (the
+            // renderer fails measuring it), so a program that prints runs on a
+            // sprite, "Hub", which says what it prints.
+            if (lines.some((l) => /^\s+say /.test(l))) {
+                const body = lines.slice(2).map((l) => (l ? this.pad(1) + l : l));
+                lines.splice(2, lines.length - 2, 'SPRITE Hub:', ...body);
+            }
             const header = [...this.renamed].map(([from, to]) =>
                 `# "${from}" is written as "${to}" here: the pseudocode reads a bare "${from}" as a Scratch block.`);
             return [...header, ...lines].join('\n').replace(/\n{3,}/g, '\n\n').trim() + '\n';
