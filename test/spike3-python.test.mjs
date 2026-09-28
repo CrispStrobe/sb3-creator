@@ -76,11 +76,13 @@ describe('units and scales', () => {
     test('motor_pair.move_for_degrees: the pair, the speed, the steering and the wheel degrees reach the blocks', () => {
         const r = spike3PythonToPseudocode(inMain('motor_pair.pair(motor_pair.PAIR_1, port.A, port.B)',
             'await motor_pair.move_for_degrees(motor_pair.PAIR_1, 720, 0, velocity=555)'));
-        const { c, blocks } = compile(r.pseudocode);
+        const { c, project, blocks } = compile(r.pseudocode);
         assert.deepEqual(c.warnings, []);
         const ops = spikeOps(blocks);
         const pair = ops.find((b) => b.opcode === 'spikeprime_setMovementMotors');
-        assert.deepEqual([pair.fields.PORT_A[0], pair.fields.PORT_B[0]], ['A', 'B']);
+        const byId = Object.assign({}, ...project.targets.map((t) => t.blocks));
+        const menu = (input) => byId[input[1]].fields.PORT[0];
+        assert.deepEqual([menu(pair.inputs.PORT_A), menu(pair.inputs.PORT_B)], ['A', 'B']);
         const speed = ops.find((b) => b.opcode === 'spikeprime_setMovementSpeed');
         assert.equal(lit(speed.inputs.SPEED), 555 / VELOCITY_PER_PERCENT, '555 deg/s is half the medium motor\'s full speed');
         assert.equal(lit(speed.inputs.SPEED), 50);
@@ -88,7 +90,7 @@ describe('units and scales', () => {
         assert.ok(ops.some((b) => b.opcode === 'spikeprime_stopMovement'));
         const lines = body(r.pseudocode);
         const at = (re) => lines.findIndex((l) => re.test(l));
-        const start = at(/^start steering 0$/);
+        const start = at(/^start moving steering 0$/);
         const wait = at(/^wait until .*spike motor relative position A.*< 720.*spike motor relative position B.*< 720/);
         const stop = at(/^stop movement$/);
         assert.ok(at(/^set spike_left\d+ to \(spike motor relative position A\)$/) < start, 'starting angle read before the move');
@@ -111,7 +113,7 @@ describe('units and scales', () => {
         const lines = body(r.pseudocode);
         const at = (re) => lines.findIndex((l) => re.test(l));
         const speed = at(/^set movement speed 30$/);
-        const start = at(/^start steering 50$/);
+        const start = at(/^start moving steering 50$/);
         const wait = at(/^wait until .*spike motor relative position A.*< 180.*spike motor relative position B.*< 180/);
         const stop = at(/^stop movement$/);
         assert.ok(speed >= 0 && start > speed && wait > start && stop > wait, r.pseudocode);
@@ -119,7 +121,7 @@ describe('units and scales', () => {
     test('move_for_time is start, wait the time, stop', () => {
         const r = spike3PythonToPseudocode(inMain('motor_pair.pair(motor_pair.PAIR_1, port.A, port.B)',
             'await motor_pair.move_for_time(motor_pair.PAIR_1, 1500, -20)'));
-        assert.deepEqual(body(r.pseudocode).slice(-4), ['set movement speed 32.4324', 'start steering -20', 'wait 1.5 seconds', 'stop movement']);
+        assert.deepEqual(body(r.pseudocode).slice(-4), ['set movement speed 32.4324', 'start moving steering -20', 'wait 1.5 seconds', 'stop movement']);
     });
     test('motor.run_for_degrees: degrees and deg/s -> degrees and percent', () => {
         const r = spike3PythonToPseudocode(inMain('await motor.run_for_degrees(port.C, -90, 444)'));

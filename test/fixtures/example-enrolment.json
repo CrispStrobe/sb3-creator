@@ -1,11 +1,11 @@
 {
   "note": "Which gates enrol which example, computed from scripts/lib/example-enrolment.mjs. A diff here is a change in COVERAGE — read it before regenerating.",
-  "measuredOn": "2026-08-23",
-  "examples": 313,
+  "measuredOn": "2026-09-28",
+  "examples": 314,
   "gates": {
     "gallery": 282,
-    "example-kind-matches-content": 313,
-    "index-metadata-matches-disk": 313,
+    "example-kind-matches-content": 314,
+    "index-metadata-matches-disk": 314,
     "retarget-gallery": 44,
     "retarget-amplification": 44,
     "gen-device-benches": 126,
@@ -13,7 +13,7 @@
     "assert-physics": 247,
     "debug-micropython": 10,
     "debug-trace-audit": 18,
-    "circuit-params-are-read": 281,
+    "circuit-params-are-read": 282,
     "program-reads-what-it-writes": 282,
     "vm-and-c-agree-on-arithmetic": 128,
     "documented-tables-are-derived": 4,
@@ -3196,6 +3196,11 @@
       "index-metadata-matches-disk"
     ],
     "logic-74c922-keypad": [
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "index-metadata-matches-disk"
+    ],
+    "board-prechin-a2-learning-board": [
       "circuit-params-are-read",
       "example-kind-matches-content",
       "index-metadata-matches-disk"

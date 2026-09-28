@@ -5403,32 +5403,28 @@ class SB3Creator {
             const { block } = cmd('spikeprime_stopMovement');
             return ret(block);
         }
-        // ---- Spike Prime drive base (motor pair) ----
+        // Driving-base words. The extension declares PORT_A/PORT_B on the PORT
+        // menu with acceptReporters: true, so Scratch serializes them as INPUTS
+        // holding a spikeprime_menu_PORT shadow (field PORT), not as fields;
+        // SPEED/STEERING/LEFT_SPEED/RIGHT_SPEED are plain number inputs.
         if ((match = line.match(/^set\s+movement\s+motors\s+([A-F])\s+([A-F])\s*$/i))) {
             const { id, block } = cmd('spikeprime_setMovementMotors');
-            block[id].fields.PORT_A = [match[1].toUpperCase(), null];
-            block[id].fields.PORT_B = [match[2].toUpperCase(), null];
+            block[id].inputs.PORT_A = this.menuInput(context, 'spikeprime_menu_PORT', 'PORT', match[1].toUpperCase());
+            block[id].inputs.PORT_B = this.menuInput(context, 'spikeprime_menu_PORT', 'PORT', match[2].toUpperCase());
             return ret(block);
         }
-        if ((match = line.match(/^set\s+movement\s+speed\s+(.+)$/i))) {
+        if ((match = line.match(/^set\s+movement\s+speed\s+(.+?)\s*$/i))) {
             const { id, block } = cmd('spikeprime_setMovementSpeed');
             block[id].inputs.SPEED = val(match[1]);
             return ret(block);
         }
-        // The drive base's own steered start (MotorPair.start): the hub applies
-        // the steering and the mirrored left motor, at the movement speed.
-        if ((match = line.match(/^start\s+steering\s+(.+)$/i))) {
+        // Steering -100..100, positive turns right (motors.start(steering, ...)).
+        if ((match = line.match(/^start\s+moving\s+steering\s+(.+?)\s*$/i))) {
             const { id, block } = cmd('spikeprime_steer');
             block[id].inputs.STEERING = val(match[1]);
             return ret(block);
         }
-        if ((match = line.match(/^start\s+moving\s+steering\s+(\S+)\s+at\s+speed\s+(.+)$/i))) {
-            const { id, block } = cmd('spikeprime_motorPairMove');
-            block[id].inputs.STEERING = val(match[1]);
-            block[id].inputs.SPEED = val(match[2]);
-            return ret(block);
-        }
-        if ((match = line.match(/^start\s+tank\s+drive\s+left\s+(\S+)\s+right\s+(.+)$/i))) {
+        if ((match = line.match(/^start\s+tank\s+(\S+)\s+(\S+)\s*$/i))) {
             const { id, block } = cmd('spikeprime_startTank');
             block[id].inputs.LEFT_SPEED = val(match[1]);
             block[id].inputs.RIGHT_SPEED = val(match[2]);
@@ -7783,11 +7779,10 @@ class SB3Creator {
             case 'spikeprime_motorSetSpeed': return line(`set motor speed ${f('PORT')} ${v('SPEED')}`);
             case 'spikeprime_moveForward': return line(`move ${f('DIRECTION')} ${v('VALUE')} ${spikeUnitWord(f('UNIT'))}`);
             case 'spikeprime_stopMovement': return line('stop movement');
-            case 'spikeprime_setMovementMotors': return line(`set movement motors ${f('PORT_A')} ${f('PORT_B')}`);
+            case 'spikeprime_setMovementMotors': return line(`set movement motors ${this.dmenu(b.inputs.PORT_A, blocks, 'PORT')} ${this.dmenu(b.inputs.PORT_B, blocks, 'PORT')}`);
             case 'spikeprime_setMovementSpeed': return line(`set movement speed ${v('SPEED')}`);
-            case 'spikeprime_motorPairMove': return line(`start moving steering ${v('STEERING')} at speed ${v('SPEED')}`);
-            case 'spikeprime_steer': return line(`start steering ${v('STEERING')}`);
-            case 'spikeprime_startTank': return line(`start tank drive left ${v('LEFT_SPEED')} right ${v('RIGHT_SPEED')}`);
+            case 'spikeprime_steer': return line(`start moving steering ${v('STEERING')}`);
+            case 'spikeprime_startTank': return line(`start tank ${v('LEFT_SPEED')} ${v('RIGHT_SPEED')}`);
             case 'spikeprime_motorRunToPosition': return line(`run motor ${f('PORT')} to position ${v('POSITION')}`);
             case 'spikeprime_resetMotorPosition': return line(`reset motor position ${f('PORT')} to ${v('POSITION')}`);
             case 'spikeprime_motorSetStopAction': return line(`set motor stop action ${f('PORT')} ${f('ACTION')}`);

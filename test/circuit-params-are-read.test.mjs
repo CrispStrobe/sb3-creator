@@ -221,6 +221,24 @@ describe('circuit params, tier 1: no key the engine never mentions', { skip: SKI
  * May only SHRINK.
  */
 const KNOWN_INERT = new Map([
+    ['ldr.ohms',
+        'ENGINE: the reviewed PRECHIN A2 source declares ohms: 10000, but bw-board computes '
+        + 'LDR resistance only from rDark/rLight and the light control. The exact source is retained '
+        + 'for provenance; its producer must migrate this legacy field to an explicit supported '
+        + 'range before this exception can be removed.'],
+
+    ['ntc.ohms',
+        'ENGINE: the reviewed PRECHIN A2 source declares ohms: 10000, but bw-board computes '
+        + 'NTC resistance only from rCold/rHot and the temperature control. The exact source is '
+        + 'retained for provenance; its producer must migrate this legacy field to an explicit '
+        + 'supported range before this exception can be removed.'],
+
+    ['xpt2046.vbatDivider',
+        'BLIND SPOT: bw-board reads vbatDivider while handling the XPT2046 VBAT SPI command, '
+        + 'but the imported PRECHIN A2 board carries no program that issues that transaction. '
+        + 'The generic static sweep cannot invent SPI traffic; a focused device transaction test '
+        + 'must make this declaration observable before this exception can be removed.'],
+
     ['simplevga_card.rows',
         'ENGINE: nothing reads params.rows for this kind. `rows` is consumed by the character '
         + 'displays only — hd44780.js and i2c-parts.js both do `part.params?.rows ?? 2` — and no '

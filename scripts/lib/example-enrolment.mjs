@@ -153,6 +153,7 @@ const GALLERY_E2E_NAMED = (() => {
  * metadata — so their coverage cannot move when a field changes.
  */
 export const NOT_PER_EXAMPLE = new Map([
+    ['board-preset-gallery', 'names the reviewed PRECHIN A2 addition directly and checks its exact source bytes and structure; it does not select examples by metadata'],
     ['curriculum', 'validates curriculum station ids against the catalog; enrols no example'],
     ['circuit-json-roundtrip', 'iterates circuit FILES found on disk; the index is only a directory lookup'],
     ['example-gate-enrolment', 'this map itself'],

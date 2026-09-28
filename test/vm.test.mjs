@@ -65,9 +65,15 @@ const HEADLESS_BUILTINS = {
             'whenradiostr', 'whentouch']
     },
     spikeprime: {
-        command: ['motorStart', 'motorStop', 'displayText', 'displayClear'],
+        command: ['motorStart', 'motorStop', 'displayText', 'displayClear',
+            'setMovementMotors', 'setMovementSpeed', 'steer', 'startTank', 'stopMovement'],
         reporter: ['getDistance'],
         methods: {
+            setMovementMotors: args => headlessSpikeCalls.push(['setMovementMotors', args.PORT_A, args.PORT_B]),
+            setMovementSpeed: args => headlessSpikeCalls.push(['setMovementSpeed', args.SPEED]),
+            steer: args => headlessSpikeCalls.push(['steer', args.STEERING]),
+            startTank: args => headlessSpikeCalls.push(['startTank', args.LEFT_SPEED, args.RIGHT_SPEED]),
+            stopMovement: () => headlessSpikeCalls.push(['stopMovement']),
             motorStart: args => headlessSpikeCalls.push(['motorStart', args.PORT, args.DIRECTION]),
             motorStop: args => headlessSpikeCalls.push(['motorStop', args.PORT]),
             displayText: args => headlessSpikeCalls.push(['displayText', args.TEXT]),
@@ -131,6 +137,38 @@ WHEN flag clicked:
         ['getDistance', 'B'],
         ['displayText', 'GO'],
         ['motorStop', 'A']
+    ]);
+});
+
+// The driving-base words: the ports travel through spikeprime_menu_PORT shadow
+// inputs (the extension's PORT menu accepts reporters), so this is the check
+// that the VM resolves them to the port letters the extension method reads.
+test('vm: serialized SPIKE driving-base program delivers every argument', async () => {
+    headlessSpikeCalls.length = 0;
+    const creator = new SB3Creator();
+    creator.parse(`DEVICE SPIKE
+
+WHEN flag clicked:
+  set movement motors C D
+  set movement speed 40
+  start moving steering -30
+  start tank 50 -50
+  stop movement`);
+    const vm = new VM();
+    patchExtensionManager(vm);
+    await vm.loadProject(Buffer.from(await (await creator.generateSB3()).arrayBuffer()));
+    vm.start();
+    vm.greenFlag();
+    for (let step = 0; step < 50 && headlessSpikeCalls.length < 5; step++) {
+        vm.runtime._step();
+    }
+    vm.quit();
+    assert.deepEqual(headlessSpikeCalls.map(call => call.map(String)), [
+        ['setMovementMotors', 'C', 'D'],
+        ['setMovementSpeed', '40'],
+        ['steer', '-30'],
+        ['startTank', '50', '-50'],
+        ['stopMovement']
     ]);
 });
 function permissive () {

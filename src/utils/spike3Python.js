@@ -875,15 +875,15 @@ function translatorClass () {
                     this.extraKeywords(call, fn, ['velocity', 'steering']);
                     const steering = this.expr(this.arg(call, 1, 'steering'));
                     const { lines } = signedMoveSpeed(this.kw(call, 'velocity'), 1);
-                    return [...sel.lines, ...lines, `start steering ${steering}`];
+                    return [...sel.lines, ...lines, `start moving steering ${steering}`];
                 }
                 case 'motor_pair.move_tank': {
                     const sel = selectPair(call.args[0]);
                     if (!sel.ok) return sel.lines;
                     this.extraKeywords(call, fn, ['left_velocity', 'right_velocity']);
                     const l = this.tok(this.scaledDown(this.arg(call, 1, 'left_velocity'), VELOCITY_PER_PERCENT));
-                    const r = this.scaledDown(this.arg(call, 2, 'right_velocity'), VELOCITY_PER_PERCENT);
-                    return [...sel.lines, `start tank drive left ${l} right ${r}`];
+                    const r = this.tok(this.scaledDown(this.arg(call, 2, 'right_velocity'), VELOCITY_PER_PERCENT));
+                    return [...sel.lines, `start tank ${l} ${r}`];
                 }
                 case 'motor_pair.move_for_degrees':
                 case 'motor_pair.move_for_time': {
@@ -902,7 +902,7 @@ function translatorClass () {
                     const n = lit(amount);
                     if (!timed && n === null) this.note(`${fn}: a computed degree count drives in the velocity's direction; its own sign is not applied`);
                     const { lines } = signedMoveSpeed(this.kw(call, 'velocity'), !timed && n !== null && n < 0 ? -1 : 1);
-                    const start = [...lines, `start steering ${steering}`];
+                    const start = [...lines, `start moving steering ${steering}`];
                     if (timed) return [...sel.lines, ...start, `wait ${this.seconds(amount)} seconds`, 'stop movement'];
                     return [...sel.lines, ...turnWheels(sel.pair, n !== null ? fmt(Math.abs(n)) : `(${this.expr(amount)})`, start)];
                 }
@@ -917,7 +917,7 @@ function translatorClass () {
                     const lv = this.arg(call, timed ? 1 : 2, 'left_velocity');
                     const rv = this.arg(call, timed ? 2 : 3, 'right_velocity');
                     const amount = this.arg(call, timed ? 3 : 1, timed ? 'duration' : 'degrees');
-                    const start = [`start tank drive left ${this.tok(this.scaledDown(lv, VELOCITY_PER_PERCENT))} right ${this.scaledDown(rv, VELOCITY_PER_PERCENT)}`];
+                    const start = [`start tank ${this.tok(this.scaledDown(lv, VELOCITY_PER_PERCENT))} ${this.tok(this.scaledDown(rv, VELOCITY_PER_PERCENT))}`];
                     if (timed) return [...sel.lines, ...start, `wait ${this.seconds(amount)} seconds`, 'stop movement'];
                     const n = lit(amount);
                     return [...sel.lines, ...turnWheels(sel.pair, n !== null ? fmt(Math.abs(n)) : `(${this.expr(amount)})`, start)];
@@ -1197,7 +1197,13 @@ export function projectToSpike3Python (project) {
         const blocks = t.blocks || {};
         const B = (id) => blocks[id];
         const field = (b, k) => (b.fields && b.fields[k] ? b.fields[k][0] : '');
-        const PORT = (b, k = 'PORT') => `port.${String(field(b, k) || 'A').toUpperCase()}`;
+        /** A port held as a field, or as an input holding a spikeprime_menu_PORT shadow. */
+        const portOf = (b, k) => {
+            if (b.fields && b.fields[k]) return b.fields[k][0];
+            const shadow = b.inputs && Array.isArray(b.inputs[k]) ? B(b.inputs[k][1]) : null;
+            return shadow && shadow.fields && shadow.fields.PORT ? shadow.fields.PORT[0] : 'A';
+        };
+        const PORT = (b, k = 'PORT') => `port.${String(portOf(b, k) || 'A').toUpperCase()}`;
         const assigned = new Set();
 
         const val = (input) => {

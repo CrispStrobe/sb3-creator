@@ -17,6 +17,11 @@
  * so they get their own exclusion class rather than being filed under the
  * editor/REPL one. The mapped set did not move: no pseudocode verb changed
  * meaning, and nothing that was mapped became unmapped.
+ *
+ * 2026-09-28: the four driving-base words (setMovementMotors,
+ * setMovementSpeed, steer, startTank) moved out of 'learner-gap' into the
+ * mapped set, 30 -> 34, beside moveForward/stopMovement which already used
+ * the movement pair they configure.
  */
 export const SPIKE_DIALECT_OPS = Object.freeze([
     'displayClear', 'displayText', 'getAcceleration', 'getAngle',
@@ -25,17 +30,13 @@ export const SPIKE_DIALECT_OPS = Object.freeze([
     'getSpeed', 'getTimer', 'isButtonPressed', 'isColor',
     'isForceSensorPressed', 'isGesture', 'motorRunFor', 'motorSetSpeed',
     'motorStart', 'motorStop', 'moveForward', 'playBeep', 'playNote',
-    'resetTimer', 'resetYaw', 'setPixel', 'stopMovement', 'stopSound',
-    // 2026-09-28: the twelve a SPIKE App 3 Python program reaches for that the
-    // slice did not have — its drive base (pair, speed, steer, tank), motor
-    // positions and stop action, built-in images, preset yaw, distance in a
-    // named unit and the up face. Each is mapped in both directions.
+    'resetTimer', 'resetYaw', 'setMovementMotors', 'setMovementSpeed',
+    'setPixel', 'startTank', 'steer', 'stopMovement', 'stopSound',
+    // 2026-09-28, for SPIKE App 3 Python (spike3Python.js): motor positions and
+    // stop action, preset yaw, built-in images, distance in a named unit and
+    // the up face. 34 -> 42.
     'displayShowImage', 'getDistanceIn', 'getFaceUp', 'getRelativePosition',
-    'motorPairMove', 'motorRunToPosition', 'motorSetStopAction', 'presetYaw',
-    'resetMotorPosition', 'setMovementMotors', 'setMovementSpeed', 'startTank',
-    // SPIKE 3's motor_pair.move is the drive base's steered start, which the
-    // hub applies to its mirrored pair; motorPairMove drives each motor raw.
-    'steer'
+    'motorRunToPosition', 'motorSetStopAction', 'presetYaw', 'resetMotorPosition'
 ]);
 
 export const SPIKE_DIALECT_EXCLUSIONS = Object.freeze({
@@ -94,7 +95,7 @@ export const SPIKE_DIALECT_EXCLUSIONS = Object.freeze({
         // `motorPairMove` takes steering rather than the mapped pair's
         // left/right speeds; the display and matrix ones extend surfaces whose
         // mapped members are already the slice's boundary.
-        'startMotor', 'stopMotor', 'setLightMatrixPixel'
+        'startMotor', 'stopMotor', 'motorPairMove', 'setLightMatrixPixel'
     ])
 });
 

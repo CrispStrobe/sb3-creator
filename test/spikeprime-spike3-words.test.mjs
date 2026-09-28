@@ -27,11 +27,6 @@ const literal = (input) => (Array.isArray(input) && Array.isArray(input[1]) ? St
 
 // [line, opcode, fields, literal inputs]
 const WORDS = [
-    ['set movement motors A E', 'setMovementMotors', { PORT_A: 'A', PORT_B: 'E' }, {}],
-    ['set movement speed 36', 'setMovementSpeed', {}, { SPEED: '36' }],
-    ['start moving steering -30 at speed 50', 'motorPairMove', {}, { STEERING: '-30', SPEED: '50' }],
-    ['start steering 25', 'steer', {}, { STEERING: '25' }],
-    ['start tank drive left 20 right -20', 'startTank', {}, { LEFT_SPEED: '20', RIGHT_SPEED: '-20' }],
     ['run motor C to position 90', 'motorRunToPosition', { PORT: 'C' }, { POSITION: '90' }],
     ['reset motor position B to 0', 'resetMotorPosition', { PORT: 'B' }, { POSITION: '0' }],
     ['set motor stop action D hold', 'motorSetStopAction', { PORT: 'D', ACTION: 'hold' }, {}],

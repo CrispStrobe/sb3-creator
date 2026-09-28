@@ -8020,5 +8020,22 @@
    "intro": "logic-74c922-keypad/intro.md",
    "introDE": "logic-74c922-keypad/intro.de.md"
   }
+ },
+ {
+  "id": "board-prechin-a2-learning-board",
+  "title": {
+   "en": "PRECHIN A2 learning board",
+   "de": "PRECHIN-A2-Lernboard"
+  },
+  "category": "digital",
+  "difficulty": 4,
+  "kind": "circuit",
+  "device": "stc89c52rc",
+  "files": {
+   "circuit": "board-prechin-a2-learning-board/circuit.json",
+   "expected": "board-prechin-a2-learning-board/EXPECTED.md",
+   "intro": "board-prechin-a2-learning-board/intro.md",
+   "introDE": "board-prechin-a2-learning-board/intro.de.md"
+  }
  }
 ]
