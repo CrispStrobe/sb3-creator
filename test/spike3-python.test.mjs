@@ -213,6 +213,23 @@ describe('corpus', () => {
     }
 });
 
+describe('export', () => {
+    test('a boolean reporter used as a condition is exported as the truth value itself', () => {
+        const { project } = compile('DEVICE SPIKE\n\nWHEN flag clicked:\n  IF spike force sensor E pressed THEN:\n    stop motor A\n' +
+            '  wait until not (spike color C is red)\n');
+        const { py, unsupported } = projectToSpike3Python(project);
+        assert.deepEqual(unsupported, []);
+        assert.match(py, /^\s+if force_sensor\.pressed\(port\.E\):$/m);
+        assert.match(py, /runloop\.until\(lambda: \(not \(color_sensor\.color\(port\.C\) == color\.RED\)\)\)/);
+        assert.doesNotMatch(py, /== "true"/, 'True == "true" is False in Python');
+    });
+    test('speeds carry through the _bw_speed evidence, in deg/s at the stated scale', () => {
+        const { project } = compile('DEVICE SPIKE\n\nWHEN flag clicked:\n  set motor speed B 40\n  run motor B backward 2 rotations\n');
+        const { py } = projectToSpike3Python(project);
+        assert.match(py, /_bw_speed\[port\.B\] = 40\n\s+await motor\.run_for_degrees\(port\.B, 2 \* 360, _bw_speed\[port\.B\] \* -10\)/);
+    });
+});
+
 describe('routing through the Python entry point', () => {
     test('SPIKE 3 imports route here', () => {
         const r = pythonToPseudocode('import runloop\nfrom hub import light_matrix\n\nasync def main():\n    light_matrix.clear()\n\nrunloop.run(main())\n');
