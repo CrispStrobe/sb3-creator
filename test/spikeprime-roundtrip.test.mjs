@@ -80,6 +80,19 @@ WHEN flag clicked:
   set spd to spike motor speed A
   set bat to spike battery`,
     },
+    {
+        name: 'driving base',
+        bw: `DEVICE SPIKE
+
+WHEN flag clicked:
+  set movement motors A B
+  set movement speed 40
+  start moving steering -30
+  wait 1 seconds
+  start tank 50 -50
+  wait 0.5 seconds
+  stop movement`,
+    },
 ];
 
 describe('Spike Prime forward path', () => {
@@ -205,5 +218,78 @@ describe('Gallery example: spike01-obstacle-avoid', () => {
         assert.deepStrictEqual(c1.warnings, [], `parse warnings: ${c1.warnings}`);
         assert.equal(dc2, dc1, 'fixed point');
         assert.ok(c1.project.extensions.includes('spikeprime'), 'has spikeprime extension');
+    });
+});
+
+// The driving-base words: dialect line -> opcode with the argument kinds the
+// canonical extension's getInfo declares -> the same dialect line back.
+// PORT_A/PORT_B use the PORT menu with acceptReporters: true, so they are
+// inputs holding a spikeprime_menu_PORT shadow; the rest are number inputs.
+describe('Spike Prime driving-base words', () => {
+    const only = (line) => {
+        const c = parse(`DEVICE SPIKE\n\nWHEN flag clicked:\n  ${line}\n`);
+        assert.deepStrictEqual(c.warnings, [], `parse warnings: ${c.warnings}`);
+        const blocks = c.project.targets.flatMap(t => Object.values(t.blocks));
+        const allBlocks = Object.assign({}, ...c.project.targets.map(t => t.blocks));
+        const stmt = blocks.filter(b => b.opcode.startsWith('spikeprime_') && !b.shadow);
+        assert.equal(stmt.length, 1, `one spikeprime statement, got ${stmt.map(b => b.opcode)}`);
+        return { c, b: stmt[0], allBlocks };
+    };
+    const num = (input) => {
+        assert.ok(Array.isArray(input), 'input present');
+        assert.equal(input[0], 1, 'shadowed literal input');
+        return input[1][1];
+    };
+    const exactRoundTrip = (line) => {
+        const { dc1, dc2 } = roundTrip(`DEVICE SPIKE\n\nWHEN flag clicked:\n  ${line}\n`);
+        assert.ok(dc1.split('\n').map(l => l.trim()).includes(line), `got:\n${dc1}`);
+        assert.equal(dc2, dc1, 'fixed point');
+    };
+
+    test('setMovementMotors: set movement motors A B', () => {
+        const { b, allBlocks } = only('set movement motors A B');
+        assert.equal(b.opcode, 'spikeprime_setMovementMotors');
+        assert.deepStrictEqual(b.fields, {});
+        for (const [key, port] of [['PORT_A', 'A'], ['PORT_B', 'B']]) {
+            const input = b.inputs[key];
+            assert.equal(input[0], 1, `${key} is a shadow-only input`);
+            const menu = allBlocks[input[1]];
+            assert.equal(menu.opcode, 'spikeprime_menu_PORT');
+            assert.equal(menu.shadow, true);
+            assert.deepStrictEqual(menu.fields.PORT, [port, null]);
+        }
+        exactRoundTrip('set movement motors A B');
+        exactRoundTrip('set movement motors C D');
+    });
+
+    test('setMovementSpeed: set movement speed 40', () => {
+        const { b } = only('set movement speed 40');
+        assert.equal(b.opcode, 'spikeprime_setMovementSpeed');
+        assert.deepStrictEqual(b.fields, {});
+        assert.equal(String(num(b.inputs.SPEED)), '40');
+        exactRoundTrip('set movement speed 40');
+    });
+
+    test('steer: start moving steering -30', () => {
+        const { b } = only('start moving steering -30');
+        assert.equal(b.opcode, 'spikeprime_steer');
+        assert.deepStrictEqual(b.fields, {});
+        assert.equal(String(num(b.inputs.STEERING)), '-30');
+        exactRoundTrip('start moving steering -30');
+        exactRoundTrip('start moving steering 100');
+    });
+
+    test('startTank: start tank 50 -50', () => {
+        const { b } = only('start tank 50 -50');
+        assert.equal(b.opcode, 'spikeprime_startTank');
+        assert.deepStrictEqual(b.fields, {});
+        assert.equal(String(num(b.inputs.LEFT_SPEED)), '50');
+        assert.equal(String(num(b.inputs.RIGHT_SPEED)), '-50');
+        exactRoundTrip('start tank 50 -50');
+    });
+
+    test('the words take reporter expressions, not only literals', () => {
+        exactRoundTrip('start moving steering (spike angle yaw)');
+        exactRoundTrip('set movement speed (spike motor speed A)');
     });
 });
