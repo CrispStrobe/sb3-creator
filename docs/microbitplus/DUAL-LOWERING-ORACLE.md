@@ -49,6 +49,7 @@ converge on.
 | D10 | `stop animation` | `stopanimation` | `_bw_stop_animation()` |
 | D11 | `show leds P` | `showleds P` | `display.show(Image(P))` then `yield 400` — MakeCode's basic.showLeds and its default pause |
 | D12 | `show icon P` | `showicon P` | `display.show(Image(P))` then `yield 600` — MakeCode's basic.showIcon/showArrow and its default pause |
+| D13 | `show number N` / `show number N delay I ms` | `shownumber N I` | `yield from _bw_show_number(N, I)` — MakeCode's basic.showNumber: written as Math.roundWithPrecision(N, 2) prints it, a digit shown for 5 x I ms, a longer number scrolled (6 x (length + 1) - 1 columns, one per I ms) and waited for; I defaults to 150. `display N` is unchanged and does not wait |
 
 ### Game score and lives (MakeCode `game`)
 

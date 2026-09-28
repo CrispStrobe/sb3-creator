@@ -379,6 +379,65 @@ function microbitSpriteHelpersPy (uses, pyUses) {
     return out;
 }
 
+/**
+ * MakeCode's basic.showNumber (pxt-microbit 9.1.1 libs/core/basic.ts and its
+ * simulator's showString), which WAITS while the number is shown:
+ *
+ * - the number is written as Math.roundWithPrecision(value, 2) prints it —
+ *   rounded half up to two places (more when that would print 0), no
+ *   trailing zeros, "?" for NaN;
+ * - one character is shown still for 5 x interval ms; anything longer
+ *   scrolls with a trailing space, one column per interval, 6 x (length + 1)
+ *   - 1 columns in all — 2550 ms for "42" at MakeCode's default 150 (measured
+ *   in pxt-microbit's simulator, digits to five-character numbers);
+ * - the wait is a yield, so other scripts run, and while the number is on the
+ *   screen the LED sprites do not redraw over it (MakeCode queues their
+ *   redraws behind it).
+ *
+ * @param {object} pyUses the shared layer's flags (sprites)
+ * @returns {string[]} header lines
+ */
+function microbitShowNumberPy (pyUses) {
+    const sprites = !!pyUses.sprites;
+    return ['',
+        'def _bw_numstr(v):',
+        '    try:',
+        '        v = float(v)',
+        '    except (ValueError, TypeError):',
+        '        return str(v)',
+        '    if v != v:',
+        "        return '?'",
+        '    if v != 0 and v == v * 2:',
+        "        return 'Infinity' if v > 0 else '-Infinity'",
+        '    d = 2',
+        '    r = 0',
+        '    while True:',
+        '        p = 10 ** d',
+        '        n = (v * p + 0.5) // 1',
+        '        r = n / p',
+        '        if r != 0 or v == 0 or d >= 20:',
+        '            break',
+        '        d += 1',
+        '    if r == int(r):',
+        '        return str(int(r))',
+        "    s = ('%.' + str(d) + 'f') % r",
+        "    return s.rstrip('0').rstrip('.')",
+        'def _bw_show_number(v, interval=150):',
+        ...(sprites ? ['    global _bw_busy'] : []),
+        '    s = _bw_numstr(v)',
+        '    interval = int(interval)',
+        '    if interval <= 0:',
+        '        interval = 1',
+        ...(sprites ? ['    _bw_busy = True'] : []),
+        '    if len(s) == 1:',
+        '        display.show(s)',
+        '        yield 5 * interval',
+        '    else:',
+        '        display.scroll(s, delay=interval, wait=False)',
+        '        yield (6 * (len(s) + 1) - 1) * interval',
+        ...(sprites ? ['    _bw_busy = False', '    _bw_splot()'] : [])];
+}
+
 function microbitLedHelpersPy (uses, pyUses) {
     const out = [];
     if (uses.dim) {
@@ -498,6 +557,7 @@ function microbitLedHelpersPy (uses, pyUses) {
             '        yield from _bw_game_over()');
     }
     if (pyUses.sprites) out.push(...microbitSpriteHelpersPy(uses, pyUses));
+    if (uses.shownumber) out.push(...microbitShowNumberPy(pyUses));
     // MakeCode's tempo: 120 bpm until set, a beat is 60000 / tempo ms
     // truncated (Math.idiv), the fractions shift it (libs/core/music.ts).
     // setTempo ignores a tempo that is not above 0 and floors it at 1. The
@@ -4934,6 +4994,18 @@ class SB3Creator {
         // libs/core/basic.ts). `show pattern` draws and moves on, so neither
         // came across exactly, and a picture exported back could not say which
         // of the two it had been. Each has its own block now.
+        // MakeCode's basic.showNumber: it WAITS while the number is on the
+        // screen (a digit 5 x interval, a longer number while it scrolls), where
+        // lite's own `display` scrolls and moves on. Its own word, as show leds
+        // and show icon are; `display` keeps its meaning. `show number N on
+        // <seven-segment part>` is the STC verb above, never this.
+        if ((match = line.match(/^show\s+number\s+(.+?)(?:\s+delay\s+(.+?)\s+ms)?\s*$/i)) &&
+                !/\s+on\s+[A-Za-z_]\w*$/i.test(match[1])) {
+            const { id, block } = cmd('microbitplus_shownumber');
+            block[id].inputs.VALUE = val(match[1]);
+            block[id].inputs.MS = val(match[2] || '150');
+            return ret(block);
+        }
         if ((match = line.match(/^show\s+(leds|icon)\s+([0-9:]+)\s*$/i))) {
             const { id, block } = cmd(match[1].toLowerCase() === 'leds' ? 'microbitplus_showleds' : 'microbitplus_showicon');
             block[id].fields.MATRIX = [match[2].replace(/[^0-9]/g, ''), null];
@@ -7555,6 +7627,10 @@ class SB3Creator {
             case 'microbitplus_showmatrix': return line(`show pattern ${f('MATRIX')}`);
             case 'microbitplus_showleds': return line(`show leds ${f('MATRIX')}`);
             case 'microbitplus_showicon': return line(`show icon ${f('MATRIX')}`);
+            case 'microbitplus_shownumber': {
+                const ms = v('MS');
+                return line(ms === '150' || ms === '' ? `show number ${v('VALUE')}` : `show number ${v('VALUE')} delay ${ms} ms`);
+            }
             // Quote what dval already quotes and nothing else: force-quoting
             // turned `show text count` into `show text "count"`, which reads
             // back as the literal word — a construct that does not converge.
@@ -10940,6 +11016,9 @@ class SB3Creator {
                     if (b.opcode === 'microbitplus_showicon') return [show, `${pad}yield 600`];
                     return [show];
                 }
+                case 'microbitplus_shownumber':
+                    uses.shownumber = true;
+                    return [`${pad}yield from _bw_show_number(${v('VALUE')}, ${v('MS')})`];
                 case 'microbitplus_showtext':
                     return [`${pad}display.scroll(${pyText('TEXT')})`];
                 case 'microbitplus_scrolltext':
