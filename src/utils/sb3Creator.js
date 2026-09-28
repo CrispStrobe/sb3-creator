@@ -11070,8 +11070,14 @@ class SB3Creator {
                     return [`${pad}yield int((${v('DURATION')}) * 1000)`];
                 case 'control_wait_until':
                     return [`${pad}while not (${cond(b, blocks)}):`, `${pad}    yield 0`];
+                // A micro:bit forever waits 20 ms after every pass, as MakeCode's
+                // does (CODAL's forever_stub; pxt-microbit's simulator,
+                // thread.forever): a forever that polled or counted ran up to
+                // several times as often here, and an imported MakeCode program
+                // drifted ahead of MakeCode's own (brickwright-lite's comparison
+                // with pxt-microbit's simulator). The Pico keeps its bare yield.
                 case 'control_forever':
-                    return [`${pad}while True:`, ...sub('SUBSTACK'), `${pad}    yield 0`];
+                    return [`${pad}while True:`, ...sub('SUBSTACK'), `${pad}    yield ${isPico ? 0 : 20}`];
                 case 'control_repeat':
                     return [`${pad}for _ in range(int(${v('TIMES')})):`, ...sub('SUBSTACK'), `${pad}    yield 0`];
                 case 'control_repeat_until':
