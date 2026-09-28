@@ -31,7 +31,12 @@ export const SPIKE_DIALECT_OPS = Object.freeze([
     'isForceSensorPressed', 'isGesture', 'motorRunFor', 'motorSetSpeed',
     'motorStart', 'motorStop', 'moveForward', 'playBeep', 'playNote',
     'resetTimer', 'resetYaw', 'setMovementMotors', 'setMovementSpeed',
-    'setPixel', 'startTank', 'steer', 'stopMovement', 'stopSound'
+    'setPixel', 'startTank', 'steer', 'stopMovement', 'stopSound',
+    // 2026-09-28, for SPIKE App 3 Python (spike3Python.js): motor positions and
+    // stop action, preset yaw, built-in images, distance in a named unit and
+    // the up face. 34 -> 42.
+    'displayShowImage', 'getDistanceIn', 'getFaceUp', 'getRelativePosition',
+    'motorRunToPosition', 'motorSetStopAction', 'presetYaw', 'resetMotorPosition'
 ]);
 
 export const SPIKE_DIALECT_EXCLUSIONS = Object.freeze({
@@ -74,10 +79,9 @@ export const SPIKE_DIALECT_EXCLUSIONS = Object.freeze({
     // Keeping them enumerated makes the denominator honest and gives the next
     // expansion a finite list instead of an implied blanket promise.
     'learner-gap': Object.freeze([
-        'motorRunToPosition', 'motorSetStopAction', 'getRelativePosition',
-        'getAbsolutePosition', 'resetMotorPosition', 'displayImage',
+        'getAbsolutePosition', 'displayImage',
         'displayPattern', 'rotateDisplay', 'setCenterButtonColor', 'getGyroRate',
-        'getFilteredGyroRate', 'getFilteredAcceleration', 'presetYaw',
+        'getFilteredGyroRate', 'getFilteredAcceleration',
         'setMatrix3x3ColorGrid', 'setMatrix3x3Custom',
         'setMatrix3x3SolidColor', 'clearMatrix3x3', 'playHubSound',
         'playWaveBeep', 'setVolume', 'getBatteryTemperature', 'getHubCurrent',
@@ -91,8 +95,7 @@ export const SPIKE_DIALECT_EXCLUSIONS = Object.freeze({
         // `motorPairMove` takes steering rather than the mapped pair's
         // left/right speeds; the display and matrix ones extend surfaces whose
         // mapped members are already the slice's boundary.
-        'getDistanceIn', 'getFaceUp', 'startMotor', 'stopMotor',
-        'motorPairMove', 'setLightMatrixPixel', 'displayShowImage'
+        'startMotor', 'stopMotor', 'motorPairMove', 'setLightMatrixPixel'
     ])
 });
 

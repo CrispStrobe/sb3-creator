@@ -34,9 +34,10 @@ describe('canonical SPIKE dialect census', () => {
         // be absorbed by quietly mapping a few and calling the slice wider, and
         // the union check alone would still pass. It did not widen — every new
         // opcode landed in an exclusion class, and the classes say why.
-        assert.equal(SPIKE_DIALECT_OPS.length, 34,
+        assert.equal(SPIKE_DIALECT_OPS.length, 42,
             'counted 30 bidirectional dialect mappings on 2026-08-31, unchanged on 2026-09-20; ' +
-            '34 on 2026-09-28 when the four driving-base words left learner-gap');
+            '34 on 2026-09-28 when the four driving-base words left learner-gap; ' +
+            '42 the same day, eight more for SPIKE App 3 Python');
         assert.deepEqual(Object.fromEntries(Object.entries(SPIKE_DIALECT_EXCLUSIONS)
             .map(([kind, ops]) => [kind, ops.length])), {
             // +10 transport-control and +7 learner-gap on 2026-09-20 = the 17
@@ -45,7 +46,8 @@ describe('canonical SPIKE dialect census', () => {
             // were not swept into the editor/REPL class to avoid naming them.
             // learner-gap 36 -> 32 on 2026-09-28: setMovementMotors,
             // setMovementSpeed, steer and startTank became mapped.
-            'host-control': 21, 'transport-control': 10, 'event-hat': 4, 'learner-gap': 32
+            // learner-gap 32 -> 24 the same day: the eight SPIKE App 3 Python words.
+            'host-control': 21, 'transport-control': 10, 'event-hat': 4, 'learner-gap': 24
         });
     });
 
