@@ -1,0 +1,524 @@
+{
+  "vcc": 5,
+  "parts": [
+    {
+      "id": "vcc1",
+      "kind": "vcc",
+      "params": {},
+      "x": 0,
+      "y": 0
+    },
+    {
+      "id": "gnd1",
+      "kind": "gnd",
+      "params": {},
+      "x": 0,
+      "y": 0
+    },
+    {
+      "id": "mcu",
+      "kind": "stc_mcu",
+      "params": {},
+      "x": 0,
+      "y": 0
+    },
+    {
+      "id": "sr1",
+      "kind": "74hc595",
+      "params": {},
+      "x": 0,
+      "y": 0
+    },
+    {
+      "id": "disp",
+      "kind": "seven_segment",
+      "params": {
+        "digits": 4
+      },
+      "x": 0,
+      "y": 0
+    },
+    {
+      "id": "rl0",
+      "kind": "resistor",
+      "params": {
+        "ohms": 1000
+      },
+      "x": 0,
+      "y": 0
+    },
+    {
+      "id": "rl1",
+      "kind": "resistor",
+      "params": {
+        "ohms": 1000
+      },
+      "x": 0,
+      "y": 0
+    },
+    {
+      "id": "rl2",
+      "kind": "resistor",
+      "params": {
+        "ohms": 1000
+      },
+      "x": 0,
+      "y": 0
+    },
+    {
+      "id": "rl3",
+      "kind": "resistor",
+      "params": {
+        "ohms": 1000
+      },
+      "x": 0,
+      "y": 0
+    },
+    {
+      "id": "rl4",
+      "kind": "resistor",
+      "params": {
+        "ohms": 1000
+      },
+      "x": 0,
+      "y": 0
+    },
+    {
+      "id": "rl5",
+      "kind": "resistor",
+      "params": {
+        "ohms": 1000
+      },
+      "x": 0,
+      "y": 0
+    },
+    {
+      "id": "rl6",
+      "kind": "resistor",
+      "params": {
+        "ohms": 1000
+      },
+      "x": 0,
+      "y": 0
+    },
+    {
+      "id": "rl7",
+      "kind": "resistor",
+      "params": {
+        "ohms": 1000
+      },
+      "x": 0,
+      "y": 0
+    },
+    {
+      "id": "led0",
+      "kind": "led",
+      "params": {
+        "color": "green"
+      },
+      "x": 0,
+      "y": 0
+    },
+    {
+      "id": "led1",
+      "kind": "led",
+      "params": {
+        "color": "green"
+      },
+      "x": 0,
+      "y": 0
+    },
+    {
+      "id": "led2",
+      "kind": "led",
+      "params": {
+        "color": "green"
+      },
+      "x": 0,
+      "y": 0
+    },
+    {
+      "id": "led3",
+      "kind": "led",
+      "params": {
+        "color": "green"
+      },
+      "x": 0,
+      "y": 0
+    },
+    {
+      "id": "led4",
+      "kind": "led",
+      "params": {
+        "color": "red"
+      },
+      "x": 0,
+      "y": 0
+    },
+    {
+      "id": "led5",
+      "kind": "led",
+      "params": {
+        "color": "red"
+      },
+      "x": 0,
+      "y": 0
+    },
+    {
+      "id": "led6",
+      "kind": "led",
+      "params": {
+        "color": "red"
+      },
+      "x": 0,
+      "y": 0
+    },
+    {
+      "id": "led7",
+      "kind": "led",
+      "params": {
+        "color": "red"
+      },
+      "x": 0,
+      "y": 0
+    },
+    {
+      "id": "btn0",
+      "kind": "button",
+      "params": {},
+      "x": 0,
+      "y": 0
+    },
+    {
+      "id": "btn1",
+      "kind": "button",
+      "params": {},
+      "x": 0,
+      "y": 0
+    },
+    {
+      "id": "btn2",
+      "kind": "button",
+      "params": {},
+      "x": 0,
+      "y": 0
+    },
+    {
+      "id": "btn3",
+      "kind": "button",
+      "params": {},
+      "x": 0,
+      "y": 0
+    },
+    {
+      "id": "buz",
+      "kind": "buzzer",
+      "params": {},
+      "x": 0,
+      "y": 0
+    },
+    {
+      "id": "pot1",
+      "kind": "potentiometer",
+      "params": {
+        "ohms": 10000
+      },
+      "x": 0,
+      "y": 0
+    }
+  ],
+  "wires": [
+    {
+      "from": "vcc1",
+      "fromTerminal": "vcc",
+      "to": "mcu",
+      "toTerminal": "VCC"
+    },
+    {
+      "from": "gnd1",
+      "fromTerminal": "gnd",
+      "to": "mcu",
+      "toTerminal": "GND"
+    },
+    {
+      "from": "vcc1",
+      "fromTerminal": "vcc",
+      "to": "sr1",
+      "toTerminal": "vcc"
+    },
+    {
+      "from": "gnd1",
+      "fromTerminal": "gnd",
+      "to": "sr1",
+      "toTerminal": "gnd"
+    },
+    {
+      "from": "mcu",
+      "fromTerminal": "P3.4",
+      "to": "sr1",
+      "toTerminal": "ser"
+    },
+    {
+      "from": "mcu",
+      "fromTerminal": "P3.6",
+      "to": "sr1",
+      "toTerminal": "srclk"
+    },
+    {
+      "from": "mcu",
+      "fromTerminal": "P3.5",
+      "to": "sr1",
+      "toTerminal": "rclk"
+    },
+    {
+      "from": "gnd1",
+      "fromTerminal": "gnd",
+      "to": "sr1",
+      "toTerminal": "oe"
+    },
+    {
+      "from": "vcc1",
+      "fromTerminal": "vcc",
+      "to": "sr1",
+      "toTerminal": "srclr"
+    },
+    {
+      "from": "sr1",
+      "fromTerminal": "qa",
+      "to": "disp",
+      "toTerminal": "a"
+    },
+    {
+      "from": "gnd1",
+      "fromTerminal": "gnd",
+      "to": "disp",
+      "toTerminal": "b"
+    },
+    {
+      "from": "mcu",
+      "fromTerminal": "P1.0",
+      "to": "rl0",
+      "toTerminal": "a"
+    },
+    {
+      "from": "rl0",
+      "fromTerminal": "b",
+      "to": "led0",
+      "toTerminal": "anode"
+    },
+    {
+      "from": "led0",
+      "fromTerminal": "cathode",
+      "to": "vcc1",
+      "toTerminal": "vcc"
+    },
+    {
+      "from": "mcu",
+      "fromTerminal": "P1.1",
+      "to": "rl1",
+      "toTerminal": "a"
+    },
+    {
+      "from": "rl1",
+      "fromTerminal": "b",
+      "to": "led1",
+      "toTerminal": "anode"
+    },
+    {
+      "from": "led1",
+      "fromTerminal": "cathode",
+      "to": "vcc1",
+      "toTerminal": "vcc"
+    },
+    {
+      "from": "mcu",
+      "fromTerminal": "P1.2",
+      "to": "rl2",
+      "toTerminal": "a"
+    },
+    {
+      "from": "rl2",
+      "fromTerminal": "b",
+      "to": "led2",
+      "toTerminal": "anode"
+    },
+    {
+      "from": "led2",
+      "fromTerminal": "cathode",
+      "to": "vcc1",
+      "toTerminal": "vcc"
+    },
+    {
+      "from": "mcu",
+      "fromTerminal": "P1.3",
+      "to": "rl3",
+      "toTerminal": "a"
+    },
+    {
+      "from": "rl3",
+      "fromTerminal": "b",
+      "to": "led3",
+      "toTerminal": "anode"
+    },
+    {
+      "from": "led3",
+      "fromTerminal": "cathode",
+      "to": "vcc1",
+      "toTerminal": "vcc"
+    },
+    {
+      "from": "mcu",
+      "fromTerminal": "P1.4",
+      "to": "rl4",
+      "toTerminal": "a"
+    },
+    {
+      "from": "rl4",
+      "fromTerminal": "b",
+      "to": "led4",
+      "toTerminal": "anode"
+    },
+    {
+      "from": "led4",
+      "fromTerminal": "cathode",
+      "to": "vcc1",
+      "toTerminal": "vcc"
+    },
+    {
+      "from": "mcu",
+      "fromTerminal": "P1.5",
+      "to": "rl5",
+      "toTerminal": "a"
+    },
+    {
+      "from": "rl5",
+      "fromTerminal": "b",
+      "to": "led5",
+      "toTerminal": "anode"
+    },
+    {
+      "from": "led5",
+      "fromTerminal": "cathode",
+      "to": "vcc1",
+      "toTerminal": "vcc"
+    },
+    {
+      "from": "mcu",
+      "fromTerminal": "P1.6",
+      "to": "rl6",
+      "toTerminal": "a"
+    },
+    {
+      "from": "rl6",
+      "fromTerminal": "b",
+      "to": "led6",
+      "toTerminal": "anode"
+    },
+    {
+      "from": "led6",
+      "fromTerminal": "cathode",
+      "to": "vcc1",
+      "toTerminal": "vcc"
+    },
+    {
+      "from": "mcu",
+      "fromTerminal": "P1.7",
+      "to": "rl7",
+      "toTerminal": "a"
+    },
+    {
+      "from": "rl7",
+      "fromTerminal": "b",
+      "to": "led7",
+      "toTerminal": "anode"
+    },
+    {
+      "from": "led7",
+      "fromTerminal": "cathode",
+      "to": "vcc1",
+      "toTerminal": "vcc"
+    },
+    {
+      "from": "mcu",
+      "fromTerminal": "P3.2",
+      "to": "btn0",
+      "toTerminal": "a"
+    },
+    {
+      "from": "btn0",
+      "fromTerminal": "b",
+      "to": "gnd1",
+      "toTerminal": "gnd"
+    },
+    {
+      "from": "mcu",
+      "fromTerminal": "P3.3",
+      "to": "btn1",
+      "toTerminal": "a"
+    },
+    {
+      "from": "btn1",
+      "fromTerminal": "b",
+      "to": "gnd1",
+      "toTerminal": "gnd"
+    },
+    {
+      "from": "mcu",
+      "fromTerminal": "P3.4",
+      "to": "btn2",
+      "toTerminal": "a"
+    },
+    {
+      "from": "btn2",
+      "fromTerminal": "b",
+      "to": "gnd1",
+      "toTerminal": "gnd"
+    },
+    {
+      "from": "mcu",
+      "fromTerminal": "P3.5",
+      "to": "btn3",
+      "toTerminal": "a"
+    },
+    {
+      "from": "btn3",
+      "fromTerminal": "b",
+      "to": "gnd1",
+      "toTerminal": "gnd"
+    },
+    {
+      "from": "mcu",
+      "fromTerminal": "P2.3",
+      "to": "buz",
+      "toTerminal": "a"
+    },
+    {
+      "from": "buz",
+      "fromTerminal": "b",
+      "to": "gnd1",
+      "toTerminal": "gnd"
+    },
+    {
+      "from": "vcc1",
+      "fromTerminal": "vcc",
+      "to": "pot1",
+      "toTerminal": "a"
+    },
+    {
+      "from": "gnd1",
+      "fromTerminal": "gnd",
+      "to": "pot1",
+      "toTerminal": "b"
+    },
+    {
+      "from": "pot1",
+      "fromTerminal": "wiper",
+      "to": "mcu",
+      "toTerminal": "P1.0"
+    }
+  ],
+  "_board": "YL-39",
+  "_title": "YL-39 minimum system",
+  "_device": "stc89c52rc",
+  "_description": "YL-39 minimum-system board: STC89C52RC with 8 LEDs (P1, active low), 4 buttons (P3.2-P3.5), buzzer (P2.3), potentiometer (P1.0), and 4-digit 7-segment display driven by 74HC595 shift register."
+}
