@@ -17,6 +17,11 @@
  * so they get their own exclusion class rather than being filed under the
  * editor/REPL one. The mapped set did not move: no pseudocode verb changed
  * meaning, and nothing that was mapped became unmapped.
+ *
+ * 2026-09-28: the four driving-base words (setMovementMotors,
+ * setMovementSpeed, steer, startTank) moved out of 'learner-gap' into the
+ * mapped set, 30 -> 34, beside moveForward/stopMovement which already used
+ * the movement pair they configure.
  */
 export const SPIKE_DIALECT_OPS = Object.freeze([
     'displayClear', 'displayText', 'getAcceleration', 'getAngle',
@@ -25,7 +30,8 @@ export const SPIKE_DIALECT_OPS = Object.freeze([
     'getSpeed', 'getTimer', 'isButtonPressed', 'isColor',
     'isForceSensorPressed', 'isGesture', 'motorRunFor', 'motorSetSpeed',
     'motorStart', 'motorStop', 'moveForward', 'playBeep', 'playNote',
-    'resetTimer', 'resetYaw', 'setPixel', 'stopMovement', 'stopSound'
+    'resetTimer', 'resetYaw', 'setMovementMotors', 'setMovementSpeed',
+    'setPixel', 'startTank', 'steer', 'stopMovement', 'stopSound'
 ]);
 
 export const SPIKE_DIALECT_EXCLUSIONS = Object.freeze({
@@ -68,7 +74,6 @@ export const SPIKE_DIALECT_EXCLUSIONS = Object.freeze({
     // Keeping them enumerated makes the denominator honest and gives the next
     // expansion a finite list instead of an implied blanket promise.
     'learner-gap': Object.freeze([
-        'setMovementMotors', 'steer', 'startTank', 'setMovementSpeed',
         'motorRunToPosition', 'motorSetStopAction', 'getRelativePosition',
         'getAbsolutePosition', 'resetMotorPosition', 'displayImage',
         'displayPattern', 'rotateDisplay', 'setCenterButtonColor', 'getGyroRate',
