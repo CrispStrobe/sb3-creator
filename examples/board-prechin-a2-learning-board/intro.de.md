@@ -8,9 +8,11 @@ Summer, Taster und analoge Sensoren.
 Die Schaltung ist absichtlich dicht. Dadurch werden gemeinsam benutzte Netze
 und jumperabhängige Konflikte sichtbar, die kleine Demonstrationen sonst
 verbergen. Vor dem Einschalten einer Peripherie sollte man ihre Netze verfolgen
-und prüfen, welches andere Bauteil dieselben Pins benutzt. Erzeugt und am Board
-geprüft wurde die Schaltung in `bw-circuit-ui` auf Revision
-`75e3058bd2481faebe8d8272dbbc74cee06cd0dc`.
+und prüfen, welches andere Bauteil dieselben Pins benutzt. Die Verdrahtung wurde
+vom Board-Preset-Generator in `bw-circuit-ui` erzeugt und am Board geprüft. Die
+Bauteile sind nach Funktion gruppiert: Anzeige, LCD-Anschluss, LED-Reihe und
+Matrix-Modul oben, der Mikrocontroller in der Mitte, Tastenfeld und Taster
+unten links, Sensoren, Speicher und ADC unten rechts.
 
 Ein Programm ist nicht enthalten. Das Board dient als Verdrahtungsreferenz oder
 als Ausgangspunkt für ein gezieltes A2-Experiment.

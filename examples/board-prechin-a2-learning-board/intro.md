@@ -8,9 +8,11 @@ buzzer, keys and analogue sensors.
 It is intentionally dense. The value is seeing the shared nets and
 jumper-dependent conflicts which a small demonstration circuit normally hides.
 Before enabling a peripheral, trace its nets and check which other device owns
-the same pins. The circuit was generated and bench-verified in
-`bw-circuit-ui` at revision
-`75e3058bd2481faebe8d8272dbbc74cee06cd0dc`.
+the same pins. The wiring was generated and bench-verified by the
+board-preset generator in `bw-circuit-ui`. The parts are grouped by function:
+display, LCD header, LED row and matrix module along the top, the MCU in the
+middle, keypad and keys bottom left, and the sensors, memories and ADC bottom
+right.
 
 There is no bundled program. Use the board as a wiring reference or copy it as
 the starting point for a focused A2 experiment.
