@@ -75,12 +75,13 @@ describe('the API ledger is true of the reader', () => {
 describe('units and scales', () => {
     test('motor_pair.move_for_degrees: wheel degrees and speed reach the blocks', () => {
         const r = spike3PythonToPseudocode(inMain('motor_pair.pair(motor_pair.PAIR_1, port.A, port.B)',
-            'await motor_pair.move_for_degrees(motor_pair.PAIR_1, 720, 0, velocity=500)'));
+            'await motor_pair.move_for_degrees(motor_pair.PAIR_1, 720, 0, velocity=555)'));
         const { blocks } = compile(r.pseudocode);
         const ops = spikeOps(blocks);
         assert.deepEqual(ops.map((b) => b.opcode), ['spikeprime_setMovementMotors', 'spikeprime_setMovementSpeed', 'spikeprime_moveForward']);
         assert.deepEqual([ops[0].fields.PORT_A[0], ops[0].fields.PORT_B[0]], ['A', 'B']);
-        assert.equal(lit(ops[1].inputs.SPEED), 500 / VELOCITY_PER_PERCENT);
+        assert.equal(lit(ops[1].inputs.SPEED), 555 / VELOCITY_PER_PERCENT, '555 deg/s is half the medium motor\'s full speed');
+        assert.equal(lit(ops[1].inputs.SPEED), 50);
         assert.equal(ops[2].fields.DIRECTION[0], 'forward');
         assert.equal(lit(ops[2].inputs.VALUE), 720);
         assert.equal(ops[2].fields.UNIT[0], 'degrees');
@@ -98,7 +99,7 @@ describe('units and scales', () => {
     });
     test('a steered move_for_degrees waits for either wheel to turn that far, then stops', () => {
         const r = spike3PythonToPseudocode(inMain('motor_pair.pair(motor_pair.PAIR_1, port.A, port.B)',
-            'await motor_pair.move_for_degrees(motor_pair.PAIR_1, 180, 50, velocity=300)'));
+            'await motor_pair.move_for_degrees(motor_pair.PAIR_1, 180, 50, velocity=333)'));
         const lines = body(r.pseudocode);
         const at = (re) => lines.findIndex((l) => re.test(l));
         const start = at(/^start moving steering 50 at speed 30$/);
@@ -108,7 +109,7 @@ describe('units and scales', () => {
         assert.ok(at(/^set spike_left\d+ to \(spike motor relative position A\)$/) < start, 'starting angle read before the move');
     });
     test('motor.run_for_degrees: degrees and deg/s -> degrees and percent', () => {
-        const r = spike3PythonToPseudocode(inMain('await motor.run_for_degrees(port.C, -90, 400)'));
+        const r = spike3PythonToPseudocode(inMain('await motor.run_for_degrees(port.C, -90, 444)'));
         assert.deepEqual(body(r.pseudocode).slice(-2), ['set motor speed C 40', 'run motor C backward 90 degrees']);
     });
     test('yaw: tilt_angles() is decidegrees with the app\'s sign inverted', () => {
@@ -170,7 +171,7 @@ describe('ordering', () => {
     });
     test('a break is a flag, and what follows it in the loop is guarded', () => {
         const r = spike3PythonToPseudocode(inMain('while True:', '    motor.run(port.B, 200)', '    if force_sensor.pressed(port.E):',
-            '        break', '    motor.run(port.A, 100)'));
+            '        break', '    motor.run(port.A, 111)'));
         assert.deepEqual(r.unsupported, []);
         assert.match(r.pseudocode, /REPEAT UNTIL spike_done\d+ = 1:/);
         assert.match(r.pseudocode, /IF spike_done\d+ = 0 THEN:\n\s+set motor speed A 10/);
@@ -179,7 +180,7 @@ describe('ordering', () => {
     });
     test('a break on the loop\'s first line is the loop\'s own condition', () => {
         const r = spike3PythonToPseudocode(inMain('while True:', '    if force_sensor.pressed(port.E):',
-            '        break', '    motor.run(port.A, 100)'));
+            '        break', '    motor.run(port.A, 111)'));
         assert.match(r.pseudocode, /REPEAT UNTIL spike force sensor E pressed:\n\s+set motor speed A 10/);
     });
 });
@@ -226,7 +227,7 @@ describe('export', () => {
     test('speeds carry through the _bw_speed evidence, in deg/s at the stated scale', () => {
         const { project } = compile('DEVICE SPIKE\n\nWHEN flag clicked:\n  set motor speed B 40\n  run motor B backward 2 rotations\n');
         const { py } = projectToSpike3Python(project);
-        assert.match(py, /_bw_speed\[port\.B\] = 40\n\s+await motor\.run_for_degrees\(port\.B, 2 \* 360, _bw_speed\[port\.B\] \* -10\)/);
+        assert.match(py, /_bw_speed\[port\.B\] = 40\n\s+await motor\.run_for_degrees\(port\.B, 2 \* 360, _bw_speed\[port\.B\] \* -11\.1\)/);
     });
 });
 

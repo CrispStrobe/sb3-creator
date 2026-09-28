@@ -25,10 +25,12 @@
 //    unit, a scale, a wait that SPIKE 3 would not do) is listed in `notes`.
 //
 // UNITS, the part a line-by-line reading gets wrong:
-//   velocity   SPIKE 3: degrees/second. Blocks: percent. 10 deg/s = 1 % here —
-//              the scale the virtual hub already uses for motor.run() (1000 deg/s
-//              is its 100 %). A real hub scales by each motor type's rated
-//              maximum (660/1110/1050 deg/s); that difference is a note.
+//   velocity   SPIKE 3: degrees/second. Blocks: percent of the motor's full
+//              speed, which is how the virtual hub's motor model reads them
+//              (docs/SPIKE-ARENA.md in lite: small 660, medium 1110, large 1050
+//              deg/s — LEGO's own velocity limits). Converted at the MEDIUM
+//              motor's 1110 deg/s = 100 %, SPIKE Prime's drive motor; on a small
+//              or large motor the same percent is a different deg/s — a note.
 //   yaw        SPIKE 3 tilt_angles(): decidegrees, and the OPPOSITE sign to the
 //              app's yaw (clockwise is negative). Blocks: degrees, app sign.
 //              So yaw_py = -10 * yaw_block. Pitch and roll: x10, sign kept (the
@@ -38,7 +40,7 @@
 //   durations  SPIKE 3: milliseconds. Blocks: seconds.
 //
 // The exporter leaves evidence the importer reads back (`_bw_speed[port.A]`, the
-// per-port speed the blocks keep; `_bw_move_speed`; `velocity=_bw_move_speed * 10`),
+// per-port speed the blocks keep; `_bw_move_speed`; `velocity=_bw_move_speed * 11.1`),
 // in the manner of micropythonToPseudocode.js: that is what makes blocks ->
 // Python -> blocks a fixed point rather than a drift.
 
@@ -73,9 +75,9 @@ export const LIGHT_MATRIX_IMAGES = Object.freeze([
     'ROLLERSKATE', 'DUCK', 'HOUSE', 'TORTOISE', 'BUTTERFLY', 'STICKFIGURE', 'GHOST', 'SWORD', 'GIRAFFE',
     'SKULL', 'UMBRELLA', 'SNAKE'
 ]);
-/** Degrees per second per block percent (see UNITS above). */
-export const VELOCITY_PER_PERCENT = 10;
-const VELOCITY_NOTE = `velocities in degrees/second become block speeds at ${VELOCITY_PER_PERCENT} deg/s per percent; a real hub scales by each motor's rated maximum`;
+/** Degrees per second per block percent: the medium motor's 1110 deg/s full speed / 100 (see UNITS above). */
+export const VELOCITY_PER_PERCENT = 11.1;
+const VELOCITY_NOTE = 'velocities in degrees/second become block speeds as a percent of the medium motor\'s 1110 deg/s full speed; on a small (660) or large (1050) motor that percent is a different deg/s';
 /** The extension's own wheel travel per rotation (legospike moveForward: cm / 17.6, in / 6.93). */
 const CM_PER_ROTATION = 17.6;
 const IN_PER_ROTATION = 6.93;
@@ -1158,7 +1160,7 @@ export function spike3PythonToPseudocode (source) {
 const HEADER = [
     '# SPIKE App 3 Python, written by Brickwright from blocks.',
     '# _bw_speed / _bw_move_speed hold the speeds the blocks set (percent);',
-    `# one percent is ${VELOCITY_PER_PERCENT} degrees per second here.`,
+    `# one percent is ${VELOCITY_PER_PERCENT} degrees per second here (the medium motor's full speed / 100).`,
     'from hub import port, light_matrix, sound, motion_sensor, button',
     'import motor',
     'import motor_pair',
@@ -1183,6 +1185,8 @@ function boolishTruth (b) {
     if (/^false$/i.test(l || '')) return { key: 'OPERAND2', negate: true };
     return null;
 }
+
+const VPP = VELOCITY_PER_PERCENT;
 
 const pyIdent = (name) => {
     let s = String(name).replace(/[^A-Za-z0-9_]/g, '_');
@@ -1389,11 +1393,11 @@ export function projectToSpike3Python (project) {
                 }
                 // ── spikeprime ──────────────────────────────────────────
                 case 'spikeprime_motorSetSpeed': return line(`_bw_speed[${PORT(b)}] = ${val(b.inputs.SPEED)}`);
-                case 'spikeprime_motorStart': return line(`motor.run(${PORT(b)}, _bw_speed[${PORT(b)}] * ${String(field(b, 'DIRECTION')) === '-1' ? -10 : 10})`);
+                case 'spikeprime_motorStart': return line(`motor.run(${PORT(b)}, _bw_speed[${PORT(b)}] * ${String(field(b, 'DIRECTION')) === '-1' ? -VPP : VPP})`);
                 case 'spikeprime_motorStop': return line(`motor.stop(${PORT(b)})`);
                 case 'spikeprime_motorRunFor': {
                     const P = PORT(b);
-                    const v = `_bw_speed[${P}] * ${String(field(b, 'DIRECTION')) === '-1' ? -10 : 10}`;
+                    const v = `_bw_speed[${P}] * ${String(field(b, 'DIRECTION')) === '-1' ? -VPP : VPP}`;
                     const unit = String(field(b, 'UNIT'));
                     if (/^second/.test(unit)) {
                         const n = lit(b.inputs.VALUE);
@@ -1402,14 +1406,14 @@ export function projectToSpike3Python (project) {
                     const deg = /^rotation/.test(unit) ? `${wrapOp(val(b.inputs.VALUE))} * 360` : val(b.inputs.VALUE);
                     return line(`await motor.run_for_degrees(${P}, ${deg}, ${v})`);
                 }
-                case 'spikeprime_motorRunToPosition': return line(`await motor.run_to_absolute_position(${PORT(b)}, ${val(b.inputs.POSITION)}, _bw_speed[${PORT(b)}] * 10)`);
+                case 'spikeprime_motorRunToPosition': return line(`await motor.run_to_absolute_position(${PORT(b)}, ${val(b.inputs.POSITION)}, _bw_speed[${PORT(b)}] * ${VPP})`);
                 case 'spikeprime_resetMotorPosition': return line(`motor.reset_relative_position(${PORT(b)}, ${val(b.inputs.POSITION)})`);
                 case 'spikeprime_motorSetStopAction': return line(`_bw_stop[${PORT(b)}] = motor.${String(field(b, 'ACTION')).toUpperCase()}`);
                 case 'spikeprime_setMovementMotors': return line(`motor_pair.pair(motor_pair.PAIR_1, ${PORT(b, 'PORT_A')}, ${PORT(b, 'PORT_B')})`);
                 case 'spikeprime_setMovementSpeed': assigned.add('_bw_move_speed'); return line(`_bw_move_speed = ${val(b.inputs.SPEED)}`);
                 case 'spikeprime_moveForward': {
                     const back = String(field(b, 'DIRECTION')) === 'backward';
-                    const v = `velocity=_bw_move_speed * ${back ? -10 : 10}`;
+                    const v = `velocity=_bw_move_speed * ${back ? -VPP : VPP}`;
                     const unit = String(field(b, 'UNIT'));
                     const V = wrapOp(val(b.inputs.VALUE));
                     if (/^second/.test(unit)) {
@@ -1421,8 +1425,8 @@ export function projectToSpike3Python (project) {
                             : unit === 'in' || unit === 'inche' ? `int(${V} * 360 / ${IN_PER_ROTATION})` : val(b.inputs.VALUE);
                     return line(`await motor_pair.move_for_degrees(motor_pair.PAIR_1, ${deg}, 0, ${v})`);
                 }
-                case 'spikeprime_motorPairMove': return line(`motor_pair.move(motor_pair.PAIR_1, ${val(b.inputs.STEERING)}, velocity=${times(b.inputs.SPEED, 10)})`);
-                case 'spikeprime_startTank': return line(`motor_pair.move_tank(motor_pair.PAIR_1, ${times(b.inputs.LEFT_SPEED, 10)}, ${times(b.inputs.RIGHT_SPEED, 10)})`);
+                case 'spikeprime_motorPairMove': return line(`motor_pair.move(motor_pair.PAIR_1, ${val(b.inputs.STEERING)}, velocity=${times(b.inputs.SPEED, VPP)})`);
+                case 'spikeprime_startTank': return line(`motor_pair.move_tank(motor_pair.PAIR_1, ${times(b.inputs.LEFT_SPEED, VPP)}, ${times(b.inputs.RIGHT_SPEED, VPP)})`);
                 case 'spikeprime_stopMovement': return line('motor_pair.stop(motor_pair.PAIR_1)');
                 case 'spikeprime_displayText': return line(`await light_matrix.write(${wrapStr(val(b.inputs.TEXT))})`);
                 case 'spikeprime_displayClear': return line('light_matrix.clear()');
