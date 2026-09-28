@@ -166,6 +166,13 @@ const ORACLE_TABLE = [
     ['A8', 'set val to frequency of note A', 'val = 440'],
     ['A9', 'set val to music tempo',         'val = _bw_tempo'],
     ['A10','play melody Dadadadum in background', 'music.play(music.DADADADUM, pin=pin0, wait=False)'],
+    // MakeCode census batch 3: sound, the touch logo, signal strength
+    ['A11','play tone 262 hz for 500 ms in background', 'music.pitch(int(262), _bw_d, pin=pin0, wait=False)'],
+    ['A12','play sound giggle until done',    'audio.play(Sound.GIGGLE, wait=True)'],
+    ['A13','play sound effect sine from 5000 to 0 hz volume 255 to 0 for 300 ms effect none curve linear in background',
+        'waveform=audio.SoundEffect.WAVEFORM_SINE'],
+    ['B6', 'set val to logo touched',        'pin_logo.is_touched()'],
+    ['R6', 'set val to last radio signal strength', 'val = _radio_last_rssi'],
 
     // ---- Radio (R1–R3, R5) ----
     ['R1', 'radio on group 5 power 3',      'radio.config(group=int(5), power=int(3))'],

@@ -97,6 +97,7 @@ every 30 ms, blinking while floor(now / blink) is even. P is one of `x`, `y`,
 | B3 | `when logo touched` | `whenlogo touched` | `if pin_logo.is_touched():` (edge-poll) |
 | B4 | `when shake` | `whengesture shake` | `if accelerometer.was_gesture('shake'):` (edge-poll) |
 | B5 | `read button_ab` | `isbutton AB` | `(button_a.is_pressed() and button_b.is_pressed())` — MakeCode's Button.AB |
+| B6 | `logo touched` | `islogo` | `pin_logo.is_touched()` — the V2 touch logo |
 
 ### Motion / orientation (sensors)
 
@@ -150,6 +151,9 @@ every 30 ms, blinking while floor(now / blink) is even. P is one of `x`, `y`,
 | A8 | `frequency of note A` (reporter) | `notefreq A` | `440` — MakeCode's Note enum by member name (C = C4 = 262, FSharp5 = 740, …) |
 | A9 | `music tempo` (reporter) | `tempo` | `_bw_tempo` |
 | A10 | `play melody Dadadadum in background` | `playmelody Dadadadum in background` | `music.play(music.DADADADUM, pin=pin0, wait=False)` — MakeCode's Melodies; `until done` waits, `looping in background` loops |
+| A11 | `play tone F hz for D ms until done` / `in background` | `playtonemode F D mode` | `_bw_d = int(D)`, `music.pitch(F, _bw_d, wait=False)`, then `yield _bw_d` until done — MakeCode's music.play(music.tonePlayable(F, D), mode) |
+| A12 | `play sound giggle [until done \| in background]` | `playsound giggle mode` | `audio.play(Sound.GIGGLE, wait=…)` — the ten V2 built-in sounds, MakeCode's soundExpression.X |
+| A13 | `play sound effect WAVE from F1 to F2 hz volume V1 to V2 for D ms effect FX curve C [mode]` | `playsoundeffect …` | `audio.play(audio.SoundEffect(…, waveform=WAVEFORM_*, fx=FX_*, shape=SHAPE_*), wait=False)`, then `yield` its duration until done; each number clamped as MakeCode clamps it (`_bw_limit`) — MakeCode's createSoundEffect |
 
 ### Radio
 
@@ -161,6 +165,7 @@ every 30 ms, blinking while floor(now / blink) is even. P is one of `x`, `y`,
 | R4 | `WHEN radio receives number:` (hat) | `whenradionum` | a `_bw_radio_rx` task receives; each packet that reads as a number starts the handler with that value as `_bw_rx` (MakeCode's receivedNumber parameter) |
 | R4b | `WHEN radio receives text:` (hat) | `whenradiostr` | the same, for a packet that does not read as a number |
 | R5 | `read last radio number` | `radiolastnum` | `_radio_last_num` (variable, defined as 0 until a packet comes); inside a radio hat, that hat's own packet |
+| R6 | `last radio signal strength` | `radiorssi` | `_radio_last_rssi` — the receiver uses `radio.receive_full()` only when a program reads it |
 
 ---
 

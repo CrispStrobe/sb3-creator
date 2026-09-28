@@ -57,10 +57,10 @@ const HEADLESS_BUILTINS = {
         command: ['showmatrix', 'showleds', 'showicon', 'showtext', 'scrolltext', 'cleardisplay', 'plot',
             'digitalwrite', 'analogwrite', 'setpull', 'playtone', 'playnote', 'stoptone',
             'servo', 'servocont', 'radioon', 'radiosendnum', 'radiosendstr', 'radiosendkv',
-            'rest', 'settempo', 'changetempo', 'playmelody'],
+            'rest', 'settempo', 'changetempo', 'playmelody', 'playtonemode', 'playsound', 'playsoundeffect'],
         reporter: ['accel', 'pitch', 'roll', 'compass', 'magforce', 'light', 'temp', 'sound',
-            'digitalread', 'analogread', 'radiolastnum', 'radiolaststr', 'beat', 'notefreq', 'tempo'],
-        boolean: ['isbutton', 'isgesture', 'ispinhigh', 'istouch'],
+            'digitalread', 'analogread', 'radiolastnum', 'radiolaststr', 'beat', 'notefreq', 'tempo', 'radiorssi'],
+        boolean: ['isbutton', 'isgesture', 'ispinhigh', 'istouch', 'islogo'],
         hat: ['whenbutton', 'whenlogo', 'whengesture', 'whenconn', 'whenradionum',
             'whenradiostr', 'whentouch']
     },
