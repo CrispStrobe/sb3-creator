@@ -11,13 +11,6 @@ const sha256 = bytes => createHash('sha256').update(bytes).digest('hex');
 
 const CASES = [
   {
-    id: 'board-yl39-minimum-system',
-    sha256: 'afdf994fe1cdb55c7a4948e1f731818d46f0e87e124d8f45549222988e065278',
-    parts: 27,
-    wires: 48,
-    requiredKinds: ['stc_mcu', '74hc595', 'seven_segment', 'led', 'button', 'buzzer', 'potentiometer']
-  },
-  {
     id: 'board-prechin-a2-learning-board',
     sha256: '77fe1a77ee3562a57b569754aa2c8a5155770abe4ea5807fbf747b3cb9c705c6',
     parts: 29,
@@ -26,10 +19,10 @@ const CASES = [
   }
 ];
 
-// MEASURED 2026-09-28: two reviewed full-board presets. The structure checks
+// MEASURED 2026-09-28: one reviewed full-board preset. The structure checks
 // below are generated from CASES, so an empty list would otherwise pass.
-corpusFloor('reviewed full-board gallery presets', () => CASES.length, 2,
-  'The gallery addition is exactly the YL-39 and PRECHIN A2 presets; losing either must be visible.');
+corpusFloor('reviewed full-board gallery presets', () => CASES.length, 1,
+  'The gallery addition is the PRECHIN A2 preset; losing it must be visible.');
 
 test('board presets retain their reviewed source bytes and full authored structure', () => {
   for (const expected of CASES) {

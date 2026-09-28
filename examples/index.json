@@ -8022,23 +8022,6 @@
   }
  },
  {
-  "id": "board-yl39-minimum-system",
-  "title": {
-   "en": "YL-39 minimum-system board",
-   "de": "YL-39-Minimalsystemboard"
-  },
-  "category": "digital",
-  "difficulty": 3,
-  "kind": "circuit",
-  "device": "stc89c52rc",
-  "files": {
-   "circuit": "board-yl39-minimum-system/circuit.json",
-   "expected": "board-yl39-minimum-system/EXPECTED.md",
-   "intro": "board-yl39-minimum-system/intro.md",
-   "introDE": "board-yl39-minimum-system/intro.de.md"
-  }
- },
- {
   "id": "board-prechin-a2-learning-board",
   "title": {
    "en": "PRECHIN A2 learning board",
