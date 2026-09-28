@@ -358,3 +358,12 @@ test('a program with no sprite gets none of the engine', () => {
     const py = micropython(['change game score by 1', 'game over']);
     assert.ok(!/_bw_sprites|_bw_splot|_bw_spr\b/.test(py), 'sprite helpers emitted for a sprite-less program');
 });
+
+test('a micro:bit forever waits 20 ms after every pass, as MakeCode\'s does (CODAL forever_stub)', () => {
+    const r = run(['set n to 0', 'FOREVER:', '  change n by 1', '  print n'], 100);
+    // Passes at 0, 20, 40, 60, 80, 100: MakeCode's own count over the same 100 ms.
+    assert.deepEqual(r.log.map(([t]) => t), [0, 20, 40, 60, 80, 100]);
+    const pico = new SB3Creator();
+    pico.parse('DEVICE PICO:\n  WHEN started:\n    FOREVER:\n      print 1\n');
+    assert.match(pico.generateMicroPython().py, /print\(.*\)\n\s+yield 0\n/, 'the Pico keeps its bare yield');
+});
