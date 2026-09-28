@@ -88,6 +88,7 @@ const ORACLE_TABLE = [
     ['D10','stop animation',                '_bw_stop_animation()'],
     ['D11','show leds 09900:09900:09900:00000:00000', 'yield 400'],
     ['D12','show icon 09900:09900:09900:00000:00000', 'yield 600'],
+    ['D13','show number 42',                'yield from _bw_show_number(42, 150)'],
 
     // ---- Game score and lives (G1–G4, MakeCode's `game`) ----
     ['G1', 'change game score by 2',        '_bw_add_score(2)'],
