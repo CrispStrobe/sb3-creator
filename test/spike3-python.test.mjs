@@ -193,7 +193,7 @@ const EXPECTED_UNSUPPORTED = {
 
 describe('corpus', () => {
     const files = readdirSync(CORPUS).filter((f) => f.endsWith('.py')).sort();
-    test('the corpus is there', () => assert.ok(files.length >= 12, files.join()));
+    test('the corpus is there', () => assert.ok(files.length >= 12, `counted 12 programs on 2026-09-28; found: ${files.join()}`));
     for (const f of files) {
         test(`${f}: compiles, names what it cannot say, and round-trips`, () => {
             const src = readFileSync(new URL(f, CORPUS), 'utf8');
