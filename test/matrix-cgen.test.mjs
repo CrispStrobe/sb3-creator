@@ -251,9 +251,9 @@ test('MATRIX8X8 is gated off a non-8051 device', () => {
 });
 
 test('show image requires a TABLE', () => {
-    const c = new SB3Creator();
-    c.parse(SRC.replace('show image heart on screen', 'show image nope on screen'));
-    assert.match(c.warnings.join('\n'), /not a TABLE/);
+    assert.throws(() => new SB3Creator().parse(SRC.replace('show image heart on screen', 'show image nope on screen')),
+        (e) => e.code === 'DIALECT_UNPARSED_LINES' && e.lines[0].text === 'show image nope on screen'
+            && /not a TABLE/.test(e.lines[0].reason));
 });
 
 // ---- builds under sdcc if present -------------------------------------------

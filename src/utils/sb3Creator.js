@@ -935,9 +935,12 @@ class SB3Creator {
             : '';
     }
 
-    // Push a warning tagged with its 1-based source line number.
+    // Push a warning tagged with its 1-based source line number. A statement
+    // rule has no index of its own and passes null: the line being parsed is
+    // this._lineIndex (it used to print as "Line 1", null + 1).
     warn(lineIndex, message) {
-        this.warnings.push(`Line ${lineIndex + 1}: ${message}`);
+        const at = lineIndex ?? this._lineIndex ?? 0;
+        this.warnings.push(`Line ${at + 1}: ${message}`);
     }
 
     /**
@@ -4947,16 +4950,22 @@ class SB3Creator {
         // Device sensor hats: threshold-based and binary event blocks.
         // Quoted sensor name avoids collision with Scratch's "when X key pressed".
         if ((match = matchTopLevel(line, /^when\s+"([^"]+)"\s+above\s+(.+)$/i))) {
-            const { id, block } = this.createBlock('devices_whenabove', { topLevel: true });
+            // cmd/ret, not a bare createBlock: the threshold may be a reporter,
+            // and returning `extraBlocks: {}` threw its blocks away — the hat
+            // pointed at a block that did not exist and read back as `()`.
+            const { id, block } = cmd('devices_whenabove', { topLevel: true });
             block[id].inputs.SENSOR = [1, [10, match[1]]];
             block[id].inputs.THRESHOLD = val(match[2]);
-            return { block, extraBlocks: {} };
+            return ret(block);
         }
         if ((match = matchTopLevel(line, /^when\s+"([^"]+)"\s+closer than\s+(.+)$/i))) {
-            const { id, block } = this.createBlock('devices_whencloser', { topLevel: true });
+            // cmd/ret, not a bare createBlock: the threshold may be a reporter,
+            // and returning `extraBlocks: {}` threw its blocks away — the hat
+            // pointed at a block that did not exist and read back as `()`.
+            const { id, block } = cmd('devices_whencloser', { topLevel: true });
             block[id].inputs.SENSOR = [1, [10, match[1]]];
             block[id].inputs.DISTANCE = val(match[2]);
-            return { block, extraBlocks: {} };
+            return ret(block);
         }
         if ((match = matchTopLevel(line, /^when motion on\s+"([^"]+)"$/i))) {
             const { id, block } = this.createBlock('devices_whenmotion', { topLevel: true });
@@ -5969,10 +5978,10 @@ class SB3Creator {
             return ret(block);
         }
         if ((match = matchTopLevel(line, /^lcd clear\s+(.+)$/i))) {
-            const displayArg = match[1].trim();
-            if (/\s/.test(displayArg)) {
-                this.warn(null, `lcd clear takes a single display name, but got "${displayArg}" (contains whitespace) — did you mean "lcd clear <display>"?`);
-                return null;
+            // One display: a name, a number or a (parenthesised expression). A
+            // spaced phrase used to warn and return nothing — the line vanished.
+            if (!matchTopLevel(line, /^lcd clear\s+(\S+)$/i)) {
+                throw new ParseError(`lcd clear takes a single display name, but got "${match[1].trim()}" (contains whitespace) — did you mean "lcd clear <display>"?`);
             }
             const { id, block } = cmd('devices_lcdclear');
             block[id].inputs.DISPLAY = val(match[1]);
@@ -6021,10 +6030,10 @@ class SB3Creator {
             return ret(block);
         }
         if ((match = matchTopLevel(line, /^tft clear\s+(.+)$/i))) {
-            const displayArg = match[1].trim();
-            if (/\s/.test(displayArg)) {
-                this.warn(null, `tft clear takes a single display name, but got "${displayArg}" (contains whitespace) — did you mean "tft clear <display>"?`);
-                return null;
+            // One display: a name, a number or a (parenthesised expression). A
+            // spaced phrase used to warn and return nothing — the line vanished.
+            if (!matchTopLevel(line, /^tft clear\s+(\S+)$/i)) {
+                throw new ParseError(`tft clear takes a single display name, but got "${match[1].trim()}" (contains whitespace) — did you mean "tft clear <display>"?`);
             }
             const { id, block } = cmd('devices_tftclear');
             block[id].inputs.DISPLAY = val(match[1]);
@@ -6046,10 +6055,10 @@ class SB3Creator {
         // never says `oled show` keeps the old draw-and-flush behaviour, so
         // this is additive.
         if ((match = matchTopLevel(line, /^oled show\s+(.+)$/i))) {
-            const displayArg = match[1].trim();
-            if (/\s/.test(displayArg)) {
-                this.warn(null, `oled show takes a single display name, but got "${displayArg}" (contains whitespace) — did you mean "oled show <display>"?`);
-                return null;
+            // One display: a name, a number or a (parenthesised expression). A
+            // spaced phrase used to warn and return nothing — the line vanished.
+            if (!matchTopLevel(line, /^oled show\s+(\S+)$/i)) {
+                throw new ParseError(`oled show takes a single display name, but got "${match[1].trim()}" (contains whitespace) — did you mean "oled show <display>"?`);
             }
             const { id, block } = cmd('devices_oledshow');
             block[id].inputs.DISPLAY = val(match[1]);
@@ -6094,10 +6103,10 @@ class SB3Creator {
             return ret(block);
         }
         if ((match = matchTopLevel(line, /^oled clear\s+(.+)$/i))) {
-            const displayArg = match[1].trim();
-            if (/\s/.test(displayArg)) {
-                this.warn(null, `oled clear takes a single display name, but got "${displayArg}" (contains whitespace) — did you mean "oled clear <display>"?`);
-                return null;
+            // One display: a name, a number or a (parenthesised expression). A
+            // spaced phrase used to warn and return nothing — the line vanished.
+            if (!matchTopLevel(line, /^oled clear\s+(\S+)$/i)) {
+                throw new ParseError(`oled clear takes a single display name, but got "${match[1].trim()}" (contains whitespace) — did you mean "oled clear <display>"?`);
             }
             const { id, block } = cmd('devices_oledclear');
             block[id].inputs.DISPLAY = val(match[1]);
@@ -7000,7 +7009,16 @@ class SB3Creator {
                     }
                 } else {
                     try {
-                        linkBlock(this.parseCommand(trimmed, target));
+                        const before = this.warnings.length;
+                        const built = this.parseCommand(trimmed, target);
+                        // A rule that matched, warned why, and built nothing (a
+                        // part written with `set … to`, `show image` of a non-TABLE)
+                        // is a dropped line too: refused, with its warning as the
+                        // reason.
+                        if (!built || !built.block) {
+                            const said = this.warnings.slice(before).map(w => w.replace(/^Line \d+: /, ''));
+                            this.unreadable(i, trimmed, said.length ? said.join('; ') : 'the statement built no block');
+                        } else linkBlock(built);
                     } catch (error) {
                         if (error.isSB3Error) {
                             this.unreadable(i, trimmed, /^Unknown command/.test(error.message)

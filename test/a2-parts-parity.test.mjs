@@ -98,11 +98,12 @@ test('C round-trips to the canonical verbs as a fixed point', () => {
 test('shared select/LED port warns; direct set refused; non-8051 gated', () => {
     const c = build(SRC);
     assert.match((c.warnings || []).join('; '), /shares a port with display's select pins/);
-    const c2 = build(SRC.replace('    clear display\n',
-        '    set display to 5\n    set leds to 3\n'));
-    const w = (c2.warnings || []).join('; ');
-    assert.match(w, /is an 8-digit display/);
-    assert.match(w, /is an LED bank/);
+    // Refused, each line with its reason (they used to warn and build nothing).
+    assert.throws(() => build(SRC.replace('    clear display\n',
+        '    set display to 5\n    set leds to 3\n')), (e) => e.code === 'DIALECT_UNPARSED_LINES'
+        && e.lines.length === 2
+        && /is an 8-digit display/.test(e.lines[0].reason) && e.lines[0].text === 'set display to 5'
+        && /is an LED bank/.test(e.lines[1].reason) && e.lines[1].text === 'set leds to 3');
     // On a device without the part, its verbs read nothing: the program is
     // refused, naming those lines, and the refusal carries the reason why.
     assert.throws(() => build(SRC.replace('DEVICE STC89C52RC:', 'DEVICE ARDUINO-UNO:')),

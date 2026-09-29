@@ -181,7 +181,34 @@ describe('argument slots take an expression, and round-trip', () => {
             ['set pixel X 2 to 1 on 1', 'devices_setpixel'],
             ['set neopixel X to R 1 G 2 B 3 on 1', 'devices_setneopixel'],
             ['set 1 angle to X', 'devices_setservo'],
+            // These four warned about whitespace and returned NOTHING, so a
+            // parenthesised display expression vanished without a refusal.
+            ['lcd clear X', 'devices_lcdclear'],
+            ['tft clear X', 'devices_tftclear'],
+            ['oled show X', 'devices_oledshow'],
+            ['oled clear X', 'devices_oledclear'],
         ]) slotTakesExpressions('circuit', '', template, op);
+    });
+
+    test('sensor hats: the threshold keeps its reporter', () => {
+        // The hat returned `extraBlocks: {}`, discarding the reporter its
+        // threshold pointed at: the hat read back as `WHEN "light" above ():`.
+        for (const [hat, op] of [['WHEN "light" above X:', 'devices_whenabove'],
+            ['WHEN "sonar" closer than X:', 'devices_whencloser']]) {
+            for (const [probe, want] of PROBES) {
+                const src = `${hat.replace('X', probe)}\n  move 1 steps\n`;
+                const c = new SB3Creator();
+                c.parse(src);
+                const all = {};
+                for (const t of c.project.targets) Object.assign(all, t.blocks);
+                const h = Object.values(all).find(b => b.opcode === op);
+                assert.ok(h && holds(all, h, want), `${src}: ${JSON.stringify(h && h.inputs)}`);
+                const once = c.decompile();
+                const again = new SB3Creator();
+                again.parse(once);
+                assert.equal(again.decompile(), once, `${src} is not a fixed point:\n${once}`);
+            }
+        }
     });
 });
 
@@ -216,6 +243,7 @@ describe('an unreadable line is refused by name, never dropped', () => {
             ['WHEN flag clicked:\n  REPEAT:\n    move 1 steps\n', 'REPEAT:', /malformed REPEAT/],
             ['move 1 steps\nWHEN flag clicked:\n  move 2 steps\n', 'move 1 steps', /not inside a script/],
             ['WHEN the moon rises:\n  move 1 steps\n', 'WHEN the moon rises:', /body/],
+            ['WHEN flag clicked:\n  lcd clear my lcd\n', 'lcd clear my lcd', /single display name/],
         ]) {
             const e = refused(src);
             assert.ok(e.lines.some(l => l.text === text && reason.test(l.reason)),

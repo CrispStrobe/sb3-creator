@@ -58,9 +58,10 @@ test('C round-trip is a fixed point (incl. TABLE, PORT, print-string)', () => {
 });
 
 test('a keypad cannot be written', () => {
-    const c = build(KEYSHOW.replace('set k to keys', 'set keys to 5'));
-    assert.ok((c.warnings || []).some((w) => /cannot be written/.test(w)),
-        JSON.stringify(c.warnings));
+    // Refused by name, the warning as its reason (it used to build nothing).
+    assert.throws(() => build(KEYSHOW.replace('set k to keys', 'set keys to 5')),
+        (e) => e.code === 'DIALECT_UNPARSED_LINES' && e.lines[0].text === 'set keys to 5'
+            && /cannot be written/.test(e.lines[0].reason));
 });
 
 test('duplicate pins are refused', () => {
