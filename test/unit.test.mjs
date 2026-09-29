@@ -13,15 +13,17 @@ test('B1: "play sound X until done" emits sound_playuntildone, not sound_play', 
     assert.deepEqual(play.inputs.SOUND_MENU, [1, [10, 'Meow']]);
 });
 
-test('B2: malformed IF warns instead of crashing', () => {
-    const c = build(sprite('S', 'IF score:\n  say "hi"'));
-    assert.ok(c.warnings.some(w => /Malformed IF/.test(w)));
-    assert.equal(c.checkIntegrity().length, 0);
+// A malformed header used to be a warning while its line was dropped: the
+// program loaded without it. It is refused by name now (UnparsedLinesError),
+// never a crash of another kind and never a silent skip.
+test('B2: malformed IF is refused by name, not dropped', () => {
+    assert.throws(() => build(sprite('S', 'IF score:\n  say "hi"')),
+        e => e.code === 'DIALECT_UNPARSED_LINES' && /malformed IF/.test(e.message));
 });
 
-test('B2: malformed REPEAT warns instead of crashing', () => {
-    const c = build(sprite('S', 'REPEAT:\n  move 1 steps'));
-    assert.ok(c.warnings.some(w => /Malformed REPEAT/.test(w)));
+test('B2: malformed REPEAT is refused by name, not dropped', () => {
+    assert.throws(() => build(sprite('S', 'REPEAT:\n  move 1 steps')),
+        e => e.code === 'DIALECT_UNPARSED_LINES' && /malformed REPEAT/.test(e.message));
 });
 
 test('B3: WHEN sprite clicked is implemented', () => {

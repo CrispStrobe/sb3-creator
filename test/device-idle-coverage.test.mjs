@@ -31,7 +31,9 @@ const ROSTER = [
 for (const [dev, pin, marker] of ROSTER) {
     test(`${dev} idles (tasks build carries its sleep)`, () => {
         const c = new SB3Creator();
-        c.parse(`DEVICE ${dev}\nPIN led1 = ${pin} OUTPUT\n\nWHEN flag clicked:\n  forever:\n    turn led1 on\n    wait 0.5 seconds\n    turn led1 off\n    wait 0.5 seconds\n`);
+        // `turn on led1`, not `turn led1 on`: the second is no statement, and
+        // was silently dropped until unreadable lines became a refusal (D5).
+        c.parse(`DEVICE ${dev}\nPIN led1 = ${pin} OUTPUT\n\nWHEN flag clicked:\n  forever:\n    turn on led1\n    wait 0.5 seconds\n    turn off led1\n    wait 0.5 seconds\n`);
         const out = c.generateC(c.project, { debug: true });
         assert.ok(c._core, `${dev} resolves to a C core (an unknown device half-configures silently)`);
         assert.match(out, marker, `${dev} emits its idle`);

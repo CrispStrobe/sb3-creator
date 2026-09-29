@@ -728,12 +728,15 @@ export default function cToPseudocode (source, opts = {}) {
 
     // Parse a `{ … }` block into pseudocode lines at `depth`.
     function block (cur, depth) {
-        const pad = '  '.repeat(depth);
         const lines = [];
         cur.expect('{');
         while (!cur.is('}') && cur.peek().t !== 'eof') lines.push(...statement(cur, depth));
         cur.expect('}');
-        return lines.length ? lines : [`${pad}stop`];
+        // An empty block is an empty body, not a `stop`. That placeholder is no
+        // statement of the dialect: the parser built nothing from it (a warning,
+        // then gone), and since D5 it refuses a line it cannot read. A header
+        // with no body lines builds the same block the placeholder left behind.
+        return lines;
     }
 
     function bodyOf (cur, depth) {
@@ -1036,7 +1039,7 @@ export default function cToPseudocode (source, opts = {}) {
             const out = [];
             for (const c of cases) {
                 out.push(`${pad}IF ${switchExpr.text} = ${c.val} THEN:`);
-                out.push(...(c.body.length ? c.body : [`${'  '.repeat(depth + 1)}stop`]));
+                out.push(...c.body);   // an empty case is an empty body (see block())
             }
             // Default case becomes the final else-body of the last IF, or standalone.
             if (defaultCase && defaultCase.length) {
@@ -1730,7 +1733,7 @@ export default function cToPseudocode (source, opts = {}) {
             const out = [];
             while (!tc.is('}') && tc.peek().t !== 'eof') out.push(...taskStmt(tc, task, depth));
             tc.expect('}');
-            return out.length ? out : [`${'  '.repeat(depth)}stop`];
+            return out;   // an empty body (see block())
         }
         return taskStmt(tc, task, depth);
     }
@@ -2043,7 +2046,9 @@ export default function cToPseudocode (source, opts = {}) {
 
     const linesFor = (f, depth) => {
         const sub = new Cursor(tokens.slice(f.from, f.to));
-        try { return block(sub, depth); } catch (e) { warn(`could not parse ${f.name}(): ${e.message}`); return [`${'  '.repeat(depth)}stop`]; }
+        // A function the reader could not parse is named in `warnings`; its body
+        // is empty rather than an unreadable `stop` (see block()).
+        try { return block(sub, depth); } catch (e) { warn(`could not parse ${f.name}(): ${e.message}`); return []; }
     };
 
     // ---- assemble ----
@@ -2305,12 +2310,12 @@ export default function cToPseudocode (source, opts = {}) {
         // pinMode lines vanish here, because they became the PIN declarations
         // above. A setup() that held nothing else contributes nothing, which
         // is correct rather than a loss.
-        if (arduinoSetup) body.push(...linesFor(arduinoSetup, 1).filter((l) => l.trim() && l.trim() !== 'stop'));
+        if (arduinoSetup) body.push(...linesFor(arduinoSetup, 1).filter((l) => l.trim()));
         if (arduinoLoop) {
-            const inner = linesFor(arduinoLoop, 2).filter((l) => l.trim() && l.trim() !== 'stop');
+            const inner = linesFor(arduinoLoop, 2).filter((l) => l.trim());
             if (inner.length) body.push('  FOREVER:', ...inner);
         }
-        out.push(...(body.length ? body : ['  stop']));
+        out.push(...body);
         return { pseudocode: out.join('\n').replace(/\n{3,}/g, '\n\n').trim() + '\n', warnings };
     }
 
@@ -2324,11 +2329,9 @@ export default function cToPseudocode (source, opts = {}) {
         else if (hat && hat.kind === 'key') out.push(`WHEN key ${hat.what} ${hat.edge}:`);
         else out.push('WHEN flag clicked:');
         if (isTask) {
-            const body = taskLines(tokens.slice(f.from, f.to), f.name, 1, hat);
-            out.push(...(body.length ? body : ['  stop']));
+            out.push(...taskLines(tokens.slice(f.from, f.to), f.name, 1, hat));
         } else {
-            const body = linesFor(f, 1).filter((l) => l.trim() !== 'stop');
-            out.push(...(body.length ? body : ['  stop']));
+            out.push(...linesFor(f, 1));
         }
     }
 

@@ -79,11 +79,11 @@ describe('named servos and motors', () => {
 
     test('two names cannot claim one channel, and one name cannot be reused', () => {
         const dup = new SB3Creator();
-        dup.parse(HEAD + 'PART a = SERVO 1\nPART b = SERVO 1\n\nWHEN flag clicked:\n  stop\n');
+        dup.parse(HEAD + 'PART a = SERVO 1\nPART b = SERVO 1\n\nWHEN flag clicked:\n  wait 1 seconds\n');
         assert.ok((dup.warnings || []).some(w => /already declared/.test(String(w))),
             JSON.stringify(dup.warnings));
         const same = new SB3Creator();
-        same.parse(HEAD + 'PART a = SERVO 1\nPART a = MOTOR 1\n\nWHEN flag clicked:\n  stop\n');
+        same.parse(HEAD + 'PART a = SERVO 1\nPART a = MOTOR 1\n\nWHEN flag clicked:\n  wait 1 seconds\n');
         assert.ok((same.warnings || []).some(w => /already a declared part/.test(String(w))),
             JSON.stringify(same.warnings));
     });

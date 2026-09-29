@@ -9,6 +9,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import SB3Creator from '../src/utils/sb3Creator.js';
+import { parseWarnings } from './helpers.mjs';
 
 const BLINK_POT = `DEVICE ARDUINO-NANO
 PIN led1 = D13 OUTPUT
@@ -51,10 +52,11 @@ test('retarget: ATtiny88 exposes its real ADC bank and excludes non-GPIO package
     assert.match(moved.pseudocode, /^PIN pot1 = PC0 ANALOG$/m);
 
     for (const pin of ['PA0', 'PA1', 'PC6']) {
-        const creator = new SB3Creator();
-        creator.parse(`DEVICE ATTINY88\nPIN bad = ${pin} OUTPUT\nWHEN flag clicked:\n  turn on bad\n`);
-        assert.ok(creator.warnings.some((warning) => warning.includes('not how attiny88 names a pin')),
+        // The PIN is refused, so `turn on bad` has no pin to read and is refused too.
+        const {warnings, refused} = parseWarnings(`DEVICE ATTINY88\nPIN bad = ${pin} OUTPUT\nWHEN flag clicked:\n  turn on bad\n`);
+        assert.ok(warnings.some((warning) => warning.includes('not how attiny88 names a pin')),
             `${pin} was incorrectly accepted as ATtiny88 GPIO`);
+        assert.deepEqual(refused.map((l) => l.text), ['turn on bad']);
     }
 });
 

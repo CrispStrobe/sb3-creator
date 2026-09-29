@@ -77,7 +77,9 @@ WHEN flag clicked:
 test('length of a proved numeric list is numeric in every i8086 provenance context', () => {
     for (const statement of [
         'print length of readings',
-        'set count to (length of readings)\n    print count',
+        // Each line is indented by the join below; an extra indent here made
+        // `print count` an over-indented line, silently dropped until D5.
+        'set count to (length of readings)\nprint count',
         'IF length of readings = 0 THEN:\n      print 1'
     ]) {
         const body = statement.split('\n').map(line => `  ${line}`).join('\n');

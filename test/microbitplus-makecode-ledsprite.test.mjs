@@ -181,9 +181,12 @@ test('the sprite words do not take over the Scratch motion, list and variable ve
 });
 
 test('`set sprite s x by 1` and `change sprite s x to 1` are not sprite words (the verb names its preposition)', () => {
+    // Not a sprite word, and not silently nothing either: the line is refused by
+    // name (it used to be dropped with a warning, D5).
     for (const line of ['set sprite s x by 1', 'change sprite s x to 1']) {
         const c = new SB3Creator();
-        c.parse(program([line]));
+        assert.throws(() => c.parse(program([line])),
+            (e) => e.code === 'DIALECT_UNPARSED_LINES' && e.lines.some((l) => l.text === line), line);
         const ops = c.project.targets.flatMap((t) => Object.values(t.blocks)).map((b) => b.opcode);
         assert.ok(!ops.includes('microbitplus_spriteset') && !ops.includes('microbitplus_spritechange'), `${line}: ${ops.join(' ')}`);
     }

@@ -92,7 +92,18 @@ test('STM32F030: the leak guard names an unported feature instead of lying',
         // NeoPixels are not ported to the F0 — the build must SAY so (the
         // original subject here was analog read, which IS ported now and
         // moved to its own chain test below).
-        c.parse('DEVICE STM32F030\nPART strip = NEOPIXEL PA3 COUNT 8\n\nWHEN flag clicked:\n  forever:\n    wait 1 seconds\n');
+        const src = 'DEVICE STM32F030\nPART strip = NEOPIXEL PA3 COUNT 8\n\nWHEN flag clicked:\n  forever:\n    wait 1 seconds\n';
+        // The F0 has no NEOPIXEL declaration, so the PART line is one the parser
+        // cannot read. It used to be dropped (a warning) and the build then had
+        // nothing to warn about; since D5 the parse refuses it BY NAME — the
+        // strongest form of "say so".
+        try {
+            c.parse(src);
+        } catch (e) {
+            if (e.code !== 'DIALECT_UNPARSED_LINES') throw e;
+            assert.deepEqual(e.lines.map((l) => l.text), ['PART strip = NEOPIXEL PA3 COUNT 8']);
+            return;
+        }
         const out = c.generateC(c.project, { debug: true });
         const warned = (c._cWarnings || []).length > 0;
         const leaked = /BW_ADC_|BW_SIO|BW_IOBANK0/.test(out);

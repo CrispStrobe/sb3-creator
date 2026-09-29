@@ -705,6 +705,7 @@ export default function micropythonToPseudocode (source, opts = {}) {
     // is refused by name (the argument round-trip is not lifted yet). The
     // scheduler's own defs (_run/_task/_eq/…) are not `proc_do_` and are ignored.
     const defineBlocks = [];
+    const keptDefs = [];   // refused defs, as grey blocks at the top of the script
     for (let j = 0; j < lines.length; j++) {
         const dm = lines[j].code.match(/^def (proc_do_\w+)\s*\(([^)]*)\)\s*:$/);
         if (!dm) continue;
@@ -716,14 +717,25 @@ export default function micropythonToPseudocode (source, opts = {}) {
             // is not lifted yet, so the def line and its body ride along verbatim
             // as `raw` — nothing is lost, and the learner sees the block that the
             // warning names instead of an empty program.
+            //
+            // Where it is kept matters. These lines used to be written at the
+            // top level, outside any script — and the parser does not build a
+            // block from a line outside a script: it dropped every one with a
+            // warning nobody read, so "kept" was true of the text and false of
+            // the program. Since D5 such a line is refused outright. They go at
+            // the top of the script instead, each `raw` at the script's indent
+            // with the def's own Python indentation INSIDE the text: the
+            // MicroPython emitter writes a grey block verbatim at its indent, so
+            // the def comes back as a nested def of the task, in scope for the
+            // call (itself a kept grey block) that follows it.
             const esc = (t) => t.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
-            const block = ['', `raw "${esc(lines[j].code)}"`];
+            const block = [`raw "${esc(lines[j].code.trim())}"`];
             for (let k = j + 1; k < lines.length; k++) {
                 if (!lines[k].code.trim()) continue;
                 if (lines[k].indent < 4) break;
-                block.push(`  raw "${esc(lines[k].code.trim())}"`);
+                block.push(`raw "${esc(lines[k].code.slice(lines[j].indent))}"`);
             }
-            defineBlocks.push(...block);
+            keptDefs.push(...block);
             warn(`procedure ${name} with parameters not lifted yet — kept as a grey block`);
             continue;
         }
@@ -754,7 +766,11 @@ export default function micropythonToPseudocode (source, opts = {}) {
         }
     } else warn('no pins found — this reader discovers them from Pin()/pinN calls');
 
-    const script = out.length ? ['', 'WHEN flag clicked:', ...out] : ['', 'WHEN flag clicked:', '  stop'];
+    const kept = keptDefs.map((l) => `  ${l}`);
+    // An empty script is a hat with no body. It used to carry a `stop` line,
+    // which is no statement of the dialect: the parser dropped it (a warning,
+    // then gone), and since D5 refuses a line it cannot read.
+    const script = ['', 'WHEN flag clicked:', ...kept, ...out];
     const body = [...defineBlocks, ...script];
     return { pseudocode: [...head, ...body].join('\n').replace(/\n{3,}/g, '\n\n').trim() + '\n', warnings };
 }

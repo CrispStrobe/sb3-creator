@@ -103,6 +103,11 @@ test('shared select/LED port warns; direct set refused; non-8051 gated', () => {
     const w = (c2.warnings || []).join('; ');
     assert.match(w, /is an 8-digit display/);
     assert.match(w, /is an LED bank/);
-    const c3 = build(SRC.replace('DEVICE STC89C52RC:', 'DEVICE ARDUINO-UNO:'));
-    assert.match((c3.warnings || []).join('; '), /SEVENSEG8 is not available/);
+    // On a device without the part, its verbs read nothing: the program is
+    // refused, naming those lines, and the refusal carries the reason why.
+    assert.throws(() => build(SRC.replace('DEVICE STC89C52RC:', 'DEVICE ARDUINO-UNO:')),
+        (e) => e.code === 'DIALECT_UNPARSED_LINES'
+            && e.lines.some((l) => l.text === 'show number 42 on display')
+            && /SEVENSEG8 is not available/.test(e.warnings.join('; '))
+            && /SEVENSEG8 is not available/.test(e.message));
 });
