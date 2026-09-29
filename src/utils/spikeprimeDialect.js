@@ -36,7 +36,13 @@ export const SPIKE_DIALECT_OPS = Object.freeze([
     // stop action, preset yaw, built-in images, distance in a named unit and
     // the up face. 34 -> 42.
     'displayShowImage', 'getDistanceIn', 'getFaceUp', 'getRelativePosition',
-    'motorRunToPosition', 'motorSetStopAction', 'presetYaw', 'resetMotorPosition'
+    'motorRunToPosition', 'motorSetStopAction', 'presetYaw', 'resetMotorPosition',
+    // 2026-09-29, closing SPIKE App 3 Python refusals the virtual hub and the
+    // arena can carry (task D1): the gyro rate (angular_velocity), a raw
+    // colour channel (rgbi, a new extension block), the centre button light
+    // (hub.light.color), the hub volume (sound.volume) and the distance
+    // sensor's lights (distance_sensor.show/clear). 42 -> 47.
+    'getColorRGB', 'getGyroRate', 'setCenterButtonColor', 'setDistanceLights', 'setVolume'
 ]);
 
 export const SPIKE_DIALECT_EXCLUSIONS = Object.freeze({
@@ -80,12 +86,12 @@ export const SPIKE_DIALECT_EXCLUSIONS = Object.freeze({
     // expansion a finite list instead of an implied blanket promise.
     'learner-gap': Object.freeze([
         'getAbsolutePosition', 'displayImage',
-        'displayPattern', 'rotateDisplay', 'setCenterButtonColor', 'getGyroRate',
+        'displayPattern', 'rotateDisplay',
         'getFilteredGyroRate', 'getFilteredAcceleration',
         'setMatrix3x3ColorGrid', 'setMatrix3x3Custom',
         'setMatrix3x3SolidColor', 'clearMatrix3x3', 'playHubSound',
-        'playWaveBeep', 'setVolume', 'getBatteryTemperature', 'getHubCurrent',
-        'getHubVoltage', 'setDistanceLights', 'getAmbientLight',
+        'playWaveBeep', 'getBatteryTemperature', 'getHubCurrent',
+        'getHubVoltage', 'getAmbientLight',
         // Arrived with the consolidation (2026-09-20). Each is a real learner
         // operation, and each needs something the current slice lacks:
         // `getDistanceIn` carries a UNIT argument where the mapped

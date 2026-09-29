@@ -44,9 +44,10 @@ function body(text) {
 }
 
 describe('EV3 dialect census', () => {
-    test('all 74 pinned ev3comprehensive opcodes are mapped or classified exactly once', () => {
-        assert.equal(Object.keys(canonical).length, 74,
-            'counted 74 opcodes in the pinned ev3comprehensive getInfo surface (runtimeRegistry.generated.js)');
+    test('all 82 pinned ev3comprehensive opcodes are mapped or classified exactly once', () => {
+        assert.equal(Object.keys(canonical).length, 82,
+            'counted 74 opcodes in the pinned ev3comprehensive getInfo surface (runtimeRegistry.generated.js); '
+            + '82 at the extensions pin of 2026-09-29, which brought upstream EV3 #5/#7');
         const accounted = [...EV3_DIALECT_OPS, ...Object.values(EV3_DIALECT_EXCLUSIONS).flat()];
         assert.equal(new Set(accounted).size, accounted.length, 'an opcode is listed twice');
         assert.deepEqual([...accounted].sort(), Object.keys(canonical).sort());

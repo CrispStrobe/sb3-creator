@@ -2383,6 +2383,13 @@ class SB3Creator {
             return B('spikeprime_getTimer');
         if (/^spike\s+hub\s+temperature$/i.test(s))
             return B('spikeprime_getHubTemperature');
+        // Gyro rate about a rotation axis, deg/s as the hub reports it (SPIKE 3
+        // Python's motion_sensor.angular_velocity(), spike3Python.js).
+        if ((m = s.match(/^spike\s+gyro\s+rate\s+(yaw|pitch|roll)\s*$/i)))
+            return B('spikeprime_getGyroRate', {}, { AXIS: [m[1].toLowerCase(), null] });
+        // One raw colour channel, 0-1024 (color_sensor.rgbi() items 0-2).
+        if ((m = s.match(/^spike\s+color\s+([A-F])\s+raw\s+(red|green|blue)\s*$/i)))
+            return B('spikeprime_getColorRGB', {}, { PORT: [m[1].toUpperCase(), null], CHANNEL: [m[2].toLowerCase(), null] });
         // Spike booleans
         if ((m = s.match(/^spike\s+force\s+sensor\s+([A-F])\s+pressed\s*$/i)))
             return B('spikeprime_isForceSensorPressed', {}, { PORT: [m[1].toUpperCase(), null] });
@@ -5672,6 +5679,31 @@ class SB3Creator {
             block[id].fields.ACTION = [match[2].toLowerCase(), null];
             return ret(block);
         }
+        // ---- Spike Prime hub light, volume and distance-sensor lights ----
+        // The centre (power) button light, by the extension's CENTER_LED_COLOR
+        // names; the hub's LED numbers 0-10 are the colour ids of the `color`
+        // module in SPIKE 3 Python (spike3Python.js maps between them).
+        if ((match = line.match(/^set\s+center\s+button\s+light\s+to\s+(off|pink|purple|blue|teal|green|lime|yellow|orange|red|white|grey)\s*$/i))) {
+            const { id, block } = cmd('spikeprime_setCenterButtonColor');
+            block[id].fields.COLOR = [match[1].toUpperCase(), null];
+            return ret(block);
+        }
+        if ((match = line.match(/^set\s+spike\s+volume\s+to\s+(.+?)\s*$/i))) {
+            const { id, block } = cmd('spikeprime_setVolume');
+            block[id].inputs.VOLUME = val(match[1]);
+            return ret(block);
+        }
+        // The distance sensor's four eye lights (top-left, top-right,
+        // bottom-left, bottom-right), each 0-9 as the extension sends them.
+        if ((match = line.match(/^set\s+distance\s+lights\s+([A-F])\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s*$/i))) {
+            const { id, block } = cmd('spikeprime_setDistanceLights');
+            block[id].fields.PORT = [match[1].toUpperCase(), null];
+            block[id].inputs.TL = val(match[2]);
+            block[id].inputs.TR = val(match[3]);
+            block[id].inputs.BL = val(match[4]);
+            block[id].inputs.BR = val(match[5]);
+            return ret(block);
+        }
         // ---- Spike Prime pixel/sound/IMU commands ----
         if ((match = line.match(/^set\s+pixel\s+(\S+)\s+(\S+)\s+(\S+)\s*$/i))) {
             const { id, block } = cmd('spikeprime_setPixel');
@@ -7723,6 +7755,8 @@ class SB3Creator {
             case 'spikeprime_getBatteryLevel': return 'spike battery';
             case 'spikeprime_getTimer': return 'spike timer';
             case 'spikeprime_getHubTemperature': return 'spike hub temperature';
+            case 'spikeprime_getGyroRate': return `spike gyro rate ${f('AXIS')}`;
+            case 'spikeprime_getColorRGB': return `spike color ${f('PORT')} raw ${f('CHANNEL')}`;
             // Spike Prime boolean reporters
             case 'spikeprime_isForceSensorPressed': return `spike force sensor ${f('PORT')} pressed`;
             case 'spikeprime_isButtonPressed': return `spike button ${f('BUTTON')} pressed`;
@@ -8027,6 +8061,9 @@ class SB3Creator {
             case 'spikeprime_resetMotorPosition': return line(`reset motor position ${f('PORT')} to ${v('POSITION')}`);
             case 'spikeprime_motorSetStopAction': return line(`set motor stop action ${f('PORT')} ${f('ACTION')}`);
             case 'spikeprime_presetYaw': return line(`preset yaw to ${v('ANGLE')}`);
+            case 'spikeprime_setCenterButtonColor': return line(`set center button light to ${String(f('COLOR')).toLowerCase()}`);
+            case 'spikeprime_setVolume': return line(`set spike volume to ${v('VOLUME')}`);
+            case 'spikeprime_setDistanceLights': return line(`set distance lights ${f('PORT')} ${v('TL')} ${v('TR')} ${v('BL')} ${v('BR')}`);
             case 'spikeprime_displayText': {
                 const text = b.inputs.TEXT;
                 // A reporter in the TEXT slot is written as the expression it is;
