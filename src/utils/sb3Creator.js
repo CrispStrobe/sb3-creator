@@ -147,6 +147,10 @@ let ruleLogFor = null, ruleLog = [];
 function matchTopLevel(line, re) {
     if (line === ruleLogFor) ruleLog.push(re);
     if (line !== maskedFor) { maskedLine = maskTopLevel(line); maskedFor = line; }
+    // Most rules do not match: test with the rule itself, and build (once) the
+    // `d`-flagged twin only for the one that does, for its group positions.
+    re.lastIndex = 0;
+    if (!re.test(maskedLine)) return null;
     const key = `${re.flags}/${re.source}`;
     let rd = withIndices.get(key);
     if (!rd) {
@@ -170,12 +174,18 @@ function matchTopLevel(line, re) {
  * line is refused by name instead of being read as something else: a variable
  * called "servo", a display of the words "text a * 15 delay 100 ms".
  */
+const relaxedRules = new Map();   // rule text -> its relaxed twin, or null (no one-term slot)
 function unparenthesisedArgument(line) {
-    const SLOT = /\(\\S\+\??\)/g;
     for (const re of ruleLog) {
-        if (!SLOT.test(re.source)) continue;
-        SLOT.lastIndex = 0;
-        const relaxed = new RegExp(re.source.replace(SLOT, '(.+?)'), re.flags);
+        if (!re.source.includes('\\S+')) continue;
+        const key = `${re.flags}/${re.source}`;
+        let relaxed = relaxedRules.get(key);
+        if (relaxed === undefined) {
+            const SLOT = /\(\\S\+\??\)/g;
+            relaxed = SLOT.test(re.source) ? new RegExp(re.source.replace(SLOT, '(.+?)'), re.flags) : null;
+            relaxedRules.set(key, relaxed);
+        }
+        if (!relaxed) continue;
         const saved = ruleLogFor;
         ruleLogFor = null;
         const hit = matchTopLevel(line, relaxed);
