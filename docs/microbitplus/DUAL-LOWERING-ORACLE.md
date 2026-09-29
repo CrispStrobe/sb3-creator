@@ -50,6 +50,12 @@ converge on.
 | D11 | `show leds P` | `showleds P` | `display.show(Image(P))` then `yield 400` — MakeCode's basic.showLeds and its default pause |
 | D12 | `show icon P` | `showicon P` | `display.show(Image(P))` then `yield 600` — MakeCode's basic.showIcon/showArrow and its default pause |
 | D13 | `show number N` / `show number N delay I ms` | `shownumber N I` | `yield from _bw_show_number(N, I)` — MakeCode's basic.showNumber: written as Math.roundWithPrecision(N, 2) prints it, a digit shown for 5 x I ms, a longer number scrolled (6 x (length + 1) - 1 columns, one per I ms) and waited for; I defaults to 150. `display N` is unchanged and does not wait |
+| D14 | `create image P` (reporter) | `createimage P` | `Image('P')` — MakeCode's images.createImage: an image is a VALUE, kept in a variable, an array or a record's field |
+| D15 | `set pixel x X y Y of image I to V` | `imagesetpixel X Y I V` | `_bw_img_set(I, X, Y, V)` — img.setPixel; a pixel off the image is ignored, as MakeCode's is |
+| D16 | `pixel x X y Y of image I` (boolean) | `imagepixel X Y I` | `_bw_img_get(I, X, Y)` — img.pixel; off the image, false |
+| D17 | `show image I offset O` / `plot image I offset O` | `showimage I O` / `plotimage I O` | `_bw_img_show(I, O)` = `display.show(I.shift_left(O))`, then `yield 400` for show — img.showImage(O) (interval 400) / img.plotImage(O) |
+| D18 | `plot x X y Y brightness B` | `plotbrightness X Y B` | `_bw_plot_b(X, Y, B)` — led.plotBrightness: B clamped to 0..255, then (B × 9 + 254) // 255, so anything lit stays lit; off the grid, nothing |
+| D19 | `point x X y Y` (boolean) | `point X Y` | `_bw_point(X, Y)` — led.point: is that LED lit; off the grid, false |
 
 ### Game score and lives (MakeCode `game`)
 
@@ -99,6 +105,7 @@ every 30 ms, blinking while floor(now / blink) is even. P is one of `x`, `y`,
 | B4 | `when shake` | `whengesture shake` | `if accelerometer.was_gesture('shake'):` (edge-poll) |
 | B5 | `read button_ab` | `isbutton AB` | `(button_a.is_pressed() and button_b.is_pressed())` — MakeCode's Button.AB |
 | B6 | `logo touched` | `islogo` | `pin_logo.is_touched()` — the V2 touch logo |
+| B7 | `WHEN loud sound:` / `WHEN quiet sound:` (hat) | `whensound loud` | a task that runs the body each time `microphone.was_event(SoundEvent.LOUD)` reports one — MakeCode's input.onSound, which has no reporter form |
 
 ### Motion / orientation (sensors)
 
@@ -123,6 +130,7 @@ every 30 ms, blinking while floor(now / blink) is even. P is one of `x`, `y`,
 | E1 | `read light` | `light` | `display.read_light_level()` |
 | E2 | `read temperature` | `temp` | `temperature()` |
 | E3 | `read sound` | `sound` | `microphone.sound_level()` |
+| E4 | `set loud sound threshold to N` | `soundthreshold loud N` | `microphone.set_threshold(SoundEvent.LOUD, min(255, max(0, int(N))))` — input.setSoundThreshold |
 
 ### Pins / GPIO
 
@@ -167,6 +175,15 @@ every 30 ms, blinking while floor(now / blink) is even. P is one of `x`, `y`,
 | R4b | `WHEN radio receives text:` (hat) | `whenradiostr` | the same, for a packet that does not read as a number |
 | R5 | `read last radio number` | `radiolastnum` | `_radio_last_num` (variable, defined as 0 until a packet comes); inside a radio hat, that hat's own packet |
 | R6 | `last radio signal strength` | `radiorssi` | `_radio_last_rssi` — the receiver uses `radio.receive_full()` only when a program reads it |
+| R7 | `radio transmit serial number on` / `off` | `radioserial on` | `_bw_tx_serial[0] = True` — radio.setTransmitSerialNumber: from then on each packet is sent as NUL `S` serial NUL payload (`_bw_tx`); the receiver ALWAYS strips that prefix, so a program that never asks still gets the payload |
+| R8 | `last radio serial number` | `radiolastserial` | `_radio_last_serial` — the last packet's sender serial number, 0 when it sent none (as MakeCode's RadioPacketProperty.SerialNumber) |
+| R9 | `device serial number` | `deviceserial` | `_bw_serial_no` — the first four bytes of `machine.unique_id()`, little-endian, top bit cleared (control.deviceSerialNumber); 1 where there is no unique id (lite's simulator firmware) |
+
+### Text
+
+| # | dialect | microbitPlus block | MicroPython |
+|---|---------|-------------------|-------------|
+| V1 | `number from text T` | `parsenumber T` | `_bw_parse_number(T)` — JavaScript's parseFloat, MakeCode's "parse to number": the longest numeric prefix, NaN when there is none |
 
 ---
 

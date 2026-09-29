@@ -174,6 +174,18 @@ const ORACLE_TABLE = [
         'waveform=audio.SoundEffect.WAVEFORM_SINE'],
     ['B6', 'set val to logo touched',        'pin_logo.is_touched()'],
     ['R6', 'set val to last radio signal strength', 'val = _radio_last_rssi'],
+    // MakeCode census A2 (lite 2026-09-29): images, serial numbers, point, brightness, parseFloat
+    ['D14', 'set val to create image 09090:00000:00900:00000:09990', "val = Image('09090:00000:00900:00000:09990')"],
+    ['D15', 'set pixel x 1 y 2 of image val to 1', '_bw_img_set(val, 1, 2, 1)'],
+    ['D16', 'set val to pixel x 1 y 2 of image val', 'val = _bw_img_get(val, 1, 2)'],
+    ['D17', 'show image val offset 1', '_bw_img_show(val, 1)'],
+    ['D18','plot x 1 y 2 brightness 128', '_bw_plot_b(1, 2, 128)'],
+    ['D19','set val to point x 3 y 4', 'val = _bw_point(3, 4)'],
+    ['R7', 'radio transmit serial number on', '_bw_tx_serial[0] = True'],
+    ['R8', 'set val to last radio serial number', 'val = _radio_last_serial'],
+    ['R9', 'set val to device serial number', 'val = _bw_serial_no'],
+    ['E4', 'set loud sound threshold to 200', 'microphone.set_threshold(SoundEvent.LOUD, min(255, max(0, int(200))))'],
+    ['V1', 'set val to number from text "12.5abc"', 'val = _bw_parse_number("12.5abc")'],
 
     // ---- Radio (R1–R3, R5) ----
     ['R1', 'radio on group 5 power 3',      'radio.config(group=int(5), power=int(3))'],
