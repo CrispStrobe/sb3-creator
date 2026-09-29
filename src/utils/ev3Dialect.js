@@ -103,25 +103,35 @@ export const EV3_DIALECT_EXCLUSIONS = Object.freeze({
     // on the running program; the same as SPIKE's 'host-control'.
     'host-control': Object.freeze([
         'transpileToLMS', 'showLMSCode', 'downloadLMSCode', 'compileToRBF', 'showRBFCode',
-        'downloadRBF', 'uploadAndRun', 'showDebugLog', 'testCompiler', 'setLMSApiUrl'
+        'downloadRBF', 'uploadAndRun', 'showDebugLog', 'testCompiler', 'setLMSApiUrl',
+        // Arrived with the extensions pin bump of 2026-09-29 (upstream EV3 #5/#7).
+        'testDiagnostics'
     ]),
     // Which transport reaches the brick is a property of the SESSION: the same
     // .bw program must compile unchanged over Bluetooth, USB or a bridge.
     'transport-control': Object.freeze([
         'setMode', 'connect', 'disconnect', 'isConnected', 'setBridgeHost', 'setBridgePort',
         'enableBridgeSSL', 'disableBridgeSSL', 'setBridgeAuthToken', 'clearBridgeAuthToken',
-        'testBridgeConnection', 'setEV3IP', 'setEV3Port', 'testConnection'
+        'testBridgeConnection', 'setEV3IP', 'setEV3Port', 'testConnection',
+        // Arrived with the extensions pin bump of 2026-09-29 (upstream EV3 #5/#7).
+        'getConnectionMode', 'enableStreaming', 'disableStreaming'
     ]),
     // The dialect already has these as core words (`wait N seconds`); a second
     // spelling would make one program decompile two ways.
-    'core-duplicate': Object.freeze(['waitSeconds', 'waitMillis'])
+    'core-duplicate': Object.freeze(['waitSeconds', 'waitMillis']),
+    // Real learner blocks that arrived with the extensions pin bump of
+    // 2026-09-29 (upstream EV3 #5, the stock-firmware extensions absorbed):
+    // screen drawing and the NXT light and sound sensors. Listed so the
+    // denominator stays honest until each gets a word.
+    'learner-gap': Object.freeze(['invertRect', 'selectFont', 'nxtLight', 'nxtSound'])
 });
 
 export const EV3_DIALECT_EXCLUSION_REASONS = Object.freeze({
     'host-control': 'editor, code-generation or deployment control; not a portable program statement',
     'transport-control': 'names the connection the session happens to use; portable program source must '
         + 'compile the same over any of them',
-    'core-duplicate': 'the core `wait N seconds` block says the same; one program must decompile one way'
+    'core-duplicate': 'the core `wait N seconds` block says the same; one program must decompile one way',
+    'learner-gap': 'canonical learner block not yet given a dialect word'
 });
 
 // ---- the slot grammar --------------------------------------------------------

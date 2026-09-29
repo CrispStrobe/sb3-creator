@@ -31,7 +31,11 @@ const WORDS = [
     ['reset motor position B to 0', 'resetMotorPosition', { PORT: 'B' }, { POSITION: '0' }],
     ['set motor stop action D hold', 'motorSetStopAction', { PORT: 'D', ACTION: 'hold' }, {}],
     ['preset yaw to 45', 'presetYaw', {}, { ANGLE: '45' }],
-    ['display image 3', 'displayShowImage', {}, { IMAGE: '3' }]
+    ['display image 3', 'displayShowImage', {}, { IMAGE: '3' }],
+    // 2026-09-29 (task D1). COLOR is a CENTER_LED_COLOR menu value (upper case).
+    ['set center button light to lime', 'setCenterButtonColor', { COLOR: 'LIME' }, {}],
+    ['set spike volume to 40', 'setVolume', {}, { VOLUME: '40' }],
+    ['set distance lights D 9 0 5 1', 'setDistanceLights', { PORT: 'D' }, { TL: '9', TR: '0', BL: '5', BR: '1' }]
 ];
 
 describe('SPIKE 3 dialect words: command lines', () => {
@@ -54,7 +58,11 @@ const REPORTERS = [
     ['spike distance B in mm', 'getDistanceIn', { PORT: 'B', UNIT: 'mm' }],
     ['spike distance B in inches', 'getDistanceIn', { PORT: 'B', UNIT: 'in' }],
     ['spike distance B in percent', 'getDistanceIn', { PORT: 'B', UNIT: '%' }],
-    ['spike face up', 'getFaceUp', {}]
+    ['spike face up', 'getFaceUp', {}],
+    // 2026-09-29 (task D1): AXIS is the extension's AXIS menu, CHANNEL its RGB_CHANNEL.
+    ['spike gyro rate yaw', 'getGyroRate', { AXIS: 'yaw' }],
+    ['spike gyro rate roll', 'getGyroRate', { AXIS: 'roll' }],
+    ['spike color C raw blue', 'getColorRGB', { PORT: 'C', CHANNEL: 'blue' }]
 ];
 
 describe('SPIKE 3 dialect words: reporters', () => {

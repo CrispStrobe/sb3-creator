@@ -116,33 +116,33 @@ export const SPIKE3_API = Object.freeze({
     'motor_pair.move_tank_for_time': ['approximate', 'await motor_pair.move_tank_for_time(motor_pair.PAIR_1, 300, 200, 1000)'],
     'color_sensor.color': ['approximate', 'v = color_sensor.color(port.C)'],
     'color_sensor.reflection': ['approximate', 'v = color_sensor.reflection(port.C)'],
-    'color_sensor.rgbi': ['unsupported', 'v = color_sensor.rgbi(port.C)'],
+    'color_sensor.rgbi': ['mapped', 'v = color_sensor.rgbi(port.C)[0]'],
     'distance_sensor.distance': ['approximate', 'v = distance_sensor.distance(port.D)'],
-    'distance_sensor.clear': ['unsupported', 'distance_sensor.clear(port.D)'],
+    'distance_sensor.clear': ['mapped', 'distance_sensor.clear(port.D)'],
     'distance_sensor.get_pixel': ['unsupported', 'v = distance_sensor.get_pixel(port.D, 0, 0)'],
     'distance_sensor.set_pixel': ['unsupported', 'distance_sensor.set_pixel(port.D, 0, 0, 100)'],
-    'distance_sensor.show': ['unsupported', 'distance_sensor.show(port.D, [100, 100, 100, 100])'],
+    'distance_sensor.show': ['approximate', 'distance_sensor.show(port.D, [100, 100, 100, 100])'],
     'force_sensor.force': ['mapped', 'v = force_sensor.force(port.E)'],
     'force_sensor.pressed': ['mapped', 'v = force_sensor.pressed(port.E)'],
     'force_sensor.raw': ['unsupported', 'v = force_sensor.raw(port.E)'],
     'hub.button.pressed': ['approximate', 'v = button.pressed(button.LEFT)'],
-    'hub.light.color': ['unsupported', 'light.color(light.POWER, color.RED)'],
+    'hub.light.color': ['approximate', 'light.color(light.POWER, color.RED)'],
     'hub.light_matrix.write': ['mapped', 'await light_matrix.write("Hi")'],
     'hub.light_matrix.clear': ['mapped', 'light_matrix.clear()'],
     'hub.light_matrix.show_image': ['approximate', 'light_matrix.show_image(light_matrix.IMAGE_HAPPY)'],
     'hub.light_matrix.set_pixel': ['mapped', 'light_matrix.set_pixel(2, 2, 100)'],
     'hub.light_matrix.get_pixel': ['unsupported', 'v = light_matrix.get_pixel(2, 2)'],
-    'hub.light_matrix.show': ['unsupported', 'light_matrix.show([100] * 25)'],
+    'hub.light_matrix.show': ['approximate', 'light_matrix.show([100] * 25)'],
     'hub.light_matrix.set_orientation': ['unsupported', 'light_matrix.set_orientation(1)'],
     'hub.light_matrix.get_orientation': ['unsupported', 'v = light_matrix.get_orientation()'],
     'hub.sound.beep': ['mapped', 'await sound.beep(440, 500)'],
     'hub.sound.stop': ['mapped', 'sound.stop()'],
-    'hub.sound.volume': ['unsupported', 'sound.volume(50)'],
+    'hub.sound.volume': ['mapped', 'sound.volume(50)'],
     'hub.motion_sensor.tilt_angles': ['mapped', 'v = motion_sensor.tilt_angles()[0]'],
     'hub.motion_sensor.reset_yaw': ['mapped', 'motion_sensor.reset_yaw(0)'],
     'hub.motion_sensor.acceleration': ['mapped', 'v = motion_sensor.acceleration()[2]'],
     'hub.motion_sensor.up_face': ['approximate', 'v = motion_sensor.up_face()'],
-    'hub.motion_sensor.angular_velocity': ['unsupported', 'v = motion_sensor.angular_velocity()[0]'],
+    'hub.motion_sensor.angular_velocity': ['approximate', 'v = motion_sensor.angular_velocity()[2]'],
     'hub.motion_sensor.gesture': ['unsupported', 'v = motion_sensor.gesture()'],
     'hub.motion_sensor.stable': ['unsupported', 'v = motion_sensor.stable()'],
     'hub.motion_sensor.quaternion': ['unsupported', 'v = motion_sensor.quaternion()'],
@@ -165,6 +165,54 @@ export const SPIKE3_API = Object.freeze({
     'hub.soft_reset': ['unsupported', 'hub.soft_reset()'],
     'hub.bootloader': ['unsupported', 'hub.bootloader()']
 });
+
+/**
+ * Why each function the ledger calls `unsupported` has no block, so a refusal
+ * names its cause rather than only its name. Classified 2026-09-29 (task D1):
+ * what is left is what the blocks' transport never carries (the SPIKE 3 device
+ * notification has battery, IMU angles/acceleration/gyro and the port records,
+ * nothing else), what the virtual hub and arena have no model of, or what acts
+ * on the hub itself rather than in a program.
+ */
+export const SPIKE3_REFUSALS = Object.freeze({
+    'motor.get_duty_cycle': 'the PWM duty is the motor driver\'s electrical output; the hub reports speed and position, not duty, and the arena models no load or electrics',
+    'motor.status': 'READY/RUNNING/STALLED/… is not in the device notification the blocks read, and stall is not modelled',
+    'motor.info': 'a dict describing the device (type, firmware); the blocks have no dict value',
+    'distance_sensor.get_pixel': 'the sensor\'s lights are not reported back by the hub; the blocks can set them (show) but not read them',
+    'distance_sensor.set_pixel': 'the blocks set all four lights at once and the hub does not report the other three to keep',
+    'force_sensor.raw': 'the uncalibrated reading is not in the device notification, which carries the calibrated 0-100 force only',
+    'hub.light_matrix.get_pixel': 'the matrix is not reported back by the hub, and write()/show_image() draw pixels the blocks never see',
+    'hub.light_matrix.set_orientation': 'the orientation constants\' rotation sense is undocumented for SPIKE 3, and the blocks\' rotate display is a relative SPIKE 2 rotation that also clears the matrix',
+    'hub.light_matrix.get_orientation': 'the matrix orientation is not reported back by the hub',
+    'hub.motion_sensor.gesture': 'gestures are not in the SPIKE 3 device notification, and the flat-mat arena has no taps, shakes or falls',
+    'hub.motion_sensor.stable': 'the firmware\'s own resting-flat detector; the notification does not carry it, and a threshold over the gyro would be a different detector',
+    'hub.motion_sensor.quaternion': 'a 4-tuple the blocks cannot hold, and not in the notification (which carries yaw/pitch/roll)',
+    'hub.motion_sensor.get_yaw_face': 'the yaw face is not reported, and the arena\'s hub is mounted flat with yaw about its top face',
+    'hub.motion_sensor.set_yaw_face': 'the blocks have no yaw-face setting, and the arena\'s hub is mounted flat with yaw about its top face',
+    'hub.motion_sensor.tap_count': 'taps are not in the SPIKE 3 device notification, and the flat-mat arena has no impacts',
+    'hub.motion_sensor.reset_tap_count': 'taps are not in the SPIKE 3 device notification, and the flat-mat arena has no impacts',
+    'hub.temperature': 'thermal telemetry of a physical hub; the SPIKE 3 notification carries none (the block reads blank on 3.x) and the virtual hub has no thermal model',
+    'hub.battery_voltage': 'electrical telemetry of a physical hub; the SPIKE 3 notification carries none and the virtual hub has no electrical model',
+    'hub.battery_current': 'electrical telemetry of a physical hub; the SPIKE 3 notification carries none and the virtual hub has no electrical model',
+    'hub.battery_temperature': 'thermal telemetry of a physical hub; the SPIKE 3 notification carries none and the virtual hub has no thermal model',
+    'hub.usb_charge_current': 'USB charging of a physical hub; not carried and not modelled',
+    'hub.device_uuid': 'the identity of a physical hub, not a program value',
+    'hub.hardware_id': 'the identity of a physical hub, not a program value',
+    'hub.power_off': 'powers the hub off, ending the connection the blocks run over',
+    'hub.reset': 'resets the hub, ending the connection the blocks run over',
+    'hub.soft_reset': 'restarts the hub\'s MicroPython, ending the program the blocks are',
+    'hub.bootloader': 'puts the hub into firmware-update mode; not a program statement'
+});
+
+/** A refusal's text: the function, and why, when the ledger knows. */
+const refusalText = (fn, lead = `${fn}()`) => {
+    const key = SPIKE3_REFUSALS[fn] ? fn : SPIKE3_REFUSALS[`hub.${fn}`] ? `hub.${fn}` : null;
+    return key ? `${lead}: ${SPIKE3_REFUSALS[key]}` : lead;
+};
+
+/** The hub's LED palette by number (the extension's CENTER_LED_COLOR names); 0-10 are the color module's ids. */
+const CENTER_LIGHT = ['off', 'pink', 'purple', 'blue', 'teal', 'green', 'lime', 'yellow', 'orange', 'red', 'white', 'grey'];
+const COLOR_IDS = ['BLACK', 'MAGENTA', 'PURPLE', 'BLUE', 'AZURE', 'TURQUOISE', 'GREEN', 'YELLOW', 'ORANGE', 'RED', 'WHITE'];
 
 /** Names the pseudocode takes for Scratch blocks when written (`set x to` is motion). */
 const NOT_A_VARIABLE = new Set(['x', 'y', 'size', 'volume', 'tempo']);
@@ -320,6 +368,22 @@ function translatorClass () {
             return `(${this.expr(node)} / ${k})`;
         }
 
+        /**
+         * A list argument of exactly n items as n pseudocode tokens: a literal
+         * list, or `[v] * n`. Anything else is null (the caller refuses it).
+         */
+        listOf (node, n, each = (x) => this.tok(this.expr(x))) {
+            const inner = node && this.unwrap(node);
+            if (!inner) return null;
+            if (inner.type === 'List' && inner.elts.length === n) return inner.elts.map((e) => each(e));
+            if (inner.type === 'BinOp' && inner.op === '*' && inner.left.type === 'List' && inner.left.elts.length === 1 &&
+                literalNumber(inner.right) === n) {
+                const v = each(inner.left.elts[0]);
+                return Array(n).fill(v);
+            }
+            return null;
+        }
+
         /** Milliseconds node -> seconds pseudocode. */
         seconds (node) {
             const inner = this.unwrap(node);
@@ -353,7 +417,7 @@ function translatorClass () {
                     const v = this.spikeReporter(node);
                     if (v !== null) return v;
                     const path = this.callPath(node);
-                    if (path && this.isSpikeModulePath(path)) return `(${this.valueRefused(`${path}()`)})`;
+                    if (path && this.isSpikeModulePath(path)) return `(${this.valueRefused(refusalText(path))})`;
                     if (node.func.type === 'Name' && this.userFunctions.has(node.func.id)) {
                         if (this.predicates.has(node.func.id)) return this.expr(this.predicates.get(node.func.id));
                         return this.valueRefused(`the value of ${node.func.id}() (a custom block has no return value)`);
@@ -461,6 +525,7 @@ function translatorClass () {
                 case 'motion_sensor.tilt_angles':
                 case 'motion_sensor.acceleration':
                 case 'motion_sensor.angular_velocity':
+                case 'color_sensor.rgbi':
                     return this.valueRefused(`${path}() as a whole tuple (index it, or unpack it into names)`);
                 default: return null;
             }
@@ -471,7 +536,16 @@ function translatorClass () {
             const path = this.callPath(node.value);
             const i = literalNumber(node.index);
             if (!path || i === null) return null;
+            if (path === 'color_sensor.rgbi') return this.rgbiItem(node.value, i);
             return this.axisValue(path, i);
+        }
+
+        /** color_sensor.rgbi(p)[i]: red, green and blue are the colour record's raw channels. */
+        rgbiItem (call, i) {
+            const port = this.port(call.args[0]);
+            if (!port) return this.valueRefused('color_sensor.rgbi on a port that is not a constant port.X');
+            if (i >= 0 && i <= 2) return `(spike color ${port} raw ${['red', 'green', 'blue'][i]})`;
+            return this.valueRefused(`color_sensor.rgbi()[${i}]: the intensity is not in the colour record, which carries red, green and blue only`);
         }
 
         axisValue (path, i) {
@@ -483,7 +557,14 @@ function translatorClass () {
                 }
             }
             if (path === 'motion_sensor.acceleration' && i >= 0 && i <= 2) return `(spike acceleration ${'xyz'[i]})`;
-            if (path === 'motion_sensor.angular_velocity') return this.valueRefused('motion_sensor.angular_velocity()');
+            if (path === 'motion_sensor.angular_velocity' && i >= 0 && i <= 2) {
+                // decidegrees/second about x, y, z. z is the yaw axis, read with
+                // the yaw's inverted sign (the block's rate is clockwise-positive
+                // deg/s, as the app's yaw); x and y as pitch and roll are, x10.
+                this.note('motion_sensor.angular_velocity(): decidegrees/second from the block\'s deg/s; z with the yaw\'s inverted sign, x and y with their sign kept');
+                if (i === 2) return '((0 - (spike gyro rate yaw)) * 10)';
+                return `((spike gyro rate ${i === 1 ? 'pitch' : 'roll'}) * 10)`;
+            }
             return null;
         }
 
@@ -494,6 +575,10 @@ function translatorClass () {
             if (node.op === '/' && lp === 'motion_sensor.tilt_angles' && literalNumber(L.index) === 0 && literalNumber(R) === -10) return '(spike angle yaw)';
             if (node.op === '/' && lp === 'motion_sensor.tilt_angles' && [1, 2].includes(literalNumber(L.index)) && literalNumber(R) === 10) {
                 return `(spike angle ${literalNumber(L.index) === 1 ? 'pitch' : 'roll'})`;
+            }
+            if (node.op === '/' && lp === 'motion_sensor.angular_velocity' && literalNumber(L.index) === 2 && literalNumber(R) === -10) return '(spike gyro rate yaw)';
+            if (node.op === '/' && lp === 'motion_sensor.angular_velocity' && [0, 1].includes(literalNumber(L.index)) && literalNumber(R) === 10) {
+                return `(spike gyro rate ${literalNumber(L.index) === 1 ? 'pitch' : 'roll'})`;
             }
             const cp = this.callPath(L);
             if (cp === 'distance_sensor.distance') {
@@ -662,10 +747,12 @@ function translatorClass () {
             // tuple unpacking of a sensor tuple: yaw, pitch, roll = motion_sensor.tilt_angles()
             if (t.type === 'Tuple') {
                 const path = this.callPath(s.value);
-                if (path === 'motion_sensor.tilt_angles' || path === 'motion_sensor.acceleration') {
+                if (['motion_sensor.tilt_angles', 'motion_sensor.acceleration', 'motion_sensor.angular_velocity', 'color_sensor.rgbi'].includes(path)) {
                     const out = [];
                     t.elts.forEach((e, i) => {
-                        if (e.type === 'Name' && e.id !== '_') out.push(`set ${this.vname(e.id)} to ${this.axisValue(path, i)}`);
+                        if (e.type !== 'Name' || e.id === '_') return;
+                        const value = path === 'color_sensor.rgbi' ? this.rgbiItem(s.value, i) : this.axisValue(path, i);
+                        out.push(`set ${this.vname(e.id)} to ${this.stripOuterParens(value)}`);
                     });
                     return this.withPre(indent, out);
                 }
@@ -947,6 +1034,53 @@ function translatorClass () {
                     return [`set pixel ${x} ${y} ${this.tok(this.expr(this.arg(call, 2, 'intensity')))}`];
                 }
 
+                case 'light_matrix.show': {
+                    // 25 intensities, row by row, as 25 `set pixel` (x, y from 1).
+                    const values = this.listOf(this.arg(call, 0, 'pixels'), 25);
+                    if (!values) return [this.refuse(`${fn}() with a list that is not 25 literal items or [v] * 25`)];
+                    this.note('light_matrix.show(): set pixel by pixel, row by row; SPIKE 3 changes all 25 at once');
+                    return values.map((v, i) => `set pixel ${(i % 5) + 1} ${Math.floor(i / 5) + 1} ${v}`);
+                }
+
+                // ── distance_sensor lights ───────────────────────────────
+                case 'distance_sensor.clear': {
+                    const P = needPort(port(0));
+                    if (!P) break;
+                    return [`set distance lights ${P} 0 0 0 0`];
+                }
+                case 'distance_sensor.show': {
+                    const P = needPort(port(0));
+                    if (!P) break;
+                    const values = this.listOf(this.arg(call, 1, 'pixels'), 4, (node) => {
+                        // percent 0-100 -> the block's 0-9; the exporter's int(v * 100 / 9) back to v.
+                        const n = lit(node);
+                        if (n !== null) return fmt(Math.round(n * 9 / 100));
+                        const inner = node.type === 'Call' && node.func.type === 'Name' && node.func.id === 'int' ? node.args[0] : null;
+                        if (inner && inner.type === 'BinOp' && inner.op === '/' && lit(inner.right) === 9 &&
+                            inner.left.type === 'BinOp' && inner.left.op === '*' && lit(inner.left.right) === 100) return this.tok(this.expr(inner.left.left));
+                        return this.tok(`round of (${this.expr(node)} * 9 / 100)`);
+                    });
+                    if (!values) return [this.refuse(`${fn}() with a list that is not 4 literal items or [v] * 4`)];
+                    this.note('distance_sensor.show(): percent 0-100 becomes the block\'s 0-9 light level, rounded; the four lights in list order are top-left, top-right, bottom-left, bottom-right');
+                    return [`set distance lights ${P} ${values.join(' ')}`];
+                }
+
+                // ── hub.light ────────────────────────────────────────────
+                case 'light.color': {
+                    const which = this.qual(this.arg(call, 0, 'light') || {}) || '';
+                    const n = lit(this.arg(call, 0, 'light'));
+                    if (!/^light\.POWER$/.test(which) && n !== 0) return [this.refuse(`${fn}() on a light other than light.POWER: the blocks set only the centre button light`)];
+                    if (call.args.length > 2) return [this.refuse(`${fn}() with red, green, blue: the blocks set the light by palette colour only`)];
+                    const c = this.arg(call, 1, 'color');
+                    const m = /^color\.([A-Z]+)$/.exec(this.qual(c || {}) || '');
+                    const id = m ? COLOR_IDS.indexOf(m[1]) : lit(c);
+                    if (id === null || !Number.isInteger(id) || id < 0 || id >= CENTER_LIGHT.length) {
+                        return [this.refuse(`${fn}() with a colour that is not a color.X constant`)];
+                    }
+                    this.note('light.color(): the centre light takes the colour\'s number, which the blocks name by the hub LED palette (color.GREEN is "lime", color.AZURE "teal", color.TURQUOISE "green", color.BLACK "off")');
+                    return [`set center button light to ${CENTER_LIGHT[id]}`];
+                }
+
                 // ── hub.sound ────────────────────────────────────────────
                 case 'sound.beep': {
                     this.extraKeywords(call, fn, ['freq', 'duration', 'volume']);
@@ -955,6 +1089,7 @@ function translatorClass () {
                     return [`play beep ${f === undefined ? '440' : this.tok(this.expr(f))} ${d === undefined ? '500' : this.tok(this.expr(d))}`];
                 }
                 case 'sound.stop': return ['stop sound'];
+                case 'sound.volume': return [`set spike volume to ${this.tok(this.expr(this.arg(call, 0, 'volume')))}`];
 
                 // ── hub.motion_sensor ────────────────────────────────────
                 case 'motion_sensor.reset_yaw': {
@@ -984,7 +1119,7 @@ function translatorClass () {
                 case 'runloop.run': return [this.refuse('runloop.run() inside a function')];
                 default: break;
             }
-            return [this.refuse(`${fn}()`)];
+            return [this.refuse(refusalText(fn))];
         }
 
         // ── the program ───────────────────────────────────────────────────
@@ -1148,7 +1283,7 @@ const HEADER = [
     '# SPIKE App 3 Python, written by Brickwright from blocks.',
     '# _bw_speed / _bw_move_speed hold the speeds the blocks set (percent);',
     `# one percent is ${VELOCITY_PER_PERCENT} degrees per second here (the medium motor's full speed / 100).`,
-    'from hub import port, light_matrix, sound, motion_sensor, button',
+    'from hub import port, light_matrix, sound, motion_sensor, button, light',
     'import motor',
     'import motor_pair',
     'import color_sensor',
@@ -1312,6 +1447,15 @@ export function projectToSpike3Python (project) {
                     if (axis === 'yaw') return '(motion_sensor.tilt_angles()[0] / -10)';
                     return `(motion_sensor.tilt_angles()[${axis === 'pitch' ? 1 : 2}] / 10)`;
                 }
+                case 'spikeprime_getGyroRate': {
+                    const axis = field(b, 'AXIS');
+                    if (axis === 'yaw') return '(motion_sensor.angular_velocity()[2] / -10)';
+                    return `(motion_sensor.angular_velocity()[${axis === 'pitch' ? 1 : 0}] / 10)`;
+                }
+                case 'spikeprime_getColorRGB': {
+                    const i = ['red', 'green', 'blue'].indexOf(field(b, 'CHANNEL'));
+                    return `color_sensor.rgbi(${PORT(b)})[${i >= 0 ? i : 0}]`;
+                }
                 case 'spikeprime_getAcceleration': return `motion_sensor.acceleration()[${'xyz'.indexOf(field(b, 'AXIS')) >= 0 ? 'xyz'.indexOf(field(b, 'AXIS')) : 0}]`;
                 case 'spikeprime_isButtonPressed': {
                     const which = field(b, 'BUTTON');
@@ -1435,6 +1579,16 @@ export function projectToSpike3Python (project) {
                 }
                 case 'spikeprime_playBeep': return line(`await sound.beep(${val(b.inputs.FREQUENCY)}, ${val(b.inputs.DURATION)})`);
                 case 'spikeprime_stopSound': return line('sound.stop()');
+                case 'spikeprime_setVolume': return line(`sound.volume(${val(b.inputs.VOLUME)})`);
+                case 'spikeprime_setCenterButtonColor': {
+                    const id = CENTER_LIGHT.indexOf(String(field(b, 'COLOR')).toLowerCase());
+                    const c = id >= 0 && id < COLOR_IDS.length ? `color.${COLOR_IDS[id]}` : String(Math.max(0, id));
+                    return line(`light.color(light.POWER, ${c})`);
+                }
+                case 'spikeprime_setDistanceLights': {
+                    const pct = (input) => { const n = lit(input); return n !== null ? fmt(Math.round(n * 100 / 9)) : `int(${wrapOp(val(input))} * 100 / 9)`; };
+                    return line(`distance_sensor.show(${PORT(b)}, [${['TL', 'TR', 'BL', 'BR'].map((k) => pct(b.inputs[k])).join(', ')}])`);
+                }
                 case 'spikeprime_resetYaw': return line('motion_sensor.reset_yaw(0)');
                 case 'spikeprime_presetYaw': return line(`motion_sensor.reset_yaw(${times(b.inputs.ANGLE, -10)})`);
                 default: return line(`# unsupported: ${refuse(`block ${o}`)}`);

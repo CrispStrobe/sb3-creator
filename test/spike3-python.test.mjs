@@ -17,7 +17,7 @@ import { readFileSync, readdirSync } from 'node:fs';
 import SB3Creator from '../src/utils/sb3Creator.js';
 import pythonToPseudocode from '../src/utils/pythonToPseudocode.js';
 import {
-    SPIKE3_API, spike3PythonToPseudocode, projectToSpike3Python, isSpike3Python, VELOCITY_PER_PERCENT
+    SPIKE3_API, SPIKE3_REFUSALS, spike3PythonToPseudocode, projectToSpike3Python, isSpike3Python, VELOCITY_PER_PERCENT
 } from '../src/utils/spike3Python.js';
 
 const PRELUDE = [
@@ -200,16 +200,98 @@ describe('ordering', () => {
     });
 });
 
+// Task D1 (2026-09-29): the functions that left the refused set, each through
+// import -> dialect -> blocks -> export -> import, with the exact spellings at
+// every stage. [python statement, dialect line, opcode(s), exported python].
+const D1_TRIPS = [
+    ['v = color_sensor.rgbi(port.C)[1]', 'set v to spike color C raw green', ['spikeprime_getColorRGB'],
+        'v = color_sensor.rgbi(port.C)[1]'],
+    ['v = motion_sensor.angular_velocity()[2]', 'set v to (0 - (spike gyro rate yaw)) * 10', ['spikeprime_getGyroRate'],
+        'v = ((0 - (motion_sensor.angular_velocity()[2] / -10)) * 10)'],
+    ['v = motion_sensor.angular_velocity()[1]', 'set v to (spike gyro rate pitch) * 10', ['spikeprime_getGyroRate'],
+        'v = ((motion_sensor.angular_velocity()[1] / 10) * 10)'],
+    ['light.color(light.POWER, color.AZURE)', 'set center button light to teal', ['spikeprime_setCenterButtonColor'],
+        'light.color(light.POWER, color.AZURE)'],
+    ['sound.volume(35)', 'set spike volume to 35', ['spikeprime_setVolume'], 'sound.volume(35)'],
+    ['distance_sensor.clear(port.D)', 'set distance lights D 0 0 0 0', ['spikeprime_setDistanceLights'],
+        'distance_sensor.show(port.D, [0, 0, 0, 0])'],
+    ['distance_sensor.show(port.D, [100, 56, 0, 11])', 'set distance lights D 9 5 0 1', ['spikeprime_setDistanceLights'],
+        'distance_sensor.show(port.D, [100, 56, 0, 11])'],
+    ['light_matrix.show([100] * 25)', 'set pixel 5 5 100', Array(25).fill('spikeprime_setPixel'),
+        'light_matrix.set_pixel(4, 4, 100)']
+];
+
+describe('task D1: each function that left the refused set round-trips', () => {
+    for (const [py, dialect, opcodes, exported] of D1_TRIPS) {
+        test(py, () => {
+            const a = trip(inMain(py));
+            assert.deepEqual(a.r.unsupported, [], a.r.pseudocode);
+            assert.ok(body(a.r.pseudocode).includes(dialect), `dialect:\n${a.r.pseudocode}`);
+            assert.deepEqual(a.c.warnings, []);
+            assert.deepEqual(spikeOps(a.project.targets.flatMap((t) => Object.values(t.blocks))).map((b) => b.opcode), opcodes);
+            assert.deepEqual(a.exportUnsupported, []);
+            assert.ok(a.py.split('\n').map((l) => l.trim()).includes(exported), `export:\n${a.py}`);
+            const b = trip(a.py);
+            assert.deepEqual(b.r.unsupported, []);
+            assert.equal(b.py, a.py, 'blocks -> Python -> blocks -> Python is a fixed point');
+            assert.equal(b.decompiled, a.decompiled, 'and so are the blocks');
+        });
+    }
+    test('the light list is row by row: pixel i is (i mod 5, i div 5), from 1 in the blocks', () => {
+        const pixels = Array.from({ length: 25 }, (_, i) => i * 4);
+        const r = spike3PythonToPseudocode(inMain(`light_matrix.show([${pixels.join(', ')}])`));
+        const lines = body(r.pseudocode).filter((l) => l.startsWith('set pixel'));
+        assert.equal(lines.length, 25);
+        assert.equal(lines[7], 'set pixel 3 2 28');
+        assert.equal(lines[24], 'set pixel 5 5 96');
+    });
+    test('a light colour with no palette name, and the RGB form, are refused by name', () => {
+        const r = spike3PythonToPseudocode(inMain('light.color(light.CONNECT, color.RED)', 'light.color(light.POWER, 90, 40, 2)'));
+        assert.equal(r.unsupported.length, 2);
+        assert.ok(r.unsupported.every((u) => u.startsWith('light.color()')), r.unsupported.join('\n'));
+    });
+    test('rgbi\'s intensity and a computed list are refused by name, with the reason', () => {
+        const r = spike3PythonToPseudocode(inMain('v = color_sensor.rgbi(port.C)[3]', 'p = [1, 2, 3, 4]', 'distance_sensor.show(port.D, p)'));
+        assert.deepEqual(r.unsupported, [
+            'color_sensor.rgbi()[3]: the intensity is not in the colour record, which carries red, green and blue only',
+            'distance_sensor.show() with a list that is not 4 literal items or [v] * 4'
+        ].concat(r.unsupported.filter((u) => /^a /.test(u))));
+    });
+    test('the arena\'s clockwise-positive rate reads as SPIKE 3\'s counterclockwise-positive decidegrees', () => {
+        // gyro rate yaw 45 deg/s clockwise -> angular_velocity()[2] = -450
+        const r = spike3PythonToPseudocode(inMain('v = motion_sensor.angular_velocity()[2]'));
+        assert.match(r.pseudocode, /set v to \(0 - \(spike gyro rate yaw\)\) \* 10/);
+    });
+});
+
+describe('every refusal names its reason', () => {
+    const refused = Object.entries(SPIKE3_API).filter(([, [status]]) => status === 'unsupported').map(([fn]) => fn);
+    test('the reasons table is exactly the refused set', () => {
+        assert.deepEqual(Object.keys(SPIKE3_REFUSALS).sort(), refused.sort());
+        assert.equal(refused.length, 27, 'counted 34 refused on 2026-09-28; 27 after task D1 (2026-09-29)');
+    });
+    for (const fn of refused) {
+        test(`${fn}: its refusal carries the reason`, () => {
+            const r = spike3PythonToPseudocode(inMain(SPIKE3_API[fn][1]));
+            assert.equal(r.unsupported.length, 1);
+            assert.ok(r.unsupported[0].endsWith(SPIKE3_REFUSALS[fn]), r.unsupported[0]);
+            assert.ok(r.pseudocode.includes(SPIKE3_REFUSALS[fn]), 'and the program shows it');
+        });
+    }
+});
+
 const CORPUS = new URL('./fixtures/spike3-python/', import.meta.url);
 /** What each corpus program cannot say — a change here is a change in coverage. */
 const EXPECTED_UNSUPPORTED = {
-    '07-light-matrix.py': ['light_matrix.show()'],
-    '12-unsupported-mix.py': ['light.color()', 'color_sensor.rgbi() unpacked into names', 'distance_sensor.show()', 'sound.volume()']
+    // 2026-09-29 (task D1): light_matrix.show, light.color, rgbi's red/green/blue,
+    // distance_sensor.show and sound.volume became words; rgbi's intensity has
+    // no channel in the colour record and stays refused, by name and reason.
+    '12-unsupported-mix.py': ['color_sensor.rgbi()[3]: the intensity is not in the colour record, which carries red, green and blue only']
 };
 
 describe('corpus', () => {
     const files = readdirSync(CORPUS).filter((f) => f.endsWith('.py')).sort();
-    test('the corpus is there', () => assert.ok(files.length >= 12, `counted 12 programs on 2026-09-28; found: ${files.join()}`));
+    test('the corpus is there', () => assert.ok(files.length >= 13, `counted 12 programs on 2026-09-28, 13 on 2026-09-29; found: ${files.join()}`));
     for (const f of files) {
         test(`${f}: compiles, names what it cannot say, and round-trips`, () => {
             const src = readFileSync(new URL(f, CORPUS), 'utf8');
