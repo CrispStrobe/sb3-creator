@@ -117,6 +117,12 @@ function microbitMelody (name) {
     return key ? { name: key, py: MAKECODE_MELODIES[key] } : null;
 }
 
+// parseCommand tries up to ~200 rules against one line, so the mask is made
+// once per line and each rule's `d`-flagged twin is compiled once (a regex
+// literal is a new object on every evaluation, so the key is its text).
+let maskedFor = null, maskedLine = '';
+const withIndices = new Map();
+
 /**
  * `line.match(re)` where the keywords must sit OUTSIDE parentheses and
  * quotes. A slot bounded by the next keyword is lazy, so `volume (pick
@@ -135,6 +141,22 @@ function microbitMelody (name) {
  * (task D5; found by the SPIKE arena's D2 units).
  */
 function matchTopLevel(line, re) {
+    if (line !== maskedFor) { maskedLine = maskTopLevel(line); maskedFor = line; }
+    const key = `${re.flags}/${re.source}`;
+    let rd = withIndices.get(key);
+    if (!rd) {
+        rd = new RegExp(re.source, re.flags.includes('d') ? re.flags : re.flags + 'd');
+        withIndices.set(key, rd);
+    }
+    rd.lastIndex = 0;
+    const m = rd.exec(maskedLine);
+    if (!m) return null;
+    const out = m.indices.map((span) => (span ? line.slice(span[0], span[1]) : undefined));
+    out.index = m.index;
+    return out;
+}
+
+function maskTopLevel(line) {
     let depth = 0, inStr = false, masked = '';
     for (let i = 0; i < line.length; i++) {
         const ch = line[i];
@@ -146,11 +168,7 @@ function matchTopLevel(line, re) {
         if (!inStr && ch === ')') { masked += depth === 1 ? ch : '\u0001'; depth = Math.max(0, depth - 1); continue; }
         masked += (inStr || depth > 0) ? '\u0001' : ch;
     }
-    const m = new RegExp(re.source, re.flags.includes('d') ? re.flags : re.flags + 'd').exec(masked);
-    if (!m) return null;
-    const out = m.indices.map((span) => (span ? line.slice(span[0], span[1]) : undefined));
-    out.index = m.index;
-    return out;
+    return masked;
 }
 
 /** The V2 built-in sounds: MakeCode's soundExpression.X and MicroPython's Sound.X are the same ten. */
