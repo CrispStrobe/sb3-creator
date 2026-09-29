@@ -230,6 +230,38 @@ export function matchEv3Word(text, kinds) {
     return null;
 }
 
+/**
+ * Would `text` be an EV3 word if its value slots could hold more than one
+ * token? That is the shape of a word whose argument is an expression written
+ * without parentheses (`set brick volume a * 15`): matchEv3Word, reading one
+ * token per slot, does not match it — and a generic rule then might (`set …
+ * to …` made a variable named "brick volume pick random 1"). The parser asks
+ * this before any generic fallback, and refuses such a line by name.
+ */
+export function ev3WordLoose(text, kinds) {
+    const tokens = ev3Tokens(text);
+    if (!tokens || !tokens.length) return null;
+    for (const entry of EV3_WORDS) {
+        if (kinds && !kinds.includes(entry.kind)) continue;
+        const {parts} = compile(entry);
+        if (!parts.some(p => p.value) || parts[0].literal !== tokens[0].toLowerCase()) continue;
+        // Walk the parts; a value slot absorbs one token or more (lazily),
+        // everything else must match exactly one token.
+        const fits = (pi, ti) => {
+            if (pi === parts.length) return ti === tokens.length;
+            if (ti >= tokens.length) return false;
+            const p = parts[pi], t = tokens[ti];
+            if (p.literal !== undefined) return t.toLowerCase() === p.literal && fits(pi + 1, ti + 1);
+            if (p.menu) return p.pattern.test(t) && fits(pi + 1, ti + 1);
+            if (p.field) return p.toValue.has(t.toLowerCase()) && fits(pi + 1, ti + 1);
+            for (let n = 1; ti + n <= tokens.length; n++) if (fits(pi + 1, ti + n)) return true;
+            return false;
+        };
+        if (fits(0, 0)) return entry;
+    }
+    return null;
+}
+
 /** The entry for an `ev3comprehensive_*` opcode, or null. */
 export function ev3WordFor(opcode) {
     const prefix = `${EV3_EXTENSION}_`;

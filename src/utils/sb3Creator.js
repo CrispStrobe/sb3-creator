@@ -12,7 +12,7 @@ import { cHostRuntime, cShimName, C_HOST_INCLUDES } from './cHostRuntime.js';
 // drift — they already did once, and the round trip lost the block.
 import { CUBE_DIRECTIONS, cubeDirectionIndex } from './cubeDirections.js';
 // The DEVICE EV3 words: one table, read by the parser and the decompiler alike.
-import { matchEv3Word, ev3WordFor, spellEv3Word } from './ev3Dialect.js';
+import { matchEv3Word, ev3WordFor, spellEv3Word, ev3WordLoose } from './ev3Dialect.js';
 
 // The emitted no-import JSON serializer (the sim firmware ships without
 // the json module — measured 2026-08-19). Shared by the marker debugger's
@@ -122,6 +122,10 @@ function microbitMelody (name) {
 // literal is a new object on every evaluation, so the key is its text).
 let maskedFor = null, maskedLine = '';
 const withIndices = new Map();
+// Every rule parseCommand tried on the statement it is reading, in order —
+// what unparenthesisedArgument() re-reads before a generic fallback claims
+// the line.
+let ruleLogFor = null, ruleLog = [];
 
 /**
  * `line.match(re)` where the keywords must sit OUTSIDE parentheses and
@@ -141,6 +145,7 @@ const withIndices = new Map();
  * (task D5; found by the SPIKE arena's D2 units).
  */
 function matchTopLevel(line, re) {
+    if (line === ruleLogFor) ruleLog.push(re);
     if (line !== maskedFor) { maskedLine = maskTopLevel(line); maskedFor = line; }
     const key = `${re.flags}/${re.source}`;
     let rd = withIndices.get(key);
@@ -154,6 +159,30 @@ function matchTopLevel(line, re) {
     const out = m.indices.map((span) => (span ? line.slice(span[0], span[1]) : undefined));
     out.index = m.index;
     return out;
+}
+
+/**
+ * The rule, among those parseCommand has tried on this line, that WOULD have
+ * read it if its one-term `(\S+)` slots could hold a spaced expression — i.e.
+ * the statement is that word with an argument written without parentheses
+ * (`move forward a * 15 cm`, `set servo to a * 15`). Asked before each generic
+ * fallback (`set X to Y`, `display <value>`) and before "unknown", so such a
+ * line is refused by name instead of being read as something else: a variable
+ * called "servo", a display of the words "text a * 15 delay 100 ms".
+ */
+function unparenthesisedArgument(line) {
+    const SLOT = /\(\\S\+\??\)/g;
+    for (const re of ruleLog) {
+        if (!SLOT.test(re.source)) continue;
+        SLOT.lastIndex = 0;
+        const relaxed = new RegExp(re.source.replace(SLOT, '(.+?)'), re.flags);
+        const saved = ruleLogFor;
+        ruleLogFor = null;
+        const hit = matchTopLevel(line, relaxed);
+        ruleLogFor = saved;
+        if (hit) return re;
+    }
+    return null;
 }
 
 function maskTopLevel(line) {
@@ -4907,6 +4936,19 @@ class SB3Creator {
         }
         const context = { target, extraBlocks: {}, parentId: null };
         let match;
+        ruleLogFor = line;
+        ruleLog = [];
+        // A word whose argument is an expression written without parentheses
+        // is refused here, by name, before a generic rule can claim the line.
+        const refuseUnparenthesised = () => {
+            const ev3 = this.project && this.project.stc && this.project.stc.device === 'ev3'
+                && ev3WordLoose(line, ['command']);
+            if (ev3 || unparenthesisedArgument(line)) {
+                throw new ParseError(`an argument that is an expression goes in parentheses: every argument of `
+                    + `this statement is one term (a number, a name, a "text" or a (parenthesised expression)), `
+                    + `e.g. \`move forward (a * 15) cm\``);
+            }
+        };
 
         // Create a stack command block and make it the parent for any reporter/menu
         // blocks parsed into its inputs.
@@ -5694,6 +5736,9 @@ class SB3Creator {
             return ret(block);
         }
         if ((match = matchTopLevel(line, /^(?:display|scroll)\s+(.+)$/i))) {
+            // `scroll text a * 15 delay 100 ms` is the scroll-text word with an
+            // unparenthesised argument, not a display of that whole phrase.
+            refuseUnparenthesised();
             const { id, block } = cmd('microbit_display');
             block[id].inputs.VALUE = val(match[1]);
             block[id].fields.MODE = ['number', null];
@@ -6512,6 +6557,9 @@ class SB3Creator {
         }
 
         // ---- Generic variable set / change (LAST so specific commands win) ---------
+        // …but not over a specific command whose argument lacks its parentheses:
+        // `set servo to a * 15` is the servo word, not a variable named "servo".
+        refuseUnparenthesised();
         if ((match = matchTopLevel(line, /^set\s+(.+?)\s+to\s+(.+)$/i))) {
             const variable = this.getOrCreateVariable(match[1].trim(), target);
             const { id, block } = cmd('data_setvariableto');

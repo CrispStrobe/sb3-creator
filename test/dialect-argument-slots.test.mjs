@@ -227,10 +227,31 @@ describe('an unreadable line is refused by name, never dropped', () => {
         const e = refused(program('SPIKE', 'move forward a * 15 cm'));
         assert.equal(e.name, 'UnparsedLinesError');
         assert.deepEqual(e.lines.map(l => [l.line, l.text]), [[5, 'move forward a * 15 cm']]);
-        assert.match(e.message, /An argument that is an expression goes in parentheses/);
+        assert.match(e.message, /an argument that is an expression goes in parentheses/i);
         // The same slot as the LAST thing on a line whose rule reads to the end
         // is unambiguous, and reads (it always did).
         assert.ok(built(program('SPIKE', 'set movement speed a * 15')).stmt);
+    });
+
+    test('…and is not claimed by a generic rule as something else', () => {
+        // Measured before D5: with the argument unparenthesised the word did
+        // not match, and `set … to …` or `display <value>` read the line — a
+        // NEW variable named "servo" / "brick volume pick random 1", or a
+        // micro:bit display of the words "text a * 15 delay 100 ms".
+        for (const [device, line] of [
+            ['MICROBIT', 'set servo to a * 15'],
+            ['MICROBIT', 'scroll text a * 15 delay 100 ms'],
+            ['SPIKE', 'set pixel pick random 1 to 10 2 100'],
+            ['SPIKE', 'set motor speed A pick random 1 to 10'],
+            ['EV3', 'set brick volume pick random 1 to 10'],
+        ]) {
+            const e = refused(program(device, line));
+            assert.deepEqual(e.lines.map(l => l.text), [line], device);
+            assert.match(e.lines[0].reason, /goes in parentheses/, line);
+        }
+        // The generic rules themselves still read a spaced expression.
+        assert.equal(built(program('MICROBIT', 'set my var to a * 15')).stmt.opcode, 'data_setvariableto');
+        assert.equal(built(program('MICROBIT', 'scroll a * 2')).stmt.opcode, 'microbit_display');
     });
 
     test('every way a line used to vanish is a refusal now', () => {
