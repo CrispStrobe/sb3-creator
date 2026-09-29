@@ -11,6 +11,8 @@ import { cHostRuntime, cShimName, C_HOST_INCLUDES } from './cHostRuntime.js';
 // The LED cube's shift directions. Shared with the C reader so the two cannot
 // drift — they already did once, and the round trip lost the block.
 import { CUBE_DIRECTIONS, cubeDirectionIndex } from './cubeDirections.js';
+// The DEVICE EV3 words: one table, read by the parser and the decompiler alike.
+import { matchEv3Word, ev3WordFor, spellEv3Word } from './ev3Dialect.js';
 
 // The emitted no-import JSON serializer (the sim firmware ships without
 // the json module — measured 2026-08-19). Shared by the marker debugger's
@@ -1965,6 +1967,39 @@ class SB3Creator {
         return id;
     }
 
+    // The inputs and fields of a matched DEVICE EV3 word (ev3Dialect.js). The
+    // block `id` exists already, so its menu shadows can name it as parent. A
+    // quoted slot is TEXT, unescaped here as the decompiler escapes it.
+    ev3Slots(match, context, id) {
+        const inputs = {};
+        const fields = {};
+        const was = context.parentId;
+        context.parentId = id;
+        for (const [name, slot] of Object.entries(match.slots)) {
+            if (slot.menu) inputs[name] = this.menuInput(context, slot.menu.opcode, slot.menu.field, slot.value);
+            else if (slot.field !== undefined) fields[name] = [slot.field, null];
+            else if (/^"(?:[^"\\]|\\.)*"$/.test(slot.value)) {
+                inputs[name] = [1, [10, slot.value.slice(1, -1).replace(/\\(.)/g, '$1')]];
+            } else inputs[name] = this.parseValue(slot.value, context);
+        }
+        context.parentId = was;
+        return { inputs, fields };
+    }
+
+    // A DEVICE EV3 block written back as its word (ev3Dialect.js).
+    spellEv3(entry, b, blocks) {
+        return spellEv3Word(entry, {
+            menu: (name, field) => this.dmenu(b.inputs[name], blocks, field),
+            field: (name) => (b.fields[name] ? b.fields[name][0] : ''),
+            value: (name) => {
+                const input = b.inputs[name];
+                const inner = Array.isArray(input) ? input[1] : null;
+                if (Array.isArray(inner) && inner[0] === 10) return escapeTextLiteral(inner[1]);
+                return this.dval(input, blocks) || '0';
+            }
+        });
+    }
+
     // Register a dropdown menu shadow block and return an input array [1, id].
     menuInput(context, opcode, field, value) {
         const id = this.generateId();
@@ -2306,6 +2341,16 @@ class SB3Creator {
                 TOLOW: this.parseValue(m[4], context),
                 TOHIGH: this.parseValue(m[5], context)
             });
+        }
+        // ---- LEGO EV3 reporters and booleans (ev3Dialect.js; the `ev3` prefix
+        // keeps them from ever reading as a variable) ----
+        {
+            const ev3 = matchEv3Word(s, ['reporter', 'boolean']);
+            if (ev3) {
+                const id = this.pushBlock(context, ev3.opcode);
+                Object.assign(context.extraBlocks[id], this.ev3Slots(ev3, context, id));
+                return this.valueOfBlock(id);
+            }
         }
         // ---- Spike Prime sensor reporters ----
         if ((m = s.match(/^spike\s+distance\s+([A-F])\s*$/i)))
@@ -4579,6 +4624,16 @@ class SB3Creator {
             return push('argument_reporter_boolean', {}, { VALUE: [s, null] });
         }
 
+        // An EV3 boolean is a condition as it stands, not a value compared to "true".
+        {
+            const ev3 = matchEv3Word(s, ['boolean']);
+            if (ev3) {
+                const id = push(ev3.opcode);
+                Object.assign(context.extraBlocks[id], this.ev3Slots(ev3, context, id));
+                return id;
+            }
+        }
+
         // Default: treat as a boolean-ish value compared to true.
         return push('operator_equals', {
             OPERAND1: this.parseValue(s, context),
@@ -4882,6 +4937,20 @@ class SB3Creator {
             throw new ParseError(`Unknown event hat "${line}". Known hats: WHEN flag clicked / `
                 + `started / powered on, WHEN <key> key pressed, WHEN sprite clicked, `
                 + `WHEN I receive "<message>", WHEN I start as a clone.`);
+        }
+
+        // ---- LEGO EV3 (stock firmware) words, DEVICE EV3 only ------------------------
+        // One table (ev3Dialect.js) for both directions. First, so no generic rule
+        // (`set X to`, `turn`, `stop`) reads an EV3 line as something else.
+        if (this.project && this.project.stc && this.project.stc.device === 'ev3') {
+            const ev3 = matchEv3Word(line, ['command']);
+            if (ev3) {
+                const { id, block } = cmd(ev3.opcode);
+                const { inputs, fields } = this.ev3Slots(ev3, context, id);
+                block[id].inputs = inputs;
+                block[id].fields = fields;
+                return ret(block);
+            }
         }
 
         // ---- STC12 / 8051 pin commands --------------------------------------------
@@ -7659,7 +7728,11 @@ class SB3Creator {
             case 'spikeprime_isButtonPressed': return `spike button ${f('BUTTON')} pressed`;
             case 'spikeprime_isGesture': return `spike gesture ${f('GESTURE')}`;
             case 'spikeprime_isColor': return `spike color ${f('PORT')} is ${f('COLOR')}`;
-            default: return b.opcode;
+            default: {
+                const ev3 = ev3WordFor(b.opcode);
+                if (ev3 && ev3.kind !== 'command') return this.spellEv3(ev3, b, blocks);
+                return b.opcode;
+            }
         }
     }
 
@@ -8054,7 +8127,11 @@ class SB3Creator {
                 });
                 return line(text);
             }
-            default: return line(`# unsupported: ${b.opcode}`);
+            default: {
+                const ev3 = ev3WordFor(b.opcode);
+                if (ev3 && ev3.kind === 'command') return line(this.spellEv3(ev3, b, blocks));
+                return line(`# unsupported: ${b.opcode}`);
+            }
         }
     }
 
@@ -17872,6 +17949,10 @@ SB3Creator.STC_PARTS = {
     microbit: { core: 'micropython', header: null, portModes: false, aux1T: false, adc: true },
     calliopemini: { core: 'micropython', header: null, portModes: false, aux1T: false, adc: true },
     spike: { core: 'spikepython', header: null, portModes: false, aux1T: false, adc: false },
+    // LEGO MINDSTORMS EV3 on its stock firmware. Its words are ev3Dialect.js's
+    // table and become `ev3comprehensive` blocks; the brick runs them over direct
+    // commands or as LMS bytecode, so there is no C back end here by definition.
+    ev3: { core: 'ev3', header: null, portModes: false, aux1T: false, adc: false },
     // core: 'samd51' -- Arcade is a software console (160x120); PyBadge and
     // PyBadge LC are concrete ATSAMD51J19 boards. None has a C emitter here,
     // and that is enforced rather than promised: generateC() refuses every core
