@@ -438,6 +438,86 @@ function microbitShowNumberPy (pyUses) {
         ...(sprites ? ['    _bw_busy = False', '    _bw_splot()'] : [])];
 }
 
+/**
+ * MakeCode's radio serial numbers. This board's number is the first four
+ * bytes of machine.unique_id() (MakeCode's control.deviceSerialNumber() is
+ * the chip's DEVICEID; the two are the same kind of fixed, per-board id).
+ * With `radio transmit serial number on`, every packet goes out as
+ * NUL 'S' <number> NUL <payload>; the receiver strips it (and reads it, when
+ * the program asks for `last radio serial number`). MicroPython's radio has
+ * no packet metadata of its own, so the number rides in the payload.
+ */
+function microbitRadioSerialPy (pyUses, sends) {
+    const out = [];
+    if (pyUses.serialno) {
+        out.push('',
+            'try:',
+            '    import machine',
+            '    _bw_u = machine.unique_id()',
+            '    _bw_serial_no = (_bw_u[0] | (_bw_u[1] << 8) | (_bw_u[2] << 16) | ((_bw_u[3] & 0x7f) << 24)) or 1',
+            'except Exception:',
+            '    _bw_serial_no = 1');
+    }
+    if (sends) {
+        out.push('_bw_tx_serial = [False]',
+            'def _bw_tx(p):',
+            "    return ('\\x00S%d\\x00' % _bw_serial_no) + p if _bw_tx_serial[0] else p");
+    }
+    return out;
+}
+
+/**
+ * MakeCode's images as MicroPython Image objects: a pixel set or read off
+ * the image is ignored / false (as MakeCode's are), and an image is shown
+ * from a column offset — the display's column x is the image's x + offset
+ * (MakeCode draws it at -offset). Also led.point, led.plotBrightness and
+ * parseFloat, the other value helpers of the MakeCode census.
+ */
+function microbitImageHelpersPy (uses, pyUses) {
+    const out = [];
+    if (pyUses.images) {
+        out.push('',
+            'def _bw_img_set(img, x, y, v):',
+            '    x = int(x)',
+            '    y = int(y)',
+            '    if 0 <= x < img.width() and 0 <= y < img.height():',
+            '        img.set_pixel(x, y, 9 if v else 0)',
+            'def _bw_img_get(img, x, y):',
+            '    x = int(x)',
+            '    y = int(y)',
+            '    return 0 <= x < img.width() and 0 <= y < img.height() and img.get_pixel(x, y) > 0',
+            'def _bw_img_show(img, off):',
+            '    display.show(img.shift_left(int(off)))');
+    }
+    if (pyUses.point) {
+        out.push('',
+            'def _bw_point(x, y):',
+            '    x = int(x)',
+            '    y = int(y)',
+            '    return 0 <= x < 5 and 0 <= y < 5 and display.get_pixel(x, y) > 0');
+    }
+    if (pyUses.plotb) {
+        out.push('',
+            'def _bw_plot_b(x, y, b):',
+            '    b = min(255, max(0, int(b)))',
+            `    _bw_plot(x, y, ${uses.dim ? '_bw_lvl((b * 9 + 254) // 255)' : '(b * 9 + 254) // 255'})`);
+    }
+    if (pyUses.parsenum) {
+        out.push('',
+            'def _bw_parse_number(t):',
+            '    # JavaScript parseFloat: the longest numeric prefix, NaN if none',
+            '    s = str(t).strip()',
+            '    for k in range(len(s), 0, -1):',
+            '        try:',
+            '            n = float(s[:k])',
+            '        except ValueError:',
+            '            continue',
+            '        return int(n) if n == n and abs(n) < 1e15 and n == int(n) else n',
+            "    return float('nan')");
+    }
+    return out;
+}
+
 function microbitLedHelpersPy (uses, pyUses) {
     const out = [];
     if (uses.dim) {
@@ -2150,6 +2230,33 @@ class SB3Creator {
         // MakeCode radio.receivedPacket(RadioPacketProperty.SignalStrength):
         // the last packet's RSSI in dBm, as MicroPython's receive_full reports it.
         if (/^last\s+radio\s+signal\s+strength$/i.test(s)) return B('microbitplus_radiorssi');
+        // MakeCode's radio.receivedPacket(RadioPacketProperty.SerialNumber)
+        // and control.deviceSerialNumber(). A packet carries its sender's
+        // serial number only when the sender said `radio transmit serial
+        // number on` (radio.setTransmitSerialNumber(true)); otherwise the
+        // last packet's is 0, as in MakeCode.
+        if (/^last\s+radio\s+serial\s+number$/i.test(s)) return B('microbitplus_radiolastserial');
+        if (/^device\s+serial\s+number$/i.test(s)) return B('microbitplus_deviceserial');
+        // MakeCode's images as VALUES (images.createImage, img.pixel): an
+        // image lives in a variable, an array or a record's field, and is
+        // changed and shown while the program runs.
+        if ((m = s.match(/^create\s+image\s+([0-9]{5}(?::[0-9]{5}){4})$/i))) {
+            return B('microbitplus_createimage', {}, { MATRIX: [m[1], null] });
+        }
+        if ((m = matchTopLevel(s, /^pixel\s+x\s+(.+?)\s+y\s+(.+?)\s+of\s+image\s+(.+)$/i))) {
+            return B('microbitplus_imagepixel', {
+                X: this.parseValue(m[1], context), Y: this.parseValue(m[2], context), IMAGE: this.parseValue(m[3], context)
+            });
+        }
+        // MakeCode's led.point(x, y): is that LED lit?
+        if ((m = matchTopLevel(s, /^point\s+x\s+(.+?)\s+y\s+(.+)$/i))) {
+            return B('microbitplus_point', { X: this.parseValue(m[1], context), Y: this.parseValue(m[2], context) });
+        }
+        // MakeCode's parseFloat(text) ("parse to number"): the number a text
+        // spells, NaN when it spells none.
+        if ((m = s.match(/^number\s+from\s+text\s+(.+)$/i))) {
+            return B('microbitplus_parsenumber', { TEXT: this.parseValue(m[1], context) });
+        }
         // MakeCode's LED sprites (game.LedSprite). A sprite is a numbered
         // HANDLE — 1, 2, 3 in the order they were created, 0 for none — kept
         // in an ordinary variable or array, so every place a number can go a
@@ -4679,6 +4786,13 @@ class SB3Creator {
         if (/^when\s+radio\s+receives\s+(?:a\s+)?text$/i.test(line)) {
             return { block: this.createBlock('microbitplus_whenradiostr', { topLevel: true }).block, extraBlocks: {} };
         }
+        // MakeCode's input.onSound(DetectedSound.Loud|Quiet): MakeCode has no
+        // sound-event REPORTER, only the handler, so it is a hat here too.
+        if ((match = line.match(/^when\s+(loud|quiet)\s+sound$/i))) {
+            const { id, block } = this.createBlock('microbitplus_whensound', { topLevel: true });
+            block[id].fields.LEVEL = [match[1].toLowerCase(), null];
+            return { block, extraBlocks: {} };
+        }
         if (/^when (this )?sprite clicked$/i.test(line)) {
             return { block: this.createBlock('event_whenthisspriteclicked', { topLevel: true }).block, extraBlocks: {} };
         }
@@ -5128,6 +5242,46 @@ class SB3Creator {
         }
         if (/^game\s+over\s*$/i.test(line)) {
             const { block } = cmd('microbitplus_gameover');
+            return ret(block);
+        }
+        // MakeCode's images, changed and shown at run time (the value
+        // `create image …` is in parseReporter). BEFORE the variable `set … to`
+        // rule, which would read `set pixel … to 1` as a variable.
+        if ((match = matchTopLevel(line, /^set\s+pixel\s+x\s+(.+?)\s+y\s+(.+?)\s+of\s+image\s+(.+?)\s+to\s+(.+?)\s*$/i))) {
+            const { id, block } = cmd('microbitplus_imagesetpixel');
+            block[id].inputs.X = val(match[1]);
+            block[id].inputs.Y = val(match[2]);
+            block[id].inputs.IMAGE = val(match[3]);
+            block[id].inputs.VALUE = val(match[4]);
+            return ret(block);
+        }
+        // `show image` waits 400 ms after drawing, as MakeCode's
+        // img.showImage(offset) does; `plot image` (img.plotImage) does not.
+        if ((match = matchTopLevel(line, /^(show|plot)\s+image\s+(.+?)\s+offset\s+(.+?)\s*$/i))) {
+            const { id, block } = cmd(match[1].toLowerCase() === 'show' ? 'microbitplus_showimage' : 'microbitplus_plotimage');
+            block[id].inputs.IMAGE = val(match[2]);
+            block[id].inputs.OFFSET = val(match[3]);
+            return ret(block);
+        }
+        // MakeCode's led.plotBrightness(x, y, 0..255).
+        if ((match = matchTopLevel(line, /^plot\s+x\s+(.+?)\s+y\s+(.+?)\s+brightness\s+(.+?)\s*$/i))) {
+            const { id, block } = cmd('microbitplus_plotbrightness');
+            block[id].inputs.X = val(match[1]);
+            block[id].inputs.Y = val(match[2]);
+            block[id].inputs.BRIGHTNESS = val(match[3]);
+            return ret(block);
+        }
+        // MakeCode's radio.setTransmitSerialNumber(true|false).
+        if ((match = line.match(/^radio\s+transmit\s+serial\s+number\s+(on|off)\s*$/i))) {
+            const { id, block } = cmd('microbitplus_radioserial');
+            block[id].fields.STATE = [match[1].toLowerCase(), null];
+            return ret(block);
+        }
+        // MakeCode's input.setSoundThreshold(SoundThreshold.Loud|Quiet, 0..255).
+        if ((match = line.match(/^set\s+(loud|quiet)\s+sound\s+threshold\s+to\s+(.+?)\s*$/i))) {
+            const { id, block } = cmd('microbitplus_soundthreshold');
+            block[id].fields.LEVEL = [match[1].toLowerCase(), null];
+            block[id].inputs.THRESHOLD = val(match[2]);
             return ret(block);
         }
         // MakeCode's LED sprites, commands (the reporters are in parseReporter).
@@ -7452,6 +7606,12 @@ class SB3Creator {
             case 'microbitplus_tempo': return 'music tempo';
             case 'microbitplus_islogo': return 'logo touched';
             case 'microbitplus_radiorssi': return 'last radio signal strength';
+            case 'microbitplus_radiolastserial': return 'last radio serial number';
+            case 'microbitplus_deviceserial': return 'device serial number';
+            case 'microbitplus_createimage': return `create image ${f('MATRIX')}`;
+            case 'microbitplus_imagepixel': return `pixel x ${v('X')} y ${v('Y')} of image ${v('IMAGE')}`;
+            case 'microbitplus_point': return `point x ${v('X')} y ${v('Y')}`;
+            case 'microbitplus_parsenumber': return `number from text ${v('TEXT')}`;
             case 'microbitplus_map': return `map ${v('VALUE')} from low ${v('FROMLOW')} high ${v('FROMHIGH')} to low ${v('TOLOW')} high ${v('TOHIGH')}`;
             // STC12 / 8051 pin read (digital level or ADC value).
             case 'stc12_read': return `read ${f('PIN')}`;
@@ -7575,6 +7735,7 @@ class SB3Creator {
             case 'devices_whenirreceived': return `WHEN IR received on ${v('SENSOR')}:`;
             case 'microbitplus_whenradionum': return 'WHEN radio receives number:';
             case 'microbitplus_whenradiostr': return 'WHEN radio receives text:';
+            case 'microbitplus_whensound': return `WHEN ${f('LEVEL') === 'quiet' ? 'quiet' : 'loud'} sound:`;
             case 'procedures_definition': {
                 const proto = blocks[b.inputs.custom_block[1]];
                 const m = proto.mutation;
@@ -7729,6 +7890,12 @@ class SB3Creator {
             case 'microbitplus_scrolltext': return line(`scroll text "${this.dval(b.inputs.TEXT, blocks).replace(/^"|"$/g, '')}" delay ${v('MS')} ms`);
             case 'microbitplus_cleardisplay': return line('clear display');
             case 'microbitplus_plot': return line(`plot x ${v('X')} y ${v('Y')} ${f('STATE')}`);
+            case 'microbitplus_plotbrightness': return line(`plot x ${v('X')} y ${v('Y')} brightness ${v('BRIGHTNESS')}`);
+            case 'microbitplus_imagesetpixel': return line(`set pixel x ${v('X')} y ${v('Y')} of image ${v('IMAGE')} to ${v('VALUE')}`);
+            case 'microbitplus_showimage': return line(`show image ${v('IMAGE')} offset ${v('OFFSET')}`);
+            case 'microbitplus_plotimage': return line(`plot image ${v('IMAGE')} offset ${v('OFFSET')}`);
+            case 'microbitplus_radioserial': return line(`radio transmit serial number ${f('STATE') === 'off' ? 'off' : 'on'}`);
+            case 'microbitplus_soundthreshold': return line(`set ${f('LEVEL') === 'quiet' ? 'quiet' : 'loud'} sound threshold to ${v('THRESHOLD')}`);
             case 'microbitplus_plotbargraph': return line(`plot bar graph of ${v('VALUE')} up to ${v('HIGH')}`);
             case 'microbitplus_toggle': return line(`toggle x ${v('X')} y ${v('Y')}`);
             case 'microbitplus_setbrightness': return line(`set display brightness to ${v('BRIGHTNESS')}`);
@@ -7906,7 +8073,7 @@ class SB3Creator {
             'stc12_whenpin', 'stc12_whenkey',
             'devices_whenabove', 'devices_whencloser', 'devices_whenmotion',
             'devices_whentilted', 'devices_whenirreceived',
-            'microbitplus_whenradionum', 'microbitplus_whenradiostr'].includes(op);
+            'microbitplus_whenradionum', 'microbitplus_whenradiostr', 'microbitplus_whensound'].includes(op);
     }
 
     pyName(name) {
@@ -8063,6 +8230,23 @@ class SB3Creator {
             case 'microbitplus_tempo': this._pyUses.tempo = true; return '_bw_tempo';
             case 'microbitplus_islogo': return 'pin_logo.is_touched()';
             case 'microbitplus_radiorssi': this._pyUses.radio = true; this._pyUses.rssi = true; return '_radio_last_rssi';
+            // A packet's sender serial number (0 unless it sent one), and
+            // this board's own (microbitRadioSerialPy).
+            case 'microbitplus_radiolastserial':
+                this._pyUses.radio = true; this._pyUses.rserial = true; this._pyUses.serialno = true;
+                return '_radio_last_serial';
+            case 'microbitplus_deviceserial': this._pyUses.serialno = true; return '_bw_serial_no';
+            // MakeCode's images are MicroPython's Image objects, held in any
+            // variable, array or field; microbitImageHelpersPy does the rest.
+            case 'microbitplus_createimage': {
+                const raw = String(f('MATRIX') || '').replace(/[^0-9]/g, '');
+                return `Image('${(raw + '0'.repeat(25)).slice(0, 25).match(/.{5}/g).join(':')}')`;
+            }
+            case 'microbitplus_imagepixel':
+                this._pyUses.images = true;
+                return `_bw_img_get(${v('IMAGE')}, ${v('X')}, ${v('Y')})`;
+            case 'microbitplus_point': this._pyUses.point = true; return `_bw_point(${v('X')}, ${v('Y')})`;
+            case 'microbitplus_parsenumber': this._pyUses.parsenum = true; return `_bw_parse_number(${v('TEXT')})`;
             // pins.map, exactly as MakeCode computes it:
             // ((value - fromLow) * (toHigh - toLow)) / (fromHigh - fromLow) + toLow
             case 'microbitplus_map':
@@ -8124,6 +8308,8 @@ class SB3Creator {
             case 'microbitplus_isgameover':
             case 'microbitplus_isrunning':
             case 'microbitplus_ispaused':
+            case 'microbitplus_imagepixel':
+            case 'microbitplus_point':
                 return this.pyRep(b, blocks);
             // Scratch-runtime predicates (touching, key pressed?, mouse down?) -> scratch.<method>().
             default: {
@@ -10900,6 +11086,14 @@ class SB3Creator {
         const dimmable = targets.some((t) => Object.values(t.blocks || {})
             .some((bl) => bl && bl.opcode === 'microbitplus_setbrightness'));
         if (dimmable) uses.dim = true;
+        // A program that turns on `radio transmit serial number` sends every
+        // packet with its serial number in front (microbitRadioSerialPy);
+        // decided before the walk, as `dimmable` is, because the sends may
+        // come before the switch.
+        const radioSerial = targets.some((t) => Object.values(t.blocks || {})
+            .some((bl) => bl && bl.opcode === 'microbitplus_radioserial'));
+        if (radioSerial) this._pyUses.serialno = true;
+        const tx = (payload) => (radioSerial ? `_bw_tx(${payload})` : payload);
 
         // TWO boards run MicroPython here. The micro:bit's pins are ambient
         // objects (pin0..pin20); the Pico's are CONSTRUCTED — Pin(n, Pin.IN,
@@ -11149,6 +11343,24 @@ class SB3Creator {
                     uses.plot = true;
                     return [`${pad}_bw_plot(${x}, ${y}, ${lvl})`];
                 }
+                // MakeCode's images (microbitImageHelpersPy). showImage draws,
+                // then waits its 400 ms interval as a yield; plotImage only draws.
+                case 'microbitplus_imagesetpixel':
+                    this._pyUses.images = true;
+                    return [`${pad}_bw_img_set(${v('IMAGE')}, ${v('X')}, ${v('Y')}, ${v('VALUE')})`];
+                case 'microbitplus_showimage':
+                case 'microbitplus_plotimage':
+                    this._pyUses.images = true;
+                    return [`${pad}_bw_img_show(${v('IMAGE')}, ${v('OFFSET')})`,
+                        ...(b.opcode === 'microbitplus_showimage' ? [`${pad}yield 400`] : [])];
+                // MakeCode's led.plotBrightness: 0..255 onto the 0..9 levels,
+                // any lit value staying lit; 0 turns the LED off.
+                case 'microbitplus_plotbrightness':
+                    uses.plot = true; this._pyUses.plotb = true;
+                    return [`${pad}_bw_plot_b(${v('X')}, ${v('Y')}, ${v('BRIGHTNESS')})`];
+                case 'microbitplus_soundthreshold':
+                    return [`${pad}microphone.set_threshold(SoundEvent.${f('LEVEL') === 'quiet' ? 'QUIET' : 'LOUD'}, ` +
+                        `min(255, max(0, int(${v('THRESHOLD')}))))`];
                 // MakeCode's led.plotBarGraph / toggle / setBrightness /
                 // stopAnimation and its game score. MicroPython has no global
                 // brightness and no bar graph, so each is a small helper in
@@ -11318,10 +11530,13 @@ class SB3Creator {
                     return [`${pad}radio.config(group=int(${v('GROUP')}), power=int(${v('POWER')}))`, `${pad}radio.on()`];
                 case 'microbitplus_radiosendnum':
                     uses.radio = true;
-                    return [`${pad}radio.send(str(${v('NUM')}))`];
+                    return [`${pad}radio.send(${tx(`str(${v('NUM')})`)})`];
                 case 'microbitplus_radiosendstr':
                     uses.radio = true;
-                    return [`${pad}radio.send(${pyText('TEXT')})`];
+                    return [`${pad}radio.send(${tx(pyText('TEXT'))})`];
+                case 'microbitplus_radioserial':
+                    uses.radio = true;
+                    return [`${pad}_bw_tx_serial[0] = ${f('STATE') === 'off' ? 'False' : 'True'}`];
                 case 'stc12_print':
                     return [`${pad}print(${vs('VALUE')})`];
                 case 'stc12_setpin': {
@@ -11595,6 +11810,19 @@ class SB3Creator {
                     const key = `__bw_radio_${kind}_${radioHandlers.length}`;
                     radioHandlers.push({ kind, key });
                     receivers.push([key, fn]);
+                } else if (b.opcode === 'microbitplus_whensound') {
+                    // MakeCode's input.onSound: the body runs once per loud (or
+                    // quiet) event, which microphone.was_event reports once.
+                    const level = b.fields.LEVEL && b.fields.LEVEL[0] === 'quiet' ? 'QUIET' : 'LOUD';
+                    const fn = `_task_${taskSeq++}`;
+                    const body = walk(b.next, blocks, '            ');
+                    taskDefs.push([`def ${fn}():`,
+                        ...globalsFor(this, body),
+                        '    while True:',
+                        `        if microphone.was_event(SoundEvent.${level}):`,
+                        ...body,
+                        '        yield 0'].join('\n'));
+                    starts.push(fn);
                 } else if (b.opcode === 'stc12_whenpin') {
                     // Edge-triggered pin hat as an edge-polling generator:
                     // the body (yields and all) runs on each matching edge.
@@ -11688,7 +11916,7 @@ class SB3Creator {
             const txt = keys('text').map((k) => `${k}m)`);
             taskDefs.push([
                 'def _bw_radio_rx():',
-                `    global _radio_last_num, _radio_last_str${this._pyUses.rssi ? ', _radio_last_rssi' : ''}`,
+                `    global _radio_last_num, _radio_last_str${this._pyUses.rssi ? ', _radio_last_rssi' : ''}${this._pyUses.rserial ? ', _radio_last_serial' : ''}`,
                 '    radio.on()',
                 '    while True:',
                 // The signal strength is only in receive_full(), which keeps
@@ -11704,6 +11932,15 @@ class SB3Creator {
                     '            except Exception:',
                     '                m = None'
                 ] : ['        m = radio.receive()']),
+                // A packet sent with its serial number in front
+                // (microbitRadioSerialPy): the payload is what follows it,
+                // whether or not this program reads the number.
+                "        if m is not None and m[:2] == '\\x00S':",
+                "            j = m.find('\\x00', 2)",
+                ...(this._pyUses.rserial ? ['            try:', '                _radio_last_serial = int(m[2:j])',
+                    '            except ValueError:', '                _radio_last_serial = 0'] : []),
+                '            m = m[j + 1:]',
+                ...(this._pyUses.rserial ? ['        elif m is not None:', '            _radio_last_serial = 0'] : []),
                 '        if m is not None:',
                 '            try:',
                 '                n = float(m)',
@@ -11766,6 +12003,8 @@ class SB3Creator {
         if (uses.radio) header.push('import radio');
         if (this._pyUses.radio || radioHandlers.length) header.push('_radio_last_num = 0', "_radio_last_str = ''");
         if (this._pyUses.rssi) header.push('_radio_last_rssi = 0');
+        if (this._pyUses.rserial) header.push('_radio_last_serial = 0');
+        if (!isPico) header.push(...microbitRadioSerialPy(this._pyUses, radioSerial));
         // The reporters emit `_arrays.<method>(…)` whether or not anything
         // defines `_arrays`. Without this the device raised NameError at the
         // first array read, and nothing in the result said so.
@@ -11797,6 +12036,7 @@ class SB3Creator {
             header.push('', ...this.stc12SimulatorDriver('py', this._driverPins));
         }
         if (!isPico) header.push(...microbitLedHelpersPy(uses, this._pyUses));
+        if (!isPico) header.push(...microbitImageHelpersPy(uses, this._pyUses));
         if (uses._pitch) header.push('', 'def _pitch():', '    x, y, z = accelerometer.get_values()', '    return math.atan2(-y, -z) * 180 / math.pi');
         if (uses._roll) header.push('', 'def _roll():', '    x, y, z = accelerometer.get_values()', '    return math.atan2(x, -z) * 180 / math.pi');
         // BrickWright debug instrumentation. _bw_pos(n) prints a position marker
@@ -16799,7 +17039,18 @@ class SB3Creator {
             '    def create1d(self, n, j): self._d[n] = json.loads(j) if isinstance(j, str) else list(j)',
             '    def create(self, n): self._d[n] = []',
             '    def create_range(self, n, s, e): self._d[n] = list(range(int(s), int(e) + 1))',
-            '    def set(self, n, i, v): self._d[n][int(i)] = v',
+            // Setting past the end GROWS the array, as the extension (arrays.js
+            // set: arr[i] = v) and MakeCode do; Python raised IndexError. A
+            // gap reads 0 (MakeCode's hole is undefined, as falsy). A negative
+            // index sets no element there either.
+            '    def set(self, n, i, v):',
+            '        a = self._d[n]',
+            '        i = int(i)',
+            '        if i < 0:',
+            '            return',
+            '        while len(a) <= i:',
+            '            a.append(0)',
+            '        a[i] = v',
             '    def push(self, n, v): self._d[n].append(v)',
             '    def insert(self, n, i, v): self._d[n].insert(int(i), v)',
             '    def remove(self, n, i): del self._d[n][int(i)]',
