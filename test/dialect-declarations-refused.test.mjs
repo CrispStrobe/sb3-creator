@@ -234,3 +234,16 @@ test('the table drives every refuseDeclaration() call site (the whole set, from 
     const missed = [...sites].filter((l) => !hit.has(l)).map((l) => `${l}: ${lines[l - 1].trim().slice(0, 140)}`);
     assert.deepEqual(missed, [], 'refuseDeclaration sites no CASES row drives');
 });
+
+test('the 8086 answers to the names Lite gives it', () => {
+    // `DEVICE 8086` was an unknown device that silently parsed as the default
+    // STC12; refused since D6, and Lite's export gate wrote it. It is the
+    // 8086 (and the 8088, the same instruction set), by name.
+    for (const name of ['8086', '8088', 'I8088', 'i8086']) {
+        const c = new SB3Creator();
+        c.parse(`DEVICE ${name}\nWHEN flag clicked:\n  say "ALPHA"\n`);
+        assert.equal(c.project.stc.device, 'i8086', name);
+    }
+    assert.throws(() => new SB3Creator().parse('DEVICE 80286\nWHEN flag clicked:\n  say "x"\n'),
+        (e) => e.code === 'DIALECT_UNPARSED_LINES' && /Unknown DEVICE "80286"/.test(e.lines[0].reason));
+});
