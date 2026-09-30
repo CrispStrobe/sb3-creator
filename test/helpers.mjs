@@ -7,6 +7,24 @@ export function build(code) {
     return c;
 }
 
+/**
+ * The parser's warnings for `code`, whether or not the parse was refused. A
+ * refused declaration (a pin the board has no name for, a part this device
+ * lacks) leaves the statements that use it with nothing to read them, and since
+ * D5 such lines refuse the parse (UnparsedLinesError, which carries the
+ * warnings) instead of being dropped. `refused` lists the unread lines.
+ */
+export function parseWarnings(code) {
+    const c = new SB3Creator();
+    try {
+        c.parse(code);
+        return {warnings: c.warnings, refused: []};
+    } catch (e) {
+        if (e.code !== 'DIALECT_UNPARSED_LINES') throw e;
+        return {warnings: e.warnings, refused: e.lines};
+    }
+}
+
 export function target(creator, name) {
     return creator.project.targets.find(t => (name === 'Stage' ? t.isStage : t.name === name));
 }

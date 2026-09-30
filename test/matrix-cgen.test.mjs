@@ -195,10 +195,22 @@ test('the PART line and the C are stable across a pseudocode round-trip', () => 
 
 // ---- clash checks (sb3-creator refuses via warnings, not exceptions) --------
 
-function warnsFor(mutate) {
+// A refused PART leaves its verbs (`clear screen`, …) with nothing to read
+// them, and since D5 such lines refuse the whole parse (UnparsedLinesError)
+// rather than vanishing; the declaration's warning travels on the error.
+function warningsOf(src) {
     const c = new SB3Creator();
-    c.parse(SRC.replace(...mutate));
-    return c.warnings.join('\n');
+    try {
+        c.parse(src);
+        return c.warnings.join('\n');
+    } catch (e) {
+        if (e.code !== 'DIALECT_UNPARSED_LINES') throw e;
+        return e.warnings.join('\n');
+    }
+}
+
+function warnsFor(mutate) {
+    return warningsOf(SRC.replace(...mutate));
 }
 
 test('a declared PIN on a claimed matrix pin is refused', () => {
@@ -212,8 +224,7 @@ test('a whole PORT over the column port is refused (PART then PORT)', () => {
 });
 
 test('the same symmetric clash is refused in the other order (PORT then PART)', () => {
-    const c = new SB3Creator();
-    c.parse(`DEVICE STC89C52RC:
+    const w = warningsOf(`DEVICE STC89C52RC:
   CLOCK 11059200
 
   PORT other = P0 OUTPUT
@@ -222,7 +233,7 @@ test('the same symmetric clash is refused in the other order (PORT then PART)', 
   WHEN started:
     clear screen
 `);
-    assert.match(c.warnings.join('\n'), /inside the whole port "other"/);
+    assert.match(w, /inside the whole port "other"/);
 });
 
 test('a duplicated control pin is refused', () => {
@@ -236,15 +247,13 @@ test('a control pin inside the column port is refused', () => {
 });
 
 test('MATRIX8X8 is gated off a non-8051 device', () => {
-    const c = new SB3Creator();
-    c.parse(SRC.replace('DEVICE STC89C52RC', 'DEVICE ATMEGA328P'));
-    assert.match(c.warnings.join('\n'), /MATRIX8X8 is not available/);
+    assert.match(warningsOf(SRC.replace('DEVICE STC89C52RC', 'DEVICE ATMEGA328P')), /MATRIX8X8 is not available/);
 });
 
 test('show image requires a TABLE', () => {
-    const c = new SB3Creator();
-    c.parse(SRC.replace('show image heart on screen', 'show image nope on screen'));
-    assert.match(c.warnings.join('\n'), /not a TABLE/);
+    assert.throws(() => new SB3Creator().parse(SRC.replace('show image heart on screen', 'show image nope on screen')),
+        (e) => e.code === 'DIALECT_UNPARSED_LINES' && e.lines[0].text === 'show image nope on screen'
+            && /not a TABLE/.test(e.lines[0].reason));
 });
 
 // ---- builds under sdcc if present -------------------------------------------

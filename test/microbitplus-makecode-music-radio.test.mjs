@@ -220,8 +220,11 @@ test('`set tempo to 60` is still the Scratch music block: the micro:bit verb is 
 });
 
 test('an unknown note or melody name is not invented', () => {
+    // `play melody Nonesuch` is refused by name (it used to be dropped with a
+    // warning, D5); the unknown note stays a harmless variable-ish reporter.
     const c = new SB3Creator();
-    c.parse(program(['set f to frequency of note H', 'play melody Nonesuch']));
+    assert.throws(() => c.parse(program(['set f to frequency of note H', 'play melody Nonesuch'])),
+        (e) => e.code === 'DIALECT_UNPARSED_LINES' && e.lines.length === 1 && e.lines[0].text === 'play melody Nonesuch');
     const ops = c.project.targets.flatMap((t) => Object.values(t.blocks)).map((b) => b.opcode);
     assert.ok(!ops.includes('microbitplus_notefreq') && !ops.includes('microbitplus_playmelody'), ops.join(' '));
 });

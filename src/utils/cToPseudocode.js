@@ -451,6 +451,23 @@ export function readYieldMap (source) {
     return markers ? markers.yields : [];
 }
 
+// A value as ONE term of a statement's argument list: a spaced expression is
+// parenthesised. Positional slots (`oled set cursor R C`) read one term each,
+// so `16 - len(x)` written bare would be split or refused (task D5).
+function asTerm (text) {
+    const t = String(text).trim();
+    let depth = 0, inStr = false;
+    for (let i = 0; i < t.length; i++) {
+        const ch = t[i];
+        if (inStr) { if (ch === '\\') i++; else if (ch === '"') inStr = false; continue; }
+        if (ch === '"') inStr = true;
+        else if (ch === '(') depth++;
+        else if (ch === ')') depth--;
+        else if (depth === 0 && /\s/.test(ch)) return `(${t})`;
+    }
+    return t;
+}
+
 export default function cToPseudocode (source, opts = {}) {
     const warnings = [];
     const warn = (m) => { if (!warnings.includes(m)) warnings.push(m); };
@@ -728,12 +745,15 @@ export default function cToPseudocode (source, opts = {}) {
 
     // Parse a `{ … }` block into pseudocode lines at `depth`.
     function block (cur, depth) {
-        const pad = '  '.repeat(depth);
         const lines = [];
         cur.expect('{');
         while (!cur.is('}') && cur.peek().t !== 'eof') lines.push(...statement(cur, depth));
         cur.expect('}');
-        return lines.length ? lines : [`${pad}stop`];
+        // An empty block is an empty body, not a `stop`. That placeholder is no
+        // statement of the dialect: the parser built nothing from it (a warning,
+        // then gone), and since D5 it refuses a line it cannot read. A header
+        // with no body lines builds the same block the placeholder left behind.
+        return lines;
     }
 
     function bodyOf (cur, depth) {
@@ -1036,7 +1056,7 @@ export default function cToPseudocode (source, opts = {}) {
             const out = [];
             for (const c of cases) {
                 out.push(`${pad}IF ${switchExpr.text} = ${c.val} THEN:`);
-                out.push(...(c.body.length ? c.body : [`${'  '.repeat(depth + 1)}stop`]));
+                out.push(...c.body);   // an empty case is an empty body (see block())
             }
             // Default case becomes the final else-body of the last IF, or standalone.
             if (defaultCase && defaultCase.length) {
@@ -1323,7 +1343,7 @@ export default function cToPseudocode (source, opts = {}) {
             return { text: '0', level: 99, stmt: `hold frame for ${args[0] ? args[0].text : 0} ms` };
         }
         if (name === 'bw_cube_set' && args.length >= 4) {
-            return { text: '0', level: 99, stmt: `set voxel ${args[0].text} ${args[1].text} ${args[2].text} to ${args[3].text}` };
+            return { text: '0', level: 99, stmt: `set voxel ${asTerm(args[0].text)} ${asTerm(args[1].text)} ${asTerm(args[2].text)} to ${args[3].text}` };
         }
         if (name === 'bw_cube_fill_layer' && args.length >= 2) {
             return { text: '0', level: 99, stmt: `fill layer ${args[0].text} with ${args[1].text}` };
@@ -1353,6 +1373,8 @@ export default function cToPseudocode (source, opts = {}) {
         // Reporters return a text value; statements return { stmt }.
         const MOTOR_DIRS = ['forward', 'reverse', 'brake', 'coast'];
         const a = (n) => args[n] ? args[n].text : '0';
+        // One term, for the statements whose slots are positional (see asTerm).
+        const t = (n) => asTerm(a(n));
 
         // SEVENSEG8 / LEDBANK8: `bw_<part>_<verb>(...)` → the display/LED
         // verbs — guarded by the part actually being declared in the header,
@@ -1409,32 +1431,32 @@ export default function cToPseudocode (source, opts = {}) {
             // literal back as a dialect string, _n carries an expression.
             case 'bw_lcd_print_s': return { text: '0', level: 99, stmt: `lcd print ${a(1)} on ${a(0)}` };
             case 'bw_lcd_print_n': return { text: '0', level: 99, stmt: `lcd print ${a(1)} on ${a(0)}` };
-            case 'bw_lcd_cursor': return { text: '0', level: 99, stmt: `lcd set cursor ${a(1)} ${a(2)} on ${a(0)}` };
+            case 'bw_lcd_cursor': return { text: '0', level: 99, stmt: `lcd set cursor ${t(1)} ${t(2)} on ${a(0)}` };
             case 'bw_lcd_clear': return { text: '0', level: 99, stmt: `lcd clear ${a(0)}` };
             // 7-segment display
             case 'bw_7seg_show': return { text: '0', level: 99, stmt: `show digit ${a(1)} on ${a(0)}` };
             // RGB LED
             case 'bw_rgb_set': return { text: '0', level: 99, stmt: `set ${a(0)} colour to R ${a(1)} G ${a(2)} B ${a(3)}` };
             // LED matrix
-            case 'bw_matrix_set': return { text: '0', level: 99, stmt: `set pixel ${a(1)} ${a(2)} to ${a(3)} on ${a(0)}` };
+            case 'bw_matrix_set': return { text: '0', level: 99, stmt: `set pixel ${t(1)} ${t(2)} to ${a(3)} on ${a(0)}` };
             case 'bw_matrix_clear': return { text: '0', level: 99, stmt: `clear matrix ${a(0)}` };
             // NeoPixel
             case 'bw_neopixel_set': return { text: '0', level: 99, stmt: `set neopixel ${a(1)} to R ${a(2)} G ${a(3)} B ${a(4)} on ${a(0)}` };
             case 'bw_neopixel_clear': return { text: '0', level: 99, stmt: `clear neopixels on ${a(0)}` };
             // TFT (ILI9341)
-            case 'bw_tft_pixel': return { text: '0', level: 99, stmt: `tft pixel ${a(1)} ${a(2)} R ${a(3)} G ${a(4)} B ${a(5)} on ${a(0)}` };
-            case 'bw_tft_fill': return { text: '0', level: 99, stmt: `tft fill ${a(1)} ${a(2)} ${a(3)} ${a(4)} R ${a(5)} G ${a(6)} B ${a(7)} on ${a(0)}` };
+            case 'bw_tft_pixel': return { text: '0', level: 99, stmt: `tft pixel ${t(1)} ${t(2)} R ${a(3)} G ${a(4)} B ${a(5)} on ${a(0)}` };
+            case 'bw_tft_fill': return { text: '0', level: 99, stmt: `tft fill ${t(1)} ${t(2)} ${t(3)} ${t(4)} R ${a(5)} G ${a(6)} B ${a(7)} on ${a(0)}` };
             case 'bw_tft_clear': return { text: '0', level: 99, stmt: `tft clear ${a(0)}` };
             case 'bw_tft_print_s': return { text: '0', level: 99, stmt: `tft print ${a(1)} on ${a(0)}` };
             case 'bw_tft_print_n': return { text: '0', level: 99, stmt: `tft print ${a(1)} on ${a(0)}` };
-            case 'bw_tft_cursor': return { text: '0', level: 99, stmt: `tft set cursor ${a(1)} ${a(2)} on ${a(0)}` };
+            case 'bw_tft_cursor': return { text: '0', level: 99, stmt: `tft set cursor ${t(1)} ${t(2)} on ${a(0)}` };
             // OLED (SSD1306)
-            case 'bw_oled_pixel': return { text: '0', level: 99, stmt: `oled pixel ${a(1)} ${a(2)} ${a(3)} on ${a(0)}` };
+            case 'bw_oled_pixel': return { text: '0', level: 99, stmt: `oled pixel ${t(1)} ${t(2)} ${t(3)} on ${a(0)}` };
             case 'bw_oled_clear': return { text: '0', level: 99, stmt: `oled clear ${a(0)}` };
             case 'bw_oled_print_s': return { text: '0', level: 99, stmt: `oled print ${a(1)} on ${a(0)}` };
             case 'bw_oled_print_n': return { text: '0', level: 99, stmt: `oled print ${a(1)} on ${a(0)}` };
-            case 'bw_oled_cursor': return { text: '0', level: 99, stmt: `oled set cursor ${a(1)} ${a(2)} on ${a(0)}` };
-            case 'bw_oled_hline': return { text: '0', level: 99, stmt: `oled hline ${a(1)} ${a(2)} ${a(3)} on ${a(0)}` };
+            case 'bw_oled_cursor': return { text: '0', level: 99, stmt: `oled set cursor ${t(1)} ${t(2)} on ${a(0)}` };
+            case 'bw_oled_hline': return { text: '0', level: 99, stmt: `oled hline ${t(1)} ${t(2)} ${t(3)} on ${a(0)}` };
             case 'bw_oled_show': return { text: '0', level: 99, stmt: `oled show ${a(0)}` };
             // Sensors (reporters)
             case 'bw_temperature': return { text: `temperature from ${a(0)}`, level: 99 };
@@ -1452,7 +1474,7 @@ export default function cToPseudocode (source, opts = {}) {
             case 'bw_tilted': return { text: `${a(0)} tilted?`, level: 99 };
             case 'bw_energised': return { text: `${a(0)} energised?`, level: 99 };
             // Cube extras (not in the original cube kernel)
-            case 'bw_cube_fill_column': return { text: '0', level: 99, stmt: `fill column ${a(0)} ${a(1)} with ${a(2)}` };
+            case 'bw_cube_fill_column': return { text: '0', level: 99, stmt: `fill column ${t(0)} ${t(1)} with ${a(2)}` };
             case 'bw_cube_fill_wall': return { text: '0', level: 99, stmt: `fill wall ${a(0)} with ${a(1)}` };
             case 'bw_cube_invert': return { text: '0', level: 99, stmt: 'invert cube' };
             // Print (program-wide, not a device)
@@ -1730,7 +1752,7 @@ export default function cToPseudocode (source, opts = {}) {
             const out = [];
             while (!tc.is('}') && tc.peek().t !== 'eof') out.push(...taskStmt(tc, task, depth));
             tc.expect('}');
-            return out.length ? out : [`${'  '.repeat(depth)}stop`];
+            return out;   // an empty body (see block())
         }
         return taskStmt(tc, task, depth);
     }
@@ -2043,7 +2065,9 @@ export default function cToPseudocode (source, opts = {}) {
 
     const linesFor = (f, depth) => {
         const sub = new Cursor(tokens.slice(f.from, f.to));
-        try { return block(sub, depth); } catch (e) { warn(`could not parse ${f.name}(): ${e.message}`); return [`${'  '.repeat(depth)}stop`]; }
+        // A function the reader could not parse is named in `warnings`; its body
+        // is empty rather than an unreadable `stop` (see block()).
+        try { return block(sub, depth); } catch (e) { warn(`could not parse ${f.name}(): ${e.message}`); return []; }
     };
 
     // ---- assemble ----
@@ -2305,12 +2329,12 @@ export default function cToPseudocode (source, opts = {}) {
         // pinMode lines vanish here, because they became the PIN declarations
         // above. A setup() that held nothing else contributes nothing, which
         // is correct rather than a loss.
-        if (arduinoSetup) body.push(...linesFor(arduinoSetup, 1).filter((l) => l.trim() && l.trim() !== 'stop'));
+        if (arduinoSetup) body.push(...linesFor(arduinoSetup, 1).filter((l) => l.trim()));
         if (arduinoLoop) {
-            const inner = linesFor(arduinoLoop, 2).filter((l) => l.trim() && l.trim() !== 'stop');
+            const inner = linesFor(arduinoLoop, 2).filter((l) => l.trim());
             if (inner.length) body.push('  FOREVER:', ...inner);
         }
-        out.push(...(body.length ? body : ['  stop']));
+        out.push(...body);
         return { pseudocode: out.join('\n').replace(/\n{3,}/g, '\n\n').trim() + '\n', warnings };
     }
 
@@ -2324,11 +2348,9 @@ export default function cToPseudocode (source, opts = {}) {
         else if (hat && hat.kind === 'key') out.push(`WHEN key ${hat.what} ${hat.edge}:`);
         else out.push('WHEN flag clicked:');
         if (isTask) {
-            const body = taskLines(tokens.slice(f.from, f.to), f.name, 1, hat);
-            out.push(...(body.length ? body : ['  stop']));
+            out.push(...taskLines(tokens.slice(f.from, f.to), f.name, 1, hat));
         } else {
-            const body = linesFor(f, 1).filter((l) => l.trim() !== 'stop');
-            out.push(...(body.length ? body : ['  stop']));
+            out.push(...linesFor(f, 1));
         }
     }
 

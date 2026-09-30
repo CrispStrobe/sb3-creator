@@ -25,6 +25,7 @@
 import { test, describe, beforeEach, afterEach } from 'node:test';
 import assert from 'node:assert/strict';
 import SB3Creator from '../src/utils/sb3Creator.js';
+import { parseWarnings } from './helpers.mjs';
 
 /** Two distinguishable pieces of art, sized so the rotation centre is checkable. */
 const ART = {
@@ -246,16 +247,16 @@ describe('the Arcade family retargets, and refuses C', () => {
 
     test('pin vocabulary is enforced per board, not shared', () => {
         // PyBadge has no D4 on its breakouts; Arcade's D-space runs to D31.
-        const bad = new SB3Creator();
-        bad.parse(['DEVICE PYBADGE', 'PIN x = D4 OUTPUT', '', 'WHEN flag clicked:', '  turn on x'].join('\n'));
+        // A refused PIN leaves `turn on x` unreadable, refused with it (D5).
+        const bad = parseWarnings(['DEVICE PYBADGE', 'PIN x = D4 OUTPUT', '', 'WHEN flag clicked:', '  turn on x'].join('\n'));
         assert.ok(bad.warnings.some((w) => /is not how pybadge names a pin/.test(w)),
             JSON.stringify(bad.warnings));
+        assert.deepEqual(bad.refused.map((l) => l.text), ['turn on x']);
         const ok = new SB3Creator();
         ok.parse(['DEVICE ARCADE', 'PIN x = D31 OUTPUT', '', 'WHEN flag clicked:', '  turn on x'].join('\n'));
         assert.deepEqual(ok.warnings, []);
         // And the board still ends somewhere.
-        const past = new SB3Creator();
-        past.parse(['DEVICE ARCADE', 'PIN x = D32 OUTPUT', '', 'WHEN flag clicked:', '  turn on x'].join('\n'));
+        const past = parseWarnings(['DEVICE ARCADE', 'PIN x = D32 OUTPUT', '', 'WHEN flag clicked:', '  turn on x'].join('\n'));
         assert.ok(past.warnings.some((w) => /goes up to D31/.test(w)), JSON.stringify(past.warnings));
     });
 
@@ -272,10 +273,10 @@ describe('the Arcade family retargets, and refuses C', () => {
         // one digit, and `P[A-D]\d` -> `P[A-D]\d+` would have extended it to
         // PB19. The row now spells out what the message promises.
         for (const bad of ['PB9', 'PB19', 'PA23']) {
-            const stm = new SB3Creator();
-            stm.parse(['DEVICE STM32F030', `PIN x = ${bad} OUTPUT`, '', 'WHEN flag clicked:', '  turn on x'].join('\n'));
+            const stm = parseWarnings(['DEVICE STM32F030', `PIN x = ${bad} OUTPUT`, '', 'WHEN flag clicked:', '  turn on x'].join('\n'));
             assert.ok(stm.warnings.some((w) => /is not how stm32f030 names a pin/.test(w)),
                 `${bad} was accepted: ${JSON.stringify(stm.warnings)}`);
+            assert.deepEqual(stm.refused.map((l) => l.text), ['turn on x']);
         }
         for (const good of ['PA0', 'PA7', 'PA9', 'PA10', 'PB1']) {
             const stm = new SB3Creator();

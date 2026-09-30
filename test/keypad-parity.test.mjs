@@ -58,9 +58,10 @@ test('C round-trip is a fixed point (incl. TABLE, PORT, print-string)', () => {
 });
 
 test('a keypad cannot be written', () => {
-    const c = build(KEYSHOW.replace('set k to keys', 'set keys to 5'));
-    assert.ok((c.warnings || []).some((w) => /cannot be written/.test(w)),
-        JSON.stringify(c.warnings));
+    // Refused by name, the warning as its reason (it used to build nothing).
+    assert.throws(() => build(KEYSHOW.replace('set k to keys', 'set keys to 5')),
+        (e) => e.code === 'DIALECT_UNPARSED_LINES' && e.lines[0].text === 'set keys to 5'
+            && /cannot be written/.test(e.lines[0].reason));
 });
 
 test('duplicate pins are refused', () => {
@@ -216,12 +217,13 @@ test('pin hats: the marker fix makes their round trip real too', () => {
 });
 
 test('key hats: refused without a keypad; key 16 refused; variable `key` safe', () => {
-    // sb3-creator surfaces hat ParseErrors as warnings (the oracle raises) —
-    // same information, each side's own error convention.
-    const noPad = build(HAT_SRC.replace(/  PART keys = KEYPAD4X4[^\n]*\n\n/, ''));
-    assert.match((noPad.warnings || []).join('; '), /needs a KEYPAD4X4/);
-    const badKey = build(HAT_SRC.replace('WHEN key 14 released:', 'WHEN key 16 pressed:'));
-    assert.match((badKey.warnings || []).join('; '), /keys 0\.\.15/);
+    // sb3-creator refuses a hat it cannot read, by name (UnparsedLinesError),
+    // as the oracle raises — the hat's script is not built, so it is not a
+    // warning beside a program that loads without it.
+    assert.throws(() => build(HAT_SRC.replace(/  PART keys = KEYPAD4X4[^\n]*\n\n/, '')),
+        (e) => e.code === 'DIALECT_UNPARSED_LINES' && /needs a KEYPAD4X4/.test(e.message));
+    assert.throws(() => build(HAT_SRC.replace('WHEN key 14 released:', 'WHEN key 16 pressed:')),
+        (e) => e.code === 'DIALECT_UNPARSED_LINES' && /keys 0\.\.15/.test(e.message));
     // a VARIABLE named `key` still parses as a variable
     const src = HAT_SRC.replace('IF key 3 is pressed THEN:\n        set segments to 3\n      ',
         'set key to 7\n      IF key = 7 THEN:\n        set segments to 7\n      ');

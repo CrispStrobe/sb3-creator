@@ -131,9 +131,12 @@ describe('EV3 dialect: boundaries', () => {
         const spike = Object.values(c.project.targets[0].blocks).map(b => b.opcode);
         assert.ok(spike.includes('spikeprime_motorStop') && !spike.some(o => o.startsWith('ev3')),
             'DEVICE SPIKE keeps its own `stop motor A`');
-        // An EV3 spelling on another device is not an EV3 block there.
+        // An EV3 spelling on another device is not an EV3 block there — and not
+        // a silently dropped line either: it is refused, naming both lines.
         const other = new SB3Creator();
-        other.parse('DEVICE SPIKE\n\nWHEN flag clicked:\n  run motor A at 50 %\n  clear brick screen\n');
+        assert.throws(() => other.parse('DEVICE SPIKE\n\nWHEN flag clicked:\n  run motor A at 50 %\n  clear brick screen\n'),
+            e => e.code === 'DIALECT_UNPARSED_LINES'
+                && e.lines.map(l => l.text).join('|') === 'run motor A at 50 %|clear brick screen');
         const ops = Object.values(other.project.targets[0].blocks).map(b => b.opcode);
         assert.ok(!ops.some(o => o.startsWith('ev3comprehensive')), `DEVICE SPIKE made ${ops.join(', ')}`);
     });

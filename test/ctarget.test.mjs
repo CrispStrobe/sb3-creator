@@ -157,11 +157,15 @@ test('pin statements become stc12 blocks, not variables or motion', () => {
 
 test('pin commands only claim a line when the name really is a pin', () => {
     // No PIN declarations at all -> the normal Scratch meanings must survive untouched.
-    const c = build('SPRITE S:\n  WHEN flag clicked:\n    turn right 15 degrees\n    set score to 0\n    toggle 5');
+    const c = build('SPRITE S:\n  WHEN flag clicked:\n    turn right 15 degrees\n    set score to 0');
     const ops = Object.values(c.project.targets[1].blocks).map((b) => b.opcode);
     assert.ok(ops.includes('motion_turnright'));
     assert.ok(ops.includes('data_setvariableto'));
     assert.ok(!ops.some((o) => o.startsWith('stc12_')));
+    // `toggle 5` with no pin named 5 is no statement at all. It used to be
+    // dropped with a warning; it is refused by name now.
+    assert.throws(() => build('SPRITE S:\n  WHEN flag clicked:\n    toggle 5'),
+        (e) => e.code === 'DIALECT_UNPARSED_LINES' && e.lines[0].text === 'toggle 5');
 });
 
 test('the STC surface round-trips pseudocode <-> blocks to a fixed point', () => {
@@ -181,9 +185,13 @@ test('the STC surface round-trips pseudocode <-> blocks to a fixed point', () =>
 });
 
 test('malformed declarations warn instead of throwing', () => {
-    const c = build('DEVICE not_a_chip\nPIN x = P9.9 OUTPUT\nPIN p = P2.0 ANALOG\nWHEN flag clicked:\n  say "x"');
+    const c = build('DEVICE not_a_chip\nPIN p = P2.0 ANALOG\nWHEN flag clicked:\n  say "x"');
     assert.ok(c.warnings.some((w) => /Unknown DEVICE/.test(w)));
     assert.ok(c.warnings.some((w) => /ANALOG is only available on P1/.test(w)));
+    // A PIN line no declaration rule reads at all (there is no P9) is not a
+    // declaration with a problem; it is an unreadable line, refused by name.
+    assert.throws(() => build('DEVICE not_a_chip\nPIN x = P9.9 OUTPUT\nWHEN flag clicked:\n  say "x"'),
+        (e) => e.code === 'DIALECT_UNPARSED_LINES' && e.lines[0].line === 2);
 });
 
 // ---- straight-line emission (one script) ----------------------------------------

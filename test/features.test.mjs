@@ -166,13 +166,14 @@ test('set drag mode / bare turn', () => {
 
 // ---- Compiler hardening ---------------------------------------------------------
 
-test('warnings carry the source line number', () => {
+test('an unreadable line is refused with its source line number', () => {
     const code = `SPRITE S:
   WHEN flag clicked:
     move 10 steps
     frobnicate the widget`;
-    const c = build(code);
-    assert.ok(c.warnings.some((w) => /^Line 4: .*frobnicate/.test(w)), c.warnings.join(' | '));
+    assert.throws(() => build(code), (e) => e.code === 'DIALECT_UNPARSED_LINES'
+        && e.lines.length === 1 && e.lines[0].line === 4 && /^frobnicate/.test(e.lines[0].text)
+        && /Line 4: frobnicate/.test(e.message));
 });
 
 test('COSTUME declarations add distinct animation frames', () => {

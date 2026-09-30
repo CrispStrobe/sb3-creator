@@ -12,7 +12,7 @@ import { cHostRuntime, cShimName, C_HOST_INCLUDES } from './cHostRuntime.js';
 // drift — they already did once, and the round trip lost the block.
 import { CUBE_DIRECTIONS, cubeDirectionIndex } from './cubeDirections.js';
 // The DEVICE EV3 words: one table, read by the parser and the decompiler alike.
-import { matchEv3Word, ev3WordFor, spellEv3Word } from './ev3Dialect.js';
+import { matchEv3Word, ev3WordFor, spellEv3Word, ev3WordLoose } from './ev3Dialect.js';
 
 // The emitted no-import JSON serializer (the sim firmware ships without
 // the json module — measured 2026-08-19). Shared by the marker debugger's
@@ -117,26 +117,97 @@ function microbitMelody (name) {
     return key ? { name: key, py: MAKECODE_MELODIES[key] } : null;
 }
 
+// parseCommand tries up to ~200 rules against one line, so the mask is made
+// once per line and each rule's `d`-flagged twin is compiled once (a regex
+// literal is a new object on every evaluation, so the key is its text).
+let maskedFor = null, maskedLine = '';
+const withIndices = new Map();
+// Every rule parseCommand tried on the statement it is reading, in order —
+// what unparenthesisedArgument() re-reads before a generic fallback claims
+// the line.
+let ruleLogFor = null, ruleLog = [];
+
 /**
  * `line.match(re)` where the keywords must sit OUTSIDE parentheses and
  * quotes. A slot bounded by the next keyword is lazy, so `volume (pick
  * random 0 to 1024) to 255` split at the `to` INSIDE the parentheses and the
  * volume became the text "(pick random 0". The contents of every (...) and
  * "..." are masked before matching, and the groups are cut from the real line.
+ *
+ * EVERY statement rule in parseCommand matches through this, not through
+ * `line.match`. That is what makes an argument slot take an expression: with
+ * the insides masked, a `(\S+)` slot is one TERM — a number, a name, a
+ * "quoted text" or a whole (parenthesised expression) — so
+ * `move forward (finds * 15) cm` reads its slot as `(finds * 15)`, and a
+ * lazy `(.+?)` slot can no longer stop at a keyword or a space inside one.
+ * Before, `(\S+)` stopped at the first space inside the parentheses, the
+ * rule did not match, and the statement was dropped with only a warning
+ * (task D5; found by the SPIKE arena's D2 units).
  */
 function matchTopLevel(line, re) {
+    if (line === ruleLogFor) ruleLog.push(re);
+    if (line !== maskedFor) { maskedLine = maskTopLevel(line); maskedFor = line; }
+    // Most rules do not match: test with the rule itself, and build (once) the
+    // `d`-flagged twin only for the one that does, for its group positions.
+    re.lastIndex = 0;
+    if (!re.test(maskedLine)) return null;
+    const key = `${re.flags}/${re.source}`;
+    let rd = withIndices.get(key);
+    if (!rd) {
+        rd = new RegExp(re.source, re.flags.includes('d') ? re.flags : re.flags + 'd');
+        withIndices.set(key, rd);
+    }
+    rd.lastIndex = 0;
+    const m = rd.exec(maskedLine);
+    if (!m) return null;
+    const out = m.indices.map((span) => (span ? line.slice(span[0], span[1]) : undefined));
+    out.index = m.index;
+    return out;
+}
+
+/**
+ * The rule, among those parseCommand has tried on this line, that WOULD have
+ * read it if its one-term `(\S+)` slots could hold a spaced expression — i.e.
+ * the statement is that word with an argument written without parentheses
+ * (`move forward a * 15 cm`, `set servo to a * 15`). Asked before each generic
+ * fallback (`set X to Y`, `display <value>`) and before "unknown", so such a
+ * line is refused by name instead of being read as something else: a variable
+ * called "servo", a display of the words "text a * 15 delay 100 ms".
+ */
+const relaxedRules = new Map();   // rule text -> its relaxed twin, or null (no one-term slot)
+function unparenthesisedArgument(line) {
+    for (const re of ruleLog) {
+        if (!re.source.includes('\\S+')) continue;
+        const key = `${re.flags}/${re.source}`;
+        let relaxed = relaxedRules.get(key);
+        if (relaxed === undefined) {
+            const SLOT = /\(\\S\+\??\)/g;
+            relaxed = SLOT.test(re.source) ? new RegExp(re.source.replace(SLOT, '(.+?)'), re.flags) : null;
+            relaxedRules.set(key, relaxed);
+        }
+        if (!relaxed) continue;
+        const saved = ruleLogFor;
+        ruleLogFor = null;
+        const hit = matchTopLevel(line, relaxed);
+        ruleLogFor = saved;
+        if (hit) return re;
+    }
+    return null;
+}
+
+function maskTopLevel(line) {
     let depth = 0, inStr = false, masked = '';
-    for (const ch of line) {
+    for (let i = 0; i < line.length; i++) {
+        const ch = line[i];
+        // An escaped character inside a text literal (`\"`, `\\`) is text, not
+        // the end of the literal.
+        if (inStr && ch === '\\' && i + 1 < line.length) { masked += '\u0001\u0001'; i++; continue; }
         if (ch === '"') { inStr = !inStr; masked += ch; continue; }
         if (!inStr && ch === '(') { depth++; masked += depth === 1 ? ch : '\u0001'; continue; }
         if (!inStr && ch === ')') { masked += depth === 1 ? ch : '\u0001'; depth = Math.max(0, depth - 1); continue; }
         masked += (inStr || depth > 0) ? '\u0001' : ch;
     }
-    const m = new RegExp(re.source, re.flags.includes('d') ? re.flags : re.flags + 'd').exec(masked);
-    if (!m) return null;
-    const out = m.indices.map((span) => (span ? line.slice(span[0], span[1]) : undefined));
-    out.index = m.index;
-    return out;
+    return masked;
 }
 
 /** The V2 built-in sounds: MakeCode's soundExpression.X and MicroPython's Sound.X are the same ten. */
@@ -691,6 +762,37 @@ class ParseError extends SB3Error {
     }
 }
 
+/**
+ * A program with a line the dialect could not read. Every such line is a
+ * statement (or header, or declaration) that would otherwise be DROPPED — no
+ * block built from it — while the rest of the program loaded normally, and it
+ * used to be reported only as a warning: a program whose caller did not read
+ * warnings (the SPIKE arena's unit tests, an importer, a gate) lost the line
+ * silently. `move forward (finds * 15) cm` was one (task D5). Now parse()
+ * refuses the whole program, by name, listing each line and why.
+ *
+ * `lines` is [{line, text, reason}] with 1-based line numbers; `code` is the
+ * stable name a caller can test for.
+ */
+class UnparsedLinesError extends ParseError {
+    constructor(lines, warnings = []) {
+        const shown = lines.slice(0, 20).map(l => `Line ${l.line}: ${l.text} — ${l.reason}`);
+        if (lines.length > shown.length) shown.push(`…and ${lines.length - shown.length} more`);
+        // A line is often unreadable BECAUSE of something warned about earlier
+        // (a PART this device does not have, so its verbs read nothing), so the
+        // warnings travel with the refusal instead of being lost with it.
+        const also = warnings.length
+            ? `\nThe parser also warned:\n${warnings.slice(0, 5).join('\n')}${warnings.length > 5 ? `\n…and ${warnings.length - 5} more` : ''}`
+            : '';
+        super(`${lines.length} line${lines.length === 1 ? '' : 's'} could not be read, so nothing would be built `
+            + `from ${lines.length === 1 ? 'it' : 'them'}:\n${shown.join('\n')}${also}`, lines[0] ? lines[0].line : null);
+        this.name = 'UnparsedLinesError';
+        this.code = 'DIALECT_UNPARSED_LINES';
+        this.lines = lines;
+        this.warnings = warnings;
+    }
+}
+
 class ValidationError extends SB3Error {
     constructor(message) {
         super(message, 'ValidationError');
@@ -827,6 +929,7 @@ class SB3Creator {
         this.generatedSB3 = null;
         this.errors = [];
         this.warnings = [];
+        this.unparsed = []; // lines parse() could not read: see UnparsedLinesError
         this.scriptCount = 0;
         // Comments are the ground truth on the blocks, not the text: a `# comment`
         // line is attached as a Scratch block comment to the block that follows it,
@@ -864,9 +967,37 @@ class SB3Creator {
         return id;
     }
 
-    // Push a warning tagged with its 1-based source line number.
+    // A source line that could not be read and would be dropped. Collected, and
+    // refused together at the end of parse() — never a warning-and-continue.
+    unreadable(lineIndex, text, reason) {
+        this.unparsed.push({ line: lineIndex + 1, text: String(text).trim(), reason });
+    }
+
+    // The hint an unreadable statement carries when it has an operator outside
+    // any parentheses: every argument slot of a statement reads ONE term (a
+    // number, a name, a "text" or a (parenthesised expression)), so an
+    // expression argument must be parenthesised where a word follows it.
+    static expressionHint(line) {
+        let depth = 0, inStr = false, top = '';
+        for (let i = 0; i < line.length; i++) {
+            const ch = line[i];
+            if (inStr && ch === '\\') { i++; top += ' '; continue; }
+            if (ch === '"') { inStr = !inStr; top += ' '; continue; }
+            if (!inStr && ch === '(') depth++;
+            if (!inStr && ch === ')') { depth = Math.max(0, depth - 1); top += ' '; continue; }
+            top += (inStr || depth) ? ' ' : ch;
+        }
+        return /\s(?:[*/+-]|mod|join|bitand|bitor|bitxor|shiftleft|shiftright)\s/i.test(top)
+            ? ' An argument that is an expression goes in parentheses, e.g. `move forward (a * 15) cm`.'
+            : '';
+    }
+
+    // Push a warning tagged with its 1-based source line number. A statement
+    // rule has no index of its own and passes null: the line being parsed is
+    // this._lineIndex (it used to print as "Line 1", null + 1).
     warn(lineIndex, message) {
-        this.warnings.push(`Line ${lineIndex + 1}: ${message}`);
+        const at = lineIndex ?? this._lineIndex ?? 0;
+        this.warnings.push(`Line ${at + 1}: ${message}`);
     }
 
     /**
@@ -4815,6 +4946,19 @@ class SB3Creator {
         }
         const context = { target, extraBlocks: {}, parentId: null };
         let match;
+        ruleLogFor = line;
+        ruleLog = [];
+        // A word whose argument is an expression written without parentheses
+        // is refused here, by name, before a generic rule can claim the line.
+        const refuseUnparenthesised = () => {
+            const ev3 = this.project && this.project.stc && this.project.stc.device === 'ev3'
+                && ev3WordLoose(line, ['command']);
+            if (ev3 || unparenthesisedArgument(line)) {
+                throw new ParseError(`an argument that is an expression goes in parentheses: every argument of `
+                    + `this statement is one term (a number, a name, a "text" or a (parenthesised expression)), `
+                    + `e.g. \`move forward (a * 15) cm\``);
+            }
+        };
 
         // Create a stack command block and make it the parent for any reporter/menu
         // blocks parsed into its inputs.
@@ -4825,13 +4969,25 @@ class SB3Creator {
         };
         const ret = (block) => ({ block, extraBlocks: context.extraBlocks });
         const ext = (n) => { if (!this.project.extensions.includes(n)) this.project.extensions.push(n); };
-        const val = (s) => this.parseValue(s, context);
+        // A slot that ends at a keyword (`… to <v>`, `… of <v>`) cut an
+        // unparenthesised `pick random 1 to 10` / `item 2 of xs` in two: the slot
+        // holds a reporter that lost its own keyword. That is refused (by name)
+        // rather than read as a variable called "pick random 1".
+        const val = (s) => {
+            const top = maskTopLevel(String(s || '').trim());
+            if ((/^pick\s+random\b/i.test(top) && !/\sto\s/i.test(top))
+                || (/^(?:item|letter)\b/i.test(top) && !/\sof\s/i.test(top))) {
+                throw new ParseError(`"${String(s).trim()}" is a reporter cut short by the statement's own keyword: `
+                    + 'an argument that is an expression goes in parentheses, e.g. `(pick random 1 to 10)`');
+            }
+            return this.parseValue(s, context);
+        };
 
         // ---- Event hats (routed here from the main loop) ---------------------------
         if (/^when I start as a clone$/i.test(line)) {
             return { block: this.createBlock('control_start_as_clone', { topLevel: true }).block, extraBlocks: {} };
         }
-        if ((match = line.match(/^when I receive\s+(.+)$/i))) {
+        if ((match = matchTopLevel(line, /^when I receive\s+(.+)$/i))) {
             const bc = this.getOrCreateBroadcast(this.unquote(match[1]));
             const { id, block } = this.createBlock('event_whenbroadcastreceived', { topLevel: true });
             block[id].fields.BROADCAST_OPTION = [bc.name, bc.id];
@@ -4850,7 +5006,7 @@ class SB3Creator {
         }
         // MakeCode's input.onSound(DetectedSound.Loud|Quiet): MakeCode has no
         // sound-event REPORTER, only the handler, so it is a hat here too.
-        if ((match = line.match(/^when\s+(loud|quiet)\s+sound$/i))) {
+        if ((match = matchTopLevel(line, /^when\s+(loud|quiet)\s+sound$/i))) {
             const { id, block } = this.createBlock('microbitplus_whensound', { topLevel: true });
             block[id].fields.LEVEL = [match[1].toLowerCase(), null];
             return { block, extraBlocks: {} };
@@ -4858,7 +5014,7 @@ class SB3Creator {
         if (/^when (this )?sprite clicked$/i.test(line)) {
             return { block: this.createBlock('event_whenthisspriteclicked', { topLevel: true }).block, extraBlocks: {} };
         }
-        if ((match = line.match(/^when\s+(.+?)\s+key\s+pressed$/i))) {
+        if ((match = matchTopLevel(line, /^when\s+(.+?)\s+key\s+pressed$/i))) {
             const { id, block } = this.createBlock('event_whenkeypressed', { topLevel: true });
             block[id].fields.KEY_OPTION = [this.normalizeKey(match[1]), null];
             return { block, extraBlocks: {} };
@@ -4875,29 +5031,35 @@ class SB3Creator {
         }
         // Device sensor hats: threshold-based and binary event blocks.
         // Quoted sensor name avoids collision with Scratch's "when X key pressed".
-        if ((match = line.match(/^when\s+"([^"]+)"\s+above\s+(.+)$/i))) {
-            const { id, block } = this.createBlock('devices_whenabove', { topLevel: true });
+        if ((match = matchTopLevel(line, /^when\s+"([^"]+)"\s+above\s+(.+)$/i))) {
+            // cmd/ret, not a bare createBlock: the threshold may be a reporter,
+            // and returning `extraBlocks: {}` threw its blocks away — the hat
+            // pointed at a block that did not exist and read back as `()`.
+            const { id, block } = cmd('devices_whenabove', { topLevel: true });
             block[id].inputs.SENSOR = [1, [10, match[1]]];
             block[id].inputs.THRESHOLD = val(match[2]);
-            return { block, extraBlocks: {} };
+            return ret(block);
         }
-        if ((match = line.match(/^when\s+"([^"]+)"\s+closer than\s+(.+)$/i))) {
-            const { id, block } = this.createBlock('devices_whencloser', { topLevel: true });
+        if ((match = matchTopLevel(line, /^when\s+"([^"]+)"\s+closer than\s+(.+)$/i))) {
+            // cmd/ret, not a bare createBlock: the threshold may be a reporter,
+            // and returning `extraBlocks: {}` threw its blocks away — the hat
+            // pointed at a block that did not exist and read back as `()`.
+            const { id, block } = cmd('devices_whencloser', { topLevel: true });
             block[id].inputs.SENSOR = [1, [10, match[1]]];
             block[id].inputs.DISTANCE = val(match[2]);
-            return { block, extraBlocks: {} };
+            return ret(block);
         }
-        if ((match = line.match(/^when motion on\s+"([^"]+)"$/i))) {
+        if ((match = matchTopLevel(line, /^when motion on\s+"([^"]+)"$/i))) {
             const { id, block } = this.createBlock('devices_whenmotion', { topLevel: true });
             block[id].inputs.SENSOR = [1, [10, match[1]]];
             return { block, extraBlocks: {} };
         }
-        if ((match = line.match(/^when\s+"([^"]+)"\s+tilted$/i))) {
+        if ((match = matchTopLevel(line, /^when\s+"([^"]+)"\s+tilted$/i))) {
             const { id, block } = this.createBlock('devices_whentilted', { topLevel: true });
             block[id].inputs.SENSOR = [1, [10, match[1]]];
             return { block, extraBlocks: {} };
         }
-        if ((match = line.match(/^when IR received on\s+"([^"]+)"$/i))) {
+        if ((match = matchTopLevel(line, /^when IR received on\s+"([^"]+)"$/i))) {
             const { id, block } = this.createBlock('devices_whenirreceived', { topLevel: true });
             block[id].inputs.SENSOR = [1, [10, match[1]]];
             return { block, extraBlocks: {} };
@@ -4905,7 +5067,7 @@ class SB3Creator {
         // KEYPAD4X4 event hat: `when key N pressed` / `released` on the sole
         // keypad (oracle parity, stc-compiler dec1f17). Checked before the
         // pin hat: the digit makes it unambiguous even if a pin is named `key`.
-        if ((match = line.match(/^when\s+key\s+(\d+)\s+(pressed|released)$/i))) {
+        if ((match = matchTopLevel(line, /^when\s+key\s+(\d+)\s+(pressed|released)$/i))) {
             const pad = this.stcSoleKeypad();
             if (!pad) {
                 throw new ParseError(`"when key ${match[1]} ${match[2].toLowerCase()}" needs a KEYPAD4X4; `
@@ -4920,7 +5082,7 @@ class SB3Creator {
             return { block, extraBlocks: {} };
         }
         // STC12 event hat: `when <pin> pressed` / `when <pin> released` for INPUT pins.
-        if ((match = line.match(/^when\s+([A-Za-z_]\w*)\s+(pressed|released)$/i)) && this.stcPin(match[1])) {
+        if ((match = matchTopLevel(line, /^when\s+([A-Za-z_]\w*)\s+(pressed|released)$/i)) && this.stcPin(match[1])) {
             const pin = this.stcPin(match[1]);
             if (pin.direction === 'input') {
                 const { id, block } = this.createBlock('stc12_whenpin', { topLevel: true });
@@ -4969,15 +5131,15 @@ class SB3Creator {
             block[id].fields.STATE = [state, null];
             return { block, extraBlocks: {} };
         };
-        if ((match = line.match(/^turn\s+(on|off)\s+([A-Za-z_]\w*)$/i)) && this.stcPin(match[2])) {
+        if ((match = matchTopLevel(line, /^turn\s+(on|off)\s+([A-Za-z_]\w*)$/i)) && this.stcPin(match[2])) {
             return stcSet(this.stcPin(match[2]), match[1].toLowerCase());
         }
-        if ((match = line.match(/^set\s+([A-Za-z_]\w*)\s+(high|low)$/i)) && this.stcPin(match[1])) {
+        if ((match = matchTopLevel(line, /^set\s+([A-Za-z_]\w*)\s+(high|low)$/i)) && this.stcPin(match[1])) {
             return stcSet(this.stcPin(match[1]), match[2].toLowerCase());
         }
         // `set <pin> to <n> percent` — PWM duty cycle. Must match BEFORE the generic
         // `set <pin> to <expr>` (writepin) below.
-        if ((match = line.match(/^set\s+([A-Za-z_]\w*)\s+to\s+(.+?)\s*(?:percent|%)$/i)) && this.stcPin(match[1])) {
+        if ((match = matchTopLevel(line, /^set\s+([A-Za-z_]\w*)\s+to\s+(.+?)\s*(?:percent|%)$/i)) && this.stcPin(match[1])) {
             const pin = this.stcPin(match[1]);
             if (pin.direction !== 'pwm') {
                 this.warn(null, `"${pin.name}" is a ${pin.direction.toUpperCase()} pin; only a PWM pin takes a percentage`);
@@ -4988,7 +5150,7 @@ class SB3Creator {
             return ret(block);
         }
         // `set <pin> to <n> hz` — tone frequency. Must match BEFORE the generic writepin.
-        if ((match = line.match(/^set\s+([A-Za-z_]\w*)\s+to\s+(.+?)\s*(?:hz|hertz)$/i)) && this.stcPin(match[1])) {
+        if ((match = matchTopLevel(line, /^set\s+([A-Za-z_]\w*)\s+to\s+(.+?)\s*(?:hz|hertz)$/i)) && this.stcPin(match[1])) {
             const pin = this.stcPin(match[1]);
             if (pin.direction !== 'tone') {
                 this.warn(null, `"${pin.name}" is a ${pin.direction.toUpperCase()} pin; only a TONE pin takes a frequency`);
@@ -5002,20 +5164,20 @@ class SB3Creator {
         // are states and respect ACTIVE LOW; a level is a level, exactly like `set high`.
         // Placed before the generic variable assignment (and before motion's `set x to`) so a
         // declared pin always wins, consistent with the other pin statements.
-        if ((match = line.match(/^set\s+([A-Za-z_]\w*)\s+to\s+(.+)$/i)) && this.stcPin(match[1])) {
+        if ((match = matchTopLevel(line, /^set\s+([A-Za-z_]\w*)\s+to\s+(.+)$/i)) && this.stcPin(match[1])) {
             const { id, block } = cmd('stc12_writepin');
             block[id].fields.PIN = [this.stcPin(match[1]).name, null];
             block[id].inputs.VALUE = val(match[2]);
             return ret(block);
         }
-        if ((match = line.match(/^toggle\s+([A-Za-z_]\w*)$/i)) && this.stcPin(match[1])) {
+        if ((match = matchTopLevel(line, /^toggle\s+([A-Za-z_]\w*)$/i)) && this.stcPin(match[1])) {
             const { id, block } = this.createBlock('stc12_toggle');
             block[id].fields.PIN = [this.stcPin(match[1]).name, null];
             return { block, extraBlocks: {} };
         }
         // ---- STC12 / 8051 PORT and PART commands ------------------------------------
         // `set <port> to <n>` — writes the whole 8-bit port at once.
-        if ((match = line.match(/^set\s+([A-Za-z_]\w*)\s+to\s+(.+)$/i)) && this.stcPort(match[1])) {
+        if ((match = matchTopLevel(line, /^set\s+([A-Za-z_]\w*)\s+to\s+(.+)$/i)) && this.stcPort(match[1])) {
             const port = this.stcPort(match[1]);
             const { id, block } = cmd('stc12_setport');
             block[id].fields.PORT = [port.name, null];
@@ -5030,7 +5192,7 @@ class SB3Creator {
         // the variable set/change catch-alls so a screen program never mis-parses.
         if (this._stcHasMatrix()) {
             // light|clear pixel X Y  ->  setpx level MAX|0 on the sole screen.
-            if ((match = line.match(/^(light|clear)\s+pixel\s+(\S+)\s+(\S+)$/i)) && this.stcSoleMatrix()) {
+            if ((match = matchTopLevel(line, /^(light|clear)\s+pixel\s+(\S+)\s+(\S+)$/i)) && this.stcSoleMatrix()) {
                 const { id, block } = cmd('stc12_matrix_setpx');
                 block[id].fields.PART = [this.stcSoleMatrix().name, null];
                 block[id].fields.STYLE = [match[1].toLowerCase(), null];
@@ -5039,7 +5201,7 @@ class SB3Creator {
                 return ret(block);
             }
             // set pixel X Y to on|off.
-            if ((match = line.match(/^set\s+pixel\s+(\S+)\s+(\S+)\s+to\s+(on|off)$/i)) && this.stcSoleMatrix()) {
+            if ((match = matchTopLevel(line, /^set\s+pixel\s+(\S+)\s+(\S+)\s+to\s+(on|off)$/i)) && this.stcSoleMatrix()) {
                 const { id, block } = cmd('stc12_matrix_setpx');
                 block[id].fields.PART = [this.stcSoleMatrix().name, null];
                 block[id].fields.STYLE = [match[3].toLowerCase(), null];
@@ -5048,7 +5210,7 @@ class SB3Creator {
                 return ret(block);
             }
             // set pixel X Y brightness B.
-            if ((match = line.match(/^set\s+pixel\s+(\S+)\s+(\S+)\s+brightness\s+(.+)$/i)) && this.stcSoleMatrix()) {
+            if ((match = matchTopLevel(line, /^set\s+pixel\s+(\S+)\s+(\S+)\s+brightness\s+(.+)$/i)) && this.stcSoleMatrix()) {
                 const { id, block } = cmd('stc12_matrix_setpx');
                 block[id].fields.PART = [this.stcSoleMatrix().name, null];
                 block[id].fields.STYLE = ['brightness', null];
@@ -5058,7 +5220,7 @@ class SB3Creator {
                 return ret(block);
             }
             // draw row Y = <byte>.
-            if ((match = line.match(/^draw\s+row\s+(\S+)\s*=\s*(.+)$/i)) && this.stcSoleMatrix()) {
+            if ((match = matchTopLevel(line, /^draw\s+row\s+(\S+)\s*=\s*(.+)$/i)) && this.stcSoleMatrix()) {
                 const { id, block } = cmd('stc12_matrix_row');
                 block[id].fields.PART = [this.stcSoleMatrix().name, null];
                 block[id].inputs.Y = val(match[1]);
@@ -5066,7 +5228,7 @@ class SB3Creator {
                 return ret(block);
             }
             // show image <table> on <screen>  (1-bit blit, full brightness).
-            if ((match = line.match(/^show\s+image\s+(\w+)\s+on\s+(\w+)$/i)) && this.stcMatrix(match[2])) {
+            if ((match = matchTopLevel(line, /^show\s+image\s+(\w+)\s+on\s+(\w+)$/i)) && this.stcMatrix(match[2])) {
                 if (!this.stcTable(match[1])) {
                     this.warn(null, `"${match[1]}" is not a TABLE; 'show image' blits an 8-byte TABLE onto ${match[2]}`);
                     return ret(null);
@@ -5080,28 +5242,28 @@ class SB3Creator {
             // painted grid, round-tripped as a compact literal. GRID is a field
             // here (the C emitter also reads it from a led8x8 shadow when the
             // block is built in the editor); both feed _paintLevels.
-            if ((match = line.match(/^paint\s+([0-3]{64})\s+on\s+(\w+)$/i)) && this.stcMatrix(match[2])) {
+            if ((match = matchTopLevel(line, /^paint\s+([0-3]{64})\s+on\s+(\w+)$/i)) && this.stcMatrix(match[2])) {
                 const { id, block } = cmd('stc12_matrix_paint');
                 block[id].fields.PART = [this.stcMatrix(match[2]).name, null];
                 block[id].fields.GRID = [match[1], null];
                 return ret(block);
             }
             // scroll <screen> left|right|up|down.
-            if ((match = line.match(/^scroll\s+(\w+)\s+(left|right|up|down)$/i)) && this.stcMatrix(match[1])) {
+            if ((match = matchTopLevel(line, /^scroll\s+(\w+)\s+(left|right|up|down)$/i)) && this.stcMatrix(match[1])) {
                 const { id, block } = cmd('stc12_matrix_scroll');
                 block[id].fields.PART = [this.stcMatrix(match[1]).name, null];
                 block[id].fields.DIR = [match[2].toLowerCase(), null];
                 return ret(block);
             }
             // set <screen> brightness B  (global dim, 0..MAX).
-            if ((match = line.match(/^set\s+(\w+)\s+brightness\s+(.+)$/i)) && this.stcMatrix(match[1])) {
+            if ((match = matchTopLevel(line, /^set\s+(\w+)\s+brightness\s+(.+)$/i)) && this.stcMatrix(match[1])) {
                 const { id, block } = cmd('stc12_matrix_dim');
                 block[id].fields.PART = [this.stcMatrix(match[1]).name, null];
                 block[id].inputs.LEVEL = val(match[2]);
                 return ret(block);
             }
             // clear <screen>.
-            if ((match = line.match(/^clear\s+(\w+)$/i)) && this.stcMatrix(match[1])) {
+            if ((match = matchTopLevel(line, /^clear\s+(\w+)$/i)) && this.stcMatrix(match[1])) {
                 const { id, block } = cmd('stc12_matrix_clear');
                 block[id].fields.PART = [this.stcMatrix(match[1]).name, null];
                 return ret(block);
@@ -5111,27 +5273,27 @@ class SB3Creator {
         // frame buffer only — the Timer-0 ISR scans it). Named-part forms,
         // placed AHEAD of the generic pin/variable catch-alls.
         if (this._stcHasSevenSeg()) {
-            if ((match = line.match(/^show\s+number\s+(.+?)\s+on\s+(\w+)$/i)) && this._stcSevenSeg(match[2])) {
+            if ((match = matchTopLevel(line, /^show\s+number\s+(.+?)\s+on\s+(\w+)$/i)) && this._stcSevenSeg(match[2])) {
                 const { id, block } = cmd('stc12_seg_shownum');
                 block[id].fields.PART = [this._stcSevenSeg(match[2]).name, null];
                 block[id].inputs.NUM = val(match[1]);
                 return ret(block);
             }
-            if ((match = line.match(/^show\s+digit\s+(.+?)\s*=\s*value\s+(.+?)\s+on\s+(\w+)$/i)) && this._stcSevenSeg(match[3])) {
+            if ((match = matchTopLevel(line, /^show\s+digit\s+(.+?)\s*=\s*value\s+(.+?)\s+on\s+(\w+)$/i)) && this._stcSevenSeg(match[3])) {
                 const { id, block } = cmd('stc12_seg_showdigit');
                 block[id].fields.PART = [this._stcSevenSeg(match[3]).name, null];
                 block[id].inputs.DIGIT = val(match[1]);
                 block[id].inputs.VALUE = val(match[2]);
                 return ret(block);
             }
-            if ((match = line.match(/^set\s+digit\s+(.+?)\s+to\s+segments\s+(.+?)\s+on\s+(\w+)$/i)) && this._stcSevenSeg(match[3])) {
+            if ((match = matchTopLevel(line, /^set\s+digit\s+(.+?)\s+to\s+segments\s+(.+?)\s+on\s+(\w+)$/i)) && this._stcSevenSeg(match[3])) {
                 const { id, block } = cmd('stc12_seg_setsegs');
                 block[id].fields.PART = [this._stcSevenSeg(match[3]).name, null];
                 block[id].inputs.DIGIT = val(match[1]);
                 block[id].inputs.SEGS = val(match[2]);
                 return ret(block);
             }
-            if ((match = line.match(/^clear\s+(\w+)$/i)) && this._stcSevenSeg(match[1])) {
+            if ((match = matchTopLevel(line, /^clear\s+(\w+)$/i)) && this._stcSevenSeg(match[1])) {
                 const { id, block } = cmd('stc12_seg_clear');
                 block[id].fields.PART = [this._stcSevenSeg(match[1]).name, null];
                 return ret(block);
@@ -5139,19 +5301,19 @@ class SB3Creator {
         }
         // ---- LEDBANK8 verbs — all write the shadow byte; the ISR pushes it.
         if (this._stcHasLedBank()) {
-            if ((match = line.match(/^turn\s+(on|off)\s+led\s+(.+?)\s+on\s+(\w+)$/i)) && this._stcLedBank(match[3])) {
+            if ((match = matchTopLevel(line, /^turn\s+(on|off)\s+led\s+(.+?)\s+on\s+(\w+)$/i)) && this._stcLedBank(match[3])) {
                 const { id, block } = cmd(match[1].toLowerCase() === 'on' ? 'stc12_led_on' : 'stc12_led_off');
                 block[id].fields.PART = [this._stcLedBank(match[3]).name, null];
                 block[id].inputs.N = val(match[2]);
                 return ret(block);
             }
-            if ((match = line.match(/^set\s+leds\s+to\s+(.+?)\s+on\s+(\w+)$/i)) && this._stcLedBank(match[2])) {
+            if ((match = matchTopLevel(line, /^set\s+leds\s+to\s+(.+?)\s+on\s+(\w+)$/i)) && this._stcLedBank(match[2])) {
                 const { id, block } = cmd('stc12_led_set');
                 block[id].fields.PART = [this._stcLedBank(match[2]).name, null];
                 block[id].inputs.VALUE = val(match[1]);
                 return ret(block);
             }
-            if ((match = line.match(/^light\s+only\s+led\s+(.+?)\s+on\s+(\w+)$/i)) && this._stcLedBank(match[2])) {
+            if ((match = matchTopLevel(line, /^light\s+only\s+led\s+(.+?)\s+on\s+(\w+)$/i)) && this._stcLedBank(match[2])) {
                 const { id, block } = cmd('stc12_led_only');
                 block[id].fields.PART = [this._stcLedBank(match[2]).name, null];
                 block[id].inputs.N = val(match[1]);
@@ -5159,7 +5321,7 @@ class SB3Creator {
             }
         }
         // `set <part> to <n>` — shifts a byte out to a 74HC595.
-        if ((match = line.match(/^set\s+([A-Za-z_]\w*)\s+to\s+(.+)$/i)) && this.stcPart(match[1])) {
+        if ((match = matchTopLevel(line, /^set\s+([A-Za-z_]\w*)\s+to\s+(.+)$/i)) && this.stcPart(match[1])) {
             const part = this.stcPart(match[1]);
             if (part.type === 'keypad4x4') {
                 this.warn(null, `"${part.name}" is a keypad and cannot be written; read it in an expression (\`set k to ${part.name}\`)`);
@@ -5183,13 +5345,13 @@ class SB3Creator {
             return ret(block);
         }
         // ---- STC12 / 8051 print (program-wide, no declaration needed) ---------------
-        if ((match = line.match(/^print\s+"([^"]*)"\s*$/i))) {
+        if ((match = matchTopLevel(line, /^print\s+"([^"]*)"\s*$/i))) {
             const { id, block } = cmd('stc12_print');
             block[id].inputs.VALUE = [1, [10, match[1]]];
             block[id].fields.MODE = ['text', null];
             return ret(block);
         }
-        if ((match = line.match(/^print\s+(.+)$/i))) {
+        if ((match = matchTopLevel(line, /^print\s+(.+)$/i))) {
             const { id, block } = cmd('stc12_print');
             block[id].inputs.VALUE = val(match[1]);
             block[id].fields.MODE = ['number', null];
@@ -5198,7 +5360,7 @@ class SB3Creator {
         // ---- micro:bit+ display group (docs/microbitplus/DUAL-LOWERING-ORACLE.md D1–D5).
         // BEFORE the stock display/scroll parse: `scroll text "..."` must not be
         // grabbed by the generic `scroll <expr>` rule below. ----
-        if ((match = line.match(/^show\s+pattern\s+([0-9:]+)\s*$/i))) {
+        if ((match = matchTopLevel(line, /^show\s+pattern\s+([0-9:]+)\s*$/i))) {
             const { id, block } = cmd('microbitplus_showmatrix');
             block[id].fields.MATRIX = [match[1].replace(/[^0-9]/g, ''), null];
             return ret(block);
@@ -5213,19 +5375,19 @@ class SB3Creator {
         // lite's own `display` scrolls and moves on. Its own word, as show leds
         // and show icon are; `display` keeps its meaning. `show number N on
         // <seven-segment part>` is the STC verb above, never this.
-        if ((match = line.match(/^show\s+number\s+(.+?)(?:\s+delay\s+(.+?)\s+ms)?\s*$/i)) &&
+        if ((match = matchTopLevel(line, /^show\s+number\s+(.+?)(?:\s+delay\s+(.+?)\s+ms)?\s*$/i)) &&
                 !/\s+on\s+[A-Za-z_]\w*$/i.test(match[1])) {
             const { id, block } = cmd('microbitplus_shownumber');
             block[id].inputs.VALUE = val(match[1]);
             block[id].inputs.MS = val(match[2] || '150');
             return ret(block);
         }
-        if ((match = line.match(/^show\s+(leds|icon)\s+([0-9:]+)\s*$/i))) {
+        if ((match = matchTopLevel(line, /^show\s+(leds|icon)\s+([0-9:]+)\s*$/i))) {
             const { id, block } = cmd(match[1].toLowerCase() === 'leds' ? 'microbitplus_showleds' : 'microbitplus_showicon');
             block[id].fields.MATRIX = [match[2].replace(/[^0-9]/g, ''), null];
             return ret(block);
         }
-        if ((match = line.match(/^show\s+text\s+"([^"]*)"\s*$/i))) {
+        if ((match = matchTopLevel(line, /^show\s+text\s+"([^"]*)"\s*$/i))) {
             const { id, block } = cmd('microbitplus_showtext');
             block[id].inputs.TEXT = [1, [10, match[1]]];
             return ret(block);
@@ -5234,22 +5396,27 @@ class SB3Creator {
         // reporter — but only the quoted form parsed, and `show text count`
         // fell through every rule to produce NO BLOCK AT ALL. Anything that
         // is not a bare literal is read as an expression.
-        if ((match = line.match(/^show\s+text\s+(.+?)\s*$/i))) {
+        if ((match = matchTopLevel(line, /^show\s+text\s+(.+?)\s*$/i))) {
             const { id, block } = cmd('microbitplus_showtext');
             block[id].inputs.TEXT = val(match[1]);
             return ret(block);
         }
-        if ((match = line.match(/^scroll\s+text\s+"([^"]*)"\s+delay\s+(\d+)\s*ms\s*$/i))) {
+        // TEXT and MS are inputs: each slot is one term — a literal, a name or
+        // a (parenthesised expression). The delay used to be `(\d+)` and the
+        // text `"([^"]*)"`, so `scroll text msg delay (t * 2) ms` matched
+        // neither and fell through to `scroll <value>`: a different block,
+        // showing the whole phrase, with no warning at all.
+        if ((match = matchTopLevel(line, /^scroll\s+text\s+(\S+)\s+delay\s+(\S+?)\s*ms\s*$/i))) {
             const { id, block } = cmd('microbitplus_scrolltext');
-            block[id].inputs.TEXT = [1, [10, match[1]]];
-            block[id].inputs.MS = [1, [4, match[2]]];
+            block[id].inputs.TEXT = val(match[1]);
+            block[id].inputs.MS = val(match[2]);
             return ret(block);
         }
         if (/^clear\s+display\s*$/i.test(line)) {
             const { block } = cmd('microbitplus_cleardisplay');
             return ret(block);
         }
-        if ((match = line.match(/^plot\s+x\s+(\d+)\s+y\s+(\d+)\s+(on|off)\s*$/i))) {
+        if ((match = matchTopLevel(line, /^plot\s+x\s+(\d+)\s+y\s+(\d+)\s+(on|off)\s*$/i))) {
             const { id, block } = cmd('microbitplus_plot');
             block[id].inputs.X = [1, [4, match[1]]];
             block[id].inputs.Y = [1, [4, match[2]]];
@@ -5261,7 +5428,7 @@ class SB3Creator {
         // fell through every rule to produce NO BLOCK AT ALL. Same shape as
         // the `show text <reporter>` gap above: literals keep the exact
         // path they had, anything else is read as an expression.
-        if ((match = line.match(/^plot\s+x\s+(.+?)\s+y\s+(.+?)\s+(on|off)\s*$/i))) {
+        if ((match = matchTopLevel(line, /^plot\s+x\s+(.+?)\s+y\s+(.+?)\s+(on|off)\s*$/i))) {
             const { id, block } = cmd('microbitplus_plot');
             block[id].inputs.X = val(match[1]);
             block[id].inputs.Y = val(match[2]);
@@ -5274,13 +5441,13 @@ class SB3Creator {
         // (plotBarGraph 15, setBrightness 9, stopAnimation 6, toggle 3).
         // Spelled after MakeCode's own block text, so a reader who knows the
         // MakeCode block recognises the line.
-        if ((match = line.match(/^plot\s+bar\s+graph\s+of\s+(.+?)\s+up\s+to\s+(.+?)\s*$/i))) {
+        if ((match = matchTopLevel(line, /^plot\s+bar\s+graph\s+of\s+(.+?)\s+up\s+to\s+(.+?)\s*$/i))) {
             const { id, block } = cmd('microbitplus_plotbargraph');
             block[id].inputs.VALUE = val(match[1]);
             block[id].inputs.HIGH = val(match[2]);
             return ret(block);
         }
-        if ((match = line.match(/^toggle\s+x\s+(.+?)\s+y\s+(.+?)\s*$/i))) {
+        if ((match = matchTopLevel(line, /^toggle\s+x\s+(.+?)\s+y\s+(.+?)\s*$/i))) {
             const { id, block } = cmd('microbitplus_toggle');
             block[id].inputs.X = val(match[1]);
             block[id].inputs.Y = val(match[2]);
@@ -5289,7 +5456,7 @@ class SB3Creator {
         // `display brightness`, not `brightness`: `set brightness to 50`
         // already means a VARIABLE called brightness, and quietly turning
         // every such program into a display call would be the worse surprise.
-        if ((match = line.match(/^set\s+display\s+brightness\s+to\s+(.+?)\s*$/i))) {
+        if ((match = matchTopLevel(line, /^set\s+display\s+brightness\s+to\s+(.+?)\s*$/i))) {
             const { id, block } = cmd('microbitplus_setbrightness');
             block[id].inputs.BRIGHTNESS = val(match[1]);
             return ret(block);
@@ -5301,17 +5468,17 @@ class SB3Creator {
         // MakeCode's `game` score and lives. `game score`, not `score`, for
         // the reason `display brightness` is qualified: `change score by 1`
         // is how any program counts in a variable of that name.
-        if ((match = line.match(/^change\s+game\s+score\s+by\s+(.+?)\s*$/i))) {
+        if ((match = matchTopLevel(line, /^change\s+game\s+score\s+by\s+(.+?)\s*$/i))) {
             const { id, block } = cmd('microbitplus_addscore');
             block[id].inputs.POINTS = val(match[1]);
             return ret(block);
         }
-        if ((match = line.match(/^set\s+game\s+score\s+to\s+(.+?)\s*$/i))) {
+        if ((match = matchTopLevel(line, /^set\s+game\s+score\s+to\s+(.+?)\s*$/i))) {
             const { id, block } = cmd('microbitplus_setscore');
             block[id].inputs.VALUE = val(match[1]);
             return ret(block);
         }
-        if ((match = line.match(/^remove\s+game\s+life\s+(.+?)\s*$/i))) {
+        if ((match = matchTopLevel(line, /^remove\s+game\s+life\s+(.+?)\s*$/i))) {
             const { id, block } = cmd('microbitplus_removelife');
             block[id].inputs.LIFE = val(match[1]);
             return ret(block);
@@ -5348,13 +5515,13 @@ class SB3Creator {
             return ret(block);
         }
         // MakeCode's radio.setTransmitSerialNumber(true|false).
-        if ((match = line.match(/^radio\s+transmit\s+serial\s+number\s+(on|off)\s*$/i))) {
+        if ((match = matchTopLevel(line, /^radio\s+transmit\s+serial\s+number\s+(on|off)\s*$/i))) {
             const { id, block } = cmd('microbitplus_radioserial');
             block[id].fields.STATE = [match[1].toLowerCase(), null];
             return ret(block);
         }
         // MakeCode's input.setSoundThreshold(SoundThreshold.Loud|Quiet, 0..255).
-        if ((match = line.match(/^set\s+(loud|quiet)\s+sound\s+threshold\s+to\s+(.+?)\s*$/i))) {
+        if ((match = matchTopLevel(line, /^set\s+(loud|quiet)\s+sound\s+threshold\s+to\s+(.+?)\s*$/i))) {
             const { id, block } = cmd('microbitplus_soundthreshold');
             block[id].fields.LEVEL = [match[1].toLowerCase(), null];
             block[id].inputs.THRESHOLD = val(match[2]);
@@ -5364,7 +5531,7 @@ class SB3Creator {
         // BEFORE the Scratch motion verbs: `turn sprite s right by 45 degrees`
         // would otherwise be `turn … degrees` of the stage sprite, and `move
         // sprite s by 1` has to stay clear of `move … steps`.
-        if ((match = line.match(MICROBIT_SPRITE_SET_RE)) &&
+        if ((match = matchTopLevel(line, MICROBIT_SPRITE_SET_RE)) &&
                 (match[1].toLowerCase() === 'set') === (match[4].toLowerCase() === 'to')) {
             const { id, block } = cmd(match[1].toLowerCase() === 'set' ? 'microbitplus_spriteset' : 'microbitplus_spritechange');
             block[id].inputs.SPRITE = val(match[2]);
@@ -5372,72 +5539,72 @@ class SB3Creator {
             block[id].inputs.VALUE = val(match[5]);
             return ret(block);
         }
-        if ((match = line.match(/^move\s+sprite\s+(.+?)\s+by\s+(.+?)\s*$/i))) {
+        if ((match = matchTopLevel(line, /^move\s+sprite\s+(.+?)\s+by\s+(.+?)\s*$/i))) {
             const { id, block } = cmd('microbitplus_spritemove');
             block[id].inputs.SPRITE = val(match[1]);
             block[id].inputs.LEDS = val(match[2]);
             return ret(block);
         }
-        if ((match = line.match(/^turn\s+sprite\s+(.+?)\s+(right|left)\s+by\s+(.+?)\s+degrees\s*$/i))) {
+        if ((match = matchTopLevel(line, /^turn\s+sprite\s+(.+?)\s+(right|left)\s+by\s+(.+?)\s+degrees\s*$/i))) {
             const { id, block } = cmd('microbitplus_spriteturn');
             block[id].inputs.SPRITE = val(match[1]);
             block[id].fields.DIRECTION = [match[2].toLowerCase(), null];
             block[id].inputs.DEGREES = val(match[3]);
             return ret(block);
         }
-        if ((match = line.match(/^bounce\s+sprite\s+(.+?)\s+if\s+on\s+edge\s*$/i))) {
+        if ((match = matchTopLevel(line, /^bounce\s+sprite\s+(.+?)\s+if\s+on\s+edge\s*$/i))) {
             const { id, block } = cmd('microbitplus_spritebounce');
             block[id].inputs.SPRITE = val(match[1]);
             return ret(block);
         }
-        if ((match = line.match(/^delete\s+sprite\s+(.+?)\s*$/i))) {
+        if ((match = matchTopLevel(line, /^delete\s+sprite\s+(.+?)\s*$/i))) {
             const { id, block } = cmd('microbitplus_spritedelete');
             block[id].inputs.SPRITE = val(match[1]);
             return ret(block);
         }
         // The rest of MakeCode's game: the countdown, pausing the sprite engine,
         // and lives (`remove game life` is above).
-        if ((match = line.match(/^start\s+countdown\s+(.+?)\s+ms\s*$/i))) {
+        if ((match = matchTopLevel(line, /^start\s+countdown\s+(.+?)\s+ms\s*$/i))) {
             const { id, block } = cmd('microbitplus_startcountdown');
             block[id].inputs.MS = val(match[1]);
             return ret(block);
         }
         if (/^pause\s+game\s*$/i.test(line)) return ret(cmd('microbitplus_pausegame').block);
         if (/^resume\s+game\s*$/i.test(line)) return ret(cmd('microbitplus_resumegame').block);
-        if ((match = line.match(/^set\s+game\s+life\s+to\s+(.+?)\s*$/i))) {
+        if ((match = matchTopLevel(line, /^set\s+game\s+life\s+to\s+(.+?)\s*$/i))) {
             const { id, block } = cmd('microbitplus_setlife');
             block[id].inputs.VALUE = val(match[1]);
             return ret(block);
         }
-        if ((match = line.match(/^add\s+game\s+life\s+(.+?)\s*$/i))) {
+        if ((match = matchTopLevel(line, /^add\s+game\s+life\s+(.+?)\s*$/i))) {
             const { id, block } = cmd('microbitplus_addlife');
             block[id].inputs.LIVES = val(match[1]);
             return ret(block);
         }
         // ---- micro:bit+ PINS group (DUAL-LOWERING-ORACLE P1–P7) ----
-        if ((match = line.match(/^set\s+pin\s+(P\d+)\s+(?:to\s+|digital\s+)([01])\s*$/i))) {
+        if ((match = matchTopLevel(line, /^set\s+pin\s+(P\d+)\s+(?:to\s+|digital\s+)([01])\s*$/i))) {
             const { id, block } = cmd('microbitplus_digitalwrite');
             block[id].fields.PIN = [match[1].toUpperCase(), null];
             block[id].fields.LEVEL = [match[2], null];
             return ret(block);
         }
-        if ((match = line.match(/^set\s+pin\s+(P\d+)\s+analog\s+(\S+)\s*%?\s*$/i))) {
+        if ((match = matchTopLevel(line, /^set\s+pin\s+(P\d+)\s+analog\s+(\S+)\s*%?\s*$/i))) {
             const { id, block } = cmd('microbitplus_analogwrite');
             block[id].fields.PIN = [match[1].toUpperCase(), null];
             block[id].inputs.PCT = val(match[2]);
             return ret(block);
         }
-        if ((match = line.match(/^set\s+pin\s+(P\d+)\s+pull\s+(none|up|down)\s*$/i))) {
+        if ((match = matchTopLevel(line, /^set\s+pin\s+(P\d+)\s+pull\s+(none|up|down)\s*$/i))) {
             const { id, block } = cmd('microbitplus_setpull');
             block[id].fields.PIN = [match[1].toUpperCase(), null];
             block[id].fields.MODE = [match[2].toLowerCase(), null];
             return ret(block);
         }
         // ---- micro:bit+ ACTUATORS group (DUAL-LOWERING-ORACLE A1–A4) ----
-        if ((match = line.match(/^set\s+buzzer\s+to\s+(\S+)\s*hz(?:\s+for\s+(\S+)\s*ms)?\s*$/i))) {
+        if ((match = matchTopLevel(line, /^set\s+buzzer\s+to\s+(\S+)\s*hz(?:\s+for\s+(\S+)\s*ms)?\s*$/i))) {
             const { id, block } = cmd('microbitplus_playtone');
             block[id].inputs.FREQ = val(match[1]);
-            block[id].inputs.MS = [1, [4, match[2] || '-1']];
+            block[id].inputs.MS = val(match[2] || '-1');
             return ret(block);
         }
         // MakeCode's music.play(music.tonePlayable(F, D), mode) and its sound
@@ -5452,7 +5619,7 @@ class SB3Creator {
             block[id].fields.MODE = [match[3].toLowerCase().replace(/\s+/g, ' '), null];
             return ret(block);
         }
-        if ((match = line.match(new RegExp('^play\\s+sound\\s+([a-z]+)' + MODE + '\\s*$', 'i'))) && MICROBIT_SOUNDS.includes(match[1].toLowerCase())) {
+        if ((match = matchTopLevel(line, new RegExp('^play\\s+sound\\s+([a-z]+)' + MODE + '\\s*$', 'i'))) && MICROBIT_SOUNDS.includes(match[1].toLowerCase())) {
             const { id, block } = cmd('microbitplus_playsound');
             block[id].fields.SOUND = [match[1].toLowerCase(), null];
             block[id].fields.MODE = [(match[2] || 'until done').toLowerCase().replace(/\s+/g, ' '), null];
@@ -5476,7 +5643,7 @@ class SB3Creator {
         // literals: it is `playTone(noteFrequency(Note.C), beat(Quarter))`.
         // A bare literal parses exactly as it always did. No `for … ms` is a
         // tone that rings until the next one (MakeCode's ringTone).
-        if ((match = line.match(/^play\s+tone\s+(.+?)\s*hz(?:\s+for\s+(.+?)\s*ms)?\s*$/i))) {
+        if ((match = matchTopLevel(line, /^play\s+tone\s+(.+?)\s*hz(?:\s+for\s+(.+?)\s*ms)?\s*$/i))) {
             const { id, block } = cmd('microbitplus_playtone');
             block[id].inputs.FREQ = val(match[1]);
             block[id].inputs.MS = match[2] ? val(match[2]) : [1, [4, '-1']];
@@ -5485,31 +5652,31 @@ class SB3Creator {
         // MakeCode's music timing: a beat is 60000 / tempo ms, and the
         // fractions are MakeCode's (pxt-microbit libs/core/music.ts). `music
         // tempo`, not `tempo`: `set tempo to` is the Scratch music block.
-        if ((match = line.match(/^rest\s+for\s+(.+?)\s*ms\s*$/i))) {
+        if ((match = matchTopLevel(line, /^rest\s+for\s+(.+?)\s*ms\s*$/i))) {
             const { id, block } = cmd('microbitplus_rest');
             block[id].inputs.MS = val(match[1]);
             return ret(block);
         }
-        if ((match = line.match(/^set\s+music\s+tempo\s+to\s+(.+?)\s*$/i))) {
+        if ((match = matchTopLevel(line, /^set\s+music\s+tempo\s+to\s+(.+?)\s*$/i))) {
             const { id, block } = cmd('microbitplus_settempo');
             block[id].inputs.BPM = val(match[1]);
             return ret(block);
         }
-        if ((match = line.match(/^change\s+music\s+tempo\s+by\s+(.+?)\s*$/i))) {
+        if ((match = matchTopLevel(line, /^change\s+music\s+tempo\s+by\s+(.+?)\s*$/i))) {
             const { id, block } = cmd('microbitplus_changetempo');
             block[id].inputs.BPM = val(match[1]);
             return ret(block);
         }
         // A built-in melody, by MakeCode's name for it; MicroPython's music
         // module carries the same set under the same names.
-        if ((match = line.match(/^play\s+melody\s+([A-Za-z]+)(?:\s+(until\s+done|in\s+background|looping\s+in\s+background))?\s*$/i))
+        if ((match = matchTopLevel(line, /^play\s+melody\s+([A-Za-z]+)(?:\s+(until\s+done|in\s+background|looping\s+in\s+background))?\s*$/i))
             && microbitMelody(match[1])) {
             const { id, block } = cmd('microbitplus_playmelody');
             block[id].fields.MELODY = [microbitMelody(match[1]).name, null];
             block[id].fields.MODE = [(match[2] || 'until done').toLowerCase().replace(/\s+/g, ' '), null];
             return ret(block);
         }
-        if ((match = line.match(/^play\s+note\s+([A-G]#?\d)\s*$/i))) {
+        if ((match = matchTopLevel(line, /^play\s+note\s+([A-G]#?\d)\s*$/i))) {
             const { id, block } = cmd('microbitplus_playnote');
             block[id].fields.NOTE = [match[1].toUpperCase(), null];
             return ret(block);
@@ -5518,26 +5685,26 @@ class SB3Creator {
             const { block } = cmd('microbitplus_stoptone');
             return ret(block);
         }
-        if ((match = line.match(/^set\s+(?:pin\s+)?(P\d+)\s+servo(?:\s+angle)?\s+(\S+)\s*$/i))) {
+        if ((match = matchTopLevel(line, /^set\s+(?:pin\s+)?(P\d+)\s+servo(?:\s+angle)?\s+(\S+)\s*$/i))) {
             const { id, block } = cmd('microbitplus_servo');
             block[id].fields.PIN = [match[1].toUpperCase(), null];
             block[id].inputs.DEG = val(match[2]);
             return ret(block);
         }
-        if ((match = line.match(/^set\s+servo\s+to\s+(\S+)\s*$/i))) {
+        if ((match = matchTopLevel(line, /^set\s+servo\s+to\s+(\S+)\s*$/i))) {
             const { id, block } = cmd('microbitplus_servo');
             block[id].fields.PIN = ['P1', null];
             block[id].inputs.DEG = val(match[1]);
             return ret(block);
         }
         // ---- micro:bit+ RADIO group (DUAL-LOWERING-ORACLE R1–R5) ----
-        if ((match = line.match(/^radio\s+on\s+group\s+(\S+)\s+power\s+(\S+)\s*$/i))) {
+        if ((match = matchTopLevel(line, /^radio\s+on\s+group\s+(\S+)\s+power\s+(\S+)\s*$/i))) {
             const { id, block } = cmd('microbitplus_radioon');
             block[id].inputs.GROUP = val(match[1]);
             block[id].inputs.POWER = val(match[2]);
             return ret(block);
         }
-        if ((match = line.match(/^radio\s+send\s+number\s+(\S+)\s*$/i))) {
+        if ((match = matchTopLevel(line, /^radio\s+send\s+number\s+(\S+)\s*$/i))) {
             const { id, block } = cmd('microbitplus_radiosendnum');
             block[id].inputs.NUM = val(match[1]);
             return ret(block);
@@ -5553,14 +5720,14 @@ class SB3Creator {
         const TEXT_LITERAL = '"((?:[^"\\\\]|\\\\.)*)"';
         const unescapeText = (raw) => String(raw).replace(/\\(.)/g, '$1');
 
-        if ((match = line.match(new RegExp('^radio\\s+send\\s+text\\s+' + TEXT_LITERAL + '\\s*$', 'i')))) {
+        if ((match = matchTopLevel(line, new RegExp('^radio\\s+send\\s+text\\s+' + TEXT_LITERAL + '\\s*$', 'i')))) {
             const { id, block } = cmd('microbitplus_radiosendstr');
             block[id].inputs.TEXT = [1, [10, unescapeText(match[1])]];
             return ret(block);
         }
         // ---- Spike Prime display commands (must precede generic display handler) ----
         if (this.project && this.project.stc && this.project.stc.device === 'spike') {
-            if ((match = line.match(new RegExp('^display\\s+text\\s+' + TEXT_LITERAL + '\\s*$', 'i')))) {
+            if ((match = matchTopLevel(line, new RegExp('^display\\s+text\\s+' + TEXT_LITERAL + '\\s*$', 'i')))) {
                 const { id, block } = cmd('spikeprime_displayText');
                 block[id].inputs.TEXT = [1, [10, unescapeText(match[1])]];
                 return ret(block);
@@ -5572,43 +5739,46 @@ class SB3Creator {
             // A value that is not a quoted literal: `display text (join "d=" d)`.
             // The literal form above keeps its spelling; anything else is an
             // expression, which the block's TEXT input takes as a reporter.
-            if ((match = line.match(/^display\s+text\s+([^"\s].*)$/i))) {
+            if ((match = matchTopLevel(line, /^display\s+text\s+([^"\s].*)$/i))) {
                 const { id, block } = cmd('spikeprime_displayText');
                 block[id].inputs.TEXT = val(match[1]);
                 return ret(block);
             }
-            if ((match = line.match(/^display\s+image\s+(.+)$/i))) {
+            if ((match = matchTopLevel(line, /^display\s+image\s+(.+)$/i))) {
                 const { id, block } = cmd('spikeprime_displayShowImage');
                 block[id].inputs.IMAGE = val(match[1]);
                 return ret(block);
             }
         }
         // ---- micro:bit display (explicit device verb: say is STAGE, this is LEDs) ----
-        if ((match = line.match(/^(?:display|scroll)\s+"([^"]*)"\s*$/i))) {
+        if ((match = matchTopLevel(line, /^(?:display|scroll)\s+"([^"]*)"\s*$/i))) {
             const { id, block } = cmd('microbit_display');
             block[id].inputs.VALUE = [1, [10, match[1]]];
             block[id].fields.MODE = ['text', null];
             return ret(block);
         }
-        if ((match = line.match(/^(?:display|scroll)\s+(.+)$/i))) {
+        if ((match = matchTopLevel(line, /^(?:display|scroll)\s+(.+)$/i))) {
+            // `scroll text a * 15 delay 100 ms` is the scroll-text word with an
+            // unparenthesised argument, not a display of that whole phrase.
+            refuseUnparenthesised();
             const { id, block } = cmd('microbit_display');
             block[id].inputs.VALUE = val(match[1]);
             block[id].fields.MODE = ['number', null];
             return ret(block);
         }
         // ---- Spike Prime motor commands ----
-        if ((match = line.match(/^start\s+motor\s+([A-F])\s+(forward|backward|clockwise|counterclockwise)\s*$/i))) {
+        if ((match = matchTopLevel(line, /^start\s+motor\s+([A-F])\s+(forward|backward|clockwise|counterclockwise)\s*$/i))) {
             const { id, block } = cmd('spikeprime_motorStart');
             block[id].fields.PORT = [match[1].toUpperCase(), null];
             block[id].fields.DIRECTION = [SPIKE_MOTOR_DIRECTION[match[2].toLowerCase()], null];
             return ret(block);
         }
-        if ((match = line.match(/^stop\s+motor\s+([A-F])\s*$/i))) {
+        if ((match = matchTopLevel(line, /^stop\s+motor\s+([A-F])\s*$/i))) {
             const { id, block } = cmd('spikeprime_motorStop');
             block[id].fields.PORT = [match[1].toUpperCase(), null];
             return ret(block);
         }
-        if ((match = line.match(/^run\s+motor\s+([A-F])\s+(forward|backward|clockwise|counterclockwise)\s+(\S+)\s+(rotations?|degrees?|seconds?)\s*$/i))) {
+        if ((match = matchTopLevel(line, /^run\s+motor\s+([A-F])\s+(forward|backward|clockwise|counterclockwise)\s+(\S+)\s+(rotations?|degrees?|seconds?)\s*$/i))) {
             const { id, block } = cmd('spikeprime_motorRunFor');
             block[id].fields.PORT = [match[1].toUpperCase(), null];
             block[id].fields.DIRECTION = [SPIKE_MOTOR_DIRECTION[match[2].toLowerCase()], null];
@@ -5616,13 +5786,13 @@ class SB3Creator {
             block[id].fields.UNIT = [SPIKE_UNIT[match[4].toLowerCase()], null];
             return ret(block);
         }
-        if ((match = line.match(/^set\s+motor\s+speed\s+([A-F])\s+(\S+)\s*$/i))) {
+        if ((match = matchTopLevel(line, /^set\s+motor\s+speed\s+([A-F])\s+(\S+)\s*$/i))) {
             const { id, block } = cmd('spikeprime_motorSetSpeed');
             block[id].fields.PORT = [match[1].toUpperCase(), null];
             block[id].inputs.SPEED = val(match[2]);
             return ret(block);
         }
-        if ((match = line.match(/^move\s+(forward|backward)\s+(\S+)\s+(cm|inches|rotations?|degrees?|seconds?)\s*$/i))) {
+        if ((match = matchTopLevel(line, /^move\s+(forward|backward)\s+(\S+)\s+(cm|inches|rotations?|degrees?|seconds?)\s*$/i))) {
             const { id, block } = cmd('spikeprime_moveForward');
             block[id].fields.DIRECTION = [match[1].toLowerCase(), null];
             block[id].inputs.VALUE = val(match[2]);
@@ -5637,43 +5807,43 @@ class SB3Creator {
         // menu with acceptReporters: true, so Scratch serializes them as INPUTS
         // holding a spikeprime_menu_PORT shadow (field PORT), not as fields;
         // SPEED/STEERING/LEFT_SPEED/RIGHT_SPEED are plain number inputs.
-        if ((match = line.match(/^set\s+movement\s+motors\s+([A-F])\s+([A-F])\s*$/i))) {
+        if ((match = matchTopLevel(line, /^set\s+movement\s+motors\s+([A-F])\s+([A-F])\s*$/i))) {
             const { id, block } = cmd('spikeprime_setMovementMotors');
             block[id].inputs.PORT_A = this.menuInput(context, 'spikeprime_menu_PORT', 'PORT', match[1].toUpperCase());
             block[id].inputs.PORT_B = this.menuInput(context, 'spikeprime_menu_PORT', 'PORT', match[2].toUpperCase());
             return ret(block);
         }
-        if ((match = line.match(/^set\s+movement\s+speed\s+(.+?)\s*$/i))) {
+        if ((match = matchTopLevel(line, /^set\s+movement\s+speed\s+(.+?)\s*$/i))) {
             const { id, block } = cmd('spikeprime_setMovementSpeed');
             block[id].inputs.SPEED = val(match[1]);
             return ret(block);
         }
         // Steering -100..100, positive turns right (motors.start(steering, ...)).
-        if ((match = line.match(/^start\s+moving\s+steering\s+(.+?)\s*$/i))) {
+        if ((match = matchTopLevel(line, /^start\s+moving\s+steering\s+(.+?)\s*$/i))) {
             const { id, block } = cmd('spikeprime_steer');
             block[id].inputs.STEERING = val(match[1]);
             return ret(block);
         }
-        if ((match = line.match(/^start\s+tank\s+(\S+)\s+(\S+)\s*$/i))) {
+        if ((match = matchTopLevel(line, /^start\s+tank\s+(\S+)\s+(\S+)\s*$/i))) {
             const { id, block } = cmd('spikeprime_startTank');
             block[id].inputs.LEFT_SPEED = val(match[1]);
             block[id].inputs.RIGHT_SPEED = val(match[2]);
             return ret(block);
         }
         // ---- Spike Prime motor position and stop action ----
-        if ((match = line.match(/^run\s+motor\s+([A-F])\s+to\s+position\s+(.+)$/i))) {
+        if ((match = matchTopLevel(line, /^run\s+motor\s+([A-F])\s+to\s+position\s+(.+)$/i))) {
             const { id, block } = cmd('spikeprime_motorRunToPosition');
             block[id].fields.PORT = [match[1].toUpperCase(), null];
             block[id].inputs.POSITION = val(match[2]);
             return ret(block);
         }
-        if ((match = line.match(/^reset\s+motor\s+position\s+([A-F])\s+to\s+(.+)$/i))) {
+        if ((match = matchTopLevel(line, /^reset\s+motor\s+position\s+([A-F])\s+to\s+(.+)$/i))) {
             const { id, block } = cmd('spikeprime_resetMotorPosition');
             block[id].fields.PORT = [match[1].toUpperCase(), null];
             block[id].inputs.POSITION = val(match[2]);
             return ret(block);
         }
-        if ((match = line.match(/^set\s+motor\s+stop\s+action\s+([A-F])\s+(coast|brake|hold)\s*$/i))) {
+        if ((match = matchTopLevel(line, /^set\s+motor\s+stop\s+action\s+([A-F])\s+(coast|brake|hold)\s*$/i))) {
             const { id, block } = cmd('spikeprime_motorSetStopAction');
             block[id].fields.PORT = [match[1].toUpperCase(), null];
             block[id].fields.ACTION = [match[2].toLowerCase(), null];
@@ -5683,19 +5853,19 @@ class SB3Creator {
         // The centre (power) button light, by the extension's CENTER_LED_COLOR
         // names; the hub's LED numbers 0-10 are the colour ids of the `color`
         // module in SPIKE 3 Python (spike3Python.js maps between them).
-        if ((match = line.match(/^set\s+center\s+button\s+light\s+to\s+(off|pink|purple|blue|teal|green|lime|yellow|orange|red|white|grey)\s*$/i))) {
+        if ((match = matchTopLevel(line, /^set\s+center\s+button\s+light\s+to\s+(off|pink|purple|blue|teal|green|lime|yellow|orange|red|white|grey)\s*$/i))) {
             const { id, block } = cmd('spikeprime_setCenterButtonColor');
             block[id].fields.COLOR = [match[1].toUpperCase(), null];
             return ret(block);
         }
-        if ((match = line.match(/^set\s+spike\s+volume\s+to\s+(.+?)\s*$/i))) {
+        if ((match = matchTopLevel(line, /^set\s+spike\s+volume\s+to\s+(.+?)\s*$/i))) {
             const { id, block } = cmd('spikeprime_setVolume');
             block[id].inputs.VOLUME = val(match[1]);
             return ret(block);
         }
         // The distance sensor's four eye lights (top-left, top-right,
         // bottom-left, bottom-right), each 0-9 as the extension sends them.
-        if ((match = line.match(/^set\s+distance\s+lights\s+([A-F])\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s*$/i))) {
+        if ((match = matchTopLevel(line, /^set\s+distance\s+lights\s+([A-F])\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s*$/i))) {
             const { id, block } = cmd('spikeprime_setDistanceLights');
             block[id].fields.PORT = [match[1].toUpperCase(), null];
             block[id].inputs.TL = val(match[2]);
@@ -5705,7 +5875,7 @@ class SB3Creator {
             return ret(block);
         }
         // ---- Spike Prime pixel/sound/IMU commands ----
-        if ((match = line.match(/^set\s+pixel\s+(\S+)\s+(\S+)\s+(\S+)\s*$/i))) {
+        if ((match = matchTopLevel(line, /^set\s+pixel\s+(\S+)\s+(\S+)\s+(\S+)\s*$/i))) {
             const { id, block } = cmd('spikeprime_setPixel');
             block[id].inputs.X = val(match[1]);
             block[id].inputs.Y = val(match[2]);
@@ -5713,13 +5883,13 @@ class SB3Creator {
             return ret(block);
         }
         // ---- Spike Prime sound commands ----
-        if ((match = line.match(/^play\s+beep\s+(\S+)\s+(\S+)\s*$/i))) {
+        if ((match = matchTopLevel(line, /^play\s+beep\s+(\S+)\s+(\S+)\s*$/i))) {
             const { id, block } = cmd('spikeprime_playBeep');
             block[id].inputs.FREQUENCY = val(match[1]);
             block[id].inputs.DURATION = val(match[2]);
             return ret(block);
         }
-        if ((match = line.match(/^play\s+spike\s+note\s+(\S+)\s+(\S+)\s*$/i))) {
+        if ((match = matchTopLevel(line, /^play\s+spike\s+note\s+(\S+)\s+(\S+)\s*$/i))) {
             const { id, block } = cmd('spikeprime_playNote');
             block[id].inputs.NOTE = val(match[1]);
             block[id].inputs.SECS = val(match[2]);
@@ -5734,7 +5904,7 @@ class SB3Creator {
             const { block } = cmd('spikeprime_resetYaw');
             return ret(block);
         }
-        if ((match = line.match(/^preset\s+yaw\s+to\s+(.+)$/i))) {
+        if ((match = matchTopLevel(line, /^preset\s+yaw\s+to\s+(.+)$/i))) {
             const { id, block } = cmd('spikeprime_presetYaw');
             block[id].inputs.ANGLE = val(match[1]);
             return ret(block);
@@ -5744,32 +5914,32 @@ class SB3Creator {
             return ret(block);
         }
         // ---- Circuit extension commands (boundary B) --------------------------------
-        if ((match = line.match(/^set control\s+(.+?)\s+to\s+(.+)$/i))) {
+        if ((match = matchTopLevel(line, /^set control\s+(.+?)\s+to\s+(.+)$/i))) {
             const { id, block } = cmd('circuit_setcontrol');
             block[id].inputs.CONTROL = val(match[1]);
             block[id].inputs.VALUE = val(match[2]);
             return ret(block);
         }
-        if ((match = line.match(/^turn power\s+(on|off)$/i))) {
+        if ((match = matchTopLevel(line, /^turn power\s+(on|off)$/i))) {
             const { id, block } = cmd('circuit_setpower');
             block[id].fields.STATE = [match[1].toLowerCase(), null];
             return ret(block);
         }
         // ---- LED cube commands (guarded on a LEDCUBE declaration) --------------------
         if (this.project && this.project.stc && this.project.stc.ledcube) {
-            if ((match = line.match(/^set voxel\s+(.+?)\s+(.+?)\s+(.+?)\s+to\s+(.+)$/i))) {
+            if ((match = matchTopLevel(line, /^set voxel\s+(\S+)\s+(\S+)\s+(\S+)\s+to\s+(.+)$/i))) {
                 const { id, block } = cmd('ledcube_setvoxel');
                 block[id].inputs.X = val(match[1]); block[id].inputs.Y = val(match[2]);
                 block[id].inputs.Z = val(match[3]); block[id].inputs.COLOUR = val(match[4]);
                 return ret(block);
             }
-            if ((match = line.match(/^clear voxel\s+(.+?)\s+(.+?)\s+(.+)$/i))) {
+            if ((match = matchTopLevel(line, /^clear voxel\s+(\S+)\s+(\S+)\s+(\S+)$/i))) {
                 const { id, block } = cmd('ledcube_clearvoxel');
                 block[id].inputs.X = val(match[1]); block[id].inputs.Y = val(match[2]);
                 block[id].inputs.Z = val(match[3]);
                 return ret(block);
             }
-            if ((match = line.match(/^fill layer\s+(.+?)\s+with\s+(.+)$/i))) {
+            if ((match = matchTopLevel(line, /^fill layer\s+(.+?)\s+with\s+(.+)$/i))) {
                 const { id, block } = cmd('ledcube_filllayer');
                 block[id].inputs.LAYER = val(match[1]); block[id].inputs.COLOUR = val(match[2]);
                 return ret(block);
@@ -5782,24 +5952,24 @@ class SB3Creator {
             // there makes the dialect accept it. Spelling the six words out
             // here was a third copy — the parser would have gone on rejecting
             // a direction the emitter and reader both understood.
-            if ((match = line.match(
+            if ((match = matchTopLevel(line, 
                 new RegExp(`^shift cube\\s+(${CUBE_DIRECTIONS.join('|')})$`, 'i')))) {
                 const { id, block } = cmd('ledcube_shift');
                 block[id].fields.DIR = [match[1].toLowerCase(), null];
                 return ret(block);
             }
-            if ((match = line.match(/^hold frame(?:\s+for)?\s+(.+?)\s*(?:ms|milliseconds?)$/i))) {
+            if ((match = matchTopLevel(line, /^hold frame(?:\s+for)?\s+(.+?)\s*(?:ms|milliseconds?)$/i))) {
                 const { id, block } = cmd('ledcube_hold');
                 block[id].inputs.DURATION = val(match[1]);
                 return ret(block);
             }
-            if ((match = line.match(/^fill column\s+(.+?)\s+(.+?)\s+with\s+(.+)$/i))) {
+            if ((match = matchTopLevel(line, /^fill column\s+(\S+)\s+(\S+)\s+with\s+(.+)$/i))) {
                 const { id, block } = cmd('ledcube_fillcolumn');
                 block[id].inputs.X = val(match[1]); block[id].inputs.Y = val(match[2]);
                 block[id].inputs.COLOUR = val(match[3]);
                 return ret(block);
             }
-            if ((match = line.match(/^fill wall\s+(.+?)\s+with\s+(.+)$/i))) {
+            if ((match = matchTopLevel(line, /^fill wall\s+(.+?)\s+with\s+(.+)$/i))) {
                 const { id, block } = cmd('ledcube_fillwall');
                 block[id].inputs.Z = val(match[1]); block[id].inputs.COLOUR = val(match[2]);
                 return ret(block);
@@ -5813,13 +5983,13 @@ class SB3Creator {
         // ---- Device convenience blocks (seven-segment, RGB LED, servo, motor, relay) ----
         // Higher-level vocabulary over the pin/port primitives. A learner says
         // "show digit 5" not "set port to font[5]".
-        if ((match = line.match(/^show digit\s+(.+?)\s+on\s+(.+)$/i))) {
+        if ((match = matchTopLevel(line, /^show digit\s+(.+?)\s+on\s+(.+)$/i))) {
             const { id, block } = cmd('devices_showdigit');
             block[id].inputs.DIGIT = val(match[1]);
             block[id].inputs.DISPLAY = val(match[2]);
             return ret(block);
         }
-        if ((match = line.match(/^set\s+(.+?)\s+colour to R\s+(.+?)\s+G\s+(.+?)\s+B\s+(.+)$/i))) {
+        if ((match = matchTopLevel(line, /^set\s+(.+?)\s+colour to R\s+(.+?)\s+G\s+(.+?)\s+B\s+(.+)$/i))) {
             const { id, block } = cmd('devices_setrgb');
             block[id].inputs.LED = val(match[1]);
             block[id].inputs.R = val(match[2]);
@@ -5827,7 +5997,7 @@ class SB3Creator {
             block[id].inputs.B = val(match[4]);
             return ret(block);
         }
-        if ((match = line.match(/^set\s+(.+?)\s+angle to\s+(.+)$/i))) {
+        if ((match = matchTopLevel(line, /^set\s+(.+?)\s+angle to\s+(.+)$/i))) {
             const { id, block } = cmd('devices_setservo');
             // A declared SERVO part addresses its channel; anything else is
             // still an ordinary value, so `set 1 angle to 90` keeps working.
@@ -5836,74 +6006,74 @@ class SB3Creator {
             block[id].inputs.ANGLE = val(match[2]);
             return ret(block);
         }
-        if ((match = line.match(/^set\s+(.+?)\s+speed to\s+(.+)$/i))) {
+        if ((match = matchTopLevel(line, /^set\s+(.+?)\s+speed to\s+(.+)$/i))) {
             const { id, block } = cmd('devices_setmotor');
             const motorCh = this.stcActuatorChannel(match[1].trim(), 'motor');
             block[id].inputs.MOTOR = motorCh == null ? val(match[1]) : val(String(motorCh));
             block[id].inputs.SPEED = val(match[2]);
             return ret(block);
         }
-        if ((match = line.match(/^set relay\s+(.+?)\s+(on|off)$/i))) {
+        if ((match = matchTopLevel(line, /^set relay\s+(.+?)\s+(on|off)$/i))) {
             const { id, block } = cmd('devices_setrelay');
             block[id].inputs.RELAY = val(match[1]);
             block[id].fields.STATE = [match[2].toLowerCase(), null];
             return ret(block);
         }
-        if ((match = line.match(/^set\s+(.+?)\s+direction\s+(forward|reverse|brake|coast)$/i))) {
+        if ((match = matchTopLevel(line, /^set\s+(.+?)\s+direction\s+(forward|reverse|brake|coast)$/i))) {
             const { id, block } = cmd('devices_setdirection');
             const dirCh = this.stcActuatorChannel(match[1].trim(), 'motor');
             block[id].inputs.MOTOR = dirCh == null ? val(match[1]) : val(String(dirCh));
             block[id].fields.DIR = [match[2].toLowerCase(), null];
             return ret(block);
         }
-        if ((match = line.match(/^activate\s+(.+)$/i))) {
+        if ((match = matchTopLevel(line, /^activate\s+(.+)$/i))) {
             const { id, block } = cmd('devices_activate');
             block[id].inputs.DEVICE = val(match[1]);
             return ret(block);
         }
-        if ((match = line.match(/^deactivate\s+(.+)$/i))) {
+        if ((match = matchTopLevel(line, /^deactivate\s+(.+)$/i))) {
             const { id, block } = cmd('devices_deactivate');
             block[id].inputs.DEVICE = val(match[1]);
             return ret(block);
         }
-        if ((match = line.match(/^read temperature from\s+(.+)$/i))) {
+        if ((match = matchTopLevel(line, /^read temperature from\s+(.+)$/i))) {
             // Reporter — handled in parseReporter, not here
         }
-        if ((match = line.match(/^read light from\s+(.+)$/i))) {
+        if ((match = matchTopLevel(line, /^read light from\s+(.+)$/i))) {
             // Reporter — handled in parseReporter, not here
         }
         // ---- char_lcd blocks ----
-        if ((match = line.match(/^lcd print\s+"([^"]*)"\s+on\s+(.+)$/i))) {
+        if ((match = matchTopLevel(line, /^lcd print\s+"([^"]*)"\s+on\s+(.+)$/i))) {
             const { id, block } = cmd('devices_lcdprint');
             block[id].inputs.TEXT = [1, [10, match[1]]];
             block[id].inputs.DISPLAY = val(match[2]);
             return ret(block);
         }
-        if ((match = line.match(/^lcd print\s+(.+?)\s+on\s+(.+)$/i))) {
+        if ((match = matchTopLevel(line, /^lcd print\s+(.+?)\s+on\s+(.+)$/i))) {
             const { id, block } = cmd('devices_lcdprint');
             block[id].inputs.TEXT = val(match[1]);
             block[id].inputs.DISPLAY = val(match[2]);
             return ret(block);
         }
-        if ((match = line.match(/^lcd set cursor\s+(.+?)\s+(.+?)\s+on\s+(.+)$/i))) {
+        if ((match = matchTopLevel(line, /^lcd set cursor\s+(\S+)\s+(\S+)\s+on\s+(.+)$/i))) {
             const { id, block } = cmd('devices_lcdcursor');
             block[id].inputs.ROW = val(match[1]);
             block[id].inputs.COL = val(match[2]);
             block[id].inputs.DISPLAY = val(match[3]);
             return ret(block);
         }
-        if ((match = line.match(/^lcd clear\s+(.+)$/i))) {
-            const displayArg = match[1].trim();
-            if (/\s/.test(displayArg)) {
-                this.warn(null, `lcd clear takes a single display name, but got "${displayArg}" (contains whitespace) — did you mean "lcd clear <display>"?`);
-                return null;
+        if ((match = matchTopLevel(line, /^lcd clear\s+(.+)$/i))) {
+            // One display: a name, a number or a (parenthesised expression). A
+            // spaced phrase used to warn and return nothing — the line vanished.
+            if (!matchTopLevel(line, /^lcd clear\s+(\S+)$/i)) {
+                throw new ParseError(`lcd clear takes a single display name, but got "${match[1].trim()}" (contains whitespace) — did you mean "lcd clear <display>"?`);
             }
             const { id, block } = cmd('devices_lcdclear');
             block[id].inputs.DISPLAY = val(match[1]);
             return ret(block);
         }
         // ---- tft blocks (ILI9341) ----
-        if ((match = line.match(/^tft pixel\s+(.+?)\s+(.+?)\s+R\s+(.+?)\s+G\s+(.+?)\s+B\s+(.+?)\s+on\s+(.+)$/i))) {
+        if ((match = matchTopLevel(line, /^tft pixel\s+(\S+)\s+(\S+)\s+R\s+(.+?)\s+G\s+(.+?)\s+B\s+(.+?)\s+on\s+(.+)$/i))) {
             const { id, block } = cmd('devices_tftpixel');
             block[id].inputs.X = val(match[1]);
             block[id].inputs.Y = val(match[2]);
@@ -5913,7 +6083,7 @@ class SB3Creator {
             block[id].inputs.DISPLAY = val(match[6]);
             return ret(block);
         }
-        if ((match = line.match(/^tft fill\s+(.+?)\s+(.+?)\s+(.+?)\s+(.+?)\s+R\s+(.+?)\s+G\s+(.+?)\s+B\s+(.+?)\s+on\s+(.+)$/i))) {
+        if ((match = matchTopLevel(line, /^tft fill\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+R\s+(.+?)\s+G\s+(.+?)\s+B\s+(.+?)\s+on\s+(.+)$/i))) {
             const { id, block } = cmd('devices_tftfill');
             block[id].inputs.X = val(match[1]);
             block[id].inputs.Y = val(match[2]);
@@ -5925,37 +6095,37 @@ class SB3Creator {
             block[id].inputs.DISPLAY = val(match[8]);
             return ret(block);
         }
-        if ((match = line.match(/^tft print\s+"([^"]*)"\s+on\s+(.+)$/i))) {
+        if ((match = matchTopLevel(line, /^tft print\s+"([^"]*)"\s+on\s+(.+)$/i))) {
             const { id, block } = cmd('devices_tftprint');
             block[id].inputs.TEXT = [1, [10, match[1]]];
             block[id].inputs.DISPLAY = val(match[2]);
             return ret(block);
         }
-        if ((match = line.match(/^tft print\s+(.+?)\s+on\s+(.+)$/i))) {
+        if ((match = matchTopLevel(line, /^tft print\s+(.+?)\s+on\s+(.+)$/i))) {
             const { id, block } = cmd('devices_tftprint');
             block[id].inputs.TEXT = val(match[1]);
             block[id].inputs.DISPLAY = val(match[2]);
             return ret(block);
         }
-        if ((match = line.match(/^tft set cursor\s+(.+?)\s+(.+?)\s+on\s+(.+)$/i))) {
+        if ((match = matchTopLevel(line, /^tft set cursor\s+(\S+)\s+(\S+)\s+on\s+(.+)$/i))) {
             const { id, block } = cmd('devices_tftcursor');
             block[id].inputs.ROW = val(match[1]);
             block[id].inputs.COL = val(match[2]);
             block[id].inputs.DISPLAY = val(match[3]);
             return ret(block);
         }
-        if ((match = line.match(/^tft clear\s+(.+)$/i))) {
-            const displayArg = match[1].trim();
-            if (/\s/.test(displayArg)) {
-                this.warn(null, `tft clear takes a single display name, but got "${displayArg}" (contains whitespace) — did you mean "tft clear <display>"?`);
-                return null;
+        if ((match = matchTopLevel(line, /^tft clear\s+(.+)$/i))) {
+            // One display: a name, a number or a (parenthesised expression). A
+            // spaced phrase used to warn and return nothing — the line vanished.
+            if (!matchTopLevel(line, /^tft clear\s+(\S+)$/i)) {
+                throw new ParseError(`tft clear takes a single display name, but got "${match[1].trim()}" (contains whitespace) — did you mean "tft clear <display>"?`);
             }
             const { id, block } = cmd('devices_tftclear');
             block[id].inputs.DISPLAY = val(match[1]);
             return ret(block);
         }
         // ---- oled blocks (SSD1306) ----
-        if ((match = line.match(/^oled pixel\s+(.+?)\s+(.+?)\s+(.+?)\s+on\s+(.+)$/i))) {
+        if ((match = matchTopLevel(line, /^oled pixel\s+(\S+)\s+(\S+)\s+(\S+)\s+on\s+(.+)$/i))) {
             const { id, block } = cmd('devices_oledpixel');
             block[id].inputs.X = val(match[1]);
             block[id].inputs.Y = val(match[2]);
@@ -5969,17 +6139,17 @@ class SB3Creator {
         // six verbs cost six of them and visibly flickered. A program that
         // never says `oled show` keeps the old draw-and-flush behaviour, so
         // this is additive.
-        if ((match = line.match(/^oled show\s+(.+)$/i))) {
-            const displayArg = match[1].trim();
-            if (/\s/.test(displayArg)) {
-                this.warn(null, `oled show takes a single display name, but got "${displayArg}" (contains whitespace) — did you mean "oled show <display>"?`);
-                return null;
+        if ((match = matchTopLevel(line, /^oled show\s+(.+)$/i))) {
+            // One display: a name, a number or a (parenthesised expression). A
+            // spaced phrase used to warn and return nothing — the line vanished.
+            if (!matchTopLevel(line, /^oled show\s+(\S+)$/i)) {
+                throw new ParseError(`oled show takes a single display name, but got "${match[1].trim()}" (contains whitespace) — did you mean "oled show <display>"?`);
             }
             const { id, block } = cmd('devices_oledshow');
             block[id].inputs.DISPLAY = val(match[1]);
             return ret(block);
         }
-        if ((match = line.match(/^oled hline\s+(.+?)\s+(.+?)\s+(.+?)\s+on\s+(.+)$/i))) {
+        if ((match = matchTopLevel(line, /^oled hline\s+(\S+)\s+(\S+)\s+(\S+)\s+on\s+(.+)$/i))) {
             const { id, block } = cmd('devices_oledhline');
             block[id].inputs.X = val(match[1]);
             block[id].inputs.Y = val(match[2]);
@@ -5987,13 +6157,13 @@ class SB3Creator {
             block[id].inputs.DISPLAY = val(match[4]);
             return ret(block);
         }
-        if ((match = line.match(/^oled print\s+"([^"]*)"\s+on\s+(.+)$/i))) {
+        if ((match = matchTopLevel(line, /^oled print\s+"([^"]*)"\s+on\s+(.+)$/i))) {
             const { id, block } = cmd('devices_oledprint');
             block[id].inputs.TEXT = [1, [10, match[1]]];
             block[id].inputs.DISPLAY = val(match[2]);
             return ret(block);
         }
-        if ((match = line.match(/^oled print\s+(.+?)\s+on\s+(.+)$/i))) {
+        if ((match = matchTopLevel(line, /^oled print\s+(.+?)\s+on\s+(.+)$/i))) {
             const { id, block } = cmd('devices_oledprint');
             block[id].inputs.TEXT = val(match[1]);
             block[id].inputs.DISPLAY = val(match[2]);
@@ -6004,31 +6174,31 @@ class SB3Creator {
         // It round-trips VERBATIM through the MicroPython emitter and
         // degrades to a comment everywhere else — an import loses
         // nothing, it just shows what it could not understand.
-        if ((match = line.match(/^raw\s+"(.*)"\s*$/i))) {
+        if ((match = matchTopLevel(line, /^raw\s+"(.*)"\s*$/i))) {
             const text = match[1].replace(/\\"/g, '"').replace(/\\\\/g, '\\');
             const { id, block } = cmd('bw_raw');
             block[id].fields.TEXT = [text, null];
             return ret(block);
         }
-        if ((match = line.match(/^oled set cursor\s+(.+?)\s+(.+?)\s+on\s+(.+)$/i))) {
+        if ((match = matchTopLevel(line, /^oled set cursor\s+(\S+)\s+(\S+)\s+on\s+(.+)$/i))) {
             const { id, block } = cmd('devices_oledcursor');
             block[id].inputs.ROW = val(match[1]);
             block[id].inputs.COL = val(match[2]);
             block[id].inputs.DISPLAY = val(match[3]);
             return ret(block);
         }
-        if ((match = line.match(/^oled clear\s+(.+)$/i))) {
-            const displayArg = match[1].trim();
-            if (/\s/.test(displayArg)) {
-                this.warn(null, `oled clear takes a single display name, but got "${displayArg}" (contains whitespace) — did you mean "oled clear <display>"?`);
-                return null;
+        if ((match = matchTopLevel(line, /^oled clear\s+(.+)$/i))) {
+            // One display: a name, a number or a (parenthesised expression). A
+            // spaced phrase used to warn and return nothing — the line vanished.
+            if (!matchTopLevel(line, /^oled clear\s+(\S+)$/i)) {
+                throw new ParseError(`oled clear takes a single display name, but got "${match[1].trim()}" (contains whitespace) — did you mean "oled clear <display>"?`);
             }
             const { id, block } = cmd('devices_oledclear');
             block[id].inputs.DISPLAY = val(match[1]);
             return ret(block);
         }
         // ---- led_matrix blocks ----
-        if ((match = line.match(/^set pixel\s+(.+?)\s+(.+?)\s+to\s+(.+?)\s+on\s+(.+)$/i))) {
+        if ((match = matchTopLevel(line, /^set pixel\s+(\S+)\s+(\S+)\s+to\s+(.+?)\s+on\s+(.+)$/i))) {
             const { id, block } = cmd('devices_setpixel');
             block[id].inputs.X = val(match[1]);
             block[id].inputs.Y = val(match[2]);
@@ -6036,13 +6206,13 @@ class SB3Creator {
             block[id].inputs.MATRIX = val(match[4]);
             return ret(block);
         }
-        if ((match = line.match(/^clear matrix\s+(.+)$/i))) {
+        if ((match = matchTopLevel(line, /^clear matrix\s+(.+)$/i))) {
             const { id, block } = cmd('devices_clearmatrix');
             block[id].inputs.MATRIX = val(match[1]);
             return ret(block);
         }
         // ---- neopixel blocks ----
-        if ((match = line.match(/^set neopixel\s+(.+?)\s+to R\s+(.+?)\s+G\s+(.+?)\s+B\s+(.+?)\s+on\s+(.+)$/i))) {
+        if ((match = matchTopLevel(line, /^set neopixel\s+(.+?)\s+to R\s+(.+?)\s+G\s+(.+?)\s+B\s+(.+?)\s+on\s+(.+)$/i))) {
             const { id, block } = cmd('devices_setneopixel');
             block[id].inputs.INDEX = val(match[1]);
             block[id].inputs.R = val(match[2]);
@@ -6051,7 +6221,7 @@ class SB3Creator {
             block[id].inputs.STRIP = val(match[5]);
             return ret(block);
         }
-        if ((match = line.match(/^clear neopixels on\s+(.+)$/i))) {
+        if ((match = matchTopLevel(line, /^clear neopixels on\s+(.+)$/i))) {
             const { id, block } = cmd('devices_clearneopixels');
             block[id].inputs.STRIP = val(match[1]);
             return ret(block);
@@ -6060,92 +6230,92 @@ class SB3Creator {
         // ---- Arrays & Vectors extension commands (anchored on `array "NAME"`; 0-based) ----
         // syncExtensions() auto-declares the `arrays` extension from these opcodes.
         const aName = (n) => [1, [10, n]];
-        if ((match = line.match(/^new array\s+"([^"]*)"\s*=\s*range\s+(.+?)\s+to\s+(.+)$/i))) {
+        if ((match = matchTopLevel(line, /^new array\s+"([^"]*)"\s*=\s*range\s+(.+?)\s+to\s+(.+)$/i))) {
             const { id, block } = cmd('arrays_createRange');
             block[id].inputs.NAME = aName(match[1]); block[id].inputs.START = val(match[2]); block[id].inputs.END = val(match[3]);
             return ret(block);
         }
-        if ((match = line.match(/^new 2D array\s+"([^"]*)"\s*=\s*(.+)$/i))) {
+        if ((match = matchTopLevel(line, /^new 2D array\s+"([^"]*)"\s*=\s*(.+)$/i))) {
             const { id, block } = cmd('arrays_create2D');
             block[id].inputs.NAME = aName(match[1]); block[id].inputs.JSON = [1, [10, match[2].trim()]];
             return ret(block);
         }
-        if ((match = line.match(/^new array\s+"([^"]*)"\s*=\s*(.+)$/i))) {
+        if ((match = matchTopLevel(line, /^new array\s+"([^"]*)"\s*=\s*(.+)$/i))) {
             const { id, block } = cmd('arrays_create1D');
             block[id].inputs.NAME = aName(match[1]); block[id].inputs.JSON = [1, [10, match[2].trim()]];
             return ret(block);
         }
-        if ((match = line.match(/^new array\s+"([^"]*)"$/i))) {
+        if ((match = matchTopLevel(line, /^new array\s+"([^"]*)"$/i))) {
             const { id, block } = cmd('arrays_createEmpty'); block[id].inputs.NAME = aName(match[1]); return ret(block);
         }
-        if ((match = line.match(/^push\s+(.+?)\s+to array\s+"([^"]*)"$/i))) {
+        if ((match = matchTopLevel(line, /^push\s+(.+?)\s+to array\s+"([^"]*)"$/i))) {
             const { id, block } = cmd('arrays_push'); block[id].inputs.NAME = aName(match[2]); block[id].inputs.VALUE = val(match[1]); return ret(block);
         }
-        if ((match = line.match(/^set item\s+row\s+(.+?)\s+col\s+(.+?)\s+of array\s+"([^"]*)"\s+to\s+(.+)$/i))) {
+        if ((match = matchTopLevel(line, /^set item\s+row\s+(.+?)\s+col\s+(.+?)\s+of array\s+"([^"]*)"\s+to\s+(.+)$/i))) {
             const { id, block } = cmd('arrays_set2D');
             block[id].inputs.NAME = aName(match[3]); block[id].inputs.ROW = val(match[1]); block[id].inputs.COL = val(match[2]); block[id].inputs.VALUE = val(match[4]);
             return ret(block);
         }
-        if ((match = line.match(/^set item\s+(.+?)\s+of array\s+"([^"]*)"\s+to\s+(.+)$/i))) {
+        if ((match = matchTopLevel(line, /^set item\s+(.+?)\s+of array\s+"([^"]*)"\s+to\s+(.+)$/i))) {
             const { id, block } = cmd('arrays_set'); block[id].inputs.NAME = aName(match[2]); block[id].inputs.INDEX = val(match[1]); block[id].inputs.VALUE = val(match[3]); return ret(block);
         }
-        if ((match = line.match(/^insert\s+(.+?)\s+at\s+(.+?)\s+of array\s+"([^"]*)"$/i))) {
+        if ((match = matchTopLevel(line, /^insert\s+(.+?)\s+at\s+(.+?)\s+of array\s+"([^"]*)"$/i))) {
             const { id, block } = cmd('arrays_insert'); block[id].inputs.NAME = aName(match[3]); block[id].inputs.INDEX = val(match[2]); block[id].inputs.VALUE = val(match[1]); return ret(block);
         }
-        if ((match = line.match(/^remove item\s+(.+?)\s+of array\s+"([^"]*)"$/i))) {
+        if ((match = matchTopLevel(line, /^remove item\s+(.+?)\s+of array\s+"([^"]*)"$/i))) {
             const { id, block } = cmd('arrays_remove'); block[id].inputs.NAME = aName(match[2]); block[id].inputs.INDEX = val(match[1]); return ret(block);
         }
-        if ((match = line.match(/^delete array\s+"([^"]*)"$/i))) {
+        if ((match = matchTopLevel(line, /^delete array\s+"([^"]*)"$/i))) {
             const { id, block } = cmd('arrays_delete'); block[id].inputs.NAME = aName(match[1]); return ret(block);
         }
 
         // ---- Motion ----------------------------------------------------------------
-        if ((match = line.match(/^move\s+(.+)\s+steps?$/i))) {
+        if ((match = matchTopLevel(line, /^move\s+(.+)\s+steps?$/i))) {
             const { id, block } = cmd('motion_movesteps'); block[id].inputs.STEPS = val(match[1]); return ret(block);
         }
-        if ((match = line.match(/^turn\s+(left|right)\s+(.+)\s+degrees?$/i))) {
+        if ((match = matchTopLevel(line, /^turn\s+(left|right)\s+(.+)\s+degrees?$/i))) {
             const { id, block } = cmd(match[1].toLowerCase() === 'left' ? 'motion_turnleft' : 'motion_turnright');
             block[id].inputs.DEGREES = val(match[2]); return ret(block);
         }
-        if ((match = line.match(/^turn\s+(.+)\s+degrees?$/i))) {
+        if ((match = matchTopLevel(line, /^turn\s+(.+)\s+degrees?$/i))) {
             const { id, block } = cmd('motion_turnright'); block[id].inputs.DEGREES = val(match[1]); return ret(block);
         }
-        if ((match = line.match(/^go to x:\s*(.+?)\s+y:\s*(.+)$/i))) {
+        if ((match = matchTopLevel(line, /^go to x:\s*(.+?)\s+y:\s*(.+)$/i))) {
             const { id, block } = cmd('motion_gotoxy');
             block[id].inputs.X = val(match[1]); block[id].inputs.Y = val(match[2]); return ret(block);
         }
-        if ((match = line.match(/^glide\s+(.+?)\s+secs?\s+to x:\s*(.+?)\s+y:\s*(.+)$/i))) {
+        if ((match = matchTopLevel(line, /^glide\s+(.+?)\s+secs?\s+to x:\s*(.+?)\s+y:\s*(.+)$/i))) {
             const { id, block } = cmd('motion_glidesecstoxy');
             block[id].inputs.SECS = val(match[1]); block[id].inputs.X = val(match[2]); block[id].inputs.Y = val(match[3]);
             return ret(block);
         }
-        if ((match = line.match(/^glide\s+(.+?)\s+secs?\s+to\s+(.+)$/i))) {
+        if ((match = matchTopLevel(line, /^glide\s+(.+?)\s+secs?\s+to\s+(.+)$/i))) {
             const { id, block } = cmd('motion_glideto');
             block[id].inputs.SECS = val(match[1]);
             block[id].inputs.TO = this.menuInput(context, 'motion_glideto_menu', 'TO', this.spriteMenuValue(match[2]));
             return ret(block);
         }
-        if ((match = line.match(/^go to\s+(.+)$/i))) {
+        if ((match = matchTopLevel(line, /^go to\s+(.+)$/i))) {
             const { id, block } = cmd('motion_goto');
             block[id].inputs.TO = this.menuInput(context, 'motion_goto_menu', 'TO', this.spriteMenuValue(match[1]));
             return ret(block);
         }
-        if ((match = line.match(/^change x by\s+(.+)$/i))) {
+        if ((match = matchTopLevel(line, /^change x by\s+(.+)$/i))) {
             const { id, block } = cmd('motion_changexby'); block[id].inputs.DX = val(match[1]); return ret(block);
         }
-        if ((match = line.match(/^change y by\s+(.+)$/i))) {
+        if ((match = matchTopLevel(line, /^change y by\s+(.+)$/i))) {
             const { id, block } = cmd('motion_changeyby'); block[id].inputs.DY = val(match[1]); return ret(block);
         }
-        if ((match = line.match(/^set x to\s+(.+)$/i))) {
+        if ((match = matchTopLevel(line, /^set x to\s+(.+)$/i))) {
             const { id, block } = cmd('motion_setx'); block[id].inputs.X = val(match[1]); return ret(block);
         }
-        if ((match = line.match(/^set y to\s+(.+)$/i))) {
+        if ((match = matchTopLevel(line, /^set y to\s+(.+)$/i))) {
             const { id, block } = cmd('motion_sety'); block[id].inputs.Y = val(match[1]); return ret(block);
         }
-        if ((match = line.match(/^point in direction\s+(.+)$/i))) {
+        if ((match = matchTopLevel(line, /^point in direction\s+(.+)$/i))) {
             const { id, block } = cmd('motion_pointindirection'); block[id].inputs.DIRECTION = val(match[1]); return ret(block);
         }
-        if ((match = line.match(/^point towards\s+(.+)$/i))) {
+        if ((match = matchTopLevel(line, /^point towards\s+(.+)$/i))) {
             const { id, block } = cmd('motion_pointtowards');
             block[id].inputs.TOWARDS = this.menuInput(context, 'motion_pointtowards_menu', 'TOWARDS', this.spriteMenuValue(match[1]));
             return ret(block);
@@ -6153,19 +6323,19 @@ class SB3Creator {
         if (/^if on edge,?\s*bounce$/i.test(line)) {
             return { block: this.createBlock('motion_ifonedgebounce').block, extraBlocks: {} };
         }
-        if ((match = line.match(/^set rotation style\s+(.+)$/i))) {
+        if ((match = matchTopLevel(line, /^set rotation style\s+(.+)$/i))) {
             const { id, block } = cmd('motion_setrotationstyle');
             block[id].fields.STYLE = [match[1].trim(), null]; return ret(block);
         }
 
         // ---- Looks -----------------------------------------------------------------
-        if ((match = line.match(/^say\s+(.+?)(?:\s+for\s+(.+)\s+seconds?)?$/i))) {
+        if ((match = matchTopLevel(line, /^say\s+(.+?)(?:\s+for\s+(.+)\s+seconds?)?$/i))) {
             const { id, block } = cmd(match[2] ? 'looks_sayforsecs' : 'looks_say');
             block[id].inputs.MESSAGE = val(match[1]);
             if (match[2]) block[id].inputs.SECS = val(match[2]);
             return ret(block);
         }
-        if ((match = line.match(/^think\s+(.+?)(?:\s+for\s+(.+)\s+seconds?)?$/i))) {
+        if ((match = matchTopLevel(line, /^think\s+(.+?)(?:\s+for\s+(.+)\s+seconds?)?$/i))) {
             const { id, block } = cmd(match[2] ? 'looks_thinkforsecs' : 'looks_think');
             block[id].inputs.MESSAGE = val(match[1]);
             if (match[2]) block[id].inputs.SECS = val(match[2]);
@@ -6173,7 +6343,7 @@ class SB3Creator {
         }
         if (line.toLowerCase() === 'show') return { block: this.createBlock('looks_show').block, extraBlocks: {} };
         if (line.toLowerCase() === 'hide') return { block: this.createBlock('looks_hide').block, extraBlocks: {} };
-        if ((match = line.match(/^switch costume to\s+(.+)$/i))) {
+        if ((match = matchTopLevel(line, /^switch costume to\s+(.+)$/i))) {
             const arg = match[1].trim();
             const { id, block } = cmd('looks_switchcostumeto');
             // A parenthesised argument is a reporter expression (e.g. ("t" join v));
@@ -6189,23 +6359,23 @@ class SB3Creator {
             return ret(block);
         }
         if (line.toLowerCase() === 'next costume') return { block: this.createBlock('looks_nextcostume').block, extraBlocks: {} };
-        if ((match = line.match(/^switch backdrop to\s+(.+)$/i))) {
+        if ((match = matchTopLevel(line, /^switch backdrop to\s+(.+)$/i))) {
             const { id, block } = cmd('looks_switchbackdropto');
             block[id].inputs.BACKDROP = this.menuInput(context, 'looks_backdrops', 'BACKDROP', this.unquote(match[1]));
             return ret(block);
         }
         if (line.toLowerCase() === 'next backdrop') return { block: this.createBlock('looks_nextbackdrop').block, extraBlocks: {} };
-        if ((match = line.match(/^change size by\s+(.+)$/i))) {
+        if ((match = matchTopLevel(line, /^change size by\s+(.+)$/i))) {
             const { id, block } = cmd('looks_changesizeby'); block[id].inputs.CHANGE = val(match[1]); return ret(block);
         }
-        if ((match = line.match(/^set size to\s+(.+)$/i))) {
+        if ((match = matchTopLevel(line, /^set size to\s+(.+)$/i))) {
             const { id, block } = cmd('looks_setsizeto'); block[id].inputs.SIZE = val(match[1]); return ret(block);
         }
-        if ((match = line.match(/^change\s+(color|fisheye|whirl|pixelate|mosaic|brightness|ghost)\s+effect by\s+(.+)$/i))) {
+        if ((match = matchTopLevel(line, /^change\s+(color|fisheye|whirl|pixelate|mosaic|brightness|ghost)\s+effect by\s+(.+)$/i))) {
             const { id, block } = cmd('looks_changeeffectby');
             block[id].fields.EFFECT = [match[1].toUpperCase(), null]; block[id].inputs.CHANGE = val(match[2]); return ret(block);
         }
-        if ((match = line.match(/^set\s+(color|fisheye|whirl|pixelate|mosaic|brightness|ghost)\s+effect to\s+(.+)$/i))) {
+        if ((match = matchTopLevel(line, /^set\s+(color|fisheye|whirl|pixelate|mosaic|brightness|ghost)\s+effect to\s+(.+)$/i))) {
             const { id, block } = cmd('looks_seteffectto');
             block[id].fields.EFFECT = [match[1].toUpperCase(), null]; block[id].inputs.VALUE = val(match[2]); return ret(block);
         }
@@ -6218,24 +6388,24 @@ class SB3Creator {
             const { id, block } = this.createBlock('looks_gotofrontback'); block[id].fields.FRONT_BACK = ['back', null];
             return { block, extraBlocks: {} };
         }
-        if ((match = line.match(/^go (forward|backward|back)\s+(.+?)\s+layers?$/i))) {
+        if ((match = matchTopLevel(line, /^go (forward|backward|back)\s+(.+?)\s+layers?$/i))) {
             const { id, block } = cmd('looks_goforwardbackwardlayers');
             block[id].fields.FORWARD_BACKWARD = [match[1].toLowerCase() === 'forward' ? 'forward' : 'backward', null];
             block[id].inputs.NUM = val(match[2]); return ret(block);
         }
 
         // ---- Sound -----------------------------------------------------------------
-        if ((match = line.match(/^play sound\s+(.+)\s+until done$/i))) {
+        if ((match = matchTopLevel(line, /^play sound\s+(.+)\s+until done$/i))) {
             const { id, block } = cmd('sound_playuntildone'); block[id].inputs.SOUND_MENU = val(match[1]); return ret(block);
         }
-        if ((match = line.match(/^play sound\s+(.+)$/i))) {
+        if ((match = matchTopLevel(line, /^play sound\s+(.+)$/i))) {
             const { id, block } = cmd('sound_play'); block[id].inputs.SOUND_MENU = val(match[1]); return ret(block);
         }
         if (line.toLowerCase() === 'stop all sounds') return { block: this.createBlock('sound_stopallsounds').block, extraBlocks: {} };
-        if ((match = line.match(/^change volume by\s+(.+)$/i))) {
+        if ((match = matchTopLevel(line, /^change volume by\s+(.+)$/i))) {
             const { id, block } = cmd('sound_changevolumeby'); block[id].inputs.VOLUME = val(match[1]); return ret(block);
         }
-        if ((match = line.match(/^set volume to\s+(.+)$/i))) {
+        if ((match = matchTopLevel(line, /^set volume to\s+(.+)$/i))) {
             const { id, block } = cmd('sound_setvolumeto'); block[id].inputs.VOLUME = val(match[1]); return ret(block);
         }
 
@@ -6244,104 +6414,104 @@ class SB3Creator {
         if (line.toLowerCase() === 'stamp') { ext('pen'); return { block: this.createBlock('pen_stamp').block, extraBlocks: {} }; }
         if (line.toLowerCase() === 'pen down') { ext('pen'); return { block: this.createBlock('pen_penDown').block, extraBlocks: {} }; }
         if (line.toLowerCase() === 'pen up') { ext('pen'); return { block: this.createBlock('pen_penUp').block, extraBlocks: {} }; }
-        if ((match = line.match(/^set pen color to\s+(.+)$/i))) {
+        if ((match = matchTopLevel(line, /^set pen color to\s+(.+)$/i))) {
             ext('pen'); const { id, block } = cmd('pen_setPenColorToColor'); block[id].inputs.COLOR = val(match[1]); return ret(block);
         }
-        if ((match = line.match(/^change pen (color|saturation|brightness|transparency) by\s+(.+)$/i))) {
+        if ((match = matchTopLevel(line, /^change pen (color|saturation|brightness|transparency) by\s+(.+)$/i))) {
             ext('pen'); const { id, block } = cmd('pen_changePenColorParamBy');
             block[id].inputs.COLOR_PARAM = this.menuInput(context, 'pen_menu_colorParam', 'colorParam', match[1].toLowerCase());
             block[id].inputs.VALUE = val(match[2]); return ret(block);
         }
-        if ((match = line.match(/^set pen (color|saturation|brightness|transparency) to\s+(.+)$/i))) {
+        if ((match = matchTopLevel(line, /^set pen (color|saturation|brightness|transparency) to\s+(.+)$/i))) {
             ext('pen'); const { id, block } = cmd('pen_setPenColorParamTo');
             block[id].inputs.COLOR_PARAM = this.menuInput(context, 'pen_menu_colorParam', 'colorParam', match[1].toLowerCase());
             block[id].inputs.VALUE = val(match[2]); return ret(block);
         }
-        if ((match = line.match(/^change pen size by\s+(.+)$/i))) {
+        if ((match = matchTopLevel(line, /^change pen size by\s+(.+)$/i))) {
             ext('pen'); const { id, block } = cmd('pen_changePenSizeBy'); block[id].inputs.SIZE = val(match[1]); return ret(block);
         }
-        if ((match = line.match(/^set pen size to\s+(.+)$/i))) {
+        if ((match = matchTopLevel(line, /^set pen size to\s+(.+)$/i))) {
             ext('pen'); const { id, block } = cmd('pen_setPenSizeTo'); block[id].inputs.SIZE = val(match[1]); return ret(block);
         }
 
         // ---- Sensing ---------------------------------------------------------------
-        if ((match = line.match(/^ask\s+(.+?)\s+and wait$/i))) {
+        if ((match = matchTopLevel(line, /^ask\s+(.+?)\s+and wait$/i))) {
             const { id, block } = cmd('sensing_askandwait'); block[id].inputs.QUESTION = val(match[1]); return ret(block);
         }
         if (line.toLowerCase() === 'reset timer') return { block: this.createBlock('sensing_resettimer').block, extraBlocks: {} };
-        if ((match = line.match(/^set drag mode\s+(draggable|not draggable)$/i))) {
+        if ((match = matchTopLevel(line, /^set drag mode\s+(draggable|not draggable)$/i))) {
             const { id, block } = this.createBlock('sensing_setdragmode');
             block[id].fields.DRAG_MODE = [match[1].toLowerCase(), null];
             return { block, extraBlocks: {} };
         }
 
         // ---- Music (extension) -----------------------------------------------------
-        if ((match = line.match(/^play note\s+(.+?)\s+for\s+(.+)\s+beats?$/i))) {
+        if ((match = matchTopLevel(line, /^play note\s+(.+?)\s+for\s+(.+)\s+beats?$/i))) {
             ext('music'); const { id, block } = cmd('music_playNoteForBeats');
             block[id].inputs.NOTE = val(match[1]); block[id].inputs.BEATS = val(match[2]); return ret(block);
         }
-        if ((match = line.match(/^play drum\s+(.+?)\s+for\s+(.+)\s+beats?$/i))) {
+        if ((match = matchTopLevel(line, /^play drum\s+(.+?)\s+for\s+(.+)\s+beats?$/i))) {
             ext('music'); const { id, block } = cmd('music_playDrumForBeats');
             block[id].inputs.DRUM = this.menuInput(context, 'music_menu_DRUM', 'DRUM', match[1].trim());
             block[id].inputs.BEATS = val(match[2]); return ret(block);
         }
-        if ((match = line.match(/^rest for\s+(.+)\s+beats?$/i))) {
+        if ((match = matchTopLevel(line, /^rest for\s+(.+)\s+beats?$/i))) {
             ext('music'); const { id, block } = cmd('music_restForBeats'); block[id].inputs.BEATS = val(match[1]); return ret(block);
         }
-        if ((match = line.match(/^set tempo to\s+(.+)$/i))) {
+        if ((match = matchTopLevel(line, /^set tempo to\s+(.+)$/i))) {
             ext('music'); const { id, block } = cmd('music_setTempo'); block[id].inputs.TEMPO = val(match[1]); return ret(block);
         }
-        if ((match = line.match(/^change tempo by\s+(.+)$/i))) {
+        if ((match = matchTopLevel(line, /^change tempo by\s+(.+)$/i))) {
             ext('music'); const { id, block } = cmd('music_changeTempo'); block[id].inputs.TEMPO = val(match[1]); return ret(block);
         }
 
         // ---- Lists (before the generic variable set/change) ------------------------
-        if ((match = line.match(/^add\s+(.+?)\s+to\s+(.+)$/i)) && this.isListTarget(match[2], target)) {
+        if ((match = matchTopLevel(line, /^add\s+(.+?)\s+to\s+(.+)$/i)) && this.isListTarget(match[2], target)) {
             const list = this.getOrCreateList(match[2].trim(), target);
             const { id, block } = cmd('data_addtolist');
             block[id].inputs.ITEM = val(match[1]); block[id].fields.LIST = [list.name, list.id]; return ret(block);
         }
-        if ((match = line.match(/^delete all of\s+(.+)$/i))) {
+        if ((match = matchTopLevel(line, /^delete all of\s+(.+)$/i))) {
             const list = this.getOrCreateList(match[1].trim(), target);
             const { id, block } = this.createBlock('data_deletealloflist'); block[id].fields.LIST = [list.name, list.id];
             return { block, extraBlocks: {} };
         }
-        if ((match = line.match(/^delete\s+(.+?)\s+of\s+(.+)$/i)) && this.isListTarget(match[2], target)) {
+        if ((match = matchTopLevel(line, /^delete\s+(.+?)\s+of\s+(.+)$/i)) && this.isListTarget(match[2], target)) {
             const list = this.getOrCreateList(match[2].trim(), target);
             const { id, block } = cmd('data_deleteoflist');
             block[id].inputs.INDEX = val(match[1]); block[id].fields.LIST = [list.name, list.id]; return ret(block);
         }
-        if ((match = line.match(/^insert\s+(.+?)\s+at\s+(.+?)\s+of\s+(.+)$/i))) {
+        if ((match = matchTopLevel(line, /^insert\s+(.+?)\s+at\s+(.+?)\s+of\s+(.+)$/i))) {
             const list = this.getOrCreateList(match[3].trim(), target);
             const { id, block } = cmd('data_insertatlist');
             block[id].inputs.ITEM = val(match[1]); block[id].inputs.INDEX = val(match[2]);
             block[id].fields.LIST = [list.name, list.id]; return ret(block);
         }
-        if ((match = line.match(/^replace item\s+(.+?)\s+of\s+(.+?)\s+with\s+(.+)$/i))) {
+        if ((match = matchTopLevel(line, /^replace item\s+(.+?)\s+of\s+(.+?)\s+with\s+(.+)$/i))) {
             const list = this.getOrCreateList(match[2].trim(), target);
             const { id, block } = cmd('data_replaceitemoflist');
             block[id].inputs.INDEX = val(match[1]); block[id].inputs.ITEM = val(match[3]);
             block[id].fields.LIST = [list.name, list.id]; return ret(block);
         }
-        if ((match = line.match(/^show list\s+(.+)$/i))) {
+        if ((match = matchTopLevel(line, /^show list\s+(.+)$/i))) {
             const list = this.getOrCreateList(match[1].trim(), target);
             this.setMonitorVisible(list.id, true);
             const { id, block } = this.createBlock('data_showlist'); block[id].fields.LIST = [list.name, list.id];
             return { block, extraBlocks: {} };
         }
-        if ((match = line.match(/^hide list\s+(.+)$/i))) {
+        if ((match = matchTopLevel(line, /^hide list\s+(.+)$/i))) {
             const list = this.getOrCreateList(match[1].trim(), target);
             this.setMonitorVisible(list.id, false);
             const { id, block } = this.createBlock('data_hidelist'); block[id].fields.LIST = [list.name, list.id];
             return { block, extraBlocks: {} };
         }
-        if ((match = line.match(/^show variable\s+(.+)$/i))) {
+        if ((match = matchTopLevel(line, /^show variable\s+(.+)$/i))) {
             const v = this.getOrCreateVariable(match[1].trim(), target);
             this.setMonitorVisible(v.id, true);
             const { id, block } = this.createBlock('data_showvariable'); block[id].fields.VARIABLE = [v.name, v.id];
             return { block, extraBlocks: {} };
         }
-        if ((match = line.match(/^hide variable\s+(.+)$/i))) {
+        if ((match = matchTopLevel(line, /^hide variable\s+(.+)$/i))) {
             const v = this.getOrCreateVariable(match[1].trim(), target);
             this.setMonitorVisible(v.id, false);
             const { id, block } = this.createBlock('data_hidevariable'); block[id].fields.VARIABLE = [v.name, v.id];
@@ -6349,7 +6519,7 @@ class SB3Creator {
         }
 
         // ---- Control ---------------------------------------------------------------
-        if ((match = line.match(/^wait\s+(.+?)\s+(seconds?|secs?|s|ms|milliseconds?)$/i))) {
+        if ((match = matchTopLevel(line, /^wait\s+(.+?)\s+(seconds?|secs?|s|ms|milliseconds?)$/i))) {
             const { id, block } = cmd('control_wait');
             const unit = match[2].toLowerCase();
             // Scratch stores duration in seconds; convert ms.
@@ -6362,7 +6532,7 @@ class SB3Creator {
             }
             return ret(block);
         }
-        if ((match = line.match(/^wait until\s+(.+)$/i))) {
+        if ((match = matchTopLevel(line, /^wait until\s+(.+)$/i))) {
             const { id, block } = cmd('control_wait_until');
             block[id].inputs.CONDITION = [2, this.parseCondition(match[1], context)]; return ret(block);
         }
@@ -6381,7 +6551,7 @@ class SB3Creator {
             block[id].mutation = { tagName: 'mutation', children: [], hasnext: 'true' };
             return { block, extraBlocks: {} };
         }
-        if ((match = line.match(/^create clone of\s+(.+)$/i))) {
+        if ((match = matchTopLevel(line, /^create clone of\s+(.+)$/i))) {
             const { id, block } = cmd('control_create_clone_of');
             block[id].inputs.CLONE_OPTION = this.menuInput(context, 'control_create_clone_of_menu', 'CLONE_OPTION', this.cloneMenuValue(match[1]));
             return ret(block);
@@ -6391,12 +6561,12 @@ class SB3Creator {
         }
 
         // ---- Broadcasts ------------------------------------------------------------
-        if ((match = line.match(/^broadcast\s+(.+?)\s+and wait$/i))) {
+        if ((match = matchTopLevel(line, /^broadcast\s+(.+?)\s+and wait$/i))) {
             const bc = this.getOrCreateBroadcast(this.unquote(match[1]));
             const { id, block } = cmd('event_broadcastandwait');
             block[id].inputs.BROADCAST_INPUT = [1, [11, bc.name, bc.id]]; return ret(block);
         }
-        if ((match = line.match(/^broadcast\s+(.+)$/i))) {
+        if ((match = matchTopLevel(line, /^broadcast\s+(.+)$/i))) {
             const bc = this.getOrCreateBroadcast(this.unquote(match[1]));
             const { id, block } = cmd('event_broadcast');
             block[id].inputs.BROADCAST_INPUT = [1, [11, bc.name, bc.id]]; return ret(block);
@@ -6409,12 +6579,15 @@ class SB3Creator {
         }
 
         // ---- Generic variable set / change (LAST so specific commands win) ---------
-        if ((match = line.match(/^set\s+(.+?)\s+to\s+(.+)$/i))) {
+        // …but not over a specific command whose argument lacks its parentheses:
+        // `set servo to a * 15` is the servo word, not a variable named "servo".
+        refuseUnparenthesised();
+        if ((match = matchTopLevel(line, /^set\s+(.+?)\s+to\s+(.+)$/i))) {
             const variable = this.getOrCreateVariable(match[1].trim(), target);
             const { id, block } = cmd('data_setvariableto');
             block[id].inputs.VALUE = val(match[2]); block[id].fields.VARIABLE = [variable.name, variable.id]; return ret(block);
         }
-        if ((match = line.match(/^change\s+(.+?)\s+by\s+(.+)$/i))) {
+        if ((match = matchTopLevel(line, /^change\s+(.+?)\s+by\s+(.+)$/i))) {
             const variable = this.getOrCreateVariable(match[1].trim(), target);
             const { id, block } = cmd('data_changevariableby');
             block[id].inputs.VALUE = val(match[2]); block[id].fields.VARIABLE = [variable.name, variable.id]; return ret(block);
@@ -6751,6 +6924,19 @@ class SB3Creator {
             return lead + line.slice(line.match(/^[ \t]*/)[0].length);
         });
         const getIndent = (s) => s.match(/^\s*/)[0].length;
+        // Past the body of a hat/DEFINE at `idx` that could not be read: its
+        // lines are not statements of any other script, and listing each one as
+        // "not inside a script" would bury the reason. Returns the next index.
+        const skipBody = (idx) => {
+            const ind = getIndent(lines[idx]);
+            let j = idx + 1, n = 0;
+            while (j < lines.length && (!lines[j].trim() || getIndent(lines[j]) > ind)) {
+                if (lines[j].trim()) n++;
+                j++;
+            }
+            if (n) this.unparsed[this.unparsed.length - 1].reason += ` — so the ${n} line${n === 1 ? '' : 's'} of its body ${n === 1 ? 'was' : 'were'} not read either`;
+            return j;
+        };
         // Indentation of the next non-blank line after `idx` (or -1 if none).
         const nextIndent = (idx) => {
             for (let j = idx + 1; j < lines.length; j++) {
@@ -6807,7 +6993,8 @@ class SB3Creator {
                 const currentIndent = getIndent(line);
                 if (currentIndent < indentLevel) break;
                 if (currentIndent > indentLevel) {
-                    this.warn(i, `Skipping line with unexpected indentation: "${line.trim()}"`);
+                    this.unreadable(i, line, 'unexpected indentation: it is indented deeper than the line above '
+                        + 'but that line does not open a body (FOREVER / REPEAT / IF / ELSE end with ":")');
                     i++;
                     continue;
                 }
@@ -6837,7 +7024,7 @@ class SB3Creator {
                     } else if (/^REPEAT\s+UNTIL\b/i.test(trimmed)) {
                         const m = trimmed.match(/^REPEAT\s+UNTIL\s+(.+):$/i);
                         if (!m) {
-                            this.warn(i, `Malformed REPEAT UNTIL (expected "REPEAT UNTIL <condition>:"): "${trimmed}"`);
+                            this.unreadable(i, trimmed, 'malformed REPEAT UNTIL (expected "REPEAT UNTIL <condition>:")');
                             this._pendingComment = ownComment; i++; continue;
                         }
                         const { id, block } = this.createBlock('control_repeat_until');
@@ -6847,7 +7034,7 @@ class SB3Creator {
                     } else if (trimmed.toUpperCase().startsWith('REPEAT')) {
                         const m = trimmed.match(/REPEAT\s+(.+?):/i);
                         if (!m) {
-                            this.warn(i, `Malformed REPEAT (expected "REPEAT <count>:"): "${trimmed}"`);
+                            this.unreadable(i, trimmed, 'malformed REPEAT (expected "REPEAT <count>:")');
                             this._pendingComment = ownComment; i++; continue;
                         }
                         const { id, block } = this.createBlock('control_repeat');
@@ -6857,7 +7044,7 @@ class SB3Creator {
                     } else if (trimmed.toUpperCase().startsWith('IF')) {
                         const m = trimmed.match(/IF\s+(.+?)\s+THEN:/i);
                         if (!m) {
-                            this.warn(i, `Malformed IF (expected "IF <condition> THEN:"): "${trimmed}"`);
+                            this.unreadable(i, trimmed, 'malformed IF (expected "IF <condition> THEN:")');
                             this._pendingComment = ownComment; i++; continue;
                         }
                         const { id, block } = this.createBlock('control_if');
@@ -6879,8 +7066,14 @@ class SB3Creator {
                             i = childResult.endIndex;
                             continue;
                         } else {
-                            this.warn(i, 'ELSE block without matching IF block');
+                            this.unreadable(i, trimmed, 'ELSE without an IF directly above it');
                         }
+                    } else {
+                        // A header this dialect does not have (`WHILE x:`, `FOR …:`).
+                        // It used to vanish with no message at all, and its body then
+                        // read as over-indented lines.
+                        this.unreadable(i, trimmed, 'not a block header this dialect has '
+                            + '(FOREVER:, REPEAT <n>:, REPEAT UNTIL <condition>:, IF <condition> THEN:, ELSE:)');
                     }
 
                     if (newBlockData) {
@@ -6904,10 +7097,21 @@ class SB3Creator {
                     }
                 } else {
                     try {
-                        linkBlock(this.parseCommand(trimmed, target));
+                        const before = this.warnings.length;
+                        const built = this.parseCommand(trimmed, target);
+                        // A rule that matched, warned why, and built nothing (a
+                        // part written with `set … to`, `show image` of a non-TABLE)
+                        // is a dropped line too: refused, with its warning as the
+                        // reason.
+                        if (!built || !built.block) {
+                            const said = this.warnings.slice(before).map(w => w.replace(/^Line \d+: /, ''));
+                            this.unreadable(i, trimmed, said.length ? said.join('; ') : 'the statement built no block');
+                        } else linkBlock(built);
                     } catch (error) {
                         if (error.isSB3Error) {
-                            this.warn(i, error.message);
+                            this.unreadable(i, trimmed, /^Unknown command/.test(error.message)
+                                ? 'no statement of this dialect reads it.' + SB3Creator.expressionHint(trimmed)
+                                : error.message);
                         } else {
                             throw error;
                         }
@@ -7000,7 +7204,7 @@ class SB3Creator {
                 if (trimmed.toUpperCase().startsWith('SPRITE')) {
                     const m = trimmed.match(/SPRITE\s+(.+?):/i);
                     if (!m) {
-                        this.warn(i, `Malformed SPRITE header (expected "SPRITE <name>:"): "${trimmed}"`);
+                        this.unreadable(i, trimmed, 'malformed SPRITE header (expected "SPRITE <name>:")');
                         i++; continue;
                     }
                     const spriteName = m[1].trim();
@@ -7036,8 +7240,8 @@ class SB3Creator {
                     i = result.endIndex;
                 } catch (error) {
                     if (error.isSB3Error) {
-                        this.warn(i, `Error in "${trimmed}": ${error.message}`);
-                        i++;
+                        this.unreadable(i, trimmed, error.message);
+                        i = skipBody(i);
                     } else {
                         throw error;
                     }
@@ -7065,17 +7269,21 @@ class SB3Creator {
                 } catch (error) {
                     this.currentProcArgs = null;
                     if (error.isSB3Error) {
-                        this.warn(i, `Error in DEFINE "${trimmed}": ${error.message}`);
-                        i++;
+                        this.unreadable(i, trimmed, error.message);
+                        i = skipBody(i);
                     } else {
                         throw error;
                     }
                 }
             } else {
-                this.warn(i, `Ignoring line not associated with a script: "${trimmed}"`);
+                this.unreadable(i, trimmed, 'not inside a script: a statement must be indented under a '
+                    + 'WHEN … : hat or a DEFINE');
                 i++;
             }
         }
+
+        // A line that could not be read is refused, not skipped: see UnparsedLinesError.
+        if (this.unparsed.length) throw new UnparsedLinesError(this.unparsed, this.warnings.slice());
 
         this.validateReferences();
         this.syncExtensions();
@@ -7579,6 +7787,11 @@ class SB3Creator {
             const [type, a] = inner;
             if (type === 10) return `"${a}"`;       // string
             if (type === 11) return `"${a}"`;       // broadcast
+            // A variable or list whose name has a space is written in
+            // parentheses: a statement's argument slot reads ONE term, so a bare
+            // `my speed` there would not read back, while `(my speed)` is the
+            // same variable (parseValue strips the parentheses).
+            if ((type === 12 || type === 13) && /\s/.test(String(a))) return `(${a})`;
             // number (4), color (9), variable (12), list (13) — emit the raw value
             return String(a);
         }
@@ -7994,7 +8207,10 @@ class SB3Creator {
             // turned `show text count` into `show text "count"`, which reads
             // back as the literal word — a construct that does not converge.
             case 'microbitplus_showtext': return line(`show text ${this.dval(b.inputs.TEXT, blocks)}`);
-            case 'microbitplus_scrolltext': return line(`scroll text "${this.dval(b.inputs.TEXT, blocks).replace(/^"|"$/g, '')}" delay ${v('MS')} ms`);
+            // TEXT as any other value slot writes it: a quoted literal, or the
+            // (expression). The literal used to be re-quoted by hand, which
+            // turned a reporter into the text of its own source.
+            case 'microbitplus_scrolltext': return line(`scroll text ${v('TEXT')} delay ${v('MS')} ms`);
             case 'microbitplus_cleardisplay': return line('clear display');
             case 'microbitplus_plot': return line(`plot x ${v('X')} y ${v('Y')} ${f('STATE')}`);
             case 'microbitplus_plotbrightness': return line(`plot x ${v('X')} y ${v('Y')} brightness ${v('BRIGHTNESS')}`);
@@ -17731,7 +17947,14 @@ SB3Creator.retargetPseudocode = function retargetPseudocode(src, device) {
     }
 
     const c = new SB3Creator();
-    c.parse(src);
+    try {
+        c.parse(src);
+    } catch (e) {
+        // A source with a line the dialect cannot read is not retargeted: the
+        // rewrite would carry the loss to the new device.
+        if (e.code !== 'DIALECT_UNPARSED_LINES') throw e;
+        return { ok: false, reasons: [e.message], warnings: e.warnings || [] };
+    }
     const stc = c.project && c.project.stc;
     if (!stc || !Array.isArray(stc.pins)) {
         return { ok: false, reasons: ['the source has no hardware declarations to retarget'], warnings: [] };
@@ -17938,7 +18161,15 @@ SB3Creator.retargetPseudocode = function retargetPseudocode(src, device) {
 
     // The proof of the rewrite is a clean re-parse.
     const check = new SB3Creator();
-    check.parse(out);
+    try {
+        check.parse(out);
+    } catch (e) {
+        // A line the new device cannot read (its part is not available there)
+        // is refused by the parser; the first warning is usually why.
+        if (e.code !== 'DIALECT_UNPARSED_LINES') throw e;
+        const first = (e.warnings && e.warnings[0]) || `Line ${e.lines[0].line}: ${e.lines[0].text} — ${e.lines[0].reason}`;
+        return { ok: false, reasons: [`retargeted text does not re-parse clean: ${first}`], warnings };
+    }
     if ((check.warnings || []).length) {
         return { ok: false, reasons: [`retargeted text does not re-parse clean: ${check.warnings[0]}`], warnings };
     }
@@ -18053,5 +18284,7 @@ SB3Creator.C_RESERVED = new Set([
     'sfr16', 'data', 'idata', 'xdata', 'pdata', 'code', 'bdata', 'at', 'interrupt', 'using',
     'reentrant', 'naked', 'main'
 ]);
+
+SB3Creator.UnparsedLinesError = UnparsedLinesError;
 
 export default SB3Creator;

@@ -84,10 +84,10 @@ test('pseudocode with a bad direction is caught by the parser, not the emitter',
     // Worth pinning down which layer refuses, because it changes what the
     // emitter guard below is for: the parser does not recognise the statement
     // at all, so it never becomes a block.
+    // It is refused by name (it used to be a warning while the line was dropped).
     const creator = new SB3Creator();
-    creator.parse(program('sideways'));
-    assert.ok(creator.warnings.some(w => /unknown command/i.test(w)),
-        `expected an unknown-command warning, got ${JSON.stringify(creator.warnings)}`);
+    assert.throws(() => creator.parse(program('sideways')),
+        e => e.code === 'DIALECT_UNPARSED_LINES' && e.lines.some(l => l.text === 'shift cube sideways'));
 });
 
 test('a project whose DIR field is not a direction is refused, not shipped as "up"', () => {

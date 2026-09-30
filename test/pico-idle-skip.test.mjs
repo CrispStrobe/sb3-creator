@@ -19,7 +19,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import SB3Creator from '../src/utils/sb3Creator.js';
 
-const PICO_TASKS = 'DEVICE PICO\nPIN led1 = GP25 OUTPUT\n\nWHEN flag clicked:\n  forever:\n    turn led1 on\n    wait 0.5 seconds\n    turn led1 off\n    wait 0.5 seconds\n';
+const PICO_TASKS = 'DEVICE PICO\nPIN led1 = GP25 OUTPUT\n\nWHEN flag clicked:\n  forever:\n    turn on led1\n    wait 0.5 seconds\n    turn off led1\n    wait 0.5 seconds\n';
 
 test('pico build: bw_idle is WFE behind a real vector table', () => {
     const c = new SB3Creator();
@@ -78,7 +78,7 @@ test('the single-main flavor sleeps too: forever, delay_ms, wait_until', async (
 test('the idle is pico-only: 8051 and AVR builds carry none of it', () => {
     for (const [dev, pin] of [['STC12', 'P1.0'], ['UNO', 'D13']]) {
         const c = new SB3Creator();
-        c.parse(`DEVICE ${dev}\nPIN led1 = ${pin} OUTPUT\n\nWHEN flag clicked:\n  forever:\n    turn led1 on\n    wait 0.5 seconds\n`);
+        c.parse(`DEVICE ${dev}\nPIN led1 = ${pin} OUTPUT\n\nWHEN flag clicked:\n  forever:\n    turn on led1\n    wait 0.5 seconds\n`);
         const out = c.generateC(c.project, { debug: true });
         assert.ok(!out.includes('bw_idle'), `${dev} must not emit bw_idle (its idle is a follow-up lane)`);
         assert.ok(!out.includes('BW_NVIC_ISER'), `${dev} must not touch a Cortex-M NVIC`);

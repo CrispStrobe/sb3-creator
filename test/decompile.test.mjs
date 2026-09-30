@@ -4,6 +4,14 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import SB3Creator from '../src/utils/sb3Creator.js';
 import examples from '../src/utils/examples.js';
+import { corpusFloor } from './helpers/corpus-floor.mjs';
+
+// MEASURED 2026-09-29: 40 examples. The round-trip tests below are generated
+// from this list; the file's only other non-zero minimum (a warning count in
+// the lcd-clear test) went when that line became a refusal (D5), so the floor
+// sits where the list enters.
+corpusFloor('examples.js programs', () => Object.keys(examples).length, 40,
+    'src/utils/examples.js; an empty export makes the decompile round-trips generate nothing.');
 
 function signature(project) {
     const s = {};
@@ -86,19 +94,16 @@ SPRITE Cat:
 // ---- lcd clear wrong arity (Bug 2) ----
 // `lcd clear on 1` has wrong syntax (clear takes a bare display name, not "on N").
 // It should produce a warning, not silently create a variable named "on 1".
-test('lcd clear with wrong arity warns instead of creating garbage variable', () => {
+test('lcd clear with wrong arity is refused instead of creating garbage variable', () => {
     const c = new SB3Creator();
-    c.parse(`DEVICE ARDUINO-UNO
+    // Refused by name (it used to be a warning while the line built nothing, D5).
+    assert.throws(() => c.parse(`DEVICE ARDUINO-UNO
 CLOCK 16000000
 
 SPRITE Cat:
   WHEN flag clicked:
-    lcd clear on 1`);
-    // Must produce a warning about the whitespace in the display arg
-    assert.ok(c.warnings.length > 0,
-        'lcd clear on 1 should produce a warning');
-    assert.ok(c.warnings.some(w => /whitespace|display|lcd clear/i.test(w)),
-        `expected a warning about display arg whitespace, got: ${c.warnings.join(' | ')}`);
+    lcd clear on 1`), (e) => e.code === 'DIALECT_UNPARSED_LINES'
+        && /whitespace|display|lcd clear/i.test(e.lines[0].reason));
     // Must NOT create a variable named "on 1"
     const t1 = c.project.targets[1];
     const varNames = Object.values(t1.variables || {}).map(v => v[0]);

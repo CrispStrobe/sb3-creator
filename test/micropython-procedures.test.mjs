@@ -62,6 +62,16 @@ test('a refused parameterised def is KEPT as a grey block, not only named', () =
     // ...and so does its body (kept as the emitted lines, nothing lost). The
     // mutation that this guards: revert the def-refusal to `warn(...); continue;`
     // and the def vanishes from the pseudocode again — this assertion goes red.
-    assert.match(pseudocode, /raw "display\.scroll\(str\(v\)/,
+    assert.match(pseudocode, /raw " +display\.scroll\(str\(v\)/,
         `the parameterised def body was dropped from the pseudocode:\n${pseudocode}`);
+    // ...and it is kept in the PROGRAM, not only in the text. The raw lines used
+    // to be written outside any script, where the parser built nothing from
+    // them (a warning, then gone); present in the pseudocode, absent from the
+    // blocks. Since D5 that would be a refusal, so they sit in the script.
+    const c = new SB3Creator();
+    c.parse(pseudocode);
+    const raws = Object.values(c.project.targets[0].blocks)
+        .filter(b => b.opcode === 'bw_raw').map(b => b.fields.TEXT[0]);
+    assert.ok(raws.includes('def proc_do_show(v):'), `the def is not a block: ${JSON.stringify(raws)}`);
+    assert.ok(raws.some(t => /^ +display\.scroll\(str\(v\)/.test(t)), `the def body is not a block: ${JSON.stringify(raws)}`);
 });
