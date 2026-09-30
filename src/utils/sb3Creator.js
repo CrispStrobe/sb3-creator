@@ -4974,9 +4974,12 @@ class SB3Creator {
         // holds a reporter that lost its own keyword. That is refused (by name)
         // rather than read as a variable called "pick random 1".
         const val = (s) => {
+            // `item`/`letter` alone, or followed by an operator, is a VARIABLE of
+            // that name (MakeCode's love-meter quiz has `show number item + 1`);
+            // only `item <index>` with its `of` cut off is the reporter.
             const top = maskTopLevel(String(s || '').trim());
             if ((/^pick\s+random\b/i.test(top) && !/\sto\s/i.test(top))
-                || (/^(?:item|letter)\b/i.test(top) && !/\sof\s/i.test(top))) {
+                || (/^(?:item|letter)\s+(?![*/+=<>-]|mod\b|and\b|or\b|join\b)\S/i.test(top) && !/\sof\s/i.test(top))) {
                 throw new ParseError(`"${String(s).trim()}" is a reporter cut short by the statement's own keyword: `
                     + 'an argument that is an expression goes in parentheses, e.g. `(pick random 1 to 10)`');
             }
