@@ -102,10 +102,11 @@ class Reader {
         const bin = this.splitBinary(t);
         if (bin) return `(${this.expr(bin.left)} ${bin.op} ${this.expr(bin.right)})`;
         if (/^-?\d+(\.\d+)?$/.test(t)) return t;
-        // The dialect writes strings with their contents verbatim (its own parser
-        // handles the inner quotes), so undo C's escaping rather than passing it on.
+        // Undo C's escaping, then write the dialect's own (task D6): a quote,
+        // backslash, tab or line break inside the text is escaped the way the
+        // dialect reads it back — which, for those characters, is JSON's.
         if (/^".*"$/.test(t)) {
-            try { return `"${JSON.parse(t)}"`; } catch { return t; }
+            try { return JSON.stringify(JSON.parse(t)); } catch { return t; }
         }
         if (/^[A-Za-z_]\w*$/.test(t)) return this.name(t);
         this.warn(`cannot read expression ${t}`);

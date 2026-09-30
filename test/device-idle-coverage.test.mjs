@@ -10,9 +10,12 @@ import SB3Creator from '../src/utils/sb3Creator.js';
 
 const ROSTER = [
     // [device name, a valid pin, expected idle marker]
-    ['STC12', 'P1.0', /PCON\s*\|=\s*0x0?1/],
-    ['STC89', 'P1.0', /PCON\s*\|=\s*0x0?1/],
-    ['STC15', 'P1.0', /PCON\s*\|=\s*0x0?1/],
+    // The three STC families by their part numbers. `STC12` / `STC89` /
+    // `STC15` are no device: until task D6 the DEVICE line was skipped with a
+    // warning and all three rows silently tested the default STC12 part.
+    ['STC12C5A60S2', 'P1.0', /PCON\s*\|=\s*0x0?1/],
+    ['STC89C52RC', 'P1.0', /PCON\s*\|=\s*0x0?1/],
+    ['STC15F2K60S2', 'P1.0', /PCON\s*\|=\s*0x0?1/],
     ['UNO', 'D13', /sleep_cpu\(\)/],
     ['NANO', 'D13', /sleep_cpu\(\)/],
     ['MEGA', 'D13', /sleep_cpu\(\)/],
@@ -39,3 +42,11 @@ for (const [dev, pin, marker] of ROSTER) {
         assert.match(out, marker, `${dev} emits its idle`);
     });
 }
+
+test('a family name that is no part is refused, not silently the default chip', () => {
+    for (const dev of ['STC12', 'STC89', 'STC15']) {
+        assert.throws(() => new SB3Creator().parse(`DEVICE ${dev}\nPIN led1 = P1.0 OUTPUT\n\nWHEN flag clicked:\n  turn on led1\n`),
+            (e) => e.code === 'DIALECT_UNPARSED_LINES' && e.lines[0].text === `DEVICE ${dev}`
+                && /Unknown DEVICE/.test(e.lines[0].reason), dev);
+    }
+});

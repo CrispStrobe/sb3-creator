@@ -123,15 +123,20 @@ describe('the `art` costume verb', () => {
             ['costume1', 'wing']);
     });
 
-    test('an unknown name warns, and says WHICH kind of unknown it is', () => {
-        const c = new SB3Creator();
-        c.parse(sprite(['SHAPE art nope/nope']));
-        assert.equal(c.warnings.length, 1, JSON.stringify(c.warnings));
-        assert.match(c.warnings[0], /Unknown vector art "nope\/nope" \(2 registered\)/);
+    test('an unknown name is refused, and says WHICH kind of unknown it is', () => {
+        // Art IS registered and this name is not among it: the line is refused
+        // (task D6; it was a warning and the sprite silently kept its old
+        // costume).
+        const {refused} = parseWarnings(sprite(['SHAPE art nope/nope']));
+        assert.equal(refused.length, 1, JSON.stringify(refused));
+        assert.equal(refused[0].text, 'SHAPE art nope/nope');
+        assert.match(refused[0].reason, /Unknown vector art "nope\/nope" \(2 registered\)/);
 
         // The other cause, which needs a different sentence: a host that
         // registered nothing at all. This is the state upstream ships in, and
         // the message has to point at the fix rather than blame the program.
+        // A headless parse cannot know any art name, so this one stays a
+        // warning: the scripts still build.
         SB3Creator.clearVectorArt();
         const empty = new SB3Creator();
         empty.parse(sprite(['SHAPE art demo/bird']));
@@ -141,11 +146,18 @@ describe('the `art` costume verb', () => {
     });
 
     test('an unknown name adds no costume and no asset', () => {
-        const c = new SB3Creator();
-        const project = c.parse([
+        const src = [
             'SPRITE Bird:', '  COSTUME wing art nope/nope', '',
             'WHEN flag clicked:', '  say "hi"',
-        ].join('\n'));
+        ].join('\n');
+        const {refused} = parseWarnings(src);
+        assert.deepEqual(refused.map((l) => [l.line, l.text]), [[2, 'COSTUME wing art nope/nope']]);
+        assert.match(refused[0].reason, /Unknown vector art/);
+        // With no art registered at all it is a warning, and still adds nothing.
+        SB3Creator.clearVectorArt();
+        const c = new SB3Creator();
+        const project = c.parse(src);
+        assert.match(c.warnings.join('\n'), /no art is registered/);
         const bird = project.targets.find((t) => t.name === 'Bird');
         assert.equal(bird.costumes.length, 1, 'only the default costume survives');
         assert.ok(!bird.costumes.some((x) => x.name === 'wing'));
@@ -155,9 +167,9 @@ describe('the `art` costume verb', () => {
         const c = new SB3Creator();
         c.parse(sprite(['SHAPE circle 18 #ff0000']));
         assert.deepEqual(c.warnings, []);
-        const bad = new SB3Creator();
-        bad.parse(sprite(['SHAPE hexagon 18']));
-        assert.match(bad.warnings[0], /use art\/rect\/square/,
+        const {refused} = parseWarnings(sprite(['SHAPE hexagon 18']));
+        assert.equal(refused[0].text, 'SHAPE hexagon 18');
+        assert.match(refused[0].reason, /use art\/rect\/square/,
             'the vocabulary offered must match the vocabulary accepted');
     });
 });
@@ -248,16 +260,16 @@ describe('the Arcade family retargets, and refuses C', () => {
     test('pin vocabulary is enforced per board, not shared', () => {
         // PyBadge has no D4 on its breakouts; Arcade's D-space runs to D31.
         // A refused PIN leaves `turn on x` unreadable, refused with it (D5).
+        // The PIN is refused itself (task D6; it was a warning).
         const bad = parseWarnings(['DEVICE PYBADGE', 'PIN x = D4 OUTPUT', '', 'WHEN flag clicked:', '  turn on x'].join('\n'));
-        assert.ok(bad.warnings.some((w) => /is not how pybadge names a pin/.test(w)),
-            JSON.stringify(bad.warnings));
-        assert.deepEqual(bad.refused.map((l) => l.text), ['turn on x']);
+        assert.match(bad.refused[0].reason, /is not how pybadge names a pin/, JSON.stringify(bad.refused));
+        assert.deepEqual(bad.refused.map((l) => l.text), ['PIN x = D4 OUTPUT', 'turn on x']);
         const ok = new SB3Creator();
         ok.parse(['DEVICE ARCADE', 'PIN x = D31 OUTPUT', '', 'WHEN flag clicked:', '  turn on x'].join('\n'));
         assert.deepEqual(ok.warnings, []);
         // And the board still ends somewhere.
         const past = parseWarnings(['DEVICE ARCADE', 'PIN x = D32 OUTPUT', '', 'WHEN flag clicked:', '  turn on x'].join('\n'));
-        assert.ok(past.warnings.some((w) => /goes up to D31/.test(w)), JSON.stringify(past.warnings));
+        assert.match(past.refused[0].reason, /goes up to D31/, JSON.stringify(past.refused));
     });
 
     test('the widened PIN regex admits PA31 and the named I2C pads', () => {
@@ -274,9 +286,9 @@ describe('the Arcade family retargets, and refuses C', () => {
         // PB19. The row now spells out what the message promises.
         for (const bad of ['PB9', 'PB19', 'PA23']) {
             const stm = parseWarnings(['DEVICE STM32F030', `PIN x = ${bad} OUTPUT`, '', 'WHEN flag clicked:', '  turn on x'].join('\n'));
-            assert.ok(stm.warnings.some((w) => /is not how stm32f030 names a pin/.test(w)),
-                `${bad} was accepted: ${JSON.stringify(stm.warnings)}`);
-            assert.deepEqual(stm.refused.map((l) => l.text), ['turn on x']);
+            assert.ok(stm.refused[0] && /is not how stm32f030 names a pin/.test(stm.refused[0].reason),
+                `${bad} was accepted: ${JSON.stringify(stm.refused)}`);
+            assert.deepEqual(stm.refused.map((l) => l.text), [`PIN x = ${bad} OUTPUT`, 'turn on x']);
         }
         for (const good of ['PA0', 'PA7', 'PA9', 'PA10', 'PB1']) {
             const stm = new SB3Creator();

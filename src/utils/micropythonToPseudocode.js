@@ -23,6 +23,19 @@
 // p0/gp15, and a call this does not know stays visible as a warning rather than
 // disappearing into a translation that looks complete.
 
+/**
+ * A Python string literal ('x' or "x", its escapes undone) as the dialect's
+ * text literal, or null when `a` is not one. The dialect's escapes for a
+ * quote, backslash, tab and line break are JSON's (sb3Creator.js,
+ * escapeTextLiteral), so JSON.stringify writes them.
+ */
+const PY_ESCAPES = { n: '\n', r: '\r', t: '\t', '\\': '\\', "'": "'", '"': '"' };
+function pyText(a) {
+    const q = /^'((?:[^'\\]|\\.)*)'$/.exec(a) || /^"((?:[^"\\]|\\.)*)"$/.exec(a);
+    if (!q) return null;
+    return JSON.stringify(q[1].replace(/\\(.)/g, (m, c) => (c in PY_ESCAPES ? PY_ESCAPES[c] : m)));
+}
+
 const MICROBIT_IMPORT = /^\s*from\s+microbit\s+import\s+\*/m;
 const MACHINE_IMPORT = /^\s*from\s+machine\s+import\b/m;
 
@@ -377,8 +390,11 @@ export default function micropythonToPseudocode (source, opts = {}) {
     };
 
     // A python string literal ('x' or "x") reads back as the dialect's double-
-    // quoted text; anything else is an expression.
-    const asText = (a) => { const q = a.match(/^'([^']*)'$/) || a.match(/^"([^"]*)"$/); return q ? `"${q[1]}"` : expr(a); };
+    // quoted text, its escapes undone and the dialect's written (task D6: the
+    // emitter writes `"a \"b\""`, which `"([^"]*)"` did not read, and a
+    // single-quoted `'say "hi"'` became `"say "hi""`); anything else is an
+    // expression.
+    const asText = (a) => { const t = pyText(a); return t !== null ? t : expr(a); };
 
     // The generated program puts each script in its own task function — older
     // output named the single one `bw_script()`, current output emits one
@@ -653,8 +669,8 @@ export default function micropythonToPseudocode (source, opts = {}) {
             continue;
         }
         if ((m = s.match(/^radio\.send\s*\(\s*str\(\s*(.+?)\s*\)\s*\)$/))) { emit(depth, `radio send number ${expr(m[1])}`); continue; }
-        if ((m = s.match(/^radio\.send\s*\(\s*'([^']*)'\s*\)$/)) || (m = s.match(/^radio\.send\s*\(\s*"([^"]*)"\s*\)$/))) {
-            emit(depth, `radio send text "${m[1]}"`); continue;
+        if ((m = s.match(/^radio\.send\s*\(\s*('(?:[^'\\]|\\.)*'|"(?:[^"\\]|\\.)*")\s*\)$/))) {
+            emit(depth, `radio send text ${pyText(m[1])}`); continue;
         }
 
         // `change v by X` is emitted as `v = v + X` with the operand UNwrapped;
