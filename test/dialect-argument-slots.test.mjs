@@ -244,10 +244,22 @@ describe('an unreadable line is refused by name, never dropped', () => {
             ['SPIKE', 'set pixel pick random 1 to 10 2 100'],
             ['SPIKE', 'set motor speed A pick random 1 to 10'],
             ['EV3', 'set brick volume pick random 1 to 10'],
+            // Positional slots (only a space between them) split a spaced
+            // expression across themselves: `lcd set cursor a * 15 0` read
+            // row `a`, column `* 15 0`. They are one term each now.
+            ['', 'lcd set cursor a * 15 0 on 1'],
+            ['', 'tft fill 1 a * 2 3 4 R 1 G 2 B 3 on 1'],
+            // A keyword-bounded slot cut `pick random 1 to 10` at its own `to`.
+            ['', 'set control pick random 1 to 10 to 5'],
         ]) {
             const e = refused(program(device, line));
             assert.deepEqual(e.lines.map(l => l.text), [line], device);
             assert.match(e.lines[0].reason, /goes in parentheses/, line);
+            // …and the parenthesised form reads.
+            if (!/pick random/.test(line)) {
+                const fixed = line.replace(/a \* (15|2)/, m => `(${m})`);
+                assert.ok(built(program(device, fixed)).stmt, fixed);
+            }
         }
         // The generic rules themselves still read a spaced expression.
         assert.equal(built(program('MICROBIT', 'set my var to a * 15')).stmt.opcode, 'data_setvariableto');

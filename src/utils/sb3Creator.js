@@ -4969,7 +4969,19 @@ class SB3Creator {
         };
         const ret = (block) => ({ block, extraBlocks: context.extraBlocks });
         const ext = (n) => { if (!this.project.extensions.includes(n)) this.project.extensions.push(n); };
-        const val = (s) => this.parseValue(s, context);
+        // A slot that ends at a keyword (`… to <v>`, `… of <v>`) cut an
+        // unparenthesised `pick random 1 to 10` / `item 2 of xs` in two: the slot
+        // holds a reporter that lost its own keyword. That is refused (by name)
+        // rather than read as a variable called "pick random 1".
+        const val = (s) => {
+            const top = maskTopLevel(String(s || '').trim());
+            if ((/^pick\s+random\b/i.test(top) && !/\sto\s/i.test(top))
+                || (/^(?:item|letter)\b/i.test(top) && !/\sof\s/i.test(top))) {
+                throw new ParseError(`"${String(s).trim()}" is a reporter cut short by the statement's own keyword: `
+                    + 'an argument that is an expression goes in parentheses, e.g. `(pick random 1 to 10)`');
+            }
+            return this.parseValue(s, context);
+        };
 
         // ---- Event hats (routed here from the main loop) ---------------------------
         if (/^when I start as a clone$/i.test(line)) {
@@ -5915,13 +5927,13 @@ class SB3Creator {
         }
         // ---- LED cube commands (guarded on a LEDCUBE declaration) --------------------
         if (this.project && this.project.stc && this.project.stc.ledcube) {
-            if ((match = matchTopLevel(line, /^set voxel\s+(.+?)\s+(.+?)\s+(.+?)\s+to\s+(.+)$/i))) {
+            if ((match = matchTopLevel(line, /^set voxel\s+(\S+)\s+(\S+)\s+(\S+)\s+to\s+(.+)$/i))) {
                 const { id, block } = cmd('ledcube_setvoxel');
                 block[id].inputs.X = val(match[1]); block[id].inputs.Y = val(match[2]);
                 block[id].inputs.Z = val(match[3]); block[id].inputs.COLOUR = val(match[4]);
                 return ret(block);
             }
-            if ((match = matchTopLevel(line, /^clear voxel\s+(.+?)\s+(.+?)\s+(.+)$/i))) {
+            if ((match = matchTopLevel(line, /^clear voxel\s+(\S+)\s+(\S+)\s+(\S+)$/i))) {
                 const { id, block } = cmd('ledcube_clearvoxel');
                 block[id].inputs.X = val(match[1]); block[id].inputs.Y = val(match[2]);
                 block[id].inputs.Z = val(match[3]);
@@ -5951,7 +5963,7 @@ class SB3Creator {
                 block[id].inputs.DURATION = val(match[1]);
                 return ret(block);
             }
-            if ((match = matchTopLevel(line, /^fill column\s+(.+?)\s+(.+?)\s+with\s+(.+)$/i))) {
+            if ((match = matchTopLevel(line, /^fill column\s+(\S+)\s+(\S+)\s+with\s+(.+)$/i))) {
                 const { id, block } = cmd('ledcube_fillcolumn');
                 block[id].inputs.X = val(match[1]); block[id].inputs.Y = val(match[2]);
                 block[id].inputs.COLOUR = val(match[3]);
@@ -6043,7 +6055,7 @@ class SB3Creator {
             block[id].inputs.DISPLAY = val(match[2]);
             return ret(block);
         }
-        if ((match = matchTopLevel(line, /^lcd set cursor\s+(.+?)\s+(.+?)\s+on\s+(.+)$/i))) {
+        if ((match = matchTopLevel(line, /^lcd set cursor\s+(\S+)\s+(\S+)\s+on\s+(.+)$/i))) {
             const { id, block } = cmd('devices_lcdcursor');
             block[id].inputs.ROW = val(match[1]);
             block[id].inputs.COL = val(match[2]);
@@ -6061,7 +6073,7 @@ class SB3Creator {
             return ret(block);
         }
         // ---- tft blocks (ILI9341) ----
-        if ((match = matchTopLevel(line, /^tft pixel\s+(.+?)\s+(.+?)\s+R\s+(.+?)\s+G\s+(.+?)\s+B\s+(.+?)\s+on\s+(.+)$/i))) {
+        if ((match = matchTopLevel(line, /^tft pixel\s+(\S+)\s+(\S+)\s+R\s+(.+?)\s+G\s+(.+?)\s+B\s+(.+?)\s+on\s+(.+)$/i))) {
             const { id, block } = cmd('devices_tftpixel');
             block[id].inputs.X = val(match[1]);
             block[id].inputs.Y = val(match[2]);
@@ -6071,7 +6083,7 @@ class SB3Creator {
             block[id].inputs.DISPLAY = val(match[6]);
             return ret(block);
         }
-        if ((match = matchTopLevel(line, /^tft fill\s+(.+?)\s+(.+?)\s+(.+?)\s+(.+?)\s+R\s+(.+?)\s+G\s+(.+?)\s+B\s+(.+?)\s+on\s+(.+)$/i))) {
+        if ((match = matchTopLevel(line, /^tft fill\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+R\s+(.+?)\s+G\s+(.+?)\s+B\s+(.+?)\s+on\s+(.+)$/i))) {
             const { id, block } = cmd('devices_tftfill');
             block[id].inputs.X = val(match[1]);
             block[id].inputs.Y = val(match[2]);
@@ -6095,7 +6107,7 @@ class SB3Creator {
             block[id].inputs.DISPLAY = val(match[2]);
             return ret(block);
         }
-        if ((match = matchTopLevel(line, /^tft set cursor\s+(.+?)\s+(.+?)\s+on\s+(.+)$/i))) {
+        if ((match = matchTopLevel(line, /^tft set cursor\s+(\S+)\s+(\S+)\s+on\s+(.+)$/i))) {
             const { id, block } = cmd('devices_tftcursor');
             block[id].inputs.ROW = val(match[1]);
             block[id].inputs.COL = val(match[2]);
@@ -6113,7 +6125,7 @@ class SB3Creator {
             return ret(block);
         }
         // ---- oled blocks (SSD1306) ----
-        if ((match = matchTopLevel(line, /^oled pixel\s+(.+?)\s+(.+?)\s+(.+?)\s+on\s+(.+)$/i))) {
+        if ((match = matchTopLevel(line, /^oled pixel\s+(\S+)\s+(\S+)\s+(\S+)\s+on\s+(.+)$/i))) {
             const { id, block } = cmd('devices_oledpixel');
             block[id].inputs.X = val(match[1]);
             block[id].inputs.Y = val(match[2]);
@@ -6137,7 +6149,7 @@ class SB3Creator {
             block[id].inputs.DISPLAY = val(match[1]);
             return ret(block);
         }
-        if ((match = matchTopLevel(line, /^oled hline\s+(.+?)\s+(.+?)\s+(.+?)\s+on\s+(.+)$/i))) {
+        if ((match = matchTopLevel(line, /^oled hline\s+(\S+)\s+(\S+)\s+(\S+)\s+on\s+(.+)$/i))) {
             const { id, block } = cmd('devices_oledhline');
             block[id].inputs.X = val(match[1]);
             block[id].inputs.Y = val(match[2]);
@@ -6168,7 +6180,7 @@ class SB3Creator {
             block[id].fields.TEXT = [text, null];
             return ret(block);
         }
-        if ((match = matchTopLevel(line, /^oled set cursor\s+(.+?)\s+(.+?)\s+on\s+(.+)$/i))) {
+        if ((match = matchTopLevel(line, /^oled set cursor\s+(\S+)\s+(\S+)\s+on\s+(.+)$/i))) {
             const { id, block } = cmd('devices_oledcursor');
             block[id].inputs.ROW = val(match[1]);
             block[id].inputs.COL = val(match[2]);
@@ -6186,7 +6198,7 @@ class SB3Creator {
             return ret(block);
         }
         // ---- led_matrix blocks ----
-        if ((match = matchTopLevel(line, /^set pixel\s+(.+?)\s+(.+?)\s+to\s+(.+?)\s+on\s+(.+)$/i))) {
+        if ((match = matchTopLevel(line, /^set pixel\s+(\S+)\s+(\S+)\s+to\s+(.+?)\s+on\s+(.+)$/i))) {
             const { id, block } = cmd('devices_setpixel');
             block[id].inputs.X = val(match[1]);
             block[id].inputs.Y = val(match[2]);
