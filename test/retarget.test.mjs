@@ -8,6 +8,7 @@
 // filters on exactly that, computed, never hand-maintained.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
 import SB3Creator from '../src/utils/sb3Creator.js';
 import { parseWarnings } from './helpers.mjs';
 
@@ -186,4 +187,15 @@ test('retarget: every ok result re-parses clean and emits C on its target', () =
         assert.ok(out.length > 200, `${dev} emits C`);
         assert.deepEqual(c._cWarnings, [], `${dev} emits clean: ${JSON.stringify(c._cWarnings)}`);
     }
+});
+
+test('retarget: a refusal names the declaration the new device cannot take, not an unrelated warning', () => {
+    // The KEYPAD4X4 of 79-a2-sampler has no micro:bit form. Since task D6 the
+    // PART line is refused itself; the reason used to be the parser's FIRST
+    // WARNING, which after D6 was an `Empty body` advisory about a line under
+    // the keypad's own IF — true, and not why the retarget failed.
+    const src = fs.readFileSync(new URL('../examples/79-a2-sampler/program.bw', import.meta.url), 'utf8');
+    const r = SB3Creator.retargetPseudocode(src, 'microbit');
+    assert.equal(r.ok, false);
+    assert.match(r.reasons[0], /PART \w+ = KEYPAD4X4 .* — KEYPAD4X4 is not available on microbit/);
 });

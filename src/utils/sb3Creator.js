@@ -18296,9 +18296,12 @@ SB3Creator.retargetPseudocode = function retargetPseudocode(src, device) {
         check.parse(out);
     } catch (e) {
         // A line the new device cannot read (its part is not available there)
-        // is refused by the parser; the first warning is usually why.
+        // is refused by the parser. The refused line IS the reason: since task
+        // D6 a declaration the device cannot take is refused itself, so the
+        // first warning is an unrelated advisory (an empty body) more often
+        // than the cause, as it was when the declaration only warned.
         if (e.code !== 'DIALECT_UNPARSED_LINES') throw e;
-        const first = (e.warnings && e.warnings[0]) || `Line ${e.lines[0].line}: ${e.lines[0].text} — ${e.lines[0].reason}`;
+        const first = `Line ${e.lines[0].line}: ${e.lines[0].text} — ${e.lines[0].reason}`;
         return { ok: false, reasons: [`retargeted text does not re-parse clean: ${first}`], warnings };
     }
     if ((check.warnings || []).length) {
