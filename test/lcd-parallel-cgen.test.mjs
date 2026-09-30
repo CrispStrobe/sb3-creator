@@ -47,7 +47,7 @@ test('write-only LCD form omits RW and round-trips', () => {
 });
 
 test('parallel LCD claims pins against PIN and PART declarations', () => {
-    const c = new SB3Creator();
-    c.parse(A2.replace('CLOCK 11059200', 'CLOCK 11059200\nPIN clash = P0.4 OUTPUT'));
-    assert.match(c.warnings.join('\n'), /P0\.4 is already declared/);
+    assert.throws(() => new SB3Creator().parse(A2.replace('CLOCK 11059200', 'CLOCK 11059200\nPIN clash = P0.4 OUTPUT')),
+        (e) => e.code === 'DIALECT_UNPARSED_LINES' && /^PART lcd = LCD1602/.test(e.lines[0].text)
+            && /P0\.4 is already declared/.test(e.lines[0].reason));
 });

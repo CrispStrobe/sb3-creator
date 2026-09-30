@@ -338,7 +338,7 @@ export default function basicToPseudocode(source, opts = {}) {
             return;
         }
         if ((m = t.match(/^([A-Za-z_]\w*[%$]?)\s*\(([^()]*)\)\s*=\s*(.+)$/)) && dims.has(m[1].toUpperCase())) {
-            line(`set item ${trExpr(m[2])} of array "${vName(m[1])}" to ${/^".*"$/.test(m[3].trim()) ? m[3].trim() : trExpr(m[3])}`);
+            line(`set item ${trExpr(m[2])} of array "${vName(m[1])}" to ${/^".*"$/.test(m[3].trim()) ? JSON.stringify(m[3].trim().slice(1, -1)) : trExpr(m[3])}`);
             mapped();
             return;
         }
@@ -430,7 +430,9 @@ export default function basicToPseudocode(source, opts = {}) {
             line(`go to x: ${trExpr(m[1])} y: ${trExpr(m[2])}`);
             mapped(); return;
         }
-        if ((m = t.match(/^PRINT\s+"([^"]*)"$/i))) { line(`print "${m[1]}"`); mapped(); return; }
+        // BASIC text has no escapes; the dialect's text does (task D6), so a
+        // backslash is written as one: JSON.stringify spells the dialect's.
+        if ((m = t.match(/^PRINT\s+"([^"]*)"$/i))) { line(`print ${JSON.stringify(m[1])}`); mapped(); return; }
         if ((m = t.match(/^PRINT\s+([^;,'"]+)$/i))) { line(`print ${trExpr(m[1])}`); mapped(); return; }
         if ((m = t.match(/^FOR\s+([A-Za-z_]\w*[%$]?)\s*=\s*(.+?)\s+TO\s+(.+?)(\s+STEP\s+(.+))?$/i))) {
             const v = vName(m[1]);

@@ -21,6 +21,17 @@ import SB3Creator from '../src/utils/sb3Creator.js';
 
 const build = (src) => { const c = new SB3Creator(); c.parse(src); return c; };
 const cOf = (src, opts) => build(src).generateC(undefined, opts);
+// The reasons a program is refused with, one per refused line. A declaration
+// the device cannot take (a pin in another board's spelling, a clash, a second
+// card) used to warn and skip the line; it is refused like any unreadable line
+// (task D6), so a test of its reason reads the refusal.
+const refused = (src) => {
+    try { build(src); } catch (e) {
+        if (e.code === 'DIALECT_UNPARSED_LINES') return e.lines.map((l) => `Line ${l.line}: ${l.reason}`).join('\n');
+        throw e;
+    }
+    assert.fail(`expected a refusal, but it parsed:\n${src}`);
+};
 
 // ---- fixtures ------------------------------------------------------------------
 
@@ -184,14 +195,18 @@ test('the STC surface round-trips pseudocode <-> blocks to a fixed point', () =>
     assert.match(build(SCHEDULED).decompile(), /read pot/);
 });
 
-test('malformed declarations warn instead of throwing', () => {
-    const c = build('DEVICE not_a_chip\nPIN p = P2.0 ANALOG\nWHEN flag clicked:\n  say "x"');
-    assert.ok(c.warnings.some((w) => /Unknown DEVICE/.test(w)));
-    assert.ok(c.warnings.some((w) => /ANALOG is only available on P1/.test(w)));
+test('a declaration the device cannot take is refused by name, not skipped', () => {
+    // They used to warn and skip the line: the program then built without the
+    // device or pin, and only a warning said why (task D6).
+    assert.throws(() => build('DEVICE not_a_chip\nPIN p = P2.0 ANALOG\nWHEN flag clicked:\n  say "x"'),
+        (e) => e.code === 'DIALECT_UNPARSED_LINES' && e.lines.length === 2
+            && e.lines[0].line === 1 && /Unknown DEVICE/.test(e.lines[0].reason)
+            && e.lines[1].line === 2 && /ANALOG is only available on P1/.test(e.lines[1].reason));
     // A PIN line no declaration rule reads at all (there is no P9) is not a
     // declaration with a problem; it is an unreadable line, refused by name.
     assert.throws(() => build('DEVICE not_a_chip\nPIN x = P9.9 OUTPUT\nWHEN flag clicked:\n  say "x"'),
-        (e) => e.code === 'DIALECT_UNPARSED_LINES' && e.lines[0].line === 2);
+        (e) => e.code === 'DIALECT_UNPARSED_LINES'
+            && e.lines.some((l) => l.line === 2 && /not a PIN declaration this dialect reads/.test(l.reason)));
 });
 
 // ---- straight-line emission (one script) ----------------------------------------
@@ -1177,20 +1192,17 @@ test('PART declarations parse and round-trip', () => {
 
 test('PIN-vs-PORT conflict is rejected in both directions', () => {
     // PIN first, then PORT on the same physical port
-    const c1 = new SB3Creator();
-    c1.parse('PIN led = P1.0 OUTPUT\nPORT p1 = P1 OUTPUT\nWHEN flag clicked:\n  turn on led');
-    assert.equal(c1.project.stc.ports.length, 0, 'PORT was rejected');
+    assert.match(refused('PIN led = P1.0 OUTPUT\nPORT p1 = P1 OUTPUT\nWHEN flag clicked:\n  turn on led'),
+        /^Line 2: P1 is already used one bit at a time, by "led"/);
     // PORT first, then PIN inside it
-    const c2 = new SB3Creator();
-    c2.parse('PORT p1 = P1 OUTPUT\nPIN led = P1.0 OUTPUT\nWHEN flag clicked:\n  set p1 to 0');
-    assert.equal(c2.project.stc.pins.length, 0, 'PIN was rejected');
+    assert.match(refused('PORT p1 = P1 OUTPUT\nPIN led = P1.0 OUTPUT\nWHEN flag clicked:\n  set p1 to 0'),
+        /^Line 2: P1 is already declared as the whole port "p1"/);
 });
 
 test('PART pin conflicts are rejected', () => {
     // A PART on pins already taken by a PIN
-    const c = new SB3Creator();
-    c.parse('PIN led = P2.0 OUTPUT\nPART sr = 74HC595 data P2.0 clock P2.1 latch P2.2\nWHEN flag clicked:\n  turn on led');
-    assert.equal(c.project.stc.parts.length, 0, 'PART was rejected');
+    assert.match(refused('PIN led = P2.0 OUTPUT\nPART sr = 74HC595 data P2.0 clock P2.1 latch P2.2\nWHEN flag clicked:\n  turn on led'),
+        /^Line 2: P2\.0 is already declared as "led"; a PART claims its pins/);
 });
 
 test('set x to <n> percent emits PWM in C', () => {
@@ -2431,15 +2443,10 @@ WHEN flag clicked:
 });
 
 test('the two pin vocabularies do not cross', () => {
-    const stc = new SB3Creator();
-    stc.parse('DEVICE STC12C5A60S2\nPIN led = D13 OUTPUT\n');
-    assert.ok(stc.warnings.some((w) => /"D13" is not how stc12c5a60s2 names a pin; it uses P<port>\.<bit>/.test(w)),
-        `expected a vocabulary warning, got ${JSON.stringify(stc.warnings)}`);
-
-    const ard = new SB3Creator();
-    ard.parse('DEVICE ARDUINO-UNO\nPIN pot = D3 ANALOG\n');
-    assert.ok(ard.warnings.some((w) => /ANALOG needs an analog input \(A0 and up\)/.test(w)),
-        `expected an ADC warning, got ${JSON.stringify(ard.warnings)}`);
+    assert.match(refused('DEVICE STC12C5A60S2\nPIN led = D13 OUTPUT\n'),
+        /"D13" is not how stc12c5a60s2 names a pin; it uses P<port>\.<bit>/);
+    assert.match(refused('DEVICE ARDUINO-UNO\nPIN pot = D3 ANALOG\n'),
+        /ANALOG needs an analog input \(A0 and up\)/);
 });
 
 test('generateC emits AVR bare metal for an Arduino board — the back end landed', () => {
@@ -2615,10 +2622,7 @@ test('ARM flavor: toggle idiom, active-low, and the stated PWM refusal', () => {
 });
 
 test('ARM flavor: ANALOG means GP26-GP28, said plainly otherwise', () => {
-    const c = new SB3Creator();
-    c.parse('DEVICE PICO\nPIN pot = GP5 ANALOG\n');
-    assert.ok(c.warnings.some((w) => /ANALOG on the Pico means GP26, GP27 or GP28/.test(w)),
-        `expected the channel warning, got ${JSON.stringify(c.warnings)}`);
+    assert.match(refused('DEVICE PICO\nPIN pot = GP5 ANALOG\n'), /ANALOG on the Pico means GP26, GP27 or GP28/);
 });
 
 test('AVR flavor: active-low, analog channels, toggle, and stated PWM refusal', () => {
@@ -2668,9 +2672,7 @@ test('the 8051 pin syntax is untouched by any of it', () => {
         [['led', 1, 0], ['pot', 1, 3]]);
     assert.match(c.decompile(), /^PIN led = P1\.0 OUTPUT ACTIVE LOW$/m);
     // And ANALOG off P1 is still refused for the reason it always was.
-    const bad = new SB3Creator();
-    bad.parse('DEVICE STC12C5A60S2\nPIN pot = P2.3 ANALOG\n');
-    assert.ok(bad.warnings.some((w) => /ANALOG is only available on P1\.0-P1\.7/.test(w)));
+    assert.match(refused('DEVICE STC12C5A60S2\nPIN pot = P2.3 ANALOG\n'), /ANALOG is only available on P1\.0-P1\.7/);
 });
 
 // ---- MicroPython -> pseudocode: the fifth front end -------------------------
@@ -2820,15 +2822,10 @@ test('each board is held to its own pin spelling', () => {
         ['STC12C5A60S2', 'P0', /P<port>\.<bit>/]
     ];
     for (const [device, where, want] of cases) {
-        const c = new SB3Creator();
-        c.parse(`DEVICE ${device}\nPIN x = ${where} OUTPUT\n`);
-        assert.ok(c.warnings.some((w) => want.test(w)),
-            `${device} + ${where}: expected ${want}, got ${JSON.stringify(c.warnings)}`);
+        assert.match(refused(`DEVICE ${device}\nPIN x = ${where} OUTPUT\n`), want, `${device} + ${where}`);
     }
     // A button is an input and nothing else, on the board that has buttons.
-    const b = new SB3Creator();
-    b.parse('DEVICE MICROBIT\nPIN a = BUTTON_A OUTPUT\n');
-    assert.ok(b.warnings.some((w) => /BUTTON_A is a button and can only be an INPUT/.test(w)));
+    assert.match(refused('DEVICE MICROBIT\nPIN a = BUTTON_A OUTPUT\n'), /BUTTON_A is a button and can only be an INPUT/);
 });
 
 test('a Python file that is not for a board says so instead of guessing', () => {
@@ -3118,7 +3115,7 @@ WHEN flag clicked:
 });
 
 test('CHIP TMS9918 refusals: duplicate vdp, overlap with a chip window', () => {
-    const warnsOf = (src) => { const c = build(src); return (c.warnings || []).join('\n'); };
+    const warnsOf = refused;
     assert.match(warnsOf('DEVICE EATER6502\nCHIP a = TMS9918 AT $9000\nCHIP b = TMS9918 AT $9800\n'),
         /already declared/);
     // The VDP's 2-byte window collides with the VIA's 16-byte one
@@ -3127,7 +3124,7 @@ test('CHIP TMS9918 refusals: duplicate vdp, overlap with a chip window', () => {
 });
 
 test('MAP/CHIP refusals: wrong device, overlap, second VIA, chip inside RAM', () => {
-    const warnsOf = (src) => { const c = build(src); return (c.warnings || []).join('\n'); };
+    const warnsOf = refused;
     assert.match(warnsOf('DEVICE PICO\nMAP RAM $0000-$3FFF\n'), /fixed memory map/);
     assert.match(warnsOf('DEVICE EATER6502\nMAP RAM $0000-$3FFF\nMAP ROM $2000-$5FFF\n'), /overlaps the RAM/);
     assert.match(warnsOf('DEVICE EATER6502\nCHIP a = W65C22 AT $6000\nCHIP b = W65C22 AT $7000\n'), /already declared/);
@@ -3427,8 +3424,7 @@ WHEN flag clicked:
     assert.match(back, /^CHIP vga = SIMPLEVGA$/m);
     assert.match(c.decompile(), /^CHIP vga = SIMPLEVGA$/m);
     // one card per machine
-    const dup = build(`DEVICE EATER6502\nCHIP a = SIMPLEVGA\nCHIP b = SIMPLEVGA\n`);
-    assert.match((dup.warnings || []).join('\n'), /already declared/);
+    assert.match(refused(`DEVICE EATER6502\nCHIP a = SIMPLEVGA\nCHIP b = SIMPLEVGA\n`), /^Line 3: a SIMPLEVGA is already declared/);
 });
 
 // ---- milestone tests: new device flavors round-trip C → pseudocode → C ----

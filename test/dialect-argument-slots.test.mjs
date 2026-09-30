@@ -289,12 +289,14 @@ describe('an unreadable line is refused by name, never dropped', () => {
         }
     });
 
-    test('the refusal carries the warning that explains it', () => {
-        // A PART this device lacks is a declaration warning; its verbs then read
-        // nothing, and the refusal says why rather than only "no statement".
+    test('the refusal names the declaration that explains it', () => {
+        // A PART this device lacks is itself refused (task D6; it was a
+        // warning, and the line was skipped); its verbs then read nothing and
+        // are refused too, so the refusal says why rather than only "no statement".
         const e = refused('DEVICE ARDUINO-UNO\nPART display = SEVENSEG8 SEGMENTS P0 SELECT P2.2 P2.3 P2.4\n'
             + 'WHEN flag clicked:\n  show number 42 on display\n');
-        assert.ok(e.warnings.some(w => /SEVENSEG8 is not available/.test(w)), JSON.stringify(e.warnings));
+        assert.deepEqual(e.lines.map(l => l.line), [2, 4]);
+        assert.match(e.lines[0].reason, /SEVENSEG8 is not available/);
         assert.match(e.message, /SEVENSEG8 is not available/);
     });
 });

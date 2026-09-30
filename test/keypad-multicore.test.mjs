@@ -15,6 +15,15 @@ import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
 import SB3Creator from '../src/utils/sb3Creator.js';
 
+// A declaration the device cannot take is refused, not warned about and
+// skipped (task D6): the program throws DIALECT_UNPARSED_LINES naming exactly
+// the refused declaration — here always the program's last line.
+function assertRefused(src, msg) {
+    const last = src.trim().split('\n').pop().trim();
+    assert.throws(() => new SB3Creator().parse(src), (e) => e.code === 'DIALECT_UNPARSED_LINES'
+        && e.lines.length === 1 && e.lines[0].text === last, msg);
+}
+
 // ---- helpers ----
 
 function parseMp(program) {
@@ -36,36 +45,26 @@ describe('KEYPAD4X4 parser: Pico', () => {
     });
 
     test('rejects micro:bit pin syntax on Pico', () => {
-        const c = new SB3Creator();
-        c.parse('DEVICE PICO\nPART keys = KEYPAD4X4 ROWS P0 P1 P2 P3 COLS P4 P5 P6 P7\n');
-        assert.equal(c.project.stc.parts.length, 0, 'should reject wrong pin syntax');
+        assertRefused('DEVICE PICO\nPART keys = KEYPAD4X4 ROWS P0 P1 P2 P3 COLS P4 P5 P6 P7\n', 'should reject wrong pin syntax');
     });
 
     test('rejects duplicate pins', () => {
-        const c = new SB3Creator();
-        c.parse('DEVICE PICO\nPART keys = KEYPAD4X4 ROWS GP0 GP1 GP2 GP0 COLS GP4 GP5 GP6 GP7\n');
-        assert.equal(c.project.stc.parts.length, 0, 'should reject duplicate pins');
+        assertRefused('DEVICE PICO\nPART keys = KEYPAD4X4 ROWS GP0 GP1 GP2 GP0 COLS GP4 GP5 GP6 GP7\n', 'should reject duplicate pins');
     });
 
     test('rejects PIN conflict', () => {
-        const c = new SB3Creator();
-        c.parse('DEVICE PICO\nPIN led = GP0 OUTPUT\nPART keys = KEYPAD4X4 ROWS GP0 GP1 GP2 GP3 COLS GP4 GP5 GP6 GP7\n');
-        assert.equal(c.project.stc.parts.length, 0, 'should reject conflicting PIN');
+        assertRefused('DEVICE PICO\nPIN led = GP0 OUTPUT\nPART keys = KEYPAD4X4 ROWS GP0 GP1 GP2 GP3 COLS GP4 GP5 GP6 GP7\n', 'should reject conflicting PIN');
     });
 
     test('rejects PART-on-PART conflict', () => {
-        const c = new SB3Creator();
-        c.parse('DEVICE PICO\n' +
+        assertRefused('DEVICE PICO\n' +
             'PART k1 = KEYPAD4X4 ROWS GP0 GP1 GP2 GP3 COLS GP4 GP5 GP6 GP7\n' +
-            'PART k2 = KEYPAD4X4 ROWS GP0 GP8 GP9 GP10 COLS GP11 GP12 GP13 GP14\n');
-        assert.equal(c.project.stc.parts.length, 1, 'second keypad sharing GP0 should be rejected');
+            'PART k2 = KEYPAD4X4 ROWS GP0 GP8 GP9 GP10 COLS GP11 GP12 GP13 GP14\n', 'second keypad sharing GP0 should be rejected');
     });
 
     test('PIN after PART is rejected', () => {
-        const c = new SB3Creator();
-        c.parse('DEVICE PICO\nPART keys = KEYPAD4X4 ROWS GP0 GP1 GP2 GP3 COLS GP4 GP5 GP6 GP7\n' +
-            'PIN led = GP0 OUTPUT\n');
-        assert.equal(c.project.stc.pins.length, 0, 'PIN on claimed GP0 should be rejected');
+        assertRefused('DEVICE PICO\nPART keys = KEYPAD4X4 ROWS GP0 GP1 GP2 GP3 COLS GP4 GP5 GP6 GP7\n' +
+            'PIN led = GP0 OUTPUT\n', 'PIN on claimed GP0 should be rejected');
     });
 });
 
@@ -79,9 +78,7 @@ describe('KEYPAD4X4 parser: micro:bit', () => {
     });
 
     test('rejects GP syntax on micro:bit', () => {
-        const c = new SB3Creator();
-        c.parse('DEVICE MICROBIT\nPART keys = KEYPAD4X4 ROWS GP0 GP1 GP2 GP3 COLS GP4 GP5 GP6 GP7\n');
-        assert.equal(c.project.stc.parts.length, 0, 'should reject wrong pin syntax');
+        assertRefused('DEVICE MICROBIT\nPART keys = KEYPAD4X4 ROWS GP0 GP1 GP2 GP3 COLS GP4 GP5 GP6 GP7\n', 'should reject wrong pin syntax');
     });
 });
 

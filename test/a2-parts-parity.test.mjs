@@ -109,6 +109,9 @@ test('shared select/LED port warns; direct set refused; non-8051 gated', () => {
     assert.throws(() => build(SRC.replace('DEVICE STC89C52RC:', 'DEVICE ARDUINO-UNO:')),
         (e) => e.code === 'DIALECT_UNPARSED_LINES'
             && e.lines.some((l) => l.text === 'show number 42 on display')
-            && /SEVENSEG8 is not available/.test(e.warnings.join('; '))
+            // …and the PART line itself is refused with its reason (it used to
+            // be a warning and the declaration was skipped — task D6).
+            && e.lines.some((l) => /^PART display = SEVENSEG8/.test(l.text)
+                && /SEVENSEG8 is not available/.test(l.reason))
             && /SEVENSEG8 is not available/.test(e.message));
 });

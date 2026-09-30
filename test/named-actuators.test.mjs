@@ -78,14 +78,14 @@ describe('named servos and motors', () => {
     });
 
     test('two names cannot claim one channel, and one name cannot be reused', () => {
-        const dup = new SB3Creator();
-        dup.parse(HEAD + 'PART a = SERVO 1\nPART b = SERVO 1\n\nWHEN flag clicked:\n  wait 1 seconds\n');
-        assert.ok((dup.warnings || []).some(w => /already declared/.test(String(w))),
-            JSON.stringify(dup.warnings));
-        const same = new SB3Creator();
-        same.parse(HEAD + 'PART a = SERVO 1\nPART a = MOTOR 1\n\nWHEN flag clicked:\n  wait 1 seconds\n');
-        assert.ok((same.warnings || []).some(w => /already a declared part/.test(String(w))),
-            JSON.stringify(same.warnings));
+        // Refused, naming the second declaration (task D6: it was a warning
+        // and the line was skipped).
+        assert.throws(() => new SB3Creator().parse(HEAD + 'PART a = SERVO 1\nPART b = SERVO 1\n\nWHEN flag clicked:\n  wait 1 seconds\n'),
+            (e) => e.code === 'DIALECT_UNPARSED_LINES' && e.lines.length === 1
+                && e.lines[0].text === 'PART b = SERVO 1' && /already declared/.test(e.lines[0].reason));
+        assert.throws(() => new SB3Creator().parse(HEAD + 'PART a = SERVO 1\nPART a = MOTOR 1\n\nWHEN flag clicked:\n  wait 1 seconds\n'),
+            (e) => e.code === 'DIALECT_UNPARSED_LINES' && e.lines.length === 1
+                && e.lines[0].text === 'PART a = MOTOR 1' && /already a declared part/.test(e.lines[0].reason));
     });
 
     test('a servo name does not address a motor block, or the reverse', () => {

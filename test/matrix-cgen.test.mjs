@@ -193,20 +193,20 @@ test('the PART line and the C are stable across a pseudocode round-trip', () => 
     assert.equal(c2.generateC(), C1, 'C must be identical after pseudocode -> blocks -> C');
 });
 
-// ---- clash checks (sb3-creator refuses via warnings, not exceptions) --------
+// ---- clash checks: the clashing declaration is refused --------------------
 
-// A refused PART leaves its verbs (`clear screen`, …) with nothing to read
-// them, and since D5 such lines refuse the whole parse (UnparsedLinesError)
-// rather than vanishing; the declaration's warning travels on the error.
+// A declaration that clashes is refused like any unreadable line (task D6; it
+// used to be a warning and the declaration was skipped), and so are the verbs
+// of a refused PART, which then have nothing to read them (D5). The reasons
+// of the refused DECLARATION lines are what these tests read.
 function warningsOf(src) {
-    const c = new SB3Creator();
     try {
-        c.parse(src);
-        return c.warnings.join('\n');
+        new SB3Creator().parse(src);
     } catch (e) {
         if (e.code !== 'DIALECT_UNPARSED_LINES') throw e;
-        return e.warnings.join('\n');
+        return e.lines.filter((l) => /^(PIN|PORT|PART)\b/.test(l.text)).map((l) => l.reason).join('\n');
     }
+    assert.fail('expected the clashing declaration to be refused');
 }
 
 function warnsFor(mutate) {

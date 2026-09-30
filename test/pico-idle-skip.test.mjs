@@ -76,7 +76,10 @@ test('the single-main flavor sleeps too: forever, delay_ms, wait_until', async (
 });
 
 test('the idle is pico-only: 8051 and AVR builds carry none of it', () => {
-    for (const [dev, pin] of [['STC12', 'P1.0'], ['UNO', 'D13']]) {
+    // STC12C5A60S2, not `STC12`: that is no device, and until task D6 the
+    // DEVICE line was skipped with a warning and the build used the default
+    // STC12 anyway — the test passed on the wrong grounds.
+    for (const [dev, pin] of [['STC12C5A60S2', 'P1.0'], ['UNO', 'D13']]) {
         const c = new SB3Creator();
         c.parse(`DEVICE ${dev}\nPIN led1 = ${pin} OUTPUT\n\nWHEN flag clicked:\n  forever:\n    turn on led1\n    wait 0.5 seconds\n`);
         const out = c.generateC(c.project, { debug: true });

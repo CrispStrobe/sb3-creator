@@ -65,15 +65,15 @@ test('a keypad cannot be written', () => {
 });
 
 test('duplicate pins are refused', () => {
-    const c = build(KEYSHOW.replace('COLS P1.3', 'COLS P1.7'));
-    assert.ok((c.warnings || []).some((w) => /same pin twice/.test(w)),
-        JSON.stringify(c.warnings));
+    assert.throws(() => build(KEYSHOW.replace('COLS P1.3', 'COLS P1.7')),
+        (e) => e.code === 'DIALECT_UNPARSED_LINES' && /^PART keys = KEYPAD4X4/.test(e.lines[0].text)
+            && /same pin twice/.test(e.lines[0].reason));
 });
 
 test('non-8051 targets refuse the part', () => {
-    const c = build(KEYSHOW.replace('DEVICE STC89C52RC', 'DEVICE ARDUINO-UNO'));
-    assert.ok((c.warnings || []).some((w) => /KEYPAD4X4 is not available/.test(w)),
-        JSON.stringify(c.warnings));
+    assert.throws(() => build(KEYSHOW.replace('DEVICE STC89C52RC', 'DEVICE ARDUINO-UNO')),
+        (e) => e.code === 'DIALECT_UNPARSED_LINES' && /^PART keys = KEYPAD4X4/.test(e.lines[0].text)
+            && /KEYPAD4X4 is not available/.test(e.lines[0].reason));
 });
 
 test('decompile carries the PART declaration', () => {

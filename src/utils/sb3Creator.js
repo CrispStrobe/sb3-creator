@@ -126,6 +126,10 @@ const withIndices = new Map();
 // what unparenthesisedArgument() re-reads before a generic fallback claims
 // the line.
 let ruleLogFor = null, ruleLog = [];
+// The rule that matched the statement parseCommand is reading: its groups and
+// their spans in the line, so a slot can see what follows it (task D6: an
+// unbracketed multi-word reporter spilling over positional slots).
+let ruleHit = null;
 
 /**
  * `line.match(re)` where the keywords must sit OUTSIDE parentheses and
@@ -162,6 +166,7 @@ function matchTopLevel(line, re) {
     if (!m) return null;
     const out = m.indices.map((span) => (span ? line.slice(span[0], span[1]) : undefined));
     out.index = m.index;
+    if (line === ruleLogFor) ruleHit = { line, re, groups: out, spans: m.indices };
     return out;
 }
 
@@ -744,8 +749,31 @@ function microbitLedHelpersPy (uses, pyUses) {
 // containing a quote produced a line that failed to re-parse and was silently
 // retargeted to another device's block. Round-tripping is the whole contract
 // of a decompiler, so it escapes what it emits.
+//
+// THE DIALECT'S TEXT ESCAPES (task D6). Inside "…": `\"` is a quote, `\\` a
+// backslash, `\n` a line break, `\r` a carriage return and `\t` a tab; any
+// other `\x` is the two characters it spells. A line break cannot be written
+// raw — the dialect is line-based — so `\n` is its only spelling, and a
+// Scratch text holding one exports as `\n`. These are JSON's escapes for
+// those characters, so a readable string JSON.stringify writes (the Python,
+// JS and SPIKE readers emit text that way) reads back as itself.
+// escapeTextLiteral and unescapeTextLiteral are inverses: parse → blocks →
+// export → parse is a fixed point for every string.
 const escapeTextLiteral = (value) =>
-    '"' + String(value ?? '').replace(/\\/g, '\\\\').replace(/"/g, '\\"') + '"';
+    '"' + String(value ?? '').replace(/\\/g, '\\\\').replace(/"/g, '\\"')
+        .replace(/\n/g, '\\n').replace(/\r/g, '\\r').replace(/\t/g, '\\t') + '"';
+/** The text of a literal's INSIDE (no surrounding quotes), escapes undone. */
+const TEXT_ESCAPES = { n: '\n', r: '\r', t: '\t', '"': '"', '\\': '\\' };
+const unescapeTextLiteral = (inner) =>
+    String(inner ?? '').replace(/\\(["\\nrt])/g, (m, c) => TEXT_ESCAPES[c]);
+/** Index of the quote closing the literal that opens at `open`, or -1. */
+const closingQuote = (s, open) => {
+    for (let i = open + 1; i < s.length; i++) {
+        if (s[i] === '\\') { i++; continue; }
+        if (s[i] === '"') return i;
+    }
+    return -1;
+};
 
 class SB3Error extends Error {
     constructor(message, type = 'SB3Error') {
@@ -973,6 +1001,116 @@ class SB3Creator {
         this.unparsed.push({ line: lineIndex + 1, text: String(text).trim(), reason });
     }
 
+    // A declaration line (DEVICE / PIN / PORT / PART / TABLE / LEDCUBE / MAP /
+    // CHIP) this device cannot take. It used to be a warning and the line was
+    // skipped: the pin, part or table was simply not declared, the statements
+    // that used it were refused for a name that "does not exist", and the
+    // reason sat in a warning a caller may never read (task D6, found by D5).
+    // It is an unreadable line like any other, refused with its reason.
+    // Returns true: the line WAS a declaration — nothing else should claim it.
+    refuseDeclaration(lineIndex, text, reason) {
+        this.unreadable(lineIndex, text, reason);
+        return true;
+    }
+
+    /**
+     * An unbracketed multi-word reporter spread over a rule's positional slots
+     * (task D6). Every slot of a statement reads ONE term, and a slot followed
+     * by another slot takes a word, so `set voxel pick random 1 to 10 1 1 to 1`
+     * read X = the variable `pick`, Y = the variable `random`, Z = 1 and a
+     * colour of "10 1 1 to 1" — a wrong block, no warning. So is
+     * `start tank round a b` (a variable `round`, then `a`) and
+     * `set voxel a + 1 to 5` (Y = the text "+").
+     *
+     * Refused, by name, when a slot that has another slot after it holds
+     *  - a bare infix operator (`+`, `mod`, `join`, …): an expression's middle; or
+     *  - a bare word from which the line, read on past the slot's end, spells a
+     *    reporter — the same reporter grammar parseValue uses, tried with a
+     *    rollback so the probe creates nothing — AND that reading is a real
+     *    alternative: the line with the reporter bracketed still matches the
+     *    rule (`set voxel (pick random 1 to 10) 1 1 to 1`), or the reporter's
+     *    second word landed in the next POSITIONAL slot (only a space between
+     *    them: `start tank round a`, `set voxel pick random qq to zz 1 to 1`)
+     *    and the word is not a name the program already has. A reporter that
+     *    could only be read by eating the rule's own keyword and leaving the
+     *    line unreadable is not one: `replace item k of board with p` is item
+     *    k of the list board, even with a sprite called board.
+     * A slot that is a number, a "text", a (bracketed expression), or a name
+     * the words after it do not extend into a reporter reads as before.
+     */
+    refuseSpilledReporter(line, s, target) {
+        const hit = ruleHit;
+        if (!hit || hit.line !== line) return;
+        const text = String(s || '').trim();
+        const bareOp = /^(?:[*/+-]|mod|join|bitand|bitor|bitxor|shiftleft|shiftright|contains)$/i.test(text);
+        const bareWord = /^[A-Za-z_]\w*$/.test(text);
+        if (!bareOp && !bareWord) return;
+        const n = hit.groups.length;
+        for (let j = 1; j < n; j++) {
+            if (hit.groups[j] !== s || !hit.spans[j]) continue;
+            if (!hit.groups.slice(j + 1).some((g) => g !== undefined)) continue;   // the last slot takes the rest
+            if (bareOp) {
+                throw new ParseError(`"${text}" in an argument slot is the middle of an expression spread over `
+                    + 'the statement\'s slots: every argument is one term, so an expression goes in parentheses, '
+                    + 'e.g. `set voxel (a + 1) 1 1 to 5`');
+            }
+            const [start, end] = hit.spans[j];
+            // Positional: only a space between this slot and the next group, so
+            // the reporter's next word landed IN a slot, not on a keyword.
+            const next = hit.spans.slice(j + 1).find(Boolean);
+            const positional = Boolean(next) && /^\s+$/.test(line.slice(end, next[0]));
+            // An existing name reads as the name when only positional slots
+            // make the other reading (`set round to 3` … `start tank round 50`).
+            const named = this.variableExists(text, target) || this.listExists(text, target)
+                || Boolean(this.currentProcArgs && this.currentProcArgs.has(text));
+            const rest = line.slice(start);
+            const masked = maskTopLevel(rest);
+            const cuts = [];
+            for (let k = end - start; k <= masked.length; k++) {
+                if (k === masked.length || masked[k] === ' ') cuts.push(k);
+            }
+            for (const k of cuts) {
+                const phrase = rest.slice(0, k).trim();
+                if (phrase === text || !phrase.includes(' ')) continue;
+                const stop = start + rest.slice(0, k).trimEnd().length;
+                const bracketed = `${line.slice(0, start)}(${phrase})${line.slice(stop)}`;
+                hit.re.lastIndex = 0;
+                const stillMatches = hit.re.test(maskTopLevel(bracketed));
+                if (!stillMatches && !(positional && !named)) continue;
+                if (this.readsAsReporter(phrase, target)) {
+                    throw new ParseError(`"${phrase}" is a reporter written without brackets across the statement's `
+                        + `slots (it read as "${text}" and the words after it): every argument is one term, so `
+                        + `a reporter goes in parentheses, e.g. \`(${phrase})\``);
+                }
+            }
+        }
+    }
+
+    /** Does `phrase` parse as a reporter block? Tried and rolled back: it creates nothing. */
+    readsAsReporter(phrase, target) {
+        const maps = [this.variables, this.lists, this.broadcasts].map((m) => [m, new Set(m.keys())]);
+        const objs = [];
+        for (const t of this.project.targets) {
+            for (const k of ['variables', 'lists', 'broadcasts']) if (t[k]) objs.push([t[k], new Set(Object.keys(t[k]))]);
+        }
+        const monitors = this.project.monitors.length;
+        const extensions = this.project.extensions.length;
+        const warnings = this.warnings.length;
+        try {
+            const r = this.parseReporter(phrase, { target, extraBlocks: {}, parentId: null });
+            return Boolean(r && typeof r[1] === 'string');
+        } catch (e) {
+            if (e && e.isSB3Error) return false;
+            throw e;
+        } finally {
+            for (const [m, keys] of maps) for (const k of [...m.keys()]) if (!keys.has(k)) m.delete(k);
+            for (const [o, keys] of objs) for (const k of Object.keys(o)) if (!keys.has(k)) delete o[k];
+            this.project.monitors.length = monitors;
+            this.project.extensions.length = extensions;
+            this.warnings.length = warnings;
+        }
+    }
+
     // The hint an unreadable statement carries when it has an operator outside
     // any parentheses: every argument slot of a statement reads ONE term (a
     // number, a name, a "text" or a (parenthesised expression)), so an
@@ -1151,6 +1289,7 @@ class SB3Creator {
         let inStr = false;
         for (let i = 0; i < line.length; i++) {
             const c = line[i];
+            if (inStr && c === '\\') { i++; continue; }   // `\"` inside a text is text
             if (c === '"') inStr = !inStr;
             else if (!inStr && c === '/' && line[i + 1] === '/') return line.slice(0, i);
             // The reference dialect strips inline `# …` too (14-a2-keyshow.bw
@@ -1913,14 +2052,14 @@ class SB3Creator {
     literalText(value) {
         if (typeof value === 'number') return String(value);
         const text = String(value);
-        return /^-?\d+(\.\d+)?$/.test(text) && text !== '' ? text : JSON.stringify(text);
+        return /^-?\d+(\.\d+)?$/.test(text) && text !== '' ? text : escapeTextLiteral(text);
     }
 
     /** A scalar initial value: number when it round-trips as one, otherwise the literal text. */
     parseScalarInitial(initial) {
         if (initial === undefined) return undefined;
         const unquoted = /^"([\s\S]*)"$|^'([\s\S]*)'$/.exec(initial);
-        if (unquoted) return unquoted[1] !== undefined ? unquoted[1] : unquoted[2];
+        if (unquoted) return unquoted[1] !== undefined ? unescapeTextLiteral(unquoted[1]) : unquoted[2];
         const asNumber = Number(initial);
         return Number.isFinite(asNumber) && initial !== '' ? asNumber : initial;
     }
@@ -2110,7 +2249,7 @@ class SB3Creator {
             if (slot.menu) inputs[name] = this.menuInput(context, slot.menu.opcode, slot.menu.field, slot.value);
             else if (slot.field !== undefined) fields[name] = [slot.field, null];
             else if (/^"(?:[^"\\]|\\.)*"$/.test(slot.value)) {
-                inputs[name] = [1, [10, slot.value.slice(1, -1).replace(/\\(.)/g, '$1')]];
+                inputs[name] = [1, [10, unescapeTextLiteral(slot.value.slice(1, -1))]];
             } else inputs[name] = this.parseValue(slot.value, context);
         }
         context.parentId = was;
@@ -2153,6 +2292,7 @@ class SB3Creator {
         let depth = 0, inStr = false;
         for (let i = open; i < s.length; i++) {
             const c = s[i];
+            if (inStr && c === '\\') { i++; continue; }
             if (c === '"') { inStr = !inStr; continue; }
             if (inStr) continue;
             if (c === '(') depth++;
@@ -2183,6 +2323,7 @@ class SB3Creator {
         let depth = 0, inStr = false, best = null;
         for (let i = 0; i < s.length; i++) {
             const ch = s[i];
+            if (inStr && ch === '\\') { i++; continue; }
             if (ch === '"') { inStr = !inStr; continue; }
             if (inStr) continue;
             if (ch === '(' || ch === '[') { depth++; continue; }
@@ -2219,7 +2360,7 @@ class SB3Creator {
         // Hex, because a bit mask is unreadable in decimal and firmware is written in them.
         if (/^0[xX][0-9a-fA-F]+$/.test(s)) return [1, [4, String(parseInt(s, 16))]];
         if (s.length >= 2 && s.startsWith('"') && s.endsWith('"') && this.matchQuote(s) === s.length - 1) {
-            return [1, [10, s.slice(1, -1)]];
+            return [1, [10, unescapeTextLiteral(s.slice(1, -1))]];
         }
         if (/^(true|false)$/i.test(s)) return [1, [10, s.toLowerCase()]];
         if (/^#[0-9a-fA-F]{6}$/.test(s)) return [1, [9, s.toLowerCase()]];
@@ -2321,10 +2462,7 @@ class SB3Creator {
     }
 
     matchQuote(s) {
-        for (let i = 1; i < s.length; i++) {
-            if (s[i] === '"') return i;
-        }
-        return -1;
+        return closingQuote(s, 0);
     }
 
     // Reporter phrases (blocks that report a value). Returns an input array or null.
@@ -2662,29 +2800,29 @@ class SB3Creator {
         if (/^euler$/i.test(s) && !this.variableExists('euler', context.target)) return B('planetemaths_nombre_e', {});
         // Arrays & Vectors reporters (anchored on `array "NAME"`; 0-based).
         if (/\barray\s+"/.test(s)) {
-            const aN = (n) => [1, [10, n]];
+            const aN = (n) => [1, [10, unescapeTextLiteral(n)]];
             // 2D / matrix reporters. get2D first, so `item row R col C of array` isn't
             // mis-parsed as a 1D `item <index> of array`.
-            if ((m = s.match(/^item\s+row\s+(.+?)\s+col\s+(.+?)\s+of array\s+"([^"]*)"$/i))) return B('arrays_get2D', { NAME: aN(m[3]), ROW: this.parseValue(m[1], context), COL: this.parseValue(m[2], context) });
-            if ((m = s.match(/^transpose of array\s+"([^"]*)"$/i))) return B('arrays_transpose', { NAME: aN(m[1]) });
-            if ((m = s.match(/^reshape array\s+"([^"]*)"\s+to\s+(.+)$/i))) return B('arrays_reshape', { NAME: aN(m[1]), SHAPE: [1, [10, m[2].trim()]] });
+            if ((m = s.match(/^item\s+row\s+(.+?)\s+col\s+(.+?)\s+of array\s+"((?:[^"\\]|\\.)*)"$/i))) return B('arrays_get2D', { NAME: aN(m[3]), ROW: this.parseValue(m[1], context), COL: this.parseValue(m[2], context) });
+            if ((m = s.match(/^transpose of array\s+"((?:[^"\\]|\\.)*)"$/i))) return B('arrays_transpose', { NAME: aN(m[1]) });
+            if ((m = s.match(/^reshape array\s+"((?:[^"\\]|\\.)*)"\s+to\s+(.+)$/i))) return B('arrays_reshape', { NAME: aN(m[1]), SHAPE: [1, [10, m[2].trim()]] });
             // functional reporters (FUNC is a quoted JS arrow string; emitted as a Python lambda / raw JS)
-            if ((m = s.match(/^map\s+"([^"]*)"\s+over array\s+"([^"]*)"$/i))) return B('arrays_map', { NAME: aN(m[2]), FUNC: [1, [10, m[1]]] });
-            if ((m = s.match(/^filter array\s+"([^"]*)"\s+by\s+"([^"]*)"$/i))) return B('arrays_filter', { NAME: aN(m[1]), FUNC: [1, [10, m[2]]] });
-            if ((m = s.match(/^reduce array\s+"([^"]*)"\s+with\s+"([^"]*)"\s+from\s+(.+)$/i))) return B('arrays_reduce', { NAME: aN(m[1]), FUNC: [1, [10, m[2]]], INIT: this.parseValue(m[3], context) });
-            if ((m = s.match(/^item\s+(.+?)\s+of array\s+"([^"]*)"$/i))) return B('arrays_get', { NAME: aN(m[2]), INDEX: this.parseValue(m[1], context) });
-            if ((m = s.match(/^pop from array\s+"([^"]*)"$/i))) return B('arrays_pop', { NAME: aN(m[1]) });
-            if ((m = s.match(/^length of array\s+"([^"]*)"$/i))) return B('arrays_length', { NAME: aN(m[1]) });
-            if ((m = s.match(/^sum of array\s+"([^"]*)"$/i))) return B('arrays_sum', { NAME: aN(m[1]) });
-            if ((m = s.match(/^(?:mean|average) of array\s+"([^"]*)"$/i))) return B('arrays_mean', { NAME: aN(m[1]) });
-            if ((m = s.match(/^smallest of array\s+"([^"]*)"$/i))) return B('arrays_min', { NAME: aN(m[1]) });
-            if ((m = s.match(/^largest of array\s+"([^"]*)"$/i))) return B('arrays_max', { NAME: aN(m[1]) });
-            if ((m = s.match(/^index of\s+(.+?)\s+in array\s+"([^"]*)"$/i))) return B('arrays_indexOf', { NAME: aN(m[2]), VALUE: this.parseValue(m[1], context) });
-            if ((m = s.match(/^reverse of array\s+"([^"]*)"$/i))) return B('arrays_reverse', { NAME: aN(m[1]) });
-            if ((m = s.match(/^flatten of array\s+"([^"]*)"$/i))) return B('arrays_flatten', { NAME: aN(m[1]) });
-            if ((m = s.match(/^sort of array\s+"([^"]*)"\s+(ascending|descending)$/i))) return B('arrays_sort', { NAME: aN(m[1]) }, { ORDER: [m[2].toLowerCase(), null] });
-            if ((m = s.match(/^slice of array\s+"([^"]*)"\s+from\s+(.+?)\s+to\s+(.+)$/i))) return B('arrays_slice', { NAME: aN(m[1]), START: this.parseValue(m[2], context), END: this.parseValue(m[3], context) });
-            if ((m = s.match(/^array\s+"([^"]*)"\s+as text$/i))) return B('arrays_toJSON', { NAME: aN(m[1]) });
+            if ((m = s.match(/^map\s+"((?:[^"\\]|\\.)*)"\s+over array\s+"((?:[^"\\]|\\.)*)"$/i))) return B('arrays_map', { NAME: aN(m[2]), FUNC: [1, [10, unescapeTextLiteral(m[1])]] });
+            if ((m = s.match(/^filter array\s+"((?:[^"\\]|\\.)*)"\s+by\s+"((?:[^"\\]|\\.)*)"$/i))) return B('arrays_filter', { NAME: aN(m[1]), FUNC: [1, [10, unescapeTextLiteral(m[2])]] });
+            if ((m = s.match(/^reduce array\s+"((?:[^"\\]|\\.)*)"\s+with\s+"((?:[^"\\]|\\.)*)"\s+from\s+(.+)$/i))) return B('arrays_reduce', { NAME: aN(m[1]), FUNC: [1, [10, unescapeTextLiteral(m[2])]], INIT: this.parseValue(m[3], context) });
+            if ((m = s.match(/^item\s+(.+?)\s+of array\s+"((?:[^"\\]|\\.)*)"$/i))) return B('arrays_get', { NAME: aN(m[2]), INDEX: this.parseValue(m[1], context) });
+            if ((m = s.match(/^pop from array\s+"((?:[^"\\]|\\.)*)"$/i))) return B('arrays_pop', { NAME: aN(m[1]) });
+            if ((m = s.match(/^length of array\s+"((?:[^"\\]|\\.)*)"$/i))) return B('arrays_length', { NAME: aN(m[1]) });
+            if ((m = s.match(/^sum of array\s+"((?:[^"\\]|\\.)*)"$/i))) return B('arrays_sum', { NAME: aN(m[1]) });
+            if ((m = s.match(/^(?:mean|average) of array\s+"((?:[^"\\]|\\.)*)"$/i))) return B('arrays_mean', { NAME: aN(m[1]) });
+            if ((m = s.match(/^smallest of array\s+"((?:[^"\\]|\\.)*)"$/i))) return B('arrays_min', { NAME: aN(m[1]) });
+            if ((m = s.match(/^largest of array\s+"((?:[^"\\]|\\.)*)"$/i))) return B('arrays_max', { NAME: aN(m[1]) });
+            if ((m = s.match(/^index of\s+(.+?)\s+in array\s+"((?:[^"\\]|\\.)*)"$/i))) return B('arrays_indexOf', { NAME: aN(m[2]), VALUE: this.parseValue(m[1], context) });
+            if ((m = s.match(/^reverse of array\s+"((?:[^"\\]|\\.)*)"$/i))) return B('arrays_reverse', { NAME: aN(m[1]) });
+            if ((m = s.match(/^flatten of array\s+"((?:[^"\\]|\\.)*)"$/i))) return B('arrays_flatten', { NAME: aN(m[1]) });
+            if ((m = s.match(/^sort of array\s+"((?:[^"\\]|\\.)*)"\s+(ascending|descending)$/i))) return B('arrays_sort', { NAME: aN(m[1]) }, { ORDER: [m[2].toLowerCase(), null] });
+            if ((m = s.match(/^slice of array\s+"((?:[^"\\]|\\.)*)"\s+from\s+(.+?)\s+to\s+(.+)$/i))) return B('arrays_slice', { NAME: aN(m[1]), START: this.parseValue(m[2], context), END: this.parseValue(m[3], context) });
+            if ((m = s.match(/^array\s+"((?:[^"\\]|\\.)*)"\s+as text$/i))) return B('arrays_toJSON', { NAME: aN(m[1]) });
         }
         if ((m = s.match(/^(abs|floor|ceiling|sqrt|sin|cos|tan|asin|acos|atan|ln|log)\s+of\s+(.+)$/i))) {
             return B('operator_mathop', { NUM: this.parseValue(m[2], context) }, { OPERATOR: [m[1].toLowerCase(), null] });
@@ -3822,8 +3960,7 @@ class SB3Creator {
                 device = DEVICE_ALIASES[device];
             }
             if (!SB3Creator.STC_PARTS[device]) {
-                this.warn(lineIndex, `Unknown DEVICE "${m[1]}"; known: ${Object.keys(SB3Creator.STC_PARTS).sort().join(', ')}`);
-                return true;
+                return this.refuseDeclaration(lineIndex, trimmed, `Unknown DEVICE "${m[1]}"; known: ${Object.keys(SB3Creator.STC_PARTS).sort().join(', ')}`);
             }
             const cfg = this.stcConfig();
             const wasDefault = cfg.clock === 11059200 && cfg.device === 'stc12c5a60s2';
@@ -3862,16 +3999,14 @@ class SB3Creator {
             const cfg = this.stcConfig();
             const part = SB3Creator.STC_PARTS[cfg.device];
             if (!part || part.core !== 'w65c02') {
-                this.warn(lineIndex, 'MAP declarations describe the 6502 machine — this device has a fixed memory map');
-                return true;
+                return this.refuseDeclaration(lineIndex, trimmed, 'MAP declarations describe the 6502 machine — this device has a fixed memory map');
             }
             const start = parseInt(m[2], 16); const end = parseInt(m[3], 16);
-            if (start >= end) { this.warn(lineIndex, `MAP range $${m[2]} >= $${m[3]} — start must be below end`); return true; }
+            if (start >= end) { return this.refuseDeclaration(lineIndex, trimmed, `MAP range $${m[2]} >= $${m[3]} — start must be below end`); }
             if (!cfg.machine) cfg.machine = { regions: [], chips: [] };
             for (const r of cfg.machine.regions) {
                 if (start <= r.end && r.start <= end) {
-                    this.warn(lineIndex, `MAP ${m[1].toUpperCase()} overlaps the ${r.kind.toUpperCase()} at $${r.start.toString(16)}-$${r.end.toString(16)}`);
-                    return true;
+                    return this.refuseDeclaration(lineIndex, trimmed, `MAP ${m[1].toUpperCase()} overlaps the ${r.kind.toUpperCase()} at $${r.start.toString(16)}-$${r.end.toString(16)}`);
                 }
             }
             cfg.machine.regions.push({ kind: m[1].toLowerCase(), start, end });
@@ -3885,13 +4020,11 @@ class SB3Creator {
             const cfg = this.stcConfig();
             const part = SB3Creator.STC_PARTS[cfg.device];
             if (!part || part.core !== 'w65c02') {
-                this.warn(lineIndex, 'CHIP declarations describe the 6502 machine — this device has its peripherals on-die');
-                return true;
+                return this.refuseDeclaration(lineIndex, trimmed, 'CHIP declarations describe the 6502 machine — this device has its peripherals on-die');
             }
             if (!cfg.machine) cfg.machine = { regions: [], chips: [] };
             if (cfg.machine.chips.some((c) => c.kind === 'simplevga')) {
-                this.warn(lineIndex, 'a SIMPLEVGA is already declared — one card per machine');
-                return true;
+                return this.refuseDeclaration(lineIndex, trimmed, 'a SIMPLEVGA is already declared — one card per machine');
             }
             cfg.machine.chips.push({ name: m[1], kind: 'simplevga', at: 0 });
             return true;
@@ -3900,8 +4033,7 @@ class SB3Creator {
             const cfg = this.stcConfig();
             const part = SB3Creator.STC_PARTS[cfg.device];
             if (!part || part.core !== 'w65c02') {
-                this.warn(lineIndex, 'CHIP declarations describe the 6502 machine — this device has its peripherals on-die');
-                return true;
+                return this.refuseDeclaration(lineIndex, trimmed, 'CHIP declarations describe the 6502 machine — this device has its peripherals on-die');
             }
             const kind = /22$/i.test(m[2]) ? 'via' : /9918$/i.test(m[2]) ? 'vdp' : 'acia';
             const at = parseInt(m[3], 16);
@@ -3911,20 +4043,17 @@ class SB3Creator {
             const span = CHIP_SPAN[kind];
             if (!cfg.machine) cfg.machine = { regions: [], chips: [] };
             if (cfg.machine.chips.some((c) => c.kind === kind)) {
-                this.warn(lineIndex, `a ${m[2].toUpperCase()} is already declared — one of each for now (the emitter names its registers singly)`);
-                return true;
+                return this.refuseDeclaration(lineIndex, trimmed, `a ${m[2].toUpperCase()} is already declared — one of each for now (the emitter names its registers singly)`);
             }
             for (const r of cfg.machine.regions) {
                 if (at <= r.end && r.start <= at + span - 1) {
-                    this.warn(lineIndex, `CHIP at $${m[3]} sits inside the ${r.kind.toUpperCase()} region $${r.start.toString(16)}-$${r.end.toString(16)}`);
-                    return true;
+                    return this.refuseDeclaration(lineIndex, trimmed, `CHIP at $${m[3]} sits inside the ${r.kind.toUpperCase()} region $${r.start.toString(16)}-$${r.end.toString(16)}`);
                 }
             }
             for (const c of cfg.machine.chips) {
                 const cSpan = CHIP_SPAN[c.kind] || 4;
                 if (at <= c.at + cSpan - 1 && c.at <= at + span - 1) {
-                    this.warn(lineIndex, `CHIP at $${m[3]} overlaps "${c.name}" at $${c.at.toString(16)}`);
-                    return true;
+                    return this.refuseDeclaration(lineIndex, trimmed, `CHIP at $${m[3]} overlaps "${c.name}" at $${c.at.toString(16)}`);
                 }
             }
             cfg.machine.chips.push({ kind, name: m[1], at });
@@ -3984,8 +4113,7 @@ class SB3Creator {
             const spoken = SPOKEN[cfg.device];
             if (!spoken || !spoken[0].test(where)) {
                 const want = spoken ? spoken[1] : 'P<port>.<bit>';
-                this.warn(lineIndex, `"${where.toUpperCase()}" is not how ${cfg.device || 'this device'} names a pin; it uses ${want}`);
-                return true;
+                return this.refuseDeclaration(lineIndex, trimmed, `"${where.toUpperCase()}" is not how ${cfg.device || 'this device'} names a pin; it uses ${want}`);
             }
             // The board ends somewhere, and the compiler already refuses past
             // it. Disagreeing here would mean a project that builds in one
@@ -3999,48 +4127,39 @@ class SB3Creator {
             const edge = LAST[cfg.device] || {};
             const num = where.match(/^([A-Z]+)(\d+)$/i);
             if (num && edge[num[1].toUpperCase()] !== undefined && Number(num[2]) > edge[num[1].toUpperCase()]) {
-                this.warn(lineIndex, `${cfg.device} has no ${where.toUpperCase()}; it goes up to ${num[1].toUpperCase()}${edge[num[1].toUpperCase()]}`);
-                return true;
+                return this.refuseDeclaration(lineIndex, trimmed, `${cfg.device} has no ${where.toUpperCase()}; it goes up to ${num[1].toUpperCase()}${edge[num[1].toUpperCase()]}`);
             }
             if (this.stcPin(name)) {
-                this.warn(lineIndex, `Pin "${name}" declared twice`);
-                return true;
+                return this.refuseDeclaration(lineIndex, trimmed, `Pin "${name}" declared twice`);
             }
             // The Nano's A6/A7 reach the pad with no digital buffer behind
             // them, so a digital write to one does nothing on the board. The
             // compiler refuses it; agreeing here is the point of the rule
             // above about not disagreeing with it.
             if (cfg.device === 'arduino-nano' && /^A[67]$/i.test(where) && !/^analog$/i.test(direction)) {
-                this.warn(lineIndex, `${where.toUpperCase()} is analog-input only on the Nano (the TQFP package brings out the ADC channel with no digital buffer), so it cannot be an ${direction.toUpperCase()}`);
-                return true;
+                return this.refuseDeclaration(lineIndex, trimmed, `${where.toUpperCase()} is analog-input only on the Nano (the TQFP package brings out the ADC channel with no digital buffer), so it cannot be an ${direction.toUpperCase()}`);
             }
             if (cfg.device === 'stm32f030' && /^analog$/i.test(direction) && !/^PA[0-7]$/i.test(where)) {
-                this.warn(lineIndex, `ANALOG on the STM32F030 means PA0-PA7 (ADC_IN0-7), not ${where.toUpperCase()}`);
-                return true;
+                return this.refuseDeclaration(lineIndex, trimmed, `ANALOG on the STM32F030 means PA0-PA7 (ADC_IN0-7), not ${where.toUpperCase()}`);
             }
             if (cfg.device === 'stm32f030' && /^pwm$/i.test(direction) && !/^(PA[67]|PB1)$/i.test(where)) {
-                this.warn(lineIndex, `PWM on the STM32F030 means PA6, PA7 or PB1 (TIM3 channels), not ${where.toUpperCase()}`);
-                return true;
+                return this.refuseDeclaration(lineIndex, trimmed, `PWM on the STM32F030 means PA6, PA7 or PB1 (TIM3 channels), not ${where.toUpperCase()}`);
             }
             if (core === 'rp2040' && cfg.device !== 'stm32f030' && /^analog$/i.test(direction) && !/^GP2[678]$/i.test(where)) {
-                this.warn(lineIndex, `ANALOG on the Pico means GP26, GP27 or GP28 (ADC0-2), not ${where.toUpperCase()}`);
-                return true;
+                return this.refuseDeclaration(lineIndex, trimmed, `ANALOG on the Pico means GP26, GP27 or GP28 (ADC0-2), not ${where.toUpperCase()}`);
             }
             const avrAnalogPin = cfg.device === 'attiny88' && /^PC[0-5]$/i.test(where);
             if (core === 'arduino' && /^analog$/i.test(direction) && !/^A/i.test(where) && !avrAnalogPin) {
-                this.warn(lineIndex, `ANALOG needs an analog input (A0 and up), not ${where.toUpperCase()}`);
-                return true;
+                return this.refuseDeclaration(lineIndex, trimmed, `ANALOG needs an analog input (A0 and up), not ${where.toUpperCase()}`);
             }
             if (core === 'micropython' && /^button_[ab]$/i.test(where) && !/^input$/i.test(direction)) {
-                this.warn(lineIndex, `${where.toUpperCase()} is a button and can only be an INPUT`);
-                return true;
+                return this.refuseDeclaration(lineIndex, trimmed, `${where.toUpperCase()} is a button and can only be an INPUT`);
             }
             // PART-claims conflict: a keypad or other part that owns this pin.
             const partClash = cfg.parts.find((prev) =>
                 (prev.claims || []).some((c) => typeof c === 'string' && c.toUpperCase() === where.toUpperCase()));
             if (partClash) {
-                this.warn(lineIndex, `${where.toUpperCase()} is already claimed by "${partClash.name}"; a PART owns that pin`);
-                return true;
+                return this.refuseDeclaration(lineIndex, trimmed, `${where.toUpperCase()} is already claimed by "${partClash.name}"; a PART owns that pin`);
             }
             cfg.pins.push({
                 name,
@@ -4054,20 +4173,17 @@ class SB3Creator {
             const [, name, port, bit, direction, active] = m;
             const cfg = this.stcConfig();
             if (this.stcPin(name)) {
-                this.warn(lineIndex, `Pin "${name}" declared twice`);
-                return true;
+                return this.refuseDeclaration(lineIndex, trimmed, `Pin "${name}" declared twice`);
             }
             // ADC channel n is physically P1.n — there is no mux to anywhere else.
             if (/^analog$/i.test(direction) && port !== '1') {
-                this.warn(lineIndex, `ANALOG is only available on P1.0-P1.7 (ADC0-ADC7), not P${port}.${bit}`);
-                return true;
+                return this.refuseDeclaration(lineIndex, trimmed, `ANALOG is only available on P1.0-P1.7 (ADC0-ADC7), not P${port}.${bit}`);
             }
             // PORT conflict: a PIN inside a declared PORT would be clobbered by every
             // port write, and neither declaration looks wrong on its own.
             if (cfg.ports.some((w) => w.port === Number(port))) {
                 const conflict = cfg.ports.find((w) => w.port === Number(port));
-                this.warn(lineIndex, `P${port} is already declared as the whole port "${conflict.name}"; a PORT write covers all eight bits and would clobber P${port}.${bit}`);
-                return true;
+                return this.refuseDeclaration(lineIndex, trimmed, `P${port} is already declared as the whole port "${conflict.name}"; a PORT write covers all eight bits and would clobber P${port}.${bit}`);
             }
             // A PART (595, keypad, MATRIX8X8) that claims this pin owns its
             // latch — its ISR/driver is the sole writer, so a bare PIN on it
@@ -4076,8 +4192,7 @@ class SB3Creator {
             const partClash = cfg.parts.find((prev) =>
                 (prev.claims || []).some((c) => Array.isArray(c) && c[0] === Number(port) && c[1] === Number(bit)));
             if (partClash) {
-                this.warn(lineIndex, `P${port}.${bit} is already claimed by "${partClash.name}"; a PART owns that pin`);
-                return true;
+                return this.refuseDeclaration(lineIndex, trimmed, `P${port}.${bit} is already claimed by "${partClash.name}"; a PART owns that pin`);
             }
             cfg.pins.push({
                 name,
@@ -4094,19 +4209,16 @@ class SB3Creator {
             const cfg = this.stcConfig();
             const portNum = Number(port);
             if (this.stcPort(name) || this.stcPin(name) || this.stcPart(name)) {
-                this.warn(lineIndex, `"${name}" declared twice`);
-                return true;
+                return this.refuseDeclaration(lineIndex, trimmed, `"${name}" declared twice`);
             }
             // Conflict: a PIN already uses a bit on this port.
             const conflict = cfg.pins.find((p) => p.port === portNum);
             if (conflict) {
-                this.warn(lineIndex, `P${port} is already used one bit at a time, by "${conflict.name}" (P${conflict.port}.${conflict.bit}); a PORT writes all eight at once and would clobber it`);
-                return true;
+                return this.refuseDeclaration(lineIndex, trimmed, `P${port} is already used one bit at a time, by "${conflict.name}" (P${conflict.port}.${conflict.bit}); a PORT writes all eight at once and would clobber it`);
             }
             // Two PORTs on the same physical port.
             if (cfg.ports.some((p) => p.port === portNum)) {
-                this.warn(lineIndex, `P${port} is already declared as "${cfg.ports.find((p) => p.port === portNum).name}"`);
-                return true;
+                return this.refuseDeclaration(lineIndex, trimmed, `P${port} is already declared as "${cfg.ports.find((p) => p.port === portNum).name}"`);
             }
             // A PART (595, keypad, MATRIX8X8) that claims any pin on this port
             // owns that latch — a whole-port write would clobber its bits and,
@@ -4116,8 +4228,7 @@ class SB3Creator {
             const claimClash = cfg.parts.find((prev) =>
                 (prev.claims || []).some((c) => Array.isArray(c) && c[0] === portNum));
             if (claimClash) {
-                this.warn(lineIndex, `P${port} overlaps pins already claimed by "${claimClash.name}"; a PART owns those latches`);
-                return true;
+                return this.refuseDeclaration(lineIndex, trimmed, `P${port} overlaps pins already claimed by "${claimClash.name}"; a PART owns those latches`);
             }
             cfg.ports.push({
                 name,
@@ -4132,31 +4243,26 @@ class SB3Creator {
             const [, name, dp, db, cp, cb, lp, lb, active] = m;
             const cfg = this.stcConfig();
             if (this.stcPin(name) || this.stcPort(name) || this.stcPart(name)) {
-                this.warn(lineIndex, `"${name}" declared twice`);
-                return true;
+                return this.refuseDeclaration(lineIndex, trimmed, `"${name}" declared twice`);
             }
             const claims = [[Number(dp), Number(db)], [Number(cp), Number(cb)], [Number(lp), Number(lb)]];
             const claimSet = new Set(claims.map(([p, b]) => `${p}.${b}`));
             if (claimSet.size !== 3) {
-                this.warn(lineIndex, `"${name}" names the same pin twice; data, clock and latch must be three different pins`);
-                return true;
+                return this.refuseDeclaration(lineIndex, trimmed, `"${name}" names the same pin twice; data, clock and latch must be three different pins`);
             }
             // Check conflicts with existing PINs, PORTs, PARTs.
             for (const [p, b] of claims) {
                 const pinConflict = cfg.pins.find((pin) => pin.port === p && pin.bit === b);
                 if (pinConflict) {
-                    this.warn(lineIndex, `P${p}.${b} is already declared as "${pinConflict.name}"; a PART claims its pins`);
-                    return true;
+                    return this.refuseDeclaration(lineIndex, trimmed, `P${p}.${b} is already declared as "${pinConflict.name}"; a PART claims its pins`);
                 }
                 const portConflict = cfg.ports.find((w) => w.port === p);
                 if (portConflict) {
-                    this.warn(lineIndex, `P${p}.${b} is inside the whole port "${portConflict.name}", which would clobber it`);
-                    return true;
+                    return this.refuseDeclaration(lineIndex, trimmed, `P${p}.${b} is inside the whole port "${portConflict.name}", which would clobber it`);
                 }
                 for (const prev of cfg.parts) {
                     if (prev.claims.some(([pp, pb]) => pp === p && pb === b)) {
-                        this.warn(lineIndex, `P${p}.${b} is already claimed by "${prev.name}"`);
-                        return true;
+                        return this.refuseDeclaration(lineIndex, trimmed, `P${p}.${b} is already claimed by "${prev.name}"`);
                     }
                 }
             }
@@ -4181,25 +4287,21 @@ class SB3Creator {
             // Only match for non-8051 cores (the P<p>.<b> branch above handles 8051).
             if (core && core !== '8051' && !/^P\d\.\d$/.test(dw)) {
                 if (this.stcPin(name) || this.stcPort(name) || this.stcPart(name)) {
-                    this.warn(lineIndex, `"${name}" declared twice`);
-                    return true;
+                    return this.refuseDeclaration(lineIndex, trimmed, `"${name}" declared twice`);
                 }
                 const wheres = [dw.toUpperCase(), cw.toUpperCase(), lw.toUpperCase()];
                 if (new Set(wheres).size !== 3) {
-                    this.warn(lineIndex, `"${name}" names the same pin twice; data, clock and latch must be three different pins`);
-                    return true;
+                    return this.refuseDeclaration(lineIndex, trimmed, `"${name}" names the same pin twice; data, clock and latch must be three different pins`);
                 }
                 // Check conflicts with existing PINs and PARTs.
                 for (const w of wheres) {
                     const pinConflict = cfg.pins.find((pin) => (pin.where || '').toUpperCase() === w);
                     if (pinConflict) {
-                        this.warn(lineIndex, `${w} is already declared as "${pinConflict.name}"; a PART claims its pins`);
-                        return true;
+                        return this.refuseDeclaration(lineIndex, trimmed, `${w} is already declared as "${pinConflict.name}"; a PART claims its pins`);
                     }
                     for (const prev of cfg.parts) {
                         if ((prev.claims || []).some((c) => typeof c === 'string' ? c === w : false)) {
-                            this.warn(lineIndex, `${w} is already claimed by "${prev.name}"`);
-                            return true;
+                            return this.refuseDeclaration(lineIndex, trimmed, `${w} is already claimed by "${prev.name}"`);
                         }
                     }
                 }
@@ -4229,12 +4331,10 @@ class SB3Creator {
             const cfg = this.stcConfig();
             const target = SB3Creator.STC_PARTS[cfg.device];
             if (!target || (target.core && target.core !== '8051')) {
-                this.warn(lineIndex, `LCD1602 parallel pin syntax is currently available on the 8051 family; ${cfg.device} should use the I2C LCD wiring.`);
-                return true;
+                return this.refuseDeclaration(lineIndex, trimmed, `LCD1602 parallel pin syntax is currently available on the 8051 family; ${cfg.device} should use the I2C LCD wiring.`);
             }
             if (this.stcPin(name) || this.stcPort(name) || this.stcPart(name)) {
-                this.warn(lineIndex, `"${name}" declared twice`);
-                return true;
+                return this.refuseDeclaration(lineIndex, trimmed, `"${name}" declared twice`);
             }
             const data = [];
             for (let i = 2; i <= 9; i += 2) data.push({ port: Number(lcdMatch[i]), bit: Number(lcdMatch[i + 1]) });
@@ -4248,30 +4348,25 @@ class SB3Creator {
             const pins = [...data, rs, ...(rw ? [rw] : []), en];
             const claims = pins.map(({ port, bit }) => [port, bit]);
             if (new Set(claims.map(([port, bit]) => `${port}.${bit}`)).size !== claims.length) {
-                this.warn(lineIndex, `"${name}" names the same pin twice; LCD1602 needs distinct data and control pins`);
-                return true;
+                return this.refuseDeclaration(lineIndex, trimmed, `"${name}" names the same pin twice; LCD1602 needs distinct data and control pins`);
             }
             for (const [port, bit] of claims) {
                 const pinConflict = cfg.pins.find((pin) => pin.port === port && pin.bit === bit);
                 if (pinConflict) {
-                    this.warn(lineIndex, `P${port}.${bit} is already declared as "${pinConflict.name}"; a PART claims its pins`);
-                    return true;
+                    return this.refuseDeclaration(lineIndex, trimmed, `P${port}.${bit} is already declared as "${pinConflict.name}"; a PART claims its pins`);
                 }
                 const portConflict = cfg.ports.find((whole) => whole.port === port);
                 if (portConflict) {
-                    this.warn(lineIndex, `P${port}.${bit} is inside the whole port "${portConflict.name}", which would clobber it`);
-                    return true;
+                    return this.refuseDeclaration(lineIndex, trimmed, `P${port}.${bit} is inside the whole port "${portConflict.name}", which would clobber it`);
                 }
                 for (const prev of cfg.parts) {
                     if ((prev.claims || []).some((c) => Array.isArray(c) && c[0] === port && c[1] === bit)) {
-                        this.warn(lineIndex, `P${port}.${bit} is already claimed by "${prev.name}"`);
-                        return true;
+                        return this.refuseDeclaration(lineIndex, trimmed, `P${port}.${bit} is already claimed by "${prev.name}"`);
                     }
                 }
             }
             if (cfg.parts.some((p) => p.type === 'lcd1602')) {
-                this.warn(lineIndex, 'only one parallel LCD1602 is supported');
-                return true;
+                return this.refuseDeclaration(lineIndex, trimmed, 'only one parallel LCD1602 is supported');
             }
             cfg.parts.push({ name, type: 'lcd1602', claims, data, rs, rw, en, writeOnly: lcdWriteOnly });
             return true;
@@ -4293,12 +4388,10 @@ class SB3Creator {
             const cfg = this.stcConfig();
             const clash = cfg.parts.find((q) => q.type === type && q.channel === channel);
             if (clash) {
-                this.warn(lineIndex, `${type} channel ${channel} is already declared as "${clash.name}"`);
-                return true;
+                return this.refuseDeclaration(lineIndex, trimmed, `${type} channel ${channel} is already declared as "${clash.name}"`);
             }
             if (cfg.parts.some((q) => q.name.toLowerCase() === name.toLowerCase())) {
-                this.warn(lineIndex, `"${name}" is already a declared part`);
-                return true;
+                return this.refuseDeclaration(lineIndex, trimmed, `"${name}" is already a declared part`);
             }
             cfg.parts.push({ name, type, channel, claims: [] });
             return true;
@@ -4316,35 +4409,29 @@ class SB3Creator {
             // No explicit core key = 8051 (the P<p>.<b> pin form), same
             // convention as the 74HC595 branches above.
             if (!part || !(part.keypad || !part.core || part.core === '8051')) {
-                this.warn(lineIndex, `KEYPAD4X4 is not available on ${cfg.device}: the scan has to drive four rows while reading four columns, and this device has no way to do both. Devices that have it: the STC parts, and i8086 (through its 8255).`);
-                return true;
+                return this.refuseDeclaration(lineIndex, trimmed, `KEYPAD4X4 is not available on ${cfg.device}: the scan has to drive four rows while reading four columns, and this device has no way to do both. Devices that have it: the STC parts, and i8086 (through its 8255).`);
             }
             if (this.stcPin(name) || this.stcPort(name) || this.stcPart(name)) {
-                this.warn(lineIndex, `"${name}" declared twice`);
-                return true;
+                return this.refuseDeclaration(lineIndex, trimmed, `"${name}" declared twice`);
             }
             const nums = m.slice(2, 18).map(Number);
             const claims = [];
             for (let i = 0; i < 8; i++) claims.push([nums[2 * i], nums[2 * i + 1]]);
             if (new Set(claims.map(([p, b]) => `${p}.${b}`)).size !== 8) {
-                this.warn(lineIndex, `"${name}" names the same pin twice; a 4x4 keypad claims eight different pins`);
-                return true;
+                return this.refuseDeclaration(lineIndex, trimmed, `"${name}" names the same pin twice; a 4x4 keypad claims eight different pins`);
             }
             for (const [p, b] of claims) {
                 const pinConflict = cfg.pins.find((pin) => pin.port === p && pin.bit === b);
                 if (pinConflict) {
-                    this.warn(lineIndex, `P${p}.${b} is already declared as "${pinConflict.name}"; a PART claims its pins`);
-                    return true;
+                    return this.refuseDeclaration(lineIndex, trimmed, `P${p}.${b} is already declared as "${pinConflict.name}"; a PART claims its pins`);
                 }
                 const portConflict = cfg.ports.find((w) => w.port === p);
                 if (portConflict) {
-                    this.warn(lineIndex, `P${p}.${b} is inside the whole port "${portConflict.name}", which would clobber it`);
-                    return true;
+                    return this.refuseDeclaration(lineIndex, trimmed, `P${p}.${b} is inside the whole port "${portConflict.name}", which would clobber it`);
                 }
                 for (const prev of cfg.parts) {
                     if ((prev.claims || []).some((c) => Array.isArray(c) && c[0] === p && c[1] === b)) {
-                        this.warn(lineIndex, `P${p}.${b} is already claimed by "${prev.name}"`);
-                        return true;
+                        return this.refuseDeclaration(lineIndex, trimmed, `P${p}.${b} is already claimed by "${prev.name}"`);
                     }
                 }
             }
@@ -4368,12 +4455,10 @@ class SB3Creator {
             const part = SB3Creator.STC_PARTS[cfg.device];
             const core = part && part.core;
             if (!core || (core !== 'micropython' && core !== 'rp2040')) {
-                this.warn(lineIndex, `KEYPAD4X4 with this pin syntax is for micro:bit (P0-P20) or Pico (GP0-GP28); ${cfg.device || 'this device'} uses P<port>.<bit>`);
-                return true;
+                return this.refuseDeclaration(lineIndex, trimmed, `KEYPAD4X4 with this pin syntax is for micro:bit (P0-P20) or Pico (GP0-GP28); ${cfg.device || 'this device'} uses P<port>.<bit>`);
             }
             if (this.stcPin(name) || this.stcPort(name) || this.stcPart(name)) {
-                this.warn(lineIndex, `"${name}" declared twice`);
-                return true;
+                return this.refuseDeclaration(lineIndex, trimmed, `"${name}" declared twice`);
             }
             // Validate each pin token against the device's vocabulary
             const SPOKEN = {
@@ -4386,26 +4471,22 @@ class SB3Creator {
             const claims = [];
             for (const tok of tokens) {
                 if (spoken && !spoken[0].test(tok)) {
-                    this.warn(lineIndex, `"${tok}" is not a valid pin for ${cfg.device}; it uses ${spoken[1]}`);
-                    return true;
+                    return this.refuseDeclaration(lineIndex, trimmed, `"${tok}" is not a valid pin for ${cfg.device}; it uses ${spoken[1]}`);
                 }
                 claims.push(tok.toUpperCase());
             }
             if (new Set(claims).size !== 8) {
-                this.warn(lineIndex, `"${name}" names the same pin twice; a 4x4 keypad claims eight different pins`);
-                return true;
+                return this.refuseDeclaration(lineIndex, trimmed, `"${name}" names the same pin twice; a 4x4 keypad claims eight different pins`);
             }
             // Conflict: a PIN declaration on a claimed pin
             for (const w of claims) {
                 const pinConflict = cfg.pins.find((pin) => (pin.where || '').toUpperCase() === w);
                 if (pinConflict) {
-                    this.warn(lineIndex, `${w} is already declared as "${pinConflict.name}"; a PART claims its pins`);
-                    return true;
+                    return this.refuseDeclaration(lineIndex, trimmed, `${w} is already declared as "${pinConflict.name}"; a PART claims its pins`);
                 }
                 for (const prev of cfg.parts) {
                     if ((prev.claims || []).some((c) => typeof c === 'string' && c.toUpperCase() === w)) {
-                        this.warn(lineIndex, `${w} is already claimed by "${prev.name}"`);
-                        return true;
+                        return this.refuseDeclaration(lineIndex, trimmed, `${w} is already claimed by "${prev.name}"`);
                     }
                 }
             }
@@ -4434,12 +4515,10 @@ class SB3Creator {
             const cfg = this.stcConfig();
             const part = SB3Creator.STC_PARTS[cfg.device];
             if (!part || (part.core && part.core !== '8051')) {
-                this.warn(lineIndex, `MATRIX8X8 is not available on ${cfg.device}: the self-scan lives in the 8051 Timer-0 ISR and drives a whole quasi-bidirectional port (8051 family). Devices that have it: the STC parts.`);
-                return true;
+                return this.refuseDeclaration(lineIndex, trimmed, `MATRIX8X8 is not available on ${cfg.device}: the self-scan lives in the 8051 Timer-0 ISR and drives a whole quasi-bidirectional port (8051 family). Devices that have it: the STC parts.`);
             }
             if (this.stcPin(name) || this.stcPort(name) || this.stcPart(name)) {
-                this.warn(lineIndex, `"${name}" declared twice`);
-                return true;
+                return this.refuseDeclaration(lineIndex, trimmed, `"${name}" declared twice`);
             }
             const data = { port: Number(m[2]), bit: Number(m[3]) };
             const clock = { port: Number(m[4]), bit: Number(m[5]) };
@@ -4453,24 +4532,20 @@ class SB3Creator {
             const claims = [[data.port, data.bit], [clock.port, clock.bit], [latch.port, latch.bit],
                 ...columns.map((c) => [c.port, c.bit])];
             if (new Set(claims.map(([p, b]) => `${p}.${b}`)).size !== 11) {
-                this.warn(lineIndex, `"${name}" names the same pin twice; a MATRIX8X8 claims three 595 pins and eight column pins`);
-                return true;
+                return this.refuseDeclaration(lineIndex, trimmed, `"${name}" names the same pin twice; a MATRIX8X8 claims three 595 pins and eight column pins`);
             }
             for (const [p, b] of claims) {
                 const pinConflict = cfg.pins.find((pin) => pin.port === p && pin.bit === b);
                 if (pinConflict) {
-                    this.warn(lineIndex, `P${p}.${b} is already declared as "${pinConflict.name}"; a PART claims its pins`);
-                    return true;
+                    return this.refuseDeclaration(lineIndex, trimmed, `P${p}.${b} is already declared as "${pinConflict.name}"; a PART claims its pins`);
                 }
                 const portConflict = cfg.ports.find((w) => w.port === p);
                 if (portConflict) {
-                    this.warn(lineIndex, `P${p}.${b} is inside the whole port "${portConflict.name}", which would clobber it`);
-                    return true;
+                    return this.refuseDeclaration(lineIndex, trimmed, `P${p}.${b} is inside the whole port "${portConflict.name}", which would clobber it`);
                 }
                 for (const prev of cfg.parts) {
                     if ((prev.claims || []).some((c) => Array.isArray(c) && c[0] === p && c[1] === b)) {
-                        this.warn(lineIndex, `P${p}.${b} is already claimed by "${prev.name}"`);
-                        return true;
+                        return this.refuseDeclaration(lineIndex, trimmed, `P${p}.${b} is already claimed by "${prev.name}"`);
                     }
                 }
             }
@@ -4486,39 +4561,33 @@ class SB3Creator {
             const cfg = this.stcConfig();
             const part = SB3Creator.STC_PARTS[cfg.device];
             if (!part || !(part.sevenseg || !part.core || part.core === '8051')) {
-                this.warn(lineIndex, `SEVENSEG8 is not available on ${cfg.device}: a multiplexed display needs a timer to scan the digits one at a time, and this device has none. Devices that have it: the STC parts, and i8086.`);
-                return true;
+                return this.refuseDeclaration(lineIndex, trimmed, `SEVENSEG8 is not available on ${cfg.device}: a multiplexed display needs a timer to scan the digits one at a time, and this device has none. Devices that have it: the STC parts, and i8086.`);
             }
             if (this.stcPin(name) || this.stcPort(name) || this.stcPart(name)) {
-                this.warn(lineIndex, `"${name}" declared twice`);
-                return true;
+                return this.refuseDeclaration(lineIndex, trimmed, `"${name}" declared twice`);
             }
             const segPort = Number(m[2]);
             const selPins = [{ port: Number(m[3]), bit: Number(m[4]) },
                 { port: Number(m[5]), bit: Number(m[6]) },
                 { port: Number(m[7]), bit: Number(m[8]) }];
             if (new Set(selPins.map((p) => `${p.port}.${p.bit}`)).size !== 3) {
-                this.warn(lineIndex, `"${name}" names the same select pin twice`);
-                return true;
+                return this.refuseDeclaration(lineIndex, trimmed, `"${name}" names the same select pin twice`);
             }
             const claims = selPins.map((p) => [p.port, p.bit]);
             for (const [pp, b] of claims) {
                 const pinConflict = cfg.pins.find((pin) => pin.port === pp && pin.bit === b);
                 if (pinConflict) {
-                    this.warn(lineIndex, `P${pp}.${b} is already declared as "${pinConflict.name}"; a PART claims its pins`);
-                    return true;
+                    return this.refuseDeclaration(lineIndex, trimmed, `P${pp}.${b} is already declared as "${pinConflict.name}"; a PART claims its pins`);
                 }
                 for (const prev of cfg.parts) {
                     if ((prev.claims || []).some((c) => Array.isArray(c) && c[0] === pp && c[1] === b)) {
-                        this.warn(lineIndex, `P${pp}.${b} is already claimed by "${prev.name}"`);
-                        return true;
+                        return this.refuseDeclaration(lineIndex, trimmed, `P${pp}.${b} is already claimed by "${prev.name}"`);
                     }
                 }
             }
             const portConflict = cfg.ports.find((w) => w.port === segPort);
             if (portConflict) {
-                this.warn(lineIndex, `P${segPort} is already declared as port "${portConflict.name}"`);
-                return true;
+                return this.refuseDeclaration(lineIndex, trimmed, `P${segPort} is already declared as port "${portConflict.name}"`);
             }
             cfg.parts.push({ name, type: 'sevenseg8', segPort, selPins, claims,
                 commonAnode: /anode/i.test(m[9] || '') });
@@ -4532,12 +4601,10 @@ class SB3Creator {
             const cfg = this.stcConfig();
             const part = SB3Creator.STC_PARTS[cfg.device];
             if (!part || (part.core && part.core !== '8051')) {
-                this.warn(lineIndex, `LEDBANK8 is not available on ${cfg.device}: the shadow-byte push lives in the 8051 Timer-0 ISR (8051 family). Devices that have it: the STC parts.`);
-                return true;
+                return this.refuseDeclaration(lineIndex, trimmed, `LEDBANK8 is not available on ${cfg.device}: the shadow-byte push lives in the 8051 Timer-0 ISR (8051 family). Devices that have it: the STC parts.`);
             }
             if (this.stcPin(name) || this.stcPort(name) || this.stcPart(name)) {
-                this.warn(lineIndex, `"${name}" declared twice`);
-                return true;
+                return this.refuseDeclaration(lineIndex, trimmed, `"${name}" declared twice`);
             }
             const ledPort = Number(m[2]);
             for (const ss of cfg.parts) {
@@ -4558,8 +4625,7 @@ class SB3Creator {
             const [, name, body] = m;
             const cfg = this.stcConfig();
             if (this.stcTable(name)) {
-                this.warn(lineIndex, `Table "${name}" declared twice`);
-                return true;
+                return this.refuseDeclaration(lineIndex, trimmed, `Table "${name}" declared twice`);
             }
             const values = [];
             for (let item of body.split(',')) {
@@ -4569,18 +4635,15 @@ class SB3Creator {
                 if (/^0b[01]+$/i.test(item)) n = parseInt(item.slice(2), 2);
                 else n = Number(item.startsWith('0x') || item.startsWith('0X') ? item : item);
                 if (!Number.isFinite(n) || n !== Math.floor(n)) {
-                    this.warn(lineIndex, `"${item}" is not a constant; a TABLE holds numbers only`);
-                    return true;
+                    return this.refuseDeclaration(lineIndex, trimmed, `"${item}" is not a constant; a TABLE holds numbers only`);
                 }
                 if (n < 0 || n > 255) {
-                    this.warn(lineIndex, `${n} is outside 0–255; a TABLE holds bytes`);
-                    return true;
+                    return this.refuseDeclaration(lineIndex, trimmed, `${n} is outside 0–255; a TABLE holds bytes`);
                 }
                 values.push(n);
             }
             if (!values.length) {
-                this.warn(lineIndex, `Table "${name}" is empty`);
-                return true;
+                return this.refuseDeclaration(lineIndex, trimmed, `Table "${name}" is empty`);
             }
             cfg.tables.push({ name, values });
             return true;
@@ -4592,13 +4655,11 @@ class SB3Creator {
         if ((m = trimmed.match(/^LEDCUBE\s+(\d+)$/i))) {
             const size = Number(m[1]);
             if (size < 2 || size > 8) {
-                this.warn(lineIndex, `LEDCUBE size must be 2–8, got ${size}`);
-                return true;
+                return this.refuseDeclaration(lineIndex, trimmed, `LEDCUBE size must be 2–8, got ${size}`);
             }
             const cfg = this.stcConfig();
             if (cfg.ledcube) {
-                this.warn(lineIndex, 'LEDCUBE declared twice');
-                return true;
+                return this.refuseDeclaration(lineIndex, trimmed, 'LEDCUBE declared twice');
             }
             // selects = size * (bicolour ? 2 : 1), bits = size * size.
             // For the 4x4x4: 8 selects, 8 data bits per select (only lower 4x4
@@ -4664,8 +4725,8 @@ class SB3Creator {
             return push('planetemaths_multiple', { NUM1: this.parseValue(mm[1], context), NUM2: this.parseValue(mm[2], context) });
         }
         // Arrays & Vectors boolean: array "NAME" contains VALUE
-        if ((mm = s.match(/^array\s+"([^"]*)"\s+contains\s+(.+)$/i))) {
-            return push('arrays_contains', { NAME: [1, [10, mm[1]]], VALUE: this.parseValue(mm[2], context) });
+        if ((mm = s.match(/^array\s+"((?:[^"\\]|\\.)*)"\s+contains\s+(.+)$/i))) {
+            return push('arrays_contains', { NAME: [1, [10, unescapeTextLiteral(mm[1])]], VALUE: this.parseValue(mm[2], context) });
         }
 
         // Comparisons. Scratch 3.0 has no native != / <= / >=, so build them
@@ -4707,7 +4768,7 @@ class SB3Creator {
         }
         // Device predicates (boolean reporters)
         // Device predicate: "<name> pressed?" — but NOT "key X pressed?" which is Scratch's own.
-        if ((m = s.match(/^"([^"]+)"\s+pressed\??$/i))) {
+        if ((m = s.match(/^"((?:[^"\\]|\\.)+)"\s+pressed\??$/i))) {
             return push('devices_pressed', { BUTTON: this.parseValue(`"${m[1]}"`, context) });
         }
         if ((m = s.match(/^(.+?)\s+above\s+(.+)$/i))) {
@@ -4781,7 +4842,7 @@ class SB3Creator {
 
     unquote(s) {
         s = s.trim();
-        if (s.length >= 2 && s.startsWith('"') && s.endsWith('"')) return s.slice(1, -1);
+        if (s.length >= 2 && s.startsWith('"') && s.endsWith('"')) return unescapeTextLiteral(s.slice(1, -1));
         return s;
     }
 
@@ -4828,9 +4889,9 @@ class SB3Creator {
                 tokens.push(s.slice(i, j)); i = j; continue;
             }
             if (s[i] === '"') {
-                let j = i + 1;
-                while (j < s.length && s[j] !== '"') j++;
-                j++; tokens.push(s.slice(i, j)); i = j; continue;
+                let j = closingQuote(s, i);
+                j = j < 0 ? s.length : j + 1;
+                tokens.push(s.slice(i, j)); i = j; continue;
             }
             let j = i;
             while (j < s.length && s[j] !== ' ' && s[j] !== '(' && s[j] !== '"') j++;
@@ -4948,6 +5009,7 @@ class SB3Creator {
         let match;
         ruleLogFor = line;
         ruleLog = [];
+        ruleHit = null;
         // A word whose argument is an expression written without parentheses
         // is refused here, by name, before a generic rule can claim the line.
         const refuseUnparenthesised = () => {
@@ -4983,6 +5045,7 @@ class SB3Creator {
                 throw new ParseError(`"${String(s).trim()}" is a reporter cut short by the statement's own keyword: `
                     + 'an argument that is an expression goes in parentheses, e.g. `(pick random 1 to 10)`');
             }
+            this.refuseSpilledReporter(line, s, context.target);
             return this.parseValue(s, context);
         };
 
@@ -5039,7 +5102,7 @@ class SB3Creator {
             // and returning `extraBlocks: {}` threw its blocks away — the hat
             // pointed at a block that did not exist and read back as `()`.
             const { id, block } = cmd('devices_whenabove', { topLevel: true });
-            block[id].inputs.SENSOR = [1, [10, match[1]]];
+            block[id].inputs.SENSOR = [1, [10, unescapeTextLiteral(match[1])]];
             block[id].inputs.THRESHOLD = val(match[2]);
             return ret(block);
         }
@@ -5048,23 +5111,23 @@ class SB3Creator {
             // and returning `extraBlocks: {}` threw its blocks away — the hat
             // pointed at a block that did not exist and read back as `()`.
             const { id, block } = cmd('devices_whencloser', { topLevel: true });
-            block[id].inputs.SENSOR = [1, [10, match[1]]];
+            block[id].inputs.SENSOR = [1, [10, unescapeTextLiteral(match[1])]];
             block[id].inputs.DISTANCE = val(match[2]);
             return ret(block);
         }
         if ((match = matchTopLevel(line, /^when motion on\s+"([^"]+)"$/i))) {
             const { id, block } = this.createBlock('devices_whenmotion', { topLevel: true });
-            block[id].inputs.SENSOR = [1, [10, match[1]]];
+            block[id].inputs.SENSOR = [1, [10, unescapeTextLiteral(match[1])]];
             return { block, extraBlocks: {} };
         }
         if ((match = matchTopLevel(line, /^when\s+"([^"]+)"\s+tilted$/i))) {
             const { id, block } = this.createBlock('devices_whentilted', { topLevel: true });
-            block[id].inputs.SENSOR = [1, [10, match[1]]];
+            block[id].inputs.SENSOR = [1, [10, unescapeTextLiteral(match[1])]];
             return { block, extraBlocks: {} };
         }
         if ((match = matchTopLevel(line, /^when IR received on\s+"([^"]+)"$/i))) {
             const { id, block } = this.createBlock('devices_whenirreceived', { topLevel: true });
-            block[id].inputs.SENSOR = [1, [10, match[1]]];
+            block[id].inputs.SENSOR = [1, [10, unescapeTextLiteral(match[1])]];
             return { block, extraBlocks: {} };
         }
         // KEYPAD4X4 event hat: `when key N pressed` / `released` on the sole
@@ -5350,7 +5413,7 @@ class SB3Creator {
         // ---- STC12 / 8051 print (program-wide, no declaration needed) ---------------
         if ((match = matchTopLevel(line, /^print\s+"([^"]*)"\s*$/i))) {
             const { id, block } = cmd('stc12_print');
-            block[id].inputs.VALUE = [1, [10, match[1]]];
+            block[id].inputs.VALUE = [1, [10, unescapeTextLiteral(match[1])]];
             block[id].fields.MODE = ['text', null];
             return ret(block);
         }
@@ -5392,7 +5455,7 @@ class SB3Creator {
         }
         if ((match = matchTopLevel(line, /^show\s+text\s+"([^"]*)"\s*$/i))) {
             const { id, block } = cmd('microbitplus_showtext');
-            block[id].inputs.TEXT = [1, [10, match[1]]];
+            block[id].inputs.TEXT = [1, [10, unescapeTextLiteral(match[1])]];
             return ret(block);
         }
         // The block's TEXT is an input, not a field, so it can hold a
@@ -5721,7 +5784,7 @@ class SB3Creator {
         // Free-text rules use this instead; identifier rules (array and
         // function names) keep the simpler pattern deliberately.
         const TEXT_LITERAL = '"((?:[^"\\\\]|\\\\.)*)"';
-        const unescapeText = (raw) => String(raw).replace(/\\(.)/g, '$1');
+        const unescapeText = unescapeTextLiteral;
 
         if ((match = matchTopLevel(line, new RegExp('^radio\\s+send\\s+text\\s+' + TEXT_LITERAL + '\\s*$', 'i')))) {
             const { id, block } = cmd('microbitplus_radiosendstr');
@@ -5756,7 +5819,7 @@ class SB3Creator {
         // ---- micro:bit display (explicit device verb: say is STAGE, this is LEDs) ----
         if ((match = matchTopLevel(line, /^(?:display|scroll)\s+"([^"]*)"\s*$/i))) {
             const { id, block } = cmd('microbit_display');
-            block[id].inputs.VALUE = [1, [10, match[1]]];
+            block[id].inputs.VALUE = [1, [10, unescapeTextLiteral(match[1])]];
             block[id].fields.MODE = ['text', null];
             return ret(block);
         }
@@ -6048,7 +6111,7 @@ class SB3Creator {
         // ---- char_lcd blocks ----
         if ((match = matchTopLevel(line, /^lcd print\s+"([^"]*)"\s+on\s+(.+)$/i))) {
             const { id, block } = cmd('devices_lcdprint');
-            block[id].inputs.TEXT = [1, [10, match[1]]];
+            block[id].inputs.TEXT = [1, [10, unescapeTextLiteral(match[1])]];
             block[id].inputs.DISPLAY = val(match[2]);
             return ret(block);
         }
@@ -6100,7 +6163,7 @@ class SB3Creator {
         }
         if ((match = matchTopLevel(line, /^tft print\s+"([^"]*)"\s+on\s+(.+)$/i))) {
             const { id, block } = cmd('devices_tftprint');
-            block[id].inputs.TEXT = [1, [10, match[1]]];
+            block[id].inputs.TEXT = [1, [10, unescapeTextLiteral(match[1])]];
             block[id].inputs.DISPLAY = val(match[2]);
             return ret(block);
         }
@@ -6162,7 +6225,7 @@ class SB3Creator {
         }
         if ((match = matchTopLevel(line, /^oled print\s+"([^"]*)"\s+on\s+(.+)$/i))) {
             const { id, block } = cmd('devices_oledprint');
-            block[id].inputs.TEXT = [1, [10, match[1]]];
+            block[id].inputs.TEXT = [1, [10, unescapeTextLiteral(match[1])]];
             block[id].inputs.DISPLAY = val(match[2]);
             return ret(block);
         }
@@ -6178,7 +6241,7 @@ class SB3Creator {
         // degrades to a comment everywhere else — an import loses
         // nothing, it just shows what it could not understand.
         if ((match = matchTopLevel(line, /^raw\s+"(.*)"\s*$/i))) {
-            const text = match[1].replace(/\\"/g, '"').replace(/\\\\/g, '\\');
+            const text = unescapeTextLiteral(match[1]);
             const { id, block } = cmd('bw_raw');
             block[id].fields.TEXT = [text, null];
             return ret(block);
@@ -6232,7 +6295,7 @@ class SB3Creator {
 
         // ---- Arrays & Vectors extension commands (anchored on `array "NAME"`; 0-based) ----
         // syncExtensions() auto-declares the `arrays` extension from these opcodes.
-        const aName = (n) => [1, [10, n]];
+        const aName = (n) => [1, [10, unescapeTextLiteral(n)]];
         if ((match = matchTopLevel(line, /^new array\s+"([^"]*)"\s*=\s*range\s+(.+?)\s+to\s+(.+)$/i))) {
             const { id, block } = cmd('arrays_createRange');
             block[id].inputs.NAME = aName(match[1]); block[id].inputs.START = val(match[2]); block[id].inputs.END = val(match[3]);
@@ -6683,7 +6746,7 @@ class SB3Creator {
     // Split a COSTUME spec into tokens, keeping "quoted strings" as single tokens.
     tokenizeCostumeSpec(s) {
         const out = [];
-        const re = /"([^"]*)"|(\S+)/g;
+        const re = /"((?:[^"\\]|\\.)*)"|(\S+)/g;
         let m;
         while ((m = re.exec(s)) !== null) out.push(m[1] !== undefined ? `"${m[1]}"` : m[2]);
         return out;
@@ -6729,6 +6792,17 @@ class SB3Creator {
      * it distinguishes the two very different causes: no host registered any
      * art at all, versus this particular name not being among the art that is.
      */
+    // An art name the host did not register. When the host registered art and
+    // this name is not among it, the line is refused like any unreadable line
+    // (a typo lost the costume silently). When NO art is registered at all the
+    // parse is headless (a CLI, a gate, a retarget) and cannot know the name:
+    // that stays a warning, so a headless parse of an art-using program still
+    // builds its scripts.
+    _refuseUnknownArt(lineIndex, text, artName) {
+        if (SB3Creator._vectorArt.size === 0) this.warn(lineIndex, this._unknownArt(artName));
+        else this.unreadable(lineIndex, text, this._unknownArt(artName));
+    }
+
     _unknownArt(artName) {
         const n = SB3Creator._vectorArt.size;
         return n === 0
@@ -6773,7 +6847,10 @@ class SB3Creator {
 
     // SHAPE <kind> <dims...> [#hex]: replace a sprite's first costume with a real shape.
     setShape(target, spec, lineIndex) {
-        if (target.isStage) { this.warn(lineIndex, 'SHAPE has no effect on the Stage (use BACKDROP)'); return; }
+        // A SHAPE line that cannot be applied is refused (unreadable), not
+        // warned about and skipped: the sprite silently kept its old costume.
+        const refuse = (reason) => this.unreadable(lineIndex, `SHAPE ${spec}`, reason);
+        if (target.isStage) { refuse('SHAPE has no effect on the Stage (use BACKDROP)'); return; }
         const tokens = spec.split(/\s+/).filter(Boolean);
         const kind = (tokens[0] || '').toLowerCase();
         // `SHAPE art <name>` replaces costume 0 with authored artwork the host
@@ -6781,7 +6858,7 @@ class SB3Creator {
         // NAME rather than dimensions and a colour.
         if (kind === 'art') {
             const costume = this.buildArtCostume(tokens[1], 'costume1');
-            if (!costume) { this.warn(lineIndex, this._unknownArt(tokens[1])); return; }
+            if (!costume) { this._refuseUnknownArt(lineIndex, `SHAPE ${spec}`, tokens[1]); return; }
             const prev = target.costumes[0];
             if (prev && prev.assetId) this.assets.delete(prev.assetId);
             target.costumes[0] = costume;
@@ -6789,7 +6866,7 @@ class SB3Creator {
             return;
         }
         if (!['rect', 'square', 'circle', 'ellipse', 'triangle', 'polygon'].includes(kind)) {
-            this.warn(lineIndex, `Unknown SHAPE "${tokens[0]}" (use art/rect/square/circle/ellipse/triangle/polygon)`);
+            refuse(`Unknown SHAPE "${tokens[0]}" (use art/rect/square/circle/ellipse/triangle/polygon)`);
             return;
         }
         const hex = tokens.find((t) => /^#[0-9a-fA-F]{6}$/.test(t));
@@ -6807,13 +6884,13 @@ class SB3Creator {
     //   COSTUME <name> tile "<txt>" <bg> [fg]  rounded square with centered text
     //   COSTUME <name> label "<txt>" [fg]      transparent centered text
     //   COSTUME <name> <shape> <dims..> [#hex] a real geometric costume (square/circle/…)
-    addCostume(target, spec) {
+    addCostume(target, spec, lineIndex = this._lineIndex) {
         if (target.isStage) {
             const tks = this.tokenizeCostumeSpec(spec);
             const name = this.unquote(tks[0] || 'backdrop');
             if ((tks[1] || '').toLowerCase() === 'art') {
                 const bd = this.buildArtCostume(tks[2], name);
-                if (!bd) { this.warnings.push(this._unknownArt(tks[2])); return; }
+                if (!bd) { this._refuseUnknownArt(lineIndex, `BACKDROP ${spec}`, tks[2]); return; }
                 bd._spec = spec.trim();
                 target.costumes.push(bd);
                 return;
@@ -6832,7 +6909,7 @@ class SB3Creator {
         let costume;
         if (kind === 'art') {
             costume = this.buildArtCostume(tokens[2], name);
-            if (!costume) { this.warnings.push(this._unknownArt(tokens[2])); return; }
+            if (!costume) { this._refuseUnknownArt(lineIndex, `COSTUME ${spec}`, tokens[2]); return; }
         } else if (kind === 'tile' || kind === 'label') {
             const text = this.unquote(tokens[2] || '');
             const colors = tokens.slice(3).filter((t) => /^#[0-9a-fA-F]{6}$/.test(t));
@@ -7190,11 +7267,11 @@ class SB3Creator {
                 i++; continue;
             }
             if ((decl = trimmed.match(/^COSTUME\s+(.+)$/i))) {
-                this.addCostume(currentTarget, decl[1].trim());
+                this.addCostume(currentTarget, decl[1].trim(), i);
                 i++; continue;
             }
             if ((decl = trimmed.match(/^BACKDROP\s+(.+)$/i))) {
-                this.addCostume(stage, decl[1].trim());
+                this.addCostume(stage, decl[1].trim(), i);
                 i++; continue;
             }
             if ((decl = trimmed.match(/^SOUND\s+(.+?)(?:\s+(\d+))?$/i))) {
@@ -7278,6 +7355,10 @@ class SB3Creator {
                         throw error;
                     }
                 }
+            } else if (/^(DEVICE|CLOCK|PIN|PORT|PART|TABLE|LEDCUBE|MAP|CHIP)\b/i.test(trimmed)) {
+                // parseStcDeclaration returned false: no declaration form reads it.
+                this.unreadable(i, trimmed, `not a ${trimmed.split(/\s+/)[0].toUpperCase()} declaration this dialect reads`);
+                i++;
             } else {
                 this.unreadable(i, trimmed, 'not inside a script: a statement must be indented under a '
                     + 'WHEN … : hat or a DEFINE');
@@ -7788,8 +7869,10 @@ class SB3Creator {
         const inner = input[1];
         if (Array.isArray(inner)) {
             const [type, a] = inner;
-            if (type === 10) return `"${a}"`;       // string
-            if (type === 11) return `"${a}"`;       // broadcast
+            // Text is written with the dialect's escapes (escapeTextLiteral), so
+            // a quote, backslash or line break reads back as itself (task D6).
+            if (type === 10) return escapeTextLiteral(a);       // string
+            if (type === 11) return escapeTextLiteral(a);       // broadcast
             // A variable or list whose name has a space is written in
             // parentheses: a statement's argument slot reads ONE term, so a bare
             // `my speed` there would not read back, while `(my speed)` is the
@@ -7800,6 +7883,15 @@ class SB3Creator {
         }
         // block reference (a reporter)
         return `(${this.drep(blocks[inner], blocks)})`;
+    }
+
+    // The raw text of a text/broadcast literal input (no quotes, no escapes);
+    // any other input is the expression dval writes. What
+    // `dval(...).replace(/^"|"$/g, '')` meant before dval escaped its text.
+    dtext(input, blocks) {
+        const inner = Array.isArray(input) ? input[1] : null;
+        if (Array.isArray(inner) && (inner[0] === 10 || inner[0] === 11)) return String(inner[1] ?? '');
+        return this.dval(input, blocks);
     }
 
     // Decompile a reporter block (without outer parens).
@@ -7886,7 +7978,7 @@ class SB3Creator {
             case 'arrays_toJSON': case 'arrays_toString': return `array ${v('NAME')} as text`;
             case 'arrays_get2D': return `item row ${v('ROW')} col ${v('COL')} of array ${v('NAME')}`;
             case 'arrays_transpose': return `transpose of array ${v('NAME')}`;
-            case 'arrays_reshape': return `reshape array ${v('NAME')} to ${this.dval(b.inputs.SHAPE, blocks).replace(/^"|"$/g, '')}`;
+            case 'arrays_reshape': return `reshape array ${v('NAME')} to ${this.dtext(b.inputs.SHAPE, blocks)}`;
             case 'arrays_map': return `map ${this.dval(b.inputs.FUNC, blocks)} over array ${v('NAME')}`;
             case 'arrays_filter': return `filter array ${v('NAME')} by ${this.dval(b.inputs.FUNC, blocks)}`;
             case 'arrays_reduce': return `reduce array ${v('NAME')} with ${this.dval(b.inputs.FUNC, blocks)} from ${v('INIT')}`;
@@ -8047,7 +8139,7 @@ class SB3Creator {
             case 'event_whenflagclicked': return 'WHEN flag clicked:';
             case 'event_whenkeypressed': return `WHEN ${f('KEY_OPTION')} key pressed:`;
             case 'event_whenthisspriteclicked': return 'WHEN sprite clicked:';
-            case 'event_whenbroadcastreceived': return `WHEN I receive "${f('BROADCAST_OPTION')}":`;
+            case 'event_whenbroadcastreceived': return `WHEN I receive ${escapeTextLiteral(f('BROADCAST_OPTION'))}:`;
             case 'control_start_as_clone': return 'WHEN I start as a clone:';
             case 'stc12_whenpin': return `WHEN ${f('PIN')} ${f('EDGE')}:`;
             case 'stc12_whenkey': return `WHEN key ${f('KEY')} ${f('EDGE')}:`;
@@ -8167,8 +8259,8 @@ class SB3Creator {
             case 'data_insertatlist': return line(`insert ${v('ITEM')} at ${v('INDEX')} of ${f('LIST')}`);
             case 'data_replaceitemoflist': return line(`replace item ${v('INDEX')} of ${f('LIST')} with ${v('ITEM')}`);
             // Arrays & Vectors commands (v('NAME') yields the quoted name).
-            case 'arrays_create1D': return line(`new array ${v('NAME')} = ${this.dval(b.inputs.JSON, blocks).replace(/^"|"$/g, '')}`);
-            case 'arrays_create2D': return line(`new 2D array ${v('NAME')} = ${this.dval(b.inputs.JSON, blocks).replace(/^"|"$/g, '')}`);
+            case 'arrays_create1D': return line(`new array ${v('NAME')} = ${this.dtext(b.inputs.JSON, blocks)}`);
+            case 'arrays_create2D': return line(`new 2D array ${v('NAME')} = ${this.dtext(b.inputs.JSON, blocks)}`);
             case 'arrays_set2D': return line(`set item row ${v('ROW')} col ${v('COL')} of array ${v('NAME')} to ${v('VALUE')}`);
             case 'arrays_createEmpty': return line(`new array ${v('NAME')}`);
             case 'arrays_createRange': return line(`new array ${v('NAME')} = range ${v('START')} to ${v('END')}`);
@@ -8190,12 +8282,12 @@ class SB3Creator {
             case 'stc12_setpart': return line(`set ${f('PART')} to ${v('VALUE')}`);
             case 'stc12_print': {
                 const mode = f('MODE');
-                if (mode === 'text') return line(`print "${this.dval(b.inputs.VALUE, blocks).replace(/^"|"$/g, '')}"`);
+                if (mode === 'text') return line(`print ${escapeTextLiteral(this.dtext(b.inputs.VALUE, blocks))}`);
                 return line(`print ${v('VALUE')}`);
             }
             case 'microbit_display': {
                 const mode = f('MODE');
-                if (mode === 'text') return line(`display "${this.dval(b.inputs.VALUE, blocks).replace(/^"|"$/g, '')}"`);
+                if (mode === 'text') return line(`display ${escapeTextLiteral(this.dtext(b.inputs.VALUE, blocks))}`);
                 return line(`display ${v('VALUE')}`);
             }
             // micro:bit+ command blocks (decompile to dialect)
@@ -8264,7 +8356,7 @@ class SB3Creator {
             case 'microbitplus_servo': return line(`set pin ${f('PIN')} servo ${v('DEG')}`);
             case 'microbitplus_radioon': return line(`radio on group ${v('GROUP')} power ${v('POWER')}`);
             case 'microbitplus_radiosendnum': return line(`radio send number ${v('NUM')}`);
-            case 'microbitplus_radiosendstr': return line(`radio send text ${escapeTextLiteral(this.dval(b.inputs.TEXT, blocks).replace(/^"|"$/g, ''))}`);
+            case 'microbitplus_radiosendstr': return line(`radio send text ${escapeTextLiteral(this.dtext(b.inputs.TEXT, blocks))}`);
             // ---- Spike Prime commands ----
             case 'spikeprime_motorStart': return line(`start motor ${f('PORT')} ${spikeMotorDirectionWord(f('DIRECTION'))}`);
             case 'spikeprime_motorStop': return line(`stop motor ${f('PORT')}`);
@@ -8288,7 +8380,7 @@ class SB3Creator {
                 // A reporter in the TEXT slot is written as the expression it is;
                 // quoting it would turn `(spike distance A)` into those words.
                 if (Array.isArray(text) && text[1] && !Array.isArray(text[1])) return line(`display text ${v('TEXT')}`);
-                return line(`display text ${escapeTextLiteral(this.dval(text, blocks).replace(/^"|"$/g, ''))}`);
+                return line(`display text ${escapeTextLiteral(this.dtext(text, blocks))}`);
             }
             case 'spikeprime_displayShowImage': return line(`display image ${v('IMAGE')}`);
             case 'spikeprime_displayClear': return line('display clear');
@@ -8347,7 +8439,7 @@ class SB3Creator {
             case 'devices_oledpixel': return line(`oled pixel ${v('X')} ${v('Y')} ${v('VALUE')} on ${v('DISPLAY')}`);
             case 'bw_raw': {
                 const t = String(b.fields.TEXT ? b.fields.TEXT[0] : '');
-                return line(`raw "${t.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`);
+                return line(`raw ${escapeTextLiteral(t)}`);
             }
             case 'devices_oledclear': return line(`oled clear ${v('DISPLAY')}`);
             case 'devices_oledshow': return line(`oled show ${v('DISPLAY')}`);
@@ -8392,7 +8484,7 @@ class SB3Creator {
     }
 
     dbroadcast(input) {
-        if (Array.isArray(input) && Array.isArray(input[1]) && input[1][0] === 11) return `"${input[1][1]}"`;
+        if (Array.isArray(input) && Array.isArray(input[1]) && input[1][0] === 11) return escapeTextLiteral(input[1][1]);
         return '"message1"';
     }
 
@@ -9796,8 +9888,7 @@ class SB3Creator {
         // `0 /* a ! */ == b`). Derive this backstop from the actual lowering,
         // so the next unsupported reporter is covered without an opcode list.
         if (this._core === 'i8086' && /\/\*/.test(lowered)) {
-            const shown = String(this.dval(input, blocks) || lowered)
-                .replace(/^"|"$/g, '');
+            const shown = String(this.dtext(input, blocks) || lowered);
             if (!this._cLoweringRefused) this._cLoweringRefused = [];
             if (!this._cLoweringRefused.includes(shown)) this._cLoweringRefused.push(shown);
         }
@@ -10567,7 +10658,7 @@ class SB3Creator {
                 }
                 this._cUses.print = true;
                 if (mode === 'text') {
-                    const text = this.dval(b.inputs.VALUE, blocks).replace(/^"|"$/g, '');
+                    const text = this.dtext(b.inputs.VALUE, blocks);
                     return line(`bw_print("${this.cComment(text)}");`);
                 }
                 return line(`bw_print_num(${v('VALUE')});`);
@@ -10952,7 +11043,7 @@ class SB3Creator {
                 return this.hcStr(this.dmenu(inp, blocks, g.field || g.m));
             }
             if (g.f) return this.hcStr(b.fields[g.f] ? b.fields[g.f][0] : '');
-            if (g.bc) return this.hcStr(this.dbroadcast(b.inputs[g.bc]).replace(/^"|"$/g, ''));
+            if (g.bc) return this.hcStr(unescapeTextLiteral(this.dbroadcast(b.inputs[g.bc]).slice(1, -1)));
             return 'bw_num(0)';
         });
         return `${cShimName(e.m, args.length)}(${args.join(', ')})`;
@@ -11603,7 +11694,9 @@ class SB3Creator {
             const pyText = (k) => {
                 const inp = b.inputs[k];
                 if (Array.isArray(inp) && Array.isArray(inp[1]) && inp[1][0] === 10) {
-                    return `'${String(inp[1][1]).replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`;
+                    // A line break in the text is `\n`: a raw one ends the Python line.
+                    return `'${String(inp[1][1]).replace(/\\/g, '\\\\').replace(/'/g, "\\'")
+                        .replace(/\n/g, '\\n').replace(/\r/g, '\\r').replace(/\t/g, '\\t')}'`;
                 }
                 return `str(${val(b, k, blocks)})`;
             };
@@ -13268,7 +13361,7 @@ class SB3Creator {
                 case 'stc12_print': {
                     const mode = f('MODE');
                     if (mode === 'text') {
-                        emit(`PRINT "${String(this.dval(b.inputs.VALUE, blocks)).replace(/^"|"$/g, '').replace(/"/g, '')}"`);
+                        emit(`PRINT "${String(this.dtext(b.inputs.VALUE, blocks)).replace(/"/g, '').replace(/[\r\n]+/g, ' ')}"`);
                     } else emit(`PRINT ${v('VALUE')}`);
                     return;
                 }
@@ -18289,5 +18382,8 @@ SB3Creator.C_RESERVED = new Set([
 ]);
 
 SB3Creator.UnparsedLinesError = UnparsedLinesError;
+// The dialect's text-literal escapes, for readers that write dialect text.
+SB3Creator.escapeTextLiteral = escapeTextLiteral;
+SB3Creator.unescapeTextLiteral = unescapeTextLiteral;
 
 export default SB3Creator;
