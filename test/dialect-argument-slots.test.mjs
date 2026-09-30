@@ -261,6 +261,11 @@ describe('an unreadable line is refused by name, never dropped', () => {
                 assert.ok(built(program(device, fixed)).stmt, fixed);
             }
         }
+        // A variable NAMED `item` or `letter` is not the cut-short reporter:
+        // MakeCode's love-meter quiz imports as `show number item + 1`.
+        assert.equal(built(program('MICROBIT', 'show number item + 1')).stmt.opcode, 'microbitplus_shownumber');
+        assert.equal(built(program('', 'say letter * 2 for 1 seconds')).stmt.opcode, 'looks_sayforsecs');
+        assert.equal(refused(program('', 'set control item 2 to 5')).lines[0].text, 'set control item 2 to 5');
         // The generic rules themselves still read a spaced expression.
         assert.equal(built(program('MICROBIT', 'set my var to a * 15')).stmt.opcode, 'data_setvariableto');
         assert.equal(built(program('MICROBIT', 'scroll a * 2')).stmt.opcode, 'microbit_display');
