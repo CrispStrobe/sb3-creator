@@ -225,7 +225,9 @@ export function matchEv3Word(text, kinds) {
                 if (ok) slots[p.slot] = {field: p.toValue.get(t.toLowerCase())};
             } else slots[p.slot] = {value: t};
         }
-        if (ok) return {entry, opcode: `${EV3_EXTENSION}_${entry.op}`, slots};
+        // `tokens` and `parts` travel with the match so the parser can see a
+        // value slot's neighbours (task D6: a reporter spilled over them).
+        if (ok) return {entry, opcode: `${EV3_EXTENSION}_${entry.op}`, slots, tokens, parts};
     }
     return null;
 }

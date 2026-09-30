@@ -31,6 +31,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import SB3Creator from '../src/utils/sb3Creator.js';
 import {slotSpillCensus, corpusFrom} from './helpers/statement-rules.mjs';
+import {EV3_WORDS} from '../src/utils/ev3Dialect.js';
 
 const SRC = fs.readFileSync(new URL('../src/utils/sb3Creator.js', import.meta.url), 'utf8');
 const EXAMPLES = new URL('../examples/', import.meta.url);
@@ -108,4 +109,60 @@ test('every multi-slot rule, every slot, nine unbracketed reporters: ok or refus
     const cells = res.rows.length;
     // counted 2026-09-30: 1122 cells (596 ok, 526 refused).
     assert.ok(cells >= 1122, `only ${cells} cells driven (counted 1122 on 2026-09-30)`);
+});
+
+test('EV3 words: a reporter spread over adjacent value slots is refused too', () => {
+    // The EV3 table (ev3Dialect.js) reads a value slot as one token. Every
+    // command word with two or more value slots, each slot but the last driven
+    // with an unbracketed reporter whose words take the next slots' places.
+    // Before: 34 of 105 cells built the word with the wrong values
+    // (`draw brick rectangle round a 5 outline`: x = round, y = a).
+    const probes = [['round a', 'operator_round'], ['x position', 'motion_xposition'],
+        ['abs of a', 'operator_mathop'], ['a + 1', 'operator_add'], ['pick random 1 to 10', 'operator_random']];
+    let cells = 0;
+    const wrong = [];
+    for (const w of EV3_WORDS.filter((x) => x.kind === 'command')) {
+        const values = [...w.words.matchAll(/\{([A-Z0-9_]+)(?::([^}]+))?\}/g)].filter((m) => !m[2]).map((m) => m[1]);
+        for (let i = 0; i + 1 < values.length; i++) {
+            for (const [probe, op] of probes) {
+                const extra = probe.split(' ').length - 1;
+                const line = w.words.replace(/\{([A-Z0-9_]+)(?::([^}]+))?\}/g, (m, name, spec) => {
+                    if (name === values[i]) return probe;
+                    const at = values.indexOf(name);
+                    if (at > i && at <= i + extra) return '\u0000';
+                    if (spec === 'motor') return 'B';
+                    if (spec === 'sensor') return '3';
+                    if (spec) return spec.split('|')[0].split('=')[0];
+                    return '5';
+                }).replace(/ ?\u0000/g, '');
+                cells++;
+                const e = refusal(`DEVICE EV3\nWHEN flag clicked:\n  set a to 3\n  ${line}\n`);
+                if (e) continue;
+                const c = new SB3Creator();
+                c.parse(`DEVICE EV3\nWHEN flag clicked:\n  set a to 3\n  ${line}\n`);
+                const all = Object.assign({}, ...c.project.targets.map((t) => t.blocks));
+                const st = Object.values(all).find((b) => b.opcode === `ev3comprehensive_${w.op}`);
+                const holds = st && Object.values(st.inputs).some((inp) => typeof inp[1] === 'string' && all[inp[1]] && all[inp[1]].opcode === op);
+                if (!holds) wrong.push(line);
+            }
+        }
+    }
+    assert.deepEqual(wrong, []);
+    // counted 2026-09-30: 105 cells.
+    assert.ok(cells >= 105, `only ${cells} EV3 cells (counted 105 on 2026-09-30)`);
+});
+
+test('a custom-block call: a reporter spread over its argument slots is refused', () => {
+    // `DEFINE place (x) (y)` called as `place round a` read x = round, y = a.
+    const defs = 'DEFINE place (x) (y):\n  say x\n';
+    for (const call of ['place round a', 'place x position']) {
+        const e = refusal(`${defs}WHEN flag clicked:\n  ${call}\n`);
+        assert.ok(e, `${call} built a call`);
+        assert.match(e.lines[0].reason, /is a reporter written without brackets/, call);
+    }
+    for (const call of ['place 1 2', 'place (round a) 2', 'place a b']) {
+        assert.equal(refusal(`${defs}WHEN flag clicked:\n  ${call}\n`), null, call);
+    }
+    // Inside a definition its own parameters are names, not reporter words.
+    assert.equal(refusal(`${defs}DEFINE twice (round) (a):\n  place round a\n`), null);
 });

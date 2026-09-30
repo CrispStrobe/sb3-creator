@@ -1086,6 +1086,39 @@ class SB3Creator {
         }
     }
 
+    /**
+     * refuseSpilledReporter for the words matched token-for-token — an EV3
+     * word (ev3Dialect.js) and a custom-block call — whose value slots are one
+     * token each: a value slot followed directly by another value slot that
+     * holds a bare operator, or a bare word from which the following tokens
+     * spell a reporter, is a reporter spread over the slots (`draw brick
+     * rectangle round a 5 outline`, `place round a` for `place (x) (y)`).
+     * `parts[k].value` marks a value slot.
+     */
+    refuseTokenSpill(tokens, parts, target) {
+        if (!tokens || !parts) return;
+        for (let k = 0; k + 1 < parts.length; k++) {
+            if (!parts[k].value || !parts[k + 1].value) continue;
+            const text = tokens[k];
+            if (/^(?:[*/+-]|mod|join|bitand|bitor|bitxor|shiftleft|shiftright|contains)$/i.test(text)) {
+                throw new ParseError(`"${text}" in an argument slot is the middle of an expression spread over `
+                    + 'the statement\'s slots: every argument is one term, so an expression goes in parentheses, '
+                    + 'e.g. `(a + 1)`');
+            }
+            if (!/^[A-Za-z_]\w*$/.test(text)) continue;
+            if (this.variableExists(text, target) || this.listExists(text, target)
+                || (this.currentProcArgs && this.currentProcArgs.has(text))) continue;
+            for (let j = k + 1; j < tokens.length; j++) {
+                const phrase = tokens.slice(k, j + 1).join(' ');
+                if (this.readsAsReporter(phrase, target)) {
+                    throw new ParseError(`"${phrase}" is a reporter written without brackets across the statement's `
+                        + `slots (it read as "${text}" and the words after it): every argument is one term, so `
+                        + `a reporter goes in parentheses, e.g. \`(${phrase})\``);
+                }
+            }
+        }
+    }
+
     /** Does `phrase` parse as a reporter block? Tried and rolled back: it creates nothing. */
     readsAsReporter(phrase, target) {
         const maps = [this.variables, this.lists, this.broadcasts].map((m) => [m, new Set(m.keys())]);
@@ -4975,6 +5008,7 @@ class SB3Creator {
                 else rawArgs.push(tokens[i]);
             }
             if (!ok) continue;
+            this.refuseTokenSpill(tokens, proc.template.map((t) => ({ value: Boolean(t.arg) })), target);
 
             const context = { target, extraBlocks: {}, parentId: null };
             const { id, block } = this.createBlock('procedures_call');
@@ -5180,6 +5214,7 @@ class SB3Creator {
         if (this.project && this.project.stc && this.project.stc.device === 'ev3') {
             const ev3 = matchEv3Word(line, ['command']);
             if (ev3) {
+                this.refuseTokenSpill(ev3.tokens, ev3.parts, target);
                 const { id, block } = cmd(ev3.opcode);
                 const { inputs, fields } = this.ev3Slots(ev3, context, id);
                 block[id].inputs = inputs;
