@@ -3987,7 +3987,13 @@ class SB3Creator {
             // no idle) — silently wrong output, found when the idle-wave
             // coverage check walked every chip by its everyday name.
             const DEVICE_ALIASES = {
-                uno: 'arduino-uno', nano: 'arduino-nano', mega: 'arduino-mega'
+                uno: 'arduino-uno', nano: 'arduino-nano', mega: 'arduino-mega',
+                // Brickwright Lite's device picker and assembler route answer
+                // to 8086 / 8088 / i8088 for the 8086 (same instruction set;
+                // the 8088's narrower bus is timing no program sees). Until
+                // unknown devices were refused (task D6) `DEVICE 8086` silently
+                // parsed as the default STC12 — Lite's own export gate wrote it.
+                8086: 'i8086', 8088: 'i8086', i8088: 'i8086'
             };
             if (!SB3Creator.STC_PARTS[device] && DEVICE_ALIASES[device]) {
                 device = DEVICE_ALIASES[device];
