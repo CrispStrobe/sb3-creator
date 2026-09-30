@@ -82,6 +82,23 @@ function liftTruthy (str) {
     return out;
 }
 
+// A value as ONE term of a statement's argument list: a spaced expression is
+// parenthesised. Positional slots (`oled set cursor R C`) read one term each,
+// so `16 - len(x)` written bare would be split or refused (task D5).
+function asTerm (text) {
+    const t = String(text).trim();
+    let depth = 0, inStr = false;
+    for (let i = 0; i < t.length; i++) {
+        const ch = t[i];
+        if (inStr) { if (ch === '\\') i++; else if (ch === '"') inStr = false; continue; }
+        if (ch === '"') inStr = true;
+        else if (ch === '(') depth++;
+        else if (ch === ')') depth--;
+        else if (depth === 0 && /\s/.test(ch)) return `(${t})`;
+    }
+    return t;
+}
+
 export default function micropythonToPseudocode (source, opts = {}) {
     const warnings = [];
     const warn = (m) => { if (!warnings.includes(m)) warnings.push(m); };
@@ -557,11 +574,11 @@ export default function micropythonToPseudocode (source, opts = {}) {
             if (/^_oled\.show\s*\(\s*\)$/.test(s) && oledDrawAt === i - 1) continue;
             if ((m = s.match(/^_oled\.crow\s*=\s*int\(\s*(.+?)\s*\)$/))) {
                 const nxt = lines[i + 1] && lines[i + 1].code.trim().match(/^_oled\.ccol\s*=\s*int\(\s*(.+?)\s*\)$/);
-                if (nxt) { emit(depth, `oled set cursor ${expr(m[1])} ${expr(nxt[1])} on 1`); i++; oledDrawAt = i; continue; }
+                if (nxt) { emit(depth, `oled set cursor ${asTerm(expr(m[1]))} ${asTerm(expr(nxt[1]))} on 1`); i++; oledDrawAt = i; continue; }
             }
             if ((m = s.match(/^_oled_print\s*\(\s*(.+?)\s*\)$/))) { emit(depth, `oled print ${asText(m[1])} on 1`); oledDrawAt = i; continue; }
             if ((m = s.match(/^_oled\.hline\s*\(\s*int\(\s*(.+?)\s*\)\s*,\s*int\(\s*(.+?)\s*\)\s*,\s*int\(\s*(.+?)\s*\)\s*,\s*1\s*\)$/))) {
-                emit(depth, `oled hline ${expr(m[1])} ${expr(m[2])} ${expr(m[3])} on 1`); oledDrawAt = i; continue;
+                emit(depth, `oled hline ${asTerm(expr(m[1]))} ${asTerm(expr(m[2]))} ${asTerm(expr(m[3]))} on 1`); oledDrawAt = i; continue;
             }
         }
 
