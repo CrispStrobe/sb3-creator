@@ -39,7 +39,7 @@ _boost.motorOn(...)`) and **event hats** (`whenButtonPressed` → driver callbac
 - **On-device Python bridges + protocol docs** (BTC/BLE/ScratchLink/Web Serial/WebSocket):
   `CrispStrobe/brickwright-bridges` (`ev3dev_ondevice.py`, `universal_lego_bridge.py`,
   `nxt_bridge.py`, `ev3-compiler-service/`, `README_*bridge*.md`, `LEARNINGS.md`).
-- **On-brick transpile** (block → ev3dev/pybricks/spike/nxt code): the four transpilers in the
+- **On-brick transpile** (block → ev3dev/spike/nxt code): the four transpilers in the
   extensions repo. Brickwright's `ondevice` mode **reuses** these rather than reimplementing them.
 
 Brickwright's job is the driver-agnostic program + the `shim`/`remote` drivers; the real

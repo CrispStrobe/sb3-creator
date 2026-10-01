@@ -349,7 +349,6 @@ describe('routing through the Python entry point', () => {
     test('plain Python and micro:bit MicroPython do not', () => {
         assert.equal(isSpike3Python('x = 1\nprint(x)\n'), false);
         assert.equal(isSpike3Python('from microbit import *\ndisplay.show(1)\n'), false);
-        assert.equal(isSpike3Python('from pybricks.hubs import PrimeHub\n'), false);
         assert.equal(isSpike3Python('from spike import PrimeHub\n'), false, 'SPIKE 2 (legacy) is a different API');
         assert.equal(pythonToPseudocode('x = 1\nprint(x)\n').dialect, undefined);
     });

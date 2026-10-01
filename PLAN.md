@@ -515,7 +515,7 @@ three languages fully two-way, runnable in-editor, in one 3-tab highlighted edit
     registry). The transpiled program is **driver-agnostic**: it calls `_<runtime>.<method>(args)`
     (e.g. `_boost.motorOn("A")`, `_gamepad.stickValue(...)`). A **driver** is emitted at the top —
     a neutral no-op *shim* by default — which is the single **swap point**: implement its methods
-    to drive real hardware **on-brick** (ev3dev/pybricks) or **remotely** (USB/BLE/BTC). Same
+    to drive real hardware **on-brick** (ev3dev) or **remotely** (USB/BLE/BTC). Same
     program, swap the driver → real hardware "on top". Menu args (motor port, button) resolve to
     their field values. Adding an extension = one declarative registry entry, not new emitter code.
     - **Gamepad** (`universalgamepad`) migrated into the registry as the reference; **LEGO Boost**
@@ -525,7 +525,7 @@ three languages fully two-way, runnable in-editor, in one 3-tab highlighted edit
     - [x] **Driver-mode switch** — `generatePython/JS(project, {driver})` selects the emitted driver:
       *shim* (neutral) / *remote* (forwards to a `brickwright-bridges` WebSocket bridge) / *on-brick*
       (header pointing at the per-hardware transpilers in `CrispStrobe/extensions` that emit real
-      ev3dev2/pybricks). The program is unchanged; only the driver swaps. GUI has a `🔌 driver:`
+      ev3dev2). The program is unchanged; only the driver swaps. GUI has a `🔌 driver:`
       selector on the code tabs (regenerates the view). Documented in `reference/runtime-drivers.md`.
     - [x] **async/await switch** — `{async:true}` makes functions `async`, `await`s every
       hardware/proc call, awaits driver methods (Python shim methods become `async def`), and runs
