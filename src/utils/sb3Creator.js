@@ -1423,7 +1423,7 @@ class SB3Creator {
     //   'remote'   — forwards each call to a Brickwright bridge over WebSocket
     //                (github.com/CrispStrobe/brickwright-bridges, e.g. universal_lego_bridge.py,
     //                normalized JSON {"command","args"} → device binary).
-    //   'ondevice' — for on-brick code (ev3dev/pybricks); the per-hardware transpilers
+    //   'ondevice' — for on-brick code (ev3dev); the per-hardware transpilers
     //                (github.com/CrispStrobe/extensions, ev3dev_py_transpile.js → real ev3dev2)
     //                are the source of truth — emit a header pointing there over the neutral base.
     // `lang` is 'py' or 'js'. See reference/runtime-drivers.md.
@@ -1456,7 +1456,7 @@ class SB3Creator {
             shim: 'neutral stub — drives nothing; implement to drive real hardware',
             simulator: 'simulated board — no board attached for this runtime, so neutral',
             remote: `forwards to a Brickwright bridge (brickwright-bridges) over WebSocket`,
-            ondevice: `on-brick target — see the per-hardware transpiler (extensions/CrispStrobe) for real ev3dev/pybricks code`
+            ondevice: `on-brick target — see the per-hardware transpiler (extensions/CrispStrobe) for real ev3dev code`
         }[mode] || 'neutral stub';
         if (lang === 'py') {
             const lines = [`# _${rt} driver — ${banner}`];
@@ -17646,8 +17646,7 @@ SB3Creator.EXTENSION_URLS = {
 // Pluggable-driver convention for runtime/hardware extensions (gamepad, LEGO, …).
 // The transpiled program is driver-agnostic: it calls `_<runtime>.<method>(args)`.
 // A driver object is emitted at the top — a neutral no-op "shim" by default — which is
-// the single swap point: implement its methods to drive real hardware on-brick (ev3dev/
-// pybricks) or remotely (USB/BLE/BTC). Adding an extension = one declarative entry here,
+// the single swap point: implement its methods to drive real hardware on-brick (ev3dev) or remotely (USB/BLE/BTC). Adding an extension = one declarative entry here,
 // not new emitter code. Each op: { kind: 'command'|'reporter'|'boolean', method, args?,
 // neutral? }. Source of truth for the block surface: github.com/CrispStrobe/extensions.
 // All runtime/hardware extensions (Gamepad + Boost, PoweredUp, WeDo, Spike, EV3, …) are
