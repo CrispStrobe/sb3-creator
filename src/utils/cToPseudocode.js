@@ -18,6 +18,7 @@
 //
 // The LED cube's shift directions. Imported rather than restated: the emitter
 // and this reader each used to carry their own copy, and they disagreed.
+import { parsePinRoleMarker, pinRoleDeclText, PIN_ROLE_PARTS } from './pinRoleParts.js';
 import { CUBE_DIRECTIONS, cubeDirectionWord } from './cubeDirections.js';
 
 // The Arduino/AVR core vocabulary. Present in order to be REFUSED by name:
@@ -129,7 +130,7 @@ function expand (name, defines, depth = 0) {
 function readMarkers (source) {
     const block = source.match(/@bw-begin([\s\S]*?)@bw-end/);
     if (!block) return null;
-    const h = { device: null, clock: null, pins: [], parts: [], machine: null, vars: new Map(), procs: new Map(), scripts: new Map(), yields: [] };
+    const h = { device: null, clock: null, pins: [], parts: [], machine: null, vars: new Map(), lists: new Map(), procs: new Map(), scripts: new Map(), yields: [] };
     const str = (s) => { try { return JSON.parse(s); } catch { return s; } };
     for (const line of block[1].split('\n')) {
         const m = line.match(/@bw\s+(.*?)\s*$/);
@@ -169,6 +170,9 @@ function readMarkers (source) {
                 if (!h.ports) h.ports = [];
                 h.ports.push({ name: p[1], port: +p[2], direction: p[3], activeLow: !!p[4] });
             }
+        } else if (kind === 'part' && parsePinRoleMarker(rest)) {
+            // `part <name> hcsr04 trig <pin> echo <pin>` and the other pin-role parts.
+            h.parts.push(parsePinRoleMarker(rest));
         } else if (kind === 'part') {
             // `part <name> keypad4x4 rows P.. P.. P.. P.. cols P.. P.. P.. P..`
             const kp = rest.match(/^(\w+)\s+keypad4x4\s+rows\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+cols\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)/i);
@@ -228,6 +232,10 @@ function readMarkers (source) {
                     at: parseInt(p[3], 16),
                 });
             }
+        } else if (kind === 'list') {
+            // `list <c data array> "<name>" [sprite "<sprite>"]` — a numeric list.
+            const v = rest.match(/^(\w+)\s+("(?:[^"\\]|\\.)*")(?:\s+sprite\s+("(?:[^"\\]|\\.)*"))?/);
+            if (v) h.lists.set(v[1], { name: str(v[2]), sprite: v[3] ? str(v[3]) : null, len: v[1].replace(/_data$/, '_len') });
         } else if (kind === 'var') {
             const v = rest.match(/^(\w+)\s+("(?:[^"\\]|\\.)*")(?:\s+sprite\s+("(?:[^"\\]|\\.)*"))?/);
             if (v) h.vars.set(v[1], { name: str(v[2]), sprite: v[3] ? str(v[3]) : null });
@@ -552,6 +560,8 @@ export default function cToPseudocode (source, opts = {}) {
     };
     // PARTs from the header: needed to give shift_out calls their name back.
     const hdrParts = (markers && markers.parts) ? markers.parts : [];
+    // Pieces of a joined print, collected until its bw_put_end().
+    const printPieces = [];
     const hdrPorts = (markers && markers.ports) ? markers.ports : [];
     // TABLEs are collected from their bw_tab_<name>[] initializers during the
     // top-level scan (the @bw mark carries only the length, not the values).
@@ -709,6 +719,10 @@ export default function cToPseudocode (source, opts = {}) {
 
     // ---- naming ----
     const varName = (c) => (markers && markers.vars.has(c) ? markers.vars.get(c).name : c);
+    // Lists: the data array and its length word, by C name.
+    const listByData = new Map(), listByLen = new Map();
+    for (const [data, l] of (markers && markers.lists) || []) { listByData.set(data, l); listByLen.set(l.len, l); }
+    const listInit = new Map();   // data array -> initial values, from its declaration
     const usedVars = new Set();
 
     const ctx = {
@@ -719,6 +733,8 @@ export default function cToPseudocode (source, opts = {}) {
             if (/^0x[0-9a-f]+$/i.test(lit)) return String(parseInt(lit, 16));
             const pin = byName.get(id) || pins.get(lit);
             if (pin) return pin.activeLow ? `not read ${pin.name}` : `read ${pin.name}`;
+            if (listByLen.has(id)) return `(length of ${listByLen.get(id).name})`;
+            if (listByData.has(id)) return id;
             const n = varName(id);
             usedVars.add(n);
             return n;
@@ -844,6 +860,10 @@ export default function cToPseudocode (source, opts = {}) {
             if (cur.is(';') && cur.is(';', 1) && cur.is(')', 2)) {
                 cur.next(); cur.next(); cur.expect(')');
                 const inner = bodyOf(cur, depth + 1);
+                // An empty `for (;;) { }` closing a function is how the device
+                // emitter keeps a finished script finished: in pseudocode the
+                // script simply ends there.
+                if (!inner.length && cur.is('}')) return [];
                 return transformLoopBody(inner, `${pad}FOREVER:`, depth);
             }
             const init = [];
@@ -975,6 +995,10 @@ export default function cToPseudocode (source, opts = {}) {
                 warn('a `for` loop that is not `for(;;)` or a simple counter became REPEAT UNTIL false');
                 return transformLoopBody(inner, `${pad}REPEAT UNTIL 1 = 1:`, depth);
             }
+            // The count is raw tokens: a cast is C's business, and a list's
+            // length word reads back as `length of <list>`.
+            count = String(count).replace(/\(\s*(?:unsigned\s+)?(?:int|long|char)\s*\)\s*/g, '')
+                .replace(/\b(bw_list_\w+_len)\b/g, (m) => (listByLen.has(m) ? `(length of ${listByLen.get(m).name})` : m));
             return transformLoopBody(inner, `${pad}REPEAT ${count}:`, depth);
         }
 
@@ -982,7 +1006,11 @@ export default function cToPseudocode (source, opts = {}) {
             cur.next(); cur.expect('(');
             const c = expr(cur);
             cur.expect(')');
-            if (cur.eat(';')) return [`${pad}wait until ${negate(c.text)}`];
+            if (cur.eat(';')) {
+                // The wait for an ask's answer is part of the ask itself.
+                if (negate(c.text).replace(/[\s()]/g, '') === 'bw_got_line') return [];
+                return [`${pad}wait until ${negate(c.text)}`];
+            }
             const inner = bodyOf(cur, depth + 1);
             const head = (c.text === '1' || c.text === 'true') ? `${pad}FOREVER:` : `${pad}REPEAT UNTIL ${negate(c.text)}:`;
             return transformLoopBody(inner, head, depth);
@@ -1258,6 +1286,7 @@ export default function cToPseudocode (source, opts = {}) {
                     }
                     return lines;
                 }
+                if (listByLen.has(name) && op === '=' && rhs.text === '0') return [`${pad}delete all of ${listByLen.get(name).name}`];
                 const v = varName(name); usedVars.add(v);
                 if (op === '=') return [`${pad}set ${v} to ${rhs.text}`];
                 if (op === '+=' || op === '-=') return [`${pad}change ${v} by ${op === '-=' ? negNum(rhs.text) : rhs.text}`];
@@ -1318,9 +1347,45 @@ export default function cToPseudocode (source, opts = {}) {
         }
         // KEYPAD4X4: `bw_part_<name>_read()` → the bare part name — the
         // reference dialect's read expression (0..15, or -1 for none).
+        // ask ... and wait / answer / a print joining text, numbers and the
+        // answer (the device emitter's bw_ask, bw_answer and bw_put_* shapes).
+        const joinPieces = () => printPieces.splice(0)
+            .reduceRight((acc, p) => (acc === null ? p : `(${p} join ${acc})`), null);
+        if (name === 'bw_ask' && args.length === 1) {
+            // A built question is printed as pieces, then bw_ask("").
+            const q = args[0].text === '""' && printPieces.length ? joinPieces() : args[0].text;
+            return { text: '0', level: 99, stmt: `ask ${q} and wait` };
+        }
+        if (name === 'bw_answer' && args.length === 0) return { text: 'answer', level: 99 };
+        if (name === 'bw_random' && args.length === 2) return { text: `(pick random ${args[0].text} to ${args[1].text})`, level: 99 };
+        {
+            // The numeric-list helpers: the first argument names the list.
+            const l = args.length && listByData.get(args[0].text);
+            const at = (i) => args[i] ? args[i].text : '0';
+            if (l && name === 'bw_list_add') return { text: '0', level: 99, stmt: `add ${at(2)} to ${l.name}` };
+            if (l && name === 'bw_list_delete') return { text: '0', level: 99, stmt: `delete ${at(2)} of ${l.name}` };
+            if (l && name === 'bw_list_insert') return { text: '0', level: 99, stmt: `insert ${at(3)} at ${at(2)} of ${l.name}` };
+            if (l && name === 'bw_list_replace') return { text: '0', level: 99, stmt: `replace item ${at(2)} of ${l.name} with ${at(3)}` };
+            if (l && name === 'bw_list_item') return { text: `(item ${at(2)} of ${l.name})`, level: 99 };
+        }
+        if (name === 'bw_got_line' && args.length === 0) return { text: 'bw_got_line()', level: 99 };
+        if (name === 'bw_answer_is' && args.length === 1) return { text: `(answer = ${args[0].text})`, level: 99 };
+        if (name === 'bw_put_s' || name === 'bw_put_n' || name === 'bw_put_answer') {
+            printPieces.push(name === 'bw_put_answer' ? 'answer'
+                : name === 'bw_put_s' ? args[0].text : `(${args[0].text.replace(/^\((.*)\)$/, '$1')})`);
+            return { text: '0', level: 99, stmt: null };
+        }
+        if (name === 'bw_put_end') {
+            return { text: '0', level: 99, stmt: `print ${joinPieces() ?? '""'}` };
+        }
         {
             const kp = name.match(/^bw_part_(\w+)_read$/);
             if (kp) return { text: kp[1], level: 99 };
+            // A sensor PART's driver call reads back as the reporter it lowered.
+            const sp = name.match(/^bw_part_(\w+)_(distance|temperature)$/);
+            if (sp && hdrParts.some(pp => pp.name === sp[1] && PIN_ROLE_PARTS[pp.type])) {
+                return { text: `${sp[2]} from ${sp[1]}`, level: 99 };
+            }
         }
         // 74HC595: `shift_out(<pins...>, activeLow, value)` → `set <part> to value`.
         // The value is always the LAST argument on every core (the pin
@@ -1913,6 +1978,7 @@ export default function cToPseudocode (source, opts = {}) {
                 tc.expect(')'); tc.expect(')');
                 if (tc.is('return')) {
                     tc.next(); tc.eat(';');
+                    if (cond.text === 'bw_got_line()') return [];   // part of the ask
                     return [`${pad}wait until ${cond.text}`];
                 }
                 // It's `if (!(cond)) { body; state = S; return; }` → REPEAT UNTIL
@@ -2058,6 +2124,34 @@ export default function cToPseudocode (source, opts = {}) {
             // the declaration comes back as `TABLE <name> = …` (TABLEs never
             // survived the C reader before the keypad work pulled the
             // thread, 2026-08-18).
+            // A numeric list's backing array and its length word: their
+            // initializers are the list's starting contents (GLOBAL LIST).
+            // `typedef struct { ... } bw_stamp_t;` -- the sensor drivers' time
+            // stamp; the scan stopped at its brace, so look past the body.
+            if (/^\s*typedef\s+struct\s*$/.test(declSpan) && cur.is('{')) {
+                const save = cur.i;
+                cur.skip('{', '}');
+                if (cur.peek().t === 'id' && /^bw_\w+_t$/.test(cur.peek().v)) {
+                    cur.next(); cur.eat(';');
+                    continue;
+                }
+                cur.i = save;
+            }
+            const listHead = declSpan.match(/\b(bw_list_\w+_data)\s*\[\s*\d+\s*\]\s*=\s*$/);
+            if (listHead && cur.is('{') && listByData.has(listHead[1])) {
+                const braceStart = cur.i;
+                cur.skip('{', '}');
+                listInit.set(listHead[1], tokens.slice(braceStart, cur.i).filter((t) => t.t === 'num')
+                    .map((t) => Number(String(t.v).replace(/[uUlL]+$/, ''))));
+                cur.eat(';');
+                continue;
+            }
+            const lenHead = declSpan.match(/\b(bw_list_\w+_len)\s*=\s*(\d+)[uUlL]*\s*$/);
+            if (lenHead && listByLen.has(lenHead[1])) {
+                listByLen.get(lenHead[1]).initLen = Number(lenHead[2]);
+                cur.eat(';'); if (cur.i === start) cur.next();
+                continue;
+            }
             const tabHead = declSpan.match(/\bbw_tab_(\w+)\s*\[\s*\]\s*=\s*$/);
             if (tabHead && cur.is('{')) {
                 const braceStart = cur.i;
@@ -2075,7 +2169,10 @@ export default function cToPseudocode (source, opts = {}) {
             // Part-runtime state the emitter regenerates from the PART
             // declaration alone — the 7-seg font + frame buffers and the
             // matrix bit-plane buffers/row table are not information loss.
-            const DRIVER_TABLES = /\bfont5x7\b|\b_neo_buf\b|\bbw_cube_frame\b|\bbw_7seg_font\b|\bbw_\w+_fb\b|\bbw_scr_\w+\b|\bbw_wai_code\b/;
+            // Likewise the runtime's own declarations: the ask line buffers,
+            // the sensor drivers' time stamps, and the forward declarations of
+            // the print/ask helpers a task body calls before their definitions.
+            const DRIVER_TABLES = /\bfont5x7\b|\b_neo_buf\b|\bbw_cube_frame\b|\bbw_7seg_font\b|\bbw_\w+_fb\b|\bbw_scr_\w+\b|\bbw_wai_code\b|\bbw_ans\b|\bbw_line\b|\bbw_stamp_t\b|^\s*static\s+\w+(\s+\w+)?\s+bw_(print|put_s|ask|answer_is)\s*\(/;
             if (/struct|union|enum|typedef|\*|\[/.test(declSpan) && !SFRS.test(declSpan) && !DRIVER_TABLES.test(declSpan)) {
                 const brief = tokens.slice(start, Math.min(cur.i, start + 8)).map(t => t.v).join(' ');
                 warn(`top-level declaration dropped (no block equivalent): ${brief}${cur.i - start > 8 ? ' …' : ''}`);
@@ -2116,6 +2213,7 @@ export default function cToPseudocode (source, opts = {}) {
         if (!pinList.length) out.push('');
         for (const pt of hdrParts) {
             const at = (x) => x.where || `P${x.port}.${x.bit}`;
+            if (PIN_ROLE_PARTS[pt.type]) { out.push(pinRoleDeclText(pt)); continue; }
             if (pt.type === 'keypad4x4') {
                 out.push(`PART ${pt.name} = KEYPAD4X4 ROWS ${pt.rows.map(at).join(' ')} COLS ${pt.cols.map(at).join(' ')}`);
                 continue;
@@ -2151,6 +2249,14 @@ export default function cToPseudocode (source, opts = {}) {
         for (const t of hdrTables) {
             const vals = t.values.map((v) => `0x${v.toString(16).toUpperCase().padStart(2, '0')}`);
             out.push(`TABLE ${t.name} = ${vals.join(', ')}`);
+        }
+    }
+    if (listByData.size) {
+        out.push('');
+        for (const [data, l] of listByData) {
+            if (l.sprite) continue;            // a sprite's own list is declared in its section
+            const vals = (listInit.get(data) || []).slice(0, l.initLen ?? 0);
+            out.push(`GLOBAL LIST ${l.name}${vals.length ? ` = [${vals.join(', ')}]` : ''}`);
         }
     }
     // ---- static current check (STC12C5A60S2 datasheet §4.6) ----
