@@ -31,14 +31,14 @@
     },
     {
       "file": "devices.js",
-      "bytes": 26285,
-      "sha256": "573b676ec2e48c3faf5fb551ef77a82aebd0f75fd715791f7f6d2079138f9c36",
+      "bytes": 28264,
+      "sha256": "8cf4dfab285c3f89736219c120ec97503fea8cb45075cd1f457ab850b3893269",
       "upstreamCommit": "3c7eabc094af516c9dba2c4c721667c048779860",
       "upstreamSha256": "573b676ec2e48c3faf5fb551ef77a82aebd0f75fd715791f7f6d2079138f9c36",
       "upstreamBytes": 26285,
-      "localOnlyLines": 0,
+      "localOnlyLines": 27,
       "upstreamOnlyLines": 0,
-      "relationship": "identical"
+      "relationship": "local-ahead"
     },
     {
       "file": "gamepad.js",

@@ -1,0 +1,23 @@
+DEVICE STC12C5A60S2
+CLOCK 11059200
+PIN cold = P1.0 OUTPUT ACTIVE LOW
+PIN warm = P1.1 OUTPUT ACTIVE LOW
+PART probe = DS18B20 ON P1.7
+
+# A digital thermometer on a single wire. The sensor measures the temperature
+# itself and sends it as a number over a "1-Wire" bus: one data line, timed
+# pulses a few microseconds long. Below 18 degrees the blue LED lights, above
+# 28 the red one, and every reading goes out on the serial line.
+WHEN flag clicked:
+  FOREVER:
+    set t to temperature from probe
+    print t
+    IF t < 18 THEN:
+      turn on cold
+    ELSE:
+      turn off cold
+    IF t > 28 THEN:
+      turn on warm
+    ELSE:
+      turn off warm
+    wait 1 seconds

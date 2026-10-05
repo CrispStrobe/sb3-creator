@@ -118,6 +118,20 @@ const EXPECTED_UNSUPPORTED = new Set([
     'stc12_seg_shownum', 'stc12_seg_showdigit', 'stc12_seg_setsegs',
     'stc12_seg_clear', 'stc12_led_on', 'stc12_led_off', 'stc12_led_set',
     'stc12_led_only', 'stc12_whenkey', 'stc12_keypad',
+    // The I2C PARTs (2026-10-05): a DS3231 and an AT24C02 answer bus
+    // transactions the referee does not model -- it traces pins. The emitted
+    // open-drain master is measured on nine emulated chips against the real
+    // bus models by test/chain-i2c.test.mjs.
+    'devices_settime', 'devices_eepromwrite', 'devices_eepromread', 'devices_i2cfound',
+    // The HC-SR04 / DS18B20 PARTs: an echo pulse and a 1-Wire conversation
+    // the referee does not model either; test/chain-sensors.test.mjs measures
+    // both on nine emulated chips against the bench's sensor models.
+    'devices_distance', 'devices_temperature',
+    // ask/answer wait for a line typed into the serial monitor, and `current
+    // hour` reads a DS3231 -- neither is a pin stimulus. chain-ask (a three-
+    // question conversation) and chain-i2c (the clock across an hour) measure
+    // them on nine emulated chips.
+    'sensing_askandwait', 'sensing_answer', 'sensing_current',
 ]);
 
 /**

@@ -11,6 +11,7 @@ import { cHostRuntime, cShimName, C_HOST_INCLUDES } from './cHostRuntime.js';
 // The LED cube's shift directions. Shared with the C reader so the two cannot
 // drift — they already did once, and the round trip lost the block.
 import { CUBE_DIRECTIONS, cubeDirectionIndex } from './cubeDirections.js';
+import { PIN_ROLE_PARTS, matchPinRoleDecl, pinRoleDeclText, pinRoleMarkerText } from './pinRoleParts.js';
 // The DEVICE EV3 words: one table, read by the parser and the decompiler alike.
 import { matchEv3Word, ev3WordFor, spellEv3Word, ev3WordLoose } from './ev3Dialect.js';
 // The MakeCode Arcade and array-reference words (arcade/arrays extensions):
@@ -3036,8 +3037,27 @@ class SB3Creator {
         }
 
         // Device reporters
+        // A named sensor PART is addressed by its name, carried as text: the
+        // C driver is that part's own (bw_part_<name>_read), and the name is
+        // never a variable.
+        const sensorPart = (text, type) => {
+            const p = this.stcPart(String(text).trim().replace(/^"(.*)"$/, '$1'));
+            return p && p.type === type ? [1, [10, p.name]] : null;
+        };
+        {
+            const i2cPart = (name, ...types) => {
+                const p = this.stcPart(name);
+                return p && (types.length ? types.includes(p.type) : PIN_ROLE_PARTS[p.type] && PIN_ROLE_PARTS[p.type].bus === 'i2c') ? p : null;
+            };
+            if ((m = s.match(/^byte\s+(.+)\s+of\s+([A-Za-z_]\w*)$/i)) && i2cPart(m[2], 'at24c02')) {
+                return B('devices_eepromread', { ADDRESS: this.parseValue(m[1], context), MEMORY: [1, [10, i2cPart(m[2], 'at24c02').name]] });
+            }
+            if ((m = s.match(/^i2c device\s+(.+)\s+on\s+([A-Za-z_]\w*)$/i)) && i2cPart(m[2])) {
+                return B('devices_i2cfound', { ADDRESS: this.parseValue(m[1], context), BUS: [1, [10, i2cPart(m[2]).name]] });
+            }
+        }
         if ((m = s.match(/^temperature from\s+(.+)$/i))) {
-            return B('devices_temperature', { SENSOR: this.parseValue(m[1], context) });
+            return B('devices_temperature', { SENSOR: sensorPart(m[1], 'ds18b20') || this.parseValue(m[1], context) });
         }
         if ((m = s.match(/^light from\s+(.+)$/i))) {
             return B('devices_light', { SENSOR: this.parseValue(m[1], context) });
@@ -3047,7 +3067,7 @@ class SB3Creator {
             return B('devices_servoangle', { SERVO: this.parseValue(ch == null ? m[1] : String(ch), context) });
         }
         if ((m = s.match(/^distance from\s+(.+)$/i))) {
-            return B('devices_distance', { SENSOR: this.parseValue(m[1], context) });
+            return B('devices_distance', { SENSOR: sensorPart(m[1], 'hcsr04') || this.parseValue(m[1], context) });
         }
         if ((m = s.match(/^speed of\s+(.+)$/i))) {
             const ch = this.stcActuatorChannel(m[1].trim(), 'motor');
@@ -3262,6 +3282,21 @@ class SB3Creator {
         if (!cfg || !cfg.tables || !name) return null;
         const lower = String(name).trim().toLowerCase();
         return cfg.tables.find((t) => t.name.toLowerCase() === lower) || null;
+    }
+
+    /** The PART name a text-literal input carries (bare in pseudocode). */
+    dPartName(input) {
+        const prim = input && input[1];
+        return Array.isArray(prim) ? String(prim[1]) : '?';
+    }
+
+    /** A sensor input that names a declared PART of `type` (a text literal
+     *  — see the reporter parse), or null. Decompiles to the bare name. */
+    dSensorPart(input, type) {
+        const prim = input && input[1];
+        if (!Array.isArray(prim) || prim[0] !== 10) return null;
+        const p = this.stcPart(prim[1]);
+        return p && p.type === type ? p.name : null;
     }
 
     // A declared shift-register part by name, or null.
@@ -4282,22 +4317,7 @@ class SB3Creator {
             // The seeded default clock belongs to the seeded default device.
             // A DEVICE line that changes chips takes the chip's own default
             // with it — an explicit CLOCK line still wins, before or after.
-            if (wasDefault && SB3Creator.STC_PARTS[device]
-                && SB3Creator.STC_PARTS[device].core === 'arduino') {
-                cfg.clock = 16000000;
-            }
-            if (wasDefault && SB3Creator.STC_PARTS[device]
-                && SB3Creator.STC_PARTS[device].core === 'rp2040') {
-                // The F030 is 'rp2040'-cored structurally but runs at its
-                // own 48 MHz ceiling — the pico's 125 MHz default emitted a
-                // PSC that made every timing 2.6x slow (measured: bw_ms at
-                // 0.384x, which is exactly 48/125).
-                cfg.clock = SB3Creator.STC_PARTS[device].stm32f0 ? 48000000 : 125000000;
-            }
-            if (wasDefault && SB3Creator.STC_PARTS[device]
-                && SB3Creator.STC_PARTS[device].core === 'w65c02') {
-                cfg.clock = 1000000;   // 1 MHz phi2, the canonical breadboard build
-            }
+            if (wasDefault) cfg.clock = SB3Creator.defaultClock(device);
             return true;
         }
         if ((m = trimmed.match(/^CLOCK\s+([\d_]+)\s*(hz|mhz)?$/i))) {
@@ -4387,43 +4407,7 @@ class SB3Creator {
             // Per DEVICE, not per core: a micro:bit and a Pico are both
             // MicroPython and share no pin name at all, so one regex for the
             // pair let each accept the other's spelling.
-            const SPOKEN = {
-                'arduino-uno': [/^(D\d+|A\d+)$/i, 'D0-D13 or A0-A5'],
-                'atmega168p': [/^(D\d+|A\d+)$/i, 'D0-D13 or A0-A5'],
-                'arduino-mega': [/^(D\d+|A\d+)$/i, 'D0-D53 or A0-A15'],
-                'arduino-nano': [/^(D\d+|A\d+)$/i, 'D0-D13 or A0-A7'],
-                atmega328p: [/^(D\d+|A\d+)$/i, 'D0-D13 or A0-A5'],
-                microbit: [/^(P\d+|BUTTON_[AB])$/i, 'P0-P20, BUTTON_A or BUTTON_B'],
-                calliopemini: [/^(P\d+|BUTTON_[AB])$/i, 'P0-P20, BUTTON_A or BUTTON_B'],
-                // The Arcade console is a SOFTWARE target (160x120). D0-D31 are
-                // deliberately virtual GPIO: they keep a pin-based lesson
-                // runnable when it is moved into the console without pretending
-                // the console has a physical header. PyBadge is a concrete
-                // ATSAMD51J19 board and uses the labels silkscreened on its
-                // Feather and JST breakouts; PyBadge LC exposes no GPIO headers
-                // at all and is virtual for the same reason Arcade is.
-                arcade: [/^D\d+$/i, 'virtual D0-D31'],
-                pybadge: [/^(?:D(?:2|3|5|6|9|10|11|12|13)|A[0-5]|SDA|SCL)$/i,
-                    'D2, D3, D5, D6, D9-D13, A0-A5, SDA or SCL'],
-                'pybadge-lc': [/^D\d+$/i, 'virtual D0-D31'],
-                samd51: [/^P[AB]\d+$/i, 'PA0-PA31 or PB0-PB31'],
-                pico: [/^GP\d+$/i, 'GP0-GP28'],
-                // Spelled out rather than `P[AB]\d+`, which accepted PB9 and
-                // PB19 while this very message said PB1. Widening the outer PIN
-                // regex from `P[A-D]\d` to `P[A-D]\d+` (needed for the SAMD51's
-                // PA23/PB23) would have carried that looseness from one digit to
-                // two, so the row now says what its own message says.
-                stm32f030: [/^(PA[0-7]|PA9|PA10|PB1)$/i, 'PA0-PA7, PA9, PA10 or PB1'],
-                // PB7 is Timer 1's square-wave pin and the machine's timebase
-                // guard: the emitter would refuse it anyway, refuse it here too.
-                eater6502: [/^(PA[0-7]|PB[0-7]|MK\d+)$/i, 'PA0-PA7, PB0-PB7, or MK0-MK19 (matrix keypad)'],
-                z80: [/^(OUT[0-7]|IN[0-7]|MK\d+)$/i, 'OUT0-OUT7 (latch), IN0-IN7 (buffer), or MK0-MK19 (matrix keypad)'],
-                // DEVICE ATTINY88 describes the common 28-pin package. PA0/PA1
-                // (ADC6/ADC7) only exist on the 32-lead package and are circuit
-                // terminals, not general digital pins accepted by this DSL.
-                attiny88: [/^(PB[0-7]|PC[0-5]|PC7|PD[0-7])$/i, 'PB0-PB7, PC0-PC5, PC7 or PD0-PD7'],
-                attiny85: [/^PB[0-4]$/i, 'PB0-PB4 (PB5 is RESET)']
-            };
+            const SPOKEN = SB3Creator.PIN_SPELLING;
             const spoken = SPOKEN[cfg.device];
             if (!spoken || !spoken[0].test(where)) {
                 const want = spoken ? spoken[1] : 'P<port>.<bit>';
@@ -4553,6 +4537,65 @@ class SB3Creator {
             return true;
         }
         // PART <name> = 74HC595 data P<p>.<b> clock P<p>.<b> latch P<p>.<b> [ACTIVE LOW|HIGH]
+        // PART <name> = HCSR04 TRIG <pin> ECHO <pin> | DS18B20 ON <pin> — a
+        // sensor that is only named pins and a protocol (pinRoleParts.js).
+        // Every board with a C route takes them; pins are spelled the
+        // board's own way, P<port>.<bit> on the 8051s.
+        {
+            const decl = matchPinRoleDecl(trimmed);
+            if (decl) {
+                const cfg = this.stcConfig();
+                const target = SB3Creator.STC_PARTS[cfg.device];
+                const word = PIN_ROLE_PARTS[decl.type].word;
+                if (decl.error) return this.refuseDeclaration(lineIndex, trimmed, decl.error);
+                const core = target && (target.core || '8051');
+                if (!target || !['8051', 'arduino', 'rp2040'].includes(core)) {
+                    return this.refuseDeclaration(lineIndex, trimmed, `${word} is not available on ${cfg.device}: its driver is timed C, and this board has no C route for it. Boards that have it: the STC parts, the ATmega boards, the ATtinys, the Pico and the STM32F030.`);
+                }
+                if (this.stcPin(decl.name) || this.stcPort(decl.name) || this.stcPart(decl.name)) {
+                    return this.refuseDeclaration(lineIndex, trimmed, `"${decl.name}" declared twice`);
+                }
+                const wheres = Object.values(decl.wheres);
+                if (new Set(wheres).size !== wheres.length) {
+                    return this.refuseDeclaration(lineIndex, trimmed, `"${decl.name}" names the same pin twice`);
+                }
+                const part = { name: decl.name, type: decl.type, claims: [] };
+                for (const [role, where] of Object.entries(decl.wheres)) {
+                    if (core === '8051') {
+                        const pm = where.match(/^P([0-4])\.([0-7])$/);
+                        if (!pm) return this.refuseDeclaration(lineIndex, trimmed, `"${where}" is not how ${cfg.device} names a pin; it uses P<port>.<bit>`);
+                        part[role] = { port: +pm[1], bit: +pm[2] };
+                    } else {
+                        const spoken = SB3Creator.PIN_SPELLING[cfg.device];
+                        if (!spoken || !spoken[0].test(where)) {
+                            return this.refuseDeclaration(lineIndex, trimmed, `"${where}" is not how ${cfg.device} names a pin; it uses ${spoken ? spoken[1] : 'its own pin names'}`);
+                        }
+                        if (cfg.device === 'arduino-nano' && /^A[67]$/.test(where)) {
+                            return this.refuseDeclaration(lineIndex, trimmed, `${where} is analog-input only on the Nano, so it cannot carry ${word} ${role.toUpperCase()}`);
+                        }
+                        part[role] = { where };
+                    }
+                    const claim = where;
+                    // An I2C bus is shared: another I2C part's pin in the same
+                    // role, or a PIN named for that role (the LCD/OLED idiom),
+                    // is the same wire, not a clash.
+                    const isI2c = PIN_ROLE_PARTS[decl.type].bus === 'i2c';
+                    const at = (pt) => (pt && (pt.where || `P${pt.port}.${pt.bit}`) || '').toUpperCase();
+                    const pinClash = cfg.pins.find((pin) => at(pin) === claim);
+                    if (pinClash && !(isI2c && pinClash.name.toLowerCase() === role)) {
+                        return this.refuseDeclaration(lineIndex, trimmed, `${claim} is already declared as "${pinClash.name}"; a PART claims its pins`);
+                    }
+                    const partClash = cfg.parts.find((prev) => (prev.claims || []).some((c) => typeof c === 'string' && c.toUpperCase() === claim));
+                    if (partClash && !(isI2c && PIN_ROLE_PARTS[partClash.type] && PIN_ROLE_PARTS[partClash.type].bus === 'i2c'
+                        && at(partClash[role]) === claim)) {
+                        return this.refuseDeclaration(lineIndex, trimmed, `${claim} is already claimed by "${partClash.name}"`);
+                    }
+                    part.claims.push(claim);
+                }
+                cfg.parts.push(part);
+                return true;
+            }
+        }
         if ((m = trimmed.match(/^PART\s+([A-Za-z_]\w*)\s*=\s*74HC595\s+data\s+P([0-4])\.([0-7])\s+clock\s+P([0-4])\.([0-7])\s+latch\s+P([0-4])\.([0-7])(?:\s+ACTIVE\s+(LOW|HIGH))?$/i))) {
             const [, name, dp, db, cp, cb, lp, lb, active] = m;
             const cfg = this.stcConfig();
@@ -6437,6 +6480,25 @@ class SB3Creator {
             block[id].inputs.DEVICE = val(match[1]);
             return ret(block);
         }
+        // I2C parts (pinRoleParts.js): set a DS3231's time, store a byte in
+        // an AT24C02. The part is addressed by name, carried as text.
+        if ((match = matchTopLevel(line, /^set time of\s+([A-Za-z_]\w*)\s+to\s+(.+?)\s*:\s*(.+?)\s*:\s*(.+)$/i))
+            && this.stcPart(match[1]) && this.stcPart(match[1]).type === 'ds3231') {
+            const { id, block } = cmd('devices_settime');
+            block[id].inputs.CLOCK = [1, [10, this.stcPart(match[1]).name]];
+            block[id].inputs.HOUR = val(match[2]);
+            block[id].inputs.MINUTE = val(match[3]);
+            block[id].inputs.SECOND = val(match[4]);
+            return ret(block);
+        }
+        if ((match = matchTopLevel(line, /^store\s+(.+?)\s+at\s+(.+?)\s+in\s+([A-Za-z_]\w*)$/i))
+            && this.stcPart(match[3]) && this.stcPart(match[3]).type === 'at24c02') {
+            const { id, block } = cmd('devices_eepromwrite');
+            block[id].inputs.VALUE = val(match[1]);
+            block[id].inputs.ADDRESS = val(match[2]);
+            block[id].inputs.MEMORY = [1, [10, this.stcPart(match[3]).name]];
+            return ret(block);
+        }
         if ((match = matchTopLevel(line, /^read temperature from\s+(.+)$/i))) {
             // Reporter — handled in parseReporter, not here
         }
@@ -8087,6 +8149,7 @@ class SB3Creator {
             }
             for (const p of cfg.parts || []) {
                 const pinStr = (pin) => pin.where || `P${pin.port}.${pin.bit}`;
+                if (PIN_ROLE_PARTS[p.type]) { out.push(pinRoleDeclText(p)); continue; }
                 if (p.type === 'keypad4x4') {
                     out.push(`PART ${p.name} = KEYPAD4X4 ROWS ${p.rows.map(pinStr).join(' ')} COLS ${p.cols.map(pinStr).join(' ')}`);
                     continue;
@@ -8365,10 +8428,12 @@ class SB3Creator {
             case 'stc12_tableindex': return `${f('TABLE')}[${v('INDEX')}]`;
             case 'ledcube_readvoxel': return `voxel ${v('X')} ${v('Y')} ${v('Z')}`;
             // Device reporters
-            case 'devices_temperature': return `temperature from ${v('SENSOR')}`;
+            case 'devices_temperature': return `temperature from ${this.dSensorPart(b.inputs.SENSOR, 'ds18b20') || v('SENSOR')}`;
             case 'devices_light': return `light from ${v('SENSOR')}`;
             case 'devices_servoangle': return `angle of ${v('SERVO')}`;
-            case 'devices_distance': return `distance from ${v('SENSOR')}`;
+            case 'devices_distance': return `distance from ${this.dSensorPart(b.inputs.SENSOR, 'hcsr04') || v('SENSOR')}`;
+            case 'devices_eepromread': return `byte ${v('ADDRESS')} of ${this.dPartName(b.inputs.MEMORY)}`;
+            case 'devices_i2cfound': return `i2c device ${v('ADDRESS')} on ${this.dPartName(b.inputs.BUS)}`;
             case 'devices_motorspeed': return `speed of ${v('MOTOR')}`;
             case 'devices_motordirection': return `direction of ${v('MOTOR')}`;
             case 'devices_devicestate': return `state of ${v('DEVICE')}`;
@@ -8745,6 +8810,8 @@ class SB3Creator {
             case 'devices_setservo': return line(`set ${v('SERVO')} angle to ${v('ANGLE')}`);
             case 'devices_setmotor': return line(`set ${v('MOTOR')} speed to ${v('SPEED')}`);
             case 'devices_setrelay': return line(`set relay ${v('RELAY')} ${f('STATE')}`);
+            case 'devices_settime': return line(`set time of ${this.dPartName(b.inputs.CLOCK)} to ${v('HOUR')} : ${v('MINUTE')} : ${v('SECOND')}`);
+            case 'devices_eepromwrite': return line(`store ${v('VALUE')} at ${v('ADDRESS')} in ${this.dPartName(b.inputs.MEMORY)}`);
             case 'devices_setdirection': return line(`set ${v('MOTOR')} direction ${f('DIR')}`);
             case 'devices_activate': return line(`activate ${v('DEVICE')}`);
             case 'devices_deactivate': return line(`deactivate ${v('DEVICE')}`);
@@ -10287,6 +10354,46 @@ class SB3Creator {
     armXor (hw) { return this._cStm32 ? `bw_pin_xor(${hw.gpio}u);` : `BW_SIO_GPIO_OUT_XOR = (1UL << ${hw.gpio});`; }
     armGet (hw) { return this._cStm32 ? `bw_pin_get(${hw.gpio}u)` : `((BW_SIO_GPIO_IN >> ${hw.gpio}) & 1u)`; }
 
+    /** How each board spells a general pin (PIN and pin-role PART lines
+     *  share it): [pattern, the words a refusal uses]. */
+    static PIN_SPELLING = Object.freeze({
+        'arduino-uno': [/^(D\d+|A\d+)$/i, 'D0-D13 or A0-A5'],
+        'atmega168p': [/^(D\d+|A\d+)$/i, 'D0-D13 or A0-A5'],
+        'arduino-mega': [/^(D\d+|A\d+)$/i, 'D0-D53 or A0-A15'],
+        'arduino-nano': [/^(D\d+|A\d+)$/i, 'D0-D13 or A0-A7'],
+        atmega328p: [/^(D\d+|A\d+)$/i, 'D0-D13 or A0-A5'],
+        microbit: [/^(P\d+|BUTTON_[AB])$/i, 'P0-P20, BUTTON_A or BUTTON_B'],
+        calliopemini: [/^(P\d+|BUTTON_[AB])$/i, 'P0-P20, BUTTON_A or BUTTON_B'],
+        // The Arcade console is a SOFTWARE target (160x120). D0-D31 are
+        // deliberately virtual GPIO: they keep a pin-based lesson
+        // runnable when it is moved into the console without pretending
+        // the console has a physical header. PyBadge is a concrete
+        // ATSAMD51J19 board and uses the labels silkscreened on its
+        // Feather and JST breakouts; PyBadge LC exposes no GPIO headers
+        // at all and is virtual for the same reason Arcade is.
+        arcade: [/^D\d+$/i, 'virtual D0-D31'],
+        pybadge: [/^(?:D(?:2|3|5|6|9|10|11|12|13)|A[0-5]|SDA|SCL)$/i,
+            'D2, D3, D5, D6, D9-D13, A0-A5, SDA or SCL'],
+        'pybadge-lc': [/^D\d+$/i, 'virtual D0-D31'],
+        samd51: [/^P[AB]\d+$/i, 'PA0-PA31 or PB0-PB31'],
+        pico: [/^GP\d+$/i, 'GP0-GP28'],
+        // Spelled out rather than `P[AB]\d+`, which accepted PB9 and
+        // PB19 while this very message said PB1. Widening the outer PIN
+        // regex from `P[A-D]\d` to `P[A-D]\d+` (needed for the SAMD51's
+        // PA23/PB23) would have carried that looseness from one digit to
+        // two, so the row now says what its own message says.
+        stm32f030: [/^(PA[0-7]|PA9|PA10|PB1)$/i, 'PA0-PA7, PA9, PA10 or PB1'],
+        // PB7 is Timer 1's square-wave pin and the machine's timebase
+        // guard: the emitter would refuse it anyway, refuse it here too.
+        eater6502: [/^(PA[0-7]|PB[0-7]|MK\d+)$/i, 'PA0-PA7, PB0-PB7, or MK0-MK19 (matrix keypad)'],
+        z80: [/^(OUT[0-7]|IN[0-7]|MK\d+)$/i, 'OUT0-OUT7 (latch), IN0-IN7 (buffer), or MK0-MK19 (matrix keypad)'],
+        // DEVICE ATTINY88 describes the common 28-pin package. PA0/PA1
+        // (ADC6/ADC7) only exist on the 32-lead package and are circuit
+        // terminals, not general digital pins accepted by this DSL.
+        attiny88: [/^(PB[0-7]|PC[0-5]|PC7|PD[0-7])$/i, 'PB0-PB7, PC0-PC5, PC7 or PD0-PD7'],
+        attiny85: [/^PB[0-4]$/i, 'PB0-PB4 (PB5 is RESET)']
+    });
+
     /** The Arduino Mega 2560's pin map (official Arduino pin mapping):
      *  54 digital + 16 analog pins across ports A–L. D30–D37 and D42–D49
      *  run DESCENDING through their ports — the board's own quirk. */
@@ -10498,6 +10605,666 @@ class SB3Creator {
         return pin.activeLow ? `!${sfr}` : sfr;
     }
 
+    /**
+     * `ask ... and wait`, `answer`, and a print that joins text, numbers and
+     * the answer -- on the cores whose C prints through a UART (8051, AVR,
+     * ARM). The question goes out like a print; the answer is the next line
+     * that comes in (CR or LF ends it, backspace edits it, 31 characters
+     * kept). `answer` as a number is Scratch's cast: digits with an optional
+     * sign, anything else 0. `answer = "yes"` compares the text, ignoring
+     * case, as Scratch does.
+     */
+    cAskRuntime() {
+        if (!this._cUses.ask && !this._cUses.printPieces) return [];
+        if (!['8051', 'avr', 'arm'].includes(this._core)) return [];
+        const x = this._core === '8051' ? '__xdata ' : '';
+        const u8 = this._core === '8051' ? 'unsigned char' : 'uint8_t';
+        const out = ['/* print pieces: text, numbers and the answer on one line. */',
+            'static void bw_put_s(const char *s) { while (*s) bw_putc(*s++); }',
+            'static void bw_put_end(void) { bw_putc(13); bw_putc(10); }',
+            'static void bw_put_n(long n)',
+            '{',
+            '    char buf[12]; unsigned char i = 0;',
+            '    unsigned long u;',
+            '    if (n < 0) { bw_putc(45); u = (unsigned long)(-n); } else { u = (unsigned long)n; }',
+            '    do { buf[i++] = (char)(48 + (u % 10)); u /= 10; } while (u);',
+            '    while (i) bw_putc(buf[--i]);',
+            '}',
+            `static ${x}char bw_ans[32];`,
+            `static ${u8} bw_ans_len;`,
+            `static void bw_put_answer(void) { ${u8} i; for (i = 0; i < bw_ans_len; i++) bw_putc(bw_ans[i]); }`, ''];
+        if (!this._cUses.ask) return out;
+        const rx = this._core === '8051' ? ['RI', '(RI = 0, (char)SBUF)']
+            : this._core === 'avr' ? ['(UCSR0A & (1 << RXC0))', '(char)UDR0']
+                : this._cStm32 ? ['(USART1_ISR & (1u << 5))', '(char)USART1_RDR']
+                    : ['(!(BW_UART0_FR & (1u << 4)))', '(char)BW_UART0_DR'];
+        out.push('/* ask ... and wait: the question goes out like a print; the answer is',
+            ' * the next line that comes in on the serial line. */',
+            ...(this._cStm32 ? ['#ifndef USART1_RDR', '#define USART1_RDR   BW_MMIO(0x40013824u)', '#endif'] : []),
+            `#define BW_RX_READY()  ${rx[0]}`,
+            `#define BW_RX_BYTE()   ${rx[1]}`,
+            `static ${x}char bw_line[32];`,
+            `static ${u8} bw_line_len;`,
+            // While waiting for a person to type, every poll stirs the random
+            // generator: how long they take is chance the chip can use.
+            ...(this._cUses.random ? ['static unsigned long bw_rng;   /* pick random (defined with bw_random) */'] : []),
+            'static void bw_ask(const char *q) { bw_put_s(q); bw_put_end(); bw_line_len = 0; }',
+            '/* Take what has arrived; 1 when a whole line is in (it is then the answer). */',
+            `static ${u8} bw_got_line(void)`,
+            '{',
+            `    ${u8} i;`,
+            ...(this._cUses.random ? ['    bw_rng += 0x9e3779b9UL;                 /* the wait itself is chance */'] : []),
+            '    while (BW_RX_READY()) {',
+            '        char c = BW_RX_BYTE();',
+            '        if (c == 13 || c == 10) {',
+            '            if (!bw_line_len) continue;          /* the LF after a CR */',
+            '            for (i = 0; i < bw_line_len; i++) bw_ans[i] = bw_line[i];',
+            '            bw_ans_len = bw_line_len;',
+            '            bw_line_len = 0;',
+            '            return 1;',
+            '        }',
+            '        if (c == 8 || c == 127) { if (bw_line_len) bw_line_len--; continue; }',
+            '        if (bw_line_len < 31) bw_line[bw_line_len++] = c;',
+            '    }',
+            '    return 0;',
+            '}',
+            '/* The answer as a number: Scratch casts "12" to 12 and "twelve" to 0. */',
+            'static long bw_answer(void)',
+            '{',
+            `    ${u8} i = 0, neg = 0, any = 0;`,
+            '    long n = 0;',
+            '    while (i < bw_ans_len && bw_ans[i] == 32) i++;',
+            '    if (i < bw_ans_len && (bw_ans[i] == 45 || bw_ans[i] == 43)) { neg = bw_ans[i] == 45; i++; }',
+            '    for (; i < bw_ans_len && bw_ans[i] >= 48 && bw_ans[i] <= 57; i++) { n = n * 10 + (bw_ans[i] - 48); any = 1; }',
+            '    while (i < bw_ans_len && bw_ans[i] == 32) i++;',
+            '    if (!any || i != bw_ans_len) return 0;',
+            '    return neg ? -n : n;',
+            '}',
+            '/* answer = "text": the same letters, upper or lower case. */',
+            `static ${u8} bw_answer_is(const char *s)`,
+            '{',
+            `    ${u8} i;`,
+            '    for (i = 0; i < bw_ans_len; i++, s++) {',
+            '        char a = bw_ans[i], b = *s;',
+            '        if (!b) return 0;',
+            '        if (a >= 97 && a <= 122) a -= 32;',
+            '        if (b >= 97 && b <= 122) b -= 32;',
+            '        if (a != b) return 0;',
+            '    }',
+            '    return *s == 0;',
+            '}', '');
+        return out;
+    }
+
+    /** A print's value as pieces -- text, a number, the answer -- when it joins
+     *  them or prints the answer; null for a plain print (unchanged C). */
+    cPrintPieces(input, blocks) {
+        const pieces = [];
+        let interesting = false;
+        const walk = (inp) => {
+            const prim = inp && inp[1];
+            // A literal: text stays text; a number (or numeric text) is a number.
+            // Anything else -- a variable [12, ...], a reporter -- is a value.
+            if (Array.isArray(prim) && prim[0] >= 4 && prim[0] <= 10) {
+                const raw = prim[1];
+                if (prim[0] === 10 && !(String(raw).trim() !== '' && Number.isFinite(Number(raw)))) {
+                    pieces.push({ kind: 's', code: this.cCString(raw) });
+                } else pieces.push({ kind: 'n', code: this.cNum(raw) });
+                return;
+            }
+            const blk = typeof prim === 'string' ? blocks[prim] : null;
+            if (blk && blk.opcode === 'operator_join') {
+                interesting = true;
+                walk(blk.inputs.STRING1); walk(blk.inputs.STRING2);
+                return;
+            }
+            if (blk && blk.opcode === 'sensing_answer') {
+                interesting = true;
+                pieces.push({ kind: 'a' });
+                return;
+            }
+            pieces.push({ kind: 'n', code: this.cVal(inp, blocks) });
+        };
+        walk(input);
+        return interesting ? pieces : null;
+    }
+
+    /** C lines printing `pieces` and ending the line. */
+    cPrintPiecesLines(pieces, pad) {
+        this._cUses.print = true;
+        this._cUses.printPieces = true;
+        return [...pieces.map((p) => pad + (p.kind === 's' ? `bw_put_s(${p.code});`
+            : p.kind === 'a' ? 'bw_put_answer();' : `bw_put_n(${p.code});`)), `${pad}bw_put_end();`];
+    }
+
+    /** The question line(s) of an ask: `bw_ask("...")`, or a joined print
+     *  then `bw_ask("")` when the question is built. */
+    cAskLines(b, blocks, pad) {
+        this._cUses.ask = true;
+        this._cUses.print = true;
+        const inp = b.inputs && b.inputs.QUESTION;
+        const prim = inp && inp[1];
+        if (Array.isArray(prim)) return [`${pad}bw_ask(${this.cCString(prim[1])});`];
+        const pieces = this.cPrintPieces(inp, blocks) || [{ kind: 'n', code: this.cVal(inp, blocks) }];
+        return [...this.cPrintPiecesLines(pieces, pad).slice(0, -1), `${pad}bw_ask("");`];
+    }
+
+    /** The C name of the sensor PART a SENSOR input addresses, or null. */
+    cSensorPart(input, ...types) {
+        const prim = input && input[1];
+        if (!Array.isArray(prim) || prim[0] !== 10) return null;
+        const p = this.stcPart(prim[1]);
+        if (!p || !types.includes(p.type)) return null;
+        if (!this._cSensorParts) this._cSensorParts = new Map();
+        this._cSensorParts.set(p.name, p);
+        return p.name;
+    }
+
+    /**
+     * Drivers for the pin-role sensor PARTs a program reads (pinRoleParts.js).
+     *
+     * Time is the whole problem: an HC-SR04 answers in the LENGTH of a pulse
+     * (58 us per cm) and a DS18B20 in 1-Wire slots a few microseconds wide.
+     * Nothing here counts instructions -- the same source is a 12T STC89 and
+     * a 125 MHz Pico. Every core already runs a millisecond tick (these parts
+     * force the scheduler on), and its timer's counter is the microsecond
+     * clock:
+     *   8051    Timer 0, FOSC/12 (1.085 us at 11.0592 MHz), re-armed by bw_tick
+     *   ATmega  Timer 0 CTC, F_CPU/64 (4 us at 16 MHz); ATtiny88 Timer 1
+     *   STM32   TIM3 at 1 MHz, 0..999
+     *   RP2040  TIMER, a free-running microsecond count
+     * The echo is timed with interrupts ON (it can last 25 ms): a stamp is
+     * the tick count plus the counter, with a pending overflow counted. A
+     * 1-Wire reset or slot runs with interrupts OFF -- a tick landing inside
+     * a 6 us write-1 slot would make it a 0 -- and is timed by the raw
+     * counter, which runs on undisturbed while the tick waits (one pending
+     * tick at most, so no millisecond is lost).
+     */
+    cPinRoleDrivers() {
+        const parts = [...(this._cSensorParts || new Map()).values()];
+        if (!parts.length) return [];
+        const core = this._core;
+        const out = [];
+        const lo8051 = core === '8051';
+        const avr = core === 'avr';
+        const stm = core === 'arm' && this._cStm32;
+        const pico = core === 'arm' && !this._cStm32;
+        const tcnt = this._cTiny88 ? 'TCNT1' : 'TCNT0';
+        const top = this._cTiny88 ? 'BW_OCR1A' : 'BW_OCR0A';
+        const tifr = this._cTiny88 ? 'TIFR1' : this._cTiny85 ? 'TIFR' : 'TIFR0';
+        const ocf = this._cTiny88 ? 'OCF1A' : 'OCF0A';
+        out.push('/* Sensor PART drivers: microsecond time from the tick timer (see the',
+            ' * generator, cPinRoleDrivers, for why no loop here counts cycles). */');
+        if (lo8051) {
+            out.push('#define BW_IRQ_OFF()   unsigned char bw_ea = EA; EA = 0',
+                '#define BW_IRQ_ON()    EA = bw_ea',
+                '/* Counts of Timer 0 (FOSC/12) in n microseconds. */',
+                '#define BW_US(n)       ((unsigned int)((n) * (FOSC_HZ / 1000UL) / 12000UL))',
+                '#define BW_SHORT(n)    /* one 8051 statement is already a microsecond or more */',
+                '/* Two tick edges with interrupts on: at least one full millisecond. */',
+                '#define BW_RECOVER()   do { unsigned int bw_m = bw_ms_now(); while ((unsigned int)(bw_ms_now() - bw_m) < 2u) ; } while (0)',
+                'static unsigned int bw_cnt(void)',
+                '{',
+                '    unsigned char h, l;',
+                '    do { h = TH0; l = TL0; } while (h != TH0);',
+                '    return ((unsigned int)h << 8) | l;',
+                '}',
+                '/* Counts since bw_lap_start. With interrupts off Timer 0 counts on',
+                ' * through 0xFFFF -> 0, so a 16-bit difference is the elapsed count. */',
+                'static unsigned int bw_lap0;',
+                'static void bw_lap_start(void) { bw_lap0 = bw_cnt(); }',
+                'static unsigned int bw_lap(void) { return (unsigned int)(bw_cnt() - bw_lap0); }',
+                'static void bw_wait_cnt(unsigned int n) { bw_lap_start(); while (bw_lap() < n) ; }',
+                '/* A stamp is a raw snapshot -- the tick count and Timer 0 -- taken',
+                ' * inline: a stamp FUNCTION took ~200 us on a 12T core, longer than the',
+                ' * echo of something 5 cm away. It is made sense of afterwards. */',
+                'typedef struct { unsigned int ms; unsigned char h, l; } bw_stamp_t;',
+                '#define BW_STAMP(t) do { (t).ms = bw_ms; (t).h = TH0; (t).l = TL0; } while ((t).h != TH0 || (t).ms != bw_ms)',
+                '/* Milliseconds and Timer 0 counts since that millisecond began. Below the',
+                ' * reload, Timer 0 had overflowed and bw_tick had not run yet. */',
+                'static void bw_stamp_norm(const bw_stamp_t __data *s, unsigned int __data *m, unsigned int __data *c)',
+                '{',
+                '    *c = ((unsigned int)s->h << 8) | s->l;',
+                '    *m = s->ms;',
+                '    if (*c >= (unsigned int)T0_RELOAD) *c -= (unsigned int)T0_RELOAD; else (*m)++;',
+                '}',
+                'static unsigned long bw_stamp_us(const bw_stamp_t __data *a, const bw_stamp_t __data *b)',
+                '{',
+                '    unsigned int am, ac, bm, bc;',
+                '    long d;',
+                '    bw_stamp_norm(a, &am, &ac);',
+                '    bw_stamp_norm(b, &bm, &bc);',
+                '    d = ((long)bc - (long)ac) * 12000L / (long)(FOSC_HZ / 1000UL);',
+                '    return (unsigned long)((long)(unsigned int)(bm - am) * 1000L + d);',
+                '}',
+                '/* bw_ms is two bytes and the tick can land between them: read until',
+                ' * two reads agree (a torn read once made a 17 ms echo a timeout). */',
+                'static unsigned int bw_ms_now(void)',
+                '{',
+                '    unsigned int m;',
+                '    do { m = bw_ms; } while (m != bw_ms);',
+                '    return m;',
+                '}',
+                '#define BW_MS_SINCE(t) ((unsigned int)(bw_ms_now() - (t).ms))', '');
+        } else if (avr) {
+            out.push('#define BW_IRQ_OFF()   uint8_t bw_sreg = SREG; cli()',
+                '#define BW_IRQ_ON()    SREG = bw_sreg',
+                `/* Counts of the tick timer (F_CPU/64) in n microseconds, rounded up. */`,
+                '#define BW_US(n)       ((uint16_t)(((uint32_t)(n) * (F_CPU / 1000UL) + 63999UL) / 64000UL))',
+                '#define BW_SHORT(n)    bw_wait_cnt(BW_US(n))',
+                '#define BW_RECOVER()   bw_wait_cnt(BW_US(480))   /* interrupts on: CTC never jumps */',
+                `/* Counts since bw_lap_start. CTC wraps the counter at ${top} by`,
+                ' * itself, so each look adds its step modulo the period (interrupts off,',
+                ' * or a look at least once a millisecond). */',
+                'static uint16_t bw_lap_p, bw_lap_acc;',
+                `static void bw_lap_start(void) { bw_lap_p = ${tcnt}; bw_lap_acc = 0; }`,
+                'static uint16_t bw_lap(void)',
+                '{',
+                `    uint16_t c = ${tcnt};`,
+                `    bw_lap_acc += (c >= bw_lap_p) ? (uint16_t)(c - bw_lap_p) : (uint16_t)(c + ${top} + 1u - bw_lap_p);`,
+                '    bw_lap_p = c;',
+                '    return bw_lap_acc;',
+                '}',
+                'static void bw_wait_cnt(uint16_t n) { bw_lap_start(); while (bw_lap() < n) ; }',
+                'typedef struct { uint32_t ms; uint16_t c; } bw_stamp_t;',
+                'static void bw_stamp(bw_stamp_t *s)',
+                '{',
+                '    uint8_t sreg = SREG;',
+                '    uint32_t m;',
+                '    uint16_t c;',
+                '    cli();',
+                `    m = bw_ms; c = ${tcnt};`,
+                `    if ((${tifr} & (1 << ${ocf})) && c < ${top} / 2u) m++;   /* wrapped; tick pending */`,
+                '    SREG = sreg;',
+                '    s->ms = m; s->c = c;',
+                '}',
+                '#define BW_STAMP(t) bw_stamp(&(t))',
+                'static uint32_t bw_stamp_us(const bw_stamp_t *a, const bw_stamp_t *b)',
+                '{',
+                '    int32_t d = ((int32_t)b->c - (int32_t)a->c) * 64000L / (int32_t)(F_CPU / 1000UL);',
+                '    return (uint32_t)((int32_t)(b->ms - a->ms) * 1000L + d);',
+                '}',
+                '/* bw_ms is four bytes and the tick can land between them. */',
+                'static uint32_t bw_ms_now(void)',
+                '{',
+                '    uint8_t sreg = SREG;',
+                '    uint32_t m;',
+                '    cli();',
+                '    m = bw_ms;',
+                '    SREG = sreg;',
+                '    return m;',
+                '}',
+                '#define BW_MS_SINCE(t) ((uint32_t)(bw_ms_now() - (t).ms))', '');
+        } else {
+            out.push('#define BW_IRQ_OFF()   uint32_t bw_pm; __asm__ volatile ("mrs %0, primask" : "=r" (bw_pm)); __asm__ volatile ("cpsid i")',
+                '#define BW_IRQ_ON()    do { if (!bw_pm) __asm__ volatile ("cpsie i"); } while (0)',
+                '#define BW_US(n)       ((uint32_t)(n))   /* the counter is 1 MHz */',
+                '#define BW_SHORT(n)    bw_wait_cnt(BW_US(n))',
+                '#define BW_RECOVER()   bw_wait_cnt(BW_US(480))');
+            if (stm) {
+                out.push('#ifndef TIM3_CNT',
+                    '#define TIM3_CNT     BW_MMIO(0x40000424u)',
+                    '#endif',
+                    '/* Microseconds since bw_lap_start: TIM3 counts 0..999 at 1 MHz and',
+                    ' * wraps by itself, so each look adds its step modulo 1000. */',
+                    'static uint32_t bw_lap_p, bw_lap_acc;',
+                    'static void bw_lap_start(void) { bw_lap_p = TIM3_CNT; bw_lap_acc = 0; }',
+                    'static uint32_t bw_lap(void)',
+                    '{',
+                    '    uint32_t c = TIM3_CNT;',
+                    '    bw_lap_acc += (c >= bw_lap_p) ? c - bw_lap_p : c + 1000u - bw_lap_p;',
+                    '    bw_lap_p = c;',
+                    '    return bw_lap_acc;',
+                    '}',
+                    'static void bw_wait_cnt(uint32_t n) { bw_lap_start(); while (bw_lap() < n) ; }',
+                    'typedef struct { uint32_t ms; uint32_t c; } bw_stamp_t;',
+                    'static void bw_stamp(bw_stamp_t *s)',
+                    '{',
+                    '    uint32_t m, c;',
+                    '    BW_IRQ_OFF();',
+                    '    m = bw_ms; c = TIM3_CNT;',
+                    '    if ((TIM3_SR & 1u) && c < 500u) m++;   /* wrapped; tick pending */',
+                    '    BW_IRQ_ON();',
+                    '    s->ms = m; s->c = c;',
+                    '}',
+                    '#define BW_STAMP(t) bw_stamp(&(t))',
+                    'static uint32_t bw_stamp_us(const bw_stamp_t *a, const bw_stamp_t *b)',
+                    '{',
+                    '    return (b->ms - a->ms) * 1000u + b->c - a->c;',
+                    '}',
+                    '#define BW_MS_SINCE(t) ((uint32_t)(bw_ms - (t).ms))', '');
+            } else {
+                out.push('static uint32_t bw_lap0;',
+                    'static void bw_lap_start(void) { bw_lap0 = BW_TIMER_TIMELR; }',
+                    'static uint32_t bw_lap(void) { return BW_TIMER_TIMELR - bw_lap0; }',
+                    'static void bw_wait_cnt(uint32_t n) { bw_lap_start(); while (bw_lap() < n) ; }',
+                    'typedef struct { uint32_t us; } bw_stamp_t;',
+                    '#define BW_STAMP(t) ((t).us = BW_TIMER_TIMELR)',
+                    'static uint32_t bw_stamp_us(const bw_stamp_t *a, const bw_stamp_t *b) { return b->us - a->us; }',
+                    '#define BW_MS_SINCE(t) ((uint32_t)(BW_TIMER_TIMELR - (t).us) / 1000u)', '');
+            }
+        }
+        // Per-pin open-drain primitives for a 1-Wire DQ: drive low, release.
+        const ow = (pinName) => {
+            const pin = this.cPin(pinName);
+            if (lo8051) {
+                const sfr = `P${pin.port}_${pin.bit}`;
+                const init = this._cChip && this._cChip.portModes
+                    ? `P${pin.port}M1 |= 0x${(1 << pin.bit).toString(16)}; P${pin.port}M0 |= 0x${(1 << pin.bit).toString(16)};   /* open drain */`
+                    : '';
+                return { init, low: `${sfr} = 0;`, rel: `${sfr} = 1;`, read: sfr };
+            }
+            if (avr) {
+                const hw = this.avrHw(pin);
+                return { init: `PORT${hw.reg} &= (uint8_t)~(1 << ${hw.bit});   /* never pull it up */`,
+                    low: `DDR${hw.reg} |= (1 << ${hw.bit});`, rel: `DDR${hw.reg} &= (uint8_t)~(1 << ${hw.bit});`,
+                    read: `((PIN${hw.reg} >> ${hw.bit}) & 1)` };
+            }
+            const hw = this.armHw(pin);
+            if (stm) {
+                const reg = hw.gpio < 16 ? 'GPIOA_MODER' : 'GPIOB_MODER';
+                const n = hw.gpio & 15;
+                return { init: `bw_pin_clr(${hw.gpio}u);`,
+                    low: `${reg} |= (1u << ${2 * n});`, rel: `${reg} &= ~(3u << ${2 * n});`,
+                    read: `bw_pin_get(${hw.gpio}u)` };
+            }
+            return { init: `BW_SIO_GPIO_OUT_CLR = (1UL << ${hw.gpio});`,
+                low: `BW_SIO_GPIO_OE_SET = (1UL << ${hw.gpio});`, rel: `BW_SIO_GPIO_OE_CLR = (1UL << ${hw.gpio});`,
+                read: `((BW_SIO_GPIO_IN >> ${hw.gpio}) & 1u)` };
+        };
+        if (pico && parts.some((p) => p.type === 'ds18b20' || PIN_ROLE_PARTS[p.type].bus === 'i2c')) {
+            out.push('#ifndef BW_SIO_GPIO_OE_CLR', '#define BW_SIO_GPIO_OE_CLR   BW_MMIO(0xd0000028u)', '#endif', '');
+        }
+        const u8 = lo8051 ? 'unsigned char' : 'uint8_t';
+        for (const p of parts) {
+            const n = p.name;
+            if (p.type === 'hcsr04') {
+                const trigHi = this.cSetPin(`${n}.trig`, 'high');
+                const trigLo = this.cSetPin(`${n}.trig`, 'low');
+                const echo = this.cPinRead(`${n}.echo`);
+                out.push(`/* ${n}: HC-SR04. A 10 us TRIG pulse; ECHO then stays high 58 us per cm`,
+                    ' * of distance. 999 = no echo inside 30 ms (nothing in range).',
+                    ' * The module wants 60 ms from one trigger to the next (datasheet): a',
+                    ' * read sooner than that returns the last reading instead of waiting,',
+                    ' * so a loop that asks constantly does not hold up the other scripts.',
+                    ' * Only the first read waits -- 60 ms from boot, because an 8051 pin',
+                    ' * comes out of reset HIGH and setting TRIG low in bw_setup already',
+                    ' * looked like a trigger to the module. */',
+                    `static bw_stamp_t bw_${n}_last;           /* zero: boot */`,
+                    `static long bw_${n}_cm;`,
+                    `static ${lo8051 ? 'unsigned char' : 'uint8_t'} bw_${n}_have;`,
+                    `static long bw_part_${n}_distance(void)`,
+                    '{',
+                    '    bw_stamp_t t0, t1;',
+                    `    if (BW_MS_SINCE(bw_${n}_last) < 60) {`,
+                    `        if (bw_${n}_have) return bw_${n}_cm;`,
+                    `        while (BW_MS_SINCE(bw_${n}_last) < 60) ;`,
+                    '    }',
+                    `    bw_${n}_have = 1;`,
+                    '    /* Also the timeout origin, taken BEFORE the trigger: on a slow core',
+                    '     * a stamp between trigger and first look outlasted the 200 us burst. */',
+                    `    BW_STAMP(bw_${n}_last);`,
+                    '    {',
+                    '        BW_IRQ_OFF();',
+                    `        ${trigHi}`,
+                    '        bw_wait_cnt(BW_US(10) + 1);',
+                    `        ${trigLo}`,
+                    '        BW_IRQ_ON();',
+                    '    }',
+                    `    while (!${echo}) if (BW_MS_SINCE(bw_${n}_last) > 30) return bw_${n}_cm = 999;`,
+                    '    BW_STAMP(t0);',
+                    `    while (${echo}) if (BW_MS_SINCE(t0) > 30) return bw_${n}_cm = 999;`,
+                    '    BW_STAMP(t1);',
+                    `    return bw_${n}_cm = (long)((bw_stamp_us(&t0, &t1) + 29) / 58);   /* nearest cm */`,
+                    '}', '');
+            } else if (p.type === 'ds18b20') {
+                const io = ow(`${n}.dq`);
+                out.push(`/* ${n}: DS18B20 on 1-Wire (one sensor on the wire: SKIP ROM). */`,
+                    `static ${u8} bw_${n}_ready;`,
+                    `static ${u8} bw_${n}_reset(void)`,
+                    '{',
+                    `    ${u8} present;`,
+                    `    if (!bw_${n}_ready) { ${io.init} ${io.rel} bw_${n}_ready = 1; }`,
+                    '    {',
+                    '        BW_IRQ_OFF();',
+                    `        ${io.low}`,
+                    '        bw_wait_cnt(BW_US(480));',
+                    `        ${io.rel}`,
+                    '        /* Presence: the slave pulls low 15-60 us after the release, for',
+                    '         * 60-240 us. Watching the window, rather than sampling once at',
+                    '         * 70 us, holds on a 12T core whose timed wait overshoots by a loop',
+                    '         * of ~100 us. It ends once the pulse is over, so interrupts stay',
+                    '         * off for less than one tick and no millisecond is dropped. */',
+                    '        present = 0;',
+                    '        bw_lap_start();',
+                    '        while (bw_lap() < BW_US(250)) {',
+                    `            if (!${io.read}) present = 1;`,
+                    '            else if (present) break;',
+                    '        }',
+                    '        BW_IRQ_ON();',
+                    '    }',
+                    '    BW_RECOVER();                            /* >= 480 us before the next slot */',
+                    '    return present;',
+                    '}',
+                    `static void bw_${n}_write(${u8} v)`,
+                    '{',
+                    `    ${u8} i;`,
+                    '    for (i = 0; i < 8; i++) {',
+                    '        BW_IRQ_OFF();',
+                    `        ${io.low}`,
+                    `        if (v & 1) { BW_SHORT(2); ${io.rel} bw_wait_cnt(BW_US(60)); }`,
+                    `        else { bw_wait_cnt(BW_US(60)); ${io.rel} BW_SHORT(2); }`,
+                    '        BW_IRQ_ON();',
+                    '        v >>= 1;',
+                    '    }',
+                    '}',
+                    `static ${u8} bw_${n}_bit(void)`,
+                    '{',
+                    `    ${u8} b;`,
+                    '    BW_IRQ_OFF();',
+                    `    ${io.low}`,
+                    '    BW_SHORT(2);',
+                    `    ${io.rel}`,
+                    '    BW_SHORT(6);',
+                    `    b = ${io.read};`,
+                    '    bw_wait_cnt(BW_US(55));',
+                    '    BW_IRQ_ON();',
+                    '    return b;',
+                    '}',
+                    `static ${u8} bw_${n}_read(void)`,
+                    '{',
+                    `    ${u8} i, v = 0;`,
+                    `    for (i = 0; i < 8; i++) { v >>= 1; if (bw_${n}_bit()) v |= 0x80; }`,
+                    '    return v;',
+                    '}',
+                    '/* Whole degrees C, rounded. A conversion takes up to 750 ms, so it runs',
+                    ' * in the background: a read returns the last finished one and starts',
+                    ' * the next. Only the very first read waits. -127: no sensor answers. */',
+                    `static ${u8} bw_${n}_busy, bw_${n}_have;`,
+                    `static long bw_${n}_last;`,
+                    `static bw_stamp_t bw_${n}_conv;           /* when the conversion started */`,
+                    `static long bw_part_${n}_temperature(void)`,
+                    '{',
+                    `    ${u8} sp[9], i, j, crc;`,
+                    '    int raw;',
+                    '    for (;;) {',
+                    `        if (!bw_${n}_busy) {`,
+                    `            if (!bw_${n}_reset()) return bw_${n}_have ? bw_${n}_last : -127;`,
+                    `            bw_${n}_write(0xCC); bw_${n}_write(0x44);   /* SKIP ROM, CONVERT T */`,
+                    `            bw_${n}_busy = 1;`,
+                    `            BW_STAMP(bw_${n}_conv);`,
+                    `            if (bw_${n}_have) return bw_${n}_last;`,
+                    '        }',
+                    '        /* A 12-bit conversion takes up to 750 ms: leave the bus alone until',
+                    '         * then rather than polling it on every read. */',
+                    `        if (BW_MS_SINCE(bw_${n}_conv) < 750) {`,
+                    `            if (bw_${n}_have) return bw_${n}_last;`,
+                    `            while (BW_MS_SINCE(bw_${n}_conv) < 750) ;`,
+                    '        }',
+                    `        if (!bw_${n}_bit()) {                     /* still converting */`,
+                    `            if (bw_${n}_have) return bw_${n}_last;`,
+                    '            continue;',
+                    '        }',
+                    `        bw_${n}_busy = 0;`,
+                    `        if (!bw_${n}_reset()) return bw_${n}_have ? bw_${n}_last : -127;`,
+                    `        bw_${n}_write(0xCC); bw_${n}_write(0xBE);   /* SKIP ROM, READ SCRATCHPAD */`,
+                    '        crc = 0;',
+                    '        for (i = 0; i < 9; i++) {',
+                    `            sp[i] = bw_${n}_read();`,
+                    '            if (i < 8) for (j = 0; j < 8; j++) {   /* Dallas CRC-8, x^8+x^5+x^4+1 */',
+                    `                ${u8} mix = (crc ^ (sp[i] >> j)) & 1;`,
+                    '                crc >>= 1;',
+                    '                if (mix) crc ^= 0x8C;',
+                    '            }',
+                    '        }',
+                    `        if (crc != sp[8]) continue;               /* a corrupted read: convert again */`,
+                    '        raw = (int)(short)(((unsigned int)sp[1] << 8) | sp[0]);   /* 16-bit two-complement */',
+                    '        /* Rounded the way Scratch rounds (half up: -10.5 is -10). The',
+                    '         * offset keeps the division on positives, where C truncation IS',
+                    '         * floor; the part reads -55 to +125, so 4096 covers it. */',
+                    `        bw_${n}_last = (long)((raw + 8 + 4096) / 16) - 256;`,
+                    `        bw_${n}_have = 1;`,
+                    '    }',
+                    '}', '');
+            }
+        }
+        const i2cParts = parts.filter((p) => PIN_ROLE_PARTS[p.type].bus === 'i2c');
+        if (i2cParts.length) {
+            // One bus: the first I2C part's two pins. The parser lets I2C
+            // parts share them; parts on a second pair would need a second
+            // master, and say so.
+            const bus = i2cParts[0];
+            const at = (pt) => (pt.where || `P${pt.port}.${pt.bit}`).toUpperCase();
+            for (const p of i2cParts.slice(1)) {
+                if (at(p.sda) !== at(bus.sda) || at(p.scl) !== at(bus.scl)) {
+                    this.cWarn(`"${p.name}" is on a second I2C pin pair; this C drives one bus (${at(bus.sda)}/${at(bus.scl)})`);
+                }
+            }
+            const sda = ow(`${bus.name}.sda`), scl = ow(`${bus.name}.scl`);
+            out.push(`/* I2C master on ${at(bus.sda)} (SDA) / ${at(bus.scl)} (SCL), open drain: a line is pulled`,
+                ' * low or released, and the bus pull-ups pull it high. About 100 kHz on the',
+                ' * fast cores; an 8051 is slower than that by itself. */',
+                `static ${u8} bw_i2c_ready;`,
+                'static void bw_i2c_wait(void) { BW_SHORT(5); }',
+                'static void bw_i2c_start(void)',
+                '{',
+                `    if (!bw_i2c_ready) { ${sda.init} ${scl.init} bw_i2c_ready = 1; }`,
+                `    ${sda.rel} ${scl.rel} bw_i2c_wait();`,
+                `    ${sda.low} bw_i2c_wait();          /* START: SDA falls while SCL is high */`,
+                `    ${scl.low} bw_i2c_wait();`,
+                '}',
+                'static void bw_i2c_stop(void)',
+                '{',
+                `    ${sda.low} bw_i2c_wait();`,
+                `    ${scl.rel} bw_i2c_wait();`,
+                `    ${sda.rel} bw_i2c_wait();          /* STOP: SDA rises while SCL is high */`,
+                '}',
+                '/* Eight bits out, MSB first; 1 when the device acknowledged. */',
+                `static ${u8} bw_i2c_write(${u8} b)`,
+                '{',
+                `    ${u8} i, ack;`,
+                '    for (i = 0; i < 8; i++) {',
+                `        if (b & 0x80) { ${sda.rel} } else { ${sda.low} }`,
+                '        bw_i2c_wait();',
+                `        ${scl.rel} bw_i2c_wait();`,
+                `        ${scl.low}`,
+                '        b <<= 1;',
+                '    }',
+                `    ${sda.rel} bw_i2c_wait();`,
+                `    ${scl.rel} bw_i2c_wait();`,
+                `    ack = !${sda.read};`,
+                `    ${scl.low} bw_i2c_wait();`,
+                '    return ack;',
+                '}',
+                '/* Eight bits in; ack = 1 asks the device for another byte. */',
+                `static ${u8} bw_i2c_read(${u8} ack)`,
+                '{',
+                `    ${u8} i, v = 0;`,
+                `    ${sda.rel}`,
+                '    for (i = 0; i < 8; i++) {',
+                `        bw_i2c_wait(); ${scl.rel} bw_i2c_wait();`,
+                `        v = (${u8})((v << 1) | (${sda.read} ? 1 : 0));`,
+                `        ${scl.low}`,
+                '    }',
+                `    if (ack) { ${sda.low} } else { ${sda.rel} }`,
+                `    bw_i2c_wait(); ${scl.rel} bw_i2c_wait(); ${scl.low} bw_i2c_wait();`,
+                `    ${sda.rel}`,
+                '    return v;',
+                '}',
+                '/* Does a device answer at this 7-bit address? */',
+                `static ${u8} bw_i2c_found(long a)`,
+                '{',
+                `    ${u8} ack;`,
+                '    bw_i2c_start();',
+                `    ack = bw_i2c_write((${u8})((a & 0x7F) << 1));`,
+                '    bw_i2c_stop();',
+                '    return ack;',
+                '}',
+                '#define BW_BCD_IN(b)   (((((b) >> 4) & 0x0F) * 10) + ((b) & 0x0F))',
+                `#define BW_BCD_OUT(n)  ((${u8})((((n) / 10) << 4) | ((n) % 10)))`, '');
+            for (const p of i2cParts) {
+                const n = p.name;
+                out.push(`#define bw_part_${n}_found(a) bw_i2c_found(a)`);
+                if (p.type === 'ds3231') {
+                    const w = (PIN_ROLE_PARTS.ds3231.address << 1).toString(16).toUpperCase();
+                    const r = ((PIN_ROLE_PARTS.ds3231.address << 1) | 1).toString(16).toUpperCase();
+                    out.push(`/* ${n}: DS3231 clock. Registers 0-6 hold second, minute, hour, day of`,
+                        ' * week, date, month and year as BCD; `current hour` reads one. */',
+                        `static long bw_part_${n}_get(${u8} reg)`,
+                        '{',
+                        `    ${u8} v;`,
+                        '    long h;',
+                        `    bw_i2c_start(); bw_i2c_write(0x${w}); bw_i2c_write(reg);`,
+                        `    bw_i2c_start(); bw_i2c_write(0x${r}); v = bw_i2c_read(0); bw_i2c_stop();`,
+                        '    if (reg == 2) {',
+                        '        if (!(v & 0x40)) return BW_BCD_IN(v & 0x3F);      /* 24-hour mode */',
+                        '        h = BW_BCD_IN(v & 0x1F) % 12;                       /* 12-hour mode */',
+                        '        return (v & 0x20) ? h + 12 : h;',
+                        '    }',
+                        '    if (reg == 3) return v & 0x07;',
+                        '    if (reg == 5) return BW_BCD_IN(v & 0x1F);',
+                        '    if (reg == 6) return 2000 + BW_BCD_IN(v);',
+                        '    return BW_BCD_IN(v & 0x7F);',
+                        '}',
+                        '/* Set the time (24-hour), and clear the "oscillator stopped" flag a',
+                        ' * fresh or battery-less DS3231 powers up with. */',
+                        `static void bw_part_${n}_settime(long h, long m, long s)`,
+                        '{',
+                        `    bw_i2c_start(); bw_i2c_write(0x${w}); bw_i2c_write(0x00);`,
+                        '    bw_i2c_write(BW_BCD_OUT(s % 60)); bw_i2c_write(BW_BCD_OUT(m % 60)); bw_i2c_write(BW_BCD_OUT(h % 24));',
+                        '    bw_i2c_stop();',
+                        `    bw_i2c_start(); bw_i2c_write(0x${w}); bw_i2c_write(0x0F); bw_i2c_write(0x00); bw_i2c_stop();`,
+                        '}', '');
+                } else if (p.type === 'at24c02') {
+                    const w = (PIN_ROLE_PARTS.at24c02.address << 1).toString(16).toUpperCase();
+                    const r = ((PIN_ROLE_PARTS.at24c02.address << 1) | 1).toString(16).toUpperCase();
+                    out.push(`/* ${n}: AT24C02, 256 bytes that survive power-off. A value is one byte`,
+                        ' * (0-255); the address wraps at 256. */',
+                        `static long bw_part_${n}_read(long a)`,
+                        '{',
+                        `    ${u8} v;`,
+                        `    bw_i2c_start(); bw_i2c_write(0x${w}); bw_i2c_write((${u8})a);`,
+                        `    bw_i2c_start(); bw_i2c_write(0x${r}); v = bw_i2c_read(0); bw_i2c_stop();`,
+                        '    return v;',
+                        '}',
+                        `static void bw_part_${n}_write(long a, long v)`,
+                        '{',
+                        `    ${u8} tries;`,
+                        `    bw_i2c_start(); bw_i2c_write(0x${w}); bw_i2c_write((${u8})a); bw_i2c_write((${u8})v); bw_i2c_stop();`,
+                        '    /* The write cycle takes up to 5 ms, and the chip does not answer its',
+                        '     * address until it is done: ask until it does. */',
+                        '    for (tries = 0; tries < 200; tries++) {',
+                        `        bw_i2c_start();`,
+                        `        if (bw_i2c_write(0x${w})) { bw_i2c_stop(); break; }`,
+                        '        bw_i2c_stop();',
+                        '    }',
+                        '}', '');
+                }
+            }
+        }
+        return out;
+    }
+
     // `turn on` writes a 0 on an ACTIVE LOW pin. That inversion is the whole point.
     cSetPin(name, state) {
         const sfr = this.cSfr(name);
@@ -10577,6 +11344,12 @@ class SB3Creator {
                     this._cUses.random = true;
                     return `bw_random(${v('FROM')}, ${v('TO')})`;
                 }
+                if (this._cListCore) {
+                    // Every other C core: an inclusive xorshift32 pick (below),
+                    // stirred with the millisecond clock where the build has one.
+                    this._cUses.random = true;
+                    return `bw_random(${v('FROM')}, ${v('TO')})`;
+                }
                 const text = this.drep(b, blocks) || b.opcode;
                 this.cWarn(`no C equivalent for "${text}" — emitted as 0`);
                 return `0 /* ${this.cComment(text)} */`;
@@ -10597,7 +11370,7 @@ class SB3Creator {
             case 'planetemaths_oppose': return `(0 - ${v('NUM1')})`;
             case 'planetemaths_pourcent': return `(${v('NUM1')} / 100)`;
             case 'data_itemoflist': {
-                if (this._core === 'i8086') {
+                if (this._cListCore) {
                     this._cUses.numericLists = true;
                     const list = this.cI8086ListRef(b.fields && b.fields.LIST);
                     return `bw_list_item(${list.data}, ${list.len}, ${v('INDEX')})`;
@@ -10606,8 +11379,28 @@ class SB3Creator {
                 this.cWarn(`no C equivalent for "${text}" — emitted as 0`);
                 return `0 /* ${this.cComment(text)} */`;
             }
+            case 'sensing_current': {
+                // Scratch's `current hour` and friends: on a chip they are
+                // the DS3231's clock, when exactly one is declared.
+                const clocks = ((this.project && this.project.stc && this.project.stc.parts) || []).filter((p) => p.type === 'ds3231');
+                const reg = { SECOND: 0, MINUTE: 1, HOUR: 2, DAYOFWEEK: 3, DATE: 4, MONTH: 5, YEAR: 6 }[f('CURRENTMENU')];
+                if (this._cListCore && this._core !== 'i8086' && clocks.length === 1 && reg !== undefined) {
+                    if (!this._cSensorParts) this._cSensorParts = new Map();
+                    this._cSensorParts.set(clocks[0].name, clocks[0]);
+                    return `bw_part_${clocks[0].name}_get(${reg})`;
+                }
+                const text = this.drep(b, blocks) || b.opcode;
+                this.cWarn(`no C equivalent for "${text}" (it needs one DS3231 PART) — emitted as 0`);
+                return `0 /* ${this.cComment(text)} */`;
+            }
+            case 'sensing_answer': {
+                if (this._cListCore && this._core !== 'i8086') { this._cUses.ask = true; this._cUses.print = true; return 'bw_answer()'; }
+                const text = this.drep(b, blocks) || b.opcode;
+                this.cWarn(`no C equivalent for "${text}" — emitted as 0`);
+                return `0 /* ${this.cComment(text)} */`;
+            }
             case 'data_lengthoflist': {
-                if (this._core === 'i8086') {
+                if (this._cListCore) {
                     this._cUses.numericLists = true;
                     return `(int)${this.cI8086ListRef(b.fields && b.fields.LIST).len}`;
                 }
@@ -10648,9 +11441,25 @@ class SB3Creator {
             case 'devices_servoangle': { if (this._core === '6502') return '0 /* no servo on this machine */'; this._cUses.devices = true; this._cUses.servo = true; return `bw_servo_get(${v('SERVO')})`; }
             case 'devices_motorspeed': { if (this._core === '6502') return '0 /* no motor on this machine */'; this._cUses.devices = true; this._cUses.motor = true; return `bw_motor_get_speed(${v('MOTOR')})`; }
             case 'devices_motordirection': { if (this._core === '6502') return '0 /* no motor on this machine */'; this._cUses.devices = true; this._cUses.motor = true; return `bw_motor_get_dir(${v('MOTOR')})`; }
-            case 'devices_temperature': { this._cUses.devices = true; this._cUses.sensor = true; this._cUses.adc = true; return `bw_temperature(${v('SENSOR')})`; }
+            case 'devices_temperature': if (this.cSensorPart(b.inputs.SENSOR, 'ds18b20')) return `bw_part_${this.cSensorPart(b.inputs.SENSOR, 'ds18b20')}_temperature()`;
+            // falls through: the fixed analog TMP36 driver
+            { this._cUses.devices = true; this._cUses.sensor = true; this._cUses.adc = true; return `bw_temperature(${v('SENSOR')})`; }
             case 'devices_light': { this._cUses.devices = true; this._cUses.sensor = true; this._cUses.adc = true; return `bw_light(${v('SENSOR')})`; }
-            case 'devices_distance': { this._cUses.devices = true; this._cUses.ultrasonic = true; return `bw_distance(${v('SENSOR')})`; }
+            case 'devices_eepromread': {
+                const n = this.cSensorPart(b.inputs.MEMORY, 'at24c02');
+                if (n) return `bw_part_${n}_read(${v('ADDRESS')})`;
+                this.cWarn('no C equivalent for "byte ... of" without a declared AT24C02 — emitted as 0');
+                return '0';
+            }
+            case 'devices_i2cfound': {
+                const n = this.cSensorPart(b.inputs.BUS, 'ds3231', 'at24c02', 'i2c');
+                if (n) return `bw_part_${n}_found(${v('ADDRESS')})`;
+                this.cWarn('no C equivalent for "i2c device ... on" without a declared I2C part — emitted as 0');
+                return '0';
+            }
+            case 'devices_distance': if (this.cSensorPart(b.inputs.SENSOR, 'hcsr04')) return `bw_part_${this.cSensorPart(b.inputs.SENSOR, 'hcsr04')}_distance()`;
+            // falls through: the fixed 8051 P3.6/P3.7 driver
+            { this._cUses.devices = true; this._cUses.ultrasonic = true; return `bw_distance(${v('SENSOR')})`; }
             case 'devices_flex': { this._cUses.devices = true; this._cUses.sensor = true; this._cUses.adc = true; return `bw_flex(${v('SENSOR')})`; }
             case 'devices_force': { this._cUses.devices = true; this._cUses.sensor = true; this._cUses.adc = true; return `bw_force(${v('SENSOR')})`; }
             case 'devices_ircode': { this._cUses.devices = true; return `bw_ir_code(${v('SENSOR')})`; }
@@ -10683,6 +11492,17 @@ class SB3Creator {
                 // `IF <boolean-ish> THEN:` parses to `x = true`; on a chip that is just `x`.
                 const t = SB3Creator.boolishTruthTest(b);
                 if (t) return t.negate ? `(!(${v(t.key)}))` : `(${v(t.key)})`;
+                // `answer = "yes"`: a text comparison, as Scratch makes it.
+                if (this._cListCore && this._core !== 'i8086') {
+                    const isAns = (k) => { const p = b.inputs[k] && b.inputs[k][1]; return typeof p === 'string' && blocks[p] && blocks[p].opcode === 'sensing_answer'; };
+                    const text = (k) => { const p = b.inputs[k] && b.inputs[k][1]; return Array.isArray(p) && p[0] === 10 && !(String(p[1]).trim() !== '' && Number.isFinite(Number(p[1]))) ? p[1] : null; };
+                    for (const [a, o] of [['OPERAND1', 'OPERAND2'], ['OPERAND2', 'OPERAND1']]) {
+                        if (isAns(a) && text(o) !== null) {
+                            this._cUses.ask = true; this._cUses.print = true;
+                            return `bw_answer_is(${this.cCString(text(o))})`;
+                        }
+                    }
+                }
                 return `(${v('OPERAND1')} == ${v('OPERAND2')})`;
             }
             case 'planetemaths_equals': return `(${v('NUM1')} == ${v('NUM2')})`;
@@ -11025,12 +11845,17 @@ class SB3Creator {
                     return line(`bw_print_num(${v('VALUE')});`);
                 }
                 this._cUses.print = true;
+                {
+                    const pieces = this._cListCore && this.cPrintPieces(b.inputs.VALUE, blocks);
+                    if (pieces) return this.cPrintPiecesLines(pieces, pad);
+                }
                 if (mode === 'text') {
                     const text = this.dtext(b.inputs.VALUE, blocks);
                     return line(`bw_print("${this.cComment(text)}");`);
                 }
                 return line(`bw_print_num(${v('VALUE')});`);
             }
+
             case 'looks_sayforsecs': {
                 if (this._core === 'i8086') {
                     if (!this._cPrintRefused) this._cPrintRefused = [];
@@ -11111,6 +11936,16 @@ class SB3Creator {
                 this._cUses.devices = true; this._cUses.motor = true; const d = f('DIR'); return line(`bw_motor_dir(${v('MOTOR')}, ${({ forward: 0, reverse: 1, brake: 2, coast: 3 })[d] || 0});`);
             }
             case 'devices_setrelay': { this._cUses.devices = true; this._cUses.relay = true; return line(`bw_relay_set(${v('RELAY')}, ${f('STATE') === 'on' ? 1 : 0});`); }
+            case 'devices_settime': {
+                const n = this.cSensorPart(b.inputs.CLOCK, 'ds3231');
+                if (!n) { this.cWarn('no C equivalent for "set time of" without a declared DS3231 — emitted as a comment'); return line('/* set time */'); }
+                return line(`bw_part_${n}_settime(${v('HOUR')}, ${v('MINUTE')}, ${v('SECOND')});`);
+            }
+            case 'devices_eepromwrite': {
+                const n = this.cSensorPart(b.inputs.MEMORY, 'at24c02');
+                if (!n) { this.cWarn('no C equivalent for "store ... in" without a declared AT24C02 — emitted as a comment'); return line('/* store */'); }
+                return line(`bw_part_${n}_write(${v('ADDRESS')}, ${v('VALUE')});`);
+            }
             case 'devices_activate': { this._cUses.devices = true; this._cUses.relay = true; return line(`bw_device_activate(${v('DEVICE')});`); }
             case 'devices_deactivate': { this._cUses.devices = true; this._cUses.relay = true; return line(`bw_device_deactivate(${v('DEVICE')});`); }
             case 'devices_lcdprint': {
@@ -11208,7 +12043,11 @@ class SB3Creator {
             case 'devices_oledcursor': { this._cUses.devices = true; this._cUses.oled = true; return line(`bw_oled_cursor(${v('DISPLAY')}, ${v('ROW')}, ${v('COL')});`); }
             case 'procedures_call': return line(this.cProcCall(b, blocks));
             default: {
-                if (this._core === 'i8086') {
+                if (this._cListCore && this._core !== 'i8086' && b.opcode === 'sensing_askandwait') {
+                    return [...this.cAskLines(b, blocks, pad),
+                        `${pad}while (!(bw_got_line())) ;   /* the answer is the next line */`];
+                }
+                if (this._cListCore) {
                     if (b.opcode === 'data_addtolist') {
                         this._cUses.numericLists = true;
                         const list = this.cI8086ListRef(b.fields && b.fields.LIST);
@@ -11303,6 +12142,14 @@ class SB3Creator {
             case 'control_wait_until': {
                 const s = this.cYield(ctx, blockId, 'wait-until');
                 return [`${pad}${task}_state = ${s};`, `${pad}case ${s}:`, `${pad}if (!(${cond()})) return;`];
+            }
+            case 'sensing_askandwait': {
+                // The other scripts run while the answer is typed: the wait
+                // for the line is a yield, like `wait until`.
+                if (!this._cListCore || this._core === 'i8086') return this.cStackBlock(b, blocks, level);
+                const s = this.cYield(ctx, blockId, 'ask');
+                return [...this.cAskLines(b, blocks, pad),
+                    `${pad}${task}_state = ${s};`, `${pad}case ${s}:`, `${pad}if (!(bw_got_line())) return;`];
             }
             case 'control_forever': {
                 const s = this.cYield(ctx, blockId, 'forever');
@@ -14043,10 +14890,16 @@ class SB3Creator {
         const stored = project.stc || {};
         const device = String(opts.device || stored.device || 'stc12c5a60s2').toLowerCase();
         const part = SB3Creator.STC_PARTS[device];
-        const clock = Number(opts.clock || stored.clock
-            || ((part && part.core === 'arduino') ? 16000000 : (part && part.core === 'rp2040') ? 125000000
-                : (part && part.core === 'w65c02') ? 1000000 : 11059200));
-        const pins = opts.pins || stored.pins || [];
+        const clock = Number(opts.clock || stored.clock || SB3Creator.defaultClock(device));
+        // A pin-role PART's pins join the pin list under `<part>.<role>`, so
+        // every core's own pin setup configures them (TRIG an output held
+        // low, ECHO and a released 1-Wire DQ inputs). `rolePart` keeps them
+        // out of the @bw header: the PART line is what round-trips.
+        const rolePins = (stored.parts || []).filter((pt) => PIN_ROLE_PARTS[pt.type])
+            .flatMap((pt) => PIN_ROLE_PARTS[pt.type].roles.map(([role, , dir]) => ({
+                ...pt[role], name: `${pt.name}.${role}`, direction: dir === 'opendrain' ? 'input' : dir,
+                openDrain: dir === 'opendrain', activeLow: false, rolePart: pt.name })));
+        const pins = [...(opts.pins || stored.pins || []), ...rolePins];
         if (!part) this.cWarn(`unknown DEVICE "${device}" — emitting for stc12c5a60s2`);
         // Which core? '8051' emits SFR bare metal; 'arduino' emits AVR bare
         // metal (avr/io.h — the same silicon avr8js executes; NOT the Arduino
@@ -14062,6 +14915,7 @@ class SB3Creator {
         const parallelLcd = this._cLcdParallelPart();
         this._cMega = !!(part && part.mega);
         this._cTiny88 = !!(part && part.tiny88);
+        this._cTiny85 = !!(part && part.tiny85);
         this._cStm32 = !!(part && part.stm32f0);
         if (part && part.core && part.core !== '8051' && part.core !== 'arduino'
             && part.core !== 'rp2040' && part.core !== 'w65c02' && part.core !== 'z80'
@@ -14087,6 +14941,8 @@ class SB3Creator {
                 + ' */\n';
         }
         const chip = part || SB3Creator.STC_PARTS.stc12c5a60s2;
+        this._cChip = chip;
+        this._cSensorParts = new Map();
         this._cPins = new Map(pins.map((p) => [String(p.name).toLowerCase(), p]));
 
         const stage = targets.find((t) => t.isStage);
@@ -14135,16 +14991,28 @@ class SB3Creator {
         // the pico, wrong silicon for the F030. Rather than grow a second,
         // unvalidated STM32 straight-line timebase, keep STM32 on the proven
         // scheduler so `bw transpile --to c` (debug:false) matches `bw compile`.
-        this._cTasks = scriptCount > 1 || hasEventHat || (scriptCount > 0 && debug) || (scriptCount > 0 && this._cStm32) || this._stcHasMatrix() || this._stcHasSevenSeg() || this._stcHasLedBank();
+        // A sensor PART's driver reads time off the millisecond tick, which
+        // the scheduler path is what starts on every core.
+        const hasPinRoleParts = pins.some((p) => p.rolePart);
+        this._cTasks = hasPinRoleParts || scriptCount > 1 || hasEventHat || (scriptCount > 0 && debug) || (scriptCount > 0 && this._cStm32) || this._stcHasMatrix() || this._stcHasSevenSeg() || this._stcHasLedBank();
         const taskNames = Array.from({ length: scriptCount }, (_, n) => `bw_task${n}`);
         const yieldMap = [];   // only emitted for a debug build — see the marker header below
 
         // Pass 2 — declare state. Names are claimed here so a custom block's parameter can
         // never quietly take a variable's identifier.
         const stateDecls = [];
+        // The F030 image is a real flash image with no .data loader (the
+        // service's stm32f030-flash.ld is static-init-free by design), so a
+        // nonzero initializer never reaches RAM there. Each one is assigned
+        // again at the top of bw_setup, which the C reader does not import.
+        this._cDataInits = [];
+        const dataInit = (name, init) => {
+            if (this._cStm32 && String(init) !== '0') this._cDataInits.push(`    ${name} = ${init};`);
+        };
         const markVars = [], markProcs = [], markScripts = [];
         for (const entry of Object.values((stage && stage.variables) || {})) {
             stateDecls.push(`static ${this.cIntType()} ${this.cName(entry[0])} = ${this.cInit(entry[1])};`);
+            dataInit(this.cName(entry[0]), this.cInit(entry[1]));
             markVars.push(`var ${this.cName(entry[0])} ${this.pyStr(entry[0])}`);
         }
         sections.forEach((t, idx) => {
@@ -14152,6 +15020,7 @@ class SB3Creator {
             const pfx = spritePrefix(idx);
             for (const entry of Object.values(t.variables || {})) {
                 stateDecls.push(`static ${this.cIntType()} ${this.cName(pfx + entry[0])} = ${this.cInit(entry[1])};   /* ${this.cComment(t.name)}: ${this.cComment(entry[0])} */`);
+                dataInit(this.cName(pfx + entry[0]), this.cInit(entry[1]));
                 markVars.push(`var ${this.cName(pfx + entry[0])} ${this.pyStr(entry[0])} sprite ${this.pyStr(t.name)}`);
             }
         });
@@ -14162,7 +15031,19 @@ class SB3Creator {
         // hosted size gate still measure the complete code+data image. Overflow
         // traps instead of dropping a write, while ordinary out-of-range Scratch
         // indices remain a checked no-op (or numeric zero for a reporter).
-        if (this._core === 'i8086') {
+        // Every C core with RAM for it now lists too (2026-10-05): 32 items per
+        // list, `long` on the 8051/AVR/ARM (the scalars' type) and the 8086's
+        // 16-bit int, stored in XRAM on the 8051 where internal RAM is 256
+        // bytes. How many fit is a per-device budget, refused by name past it.
+        this._cListCore = ['i8086', '8051', 'avr', 'arm'].includes(this._core);
+        if (this._cListCore) {
+            const elem = this._core === 'i8086' ? 'int' : 'long';
+            const store = this._core === '8051' ? '__xdata ' : '';
+            const xram = { stc89c52rc: 256, stc12c5a60s2: 1024, stc15f2k60s2: 1792 }[device] || 256;
+            const maxLists = this._core === 'i8086' ? 15
+                : this._core === '8051' ? Math.max(1, Math.floor((xram - 64) / 130))
+                    : this._core === 'avr' ? (this._cTiny85 || this._cTiny88 ? 1 : 4)
+                        : 12;
             const lists = [];
             const register = (target, idx) => {
                 const prefix = target.isStage ? '' : spritePrefix(idx);
@@ -14177,25 +15058,34 @@ class SB3Creator {
                     this._cI8086ListNames.set(`id:${id}`, ref);
                     this._cI8086ListNames.set(`name:${prefix}:${name}`, ref);
                     lists.push({id, name, initial, ref, prefix});
+                    // The C reader rebuilds `GLOBAL LIST <name>` from this line.
+                    if (this._core !== 'i8086') {
+                        markVars.push(`list ${ref.data} ${this.pyStr(name)}`
+                            + (target.isStage ? '' : ` sprite ${this.pyStr(target.name)}`));
+                    }
                 }
             };
             if (stage) register(stage, -1);
             sections.forEach((target, idx) => { if (!target.isStage) register(target, idx); });
-            if (lists.length > 15) {
-                this._cListRefused.push(`${lists.length} lists need ${lists.length * 66} bytes; the i8086 C list-state ceiling is 990 bytes (15 lists)`);
+            if (lists.length > maxLists) {
+                this._cListRefused.push(this._core === 'i8086'
+                    ? `${lists.length} lists need ${lists.length * 66} bytes; the i8086 C list-state ceiling is 990 bytes (15 lists)`
+                    : `${lists.length} lists do not fit: ${device} has room for ${maxLists} list${maxLists === 1 ? '' : 's'} of 32 items`);
             }
             for (const list of lists) {
                 if (list.initial.length > 32) {
-                    this._cListRefused.push(`list "${list.name}" starts with ${list.initial.length} items; the i8086 C capacity is 32`);
+                    this._cListRefused.push(`list "${list.name}" starts with ${list.initial.length} items; the ${this._core === 'i8086' ? 'i8086' : device} C capacity is 32`);
                 }
                 const numeric = this.cI8086NumericList([list.name, list.id], new Set());
                 if (!numeric.ok && !this._cListRefused.includes(numeric.reason)) {
                     this._cListRefused.push(numeric.reason);
                 }
-                for (const value of list.initial) this.cI16Check(Math.trunc(Number(value)));
+                if (this._core === 'i8086') for (const value of list.initial) this.cI16Check(Math.trunc(Number(value)));
                 const init = list.initial.length ? list.initial.map(value => this.cInit(value)).join(', ') : '0';
-                stateDecls.push(`static int ${list.ref.data}[32] = { ${init} };`);
+                stateDecls.push(`static ${store}${elem} ${list.ref.data}[32] = { ${init} };`);
                 stateDecls.push(`static unsigned ${list.ref.len} = ${Math.min(list.initial.length, 32)}u;`);
+                list.initial.slice(0, 32).forEach((value, i) => dataInit(`${list.ref.data}[${i}]`, this.cInit(value)));
+                if (list.initial.length) dataInit(list.ref.len, `${Math.min(list.initial.length, 32)}u`);
             }
         }
 
@@ -14292,8 +15182,10 @@ class SB3Creator {
                         const body = this.cTaskFrom(b.next, blocks, 1, ctx);
                         // The polarity-aware LOGICAL level — same rule as cPinRead: ACTIVE
                         // LOW means pressed = pin low, so `!Px_y` reads as 1 when pressed.
-                        const sfr = `P${pin.port}_${pin.bit}`;
-                        const level = pin.activeLow ? `!${sfr}` : sfr;
+                        // cPinRead is the core's own read (P3_2, PIND, SIO, IDR) with the
+                        // polarity applied; this was the 8051 SFR spelled out, so on
+                        // every other core the hat polled `Pundefined_undefined`.
+                        const level = this.cPinRead(pinName);
                         const test = edge === 'pressed'
                             ? `now && !${task}_prev`
                             : `!now && ${task}_prev`;
@@ -14690,7 +15582,7 @@ class SB3Creator {
             const marks = [
                 `device ${device}`,
                 `clock ${clock}`,
-                ...pins.map((p) => `pin ${p.name} ${p.where || `P${p.port}.${p.bit}`} ${p.direction}${p.activeLow ? ' active-low' : ''}`),
+                ...pins.filter((p) => !p.rolePart).map((p) => `pin ${p.name} ${p.where || `P${p.port}.${p.bit}`} ${p.direction}${p.activeLow ? ' active-low' : ''}`),
                 // PORTs must survive the header like PARTs do, or bare
                 // `P0 = …` writes are silently dropped on the way back
                 // (found by the A2 keyshow round-trip, 2026-08-18).
@@ -14700,6 +15592,7 @@ class SB3Creator {
                 // as nothing (found via the chaser's round-trip, 2026-08-13).
                 ...((stored.parts || []).map((pt) => {
                     const w = (x) => x.where || `P${x.port}.${x.bit}`;
+                    if (PIN_ROLE_PARTS[pt.type]) return pinRoleMarkerText(pt);
                     if (pt.type === 'keypad4x4') {
                         return `part ${pt.name} keypad4x4 rows ${pt.rows.map(w).join(' ')} cols ${pt.cols.map(w).join(' ')}`;
                     }
@@ -14995,8 +15888,11 @@ class SB3Creator {
                 ' * reset) are unused - this SRAM build enters at main, not via a',
                 ' * reset fetch. RP2040 requires 256-byte VTOR alignment. */',
                 'typedef void (*bw_vec_t)(void);',
+                ...(this._cUses.tone ? ['static void bw_tone_irq(void);'] : []),
                 '__attribute__((aligned(256))) static const bw_vec_t bw_vectors[48] = {',
-                ...Array.from({length: 6}, () => '    ' + Array.from({length: 8}, () => 'bw_alarm_irq').join(', ') + ','),
+                // Slot 17 is TIMER_IRQ_1, the tone's alarm, when a tone is used.
+                ...Array.from({length: 6}, (_, row) => '    ' + Array.from({length: 8},
+                    (__, col) => (this._cUses.tone && row * 8 + col === 17 ? 'bw_tone_irq' : 'bw_alarm_irq')).join(', ') + ','),
                 '};',
                 'static uint32_t bw_calm;',
                 'static void bw_idle(void)',
@@ -15066,7 +15962,14 @@ class SB3Creator {
             ' * every supported family counts this mode identically, so the same program is',
             ' * timing-correct on a 12T STC89 and a 1T STC12 or STC15. Nothing generated here',
             ' * ever busy-waits on a cycle count. */',
-            '#define T0_RELOAD (65536UL - (FOSC_HZ / 12UL / 1000UL))', '');
+            '#define T0_RELOAD (65536UL - (FOSC_HZ / 12UL / 1000UL))',
+            // Counts Timer 0 misses while it is stopped to be re-armed (see
+            // bw_tick / delay_ms). MEASURED 2026-10-05 on emu8051 (sdcc 4.x
+            // code): 28 on the 12T STC89 brings a 500 ms blink from 515.4 to
+            // 500.3 ms and a 300 ms task to 300.1; on the 1T parts the window
+            // is a single count.
+            '/* Timer 0 counts lost while it is stopped to be re-armed. */',
+            `#define T0_STOP ${chip.aux1T ? '1u' : '28u'}`, '');
         // MATRIX8X8 frame buffer(s) + level clamp, before the tick that scans them.
         out.push(...this._cMatrixState());
         // SEVENSEG8 font + frame buffers, LEDBANK8 shadow bytes — before the
@@ -15137,6 +16040,7 @@ class SB3Creator {
                 'static volatile uint32_t bw_ms;',
                 'void bw_tick_irq(void) { TIM3_SR = 0; bw_ms++; }  /* rc_w0 */',
                 'void bw_fault(void) { for (;;) { } }              /* named stop, not a lie */',
+                ...(this._cUses.tone ? ['void bw_tone_irq(void);'] : []),
                 'int main(void);',
                 'static uint32_t bw_now(void) { return bw_ms; }',
                 'static void bw_idle(void) { __asm__ volatile ("wfi"); }',
@@ -15145,7 +16049,8 @@ class SB3Creator {
                 '    (void *)0x20001000,             /* initial SP: top of the F030\'s 4K */',
                 '    (void *)main,                   /* reset */',
                 '    [3] = (void *)bw_fault,         /* HardFault */',
-                '    [16 + 16] = (void *)bw_tick_irq /* TIM3 = IRQ16 */',
+                '    [16 + 16] = (void *)bw_tick_irq, /* TIM3 = IRQ16 */',
+                ...(this._cUses.tone ? ['    [16 + 19] = (void *)bw_tone_irq, /* TIM14 = IRQ19: the tone */'] : []),
                 '};', '');
             this._cUses.now = true;
             if (this._cUses.blockDelay) {
@@ -15206,8 +16111,19 @@ class SB3Creator {
                     ...(this._cTasks ? ['static unsigned char bw_calm;'] : []), '',
                     'void bw_tick(void) __interrupt(1)',
                     '{',
-                    '    TL0 = (unsigned char)(T0_RELOAD & 0xFF);',
-                    '    TH0 = (unsigned char)(T0_RELOAD >> 8);',
+                    // The counter kept counting from 0 while the interrupt was
+                    // entered. Writing the bare reload threw those counts away:
+                    // invisible on a 1T core, but on the 12T STC89 interrupt
+                    // entry costs ~30 machine cycles out of 921, and every
+                    // millisecond ran 3% long (a 500 ms blink measured 516.5 ms).
+                    // Stop, add the reload to what has already elapsed, restart;
+                    // T0_STOP is the count the stop window itself loses.
+                    '    unsigned int bw_t;',
+                    '    TR0 = 0;',
+                    '    bw_t = (((unsigned int)TH0 << 8) | TL0) + (unsigned int)T0_RELOAD + T0_STOP;',
+                    '    TL0 = (unsigned char)(bw_t & 0xFF);',
+                    '    TH0 = (unsigned char)(bw_t >> 8);',
+                    '    TR0 = 1;',
                     '    bw_ms++;',
                     // MATRIX8X8 self-scan: one row per tick, AFTER bw_ms++ so the
                     // millisecond math is never skewed. Table-driven, no mul/div.
@@ -15291,17 +16207,31 @@ class SB3Creator {
                 '    }',
                 '}', ''
             ] : [
+                // Timer 0 runs through the whole wait, and each overflow is
+                // re-armed by ADDING the reload to what has already elapsed --
+                // the same rule as the scheduler's tick ISR. Restarting it from
+                // a constant every millisecond lost the loop's own overhead:
+                // ~30 machine cycles in 921 on the 12T STC89 (3% long; a 500 ms
+                // blink measured 516.5 ms), unnoticeable on the 1T parts.
                 'static void delay_ms(unsigned int ms)',
                 '{',
-                '    while (ms--) {',
-                '        TL0 = (unsigned char)(T0_RELOAD & 0xFF);',
-                '        TH0 = (unsigned char)(T0_RELOAD >> 8);',
-                '        TF0 = 0;',
-                '        TR0 = 1;',
+                '    unsigned int bw_t;',
+                '    if (!ms) return;',
+                '    TL0 = (unsigned char)(T0_RELOAD & 0xFF);',
+                '    TH0 = (unsigned char)(T0_RELOAD >> 8);',
+                '    TF0 = 0;',
+                '    TR0 = 1;',
+                '    for (;;) {',
                 '        while (!TF0) ;',
-                '        TR0 = 0;',
                 '        TF0 = 0;',
+                '        if (!--ms) break;',
+                '        TR0 = 0;',
+                '        bw_t = (((unsigned int)TH0 << 8) | TL0) + (unsigned int)T0_RELOAD + T0_STOP;',
+                '        TL0 = (unsigned char)(bw_t & 0xFF);',
+                '        TH0 = (unsigned char)(bw_t >> 8);',
+                '        TR0 = 1;',
                 '    }',
+                '    TR0 = 0;',
                 '}', ''
             ]));
         }
@@ -15449,6 +16379,7 @@ class SB3Creator {
                 '    bw_putc(13); bw_putc(10);',
                 '}', '');
         }
+        out.push(...this.cAskRuntime());
 
         // 74HC595 shift register: bit-bang MSB-first, clock-on-rising-edge.
         // The activeLow param inverts the DATA line only (common-cathode vs
@@ -15822,20 +16753,108 @@ class SB3Creator {
             }
         }
         if (this._cUses.tone && this._core === '8051') {
-            // 8051 tone via Timer2 (T2CON) — TODO: not all STC parts have Timer2.
-            // For now, emit a stub that warns at compile time.
+            // Timer 1, mode 1, at FOSC/12 (AUXR.T1x12 cleared on the 1T parts),
+            // its interrupt toggling the declared TONE pin every half-period.
+            // The re-arm is the tick's: stop, ADD the half-period to what has
+            // already elapsed, restart -- so the 12T STC89's interrupt latency
+            // does not flatten the pitch. Timer 1 is also the UART's baud clock
+            // and the ultrasonic timer; a program using either alongside a tone
+            // is refused at retarget/emit, never silently detuned.
             const tonePin = pins.find(p => p.direction === 'tone');
             if (tonePin) {
-                out.push('/* tone_set stub: 8051 tone not yet implemented. */',
+                const sfr = `P${tonePin.port}_${tonePin.bit}`;
+                out.push('/* tone_set: square wave on the TONE pin from Timer 1\'s interrupt.',
+                    ` * Pin ${sfr}; half-period = FOSC/12 / (2 * freq) counts; 0 stops it. */`,
+                    'static volatile unsigned int bw_tone_half;',
+                    // The tone ISR's stop window is longer than the tick's (the
+                    // pin toggle follows the restart). MEASURED 2026-10-05 on the
+                    // 12T STC89: +6 counts takes 437.1/986.2 Hz (a single period, jittered by
+                    // the 1 ms tick ISR) to 440.9/994.7; averaged over 0.8 s it is within 0.3%.
+                    `#define T1_STOP ${chip.aux1T ? 'T0_STOP' : '(T0_STOP + 6u)'}`,
+                    '',
+                    'void bw_tone_isr(void) __interrupt(3)',
+                    '{',
+                    '    unsigned int bw_t;',
+                    '    TR1 = 0;',
+                    '    bw_t = (((unsigned int)TH1 << 8) | TL1) + bw_tone_half + T1_STOP;',
+                    '    TL1 = (unsigned char)(bw_t & 0xFF);',
+                    '    TH1 = (unsigned char)(bw_t >> 8);',
+                    '    TR1 = 1;',
+                    `    ${sfr} = !${sfr};`,
+                    '}',
+                    '',
                     'static void tone_set(unsigned int freq)',
                     '{',
-                    `    (void)freq; /* P${tonePin.port}_${tonePin.bit} */`,
+                    '    TR1 = 0;',
+                    '    ET1 = 0;',
+                    '    if (freq == 0) {',
+                    `        ${sfr} = 0;`,
+                    '        return;',
+                    '    }',
+                    '    bw_tone_half = (unsigned int)(65536UL - FOSC_HZ / 12UL / 2UL / (unsigned long)freq);',
+                    ...(chip.aux1T ? ['    AUXR &= ~0x40;                 /* Timer 1 at FOSC/12 */'] : []),
+                    '    TMOD = (TMOD & 0x0F) | 0x10;       /* Timer 1, mode 1 */',
+                    '    TL1 = (unsigned char)(bw_tone_half & 0xFF);',
+                    '    TH1 = (unsigned char)(bw_tone_half >> 8);',
+                    '    TF1 = 0;',
+                    '    ET1 = 1;',
+                    '    EA = 1;',
+                    '    TR1 = 1;',
                     '}', '');
             }
         }
         if (this._cUses.tone && this._core === 'arm') {
-            // ARM tone — PWM on the declared tone pin. TODO: implement.
-            out.push('static void tone_set(unsigned int freq) { (void)freq; }', '');
+            const tonePin = pins.find(p => p.direction === 'tone');
+            const hw = tonePin ? this.armHw(tonePin) : null;
+            if (hw && this._cStm32) {
+                // TIM14 (RM0360 §17): 1 MHz count, an update every half-period,
+                // its IRQ (19) toggling the pin. TIM3 stays the 1 ms tick.
+                out.push('/* tone_set: TIM14 update interrupt toggles the TONE pin every half-period. */',
+                    '#define TIM14_CR1    BW_MMIO(0x40002000u)',
+                    '#define TIM14_DIER   BW_MMIO(0x4000200cu)',
+                    '#define TIM14_SR     BW_MMIO(0x40002010u)',
+                    '#define TIM14_EGR    BW_MMIO(0x40002014u)',
+                    '#define TIM14_PSC    BW_MMIO(0x40002028u)',
+                    '#define TIM14_ARR    BW_MMIO(0x4000202cu)',
+                    'void bw_tone_irq(void) { TIM14_SR = 0; ' + this.armXor(hw) + ' }',
+                    'static void tone_set(unsigned int freq)',
+                    '{',
+                    '    TIM14_CR1 = 0;',
+                    '    if (freq == 0u) { ' + this.armClr(hw) + ' return; }',
+                    '    RCC_APB1ENR |= (1u << 8);          /* TIM14 clock */',
+                    '    TIM14_PSC = (uint32_t)(F_CPU / 1000000UL - 1UL);',
+                    '    TIM14_ARR = (uint32_t)(500000UL / freq - 1UL);',
+                    '    TIM14_EGR = 1u;',
+                    '    TIM14_SR = 0;',
+                    '    TIM14_DIER = 1u;',
+                    '    NVIC_ISER = (1u << 19);',
+                    '    TIM14_CR1 = 1u;',
+                    '}', '');
+            } else if (hw) {
+                // RP2040: TIMER ALARM1 (IRQ 1) re-armed every half-period from its
+                // own previous deadline (no drift); ALARM0 stays bw_idle's wake.
+                out.push('/* tone_set: TIMER alarm 1 toggles the TONE pin every half-period. */',
+                    '#define BW_TIMER_ALARM1      BW_MMIO(0x40054014u)',
+                    'static volatile uint32_t bw_tone_half, bw_tone_due;',
+                    'static void bw_tone_irq(void)',
+                    '{',
+                    '    BW_TIMER_INTR = 2u;',
+                    '    bw_tone_due += bw_tone_half;',
+                    '    BW_TIMER_ALARM1 = bw_tone_due;',
+                    '    ' + this.armXor(hw),
+                    '}',
+                    'static void tone_set(unsigned int freq)',
+                    '{',
+                    '    BW_TIMER_INTE &= ~2u;',
+                    '    if (freq == 0u) { ' + this.armClr(hw) + ' return; }',
+                    '    bw_tone_half = 500000u / freq;',
+                    '    BW_SCB_VTOR = (uint32_t)bw_vectors;',
+                    '    BW_NVIC_ISER = 2u;                 /* TIMER_IRQ_1 */',
+                    '    bw_tone_due = BW_TIMER_TIMELR + bw_tone_half;',
+                    '    BW_TIMER_ALARM1 = bw_tone_due;',
+                    '    BW_TIMER_INTE |= 2u;',
+                    '}', '');
+            }
         }
 
         // Lookup tables: constant bytes in code space (__code flash).
@@ -17002,6 +18021,73 @@ class SB3Creator {
                 '');
         }
 
+        if (this._cListCore && this._core !== 'i8086') {
+            if (this._cListRefused.length) {
+                this.cWarn(`lists are numeric arrays of 32 items here; ${this._cListRefused.join(', ')}`);
+            }
+            const X = this._core === '8051' ? '__xdata ' : '';
+            if (this._cUses.numericLists) {
+                out.push('/* Lists: 32 numbers each (Scratch lists, numeric only). A one-based',
+                    ' * index out of range is a no-op, or 0 when read, as Scratch coerces it;',
+                    ' * adding to a full list is refused (the item is dropped and a flag set). */',
+                    '#define BW_LIST_CAPACITY 32u',
+                    'static unsigned char bw_list_full;',
+                    `static long bw_list_item(${X}long *data, unsigned len, long index)`,
+                    '{',
+                    '    if (index < 1 || (unsigned long)index > len) return 0;',
+                    '    return data[(unsigned)index - 1u];',
+                    '}',
+                    `static void bw_list_add(${X}long *data, unsigned *len, long value)`,
+                    '{',
+                    '    if (*len >= BW_LIST_CAPACITY) { bw_list_full = 1; return; }',
+                    '    data[*len] = value; *len = *len + 1u;',
+                    '}',
+                    `static void bw_list_delete(${X}long *data, unsigned *len, long index)`,
+                    '{',
+                    '    unsigned i;',
+                    '    if (index < 1 || (unsigned long)index > *len) return;',
+                    '    for (i = (unsigned)index; i < *len; ++i) data[i - 1u] = data[i];',
+                    '    *len = *len - 1u;',
+                    '}',
+                    `static void bw_list_insert(${X}long *data, unsigned *len, long index, long value)`,
+                    '{',
+                    '    unsigned i;',
+                    '    if (index < 1 || (unsigned long)index > *len + 1u) return;',
+                    '    if (*len >= BW_LIST_CAPACITY) { bw_list_full = 1; return; }',
+                    '    i = *len; while (i >= (unsigned)index) { data[i] = data[i - 1u]; --i; }',
+                    '    data[(unsigned)index - 1u] = value; *len = *len + 1u;',
+                    '}',
+                    `static void bw_list_replace(${X}long *data, unsigned len, long index, long value)`,
+                    '{',
+                    '    if (index < 1 || (unsigned long)index > len) return;',
+                    '    data[(unsigned)index - 1u] = value;',
+                    '}', '');
+            }
+            if (this._cUses.random) {
+                out.push('/* pick random: xorshift32, inclusive at both ends like Scratch\'s. */',
+                    '/* Seeded on first use, not by an initializer: the F030 image has no',
+                    ' * .data loader, and xorshift never reaches 0 from a nonzero seed. */',
+                    'static unsigned long bw_rng;',
+                    'static long bw_random(long from, long to)',
+                    '{',
+                    '    unsigned long x, span;',
+                    '    if (to < from) { long t = from; from = to; to = t; }',
+                    '    span = (unsigned long)(to - from) + 1UL;',
+                    '    if (!bw_rng) bw_rng = 0x6d2b79f5UL;',
+                    '    x = bw_rng;',
+                    // With the scheduler running, the millisecond count at
+                    // the moment of the draw -- when a button was pressed --
+                    // is mixed in, so a game does not replay the same
+                    // "random" sequence after every power-on.
+                    ...(this._cTasks ? [`    x ^= (unsigned long)${this._core === 'arm' && !this._cStm32 ? 'BW_TIMER_TIMELR' : 'bw_ms'} << 11;   /* WHEN the draw happens is chance too */`,
+                        '    if (!x) x = 0x6d2b79f5UL;'] : []),
+                    '    x ^= x << 13; x ^= x >> 17; x ^= x << 5;',
+                    '    bw_rng = x;',
+                    '    return span ? from + (long)(x % span) : from;',
+                    '}', '');
+            }
+        }
+        out.push(...this.cPinRoleDrivers());
         if (stateDecls.length) {
             if (this._core === 'i8086') {
                 out.push('/* Variables: int, 16-bit signed (-32768..32767). SmallerC\'s tiny (.COM) model',
@@ -17033,7 +18119,12 @@ class SB3Creator {
             out.push('/* forward declarations — print helpers defined after the timer section */',
                 'static void bw_putc(char c);',
                 'static void bw_print(const char *s);',
-                'static void bw_print_num(long n);', '');
+                'static void bw_print_num(long n);',
+                ...(this._cUses.printPieces || this._cUses.ask ? ['static void bw_put_s(const char *s);',
+                    'static void bw_put_n(long n);', 'static void bw_put_answer(void);', 'static void bw_put_end(void);'] : []),
+                ...(this._cUses.ask && ['8051', 'avr', 'arm'].includes(this._core) ? ['static void bw_ask(const char *q);',
+                    `static ${this._core === '8051' ? 'unsigned char' : 'uint8_t'} bw_got_line(void);`, 'static long bw_answer(void);',
+                    `static ${this._core === '8051' ? 'unsigned char' : 'uint8_t'} bw_answer_is(const char *s);`] : []), '');
         }
 
         // `WHEN key N` hats share one debounced scan per keypad: a poll task
@@ -17090,6 +18181,10 @@ class SB3Creator {
             ' * body stands alone — a C -> blocks reader can then tell them apart. */',
             'static void bw_setup(void)', '{');
         void setup;
+        if (this._cDataInits && this._cDataInits.length) {
+            out.push('    /* Initial values: this flash image has no .data loader. */',
+                ...this._cDataInits, '');
+        }
         if (this._core === 'avr') {
             for (const p of pins) {
                 const hw = this.avrHw(p);
@@ -17133,7 +18228,11 @@ class SB3Creator {
                     out.push('    TCCR0A = (1 << WGM01);         /* Timer 0 CTC */',
                         '    TCCR0B = (1 << CS01) | (1 << CS00);  /* F_CPU/64 */',
                         '    OCR0A  = BW_OCR0A;             /* one compare = 1 ms */',
-                        '    TIMSK0 = (1 << OCIE0A);        /* millisecond tick */');
+                        // The ATtiny85 has ONE interrupt-mask register for both
+                        // timers, TIMSK; TIMSK0 does not exist there, and every
+                        // program for the chip failed to compile on it.
+                        this._cTiny85 ? '    TIMSK  = (1 << OCIE0A);        /* millisecond tick */'
+                            : '    TIMSK0 = (1 << OCIE0A);        /* millisecond tick */');
                 }
             }
             if (this._cUses.servo) {
@@ -17170,7 +18269,8 @@ class SB3Creator {
             }
             if (this._cUses.print) {
                 out.push(`    UBRR0 = (uint16_t)(F_CPU / 16UL / 9600UL - 1UL);`,
-                    '    UCSR0B = (1 << TXEN0);         /* transmit only */',
+                    this._cUses.ask ? '    UCSR0B = (1 << TXEN0) | (1 << RXEN0);   /* transmit and receive (ask) */'
+                        : '    UCSR0B = (1 << TXEN0);         /* transmit only */',
                     '    UCSR0C = (1 << UCSZ01) | (1 << UCSZ00);  /* 8N1 */');
             }
         }
@@ -17197,7 +18297,7 @@ class SB3Creator {
                 const hw = this.armHw(p);
                 if (!hw) continue;
                 const bit = hw.gpio & 15;
-                if (p.direction === 'output') {
+                if (p.direction === 'output' || p.direction === 'tone') {   // TIM14 toggles a tone pin
                     if ((hw.gpio >> 4) === 0) moderA |= (1 << (2 * bit)); else moderB |= (1 << (2 * bit));
                 } else if (p.direction === 'analog') {
                     // MODER 11 = analog: the Schmitt input stage disconnects,
@@ -17207,7 +18307,9 @@ class SB3Creator {
                     // ACTIVE LOW → pull-up (button to GND); active high →
                     // pull-down — the same no-external-resistor idioms the
                     // pico build keeps.
-                    const pull = p.activeLow ? 1 : 2;
+                    // An open-drain line (1-Wire, I2C) gets none: its pull-up
+                    // is on the bus.
+                    const pull = p.openDrain ? 0 : p.activeLow ? 1 : 2;
                     if ((hw.gpio >> 4) === 0) pupdrA |= (pull << (2 * bit)); else pupdrB |= (pull << (2 * bit));
                 }
             }
@@ -17215,7 +18317,7 @@ class SB3Creator {
                 // Level BEFORE mode: an ACTIVE LOW load must never see a
                 // power-on glitch while MODER flips the pin to output.
                 const hw = this.armHw(p);
-                if (!hw || p.direction !== 'output') continue;
+                if (!hw || (p.direction !== 'output' && p.direction !== 'tone')) continue;
                 out.push(`    ${p.activeLow ? this.armSet(hw) : this.armClr(hw)}      /* ${p.name}: start OFF */`);
             }
             if (usedPorts.has(0)) {
@@ -17232,7 +18334,8 @@ class SB3Creator {
                 '    TIM3_CR1 = 1u;                 /* CEN */');
             if (this._cUses.print) {
                 out.push('    USART1_BRR = (uint32_t)(F_CPU / 9600UL);',
-                    '    USART1_CR1 = (1u << 3) | 1u;   /* TE + UE */');
+                    this._cUses.ask ? '    USART1_CR1 = (1u << 3) | (1u << 2) | 1u;   /* TE + RE (ask) + UE */'
+                        : '    USART1_CR1 = (1u << 3) | 1u;   /* TE + UE */');
             }
         } else if (this._core === 'arm') {
             out.push('    /* On real silicon the TIMER counts watchdog ticks; the bootrom',
@@ -17242,7 +18345,9 @@ class SB3Creator {
             for (const p of pins) {
                 const hw = this.armHw(p);
                 if (!hw) continue;
-                if (p.direction === 'output') {
+                // A TONE pin is an output the tone's interrupt toggles; left
+                // un-enabled its XOR writes reached nothing (a silent buzzer).
+                if (p.direction === 'output' || p.direction === 'tone') {
                     // Level BEFORE output-enable: an ACTIVE LOW load must never
                     // see a power-on glitch while OE flips.
                     const off = p.activeLow
@@ -17264,8 +18369,9 @@ class SB3Creator {
                     // active high → internal pull-DOWN (button to 3V3) —
                     // both real-build idioms, no external resistors, and
                     // the SDK's gpio_init defaults pull-down the same way.
-                    const pad = p.activeLow ? '0x4au' : '0x46u';
-                    const padNote = p.activeLow ? 'pad IE + schmitt + PULL-UP' : 'pad IE + schmitt + PULL-DOWN';
+                    const pad = p.openDrain ? '0x42u' : p.activeLow ? '0x4au' : '0x46u';
+                    const padNote = p.openDrain ? 'pad IE + schmitt, no pull (open drain: the pull-up is on the bus)'
+                        : p.activeLow ? 'pad IE + schmitt + PULL-UP' : 'pad IE + schmitt + PULL-DOWN';
                     out.push(`    BW_IOBANK0_CTRL(${hw.gpio}) = 5u;   /* ${p.name} = ${p.where}: funcsel SIO, input */`,
                         `    BW_PADS(${hw.gpio}) = ${pad};   /* ${p.name}: ${padNote} */`);
                 } else if (p.direction === 'analog') {
@@ -17291,7 +18397,9 @@ class SB3Creator {
                     `    BW_UART0_IBRD = (uint32_t)(F_CPU / 16UL / 9600UL);`,
                     `    BW_UART0_FBRD = (uint32_t)((((F_CPU % (16UL * 9600UL)) * 64UL) + (8UL * 9600UL)) / (16UL * 9600UL));`,
                     '    BW_UART0_LCR_H = (3u << 5) | (1u << 4);   /* 8N1, FIFO on */',
-                    '    BW_UART0_CR = (1u << 8) | 1u;             /* TX enable, UART enable */');
+                    this._cUses.ask ? '    BW_UART0_CR = (1u << 9) | (1u << 8) | 1u; /* RX + TX enable (ask), UART enable */'
+                        : '    BW_UART0_CR = (1u << 8) | 1u;             /* TX enable, UART enable */',
+                    ...(this._cUses.ask ? ['    BW_IOBANK0_CTRL(1) = 2u;           /* GP1: funcsel UART0 RX */'] : []));
             }
         }
         if (this._core === '6502') {
@@ -17717,6 +18825,15 @@ class SB3Creator {
             out.push('');
             out.push(...mainNote.map((l) => `    ${l}`));
             out.push(...mainBody);
+            // A script that runs off its end has FINISHED, and stays finished,
+            // as in Scratch. Returning from main did something different on
+            // every chip: SDCC's 8051 startup ran the program again (a melody
+            // replayed from the top), avr-libc parked with interrupts off (a
+            // tone ISR silenced mid-note), and the SRAM-loaded RP2040 image
+            // returned into whatever LR held. Interrupts stay live.
+            if (['8051', 'avr', 'arm'].includes(this._core)) {
+                out.push('    for (;;) { }                    /* the script has finished: stay finished */');
+            }
         }
         out.push('}', '');
         // i8086 emits 8255 PIN I/O only, for now. Every other verb falls to the
@@ -18045,6 +19162,11 @@ SB3Creator.RUNTIME_EXTENSIONS = {
             light: { kind: 'reporter', method: 'light', args: ['SENSOR'], neutral: 'NaN' },
             servoangle: { kind: 'reporter', method: 'servoAngle', args: ['SERVO'], neutral: 'NaN' },
             distance: { kind: 'reporter', method: 'distance', args: ['SENSOR'], neutral: 'NaN' },
+            // I2C parts: DS3231 clock, AT24C02 EEPROM, a bus probe.
+            settime: { kind: 'command', method: 'setTime', args: ['CLOCK', 'HOUR', 'MINUTE', 'SECOND'] },
+            eepromwrite: { kind: 'command', method: 'eepromWrite', args: ['MEMORY', 'ADDRESS', 'VALUE'] },
+            eepromread: { kind: 'reporter', method: 'eepromRead', args: ['MEMORY', 'ADDRESS'], neutral: '0' },
+            i2cfound: { kind: 'boolean', method: 'i2cFound', args: ['BUS', 'ADDRESS'], neutral: 'false' },
             // char_lcd
             lcdprint: { kind: 'command', method: 'lcdPrint', args: ['TEXT', 'DISPLAY'] },
             lcdcursor: { kind: 'command', method: 'lcdCursor', args: ['ROW', 'COL', 'DISPLAY'] },
@@ -18450,6 +19572,9 @@ SB3Creator.retargetPseudocode = function retargetPseudocode(src, device) {
             if (/devices_(setmotor|motordir|motorspeed)/.test(b.opcode)) used.motor = true;
             if (/^devices_(oled|tft|lcd)/.test(b.opcode)) used.display = true;
             if (b.opcode === 'stc12_settone') used.tone = true;
+            if (b.opcode === 'stc12_print') used.print = true;
+            // ask ... and wait talks over the same UART (and on the 8051 its baud clock).
+            if (b.opcode === 'sensing_askandwait' || b.opcode === 'sensing_answer') used.print = true;
         }
     }
     // A display PART with no display blocks still binds the bus pins.
@@ -18461,7 +19586,15 @@ SB3Creator.retargetPseudocode = function retargetPseudocode(src, device) {
     if (used.port && core !== '8051') reasons.push('whole-port writes are an 8051 construct — no port registers here');
     if (used.cube && device !== 'stc12c5a60s2') reasons.push('the LED cube is STC12 hardware');
     if (used.pixel && core !== '8051') reasons.push('NeoPixel timing is not ported to this core yet');
-    if (used.tone && core !== '8051') reasons.push('tone is not ported to this core yet');
+    // Tone: Timer 1 on the 8051, Timer 2 on the ATmega, TIM14 on the F030 and
+    // TIMER alarm 1 on the RP2040. The ATtinys have no free timer (the tick
+    // owns the one with a compare interrupt), and the 8051's Timer 1 is also
+    // the UART's baud clock.
+    if (used.tone && !['8051', 'avr', 'arm'].includes(core)) reasons.push('tone is not ported to this core yet');
+    if (used.tone && (part.tiny85 || part.tiny88)) reasons.push(`tone needs a second timer with a compare interrupt — the ${device} tick already owns its only one`);
+    if (used.tone && used.print && core === '8051') reasons.push('tone and print both need Timer 1 on the 8051 (it is the UART baud clock)');
+    // The C route's print is the hardware UART; neither ATtiny has one.
+    if (used.print && (part.tiny85 || part.tiny88)) reasons.push(`print and ask need a UART — the ${device} has none`);
     if (used.servo && core === '8051' && !part.pca) reasons.push(`servo needs the PCA — ${device} has none`);
     if (used.motor && core === '8051' && !part.pca) reasons.push(`motor speed needs the PCA — ${device} has none`);
     if ((used.servo || used.motor) && core === 'w65c02') reasons.push('servo/motor need PWM — the VIA has no compare unit');
@@ -18483,9 +19616,13 @@ SB3Creator.retargetPseudocode = function retargetPseudocode(src, device) {
     // is the LED pin on the AVR boards, poison for an open-drain line.
     // Reserve the pair up front so no other pin is allocated onto it.
     const pinLnames = new Set(stc.pins.map((p) => String(p.name).toLowerCase()));
-    const i2cConv = pinLnames.has('sda') && pinLnames.has('scl')
+    const hasI2cPart = (stc.parts || []).some((pt) => PIN_ROLE_PARTS[pt.type] && PIN_ROLE_PARTS[pt.type].bus === 'i2c');
+    const i2cConv = (pinLnames.has('sda') && pinLnames.has('scl')) || hasI2cPart
         ? SB3Creator.I2C_PINS[device] : null;
     if (i2cConv) { taken.add(i2cConv.sda); taken.add(i2cConv.scl); }
+    // I2C PART roles moved so far: `<role>:<old coordinate>` -> new pin, so
+    // parts sharing the bus keep sharing it.
+    const i2cMoved = new Map();
     const newPins = [];
     // Old coordinate -> new coordinate, one entry per pin (and PART role).
     // Circuit-preserving retarget consumes this to rewrite an AUTHORED
@@ -18555,8 +19692,10 @@ SB3Creator.retargetPseudocode = function retargetPseudocode(src, device) {
             // (arduino-02-tone-keyboard's speaker) fell through to the
             // refusal and dropped even the 8051s, where tone works. The
             // pin itself is any digital pin — the timer does the tone.
-            if (core !== '8051') {
+            if (!['8051', 'avr', 'arm'].includes(core)) {
                 reasons.push(`pin "${pin.name}" is a TONE pin — tone is not ported to this core yet`);
+            } else if (part.tiny85 || part.tiny88) {
+                reasons.push(`pin "${pin.name}" is a TONE pin — the ${device} has no timer left for a tone`);
             } else {
                 where = take(pools.digital);
                 activeLow = false;
@@ -18583,6 +19722,30 @@ SB3Creator.retargetPseudocode = function retargetPseudocode(src, device) {
             // valid across our 8051 targets; non-8051 parsers deliberately
             // refuse this electrical declaration.
             if (core !== '8051') reasons.push(`${device} does not support a directly wired LCD1602 PART`);
+            newParts.push(newPart);
+            continue;
+        }
+        if (PIN_ROLE_PARTS[p.type]) {
+            // A sensor PART's pins are plain digital pins (pinRoleParts.js):
+            // each role takes the next one from the board's pool, so a
+            // program with a sonar on P1.1/P1.2 lands on D-pins of an Uno.
+            // An I2C part takes the board's own SDA/SCL pair where it has
+            // one, and every I2C part shares the pins the first one got.
+            const i2c = PIN_ROLE_PARTS[p.type].bus === 'i2c';
+            for (const [role] of PIN_ROLE_PARTS[p.type].roles) {
+                const from = coordOf(p[role]);
+                const shared = i2c && i2cMoved.get(`${role}:${from}`);
+                const conv = i2c && SB3Creator.I2C_PINS[device] && SB3Creator.I2C_PINS[device][role];
+                const where = shared || conv || take(pools.digital);
+                if (i2c) i2cMoved.set(`${role}:${from}`, where);
+                if (!where) {
+                    reasons.push(`more PART pins than ${device}'s digital convention offers (${pools.digital.length})`);
+                    break;
+                }
+                pinMap.push({ name: `${p.name}.${role}`, from: coordOf(p[role]), to: where });
+                newPart[role] = { where };
+            }
+            newPart.claims = PIN_ROLE_PARTS[p.type].roles.map(([role]) => newPart[role] && newPart[role].where).filter(Boolean);
             newParts.push(newPart);
             continue;
         }
@@ -18616,10 +19779,7 @@ SB3Creator.retargetPseudocode = function retargetPseudocode(src, device) {
     // On the 8051 cores the parser wants port/bit back; re-parsing the
     // decompiled text derives them, so decompile with `where` only.
     stc.device = device;
-    stc.clock = core === 'avr' ? 16000000 : core === 'arm' ? 125000000
-        : core === 'w65c02' ? 1000000
-            : core === 'samd51' ? 120000000        // ATSAMD51J19 at its rated max
-                : device.startsWith('stc15') ? 11059200 : 11059200;
+    stc.clock = SB3Creator.defaultClock(device);
     stc.pins = newPins;
     const out = c.decompile();
 
@@ -18739,6 +19899,28 @@ SB3Creator.STC_PARTS = {
     // with the honest reason (too few pins), never 'unknown device'.
     attiny85: { core: 'arduino', header: 'avr/io.h', portModes: false, aux1T: false, adc: true,
         tiny85: true }
+};
+
+/**
+ * The clock a device runs at when a program does not name one -- the ONE
+ * place this is decided. Parse, retarget and C generation each kept their own
+ * copy and they drifted: the retarget wrote the Pico's 125 MHz for the
+ * STM32F030 (every timing 2.6x slow, measured on the emulator as a 1302 ms
+ * blink half-period) and the Arduino 16 MHz for both ATtinys, which run at
+ * 8 MHz (2x slow). Values are the compile service's default clocks.
+ * @param {string} device
+ * @returns {number}
+ */
+SB3Creator.defaultClock = (device) => {
+    const part = SB3Creator.STC_PARTS[String(device || '').toLowerCase()];
+    if (!part) return 11059200;
+    if (part.tiny85 || part.tiny88) return 8000000;
+    if (part.core === 'arduino') return 16000000;
+    if (part.stm32f0) return 48000000;
+    if (part.core === 'rp2040') return 125000000;
+    if (part.core === 'w65c02') return 1000000;
+    if (part.core === 'samd51') return 120000000;
+    return 11059200;
 };
 
 // C keywords a sanitized Scratch name could collide with (sanitizeIdent only guards the

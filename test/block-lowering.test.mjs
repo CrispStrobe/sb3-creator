@@ -130,6 +130,12 @@ test('block lowering census', () => {
         'devices_oledhline',  // SSD1306 I2C OLED: horizontal line (bw_oled_hline)
         'devices_oledshow',   // SSD1306 I2C OLED: flush the frame (bw_oled_show)
         'devices_devicestate', // composite: returns relay state or 0
+        // I2C PARTs (2026-10-05): an open-drain I2C master on every C core,
+        // measured on the emulated chips by test/chain-i2c.test.mjs.
+        'devices_settime',     // DS3231: write registers 0-2 (BCD), clear OSF
+        'devices_eepromwrite', // AT24C02: byte write + ACK-polled write cycle
+        'devices_eepromread',  // AT24C02: random read (dummy write + repeated START)
+        'devices_i2cfound',    // address probe: START, address, ACK?, STOP
     ]);
     const allDevices = hw.filter(op => op.startsWith('devices_'));
     const stubs = allDevices.filter(op => !REAL_DRIVERS.has(op));

@@ -107,11 +107,12 @@ function runReferee (source) {
     return last ? last.level === 1 : false;
 }
 
-/** What the device C emitter decided, read off the emitted `if`. */
+/** What the device C emitter decided, read off the emitted `if` on `val`
+ *  (the runtime's own helpers, e.g. the 8051 delay_ms, have `if`s too). */
 function cCondition (source) {
     const c = new SB3Creator();
     c.parse(source);
-    return c.generateC().split('\n').map((l) => l.trim()).find((l) => /^if \(/.test(l));
+    return c.generateC().split('\n').map((l) => l.trim()).find((l) => /^if \(.*\bval\b/.test(l));
 }
 
 describe('a bare value used as a condition', () => {
