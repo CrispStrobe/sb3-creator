@@ -1,0 +1,58 @@
+DEVICE STC12C5A60S2
+CLOCK 11059200
+PIN buzzer = P1.1 OUTPUT
+PIN lamp = P1.0 OUTPUT ACTIVE LOW
+
+# A word in Morse code, heard and seen.
+# One time unit is 0.15 s. A dot is 1 unit of sound, a dash 3 units; the
+# silence is 1 unit between symbols, 3 between letters and 7 between words.
+# Each procedure below ends with the 1-unit gap, so a letter gap only has to
+# add 2 more units and a word gap 6 more.
+DEFINE dot:
+  turn on buzzer
+  turn on lamp
+  wait 0.15 seconds
+  turn off buzzer
+  turn off lamp
+  wait 0.15 seconds
+
+DEFINE dash:
+  turn on buzzer
+  turn on lamp
+  wait 0.45 seconds
+  turn off buzzer
+  turn off lamp
+  wait 0.15 seconds
+
+DEFINE letter gap:
+  wait 0.3 seconds
+
+WHEN flag clicked:
+  FOREVER:
+    # H  . . . .
+    dot
+    dot
+    dot
+    dot
+    letter gap
+    # E  .
+    dot
+    letter gap
+    # L  . - . .
+    dot
+    dash
+    dot
+    dot
+    letter gap
+    # L  . - . .
+    dot
+    dash
+    dot
+    dot
+    letter gap
+    # O  - - -
+    dash
+    dash
+    dash
+    # word gap: 6 more units on top of the 1 already waited
+    wait 0.9 seconds

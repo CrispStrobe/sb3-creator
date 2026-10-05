@@ -1,0 +1,66 @@
+DEVICE STC12C5A60S2
+CLOCK 11059200
+PIN keyA = P3.2 INPUT ACTIVE LOW
+PIN keyB = P3.3 INPUT ACTIVE LOW
+PIN go = P1.0 OUTPUT ACTIVE LOW
+PIN ledA = P1.1 OUTPUT ACTIVE LOW
+PIN ledB = P1.2 OUTPUT ACTIVE LOW
+
+# Reaction duel for two players.
+# After a random wait of 2 to 5 seconds the go LED lights; the first player to
+# press wins and their LED flashes. Pressing BEFORE go is a false start and
+# hands the round to the other player. The winner's time goes to the serial
+# monitor in milliseconds.
+DEFINE flash A:
+  REPEAT 5:
+    turn on ledA
+    wait 0.15 seconds
+    turn off ledA
+    wait 0.15 seconds
+
+DEFINE flash B:
+  REPEAT 5:
+    turn on ledB
+    wait 0.15 seconds
+    turn off ledB
+    wait 0.15 seconds
+
+WHEN flag clicked:
+  set seed to 7
+  FOREVER:
+    turn off go
+    turn off ledA
+    turn off ledB
+    wait until read keyA = 0 AND read keyB = 0
+    set seed to (seed * 11) mod 251
+    set ticks to 200 + (floor of ((seed * 300) / 251))
+    set foul to 0
+    REPEAT UNTIL ticks = 0 OR foul > 0:
+      IF read keyA THEN:
+        set foul to 1
+      IF read keyB THEN:
+        set foul to 2
+      change ticks by -1
+      wait 0.01 seconds
+    IF foul = 1 THEN:
+      print "false start A"
+      flash B
+    IF foul = 2 THEN:
+      print "false start B"
+      flash A
+    IF foul = 0 THEN:
+      turn on go
+      set t to 0
+      REPEAT UNTIL read keyA OR read keyB:
+        change t by 1
+        wait 0.001 seconds
+      turn off go
+      print t
+      IF read keyA THEN:
+        flash A
+      ELSE:
+        flash B
+      change seed by t
+      IF seed > 250 THEN:
+        set seed to (seed mod 250) + 1
+    wait 1 seconds

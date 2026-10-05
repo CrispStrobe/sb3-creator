@@ -137,6 +137,13 @@ const CROSS_DEVICE_ADC_PIN_EXCEPTIONS = new Set([
     // pot position lights a different number of LEDs on a 10-bit ADC than on
     // a 12-bit one. Per-device correct; asserting identity would be wrong.
     'disp-bargraph',
+    // sense-twilight-switch: the same raw-threshold case as 03-night-light,
+    // with hysteresis (300/500). sense-auto-dimmer AUTO-RANGES against the
+    // brightest reading seen, starting at 1023, so a 12-bit board's scale
+    // grows the first time the sweep exceeds 1023 and its PWM levels follow a
+    // different curve from then on -- by design, which is what keeps the
+    // target inside 0..100 % on every resolution.
+    'sense-twilight-switch', 'sense-auto-dimmer',
 ]);
 
 // ---- Tier 1: retarget + referee, no unsupported opcodes --------------------

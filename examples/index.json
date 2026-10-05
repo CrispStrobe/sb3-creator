@@ -8037,5 +8037,578 @@
    "intro": "board-prechin-a2-learning-board/intro.md",
    "introDE": "board-prechin-a2-learning-board/intro.de.md"
   }
+ },
+ {
+  "id": "sense-pir-alarm",
+  "title": {
+   "en": "Motion alarm with hold time",
+   "de": "Bewegungsmelder mit Nachlaufzeit"
+  },
+  "category": "digital",
+  "difficulty": 2,
+  "files": {
+   "program": "sense-pir-alarm/program.bw",
+   "circuit": "sense-pir-alarm/circuit.stc12c5a60s2.json",
+   "expected": "sense-pir-alarm/EXPECTED.md",
+   "intro": "sense-pir-alarm/intro.md",
+   "introDE": "sense-pir-alarm/intro.de.md"
+  },
+  "kind": "program",
+  "devices": [
+   "stc12c5a60s2",
+   "stc89c52rc",
+   "stc15f2k60s2",
+   "arduino-uno",
+   "atmega168p",
+   "arduino-mega",
+   "arduino-nano",
+   "stm32f030",
+   "pico",
+   "attiny88",
+   "attiny85"
+  ],
+  "authored": "stc12c5a60s2",
+  "benches": {
+   "arduino-mega": "sense-pir-alarm/circuit.arduino-mega.json",
+   "arduino-nano": "sense-pir-alarm/circuit.arduino-nano.json",
+   "arduino-uno": "sense-pir-alarm/circuit.arduino-uno.json",
+   "atmega168p": "sense-pir-alarm/circuit.atmega168p.json",
+   "attiny85": "sense-pir-alarm/circuit.attiny85.json",
+   "attiny88": "sense-pir-alarm/circuit.attiny88.json",
+   "pico": "sense-pir-alarm/circuit.pico.json",
+   "stc12c5a60s2": "sense-pir-alarm/circuit.stc12c5a60s2.json",
+   "stc15f2k60s2": "sense-pir-alarm/circuit.stc15f2k60s2.json",
+   "stc89c52rc": "sense-pir-alarm/circuit.stc89c52rc.json",
+   "stm32f030": "sense-pir-alarm/circuit.stm32f030.json"
+  }
+ },
+ {
+  "id": "sense-clap-switch",
+  "title": {
+   "en": "Clap switch",
+   "de": "Klatschschalter"
+  },
+  "category": "digital",
+  "difficulty": 2,
+  "files": {
+   "program": "sense-clap-switch/program.bw",
+   "circuit": "sense-clap-switch/circuit.stc12c5a60s2.json",
+   "expected": "sense-clap-switch/EXPECTED.md",
+   "intro": "sense-clap-switch/intro.md",
+   "introDE": "sense-clap-switch/intro.de.md"
+  },
+  "kind": "program",
+  "devices": [
+   "stc12c5a60s2",
+   "stc89c52rc",
+   "stc15f2k60s2",
+   "arduino-uno",
+   "atmega168p",
+   "arduino-mega",
+   "arduino-nano",
+   "stm32f030",
+   "pico",
+   "attiny88",
+   "attiny85"
+  ],
+  "authored": "stc12c5a60s2",
+  "benches": {
+   "arduino-mega": "sense-clap-switch/circuit.arduino-mega.json",
+   "arduino-nano": "sense-clap-switch/circuit.arduino-nano.json",
+   "arduino-uno": "sense-clap-switch/circuit.arduino-uno.json",
+   "atmega168p": "sense-clap-switch/circuit.atmega168p.json",
+   "attiny85": "sense-clap-switch/circuit.attiny85.json",
+   "attiny88": "sense-clap-switch/circuit.attiny88.json",
+   "pico": "sense-clap-switch/circuit.pico.json",
+   "stc12c5a60s2": "sense-clap-switch/circuit.stc12c5a60s2.json",
+   "stc15f2k60s2": "sense-clap-switch/circuit.stc15f2k60s2.json",
+   "stc89c52rc": "sense-clap-switch/circuit.stc89c52rc.json",
+   "stm32f030": "sense-clap-switch/circuit.stm32f030.json"
+  }
+ },
+ {
+  "id": "sense-noise-counter",
+  "title": {
+   "en": "Noise counter",
+   "de": "Geräuschzähler"
+  },
+  "category": "digital",
+  "difficulty": 3,
+  "files": {
+   "program": "sense-noise-counter/program.bw",
+   "circuit": "sense-noise-counter/circuit.stc12c5a60s2.json",
+   "expected": "sense-noise-counter/EXPECTED.md",
+   "intro": "sense-noise-counter/intro.md",
+   "introDE": "sense-noise-counter/intro.de.md"
+  },
+  "kind": "program",
+  "devices": [
+   "stc12c5a60s2",
+   "stc89c52rc",
+   "stc15f2k60s2",
+   "arduino-uno",
+   "atmega168p",
+   "arduino-mega",
+   "arduino-nano",
+   "stm32f030",
+   "pico",
+   "attiny88",
+   "attiny85"
+  ],
+  "authored": "stc12c5a60s2",
+  "benches": {
+   "arduino-mega": "sense-noise-counter/circuit.arduino-mega.json",
+   "arduino-nano": "sense-noise-counter/circuit.arduino-nano.json",
+   "arduino-uno": "sense-noise-counter/circuit.arduino-uno.json",
+   "atmega168p": "sense-noise-counter/circuit.atmega168p.json",
+   "attiny85": "sense-noise-counter/circuit.attiny85.json",
+   "attiny88": "sense-noise-counter/circuit.attiny88.json",
+   "pico": "sense-noise-counter/circuit.pico.json",
+   "stc12c5a60s2": "sense-noise-counter/circuit.stc12c5a60s2.json",
+   "stc15f2k60s2": "sense-noise-counter/circuit.stc15f2k60s2.json",
+   "stc89c52rc": "sense-noise-counter/circuit.stc89c52rc.json",
+   "stm32f030": "sense-noise-counter/circuit.stm32f030.json"
+  }
+ },
+ {
+  "id": "sense-noise-light",
+  "title": {
+   "en": "Noise traffic light",
+   "de": "Lärmampel"
+  },
+  "category": "analog",
+  "difficulty": 2,
+  "files": {
+   "program": "sense-noise-light/program.bw",
+   "circuit": "sense-noise-light/circuit.stc12c5a60s2.json",
+   "expected": "sense-noise-light/EXPECTED.md",
+   "intro": "sense-noise-light/intro.md",
+   "introDE": "sense-noise-light/intro.de.md"
+  },
+  "kind": "program",
+  "devices": [
+   "stc12c5a60s2",
+   "stc15f2k60s2",
+   "arduino-uno",
+   "atmega168p",
+   "arduino-mega",
+   "arduino-nano",
+   "stm32f030",
+   "pico",
+   "attiny88"
+  ],
+  "authored": "stc12c5a60s2",
+  "refusals": {
+   "stc89c52rc": "stc89c52rc has no ADC — the analog pins cannot map",
+   "attiny85": "attiny85 retarget puts the analog pin on PB2, which the dialect only accepts as A0 and up"
+  },
+  "benches": {
+   "arduino-mega": "sense-noise-light/circuit.arduino-mega.json",
+   "arduino-nano": "sense-noise-light/circuit.arduino-nano.json",
+   "arduino-uno": "sense-noise-light/circuit.arduino-uno.json",
+   "atmega168p": "sense-noise-light/circuit.atmega168p.json",
+   "attiny88": "sense-noise-light/circuit.attiny88.json",
+   "pico": "sense-noise-light/circuit.pico.json",
+   "stc12c5a60s2": "sense-noise-light/circuit.stc12c5a60s2.json",
+   "stc15f2k60s2": "sense-noise-light/circuit.stc15f2k60s2.json",
+   "stm32f030": "sense-noise-light/circuit.stm32f030.json"
+  }
+ },
+ {
+  "id": "sense-light-barrier",
+  "title": {
+   "en": "Self-calibrating light barrier",
+   "de": "Selbstkalibrierende Lichtschranke"
+  },
+  "category": "analog",
+  "difficulty": 3,
+  "files": {
+   "program": "sense-light-barrier/program.bw",
+   "circuit": "sense-light-barrier/circuit.stc12c5a60s2.json",
+   "expected": "sense-light-barrier/EXPECTED.md",
+   "intro": "sense-light-barrier/intro.md",
+   "introDE": "sense-light-barrier/intro.de.md"
+  },
+  "kind": "program",
+  "devices": [
+   "stc12c5a60s2",
+   "stc15f2k60s2",
+   "arduino-uno",
+   "atmega168p",
+   "arduino-mega",
+   "arduino-nano",
+   "stm32f030",
+   "pico",
+   "attiny88"
+  ],
+  "authored": "stc12c5a60s2",
+  "refusals": {
+   "stc89c52rc": "stc89c52rc has no ADC — the analog pins cannot map",
+   "attiny85": "attiny85 retarget puts the analog pin on PB2, which the dialect only accepts as A0 and up"
+  },
+  "benches": {
+   "arduino-mega": "sense-light-barrier/circuit.arduino-mega.json",
+   "arduino-nano": "sense-light-barrier/circuit.arduino-nano.json",
+   "arduino-uno": "sense-light-barrier/circuit.arduino-uno.json",
+   "atmega168p": "sense-light-barrier/circuit.atmega168p.json",
+   "attiny88": "sense-light-barrier/circuit.attiny88.json",
+   "pico": "sense-light-barrier/circuit.pico.json",
+   "stc12c5a60s2": "sense-light-barrier/circuit.stc12c5a60s2.json",
+   "stc15f2k60s2": "sense-light-barrier/circuit.stc15f2k60s2.json",
+   "stm32f030": "sense-light-barrier/circuit.stm32f030.json"
+  }
+ },
+ {
+  "id": "sense-auto-dimmer",
+  "title": {
+   "en": "Automatic dimmer",
+   "de": "Automatischer Dimmer"
+  },
+  "category": "analog",
+  "difficulty": 2,
+  "files": {
+   "program": "sense-auto-dimmer/program.bw",
+   "circuit": "sense-auto-dimmer/circuit.stc12c5a60s2.json",
+   "expected": "sense-auto-dimmer/EXPECTED.md",
+   "intro": "sense-auto-dimmer/intro.md",
+   "introDE": "sense-auto-dimmer/intro.de.md"
+  },
+  "kind": "program",
+  "devices": [
+   "stc12c5a60s2",
+   "stc15f2k60s2",
+   "arduino-uno",
+   "atmega168p",
+   "arduino-mega",
+   "arduino-nano",
+   "stm32f030",
+   "pico"
+  ],
+  "authored": "stc12c5a60s2",
+  "refusals": {
+   "stc89c52rc": "stc89c52rc has no ADC — the analog pins cannot map",
+   "attiny88": "attiny88 has no PWM-capable convention pins",
+   "attiny85": "attiny85 retarget puts the analog pin on PB2, which the dialect only accepts as A0 and up"
+  },
+  "benches": {
+   "arduino-mega": "sense-auto-dimmer/circuit.arduino-mega.json",
+   "arduino-nano": "sense-auto-dimmer/circuit.arduino-nano.json",
+   "arduino-uno": "sense-auto-dimmer/circuit.arduino-uno.json",
+   "atmega168p": "sense-auto-dimmer/circuit.atmega168p.json",
+   "pico": "sense-auto-dimmer/circuit.pico.json",
+   "stc12c5a60s2": "sense-auto-dimmer/circuit.stc12c5a60s2.json",
+   "stc15f2k60s2": "sense-auto-dimmer/circuit.stc15f2k60s2.json",
+   "stm32f030": "sense-auto-dimmer/circuit.stm32f030.json"
+  }
+ },
+ {
+  "id": "sense-twilight-switch",
+  "title": {
+   "en": "Twilight switch without flicker",
+   "de": "Dämmerungsschalter ohne Flackern"
+  },
+  "category": "analog",
+  "difficulty": 3,
+  "files": {
+   "program": "sense-twilight-switch/program.bw",
+   "circuit": "sense-twilight-switch/circuit.stc12c5a60s2.json",
+   "expected": "sense-twilight-switch/EXPECTED.md",
+   "intro": "sense-twilight-switch/intro.md",
+   "introDE": "sense-twilight-switch/intro.de.md"
+  },
+  "kind": "program",
+  "devices": [
+   "stc12c5a60s2",
+   "stc15f2k60s2",
+   "arduino-uno",
+   "atmega168p",
+   "arduino-mega",
+   "arduino-nano",
+   "stm32f030",
+   "pico",
+   "attiny88"
+  ],
+  "authored": "stc12c5a60s2",
+  "refusals": {
+   "stc89c52rc": "stc89c52rc has no ADC — the analog pins cannot map",
+   "attiny85": "attiny85 retarget puts the analog pin on PB2, which the dialect only accepts as A0 and up"
+  },
+  "benches": {
+   "arduino-mega": "sense-twilight-switch/circuit.arduino-mega.json",
+   "arduino-nano": "sense-twilight-switch/circuit.arduino-nano.json",
+   "arduino-uno": "sense-twilight-switch/circuit.arduino-uno.json",
+   "atmega168p": "sense-twilight-switch/circuit.atmega168p.json",
+   "attiny88": "sense-twilight-switch/circuit.attiny88.json",
+   "pico": "sense-twilight-switch/circuit.pico.json",
+   "stc12c5a60s2": "sense-twilight-switch/circuit.stc12c5a60s2.json",
+   "stc15f2k60s2": "sense-twilight-switch/circuit.stc15f2k60s2.json",
+   "stm32f030": "sense-twilight-switch/circuit.stm32f030.json"
+  }
+ },
+ {
+  "id": "morse-buzzer-message",
+  "title": {
+   "en": "Morse message with buzzer and lamp",
+   "de": "Morse-Nachricht mit Summer und Lampe"
+  },
+  "category": "basics",
+  "difficulty": 2,
+  "files": {
+   "program": "morse-buzzer-message/program.bw",
+   "circuit": "morse-buzzer-message/circuit.stc12c5a60s2.json",
+   "expected": "morse-buzzer-message/EXPECTED.md",
+   "intro": "morse-buzzer-message/intro.md",
+   "introDE": "morse-buzzer-message/intro.de.md"
+  },
+  "kind": "program",
+  "devices": [
+   "stc12c5a60s2",
+   "stc89c52rc",
+   "stc15f2k60s2",
+   "arduino-uno",
+   "atmega168p",
+   "arduino-mega",
+   "arduino-nano",
+   "stm32f030",
+   "pico",
+   "attiny88",
+   "attiny85"
+  ],
+  "authored": "stc12c5a60s2",
+  "benches": {
+   "arduino-mega": "morse-buzzer-message/circuit.arduino-mega.json",
+   "arduino-nano": "morse-buzzer-message/circuit.arduino-nano.json",
+   "arduino-uno": "morse-buzzer-message/circuit.arduino-uno.json",
+   "atmega168p": "morse-buzzer-message/circuit.atmega168p.json",
+   "attiny85": "morse-buzzer-message/circuit.attiny85.json",
+   "attiny88": "morse-buzzer-message/circuit.attiny88.json",
+   "pico": "morse-buzzer-message/circuit.pico.json",
+   "stc12c5a60s2": "morse-buzzer-message/circuit.stc12c5a60s2.json",
+   "stc15f2k60s2": "morse-buzzer-message/circuit.stc15f2k60s2.json",
+   "stc89c52rc": "morse-buzzer-message/circuit.stc89c52rc.json",
+   "stm32f030": "morse-buzzer-message/circuit.stm32f030.json"
+  }
+ },
+ {
+  "id": "binary-counter-buttons",
+  "title": {
+   "en": "Binary counter on five LEDs",
+   "de": "Binärzähler mit fünf LEDs"
+  },
+  "category": "digital",
+  "difficulty": 2,
+  "files": {
+   "program": "binary-counter-buttons/program.bw",
+   "circuit": "binary-counter-buttons/circuit.stc12c5a60s2.json",
+   "expected": "binary-counter-buttons/EXPECTED.md",
+   "intro": "binary-counter-buttons/intro.md",
+   "introDE": "binary-counter-buttons/intro.de.md"
+  },
+  "kind": "program",
+  "devices": [
+   "stc12c5a60s2",
+   "stc89c52rc",
+   "stc15f2k60s2",
+   "arduino-uno",
+   "atmega168p",
+   "arduino-mega",
+   "arduino-nano",
+   "stm32f030",
+   "pico",
+   "attiny88"
+  ],
+  "authored": "stc12c5a60s2",
+  "refusals": {
+   "attiny85": "more digital outputs than attiny85 offers (5)"
+  },
+  "benches": {
+   "arduino-mega": "binary-counter-buttons/circuit.arduino-mega.json",
+   "arduino-nano": "binary-counter-buttons/circuit.arduino-nano.json",
+   "arduino-uno": "binary-counter-buttons/circuit.arduino-uno.json",
+   "atmega168p": "binary-counter-buttons/circuit.atmega168p.json",
+   "attiny88": "binary-counter-buttons/circuit.attiny88.json",
+   "pico": "binary-counter-buttons/circuit.pico.json",
+   "stc12c5a60s2": "binary-counter-buttons/circuit.stc12c5a60s2.json",
+   "stc15f2k60s2": "binary-counter-buttons/circuit.stc15f2k60s2.json",
+   "stc89c52rc": "binary-counter-buttons/circuit.stc89c52rc.json",
+   "stm32f030": "binary-counter-buttons/circuit.stm32f030.json"
+  }
+ },
+ {
+  "id": "dice-pips",
+  "title": {
+   "en": "Die with real pips",
+   "de": "Würfel mit echten Augen"
+  },
+  "category": "digital",
+  "difficulty": 3,
+  "files": {
+   "program": "dice-pips/program.bw",
+   "circuit": "dice-pips/circuit.stc12c5a60s2.json",
+   "expected": "dice-pips/EXPECTED.md",
+   "intro": "dice-pips/intro.md",
+   "introDE": "dice-pips/intro.de.md"
+  },
+  "kind": "program",
+  "devices": [
+   "stc12c5a60s2",
+   "stc89c52rc",
+   "stc15f2k60s2",
+   "arduino-uno",
+   "atmega168p",
+   "arduino-mega",
+   "arduino-nano",
+   "stm32f030",
+   "pico",
+   "attiny88"
+  ],
+  "authored": "stc12c5a60s2",
+  "refusals": {
+   "attiny85": "more digital outputs than attiny85 offers (5)"
+  },
+  "benches": {
+   "arduino-mega": "dice-pips/circuit.arduino-mega.json",
+   "arduino-nano": "dice-pips/circuit.arduino-nano.json",
+   "arduino-uno": "dice-pips/circuit.arduino-uno.json",
+   "atmega168p": "dice-pips/circuit.atmega168p.json",
+   "attiny88": "dice-pips/circuit.attiny88.json",
+   "pico": "dice-pips/circuit.pico.json",
+   "stc12c5a60s2": "dice-pips/circuit.stc12c5a60s2.json",
+   "stc15f2k60s2": "dice-pips/circuit.stc15f2k60s2.json",
+   "stc89c52rc": "dice-pips/circuit.stc89c52rc.json",
+   "stm32f030": "dice-pips/circuit.stm32f030.json"
+  }
+ },
+ {
+  "id": "reaction-duel",
+  "title": {
+   "en": "Reaction duel for two",
+   "de": "Reaktionsduell zu zweit"
+  },
+  "category": "digital",
+  "difficulty": 3,
+  "files": {
+   "program": "reaction-duel/program.bw",
+   "circuit": "reaction-duel/circuit.stc12c5a60s2.json",
+   "expected": "reaction-duel/EXPECTED.md",
+   "intro": "reaction-duel/intro.md",
+   "introDE": "reaction-duel/intro.de.md"
+  },
+  "kind": "program",
+  "devices": [
+   "stc12c5a60s2",
+   "stc89c52rc",
+   "stc15f2k60s2",
+   "arduino-uno",
+   "atmega168p",
+   "arduino-mega",
+   "arduino-nano",
+   "stm32f030",
+   "pico",
+   "attiny88",
+   "attiny85"
+  ],
+  "authored": "stc12c5a60s2",
+  "benches": {
+   "arduino-mega": "reaction-duel/circuit.arduino-mega.json",
+   "arduino-nano": "reaction-duel/circuit.arduino-nano.json",
+   "arduino-uno": "reaction-duel/circuit.arduino-uno.json",
+   "atmega168p": "reaction-duel/circuit.atmega168p.json",
+   "attiny85": "reaction-duel/circuit.attiny85.json",
+   "attiny88": "reaction-duel/circuit.attiny88.json",
+   "pico": "reaction-duel/circuit.pico.json",
+   "stc12c5a60s2": "reaction-duel/circuit.stc12c5a60s2.json",
+   "stc15f2k60s2": "reaction-duel/circuit.stc15f2k60s2.json",
+   "stc89c52rc": "reaction-duel/circuit.stc89c52rc.json",
+   "stm32f030": "reaction-duel/circuit.stm32f030.json"
+  }
+ },
+ {
+  "id": "two-toggle-keys",
+  "title": {
+   "en": "Two keys, two lamps",
+   "de": "Zwei Taster, zwei Lampen"
+  },
+  "category": "basics",
+  "difficulty": 2,
+  "files": {
+   "program": "two-toggle-keys/program.bw",
+   "circuit": "two-toggle-keys/circuit.stc12c5a60s2.json",
+   "expected": "two-toggle-keys/EXPECTED.md",
+   "intro": "two-toggle-keys/intro.md",
+   "introDE": "two-toggle-keys/intro.de.md"
+  },
+  "kind": "program",
+  "devices": [
+   "stc12c5a60s2",
+   "stc89c52rc",
+   "stc15f2k60s2",
+   "arduino-uno",
+   "atmega168p",
+   "arduino-mega",
+   "arduino-nano",
+   "stm32f030",
+   "pico",
+   "attiny88",
+   "attiny85"
+  ],
+  "authored": "stc12c5a60s2",
+  "benches": {
+   "arduino-mega": "two-toggle-keys/circuit.arduino-mega.json",
+   "arduino-nano": "two-toggle-keys/circuit.arduino-nano.json",
+   "arduino-uno": "two-toggle-keys/circuit.arduino-uno.json",
+   "atmega168p": "two-toggle-keys/circuit.atmega168p.json",
+   "attiny85": "two-toggle-keys/circuit.attiny85.json",
+   "attiny88": "two-toggle-keys/circuit.attiny88.json",
+   "pico": "two-toggle-keys/circuit.pico.json",
+   "stc12c5a60s2": "two-toggle-keys/circuit.stc12c5a60s2.json",
+   "stc15f2k60s2": "two-toggle-keys/circuit.stc15f2k60s2.json",
+   "stc89c52rc": "two-toggle-keys/circuit.stc89c52rc.json",
+   "stm32f030": "two-toggle-keys/circuit.stm32f030.json"
+  }
+ },
+ {
+  "id": "idea-generator",
+  "title": {
+   "en": "Random idea generator",
+   "de": "Ideen-Zufallsgenerator"
+  },
+  "category": "basics",
+  "difficulty": 2,
+  "files": {
+   "program": "idea-generator/program.bw",
+   "circuit": "idea-generator/circuit.stc12c5a60s2.json",
+   "expected": "idea-generator/EXPECTED.md",
+   "intro": "idea-generator/intro.md",
+   "introDE": "idea-generator/intro.de.md"
+  },
+  "kind": "program",
+  "devices": [
+   "stc12c5a60s2",
+   "stc89c52rc",
+   "stc15f2k60s2",
+   "arduino-uno",
+   "atmega168p",
+   "arduino-mega",
+   "arduino-nano",
+   "stm32f030",
+   "pico",
+   "attiny88",
+   "attiny85"
+  ],
+  "authored": "stc12c5a60s2",
+  "benches": {
+   "arduino-mega": "idea-generator/circuit.arduino-mega.json",
+   "arduino-nano": "idea-generator/circuit.arduino-nano.json",
+   "arduino-uno": "idea-generator/circuit.arduino-uno.json",
+   "atmega168p": "idea-generator/circuit.atmega168p.json",
+   "attiny85": "idea-generator/circuit.attiny85.json",
+   "attiny88": "idea-generator/circuit.attiny88.json",
+   "pico": "idea-generator/circuit.pico.json",
+   "stc12c5a60s2": "idea-generator/circuit.stc12c5a60s2.json",
+   "stc15f2k60s2": "idea-generator/circuit.stc15f2k60s2.json",
+   "stc89c52rc": "idea-generator/circuit.stc89c52rc.json",
+   "stm32f030": "idea-generator/circuit.stm32f030.json"
+  }
  }
 ]

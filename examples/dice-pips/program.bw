@@ -1,0 +1,61 @@
+DEVICE STC12C5A60S2
+CLOCK 11059200
+PIN btn = P3.2 INPUT ACTIVE LOW
+PIN tl = P1.0 OUTPUT ACTIVE LOW
+PIN tr = P1.1 OUTPUT ACTIVE LOW
+PIN ml = P1.2 OUTPUT ACTIVE LOW
+PIN mid = P1.3 OUTPUT ACTIVE LOW
+PIN mr = P1.4 OUTPUT ACTIVE LOW
+PIN bl = P1.5 OUTPUT ACTIVE LOW
+PIN br = P1.6 OUTPUT ACTIVE LOW
+
+# An electronic die with real pips: seven LEDs laid out like a die face.
+# Where does a computer get chance from? Here from two places: how long the
+# button is held (nobody can hold it for the same number of milliseconds twice)
+# and a simple pseudo-random formula, seed = seed * 11 mod 251, which jumps
+# around 1..250 without repeating for 250 steps. The face comes from the HIGH
+# part of the seed (which sixth of 1..250 it lies in), because the low part --
+# seed mod 6 -- repeats in a short cycle for neighbouring seeds. The face
+# rolls, slows down and stops.
+DEFINE show face:
+  turn off tl
+  turn off tr
+  turn off ml
+  turn off mid
+  turn off mr
+  turn off bl
+  turn off br
+  IF face = 1 OR face = 3 OR face = 5 THEN:
+    turn on mid
+  IF face > 1 THEN:
+    turn on tl
+    turn on br
+  IF face > 3 THEN:
+    turn on tr
+    turn on bl
+  IF face = 6 THEN:
+    turn on ml
+    turn on mr
+
+DEFINE next random:
+  set seed to (seed * 11) mod 251
+  set face to (floor of ((seed * 6) / 251)) + 1
+
+WHEN flag clicked:
+  set seed to 1
+  set face to 1
+  show face
+  FOREVER:
+    wait until read btn
+    REPEAT UNTIL read btn = 0:
+      change seed by 1
+      IF seed > 250 THEN:
+        set seed to 1
+      wait 0.001 seconds
+    set pause to 50
+    REPEAT 10:
+      next random
+      show face
+      wait pause ms
+      change pause by 30
+    print face

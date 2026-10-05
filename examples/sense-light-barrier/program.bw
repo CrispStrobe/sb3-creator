@@ -1,0 +1,34 @@
+DEVICE STC12C5A60S2
+CLOCK 11059200
+PIN ldr = P1.3 ANALOG
+PIN beam = P1.0 OUTPUT ACTIVE LOW
+PIN hit = P1.1 OUTPUT ACTIVE LOW
+
+# Light barrier that calibrates itself.
+# The beam LED shines on the LDR. At start the program measures the light it
+# normally sees (the average of 8 readings) and sets its trigger at 70 % of
+# that, so the same program works in a bright or a dim room. Each time the
+# beam is broken, hit lights and the count goes up by one.
+WHEN flag clicked:
+  turn on beam
+  wait 0.5 seconds
+  set base to 0
+  REPEAT 8:
+    change base by read ldr
+    wait 0.05 seconds
+  set base to base / 8
+  set limit to (base * 7) / 10
+  print limit
+  set count to 0
+  set blocked to 0
+  FOREVER:
+    set light to read ldr
+    IF blocked = 0 AND light < limit THEN:
+      set blocked to 1
+      change count by 1
+      turn on hit
+      print count
+    IF blocked = 1 AND light > limit THEN:
+      set blocked to 0
+      turn off hit
+    wait 0.02 seconds

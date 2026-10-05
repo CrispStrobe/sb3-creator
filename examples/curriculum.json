@@ -1150,6 +1150,173 @@
      ]
     }
    ]
+  },
+  {
+   "id": "sensoren-reagieren",
+   "title": {
+    "en": "Sensors that react",
+    "de": "Sensoren, die reagieren"
+   },
+   "audience": "10+",
+   "chapters": [
+    {
+     "title": {
+      "en": "Modules that tell you yes or no",
+      "de": "Module, die ja oder nein sagen"
+     },
+     "stations": [
+      {
+       "interlude": {
+        "en": "A button only connects two wires; a sensor MODULE has its own small circuit and drives its output itself. That changes the wiring — no pull-up — and the program: the signal arrives already decided, HIGH for motion or noise, LOW for none. What is left to the program is timing: how long to react, and how to count an event exactly once.",
+        "de": "Ein Taster verbindet nur zwei Drähte; ein Sensor-MODUL hat eine eigene kleine Schaltung und treibt seinen Ausgang selbst. Das ändert die Verdrahtung — kein Pull-up — und das Programm: Das Signal kommt schon entschieden an, HIGH für Bewegung oder Geräusch, LOW für nichts. Dem Programm bleibt das Timing: wie lange reagieren, und wie man ein Ereignis genau einmal zählt."
+       }
+      },
+      {
+       "example": "sense-pir-alarm",
+       "lead": {
+        "en": "A motion sensor and a lamp that stays on after the last movement — a countdown instead of a long wait.",
+        "de": "Ein Bewegungsmelder und eine Lampe, die nach der letzten Bewegung anbleibt — ein Countdown statt langem Warten."
+       }
+      },
+      {
+       "example": "sense-clap-switch",
+       "lead": {
+        "en": "One clap, one toggle: wait for loud, wait for quiet, then ignore the echoes.",
+        "de": "Ein Klatschen, ein Umschalten: auf laut warten, auf leise warten, dann den Nachhall ignorieren."
+       }
+      },
+      {
+       "example": "sense-noise-counter",
+       "lead": {
+        "en": "Count noises in a time window by their rising edge, so a long noise counts once.",
+        "de": "Geräusche in einem Zeitfenster an ihrer steigenden Flanke zählen, damit ein langes Geräusch einmal zählt."
+       }
+      }
+     ]
+    },
+    {
+     "title": {
+      "en": "Measuring how much, and deciding calmly",
+      "de": "Messen, wie viel, und ruhig entscheiden"
+     },
+     "stations": [
+      {
+       "interlude": {
+        "en": "An analog sensor gives a number, and a number near a limit wobbles. These stations show the three standard cures: take the peak or the average of several readings, use two limits instead of one, and insist that a change lasts before acting on it. The light barrier adds a fourth — measure the room first and work relative to it.",
+        "de": "Ein analoger Sensor liefert eine Zahl, und eine Zahl nahe einer Grenze wackelt. Diese Stationen zeigen die drei üblichen Mittel: den Spitzen- oder Mittelwert mehrerer Messungen nehmen, zwei Grenzen statt einer verwenden, und verlangen, dass eine Änderung anhält, bevor man handelt. Die Lichtschranke ergänzt ein viertes — erst den Raum messen und dann relativ dazu arbeiten."
+       }
+      },
+      {
+       "example": "sense-noise-light",
+       "lead": {
+        "en": "Loudness as green, yellow or red, from the peak of 20 readings.",
+        "de": "Lautstärke als Grün, Gelb oder Rot, aus der Spitze von 20 Messwerten."
+       }
+      },
+      {
+       "example": "sense-twilight-switch",
+       "lead": {
+        "en": "Dusk and dawn with hysteresis and a confirmation time — no flicker at the edge.",
+        "de": "Dämmerung mit Hysterese und Bestätigungszeit — kein Flackern an der Grenze."
+       }
+      },
+      {
+       "example": "sense-light-barrier",
+       "lead": {
+        "en": "A light barrier that calibrates itself and counts each interruption once.",
+        "de": "Eine Lichtschranke, die sich selbst kalibriert und jede Unterbrechung einmal zählt."
+       }
+      },
+      {
+       "example": "sense-auto-dimmer",
+       "lead": {
+        "en": "From light to brightness, inverted, auto-ranged and rate-limited so the lamp glides.",
+        "de": "Von Licht zu Helligkeit, umgekehrt, mit automatischer Bereichswahl und Ratenbegrenzung, damit die Lampe gleitet."
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "zufall-und-spiele",
+   "title": {
+    "en": "Chance and games",
+    "de": "Zufall und Spiele"
+   },
+   "audience": "10+",
+   "chapters": [
+    {
+     "title": {
+      "en": "Showing numbers with LEDs",
+      "de": "Zahlen mit LEDs zeigen"
+     },
+     "stations": [
+      {
+       "interlude": {
+        "en": "Before a game can show a result it needs a way to show a number. Two ways here: place values, where each LED is worth double the last, and a picture everyone already knows, the pips of a die. Both are written once as a procedure and then simply called.",
+        "de": "Bevor ein Spiel ein Ergebnis zeigen kann, braucht es eine Art, eine Zahl zu zeigen. Hier zwei: Stellenwerte, bei denen jede LED doppelt so viel wert ist wie die vorige, und ein Bild, das alle kennen, die Augen eines Würfels. Beides wird einmal als Prozedur geschrieben und dann einfach aufgerufen."
+       }
+      },
+      {
+       "example": "binary-counter-buttons",
+       "lead": {
+        "en": "Five LEDs, 0 to 31, and a procedure that pays a number out in place values.",
+        "de": "Fünf LEDs, 0 bis 31, und eine Prozedur, die eine Zahl in Stellenwerten auszahlt."
+       }
+      },
+      {
+       "example": "two-toggle-keys",
+       "lead": {
+        "en": "Two keys at once without either blocking the other — the loop every game needs.",
+        "de": "Zwei Taster gleichzeitig, ohne dass einer den anderen blockiert — die Schleife, die jedes Spiel braucht."
+       }
+      },
+      {
+       "example": "morse-buzzer-message",
+       "lead": {
+        "en": "A word in Morse code: procedures as building blocks, timing as the message.",
+        "de": "Ein Wort im Morsecode: Prozeduren als Bausteine, Timing als Botschaft."
+       }
+      }
+     ]
+    },
+    {
+     "title": {
+      "en": "Where chance comes from",
+      "de": "Woher der Zufall kommt"
+     },
+     "stations": [
+      {
+       "interlude": {
+        "en": "A chip has no dice. It gets chance from the outside world — how long a finger holds a key — and stirs it with a formula that is easy to compute and hard to predict. The same small formula drives every station in this chapter.",
+        "de": "Ein Chip hat keine Würfel. Er holt sich den Zufall aus der echten Welt — wie lange ein Finger eine Taste hält — und rührt ihn mit einer Formel um, die leicht zu rechnen und schwer vorherzusagen ist. Dieselbe kleine Formel steckt in jeder Station dieses Kapitels."
+       }
+      },
+      {
+       "example": "dice-pips",
+       "lead": {
+        "en": "A die with real pips that rolls, slows down and stops.",
+        "de": "Ein Würfel mit echten Augen, der rollt, langsamer wird und stehen bleibt."
+       }
+      },
+      {
+       "example": "idea-generator",
+       "lead": {
+        "en": "Three random words from three lists: 64 project ideas on the serial monitor.",
+        "de": "Drei zufällige Wörter aus drei Listen: 64 Projektideen im seriellen Monitor."
+       }
+      },
+      {
+       "example": "reaction-duel",
+       "lead": {
+        "en": "A random start, a false-start rule and a winner — a complete two-player game.",
+        "de": "Ein zufälliger Start, eine Fehlstartregel und ein Sieger — ein komplettes Spiel für zwei."
+       }
+      }
+     ]
+    }
+   ]
   }
  ]
 }

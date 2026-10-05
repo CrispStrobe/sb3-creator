@@ -1,0 +1,31 @@
+DEVICE STC12C5A60S2
+CLOCK 11059200
+PIN pir = P3.2 INPUT
+PIN lamp = P1.0 OUTPUT ACTIVE LOW
+PIN buzzer = P1.1 OUTPUT
+
+# Motion alarm with a hold time.
+# A PIR module drives its output HIGH while it sees movement. The lamp stays
+# on for 5 s after the LAST movement, and every new detection starts those
+# 5 s again. The buzzer chirps only when an alarm begins, not on each retrigger.
+WHEN flag clicked:
+  set hold to 0
+  FOREVER:
+    IF read pir THEN:
+      IF hold = 0 THEN:
+        turn on lamp
+        print "motion"
+        REPEAT 2:
+          turn on buzzer
+          wait 0.1 seconds
+          turn off buzzer
+          wait 0.1 seconds
+      set hold to 50
+    IF hold > 0 THEN:
+      turn on lamp
+      change hold by -1
+      IF hold = 0 THEN:
+        print "quiet"
+    ELSE:
+      turn off lamp
+    wait 0.1 seconds

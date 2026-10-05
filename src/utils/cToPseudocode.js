@@ -1483,6 +1483,27 @@ export default function cToPseudocode (source, opts = {}) {
             default: break;
         }
 
+        // pwm_set(channel, percent) is the hardware-PWM write every core emits
+        // for `set <pin> to <n> percent`. Its first argument names the pin the
+        // way that core numbers it: port*8+bit on the 8051 (P1.1 -> 9), the
+        // Arduino D number on AVR, the GPIO on the Pico, and port*16+bit on the
+        // STM32 (PB1 -> 17). The value is already percent, so it reads back
+        // verbatim. Only a DECLARED pwm pin matches; anything else falls
+        // through to the refusal below rather than inventing a pin.
+        if (name === 'pwm_set' && args.length >= 2) {
+            const channel = Number(args[0].text);
+            const channelOf = (r) => {
+                const w = String(r.where || '');
+                let m;
+                if ((m = w.match(/^(?:D|GP)(\d+)$/))) return Number(m[1]);
+                if ((m = w.match(/^P([A-F])(\d+)$/))) return (m[1].charCodeAt(0) - 65) * 16 + Number(m[2]);
+                if (r.portLetter && Number.isFinite(r.bit)) return (r.portLetter.charCodeAt(0) - 65) * 16 + r.bit;
+                if (Number.isFinite(r.port) && Number.isFinite(r.bit)) return r.port * 8 + r.bit;
+                return NaN;
+            };
+            const p = [...pins.values()].find((r) => r.direction === 'pwm' && channelOf(r) === channel);
+            if (p) return { text: '0', level: 99, stmt: `set ${p.name} to ${args[1].text} percent` };
+        }
         if (markers && markers.procs.has(name)) {
             const { proccode } = markers.procs.get(name);
             let i = 0;
