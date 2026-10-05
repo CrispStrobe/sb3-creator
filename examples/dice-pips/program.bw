@@ -10,8 +10,8 @@ PIN bl = P1.5 OUTPUT ACTIVE LOW
 PIN br = P1.6 OUTPUT ACTIVE LOW
 
 # An electronic die with real pips: seven LEDs laid out like a die face.
-# Where does a computer get chance from? Here from two places: how long the
-# button is held (nobody can hold it for the same number of milliseconds twice)
+# Where does a computer get chance from? Here from two places: the number of
+# milliseconds the button is held (nobody can hit the same number twice)
 # and a simple pseudo-random formula, seed = seed * 11 mod 251, which jumps
 # around 1..250 without repeating for 250 steps. The face comes from the HIGH
 # part of the seed (which sixth of 1..250 it lies in), because the low part --
