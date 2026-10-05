@@ -1,0 +1,60 @@
+DEVICE STC12C5A60S2
+CLOCK 11059200
+PIN up = P3.2 INPUT ACTIVE LOW
+PIN down = P3.3 INPUT ACTIVE LOW
+PIN b0 = P1.0 OUTPUT ACTIVE LOW
+PIN b1 = P1.1 OUTPUT ACTIVE LOW
+PIN b2 = P1.2 OUTPUT ACTIVE LOW
+PIN b3 = P1.3 OUTPUT ACTIVE LOW
+PIN b4 = P1.4 OUTPUT ACTIVE LOW
+
+# Count from 0 to 31 on five LEDs, in binary.
+# b4 is worth 16, b3 8, b2 4, b1 2 and b0 1. To show a number, take away the
+# biggest place value that still fits, light that LED, and carry on with
+# what is left -- the same way you would pay an amount with coins.
+DEFINE show value:
+  set rest to value
+  IF rest >= 16 THEN:
+    turn on b4
+    change rest by -16
+  ELSE:
+    turn off b4
+  IF rest >= 8 THEN:
+    turn on b3
+    change rest by -8
+  ELSE:
+    turn off b3
+  IF rest >= 4 THEN:
+    turn on b2
+    change rest by -4
+  ELSE:
+    turn off b2
+  IF rest >= 2 THEN:
+    turn on b1
+    change rest by -2
+  ELSE:
+    turn off b1
+  IF rest >= 1 THEN:
+    turn on b0
+  ELSE:
+    turn off b0
+
+WHEN flag clicked:
+  set value to 0
+  show value
+  FOREVER:
+    IF read up THEN:
+      change value by 1
+      IF value > 31 THEN:
+        set value to 0
+      show value
+      print value
+      wait until read up = 0
+    IF read down THEN:
+      change value by -1
+      IF value < 0 THEN:
+        set value to 31
+      show value
+      print value
+      wait until read down = 0
+    wait 0.02 seconds

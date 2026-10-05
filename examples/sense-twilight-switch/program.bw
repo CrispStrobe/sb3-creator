@@ -1,0 +1,34 @@
+DEVICE STC12C5A60S2
+CLOCK 11059200
+PIN ldr = P1.3 ANALOG
+PIN lamp = P1.0 OUTPUT ACTIVE LOW
+
+# Twilight switch that does not flicker.
+# Two ideas keep it calm at dusk: the lamp turns ON below 300 but only turns
+# OFF again above 500 (hysteresis), and the light must stay past the limit for
+# 0.8 seconds (8 readings in a row) before anything switches, so a passing
+# shadow or the sweep of a car's headlights is ignored.
+WHEN flag clicked:
+  turn off lamp
+  set state to 0
+  set steady to 0
+  FOREVER:
+    set light to read ldr
+    IF state = 0 AND light < 300 THEN:
+      change steady by 1
+    ELSE:
+      IF state = 1 AND light > 500 THEN:
+        change steady by 1
+      ELSE:
+        set steady to 0
+    IF steady >= 8 THEN:
+      set steady to 0
+      IF state = 0 THEN:
+        set state to 1
+        turn on lamp
+        print "dusk: lamp on"
+      ELSE:
+        set state to 0
+        turn off lamp
+        print "dawn: lamp off"
+    wait 0.1 seconds

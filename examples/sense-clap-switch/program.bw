@@ -1,0 +1,17 @@
+DEVICE STC12C5A60S2
+CLOCK 11059200
+PIN clap = P3.2 INPUT
+PIN lamp = P1.0 OUTPUT ACTIVE LOW
+
+# Clap switch: every loud sound toggles the lamp.
+# The sound module's digital output is HIGH while the sound is louder than
+# the module's threshold. One clap is a burst of HIGH plus its echoes, so after
+# each toggle the program waits for silence and then ignores the input for a
+# moment -- otherwise one clap could switch the lamp on and straight off again.
+WHEN flag clicked:
+  turn off lamp
+  FOREVER:
+    wait until read clap
+    toggle lamp
+    wait until read clap = 0
+    wait 0.3 seconds

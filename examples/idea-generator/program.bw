@@ -1,0 +1,52 @@
+DEVICE STC12C5A60S2
+CLOCK 11059200
+PIN next = P3.2 INPUT ACTIVE LOW
+PIN lamp = P1.0 OUTPUT ACTIVE LOW
+
+# Idea generator: press the key and get a random project idea on the serial
+# monitor, picked from three word lists of four (4 x 4 x 4 = 64 ideas).
+# The seed keeps counting while you wait, so the moment you press decides
+# where the pseudo-random formula starts.
+DEFINE next random:
+  set seed to (seed * 11) mod 251
+  set pick to (floor of ((seed * 4) / 251)) + 1
+
+WHEN flag clicked:
+  set seed to 1
+  print "press the key for an idea"
+  FOREVER:
+    REPEAT UNTIL read next = 1:
+      change seed by 1
+      IF seed > 250 THEN:
+        set seed to 1
+      wait 0.001 seconds
+    turn on lamp
+    next random
+    IF pick = 1 THEN:
+      print "build"
+    IF pick = 2 THEN:
+      print "paint"
+    IF pick = 3 THEN:
+      print "program"
+    IF pick = 4 THEN:
+      print "invent"
+    next random
+    IF pick = 1 THEN:
+      print "a tiny"
+    IF pick = 2 THEN:
+      print "a blinking"
+    IF pick = 3 THEN:
+      print "a noisy"
+    IF pick = 4 THEN:
+      print "a secret"
+    next random
+    IF pick = 1 THEN:
+      print "robot"
+    IF pick = 2 THEN:
+      print "alarm"
+    IF pick = 3 THEN:
+      print "game"
+    IF pick = 4 THEN:
+      print "lamp"
+    wait until read next = 0
+    turn off lamp
