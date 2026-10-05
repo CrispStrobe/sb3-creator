@@ -13,6 +13,11 @@ import { cHostRuntime, cShimName, C_HOST_INCLUDES } from './cHostRuntime.js';
 import { CUBE_DIRECTIONS, cubeDirectionIndex } from './cubeDirections.js';
 // The DEVICE EV3 words: one table, read by the parser and the decompiler alike.
 import { matchEv3Word, ev3WordFor, spellEv3Word, ev3WordLoose } from './ev3Dialect.js';
+// The MakeCode Arcade and array-reference words (arcade/arrays extensions):
+// one table as well, for the importer's dialect (Lite's arcade-translate.js).
+import {
+    compileArcadeWord, arcadeWordsOf, arcadeWordFor, spellArcadeWord, ARCADE_FIRST_WORDS
+} from './arcadeDialect.js';
 
 // The emitted no-import JSON serializer (the sim firmware ships without
 // the json module — measured 2026-08-19). Shared by the marker debugger's
@@ -2444,6 +2449,114 @@ class SB3Creator {
         });
     }
 
+    // ---- MakeCode Arcade / array-reference words (arcadeDialect.js) ----------
+
+    /**
+     * The inputs and fields of a matched Arcade word, or null when a field
+     * slot holds a word the field does not have (`mode "shout"`, `set flag
+     * Sticky of …`): the word then does not match, and the line is refused
+     * like any unreadable one rather than built with a value the block cannot
+     * take. `read` reads a value slot (a statement's `val`, so a reporter
+     * spilled over its slots is refused; parseValue for a reporter's slot).
+     */
+    arcadeSlots(entry, groups, context, read) {
+        const { parts } = compileArcadeWord(entry);
+        const slots = [];
+        let g = 1;
+        for (const p of parts) {
+            if (p.literal !== undefined) continue;
+            const text = groups[g++];
+            if (p.field || p.text) {
+                const word = p.quoted ? text.slice(1, -1) : text;
+                const canonical = p.choices.find((c) => c.toLowerCase() === word.toLowerCase());
+                if (canonical === undefined) return null;
+                slots.push([p, canonical]);
+            } else slots.push([p, text]);
+        }
+        const inputs = {};
+        const fields = {};
+        for (const [p, text] of slots) {
+            if (p.field) fields[p.slot] = [text, null];
+            else if (p.text || p.name) inputs[p.slot] = [1, [10, text]];
+            else if (p.bool) inputs[p.slot] = this.arcadeBoolean(text, context);
+            else if (p.cond && this.arcadeConditionLike(text)) inputs[p.slot] = [2, this.parseCondition(text, context)];
+            else inputs[p.slot] = read(text);
+        }
+        for (const [slot, text] of Object.entries(entry.defaults || {})) inputs[slot] = this.parseValue(text, context);
+        return { inputs, fields };
+    }
+
+    // Is this slot text a condition (comparison, and/or/not, or a Boolean
+    // word) rather than a value? Such a slot is built as a Boolean block.
+    arcadeConditionLike(text) {
+        const s = this.stripOuterParens(String(text || ''));
+        if (/^not\s/i.test(s)) return true;
+        if (this.splitBinary(s, [' or ', ' and ', '!=', '<=', '>=', '<', '>', '='], { ci: true })) return true;
+        return arcadeWordsOf(['boolean']).some((e) => matchTopLevel(s, compileArcadeWord(e).re));
+    }
+
+    // A Boolean input from a slot: a condition as it stands; a literal is its
+    // truth as `1 = 1` / `0 = 1`; any other value v is `not (v = 0)`, MakeCode's
+    // truthiness of a number. (A bare value in a Boolean input has no Scratch
+    // shape — parseCondition's own `v = "true"` would make 1 false.)
+    arcadeBoolean(text, context) {
+        if (this.arcadeConditionLike(text)) return [2, this.parseCondition(text, context)];
+        const value = this.parseValue(text, context);
+        // A literal (number or text), not a variable or list reporter ([12…]/[13…]).
+        if (Array.isArray(value[1]) && value[1][0] >= 4 && value[1][0] <= 10) {
+            const literal = String(value[1][1]);
+            const on = literal !== '' && literal !== '0' && literal.toLowerCase() !== 'false';
+            return [2, this.pushBlock(context, 'operator_equals', { OPERAND1: [1, [4, on ? '1' : '0']], OPERAND2: [1, [4, '1']] })];
+        }
+        const zero = this.pushBlock(context, 'operator_equals', { OPERAND1: value, OPERAND2: [1, [4, '0']] });
+        return [2, this.pushBlock(context, 'operator_not', { OPERAND: [2, zero] })];
+    }
+
+    /**
+     * A reporter or Boolean Arcade word as a value block id, or null. `early`
+     * limits the search to the words read before operator splitting.
+     */
+    matchArcadeReporter(s, context, { early = false, kinds = ['reporter', 'boolean'] } = {}) {
+        const first = String(s).trim().split(/\s/, 1)[0].toLowerCase();
+        if (!ARCADE_FIRST_WORDS.has(first)) return null;
+        for (const entry of arcadeWordsOf(kinds)) {
+            if (early && !entry.early) continue;
+            const m = matchTopLevel(s, compileArcadeWord(entry).re);
+            if (!m) continue;
+            const id = this.pushBlock(context, entry.op);
+            const was = context.parentId;
+            context.parentId = id;
+            let slots;
+            try {
+                slots = this.arcadeSlots(entry, m, context, (text) => this.parseValue(text, context));
+            } finally {
+                context.parentId = was;
+            }
+            if (!slots) { delete context.extraBlocks[id]; continue; }
+            Object.assign(context.extraBlocks[id], slots);
+            return id;
+        }
+        return null;
+    }
+
+    // A block of the Arcade table written back as its word.
+    spellArcade(entry, b, blocks) {
+        const BOOLEAN_OPS = /^(operator_(gt|lt|equals|and|or|not|contains)|sensing_(touchingobject|touchingcolor|keypressed|mousedown))$/;
+        return spellArcadeWord(entry, {
+            value: (name) => this.dval(b.inputs[name], blocks),
+            text: (name) => this.dtext(b.inputs[name], blocks),
+            field: (name) => (b.fields[name] ? b.fields[name][0] : ''),
+            cond: (name) => {
+                const input = b.inputs[name];
+                const ref = Array.isArray(input) && typeof input[1] === 'string' ? blocks[input[1]] : null;
+                if (ref && (BOOLEAN_OPS.test(ref.opcode) || (arcadeWordFor(ref.opcode) || {}).kind === 'boolean')) {
+                    return `(${this.dcond(input[1], blocks)})`;
+                }
+                return this.dval(input, blocks);
+            }
+        });
+    }
+
     // Register a dropdown menu shadow block and return an input array [1, id].
     menuInput(context, opcode, field, value) {
         const id = this.generateId();
@@ -2548,6 +2661,13 @@ class SB3Creator {
             const early = this.parseReporter(s, context);
             if (early) return early;
         }
+        // Arcade words whose slots hold a signed number or a spaced expression
+        // (`arcade projectile … vx -50 …`) are read whole, before an operator
+        // could split them (arcadeDialect.js marks them `early`).
+        {
+            const id = this.matchArcadeReporter(s, context, { early: true });
+            if (id) return this.valueOfBlock(id);
+        }
 
         // Binary operators, loosest binding first
         let sp;
@@ -2594,6 +2714,14 @@ class SB3Creator {
         // Reporter phrases
         const reporter = this.parseReporter(s, context);
         if (reporter) return reporter;
+
+        // A value spelled as an Arcade word but matching none (a misspelt
+        // word, an argument the word does not take) is refused by name: as a
+        // variable called "arcade sprite count" it would read 0 silently.
+        if (/^arcade\s/i.test(s) && !this.variableExists(s, context.target) && !this.listExists(s, context.target)) {
+            throw new ParseError(`"${s}" is not an Arcade word: no reporter of the arcade extension is spelled `
+                + 'this way (see arcadeDialect.js)');
+        }
 
         // Identifier -> list or variable reporter
         if (/^[a-zA-Z_][a-zA-Z0-9_\s]*$/.test(s)) {
@@ -2649,6 +2777,12 @@ class SB3Creator {
             const arg = this.currentProcArgs.get(s);
             const op = arg.type === 'b' ? 'argument_reporter_boolean' : 'argument_reporter_string_number';
             return B(op, {}, { VALUE: [s, null] });
+        }
+
+        // ---- MakeCode Arcade and array-reference reporters (arcadeDialect.js) ----
+        {
+            const id = this.matchArcadeReporter(s, context);
+            if (id) return this.valueOfBlock(id);
         }
 
         // ---- micro:bit+ SENSORS/MOTION reporters (DUAL-LOWERING-ORACLE M1–E3).
@@ -4933,6 +5067,12 @@ class SB3Creator {
             }
         }
 
+        // An Arcade / array-reference Boolean word is a condition as it stands.
+        {
+            const id = this.matchArcadeReporter(s, context, { kinds: ['boolean'] });
+            if (id) return id;
+        }
+
         // Predicates
         let m;
         // A bare `read <pin>` used as a condition is the pin's level (active-low aware).
@@ -5229,6 +5369,19 @@ class SB3Creator {
             this.refuseSpilledReporter(line, s, context.target);
             return this.parseValue(s, context);
         };
+
+        // ---- MakeCode Arcade and array-reference statements and hats (arcadeDialect.js)
+        if (/^(?:arcade|when\s+arcade|mutate\s+array\s+reference)\s/i.test(line)) {
+            for (const entry of arcadeWordsOf(wasHat ? ['hat'] : ['command'])) {
+                const m = matchTopLevel(line, compileArcadeWord(entry).re);
+                if (!m) continue;
+                const { id, block } = cmd(entry.op, entry.kind === 'hat' ? { topLevel: true } : {});
+                const slots = this.arcadeSlots(entry, m, context, val);
+                if (!slots) continue;
+                Object.assign(block[id], slots);
+                return ret(block);
+            }
+        }
 
         // ---- Event hats (routed here from the main loop) ---------------------------
         if (/^when I start as a clone$/i.test(line)) {
@@ -8255,6 +8408,14 @@ class SB3Creator {
             default: {
                 const ev3 = ev3WordFor(b.opcode);
                 if (ev3 && ev3.kind !== 'command') return this.spellEv3(ev3, b, blocks);
+                const arcade = arcadeWordFor(b.opcode);
+                if (arcade && (arcade.kind === 'reporter' || arcade.kind === 'boolean')) return this.spellArcade(arcade, b, blocks);
+                // An arcade menu shadow (a block dragged in the editor keeps its
+                // menu as a shadow input): the value it holds.
+                if (/^arcade_menu_/.test(b.opcode)) {
+                    const value = String(Object.values(b.fields || {})[0]?.[0] ?? '');
+                    return /^-?\d+(\.\d+)?$/.test(value) ? value : escapeTextLiteral(value);
+                }
                 return b.opcode;
             }
         }
@@ -8344,7 +8505,10 @@ class SB3Creator {
                 });
                 return `DEFINE ${m.warp === 'true' ? 'FAST ' : ''}${sig}:`;
             }
-            default: return null;
+            default: {
+                const arcade = arcadeWordFor(b.opcode);
+                return arcade && arcade.kind === 'hat' ? this.spellArcade(arcade, b, blocks) : null;
+            }
         }
     }
 
@@ -8660,6 +8824,8 @@ class SB3Creator {
             default: {
                 const ev3 = ev3WordFor(b.opcode);
                 if (ev3 && ev3.kind === 'command') return line(this.spellEv3(ev3, b, blocks));
+                const arcade = arcadeWordFor(b.opcode);
+                if (arcade && arcade.kind === 'command') return line(this.spellArcade(arcade, b, blocks));
                 return line(`# unsupported: ${b.opcode}`);
             }
         }
