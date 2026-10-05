@@ -1,0 +1,29 @@
+DEVICE STC12C5A60S2
+CLOCK 11059200
+PIN ldr = P1.3 ANALOG
+PIN lamp = P1.1 PWM
+
+# Automatic dimmer: the darker the room, the brighter the lamp.
+# The light reading becomes a brightness of 100..0 percent. Boards differ in
+# how far their readings go (0..1023 on a 10-bit ADC, 0..4095 on a 12-bit
+# one), so the program scales by the BRIGHTEST reading it has seen: it starts
+# at 1023 and grows whenever the sensor reads more (auto-ranging). The lamp
+# moves towards its target by at most 5 percent per step, so a hand passing
+# over the sensor makes it glide instead of jump.
+WHEN flag clicked:
+  set top to 1023
+  set level to 0
+  FOREVER:
+    set light to read ldr
+    IF light > top THEN:
+      set top to light
+    set target to 100 - ((light * 100) / top)
+    IF target > level + 5 THEN:
+      change level by 5
+    ELSE:
+      IF target < level - 5 THEN:
+        change level by -5
+      ELSE:
+        set level to target
+    set lamp to level percent
+    wait 0.05 seconds

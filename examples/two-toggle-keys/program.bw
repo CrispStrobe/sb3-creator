@@ -1,0 +1,25 @@
+DEVICE STC12C5A60S2
+CLOCK 11059200
+PIN keyA = P3.2 INPUT ACTIVE LOW
+PIN keyB = P3.3 INPUT ACTIVE LOW
+PIN ledA = P1.0 OUTPUT ACTIVE LOW
+PIN ledB = P1.1 OUTPUT ACTIVE LOW
+
+# Two keys, two lamps, one loop -- and neither key waits for the other.
+# A "wait until pressed" would freeze the whole program on one key. Instead
+# the loop looks at both keys 50 times a second and acts only on a CHANGE from
+# released to pressed (an edge), remembering the last state of each key.
+# The 20 ms between looks also hides contact bounce.
+WHEN flag clicked:
+  set lastA to 0
+  set lastB to 0
+  FOREVER:
+    set nowA to read keyA
+    IF nowA = 1 AND lastA = 0 THEN:
+      toggle ledA
+    set lastA to nowA
+    set nowB to read keyB
+    IF nowB = 1 AND lastB = 0 THEN:
+      toggle ledB
+    set lastB to nowB
+    wait 0.02 seconds

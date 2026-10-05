@@ -10738,6 +10738,24 @@ class SB3Creator {
             }
         }
         if (this._core === 'i8086') this._cWaitComputed = true;
+        // `wait x ms` reaches here as the seconds expression `x / 1000`, and
+        // the generic form below multiplies AFTER that integer division:
+        // `delay_ms((x / 1000) * 1000)` is 0 for every x under a second, so a
+        // die whose roll slowed down from 50 ms to 320 ms rolled in no time at
+        // all. A duration that is a quotient by a positive literal scales the
+        // dividend first instead -- x * 1000 / k, and for k = 1000 just x --
+        // which is what the seconds value means in the VM.
+        const ref = Array.isArray(input) ? input[1] : null;
+        const quotient = typeof ref === 'string' && blocks ? blocks[ref] : null;
+        if (quotient && quotient.opcode === 'operator_divide') {
+            const den = quotient.inputs && quotient.inputs.NUM2;
+            const k = Array.isArray(den) && Array.isArray(den[1]) && den[1][0] !== 12 && den[1][0] !== 13
+                ? Number(den[1][1]) : NaN;
+            if (Number.isFinite(k) && k > 0) {
+                const top = this.cVal(quotient.inputs.NUM1, blocks);
+                return k === 1000 ? `(unsigned int)(${top})` : `(unsigned int)((${top}) * 1000 / ${k})`;
+            }
+        }
         return `(unsigned int)((${this.cVal(input, blocks)}) * 1000)`;
     }
 

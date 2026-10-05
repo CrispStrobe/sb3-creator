@@ -1,0 +1,28 @@
+DEVICE STC12C5A60S2
+CLOCK 11059200
+PIN mic = P1.3 ANALOG
+PIN green = P1.0 OUTPUT ACTIVE LOW
+PIN yellow = P1.1 OUTPUT ACTIVE LOW
+PIN red = P1.2 OUTPUT ACTIVE LOW
+
+# Noise traffic light from the sound module's ANALOG output.
+# Sound is a fast wave, so a single reading says little. Each round keeps the
+# LOUDEST of 20 readings (the peak) and shows it as green, yellow or red.
+WHEN flag clicked:
+  FOREVER:
+    set peak to 0
+    REPEAT 20:
+      set level to read mic
+      IF level > peak THEN:
+        set peak to level
+      wait 0.01 seconds
+    turn off green
+    turn off yellow
+    turn off red
+    IF peak > 700 THEN:
+      turn on red
+    ELSE:
+      IF peak > 400 THEN:
+        turn on yellow
+      ELSE:
+        turn on green

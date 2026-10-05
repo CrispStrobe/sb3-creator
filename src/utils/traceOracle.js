@@ -383,7 +383,20 @@ export function interpretTrace(project, opts = {}) {
             if (!KNOWN.has(b.opcode)) trace.unsupported.push(b.opcode);
             switch (b.opcode) {
                 case 'control_wait': {
-                    task.waitUntil = now + Math.round(num(inp('DURATION')) * 1000);
+                    // Same rule as the C emitter's cMs: a duration that is a
+                    // quotient by a positive literal (`wait x ms` arrives as
+                    // `x / 1000`) scales the dividend first. Evaluating the
+                    // quotient with integer division first made every
+                    // computed wait under a second take no time at all.
+                    const d = b.inputs && b.inputs.DURATION;
+                    const q = d && typeof d[1] === 'string' ? blocks[d[1]] : null;
+                    const k = q && q.opcode === 'operator_divide' && Array.isArray(q.inputs?.NUM2?.[1])
+                        && q.inputs.NUM2[1][0] !== 12 && q.inputs.NUM2[1][0] !== 13
+                        ? Number(q.inputs.NUM2[1][1]) : NaN;
+                    const ms = Number.isFinite(k) && k > 0
+                        ? Math.round(num(evalInput(task, q.inputs.NUM1)) * 1000 / k)
+                        : Math.round(num(inp('DURATION')) * 1000);
+                    task.waitUntil = now + ms;
                     frame.block = b.next;
                     return; // yield
                 }
