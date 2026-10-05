@@ -1553,6 +1553,28 @@ class SB3Creator {
             table[p.name] = { pin, dir: p.direction, low: !!p.activeLow, q: p.port !== undefined };
         }
         const json = JSON.stringify(table);
+        // PORT and PART declarations, for the verbs that are not one pin:
+        // `set PORT to N` drives the port's eight pins, `set PART to N` shifts
+        // a 74HC595 out on its three, `read PART` scans a KEYPAD4X4 — the
+        // same pins and order as the C and the stc12 extension. These were
+        // no-ops (`setPort`/`setPart`) and a read of `board.keypad_<name>`,
+        // which nothing ever wrote, so every keypad read -1 (Lite task B7).
+        const stcDecl = this._driverStc || (this.project && this.project.stc) || {};
+        const term = (w) => (w && w.port !== undefined && w.port !== null && w.bit !== undefined)
+            ? `P${w.port}.${w.bit}` : String(w && w.where).toLowerCase();
+        const ports = {};
+        for (const w of (stcDecl.ports || [])) ports[w.name] = { port: w.port, out: w.direction === 'output' };
+        const parts = {};
+        for (const d of (stcDecl.parts || [])) {
+            if (d.type === '74hc595') {
+                parts[d.name] = { type: d.type, data: term(d.data), clock: term(d.clock), latch: term(d.latch), low: !!d.activeLow };
+            } else if (d.type === 'keypad4x4') {
+                parts[d.name] = { type: d.type, rows: d.rows.map(term), cols: d.cols.map(term),
+                    generic: !!(d.rows[0] && d.rows[0].where !== undefined) };
+            }
+        }
+        const portsJson = JSON.stringify(ports);
+        const partsJson = JSON.stringify(parts);
         // `set high`/`set low` are levels; `turn on`/`off` are states and respect the polarity.
         const drive = 'const _drv = (p, st) => (st === "high" ? true : st === "low" ? false : ((st === "on") !== p.low));';
         const mode = 'const _mod = (p) => (p.dir === "output" ? "pushpull" : p.dir === "analog" ? "input" : p.q ? "quasi" : (p.low ? "input-pullup" : "input-pulldown"));';
@@ -1565,6 +1587,8 @@ class SB3Creator {
                 '# _stc12 driver — simulated board (boundary A). Supply `bw_board` to attach one.',
                 'import json',
                 `_stc12_pins = json.loads(${this.pyStr(json)})`,
+                `_stc12_ports = json.loads(${this.pyStr(portsJson)})`,
+                `_stc12_parts = json.loads(${this.pyStr(partsJson)})`,
                 // Same one-shot notice as the JS driver: the two must fail alike.
                 '_bw_tone_unsupported = False',
                 'class _Stc12Simulated:',
@@ -1587,10 +1611,21 @@ class SB3Creator {
                 '        if p["dir"] == "analog": return int(_board().readAnalog(p["pin"]) / 5.0 * 1023)',
                 '        return (not _board().readPin(p["pin"])) if p["low"] else _board().readPin(p["pin"])',
                 '    def readKeypad(self, name):',
-                '        # The scanned key 0..15, or -1 — same contract as the C',
-                '        # scanner and the stc12 extension (board.keypad_<name>).',
+                '        # The scanned key 0..15, or -1 — the C scanner\'s contract: each row',
+                '        # in turn driven low, the first low column wins as row*4+col.',
                 '        b = _board()',
                 '        if not b: return -1',
+                '        k = _stc12_parts.get(name)',
+                '        if k and k["type"] == "keypad4x4" and hasattr(b, "readPin"):',
+                '            g = k["generic"]',
+                '            for r, row in enumerate(k["rows"]):',
+                '                b.setPin(row, "pushpull" if g else "quasi", False)',
+                '                for c, col in enumerate(k["cols"]):',
+                '                    if not b.readPin(col):',
+                '                        b.setPin(row, "input" if g else "quasi", not g)',
+                '                        return r * 4 + c',
+                '                b.setPin(row, "input" if g else "quasi", not g)',
+                '            return -1',
                 '        v = getattr(b, "keypad_" + name, None)',
                 '        if v is None and hasattr(b, "get"): v = b.get("keypad_" + name)',
                 '        return -1 if v is None else int(v)',
@@ -1613,9 +1648,34 @@ class SB3Creator {
                 '                      "silent. The program is fine; the board predates tone support.")',
                 '            return',
                 '        b.setTone(p["pin"], int(value))',
-                '    def setPort(self, name, value): pass  # TODO: whole-port sim',
-                '    def readPort(self, name): return 0  # TODO: whole-port sim',
-                '    def setPart(self, name, value): pass  # TODO: shift-register sim',
+                '    def setPort(self, name, value):',
+                '        # The C is P<n> = value: all eight pins of the port, bit 0 = P<n>.0.',
+                '        w = _stc12_ports.get(name)',
+                '        b = _board()',
+                '        if not w or not b: return',
+                '        v = int(value) & 0xFF',
+                '        for i in range(8):',
+                '            b.setPin("P%d.%d" % (w["port"], i), "pushpull" if w["out"] else "quasi", bool((v >> i) & 1))',
+                '    def readPort(self, name):',
+                '        w = _stc12_ports.get(name)',
+                '        b = _board()',
+                '        if not w or not b: return 0',
+                '        return sum((1 << i) for i in range(8) if b.readPin("P%d.%d" % (w["port"], i)))',
+                '    def setPart(self, name, value):',
+                '        # A 74HC595: the C shift_out — latch low, MSB first {clock low, bit on',
+                '        # DATA (inverted ACTIVE LOW), clock high}, latch high. No other PART',
+                '        # has a value to be set to.',
+                '        p = _stc12_parts.get(name)',
+                '        b = _board()',
+                '        if not p or not b or p["type"] != "74hc595": return',
+                '        v = int(value) & 0xFF',
+                '        b.setPin(p["latch"], "pushpull", False)',
+                '        for _i in range(8):',
+                '            b.setPin(p["clock"], "pushpull", False)',
+                '            b.setPin(p["data"], "pushpull", bool(v & 0x80) != p["low"])',
+                '            v = (v << 1) & 0xFF',
+                '            b.setPin(p["clock"], "pushpull", True)',
+                '        b.setPin(p["latch"], "pushpull", True)',
                 '    def print(self, value, mode):',
                 '        if mode == "text": print(value)',
                 '        else: print(int(value))',
@@ -1636,6 +1696,14 @@ class SB3Creator {
                 '            if _p["dir"] != "output":',
                 '                _m = _stc12._mode(_p)',
                 '                b.setPin(_p["pin"], _m, _m == "quasi")',
+                '        # An INPUT PORT and a keypad idle as the scanner leaves them.',
+                '        for _w in _stc12_ports.values():',
+                '            if not _w["out"]:',
+                '                for _i in range(8): b.setPin("P%d.%d" % (_w["port"], _i), "quasi", True)',
+                '        for _p in _stc12_parts.values():',
+                '            if _p["type"] == "keypad4x4":',
+                '                for _r in _p["rows"]: b.setPin(_r, "input" if _p["generic"] else "quasi", not _p["generic"])',
+                '                for _c in _p["cols"]: b.setPin(_c, "input-pullup" if _p["generic"] else "quasi", True)',
                 '    return b',
                 '_stc12 = _Stc12Simulated()',
                 '',
@@ -1651,6 +1719,8 @@ class SB3Creator {
         return [
             '// _stc12 driver — simulated board (boundary A). Supply `bwBoard` to attach one.',
             `const _stc12_pins = ${json};`,
+            `const _stc12_ports = ${portsJson};`,
+            `const _stc12_parts = ${partsJson};`,
             drive, mode,
             '// Arm INPUT pins (their pulls) once per board instance: nothing else',
             '// ever calls setPin on a read-only pin, so without this the pin has NO',
@@ -1667,7 +1737,19 @@ class SB3Creator {
             'let _bw_armed_board = null;',
             'const _bw_arm = (b) => { if (!b || _bw_armed_board === b) return; _bw_armed_board = b;',
             '    for (const k in _stc12_pins) { const p = _stc12_pins[k]; const m = _mod(p);',
-            '        if (p.dir !== "output") b.setPin(p.pin, m, m === "quasi"); } };',
+            '        if (p.dir !== "output") b.setPin(p.pin, m, m === "quasi"); }',
+            '    // An INPUT PORT and a keypad idle as the scanner leaves them.',
+            '    for (const k in _stc12_ports) { const w = _stc12_ports[k];',
+            '        if (!w.out) for (let i = 0; i < 8; i++) b.setPin("P" + w.port + "." + i, "quasi", true); }',
+            '    for (const k in _stc12_parts) { const p = _stc12_parts[k]; if (p.type !== "keypad4x4") continue;',
+            '        for (const r of p.rows) b.setPin(r, p.generic ? "input" : "quasi", !p.generic);',
+            '        for (const c of p.cols) b.setPin(c, p.generic ? "input-pullup" : "quasi", true); } };',
+            '// The C scanner: each row in turn driven low, the first low column wins as row*4+col.',
+            'const _bw_scan = (b, p) => { const rel = (t) => b.setPin(t, p.generic ? "input" : "quasi", !p.generic);',
+            '    for (let r = 0; r < p.rows.length; r++) { b.setPin(p.rows[r], p.generic ? "pushpull" : "quasi", false);',
+            '        for (let c = 0; c < p.cols.length; c++) if (!b.readPin(p.cols[c])) { rel(p.rows[r]); return r * 4 + c; }',
+            '        rel(p.rows[r]); }',
+            '    return -1; };',
             'const _board = () => { const b = (typeof bwBoard !== "undefined" ? bwBoard : null); _bw_arm(b); return b; };',
             // A board too old to sound a tone is the reason a CORRECT program is
             // silent, and silence alone can never say that. Said once, not per note.
@@ -1684,9 +1766,9 @@ class SB3Creator {
             '        // An ANALOG pin reads volts from the board; the MCU scales to counts.',
             '        if (p.dir === "analog") return Math.round(b.readAnalog(p.pin) / 5.0 * 1023);',
             '        return p.low ? (b.readPin(p.pin) ? 0 : 1) : b.readPin(p.pin); },',
-            '    readKeypad: (name) => { const b = _board();',
-            '        // 0..15 or -1 — the C scanner\'s contract; the circuit',
-            '        // layer feeds board.keypad_<name> (see the stc12 extension).',
+            '    readKeypad: (name) => { const b = _board(); const k = _stc12_parts[name];',
+            '        // 0..15 or -1 — the C scanner\'s contract, scanned on the circuit.',
+            '        if (b && k && k.type === "keypad4x4" && b.readPin) return _bw_scan(b, k);',
             '        const v = b && b["keypad_" + name];',
             '        return (v === undefined || v === null) ? -1 : Number(v); },',
             '    setPwm: (name, v) => { const p = _stc12_pins[name], b = _board();',
@@ -1698,9 +1780,20 @@ class SB3Creator {
             '                + "silent. The program is fine; the board predates tone support."); }',
             '            return; }',
             '        b.setTone(p.pin, Number(v)); },',
-            '    setPort: (name, v) => {},',  // TODO: whole-port sim
-            '    readPort: (name) => 0,',     // TODO: whole-port sim
-            '    setPart: (name, v) => {},',   // TODO: shift-register sim
+            // `set PORT to N`: the C is P<n> = N, all eight pins (bit 0 = P<n>.0).
+            '    setPort: (name, v) => { const w = _stc12_ports[name], b = _board(); if (!w || !b) return;',
+            '        v = Number(v) & 0xFF;',
+            '        for (let i = 0; i < 8; i++) b.setPin("P" + w.port + "." + i, w.out ? "pushpull" : "quasi", !!((v >> i) & 1)); },',
+            '    readPort: (name) => { const w = _stc12_ports[name], b = _board(); if (!w || !b) return 0;',
+            '        let v = 0; for (let i = 0; i < 8; i++) if (b.readPin("P" + w.port + "." + i)) v |= 1 << i; return v; },',
+            // A 74HC595: the C shift_out (latch low, MSB first, latch high).
+            '    setPart: (name, v) => { const p = _stc12_parts[name], b = _board();',
+            '        if (!p || !b || p.type !== "74hc595") return; v = Number(v) & 0xFF;',
+            '        b.setPin(p.latch, "pushpull", false);',
+            '        for (let i = 0; i < 8; i++) { b.setPin(p.clock, "pushpull", false);',
+            '            b.setPin(p.data, "pushpull", !!(v & 0x80) !== p.low); v = (v << 1) & 0xFF;',
+            '            b.setPin(p.clock, "pushpull", true); }',
+            '        b.setPin(p.latch, "pushpull", true); },',
             '    print: (v, mode) => { console.log(mode === "text" ? v : Number(v)); },',
             '    on: (event, handler) => {}',
             '};',
@@ -1783,9 +1876,15 @@ class SB3Creator {
         if (lang === 'py') {
             return [
                 '# _devices driver — reads device state from the board via getDeviceState().',
+                '# Its own board accessor: the stc12 driver\'s _board() (which arms the',
+                '# declared pins) when the program has one, else bw_board itself. A',
+                '# devices-only program has no _board, and every method raised NameError.',
+                'def _dev_board():',
+                '    f = globals().get("_board")',
+                '    return f() if f else globals().get("bw_board")',
                 'class _DevicesSimulated:',
                 '    def _state(self, name):',
-                '        b = _board()',
+                '        b = _dev_board()',
                 '        return b.getDeviceState(str(name)) if b and hasattr(b, "getDeviceState") else None',
                 '    def servoAngle(self, s):',
                 '        st = self._state(s)',
@@ -1825,13 +1924,30 @@ class SB3Creator {
                 '    def motion(self, s): return bool(self._state(s) and self._state(s).get("motion"))',
                 '    def tilted(self, s): return bool(self._state(s) and self._state(s).get("tilted"))',
                 '    def energised(self, d): return bool(self._state(d) and self._state(d).get("energized"))',
-                '    # Commands are forwarded to the board if it supports them.',
-                '    def setServo(self, s, a): pass',
-                '    def setMotor(self, m, s): pass',
-                '    def setDirection(self, m, d): pass',
-                '    def setRelay(self, r, s): pass',
-                '    def activate(self, d): pass',
-                '    def deactivate(self, d): pass',
+                '    # Actuators go through the board\'s setDeviceControl, the route the devices',
+                '    # blocks take (bw-board: speed/angle on the MCU pin that drives the part,',
+                '    # direction through an H-bridge). A servo or motor is a part id, or its',
+                '    # ordinal in its family (servo 1 = the first servo) - the C drivers\' numbering.',
+                '    def _part(self, ref, kind):',
+                '        b = _dev_board()',
+                '        s = str(ref)',
+                '        if isinstance(ref, float) and ref == int(ref): s = str(int(ref))',
+                '        parts = list(getattr(b, "parts", None) or []) if b else []',
+                '        if not parts or any(str(getattr(p, "id", "")) == s for p in parts): return s',
+                '        try: n = int(float(s))',
+                '        except (TypeError, ValueError): return s',
+                '        fam = [p for p in parts if str(getattr(p, "kind", "")).lower() == kind]',
+                '        return str(fam[n - 1].id) if 1 <= n <= len(fam) else s',
+                '    def _ctl(self, ident, verb, value):',
+                '        b = _dev_board()',
+                '        if b and hasattr(b, "setDeviceControl"): b.setDeviceControl(ident, verb, value)',
+                '    def setServo(self, s, a): self._ctl(self._part(s, "servo"), "angle", float(a))',
+                '    def setMotor(self, m, s): self._ctl(self._part(m, "dc_motor"), "speed", float(s))',
+                '    def setDirection(self, m, d): self._ctl(self._part(m, "dc_motor"), "direction", str(d))',
+                '    def setRelay(self, r, s): self._ctl(str(r), "state", 1 if str(s) in ("on", "1", "True") else 0)',
+                '    def activate(self, d): self._ctl(str(d), "state", 1)',
+                '    def deactivate(self, d): self._ctl(str(d), "state", 0)',
+                '    # No board route for these yet (the devices extension stubs them too).',
                 '    def showDigit(self, d, n): pass',
                 '    def setRgb(self, l, r, g, b): pass',
                 '    def lcdPrint(self, d, t): pass',
@@ -1852,8 +1968,13 @@ class SB3Creator {
         }
         return [
             '// _devices driver — reads device state from the board via getDeviceState().',
+            '// Its own board accessor: the stc12 driver\'s _board() (which arms the',
+            '// declared pins) when the program has one, else bwBoard itself. A',
+            '// devices-only program has no _board, and every method threw ReferenceError.',
+            '// Checked at call time, so the order the drivers are emitted in does not matter.',
+            'const _dev_board = () => (typeof _board === "function" ? _board() : (typeof bwBoard !== "undefined" ? bwBoard : null));',
             'const _devices = {',
-            '    _state: (name) => { const b = _board(); return b && b.getDeviceState ? b.getDeviceState(String(name)) : null; },',
+            '    _state: (name) => { const b = _dev_board(); return b && b.getDeviceState ? b.getDeviceState(String(name)) : null; },',
             '    servoAngle: (s) => { const st = _devices._state(s); return st ? (st.targetAngle ?? 0) : NaN; },',
             '    motorSpeed: (m) => { const st = _devices._state(m); return st ? (st.omega ?? 0) : NaN; },',
             '    motorDirection: (m) => { const st = _devices._state(m); return st ? (st.direction ?? "stopped") : "stopped"; },',
@@ -1870,10 +1991,30 @@ class SB3Creator {
             '    motion: (s) => { const st = _devices._state(s); return !!(st && st.motion); },',
             '    tilted: (s) => { const st = _devices._state(s); return !!(st && st.tilted); },',
             '    energised: (d) => { const st = _devices._state(d); return !!(st && st.energized); },',
-            '    // Commands — no-ops in the simulator driver (the board handles them through pins)',
-            '    setServo: () => {}, setMotor: () => {}, setDirection: () => {}, setRelay: () => {},',
-            '    activate: () => {}, deactivate: () => {}, showDigit: () => {}, setRgb: () => {},',
-            '    setPixel: () => {}, clearMatrix: () => {}, setNeopixel: () => {}, clearNeopixels: () => {},',
+            // Actuators were no-ops here (Lite task B7): a JS/Python program's
+            // `set servo angle` / `set motor speed` moved nothing while the same
+            // blocks in the VM did. They now take the devices extension's route,
+            // setDeviceControl, with its part resolution.
+            '    // Actuators go through the board\'s setDeviceControl, the route the devices',
+            '    // blocks take (bw-board: speed/angle on the MCU pin that drives the part,',
+            '    // direction through an H-bridge). A servo or motor is a part id, or its',
+            '    // ordinal in its family (servo 1 = the first servo) - the C drivers\' numbering.',
+            '    _part: (ref, kind) => { const b = _dev_board(); const s = String(ref);',
+            '        if (!b || !Array.isArray(b.parts) || b.parts.some((p) => p.id === s)) return s;',
+            '        const n = parseInt(s, 10); if (!Number.isFinite(n) || n < 1) return s;',
+            '        const fam = b.parts.filter((p) => String(p.kind || "").toLowerCase() === kind);',
+            '        return fam[n - 1] ? fam[n - 1].id : s; },',
+            '    _ctl: (id, verb, v) => { const b = _dev_board(); if (b && b.setDeviceControl) b.setDeviceControl(id, verb, v); },',
+            '    setServo: (s, a) => _devices._ctl(_devices._part(s, "servo"), "angle", Number(a)),',
+            '    setMotor: (m, v) => _devices._ctl(_devices._part(m, "dc_motor"), "speed", Number(v)),',
+            '    setDirection: (m, d) => _devices._ctl(_devices._part(m, "dc_motor"), "direction", String(d)),',
+            '    setRelay: (r, st) => _devices._ctl(String(r), "state", String(st) === "on" || st === 1 || st === true ? 1 : 0),',
+            '    activate: (d) => _devices._ctl(String(d), "state", 1),',
+            '    deactivate: (d) => _devices._ctl(String(d), "state", 0),',
+            '    setNeopixel: (i, r, g, bl, s) => _devices._ctl(String(s), "neopixel", [Number(i), Number(r), Number(g), Number(bl)]),',
+            '    clearNeopixels: (s) => _devices._ctl(String(s), "clearNeopixels", 1),',
+            '    // No board route for these yet (the devices extension stubs them too).',
+            '    showDigit: () => {}, setRgb: () => {}, setPixel: () => {}, clearMatrix: () => {},',
             '    // I2C displays are NOT side-channelled: the driver bit-bangs the',
             '    // same wire protocol the C flavors emit, on the declared sda/scl',
             '    // pins, and the board\'s SSD1306 / PCF8574+HD44780 models decode',
@@ -1882,7 +2023,7 @@ class SB3Creator {
             '    _i2c: () => {',
             '        if (typeof _stc12_pins === "undefined") return null;',
             '        const find = (n) => { for (const k in _stc12_pins) { if (k.toLowerCase() === n) return _stc12_pins[k]; } return null; };',
-            '        const sda = find("sda"), scl = find("scl"), b = _board();',
+            '        const sda = find("sda"), scl = find("scl"), b = _dev_board();',
             '        return (sda && scl && b) ? { sda, scl, b } : null; },',
             '    _w: (i, p, v) => { i.b.setPin(p.pin, "pushpull", !!v); },',
             // FAST PATH: with Board#i2cInject present, a transaction is
@@ -9037,6 +9178,7 @@ class SB3Creator {
 
     generatePython(project = this.project, opts = {}) {
         this._driverPins = (project.stc && project.stc.pins) || null;
+        this._driverStc = project.stc || null;  // PORT/PART tables for the stc12 driver
         this._nativePinExpr = null;   // MicroPython-only; must not leak in here
         this._nativeScratchExpr = null;
         this._pyNames = new Map();
@@ -9386,6 +9528,7 @@ class SB3Creator {
 
     generateJavaScript(project = this.project, opts = {}) {
         this._driverPins = (project.stc && project.stc.pins) || null;
+        this._driverStc = project.stc || null;  // PORT/PART tables for the stc12 driver
         this._nativePinExpr = null;   // MicroPython-only; must not leak in here
         this._nativeScratchExpr = null;
         this._pyNames = new Map();
@@ -11512,6 +11655,7 @@ class SB3Creator {
         this._async = false;
         this._emitComments = false;
         this._driverPins = (project.stc && project.stc.pins) || null;
+        this._driverStc = project.stc || null;  // PORT/PART tables for the stc12 driver
         this._curPrefix = '';
         this._curLocals = new Set();
         const warnings = [];
