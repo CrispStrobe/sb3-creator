@@ -5,8 +5,8 @@ PIN blip = P1.0 OUTPUT ACTIVE LOW
 PIN warn = P1.1 OUTPUT ACTIVE LOW
 
 # How noisy is the room? Count separate noises in 10-second windows.
-# A noise is counted on its RISING edge (quiet -> loud), so one long noise
-# counts once. blip flashes for every counted noise; warn lights when a
+# A noise is counted on its RISING edge (quiet -> loud), so a noise that
+# lasts counts once. blip flashes for every counted noise; warn lights when a
 # window held 5 or more noises, and the count goes to the serial monitor.
 WHEN flag clicked:
   FOREVER:
