@@ -41,12 +41,19 @@ const READ_BOTH = `WHEN flag clicked:
     wait 0.05 seconds
 `;
 
-/** Every number printed during `ms` after setting the stimulus. */
+/** The readings printed during `ms` after setting the stimulus, as
+ *  { cm: [...], c: [...] }. Whole lines only (the run can end in the middle
+ *  of printing "-10"), sorted by their place in the run: the program prints
+ *  a distance, then a temperature, from its first line on. */
 function readings(r, ms, set) {
     set();
-    const from = r.serial.length;
+    const before = r.serial.split('\r\n').length - 1;
     r.run(ms);
-    return r.serial.slice(from).trim().split(/\s+/).map(Number);
+    const all = r.serial.split('\r\n');
+    all.pop();
+    const out = { cm: [], c: [] };
+    for (let i = before; i < all.length; i++) (i % 2 === 0 ? out.cm : out.c).push(Number(all[i]));
+    return out;
 }
 
 describe('chain sensors: HC-SR04 distance and DS18B20 temperature', () => {
@@ -63,21 +70,20 @@ describe('chain sensors: HC-SR04 distance and DS18B20 temperature', () => {
                     r.board.setPartParam(sonar.id, 'distance', cm);
                     r.board.setPartParam(probe.id, 'temperature', celsius);
                 });
-                // Settled pairs: skip the first ~800 ms (a conversion in flight
-                // still reports the previous temperature).
-                const tail = got.slice(-6);
+                const seen = `${JSON.stringify(got)}`;
+                // Settled readings: the last three of each (a conversion in
+                // flight still reports the previous temperature for ~0.75 s).
                 // MEASURED 2026-10-05: exact everywhere except the 12T STC89,
                 // where a 5 cm echo (290 us) is now and then read as 6: one
                 // poll of its loop is ~25 us.
                 const slack = device === 'stc89c52rc' ? 1 : 0;
-                for (let i = 0; i < tail.length; i += 2) {
-                    assert.ok(Math.abs(tail[i] - cm) <= slack, `${device}: ${cm} cm read ${tail[i]}, expected ~${cm} (${got.join(',')})`);
-                    assert.equal(tail[i + 1], want, `${device}: ${celsius} C read ${tail[i + 1]} (${got.join(',')})`);
-                }
+                assert.ok(got.cm.length >= 3 && got.c.length >= 3, `${device}: ${seen}`);
+                for (const d of got.cm.slice(-3)) assert.ok(Math.abs(d - cm) <= slack, `${device}: ${cm} cm read ${d}, expected ~${cm} (${seen})`);
+                for (const t of got.c.slice(-3)) assert.equal(t, want, `${device}: ${celsius} C read ${t} (${seen})`);
             }
             // Out of range: no echo inside 30 ms (600 cm is 34.8 ms) reads 999.
             const far = readings(r, 600, () => r.board.setPartParam(sonar.id, 'distance', 600));
-            assert.equal(far.at(-2), 999, `${device}: ${far.join(',')}`);
+            assert.equal(far.cm.at(-1), 999, `${device}: ${JSON.stringify(far)}`);
         });
     }
 });
