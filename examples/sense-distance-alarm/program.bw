@@ -1,0 +1,26 @@
+DEVICE STC12C5A60S2
+CLOCK 11059200
+PIN far = P1.0 OUTPUT ACTIVE LOW
+PIN mid = P1.1 OUTPUT ACTIVE LOW
+PIN near = P1.2 OUTPUT ACTIVE LOW
+PART sonar = HCSR04 TRIG P1.6 ECHO P1.7
+
+# A parking aid. An ultrasonic module sends a short burst of sound and times
+# its echo: 58 microseconds of echo for every centimetre to the obstacle.
+# Three LEDs show the zone -- green far away, yellow getting close, red stop --
+# and the distance goes out on the serial line.
+WHEN flag clicked:
+  FOREVER:
+    set d to distance from sonar
+    print d
+    turn off far
+    turn off mid
+    turn off near
+    IF d < 20 THEN:
+      turn on near
+    ELSE:
+      IF d < 50 THEN:
+        turn on mid
+      ELSE:
+        turn on far
+    wait 0.2 seconds

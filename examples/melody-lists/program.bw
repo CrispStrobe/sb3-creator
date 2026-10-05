@@ -1,0 +1,25 @@
+DEVICE STC12C5A60S2
+CLOCK 11059200
+PIN btn = P3.2 INPUT ACTIVE LOW
+PIN speaker = P1.5 TONE
+
+GLOBAL LIST notes = [262, 294, 330, 262, 330, 392]
+GLOBAL LIST lengths = [300, 300, 300, 300, 300, 600]
+
+# A tune is two lists: which note (its frequency in hertz) and how long it
+# lasts (in milliseconds). Playing it walks both lists side by side. Press the
+# button to hear it again. Change the numbers and you have a new tune.
+DEFINE play tune:
+  set i to 1
+  REPEAT length of notes:
+    set speaker to item i of notes hz
+    wait item i of lengths ms
+    set speaker to 0 hz
+    wait 30 ms
+    change i by 1
+
+WHEN flag clicked:
+  play tune
+
+WHEN btn pressed:
+  play tune

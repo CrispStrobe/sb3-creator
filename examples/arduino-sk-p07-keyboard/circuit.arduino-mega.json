@@ -1,0 +1,635 @@
+{
+ "vcc": 5,
+ "parts": [
+  {
+   "id": "bb1",
+   "kind": "breadboard",
+   "params": {},
+   "terminals": [],
+   "x": 470,
+   "y": 330,
+   "rotation": 0
+  },
+  {
+   "id": "VCC",
+   "kind": "vcc",
+   "params": {},
+   "terminals": [
+    "vcc"
+   ],
+   "x": 58,
+   "y": 115
+  },
+  {
+   "id": "GND",
+   "kind": "gnd",
+   "params": {},
+   "terminals": [
+    "gnd"
+   ],
+   "x": 134,
+   "y": 115
+  },
+  {
+   "id": "MCU",
+   "kind": "arduino_mega",
+   "params": {},
+   "x": 80,
+   "y": -60,
+   "rotation": 0
+  },
+  {
+   "id": "R_PU_btn1",
+   "kind": "resistor",
+   "params": {
+    "ohms": 10000
+   },
+   "terminals": [
+    "a",
+    "b"
+   ],
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a3",
+     "b": "a7"
+    }
+   },
+   "x": 64,
+   "y": 255
+  },
+  {
+   "id": "BTN_btn1",
+   "kind": "button",
+   "declName": "btn1",
+   "params": {},
+   "terminals": [
+    "a",
+    "b"
+   ],
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "e32",
+     "b": "f32"
+    }
+   },
+   "x": 470,
+   "y": 311
+  },
+  {
+   "id": "R_PU_btn2",
+   "kind": "resistor",
+   "params": {
+    "ohms": 10000
+   },
+   "terminals": [
+    "a",
+    "b"
+   ],
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a9",
+     "b": "a13"
+    }
+   },
+   "x": 148,
+   "y": 255
+  },
+  {
+   "id": "BTN_btn2",
+   "kind": "button",
+   "declName": "btn2",
+   "params": {},
+   "terminals": [
+    "a",
+    "b"
+   ],
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "e38",
+     "b": "f38"
+    }
+   },
+   "x": 554,
+   "y": 311
+  },
+  {
+   "id": "R_PU_btn3",
+   "kind": "resistor",
+   "params": {
+    "ohms": 10000
+   },
+   "terminals": [
+    "a",
+    "b"
+   ],
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a15",
+     "b": "a19"
+    }
+   },
+   "x": 232,
+   "y": 255
+  },
+  {
+   "id": "BTN_btn3",
+   "kind": "button",
+   "declName": "btn3",
+   "params": {},
+   "terminals": [
+    "a",
+    "b"
+   ],
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "e44",
+     "b": "f44"
+    }
+   },
+   "x": 638,
+   "y": 311
+  },
+  {
+   "id": "R_PU_btn4",
+   "kind": "resistor",
+   "params": {
+    "ohms": 10000
+   },
+   "terminals": [
+    "a",
+    "b"
+   ],
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a21",
+     "b": "a25"
+    }
+   },
+   "x": 316,
+   "y": 255
+  },
+  {
+   "id": "BTN_btn4",
+   "kind": "button",
+   "declName": "btn4",
+   "params": {},
+   "terminals": [
+    "a",
+    "b"
+   ],
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "e50",
+     "b": "f50"
+    }
+   },
+   "x": 722,
+   "y": 311
+  },
+  {
+   "id": "BUZZ_speaker",
+   "kind": "buzzer",
+   "declName": "speaker",
+   "params": {},
+   "terminals": [
+    "a",
+    "b"
+   ],
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a27",
+     "b": "a29"
+    }
+   },
+   "x": 400,
+   "y": 255
+  },
+  {
+   "id": "R_PD_btn1",
+   "kind": "resistor",
+   "params": {
+    "ohms": 4700
+   },
+   "terminals": [
+    "a",
+    "b"
+   ],
+   "x": 60,
+   "y": -120,
+   "rotation": 0
+  },
+  {
+   "id": "R_PD_btn2",
+   "kind": "resistor",
+   "params": {
+    "ohms": 4700
+   },
+   "terminals": [
+    "a",
+    "b"
+   ],
+   "x": 60,
+   "y": -140,
+   "rotation": 0
+  },
+  {
+   "id": "R_PD_btn3",
+   "kind": "resistor",
+   "params": {
+    "ohms": 4700
+   },
+   "terminals": [
+    "a",
+    "b"
+   ],
+   "x": 60,
+   "y": -160,
+   "rotation": 0
+  },
+  {
+   "id": "R_PD_btn4",
+   "kind": "resistor",
+   "params": {
+    "ohms": 4700
+   },
+   "terminals": [
+    "a",
+    "b"
+   ],
+   "x": 60,
+   "y": -180,
+   "rotation": 0
+  }
+ ],
+ "wires": [
+  {
+   "from": "R_PU_btn1",
+   "fromTerminal": "b",
+   "to": "BTN_btn1",
+   "toTerminal": "a"
+  },
+  {
+   "from": "R_PU_btn2",
+   "fromTerminal": "b",
+   "to": "BTN_btn2",
+   "toTerminal": "a"
+  },
+  {
+   "from": "R_PU_btn3",
+   "fromTerminal": "b",
+   "to": "BTN_btn3",
+   "toTerminal": "a"
+  },
+  {
+   "from": "R_PU_btn4",
+   "fromTerminal": "b",
+   "to": "BTN_btn4",
+   "toTerminal": "a"
+  },
+  {
+   "from": "VCC",
+   "fromTerminal": "vcc",
+   "to": "R_PU_btn1",
+   "toTerminal": "a"
+  },
+  {
+   "from": "VCC",
+   "fromTerminal": "vcc",
+   "to": "R_PU_btn2",
+   "toTerminal": "a"
+  },
+  {
+   "from": "VCC",
+   "fromTerminal": "vcc",
+   "to": "R_PU_btn3",
+   "toTerminal": "a"
+  },
+  {
+   "from": "VCC",
+   "fromTerminal": "vcc",
+   "to": "R_PU_btn4",
+   "toTerminal": "a"
+  },
+  {
+   "from": "GND",
+   "fromTerminal": "gnd",
+   "to": "BTN_btn1",
+   "toTerminal": "b"
+  },
+  {
+   "from": "GND",
+   "fromTerminal": "gnd",
+   "to": "BTN_btn2",
+   "toTerminal": "b"
+  },
+  {
+   "from": "GND",
+   "fromTerminal": "gnd",
+   "to": "BTN_btn3",
+   "toTerminal": "b"
+  },
+  {
+   "from": "GND",
+   "fromTerminal": "gnd",
+   "to": "BTN_btn4",
+   "toTerminal": "b"
+  },
+  {
+   "from": "GND",
+   "fromTerminal": "gnd",
+   "to": "BUZZ_speaker",
+   "toTerminal": "b"
+  },
+  {
+   "from": "VCC",
+   "fromTerminal": "vcc",
+   "to": {
+    "board": "bb1",
+    "hole": "t+2"
+   },
+   "color": "red",
+   "genPower": true
+  },
+  {
+   "from": "GND",
+   "fromTerminal": "gnd",
+   "to": {
+    "board": "bb1",
+    "hole": "b-2"
+   },
+   "color": "black",
+   "genPower": true
+  },
+  {
+   "from": "MCU",
+   "fromTerminal": "d3",
+   "to": "BTN_btn2",
+   "toTerminal": "a"
+  },
+  {
+   "from": "MCU",
+   "fromTerminal": "d3",
+   "to": "R_PU_btn2",
+   "toTerminal": "b"
+  },
+  {
+   "from": "MCU",
+   "fromTerminal": "d18",
+   "to": "BTN_btn3",
+   "toTerminal": "a"
+  },
+  {
+   "from": "MCU",
+   "fromTerminal": "d18",
+   "to": "R_PU_btn3",
+   "toTerminal": "b"
+  },
+  {
+   "from": "MCU",
+   "fromTerminal": "d19",
+   "to": "BTN_btn4",
+   "toTerminal": "a"
+  },
+  {
+   "from": "MCU",
+   "fromTerminal": "d19",
+   "to": "R_PU_btn4",
+   "toTerminal": "b"
+  },
+  {
+   "from": "MCU",
+   "fromTerminal": "d13",
+   "to": "BUZZ_speaker",
+   "toTerminal": "a"
+  },
+  {
+   "from": "MCU",
+   "fromTerminal": "d2",
+   "to": "BTN_btn1",
+   "toTerminal": "a"
+  },
+  {
+   "from": "MCU",
+   "fromTerminal": "d2",
+   "to": "R_PU_btn1",
+   "toTerminal": "b"
+  },
+  {
+   "from": "MCU",
+   "fromTerminal": "gnd",
+   "to": "BTN_btn1",
+   "toTerminal": "b"
+  },
+  {
+   "from": "MCU",
+   "fromTerminal": "gnd",
+   "to": "BTN_btn2",
+   "toTerminal": "b"
+  },
+  {
+   "from": "MCU",
+   "fromTerminal": "gnd",
+   "to": "BTN_btn3",
+   "toTerminal": "b"
+  },
+  {
+   "from": "MCU",
+   "fromTerminal": "gnd",
+   "to": "BTN_btn4",
+   "toTerminal": "b"
+  },
+  {
+   "from": "MCU",
+   "fromTerminal": "gnd",
+   "to": "BUZZ_speaker",
+   "toTerminal": "b"
+  },
+  {
+   "from": "MCU",
+   "fromTerminal": "gnd",
+   "to": "GND",
+   "toTerminal": "gnd"
+  },
+  {
+   "from": "MCU",
+   "fromTerminal": "5v",
+   "to": "R_PU_btn1",
+   "toTerminal": "a"
+  },
+  {
+   "from": "MCU",
+   "fromTerminal": "5v",
+   "to": "R_PU_btn2",
+   "toTerminal": "a"
+  },
+  {
+   "from": "MCU",
+   "fromTerminal": "5v",
+   "to": "R_PU_btn3",
+   "toTerminal": "a"
+  },
+  {
+   "from": "MCU",
+   "fromTerminal": "5v",
+   "to": "R_PU_btn4",
+   "toTerminal": "a"
+  },
+  {
+   "from": "MCU",
+   "fromTerminal": "5v",
+   "to": "VCC",
+   "toTerminal": "vcc"
+  },
+  {
+   "from": "MCU",
+   "fromTerminal": "d2",
+   "to": "R_PD_btn1",
+   "toTerminal": "a"
+  },
+  {
+   "from": "R_PD_btn1",
+   "toTerminal": "gnd",
+   "to": "GND",
+   "fromTerminal": "b"
+  },
+  {
+   "from": "MCU",
+   "fromTerminal": "d3",
+   "to": "R_PD_btn2",
+   "toTerminal": "a"
+  },
+  {
+   "from": "R_PD_btn2",
+   "toTerminal": "gnd",
+   "to": "GND",
+   "fromTerminal": "b"
+  },
+  {
+   "from": "MCU",
+   "fromTerminal": "d18",
+   "to": "R_PD_btn3",
+   "toTerminal": "a"
+  },
+  {
+   "from": "R_PD_btn3",
+   "toTerminal": "gnd",
+   "to": "GND",
+   "fromTerminal": "b"
+  },
+  {
+   "from": "MCU",
+   "fromTerminal": "d19",
+   "to": "R_PD_btn4",
+   "toTerminal": "a"
+  },
+  {
+   "from": "R_PD_btn4",
+   "toTerminal": "gnd",
+   "to": "GND",
+   "fromTerminal": "b"
+  }
+ ],
+ "holeWires": [
+  {
+   "ref": "bbw:bb1:gen_0",
+   "boardId": "bb1",
+   "a": "b7",
+   "b": "a32",
+   "color": "green"
+  },
+  {
+   "ref": "bbw:bb1:gen_1",
+   "boardId": "bb1",
+   "a": "b13",
+   "b": "a38",
+   "color": "blue"
+  },
+  {
+   "ref": "bbw:bb1:gen_2",
+   "boardId": "bb1",
+   "a": "b19",
+   "b": "a44",
+   "color": "yellow"
+  },
+  {
+   "ref": "bbw:bb1:gen_3",
+   "boardId": "bb1",
+   "a": "b25",
+   "b": "a50",
+   "color": "orange"
+  },
+  {
+   "ref": "bbw:bb1:gen_4",
+   "boardId": "bb1",
+   "a": "b3",
+   "b": "t+3",
+   "color": "red"
+  },
+  {
+   "ref": "bbw:bb1:gen_5",
+   "boardId": "bb1",
+   "a": "b9",
+   "b": "t+9",
+   "color": "red"
+  },
+  {
+   "ref": "bbw:bb1:gen_6",
+   "boardId": "bb1",
+   "a": "b15",
+   "b": "t+15",
+   "color": "red"
+  },
+  {
+   "ref": "bbw:bb1:gen_7",
+   "boardId": "bb1",
+   "a": "b21",
+   "b": "t+21",
+   "color": "red"
+  },
+  {
+   "ref": "bbw:bb1:gen_8",
+   "boardId": "bb1",
+   "a": "g32",
+   "b": "b-32",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb1:gen_9",
+   "boardId": "bb1",
+   "a": "g38",
+   "b": "b-38",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb1:gen_10",
+   "boardId": "bb1",
+   "a": "g44",
+   "b": "b-44",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb1:gen_11",
+   "boardId": "bb1",
+   "a": "g50",
+   "b": "b-50",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb1:gen_12",
+   "boardId": "bb1",
+   "a": "b29",
+   "b": "b-29",
+   "color": "black"
+  }
+ ],
+ "generated": "benchFor+authored"
+}

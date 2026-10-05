@@ -1,0 +1,26 @@
+DEVICE STC12C5A60S2
+CLOCK 11059200
+PIN win = P1.0 OUTPUT ACTIVE LOW
+
+# A guessing game on the serial monitor. The chip thinks of a number from 1
+# to 100; you type guesses and it answers "higher" or "lower". Typing is the
+# other half of a conversation: "ask" sends a question and waits for the line
+# you type back, and "answer" is what you typed.
+WHEN flag clicked:
+  turn off win
+  ask "What is your name?" and wait
+  set player to answer
+  print join "Hello " (join answer ", I am thinking of a number from 1 to 100.")
+  set secret to pick random 1 to 100
+  set tries to 0
+  set guess to 0
+  REPEAT UNTIL guess = secret:
+    ask "Your guess?" and wait
+    set guess to answer
+    change tries by 1
+    IF guess < secret THEN:
+      print "Higher!"
+    IF guess > secret THEN:
+      print "Lower!"
+  print join "Got it in " (join tries " tries!")
+  turn on win
