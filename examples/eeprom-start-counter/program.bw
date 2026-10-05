@@ -1,0 +1,20 @@
+DEVICE STC12C5A60S2
+CLOCK 11059200
+PIN lamp = P1.0 OUTPUT ACTIVE LOW
+PART memory = AT24C02 SDA P1.6 SCL P1.7
+
+# Variables are forgotten when the power goes off; an EEPROM is not. Byte 0
+# of this memory chip counts how often the program has started. A brand-new
+# chip reads 255 everywhere, so that counts as "never".
+WHEN flag clicked:
+  set starts to byte 0 of memory
+  IF starts = 255 THEN:
+    set starts to 0
+  change starts by 1
+  store starts at 0 in memory
+  print join "Started " (join starts " times")
+  REPEAT starts:
+    turn on lamp
+    wait 0.2 seconds
+    turn off lamp
+    wait 0.2 seconds

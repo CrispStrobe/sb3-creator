@@ -1,0 +1,20 @@
+DEVICE STC12C5A60S2
+CLOCK 11059200
+PIN found = P1.0 OUTPUT ACTIVE LOW
+PART bus = I2C SDA P1.6 SCL P1.7
+PART clock = DS3231 SDA P1.6 SCL P1.7
+PART memory = AT24C02 SDA P1.6 SCL P1.7
+
+# Who is on the bus? Every I2C chip answers to its own address, a number from
+# 1 to 127. The scanner calls each address in turn and prints the ones that
+# answer -- here a clock and a memory chip share the two wires.
+WHEN flag clicked:
+  set count to 0
+  set a to 1
+  REPEAT 127:
+    IF i2c device a on bus THEN:
+      print join "device at " a
+      change count by 1
+      turn on found
+    change a by 1
+  print join count " devices"

@@ -1,0 +1,19 @@
+DEVICE STC12C5A60S2
+CLOCK 11059200
+PIN tick = P1.0 OUTPUT ACTIVE LOW
+PART clock = DS3231 SDA P1.6 SCL P1.7
+
+# A clock chip keeps the time even while the program does something else --
+# and, with its coin cell, even while the power is off. The program sets it
+# once, then prints hours, minutes and seconds whenever the second changes,
+# blinking the lamp with the seconds.
+WHEN flag clicked:
+  set time of clock to 23 : 59 : 50
+  set last to 99
+  FOREVER:
+    set s to current second
+    IF NOT s = last THEN:
+      set last to s
+      print join (current hour) (join ":" (join (current minute) (join ":" s)))
+      toggle tick
+    wait 0.1 seconds

@@ -8753,5 +8753,125 @@
    "stc89c52rc": "guess-the-number/circuit.stc89c52rc.json",
    "stm32f030": "guess-the-number/circuit.stm32f030.json"
   }
+ },
+ {
+  "id": "clock-ds3231",
+  "title": {
+   "en": "Clock chip on the serial monitor",
+   "de": "Uhrenchip im seriellen Monitor"
+  },
+  "category": "digital",
+  "difficulty": 3,
+  "files": {
+   "program": "clock-ds3231/program.bw",
+   "circuit": "clock-ds3231/circuit.stc12c5a60s2.json",
+   "expected": "clock-ds3231/EXPECTED.md",
+   "intro": "clock-ds3231/intro.md",
+   "introDE": "clock-ds3231/intro.de.md"
+  },
+  "kind": "program",
+  "devices": [
+   "stc12c5a60s2",
+   "stc89c52rc",
+   "stc15f2k60s2",
+   "arduino-uno",
+   "atmega168p",
+   "arduino-mega",
+   "arduino-nano",
+   "stm32f030",
+   "pico"
+  ],
+  "authored": "stc12c5a60s2",
+  "benches": {
+   "arduino-mega": "clock-ds3231/circuit.arduino-mega.json",
+   "arduino-nano": "clock-ds3231/circuit.arduino-nano.json",
+   "arduino-uno": "clock-ds3231/circuit.arduino-uno.json",
+   "atmega168p": "clock-ds3231/circuit.atmega168p.json",
+   "pico": "clock-ds3231/circuit.pico.json",
+   "stc12c5a60s2": "clock-ds3231/circuit.stc12c5a60s2.json",
+   "stc15f2k60s2": "clock-ds3231/circuit.stc15f2k60s2.json",
+   "stc89c52rc": "clock-ds3231/circuit.stc89c52rc.json",
+   "stm32f030": "clock-ds3231/circuit.stm32f030.json"
+  }
+ },
+ {
+  "id": "eeprom-start-counter",
+  "title": {
+   "en": "A counter that survives power-off",
+   "de": "Ein Zähler, der das Ausschalten überlebt"
+  },
+  "category": "digital",
+  "difficulty": 3,
+  "files": {
+   "program": "eeprom-start-counter/program.bw",
+   "circuit": "eeprom-start-counter/circuit.stc12c5a60s2.json",
+   "expected": "eeprom-start-counter/EXPECTED.md",
+   "intro": "eeprom-start-counter/intro.md",
+   "introDE": "eeprom-start-counter/intro.de.md"
+  },
+  "kind": "program",
+  "devices": [
+   "stc12c5a60s2",
+   "stc89c52rc",
+   "stc15f2k60s2",
+   "arduino-uno",
+   "atmega168p",
+   "arduino-mega",
+   "arduino-nano",
+   "stm32f030",
+   "pico"
+  ],
+  "authored": "stc12c5a60s2",
+  "benches": {
+   "arduino-mega": "eeprom-start-counter/circuit.arduino-mega.json",
+   "arduino-nano": "eeprom-start-counter/circuit.arduino-nano.json",
+   "arduino-uno": "eeprom-start-counter/circuit.arduino-uno.json",
+   "atmega168p": "eeprom-start-counter/circuit.atmega168p.json",
+   "pico": "eeprom-start-counter/circuit.pico.json",
+   "stc12c5a60s2": "eeprom-start-counter/circuit.stc12c5a60s2.json",
+   "stc15f2k60s2": "eeprom-start-counter/circuit.stc15f2k60s2.json",
+   "stc89c52rc": "eeprom-start-counter/circuit.stc89c52rc.json",
+   "stm32f030": "eeprom-start-counter/circuit.stm32f030.json"
+  }
+ },
+ {
+  "id": "i2c-scanner",
+  "title": {
+   "en": "Who is on the I2C bus?",
+   "de": "Wer ist am I2C-Bus?"
+  },
+  "category": "digital",
+  "difficulty": 3,
+  "files": {
+   "program": "i2c-scanner/program.bw",
+   "circuit": "i2c-scanner/circuit.stc12c5a60s2.json",
+   "expected": "i2c-scanner/EXPECTED.md",
+   "intro": "i2c-scanner/intro.md",
+   "introDE": "i2c-scanner/intro.de.md"
+  },
+  "kind": "program",
+  "devices": [
+   "stc12c5a60s2",
+   "stc89c52rc",
+   "stc15f2k60s2",
+   "arduino-uno",
+   "atmega168p",
+   "arduino-mega",
+   "arduino-nano",
+   "stm32f030",
+   "pico"
+  ],
+  "authored": "stc12c5a60s2",
+  "benches": {
+   "arduino-mega": "i2c-scanner/circuit.arduino-mega.json",
+   "arduino-nano": "i2c-scanner/circuit.arduino-nano.json",
+   "arduino-uno": "i2c-scanner/circuit.arduino-uno.json",
+   "atmega168p": "i2c-scanner/circuit.atmega168p.json",
+   "pico": "i2c-scanner/circuit.pico.json",
+   "stc12c5a60s2": "i2c-scanner/circuit.stc12c5a60s2.json",
+   "stc15f2k60s2": "i2c-scanner/circuit.stc15f2k60s2.json",
+   "stc89c52rc": "i2c-scanner/circuit.stc89c52rc.json",
+   "stm32f030": "i2c-scanner/circuit.stm32f030.json"
+  }
  }
 ]
