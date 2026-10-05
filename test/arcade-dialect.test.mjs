@@ -1,0 +1,384 @@
+/**
+ * The MakeCode Arcade / array-reference words (arcadeDialect.js): every word
+ * parses to its one block and decompiles back to the same text, a word with
+ * a value in a field it does not have is refused, and the words keep D5/D6's
+ * rules (argument slots take expressions, an unreadable line is an error,
+ * a comparison used as a value still warns).
+ *
+ * The words are what Lite's MakeCode Arcade importer (arcade-translate.js)
+ * writes, so a word that stopped reading back would lose an Arcade call on
+ * the way round. WORD_LINES is written out, not generated from the table:
+ * deleting a word from the table must make its line here unreadable.
+ */
+import {describe, test} from 'node:test';
+import assert from 'node:assert/strict';
+import SB3Creator from '../src/utils/sb3Creator.js';
+import {ARCADE_WORDS, ARCADE_DIALECT_OPS, compileArcadeWord, arcadeWordsOf} from '../src/utils/arcadeDialect.js';
+
+// A shorter spelling the parser also reads; it is written back as the full word.
+const ALIAS = true;
+
+// [kind, opcode, one line of the word with a value in every slot, ALIAS?]
+const WORD_LINES = [
+    ['hat', 'arcade_whenUpdate', 'when arcade updates'],
+    ['hat', 'arcade_whenInterval', 'when arcade every (n + 1) ms'],
+    ['hat', 'arcade_whenRegisteredUpdate', 'when arcade update handler (n + 1) runs'],
+    ['hat', 'arcade_whenRegisteredInterval', 'when arcade interval handler (n + 1) runs'],
+    ['hat', 'arcade_whenRegisteredButton', 'when arcade button handler (n + 1) runs'],
+    ['hat', 'arcade_whenRegisteredKindDestroyed', 'when arcade destroyed kind handler (n + 1) runs'],
+    ['hat', 'arcade_whenRegisteredOverlap', 'when arcade overlap handler (n + 1) runs'],
+    ['hat', 'arcade_whenRegisteredScenePush', 'when arcade scene push handler (n + 1) runs'],
+    ['hat', 'arcade_whenRegisteredScenePop', 'when arcade scene pop handler (n + 1) runs'],
+    ['hat', 'arcade_whenRegisteredForever', 'when arcade forever handler (n + 1) runs'],
+    ['hat', 'arcade_whenRegisteredLifeZero', 'when arcade life zero handler (n + 1) runs'],
+    ['hat', 'arcade_whenRegisteredCountdown', 'when arcade countdown handler (n + 1) runs'],
+    ['hat', 'arcade_whenRegisteredWall', 'when arcade wall handler (n + 1) runs'],
+    ['hat', 'arcade_whenRegisteredTile', 'when arcade tile handler (n + 1) runs'],
+    ['hat', 'arcade_whenRegisteredCreated', 'when arcade creation handler (n + 1) runs'],
+    ['hat', 'arcade_whenRegisteredDestroyed', 'when arcade destruction handler (n + 1) runs'],
+    ['hat', 'arcade_whenSpriteCreated', 'when arcade kind (n + 1) created'],
+    ['hat', 'arcade_whenSpriteDestroyed', 'when arcade kind (n + 1) destroyed'],
+    ['hat', 'arcade_whenSpritesOverlap', 'when arcade kinds (n + 1) and hero overlap'],
+    ['hat', 'arcade_whenCountdownEnds', 'when arcade countdown ends'],
+    ['command', 'arcade_setscore', 'arcade set score to (n + 1)'],
+    ['command', 'arcade_changescore', 'arcade change score by (n + 1)'],
+    ['command', 'arcade_setPlayerScore', 'arcade set score player (n + 1) to hero'],
+    ['command', 'arcade_changePlayerScore', 'arcade change score player (n + 1) by hero'],
+    ['command', 'arcade_setLife', 'arcade set life player (n + 1) to hero'],
+    ['command', 'arcade_changeLife', 'arcade change life player (n + 1) by hero'],
+    ['command', 'arcade_pushScene', 'arcade push scene'],
+    ['command', 'arcade_popScene', 'arcade pop scene'],
+    ['command', 'arcade_centerCameraAt', 'arcade center camera x (n + 1) y hero'],
+    ['command', 'arcade_cameraFollowSprite', 'arcade camera follow sprite (n + 1)'],
+    ['command', 'arcade_setBackgroundColor', 'arcade set background color to (n + 1)'],
+    ['command', 'arcade_setBackgroundImage', 'arcade set background image (n + 1)'],
+    ['command', 'arcade_startCountdown', 'arcade start countdown (n + 1)'],
+    ['command', 'arcade_stopCountdown', 'arcade stop countdown'],
+    ['command', 'arcade_splash', 'arcade splash (n + 1) subtitle hero'],
+    ['command', 'arcade_showLongText', 'arcade long text (n + 1) layout "Full"'],
+    ['command', 'arcade_log', 'arcade log (n + 1)'],
+    ['command', 'arcade_registerUpdateHandler', 'arcade register update as (n + 1) capturing hero'],
+    ['command', 'arcade_registerForeverHandler', 'arcade register forever as (n + 1) capturing hero'],
+    ['command', 'arcade_registerCountdownHandler', 'arcade register countdown as (n + 1) capturing hero'],
+    ['command', 'arcade_registerIntervalHandler', 'arcade register interval (n + 1) as hero capturing "Player"'],
+    ['command', 'arcade_registerButtonHandler', 'arcade register button (n + 1) event hero as "Player" capturing 2'],
+    ['command', 'arcade_registerDestroyedHandler', 'arcade register destroyed kind (n + 1) as hero capturing "Player"'],
+    ['command', 'arcade_registerOverlapHandler', 'arcade register overlap kind (n + 1) with kind hero as "Player" capturing 2'],
+    ['command', 'arcade_registerScenePushHandler', 'arcade register scene push as (n + 1) capturing hero'],
+    ['command', 'arcade_registerScenePopHandler', 'arcade register scene pop as (n + 1) capturing hero'],
+    ['command', 'arcade_registerLifeZeroHandler', 'arcade register life zero player (n + 1) as hero capturing "Player"'],
+    ['command', 'arcade_registerLifeZeroHandler', 'arcade register life zero as (n + 1) capturing hero', ALIAS],
+    ['command', 'arcade_registerWallHandler', 'arcade register wall kind (n + 1) as hero capturing "Player"'],
+    ['command', 'arcade_registerTileHandler', 'arcade register tile kind (n + 1) image hero as "Player" capturing 2'],
+    ['command', 'arcade_registerSpriteCreated', 'arcade register creation kind (n + 1) as hero capturing "Player"'],
+    ['command', 'arcade_registerSpriteCreated', 'arcade register creation kind (n + 1) as hero', ALIAS],
+    ['command', 'arcade_registerSpriteDestroyed', 'arcade register destruction of (n + 1) as hero'],
+    ['command', 'arcade_setCaptured', 'arcade set captured count to (n + 1)'],
+    ['command', 'arcade_setLocal', 'arcade set local count to (n + 1)'],
+    ['command', 'arcade_returnValue', 'arcade return value (n + 1)'],
+    ['command', 'arcade_destroySprite', 'arcade destroy (n + 1)'],
+    ['command', 'arcade_spriteSay', 'arcade say (n + 1) text hero for "Player" ms animated 1 text color 2 box color (arcade local count) mode "legacy"'],
+    ['command', 'arcade_setSpritePosition', 'arcade set position of (n + 1) x hero y "Player"'],
+    ['command', 'arcade_setSpriteScaleCore', 'arcade scale core of (n + 1) x hero y "Player" anchor 2 proportional (n > 2)'],
+    ['command', 'arcade_setSpriteScale', 'arcade set scale of (n + 1) to hero anchor "Player"'],
+    ['command', 'arcade_changeSpriteScale', 'arcade change scale of (n + 1) by hero anchor "Player"'],
+    ['command', 'arcade_setSpriteProperty', 'arcade set lifespan of (n + 1) to hero'],
+    ['command', 'arcade_controlSprite', 'arcade control sprite (n + 1) vx hero vy "Player"'],
+    ['command', 'arcade_setSpriteImage', 'arcade set image of (n + 1) to hero'],
+    ['command', 'arcade_setSpritePixel', 'arcade set pixel of (n + 1) x hero y "Player" color 2'],
+    ['command', 'arcade_drawSpriteImage', 'arcade draw drawLine of (n + 1) x hero y "Player" width 2 height (arcade local count) color -3'],
+    ['command', 'arcade_mutateSpriteImage', 'arcade image flipY of (n + 1) color hero replacement "Player"'],
+    ['command', 'arcade_setSpriteCostume', 'arcade set costume of (n + 1) to hero'],
+    ['command', 'arcade_setSpriteFlag', 'arcade set flag RelativeToCamera of (n + 1) to (n > 2)'],
+    ['command', 'arcade_setSpriteStayInScreen', 'arcade keep (n + 1) in screen (n > 2)'],
+    ['command', 'arcade_setSpriteAutoDestroy', 'arcade auto destroy (n + 1) outside screen (n > 2)'],
+    ['command', 'arcade_setSpriteBounceOnWall', 'arcade bounce (n + 1) on wall (n > 2)'],
+    ['command', 'arcade_setSpriteGhostThroughSprites', 'arcade ghost (n + 1) through sprites (n > 2)'],
+    ['command', 'arcade_setSpriteKind', 'arcade set kind of (n + 1) to hero'],
+    ['command', 'arcade_mutateImage', 'arcade mutate image flipY (n + 1) color hero replacement "Player"'],
+    ['command', 'arcade_blitImage', 'arcade blit image drawTransparentImage (n + 1) source hero x "Player" y 2'],
+    ['command', 'arcade_setImagePixel', 'arcade set image pixel (n + 1) x hero y "Player" color 2'],
+    ['command', 'arcade_drawImage', 'arcade draw image drawLine (n + 1) x hero y "Player" width 2 height (arcade local count) color -3'],
+    ['command', 'arcade_setScenePhysicsEngine', 'arcade set physics engine of scene (n + 1) to hero'],
+    ['command', 'arcade_setPhysicsEngineProperty', 'arcade set physics engine property maxStep of (n + 1) to hero'],
+    ['command', 'arcade_addAnimationFrame', 'arcade add animation frame (n + 1) image hero'],
+    ['command', 'arcade_attachAnimation', 'arcade attach animation (n + 1) to sprite hero'],
+    ['command', 'arcade_setAnimationAction', 'arcade set animation action of (n + 1) to hero'],
+    ['command', 'arcade_setAnimationInterval', 'arcade set animation interval (n + 1) to hero'],
+    ['command', 'arcade_runImageAnimation', 'arcade animate sprite (n + 1) frames hero interval "Player" loop (n > 2)'],
+    ['command', 'arcade_stopAnimation', 'arcade stop animations of (n + 1) type hero'],
+    ['command', 'arcade_setTilemap', 'arcade set tilemap data (n + 1)'],
+    ['command', 'arcade_setWallAt', 'arcade set tile wall (n + 1) to (n > 2)'],
+    ['command', 'arcade_setTileAt', 'arcade set tile (n + 1) image hero'],
+    ['command', 'arcade_placeOnRandomTile', 'arcade place sprite (n + 1) on random tile image hero'],
+    ['command', 'arcade_placeOnTile', 'arcade place sprite (n + 1) on tile hero'],
+    ['command', 'arrays_mutateReference', 'mutate array reference (n + 1) op hero index "Player" value 2'],
+    ['reporter', 'arcade_functionArgument', 'arcade function argument (n + 1) rest hero'],
+    ['reporter', 'arcade_callFunction', 'arcade call function (n + 1) arguments hero'],
+    ['reporter', 'arcade_spawnSprite', 'arcade spawn template (n + 1) kind hero x "Player" y 2 width (arcade local count) height -3'],
+    ['reporter', 'arcade_spawnImageProjectile', 'arcade projectile image (n + 1) template hero kind "Player" vx 2 vy (arcade local count) mode kind-source source -3'],
+    ['reporter', 'arcade_spawnImageProjectile', 'arcade projectile image (n + 1) template hero kind "Player" vx 2 vy (arcade local count) mode kind-source', ALIAS],
+    ['reporter', 'arcade_spawnProjectile', 'arcade projectile template (n + 1) kind hero vx "Player" vy 2 width (arcade local count) height -3 mode kind-source source (n + 1)'],
+    ['reporter', 'arcade_spawnProjectile', 'arcade projectile template (n + 1) kind hero vx "Player" vy 2 width (arcade local count) height -3 mode kind-source', ALIAS],
+    ['reporter', 'arcade_askForNumber', 'arcade ask number (n + 1)'],
+    ['reporter', 'arcade_askForString', 'arcade ask text (n + 1)'],
+    ['reporter', 'arcade_createSprite', 'arcade create template (n + 1) kind hero width "Player" height 2'],
+    ['reporter', 'arcade_createImageSprite', 'arcade create image (n + 1) template hero kind "Player"'],
+    ['reporter', 'arcade_spawnImageSprite', 'arcade spawn image (n + 1) template hero kind "Player" x 2 y (arcade local count)'],
+    ['reporter', 'arcade_spriteToString', 'arcade text of sprite (n + 1)'],
+    ['reporter', 'arcade_spritePixel', 'arcade pixel of (n + 1) x hero y "Player"'],
+    ['reporter', 'arcade_spriteImage', 'arcade image of (n + 1)'],
+    ['reporter', 'arcade_spriteProperty', 'arcade property lifespan of (n + 1)'],
+    ['reporter', 'arcade_spritesOfKind', 'arcade sprite array kind (n + 1)'],
+    ['reporter', 'arcade_spriteCount', 'arcade count kind (n + 1)'],
+    ['reporter', 'arcade_controllerStep', 'arcade controller y step (n + 1)'],
+    ['reporter', 'arcade_eventSprite', 'arcade event second'],
+    ['reporter', 'arcade_eventLocation', 'arcade event location'],
+    ['reporter', 'arcade_getCaptured', 'arcade captured count'],
+    ['reporter', 'arcade_getLocal', 'arcade local count'],
+    ['reporter', 'arcade_getscore', 'arcade score'],
+    ['reporter', 'arcade_getPlayerScore', 'arcade player (n + 1) score'],
+    ['boolean', 'arcade_hasLife', 'arcade player (n + 1) has life'],
+    ['boolean', 'arcade_hasPlayerScore', 'arcade player (n + 1) has score'],
+    ['reporter', 'arcade_getLife', 'arcade life player (n + 1)'],
+    ['reporter', 'arcade_backgroundImage', 'arcade background image'],
+    ['reporter', 'arcade_backgroundColor', 'arcade background color'],
+    ['reporter', 'arcade_cameraProperty', 'arcade camera property (n + 1)'],
+    ['reporter', 'arcade_currentScene', 'arcade current scene'],
+    ['reporter', 'arcade_scenePhysicsEngine', 'arcade physics engine of scene (n + 1)'],
+    ['reporter', 'arcade_createPhysicsEngine', 'arcade create physics engine max speed (n + 1) min step hero max step "Player"'],
+    ['reporter', 'arcade_physicsEngineProperty', 'arcade physics engine property maxStep of (n + 1)'],
+    ['reporter', 'arcade_createAnimation', 'arcade create animation action (n + 1) interval hero'],
+    ['reporter', 'arcade_animationProperty', 'arcade animation interval of (n + 1)'],
+    ['reporter', 'arcade_tileLocation', 'arcade tile location column (n + 1) row hero'],
+    ['reporter', 'arcade_tilesOfType', 'arcade tile array image (n + 1)'],
+    ['reporter', 'arcade_tileLocationProperty', 'arcade tile bottom of (n + 1)'],
+    ['boolean', 'arcade_tileIs', 'arcade tile (n + 1) equals image hero'],
+    ['boolean', 'arcade_tileIsWall', 'arcade tile (n + 1) is wall'],
+    ['boolean', 'arcade_isHittingTile', 'arcade sprite (n + 1) hitting wall hero'],
+    ['reporter', 'arcade_createImage', 'arcade new image width (n + 1) height hero'],
+    ['reporter', 'arcade_cloneImage', 'arcade copy image (n + 1)'],
+    ['reporter', 'arcade_imageProperty', 'arcade image height of (n + 1)'],
+    ['reporter', 'arcade_imagePixel', 'arcade image pixel (n + 1) x hero y "Player"'],
+    ['boolean', 'arcade_imagesOverlap', 'arcade images overlap (n + 1) source hero x "Player" y 2'],
+    ['reporter', 'arcade_frameImage', 'arcade frame image array (n + 1) index hero template "Player" start 2 count (arcade local count)'],
+    ['boolean', 'arcade_spriteOverlaps', 'arcade (n + 1) overlaps hero'],
+    ['reporter', 'arrays_namedReference', 'reference to named array (n + 1)'],
+    ['reporter', 'arrays_parseLegacyValue', 'parse array input (n + 1)'],
+    ['reporter', 'arrays_jsonValue', 'JSON text of value (n + 1)'],
+    ['reporter', 'arrays_specialValue', 'null value'],
+    ['reporter', 'arrays_valueBinary', 'calculate value (n + 1) op hero with "Player"'],
+    ['reporter', 'arrays_valueUnary', 'convert value (n + 1) op hero'],
+    ['boolean', 'arrays_valueTruthy', 'truthiness of value (n + 1)'],
+    ['boolean', 'arrays_valueCompare', 'compare value (n + 1) op hero with "Player"'],
+    ['reporter', 'arrays_referenceValues', 'array value (n + 1) rest hero'],
+    ['reporter', 'arrays_createReference', 'new array reference from (n + 1)'],
+    ['boolean', 'arrays_referenceTruthy', 'truthiness of item (n + 1) of array reference hero'],
+    ['reporter', 'arrays_referenceItem', 'item (n + 1) of array reference hero'],
+    ['reporter', 'arrays_referenceLength', 'length of array reference (n + 1)'],
+    ['reporter', 'arrays_referenceRandom', 'random item of array reference (n + 1)'],
+    ['boolean', 'arrays_referenceRemove', 'remove value (n + 1) from array reference hero'],
+    ['reporter', 'arrays_referenceTake', 'removeAt from array reference (n + 1) index hero'],
+    ['reporter', 'arrays_referenceIndexOf', 'index of (n + 1) in array reference hero from "Player"'],
+    ['reporter', 'arrays_referenceIndexOf', 'index of (n + 1) in array reference hero', ALIAS],
+];
+
+const HEADER = 'GLOBAL n\nGLOBAL v\nGLOBAL hero\nSPRITE S:\n';
+
+/** The line in the context its kind is written in. */
+function program(kind, line) {
+    if (kind === 'hat') return `${HEADER}WHEN ${line.replace(/^when\s+/i, '')}:\n  hide\n`;
+    if (kind === 'command') return `${HEADER}WHEN flag clicked:\n  ${line}\n`;
+    if (kind === 'boolean') return `${HEADER}WHEN flag clicked:\n  IF ${line} THEN:\n    hide\n  set v to (${line})\n`;
+    return `${HEADER}WHEN flag clicked:\n  set v to (${line})\n`;
+}
+
+function compile(bw) {
+    const c = new SB3Creator();
+    c.parse(bw);
+    const blocks = c.project.targets.flatMap((t) => Object.values(t.blocks));
+    return {c, blocks};
+}
+
+/** parse -> blocks -> decompile -> parse -> decompile, which must not move. */
+function fixedPoint(bw) {
+    const first = compile(bw);
+    const d1 = first.c.decompile();
+    const second = compile(d1);
+    const d2 = second.c.decompile();
+    assert.equal(d2, d1, 'the decompiled text reads back to the same blocks');
+    // Opcodes, field values and input names (a variable's id is random per parse).
+    const shape = (blocks) => blocks.map((b) => `${b.opcode} ${JSON.stringify(Object.fromEntries(
+        Object.entries(b.fields || {}).map(([k, f]) => [k, f[0]])))} ${Object.keys(b.inputs || {}).sort()}`).sort();
+    assert.deepEqual(shape(second.blocks), shape(first.blocks), 'the same blocks, field for field');
+    return {first, d1};
+}
+
+describe('Arcade dialect words', () => {
+    test('every opcode of the table has a line here, and every line names a table opcode', () => {
+        const here = new Set(WORD_LINES.map(([, op]) => op));
+        assert.deepEqual([...here].sort(), [...ARCADE_DIALECT_OPS].sort());
+        assert.equal(WORD_LINES.length, ARCADE_WORDS.length, 'one line per spelling, aliases included');
+        assert.equal(ARCADE_DIALECT_OPS.length, 156);
+    });
+
+    for (const [kind, op, line, alias] of WORD_LINES) {
+        test(`${op}: ${line}`, () => {
+            const {first, d1} = fixedPoint(program(kind, line));
+            assert.deepEqual(first.c.warnings, []);
+            const hits = first.blocks.filter((b) => b.opcode === op);
+            assert.equal(hits.length, kind === 'boolean' ? 2 : 1, `one ${op} block per use`);
+            if (kind === 'hat') assert.equal(hits[0].topLevel, true);
+            // Written back as written — except a shorter (alias) spelling, which
+            // gains its default, and a Boolean slot's coerced literal (`1` is `1 = 1`).
+            const coerced = ARCADE_WORDS.some((e) => e.op === op && /:bool\}/.test(e.words));
+            if (!alias && !coerced) {
+                const written = kind === 'hat' ? `WHEN ${line.replace(/^when\s+/i, '')}:` : line;
+                assert.ok(d1.includes(written), `decompiled as written:\n${d1}`);
+            }
+        });
+    }
+});
+
+describe('Arcade dialect: precedence, slots and refusals', () => {
+    test('no word is claimed by an earlier word of its kind (a lazy slot reading past its keyword)', () => {
+        const fills = [['(a)', '(b)', '(c)', '(d)', '(e)', '(f)', '(g)'], ['x', 'y', 'z', 'w', 'u', 't', 's'],
+            ['arcade local q', 'arcade event first', 'arcade local r', 'arcade local s', 'arcade local t',
+                'arcade local u', 'arcade local v']];
+        const claimed = [];
+        for (const kinds of [['hat'], ['command'], ['reporter', 'boolean']]) {
+            const order = arcadeWordsOf(kinds);
+            for (const entry of order) {
+                for (const fill of fills) {
+                    let k = 0;
+                    const line = compileArcadeWord(entry).parts.map((p) => {
+                        if (p.literal !== undefined) return p.literal;
+                        if (p.name) return 'nm';
+                        if (p.choices) return p.quoted ? `"${p.choices[0]}"` : p.choices[0];
+                        return fill[k++];
+                    }).join(' ');
+                    const first = order.find((e) => compileArcadeWord(e).re.test(line));
+                    if (first.op !== entry.op) claimed.push(`${entry.op}: "${line}" read as ${first.op}`);
+                }
+            }
+        }
+        assert.deepEqual(claimed, []);
+    });
+
+    test('a slot bounded by a keyword takes an unbracketed reporter or a bracketed expression', () => {
+        const bw = `${HEADER}WHEN flag clicked:\n`
+            + '  arcade auto destroy arcade local firework outside screen (1)\n'
+            + '  arcade set x of arcade event first to arcade property x of arcade captured owner\n'
+            + '  arcade set image pixel (arcade local canvas) x arcade local depth y (n * 2 + 1) color calculate value (n) op "+" with (1)\n'
+            + '  arcade image fill of arcade event first color arcade pixel of arcade local child x (1) y (2) replacement 0\n';
+        const {first} = fixedPoint(bw);
+        assert.deepEqual(first.c.warnings, []);
+        const op = (o) => first.blocks.filter((b) => b.opcode === o);
+        assert.equal(op('arcade_getLocal').length, 4);
+        const pixel = op('arcade_setImagePixel')[0];
+        const blocks = first.c.project.targets[1].blocks;
+        assert.equal(blocks[pixel.inputs.COLOR[1]].opcode, 'arrays_valueBinary', 'COLOR holds the calculate block');
+        assert.equal(blocks[pixel.inputs.Y[1]].opcode, 'operator_add', 'Y holds (n * 2 + 1)');
+        assert.equal(blocks[pixel.inputs.X[1]].opcode, 'arcade_getLocal', 'X holds the unbracketed `arcade local depth`');
+        assert.equal(op('arrays_valueBinary').length, 1);
+        assert.equal(op('arcade_spritePixel').length, 1);
+    });
+
+    test('a word read before operator splitting keeps its signed slots; one read after keeps its operators outside', () => {
+        const bw = `${HEADER}WHEN flag clicked:\n`
+            + '  set v to arcade projectile template "t" kind "k" vx -50 vy 0 width 4 height 4 mode side\n'
+            + '  set n to arcade property x of hero + 1\n';
+        const {first} = fixedPoint(bw);
+        const projectile = first.blocks.find((b) => b.opcode === 'arcade_spawnProjectile');
+        assert.deepEqual(projectile.inputs.VX, [1, [4, '-50']]);
+        assert.deepEqual(projectile.inputs.MODE, [1, [10, 'side']]);
+        assert.deepEqual(projectile.inputs.SOURCE, [1, [10, '']], 'the alias fills SOURCE');
+        assert.equal(first.blocks.filter((b) => b.opcode === 'operator_subtract').length, 0);
+        const add = first.blocks.find((b) => b.opcode === 'operator_add');
+        assert.ok(add, '`arcade property x of hero + 1` is (the property) + 1');
+        const property = first.blocks.find((b) => b.opcode === 'arcade_spriteProperty');
+        assert.deepEqual(property.fields.PROPERTY, ['x', null]);
+    });
+
+    test('a Boolean word is a condition as it stands, and a Boolean slot takes a condition', () => {
+        const bw = `${HEADER}WHEN flag clicked:\n`
+            + '  IF truthiness of value (n) THEN:\n    hide\n'
+            + '  REPEAT UNTIL not (compare value (n) op "===" with (3)):\n    change n by 1\n'
+            + '  arcade set flag ghost of hero to (n > 2)\n'
+            + '  arcade say hero text "hi" for 500 ms animated 0 text color 15 box color 1 mode "text"\n'
+            + '  arcade say hero text "hi" for 500 ms animated v text color 15 box color 1 mode "legacy"\n';
+        const {first} = fixedPoint(bw);
+        const byId = (input) => first.c.project.targets[1].blocks[input[1]];
+        const iff = first.blocks.find((b) => b.opcode === 'control_if');
+        assert.equal(byId(iff.inputs.CONDITION).opcode, 'arrays_valueTruthy', 'not `… = "true"`');
+        const flag = first.blocks.find((b) => b.opcode === 'arcade_setSpriteFlag');
+        assert.deepEqual(flag.fields.FLAG, ['Ghost', null], 'a field word is stored as the field spells it');
+        assert.equal(flag.inputs.ON[0], 2);
+        assert.equal(byId(flag.inputs.ON).opcode, 'operator_gt');
+        const [quiet, legacy] = first.blocks.filter((b) => b.opcode === 'arcade_spriteSay');
+        const zero = byId(quiet.inputs.ANIMATED);
+        assert.equal(zero.opcode, 'operator_equals');
+        assert.deepEqual([zero.inputs.OPERAND1, zero.inputs.OPERAND2], [[1, [4, '0']], [1, [4, '1']]], 'animated 0 is false');
+        assert.equal(byId(legacy.inputs.ANIMATED).opcode, 'operator_not', 'a value v is not (v = 0)');
+        assert.deepEqual(legacy.fields.MODE, ['legacy', null]);
+    });
+
+    test('an Arcade word with a value its field does not have, or no word at all, is refused, not built', () => {
+        const refused = (line) => {
+            const c = new SB3Creator();
+            assert.throws(() => c.parse(`${HEADER}WHEN flag clicked:\n  ${line}\n`),
+                (e) => e.code === 'DIALECT_UNPARSED_LINES' && e.lines.some((l) => l.text === line), line);
+        };
+        refused('arcade say hero text "hi" for 1 ms animated 1 text color 1 box color 2 mode "shout"');
+        refused('arcade set flag Sticky of hero to 1');
+        refused('arcade fly hero');
+        refused('arcade long text "hi" layout "Sideways"');
+        refused('set v to (arcade sprite count kind "Enemy")');
+        refused('set v to arcade bogus word');
+        const hat = new SB3Creator();
+        assert.throws(() => hat.parse(`${HEADER}WHEN arcade explodes:\n  hide\n`),
+            (e) => e.code === 'DIALECT_UNPARSED_LINES');
+    });
+
+    test('a comparison used as a value still warns (the words did not remove that warning)', () => {
+        const c = new SB3Creator();
+        c.parse(`${HEADER}WHEN flag clicked:\n  set v to (n > 2)\n`);
+        assert.equal(c.warnings.length, 1);
+        assert.match(c.warnings[0], /COMPARISON used where a value is expected/);
+    });
+
+    test('a whole program round-trips: handlers, sprites, images, tiles, scenes and array references', () => {
+        const bw = `${HEADER}WHEN flag clicked:\n`
+            + '  set hero to (arcade create template "__t1" kind "Player" width 16 height 16)\n'
+            + '  arcade register update as "__u1" capturing "hero"\n'
+            + '  arcade register overlap kind "Player" with kind "Food" as "__o1" capturing ""\n'
+            + '  set v to new array reference from (array value (1) rest (array value ("two") rest ("[]")))\n'
+            + '  mutate array reference (v) op "push" index (0) value (undefined value)\n'
+            + '  set n to length of array reference (v)\n'
+            + '  arcade set tilemap data "map1"\n'
+            + '  arcade place sprite (hero) on random tile image (arcade background image)\n'
+            + '  arcade set physics engine of scene (arcade current scene) to (arcade create physics engine max speed (500) min step (2) max step (4))\n'
+            + '  arcade push scene\n'
+            + 'WHEN arcade update handler "__u1" runs:\n'
+            + '  arcade set local count to (arcade captured hero)\n'
+            + '  IF arcade player (1) has life THEN:\n'
+            + '    arcade change life player (1) by (-1)\n'
+            + '  arcade set vx of (arcade local count) to (calculate value (arcade property vx of (arcade local count)) op "*" with (0.5))\n'
+            + 'WHEN arcade overlap handler "__o1" runs:\n'
+            + '  arcade destroy arcade event second\n'
+            + '  arcade change score by 1\n';
+        const {first} = fixedPoint(bw);
+        assert.deepEqual(first.c.warnings, []);
+        const ops = new Set(first.blocks.map((b) => b.opcode));
+        for (const op of ['arcade_createSprite', 'arcade_registerUpdateHandler', 'arcade_registerOverlapHandler',
+            'arrays_createReference', 'arrays_referenceValues', 'arrays_mutateReference', 'arrays_specialValue',
+            'arrays_referenceLength', 'arcade_setTilemap', 'arcade_placeOnRandomTile', 'arcade_backgroundImage',
+            'arcade_setScenePhysicsEngine', 'arcade_currentScene', 'arcade_createPhysicsEngine', 'arcade_pushScene',
+            'arcade_whenRegisteredUpdate', 'arcade_setLocal', 'arcade_getCaptured', 'arcade_hasLife',
+            'arcade_changeLife', 'arcade_setSpriteProperty', 'arrays_valueBinary', 'arcade_spriteProperty',
+            'arcade_getLocal', 'arcade_whenRegisteredOverlap', 'arcade_destroySprite', 'arcade_eventSprite',
+            'arcade_changescore']) {
+            assert.ok(ops.has(op), op);
+        }
+    });
+});

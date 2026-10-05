@@ -34,6 +34,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import SB3Creator from '../src/utils/sb3Creator.js';
 import {EV3_WORDS} from '../src/utils/ev3Dialect.js';
+import {ARCADE_WORDS} from '../src/utils/arcadeDialect.js';
 
 const PROBES = [
     // [slot text, what the slot must hold]
@@ -151,6 +152,27 @@ describe('argument slots take an expression, and round-trip', () => {
         }
         // counted 2026-09-29: 37 value slots across the EV3 command words.
         assert.ok(slots >= 37, `only ${slots} EV3 value slots driven (counted 37 on 2026-09-29)`);
+    });
+
+    test('Arcade: every value slot of every command word in the table (arcadeDialect.js)', () => {
+        let slots = 0;
+        for (const w of ARCADE_WORDS.filter(e => e.kind === 'command' && !e.alias)) {
+            const names = [...w.words.matchAll(/\{([A-Z0-9_]+)(?::(cond))?\}/g)].map(m => m[1]);
+            for (const name of names) {
+                const template = w.words.replace(/\{([A-Z0-9_]+)(?::([^}]+))?\}/g, (m, n, spec) => {
+                    if (n === name) return 'X';
+                    if (spec === 'name') return 'nm';
+                    if (spec === 'bool') return '1';
+                    if (spec && spec.startsWith('text:')) return spec.slice(5).split('|')[0];
+                    if (spec && spec !== 'cond') return spec.split('|')[0];
+                    return '5';
+                });
+                slotTakesExpressions('Arcade', 'ARCADE', template, w.op);
+                slots++;
+            }
+        }
+        // counted 2026-10-05: 164 value slots across the Arcade command words.
+        assert.ok(slots >= 164, `only ${slots} Arcade value slots driven (counted 164 on 2026-10-05)`);
     });
 
     test('Scratch core: motion, looks, sound, lists and control', () => {
