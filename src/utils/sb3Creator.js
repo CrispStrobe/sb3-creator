@@ -3044,6 +3044,18 @@ class SB3Creator {
             const p = this.stcPart(String(text).trim().replace(/^"(.*)"$/, '$1'));
             return p && p.type === type ? [1, [10, p.name]] : null;
         };
+        {
+            const i2cPart = (name, ...types) => {
+                const p = this.stcPart(name);
+                return p && (types.length ? types.includes(p.type) : PIN_ROLE_PARTS[p.type] && PIN_ROLE_PARTS[p.type].bus === 'i2c') ? p : null;
+            };
+            if ((m = s.match(/^byte\s+(.+)\s+of\s+([A-Za-z_]\w*)$/i)) && i2cPart(m[2], 'at24c02')) {
+                return B('devices_eepromread', { ADDRESS: this.parseValue(m[1], context), MEMORY: [1, [10, i2cPart(m[2], 'at24c02').name]] });
+            }
+            if ((m = s.match(/^i2c device\s+(.+)\s+on\s+([A-Za-z_]\w*)$/i)) && i2cPart(m[2])) {
+                return B('devices_i2cfound', { ADDRESS: this.parseValue(m[1], context), BUS: [1, [10, i2cPart(m[2]).name]] });
+            }
+        }
         if ((m = s.match(/^temperature from\s+(.+)$/i))) {
             return B('devices_temperature', { SENSOR: sensorPart(m[1], 'ds18b20') || this.parseValue(m[1], context) });
         }
@@ -3270,6 +3282,12 @@ class SB3Creator {
         if (!cfg || !cfg.tables || !name) return null;
         const lower = String(name).trim().toLowerCase();
         return cfg.tables.find((t) => t.name.toLowerCase() === lower) || null;
+    }
+
+    /** The PART name a text-literal input carries (bare in pseudocode). */
+    dPartName(input) {
+        const prim = input && input[1];
+        return Array.isArray(prim) ? String(prim[1]) : '?';
     }
 
     /** A sensor input that names a declared PART of `type` (a text literal
@@ -4557,11 +4575,21 @@ class SB3Creator {
                         }
                         part[role] = { where };
                     }
-                    const claim = core === '8051' ? where : where;
-                    const pinClash = cfg.pins.find((pin) => (pin.where || `P${pin.port}.${pin.bit}`).toUpperCase() === claim);
-                    if (pinClash) return this.refuseDeclaration(lineIndex, trimmed, `${claim} is already declared as "${pinClash.name}"; a PART claims its pins`);
+                    const claim = where;
+                    // An I2C bus is shared: another I2C part's pin in the same
+                    // role, or a PIN named for that role (the LCD/OLED idiom),
+                    // is the same wire, not a clash.
+                    const isI2c = PIN_ROLE_PARTS[decl.type].bus === 'i2c';
+                    const at = (pt) => (pt && (pt.where || `P${pt.port}.${pt.bit}`) || '').toUpperCase();
+                    const pinClash = cfg.pins.find((pin) => at(pin) === claim);
+                    if (pinClash && !(isI2c && pinClash.name.toLowerCase() === role)) {
+                        return this.refuseDeclaration(lineIndex, trimmed, `${claim} is already declared as "${pinClash.name}"; a PART claims its pins`);
+                    }
                     const partClash = cfg.parts.find((prev) => (prev.claims || []).some((c) => typeof c === 'string' && c.toUpperCase() === claim));
-                    if (partClash) return this.refuseDeclaration(lineIndex, trimmed, `${claim} is already claimed by "${partClash.name}"`);
+                    if (partClash && !(isI2c && PIN_ROLE_PARTS[partClash.type] && PIN_ROLE_PARTS[partClash.type].bus === 'i2c'
+                        && at(partClash[role]) === claim)) {
+                        return this.refuseDeclaration(lineIndex, trimmed, `${claim} is already claimed by "${partClash.name}"`);
+                    }
                     part.claims.push(claim);
                 }
                 cfg.parts.push(part);
@@ -6450,6 +6478,25 @@ class SB3Creator {
         if ((match = matchTopLevel(line, /^deactivate\s+(.+)$/i))) {
             const { id, block } = cmd('devices_deactivate');
             block[id].inputs.DEVICE = val(match[1]);
+            return ret(block);
+        }
+        // I2C parts (pinRoleParts.js): set a DS3231's time, store a byte in
+        // an AT24C02. The part is addressed by name, carried as text.
+        if ((match = line.match(/^set time of\s+([A-Za-z_]\w*)\s+to\s+(.+?)\s*:\s*(.+?)\s*:\s*(.+)$/i))
+            && this.stcPart(match[1]) && this.stcPart(match[1]).type === 'ds3231') {
+            const { id, block } = cmd('devices_settime');
+            block[id].inputs.CLOCK = [1, [10, this.stcPart(match[1]).name]];
+            block[id].inputs.HOUR = val(match[2]);
+            block[id].inputs.MINUTE = val(match[3]);
+            block[id].inputs.SECOND = val(match[4]);
+            return ret(block);
+        }
+        if ((match = matchTopLevel(line, /^store\s+(.+?)\s+at\s+(.+?)\s+in\s+([A-Za-z_]\w*)$/i))
+            && this.stcPart(match[3]) && this.stcPart(match[3]).type === 'at24c02') {
+            const { id, block } = cmd('devices_eepromwrite');
+            block[id].inputs.VALUE = val(match[1]);
+            block[id].inputs.ADDRESS = val(match[2]);
+            block[id].inputs.MEMORY = [1, [10, this.stcPart(match[3]).name]];
             return ret(block);
         }
         if ((match = matchTopLevel(line, /^read temperature from\s+(.+)$/i))) {
@@ -8385,6 +8432,8 @@ class SB3Creator {
             case 'devices_light': return `light from ${v('SENSOR')}`;
             case 'devices_servoangle': return `angle of ${v('SERVO')}`;
             case 'devices_distance': return `distance from ${this.dSensorPart(b.inputs.SENSOR, 'hcsr04') || v('SENSOR')}`;
+            case 'devices_eepromread': return `byte ${v('ADDRESS')} of ${this.dPartName(b.inputs.MEMORY)}`;
+            case 'devices_i2cfound': return `i2c device ${v('ADDRESS')} on ${this.dPartName(b.inputs.BUS)}`;
             case 'devices_motorspeed': return `speed of ${v('MOTOR')}`;
             case 'devices_motordirection': return `direction of ${v('MOTOR')}`;
             case 'devices_devicestate': return `state of ${v('DEVICE')}`;
@@ -8761,6 +8810,8 @@ class SB3Creator {
             case 'devices_setservo': return line(`set ${v('SERVO')} angle to ${v('ANGLE')}`);
             case 'devices_setmotor': return line(`set ${v('MOTOR')} speed to ${v('SPEED')}`);
             case 'devices_setrelay': return line(`set relay ${v('RELAY')} ${f('STATE')}`);
+            case 'devices_settime': return line(`set time of ${this.dPartName(b.inputs.CLOCK)} to ${v('HOUR')} : ${v('MINUTE')} : ${v('SECOND')}`);
+            case 'devices_eepromwrite': return line(`store ${v('VALUE')} at ${v('ADDRESS')} in ${this.dPartName(b.inputs.MEMORY)}`);
             case 'devices_setdirection': return line(`set ${v('MOTOR')} direction ${f('DIR')}`);
             case 'devices_activate': return line(`activate ${v('DEVICE')}`);
             case 'devices_deactivate': return line(`deactivate ${v('DEVICE')}`);
@@ -10699,11 +10750,11 @@ class SB3Creator {
     }
 
     /** The C name of the sensor PART a SENSOR input addresses, or null. */
-    cSensorPart(input, type) {
+    cSensorPart(input, ...types) {
         const prim = input && input[1];
         if (!Array.isArray(prim) || prim[0] !== 10) return null;
         const p = this.stcPart(prim[1]);
-        if (!p || p.type !== type) return null;
+        if (!p || !types.includes(p.type)) return null;
         if (!this._cSensorParts) this._cSensorParts = new Map();
         this._cSensorParts.set(p.name, p);
         return p.name;
@@ -10921,7 +10972,7 @@ class SB3Creator {
                 low: `BW_SIO_GPIO_OE_SET = (1UL << ${hw.gpio});`, rel: `BW_SIO_GPIO_OE_CLR = (1UL << ${hw.gpio});`,
                 read: `((BW_SIO_GPIO_IN >> ${hw.gpio}) & 1u)` };
         };
-        if (pico && parts.some((p) => p.type === 'ds18b20')) {
+        if (pico && parts.some((p) => p.type === 'ds18b20' || PIN_ROLE_PARTS[p.type].bus === 'i2c')) {
             out.push('#ifndef BW_SIO_GPIO_OE_CLR', '#define BW_SIO_GPIO_OE_CLR   BW_MMIO(0xd0000028u)', '#endif', '');
         }
         const u8 = lo8051 ? 'unsigned char' : 'uint8_t';
@@ -11077,6 +11128,140 @@ class SB3Creator {
                     '}', '');
             }
         }
+        const i2cParts = parts.filter((p) => PIN_ROLE_PARTS[p.type].bus === 'i2c');
+        if (i2cParts.length) {
+            // One bus: the first I2C part's two pins. The parser lets I2C
+            // parts share them; parts on a second pair would need a second
+            // master, and say so.
+            const bus = i2cParts[0];
+            const at = (pt) => (pt.where || `P${pt.port}.${pt.bit}`).toUpperCase();
+            for (const p of i2cParts.slice(1)) {
+                if (at(p.sda) !== at(bus.sda) || at(p.scl) !== at(bus.scl)) {
+                    this.cWarn(`"${p.name}" is on a second I2C pin pair; this C drives one bus (${at(bus.sda)}/${at(bus.scl)})`);
+                }
+            }
+            const sda = ow(`${bus.name}.sda`), scl = ow(`${bus.name}.scl`);
+            out.push(`/* I2C master on ${at(bus.sda)} (SDA) / ${at(bus.scl)} (SCL), open drain: a line is pulled`,
+                ' * low or released, and the bus pull-ups pull it high. About 100 kHz on the',
+                ' * fast cores; an 8051 is slower than that by itself. */',
+                `static ${u8} bw_i2c_ready;`,
+                'static void bw_i2c_wait(void) { BW_SHORT(5); }',
+                'static void bw_i2c_start(void)',
+                '{',
+                `    if (!bw_i2c_ready) { ${sda.init} ${scl.init} bw_i2c_ready = 1; }`,
+                `    ${sda.rel} ${scl.rel} bw_i2c_wait();`,
+                `    ${sda.low} bw_i2c_wait();          /* START: SDA falls while SCL is high */`,
+                `    ${scl.low} bw_i2c_wait();`,
+                '}',
+                'static void bw_i2c_stop(void)',
+                '{',
+                `    ${sda.low} bw_i2c_wait();`,
+                `    ${scl.rel} bw_i2c_wait();`,
+                `    ${sda.rel} bw_i2c_wait();          /* STOP: SDA rises while SCL is high */`,
+                '}',
+                '/* Eight bits out, MSB first; 1 when the device acknowledged. */',
+                `static ${u8} bw_i2c_write(${u8} b)`,
+                '{',
+                `    ${u8} i, ack;`,
+                '    for (i = 0; i < 8; i++) {',
+                `        if (b & 0x80) { ${sda.rel} } else { ${sda.low} }`,
+                '        bw_i2c_wait();',
+                `        ${scl.rel} bw_i2c_wait();`,
+                `        ${scl.low}`,
+                '        b <<= 1;',
+                '    }',
+                `    ${sda.rel} bw_i2c_wait();`,
+                `    ${scl.rel} bw_i2c_wait();`,
+                `    ack = !${sda.read};`,
+                `    ${scl.low} bw_i2c_wait();`,
+                '    return ack;',
+                '}',
+                '/* Eight bits in; ack = 1 asks the device for another byte. */',
+                `static ${u8} bw_i2c_read(${u8} ack)`,
+                '{',
+                `    ${u8} i, v = 0;`,
+                `    ${sda.rel}`,
+                '    for (i = 0; i < 8; i++) {',
+                `        bw_i2c_wait(); ${scl.rel} bw_i2c_wait();`,
+                `        v = (${u8})((v << 1) | (${sda.read} ? 1 : 0));`,
+                `        ${scl.low}`,
+                '    }',
+                `    if (ack) { ${sda.low} } else { ${sda.rel} }`,
+                `    bw_i2c_wait(); ${scl.rel} bw_i2c_wait(); ${scl.low} bw_i2c_wait();`,
+                `    ${sda.rel}`,
+                '    return v;',
+                '}',
+                '/* Does a device answer at this 7-bit address? */',
+                `static ${u8} bw_i2c_found(long a)`,
+                '{',
+                `    ${u8} ack;`,
+                '    bw_i2c_start();',
+                `    ack = bw_i2c_write((${u8})((a & 0x7F) << 1));`,
+                '    bw_i2c_stop();',
+                '    return ack;',
+                '}',
+                '#define BW_BCD_IN(b)   (((((b) >> 4) & 0x0F) * 10) + ((b) & 0x0F))',
+                `#define BW_BCD_OUT(n)  ((${u8})((((n) / 10) << 4) | ((n) % 10)))`, '');
+            for (const p of i2cParts) {
+                const n = p.name;
+                out.push(`#define bw_part_${n}_found(a) bw_i2c_found(a)`);
+                if (p.type === 'ds3231') {
+                    const w = (PIN_ROLE_PARTS.ds3231.address << 1).toString(16).toUpperCase();
+                    const r = ((PIN_ROLE_PARTS.ds3231.address << 1) | 1).toString(16).toUpperCase();
+                    out.push(`/* ${n}: DS3231 clock. Registers 0-6 hold second, minute, hour, day of`,
+                        ' * week, date, month and year as BCD; `current hour` reads one. */',
+                        `static long bw_part_${n}_get(${u8} reg)`,
+                        '{',
+                        `    ${u8} v;`,
+                        '    long h;',
+                        `    bw_i2c_start(); bw_i2c_write(0x${w}); bw_i2c_write(reg);`,
+                        `    bw_i2c_start(); bw_i2c_write(0x${r}); v = bw_i2c_read(0); bw_i2c_stop();`,
+                        '    if (reg == 2) {',
+                        '        if (!(v & 0x40)) return BW_BCD_IN(v & 0x3F);      /* 24-hour mode */',
+                        '        h = BW_BCD_IN(v & 0x1F) % 12;                       /* 12-hour mode */',
+                        '        return (v & 0x20) ? h + 12 : h;',
+                        '    }',
+                        '    if (reg == 3) return v & 0x07;',
+                        '    if (reg == 5) return BW_BCD_IN(v & 0x1F);',
+                        '    if (reg == 6) return 2000 + BW_BCD_IN(v);',
+                        '    return BW_BCD_IN(v & 0x7F);',
+                        '}',
+                        '/* Set the time (24-hour), and clear the "oscillator stopped" flag a',
+                        ' * fresh or battery-less DS3231 powers up with. */',
+                        `static void bw_part_${n}_settime(long h, long m, long s)`,
+                        '{',
+                        `    bw_i2c_start(); bw_i2c_write(0x${w}); bw_i2c_write(0x00);`,
+                        '    bw_i2c_write(BW_BCD_OUT(s % 60)); bw_i2c_write(BW_BCD_OUT(m % 60)); bw_i2c_write(BW_BCD_OUT(h % 24));',
+                        '    bw_i2c_stop();',
+                        `    bw_i2c_start(); bw_i2c_write(0x${w}); bw_i2c_write(0x0F); bw_i2c_write(0x00); bw_i2c_stop();`,
+                        '}', '');
+                } else if (p.type === 'at24c02') {
+                    const w = (PIN_ROLE_PARTS.at24c02.address << 1).toString(16).toUpperCase();
+                    const r = ((PIN_ROLE_PARTS.at24c02.address << 1) | 1).toString(16).toUpperCase();
+                    out.push(`/* ${n}: AT24C02, 256 bytes that survive power-off. A value is one byte`,
+                        ' * (0-255); the address wraps at 256. */',
+                        `static long bw_part_${n}_read(long a)`,
+                        '{',
+                        `    ${u8} v;`,
+                        `    bw_i2c_start(); bw_i2c_write(0x${w}); bw_i2c_write((${u8})a);`,
+                        `    bw_i2c_start(); bw_i2c_write(0x${r}); v = bw_i2c_read(0); bw_i2c_stop();`,
+                        '    return v;',
+                        '}',
+                        `static void bw_part_${n}_write(long a, long v)`,
+                        '{',
+                        `    ${u8} tries;`,
+                        `    bw_i2c_start(); bw_i2c_write(0x${w}); bw_i2c_write((${u8})a); bw_i2c_write((${u8})v); bw_i2c_stop();`,
+                        '    /* The write cycle takes up to 5 ms, and the chip does not answer its',
+                        '     * address until it is done: ask until it does. */',
+                        '    for (tries = 0; tries < 200; tries++) {',
+                        `        bw_i2c_start();`,
+                        `        if (bw_i2c_write(0x${w})) { bw_i2c_stop(); break; }`,
+                        '        bw_i2c_stop();',
+                        '    }',
+                        '}', '');
+                }
+            }
+        }
         return out;
     }
 
@@ -11194,6 +11379,20 @@ class SB3Creator {
                 this.cWarn(`no C equivalent for "${text}" — emitted as 0`);
                 return `0 /* ${this.cComment(text)} */`;
             }
+            case 'sensing_current': {
+                // Scratch's `current hour` and friends: on a chip they are
+                // the DS3231's clock, when exactly one is declared.
+                const clocks = ((this.project && this.project.stc && this.project.stc.parts) || []).filter((p) => p.type === 'ds3231');
+                const reg = { SECOND: 0, MINUTE: 1, HOUR: 2, DAYOFWEEK: 3, DATE: 4, MONTH: 5, YEAR: 6 }[f('CURRENTMENU')];
+                if (this._cListCore && this._core !== 'i8086' && clocks.length === 1 && reg !== undefined) {
+                    if (!this._cSensorParts) this._cSensorParts = new Map();
+                    this._cSensorParts.set(clocks[0].name, clocks[0]);
+                    return `bw_part_${clocks[0].name}_get(${reg})`;
+                }
+                const text = this.drep(b, blocks) || b.opcode;
+                this.cWarn(`no C equivalent for "${text}" (it needs one DS3231 PART) — emitted as 0`);
+                return `0 /* ${this.cComment(text)} */`;
+            }
             case 'sensing_answer': {
                 if (this._cListCore && this._core !== 'i8086') { this._cUses.ask = true; this._cUses.print = true; return 'bw_answer()'; }
                 const text = this.drep(b, blocks) || b.opcode;
@@ -11246,6 +11445,18 @@ class SB3Creator {
             // falls through: the fixed analog TMP36 driver
             { this._cUses.devices = true; this._cUses.sensor = true; this._cUses.adc = true; return `bw_temperature(${v('SENSOR')})`; }
             case 'devices_light': { this._cUses.devices = true; this._cUses.sensor = true; this._cUses.adc = true; return `bw_light(${v('SENSOR')})`; }
+            case 'devices_eepromread': {
+                const n = this.cSensorPart(b.inputs.MEMORY, 'at24c02');
+                if (n) return `bw_part_${n}_read(${v('ADDRESS')})`;
+                this.cWarn('no C equivalent for "byte ... of" without a declared AT24C02 — emitted as 0');
+                return '0';
+            }
+            case 'devices_i2cfound': {
+                const n = this.cSensorPart(b.inputs.BUS, 'ds3231', 'at24c02', 'i2c');
+                if (n) return `bw_part_${n}_found(${v('ADDRESS')})`;
+                this.cWarn('no C equivalent for "i2c device ... on" without a declared I2C part — emitted as 0');
+                return '0';
+            }
             case 'devices_distance': if (this.cSensorPart(b.inputs.SENSOR, 'hcsr04')) return `bw_part_${this.cSensorPart(b.inputs.SENSOR, 'hcsr04')}_distance()`;
             // falls through: the fixed 8051 P3.6/P3.7 driver
             { this._cUses.devices = true; this._cUses.ultrasonic = true; return `bw_distance(${v('SENSOR')})`; }
@@ -11725,6 +11936,16 @@ class SB3Creator {
                 this._cUses.devices = true; this._cUses.motor = true; const d = f('DIR'); return line(`bw_motor_dir(${v('MOTOR')}, ${({ forward: 0, reverse: 1, brake: 2, coast: 3 })[d] || 0});`);
             }
             case 'devices_setrelay': { this._cUses.devices = true; this._cUses.relay = true; return line(`bw_relay_set(${v('RELAY')}, ${f('STATE') === 'on' ? 1 : 0});`); }
+            case 'devices_settime': {
+                const n = this.cSensorPart(b.inputs.CLOCK, 'ds3231');
+                if (!n) { this.cWarn('no C equivalent for "set time of" without a declared DS3231 — emitted as a comment'); return line('/* set time */'); }
+                return line(`bw_part_${n}_settime(${v('HOUR')}, ${v('MINUTE')}, ${v('SECOND')});`);
+            }
+            case 'devices_eepromwrite': {
+                const n = this.cSensorPart(b.inputs.MEMORY, 'at24c02');
+                if (!n) { this.cWarn('no C equivalent for "store ... in" without a declared AT24C02 — emitted as a comment'); return line('/* store */'); }
+                return line(`bw_part_${n}_write(${v('ADDRESS')}, ${v('VALUE')});`);
+            }
             case 'devices_activate': { this._cUses.devices = true; this._cUses.relay = true; return line(`bw_device_activate(${v('DEVICE')});`); }
             case 'devices_deactivate': { this._cUses.devices = true; this._cUses.relay = true; return line(`bw_device_deactivate(${v('DEVICE')});`); }
             case 'devices_lcdprint': {
@@ -14676,7 +14897,8 @@ class SB3Creator {
         // out of the @bw header: the PART line is what round-trips.
         const rolePins = (stored.parts || []).filter((pt) => PIN_ROLE_PARTS[pt.type])
             .flatMap((pt) => PIN_ROLE_PARTS[pt.type].roles.map(([role, , dir]) => ({
-                ...pt[role], name: `${pt.name}.${role}`, direction: dir, activeLow: false, rolePart: pt.name })));
+                ...pt[role], name: `${pt.name}.${role}`, direction: dir === 'opendrain' ? 'input' : dir,
+                openDrain: dir === 'opendrain', activeLow: false, rolePart: pt.name })));
         const pins = [...(opts.pins || stored.pins || []), ...rolePins];
         if (!part) this.cWarn(`unknown DEVICE "${device}" — emitting for stc12c5a60s2`);
         // Which core? '8051' emits SFR bare metal; 'arduino' emits AVR bare
@@ -18085,7 +18307,9 @@ class SB3Creator {
                     // ACTIVE LOW → pull-up (button to GND); active high →
                     // pull-down — the same no-external-resistor idioms the
                     // pico build keeps.
-                    const pull = p.activeLow ? 1 : 2;
+                    // An open-drain line (1-Wire, I2C) gets none: its pull-up
+                    // is on the bus.
+                    const pull = p.openDrain ? 0 : p.activeLow ? 1 : 2;
                     if ((hw.gpio >> 4) === 0) pupdrA |= (pull << (2 * bit)); else pupdrB |= (pull << (2 * bit));
                 }
             }
@@ -18145,8 +18369,9 @@ class SB3Creator {
                     // active high → internal pull-DOWN (button to 3V3) —
                     // both real-build idioms, no external resistors, and
                     // the SDK's gpio_init defaults pull-down the same way.
-                    const pad = p.activeLow ? '0x4au' : '0x46u';
-                    const padNote = p.activeLow ? 'pad IE + schmitt + PULL-UP' : 'pad IE + schmitt + PULL-DOWN';
+                    const pad = p.openDrain ? '0x42u' : p.activeLow ? '0x4au' : '0x46u';
+                    const padNote = p.openDrain ? 'pad IE + schmitt, no pull (open drain: the pull-up is on the bus)'
+                        : p.activeLow ? 'pad IE + schmitt + PULL-UP' : 'pad IE + schmitt + PULL-DOWN';
                     out.push(`    BW_IOBANK0_CTRL(${hw.gpio}) = 5u;   /* ${p.name} = ${p.where}: funcsel SIO, input */`,
                         `    BW_PADS(${hw.gpio}) = ${pad};   /* ${p.name}: ${padNote} */`);
                 } else if (p.direction === 'analog') {
@@ -18937,6 +19162,11 @@ SB3Creator.RUNTIME_EXTENSIONS = {
             light: { kind: 'reporter', method: 'light', args: ['SENSOR'], neutral: 'NaN' },
             servoangle: { kind: 'reporter', method: 'servoAngle', args: ['SERVO'], neutral: 'NaN' },
             distance: { kind: 'reporter', method: 'distance', args: ['SENSOR'], neutral: 'NaN' },
+            // I2C parts: DS3231 clock, AT24C02 EEPROM, a bus probe.
+            settime: { kind: 'command', method: 'setTime', args: ['CLOCK', 'HOUR', 'MINUTE', 'SECOND'] },
+            eepromwrite: { kind: 'command', method: 'eepromWrite', args: ['MEMORY', 'ADDRESS', 'VALUE'] },
+            eepromread: { kind: 'reporter', method: 'eepromRead', args: ['MEMORY', 'ADDRESS'], neutral: '0' },
+            i2cfound: { kind: 'boolean', method: 'i2cFound', args: ['BUS', 'ADDRESS'], neutral: 'false' },
             // char_lcd
             lcdprint: { kind: 'command', method: 'lcdPrint', args: ['TEXT', 'DISPLAY'] },
             lcdcursor: { kind: 'command', method: 'lcdCursor', args: ['ROW', 'COL', 'DISPLAY'] },
@@ -19386,9 +19616,13 @@ SB3Creator.retargetPseudocode = function retargetPseudocode(src, device) {
     // is the LED pin on the AVR boards, poison for an open-drain line.
     // Reserve the pair up front so no other pin is allocated onto it.
     const pinLnames = new Set(stc.pins.map((p) => String(p.name).toLowerCase()));
-    const i2cConv = pinLnames.has('sda') && pinLnames.has('scl')
+    const hasI2cPart = (stc.parts || []).some((pt) => PIN_ROLE_PARTS[pt.type] && PIN_ROLE_PARTS[pt.type].bus === 'i2c');
+    const i2cConv = (pinLnames.has('sda') && pinLnames.has('scl')) || hasI2cPart
         ? SB3Creator.I2C_PINS[device] : null;
     if (i2cConv) { taken.add(i2cConv.sda); taken.add(i2cConv.scl); }
+    // I2C PART roles moved so far: `<role>:<old coordinate>` -> new pin, so
+    // parts sharing the bus keep sharing it.
+    const i2cMoved = new Map();
     const newPins = [];
     // Old coordinate -> new coordinate, one entry per pin (and PART role).
     // Circuit-preserving retarget consumes this to rewrite an AUTHORED
@@ -19495,8 +19729,15 @@ SB3Creator.retargetPseudocode = function retargetPseudocode(src, device) {
             // A sensor PART's pins are plain digital pins (pinRoleParts.js):
             // each role takes the next one from the board's pool, so a
             // program with a sonar on P1.1/P1.2 lands on D-pins of an Uno.
+            // An I2C part takes the board's own SDA/SCL pair where it has
+            // one, and every I2C part shares the pins the first one got.
+            const i2c = PIN_ROLE_PARTS[p.type].bus === 'i2c';
             for (const [role] of PIN_ROLE_PARTS[p.type].roles) {
-                const where = take(pools.digital);
+                const from = coordOf(p[role]);
+                const shared = i2c && i2cMoved.get(`${role}:${from}`);
+                const conv = i2c && SB3Creator.I2C_PINS[device] && SB3Creator.I2C_PINS[device][role];
+                const where = shared || conv || take(pools.digital);
+                if (i2c) i2cMoved.set(`${role}:${from}`, where);
                 if (!where) {
                     reasons.push(`more PART pins than ${device}'s digital convention offers (${pools.digital.length})`);
                     break;

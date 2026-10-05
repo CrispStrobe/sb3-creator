@@ -1379,12 +1379,30 @@ export default function cToPseudocode (source, opts = {}) {
             return { text: '0', level: 99, stmt: `print ${joinPieces() ?? '""'}` };
         }
         {
+            // A KEYPAD4X4's read is the bare part name (an AT24C02's read takes
+            // an address and is handled below).
             const kp = name.match(/^bw_part_(\w+)_read$/);
-            if (kp) return { text: kp[1], level: 99 };
+            if (kp && !args.length) return { text: kp[1], level: 99 };
             // A sensor PART's driver call reads back as the reporter it lowered.
             const sp = name.match(/^bw_part_(\w+)_(distance|temperature)$/);
             if (sp && hdrParts.some(pp => pp.name === sp[1] && PIN_ROLE_PARTS[pp.type])) {
                 return { text: `${sp[2]} from ${sp[1]}`, level: 99 };
+            }
+            // The I2C parts: DS3231 clock, AT24C02 memory, the bus probe.
+            const ip = name.match(/^bw_part_(\w+)_(get|settime|read|write|found)$/);
+            const ipart = ip && hdrParts.find(pp => pp.name === ip[1] && PIN_ROLE_PARTS[pp.type]);
+            if (ipart) {
+                const n = ipart.name;
+                const A = (i) => (args[i] ? args[i].text : '0');
+                if (ip[2] === 'get') {
+                    const which = ['current second', 'current minute', 'current hour', 'day of week',
+                        'current date', 'current month', 'current year'][Number(A(0))];
+                    if (which) return { text: `(${which})`, level: 99 };
+                }
+                if (ip[2] === 'settime') return { text: '0', level: 99, stmt: `set time of ${n} to ${A(0)} : ${A(1)} : ${A(2)}` };
+                if (ip[2] === 'write') return { text: '0', level: 99, stmt: `store ${A(1)} at ${A(0)} in ${n}` };
+                if (ip[2] === 'read') return { text: `(byte ${A(0)} of ${n})`, level: 99 };
+                if (ip[2] === 'found') return { text: `(i2c device ${A(0)} on ${n})`, level: 99 };
             }
         }
         // 74HC595: `shift_out(<pins...>, activeLow, value)` → `set <part> to value`.

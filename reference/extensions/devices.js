@@ -404,6 +404,33 @@
             text: "force on [SENSOR]",
             arguments: str("SENSOR", "sensor1"),
           },
+          // ---- I2C parts: a DS3231 clock, an AT24C02 memory, the bus ----
+          // `current hour` (Sensing) reads the clock; these set it, keep
+          // bytes across power-off, and ask who answers on the bus.
+          {
+            opcode: "settime",
+            blockType: Scratch.BlockType.COMMAND,
+            text: "set time of [CLOCK] to [HOUR] : [MINUTE] : [SECOND]",
+            arguments: { ...str("CLOCK", "clock"), ...n("HOUR", 12), ...n("MINUTE", 0), ...n("SECOND", 0) },
+          },
+          {
+            opcode: "eepromwrite",
+            blockType: Scratch.BlockType.COMMAND,
+            text: "store [VALUE] at [ADDRESS] in [MEMORY]",
+            arguments: { ...n("VALUE", 0), ...n("ADDRESS", 0), ...str("MEMORY", "memory") },
+          },
+          {
+            opcode: "eepromread",
+            blockType: Scratch.BlockType.REPORTER,
+            text: "byte [ADDRESS] of [MEMORY]",
+            arguments: { ...n("ADDRESS", 0), ...str("MEMORY", "memory") },
+          },
+          {
+            opcode: "i2cfound",
+            blockType: Scratch.BlockType.BOOLEAN,
+            text: "i2c device [ADDRESS] on [BUS]",
+            arguments: { ...n("ADDRESS", 104), ...str("BUS", "bus") },
+          },
 
           // ---- Reporters: stubs (hidden) ----
           {
@@ -751,6 +778,27 @@
     force(a) {
       const st = this._state(a.SENSOR);
       return st ? (st.force ?? 0) : 0;
+    }
+
+    // ---- I2C parts (host side: the board's device controls, where the
+    // model offers them; the program on the chip talks I2C for real) ----
+    settime(a) {
+      const b = this._board();
+      if (b && b.setDeviceControl)
+        b.setDeviceControl(String(a.CLOCK), "time", [num(a.HOUR), num(a.MINUTE), num(a.SECOND)]);
+    }
+    eepromwrite(a) {
+      const b = this._board();
+      if (b && b.setDeviceControl)
+        b.setDeviceControl(String(a.MEMORY), "write", [num(a.ADDRESS) & 255, num(a.VALUE) & 255]);
+    }
+    eepromread(a) {
+      const st = this._state(a.MEMORY);
+      const mem = st && st.mem;
+      return mem ? (mem[num(a.ADDRESS) & 255] ?? 255) : 255;
+    }
+    i2cfound(a) {
+      return !!this._state(a.BUS);
     }
 
     // ---- Reporters (stubs) ----

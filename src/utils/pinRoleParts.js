@@ -8,8 +8,9 @@
 //   PART probe = DS18B20 ON D4
 //
 // `dir` is how the pin is set up before the driver first runs: TRIG is an
-// output held low, ECHO an input, and a 1-Wire DQ is released (an input; the
-// bus pull-up is external, so nothing on the chip pulls it).
+// output held low, ECHO an input, and an open-drain line (1-Wire DQ, I2C
+// SDA/SCL) is released -- an input with NO internal pull: the bus pull-up is
+// external, and a chip's pull-down would fight it.
 export const PIN_ROLE_PARTS = Object.freeze({
     hcsr04: Object.freeze({
         word: 'HCSR04',
@@ -17,7 +18,21 @@ export const PIN_ROLE_PARTS = Object.freeze({
     }),
     ds18b20: Object.freeze({
         word: 'DS18B20',
-        roles: Object.freeze([['dq', 'ON', 'input']])
+        roles: Object.freeze([['dq', 'ON', 'opendrain']])
+    }),
+    // I2C parts: SDA and SCL are open drain (released = input, the bus
+    // pull-ups pull high), and several parts may share the one bus.
+    ds3231: Object.freeze({
+        word: 'DS3231', bus: 'i2c', address: 0x68,
+        roles: Object.freeze([['sda', 'SDA', 'opendrain'], ['scl', 'SCL', 'opendrain']])
+    }),
+    at24c02: Object.freeze({
+        word: 'AT24C02', bus: 'i2c', address: 0x50,
+        roles: Object.freeze([['sda', 'SDA', 'opendrain'], ['scl', 'SCL', 'opendrain']])
+    }),
+    i2c: Object.freeze({
+        word: 'I2C', bus: 'i2c',
+        roles: Object.freeze([['sda', 'SDA', 'opendrain'], ['scl', 'SCL', 'opendrain']])
     })
 });
 
