@@ -115,10 +115,16 @@ test('an oversized or non-numeric list refuses instead of truncating or coercing
     assert.doesNotMatch(text, /bw_print_num/);
 });
 
-test('non-i8086 list lowering remains the pre-N2e comment-only boundary', () => {
+// Until 2026-10-05 every other core stopped at a comment here ("no C
+// equivalent"). The same bounded one-based helpers now lower lists on the
+// 8051 (in XRAM), AVR and ARM, with 32-bit items; the chain-lists test runs
+// them on the emulated chips.
+test('the 8051 lowers lists to the same bounded helpers, in XRAM', () => {
     const source = LIST_PROGRAM.replace('DEVICE i8086', 'DEVICE STC12C5A60S2');
     const {code} = emit(source);
-    assert.match(code, /no C equivalent for "add 10 to readings"/);
-    assert.match(code, /\/\* add 10 to readings \*\//);
-    assert.doesNotMatch(code, /BW_LIST_CAPACITY|bw_list_add/);
+    assert.doesNotMatch(code, /no C equivalent for "add 10 to readings"/);
+    assert.match(code, /#define BW_LIST_CAPACITY 32u/);
+    assert.match(code, /static __xdata long bw_list_s0_readings_data\[32\]/);
+    assert.match(code, /bw_list_add\(bw_list_s0_readings_data, &bw_list_s0_readings_len, 10\);/);
+    assert.match(code, /bw_list_item\(bw_list_s0_readings_data, bw_list_s0_readings_len, 2\)/);
 });

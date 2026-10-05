@@ -71,7 +71,10 @@ WHEN flag clicked:
 
 const TOGGLE_GOLDENS = Object.freeze({
     '6502': ['EATER6502', 'PA0', '63c561bdbaa8e48b0a6f8b49f2f26fa073535aa889822a2cad472e82ad633900'],
-    '8051': ['STC12C5A60S2', 'P1.0', 'ce69b29a216c4bde14ca670d3074d9ac9477cd262165d8cbdddcf93694e1e66b'],
+    // Re-pinned 2026-10-05 for two deliberate 8051 changes, neither in the
+    // toggle: `#define T0_STOP` (the re-arm loss the STC89 blink measured) and
+    // main's closing `for (;;) { }` (a finished script used to fall off main).
+    '8051': ['STC12C5A60S2', 'P1.0', '98fa19d8e89f69b5541e28434827f8b388b7b1eaca728c91468f29e163bbc21d'],
     avr: ['ARDUINO-UNO', 'D13', '704419a1e1f7c9b7dfd416620f23e8344e3a27018982140c35d378b0565b8591'],
     arm: ['PICO', 'GP25', '962878552628d5390ec2748beea458d2e07d5fad58301b1cdf35d1281f0366a4']
 });

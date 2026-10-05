@@ -545,7 +545,9 @@ WHEN flag clicked:
     assert.match(c, /\/\* say "hello" \*\//);
     assert.match(c, /\/\* move 10 steps \*\//);
     assert.match(c, /warning: no C equivalent for "say "hello""/);
-    assert.match(c, /roll = 0 \/\* pick random 1 to 6 \*\/;/);
+    // `pick random` is real on the chip since 2026-10-05 (xorshift32); it
+    // used to be one of these comments.
+    assert.match(c, /roll = bw_random\(1, 6\);/);
     assert.match(c, /P1_0 = 1;/);
 });
 
