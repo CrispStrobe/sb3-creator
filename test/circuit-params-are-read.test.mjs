@@ -284,6 +284,12 @@ const KNOWN_INERT = new Map([
     ['zener.vf',    'BLIND SPOT: the zener benches operate in reverse breakdown, where vz sets the voltage and vf does not.'],
     ['relay.switchTimeMs','BLIND SPOT: read by the relay model; no probed bench transitions the coil inside the probe window.'],
     ['ssd1306.address',   'BLIND SPOT: read by the I2C address decoder; the probe drives no I2C traffic.'],
+    // The sensor PARTs' bench stimulus (2026-10-05). Each answers only to a
+    // protocol the static probe cannot drive: a TRIG pulse, a 1-Wire reset and
+    // conversion. test/chain-sensors.test.mjs moves both on the emulated chips
+    // (5-300 cm and -10.5-85 C read back exactly on nine boards).
+    ['ultrasonic.distance', 'BLIND SPOT: read when TRIG falls; the probe sends no trigger. chain-sensors moves it.'],
+    ['ds18b20.temperature', 'BLIND SPOT: read when a READ SCRATCHPAD follows a conversion; the probe drives no 1-Wire. chain-sensors moves it.'],
 ]);
 
 describe('circuit params, tier 2: the key moves a real bench', { skip: SKIP }, () => {

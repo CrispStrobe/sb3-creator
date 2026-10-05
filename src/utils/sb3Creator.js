@@ -6482,7 +6482,7 @@ class SB3Creator {
         }
         // I2C parts (pinRoleParts.js): set a DS3231's time, store a byte in
         // an AT24C02. The part is addressed by name, carried as text.
-        if ((match = line.match(/^set time of\s+([A-Za-z_]\w*)\s+to\s+(.+?)\s*:\s*(.+?)\s*:\s*(.+)$/i))
+        if ((match = matchTopLevel(line, /^set time of\s+([A-Za-z_]\w*)\s+to\s+(.+?)\s*:\s*(.+?)\s*:\s*(.+)$/i))
             && this.stcPart(match[1]) && this.stcPart(match[1]).type === 'ds3231') {
             const { id, block } = cmd('devices_settime');
             block[id].inputs.CLOCK = [1, [10, this.stcPart(match[1]).name]];

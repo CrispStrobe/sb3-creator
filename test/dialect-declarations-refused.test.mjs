@@ -132,6 +132,16 @@ const CASES = [
     [`${P8051}TABLE t = ,`, /Table "t" is empty/],
     [`${P8051}LEDCUBE 9`, /LEDCUBE size must be 2–8, got 9/],
     [`${P8051}LEDCUBE 4\nLEDCUBE 4`, /LEDCUBE declared twice/],
+    // Pin-role PARTs (HCSR04 / DS18B20 / DS3231 / AT24C02 / I2C, 2026-10-05)
+    ['PART s = HCSR04 TRIG P1.0', /HCSR04 is written TRIG <pin> ECHO <pin>/],
+    ['DEVICE MICROBIT\nPART s = HCSR04 TRIG P0 ECHO P1', /HCSR04 is not available on microbit/],
+    ['PIN s = P1.0 OUTPUT\nPART s = DS18B20 ON P1.1', /"s" declared twice/],
+    ['PART s = HCSR04 TRIG P1.0 ECHO P1.0', /names the same pin twice/],
+    ['PART t = DS18B20 ON D7', /is not how stc12c5a60s2 names a pin; it uses P<port>\.<bit>/],
+    ['DEVICE ARDUINO-UNO\nPART t = DS18B20 ON P1.0', /is not how arduino-uno names a pin/],
+    ['DEVICE ARDUINO-NANO\nPART t = DS18B20 ON A6', /analog-input only on the Nano/],
+    ['PIN led = P1.0 OUTPUT\nPART t = DS18B20 ON P1.0', /already declared as "led"/],
+    ['PART a = DS18B20 ON P1.0\nPART b = DS18B20 ON P1.0', /already claimed by "a"/],
 ];
 
 /** The refusal of `decls` + a trivial script: exactly the last declaration line. */

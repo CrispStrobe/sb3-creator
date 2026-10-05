@@ -641,3 +641,22 @@ test('REPEAT with a non-positive count runs the body zero times, as Scratch does
         'the guard must test the SIGN — `if (n)` is true for every non-zero n');
     assert.doesNotMatch(c, /if \(bw_i1\) \{/, 'truthiness is not the repeat contract');
 });
+
+test('WHEN <pin> pressed runs once per press, as the C task does (edge, not level)', () => {
+    // The referee had no pin hat at all: a program whose only script is
+    // `WHEN btn pressed` traced nothing (random-lucky-light, 2026-10-05).
+    // Its semantics are the C emitter's: polled each millisecond, prev
+    // updated on every poll, a run starts only on an edge seen while idle.
+    const src = 'PIN btn = P3.2 INPUT\nPIN led = P1.0 OUTPUT\n\n' +
+        'WHEN btn pressed:\n  toggle led\n';
+    const c = new SB3Creator();
+    c.parse(src);
+    const press = (t0, t1) => [{ tMs: t0, pin: 'btn', level: 1 }, { tMs: t1, pin: 'btn', level: 0 }];
+    const trace = interpretTrace(c.project, {
+        horizonMs: 1000,
+        stimulus: [{ tMs: 0, pin: 'btn', level: 0 }, ...press(100, 400), ...press(600, 900)],
+    });
+    assert.deepEqual(trace.unsupported, []);
+    // Two presses (each held 300 ms) toggle twice -- not once per held ms.
+    assert.deepEqual(trace.events.map((e) => [e.tMs, e.level]), [[100, 1], [600, 0]]);
+});

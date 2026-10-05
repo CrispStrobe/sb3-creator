@@ -77,7 +77,7 @@ describe('chain sensors: HC-SR04 distance and DS18B20 temperature', () => {
                 // where a 5 cm echo (290 us) is now and then read as 6: one
                 // poll of its loop is ~25 us.
                 const slack = device === 'stc89c52rc' ? 1 : 0;
-                assert.ok(got.cm.length >= 3 && got.c.length >= 3, `${device}: ${seen}`);
+                assert.ok(got.cm.length >= 3 && got.c.length >= 3, `${device}: ${seen} (expected ~14 of each in 1.7 s)`);
                 for (const d of got.cm.slice(-3)) assert.ok(Math.abs(d - cm) <= slack, `${device}: ${cm} cm read ${d}, expected ~${cm} (${seen})`);
                 for (const t of got.c.slice(-3)) assert.equal(t, want, `${device}: ${celsius} C read ${t} (${seen})`);
             }
@@ -118,7 +118,7 @@ WHEN flag clicked:
             for (let i = 1; i < t.length; i++) if (t[i - 1] > 1.5e9) d.push((t[i] - t[i - 1]) / 1e6);
             d.sort((a, b) => a - b);
             const median = d[d.length >> 1];
-            assert.ok(d.length >= 6, `${device}: ${d.length} intervals`);
+            assert.ok(d.length >= 6, `${device}: ${d.length} intervals (expected ~9 between 1.5 s and 6.1 s)`);
             assert.ok(Math.abs(median - 500) <= 1, `${device}: median ${median.toFixed(1)} ms, expected ~500.0-500.3 (${d.map((x) => x.toFixed(1)).join(' ')})`);
         });
     }
@@ -155,8 +155,10 @@ WHEN flag clicked:
                 r.board.setPartParam(sonar.id, 'distance', cm);
                 r.board.setPartParam(probe.id, 'temperature', celsius);
                 r.run(2000);
+                // 20 and 30 are the program's own IF thresholds, not tolerances;
+                // MEASURED 2026-10-05: all four stimulus points on both ATtinys.
                 assert.equal(level('near'), cm < 20, `${device}: ${cm} cm`);
-                assert.equal(level('warm'), celsius > 30, `${device}: ${celsius} C`);
+                assert.equal(level('warm'), celsius > 30, `${device}: ${celsius} C (expected ~30 C: the program's threshold)`);
             }
         });
     }
