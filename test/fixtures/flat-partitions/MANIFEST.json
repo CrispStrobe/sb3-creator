@@ -4,7 +4,7 @@
     "repo": "bw-circuit-ui",
     "sha": "ea94554dc0fd8d329bc3349d8abe5be6601ddfcb"
   },
-  "pairs": 904,
+  "pairs": 901,
   "entries": [
     {
       "dir": "01-blink",
@@ -2112,22 +2112,6 @@
     },
     {
       "dir": "53-servo-sweep",
-      "flat": "circuit-flat.attiny85.json",
-      "twin": "circuit.attiny85.json",
-      "flatSha": "61088c9fcca291c7bcb81783e4cd782c55f2fca015a6f6a9bcd44d4a2b7a44f6",
-      "twinSha": "630c93df1679ed8caddc65f5e9489eb439d83a955c400a8fed9ae7798136721d",
-      "partitionSha": "91985281b0a5b5a638b87c59288fa211785ff9af96b0491cbddd1118dbda337e"
-    },
-    {
-      "dir": "53-servo-sweep",
-      "flat": "circuit-flat.attiny88.json",
-      "twin": "circuit.attiny88.json",
-      "flatSha": "d9f25dd036c8b540b061ac178673ad1924a49b881524d3953b61e4124a152a32",
-      "twinSha": "24dcb99d5da81eaaab6b01b6751116f3e78975caaa21c6cccf0ac5a4427789a3",
-      "partitionSha": "84eb1bc89e5f365b225ee7805b65709b42e1a2ff836e5999d3eb436cb36adc79"
-    },
-    {
-      "dir": "53-servo-sweep",
       "flat": "circuit-flat.pico.json",
       "twin": "circuit.pico.json",
       "flatSha": "559dea22e0adf4c24a24c344122a7c7e1d47e1f2d71468211150745aa97be8d4",
@@ -2181,14 +2165,6 @@
       "flatSha": "49197dcc65231b712e9710e8976fe7ed5e0633f1d8fe47c840df4ae0d0cc7655",
       "twinSha": "4df825d9eb13283ddff95aa60e023fa9b25ce581df405c73e2db19b239fc813c",
       "partitionSha": "94e730b12311753e7aa7fb0a4006e37e0b786550214dd463dba5ffea8ad27ab9"
-    },
-    {
-      "dir": "54-motor-driver",
-      "flat": "circuit-flat.attiny85.json",
-      "twin": "circuit.attiny85.json",
-      "flatSha": "af08e08052d41e275e8047d056f9a5b80e2930ce8579840029ca3e1340d33565",
-      "twinSha": "94bba0ec2cd3c3f261529d486953d3524cd362f0f48ec19c89f6be1ab4887bd3",
-      "partitionSha": "48872a6bc1540df79f72be764fafbdb706d9c9a2a218445201243f35ae56754a"
     },
     {
       "dir": "54-motor-driver",
