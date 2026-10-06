@@ -178,6 +178,7 @@ test('every device variant\'s component bodies are disjoint, seated or not',
       }
     }
   }
-  assert.ok(checked > 900, `only ${checked} device variants checked`);
+  // MEASURED 2026-10-06: 1135 device variants (every examples/*/circuit.*.json).
+  assert.ok(checked > 900, `only ${checked} device variants checked (expected ~1135)`);
   assert.deepEqual(failures, []);
 });
