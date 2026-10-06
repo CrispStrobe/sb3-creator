@@ -25,12 +25,16 @@ if (!existsSync(manifestPath)) {
 }
 export const MANIFEST = JSON.parse(readFileSync(manifestPath, 'utf8'));
 
-/** Strip the `module.exports = makeExt(`…`)` wrapper lite's bundled copies use. */
+/** Strip the `module.exports = makeExt(…)` wrapper lite's bundled copies use. Two
+ *  spellings have shipped: a template literal, and -- since Lite's B12 sync
+ *  (5b237c62) -- a JSON string literal, which is parsed back to the source. */
 export function unwrap (text, wrapper) {
     if (!wrapper) return text;
-    const m = text.match(/makeExt\(`([\s\S]*)`\);?\s*$/);
-    if (!m) throw new Error(`expected a ${wrapper}(\`…\`) wrapper but found none`);
-    return m[1];
+    const tpl = text.match(/makeExt\(`([\s\S]*)`\);?\s*$/);
+    if (tpl) return tpl[1];
+    const str = text.match(/makeExt\(("(?:[^"\\]|\\.)*")\);?\s*$/);
+    if (str) return JSON.parse(str[1]);
+    throw new Error(`expected a ${wrapper}(\`…\`) or ${wrapper}("…") wrapper but found none`);
 }
 
 /**

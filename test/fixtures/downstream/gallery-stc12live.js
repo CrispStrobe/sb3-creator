@@ -13,23 +13,14 @@
 
   const SOF = 0x7e;
   const CMD_HELLO = 0x01;
-  const CMD_READ = 0x02;
+  const _CMD_READ = 0x02;
   const CMD_WRITE = 0x03;
+  // Address spaces (live-proto.h LIVE_SP_*): a port register is SFR, a single
+  // pin is a bit address in BIT space.
+  const SP_SFR = 2;
+  const SP_BIT = 4;
   const _CMD_POS = 0x0a;
   const _CMD_RESET = 0x0b;
-
-  // 8051 address spaces (from live-proto.h).
-  const _SP_SFR = 2;
-  const SP_BIT = 4;
-
-  // Port SFR base addresses (8051: P0=0x80, P1=0x90, P2=0xA0, P3=0xB0).
-  const PORT_SFR = [0x80, 0x90, 0xa0, 0xb0, 0xc0];
-
-  // Pin declarations live on the runtime.
-  function pinDecls(runtime) {
-    const stc = runtime && runtime.stc;
-    return stc && Array.isArray(stc.pins) ? stc.pins : [];
-  }
   const REPLY = (c) => c | 0x80;
   const EVT_HALT = 0xf0;
   const NAK = 0xff;
@@ -117,14 +108,9 @@
       this._pendingResolve = null;
       this._pendingCmd = 0;
       this._readLoop = null;
-      // Publish capabilities to runtime.stc12liveCapabilities on connect,
-      // cleared on disconnect.  NO READER EXISTS YET — the palette layer in
-      // brickwright-lite needs to consult this and grey out the five circuit
-      // reporters (nodeVoltage, branchCurrent, resistance, ledBrightness,
-      // buzzerTone) when a hardware target is connected.  Until then, those
-      // blocks return NaN (circuit.js stopgap), which Scratch's Cast.toNumber
-      // still maps to 0 in numeric slots.  Same seam as runtime.stc and
-      // runtime.circuitBoard.
+      // Publish capabilities to runtime so the palette layer can grey out
+      // blocks that are unavailable on this target.  Same seam as runtime.stc
+      // and runtime.circuitBoard.
       this._runtime =
         typeof Scratch !== "undefined" && Scratch.vm && Scratch.vm.runtime
           ? Scratch.vm.runtime
@@ -228,10 +214,7 @@
     async _close() {
       this._connected = false;
       this._capabilities = null;
-      if (this._runtime) {
-        this._runtime.stc12liveCapabilities = null;
-        this._runtime._stc12live = null;
-      }
+      if (this._runtime) this._runtime.stc12liveCapabilities = null;
       try {
         if (this._reader) {
           await this._reader.cancel();
@@ -322,12 +305,9 @@
           consumed: cap[8] || 0,
         };
         this._connected = true;
-        // Publish to runtime so the palette, circuit extension, and stc12
-        // pin extension can find the live transport.
-        if (this._runtime) {
+        // Publish to runtime so the palette and circuit extension can read them.
+        if (this._runtime)
           this._runtime.stc12liveCapabilities = this._capabilities;
-          this._runtime._stc12live = this;
-        }
       } catch (e) {
         await this._close();
         // Surface the reason rather than failing silently.
@@ -342,6 +322,41 @@
 
     isConnected() {
       return this._connected;
+    }
+
+    // ── Control writes (host -> chip) ─────────────────────────────────────
+    // The tethered face of the Controller panel: a DIGITAL widget (button,
+    // toggle, D-pad) drives a real port pin. LIVE_CMD_WRITE(space, addr_hi,
+    // addr_lo, data...) — the firmware writes the addressed SFR/bit. Analog
+    // inputs (a pot behind an ADC) CANNOT be tethered: they are a physical
+    // voltage, not a host-writable register. Guarded by the HELLO writable
+    // capability bitmap so a refused space fails loudly, not silently.
+    // (No template literals or backtick strings here: the whole extension is a
+    // makeExt template string, so any backtick would terminate it early.)
+    async writeMem(space, addr, data) {
+      if (!this._connected) throw new Error("stc12live: not connected");
+      if (this._capabilities && !((this._capabilities.writable >> space) & 1)) {
+        throw new Error(
+          "stc12live: space " + space + " is not writable on this target"
+        );
+      }
+      const bytes = Array.isArray(data) ? data : [data & 0xff];
+      await this._exchange(CMD_WRITE, [
+        space & 0xff,
+        (addr >> 8) & 0xff,
+        addr & 0xff,
+        ...bytes.map((b) => b & 0xff),
+      ]);
+    }
+
+    // Drive one bit-addressable pin (a port bit) high/low.
+    setBit(bitAddr, on) {
+      return this.writeMem(SP_BIT, bitAddr, [on ? 1 : 0]);
+    }
+
+    // Write a whole SFR (e.g. a port register, or a PWM compare value).
+    writeSfr(sfrAddr, value) {
+      return this.writeMem(SP_SFR, sfrAddr, [value & 0xff]);
     }
 
     chipVersion() {
@@ -360,116 +375,6 @@
       if (c & 0x08) names.push("BRT");
       if (c & 0x20) names.push("PCA");
       return names.length ? names.join(", ") : "none";
-    }
-
-    // ---- pin driving over the wire ------------------------------------------
-    // These are called by the stc12 extension when a live target is connected.
-    // Each is a WRITE to the pin's SFR bit address over the UART link.
-
-    /** Look up a pin declaration by name. */
-    _pin(name) {
-      return pinDecls(this._runtime).find(
-        (p) => p.name.toLowerCase() === String(name).toLowerCase()
-      );
-    }
-
-    /** The bit-addressable SFR address for a pin: port_base + bit. */
-    _bitAddr(pin) {
-      if (!pin || pin.port < 0 || pin.port > 4) return -1;
-      return PORT_SFR[pin.port] + pin.bit;
-    }
-
-    /**
-     * Set a pin to a level over the wire.
-     * @param {string} name  pin name from project.stc.pins
-     * @param {string} state  'on' | 'off' | 'high' | 'low'
-     */
-    async drivePin(name, state) {
-      if (!this._connected) return;
-      const pin = this._pin(name);
-      if (!pin) return;
-      const addr = this._bitAddr(pin);
-      if (addr < 0) return;
-      // Resolve the level: on/off respect ACTIVE LOW; high/low are literal.
-      const high =
-        state === "high"
-          ? true
-          : state === "low"
-            ? false
-            : (state === "on") !== !!pin.activeLow;
-      const level = high ? 1 : 0;
-      await this._exchange(CMD_WRITE, [
-        SP_BIT,
-        (addr >> 8) & 0xff,
-        addr & 0xff,
-        level,
-      ]);
-    }
-
-    /**
-     * Write a computed level to a pin.
-     * @param {string} name
-     * @param {number} value  truthy = high
-     */
-    async writePinLevel(name, value) {
-      if (!this._connected) return;
-      const pin = this._pin(name);
-      if (!pin) return;
-      const addr = this._bitAddr(pin);
-      if (addr < 0) return;
-      await this._exchange(CMD_WRITE, [
-        SP_BIT,
-        (addr >> 8) & 0xff,
-        addr & 0xff,
-        value ? 1 : 0,
-      ]);
-    }
-
-    /**
-     * Toggle a pin.
-     * @param {string} name
-     */
-    async togglePin(name) {
-      if (!this._connected) return;
-      const pin = this._pin(name);
-      if (!pin) return;
-      const addr = this._bitAddr(pin);
-      if (addr < 0) return;
-      // Read current value, then write the inverse.
-      const reply = await this._exchange(CMD_READ, [
-        SP_BIT,
-        (addr >> 8) & 0xff,
-        addr & 0xff,
-        1,
-      ]);
-      const current = reply && reply[0] ? 1 : 0;
-      await this._exchange(CMD_WRITE, [
-        SP_BIT,
-        (addr >> 8) & 0xff,
-        addr & 0xff,
-        current ? 0 : 1,
-      ]);
-    }
-
-    /**
-     * Read a pin's level.
-     * @param {string} name
-     * @returns {Promise<number>}  0 or 1, polarity-aware
-     */
-    async readPin(name) {
-      if (!this._connected) return 0;
-      const pin = this._pin(name);
-      if (!pin) return 0;
-      const addr = this._bitAddr(pin);
-      if (addr < 0) return 0;
-      const reply = await this._exchange(CMD_READ, [
-        SP_BIT,
-        (addr >> 8) & 0xff,
-        addr & 0xff,
-        1,
-      ]);
-      const raw = reply && reply[0] ? 1 : 0;
-      return pin.activeLow ? (raw ? 0 : 1) : raw;
     }
   }
 
