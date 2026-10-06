@@ -1,10 +1,88 @@
 # `not <cond>` in value position — decision memo
 
 Written 2026-08-29 (fab-sbx), for the owner of the dialect.
-Status: **RECOMMENDATION — do not implement a value form.** The OPEN DEFECT
-sentinel in `test/bare-condition-truth.test.mjs` stays standing until this is
-decided, and if the recommendation is accepted the sentinel is replaced rather
-than deleted (see "If accepted", below).
+Status: **IMPLEMENTED 2026-10-06 (task D7), for every Boolean form — see "The
+rule" directly below.** The memo that follows is the reasoning, kept as written;
+its "What was NOT done here" section is what D7 did.
+
+## The rule (task D7)
+
+**A value position reads the VALUE grammar.**
+
+1. A **Boolean reporter word** is part of the value grammar and is a value: its
+   block in a round slot, as Scratch allows a hexagon there. These are the
+   micro:bit words (`button a pressed`, `read button_a`, `shake happening`,
+   `pin P0 touched`, `pin P0 is high`, `logo touched`, `game is over|running|
+   paused`, `point x … y …`, `pixel x … y … of image …`, the LED-sprite
+   Booleans), SPIKE (`spike force sensor A pressed`, `spike button left
+   pressed`, `spike gesture …`, `spike color A is red`), MATRIX8X8 (`pixel X Y is
+   on`), every Boolean word of the EV3 table and of the Arcade / array-reference
+   table (incl. `compare value (a) op "<" with (b)` and `truthiness of value …`,
+   which exist to store a truth value), and a Boolean custom-block parameter.
+2. **Every form of the CONDITION grammar has no value form**: a comparison
+   (`=`, `!=`, `<`, `>`, `<=`, `>=`), `and` / `or` / `not`, and the predicate
+   phrases (`touching …`, `touching color …`, `key … pressed[?]`, `mouse
+   down[?]`, `… contains …`, `array "…" contains …`, `… is multiple of …`,
+   `"…" pressed?`, `… above …`, `… closer than …`, `motion detected on …`,
+   `… tilted?`, `… energised?`, the keypad phrases `a key is pressed` / `key N is
+   pressed|released`). In a value position such a form is **kept as the literal
+   text, with one warning** — `"<form>" is a COMPARISON` (a top-level
+   comparison) or `is a CONDITION used where a value is expected …; to keep a
+   truth value in a variable, branch on it and assign 1 or 0` — never a phantom
+   variable, never silence. That is this memo's option 4, applied to the whole
+   condition grammar rather than to `not` alone.
+3. **The discriminator is narrow** (this memo's false-positive concern): a name
+   the program has, or writes anywhere in the source (`set not found to 1`), is
+   that name; and `and` / `or` / `not` over names nothing has (`not found`,
+   `salt and pepper`, with `found` / `salt` named nowhere) is a multi-word name,
+   not a condition over phantoms. `not done` with `done` a variable IS a
+   condition.
+4. A slot that TAKES a condition (an Arcade `{…:cond}` / `{…:bool}` slot, a
+   custom block's `<…>` argument, `IF`, `wait until`, `REPEAT UNTIL`) takes every
+   condition form.
+5. The decompiler writes a Boolean block of the condition grammar that a
+   Scratch project holds in a ROUND slot as its condition (`say (a > b)`), so
+   re-reading it warns under rule 2 instead of reading the opcode back as a
+   variable called `operator_gt`.
+
+Implemented in `src/utils/sb3Creator.js` (`booleanFormKind`,
+`warnBooleanAsValue`, the two call sites in `parseValue`, `arcadeConditionLike`,
+`dcondWord`); the Arduino reader emits the branch form (`setLinesFor` in
+`src/utils/cToPseudocode.js`). Held by `test/dialect-boolean-value.test.mjs`
+(every form x every value position, form by form, the round trip, the
+decompiler) and `test/bare-condition-truth.test.mjs` (the four backends refuse
+identically; the reader's branch form).
+
+### Why the reporter words keep their value form
+
+The table below shows the dialect never had ONE rule: reporter words were
+values while conditions were text, warned or silent. Rule 1 does not undo the
+reporter words, because they are the dialect's deliberate spelling for a stored
+truth value (E0 added `compare value … op … with …` precisely so an importer
+stops writing `(0 < 1)` in value positions), and a MakeCode program that stores
+`input.buttonIsPressed(Button.A)` has nothing else to say. The cost this memo
+named is real for them: what a stored truth value prints differs by target
+(Scratch `true`, Python `True`, C `1`). The branch form remains the one
+portable spelling.
+
+### Before → after, every form in every value position
+
+Driven by `test/helpers/boolean-value-census.mjs`: 75 forms (16 operator, 20
+predicate, 39 reporter) in 434 value positions (every value slot of every
+`parseCommand` statement rule, every value slot of the EV3 and Arcade command
+words, a custom-block argument, an operand of `+` and of `join`), bracketed,
+and bare where the slot ends the line — 38,260 cells. "no baseline" is a
+position whose instance cannot hold that form's device preamble.
+
+| forms | before (a69547b7) | after |
+|---|---|---|
+| operator (comparisons, and/or/not) | text+warning 5,181 · **text SILENT 2,855** · **variable SILENT 978** · refused 322 | text+warning 9,014 · refused 322 |
+| predicate (touching, key, mouse, contains, device, keypad) | **variable SILENT 6,420** · **text SILENT 4,566** · text+warning 24 · refused 384 · other 2 · no baseline 222 | text+warning 10,436 · other+warning 574 (`touching mouse-pointer`: the `-` splits first; `touching mouse` warns) · refused 384 · other 2 · no baseline 222 |
+| reporter words | value 16,841 · refused 458 · other 1 · no baseline 6 | unchanged |
+
+(The "text+warning" cells before were comparisons and unbracketed `and`/`or`/
+`not` over one; three predicate positions warned for an unrelated reason —
+`play sound X` names an undeclared sound.)
 
 ## The question
 
