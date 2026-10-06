@@ -1127,6 +1127,18 @@ class SB3Creator {
 
     /** Does `phrase` parse as a reporter block? Tried and rolled back: it creates nothing. */
     readsAsReporter(phrase, target) {
+        return this.trialParse(() => {
+            const r = this.parseReporter(phrase, { target, extraBlocks: {}, parentId: null });
+            return Boolean(r && typeof r[1] === 'string');
+        }, false);
+    }
+
+    /**
+     * Run `fn` as a TRIAL: every variable, list, broadcast, monitor, extension
+     * and warning it creates is rolled back, and a parse error it throws is
+     * `onError`. `fn` gets `{ created }`: the variable keys it created so far.
+     */
+    trialParse(fn, onError, after = null) {
         const maps = [this.variables, this.lists, this.broadcasts].map((m) => [m, new Set(m.keys())]);
         const objs = [];
         for (const t of this.project.targets) {
@@ -1135,11 +1147,11 @@ class SB3Creator {
         const monitors = this.project.monitors.length;
         const extensions = this.project.extensions.length;
         const warnings = this.warnings.length;
+        const before = maps[0][1];
         try {
-            const r = this.parseReporter(phrase, { target, extraBlocks: {}, parentId: null });
-            return Boolean(r && typeof r[1] === 'string');
+            return fn({ created: () => [...this.variables.keys()].filter((k) => !before.has(k)) });
         } catch (e) {
-            if (e && e.isSB3Error) return false;
+            if (e && e.isSB3Error) return onError;
             throw e;
         } finally {
             for (const [m, keys] of maps) for (const k of [...m.keys()]) if (!keys.has(k)) m.delete(k);
@@ -1147,7 +1159,69 @@ class SB3Creator {
             this.project.monitors.length = monitors;
             this.project.extensions.length = extensions;
             this.warnings.length = warnings;
+            if (after) after();
         }
+    }
+
+    /**
+     * Is this value text a BOOLEAN FORM of the condition grammar — something
+     * parseCondition reads as a truth value — rather than a value (task D7)?
+     * Returns 'comparison', 'condition' or null.
+     *
+     * The rule, docs/BOOLEAN-IN-VALUE-POSITION.md: a value position reads the
+     * VALUE grammar. A Boolean REPORTER word (micro:bit, SPIKE, EV3, Arcade /
+     * array-reference, a Boolean parameter) is part of it and never reaches
+     * here. A comparison, `and` / `or` / `not`, or a predicate phrase
+     * (touching, key pressed, mouse down, contains, is multiple of, the device
+     * predicates, the keypad phrases) has no value form, and it is never given
+     * a meaning silently.
+     *
+     * The discriminator is narrow on purpose (the memo's false-positive
+     * concern): a name the program already has, or writes anywhere, is that
+     * name; and a form whose reading would invent a variable (`not found`,
+     * `salt and pepper` — `found`, `salt` named nowhere) is a multi-word name,
+     * not a condition over a phantom.
+     */
+    booleanFormKind(s, context) {
+        if (this.splitBinary(s, ['!=', '<=', '>=', '<', '>', '='])) return 'comparison';
+        if (!/^(?:not\s|.*\s(?:and|or|contains|above|closer than|is multiple of)\s|.*\b(?:touching|pressed\??|mouse down\??|tilted\??|energi[sz]ed\??|detected on|is (?:pressed|released))\b)/i.test(s)) return null;
+        const target = context.target;
+        if (this.variableExists(s, target) || this.listExists(s, target)
+            || (this._writtenNames && this._writtenNames.has(s))
+            || (this.currentProcArgs && this.currentProcArgs.has(s))) return null;
+        // parseCondition's last resort reads the same text back as a value:
+        // that text is no condition, and asking again would not end.
+        this._booleanProbes = this._booleanProbes || new Set();
+        if (this._booleanProbes.has(s)) return null;
+        this._booleanProbes.add(s);
+        return this.trialParse(({ created }) => {
+            const scratch = { target, extraBlocks: {}, parentId: null };
+            const id = this.parseCondition(s, scratch);
+            const root = scratch.extraBlocks[id];
+            if (!root) return null;
+            // parseCondition's last resort: a VALUE compared to "true".
+            const operand = root.inputs && root.inputs.OPERAND2;
+            if (root.opcode === 'operator_equals' && Array.isArray(operand) && Array.isArray(operand[1])
+                && operand[1][1] === 'true') return null;
+            // `not found`, `salt and pepper`: a name nothing has, read as an
+            // operator over phantoms, is a multi-word name (the memo's veto).
+            if (/^operator_(?:not|and|or)$/.test(root.opcode) && created().length
+                && /^[a-zA-Z_][a-zA-Z0-9_\s]*$/.test(s)) return null;
+            return 'condition';
+        }, null, () => this._booleanProbes.delete(s));
+    }
+
+    /** The one warning for a Boolean form in a value position (task D7). */
+    warnBooleanAsValue(s, kind) {
+        this.warn(this._lineIndex, kind === 'comparison'
+            ? `"${s}" is a COMPARISON used where a value is expected, and it is emitted as `
+                + 'the literal text rather than evaluated. Comparisons belong in a condition '
+                + '(`IF …`, `wait until …`); to keep a truth value in a variable, branch on it '
+                + 'and assign 1 or 0.'
+            : `"${s}" is a CONDITION used where a value is expected, and it is emitted as `
+                + 'the literal text rather than evaluated. Conditions belong in a condition '
+                + '(`IF …`, `wait until …`); to keep a truth value in a variable, branch on it '
+                + 'and assign 1 or 0.');
     }
 
     // The hint an unreadable statement carries when it has an operator outside
@@ -2480,7 +2554,7 @@ class SB3Creator {
             if (p.field) fields[p.slot] = [text, null];
             else if (p.text || p.name) inputs[p.slot] = [1, [10, text]];
             else if (p.bool) inputs[p.slot] = this.arcadeBoolean(text, context);
-            else if (p.cond && this.arcadeConditionLike(text)) inputs[p.slot] = [2, this.parseCondition(text, context)];
+            else if (p.cond && this.arcadeConditionLike(text, context)) inputs[p.slot] = [2, this.parseCondition(text, context)];
             else inputs[p.slot] = read(text);
         }
         for (const [slot, text] of Object.entries(entry.defaults || {})) inputs[slot] = this.parseValue(text, context);
@@ -2489,9 +2563,12 @@ class SB3Creator {
 
     // Is this slot text a condition (comparison, and/or/not, or a Boolean
     // word) rather than a value? Such a slot is built as a Boolean block.
-    arcadeConditionLike(text) {
+    arcadeConditionLike(text, context) {
         const s = this.stripOuterParens(String(text || ''));
         if (/^not\s/i.test(s)) return true;
+        // Every other condition form too (touching, key pressed, contains, …):
+        // a slot that takes a condition takes all of them (task D7).
+        if (context && this.booleanFormKind(s, context)) return true;
         if (this.splitBinary(s, [' or ', ' and ', '!=', '<=', '>=', '<', '>', '='], { ci: true })) return true;
         return arcadeWordsOf(['boolean']).some((e) => matchTopLevel(s, compileArcadeWord(e).re));
     }
@@ -2501,7 +2578,7 @@ class SB3Creator {
     // truthiness of a number. (A bare value in a Boolean input has no Scratch
     // shape — parseCondition's own `v = "true"` would make 1 false.)
     arcadeBoolean(text, context) {
-        if (this.arcadeConditionLike(text)) return [2, this.parseCondition(text, context)];
+        if (this.arcadeConditionLike(text, context)) return [2, this.parseCondition(text, context)];
         const value = this.parseValue(text, context);
         // A literal (number or text), not a variable or list reporter ([12…]/[13…]).
         if (Array.isArray(value[1]) && value[1][0] >= 4 && value[1][0] <= 10) {
@@ -2726,6 +2803,13 @@ class SB3Creator {
 
         // Identifier -> list or variable reporter
         if (/^[a-zA-Z_][a-zA-Z0-9_\s]*$/.test(s)) {
+            // A condition spelled like a name (`touching edge`, `mouse down`,
+            // `not read btn`) is not a variable nothing writes: it gets the
+            // rule below, as the literal text with the warning (task D7).
+            if (/\s/.test(s) && this.booleanFormKind(s, context) === 'condition') {
+                this.warnBooleanAsValue(s, 'condition');
+                return [1, [10, s]];
+            }
             if (this.listExists(s, context.target)) {
                 const list = this.getOrCreateList(s, context.target);
                 return [3, [13, list.name, list.id], [10, ""]];
@@ -2750,16 +2834,15 @@ class SB3Creator {
         }
 
         // Fallback: string literal — and say so when it plainly is not one.
-        // A comparison has no VALUE form in this dialect (`parseCondition` owns
-        // `<`, `>` and `=`), so `set flag to (val > 5)` lands here and is
-        // emitted as the constant string "val > 5" — `flag = 0 /* val > 5 */;`
-        // in C. Measured 2026-08-29, no warning anywhere.
-        if (!/^".*"$/.test(s) && this.splitBinary(s, ['!=', '<=', '>=', '<', '>', '='])) {
-            this.warn(this._lineIndex,
-                `"${s}" is a COMPARISON used where a value is expected, and it is emitted as `
-                + 'the literal text rather than evaluated. Comparisons belong in a condition '
-                + '(`IF …`, `wait until …`); to keep a truth value in a variable, branch on it '
-                + 'and assign 1 or 0.');
+        // A comparison or any other condition has no VALUE form in this
+        // dialect (`parseCondition` owns them), so `set flag to (val > 5)` lands
+        // here and is emitted as the constant string "val > 5" — `flag = 0 /*
+        // val > 5 */;` in C. Measured 2026-08-29 for comparisons, no warning
+        // anywhere; `not (a > b)`, `(a) and (b)`, `key space pressed?` were
+        // still silent until task D7.
+        if (!(s.startsWith('"') && this.matchQuote(s) === s.length - 1)) {
+            const kind = this.booleanFormKind(s, context);
+            if (kind) this.warnBooleanAsValue(s, kind);
         }
         return [1, [10, s]];
     }
@@ -7400,6 +7483,15 @@ class SB3Creator {
             const lead = line.match(/^[ \t]*/)[0].replace(/\t/g, '  ');
             return lead + line.slice(line.match(/^[ \t]*/)[0].length);
         });
+        // Every name the program writes, wherever it does: a name is a name
+        // even where it is read before (in source order) it is first set, so
+        // a variable that happens to be spelled like a condition (`set not
+        // found to 1`) is never mistaken for one (booleanFormKind, task D7).
+        this._writtenNames = new Set();
+        for (const l of lines) {
+            const w = l.match(/^\s*(?:set|change)\s+(.+?)\s+(?:to|by)\s/i);
+            if (w) this._writtenNames.add(w[1].replace(/^\((.*)\)$/, '$1').trim());
+        }
         const getIndent = (s) => s.match(/^\s*/)[0].length;
         // Past the body of a hat/DEFINE at `idx` that could not be read: its
         // lines are not statements of any other script, and listing each one as
@@ -8475,6 +8567,12 @@ class SB3Creator {
                 if (ev3 && ev3.kind !== 'command') return this.spellEv3(ev3, b, blocks);
                 const arcade = arcadeWordFor(b.opcode);
                 if (arcade && (arcade.kind === 'reporter' || arcade.kind === 'boolean')) return this.spellArcade(arcade, b, blocks);
+                // A Boolean block of the condition grammar in a ROUND slot (a
+                // Scratch project may hold one): written as its condition, so
+                // re-reading it says what it is (task D7) instead of reading the
+                // opcode back as a variable nothing writes.
+                const cond = this.dcondWord(b, blocks);
+                if (cond !== null) return cond;
                 // An arcade menu shadow (a block dragged in the editor keeps its
                 // menu as a shadow input): the value it holds.
                 if (/^arcade_menu_/.test(b.opcode)) {
@@ -8492,6 +8590,13 @@ class SB3Creator {
     dcond(ref, blocks) {
         const b = typeof ref === 'string' ? blocks[ref] : blocks[ref];
         if (!b) return '';
+        const word = this.dcondWord(b, blocks);
+        return word === null ? this.drep(b, blocks) : word;
+    }
+
+    // The condition text of a Boolean block of the condition grammar, or null
+    // when the block is not one (a reporter, a Boolean reporter WORD).
+    dcondWord(b, blocks) {
         const v = (k) => this.dval(b.inputs[k], blocks);
         const c = (k) => this.dcond(b.inputs[k][1], blocks);
         switch (b.opcode) {
@@ -8527,7 +8632,7 @@ class SB3Creator {
             case 'devices_motion': return `motion detected on ${v('SENSOR')}`;
             case 'devices_tilted': return `${v('SENSOR')} tilted?`;
             case 'devices_energised': return `${v('DEVICE')} energised?`;
-            default: return this.drep(b, blocks);
+            default: return null;
         }
     }
 

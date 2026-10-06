@@ -233,3 +233,52 @@ export function corpusFrom(files) {
         };
     });
 }
+
+/**
+ * One instance of EVERY statement rule with a value slot (task D7), and each
+ * value slot's span in it: [{rule, re, opcode, device, decls, line, slot,
+ * span, last}], `last` when nothing follows the slot on the line. Instances
+ * come from the corpus first, then the hand-written and synthesized lines the
+ * spill census uses. Rules no instance reaches are returned in `missing`.
+ */
+export function valueSlotInstances(SB3Creator, srcText, corpus = []) {
+    const rules = statementRules(srcText).filter((r) => r.valSlots.length);
+    const found = new Map();
+    for (const prog of corpus) {
+        for (const raw of prog.text.split(/\r?\n/)) {
+            if (!/^\s+\S/.test(raw)) continue;
+            const l = raw.trim();
+            const m = maskLine(l);
+            for (const r of rules) {
+                if (found.has(r)) continue;
+                r.re.lastIndex = 0;
+                if (r.re.test(m)) { found.set(r, [prog.device, prog.decls, l]); break; }
+            }
+        }
+    }
+    const out = [];
+    const missing = [];
+    for (const r of rules) {
+        const tries = found.has(r) ? [found.get(r)] : [];
+        for (const [k, dev, l] of HAND) if (r.re.source.includes(k)) tries.push([dev, [], l]);
+        const s = synth(r.re);
+        for (const p of PRE) tries.push([p, [], s]);
+        let ctx = null;
+        for (const [device, decls, line] of tries) {
+            r.re.lastIndex = 0;
+            if (!r.re.test(maskLine(line))) continue;
+            const b = build(SB3Creator, device, decls, line);
+            if (b.stmt && (!r.op || b.stmt.opcode === r.op)) { ctx = { device, decls, line, opcode: b.stmt.opcode }; break; }
+        }
+        if (!ctx) { missing.push({ rule: r.line, re: String(r.re) }); continue; }
+        const m = new RegExp(r.re.source, `${r.re.flags.replace('g', '')}d`).exec(maskLine(ctx.line));
+        for (const slot of r.valSlots) {
+            if (!m.indices[slot]) continue;
+            const span = m.indices[slot];
+            out.push({ rule: r.line, re: String(r.re), opcode: ctx.opcode, device: ctx.device, decls: ctx.decls,
+                line: ctx.line, slot, span, last: !ctx.line.slice(span[1]).trim() });
+        }
+    }
+    out.missing = missing;
+    return out;
+}

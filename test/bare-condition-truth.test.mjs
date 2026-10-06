@@ -236,69 +236,53 @@ describe('a comparison in value position says so', () => {
 });
 
 /**
- * FOUND WHILE ISOLATING D26, NOT FIXED HERE — and named rather than tolerated.
+ * FOUND WHILE ISOLATING D26, DECIDED 2026-08-29, CLOSED BY TASK D7 (2026-10-06).
  *
- * `not <condition>` has no VALUE form either, and unlike a comparison it is a
- * shape this repo's own Arduino reader EMITS: `cToPseudocode` translates
- * `int sensorVal = digitalRead(2);` on an INPUT_PULLUP pin to
- * `set sensorVal to not read d2`, because it has to undo the polarity the
- * declaration applies. Re-parsed, that is a variable called "not read d2" that
- * nothing writes — so the importer's own round trip is not faithful, and the
- * gate that re-parses it (`arduino-import.test.mjs`) only checks for warnings,
- * which is exactly what a silent swallow does not produce.
+ * `not <condition>` has no VALUE form, and it was swallowed as a variable name:
+ * `set raw to not read btn` compiled to `raw = not_read_btn;` — a phantom global
+ * nothing writes — with no warning, and this repo's own Arduino reader emitted
+ * the shape (`int sensorVal = digitalRead(2);` on an INPUT_PULLUP pin).
  *
- * It is NOT fixed with the other two because it is not a bug with an obvious
- * repair: it is a dialect decision. A boolean in value position has to be
- * given a value, and Scratch says the STRINGS "true"/"false" while every C
- * target says 1/0. Choosing either makes `print` disagree across backends —
- * the same disease D26 turned out to be. That choice belongs with whoever owns
- * the dialect, and it wants the four-backend agreement test above extended to
- * value position rather than a one-emitter patch.
- *
- * DECIDED 2026-08-29, and the decision is written up in
- * `docs/BOOLEAN-IN-VALUE-POSITION.md`: DO NOT implement a value form. The bar
- * — one spelling that round-trips faithfully AND four backends agreeing —
- * cannot be met, because the two halves of the project disagree about what a
- * boolean IS. Scratch stores the strings "true"/"false" (which is what
- * `boolishTruthTest` above treats as authoritative), and a `long` on the chip
- * stores 1/0. Pick the strings and the device C cannot compile them; pick 1/0
- * and `print` disagrees with the browser, which is the disease D26 was.
- *
- * And the dialect already answers this. The comparison warning three describes
- * above ends "to keep a truth value in a variable, branch on it and assign 1
- * or 0" — so a value form would be a SECOND spelling for a meaning that has
- * one, which is the same reason the prefix `bitand a b` was refused rather
- * than accepted.
- *
- * The memo's recommendation is to refuse this shape with that same warning and
- * to repair `cToPseudocode` to emit the branch form, which round-trips. That
- * is NOT done here: it changes the identifier rule every program goes through,
- * and a discriminator that cannot tell `not read btn` from a variable called
- * `not found` would warn across the corpus. It needs its own commit and its
- * own false-positive sweep.
- *
- * So this test still stands and is still accurate. When the refusal lands, do
- * not delete it — REPLACE it with the refusal assertion, and add the
- * value-position row to the agreement table as "all four backends refuse
- * identically", which is the only agreement available here.
+ * The decision (`docs/BOOLEAN-IN-VALUE-POSITION.md`) was to REFUSE it with the
+ * warning a comparison already gets, not to give it a value: Scratch stores
+ * "true"/"false", a `long` on the chip stores 1/0, so no single stored value
+ * lets the four backends agree. D7 implemented it for EVERY condition form
+ * (booleanFormKind in sb3Creator.js; the census over all forms and value
+ * positions is test/dialect-boolean-value.test.mjs), and repaired cToPseudocode
+ * to emit the branch form. As the sentinel asked, it is REPLACED, not deleted:
+ * the value-position row of the agreement table is "all four backends refuse
+ * identically" — one warning at parse time, and every backend receives the
+ * same literal text, none a phantom variable.
  */
-describe('OPEN DEFECT: a boolean used where a value is expected', () => {
-    test('`set x to not <cond>` is swallowed as a variable name, silently', () => {
+describe('a boolean used where a value is expected is refused identically', () => {
+    test('`set x to not <cond>` warns, and no backend invents a variable', () => {
         const c = new SB3Creator();
         c.parse([
             'DEVICE ARDUINO-UNO', 'CLOCK 16000000', 'PIN btn = D2 INPUT ACTIVE LOW', '',
             'WHEN flag clicked:', '  set raw to not read btn', '  print raw',
         ].join('\n'));
-        assert.deepEqual(c.warnings, [],
-            'nothing warns — if this now warns, the hole was closed or narrowed; '
-            + 'update this test and D26 in docs/WAVE-OPEN-DEFECTS.md');
-        assert.match(c.generateC(), /raw = not_read_btn;/,
-            'the emitted C reads a phantom global that nothing ever writes. When this '
-            + 'stops reproducing, delete this test and extend the agreement table above '
-            + 'to value position.');
+        assert.equal(c.warnings.length, 1, JSON.stringify(c.warnings));
+        assert.match(c.warnings[0], /^Line 6: "not read btn" is a CONDITION used where a value is expected/);
+        assert.match(c.warnings[0], /branch on it and assign 1 or 0/);
+        for (const [name, out] of [['device C', c.generateC()], ['host C', c.generateHostC()],
+            ['JavaScript', c.generateJavaScript()], ['Python', c.generatePython()]]) {
+            assert.doesNotMatch(out, /not_read_btn/, `${name} reads a phantom variable`);
+            assert.match(out, /not read btn/, `${name} carries the literal text the parser kept`);
+        }
     });
 
-    test("and it is a shape this repo's own Arduino reader emits", async () => {
+    test('a variable whose name starts with `not` is still a name', () => {
+        // The memo's false-positive case: `found` is named nowhere, so `not
+        // found` is a multi-word variable, not a condition over a phantom.
+        const c = new SB3Creator();
+        c.parse(stageProgram(['set not found to 1', 'set n to not found'], 'n > 0'));
+        assert.deepEqual(c.warnings, []);
+        const c2 = new SB3Creator();
+        c2.parse(stageProgram(['say not found'], 'n > 0'));   // read before (or without) any write
+        assert.deepEqual(c2.warnings, []);
+    });
+
+    test("this repo's own Arduino reader emits the branch form, which re-reads without a warning", async () => {
         const cToPseudocode = (await import('../src/utils/cToPseudocode.js')).default;
         const { pseudocode } = cToPseudocode([
             '#include <Arduino.h>',
@@ -307,7 +291,11 @@ describe('OPEN DEFECT: a boolean used where a value is expected', () => {
         ].join('\n'));
         assert.match(pseudocode, /^PIN d2 = D2 INPUT ACTIVE LOW$/m,
             'the reader states the polarity INPUT_PULLUP implies');
-        assert.match(pseudocode, /set sensorVal to not read d2/,
-            'and compensates for it with a form the parser cannot read back');
+        assert.match(pseudocode, /IF read d2 THEN:\n\s+set sensorVal to 0\n\s+ELSE:\n\s+set sensorVal to 1/,
+            'and stores the raw level digitalRead returned through the branch form');
+        assert.doesNotMatch(pseudocode, /set sensorVal to not read d2/);
+        const c = new SB3Creator();
+        c.parse(pseudocode);
+        assert.deepEqual(c.warnings, []);
     });
 });
