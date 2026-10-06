@@ -1,11 +1,12 @@
 // `chip temperature` reads the chip's own on-die sensor, in whole degrees C:
-// ATmega328P/168P (ADC MUX 1000 at 1.1 V), ATtiny85 (ADC4 at 1.1 V, printing
-// over its software UART), RP2040 (ADC input 4), STM32F030
+// ATmega328P/168P (ADC MUX 1000 at 1.1 V), ATtiny85 (ADC4 at 1.1 V) and
+// ATtiny88 (ADC8 at 1.1 V, since 2026-10-06), both printing over their
+// software UART, RP2040 (ADC input 4), STM32F030
 // (channel 16 with TSEN). The C converts with each datasheet's typical curve;
 // bw-board's emulators read the same curve at the bench temperature
 // (board.setTemperature), so the program reads the bench back exactly. The
-// chips without a sensor -- the 8051 parts, the Mega2560, the ATtiny88 --
-// refuse it by name.
+// chips without a sensor -- the 8051 parts and the Mega2560 -- refuse it by
+// name.
 import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
 import SB3Creator from '../src/utils/sb3Creator.js';
@@ -23,7 +24,7 @@ WHEN flag clicked:
 `;
 
 describe('chain chip temperature: the bench, read back by the chip', () => {
-    for (const device of ['arduino-uno', 'arduino-nano', 'atmega168p', 'attiny85', 'pico', 'stm32f030']) {
+    for (const device of ['arduino-uno', 'arduino-nano', 'atmega168p', 'attiny85', 'attiny88', 'pico', 'stm32f030']) {
         test(device, { skip: chainSkip(device) || false, timeout: 300000 }, async () => {
             const r0 = device === 'arduino-uno' ? { ok: true, pseudocode: SRC } : SB3Creator.retargetPseudocode(SRC, device);
             assert.equal(r0.ok, true, (r0.reasons || []).join('; '));
@@ -41,7 +42,7 @@ describe('chain chip temperature: the bench, read back by the chip', () => {
 });
 
 test('a chip without a sensor refuses chip temperature by name', () => {
-    for (const device of ['stc12c5a60s2', 'stc89c52rc', 'arduino-mega', 'attiny88']) {
+    for (const device of ['stc12c5a60s2', 'stc89c52rc', 'arduino-mega']) {
         const r = SB3Creator.retargetPseudocode(SRC, device);
         assert.equal(r.ok, false, device);
         assert.ok(r.reasons.some((w) => /chip temperature needs an on-die sensor/.test(w)), `${device}: ${r.reasons.join('; ')}`);
