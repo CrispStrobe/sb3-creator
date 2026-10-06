@@ -13077,7 +13077,12 @@ class SB3Creator {
                     protos.push(`void ${fn}(${params});`);
                     // The marker keeps the exact proccode and warp flag, which a flat
                     // C name cannot encode — the same reason Python emits defblock().
+                    // A comment attached to the definition, as to a hat: `//`, so the
+                    // way back (cHostToPseudocode) puts it above DEFINE again.
+                    const defNote = this.codeCommentLines(b.id || Object.keys(blocks)
+                        .find((k) => blocks[k] === b), '', '//');
                     defs.push([
+                        ...defNote,
                         `/* DEFINE ${m.proccode} */`,
                         `void ${fn}(${params})`, '{',
                         `    scratch_defblock(${this.hcStr(m.proccode)}, bw_num(${m.warp === 'true' ? 1 : 0}));`,
