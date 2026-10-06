@@ -89,3 +89,52 @@ test('comments: survive a full pseudocode → JavaScript → blocks round-trip',
     assert.match(back.pseudocode, /^\s+# greet$/m);
     assert.match(back.pseudocode, /^\s+# nested note$/m);
 });
+
+// A body whose last lines are comments has no block after them to take them.
+// They used to stay pending and attach to the next block created ANYWHERE —
+// another script's FOREVER — whose own comment was then lost; and an empty
+// hat's body indent was read from the blank line after it, so in a STAGE: or
+// SPRITE section the next script parsed as over-indented and was dropped.
+test('comments: trailing comments stay in their own script, and an empty hat leaves the next script alone', () => {
+    const src = [
+        'WHEN flag clicked:',
+        '  # unsupported: turtle.setPosition()',
+        '  # unsupported: turtle.turnRight()',
+        '',
+        'WHEN flag clicked:',
+        '  FOREVER:',
+        '    # unsupported: turtle.forward()',
+        '  say "after"'
+    ].join('\n');
+    const c = new SB3Creator();
+    c.parse(src);
+    const stage = c.project.targets.find(t => t.isStage);
+    const byText = Object.fromEntries(Object.values(stage.comments || {}).filter(x => x.blockId)
+        .map(x => [x.text, stage.blocks[x.blockId].opcode]));
+    assert.deepEqual(byText, {
+        'unsupported: turtle.setPosition()\nunsupported: turtle.turnRight()': 'event_whenflagclicked',
+        'unsupported: turtle.forward()': 'control_forever'
+    });
+    // The decompiled text parses again, with every script and comment.
+    const text = new SB3Creator().decompile(c.project);
+    const again = new SB3Creator();
+    again.parse(text);
+    assert.deepEqual(again.unparsed || [], []);
+    const back = again.project.targets.find(t => t.isStage);
+    assert.equal(Object.values(back.blocks).filter(b => b.opcode === 'event_whenflagclicked').length, 2);
+    assert.ok(Object.values(back.blocks).some(b => b.opcode === 'control_forever'));
+    assert.equal(Object.values(back.comments || {}).filter(x => x.blockId).length, 2);
+    // and a fixed point from there on
+    assert.equal(new SB3Creator().decompile(again.project), text);
+});
+
+test('comments: a comment indented less than the body belongs to the code after it', () => {
+    const c = new SB3Creator();
+    c.parse(['SPRITE T:', '  WHEN flag clicked:', '    IF 1 = 1 THEN:', '      say "a"', '    # about b', '    say "b"'].join('\n'));
+    const sprite = c.project.targets.find(t => !t.isStage);
+    const [comment] = Object.values(sprite.comments).filter(x => x.blockId);
+    assert.equal(comment.text, 'about b');
+    const block = sprite.blocks[comment.blockId];
+    assert.equal(block.opcode, 'looks_say');
+    assert.equal(sprite.blocks[block.inputs.MESSAGE[1]]?.fields?.TEXT?.[0] ?? block.inputs.MESSAGE[1][1], 'b');
+});
