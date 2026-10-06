@@ -186,8 +186,16 @@ const MUTATIONS = [
             // integrity check is not what fires: the CONFORMANCE assertion must.
             // (It has to be an opcode the snapshot HAS — dropping one of the eight
             // it is already missing would be a no-op, which the guard below catches.)
-            const text = readFileSync(f, 'utf8').replace(/\{\n\s*opcode: "matrix_clear",[\s\S]*?\n\s{10}\},\n/, '');
-            if (text === readFileSync(f, 'utf8')) throw new Error('mutation was a no-op — the pattern did not match');
+            // Lite ships the source as makeExt("<JSON string>") since its B12 sync
+            // (as a template literal before): edit the source, then wrap it back
+            // the way the file had it.
+            const raw = readFileSync(f, 'utf8');
+            const drop = (src) => src.replace(/\{\n\s*opcode: "matrix_clear",[\s\S]*?\n\s{10}\},\n/, '');
+            const str = /makeExt\(("(?:[^"\\]|\\.)*")\)/.exec(raw);
+            const text = str
+                ? raw.replace(str[1], () => JSON.stringify(drop(JSON.parse(str[1]))))
+                : drop(raw);
+            if (text === raw) throw new Error('mutation was a no-op — the pattern did not match');
             writeFileSync(f, text);
             const m = JSON.parse(readFileSync(MANIFEST, 'utf8'));
             m.snapshots['lite-stc12'].sha256 = sha256(text);
@@ -720,9 +728,20 @@ const MUTATIONS = [
     {
         name: 'an affected example is left with no pendingFix naming the fix',
         why: 'the cost of an open gap must stay attached to an owner',
+        // CONSTRUCTS its gap (2026-10-06): the re-vendored gallery copy defines
+        // every emitted opcode, so there was no recorded gap left to strip the
+        // owner from and deleting pendingFix became a no-op. Drop matrix_clear
+        // from the snapshot, re-hash it, and record the gap with no pendingFix.
         apply () {
-            save(MANIFEST);
+            const f = join(DOWN, 'gallery-stc12.js');
+            save(f); save(MANIFEST);
+            const raw = readFileSync(f, 'utf8');
+            const text = raw.replace(/\{\n\s*opcode: "matrix_clear",[\s\S]*?\n\s{10}\},\n/, '');
+            if (text === raw) throw new Error('mutation was a no-op — the pattern did not match');
+            writeFileSync(f, text);
             const m = JSON.parse(readFileSync(MANIFEST, 'utf8'));
+            m.snapshots['gallery-stc12'].sha256 = sha256(text);
+            m.snapshots['gallery-stc12'].expectedMissing = ['matrix_clear'];
             delete m.snapshots['gallery-stc12'].pendingFix;
             writeFileSync(MANIFEST, `${JSON.stringify(m, null, 2)}\n`);
         },
