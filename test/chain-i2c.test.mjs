@@ -68,3 +68,44 @@ test('two I2C parts may share a pin only in the same role', () => {
     assert.throws(() => c.parse(SRC.replace('PART memory = AT24C02 SDA P1.6 SCL P1.7', 'PART memory = AT24C02 SDA P1.7 SCL P1.6')),
         (e) => e.code === 'DIALECT_UNPARSED_LINES' && /already claimed/.test(e.lines[0].reason));
 });
+
+// Two buses. Two AT24C02 memories both answer at 0x50, so on one bus they
+// would collide; each on its own SDA/SCL pair, each master talks to its own.
+// The retarget gives the first pair the board's hardware SDA/SCL and the
+// second pair two digital pins (until 2026-10-06 it merged them onto one).
+const TWO_BUSES = `DEVICE STC12C5A60S2
+PIN led = P1.0 OUTPUT ACTIVE LOW
+PART left = AT24C02 SDA P1.6 SCL P1.7
+PART right = AT24C02 SDA P3.4 SCL P3.5
+
+WHEN flag clicked:
+  store 11 at 0 in left
+  store 22 at 0 in right
+  print byte 0 of left
+  print byte 0 of right
+  IF i2c device 80 on left THEN:
+    print 1
+  IF i2c device 80 on right THEN:
+    print 2
+`;
+
+describe('chain i2c: two buses, one memory on each, both at 0x50', () => {
+    for (const device of DEVICES) {
+        test(device, { skip: chainSkip(device) || false, timeout: 300000 }, async () => {
+            const src = device === 'stc12c5a60s2' ? TWO_BUSES : SB3Creator.retargetPseudocode(TWO_BUSES, device).pseudocode;
+            const r = await runOn(src, device);
+            assert.match(r.code, /bw_i2c2_found/, 'a second master for the second pair');
+            r.run(400);
+            assert.deepEqual(r.serial.trim().split('\r\n'), ['11', '22', '1', '2'], `${device}: ${JSON.stringify(r.serial)}`);
+        });
+    }
+});
+
+test('the retarget keeps a second I2C bus on pins of its own', () => {
+    for (const device of ['arduino-uno', 'pico', 'stm32f030', 'stc89c52rc']) {
+        const r = SB3Creator.retargetPseudocode(TWO_BUSES, device);
+        assert.equal(r.ok, true, (r.reasons || []).join('; '));
+        const pair = (name) => r.pseudocode.match(new RegExp(`PART ${name} = AT24C02 SDA (\\S+) SCL (\\S+)`)).slice(1).join('/');
+        assert.notEqual(pair('left'), pair('right'), `${device}: ${r.pseudocode}`);
+    }
+});

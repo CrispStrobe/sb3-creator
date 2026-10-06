@@ -30,7 +30,7 @@ const KNOWN = new Set([
     'control_wait', 'control_wait_until', 'control_repeat_until',
     'data_setvariableto', 'data_changevariableby',
     'stc12_setpin', 'stc12_toggle', 'stc12_writepin', 'stc12_setpwm',
-    'stc12_settone', 'stc12_print', 'stc12_read', 'stc12_setpart',
+    'stc12_settone', 'stc12_print', 'stc12_read', 'stc12_setpart', 'stc12_chiptemp',
     'devices_setservo', 'devices_servoangle',
     'devices_setmotor', 'devices_motorspeed', 'devices_motordirection',
     'devices_setdirection',
@@ -59,6 +59,7 @@ const KNOWN = new Set([
  *   Used for sensor examples where the stimulus is not a pin voltage but a
  *   world-facing parameter (knock force, distance, tilt vector, touch state).
  * @param {number} [opts.maxSteps] - runaway guard (default 1e6)
+ * @param {number} [opts.chipTemperatureC] - what `chip temperature` reads (default 25)
  * @param {{bits:number, vref:number}} [opts.adc] - the DEVICE'S ADC
  *   resolution and reference (8051/AVR: 10 bits of 5 V; Pico: 12 of 3.3).
  *   Raw counts are program-visible (print read pot), so the referee must
@@ -310,6 +311,8 @@ export function interpretTrace(project, opts = {}) {
                 }
                 return 0;
             }
+            // The chip's own sensor reads the bench: opts.chipTemperatureC, 25 by default.
+            case 'stc12_chiptemp': return Math.round(opts.chipTemperatureC ?? 25);
             case 'stc12_read': {
                 const pin = pinsByName.get(String(fld('PIN')).toLowerCase());
                 const s = stimAt(fld('PIN'));

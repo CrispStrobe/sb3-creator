@@ -1,0 +1,19 @@
+DEVICE ARDUINO-UNO
+CLOCK 16000000
+PIN beat = D13 OUTPUT
+
+# How warm is the chip itself? Most microcontrollers carry a thermometer on
+# their own silicon. `chip temperature` reads it in whole degrees: once a
+# second it goes to the serial monitor, and the LED flashes with every
+# reading -- a short blink while the chip is cool, a long one above 30.
+WHEN flag clicked:
+  FOREVER:
+    set t to chip temperature
+    print join "Chip: " (join t " C")
+    turn on beat
+    IF t > 30 THEN:
+      wait 0.5 seconds
+    ELSE:
+      wait 0.1 seconds
+    turn off beat
+    wait 1 seconds

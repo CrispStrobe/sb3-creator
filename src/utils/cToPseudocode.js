@@ -1543,6 +1543,7 @@ export default function cToPseudocode (source, opts = {}) {
             case 'bw_oled_show': return { text: '0', level: 99, stmt: `oled show ${a(0)}` };
             // Sensors (reporters)
             case 'bw_temperature': return { text: `temperature from ${a(0)}`, level: 99 };
+            case 'bw_chip_temp': return { text: 'chip temperature', level: 99 };
             case 'bw_light': return { text: `light from ${a(0)}`, level: 99 };
             case 'bw_distance': return { text: `distance from ${a(0)}`, level: 99 };
             case 'bw_flex': return { text: `flex of ${a(0)}`, level: 99 };
@@ -2348,7 +2349,7 @@ export default function cToPseudocode (source, opts = {}) {
         'bw_oled_print_s', 'bw_oled_print_n', 'bw_oled_cursor',
         'bw_oled_hline', 'bw_oled_show',
         'oled_cmd', 'oled_data_start', 'oled_set_page_col', 'oled_putchar',
-        'bw_temperature', 'bw_light', 'bw_distance', 'bw_flex', 'bw_force',
+        'bw_temperature', 'bw_chip_temp', 'bw_light', 'bw_distance', 'bw_flex', 'bw_force',
         'bw_ir_code', 'bw_device_state',
         'bw_pressed', 'bw_above', 'bw_closer', 'bw_motion', 'bw_tilted', 'bw_energised',
         'bw_print', 'bw_print_num']);
