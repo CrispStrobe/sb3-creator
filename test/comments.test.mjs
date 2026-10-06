@@ -138,3 +138,17 @@ test('comments: a comment indented less than the body belongs to the code after 
     assert.equal(block.opcode, 'looks_say');
     assert.equal(sprite.blocks[block.inputs.MESSAGE[1]]?.fields?.TEXT?.[0] ?? block.inputs.MESSAGE[1][1], 'b');
 });
+
+test('comments: a comment above DEFINE belongs to the definition and survives a round trip', () => {
+    const src = ['SPRITE T:', '  # what it does', '  DEFINE number (picture):', '    # unsupported: picture.fill()', '  WHEN flag clicked:', '    say "x"'].join('\n');
+    const c = new SB3Creator();
+    c.parse(src);
+    const sprite = c.project.targets.find(t => !t.isStage);
+    const define = Object.entries(sprite.blocks).find(([, b]) => b.opcode === 'procedures_definition');
+    assert.equal(sprite.comments[define[1].comment].text, 'what it does\nunsupported: picture.fill()');
+    const once = new SB3Creator().decompile(c.project);
+    const again = new SB3Creator();
+    again.parse(once);
+    assert.equal(new SB3Creator().decompile(again.project), once);
+    assert.match(once, /# what it does\n\s*# unsupported: picture\.fill\(\)\n\s*DEFINE number/);
+});

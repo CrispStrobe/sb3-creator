@@ -7884,6 +7884,8 @@ class SB3Creator {
                     defData.block[defId].x = 50 + (this.scriptCount % 3) * 350;
                     defData.block[defId].y = 50 + Math.floor(this.scriptCount / 3) * 300;
                     this.scriptCount++;
+                    // A comment written above DEFINE is the definition's, as above WHEN.
+                    this.attachPendingComment(currentTarget, defData.block[defId], defId);
 
                     this.currentProcArgs = defData.args;
                     const nextLineIndent = scriptBodyIndent(i);
