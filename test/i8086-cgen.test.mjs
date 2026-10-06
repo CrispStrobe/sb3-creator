@@ -75,8 +75,11 @@ const TOGGLE_GOLDENS = Object.freeze({
     // toggle: `#define T0_STOP` (the re-arm loss the STC89 blink measured) and
     // main's closing `for (;;) { }` (a finished script used to fall off main).
     '8051': ['STC12C5A60S2', 'P1.0', '98fa19d8e89f69b5541e28434827f8b388b7b1eaca728c91468f29e163bbc21d'],
-    avr: ['ARDUINO-UNO', 'D13', '704419a1e1f7c9b7dfd416620f23e8344e3a27018982140c35d378b0565b8591'],
-    arm: ['PICO', 'GP25', '962878552628d5390ec2748beea458d2e07d5fad58301b1cdf35d1281f0366a4']
+    // avr and arm re-pinned 2026-10-06 for the same closing `for (;;) { }`,
+    // which their straight-line branches never reached (a tone left on
+    // stopped when main returned); nothing in the toggle moved.
+    avr: ['ARDUINO-UNO', 'D13', '1355c4d3f2b9beaa7b8e0f34b3987d5d182dde88a8e26a1f299f4f1095bbdf53'],
+    arm: ['PICO', 'GP25', '8d79639c610ae173d748d9c653e741d639f2d4a1bb1bda8242abe7e4fb70fa49']
 });
 corpusFloor('legacy device families protected by i8086 toggle byte goldens',
     () => Object.keys(TOGGLE_GOLDENS).length, 4,

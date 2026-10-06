@@ -19166,6 +19166,17 @@ class SB3Creator {
                     '    bw_oled_clear(0);                  /* zero GDDRAM */');
             }
         }
+        // A script that runs off its end has FINISHED, and stays finished, as
+        // in Scratch. Returning from main did something different on every
+        // chip: SDCC's 8051 startup ran the program again (a melody replayed
+        // from the top), avr-libc parked with interrupts off (a tone ISR
+        // silenced mid-note), and the SRAM-loaded RP2040 image returned into
+        // whatever LR held. Interrupts stay live. (Until 2026-10-06 this loop
+        // sat in the final branch below behind a test for 8051/avr/arm, which
+        // the avr and arm branches before it never reached: only the 8051 got
+        // it, and an ATtiny85 program ending on `set buzz to 440 hz` went
+        // silent the moment main returned.)
+        const stayFinished = '    for (;;) { }                    /* the script has finished: stay finished */';
         out.push('}', '',
             (this._core !== '8051' && this._core !== 'z80') ? 'int main(void)' : 'void main(void)',
             '{', '    bw_setup();');
@@ -19244,6 +19255,7 @@ class SB3Creator {
             out.push('    sei();', '');
             out.push(...mainNote.map((l) => `    ${l}`));
             out.push(...mainBody);
+            out.push(stayFinished);
         } else if (this._core === 'arm') {
             out.push(...(this._cStm32 ? [
                 '    NVIC_ISER = (1u << 16);        /* TIM3 wakes bw_idle (vectors are real) */'
@@ -19255,19 +19267,12 @@ class SB3Creator {
                 '');
             out.push(...mainNote.map((l) => `    ${l}`));
             out.push(...mainBody);
+            out.push(stayFinished);
         } else {
             out.push('');
             out.push(...mainNote.map((l) => `    ${l}`));
             out.push(...mainBody);
-            // A script that runs off its end has FINISHED, and stays finished,
-            // as in Scratch. Returning from main did something different on
-            // every chip: SDCC's 8051 startup ran the program again (a melody
-            // replayed from the top), avr-libc parked with interrupts off (a
-            // tone ISR silenced mid-note), and the SRAM-loaded RP2040 image
-            // returned into whatever LR held. Interrupts stay live.
-            if (['8051', 'avr', 'arm'].includes(this._core)) {
-                out.push('    for (;;) { }                    /* the script has finished: stay finished */');
-            }
+            if (this._core === '8051') out.push(stayFinished);
         }
         out.push('}', '');
         // i8086 emits 8255 PIN I/O only, for now. Every other verb falls to the

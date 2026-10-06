@@ -83,3 +83,31 @@ test('every retargetable 8051 part has a second baud source, so tone + print ret
         assert.equal(r.ok, true, `${device}: ${(r.reasons || []).join('; ')}`);
     }
 });
+
+// A script that ends with the tone still on: in Scratch the note keeps
+// sounding after the script finishes, so on the chip main() must not return.
+// Until 2026-10-06 only the 8051 got the "stay finished" loop -- the AVR and
+// ARM straight-line branches never reached it, and avr-libc's exit parks with
+// interrupts off, so the tone ISR stopped mid-note (found running an ATtiny85
+// program in Lite's B12 test).
+const LEFT_ON = `DEVICE STC12C5A60S2
+CLOCK 11059200
+PIN buzzer = P1.5 TONE
+
+WHEN flag clicked:
+  set buzzer to 440 hz
+`;
+
+describe('chain tone: a note left on when the script ends keeps sounding', () => {
+    for (const device of DEVICES) {
+        test(device, { skip: chainSkip(device) || false, timeout: 300000 }, async () => {
+            const r = await runOn(LEFT_ON, device);
+            // The STM32F030 always runs the scheduler (its loop never ends);
+            // every other board emits this straight-line main.
+            if (device !== 'stm32f030') assert.match(r.code, /the script has finished: stay finished/);
+            r.run(1000);
+            const hz = r.edges(r.pinOf('buzzer'), 200, 1000) / 2 / 0.8;
+            assert.ok(Math.abs(hz - 440) <= 4.4, `${device}: ${hz.toFixed(1)} Hz after the script ended, expected ~440`);
+        });
+    }
+});
