@@ -10295,24 +10295,28 @@ class SB3Creator {
 
     /**
      * print/ask on an ATtiny: a software UART, 9600 8N1, on the chip's
-     * SOFT_SERIAL_PINS. TX is timed in CPU cycles with interrupts left on, so
-     * the millisecond tick never misses (it stretches one bit by a few
-     * microseconds, far inside a receiver's half-bit margin). With ask, RX is
-     * a pin-change interrupt that samples a whole frame and queues it, so the
-     * scheduler keeps running while a person types.
+     * SOFT_SERIAL_PINS. Each TX frame is timed in CPU cycles with interrupts
+     * held off: the receiver is an interrupt that runs for a whole frame, and
+     * landing inside a transmitted frame it would wreck it (measured: a CR LF
+     * typed into ask garbled the next line printed). The price, as with
+     * Arduino's SoftwareSerial: a tick due during a frame waits for its end,
+     * and two ticks due inside one 1.04 ms frame count once. A byte that
+     * arrives mid-frame is read from the wrong place; asking a new question
+     * empties the queue, so it cannot become part of the next answer.
      */
     _cSoftSerialTx() {
         const pb = (where) => where.match(/^P([A-D])(\d)$/).slice(1);
         const [tp, tb] = pb(this._cSoftSerial.tx);
         const [rp, rb] = pb(this._cSoftSerial.rx);
         const out = [`/* print: no UART on this chip, so a software one, 9600 8N1, on ${this._cSoftSerial.tx} (TX)`,
-            ` * and ${this._cSoftSerial.rx} (RX), ATTinyCore's pins. Bits are timed in CPU cycles with`,
-            ' * interrupts left on: the tick stretches one bit by a few microseconds,',
-            ' * far inside the half-bit a receiver allows, and never misses a tick. */',
+            ` * and ${this._cSoftSerial.rx} (RX), ATTinyCore's pins. Each frame is timed in CPU cycles`,
+            ' * with interrupts held off, as SoftwareSerial does: a tick due meanwhile',
+            ' * waits for the frame to end (two inside one 1.04 ms frame count once). */',
             '#define BW_BIT_CYCLES (F_CPU / 9600UL)',
             'static void bw_putc(char c)',
             '{',
-            '    uint8_t i, b = (uint8_t)c;',
+            '    uint8_t i, b = (uint8_t)c, sreg = SREG;',
+            '    cli();',
             `    PORT${tp} &= (uint8_t)~(1 << ${tb});            /* start bit */`,
             '    __builtin_avr_delay_cycles(BW_BIT_CYCLES - 8);',
             '    for (i = 0; i < 8; i++) {',
@@ -10322,6 +10326,7 @@ class SB3Creator {
             '    }',
             `    PORT${tp} |= (1 << ${tb});                      /* stop bit */`,
             '    __builtin_avr_delay_cycles(BW_BIT_CYCLES);',
+            '    SREG = sreg;',
             '}', ''];
         if (!this._cUses.ask) return out;
         out.push('/* ask: the receiver is a pin-change interrupt on RX. It samples the whole',
@@ -10824,7 +10829,9 @@ class SB3Creator {
             // While waiting for a person to type, every poll stirs the random
             // generator: how long they take is chance the chip can use.
             ...(this._cUses.random ? ['static unsigned long bw_rng;   /* pick random (defined with bw_random) */'] : []),
-            'static void bw_ask(const char *q) { bw_put_s(q); bw_put_end(); bw_line_len = 0; }',
+            (this._core === 'avr' && this._cSoftSerial)
+                ? 'static void bw_ask(const char *q) { bw_put_s(q); bw_put_end(); bw_line_len = 0; bw_rx_tail = bw_rx_head; }'
+                : 'static void bw_ask(const char *q) { bw_put_s(q); bw_put_end(); bw_line_len = 0; }',
             '/* Take what has arrived; 1 when a whole line is in (it is then the answer). */',
             `static ${u8} bw_got_line(void)`,
             '{',

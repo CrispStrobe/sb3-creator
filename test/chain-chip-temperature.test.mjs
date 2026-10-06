@@ -1,5 +1,6 @@
 // `chip temperature` reads the chip's own on-die sensor, in whole degrees C:
-// ATmega328P/168P (ADC MUX 1000 at 1.1 V), RP2040 (ADC input 4), STM32F030
+// ATmega328P/168P (ADC MUX 1000 at 1.1 V), ATtiny85 (ADC4 at 1.1 V, printing
+// over its software UART), RP2040 (ADC input 4), STM32F030
 // (channel 16 with TSEN). The C converts with each datasheet's typical curve;
 // bw-board's emulators read the same curve at the bench temperature
 // (board.setTemperature), so the program reads the bench back exactly. The
@@ -22,7 +23,7 @@ WHEN flag clicked:
 `;
 
 describe('chain chip temperature: the bench, read back by the chip', () => {
-    for (const device of ['arduino-uno', 'arduino-nano', 'atmega168p', 'pico', 'stm32f030']) {
+    for (const device of ['arduino-uno', 'arduino-nano', 'atmega168p', 'attiny85', 'pico', 'stm32f030']) {
         test(device, { skip: chainSkip(device) || false, timeout: 300000 }, async () => {
             const r0 = device === 'arduino-uno' ? { ok: true, pseudocode: SRC } : SB3Creator.retargetPseudocode(SRC, device);
             assert.equal(r0.ok, true, (r0.reasons || []).join('; '));
