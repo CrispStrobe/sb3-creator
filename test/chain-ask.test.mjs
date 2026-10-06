@@ -6,7 +6,9 @@
 // for print/join/`answer = "yes"`, as Scratch's number cast for arithmetic),
 // and with the scheduler running the wait for it is a yield -- the other
 // scripts keep going. The 8051 needs the emulator's receive FIFO (emu8051-stc
-// lane uart-rx-fifo) or a typed line arrives as its last byte only.
+// lane uart-rx-fifo) or a typed line arrives as its last byte only. The
+// ATtinys, which have no UART, take part since 2026-10-06 through a
+// software UART (chain-attiny-serial.test.mjs has the details).
 import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
 import SB3Creator from '../src/utils/sb3Creator.js';
@@ -16,6 +18,8 @@ const PINS = {
     stc12c5a60s2: 'P1.0', stc15f2k60s2: 'P1.0', stc89c52rc: 'P1.0',
     'arduino-uno': 'D13', 'arduino-nano': 'D13', atmega168p: 'D13', 'arduino-mega': 'D13',
     pico: 'GP25', stm32f030: 'PA0',
+    // The ATtinys (2026-10-06): a software UART on PB0/PB1 and PD6/PD7.
+    attiny85: 'PB3', attiny88: 'PB0',
 };
 
 const program = (device) => `DEVICE ${device.toUpperCase()}
@@ -66,10 +70,3 @@ test('a non-number answer is 0 in arithmetic, as Scratch casts it', () => {
     assert.match(code, /if \(!any \|\| i != bw_ans_len\) return 0;/);
 });
 
-test('the ATtinys refuse ask by name: no UART', () => {
-    for (const device of ['attiny85', 'attiny88']) {
-        const r = SB3Creator.retargetPseudocode(program('stc12c5a60s2'), device);
-        assert.equal(r.ok, false);
-        assert.ok(r.reasons.some((w) => /UART/.test(w)), r.reasons.join('; '));
-    }
-});

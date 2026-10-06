@@ -73,7 +73,15 @@ test('the opcode deriver actually finds opcodes', () => {
     // LEDCUBE.opcodes.size >= 5 -> observed 9.
     assert.ok(LEDCUBE.opcodes.size >= 5,
         `expected 5+ ledcube opcodes, found ${LEDCUBE.opcodes.size} — deriver broken`);
+    // `chip temperature` (2026-10-06) is the one stc12 reporter with nothing to
+    // say: no pin, no value. Named here, so a deriver that stops finding the
+    // arguments of anything ELSE still fails.
+    const NO_ARGUMENTS = new Set(['chiptemp']);
     for (const op of STC12.opcodes) {
+        if (NO_ARGUMENTS.has(op)) {
+            assert.equal(STC12.args[op].size, 0, `stc12_${op} grew arguments; take it off NO_ARGUMENTS`);
+            continue;
+        }
         assert.ok(STC12.args[op] && STC12.args[op].size > 0,
             `stc12_${op}: the deriver found no argument names, so the argument check for it ` +
             `would pass vacuously (scan window too small, or the opcode takes none)`);

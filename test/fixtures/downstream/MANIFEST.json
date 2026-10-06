@@ -8,7 +8,10 @@
       "upstreamCommit": "2258847c1bc95df0bd3a7ae28d0b7f929388a54c",
       "sha256": "c517e10892f70a74de34252bd1521827a7e730eec5aff4544235770c1bea41ab",
       "bytes": 26757,
-      "expectedMissing": []
+      "expectedMissing": [
+        "chiptemp"
+      ],
+      "pendingFix": "chiptemp (`chip temperature`, authored by chip-thermometer, 2026-10-06): defined by CrispStrobe/extensions #32 (stc12.js); Brickwright Lite adopts it in task B12. Remove it here when this snapshot is re-vendored past both."
     },
     "lite-stc12live": {
       "repo": "brickwright-lite",
@@ -29,6 +32,7 @@
       "sha256": "f15d1fd93a4d5947be6cbc9b8dae7aa9793f3f25d82c1e36a5076c2dc6454f96",
       "bytes": 10333,
       "expectedMissing": [
+        "chiptemp",
         "keypad",
         "led_only",
         "led_set",
@@ -46,7 +50,7 @@
         "seg_shownum",
         "whenkey"
       ],
-      "pendingFix": "extensions branch fix/stc12-publish-canonical (ece9fde) publishes reference/extensions/stc12.js, which is a strict superset of this snapshot (359 insertions, 0 deletions). Recorded 2026-08-23. This copy is two waves behind, not one: it never received MATRIX8X8 either. It is what web Brickwright and plain TurboWarp fetch at runtime, so those sixteen opcodes resolve to nothing there. Delete this entry and re-vendor once that branch is on the extensions repo's main."
+      "pendingFix": "extensions branch fix/stc12-publish-canonical (ece9fde) publishes reference/extensions/stc12.js, which is a strict superset of this snapshot (359 insertions, 0 deletions). Recorded 2026-08-23. This copy is two waves behind, not one: it never received MATRIX8X8 either. It is what web Brickwright and plain TurboWarp fetch at runtime, so those sixteen opcodes resolve to nothing there. Delete this entry and re-vendor once that branch is on the extensions repo's main. ALSO: chiptemp (`chip temperature`, authored by chip-thermometer, 2026-10-06): defined by CrispStrobe/extensions #32 (stc12.js); Brickwright Lite adopts it in task B12. Remove it here when this snapshot is re-vendored past both."
     },
     "gallery-stc12live": {
       "repo": "extensions",

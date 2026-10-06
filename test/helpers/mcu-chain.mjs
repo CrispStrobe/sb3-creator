@@ -88,7 +88,7 @@ export function chainSkip(device) {
 /**
  * The engine features these chains measure against, by the marker each one
  * left in bw-board's source. A sibling at an older pin (sb3-creator's CI
- * checks out test/fixtures/siblings.json, 76597f81 until it is bumped) runs
+ * checks out the commit test/fixtures/siblings.json names) runs
  * the programs on an engine without them and fails for the ENGINE's reason --
  * so the chain says which feature is missing instead.
  */
@@ -97,6 +97,8 @@ const ENGINE_FEATURES = [
     ['src/infer-netlist.js', /'hcsr04'/, 'sensor/I2C PART benches (bw-board #408)'],
     ['src/stm32f0-board.js', /class Stm32Tim14 /, 'STM32 TIM14 (bw-board #407)'],
     ['src/rp2040js-adapter.js', /sendSerial\(/, 'adapter sendSerial (bw-board #409)'],
+    ['src/chip-temperature.js', /avrTemperatureCounts/, 'chip temperature sensors (bw-board #411)'],
+    ['src/avr8js-adapter.js', /softSerial/, 'the ATtiny software UART (bw-board #411)'],
 ];
 let engineGapMemo;
 function engineGap() {

@@ -45,7 +45,7 @@ WHEN flag clicked:
   turn on led`;
 
 const DEVICES = ['stc12c5a60s2', 'stc15f2k60s2', 'stc89c52rc', 'arduino-uno', 'arduino-nano',
-    'atmega168p', 'arduino-mega', 'pico', 'stm32f030'];
+    'atmega168p', 'arduino-mega', 'attiny85', 'attiny88', 'pico', 'stm32f030'];
 
 describe('chain lists: add, insert, delete, replace, item, length and pick random', () => {
     for (const device of DEVICES) {
@@ -63,10 +63,3 @@ describe('chain lists: add, insert, delete, replace, item, length and pick rando
     }
 });
 
-test('the ATtinys refuse print by name: neither has a UART', () => {
-    for (const device of ['attiny85', 'attiny88']) {
-        const r = SB3Creator.retargetPseudocode(SRC, device);
-        assert.equal(r.ok, false, device);
-        assert.ok(r.reasons.some((w) => /UART/.test(w)), `${device}: ${r.reasons.join('; ')}`);
-    }
-});

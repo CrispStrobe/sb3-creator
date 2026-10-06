@@ -79,6 +79,13 @@
               PIN: { type: Scratch.ArgumentType.STRING, menu: "pins" },
             },
           },
+          {
+            // The chip's own on-die sensor, whole degrees C (upstream
+            // CrispStrobe/extensions #32): the bench temperature in the VM.
+            opcode: "chiptemp",
+            blockType: Scratch.BlockType.REPORTER,
+            text: Scratch.translate("chip temperature"),
+          },
           "---",
           {
             opcode: "setpwm",
@@ -424,6 +431,12 @@
       board(this.runtime)[args.PIN] = Number(args.VALUE) ? 1 : 0;
       const live = this._live();
       if (live) live.writePinLevel(args.PIN, Number(args.VALUE));
+    }
+
+    chiptemp() {
+      const b = this.runtime && this.runtime.circuitBoard;
+      const t = b ? Number(b.temperatureC) : NaN;
+      return Math.round(isFinite(t) ? t : 25);
     }
 
     read(args) {

@@ -264,7 +264,10 @@ const MUTATIONS = [
         apply () {
             const f = join(ROOT, 'src', 'utils', 'sb3Creator.js');
             save(f);
-            writeFileSync(f, readFileSync(f, 'utf8').replace(/createBlock\('stc12_/g, "createBlock('stc12X_"));
+            // Every form the deriver reads (createBlock/cmd, B/push), not just
+            // one: with only createBlock renamed, the B('stc12_...') calls alone
+            // reached the floor once `chip temperature` added one (2026-10-06).
+            writeFileSync(f, readFileSync(f, 'utf8').replace(/(createBlock|cmd|B|push)\('stc12_/g, "$1('stc12X_"));
         },
         expect: /deriver has stopped matching|found 0|vacuous/
     },
