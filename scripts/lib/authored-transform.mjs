@@ -382,6 +382,13 @@ export function transformAuthored(data, targetKind, pinMap, Circuit, pools, devi
   // already handle.)
   const pdParts = [];
   const pdWires = [];
+  // The pull-down column sits above the MCU, which is placed at (80, -60).
+  // y = -120 clears the DIP packages and the Nano, but an Uno or Mega body
+  // reaches much higher (half-heights from the board outlines in mm, at
+  // 14 px per 0.1 in), so there the column starts above the board instead.
+  const BIG_BOARD_HALF_HEIGHT = { arduino_uno: 53.34 * 7 / 2.54, arduino_mega: 50.8 * 7 / 2.54 };
+  const pdTop = targetKind in BIG_BOARD_HALF_HEIGHT
+    ? Math.floor(-60 - BIG_BOARD_HALF_HEIGHT[targetKind] - 20) : -120;
   if (targetKind !== 'pi_pico' && Array.isArray(retargetedPins)) {
     const gndPart = d.parts.find((p) => p.kind === 'gnd');
     const coordOf = (q) => q.where ? String(q.where) : `P${q.port}.${q.bit}`;
@@ -395,7 +402,7 @@ export function transformAuthored(data, targetKind, pinMap, Circuit, pools, devi
       // 10k divider idles at 1.58 V — a hair ABOVE the 1.5 V read
       // threshold, so the key still read pressed. 4.7k idles ~0.9 V.
       pdParts.push({ id: rId, kind: 'resistor', params: { ohms: 4700 },
-        terminals: ['a', 'b'], x: 60, y: -120 - pdParts.length * 20, rotation: 0 });
+        terminals: ['a', 'b'], x: 60, y: pdTop - pdParts.length * 20, rotation: 0 });
       pdWires.push({ from: mcu.id, fromTerminal: caseTo(coordOf(pin)), to: rId, toTerminal: 'a' });
       pdWires.push({ from: rId, toTerminal: 'gnd', to: gndPart.id, fromTerminal: 'b' });
     }

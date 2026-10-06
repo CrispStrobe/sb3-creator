@@ -142,3 +142,43 @@ test('all generated seated component bodies are disjoint in rendered geometry',
   }
   assert.deepEqual(failures, []);
 });
+
+// The seated-body gate above skips every part that is not on a breadboard
+// seat, so an UNSEATED part could sit inside an Uno or Mega outline unnoticed:
+// the authored transform placed its pull-down column at y = -120, inside those
+// boards (arduino-sk-p07-keyboard, 2026-10-06, found by Lite's corpus gate).
+// Every device variant's non-breadboard bodies must be disjoint, seated or not.
+test('every device variant\'s component bodies are disjoint, seated or not',
+  { skip: layoutGate.skip }, async () => {
+  const root = path.resolve(import.meta.dirname, '..');
+  const cui = process.env.BW_CIRCUIT_UI || path.join(root, '..', 'bw-circuit-ui');
+  const {registerSidecar} = await import(path.join(cui, 'src/model/parts-registry.js'));
+  for (const file of fs.readdirSync(path.join(cui, 'src/parts-data'))) {
+    if (!file.endsWith('.json')) continue;
+    try {
+      const sidecar = JSON.parse(fs.readFileSync(path.join(cui, 'src/parts-data', file), 'utf8'));
+      if (sidecar.kind) registerSidecar(sidecar);
+    } catch { /* malformed sidecars have their own source-repo gate */ }
+  }
+  const {resolveSeatedParts} = await import(path.join(cui, 'src/interaction/seat-geometry.js'));
+  const {partBounds} = await import(path.join(cui, 'src/interaction/hittest.js'));
+  const failures = [];
+  let checked = 0;
+  for (const file of benchFiles()) {
+    if (path.basename(file) === 'circuit.json') continue;
+    checked++;
+    const data = JSON.parse(fs.readFileSync(file, 'utf8'));
+    const parts = resolveSeatedParts(data.parts || []).filter(part => part.kind !== 'breadboard');
+    for (let i = 0; i < parts.length; i++) for (let j = i + 1; j < parts.length; j++) {
+      const aa = partBounds(parts[i]); const bb = partBounds(parts[j]);
+      const overlapX = Math.min(aa.maxX, bb.maxX) - Math.max(aa.minX, bb.minX);
+      const overlapY = Math.min(aa.maxY, bb.maxY) - Math.max(aa.minY, bb.minY);
+      if (overlapX > 1 && overlapY > 1) {
+        failures.push(`${file}: ${parts[i].id} covers ${parts[j].id} by ${overlapX.toFixed(1)}x${overlapY.toFixed(1)}`);
+      }
+    }
+  }
+  // MEASURED 2026-10-06: 1135 device variants (every examples/*/circuit.*.json).
+  assert.ok(checked > 900, `only ${checked} device variants checked (expected ~1135)`);
+  assert.deepEqual(failures, []);
+});

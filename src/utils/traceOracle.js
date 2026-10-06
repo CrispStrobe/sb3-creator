@@ -94,6 +94,15 @@ export function interpretTrace(project, opts = {}) {
 
     const vars = new Map();
     const lists = new Map(); // name → array of values
+    // A `GLOBAL LIST x = [..]` declaration is the list's contents at the green
+    // flag, stored on the target as Scratch stores it ({id: [name, values]}).
+    // The VM and the C builds start from it, so the referee does too; without
+    // this, `length of x` was 0 and a tune held in lists played nothing.
+    for (const target of (project && project.targets) || []) {
+        for (const [name, values] of Object.values(target.lists || {})) {
+            if (Array.isArray(values)) lists.set(name, [...values]);
+        }
+    }
     let now = 0;
 
     const emitPin = (name, intent) => {

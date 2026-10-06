@@ -17,7 +17,7 @@ Vier Lampen und ein Taster. Drücke den Taster: Die Lampen flackern eine halbe S
 
 `show lamp` schaltet alle vier Lampen aus und dann die ein, deren Nummer in `lamp` steht.
 
-Das Skript hat gar kein „wenn die Flagge angeklickt wird“. Es startet von selbst, sobald der Taster heruntergeht: ein WENN-Kopf an einem Pin. Den Taster gedrückt zu halten startet es nicht neu; nur ein neuer Druck tut das.
+Die grüne Flagge schaltet nur alle Lampen aus. Das Spiel selbst startet von selbst, sobald der Taster heruntergeht: ein WENN-Kopf an einem Pin. Den Taster gedrückt zu halten startet es nicht neu; nur ein neuer Druck tut das.
 
 ## Warum das wichtig ist
 Spiele brauchen Zufall, viele Simulationen auch. Auf ein Ereignis zu warten, statt immer wieder nachzusehen, ist die Art, wie die meisten echten Geräte arbeiten: Eine Fernbedienung, eine Türklingel oder eine Tastatur tun nichts, bis eine Taste gedrückt wird.
