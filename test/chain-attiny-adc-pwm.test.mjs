@@ -58,14 +58,16 @@ WHEN flag clicked:
             let high = 0;
             for (let i = 1; i < edges.length; i++) if (edges[i - 1].high) high += edges[i].tNs - edges[i - 1].tNs;
             const span = edges[edges.length - 1].tNs - edges[0].tNs;
-            // MEASURED 2026-10-06: 49 edges in those 50 ms (the emulator's 2040 us period).
+            // MEASURED 2026-10-06: 98 edges in those 50 ms.
             assert.ok(edges.length > 20, `${pin} toggles under PWM (${edges.length} edges)`);
-            // MEASURED 2026-10-06: 0.251. The period is not asserted: the
-            // emitted timer runs at 8 MHz / 32 / 256 = 977 Hz on silicon
-            // (2586Q section 12.2.2: f = f_TCK1 / (OCR1C + 1)), but avr8js
-            // 0.21.0 counts Timer 1's PWM up and down, so the emulator shows
-            // a 2040 us period. Duty is the same either way.
-            assert.ok(Math.abs(high / span - 0.25) < 0.02, `${pin} duty ${(high / span).toFixed(3)} vs 0.25`);
+            // 8 MHz / 32 / 256 = 977 Hz: a 1024 us period (2586Q section 12.2.2,
+            // f = f_TCK1 / (OCR1C + 1)). MEASURED 2026-10-06 on both pins: 1024.00 us
+            // and duty 0.2539 with bw-board on the CrispStrobe/avr8js fork; avr8js
+            // 0.21.0 counted up and down and showed 2040 us.
+            const rises = edges.filter((e) => e.high).map((e) => e.tNs);
+            const period = (rises[rises.length - 1] - rises[0]) / (rises.length - 1) / 1000;
+            assert.ok(Math.abs(period - 1024) < 2, `${pin} period ${period.toFixed(1)} us, expected ~1024`);
+            assert.ok(Math.abs(high / span - 0.25) < 0.02, `${pin} duty ${(high / span).toFixed(3)}, expected ~0.25`);
         });
     }
 });
