@@ -5,22 +5,19 @@
       "path": "overlay/scratch-vm/src/extensions/crispstrobe/stc12/index.js",
       "wrapper": "makeExt",
       "why": "the extension brickwright-lite bundles; what the desktop/mobile app loads",
-      "upstreamCommit": "2258847c1bc95df0bd3a7ae28d0b7f929388a54c",
-      "sha256": "c517e10892f70a74de34252bd1521827a7e730eec5aff4544235770c1bea41ab",
-      "bytes": 26757,
-      "expectedMissing": [
-        "chiptemp"
-      ],
-      "pendingFix": "chiptemp (`chip temperature`, authored by chip-thermometer, 2026-10-06): defined by CrispStrobe/extensions #32 (stc12.js); Brickwright Lite adopts it in task B12. Remove it here when this snapshot is re-vendored past both."
+      "upstreamCommit": "5b237c627a6edc05a2858ddcb3eddb0e22519849",
+      "sha256": "16d66199bcfb2496dd1a587d92a798296e290a36f7cb143efc1426c9146a76fe",
+      "bytes": 44098,
+      "expectedMissing": []
     },
     "lite-stc12live": {
       "repo": "brickwright-lite",
       "path": "overlay/scratch-vm/src/extensions/crispstrobe/stc12live/index.js",
       "wrapper": "makeExt",
       "why": "bundled tethered-hardware driver; runtime-only, no emitter",
-      "upstreamCommit": "711e4744f77bc7232f99972a9eb637c1b273059a",
-      "sha256": "73361d3db15e906ef18d7a2f7c038394e1aaf3a6ce833c44e741e2ecbec9201a",
-      "bytes": 11929,
+      "upstreamCommit": "671b892f1f1d52c98bc5b31370e10f0dc0ae4a0a",
+      "sha256": "5ca1a687c9f5826b45d7e7a1947ebad72c219c9e4c5e50566548ceffa6ba9644",
+      "bytes": 12170,
       "expectedMissing": []
     },
     "gallery-stc12": {
@@ -28,38 +25,19 @@
       "path": "extensions/CrispStrobe/stc12.js",
       "wrapper": null,
       "why": "deployed to crispstrobe.github.io; what web Brickwright fetches at runtime",
-      "upstreamCommit": "934728d3b73a7c9ba07de4bc55bf31890546d3b0",
-      "sha256": "f15d1fd93a4d5947be6cbc9b8dae7aa9793f3f25d82c1e36a5076c2dc6454f96",
-      "bytes": 10333,
-      "expectedMissing": [
-        "chiptemp",
-        "keypad",
-        "led_only",
-        "led_set",
-        "matrix_clear",
-        "matrix_dim",
-        "matrix_getpx",
-        "matrix_image",
-        "matrix_paint",
-        "matrix_row",
-        "matrix_scroll",
-        "matrix_setpx",
-        "seg_clear",
-        "seg_setsegs",
-        "seg_showdigit",
-        "seg_shownum",
-        "whenkey"
-      ],
-      "pendingFix": "extensions branch fix/stc12-publish-canonical (ece9fde) publishes reference/extensions/stc12.js, which is a strict superset of this snapshot (359 insertions, 0 deletions). Recorded 2026-08-23. This copy is two waves behind, not one: it never received MATRIX8X8 either. It is what web Brickwright and plain TurboWarp fetch at runtime, so those sixteen opcodes resolve to nothing there. Delete this entry and re-vendor once that branch is on the extensions repo's main. ALSO: chiptemp (`chip temperature`, authored by chip-thermometer, 2026-10-06): defined by CrispStrobe/extensions #32 (stc12.js); Brickwright Lite adopts it in task B12. Remove it here when this snapshot is re-vendored past both."
+      "upstreamCommit": "bc9fbbc7d1c6dacf9ba55b08b72933d5c2e163d1",
+      "sha256": "9ce674736920e148cd3bac03411cc0c77cc7de7e8c22fc0e9e33332a9514d5cc",
+      "bytes": 42396,
+      "expectedMissing": []
     },
     "gallery-stc12live": {
       "repo": "extensions",
       "path": "extensions/CrispStrobe/stc12live.js",
       "wrapper": null,
       "why": "deployed tethered-hardware driver",
-      "upstreamCommit": "934728d3b73a7c9ba07de4bc55bf31890546d3b0",
-      "sha256": "d83873a2734058ae8010e780112bfff02cf657d3f6b72b7994700e715b9f4e8c",
-      "bytes": 13931,
+      "upstreamCommit": "b6e0b04abfb1af443b718adb1030eca657d1e06e",
+      "sha256": "44b1f19c26e1ab985bf54d40937b271bf8c8373f7de50e4a2c54118e887c5353",
+      "bytes": 11629,
       "expectedMissing": []
     },
     "gallery-ledcube": {

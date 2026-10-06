@@ -22,5 +22,5 @@ Phones, laptops and cars watch their own chips this way and slow down before any
 
 ## Go further
 - [sense-thermometer-1wire](../sense-thermometer-1wire) — a separate DS18B20 sensor measures the room, not the chip.
-- Not every chip has a sensor: on the 8051 boards, the Arduino Mega and the ATtiny88 the program is refused with that reason.
+- Not every chip has a sensor: on the 8051 boards and the Arduino Mega the program is refused with that reason.
 - Experiment: print the highest temperature seen so far.

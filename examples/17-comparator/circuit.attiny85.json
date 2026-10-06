@@ -35,8 +35,9 @@
    "kind": "attiny85",
    "params": {},
    "terminals": [
-    "pb0",
-    "pb1"
+    "pb2",
+    "pb4",
+    "pb0"
    ],
    "seat": {
     "boardId": "bb1",
@@ -55,7 +56,53 @@
    "y": 349
   },
   {
-   "id": "R_led",
+   "id": "POT_potA",
+   "kind": "potentiometer",
+   "declName": "potA",
+   "params": {
+    "ohms": 10000
+   },
+   "terminals": [
+    "a",
+    "b",
+    "wiper"
+   ],
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a11",
+     "wiper": "a13",
+     "b": "a15"
+    }
+   },
+   "x": 176,
+   "y": 255
+  },
+  {
+   "id": "POT_potB",
+   "kind": "potentiometer",
+   "declName": "potB",
+   "params": {
+    "ohms": 10000
+   },
+   "terminals": [
+    "a",
+    "b",
+    "wiper"
+   ],
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a19",
+     "wiper": "a21",
+     "b": "a23"
+    }
+   },
+   "x": 288,
+   "y": 255
+  },
+  {
+   "id": "R_led1",
    "kind": "resistor",
    "params": {
     "ohms": 1000
@@ -67,17 +114,17 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a11",
-     "b": "a15"
+     "a": "a27",
+     "b": "a31"
     }
    },
-   "x": 176,
+   "x": 400,
    "y": 255
   },
   {
-   "id": "LED_led",
+   "id": "LED_led1",
    "kind": "led",
-   "declName": "led",
+   "declName": "led1",
    "params": {
     "vf": 2,
     "color": "red"
@@ -89,152 +136,68 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "anode": "a39",
-     "cathode": "a40"
+     "anode": "a33",
+     "cathode": "a34"
     }
    },
-   "x": 568,
-   "y": 255
-  },
-  {
-   "id": "R_motor",
-   "kind": "resistor",
-   "params": {
-    "ohms": 1000
-   },
-   "terminals": [
-    "a",
-    "b"
-   ],
-   "seat": {
-    "boardId": "bb1",
-    "leadMap": {
-     "a": "a17",
-     "b": "a21"
-    }
-   },
-   "x": 260,
-   "y": 255
-  },
-  {
-   "id": "Q_motor",
-   "kind": "npn",
-   "params": {},
-   "terminals": [
-    "base",
-    "collector",
-    "emitter"
-   ],
-   "seat": {
-    "boardId": "bb1",
-    "leadMap": {
-     "emitter": "a29",
-     "base": "a30",
-     "collector": "a31"
-    }
-   },
-   "x": 428,
-   "y": 255
-  },
-  {
-   "id": "MOTOR_motor",
-   "kind": "dc_motor",
-   "params": {},
-   "terminals": [
-    "a",
-    "b"
-   ],
-   "seat": {
-    "boardId": "bb1",
-    "leadMap": {
-     "a": "a23",
-     "b": "a25"
-    }
-   },
-   "x": 344,
-   "y": 255
-  },
-  {
-   "id": "D_motor",
-   "kind": "diode",
-   "params": {
-    "vf": 0.7
-   },
-   "terminals": [
-    "anode",
-    "cathode"
-   ],
-   "seat": {
-    "boardId": "bb1",
-    "leadMap": {
-     "anode": "a34",
-     "cathode": "a36"
-    }
-   },
-   "x": 498,
+   "x": 484,
    "y": 255
   }
  ],
  "wires": [
   {
+   "from": "POT_potA",
+   "fromTerminal": "wiper",
+   "to": "MCU",
+   "toTerminal": "pb2"
+  },
+  {
+   "from": "POT_potB",
+   "fromTerminal": "wiper",
+   "to": "MCU",
+   "toTerminal": "pb4"
+  },
+  {
    "from": "MCU",
    "fromTerminal": "pb0",
-   "to": "R_led",
+   "to": "R_led1",
    "toTerminal": "a"
   },
   {
-   "from": "R_led",
+   "from": "R_led1",
    "fromTerminal": "b",
-   "to": "LED_led",
-   "toTerminal": "anode"
-  },
-  {
-   "from": "MCU",
-   "fromTerminal": "pb1",
-   "to": "R_motor",
-   "toTerminal": "a"
-  },
-  {
-   "from": "R_motor",
-   "fromTerminal": "b",
-   "to": "Q_motor",
-   "toTerminal": "base"
-  },
-  {
-   "from": "MOTOR_motor",
-   "fromTerminal": "b",
-   "to": "Q_motor",
-   "toTerminal": "collector"
-  },
-  {
-   "from": "MOTOR_motor",
-   "fromTerminal": "b",
-   "to": "D_motor",
+   "to": "LED_led1",
    "toTerminal": "anode"
   },
   {
    "from": "VCC",
    "fromTerminal": "vcc",
-   "to": "MOTOR_motor",
+   "to": "POT_potA",
    "toTerminal": "a"
   },
   {
    "from": "VCC",
    "fromTerminal": "vcc",
-   "to": "D_motor",
-   "toTerminal": "cathode"
+   "to": "POT_potB",
+   "toTerminal": "a"
   },
   {
    "from": "GND",
    "fromTerminal": "gnd",
-   "to": "LED_led",
-   "toTerminal": "cathode"
+   "to": "POT_potA",
+   "toTerminal": "b"
   },
   {
    "from": "GND",
    "fromTerminal": "gnd",
-   "to": "Q_motor",
-   "toTerminal": "emitter"
+   "to": "POT_potB",
+   "toTerminal": "b"
+  },
+  {
+   "from": "GND",
+   "fromTerminal": "gnd",
+   "to": "LED_led1",
+   "toTerminal": "cathode"
   },
   {
    "from": "VCC",
@@ -261,82 +224,75 @@
   {
    "ref": "bbw:bb1:gen_0",
    "boardId": "bb1",
-   "a": "a6",
-   "b": "b11",
+   "a": "b13",
+   "b": "a4",
    "color": "green"
   },
   {
    "ref": "bbw:bb1:gen_1",
    "boardId": "bb1",
-   "a": "b15",
-   "b": "b39",
+   "a": "b21",
+   "b": "g5",
    "color": "blue"
   },
   {
    "ref": "bbw:bb1:gen_2",
    "boardId": "bb1",
-   "a": "a5",
-   "b": "b17",
+   "a": "a6",
+   "b": "b27",
    "color": "yellow"
   },
   {
    "ref": "bbw:bb1:gen_3",
    "boardId": "bb1",
-   "a": "b21",
-   "b": "b30",
+   "a": "b31",
+   "b": "b33",
    "color": "orange"
   },
   {
    "ref": "bbw:bb1:gen_4",
    "boardId": "bb1",
-   "a": "b25",
-   "b": "b31",
-   "color": "purple"
+   "a": "b11",
+   "b": "t+11",
+   "color": "red"
   },
   {
    "ref": "bbw:bb1:gen_5",
    "boardId": "bb1",
-   "a": "c25",
-   "b": "b34",
-   "color": "green"
+   "a": "b19",
+   "b": "t+19",
+   "color": "red"
   },
   {
    "ref": "bbw:bb1:gen_6",
    "boardId": "bb1",
-   "a": "b23",
-   "b": "t+23",
-   "color": "red"
+   "a": "b15",
+   "b": "b-15",
+   "color": "black"
   },
   {
    "ref": "bbw:bb1:gen_7",
    "boardId": "bb1",
-   "a": "b36",
-   "b": "t+36",
-   "color": "red"
+   "a": "b23",
+   "b": "b-23",
+   "color": "black"
   },
   {
    "ref": "bbw:bb1:gen_8",
    "boardId": "bb1",
-   "a": "b40",
-   "b": "b-40",
+   "a": "b34",
+   "b": "b-34",
    "color": "black"
   },
   {
    "ref": "bbw:bb1:gen_9",
-   "boardId": "bb1",
-   "a": "b29",
-   "b": "b-29",
-   "color": "black"
-  },
-  {
-   "ref": "bbw:bb1:gen_10",
    "boardId": "bb1",
    "a": "g6",
    "b": "b-6",
    "color": "black"
   },
   {
-   "ref": "bbw:bb1:gen_11",
+   "ref": "bbw:bb1:gen_10",
    "boardId": "bb1",
    "a": "a3",
    "b": "t+3",

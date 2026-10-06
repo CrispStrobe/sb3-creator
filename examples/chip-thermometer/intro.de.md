@@ -22,5 +22,5 @@ Handys, Laptops und Autos überwachen ihre eigenen Chips genau so und werden lan
 
 ## Weiter geht's
 - [sense-thermometer-1wire](../sense-thermometer-1wire) — ein eigener DS18B20-Sensor misst den Raum, nicht den Chip.
-- Nicht jeder Chip hat einen Sensor: Auf den 8051-Platinen, dem Arduino Mega und dem ATtiny88 wird das Programm mit genau diesem Grund abgelehnt.
+- Nicht jeder Chip hat einen Sensor: Auf den 8051-Platinen und dem Arduino Mega wird das Programm mit genau diesem Grund abgelehnt.
 - Experiment: Gib die höchste bisher gemessene Temperatur aus.

@@ -45,6 +45,7 @@ const ADC_CFG = {
     pico:           { bits: 12, vref: 3.3 },
     stm32f030:      { bits: 12, vref: 3.3 },
     attiny88:       { bits: 10, vref: 5 },
+    attiny85:       { bits: 10, vref: 5 },   // REFS1:0 = 00, Vcc (2026-10-06: its ADC pins became reachable)
 };
 
 /** Build a default stimulus: analog pins at mid-range, digital inputs low. */

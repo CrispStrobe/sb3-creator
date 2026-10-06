@@ -4532,7 +4532,19 @@ class SB3Creator {
             if (core === 'rp2040' && cfg.device !== 'stm32f030' && /^analog$/i.test(direction) && !/^GP2[678]$/i.test(where)) {
                 return this.refuseDeclaration(lineIndex, trimmed, `ANALOG on the Pico means GP26, GP27 or GP28 (ADC0-2), not ${where.toUpperCase()}`);
             }
-            const avrAnalogPin = cfg.device === 'attiny88' && /^PC[0-5]$/i.test(where);
+            // The ATtinys name their ADC pins by port: PC0-PC5 on the tiny88
+            // (ADC0-5), PB2/PB4/PB3 on the tiny85 (ADC1-3; ADC0 is PB5, RESET).
+            const avrAnalogPin = (cfg.device === 'attiny88' && /^PC[0-5]$/i.test(where))
+                || (cfg.device === 'attiny85' && /^PB[234]$/i.test(where));
+            // PWM: Timer 0 is the millisecond tick on the tiny85, so its OC1A/OC1B
+            // (PB1/PB4, Timer 1) are the PWM pins; on the tiny88 Timer 1 is the
+            // tick and Timer 0 has no compare outputs, so there is none.
+            if (cfg.device === 'attiny85' && /^pwm$/i.test(direction) && !/^PB[14]$/i.test(where)) {
+                return this.refuseDeclaration(lineIndex, trimmed, `PWM on the ATtiny85 means PB1 or PB4 (Timer 1; Timer 0 is the millisecond tick), not ${where.toUpperCase()}`);
+            }
+            if (cfg.device === 'attiny88' && /^pwm$/i.test(direction)) {
+                return this.refuseDeclaration(lineIndex, trimmed, 'the ATtiny88 has no PWM here: Timer 1 is the millisecond tick and Timer 0 has no compare outputs');
+            }
             if (core === 'arduino' && /^analog$/i.test(direction) && !/^A/i.test(where) && !avrAnalogPin) {
                 return this.refuseDeclaration(lineIndex, trimmed, `ANALOG needs an analog input (A0 and up), not ${where.toUpperCase()}`);
             }
@@ -10382,7 +10394,7 @@ class SB3Creator {
 
     /**
      * Which on-die temperature sensor a device has, or null: 'atmega' (the
-     * 328P/168P boards), 'attiny85', 'rp2040', 'stm32f0'. The figures each C
+     * 328P/168P boards), 'attiny85', 'attiny88', 'rp2040', 'stm32f0'. The figures each C
      * conversion uses are the datasheet typical ones, the same bw-board's
      * emulators read at the bench temperature (bw-board chip-temperature.js).
      */
@@ -10394,66 +10406,190 @@ class SB3Creator {
         if (part.core === 'rp2040') return part.stm32f0 ? 'stm32f0' : 'rp2040';
         if (part.core !== 'arduino') return null;
         if (part.tiny85) return 'attiny85';
-        if (part.tiny88 || part.mega) return null;
+        if (part.tiny88) return 'attiny88';
+        if (part.mega) return null;
         return 'atmega';
     }
 
     /**
      * print/ask on an ATtiny: a software UART, 9600 8N1, on the chip's
-     * SOFT_SERIAL_PINS. Each TX frame is timed in CPU cycles with interrupts
-     * held off: the receiver is an interrupt that runs for a whole frame, and
-     * landing inside a transmitted frame it would wreck it (measured: a CR LF
-     * typed into ask garbled the next line printed). The price, as with
-     * Arduino's SoftwareSerial: a tick due during a frame waits for its end,
-     * and two ticks due inside one 1.04 ms frame count once. A byte that
-     * arrives mid-frame is read from the wrong place; asking a new question
-     * empties the queue, so it cannot become part of the next answer.
+     * SOFT_SERIAL_PINS -- full duplex, and the millisecond tick never stalls.
+     * Both directions are clocked by the tick timer's second compare channel
+     * (OCR0B on the tiny85, whose Timer 0 is the tick; OCR1B on the tiny88,
+     * whose Timer 1 is): one service routine, run from that compare interrupt
+     * and whenever a frame starts, advances the TX and RX streams in CPU cycles
+     * against the timer's counter (8 us a count at F_CPU/64), sets each TX bit
+     * on its edge and samples each RX bit at its centre. A start bit is caught
+     * by a pin-change interrupt. Nothing waits with interrupts off, so a byte
+     * typed while one is printed arrives intact (until 2026-10-06 each frame
+     * held interrupts off and a byte arriving meanwhile was lost).
      */
     _cSoftSerialTx() {
         const pb = (where) => where.match(/^P([A-D])(\d)$/).slice(1);
         const [tp, tb] = pb(this._cSoftSerial.tx);
         const [rp, rb] = pb(this._cSoftSerial.rx);
-        const out = [`/* print: no UART on this chip, so a software one, 9600 8N1, on ${this._cSoftSerial.tx} (TX)`,
-            ` * and ${this._cSoftSerial.rx} (RX), ATTinyCore's pins. Each frame is timed in CPU cycles`,
-            ' * with interrupts held off, as SoftwareSerial does: a tick due meanwhile',
-            ' * waits for the frame to end (two inside one 1.04 ms frame count once). */',
-            '#define BW_BIT_CYCLES (F_CPU / 9600UL)',
+        const t85 = this._cTiny85;
+        const ask = !!this._cUses.ask;
+        const T = t85
+            ? { cnt: 'TCNT0', ocr: 'OCR0B', msk: 'TIMSK', ie: 'OCIE0B', ifr: 'TIFR', of: 'OCF0B', vec: 'TIMER0_COMPB_vect', cast: 'uint8_t' }
+            // TCNT1L, not TCNT1: a 16-bit read goes through the shared TEMP byte,
+            // and the RX pin-change, which also reads the counter, can land
+            // between its two halves. The count never passes 124 (F_CPU/64 per
+            // ms at 8 MHz), so the low byte is the whole value.
+            : { cnt: 'TCNT1L', ocr: 'OCR1B', msk: 'TIMSK1', ie: 'OCIE1B', ifr: 'TIFR1', of: 'OCF1B', vec: 'TIMER1_COMPB_vect', cast: 'uint16_t' };
+        // Arm the compare two counts out (128 cycles; the write lands ~15 later):
+        // the service runs at once. The stale flag is cleared FIRST -- cleared
+        // after the write, a match that happened in between was wiped and the
+        // service waited a whole timer period (measured: a back-to-back frame
+        // lost one time in four).
+        const soon = [`    ${T.ifr} = (1 << ${T.of});`,
+            `    { uint16_t s = ${T.cnt} + 2u; if (s >= BW_UART_TOP) s -= BW_UART_TOP; ${T.ocr} = (${T.cast})s; }`,
+            `    ${T.msk} |= (1 << ${T.ie});`];
+        const out = [`/* print${ask ? '/ask' : ''}: no UART on this chip, so a software one, 9600 8N1, on ${this._cSoftSerial.tx} (TX)`,
+            ` * and ${this._cSoftSerial.rx} (RX), ATTinyCore's pins. Full duplex: both directions are clocked`,
+            ` * by ${T.ocr}, the tick timer's free compare channel (8 us a count at F_CPU/64).`,
+            ' * Times are CPU cycles. One service, run only from that compare interrupt',
+            ' * and with interrupts re-enabled, advances both streams; a frame start --',
+            ' * bw_putc, or the RX pin-change -- only stamps the counter and pulls the',
+            ' * next compare to now, so a start edge waits a few cycles, not a service. */',
+            '#define BW_BIT_CYCLES ((int16_t)(F_CPU / 9600UL))',
+            ...(ask ? ['/* A sample is taken this many cycles after its compare match (the interrupt',
+                ' * entry and the service up to the pin read) and a start edge is stamped a',
+                ' * little late too, so the first sample is aimed that much early. Measured',
+                ' * 2026-10-06: without it the samples sat 0.22-0.44 bit past the centres. */',
+                '#define BW_RX_LATE    240'] : []),
+            `#define BW_UART_TOP   ((uint16_t)(F_CPU / 64UL / 1000UL))   /* counts per timer period */`,
+            'static volatile uint8_t bw_tx_busy, bw_tx_go, bw_tx_n, bw_tx_byte;',
+            'static volatile uint16_t bw_tx_stamp;',
+            'static int16_t bw_tx_due;',
+            ...(ask ? ['static volatile uint8_t bw_rx_on, bw_rx_go, bw_rx_n, bw_rx_byte;',
+                'static volatile uint16_t bw_rx_stamp;',
+                'static int16_t bw_rx_due;',
+                'static volatile uint8_t bw_rxq[32];',
+                'static volatile uint8_t bw_rx_head, bw_rx_tail;'] : []),
+            'static uint16_t bw_uart_ref;   /* the counter value the dues are measured from */',
+            'static volatile uint8_t bw_uart_busy; /* the service is running (preemptible) */',
+            '/* Counts from `from` to `to`, across the wrap (both within one period). */',
+            'static uint16_t bw_uart_since(uint16_t from, uint16_t to)',
+            '{',
+            '    return (to >= from) ? to - from : to + BW_UART_TOP - from;',
+            '}',
+            '/* Cycles since a frame-start stamp; negative when the stamp is newer than',
+            ' * `now` (the RX edge interrupted the service after it read the counter --',
+            ' * taken as an age, that read as a whole period and every bit fell due at once). */',
+            'static int16_t bw_uart_age(uint16_t stamp, uint16_t now)',
+            '{',
+            '    int16_t a = (int16_t)bw_uart_since(stamp, now);',
+            '    if (a > (int16_t)(BW_UART_TOP / 2)) a -= (int16_t)BW_UART_TOP;',
+            '    return (int16_t)(a * 64);',
+            '}',
+            '/* Advance both streams to now, act on what is due, arm the next event; go',
+            ' * round again if a start was posted meanwhile or the counter passed the',
+            ' * target. Runs only inside the compare interrupt, with interrupts on. */',
+            'static void bw_uart_service(void)',
+            '{',
+            '  for (;;) {',
+            `    uint16_t now = ${T.cnt}, k, t;`,
+            '    int16_t el = (int16_t)(bw_uart_since(bw_uart_ref, now) << 6), next = 0x7FFF;',
+            '    bw_uart_ref = now;',
+            '    if (bw_tx_go) {                              /* a byte posted by bw_putc */',
+            '        bw_tx_go = 0;',
+            '        bw_tx_n = 0;',
+            '        bw_tx_due = (int16_t)(BW_BIT_CYCLES - bw_uart_age(bw_tx_stamp, now));',
+            '    } else if (bw_tx_busy) {',
+            '        bw_tx_due -= el;',
+            '    }',
+            '    while (bw_tx_busy && bw_tx_due <= 32) {',
+            '        if (bw_tx_n < 8) {',
+            `            if ((bw_tx_byte >> bw_tx_n) & 1) PORT${tp} |= (1 << ${tb}); else PORT${tp} &= (uint8_t)~(1 << ${tb});`,
+            '        } else if (bw_tx_n == 8) {',
+            `            PORT${tp} |= (1 << ${tb});                      /* stop bit */`,
+            '        } else {',
+            '            bw_tx_busy = 0;                           /* the stop bit has run its length */',
+            '        }',
+            '        bw_tx_n++;',
+            '        bw_tx_due += BW_BIT_CYCLES;',
+            '    }',
+            '    if (bw_tx_busy && bw_tx_due < next) next = bw_tx_due;',
+            ...(ask ? ['    if (bw_rx_go) {                              /* a start edge, stamped */',
+                '        bw_rx_go = 0;',
+                '        bw_rx_on = 1;',
+                '        bw_rx_n = 0;',
+                '        bw_rx_byte = 0;',
+                '        bw_rx_due = (int16_t)(BW_BIT_CYCLES + BW_BIT_CYCLES / 2 - BW_RX_LATE - bw_uart_age(bw_rx_stamp, now));',
+                '    } else if (bw_rx_on) {',
+                '        bw_rx_due -= el;',
+                '    }',
+                '    while (bw_rx_on && bw_rx_due <= 32) {',
+                `        uint8_t bit = (PIN${rp} >> ${rb}) & 1;`,
+                '        if (bw_rx_n < 8) {',
+                '            if (bit) bw_rx_byte |= (uint8_t)(1 << bw_rx_n);',
+                '            bw_rx_n++;',
+                '            bw_rx_due += BW_BIT_CYCLES;',
+                '        } else {                                  /* the stop bit */',
+                '            if (bit && ((bw_rx_head + 1) & 31) != bw_rx_tail) {',
+                '                bw_rxq[bw_rx_head] = bw_rx_byte;',
+                '                bw_rx_head = (uint8_t)((bw_rx_head + 1) & 31);',
+                '            }',
+                '            bw_rx_on = 0;',
+                '        }',
+                '    }',
+                '    if (bw_rx_on && bw_rx_due < next) next = bw_rx_due;'] : []),
+            '    cli();                                       /* arming races the start stamps */',
+            `    if (bw_tx_go${ask ? ' || bw_rx_go' : ''}) { sei(); continue; }`,
+            '    if (next == 0x7FFF) {',
+            `        ${T.msk} &= (uint8_t)~(1 << ${T.ie});      /* idle: no events */`,
+            '        bw_uart_busy = 0;',
+            '        sei();                                   /* before the ISR\'s long exit: a start edge waits for no epilogue */',
+            '        return;',
+            '    }',
+            '    k = (uint16_t)(next + 32) >> 6;               /* cycles -> counts, rounded */',
+            '    if (k < 1) k = 1;',
+            '    t = now + k;',
+            '    if (t >= BW_UART_TOP) t -= BW_UART_TOP;',
+            `    ${T.ifr} = (1 << ${T.of});                       /* stale flag first, then the target */`,
+            `    ${T.ocr} = (${T.cast})t;`,
+            `    ${T.msk} |= (1 << ${T.ie});`,
+            `    if (bw_uart_since(now, ${T.cnt}) < k) { bw_uart_busy = 0; sei(); return; }   /* armed ahead of the counter */`,
+            // Passed it: disarm before interrupts come back on -- left armed, the
+            // match that already happened re-entered the service inside itself
+            // and the outer pass then advanced the streams from a stale count.
+            `    ${T.msk} &= (uint8_t)~(1 << ${T.ie});`,
+            '    sei();',
+            '  }',
+            '}',
+            `ISR(${T.vec})`,
+            '{',
+            `    ${T.msk} &= (uint8_t)~(1 << ${T.ie});          /* no nesting of this one */`,
+            '    bw_uart_busy = 1;                            /* a start meanwhile only posts its flag */',
+            '    sei();                                       /* a start edge may interrupt the service */',
+            '    bw_uart_service();',
+            '}',
             'static void bw_putc(char c)',
             '{',
-            '    uint8_t i, b = (uint8_t)c, sreg = SREG;',
+            '    uint8_t sreg;',
+            '    while (bw_tx_busy) ;                         /* the previous byte is still going out */',
+            '    sreg = SREG;',
             '    cli();',
-            `    PORT${tp} &= (uint8_t)~(1 << ${tb});            /* start bit */`,
-            '    __builtin_avr_delay_cycles(BW_BIT_CYCLES - 8);',
-            '    for (i = 0; i < 8; i++) {',
-            `        if (b & 1) PORT${tp} |= (1 << ${tb}); else PORT${tp} &= (uint8_t)~(1 << ${tb});`,
-            '        b >>= 1;',
-            '        __builtin_avr_delay_cycles(BW_BIT_CYCLES - 12);',
-            '    }',
-            `    PORT${tp} |= (1 << ${tb});                      /* stop bit */`,
-            '    __builtin_avr_delay_cycles(BW_BIT_CYCLES);',
+            `    bw_tx_stamp = ${T.cnt};`,
+            `    PORT${tp} &= (uint8_t)~(1 << ${tb});            /* start bit, now */`,
+            '    bw_tx_byte = (uint8_t)c;',
+            '    bw_tx_busy = 1;',
+            '    bw_tx_go = 1;',
+            ...soon,
             '    SREG = sreg;',
             '}', ''];
-        if (!this._cUses.ask) return out;
-        out.push('/* ask: the receiver is a pin-change interrupt on RX. It samples the whole',
-            ' * frame at the bit centres and queues the byte; bw_got_line() takes from',
-            ' * the queue between the scheduler\'s passes. */',
-            'static volatile uint8_t bw_rxq[32];',
-            'static volatile uint8_t bw_rx_head, bw_rx_tail;',
-            `ISR(${this._cTiny85 ? 'PCINT0_vect' : 'PCINT2_vect'})`,
+        if (!ask) return out;
+        out.push('/* ask: a falling edge on RX starts a frame. Stamp it and hand it to the',
+            ' * service, which samples each bit at its centre. */',
+            `ISR(${t85 ? 'PCINT0_vect' : 'PCINT2_vect'})`,
             '{',
-            '    uint8_t i, c = 0;',
-            `    if (PIN${rp} & (1 << ${rb})) return;              /* a rising edge: not a start bit */`,
-            '    __builtin_avr_delay_cycles(BW_BIT_CYCLES + BW_BIT_CYCLES / 2 - 40);',
-            '    for (i = 0; i < 8; i++) {',
-            '        c >>= 1;',
-            `        if (PIN${rp} & (1 << ${rb})) c |= 0x80;`,
-            '        __builtin_avr_delay_cycles(BW_BIT_CYCLES - 12);',
-            '    }',
-            `    ${this._cTiny85 ? 'GIFR = (1 << PCIF);' : 'PCIFR = (1 << PCIF2);'}         /* the frame's own edges are not new starts */`,
-            '    if (((bw_rx_head + 1) & 31) != bw_rx_tail) {',
-            '        bw_rxq[bw_rx_head] = c;',
-            '        bw_rx_head = (uint8_t)((bw_rx_head + 1) & 31);',
-            '    }',
+            `    uint16_t edge = ${T.cnt};`,
+            `    if (bw_rx_on || bw_rx_go || (PIN${rp} & (1 << ${rb}))) return;   /* inside a frame, or a rising edge */`,
+            '    bw_rx_stamp = edge;',
+            '    bw_rx_go = 1;',
+            '    if (bw_uart_busy) return;                    /* the running service will see it */',
+            ...soon,
             '}',
             'static char bw_rx_take(void)',
             '{',
@@ -10504,15 +10640,18 @@ class SB3Creator {
                 round,
                 '}', ''];
         }
-        if (sensor === 'attiny85') {
-            return ['/* chip temperature: ADC4 (MUX 1111) against the internal 1.1 V. Typical',
+        if (sensor === 'attiny85' || sensor === 'attiny88') {
+            const tiny85 = sensor === 'attiny85';
+            return [tiny85
+                ? '/* chip temperature: ADC4 (MUX 1111) against the internal 1.1 V. Typical'
+                : '/* chip temperature: ADC8 (MUX 1000) against the internal 1.1 V (REFS0 = 0 on this part). Typical',
                 ' * curve: 230 LSB at -40 C, 300 LSB at 25 C, 370 LSB at 85 C. Two',
                 ' * conversions: the first after a reference change only settles it. */',
                 'static long bw_chip_temp(void)',
                 '{',
                 '    long lsb, t100;',
                 '    uint8_t i;',
-                '    ADMUX = (uint8_t)((1 << REFS1) | 0x0F);',
+                tiny85 ? '    ADMUX = (uint8_t)((1 << REFS1) | 0x0F);' : '    ADMUX = 0x08;',
                 '    for (i = 0; i < 2; i++) {',
                 '        ADCSRA |= (1 << ADSC);',
                 '        while (ADCSRA & (1 << ADSC)) ;',
@@ -10818,8 +10957,13 @@ class SB3Creator {
             }
             this._cUses.adc = true;
             if (this._core === 'avr') {
-                // Channel = the number in the name: A0..A7 -> ADC0..ADC7.
-                const ch = Number(String(pin.where || '').replace(/^A/i, ''));
+                // Channel = the number in the name: A0..A7 -> ADC0..ADC7. The
+                // ATtinys name the pin by port: PCn is ADCn on the tiny88; the
+                // tiny85's are PB5/PB2/PB4/PB3 = ADC0-3.
+                const where = String(pin.where || '').toUpperCase();
+                const tiny = this._cTiny85 ? { PB5: 0, PB2: 1, PB4: 2, PB3: 3 }[where]
+                    : this._cTiny88 && /^PC[0-5]$/.test(where) ? Number(where[2]) : undefined;
+                const ch = tiny !== undefined ? tiny : Number(where.replace(/^A/, ''));
                 return `adc_read(${ch})`;
             }
             if (this._core === 'arm') {
@@ -10934,9 +11078,7 @@ class SB3Creator {
             // While waiting for a person to type, every poll stirs the random
             // generator: how long they take is chance the chip can use.
             ...(this._cUses.random ? ['static unsigned long bw_rng;   /* pick random (defined with bw_random) */'] : []),
-            (this._core === 'avr' && this._cSoftSerial)
-                ? 'static void bw_ask(const char *q) { bw_put_s(q); bw_put_end(); bw_line_len = 0; bw_rx_tail = bw_rx_head; }'
-                : 'static void bw_ask(const char *q) { bw_put_s(q); bw_put_end(); bw_line_len = 0; }',
+            'static void bw_ask(const char *q) { bw_put_s(q); bw_put_end(); bw_line_len = 0; }',
             '/* Take what has arrived; 1 when a whole line is in (it is then the answer). */',
             `static ${u8} bw_got_line(void)`,
             '{',
@@ -12040,6 +12182,19 @@ class SB3Creator {
                 }
                 this._cUses.pwm = true;
                 const pin = this._cPins && this._cPins.get(f('PIN').toLowerCase());
+                if (this._core === 'avr' && (this._cTiny85 || this._cTiny88)) {
+                    // The tiny85: Timer 1's OC1A/OC1B (PB1/PB4), Timer 0 being the
+                    // tick. The tiny88: none (Timer 1 is its tick, Timer 0 has no
+                    // compare outputs). The parser refuses the rest; this is the
+                    // backstop for a pin that reached here undeclared as PWM.
+                    const where = String(pin ? pin.where : '').toUpperCase();
+                    if (!this._cTiny85 || !/^PB[14]$/.test(where)) {
+                        this.cWarn(`"${pin ? pin.where : f('PIN')}" has no usable PWM here: `
+                            + (this._cTiny85 ? 'Timer 1 drives PB1 and PB4 on the ATtiny85' : 'the ATtiny88 has no PWM timer to spare'));
+                        return line(`/* no PWM on ${this.cComment(pin ? pin.where : f('PIN'))} */`);
+                    }
+                    return line(`pwm_set(${where[2]}, ${v('VALUE')});`);
+                }
                 if (this._core === 'avr') {
                     // Hardware PWM lives on the OC pins of Timers 1 and 2 —
                     // Timer 0 is the millisecond tick and its pins are refused.
@@ -16792,11 +16947,15 @@ class SB3Creator {
                 '    return (unsigned int)(BW_ADC_RESULT & 0xFFFu);',
                 '}', '');
         } else if (this._cUses.adc && this._core === 'avr') {
-            out.push('/* 10-bit ADC, polled, AVcc reference. Channel = the A-pin number;',
-                ' * A6/A7 exist on the Nano as ADC-only pads and work here too. */',
+            out.push(...(this._cTiny85
+                ? ['/* 10-bit ADC, polled, Vcc reference: on the ATtiny85 that is REFS1:0 = 00',
+                    ' * (REFS0 alone selects the external AREF pin). Channel n is ADCn. */']
+                : ['/* 10-bit ADC, polled, AVcc reference. Channel = the A-pin number;',
+                    ' * A6/A7 exist on the Nano as ADC-only pads and work here too. */']),
                 'static long adc_read(unsigned char channel)',
                 '{',
-                '    ADMUX = (uint8_t)((1 << REFS0) | (channel & 0x0F));',
+                this._cTiny85 ? '    ADMUX = (uint8_t)(channel & 0x0F);'
+                    : '    ADMUX = (uint8_t)((1 << REFS0) | (channel & 0x0F));',
                 '    ADCSRA |= (1 << ADSC);',
                 '    while (ADCSRA & (1 << ADSC)) ;',
                 '    return ADC;',
@@ -16969,7 +17128,33 @@ class SB3Creator {
                 '    default: break;',
                 '    }',
                 '}', '');
-        } else if ((this._cUses.pwm || this._cUses.motor) && this._core === 'avr') {
+        } else if (this._cUses.pwm && this._core === 'avr' && this._cTiny85) {
+            out.push('/* PWM on the ATtiny85: Timer 1, OC1A = PB1 and OC1B = PB4, counting',
+                ' * to OCR1C = 255 at F_CPU/32, so 8 MHz / 32 / 256 = 977 Hz, the',
+                ' * analogWrite frequency. Timer 0 is the millisecond tick. 0%% and',
+                ' * 100%% disconnect the compare unit and drive the level directly. */',
+                'static void pwm_set(unsigned char pin, unsigned int percent)',
+                '{',
+                '    uint8_t v;',
+                '    if (percent > 100) percent = 100;',
+                '    v = (uint8_t)((percent * 255u + 50u) / 100u);',
+                '    switch (pin) {',
+                '    case 1:   /* OC1A */',
+                '        DDRB |= (1 << 1);',
+                '        if (v == 0)        { TCCR1 &= (uint8_t)~(1 << COM1A1); PORTB &= (uint8_t)~(1 << 1); }',
+                '        else if (v == 255) { TCCR1 &= (uint8_t)~(1 << COM1A1); PORTB |= (1 << 1); }',
+                '        else               { TCCR1 |= (1 << COM1A1); OCR1A = v; }',
+                '        break;',
+                '    case 4:   /* OC1B */',
+                '        DDRB |= (1 << 4);',
+                '        if (v == 0)        { GTCCR &= (uint8_t)~(1 << COM1B1); PORTB &= (uint8_t)~(1 << 4); }',
+                '        else if (v == 255) { GTCCR &= (uint8_t)~(1 << COM1B1); PORTB |= (1 << 4); }',
+                '        else               { GTCCR |= (1 << COM1B1); OCR1B = v; }',
+                '        break;',
+                '    default: break;',
+                '    }',
+                '}', '');
+        } else if ((this._cUses.pwm || this._cUses.motor) && this._core === 'avr' && !this._cTiny85 && !this._cTiny88) {
             out.push('/* PWM on the OC pins of Timers 1 and 2 (D9/D10, D11/D3) — 8-bit',
                 ' * fast PWM at F_CPU/64/256 ≈ 977 Hz, the analogWrite frequency.',
                 ' * Timer 0 is the millisecond tick, so D5/D6 are refused at emit',
@@ -18013,7 +18198,9 @@ class SB3Creator {
                         if (!pin) continue;
                         if (this._core === 'avr') {
                             const table = this._cMega ? SB3Creator.AVR_PINS_MEGA : SB3Creator.AVR_PINS;
-                            const m = table[String(pin.where || '').toUpperCase()];
+                            const w = String(pin.where || '').toUpperCase();
+                            // The ATtinys name pins by port and bit (PB3), not Dn.
+                            const m = table[w] || (/^P[A-D][0-7]$/.test(w) ? [w[1], Number(w[2])] : null);
                             if (m) resolvedHere[name] = `BW_BIT(PORT${m[0]}, ${m[1]})`;
                         } else if (pin.port !== undefined) {
                             resolvedHere[name] = `P${pin.port}_${pin.bit}`;
@@ -18631,7 +18818,13 @@ class SB3Creator {
                             : '    TIMSK0 = (1 << OCIE0A);        /* millisecond tick */');
                 }
             }
-            if (this._cUses.servo) {
+            if (this._cTiny85 || this._cTiny88) {
+                if (this._cUses.pwm && this._cTiny85) {
+                    out.push('    OCR1C = 255;                   /* Timer 1 TOP: 8-bit PWM */',
+                        '    TCCR1 = (1 << PWM1A) | (1 << CS12) | (1 << CS11);  /* PWM on OC1A, F_CPU/32 */',
+                        '    GTCCR = (1 << PWM1B);          /* and on OC1B */');
+                }
+            } else if (this._cUses.servo) {
                 out.push('    TCCR1A = (1 << WGM11);         /* Timer 1: mode 14, servo frame */',
                     '    TCCR1B = (1 << WGM13) | (1 << WGM12) | (1 << CS11);  /* F_CPU/8 */',
                     '    ICR1 = 39999;                  /* 20 ms at 0.5 us ticks */',
@@ -18642,7 +18835,7 @@ class SB3Creator {
                 out.push('    TCCR1A = (1 << WGM10);         /* Timer 1: 8-bit fast PWM */',
                     '    TCCR1B = (1 << WGM12) | (1 << CS11) | (1 << CS10);  /* F_CPU/64 */');
             }
-            if (this._cUses.pwm || this._cUses.motor) {
+            if ((this._cUses.pwm || this._cUses.motor) && !this._cTiny85 && !this._cTiny88) {
                 out.push('    TCCR2A = (1 << WGM20) | (1 << WGM21);  /* Timer 2: fast PWM */',
                     '    TCCR2B = (1 << CS22);          /* F_CPU/64 */');
                 if (this._cMega) {
@@ -18668,7 +18861,14 @@ class SB3Creator {
                 const [rp, rb] = this._cSoftSerial.rx.match(/^P([A-D])(\d)$/).slice(1);
                 out.push(`    PORT${tp} |= (1 << ${tb});               /* TX idles high -- set before it drives */`,
                     `    DDR${tp}  |= (1 << ${tb});               /* ${this._cSoftSerial.tx} = software-UART TX */`,
-                    `    PORT${rp} |= (1 << ${rb});               /* ${this._cSoftSerial.rx} = software-UART RX, pull-up */`);
+                    `    PORT${rp} |= (1 << ${rb});               /* ${this._cSoftSerial.rx} = software-UART RX, pull-up */`,
+                    // The UART is clocked by the tick timer; run it even when no
+                    // script waits (the same mode and prescaler the tick uses).
+                    ...(this._cTiny85
+                        ? ['    TCCR0A = (1 << WGM01); TCCR0B = (1 << CS01) | (1 << CS00);   /* Timer 0: CTC, F_CPU/64 */',
+                            '    OCR0A  = (uint8_t)(F_CPU / 64UL / 1000UL - 1UL);']
+                        : ['    TCCR1B = (1 << WGM12) | (1 << CS11) | (1 << CS10);   /* Timer 1: CTC, F_CPU/64 */',
+                            '    OCR1A  = (uint16_t)(F_CPU / 64UL / 1000UL - 1UL);']));
                 if (this._cUses.ask) {
                     out.push(this._cTiny85
                         ? `    PCMSK |= (1 << PCINT${rb}); GIMSK |= (1 << PCIE);   /* RX: pin-change interrupt */`
@@ -19839,7 +20039,7 @@ SB3Creator.RETARGET_POOLS = (() => {
         // point — a 12-pin program cannot fit and should say so.
         attiny85: { digital: ['PB0', 'PB1', 'PB2', 'PB3', 'PB4'],
             analog: ['PB2', 'PB4', 'PB3'], input: ['PB2', 'PB3', 'PB4', 'PB0', 'PB1'],
-            pwm: ['PB0', 'PB1'], ledActiveLow: false },
+            pwm: ['PB4', 'PB1'], ledActiveLow: false },   // Timer 1's OC1B/OC1A
     };
 })();
 
@@ -20016,7 +20216,7 @@ SB3Creator.retargetPseudocode = function retargetPseudocode(src, device) {
             if (b.opcode === 'stc12_setpwm' && b.fields && b.fields.PIN) used.pwmPins.add(String(b.fields.PIN[0]).toLowerCase());
             if (b.opcode === 'stc12_setport' || b.opcode === 'stc12_readport') used.port = true;
             if (/^cube_/.test(b.opcode)) used.cube = true;
-            if (/devices_(setpixel|setrgb|clearmatrix)/.test(b.opcode)) used.pixel = true;
+            if (/devices_(setpixel|setrgb|clearmatrix|setneopixel)/.test(b.opcode)) used.pixel = true;
             if (/devices_(setservo|servoangle)/.test(b.opcode)) used.servo = true;
             if (/devices_(setmotor|motordir|motorspeed)/.test(b.opcode)) used.motor = true;
             if (/^devices_(oled|tft|lcd)/.test(b.opcode)) used.display = true;
@@ -20051,6 +20251,12 @@ SB3Creator.retargetPseudocode = function retargetPseudocode(src, device) {
     if (used.servo && core === '8051' && !part.pca) reasons.push(`servo needs the PCA — ${device} has none`);
     if (used.motor && core === '8051' && !part.pca) reasons.push(`motor speed needs the PCA — ${device} has none`);
     if ((used.servo || used.motor) && core === 'w65c02') reasons.push('servo/motor need PWM — the VIA has no compare unit');
+    // The ATtinys: the servo frame wants a 16-bit timer (the tiny88's one is the
+    // millisecond tick; the tiny85 has none), and the motor driver's speed and
+    // direction pins are the Uno's D3/D7/D8, which no ATtiny routing carries.
+    if (used.servo && (part.tiny85 || part.tiny88)) reasons.push(`servo needs a 16-bit timer for its 50 Hz frame — the ${device} has none to spare`);
+    if (used.motor && (part.tiny85 || part.tiny88)) reasons.push(`the motor driver's pins (Uno D3/D7/D8) have no ${device} routing yet`);
+    if (used.tone && used.pwmPins.size && part.tiny85) reasons.push('tone and PWM both need Timer 1 on the attiny85');
     // The F0 tier cap (STM32-PATH.md): digital I/O, tick, print, ADC, PWM.
     // Servo needs a 50 Hz frame and TIM3's 1 kHz frame IS the tick — a
     // second timer is beyond the cap; displays need the I2C/SPI port.

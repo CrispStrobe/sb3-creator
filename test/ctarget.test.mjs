@@ -18,6 +18,7 @@ import { pathToFileURL } from 'node:url';
 import { requireSiblings, siblingGuardTest } from './helpers/siblings.mjs';
 import assert from 'node:assert/strict';
 import SB3Creator from '../src/utils/sb3Creator.js';
+import { unwrap } from './helpers/downstream.mjs';
 
 const build = (src) => { const c = new SB3Creator(); c.parse(src); return c; };
 const cOf = (src, opts) => build(src).generateC(undefined, opts);
@@ -1679,8 +1680,8 @@ for (const [id, url] of Object.entries(RUNTIME_EXTENSION_URLS)) {
 // shadow block instead of a field — and the mismatch is silent.
 
 function extractStc12Info(source) {
-    // Strip the makeExt(`...`) wrapper if present (the bundled copy).
-    const inner = source.replace(/^module\.exports\s*=\s*makeExt\(`/, '').replace(/`\);\s*$/, '');
+    // Strip the makeExt(...) wrapper if present (the bundled copy).
+    const inner = /makeExt\(/.test(source) ? unwrap(source, 'makeExt') : source;
     const captured = [];
     const mockScratch = {
         BlockType: { COMMAND: 'command', REPORTER: 'reporter', BOOLEAN: 'Boolean', HAT: 'hat' },
@@ -1738,10 +1739,8 @@ test('stc12 blocks agree across gallery, bundled, and sb3-creator', async () => 
 
     // ---- extract getInfo from both extension files ----
     function extract(source) {
-        // Strip the makeExt(`...`) wrapper if present.
-        let inner = source;
-        const wrapMatch = source.match(/makeExt\(`([\s\S]+)`\)\s*;?\s*$/);
-        if (wrapMatch) inner = wrapMatch[1];
+        // Strip the makeExt(...) wrapper if present.
+        const inner = /makeExt\(/.test(source) ? unwrap(source, 'makeExt') : source;
         const captured = [];
         const mockScratch = {
             BlockType: { COMMAND: 'command', REPORTER: 'reporter', BOOLEAN: 'Boolean', HAT: 'hat' },
