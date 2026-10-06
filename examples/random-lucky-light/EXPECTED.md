@@ -10,8 +10,9 @@
 
 ## Program
 
-Nothing happens until the button is pressed. Each press (an edge, not a
-held level) runs the script once:
+The green flag sets `lamp` to 0 and runs `show lamp`, which puts all four
+lamps out. Nothing else happens until the button is pressed. Each press (an
+edge, not a held level) runs the button script once:
 
 1. Eight times: `lamp` = `pick random 1 to 4`, light only that lamp, wait
    0.06 s.

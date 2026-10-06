@@ -17,7 +17,7 @@ Four lamps and a button. Press the button: the lamps flicker for half a second a
 
 `show lamp` switches all four lamps off and then lights the one whose number is in `lamp`.
 
-The script has no "when flag clicked" at all. It starts by itself whenever the button goes down: a WHEN hat on a pin. Holding the button down does not restart it; only a new press does.
+The green flag only puts every lamp out. The game itself starts by itself whenever the button goes down: a WHEN hat on a pin. Holding the button down does not restart it; only a new press does.
 
 ## Why it matters
 Games need chance, and so do many simulations. Waiting for an event instead of checking over and over is how most real devices work: a remote control, a doorbell or a keyboard does nothing until a button is pressed.

@@ -8,7 +8,8 @@ PIN led4 = P1.3 OUTPUT ACTIVE LOW
 
 # Four lamps, one button. Every press lights one lamp chosen by chance --
 # "pick random 1 to 4" -- after a short flicker through all of them. The
-# script starts by itself whenever the button goes down: a WHEN hat on a pin.
+# green flag only puts every lamp out; the game itself starts by itself
+# whenever the button goes down: a WHEN hat on a pin.
 DEFINE show lamp:
   turn off led1
   turn off led2
@@ -22,6 +23,10 @@ DEFINE show lamp:
     turn on led3
   IF lamp = 4 THEN:
     turn on led4
+
+WHEN flag clicked:
+  set lamp to 0
+  show lamp
 
 WHEN btn pressed:
   REPEAT 8:

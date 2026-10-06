@@ -660,3 +660,24 @@ test('WHEN <pin> pressed runs once per press, as the C task does (edge, not leve
     // Two presses (each held 300 ms) toggle twice -- not once per held ms.
     assert.deepEqual(trace.events.map((e) => [e.tMs, e.level]), [[100, 1], [600, 0]]);
 });
+
+// A GLOBAL LIST declaration is the list's contents at the green flag. The
+// referee started every list empty, so a tune held in two lists (the gallery's
+// melody-lists) played nothing under it while the VM and the C builds played it.
+test('the referee starts a declared list with its declared items', () => {
+    const t = interpretTrace(parse([
+        'DEVICE STC12C5A60S2',
+        'PIN speaker = P1.5 TONE',
+        'GLOBAL LIST notes = [262, 330, 392]',
+        'WHEN flag clicked:',
+        '  set i to 1',
+        '  REPEAT length of notes:',
+        '    set speaker to item i of notes hz',
+        '    wait 100 ms',
+        '    change i by 1',
+        '  set speaker to 0 hz'
+    ].join('\n')), { horizonMs: 1000 });
+    assert.deepEqual(t.unsupported, []);
+    assert.deepEqual(t.tones.map((x) => [x.tMs, x.hz]), [[0, 262], [100, 330], [200, 392], [300, 0]]);
+    assert.deepEqual(t.lists.notes, [262, 330, 392]);
+});
