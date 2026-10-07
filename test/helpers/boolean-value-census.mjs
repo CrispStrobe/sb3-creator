@@ -115,6 +115,7 @@ export function fillWord(words, fill = {}) {
         if (spec === 'sensor') return '3';
         if (spec === 'name') return 'nm';
         if (spec === 'bool' || spec === 'cond') return '1';
+        if (spec?.startsWith('menu:')) return spec.split(':')[2].split('|')[0];
         if (spec && spec.startsWith('text:')) return spec.slice(5).split('|')[0];
         // Quoted choices can themselves contain '=' (e.g. Arrays '==').
         // Only unquoted legacy slots use '=' to separate a default.

@@ -4,7 +4,10 @@
 
 Implemented by the Arcade compatibility integration lane: Arrays arithmetic,
 unary and comparison operators and special values use native direct fields;
-the controller axis uses a reporter input. The decompiler reads native axis
+the controller axis uses a reporter input with its native menu shadow. Bare
+`x`/`y` select the menu; parenthesized expressions connect reporters and quoted
+text preserves literal spelling. Variables named `x` or `y` remain expressions
+when reconstructed as Code. The decompiler reads native axis
 menu shadows and validated historical literal shapes. Consumers can call
 `normalizeArcadeBlockSchema(block)` before native workspace ingestion to migrate
 these historical slots in place. Invalid literals and reporter-valued historical
