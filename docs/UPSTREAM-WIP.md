@@ -1,5 +1,14 @@
 # Adopting upstream changes during WIP
 
+## Active Arcade block-schema work — 2026-10-07
+
+Claimed by the Arcade compatibility integration lane. Correct the Arrays
+operator/special-value direct fields and the Arcade controller-axis reporter
+input in the shared dialect. Verify parser and decompiler round trips, then
+adopt the reviewed producer SHA in Brickwright Lite and qualify actual Blocks
+editing and persistence there. This claim covers the shared dialect and its
+focused tests; it does not change sibling fixture pins or other engine lanes.
+
 Our shared components are actively developed in our own upstream repositories:
 `CrispStrobe/bw-board`, `CrispStrobe/bw-circuit-ui`, and `CrispStrobe/sb3-creator`.
 Publish reusable engine, renderer and generator fixes there first. Keep
