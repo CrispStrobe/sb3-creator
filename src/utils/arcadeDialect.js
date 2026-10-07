@@ -47,7 +47,10 @@
  * starts with `arcade` and is no word here is refused, not made a variable.
  */
 
-const PROPERTIES = 'x|y|left|right|top|bottom|vx|vy|ax|ay|fx|fy|sx|sy|scale|width|height|z|lifespan';
+// rotationDegrees before rotation: the alternation takes the first that matches.
+// rotation is PXT's Sprite.rotation (radians), rotationDegrees its degrees form,
+// data the sprite's \`data\` value (any value, not only a number).
+const PROPERTIES = 'x|y|left|right|top|bottom|vx|vy|ax|ay|fx|fy|sx|sy|scale|width|height|z|lifespan|rotationDegrees|rotation|data';
 const FLAGS = 'AutoDestroy|StayInScreen|BounceOnWall|Invisible|Ghost|GhostThroughSprites|GhostThroughWalls|'
     + 'GhostThroughTiles|DestroyOnWall|RelativeToCamera';
 const LAYOUTS = '"Left"|"Right"|"Top"|"Bottom"|"Center"|"Full"';
