@@ -522,3 +522,22 @@ test('preload migration protects legacy blocks before native workspace ingestion
     assert.deepEqual(axis.inputs.AXIS, [1, [10, 'y']], 'native axis wins');
     assert.equal(normalizeArcadeBlockSchema({opcode: 'unrelated', inputs: {}, fields: {}}), false);
 });
+
+test('controller reporter-menu slots preserve variables, nested reporters and quoted axis literals', () => {
+    for (const expression of ['(hero)', '(axis)', '(x)', '(y)', '(n + 1)', '"Y"', '(arcade local axis)', '(v)']) {
+        const {first, d1} = fixedPoint(program('reporter', `arcade controller ${expression} step 90`)
+            .replace('GLOBAL hero\n', 'GLOBAL hero\nGLOBAL axis\nGLOBAL x\nGLOBAL y\n'));
+        assert.deepEqual(first.c.warnings, []);
+        const target = first.c.project.targets.find(t => Object.values(t.blocks).some(b => b.opcode === 'arcade_controllerStep'));
+        const controller = Object.values(target.blocks).find(b => b.opcode === 'arcade_controllerStep');
+        const input = controller.inputs.AXIS;
+        if (typeof input[1] === 'string') {
+            assert.equal(input[0], 3);
+            assert.equal(target.blocks[input[2]].opcode, 'arcade_menu_axes', 'native dropdown remains available behind connected reporter');
+            assert.notEqual(target.blocks[input[1]].opcode, 'arcade_menu_axes', 'expression is a connected reporter, not literal menu text');
+        } else {
+            assert.ok([10, 12].includes(input[1][0]), 'literal or variable keeps its native primitive type');
+        }
+        assert.ok(d1.includes(expression), `preserve expression ${expression}: ${d1}`);
+    }
+});

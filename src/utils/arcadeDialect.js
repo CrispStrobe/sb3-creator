@@ -23,6 +23,8 @@
  *                        case-insensitively, stored as spelled here)
  *   {NAME:"a"|"b"}       a field written as quoted text
  *   {NAME:text:a|b}      a TEXT input written as a bare word (`mode side`)
+ *   {NAME:menu:axes:x|y} a reporter input with native menu shadow; bare menu
+ *                        choices or a value expression (quote text literals)
  *   {NAME:name}          a TEXT input written as an identifier
  *                        (`arcade local count` stores "count")
  *   {NAME:cond}          a value input that also takes a condition: a
@@ -215,7 +217,7 @@ export const ARCADE_WORDS = Object.freeze([
     w('arcade_spriteProperty', 'reporter', `arcade property {PROPERTY:${PROPERTIES}} of {ID}`),
     w('arcade_spritesOfKind', 'reporter', 'arcade sprite array kind {KIND}'),
     w('arcade_spriteCount', 'reporter', 'arcade count kind {KIND}'),
-    w('arcade_controllerStep', 'reporter', 'arcade controller {AXIS:text:x|y} step {STEP}'),
+    w('arcade_controllerStep', 'reporter', 'arcade controller {AXIS:menu:axes:x|y} step {STEP}'),
     w('arcade_eventSprite', 'reporter', 'arcade event {WHICH:first|second}'),
     w('arcade_eventLocation', 'reporter', 'arcade event location'),
     w('arcade_getCaptured', 'reporter', 'arcade captured {NAME:name}'),
@@ -303,6 +305,10 @@ export function compileArcadeWord(entry) {
         if (!spec) return { slot, value: true };
         if (spec === 'name') return { slot, name: true };
         if (spec === 'cond' || spec === 'bool') return { slot, value: true, [spec]: true };
+        if (spec.startsWith('menu:')) {
+            const [, menu, choices] = spec.split(':');
+            return {slot, menu, choices: choices.split('|')};
+        }
         if (spec.startsWith('text:')) return { slot, text: true, choices: spec.slice(5).split('|') };
         const choices = spec.split('|');
         if (choices.every((c) => /^".*"$/.test(c))) return { slot, field: true, quoted: true, choices: choices.map((c) => c.slice(1, -1)) };
@@ -313,7 +319,7 @@ export function compileArcadeWord(entry) {
         if (p.literal !== undefined) return escapeRe(p.literal);
         if (p.name) return '([A-Za-z_]\\w*)';
         if (p.quoted) return '("[^"]*")';
-        if (p.choices) return `(${p.choices.map(escapeRe).join('|')})`;
+        if (p.choices && !p.menu) return `(${p.choices.map(escapeRe).join('|')})`;
         return i === last ? '(.+)' : '(.+?)';
     }).join('\\s+');
     const shape = { parts, re: new RegExp(`^${source}$`, 'i'), first: parts[0] };
@@ -342,6 +348,7 @@ export function arcadeWordFor(opcode) {
 /**
  * Write a block back as its word. `read` supplies the slot read-outs:
  * read.value(input), read.text(input) (raw text), read.field(field),
+ * read.menu(input, menuName) (bare choice or value expression),
  * read.cond(input) (a Boolean input as condition text, parenthesised).
  */
 export function spellArcadeWord(entry, read) {
@@ -351,6 +358,7 @@ export function spellArcadeWord(entry, read) {
             const stored = read.field(p.slot);
             return p.quoted ? `"${stored}"` : stored;
         }
+        if (p.menu) return read.menu(p.slot, p.menu);
         if (p.name || p.text) return read.text(p.slot);
         if (p.bool || p.cond) return read.cond(p.slot);
         return read.value(p.slot);
