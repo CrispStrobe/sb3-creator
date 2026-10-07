@@ -257,6 +257,10 @@ export const ARCADE_WORDS = Object.freeze([
     w('arcade_imageProperty', 'reporter', 'arcade image {PROPERTY:width|height} of {IMAGE}'),
     w('arcade_imagePixel', 'reporter', 'arcade image pixel {IMAGE} x {X} y {Y}'),
     w('arcade_imagesOverlap', 'boolean', 'arcade images overlap {IMAGE} source {SOURCE} x {X} y {Y}'),
+    w('arcade_animationAssetFrames', 'reporter',
+        'arcade animation frames resource {RESOURCE:menu:animationAssets:none}'),
+    w('arcade_animationAssetInterval', 'reporter',
+        'arcade animation interval resource {RESOURCE:menu:animationAssets:none}'),
     w('arcade_frameImage', 'reporter',
         'arcade frame image array {KEY} index {INDEX} template {TEMPLATE} start {START} count {COUNT}'),
     // Last of the arcade words: its first slot follows `arcade` directly.
