@@ -2564,7 +2564,9 @@ class SB3Creator {
         const fields = {};
         for (const [p, text] of slots) {
             if (p.field) fields[p.slot] = [text, null];
-            else if (p.text || p.name) inputs[p.slot] = [1, [10, text]];
+            else if (entry.op === 'arcade_controllerStep' && p.slot === 'AXIS') {
+                inputs[p.slot] = this.menuInput(context, 'arcade_menu_axes', 'axes', text);
+            } else if (p.text || p.name) inputs[p.slot] = [1, [10, text]];
             else if (p.bool) inputs[p.slot] = this.arcadeBoolean(text, context);
             else if (p.cond && this.arcadeConditionLike(text, context)) inputs[p.slot] = [2, this.parseCondition(text, context)];
             else inputs[p.slot] = read(text);

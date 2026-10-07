@@ -444,7 +444,10 @@ describe('native Arcade and Arrays menu schemas', () => {
         const {first} = fixedPoint(program('reporter', line));
         const target = first.c.project.targets.find(t => Object.values(t.blocks).some(b => b.opcode === 'arcade_controllerStep'));
         const b = Object.values(target.blocks).find(b => b.opcode === 'arcade_controllerStep');
-        assert.deepEqual(b.inputs.AXIS, [1, [10, axis]]);
+        const producedMenu = target.blocks[b.inputs.AXIS[1]];
+        assert.equal(producedMenu.opcode, 'arcade_menu_axes');
+        assert.deepEqual(producedMenu.fields.axes, [axis, null]);
+        assert.equal(producedMenu.shadow, true);
         assert.equal(b.fields.AXIS, undefined);
         target.blocks.nativeAxis = {opcode: 'arcade_menu_axes', fields: {axes: [axis, null]}, inputs: {}, shadow: true, parent: null, next: null};
         b.inputs.AXIS = [1, 'nativeAxis'];

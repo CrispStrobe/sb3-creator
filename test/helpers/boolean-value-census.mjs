@@ -116,6 +116,9 @@ export function fillWord(words, fill = {}) {
         if (spec === 'name') return 'nm';
         if (spec === 'bool' || spec === 'cond') return '1';
         if (spec && spec.startsWith('text:')) return spec.slice(5).split('|')[0];
+        // Quoted choices can themselves contain '=' (e.g. Arrays '==').
+        // Only unquoted legacy slots use '=' to separate a default.
+        if (spec?.startsWith('"')) return spec.split('|')[0];
         if (spec) return spec.split('|')[0].split('=')[0];
         return '5';
     });
