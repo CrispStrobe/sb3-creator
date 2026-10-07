@@ -34,6 +34,14 @@ function dprop (p) { return p === 'costume #' ? 'costume number' : p === 'backdr
 //   gen specs: {v:KEY} value input | {m:KEY} menu shadow | {f:KEY} field | {bc:KEY} broadcast
 //   ps(a, u): a = arg strings (already pseudocode); u = unq helper for menu/field literals
 const ENTRIES = [
+    // Resource operations use the existing reversible host-runtime bridge.
+    // Fresh lookup is distinct from shared lookup in every generated language.
+    { m: 'arcade_animation_frames_resource', op: 'arcade_animationAssetFrames', kind: 'reporter',
+        gen: [{ m: 'RESOURCE', field: 'animationAssets' }], ps: (a) => `arcade animation frames resource ${a[0]}` },
+    { m: 'arcade_animation_fresh_frames_resource', op: 'arcade_animationAssetFreshFrames', kind: 'reporter',
+        gen: [{ m: 'RESOURCE', field: 'animationAssets' }], ps: (a) => `arcade animation fresh frames resource ${a[0]}` },
+    { m: 'arcade_animation_interval_resource', op: 'arcade_animationAssetInterval', kind: 'reporter',
+        gen: [{ m: 'RESOURCE', field: 'animationAssets' }], ps: (a) => `arcade animation interval resource ${a[0]}` },
     // ---- motion (commands) ----
     { m: 'move', op: 'motion_movesteps', gen: [{ v: 'STEPS' }], ps: (a) => `move ${a[0]} steps` },
     { m: 'turn_right', op: 'motion_turnright', gen: [{ v: 'DEGREES' }], ps: (a) => `turn right ${a[0]} degrees` },

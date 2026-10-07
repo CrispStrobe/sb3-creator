@@ -14,6 +14,8 @@ import {describe, test} from 'node:test';
 import assert from 'node:assert/strict';
 import SB3Creator from '../src/utils/sb3Creator.js';
 import JSZip from 'jszip';
+import pythonToPseudocode from '../src/utils/pythonToPseudocode.js';
+import javascriptToPseudocode from '../src/utils/javascriptToPseudocode.js';
 import {ARCADE_WORDS, ARCADE_DIALECT_OPS, compileArcadeWord, arcadeWordsOf, normalizeArcadeBlockSchema} from '../src/utils/arcadeDialect.js';
 
 // A shorter spelling the parser also reads; it is written back as the full word.
@@ -22,6 +24,7 @@ const ALIAS = true;
 // [kind, opcode, one line of the word with a value in every slot, ALIAS?]
 const WORD_LINES = [
     ['reporter', 'arcade_animationAssetFrames', 'arcade animation frames resource "a1b2-resource"'],
+    ['reporter', 'arcade_animationAssetFreshFrames', 'arcade animation fresh frames resource (resourceId)'],
     ['reporter', 'arcade_animationAssetInterval', 'arcade animation interval resource (resourceId)'],
     ['hat', 'arcade_whenUpdate', 'when arcade updates'],
     ['hat', 'arcade_whenInterval', 'when arcade every (n + 1) ms'],
@@ -222,7 +225,7 @@ describe('Arcade dialect words', () => {
         const here = new Set(WORD_LINES.map(([, op]) => op));
         assert.deepEqual([...here].sort(), [...ARCADE_DIALECT_OPS].sort());
         assert.equal(WORD_LINES.length, ARCADE_WORDS.length, 'one line per spelling, aliases included');
-        assert.equal(ARCADE_DIALECT_OPS.length, 158);
+        assert.equal(ARCADE_DIALECT_OPS.length, 159);
     });
 
     for (const [kind, op, line, alias] of WORD_LINES) {
@@ -548,10 +551,10 @@ test('controller reporter-menu slots preserve variables, nested reporters and qu
 test('animation resources preserve UUID literals and computed IDs with native menu shadows', () => {
     for (const expression of ['"a1b2-resource"', '(resourceId)', 'none']) {
         const creator = new SB3Creator();
-        creator.parse(`DEVICE ARCADE\nGLOBAL resourceId = "a1b2-resource"\nGLOBAL frames\nGLOBAL interval\nWHEN flag clicked:\n  set frames to (arcade animation frames resource ${expression})\n  set interval to (arcade animation interval resource ${expression})\n`);
+        creator.parse(`DEVICE ARCADE\nGLOBAL resourceId = "a1b2-resource"\nGLOBAL frames\nGLOBAL fresh\nGLOBAL interval\nWHEN flag clicked:\n  set frames to (arcade animation frames resource ${expression})\n  set fresh to (arcade animation fresh frames resource ${expression})\n  set interval to (arcade animation interval resource ${expression})\n`);
         assert.deepEqual(creator.warnings, []);
         const blocks = creator.project.targets.flatMap(target => Object.values(target.blocks));
-        for (const opcode of ['arcade_animationAssetFrames', 'arcade_animationAssetInterval']) {
+        for (const opcode of ['arcade_animationAssetFrames', 'arcade_animationAssetFreshFrames', 'arcade_animationAssetInterval']) {
             const block = blocks.find(item => item.opcode === opcode);
             assert.ok(block);
             const input = block.inputs.RESOURCE;
@@ -567,5 +570,35 @@ test('animation resources preserve UUID literals and computed IDs with native me
         const second = new SB3Creator(); second.parse(code);
         assert.deepEqual(second.warnings, []);
         assert.equal(second.decompile(), code);
+    }
+});
+
+
+test('shared and fresh resource lookups remain distinct through Python and JavaScript', () => {
+    for (const expression of ['"resource:walk"', '(resourceId)']) {
+        const original = new SB3Creator();
+        original.parse(`DEVICE ARCADE\nGLOBAL resourceId = "resource:walk"\nGLOBAL shared\nGLOBAL fresh\nGLOBAL interval\nWHEN flag clicked:\n  set shared to arcade animation frames resource ${expression}\n  set fresh to arcade animation fresh frames resource ${expression}\n  set interval to arcade animation interval resource ${expression}\n`);
+        assert.deepEqual(original.warnings, []);
+        for (const [language, read] of [['Python', pythonToPseudocode], ['JavaScript', javascriptToPseudocode]]) {
+            const generated = language === 'Python' ? original.generatePython() : original.generateJavaScript();
+            assert.match(generated, /scratch\.arcade_animation_frames_resource\(/);
+            assert.match(generated, /scratch\.arcade_animation_fresh_frames_resource\(/);
+            assert.match(generated, /scratch\.arcade_animation_interval_resource\(/);
+            const imported = read(generated);
+            assert.deepEqual(imported.unsupported || [], [], language);
+            const next = new SB3Creator(); next.parse(imported.pseudocode);
+            assert.deepEqual(next.warnings, [], language);
+            const rows = next.project.targets.flatMap(target => Object.values(target.blocks));
+            for (const opcode of ['arcade_animationAssetFrames', 'arcade_animationAssetFreshFrames', 'arcade_animationAssetInterval']) {
+                const block = rows.find(row => row.opcode === opcode);
+                assert.ok(block, `${language} retains ${opcode}`);
+                const input = block.inputs.RESOURCE;
+                if (expression.startsWith('"')) {
+                    const target = next.project.targets.find(target => target.blocks[input[1]]);
+                    const shadow = target.blocks[input[1]];
+                    assert.equal(shadow.fields.animationAssets[0], 'resource:walk');
+                } else assert.equal(input[0], 3, `${language} retains connected computed resource`);
+            }
+        }
     }
 });
