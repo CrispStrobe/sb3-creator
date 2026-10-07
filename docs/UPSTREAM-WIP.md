@@ -1,5 +1,14 @@
 # Adopting upstream changes during WIP
 
+## Claimed animation resource words — 2026-10-07
+
+The Arcade integration lane owns two reporter words for stable animation
+resource IDs: frames and uniform interval. Both use native reporter-capable
+`animationAssets` menu shadows. Literal IDs and computed IDs must roundtrip.
+The consumer owns timeline editing, resource persistence/runtime/export; this
+producer change only supplies the shared syntax and native block schema.
+
+
 ## Active Arcade block-schema work — 2026-10-07
 
 Implemented by the Arcade compatibility integration lane: Arrays arithmetic,

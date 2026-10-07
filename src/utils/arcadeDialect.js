@@ -257,6 +257,10 @@ export const ARCADE_WORDS = Object.freeze([
     w('arcade_imageProperty', 'reporter', 'arcade image {PROPERTY:width|height} of {IMAGE}'),
     w('arcade_imagePixel', 'reporter', 'arcade image pixel {IMAGE} x {X} y {Y}'),
     w('arcade_imagesOverlap', 'boolean', 'arcade images overlap {IMAGE} source {SOURCE} x {X} y {Y}'),
+    w('arcade_animationAssetFrames', 'reporter',
+        'arcade animation frames resource {RESOURCE:menu:animationAssets:none}', {literalMenu: true}),
+    w('arcade_animationAssetInterval', 'reporter',
+        'arcade animation interval resource {RESOURCE:menu:animationAssets:none}', {literalMenu: true}),
     w('arcade_frameImage', 'reporter',
         'arcade frame image array {KEY} index {INDEX} template {TEMPLATE} start {START} count {COUNT}'),
     // Last of the arcade words: its first slot follows `arcade` directly.
@@ -358,7 +362,10 @@ export function spellArcadeWord(entry, read) {
             const stored = read.field(p.slot);
             return p.quoted ? `"${stored}"` : stored;
         }
-        if (p.menu) return read.menu(p.slot, p.menu);
+        if (p.menu) {
+            const value = read.menu(p.slot, p.menu);
+            return entry.literalMenu && !p.choices.includes(value) && !/^["(]/.test(value) ? JSON.stringify(value) : value;
+        }
         if (p.name || p.text) return read.text(p.slot);
         if (p.bool || p.cond) return read.cond(p.slot);
         return read.value(p.slot);

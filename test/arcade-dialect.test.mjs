@@ -21,6 +21,8 @@ const ALIAS = true;
 
 // [kind, opcode, one line of the word with a value in every slot, ALIAS?]
 const WORD_LINES = [
+    ['reporter', 'arcade_animationAssetFrames', 'arcade animation frames resource "a1b2-resource"'],
+    ['reporter', 'arcade_animationAssetInterval', 'arcade animation interval resource (resourceId)'],
     ['hat', 'arcade_whenUpdate', 'when arcade updates'],
     ['hat', 'arcade_whenInterval', 'when arcade every (n + 1) ms'],
     ['hat', 'arcade_whenRegisteredUpdate', 'when arcade update handler (n + 1) runs'],
@@ -220,7 +222,7 @@ describe('Arcade dialect words', () => {
         const here = new Set(WORD_LINES.map(([, op]) => op));
         assert.deepEqual([...here].sort(), [...ARCADE_DIALECT_OPS].sort());
         assert.equal(WORD_LINES.length, ARCADE_WORDS.length, 'one line per spelling, aliases included');
-        assert.equal(ARCADE_DIALECT_OPS.length, 156);
+        assert.equal(ARCADE_DIALECT_OPS.length, 158);
     });
 
     for (const [kind, op, line, alias] of WORD_LINES) {
@@ -539,5 +541,31 @@ test('controller reporter-menu slots preserve variables, nested reporters and qu
             assert.ok([10, 12].includes(input[1][0]), 'literal or variable keeps its native primitive type');
         }
         assert.ok(d1.includes(expression), `preserve expression ${expression}: ${d1}`);
+    }
+});
+
+
+test('animation resources preserve UUID literals and computed IDs with native menu shadows', () => {
+    for (const expression of ['"a1b2-resource"', '(resourceId)', 'none']) {
+        const creator = new SB3Creator();
+        creator.parse(`DEVICE ARCADE\nGLOBAL resourceId = "a1b2-resource"\nGLOBAL frames\nGLOBAL interval\nWHEN flag clicked:\n  set frames to (arcade animation frames resource ${expression})\n  set interval to (arcade animation interval resource ${expression})\n`);
+        assert.deepEqual(creator.warnings, []);
+        const blocks = creator.project.targets.flatMap(target => Object.values(target.blocks));
+        for (const opcode of ['arcade_animationAssetFrames', 'arcade_animationAssetInterval']) {
+            const block = blocks.find(item => item.opcode === opcode);
+            assert.ok(block);
+            const input = block.inputs.RESOURCE;
+            assert.ok(input);
+            if (expression !== '(resourceId)') {
+                const target = creator.project.targets.find(target => target.blocks[input[1]]);
+                assert.equal(target.blocks[input[1]].opcode, 'arcade_menu_animationAssets');
+                assert.equal(target.blocks[input[1]].fields.animationAssets[0], expression === 'none' ? 'none' : 'a1b2-resource');
+            }
+        }
+        const code = creator.decompile();
+        assert.ok(code.includes('arcade animation frames resource'));
+        const second = new SB3Creator(); second.parse(code);
+        assert.deepEqual(second.warnings, []);
+        assert.equal(second.decompile(), code);
     }
 });
