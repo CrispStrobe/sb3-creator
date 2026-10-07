@@ -340,6 +340,20 @@ describe('Arcade dialect: precedence, slots and refusals', () => {
             (e) => e.code === 'DIALECT_UNPARSED_LINES');
     });
 
+    test('rotation, rotationDegrees and data are sprite properties, each read as itself', () => {
+        const c = new SB3Creator();
+        c.parse(`${HEADER}WHEN flag clicked:\n  arcade set rotationDegrees of hero to 45\n`
+            + '  arcade set rotation of hero to (arcade property rotation of hero)\n'
+            + '  arcade set data of hero to (arcade property data of hero)\n');
+        const blocks = Object.values(c.project.targets.find((t) => !t.isStage).blocks);
+        assert.equal(blocks.filter((b) => b.opcode === 'arcade_setSpriteProperty').length, 3);
+        assert.equal(blocks.filter((b) => b.opcode === 'arcade_spriteProperty').length, 2);
+        const text = new SB3Creator().decompile(c.project);
+        assert.match(text, /arcade set rotationDegrees of hero to 45/);
+        assert.match(text, /arcade set rotation of hero to \(?arcade property rotation of hero\)?/);
+        assert.match(text, /arcade set data of hero to \(?arcade property data of hero\)?/);
+    });
+
     test('a comparison used as a value still warns (the words did not remove that warning)', () => {
         const c = new SB3Creator();
         c.parse(`${HEADER}WHEN flag clicked:\n  set v to (n > 2)\n`);
