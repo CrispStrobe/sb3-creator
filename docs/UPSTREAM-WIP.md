@@ -2,12 +2,18 @@
 
 ## Active Arcade block-schema work — 2026-10-07
 
-Claimed by the Arcade compatibility integration lane. Correct the Arrays
-operator/special-value direct fields and the Arcade controller-axis reporter
-input in the shared dialect. Verify parser and decompiler round trips, then
-adopt the reviewed producer SHA in Brickwright Lite and qualify actual Blocks
-editing and persistence there. This claim covers the shared dialect and its
-focused tests; it does not change sibling fixture pins or other engine lanes.
+Implemented by the Arcade compatibility integration lane: Arrays arithmetic,
+unary and comparison operators and special values use native direct fields;
+the controller axis uses a reporter input. The decompiler reads native axis
+menu shadows and validated historical literal shapes. Consumers can call
+`normalizeArcadeBlockSchema(block)` before native workspace ingestion to migrate
+these historical slots in place. Invalid literals and reporter-valued historical
+dropdowns are preserved for explicit diagnostics; no value is guessed.
+Focused tests exercise
+every menu choice, menu edits, legacy migration and actual SB3 archive
+reconstruction. Integration remains pending: adopt the reviewed producer SHA
+in Brickwright Lite and qualify visible Blocks editing and persistence.
+Sibling fixture pins and other engine lanes are unchanged.
 
 Our shared components are actively developed in our own upstream repositories:
 `CrispStrobe/bw-board`, `CrispStrobe/bw-circuit-ui`, and `CrispStrobe/sb3-creator`.

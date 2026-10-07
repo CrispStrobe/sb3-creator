@@ -215,7 +215,7 @@ export const ARCADE_WORDS = Object.freeze([
     w('arcade_spriteProperty', 'reporter', `arcade property {PROPERTY:${PROPERTIES}} of {ID}`),
     w('arcade_spritesOfKind', 'reporter', 'arcade sprite array kind {KIND}'),
     w('arcade_spriteCount', 'reporter', 'arcade count kind {KIND}'),
-    w('arcade_controllerStep', 'reporter', 'arcade controller {AXIS:x|y} step {STEP}'),
+    w('arcade_controllerStep', 'reporter', 'arcade controller {AXIS:text:x|y} step {STEP}'),
     w('arcade_eventSprite', 'reporter', 'arcade event {WHICH:first|second}'),
     w('arcade_eventLocation', 'reporter', 'arcade event location'),
     w('arcade_getCaptured', 'reporter', 'arcade captured {NAME:name}'),
@@ -264,11 +264,11 @@ export const ARCADE_WORDS = Object.freeze([
     w('arrays_namedReference', 'reporter', 'reference to named array {NAME}'),
     w('arrays_parseLegacyValue', 'reporter', 'parse array input {VALUE}'),
     w('arrays_jsonValue', 'reporter', 'JSON text of value {VALUE}'),
-    w('arrays_specialValue', 'reporter', '{KIND:text:undefined|null} value'),
-    w('arrays_valueBinary', 'reporter', 'calculate value {LEFT} op {OP} with {RIGHT}'),
-    w('arrays_valueUnary', 'reporter', 'convert value {VALUE} op {OP}'),
+    w('arrays_specialValue', 'reporter', '{KIND:undefined|null} value'),
+    w('arrays_valueBinary', 'reporter', 'calculate value {LEFT} op {OP:"+"|"-"|"*"|"/"|"%"} with {RIGHT}'),
+    w('arrays_valueUnary', 'reporter', 'convert value {VALUE} op {OP:"+"|"-"}'),
     w('arrays_valueTruthy', 'boolean', 'truthiness of value {VALUE}'),
-    w('arrays_valueCompare', 'boolean', 'compare value {LEFT} op {OP} with {RIGHT}'),
+    w('arrays_valueCompare', 'boolean', 'compare value {LEFT} op {OP:"=="|"!="|"==="|"!=="|"<"|">"|"<="|">="} with {RIGHT}'),
     w('arrays_referenceValues', 'reporter', 'array value {VALUE} rest {REST}'),
     w('arrays_createReference', 'reporter', 'new array reference from {VALUES}'),
     w('arrays_referenceTruthy', 'boolean', 'truthiness of item {INDEX} of array reference {ARRAY}'),
@@ -356,4 +356,44 @@ export function spellArcadeWord(entry, read) {
         return read.value(p.slot);
     }).join(' ');
     return entry.kind === 'hat' ? `WHEN ${words.replace(/^when\s+/i, '')}:` : words;
+}
+
+/**
+ * Migrate the five historical Arcade/Arrays slot-shape mismatches before a
+ * project enters native Blocks. Mutates only recognized, valid menu literals;
+ * returns whether it changed the block. Native fields/inputs win. Reporter
+ * expressions in old direct-menu slots cannot be represented by a dropdown
+ * and are deliberately left untouched for diagnostics, rather than guessed.
+ */
+export function normalizeArcadeBlockSchema(block) {
+    const entry = arcadeWordFor(block?.opcode);
+    if (!entry) return false;
+    const direct = /^arrays_(specialValue|valueBinary|valueUnary|valueCompare)$/.test(entry.op);
+    if (!direct && entry.op !== 'arcade_controllerStep') return false;
+    let changed = false;
+    for (const part of compileArcadeWord(entry).parts) {
+        if (!part.slot || !part.choices) continue;
+        const name = part.slot;
+        const field = block.fields?.[name];
+        const input = block.inputs?.[name];
+        if (direct && part.field && input) {
+            const literal = input[1];
+            const legacy = Array.isArray(literal) && literal[0] === 10 && part.choices.includes(literal[1]);
+            if (field && part.choices.includes(field[0])) {
+                delete block.inputs[name];
+                changed = true;
+            } else if (!field && legacy) {
+                block.fields ||= {};
+                block.fields[name] = [literal[1], null];
+                delete block.inputs[name];
+                changed = true;
+            }
+        } else if (entry.op === 'arcade_controllerStep' && name === 'AXIS' && field && part.choices.includes(field[0])) {
+            block.inputs ||= {};
+            if (!input) block.inputs[name] = [1, [10, field[0]]];
+            delete block.fields[name];
+            changed = true;
+        }
+    }
+    return changed;
 }
