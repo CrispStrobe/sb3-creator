@@ -2565,7 +2565,8 @@ class SB3Creator {
         for (const [p, text] of slots) {
             if (p.field) fields[p.slot] = [text, null];
             else if (p.menu) {
-                const canonical = p.choices.find(choice => choice.toLowerCase() === text.toLowerCase());
+                const canonical = p.choices.find(choice => choice.toLowerCase() === text.toLowerCase()) ??
+                    (entry.literalMenu && /^"[^"]*"$/.test(text) ? text.slice(1, -1) : undefined);
                 const shadow = this.menuInput(context, `arcade_menu_${p.menu}`, p.menu, canonical ?? p.choices[0]);
                 const value = canonical === undefined ? read(text) : null;
                 inputs[p.slot] = !value ? shadow : typeof value[1] === 'string' ? [3, value[1], shadow[1]] : value;

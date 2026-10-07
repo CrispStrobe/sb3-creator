@@ -556,7 +556,11 @@ test('animation resources preserve UUID literals and computed IDs with native me
             assert.ok(block);
             const input = block.inputs.RESOURCE;
             assert.ok(input);
-            if (expression === 'none') assert.ok(creator.project.targets.some(target => target.blocks[input[1]]?.opcode === 'arcade_menu_animationAssets'));
+            if (expression !== '(resourceId)') {
+                const target = creator.project.targets.find(target => target.blocks[input[1]]);
+                assert.equal(target.blocks[input[1]].opcode, 'arcade_menu_animationAssets');
+                assert.equal(target.blocks[input[1]].fields.animationAssets[0], expression === 'none' ? 'none' : 'a1b2-resource');
+            }
         }
         const code = creator.decompile();
         assert.ok(code.includes('arcade animation frames resource'));
