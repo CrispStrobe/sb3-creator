@@ -259,6 +259,8 @@ export const ARCADE_WORDS = Object.freeze([
     w('arcade_imagesOverlap', 'boolean', 'arcade images overlap {IMAGE} source {SOURCE} x {X} y {Y}'),
     w('arcade_animationAssetFrames', 'reporter',
         'arcade animation frames resource {RESOURCE:menu:animationAssets:none}', {literalMenu: true}),
+    w('arcade_animationAssetFreshFrames', 'reporter',
+        'arcade animation fresh frames resource {RESOURCE:menu:animationAssets:none}', {literalMenu: true}),
     w('arcade_animationAssetInterval', 'reporter',
         'arcade animation interval resource {RESOURCE:menu:animationAssets:none}', {literalMenu: true}),
     w('arcade_frameImage', 'reporter',

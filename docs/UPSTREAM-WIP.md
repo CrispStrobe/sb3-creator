@@ -103,3 +103,15 @@ checks pass. Consumer runtime, exporter, native importer and editable resource
 library integration belong to the existing Lite Arcade lane. Literal UUID menus,
 computed IDs, Python/JavaScript/pseudocode roundtrips and typed Image[] use must
 remain supported. No shared-cache substitution for native factory lookups.
+
+
+Fresh-lookup producer implementation: the new native-menu word and shared/fresh/
+interval reversible host-runtime bridge pass284 focused dialect/roundtrip/C-host
+tests, with no skips; affected source lint passes. The first run exposed the
+expected opcode census change158→159. A later new assertion incorrectly looked
+for a serialized block ID inside the block body; reading the owning target's
+block map fixes that test. Both first-run failures are retained by the consumer
+lane. Python/JavaScript now retain all three resource calls instead of empty
+values. Their ordinary generated renderer shim is still a neutral host placeholder;
+this qualifies language conversion, not standalone rendering. Hosted producer
+qualification and exact-pin consumer adoption remain required.
