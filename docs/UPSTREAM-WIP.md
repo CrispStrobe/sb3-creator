@@ -87,3 +87,19 @@ Repository discovery and commit-graph queries are different operations from
 building or executing a dependency. Keep them named, report the resolved SHA,
 and never use their moving checkout as a substitute for an adoption pin. Lite's
 existing fetch census records those exceptions individually.
+
+
+## Claimed fresh animation resource lookup — 2026-10-07
+
+The existing Arcade integration owner claims a distinct fresh-copy resource
+reporter: `arcade animation fresh frames resource {RESOURCE}`. It allocates a
+new array and fresh images on every evaluation; the existing shared frames
+reporter keeps its semantics. Scope: `src/utils/arcadeDialect.js`, typed value
+inference/decompilation/generators affected by the new opcode, associated
+runtime-shim metadata, focused dialect tests and this handoff. Base33ce738.
+
+Lite consumes this through its official exact-pin sync after producer hosted
+checks pass. Consumer runtime, exporter, native importer and editable resource
+library integration belong to the existing Lite Arcade lane. Literal UUID menus,
+computed IDs, Python/JavaScript/pseudocode roundtrips and typed Image[] use must
+remain supported. No shared-cache substitution for native factory lookups.
