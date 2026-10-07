@@ -13,7 +13,8 @@
 import {describe, test} from 'node:test';
 import assert from 'node:assert/strict';
 import SB3Creator from '../src/utils/sb3Creator.js';
-import {ARCADE_WORDS, ARCADE_DIALECT_OPS, compileArcadeWord, arcadeWordsOf} from '../src/utils/arcadeDialect.js';
+import JSZip from 'jszip';
+import {ARCADE_WORDS, ARCADE_DIALECT_OPS, compileArcadeWord, arcadeWordsOf, normalizeArcadeBlockSchema} from '../src/utils/arcadeDialect.js';
 
 // A shorter spelling the parser also reads; it is written back as the full word.
 const ALIAS = true;
@@ -167,10 +168,10 @@ const WORD_LINES = [
     ['reporter', 'arrays_parseLegacyValue', 'parse array input (n + 1)'],
     ['reporter', 'arrays_jsonValue', 'JSON text of value (n + 1)'],
     ['reporter', 'arrays_specialValue', 'null value'],
-    ['reporter', 'arrays_valueBinary', 'calculate value (n + 1) op hero with "Player"'],
-    ['reporter', 'arrays_valueUnary', 'convert value (n + 1) op hero'],
+    ['reporter', 'arrays_valueBinary', 'calculate value (n + 1) op "+" with "Player"'],
+    ['reporter', 'arrays_valueUnary', 'convert value (n + 1) op "-"'],
     ['boolean', 'arrays_valueTruthy', 'truthiness of value (n + 1)'],
-    ['boolean', 'arrays_valueCompare', 'compare value (n + 1) op hero with "Player"'],
+    ['boolean', 'arrays_valueCompare', 'compare value (n + 1) op ">=" with "Player"'],
     ['reporter', 'arrays_referenceValues', 'array value (n + 1) rest hero'],
     ['reporter', 'arrays_createReference', 'new array reference from (n + 1)'],
     ['boolean', 'arrays_referenceTruthy', 'truthiness of item (n + 1) of array reference hero'],
@@ -395,4 +396,126 @@ describe('Arcade dialect: precedence, slots and refusals', () => {
             assert.ok(ops.has(op), op);
         }
     });
+});
+
+// Native VM menus with acceptReporters=false serialize fields. Menus that
+// accept reporters serialize inputs, including their native menu shadow.
+describe('native Arcade and Arrays menu schemas', () => {
+    const cases = [
+        ['reporter', 'arrays_specialValue', 'KIND', ['undefined', 'null'], v => `${v} value`],
+        ['reporter', 'arrays_valueBinary', 'OP', ['+', '-', '*', '/', '%'], v => `calculate value 7 op "${v}" with 6`],
+        ['reporter', 'arrays_valueUnary', 'OP', ['+', '-'], v => `convert value 5 op "${v}"`],
+        ['boolean', 'arrays_valueCompare', 'OP', ['==', '!=', '===', '!==', '<', '>', '<=', '>='], v => `compare value 7 op "${v}" with 6`]
+    ];
+    for (const [kind, opcode, slot, choices, line] of cases) {
+        for (const choice of choices) test(`${opcode} native ${choice} and legacy literal survive round trip`, () => {
+            const {first} = fixedPoint(program(kind, line(choice)));
+            for (const b of first.blocks.filter(b => b.opcode === opcode)) {
+                assert.equal(b.fields[slot][0], choice);
+                assert.equal(b.inputs[slot], undefined, 'direct menu must not create an input the GUI discards');
+                // Simulate a menu edit in the visible workspace.
+                b.fields[slot][0] = choices.at(-1);
+            }
+            const edited = first.c.decompile();
+            assert.ok(edited.includes(line(choices.at(-1))));
+            const reread = compile(edited);
+            assert.deepEqual(reread.c.warnings, []);
+            for (const b of reread.blocks.filter(b => b.opcode === opcode)) assert.equal(b.fields[slot][0], choices.at(-1));
+            // Older saved producer output must migrate to the corrected schema.
+            for (const b of first.blocks.filter(b => b.opcode === opcode)) {
+                delete b.fields[slot];
+                b.inputs[slot] = [1, [10, choice]];
+            }
+            const migrated = compile(first.c.decompile());
+            assert.deepEqual(migrated.c.warnings, []);
+            for (const b of migrated.blocks.filter(b => b.opcode === opcode)) {
+                assert.equal(b.fields[slot][0], choice);
+                assert.equal(b.inputs[slot], undefined);
+            }
+        });
+        test(`${opcode} native field wins over obsolete input`, () => {
+            const {c, blocks} = compile(program(kind, line(choices[0])));
+            for (const b of blocks.filter(b => b.opcode === opcode)) b.inputs[slot] = [1, [10, choices.at(-1)]];
+            assert.ok(c.decompile().includes(line(choices[0])));
+        });
+    }
+    for (const axis of ['x', 'y']) test(`controller ${axis} literal, native menu and legacy field round trip`, () => {
+        const line = `arcade controller ${axis} step 10`;
+        const {first} = fixedPoint(program('reporter', line));
+        const target = first.c.project.targets.find(t => Object.values(t.blocks).some(b => b.opcode === 'arcade_controllerStep'));
+        const b = Object.values(target.blocks).find(b => b.opcode === 'arcade_controllerStep');
+        assert.deepEqual(b.inputs.AXIS, [1, [10, axis]]);
+        assert.equal(b.fields.AXIS, undefined);
+        target.blocks.nativeAxis = {opcode: 'arcade_menu_axes', fields: {axes: [axis, null]}, inputs: {}, shadow: true, parent: null, next: null};
+        b.inputs.AXIS = [1, 'nativeAxis'];
+        assert.ok(first.c.decompile().includes(line), 'read the actual native menu field without quoted expression wrappers');
+        assert.deepEqual(compile(first.c.decompile()).c.warnings, []);
+        delete b.inputs.AXIS;
+        b.fields.AXIS = [axis, null];
+        assert.ok(first.c.decompile().includes(line), 'read legacy axis field');
+    });
+    test('operators cannot be arbitrary reporter inputs masquerading as dropdown fields', () => {
+        for (const line of ['calculate value 7 op hero with 6', 'convert value 5 op hero', 'compare value 7 op "bogus" with 6']) {
+            const {blocks} = compile(program('reporter', line));
+            assert.equal(blocks.filter(b => /^arrays_value(Binary|Unary|Compare)$/.test(b.opcode)).length, 0);
+        }
+    });
+});
+
+
+test('native menu edits persist through the actual SB3 archive and Code reconstruction', async () => {
+    const {c, blocks} = compile(`${HEADER}WHEN flag clicked:
+  set v to calculate value 7 op "*" with 6
+  set v to null value
+  set v to convert value 5 op "-"
+  IF compare value 7 op ">=" with 6 THEN:
+    hide
+  set v to arcade controller y step 10
+`);
+    assert.deepEqual(c.warnings, []);
+    const binary = blocks.find(b => b.opcode === 'arrays_valueBinary');
+    binary.fields.OP[0] = '%';
+    const blob = await c.generateSB3();
+    const zip = await JSZip.loadAsync(await blob.arrayBuffer());
+    const project = JSON.parse(await zip.file('project.json').async('string'));
+    const loaded = new SB3Creator();
+    loaded.project = project;
+    const code = loaded.decompile();
+    for (const word of ['op "%"', 'null value', 'op "-"', 'op ">="', 'arcade controller y step 10']) assert.ok(code.includes(word), word);
+    const reconstructed = compile(code);
+    assert.deepEqual(reconstructed.c.warnings, []);
+    assert.equal(reconstructed.blocks.find(b => b.opcode === 'arrays_valueBinary').fields.OP[0], '%');
+});
+
+
+test('preload migration protects legacy blocks before native workspace ingestion', () => {
+    for (const [opcode, slot, value] of [
+        ['arrays_specialValue', 'KIND', 'null'], ['arrays_valueBinary', 'OP', '*'],
+        ['arrays_valueUnary', 'OP', '-'], ['arrays_valueCompare', 'OP', '>=']
+    ]) {
+        const block = {opcode, inputs: {[slot]: [1, [10, value]], KEEP: [1, [4, '7']]}, fields: {KEEP: ['untouched', null]}};
+        assert.equal(normalizeArcadeBlockSchema(block), true);
+        assert.deepEqual(block.fields[slot], [value, null]);
+        assert.equal(block.inputs[slot], undefined);
+        assert.deepEqual(block.inputs.KEEP, [1, [4, '7']]);
+        assert.equal(normalizeArcadeBlockSchema(block), false, 'idempotent');
+        block.inputs[slot] = [1, [10, 'obsolete']];
+        assert.equal(normalizeArcadeBlockSchema(block), true);
+        assert.equal(block.fields[slot][0], value, 'native choice wins');
+        const unsupported = {opcode, inputs: {[slot]: [3, 'dynamicReporter', [10, value]]}, fields: {}};
+        const before = structuredClone(unsupported);
+        assert.equal(normalizeArcadeBlockSchema(unsupported), false);
+        assert.deepEqual(unsupported, before, 'do not invent a literal for a reporter');
+        const invalid = {opcode, inputs: {[slot]: [1, [10, 'bogus']]}, fields: {}};
+        assert.equal(normalizeArcadeBlockSchema(invalid), false);
+    }
+    const axis = {opcode: 'arcade_controllerStep', inputs: {}, fields: {AXIS: ['y', null]}};
+    assert.equal(normalizeArcadeBlockSchema(axis), true);
+    assert.deepEqual(axis.inputs.AXIS, [1, [10, 'y']]);
+    assert.equal(axis.fields.AXIS, undefined);
+    assert.equal(normalizeArcadeBlockSchema(axis), false);
+    axis.fields.AXIS = ['x', null];
+    assert.equal(normalizeArcadeBlockSchema(axis), true);
+    assert.deepEqual(axis.inputs.AXIS, [1, [10, 'y']], 'native axis wins');
+    assert.equal(normalizeArcadeBlockSchema({opcode: 'unrelated', inputs: {}, fields: {}}), false);
 });
