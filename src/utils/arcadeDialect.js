@@ -87,6 +87,7 @@ export const ARCADE_WORDS = Object.freeze([
     w('arcade_playerLookup', 'reporter', 'arcade player by {MODE:number|index} {VALUE}'),
     w('arcade_allPlayers', 'reporter', 'arcade all players'),
     w('arcade_playerSprite', 'reporter', 'arcade sprite of player {PLAYER}'),
+    w('arcade_movePlayerWithButtons', 'command', 'arcade move player {PLAYER} with buttons vx {VX} vy {VY}'),
     w('arcade_setPlayerSprite', 'command', 'arcade set sprite of player {PLAYER} to {ID}'),
     w('arcade_playerBySprite', 'reporter', 'arcade player of sprite {ID}'),
     w('arcade_playerProperty', 'reporter', 'arcade player {READ:safe|member} property {PROPERTY} of {PLAYER}'),

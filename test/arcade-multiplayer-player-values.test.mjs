@@ -6,6 +6,7 @@ test('multiplayer player values retain lookup mode, reference inputs and member-
 WHEN flag clicked:
   set player to (arcade player by index (1 + 1))
   set all to (arcade all players)
+  arcade move player (player) with buttons vx (60) vy (0)
   arcade set sprite of player (player) to (actor)
   set sprite to (arcade sprite of player (player))
   set owner to (arcade player of sprite (sprite))
@@ -17,5 +18,5 @@ WHEN flag clicked:
  const reads=blocks.filter(b=>b.opcode==='arcade_playerProperty');assert.deepEqual(reads.map(b=>b.fields.READ[0]),['member','safe']);
  const output=first.decompile();const second=new SB3Creator();second.parse(output);
  assert.equal(second.decompile(),output);
- for(const opcode of ['playerLookup','allPlayers','setPlayerSprite','playerSprite','playerBySprite','playerProperty'])assert.ok(blocks.some(b=>b.opcode==='arcade_'+opcode),opcode);
+ for(const opcode of ['movePlayerWithButtons','playerLookup','allPlayers','setPlayerSprite','playerSprite','playerBySprite','playerProperty'])assert.ok(blocks.some(b=>b.opcode==='arcade_'+opcode),opcode);
 });
