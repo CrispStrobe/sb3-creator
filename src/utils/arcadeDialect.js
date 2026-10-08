@@ -193,6 +193,8 @@ export const ARCADE_WORDS = Object.freeze([
     w('arcade_setAnimationInterval', 'command', 'arcade set animation interval {ANIMATION} to {INTERVAL}'),
     w('arcade_runImageAnimation', 'command', 'arcade animate sprite {ID} frames {FRAMES} interval {INTERVAL} loop {LOOP:cond}'),
     w('arcade_stopAnimation', 'command', 'arcade stop animations of {ID} type {TYPE}'),
+    w('arcade_setLegacyTilemap', 'command', 'arcade set color-coded map image {IMAGE} scale {SCALE}'),
+    w('arcade_setLegacyTile', 'command', 'arcade set color tile {INDEX} image {IMAGE} wall {WALL}'),
     w('arcade_setTilemap', 'command', 'arcade set tilemap data {DATA}'),
     w('arcade_setWallAt', 'command', 'arcade set tile wall {LOCATION} to {WALL:cond}'),
     w('arcade_setTileAt', 'command', 'arcade set tile {LOCATION} image {IMAGE}'),
