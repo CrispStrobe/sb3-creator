@@ -263,7 +263,7 @@ export const ARCADE_WORDS = Object.freeze([
     w('arcade_tileLocation', 'reporter', 'arcade tile location column {COLUMN} row {ROW}'),
     w('arcade_tilesOfType', 'reporter', 'arcade tile array image {IMAGE}'),
     w('arcade_tileLocationProperty', 'reporter',
-        'arcade tile {PROPERTY:column|row|x|y|left|right|top|bottom} of {LOCATION}'),
+        'arcade tile {PROPERTY:column|row|x|y|left|right|top|bottom|tileSet} of {LOCATION}'),
     w('arcade_tileIs', 'boolean', 'arcade tile {LOCATION} equals image {IMAGE}'),
     w('arcade_tileIsWall', 'boolean', 'arcade tile {LOCATION} is wall'),
     w('arcade_isHittingTile', 'boolean', 'arcade sprite {ID} hitting wall {DIRECTION}'),
