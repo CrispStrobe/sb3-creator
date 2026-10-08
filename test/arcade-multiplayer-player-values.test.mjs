@@ -7,6 +7,10 @@ WHEN flag clicked:
   set player to (arcade player by index (1 + 1))
   arcade register multiplayer button (0) event (2049) as "press" capturing ""
   set held to (arcade player (player) button (0) pressed)
+  set key to (arcade create player state key)
+  arcade set state (key) of player (player) to (7.5)
+  arcade change state (key) of player (player) by (0.5)
+  set value to (arcade state (key) of player (player))
   set all to (arcade all players)
   arcade move player (player) with buttons vx (60) vy (0)
   arcade set sprite of player (player) to (actor)
@@ -22,5 +26,5 @@ WHEN arcade multiplayer button handler "press" runs:
  const reads=blocks.filter(b=>b.opcode==='arcade_playerProperty');assert.deepEqual(reads.map(b=>b.fields.READ[0]),['member','safe']);
  const output=first.decompile();const second=new SB3Creator();second.parse(output);
  assert.equal(second.decompile(),output);
- for(const opcode of ['registerMultiplayerButtonHandler','whenRegisteredMultiplayerButton','eventPlayer','playerButtonPressed','movePlayerWithButtons','playerLookup','allPlayers','setPlayerSprite','playerSprite','playerBySprite','playerProperty'])assert.ok(blocks.some(b=>b.opcode==='arcade_'+opcode),opcode);
+ for(const opcode of ['createPlayerState','getPlayerState','setPlayerState','changePlayerState','registerMultiplayerButtonHandler','whenRegisteredMultiplayerButton','eventPlayer','playerButtonPressed','movePlayerWithButtons','playerLookup','allPlayers','setPlayerSprite','playerSprite','playerBySprite','playerProperty'])assert.ok(blocks.some(b=>b.opcode==='arcade_'+opcode),opcode);
 });
