@@ -84,6 +84,12 @@ export const ARCADE_WORDS = Object.freeze([
     w('arcade_whenCountdownEnds', 'hat', 'when arcade countdown ends'),
 
     // ---- commands: score, life, scenes, camera --------------------------------
+    w('arcade_playerLookup', 'reporter', 'arcade player by {MODE:number|index} {VALUE}'),
+    w('arcade_allPlayers', 'reporter', 'arcade all players'),
+    w('arcade_playerSprite', 'reporter', 'arcade sprite of player {PLAYER}'),
+    w('arcade_setPlayerSprite', 'command', 'arcade set sprite of player {PLAYER} to {ID}'),
+    w('arcade_playerBySprite', 'reporter', 'arcade player of sprite {ID}'),
+    w('arcade_playerProperty', 'reporter', 'arcade property {PROPERTY} of player {PLAYER}'),
     w('arcade_setscore', 'command', 'arcade set score to {N}'),
     w('arcade_changescore', 'command', 'arcade change score by {N}'),
     w('arcade_setPlayerScore', 'command', 'arcade set score player {PLAYER} to {VALUE}'),
