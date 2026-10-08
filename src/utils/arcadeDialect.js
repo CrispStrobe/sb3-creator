@@ -195,6 +195,9 @@ export const ARCADE_WORDS = Object.freeze([
     w('arcade_stopAnimation', 'command', 'arcade stop animations of {ID} type {TYPE}'),
     w('arcade_setLegacyTilemap', 'command', 'arcade set color-coded map image {IMAGE} scale {SCALE}'),
     w('arcade_setLegacyTile', 'command', 'arcade set color tile {INDEX} image {IMAGE} wall {WALL}'),
+    w('arcade_setLegacyTileAt', 'command', 'arcade set color tile {TILE} index {INDEX}'),
+    w('arcade_placeOnLegacyTile', 'command', 'arcade place sprite {ID} on color tile {TILE}'),
+    w('arcade_placeOnRandomLegacyTile', 'command', 'arcade place sprite {ID} on random color tile {INDEX}'),
     w('arcade_setTilemap', 'command', 'arcade set tilemap data {DATA}'),
     w('arcade_setWallAt', 'command', 'arcade set tile wall {LOCATION} to {WALL:cond}'),
     w('arcade_setTileAt', 'command', 'arcade set tile {LOCATION} image {IMAGE}'),
@@ -260,6 +263,9 @@ export const ARCADE_WORDS = Object.freeze([
     w('arcade_animationProperty', 'reporter', 'arcade animation {PROPERTY:image|action|interval} of {ANIMATION}'),
 
     // ---- reporters and booleans: tiles -------------------------------------------------------
+    w('arcade_legacyTileLocation', 'reporter', 'arcade color tile column {COLUMN} row {ROW}'),
+    w('arcade_legacyTilesOfType', 'reporter', 'arcade color tile array index {INDEX}'),
+    w('arcade_legacyTileProperty', 'reporter', 'arcade color tile {PROPERTY:x|y|tileSet} of {TILE}'),
     w('arcade_tileLocation', 'reporter', 'arcade tile location column {COLUMN} row {ROW}'),
     w('arcade_tilesOfType', 'reporter', 'arcade tile array image {IMAGE}'),
     w('arcade_tileLocationProperty', 'reporter',
