@@ -31,6 +31,8 @@ const WORD_LINES = [
     ['hat', 'arcade_whenRegisteredUpdate', 'when arcade update handler (n + 1) runs'],
     ['hat', 'arcade_whenRegisteredInterval', 'when arcade interval handler (n + 1) runs'],
     ['hat', 'arcade_whenRegisteredButton', 'when arcade button handler (n + 1) runs'],
+    ['hat', 'arcade_whenRegisteredInstanceDestroyed', 'when arcade instance destruction handler (n + 1) runs'],
+    ['command', 'arcade_registerInstanceDestroyedHandler', 'arcade register instance destruction of (n + 1) as "instance" capturing "weight enabled"'],
     ['hat', 'arcade_whenRegisteredKindDestroyed', 'when arcade destroyed kind handler (n + 1) runs'],
     ['hat', 'arcade_whenRegisteredOverlap', 'when arcade overlap handler (n + 1) runs'],
     ['hat', 'arcade_whenRegisteredScenePush', 'when arcade scene push handler (n + 1) runs'],
@@ -187,6 +189,32 @@ const WORD_LINES = [
     ['reporter', 'arrays_referenceTake', 'removeAt from array reference (n + 1) index hero'],
     ['reporter', 'arrays_referenceIndexOf', 'index of (n + 1) in array reference hero from "Player"'],
     ['reporter', 'arrays_referenceIndexOf', 'index of (n + 1) in array reference hero', ALIAS],
+    ['hat', 'arcade_whenRegisteredMultiplayerButton', 'when arcade multiplayer button handler (n + 1) runs'],
+    ['hat', 'arcade_whenRegisteredLegacyWall', 'when arcade color wall handler (n + 1) runs'],
+    ['reporter', 'arcade_playerLookup', 'arcade player by number (n + 1)'],
+    ['reporter', 'arcade_allPlayers', 'arcade all players'],
+    ['reporter', 'arcade_playerSprite', 'arcade sprite of player (n + 1)'],
+    ['command', 'arcade_registerMultiplayerButtonHandler', 'arcade register multiplayer button (n + 1) event (n + 1) as (n + 1) capturing (n + 1)'],
+    ['reporter', 'arcade_eventPlayer', 'arcade event player'],
+    ['boolean', 'arcade_playerButtonPressed', 'arcade player (n + 1) button (n + 1) pressed'],
+    ['reporter', 'arcade_createPlayerState', 'arcade create player state key'],
+    ['reporter', 'arcade_getPlayerState', 'arcade state (n + 1) of player (n + 1)'],
+    ['command', 'arcade_setPlayerState', 'arcade set state (n + 1) of player (n + 1) to (n + 1)'],
+    ['command', 'arcade_changePlayerState', 'arcade change state (n + 1) of player (n + 1) by (n + 1)'],
+    ['command', 'arcade_movePlayerWithButtons', 'arcade move player (n + 1) with buttons vx (n + 1) vy (n + 1)'],
+    ['command', 'arcade_setPlayerSprite', 'arcade set sprite of player (n + 1) to (n + 1)'],
+    ['reporter', 'arcade_playerBySprite', 'arcade player of sprite (n + 1)'],
+    ['reporter', 'arcade_playerProperty', 'arcade player safe property (n + 1) of (n + 1)'],
+    ['command', 'arcade_registerLegacyWallHandler', 'arcade register color wall kind (n + 1) index (n + 1) as (n + 1) capturing (n + 1)'],
+    ['command', 'arcade_setLegacyTilemap', 'arcade set color-coded map image (n + 1) scale (n + 1)'],
+    ['command', 'arcade_setLegacyTile', 'arcade set color tile (n + 1) image (n + 1) wall (n + 1)'],
+    ['command', 'arcade_setLegacyTileAt', 'arcade set color tile (n + 1) index (n + 1)'],
+    ['command', 'arcade_placeOnLegacyTile', 'arcade on color tile (n + 1) place sprite (n + 1)'],
+    ['command', 'arcade_placeOnRandomLegacyTile', 'arcade place sprite (n + 1) on random color tile (n + 1)'],
+    ['reporter', 'arcade_legacyTileLocation', 'arcade color tile column (n + 1) row (n + 1)'],
+    ['reporter', 'arcade_legacyTilesOfType', 'arcade color tile array index (n + 1)'],
+    ['reporter', 'arcade_legacyTileProperty', 'arcade color tile x of (n + 1)'],
+    ['reporter', 'arcade_tileHitFrom', 'arcade sprite (n + 1) wall hit index (n + 1)'],
 ];
 
 const HEADER = 'GLOBAL n\nGLOBAL v\nGLOBAL hero\nSPRITE S:\n';
@@ -225,7 +253,7 @@ describe('Arcade dialect words', () => {
         const here = new Set(WORD_LINES.map(([, op]) => op));
         assert.deepEqual([...here].sort(), [...ARCADE_DIALECT_OPS].sort());
         assert.equal(WORD_LINES.length, ARCADE_WORDS.length, 'one line per spelling, aliases included');
-        assert.equal(ARCADE_DIALECT_OPS.length, 159);
+        assert.equal(ARCADE_DIALECT_OPS.length, 187);
     });
 
     for (const [kind, op, line, alias] of WORD_LINES) {

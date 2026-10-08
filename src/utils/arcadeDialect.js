@@ -68,6 +68,7 @@ export const ARCADE_WORDS = Object.freeze([
     w('arcade_whenRegisteredInterval', 'hat', 'when arcade interval handler {TOKEN} runs'),
     w('arcade_whenRegisteredMultiplayerButton', 'hat', 'when arcade multiplayer button handler {TOKEN} runs'),
     w('arcade_whenRegisteredButton', 'hat', 'when arcade button handler {TOKEN} runs'),
+    w('arcade_whenRegisteredInstanceDestroyed', 'hat', 'when arcade instance destruction handler {TOKEN} runs'),
     w('arcade_whenRegisteredKindDestroyed', 'hat', 'when arcade destroyed kind handler {TOKEN} runs'),
     w('arcade_whenRegisteredOverlap', 'hat', 'when arcade overlap handler {TOKEN} runs'),
     w('arcade_whenRegisteredScenePush', 'hat', 'when arcade scene push handler {TOKEN} runs'),
@@ -142,6 +143,7 @@ export const ARCADE_WORDS = Object.freeze([
     w('arcade_registerSpriteCreated', 'command', 'arcade register creation kind {KIND} as {TOKEN} capturing {CAPTURES}'),
     w('arcade_registerSpriteCreated', 'command', 'arcade register creation kind {KIND} as {TOKEN}',
         { alias: true, defaults: { CAPTURES: '""' } }),
+    w('arcade_registerInstanceDestroyedHandler', 'command', 'arcade register instance destruction of {ID} as {TOKEN} capturing {CAPTURES}'),
     w('arcade_registerSpriteDestroyed', 'command', 'arcade register destruction of {ID} as {TOKEN}'),
 
     // ---- commands: a call frame's locals and captures --------------------------
