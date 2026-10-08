@@ -73,6 +73,7 @@ export const ARCADE_WORDS = Object.freeze([
     w('arcade_whenRegisteredOverlap', 'hat', 'when arcade overlap handler {TOKEN} runs'),
     w('arcade_whenRegisteredScenePush', 'hat', 'when arcade scene push handler {TOKEN} runs'),
     w('arcade_whenRegisteredScenePop', 'hat', 'when arcade scene pop handler {TOKEN} runs'),
+    w('arcade_whenParallelHandler', 'hat', 'when arcade parallel handler {TOKEN} runs'),
     w('arcade_whenRegisteredForever', 'hat', 'when arcade forever handler {TOKEN} runs'),
     w('arcade_whenRegisteredLifeZero', 'hat', 'when arcade life zero handler {TOKEN} runs'),
     w('arcade_whenRegisteredCountdown', 'hat', 'when arcade countdown handler {TOKEN} runs'),
@@ -121,6 +122,7 @@ export const ARCADE_WORDS = Object.freeze([
 
     // ---- commands: handler registration (the handler is a procedure token) -----
     w('arcade_registerUpdateHandler', 'command', 'arcade register update as {TOKEN} capturing {CAPTURES}'),
+    w('arcade_startParallelHandler', 'command', 'arcade run parallel as {TOKEN} capturing {CAPTURES}'),
     w('arcade_registerForeverHandler', 'command', 'arcade register forever as {TOKEN} capturing {CAPTURES}'),
     w('arcade_registerCountdownHandler', 'command', 'arcade register countdown as {TOKEN} capturing {CAPTURES}'),
     w('arcade_registerIntervalHandler', 'command', 'arcade register interval {INTERVAL} as {TOKEN} capturing {CAPTURES}'),

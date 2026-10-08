@@ -23,6 +23,8 @@ const ALIAS = true;
 
 // [kind, opcode, one line of the word with a value in every slot, ALIAS?]
 const WORD_LINES = [
+    ['hat', 'arcade_whenParallelHandler', 'when arcade parallel handler (n + 1) runs'],
+    ['command', 'arcade_startParallelHandler', 'arcade run parallel as "worker" capturing "weight enabled"'],
     ['reporter', 'arcade_animationAssetFrames', 'arcade animation frames resource "a1b2-resource"'],
     ['reporter', 'arcade_animationAssetFreshFrames', 'arcade animation fresh frames resource (resourceId)'],
     ['reporter', 'arcade_animationAssetInterval', 'arcade animation interval resource (resourceId)'],
@@ -253,7 +255,7 @@ describe('Arcade dialect words', () => {
         const here = new Set(WORD_LINES.map(([, op]) => op));
         assert.deepEqual([...here].sort(), [...ARCADE_DIALECT_OPS].sort());
         assert.equal(WORD_LINES.length, ARCADE_WORDS.length, 'one line per spelling, aliases included');
-        assert.equal(ARCADE_DIALECT_OPS.length, 187);
+        assert.equal(ARCADE_DIALECT_OPS.length, 189);
     });
 
     for (const [kind, op, line, alias] of WORD_LINES) {
