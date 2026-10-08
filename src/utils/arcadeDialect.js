@@ -196,7 +196,7 @@ export const ARCADE_WORDS = Object.freeze([
     w('arcade_setLegacyTilemap', 'command', 'arcade set color-coded map image {IMAGE} scale {SCALE}'),
     w('arcade_setLegacyTile', 'command', 'arcade set color tile {INDEX} image {IMAGE} wall {WALL}'),
     w('arcade_setLegacyTileAt', 'command', 'arcade set color tile {TILE} index {INDEX}'),
-    w('arcade_placeOnLegacyTile', 'command', 'arcade place sprite {ID} on color tile {TILE}'),
+    w('arcade_placeOnLegacyTile', 'command', 'arcade on color tile {TILE} place sprite {ID}'),
     w('arcade_placeOnRandomLegacyTile', 'command', 'arcade place sprite {ID} on random color tile {INDEX}'),
     w('arcade_setTilemap', 'command', 'arcade set tilemap data {DATA}'),
     w('arcade_setWallAt', 'command', 'arcade set tile wall {LOCATION} to {WALL:cond}'),
