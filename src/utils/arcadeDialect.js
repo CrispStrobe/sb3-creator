@@ -187,6 +187,7 @@ export const ARCADE_WORDS = Object.freeze([
     w('arcade_setSpriteKind', 'command', 'arcade set kind of {ID} to {KIND}'),
 
     // ---- commands: images --------------------------------------------------------
+    w('arcade_scrollImage', 'command', 'arcade scroll image {IMAGE} x {X} y {Y}'),
     w('arcade_mutateImage', 'command',
         'arcade mutate image {OP:fill|replace|flipX|flipY} {IMAGE} color {COLOR} replacement {TO}'),
     w('arcade_blitImage', 'command',

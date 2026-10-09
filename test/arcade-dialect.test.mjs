@@ -25,6 +25,7 @@ const ALIAS = true;
 const WORD_LINES = [
     ['reporter', 'arcade_truncateNumber', 'arcade truncate (n + 1)'],
     ['reporter', 'arcade_signNumber', 'arcade sign of (n + 1)'],
+    ['command', 'arcade_scrollImage', 'arcade scroll image artwork x (n + 1) y -2'],
     ['hat', 'arcade_whenParallelHandler', 'when arcade parallel handler (n + 1) runs'],
     ['command', 'arcade_startParallelHandler', 'arcade run parallel as "worker" capturing "weight enabled"'],
     ['reporter', 'arcade_animationAssetFrames', 'arcade animation frames resource "a1b2-resource"'],
@@ -264,7 +265,7 @@ describe('Arcade dialect words', () => {
         const here = new Set(WORD_LINES.map(([, op]) => op));
         assert.deepEqual([...here].sort(), [...ARCADE_DIALECT_OPS].sort());
         assert.equal(WORD_LINES.length, ARCADE_WORDS.length, 'one line per spelling, aliases included');
-        assert.equal(ARCADE_DIALECT_OPS.length, 198);
+        assert.equal(ARCADE_DIALECT_OPS.length, 199);
     });
 
     for (const [kind, op, line, alias] of WORD_LINES) {
