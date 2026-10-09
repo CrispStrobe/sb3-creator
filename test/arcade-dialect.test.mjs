@@ -60,6 +60,7 @@ const WORD_LINES = [
     ['command', 'arcade_popScene', 'arcade pop scene'],
     ['command', 'arcade_centerCameraAt', 'arcade center camera x (n + 1) y hero'],
     ['command', 'arcade_cameraFollowSprite', 'arcade camera follow sprite (n + 1)'],
+    ['command', 'arcade_setPalette', 'arcade set palette hex \"000000ffffff123456ff93c4ff8135fff609249ca378dc52003fad87f2ff8e2ec4a4839f5c406ce5cdc491463d000000\"'],
     ['command', 'arcade_setBackgroundColor', 'arcade set background color to (n + 1)'],
     ['command', 'arcade_setBackgroundImage', 'arcade set background image (n + 1)'],
     ['command', 'arcade_startCountdown', 'arcade start countdown (n + 1)'],
@@ -255,7 +256,7 @@ describe('Arcade dialect words', () => {
         const here = new Set(WORD_LINES.map(([, op]) => op));
         assert.deepEqual([...here].sort(), [...ARCADE_DIALECT_OPS].sort());
         assert.equal(WORD_LINES.length, ARCADE_WORDS.length, 'one line per spelling, aliases included');
-        assert.equal(ARCADE_DIALECT_OPS.length, 189);
+        assert.equal(ARCADE_DIALECT_OPS.length, 190);
     });
 
     for (const [kind, op, line, alias] of WORD_LINES) {

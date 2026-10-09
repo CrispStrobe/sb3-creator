@@ -112,6 +112,7 @@ export const ARCADE_WORDS = Object.freeze([
     w('arcade_popScene', 'command', 'arcade pop scene'),
     w('arcade_centerCameraAt', 'command', 'arcade center camera x {X} y {Y}'),
     w('arcade_cameraFollowSprite', 'command', 'arcade camera follow sprite {ID}'),
+    w('arcade_setPalette', 'command', 'arcade set palette hex {DATA}'),
     w('arcade_setBackgroundColor', 'command', 'arcade set background color to {COLOR}'),
     w('arcade_setBackgroundImage', 'command', 'arcade set background image {IMAGE}'),
     w('arcade_startCountdown', 'command', 'arcade start countdown {N}'),
