@@ -167,6 +167,8 @@ export const ARCADE_WORDS = Object.freeze([
     w('arcade_changeSpriteScale', 'command', 'arcade change scale of {ID} by {VALUE} anchor {ANCHOR}'),
     w('arcade_setSpriteProperty', 'command', `arcade set {PROPERTY:${PROPERTIES}} of {ID} to {VALUE}`),
     w('arcade_controlSprite', 'command', 'arcade control sprite {ID} vx {VX} vy {VY}'),
+    w('arcade_controlSpriteByController', 'command', 'arcade controller {CONTROLLER:1|2|3|4} move sprite {ID} vx {VX} vy {VY}'),
+    w('arcade_stopControllingSprite', 'command', 'arcade controller {CONTROLLER:1|2|3|4} stop controlling sprite {ID}'),
     w('arcade_setSpriteImage', 'command', 'arcade set image of {ID} to {IMAGE}'),
     w('arcade_setSpritePixel', 'command', 'arcade set pixel of {ID} x {X} y {Y} color {COLOR}'),
     w('arcade_drawSpriteImage', 'command',

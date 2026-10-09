@@ -95,6 +95,8 @@ const WORD_LINES = [
     ['command', 'arcade_changeSpriteScale', 'arcade change scale of (n + 1) by hero anchor "Player"'],
     ['command', 'arcade_setSpriteProperty', 'arcade set lifespan of (n + 1) to hero'],
     ['command', 'arcade_controlSprite', 'arcade control sprite (n + 1) vx hero vy "Player"'],
+    ['command', 'arcade_controlSpriteByController', 'arcade controller 2 move sprite (n + 1) vx hero vy "Player"'],
+    ['command', 'arcade_stopControllingSprite', 'arcade controller 4 stop controlling sprite (n + 1)'],
     ['command', 'arcade_setSpriteImage', 'arcade set image of (n + 1) to hero'],
     ['command', 'arcade_setSpritePixel', 'arcade set pixel of (n + 1) x hero y "Player" color 2'],
     ['command', 'arcade_drawSpriteImage', 'arcade draw drawLine of (n + 1) x hero y "Player" width 2 height (arcade local count) color -3'],
@@ -257,7 +259,7 @@ describe('Arcade dialect words', () => {
         const here = new Set(WORD_LINES.map(([, op]) => op));
         assert.deepEqual([...here].sort(), [...ARCADE_DIALECT_OPS].sort());
         assert.equal(WORD_LINES.length, ARCADE_WORDS.length, 'one line per spelling, aliases included');
-        assert.equal(ARCADE_DIALECT_OPS.length, 191);
+        assert.equal(ARCADE_DIALECT_OPS.length, 193);
     });
 
     for (const [kind, op, line, alias] of WORD_LINES) {
