@@ -59,6 +59,7 @@ const WORD_LINES = [
     ['command', 'arcade_changeLife', 'arcade change life player (n + 1) by hero'],
     ['command', 'arcade_pushScene', 'arcade push scene'],
     ['command', 'arcade_popScene', 'arcade pop scene'],
+    ['command', 'arcade_cameraShake', 'arcade shake camera by (n + 1) pixels for 500 ms'],
     ['command', 'arcade_centerCameraAt', 'arcade center camera x (n + 1) y hero'],
     ['command', 'arcade_cameraFollowSprite', 'arcade camera follow sprite (n + 1)'],
     ['command', 'arcade_setPalette', 'arcade set palette hex \"000000ffffff123456ff93c4ff8135fff609249ca378dc52003fad87f2ff8e2ec4a4839f5c406ce5cdc491463d000000\"'],
@@ -260,7 +261,7 @@ describe('Arcade dialect words', () => {
         const here = new Set(WORD_LINES.map(([, op]) => op));
         assert.deepEqual([...here].sort(), [...ARCADE_DIALECT_OPS].sort());
         assert.equal(WORD_LINES.length, ARCADE_WORDS.length, 'one line per spelling, aliases included');
-        assert.equal(ARCADE_DIALECT_OPS.length, 194);
+        assert.equal(ARCADE_DIALECT_OPS.length, 195);
     });
 
     for (const [kind, op, line, alias] of WORD_LINES) {
