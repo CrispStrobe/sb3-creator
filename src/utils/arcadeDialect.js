@@ -110,6 +110,8 @@ export const ARCADE_WORDS = Object.freeze([
     w('arcade_changeLife', 'command', 'arcade change life player {PLAYER} by {VALUE}'),
     w('arcade_pushScene', 'command', 'arcade push scene'),
     w('arcade_popScene', 'command', 'arcade pop scene'),
+    w('arcade_followSprite', 'command', 'arcade sprite {ID} follow {TARGET} speed {SPEED} turn rate {TURN}'),
+    w('arcade_unfollowSprite', 'command', 'arcade sprite {ID} stop following'),
     w('arcade_cameraShake', 'command', 'arcade shake camera by {AMPLITUDE} pixels for {DURATION} ms'),
     w('arcade_centerCameraAt', 'command', 'arcade center camera x {X} y {Y}'),
     w('arcade_cameraFollowSprite', 'command', 'arcade camera follow sprite {ID}'),
