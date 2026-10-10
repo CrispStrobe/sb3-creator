@@ -128,6 +128,13 @@ const WORD_LINES = [
     ['command', 'arcade_blitImage', 'arcade blit image drawTransparentImage (n + 1) source hero x "Player" y 2'],
     ['command', 'arcade_setImagePixel', 'arcade set image pixel (n + 1) x hero y "Player" color 2'],
     ['command', 'arcade_printImageText', 'arcade print "Score" on image (arcade screen image) x (n + 1) y 4 color 2 font small'],
+    ['command', 'arcade_legacyGameOver', 'arcade legacy game over win 1 effect unset'],
+    ['command', 'arcade_gameOver', 'arcade game over win (n = 1)'],
+    ['command', 'arcade_setGameOverEffect', 'arcade set game over effect melt for win 0'],
+    ['command', 'arcade_setGameOverMessage', 'arcade set game over message "WELL DONE" for win 1'],
+    ['command', 'arcade_setGameOverPlayable', 'arcade set game over sound (arcade melody playable (arcade melody baDing)) looping 0 for win 1'],
+    ['command', 'arcade_setGameOverScoringType', 'arcade set game over scoring LowScore'],
+    ['command', 'arcade_startImageEffect', 'arcade start image effect dissolve times (n + 1) delay 0 ms'],
     ['command', 'arcade_playMusic', 'arcade play music (arcade melody playable (arcade melody baDing)) mode UntilDone'],
     ['command', 'arcade_playMelody', 'arcade play melody (arcade melody siren) mode loop'],
     ['command', 'arcade_playSoundEffect', 'arcade play sound effect hero mode InBackground'],
@@ -300,7 +307,7 @@ describe('Arcade dialect words', () => {
         const here = new Set(WORD_LINES.map(([, op]) => op));
         assert.deepEqual([...here].sort(), [...ARCADE_DIALECT_OPS].sort());
         assert.equal(WORD_LINES.length, ARCADE_WORDS.length, 'one line per spelling, aliases included');
-        assert.equal(ARCADE_DIALECT_OPS.length, 234);
+        assert.equal(ARCADE_DIALECT_OPS.length, 241);
     });
 
     for (const [kind, op, line, alias] of WORD_LINES) {
