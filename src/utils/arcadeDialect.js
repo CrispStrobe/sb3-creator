@@ -239,11 +239,12 @@ export const ARCADE_WORDS = Object.freeze([
     w('arcade_startImageEffect', 'command', `arcade start image effect {EFFECT:${IMAGE_EFFECTS}} times {TIMES} delay {DELAY} ms`),
 
     // ---- commands: seven segment digits and counters (sevenseg extension) ---------
+    // Property first and color last: a display slot reads up to the first matching word.
+    w('arcade_sevensegSetProperty', 'command', 'arcade set seven segment {DISPLAY} property {PROPERTY:x|y|value|count} to {VALUE}'),
     w('arcade_sevensegSetCharacter', 'command', `arcade set seven segment {DISPLAY} character {CHARACTER:${SEGMENT_CHARACTERS}}`),
-    w('arcade_sevensegSetColor', 'command', 'arcade set seven segment {DISPLAY} color {COLOR}'),
     w('arcade_sevensegSetRadix', 'command', 'arcade set seven segment {DISPLAY} radix {RADIX:Decimal|Hex|Octal|Alpha}'),
     w('arcade_sevensegSetScale', 'command', `arcade set seven segment {DISPLAY} scale {SCALE:${SEGMENT_SCALES}}`),
-    w('arcade_sevensegSetProperty', 'command', 'arcade set seven segment {DISPLAY} property {PROPERTY:x|y|value|count} to {VALUE}'),
+    w('arcade_sevensegSetColor', 'command', 'arcade set seven segment {DISPLAY} color {COLOR}'),
     w('arcade_sevensegAddDigit', 'command', 'arcade add seven segment digit to {DISPLAY}'),
 
     // ---- commands: music (PXT mixer) ------------------------------------------------

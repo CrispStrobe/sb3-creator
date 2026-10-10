@@ -1,18 +1,10 @@
 {
-  "date": "2026-08-15",
-  "total": 1282,
-  "translate": 1279,
-  "reparse": 1279,
-  "warn": 1279,
-  "fail": 3,
-  "failReasons": {
-    "too large (>100KB)": 3
-  },
-  "warnReasons": {
-    "no clock #define found — assuming CLOCK 11059200": 1267,
-    "no register header found — assuming DEVICE STC12C5A60S2": 1199,
-    "no pins found — declare them with #define NAME P1_0 or sbit NAME = P1^0": 955,
-    "no main() and no @bw script markers — nothing to translate": 759,
-    "top-level declaration dropped (no block equivalent): typedef unsigned char uint8": 74
-  }
+  "date": "2026-10-10",
+  "total": 0,
+  "translate": 0,
+  "reparse": 0,
+  "warn": 0,
+  "fail": 0,
+  "failReasons": {},
+  "warnReasons": {}
 }
