@@ -331,6 +331,12 @@ export const ARCADE_WORDS = Object.freeze([
     w('arcade_tileIsWall', 'boolean', 'arcade tile {LOCATION} is wall'),
     w('arcade_isHittingTile', 'boolean', 'arcade sprite {ID} hitting wall {DIRECTION}'),
 
+    // ---- reporters: base helpers and event context ------------------------------------------------
+    // PXT's own parseInt (base/pxt-helpers.ts); the radix spelling first.
+    w('arcade_parseIntegerRadix', 'reporter', 'arcade parse integer {TEXT} radix {RADIX}'),
+    w('arcade_parseInteger', 'reporter', 'arcade parse integer {TEXT}'),
+    w('arcade_frameDeltaTime', 'reporter', 'arcade frame delta time'),
+
     // ---- reporters: music --------------------------------------------------------------------------
     w('arcade_melodyPlayable', 'reporter', 'arcade melody playable {MELODY}'),
     w('arcade_stringPlayable', 'reporter', 'arcade string playable {MELODY} at {TEMPO} bpm'),

@@ -199,6 +199,9 @@ const WORD_LINES = [
     ['boolean', 'arcade_tileIs', 'arcade tile (n + 1) equals image hero'],
     ['boolean', 'arcade_tileIsWall', 'arcade tile (n + 1) is wall'],
     ['boolean', 'arcade_isHittingTile', 'arcade sprite (n + 1) hitting wall hero'],
+    ['reporter', 'arcade_parseIntegerRadix', 'arcade parse integer "ff" radix (n + 1)'],
+    ['reporter', 'arcade_parseInteger', 'arcade parse integer (arcade local count)'],
+    ['reporter', 'arcade_frameDeltaTime', 'arcade frame delta time'],
     ['reporter', 'arcade_melodyPlayable', 'arcade melody playable hero'],
     ['reporter', 'arcade_stringPlayable', 'arcade string playable "C D E" at (n + 1) bpm'],
     ['reporter', 'arcade_tonePlayable', 'arcade tone playable 262 Hz for (n + 1) ms'],
@@ -297,7 +300,7 @@ describe('Arcade dialect words', () => {
         const here = new Set(WORD_LINES.map(([, op]) => op));
         assert.deepEqual([...here].sort(), [...ARCADE_DIALECT_OPS].sort());
         assert.equal(WORD_LINES.length, ARCADE_WORDS.length, 'one line per spelling, aliases included');
-        assert.equal(ARCADE_DIALECT_OPS.length, 231);
+        assert.equal(ARCADE_DIALECT_OPS.length, 234);
     });
 
     for (const [kind, op, line, alias] of WORD_LINES) {
