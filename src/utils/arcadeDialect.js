@@ -68,6 +68,9 @@ const BEATS = 'Whole|Half|Quarter|Eighth|Sixteenth|Double|Breve|Triplet';
 const IMAGE_EFFECTS = 'dissolve|melt|slash|splatter';
 const BACKGROUND_EFFECTS = `${SCREEN_EFFECTS}|${IMAGE_EFFECTS}`;
 // The seven segment extension (sevenseg) enums, as their member names.
+// The darts and corgio extensions' adjustable fields.
+const DART_PROPERTIES = 'angle|pow|iter|traceColor|gravity|wind|angleRate|powerRate';
+const CORGI_PROPERTIES = 'maxMoveVelocity|gravity|jumpVelocity|maxJump|decelerationRate';
 const SEGMENT_STYLES = 'Blank|Thin|Narrow|Medium|Thick';
 const SEGMENT_SCALES = 'Full|Half';
 const SEGMENT_CHARACTERS = 'ZERO|ONE|TWO|THREE|FOUR|FIVE|SIX|SEVEN|EIGHT|NINE|A|B|C|D|E|F|H|J|L|o|P|r|U|Y|Hyphen|Degree';
@@ -238,6 +241,16 @@ export const ARCADE_WORDS = Object.freeze([
     w('arcade_setGameOverScoringType', 'command', 'arcade set game over scoring {TYPE:HighScore|LowScore|None}'),
     w('arcade_startImageEffect', 'command', `arcade start image effect {EFFECT:${IMAGE_EFFECTS}} times {TIMES} delay {DELAY} ms`),
 
+    // ---- commands: darts and corgio (sprite extensions) -----------------------------
+    // Word order: the longer spellings first, so a sprite slot cannot read a later word.
+    w('arcade_setDartProperty', 'command', `arcade set dart {SPRITE} property {PROPERTY:${DART_PROPERTIES}} to {VALUE}`),
+    w('arcade_dartSwitch', 'command', 'arcade dart {SPRITE} {SETTING:setTrace|controlWithArrowKeys} {ON:bool}'),
+    w('arcade_dartAction', 'command', 'arcade dart {SPRITE} {ACTION:throwDart|stopDart}'),
+    w('arcade_setCorgiProperty', 'command', `arcade set corgi {SPRITE} property {PROPERTY:${CORGI_PROPERTIES}} to {VALUE}`),
+    w('arcade_corgiAddPhrase', 'command', 'arcade corgi {SPRITE} add phrase {TEXT}'),
+    w('arcade_corgiControl', 'command', 'arcade corgi {SPRITE} {MODE:horizontalMovement|verticalMovement|updateSprite|cameraFollow} {ON:bool}'),
+    w('arcade_corgiBark', 'command', 'arcade corgi {SPRITE} bark'),
+
     // ---- commands: seven segment digits and counters (sevenseg extension) ---------
     // Property first and color last: a display slot reads up to the first matching word.
     w('arcade_sevensegSetProperty', 'command', 'arcade set seven segment {DISPLAY} property {PROPERTY:x|y|value|count} to {VALUE}'),
@@ -362,6 +375,12 @@ export const ARCADE_WORDS = Object.freeze([
     w('arcade_parseIntegerRadix', 'reporter', 'arcade parse integer {TEXT} radix {RADIX}'),
     w('arcade_parseInteger', 'reporter', 'arcade parse integer {TEXT}'),
     w('arcade_frameDeltaTime', 'reporter', 'arcade frame delta time'),
+
+    // ---- reporters: darts and corgio (sprite extensions) ----------------------------
+    w('arcade_createDart', 'reporter', 'arcade create dart image {IMAGE} kind {KIND} x {X} y {Y}'),
+    w('arcade_createCorgi', 'reporter', 'arcade create corgi kind {KIND} x {X} y {Y}'),
+    w('arcade_dartProperty', 'reporter', `arcade dart {SPRITE} property {PROPERTY:${DART_PROPERTIES}}`),
+    w('arcade_corgiProperty', 'reporter', `arcade corgi {SPRITE} property {PROPERTY:${CORGI_PROPERTIES}}`),
 
     // ---- reporters: seven segment digits and counters (sevenseg extension) ---------
     w('arcade_sevensegDigit', 'reporter', `arcade seven segment digit style {STYLE:${SEGMENT_STYLES}} value {VALUE}`),
