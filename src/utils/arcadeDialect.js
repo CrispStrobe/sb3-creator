@@ -241,6 +241,15 @@ export const ARCADE_WORDS = Object.freeze([
     w('arcade_setGameOverScoringType', 'command', 'arcade set game over scoring {TYPE:HighScore|LowScore|None}'),
     w('arcade_startImageEffect', 'command', `arcade start image effect {EFFECT:${IMAGE_EFFECTS}} times {TIMES} delay {DELAY} ms`),
 
+    // ---- commands: background scrolling (arcade-background-scroll extension) -----
+    w('arcade_scrollBackgroundWithCamera', 'command', 'arcade scroll background with camera {MODE:OnlyHorizontal|OnlyVertical|BothDirections} layer {LAYER}'),
+    w('arcade_scrollBackgroundWithSpeed', 'command', 'arcade scroll background vx {VX} vy {VY} layer {LAYER}'),
+    w('arcade_setBackgroundScrollMultipliers', 'command', 'arcade set background scroll multipliers x {X} y {Y} layer {LAYER}'),
+    w('arcade_setBackgroundScrollOffset', 'command', 'arcade set background scroll offset x {X} y {Y} layer {LAYER}'),
+    // The z word first: a layer slot reads up to the first matching word.
+    w('arcade_setBackgroundLayerZ', 'command', 'arcade set background layer {LAYER} z {Z}'),
+    w('arcade_setBackgroundLayerImage', 'command', 'arcade set background layer {LAYER} image {IMAGE}'),
+
     // ---- commands: darts and corgio (sprite extensions) -----------------------------
     // Word order: the longer spellings first, so a sprite slot cannot read a later word.
     w('arcade_setDartProperty', 'command', `arcade set dart {SPRITE} property {PROPERTY:${DART_PROPERTIES}} to {VALUE}`),
@@ -375,6 +384,9 @@ export const ARCADE_WORDS = Object.freeze([
     w('arcade_parseIntegerRadix', 'reporter', 'arcade parse integer {TEXT} radix {RADIX}'),
     w('arcade_parseInteger', 'reporter', 'arcade parse integer {TEXT}'),
     w('arcade_frameDeltaTime', 'reporter', 'arcade frame delta time'),
+
+    // ---- reporters: background scrolling (arcade-background-scroll extension) ----
+    w('arcade_backgroundScrollOffset', 'reporter', 'arcade background scroll offset {AXIS:x|y} layer {LAYER}'),
 
     // ---- reporters: darts and corgio (sprite extensions) ----------------------------
     w('arcade_createDart', 'reporter', 'arcade create dart image {IMAGE} kind {KIND} x {X} y {Y}'),
