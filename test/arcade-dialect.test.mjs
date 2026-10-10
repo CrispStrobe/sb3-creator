@@ -128,6 +128,17 @@ const WORD_LINES = [
     ['command', 'arcade_blitImage', 'arcade blit image drawTransparentImage (n + 1) source hero x "Player" y 2'],
     ['command', 'arcade_setImagePixel', 'arcade set image pixel (n + 1) x hero y "Player" color 2'],
     ['command', 'arcade_printImageText', 'arcade print "Score" on image (arcade screen image) x (n + 1) y 4 color 2 font small'],
+    ['command', 'arcade_playMusic', 'arcade play music (arcade melody playable (arcade melody baDing)) mode UntilDone'],
+    ['command', 'arcade_playMelody', 'arcade play melody (arcade melody siren) mode loop'],
+    ['command', 'arcade_playSoundEffect', 'arcade play sound effect hero mode InBackground'],
+    ['command', 'arcade_playSound', 'arcade play sound (arcade sound BaDing) until done true'],
+    ['command', 'arcade_playTone', 'arcade play tone (n + 1) Hz for (arcade beat Half) ms'],
+    ['command', 'arcade_ringTone', 'arcade ring tone 440 Hz'],
+    ['command', 'arcade_rest', 'arcade rest for (n + 1) ms'],
+    ['command', 'arcade_setMusicVolume', 'arcade set music volume to (n + 1)'],
+    ['command', 'arcade_setTempo', 'arcade set tempo to 120 bpm'],
+    ['command', 'arcade_changeTempo', 'arcade change tempo by -20 bpm'],
+    ['command', 'arcade_stopAllSounds', 'arcade stop all sounds'],
     ['command', 'arcade_drawImage', 'arcade draw image drawLine (n + 1) x hero y "Player" width 2 height (arcade local count) color -3'],
     ['command', 'arcade_setScenePhysicsEngine', 'arcade set physics engine of scene (n + 1) to hero'],
     ['command', 'arcade_setPhysicsEngineProperty', 'arcade set physics engine property maxStep of (n + 1) to hero'],
@@ -188,6 +199,15 @@ const WORD_LINES = [
     ['boolean', 'arcade_tileIs', 'arcade tile (n + 1) equals image hero'],
     ['boolean', 'arcade_tileIsWall', 'arcade tile (n + 1) is wall'],
     ['boolean', 'arcade_isHittingTile', 'arcade sprite (n + 1) hitting wall hero'],
+    ['reporter', 'arcade_melodyPlayable', 'arcade melody playable hero'],
+    ['reporter', 'arcade_stringPlayable', 'arcade string playable "C D E" at (n + 1) bpm'],
+    ['reporter', 'arcade_tonePlayable', 'arcade tone playable 262 Hz for (n + 1) ms'],
+    ['reporter', 'arcade_soundEffect', 'arcade sound effect wave Square from 400 Hz to 600 Hz volume 255 to 0 for (n + 1) ms effect Vibrato curve Linear'],
+    ['reporter', 'arcade_namedMelody', 'arcade melody bigCrash'],
+    ['reporter', 'arcade_soundMelody', 'arcade sound PowerUp'],
+    ['reporter', 'arcade_beat', 'arcade beat Quarter'],
+    ['reporter', 'arcade_musicVolume', 'arcade music volume'],
+    ['reporter', 'arcade_musicTempo', 'arcade music tempo'],
     ['reporter', 'arcade_createImage', 'arcade new image width (n + 1) height hero'],
     ['reporter', 'arcade_cloneImage', 'arcade copy image (n + 1)'],
     ['reporter', 'arcade_imageProperty', 'arcade image height of (n + 1)'],
@@ -277,7 +297,7 @@ describe('Arcade dialect words', () => {
         const here = new Set(WORD_LINES.map(([, op]) => op));
         assert.deepEqual([...here].sort(), [...ARCADE_DIALECT_OPS].sort());
         assert.equal(WORD_LINES.length, ARCADE_WORDS.length, 'one line per spelling, aliases included');
-        assert.equal(ARCADE_DIALECT_OPS.length, 211);
+        assert.equal(ARCADE_DIALECT_OPS.length, 231);
     });
 
     for (const [kind, op, line, alias] of WORD_LINES) {
