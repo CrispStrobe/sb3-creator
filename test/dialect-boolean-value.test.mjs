@@ -66,9 +66,10 @@ describe('the forms are the whole set', () => {
 
     test('every Boolean word of the EV3 and Arcade tables is a form', () => {
         const ops = new Set(BOOLEAN_FORMS.map((f) => f.opcode));
-        // counted 2026-10-06: 5 EV3 Boolean words, 11 Arcade / array-reference Boolean words.
+        // Recounted 2026-10-09: multiplayer pressed-query support adds the twelfth Arcade / array-reference Boolean word.
         assert.equal([...ops].filter((o) => o.startsWith('ev3comprehensive_')).length, 5);
-        assert.equal([...ops].filter((o) => /^(arcade|arrays)_/.test(o) && o !== 'arrays_contains').length, 11);
+        assert.ok(ops.has('arcade_playerButtonPressed'), 'the multiplayer button predicate participates in the full value-position census');
+        assert.equal([...ops].filter((o) => /^(arcade|arrays)_/.test(o) && o !== 'arrays_contains').length, 12);
     });
 });
 
