@@ -67,6 +67,10 @@ const BEATS = 'Whole|Half|Quarter|Eighth|Sixteenth|Double|Breve|Triplet';
 // PXT image effects (effects.ImageEffect) and every background effect game over takes.
 const IMAGE_EFFECTS = 'dissolve|melt|slash|splatter';
 const BACKGROUND_EFFECTS = `${SCREEN_EFFECTS}|${IMAGE_EFFECTS}`;
+// The seven segment extension (sevenseg) enums, as their member names.
+const SEGMENT_STYLES = 'Blank|Thin|Narrow|Medium|Thick';
+const SEGMENT_SCALES = 'Full|Half';
+const SEGMENT_CHARACTERS = 'ZERO|ONE|TWO|THREE|FOUR|FIVE|SIX|SEVEN|EIGHT|NINE|A|B|C|D|E|F|H|J|L|o|P|r|U|Y|Hyphen|Degree';
 
 const w = (op, kind, words, extra = {}) => Object.freeze({ op, kind, words, ...extra });
 
@@ -234,6 +238,14 @@ export const ARCADE_WORDS = Object.freeze([
     w('arcade_setGameOverScoringType', 'command', 'arcade set game over scoring {TYPE:HighScore|LowScore|None}'),
     w('arcade_startImageEffect', 'command', `arcade start image effect {EFFECT:${IMAGE_EFFECTS}} times {TIMES} delay {DELAY} ms`),
 
+    // ---- commands: seven segment digits and counters (sevenseg extension) ---------
+    w('arcade_sevensegSetCharacter', 'command', `arcade set seven segment {DISPLAY} character {CHARACTER:${SEGMENT_CHARACTERS}}`),
+    w('arcade_sevensegSetColor', 'command', 'arcade set seven segment {DISPLAY} color {COLOR}'),
+    w('arcade_sevensegSetRadix', 'command', 'arcade set seven segment {DISPLAY} radix {RADIX:Decimal|Hex|Octal|Alpha}'),
+    w('arcade_sevensegSetScale', 'command', `arcade set seven segment {DISPLAY} scale {SCALE:${SEGMENT_SCALES}}`),
+    w('arcade_sevensegSetProperty', 'command', 'arcade set seven segment {DISPLAY} property {PROPERTY:x|y|value|count} to {VALUE}'),
+    w('arcade_sevensegAddDigit', 'command', 'arcade add seven segment digit to {DISPLAY}'),
+
     // ---- commands: music (PXT mixer) ------------------------------------------------
     // "play sound effect" before "play sound", whose last slot would read the rest.
     w('arcade_playMusic', 'command', 'arcade play music {PLAYABLE} mode {MODE:UntilDone|InBackground|LoopingInBackground}'),
@@ -349,6 +361,11 @@ export const ARCADE_WORDS = Object.freeze([
     w('arcade_parseIntegerRadix', 'reporter', 'arcade parse integer {TEXT} radix {RADIX}'),
     w('arcade_parseInteger', 'reporter', 'arcade parse integer {TEXT}'),
     w('arcade_frameDeltaTime', 'reporter', 'arcade frame delta time'),
+
+    // ---- reporters: seven segment digits and counters (sevenseg extension) ---------
+    w('arcade_sevensegDigit', 'reporter', `arcade seven segment digit style {STYLE:${SEGMENT_STYLES}} value {VALUE}`),
+    w('arcade_sevensegCounter', 'reporter', `arcade seven segment counter style {STYLE:${SEGMENT_STYLES}} scale {SCALE:${SEGMENT_SCALES}} digits {DIGITS}`),
+    w('arcade_sevensegProperty', 'reporter', 'arcade seven segment {DISPLAY} property {PROPERTY:x|y|width|height|value|count}'),
 
     // ---- reporters: music --------------------------------------------------------------------------
     w('arcade_melodyPlayable', 'reporter', 'arcade melody playable {MELODY}'),

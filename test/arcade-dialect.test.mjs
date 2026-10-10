@@ -135,6 +135,12 @@ const WORD_LINES = [
     ['command', 'arcade_setGameOverPlayable', 'arcade set game over sound (arcade melody playable (arcade melody baDing)) looping 0 for win 1'],
     ['command', 'arcade_setGameOverScoringType', 'arcade set game over scoring LowScore'],
     ['command', 'arcade_startImageEffect', 'arcade start image effect dissolve times (n + 1) delay 0 ms'],
+    ['command', 'arcade_sevensegSetCharacter', 'arcade set seven segment (n + 1) character Degree'],
+    ['command', 'arcade_sevensegSetColor', 'arcade set seven segment hero color (n + 1)'],
+    ['command', 'arcade_sevensegSetRadix', 'arcade set seven segment hero radix Alpha'],
+    ['command', 'arcade_sevensegSetScale', 'arcade set seven segment hero scale Half'],
+    ['command', 'arcade_sevensegSetProperty', 'arcade set seven segment hero property count to (n + 1)'],
+    ['command', 'arcade_sevensegAddDigit', 'arcade add seven segment digit to hero'],
     ['command', 'arcade_playMusic', 'arcade play music (arcade melody playable (arcade melody baDing)) mode UntilDone'],
     ['command', 'arcade_playMelody', 'arcade play melody (arcade melody siren) mode loop'],
     ['command', 'arcade_playSoundEffect', 'arcade play sound effect hero mode InBackground'],
@@ -209,6 +215,9 @@ const WORD_LINES = [
     ['reporter', 'arcade_parseIntegerRadix', 'arcade parse integer "ff" radix (n + 1)'],
     ['reporter', 'arcade_parseInteger', 'arcade parse integer (arcade local count)'],
     ['reporter', 'arcade_frameDeltaTime', 'arcade frame delta time'],
+    ['reporter', 'arcade_sevensegDigit', 'arcade seven segment digit style Thick value (n + 1)'],
+    ['reporter', 'arcade_sevensegCounter', 'arcade seven segment counter style Thin scale Half digits 3'],
+    ['reporter', 'arcade_sevensegProperty', 'arcade seven segment hero property width'],
     ['reporter', 'arcade_melodyPlayable', 'arcade melody playable hero'],
     ['reporter', 'arcade_stringPlayable', 'arcade string playable "C D E" at (n + 1) bpm'],
     ['reporter', 'arcade_tonePlayable', 'arcade tone playable 262 Hz for (n + 1) ms'],
@@ -307,7 +316,7 @@ describe('Arcade dialect words', () => {
         const here = new Set(WORD_LINES.map(([, op]) => op));
         assert.deepEqual([...here].sort(), [...ARCADE_DIALECT_OPS].sort());
         assert.equal(WORD_LINES.length, ARCADE_WORDS.length, 'one line per spelling, aliases included');
-        assert.equal(ARCADE_DIALECT_OPS.length, 241);
+        assert.equal(ARCADE_DIALECT_OPS.length, 250);
     });
 
     for (const [kind, op, line, alias] of WORD_LINES) {
