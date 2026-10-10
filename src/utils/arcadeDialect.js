@@ -250,6 +250,15 @@ export const ARCADE_WORDS = Object.freeze([
     w('arcade_setBackgroundLayerZ', 'command', 'arcade set background layer {LAYER} z {Z}'),
     w('arcade_setBackgroundLayerImage', 'command', 'arcade set background layer {LAYER} image {IMAGE}'),
 
+    // ---- commands: character animations (arcade-character-animations extension) ----
+    w('arcade_characterFrames', 'command', 'arcade character {MODE:loop|run} frames of {SPRITE} images {FRAMES} interval {INTERVAL} rule {RULE}'),
+    w('arcade_setCharacterAnimationsEnabled', 'command', 'arcade set character animations of {SPRITE} enabled {ENABLED:bool}'),
+    w('arcade_setCharacterState', 'command', 'arcade set character state of {SPRITE} to {RULE}'),
+    w('arcade_clearCharacterState', 'command', 'arcade clear character state of {SPRITE}'),
+    w('arcade_setCharacterController', 'command', 'arcade set character controller of {SPRITE} enabled {ENABLED:bool}'),
+    w('arcade_lockCharacterFacing', 'command', 'arcade lock character facing of {SPRITE} to {DIRECTION:Up|Right|Down|Left}'),
+    w('arcade_unlockCharacterFacing', 'command', 'arcade unlock character facing of {SPRITE}'),
+
     // ---- commands: darts and corgio (sprite extensions) -----------------------------
     // Word order: the longer spellings first, so a sprite slot cannot read a later word.
     w('arcade_setDartProperty', 'command', `arcade set dart {SPRITE} property {PROPERTY:${DART_PROPERTIES}} to {VALUE}`),
@@ -387,6 +396,11 @@ export const ARCADE_WORDS = Object.freeze([
 
     // ---- reporters: background scrolling (arcade-background-scroll extension) ----
     w('arcade_backgroundScrollOffset', 'reporter', 'arcade background scroll offset {AXIS:x|y} layer {LAYER}'),
+
+    // ---- reporters: character animations (arcade-character-animations extension) ---
+    // A rule is the original's predicate names, space separated.
+    w('arcade_characterRule', 'reporter', 'arcade character rule {PREDICATES}'),
+    w('arcade_characterMatchesRule', 'boolean', 'arcade character {SPRITE} matches rule {RULE}'),
 
     // ---- reporters: darts and corgio (sprite extensions) ----------------------------
     w('arcade_createDart', 'reporter', 'arcade create dart image {IMAGE} kind {KIND} x {X} y {Y}'),
