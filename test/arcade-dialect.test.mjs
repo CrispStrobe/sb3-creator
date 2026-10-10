@@ -135,6 +135,12 @@ const WORD_LINES = [
     ['command', 'arcade_setGameOverPlayable', 'arcade set game over sound (arcade melody playable (arcade melody baDing)) looping 0 for win 1'],
     ['command', 'arcade_setGameOverScoringType', 'arcade set game over scoring LowScore'],
     ['command', 'arcade_startImageEffect', 'arcade start image effect dissolve times (n + 1) delay 0 ms'],
+    ['command', 'arcade_scrollBackgroundWithCamera', 'arcade scroll background with camera BothDirections layer (n + 1)'],
+    ['command', 'arcade_scrollBackgroundWithSpeed', 'arcade scroll background vx -50 vy (n + 1) layer 0'],
+    ['command', 'arcade_setBackgroundScrollMultipliers', 'arcade set background scroll multipliers x 0.5 y (n + 1) layer 2'],
+    ['command', 'arcade_setBackgroundScrollOffset', 'arcade set background scroll offset x (n + 1) y 0 layer 1'],
+    ['command', 'arcade_setBackgroundLayerImage', 'arcade set background layer (n + 1) image hero'],
+    ['command', 'arcade_setBackgroundLayerZ', 'arcade set background layer 1 z (n + 1)'],
     ['command', 'arcade_setDartProperty', 'arcade set dart (n + 1) property angleRate to hero'],
     ['command', 'arcade_dartSwitch', 'arcade dart hero setTrace (n > 2)'],
     ['command', 'arcade_dartAction', 'arcade dart (n + 1) throwDart'],
@@ -222,6 +228,7 @@ const WORD_LINES = [
     ['reporter', 'arcade_parseIntegerRadix', 'arcade parse integer "ff" radix (n + 1)'],
     ['reporter', 'arcade_parseInteger', 'arcade parse integer (arcade local count)'],
     ['reporter', 'arcade_frameDeltaTime', 'arcade frame delta time'],
+    ['reporter', 'arcade_backgroundScrollOffset', 'arcade background scroll offset y layer (n + 1)'],
     ['reporter', 'arcade_createDart', 'arcade create dart image hero kind "Player" x 10 y (n + 1)'],
     ['reporter', 'arcade_createCorgi', 'arcade create corgi kind "Player" x (n + 1) y 70'],
     ['reporter', 'arcade_dartProperty', 'arcade dart hero property pow'],
@@ -327,7 +334,7 @@ describe('Arcade dialect words', () => {
         const here = new Set(WORD_LINES.map(([, op]) => op));
         assert.deepEqual([...here].sort(), [...ARCADE_DIALECT_OPS].sort());
         assert.equal(WORD_LINES.length, ARCADE_WORDS.length, 'one line per spelling, aliases included');
-        assert.equal(ARCADE_DIALECT_OPS.length, 261);
+        assert.equal(ARCADE_DIALECT_OPS.length, 268);
     });
 
     for (const [kind, op, line, alias] of WORD_LINES) {
