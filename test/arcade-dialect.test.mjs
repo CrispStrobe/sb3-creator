@@ -35,6 +35,8 @@ const WORD_LINES = [
     ['hat', 'arcade_whenUpdate', 'when arcade updates'],
     ['hat', 'arcade_whenInterval', 'when arcade every (n + 1) ms'],
     ['hat', 'arcade_whenRegisteredUpdate', 'when arcade update handler (n + 1) runs'],
+    ['hat', 'arcade_whenRegisteredPaint', 'when arcade paint handler (n + 1) runs'],
+    ['hat', 'arcade_whenRegisteredShade', 'when arcade shade handler (n + 1) runs'],
     ['hat', 'arcade_whenRegisteredInterval', 'when arcade interval handler (n + 1) runs'],
     ['hat', 'arcade_whenRegisteredButton', 'when arcade button handler (n + 1) runs'],
     ['hat', 'arcade_whenRegisteredInstanceDestroyed', 'when arcade instance destruction handler (n + 1) runs'],
@@ -81,6 +83,8 @@ const WORD_LINES = [
     ['command', 'arcade_showLongText', 'arcade long text (n + 1) layout "Full"'],
     ['command', 'arcade_log', 'arcade log (n + 1)'],
     ['command', 'arcade_registerUpdateHandler', 'arcade register update as (n + 1) capturing hero'],
+    ['command', 'arcade_registerPaintHandler', 'arcade register paint as (n + 1) capturing hero'],
+    ['command', 'arcade_registerShadeHandler', 'arcade register shade as (n + 1) capturing hero'],
     ['command', 'arcade_registerForeverHandler', 'arcade register forever as (n + 1) capturing hero'],
     ['command', 'arcade_registerCountdownHandler', 'arcade register countdown as (n + 1) capturing hero'],
     ['command', 'arcade_registerIntervalHandler', 'arcade register interval (n + 1) as hero capturing "Player"'],
@@ -123,6 +127,7 @@ const WORD_LINES = [
     ['command', 'arcade_mutateImage', 'arcade mutate image flipY (n + 1) color hero replacement "Player"'],
     ['command', 'arcade_blitImage', 'arcade blit image drawTransparentImage (n + 1) source hero x "Player" y 2'],
     ['command', 'arcade_setImagePixel', 'arcade set image pixel (n + 1) x hero y "Player" color 2'],
+    ['command', 'arcade_printImageText', 'arcade print "Score" on image (arcade screen image) x (n + 1) y 4 color 2 font small'],
     ['command', 'arcade_drawImage', 'arcade draw image drawLine (n + 1) x hero y "Player" width 2 height (arcade local count) color -3'],
     ['command', 'arcade_setScenePhysicsEngine', 'arcade set physics engine of scene (n + 1) to hero'],
     ['command', 'arcade_setPhysicsEngineProperty', 'arcade set physics engine property maxStep of (n + 1) to hero'],
@@ -168,6 +173,7 @@ const WORD_LINES = [
     ['boolean', 'arcade_hasPlayerScore', 'arcade player (n + 1) has score'],
     ['reporter', 'arcade_getLife', 'arcade life player (n + 1)'],
     ['reporter', 'arcade_backgroundImage', 'arcade background image'],
+    ['reporter', 'arcade_screenImage', 'arcade screen image'],
     ['reporter', 'arcade_backgroundColor', 'arcade background color'],
     ['reporter', 'arcade_cameraProperty', 'arcade camera property (n + 1)'],
     ['reporter', 'arcade_currentScene', 'arcade current scene'],
@@ -271,7 +277,7 @@ describe('Arcade dialect words', () => {
         const here = new Set(WORD_LINES.map(([, op]) => op));
         assert.deepEqual([...here].sort(), [...ARCADE_DIALECT_OPS].sort());
         assert.equal(WORD_LINES.length, ARCADE_WORDS.length, 'one line per spelling, aliases included');
-        assert.equal(ARCADE_DIALECT_OPS.length, 205);
+        assert.equal(ARCADE_DIALECT_OPS.length, 211);
     });
 
     for (const [kind, op, line, alias] of WORD_LINES) {

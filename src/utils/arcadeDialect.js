@@ -67,6 +67,8 @@ export const ARCADE_WORDS = Object.freeze([
     w('arcade_whenUpdate', 'hat', 'when arcade updates'),
     w('arcade_whenInterval', 'hat', 'when arcade every {PERIOD} ms'),
     w('arcade_whenRegisteredUpdate', 'hat', 'when arcade update handler {TOKEN} runs'),
+    w('arcade_whenRegisteredPaint', 'hat', 'when arcade paint handler {TOKEN} runs'),
+    w('arcade_whenRegisteredShade', 'hat', 'when arcade shade handler {TOKEN} runs'),
     w('arcade_whenRegisteredInterval', 'hat', 'when arcade interval handler {TOKEN} runs'),
     w('arcade_whenRegisteredMultiplayerButton', 'hat', 'when arcade multiplayer button handler {TOKEN} runs'),
     w('arcade_whenRegisteredButton', 'hat', 'when arcade button handler {TOKEN} runs'),
@@ -128,6 +130,9 @@ export const ARCADE_WORDS = Object.freeze([
 
     // ---- commands: handler registration (the handler is a procedure token) -----
     w('arcade_registerUpdateHandler', 'command', 'arcade register update as {TOKEN} capturing {CAPTURES}'),
+    // game.onPaint / game.onShade: scene renderables drawn with the sprites by z.
+    w('arcade_registerPaintHandler', 'command', 'arcade register paint as {TOKEN} capturing {CAPTURES}'),
+    w('arcade_registerShadeHandler', 'command', 'arcade register shade as {TOKEN} capturing {CAPTURES}'),
     w('arcade_startParallelHandler', 'command', 'arcade run parallel as {TOKEN} capturing {CAPTURES}'),
     w('arcade_registerForeverHandler', 'command', 'arcade register forever as {TOKEN} capturing {CAPTURES}'),
     w('arcade_registerCountdownHandler', 'command', 'arcade register countdown as {TOKEN} capturing {CAPTURES}'),
@@ -205,6 +210,9 @@ export const ARCADE_WORDS = Object.freeze([
     w('arcade_blitImage', 'command',
         'arcade blit image {OP:drawImage|drawTransparentImage} {IMAGE} source {SOURCE} x {X} y {Y}'),
     w('arcade_setImagePixel', 'command', 'arcade set image pixel {IMAGE} x {X} y {Y} color {COLOR}'),
+    // Image.print; font auto is image.getFontForText's choice.
+    w('arcade_printImageText', 'command',
+        'arcade print {TEXT} on image {IMAGE} x {X} y {Y} color {COLOR} font {FONT:auto|normal|small|large}'),
     w('arcade_drawImage', 'command',
         'arcade draw image {OP:fillRect|drawLine} {IMAGE} x {X} y {Y} width {W} height {H} color {COLOR}'),
 
@@ -275,6 +283,7 @@ export const ARCADE_WORDS = Object.freeze([
     w('arcade_getPlayerScore', 'reporter', 'arcade player {PLAYER} score'),
     w('arcade_getLife', 'reporter', 'arcade life player {PLAYER}'),
     w('arcade_backgroundImage', 'reporter', 'arcade background image'),
+    w('arcade_screenImage', 'reporter', 'arcade screen image'),
     w('arcade_backgroundColor', 'reporter', 'arcade background color'),
     w('arcade_truncateNumber', 'reporter', 'arcade truncate {NUM}', {early: true}),
     w('arcade_signNumber', 'reporter', 'arcade sign of {NUM}', {early: true}),
