@@ -56,6 +56,8 @@ const PROPERTIES = 'x|y|left|right|top|bottom|vx|vy|ax|ay|fx|fy|sx|sy|scale|widt
 const FLAGS = 'AutoDestroy|StayInScreen|BounceOnWall|Invisible|Ghost|GhostThroughSprites|GhostThroughWalls|'
     + 'GhostThroughTiles|DestroyOnWall|RelativeToCamera';
 const LAYOUTS = '"Left"|"Right"|"Top"|"Bottom"|"Center"|"Full"';
+const SCREEN_EFFECTS = 'confetti|hearts|smiles|blizzard|bubbles|starField|clouds|none';
+const EFFECTS = `spray|trail|fountain|rings|fire|warmRadial|coolRadial|halo|ashes|disintegrate|${SCREEN_EFFECTS}`;
 const PROJECTILE_MODES = 'text:side|kind|sprite|kind-source';
 
 const w = (op, kind, words, extra = {}) => Object.freeze({ op, kind, words, ...extra });
@@ -158,6 +160,15 @@ export const ARCADE_WORDS = Object.freeze([
     w('arcade_returnValue', 'command', 'arcade return value {VALUE}'),
 
     // ---- commands: sprites ------------------------------------------------------
+    // Particle effects (PXT effects.ParticleEffect / ScreenEffect instances).
+    // Before `arcade destroy {ID}`, whose last slot would read the rest.
+    w('arcade_destroySpriteWithEffect', 'command',
+        `arcade destroy {ID} with effect {EFFECT:${EFFECTS}} for {DURATION} ms`),
+    w('arcade_startSpriteEffect', 'command', `arcade start effect {EFFECT:${EFFECTS}} on {ID} for {DURATION} ms`),
+    w('arcade_startScreenEffect', 'command',
+        `arcade start screen effect {EFFECT:${SCREEN_EFFECTS}} for {DURATION} ms`),
+    w('arcade_endScreenEffect', 'command', `arcade end screen effect {EFFECT:${SCREEN_EFFECTS}}`),
+    w('arcade_clearSpriteEffects', 'command', 'arcade clear effects on {ID}'),
     w('arcade_destroySprite', 'command', 'arcade destroy {ID}'),
     w('arcade_spriteSay', 'command',
         'arcade say {ID} text {TEXT} for {DURATION} ms animated {ANIMATED:bool} text color {FOREGROUND} '

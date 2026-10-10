@@ -65,6 +65,11 @@ const WORD_LINES = [
     ['command', 'arcade_followSprite', 'arcade sprite hero follow target speed 100 turn rate 400'],
     ['command', 'arcade_unfollowSprite', 'arcade sprite hero stop following'],
     ['command', 'arcade_cameraShake', 'arcade shake camera by (n + 1) pixels for 500 ms'],
+    ['command', 'arcade_destroySpriteWithEffect', 'arcade destroy hero with effect disintegrate for (n + 1) ms'],
+    ['command', 'arcade_startSpriteEffect', 'arcade start effect warmRadial on hero for (n + 1) ms'],
+    ['command', 'arcade_startScreenEffect', 'arcade start screen effect starField for (n + 1) ms'],
+    ['command', 'arcade_endScreenEffect', 'arcade end screen effect confetti'],
+    ['command', 'arcade_clearSpriteEffects', 'arcade clear effects on (n + 1)'],
     ['command', 'arcade_centerCameraAt', 'arcade center camera x (n + 1) y hero'],
     ['command', 'arcade_cameraFollowSprite', 'arcade camera follow sprite (n + 1)'],
     ['command', 'arcade_setPalette', 'arcade set palette hex \"000000ffffff123456ff93c4ff8135fff609249ca378dc52003fad87f2ff8e2ec4a4839f5c406ce5cdc491463d000000\"'],
@@ -266,7 +271,7 @@ describe('Arcade dialect words', () => {
         const here = new Set(WORD_LINES.map(([, op]) => op));
         assert.deepEqual([...here].sort(), [...ARCADE_DIALECT_OPS].sort());
         assert.equal(WORD_LINES.length, ARCADE_WORDS.length, 'one line per spelling, aliases included');
-        assert.equal(ARCADE_DIALECT_OPS.length, 200);
+        assert.equal(ARCADE_DIALECT_OPS.length, 205);
     });
 
     for (const [kind, op, line, alias] of WORD_LINES) {
