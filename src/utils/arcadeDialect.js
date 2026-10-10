@@ -64,6 +64,9 @@ const MELODIES = 'baDing|wawawawaa|jumpUp|jumpDown|powerUp|powerDown|magicWand|s
     + 'smallCrash|bigCrash|zapped|buzzer|sonar|spooky|beamUp';
 const SOUNDS = 'PowerUp|PowerDown|JumpUp|JumpDown|BaDing|Wawawawaa|MagicWand|Siren';
 const BEATS = 'Whole|Half|Quarter|Eighth|Sixteenth|Double|Breve|Triplet';
+// PXT image effects (effects.ImageEffect) and every background effect game over takes.
+const IMAGE_EFFECTS = 'dissolve|melt|slash|splatter';
+const BACKGROUND_EFFECTS = `${SCREEN_EFFECTS}|${IMAGE_EFFECTS}`;
 
 const w = (op, kind, words, extra = {}) => Object.freeze({ op, kind, words, ...extra });
 
@@ -220,6 +223,16 @@ export const ARCADE_WORDS = Object.freeze([
         'arcade print {TEXT} on image {IMAGE} x {X} y {Y} color {COLOR} font {FONT:auto|normal|small|large}'),
     w('arcade_drawImage', 'command',
         'arcade draw image {OP:fillRect|drawLine} {IMAGE} x {X} y {Y} width {W} height {H} color {COLOR}'),
+
+    // ---- commands: game over and image screen effects ------------------------------
+    // The legacy game.over(win, effect?) spelling first; "unset" is no effect argument.
+    w('arcade_legacyGameOver', 'command', `arcade legacy game over win {WIN:bool} effect {EFFECT:unset|${BACKGROUND_EFFECTS}}`),
+    w('arcade_gameOver', 'command', 'arcade game over win {WIN:bool}'),
+    w('arcade_setGameOverEffect', 'command', `arcade set game over effect {EFFECT:${BACKGROUND_EFFECTS}} for win {WIN:bool}`),
+    w('arcade_setGameOverMessage', 'command', 'arcade set game over message {MESSAGE} for win {WIN:bool}'),
+    w('arcade_setGameOverPlayable', 'command', 'arcade set game over sound {PLAYABLE} looping {LOOPING:bool} for win {WIN:bool}'),
+    w('arcade_setGameOverScoringType', 'command', 'arcade set game over scoring {TYPE:HighScore|LowScore|None}'),
+    w('arcade_startImageEffect', 'command', `arcade start image effect {EFFECT:${IMAGE_EFFECTS}} times {TIMES} delay {DELAY} ms`),
 
     // ---- commands: music (PXT mixer) ------------------------------------------------
     // "play sound effect" before "play sound", whose last slot would read the rest.
