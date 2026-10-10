@@ -59,6 +59,11 @@ const LAYOUTS = '"Left"|"Right"|"Top"|"Bottom"|"Center"|"Full"';
 const SCREEN_EFFECTS = 'confetti|hearts|smiles|blizzard|bubbles|starField|clouds|none';
 const EFFECTS = `spray|trail|fountain|rings|fire|warmRadial|coolRadial|halo|ashes|disintegrate|${SCREEN_EFFECTS}`;
 const PROJECTILE_MODES = 'text:side|kind|sprite|kind-source';
+// PXT mixer music: named Melody instances, Sounds members and enum members.
+const MELODIES = 'baDing|wawawawaa|jumpUp|jumpDown|powerUp|powerDown|magicWand|siren|pewPew|knock|footstep|thump|'
+    + 'smallCrash|bigCrash|zapped|buzzer|sonar|spooky|beamUp';
+const SOUNDS = 'PowerUp|PowerDown|JumpUp|JumpDown|BaDing|Wawawawaa|MagicWand|Siren';
+const BEATS = 'Whole|Half|Quarter|Eighth|Sixteenth|Double|Breve|Triplet';
 
 const w = (op, kind, words, extra = {}) => Object.freeze({ op, kind, words, ...extra });
 
@@ -216,6 +221,20 @@ export const ARCADE_WORDS = Object.freeze([
     w('arcade_drawImage', 'command',
         'arcade draw image {OP:fillRect|drawLine} {IMAGE} x {X} y {Y} width {W} height {H} color {COLOR}'),
 
+    // ---- commands: music (PXT mixer) ------------------------------------------------
+    // "play sound effect" before "play sound", whose last slot would read the rest.
+    w('arcade_playMusic', 'command', 'arcade play music {PLAYABLE} mode {MODE:UntilDone|InBackground|LoopingInBackground}'),
+    w('arcade_playMelody', 'command', 'arcade play melody {MELODY} mode {MODE:play|playUntilDone|loop}'),
+    w('arcade_playSoundEffect', 'command', 'arcade play sound effect {EFFECT} mode {MODE:UntilDone|InBackground}'),
+    w('arcade_playSound', 'command', 'arcade play sound {SOUND} until done {UNTIL_DONE:bool}'),
+    w('arcade_playTone', 'command', 'arcade play tone {FREQUENCY} Hz for {DURATION} ms'),
+    w('arcade_ringTone', 'command', 'arcade ring tone {FREQUENCY} Hz'),
+    w('arcade_rest', 'command', 'arcade rest for {DURATION} ms'),
+    w('arcade_setMusicVolume', 'command', 'arcade set music volume to {VOLUME}'),
+    w('arcade_setTempo', 'command', 'arcade set tempo to {TEMPO} bpm'),
+    w('arcade_changeTempo', 'command', 'arcade change tempo by {TEMPO} bpm'),
+    w('arcade_stopAllSounds', 'command', 'arcade stop all sounds'),
+
     // ---- commands: physics engines, animations, tiles -----------------------------
     w('arcade_setScenePhysicsEngine', 'command', 'arcade set physics engine of scene {SCENE} to {ENGINE}'),
     w('arcade_setPhysicsEngineProperty', 'command',
@@ -311,6 +330,20 @@ export const ARCADE_WORDS = Object.freeze([
     w('arcade_tileIs', 'boolean', 'arcade tile {LOCATION} equals image {IMAGE}'),
     w('arcade_tileIsWall', 'boolean', 'arcade tile {LOCATION} is wall'),
     w('arcade_isHittingTile', 'boolean', 'arcade sprite {ID} hitting wall {DIRECTION}'),
+
+    // ---- reporters: music --------------------------------------------------------------------------
+    w('arcade_melodyPlayable', 'reporter', 'arcade melody playable {MELODY}'),
+    w('arcade_stringPlayable', 'reporter', 'arcade string playable {MELODY} at {TEMPO} bpm'),
+    w('arcade_tonePlayable', 'reporter', 'arcade tone playable {FREQUENCY} Hz for {DURATION} ms'),
+    w('arcade_soundEffect', 'reporter',
+        'arcade sound effect wave {WAVE:Sine|Sawtooth|Triangle|Square|Noise} from {START_FREQUENCY} Hz to {END_FREQUENCY} Hz '
+        + 'volume {START_VOLUME} to {END_VOLUME} for {DURATION} ms effect {EFFECT:None|Vibrato|Tremolo|Warble} '
+        + 'curve {CURVE:Linear|Curve|Logarithmic}'),
+    w('arcade_namedMelody', 'reporter', `arcade melody {NAME:${MELODIES}}`),
+    w('arcade_soundMelody', 'reporter', `arcade sound {SOUND:${SOUNDS}}`),
+    w('arcade_beat', 'reporter', `arcade beat {FRACTION:${BEATS}}`),
+    w('arcade_musicVolume', 'reporter', 'arcade music volume'),
+    w('arcade_musicTempo', 'reporter', 'arcade music tempo'),
 
     // ---- reporters and booleans: images -------------------------------------------------------
     w('arcade_createImage', 'reporter', 'arcade new image width {WIDTH} height {HEIGHT}'),
