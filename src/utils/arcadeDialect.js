@@ -235,6 +235,9 @@ export const ARCADE_WORDS = Object.freeze([
     // The legacy game.over(win, effect?) spelling first; "unset" is no effect argument.
     w('arcade_legacyGameOver', 'command', `arcade legacy game over win {WIN:bool} effect {EFFECT:unset|${BACKGROUND_EFFECTS}}`),
     w('arcade_gameOver', 'command', 'arcade game over win {WIN:bool}'),
+    w('arcade_carnivalCountdown', 'command', `arcade carnival countdown {SECONDS} style {STYLE:Win|Lose|Score|Timed|Multi|Custom} effect {EFFECT:unset|${BACKGROUND_EFFECTS}}`),
+    w('arcade_carnivalGameOver', 'command', `arcade carnival game over style {STYLE:Win|Lose|Score|Timed|Multi|Custom} effect {EFFECT:unset|${BACKGROUND_EFFECTS}}`),
+    w('arcade_carnivalCustomGameOver', 'command', `arcade carnival custom game over message {MESSAGE} effect {EFFECT:unset|${BACKGROUND_EFFECTS}} sound {SOUND} use sound {HAS_SOUND:bool} scoring {SCORING:unset|None|HScore|LScore|HTime|LTime} score {SCORE} use score {HAS_SCORE:bool}`),
     w('arcade_setGameOverEffect', 'command', `arcade set game over effect {EFFECT:${BACKGROUND_EFFECTS}} for win {WIN:bool}`),
     w('arcade_setGameOverMessage', 'command', 'arcade set game over message {MESSAGE} for win {WIN:bool}'),
     w('arcade_setGameOverPlayable', 'command', 'arcade set game over sound {PLAYABLE} looping {LOOPING:bool} for win {WIN:bool}'),
