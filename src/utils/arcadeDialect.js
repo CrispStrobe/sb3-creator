@@ -82,6 +82,7 @@ export const ARCADE_WORDS = Object.freeze([
     // ---- mutable byte buffers ------------------------------------------------
     w('arcade_createBuffer', 'reporter', 'arcade create byte buffer size {SIZE}'),
     w('arcade_bufferFromHex', 'reporter', 'arcade byte buffer from hex text {HEX}'),
+    w('arcade_bufferFromBase64', 'reporter', 'arcade byte buffer from Base64 text {TEXT}'),
     w('arcade_bufferFromUTF8', 'reporter', 'arcade byte buffer from UTF8 text {TEXT}'),
     w('arcade_bufferLiteral', 'reporter', 'arcade byte buffer literal hex {HEX}'),
     w('arcade_bufferLength', 'reporter', 'arcade byte buffer {BUFFER} length'),
@@ -103,6 +104,7 @@ export const ARCADE_WORDS = Object.freeze([
     w('arcade_bufferShift', 'command', 'arcade shift byte buffer {BUFFER} by {AMOUNT} at {OFFSET} length {LENGTH}'),
     w('arcade_bufferRotate', 'command', 'arcade rotate byte buffer {BUFFER} by {AMOUNT} at {OFFSET} length {LENGTH}'),
     w('arcade_bufferToHex', 'reporter', 'arcade byte buffer {BUFFER} to hex'),
+    w('arcade_bufferToBase64', 'reporter', 'arcade byte buffer {BUFFER} to Base64 text'),
     w('arcade_bufferToText', 'reporter', 'arcade byte buffer {BUFFER} to UTF8 text'),
     w('arcade_songFromBuffer', 'reporter', 'arcade song playable byte buffer {BUFFER}'),
     // ---- hats ---------------------------------------------------------------
