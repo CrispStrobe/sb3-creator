@@ -251,7 +251,7 @@ const WORD_LINES = [
     ['reporter', 'arcade_melodyPlayable', 'arcade melody playable hero'],
     ['reporter', 'arcade_stringPlayable', 'arcade string playable "C D E" at (n + 1) bpm'],
     ['reporter', 'arcade_tonePlayable', 'arcade tone playable 262 Hz for (n + 1) ms'],
-    ['reporter', 'arcade_songPlayable', 'arcade song playable hex (songBytes)'],
+    ['reporter', 'arcade_songPlayable', 'arcade song playable hex "00780004080100"'],
     ['reporter', 'arcade_soundEffect', 'arcade sound effect wave Square from 400 Hz to 600 Hz volume 255 to 0 for (n + 1) ms effect Vibrato curve Linear'],
     ['reporter', 'arcade_namedMelody', 'arcade melody bigCrash'],
     ['reporter', 'arcade_soundMelody', 'arcade sound PowerUp'],
