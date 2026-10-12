@@ -34,6 +34,7 @@ const WORD_LINES = [
     ['command', 'arcade_bufferSetNumber', 'arcade set byte buffer bytes number Float64BE at (n + 1) to 1.25'],
     ['reporter', 'arcade_bufferSlice', 'arcade byte buffer bytes slice at (n + 1) length 4'],
     ['command', 'arcade_bufferWrite', 'arcade write byte buffer bytes at (n + 1) from other'],
+    ['command', 'arcade_bufferWriteRange', 'arcade write byte buffer bytes at (n + 1) from other source offset (n + 2) length 3'],
     ['command', 'arcade_bufferFill', 'arcade fill byte buffer bytes with (n + 1) at 0 length -1'],
     ['command', 'arcade_bufferShift', 'arcade shift byte buffer bytes by (n + 1) at 0 length -1'],
     ['command', 'arcade_bufferRotate', 'arcade rotate byte buffer bytes by (n + 1) at 0 length -1'],
@@ -365,7 +366,7 @@ describe('Arcade dialect words', () => {
         const here = new Set(WORD_LINES.map(([, op]) => op));
         assert.deepEqual([...here].sort(), [...ARCADE_DIALECT_OPS].sort());
         assert.equal(WORD_LINES.length, ARCADE_WORDS.length, 'one line per spelling, aliases included');
-        assert.equal(ARCADE_DIALECT_OPS.length, 299);
+        assert.equal(ARCADE_DIALECT_OPS.length, 300);
     });
 
     for (const [kind, op, line, alias] of WORD_LINES) {
