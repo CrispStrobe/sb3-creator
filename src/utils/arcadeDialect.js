@@ -85,6 +85,7 @@ export const ARCADE_WORDS = Object.freeze([
     w('arcade_bufferFromUTF8', 'reporter', 'arcade byte buffer from UTF8 text {TEXT}'),
     w('arcade_bufferLiteral', 'reporter', 'arcade byte buffer literal hex {HEX}'),
     w('arcade_bufferLength', 'reporter', 'arcade byte buffer {BUFFER} length'),
+    w('arcade_bufferIsReadOnly', 'boolean', 'arcade byte buffer {BUFFER} is read only'),
     w('arcade_bufferGetByte', 'reporter', 'arcade byte buffer {BUFFER} byte at {OFFSET}'),
     w('arcade_bufferSetByte', 'command', 'arcade set byte buffer {BUFFER} byte at {OFFSET} to {VALUE}'),
     w('arcade_bufferGetNumber', 'reporter', `arcade byte buffer {BUFFER} number {FORMAT:menu:bufferFormats:${BUFFER_FORMATS}} at {OFFSET}`),
