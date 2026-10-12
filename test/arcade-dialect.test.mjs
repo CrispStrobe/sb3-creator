@@ -34,6 +34,10 @@ const WORD_LINES = [
     ['boolean', 'arcade_bufferEquals', 'arcade byte buffer bytes equals byte buffer other'],
     ['reporter', 'arcade_bufferChunked', 'arcade byte buffer bytes chunks of at most 2 bytes'],
     ['reporter', 'arcade_bufferChunkedFromUTF8', 'arcade UTF8 text "A€🙂" byte buffer chunks of at most 3 bytes'],
+    ['reporter', 'arcade_bufferPackedSize', 'arcade byte buffer packed format "<BH" size'],
+    ['reporter', 'arcade_bufferPack', 'arcade pack number array numbers as byte buffer format "<BH"'],
+    ['reporter', 'arcade_bufferUnpack', 'arcade unpack byte buffer bytes format "<BH" at 0'],
+    ['command', 'arcade_bufferPackAt', 'arcade pack number array numbers into byte buffer bytes at 1 format "<BH"'],
     ['reporter', 'arcade_bufferFromArray', 'arcade byte buffer from number array numbers'],
     ['reporter', 'arcade_bufferToArray', 'arcade byte buffer bytes to number array format UInt16BE'],
     ['reporter', 'arcade_bufferConcatArray', 'arcade concatenate byte buffers in array buffers'],
@@ -377,7 +381,7 @@ describe('Arcade dialect words', () => {
         const here = new Set(WORD_LINES.map(([, op]) => op));
         assert.deepEqual([...here].sort(), [...ARCADE_DIALECT_OPS].sort());
         assert.equal(WORD_LINES.length, ARCADE_WORDS.length, 'one line per spelling, aliases included');
-        assert.equal(ARCADE_DIALECT_OPS.length, 311);
+        assert.equal(ARCADE_DIALECT_OPS.length, 315);
     });
 
     for (const [kind, op, line, alias] of WORD_LINES) {
