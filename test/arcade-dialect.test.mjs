@@ -25,6 +25,7 @@ const ALIAS = true;
 const WORD_LINES = [
     ['reporter', 'arcade_createBuffer', 'arcade create byte buffer size (n + 1)'],
     ['reporter', 'arcade_bufferFromHex', 'arcade byte buffer from hex text "01020304"'],
+    ['reporter', 'arcade_bufferFromUTF8', 'arcade byte buffer from UTF8 text "A€🙂"'],
     ['reporter', 'arcade_bufferLiteral', 'arcade byte buffer literal hex "01020304"'],
     ['reporter', 'arcade_bufferLength', 'arcade byte buffer bytes length'],
     ['reporter', 'arcade_bufferGetByte', 'arcade byte buffer bytes byte at (n + 1)'],
@@ -364,7 +365,7 @@ describe('Arcade dialect words', () => {
         const here = new Set(WORD_LINES.map(([, op]) => op));
         assert.deepEqual([...here].sort(), [...ARCADE_DIALECT_OPS].sort());
         assert.equal(WORD_LINES.length, ARCADE_WORDS.length, 'one line per spelling, aliases included');
-        assert.equal(ARCADE_DIALECT_OPS.length, 298);
+        assert.equal(ARCADE_DIALECT_OPS.length, 299);
     });
 
     for (const [kind, op, line, alias] of WORD_LINES) {
