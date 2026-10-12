@@ -251,6 +251,7 @@ const WORD_LINES = [
     ['reporter', 'arcade_melodyPlayable', 'arcade melody playable hero'],
     ['reporter', 'arcade_stringPlayable', 'arcade string playable "C D E" at (n + 1) bpm'],
     ['reporter', 'arcade_tonePlayable', 'arcade tone playable 262 Hz for (n + 1) ms'],
+    ['reporter', 'arcade_songPlayable', 'arcade song playable hex (songBytes)'],
     ['reporter', 'arcade_soundEffect', 'arcade sound effect wave Square from 400 Hz to 600 Hz volume 255 to 0 for (n + 1) ms effect Vibrato curve Linear'],
     ['reporter', 'arcade_namedMelody', 'arcade melody bigCrash'],
     ['reporter', 'arcade_soundMelody', 'arcade sound PowerUp'],
@@ -346,7 +347,7 @@ describe('Arcade dialect words', () => {
         const here = new Set(WORD_LINES.map(([, op]) => op));
         assert.deepEqual([...here].sort(), [...ARCADE_DIALECT_OPS].sort());
         assert.equal(WORD_LINES.length, ARCADE_WORDS.length, 'one line per spelling, aliases included');
-        assert.equal(ARCADE_DIALECT_OPS.length, 280);
+        assert.equal(ARCADE_DIALECT_OPS.length, 281);
     });
 
     for (const [kind, op, line, alias] of WORD_LINES) {
