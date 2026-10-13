@@ -69,10 +69,13 @@ describe('the forms are the whole set', () => {
         // Recounted 2026-10-09: multiplayer pressed-query support adds the twelfth Arcade / array-reference Boolean word.
         // Recounted 2026-10-10: character animations add the thirteenth (matches rule).
         // Recounted 2026-10-13: Buffer `is read only` and `equals byte buffer` add the fourteenth and fifteenth.
+        // Recounted 2026-10-13: tile kind at, image equality, SpriteData Boolean read, player connected and
+        // settings exists add the sixteenth to twentieth.
         assert.equal([...ops].filter((o) => o.startsWith('ev3comprehensive_')).length, 5);
         assert.ok(ops.has('arcade_playerButtonPressed'), 'the multiplayer button predicate participates in the full value-position census');
-        assert.equal([...ops].filter((o) => /^(arcade|arrays)_/.test(o) && o !== 'arrays_contains').length, 15);
-        for (const op of ['arcade_bufferIsReadOnly', 'arcade_bufferEquals']) assert.ok(ops.has(op), `${op} is not in the value-position census`);
+        assert.equal([...ops].filter((o) => /^(arcade|arrays)_/.test(o) && o !== 'arrays_contains').length, 20);
+        for (const op of ['arcade_bufferIsReadOnly', 'arcade_bufferEquals', 'arcade_spriteTileKindAt', 'arcade_imageEquals',
+            'arcade_spriteDataReadBoolean', 'arcade_playerConnected', 'arcade_settingsExists']) assert.ok(ops.has(op), `${op} is not in the value-position census`);
     });
 });
 
