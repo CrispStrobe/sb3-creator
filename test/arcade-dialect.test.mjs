@@ -23,6 +23,33 @@ const ALIAS = true;
 
 // [kind, opcode, one line of the word with a value in every slot, ALIAS?]
 const WORD_LINES = [
+    ['reporter','arrays_stringFromCharCode','text from char code -1'],
+    ['reporter','arrays_stringConcat','concatenate text "hello" with " world"'],
+    ['command','arcade_setCharacterAnimationVersion','arcade use character animation version "a8df7de6f7073b553976b9e47fbfadebcdc4f0ec"'],
+    ['reporter','arcade_characterRuleToString','arcade character rule string 123'],
+    ['reporter','arcade_sceneMillis','arcade scene runtime milliseconds'],
+    ['reporter','arcade_programMillis','arcade program runtime milliseconds'],
+    ['command','arcade_setBackgroundScrollVersion','arcade use background scroll version "43651f88b917a98ad886fdd4c1c2ad8001ce9b9c"'],
+    ['reporter','arcade_textSpriteCreate','arcade create text sprite text "Ready" background 0 foreground 1'],
+    ['command','arcade_textSpriteSetText','arcade text sprite label set text "Go"'],
+    ['command','arcade_textSpriteSetMaxFontHeight','arcade text sprite label set max font height 12'],
+    ['command','arcade_textSpriteSetIcon','arcade text sprite label set icon art'],
+    ['command','arcade_textSpriteSetBorder','arcade text sprite label set border width 1 color 6 padding 2'],
+    ['command','arcade_textSpriteSetOutline','arcade text sprite label set outline width 1 color 7'],
+    ['command','arcade_textSpriteUpdate','arcade text sprite label update'],
+    ['reporter','arcade_textSpriteProperty','arcade text sprite label property text'],
+    ['command','arcade_textSpriteSetProperty','arcade set text sprite label property fg to 9'],
+
+    ['command','arcade_settingsWrite','arcade write setting "score" type Number value 5'],
+    ['reporter','arcade_settingsRead','arcade read setting "score" type Number'],
+    ['boolean','arcade_settingsExists','arcade setting "score" exists'],
+    ['command','arcade_settingsRemove','arcade remove setting "score"'],
+    ['command','arcade_settingsClear','arcade clear user settings'],
+    ['boolean','arcade_playerConnected','arcade player p connected'],
+    ['command','arcade_spriteDataSet','arcade set sprite actor data \"count\" type Number to 5'],
+    ['reporter','arcade_spriteDataRead','arcade sprite actor data \"count\" type Number'],
+    ['boolean','arcade_spriteDataReadBoolean','arcade sprite actor boolean data \"ready\"'],
+    ['command','arcade_spriteDataChange','arcade change sprite actor number data \"count\" by 2'],
     ['reporter', 'arcade_createBuffer', 'arcade create byte buffer size (n + 1)'],
     ['reporter', 'arcade_bufferFromHex', 'arcade byte buffer from hex text "01020304"'],
     ['reporter', 'arcade_bufferFromBase64', 'arcade byte buffer from Base64 text "AQID"'],
@@ -42,6 +69,9 @@ const WORD_LINES = [
     ['reporter', 'arcade_bufferToArray', 'arcade byte buffer bytes to number array format UInt16BE'],
     ['reporter', 'arcade_bufferConcatArray', 'arcade concatenate byte buffers in array buffers'],
     ['reporter', 'arcade_bufferFormatSize', 'arcade byte buffer number format UInt16BE size'],
+    ['boolean', 'arcade_spriteTileKindAt', 'arcade sprite hero tile kind at (n + 1) equals image tile'],
+    ['command', 'arcade_waitAnyButton', 'arcade wait until any button pressed'],
+    ['boolean', 'arcade_imageEquals', 'arcade image artwork equals image other'],
     ['reporter', 'arcade_bufferHash', 'arcade byte buffer bytes hash (n + 1) bits'],
     ['reporter', 'arcade_bufferIndexOf', 'arcade byte buffer bytes index of byte buffer other'],
     ['reporter', 'arcade_bufferGetByte', 'arcade byte buffer bytes byte at (n + 1)'],
@@ -382,7 +412,7 @@ describe('Arcade dialect words', () => {
         const here = new Set(WORD_LINES.map(([, op]) => op));
         assert.deepEqual([...here].sort(), [...ARCADE_DIALECT_OPS].sort());
         assert.equal(WORD_LINES.length, ARCADE_WORDS.length, 'one line per spelling, aliases included');
-        assert.equal(ARCADE_DIALECT_OPS.length, 316);
+        assert.equal(ARCADE_DIALECT_OPS.length, 345);
     });
 
     for (const [kind, op, line, alias] of WORD_LINES) {
@@ -565,7 +595,7 @@ describe('Arcade dialect: precedence, slots and refusals', () => {
 describe('native Arcade and Arrays menu schemas', () => {
     const cases = [
         ['reporter', 'arrays_specialValue', 'KIND', ['undefined', 'null'], v => `${v} value`],
-        ['reporter', 'arrays_valueBinary', 'OP', ['+', '-', '*', '/', '%'], v => `calculate value 7 op "${v}" with 6`],
+        ['reporter', 'arrays_valueBinary', 'OP', ['+', '-', '*', '/', '%', '**'], v => `calculate value 7 op "${v}" with 6`],
         ['reporter', 'arrays_valueUnary', 'OP', ['+', '-'], v => `convert value 5 op "${v}"`],
         ['boolean', 'arrays_valueCompare', 'OP', ['==', '!=', '===', '!==', '<', '>', '<=', '>='], v => `compare value 7 op "${v}" with 6`]
     ];
