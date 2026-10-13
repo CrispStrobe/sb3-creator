@@ -52,8 +52,8 @@
 // rotationDegrees before rotation: the alternation takes the first that matches.
 // rotation is PXT's Sprite.rotation (radians), rotationDegrees its degrees form,
 // data the sprite's \`data\` value (any value, not only a number).
-const PROPERTIES = 'x|y|left|right|top|bottom|vx|vy|ax|ay|fx|fy|sx|sy|scale|width|height|z|lifespan|rotationDegrees|rotation|data';
-const READABLE_PROPERTIES = `${PROPERTIES}|kind|flags`;
+const PROPERTIES = 'x|y|left|right|top|bottom|vx|vy|ax|ay|fx|fy|sx|sy|scale|width|height|z|lifespan|rotationDegrees|rotation|data|flags';
+const READABLE_PROPERTIES = `${PROPERTIES}|kind`;
 const FLAGS = 'AutoDestroy|StayInScreen|BounceOnWall|Invisible|Ghost|GhostThroughSprites|GhostThroughWalls|'
     + 'GhostThroughTiles|DestroyOnWall|RelativeToCamera|ShowPhysics';
 const LAYOUTS = '"Left"|"Right"|"Top"|"Bottom"|"Center"|"Full"';
