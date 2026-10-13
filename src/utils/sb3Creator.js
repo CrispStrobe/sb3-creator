@@ -6202,6 +6202,14 @@ class SB3Creator {
             block[id].inputs.PCT = val(match[2]);
             return ret(block);
         }
+        // Calliope mini on-board motor driver (MakeCode `motors.dualMotorPower`).
+        // The micro:bit has no motor, so the word names the board it is for.
+        if ((match = matchTopLevel(line, /^calliope\s+motor\s+(A|B)\s+power\s+(\S+)\s*%?\s*$/i))) {
+            const { id, block } = cmd('microbitplus_motorpower');
+            block[id].fields.MOTOR = [match[1].toUpperCase(), null];
+            block[id].inputs.POWER = val(match[2]);
+            return ret(block);
+        }
         if ((match = matchTopLevel(line, /^set\s+pin\s+(P\d+)\s+pull\s+(none|up|down)\s*$/i))) {
             const { id, block } = cmd('microbitplus_setpull');
             block[id].fields.PIN = [match[1].toUpperCase(), null];
@@ -9164,6 +9172,7 @@ class SB3Creator {
             case 'microbitplus_digitalwrite': return line(`set pin ${f('PIN')} to ${f('LEVEL')}`);
             case 'bwgpio_setpin': return line(`set pin ${f('PIN')} to ${v('VALUE')}`);
             case 'microbitplus_analogwrite': return line(`set pin ${f('PIN')} analog ${v('PCT')} %`);
+            case 'microbitplus_motorpower': return line(`calliope motor ${f('MOTOR')} power ${v('POWER')} %`);
             case 'microbitplus_setpull': return line(`set pin ${f('PIN')} pull ${f('MODE')}`);
             case 'microbitplus_playtone': {
                 // -1 is "until the next tone" (MakeCode's ringTone), which is
