@@ -98,6 +98,7 @@ const WORD_LINES = [
     ['reporter','arcade_randomNumber','arcade random fraction'],
     ['reporter','arcade_mathBinary','arcade math min first (n + 1) second (n + 2)'],
     ['boolean','arcade_percentChance','arcade percent chance (n + 1)'],
+    ['reporter','arcade_clampNumber','arcade clamp minimum (n + 1) maximum (n + 2) value (n + 3)'],
     ['command', 'arcade_copyImageFrom', 'arcade copy pixels into image artwork from other'],
     ['command', 'arcade_scrollImage', 'arcade scroll image artwork x (n + 1) y -2'],
     ['hat', 'arcade_whenParallelHandler', 'when arcade parallel handler (n + 1) runs'],
@@ -424,7 +425,7 @@ describe('Arcade dialect words', () => {
         const here = new Set(WORD_LINES.map(([, op]) => op));
         assert.deepEqual([...here].sort(), [...ARCADE_DIALECT_OPS].sort());
         assert.equal(WORD_LINES.length, ARCADE_WORDS.length, 'one line per spelling, aliases included');
-        assert.equal(ARCADE_DIALECT_OPS.length, 356);
+        assert.equal(ARCADE_DIALECT_OPS.length, 357);
     });
 
     for (const [kind, op, line, alias] of WORD_LINES) {
