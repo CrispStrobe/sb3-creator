@@ -38,3 +38,19 @@ The consumer must separately qualify native execution, Blocks XML, MakeCode
 export/reimport, shared scheduling budgets, scenes, debugger controls and the
 installed GUI. Producer structural tests do not establish frame timing or
 whole-game compatibility.
+
+## Explicit source entry
+
+`WHEN arcade source starts:` is the `arcade_whenSourceStarts` hat. Queue it on
+actual project start after runtime reset. Derive source scheduling authority
+from this hat and owned native callback dispatch; inherit the actual caller and
+run generation through managed function calls. Do not infer it from a project
+flag or an ordinary flag script containing an Arcade command.
+
+Imported main and generated setup/art entry scripts should use the source hat,
+so their source initialization can finish before frame zero. Ordinary
+`WHEN flag clicked:` remains in the normal kernel. A source loop entered by an
+ordinary thread grants only its body the explicit loop semantics; it must not
+promote the whole ordinary flag script. Consumer checks must compare mixed
+initial-frame observations to the predecessor, and cover project restart,
+Stop/disposal, budgets, callback ownership and generated-template hiding.

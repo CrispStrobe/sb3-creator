@@ -80,6 +80,7 @@ const SEGMENT_CHARACTERS = 'ZERO|ONE|TWO|THREE|FOUR|FIVE|SIX|SEVEN|EIGHT|NINE|A|
 const w = (op, kind, words, extra = {}) => Object.freeze({ op, kind, words, ...extra });
 
 export const ARCADE_WORDS = Object.freeze([
+    {op: 'arcade_whenSourceStarts', kind: 'hat', words: 'when arcade source starts'},
     // An explicit source loop; ordinary Scratch loops retain their own scheduling.
     {op: 'arcade_sourceWhile', kind: 'loop', words: 'arcade repeat while {CONDITION:bool}'},
     // ---- mutable byte buffers ------------------------------------------------

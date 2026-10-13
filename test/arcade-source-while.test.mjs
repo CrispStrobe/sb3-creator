@@ -66,3 +66,24 @@ test('a loop without its body header is refused, and break/continue are not sile
   assert.throws(()=>c.parse(`SPRITE Game:\nWHEN flag clicked:\n  ${line}`));
  }
 });
+
+test('explicit source entry and ordinary flag scripts retain separate hats in Code and fresh SB3',async()=>{
+ const c=parse(`SPRITE Game:
+WHEN arcade source starts:
+  arcade repeat while (n < 5):
+    change n by 1
+WHEN flag clicked:
+  set n to 7`);
+ const hats=blocks(c).filter(b=>b.topLevel);
+ assert.deepEqual(hats.map(b=>b.opcode).sort(),['arcade_whenSourceStarts','event_whenflagclicked']);
+ const entry=hats.find(b=>b.opcode==='arcade_whenSourceStarts');
+ assert.equal(blocks(c).find(b=>b.id===entry.next).opcode,'arcade_sourceWhile');
+ assert.equal(parse(c.decompile()).decompile(),c.decompile());
+ assert.match(c.decompile(),/WHEN arcade source starts:/);
+ const zip=await JSZip.loadAsync(await(await c.generateSB3()).arrayBuffer());
+ const project=JSON.parse(await zip.file('project.json').async('string'));
+ const saved=project.targets.flatMap(t=>Object.values(t.blocks));
+ assert.equal(saved.filter(b=>b.opcode==='arcade_whenSourceStarts'&&b.topLevel).length,1);
+ assert.equal(saved.filter(b=>b.opcode==='event_whenflagclicked'&&b.topLevel).length,1);
+ assert.ok(project.extensions.includes('arcade'));
+});
