@@ -533,8 +533,8 @@ export const ARCADE_WORDS = Object.freeze([
     w('arrays_specialValue', 'reporter', '{KIND:undefined|null} value'),
     w('arrays_stringFromCharCode', 'reporter', 'text from char code {CODE}', {early: true}),
     w('arrays_stringConcat', 'reporter', 'concatenate text {TEXT} with {OTHER}', {early: true}),
-    w('arrays_valueBinary', 'reporter', 'calculate value {LEFT} op {OP:"+"|"-"|"*"|"/"|"%"|"**"} with {RIGHT}'),
-    w('arrays_valueUnary', 'reporter', 'convert value {VALUE} op {OP:"+"|"-"}'),
+    w('arrays_valueBinary', 'reporter', 'calculate value {LEFT} op {OP:"+"|"-"|"*"|"/"|"%"|"**"|"&"|"|"|"^"|"<<"|">>"|">>>"} with {RIGHT}'),
+    w('arrays_valueUnary', 'reporter', 'convert value {VALUE} op {OP:"+"|"-"|"~"}'),
     w('arrays_valueTruthy', 'boolean', 'truthiness of value {VALUE}'),
     w('arrays_valueCompare', 'boolean', 'compare value {LEFT} op {OP:"=="|"!="|"==="|"!=="|"<"|">"|"<="|">="} with {RIGHT}'),
     w('arrays_referenceValues', 'reporter', 'array value {VALUE} rest {REST}'),
@@ -576,7 +576,8 @@ export function compileArcadeWord(entry) {
             return {slot, menu, choices: choices.split('|')};
         }
         if (spec.startsWith('text:')) return { slot, text: true, choices: spec.slice(5).split('|') };
-        const choices = spec.split('|');
+        // Quoted field choices may themselves contain the choice delimiter.
+        const choices = spec.match(/"(?:[^"\\]|\\.)*"|[^|]+/g) || [];
         if (choices.every((c) => /^".*"$/.test(c))) return { slot, field: true, quoted: true, choices: choices.map((c) => c.slice(1, -1)) };
         return { slot, field: true, choices };
     });
