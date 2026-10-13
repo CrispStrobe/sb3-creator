@@ -23,6 +23,22 @@ const ALIAS = true;
 
 // [kind, opcode, one line of the word with a value in every slot, ALIAS?]
 const WORD_LINES = [
+    ['reporter', 'arcade_createBuffer', 'arcade create byte buffer size (n + 1)'],
+    ['reporter', 'arcade_bufferFromHex', 'arcade byte buffer from hex text "01020304"'],
+    ['reporter', 'arcade_bufferLiteral', 'arcade byte buffer literal hex "01020304"'],
+    ['reporter', 'arcade_bufferLength', 'arcade byte buffer bytes length'],
+    ['reporter', 'arcade_bufferGetByte', 'arcade byte buffer bytes byte at (n + 1)'],
+    ['command', 'arcade_bufferSetByte', 'arcade set byte buffer bytes byte at (n + 1) to 255'],
+    ['reporter', 'arcade_bufferGetNumber', 'arcade byte buffer bytes number UInt16LE at (n + 1)'],
+    ['command', 'arcade_bufferSetNumber', 'arcade set byte buffer bytes number Float64BE at (n + 1) to 1.25'],
+    ['reporter', 'arcade_bufferSlice', 'arcade byte buffer bytes slice at (n + 1) length 4'],
+    ['command', 'arcade_bufferWrite', 'arcade write byte buffer bytes at (n + 1) from other'],
+    ['command', 'arcade_bufferFill', 'arcade fill byte buffer bytes with (n + 1) at 0 length -1'],
+    ['command', 'arcade_bufferShift', 'arcade shift byte buffer bytes by (n + 1) at 0 length -1'],
+    ['command', 'arcade_bufferRotate', 'arcade rotate byte buffer bytes by (n + 1) at 0 length -1'],
+    ['reporter', 'arcade_bufferToHex', 'arcade byte buffer bytes to hex'],
+    ['reporter', 'arcade_bufferToText', 'arcade byte buffer bytes to UTF8 text'],
+    ['reporter', 'arcade_songFromBuffer', 'arcade song playable byte buffer bytes'],
     ['reporter', 'arcade_truncateNumber', 'arcade truncate (n + 1)'],
     ['reporter', 'arcade_signNumber', 'arcade sign of (n + 1)'],
     ['command', 'arcade_copyImageFrom', 'arcade copy pixels into image artwork from other'],
@@ -348,7 +364,7 @@ describe('Arcade dialect words', () => {
         const here = new Set(WORD_LINES.map(([, op]) => op));
         assert.deepEqual([...here].sort(), [...ARCADE_DIALECT_OPS].sort());
         assert.equal(WORD_LINES.length, ARCADE_WORDS.length, 'one line per spelling, aliases included');
-        assert.equal(ARCADE_DIALECT_OPS.length, 282);
+        assert.equal(ARCADE_DIALECT_OPS.length, 298);
     });
 
     for (const [kind, op, line, alias] of WORD_LINES) {

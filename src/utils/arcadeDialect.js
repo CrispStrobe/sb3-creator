@@ -63,6 +63,7 @@ const PROJECTILE_MODES = 'text:side|kind|sprite|kind-source';
 const MELODIES = 'baDing|wawawawaa|jumpUp|jumpDown|powerUp|powerDown|magicWand|siren|pewPew|knock|footstep|thump|'
     + 'smallCrash|bigCrash|zapped|buzzer|sonar|spooky|beamUp';
 const SOUNDS = 'PowerUp|PowerDown|JumpUp|JumpDown|BaDing|Wawawawaa|MagicWand|Siren';
+const BUFFER_FORMATS = 'Int8LE|UInt8LE|Int16LE|UInt16LE|Int32LE|UInt32LE|Int8BE|UInt8BE|Int16BE|UInt16BE|Int32BE|UInt32BE|Float32LE|Float32BE|Float64LE|Float64BE';
 const BEATS = 'Whole|Half|Quarter|Eighth|Sixteenth|Double|Breve|Triplet';
 // PXT image effects (effects.ImageEffect) and every background effect game over takes.
 const IMAGE_EFFECTS = 'dissolve|melt|slash|splatter';
@@ -78,6 +79,23 @@ const SEGMENT_CHARACTERS = 'ZERO|ONE|TWO|THREE|FOUR|FIVE|SIX|SEVEN|EIGHT|NINE|A|
 const w = (op, kind, words, extra = {}) => Object.freeze({ op, kind, words, ...extra });
 
 export const ARCADE_WORDS = Object.freeze([
+    // ---- mutable byte buffers ------------------------------------------------
+    w('arcade_createBuffer', 'reporter', 'arcade create byte buffer size {SIZE}'),
+    w('arcade_bufferFromHex', 'reporter', 'arcade byte buffer from hex text {HEX}'),
+    w('arcade_bufferLiteral', 'reporter', 'arcade byte buffer literal hex {HEX}'),
+    w('arcade_bufferLength', 'reporter', 'arcade byte buffer {BUFFER} length'),
+    w('arcade_bufferGetByte', 'reporter', 'arcade byte buffer {BUFFER} byte at {OFFSET}'),
+    w('arcade_bufferSetByte', 'command', 'arcade set byte buffer {BUFFER} byte at {OFFSET} to {VALUE}'),
+    w('arcade_bufferGetNumber', 'reporter', `arcade byte buffer {BUFFER} number {FORMAT:menu:bufferFormats:${BUFFER_FORMATS}} at {OFFSET}`),
+    w('arcade_bufferSetNumber', 'command', `arcade set byte buffer {BUFFER} number {FORMAT:menu:bufferFormats:${BUFFER_FORMATS}} at {OFFSET} to {VALUE}`),
+    w('arcade_bufferSlice', 'reporter', 'arcade byte buffer {BUFFER} slice at {OFFSET} length {LENGTH}'),
+    w('arcade_bufferWrite', 'command', 'arcade write byte buffer {BUFFER} at {OFFSET} from {SOURCE}'),
+    w('arcade_bufferFill', 'command', 'arcade fill byte buffer {BUFFER} with {VALUE} at {OFFSET} length {LENGTH}'),
+    w('arcade_bufferShift', 'command', 'arcade shift byte buffer {BUFFER} by {AMOUNT} at {OFFSET} length {LENGTH}'),
+    w('arcade_bufferRotate', 'command', 'arcade rotate byte buffer {BUFFER} by {AMOUNT} at {OFFSET} length {LENGTH}'),
+    w('arcade_bufferToHex', 'reporter', 'arcade byte buffer {BUFFER} to hex'),
+    w('arcade_bufferToText', 'reporter', 'arcade byte buffer {BUFFER} to UTF8 text'),
+    w('arcade_songFromBuffer', 'reporter', 'arcade song playable byte buffer {BUFFER}'),
     // ---- hats ---------------------------------------------------------------
     w('arcade_whenUpdate', 'hat', 'when arcade updates'),
     w('arcade_whenInterval', 'hat', 'when arcade every {PERIOD} ms'),
