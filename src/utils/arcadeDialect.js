@@ -498,7 +498,7 @@ export const ARCADE_WORDS = Object.freeze([
     w('arrays_parseLegacyValue', 'reporter', 'parse array input {VALUE}'),
     w('arrays_jsonValue', 'reporter', 'JSON text of value {VALUE}'),
     w('arrays_specialValue', 'reporter', '{KIND:undefined|null} value'),
-    w('arrays_valueBinary', 'reporter', 'calculate value {LEFT} op {OP:"+"|"-"|"*"|"/"|"%"} with {RIGHT}'),
+    w('arrays_valueBinary', 'reporter', 'calculate value {LEFT} op {OP:"+"|"-"|"*"|"/"|"%"|"**"} with {RIGHT}'),
     w('arrays_valueUnary', 'reporter', 'convert value {VALUE} op {OP:"+"|"-"}'),
     w('arrays_valueTruthy', 'boolean', 'truthiness of value {VALUE}'),
     w('arrays_valueCompare', 'boolean', 'compare value {LEFT} op {OP:"=="|"!="|"==="|"!=="|"<"|">"|"<="|">="} with {RIGHT}'),

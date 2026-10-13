@@ -573,7 +573,7 @@ describe('Arcade dialect: precedence, slots and refusals', () => {
 describe('native Arcade and Arrays menu schemas', () => {
     const cases = [
         ['reporter', 'arrays_specialValue', 'KIND', ['undefined', 'null'], v => `${v} value`],
-        ['reporter', 'arrays_valueBinary', 'OP', ['+', '-', '*', '/', '%'], v => `calculate value 7 op "${v}" with 6`],
+        ['reporter', 'arrays_valueBinary', 'OP', ['+', '-', '*', '/', '%', '**'], v => `calculate value 7 op "${v}" with 6`],
         ['reporter', 'arrays_valueUnary', 'OP', ['+', '-'], v => `convert value 5 op "${v}"`],
         ['boolean', 'arrays_valueCompare', 'OP', ['==', '!=', '===', '!==', '<', '>', '<=', '>='], v => `compare value 7 op "${v}" with 6`]
     ];
