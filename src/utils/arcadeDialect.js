@@ -420,6 +420,7 @@ export const ARCADE_WORDS = Object.freeze([
     w('arcade_melodyPlayable', 'reporter', 'arcade melody playable {MELODY}'),
     w('arcade_stringPlayable', 'reporter', 'arcade string playable {MELODY} at {TEMPO} bpm'),
     w('arcade_tonePlayable', 'reporter', 'arcade tone playable {FREQUENCY} Hz for {DURATION} ms'),
+    w('arcade_songPlayable', 'reporter', 'arcade song playable hex {HEX}'),
     w('arcade_soundEffect', 'reporter',
         'arcade sound effect wave {WAVE:Sine|Sawtooth|Triangle|Square|Noise} from {START_FREQUENCY} Hz to {END_FREQUENCY} Hz '
         + 'volume {START_VOLUME} to {END_VOLUME} for {DURATION} ms effect {EFFECT:None|Vibrato|Tremolo|Warble} '
