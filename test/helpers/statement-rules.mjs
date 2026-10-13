@@ -24,8 +24,8 @@
 import fs from 'node:fs';
 import * as acorn from 'acorn';
 
-/** Every `if ((match = matchTopLevel(line, /re/)…))` rule in parseCommand. */
-export function statementRules(srcText) {
+// Locate the actual method independently of parameter spelling/defaults.
+function commandMethod(srcText) {
     const ast = acorn.parse(srcText, { ecmaVersion: 'latest', sourceType: 'module' });
     let parseCommand = null;
     (function find(n) {
@@ -37,6 +37,17 @@ export function statementRules(srcText) {
         }
     })(ast);
     if (!parseCommand) throw new Error('parseCommand not found');
+    return parseCommand;
+}
+
+export function parseCommandBody(srcText) {
+    const method = commandMethod(srcText);
+    return srcText.slice(method.value.body.start, method.value.body.end);
+}
+
+/** Every `if ((match = matchTopLevel(line, /re/)…))` rule in parseCommand. */
+export function statementRules(srcText) {
+    const parseCommand = commandMethod(srcText);
     const rules = [];
     (function walk(n) {
         if (!n || typeof n !== 'object') return;

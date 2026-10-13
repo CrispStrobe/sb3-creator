@@ -35,7 +35,7 @@
  *                        becomes `not (v = 0)` (MakeCode's truthiness of a
  *                        number)
  *
- * `kind` is command | reporter | boolean | hat. A hat is spelled with a
+ * `kind` is command | reporter | boolean | hat | loop. A hat is spelled with a
  * leading `when` and written back as `WHEN …:`. `alias: true` marks a
  * shorter spelling the parser also reads (an optional trailing argument
  * left out); `defaults` fills what it leaves out, and the decompiler always
@@ -80,6 +80,9 @@ const SEGMENT_CHARACTERS = 'ZERO|ONE|TWO|THREE|FOUR|FIVE|SIX|SEVEN|EIGHT|NINE|A|
 const w = (op, kind, words, extra = {}) => Object.freeze({ op, kind, words, ...extra });
 
 export const ARCADE_WORDS = Object.freeze([
+    {op: 'arcade_whenSourceStarts', kind: 'hat', words: 'when arcade source starts'},
+    // An explicit source loop; ordinary Scratch loops retain their own scheduling.
+    {op: 'arcade_sourceWhile', kind: 'loop', words: 'arcade repeat while {CONDITION:bool}'},
     // ---- mutable byte buffers ------------------------------------------------
     w('arcade_createBuffer', 'reporter', 'arcade create byte buffer size {SIZE}'),
     w('arcade_bufferFromHex', 'reporter', 'arcade byte buffer from hex text {HEX}'),
