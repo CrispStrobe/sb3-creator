@@ -7612,7 +7612,7 @@ class SB3Creator {
             if (j >= lines.length) return own + 2;
             const ni = getIndent(lines[j]);
             if (ni > own) return nextIndent(idx);
-            return ni === own && !/^(WHEN|DEFINE|SPRITE|STAGE)\b/i.test(lines[j].trim()) ? own : own + 2;
+            return ni === own && !/^(WHEN|DEFINE|SPRITE|STAGE|DEVICE)\b/i.test(lines[j].trim()) ? own : own + 2;
         };
 
         const stage = this.createStage();
@@ -7831,6 +7831,12 @@ class SB3Creator {
                 continue;
             }
 
+            if (this._board && this._board !== this.project.boards[0] && /^GLOBAL\b/i.test(trimmed)) {
+                this.unreadable(i, trimmed, `GLOBAL belongs to the first board; board "${this._board.name}" has its own `
+                    + 'memory — declare it with LOCAL');
+                i++; continue;
+            }
+
             // Explicit scope declarations. `(.+)$` used to swallow an initializer into the
             // NAME, so `GLOBAL dist = 0` declared a variable literally called "dist = 0" and
             // threw the initial value away — then a second, correct-but-uninitialized `dist`
@@ -7856,6 +7862,20 @@ class SB3Creator {
                 if (decl[1].toUpperCase() === 'GLOBAL') this.declaredGlobals.add(name);
                 else this.declaredLocals.add(`${currentTarget.name}:${name}`);
                 this.getOrCreateVariable(name, currentTarget, this.parseScalarInitial(initial));
+                i++; continue;
+            }
+
+            // `DEVICE <id> AS <Name>:` opens a BOARD section: several boards in
+            // one project, each with its own declarations, program and sprites.
+            const boardHeader = trimmed.match(SB3Creator.BOARD_HEADER_RE);
+            if (boardHeader) {
+                const opened = this.openBoard(boardHeader[1], boardHeader[2].trim(), i, trimmed, stage);
+                if (opened) currentTarget = opened;
+                i++; continue;
+            }
+            if (this._board && /^DEVICE\b/i.test(trimmed)) {
+                this.unreadable(i, trimmed, `board "${this._board.name}" already names its device in its header; `
+                    + 'a second board starts with its own "DEVICE <id> AS <Name>:" line');
                 i++; continue;
             }
 
@@ -7897,6 +7917,10 @@ class SB3Creator {
                     }
                     currentTarget = this.createSprite(spriteName);
                     this.project.targets.push(currentTarget);
+                    if (this._board) this._board.targets.push(spriteName);
+                } else if (this._board && this._board !== this.project.boards[0]) {
+                    this.unreadable(i, trimmed, `the Stage belongs to the first board; scripts of board "${this._board.name}" `
+                        + 'go directly under its DEVICE header or under one of its sprites');
                 } else {
                     currentTarget = stage;
                 }
@@ -7977,6 +8001,10 @@ class SB3Creator {
         // A line that could not be read is refused, not skipped: see UnparsedLinesError.
         if (this.unparsed.length) throw new UnparsedLinesError(this.unparsed, this.warnings.slice());
 
+        if (this.project.boards) {
+            this.project.stc = this.project.boards[0].stc;
+            this._board = null;
+        }
         this.validateReferences();
         this.syncExtensions();
         for (const t of this.project.targets) this.layoutScripts(t);
@@ -7997,6 +8025,85 @@ class SB3Creator {
     // parse, so the two cannot drift within this library's own flows.
 
     /** Marker that identifies the persistence comment. */
+    /** `DEVICE <id> AS <Name>:` — the header of a board section. */
+    static BOARD_HEADER_RE = /^DEVICE\s+([\w-]+)\s+AS\s+(.+?):?$/i;
+
+    /**
+     * Open a board section. `project.boards` is `[{name, stc, targets}]`; while a
+     * section is being read `project.stc` IS that board's block, so every
+     * declaration and every device-dependent word binds to it. The first board
+     * owns the Stage; a later board gets a sprite named after it for the scripts
+     * written directly under its header. A project without a board header has no
+     * `boards` key at all and is read exactly as before.
+     * @returns {object | null} the target the following lines belong to
+     */
+    openBoard(deviceWord, name, lineIndex, trimmed, stage) {
+        const boards = this.project.boards || [];
+        if (!boards.length && this.project.stc) {
+            this.unreadable(lineIndex, trimmed, 'this program already has a plain DEVICE line or declarations; with several '
+                + 'boards every one of them starts with "DEVICE <id> AS <Name>:" and nothing is declared before the first');
+            return null;
+        }
+        if (!/^[A-Za-z][\w -]*$/.test(name)) {
+            this.unreadable(lineIndex, trimmed, `"${name}" is not a board name (a letter, then letters, digits, spaces, _ or -)`);
+            return null;
+        }
+        const taken = (n) => n.toLowerCase() === name.toLowerCase();
+        if (boards.some((b) => taken(b.name))
+            || (boards.length && this.project.targets.some((t) => !t.isStage && taken(t.name)))) {
+            this.unreadable(lineIndex, trimmed, `the name "${name}" is already used by a board or a sprite`);
+            return null;
+        }
+        const before = this.project.stc;
+        const refusedBefore = this.unparsed.length;
+        delete this.project.stc;
+        this.parseStcDeclaration(`DEVICE ${deviceWord}`, lineIndex);
+        if (this.unparsed.length !== refusedBefore || !this.project.stc) {
+            if (before) this.project.stc = before; else delete this.project.stc;
+            return null;
+        }
+        const board = { name, stc: this.project.stc, targets: [] };
+        boards.push(board);
+        this.project.boards = boards;
+        this._board = board;
+        if (boards.length === 1) return stage;
+        const main = this.createSprite(name);
+        this.project.targets.push(main);
+        this.targetNames.add(name);
+        board.targets.push(name);
+        return main;
+    }
+
+    static BOARDS_MAGIC = '_stcboards_';
+    static BOARDS_COMMENT_ID = 'stcboards';
+
+    /**
+     * The boards of a project: the top-level key when present, else the Stage
+     * comment that survives scratch-vm's serializer. Null for a one-board project.
+     * @param {object} project - sb3-shaped project JSON
+     * @returns {Array<{name: string, stc: object, targets: string[]}> | null}
+     */
+    static readBoards(project) {
+        if (!project) return null;
+        if (Array.isArray(project.boards)) return project.boards.length ? project.boards : null;
+        const stage = Array.isArray(project.targets) ? project.targets.find(t => t.isStage) : null;
+        if (!stage || !stage.comments) return null;
+        for (const c of Object.values(stage.comments)) {
+            const text = c && typeof c.text === 'string' ? c.text : '';
+            const at = text.indexOf(SB3Creator.BOARDS_MAGIC);
+            if (at === -1) continue;
+            try {
+                const boards = JSON.parse(text.slice(at + SB3Creator.BOARDS_MAGIC.length));
+                const ok = Array.isArray(boards) && boards.length && boards.every((b) => b && typeof b.name === 'string'
+                    && b.stc && typeof b.stc === 'object' && Array.isArray(b.targets));
+                return ok ? boards : null;
+            } catch {
+                return null; // corrupt comment: absent beats invented
+            }
+        }
+        return null;
+    }
+
     static STC_MAGIC = '_stcconfig_';
 
     /** Stable comment id, so rewrites replace rather than accumulate. */
@@ -8018,6 +8125,18 @@ class SB3Creator {
             text: 'BrickWright hardware declarations — regenerated on save, do not edit.\n'
                 + SB3Creator.STC_MAGIC + JSON.stringify(project.stc)
         };
+        // Several boards: the whole list rides beside it. A one-board project
+        // writes nothing more, so its file is what it always was.
+        if (Array.isArray(project.boards) && project.boards.length) {
+            stage.comments[SB3Creator.BOARDS_COMMENT_ID] = {
+                blockId: null,
+                x: 0, y: 160, width: 320, height: 140, minimized: true,
+                text: 'BrickWright boards — regenerated on save, do not edit.\n'
+                    + SB3Creator.BOARDS_MAGIC + JSON.stringify(project.boards)
+            };
+        } else if (stage.comments[SB3Creator.BOARDS_COMMENT_ID]) {
+            delete stage.comments[SB3Creator.BOARDS_COMMENT_ID];
+        }
     }
 
     /**
@@ -8326,20 +8445,10 @@ class SB3Creator {
 
     // ===== Decompiler: project blocks -> pseudocode (inverse of the parser) =========
 
-    // Decompile a whole project back into pseudocode.
-    decompile(project = this.project) {
-        const out = [];
-        const stage = project.targets.find(t => t.isStage);
-        // STC12 / 8051 device declarations first — they are read before any script.
-        // A project that lived through scratch-vm's serializer has lost the
-        // top-level key; recover it from the Stage persistence comment.
-        if (!project.stc) {
-            const recovered = SB3Creator.readStc(project);
-            if (recovered) project.stc = recovered;
-        }
-        if (project.stc) {
-            const cfg = project.stc;
-            out.push(`DEVICE ${String(cfg.device || 'stc12c5a60s2').toUpperCase()}`);
+    // The declarations of one board's block, as the lines the parser reads.
+    // `boardName` turns the DEVICE line into a board section header.
+    decompileStcDeclarations(cfg, out, boardName = null) {
+            out.push(`DEVICE ${String(cfg.device || 'stc12c5a60s2').toUpperCase()}${boardName ? ` AS ${boardName}:` : ''}`);
             out.push(`CLOCK ${cfg.clock || 11059200}`);
             if (cfg.machine) {
                 const hx = (n) => '$' + n.toString(16).toUpperCase().padStart(4, '0');
@@ -8398,7 +8507,89 @@ class SB3Creator {
             }
             if (cfg.ledcube) out.push(`LEDCUBE ${cfg.ledcube.size}`);
             out.push('');
+    }
+
+    // One sprite section, as decompile() writes it for a one-board project.
+    decompileSpriteSection(t, out) {
+        const scripts = this.decompileTargetScripts(t);
+        out.push(`SPRITE ${t.name}:`);
+        if (t.costumes && t.costumes[0] && t.costumes[0]._shapeSpec) out.push(`  SHAPE ${t.costumes[0]._shapeSpec}`);
+        for (const v of Object.values(t.variables || {})) out.push(`  LOCAL ${this.declarationText(v)}`);
+        for (const l of Object.values(t.lists || {})) out.push(`  LOCAL LIST ${this.declarationText(l)}`);
+        for (const cos of (t.costumes || []).slice(1)) out.push(`  COSTUME ${cos._spec || cos.name}`);
+        for (const snd of (t.sounds || []).slice(1)) out.push(`  SOUND ${snd.name}`);
+        out.push(...scripts.map(l => (l ? `  ${l}` : l)));
+        out.push('');
+    }
+
+    // Several boards: one section per board, in order. While a board's targets
+    // are written `project.stc` is that board's block, as it was when they were read.
+    decompileBoards(project, boards) {
+        const out = [];
+        const stage = project.targets.find(t => t.isStage);
+        const sprites = new Map(project.targets.filter(t => !t.isStage).map(t => [t.name, t]));
+        const claimed = new Set();
+        boards.forEach((b, bi) => { if (bi) claimed.add(b.name); for (const n of b.targets) claimed.add(n); });
+        const saved = project.stc;
+        try {
+            boards.forEach((board, bi) => {
+                project.stc = board.stc;
+                this.decompileStcDeclarations(board.stc, out, board.name);
+                if (bi === 0) {
+                    for (const v of Object.values(stage.variables || {})) out.push(`GLOBAL ${this.declarationText(v)}`);
+                    for (const l of Object.values(stage.lists || {})) out.push(`GLOBAL LIST ${this.declarationText(l)}`);
+                    for (const bd of (stage.costumes || []).slice(1)) out.push(`BACKDROP ${bd._spec || bd.name}`);
+                    for (const snd of (stage.sounds || []).slice(1)) out.push(`SOUND ${snd.name}`);
+                    out.push('');
+                    const scripts = this.decompileTargetScripts(stage);
+                    if (scripts.length) {
+                        out.push('STAGE:');
+                        out.push(...scripts.map(l => (l ? `  ${l}` : l)));
+                        out.push('');
+                    }
+                    // A sprite no board lists (added in the editor) stays with the first board.
+                    const own = [...board.targets, ...[...sprites.keys()].filter((n) => !claimed.has(n))];
+                    for (const n of own) if (sprites.has(n)) this.decompileSpriteSection(sprites.get(n), out);
+                    return;
+                }
+                const main = sprites.get(board.name);
+                if (main) {
+                    if (main.costumes && main.costumes[0] && main.costumes[0]._shapeSpec) out.push(`SHAPE ${main.costumes[0]._shapeSpec}`);
+                    for (const v of Object.values(main.variables || {})) out.push(`LOCAL ${this.declarationText(v)}`);
+                    for (const l of Object.values(main.lists || {})) out.push(`LOCAL LIST ${this.declarationText(l)}`);
+                    for (const cos of (main.costumes || []).slice(1)) out.push(`COSTUME ${cos._spec || cos.name}`);
+                    for (const snd of (main.sounds || []).slice(1)) out.push(`SOUND ${snd.name}`);
+                    out.push('');
+                    out.push(...this.decompileTargetScripts(main));
+                    out.push('');
+                }
+                for (const n of board.targets) {
+                    if (n !== board.name && sprites.has(n)) this.decompileSpriteSection(sprites.get(n), out);
+                }
+            });
+        } finally {
+            if (saved) project.stc = saved; else delete project.stc;
         }
+        return out.join('\n').replace(/\n{3,}/g, '\n\n').trim() + '\n';
+    }
+
+    // Decompile a whole project back into pseudocode.
+    decompile(project = this.project) {
+        const out = [];
+        const stage = project.targets.find(t => t.isStage);
+        // STC12 / 8051 device declarations first — they are read before any script.
+        // A project that lived through scratch-vm's serializer has lost the
+        // top-level key; recover it from the Stage persistence comment.
+        if (!project.stc) {
+            const recovered = SB3Creator.readStc(project);
+            if (recovered) project.stc = recovered;
+        }
+        const boards = SB3Creator.readBoards(project);
+        if (boards) {
+            if (!project.boards) project.boards = boards;
+            return this.decompileBoards(project, boards);
+        }
+        if (project.stc) this.decompileStcDeclarations(project.stc, out);
         for (const v of Object.values(stage.variables || {})) out.push(`GLOBAL ${this.declarationText(v)}`);
         for (const l of Object.values(stage.lists || {})) out.push(`GLOBAL LIST ${this.declarationText(l)}`);
         for (const bd of (stage.costumes || []).slice(1)) out.push(`BACKDROP ${bd._spec || bd.name}`);
