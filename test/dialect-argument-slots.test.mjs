@@ -124,6 +124,7 @@ describe('argument slots take an expression, and round-trip', () => {
             ['set servo to X', 'microbitplus_servo'],
             ['set pin P1 servo X', 'microbitplus_servo'],
             ['set pin P1 analog X %', 'microbitplus_analogwrite'],
+            ['calliope motor A power X %', 'microbitplus_motorpower'],
             ['set buzzer to X hz', 'microbitplus_playtone'],
             ['play tone 440 hz for X ms', 'microbitplus_playtone'],
             ['scroll text X delay 100 ms', 'microbitplus_scrolltext'],
