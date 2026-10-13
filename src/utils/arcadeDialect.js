@@ -53,6 +53,7 @@
 // rotation is PXT's Sprite.rotation (radians), rotationDegrees its degrees form,
 // data the sprite's \`data\` value (any value, not only a number).
 const PROPERTIES = 'x|y|left|right|top|bottom|vx|vy|ax|ay|fx|fy|sx|sy|scale|width|height|z|lifespan|rotationDegrees|rotation|data';
+const READABLE_PROPERTIES = `${PROPERTIES}|kind|flags`;
 const FLAGS = 'AutoDestroy|StayInScreen|BounceOnWall|Invisible|Ghost|GhostThroughSprites|GhostThroughWalls|'
     + 'GhostThroughTiles|DestroyOnWall|RelativeToCamera';
 const LAYOUTS = '"Left"|"Right"|"Top"|"Bottom"|"Center"|"Full"';
@@ -175,6 +176,7 @@ export const ARCADE_WORDS = Object.freeze([
     w('arcade_setBackgroundColor', 'command', 'arcade set background color to {COLOR}'),
     w('arcade_setBackgroundImage', 'command', 'arcade set background image {IMAGE}'),
     w('arcade_startCountdown', 'command', 'arcade start countdown {N}'),
+    w('arcade_setHudVisibility','command','arcade set hud {ELEMENT:score|life|countdown} visible {VISIBLE:bool}'),
     w('arcade_stopCountdown', 'command', 'arcade stop countdown'),
     w('arcade_splash', 'command', 'arcade splash {TITLE} subtitle {SUBTITLE}'),
     w('arcade_showLongText', 'command', `arcade long text {TEXT} layout {LAYOUT:${LAYOUTS}}`),
@@ -384,7 +386,7 @@ export const ARCADE_WORDS = Object.freeze([
     w('arcade_spriteToString', 'reporter', 'arcade text of sprite {ID}'),
     w('arcade_spritePixel', 'reporter', 'arcade pixel of {ID} x {X} y {Y}'),
     w('arcade_spriteImage', 'reporter', 'arcade image of {ID}'),
-    w('arcade_spriteProperty', 'reporter', `arcade property {PROPERTY:${PROPERTIES}} of {ID}`),
+    w('arcade_spriteProperty', 'reporter', `arcade property {PROPERTY:${READABLE_PROPERTIES}} of {ID}`),
     w('arcade_spritesOfKind', 'reporter', 'arcade sprite array kind {KIND}'),
     w('arcade_spriteCount', 'reporter', 'arcade count kind {KIND}'),
     w('arcade_controllerStep', 'reporter', 'arcade controller {AXIS:menu:axes:x|y} step {STEP}'),
@@ -404,6 +406,7 @@ export const ARCADE_WORDS = Object.freeze([
     w('arcade_truncateNumber', 'reporter', 'arcade truncate {NUM}', {early: true}),
     w('arcade_signNumber', 'reporter', 'arcade sign of {NUM}', {early: true}),
     w('arcade_cameraProperty', 'reporter', 'arcade camera property {PROPERTY}'),
+    w('arcade_cameraDrawOffset','reporter','arcade camera draw offset {AXIS:x|y}'),
 
     // ---- reporters: scenes, physics engines, animations ------------------------------------
     w('arcade_currentScene', 'reporter', 'arcade current scene'),
@@ -428,6 +431,10 @@ export const ARCADE_WORDS = Object.freeze([
     w('arcade_programMillis','reporter','arcade program runtime milliseconds'),
     w('arcade_setBackgroundScrollVersion','command','arcade use background scroll version {VERSION}'),
     w('arcade_setCharacterAnimationVersion','command','arcade use character animation version {VERSION}'),
+    w('arcade_createSpriteKind','reporter','arcade create sprite kind'),
+    w('arcade_spriteKindValue','reporter','arcade sprite kind value {NAME}', {early: true}),
+    w('arcade_bindSpriteKind','command','arcade bind sprite kind name {NAME} to {KIND}'),
+    w('arcade_initializeSpriteKindLibrary','command','arcade initialize sprite kind library {LIBRARY} version {VERSION}'),
     w('arcade_characterRuleToString','reporter','arcade character rule string {RULE}', {early: true}),
     w('arcade_textSpriteCreate','reporter','arcade create text sprite text {TEXT} background {BACKGROUND} foreground {FOREGROUND}'),
     w('arcade_textSpriteSetText','command','arcade text sprite {ID} set text {TEXT}'),
