@@ -14,6 +14,7 @@ WHEN flag clicked:
   set literal to (arcade create image canvas template "Sprite" kind 1002)
   set lookup to (arcade create image canvas template "Sprite" kind (arcade sprite kind value "Text"))
   set arithmetic to ((arcade sprite kind value "Player") + 1)
+  set spriteKind to ((arcade property kind of dynamic) + 1)
   IF (arcade sprite kind value "Text") = (arcade sprite kind value "Player") THEN:
     hide`;
 
@@ -42,6 +43,9 @@ function inspect(creator){
  assert.equal(blocks[comparison.inputs.OPERAND1[1]].opcode,'arcade_spriteKindValue');
  assert.equal(blocks[comparison.inputs.OPERAND2[1]].opcode,'arcade_spriteKindValue');
  assert.equal(values.filter(b=>b.opcode==='arcade_spriteKindValue').length,4,'lookup does not become an allocator');
+ const kindProperty=values.find(b=>b.opcode==='arcade_spriteProperty' && b.fields.PROPERTY[0]==='kind');
+ assert.ok(kindProperty,'kind is a choice on the existing scalar sprite property reporter');
+ assert.ok(values.some(b=>b.opcode==='operator_add' && blocks[b.inputs.NUM1[1]]===kindProperty),'kind property retains its numeric reporter connection');
  return blocks;
 }
 
