@@ -70,6 +70,8 @@ describe('chain SEVENSEG8: show number with a minus, on the A2 wiring', () => {
             for (const [n, want] of CASES) {
                 const r = await runOn(src(n), device);
                 r.run(60);
+                // MEASURED 2026-10-13: 226-523 pin writes in 60 ms on the three parts
+                // (0 fewest, -32768 most); 100 only says the 1 ms ISR is scanning.
                 assert.ok(r.events.length > 100, `${device} ${n}: the ISR scans (${r.events.length} pin writes)`);
                 assert.equal(scanned(r.events, 20, 60), want, `${device}: show number ${n}`);
             }
