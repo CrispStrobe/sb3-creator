@@ -130,6 +130,9 @@ const WORD_LINES = [
     ['command', 'arcade_printImageText', 'arcade print "Score" on image (arcade screen image) x (n + 1) y 4 color 2 font small'],
     ['command', 'arcade_legacyGameOver', 'arcade legacy game over win 1 effect unset'],
     ['command', 'arcade_gameOver', 'arcade game over win (n = 1)'],
+    ['command', 'arcade_carnivalCountdown', 'arcade carnival countdown (n + 1) style Timed effect confetti'],
+    ['command', 'arcade_carnivalGameOver', 'arcade carnival game over style Score effect unset'],
+    ['command', 'arcade_carnivalCustomGameOver', 'arcade carnival custom game over message "Finished" effect hearts sound melody use sound (n = 1) scoring HScore score (n + 1) use score (n = 1)'],
     ['command', 'arcade_setGameOverEffect', 'arcade set game over effect melt for win 0'],
     ['command', 'arcade_setGameOverMessage', 'arcade set game over message "WELL DONE" for win 1'],
     ['command', 'arcade_setGameOverPlayable', 'arcade set game over sound (arcade melody playable (arcade melody baDing)) looping 0 for win 1'],
@@ -343,7 +346,7 @@ describe('Arcade dialect words', () => {
         const here = new Set(WORD_LINES.map(([, op]) => op));
         assert.deepEqual([...here].sort(), [...ARCADE_DIALECT_OPS].sort());
         assert.equal(WORD_LINES.length, ARCADE_WORDS.length, 'one line per spelling, aliases included');
-        assert.equal(ARCADE_DIALECT_OPS.length, 277);
+        assert.equal(ARCADE_DIALECT_OPS.length, 280);
     });
 
     for (const [kind, op, line, alias] of WORD_LINES) {
