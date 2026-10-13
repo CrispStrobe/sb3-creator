@@ -53,7 +53,7 @@
 // rotation is PXT's Sprite.rotation (radians), rotationDegrees its degrees form,
 // data the sprite's \`data\` value (any value, not only a number).
 const PROPERTIES = 'x|y|left|right|top|bottom|vx|vy|ax|ay|fx|fy|sx|sy|scale|width|height|z|lifespan|rotationDegrees|rotation|data';
-const READABLE_PROPERTIES = `${PROPERTIES}|kind`;
+const READABLE_PROPERTIES = `${PROPERTIES}|kind|flags`;
 const FLAGS = 'AutoDestroy|StayInScreen|BounceOnWall|Invisible|Ghost|GhostThroughSprites|GhostThroughWalls|'
     + 'GhostThroughTiles|DestroyOnWall|RelativeToCamera';
 const LAYOUTS = '"Left"|"Right"|"Top"|"Bottom"|"Center"|"Full"';
@@ -176,6 +176,7 @@ export const ARCADE_WORDS = Object.freeze([
     w('arcade_setBackgroundColor', 'command', 'arcade set background color to {COLOR}'),
     w('arcade_setBackgroundImage', 'command', 'arcade set background image {IMAGE}'),
     w('arcade_startCountdown', 'command', 'arcade start countdown {N}'),
+    w('arcade_setHudVisibility','command','arcade set hud {ELEMENT:score|life|countdown} visible {VISIBLE:bool}'),
     w('arcade_stopCountdown', 'command', 'arcade stop countdown'),
     w('arcade_splash', 'command', 'arcade splash {TITLE} subtitle {SUBTITLE}'),
     w('arcade_showLongText', 'command', `arcade long text {TEXT} layout {LAYOUT:${LAYOUTS}}`),
@@ -405,6 +406,7 @@ export const ARCADE_WORDS = Object.freeze([
     w('arcade_truncateNumber', 'reporter', 'arcade truncate {NUM}', {early: true}),
     w('arcade_signNumber', 'reporter', 'arcade sign of {NUM}', {early: true}),
     w('arcade_cameraProperty', 'reporter', 'arcade camera property {PROPERTY}'),
+    w('arcade_cameraDrawOffset','reporter','arcade camera draw offset {AXIS:x|y}'),
 
     // ---- reporters: scenes, physics engines, animations ------------------------------------
     w('arcade_currentScene', 'reporter', 'arcade current scene'),

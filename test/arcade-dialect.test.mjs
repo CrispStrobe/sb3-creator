@@ -146,6 +146,7 @@ const WORD_LINES = [
     ['command', 'arcade_setBackgroundColor', 'arcade set background color to (n + 1)'],
     ['command', 'arcade_setBackgroundImage', 'arcade set background image (n + 1)'],
     ['command', 'arcade_startCountdown', 'arcade start countdown (n + 1)'],
+    ['command','arcade_setHudVisibility','arcade set hud score visible (1 = 1)'],
     ['command', 'arcade_stopCountdown', 'arcade stop countdown'],
     ['command', 'arcade_splash', 'arcade splash (n + 1) subtitle hero'],
     ['command', 'arcade_showLongText', 'arcade long text (n + 1) layout "Full"'],
@@ -291,6 +292,7 @@ const WORD_LINES = [
     ['reporter', 'arcade_screenImage', 'arcade screen image'],
     ['reporter', 'arcade_backgroundColor', 'arcade background color'],
     ['reporter', 'arcade_cameraProperty', 'arcade camera property (n + 1)'],
+    ['reporter','arcade_cameraDrawOffset','arcade camera draw offset x'],
     ['reporter', 'arcade_currentScene', 'arcade current scene'],
     ['reporter', 'arcade_scenePhysicsEngine', 'arcade physics engine of scene (n + 1)'],
     ['reporter', 'arcade_createPhysicsEngine', 'arcade create physics engine max speed (n + 1) min step hero max step "Player"'],
@@ -416,7 +418,7 @@ describe('Arcade dialect words', () => {
         const here = new Set(WORD_LINES.map(([, op]) => op));
         assert.deepEqual([...here].sort(), [...ARCADE_DIALECT_OPS].sort());
         assert.equal(WORD_LINES.length, ARCADE_WORDS.length, 'one line per spelling, aliases included');
-        assert.equal(ARCADE_DIALECT_OPS.length, 349);
+        assert.equal(ARCADE_DIALECT_OPS.length, 351);
     });
 
     for (const [kind, op, line, alias] of WORD_LINES) {
