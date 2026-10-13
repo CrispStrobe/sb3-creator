@@ -23,6 +23,7 @@ const ALIAS = true;
 
 // [kind, opcode, one line of the word with a value in every slot, ALIAS?]
 const WORD_LINES = [
+    ['command','arcade_declareSubclass','arcade declare subclass "Child" of "Record" fields "[]" initializer "" constructor "" parameters "[]" methods "[]"'],
     ['command','arcade_declareClass','arcade declare class "Record" fields "[]" initializer "" constructor "" parameters "[]" methods "[]"'],
     ['reporter','arcade_createObject','arcade new object class "Record" arguments "[]"'],
     ['reporter','arcade_objectField','arcade object item field "next"'],
@@ -430,7 +431,7 @@ describe('Arcade dialect words', () => {
         const here = new Set(WORD_LINES.map(([, op]) => op));
         assert.deepEqual([...here].sort(), [...ARCADE_DIALECT_OPS].sort());
         assert.equal(WORD_LINES.length, ARCADE_WORDS.length, 'one line per spelling, aliases included');
-        assert.equal(ARCADE_DIALECT_OPS.length, 362);
+        assert.equal(ARCADE_DIALECT_OPS.length, 363);
     });
 
     for (const [kind, op, line, alias] of WORD_LINES) {
