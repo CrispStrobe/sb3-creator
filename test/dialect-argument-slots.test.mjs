@@ -32,6 +32,7 @@
 import {describe, test} from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import {parseCommandBody} from './helpers/statement-rules.mjs';
 import SB3Creator from '../src/utils/sb3Creator.js';
 import {EV3_WORDS} from '../src/utils/ev3Dialect.js';
 import {ARCADE_WORDS} from '../src/utils/arcadeDialect.js';
@@ -329,10 +330,7 @@ test('every statement rule of parseCommand matches through matchTopLevel (the st
     // for its word: `(\S+)` stops inside the parentheses. Enumerated from the
     // source, so a new rule is covered the day it is written.
     const src = fs.readFileSync(new URL('../src/utils/sb3Creator.js', import.meta.url), 'utf8');
-    const start = src.indexOf('    parseCommand(line, target) {');
-    const end = src.indexOf('throw new ParseError(`Unknown command: "${line}"`);', start);
-    assert.ok(start > 0 && end > start, 'parseCommand not found');
-    const body = src.slice(start, end);
+    const body = parseCommandBody(src);
     const raw = body.split('\n').map((l, i) => [i, l]).filter(([, l]) => /\bline\.match\(/.test(l));
     assert.deepEqual(raw.map(([, l]) => l.trim()), [],
         'a statement rule matches the raw line; use matchTopLevel(line, re)');
