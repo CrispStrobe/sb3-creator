@@ -23,6 +23,16 @@ const ALIAS = true;
 
 // [kind, opcode, one line of the word with a value in every slot, ALIAS?]
 const WORD_LINES = [
+    ['reporter','arcade_textSpriteCreate','arcade create text sprite text "Ready" background 0 foreground 1'],
+    ['command','arcade_textSpriteSetText','arcade text sprite label set text "Go"'],
+    ['command','arcade_textSpriteSetMaxFontHeight','arcade text sprite label set max font height 12'],
+    ['command','arcade_textSpriteSetIcon','arcade text sprite label set icon art'],
+    ['command','arcade_textSpriteSetBorder','arcade text sprite label set border width 1 color 6 padding 2'],
+    ['command','arcade_textSpriteSetOutline','arcade text sprite label set outline width 1 color 7'],
+    ['command','arcade_textSpriteUpdate','arcade text sprite label update'],
+    ['reporter','arcade_textSpriteProperty','arcade text sprite label property text'],
+    ['command','arcade_textSpriteSetProperty','arcade set text sprite label property fg to 9'],
+
     ['command','arcade_settingsWrite','arcade write setting "score" type Number value 5'],
     ['reporter','arcade_settingsRead','arcade read setting "score" type Number'],
     ['boolean','arcade_settingsExists','arcade setting "score" exists'],
@@ -395,7 +405,7 @@ describe('Arcade dialect words', () => {
         const here = new Set(WORD_LINES.map(([, op]) => op));
         assert.deepEqual([...here].sort(), [...ARCADE_DIALECT_OPS].sort());
         assert.equal(WORD_LINES.length, ARCADE_WORDS.length, 'one line per spelling, aliases included');
-        assert.equal(ARCADE_DIALECT_OPS.length, 329);
+        assert.equal(ARCADE_DIALECT_OPS.length, 338);
     });
 
     for (const [kind, op, line, alias] of WORD_LINES) {
