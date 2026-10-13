@@ -362,6 +362,7 @@ export const ARCADE_WORDS = Object.freeze([
     w('arrays_mutateReference', 'command', 'mutate array reference {ARRAY} op {OP} index {INDEX} value {VALUE}'),
 
     // ---- reporters read before operator splitting (signed or spaced slots) ---------
+    w('arcade_declareSubclass', 'command', 'arcade declare subclass {NAME} of {BASE} fields {FIELDS} initializer {INITIALIZER} constructor {CONSTRUCTOR} parameters {PARAMETERS} methods {METHODS}'),
     w('arcade_declareClass', 'command', 'arcade declare class {NAME} fields {FIELDS} initializer {INITIALIZER} constructor {CONSTRUCTOR} parameters {PARAMETERS} methods {METHODS}'),
     w('arcade_createObject', 'reporter', 'arcade new object class {CLASS} arguments {ARGS}', {early: true}),
     w('arcade_objectField', 'reporter', 'arcade object {OBJECT} field {FIELD}', {early: true}),
