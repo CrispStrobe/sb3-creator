@@ -23,6 +23,7 @@ const ALIAS = true;
 
 // [kind, opcode, one line of the word with a value in every slot, ALIAS?]
 const WORD_LINES = [
+    ['loop','arcade_sourceWhile','arcade repeat while (n < 5)'],
     ['reporter','arcade_createSpriteKind','arcade create sprite kind'],
     ['reporter','arcade_spriteKindValue','arcade sprite kind value "Player"'],
     ['command','arcade_bindSpriteKind','arcade bind sprite kind name "Text" to (arcade create sprite kind)'],
@@ -387,6 +388,7 @@ const HEADER = 'GLOBAL n\nGLOBAL v\nGLOBAL hero\nSPRITE S:\n';
 /** The line in the context its kind is written in. */
 function program(kind, line) {
     if (kind === 'hat') return `${HEADER}WHEN ${line.replace(/^when\s+/i, '')}:\n  hide\n`;
+    if (kind === 'loop') return `${HEADER}WHEN flag clicked:\n  ${line}:\n    hide\n`;
     if (kind === 'command') return `${HEADER}WHEN flag clicked:\n  ${line}\n`;
     if (kind === 'boolean') return `${HEADER}WHEN flag clicked:\n  IF ${line} THEN:\n    hide\n  set v to (${line})\n`;
     return `${HEADER}WHEN flag clicked:\n  set v to (${line})\n`;
@@ -418,7 +420,7 @@ describe('Arcade dialect words', () => {
         const here = new Set(WORD_LINES.map(([, op]) => op));
         assert.deepEqual([...here].sort(), [...ARCADE_DIALECT_OPS].sort());
         assert.equal(WORD_LINES.length, ARCADE_WORDS.length, 'one line per spelling, aliases included');
-        assert.equal(ARCADE_DIALECT_OPS.length, 351);
+        assert.equal(ARCADE_DIALECT_OPS.length, 352);
     });
 
     for (const [kind, op, line, alias] of WORD_LINES) {

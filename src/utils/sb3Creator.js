@@ -930,7 +930,7 @@ const spriteProperty = (word) => Math.max(0, MICROBIT_SPRITE_PROPERTIES.indexOf(
 
 const OPENS_A_BODY = new Set([
     'control_if', 'control_if_else', 'control_repeat',
-    'control_repeat_until', 'control_forever'
+    'control_repeat_until', 'control_forever', 'arcade_sourceWhile'
 ]);
 
 class SB3Creator {
@@ -5504,7 +5504,7 @@ class SB3Creator {
         return null;
     }
 
-    parseCommand(line, target) {
+    parseCommand(line, target, allowLoop = false) {
         // Event hats reach here with their trailing ':' — strip it so the hat
         // patterns can anchor cleanly. Remember that it WAS a hat: an unrecognised
         // one must be refused rather than falling through to statement parsing,
@@ -5560,7 +5560,7 @@ class SB3Creator {
 
         // ---- MakeCode Arcade and array-reference statements and hats (arcadeDialect.js)
         if (/^(?:arcade|when\s+arcade|mutate\s+array\s+reference)\s/i.test(line)) {
-            for (const entry of arcadeWordsOf(wasHat ? ['hat'] : ['command'])) {
+            for (const entry of arcadeWordsOf(wasHat ? ['hat'] : allowLoop ? ['loop'] : ['command'])) {
                 const m = matchTopLevel(line, compileArcadeWord(entry).re);
                 if (!m) continue;
                 const { id, block } = cmd(entry.op, entry.kind === 'hat' ? { topLevel: true } : {});
@@ -7706,7 +7706,9 @@ class SB3Creator {
                     let ownComment = this._pendingComment;
                     this._pendingComment = '';
 
-                    if (trimmed.toUpperCase().startsWith('FOREVER')) {
+                    if (/^arcade\s+repeat\s+while\b/i.test(trimmed)) {
+                        newBlockData = this.parseCommand(trimmed.slice(0, -1), target, true);
+                    } else if (trimmed.toUpperCase().startsWith('FOREVER')) {
                         newBlockData = {
                             block: this.createBlock('control_forever').block,
                             extraBlocks: {}
@@ -9319,6 +9321,7 @@ class SB3Creator {
                 const ev3 = ev3WordFor(b.opcode);
                 if (ev3 && ev3.kind === 'command') return line(this.spellEv3(ev3, b, blocks));
                 const arcade = arcadeWordFor(b.opcode);
+                if (arcade && arcade.kind === 'loop') return [pad + this.spellArcade(arcade, b, blocks) + ':', ...sub('SUBSTACK', level + 1)];
                 if (arcade && arcade.kind === 'command') return line(this.spellArcade(arcade, b, blocks));
                 return line(`# unsupported: ${b.opcode}`);
             }
