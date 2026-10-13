@@ -1,0 +1,7 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import JSZip from 'jszip';
+import SB3Creator from '../src/utils/sb3Creator.js';
+const source=`DEVICE ARCADE\nSPRITE Game:\nWHEN flag clicked:\n  set signed to (arcade math min first -0 second 0)\n  set fraction to (arcade random fraction)\n  set value to (arcade math randomRange first (arcade math min first (0 + (-2)) second (0 + (1.5))) second (0 + (4)))\n  IF arcade percent chance (0 + (100)) THEN:\n    set certain to 1`;
+const check=c=>{assert.deepEqual(c.warnings,[]);const t=c.project.targets.find(t=>t.name==='Game'),bs=t.blocks,binary=Object.values(bs).find(b=>b.opcode==='arcade_mathBinary' && bs[b.inputs.OP[1]]?.fields.mathOperations?.[0]==='randomRange');assert.ok(binary);assert.equal(bs[binary.inputs.A[1]].opcode,'arcade_mathBinary');assert.ok(Object.values(bs).some(b=>b.opcode==='arcade_percentChance'));assert.ok(Object.values(bs).some(b=>b.opcode==='arcade_randomNumber'));return bs;};
+test('typed random/min/max and Boolean chance preserve fixed menu and connected reporter graphs in Code and fresh SB3',async()=>{const first=new SB3Creator();first.parse(source);check(first);const code=first.decompile(),second=new SB3Creator();second.parse(code);check(second);assert.equal(second.decompile(),code);const zip=await JSZip.loadAsync(await(await first.generateSB3()).arrayBuffer()),fresh=new SB3Creator();fresh.project=JSON.parse(await zip.file('project.json').async('text'));assert.deepEqual(check(fresh),check(first));assert.equal(fresh.decompile(),code);});
