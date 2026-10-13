@@ -23,6 +23,9 @@ const ALIAS = true;
 
 // [kind, opcode, one line of the word with a value in every slot, ALIAS?]
 const WORD_LINES = [
+    ['reporter','arcade_createSpriteKind','arcade create sprite kind'],
+    ['command','arcade_bindSpriteKind','arcade bind sprite kind name "Text" to (arcade create sprite kind)'],
+    ['command','arcade_initializeSpriteKindLibrary','arcade initialize sprite kind library "textsprite" version "v1.3.0"'],
     ['reporter','arrays_stringFromCharCode','text from char code -1'],
     ['reporter','arrays_stringConcat','concatenate text "hello" with " world"'],
     ['command','arcade_setCharacterAnimationVersion','arcade use character animation version "a8df7de6f7073b553976b9e47fbfadebcdc4f0ec"'],
@@ -412,7 +415,7 @@ describe('Arcade dialect words', () => {
         const here = new Set(WORD_LINES.map(([, op]) => op));
         assert.deepEqual([...here].sort(), [...ARCADE_DIALECT_OPS].sort());
         assert.equal(WORD_LINES.length, ARCADE_WORDS.length, 'one line per spelling, aliases included');
-        assert.equal(ARCADE_DIALECT_OPS.length, 345);
+        assert.equal(ARCADE_DIALECT_OPS.length, 348);
     });
 
     for (const [kind, op, line, alias] of WORD_LINES) {
