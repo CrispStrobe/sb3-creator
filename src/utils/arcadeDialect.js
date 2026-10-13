@@ -423,6 +423,8 @@ export const ARCADE_WORDS = Object.freeze([
     w('arcade_tilesOfType', 'reporter', 'arcade tile array image {IMAGE}'),
     w('arcade_tileLocationProperty', 'reporter',
         'arcade tile {PROPERTY:column|row|x|y|left|right|top|bottom|tileSet} of {LOCATION}'),
+    w('arcade_spriteTileKindAt', 'boolean', 'arcade sprite {ID} tile kind at {DIRECTION} equals image {IMAGE}'),
+    w('arcade_waitAnyButton', 'command', 'arcade wait until any button pressed'),
     w('arcade_tileIs', 'boolean', 'arcade tile {LOCATION} equals image {IMAGE}'),
     w('arcade_tileIsWall', 'boolean', 'arcade tile {LOCATION} is wall'),
     w('arcade_isHittingTile', 'boolean', 'arcade sprite {ID} hitting wall {DIRECTION}'),
@@ -471,6 +473,7 @@ export const ARCADE_WORDS = Object.freeze([
     // ---- reporters and booleans: images -------------------------------------------------------
     w('arcade_createImage', 'reporter', 'arcade new image width {WIDTH} height {HEIGHT}'),
     w('arcade_cloneImage', 'reporter', 'arcade copy image {IMAGE}'),
+    w('arcade_imageEquals', 'boolean', 'arcade image {IMAGE} equals image {OTHER}'),
     w('arcade_imageProperty', 'reporter', 'arcade image {PROPERTY:width|height} of {IMAGE}'),
     w('arcade_imagePixel', 'reporter', 'arcade image pixel {IMAGE} x {X} y {Y}'),
     w('arcade_imagesOverlap', 'boolean', 'arcade images overlap {IMAGE} source {SOURCE} x {X} y {Y}'),

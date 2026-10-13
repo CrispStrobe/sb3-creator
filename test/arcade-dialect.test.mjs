@@ -42,6 +42,9 @@ const WORD_LINES = [
     ['reporter', 'arcade_bufferToArray', 'arcade byte buffer bytes to number array format UInt16BE'],
     ['reporter', 'arcade_bufferConcatArray', 'arcade concatenate byte buffers in array buffers'],
     ['reporter', 'arcade_bufferFormatSize', 'arcade byte buffer number format UInt16BE size'],
+    ['boolean', 'arcade_spriteTileKindAt', 'arcade sprite hero tile kind at (n + 1) equals image tile'],
+    ['command', 'arcade_waitAnyButton', 'arcade wait until any button pressed'],
+    ['boolean', 'arcade_imageEquals', 'arcade image artwork equals image other'],
     ['reporter', 'arcade_bufferHash', 'arcade byte buffer bytes hash (n + 1) bits'],
     ['reporter', 'arcade_bufferIndexOf', 'arcade byte buffer bytes index of byte buffer other'],
     ['reporter', 'arcade_bufferGetByte', 'arcade byte buffer bytes byte at (n + 1)'],
@@ -382,7 +385,7 @@ describe('Arcade dialect words', () => {
         const here = new Set(WORD_LINES.map(([, op]) => op));
         assert.deepEqual([...here].sort(), [...ARCADE_DIALECT_OPS].sort());
         assert.equal(WORD_LINES.length, ARCADE_WORDS.length, 'one line per spelling, aliases included');
-        assert.equal(ARCADE_DIALECT_OPS.length, 316);
+        assert.equal(ARCADE_DIALECT_OPS.length, 319);
     });
 
     for (const [kind, op, line, alias] of WORD_LINES) {
