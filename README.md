@@ -193,3 +193,11 @@ MPL-2.0 — see [LICENSE](LICENSE).
 Attribution is required, and changes to these files stay open. The code may
 still be combined into a larger work distributed under other terms, which is
 what keeps app-store distribution possible.
+
+## Affiliation and trademarks
+
+sb3-creator is an independent project and is not affiliated with, authorized by,
+or endorsed by Scratch / MIT, nor by STC, the Micro:bit Educational Foundation,
+Raspberry Pi, or any other company whose hardware or software it targets or names
+for compatibility. Those names identify compatible targets only; all trademarks
+belong to their respective owners.

@@ -2927,6 +2927,12 @@ class SB3Creator {
         // RP2040, STM32F030; the 8051 parts have none and refuse it in C).
         if (/^chip\s+temperature$/i.test(s)) return B('stc12_chiptemp', {}, {});
         if (/^read\s+sound$/i.test(s)) return B('microbitplus_sound');
+        // Generic GPIO input: `read pin N` (numeric 0-7) ⇄ the DOS Forth bench's
+        // `N pin@`. Distinct from the micro:bit `pin P<n> digital` reporter below
+        // and the single-token STC `read <name>` rules (a numeric pin is neither).
+        if ((m = s.match(/^read\s+pin\s+(\d+)$/i))) {
+            return B('bwgpio_readpin', {}, { PIN: [m[1], null] });
+        }
         // micro:bit+ pin/button reporters
         if ((m = s.match(/^pin\s+(P\d+)\s+digital(?:\s+value)?$/i))) {
             return B('microbitplus_digitalread', {}, { PIN: [m[1].toUpperCase(), null] });
@@ -6164,6 +6170,25 @@ class SB3Creator {
             block[id].inputs.LIVES = val(match[1]);
             return ret(block);
         }
+        // ---- generic GPIO pins (numeric 0-7) ⇄ the DOS Forth bench's pin! ----
+        // `set pin N high|low` and `set pin N to <expr>`; PIN is a menu field, the
+        // value is an input. The Forth reader (bw-lang/forth.js) writes exactly
+        // these, so a Forth pin program round-trips to blocks and back. Numeric,
+        // so it never shadows the micro:bit `set pin P<n> …` rules just below or
+        // the STC `set <pin-name> …` rules above (a digit is neither a P-pin nor
+        // a declared pin name).
+        if ((match = matchTopLevel(line, /^set\s+pin\s+(\d+)\s+(high|low)\s*$/i))) {
+            const { id, block } = cmd('bwgpio_setpin');
+            block[id].fields.PIN = [match[1], null];
+            block[id].inputs.VALUE = val(match[2].toLowerCase() === 'high' ? '1' : '0');
+            return ret(block);
+        }
+        if ((match = matchTopLevel(line, /^set\s+pin\s+(\d+)\s+to\s+(.+?)\s*$/i))) {
+            const { id, block } = cmd('bwgpio_setpin');
+            block[id].fields.PIN = [match[1], null];
+            block[id].inputs.VALUE = val(match[2]);
+            return ret(block);
+        }
         // ---- micro:bit+ PINS group (DUAL-LOWERING-ORACLE P1–P7) ----
         if ((match = matchTopLevel(line, /^set\s+pin\s+(P\d+)\s+(?:to\s+|digital\s+)([01])\s*$/i))) {
             const { id, block } = cmd('microbitplus_digitalwrite');
@@ -8577,6 +8602,7 @@ class SB3Creator {
             case 'microbitplus_sound': return 'read sound';
             // micro:bit+ pin/button/radio reporters (decompile to dialect).
             case 'microbitplus_digitalread': return `pin ${f('PIN')} digital`;
+            case 'bwgpio_readpin': return `read pin ${f('PIN')}`;
             case 'microbitplus_analogread': return `analog value of pin ${f('PIN')}`;
             case 'microbitplus_isbutton': return `read button_${f('BTN')}`;
             case 'microbitplus_ispinhigh': return `pin ${f('PIN')} is high`;
@@ -8945,6 +8971,7 @@ class SB3Creator {
             case 'microbitplus_setlife': return line(`set game life to ${v('VALUE')}`);
             case 'microbitplus_addlife': return line(`add game life ${v('LIVES')}`);
             case 'microbitplus_digitalwrite': return line(`set pin ${f('PIN')} to ${f('LEVEL')}`);
+            case 'bwgpio_setpin': return line(`set pin ${f('PIN')} to ${v('VALUE')}`);
             case 'microbitplus_analogwrite': return line(`set pin ${f('PIN')} analog ${v('PCT')} %`);
             case 'microbitplus_setpull': return line(`set pin ${f('PIN')} pull ${f('MODE')}`);
             case 'microbitplus_playtone': {
