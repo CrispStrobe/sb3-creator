@@ -52,10 +52,10 @@
 // rotationDegrees before rotation: the alternation takes the first that matches.
 // rotation is PXT's Sprite.rotation (radians), rotationDegrees its degrees form,
 // data the sprite's \`data\` value (any value, not only a number).
-const PROPERTIES = 'x|y|left|right|top|bottom|vx|vy|ax|ay|fx|fy|sx|sy|scale|width|height|z|lifespan|rotationDegrees|rotation|data';
-const READABLE_PROPERTIES = `${PROPERTIES}|kind|flags`;
+const PROPERTIES = 'x|y|left|right|top|bottom|vx|vy|ax|ay|fx|fy|sx|sy|scale|width|height|z|lifespan|rotationDegrees|rotation|data|flags';
+const READABLE_PROPERTIES = `${PROPERTIES}|kind`;
 const FLAGS = 'AutoDestroy|StayInScreen|BounceOnWall|Invisible|Ghost|GhostThroughSprites|GhostThroughWalls|'
-    + 'GhostThroughTiles|DestroyOnWall|RelativeToCamera';
+    + 'GhostThroughTiles|DestroyOnWall|RelativeToCamera|ShowPhysics';
 const LAYOUTS = '"Left"|"Right"|"Top"|"Bottom"|"Center"|"Full"';
 const SCREEN_EFFECTS = 'confetti|hearts|smiles|blizzard|bubbles|starField|clouds|none';
 const EFFECTS = `spray|trail|fountain|rings|fire|warmRadial|coolRadial|halo|ashes|disintegrate|${SCREEN_EFFECTS}`;
@@ -533,8 +533,8 @@ export const ARCADE_WORDS = Object.freeze([
     w('arrays_specialValue', 'reporter', '{KIND:undefined|null} value'),
     w('arrays_stringFromCharCode', 'reporter', 'text from char code {CODE}', {early: true}),
     w('arrays_stringConcat', 'reporter', 'concatenate text {TEXT} with {OTHER}', {early: true}),
-    w('arrays_valueBinary', 'reporter', 'calculate value {LEFT} op {OP:"+"|"-"|"*"|"/"|"%"|"**"} with {RIGHT}'),
-    w('arrays_valueUnary', 'reporter', 'convert value {VALUE} op {OP:"+"|"-"}'),
+    w('arrays_valueBinary', 'reporter', 'calculate value {LEFT} op {OP:"+"|"-"|"*"|"/"|"%"|"**"|"&"|"|"|"^"|"<<"|">>"|">>>"} with {RIGHT}'),
+    w('arrays_valueUnary', 'reporter', 'convert value {VALUE} op {OP:"+"|"-"|"~"}'),
     w('arrays_valueTruthy', 'boolean', 'truthiness of value {VALUE}'),
     w('arrays_valueCompare', 'boolean', 'compare value {LEFT} op {OP:"=="|"!="|"==="|"!=="|"<"|">"|"<="|">="} with {RIGHT}'),
     w('arrays_referenceValues', 'reporter', 'array value {VALUE} rest {REST}'),
@@ -576,7 +576,8 @@ export function compileArcadeWord(entry) {
             return {slot, menu, choices: choices.split('|')};
         }
         if (spec.startsWith('text:')) return { slot, text: true, choices: spec.slice(5).split('|') };
-        const choices = spec.split('|');
+        // Quoted field choices may themselves contain the choice delimiter.
+        const choices = spec.match(/"(?:[^"\\]|\\.)*"|[^|]+/g) || [];
         if (choices.every((c) => /^".*"$/.test(c))) return { slot, field: true, quoted: true, choices: choices.map((c) => c.slice(1, -1)) };
         return { slot, field: true, choices };
     });
