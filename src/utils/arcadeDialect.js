@@ -148,6 +148,7 @@ export const ARCADE_WORDS = Object.freeze([
     w('arcade_playerSprite', 'reporter', 'arcade sprite of player {PLAYER}'),
     w('arcade_registerMultiplayerButtonHandler', 'command', 'arcade register multiplayer button {BUTTON} event {EVENT} as {TOKEN} capturing {CAPTURES}'),
     w('arcade_eventPlayer', 'reporter', 'arcade event player'),
+    w('arcade_playerConnected', 'boolean', 'arcade player {PLAYER} connected'),
     w('arcade_playerButtonPressed', 'boolean', 'arcade player {PLAYER} button {BUTTON} pressed'),
     w('arcade_createPlayerState', 'reporter', 'arcade create player state key'),
     w('arcade_getPlayerState', 'reporter', 'arcade state {KEY} of player {PLAYER}'),
