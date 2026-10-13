@@ -28,6 +28,7 @@ const WORD_LINES = [
     ['boolean','arcade_settingsExists','arcade setting "score" exists'],
     ['command','arcade_settingsRemove','arcade remove setting "score"'],
     ['command','arcade_settingsClear','arcade clear user settings'],
+    ['boolean','arcade_playerConnected','arcade player p connected'],
     ['command','arcade_spriteDataSet','arcade set sprite actor data \"count\" type Number to 5'],
     ['reporter','arcade_spriteDataRead','arcade sprite actor data \"count\" type Number'],
     ['boolean','arcade_spriteDataReadBoolean','arcade sprite actor boolean data \"ready\"'],
@@ -394,7 +395,7 @@ describe('Arcade dialect words', () => {
         const here = new Set(WORD_LINES.map(([, op]) => op));
         assert.deepEqual([...here].sort(), [...ARCADE_DIALECT_OPS].sort());
         assert.equal(WORD_LINES.length, ARCADE_WORDS.length, 'one line per spelling, aliases included');
-        assert.equal(ARCADE_DIALECT_OPS.length, 328);
+        assert.equal(ARCADE_DIALECT_OPS.length, 329);
     });
 
     for (const [kind, op, line, alias] of WORD_LINES) {
@@ -577,7 +578,7 @@ describe('Arcade dialect: precedence, slots and refusals', () => {
 describe('native Arcade and Arrays menu schemas', () => {
     const cases = [
         ['reporter', 'arrays_specialValue', 'KIND', ['undefined', 'null'], v => `${v} value`],
-        ['reporter', 'arrays_valueBinary', 'OP', ['+', '-', '*', '/', '%'], v => `calculate value 7 op "${v}" with 6`],
+        ['reporter', 'arrays_valueBinary', 'OP', ['+', '-', '*', '/', '%', '**'], v => `calculate value 7 op "${v}" with 6`],
         ['reporter', 'arrays_valueUnary', 'OP', ['+', '-'], v => `convert value 5 op "${v}"`],
         ['boolean', 'arrays_valueCompare', 'OP', ['==', '!=', '===', '!==', '<', '>', '<=', '>='], v => `compare value 7 op "${v}" with 6`]
     ];
