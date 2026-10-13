@@ -429,6 +429,7 @@ export const ARCADE_WORDS = Object.freeze([
     w('arcade_setBackgroundScrollVersion','command','arcade use background scroll version {VERSION}'),
     w('arcade_setCharacterAnimationVersion','command','arcade use character animation version {VERSION}'),
     w('arcade_createSpriteKind','reporter','arcade create sprite kind'),
+    w('arcade_spriteKindValue','reporter','arcade sprite kind value {NAME}', {early: true}),
     w('arcade_bindSpriteKind','command','arcade bind sprite kind name {NAME} to {KIND}'),
     w('arcade_initializeSpriteKindLibrary','command','arcade initialize sprite kind library {LIBRARY} version {VERSION}'),
     w('arcade_characterRuleToString','reporter','arcade character rule string {RULE}', {early: true}),
