@@ -87,6 +87,6 @@ test('display uses the A2 decoder and refreshes its right-aligned buffer in Time
     assert.match(code, /P2_2 = bw_display_cur & 0x01/);
     assert.match(code, /P2_3 = bw_display_cur & 0x02/);
     assert.match(code, /P2_4 = bw_display_cur & 0x04/);
-    assert.match(code, /i = 7;[\s\S]*bw_display_fb\[i\] = bw_7seg_font\[u % 10\]/);
+    assert.match(code, /i = 8;[\s\S]*i--;[\s\S]*bw_display_fb\[i\] = bw_7seg_font\[u % 10\]/);
     assert.match(code, /bw_display_show_number\(shown\)/);
 });
