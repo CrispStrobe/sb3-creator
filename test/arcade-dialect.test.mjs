@@ -23,6 +23,11 @@ const ALIAS = true;
 
 // [kind, opcode, one line of the word with a value in every slot, ALIAS?]
 const WORD_LINES = [
+    ['command','arcade_settingsWrite','arcade write setting "score" type Number value 5'],
+    ['reporter','arcade_settingsRead','arcade read setting "score" type Number'],
+    ['boolean','arcade_settingsExists','arcade setting "score" exists'],
+    ['command','arcade_settingsRemove','arcade remove setting "score"'],
+    ['command','arcade_settingsClear','arcade clear user settings'],
     ['command','arcade_spriteDataSet','arcade set sprite actor data \"count\" type Number to 5'],
     ['reporter','arcade_spriteDataRead','arcade sprite actor data \"count\" type Number'],
     ['boolean','arcade_spriteDataReadBoolean','arcade sprite actor boolean data \"ready\"'],
@@ -389,7 +394,7 @@ describe('Arcade dialect words', () => {
         const here = new Set(WORD_LINES.map(([, op]) => op));
         assert.deepEqual([...here].sort(), [...ARCADE_DIALECT_OPS].sort());
         assert.equal(WORD_LINES.length, ARCADE_WORDS.length, 'one line per spelling, aliases included');
-        assert.equal(ARCADE_DIALECT_OPS.length, 323);
+        assert.equal(ARCADE_DIALECT_OPS.length, 328);
     });
 
     for (const [kind, op, line, alias] of WORD_LINES) {
