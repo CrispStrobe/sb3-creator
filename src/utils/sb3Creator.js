@@ -17,7 +17,7 @@ import { matchEv3Word, ev3WordFor, spellEv3Word, ev3WordLoose } from './ev3Diale
 // The MakeCode Arcade and array-reference words (arcade/arrays extensions):
 // one table as well, for the importer's dialect (Lite's arcade-translate.js).
 import {
-    compileArcadeWord, arcadeWordsOf, arcadeWordFor, spellArcadeWord, legacySettingType, ARCADE_FIRST_WORDS
+    compileArcadeWord, arcadeWordsOf, arcadeWordFor, spellArcadeWord, legacyDirectMenuValue, ARCADE_FIRST_WORDS
 } from './arcadeDialect.js';
 
 // The emitted no-import JSON serializer (the sim firmware ships without
@@ -2663,8 +2663,7 @@ class SB3Creator {
                     const part = compileArcadeWord(entry).parts.find(p => p.slot === name && p.field);
                     if (Array.isArray(literal) && literal[0] === 10 && part?.choices.includes(literal[1])) return literal[1];
                 }
-                if (name === 'TYPE') return legacySettingType(b, blocks) ?? '';
-                return '';
+                return legacyDirectMenuValue(b, name, blocks) ?? '';
             },
             cond: (name) => {
                 const input = b.inputs[name];
