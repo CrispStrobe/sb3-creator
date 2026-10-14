@@ -5411,7 +5411,7 @@ class SB3Creator {
 
     // Split a line into top-level tokens: parenthesized groups and quoted strings
     // count as a single token, so custom-block args like `(pr + 1)` stay intact.
-    tokenizeTop(s) {
+    tokenizeTop(s, { strict = false } = {}) {
         const tokens = [];
         let i = 0;
         s = s.trim();
@@ -5420,13 +5420,23 @@ class SB3Creator {
             if (s[i] === '(') {
                 let depth = 0, j = i;
                 for (; j < s.length; j++) {
+                    if (s[j] === '"') {
+                        const end = closingQuote(s, j);
+                        if (end < 0) {
+                            if (strict) throw new ParseError('unterminated text in procedure argument');
+                            j = s.length; break;
+                        }
+                        j = end; continue;
+                    }
                     if (s[j] === '(') depth++;
                     else if (s[j] === ')') { depth--; if (depth === 0) { j++; break; } }
                 }
+                if (strict && depth !== 0) throw new ParseError('unclosed procedure argument');
                 tokens.push(s.slice(i, j)); i = j; continue;
             }
             if (s[i] === '"') {
                 let j = closingQuote(s, i);
+                if (strict && j < 0) throw new ParseError('unterminated text in procedure argument');
                 j = j < 0 ? s.length : j + 1;
                 tokens.push(s.slice(i, j)); i = j; continue;
             }
@@ -5500,8 +5510,8 @@ class SB3Creator {
 
     // Try to resolve a line as a call to a registered custom block, matching the
     // call's top-level tokens against the procedure's template token-for-token.
-    tryProcedureCall(line, target) {
-        const tokens = this.tokenizeTop(line);
+    tryProcedureCall(line, target, { strict = false } = {}) {
+        const tokens = this.tokenizeTop(line, { strict });
         for (const proc of this.procedures) {
             if (proc.template.length !== tokens.length) continue;
             const rawArgs = [];
@@ -5519,6 +5529,17 @@ class SB3Creator {
             context.parentId = id;
             const inputs = {};
             proc.argIds.forEach((argId, i) => {
+                if (strict && proc.argTypes[i] === 'b') {
+                    const value = this.stripOuterParens(rawArgs[i]).trim();
+                    if (!this.arcadeConditionLike(value, context) &&
+                        (/^"/.test(value) || /^[+-]?(?:(?:\d+(?:\.\d*)?|\.\d+)(?:e[+-]?\d+)?|Infinity|NaN)$/i.test(value))) {
+                        throw new ParseError('procedure Boolean argument requires a condition or Boolean value');
+                    }
+                    if (/^(?:true|false)$/i.test(value)) {
+                        inputs[argId] = this.arcadeBoolean(value, context);
+                        return;
+                    }
+                }
                 inputs[argId] = proc.argTypes[i] === 'b'
                     ? [2, this.parseCondition(rawArgs[i], context)]
                     : this.parseValue(rawArgs[i], context);
@@ -5534,6 +5555,15 @@ class SB3Creator {
     }
 
     parseCommand(line, target, allowLoop = false) {
+        // Explicit calls resolve the registered procedure template before any
+        // built-in command (e.g. a custom `show`). The prefix is Code syntax;
+        // the saved block keeps the original procedure label and signature.
+        if (/^CALL\s+/i.test(line)) {
+            const invocation = line.replace(/^CALL\s+/i, '').trim();
+            const call = this.tryProcedureCall(invocation, target, { strict: true });
+            if (!call) throw new ParseError(`unknown procedure or mismatched arguments: ${invocation}`);
+            return call;
+        }
         // Event hats reach here with their trailing ':' — strip it so the hat
         // patterns can anchor cleanly. Remember that it WAS a hat: an unrecognised
         // one must be refused rather than falling through to statement parsing,
@@ -9357,9 +9387,9 @@ class SB3Creator {
                 const text = m.proccode.replace(/%[sb]/g, (tok) => {
                     const input = b.inputs[argIds[ai++]];
                     if (tok === '%b') return `(${this.dcond(input[1], blocks)})`;
-                    return this.dval(input, blocks);
+                    return `(${this.dval(input, blocks)})`;
                 });
-                return line(text);
+                return line(`CALL ${text}`);
             }
             default: {
                 const ev3 = ev3WordFor(b.opcode);
