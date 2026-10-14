@@ -234,6 +234,7 @@ export const ARCADE_WORDS = Object.freeze([
     w('arcade_setCaptured', 'command', 'arcade set captured {NAME:name} to {VALUE}'),
     w('arcade_setLocal', 'command', 'arcade set local {NAME:name} to {VALUE}'),
     w('arcade_returnValue', 'command', 'arcade return value {VALUE}'),
+    w('arcade_declareSourceCallable', 'command', 'declare arcade source callable {VARIABLE} signature {SIGNATURE}'),
     w('arcade_declareCallable', 'command', 'arcade declare callable {NAME} metadata {METADATA}'),
     w('arcade_runCallableDispatch', 'command', 'arcade run dispatched callable'),
     w('arcade_whenCallableDispatched', 'hat', 'when arcade callable {NAME} dispatched'),
