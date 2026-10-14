@@ -20551,14 +20551,6 @@ SB3Creator.RETARGET_POOLS = (() => {
             analog: ['PA0', 'PA1', 'PA2', 'PA3', 'PA4', 'PA5', 'PA6', 'PA7'],
             input: ['PA1', 'PA2', 'PA3', 'PA4', 'PA5', 'PA0', 'PB1', 'PA6', 'PA7'],
             pwm: ['PA6', 'PA7', 'PB1'], ledActiveLow: false },
-        // ESP8266: GPIO4/5/12/13/14 first — they have no boot-strap role.
-        // GP0/GP2/GP15 select the boot mode at reset and come last; GP1/GP3
-        // are the serial TX/RX and stay out (print uses them), like the
-        // AVR's D0/D1. No analog pool: the runtime has no analogRead.
-        esp8266: { digital: ['GP4', 'GP5', 'GP12', 'GP13', 'GP14', 'GP2', 'GP0', 'GP15'],
-            analog: [],
-            input: ['GP4', 'GP5', 'GP12', 'GP13', 'GP14', 'GP0', 'GP2', 'GP15'],
-            pwm: ['GP12', 'GP13', 'GP14', 'GP4', 'GP5'], ledActiveLow: false },
         pico: { digital: ['GP25', 'GP15', 'GP14', 'GP13', 'GP12', 'GP11', 'GP10', ...seq('GP%', 0, 9), ...seq('GP%', 18, 22)],
             analog: ['GP26', 'GP27', 'GP28'],
             input: ['GP2', 'GP3', 'GP4', 'GP5', ...seq('GP%', 6, 15), ...seq('GP%', 18, 22), 'GP0', 'GP1'],
@@ -20861,9 +20853,6 @@ SB3Creator.retargetPseudocode = function retargetPseudocode(src, device) {
     // second timer is beyond the cap; displays need the I2C/SPI port.
     if ((used.servo || used.motor) && device === 'stm32f030') reasons.push('servo/motor need a 50 Hz PWM frame — TIM3 is the 1 kHz tick, and a second timer is beyond the F0 tier cap');
     if (used.display && device === 'stm32f030') reasons.push('displays need the I2C/SPI port, which is beyond the F0 tier cap');
-    // The esp8266js runtime has neither analogRead nor Servo (STC_PARTS.esp8266).
-    if ((used.servo || used.motor) && device === 'esp8266') reasons.push('servo/motor are not available on the esp8266: its runtime has no Servo');
-    if (used.display && device === 'esp8266') reasons.push('displays are not available on the esp8266 C route yet');
     if (used.pwmPins.size && !pools.pwm.length) reasons.push(`${device} has no PWM-capable convention pins`);
 
     // ---- allocate pins from the pools ----------------------------------
