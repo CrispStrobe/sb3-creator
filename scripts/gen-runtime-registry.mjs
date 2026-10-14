@@ -60,7 +60,8 @@ const HARDWARE = [
     'CrispStrobe/ev3_lms_transpile',
     'CrispStrobe/circuit',
     'CrispStrobe/ledcube',
-    'CrispStrobe/stc12live'
+    'CrispStrobe/stc12live',
+    'CrispStrobe/circuitplayground'
 ].map(slug => [slug, `${slug.split('/').pop()}.js`]);
 
 const BLOCK_KIND = { command: 'command', reporter: 'reporter', Boolean: 'boolean', conditional: 'command', loop: 'command', hat: 'hat', event: 'hat' };
@@ -69,7 +70,7 @@ const BLOCK_KIND = { command: 'command', reporter: 'reporter', Boolean: 'boolean
 // extensions are read from. A full 40-hex sha, never a branch: a branch name would
 // put us back to quoting a freshness we do not have.
 const EXTENSIONS_REPO = 'CrispStrobe/extensions';
-const EXTENSIONS_COMMIT = 'e82ebcdc373ea5f38c481e6b627b3cda4f7c0a44';
+const EXTENSIONS_COMMIT = '84f93976f87a17010fcdd6dd5bc9ffbd44abefc9';
 if (!/^[0-9a-f]{40}$/.test(EXTENSIONS_COMMIT))
     throw new Error(`EXTENSIONS_COMMIT must be a full 40-character sha, got "${EXTENSIONS_COMMIT}"`);
 
