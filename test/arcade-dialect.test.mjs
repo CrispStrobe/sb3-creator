@@ -42,6 +42,7 @@ const WORD_LINES = [
     ['command','arcade_setObjectField','arcade set object item field "next" to item'],
     ['reporter','arcade_callObjectMethod','arcade object item call method "get" arguments "[]"'],
     ['hat','arcade_whenSourceStarts','when arcade source starts'],
+    ['command','arcade_declareSourceReference','declare arcade source reference count as \"Sprite\"'],
     ['command','arcade_declareSourceScalar','declare arcade source scalar count as Boolean'],
     ['loop','arcade_sourceWhile','arcade repeat while (n < 5)'],
     ['reporter','arcade_createSpriteKind','arcade create sprite kind'],
@@ -447,7 +448,7 @@ describe('Arcade dialect words', () => {
         const here = new Set(WORD_LINES.map(([, op]) => op));
         assert.deepEqual([...here].sort(), [...ARCADE_DIALECT_OPS].sort());
         assert.equal(WORD_LINES.length, ARCADE_WORDS.length, 'one line per spelling, aliases included');
-        assert.equal(ARCADE_DIALECT_OPS.length, 379);
+        assert.equal(ARCADE_DIALECT_OPS.length, 380);
     });
 
     for (const [kind, op, line, alias] of WORD_LINES) {

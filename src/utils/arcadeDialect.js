@@ -81,6 +81,7 @@ const w = (op, kind, words, extra = {}) => Object.freeze({ op, kind, words, ...e
 
 export const ARCADE_WORDS = Object.freeze([
     {op: 'arcade_whenSourceStarts', kind: 'hat', words: 'when arcade source starts'},
+    w('arcade_declareSourceReference', 'command', 'declare arcade source reference {VARIABLE} as {TYPE:reference-type}', {variableInputs: ['VARIABLE']}),
     w('arcade_declareSourceScalar', 'command', 'declare arcade source scalar {VARIABLE} as {TYPE:Number|Boolean|String|Any}', {variableInputs: ['VARIABLE']}),
     // An explicit source loop; ordinary Scratch loops retain their own scheduling.
     {op: 'arcade_sourceWhile', kind: 'loop', words: 'arcade repeat while {CONDITION:bool}'},
@@ -592,6 +593,7 @@ export function compileArcadeWord(entry) {
         const [, slot, spec] = m;
         if (!spec) return { slot, value: true };
         if (spec === 'name') return { slot, name: true };
+        if (spec === 'reference-type') return {slot, field: true, quoted: true, referenceType: true, choices: ['Sprite']};
         if (spec === 'cond' || spec === 'bool') return { slot, value: true, [spec]: true };
         if (spec.startsWith('menu:')) {
             const [, menu, choices] = spec.split(':');
@@ -607,6 +609,7 @@ export function compileArcadeWord(entry) {
     const source = parts.map((p, i) => {
         if (p.literal !== undefined) return escapeRe(p.literal);
         if (p.name) return '([A-Za-z_]\\w*)';
+        if (p.referenceType) return '("(?:[^"\\\\]|\\\\.)*")';
         if (p.quoted) return '("[^"]*")';
         if (p.choices && !p.menu) return `(${p.choices.map(escapeRe).join('|')})`;
         return i === last ? '(.+)' : '(.+?)';
@@ -645,7 +648,7 @@ export function spellArcadeWord(entry, read) {
         if (p.literal !== undefined) return p.literal;
         if (p.field) {
             const stored = read.field(p.slot);
-            return p.quoted ? `"${stored}"` : stored;
+            return p.referenceType ? JSON.stringify(stored) : p.quoted ? `"${stored}"` : stored;
         }
         if (p.menu) {
             const value = read.menu(p.slot, p.menu);

@@ -183,6 +183,7 @@ describe('argument slots take an expression, and round-trip', () => {
                 const template = w.words.replace(/\{([A-Z0-9_]+)(?::([^}]+))?\}/g, (m, n, spec) => {
                     if (n === name) return 'X';
                     if (spec === 'name') return 'nm';
+                    if (spec === 'reference-type') return '"Sprite"';
                     if (spec === 'bool') return '1';
                     if (spec && spec.startsWith('text:')) return spec.slice(5).split('|')[0];
                     if (spec && spec !== 'cond') return spec.split('|')[0];
