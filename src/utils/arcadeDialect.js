@@ -292,6 +292,11 @@ export const ARCADE_WORDS = Object.freeze([
     // Image.print; font auto is image.getFontForText's choice.
     w('arcade_printImageText', 'command',
         'arcade print {TEXT} on image {IMAGE} x {X} y {Y} color {COLOR} font {FONT:auto|normal|small|large}'),
+    // Live Font references are connected values, distinct from the fixed selector.
+    w('arcade_printImageFontCenter', 'command',
+        'arcade print centered {TEXT} on image {IMAGE} y {Y} color {COLOR} using font {FONT}'),
+    w('arcade_printImageFont', 'command',
+        'arcade print {TEXT} on image {IMAGE} x {X} y {Y} color {COLOR} using font {FONT}'),
     w('arcade_drawImageCircle', 'command',
         'arcade draw image circle {OP:drawCircle|fillCircle} {IMAGE} x {X} y {Y} radius {RADIUS} color {COLOR}'),
     w('arcade_drawImage', 'command',
@@ -439,6 +444,9 @@ export const ARCADE_WORDS = Object.freeze([
     w('arcade_screenImage', 'reporter', 'arcade screen image'),
     w('arcade_sourceTypeOf', 'reporter', 'arcade source type of {VALUE}'),
     w('arcade_fontMetric', 'reporter', 'arcade font {FONT:"font5"|"font8"|"font12"} metric {PROPERTY:"charWidth"|"charHeight"}', {strictFields: true}),
+    w('arcade_fontForText', 'reporter', 'arcade font for text {TEXT}'),
+    w('arcade_scaleFont', 'reporter', 'arcade scaled font {FONT} by {SIZE}'),
+    w('arcade_fontValue', 'reporter', 'arcade font value {FONT:font5|font8|font12}', {strictFields: true}),
     w('arcade_backgroundColor', 'reporter', 'arcade background color'),
     w('arcade_truncateNumber', 'reporter', 'arcade truncate {NUM}', {early: true}),
     w('arcade_signNumber', 'reporter', 'arcade sign of {NUM}', {early: true}),

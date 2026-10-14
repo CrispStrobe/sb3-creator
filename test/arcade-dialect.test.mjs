@@ -36,6 +36,11 @@ const WORD_LINES = [
     ['command','arcade_setButtonRepeatDefaults','arcade set button repeat defaults delay (20 + 10) interval (40 + 1)'],
     ['reporter','arcade_sourceTypeOf','arcade source type of (n + 1)'],
     ['reporter','arcade_fontMetric','arcade font "font5" metric "charHeight"'],
+    ['reporter','arcade_fontValue','arcade font value font8'],
+    ['reporter','arcade_fontForText','arcade font for text (arcade local message)'],
+    ['reporter','arcade_scaleFont','arcade scaled font (arcade local selectedFont) by (n + 1)'],
+    ['command','arcade_printImageFont','arcade print "hello" on image (arcade local canvas) x 1 y 2 color 17 using font (arcade local selectedFont)'],
+    ['command','arcade_printImageFontCenter','arcade print centered "hello" on image (arcade local canvas) y 2 color 17 using font (arcade font value font5)'],
     ['reporter','arcade_allocateControlEventSource','arcade allocate control event source'],
     ['reporter','arcade_controllerEventSource','arcade controller event source player 2'],
     ['command','arcade_setControllerConnected','arcade set controller player 2 connected (1 = 1)'],
@@ -461,7 +466,7 @@ describe('Arcade dialect words', () => {
         const here = new Set(WORD_LINES.map(([, op]) => op));
         assert.deepEqual([...here].sort(), [...ARCADE_DIALECT_OPS].sort());
         assert.equal(WORD_LINES.length, ARCADE_WORDS.length, 'one line per spelling, aliases included');
-        assert.equal(ARCADE_DIALECT_OPS.length, 393);
+        assert.equal(ARCADE_DIALECT_OPS.length, 398);
     });
 
     for (const [kind, op, line, alias] of WORD_LINES) {
