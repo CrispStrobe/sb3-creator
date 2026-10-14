@@ -2547,6 +2547,87 @@ class SB3Creator {
      * take. `read` reads a value slot (a statement's `val`, so a reporter
      * spilled over its slots is refused; parseValue for a reporter's slot).
      */
+    callableSourceEnvelope(value) {
+        if (!value || value.schema !== 'bw-callable-variable') return null;
+        const allowed = ['schema', 'version', 'binding', 'signature', 'variableId', 'variableName'];
+        if (Object.keys(value).some(key => !allowed.includes(key)) || value.version !== 1 ||
+            !/^binding_\d+$/.test(value.binding) || typeof value.variableName !== 'string' || !value.variableName ||
+            value.variableId !== undefined && (typeof value.variableId !== 'string' || !value.variableId) ||
+            !value.signature || value.signature.kind !== 'callable') {
+            throw new ParseError('Malformed lexical callable variable envelope');
+        }
+        return value;
+    }
+
+    materializeCallableVariable(inputs, context) {
+        const text = inputs.SIGNATURE?.[1];
+        if (!Array.isArray(text) || text[0] !== 10) throw new ParseError('Callable signature requires fixed text');
+        let value;
+        try { value = JSON.parse(text[1]); } catch { throw new ParseError('Malformed callable signature JSON'); }
+        const envelope = this.callableSourceEnvelope(value);
+        if (!envelope) {
+            if (!value || value.kind !== 'callable' || value.schema !== undefined) throw new ParseError('Unknown callable declaration signature');
+            return;
+        }
+        const input = inputs.VARIABLE?.[1];
+        const reporter = typeof input === 'string' ? context.extraBlocks[input] : null;
+        const tuple = Array.isArray(input) ? input : reporter?.opcode === 'data_variable' ?
+            [12, reporter.fields.VARIABLE[0], reporter.fields.VARIABLE[1]] : null;
+        const owner = this.project.targets.find(target => Object.prototype.hasOwnProperty.call(target.variables || {}, tuple?.[2]) &&
+            (target === context.target || target.isStage));
+        if (!tuple || tuple[0] !== 12 || typeof tuple[2] !== 'string' || !tuple[2] || !owner ||
+            owner.variables[tuple[2]][0] !== tuple[1] || tuple[1] !== envelope.variableName) {
+            throw new ParseError('Lexical callable declaration must retain its actual variable binding');
+        }
+        // Code is deliberately materialized again; an unchanged spelling seal
+        // permits fresh generated IDs, never declaration-only name rewiring.
+        inputs.SIGNATURE = [1, [10, JSON.stringify({...envelope, variableId: tuple[2]})]];
+    }
+
+    refreshCallableSourceBindings(project) {
+        if (!project.targets.some(target => Object.values(target.blocks || {}).some(block => block.opcode === 'arcade_declareSourceCallable'))) return project;
+        project = JSON.parse(JSON.stringify(project));
+        const literal = (blocks, input) => Array.isArray(input?.[1]) && input[1][0] === 10 ?
+            {get: () => input[1][1], set: value => {input[1][1] = value;}} :
+            blocks[input?.[1]]?.opcode === 'text' && blocks[input[1]].shadow ?
+                {get: () => blocks[input[1]].fields.TEXT[0], set: value => {blocks[input[1]].fields.TEXT[0] = value;}} : null;
+        for (const target of project.targets) {
+            const blocks = target.blocks || {}, renamed = new Map();
+            for (const block of Object.values(blocks)) {
+                if (block.opcode !== 'arcade_declareSourceCallable') continue;
+                const signature = literal(blocks, block.inputs.SIGNATURE);
+                if (!signature) throw new ParseError('Callable signature requires fixed text');
+                let value; try { value = JSON.parse(signature.get()); } catch { throw new ParseError('Malformed callable signature JSON'); }
+                const envelope = this.callableSourceEnvelope(value); if (!envelope) continue;
+                const input = block.inputs.VARIABLE?.[1], reporter = blocks[input];
+                const tuple = Array.isArray(input) ? input : reporter?.opcode === 'data_variable' ?
+                    [12, reporter.fields.VARIABLE[0], reporter.fields.VARIABLE[1]] : null;
+                const owner = project.targets.find(candidate => Object.prototype.hasOwnProperty.call(candidate.variables || {}, tuple?.[2]) && (candidate === target || candidate.isStage));
+                if (!tuple || tuple[0] !== 12 || !owner || envelope.variableId !== tuple[2] || renamed.has(envelope.binding))
+                    throw new ParseError('Current callable lexical variable ID seal changed');
+                const name = owner.variables[tuple[2]][0];
+                renamed.set(envelope.binding, {before: envelope.variableName, after: name});
+                signature.set(JSON.stringify({...envelope, variableName: name}));
+            }
+            for (const block of Object.values(blocks)) {
+                if (block.opcode !== 'arcade_declareCallable') continue;
+                const metadata = literal(blocks, block.inputs.METADATA);
+                if (!metadata) throw new ParseError('Callable plan requires fixed declaration metadata');
+                let value; try { value = JSON.parse(metadata.get()); } catch { throw new ParseError('Malformed callable plan JSON'); }
+                if (value?.schema !== 'bw-callable-declaration') continue;
+                if (value.version !== 1 || !value.plan || !Array.isArray(value.plan.bindings)) throw new ParseError('Malformed callable lexical plan');
+                for (const [id, rename] of renamed) {
+                    const binding = value.plan.bindings.find(binding => binding.id === id);
+                    if (!binding || binding.owner !== value.plan.module || binding.kind !== 'global' || binding.nativeName !== rename.before)
+                        throw new ParseError('Callable spelling seal differs from its lexical plan');
+                    binding.nativeName = rename.after;
+                }
+                metadata.set(JSON.stringify(value));
+            }
+        }
+        return project;
+    }
+
     arcadeSlots(entry, groups, context, read) {
         const { parts } = compileArcadeWord(entry);
         const slots = [];
@@ -2592,6 +2673,7 @@ class SB3Creator {
                 throw new ParseError('Source declaration requires an ordinary variable reporter');
             }
         }
+        if (entry.op === 'arcade_declareSourceCallable') this.materializeCallableVariable(inputs, context);
         for (const [slot, text] of Object.entries(entry.defaults || {})) inputs[slot] = this.parseValue(text, context);
         return { inputs, fields };
     }
@@ -8693,6 +8775,7 @@ class SB3Creator {
 
     // Decompile a whole project back into pseudocode.
     decompile(project = this.project) {
+        project = this.refreshCallableSourceBindings(project);
         const out = [];
         const stage = project.targets.find(t => t.isStage);
         // STC12 / 8051 device declarations first — they are read before any script.
