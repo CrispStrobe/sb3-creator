@@ -267,6 +267,8 @@ export const ARCADE_WORDS = Object.freeze([
     w('arcade_stopControllingSprite', 'command', 'arcade controller {CONTROLLER:1|2|3|4} stop controlling sprite {ID}'),
     w('arcade_setSpriteImage', 'command', 'arcade set image of {ID} to {IMAGE}'),
     w('arcade_setSpritePixel', 'command', 'arcade set pixel of {ID} x {X} y {Y} color {COLOR}'),
+    w('arcade_drawSpriteCircle', 'command',
+        'arcade draw circle {OP:drawCircle|fillCircle} of {ID} x {X} y {Y} radius {RADIUS} color {COLOR}'),
     w('arcade_drawSpriteImage', 'command',
         'arcade draw {OP:fillRect|drawLine} of {ID} x {X} y {Y} width {W} height {H} color {COLOR}'),
     w('arcade_mutateSpriteImage', 'command',
@@ -290,6 +292,8 @@ export const ARCADE_WORDS = Object.freeze([
     // Image.print; font auto is image.getFontForText's choice.
     w('arcade_printImageText', 'command',
         'arcade print {TEXT} on image {IMAGE} x {X} y {Y} color {COLOR} font {FONT:auto|normal|small|large}'),
+    w('arcade_drawImageCircle', 'command',
+        'arcade draw image circle {OP:drawCircle|fillCircle} {IMAGE} x {X} y {Y} radius {RADIUS} color {COLOR}'),
     w('arcade_drawImage', 'command',
         'arcade draw image {OP:fillRect|drawLine} {IMAGE} x {X} y {Y} width {W} height {H} color {COLOR}'),
 

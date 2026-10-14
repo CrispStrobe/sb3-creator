@@ -23,6 +23,8 @@ const ALIAS = true;
 
 // [kind, opcode, one line of the word with a value in every slot, ALIAS?]
 const WORD_LINES = [
+    ['command','arcade_drawImageCircle','arcade draw image circle fillCircle (arcade local canvas) x (1 + 2) y -1 radius (arcade local radius) color 17'],
+    ['command','arcade_drawSpriteCircle','arcade draw circle drawCircle of (arcade local actor) x -2 y (3 + 1) radius 2.9 color -1'],
     ['command','arcade_declareSourceCallable','declare arcade source callable first signature \"{\\\"kind\\\":\\\"callable\\\",\\\"parameters\\\":[],\\\"result\\\":{\\\"kind\\\":\\\"named\\\",\\\"name\\\":\\\"number\\\"}}\"'],
     ['command','arcade_declareCallable','arcade declare callable "counter" metadata "{}"'],
     ['command','arcade_runCallableDispatch','arcade run dispatched callable'],
@@ -459,7 +461,7 @@ describe('Arcade dialect words', () => {
         const here = new Set(WORD_LINES.map(([, op]) => op));
         assert.deepEqual([...here].sort(), [...ARCADE_DIALECT_OPS].sort());
         assert.equal(WORD_LINES.length, ARCADE_WORDS.length, 'one line per spelling, aliases included');
-        assert.equal(ARCADE_DIALECT_OPS.length, 391);
+        assert.equal(ARCADE_DIALECT_OPS.length, 393);
     });
 
     for (const [kind, op, line, alias] of WORD_LINES) {
