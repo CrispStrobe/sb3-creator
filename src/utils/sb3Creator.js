@@ -2675,6 +2675,11 @@ class SB3Creator {
                 return /^["(]/.test(value) ? value : `(${value})`;
             },
             field: (name) => {
+                if (entry.strictFields) {
+                    const part = compileArcadeWord(entry).parts.find(p => p.slot === name && p.field);
+                    if (b.inputs[name] || !part?.choices.includes(b.fields[name]?.[0]))
+                        throw new Error(`${entry.op} requires a fixed ${name} field`);
+                }
                 if (b.fields[name]) return b.fields[name][0];
                 // Read pre-schema-fix saved literal inputs, but never turn an
                 // arbitrary reporter into a direct dropdown field. Native

@@ -424,6 +424,7 @@ export const ARCADE_WORDS = Object.freeze([
     w('arcade_getLife', 'reporter', 'arcade life player {PLAYER}'),
     w('arcade_backgroundImage', 'reporter', 'arcade background image'),
     w('arcade_screenImage', 'reporter', 'arcade screen image'),
+    w('arcade_fontMetric', 'reporter', 'arcade font {FONT:"font5"|"font8"|"font12"} metric {PROPERTY:"charWidth"|"charHeight"}', {strictFields: true}),
     w('arcade_backgroundColor', 'reporter', 'arcade background color'),
     w('arcade_truncateNumber', 'reporter', 'arcade truncate {NUM}', {early: true}),
     w('arcade_signNumber', 'reporter', 'arcade sign of {NUM}', {early: true}),
