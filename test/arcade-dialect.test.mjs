@@ -23,6 +23,15 @@ const ALIAS = true;
 
 // [kind, opcode, one line of the word with a value in every slot, ALIAS?]
 const WORD_LINES = [
+    ['reporter','arcade_allocateControlEventSource','arcade allocate control event source'],
+    ['reporter','arcade_controllerEventSource','arcade controller event source player 2'],
+    ['command','arcade_setControllerConnected','arcade set controller player 2 connected (1 = 1)'],
+    ['command','arcade_registerControlEvent','arcade register control event source 777 value 3 flags 16 as "event1" capturing ""'],
+    ['command','arcade_raiseControlEvent','arcade raise control event source 777 value 3'],
+    ['command','arcade_waitControlEvent','arcade wait for control event source 777 value 3'],
+    ['hat','arcade_whenRegisteredControlEvent','when arcade control event handler "event1" runs'],
+    ['command','arcade_registerMultiplayerConnection','arcade register multiplayer connection event 1 as "connect1" capturing ""'],
+    ['hat','arcade_whenRegisteredMultiplayerConnection','when arcade multiplayer connection handler "connect1" runs'],
     ['reporter','arrays_stringCharCodeAt','char code of text "😀A" at -0.5'],
     ['reporter','arrays_referenceSlice','slice array reference values from -2 to (undefined value)'],
     ['reporter','arrays_referenceConcat','concatenate array reference values with other'],
@@ -438,7 +447,7 @@ describe('Arcade dialect words', () => {
         const here = new Set(WORD_LINES.map(([, op]) => op));
         assert.deepEqual([...here].sort(), [...ARCADE_DIALECT_OPS].sort());
         assert.equal(WORD_LINES.length, ARCADE_WORDS.length, 'one line per spelling, aliases included');
-        assert.equal(ARCADE_DIALECT_OPS.length, 370);
+        assert.equal(ARCADE_DIALECT_OPS.length, 379);
     });
 
     for (const [kind, op, line, alias] of WORD_LINES) {
