@@ -58,6 +58,7 @@ const CASES = [
     ['DEVICE ARDUINO-NANO\nPIN x = A6 OUTPUT', /analog-input only on the Nano/],
     ['DEVICE STM32F030\nPIN x = PA9 ANALOG', /ANALOG on the STM32F030 means PA0-PA7/],
     ['DEVICE STM32F030\nPIN x = PA0 PWM', /PWM on the STM32F030 means PA6, PA7 or PB1/],
+    ['DEVICE ESP8266\nPIN x = GP12 ANALOG', /ANALOG is not available on the ESP8266: its runtime has no analogRead/],
     ['DEVICE ATTINY85\nPIN x = PB0 PWM', /PWM on the ATtiny85 means PB1 or PB4/],
     ['DEVICE ATTINY88\nPIN x = PB1 PWM', /the ATtiny88 has no PWM here/],
     ['DEVICE PICO\nPIN x = GP5 ANALOG', /ANALOG on the Pico means GP26, GP27 or GP28/],

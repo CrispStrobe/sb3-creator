@@ -4617,6 +4617,9 @@ class SB3Creator {
             if (cfg.device === 'stm32f030' && /^pwm$/i.test(direction) && !/^(PA[67]|PB1)$/i.test(where)) {
                 return this.refuseDeclaration(lineIndex, trimmed, `PWM on the STM32F030 means PA6, PA7 or PB1 (TIM3 channels), not ${where.toUpperCase()}`);
             }
+            if (cfg.device === 'esp8266' && /^analog$/i.test(direction)) {
+                return this.refuseDeclaration(lineIndex, trimmed, `ANALOG is not available on the ESP8266: its runtime has no analogRead, so ${where.toUpperCase()} cannot be an ANALOG pin`);
+            }
             if (core === 'rp2040' && cfg.device !== 'stm32f030' && /^analog$/i.test(direction) && !/^GP2[678]$/i.test(where)) {
                 return this.refuseDeclaration(lineIndex, trimmed, `ANALOG on the Pico means GP26, GP27 or GP28 (ADC0-2), not ${where.toUpperCase()}`);
             }
@@ -10817,6 +10820,7 @@ class SB3Creator {
         if (!part) return null;
         // The board dialects name the C core differently (see generateC's
         // _core): 'rp2040' covers the Pico and the STM32F030, 'arduino' the AVRs.
+        if (part.esp8266) return null;   // the runtime exposes no temperature reading
         if (part.core === 'rp2040') return part.stm32f0 ? 'stm32f0' : 'rp2040';
         if (part.core !== 'arduino') return null;
         if (part.tiny85) return 'attiny85';
@@ -11180,6 +11184,13 @@ class SB3Creator {
             const ok = m[1] === 'A' ? (bit <= 7 || bit === 9 || bit === 10) : bit === 1;
             return ok ? { gpio: idx } : null;
         }
+        if (this._cEsp8266) {
+            // GPIO numbers as the runtime takes them; 6-11 are the SPI
+            // flash bus and 16 has no runtime support, so neither is a pin.
+            const e = String(pin.where || '').toUpperCase().match(/^GP(\d+)$/);
+            const n = e ? Number(e[1]) : -1;
+            return (n >= 0 && n <= 5) || (n >= 12 && n <= 15) ? { gpio: n } : null;
+        }
         const m = String(pin.where || '').toUpperCase().match(/^GP(\d+)$/);
         return m && Number(m[1]) <= 28 ? { gpio: Number(m[1]) } : null;
     }
@@ -11187,10 +11198,10 @@ class SB3Creator {
     /** Single-point pin-op emission for the arm cores: the pico writes
      *  SIO registers, the F0 goes through the bw_pin_* inline helpers
      *  (which gcc -Os folds to one store for constant pins). */
-    armSet (hw) { return this._cStm32 ? `bw_pin_set(${hw.gpio}u);` : `BW_SIO_GPIO_OUT_SET = (1UL << ${hw.gpio});`; }
-    armClr (hw) { return this._cStm32 ? `bw_pin_clr(${hw.gpio}u);` : `BW_SIO_GPIO_OUT_CLR = (1UL << ${hw.gpio});`; }
-    armXor (hw) { return this._cStm32 ? `bw_pin_xor(${hw.gpio}u);` : `BW_SIO_GPIO_OUT_XOR = (1UL << ${hw.gpio});`; }
-    armGet (hw) { return this._cStm32 ? `bw_pin_get(${hw.gpio}u)` : `((BW_SIO_GPIO_IN >> ${hw.gpio}) & 1u)`; }
+    armSet (hw) { if (this._cEsp8266) return `digitalWrite(${hw.gpio}, HIGH);`; return this._cStm32 ? `bw_pin_set(${hw.gpio}u);` : `BW_SIO_GPIO_OUT_SET = (1UL << ${hw.gpio});`; }
+    armClr (hw) { if (this._cEsp8266) return `digitalWrite(${hw.gpio}, LOW);`; return this._cStm32 ? `bw_pin_clr(${hw.gpio}u);` : `BW_SIO_GPIO_OUT_CLR = (1UL << ${hw.gpio});`; }
+    armXor (hw) { if (this._cEsp8266) return `digitalWrite(${hw.gpio}, !digitalRead(${hw.gpio}));`; return this._cStm32 ? `bw_pin_xor(${hw.gpio}u);` : `BW_SIO_GPIO_OUT_XOR = (1UL << ${hw.gpio});`; }
+    armGet (hw) { if (this._cEsp8266) return `digitalRead(${hw.gpio})`; return this._cStm32 ? `bw_pin_get(${hw.gpio}u)` : `((BW_SIO_GPIO_IN >> ${hw.gpio}) & 1u)`; }
 
     /** How each board spells a general pin (PIN and pin-role PART lines
      *  share it): [pattern, the words a refusal uses]. */
@@ -11222,6 +11233,9 @@ class SB3Creator {
         // PA23/PB23) would have carried that looseness from one digit to
         // two, so the row now says what its own message says.
         stm32f030: [/^(PA[0-7]|PA9|PA10|PB1)$/i, 'PA0-PA7, PA9, PA10 or PB1'],
+        // GPIO numbers, Pico-style: GPIO6-11 carry the SPI flash and the
+        // runtime does not drive GPIO16, so neither is offered.
+        esp8266: [/^GP([0-5]|1[2-5])$/i, 'GP0-GP5 or GP12-GP15 (GPIO6-11 are the flash bus; GPIO16 is unsupported)'],
         // PB7 is Timer 1's square-wave pin and the machine's timebase
         // guard: the emitter would refuse it anyway, refuse it here too.
         eater6502: [/^(PA[0-7]|PB[0-7]|MK\d+)$/i, 'PA0-PA7, PB0-PB7, or MK0-MK19 (matrix keypad)'],
@@ -11311,7 +11325,9 @@ class SB3Creator {
         if (this._core === 'arm') {
             const hw = this.armHw(pin);
             if (!hw) {
-                this.cWarn(`"${pin.name}" (${pin.where}) is not a Pico GPIO`);
+                this.cWarn(this._cEsp8266
+                    ? `"${pin.name}" (${pin.where}) is not a usable ESP8266 GPIO: use GP0-GP5 or GP12-GP15 (GPIO6-11 are the flash bus, GPIO16 is unsupported)`
+                    : `"${pin.name}" (${pin.where}) is not a Pico GPIO`);
                 return null;
             }
             return `BW_ARM:${pin.name}`;   // same non-lvalue discipline as the AVR
@@ -11382,6 +11398,11 @@ class SB3Creator {
                 return `adc_read(${ch})`;
             }
             if (this._core === 'arm') {
+                if (this._cEsp8266) {
+                    this.cWarn(`"${pin.name}" (${pin.where}) cannot be read as analog: `
+                        + 'the ESP8266 runtime has no analogRead');
+                    return `0 /* no analogRead on the ESP8266 */`;
+                }
                 if (this._cStm32) {
                     // ADC_IN0..7 sit on PA0..PA7 — channel = the pin number.
                     const hw = this.armHw(pin);
@@ -15796,6 +15817,7 @@ class SB3Creator {
         this._cTiny88 = !!(part && part.tiny88);
         this._cTiny85 = !!(part && part.tiny85);
         this._cStm32 = !!(part && part.stm32f0);
+        this._cEsp8266 = !!(part && part.esp8266);
         // The ATtinys' print/ask: a software UART on SOFT_SERIAL_PINS.
         this._cSoftSerial = (this._cTiny85 || this._cTiny88)
             ? SB3Creator.SOFT_SERIAL_PINS[String(device || '').toLowerCase()] || null : null;
@@ -15876,7 +15898,7 @@ class SB3Creator {
         // A sensor PART's driver reads time off the millisecond tick, which
         // the scheduler path is what starts on every core.
         const hasPinRoleParts = pins.some((p) => p.rolePart);
-        this._cTasks = hasPinRoleParts || scriptCount > 1 || hasEventHat || (scriptCount > 0 && debug) || (scriptCount > 0 && this._cStm32) || this._stcHasMatrix() || this._stcHasSevenSeg() || this._stcHasLedBank();
+        this._cTasks = hasPinRoleParts || scriptCount > 1 || hasEventHat || (scriptCount > 0 && debug) || (scriptCount > 0 && this._cStm32) || this._cEsp8266 || this._stcHasMatrix() || this._stcHasSevenSeg() || this._stcHasLedBank();
         const taskNames = Array.from({ length: scriptCount }, (_, n) => `bw_task${n}`);
         const yieldMap = [];   // only emitted for a debug build — see the marker header below
 
@@ -16684,6 +16706,14 @@ class SB3Creator {
                 'static unsigned char bw_port_b = 0;   /* shadow of port B */',
                 'static unsigned char bw_port_c = 0;   /* shadow of port C */',
                 '');
+        } else if (this._core === 'arm' && this._cEsp8266) {
+            out.push('#include <stdint.h>',
+                '#include "Arduino.h"', '');
+            out.push(`#define F_CPU ${clock}UL`, '');
+            out.push('/* ESP8266 (LX106) on the blob-free esp8266js runtime: every pin,',
+                ' * time, PWM, tone and serial operation goes through its Arduino-style',
+                ' * API. The runtime\'s arduino.c owns main(): it starts the millisecond',
+                ' * timer, enables interrupts, calls setup() once and loop() forever. */', '');
         } else if (this._core === 'arm' && this._cStm32) {
             out.push('#include <stdint.h>', '');
             out.push(`#define F_CPU ${clock}UL`, '');
@@ -16930,7 +16960,23 @@ class SB3Creator {
                     '}', '');
             }
         }
-        if (this._cTasks && this._core === 'arm' && this._cStm32) {
+        if (this._cTasks && this._core === 'arm' && this._cEsp8266) {
+            out.push('/* One script = one cooperative task; tasks yield at every wait and',
+                ' * at every loop iteration. The runtime keeps the millisecond count',
+                ' * (millis()); idle waits for the next millisecond edge. */',
+                'static uint32_t bw_calm;',
+                'static uint32_t bw_now(void) { return (uint32_t)millis(); }',
+                'static void bw_idle(void) { uint32_t m = bw_now(); while (bw_now() == m) { } }', '');
+            this._cUses.now = true;
+            if (this._cUses.blockDelay) {
+                out.push('/* A wait inside a custom block: really blocks, on the runtime clock. */',
+                    'static void bw_block_ms(uint32_t ms)',
+                    '{',
+                    '    uint32_t start = bw_now();',
+                    '    while ((int32_t)(bw_now() - start - ms) < 0) bw_idle();',
+                    '}', '');
+            }
+        } else if (this._cTasks && this._core === 'arm' && this._cStm32) {
             out.push('/* One script = one cooperative task; tasks yield at every wait and',
                 ' * at every loop iteration. TIM3 raises IRQ16 every millisecond; the',
                 ' * handler maintains bw_ms (a 32-bit load is atomic on this core, so',
@@ -17188,7 +17234,29 @@ class SB3Creator {
                 '    bw_putc(13); bw_putc(10);',
                 '}', '');
         }
-        if (this._core === 'arm' && this._cStm32 && this._cUses.print) {
+        if (this._core === 'arm' && this._cEsp8266 && this._cUses.print) {
+            out.push('/* print goes out the runtime\'s serial port at 9600 (bw_serial_begin',
+                ' * in bw_setup); bw_serial_write takes a NUL-terminated string. */',
+                'static void bw_putc(char c)',
+                '{',
+                '    char s[2];',
+                '    s[0] = c; s[1] = 0;',
+                '    bw_serial_write(s);',
+                '}', '',
+                'static void bw_print(const char *s)',
+                '{',
+                '    bw_serial_write(s);',
+                '    bw_serial_write("\\r\\n");',
+                '}', '',
+                'static void bw_print_num(long n)',
+                '{',
+                '    char b[12]; int i = 0;',
+                '    unsigned long u = n < 0 ? (bw_putc(45), (unsigned long)-(n)) : (unsigned long)n;',
+                '    do { b[i++] = (char)(48 + (u % 10)); u /= 10; } while (u);',
+                '    while (i) bw_putc(b[--i]);',
+                '    bw_putc(13); bw_putc(10);',
+                '}', '');
+        } else if (this._core === 'arm' && this._cStm32 && this._cUses.print) {
             out.push('/* print goes out USART1 at 9600 8N1. The model reports TXE always',
                 ' * ready; silicon paces on the ISR TXE bit the same loop checks. */',
                 'static void bw_putc(char c)',
@@ -17402,7 +17470,15 @@ class SB3Creator {
 
         if (this._cUses.chipTemp) out.push(...this._cChipTempHelper(this._cUses.chipTemp));
 
-        if ((this._cUses.pwm || this._cUses.motor) && this._core === 'arm' && this._cStm32) {
+        if (this._cUses.pwm && this._core === 'arm' && this._cEsp8266) {
+            out.push('/* PWM is the runtime\'s analogWrite: 0..255 at 1 kHz on any usable',
+                ' * GPIO. The program speaks percent, so scale once here. */',
+                'static void pwm_set(unsigned char gpio, unsigned int percent)',
+                '{',
+                '    if (percent > 100) percent = 100;',
+                '    analogWrite(gpio, (int)((percent * 255u + 50u) / 100u));',
+                '}', '');
+        } else if ((this._cUses.pwm || this._cUses.motor) && this._core === 'arm' && this._cStm32) {
             out.push('/* PWM rides the tick timer: TIM3 already counts 0..999 at 1 MHz',
                 ' * for the millisecond interrupt, and that same frame IS a 1 kHz PWM',
                 ' * period — compare channels cost no second timer. PA6=CH1, PA7=CH2,',
@@ -17807,7 +17883,16 @@ class SB3Creator {
         if (this._cUses.tone && this._core === 'arm') {
             const tonePin = pins.find(p => p.direction === 'tone');
             const hw = tonePin ? this.armHw(tonePin) : null;
-            if (hw && this._cStm32) {
+            if (hw && this._cEsp8266) {
+                // tone(pin, freq, 0) plays until noTone — the runtime's
+                // three-argument form; 0 Hz means silence.
+                out.push('/* tone_set: the runtime\'s tone() plays until noTone(); 0 Hz is silence. */',
+                    'static void tone_set(unsigned int freq)',
+                    '{',
+                    `    if (freq == 0u) { noTone(${hw.gpio}); ${this.armClr(hw)} return; }`,
+                    `    tone(${hw.gpio}, freq, 0);`,
+                    '}', '');
+            } else if (hw && this._cStm32) {
                 // TIM14 (RM0360 §17): 1 MHz count, an update every half-period,
                 // its IRQ (19) toggling the pin. TIM3 stays the 1 ms tick.
                 out.push('/* tone_set: TIM14 update interrupt toggles the TONE pin every half-period. */',
@@ -19082,7 +19167,7 @@ class SB3Creator {
                     // the moment of the draw -- when a button was pressed --
                     // is mixed in, so a game does not replay the same
                     // "random" sequence after every power-on.
-                    ...(this._cTasks ? [`    x ^= (unsigned long)${this._core === 'arm' && !this._cStm32 ? 'BW_TIMER_TIMELR' : 'bw_ms'} << 11;   /* WHEN the draw happens is chance too */`,
+                    ...(this._cTasks ? [`    x ^= (unsigned long)${this._cEsp8266 ? 'micros()' : this._core === 'arm' && !this._cStm32 ? 'BW_TIMER_TIMELR' : 'bw_ms'} << 11;   /* WHEN the draw happens is chance too */`,
                         '    if (!x) x = 0x6d2b79f5UL;'] : []),
                     '    x ^= x << 13; x ^= x >> 17; x ^= x << 5;',
                     '    bw_rng = x;',
@@ -19301,7 +19386,34 @@ class SB3Creator {
                     '    UCSR0C = (1 << UCSZ01) | (1 << UCSZ00);  /* 8N1 */');
             }
         }
-        if (this._core === 'arm' && this._cStm32) {
+        if (this._core === 'arm' && this._cEsp8266) {
+            for (const p of pins) {
+                const hw = this.armHw(p);
+                if (!hw) continue;
+                if (p.direction === 'output' || p.direction === 'tone' || p.direction === 'pwm') {
+                    // Level BEFORE mode: an ACTIVE LOW load never sees a
+                    // power-on glitch while the pin turns into an output.
+                    out.push(`    ${p.activeLow ? this.armSet(hw) : this.armClr(hw)}      /* ${p.name} = ${p.where}: start OFF */`,
+                        `    pinMode(${hw.gpio}, OUTPUT);`);
+                } else if (p.direction === 'input') {
+                    // ACTIVE LOW → internal pull-up (button to GND); the
+                    // runtime has no pull-down, so active high is plain INPUT.
+                    const mode = p.activeLow && !p.openDrain ? 'INPUT_PULLUP' : 'INPUT';
+                    out.push(`    pinMode(${hw.gpio}, ${mode});   /* ${p.name} = ${p.where} */`);
+                }
+            }
+            if (this._cUses.print) {
+                // UART0 is GPIO1 (TX) / GPIO3 (RX): a program that prints
+                // cannot also use them as pins.
+                for (const p of pins) {
+                    const hw = this.armHw(p);
+                    if (hw && (hw.gpio === 1 || hw.gpio === 3)) {
+                        this.cWarn(`"${p.name}" (${p.where}) is the serial ${hw.gpio === 1 ? 'TX' : 'RX'} pin, which print uses on the ESP8266`);
+                    }
+                }
+                out.push('    bw_serial_begin(9600);        /* print: 9600 baud */');
+            }
+        } else if (this._core === 'arm' && this._cStm32) {
             // RM0360 order: clocks first — a peripheral with its RCC clock
             // off does not function, on silicon and in the emulator alike.
             const usedPorts = new Set();
@@ -19797,6 +19909,24 @@ class SB3Creator {
         // it, and an ATtiny85 program ending on `set buzz to 440 hz` went
         // silent the moment main returned.)
         const stayFinished = '    for (;;) { }                    /* the script has finished: stay finished */';
+        if (this._cEsp8266) {
+            // The runtime's arduino.c defines main(): it calls setup() once
+            // and loop() forever, so one scheduler pass IS loop's body.
+            out.push('}', '',
+                'void setup(void)',
+                '{',
+                '    bw_setup();',
+                '}', '',
+                'void loop(void)',
+                '{',
+                '    uint32_t pass_ms = bw_now();',
+                ...[...(this._cPollTasks || []), ...taskNames].map((n) => `    ${n}();`),
+                '    /* Two full passes inside one millisecond: wait for the next ms',
+                '     * edge instead of spinning against it (the pico/AVR contract). */',
+                '    if (bw_now() == pass_ms) { if (++bw_calm >= 2u) { bw_calm = 0u; bw_idle(); } }',
+                '    else bw_calm = 0u;',
+                '}', '');
+        } else {
         out.push('}', '',
             (this._core !== '8051' && this._core !== 'z80') ? 'int main(void)' : 'void main(void)',
             '{', '    bw_setup();');
@@ -19895,6 +20025,46 @@ class SB3Creator {
             if (this._core === '8051') out.push(stayFinished);
         }
         out.push('}', '');
+        }
+        // ESP8266: the same choke point as the i8086 below. Only verbs with a
+        // real runtime-API branch are emitted; anything else would fall to
+        // RP2040/STM32 register code that means nothing on an LX106, so the
+        // whole program refuses BY NAME instead. analogRead and Servo are
+        // absent from the runtime itself, not merely unported.
+        if (this._cEsp8266) {
+            const ESP8266_IMPLEMENTED = new Set([
+                'delay', 'blockDelay', 'blockingDelay', 'now', 'print', 'printText', 'printNumber',
+                'printPieces', 'pwm', 'tone', 'random', 'numericLists', 'table'
+            ]);
+            const named = {
+                adc: 'analog input (the runtime has no analogRead)',
+                servo: 'servo (the runtime has no Servo)',
+                ask: 'ask/answer (the runtime has no serial input)',
+                chipTemp: 'chip temperature (the runtime has no reading)'
+            };
+            let keys = Object.keys(this._cUses).filter((k) => this._cUses[k] && !ESP8266_IMPLEMENTED.has(k));
+            // 'devices' only says some device block ran; name the device itself.
+            if (keys.length > 1) keys = keys.filter((k) => k !== 'devices');
+            const used = keys.map((k) => named[k] || k);
+            if (this._cSensorParts && this._cSensorParts.size) used.push('sensor PARTs');
+            const unique = [...new Set(used)];
+            if (unique.length) {
+                this.cWarn(`the ESP8266 C back end emits pins, waits, print, PWM and tone through the `
+                    + `esp8266js runtime API — ${unique.join(', ')} ${unique.length > 1 ? 'are' : 'is'} `
+                    + 'not available for this board, so no C is emitted');
+                return `/* No C emitted for DEVICE ESP8266.\n`
+                    + ' *\n'
+                    + ' * The ESP8266 C back end targets the esp8266js runtime\'s Arduino-style\n'
+                    + ' * API: digital pins, waits, print, PWM (analogWrite) and tone. This\n'
+                    + ` * program also uses: ${unique.join(', ')}.\n`
+                    + ' * Emitting another chip\'s register code for them would be wrong on\n'
+                    + ' * an LX106. The pseudocode is unchanged.\n'
+                    + ' */\n';
+            }
+            const body = out.join('\n');
+            const leaked = [...new Set(body.match(/BW_SIO\w*|BW_IOBANK0\w*|BW_PADS\b|BW_TIMER_\w*|BW_UART0\w*|BW_WATCHDOG\w*|BW_PWM\w*|BW_ADC_\w*|BW_SCB\w*|BW_NVIC\w*|BW_MMIO|\bint main\b/g) || [])];
+            for (const l of leaked) this.cWarn(`internal: ${l} leaked into an ESP8266 build — that feature is not ported yet`);
+        }
         // i8086 emits 8255 PIN I/O only, for now. Every other verb falls to the
         // 8051 default above, which would be wrong 8051 code on an 8086 -- so if
         // the program used ANY hardware/util verb (each sets a `_cUses` flag; a
@@ -20971,6 +21141,18 @@ SB3Creator.STC_PARTS = {
     // bw-board's STM32-PATH.md and test/stm32f0-board.test.mjs — that
     // firmware IS this emission's contract.
     stm32f030: { core: 'rp2040', stm32f0: true, header: null, portModes: false, aux1T: false, adc: true },
+    // core 'rp2040' + esp8266: the ESP8266 (Tensilica LX106) is NOT an ARM
+    // part — it rides the same structural emission (cooperative scheduler,
+    // per-pin helpers) the way the STM32F030 does, but every hardware verb
+    // goes through the blob-free esp8266js runtime's Arduino-style API
+    // (firmware/arduino/Arduino.h: pinMode/digitalWrite/digitalRead,
+    // millis, analogWrite 0-255 at 1 kHz, tone/noTone, bw_serial_*).
+    // That runtime's arduino.c owns main(); the emission supplies setup()
+    // and loop(). Pins are GPIO numbers spelled GPn like the Pico's:
+    // GP0-GP5 and GP12-GP15 (GPIO6-11 are the flash bus, GPIO16 is not
+    // supported by the runtime). No analogRead and no Servo in that
+    // runtime, so those (and every other unported feature) refuse by name.
+    esp8266: { core: 'rp2040', esp8266: true, header: null, portModes: false, aux1T: false, adc: false },
     // core: 'w65c02' -- the composable 6502 breadboard machine (EATER6502
     // preset: W65C22 VIA at $6000, W65C51 ACIA at $5000, 1 MHz phi2).
     // generateC() emits cc65-compatible freestanding C; pins are VIA port
@@ -21017,6 +21199,7 @@ SB3Creator.defaultClock = (device) => {
     if (part.tiny85 || part.tiny88) return 8000000;
     if (part.core === 'arduino') return 16000000;
     if (part.stm32f0) return 48000000;
+    if (part.esp8266) return 80000000;
     if (part.core === 'rp2040') return 125000000;
     if (part.core === 'w65c02') return 1000000;
     if (part.core === 'samd51') return 120000000;
