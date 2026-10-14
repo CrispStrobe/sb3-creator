@@ -261,6 +261,8 @@ const WORD_LINES = [
     ['command', 'arcade_stopAllSounds', 'arcade stop all sounds'],
     ['command', 'arcade_drawImage', 'arcade draw image drawLine (n + 1) x hero y "Player" width 2 height (arcade local count) color -3'],
     ['command', 'arcade_setScenePhysicsEngine', 'arcade set physics engine of scene (n + 1) to hero'],
+    ['command', 'arcade_setSceneFlags', 'arcade scene (arcade current scene) set flags to (n + 2)'],
+    ['command', 'arcade_setUserEventsEnabled', 'arcade set user controller events enabled (n > 0)'],
     ['command', 'arcade_setPhysicsEngineProperty', 'arcade set physics engine property maxStep of (n + 1) to hero'],
     ['command', 'arcade_addAnimationFrame', 'arcade add animation frame (n + 1) image hero'],
     ['command', 'arcade_attachAnimation', 'arcade attach animation (n + 1) to sprite hero'],
@@ -310,6 +312,7 @@ const WORD_LINES = [
     ['reporter','arcade_cameraDrawOffset','arcade camera draw offset x'],
     ['reporter', 'arcade_currentScene', 'arcade current scene'],
     ['reporter', 'arcade_scenePhysicsEngine', 'arcade physics engine of scene (n + 1)'],
+    ['reporter', 'arcade_sceneFlags', 'arcade flags of scene (arcade current scene)'],
     ['reporter', 'arcade_createPhysicsEngine', 'arcade create physics engine max speed (n + 1) min step hero max step "Player"'],
     ['reporter', 'arcade_physicsEngineProperty', 'arcade physics engine property maxStep of (n + 1)'],
     ['reporter', 'arcade_createAnimation', 'arcade create animation action (n + 1) interval hero'],
@@ -434,7 +437,7 @@ describe('Arcade dialect words', () => {
         const here = new Set(WORD_LINES.map(([, op]) => op));
         assert.deepEqual([...here].sort(), [...ARCADE_DIALECT_OPS].sort());
         assert.equal(WORD_LINES.length, ARCADE_WORDS.length, 'one line per spelling, aliases included');
-        assert.equal(ARCADE_DIALECT_OPS.length, 366);
+        assert.equal(ARCADE_DIALECT_OPS.length, 369);
     });
 
     for (const [kind, op, line, alias] of WORD_LINES) {
