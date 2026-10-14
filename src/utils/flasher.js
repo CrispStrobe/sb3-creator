@@ -766,6 +766,8 @@ export const flashMicrobit = flashMicroPython;
 const STM32_ACK = 0x79;
 const STM32_NACK = 0x1f;
 const STM32_PID_F03X = 0x0444;
+const STM32_PID_G03X = 0x0466;
+const STM32_PID_F10X_MD = 0x0410;
 
 function stm32Xor(bytes) { return bytes.reduce((a, b) => a ^ b, 0); }
 function stm32Be32(v) {
@@ -802,7 +804,8 @@ export async function flashStm32(port, image, {
     const idbody = await io.read(idn + 1);
     await one('GET_ID tail');
     let id = 0; for (const b of idbody) id = (id << 8) | b;
-    log(`product id 0x${id.toString(16)}${id === STM32_PID_F03X ? ' (STM32F03x)' : ''}`);
+    const chipDesc = id === STM32_PID_F03X ? ' (STM32F03x)' : id === STM32_PID_G03X ? ' (STM32G03x)' : id === STM32_PID_F10X_MD ? ' (STM32F103 MD)' : '';
+    log(`product id 0x${id.toString(16)}${chipDesc}`);
 
     // extended global erase (the F0 family's 0x44)
     await command(0x44, 'EXTENDED_ERASE');
