@@ -23,6 +23,9 @@ const ALIAS = true;
 
 // [kind, opcode, one line of the word with a value in every slot, ALIAS?]
 const WORD_LINES = [
+    ['reporter','arcade_buttonRepeatProperty','arcade player 2 button B repeat property repeatInterval'],
+    ['command','arcade_setButtonRepeatProperty','arcade set player 2 button B repeat property repeatDelay to (undefined value)'],
+    ['command','arcade_setButtonRepeatDefaults','arcade set button repeat defaults delay (20 + 10) interval (40 + 1)'],
     ['reporter','arcade_allocateControlEventSource','arcade allocate control event source'],
     ['reporter','arcade_controllerEventSource','arcade controller event source player 2'],
     ['command','arcade_setControllerConnected','arcade set controller player 2 connected (1 = 1)'],
@@ -448,7 +451,7 @@ describe('Arcade dialect words', () => {
         const here = new Set(WORD_LINES.map(([, op]) => op));
         assert.deepEqual([...here].sort(), [...ARCADE_DIALECT_OPS].sort());
         assert.equal(WORD_LINES.length, ARCADE_WORDS.length, 'one line per spelling, aliases included');
-        assert.equal(ARCADE_DIALECT_OPS.length, 380);
+        assert.equal(ARCADE_DIALECT_OPS.length, 383);
     });
 
     for (const [kind, op, line, alias] of WORD_LINES) {
