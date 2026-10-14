@@ -97,6 +97,25 @@ function slotTakesExpressions(family, device, template, opcode, pre = '') {
     }
 }
 
+// Variable-binding slots identify a cell; they cannot accept a computed value.
+function slotBindsVariable(device, template, opcode, inputName) {
+    const line = template.replace('X', 'a');
+    const check = ({c, all, stmt}) => {
+        assert.equal(stmt.opcode, opcode);
+        const input = stmt.inputs[inputName][1];
+        const reporter = typeof input === 'string' ? all[input] : null;
+        assert.equal(reporter?.opcode || (input[0] === 12 && 'data_variable'), 'data_variable');
+        const variableId = reporter ? reporter.fields.VARIABLE[1] : input[2];
+        assert.ok(c.project.targets.some(target => Object.hasOwn(target.variables, variableId)));
+    };
+    const first = built(program(device, line));check(first);
+    const code = first.c.decompile(), again = built(code);check(again);
+    assert.equal(again.c.decompile(), code);
+    for (const [probe] of PROBES) {
+        assert.throws(() => built(program(device, template.replace('X', probe))), /ordinary variable reporter/);
+    }
+}
+
 describe('argument slots take an expression, and round-trip', () => {
     test('SPIKE: the words whose slot was `(\\S+)` (the D2 finding and its siblings)', () => {
         for (const [template, op] of [
@@ -169,8 +188,12 @@ describe('argument slots take an expression, and round-trip', () => {
                     if (spec && spec !== 'cond') return spec.split('|')[0];
                     return '5';
                 });
-                slotTakesExpressions('Arcade', 'ARCADE', template, w.op);
-                slots++;
+                if (w.variableInputs?.includes(name)) {
+                    slotBindsVariable('ARCADE', template, w.op, name);
+                } else {
+                    slotTakesExpressions('Arcade', 'ARCADE', template, w.op);
+                    slots++;
+                }
             }
         }
         // counted 2026-10-05: 164 value slots across the Arcade command words.
