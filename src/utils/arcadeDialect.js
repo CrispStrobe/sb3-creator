@@ -427,7 +427,7 @@ export const ARCADE_WORDS = Object.freeze([
     w('arcade_truncateNumber', 'reporter', 'arcade truncate {NUM}', {early: true}),
     w('arcade_signNumber', 'reporter', 'arcade sign of {NUM}', {early: true}),
     w('arcade_randomNumber', 'reporter', 'arcade random fraction'),
-    w('arcade_mathBinary', 'reporter', 'arcade math {OP:menu:mathOperations:min|max|randomRange} first {A} second {B}', {early:true}),
+    w('arcade_mathBinary', 'reporter', 'arcade math {OP:min|max|randomRange} first {A} second {B}', {early:true}),
     w('arcade_percentChance', 'boolean', 'arcade percent chance {PERCENTAGE}'),
     w('arcade_clampNumber','reporter','arcade clamp minimum {MIN} maximum {MAX} value {VALUE}',{early:true}),
     w('arcade_cameraProperty', 'reporter', 'arcade camera property {PROPERTY}'),
@@ -455,8 +455,8 @@ export const ARCADE_WORDS = Object.freeze([
         'arcade tile {PROPERTY:column|row|x|y|left|right|top|bottom|tileSet} of {LOCATION}'),
     w('arcade_sceneMillis','reporter','arcade scene runtime milliseconds'),
     w('arcade_programMillis','reporter','arcade program runtime milliseconds'),
-    w('arcade_setBackgroundScrollVersion','command','arcade use background scroll version {VERSION}'),
-    w('arcade_setCharacterAnimationVersion','command','arcade use character animation version {VERSION}'),
+    w('arcade_setBackgroundScrollVersion','command','arcade use background scroll version {VERSION:"v0.1.2"|"43651f88b917a98ad886fdd4c1c2ad8001ce9b9c"}'),
+    w('arcade_setCharacterAnimationVersion','command','arcade use character animation version {VERSION:"v0.1.0"|"a8df7de6f7073b553976b9e47fbfadebcdc4f0ec"}'),
     w('arcade_createSpriteKind','reporter','arcade create sprite kind'),
     w('arcade_spriteKindValue','reporter','arcade sprite kind value {NAME}', {early: true}),
     w('arcade_bindSpriteKind','command','arcade bind sprite kind name {NAME} to {KIND}'),
@@ -469,15 +469,15 @@ export const ARCADE_WORDS = Object.freeze([
     w('arcade_textSpriteSetBorder','command','arcade text sprite {ID} set border width {WIDTH} color {COLOR} padding {PADDING}'),
     w('arcade_textSpriteSetOutline','command','arcade text sprite {ID} set outline width {WIDTH} color {COLOR}'),
     w('arcade_textSpriteUpdate','command','arcade text sprite {ID} update'),
-    w('arcade_textSpriteProperty','reporter','arcade text sprite {ID} property {PROPERTY:menu:textSpriteProperties:text|bg|fg|maxFontHeight|borderWidth|borderColor|padding|outlineWidth|outlineColor|icon}'),
-    w('arcade_textSpriteSetProperty','command','arcade set text sprite {ID} property {PROPERTY:menu:textSpriteProperties:text|bg|fg|maxFontHeight|borderWidth|borderColor|padding|outlineWidth|outlineColor|icon} to {VALUE}'),
+    w('arcade_textSpriteProperty','reporter','arcade text sprite {ID} property {PROPERTY:text|bg|fg|maxFontHeight|borderWidth|borderColor|padding|outlineWidth|outlineColor|icon}'),
+    w('arcade_textSpriteSetProperty','command','arcade set text sprite {ID} property {PROPERTY:text|bg|fg|maxFontHeight|borderWidth|borderColor|padding|outlineWidth|outlineColor|icon} to {VALUE}'),
     w('arcade_settingsWrite','command','arcade write setting {KEY} type {TYPE:Number|String|NumberArray|StringArray|Buffer} value {VALUE}'),
     w('arcade_settingsRead','reporter','arcade read setting {KEY} type {TYPE:Number|String|NumberArray|StringArray|Buffer|List}'),
     w('arcade_settingsExists','boolean','arcade setting {KEY} exists'),
     w('arcade_settingsRemove','command','arcade remove setting {KEY}'),
     w('arcade_settingsClear','command','arcade clear user settings'),
-    w('arcade_spriteDataSet', 'command', 'arcade set sprite {ID} data {KEY} type {TYPE:menu:spriteDataTypes:Number|String|Boolean|Sprite} to {VALUE}'),
-    w('arcade_spriteDataRead', 'reporter', 'arcade sprite {ID} data {KEY} type {TYPE:menu:spriteDataReadTypes:Number|String|Sprite}'),
+    w('arcade_spriteDataSet', 'command', 'arcade set sprite {ID} data {KEY} type {TYPE:Number|String|Boolean|Sprite} to {VALUE}'),
+    w('arcade_spriteDataRead', 'reporter', 'arcade sprite {ID} data {KEY} type {TYPE:Number|String|Sprite}'),
     w('arcade_spriteDataReadBoolean', 'boolean', 'arcade sprite {ID} boolean data {KEY}'),
     w('arcade_spriteDataChange', 'command', 'arcade change sprite {ID} number data {KEY} by {VALUE}'),
     w('arcade_spriteTileKindAt', 'boolean', 'arcade sprite {ID} tile kind at {DIRECTION} equals image {IMAGE}'),
@@ -660,12 +660,19 @@ export function spellArcadeWord(entry, read) {
 
 // Settings use direct native dropdown fields. Only an unconnected, known
 // legacy menu shadow is a literal; a reporter with a fallback shadow is not.
-export function legacySettingType(block, blocks = {}) {
-    const menuName = {arcade_settingsWrite: 'settingWriteTypes', arcade_settingsRead: 'settingReadTypes'}[block?.opcode];
+export const ARCADE_DIRECT_MENUS = Object.freeze({
+    arcade_settingsWrite: {TYPE: 'settingWriteTypes'}, arcade_settingsRead: {TYPE: 'settingReadTypes'},
+    arcade_mathBinary: {OP: 'mathOperations'},
+    arcade_setBackgroundScrollVersion: {VERSION: 'backgroundScrollVersions'}, arcade_setCharacterAnimationVersion: {VERSION: 'characterAnimationVersions'},
+    arcade_textSpriteProperty: {PROPERTY: 'textSpriteProperties'}, arcade_textSpriteSetProperty: {PROPERTY: 'textSpriteProperties'},
+    arcade_spriteDataSet: {TYPE: 'spriteDataTypes'}, arcade_spriteDataRead: {TYPE: 'spriteDataReadTypes'}
+});
+export function legacyDirectMenuValue(block, slot, blocks = {}) {
+    const menuName = ARCADE_DIRECT_MENUS[block?.opcode]?.[slot];
     if (!menuName) return undefined;
-    const input = block.inputs?.TYPE;
+    const input = block.inputs?.[slot];
     if (!Array.isArray(input) || input.length !== 2 || input[0] !== 1) return undefined;
-    const part = compileArcadeWord(arcadeWordFor(block.opcode)).parts.find(p => p.slot === 'TYPE');
+    const part = compileArcadeWord(arcadeWordFor(block.opcode)).parts.find(p => p.slot === slot);
     if (Array.isArray(input[1]) && input[1][0] === 10 && part.choices.includes(input[1][1])) return input[1][1];
     const child = typeof input[1] === 'string' ? blocks[input[1]] : undefined;
     const value = child?.fields?.[menuName]?.[0];
@@ -673,6 +680,8 @@ export function legacySettingType(block, blocks = {}) {
         child.next == null && Object.keys(child.inputs || {}).length === 0 && part.choices.includes(value)) return value;
     return undefined;
 }
+
+export const legacySettingType = (block, blocks = {}) => legacyDirectMenuValue(block, 'TYPE', blocks);
 
 /**
  * Migrate historical Arcade/Arrays slot-shape mismatches before a
@@ -684,7 +693,7 @@ export function legacySettingType(block, blocks = {}) {
 export function normalizeArcadeBlockSchema(block, context = {}) {
     const entry = arcadeWordFor(block?.opcode);
     if (!entry) return false;
-    const settings = /^arcade_settings(Read|Write)$/.test(entry.op);
+    const settings = Boolean(ARCADE_DIRECT_MENUS[entry.op]);
     const direct = settings || /^arrays_(specialValue|valueBinary|valueUnary|valueCompare)$/.test(entry.op);
     if (!direct && entry.op !== 'arcade_controllerStep') return false;
     let changed = false;
@@ -695,7 +704,7 @@ export function normalizeArcadeBlockSchema(block, context = {}) {
         const input = block.inputs?.[name];
         if (direct && part.field && input) {
             const literal = input[1];
-            const settingsLiteral = settings ? legacySettingType(block, context.blocks) : undefined;
+            const settingsLiteral = settings ? legacyDirectMenuValue(block, name, context.blocks) : undefined;
             const legacy = settings ? settingsLiteral !== undefined : Array.isArray(literal) && literal[0] === 10 && part.choices.includes(literal[1]);
             if (field && part.choices.includes(field[0])) {
                 delete block.inputs[name];
