@@ -339,6 +339,8 @@ export const ARCADE_WORDS = Object.freeze([
 
     // ---- commands: physics engines, animations, tiles -----------------------------
     w('arcade_setScenePhysicsEngine', 'command', 'arcade set physics engine of scene {SCENE} to {ENGINE}'),
+    w('arcade_setSceneFlags', 'command', 'arcade scene {SCENE} set flags to {VALUE}'),
+    w('arcade_setUserEventsEnabled', 'command', 'arcade set user controller events enabled {ENABLED:bool}'),
     w('arcade_setPhysicsEngineProperty', 'command',
         'arcade set physics engine property {PROPERTY:maxSpeed|minStep|maxStep} of {ENGINE} to {VALUE}'),
     w('arcade_addAnimationFrame', 'command', 'arcade add animation frame {ANIMATION} image {IMAGE}'),
@@ -423,6 +425,7 @@ export const ARCADE_WORDS = Object.freeze([
 
     // ---- reporters: scenes, physics engines, animations ------------------------------------
     w('arcade_currentScene', 'reporter', 'arcade current scene'),
+    w('arcade_sceneFlags', 'reporter', 'arcade flags of scene {SCENE}'),
     w('arcade_scenePhysicsEngine', 'reporter', 'arcade physics engine of scene {SCENE}'),
     w('arcade_createPhysicsEngine', 'reporter',
         'arcade create physics engine max speed {MAX_SPEED} min step {MIN_STEP} max step {MAX_STEP}'),
