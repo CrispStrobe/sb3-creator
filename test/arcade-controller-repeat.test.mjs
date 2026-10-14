@@ -12,7 +12,10 @@ WHEN arcade source starts:
 `;
 function inspect(project){
  const blocks=Object.fromEntries(project.targets.flatMap(t=>Object.entries(t.blocks)));
- for(const b of Object.values(blocks).filter(b=>['arcade_buttonRepeatProperty','arcade_setButtonRepeatProperty'].includes(b.opcode))){
+ const propertyBlocks=Object.values(blocks).filter(b=>['arcade_buttonRepeatProperty','arcade_setButtonRepeatProperty'].includes(b.opcode));
+ assert.equal(propertyBlocks.length,2,'one getter and one setter must survive every serialization route');
+ assert.deepEqual(propertyBlocks.map(b=>b.opcode).sort(),['arcade_buttonRepeatProperty','arcade_setButtonRepeatProperty'].sort());
+ for(const b of propertyBlocks){
   assert.equal(b.fields.PLAYER[0],'2');assert.equal(b.fields.BUTTON[0],'B');
   assert.ok(['repeatDelay','repeatInterval'].includes(b.fields.PROPERTY[0]));
   for(const name of ['PLAYER','BUTTON','PROPERTY'])assert.equal(b.inputs[name],undefined,'fixed menu is a direct field');
