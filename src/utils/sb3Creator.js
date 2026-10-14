@@ -5460,7 +5460,8 @@ class SB3Creator {
             template: sig.template
         });
         // Longest templates first so a more specific signature wins call matching.
-        this.procedures.sort((a, b) => b.template.length - a.template.length);
+        this.procedures.sort((a, b) => b.template.length - a.template.length ||
+            b.template.filter(t => t.lit).length - a.template.filter(t => t.lit).length);
     }
 
     // Build the definition blocks. Returns { block, extraBlocks, args } where `args`
@@ -5510,7 +5511,7 @@ class SB3Creator {
 
     // Try to resolve a line as a call to a registered custom block, matching the
     // call's top-level tokens against the procedure's template token-for-token.
-    tryProcedureCall(line, target, { strict = false } = {}) {
+    tryProcedureCall(line, target, { strict = false, typed = false } = {}) {
         const tokens = this.tokenizeTop(line, { strict });
         for (const proc of this.procedures) {
             if (proc.template.length !== tokens.length) continue;
@@ -5519,7 +5520,16 @@ class SB3Creator {
             for (let i = 0; i < proc.template.length; i++) {
                 const t = proc.template[i];
                 if (t.lit) { if (tokens[i] !== t.lit) { ok = false; break; } }
-                else rawArgs.push(tokens[i]);
+                else {
+                    const group = tokens[i].startsWith('(') && this.matchParen(tokens[i], 0) === tokens[i].length - 1
+                        ? tokens[i].slice(1, -1).trim() : null;
+                    if (typed && group === null) { ok = false; break; }
+                    const markedBoolean = group !== null && group.startsWith('<') && group.endsWith('>');
+                    if (typed && (proc.argTypes[rawArgs.length] === 'b') !== markedBoolean) { ok = false; break; }
+                    const argument = typed && markedBoolean ? group.slice(1, -1).trim() : tokens[i];
+                    if (typed && markedBoolean && !argument) throw new ParseError('procedure Boolean argument requires a condition');
+                    rawArgs.push(argument);
+                }
             }
             if (!ok) continue;
             this.refuseTokenSpill(tokens, proc.template.map((t) => ({ value: Boolean(t.arg) })), target);
@@ -5555,12 +5565,21 @@ class SB3Creator {
     }
 
     parseCommand(line, target, allowLoop = false) {
-        // Explicit calls resolve the registered procedure template before any
-        // built-in command (e.g. a custom `show`). The prefix is Code syntax;
-        // the saved block keeps the original procedure label and signature.
-        if (/^CALL\s+/i.test(line)) {
-            const invocation = line.replace(/^CALL\s+/i, '').trim();
-            const call = this.tryProcedureCall(invocation, target, { strict: true });
+        // CALL: is a reserved invocation form, distinct from a legacy procedure
+        // named "call" with one argument. Saved blocks retain the actual label.
+        // Unmarked CALL remains readable, but complete registered legacy labels
+        // take precedence: `call numbers` must not lose its first label word.
+        const reservedCall = /^CALL:\s*/i.test(line);
+        if (reservedCall || /^CALL\s+/i.test(line)) {
+            if (!reservedCall) {
+                const legacy = this.tryProcedureCall(line, target, { strict: true });
+                if (legacy) return legacy;
+            }
+            const text = line.replace(reservedCall ? /^CALL:\s*/i : /^CALL\s+/i, '').trim();
+            const wrapped = text.startsWith('(') && this.matchParen(text, 0) === text.length - 1;
+            if (reservedCall && !wrapped) throw new ParseError('CALL: requires one complete parenthesized procedure invocation');
+            const invocation = wrapped ? text.slice(1, -1).trim() : text;
+            const call = this.tryProcedureCall(invocation, target, { strict: true, typed: reservedCall });
             if (!call) throw new ParseError(`unknown procedure or mismatched arguments: ${invocation}`);
             return call;
         }
@@ -9386,10 +9405,10 @@ class SB3Creator {
                 let ai = 0;
                 const text = m.proccode.replace(/%[sb]/g, (tok) => {
                     const input = b.inputs[argIds[ai++]];
-                    if (tok === '%b') return `(${this.dcond(input[1], blocks)})`;
+                    if (tok === '%b') return `(<${this.dcond(input[1], blocks)}>)`;
                     return `(${this.dval(input, blocks)})`;
                 });
-                return line(`CALL ${text}`);
+                return line(`CALL: (${text})`);
             }
             default: {
                 const ev3 = ev3WordFor(b.opcode);
