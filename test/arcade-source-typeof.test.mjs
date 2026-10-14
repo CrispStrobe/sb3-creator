@@ -24,12 +24,14 @@ test('source typeof is one connected reporter and preserves literals, expression
         assert.equal(fresh.decompile(), code);
     }
 });
-test('source typeof keeps an edited connected input and admits no callable words', () => {
+test('source typeof keeps an edited connected input and introduces no callable blocks', () => {
     const creator = make('1'), target = creator.project.targets.find(target => !target.isStage);
     const block = Object.values(target.blocks).find(block => block.opcode === 'arcade_sourceTypeOf');
     block.inputs.VALUE = [1, [10, 'live-looking:SpriteID']];
     const code = creator.decompile();assert.match(code, /arcade source type of .*live-looking:SpriteID/);
     const replay = new SB3Creator();replay.parse(code);assert.deepEqual(replay.warnings, []);assert.equal(replay.decompile(), code);
-    for (const op of ['arcade_defineCallable', 'arcade_createCallable', 'arcade_callCallable', 'arcade_callableReference', 'arcade_declareSourceCallable'])
+    for (const project of [creator.project, replay.project])
+        assert.equal(project.targets.some(target => Object.values(target.blocks).some(block => /Callable/.test(block.opcode))), false);
+    for (const op of ['arcade_defineCallable', 'arcade_callableReference'])
         assert.equal(ARCADE_WORDS.some(word => word.op === op), false);
 });

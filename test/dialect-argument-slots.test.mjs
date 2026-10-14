@@ -116,6 +116,22 @@ function slotBindsVariable(device, template, opcode, inputName) {
     }
 }
 
+// Fixed signature slots are literal schema text, never computed value slots.
+function slotTakesFixedText(device, template, opcode, name, text) {
+    const line=template.replace('X',JSON.stringify(text));
+    const check=({stmt})=>{
+        assert.equal(stmt.opcode,opcode);
+        assert.deepEqual(stmt.inputs[name],[1,[10,text]]);
+    };
+    const first=built(program(device,line));check(first);
+    const code=first.c.decompile(),again=built(code);check(again);
+    assert.equal(again.c.decompile(),code);
+    for(const [probe]of PROBES.filter(([,want])=>want.text===undefined))
+        assert.throws(()=>built(program(device,template.replace('X',probe))),/Callable signature requires fixed text/);
+    assert.throws(()=>built(program(device,template.replace('X','5'))),/Callable signature requires fixed text/);
+    assert.throws(()=>built(program(device,template.replace('X','"malformed"'))),/Malformed callable signature JSON/);
+}
+
 describe('argument slots take an expression, and round-trip', () => {
     test('SPIKE: the words whose slot was `(\\S+)` (the D2 finding and its siblings)', () => {
         for (const [template, op] of [
@@ -182,6 +198,8 @@ describe('argument slots take an expression, and round-trip', () => {
             for (const name of names) {
                 const template = w.words.replace(/\{([A-Z0-9_]+)(?::([^}]+))?\}/g, (m, n, spec) => {
                     if (n === name) return 'X';
+                    if (w.variableInputs?.includes(n)) return 'a';
+                    if (w.fixedTextInputs?.[n]) return JSON.stringify(w.fixedTextInputs[n]);
                     if (spec === 'name') return 'nm';
                     if (spec === 'reference-type') return '"Sprite"';
                     if (spec === 'bool') return '1';
@@ -189,7 +207,9 @@ describe('argument slots take an expression, and round-trip', () => {
                     if (spec && spec !== 'cond') return spec.split('|')[0];
                     return '5';
                 });
-                if (w.variableInputs?.includes(name)) {
+                if (w.fixedTextInputs?.[name]) {
+                    slotTakesFixedText('ARCADE', template, w.op, name, w.fixedTextInputs[name]);
+                } else if (w.variableInputs?.includes(name)) {
                     slotBindsVariable('ARCADE', template, w.op, name);
                 } else {
                     slotTakesExpressions('Arcade', 'ARCADE', template, w.op);
