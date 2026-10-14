@@ -417,7 +417,7 @@ export const ARCADE_WORDS = Object.freeze([
     w('arcade_truncateNumber', 'reporter', 'arcade truncate {NUM}', {early: true}),
     w('arcade_signNumber', 'reporter', 'arcade sign of {NUM}', {early: true}),
     w('arcade_randomNumber', 'reporter', 'arcade random fraction'),
-    w('arcade_mathBinary', 'reporter', 'arcade math {OP:menu:mathOperations:min|max|randomRange} first {A} second {B}', {early:true}),
+    w('arcade_mathBinary', 'reporter', 'arcade math {OP:min|max|randomRange} first {A} second {B}', {early:true}),
     w('arcade_percentChance', 'boolean', 'arcade percent chance {PERCENTAGE}'),
     w('arcade_clampNumber','reporter','arcade clamp minimum {MIN} maximum {MAX} value {VALUE}',{early:true}),
     w('arcade_cameraProperty', 'reporter', 'arcade camera property {PROPERTY}'),
@@ -650,12 +650,12 @@ export function spellArcadeWord(entry, read) {
 
 // Settings use direct native dropdown fields. Only an unconnected, known
 // legacy menu shadow is a literal; a reporter with a fallback shadow is not.
-export function legacySettingType(block, blocks = {}) {
-    const menuName = {arcade_settingsWrite: 'settingWriteTypes', arcade_settingsRead: 'settingReadTypes'}[block?.opcode];
+export function legacyDirectMenuValue(block, slot, blocks = {}) {
+    const menuName = {arcade_settingsWrite: {TYPE: 'settingWriteTypes'}, arcade_settingsRead: {TYPE: 'settingReadTypes'}, arcade_mathBinary: {OP: 'mathOperations'}}[block?.opcode]?.[slot];
     if (!menuName) return undefined;
-    const input = block.inputs?.TYPE;
+    const input = block.inputs?.[slot];
     if (!Array.isArray(input) || input.length !== 2 || input[0] !== 1) return undefined;
-    const part = compileArcadeWord(arcadeWordFor(block.opcode)).parts.find(p => p.slot === 'TYPE');
+    const part = compileArcadeWord(arcadeWordFor(block.opcode)).parts.find(p => p.slot === slot);
     if (Array.isArray(input[1]) && input[1][0] === 10 && part.choices.includes(input[1][1])) return input[1][1];
     const child = typeof input[1] === 'string' ? blocks[input[1]] : undefined;
     const value = child?.fields?.[menuName]?.[0];
@@ -663,6 +663,8 @@ export function legacySettingType(block, blocks = {}) {
         child.next == null && Object.keys(child.inputs || {}).length === 0 && part.choices.includes(value)) return value;
     return undefined;
 }
+
+export const legacySettingType = (block, blocks = {}) => legacyDirectMenuValue(block, 'TYPE', blocks);
 
 /**
  * Migrate historical Arcade/Arrays slot-shape mismatches before a
@@ -674,7 +676,7 @@ export function legacySettingType(block, blocks = {}) {
 export function normalizeArcadeBlockSchema(block, context = {}) {
     const entry = arcadeWordFor(block?.opcode);
     if (!entry) return false;
-    const settings = /^arcade_settings(Read|Write)$/.test(entry.op);
+    const settings = /^arcade_settings(Read|Write)$/.test(entry.op) || entry.op === 'arcade_mathBinary';
     const direct = settings || /^arrays_(specialValue|valueBinary|valueUnary|valueCompare)$/.test(entry.op);
     if (!direct && entry.op !== 'arcade_controllerStep') return false;
     let changed = false;
@@ -685,7 +687,7 @@ export function normalizeArcadeBlockSchema(block, context = {}) {
         const input = block.inputs?.[name];
         if (direct && part.field && input) {
             const literal = input[1];
-            const settingsLiteral = settings ? legacySettingType(block, context.blocks) : undefined;
+            const settingsLiteral = settings ? legacyDirectMenuValue(block, name, context.blocks) : undefined;
             const legacy = settings ? settingsLiteral !== undefined : Array.isArray(literal) && literal[0] === 10 && part.choices.includes(literal[1]);
             if (field && part.choices.includes(field[0])) {
                 delete block.inputs[name];
