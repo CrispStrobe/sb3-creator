@@ -62,6 +62,17 @@ const CASES = [
     [-7, '      -7'],
     [-32768, '  -32768'],
     [0, '       0'],
+    // Lite task B18: the helper took SDCC's 16-bit int, so these wrapped --
+    // MEASURED before: 32768 -> "  -32768", 65536 -> "       0",
+    // 12345678 -> "   24910", -1234567 -> "   10617". It takes a long now;
+    // wider than the display, the low eight digits and no minus (the
+    // stc12 block's rule).
+    [32768, '   32768'],
+    [65536, '   65536'],
+    [12345678, '12345678'],
+    [-1234567, '-1234567'],
+    [-12345678, '12345678'],
+    [123456789, '23456789'],
 ];
 
 describe('chain SEVENSEG8: show number with a minus, on the A2 wiring', () => {

@@ -58,8 +58,13 @@ test('SEVENSEG8: ISR digit advance matches the reference line for line', () => {
 test('helpers and verb calls match the reference', () => {
     const cc = build(SRC).generateC();
     for (const l of [
-        'static void bw_display_show_number(int n)',
+        'static void bw_display_show_number(long n)',
+        '    if (n < 0) { neg = 1; u = 0UL - (unsigned long)n; }',
+        '    while (u > 0xFFFFUL) {',
         '        bw_display_fb[i] = bw_7seg_font[u % 10];',
+        '    v = (unsigned int)u;',
+        '        bw_display_fb[i] = bw_7seg_font[v % 10];',
+        '    } while (v && i);',
         "        bw_display_fb[i - 1] = 0x40;  /* minus = segment g */",
         'static void bw_display_show_digit(unsigned char d, unsigned char v)',
         '    bw_display_fb[d] = bw_7seg_font[v & 0x0F];',
