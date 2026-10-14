@@ -2576,6 +2576,14 @@ class SB3Creator {
             else if (p.cond && this.arcadeConditionLike(text, context)) inputs[p.slot] = [2, this.parseCondition(text, context)];
             else inputs[p.slot] = read(text);
         }
+        for (const slot of entry.variableInputs || []) {
+            const input = inputs[slot];
+            const value = input?.[1];
+            const reporter = typeof value === 'string' ? context.extraBlocks[value] : null;
+            if (!(Array.isArray(value) && value[0] === 12) && reporter?.opcode !== 'data_variable') {
+                throw new ParseError('Source scalar declaration requires an ordinary variable reporter');
+            }
+        }
         for (const [slot, text] of Object.entries(entry.defaults || {})) inputs[slot] = this.parseValue(text, context);
         return { inputs, fields };
     }
@@ -5559,7 +5567,7 @@ class SB3Creator {
         };
 
         // ---- MakeCode Arcade and array-reference statements and hats (arcadeDialect.js)
-        if (/^(?:arcade|when\s+arcade|mutate\s+array\s+reference)\s/i.test(line)) {
+        if (/^(?:arcade|when\s+arcade|mutate\s+array\s+reference|declare\s+arcade)\s/i.test(line)) {
             for (const entry of arcadeWordsOf(wasHat ? ['hat'] : allowLoop ? ['loop'] : ['command'])) {
                 const m = matchTopLevel(line, compileArcadeWord(entry).re);
                 if (!m) continue;
