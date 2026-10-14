@@ -459,15 +459,15 @@ export const ARCADE_WORDS = Object.freeze([
     w('arcade_textSpriteSetBorder','command','arcade text sprite {ID} set border width {WIDTH} color {COLOR} padding {PADDING}'),
     w('arcade_textSpriteSetOutline','command','arcade text sprite {ID} set outline width {WIDTH} color {COLOR}'),
     w('arcade_textSpriteUpdate','command','arcade text sprite {ID} update'),
-    w('arcade_textSpriteProperty','reporter','arcade text sprite {ID} property {PROPERTY:menu:textSpriteProperties:text|bg|fg|maxFontHeight|borderWidth|borderColor|padding|outlineWidth|outlineColor|icon}'),
-    w('arcade_textSpriteSetProperty','command','arcade set text sprite {ID} property {PROPERTY:menu:textSpriteProperties:text|bg|fg|maxFontHeight|borderWidth|borderColor|padding|outlineWidth|outlineColor|icon} to {VALUE}'),
+    w('arcade_textSpriteProperty','reporter','arcade text sprite {ID} property {PROPERTY:text|bg|fg|maxFontHeight|borderWidth|borderColor|padding|outlineWidth|outlineColor|icon}'),
+    w('arcade_textSpriteSetProperty','command','arcade set text sprite {ID} property {PROPERTY:text|bg|fg|maxFontHeight|borderWidth|borderColor|padding|outlineWidth|outlineColor|icon} to {VALUE}'),
     w('arcade_settingsWrite','command','arcade write setting {KEY} type {TYPE:Number|String|NumberArray|StringArray|Buffer} value {VALUE}'),
     w('arcade_settingsRead','reporter','arcade read setting {KEY} type {TYPE:Number|String|NumberArray|StringArray|Buffer|List}'),
     w('arcade_settingsExists','boolean','arcade setting {KEY} exists'),
     w('arcade_settingsRemove','command','arcade remove setting {KEY}'),
     w('arcade_settingsClear','command','arcade clear user settings'),
-    w('arcade_spriteDataSet', 'command', 'arcade set sprite {ID} data {KEY} type {TYPE:menu:spriteDataTypes:Number|String|Boolean|Sprite} to {VALUE}'),
-    w('arcade_spriteDataRead', 'reporter', 'arcade sprite {ID} data {KEY} type {TYPE:menu:spriteDataReadTypes:Number|String|Sprite}'),
+    w('arcade_spriteDataSet', 'command', 'arcade set sprite {ID} data {KEY} type {TYPE:Number|String|Boolean|Sprite} to {VALUE}'),
+    w('arcade_spriteDataRead', 'reporter', 'arcade sprite {ID} data {KEY} type {TYPE:Number|String|Sprite}'),
     w('arcade_spriteDataReadBoolean', 'boolean', 'arcade sprite {ID} boolean data {KEY}'),
     w('arcade_spriteDataChange', 'command', 'arcade change sprite {ID} number data {KEY} by {VALUE}'),
     w('arcade_spriteTileKindAt', 'boolean', 'arcade sprite {ID} tile kind at {DIRECTION} equals image {IMAGE}'),
@@ -650,8 +650,14 @@ export function spellArcadeWord(entry, read) {
 
 // Settings use direct native dropdown fields. Only an unconnected, known
 // legacy menu shadow is a literal; a reporter with a fallback shadow is not.
+export const ARCADE_DIRECT_MENUS = Object.freeze({
+    arcade_settingsWrite: {TYPE: 'settingWriteTypes'}, arcade_settingsRead: {TYPE: 'settingReadTypes'},
+    arcade_mathBinary: {OP: 'mathOperations'},
+    arcade_textSpriteProperty: {PROPERTY: 'textSpriteProperties'}, arcade_textSpriteSetProperty: {PROPERTY: 'textSpriteProperties'},
+    arcade_spriteDataSet: {TYPE: 'spriteDataTypes'}, arcade_spriteDataRead: {TYPE: 'spriteDataReadTypes'}
+});
 export function legacyDirectMenuValue(block, slot, blocks = {}) {
-    const menuName = {arcade_settingsWrite: {TYPE: 'settingWriteTypes'}, arcade_settingsRead: {TYPE: 'settingReadTypes'}, arcade_mathBinary: {OP: 'mathOperations'}}[block?.opcode]?.[slot];
+    const menuName = ARCADE_DIRECT_MENUS[block?.opcode]?.[slot];
     if (!menuName) return undefined;
     const input = block.inputs?.[slot];
     if (!Array.isArray(input) || input.length !== 2 || input[0] !== 1) return undefined;
@@ -676,7 +682,7 @@ export const legacySettingType = (block, blocks = {}) => legacyDirectMenuValue(b
 export function normalizeArcadeBlockSchema(block, context = {}) {
     const entry = arcadeWordFor(block?.opcode);
     if (!entry) return false;
-    const settings = /^arcade_settings(Read|Write)$/.test(entry.op) || entry.op === 'arcade_mathBinary';
+    const settings = Boolean(ARCADE_DIRECT_MENUS[entry.op]);
     const direct = settings || /^arrays_(specialValue|valueBinary|valueUnary|valueCompare)$/.test(entry.op);
     if (!direct && entry.op !== 'arcade_controllerStep') return false;
     let changed = false;
