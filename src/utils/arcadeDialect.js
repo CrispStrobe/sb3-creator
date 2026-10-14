@@ -446,8 +446,8 @@ export const ARCADE_WORDS = Object.freeze([
         'arcade tile {PROPERTY:column|row|x|y|left|right|top|bottom|tileSet} of {LOCATION}'),
     w('arcade_sceneMillis','reporter','arcade scene runtime milliseconds'),
     w('arcade_programMillis','reporter','arcade program runtime milliseconds'),
-    w('arcade_setBackgroundScrollVersion','command','arcade use background scroll version {VERSION}'),
-    w('arcade_setCharacterAnimationVersion','command','arcade use character animation version {VERSION}'),
+    w('arcade_setBackgroundScrollVersion','command','arcade use background scroll version {VERSION:"v0.1.2"|"43651f88b917a98ad886fdd4c1c2ad8001ce9b9c"}'),
+    w('arcade_setCharacterAnimationVersion','command','arcade use character animation version {VERSION:"v0.1.0"|"a8df7de6f7073b553976b9e47fbfadebcdc4f0ec"}'),
     w('arcade_createSpriteKind','reporter','arcade create sprite kind'),
     w('arcade_spriteKindValue','reporter','arcade sprite kind value {NAME}', {early: true}),
     w('arcade_bindSpriteKind','command','arcade bind sprite kind name {NAME} to {KIND}'),
@@ -654,6 +654,7 @@ export function spellArcadeWord(entry, read) {
 export const ARCADE_DIRECT_MENUS = Object.freeze({
     arcade_settingsWrite: {TYPE: 'settingWriteTypes'}, arcade_settingsRead: {TYPE: 'settingReadTypes'},
     arcade_mathBinary: {OP: 'mathOperations'},
+    arcade_setBackgroundScrollVersion: {VERSION: 'backgroundScrollVersions'}, arcade_setCharacterAnimationVersion: {VERSION: 'characterAnimationVersions'},
     arcade_textSpriteProperty: {PROPERTY: 'textSpriteProperties'}, arcade_textSpriteSetProperty: {PROPERTY: 'textSpriteProperties'},
     arcade_spriteDataSet: {TYPE: 'spriteDataTypes'}, arcade_spriteDataRead: {TYPE: 'spriteDataReadTypes'}
 });
