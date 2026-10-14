@@ -2553,7 +2553,14 @@ class SB3Creator {
         for (const p of parts) {
             if (p.literal !== undefined) continue;
             const text = groups[g++];
-            if (p.field || p.text) {
+            if (p.referenceType) {
+                let type;
+                try {type = JSON.parse(text);} catch {return null;}
+                // Grammar is portable; project class ownership is validated by
+                // the native source prelude and the original exporter.
+                if (typeof type !== 'string' || !/^[A-Za-z_]\w*(?:\.[A-Za-z_]\w*)*(?:\[\])?$/.test(type)) return null;
+                slots.push([p, type]);
+            } else if (p.field || p.text) {
                 const word = p.quoted ? text.slice(1, -1) : text;
                 const canonical = p.choices.find((c) => c.toLowerCase() === word.toLowerCase());
                 if (canonical === undefined) return null;
@@ -2581,7 +2588,7 @@ class SB3Creator {
             const value = input?.[1];
             const reporter = typeof value === 'string' ? context.extraBlocks[value] : null;
             if (!(Array.isArray(value) && value[0] === 12) && reporter?.opcode !== 'data_variable') {
-                throw new ParseError('Source scalar declaration requires an ordinary variable reporter');
+                throw new ParseError('Source declaration requires an ordinary variable reporter');
             }
         }
         for (const [slot, text] of Object.entries(entry.defaults || {})) inputs[slot] = this.parseValue(text, context);
