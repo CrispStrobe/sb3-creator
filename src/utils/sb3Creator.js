@@ -19,6 +19,7 @@ import { matchEv3Word, ev3WordFor, spellEv3Word, ev3WordLoose } from './ev3Diale
 import {
     compileArcadeWord, arcadeWordsOf, arcadeWordFor, spellArcadeWord, legacyDirectMenuValue, ARCADE_FIRST_WORDS
 } from './arcadeDialect.js';
+import { cpxWordFor, cpxWordsOf } from './cpxDialect.js';
 
 // The emitted no-import JSON serializer (the sim firmware ships without
 // the json module — measured 2026-08-19). Shared by the marker debugger's
@@ -2574,7 +2575,7 @@ class SB3Creator {
             else if (p.menu) {
                 const canonical = p.choices.find(choice => choice.toLowerCase() === text.toLowerCase()) ??
                     (entry.literalMenu && /^"[^"]*"$/.test(text) ? text.slice(1, -1) : undefined);
-                const shadow = this.menuInput(context, `arcade_menu_${p.menu}`, p.menu, canonical ?? p.choices[0]);
+                const shadow = this.menuInput(context, `${entry.menuExtension || 'arcade'}_menu_${p.menu}`, p.menu, canonical ?? p.choices[0]);
                 const value = canonical === undefined ? read(text) : null;
                 inputs[p.slot] = !value ? shadow : typeof value[1] === 'string' ? [3, value[1], shadow[1]] : value;
                 if (value && typeof value[1] !== 'string') delete context.extraBlocks[shadow[1]];
@@ -2604,7 +2605,8 @@ class SB3Creator {
         // a slot that takes a condition takes all of them (task D7).
         if (context && this.booleanFormKind(s, context)) return true;
         if (this.splitBinary(s, [' or ', ' and ', '!=', '<=', '>=', '<', '>', '='], { ci: true })) return true;
-        return arcadeWordsOf(['boolean']).some((e) => matchTopLevel(s, compileArcadeWord(e).re));
+        return arcadeWordsOf(['boolean']).some((e) => matchTopLevel(s, compileArcadeWord(e).re))
+            || cpxWordsOf(['boolean']).some((e) => matchTopLevel(s, compileArcadeWord(e).re));
     }
 
     // A Boolean input from a slot: a condition as it stands; a literal is its
@@ -2630,9 +2632,13 @@ class SB3Creator {
      */
     matchArcadeReporter(s, context, { early = false, kinds = ['reporter', 'boolean'] } = {}) {
         const first = String(s).trim().split(/\s/, 1)[0].toLowerCase();
-        if (!ARCADE_FIRST_WORDS.has(first)) return null;
-        for (const entry of arcadeWordsOf(kinds)) {
-            if (early && !entry.early) continue;
+        // `cpx` opens a Circuit Playground word (cpxDialect.js). Those are all
+        // read early, before operator splitting: `cpx button A+B is pressed`
+        // holds a `+` that is a field value, not an operator.
+        const table = first === 'cpx' ? cpxWordsOf(kinds) : ARCADE_FIRST_WORDS.has(first) ? arcadeWordsOf(kinds) : null;
+        if (!table) return null;
+        for (const entry of table) {
+            if (early && !entry.early && first !== 'cpx') continue;
             const m = matchTopLevel(s, compileArcadeWord(entry).re);
             if (!m) continue;
             const id = this.pushBlock(context, entry.op);
@@ -2660,7 +2666,7 @@ class SB3Creator {
             menu: (name, menuName) => {
                 const input = b.inputs[name];
                 const menu = Array.isArray(input) && typeof input[1] === 'string' ? blocks[input[1]] : null;
-                if (menu?.opcode === `arcade_menu_${menuName}`) return menu.fields[menuName]?.[0] ?? '';
+                if (menu?.opcode === `${entry.menuExtension || 'arcade'}_menu_${menuName}`) return menu.fields[menuName]?.[0] ?? '';
                 const choices = compileArcadeWord(entry).parts.find(p => p.slot === name)?.choices || [];
                 if (!input && choices.includes(b.fields[name]?.[0])) return b.fields[name][0];
                 // Parentheses distinguish variables named x/y from bare menu
@@ -2688,7 +2694,7 @@ class SB3Creator {
             cond: (name) => {
                 const input = b.inputs[name];
                 const ref = Array.isArray(input) && typeof input[1] === 'string' ? blocks[input[1]] : null;
-                if (ref && (BOOLEAN_OPS.test(ref.opcode) || (arcadeWordFor(ref.opcode) || {}).kind === 'boolean')) {
+                if (ref && (BOOLEAN_OPS.test(ref.opcode) || (arcadeWordFor(ref.opcode) || cpxWordFor(ref.opcode) || {}).kind === 'boolean')) {
                     return `(${this.dcond(input[1], blocks)})`;
                 }
                 return this.dval(input, blocks);
@@ -4456,7 +4462,10 @@ class SB3Creator {
                 // the 8088's narrower bus is timing no program sees). Until
                 // unknown devices were refused (task D6) `DEVICE 8086` silently
                 // parsed as the default STC12 — Lite's own export gate wrote it.
-                8086: 'i8086', 8088: 'i8086', i8088: 'i8086'
+                8086: 'i8086', 8088: 'i8086', i8088: 'i8086',
+                // Adafruit Circuit Playground Express: the names bw-circuit-ui's
+                // seated inference already answers to (B3).
+                circuitplayground: 'cpx', adafruit: 'cpx', circuit_playground_express: 'cpx'
             };
             if (!SB3Creator.STC_PARTS[device] && DEVICE_ALIASES[device]) {
                 device = DEVICE_ALIASES[device];
@@ -4572,7 +4581,7 @@ class SB3Creator {
             const LAST = { 'arduino-uno': { D: 13, A: 5 }, 'arduino-nano': { D: 13, A: 7 },
                 'atmega168p': { D: 13, A: 5 }, 'arduino-mega': { D: 53, A: 15 },
                 atmega328p: { D: 13, A: 5 }, microbit: { P: 20 }, calliopemini: { P: 20 }, pico: { GP: 28 },
-                arcade: { D: 31 }, pybadge: { D: 13, A: 5 }, 'pybadge-lc': { D: 31 },
+                arcade: { D: 31 }, pybadge: { D: 13, A: 5 }, 'pybadge-lc': { D: 31 }, cpx: { A: 7 },
                 samd51: { PA: 31, PB: 31 },
                 eater6502: { PA: 7, PB: 7 } };  // PB7: plain I/O while ACR7=0, same as the SPOKEN gate
             const edge = LAST[cfg.device] || {};
@@ -5577,6 +5586,21 @@ class SB3Creator {
             this.refuseSpilledReporter(line, s, context.target);
             return this.parseValue(s, context);
         };
+
+        // ---- Circuit Playground Express words (cpxDialect.js), DEVICE CPX only ----
+        // One table for both directions, read before every generic rule so none
+        // (`set X to`, `stop all`, `when loud sound`) claims a CPX line first.
+        if (this.project && this.project.stc && this.project.stc.device === 'cpx') {
+            for (const entry of cpxWordsOf(wasHat ? ['hat'] : ['command'])) {
+                const m = matchTopLevel(line, compileArcadeWord(entry).re);
+                if (!m) continue;
+                const { id, block } = cmd(entry.op, entry.kind === 'hat' ? { topLevel: true } : {});
+                const slots = this.arcadeSlots(entry, m, context, val);
+                if (!slots) continue;
+                Object.assign(block[id], slots);
+                return ret(block);
+            }
+        }
 
         // ---- MakeCode Arcade and array-reference statements and hats (arcadeDialect.js)
         if (/^(?:arcade|when\s+arcade|mutate\s+array\s+reference|declare\s+arcade)\s/i.test(line)) {
@@ -8907,7 +8931,7 @@ class SB3Creator {
             default: {
                 const ev3 = ev3WordFor(b.opcode);
                 if (ev3 && ev3.kind !== 'command') return this.spellEv3(ev3, b, blocks);
-                const arcade = arcadeWordFor(b.opcode);
+                const arcade = arcadeWordFor(b.opcode) || cpxWordFor(b.opcode);
                 if (arcade && (arcade.kind === 'reporter' || arcade.kind === 'boolean')) return this.spellArcade(arcade, b, blocks);
                 // A Boolean block of the condition grammar in a ROUND slot (a
                 // Scratch project may hold one): written as its condition, so
@@ -8917,7 +8941,7 @@ class SB3Creator {
                 if (cond !== null) return cond;
                 // An arcade menu shadow (a block dragged in the editor keeps its
                 // menu as a shadow input): the value it holds.
-                if (/^arcade_menu_/.test(b.opcode)) {
+                if (/^(arcade|circuitplayground)_menu_/.test(b.opcode)) {
                     const value = String(Object.values(b.fields || {})[0]?.[0] ?? '');
                     return /^-?\d+(\.\d+)?$/.test(value) ? value : escapeTextLiteral(value);
                 }
@@ -9018,7 +9042,7 @@ class SB3Creator {
                 return `DEFINE ${m.warp === 'true' ? 'FAST ' : ''}${sig}:`;
             }
             default: {
-                const arcade = arcadeWordFor(b.opcode);
+                const arcade = arcadeWordFor(b.opcode) || cpxWordFor(b.opcode);
                 return arcade && arcade.kind === 'hat' ? this.spellArcade(arcade, b, blocks) : null;
             }
         }
@@ -9340,7 +9364,7 @@ class SB3Creator {
             default: {
                 const ev3 = ev3WordFor(b.opcode);
                 if (ev3 && ev3.kind === 'command') return line(this.spellEv3(ev3, b, blocks));
-                const arcade = arcadeWordFor(b.opcode);
+                const arcade = arcadeWordFor(b.opcode) || cpxWordFor(b.opcode);
                 if (arcade && arcade.kind === 'loop') return [pad + this.spellArcade(arcade, b, blocks) + ':', ...sub('SUBSTACK', level + 1)];
                 if (arcade && arcade.kind === 'command') return line(this.spellArcade(arcade, b, blocks));
                 return line(`# unsupported: ${b.opcode}`);
@@ -11128,6 +11152,7 @@ class SB3Creator {
         pybadge: [/^(?:D(?:2|3|5|6|9|10|11|12|13)|A[0-5]|SDA|SCL)$/i,
             'D2, D3, D5, D6, D9-D13, A0-A5, SDA or SCL'],
         'pybadge-lc': [/^D\d+$/i, 'virtual D0-D31'],
+        cpx: [/^A[0-7]$/i, 'A0-A7'],
         samd51: [/^P[AB]\d+$/i, 'PA0-PA31 or PB0-PB31'],
         pico: [/^GP\d+$/i, 'GP0-GP28'],
         // Spelled out rather than `P[AB]\d+`, which accepted PB9 and
@@ -20410,6 +20435,7 @@ SB3Creator.I2C_PINS = {
     // pads, and they are silkscreened SDA/SCL rather than numbered. Arcade and
     // PyBadge LC are deliberately absent — a virtual target has no bus to name.
     pybadge: { sda: 'SDA', scl: 'SCL' },
+    cpx: { sda: 'A5', scl: 'A4' },          // the CPX's A4/A5 pads are SCL/SDA
     attiny85: { sda: 'PB0', scl: 'PB2' },   // USI
     attiny88: { sda: 'PC4', scl: 'PC5' },   // TWI
 };
@@ -20867,6 +20893,12 @@ SB3Creator.STC_PARTS = {
     'pybadge-lc': { core: 'samd51', header: null, portModes: false, aux1T: false, adc: true, arcade: true,
         display: 'st7735', displayWidth: 160, displayHeight: 128, neopixels: 1, accelerometer: null },
     samd51: { core: 'samd51', header: null, portModes: false, aux1T: false, adc: true },
+    // core: 'samd21' -- Adafruit Circuit Playground Express (ATSAMD21G18A).
+    // Its words are cpxDialect.js's and become `circuitplayground` blocks; the
+    // board runs them in the VM (Lite's CPX pane). generateC() names no
+    // samd21 core, so no firmware is ever emitted for it (task A9).
+    cpx: { core: 'samd21', header: null, portModes: false, aux1T: false, adc: true,
+        neopixels: 10, accelerometer: 'lis3dh' },
     // core: 'rp2040' -- GP0-GP28, and generateC() emits freestanding Cortex-M0
     // bare metal (SIO GPIO, the 1 MHz TIMER as an ISR-free timebase, UART0,
     // ADC over APB). Decided 2026-08-12 (stc docs/ROADMAP.md): bare-metal C
