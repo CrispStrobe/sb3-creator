@@ -15,7 +15,7 @@
     "debug-trace-audit": 18,
     "circuit-params-are-read": 304,
     "program-reads-what-it-writes": 304,
-    "vm-and-c-agree-on-arithmetic": 150,
+    "vm-and-c-agree-on-arithmetic": 168,
     "documented-tables-are-derived": 4,
     "vm": 304,
     "simulator-driver-controls-respond": 44,
@@ -1817,7 +1817,8 @@
       "gen-device-benches",
       "index-metadata-matches-disk",
       "program-reads-what-it-writes",
-      "vm"
+      "vm",
+      "vm-and-c-agree-on-arithmetic"
     ],
     "arduino-04-dimmer": [
       "assert-physics",
@@ -1938,7 +1939,8 @@
       "gen-device-benches",
       "index-metadata-matches-disk",
       "program-reads-what-it-writes",
-      "vm"
+      "vm",
+      "vm-and-c-agree-on-arithmetic"
     ],
     "arduino-08-string-append": [
       "assert-physics",
@@ -1949,7 +1951,8 @@
       "gen-device-benches",
       "index-metadata-matches-disk",
       "program-reads-what-it-writes",
-      "vm"
+      "vm",
+      "vm-and-c-agree-on-arithmetic"
     ],
     "arduino-08-string-case": [
       "assert-physics",
@@ -1960,7 +1963,8 @@
       "gen-device-benches",
       "index-metadata-matches-disk",
       "program-reads-what-it-writes",
-      "vm"
+      "vm",
+      "vm-and-c-agree-on-arithmetic"
     ],
     "arduino-08-string-chars": [
       "assert-physics",
@@ -1971,7 +1975,8 @@
       "gen-device-benches",
       "index-metadata-matches-disk",
       "program-reads-what-it-writes",
-      "vm"
+      "vm",
+      "vm-and-c-agree-on-arithmetic"
     ],
     "arduino-08-string-compare": [
       "assert-physics",
@@ -1982,7 +1987,8 @@
       "gen-device-benches",
       "index-metadata-matches-disk",
       "program-reads-what-it-writes",
-      "vm"
+      "vm",
+      "vm-and-c-agree-on-arithmetic"
     ],
     "arduino-08-string-constructors": [
       "assert-physics",
@@ -1993,7 +1999,8 @@
       "gen-device-benches",
       "index-metadata-matches-disk",
       "program-reads-what-it-writes",
-      "vm"
+      "vm",
+      "vm-and-c-agree-on-arithmetic"
     ],
     "arduino-08-string-indexof": [
       "assert-physics",
@@ -2004,7 +2011,8 @@
       "gen-device-benches",
       "index-metadata-matches-disk",
       "program-reads-what-it-writes",
-      "vm"
+      "vm",
+      "vm-and-c-agree-on-arithmetic"
     ],
     "arduino-08-string-length": [
       "assert-physics",
@@ -2015,7 +2023,8 @@
       "gen-device-benches",
       "index-metadata-matches-disk",
       "program-reads-what-it-writes",
-      "vm"
+      "vm",
+      "vm-and-c-agree-on-arithmetic"
     ],
     "arduino-08-string-length-trim": [
       "assert-physics",
@@ -2026,7 +2035,8 @@
       "gen-device-benches",
       "index-metadata-matches-disk",
       "program-reads-what-it-writes",
-      "vm"
+      "vm",
+      "vm-and-c-agree-on-arithmetic"
     ],
     "arduino-08-string-replace": [
       "assert-physics",
@@ -2037,7 +2047,8 @@
       "gen-device-benches",
       "index-metadata-matches-disk",
       "program-reads-what-it-writes",
-      "vm"
+      "vm",
+      "vm-and-c-agree-on-arithmetic"
     ],
     "arduino-08-string-startswith": [
       "assert-physics",
@@ -2048,7 +2059,8 @@
       "gen-device-benches",
       "index-metadata-matches-disk",
       "program-reads-what-it-writes",
-      "vm"
+      "vm",
+      "vm-and-c-agree-on-arithmetic"
     ],
     "arduino-08-string-substring": [
       "assert-physics",
@@ -2059,7 +2071,8 @@
       "gen-device-benches",
       "index-metadata-matches-disk",
       "program-reads-what-it-writes",
-      "vm"
+      "vm",
+      "vm-and-c-agree-on-arithmetic"
     ],
     "arduino-08-string-toint": [
       "assert-physics",
@@ -2070,7 +2083,8 @@
       "gen-device-benches",
       "index-metadata-matches-disk",
       "program-reads-what-it-writes",
-      "vm"
+      "vm",
+      "vm-and-c-agree-on-arithmetic"
     ],
     "arduino-sk-p02-spaceship": [
       "assert-physics",
@@ -2286,7 +2300,8 @@
       "gallery",
       "index-metadata-matches-disk",
       "program-reads-what-it-writes",
-      "vm"
+      "vm",
+      "vm-and-c-agree-on-arithmetic"
     ],
     "aurora65-workstation": [
       "assert-physics",
@@ -2295,7 +2310,8 @@
       "gallery",
       "index-metadata-matches-disk",
       "program-reads-what-it-writes",
-      "vm"
+      "vm",
+      "vm-and-c-agree-on-arithmetic"
     ],
     "eater6502-full-build": [
       "assert-physics",
@@ -2304,7 +2320,8 @@
       "gallery",
       "index-metadata-matches-disk",
       "program-reads-what-it-writes",
-      "vm"
+      "vm",
+      "vm-and-c-agree-on-arithmetic"
     ],
     "eater6502-vdp-hello": [
       "assert-physics",
@@ -2312,7 +2329,8 @@
       "gallery",
       "index-metadata-matches-disk",
       "program-reads-what-it-writes",
-      "vm"
+      "vm",
+      "vm-and-c-agree-on-arithmetic"
     ],
     "z80-bench": [
       "assert-physics",

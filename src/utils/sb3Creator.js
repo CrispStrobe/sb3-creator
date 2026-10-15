@@ -4570,6 +4570,7 @@ class SB3Creator {
             const cfg = this.stcConfig();
             const wasDefault = cfg.clock === 11059200 && cfg.device === 'stc12c5a60s2';
             cfg.device = device;
+            cfg.deviceDeclared = true;
             // The seeded default clock belongs to the seeded default device.
             // A DEVICE line that changes chips takes the chip's own default
             // with it — an explicit CLOCK line still wins, before or after.
@@ -15877,7 +15878,15 @@ class SB3Creator {
         const hasHardware = hasPins || !!(stc && stc.ledcube)
             || !!(stc && stc.parts && stc.parts.length)
             || !!(stc && stc.ports && stc.ports.length);
-        const want = opts.target || (hasHardware ? 'device' : 'host');
+        // An explicit DEVICE line means "build for that chip", pins or no
+        // pins: `DEVICE STM32F030` + `print n` used to fall to host C
+        // (stdio.h) and fail the device compile. The parser records the
+        // line as stc.deviceDeclared; a project from elsewhere that names a
+        // non-default chip counts as declared too. No DEVICE line keeps the
+        // host-C default.
+        const declaredDevice = !!(stc && (stc.deviceDeclared
+            || (stc.device && String(stc.device).toLowerCase() !== 'stc12c5a60s2')));
+        const want = opts.target || ((hasHardware || declaredDevice) ? 'device' : 'host');
         if (want === 'host') return this.generateHostC(project, opts);
 
         this._cNames = new Map();
@@ -16882,18 +16891,35 @@ class SB3Creator {
                 '#define TIM3_SR      BW_MMIO(0x40000410u)',
                 '#define TIM3_PSC     BW_MMIO(0x40000428u)',
                 '#define TIM3_ARR     BW_MMIO(0x4000042cu)',
-                '#define USART1_CR1   BW_MMIO(0x40013800u)',
-                '#define USART1_BRR   BW_MMIO(0x4001380cu)',
-                '#define USART1_ISR   BW_MMIO(0x4001381cu)',
-                '#define USART1_TDR   BW_MMIO(0x40013828u)',
+                ...(this._cStm32F1 ? [
+                    // RM0008 §27.6: the F1 USART is the older layout — SR,
+                    // DR, BRR, CR1 — with TXE bit 7 / RXNE bit 5 in SR and
+                    // one DR for both directions. The ISR/TDR/RDR names
+                    // alias it so the shared print/ask helpers stay one.
+                    '#define USART1_SR    BW_MMIO(0x40013800u)',
+                    '#define USART1_DR    BW_MMIO(0x40013804u)',
+                    '#define USART1_BRR   BW_MMIO(0x40013808u)',
+                    '#define USART1_CR1   BW_MMIO(0x4001380cu)',
+                    '#define USART1_ISR   USART1_SR',
+                    '#define USART1_TDR   USART1_DR',
+                    '#define USART1_RDR   USART1_DR',
+                ] : [
+                    '#define USART1_CR1   BW_MMIO(0x40013800u)',
+                    '#define USART1_BRR   BW_MMIO(0x4001380cu)',
+                    '#define USART1_ISR   BW_MMIO(0x4001381cu)',
+                    '#define USART1_TDR   BW_MMIO(0x40013828u)',
+                    '#define GPIOA_AFRH   BW_MMIO(0x48000024u)',
+                ]),
                 '#define TIM3_CCMR1   BW_MMIO(0x40000418u)',
                 '#define TIM3_CCMR2   BW_MMIO(0x4000041cu)',
                 '#define TIM3_CCER    BW_MMIO(0x40000420u)',
                 '#define TIM3_CCR1    BW_MMIO(0x40000434u)',
                 '#define TIM3_CCR2    BW_MMIO(0x40000438u)',
                 '#define TIM3_CCR4    BW_MMIO(0x40000440u)',
-                '#define GPIOA_AFRL   BW_MMIO(0x48000020u)',
-                '#define GPIOB_AFRL   BW_MMIO(0x48000420u)',
+                ...(this._cStm32F1 ? [] : [
+                    '#define GPIOA_AFRL   BW_MMIO(0x48000020u)',
+                    '#define GPIOB_AFRL   BW_MMIO(0x48000420u)',
+                ]),
                 '#define ADC_ISR      BW_MMIO(0x40012400u)',
                 '#define ADC_CR       BW_MMIO(0x40012408u)',
                 '#define ADC_CHSELR   BW_MMIO(0x40012428u)',
@@ -17630,7 +17656,8 @@ class SB3Creator {
                 ' * PB1=CH4 (AF1, RM0360 alternate-function table); the call site',
                 ' * refused every other pin at emit time. CCR=0 is constant low and',
                 ' * CCR=1000 (> ARR) constant high, so 0%% and 100%% need no special',
-                ' * case. MODER moves to AF here — one pin, one job per program,',
+                ' * case. MODER (CRL on the F103: CNF=10 MODE=11, default TIM3',
+                ' * remap, RM0008 §9.3.7) moves to AF here — one pin, one job per program,',
                 ' * the same takeover rule as the pico\'s funcsel and the PCA. */',
                 'static void pwm_set(unsigned char gpio, unsigned int percent)',
                 '{',
@@ -17638,20 +17665,32 @@ class SB3Creator {
                 '    if (percent > 100) percent = 100;',
                 '    duty = (percent * 1000u + 50u) / 100u;',
                 '    if (gpio == 6u) {          /* PA6 = TIM3_CH1 */',
-                '        GPIOA_AFRL  = (GPIOA_AFRL & ~(0xFu << 24)) | (1u << 24);',
-                '        GPIOA_MODER = (GPIOA_MODER & ~(3u << 12)) | (2u << 12);',
+                ...(this._cStm32F1 ? [
+                    '        GPIOA_CRL   = (GPIOA_CRL & ~(0xFu << 24)) | (0xBu << 24);   /* AF push-pull 50 MHz */',
+                ] : [
+                    '        GPIOA_AFRL  = (GPIOA_AFRL & ~(0xFu << 24)) | (1u << 24);',
+                    '        GPIOA_MODER = (GPIOA_MODER & ~(3u << 12)) | (2u << 12);',
+                ]),
                 '        TIM3_CCMR1  = (TIM3_CCMR1 & ~0x00FFu) | 0x0060u;  /* OC1M=PWM1 */',
                 '        TIM3_CCER  |= 1u;',
                 '        TIM3_CCR1   = duty;',
                 '    } else if (gpio == 7u) {   /* PA7 = TIM3_CH2 */',
-                '        GPIOA_AFRL  = (GPIOA_AFRL & ~(0xFu << 28)) | (1u << 28);',
-                '        GPIOA_MODER = (GPIOA_MODER & ~(3u << 14)) | (2u << 14);',
+                ...(this._cStm32F1 ? [
+                    '        GPIOA_CRL   = (GPIOA_CRL & ~(0xFu << 28)) | (0xBu << 28);   /* AF push-pull 50 MHz */',
+                ] : [
+                    '        GPIOA_AFRL  = (GPIOA_AFRL & ~(0xFu << 28)) | (1u << 28);',
+                    '        GPIOA_MODER = (GPIOA_MODER & ~(3u << 14)) | (2u << 14);',
+                ]),
                 '        TIM3_CCMR1  = (TIM3_CCMR1 & ~0xFF00u) | 0x6000u;  /* OC2M=PWM1 */',
                 '        TIM3_CCER  |= (1u << 4);',
                 '        TIM3_CCR2   = duty;',
                 '    } else if (gpio == 17u) {  /* PB1 = TIM3_CH4 */',
-                '        GPIOB_AFRL  = (GPIOB_AFRL & ~(0xFu << 4)) | (1u << 4);',
-                '        GPIOB_MODER = (GPIOB_MODER & ~(3u << 2)) | (2u << 2);',
+                ...(this._cStm32F1 ? [
+                    '        GPIOB_CRL   = (GPIOB_CRL & ~(0xFu << 4)) | (0xBu << 4);   /* AF push-pull 50 MHz */',
+                ] : [
+                    '        GPIOB_AFRL  = (GPIOB_AFRL & ~(0xFu << 4)) | (1u << 4);',
+                    '        GPIOB_MODER = (GPIOB_MODER & ~(3u << 2)) | (2u << 2);',
+                ]),
                 '        TIM3_CCMR2  = (TIM3_CCMR2 & ~0xFF00u) | 0x6000u;  /* OC4M=PWM1 */',
                 '        TIM3_CCER  |= (1u << 12);',
                 '        TIM3_CCR4   = duty;',
@@ -19571,14 +19610,23 @@ class SB3Creator {
                 if (usedPorts.has(0)) iopenr |= (1 << 0);
                 if (usedPorts.has(1)) iopenr |= (1 << 1);
                 if (usedPorts.has(2)) iopenr |= (1 << 2);
+                // USART1 TX/RX are PA9/PA10: print needs port A clocked.
+                if (this._cUses.print) iopenr |= (1 << 0);
                 out.push(`    RCC_IOPENR  = 0x${(iopenr >>> 0).toString(16)}u;      /* GPIO clocks */`,
                     '    RCC_APBENR1 = (1u << 1);       /* TIM3: the millisecond tick */');
+                // RM0444 §5.4.15: USART1EN is APBENR2 bit 14, ADCEN bit 20
+                // (not APB2ENR bit 9 as on the F0).
+                const apb2 = (this._cUses.print ? (1 << 14) : 0) | (this._cUses.adc ? (1 << 20) : 0);
+                if (apb2) {
+                    out.push(`    RCC_APBENR2 = 0x${(apb2 >>> 0).toString(16)}u;      /*${
+                        this._cUses.print ? ' USART1' : ''}${this._cUses.adc ? ' ADC' : ''} */`);
+                }
             } else if (this._cStm32F1) {
                 let apb2 = 0;
                 if (usedPorts.has(0)) apb2 |= (1 << 2);
                 if (usedPorts.has(1)) apb2 |= (1 << 3);
                 if (usedPorts.has(2)) apb2 |= (1 << 4);
-                if (this._cUses.print) apb2 |= (1 << 14);
+                if (this._cUses.print) apb2 |= (1 << 14) | (1 << 2);   /* USART1 + IOPA (PA9/PA10) */
                 if (this._cUses.adc) apb2 |= (1 << 9);
                 out.push(`    RCC_APB2ENR = 0x${(apb2 >>> 0).toString(16)}u;      /* GPIO + peripheral clocks */`,
                     '    RCC_APB1ENR = (1u << 1);       /* TIM3: the millisecond tick */');
@@ -19587,6 +19635,7 @@ class SB3Creator {
                 if (usedPorts.has(0)) ahb |= (1 << 17);
                 if (usedPorts.has(1)) ahb |= (1 << 18);
                 if (usedPorts.has(2)) ahb |= (1 << 19);
+                if (this._cUses.print) ahb |= (1 << 17);   /* PA9/PA10 carry USART1 */
                 out.push(`    RCC_AHBENR  = 0x${(ahb >>> 0).toString(16)}u;      /* GPIO clocks */`,
                     '    RCC_APB1ENR = (1u << 1);       /* TIM3: the millisecond tick */');
                 const apb2 = (this._cUses.print ? (1 << 14) : 0) | (this._cUses.adc ? (1 << 9) : 0);
@@ -19630,7 +19679,12 @@ class SB3Creator {
                         if (bit < 8) crlC = (crlC & mask) | val; else crhC = (crhC & mask) | val;
                     }
                 }
-                if (usedPorts.has(0)) {
+                if (this._cUses.print) {
+                    // PA9 = USART1_TX: AF push-pull 50 MHz (CNF=10 MODE=11 -> 0xB);
+                    // PA10 = USART1_RX: input floating (0x4). RM0008 §9.1.11.
+                    crhA = (crhA & ~0xFF0) | (0xB << 4) | (0x4 << 8);
+                }
+                if (usedPorts.has(0) || this._cUses.print) {
                     out.push(`    GPIOA_CRL = 0x${(crlA >>> 0).toString(16)}u;`,
                         `    GPIOA_CRH = 0x${(crhA >>> 0).toString(16)}u;`);
                 }
@@ -19664,9 +19718,17 @@ class SB3Creator {
                         else pupdrC |= (pull << (2 * bit));
                     }
                 }
-                if (usedPorts.has(0)) {
+                if (this._cUses.print) {
+                    // PA9/PA10 to alternate function (MODER=10) — USART1 is AF1 on
+                    // both the F030 (RM0360/DS) and the G030 (RM0444/DS).
+                    moderA = (moderA & ~(0xF << 18)) | (2 << 18) | (2 << 20);
+                }
+                if (usedPorts.has(0) || this._cUses.print) {
                     out.push(`    GPIOA_MODER = 0x${(moderA >>> 0).toString(16)}u;`,
                         `    GPIOA_PUPDR = 0x${(pupdrA >>> 0).toString(16)}u;`);
+                }
+                if (this._cUses.print) {
+                    out.push('    GPIOA_AFRH = (GPIOA_AFRH & ~0xFF0u) | (1u << 4) | (1u << 8);   /* PA9/PA10 = AF1 USART1 */');
                 }
                 if (usedPorts.has(1)) {
                     out.push(`    GPIOB_MODER = 0x${(moderB >>> 0).toString(16)}u;`,
@@ -19682,9 +19744,10 @@ class SB3Creator {
                 '    TIM3_DIER = 1u;                /* UIE: the WFI wake */',
                 '    TIM3_CR1 = 1u;                 /* CEN */');
             if (this._cUses.print) {
+                const ue = this._cStm32F1 ? '(1u << 13)' : '1u';   /* F1: UE is CR1 bit 13 */
                 out.push('    USART1_BRR = (uint32_t)(F_CPU / 9600UL);',
-                    this._cUses.ask ? '    USART1_CR1 = (1u << 3) | (1u << 2) | 1u;   /* TE + RE (ask) + UE */'
-                        : '    USART1_CR1 = (1u << 3) | 1u;   /* TE + UE */');
+                    this._cUses.ask ? `    USART1_CR1 = (1u << 3) | (1u << 2) | ${ue};   /* TE + RE (ask) + UE */`
+                        : `    USART1_CR1 = (1u << 3) | ${ue};   /* TE + UE */`);
             }
         } else if (this._core === 'arm') {
             out.push('    /* On real silicon the TIMER counts watchdog ticks; the bootrom',
