@@ -34,6 +34,17 @@ SECTIONS {
 }
 `;
 
+// RM0360 §3.5.1: above 24 MHz the flash needs LATENCY = 1 (FLASH_ACR at
+// 0x40022000), so firmware that really runs at the 48 MHz F_CPU writes
+// FLASH_ACR = PRFTBE | LATENCY=1 = 0x11 once, before the PLL switch. The
+// pinned bw-board F0 model has no flash interface and logs that write as
+// unmapped. That is the simulator's gap (it has no clock tree either), not
+// the firmware's, so exactly that one write is allowed; any other unmapped
+// access still fails the "honest" ledger.
+const FLASH_ACR = 0x40022000;
+const unmappedBeyondFlashAcr = (m) => m.unmapped.filter((u) =>
+    !(u.rw === 'w' && (u.addr >>> 0) === FLASH_ACR && u.value === 0x11));
+
 test('STM32F030: generated blink runs on the F0 machine, parked and honest',
     { skip: skipReason },
     async () => {
@@ -80,7 +91,7 @@ test('STM32F030: generated blink runs on the F0 machine, parked and honest',
         // Number(m.stats.sleptNs) / 3e9 > 0.9 -> observed 0.997710843.
         assert.ok(Number(m.stats.sleptNs) / 3e9 > 0.9,
             `WFI parks the core (${(Number(m.stats.sleptNs) / 3e7).toFixed(1)}% slept)`);
-        assert.deepEqual(m.unmapped, [], 'no unmapped accesses');
+        assert.deepEqual(unmappedBeyondFlashAcr(m), [], 'no unmapped accesses beyond the FLASH_ACR wait-state write');
         assert.deepEqual(board.rcc.gatedAccesses, [], 'no clock-gated accesses');
     });
 
@@ -171,5 +182,5 @@ test('STM32F030: ADC + PWM — the cap vocabulary, blocks to pad and back',
         // Math.abs(duty - 0.3) < 0.03 -> observed 0.022580645161290325.
         assert.ok(Math.abs(duty - 0.3) < 0.03,
             `the pad carries the asked-for duty (${(duty * 100).toFixed(1)}% vs 30%)`);
-        assert.deepEqual(m.unmapped, [], 'no unmapped accesses');
+        assert.deepEqual(unmappedBeyondFlashAcr(m), [], 'no unmapped accesses beyond the FLASH_ACR wait-state write');
     });
