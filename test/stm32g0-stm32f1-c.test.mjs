@@ -391,3 +391,37 @@ test('an explicit DEVICE line builds for the chip even with no pins; no DEVICE l
     c.parse('DEVICE STM32F030\n\nWHEN flag clicked:\n  print 1\n');
     assert.match(c.generateC(c.project, { target: 'host' }), /#include <stdio\.h>/);
 });
+
+test('STM32F103 ADC: the F1 ADC1 sequence (RM0008 §11), not the F0/G0 ADEN/CHSELR one', () => {
+    const { c, code } = emit('DEVICE STM32F103\nPIN pot1 = PA0 ANALOG\nPIN pot2 = PB1 ANALOG\n\n'
+        + 'WHEN flag clicked:\n  forever:\n    print read pot1\n    print read pot2\n    wait 0.1 seconds\n');
+    assert.deepEqual(c._cWarnings || [], []);
+    assert.doesNotMatch(code, /ADC_CHSELR|ADC_ISR|ADRDY|ADSTART/, 'no F0/G0 ADC registers on the F1');
+    for (const [name, addr] of [['ADC1_SR', '0x40012400u'], ['ADC1_CR2', '0x40012408u'], ['ADC1_SMPR2', '0x40012410u'],
+        ['ADC1_SQR1', '0x4001242cu'], ['ADC1_SQR3', '0x40012434u'], ['ADC1_DR', '0x4001244cu'], ['RCC_CFGR', '0x40021004u']]) {
+        assert.match(code, new RegExp(`#define ${name} +BW_MMIO\\(${addr}\\)`), name);
+    }
+    assert.match(code, /RCC_CFGR = \(RCC_CFGR & ~\(3u << 14\)\) \| \(2u << 14\);/, 'ADCPRE = /6, <= 14 MHz');
+    assert.match(code, /ADC1_CR2 \|= \(1u << 3\);[^\n]*RSTCAL/);
+    assert.match(code, /ADC1_CR2 \|= \(1u << 2\);[^\n]*CAL/);
+    assert.match(code, /ADC1_SQR3 = \(uint32_t\)channel & 0x1Fu;/);
+    assert.match(code, /\(7u << 17\) \| \(1u << 20\) \| \(1u << 22\)/, 'EXTSEL=SWSTART, EXTTRIG, SWSTART');
+    assert.match(code, /while \(!\(ADC1_SR & \(1u << 1\)\)\) ;/, 'polls SR.EOC');
+    assert.match(code, /adc_read\(0\)/, 'PA0 = ADC12_IN0');
+    assert.match(code, /adc_read\(9\)/, 'PB1 = ADC12_IN9');
+    const apb2 = Number.parseInt(code.match(/RCC_APB2ENR = 0x([0-9a-f]+)u;/)[1], 16);
+    for (const bit of [2, 3, 9]) assert.ok(apb2 & (1 << bit), `APB2ENR bit ${bit} (IOPA, IOPB, ADC1EN)`);
+    // analog input = CRL nibble 0 for PA0 and PB1
+    assert.equal(Number.parseInt(code.match(/GPIOA_CRL = 0x([0-9a-f]+)u;/)[1], 16) & 0xF, 0);
+    assert.equal((Number.parseInt(code.match(/GPIOB_CRL = 0x([0-9a-f]+)u;/)[1], 16) >>> 4) & 0xF, 0);
+    if (hasGcc) assertVectorImage(compileArmBinary(code, LD_F1, 'cortex-m3'), 68, 0x20005000);
+});
+
+test('STM32F103 chip temperature: ADC1 channel 16 with TSVREFE, kept through adc_read', () => {
+    const { code } = emit('DEVICE STM32F103\n\nWHEN flag clicked:\n  print chip temperature\n');
+    assert.match(code, /ADC1_CR2 \|= \(1u << 23\);/, 'TSVREFE');
+    assert.match(code, /ADC1_SMPR1 \|= \(7u << 18\);/, 'SMP16 = 239.5 cycles');
+    assert.match(code, /ADC1_CR2 = \(ADC1_CR2 & \(1u << 23\)\)/, 'a conversion start keeps TSVREFE');
+    assert.doesNotMatch(code, /ADC_CCR|TSEN/);
+    if (hasGcc) assertVectorImage(compileArmBinary(code, LD_F1, 'cortex-m3'), 68, 0x20005000);
+});
