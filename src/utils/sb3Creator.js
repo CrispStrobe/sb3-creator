@@ -11126,6 +11126,111 @@ class SB3Creator {
         return out;
     }
 
+    /**
+     * The clock tree that makes F_CPU true on STM32 silicon. Every part
+     * leaves reset on its internal RC oscillator (F030 HSI 8 MHz, G030
+     * HSI16 16 MHz, F103 HSI 8 MHz); the generated timings (TIM3 prescaler,
+     * USART BRR, TIM14/TIM4 tone) are computed from F_CPU, so the PLL must
+     * actually be programmed to the value F_CPU claims. Two clocks are
+     * honoured per chip: the PLL default (48/64/72 MHz) and the reset clock
+     * (no PLL, nothing to program). Any other CLOCK refuses the program by
+     * name in generateC rather than ship timings that are silently wrong.
+     */
+    _cStm32ClockInit(clock) {
+        const chip = this._cStm32G0 ? 'STM32G030' : this._cStm32F1 ? 'STM32F103' : 'STM32F030';
+        const pll = this._cStm32G0 ? 64000000 : this._cStm32F1 ? 72000000 : 48000000;
+        const reset = this._cStm32G0 ? 16000000 : 8000000;
+        this._cStm32ClockRefused = null;
+        this._cStm32ClockPll = false;
+        if (clock === reset) {
+            return [`/* ${chip} runs on its reset clock (${reset / 1e6} MHz internal RC): no PLL,`,
+                ' * no flash wait states, every bus prescaler /1. */',
+                'static void bw_clock_init(void) { }', ''];
+        }
+        if (clock !== pll) {
+            this._cStm32ClockRefused = `CLOCK ${clock} Hz on the ${chip} (this C back end programs ${pll / 1e6} MHz `
+                + `through the PLL, or runs on the ${reset / 1e6} MHz reset clock)`;
+            return [];
+        }
+        this._cStm32ClockPll = true;
+        const wait = ['/* Bounded poll: 1 once (reg & mask) == want, 0 after 2^17 reads. On',
+            ' * silicon every wait below completes in microseconds (HSE start-up',
+            ' * excepted: a few ms); the bound only keeps a dead oscillator from',
+            ' * hanging the reset path forever (ST\'s HAL bounds the same waits). */',
+            'static int bw_wait(volatile uint32_t *reg, uint32_t mask, uint32_t want)',
+            '{',
+            '    uint32_t n = 0x20000u;',
+            '    while ((*reg & mask) != want) if (--n == 0u) return 0;',
+            '    return 1;',
+            '}', ''];
+        if (this._cStm32G0) {
+            return [...wait,
+                '/* RM0444 §5 (RCC) and §3.3.4 (FLASH_ACR): HSI16 -> PLL -> 64 MHz.',
+                ' *   VCO = 16 MHz / M(1) * N(8) = 128 MHz (64..344 MHz allowed),',
+                ' *   PLLRCLK = VCO / R(2) = 64 MHz = SYSCLK; AHB = APB = /1 (reset),',
+                ' *   so TIM3/TIM14 and USART1 (PCLK) also run at 64 MHz.',
+                ' * Flash needs 2 wait states above 48 MHz in range 1 (the reset range),',
+                ' * set and READ BACK before the clock rises. On failure the chip stays',
+                ' * on HSI16 (every timing then 4x slow): visible, not a hang. */',
+                'static void bw_clock_init(void)',
+                '{',
+                '    FLASH_ACR = (FLASH_ACR & ~7u) | (1u << 8) | 2u;   /* PRFTEN + LATENCY = 2 */',
+                '    if (!bw_wait(&FLASH_ACR, 7u, 2u)) return;',
+                '    RCC_PLLCFGR = (RCC_PLLCFGR & ~((7u << 29) | (1u << 28) | (0x7Fu << 8) | (7u << 4) | 3u))',
+                '                | (1u << 29) | (1u << 28) | (8u << 8) | 2u;   /* R=/2, PLLREN, N=8, M=/1, HSI16 */',
+                '    RCC_CR |= (1u << 24);                             /* PLLON */',
+                '    if (!bw_wait(&RCC_CR, 1u << 25, 1u << 25)) return;   /* PLLRDY */',
+                '    RCC_CFGR = (RCC_CFGR & ~7u) | 2u;                 /* SW = PLLRCLK */',
+                '    (void)bw_wait(&RCC_CFGR, 7u << 3, 2u << 3);       /* SWS = PLLRCLK */',
+                '}', ''];
+        }
+        if (this._cStm32F1) {
+            return [...wait,
+                '/* RM0008 §7 (RCC) and §3.3.3 (FLASH_ACR): the Blue Pill\'s 8 MHz HSE',
+                ' * crystal -> PLL x9 -> 72 MHz. AHB /1 and APB2 /1 = 72 MHz (USART1,',
+                ' * ADC via ADCPRE /6 = 12 MHz <= 14 MHz); APB1 /2 = 36 MHz (its 36 MHz',
+                ' * maximum), and because APB1 is prescaled its timers run at 2 x PCLK1',
+                ' * = 72 MHz (§7.2), so TIM2/TIM3/TIM4 count at F_CPU. Flash: 2 wait',
+                ' * states above 48 MHz, prefetch on, set before the clock rises.',
+                ' * No crystal (HSE never ready): fall back to HSI/2 x 16 = 64 MHz, the',
+                ' * fastest the internal RC reaches; timings then run 8/9 as fast. */',
+                'static void bw_clock_init(void)',
+                '{',
+                '    uint32_t cfgr = RCC_CFGR & ~((0xFu << 18) | (3u << 16) | (3u << 14) | (0x3Fu << 8) | (0xFu << 4));',
+                '    cfgr |= (2u << 14) | (4u << 8);                   /* ADCPRE = /6, PPRE1 = /2 */',
+                '    FLASH_ACR = (1u << 4) | 2u;                       /* PRFTBE + LATENCY = 2 */',
+                '    RCC_CR |= (1u << 16);                             /* HSEON */',
+                '    if (bw_wait(&RCC_CR, 1u << 17, 1u << 17))         /* HSERDY */',
+                '        cfgr |= (7u << 18) | (1u << 16);              /* PLLMUL = x9, PLLSRC = HSE */',
+                '    else {',
+                '        RCC_CR &= ~(1u << 16);                        /* HSE off again */',
+                '        cfgr |= (14u << 18);                          /* PLLMUL = x16, PLLSRC = HSI/2 */',
+                '    }',
+                '    RCC_CFGR = cfgr;',
+                '    RCC_CR |= (1u << 24);                             /* PLLON */',
+                '    if (!bw_wait(&RCC_CR, 1u << 25, 1u << 25)) return;   /* PLLRDY */',
+                '    RCC_CFGR = (RCC_CFGR & ~3u) | 2u;                 /* SW = PLL */',
+                '    (void)bw_wait(&RCC_CFGR, 3u << 2, 2u << 2);       /* SWS = PLL */',
+                '}', ''];
+        }
+        return [...wait,
+            '/* RM0360 §6 (RCC) and §3.5.1 (FLASH_ACR): HSI 8 MHz / 2 -> PLL x12 ->',
+            ' * 48 MHz. AHB = APB = /1 (reset), so TIM3/TIM14 and USART1 run at',
+            ' * 48 MHz too; the ADC keeps its own HSI14 clock. Flash: 1 wait state',
+            ' * above 24 MHz plus prefetch, set before the clock rises. On failure',
+            ' * the chip stays on HSI (every timing then 6x slow): visible, not a hang. */',
+            'static void bw_clock_init(void)',
+            '{',
+            '    FLASH_ACR = (1u << 4) | 1u;                       /* PRFTBE + LATENCY = 1 */',
+            '    RCC_CFGR = (RCC_CFGR & ~((0xFu << 18) | (3u << 15))) | (10u << 18);',
+            '                                                      /* PLLMUL = x12, PLLSRC = HSI/2 */',
+            '    RCC_CR |= (1u << 24);                             /* PLLON */',
+            '    if (!bw_wait(&RCC_CR, 1u << 25, 1u << 25)) return;   /* PLLRDY */',
+            '    RCC_CFGR = (RCC_CFGR & ~3u) | 2u;                 /* SW = PLL */',
+            '    (void)bw_wait(&RCC_CFGR, 3u << 2, 2u << 2);       /* SWS = PLL */',
+            '}', ''];
+    }
+
     /** `chip temperature` in C: bw_chip_temp(), or a stated 0 on a chip without a sensor. */
     cChipTemp() {
         const device = this.project && this.project.stc && this.project.stc.device;
@@ -11217,6 +11322,34 @@ class SB3Creator {
                 '    ADC1_CR2 |= (1u << 23);                      /* TSVREFE */',
                 '    mv100 = adc_read(16) * 330000L / 4095L;',
                 '    t100 = 2500L + (143000L - mv100) * 100L / 430L;',
+                round,
+                '}', ''];
+        }
+        if (sensor === 'stm32g0') {
+            return ['/* chip temperature (RM0444 §15.10, DS12991 §5.3.21): ADC channel 12 once',
+                ' * ADC_CCR.TSEN powers the sensor (t_START, a 100 us wait, first use only);',
+                ' * adc_read samples 160.5 ADC clocks = 10 us >= the 5 us minimum. The',
+                ' * sensor RISES 2.5 mV per degree (Avg_Slope). Its 30 C point is the',
+                ' * factory TS_CAL1 (system memory 0x1FFF75A8, taken at VDDA = 3.0 V,',
+                ' * DS12991 Table "Temperature sensor calibration values"), rescaled to',
+                ' * the 3.3 V VDDA this program assumes; an erased word (0 or 0xFFFF)',
+                ' * falls back to the typical V30 = 0.76 V. Hundredths of a mV. */',
+                '#define BW_TS_CAL1   (*(volatile const uint16_t *)0x1FFF75A8u)',
+                'static long bw_chip_temp(void)',
+                '{',
+                '    static uint8_t on;',
+                '    long mv100, cal100, t100;',
+                '    uint32_t cal;',
+                '    if (!on) {',
+                '        volatile uint32_t d;',
+                '        ADC_CCR |= (1u << 23);                   /* TSEN */',
+                '        for (d = 0; d < 2000u; d++) { }          /* t_START */',
+                '        on = 1;',
+                '    }',
+                '    mv100 = adc_read(12) * 330000L / 4095L;',
+                '    cal = BW_TS_CAL1;',
+                '    cal100 = (cal == 0u || cal > 0xFFFu) ? 76000L : (long)cal * 300000L / 4095L;',
+                '    t100 = 3000L + (mv100 - cal100) * 100L / 250L;',
                 round,
                 '}', ''];
         }
@@ -11965,8 +12098,20 @@ class SB3Creator {
                     read: `((PIN${hw.reg} >> ${hw.bit}) & 1)` };
             }
             const hw = this.armHw(pin);
+            if (stm && this._cStm32F1) {
+                // RM0008 §9.1.6/Table 20: output open-drain (CNF=01, MODE=10 ->
+                // 0x6) — ODR 0 pulls the bus low, ODR 1 releases it, and IDR
+                // still reads the pad, which is exactly a 1-Wire DQ.
+                const P = 'ABC'[hw.gpio >> 4];
+                const n = hw.gpio & 15;
+                const cr = `GPIO${P}_${n < 8 ? 'CRL' : 'CRH'}`;
+                const s = (n & 7) * 4;
+                return { init: `bw_pin_set(${hw.gpio}u); ${cr} = (${cr} & ~(0xFu << ${s})) | (0x6u << ${s});   /* open drain, released */`,
+                    low: `bw_pin_clr(${hw.gpio}u);`, rel: `bw_pin_set(${hw.gpio}u);`,
+                    read: `bw_pin_get(${hw.gpio}u)` };
+            }
             if (stm) {
-                const reg = hw.gpio < 16 ? 'GPIOA_MODER' : 'GPIOB_MODER';
+                const reg = `GPIO${'ABC'[hw.gpio >> 4]}_MODER`;
                 const n = hw.gpio & 15;
                 return { init: `bw_pin_clr(${hw.gpio}u);`,
                     low: `${reg} |= (1u << ${2 * n});`, rel: `${reg} &= ~(3u << ${2 * n});`,
@@ -12490,6 +12635,17 @@ class SB3Creator {
             case 'devices_motion': { this._cUses.devices = true; this._cUses.button = true; return `bw_motion(${v('SENSOR')})`; }
             case 'devices_tilted': { this._cUses.devices = true; this._cUses.button = true; return `bw_tilted(${v('SENSOR')})`; }
             case 'devices_energised': { this._cUses.devices = true; this._cUses.relay = true; return `bw_energised(${v('DEVICE')})`; }
+            case 'sensing_timer':
+                if (this._cStm32) {
+                    // The STM32 build keeps a real millisecond count (TIM3's
+                    // tick), so the timer is that count since the last reset.
+                    // C numbers here are integers: whole seconds, truncated.
+                    this._cUses.timer = true;
+                    this._cUses.now = true;
+                    this.cWarn('timer counts whole seconds in STM32 C (integer arithmetic: 1.9 s reads 1)');
+                    return '((long)((bw_now() - bw_timer_t0) / 1000u))';
+                }
+                // falls through: elsewhere the timer has no C lowering yet
             default: {
                 const text = this.drep(b, blocks) || b.opcode;
                 this.cWarn(`no C equivalent for "${text}" — emitted as 0`);
@@ -12787,13 +12943,17 @@ class SB3Creator {
                 if (this._core === 'arm') {
                     const hw = pin ? this.armHw(pin) : null;
                     if (!hw) return line(`/* no PWM on ${this.cComment(f('PIN'))} */`);
-                    if (this._cStm32 && ![6, 7, 17].includes(hw.gpio)) {
-                        // TIM3's compare channels are the only PWM this
-                        // package routes to our header: PA6=CH1, PA7=CH2,
-                        // PB1=CH4. Refuse the rest at emit time, the same
-                        // policy as the AVR timer pins.
+                    const stmPwm = this._cStm32F1 ? [0, 1, 2, 3, 6, 7, 16, 17] : [6, 7, 17];
+                    if (this._cStm32 && !stmPwm.includes(hw.gpio)) {
+                        // TIM3's compare channels (and on the F103 TIM2's) are
+                        // the PWM this generator drives: PA6=CH1, PA7=CH2,
+                        // PB1=CH4, plus PB0=TIM3_CH3 and PA0-PA3=TIM2 on the
+                        // F103 — the same set its PIN declaration accepts.
+                        // Refuse the rest at emit time, the same policy as the
+                        // AVR timer pins.
                         this.cWarn(`"${pin.where}" has no usable PWM here: `
-                            + 'TIM3 drives PA6, PA7 and PB1 on the F030');
+                            + (this._cStm32F1 ? 'TIM2 drives PA0-PA3 and TIM3 PA6, PA7, PB0 and PB1 on the STM32F103'
+                                : `TIM3 drives PA6, PA7 and PB1 on the ${this._cStm32G0 ? 'STM32G030' : 'STM32F030'}`));
                         return line(`/* no PWM on ${this.cComment(pin.where)} */`);
                     }
                     return line(`pwm_set(${hw.gpio}, ${v('VALUE')});`);
@@ -13076,6 +13236,12 @@ class SB3Creator {
             case 'devices_oledcursor': { this._cUses.devices = true; this._cUses.oled = true; return line(`bw_oled_cursor(${v('DISPLAY')}, ${v('ROW')}, ${v('COL')});`); }
             case 'procedures_call': return line(this.cProcCall(b, blocks));
             default: {
+                if (this._cStm32 && b.opcode === 'sensing_resettimer') {
+                    // The timer's zero on the STM32 millisecond tick (cRep).
+                    this._cUses.timer = true;
+                    this._cUses.now = true;
+                    return line('bw_timer_t0 = bw_now();');
+                }
                 if (this._cListCore && this._core !== 'i8086' && b.opcode === 'sensing_askandwait') {
                     return [...this.cAskLines(b, blocks, pad),
                         `${pad}while (!(bw_got_line())) ;   /* the answer is the next line */`];
@@ -16602,7 +16768,7 @@ class SB3Creator {
                 }
                 return [];
             })()),
-            '/* Generated by Brickwright — blocks → C for the STC12 / 8051.',
+            `/* Generated by Brickwright — blocks → C for the ${this._cStm32 ? `${String(device).toUpperCase()} (Cortex-M${this._cStm32F1 ? '3' : this._cStm32G0 ? '0+' : '0'})` : 'STC12 / 8051'}.`,
             // This used to read "Hand edits will be lost; change the project
             // instead." The first half is still true and the second stopped
             // being true once the C reader landed: edits are no longer a dead
@@ -16864,6 +17030,11 @@ class SB3Creator {
                 ' * API. The runtime\'s arduino.c owns main(): it starts the millisecond',
                 ' * timer, enables interrupts, calls setup() once and loop() forever. */', '');
         } else if (this._core === 'arm' && this._cStm32) {
+            // GPIO ports: the F0 puts them on AHB2 at 0x48000000 (RM0360 §2.2.2);
+            // the G0 on the Cortex-M0+ single-cycle IOPORT at 0x50000000
+            // (RM0444 §2.2.2, Table 6). Same v2 register layout on both.
+            const gb = this._cStm32G0 ? 0x50000000 : 0x48000000;
+            const gpio = (port, off) => `0x${(gb + port * 0x400 + off).toString(16)}u`;
             out.push('#include <stdint.h>', '');
             out.push(`#define F_CPU ${clock}UL`, '');
             out.push('/* Freestanding Cortex-M0/M0+/M3: no HAL, no headers — the registers this',
@@ -16871,14 +17042,20 @@ class SB3Creator {
                 ' * A peripheral with its RCC clock off does not function; the',
                 ' * enables come FIRST in bw_setup, on silicon and emulator alike. */',
                 '#define BW_MMIO(a) (*(volatile uint32_t *)(a))',
+                '#define RCC_CR       BW_MMIO(0x40021000u)',
+                '#define FLASH_ACR    BW_MMIO(0x40022000u)',
                 ...(this._cStm32G0 ? [
+                    '#define RCC_CFGR     BW_MMIO(0x40021008u)',
+                    '#define RCC_PLLCFGR  BW_MMIO(0x4002100cu)',
                     '#define RCC_IOPENR   BW_MMIO(0x40021034u)',
                     '#define RCC_APBENR1  BW_MMIO(0x4002103cu)',
                     '#define RCC_APBENR2  BW_MMIO(0x40021040u)',
                 ] : this._cStm32F1 ? [
+                    '#define RCC_CFGR     BW_MMIO(0x40021004u)',
                     '#define RCC_APB2ENR  BW_MMIO(0x40021018u)',
                     '#define RCC_APB1ENR  BW_MMIO(0x4002101cu)',
                 ] : [
+                    '#define RCC_CFGR     BW_MMIO(0x40021004u)',
                     '#define RCC_AHBENR   BW_MMIO(0x40021014u)',
                     '#define RCC_APB1ENR  BW_MMIO(0x4002101cu)',
                     '#define RCC_APB2ENR  BW_MMIO(0x40021018u)',
@@ -16899,23 +17076,16 @@ class SB3Creator {
                     '#define GPIOC_IDR    BW_MMIO(0x40011008u)',
                     '#define GPIOC_ODR    BW_MMIO(0x4001100cu)',
                     '#define GPIOC_BSRR   BW_MMIO(0x40011010u)',
-                ] : [
-                    '#define GPIOA_MODER  BW_MMIO(0x48000000u)',
-                    '#define GPIOA_PUPDR  BW_MMIO(0x4800000cu)',
-                    '#define GPIOA_IDR    BW_MMIO(0x48000010u)',
-                    '#define GPIOA_ODR    BW_MMIO(0x48000014u)',
-                    '#define GPIOA_BSRR   BW_MMIO(0x48000018u)',
-                    '#define GPIOB_MODER  BW_MMIO(0x48000400u)',
-                    '#define GPIOB_PUPDR  BW_MMIO(0x4800040cu)',
-                    '#define GPIOB_IDR    BW_MMIO(0x48000410u)',
-                    '#define GPIOB_ODR    BW_MMIO(0x48000414u)',
-                    '#define GPIOB_BSRR   BW_MMIO(0x48000418u)',
-                    '#define GPIOC_MODER  BW_MMIO(0x48000800u)',
-                    '#define GPIOC_PUPDR  BW_MMIO(0x4800080cu)',
-                    '#define GPIOC_IDR    BW_MMIO(0x48000810u)',
-                    '#define GPIOC_ODR    BW_MMIO(0x48000814u)',
-                    '#define GPIOC_BSRR   BW_MMIO(0x48000818u)',
-                ]),
+                ] : [0, 1, 2].flatMap((port) => {
+                    const P = 'ABC'[port];
+                    return [
+                        `#define GPIO${P}_MODER  BW_MMIO(${gpio(port, 0x00)})`,
+                        `#define GPIO${P}_PUPDR  BW_MMIO(${gpio(port, 0x0c)})`,
+                        `#define GPIO${P}_IDR    BW_MMIO(${gpio(port, 0x10)})`,
+                        `#define GPIO${P}_ODR    BW_MMIO(${gpio(port, 0x14)})`,
+                        `#define GPIO${P}_BSRR   BW_MMIO(${gpio(port, 0x18)})`,
+                    ];
+                })),
                 '#define TIM3_CR1     BW_MMIO(0x40000400u)',
                 '#define TIM3_DIER    BW_MMIO(0x4000040cu)',
                 '#define TIM3_SR      BW_MMIO(0x40000410u)',
@@ -16938,7 +17108,7 @@ class SB3Creator {
                     '#define USART1_BRR   BW_MMIO(0x4001380cu)',
                     '#define USART1_ISR   BW_MMIO(0x4001381cu)',
                     '#define USART1_TDR   BW_MMIO(0x40013828u)',
-                    '#define GPIOA_AFRH   BW_MMIO(0x48000024u)',
+                    `#define GPIOA_AFRH   BW_MMIO(${gpio(0, 0x24)})`,
                 ]),
                 '#define TIM3_CCMR1   BW_MMIO(0x40000418u)',
                 '#define TIM3_CCMR2   BW_MMIO(0x4000041cu)',
@@ -16946,13 +17116,13 @@ class SB3Creator {
                 '#define TIM3_CCR1    BW_MMIO(0x40000434u)',
                 '#define TIM3_CCR2    BW_MMIO(0x40000438u)',
                 '#define TIM3_CCR4    BW_MMIO(0x40000440u)',
+                '#define TIM3_CCR3    BW_MMIO(0x4000043cu)',
                 ...(this._cStm32F1 ? [] : [
-                    '#define GPIOA_AFRL   BW_MMIO(0x48000020u)',
-                    '#define GPIOB_AFRL   BW_MMIO(0x48000420u)',
+                    `#define GPIOA_AFRL   BW_MMIO(${gpio(0, 0x20)})`,
+                    `#define GPIOB_AFRL   BW_MMIO(${gpio(1, 0x20)})`,
                 ]),
                 ...(this._cStm32F1 ? [
                     // RM0008 §11.12: the F1 ADC1 register map.
-                    '#define RCC_CFGR     BW_MMIO(0x40021004u)',
                     '#define ADC1_SR      BW_MMIO(0x40012400u)',
                     '#define ADC1_CR2     BW_MMIO(0x40012408u)',
                     '#define ADC1_SMPR2   BW_MMIO(0x40012410u)',
@@ -16964,8 +17134,15 @@ class SB3Creator {
                     '#define ADC_CR       BW_MMIO(0x40012408u)',
                     '#define ADC_CHSELR   BW_MMIO(0x40012428u)',
                     '#define ADC_DR       BW_MMIO(0x40012440u)',
+                    ...(this._cStm32G0 ? [
+                        // RM0444 §15.12: CFGR2 (CKMODE), SMPR, CCR (TSEN/VREFEN).
+                        '#define ADC_CFGR2    BW_MMIO(0x40012410u)',
+                        '#define ADC_SMPR     BW_MMIO(0x40012414u)',
+                        '#define ADC_CCR      BW_MMIO(0x40012708u)',
+                    ] : []),
                 ]),
                 '#define NVIC_ISER    BW_MMIO(0xe000e100u)', '',
+                ...this._cStm32ClockInit(clock),
                 '/* Virtual pin n: port = n>>4 (0=A, 1=B, 2=C), bit = n&15. With a',
                 ' * constant n, -Os folds each helper to a single store. */',
                 'static inline void bw_pin_set(uint32_t n) { if (n < 16u) GPIOA_BSRR = 1u << n; else if (n < 32u) GPIOB_BSRR = 1u << (n - 16u); else GPIOC_BSRR = 1u << (n - 32u); }',
@@ -17202,6 +17379,7 @@ class SB3Creator {
                 ...(this._cUses.tone ? ['void bw_tone_irq(void);'] : []),
                 'int main(void);',
                 'static uint32_t bw_now(void) { return bw_ms; }',
+                ...(this._cUses.timer ? ['static uint32_t bw_timer_t0;                   /* the Scratch timer\'s zero (reset timer) */'] : []),
                 'static void bw_idle(void) { __asm__ volatile ("wfi"); }',
                 '__attribute__((section(".vectors"), used))',
                 `const void *bw_vectors[${numVectors}] = {`,
@@ -17209,7 +17387,8 @@ class SB3Creator {
                 '    (void *)main,                   /* reset */',
                 '    [3] = (void *)bw_fault,         /* HardFault */',
                 `    [16 + ${tim3Irq}] = (void *)bw_tick_irq, /* TIM3 = IRQ${tim3Irq} */`,
-                ...(this._cUses.tone ? ['    [16 + 19] = (void *)bw_tone_irq, /* TIM14 = IRQ19: the tone */'] : []),
+                ...(this._cUses.tone ? [`    [16 + ${SB3Creator.stm32ToneIrq(this._cStm32F1)}] = (void *)bw_tone_irq, /* ${
+                    this._cStm32F1 ? 'TIM4 = IRQ30' : 'TIM14 = IRQ19'}: the tone */`] : []),
                 '};', '');
             this._cUses.now = true;
             if (this._cUses.blockDelay) {
@@ -17650,6 +17829,38 @@ class SB3Creator {
                 '    while (!(ADC1_SR & (1u << 1))) ;              /* EOC */',
                 '    return (long)(ADC1_DR & 0xFFFu);',
                 '}', '');
+        } else if (this._cUses.adc && this._core === 'arm' && this._cStm32G0) {
+            out.push('/* 12-bit ADC, polled (RM0444 §15). First use, with ADEN = 0 throughout:',
+                ' *   CKMODE = PCLK/4 (16 MHz; fADC must stay <= 35 MHz, and the async',
+                ' *   default would be SYSCLK = 64 MHz), ADVREGEN then tADCVREG_STUP',
+                ' *   (20 us max, §15.3.2 — the loop gives ~40 us at 64 MHz), ADCAL',
+                ' *   self-calibration, SMP1 = 160.5 ADC clocks (10 us: the temperature',
+                ' *   sensor needs >= 5 us), then ADEN and ADRDY. Each read: CHSELR, wait',
+                ' *   CCRDY (the G0 applies a channel change asynchronously, §15.3.10),',
+                ' *   ADSTART, EOC, DR. Channel n is PA(n). */',
+                'static long adc_read(unsigned char channel)',
+                '{',
+                '    static uint8_t ready;',
+                '    if (!ready) {',
+                '        volatile uint32_t d;',
+                '        ADC_CFGR2 = (ADC_CFGR2 & ~(3u << 30)) | (2u << 30);   /* CKMODE = PCLK/4 */',
+                '        ADC_CR = (1u << 28);                      /* ADVREGEN */',
+                '        for (d = 0; d < 400u; d++) { }            /* tADCVREG_STUP */',
+                '        ADC_CR = (1u << 28) | (1u << 31);         /* ADCAL */',
+                '        while (ADC_CR & (1u << 31)) ;',
+                '        ADC_SMPR = 7u;                            /* SMP1 = 160.5 cycles, all channels */',
+                '        ADC_ISR = 1u;                             /* clear ADRDY (rc_w1) */',
+                '        ADC_CR = (1u << 28) | 1u;                 /* ADEN */',
+                '        while (!(ADC_ISR & 1u)) ;                 /* ADRDY */',
+                '        ready = 1;',
+                '    }',
+                '    ADC_ISR = (1u << 13);                         /* clear CCRDY */',
+                '    ADC_CHSELR = (1u << channel);',
+                '    while (!(ADC_ISR & (1u << 13))) ;             /* CCRDY */',
+                '    ADC_CR = (1u << 28) | 1u | (1u << 2);         /* + ADSTART */',
+                '    while (!(ADC_ISR & (1u << 2))) ;              /* EOC */',
+                '    return (long)(ADC_DR & 0xFFFu);',
+                '}', '');
         } else if (this._cUses.adc && this._core === 'arm' && this._cStm32) {
             out.push('/* 12-bit ADC, polled (RM0360 §12): enable, wait ADRDY, select the',
                 ' * channel, ADSTART, wait EOC, read DR. Channel n is PA(n). The RCC',
@@ -17721,7 +17932,17 @@ class SB3Creator {
                 '    analogWrite(gpio, (int)((percent * 255u + 50u) / 100u));',
                 '}', '');
         } else if ((this._cUses.pwm || this._cUses.motor) && this._core === 'arm' && this._cStm32) {
-            out.push('/* PWM rides the tick timer: TIM3 already counts 0..999 at 1 MHz',
+            out.push(...(this._cStm32F1 ? [
+                '/* F103 only: TIM2 (RM0008 §15) carries PA0-PA3 as CH1-CH4 (default',
+                ' * remap) on the same 1 MHz / 1000-count frame bw_setup gives it. */',
+                '#define TIM2_CR1     BW_MMIO(0x40000000u)',
+                '#define TIM2_CCMR1   BW_MMIO(0x40000018u)',
+                '#define TIM2_CCMR2   BW_MMIO(0x4000001cu)',
+                '#define TIM2_CCER    BW_MMIO(0x40000020u)',
+                '#define TIM2_PSC     BW_MMIO(0x40000028u)',
+                '#define TIM2_ARR     BW_MMIO(0x4000002cu)',
+                ''] : []),
+            '/* PWM rides the tick timer: TIM3 already counts 0..999 at 1 MHz',
                 ' * for the millisecond interrupt, and that same frame IS a 1 kHz PWM',
                 ' * period — compare channels cost no second timer. PA6=CH1, PA7=CH2,',
                 ' * PB1=CH4 (AF1, RM0360 alternate-function table); the call site',
@@ -17765,6 +17986,21 @@ class SB3Creator {
                 '        TIM3_CCMR2  = (TIM3_CCMR2 & ~0xFF00u) | 0x6000u;  /* OC4M=PWM1 */',
                 '        TIM3_CCER  |= (1u << 12);',
                 '        TIM3_CCR4   = duty;',
+                ...(this._cStm32F1 ? [
+                    '    } else if (gpio == 16u) {  /* PB0 = TIM3_CH3 */',
+                    '        GPIOB_CRL   = (GPIOB_CRL & ~0xFu) | 0xBu;   /* AF push-pull 50 MHz */',
+                    '        TIM3_CCMR2  = (TIM3_CCMR2 & ~0x00FFu) | 0x0060u;  /* OC3M=PWM1 */',
+                    '        TIM3_CCER  |= (1u << 8);',
+                    '        TIM3_CCR3   = duty;',
+                    '    } else if (gpio <= 3u) {   /* PA0-PA3 = TIM2_CH1-CH4 */',
+                    '        uint32_t s = (uint32_t)gpio * 4u;   /* CRL nibble, CCER bit, CCR offset */',
+                    '        uint32_t f = ((uint32_t)gpio & 1u) * 8u;   /* OCxM byte in CCMR1/2 */',
+                    '        GPIOA_CRL   = (GPIOA_CRL & ~(0xFu << s)) | (0xBu << s);   /* AF push-pull 50 MHz */',
+                    '        if (gpio < 2u) TIM2_CCMR1 = (TIM2_CCMR1 & ~(0xFFu << f)) | (0x60u << f);',
+                    '        else TIM2_CCMR2 = (TIM2_CCMR2 & ~(0xFFu << f)) | (0x60u << f);',
+                    '        TIM2_CCER  |= (1u << s);',
+                    '        BW_MMIO(0x40000034u + s) = duty;   /* TIM2_CCR1..CCR4 */',
+                ] : []),
                 '    }',
                 '}', '');
         } else if ((this._cUses.pwm || this._cUses.motor) && this._core === 'arm') {
@@ -18148,28 +18384,41 @@ class SB3Creator {
                     `    tone(${hw.gpio}, freq, 0);`,
                     '}', '');
             } else if (hw && this._cStm32) {
-                // TIM14 (RM0360 §17): 1 MHz count, an update every half-period,
-                // its IRQ (19) toggling the pin. TIM3 stays the 1 ms tick.
-                out.push('/* tone_set: TIM14 update interrupt toggles the TONE pin every half-period. */',
-                    '#define TIM14_CR1    BW_MMIO(0x40002000u)',
-                    '#define TIM14_DIER   BW_MMIO(0x4000200cu)',
-                    '#define TIM14_SR     BW_MMIO(0x40002010u)',
-                    '#define TIM14_EGR    BW_MMIO(0x40002014u)',
-                    '#define TIM14_PSC    BW_MMIO(0x40002028u)',
-                    '#define TIM14_ARR    BW_MMIO(0x4000202cu)',
-                    'void bw_tone_irq(void) { TIM14_SR = 0; ' + this.armXor(hw) + ' }',
+                // A spare basic-enough timer: 1 MHz count, an update every
+                // half-period, its IRQ toggling the pin. TIM3 stays the 1 ms tick.
+                //   F030 TIM14 @0x40002000, RCC_APB1ENR bit 8, IRQ 19 (RM0360 §17)
+                //   G030 TIM14 @0x40002000, RCC_APBENR2 bit 15, IRQ 19 (RM0444 §5.4.15, §22)
+                //   F103 has no TIM14 (and its IRQ 19 is USB/CAN): TIM4
+                //        @0x40000800, RCC_APB1ENR bit 2, IRQ 30 (RM0008 §15)
+                const T = this._cStm32F1 ? 'TIM4' : 'TIM14';
+                const tb = this._cStm32F1 ? 0x40000800 : 0x40002000;
+                const reg = (off) => `BW_MMIO(0x${(tb + off).toString(16)}u)`;
+                const irq = SB3Creator.stm32ToneIrq(this._cStm32F1);
+                const clk = this._cStm32G0 ? '    RCC_APBENR2 |= (1u << 15);         /* TIM14 clock (APBENR2) */'
+                    : this._cStm32F1 ? '    RCC_APB1ENR |= (1u << 2);          /* TIM4 clock */'
+                        : '    RCC_APB1ENR |= (1u << 8);          /* TIM14 clock */';
+                out.push(`/* tone_set: ${T} update interrupt toggles the TONE pin every half-period. */`,
+                    `#define BW_TONE_CR1  ${reg(0x00)}`,
+                    `#define BW_TONE_DIER ${reg(0x0c)}`,
+                    `#define BW_TONE_SR   ${reg(0x10)}`,
+                    `#define BW_TONE_EGR  ${reg(0x14)}`,
+                    `#define BW_TONE_PSC  ${reg(0x28)}`,
+                    `#define BW_TONE_ARR  ${reg(0x2c)}`,
+                    'void bw_tone_irq(void) { BW_TONE_SR = 0; ' + this.armXor(hw) + ' }',
                     'static void tone_set(unsigned int freq)',
                     '{',
-                    '    TIM14_CR1 = 0;',
+                    // The clock FIRST: a register write to a timer whose RCC
+                    // clock is off is lost on silicon.
+                    clk,
+                    '    BW_TONE_CR1 = 0;',
                     '    if (freq == 0u) { ' + this.armClr(hw) + ' return; }',
-                    '    RCC_APB1ENR |= (1u << 8);          /* TIM14 clock */',
-                    '    TIM14_PSC = (uint32_t)(F_CPU / 1000000UL - 1UL);',
-                    '    TIM14_ARR = (uint32_t)(500000UL / freq - 1UL);',
-                    '    TIM14_EGR = 1u;',
-                    '    TIM14_SR = 0;',
-                    '    TIM14_DIER = 1u;',
-                    '    NVIC_ISER = (1u << 19);',
-                    '    TIM14_CR1 = 1u;',
+                    '    BW_TONE_PSC = (uint32_t)(F_CPU / 1000000UL - 1UL);',
+                    '    BW_TONE_ARR = (uint32_t)(500000UL / freq - 1UL);',
+                    '    BW_TONE_EGR = 1u;',
+                    '    BW_TONE_SR = 0;',
+                    '    BW_TONE_DIER = 1u;',
+                    `    NVIC_ISER = (1u << ${irq});`,
+                    '    BW_TONE_CR1 = 1u;',
                     '}', '');
             } else if (hw) {
                 // RP2040: TIMER ALARM1 (IRQ 1) re-armed every half-period from its
@@ -19369,6 +19618,17 @@ class SB3Creator {
                 this.cWarn(`lists are numeric arrays of 32 items here; ${this._cListRefused.join(', ')}`);
             }
             const X = this._core === '8051' ? '__xdata ' : '';
+            // The STM32 builds used to drop the 33rd item in silence (a
+            // 200-item list printed length 32, item 200 = 0). The capacity is
+            // a RAM budget, not a Scratch rule, so say it at build time.
+            if (this._cStm32 && this._cUses.numericLists) {
+                this.cWarn(`lists hold at most 32 numbers each in ${String(device).toUpperCase()} C; `
+                    + 'an add or insert into a full list is dropped (Scratch allows 200000)');
+            }
+            if (this._cStm32 && this._cUses.ask) {
+                this.cWarn(`the answer holds at most 31 characters in ${String(device).toUpperCase()} C; `
+                    + 'the rest of a longer input line is dropped');
+            }
             if (this._cUses.numericLists) {
                 out.push('/* Lists: 32 numbers each (Scratch lists, numeric only). A one-based',
                     ' * index out of range is a no-op, or 0 when read, as Scratch coerces it;',
@@ -19671,6 +19931,11 @@ class SB3Creator {
         } else if (this._core === 'arm' && this._cStm32) {
             // RM0360/RM0444/RM0008 order: clocks first — a peripheral with its RCC clock
             // off does not function, on silicon and in the emulator alike.
+            // Before even those: the clock tree, so F_CPU is true before any
+            // prescaler or baud divisor computed from it is written.
+            out.push(`    bw_clock_init();               /* SYSCLK = F_CPU (${this._cStm32ClockPll ? 'PLL' : 'reset clock'}) */`);
+            // F103 PWM on PA0-PA3 is TIM2 CH1-CH4 (RM0008 §9.3.7, default remap).
+            const f1Tim2 = this._cStm32F1 && (this._cUses.pwm || this._cUses.motor) && pins.some((p) => p.direction === 'pwm' && /^PA[0-3]$/i.test(String(p.where || '')));
             const usedPorts = new Set();
             for (const p of pins) {
                 const hw = this.armHw(p);
@@ -19700,7 +19965,8 @@ class SB3Creator {
                 if (this._cUses.print) apb2 |= (1 << 14) | (1 << 2);   /* USART1 + IOPA (PA9/PA10) */
                 if (this._cUses.adc) apb2 |= (1 << 9);
                 out.push(`    RCC_APB2ENR = 0x${(apb2 >>> 0).toString(16)}u;      /* GPIO + peripheral clocks */`,
-                    '    RCC_APB1ENR = (1u << 1);       /* TIM3: the millisecond tick */');
+                    f1Tim2 ? '    RCC_APB1ENR = (1u << 1) | 1u;  /* TIM3: the millisecond tick; TIM2: PWM on PA0-PA3 */'
+                        : '    RCC_APB1ENR = (1u << 1);       /* TIM3: the millisecond tick */');
             } else {
                 let ahb = 0;
                 if (usedPorts.has(0)) ahb |= (1 << 17);
@@ -19719,8 +19985,16 @@ class SB3Creator {
                 // Level BEFORE mode: an ACTIVE LOW load must never see a
                 // power-on glitch while MODER/CRL flips the pin to output.
                 const hw = this.armHw(p);
-                if (!hw || (p.direction !== 'output' && p.direction !== 'tone')) continue;
-                out.push(`    ${p.activeLow ? this.armSet(hw) : this.armClr(hw)}      /* ${p.name}: start OFF */`);
+                if (!hw) continue;
+                if (p.direction === 'output' || p.direction === 'tone') {
+                    out.push(`    ${p.activeLow ? this.armSet(hw) : this.armClr(hw)}      /* ${p.name}: start OFF */`);
+                } else if (this._cStm32F1 && p.direction === 'input' && !p.openDrain) {
+                    // RM0008 §9.1, Table 20: input CNF=10 is "pull-up/pull-down"
+                    // and ODR picks which — 1 pulls up, 0 pulls down. ACTIVE LOW
+                    // (a button to GND) wants the pull-up; a plain INPUT gets the
+                    // pull-down, the same as PUPDR=10 on the F030/G030.
+                    out.push(`    ${p.activeLow ? this.armSet(hw) : this.armClr(hw)}      /* ${p.name}: pull-${p.activeLow ? 'up' : 'down'} (ODR) */`);
+                }
             }
             if (this._cStm32F1) {
                 let crlA = 0x44444444, crhA = 0x44444444;
@@ -19768,12 +20042,19 @@ class SB3Creator {
                         `    GPIOC_CRH = 0x${(crhC >>> 0).toString(16)}u;`);
                 }
             } else {
+                // Read-modify-write, touching only the declared pins' fields:
+                // PA13/PA14 reset to AF0 = SWDIO/SWCLK (RM0360 §8.4.1, RM0444
+                // §7.4.1), and a whole-register write turned them into GPIO and
+                // cut the debugger off. Inputs are written too (MODER = 00):
+                // the G0 resets unused pins to analog (11), not input.
                 let moderA = 0, moderB = 0, moderC = 0, pupdrA = 0, pupdrB = 0, pupdrC = 0;
+                const fieldMask = [0, 0, 0];
                 for (const p of pins) {
                     const hw = this.armHw(p);
                     if (!hw) continue;
                     const port = hw.gpio >> 4;
                     const bit = hw.gpio & 15;
+                    if (['output', 'tone', 'analog', 'input'].includes(p.direction)) fieldMask[port] |= (3 << (2 * bit));
                     if (p.direction === 'output' || p.direction === 'tone') {
                         if (port === 0) moderA |= (1 << (2 * bit));
                         else if (port === 1) moderB |= (1 << (2 * bit));
@@ -19793,27 +20074,35 @@ class SB3Creator {
                     // PA9/PA10 to alternate function (MODER=10) — USART1 is AF1 on
                     // both the F030 (RM0360/DS) and the G030 (RM0444/DS).
                     moderA = (moderA & ~(0xF << 18)) | (2 << 18) | (2 << 20);
+                    pupdrA &= ~(0xF << 18);
+                    fieldMask[0] |= (0xF << 18);
                 }
-                if (usedPorts.has(0) || this._cUses.print) {
-                    out.push(`    GPIOA_MODER = 0x${(moderA >>> 0).toString(16)}u;`,
-                        `    GPIOA_PUPDR = 0x${(pupdrA >>> 0).toString(16)}u;`);
-                }
+                const hex = (v) => `0x${(v >>> 0).toString(16)}u`;
+                const rmw = (P, port, moder, pupdr) => {
+                    const m = fieldMask[port];
+                    if (!m) return;
+                    out.push(`    GPIO${P}_MODER = (GPIO${P}_MODER & ~${hex(m)}) | ${hex(moder)};`,
+                        `    GPIO${P}_PUPDR = (GPIO${P}_PUPDR & ~${hex(m)}) | ${hex(pupdr)};`);
+                };
+                // AF number before the mode flips to AF: the pin never shows
+                // AF0 (on PA9/PA10 nothing, but keep the order uniform).
                 if (this._cUses.print) {
                     out.push('    GPIOA_AFRH = (GPIOA_AFRH & ~0xFF0u) | (1u << 4) | (1u << 8);   /* PA9/PA10 = AF1 USART1 */');
                 }
-                if (usedPorts.has(1)) {
-                    out.push(`    GPIOB_MODER = 0x${(moderB >>> 0).toString(16)}u;`,
-                        `    GPIOB_PUPDR = 0x${(pupdrB >>> 0).toString(16)}u;`);
-                }
-                if (usedPorts.has(2)) {
-                    out.push(`    GPIOC_MODER = 0x${(moderC >>> 0).toString(16)}u;`,
-                        `    GPIOC_PUPDR = 0x${(pupdrC >>> 0).toString(16)}u;`);
-                }
+                rmw('A', 0, moderA, pupdrA);
+                rmw('B', 1, moderB, pupdrB);
+                rmw('C', 2, moderC, pupdrC);
             }
             out.push('    TIM3_PSC = (uint16_t)(F_CPU / 1000000UL - 1UL);  /* 1 MHz count */',
                 '    TIM3_ARR = 999u;               /* update every millisecond */',
                 '    TIM3_DIER = 1u;                /* UIE: the WFI wake */',
                 '    TIM3_CR1 = 1u;                 /* CEN */');
+            if (this._cUses.timer) out.push('    bw_timer_t0 = bw_now();         /* the timer starts at the green flag */');
+            if (f1Tim2) {
+                out.push('    TIM2_PSC = (uint16_t)(F_CPU / 1000000UL - 1UL);  /* the same 1 kHz frame as TIM3 */',
+                    '    TIM2_ARR = 999u;',
+                    '    TIM2_CR1 = 1u;                 /* CEN */');
+            }
             if (this._cUses.print) {
                 const ue = this._cStm32F1 ? '(1u << 13)' : '1u';   /* F1: UE is CR1 bit 13 */
                 out.push('    USART1_BRR = (uint32_t)(F_CPU / 9600UL);',
@@ -20408,6 +20697,40 @@ class SB3Creator {
             const body = out.join('\n');
             const leaked = [...new Set(body.match(/BW_SIO\w*|BW_IOBANK0\w*|BW_PADS\b|BW_TIMER_\w*|BW_UART0\w*|BW_WATCHDOG\w*|BW_PWM\w*|BW_ADC_\w*|BW_SCB\w*|BW_NVIC\w*|BW_MMIO|\bint main\b/g) || [])];
             for (const l of leaked) this.cWarn(`internal: ${l} leaked into an ESP8266 build — that feature is not ported yet`);
+        }
+        // STM32: the same choke point. These features have a driver only for
+        // other cores (servo = RP2040 PWM slices, NeoPixel = 8051 cycle-timed
+        // asm, LCD/OLED/TFT = I2C macros that are no-ops on this chip), so the
+        // whole program refuses BY NAME rather than ship C that either fails
+        // to compile or silently does nothing. Broadcasts have no C lowering on
+        // any core yet. A CLOCK the generator cannot program is refused too.
+        if (this._cStm32) {
+            const chip = String(device || '').toUpperCase();
+            const named = {
+                servo: 'servo (no STM32 servo driver: the RP2040 one would be emitted)',
+                neopixel: 'NeoPixel (no STM32 WS2812 driver: the 8051 one would be emitted)',
+                lcd: 'LCD (no STM32 I2C/parallel LCD driver)',
+                oled: 'OLED (no STM32 I2C driver)',
+                tft: 'TFT display (no STM32 SPI driver)'
+            };
+            const unique = Object.keys(named).filter((k) => this._cUses[k]).map((k) => named[k]);
+            const opcodes = new Set();
+            for (const t of (project && project.targets) || []) {
+                for (const b of Object.values(t.blocks || {})) if (b && b.opcode) opcodes.add(b.opcode);
+            }
+            if (opcodes.has('event_broadcast') || opcodes.has('event_broadcastandwait') || opcodes.has('event_whenbroadcastreceived')) {
+                unique.push('broadcast / WHEN I receive (no C lowering for messages yet)');
+            }
+            if (this._cStm32ClockRefused) unique.push(this._cStm32ClockRefused);
+            if (unique.length) {
+                this.cWarn(`the ${chip} C back end has no implementation for: ${unique.join('; ')} — no C is emitted`);
+                return `/* No C emitted for DEVICE ${chip}.\n`
+                    + ' *\n'
+                    + ` * This program uses: ${unique.join('; ')}.\n`
+                    + ' * Emitting another chip\'s driver (or a silent stub) for them would be\n'
+                    + ` * wrong on the ${chip}. The pseudocode is unchanged.\n`
+                    + ' */\n';
+            }
         }
         // i8086 emits 8255 PIN I/O only, for now. Every other verb falls to the
         // 8051 default above, which would be wrong 8051 code on an 8086 -- so if
@@ -21547,6 +21870,9 @@ SB3Creator.STC_PARTS = {
  * @param {string} device
  * @returns {number}
  */
+/** NVIC line of the STM32 tone timer: TIM14 = 19 (F030/G030), TIM4 = 30 (F103). */
+SB3Creator.stm32ToneIrq = (f1) => (f1 ? 30 : 19);
+
 SB3Creator.defaultClock = (device) => {
     const part = SB3Creator.STC_PARTS[String(device || '').toLowerCase()];
     if (!part) return 11059200;
