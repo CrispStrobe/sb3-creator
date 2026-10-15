@@ -23,6 +23,9 @@ const ALIAS = true;
 
 // [kind, opcode, one line of the word with a value in every slot, ALIAS?]
 const WORD_LINES = [
+    ['command', 'arcade_declareParameterConstraint', 'declare arcade procedure "show text %s" parameter "message" as String'],
+    ['command', 'arcade_throwValue', 'arcade throw (calculate value 2 op "+" with 3)'],
+    ['reporter', 'arcade_createOwnedImageSprite', 'arcade create owned image (arcade local canvas) template "Player" kind (2 + 1)'],
     ['command','arcade_drawImageCircle','arcade draw image circle fillCircle (arcade local canvas) x (1 + 2) y -1 radius (arcade local radius) color 17'],
     ['command','arcade_drawSpriteCircle','arcade draw circle drawCircle of (arcade local actor) x -2 y (3 + 1) radius 2.9 color -1'],
     ['command','arcade_declareSourceCallable','declare arcade source callable first signature \"{\\\"kind\\\":\\\"callable\\\",\\\"parameters\\\":[],\\\"result\\\":{\\\"kind\\\":\\\"named\\\",\\\"name\\\":\\\"number\\\"}}\"'],
@@ -434,6 +437,7 @@ const HEADER = 'GLOBAL n\nGLOBAL v\nGLOBAL hero\nSPRITE S:\n';
 
 /** The line in the context its kind is written in. */
 function program(kind, line) {
+    if(line.startsWith('declare arcade procedure'))return `${HEADER}DEFINE show text (message):\n  ${line}\n  arcade log message\n`;
     if (kind === 'hat') return `${HEADER}WHEN ${line.replace(/^when\s+/i, '')}:\n  hide\n`;
     if (kind === 'loop') return `${HEADER}WHEN flag clicked:\n  ${line}:\n    hide\n`;
     if (kind === 'command') return `${HEADER}WHEN flag clicked:\n  ${line}\n`;
@@ -457,7 +461,7 @@ function fixedPoint(bw) {
     assert.equal(d2, d1, 'the decompiled text reads back to the same blocks');
     // Opcodes, field values and input names (a variable's id is random per parse).
     const shape = (blocks) => blocks.map((b) => `${b.opcode} ${JSON.stringify(Object.fromEntries(
-        Object.entries(b.fields || {}).map(([k, f]) => [k, f[0]])))} ${Object.keys(b.inputs || {}).sort()}`).sort();
+        Object.entries(b.fields || {}).map(([k, f]) => [k, f[0]])))} ${Object.keys(b.inputs || {}).map(name=>b.opcode==='procedures_prototype'?`formal${JSON.parse(b.mutation.argumentids).indexOf(name)}`:name).sort()}`).sort();
     assert.deepEqual(shape(second.blocks), shape(first.blocks), 'the same blocks, field for field');
     return {first, d1};
 }
@@ -467,7 +471,7 @@ describe('Arcade dialect words', () => {
         const here = new Set(WORD_LINES.map(([, op]) => op));
         assert.deepEqual([...here].sort(), [...ARCADE_DIALECT_OPS].sort());
         assert.equal(WORD_LINES.length, ARCADE_WORDS.length, 'one line per spelling, aliases included');
-        assert.equal(ARCADE_DIALECT_OPS.length, 399);
+        assert.equal(ARCADE_DIALECT_OPS.length, 402);
     });
 
     for (const [kind, op, line, alias] of WORD_LINES) {
@@ -502,6 +506,7 @@ describe('Arcade dialect: precedence, slots and refusals', () => {
                     const line = compileArcadeWord(entry).parts.map((p) => {
                         if (p.literal !== undefined) return p.literal;
                         if (p.name) return 'nm';
+                        if (p.literalField) return JSON.stringify('actual selector');
                         if (p.choices) return p.quoted ? `"${p.choices[0]}"` : p.choices[0];
                         return fill[k++];
                     }).join(' ');

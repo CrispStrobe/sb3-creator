@@ -1,3 +1,4 @@
+import {validateProcedureParameterConstraints} from './procedureParameterConstraints.js';
 import JSZip from 'jszip';
 // Auto-generated hardware-extension registry (scripts/gen-runtime-registry.mjs). Covers all
 // the LEGO/hardware extensions declaratively so the pluggable driver "works for all of them".
@@ -2635,7 +2636,11 @@ class SB3Creator {
         for (const p of parts) {
             if (p.literal !== undefined) continue;
             const text = groups[g++];
-            if (p.referenceType) {
+            if (p.literalField) {
+                let value;try{value=JSON.parse(text);}catch{return null;}
+                if(typeof value!=='string'||!value)return null;
+                slots.push([p,value]);
+            } else if (p.referenceType) {
                 let type;
                 try {type = JSON.parse(text);} catch {return null;}
                 // Grammar is portable; project class ownership is validated by
@@ -8230,6 +8235,7 @@ class SB3Creator {
             this.project.stc = this.project.boards[0].stc;
             this._board = null;
         }
+        try{validateProcedureParameterConstraints(this.project);}catch(error){throw new ParseError('Procedure parameter constraint: '+error.message);}
         this.validateReferences();
         this.syncExtensions();
         for (const t of this.project.targets) this.layoutScripts(t);
@@ -8800,6 +8806,7 @@ class SB3Creator {
 
     // Decompile a whole project back into pseudocode.
     decompile(project = this.project) {
+        try{validateProcedureParameterConstraints(project);}catch(error){throw new ParseError('Procedure parameter constraint: '+error.message);}
         project = this.refreshCallableSourceBindings(project);
         const out = [];
         const stage = project.targets.find(t => t.isStage);
