@@ -115,3 +115,14 @@ lane. Python/JavaScript now retain all three resource calls instead of empty
 values. Their ordinary generated renderer shim is still a neutral host placeholder;
 this qualifies language conversion, not standalone rendering. Hosted producer
 qualification and exact-pin consumer adoption remain required.
+
+## Claimed next Arcade protocols — 2026-10-15
+
+The Arcade integration owner claims the bounded canonical procedure-constraint,
+Throw and owned Image-to-Sprite producer sequence in
+[next canonical Arcade protocols](ARCADE-NEXT-CANONICAL-PROTOCOLS.md).
+This is a proposed documentation-only ownership contract. No new word, schema,
+native capability, pin or default admission is implemented or qualified here.
+Product implementation waits for qualified normal claim merge and the relevant
+consumer claims. Coordinate one supplier sequence and one reviewed consumer
+adoption; preserve unrelated active generator lanes and their sibling pins.
