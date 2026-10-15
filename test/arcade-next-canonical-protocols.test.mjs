@@ -53,3 +53,42 @@ test('metadata-only declarations cannot erase hidden connected inputs during dec
  assert.throws(()=>c.decompile(),/zero inputs/);
  const ordinary=parse(header+'WHEN flag clicked:\n  arcade log "ok"\n');target(ordinary).blocks.unused=null;assert.doesNotThrow(()=>validateProcedureParameterConstraints(ordinary.project));
 });
+
+test('current constrained prototypes refuse extra inputs, next chains and malformed defaults instead of repairing them',()=>{
+ for(const change of [
+  proto=>{proto.inputs.EXTRA=[1,[10,'ignored']];},
+  proto=>{proto.next='unrepresented';},
+  proto=>{proto.mutation.argumentdefaults='[]';},
+  proto=>{proto.mutation.argumentdefaults='not JSON';},
+  proto=>{proto.fields.EXTRA=['ignored',null];}
+ ]){
+  const c=parse(source()),proto=Object.values(target(c).blocks).find(b=>b.opcode==='procedures_prototype');change(proto);
+  assert.throws(()=>validateProcedureParameterConstraints(c.project),/prototype|formal/);
+  assert.throws(()=>c.decompile(),/Procedure parameter constraint/);
+ }
+});
+test('constrained call cannot discard an extra connected effect or borrow a foreign argument parent',()=>{
+ const code=source()+'WHEN flag clicked:\n  holdText ("ok")\n';
+ const c=parse(code),t=target(c),[id,call]=Object.entries(t.blocks).find(([,b])=>b.opcode==='procedures_call');
+ call.inputs.EXTRA=[3,'hiddenEffect',[10,'']];t.blocks.hiddenEffect={opcode:'arcade_callFunction',parent:id,next:null,inputs:{NAME:[1,[10,'sideEffect']],ARGS:[1,[10,'[]']]},fields:{},shadow:false,topLevel:false};
+ assert.throws(()=>validateProcedureParameterConstraints(c.project),/formal IDs/);assert.throws(()=>c.decompile(),/formal IDs/);
+ const foreign=parse(code),ft=target(foreign),[fid,fc]=Object.entries(ft.blocks).find(([,b])=>b.opcode==='procedures_call'),arg=JSON.parse(fc.mutation.argumentids)[0];
+ ft.blocks.foreignValue={opcode:'arcade_getLocal',parent:'otherCaller',next:null,inputs:{NAME:[1,[10,'value']]},fields:{},shadow:false,topLevel:false};fc.inputs[arg]=[3,'foreignValue',[10,'']];
+ assert.notEqual(fid,'otherCaller');assert.throws(()=>foreign.decompile(),/parent ownership/);
+});
+test('actual constrained definition, reporter and body ownership is complete and finite',()=>{
+ for(const change of [
+  (t,def,proto)=>{def.inputs.EXTRA=[1,[10,'ignored']];},
+  (t,def,proto)=>{const id=JSON.parse(proto.mutation.argumentids)[0];t.blocks[proto.inputs[id][1]].inputs.EXTRA=[1,[10,'ignored']];},
+  (t,def)=>{const first=t.blocks[def.next];first.next=def.next;},
+  (t,def)=>{t.blocks[def.next].next='missingBody';}
+ ]){
+  const c=parse(source()),t=target(c),def=Object.values(t.blocks).find(b=>b.opcode==='procedures_definition'),proto=t.blocks[def.inputs.custom_block[1]];change(t,def,proto);
+  assert.throws(()=>c.decompile(),/Procedure parameter constraint/);
+ }
+ const healthy=parse(source()+'WHEN flag clicked:\n  holdText ("ok")\n');assert.equal(parse(healthy.decompile()).decompile(),healthy.decompile());
+});
+test('unconstrained legacy call shapes remain outside the new protocol validator',()=>{
+ const c=parse(header+'DEFINE old (value):\n  arcade log value\nWHEN flag clicked:\n  old ("ok")\n'),t=target(c),call=Object.values(t.blocks).find(b=>b.opcode==='procedures_call');
+ call.inputs.EXTRA=[1,[10,'legacy']];assert.doesNotThrow(()=>validateProcedureParameterConstraints(c.project));
+});
