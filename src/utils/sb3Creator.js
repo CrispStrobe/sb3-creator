@@ -2502,6 +2502,17 @@ class SB3Creator {
             inputs,
             fields
         };
+        // Inputs are parsed before this wrapper is registered. Their root
+        // reporters and menu shadows now belong to this immediate input owner;
+        // descendants already belong to their own wrappers. Only adopt blocks
+        // built in this expression context, never target/project references.
+        for (const input of Object.values(inputs)) {
+            for (const child of input.slice(1)) {
+                if (typeof child === 'string' && context.extraBlocks[child]) {
+                    context.extraBlocks[child].parent = id;
+                }
+            }
+        }
         return id;
     }
 
@@ -5319,19 +5330,7 @@ class SB3Creator {
     // Parse a boolean condition expression into a block id.
     parseCondition(conditionStr, context) {
         let s = this.stripOuterParens((conditionStr || '').trim());
-        const push = (op, inputs = {}, fields = {}) => {
-            const id = this.pushBlock(context, op, inputs, fields);
-            // Condition children were parsed before their wrapper existed.
-            // Attach each newly owned reporter/shadow to its actual input owner.
-            for (const input of Object.values(inputs)) {
-                for (const child of input.slice(1)) {
-                    if (typeof child === 'string' && context.extraBlocks[child]) {
-                        context.extraBlocks[child].parent = id;
-                    }
-                }
-            }
-            return id;
-        };
+        const push = (op, inputs = {}, fields = {}) => this.pushBlock(context, op, inputs, fields);
 
         // Keypad phrase sugar (oracle parity, stc-compiler dec1f17): rewrite
         // to the canonical compare BEFORE any other parsing, so the blocks
