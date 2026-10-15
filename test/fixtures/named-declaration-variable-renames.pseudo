@@ -1,0 +1,22 @@
+DEVICE ARCADE
+
+GLOBAL first
+GLOBAL second
+GLOBAL answer_
+
+SPRITE Game:
+WHEN arcade source starts:
+  declare arcade source scalar answer_ as Number
+  declare arcade source callable first signature "{\"schema\":\"bw-callable-variable\",\"version\":1,\"binding\":\"binding_2\",\"variableName\":\"first\",\"signature\":{\"kind\":\"callable\",\"parameters\":[],\"result\":{\"kind\":\"named\",\"name\":\"number\"}}}"
+  declare arcade source callable second signature "{\"schema\":\"bw-callable-variable\",\"version\":1,\"binding\":\"binding_3\",\"variableName\":\"second\",\"signature\":{\"kind\":\"callable\",\"parameters\":[],\"result\":{\"kind\":\"named\",\"name\":\"number\"}}}"
+  arcade declare callable "namedValue" metadata "{\"schema\":\"bw-callable-declaration\",\"version\":3,\"site\":\"named_site_2\",\"plan\":{\"schema\":\"bw-callable-lexical\",\"version\":3,\"module\":\"named_module\",\"owners\":[{\"id\":\"named_module\",\"kind\":\"module\",\"parent\":null},{\"id\":\"named_owner_2\",\"kind\":\"declaration\",\"parent\":\"named_module\",\"sourceName\":\"namedValue\",\"procedure\":\"namedValue\",\"signature\":{\"kind\":\"callable\",\"parameters\":[],\"result\":{\"kind\":\"named\",\"name\":\"number\"}},\"parameters\":[],\"defaults\":[],\"origin\":{\"kind\":\"module\",\"path\":\"namedValue\"}}],\"bindings\":[{\"id\":\"binding_1\",\"owner\":\"named_module\",\"sourceName\":\"namedValue\",\"nativeName\":\"namedValue\",\"kind\":\"function\",\"type\":{\"kind\":\"callable\",\"parameters\":[],\"result\":{\"kind\":\"named\",\"name\":\"number\"}},\"written\":false,\"targets\":[\"named_site_2\"]},{\"id\":\"binding_2\",\"owner\":\"named_module\",\"sourceName\":\"first\",\"nativeName\":\"first\",\"kind\":\"global\",\"declarationKind\":\"let\",\"type\":{\"kind\":\"callable\",\"parameters\":[],\"result\":{\"kind\":\"named\",\"name\":\"number\"}},\"written\":false,\"targets\":[\"named_site_2\"]},{\"id\":\"binding_3\",\"owner\":\"named_module\",\"sourceName\":\"second\",\"nativeName\":\"second\",\"kind\":\"global\",\"declarationKind\":\"let\",\"type\":{\"kind\":\"callable\",\"parameters\":[],\"result\":{\"kind\":\"named\",\"name\":\"number\"}},\"written\":false,\"targets\":[\"named_site_2\"]}],\"sites\":[{\"id\":\"named_site_2\",\"owner\":\"named_owner_2\",\"createdIn\":\"named_module\",\"captures\":[],\"defaults\":[]}]}}"
+  hide
+  set first to (arcade callable "namedValue")
+  set second to (arcade callable "namedValue")
+  set answer_ to (arcade invoke callable (first) arguments ("[]"))
+
+DEFINE namedValue:
+  arcade return value ((0 + (7)))
+
+WHEN arcade callable "namedValue" dispatched:
+  arcade run dispatched callable
