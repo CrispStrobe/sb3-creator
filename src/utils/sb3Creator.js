@@ -11192,6 +11192,22 @@ class SB3Creator {
                 '    return (t1000 + 500L + 1000000L) / 1000L - 1000L;',
                 '}', ''];
         }
+        if (sensor === 'stm32f1') {
+            return ['/* chip temperature (RM0008 §11.10): ADC1 channel 16 once CR2.TSVREFE',
+                ' * powers the sensor, sampled 239.5 cycles (SMPR1 SMP16, >= 17.1 us).',
+                ' * DS5319 typical: V25 = 1.43 V, slope 4.3 mV per degree. adc_read',
+                ' * keeps TSVREFE set. Hundredths of a mV throughout. */',
+                '#define ADC1_SMPR1   BW_MMIO(0x4001240cu)',
+                'static long bw_chip_temp(void)',
+                '{',
+                '    long mv100, t100;',
+                '    ADC1_SMPR1 |= (7u << 18);                    /* SMP16 = 239.5 cycles */',
+                '    ADC1_CR2 |= (1u << 23);                      /* TSVREFE */',
+                '    mv100 = adc_read(16) * 330000L / 4095L;',
+                '    t100 = 2500L + (143000L - mv100) * 100L / 430L;',
+                round,
+                '}', ''];
+        }
         return ['/* chip temperature: ADC channel 16 once ADC_CCR.TSEN powers the sensor,',
             ' * at the longest sample time (it needs at least 4 us). Typical: 1.43 V at',
             ' * 30 C, falling 4.3 mV per degree. Hundredths of a mV throughout. */',
@@ -11514,6 +11530,8 @@ class SB3Creator {
                 if (this._cStm32) {
                     // ADC_IN0..7 sit on PA0..PA7 — channel = the pin number.
                     const hw = this.armHw(pin);
+                    // F103: PB0/PB1 add ADC12_IN8/IN9 (RM0008 §11, DS5319 pinout).
+                    if (this._cStm32F1 && hw && (hw.gpio === 16 || hw.gpio === 17)) return `adc_read(${hw.gpio - 8})`;
                     if (!hw || hw.gpio > 7) {
                         this.cWarn(`"${pin.name}" (${pin.where}) has no ADC channel: `
                             + 'the F030 ADC inputs are PA0-PA7 (ADC_IN0-7)');
@@ -16920,10 +16938,21 @@ class SB3Creator {
                     '#define GPIOA_AFRL   BW_MMIO(0x48000020u)',
                     '#define GPIOB_AFRL   BW_MMIO(0x48000420u)',
                 ]),
-                '#define ADC_ISR      BW_MMIO(0x40012400u)',
-                '#define ADC_CR       BW_MMIO(0x40012408u)',
-                '#define ADC_CHSELR   BW_MMIO(0x40012428u)',
-                '#define ADC_DR       BW_MMIO(0x40012440u)',
+                ...(this._cStm32F1 ? [
+                    // RM0008 §11.12: the F1 ADC1 register map.
+                    '#define RCC_CFGR     BW_MMIO(0x40021004u)',
+                    '#define ADC1_SR      BW_MMIO(0x40012400u)',
+                    '#define ADC1_CR2     BW_MMIO(0x40012408u)',
+                    '#define ADC1_SMPR2   BW_MMIO(0x40012410u)',
+                    '#define ADC1_SQR1    BW_MMIO(0x4001242cu)',
+                    '#define ADC1_SQR3    BW_MMIO(0x40012434u)',
+                    '#define ADC1_DR      BW_MMIO(0x4001244cu)',
+                ] : [
+                    '#define ADC_ISR      BW_MMIO(0x40012400u)',
+                    '#define ADC_CR       BW_MMIO(0x40012408u)',
+                    '#define ADC_CHSELR   BW_MMIO(0x40012428u)',
+                    '#define ADC_DR       BW_MMIO(0x40012440u)',
+                ]),
                 '#define NVIC_ISER    BW_MMIO(0xe000e100u)', '',
                 '/* Virtual pin n: port = n>>4 (0=A, 1=B, 2=C), bit = n&15. With a',
                 ' * constant n, -Os folds each helper to a single store. */',
@@ -17578,6 +17607,36 @@ class SB3Creator {
                 '    ADCSRA |= (1 << ADSC);',
                 '    while (ADCSRA & (1 << ADSC)) ;',
                 '    return ADC;',
+                '}', '');
+        } else if (this._cUses.adc && this._core === 'arm' && this._cStm32F1) {
+            out.push('/* 12-bit ADC1, polled (RM0008 §11). First use: ADC clock = PCLK2/6',
+                ' * (ADCPRE=10, <= 14 MHz even at 72 MHz), ADON power-up, then the',
+                ' * RSTCAL/CAL self-calibration. Each read: one-conversion sequence',
+                ' * (SQR1.L=0) with SQ1 = channel, software trigger (EXTSEL=111 +',
+                ' * EXTTRIG + SWSTART), poll SR.EOC, read DR (which clears EOC).',
+                ' * Channel n is PA(n) for 0-7, PB0/PB1 for 8/9; the pins are analog',
+                ' * inputs (CRL nibble 0) from bw_setup. */',
+                'static long adc_read(unsigned char channel)',
+                '{',
+                '    static uint8_t ready;',
+                '    if (!ready) {',
+                '        volatile uint32_t d;',
+                '        RCC_CFGR = (RCC_CFGR & ~(3u << 14)) | (2u << 14);  /* ADCPRE = /6 */',
+                '        ADC1_SMPR2 = 0x3FFFFFFFu;                 /* 239.5-cycle sampling, ch0-9 */',
+                '        ADC1_CR2 |= 1u;                           /* ADON: power up (TSVREFE kept) */',
+                '        for (d = 0; d < 100u; d++) { }            /* tSTAB ~1 us */',
+                '        ADC1_CR2 |= (1u << 3);                    /* RSTCAL (another bit changes: no conversion) */',
+                '        while (ADC1_CR2 & (1u << 3)) ;',
+                '        ADC1_CR2 |= (1u << 2);                    /* CAL */',
+                '        while (ADC1_CR2 & (1u << 2)) ;',
+                '        ready = 1;',
+                '    }',
+                '    ADC1_SQR1 = 0u;                               /* L = 0: one conversion */',
+                '    ADC1_SQR3 = (uint32_t)channel & 0x1Fu;        /* SQ1 = channel */',
+                '    ADC1_CR2 = (ADC1_CR2 & (1u << 23)) | 1u | (7u << 17) | (1u << 20) | (1u << 22);',
+                '                                  /* keep TSVREFE; ADON, EXTSEL=SWSTART, EXTTRIG, SWSTART */',
+                '    while (!(ADC1_SR & (1u << 1))) ;              /* EOC */',
+                '    return (long)(ADC1_DR & 0xFFFu);',
                 '}', '');
         } else if (this._cUses.adc && this._core === 'arm' && this._cStm32) {
             out.push('/* 12-bit ADC, polled (RM0360 §12): enable, wait ADRDY, select the',
