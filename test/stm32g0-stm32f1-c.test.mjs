@@ -320,3 +320,74 @@ test('STM32G030 & STM32F103: flasher bootloader PID identification', async () =>
         assert.equal(STM32_PID_CHIPS[0x0410], 'STM32F103 (Medium-density)');
     }
 });
+
+// ---- print / PWM register layouts per family, and DEVICE-without-pins ----
+
+function emit (src) {
+    const c = new SB3Creator();
+    c.parse(src);
+    return { c, code: c.generateC(c.project, {}) };
+}
+
+test('STM32G030 print: USART1 clocked from APBENR2 bit 14 and PA9/PA10 on AF1 (RM0444)', () => {
+    const { code } = emit('DEVICE STM32G030\n\nWHEN flag clicked:\n  print 7\n');
+    assert.match(code, /RCC_APBENR2 = 0x4000u;/, 'USART1EN = APBENR2 bit 14');
+    assert.match(code, /RCC_IOPENR {2}= 0x1u;/, 'GPIOA clocked for PA9/PA10 even with no pin declared');
+    assert.match(code, /GPIOA_MODER = 0x280000u;/, 'PA9/PA10 MODER = 10 (AF)');
+    assert.match(code, /GPIOA_AFRH = \(GPIOA_AFRH & ~0xFF0u\) \| \(1u << 4\) \| \(1u << 8\);/, 'PA9/PA10 = AF1');
+    assert.match(code, /USART1_CR1 = \(1u << 3\) \| 1u;/, 'v2 USART: UE is bit 0');
+    if (hasGcc) assertVectorImage(compileArmBinary(code, LD_G0, 'cortex-m0plus'), 48, 0x20002000);
+});
+
+test('STM32G030 ADC: ADCEN is APBENR2 bit 20 (RM0444), not the F0 APB2ENR bit 9', () => {
+    const { code } = emit('DEVICE STM32G030\nPIN pot = PA1 ANALOG\n\nWHEN flag clicked:\n  set v to read pot\n');
+    assert.match(code, /RCC_APBENR2 = 0x100000u;\s*\/\* ADC \*\//);
+    assert.doesNotMatch(code, /RCC_APB2ENR/);
+});
+
+test('STM32F103 print: F1 USART layout SR/DR/BRR/CR1@0x0C, UE bit 13, PA9 AF push-pull (RM0008)', () => {
+    const { code } = emit('DEVICE STM32F103\nPIN led = PC13 OUTPUT\n\nWHEN flag clicked:\n  print 7\n');
+    assert.match(code, /#define USART1_SR {4}BW_MMIO\(0x40013800u\)/);
+    assert.match(code, /#define USART1_DR {4}BW_MMIO\(0x40013804u\)/);
+    assert.match(code, /#define USART1_BRR {3}BW_MMIO\(0x40013808u\)/);
+    assert.match(code, /#define USART1_CR1 {3}BW_MMIO\(0x4001380cu\)/);
+    assert.doesNotMatch(code, /0x4001381cu|0x40013828u/, 'no F0/G0 ISR/TDR offsets on the F1');
+    assert.match(code, /USART1_CR1 = \(1u << 3\) \| \(1u << 13\);/, 'TE + UE(bit 13)');
+    assert.match(code, /RCC_APB2ENR = 0x4014u;/, 'IOPA(2) + IOPC(4) + USART1(14)');
+    // PA9 nibble (bits 4-7) = 0xB AF push-pull; PA10 nibble (bits 8-11) = 0x4 floating input
+    const crh = Number.parseInt(code.match(/GPIOA_CRH = 0x([0-9a-f]+)u;/)[1], 16);
+    assert.equal((crh >>> 4) & 0xF, 0xB);
+    assert.equal((crh >>> 8) & 0xF, 0x4);
+    if (hasGcc) assertVectorImage(compileArmBinary(code, LD_F1, 'cortex-m3'), 68, 0x20005000);
+});
+
+test('STM32F103 PWM: TIM3 pins configured through CRL as AF push-pull, never MODER, and it compiles', () => {
+    const { c, code } = emit('DEVICE STM32F103\nPIN a = PA6 PWM\nPIN b = PA7 PWM\nPIN d = PB1 PWM\n\n'
+        + 'WHEN flag clicked:\n  set a to 30 percent\n  set b to 60 percent\n  set d to 90 percent\n');
+    assert.deepEqual(c._cWarnings || [], []);
+    assert.doesNotMatch(code, /^\s*(#define\s+)?GPIO[A-C]_(MODER|AFR[LH])\b/m, 'F0/G0-only GPIO registers do not exist on the F1');
+    assert.match(code, /GPIOA_CRL {3}= \(GPIOA_CRL & ~\(0xFu << 24\)\) \| \(0xBu << 24\);/, 'PA6 = TIM3_CH1');
+    assert.match(code, /GPIOA_CRL {3}= \(GPIOA_CRL & ~\(0xFu << 28\)\) \| \(0xBu << 28\);/, 'PA7 = TIM3_CH2');
+    assert.match(code, /GPIOB_CRL {3}= \(GPIOB_CRL & ~\(0xFu << 4\)\) \| \(0xBu << 4\);/, 'PB1 = TIM3_CH4');
+    // RM0008 §15.4: TIM3 at 0x40000400, CCMR1 0x18, CCMR2 0x1C, CCER 0x20, CCR1 0x34
+    assert.match(code, /TIM3_CCMR1 {3}BW_MMIO\(0x40000418u\)/);
+    assert.match(code, /TIM3_CCMR2 {3}BW_MMIO\(0x4000041cu\)/);
+    assert.match(code, /TIM3_CCER {4}BW_MMIO\(0x40000420u\)/);
+    assert.match(code, /TIM3_CCR1 {4}BW_MMIO\(0x40000434u\)/);
+    assert.match(code, /RCC_APB1ENR = \(1u << 1\);/, 'TIM3EN');
+    if (hasGcc) assertVectorImage(compileArmBinary(code, LD_F1, 'cortex-m3'), 68, 0x20005000);
+});
+
+test('an explicit DEVICE line builds for the chip even with no pins; no DEVICE line stays host C', () => {
+    for (const dev of ['STM32F030', 'STM32G030', 'STM32F103', 'PICO', 'ESP8266', 'ARDUINO-UNO']) {
+        const { code } = emit(`DEVICE ${dev}\n\nWHEN flag clicked:\n  set n to 3\n  print n\n`);
+        assert.doesNotMatch(code, /#include <stdio\.h>/, `${dev}: device C, not host C`);
+        assert.match(code, /@bw-begin/, `${dev}: device marker present`);
+    }
+    const { code: host } = emit('WHEN flag clicked:\n  set n to 3\n  print n\n');
+    assert.match(host, /#include <stdio\.h>/, 'no DEVICE line: host C as before');
+    // opts.target still overrides the declaration.
+    const c = new SB3Creator();
+    c.parse('DEVICE STM32F030\n\nWHEN flag clicked:\n  print 1\n');
+    assert.match(c.generateC(c.project, { target: 'host' }), /#include <stdio\.h>/);
+});
