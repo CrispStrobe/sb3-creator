@@ -126,3 +126,23 @@ native capability, pin or default admission is implemented or qualified here.
 Product implementation waits for qualified normal claim merge and the relevant
 consumer claims. Coordinate one supplier sequence and one reviewed consumer
 adoption; preserve unrelated active generator lanes and their sibling pins.
+
+### Next Arcade protocols: canonical candidate
+
+The three-word candidate implements `arcade_declareParameterConstraint`,
+`arcade_throwValue` and `arcade_createOwnedImageSprite`: 402 operations and
+407 spellings, preserving all previous entries. Procedure declarations use
+fixed visible PROCEDURE/PARAMETER fields and a Number/Boolean/String/Any TYPE;
+Code uses quoted literal selectors. The parser and decompiler validate the
+actual containing DEFINE, prototype, ordered formals and prefix. Missing,
+computed, duplicate or stale bindings refuse. A supported rename/reorder must
+retain that association; an unsupported edit reports the stale binding.
+
+Throw keeps its connected VALUE; the owned factory keeps IMAGE, TEMPLATE and
+KIND. Neither word substitutes logging, a normal completion, a legacy String
+factory nor a runtime ownership grant. The consumer validates primitive Throw
+values and exceptional handoff, and separately validates actual owned Image,
+Sprite creation completion, resource selectors and Number inputs. Canonical
+Code/Blocks/SB3 roundtrips alone do not qualify those native semantics, default
+admission or graphical authoring. Exact-head hosted checks and normal reviewed
+supplier merge precede any separate consumer adoption or pin change.

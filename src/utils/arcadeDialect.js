@@ -82,6 +82,7 @@ const w = (op, kind, words, extra = {}) => Object.freeze({ op, kind, words, ...e
 export const ARCADE_WORDS = Object.freeze([
     {op: 'arcade_whenSourceStarts', kind: 'hat', words: 'when arcade source starts'},
     w('arcade_declareSourceReference', 'command', 'declare arcade source reference {VARIABLE} as {TYPE:reference-type}', {variableInputs: ['VARIABLE']}),
+    w('arcade_declareParameterConstraint', 'command', 'declare arcade procedure {PROCEDURE:literal-field} parameter {PARAMETER:literal-field} as {TYPE:Number|Boolean|String|Any}'),
     w('arcade_declareSourceScalar', 'command', 'declare arcade source scalar {VARIABLE} as {TYPE:Number|Boolean|String|Any}', {variableInputs: ['VARIABLE']}),
     // An explicit source loop; ordinary Scratch loops retain their own scheduling.
     {op: 'arcade_sourceWhile', kind: 'loop', words: 'arcade repeat while {CONDITION:bool}'},
@@ -233,6 +234,7 @@ export const ARCADE_WORDS = Object.freeze([
     // ---- commands: a call frame's locals and captures --------------------------
     w('arcade_setCaptured', 'command', 'arcade set captured {NAME:name} to {VALUE}'),
     w('arcade_setLocal', 'command', 'arcade set local {NAME:name} to {VALUE}'),
+    w('arcade_throwValue', 'command', 'arcade throw {VALUE}'),
     w('arcade_returnValue', 'command', 'arcade return value {VALUE}'),
     w('arcade_declareSourceCallable', 'command', 'declare arcade source callable {VARIABLE} signature {SIGNATURE}', {variableInputs: ['VARIABLE'], fixedTextInputs: {SIGNATURE: '{"kind":"callable","parameters":[],"result":{"kind":"named","name":"number"}}'}}),
     w('arcade_declareCallable', 'command', 'arcade declare callable {NAME} metadata {METADATA}'),
@@ -421,6 +423,7 @@ export const ARCADE_WORDS = Object.freeze([
 
     // ---- reporters: sprites ------------------------------------------------------------
     w('arcade_createSprite', 'reporter', 'arcade create template {TEMPLATE} kind {KIND} width {WIDTH} height {HEIGHT}'),
+    w('arcade_createOwnedImageSprite', 'reporter', 'arcade create owned image {IMAGE} template {TEMPLATE} kind {KIND}'),
     w('arcade_createImageSprite', 'reporter', 'arcade create image {IMAGE} template {TEMPLATE} kind {KIND}'),
     w('arcade_spawnImageSprite', 'reporter', 'arcade spawn image {IMAGE} template {TEMPLATE} kind {KIND} x {X} y {Y}'),
     w('arcade_spriteToString', 'reporter', 'arcade text of sprite {ID}'),
@@ -617,6 +620,7 @@ export function compileArcadeWord(entry) {
         const [, slot, spec] = m;
         if (!spec) return { slot, value: true };
         if (spec === 'name') return { slot, name: true };
+        if (spec === 'literal-field') return {slot, field:true, quoted:true, literalField:true};
         if (spec === 'reference-type') return {slot, field: true, quoted: true, referenceType: true, choices: ['Sprite']};
         if (spec === 'cond' || spec === 'bool') return { slot, value: true, [spec]: true };
         if (spec.startsWith('menu:')) {
@@ -633,7 +637,7 @@ export function compileArcadeWord(entry) {
     const source = parts.map((p, i) => {
         if (p.literal !== undefined) return escapeRe(p.literal);
         if (p.name) return '([A-Za-z_]\\w*)';
-        if (p.referenceType) return '("(?:[^"\\\\]|\\\\.)*")';
+        if (p.referenceType || p.literalField) return '("(?:[^"\\\\]|\\\\.)*")';
         if (p.quoted) return '("[^"]*")';
         if (p.choices && !p.menu) return `(${p.choices.map(escapeRe).join('|')})`;
         return i === last ? '(.+)' : '(.+?)';
@@ -672,7 +676,7 @@ export function spellArcadeWord(entry, read) {
         if (p.literal !== undefined) return p.literal;
         if (p.field) {
             const stored = read.field(p.slot);
-            return p.referenceType ? JSON.stringify(stored) : p.quoted ? `"${stored}"` : stored;
+            return p.referenceType || p.literalField ? JSON.stringify(stored) : p.quoted ? `"${stored}"` : stored;
         }
         if (p.menu) {
             const value = read.menu(p.slot, p.menu);
