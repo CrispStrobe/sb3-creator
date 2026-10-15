@@ -5314,7 +5314,19 @@ class SB3Creator {
     // Parse a boolean condition expression into a block id.
     parseCondition(conditionStr, context) {
         let s = this.stripOuterParens((conditionStr || '').trim());
-        const push = (op, inputs = {}, fields = {}) => this.pushBlock(context, op, inputs, fields);
+        const push = (op, inputs = {}, fields = {}) => {
+            const id = this.pushBlock(context, op, inputs, fields);
+            // Condition children were parsed before their wrapper existed.
+            // Attach each newly owned reporter/shadow to its actual input owner.
+            for (const input of Object.values(inputs)) {
+                for (const child of input.slice(1)) {
+                    if (typeof child === 'string' && context.extraBlocks[child]) {
+                        context.extraBlocks[child].parent = id;
+                    }
+                }
+            }
+            return id;
+        };
 
         // Keypad phrase sugar (oracle parity, stc-compiler dec1f17): rewrite
         // to the canonical compare BEFORE any other parsing, so the blocks
