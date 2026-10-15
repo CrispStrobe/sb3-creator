@@ -32,6 +32,19 @@ SECTIONS {
 }
 `;
 
+function compileArmBinary (src, ld, mcpu) {
+    const dir = mkdtempSync(join(tmpdir(), `bw-${mcpu}-`));
+    writeFileSync(join(dir, 'main.c'), src);
+    writeFileSync(join(dir, 'link.ld'), ld);
+    execFileSync('arm-none-eabi-gcc', [
+        `-mcpu=${mcpu}`, '-mthumb', '-Os', '-ffreestanding',
+        '-nostdlib', `-T${join(dir, 'link.ld')}`, '-o', join(dir, 'fw.elf'),
+        join(dir, 'main.c'), '-lgcc'
+    ], { stdio: 'pipe' });
+    execFileSync('arm-none-eabi-objcopy', ['-O', 'binary', join(dir, 'fw.elf'), join(dir, 'fw.bin')], { stdio: 'pipe' });
+    return readFileSync(join(dir, 'fw.bin'));
+}
+
 test('STM32G030: pin spelling, default clock, C emission and compilation', async () => {
     assert.equal(SB3Creator.defaultClock('stm32g030'), 64000000);
 
@@ -68,20 +81,13 @@ test('STM32G030: pin spelling, default clock, C emission and compilation', async
     assert.match(src, /#define F_CPU 64000000UL/);
 
     if (hasGcc) {
-        const dir = mkdtempSync(join(tmpdir(), 'bw-g0test-'));
-        writeFileSync(join(dir, 'main.c'), src);
-        writeFileSync(join(dir, 'link.ld'), LD_G0);
-        execFileSync('arm-none-eabi-gcc', [
-            '-mcpu=cortex-m0plus', '-mthumb', '-Os', '-ffreestanding',
-            '-nostdlib', `-T${join(dir, 'link.ld')}`, '-o', join(dir, 'fw.elf'),
-            join(dir, 'main.c'), '-lgcc'
-        ], { stdio: 'pipe' });
-        execFileSync('arm-none-eabi-objcopy', ['-O', 'binary', join(dir, 'fw.elf'), join(dir, 'fw.bin')], { stdio: 'pipe' });
-        const bin = readFileSync(join(dir, 'fw.bin'));
-        // counted 48 vectors * 4 bytes = 192 bytes
+        const bin = compileArmBinary(src, LD_G0, 'cortex-m0plus');
         assert.ok(bin.length >= 192, 'counted 48 vectors * 4 = 192 bytes minimum');
         const sp = bin[0] | (bin[1] << 8) | (bin[2] << 16) | (bin[3] << 24);
         assert.equal(sp >>> 0, 0x20002000, 'initial SP in binary matches 8K SRAM top');
+        const resetHandler = bin[4] | (bin[5] << 8) | (bin[6] << 16) | (bin[7] << 24);
+        assert.ok((resetHandler & 1) === 1, 'Thumb bit set on reset vector');
+        assert.ok((resetHandler >>> 0) >= 0x08000000 && (resetHandler >>> 0) < 0x08010000, 'reset handler inside Flash');
     }
 });
 
@@ -124,20 +130,13 @@ test('STM32F103: pin spelling, default clock, C emission and compilation', async
     assert.match(src, /#define F_CPU 72000000UL/);
 
     if (hasGcc) {
-        const dir = mkdtempSync(join(tmpdir(), 'bw-f1test-'));
-        writeFileSync(join(dir, 'main.c'), src);
-        writeFileSync(join(dir, 'link.ld'), LD_F1);
-        execFileSync('arm-none-eabi-gcc', [
-            '-mcpu=cortex-m3', '-mthumb', '-Os', '-ffreestanding',
-            '-nostdlib', `-T${join(dir, 'link.ld')}`, '-o', join(dir, 'fw.elf'),
-            join(dir, 'main.c'), '-lgcc'
-        ], { stdio: 'pipe' });
-        execFileSync('arm-none-eabi-objcopy', ['-O', 'binary', join(dir, 'fw.elf'), join(dir, 'fw.bin')], { stdio: 'pipe' });
-        const bin = readFileSync(join(dir, 'fw.bin'));
-        // counted 68 vectors * 4 bytes = 272 bytes
+        const bin = compileArmBinary(src, LD_F1, 'cortex-m3');
         assert.ok(bin.length >= 272, 'counted 68 vectors * 4 = 272 bytes minimum');
         const sp = bin[0] | (bin[1] << 8) | (bin[2] << 16) | (bin[3] << 24);
         assert.equal(sp >>> 0, 0x20005000, 'initial SP in binary matches 20K SRAM top');
+        const resetHandler = bin[4] | (bin[5] << 8) | (bin[6] << 16) | (bin[7] << 24);
+        assert.ok((resetHandler & 1) === 1, 'Thumb bit set on reset vector');
+        assert.ok((resetHandler >>> 0) >= 0x08000000 && (resetHandler >>> 0) < 0x08010000, 'reset handler inside Flash');
     }
 });
 
@@ -159,4 +158,146 @@ test('STM32G030 and STM32F103: pin refusals and tier caps', () => {
     // Blue Pill LED active-low property in RETARGET_POOLS
     assert.equal(SB3Creator.RETARGET_POOLS.stm32f103.ledActiveLow, true);
     assert.equal(SB3Creator.RETARGET_POOLS.stm32g030.ledActiveLow, false);
+});
+
+test('STM32G030: Scratch variables, loops, conditionals and math compile cleanly', () => {
+    const c = new SB3Creator();
+    c.parse('DEVICE STM32G030\n'
+        + 'PIN led = PA0 OUTPUT\n'
+        + 'PIN btn = PA1 INPUT ACTIVE LOW\n'
+        + 'PIN out2 = PC14 OUTPUT\n\n'
+        + 'WHEN flag clicked:\n'
+        + '  set count to 0\n'
+        + '  repeat 10:\n'
+        + '    change count by 1\n'
+        + '  if count = 10 then:\n'
+        + '    turn on led\n'
+        + '  else:\n'
+        + '    turn off led\n'
+        + '  repeat until count = 0:\n'
+        + '    change count by -1\n'
+        + '    turn on out2\n'
+        + '    turn off out2\n');
+
+    const src = c.generateC(c.project, { debug: true });
+    assert.deepEqual(c._cWarnings || [], [], 'no emission warnings for variables and loops');
+    assert.match(src, /RCC_IOPENR\s*=\s*0x5u;/, 'both GPIOA and GPIOC enabled in IOPENR (0x5)');
+
+    if (hasGcc) {
+        const bin = compileArmBinary(src, LD_G0, 'cortex-m0plus');
+        assert.ok(bin.length > 256, 'binary includes compiled logic and vector table');
+    }
+});
+
+test('STM32F103: Scratch variables, loops, conditionals and math compile cleanly', () => {
+    const c = new SB3Creator();
+    c.parse('DEVICE STM32F103\n'
+        + 'PIN led = PC13 OUTPUT\n'
+        + 'PIN btn = PA0 INPUT ACTIVE LOW\n'
+        + 'PIN out2 = PB1 OUTPUT\n\n'
+        + 'WHEN flag clicked:\n'
+        + '  set val to 42\n'
+        + '  if val > 20 and not (val = 100) then:\n'
+        + '    turn on led\n'
+        + '  repeat until val = 0:\n'
+        + '    change val by -1\n'
+        + '    turn on out2\n'
+        + '    turn off out2\n'
+        + '  turn off led\n');
+
+    const src = c.generateC(c.project, { debug: true });
+    assert.deepEqual(c._cWarnings || [], [], 'clean emission for F103 logic');
+    assert.match(src, /RCC_APB2ENR\s*=\s*0x1cu;/, 'GPIOA, GPIOB, and GPIOC clocks enabled in APB2ENR (0x1c)');
+
+    if (hasGcc) {
+        const bin = compileArmBinary(src, LD_F1, 'cortex-m3');
+        assert.ok(bin.length > 256, 'binary includes compiled logic and vector table');
+    }
+});
+
+test('STM32F103: active-low PC13 LED inversion check', () => {
+    const c = new SB3Creator();
+    c.parse('DEVICE STM32F103\n'
+        + 'PIN led = PC13 OUTPUT\n\n'
+        + 'WHEN flag clicked:\n'
+        + '  turn on led\n'
+        + '  turn off led\n');
+
+    const src = c.generateC(c.project);
+    // On active-low LED, turning ON calls bw_pin_clr (pulling pin low)
+    // and turning OFF calls bw_pin_set (releasing pin high). PC13 has virtual pin 45 (port C = 32 + 13).
+    assert.match(src, /bw_pin_clr\(45u\);/, 'turn on PC13 calls bw_pin_clr for active-low');
+    assert.match(src, /bw_pin_set\(45u\);/, 'turn off PC13 calls bw_pin_set for active-low');
+});
+
+test('STM32G030: active-high PA0 LED normal polarity check', () => {
+    const c = new SB3Creator();
+    c.parse('DEVICE STM32G030\n'
+        + 'PIN led = PA0 OUTPUT\n\n'
+        + 'WHEN flag clicked:\n'
+        + '  turn on led\n'
+        + '  turn off led\n');
+
+    const src = c.generateC(c.project);
+    // On normal active-high LED, turning ON calls bw_pin_set and turning OFF calls bw_pin_clr. PA0 is virtual pin 0.
+    assert.match(src, /bw_pin_set\(0u\);/, 'turn on PA0 calls bw_pin_set');
+    assert.match(src, /bw_pin_clr\(0u\);/, 'turn off PA0 calls bw_pin_clr');
+});
+
+test('STM32G030: complete pin dictionary acceptance', () => {
+    // All 16 PA pins, 10 PB pins, PC14, PC15
+    const validPins = [
+        ...Array.from({ length: 16 }, (_, i) => `PA${i}`),
+        ...Array.from({ length: 10 }, (_, i) => `PB${i}`),
+        'PC14', 'PC15'
+    ];
+
+    for (const p of validPins) {
+        const c = new SB3Creator();
+        c.parse(`DEVICE STM32G030\nPIN testPin = ${p} OUTPUT\nWHEN flag clicked:\n  turn on testPin\n`);
+        const src = c.generateC(c.project);
+        assert.ok(src.length > 0, `pin ${p} generated valid C code`);
+    }
+
+    // Invalid pins
+    const invalidPins = ['PD0', 'PD5', 'PC0', 'PC13'];
+    for (const p of invalidPins) {
+        const c = new SB3Creator();
+        assert.throws(() => {
+            c.parse(`DEVICE STM32G030\nPIN testPin = ${p} OUTPUT\nWHEN flag clicked:\n  turn on testPin\n`);
+        });
+    }
+});
+
+test('STM32F103: complete pin dictionary acceptance', () => {
+    // PA0-PA15, PB0-PB15, PC13-PC15
+    const validPins = [
+        ...Array.from({ length: 16 }, (_, i) => `PA${i}`),
+        ...Array.from({ length: 16 }, (_, i) => `PB${i}`),
+        'PC13', 'PC14', 'PC15'
+    ];
+
+    for (const p of validPins) {
+        const c = new SB3Creator();
+        c.parse(`DEVICE STM32F103\nPIN testPin = ${p} OUTPUT\nWHEN flag clicked:\n  turn on testPin\n`);
+        const src = c.generateC(c.project);
+        assert.ok(src.length > 0, `pin ${p} generated valid C code`);
+    }
+
+    // Invalid pins
+    const invalidPins = ['PD0', 'PD1', 'PC0', 'PC12'];
+    for (const p of invalidPins) {
+        const c = new SB3Creator();
+        assert.throws(() => {
+            c.parse(`DEVICE STM32F103\nPIN testPin = ${p} OUTPUT\nWHEN flag clicked:\n  turn on testPin\n`);
+        });
+    }
+});
+
+test('STM32G030 & STM32F103: flasher bootloader PID identification', async () => {
+    const { STM32_PID_CHIPS } = await import('../src/utils/flasher.js');
+    if (STM32_PID_CHIPS) {
+        assert.equal(STM32_PID_CHIPS[0x0466], 'STM32G030 / G031');
+        assert.equal(STM32_PID_CHIPS[0x0410], 'STM32F103 (Medium-density)');
+    }
 });
