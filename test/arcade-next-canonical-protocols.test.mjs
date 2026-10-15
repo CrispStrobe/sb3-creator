@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import JSZip from 'jszip';
 import Creator from '../src/utils/sb3Creator.js';
+import {validateProcedureParameterConstraints} from '../src/utils/procedureParameterConstraints.js';
 import {ARCADE_DIALECT_OPS,ARCADE_WORDS} from '../src/utils/arcadeDialect.js';
 const header='DEVICE ARCADE\nSPRITE Game:\n';
 const declaration=(type='String')=>`declare arcade procedure "holdText %s" parameter "thisText" as ${type}`;
@@ -44,4 +45,11 @@ test('ordered actual caller IDs and explicit required arguments cannot drift fro
  const c=parse(source()+'WHEN flag clicked:\n  holdText ("ok")\n'),t=target(c),call=Object.values(t.blocks).find(b=>b.opcode==='procedures_call');
  const original=call.mutation.argumentids;call.mutation.argumentids='["foreign"]';assert.throws(()=>c.decompile(),/formal IDs/);call.mutation.argumentids=original;
  delete call.inputs[JSON.parse(original)[0]];assert.throws(()=>c.decompile(),/formal IDs/);
+});
+
+test('metadata-only declarations cannot erase hidden connected inputs during decompilation',()=>{
+ const c=parse(source()),t=target(c),entry=Object.values(t.blocks).find(b=>b.opcode==='arcade_declareParameterConstraint');
+ entry.inputs.EXTRA=[1,'effect'];t.blocks.effect={opcode:'arcade_callFunction',parent:Object.keys(t.blocks).find(id=>t.blocks[id]===entry),next:null,inputs:{NAME:[1,[10,'sideEffect']],ARGS:[1,[10,'[]']]},fields:{}};
+ assert.throws(()=>c.decompile(),/zero inputs/);
+ const ordinary=parse(header+'WHEN flag clicked:\n  arcade log "ok"\n');target(ordinary).blocks.unused=null;assert.doesNotThrow(()=>validateProcedureParameterConstraints(ordinary.project));
 });
