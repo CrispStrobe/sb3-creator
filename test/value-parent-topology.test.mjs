@@ -26,6 +26,9 @@ function topology(creator) {
             }
         }
     }
+    // MEASURED 2026-10-15: all 13 fixtures, before/after reparse, have 4-7
+    // edges across 26 checks. Join, mod, unary negation and bitnot reach the
+    // minimum of 4; retain that measured nonvacuity floor.
     assert.ok(edges>=4,'actual constrained prototype and nested value edges inspected');
 }
 for (const expression of [
