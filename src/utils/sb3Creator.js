@@ -2615,7 +2615,7 @@ class SB3Creator {
                 if (!metadata) throw new ParseError('Callable plan requires fixed declaration metadata');
                 let value; try { value = JSON.parse(metadata.get()); } catch { throw new ParseError('Malformed callable plan JSON'); }
                 if (value?.schema !== 'bw-callable-declaration') continue;
-                if (value.version !== 1 || !value.plan || !Array.isArray(value.plan.bindings)) throw new ParseError('Malformed callable lexical plan');
+                if (![1, 3].includes(value.version) || !value.plan || !Array.isArray(value.plan.bindings)) throw new ParseError('Malformed callable lexical plan');
                 for (const [id, rename] of renamed) {
                     const binding = value.plan.bindings.find(binding => binding.id === id);
                     if (!binding || binding.owner !== value.plan.module || binding.kind !== 'global' || binding.nativeName !== rename.before)
