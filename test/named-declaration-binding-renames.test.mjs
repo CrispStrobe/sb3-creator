@@ -12,6 +12,9 @@ const literal=(blocks,input)=>Array.isArray(input[1])?input[1][1]:blocks[input[1
 const state=project=>{
  const stage=project.targets.find(t=>t.isStage),target=project.targets.find(t=>t.name==='Game'),blocks=target.blocks;
  const variables=Object.values(blocks).filter(b=>b.opcode==='arcade_declareSourceCallable');
+ // Measured 2026-10-15: the self-authored fixture has two actual sealed
+ // alias declarations. A missing fixture/body cannot yield an empty pass.
+ assert.ok(variables.length >= 2, `only ${variables.length} sealed aliases; measured minimum 2`);
  const declaration=Object.values(blocks).find(b=>b.opcode==='arcade_declareCallable');
  return {stage,target,blocks,variables,declaration,metadata:JSON.parse(literal(blocks,declaration.inputs.METADATA))};
 };
