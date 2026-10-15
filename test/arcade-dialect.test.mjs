@@ -35,6 +35,7 @@ const WORD_LINES = [
     ['command','arcade_setButtonRepeatProperty','arcade set player 2 button B repeat property repeatDelay to (undefined value)'],
     ['command','arcade_setButtonRepeatDefaults','arcade set button repeat defaults delay (20 + 10) interval (40 + 1)'],
     ['reporter','arcade_sourceTypeOf','arcade source type of (n + 1)'],
+    ['reporter','arcade_inspectValue','arcade inspect value (n + 1) limit 20'],
     ['reporter','arcade_fontMetric','arcade font "font5" metric "charHeight"'],
     ['reporter','arcade_fontValue','arcade font value font8'],
     ['reporter','arcade_fontForText','arcade font for text (arcade local message)'],
@@ -466,7 +467,7 @@ describe('Arcade dialect words', () => {
         const here = new Set(WORD_LINES.map(([, op]) => op));
         assert.deepEqual([...here].sort(), [...ARCADE_DIALECT_OPS].sort());
         assert.equal(WORD_LINES.length, ARCADE_WORDS.length, 'one line per spelling, aliases included');
-        assert.equal(ARCADE_DIALECT_OPS.length, 398);
+        assert.equal(ARCADE_DIALECT_OPS.length, 399);
     });
 
     for (const [kind, op, line, alias] of WORD_LINES) {

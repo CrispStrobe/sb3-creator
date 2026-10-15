@@ -443,6 +443,7 @@ export const ARCADE_WORDS = Object.freeze([
     w('arcade_backgroundImage', 'reporter', 'arcade background image'),
     w('arcade_screenImage', 'reporter', 'arcade screen image'),
     w('arcade_sourceTypeOf', 'reporter', 'arcade source type of {VALUE}'),
+    w('arcade_inspectValue', 'reporter', 'arcade inspect value {VALUE} limit {LIMIT}', {early: true}),
     w('arcade_fontMetric', 'reporter', 'arcade font {FONT:"font5"|"font8"|"font12"} metric {PROPERTY:"charWidth"|"charHeight"}', {strictFields: true}),
     w('arcade_fontForText', 'reporter', 'arcade font for text {TEXT}'),
     w('arcade_scaleFont', 'reporter', 'arcade scaled font {FONT} by {SIZE}'),
