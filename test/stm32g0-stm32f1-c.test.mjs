@@ -45,6 +45,33 @@ function compileArmBinary (src, ld, mcpu) {
     return readFileSync(join(dir, 'fw.bin'));
 }
 
+// The emitted vector array fixes this prefix exactly; the reset pointer must
+// point past that table into bytes actually present in the linked image.
+function assertVectorImage (bin, vectorCount, stackTop) {
+    const vectorBytes = vectorCount * Uint32Array.BYTES_PER_ELEMENT;
+    assert.equal(bin.subarray(0, vectorBytes).length, vectorBytes, 'complete counted vector table is present');
+    assert.equal(bin.readUInt32LE(0), stackTop, 'initial SP equals selected SRAM top');
+    const reset = bin.readUInt32LE(Uint32Array.BYTES_PER_ELEMENT);
+    assert.equal(reset & 1, 1, 'reset vector selects Thumb instructions');
+    const offset = (reset & ~1) - 0x08000000;
+    assert.equal(offset >= vectorBytes && offset < bin.length, true, 'reset entry points into actual linked code bytes');
+    assert.equal(bin.subarray(offset, offset + Uint16Array.BYTES_PER_ELEMENT).length, Uint16Array.BYTES_PER_ELEMENT,
+        'complete first Thumb halfword is present at reset entry');
+}
+
+test('linked vector contract rejects truncated tables and invalid reset entries', () => {
+    const vectors = 48, stack = 0x20002000, bytes = vectors * Uint32Array.BYTES_PER_ELEMENT;
+    const valid = Buffer.alloc(bytes + Uint32Array.BYTES_PER_ELEMENT);
+    valid.writeUInt32LE(stack, 0); valid.writeUInt32LE(0x08000000 + bytes + 1, Uint32Array.BYTES_PER_ELEMENT);
+    assertVectorImage(valid, vectors, stack);
+    assert.throws(() => assertVectorImage(valid.subarray(0, bytes - 1), vectors, stack));
+    for (const [word, value] of [[0, 0], [1, 0x08000000 + bytes], [1, 0x08000001], [1, 0x08000000 + valid.length + 1]]) {
+        const changed = Buffer.from(valid);changed.writeUInt32LE(value, word * Uint32Array.BYTES_PER_ELEMENT);
+        assert.throws(() => assertVectorImage(changed, vectors, stack));
+    }
+    assert.throws(() => assertVectorImage(valid.subarray(0, bytes + 1), vectors, stack));
+});
+
 test('STM32G030: pin spelling, default clock, C emission and compilation', async () => {
     assert.equal(SB3Creator.defaultClock('stm32g030'), 64000000);
 
@@ -82,12 +109,7 @@ test('STM32G030: pin spelling, default clock, C emission and compilation', async
 
     if (hasGcc) {
         const bin = compileArmBinary(src, LD_G0, 'cortex-m0plus');
-        assert.ok(bin.length >= 192, 'counted 48 vectors * 4 = 192 bytes minimum');
-        const sp = bin[0] | (bin[1] << 8) | (bin[2] << 16) | (bin[3] << 24);
-        assert.equal(sp >>> 0, 0x20002000, 'initial SP in binary matches 8K SRAM top');
-        const resetHandler = bin[4] | (bin[5] << 8) | (bin[6] << 16) | (bin[7] << 24);
-        assert.ok((resetHandler & 1) === 1, 'Thumb bit set on reset vector');
-        assert.ok((resetHandler >>> 0) >= 0x08000000 && (resetHandler >>> 0) < 0x08010000, 'reset handler inside Flash');
+        assertVectorImage(bin, 48, 0x20002000);
     }
 });
 
@@ -131,12 +153,7 @@ test('STM32F103: pin spelling, default clock, C emission and compilation', async
 
     if (hasGcc) {
         const bin = compileArmBinary(src, LD_F1, 'cortex-m3');
-        assert.ok(bin.length >= 272, 'counted 68 vectors * 4 = 272 bytes minimum');
-        const sp = bin[0] | (bin[1] << 8) | (bin[2] << 16) | (bin[3] << 24);
-        assert.equal(sp >>> 0, 0x20005000, 'initial SP in binary matches 20K SRAM top');
-        const resetHandler = bin[4] | (bin[5] << 8) | (bin[6] << 16) | (bin[7] << 24);
-        assert.ok((resetHandler & 1) === 1, 'Thumb bit set on reset vector');
-        assert.ok((resetHandler >>> 0) >= 0x08000000 && (resetHandler >>> 0) < 0x08010000, 'reset handler inside Flash');
+        assertVectorImage(bin, 68, 0x20005000);
     }
 });
 
@@ -185,7 +202,7 @@ test('STM32G030: Scratch variables, loops, conditionals and math compile cleanly
 
     if (hasGcc) {
         const bin = compileArmBinary(src, LD_G0, 'cortex-m0plus');
-        assert.ok(bin.length > 256, 'binary includes compiled logic and vector table');
+        assertVectorImage(bin, 48, 0x20002000);
     }
 });
 
@@ -211,7 +228,7 @@ test('STM32F103: Scratch variables, loops, conditionals and math compile cleanly
 
     if (hasGcc) {
         const bin = compileArmBinary(src, LD_F1, 'cortex-m3');
-        assert.ok(bin.length > 256, 'binary includes compiled logic and vector table');
+        assertVectorImage(bin, 68, 0x20005000);
     }
 });
 
@@ -256,7 +273,8 @@ test('STM32G030: complete pin dictionary acceptance', () => {
         const c = new SB3Creator();
         c.parse(`DEVICE STM32G030\nPIN testPin = ${p} OUTPUT\nWHEN flag clicked:\n  turn on testPin\n`);
         const src = c.generateC(c.project);
-        assert.ok(src.length > 0, `pin ${p} generated valid C code`);
+        const pin = (p.charCodeAt(1) - 'A'.charCodeAt(0)) * 16 + Number(p.slice(2));
+        assert.match(src, new RegExp(`^\\s*bw_pin_set\\(${pin}u\\);$`, 'm'), `pin ${p} lowers to its actual GPIO set operation`);
     }
 
     // Invalid pins
@@ -281,7 +299,8 @@ test('STM32F103: complete pin dictionary acceptance', () => {
         const c = new SB3Creator();
         c.parse(`DEVICE STM32F103\nPIN testPin = ${p} OUTPUT\nWHEN flag clicked:\n  turn on testPin\n`);
         const src = c.generateC(c.project);
-        assert.ok(src.length > 0, `pin ${p} generated valid C code`);
+        const pin = (p.charCodeAt(1) - 'A'.charCodeAt(0)) * 16 + Number(p.slice(2));
+        assert.match(src, new RegExp(`^\\s*bw_pin_set\\(${pin}u\\);$`, 'm'), `pin ${p} lowers to its actual GPIO set operation`);
     }
 
     // Invalid pins
