@@ -21,6 +21,7 @@ import { join } from 'node:path';
 import SB3Creator from '../../src/utils/sb3Creator.js';
 import { injectEngine, registerSidecars, locateSibling } from '../../scripts/lib/engine-surface.mjs';
 import { DEVPART } from '../../scripts/lib/devpart.mjs';
+import { stageStm32ServiceRuntime } from './stm32-service-runtime.mjs';
 
 const SB3 = join(import.meta.dirname, '..', '..');
 
@@ -55,18 +56,7 @@ SECTIONS {
   .bss  : { *(.bss*) *(COMMON) } > RAM
 }
 `;
-const STM32_FLASH_LD = `ENTRY(main)
-MEMORY
-{
-    FLASH (rx)  : ORIGIN = 0x08000000, LENGTH = 16K
-    RAM   (rwx) : ORIGIN = 0x20000000, LENGTH = 4K
-}
-SECTIONS
-{
-    .text : { KEEP(*(.vectors)) *(.text.startup*) *(.text*) *(.rodata*) } > FLASH
-    .bss  : { *(.bss*) *(COMMON) } > RAM
-}
-`;
+
 
 const has = (bin) => { try { execFileSync(bin, ['--version'], { stdio: 'pipe' }); return true; } catch { return false; } };
 const EMU_JS = process.env.EMU8051_JS || join(SB3, '..', 'emu8051-stc', 'build', 'emu8051.js');
@@ -152,11 +142,12 @@ export function compileFor(creator, device) {
             const padded = Buffer.alloc(bin.length + (bin.length & 1)); bin.copy(padded);
             return { kind: 'avr', image: new Uint16Array(padded.buffer, padded.byteOffset, padded.length / 2), code };
         }
-        const ld = fam === 'rp2040' ? PICO_SRAM_LD : STM32_FLASH_LD;
-        writeFileSync(join(dir, 'link.ld'), ld);
+        const runtime = fam === 'stm32' ? stageStm32ServiceRuntime(dir, device) : null;
+        if (!runtime) writeFileSync(join(dir, 'link.ld'), PICO_SRAM_LD);
         run('arm-none-eabi-gcc', [`-mcpu=${fam === 'rp2040' ? 'cortex-m0plus' : 'cortex-m0'}`, '-mthumb', '-Os',
             '-ffreestanding', '-ffunction-sections', '-nostdlib', '-Wno-implicit-fallthrough',
-            '-Tlink.ld', '-o', 'main.elf', 'main.c', '-lgcc']);
+            '-Tlink.ld', ...(runtime?.flags || []), '-o', 'main.elf', 'main.c',
+            ...(runtime ? [runtime.startup] : []), '-lgcc']);
         run('arm-none-eabi-objcopy', ['-O', 'binary', 'main.elf', 'main.bin']);
         const bin = readFileSync(join(dir, 'main.bin'));
         if (fam === 'stm32') return { kind: 'stm32', image: new Uint8Array(bin), code };

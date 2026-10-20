@@ -152,6 +152,9 @@ const BLOCK_COVERAGE = {
     relay: ['devices_setrelay'],
     temp_sensor: ['devices_temperature'],
     ldr: ['devices_light'],
+    // Three-terminal powered divider, not an alias of the two-terminal LDR:
+    // set its light stimulus, then observe the actual out-node voltage.
+    light_sensor: ['circuit_setcontrol', 'circuit_nodevoltage'],
     ultrasonic: ['devices_distance'],
 
     // Display devices

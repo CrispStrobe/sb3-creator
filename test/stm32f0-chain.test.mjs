@@ -15,6 +15,7 @@ import { mkdtempSync, writeFileSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { requireSiblings, siblingGuardTest } from './helpers/siblings.mjs';
+import { stageStm32ServiceRuntime } from './helpers/stm32-service-runtime.mjs';
 
 const SB3 = join(import.meta.dirname, '..');
 const BWB = process.env.BW_BOARD || join(SB3, '..', 'bw-board');
@@ -25,14 +26,7 @@ const siblingGate = requireSiblings('bw-board');
 siblingGuardTest(siblingGate, 'the STM32F0 chain');
 const skipReason = siblingGate.skip || (hasGcc ? false : 'needs arm-none-eabi-gcc');
 
-const LD = `ENTRY(main)
-MEMORY { FLASH (rx) : ORIGIN = 0x08000000, LENGTH = 16K
-         RAM  (rwx): ORIGIN = 0x20000000, LENGTH = 4K }
-SECTIONS {
-  .text : { KEEP(*(.vectors)) *(.text*) *(.rodata*) } > FLASH
-  .bss  : { *(.bss*) *(COMMON) } > RAM
-}
-`;
+
 
 // RM0360 §3.5.1: above 24 MHz the flash needs LATENCY = 1 (FLASH_ACR at
 // 0x40022000), so firmware that really runs at the 48 MHz F_CPU writes
@@ -58,9 +52,10 @@ test('STM32F030: generated blink runs on the F0 machine, parked and honest',
 
         const dir = mkdtempSync(join(tmpdir(), 'bw-f0chain-'));
         writeFileSync(join(dir, 'main.c'), src);
-        writeFileSync(join(dir, 'link.ld'), LD);
+        const runtime = stageStm32ServiceRuntime(dir, 'stm32f030');
         execFileSync('arm-none-eabi-gcc', ['-mcpu=cortex-m0', '-mthumb', '-Os', '-ffreestanding',
-            '-nostdlib', `-T${join(dir, 'link.ld')}`, '-o', join(dir, 'fw.elf'), join(dir, 'main.c'), '-lgcc'],
+            '-nostdlib', `-T${runtime.linker}`, ...runtime.flags, '-o', join(dir, 'fw.elf'),
+            join(dir, 'main.c'), runtime.startup, '-lgcc'],
         { stdio: 'pipe' });
         execFileSync('arm-none-eabi-objcopy', ['-O', 'binary', join(dir, 'fw.elf'), join(dir, 'fw.bin')], { stdio: 'pipe' });
         const bin = readFileSync(join(dir, 'fw.bin'));
@@ -137,9 +132,10 @@ test('STM32F030: ADC + PWM — the cap vocabulary, blocks to pad and back',
 
         const dir = mkdtempSync(join(tmpdir(), 'bw-f0adcpwm-'));
         writeFileSync(join(dir, 'main.c'), src);
-        writeFileSync(join(dir, 'link.ld'), LD);
+        const runtime = stageStm32ServiceRuntime(dir, 'stm32f030');
         execFileSync('arm-none-eabi-gcc', ['-mcpu=cortex-m0', '-mthumb', '-Os', '-ffreestanding',
-            '-nostdlib', `-T${join(dir, 'link.ld')}`, '-o', join(dir, 'fw.elf'), join(dir, 'main.c'), '-lgcc'],
+            '-nostdlib', `-T${runtime.linker}`, ...runtime.flags, '-o', join(dir, 'fw.elf'),
+            join(dir, 'main.c'), runtime.startup, '-lgcc'],
         { stdio: 'pipe' });
         execFileSync('arm-none-eabi-objcopy', ['-O', 'binary', join(dir, 'fw.elf'), join(dir, 'fw.bin')], { stdio: 'pipe' });
         const bin = readFileSync(join(dir, 'fw.bin'));

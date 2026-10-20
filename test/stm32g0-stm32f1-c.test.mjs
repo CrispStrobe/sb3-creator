@@ -5,6 +5,7 @@ import { mkdtempSync, writeFileSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import SB3Creator from '../src/utils/sb3Creator.js';
+import { stageStm32ServiceRuntime } from './helpers/stm32-service-runtime.mjs';
 
 let hasGcc = false;
 try {
@@ -14,38 +15,25 @@ try {
     /* gcc absent */
 }
 
-const LD_G0 = `ENTRY(main)
-MEMORY { FLASH (rx) : ORIGIN = 0x08000000, LENGTH = 64K
-         RAM  (rwx): ORIGIN = 0x20000000, LENGTH = 8K }
-SECTIONS {
-  .text : { KEEP(*(.vectors)) *(.text*) *(.rodata*) } > FLASH
-  .bss  : { *(.bss*) *(COMMON) } > RAM
-}
-`;
+const LD_G0 = 'stm32g030';
 
-const LD_F1 = `ENTRY(main)
-MEMORY { FLASH (rx) : ORIGIN = 0x08000000, LENGTH = 64K
-         RAM  (rwx): ORIGIN = 0x20000000, LENGTH = 20K }
-SECTIONS {
-  .text : { KEEP(*(.vectors)) *(.text*) *(.rodata*) } > FLASH
-  .bss  : { *(.bss*) *(COMMON) } > RAM
-}
-`;
+const LD_F1 = 'stm32f103';
 
-function compileArmBinary (src, ld, mcpu) {
+function compileArmBinary (src, device, mcpu) {
     const dir = mkdtempSync(join(tmpdir(), `bw-${mcpu}-`));
     writeFileSync(join(dir, 'main.c'), src);
-    writeFileSync(join(dir, 'link.ld'), ld);
+    const runtime = stageStm32ServiceRuntime(dir, device);
+    assert.equal(mcpu, runtime.cpu, 'selected CPU agrees with canonical service target');
     execFileSync('arm-none-eabi-gcc', [
         `-mcpu=${mcpu}`, '-mthumb', '-Os', '-ffreestanding',
-        '-nostdlib', `-T${join(dir, 'link.ld')}`, '-o', join(dir, 'fw.elf'),
-        join(dir, 'main.c'), '-lgcc'
+        '-nostdlib', `-T${runtime.linker}`, ...runtime.flags, '-o', join(dir, 'fw.elf'),
+        join(dir, 'main.c'), runtime.startup, '-lgcc'
     ], { stdio: 'pipe' });
     execFileSync('arm-none-eabi-objcopy', ['-O', 'binary', join(dir, 'fw.elf'), join(dir, 'fw.bin')], { stdio: 'pipe' });
     return readFileSync(join(dir, 'fw.bin'));
 }
 
-// The emitted vector array fixes this prefix exactly; the reset pointer must
+// The canonical service startup vector table fixes this prefix; the reset pointer must
 // point past that table into bytes actually present in the linked image.
 function assertVectorImage (bin, vectorCount, stackTop) {
     const vectorBytes = vectorCount * Uint32Array.BYTES_PER_ELEMENT;
@@ -434,14 +422,7 @@ test('STM32F103 chip temperature: ADC1 channel 16 with TSVREFE, kept through adc
 // register SEQUENCE, not just the presence of a name, and compile the result
 // with arm-none-eabi-gcc where it is installed (CI installs it).
 
-const LD_F0 = `ENTRY(main)
-MEMORY { FLASH (rx) : ORIGIN = 0x08000000, LENGTH = 16K
-         RAM  (rwx): ORIGIN = 0x20000000, LENGTH = 4K }
-SECTIONS {
-  .text : { KEEP(*(.vectors)) *(.text*) *(.rodata*) } > FLASH
-  .bss  : { *(.bss*) *(COMMON) } > RAM
-}
-`;
+const LD_F0 = 'stm32f030';
 const BUILD = {
     STM32F030: [LD_F0, 'cortex-m0', 48, 0x20001000],
     STM32G030: [LD_G0, 'cortex-m0plus', 48, 0x20002000],
