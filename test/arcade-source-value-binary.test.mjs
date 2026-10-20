@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import JSZip from 'jszip';
 import SB3Creator from '../src/utils/sb3Creator.js';
 import {ARCADE_WORDS,compileArcadeWord} from '../src/utils/arcadeDialect.js';
-const operations=['+','-','*','/','%','**'];
+const operations=['+','-','*','/','%','**','&','|','^','<<','>>','>>>'];
 const program=op=>`DEVICE ARCADE\nGLOBAL result\nSPRITE Game:\nWHEN flag clicked:\n  set result to (arcade source value (5) op ${op} with (2))`;
 const built=source=>{const creator=new SB3Creator();creator.parse(source);assert.deepEqual(creator.errors,[]);assert.deepEqual(creator.warnings,[]);return creator;};
 const operation=creator=>{
@@ -26,7 +26,7 @@ test('Arcade source arithmetic Code builds a fixed selector field and survives a
 });
 
 test('Arcade source arithmetic does not turn a reporter or unsupported operator into a selector grant',()=>{
-    for(const selector of ['(result)','"&"','"==="','"not-an-operator"']){
+    for(const selector of ['(result)','"~"','"==="','"not-an-operator"']){
         const creator=new SB3Creator();
         assert.throws(()=>creator.parse(program(selector)),error=>error?.code==='DIALECT_UNPARSED_LINES');
         assert.equal(creator.project?.targets?.flatMap(target=>Object.values(target.blocks||{})).some(block=>block.opcode==='arcade_sourceValueBinary')||false,false);
@@ -48,4 +48,35 @@ test('source arithmetic preserves canonical selector fields and connected inputs
         assert.deepEqual(operation(replay).fields.OP,[op,null]);
         assert.equal(replay.decompile(),code);
     }
+});
+
+const unaryProgram=selector=>`DEVICE ARCADE\nGLOBAL result\nSPRITE Game:\nWHEN flag clicked:\n  set result to (arcade source unary ${selector} of (5))`;
+const unaryOperation=creator=>{
+    const nodes=creator.project.targets.flatMap(target=>Object.values(target.blocks||{})).filter(block=>block.opcode==='arcade_sourceValueUnary');
+    assert.equal(nodes.length,1);return nodes[0];
+};
+
+test('source unary complement has one actual VALUE input and only the fixed complement selector',()=>{
+    const entry=ARCADE_WORDS.find(word=>word.op==='arcade_sourceValueUnary');assert.ok(entry);
+    const parts=compileArcadeWord(entry).parts,selector=parts.find(part=>part.slot==='OP');
+    assert.equal(selector.field,true);assert.deepEqual(selector.choices,['~']);
+    const creator=built(unaryProgram('"~"')),block=unaryOperation(creator);
+    assert.deepEqual(block.fields.OP,['~',null]);assert.deepEqual(Object.keys(block.inputs),['VALUE']);
+    const replay=built(creator.decompile());assert.deepEqual(unaryOperation(replay).fields.OP,block.fields.OP);
+    assert.deepEqual(Object.keys(unaryOperation(replay).inputs),['VALUE']);
+});
+
+test('source unary selector cannot be a reporter, binary operation or unknown spelling',()=>{
+    for(const selector of ['(result)','"+"','"&"','"~~"']){
+        const creator=new SB3Creator();assert.throws(()=>creator.parse(unaryProgram(selector)),error=>error?.code==='DIALECT_UNPARSED_LINES');
+        assert.equal(creator.project?.targets?.flatMap(target=>Object.values(target.blocks||{})).some(block=>block.opcode==='arcade_sourceValueUnary')||false,false);
+    }
+});
+
+test('source unary fixed selector and single operand survive a fresh actual SB3 and Code reparse',async()=>{
+    const creator=built(unaryProgram('"~"')),code=creator.decompile();
+    const zip=await JSZip.loadAsync(Buffer.from(await(await creator.generateSB3()).arrayBuffer()));
+    const fresh=new SB3Creator();fresh.project=JSON.parse(await zip.file('project.json').async('text'));
+    assert.deepEqual(unaryOperation(fresh).fields.OP,['~',null]);assert.deepEqual(Object.keys(unaryOperation(fresh).inputs),['VALUE']);
+    assert.equal(fresh.decompile(),code);assert.equal(built(fresh.decompile()).decompile(),code);
 });
