@@ -146,3 +146,15 @@ Sprite creation completion, resource selectors and Number inputs. Canonical
 Code/Blocks/SB3 roundtrips alone do not qualify those native semantics, default
 admission or graphical authoring. Exact-head hosted checks and normal reviewed
 supplier merge precede any separate consumer adoption or pin change.
+
+## Arcade score threshold syntax — 2026-10-21
+
+Two canonical words expose score registration and its matching callback hat.
+PLAYER, SCORE, TOKEN and CAPTURES remain actual connected inputs; current Code
+and SB3 reconstruction retain their values and edits. Text thresholds remain
+text in this syntax layer: the Arcade consumer must enforce genuine Number
+producers and fixed players rather than gaining authority from a word match.
+The new portable source controls, full vocabulary membership and protocol
+censuses require qualification. Runtime crossing order, pause completion,
+original simulator equivalence, visible authoring and Lite adoption remain
+separate consumer gates. No dependency or fixture pin changes are included.
