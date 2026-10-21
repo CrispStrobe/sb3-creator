@@ -101,7 +101,7 @@ export const SPIKE3_API = Object.freeze({
     'motor.relative_position': ['mapped', 'v = motor.relative_position(port.A)'],
     'motor.absolute_position': ['mapped', 'v = motor.absolute_position(port.A)'],
     'motor.velocity': ['approximate', 'v = motor.velocity(port.A)'],
-    'motor.set_duty_cycle': ['approximate', 'motor.set_duty_cycle(port.A, 5000)'],
+    'motor.set_duty_cycle': ['mapped', 'motor.set_duty_cycle(port.A, 5000)'],
     'motor.get_duty_cycle': ['unsupported', 'v = motor.get_duty_cycle(port.A)'],
     'motor.status': ['unsupported', 'v = motor.status(port.A)'],
     'motor.info': ['unsupported', 'v = motor.info(port.A)'],
@@ -930,13 +930,16 @@ function translatorClass () {
                     return [`reset motor position ${P} to ${this.expr(this.arg(call, 1, 'position'))}`];
                 }
                 case 'motor.set_duty_cycle': {
+                    // -10000..10000 is -100..100 % of the duty cycle: the "start motor at
+                    // % power" block, unregulated as set_duty_cycle is.
                     const P = needPort(port(0));
                     if (!P) break;
-                    this.note('motor.set_duty_cycle(): power is run as a speed, pwm/100 percent');
-                    const pwm = this.arg(call, 1, 'pwm');
+                    let pwm = this.arg(call, 1, 'pwm');
+                    // The exporter's `int(P * 100)` (set_duty_cycle takes an int) is P again.
+                    if (pwm && pwm.type === 'Call' && pwm.func.type === 'Name' && pwm.func.id === 'int' && pwm.args.length === 1) pwm = pwm.args[0];
                     const n = lit(pwm);
-                    const speed = n !== null ? fmt(n / 100) : this.tok(`${this.expr(pwm)} / 100`);
-                    return [`set motor speed ${P} ${speed}`, `start motor ${P} forward`];
+                    const power = n !== null ? fmt(n / 100) : this.tok(this.scaledDown(pwm, 100));
+                    return [`start motor ${P} at ${power} % power`];
                 }
 
                 // ── motor_pair ───────────────────────────────────────────
@@ -1344,7 +1347,9 @@ export function projectToSpike3Python (project) {
         const portOf = (b, k) => {
             if (b.fields && b.fields[k]) return b.fields[k][0];
             const shadow = b.inputs && Array.isArray(b.inputs[k]) ? B(b.inputs[k][1]) : null;
-            return shadow && shadow.fields && shadow.fields.PORT ? shadow.fields.PORT[0] : 'A';
+            // The menu shadow's field is named for its menu (PORT, MULTIPLE_PORT).
+            const field = shadow && shadow.fields && (shadow.fields.PORT || shadow.fields.MULTIPLE_PORT);
+            return field ? field[0] : 'A';
         };
         const PORT = (b, k = 'PORT') => `port.${String(portOf(b, k) || 'A').toUpperCase()}`;
         const assigned = new Set();
@@ -1532,6 +1537,10 @@ export function projectToSpike3Python (project) {
                 case 'spikeprime_motorSetSpeed': return line(`_bw_speed[${PORT(b)}] = ${val(b.inputs.SPEED)}`);
                 case 'spikeprime_motorStart': return line(`motor.run(${PORT(b)}, _bw_speed[${PORT(b)}] * ${String(field(b, 'DIRECTION')) === '-1' ? -VPP : VPP})`);
                 case 'spikeprime_motorStop': return line(`motor.stop(${PORT(b)})`);
+                case 'spikeprime_motorStartPower': {
+                    const n = lit(b.inputs.POWER);
+                    return line(`motor.set_duty_cycle(${PORT(b)}, ${n !== null ? fmt(n * 100) : `int(${wrapOp(val(b.inputs.POWER))} * 100)`})`);
+                }
                 case 'spikeprime_motorRunFor': {
                     const P = PORT(b);
                     const v = `_bw_speed[${P}] * ${String(field(b, 'DIRECTION')) === '-1' ? -VPP : VPP}`;

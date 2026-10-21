@@ -42,7 +42,11 @@ export const SPIKE_DIALECT_OPS = Object.freeze([
     // colour channel (rgbi, a new extension block), the centre button light
     // (hub.light.color), the hub volume (sound.volume) and the distance
     // sensor's lights (distance_sensor.show/clear). 42 -> 47.
-    'getColorRGB', 'getGyroRate', 'setCenterButtonColor', 'setDistanceLights', 'setVolume'
+    'getColorRGB', 'getGyroRate', 'setCenterButtonColor', 'setDistanceLights', 'setVolume',
+    // 2026-10-21: "start motor at % power", the SPIKE app's More Motors block, an
+    // unregulated duty cycle (CrispStrobe/extensions#60). It arrived mapped:
+    // SPIKE 3 Python's motor.set_duty_cycle reads into it. 47 -> 48.
+    'motorStartPower'
 ]);
 
 export const SPIKE_DIALECT_EXCLUSIONS = Object.freeze({

@@ -20,7 +20,8 @@ function compile (line) {
     return { c, project, blocks, decompiled: c.decompile(project) };
 }
 
-const spikeBlocks = (blocks) => blocks.filter((b) => b && typeof b.opcode === 'string' && b.opcode.startsWith('spikeprime_'));
+// Menu shadows (an acceptReporters menu's argument) are the block's inputs, not blocks of their own.
+const spikeBlocks = (blocks) => blocks.filter((b) => b && !b.shadow && typeof b.opcode === 'string' && b.opcode.startsWith('spikeprime_'));
 
 /** A literal number/text input's value, or null for a reporter. */
 const literal = (input) => (Array.isArray(input) && Array.isArray(input[1]) ? String(input[1][1]) : null);
@@ -35,7 +36,11 @@ const WORDS = [
     // 2026-09-29 (task D1). COLOR is a CENTER_LED_COLOR menu value (upper case).
     ['set center button light to lime', 'setCenterButtonColor', { COLOR: 'LIME' }, {}],
     ['set spike volume to 40', 'setVolume', {}, { VOLUME: '40' }],
-    ['set distance lights D 9 0 5 1', 'setDistanceLights', { PORT: 'D' }, { TL: '9', TR: '0', BL: '5', BR: '1' }]
+    ['set distance lights D 9 0 5 1', 'setDistanceLights', { PORT: 'D' }, { TL: '9', TR: '0', BL: '5', BR: '1' }],
+    // 2026-10-21: the More Motors block "start motor at % power", an unregulated duty cycle.
+    // PORT is an input with the MULTIPLE_PORT menu's shadow (acceptReporters: true): checked below.
+    ['start motor B at 50 % power', 'motorStartPower', {}, { POWER: '50' }],
+    ['start motor F at -12.5 % power', 'motorStartPower', {}, { POWER: '-12.5' }]
 ];
 
 describe('SPIKE 3 dialect words: command lines', () => {
@@ -64,6 +69,19 @@ const REPORTERS = [
     ['spike gyro rate roll', 'getGyroRate', { AXIS: 'roll' }],
     ['spike color C raw blue', 'getColorRGB', { PORT: 'C', CHANNEL: 'blue' }]
 ];
+
+describe('start motor at % power: PORT is a menu shadow input, as the extension declares it', () => {
+    test('the shadow is spikeprime_menu_MULTIPLE_PORT with the port in its field', () => {
+        const { blocks, decompiled } = compile('start motor C at 30 % power');
+        const block = blocks.find((b) => b && b.opcode === 'spikeprime_motorStartPower');
+        assert.equal(block.fields.PORT, undefined, 'not a field');
+        const shadow = blocks.find((b) => b && b.opcode === 'spikeprime_menu_MULTIPLE_PORT');
+        assert.ok(shadow && shadow.shadow, 'a menu shadow');
+        assert.equal(block.inputs.PORT[0], 1, 'an input holding its shadow');
+        assert.deepEqual(shadow.fields.MULTIPLE_PORT, ['C', null]);
+        assert.ok(decompiled.includes('start motor C at 30 % power'), decompiled);
+    });
+});
 
 describe('SPIKE 3 dialect words: reporters', () => {
     for (const [expr, opcode, fields] of REPORTERS) {
