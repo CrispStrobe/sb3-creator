@@ -44,14 +44,15 @@ function body(text) {
 }
 
 describe('EV3 dialect census', () => {
-    test('all 82 pinned ev3comprehensive opcodes are mapped or classified exactly once', () => {
-        assert.equal(Object.keys(canonical).length, 82,
+    test('all 83 pinned ev3comprehensive opcodes are mapped or classified exactly once', () => {
+        assert.equal(Object.keys(canonical).length, 83,
             'counted 74 opcodes in the pinned ev3comprehensive getInfo surface (runtimeRegistry.generated.js); '
-            + '82 at the extensions pin of 2026-09-29, which brought upstream EV3 #5/#7');
+            + '82 at the extensions pin of 2026-09-29, which brought upstream EV3 #5/#7; '
+            + '83 on 2026-10-21 with motorStartPower (CrispStrobe/extensions#60), mapped');
         const accounted = [...EV3_DIALECT_OPS, ...Object.values(EV3_DIALECT_EXCLUSIONS).flat()];
         assert.equal(new Set(accounted).size, accounted.length, 'an opcode is listed twice');
         assert.deepEqual([...accounted].sort(), Object.keys(canonical).sort());
-        assert.equal(EV3_DIALECT_OPS.length, 48, 'counted 48 bidirectional words on 2026-09-29');
+        assert.equal(EV3_DIALECT_OPS.length, 49, 'counted 48 bidirectional words on 2026-09-29; 49 on 2026-10-21 (start motor … at … % power)');
         for (const kind of Object.keys(EV3_DIALECT_EXCLUSIONS)) {
             assert.ok(EV3_DIALECT_EXCLUSION_REASONS[kind], `${kind} has no stated reason`);
         }

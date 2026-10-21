@@ -3,7 +3,7 @@
 // in sb3Creator.js. See reference/runtime-drivers.md.
 //
 // Sources: in-repo copies under reference/extensions/, else CrispStrobe/extensions pinned at
-// 84f93976f87a17010fcdd6dd5bc9ffbd44abefc9. RUNTIME_EXTENSION_SOURCES below records, per
+// ce21395a0e3097c00566e09a88d13044c95d68c1. RUNTIME_EXTENSION_SOURCES below records, per
 // slug, WHICH of those answered and the sha256 of the bytes that were parsed — so this
 // file names a revision rather than a repository. Regenerate to change it.
 export const RUNTIME_EXTENSIONS = {
@@ -213,6 +213,14 @@ export const RUNTIME_EXTENSIONS = {
                 "args": [
                     "MOTOR_ID",
                     "DEGREES"
+                ]
+            },
+            "motorStartPower": {
+                "kind": "command",
+                "method": "motorStartPower",
+                "args": [
+                    "MOTOR_ID",
+                    "POWER"
                 ]
             },
             "setMotorPower": {
@@ -482,6 +490,14 @@ export const RUNTIME_EXTENSIONS = {
                 "args": [
                     "PORT",
                     "DEGREES"
+                ]
+            },
+            "motorStartPower": {
+                "kind": "command",
+                "method": "motorStartPower",
+                "args": [
+                    "PORT",
+                    "POWER"
                 ]
             },
             "setMotorPower": {
@@ -785,6 +801,22 @@ export const RUNTIME_EXTENSIONS = {
                 "method": "isTilted",
                 "args": [
                     "DIRECTION"
+                ]
+            },
+            "setLightBrightness": {
+                "kind": "command",
+                "method": "setLightBrightness",
+                "args": [
+                    "PORT",
+                    "BRIGHTNESS",
+                    "POLARITY"
+                ]
+            },
+            "lightOff": {
+                "kind": "command",
+                "method": "lightOff",
+                "args": [
+                    "PORT"
                 ]
             },
             "setLED": {
@@ -2030,6 +2062,14 @@ export const RUNTIME_EXTENSIONS = {
                     "POWER"
                 ]
             },
+            "motorStartPower": {
+                "kind": "command",
+                "method": "motorStartPower",
+                "args": [
+                    "PORT",
+                    "POWER"
+                ]
+            },
             "motorRunTime": {
                 "kind": "command",
                 "method": "motorRunTime",
@@ -2783,6 +2823,14 @@ export const RUNTIME_EXTENSIONS = {
                     "POWER"
                 ]
             },
+            "motorStartPower": {
+                "kind": "command",
+                "method": "motorStartPower",
+                "args": [
+                    "PORT",
+                    "POWER"
+                ]
+            },
             "motorRunDegrees": {
                 "kind": "command",
                 "method": "motorRunDegrees",
@@ -3505,6 +3553,14 @@ export const RUNTIME_EXTENSIONS = {
                 "args": [
                     "PORT",
                     "SPEED"
+                ]
+            },
+            "motorStartPower": {
+                "kind": "command",
+                "method": "motorStartPower",
+                "args": [
+                    "PORT",
+                    "POWER"
                 ]
             },
             "motorSetStopAction": {
@@ -5553,62 +5609,62 @@ export const RUNTIME_EXTENSION_URLS = {
 
 export const RUNTIME_EXTENSION_SOURCES = {
     "repo": "CrispStrobe/extensions",
-    "commit": "84f93976f87a17010fcdd6dd5bc9ffbd44abefc9",
+    "commit": "ce21395a0e3097c00566e09a88d13044c95d68c1",
     "slugs": {
         "CrispStrobe/gamepad": {
             "from": "reference/extensions/gamepad.js",
             "sha256": "b6c065288bfeaf69c98c2285a98c7ee5e3aa78d4aaf1101957a55ada0f11b673"
         },
         "CrispStrobe/legoboost_universal": {
-            "from": "https://raw.githubusercontent.com/CrispStrobe/extensions/84f93976f87a17010fcdd6dd5bc9ffbd44abefc9/extensions/CrispStrobe/legoboost_universal.js",
-            "sha256": "b00ea6b6cd0421747c072cfe990004258a94daa87e048d921744aff2384e2588"
+            "from": "https://raw.githubusercontent.com/CrispStrobe/extensions/ce21395a0e3097c00566e09a88d13044c95d68c1/extensions/CrispStrobe/legoboost_universal.js",
+            "sha256": "2e2398d98bd5cf48c3138ff98174de906abff21548ab389d377a7dfc3bc4113c"
         },
         "CrispStrobe/lego_poweredup": {
-            "from": "https://raw.githubusercontent.com/CrispStrobe/extensions/84f93976f87a17010fcdd6dd5bc9ffbd44abefc9/extensions/CrispStrobe/lego_poweredup.js",
-            "sha256": "182257345482e97e1e4d0e6324dc15e2eb64521ec3726bab114a33bab6aaa21a"
+            "from": "https://raw.githubusercontent.com/CrispStrobe/extensions/ce21395a0e3097c00566e09a88d13044c95d68c1/extensions/CrispStrobe/lego_poweredup.js",
+            "sha256": "723e04930f574f3da6d8f48f855a4ee2947f7b96a8771e464f4fb406e3c7f6e5"
         },
         "CrispStrobe/lego_wedo2_universal": {
-            "from": "https://raw.githubusercontent.com/CrispStrobe/extensions/84f93976f87a17010fcdd6dd5bc9ffbd44abefc9/extensions/CrispStrobe/lego_wedo2_universal.js",
-            "sha256": "c8b36c5ad2bfdabd6d273da20adc86f64c2dad41d94ff8dda5c19da2613e9660"
+            "from": "https://raw.githubusercontent.com/CrispStrobe/extensions/ce21395a0e3097c00566e09a88d13044c95d68c1/extensions/CrispStrobe/lego_wedo2_universal.js",
+            "sha256": "2135e2353554d5fb9f2f608ba01b2f0c77e4dfa9e0e42f666c6f31f431282b29"
         },
         "CrispStrobe/legospikeprime_ble": {
-            "from": "https://raw.githubusercontent.com/CrispStrobe/extensions/84f93976f87a17010fcdd6dd5bc9ffbd44abefc9/extensions/CrispStrobe/legospikeprime_ble.js",
+            "from": "https://raw.githubusercontent.com/CrispStrobe/extensions/ce21395a0e3097c00566e09a88d13044c95d68c1/extensions/CrispStrobe/legospikeprime_ble.js",
             "sha256": "61b115535723157bc357d69a8f177f56960edcd867786f70b786dcf8639a4763"
         },
         "CrispStrobe/legospike_ble": {
-            "from": "https://raw.githubusercontent.com/CrispStrobe/extensions/84f93976f87a17010fcdd6dd5bc9ffbd44abefc9/extensions/CrispStrobe/legospike_ble.js",
+            "from": "https://raw.githubusercontent.com/CrispStrobe/extensions/ce21395a0e3097c00566e09a88d13044c95d68c1/extensions/CrispStrobe/legospike_ble.js",
             "sha256": "f75acfab5c184fe81aec511259be3f63ae0f8fdec8e43a67d5482b6491ffde40"
         },
         "CrispStrobe/legospikeprime_btc_scratchlink": {
-            "from": "https://raw.githubusercontent.com/CrispStrobe/extensions/84f93976f87a17010fcdd6dd5bc9ffbd44abefc9/extensions/CrispStrobe/legospikeprime_btc_scratchlink.js",
+            "from": "https://raw.githubusercontent.com/CrispStrobe/extensions/ce21395a0e3097c00566e09a88d13044c95d68c1/extensions/CrispStrobe/legospikeprime_btc_scratchlink.js",
             "sha256": "cfbe99510ae876f32cd0661a40299580795f556c81c9c51e496512b865a603bd"
         },
         "CrispStrobe/legospike_bridge": {
-            "from": "https://raw.githubusercontent.com/CrispStrobe/extensions/84f93976f87a17010fcdd6dd5bc9ffbd44abefc9/extensions/CrispStrobe/legospike_bridge.js",
+            "from": "https://raw.githubusercontent.com/CrispStrobe/extensions/ce21395a0e3097c00566e09a88d13044c95d68c1/extensions/CrispStrobe/legospike_bridge.js",
             "sha256": "6bdcafe3925b8d7ea08681cd41f14d36ba13d551999809c43bd7b0b6348c6155"
         },
         "CrispStrobe/ev3_universal": {
-            "from": "https://raw.githubusercontent.com/CrispStrobe/extensions/84f93976f87a17010fcdd6dd5bc9ffbd44abefc9/extensions/CrispStrobe/ev3_universal.js",
-            "sha256": "370ebf7b875d813890f4f78321df42626c432cb4a32e0c989f88adf087ab1d21"
+            "from": "https://raw.githubusercontent.com/CrispStrobe/extensions/ce21395a0e3097c00566e09a88d13044c95d68c1/extensions/CrispStrobe/ev3_universal.js",
+            "sha256": "77b01f2ec73b1fe852249a81c59560c186c30e8c7e4b2aef115e749e1742a6ff"
         },
         "CrispStrobe/ev3_direct": {
-            "from": "https://raw.githubusercontent.com/CrispStrobe/extensions/84f93976f87a17010fcdd6dd5bc9ffbd44abefc9/extensions/CrispStrobe/ev3_direct.js",
+            "from": "https://raw.githubusercontent.com/CrispStrobe/extensions/ce21395a0e3097c00566e09a88d13044c95d68c1/extensions/CrispStrobe/ev3_direct.js",
             "sha256": "6db50660bd64aa851c9f904d09f08642c42ef1984520f41be8f4bd5de03ce825"
         },
         "CrispStrobe/legonxt_transpile_universal": {
-            "from": "https://raw.githubusercontent.com/CrispStrobe/extensions/84f93976f87a17010fcdd6dd5bc9ffbd44abefc9/extensions/CrispStrobe/legonxt_transpile_universal.js",
-            "sha256": "1b5a24b6af350920eac46a02e5039f882d91e56b58b7ebf748e43b5f4fcf8114"
+            "from": "https://raw.githubusercontent.com/CrispStrobe/extensions/ce21395a0e3097c00566e09a88d13044c95d68c1/extensions/CrispStrobe/legonxt_transpile_universal.js",
+            "sha256": "4003811ffde27cc52d687ca060f5d5f0dcef7bbb110469e215c2b9aaa81911c5"
         },
         "CrispStrobe/legospike_turbowarp_transpile": {
-            "from": "https://raw.githubusercontent.com/CrispStrobe/extensions/84f93976f87a17010fcdd6dd5bc9ffbd44abefc9/extensions/CrispStrobe/legospike_turbowarp_transpile.js",
-            "sha256": "e65f3013d49b959e295cdd0fd7f24b5aa119f69b2dcd5af7af473fa2b791ef1e"
+            "from": "https://raw.githubusercontent.com/CrispStrobe/extensions/ce21395a0e3097c00566e09a88d13044c95d68c1/extensions/CrispStrobe/legospike_turbowarp_transpile.js",
+            "sha256": "990a29d31ee54e75ad46b32807a72d54a4732433563693bdc033971155832402"
         },
         "CrispStrobe/ev3dev_py_transpile": {
-            "from": "https://raw.githubusercontent.com/CrispStrobe/extensions/84f93976f87a17010fcdd6dd5bc9ffbd44abefc9/extensions/CrispStrobe/ev3dev_py_transpile.js",
+            "from": "https://raw.githubusercontent.com/CrispStrobe/extensions/ce21395a0e3097c00566e09a88d13044c95d68c1/extensions/CrispStrobe/ev3dev_py_transpile.js",
             "sha256": "280350b2f1aa9c805488d807be398ac9be8ea6534189ed0a20579374cff54138"
         },
         "CrispStrobe/ev3_lms_transpile": {
-            "from": "https://raw.githubusercontent.com/CrispStrobe/extensions/84f93976f87a17010fcdd6dd5bc9ffbd44abefc9/extensions/CrispStrobe/ev3_lms_transpile.js",
+            "from": "https://raw.githubusercontent.com/CrispStrobe/extensions/ce21395a0e3097c00566e09a88d13044c95d68c1/extensions/CrispStrobe/ev3_lms_transpile.js",
             "sha256": "cdbdd0513b35202c7a401201de7988b38e37e1e811e3103df4c61bb70606f0a3"
         },
         "CrispStrobe/circuit": {
@@ -5624,8 +5680,8 @@ export const RUNTIME_EXTENSION_SOURCES = {
             "sha256": "d83873a2734058ae8010e780112bfff02cf657d3f6b72b7994700e715b9f4e8c"
         },
         "CrispStrobe/circuitplayground": {
-            "from": "https://raw.githubusercontent.com/CrispStrobe/extensions/84f93976f87a17010fcdd6dd5bc9ffbd44abefc9/extensions/CrispStrobe/circuitplayground.js",
-            "sha256": "2ccd7eb9b48d491859ecb73bc0697b5487ab687c009ed99f8e784472243f6a65"
+            "from": "https://raw.githubusercontent.com/CrispStrobe/extensions/ce21395a0e3097c00566e09a88d13044c95d68c1/extensions/CrispStrobe/circuitplayground.js",
+            "sha256": "4d672a90e85bcb0be63b4e3cd62b65d3aed9f3ad26586ac7a189d82f52d5e633"
         }
     }
 };
