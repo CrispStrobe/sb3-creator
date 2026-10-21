@@ -37,3 +37,8 @@ the final tree; the last hosted run exposed the omitted duplication. Own
 only those ref values, preserving actions, triggers, job selection, scripts,
 assertions and every existing gate. This is required supplier identity
 composition, not a workflow-policy change. Merge before correcting the refs.
+
+Claim dacc5792 landed before correcting the two checkout refs. Twenty-nine
+unchanged gate-integrity and actual-checkout freshness controls now pass
+against the exact pinned suppliers. The workflow diff changes only those
+two ref values. Fresh hosted qualification must use the corrected checkouts.
