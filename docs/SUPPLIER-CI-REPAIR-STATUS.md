@@ -39,3 +39,17 @@ browser, physical-accuracy or complete Arcade application qualification.
 3. Merge after every enabled final-head check passes. Consumers then adopt the
    canonical merge explicitly and qualify their affected execution, conversions,
    export/reimport and visible authoring paths.
+
+## Import guard follow-up
+
+The first consolidated successor passed hosted WebGL checks, then stopped before
+unit tests because the import guard treated imports inside test fixture strings
+as executable dependencies. The guard now uses the existing ESLint parser to
+inspect actual import/export syntax, including JSX and template expressions.
+Source directives cannot disable collection. Real missing files and parse
+uncertainty still fail; fixtures and raw strings do not create dependencies.
+
+All eight focused controls and the complete tracked-source guard pass with the
+existing lock-matched ESLint 9.33.0 dependency tree. No dependency, firmware,
+measurement, numerical assertion or original test fixture changed. Hosted unit,
+actual STM32 execution and build checks remain required at the final head.

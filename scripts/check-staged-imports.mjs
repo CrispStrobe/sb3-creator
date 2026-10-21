@@ -19,7 +19,8 @@
 
 import { execFileSync } from 'node:child_process';
 import { readFileSync, existsSync } from 'node:fs';
-import { dirname, resolve, relative, join } from 'node:path';
+import { resolve, join } from 'node:path';
+import { missingRelativeImports, RELATIVE_IMPORT_CANDIDATES as CANDIDATES } from './lib/relative-imports.mjs';
 
 const git = (...args) =>
     execFileSync('git', args, { encoding: 'utf8' }).trim();
@@ -56,30 +57,11 @@ if (trackedMode) {
 
 if (!toScan.length) process.exit(0);
 
-// `import ... from './x'`, `export ... from './x'`, and `import('./x')`.
-const SPEC = /(?:^|[^\w$])(?:import|export)\s[^'"`;]*?from\s*['"](\.[^'"]+)['"]|(?:^|[^\w$.])import\s*\(\s*['"](\.[^'"]+)['"]\s*\)/g;
-
-// Node resolves an extensionless ESM specifier only for exact files, but the
-// codebase writes extensions, so try the literal path first and the usual
-// suffixes after — a false alarm here would get the check switched off.
-const CANDIDATES = ['', '.js', '.mjs', '.cjs', '.jsx', '/index.js', '/index.mjs'];
-
-/** Drop comments, so prose about an import is not read as one.
- *
- *  This file's own header describes the syntax it matches, and the first
- *  version of the check duly refused to commit itself. Block comments go
- *  entirely; line comments only when the `//` opens the line, which leaves a
- *  URL inside a string alone.
- */
-function stripComments (source) {
-    return source
-        .replace(/\/\*[\s\S]*?\*\//g, '')
-        .split('\n')
-        .map(line => (/^\s*\/\//.test(line) ? '' : line))
-        .join('\n');
-}
-
+// Parse real import/export syntax without treating test fixtures as modules.
+// The helper uses the existing ESLint parser, including JSX, without loading
+// configuration, transforming source or executing the inspected program.
 const problems = [];
+const parseProblems = [];
 for (const file of toScan) {
     let source;
     try {
@@ -89,22 +71,22 @@ for (const file of toScan) {
     } catch {
         continue;                        // not in the index / not on disk
     }
-    for (const match of stripComments(source).matchAll(SPEC)) {
-        const spec = match[1] || match[2];
-        if (!spec) continue;
-        const base = resolve(root, dirname(file), spec);
-        const found = CANDIDATES.some(ext =>
-            tracked.has(relative(root, base + ext).split('\\').join('/')));
-        if (!found) {
-            problems.push({ file, spec, expected: relative(root, base) });
-        }
+    try {
+        problems.push(...missingRelativeImports({root, file, source, tracked}));
+    } catch (error) {
+        // Parse uncertainty cannot silently remove a file from the census.
+        parseProblems.push({file, message: error.message});
     }
 }
 
-if (problems.length) {
+if (problems.length || parseProblems.length) {
     console.error(trackedMode
         ? '\nthis branch imports files it does not contain\n'
         : '\ncommit refused: it imports files it does not contain\n');
+    for (const {file, message} of parseProblems) {
+        console.error(`  ${file}`);
+        console.error(`      cannot inspect imports: ${message}`);
+    }
     for (const { file, spec, expected } of problems) {
         console.error(`  ${file}`);
         console.error(`      imports '${spec}'  ->  ${expected}`);
