@@ -165,6 +165,7 @@ const WORD_LINES = [
     ['hat', 'arcade_whenRegisteredScenePop', 'when arcade scene pop handler (n + 1) runs'],
     ['hat', 'arcade_whenRegisteredForever', 'when arcade forever handler (n + 1) runs'],
     ['hat', 'arcade_whenRegisteredLifeZero', 'when arcade life zero handler (n + 1) runs'],
+    ['hat', 'arcade_whenRegisteredScore', 'when arcade score handler (n + 1) runs'],
     ['hat', 'arcade_whenRegisteredCountdown', 'when arcade countdown handler (n + 1) runs'],
     ['hat', 'arcade_whenRegisteredWall', 'when arcade wall handler (n + 1) runs'],
     ['hat', 'arcade_whenRegisteredTile', 'when arcade tile handler (n + 1) runs'],
@@ -212,6 +213,7 @@ const WORD_LINES = [
     ['command', 'arcade_registerOverlapHandler', 'arcade register overlap kind (n + 1) with kind hero as "Player" capturing 2'],
     ['command', 'arcade_registerScenePushHandler', 'arcade register scene push as (n + 1) capturing hero'],
     ['command', 'arcade_registerScenePopHandler', 'arcade register scene pop as (n + 1) capturing hero'],
+    ['command', 'arcade_registerScoreHandler', 'arcade register score player (n + 1) threshold (n + 1) as hero capturing "Player"'],
     ['command', 'arcade_registerLifeZeroHandler', 'arcade register life zero player (n + 1) as hero capturing "Player"'],
     ['command', 'arcade_registerLifeZeroHandler', 'arcade register life zero as (n + 1) capturing hero', ALIAS],
     ['command', 'arcade_registerWallHandler', 'arcade register wall kind (n + 1) as hero capturing "Player"'],
@@ -473,7 +475,7 @@ describe('Arcade dialect words', () => {
         const here = new Set(WORD_LINES.map(([, op]) => op));
         assert.deepEqual([...here].sort(), [...ARCADE_DIALECT_OPS].sort());
         assert.equal(WORD_LINES.length, ARCADE_WORDS.length, 'one line per spelling, aliases included');
-        assert.equal(ARCADE_DIALECT_OPS.length, 404);
+        assert.equal(ARCADE_DIALECT_OPS.length, 406);
     });
 
     for (const [kind, op, line, alias] of WORD_LINES) {
