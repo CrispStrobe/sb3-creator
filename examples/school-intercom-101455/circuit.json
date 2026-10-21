@@ -1,0 +1,1043 @@
+{
+  "vcc": 9,
+  "parts": [
+    {
+      "id": "gnd_1",
+      "kind": "gnd",
+      "params": {},
+      "terminals": [
+        "gnd"
+      ],
+      "x": 70,
+      "y": 500,
+      "rotation": 0,
+      "label": "GND"
+    },
+    {
+      "id": "vcc_2",
+      "kind": "vcc",
+      "params": {},
+      "terminals": [
+        "vcc"
+      ],
+      "x": 70,
+      "y": 70,
+      "rotation": 0,
+      "label": "VCC"
+    },
+    {
+      "id": "resistor_3",
+      "kind": "resistor",
+      "params": {
+        "ohms": 10000
+      },
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 140,
+      "y": 100,
+      "rotation": 0,
+      "label": "R1"
+    },
+    {
+      "id": "resistor_4",
+      "kind": "resistor",
+      "params": {
+        "ohms": 10000
+      },
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 265,
+      "y": 100,
+      "rotation": 0,
+      "label": "R2"
+    },
+    {
+      "id": "resistor_5",
+      "kind": "resistor",
+      "params": {
+        "ohms": 4700
+      },
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 390,
+      "y": 100,
+      "rotation": 0,
+      "label": "R3"
+    },
+    {
+      "id": "resistor_6",
+      "kind": "resistor",
+      "params": {
+        "ohms": 1000000
+      },
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 515,
+      "y": 100,
+      "rotation": 0,
+      "label": "R4"
+    },
+    {
+      "id": "resistor_7",
+      "kind": "resistor",
+      "params": {
+        "ohms": 1000000
+      },
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 640,
+      "y": 100,
+      "rotation": 0,
+      "label": "R5"
+    },
+    {
+      "id": "resistor_8",
+      "kind": "resistor",
+      "params": {
+        "ohms": 1000
+      },
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 765,
+      "y": 100,
+      "rotation": 0,
+      "label": "R6"
+    },
+    {
+      "id": "resistor_9",
+      "kind": "resistor",
+      "params": {
+        "ohms": 100000
+      },
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 140,
+      "y": 360,
+      "rotation": 0,
+      "label": "R7"
+    },
+    {
+      "id": "resistor_10",
+      "kind": "resistor",
+      "params": {
+        "ohms": 47000
+      },
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 265,
+      "y": 360,
+      "rotation": 0,
+      "label": "R8"
+    },
+    {
+      "id": "resistor_11",
+      "kind": "resistor",
+      "params": {
+        "ohms": 100
+      },
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 390,
+      "y": 360,
+      "rotation": 0,
+      "label": "R9"
+    },
+    {
+      "id": "resistor_12",
+      "kind": "resistor",
+      "params": {
+        "ohms": 10
+      },
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 515,
+      "y": 360,
+      "rotation": 0,
+      "label": "R10"
+    },
+    {
+      "id": "resistor_13",
+      "kind": "resistor",
+      "params": {
+        "ohms": 47000
+      },
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 640,
+      "y": 360,
+      "rotation": 0,
+      "label": "R11"
+    },
+    {
+      "id": "capacitor_14",
+      "kind": "capacitor",
+      "params": {
+        "farads": 1e-08
+      },
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 140,
+      "y": 180,
+      "rotation": 0,
+      "label": "C1"
+    },
+    {
+      "id": "capacitor_15",
+      "kind": "capacitor",
+      "params": {
+        "farads": 1e-06
+      },
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 240,
+      "y": 180,
+      "rotation": 0,
+      "label": "C2"
+    },
+    {
+      "id": "capacitor_16",
+      "kind": "capacitor",
+      "params": {
+        "farads": 4.7e-06
+      },
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 340,
+      "y": 180,
+      "rotation": 0,
+      "label": "C3"
+    },
+    {
+      "id": "capacitor_17",
+      "kind": "capacitor",
+      "params": {
+        "farads": 4.7e-06
+      },
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 440,
+      "y": 180,
+      "rotation": 0,
+      "label": "C4"
+    },
+    {
+      "id": "capacitor_18",
+      "kind": "capacitor",
+      "params": {
+        "farads": 4.7e-06
+      },
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 540,
+      "y": 180,
+      "rotation": 0,
+      "label": "C5"
+    },
+    {
+      "id": "capacitor_19",
+      "kind": "capacitor",
+      "params": {
+        "farads": 1e-05
+      },
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 640,
+      "y": 180,
+      "rotation": 0,
+      "label": "C6"
+    },
+    {
+      "id": "capacitor_20",
+      "kind": "capacitor",
+      "params": {
+        "farads": 4.7e-05
+      },
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 740,
+      "y": 180,
+      "rotation": 0,
+      "label": "C7"
+    },
+    {
+      "id": "npn_21",
+      "kind": "npn",
+      "params": {
+        "model": "shockley",
+        "is": 1e-14,
+        "beta": 100,
+        "br": 1,
+        "n": 1,
+        "rb": 10,
+        "rc": 1,
+        "cje": 1e-11,
+        "cjc": 4e-12,
+        "tf": 3e-10
+      },
+      "terminals": [
+        "base",
+        "collector",
+        "emitter"
+      ],
+      "x": 260,
+      "y": 270,
+      "rotation": 0,
+      "label": "BC337-T1"
+    },
+    {
+      "id": "npn_22",
+      "kind": "npn",
+      "params": {
+        "model": "shockley",
+        "is": 1e-14,
+        "beta": 100,
+        "br": 1,
+        "n": 1,
+        "rb": 10,
+        "rc": 1,
+        "cje": 1e-11,
+        "cjc": 4e-12,
+        "tf": 3e-10
+      },
+      "terminals": [
+        "base",
+        "collector",
+        "emitter"
+      ],
+      "x": 500,
+      "y": 270,
+      "rotation": 0,
+      "label": "BC337-T2"
+    },
+    {
+      "id": "npn_23",
+      "kind": "npn",
+      "params": {
+        "model": "shockley",
+        "is": 1e-14,
+        "beta": 100,
+        "br": 1,
+        "n": 1,
+        "rb": 10,
+        "rc": 1,
+        "cje": 1e-11,
+        "cjc": 4e-12,
+        "tf": 3e-10
+      },
+      "terminals": [
+        "base",
+        "collector",
+        "emitter"
+      ],
+      "x": 740,
+      "y": 270,
+      "rotation": 0,
+      "label": "BC337-T3"
+    },
+    {
+      "id": "potentiometer_24",
+      "kind": "potentiometer",
+      "params": {
+        "ohms": 100000
+      },
+      "terminals": [
+        "a",
+        "wiper",
+        "b"
+      ],
+      "x": 440,
+      "y": 270,
+      "rotation": 0,
+      "label": "Volume"
+    },
+    {
+      "id": "vsource_84",
+      "kind": "vsource",
+      "params": {
+        "wave": "sine",
+        "freq": 1000,
+        "amplitude": 0.001,
+        "offset": 0
+      },
+      "terminals": [
+        "pos",
+        "neg"
+      ],
+      "x": 40,
+      "y": 260,
+      "rotation": 0,
+      "label": "Acoustic-A"
+    },
+    {
+      "id": "resistor_85",
+      "kind": "resistor",
+      "params": {
+        "ohms": 8
+      },
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 40,
+      "y": 340,
+      "rotation": 0,
+      "label": "Speaker-A-8ohm"
+    },
+    {
+      "id": "slide_switch_86",
+      "kind": "slide_switch",
+      "params": {
+        "position": 0
+      },
+      "terminals": [
+        "a",
+        "com",
+        "b"
+      ],
+      "x": 120,
+      "y": 430,
+      "rotation": 0,
+      "label": "DPDT-A"
+    },
+    {
+      "id": "vsource_92",
+      "kind": "vsource",
+      "params": {
+        "wave": "sine",
+        "freq": 1000,
+        "amplitude": 0,
+        "offset": 0
+      },
+      "terminals": [
+        "pos",
+        "neg"
+      ],
+      "x": 970,
+      "y": 260,
+      "rotation": 0,
+      "label": "Acoustic-B"
+    },
+    {
+      "id": "resistor_93",
+      "kind": "resistor",
+      "params": {
+        "ohms": 8
+      },
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 970,
+      "y": 340,
+      "rotation": 0,
+      "label": "Speaker-B-8ohm"
+    },
+    {
+      "id": "slide_switch_94",
+      "kind": "slide_switch",
+      "params": {
+        "position": 0
+      },
+      "terminals": [
+        "a",
+        "com",
+        "b"
+      ],
+      "x": 880,
+      "y": 430,
+      "rotation": 0,
+      "label": "DPDT-B"
+    }
+  ],
+  "wires": [
+    {
+      "id": "wire_29",
+      "netId": "net_28",
+      "from": {
+        "part": "vcc_2",
+        "terminal": "vcc"
+      },
+      "to": {
+        "part": "resistor_3",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_30",
+      "netId": "net_28",
+      "from": {
+        "part": "vcc_2",
+        "terminal": "vcc"
+      },
+      "to": {
+        "part": "resistor_5",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_31",
+      "netId": "net_28",
+      "from": {
+        "part": "vcc_2",
+        "terminal": "vcc"
+      },
+      "to": {
+        "part": "resistor_8",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_32",
+      "netId": "net_28",
+      "from": {
+        "part": "vcc_2",
+        "terminal": "vcc"
+      },
+      "to": {
+        "part": "resistor_12",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_33",
+      "netId": "net_28",
+      "from": {
+        "part": "vcc_2",
+        "terminal": "vcc"
+      },
+      "to": {
+        "part": "capacitor_20",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_35",
+      "netId": "net_34",
+      "from": {
+        "part": "gnd_1",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "resistor_4",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "wire_36",
+      "netId": "net_34",
+      "from": {
+        "part": "gnd_1",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "resistor_7",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "wire_37",
+      "netId": "net_34",
+      "from": {
+        "part": "gnd_1",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "npn_21",
+        "terminal": "emitter"
+      }
+    },
+    {
+      "id": "wire_38",
+      "netId": "net_34",
+      "from": {
+        "part": "gnd_1",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "potentiometer_24",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "wire_39",
+      "netId": "net_34",
+      "from": {
+        "part": "gnd_1",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "resistor_10",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "wire_40",
+      "netId": "net_34",
+      "from": {
+        "part": "gnd_1",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "resistor_11",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "wire_41",
+      "netId": "net_34",
+      "from": {
+        "part": "gnd_1",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "capacitor_18",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "wire_42",
+      "netId": "net_34",
+      "from": {
+        "part": "gnd_1",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "capacitor_20",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "wire_43",
+      "netId": "net_34",
+      "from": {
+        "part": "gnd_1",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "capacitor_14",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "wire_47",
+      "netId": "net_46",
+      "from": {
+        "part": "resistor_3",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "resistor_4",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_54",
+      "netId": "net_53",
+      "from": {
+        "part": "capacitor_15",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "npn_21",
+        "terminal": "base"
+      }
+    },
+    {
+      "id": "wire_55",
+      "netId": "net_53",
+      "from": {
+        "part": "capacitor_15",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "resistor_6",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "wire_56",
+      "netId": "net_53",
+      "from": {
+        "part": "capacitor_15",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "resistor_7",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_58",
+      "netId": "net_57",
+      "from": {
+        "part": "resistor_5",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "npn_21",
+        "terminal": "collector"
+      }
+    },
+    {
+      "id": "wire_59",
+      "netId": "net_57",
+      "from": {
+        "part": "resistor_5",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "resistor_6",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_60",
+      "netId": "net_57",
+      "from": {
+        "part": "resistor_5",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "capacitor_16",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_62",
+      "netId": "net_61",
+      "from": {
+        "part": "capacitor_16",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "potentiometer_24",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_64",
+      "netId": "net_63",
+      "from": {
+        "part": "potentiometer_24",
+        "terminal": "wiper"
+      },
+      "to": {
+        "part": "capacitor_17",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_66",
+      "netId": "net_65",
+      "from": {
+        "part": "capacitor_17",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "npn_22",
+        "terminal": "base"
+      }
+    },
+    {
+      "id": "wire_67",
+      "netId": "net_65",
+      "from": {
+        "part": "capacitor_17",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "resistor_9",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "wire_68",
+      "netId": "net_65",
+      "from": {
+        "part": "capacitor_17",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "resistor_10",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_70",
+      "netId": "net_69",
+      "from": {
+        "part": "resistor_8",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "npn_22",
+        "terminal": "collector"
+      }
+    },
+    {
+      "id": "wire_71",
+      "netId": "net_69",
+      "from": {
+        "part": "resistor_8",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "resistor_9",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_72",
+      "netId": "net_69",
+      "from": {
+        "part": "resistor_8",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "capacitor_19",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_74",
+      "netId": "net_73",
+      "from": {
+        "part": "npn_22",
+        "terminal": "emitter"
+      },
+      "to": {
+        "part": "resistor_11",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_75",
+      "netId": "net_73",
+      "from": {
+        "part": "npn_22",
+        "terminal": "emitter"
+      },
+      "to": {
+        "part": "capacitor_18",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_77",
+      "netId": "net_76",
+      "from": {
+        "part": "capacitor_19",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "npn_23",
+        "terminal": "base"
+      }
+    },
+    {
+      "id": "wire_78",
+      "netId": "net_76",
+      "from": {
+        "part": "capacitor_19",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "resistor_13",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "wire_80",
+      "netId": "net_79",
+      "from": {
+        "part": "resistor_12",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "npn_23",
+        "terminal": "collector"
+      }
+    },
+    {
+      "id": "wire_81",
+      "netId": "net_79",
+      "from": {
+        "part": "resistor_12",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "resistor_13",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_87",
+      "netId": "net_34",
+      "from": {
+        "part": "vsource_84",
+        "terminal": "neg"
+      },
+      "to": {
+        "part": "gnd_1",
+        "terminal": "gnd"
+      }
+    },
+    {
+      "id": "wire_89",
+      "netId": "net_88",
+      "from": {
+        "part": "vsource_84",
+        "terminal": "pos"
+      },
+      "to": {
+        "part": "resistor_85",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "wire_91",
+      "netId": "net_90",
+      "from": {
+        "part": "resistor_85",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "slide_switch_86",
+        "terminal": "com"
+      }
+    },
+    {
+      "id": "wire_95",
+      "netId": "net_34",
+      "from": {
+        "part": "vsource_92",
+        "terminal": "neg"
+      },
+      "to": {
+        "part": "gnd_1",
+        "terminal": "gnd"
+      }
+    },
+    {
+      "id": "wire_97",
+      "netId": "net_96",
+      "from": {
+        "part": "vsource_92",
+        "terminal": "pos"
+      },
+      "to": {
+        "part": "resistor_93",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "wire_99",
+      "netId": "net_98",
+      "from": {
+        "part": "resistor_93",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "slide_switch_94",
+        "terminal": "com"
+      }
+    },
+    {
+      "id": "wire_101",
+      "netId": "net_100",
+      "from": {
+        "part": "slide_switch_86",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "slide_switch_94",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "wire_102",
+      "netId": "net_100",
+      "from": {
+        "part": "slide_switch_86",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "capacitor_15",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_103",
+      "netId": "net_100",
+      "from": {
+        "part": "slide_switch_86",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "capacitor_14",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_105",
+      "netId": "net_104",
+      "from": {
+        "part": "slide_switch_86",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "slide_switch_94",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_106",
+      "netId": "net_104",
+      "from": {
+        "part": "slide_switch_86",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "npn_23",
+        "terminal": "emitter"
+      }
+    }
+  ],
+  "holeWires": []
+}
