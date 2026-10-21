@@ -21,3 +21,10 @@ blocks. Own those derived provenance blocks only; preserve all existing
 numeric claims, adjudication predicates, decline reasons and tolerance values.
 The first pinned run held every numeric claim and failed only stale provenance.
 Do not renew a stamp for an unmeasured or disagreeing claim.
+
+Pin authority includes the corresponding two immutable checkout ref values
+in .github/workflows/ci.yml. They must match test/fixtures/siblings.json in
+the final tree; the last hosted run exposed the omitted duplication. Own
+only those ref values, preserving actions, triggers, job selection, scripts,
+assertions and every existing gate. This is required supplier identity
+composition, not a workflow-policy change. Merge before correcting the refs.
