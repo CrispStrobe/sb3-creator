@@ -1,4 +1,4 @@
-# School supplier and gate composition — CLAIMED
+# School supplier and gate composition — SOURCE CANDIDATE
 
 Owner: Codex school circuit projects. Compose the existing PR162 examples
 with normally qualified and landed bw-board PR663 and scope UI supplier
@@ -21,3 +21,12 @@ blocks. Own those derived provenance blocks only; preserve all existing
 numeric claims, adjudication predicates, decline reasons and tolerance values.
 The first pinned run held every numeric claim and failed only stale provenance.
 Do not renew a stamp for an unmeasured or disagreeing claim.
+
+Claims 6f64096c and 769d1421 landed before the corresponding follow-ups.
+356 pinned-supplier corpus, roundtrip, quantity, table, enrollment and school
+controls pass without skips. Parameter authority passes all seven controls
+with no new exemptions; the electrical Circuit model is unchanged by the
+separate UI display repair. Thirty-one existing EXPECTED pages change only
+in canonical provenance blocks; numeric claims and tolerances are preserved.
+Board PR663 and UI PR102 are normally merged and qualified. Fresh hosted
+qualification of this final example/adoption tree remains pending.
