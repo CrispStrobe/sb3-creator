@@ -1,4 +1,4 @@
-# School circuit projects — CLAIMED
+# School circuit projects — SOURCE CANDIDATE
 
 Owner: Codex circuit-projects, isolated lane/school-circuit-projects-20261021.
 Base d7c258910dd3837021a7a8c4b85d38a4e28e138a.
@@ -16,3 +16,9 @@ or unqualified simulation status explicit until producer fixes land. No compiler
 translation, existing-example or workflow changes. Lite adopts these files
 through its existing immutable sb3-creator sync after normal upstream landing.
 Merge this claim before source implementation.
+
+Claim dd16f40e landed before source. Five topology controls and 321 canonical
+roundtrip controls pass with actual bw-board and bw-circuit-ui models (326
+total, no skips). Matched electrical dynamics and native scope/audio proof
+are qualified in bw-board PR663 and bw-circuit-ui PR102. Consumer adoption
+requires those supplier revisions. Physical acoustics remain unqualified.

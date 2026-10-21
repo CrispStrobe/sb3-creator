@@ -1,0 +1,853 @@
+{
+  "vcc": 9,
+  "parts": [
+    {
+      "id": "gnd_1",
+      "kind": "gnd",
+      "params": {},
+      "terminals": [
+        "gnd"
+      ],
+      "x": 70,
+      "y": 500,
+      "rotation": 0,
+      "label": "GND"
+    },
+    {
+      "id": "vcc_2",
+      "kind": "vsource",
+      "params": {
+        "wave": "spice-pwl",
+        "points": [
+          [
+            0,
+            0
+          ],
+          [
+            1e-05,
+            9
+          ]
+        ]
+      },
+      "terminals": [
+        "pos",
+        "neg"
+      ],
+      "x": 70,
+      "y": 70,
+      "rotation": 0,
+      "label": "VCC"
+    },
+    {
+      "id": "npn_3",
+      "kind": "npn",
+      "params": {
+        "model": "shockley",
+        "is": 1e-14,
+        "beta": 100,
+        "br": 1,
+        "n": 1,
+        "rb": 10,
+        "rc": 1,
+        "cje": 1e-11,
+        "cjc": 4e-12,
+        "tf": 3e-10
+      },
+      "terminals": [
+        "base",
+        "collector",
+        "emitter"
+      ],
+      "x": 730,
+      "y": 250,
+      "rotation": 0,
+      "label": "BC548"
+    },
+    {
+      "id": "pnp_4",
+      "kind": "pnp",
+      "params": {
+        "model": "shockley",
+        "is": 1e-14,
+        "beta": 100,
+        "br": 1,
+        "n": 1,
+        "rb": 10,
+        "rc": 1,
+        "cje": 1e-11,
+        "cjc": 4e-12,
+        "tf": 3e-10
+      },
+      "terminals": [
+        "base",
+        "collector",
+        "emitter"
+      ],
+      "x": 200,
+      "y": 250,
+      "rotation": 0,
+      "label": "BC558"
+    },
+    {
+      "id": "capacitor_5",
+      "kind": "capacitor",
+      "params": {
+        "farads": 3.3e-09
+      },
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 360,
+      "y": 220,
+      "rotation": 0,
+      "label": "C1-3n3"
+    },
+    {
+      "id": "capacitor_6",
+      "kind": "capacitor",
+      "params": {
+        "farads": 1e-08
+      },
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 580,
+      "y": 200,
+      "rotation": 0,
+      "label": "C2-10n"
+    },
+    {
+      "id": "resistor_7",
+      "kind": "resistor",
+      "params": {
+        "ohms": 180000
+      },
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 650,
+      "y": 350,
+      "rotation": 0,
+      "label": "R1-180k"
+    },
+    {
+      "id": "resistor_8",
+      "kind": "resistor",
+      "params": {
+        "ohms": 1000000
+      },
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 820,
+      "y": 220,
+      "rotation": 0,
+      "label": "R2-1M"
+    },
+    {
+      "id": "resistor_9",
+      "kind": "resistor",
+      "params": {
+        "ohms": 8
+      },
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 400,
+      "y": 110,
+      "rotation": 0,
+      "label": "LS-8ohm"
+    },
+    {
+      "id": "potentiometer_27",
+      "kind": "potentiometer",
+      "params": {
+        "ohms": 1000000,
+        "position": 0.48339895
+      },
+      "terminals": [
+        "a",
+        "wiper",
+        "b"
+      ],
+      "x": 150,
+      "y": 420,
+      "rotation": 0,
+      "label": "Trim1"
+    },
+    {
+      "id": "button_28",
+      "kind": "button",
+      "params": {},
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 150,
+      "y": 500,
+      "rotation": 0,
+      "label": "Key1"
+    },
+    {
+      "id": "potentiometer_34",
+      "kind": "potentiometer",
+      "params": {
+        "ohms": 1000000,
+        "position": 0.40136779
+      },
+      "terminals": [
+        "a",
+        "wiper",
+        "b"
+      ],
+      "x": 245,
+      "y": 420,
+      "rotation": 0,
+      "label": "Trim2"
+    },
+    {
+      "id": "button_35",
+      "kind": "button",
+      "params": {},
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 245,
+      "y": 500,
+      "rotation": 0,
+      "label": "Key2"
+    },
+    {
+      "id": "potentiometer_40",
+      "kind": "potentiometer",
+      "params": {
+        "ohms": 1000000,
+        "position": 0.33105536
+      },
+      "terminals": [
+        "a",
+        "wiper",
+        "b"
+      ],
+      "x": 340,
+      "y": 420,
+      "rotation": 0,
+      "label": "Trim3"
+    },
+    {
+      "id": "button_41",
+      "kind": "button",
+      "params": {},
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 340,
+      "y": 500,
+      "rotation": 0,
+      "label": "Key3"
+    },
+    {
+      "id": "potentiometer_46",
+      "kind": "potentiometer",
+      "params": {
+        "ohms": 1000000,
+        "position": 0.29980539
+      },
+      "terminals": [
+        "a",
+        "wiper",
+        "b"
+      ],
+      "x": 435,
+      "y": 420,
+      "rotation": 0,
+      "label": "Trim4"
+    },
+    {
+      "id": "button_47",
+      "kind": "button",
+      "params": {},
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 435,
+      "y": 500,
+      "rotation": 0,
+      "label": "Key4"
+    },
+    {
+      "id": "potentiometer_52",
+      "kind": "potentiometer",
+      "params": {
+        "ohms": 1000000,
+        "position": 0.24316482
+      },
+      "terminals": [
+        "a",
+        "wiper",
+        "b"
+      ],
+      "x": 530,
+      "y": 420,
+      "rotation": 0,
+      "label": "Trim5"
+    },
+    {
+      "id": "button_53",
+      "kind": "button",
+      "params": {},
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 530,
+      "y": 500,
+      "rotation": 0,
+      "label": "Key5"
+    },
+    {
+      "id": "potentiometer_58",
+      "kind": "potentiometer",
+      "params": {
+        "ohms": 1000000,
+        "position": 0.19238362
+      },
+      "terminals": [
+        "a",
+        "wiper",
+        "b"
+      ],
+      "x": 625,
+      "y": 420,
+      "rotation": 0,
+      "label": "Trim6"
+    },
+    {
+      "id": "button_59",
+      "kind": "button",
+      "params": {},
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 625,
+      "y": 500,
+      "rotation": 0,
+      "label": "Key6"
+    },
+    {
+      "id": "potentiometer_64",
+      "kind": "potentiometer",
+      "params": {
+        "ohms": 1000000,
+        "position": 0.14941491
+      },
+      "terminals": [
+        "a",
+        "wiper",
+        "b"
+      ],
+      "x": 720,
+      "y": 420,
+      "rotation": 0,
+      "label": "Trim7"
+    },
+    {
+      "id": "button_65",
+      "kind": "button",
+      "params": {},
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 720,
+      "y": 500,
+      "rotation": 0,
+      "label": "Key7"
+    },
+    {
+      "id": "potentiometer_70",
+      "kind": "potentiometer",
+      "params": {
+        "ohms": 1000000,
+        "position": 0.12988368
+      },
+      "terminals": [
+        "a",
+        "wiper",
+        "b"
+      ],
+      "x": 815,
+      "y": 420,
+      "rotation": 0,
+      "label": "Trim8"
+    },
+    {
+      "id": "button_71",
+      "kind": "button",
+      "params": {},
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 815,
+      "y": 500,
+      "rotation": 0,
+      "label": "Key8"
+    }
+  ],
+  "wires": [
+    {
+      "id": "wire_11",
+      "netId": "net_10",
+      "from": {
+        "part": "vcc_2",
+        "terminal": "pos"
+      },
+      "to": {
+        "part": "pnp_4",
+        "terminal": "emitter"
+      }
+    },
+    {
+      "id": "wire_13",
+      "netId": "net_12",
+      "from": {
+        "part": "gnd_1",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "npn_3",
+        "terminal": "emitter"
+      }
+    },
+    {
+      "id": "wire_14",
+      "netId": "net_12",
+      "from": {
+        "part": "gnd_1",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "resistor_8",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "wire_15",
+      "netId": "net_12",
+      "from": {
+        "part": "gnd_1",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "resistor_9",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "wire_17",
+      "netId": "net_16",
+      "from": {
+        "part": "npn_3",
+        "terminal": "collector"
+      },
+      "to": {
+        "part": "pnp_4",
+        "terminal": "base"
+      }
+    },
+    {
+      "id": "wire_18",
+      "netId": "net_16",
+      "from": {
+        "part": "npn_3",
+        "terminal": "collector"
+      },
+      "to": {
+        "part": "capacitor_5",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "wire_20",
+      "netId": "net_19",
+      "from": {
+        "part": "pnp_4",
+        "terminal": "collector"
+      },
+      "to": {
+        "part": "resistor_9",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_21",
+      "netId": "net_19",
+      "from": {
+        "part": "pnp_4",
+        "terminal": "collector"
+      },
+      "to": {
+        "part": "capacitor_5",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_22",
+      "netId": "net_19",
+      "from": {
+        "part": "pnp_4",
+        "terminal": "collector"
+      },
+      "to": {
+        "part": "capacitor_6",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_24",
+      "netId": "net_23",
+      "from": {
+        "part": "npn_3",
+        "terminal": "base"
+      },
+      "to": {
+        "part": "capacitor_6",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "wire_25",
+      "netId": "net_23",
+      "from": {
+        "part": "npn_3",
+        "terminal": "base"
+      },
+      "to": {
+        "part": "resistor_8",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_26",
+      "netId": "net_23",
+      "from": {
+        "part": "npn_3",
+        "terminal": "base"
+      },
+      "to": {
+        "part": "resistor_7",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_30",
+      "netId": "net_29",
+      "from": {
+        "part": "resistor_7",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "potentiometer_27",
+        "terminal": "wiper"
+      }
+    },
+    {
+      "id": "wire_32",
+      "netId": "net_31",
+      "from": {
+        "part": "potentiometer_27",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "button_28",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_33",
+      "netId": "net_10",
+      "from": {
+        "part": "button_28",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "vcc_2",
+        "terminal": "pos"
+      }
+    },
+    {
+      "id": "wire_36",
+      "netId": "net_29",
+      "from": {
+        "part": "resistor_7",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "potentiometer_34",
+        "terminal": "wiper"
+      }
+    },
+    {
+      "id": "wire_38",
+      "netId": "net_37",
+      "from": {
+        "part": "potentiometer_34",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "button_35",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_39",
+      "netId": "net_10",
+      "from": {
+        "part": "button_35",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "vcc_2",
+        "terminal": "pos"
+      }
+    },
+    {
+      "id": "wire_42",
+      "netId": "net_29",
+      "from": {
+        "part": "resistor_7",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "potentiometer_40",
+        "terminal": "wiper"
+      }
+    },
+    {
+      "id": "wire_44",
+      "netId": "net_43",
+      "from": {
+        "part": "potentiometer_40",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "button_41",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_45",
+      "netId": "net_10",
+      "from": {
+        "part": "button_41",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "vcc_2",
+        "terminal": "pos"
+      }
+    },
+    {
+      "id": "wire_48",
+      "netId": "net_29",
+      "from": {
+        "part": "resistor_7",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "potentiometer_46",
+        "terminal": "wiper"
+      }
+    },
+    {
+      "id": "wire_50",
+      "netId": "net_49",
+      "from": {
+        "part": "potentiometer_46",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "button_47",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_51",
+      "netId": "net_10",
+      "from": {
+        "part": "button_47",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "vcc_2",
+        "terminal": "pos"
+      }
+    },
+    {
+      "id": "wire_54",
+      "netId": "net_29",
+      "from": {
+        "part": "resistor_7",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "potentiometer_52",
+        "terminal": "wiper"
+      }
+    },
+    {
+      "id": "wire_56",
+      "netId": "net_55",
+      "from": {
+        "part": "potentiometer_52",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "button_53",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_57",
+      "netId": "net_10",
+      "from": {
+        "part": "button_53",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "vcc_2",
+        "terminal": "pos"
+      }
+    },
+    {
+      "id": "wire_60",
+      "netId": "net_29",
+      "from": {
+        "part": "resistor_7",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "potentiometer_58",
+        "terminal": "wiper"
+      }
+    },
+    {
+      "id": "wire_62",
+      "netId": "net_61",
+      "from": {
+        "part": "potentiometer_58",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "button_59",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_63",
+      "netId": "net_10",
+      "from": {
+        "part": "button_59",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "vcc_2",
+        "terminal": "pos"
+      }
+    },
+    {
+      "id": "wire_66",
+      "netId": "net_29",
+      "from": {
+        "part": "resistor_7",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "potentiometer_64",
+        "terminal": "wiper"
+      }
+    },
+    {
+      "id": "wire_68",
+      "netId": "net_67",
+      "from": {
+        "part": "potentiometer_64",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "button_65",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_69",
+      "netId": "net_10",
+      "from": {
+        "part": "button_65",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "vcc_2",
+        "terminal": "pos"
+      }
+    },
+    {
+      "id": "wire_72",
+      "netId": "net_29",
+      "from": {
+        "part": "resistor_7",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "potentiometer_70",
+        "terminal": "wiper"
+      }
+    },
+    {
+      "id": "wire_74",
+      "netId": "net_73",
+      "from": {
+        "part": "potentiometer_70",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "button_71",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_75",
+      "netId": "net_10",
+      "from": {
+        "part": "button_71",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "vcc_2",
+        "terminal": "pos"
+      }
+    },
+    {
+      "id": "supply-return",
+      "from": {
+        "part": "vcc_2",
+        "terminal": "neg"
+      },
+      "to": {
+        "part": "gnd_1",
+        "terminal": "gnd"
+      }
+    }
+  ],
+  "holeWires": []
+}

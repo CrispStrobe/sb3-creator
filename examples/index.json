@@ -9119,5 +9119,59 @@
    "stc89c52rc": "i2c-scanner/circuit.stc89c52rc.json",
    "stm32f030": "i2c-scanner/circuit.stm32f030.json"
   }
+ },
+ {
+  "id": "school-miniorgan-107056",
+  "title": {
+   "en": "OPITEC transistor miniorgan",
+   "de": "OPITEC-Transistor-Miniorgel"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "school-miniorgan-107056/program.bw",
+   "circuit": "school-miniorgan-107056/circuit.json",
+   "expected": "school-miniorgan-107056/EXPECTED.md",
+   "intro": "school-miniorgan-107056/intro.md",
+   "introDE": "school-miniorgan-107056/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "school-intercom-101455",
+  "title": {
+   "en": "Winkler three-transistor intercom",
+   "de": "Winkler-Gegensprechanlage mit drei Transistoren"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "school-intercom-101455/program.bw",
+   "circuit": "school-intercom-101455/circuit.json",
+   "expected": "school-intercom-101455/EXPECTED.md",
+   "intro": "school-intercom-101455/intro.md",
+   "introDE": "school-intercom-101455/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "school-led-people-dog",
+  "title": {
+   "en": "AA resistor people and dog",
+   "de": "Widerstandsmännchen mit Hund an AA-Zellen"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 2,
+  "files": {
+   "program": "school-led-people-dog/program.bw",
+   "circuit": "school-led-people-dog/circuit.json",
+   "expected": "school-led-people-dog/EXPECTED.md",
+   "intro": "school-led-people-dog/intro.md",
+   "introDE": "school-led-people-dog/intro.de.md"
+  },
+  "devices": []
  }
 ]
