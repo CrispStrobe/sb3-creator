@@ -1,0 +1,45 @@
+{
+  "repository": "https://github.com/CrispStrobe/stc-compiler",
+  "commit": "a043daa58c2437f936f94971b3b0695c9c2510cb",
+  "tree": "3d5fa53857d8241aef00b294faad569915e49999",
+  "licence": "MIT",
+  "sourceFiles": {
+    "stm32-startup.S": {
+      "bytes": 3126,
+      "sha256": "f047dc327db1c5195f2fc42ef97a9acce13b0cad87fb08ebbb2a03ce402d44db"
+    },
+    "stm32f030-flash.ld": {
+      "bytes": 1841,
+      "sha256": "24465d3a9481140a277ae8f113b2f0731cffa308de0f000650fe1dd474f3e127"
+    },
+    "stm32g030-flash.ld": {
+      "bytes": 1826,
+      "sha256": "80999587d5c7a069f3258d9ae9896461dee498dc447e35577064fdddda5b03a4"
+    },
+    "stm32f103-flash.ld": {
+      "bytes": 1842,
+      "sha256": "b1c5196008bd109f0f694a71901b9dff4f9170c4cba0617cb590d5e1c2327412"
+    },
+    "LICENSE": {
+      "bytes": 1068,
+      "sha256": "e53c4e17a0971ca6cac5010a19876b77a896e3ce172b1f61d934dfd14c595d6d"
+    }
+  },
+  "targets": {
+    "stm32f030": {
+      "cpu": "cortex-m0",
+      "vectors": 48,
+      "linker": "stm32f030-flash.ld"
+    },
+    "stm32g030": {
+      "cpu": "cortex-m0plus",
+      "vectors": 48,
+      "linker": "stm32g030-flash.ld"
+    },
+    "stm32f103": {
+      "cpu": "cortex-m3",
+      "vectors": 76,
+      "linker": "stm32f103-flash.ld"
+    }
+  }
+}

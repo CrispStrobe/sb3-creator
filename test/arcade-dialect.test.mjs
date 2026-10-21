@@ -23,6 +23,8 @@ const ALIAS = true;
 
 // [kind, opcode, one line of the word with a value in every slot, ALIAS?]
 const WORD_LINES = [
+    ['reporter', 'arcade_sourceValueBinary', 'arcade source value 5 op "+" with 2'],
+    ['reporter', 'arcade_sourceValueUnary', 'arcade source unary "~" of 5'],
     ['command', 'arcade_declareParameterConstraint', 'declare arcade procedure "show text %s" parameter "message" as String'],
     ['command', 'arcade_throwValue', 'arcade throw (calculate value 2 op "+" with 3)'],
     ['reporter', 'arcade_createOwnedImageSprite', 'arcade create owned image (arcade local canvas) template "Player" kind (2 + 1)'],
@@ -471,7 +473,7 @@ describe('Arcade dialect words', () => {
         const here = new Set(WORD_LINES.map(([, op]) => op));
         assert.deepEqual([...here].sort(), [...ARCADE_DIALECT_OPS].sort());
         assert.equal(WORD_LINES.length, ARCADE_WORDS.length, 'one line per spelling, aliases included');
-        assert.equal(ARCADE_DIALECT_OPS.length, 402);
+        assert.equal(ARCADE_DIALECT_OPS.length, 404);
     });
 
     for (const [kind, op, line, alias] of WORD_LINES) {

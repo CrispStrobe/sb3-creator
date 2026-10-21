@@ -53,6 +53,7 @@ import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { requireSiblings, siblingGuardTest } from './helpers/siblings.mjs';
 import { injectEngine } from '../scripts/lib/engine-surface.mjs';
+import { readParamKeys } from './helpers/param-source-reads.mjs';
 
 const ROOT = join(import.meta.dirname, '..');
 const EXAMPLES = join(ROOT, 'examples');
@@ -116,36 +117,7 @@ function engineSources(root) {
  * and counting it is exactly how a dead key stays invisible.
  */
 function readKeys(files) {
-    const keys = new Set();
-    const anchored = [
-        /\bparams\s*(?:\?\.|\.)\s*([A-Za-z_]\w*)/g,
-        /\bparams\s*(?:\?\.)?\s*\[\s*['"]([A-Za-z_]\w*)['"]/g,
-    ];
-    for (const f of files) {
-        const text = readFileSync(f, 'utf8')
-            .replace(/\/\*[\s\S]*?\*\//g, ' ')
-            .replace(/(^|[^:])\/\/[^\n]*/g, '$1 ');
-        for (const re of anchored) {
-            re.lastIndex = 0;
-            let m;
-            while ((m = re.exec(text)) !== null) keys.add(m[1]);
-        }
-        // const { rDark, rLight } = part.params
-        for (const m of text.matchAll(/\{([^{}]*)\}\s*=\s*[\w.?]*params\b/g))
-            for (const piece of m[1].split(',')) {
-                const k = piece.split(':')[0].trim().replace(/^\.\.\./, '');
-                if (/^[A-Za-z_]\w*$/.test(k)) keys.add(k);
-            }
-        // A local alias for the params object: `const P = part.params` and
-        // `sourceVoltage(p, t)` where p IS params (mna.js reads p.amplitude,
-        // p.offset, p.freq that way). Only in files that handle params at all.
-        // This is the one deliberately loose rule here: an unrelated local `p`
-        // can vote, which can only make tier 1 quieter, never wrongly red. Tier 2
-        // is where per-kind sharpness lives, and it is not fooled by aliases.
-        if (/\bparams\b/.test(text))
-            for (const m of text.matchAll(/\b[Pp]\s*\.\s*([A-Za-z_]\w*)/g)) keys.add(m[1]);
-    }
-    return keys;
+    return readParamKeys(new Map(files.map(file => [file, readFileSync(file, 'utf8')])));
 }
 
 /**
