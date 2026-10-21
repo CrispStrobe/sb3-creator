@@ -204,6 +204,12 @@ describe('ordering', () => {
 // import -> dialect -> blocks -> export -> import, with the exact spellings at
 // every stage. [python statement, dialect line, opcode(s), exported python].
 const D1_TRIPS = [
+    // 2026-10-21: set_duty_cycle is the "start motor at % power" block (-10000..10000 is
+    // -100..100 %), an unregulated duty both ways, no longer run as a speed.
+    ['motor.set_duty_cycle(port.B, 5000)', 'start motor B at 50 % power', ['spikeprime_menu_MULTIPLE_PORT', 'spikeprime_motorStartPower'],
+        'motor.set_duty_cycle(port.B, 5000)'],
+    ['motor.set_duty_cycle(port.A, -1234)', 'start motor A at -12.34 % power', ['spikeprime_menu_MULTIPLE_PORT', 'spikeprime_motorStartPower'],
+        'motor.set_duty_cycle(port.A, -1234)'],
     ['v = color_sensor.rgbi(port.C)[1]', 'set v to spike color C raw green', ['spikeprime_getColorRGB'],
         'v = color_sensor.rgbi(port.C)[1]'],
     ['v = motion_sensor.angular_velocity()[2]', 'set v to (0 - (spike gyro rate yaw)) * 10', ['spikeprime_getGyroRate'],

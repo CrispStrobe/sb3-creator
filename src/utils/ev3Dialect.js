@@ -42,6 +42,9 @@ const SENSOR_MENU = {opcode: `${EV3_EXTENSION}_menu_sensorPorts`, field: 'sensor
 export const EV3_WORDS = Object.freeze([
     // ---- motors -------------------------------------------------------------
     {op: 'motorRun', kind: 'command', words: 'run motor {PORT:motor} at {POWER} %'},
+    // opOUTPUT_POWER: an unregulated duty cycle (the `run motor … at … %` words are
+    // OUTPUT_SPEED, a speed the brick holds under load). CrispStrobe/extensions#60.
+    {op: 'motorStartPower', kind: 'command', words: 'start motor {PORT:motor} at {POWER} % power'},
     {op: 'motorRunTime', kind: 'command', words: 'run motor {PORT:motor} at {POWER} % for {TIME} seconds'},
     {op: 'motorRunRotations', kind: 'command', words: 'run motor {PORT:motor} at {POWER} % for {ROTATIONS} rotations'},
     {op: 'motorRunDegrees', kind: 'command', words: 'run motor {PORT:motor} at {POWER} % for {DEGREES} degrees'},

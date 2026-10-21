@@ -19,14 +19,15 @@ describe('canonical SPIKE dialect census', () => {
         const source = RUNTIME_EXTENSION_SOURCES.slugs['CrispStrobe/legospike_turbowarp_transpile'];
         assert.match(source.from, new RegExp(RUNTIME_EXTENSION_SOURCES.commit));
         assert.match(source.sha256, /^[0-9a-f]{64}$/);
-        assert.equal(Object.keys(canonical).length, 102,
+        assert.equal(Object.keys(canonical).length, 103,
             'counted 101 opcodes from the pinned canonical getInfo surface on 2026-09-20; ' +
             'it was 84 until upstream consolidated the four SPIKE Prime extensions into one ' +
             'that discovers the hub firmware and picks the protocol at runtime; ' +
-            '102 on 2026-09-29 with getColorRGB (CrispStrobe/extensions#27)');
+            '102 on 2026-09-29 with getColorRGB (CrispStrobe/extensions#27); ' +
+            '103 on 2026-10-21 with motorStartPower (CrispStrobe/extensions#60)');
     });
 
-    test('all 102 canonical opcodes are mapped or explicitly classified exactly once', () => {
+    test('all 103 canonical opcodes are mapped or explicitly classified exactly once', () => {
         const accounted = [...SPIKE_DIALECT_OPS, ...excluded];
         assert.equal(new Set(accounted).size, accounted.length, 'duplicate opcode in dialect ledger');
         assert.deepEqual(accounted.sort(), Object.keys(canonical).sort());
@@ -35,11 +36,12 @@ describe('canonical SPIKE dialect census', () => {
         // be absorbed by quietly mapping a few and calling the slice wider, and
         // the union check alone would still pass. It did not widen — every new
         // opcode landed in an exclusion class, and the classes say why.
-        assert.equal(SPIKE_DIALECT_OPS.length, 47,
+        assert.equal(SPIKE_DIALECT_OPS.length, 48,
             'counted 30 bidirectional dialect mappings on 2026-08-31, unchanged on 2026-09-20; ' +
             '34 on 2026-09-28 when the four driving-base words left learner-gap; ' +
             '42 the same day, eight more for SPIKE App 3 Python; ' +
-            '47 on 2026-09-29: four left learner-gap and getColorRGB arrived mapped (task D1)');
+            '47 on 2026-09-29: four left learner-gap and getColorRGB arrived mapped (task D1); ' +
+            '48 on 2026-10-21: motorStartPower arrived mapped');
         assert.deepEqual(Object.fromEntries(Object.entries(SPIKE_DIALECT_EXCLUSIONS)
             .map(([kind, ops]) => [kind, ops.length])), {
             // +10 transport-control and +7 learner-gap on 2026-09-20 = the 17

@@ -6608,6 +6608,15 @@ class SB3Creator {
             block[id].fields.DIRECTION = [SPIKE_MOTOR_DIRECTION[match[2].toLowerCase()], null];
             return ret(block);
         }
+        // The SPIKE app's More Motors block "start motor at % power": a duty
+        // cycle the hub does not regulate (motor.set_duty_cycle on SPIKE 3).
+        if ((match = matchTopLevel(line, /^start\s+motor\s+([A-F])\s+at\s+(.+?)\s*%\s*power\s*$/i))) {
+            const { id, block } = cmd('spikeprime_motorStartPower');
+            // MULTIPLE_PORT has acceptReporters: true, so PORT is an input holding the menu's shadow.
+            block[id].inputs.PORT = this.menuInput(context, 'spikeprime_menu_MULTIPLE_PORT', 'MULTIPLE_PORT', match[1].toUpperCase());
+            block[id].inputs.POWER = val(match[2]);
+            return ret(block);
+        }
         if ((match = matchTopLevel(line, /^stop\s+motor\s+([A-F])\s*$/i))) {
             const { id, block } = cmd('spikeprime_motorStop');
             block[id].fields.PORT = [match[1].toUpperCase(), null];
@@ -9424,6 +9433,7 @@ class SB3Creator {
             case 'spikeprime_motorStop': return line(`stop motor ${f('PORT')}`);
             case 'spikeprime_motorRunFor': return line(`run motor ${f('PORT')} ${spikeMotorDirectionWord(f('DIRECTION'))} ${v('VALUE')} ${spikeUnitWord(f('UNIT'))}`);
             case 'spikeprime_motorSetSpeed': return line(`set motor speed ${f('PORT')} ${v('SPEED')}`);
+            case 'spikeprime_motorStartPower': return line(`start motor ${b.inputs && b.inputs.PORT ? this.dmenu(b.inputs.PORT, blocks, 'MULTIPLE_PORT') : f('PORT')} at ${v('POWER')} % power`);
             case 'spikeprime_moveForward': return line(`move ${f('DIRECTION')} ${v('VALUE')} ${spikeUnitWord(f('UNIT'))}`);
             case 'spikeprime_stopMovement': return line('stop movement');
             case 'spikeprime_setMovementMotors': return line(`set movement motors ${this.dmenu(b.inputs.PORT_A, blocks, 'PORT')} ${this.dmenu(b.inputs.PORT_B, blocks, 'PORT')}`);
