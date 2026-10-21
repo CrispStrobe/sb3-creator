@@ -13,3 +13,11 @@ CJE/CJC/TF and PNP RB/RC. The producer repair must land before adoption.
 Register the added gallery reader and regenerate the existing coverage record,
 with before/after coverage review; no excluded school circuits or hidden
 unqualified numeric assertions. Merge claim before these follow-up changes.
+
+Required measured-provenance composition: after the actual pinned-supplier
+quantity suite holds the recorded claims, run the canonical
+scripts/stamp-expected-provenance.mjs generator for its existing EXPECTED.md
+blocks. Own those derived provenance blocks only; preserve all existing
+numeric claims, adjudication predicates, decline reasons and tolerance values.
+The first pinned run held every numeric claim and failed only stale provenance.
+Do not renew a stamp for an unmeasured or disagreeing claim.
