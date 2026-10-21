@@ -24,3 +24,5 @@ The eight trimmers are initially set for approximately C4–C5. These settings b
 | 6 | A4 | 192.38 kΩ | 440.80 Hz |
 | 7 | B4 | 149.41 kΩ | 493.98 Hz |
 | 8 | C5 | 129.88 kΩ | 523.00 Hz |
+
+Supplier qualification: bw-board PR663 implements the matched transistor charge and open-passive guards; bw-circuit-ui PR102 provides sample replay/WAV and PR103 preserves narrow captured pulses in the time display. The consumer must include their qualified revisions.

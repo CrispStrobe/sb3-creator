@@ -6,9 +6,9 @@ BC548/BC558, 3,3 nF, 10 nF, 1 MΩ und 180 kΩ mit acht 1-MΩ-Trimmern und Tasten
 
 Die Transistorbezeichnungen benennen die Bauteile für den Aufbau. Die Simulation verwendet ausdrücklich generische Exponentialmodelle: IS=1e-14 A, BF=100, BR=1, N=1, RB=10 Ω, RC=1 Ω, CJE=10 pF, CJC=4 pF und TF=0,3 ns. Dies sind keine gemessenen BC548/558-Modelle. Der Lautsprecher ist ein elektrischer 8-Ω-Widerstand.
 
-Benötigt die Junction-Charge-Korrektur in bw-board PR663. Mit denselben Modellen und Startbedingungen stimmen Brickwright und ngspice überein: bei 500 kΩ etwa 255,7 Hz und 8,021 V Spitze. Eine Taste drücken; mehrere Tasten ergeben parallele Zeitwiderstände, keine Akkorde. Alle Tasten loslassen beendet den Dauerton.
+Mit denselben Modellen und Startbedingungen stimmen Brickwright und ngspice überein: bei 500 kΩ etwa 255,7 Hz und 8,021 V Spitze. Eine Taste drücken; mehrere Tasten ergeben parallele Zeitwiderstände, keine Akkorde. Alle Tasten loslassen beendet den Dauerton.
 
-Im Oszilloskop den Lautsprecherknoten gegen Simulator-Masse messen. Die Zeit-/Hüllkurvenansicht zeigt schmale Schaltimpulse; langsame Abtastung kann sie verpassen. Für FFT und Aufnahme abspielen/WAV echte Abtastwerte im Spektrum verwenden (bw-circuit-ui PR102). Die Wiedergabe entfernt den Gleichanteil und skaliert fest und leise. Eine Hüllkurve ist keine abspielbare Wellenform. Reale Tonhöhe, Lautstärke und Lautsprecherverhalten müssen am Aufbau geprüft werden.
+Im Oszilloskop den Lautsprecherknoten gegen Simulator-Masse messen. Die Zeit-/Hüllkurvenansicht zeigt schmale Schaltimpulse; langsame Abtastung kann sie verpassen. Für FFT und Aufnahme abspielen/WAV echte Abtastwerte im Spektrum verwenden. Die stärkste Spektrumspitze kann ein Oberton sein; die Grundfrequenz aus dem Impulsabstand bestimmen. Die Wiedergabe entfernt den Gleichanteil und skaliert fest und leise. Eine Hüllkurve ist keine abspielbare Wellenform. Reale Tonhöhe, Lautstärke und Lautsprecherverhalten müssen am Aufbau geprüft werden.
 
 ## Anfangsstimmung
 

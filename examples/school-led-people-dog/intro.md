@@ -6,4 +6,4 @@ Supply: 4.5 V, fourteen 220 Ω resistors and R5=470 Ω. All eight feet return to
 
 With constant LED drops of 2.0 V red and 2.1 V green, hand calculation gives about 3.13, 3.26 and 3.22 mA. The declared vf engine model includes a knee and dynamic resistance, so those simulated numbers differ. Do not compare that model to an unrelated SPICE diode card and call the difference a solver failure. Real LED types, supply state and perceived brightness also differ.
 
-The phantom open-resistor current report is corrected in bw-board PR662. Qualify R4=0, equal parallel-leg currents and shared-arm KCL after adoption. This DC circuit produces no sustained audio.
+Check zero current at R4 and the open tail, equal parallel-leg currents and shared-arm KCL. This DC circuit produces no sustained audio.

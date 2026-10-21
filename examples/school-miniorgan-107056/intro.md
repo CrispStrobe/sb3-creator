@@ -6,9 +6,9 @@ BC548 NPN and BC558 PNP form the actual feedback oscillator, with 3.3 nF, 10 nF,
 
 The transistor labels identify physical build parts. Their electrical cards are explicitly illustrative exponential models: IS=1e-14 A, BF=100, BR=1, N=1, RB=10 Ω, RC=1 Ω, CJE=10 pF, CJC=4 pF, TF=0.3 ns. They are not measured BC548/558 cards. The speaker is an 8 Ω electrical resistance, not a mechanical/acoustic model.
 
-Requires the bw-board transistor-charge repair (PR663). With matching cards and conditions, Brickwright and ngspice agree on organ frequency and waveform; at 500 kΩ the comparison is about 255.7 Hz and 8.021 V peak. The simulation is monophonic: press one key; simultaneous keys parallel their timing resistances and do not make chords. Release all keys to stop the sustained tone.
+With matching cards and conditions, Brickwright and ngspice agree on organ frequency and waveform; at 500 kΩ the comparison is about 255.7 Hz and 8.021 V peak. The simulation is monophonic: press one key; simultaneous keys parallel their timing resistances and do not make chords. Release all keys to stop the sustained tone.
 
-Run the circuit and probe the speaker's driven node, using simulator ground as reference. Time/envelope capture reveals narrow switching pulses. Use the spectrum's sampled capture for frequency analysis and captured-waveform replay/WAV (bw-circuit-ui PR102). Replay uses actual samples, removes DC and applies fixed quiet scaling; an envelope is not playable audio. Sampling too slowly can miss the narrow pulses. The largest spectral peak can be a harmonic; use pulse spacing to determine the fundamental. Real kit tuning, loudness and speaker response require physical measurement.
+Run the circuit and probe the speaker's driven node, using simulator ground as reference. Time/envelope capture reveals narrow switching pulses. Use the spectrum's sampled capture for frequency analysis and captured-waveform replay/WAV. Replay uses actual samples, removes DC and applies fixed quiet scaling; an envelope is not playable audio. Sampling too slowly can miss the narrow pulses. The largest spectral peak can be a harmonic; use pulse spacing to determine the fundamental. Real kit tuning, loudness and speaker response require physical measurement.
 
 ## Initial tuning for the stated model
 

@@ -8,6 +8,6 @@ Each speaker has 8 Ω electrical coil resistance and an explicit source represen
 
 DPDT-A and DPDT-B represent two poles of one mechanically linked switch. Keep both at 0 for A → B; set both to 1 for B → A. For B → A, also set Acoustic-A amplitude to 0 and Acoustic-B to 0.001 V. The editor exposes the poles separately.
 
-Requires the bw-board charge repair (PR663). Probe the receiving speaker's coil terminals differentially. The physical startup has charging transients: allow coupling capacitors to settle before quoting steady gain. A separate DC-initialized comparison of the same amplifier gives 41.851× versus 41.817× in ngspice, with about 41 µV maximum output error across 801 samples. This qualifies the stated model, not real-kit gain or intelligibility.
+Probe the receiving speaker's coil terminals differentially. The physical startup has charging transients: allow coupling capacitors to settle before quoting steady gain. A separate DC-initialized comparison of the same amplifier gives 41.851× versus 41.817× in ngspice, with about 41 µV maximum output error across 801 samples. This qualifies the stated model, not real-kit gain or intelligibility.
 
-Use sampled spectrum capture for waveform replay and WAV export (bw-circuit-ui PR102). The playback is a finite captured waveform with DC removed and fixed scaling, not a replacement oscillator.
+Use sampled spectrum capture for waveform replay and WAV export. The playback is a finite captured waveform with DC removed and fixed scaling, not a replacement oscillator.

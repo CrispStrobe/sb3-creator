@@ -8,6 +8,6 @@ Jeder Lautsprecher wird durch 8 Ω Spulenwiderstand und eine Quelle für die erz
 
 DPDT-A und DPDT-B sind die beiden Pole eines gemeinsamen Umschalters: beide auf 0 für A → B, beide auf 1 für B → A. Für B → A zusätzlich Acoustic-A auf 0 V Amplitude und Acoustic-B auf 0,001 V stellen. Im Editor sind die Pole einzeln einstellbar.
 
-Benötigt bw-board PR663. Den empfangenden Lautsprecher differenziell messen. Erst die Einschwingzeit der Koppelkondensatoren abwarten, dann stationäre Verstärkung angeben. Eine getrennte Rechnung ab dem DC-Arbeitspunkt liefert 41,851× gegenüber 41,817× in ngspice und maximal etwa 41 µV Abweichung über 801 Werte. Das ist Modellprüfung, keine Messung von realer Verständlichkeit oder Verstärkung.
+Den empfangenden Lautsprecher differenziell messen. Erst die Einschwingzeit der Koppelkondensatoren abwarten, dann stationäre Verstärkung angeben. Eine getrennte Rechnung ab dem DC-Arbeitspunkt liefert 41,851× gegenüber 41,817× in ngspice und maximal etwa 41 µV Abweichung über 801 Werte. Das ist Modellprüfung, keine Messung von realer Verständlichkeit oder Verstärkung.
 
-Echte Spektrum-Abtastwerte lassen sich mit bw-circuit-ui PR102 abspielen und als WAV ausgeben. Es wird die endliche Aufnahme ohne Gleichanteil mit fester Skalierung wiedergegeben.
+Echte Spektrum-Abtastwerte lassen sich abspielen und als WAV ausgeben. Es wird die endliche Aufnahme ohne Gleichanteil mit fester Skalierung wiedergegeben.

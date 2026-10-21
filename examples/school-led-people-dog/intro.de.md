@@ -6,4 +6,4 @@ Dies ist die ausdrücklich neu verdrahtete AA-Variante, nicht die Originalplatin
 
 Mit konstanten LED-Spannungen von 2,0/2,1 V ergibt die Handrechnung etwa 3,13 / 3,26 / 3,22 mA. Das Simulator-Kniemodell mit dynamischem Widerstand liefert andere Werte. Ein Vergleich mit beliebigen SPICE-Diodenparametern wäre kein Solvernachweis. Reale LEDs und Batterien haben ebenfalls andere Kennlinien; gleiche Ströme bedeuten nicht gleiche wahrgenommene Helligkeit.
 
-Der Phantomstrom am offenen Widerstand ist mit bw-board PR662 behoben. Nach Übernahme R4=0, gleiche parallele Beinströme und die Stromsumme an R9 prüfen. Diese Gleichstromschaltung erzeugt keinen Dauerton.
+R4 und die offene Schwanzdiode auf 0 A, gleiche parallele Beinströme und die Stromsumme an R9 prüfen. Diese Gleichstromschaltung erzeugt keinen Dauerton.

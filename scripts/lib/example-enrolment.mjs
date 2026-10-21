@@ -120,6 +120,10 @@ export const ENROLMENT = [
         p: (f) => !!f.entry.files?.program && !!f.entry.files?.circuit && f.hasProgramFile
             && /^\s*PIN\s+\S+\s*=[^\n]*\bINPUT\b/mi.test(
                 readFileSync(join(f.dirFor, 'program.bw'), 'utf8')) },
+    {   gate: 'school-circuit-projects',
+        why: 'named manufacturer/AA school topology and serialization controls',
+        p: (f) => ['school-miniorgan-107056', 'school-intercom-101455',
+            'school-led-people-dog'].includes(f.entry.id) },
     {   gate: 'gallery-e2e',
         // MCU_TESTS / PURE_TESTS are hand-listed specs, not a metadata filter
         why: 'hand-picked benches driven pin by pin',

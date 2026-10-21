@@ -11,3 +11,5 @@ DPDT-A and DPDT-B represent two poles of one mechanically linked switch. Keep bo
 Requires the bw-board charge repair (PR663). Probe the receiving speaker's coil terminals differentially. The physical startup has charging transients: allow coupling capacitors to settle before quoting steady gain. A separate DC-initialized comparison of the same amplifier gives 41.851× versus 41.817× in ngspice, with about 41 µV maximum output error across 801 samples. This qualifies the stated model, not real-kit gain or intelligibility.
 
 Use sampled spectrum capture for waveform replay and WAV export (bw-circuit-ui PR102). The playback is a finite captured waveform with DC removed and fixed scaling, not a replacement oscillator.
+
+Supplier qualification: bw-board PR663 implements the matched transistor charge and open-passive guards; bw-circuit-ui PR102 provides sample replay/WAV and PR103 preserves narrow captured pulses in the time display. The consumer must include their qualified revisions.

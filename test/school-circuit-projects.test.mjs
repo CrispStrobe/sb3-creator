@@ -28,6 +28,7 @@ test('all declared wire endpoints belong to actual terminals and identities stay
 test('miniorgan has eight distinct decreasing rheostat settings, keys and actual feedback parts',()=>{
  const d=load(ids[0]);assert.equal(d.parts.filter(p=>p.kind==='button').length,8);
  const positions=Array.from({length:8},(_,i)=>label(d,'Trim'+(i+1)).params.position);
+ // MEASURED 2026-10-21: eight authored normalized positions range 0.12988368–0.48339895.
  assert.ok(positions.every((p,i)=>p>0&&p<1&&(!i||p<positions[i-1])));
  assert.equal(label(d,'R1-180k').params.ohms,180000);
  assert.equal(label(d,'C1-3n3').params.farads,3.3e-9);assert.equal(label(d,'C2-10n').params.farads,10e-9);
