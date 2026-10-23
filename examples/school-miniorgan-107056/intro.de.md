@@ -24,3 +24,25 @@ Die acht Trimmer sind für das angegebene Modell ungefähr auf C4–C5 eingestel
 | 6 | A4 | 192.38 kΩ | 440.80 Hz |
 | 7 | B4 | 149.41 kΩ | 493.98 Hz |
 | 8 | C5 | 129.88 kΩ | 523.00 Hz |
+
+## Bedienfeld in Widgets
+
+Das Beispiel enthält ein wiederverwendbares `controller.json`-Bedienfeld im
+rechten Widgets-Bereich. Die Tasten `key1`–`key8` betätigen die echten
+Schalter Key1–Key8. Die Regler `trim1`–`trim8` stellen die Position der
+zugehörigen 1-MΩ-Trimmer von 0 bis 1 ein. Der Ton entsteht weiterhin in der
+Transistorschaltung.
+
+Spiele mit A S D F G H J K oder durch Drücken und Loslassen der Bildschirmtasten.
+Beim Schreiben in einem Editor oder Eingabefeld sind die Tastenkürzel inaktiv.
+Widgets → Vollbild zeigt die ganze Reihe. Im Bearbeitungsmodus lassen sich
+dieselben Widgets mit anderen Schaltern und Potentiometern verbinden.
+Die Schaltung hat nur einen Oszillator: Mehrere gedrückte Tasten schalten die
+Zeitwiderstände parallel; sie erzeugen keine unabhängigen Töne oder Akkorde.
+
+Die Trimmer ändern echte Bauteilwerte. Die resultierende Frequenz kann im
+Oszilloskop-Spektrum gemessen werden. Aufnahme und fortlaufende Wiedergabe
+verwenden echte Simulationsmesswerte; eine langsame Simulation muss puffern
+und ermöglicht nicht automatisch sofortigen Klang in Echtzeit.
+
+Nach der grünen Flagge spielt die Leertaste ein kurzes Oktavprogramm. Im Code steht dafür `set widget "key1" to 1` / `0`; das entspricht denselben Controller-Blöcken im Blockeditor.

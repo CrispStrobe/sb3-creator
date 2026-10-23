@@ -1,0 +1,391 @@
+{
+  "version": 1,
+  "mode": "play",
+  "hideBindings": true,
+  "widgets": [
+    {
+      "name": "organ_title",
+      "type": "text",
+      "config": {
+        "text": "Miniorgan · A S D F G H J K",
+        "fontSize": 18
+      },
+      "layout": {
+        "x": 12,
+        "y": 8,
+        "w": 594,
+        "h": 48,
+        "hideLabel": true,
+        "borderless": true
+      }
+    },
+    {
+      "name": "key1",
+      "type": "button",
+      "config": {
+        "toggle": false,
+        "label": "C",
+        "key": "a"
+      },
+      "layout": {
+        "x": 12,
+        "y": 64,
+        "w": 68,
+        "h": 82,
+        "label": "C · A",
+        "compact": true
+      },
+      "binding": {
+        "target": "part",
+        "partId": "button_28"
+      }
+    },
+    {
+      "name": "trim1",
+      "type": "slider",
+      "config": {
+        "min": 0,
+        "max": 1,
+        "step": 1e-06,
+        "value": 0.48339895
+      },
+      "layout": {
+        "x": 12,
+        "y": 156,
+        "w": 68,
+        "h": 106,
+        "label": "Trim1",
+        "compact": true
+      },
+      "binding": {
+        "target": "part",
+        "partId": "potentiometer_27",
+        "param": "position"
+      }
+    },
+    {
+      "name": "key2",
+      "type": "button",
+      "config": {
+        "toggle": false,
+        "label": "D",
+        "key": "s"
+      },
+      "layout": {
+        "x": 86,
+        "y": 64,
+        "w": 68,
+        "h": 82,
+        "label": "D · S",
+        "compact": true
+      },
+      "binding": {
+        "target": "part",
+        "partId": "button_35"
+      }
+    },
+    {
+      "name": "trim2",
+      "type": "slider",
+      "config": {
+        "min": 0,
+        "max": 1,
+        "step": 1e-06,
+        "value": 0.40136779
+      },
+      "layout": {
+        "x": 86,
+        "y": 156,
+        "w": 68,
+        "h": 106,
+        "label": "Trim2",
+        "compact": true
+      },
+      "binding": {
+        "target": "part",
+        "partId": "potentiometer_34",
+        "param": "position"
+      }
+    },
+    {
+      "name": "key3",
+      "type": "button",
+      "config": {
+        "toggle": false,
+        "label": "E",
+        "key": "d"
+      },
+      "layout": {
+        "x": 160,
+        "y": 64,
+        "w": 68,
+        "h": 82,
+        "label": "E · D",
+        "compact": true
+      },
+      "binding": {
+        "target": "part",
+        "partId": "button_41"
+      }
+    },
+    {
+      "name": "trim3",
+      "type": "slider",
+      "config": {
+        "min": 0,
+        "max": 1,
+        "step": 1e-06,
+        "value": 0.33105536
+      },
+      "layout": {
+        "x": 160,
+        "y": 156,
+        "w": 68,
+        "h": 106,
+        "label": "Trim3",
+        "compact": true
+      },
+      "binding": {
+        "target": "part",
+        "partId": "potentiometer_40",
+        "param": "position"
+      }
+    },
+    {
+      "name": "key4",
+      "type": "button",
+      "config": {
+        "toggle": false,
+        "label": "F",
+        "key": "f"
+      },
+      "layout": {
+        "x": 234,
+        "y": 64,
+        "w": 68,
+        "h": 82,
+        "label": "F · F",
+        "compact": true
+      },
+      "binding": {
+        "target": "part",
+        "partId": "button_47"
+      }
+    },
+    {
+      "name": "trim4",
+      "type": "slider",
+      "config": {
+        "min": 0,
+        "max": 1,
+        "step": 1e-06,
+        "value": 0.29980539
+      },
+      "layout": {
+        "x": 234,
+        "y": 156,
+        "w": 68,
+        "h": 106,
+        "label": "Trim4",
+        "compact": true
+      },
+      "binding": {
+        "target": "part",
+        "partId": "potentiometer_46",
+        "param": "position"
+      }
+    },
+    {
+      "name": "key5",
+      "type": "button",
+      "config": {
+        "toggle": false,
+        "label": "G",
+        "key": "g"
+      },
+      "layout": {
+        "x": 308,
+        "y": 64,
+        "w": 68,
+        "h": 82,
+        "label": "G · G",
+        "compact": true
+      },
+      "binding": {
+        "target": "part",
+        "partId": "button_53"
+      }
+    },
+    {
+      "name": "trim5",
+      "type": "slider",
+      "config": {
+        "min": 0,
+        "max": 1,
+        "step": 1e-06,
+        "value": 0.24316482
+      },
+      "layout": {
+        "x": 308,
+        "y": 156,
+        "w": 68,
+        "h": 106,
+        "label": "Trim5",
+        "compact": true
+      },
+      "binding": {
+        "target": "part",
+        "partId": "potentiometer_52",
+        "param": "position"
+      }
+    },
+    {
+      "name": "key6",
+      "type": "button",
+      "config": {
+        "toggle": false,
+        "label": "A",
+        "key": "h"
+      },
+      "layout": {
+        "x": 382,
+        "y": 64,
+        "w": 68,
+        "h": 82,
+        "label": "A · H",
+        "compact": true
+      },
+      "binding": {
+        "target": "part",
+        "partId": "button_59"
+      }
+    },
+    {
+      "name": "trim6",
+      "type": "slider",
+      "config": {
+        "min": 0,
+        "max": 1,
+        "step": 1e-06,
+        "value": 0.19238362
+      },
+      "layout": {
+        "x": 382,
+        "y": 156,
+        "w": 68,
+        "h": 106,
+        "label": "Trim6",
+        "compact": true
+      },
+      "binding": {
+        "target": "part",
+        "partId": "potentiometer_58",
+        "param": "position"
+      }
+    },
+    {
+      "name": "key7",
+      "type": "button",
+      "config": {
+        "toggle": false,
+        "label": "B",
+        "key": "j"
+      },
+      "layout": {
+        "x": 456,
+        "y": 64,
+        "w": 68,
+        "h": 82,
+        "label": "B · J",
+        "compact": true
+      },
+      "binding": {
+        "target": "part",
+        "partId": "button_65"
+      }
+    },
+    {
+      "name": "trim7",
+      "type": "slider",
+      "config": {
+        "min": 0,
+        "max": 1,
+        "step": 1e-06,
+        "value": 0.14941491
+      },
+      "layout": {
+        "x": 456,
+        "y": 156,
+        "w": 68,
+        "h": 106,
+        "label": "Trim7",
+        "compact": true
+      },
+      "binding": {
+        "target": "part",
+        "partId": "potentiometer_64",
+        "param": "position"
+      }
+    },
+    {
+      "name": "key8",
+      "type": "button",
+      "config": {
+        "toggle": false,
+        "label": "C′",
+        "key": "k"
+      },
+      "layout": {
+        "x": 530,
+        "y": 64,
+        "w": 68,
+        "h": 82,
+        "label": "C′ · K",
+        "compact": true
+      },
+      "binding": {
+        "target": "part",
+        "partId": "button_71"
+      }
+    },
+    {
+      "name": "trim8",
+      "type": "slider",
+      "config": {
+        "min": 0,
+        "max": 1,
+        "step": 1e-06,
+        "value": 0.12988368
+      },
+      "layout": {
+        "x": 530,
+        "y": 156,
+        "w": 68,
+        "h": 106,
+        "label": "Trim8",
+        "compact": true
+      },
+      "binding": {
+        "target": "part",
+        "partId": "potentiometer_70",
+        "param": "position"
+      }
+    },
+    {
+      "name": "organ_hint",
+      "type": "text",
+      "config": {
+        "text": "Keys/Tasten: A S D F G H J K\nTrim 1–8: 0…1 · one physical oscillator / ein Oszillator\nWidgets: Full screen / Vollbild",
+        "fontSize": 12
+      },
+      "layout": {
+        "x": 12,
+        "y": 280,
+        "w": 594,
+        "h": 92,
+        "hideLabel": true,
+        "borderless": true
+      }
+    }
+  ]
+}

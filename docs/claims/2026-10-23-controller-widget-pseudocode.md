@@ -1,6 +1,6 @@
 # Programmable controller Widgets in pseudocode
 
-CLAIMED — Codex school-circuit owner, isolated source worktree
+DONE (source candidate) — Codex school-circuit owner, isolated source worktree
 /private/tmp/sb3-school-circuit-projects-20261021, base37bfe287.
 
 The actual Controller extension has controllerValue/controllerX/controllerY,
@@ -18,3 +18,16 @@ names and expression values survive round trips, and no unsupported native
 lowering is claimed. Lite owns runtime/widget bindings and example layouts in
 its separate recorded claim. Claim precedes implementation; focused and enabled
 hosted checks are required before landing and exact downstream adoption.
+
+The compiler now supports `widget value/x/y/pressed "name"` and
+`set widget "name" to value`, preserving the actual Controller opcodes and
+arguments. Parse/decompile and Python/JavaScript driver-call controls pass.
+The original school-example ownership also supplies the serialized organ
+faceplate, a Space-key octave program and four saved AA/NiMH variants.
+Component power ratings are display metadata (`part.limits.powerWatts`),
+separate from electrical model parameters. The eight real switch/trimmer
+bindings, variant serialization and shared-arm KCL pass against the declared
+Board/Circuit models. 165 focused compiler/regression controls, the shipped
+program controls and three actual model/binding controls pass locally without
+skips. The derived device index agrees with its dry runs. Full hosted
+qualification and downstream Widgets/audio implementation remain pending.

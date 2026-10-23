@@ -1,1 +1,37 @@
-# Pure circuit — no MCU
+# Pure transistor circuit — Widgets control the real switches and trimmers.
+# No MCU. Green flag releases the keys; Space plays one octave.
+WHEN flag clicked:
+  set widget "key1" to 0
+  set widget "key2" to 0
+  set widget "key3" to 0
+  set widget "key4" to 0
+  set widget "key5" to 0
+  set widget "key6" to 0
+  set widget "key7" to 0
+  set widget "key8" to 0
+
+WHEN space key pressed:
+  set widget "key1" to 1
+  wait 0.25 seconds
+  set widget "key1" to 0
+  set widget "key2" to 1
+  wait 0.25 seconds
+  set widget "key2" to 0
+  set widget "key3" to 1
+  wait 0.25 seconds
+  set widget "key3" to 0
+  set widget "key4" to 1
+  wait 0.25 seconds
+  set widget "key4" to 0
+  set widget "key5" to 1
+  wait 0.25 seconds
+  set widget "key5" to 0
+  set widget "key6" to 1
+  wait 0.25 seconds
+  set widget "key6" to 0
+  set widget "key7" to 1
+  wait 0.25 seconds
+  set widget "key7" to 0
+  set widget "key8" to 1
+  wait 0.25 seconds
+  set widget "key8" to 0
