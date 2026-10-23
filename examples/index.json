@@ -9126,7 +9126,7 @@
    "en": "OPITEC transistor miniorgan",
    "de": "OPITEC-Transistor-Miniorgel"
   },
-  "kind": "circuit",
+  "kind": "full",
   "category": "pure-circuit",
   "difficulty": 3,
   "files": {
@@ -9168,7 +9168,7 @@
   "difficulty": 2,
   "files": {
    "program": "school-led-people-dog/program.bw",
-   "circuit": "school-led-people-dog/circuit-3aa-220.json",
+   "circuit": "school-led-people-dog-3aa-220/circuit.json",
    "expected": "school-led-people-dog/EXPECTED.md",
    "intro": "school-led-people-dog/intro.md",
    "introDE": "school-led-people-dog/intro.de.md"
@@ -9186,7 +9186,7 @@
   "difficulty": 2,
   "files": {
    "program": "school-led-people-dog/program.bw",
-   "circuit": "school-led-people-dog/circuit-3nimh.json",
+   "circuit": "school-led-people-dog-3nimh/circuit.json",
    "expected": "school-led-people-dog/EXPECTED.md",
    "intro": "school-led-people-dog/intro.md",
    "introDE": "school-led-people-dog/intro.de.md"
@@ -9204,7 +9204,7 @@
   "difficulty": 2,
   "files": {
    "program": "school-led-people-dog/program.bw",
-   "circuit": "school-led-people-dog/circuit-2aa.json",
+   "circuit": "school-led-people-dog-2aa/circuit.json",
    "expected": "school-led-people-dog/EXPECTED.md",
    "intro": "school-led-people-dog/intro.md",
    "introDE": "school-led-people-dog/intro.de.md"
@@ -9222,7 +9222,7 @@
   "difficulty": 2,
   "files": {
    "program": "school-led-people-dog/program.bw",
-   "circuit": "school-led-people-dog/circuit-2nimh.json",
+   "circuit": "school-led-people-dog-2nimh/circuit.json",
    "expected": "school-led-people-dog/EXPECTED.md",
    "intro": "school-led-people-dog/intro.md",
    "introDE": "school-led-people-dog/intro.de.md"

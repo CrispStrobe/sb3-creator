@@ -1,11 +1,11 @@
 {
-  "vcc": 2.4,
+  "vcc": 4.5,
   "parts": [
     {
       "id": "resistor_1",
       "kind": "resistor",
       "params": {
-        "ohms": 100
+        "ohms": 220
       },
       "terminals": [
         "a",
@@ -23,7 +23,7 @@
       "id": "resistor_2",
       "kind": "resistor",
       "params": {
-        "ohms": 100
+        "ohms": 220
       },
       "terminals": [
         "a",
@@ -41,7 +41,7 @@
       "id": "resistor_3",
       "kind": "resistor",
       "params": {
-        "ohms": 100
+        "ohms": 220
       },
       "terminals": [
         "a",
@@ -59,7 +59,7 @@
       "id": "resistor_4",
       "kind": "resistor",
       "params": {
-        "ohms": 100
+        "ohms": 220
       },
       "terminals": [
         "a",
@@ -77,7 +77,7 @@
       "id": "resistor_5",
       "kind": "resistor",
       "params": {
-        "ohms": 100
+        "ohms": 220
       },
       "terminals": [
         "a",
@@ -95,7 +95,7 @@
       "id": "resistor_6",
       "kind": "resistor",
       "params": {
-        "ohms": 100
+        "ohms": 220
       },
       "terminals": [
         "a",
@@ -113,7 +113,7 @@
       "id": "resistor_7",
       "kind": "resistor",
       "params": {
-        "ohms": 100
+        "ohms": 220
       },
       "terminals": [
         "a",
@@ -131,7 +131,7 @@
       "id": "resistor_8",
       "kind": "resistor",
       "params": {
-        "ohms": 100
+        "ohms": 220
       },
       "terminals": [
         "a",
@@ -149,7 +149,7 @@
       "id": "resistor_9",
       "kind": "resistor",
       "params": {
-        "ohms": 100
+        "ohms": 220
       },
       "terminals": [
         "a",
@@ -167,7 +167,7 @@
       "id": "resistor_10",
       "kind": "resistor",
       "params": {
-        "ohms": 100
+        "ohms": 220
       },
       "terminals": [
         "a",
@@ -185,13 +185,13 @@
       "id": "resistor_11",
       "kind": "resistor",
       "params": {
-        "ohms": 100
+        "ohms": 220
       },
       "terminals": [
         "a",
         "b"
       ],
-      "x": 800,
+      "x": 820,
       "y": 440,
       "rotation": 0,
       "label": "R11",
@@ -203,7 +203,7 @@
       "id": "resistor_12",
       "kind": "resistor",
       "params": {
-        "ohms": 100
+        "ohms": 220
       },
       "terminals": [
         "a",
@@ -221,7 +221,7 @@
       "id": "resistor_13",
       "kind": "resistor",
       "params": {
-        "ohms": 100
+        "ohms": 220
       },
       "terminals": [
         "a",
@@ -239,7 +239,7 @@
       "id": "resistor_14",
       "kind": "resistor",
       "params": {
-        "ohms": 100
+        "ohms": 220
       },
       "terminals": [
         "a",
@@ -257,7 +257,7 @@
       "id": "resistor_15",
       "kind": "resistor",
       "params": {
-        "ohms": 100
+        "ohms": 220
       },
       "terminals": [
         "a",

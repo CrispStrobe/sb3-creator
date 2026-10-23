@@ -31,3 +31,17 @@ Board/Circuit models. 165 focused compiler/regression controls, the shipped
 program controls and three actual model/binding controls pass locally without
 skips. The derived device index agrees with its dry runs. Full hosted
 qualification and downstream Widgets/audio implementation remain pending.
+
+The first hosted candidate exposed missing variant directories/enrolment,
+incorrect circuit-only organ classification, a four-pixel dog-leg body overlap,
+unrecorded new numerical bounds and the standalone VM's missing built-in
+Controller loader. Preserve that failed head and its original job. Each saved
+battery variant now has its own circuit directory, the organ is `full`, and
+canonical enrolment is regenerated (343 entries). Move the overlapping R11
+body in all five figure layouts without changing electrical connections.
+A focused default/variant geometry check prevents that overlap returning.
+The VM harness executes the actual pinned Controller source and checks live
+commands/reporters through SB3 Save/Open, with real project storage. Measured
+network residuals are recorded beside the unchanged bounds; no ceiling grows.
+All 39 affected metadata/layout/model controls, 60 VM controls and changed-file
+lint pass locally. Hosted qualification of the repaired head remains pending.
