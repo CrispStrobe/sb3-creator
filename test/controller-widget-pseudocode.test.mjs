@@ -57,3 +57,33 @@ test('the organ example programs the shipped named buttons without replacing its
  const back=new SB3Creator().decompile(c.project);
  assert.equal(new SB3Creator().decompile(parse(back).project),back);
 });
+
+test('all five Controller operations keep the dynamic WIDGETS menu shadow and its owner', () => {
+ const c=parse(source);
+ for(const target of c.project.targets)for(const[id,b]of Object.entries(target.blocks)){
+  if(!/^controller_(setWidget|controllerValue|controllerX|controllerY|controllerPressed)$/.test(b.opcode))continue;
+  const input=b.inputs.NAME,shadow=target.blocks[input[0]===1?input[1]:input[2]];
+  assert.equal(shadow?.opcode,'controller_menu_WIDGETS',b.opcode);
+  assert.equal(shadow.shadow,true);assert.equal(shadow.parent,id);
+  assert.equal(typeof shadow.fields.WIDGETS[0],'string');assert.equal(b.fields.NAME,undefined);
+ }
+});
+
+test('computed widget names retain the reporter and a proper fallback menu', () => {
+ const c=parse('WHEN flag clicked:\n  set choice to "key1"\n  set widget choice to 1\n  set observed to widget value choice\n');
+ for(const target of c.project.targets)for(const b of Object.values(target.blocks)){
+  if(!['controller_setWidget','controller_controllerValue'].includes(b.opcode))continue;
+  assert.equal(b.inputs.NAME[0],3);
+  const shadow=target.blocks[b.inputs.NAME[2]];assert.equal(shadow?.opcode,'controller_menu_WIDGETS');
+  assert.equal(shadow.fields.WIDGETS[0],'');
+  assert.equal(b.inputs.NAME[1][0],12);assert.equal(b.inputs.NAME[1][1],'choice');
+ }
+ const back=new SB3Creator().decompile(c.project);assert.match(back,/set widget choice to 1/);assert.match(back,/widget value choice/);
+ for(const emit of ['generateJavaScript','generatePython'])assert.match(String(c[emit]()),/_controller\.setWidget\(choice, 1\)/);
+});
+
+test('a numeric-looking widget name remains quoted through menu round trips', () => {
+ const c=parse('WHEN flag clicked:\n  set widget "123" to widget value "123"\n');
+ const back=new SB3Creator().decompile(c.project);assert.match(back,/set widget "123" to \(widget value "123"\)/);
+ assert.equal(new SB3Creator().decompile(parse(back).project),back);
+});
