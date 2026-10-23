@@ -120,7 +120,17 @@ jobs:
       - name: Install the ARM and 8051 cross-compilers
         # SDCC is also small enough to make the single-task debugger-symbol
         # regression exercise a real linked CDB in hosted CI, not just inspect C.
-        run: sudo apt-get update && sudo apt-get install -y gcc-arm-none-eabi sdcc
+        # The recorded Widgets job spent 69 minutes on the Azure HTTP mirror,
+        # including a 463 MB recommended C++ library. These gates compile C.
+        # Keep C newlib/headers explicitly and use the same signed Ubuntu
+        # packages through the official HTTPS archive on this ephemeral runner.
+        run: |
+          test -f /etc/apt/apt-mirrors.txt
+          printf '%s\n' 'https://archive.ubuntu.com/ubuntu/' | sudo tee /etc/apt/apt-mirrors.txt > /dev/null
+          sudo apt-get -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 update
+          sudo apt-get -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 install -y --no-install-recommends gcc-arm-none-eabi libnewlib-arm-none-eabi sdcc
+          arm-none-eabi-gcc --version
+          sdcc --version
 
       # Before the tests, because the tests cannot see this: they run against a
       # checkout that has every committed file, so an import of a file that was

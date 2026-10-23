@@ -24,3 +24,25 @@ The eight trimmers are initially set for approximately C4–C5. These settings b
 | 6 | A4 | 192.38 kΩ | 440.80 Hz |
 | 7 | B4 | 149.41 kΩ | 493.98 Hz |
 | 8 | C5 | 129.88 kΩ | 523.00 Hz |
+
+## Widgets faceplate
+
+The example includes a reusable `controller.json` layout in the right-hand
+Widgets pane. `key1`–`key8` are momentary buttons bound to the circuit's
+Key1–Key8 switches. `trim1`–`trim8` are sliders bound to the corresponding
+1 MΩ potentiometer positions (0–1). Each key therefore selects its real
+trimmer branch; the transistor circuit produces the waveform.
+
+Use A S D F G H J K, or press and release the on-screen keys. Keyboard
+shortcuts pause while typing in an editor or field. Use Widgets → Full screen
+for the complete row. Edit the Widgets layout to reuse these controls with
+other switch and potentiometer parts. The original circuit has one oscillator;
+holding multiple keys connects their timing resistances in parallel and does
+not produce independent notes or chords.
+
+Tuning changes the circuit's potentiometer position, not a prescribed audio
+frequency. Read the resulting frequency in the scope spectrum. Captured replay
+and continuous listening use the actual samples; a slow simulation may need
+to buffer and cannot promise immediate real-time sound.
+
+Press Space after the green flag for a short one-octave program. The Code tab uses `set widget "key1" to 1` / `0`; these are the same Controller blocks available in Blocks.

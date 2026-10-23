@@ -1,23 +1,23 @@
 {
   "note": "Which gates enrol which example, computed from scripts/lib/example-enrolment.mjs. A diff here is a change in COVERAGE — read it before regenerating.",
-  "measuredOn": "2026-10-21",
-  "examples": 339,
+  "measuredOn": "2026-10-23",
+  "examples": 343,
   "gates": {
-    "gallery": 307,
-    "example-kind-matches-content": 339,
-    "index-metadata-matches-disk": 339,
+    "gallery": 311,
+    "example-kind-matches-content": 343,
+    "index-metadata-matches-disk": 343,
     "retarget-gallery": 66,
     "retarget-amplification": 66,
     "gen-device-benches": 148,
-    "example-corpus-contract": 142,
+    "example-corpus-contract": 146,
     "assert-physics": 260,
     "debug-micropython": 10,
     "debug-trace-audit": 18,
-    "circuit-params-are-read": 307,
+    "circuit-params-are-read": 311,
     "program-reads-what-it-writes": 307,
     "vm-and-c-agree-on-arithmetic": 168,
     "documented-tables-are-derived": 4,
-    "vm": 307,
+    "vm": 311,
     "simulator-driver-controls-respond": 44,
     "school-circuit-projects": 3,
     "gallery-e2e": 27
@@ -3551,6 +3551,38 @@
       "index-metadata-matches-disk",
       "program-reads-what-it-writes",
       "school-circuit-projects",
+      "vm"
+    ],
+    "school-led-people-dog-3aa-220": [
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "vm"
+    ],
+    "school-led-people-dog-3nimh": [
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "vm"
+    ],
+    "school-led-people-dog-2aa": [
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "vm"
+    ],
+    "school-led-people-dog-2nimh": [
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
       "vm"
     ],
     "school-led-people-dog": [

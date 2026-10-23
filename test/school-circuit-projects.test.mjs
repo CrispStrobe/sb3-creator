@@ -6,12 +6,13 @@ const ids=['school-miniorgan-107056','school-intercom-101455','school-led-people
 const load=id=>JSON.parse(fs.readFileSync(new URL(id+'/circuit.json',root)));
 const label=(data,name)=>data.parts.find(p=>p.label===name);
 
-test('school circuits are registered once with readable documentation and no MCU program',()=>{
+test('school circuits are registered once with readable documentation and no MCU declaration',()=>{
  const index=JSON.parse(fs.readFileSync(new URL('index.json',root)));
  for(const id of ids){
-  const entries=index.filter(x=>x.id===id);assert.equal(entries.length,1);assert.equal(entries[0].kind,'circuit');
+  const entries=index.filter(x=>x.id===id);assert.equal(entries.length,1);assert.equal(entries[0].kind,id===ids[0]?'full':'circuit');
   for(const file of Object.values(entries[0].files))assert.ok(fs.readFileSync(new URL(file,root)).length>0);
-  assert.equal(fs.readFileSync(new URL(id+'/program.bw',root),'utf8').trim(),'# Pure circuit — no MCU');
+  const program=fs.readFileSync(new URL(id+'/program.bw',root),'utf8');
+  if(id==='school-miniorgan-107056'){assert.match(program,/set widget "key1" to 1/);assert.doesNotMatch(program,/^DEVICE\s|^PIN\s/m);}else assert.equal(program.trim(),'# Pure circuit — no MCU');
  }
 });
 

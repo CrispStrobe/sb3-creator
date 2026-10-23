@@ -1,6 +1,6 @@
 # School compiler CI toolchain download repair
 
-CLAIMED — Codex school-circuit owner. Base 7d547d95; isolated supplier branch
+DONE (source candidate) — Codex school-circuit owner. Base 7d547d95; isolated supplier branch
 `lane/school-compiler-ci-downloads-claim-20261023`. Merge before implementation.
 Preserve the current Widgets candidate and all other owners.
 
@@ -24,3 +24,12 @@ Compose into the same owner's Widgets candidate. Verify the actual final
 hosted job installs both toolchains and passes every enabled original check.
 Preserve the original failed test head and slow installation evidence; do not
 rerun unchanged source or interfere with other branches/workflows.
+
+The cross-compiler step now selects the official HTTPS archive through the
+runner mirror list, bounds apt transport attempts, and installs both compilers
+plus C newlib explicitly without recommended C++/documentation packages. Both
+compiler version commands must succeed. Workflow YAML and actual step shell
+syntax, 34 affected integrity/threshold/compiler controls and four workflow
+input controls pass locally. No original test, signature check or numerical
+bound changed. The actual final hosted installation and full suite remain
+required; local syntax is not a hosted performance result.

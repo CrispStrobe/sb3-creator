@@ -3262,6 +3262,11 @@ class SB3Creator {
             return B('stc12_tableindex', { INDEX: this.parseValue(m[2], context) },
                 { TABLE: [this.stcTable(m[1]).name, null] });
         }
+        // Named Widgets use the Controller extension, including part-bound widgets.
+        if ((m = s.match(/^widget\s+(value|x|y|pressed)\s+(.+)$/i))) {
+            const op = {value: 'controllerValue', x: 'controllerX', y: 'controllerY', pressed: 'controllerPressed'}[m[1].toLowerCase()];
+            return B(`controller_${op}`, { NAME: this.parseValue(m[2], context) });
+        }
         // Circuit extension reporters (boundary B instruments).
         if ((m = s.match(/^voltage at\s+(.+)$/i))) {
             return B('circuit_nodevoltage', { NET: this.parseValue(m[1], context) });
@@ -6757,6 +6762,12 @@ class SB3Creator {
             const { block } = cmd('spikeprime_resetTimer');
             return ret(block);
         }
+        if ((match = matchTopLevel(line, /^set widget\s+(.+?)\s+to\s+(.+)$/i))) {
+            const { id, block } = cmd('controller_setWidget');
+            block[id].inputs.NAME = val(match[1]);
+            block[id].inputs.VALUE = val(match[2]);
+            return ret(block);
+        }
         // ---- Circuit extension commands (boundary B) --------------------------------
         if ((match = matchTopLevel(line, /^set control\s+(.+?)\s+to\s+(.+)$/i))) {
             const { id, block } = cmd('circuit_setcontrol');
@@ -9085,6 +9096,10 @@ class SB3Creator {
             case 'devices_flex': return `flex of ${v('SENSOR')}`;
             case 'devices_force': return `force on ${v('SENSOR')}`;
             case 'devices_ircode': return `ir code from ${v('SENSOR')}`;
+            case 'controller_controllerValue': return `widget value ${v('NAME')}`;
+            case 'controller_controllerX': return `widget x ${v('NAME')}`;
+            case 'controller_controllerY': return `widget y ${v('NAME')}`;
+            case 'controller_controllerPressed': return `widget pressed ${v('NAME')}`;
             // circuit extension reporters
             case 'circuit_nodevoltage': return `voltage at ${v('NET')}`;
             case 'circuit_branchcurrent': return `current through ${v('PART')}`;
@@ -9462,6 +9477,7 @@ class SB3Creator {
             case 'spikeprime_stopSound': return line('stop sound');
             case 'spikeprime_resetYaw': return line('reset yaw');
             case 'spikeprime_resetTimer': return line('reset spike timer');
+            case 'controller_setWidget': return line(`set widget ${v('NAME')} to ${v('VALUE')}`);
             // circuit extension commands
             case 'circuit_setcontrol': return line(`set control ${v('CONTROL')} to ${v('VALUE')}`);
             case 'circuit_setpower': return line(`turn power ${f('STATE')}`);
@@ -21011,6 +21027,18 @@ SB3Creator.EXTENSION_URLS = {
 // pluggable-driver convention works for every one of them.
 SB3Creator.RUNTIME_EXTENSIONS = {
     ...GENERATED_RUNTIME,
+    // The built-in Widgets extension lives in bw-board/controller-extension.js.
+    // Match its actual opcodes/argument names; it needs no remote extension URL.
+    controller: {
+        runtime: 'controller',
+        ops: {
+            controllerValue: {kind: 'reporter', method: 'controllerValue', args: ['NAME'], neutral: '0'},
+            controllerX: {kind: 'reporter', method: 'controllerX', args: ['NAME'], neutral: '0'},
+            controllerY: {kind: 'reporter', method: 'controllerY', args: ['NAME'], neutral: '0'},
+            controllerPressed: {kind: 'boolean', method: 'controllerPressed', args: ['NAME'], neutral: 'false'},
+            setWidget: {kind: 'command', method: 'setWidget', args: ['NAME', 'VALUE']}
+        }
+    },
     // The STC12 pin surface. Declared here rather than special-cased in the walkers, which is
     // the convention's own promise: adding hardware is one registry entry, not new emitter code.
     //

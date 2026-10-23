@@ -6,11 +6,16 @@ import { test, describe, afterEach } from 'node:test';
 import assert from 'node:assert/strict';
 import nodeVm from 'node:vm';
 import { readFileSync, readdirSync } from 'node:fs';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import path from 'node:path';
 import VM from 'scratch-vm';
+import Storage from 'scratch-storage';
 import SB3Creator from '../src/utils/sb3Creator.js';
 import examples from '../src/utils/examples.js';
+import {locate, requireSiblings, siblingGuardTest} from './helpers/siblings.mjs';
+
+const controllerGate = requireSiblings('bw-board');
+siblingGuardTest(controllerGate, 'actual Controller VM extension');
 
 // Silence the "no storage module" asset warnings for a clean test log.
 const origWarn = console.warn;
@@ -195,11 +200,61 @@ function loadLocalExtension (slug, runtime) {
     nodeVm.runInContext(readFileSync(path.join(REF, `${slug}.js`), 'utf8'), sandbox, { timeout: 5000 });
     return captured;
 }
+
+// Controller is built into Lite. Execute the actual pinned supplier source in
+// this Node VM instead of asking the browser-only Worker loader to fetch it.
+function loadControllerExtension(runtime) {
+    const board = locate('bw-board').path;
+    if (!board) throw new Error('Controller VM coverage requires the pinned bw-board sibling');
+    let captured;
+    const context = nodeVm.createContext({console, Scratch: {BlockType, ArgumentType,
+        vm: {runtime}, extensions: {register: instance => { captured = instance; }}}});
+    const source = readFileSync(path.join(board, 'src/controller-extension.js'), 'utf8');
+    nodeVm.runInContext(source.replace(/^export class ControllerExtension/m, 'class ControllerExtension'), context);
+    assert.ok(captured, 'the actual Controller source must register its implementation');
+    return captured;
+}
+
+test('vm: actual Controller commands and reporters survive SB3 Save/Open', {skip: controllerGate.skip}, async () => {
+    const {ControllerPanel} = await import(pathToFileURL(path.join(locate('bw-board').path, 'src/controller.js')));
+    const panel = new ControllerPanel();
+    panel.addWidget('trim1', 'slider', {min: 0, max: 1, value: .2});
+    panel.addWidget('key1', 'button', {});
+    const c = new SB3Creator();
+    c.parse('WHEN flag clicked:\n  set widget "trim1" to 0.7\n  set pitch to widget value "trim1"\n' +
+        '  set widget "key1" to 1\n  IF widget pressed "key1" THEN:\n    set pressed to 1\n  set widget "key1" to 0\n');
+    const vm = new VM();
+    vm.attachStorage(new Storage.ScratchStorage());
+    vm.runtime.controllerPanel = panel;
+    patchExtensionManager(vm);
+    try {
+        let bytes = Buffer.from(await (await c.generateSB3()).arrayBuffer());
+        for (const route of ['original', 'reopened']) {
+            await vm.loadProject(bytes);
+            panel.setSliderInput('trim1', .2);
+            vm.start(); vm.greenFlag(); vm.quit();
+            for (let i = 0; i < 3; i++) { vm.runtime._step(); await new Promise(resolve => setImmediate(resolve)); }
+            const vars = vm.runtime.targets.flatMap(target => Object.values(target.variables));
+            assert.equal(vars.find(v => v.name === 'pitch')?.value, .7, route);
+            assert.equal(vars.find(v => v.name === 'pressed')?.value, '1', route);
+            assert.equal(panel.getValue('trim1'), .7, route);
+            assert.equal(panel.isPressed('key1'), false, route);
+            bytes = Buffer.from(await (await vm.saveProjectSb3()).arrayBuffer());
+        }
+    } finally { vm.stopAll(); vm.quit(); }
+});
 // Register CrispStrobe extensions internally instead of via a Worker.
 function patchExtensionManager (vm) {
     const em = vm.extensionManager;
     const orig = em.loadExtensionURL.bind(em);
     em.loadExtensionURL = (url) => {
+        if (String(url) === 'controller') {
+            if (!em.isExtensionLoaded('controller')) {
+                const service = em._registerInternalExtension(loadControllerExtension(vm.runtime));
+                em._loadedExtensions.set('controller', service);
+            }
+            return Promise.resolve();
+        }
         const builtin = loadHeadlessBuiltin(String(url));
         if (builtin) {
             const serviceName = em._registerInternalExtension(builtin);

@@ -14,7 +14,10 @@
       "x": 100,
       "y": 440,
       "rotation": 0,
-      "label": "R1"
+      "label": "R1",
+      "limits": {
+        "powerWatts": 0.25
+      }
     },
     {
       "id": "resistor_2",
@@ -29,7 +32,10 @@
       "x": 220,
       "y": 440,
       "rotation": 0,
-      "label": "R2"
+      "label": "R2",
+      "limits": {
+        "powerWatts": 0.25
+      }
     },
     {
       "id": "resistor_3",
@@ -44,7 +50,10 @@
       "x": 160,
       "y": 340,
       "rotation": 0,
-      "label": "R3"
+      "label": "R3",
+      "limits": {
+        "powerWatts": 0.25
+      }
     },
     {
       "id": "resistor_4",
@@ -59,7 +68,10 @@
       "x": 60,
       "y": 190,
       "rotation": 0,
-      "label": "R4"
+      "label": "R4",
+      "limits": {
+        "powerWatts": 0.25
+      }
     },
     {
       "id": "resistor_5",
@@ -74,7 +86,10 @@
       "x": 270,
       "y": 190,
       "rotation": 0,
-      "label": "R5"
+      "label": "R5",
+      "limits": {
+        "powerWatts": 0.25
+      }
     },
     {
       "id": "resistor_6",
@@ -89,7 +104,10 @@
       "x": 430,
       "y": 440,
       "rotation": 0,
-      "label": "R6"
+      "label": "R6",
+      "limits": {
+        "powerWatts": 0.25
+      }
     },
     {
       "id": "resistor_7",
@@ -104,7 +122,10 @@
       "x": 550,
       "y": 440,
       "rotation": 0,
-      "label": "R7"
+      "label": "R7",
+      "limits": {
+        "powerWatts": 0.25
+      }
     },
     {
       "id": "resistor_8",
@@ -119,7 +140,10 @@
       "x": 490,
       "y": 340,
       "rotation": 0,
-      "label": "R8"
+      "label": "R8",
+      "limits": {
+        "powerWatts": 0.25
+      }
     },
     {
       "id": "resistor_9",
@@ -134,7 +158,10 @@
       "x": 380,
       "y": 190,
       "rotation": 0,
-      "label": "R9"
+      "label": "R9",
+      "limits": {
+        "powerWatts": 0.25
+      }
     },
     {
       "id": "resistor_10",
@@ -149,7 +176,10 @@
       "x": 620,
       "y": 220,
       "rotation": 0,
-      "label": "R10"
+      "label": "R10",
+      "limits": {
+        "powerWatts": 0.25
+      }
     },
     {
       "id": "resistor_11",
@@ -161,10 +191,13 @@
         "a",
         "b"
       ],
-      "x": 800,
+      "x": 820,
       "y": 440,
       "rotation": 0,
-      "label": "R11"
+      "label": "R11",
+      "limits": {
+        "powerWatts": 0.25
+      }
     },
     {
       "id": "resistor_12",
@@ -179,7 +212,10 @@
       "x": 900,
       "y": 440,
       "rotation": 0,
-      "label": "R12"
+      "label": "R12",
+      "limits": {
+        "powerWatts": 0.25
+      }
     },
     {
       "id": "resistor_13",
@@ -194,7 +230,10 @@
       "x": 800,
       "y": 310,
       "rotation": 0,
-      "label": "R13"
+      "label": "R13",
+      "limits": {
+        "powerWatts": 0.25
+      }
     },
     {
       "id": "resistor_14",
@@ -209,7 +248,10 @@
       "x": 650,
       "y": 440,
       "rotation": 0,
-      "label": "R14"
+      "label": "R14",
+      "limits": {
+        "powerWatts": 0.25
+      }
     },
     {
       "id": "resistor_15",
@@ -224,7 +266,10 @@
       "x": 740,
       "y": 440,
       "rotation": 0,
-      "label": "R15"
+      "label": "R15",
+      "limits": {
+        "powerWatts": 0.25
+      }
     },
     {
       "id": "led_16",

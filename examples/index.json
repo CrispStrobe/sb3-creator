@@ -9126,7 +9126,7 @@
    "en": "OPITEC transistor miniorgan",
    "de": "OPITEC-Transistor-Miniorgel"
   },
-  "kind": "circuit",
+  "kind": "full",
   "category": "pure-circuit",
   "difficulty": 3,
   "files": {
@@ -9134,7 +9134,8 @@
    "circuit": "school-miniorgan-107056/circuit.json",
    "expected": "school-miniorgan-107056/EXPECTED.md",
    "intro": "school-miniorgan-107056/intro.md",
-   "introDE": "school-miniorgan-107056/intro.de.md"
+   "introDE": "school-miniorgan-107056/intro.de.md",
+   "controller": "school-miniorgan-107056/controller.json"
   },
   "devices": []
  },
@@ -9153,6 +9154,78 @@
    "expected": "school-intercom-101455/EXPECTED.md",
    "intro": "school-intercom-101455/intro.md",
    "introDE": "school-intercom-101455/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "school-led-people-dog-3aa-220",
+  "title": {
+   "en": "People and dog — 3 AA · 220 Ω",
+   "de": "Männchen und Hund — 3 AA · 220 Ω"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 2,
+  "files": {
+   "program": "school-led-people-dog/program.bw",
+   "circuit": "school-led-people-dog-3aa-220/circuit.json",
+   "expected": "school-led-people-dog/EXPECTED.md",
+   "intro": "school-led-people-dog/intro.md",
+   "introDE": "school-led-people-dog/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "school-led-people-dog-3nimh",
+  "title": {
+   "en": "People and dog — 3 NiMH · 220 Ω",
+   "de": "Männchen und Hund — 3 NiMH · 220 Ω"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 2,
+  "files": {
+   "program": "school-led-people-dog/program.bw",
+   "circuit": "school-led-people-dog-3nimh/circuit.json",
+   "expected": "school-led-people-dog/EXPECTED.md",
+   "intro": "school-led-people-dog/intro.md",
+   "introDE": "school-led-people-dog/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "school-led-people-dog-2aa",
+  "title": {
+   "en": "People and dog — 2 AA · 100 Ω",
+   "de": "Männchen und Hund — 2 AA · 100 Ω"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 2,
+  "files": {
+   "program": "school-led-people-dog/program.bw",
+   "circuit": "school-led-people-dog-2aa/circuit.json",
+   "expected": "school-led-people-dog/EXPECTED.md",
+   "intro": "school-led-people-dog/intro.md",
+   "introDE": "school-led-people-dog/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "school-led-people-dog-2nimh",
+  "title": {
+   "en": "People and dog — 2 NiMH · 100 Ω",
+   "de": "Männchen und Hund — 2 NiMH · 100 Ω"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 2,
+  "files": {
+   "program": "school-led-people-dog/program.bw",
+   "circuit": "school-led-people-dog-2nimh/circuit.json",
+   "expected": "school-led-people-dog/EXPECTED.md",
+   "intro": "school-led-people-dog/intro.md",
+   "introDE": "school-led-people-dog/intro.de.md"
   },
   "devices": []
  },
