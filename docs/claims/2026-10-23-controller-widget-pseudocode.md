@@ -45,3 +45,11 @@ commands/reporters through SB3 Save/Open, with real project storage. Measured
 network residuals are recorded beside the unchanged bounds; no ceiling grows.
 All 39 affected metadata/layout/model controls, 60 VM controls and changed-file
 lint pass locally. Hosted qualification of the repaired head remains pending.
+
+The downstream full-corpus menu-shape gate caught missing WIDGETS shadows in
+the newly authored Controller words after initial supplier landing. Repair the
+same claimed parser/decompiler paths: literal names use the real dynamic menu,
+computed names keep their reporter with that fallback shadow, and numeric-looking
+names remain quoted. Preserve ownership, actual runtime behavior and unchanged
+downstream assertions. Original failing source and new negative controls remain
+retained; require supplier qualification before a new immutable Lite adoption.

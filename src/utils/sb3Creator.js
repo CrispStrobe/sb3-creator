@@ -2815,6 +2815,14 @@ class SB3Creator {
         return [1, id];
     }
 
+    // Controller NAME accepts reporters but still requires its WIDGETS shadow.
+    widgetNameInput(context, text) {
+        const value = this.parseValue(text, context);
+        const literal = Array.isArray(value[1]) && value[1][0] === 10;
+        const menu = this.menuInput(context, 'controller_menu_WIDGETS', 'WIDGETS', literal ? value[1][1] : '');
+        return literal ? menu : [3, value[1], menu[1]];
+    }
+
     valueOfBlock(id) { return [3, id, [4, "0"]]; }
 
     // Index of the ')' matching the '(' at position `open`, or -1.
@@ -3265,7 +3273,7 @@ class SB3Creator {
         // Named Widgets use the Controller extension, including part-bound widgets.
         if ((m = s.match(/^widget\s+(value|x|y|pressed)\s+(.+)$/i))) {
             const op = {value: 'controllerValue', x: 'controllerX', y: 'controllerY', pressed: 'controllerPressed'}[m[1].toLowerCase()];
-            return B(`controller_${op}`, { NAME: this.parseValue(m[2], context) });
+            return B(`controller_${op}`, { NAME: this.widgetNameInput(context, m[2]) });
         }
         // Circuit extension reporters (boundary B instruments).
         if ((m = s.match(/^voltage at\s+(.+)$/i))) {
@@ -6764,7 +6772,7 @@ class SB3Creator {
         }
         if ((match = matchTopLevel(line, /^set widget\s+(.+?)\s+to\s+(.+)$/i))) {
             const { id, block } = cmd('controller_setWidget');
-            block[id].inputs.NAME = val(match[1]);
+            block[id].inputs.NAME = this.widgetNameInput(context, match[1]);
             block[id].inputs.VALUE = val(match[2]);
             return ret(block);
         }
@@ -8933,6 +8941,9 @@ class SB3Creator {
             // number (4), color (9), variable (12), list (13) — emit the raw value
             return String(a);
         }
+        // A literal Controller dropdown is text, rather than a reporter expression.
+        const block = blocks[inner];
+        if (block?.shadow && block.opcode === 'controller_menu_WIDGETS') return this.drep(block, blocks);
         // block reference (a reporter)
         return `(${this.drep(blocks[inner], blocks)})`;
     }
@@ -9096,6 +9107,7 @@ class SB3Creator {
             case 'devices_flex': return `flex of ${v('SENSOR')}`;
             case 'devices_force': return `force on ${v('SENSOR')}`;
             case 'devices_ircode': return `ir code from ${v('SENSOR')}`;
+            case 'controller_menu_WIDGETS': return escapeTextLiteral(String(b.fields.WIDGETS?.[0] ?? ''));
             case 'controller_controllerValue': return `widget value ${v('NAME')}`;
             case 'controller_controllerX': return `widget x ${v('NAME')}`;
             case 'controller_controllerY': return `widget y ${v('NAME')}`;
