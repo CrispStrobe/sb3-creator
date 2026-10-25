@@ -459,7 +459,7 @@ export const ARCADE_WORDS = Object.freeze([
     w('arcade_truncateNumber', 'reporter', 'arcade truncate {NUM}', {early: true}),
     w('arcade_signNumber', 'reporter', 'arcade sign of {NUM}', {early: true}),
     w('arcade_randomNumber', 'reporter', 'arcade random fraction'),
-    w('arcade_mathBinary', 'reporter', 'arcade math {OP:min|max|randomRange} first {A} second {B}', {early:true}),
+    w('arcade_mathBinary', 'reporter', 'arcade math {OP:min|max|randomRange|atan2} first {A} second {B}', {early:true}),
     w('arcade_percentChance', 'boolean', 'arcade percent chance {PERCENTAGE}'),
     w('arcade_clampNumber','reporter','arcade clamp minimum {MIN} maximum {MAX} value {VALUE}',{early:true}),
     w('arcade_cameraProperty', 'reporter', 'arcade camera property {PROPERTY}'),
