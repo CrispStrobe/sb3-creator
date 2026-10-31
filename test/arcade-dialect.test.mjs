@@ -167,6 +167,7 @@ const WORD_LINES = [
     ['hat', 'arcade_whenRegisteredLifeZero', 'when arcade life zero handler (n + 1) runs'],
     ['hat', 'arcade_whenRegisteredScore', 'when arcade score handler (n + 1) runs'],
     ['hat', 'arcade_whenRegisteredCountdown', 'when arcade countdown handler (n + 1) runs'],
+    ['hat', 'arcade_whenRegisteredExternal', 'when arcade external handler (n + 1) runs'],
     ['hat', 'arcade_whenRegisteredWall', 'when arcade wall handler (n + 1) runs'],
     ['hat', 'arcade_whenRegisteredTile', 'when arcade tile handler (n + 1) runs'],
     ['hat', 'arcade_whenRegisteredCreated', 'when arcade creation handler (n + 1) runs'],
@@ -207,6 +208,8 @@ const WORD_LINES = [
     ['command', 'arcade_registerShadeHandler', 'arcade register shade as (n + 1) capturing hero'],
     ['command', 'arcade_registerForeverHandler', 'arcade register forever as (n + 1) capturing hero'],
     ['command', 'arcade_registerCountdownHandler', 'arcade register countdown as (n + 1) capturing hero'],
+    ['command', 'arcade_externalCommand', 'arcade external command (n + 1) arguments hero'],
+    ['command', 'arcade_registerExternalHandler', 'arcade register external (n + 1) arguments hero as (n + 1) capturing hero'],
     ['command', 'arcade_registerIntervalHandler', 'arcade register interval (n + 1) as hero capturing "Player"'],
     ['command', 'arcade_registerButtonHandler', 'arcade register button (n + 1) event hero as "Player" capturing 2'],
     ['command', 'arcade_registerDestroyedHandler', 'arcade register destroyed kind (n + 1) as hero capturing "Player"'],
@@ -315,6 +318,9 @@ const WORD_LINES = [
     ['command', 'arrays_mutateReference', 'mutate array reference (n + 1) op hero index "Player" value 2'],
     ['reporter', 'arcade_functionArgument', 'arcade function argument (n + 1) rest hero'],
     ['reporter', 'arcade_callFunction', 'arcade call function (n + 1) arguments hero'],
+    ['reporter', 'arcade_externalValue', 'arcade external value (n + 1)'],
+    ['reporter', 'arcade_externalImage', 'arcade external image (n + 1)'],
+    ['reporter', 'arcade_externalCall', 'arcade external call (n + 1) arguments hero'],
     ['reporter', 'arcade_spawnSprite', 'arcade spawn template (n + 1) kind hero x "Player" y 2 width (arcade local count) height -3'],
     ['reporter', 'arcade_spawnImageProjectile', 'arcade projectile image (n + 1) template hero kind "Player" vx 2 vy (arcade local count) mode kind-source source -3'],
     ['reporter', 'arcade_spawnImageProjectile', 'arcade projectile image (n + 1) template hero kind "Player" vx 2 vy (arcade local count) mode kind-source', ALIAS],
@@ -475,7 +481,7 @@ describe('Arcade dialect words', () => {
         const here = new Set(WORD_LINES.map(([, op]) => op));
         assert.deepEqual([...here].sort(), [...ARCADE_DIALECT_OPS].sort());
         assert.equal(WORD_LINES.length, ARCADE_WORDS.length, 'one line per spelling, aliases included');
-        assert.equal(ARCADE_DIALECT_OPS.length, 406);
+        assert.equal(ARCADE_DIALECT_OPS.length, 412);
     });
 
     for (const [kind, op, line, alias] of WORD_LINES) {
