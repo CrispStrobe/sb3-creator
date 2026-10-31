@@ -573,7 +573,21 @@ function microbitImageHelpersPy (uses, pyUses) {
             '    y = int(y)',
             '    return 0 <= x < img.width() and 0 <= y < img.height() and img.get_pixel(x, y) > 0',
             'def _bw_img_show(img, off):',
-            '    display.show(img.shift_left(int(off)))');
+            '    display.show(img.shift_left(int(off)))',
+            // An Image pixel is 0..9 here and 0..255 in MakeCode: the value
+            // is quantised on the way in, so 0 and 255 survive exactly.
+            'def _bw_img_set_b(img, x, y, b):',
+            '    x = int(x)',
+            '    y = int(y)',
+            '    if 0 <= x < img.width() and 0 <= y < img.height():',
+            '        img.set_pixel(x, y, (min(255, max(0, int(b))) * 9 + 254) // 255)',
+            'def _bw_img_get_b(img, x, y):',
+            '    x = int(x)',
+            '    y = int(y)',
+            '    if not (0 <= x < img.width() and 0 <= y < img.height()):',
+            '        return 0',
+            '    p = img.get_pixel(x, y)',
+            '    return 0 if p == 0 else 255 if p >= 9 else (p * 255 + 4) // 9');
     }
     if (pyUses.point) {
         out.push('',
@@ -582,11 +596,45 @@ function microbitImageHelpersPy (uses, pyUses) {
             '    y = int(y)',
             '    return 0 <= x < 5 and 0 <= y < 5 and display.get_pixel(x, y) > 0');
     }
+    // led.pointBrightness reads back the exact 0..255 a plotBrightness stored
+    // (the 5x5 display itself holds levels 0..9); a pixel drawn any other way
+    // reads as its level scaled up. MakeCode clamps a plotted value to the
+    // display brightness, so the stored value is clamped the same way.
+    if (pyUses.pointb) {
+        out.push('', '_bw_shadow = {}');
+    }
     if (pyUses.plotb) {
+        const level = uses.dim ? '_bw_lvl((b * 9 + 254) // 255)' : '(b * 9 + 254) // 255';
         out.push('',
             'def _bw_plot_b(x, y, b):',
-            '    b = min(255, max(0, int(b)))',
-            `    _bw_plot(x, y, ${uses.dim ? '_bw_lvl((b * 9 + 254) // 255)' : '(b * 9 + 254) // 255'})`);
+            `    b = min(${uses.dim ? '_bw_bright' : '255'}, max(0, int(b)))`,
+            ...(pyUses.pointb ? [
+                '    if 0 <= int(x) < 5 and 0 <= int(y) < 5:',
+                '        _bw_shadow[int(y) * 5 + int(x)] = b'] : []),
+            `    _bw_plot(x, y, ${level})`);
+    }
+    if (pyUses.pointb) {
+        out.push('',
+            'def _bw_point_b(x, y):',
+            '    x = int(x)',
+            '    y = int(y)',
+            '    if not (0 <= x < 5 and 0 <= y < 5):',
+            '        return 0',
+            '    p = display.get_pixel(x, y)',
+            '    s = _bw_shadow.get(y * 5 + x)',
+            `    if s is not None and ${uses.dim ? '_bw_lvl((s * 9 + 254) // 255)' : '(s * 9 + 254) // 255'} == p:`,
+            '        return s',
+            '    return 0 if p == 0 else 255 if p >= 9 else (p * 255 + 4) // 9');
+    }
+    // led.setDisplayMode(BlackAndWhite): a lit pixel is fully on, whatever
+    // grey it was drawn at (the simulator renders bw mode as value > 0).
+    if (pyUses.dmode) {
+        out.push('',
+            'def _bw_set_mode(bw):',
+            '    if bw:',
+            '        for i in range(25):',
+            '            if display.get_pixel(i % 5, i // 5):',
+            '                display.set_pixel(i % 5, i // 5, 9)');
     }
     if (pyUses.parsenum) {
         out.push('',
@@ -3096,6 +3144,13 @@ class SB3Creator {
         if ((m = s.match(/^pin\s+(P\d+)\s+is\s+high\??$/i))) {
             return B('microbitplus_ispinhigh', {}, { PIN: [m[1].toUpperCase(), null] });
         }
+        // The name and value of the packet a radio.onReceivedValue handler runs for.
+        if (/^read\s+last\s+radio\s+name$/i.test(s)) return B('microbitplus_radiolastname');
+        if (/^read\s+last\s+radio\s+value$/i.test(s)) return B('microbitplus_radiolastvalue');
+        // bluetooth.uartReadUntil(delimiter)
+        if ((m = s.match(/^bluetooth\s+uart\s+read\s+until\s+(newline|comma|dollar|colon|fullstop|hash|carriage return|space|tab|pipe|semicolon)$/i))) {
+            return B('microbitplus_btuartread', {}, { DELIM: [m[1].toLowerCase(), null] });
+        }
         if ((m = s.match(/^read\s+last\s+radio\s+number$/i))) {
             return B('microbitplus_radiolastnum');
         }
@@ -3123,6 +3178,19 @@ class SB3Creator {
         }
         if ((m = matchTopLevel(s, /^pixel\s+x\s+(.+?)\s+y\s+(.+?)\s+of\s+image\s+(.+)$/i))) {
             return B('microbitplus_imagepixel', {
+                X: this.parseValue(m[1], context), Y: this.parseValue(m[2], context), IMAGE: this.parseValue(m[3], context)
+            });
+        }
+        // MakeCode's led.pointBrightness(x, y) (0..255), led.brightness() and
+        // an image's pixelBrightness(x, y).
+        if ((m = matchTopLevel(s, /^point\s+brightness\s+x\s+(.+?)\s+y\s+(.+)$/i))) {
+            return B('microbitplus_pointbrightness', { X: this.parseValue(m[1], context), Y: this.parseValue(m[2], context) });
+        }
+        if (/^display\s+brightness$/i.test(s)) {
+            return B('microbitplus_displaybrightness');
+        }
+        if ((m = matchTopLevel(s, /^pixel\s+brightness\s+x\s+(.+?)\s+y\s+(.+?)\s+of\s+image\s+(.+)$/i))) {
+            return B('microbitplus_imagebrightness', {
                 X: this.parseValue(m[1], context), Y: this.parseValue(m[2], context), IMAGE: this.parseValue(m[3], context)
             });
         }
@@ -5824,6 +5892,27 @@ class SB3Creator {
         if (/^when\s+radio\s+receives\s+(?:a\s+)?text$/i.test(line)) {
             return { block: this.createBlock('microbitplus_whenradiostr', { topLevel: true }).block, extraBlocks: {} };
         }
+        // loops.everyInterval(ms, body): the body repeats on a timer, in the background.
+        if ((match = matchTopLevel(line, /^when\s+every\s+(\S+)\s+ms$/i))) {
+            const { id, block } = cmd('microbitplus_everyinterval', { topLevel: true });
+            block[id].inputs.MS = val(match[1]);
+            return ret(block);
+        }
+        // radio.onReceivedValue((name, value) => ...)
+        if (/^when\s+radio\s+receives\s+(?:a\s+)?name\s+and\s+value$/i.test(line)) {
+            return { block: this.createBlock('microbitplus_whenradiokv', { topLevel: true }).block, extraBlocks: {} };
+        }
+        // bluetooth.onBluetoothConnected / onBluetoothDisconnected and onUartDataReceived
+        if ((match = matchTopLevel(line, /^when\s+micro:bit\s+(connected|disconnected)$/i))) {
+            const { id, block } = this.createBlock('microbitplus_whenconn', { topLevel: true });
+            block[id].fields.CONNSTATE = [match[1].toLowerCase(), null];
+            return { block, extraBlocks: {} };
+        }
+        if ((match = line.match(/^when\s+bluetooth\s+uart\s+receives\s+(newline|comma|dollar|colon|fullstop|hash|carriage return|space|tab|pipe|semicolon)$/i))) {
+            const { id, block } = this.createBlock('microbitplus_whenuart', { topLevel: true });
+            block[id].fields.DELIM = [match[1].toLowerCase(), null];
+            return { block, extraBlocks: {} };
+        }
         // MakeCode's input.onSound(DetectedSound.Loud|Quiet): MakeCode has no
         // sound-event REPORTER, only the handler, so it is a hat here too.
         if ((match = matchTopLevel(line, /^when\s+(loud|quiet)\s+sound$/i))) {
@@ -6282,6 +6371,18 @@ class SB3Creator {
             block[id].inputs.BRIGHTNESS = val(match[1]);
             return ret(block);
         }
+        // led.setDisplayMode and led.enable. `display mode` and `led enable`
+        // are qualified for the reason `display brightness` is.
+        if ((match = matchTopLevel(line, /^set\s+display\s+mode\s+to\s+(black\s+and\s+white|greyscale)\s*$/i))) {
+            const { id, block } = cmd('microbitplus_setdisplaymode');
+            block[id].fields.MODE = [/^g/i.test(match[1]) ? 'greyscale' : 'black and white', null];
+            return ret(block);
+        }
+        if ((match = matchTopLevel(line, /^led\s+enable\s+(on|off)\s*$/i))) {
+            const { id, block } = cmd('microbitplus_ledenable');
+            block[id].fields.STATE = [match[1].toLowerCase(), null];
+            return ret(block);
+        }
         if (/^stop\s+animation\s*$/i.test(line)) {
             const { block } = cmd('microbitplus_stopanimation');
             return ret(block);
@@ -6311,6 +6412,14 @@ class SB3Creator {
         // MakeCode's images, changed and shown at run time (the value
         // `create image …` is in parseReporter). BEFORE the variable `set … to`
         // rule, which would read `set pixel … to 1` as a variable.
+        if ((match = matchTopLevel(line, /^set\s+pixel\s+x\s+(.+?)\s+y\s+(.+?)\s+of\s+image\s+(.+?)\s+brightness\s+(.+?)\s*$/i))) {
+            const { id, block } = cmd('microbitplus_imagesetbrightness');
+            block[id].inputs.X = val(match[1]);
+            block[id].inputs.Y = val(match[2]);
+            block[id].inputs.IMAGE = val(match[3]);
+            block[id].inputs.BRIGHTNESS = val(match[4]);
+            return ret(block);
+        }
         if ((match = matchTopLevel(line, /^set\s+pixel\s+x\s+(.+?)\s+y\s+(.+?)\s+of\s+image\s+(.+?)\s+to\s+(.+?)\s*$/i))) {
             const { id, block } = cmd('microbitplus_imagesetpixel');
             block[id].inputs.X = val(match[1]);
@@ -6550,6 +6659,22 @@ class SB3Creator {
             const { id, block } = cmd('microbitplus_radioon');
             block[id].inputs.GROUP = val(match[1]);
             block[id].inputs.POWER = val(match[2]);
+            return ret(block);
+        }
+        // radio.sendValue(name, value): the name is cut to 8 characters on the air.
+        if ((match = matchTopLevel(line, /^radio\s+send\s+value\s+(\S+)\s*=\s*(\S+)\s*$/i))) {
+            const { id, block } = cmd('microbitplus_radiosendkv');
+            block[id].inputs.KEY = val(match[1]);
+            block[id].inputs.VALUE = val(match[2]);
+            return ret(block);
+        }
+        // Any bluetooth.<call>(…): kept with its name and up to four arguments.
+        if ((match = matchTopLevel(line, /^bluetooth\s+call\s+(\w+)(?:\s+(\S+))?(?:\s+(\S+))?(?:\s+(\S+))?(?:\s+(\S+))?\s*$/i))) {
+            const { id, block } = cmd('microbitplus_bluetooth');
+            block[id].inputs.NAME = [1, [10, match[1]]];
+            ['A1', 'A2', 'A3', 'A4'].forEach((slot, i) => {
+                if (match[2 + i] !== undefined) block[id].inputs[slot] = val(match[2 + i]);
+            });
             return ret(block);
         }
         if ((match = matchTopLevel(line, /^radio\s+send\s+number\s+(\S+)\s*$/i))) {
@@ -9084,6 +9209,12 @@ class SB3Creator {
             case 'microbitplus_createimage': return `create image ${f('MATRIX')}`;
             case 'microbitplus_imagepixel': return `pixel x ${v('X')} y ${v('Y')} of image ${v('IMAGE')}`;
             case 'microbitplus_point': return `point x ${v('X')} y ${v('Y')}`;
+            case 'microbitplus_radiolastname': return 'read last radio name';
+            case 'microbitplus_radiolastvalue': return 'read last radio value';
+            case 'microbitplus_btuartread': return `bluetooth uart read until ${f('DELIM') || 'newline'}`;
+            case 'microbitplus_pointbrightness': return `point brightness x ${v('X')} y ${v('Y')}`;
+            case 'microbitplus_displaybrightness': return 'display brightness';
+            case 'microbitplus_imagebrightness': return `pixel brightness x ${v('X')} y ${v('Y')} of image ${v('IMAGE')}`;
             case 'microbitplus_parsenumber': return `number from text ${v('TEXT')}`;
             case 'microbitplus_map': return `map ${v('VALUE')} from low ${v('FROMLOW')} high ${v('FROMHIGH')} to low ${v('TOLOW')} high ${v('TOHIGH')}`;
             // STC12 / 8051 pin read (digital level or ADC value).
@@ -9243,6 +9374,10 @@ class SB3Creator {
             case 'devices_whenirreceived': return `WHEN IR received on ${v('SENSOR')}:`;
             case 'microbitplus_whenradionum': return 'WHEN radio receives number:';
             case 'microbitplus_whenradiostr': return 'WHEN radio receives text:';
+            case 'microbitplus_everyinterval': return `WHEN every ${v('MS')} ms:`;
+            case 'microbitplus_whenradiokv': return 'WHEN radio receives name and value:';
+            case 'microbitplus_whenconn': return `WHEN micro:bit ${f('CONNSTATE') === 'disconnected' ? 'disconnected' : 'connected'}:`;
+            case 'microbitplus_whenuart': return `WHEN bluetooth uart receives ${f('DELIM') || 'newline'}:`;
             case 'microbitplus_whensound': return `WHEN ${f('LEVEL') === 'quiet' ? 'quiet' : 'loud'} sound:`;
             case 'procedures_definition': {
                 const proto = blocks[b.inputs.custom_block[1]];
@@ -9405,6 +9540,14 @@ class SB3Creator {
             case 'microbitplus_cleardisplay': return line('clear display');
             case 'microbitplus_plot': return line(`plot x ${v('X')} y ${v('Y')} ${f('STATE')}`);
             case 'microbitplus_plotbrightness': return line(`plot x ${v('X')} y ${v('Y')} brightness ${v('BRIGHTNESS')}`);
+            case 'microbitplus_radiosendkv': return line(`radio send value ${v('KEY')} = ${v('VALUE')}`);
+            case 'microbitplus_bluetooth': {
+                const args = ['A1', 'A2', 'A3', 'A4'].filter((k) => b.inputs && b.inputs[k]).map((k) => ' ' + v(k));
+                return line(`bluetooth call ${f('NAME') || this.dtext(b.inputs.NAME, blocks)}${args.join('')}`);
+            }
+            case 'microbitplus_imagesetbrightness': return line(`set pixel x ${v('X')} y ${v('Y')} of image ${v('IMAGE')} brightness ${v('BRIGHTNESS')}`);
+            case 'microbitplus_setdisplaymode': return line(`set display mode to ${f('MODE') === 'black and white' ? 'black and white' : 'greyscale'}`);
+            case 'microbitplus_ledenable': return line(`led enable ${f('STATE') === 'off' ? 'off' : 'on'}`);
             case 'microbitplus_imagesetpixel': return line(`set pixel x ${v('X')} y ${v('Y')} of image ${v('IMAGE')} to ${v('VALUE')}`);
             case 'microbitplus_showimage': return line(`show image ${v('IMAGE')} offset ${v('OFFSET')}`);
             case 'microbitplus_plotimage': return line(`plot image ${v('IMAGE')} offset ${v('OFFSET')}`);
@@ -9603,7 +9746,9 @@ class SB3Creator {
             'stc12_whenpin', 'stc12_whenkey',
             'devices_whenabove', 'devices_whencloser', 'devices_whenmotion',
             'devices_whentilted', 'devices_whenirreceived',
-            'microbitplus_whenradionum', 'microbitplus_whenradiostr', 'microbitplus_whensound'].includes(op);
+            'microbitplus_whenradionum', 'microbitplus_whenradiostr', 'microbitplus_whensound',
+            'microbitplus_whenradiokv', 'microbitplus_everyinterval', 'microbitplus_whenconn',
+            'microbitplus_whenuart'].includes(op);
     }
 
     pyName(name) {
@@ -9776,6 +9921,15 @@ class SB3Creator {
                 this._pyUses.images = true;
                 return `_bw_img_get(${v('IMAGE')}, ${v('X')}, ${v('Y')})`;
             case 'microbitplus_point': this._pyUses.point = true; return `_bw_point(${v('X')}, ${v('Y')})`;
+            case 'microbitplus_radiolastname': this._pyUses.radio = true; this._pyUses.radiokv = true; return '_radio_last_name';
+            case 'microbitplus_radiolastvalue': this._pyUses.radio = true; this._pyUses.radiokv = true; return '_radio_last_value';
+            // No Bluetooth stack in the simulator: nothing was ever received.
+            case 'microbitplus_btuartread': return "''";
+            case 'microbitplus_pointbrightness': this._pyUses.pointb = true; return `_bw_point_b(${v('X')}, ${v('Y')})`;
+            case 'microbitplus_displaybrightness': this._pyUses.dimread = true; return '_bw_bright';
+            case 'microbitplus_imagebrightness':
+                this._pyUses.images = true;
+                return `_bw_img_get_b(${v('IMAGE')}, ${v('X')}, ${v('Y')})`;
             case 'microbitplus_parsenumber': this._pyUses.parsenum = true; return `_bw_parse_number(${v('TEXT')})`;
             // pins.map, exactly as MakeCode computes it:
             // ((value - fromLow) * (toHigh - toLow)) / (fromHigh - fromLow) + toLow
@@ -14238,6 +14392,27 @@ class SB3Creator {
                 case 'microbitplus_imagesetpixel':
                     this._pyUses.images = true;
                     return [`${pad}_bw_img_set(${v('IMAGE')}, ${v('X')}, ${v('Y')}, ${v('VALUE')})`];
+                // radio.sendValue: MicroPython's radio carries text, so the pair
+                // rides as NUL 'V' <name, cut to 8> NUL <value> (like the serial
+                // number's NUL 'S' prefix); the receiver splits it again.
+                case 'microbitplus_radiosendkv':
+                    uses.radio = true;
+                    return [`${pad}radio.send(${tx(`'\\x00V' + (${pyText('KEY')})[:8] + '\\x00' + str(${v('VALUE')})`)})`];
+                // bluetooth.*: the simulator has no radio stack for it (PXT's
+                // own simulator ignores these calls as well), so the call
+                // stays in the blocks and does nothing here.
+                case 'microbitplus_bluetooth':
+                    return [`${pad}pass  # bluetooth.${String(this.dtext(b.inputs.NAME, blocks)).replace(/[^\w]/g, '')}`];
+                case 'microbitplus_imagesetbrightness':
+                    this._pyUses.images = true;
+                    return [`${pad}_bw_img_set_b(${v('IMAGE')}, ${v('X')}, ${v('Y')}, ${v('BRIGHTNESS')})`];
+                case 'microbitplus_setdisplaymode':
+                    this._pyUses.dmode = true;
+                    return [`${pad}_bw_set_mode(${f('MODE') === 'black and white' ? 'True' : 'False'})`];
+                // led.enable(false) frees the LED pins (display.off()); true
+                // gives them back.
+                case 'microbitplus_ledenable':
+                    return [`${pad}display.${f('STATE') === 'off' ? 'off' : 'on'}()`];
                 case 'microbitplus_showimage':
                 case 'microbitplus_plotimage':
                     this._pyUses.images = true;
@@ -14682,6 +14857,18 @@ class SB3Creator {
                     const body = asTask(walk(b.next, blocks, '    '));
                     taskDefs.push([`def ${fn}():`, ...globalsFor(this, body), ...body].join('\n'));
                     receivers.push([msg, fn]);
+                } else if (b.opcode === 'microbitplus_whenradiokv') {
+                    // radio.onReceivedValue: the handler gets (name, value) as one
+                    // tuple, read from its own argument as the other radio hats do.
+                    uses.radio = true;
+                    this._pyUses.radiokv = true;
+                    const fn = `_task_${taskSeq++}`;
+                    const body = asTask(walk(b.next, blocks, '    ')
+                        .map((l) => l.replace(/\b_radio_last_name\b/g, '_bw_rx[0]').replace(/\b_radio_last_value\b/g, '_bw_rx[1]')));
+                    taskDefs.push([`def ${fn}(_bw_rx):`, ...globalsFor(this, body), ...body].join('\n'));
+                    const key = `__bw_radio_kv_${radioHandlers.length}`;
+                    radioHandlers.push({ kind: 'kv', key });
+                    receivers.push([key, fn]);
                 } else if (b.opcode === 'microbitplus_whenradionum' || b.opcode === 'microbitplus_whenradiostr') {
                     // MakeCode's radio.onReceivedNumber/String. One receiver task
                     // (below) takes packets off the air and starts each matching
@@ -14700,6 +14887,22 @@ class SB3Creator {
                     const key = `__bw_radio_${kind}_${radioHandlers.length}`;
                     radioHandlers.push({ kind, key });
                     receivers.push([key, fn]);
+                } else if (b.opcode === 'microbitplus_everyinterval') {
+                    // loops.everyInterval: run the body, then wait what is left of
+                    // the interval (never negative) — MakeCode's own loop.
+                    const fn = `_task_${taskSeq++}`;
+                    const body = walk(b.next, blocks, '        ');
+                    taskDefs.push([`def ${fn}():`,
+                        ...globalsFor(this, body),
+                        '    while True:',
+                        '        _bw_t0 = running_time()',
+                        ...body,
+                        `        yield max(0, int(${this.pyVal(b.inputs.MS, blocks)}) - (running_time() - _bw_t0))`].join('\n'));
+                    starts.push(fn);
+                } else if (b.opcode === 'microbitplus_whenconn' || b.opcode === 'microbitplus_whenuart') {
+                    // Bluetooth events never happen in the simulator: the handler
+                    // stays in the blocks and is never started.
+                    continue;
                 } else if (b.opcode === 'microbitplus_whensound') {
                     // MakeCode's input.onSound: the body runs once per loud (or
                     // quiet) event, which microphone.was_event reports once.
@@ -14806,7 +15009,7 @@ class SB3Creator {
             const txt = keys('text').map((k) => `${k}m)`);
             taskDefs.push([
                 'def _bw_radio_rx():',
-                `    global _radio_last_num, _radio_last_str${this._pyUses.rssi ? ', _radio_last_rssi' : ''}${this._pyUses.rserial ? ', _radio_last_serial' : ''}`,
+                `    global _radio_last_num, _radio_last_str${radioHandlers.some((h) => h.kind === 'kv') ? ', _radio_last_name, _radio_last_value' : ''}${this._pyUses.rssi ? ', _radio_last_rssi' : ''}${this._pyUses.rserial ? ', _radio_last_serial' : ''}`,
                 '    radio.on()',
                 '    while True:',
                 // The signal strength is only in receive_full(), which keeps
@@ -14831,7 +15034,20 @@ class SB3Creator {
                     '            except ValueError:', '                _radio_last_serial = 0'] : []),
                 '            m = m[j + 1:]',
                 ...(this._pyUses.rserial ? ['        elif m is not None:', '            _radio_last_serial = 0'] : []),
-                '        if m is not None:',
+                // radio.sendValue's packet: NUL 'V' name NUL value.
+                "        if m is not None and m[:2] == '\\x00V':",
+                "            j = m.find('\\x00', 2)",
+                '            try:',
+                '                kv = float(m[j + 1:])',
+                '                kv = int(kv) if kv == int(kv) else kv',
+                '            except (ValueError, OverflowError):',
+                '                kv = 0',
+                ...(radioHandlers.some((h) => h.kind === 'kv') ? [
+                    '            _radio_last_name = m[2:j]',
+                    '            _radio_last_value = kv',
+                    `            _pending.extend([${radioHandlers.filter((h) => h.kind === 'kv')
+                        .map((h) => `(${this.pyStr(h.key)}, (_radio_last_name, kv))`).join(', ')}])`] : ['            pass']),
+                '        elif m is not None:',
                 '            try:',
                 '                n = float(m)',
                 '                n = int(n) if n == int(n) else n',
@@ -14892,6 +15108,7 @@ class SB3Creator {
         // stopped with a NameError on its first read.
         if (uses.radio) header.push('import radio');
         if (this._pyUses.radio || radioHandlers.length) header.push('_radio_last_num = 0', "_radio_last_str = ''");
+        if (this._pyUses.radiokv || radioHandlers.some((h) => h.kind === 'kv')) header.push("_radio_last_name = ''", '_radio_last_value = 0');
         if (this._pyUses.rssi) header.push('_radio_last_rssi = 0');
         if (this._pyUses.rserial) header.push('_radio_last_serial = 0');
         if (!isPico) header.push(...microbitRadioSerialPy(this._pyUses, radioSerial));
@@ -14925,6 +15142,7 @@ class SB3Creator {
         if (this._runtimesUsed.has('stc12') && this._driverPins) {
             header.push('', ...this.stc12SimulatorDriver('py', this._driverPins));
         }
+        if (this._pyUses.dimread) uses.dim = true;
         if (!isPico) header.push(...microbitLedHelpersPy(uses, this._pyUses));
         if (!isPico) header.push(...microbitImageHelpersPy(uses, this._pyUses));
         if (uses._pitch) header.push('', 'def _pitch():', '    x, y, z = accelerometer.get_values()', '    return math.atan2(-y, -z) * 180 / math.pi');
