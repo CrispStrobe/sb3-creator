@@ -663,12 +663,17 @@ export default function micropythonToPseudocode (source, opts = {}) {
         // micro:bit radio. `radio on group G power P` emits a config + an on();
         // the two lift together. `radio send number N` is send(str(N)); `radio
         // send text "..."` is send('...').
-        if ((m = s.match(/^radio\.config\s*\(\s*group=int\(\s*(.+?)\s*\)\s*,\s*power=int\(\s*(.+?)\s*\)\s*\)$/))) {
+        if ((m = s.match(/^radio\.config\s*\(\s*group=int\(\s*(.+?)\s*\)\s*,\s*power=int\(\s*(.+?)\s*\)(?:\s*,\s*length=35)?\s*\)$/))) {
             emit(depth, `radio on group ${expr(m[1])} power ${expr(m[2])}`);
             if (lines[i + 1] && /^radio\.on\s*\(\s*\)$/.test(lines[i + 1].code.trim())) i++;
             continue;
         }
         if ((m = s.match(/^radio\.send\s*\(\s*str\(\s*(.+?)\s*\)\s*\)$/))) { emit(depth, `radio send number ${expr(m[1])}`); continue; }
+        // The same two as MakeCode's packets (_bw_pkt, see microbitRadioSerialPy).
+        if ((m = s.match(/^radio\.send_bytes\s*\(\s*_bw_pkt\(\s*0\s*,\s*(.+?)\s*\)\s*\)$/))) { emit(depth, `radio send number ${expr(m[1])}`); continue; }
+        if ((m = s.match(/^radio\.send_bytes\s*\(\s*_bw_pkt\(\s*2\s*,\s*0\s*,\s*('(?:[^'\\]|\\.)*'|"(?:[^"\\]|\\.)*")\s*\)\s*\)$/))) {
+            emit(depth, `radio send text ${pyText(m[1])}`); continue;
+        }
         if ((m = s.match(/^radio\.send\s*\(\s*('(?:[^'\\]|\\.)*'|"(?:[^"\\]|\\.)*")\s*\)$/))) {
             emit(depth, `radio send text ${pyText(m[1])}`); continue;
         }

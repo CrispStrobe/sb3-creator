@@ -535,7 +535,8 @@ function microbitShowNumberPy (pyUses) {
  */
 function microbitRadioSerialPy (pyUses, sends) {
     const out = [];
-    if (pyUses.serialno) {
+    const send = sends || pyUses.radiosend;
+    if (pyUses.serialno || send) {
         out.push('',
             'try:',
             '    import machine',
@@ -544,10 +545,33 @@ function microbitRadioSerialPy (pyUses, sends) {
             'except Exception:',
             '    _bw_serial_no = 1');
     }
-    if (sends) {
+    if (send) {
+        // MakeCode's radio packet (pxt-microbit libs/radio/radio.ts, "Packet Spec"): 32 bytes,
+        // | type | time (uint32 LE) | serial (int32 LE) | payload |, behind the 3-byte header
+        // (01 00 01) every MicroPython frame carries. Number 0 (int32 at 9) or double 4 (float64 at 9);
+        // value 1 (int32 at 9, name length at 13, name at 14) or double value 5 (float64 at 9, name
+        // length at 17, name at 18); string 2 and buffer 3 (length at 9, bytes at 10, at most 19).
         out.push('_bw_tx_serial = [False]',
-            'def _bw_tx(p):',
-            "    return ('\\x00S%d\\x00' % _bw_serial_no) + p if _bw_tx_serial[0] else p");
+            'def _bw_pkt(t, n=0, s=b\'\'):',
+            '    if isinstance(s, str):',
+            '        s = s.encode()',
+            '    if t < 2 and (n != int(n) or n > 2147483647 or n < -2147483648):',
+            '        t += 4',
+            "    h = struct.pack('<BBBBIi', 1, 0, 1, t, running_time() & 0xffffffff, _bw_serial_no if _bw_tx_serial[0] else 0)",
+            '    if t == 0 or t == 1:',
+            "        b = struct.pack('<i', int(n))",
+            '    elif t == 4 or t == 5:',
+            "        b = struct.pack('<d', n)",
+            '    else:',
+            '        b = b\'\'',
+            '    if t == 1 or t == 5:',
+            '        s = s[:8]',
+            '        b += bytes([len(s)]) + s',
+            '    elif t > 1:',
+            '        s = s[:19]',
+            '        b += bytes([len(s)]) + s',
+            '    h += b',
+            "    return h + bytes(35 - len(h))");
     }
     return out;
 }
@@ -997,6 +1021,12 @@ const OPENS_A_BODY = new Set([
 const MB_NUMBER_FORMATS = ['int8le', 'uint8le', 'int16le', 'uint16le', 'int32le', 'uint32le', 'float32le', 'float64le',
     'int8be', 'uint8be', 'int16be', 'uint16be', 'int32be', 'uint32be', 'float32be', 'float64be'];
 const MB_FMT = `{FMT:${MB_NUMBER_FORMATS.join('|')}}`;
+const MB_FMT_SIZE = { int8le: 1, uint8le: 1, int16le: 2, uint16le: 2, int32le: 4, uint32le: 4, float32le: 4, float64le: 8,
+    int8be: 1, uint8be: 1, int16be: 2, uint16be: 2, int32be: 4, uint32be: 4, float32be: 4, float64be: 8 };
+const MB_DELIM_CHARS = { newline: '\n', comma: ',', dollar: '$', colon: ':', fullstop: '.', hash: '#', 'carriage return': '\r',
+    space: ' ', tab: '\t', pipe: '|', semicolon: ';' };
+const MB_DELIM = `{DELIM:${Object.keys(MB_DELIM_CHARS).join('|')}}`;
+const MB_PIN = (name) => `{${name}:${Array.from({ length: 21 }, (_, i) => `P${i}`).join('|')}}`;
 const MB_API = [
     // ── Buffer: a byte array (MakeCode's Buffer), a bytearray here ──
     { k: 'r', op: 'createbuffer', t: 'create buffer <SIZE>', py: (a, f, u) => { u.buffers = true; return `bytearray(max(0, int(${a.SIZE})))`; } },
@@ -1014,7 +1044,7 @@ const MB_API = [
     // The packet rides as NUL 'B' <bytes> (like radio.sendValue's NUL 'V'), after the serial number's NUL 'S' prefix when that is on,
     // behind the 3-byte header radio.send(str) puts on every packet (so the receiver strips every packet alike).
     { k: 'c', op: 'radiosendbuf', t: 'radio send buffer <BUF>',
-        py: (a, f, u, ctx) => { u.radio = true; ctx.radio = true; return [`radio.send_bytes(b'\\x01\\x00\\x01' + ${ctx.serial ? "_bw_tx('').encode() + " : ''}b'\\x00B' + bytes(${a.BUF}))`]; } },
+        py: (a, f, u, ctx) => { u.radio = true; ctx.radio = true; u.radiosend = true; return [`radio.send_bytes(_bw_pkt(3, 0, bytes(${a.BUF})))`]; } },
     { k: 'h', op: 'whenradiobuf', t: 'when radio receives buffer' },
     { k: 'r', op: 'radiolastbuf', t: 'read last radio buffer', py: (a, f, u) => { u.radio = true; u.radiobuf = true; return '_radio_last_buf'; } },
     { k: 'h', op: 'whenradiopacket', t: 'when radio receives packet' },
@@ -1032,6 +1062,48 @@ const MB_API = [
     { k: 'c', op: 'raiseevent', t: 'raise event <SOURCE> <VALUE>',
         py: (a, f, u) => { u.events = true; return [`_bw_raise(${a.SOURCE}, ${a.VALUE})`]; } },
     { k: 'r', op: 'eventvalue', t: 'event value', py: (a, f, u) => { u.events = true; return '_bw_ev_val'; } },
+    // ── The USB serial console beyond print (MakeCode's serial.writeString / writeNumber / writeBuffer / read*) ──
+    // print() is the console; uart is the same port for raw bytes and for reading. Reads wait for what they ask for
+    // (the whole program waits with them: MicroPython's console is one stream), as MakeCode's fiber does.
+    { k: 'c', op: 'serialwritetext', t: 'serial write text <TEXT>', py: (a) => [`print(${a.TEXT}, end='')`] },
+    { k: 'c', op: 'serialwritenum', t: 'serial write number <NUM>', py: (a) => [`print(${a.NUM}, end='')`] },
+    { k: 'c', op: 'serialwritebuf', t: 'serial write buffer <BUF>', py: (a) => [`uart.write(bytes(${a.BUF}))`] },
+    { k: 'r', op: 'serialreadbuf', t: 'serial read buffer <SIZE>', py: (a, f, u) => { u.serread = true; return `_bw_ser_buf(${a.SIZE})`; } },
+    { k: 'r', op: 'serialreadstr', t: 'serial read string', py: (a, f, u) => { u.serread = true; return '_bw_ser_all()'; } },
+    { k: 'r', op: 'serialreaduntil', t: `serial read until ${MB_DELIM}`,
+        py: (a, f, u) => { u.serread = true; return `_bw_ser_until(${JSON.stringify(MB_DELIM_CHARS[f.DELIM] || '\n')})`; } },
+    // ── I2C and SPI (pins.i2c*, pins.spi*) ──
+    { k: 'r', op: 'i2creadbuf', t: 'i2c read buffer at <ADDR> size <SIZE>', py: (a) => `bytearray(i2c.read(int(${a.ADDR}), int(${a.SIZE})))` },
+    { k: 'c', op: 'i2cwritebuf', t: 'i2c write buffer <BUF> to <ADDR>', py: (a) => [`i2c.write(int(${a.ADDR}), bytes(${a.BUF}))`] },
+    { k: 'r', op: 'i2creadnum', t: `i2c read ${MB_FMT} at <ADDR>`,
+        py: (a, f, u) => { u.buffers = true; return `_bw_buf_get(bytearray(i2c.read(int(${a.ADDR}), ${MB_FMT_SIZE[f.FMT] || 4})), '${f.FMT}', 0)`; } },
+    { k: 'c', op: 'i2cwritenum', t: `i2c write ${MB_FMT} <VALUE> to <ADDR>`,
+        py: (a, f, u) => { u.buffers = true; u.i2cnum = true; return [`_bw_i2c_wn(int(${a.ADDR}), '${f.FMT}', ${a.VALUE}, ${MB_FMT_SIZE[f.FMT] || 4})`]; } },
+    { k: 'r', op: 'spixfer', t: 'spi transfer <VALUE>',
+        py: (a, f, u) => { u.spi = true; return `_bw_spi_byte(${a.VALUE})`; } },
+    { k: 'c', op: 'spixferbuf', t: 'spi transfer buffer <BUF> into <INTO>', py: (a) => [`spi.write_readinto(bytes(${a.BUF}), ${a.INTO})`] },
+    { k: 'c', op: 'spifreq', t: 'spi frequency <HZ>', py: (a, f, u) => { u.spi = true; return [`_bw_spi_set(baudrate=int(${a.HZ}))`]; } },
+    { k: 'c', op: 'spiformat', t: 'spi format <BITS> mode <MODE>', py: (a, f, u) => { u.spi = true; return [`_bw_spi_set(bits=int(${a.BITS}), mode=int(${a.MODE}))`]; } },
+    { k: 'c', op: 'spipins', t: `spi pins mosi ${MB_PIN('MOSI')} miso ${MB_PIN('MISO')} sck ${MB_PIN('SCK')}`,
+        py: (a, f, u) => { u.spi = true; return [`_bw_spi_set(mosi=pin${String(f.MOSI).slice(1)}, miso=pin${String(f.MISO).slice(1)}, sclk=pin${String(f.SCK).slice(1)})`]; } },
+    { k: 'r', op: 'sizeofformat', t: `size of ${MB_FMT}`, py: (a, f) => String(MB_FMT_SIZE[f.FMT] || 4) },
+    { k: 'r', op: 'bufferfromtext', t: 'buffer from text <TEXT>', py: (a) => `bytearray(str(${a.TEXT}).encode())` },
+    // ── Sound that the music words do not reach ──
+    { k: 'c', op: 'setvolume', t: 'set speaker volume to <VOL>', py: (a, f, u) => { u.volume = true; return [`_bw_vol[0] = max(0, min(255, int(${a.VOL})))`, 'set_volume(_bw_vol[0])']; } },
+    { k: 'r', op: 'getvolume', t: 'speaker volume', py: (a, f, u) => { u.volume = true; return '_bw_vol[0]'; } },
+    { k: 'r', op: 'soundplaying', t: 'sound is playing', py: () => 'audio.is_playing()' },
+    { k: 'c', op: 'speaker', t: 'speaker {MODE:on|off}', py: (a, f) => [`speaker.${f.MODE === 'off' ? 'off' : 'on'}()`] },
+    // ── Data logging beyond log data (micro:bit V2 log module) ──
+    // set_labels takes the timestamp unit with the labels, so the two are kept and sent together.
+    { k: 'c', op: 'logcols1', t: 'set log columns <C1>', py: (a, f, u) => { u.datalog = true; u.logcfg = true; return [`_bw_log_cfg([${a.C1}])`]; } },
+    { k: 'c', op: 'logcols2', t: 'set log columns <C1> and <C2>', py: (a, f, u) => { u.datalog = true; u.logcfg = true; return [`_bw_log_cfg([${a.C1}, ${a.C2}])`]; } },
+    { k: 'c', op: 'logcols3', t: 'set log columns <C1> and <C2> and <C3>',
+        py: (a, f, u) => { u.datalog = true; u.logcfg = true; return [`_bw_log_cfg([${a.C1}, ${a.C2}, ${a.C3}])`]; } },
+    { k: 'c', op: 'logdelete', t: 'delete log', py: (a, f, u) => { u.datalog = true; return ['log.delete()']; } },
+    { k: 'c', op: 'logdeletefull', t: 'delete log fully', py: (a, f, u) => { u.datalog = true; return ['log.delete(full=True)']; } },
+    { k: 'c', op: 'logmirror', t: 'log mirror {MODE:on|off}', py: (a, f, u) => { u.datalog = true; return [`log.set_mirroring(${f.MODE === 'off' ? 'False' : 'True'})`]; } },
+    { k: 'c', op: 'logstamp', t: 'log timestamp {UNIT:none|milliseconds|seconds|minutes|hours|days}',
+        py: (a, f, u) => { u.datalog = true; u.logcfg = true; return [`_bw_log_cfg(None, ${f.UNIT === 'none' ? 'None' : `log.${String(f.UNIT).toUpperCase()}`})`]; } },
     // ── Data logging (micro:bit V2) ──
     { k: 'c', op: 'datalog1', t: 'log data <K1> = <V1>', py: (a, f, u) => { u.datalog = true; return [`_bw_log({${a.K1}: ${a.V1}})`]; } },
     { k: 'c', op: 'datalog2', t: 'log data <K1> = <V1> and <K2> = <V2>',
@@ -1135,10 +1207,62 @@ function microbitApiHelpersPy(pyUses) {
             '            _pending.append(h[2])',
             '    _bw_ev_val = v');
     }
+    if (pyUses.serread) {
+        // Reads from the console: wait (a millisecond at a time) for what was asked.
+        out.push('', 'def _bw_ser_buf(n):',
+            '    n = int(n)',
+            '    d = b\'\'',
+            '    while len(d) < n:',
+            '        c = uart.read(n - len(d))',
+            '        if c:',
+            '            d += c',
+            '        else:',
+            '            sleep(1)',
+            '    return bytearray(d)',
+            'def _bw_ser_all():',
+            "    return str(uart.read() or b'', 'utf8')",
+            'def _bw_ser_until(delim):',
+            "    d = b''",
+            '    t = delim.encode()',
+            '    while not d.endswith(t):',
+            '        c = uart.read(1)',
+            '        if c:',
+            '            d += c',
+            '        else:',
+            '            sleep(1)',
+            "    return str(d[:len(d) - len(t)], 'utf8')");
+    }
+    if (pyUses.i2cnum) {
+        out.push('', 'def _bw_i2c_wn(a, fmt, v, n):',
+            '    b = bytearray(n)',
+            '    _bw_buf_set(b, fmt, 0, v)',
+            '    i2c.write(a, bytes(b))');
+    }
+    if (pyUses.spi) {
+        out.push('', '_bw_spic = {}',
+            'def _bw_spi_set(**kw):',
+            '    _bw_spic.update(kw)',
+            '    spi.init(**_bw_spic)',
+            'def _bw_spi_byte(v):',
+            '    r = bytearray(1)',
+            '    spi.write_readinto(bytes([int(v) & 255]), r)',
+            '    return r[0]');
+    }
+    if (pyUses.volume) out.push('', '_bw_vol = [128]');
     if (pyUses.datalog) {
         out.push('', 'import log',
             'def _bw_log(row):',
             '    log.add(row)');
+        if (pyUses.logcfg) {
+            // MicroPython sets the column names and the timestamp unit in one call.
+            out.push('_bw_log_c = [[], None]',
+                'def _bw_log_cfg(cols=None, ts=0):',
+                '    if cols is not None:',
+                '        _bw_log_c[0] = cols',
+                '    if ts != 0:',
+                '        _bw_log_c[1] = ts',
+                '    log.set_labels(*_bw_log_c[0], timestamp=_bw_log_c[1])');
+        }
     }
     if (pyUses.writepkt) {
         // radio.writeReceivedPacketToSerial(): {"t":time,"s":serial,"n":"name","v":value}.
@@ -14345,13 +14469,12 @@ class SB3Creator {
             .some((bl) => bl && bl.opcode === 'microbitplus_setbrightness'));
         if (dimmable) uses.dim = true;
         // A program that turns on `radio transmit serial number` sends every
-        // packet with its serial number in front (microbitRadioSerialPy);
+        // packet with its serial number in it (microbitRadioSerialPy);
         // decided before the walk, as `dimmable` is, because the sends may
         // come before the switch.
         const radioSerial = targets.some((t) => Object.values(t.blocks || {})
             .some((bl) => bl && bl.opcode === 'microbitplus_radioserial'));
         if (radioSerial) this._pyUses.serialno = true;
-        const tx = (payload) => (radioSerial ? `_bw_tx(${payload})` : payload);
 
         // TWO boards run MicroPython here. The micro:bit's pins are ambient
         // objects (pin0..pin20); the Pico's are CONSTRUCTED — Pin(n, Pin.IN,
@@ -14623,7 +14746,8 @@ class SB3Creator {
                 // number's NUL 'S' prefix); the receiver splits it again.
                 case 'microbitplus_radiosendkv':
                     uses.radio = true;
-                    return [`${pad}radio.send(${tx(`'\\x00V' + (${pyText('KEY')})[:8] + '\\x00' + str(${v('VALUE')})`)})`];
+                    this._pyUses.radiosend = true;
+                    return [`${pad}radio.send_bytes(_bw_pkt(1, ${v('VALUE')}, ${pyText('KEY')}))`];
                 // bluetooth.*: the simulator has no radio stack for it (PXT's
                 // own simulator ignores these calls as well), so the call
                 // stays in the blocks and does nothing here.
@@ -14818,13 +14942,15 @@ class SB3Creator {
                 // micro:bit+ RADIO group (DUAL-LOWERING-ORACLE R1–R5)
                 case 'microbitplus_radioon':
                     uses.radio = true;
-                    return [`${pad}radio.config(group=int(${v('GROUP')}), power=int(${v('POWER')}))`, `${pad}radio.on()`];
+                    return [`${pad}radio.config(group=int(${v('GROUP')}), power=int(${v('POWER')}), length=35)`, `${pad}radio.on()`];
                 case 'microbitplus_radiosendnum':
                     uses.radio = true;
-                    return [`${pad}radio.send(${tx(`str(${v('NUM')})`)})`];
+                    this._pyUses.radiosend = true;
+                    return [`${pad}radio.send_bytes(_bw_pkt(0, ${v('NUM')}))`];
                 case 'microbitplus_radiosendstr':
                     uses.radio = true;
-                    return [`${pad}radio.send(${tx(pyText('TEXT'))})`];
+                    this._pyUses.radiosend = true;
+                    return [`${pad}radio.send_bytes(_bw_pkt(2, 0, ${pyText('TEXT')}))`];
                 case 'microbitplus_radioserial':
                     uses.radio = true;
                     return [`${pad}_bw_tx_serial[0] = ${f('STATE') === 'off' ? 'False' : 'True'}`];
@@ -15249,13 +15375,14 @@ class SB3Creator {
                     ...globals, ...body, guard, '        yield 0'].join('\n'));
             }
         }
-        if (radioHandlers.some((h) => h.kind === 'buffer' || h.kind === 'packet') || this._pyUses.radiopkt) {
-            // The receiver for programs that read buffers or the legacy packet:
-            // the whole packet, bytes and all (receive_full), with its signal
-            // strength, serial number and receive stamp, then each matching
-            // handler. A packet is a number, a text, a name/value pair
-            // (NUL 'V') or a buffer (NUL 'B').
-            this._pyUses.rssi = true; this._pyUses.rserial = true; this._pyUses.radiopkt = true;
+        if (radioHandlers.length || this._pyUses.radiopkt) {
+            // The receiver: the whole frame, bytes and all (receive_full), as MakeCode's radio.ts
+            // reads a packet (see microbitRadioSerialPy): 32 bytes behind the 3-byte header, type
+            // 0 number, 1 value, 2 string, 3 buffer, 4 double, 5 double value, with the sender's
+            // time and serial number in it. A frame of any other length is a plain MicroPython
+            // radio.send(str) from a board that does not speak MakeCode's: a number if it reads
+            // as one, else a text.
+            this._pyUses.rssi = true; this._pyUses.rserial = true; this._pyUses.radiopkt = true; this._pyUses.radiokv = true;
             const keysOf = (kind) => radioHandlers.filter((h) => h.kind === kind).map((h) => h.key);
             const tuples = (kind, value) => keysOf(kind).map((k) => `(${this.pyStr(k)}, ${value})`);
             const packet = keysOf('packet').map((k) => this.pyStr(k));
@@ -15265,9 +15392,11 @@ class SB3Creator {
             };
             const kvTuples = radioHandlers.filter((h) => h.kind === 'kv').map((h) => `(${this.pyStr(h.key)}, (_radio_last_name, kv))`);
             const kvAll = [...kvTuples, ...packet];
+            const ind = (n, lines) => lines.map((l) => ' '.repeat(n) + l);
             taskDefs.push([
                 'def _bw_radio_rx():',
                 '    global _radio_last_num, _radio_last_str, _radio_last_buf, _radio_last_name, _radio_last_value, _radio_last_rssi, _radio_last_serial, _radio_last_time, _radio_last_kind',
+                '    radio.config(length=35)',
                 '    radio.on()',
                 '    while True:',
                 '        f = radio.receive_full()',
@@ -15276,33 +15405,41 @@ class SB3Creator {
                 '            _radio_last_rssi = f[1]',
                 '            _radio_last_time = f[2]',
                 '            _radio_last_serial = 0',
-                "            if p[:2] == b'\\x00S':",
-                "                j = p.find(b'\\x00', 2)",
-                '                try:',
-                '                    _radio_last_serial = int(p[2:j])',
-                '                except ValueError:',
-                '                    pass',
-                '                p = p[j + 1:]',
-                "            if p[:2] == b'\\x00V':",
-                "                j = p.find(b'\\x00', 2)",
-                '                try:',
-                "                    kv = float(str(p[j + 1:], 'utf8'))",
-                '                    kv = int(kv) if kv == int(kv) else kv',
-                '                except (ValueError, OverflowError):',
-                '                    kv = 0',
-                "                _radio_last_name = str(p[2:j], 'utf8')",
-                '                _radio_last_value = kv',
-                '                _radio_last_str = _radio_last_name',
-                '                _radio_last_num = kv',
-                '                _radio_last_buf = bytearray(0)',
-                '                _radio_last_kind = 1',
-                ...(kvAll.length ? [`                _pending.extend([${kvAll.join(', ')}])`] : []),
-                "            elif p[:2] == b'\\x00B':",
-                '                _radio_last_buf = bytearray(p[2:])',
-                "                _radio_last_str = ''",
-                '                _radio_last_num = 0',
-                '                _radio_last_kind = 3',
-                ...post('buffer', '_radio_last_buf').map((l) => `                ${l}`),
+                '            if len(p) == 32 and p[0] < 6:',
+                '                t = p[0]',
+                "                _radio_last_time = struct.unpack('<I', p[1:5])[0]",
+                "                _radio_last_serial = struct.unpack('<i', p[5:9])[0]",
+                '                n = 0',
+                '                if t == 0 or t == 1:',
+                "                    n = struct.unpack('<i', p[9:13])[0]",
+                '                elif t == 4 or t == 5:',
+                "                    n = struct.unpack('<d', p[9:17])[0]",
+                '                o = 13 if t == 1 else 17 if t == 5 else 9',
+                "                m = str(p[o + 1:o + 1 + p[o]], 'utf8') if t > 0 and t != 4 and t != 3 else ''",
+                '                _radio_last_buf = bytearray(p[10:10 + p[9]]) if t == 3 else bytearray(0)',
+                '                if t == 1 or t == 5:',
+                '                    kv = n',
+                '                    _radio_last_name = m',
+                '                    _radio_last_value = kv',
+                '                    _radio_last_str = m',
+                '                    _radio_last_num = kv',
+                '                    _radio_last_kind = 1',
+                ...ind(20, kvAll.length ? [`_pending.extend([${kvAll.join(', ')}])`] : []),
+                '                elif t == 3:',
+                "                    _radio_last_str = ''",
+                '                    _radio_last_num = 0',
+                '                    _radio_last_kind = 3',
+                ...ind(20, post('buffer', '_radio_last_buf')),
+                '                elif t == 2:',
+                '                    _radio_last_str = m',
+                '                    _radio_last_num = 0',
+                '                    _radio_last_kind = 2',
+                ...ind(20, post('text', 'm')),
+                '                else:',
+                "                    _radio_last_str = ''",
+                '                    _radio_last_num = n',
+                '                    _radio_last_kind = 0',
+                ...ind(20, post('number', 'n')),
                 '            else:',
                 '                try:',
                 "                    m = str(p, 'utf8')",
@@ -15318,77 +15455,12 @@ class SB3Creator {
                 '                    _radio_last_str = m',
                 '                    _radio_last_num = 0',
                 '                    _radio_last_kind = 2',
-                ...post('text', 'm').map((l) => `                    ${l}`),
+                ...ind(20, post('text', 'm')),
                 '                else:',
                 "                    _radio_last_str = ''",
                 '                    _radio_last_num = n',
                 '                    _radio_last_kind = 0',
-                ...post('number', 'n').map((l) => `                    ${l}`),
-                '        yield 0'].join('\n'));
-            starts.push('_bw_radio_rx');
-        } else if (radioHandlers.length) {
-            // The receiver: one packet per scheduler pass, each handler of the
-            // matching kind started with the packet's value. MicroPython's radio
-            // carries text only and `radio send number` sends str(n), so a packet
-            // that reads as a number IS a number; anything else is text. (MakeCode
-            // tags the packet type instead, so there a sent string "42" stays a
-            // string — the one case the two disagree on.)
-            const keys = (kind) => radioHandlers.filter((h) => h.kind === kind)
-                .map((h) => `(${this.pyStr(h.key)}, `);
-            const num = keys('number').map((k) => `${k}n)`);
-            const txt = keys('text').map((k) => `${k}m)`);
-            taskDefs.push([
-                'def _bw_radio_rx():',
-                `    global _radio_last_num, _radio_last_str${radioHandlers.some((h) => h.kind === 'kv') ? ', _radio_last_name, _radio_last_value' : ''}${this._pyUses.rssi ? ', _radio_last_rssi' : ''}${this._pyUses.rserial ? ', _radio_last_serial' : ''}`,
-                '    radio.on()',
-                '    while True:',
-                // The signal strength is only in receive_full(), which keeps
-                // the three-byte header receive() strips; asked for only when
-                // a program reads it, so every other receiver is as it was.
-                ...(this._pyUses.rssi ? [
-                    '        f = radio.receive_full()',
-                    '        m = None',
-                    '        if f:',
-                    '            _radio_last_rssi = f[1]',
-                    '            try:',
-                    "                m = str(f[0][3:], 'utf8')",
-                    '            except Exception:',
-                    '                m = None'
-                ] : ['        m = radio.receive()']),
-                // A packet sent with its serial number in front
-                // (microbitRadioSerialPy): the payload is what follows it,
-                // whether or not this program reads the number.
-                "        if m is not None and m[:2] == '\\x00S':",
-                "            j = m.find('\\x00', 2)",
-                ...(this._pyUses.rserial ? ['            try:', '                _radio_last_serial = int(m[2:j])',
-                    '            except ValueError:', '                _radio_last_serial = 0'] : []),
-                '            m = m[j + 1:]',
-                ...(this._pyUses.rserial ? ['        elif m is not None:', '            _radio_last_serial = 0'] : []),
-                // radio.sendValue's packet: NUL 'V' name NUL value.
-                "        if m is not None and m[:2] == '\\x00V':",
-                "            j = m.find('\\x00', 2)",
-                '            try:',
-                '                kv = float(m[j + 1:])',
-                '                kv = int(kv) if kv == int(kv) else kv',
-                '            except (ValueError, OverflowError):',
-                '                kv = 0',
-                ...(radioHandlers.some((h) => h.kind === 'kv') ? [
-                    '            _radio_last_name = m[2:j]',
-                    '            _radio_last_value = kv',
-                    `            _pending.extend([${radioHandlers.filter((h) => h.kind === 'kv')
-                        .map((h) => `(${this.pyStr(h.key)}, (_radio_last_name, kv))`).join(', ')}])`] : ['            pass']),
-                '        elif m is not None:',
-                '            try:',
-                '                n = float(m)',
-                '                n = int(n) if n == int(n) else n',
-                '            except (ValueError, OverflowError):',
-                '                n = None',
-                '            if n is None:',
-                '                _radio_last_str = m',
-                ...(txt.length ? [`                _pending.extend([${txt.join(', ')}])`] : []),
-                '            else:',
-                '                _radio_last_num = n',
-                ...(num.length ? [`                _pending.extend([${num.join(', ')}])`] : []),
+                ...ind(20, post('number', 'n')),
                 '        yield 0'].join('\n'));
             starts.push('_bw_radio_rx');
         }
@@ -15437,6 +15509,7 @@ class SB3Creator {
         // them unless a radio hat did: a program that polled the last packet
         // stopped with a NameError on its first read.
         if (uses.radio) header.push('import radio');
+        if (!isPico && (this._pyUses.radiosend || this._pyUses.radiopkt)) header.push('import struct');
         if (this._pyUses.radio || radioHandlers.length) header.push('_radio_last_num = 0', "_radio_last_str = ''");
         if (this._pyUses.radiokv || radioHandlers.some((h) => h.kind === 'kv')) header.push("_radio_last_name = ''", '_radio_last_value = 0');
         if (this._pyUses.radiopkt || this._pyUses.radiobuf || radioHandlers.some((h) => h.kind === 'buffer' || h.kind === 'packet')) {
@@ -15479,7 +15552,7 @@ class SB3Creator {
         if (!isPico) header.push(...microbitLedHelpersPy(uses, this._pyUses));
         if (!isPico) header.push(...microbitImageHelpersPy(uses, this._pyUses));
         if (!isPico) header.push(...microbitApiHelpersPy(this._pyUses));
-        if (eventHandlers.length) header.push(`_bw_evh = [${eventHandlers.join(', ')}]`);
+        if (eventHandlers.length || this._pyUses.events) header.push(`_bw_evh = [${eventHandlers.join(', ')}]`);
         if (uses._pitch) header.push('', 'def _pitch():', '    x, y, z = accelerometer.get_values()', '    return math.atan2(-y, -z) * 180 / math.pi');
         if (uses._roll) header.push('', 'def _roll():', '    x, y, z = accelerometer.get_values()', '    return math.atan2(x, -z) * 180 / math.pi');
         // BrickWright debug instrumentation. _bw_pos(n) prints a position marker

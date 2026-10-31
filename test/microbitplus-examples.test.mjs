@@ -114,10 +114,10 @@ describe('mb03-pins', () => {
 describe('mb04-radio', () => {
     const FRAGMENTS = [
         'import radio',
-        'radio.config(group=int(5), power=int(3))',
+        'radio.config(group=int(5), power=int(3), length=35)',
         'radio.on()',
         'accelerometer.get_x()',
-        'radio.send(str(',
+        'radio.send_bytes(_bw_pkt(0, ',
     ];
 
     test('expected MicroPython fragments present', () => {
