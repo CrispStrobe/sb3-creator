@@ -102,6 +102,35 @@ def receive():
     if _inbox and _inbox[0][0] <= microbit._clock[0]:
         return _inbox.pop(0)[1]
     return None
+def send_bytes(b):
+    import struct
+    b = bytes(b)
+    if len(b) == 35 and b[3] < 6:
+        t = b[3]
+        ser = struct.unpack('<i', b[8:12])[0]
+        if t == 0:
+            v = str(struct.unpack('<i', b[12:16])[0])
+        elif t == 4:
+            v = str(struct.unpack('<d', b[12:20])[0])
+        elif t == 1:
+            v = b[17:17 + b[16]].decode() + '=' + str(struct.unpack('<i', b[12:16])[0])
+        elif t == 5:
+            v = b[21:21 + b[20]].decode() + '=' + str(struct.unpack('<d', b[12:20])[0])
+        elif t == 2:
+            v = b[13:13 + b[12]].decode()
+        else:
+            v = b[13:13 + b[12]].hex()
+        _sent.append('%d|%d|%s' % (t, ser, v))
+    else:
+        _sent.append(b.hex())
+def receive_full():
+    if not _on[0]:
+        raise ValueError('radio is not enabled')
+    if _inbox and _inbox[0][0] <= microbit._clock[0]:
+        p = _inbox.pop(0)
+        body = bytes(p[1]) if isinstance(p[1], list) else p[1].encode()
+        return (b'\\x01\\x00\\x01' + body, p[2] if len(p) > 2 else -60, 0)
+    return None
 `;
 const MUSIC = `
 import microbit

@@ -128,6 +128,35 @@ def receive():
     if _inbox and _inbox[0][0] <= microbit._clock[0]:
         return _inbox.pop(0)[1]
     return None
+def send_bytes(b):
+    import struct
+    b = bytes(b)
+    if len(b) == 35 and b[3] < 6:
+        t = b[3]
+        ser = struct.unpack('<i', b[8:12])[0]
+        if t == 0:
+            v = str(struct.unpack('<i', b[12:16])[0])
+        elif t == 4:
+            v = str(struct.unpack('<d', b[12:20])[0])
+        elif t == 1:
+            v = b[17:17 + b[16]].decode() + '=' + str(struct.unpack('<i', b[12:16])[0])
+        elif t == 5:
+            v = b[21:21 + b[20]].decode() + '=' + str(struct.unpack('<d', b[12:20])[0])
+        elif t == 2:
+            v = b[13:13 + b[12]].decode()
+        else:
+            v = b[13:13 + b[12]].hex()
+        _sent.append('%d|%d|%s' % (t, ser, v))
+    else:
+        _sent.append(b.hex())
+def receive_full():
+    if not _on[0]:
+        raise ValueError('radio is not enabled')
+    if _inbox and _inbox[0][0] <= microbit._clock[0]:
+        p = _inbox.pop(0)
+        body = bytes(p[1]) if isinstance(p[1], list) else p[1].encode()
+        return (b'\\x01\\x00\\x01' + body, p[2] if len(p) > 2 else -60, 0)
+    return None
 `;
 const MACHINE = `
 def unique_id():
@@ -284,23 +313,31 @@ test('radio serial: a sender that turns it on puts its number in front; the rece
     // unique_id's first four bytes, little-endian, top bit cleared
     const serial = 0x12 | (0x34 << 8) | (0x56 << 16) | ((0xf8 & 0x7f) << 24);
     assert.deepEqual(tx.texts, [String(serial)]);
-    assert.deepEqual(tx.sent, ['5', `\u0000S${serial}\u00007`, `\u0000S${serial}\u0000hi`, '9']);
+    assert.deepEqual(tx.sent, ['0|0|5', `0|${serial}|7`, `2|${serial}|hi`, '0|0|9']);
     const rx = run('DEVICE MICROBIT\n\nWHEN radio receives number:\n  display last radio serial number\n  display read last radio number\n',
-        { inbox: [[100, `\u0000S${serial}\u00007`], [200, '8']], untilMs: 500 });
+        { inbox: [[100, makecodePacket(0, serial, 7)], [200, '8']], untilMs: 500 });
     assert.deepEqual(rx.texts, [String(serial), '7', '0', '8'], 'a packet with no serial number reads 0, as in MakeCode');
 });
 
+/** MakeCode's radio packet (radio.ts): | type | time | serial | payload |, 32 bytes, as a byte list for the mock radio. */
+function makecodePacket (type, serial, value) {
+    const b = Buffer.alloc(32);
+    b[0] = type;
+    b.writeInt32LE(serial, 5);
+    b.writeInt32LE(value, 9);
+    return [...b];
+}
+
 test('a receiver that never reads the serial number still gets the payload of a packet that carries one', () => {
     const rx = run('DEVICE MICROBIT\n\nWHEN radio receives number:\n  display read last radio number\n',
-        { inbox: [[100, '\u0000S99\u000042']], untilMs: 300 });
+        { inbox: [[100, makecodePacket(0, 99, 42)]], untilMs: 300 });
     assert.deepEqual(rx.texts, ['42']);
-    assert.doesNotMatch(rx.py, /_radio_last_serial/);
 });
 
-test('a program with no serial number sends exactly as before', () => {
-    const py = micropython(['radio on group 1 power 6', 'radio send number 5']);
-    assert.match(py, /radio\.send\(str\(5\)\)/);
-    assert.doesNotMatch(py, /_bw_tx|unique_id/);
+test('a program with no serial number sends a packet whose serial is 0', () => {
+    const tx = run(['radio on group 1 power 6', 'radio send number 5']);
+    assert.match(tx.py, /radio\.send_bytes\(_bw_pkt\(0, 5\)\)/);
+    assert.deepEqual(tx.sent, ['0|0|5']);
 });
 
 test('WHEN loud sound runs once per loud event; the threshold is set as MicroPython\'s', () => {

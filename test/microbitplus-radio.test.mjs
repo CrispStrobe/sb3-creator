@@ -15,10 +15,10 @@ function mp(body) {
 }
 
 const CASES = [
-    ['R1 radio on',        'radio on group 5 power 3',     'radio.config(group=int(5), power=int(3))'],
+    ['R1 radio on',        'radio on group 5 power 3',     'radio.config(group=int(5), power=int(3), length=35)'],
     ['R1 radio.on()',      'radio on group 5 power 3',     'radio.on()'],
-    ['R2 send number',     'radio send number 42',         'radio.send(str(42))'],
-    ['R3 send text',       'radio send text "hi"',         "radio.send('hi')"],
+    ['R2 send number',     'radio send number 42',         'radio.send_bytes(_bw_pkt(0, 42))'],
+    ['R3 send text',       'radio send text "hi"',         "radio.send_bytes(_bw_pkt(2, 0, 'hi'))"],
     ['R5 last radio num',  'set val to read last radio number', '_radio_last_num'],
     ['B2 button_a',        'set val to read button_a',     'button_a.is_pressed()'],
 ];

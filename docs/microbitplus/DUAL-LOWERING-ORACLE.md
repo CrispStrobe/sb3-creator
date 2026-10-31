@@ -169,8 +169,8 @@ every 30 ms, blinking while floor(now / blink) is even. P is one of `x`, `y`,
 | # | dialect | microbitPlus block | MicroPython |
 |---|---------|-------------------|-------------|
 | R1 | `radio on group 5 power 3` | `radioon 5 3` | `import radio; radio.config(group=5, power=3); radio.on()` |
-| R2 | `radio send number 42` | `radiosendnum 42` | `radio.send(str(42))` |
-| R3 | `radio send text "hi"` | `radiosendstr "hi"` | `radio.send('hi')` |
+| R2 | `radio send number 42` | `radiosendnum 42` | `radio.send_bytes(_bw_pkt(0, 42))` |
+| R3 | `radio send text "hi"` | `radiosendstr "hi"` | `radio.send_bytes(_bw_pkt(2, 0, 'hi'))` |
 | R4 | `WHEN radio receives number:` (hat) | `whenradionum` | a `_bw_radio_rx` task receives; each packet that reads as a number starts the handler with that value as `_bw_rx` (MakeCode's receivedNumber parameter) |
 | R4b | `WHEN radio receives text:` (hat) | `whenradiostr` | the same, for a packet that does not read as a number |
 | R5 | `read last radio number` | `radiolastnum` | `_radio_last_num` (variable, defined as 0 until a packet comes); inside a radio hat, that hat's own packet |

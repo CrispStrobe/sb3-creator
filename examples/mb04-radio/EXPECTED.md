@@ -12,13 +12,13 @@ import radio
 radio.config(group=int(5), power=int(3))
 radio.on()
 val = accelerometer.get_x()
-radio.send(str(val))
+radio.send_bytes(_bw_pkt(0, val))
 ```
 
 ## What this verifies
 
 1. `radio on group 5 power 3` → `radio.config(...)` + `radio.on()` (oracle R1)
-2. `radio send number val` → `radio.send(str(val))` (oracle R2)
+2. `radio send number val` → `radio.send_bytes(_bw_pkt(0, val))` (oracle R2)
 3. `import radio` is auto-added to the header
 4. Sensor reporters compose with radio send
 5. Dialect and blocks paths converge on the same MicroPython

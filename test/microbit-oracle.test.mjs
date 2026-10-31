@@ -188,9 +188,9 @@ const ORACLE_TABLE = [
     ['V1', 'set val to number from text "12.5abc"', 'val = _bw_parse_number("12.5abc")'],
 
     // ---- Radio (R1–R3, R5) ----
-    ['R1', 'radio on group 5 power 3',      'radio.config(group=int(5), power=int(3))'],
-    ['R2', 'radio send number 42',          'radio.send(str(42))'],
-    ['R3', 'radio send text "hi"',          "radio.send('hi')"],
+    ['R1', 'radio on group 5 power 3',      'radio.config(group=int(5), power=int(3), length=35)'],
+    ['R2', 'radio send number 42',          'radio.send_bytes(_bw_pkt(0, 42))'],
+    ['R3', 'radio send text "hi"',          "radio.send_bytes(_bw_pkt(2, 0, 'hi'))"],
     ['R5', 'set val to read last radio number', '_radio_last_num'],
 ];
 
