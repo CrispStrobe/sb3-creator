@@ -72,9 +72,10 @@ describe('the forms are the whole set', () => {
         // Recounted 2026-10-13: tile kind at, image equality, SpriteData Boolean read, player connected and
         // settings exists add the sixteenth to twentieth.
         // Recounted 2026-10-13: percentChance adds the twenty-first native predicate.
+        // Recounted 2026-11-01: tilemap wall query (`arcade tilemap <data> wall at column row`) adds the twenty-second.
         assert.equal([...ops].filter((o) => o.startsWith('ev3comprehensive_')).length, 5);
         assert.ok(ops.has('arcade_playerButtonPressed'), 'the multiplayer button predicate participates in the full value-position census');
-        assert.equal([...ops].filter((o) => /^(arcade|arrays)_/.test(o) && o !== 'arrays_contains').length, 21);
+        assert.equal([...ops].filter((o) => /^(arcade|arrays)_/.test(o) && o !== 'arrays_contains').length, 22);
         for (const op of ['arcade_bufferIsReadOnly', 'arcade_bufferEquals', 'arcade_spriteTileKindAt', 'arcade_imageEquals',
             'arcade_spriteDataReadBoolean', 'arcade_playerConnected', 'arcade_settingsExists','arcade_percentChance']) assert.ok(ops.has(op), `${op} is not in the value-position census`);
     });
