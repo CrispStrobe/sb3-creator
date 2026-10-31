@@ -5908,7 +5908,7 @@ class SB3Creator {
             block[id].fields.CONNSTATE = [match[1].toLowerCase(), null];
             return { block, extraBlocks: {} };
         }
-        if ((match = line.match(/^when\s+bluetooth\s+uart\s+receives\s+(newline|comma|dollar|colon|fullstop|hash|carriage return|space|tab|pipe|semicolon)$/i))) {
+        if ((match = matchTopLevel(line, /^when\s+bluetooth\s+uart\s+receives\s+(newline|comma|dollar|colon|fullstop|hash|carriage return|space|tab|pipe|semicolon)$/i))) {
             const { id, block } = this.createBlock('microbitplus_whenuart', { topLevel: true });
             block[id].fields.DELIM = [match[1].toLowerCase(), null];
             return { block, extraBlocks: {} };
