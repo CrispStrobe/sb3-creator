@@ -255,6 +255,7 @@ const WORD_LINES = [
     ['command', 'arcade_legacyGameOver', 'arcade legacy game over win 1 effect unset'],
     ['command', 'arcade_gameOver', 'arcade game over win (n = 1)'],
     ['command', 'arcade_carnivalCountdown', 'arcade carnival countdown (n + 1) style Timed effect confetti'],
+    ['command', 'arcade_carnivalAddLabel', 'arcade carnival add label "Score" position Mid color (n + 1) use color (n = 1)'],
     ['command', 'arcade_carnivalGameOver', 'arcade carnival game over style Score effect unset'],
     ['command', 'arcade_carnivalCustomGameOver', 'arcade carnival custom game over message "Finished" effect hearts sound melody use sound (n = 1) scoring HScore score (n + 1) use score (n = 1)'],
     ['command', 'arcade_setGameOverEffect', 'arcade set game over effect melt for win 0'],
@@ -320,6 +321,7 @@ const WORD_LINES = [
     ['reporter', 'arcade_callFunction', 'arcade call function (n + 1) arguments hero'],
     ['reporter', 'arcade_externalValue', 'arcade external value (n + 1)'],
     ['reporter', 'arcade_externalImage', 'arcade external image (n + 1)'],
+    ['reporter', 'arcade_externalImageCall', 'arcade external image call (n + 1) arguments hero'],
     ['reporter', 'arcade_externalCall', 'arcade external call (n + 1) arguments hero'],
     ['reporter', 'arcade_spawnSprite', 'arcade spawn template (n + 1) kind hero x "Player" y 2 width (arcade local count) height -3'],
     ['reporter', 'arcade_spawnImageProjectile', 'arcade projectile image (n + 1) template hero kind "Player" vx 2 vy (arcade local count) mode kind-source source -3'],
@@ -481,7 +483,7 @@ describe('Arcade dialect words', () => {
         const here = new Set(WORD_LINES.map(([, op]) => op));
         assert.deepEqual([...here].sort(), [...ARCADE_DIALECT_OPS].sort());
         assert.equal(WORD_LINES.length, ARCADE_WORDS.length, 'one line per spelling, aliases included');
-        assert.equal(ARCADE_DIALECT_OPS.length, 412);
+        assert.equal(ARCADE_DIALECT_OPS.length, 414);
     });
 
     for (const [kind, op, line, alias] of WORD_LINES) {
