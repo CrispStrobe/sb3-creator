@@ -631,6 +631,7 @@ function microbitImageHelpersPy (uses, pyUses) {
     if (pyUses.dmode) {
         out.push('',
             'def _bw_set_mode(bw):',
+            ...(pyUses.dmodeget ? ['    global _bw_dmode', '    _bw_dmode = 0 if bw else 1'] : []),
             '    if bw:',
             '        for i in range(25):',
             '            if display.get_pixel(i % 5, i // 5):',
@@ -982,6 +983,178 @@ const OPENS_A_BODY = new Set([
     'control_if', 'control_if_else', 'control_repeat',
     'control_repeat_until', 'control_forever', 'arcade_sourceWhile'
 ]);
+
+// ── micro:bit+ "API words" (buffers, radio packets, events, data logging, …) ──
+//
+// One table drives the pseudocode reader, the decompiler and the MicroPython
+// generator for the micro:bit blocks that are plain "word + slots" shapes.
+// A template is the words of the pseudocode line, with `<NAME>` for a value
+// slot (an input of the block) and `{NAME:a|b|c}` for a menu (a field).
+// kind: 'r' reporter, 'c' command, 'h' hat. `py` renders the MicroPython:
+// (a, f, uses) => the expression (r) or the statement lines (c); `a` holds the
+// Python of each value slot, `f` the menu words, `uses` the flags that bring
+// in a helper (see microbitApiHelpersPy).
+const MB_NUMBER_FORMATS = ['int8le', 'uint8le', 'int16le', 'uint16le', 'int32le', 'uint32le', 'float32le', 'float64le',
+    'int8be', 'uint8be', 'int16be', 'uint16be', 'int32be', 'uint32be', 'float32be', 'float64be'];
+const MB_FMT = `{FMT:${MB_NUMBER_FORMATS.join('|')}}`;
+const MB_API = [
+    // ── Buffer: a byte array (MakeCode's Buffer), a bytearray here ──
+    { k: 'r', op: 'createbuffer', t: 'create buffer <SIZE>', py: (a, f, u) => { u.buffers = true; return `bytearray(max(0, int(${a.SIZE})))`; } },
+    { k: 'r', op: 'bufferlength', t: 'length of buffer <BUF>', py: (a) => `len(${a.BUF})` },
+    { k: 'r', op: 'buffernum', t: `buffer <BUF> get ${MB_FMT} at <OFFSET>`,
+        py: (a, f, u) => { u.buffers = true; return `_bw_buf_get(${a.BUF}, '${f.FMT}', ${a.OFFSET})`; } },
+    { k: 'c', op: 'buffersetnum', t: `set buffer <BUF> ${MB_FMT} at <OFFSET> to <VALUE>`,
+        py: (a, f, u) => { u.buffers = true; return [`_bw_buf_set(${a.BUF}, '${f.FMT}', ${a.OFFSET}, ${a.VALUE})`]; } },
+    { k: 'c', op: 'bufferfill', t: 'fill buffer <BUF> with <VALUE>',
+        py: (a, f, u) => { u.buffers = true; return [`_bw_buf_fill(${a.BUF}, ${a.VALUE})`]; } },
+    { k: 'r', op: 'bufferslice', t: 'slice of buffer <BUF> from <OFFSET> length <LENGTH>',
+        py: (a, f, u) => { u.buffers = true; return `_bw_buf_slice(${a.BUF}, ${a.OFFSET}, ${a.LENGTH})`; } },
+    { k: 'r', op: 'bufferhex', t: 'hex of buffer <BUF>', py: (a, f, u) => { u.buffers = true; return `_bw_buf_hex(${a.BUF})`; } },
+    // ── Radio: buffers and the legacy packet ──
+    // The packet rides as NUL 'B' <bytes> (like radio.sendValue's NUL 'V'), after the serial number's NUL 'S' prefix when that is on,
+    // behind the 3-byte header radio.send(str) puts on every packet (so the receiver strips every packet alike).
+    { k: 'c', op: 'radiosendbuf', t: 'radio send buffer <BUF>',
+        py: (a, f, u, ctx) => { u.radio = true; ctx.radio = true; return [`radio.send_bytes(b'\\x01\\x00\\x01' + ${ctx.serial ? "_bw_tx('').encode() + " : ''}b'\\x00B' + bytes(${a.BUF}))`]; } },
+    { k: 'h', op: 'whenradiobuf', t: 'when radio receives buffer' },
+    { k: 'r', op: 'radiolastbuf', t: 'read last radio buffer', py: (a, f, u) => { u.radio = true; u.radiobuf = true; return '_radio_last_buf'; } },
+    { k: 'h', op: 'whenradiopacket', t: 'when radio receives packet' },
+    { k: 'r', op: 'radiolasttime', t: 'read last radio time', py: (a, f, u) => { u.radio = true; u.radiopkt = true; return '_radio_last_time'; } },
+    { k: 'c', op: 'radiowritepkt', t: 'radio write received packet to serial',
+        py: (a, f, u) => { u.radio = true; u.radiopkt = true; u.writepkt = true; return ['_bw_write_packet()']; } },
+    // ── Display, text and the game ──
+    { k: 'r', op: 'displaymode', t: 'display mode', py: (a, f, u) => { u.dmode = true; u.dmodeget = true; return '_bw_dmode'; } },
+    { k: 'r', op: 'charcode', t: 'char code of <TEXT> at <INDEX>', py: (a, f, u) => { u.charcode = true; return `_bw_char_code(${a.TEXT}, ${a.INDEX})`; } },
+    { k: 'r', op: 'fromcharcode', t: 'char from code <CODE>', py: (a) => `chr(int(${a.CODE}) & 0xffff)` },
+    { k: 'c', op: 'showscore', t: 'show game score',
+        py: (a, f, u) => { u.game = true; return ["display.scroll(' SCORE ', delay=100)", 'display.scroll(str(_bw_score), delay=150)', "display.scroll(' ', delay=150)"]; } },
+    // ── The event bus ──
+    { k: 'h', op: 'whenevent', t: 'when event <SOURCE> <VALUE>' },
+    { k: 'c', op: 'raiseevent', t: 'raise event <SOURCE> <VALUE>',
+        py: (a, f, u) => { u.events = true; return [`_bw_raise(${a.SOURCE}, ${a.VALUE})`]; } },
+    { k: 'r', op: 'eventvalue', t: 'event value', py: (a, f, u) => { u.events = true; return '_bw_ev_val'; } },
+    // ── Data logging (micro:bit V2) ──
+    { k: 'c', op: 'datalog1', t: 'log data <K1> = <V1>', py: (a, f, u) => { u.datalog = true; return [`_bw_log({${a.K1}: ${a.V1}})`]; } },
+    { k: 'c', op: 'datalog2', t: 'log data <K1> = <V1> and <K2> = <V2>',
+        py: (a, f, u) => { u.datalog = true; return [`_bw_log({${a.K1}: ${a.V1}, ${a.K2}: ${a.V2}})`]; } },
+    { k: 'c', op: 'datalog3', t: 'log data <K1> = <V1> and <K2> = <V2> and <K3> = <V3>',
+        py: (a, f, u) => { u.datalog = true; return [`_bw_log({${a.K1}: ${a.V1}, ${a.K2}: ${a.V2}, ${a.K3}: ${a.V3}})`]; } }
+];
+const MB_API_SLOT = /(<\w+>|\{\w+:[^}]*\})/;
+for (const e of MB_API) {
+    e.slots = [];
+    const source = e.t.split(MB_API_SLOT).map((part) => {
+        let m;
+        if ((m = part.match(/^<(\w+)>$/))) {
+            e.slots.push({ name: m[1], menu: null });
+            return '(\\S+)';
+        }
+        if ((m = part.match(/^\{(\w+):(.*)\}$/))) {
+            e.slots.push({ name: m[1], menu: m[2].split('|') });
+            return `(${m[2]})`;
+        }
+        return part.replace(/[.*+?^$()|[\]\\]/g, '\\$&').replace(/ +/g, '\\s+');
+    }).join('');
+    e.re = new RegExp(`^${source}\\s*$`, 'i');
+}
+const MB_API_BY_OP = new Map(MB_API.map((e) => [`microbitplus_${e.op}`, e]));
+const mbApiOf = (kind) => MB_API.filter((e) => e.k === kind);
+
+/** The pseudocode of one API block: its template with the slots filled (v: value of an input, f: menu word). */
+function mbApiText(e, v, f) {
+    let i = 0;
+    return e.t.split(MB_API_SLOT).map((part) => {
+        if (/^<\w+>$/.test(part)) return v(e.slots[i++].name);
+        if (/^\{\w+:/.test(part)) return f(e.slots[i++].name);
+        return part;
+    }).join('');
+}
+
+/** The MicroPython helpers the API blocks use (buffers, events, logging, radio packets). */
+function microbitApiHelpersPy(pyUses) {
+    const out = [];
+    if (pyUses.buffers) {
+        out.push('', 'import struct',
+            "_bw_nf = {'int8le': ('<b', 1), 'uint8le': ('<B', 1), 'int16le': ('<h', 2), 'uint16le': ('<H', 2), 'int32le': ('<i', 4), 'uint32le': ('<I', 4), 'float32le': ('<f', 4), 'float64le': ('<d', 8),",
+            "    'int8be': ('>b', 1), 'uint8be': ('>B', 1), 'int16be': ('>h', 2), 'uint16be': ('>H', 2), 'int32be': ('>i', 4), 'uint32be': ('>I', 4), 'float32be': ('>f', 4), 'float64be': ('>d', 8)}",
+            'def _bw_buf_get(b, fmt, o):',
+            '    c, n = _bw_nf[fmt]',
+            '    o = int(o)',
+            '    if o < 0 or o + n > len(b):',
+            '        return 0',
+            '    r = struct.unpack(c, bytes(b[o:o + n]))[0]',
+            "    return r if c[1] in 'fd' else int(r)",
+            'def _bw_buf_set(b, fmt, o, v):',
+            '    c, n = _bw_nf[fmt]',
+            '    o = int(o)',
+            '    if o < 0 or o + n > len(b):',
+            '        return',
+            // (this MicroPython has no slice assignment on a bytearray)
+            "    if c[1] in 'fd':",
+            '        x = struct.pack(c, float(v))',
+            '    else:',
+            '        v = int(v) & ((1 << (8 * n)) - 1)',
+            "        if c[1] in 'bhi' and v >= 1 << (8 * n - 1):",
+            '            v -= 1 << (8 * n)',
+            '        x = struct.pack(c, v)',
+            '    for i in range(n):',
+            '        b[o + i] = x[i]',
+            'def _bw_buf_fill(b, v):',
+            '    v = int(v) & 255',
+            '    for i in range(len(b)):',
+            '        b[i] = v',
+            'def _bw_buf_slice(b, o, n):',
+            '    o = int(o)',
+            '    n = int(n)',
+            '    if o < 0:',
+            '        o = max(0, len(b) + o)',
+            '    if n < 0 or o + n > len(b):',
+            '        n = max(0, len(b) - o)',
+            '    return bytearray(b[o:o + n])',
+            'def _bw_buf_hex(b):',
+            "    return ''.join(['%02x' % x for x in b])");
+    }
+    if (pyUses.charcode) {
+        out.push('', 'def _bw_char_code(s, i):',
+            '    s = str(s)',
+            '    i = int(i)',
+            '    return ord(s[i]) if 0 <= i < len(s) else float("nan")');
+    }
+    if (pyUses.dmode && pyUses.dmodeget) {
+        // led.displayMode(): 0 black and white, 1 greyscale (MakeCode's DisplayMode).
+        out.push('', '_bw_dmode = 0');
+    }
+    if (pyUses.events) {
+        out.push('', '_bw_ev_val = 0',
+            'def _bw_raise(s, v):',
+            '    global _bw_ev_val',
+            '    s = int(s)',
+            '    v = int(v)',
+            // MakeCode runs the handlers newest first.
+            '    for h in reversed(_bw_evh):',
+            '        if (h[0] == 0 or h[0] == s) and (h[1] == 0 or h[1] == v):',
+            '            _pending.append(h[2])',
+            '    _bw_ev_val = v');
+    }
+    if (pyUses.datalog) {
+        out.push('', 'import log',
+            'def _bw_log(row):',
+            '    log.add(row)');
+    }
+    if (pyUses.writepkt) {
+        // radio.writeReceivedPacketToSerial(): {"t":time,"s":serial,"n":"name","v":value}.
+        // The time is the receive stamp: a MicroPython packet carries no send time.
+        out.push('', 'def _bw_write_packet():',
+            "    s = '{\"t\":' + str(_radio_last_time) + ',\"s\":' + str(_radio_last_serial)",
+            '    if _radio_last_kind in (1, 2):',
+            "        s += ',\"n\":\"' + _radio_last_str + '\"'",
+            '    if _radio_last_kind == 3:',
+            "        s += ',\"b\":\"' + str(bytes(_radio_last_buf), 'utf8') + '\"'",
+            '    if _radio_last_kind in (0, 1):',
+            "        s += ',\"v\":' + str(_radio_last_num)",
+            "    print(s + '}')");
+    }
+    return out;
+}
 
 class SB3Creator {
     constructor() {
@@ -3143,6 +3316,18 @@ class SB3Creator {
         }
         if ((m = s.match(/^pin\s+(P\d+)\s+is\s+high\??$/i))) {
             return B('microbitplus_ispinhigh', {}, { PIN: [m[1].toUpperCase(), null] });
+        }
+        // The buffer, event, char-code, time and display-mode words (MB_API).
+        for (const e of mbApiOf('r')) {
+            const mm = matchTopLevel(s, e.re);
+            if (!mm) continue;
+            const inputs = {};
+            const fields = {};
+            e.slots.forEach((slot, i) => {
+                if (slot.menu) fields[slot.name] = [mm[i + 1].toLowerCase(), null];
+                else inputs[slot.name] = this.parseValue(mm[i + 1], context);
+            });
+            return B(`microbitplus_${e.op}`, inputs, fields);
         }
         // The name and value of the packet a radio.onReceivedValue handler runs for.
         if (/^read\s+last\s+radio\s+name$/i.test(s)) return B('microbitplus_radiolastname');
@@ -5892,6 +6077,13 @@ class SB3Creator {
         if (/^when\s+radio\s+receives\s+(?:a\s+)?text$/i.test(line)) {
             return { block: this.createBlock('microbitplus_whenradiostr', { topLevel: true }).block, extraBlocks: {} };
         }
+        for (const e of mbApiOf('h')) {
+            const mm = matchTopLevel(line, e.re);
+            if (!mm) continue;
+            const { id, block } = cmd(`microbitplus_${e.op}`, { topLevel: true });
+            e.slots.forEach((slot, i) => { block[id].inputs[slot.name] = val(mm[i + 1]); });
+            return ret(block);
+        }
         // loops.everyInterval(ms, body): the body repeats on a timer, in the background.
         if ((match = matchTopLevel(line, /^when\s+every\s+(\S+)\s+ms$/i))) {
             const { id, block } = cmd('microbitplus_everyinterval', { topLevel: true });
@@ -6659,6 +6851,17 @@ class SB3Creator {
             const { id, block } = cmd('microbitplus_radioon');
             block[id].inputs.GROUP = val(match[1]);
             block[id].inputs.POWER = val(match[2]);
+            return ret(block);
+        }
+        // Buffers, radio buffers, events and data logging (MB_API).
+        for (const e of mbApiOf('c')) {
+            const mm = matchTopLevel(line, e.re);
+            if (!mm) continue;
+            const { id, block } = cmd(`microbitplus_${e.op}`);
+            e.slots.forEach((slot, i) => {
+                if (slot.menu) block[id].fields[slot.name] = [mm[i + 1].toLowerCase(), null];
+                else block[id].inputs[slot.name] = val(mm[i + 1]);
+            });
             return ret(block);
         }
         // radio.sendValue(name, value): the name is cut to 8 characters on the air.
@@ -9087,6 +9290,8 @@ class SB3Creator {
         if (!b) return '';
         const v = (k) => this.dval(b.inputs[k], blocks);
         const f = (k) => (b.fields[k] ? b.fields[k][0] : '');
+        const mbr = MB_API_BY_OP.get(b.opcode);
+        if (mbr && mbr.k === 'r') return mbApiText(mbr, v, f);
         switch (b.opcode) {
             case 'operator_add': return `${v('NUM1')} + ${v('NUM2')}`;
             case 'operator_subtract': return `${v('NUM1')} - ${v('NUM2')}`;
@@ -9359,6 +9564,8 @@ class SB3Creator {
     decompileHat(b, blocks) {
         const f = (k) => (b.fields[k] ? b.fields[k][0] : '');
         const v = (k) => this.dval(b.inputs[k], blocks);
+        const mbh = MB_API_BY_OP.get(b.opcode);
+        if (mbh && mbh.k === 'h') return `WHEN ${mbApiText(mbh, v, f).replace(/^when /i, '')}:`;
         switch (b.opcode) {
             case 'event_whenflagclicked': return 'WHEN flag clicked:';
             case 'event_whenkeypressed': return `WHEN ${f('KEY_OPTION')} key pressed:`;
@@ -9404,6 +9611,8 @@ class SB3Creator {
         const f = (k) => (b.fields[k] ? b.fields[k][0] : '');
         const sub = (k, lvl) => (b.inputs[k] ? this.decompileStackFrom(b.inputs[k][1], blocks, lvl) : []);
         const line = (txt) => [pad + txt];
+        const mbc = MB_API_BY_OP.get(b.opcode);
+        if (mbc && mbc.k === 'c') return line(mbApiText(mbc, v, f));
 
         switch (b.opcode) {
             // ---- control structures ----
@@ -9748,7 +9957,7 @@ class SB3Creator {
             'devices_whentilted', 'devices_whenirreceived',
             'microbitplus_whenradionum', 'microbitplus_whenradiostr', 'microbitplus_whensound',
             'microbitplus_whenradiokv', 'microbitplus_everyinterval', 'microbitplus_whenconn',
-            'microbitplus_whenuart'].includes(op);
+            'microbitplus_whenuart'].includes(op) || (MB_API_BY_OP.has(op) && MB_API_BY_OP.get(op).k === 'h');
     }
 
     pyName(name) {
@@ -9797,6 +10006,13 @@ class SB3Creator {
         if (!b) return 'None';
         const v = (k) => this.pyVal(b.inputs[k], blocks);
         const f = (k) => (b.fields[k] ? b.fields[k][0] : '');
+        const mbr = MB_API_BY_OP.get(b.opcode);
+        if (mbr && mbr.k === 'r') {
+            const args = {};
+            const menus = {};
+            for (const slot of mbr.slots) { if (slot.menu) menus[slot.name] = f(slot.name); else args[slot.name] = v(slot.name); }
+            return mbr.py(args, menus, this._pyUses, {});
+        }
         switch (b.opcode) {
             case 'operator_add': return `(${v('NUM1')} + ${v('NUM2')})`;
             case 'operator_subtract': return `(${v('NUM1')} - ${v('NUM2')})`;
@@ -14305,6 +14521,16 @@ class SB3Creator {
             const v = (k) => val(b, k, blocks);
             const vs = (k) => `str(${val(b, k, blocks)})`;
             const f = (k) => (b.fields[k] ? b.fields[k][0] : '');
+            const mbc = MB_API_BY_OP.get(b.opcode);
+            if (mbc && mbc.k === 'c') {
+                const args = {};
+                const menus = {};
+                for (const slot of mbc.slots) { if (slot.menu) menus[slot.name] = f(slot.name); else args[slot.name] = v(slot.name); }
+                const ctx = { serial: radioSerial };
+                const lines = mbc.py(args, menus, this._pyUses, ctx);
+                if (ctx.radio) uses.radio = true;
+                return lines.map((l) => pad + l);
+            }
             const sub = (k) => (b.inputs[k] ? walk(b.inputs[k][1], blocks, pad + '    ') : [`${pad}    pass`]);
             // A Python string literal from a text input: single-quoted for a
             // literal text shadow ([.., [10, "..."]]) so it matches the micro:bit
@@ -14833,6 +15059,7 @@ class SB3Creator {
         const starts = [];       // started at flag
         const receivers = [];    // [message, fnName]
         const radioHandlers = [];  // [{kind: 'number'|'text', key}] — radio hats
+        const eventHandlers = [];  // control.onEvent hats: '(source, value, key)'
         let taskSeq = 0;
         // Every task is driven with next(), so it has to be a GENERATOR. A script
         // with no wait, loop or yield-from compiled to a plain function, and the
@@ -14868,6 +15095,32 @@ class SB3Creator {
                     taskDefs.push([`def ${fn}(_bw_rx):`, ...globalsFor(this, body), ...body].join('\n'));
                     const key = `__bw_radio_kv_${radioHandlers.length}`;
                     radioHandlers.push({ kind: 'kv', key });
+                    receivers.push([key, fn]);
+                } else if (b.opcode === 'microbitplus_whenradiobuf' || b.opcode === 'microbitplus_whenradiopacket') {
+                    // radio.onReceivedBuffer (handed THAT packet's buffer, as the
+                    // number and text hats are) and the legacy radio.onDataPacketReceived
+                    // (every packet; its properties are the `_radio_last_*` the
+                    // receiver sets just before the handler starts — MakeCode's
+                    // own lastPacket).
+                    uses.radio = true;
+                    this._pyUses.radiopkt = true;
+                    const buf = b.opcode === 'microbitplus_whenradiobuf';
+                    const fn = `_task_${taskSeq++}`;
+                    const body = asTask(walk(b.next, blocks, '    ')
+                        .map((l) => (buf ? l.replace(/\b_radio_last_buf\b/g, '_bw_rx') : l)));
+                    taskDefs.push([`def ${fn}(${buf ? '_bw_rx' : ''}):`, ...globalsFor(this, body), ...body].join('\n'));
+                    const key = `__bw_radio_${buf ? 'buffer' : 'packet'}_${radioHandlers.length}`;
+                    radioHandlers.push({ kind: buf ? 'buffer' : 'packet', key });
+                    receivers.push([key, fn]);
+                } else if (b.opcode === 'microbitplus_whenevent') {
+                    // control.onEvent(source, value, body): 0 for either is "any". The
+                    // body reads the last event's source and value (control.eventValue()).
+                    this._pyUses.events = true;
+                    const fn = `_task_${taskSeq++}`;
+                    const body = asTask(walk(b.next, blocks, '    '));
+                    taskDefs.push([`def ${fn}():`, ...globalsFor(this, body), ...body].join('\n'));
+                    const key = `__bw_event_${eventHandlers.length}`;
+                    eventHandlers.push(`(${this.pyVal(b.inputs.SOURCE, blocks)}, ${this.pyVal(b.inputs.VALUE, blocks)}, ${this.pyStr(key)})`);
                     receivers.push([key, fn]);
                 } else if (b.opcode === 'microbitplus_whenradionum' || b.opcode === 'microbitplus_whenradiostr') {
                     // MakeCode's radio.onReceivedNumber/String. One receiver task
@@ -14996,7 +15249,84 @@ class SB3Creator {
                     ...globals, ...body, guard, '        yield 0'].join('\n'));
             }
         }
-        if (radioHandlers.length) {
+        if (radioHandlers.some((h) => h.kind === 'buffer' || h.kind === 'packet') || this._pyUses.radiopkt) {
+            // The receiver for programs that read buffers or the legacy packet:
+            // the whole packet, bytes and all (receive_full), with its signal
+            // strength, serial number and receive stamp, then each matching
+            // handler. A packet is a number, a text, a name/value pair
+            // (NUL 'V') or a buffer (NUL 'B').
+            this._pyUses.rssi = true; this._pyUses.rserial = true; this._pyUses.radiopkt = true;
+            const keysOf = (kind) => radioHandlers.filter((h) => h.kind === kind).map((h) => h.key);
+            const tuples = (kind, value) => keysOf(kind).map((k) => `(${this.pyStr(k)}, ${value})`);
+            const packet = keysOf('packet').map((k) => this.pyStr(k));
+            const post = (kind, value) => {
+                const all = [...tuples(kind, value), ...packet];
+                return all.length ? [`_pending.extend([${all.join(', ')}])`] : [];
+            };
+            const kvTuples = radioHandlers.filter((h) => h.kind === 'kv').map((h) => `(${this.pyStr(h.key)}, (_radio_last_name, kv))`);
+            const kvAll = [...kvTuples, ...packet];
+            taskDefs.push([
+                'def _bw_radio_rx():',
+                '    global _radio_last_num, _radio_last_str, _radio_last_buf, _radio_last_name, _radio_last_value, _radio_last_rssi, _radio_last_serial, _radio_last_time, _radio_last_kind',
+                '    radio.on()',
+                '    while True:',
+                '        f = radio.receive_full()',
+                '        if f:',
+                '            p = f[0][3:]',
+                '            _radio_last_rssi = f[1]',
+                '            _radio_last_time = f[2]',
+                '            _radio_last_serial = 0',
+                "            if p[:2] == b'\\x00S':",
+                "                j = p.find(b'\\x00', 2)",
+                '                try:',
+                '                    _radio_last_serial = int(p[2:j])',
+                '                except ValueError:',
+                '                    pass',
+                '                p = p[j + 1:]',
+                "            if p[:2] == b'\\x00V':",
+                "                j = p.find(b'\\x00', 2)",
+                '                try:',
+                "                    kv = float(str(p[j + 1:], 'utf8'))",
+                '                    kv = int(kv) if kv == int(kv) else kv',
+                '                except (ValueError, OverflowError):',
+                '                    kv = 0',
+                "                _radio_last_name = str(p[2:j], 'utf8')",
+                '                _radio_last_value = kv',
+                '                _radio_last_str = _radio_last_name',
+                '                _radio_last_num = kv',
+                '                _radio_last_buf = bytearray(0)',
+                '                _radio_last_kind = 1',
+                ...(kvAll.length ? [`                _pending.extend([${kvAll.join(', ')}])`] : []),
+                "            elif p[:2] == b'\\x00B':",
+                '                _radio_last_buf = bytearray(p[2:])',
+                "                _radio_last_str = ''",
+                '                _radio_last_num = 0',
+                '                _radio_last_kind = 3',
+                ...post('buffer', '_radio_last_buf').map((l) => `                ${l}`),
+                '            else:',
+                '                try:',
+                "                    m = str(p, 'utf8')",
+                '                except Exception:',
+                "                    m = ''",
+                '                try:',
+                '                    n = float(m)',
+                '                    n = int(n) if n == int(n) else n',
+                '                except (ValueError, OverflowError):',
+                '                    n = None',
+                '                _radio_last_buf = bytearray(0)',
+                '                if n is None:',
+                '                    _radio_last_str = m',
+                '                    _radio_last_num = 0',
+                '                    _radio_last_kind = 2',
+                ...post('text', 'm').map((l) => `                    ${l}`),
+                '                else:',
+                "                    _radio_last_str = ''",
+                '                    _radio_last_num = n',
+                '                    _radio_last_kind = 0',
+                ...post('number', 'n').map((l) => `                    ${l}`),
+                '        yield 0'].join('\n'));
+            starts.push('_bw_radio_rx');
+        } else if (radioHandlers.length) {
             // The receiver: one packet per scheduler pass, each handler of the
             // matching kind started with the packet's value. MicroPython's radio
             // carries text only and `radio send number` sends str(n), so a packet
@@ -15109,6 +15439,9 @@ class SB3Creator {
         if (uses.radio) header.push('import radio');
         if (this._pyUses.radio || radioHandlers.length) header.push('_radio_last_num = 0', "_radio_last_str = ''");
         if (this._pyUses.radiokv || radioHandlers.some((h) => h.kind === 'kv')) header.push("_radio_last_name = ''", '_radio_last_value = 0');
+        if (this._pyUses.radiopkt || this._pyUses.radiobuf || radioHandlers.some((h) => h.kind === 'buffer' || h.kind === 'packet')) {
+            header.push('_radio_last_buf = bytearray(0)', '_radio_last_time = 0', '_radio_last_kind = 0');
+        }
         if (this._pyUses.rssi) header.push('_radio_last_rssi = 0');
         if (this._pyUses.rserial) header.push('_radio_last_serial = 0');
         if (!isPico) header.push(...microbitRadioSerialPy(this._pyUses, radioSerial));
@@ -15145,6 +15478,8 @@ class SB3Creator {
         if (this._pyUses.dimread) uses.dim = true;
         if (!isPico) header.push(...microbitLedHelpersPy(uses, this._pyUses));
         if (!isPico) header.push(...microbitImageHelpersPy(uses, this._pyUses));
+        if (!isPico) header.push(...microbitApiHelpersPy(this._pyUses));
+        if (eventHandlers.length) header.push(`_bw_evh = [${eventHandlers.join(', ')}]`);
         if (uses._pitch) header.push('', 'def _pitch():', '    x, y, z = accelerometer.get_values()', '    return math.atan2(-y, -z) * 180 / math.pi');
         if (uses._roll) header.push('', 'def _roll():', '    x, y, z = accelerometer.get_values()', '    return math.atan2(x, -z) * 180 / math.pi');
         // BrickWright debug instrumentation. _bw_pos(n) prints a position marker
