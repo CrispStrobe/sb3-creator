@@ -367,6 +367,21 @@ const WORD_LINES = [
     ['reporter', 'arcade_tileLocationProperty', 'arcade tile bottom of (n + 1)'],
     ['boolean', 'arcade_tileIs', 'arcade tile (n + 1) equals image hero'],
     ['boolean', 'arcade_tileIsWall', 'arcade tile (n + 1) is wall'],
+    ['reporter', 'arcade_tileAtLocation', 'arcade tile image at (n + 1)'],
+    ['reporter', 'arcade_tileNeighbor', 'arcade tile neighbor (n + 1) of hero'],
+    ['reporter', 'arcade_spriteTileLocation', 'arcade tile location of sprite (n + 1)'],
+    ['reporter', 'arcade_randomTileOfType', 'arcade random tile location of image (n + 1)'],
+    ['reporter', 'arcade_tilemapValue', 'arcade tilemap value (n + 1)'],
+    ['reporter', 'arcade_tilemapProperty', 'arcade tilemap height of (n + 1)'],
+    ['reporter', 'arcade_tilemapTile', 'arcade tilemap (n + 1) tile index at column hero row 2'],
+    ['boolean', 'arcade_tilemapIsWall', 'arcade tilemap (n + 1) wall at column hero row 2'],
+    ['reporter', 'arcade_tilemapTileImage', 'arcade tilemap (n + 1) image of tile index hero'],
+    ['reporter', 'arcade_eventTilemapData', 'arcade event tilemap data'],
+    ['command', 'arcade_registerTilemapEvent', 'arcade register tilemap event Unloaded as (n + 1) capturing hero'],
+    ['command', 'arcade_unregisterTilemapEvent', 'arcade unregister tilemap event Loaded as (n + 1)'],
+    ['command', 'arcade_setTilemapTile', 'arcade set tilemap (n + 1) tile index at column hero row 2 to 3'],
+    ['command', 'arcade_setTilemapWall', 'arcade set tilemap (n + 1) wall at column hero row 2 to (n + 1)'],
+    ['hat', 'arcade_whenRegisteredTilemapEvent', 'when arcade tilemap event handler (n + 1) runs'],
     ['boolean', 'arcade_isHittingTile', 'arcade sprite (n + 1) hitting wall hero'],
     ['reporter', 'arcade_parseIntegerRadix', 'arcade parse integer "ff" radix (n + 1)'],
     ['reporter', 'arcade_parseInteger', 'arcade parse integer (arcade local count)'],
@@ -483,7 +498,7 @@ describe('Arcade dialect words', () => {
         const here = new Set(WORD_LINES.map(([, op]) => op));
         assert.deepEqual([...here].sort(), [...ARCADE_DIALECT_OPS].sort());
         assert.equal(WORD_LINES.length, ARCADE_WORDS.length, 'one line per spelling, aliases included');
-        assert.equal(ARCADE_DIALECT_OPS.length, 414);
+        assert.equal(ARCADE_DIALECT_OPS.length, 429);
     });
 
     for (const [kind, op, line, alias] of WORD_LINES) {
