@@ -14469,13 +14469,12 @@ class SB3Creator {
             .some((bl) => bl && bl.opcode === 'microbitplus_setbrightness'));
         if (dimmable) uses.dim = true;
         // A program that turns on `radio transmit serial number` sends every
-        // packet with its serial number in front (microbitRadioSerialPy);
+        // packet with its serial number in it (microbitRadioSerialPy);
         // decided before the walk, as `dimmable` is, because the sends may
         // come before the switch.
         const radioSerial = targets.some((t) => Object.values(t.blocks || {})
             .some((bl) => bl && bl.opcode === 'microbitplus_radioserial'));
         if (radioSerial) this._pyUses.serialno = true;
-        const tx = (payload) => (radioSerial ? `_bw_tx(${payload})` : payload);
 
         // TWO boards run MicroPython here. The micro:bit's pins are ambient
         // objects (pin0..pin20); the Pico's are CONSTRUCTED — Pin(n, Pin.IN,
