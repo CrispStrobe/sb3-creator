@@ -312,6 +312,7 @@ export const ARCADE_WORDS = Object.freeze([
     w('arcade_legacyGameOver', 'command', `arcade legacy game over win {WIN:bool} effect {EFFECT:unset|${BACKGROUND_EFFECTS}}`),
     w('arcade_gameOver', 'command', 'arcade game over win {WIN:bool}'),
     w('arcade_carnivalCountdown', 'command', `arcade carnival countdown {SECONDS} style {STYLE:Win|Lose|Score|Timed|Multi|Custom} effect {EFFECT:unset|${BACKGROUND_EFFECTS}}`),
+    w('arcade_carnivalAddLabel', 'command', 'arcade carnival add label {LABEL} position {AREA:Top|Mid|Bottom} color {COLOR} use color {HAS_COLOR:bool}'),
     w('arcade_carnivalGameOver', 'command', `arcade carnival game over style {STYLE:Win|Lose|Score|Timed|Multi|Custom} effect {EFFECT:unset|${BACKGROUND_EFFECTS}}`),
     w('arcade_carnivalCustomGameOver', 'command', `arcade carnival custom game over message {MESSAGE} effect {EFFECT:unset|${BACKGROUND_EFFECTS}} sound {SOUND} use sound {HAS_SOUND:bool} scoring {SCORING:unset|None|HScore|LScore|HTime|LTime} score {SCORE} use score {HAS_SCORE:bool}`),
     w('arcade_setGameOverEffect', 'command', `arcade set game over effect {EFFECT:${BACKGROUND_EFFECTS}} for win {WIN:bool}`),
@@ -408,6 +409,8 @@ export const ARCADE_WORDS = Object.freeze([
     w('arcade_callFunction', 'reporter', 'arcade call function {NAME} arguments {ARGS}', { early: true }),
     // A qualified name whose source is not in the project (a missing user namespace or asset): kept by name, run as a no-op.
     w('arcade_externalValue', 'reporter', 'arcade external value {NAME}'),
+    // An Image-typed call on a name whose source is not in the project: the arguments are real blocks.
+    w('arcade_externalImageCall', 'reporter', 'arcade external image call {NAME} arguments {ARGS}', { early: true }),
     w('arcade_externalImage', 'reporter', 'arcade external image {NAME}'),
     w('arcade_externalCall', 'reporter', 'arcade external call {NAME} arguments {ARGS}', { early: true }),
     w('arcade_externalCommand', 'command', 'arcade external command {NAME} arguments {ARGS}'),
