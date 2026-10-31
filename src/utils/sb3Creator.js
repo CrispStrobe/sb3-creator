@@ -1089,8 +1089,8 @@ const MB_API = [
     { k: 'r', op: 'sizeofformat', t: `size of ${MB_FMT}`, py: (a, f) => String(MB_FMT_SIZE[f.FMT] || 4) },
     { k: 'r', op: 'bufferfromtext', t: 'buffer from text <TEXT>', py: (a) => `bytearray(str(${a.TEXT}).encode())` },
     // ── Sound that the music words do not reach ──
-    { k: 'c', op: 'setvolume', t: 'set volume to <VOL>', py: (a, f, u) => { u.volume = true; return [`_bw_vol[0] = max(0, min(255, int(${a.VOL})))`, 'set_volume(_bw_vol[0])']; } },
-    { k: 'r', op: 'getvolume', t: 'volume', py: (a, f, u) => { u.volume = true; return '_bw_vol[0]'; } },
+    { k: 'c', op: 'setvolume', t: 'set speaker volume to <VOL>', py: (a, f, u) => { u.volume = true; return [`_bw_vol[0] = max(0, min(255, int(${a.VOL})))`, 'set_volume(_bw_vol[0])']; } },
+    { k: 'r', op: 'getvolume', t: 'speaker volume', py: (a, f, u) => { u.volume = true; return '_bw_vol[0]'; } },
     { k: 'r', op: 'soundplaying', t: 'sound is playing', py: () => 'audio.is_playing()' },
     { k: 'c', op: 'speaker', t: 'speaker {MODE:on|off}', py: (a, f) => [`speaker.${f.MODE === 'off' ? 'off' : 'on'}()`] },
     // ── Data logging beyond log data (micro:bit V2 log module) ──

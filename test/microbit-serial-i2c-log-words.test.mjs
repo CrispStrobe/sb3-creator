@@ -28,7 +28,7 @@ const CASES = [
     ['spi transfer buffer b into c', 'spi.write_readinto(bytes(b), c)'],
     ['set n to size of float64be', '8'],
     ['set b to buffer from text "hi"', 'bytearray(str("hi").encode())'],
-    ['set volume to 100', 'set_volume(_bw_vol[0])'],
+    ['set speaker volume to 100', 'set_volume(_bw_vol[0])'],
     ['speaker off', 'speaker.off()'],
     ['set log columns "a" and "b"', "_bw_log_cfg([\"a\", \"b\"])"],
     ['log timestamp seconds', '_bw_log_cfg(None, log.SECONDS)'],
