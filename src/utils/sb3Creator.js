@@ -15553,7 +15553,7 @@ class SB3Creator {
         if (!isPico) header.push(...microbitLedHelpersPy(uses, this._pyUses));
         if (!isPico) header.push(...microbitImageHelpersPy(uses, this._pyUses));
         if (!isPico) header.push(...microbitApiHelpersPy(this._pyUses));
-        if (eventHandlers.length) header.push(`_bw_evh = [${eventHandlers.join(', ')}]`);
+        if (eventHandlers.length || this._pyUses.events) header.push(`_bw_evh = [${eventHandlers.join(', ')}]`);
         if (uses._pitch) header.push('', 'def _pitch():', '    x, y, z = accelerometer.get_values()', '    return math.atan2(-y, -z) * 180 / math.pi');
         if (uses._roll) header.push('', 'def _roll():', '    x, y, z = accelerometer.get_values()', '    return math.atan2(x, -z) * 180 / math.pi');
         // BrickWright debug instrumentation. _bw_pos(n) prints a position marker

@@ -67,3 +67,11 @@ test('radio packets are MakeCode\'s (radio.ts), behind MicroPython\'s 01 00 01 h
     assert.match(r.py, /radio\.send_bytes\(_bw_pkt\(1, 5, 'k'\)\)/);
     assert.match(r.py, /struct\.pack\('<BBBBIi', 1, 0, 1, t,/);
 });
+
+test('raise event alone (no hat anywhere) still has its handler table', () => {
+    const c = new SB3Creator();
+    c.parse(program(['raise event 4000 1']));
+    const r = c.generateMicroPython();
+    assert.ok(r.ok);
+    assert.match(r.py, /^_bw_evh = \[\]$/m);
+});
