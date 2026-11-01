@@ -1093,6 +1093,20 @@ const MB_API = [
     { k: 'r', op: 'getvolume', t: 'speaker volume', py: (a, f, u) => { u.volume = true; return '_bw_vol[0]'; } },
     { k: 'r', op: 'soundplaying', t: 'sound is playing', py: () => 'audio.is_playing()' },
     { k: 'c', op: 'speaker', t: 'speaker {MODE:on|off}', py: (a, f) => [`speaker.${f.MODE === 'off' ? 'off' : 'on'}()`] },
+    // ── Pins: PWM period, servo pulse, pulse timing, touch mode ──
+    { k: 'c', op: 'analogperiod', t: `set analog period of pin ${MB_PIN('PIN')} to <US> us`,
+        py: (a, f) => [`pin${String(f.PIN).slice(1)}.set_analog_period_microseconds(int(${a.US}))`] },
+    { k: 'c', op: 'servopulse', t: `servo pulse of pin ${MB_PIN('PIN')} <US> us`,
+        py: (a, f) => [`pin${String(f.PIN).slice(1)}.set_analog_period(20)`, `pin${String(f.PIN).slice(1)}.write_analog(int(${a.US}) * 1023 // 20000)`] },
+    { k: 'r', op: 'pulsein', t: `pulse in pin ${MB_PIN('PIN')} {LEVEL:high|low} timeout <US>`,
+        py: (a, f, u) => { u.pulsein = true; return `_bw_pulse_in(pin${String(f.PIN).slice(1)}, ${f.LEVEL === 'low' ? 0 : 1}, int(${a.US}))`; } },
+    { k: 'c', op: 'touchmode', t: `touch mode of pin ${MB_PIN('PIN')} {MODE:capacitive|resistive}`,
+        py: (a, f) => [`pin${String(f.PIN).slice(1)}.set_touch_mode(pin${String(f.PIN).slice(1)}.${f.MODE === 'resistive' ? 'RESISTIVE' : 'CAPACITIVE'})`] },
+    // ── The game's level and stopwatch (MakeCode's game.level / levelUp / startStopwatch / currentTime) ──
+    { k: 'r', op: 'gamelevel', t: 'game level', py: (a, f, u) => { u.gamelevel = true; return '_bw_game[0]'; } },
+    { k: 'c', op: 'gamelevelup', t: 'game level up', py: (a, f, u) => { u.gamelevel = true; return ['_bw_game[0] += 1', "display.scroll('LEVEL:', delay=150)", 'display.scroll(str(_bw_game[0]), delay=150)']; } },
+    { k: 'c', op: 'gamestopwatch', t: 'game start stopwatch', py: (a, f, u) => { u.gamelevel = true; return ['_bw_game[1] = running_time()']; } },
+    { k: 'r', op: 'gametime', t: 'game time', py: (a, f, u) => { u.gamelevel = true; return '(running_time() - _bw_game[1])'; } },
     // ── Data logging beyond log data (micro:bit V2 log module) ──
     // set_labels takes the timestamp unit with the labels, so the two are kept and sent together.
     { k: 'c', op: 'logcols1', t: 'set log columns <C1>', py: (a, f, u) => { u.datalog = true; u.logcfg = true; return [`_bw_log_cfg([${a.C1}])`]; } },
@@ -1249,6 +1263,14 @@ function microbitApiHelpersPy(pyUses) {
             '    return r[0]');
     }
     if (pyUses.volume) out.push('', '_bw_vol = [128]');
+    if (pyUses.pulsein) {
+        // pins.pulseIn: the length of the next pulse in microseconds, 0 on a timeout (MicroPython reports -1 / -2).
+        out.push('', 'import machine',
+            'def _bw_pulse_in(p, level, timeout):',
+            '    r = machine.time_pulse_us(p, level, timeout)',
+            '    return r if r > 0 else 0');
+    }
+    if (pyUses.gamelevel) out.push('', '_bw_game = [1, 0]');
     if (pyUses.datalog) {
         out.push('', 'import log',
             'def _bw_log(row):',
