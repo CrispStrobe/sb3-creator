@@ -1107,6 +1107,16 @@ const MB_API = [
     { k: 'c', op: 'gamelevelup', t: 'game level up', py: (a, f, u) => { u.gamelevel = true; return ['_bw_game[0] += 1', "display.scroll('LEVEL:', delay=150)", 'display.scroll(str(_bw_game[0]), delay=150)']; } },
     { k: 'c', op: 'gamestopwatch', t: 'game start stopwatch', py: (a, f, u) => { u.gamelevel = true; return ['_bw_game[1] = running_time()']; } },
     { k: 'r', op: 'gametime', t: 'game time', py: (a, f, u) => { u.gamelevel = true; return '(running_time() - _bw_game[1])'; } },
+    // ── Radio on/off and band, the serial port's pins and rate, the board's reset, panic, compass and accelerometer ──
+    { k: 'c', op: 'radiooff', t: 'radio off', py: (a, f, u) => { u.radio = true; return ['radio.off()']; } },
+    { k: 'c', op: 'radioband', t: 'radio frequency band <BAND>', py: (a, f, u) => { u.radio = true; return [`radio.config(channel=int(${a.BAND}))`]; } },
+    { k: 'c', op: 'serialredirect', t: `serial redirect tx ${MB_PIN('TX')} rx ${MB_PIN('RX')} baud <BAUD>`,
+        py: (a, f) => [`uart.init(baudrate=int(${a.BAUD}), tx=pin${String(f.TX).slice(1)}, rx=pin${String(f.RX).slice(1)})`] },
+    { k: 'c', op: 'serialbaud', t: 'serial baud rate <BAUD>', py: (a) => [`uart.init(baudrate=int(${a.BAUD}))`] },
+    { k: 'c', op: 'resetboard', t: 'reset micro:bit', py: () => ['reset()'] },
+    { k: 'c', op: 'panicboard', t: 'panic with code <CODE>', py: (a) => [`panic(int(${a.CODE}))`] },
+    { k: 'c', op: 'calibratecompass', t: 'calibrate compass', py: () => ['compass.calibrate()'] },
+    { k: 'c', op: 'accelrange', t: 'set accelerometer range <G>', py: (a) => [`accelerometer.set_range(int(${a.G}))`] },
     // ── Data logging beyond log data (micro:bit V2 log module) ──
     // set_labels takes the timestamp unit with the labels, so the two are kept and sent together.
     { k: 'c', op: 'logcols1', t: 'set log columns <C1>', py: (a, f, u) => { u.datalog = true; u.logcfg = true; return [`_bw_log_cfg([${a.C1}])`]; } },
