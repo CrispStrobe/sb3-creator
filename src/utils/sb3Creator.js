@@ -1139,7 +1139,7 @@ const MB_API = [
     // ── The log's rows and its log-full event ──
     { k: 'r', op: 'logrows', t: 'log rows from <FROM> count <N>', py: (a, f, u) => { u.datalog = true; return `_bw_lg_rows(${a.FROM}, ${a.N})`; } },
     { k: 'r', op: 'lograwcount', t: 'log row count from <FROM>', py: (a, f, u) => { u.datalog = true; return `_bw_lg_count(${a.FROM})`; } },
-    { k: 'c', op: 'logwatchfull', t: 'log raise event when full', py: (a, f, u) => { u.datalog = true; u.events = true; return ["_bw_lg['ev'] = True"]; } },
+    { k: 'c', op: 'logwatchfull', t: 'log raise event when full', py: (a, f, u) => { u.datalog = true; u.events = true; u.logwatch = true; return ["_bw_lg['ev'] = True"]; } },
     // ── Data logging beyond log data (micro:bit V2 log module) ──
     // set_labels takes the timestamp unit with the labels, so the two are kept and sent together.
     { k: 'c', op: 'logcols1', t: 'set log columns <C1>', py: (a, f, u) => { u.datalog = true; u.logcfg = true; return [`_bw_log_cfg([${a.C1}])`]; } },
@@ -1329,6 +1329,7 @@ function microbitApiHelpersPy(pyUses) {
         out.push('', 'import log',
             "_bw_lg = {'c': [], 'u': 'seconds', 'off': False, 'ev': False}",
             "_bw_lgf = 'bwlog.csv'",
+            ...(pyUses.logwatch ? ["_bw_lg['ev'] = True"] : []),
             'def _bw_lg_lines():',
             '    try:',
             '        f = open(_bw_lgf)',
