@@ -1117,6 +1117,14 @@ const MB_API = [
     { k: 'c', op: 'panicboard', t: 'panic with code <CODE>', py: (a) => [`panic(int(${a.CODE}))`] },
     { k: 'c', op: 'calibratecompass', t: 'calibrate compass', py: () => ['compass.calibrate()'] },
     { k: 'c', op: 'accelrange', t: 'set accelerometer range <G>', py: (a) => [`accelerometer.set_range(int(${a.G}))`] },
+    // ── Serial polling, buffer concat, raw radio packets, the bluetooth uart's buffer ──
+    { k: 'r', op: 'serialhas', t: `serial has data until ${MB_DELIM}`,
+        py: (a, f, u) => { u.serread = true; return `_bw_ser_has(${JSON.stringify(MB_DELIM_CHARS[f.DELIM] || '\n')})`; } },
+    { k: 'r', op: 'bufferconcat', t: 'concat buffers <A> and <B>', py: (a) => `(bytearray(${a.A}) + bytearray(${a.B}))` },
+    { k: 'c', op: 'radiosendraw', t: 'radio send raw packet <BUF>',
+        py: (a, f, u) => { u.radio = true; return [`radio.send_bytes(b'\\x01\\x00\\x01' + bytes(${a.BUF})[:32])`]; } },
+    { k: 'r', op: 'radiolastraw', t: 'read raw radio packet', py: (a, f, u) => { u.radio = true; u.radioraw = true; u.radiopkt = true; return '_radio_last_raw'; } },
+    { k: 'r', op: 'btuartreadbuf', t: 'bluetooth uart read buffer', py: () => 'bytearray(0)' },
     // ── Data logging beyond log data (micro:bit V2 log module) ──
     // set_labels takes the timestamp unit with the labels, so the two are kept and sent together.
     { k: 'c', op: 'logcols1', t: 'set log columns <C1>', py: (a, f, u) => { u.datalog = true; u.logcfg = true; return [`_bw_log_cfg([${a.C1}])`]; } },
@@ -1232,29 +1240,40 @@ function microbitApiHelpersPy(pyUses) {
             '    _bw_ev_val = v');
     }
     if (pyUses.serread) {
-        // Reads from the console: wait (a millisecond at a time) for what was asked.
-        out.push('', 'def _bw_ser_buf(n):',
+        // Reads from the console share one input buffer, so a read and a "has data until" poll see the same bytes.
+        // A read waits (a millisecond at a time) for what it asks, as MakeCode's fiber does.
+        out.push('', '_bw_sbuf = [b\'\']',
+            'def _bw_ser_pump():',
+            '    c = uart.read()',
+            '    if c:',
+            '        _bw_sbuf[0] += c',
+            'def _bw_ser_buf(n):',
             '    n = int(n)',
-            '    d = b\'\'',
-            '    while len(d) < n:',
-            '        c = uart.read(n - len(d))',
-            '        if c:',
-            '            d += c',
-            '        else:',
-            '            sleep(1)',
+            '    _bw_ser_pump()',
+            '    while len(_bw_sbuf[0]) < n:',
+            '        sleep(1)',
+            '        _bw_ser_pump()',
+            '    d = _bw_sbuf[0][:n]',
+            '    _bw_sbuf[0] = _bw_sbuf[0][n:]',
             '    return bytearray(d)',
             'def _bw_ser_all():',
-            "    return str(uart.read() or b'', 'utf8')",
+            '    _bw_ser_pump()',
+            '    d = _bw_sbuf[0]',
+            "    _bw_sbuf[0] = b''",
+            "    return str(d, 'utf8')",
+            'def _bw_ser_has(delim):',
+            '    _bw_ser_pump()',
+            '    return _bw_sbuf[0].find(delim.encode()) >= 0',
             'def _bw_ser_until(delim):',
-            "    d = b''",
             '    t = delim.encode()',
-            '    while not d.endswith(t):',
-            '        c = uart.read(1)',
-            '        if c:',
-            '            d += c',
-            '        else:',
-            '            sleep(1)',
-            "    return str(d[:len(d) - len(t)], 'utf8')");
+            '    _bw_ser_pump()',
+            '    while _bw_sbuf[0].find(t) < 0:',
+            '        sleep(1)',
+            '        _bw_ser_pump()',
+            '    i = _bw_sbuf[0].find(t)',
+            '    d = _bw_sbuf[0][:i]',
+            '    _bw_sbuf[0] = _bw_sbuf[0][i + len(t):]',
+            "    return str(d, 'utf8')");
     }
     if (pyUses.i2cnum) {
         out.push('', 'def _bw_i2c_wn(a, fmt, v, n):',
@@ -15427,13 +15446,14 @@ class SB3Creator {
             const ind = (n, lines) => lines.map((l) => ' '.repeat(n) + l);
             taskDefs.push([
                 'def _bw_radio_rx():',
-                '    global _radio_last_num, _radio_last_str, _radio_last_buf, _radio_last_name, _radio_last_value, _radio_last_rssi, _radio_last_serial, _radio_last_time, _radio_last_kind',
+                '    global _radio_last_num, _radio_last_str, _radio_last_buf, _radio_last_name, _radio_last_value, _radio_last_rssi, _radio_last_serial, _radio_last_time, _radio_last_kind' + (this._pyUses.radioraw ? ', _radio_last_raw' : ''),
                 '    radio.config(length=35)',
                 '    radio.on()',
                 '    while True:',
                 '        f = radio.receive_full()',
                 '        if f:',
                 '            p = f[0][3:]',
+                ...(this._pyUses.radioraw ? ["            _radio_last_raw = bytearray(p) + struct.pack('<i', f[1])"] : []),
                 '            _radio_last_rssi = f[1]',
                 '            _radio_last_time = f[2]',
                 '            _radio_last_serial = 0',
@@ -15548,6 +15568,7 @@ class SB3Creator {
             header.push('_radio_last_buf = bytearray(0)', '_radio_last_time = 0', '_radio_last_kind = 0');
         }
         if (this._pyUses.rssi) header.push('_radio_last_rssi = 0');
+        if (this._pyUses.radioraw) header.push('_radio_last_raw = bytearray(36)');
         if (this._pyUses.rserial) header.push('_radio_last_serial = 0');
         if (!isPico) header.push(...microbitRadioSerialPy(this._pyUses, radioSerial));
         // The reporters emit `_arrays.<method>(…)` whether or not anything
