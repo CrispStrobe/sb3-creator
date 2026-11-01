@@ -1125,6 +1125,12 @@ const MB_API = [
         py: (a, f, u) => { u.radio = true; return [`radio.send_bytes(b'\\x01\\x00\\x01' + bytes(${a.BUF})[:32])`]; } },
     { k: 'r', op: 'radiolastraw', t: 'read raw radio packet', py: (a, f, u) => { u.radio = true; u.radioraw = true; u.radiopkt = true; return '_radio_last_raw'; } },
     { k: 'r', op: 'btuartreadbuf', t: 'bluetooth uart read buffer', py: () => 'bytearray(0)' },
+    // ── Radio events (radio.raiseEvent, radio.sendMessage, onReceivedMessage) ──
+    { k: 'c', op: 'radioraise', t: 'radio raise event <SOURCE> <VALUE>',
+        py: (a, f, u) => { u.radio = true; u.radiosend = true; u.events = true; u.radioevent = true; u.radiopkt = true;
+            return [`radio.send_bytes(b'\\x01\\x00\\x02' + struct.pack('<HHI', int(${a.SOURCE}), int(${a.VALUE}), running_time() & 0xffffffff))`]; } },
+    { k: 'c', op: 'radiolisten', t: 'radio listen for events',
+        py: (a, f, u) => { u.radio = true; u.events = true; u.radioevent = true; u.radiopkt = true; return ['pass']; } },
     // ── Data logging beyond log data (micro:bit V2 log module) ──
     // set_labels takes the timestamp unit with the labels, so the two are kept and sent together.
     { k: 'c', op: 'logcols1', t: 'set log columns <C1>', py: (a, f, u) => { u.datalog = true; u.logcfg = true; return [`_bw_log_cfg([${a.C1}])`]; } },
@@ -15451,6 +15457,9 @@ class SB3Creator {
                 '    radio.on()',
                 '    while True:',
                 '        f = radio.receive_full()',
+                // A frame of the event protocol (header 01 00 02, CODAL's MicroBitRadioEvent: uint16 source, uint16
+                // value, uint32 time) raises that event here, as the radio event bus does on a MakeCode board.
+                ...(this._pyUses.radioevent ? ['        if f and f[0][2] == 2 and len(f[0]) >= 7:', "            _bw_raise(*struct.unpack('<HH', f[0][3:7]))", '            f = None'] : []),
                 '        if f:',
                 '            p = f[0][3:]',
                 ...(this._pyUses.radioraw ? ["            _radio_last_raw = bytearray(p) + struct.pack('<i', f[1])"] : []),
