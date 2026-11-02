@@ -139,6 +139,7 @@ const WORD_LINES = [
     ['reporter', 'arcade_songFromBuffer', 'arcade song playable byte buffer bytes'],
     ['reporter', 'arcade_truncateNumber', 'arcade truncate (n + 1)'],
     ['reporter', 'arcade_signNumber', 'arcade sign of (n + 1)'],
+    ['reporter', 'arcade_mathUnary', 'arcade math truncate of (n + 1)'],
     ['reporter','arcade_randomNumber','arcade random fraction'],
     ['reporter','arcade_mathBinary','arcade math min first (n + 1) second (n + 2)'],
     ['boolean','arcade_percentChance','arcade percent chance (n + 1)'],
@@ -290,6 +291,7 @@ const WORD_LINES = [
     ['command', 'arcade_sevensegSetProperty', 'arcade set seven segment hero property count to (n + 1)'],
     ['command', 'arcade_sevensegAddDigit', 'arcade add seven segment digit to hero'],
     ['command', 'arcade_playMusic', 'arcade play music (arcade melody playable (arcade melody baDing)) mode UntilDone'],
+    ['command', 'arcade_play', 'arcade play playable (arcade melody playable (arcade melody baDing)) mode InBackground'],
     ['command', 'arcade_playMelody', 'arcade play melody (arcade melody siren) mode loop'],
     ['command', 'arcade_playSoundEffect', 'arcade play sound effect hero mode InBackground'],
     ['command', 'arcade_playSound', 'arcade play sound (arcade sound BaDing) until done true'],
@@ -498,7 +500,7 @@ describe('Arcade dialect words', () => {
         const here = new Set(WORD_LINES.map(([, op]) => op));
         assert.deepEqual([...here].sort(), [...ARCADE_DIALECT_OPS].sort());
         assert.equal(WORD_LINES.length, ARCADE_WORDS.length, 'one line per spelling, aliases included');
-        assert.equal(ARCADE_DIALECT_OPS.length, 429);
+        assert.equal(ARCADE_DIALECT_OPS.length, 431);
     });
 
     for (const [kind, op, line, alias] of WORD_LINES) {

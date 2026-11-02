@@ -366,6 +366,8 @@ export const ARCADE_WORDS = Object.freeze([
     // ---- commands: music (PXT mixer) ------------------------------------------------
     // "play sound effect" before "play sound", whose last slot would read the rest.
     w('arcade_playMusic', 'command', 'arcade play music {PLAYABLE} mode {MODE:UntilDone|InBackground|LoopingInBackground}'),
+    // The general form: PLAYABLE is any playable value (melody/string/tone/song/sound-effect playable), as in `music.play(playable, mode)`.
+    w('arcade_play', 'command', 'arcade play playable {PLAYABLE} mode {MODE:UntilDone|InBackground|LoopingInBackground}'),
     w('arcade_playMelody', 'command', 'arcade play melody {MELODY} mode {MODE:play|playUntilDone|loop}'),
     w('arcade_playSoundEffect', 'command', 'arcade play sound effect {EFFECT} mode {MODE:UntilDone|InBackground}'),
     w('arcade_playSound', 'command', 'arcade play sound {SOUND} until done {UNTIL_DONE:bool}'),
@@ -475,6 +477,7 @@ export const ARCADE_WORDS = Object.freeze([
     w('arcade_signNumber', 'reporter', 'arcade sign of {NUM}', {early: true}),
     w('arcade_randomNumber', 'reporter', 'arcade random fraction'),
     w('arcade_mathBinary', 'reporter', 'arcade math {OP:min|max|randomRange|atan2} first {A} second {B}', {early:true}),
+    w('arcade_mathUnary', 'reporter', 'arcade math {OP:truncate|sign} of {NUM}', {early:true}),
     w('arcade_percentChance', 'boolean', 'arcade percent chance {PERCENTAGE}'),
     w('arcade_clampNumber','reporter','arcade clamp minimum {MIN} maximum {MAX} value {VALUE}',{early:true}),
     w('arcade_cameraProperty', 'reporter', 'arcade camera property {PROPERTY}'),
@@ -722,7 +725,7 @@ export function spellArcadeWord(entry, read) {
 // legacy menu shadow is a literal; a reporter with a fallback shadow is not.
 export const ARCADE_DIRECT_MENUS = Object.freeze({
     arcade_settingsWrite: {TYPE: 'settingWriteTypes'}, arcade_settingsRead: {TYPE: 'settingReadTypes'},
-    arcade_mathBinary: {OP: 'mathOperations'},
+    arcade_mathBinary: {OP: 'mathOperations'}, arcade_mathUnary: {OP: 'mathUnaryOperations'},
     arcade_setBackgroundScrollVersion: {VERSION: 'backgroundScrollVersions'}, arcade_setCharacterAnimationVersion: {VERSION: 'characterAnimationVersions'},
     arcade_textSpriteProperty: {PROPERTY: 'textSpriteProperties'}, arcade_textSpriteSetProperty: {PROPERTY: 'textSpriteProperties'},
     arcade_spriteDataSet: {TYPE: 'spriteDataTypes'}, arcade_spriteDataRead: {TYPE: 'spriteDataReadTypes'}
