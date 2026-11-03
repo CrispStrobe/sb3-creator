@@ -1140,6 +1140,39 @@ const MB_API = [
     { k: 'r', op: 'logrows', t: 'log rows from <FROM> count <N>', py: (a, f, u) => { u.datalog = true; return `_bw_lg_rows(${a.FROM}, ${a.N})`; } },
     { k: 'r', op: 'lograwcount', t: 'log row count from <FROM>', py: (a, f, u) => { u.datalog = true; return `_bw_lg_count(${a.FROM})`; } },
     { k: 'c', op: 'logwatchfull', t: 'log raise event when full', py: (a, f, u) => { u.datalog = true; u.events = true; u.logwatch = true; return ["_bw_lg['ev'] = True"]; } },
+    // ── The rest of MakeCode's control, led, pins and serial (pxt-microbit 9.1.1 libs/core) ──
+    // control.waitForEvent: the task waits for the next event raised with that source and value (0 is any).
+    { k: 'c', op: 'waitevent', t: 'wait for event <SOURCE> <VALUE>',
+        py: (a, f, u) => { u.events = true; u.evwait = true;
+            return ['_bw_wm = _bw_ev_seq[0]', `while not _bw_ev_since(_bw_wm, ${a.SOURCE}, ${a.VALUE}):`, '    yield 0']; } },
+    // control.deviceName: CODAL's microbit_friendly_name() of the serial number; deviceLongSerialNumber: the 8-byte id.
+    { k: 'r', op: 'devicename', t: 'device name', py: (a, f, u) => { u.serialno = true; u.devname = true; return '_bw_dev_name()'; } },
+    { k: 'r', op: 'devicelongserial', t: 'device long serial number',
+        py: (a, f, u) => { u.buffers = true; u.serialno = true; u.longserial = true; return '_bw_long_serial()'; } },
+    // control.compareVersion (libs/core/control.ts): the first differing part's difference, an x part read as 0.
+    { k: 'r', op: 'compareversion', t: 'compare version <A> with <B>', py: (a, f, u) => { u.cmpver = true; return `_bw_cmp_ver(${a.A}, ${a.B})`; } },
+    // led.screenshot: the display as an image.
+    { k: 'r', op: 'screenshot', t: 'screenshot', py: (a, f, u) => { u.images = true; u.screenshot = true; return '_bw_screenshot()'; } },
+    // images.createBigImage: a 5-row image of any width (MicroPython's Image takes it).
+    { k: 'r', op: 'createbigimage', t: 'create big image <LEDS>', py: (a, f, u) => { u.images = true; return `Image(str(${a.LEDS}))`; } },
+    // The pitch pin (pins.cpp analogSetPitchPin / analogPitch / analogSetPitchVolume / analogPitchVolume): a square wave of
+    // the frequency on the pin, its duty 1 << (volume >> 5) of 1023; until a pin is set, the V2's sound output.
+    { k: 'c', op: 'pitchpin', t: `set analog pitch pin ${MB_PIN('PIN')}`,
+        py: (a, f, u) => { u.apitch = true; return [`_bw_apitch[0] = pin${String(f.PIN).slice(1)}`]; } },
+    { k: 'c', op: 'pitchvolume', t: 'set analog pitch volume to <VOL>',
+        py: (a, f, u) => { u.apitch = true; return [`_bw_apitch_vol(${a.VOL})`]; } },
+    { k: 'r', op: 'getpitchvolume', t: 'analog pitch volume', py: (a, f, u) => { u.apitch = true; return '_bw_apitch[1]'; } },
+    { k: 'c', op: 'analogpitch', t: 'analog pitch <FREQ> hz for <MS> ms',
+        py: (a, f, u, ctx) => { u.apitch = true; if (ctx) ctx.music = true; u.music = true;
+            return [`_bw_pms = int(${a.MS})`, `_bw_apitch_set(${a.FREQ})`, 'if _bw_pms > 0:', '    yield _bw_pms', '    _bw_apitch_set(0)']; } },
+    // pins.i2cWriteBuffer as a value: 0, or CODAL's I2C error (-1010) when nothing answers.
+    { k: 'r', op: 'i2cwritestatus', t: 'i2c write buffer <BUF> to <ADDR> status', py: (a, f, u) => { u.i2cstatus = true; return `_bw_i2c_status(${a.ADDR}, ${a.BUF})`; } },
+    // serial.readUntil / onDataReceived with a delimiter of any characters: any one of them ends the text (CODAL's readUntil).
+    { k: 'r', op: 'serialreadany', t: 'serial read until any of <CHARS>', py: (a, f, u) => { u.serread = true; u.serany = true; return `_bw_ser_until_any(${a.CHARS})`; } },
+    { k: 'r', op: 'serialhasany', t: 'serial has data until any of <CHARS>', py: (a, f, u) => { u.serread = true; u.serany = true; return `_bw_ser_has_any(${a.CHARS})`; } },
+    // The bluetooth uart with such a delimiter: no Bluetooth in the simulator, so nothing arrives (as the menu forms).
+    { k: 'r', op: 'btuartreadany', t: 'bluetooth uart read until any of <CHARS>', py: () => "''" },
+    { k: 'h', op: 'whenuartany', t: 'when bluetooth uart receives any of <CHARS>' },
     // ── Data logging beyond log data (micro:bit V2 log module) ──
     // set_labels takes the timestamp unit with the labels, so the two are kept and sent together.
     { k: 'c', op: 'logcols1', t: 'set log columns <C1>', py: (a, f, u) => { u.datalog = true; u.logcfg = true; return [`_bw_log_cfg([${a.C1}])`]; } },
@@ -1252,7 +1285,19 @@ function microbitApiHelpersPy(pyUses) {
             '    for h in reversed(_bw_evh):',
             '        if (h[0] == 0 or h[0] == s) and (h[1] == 0 or h[1] == v):',
             '            _pending.append(h[2])',
-            '    _bw_ev_val = v');
+            '    _bw_ev_val = v',
+            ...(pyUses.evwait ? ['    _bw_ev_seq[0] += 1', '    _bw_ev_log.append((_bw_ev_seq[0], s, v))', '    if len(_bw_ev_log) > 16:', '        _bw_ev_log.pop(0)'] : []));
+        if (pyUses.evwait) {
+            // control.waitForEvent: the events raised since a mark (the last 16 are kept).
+            out.push('_bw_ev_seq = [0]', '_bw_ev_log = []',
+                'def _bw_ev_since(m, s, v):',
+                '    s = int(s)',
+                '    v = int(v)',
+                '    for e in _bw_ev_log:',
+                '        if e[0] > m and (s == 0 or e[1] == s) and (v == 0 or e[2] == v):',
+                '            return True',
+                '    return False');
+        }
     }
     if (pyUses.serread) {
         // Reads from the console share one input buffer, so a read and a "has data until" poll see the same bytes.
@@ -1289,6 +1334,115 @@ function microbitApiHelpersPy(pyUses) {
             '    d = _bw_sbuf[0][:i]',
             '    _bw_sbuf[0] = _bw_sbuf[0][i + len(t):]',
             "    return str(d, 'utf8')");
+        if (pyUses.serany) {
+            out.push('def _bw_ser_any(chars):',
+                '    i = -1',
+                '    for c in str(chars).encode():',
+                '        j = _bw_sbuf[0].find(bytes([c]))',
+                '        if j >= 0 and (i < 0 or j < i):',
+                '            i = j',
+                '    return i',
+                'def _bw_ser_has_any(chars):',
+                '    _bw_ser_pump()',
+                '    return _bw_ser_any(chars) >= 0',
+                'def _bw_ser_until_any(chars):',
+                '    _bw_ser_pump()',
+                '    while _bw_ser_any(chars) < 0:',
+                '        sleep(1)',
+                '        _bw_ser_pump()',
+                '    i = _bw_ser_any(chars)',
+                '    d = _bw_sbuf[0][:i]',
+                '    _bw_sbuf[0] = _bw_sbuf[0][i + 1:]',
+                "    return str(d, 'utf8')");
+        }
+    }
+    if (pyUses.i2cstatus) {
+        out.push('', 'def _bw_i2c_status(a, b):',
+            '    try:',
+            '        i2c.write(int(a), bytes(b))',
+            '        return 0',
+            '    except OSError:',
+            '        return -1010');
+    }
+    if (pyUses.devname) {
+        // CODAL microbit_friendly_name(): five letters from the serial number, right to left.
+        out.push('', 'def _bw_dev_name():',
+            "    book = ['zvgpt', 'uoiea', 'zvgpt', 'uoiea', 'zvgpt']",
+            '    n = _bw_serial_no & 0xffffffff',
+            '    ld = 1',
+            '    d = 5',
+            "    name = ''",
+            '    for i in range(5):',
+            '        h = (n % d) // ld',
+            '        n -= h',
+            '        d *= 5',
+            '        ld *= 5',
+            '        name = book[i][h] + name',
+            '    return name');
+    }
+    if (pyUses.longserial) {
+        // The 64-bit id with deviceSerialNumber() in its low four bytes (as pxsim's: the serial, UInt32LE at 0).
+        out.push('', 'def _bw_long_serial():',
+            '    b = bytearray(8)',
+            "    struct.pack_into('<I', b, 0, _bw_serial_no & 0xffffffff)",
+            '    try:',
+            '        import machine',
+            '        b[4:8] = bytes(machine.unique_id()[4:8])',
+            '    except Exception:',
+            '        pass',
+            '    return b');
+    }
+    if (pyUses.cmpver) {
+        out.push('', 'def _bw_parse_int(t):',
+            '    t = str(t).strip()',
+            "    i = 1 if t[:1] in ('-', '+') else 0",
+            '    j = i',
+            "    while j < len(t) and '0' <= t[j] <= '9':",
+            '        j += 1',
+            "    return int(t[:j]) if j > i else float('nan')",
+            'def _bw_cmp_ver(a, b):',
+            "    x = ['0' if ('x' in p or 'X' in p) else p for p in str(a).split('.')]",
+            "    y = ['0' if ('x' in p or 'X' in p) else p for p in str(b).split('.')]",
+            '    n = max(len(x), len(y))',
+            "    x += ['0'] * (n - len(x))",
+            "    y += ['0'] * (n - len(y))",
+            '    for i in range(n):',
+            '        p = _bw_parse_int(x[i])',
+            '        q = _bw_parse_int(y[i])',
+            '        if p != q:',
+            '            return p - q',
+            '    return 0');
+    }
+    if (pyUses.screenshot) {
+        out.push('', 'def _bw_screenshot():',
+            '    img = Image(5, 5)',
+            '    for y in range(5):',
+            '        for x in range(5):',
+            '            img.set_pixel(x, y, display.get_pixel(x, y))',
+            '    return img');
+    }
+    if (pyUses.apitch) {
+        // [pin or None for the sound output, volume 0..255]
+        out.push('', '_bw_apitch = [None, 255, False]',
+            'def _bw_apitch_set(fq):',
+            '    fq = int(fq)',
+            '    p = _bw_apitch[0]',
+            '    on = fq > 0 and _bw_apitch[1] > 0',
+            '    _bw_apitch[2] = fq > 0',
+            '    if p is None:',
+            '        if on:',
+            '            music.pitch(fq, duration=-1, wait=False)',
+            '        else:',
+            '            music.stop()',
+            '    elif on:',
+            '        p.write_analog(1 << (_bw_apitch[1] >> 5))',
+            '        p.set_analog_period_microseconds(1000000 // fq)',
+            '    else:',
+            '        p.write_analog(0)',
+            'def _bw_apitch_vol(v):',
+            '    _bw_apitch[1] = max(0, min(255, int(v)))',
+            '    if _bw_apitch[2] and _bw_apitch[0] is not None:',
+            '        _bw_apitch[0].write_analog(0 if _bw_apitch[1] == 0 else 1 << (_bw_apitch[1] >> 5))');
     }
     if (pyUses.i2cnum) {
         out.push('', 'def _bw_i2c_wn(a, fmt, v, n):',
@@ -15436,7 +15590,7 @@ class SB3Creator {
                         ...body,
                         `        yield max(0, int(${this.pyVal(b.inputs.MS, blocks)}) - (running_time() - _bw_t0))`].join('\n'));
                     starts.push(fn);
-                } else if (b.opcode === 'microbitplus_whenconn' || b.opcode === 'microbitplus_whenuart') {
+                } else if (b.opcode === 'microbitplus_whenconn' || b.opcode === 'microbitplus_whenuart' || b.opcode === 'microbitplus_whenuartany') {
                     // Bluetooth events never happen in the simulator: the handler
                     // stays in the blocks and is never started.
                     continue;
