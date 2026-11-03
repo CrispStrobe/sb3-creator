@@ -231,6 +231,7 @@ export const ARCADE_WORDS = Object.freeze([
     w('arcade_unregisterTilemapEvent', 'command', 'arcade unregister tilemap event {EVENT:Loaded|Unloaded} as {TOKEN}'),
     w('arcade_setTilemapTile', 'command', 'arcade set tilemap {DATA} tile index at column {COLUMN} row {ROW} to {INDEX}'),
     w('arcade_setTilemapWall', 'command', 'arcade set tilemap {DATA} wall at column {COLUMN} row {ROW} to {WALL}'),
+    w('arcade_setTilemapScale', 'command', 'arcade set tilemap {DATA} scale to {VALUE}'),
     w('arcade_registerTileHandler', 'command',
         'arcade register tile kind {KIND} image {IMAGE} as {TOKEN} capturing {CAPTURES}'),
     w('arcade_registerSpriteCreated', 'command', 'arcade register creation kind {KIND} as {TOKEN} capturing {CAPTURES}'),
@@ -543,6 +544,9 @@ export const ARCADE_WORDS = Object.freeze([
     w('arcade_tilemapTile', 'reporter', 'arcade tilemap {DATA} tile index at column {COLUMN} row {ROW}'),
     w('arcade_tilemapIsWall', 'boolean', 'arcade tilemap {DATA} wall at column {COLUMN} row {ROW}'),
     w('arcade_tilemapTileImage', 'reporter', 'arcade tilemap {DATA} image of tile index {INDEX}'),
+    w('arcade_tilemapTileset', 'reporter', 'arcade tilemap {DATA} tileset'),
+    w('arcade_tileLocationTilemap', 'reporter', 'arcade scene tilemap of tile {LOCATION}'),
+    w('arcade_sceneTilemapProperty', 'reporter', 'arcade scene tilemap {PROPERTY:data|scale|enabled|areaWidth|areaHeight} of {MAP}'),
     w('arcade_eventTilemapData', 'reporter', 'arcade event tilemap data'),
     w('arcade_isHittingTile', 'boolean', 'arcade sprite {ID} hitting wall {DIRECTION}'),
 
