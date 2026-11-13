@@ -230,7 +230,7 @@ jobs:
     # replace a working page. The old flow was a manual `npm run deploy` to the
     # gh-pages branch, which is why the site sat a year behind main.
     needs: [test]
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
     runs-on: ubuntu-latest
     permissions:
       pages: write
