@@ -321,6 +321,7 @@ export const ARCADE_WORDS = Object.freeze([
     // The legacy game.over(win, effect?) spelling first; "unset" is no effect argument.
     w('arcade_legacyGameOver', 'command', `arcade legacy game over win {WIN:bool} effect {EFFECT:unset|${BACKGROUND_EFFECTS}}`),
     w('arcade_gameOver', 'command', 'arcade game over win {WIN:bool}'),
+    w('arcade_resetGame', 'command', 'arcade reset game'),
     w('arcade_carnivalCountdown', 'command', `arcade carnival countdown {SECONDS} style {STYLE:Win|Lose|Score|Timed|Multi|Custom} effect {EFFECT:unset|${BACKGROUND_EFFECTS}}`),
     w('arcade_carnivalAddLabel', 'command', 'arcade carnival add label {LABEL} position {AREA:Top|Mid|Bottom} color {COLOR} use color {HAS_COLOR:bool}'),
     w('arcade_carnivalGameOver', 'command', `arcade carnival game over style {STYLE:Win|Lose|Score|Timed|Multi|Custom} effect {EFFECT:unset|${BACKGROUND_EFFECTS}}`),
