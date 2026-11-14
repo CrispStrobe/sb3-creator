@@ -372,6 +372,7 @@ export const ARCADE_WORDS = Object.freeze([
     // The general form: PLAYABLE is any playable value (melody/string/tone/song/sound-effect playable), as in `music.play(playable, mode)`.
     w('arcade_play', 'command', 'arcade play playable {PLAYABLE} mode {MODE:UntilDone|InBackground|LoopingInBackground}'),
     w('arcade_playMelody', 'command', 'arcade play melody {MELODY} mode {MODE:play|playUntilDone|loop}'),
+    w('arcade_playNoteMelody', 'command', 'arcade play note melody {NOTES} at {TEMPO} bpm'),
     w('arcade_playSoundEffect', 'command', 'arcade play sound effect {EFFECT} mode {MODE:UntilDone|InBackground}'),
     w('arcade_playSound', 'command', 'arcade play sound {SOUND} until done {UNTIL_DONE:bool}'),
     w('arcade_playTone', 'command', 'arcade play tone {FREQUENCY} Hz for {DURATION} ms'),

@@ -295,6 +295,7 @@ const WORD_LINES = [
     ['command', 'arcade_playMusic', 'arcade play music (arcade melody playable (arcade melody baDing)) mode UntilDone'],
     ['command', 'arcade_play', 'arcade play playable (arcade melody playable (arcade melody baDing)) mode InBackground'],
     ['command', 'arcade_playMelody', 'arcade play melody (arcade melody siren) mode loop'],
+    ['command', 'arcade_playNoteMelody', 'arcade play note melody "C5 - D C" at (180 + 60) bpm'],
     ['command', 'arcade_playSoundEffect', 'arcade play sound effect hero mode InBackground'],
     ['command', 'arcade_playSound', 'arcade play sound (arcade sound BaDing) until done true'],
     ['command', 'arcade_playTone', 'arcade play tone (n + 1) Hz for (arcade beat Half) ms'],
