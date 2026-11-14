@@ -251,27 +251,21 @@ describe('gate integrity: a suite cannot skip itself into silence', () => {
             '\nResolve with: gh api repos/<owner>/<repo>/commits/<tag> --jq .sha');
     });
 
-    test('the two --no-save installs name exact versions, not ranges', () => {
-        // `npm ci` is content-addressed: package-lock.json carries an integrity
-        // hash for all 556 packages. `npm install --no-save` is the one step
-        // that bypasses it entirely — nothing is written to the lock, so nothing
-        // checks what arrived. Carrying `^0.21.0` there meant the AVR and RP2040
-        // cores every board gate executes could change under a green run.
-        //
-        // npm forbids republishing a version, so `avr8js@0.21.0` IS an immutable
-        // object; the range in front of it was the only mutable part.
+    test('the --no-save installs name exact versions or full Git commits', () => {
+        // These installs bypass package-lock.json. Keep npm versions exact,
+        // and identify the AVR fork by its full commit rather than a branch.
         const workflow = readFileSync(join(SB3, '.github', 'workflows', 'ci.yml'), 'utf8');
         const installs = [...workflow.matchAll(/npm install[^\n]*--no-save([^\n]*)/g)]
             .flatMap((m) => m[1].trim().split(/\s+/).filter(Boolean));
         assert.ok(installs.length >= 2,
             `found ${installs.length} packages on --no-save install lines, expected at least 2 — ` +
             'the scan is broken and an empty offender list below means nothing.');
-        const ranged = installs.filter((spec) => !/@\d+\.\d+\.\d+$/.test(spec));
-        assert.deepEqual(ranged, [],
-            'these packages are installed OUTSIDE package-lock.json (--no-save) at a version ' +
-            'RANGE, so no integrity hash covers them and a new release changes what CI tested ' +
-            'without any record:\n  ' + ranged.join('\n  ') +
-            '\nUse an exact version and record the integrity hash in a comment beside it.');
+        const unpinned = installs.filter((spec) =>
+            !/@\d+\.\d+\.\d+$/.test(spec) && !/^github:CrispStrobe\/avr8js#[0-9a-f]{40}$/.test(spec));
+        assert.deepEqual(unpinned, [],
+            'packages installed outside package-lock.json must name an exact npm version ' +
+            'or the full AVR fork commit; mutable ranges, tags and branches change what CI tests:\n  ' +
+            unpinned.join('\n  '));
     });
 
     test('every string-literal mutation target in the prover still occurs in the tree '
@@ -529,6 +523,15 @@ describe('gate integrity: a suite cannot skip itself into silence', () => {
 // ---------------------------------------------------------------------------
 describe('gate integrity: the bw-circuit-ui/bw-board surface we depend on',
     { skip: gate.skip }, () => {
+        test('CI installs the AVR source declared by the pinned board', () => {
+            const board = JSON.parse(readFileSync(join(BWB, 'package.json'), 'utf8'));
+            const workflow = readFileSync(join(SB3, '.github', 'workflows', 'ci.yml'), 'utf8');
+            const installs = [...workflow.matchAll(/npm install[^\n]*--no-save([^\n]*)/g)]
+                .flatMap((m) => m[1].trim().split(/\s+/).filter(Boolean));
+            assert.ok(installs.includes(board.dependencies.avr8js),
+                `CI must install bw-board's AVR dependency ${board.dependencies.avr8js}`);
+        });
+
         let circ;
         test('load a known-good bench', async () => {
             const { Circuit } = await injectEngine({ board: BWB, cui: CUI });
