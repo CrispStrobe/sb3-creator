@@ -23,6 +23,8 @@ const ALIAS = true;
 
 // [kind, opcode, one line of the word with a value in every slot, ALIAS?]
 const WORD_LINES = [
+    ['command', 'arcade_registerInstanceOverlapHandler', 'arcade register instance overlap of (arcade local hero) as "as capturing" capturing "value"'],
+    ['hat', 'arcade_whenRegisteredInstanceOverlap', 'when arcade instance overlap handler "as capturing" runs'],
     ['reporter', 'arcade_sourceValueBinary', 'arcade source value 5 op "+" with 2'],
     ['reporter', 'arcade_sourceValueUnary', 'arcade source unary "~" of 5'],
     ['command', 'arcade_declareParameterConstraint', 'declare arcade procedure "show text %s" parameter "message" as String'],
@@ -213,6 +215,7 @@ const WORD_LINES = [
     ['command', 'arcade_registerExternalHandler', 'arcade register external (n + 1) arguments hero as (n + 1) capturing hero'],
     ['command', 'arcade_registerIntervalHandler', 'arcade register interval (n + 1) as hero capturing "Player"'],
     ['command', 'arcade_registerButtonHandler', 'arcade register button (n + 1) event hero as "Player" capturing 2'],
+    ['command', 'arcade_registerPlayerButtonHandler', 'arcade register player 2 button (n + 1) event hero as "Player" capturing 2'],
     ['command', 'arcade_registerDestroyedHandler', 'arcade register destroyed kind (n + 1) as hero capturing "Player"'],
     ['command', 'arcade_registerOverlapHandler', 'arcade register overlap kind (n + 1) with kind hero as "Player" capturing 2'],
     ['command', 'arcade_registerScenePushHandler', 'arcade register scene push as (n + 1) capturing hero'],
@@ -255,6 +258,7 @@ const WORD_LINES = [
     ['command', 'arcade_printImageText', 'arcade print "Score" on image (arcade screen image) x (n + 1) y 4 color 2 font small'],
     ['command', 'arcade_legacyGameOver', 'arcade legacy game over win 1 effect unset'],
     ['command', 'arcade_gameOver', 'arcade game over win (n = 1)'],
+    ['command', 'arcade_resetGame', 'arcade reset game'],
     ['command', 'arcade_carnivalCountdown', 'arcade carnival countdown (n + 1) style Timed effect confetti'],
     ['command', 'arcade_carnivalAddLabel', 'arcade carnival add label "Score" position Mid color (n + 1) use color (n = 1)'],
     ['command', 'arcade_carnivalGameOver', 'arcade carnival game over style Score effect unset'],
@@ -293,6 +297,7 @@ const WORD_LINES = [
     ['command', 'arcade_playMusic', 'arcade play music (arcade melody playable (arcade melody baDing)) mode UntilDone'],
     ['command', 'arcade_play', 'arcade play playable (arcade melody playable (arcade melody baDing)) mode InBackground'],
     ['command', 'arcade_playMelody', 'arcade play melody (arcade melody siren) mode loop'],
+    ['command', 'arcade_playNoteMelody', 'arcade play note melody "C5 - D C" at (180 + 60) bpm'],
     ['command', 'arcade_playSoundEffect', 'arcade play sound effect hero mode InBackground'],
     ['command', 'arcade_playSound', 'arcade play sound (arcade sound BaDing) until done true'],
     ['command', 'arcade_playTone', 'arcade play tone (n + 1) Hz for (arcade beat Half) ms'],
@@ -331,6 +336,8 @@ const WORD_LINES = [
     ['reporter', 'arcade_spawnProjectile', 'arcade projectile template (n + 1) kind hero vx "Player" vy 2 width (arcade local count) height -3 mode kind-source source (n + 1)'],
     ['reporter', 'arcade_spawnProjectile', 'arcade projectile template (n + 1) kind hero vx "Player" vy 2 width (arcade local count) height -3 mode kind-source', ALIAS],
     ['reporter', 'arcade_ask', 'arcade ask yes (n + 1) subtitle "Choose A or B"'],
+    ['reporter', 'arcade_highScore', 'arcade high score'],
+    ['reporter', 'arcade_askForNumberLength', 'arcade ask number (n + 1) length (n + 2)'],
     ['reporter', 'arcade_askForNumber', 'arcade ask number (n + 1)'],
     ['reporter', 'arcade_askForString', 'arcade ask text (n + 1)'],
     ['reporter', 'arcade_createSprite', 'arcade create template (n + 1) kind hero width "Player" height 2'],
@@ -504,7 +511,7 @@ describe('Arcade dialect words', () => {
         const here = new Set(WORD_LINES.map(([, op]) => op));
         assert.deepEqual([...here].sort(), [...ARCADE_DIALECT_OPS].sort());
         assert.equal(WORD_LINES.length, ARCADE_WORDS.length, 'one line per spelling, aliases included');
-        assert.equal(ARCADE_DIALECT_OPS.length, 435);
+        assert.equal(ARCADE_DIALECT_OPS.length, 442);
     });
 
     for (const [kind, op, line, alias] of WORD_LINES) {

@@ -130,6 +130,7 @@ export const ARCADE_WORDS = Object.freeze([
     w('arcade_whenRegisteredInterval', 'hat', 'when arcade interval handler {TOKEN} runs'),
     w('arcade_whenRegisteredMultiplayerButton', 'hat', 'when arcade multiplayer button handler {TOKEN} runs'),
     w('arcade_whenRegisteredButton', 'hat', 'when arcade button handler {TOKEN} runs'),
+    w('arcade_whenRegisteredInstanceOverlap', 'hat', 'when arcade instance overlap handler {TOKEN} runs'),
     w('arcade_whenRegisteredInstanceDestroyed', 'hat', 'when arcade instance destruction handler {TOKEN} runs'),
     w('arcade_whenRegisteredKindDestroyed', 'hat', 'when arcade destroyed kind handler {TOKEN} runs'),
     w('arcade_whenRegisteredOverlap', 'hat', 'when arcade overlap handler {TOKEN} runs'),
@@ -215,6 +216,8 @@ export const ARCADE_WORDS = Object.freeze([
     w('arcade_registerIntervalHandler', 'command', 'arcade register interval {INTERVAL} as {TOKEN} capturing {CAPTURES}'),
     w('arcade_registerButtonHandler', 'command',
         'arcade register button {BUTTON} event {EVENT} as {TOKEN} capturing {CAPTURES}'),
+    w('arcade_registerPlayerButtonHandler', 'command',
+        'arcade register player {PLAYER} button {BUTTON} event {EVENT} as {TOKEN} capturing {CAPTURES}'),
     w('arcade_registerDestroyedHandler', 'command',
         'arcade register destroyed kind {KIND} as {TOKEN} capturing {CAPTURES}'),
     w('arcade_registerOverlapHandler', 'command',
@@ -237,6 +240,7 @@ export const ARCADE_WORDS = Object.freeze([
     w('arcade_registerSpriteCreated', 'command', 'arcade register creation kind {KIND} as {TOKEN} capturing {CAPTURES}'),
     w('arcade_registerSpriteCreated', 'command', 'arcade register creation kind {KIND} as {TOKEN}',
         { alias: true, defaults: { CAPTURES: '""' } }),
+    w('arcade_registerInstanceOverlapHandler', 'command', 'arcade register instance overlap of {ID} as {TOKEN} capturing {CAPTURES}'),
     w('arcade_registerInstanceDestroyedHandler', 'command', 'arcade register instance destruction of {ID} as {TOKEN} capturing {CAPTURES}'),
     w('arcade_registerSpriteDestroyed', 'command', 'arcade register destruction of {ID} as {TOKEN}'),
 
@@ -317,6 +321,7 @@ export const ARCADE_WORDS = Object.freeze([
     // The legacy game.over(win, effect?) spelling first; "unset" is no effect argument.
     w('arcade_legacyGameOver', 'command', `arcade legacy game over win {WIN:bool} effect {EFFECT:unset|${BACKGROUND_EFFECTS}}`),
     w('arcade_gameOver', 'command', 'arcade game over win {WIN:bool}'),
+    w('arcade_resetGame', 'command', 'arcade reset game'),
     w('arcade_carnivalCountdown', 'command', `arcade carnival countdown {SECONDS} style {STYLE:Win|Lose|Score|Timed|Multi|Custom} effect {EFFECT:unset|${BACKGROUND_EFFECTS}}`),
     w('arcade_carnivalAddLabel', 'command', 'arcade carnival add label {LABEL} position {AREA:Top|Mid|Bottom} color {COLOR} use color {HAS_COLOR:bool}'),
     w('arcade_carnivalGameOver', 'command', `arcade carnival game over style {STYLE:Win|Lose|Score|Timed|Multi|Custom} effect {EFFECT:unset|${BACKGROUND_EFFECTS}}`),
@@ -370,6 +375,7 @@ export const ARCADE_WORDS = Object.freeze([
     // The general form: PLAYABLE is any playable value (melody/string/tone/song/sound-effect playable), as in `music.play(playable, mode)`.
     w('arcade_play', 'command', 'arcade play playable {PLAYABLE} mode {MODE:UntilDone|InBackground|LoopingInBackground}'),
     w('arcade_playMelody', 'command', 'arcade play melody {MELODY} mode {MODE:play|playUntilDone|loop}'),
+    w('arcade_playNoteMelody', 'command', 'arcade play note melody {NOTES} at {TEMPO} bpm'),
     w('arcade_playSoundEffect', 'command', 'arcade play sound effect {EFFECT} mode {MODE:UntilDone|InBackground}'),
     w('arcade_playSound', 'command', 'arcade play sound {SOUND} until done {UNTIL_DONE:bool}'),
     w('arcade_playTone', 'command', 'arcade play tone {FREQUENCY} Hz for {DURATION} ms'),
@@ -438,6 +444,8 @@ export const ARCADE_WORDS = Object.freeze([
         'arcade projectile template {TEMPLATE} kind {KIND} vx {VX} vy {VY} width {WIDTH} height {HEIGHT} '
         + `mode {MODE:${PROJECTILE_MODES}}`, { early: true, alias: true, defaults: { SOURCE: '""' } }),
     w('arcade_ask', 'reporter', 'arcade ask yes {TITLE} subtitle {SUBTITLE}', { early: true }),
+    w('arcade_highScore', 'reporter', 'arcade high score', { early: true }),
+    w('arcade_askForNumberLength', 'reporter', 'arcade ask number {QUESTION} length {LENGTH}', { early: true }),
     w('arcade_askForNumber', 'reporter', 'arcade ask number {QUESTION}', { early: true }),
     w('arcade_askForString', 'reporter', 'arcade ask text {QUESTION}', { early: true }),
 
