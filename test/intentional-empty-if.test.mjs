@@ -19,3 +19,14 @@ test('PASS is not a general procedure, hat or loop no-op; unknown and malformed 
  for(const body of ['  PASS','  FOREVER:\n    PASS','  REPEAT (2):\n    PASS','  IF (1) = (1) THEN:\n    PASSS','  IF (1) = (1) THEN:\n    PASS()','  ELSE:\n    PASS'])assert.throws(()=>parse(body));
  const c=new SB3Creator();assert.throws(()=>c.parse('SPRITE Game:\nDEFINE empty:\n  PASS'));
 });
+
+test('only structurally absent or explicit empty substacks decompile as PASS',()=>{
+ for(const edge of [[2,'missing-block'],[1,null],[2,null,null],[],undefined]){
+  const c=parse('  IF (1) = (1) THEN:\n    PASS');const block=c.project.targets.flatMap(t=>Object.values(t.blocks)).find(b=>b.opcode==='control_if');block.inputs.SUBSTACK=edge;const code=c.decompile();assert.ok(!code.includes('PASS'));const again=new SB3Creator();again.parse(code);assert.ok(again.warnings.some(w=>w.includes('Empty body')));
+ }
+ const c=parse('  IF (1) = (1) THEN:\n    PASS'),block=c.project.targets.flatMap(t=>Object.values(t.blocks)).find(b=>b.opcode==='control_if');block.inputs.SUBSTACK=[2,null];const again=new SB3Creator();again.parse(c.decompile());assert.deepEqual(again.warnings,[]);
+});
+
+test('an existing PASS procedure remains a call while PASS: is an unambiguous empty branch',()=>{
+ const c=new SB3Creator();c.parse('SPRITE Game:\nDEFINE PASS:\n  change hits by (1)\nWHEN flag clicked:\n  IF (1) = (1) THEN:\n    PASS\n  IF (1) = (1) THEN:\n    PASS:');assert.deepEqual(c.warnings,[]);assert.equal(blocks(c).filter(b=>b.opcode==='procedures_call').length,1);const again=new SB3Creator();again.parse(c.decompile());assert.deepEqual(again.warnings,[]);assert.equal(blocks(again).filter(b=>b.opcode==='procedures_call').length,1);
+});

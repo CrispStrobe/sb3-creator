@@ -8709,7 +8709,9 @@ class SB3Creator {
 
                 // PASS spells an intentionally empty conditional branch. It has
                 // no Scratch opcode, timing effect or value evaluation.
-                if (/^PASS$/i.test(trimmed)) {
+                if (/^PASS:?$/i.test(trimmed)) {
+                    const legacyCall = /^PASS$/i.test(trimmed) ? this.tryProcedureCall(trimmed, target) : null;
+                    if (legacyCall) { linkBlock(legacyCall); i++; continue; }
                     if (allowBranchPass) explicitBranchPass = true;
                     else this.unreadable(i, trimmed, 'PASS is only valid inside an IF or ELSE branch');
                     i++;
@@ -10059,7 +10061,18 @@ class SB3Creator {
         const v = (k) => this.dval(b.inputs[k], blocks);
         const f = (k) => (b.fields[k] ? b.fields[k][0] : '');
         const sub = (k, lvl) => (b.inputs[k] ? this.decompileStackFrom(b.inputs[k][1], blocks, lvl) : []);
-        const branch = k => {const lines = sub(k, level + 1);return lines.length ? lines : ['  '.repeat(level + 1) + 'PASS'];};
+        const branch = k => {
+            const absent = !Object.hasOwn(b.inputs, k) && !(k in b.inputs);
+            const descriptor = Object.getOwnPropertyDescriptor(b.inputs, k), edge = descriptor?.value;
+            const mode = edge && Object.getOwnPropertyDescriptor(edge, '0'), body = edge && Object.getOwnPropertyDescriptor(edge, '1');
+            const keys = Array.isArray(edge) ? Reflect.ownKeys(edge) : [];
+            const empty = Array.isArray(edge) && Object.getPrototypeOf(edge) === Array.prototype && keys.length === 3 &&
+                keys[0] === '0' && keys[1] === '1' && keys[2] === 'length' &&
+                mode && Object.hasOwn(mode, 'value') && mode.value === 2 && body && Object.hasOwn(body, 'value') && body.value === null;
+            // A missing/unreadable referenced block is not an empty branch.
+            // Keep its prior diagnostic path rather than laundering it as PASS.
+            return absent || empty ? ['  '.repeat(level + 1) + 'PASS:'] : sub(k, level + 1);
+        };
         const line = (txt) => [pad + txt];
         const mbc = MB_API_BY_OP.get(b.opcode);
         if (mbc && mbc.k === 'c') return line(mbApiText(mbc, v, f));
