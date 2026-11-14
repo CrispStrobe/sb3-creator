@@ -8775,6 +8775,9 @@ class SB3Creator {
                                 allBlocks[lastBlockId].inputs.SUBSTACK2 = [2, childResult.firstBlockId];
                                 childResult.blocks[childResult.firstBlockId].parent = lastBlockId;
                                 Object.assign(allBlocks, childResult.blocks);
+                            } else if (!childResult.explicitBranchPass) {
+                                this.warn(i, `Empty body: "${trimmed}" has no indented lines under it, `
+                                    + 'so it does nothing. Use PASS for an intentionally empty branch.');
                             }
                             this.appendBlockComment(target, allBlocks[lastBlockId], lastBlockId, childResult.trailingComment);
                             i = childResult.endIndex;
