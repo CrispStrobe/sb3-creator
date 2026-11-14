@@ -334,6 +334,7 @@ const WORD_LINES = [
     ['reporter', 'arcade_spawnProjectile', 'arcade projectile template (n + 1) kind hero vx "Player" vy 2 width (arcade local count) height -3 mode kind-source source (n + 1)'],
     ['reporter', 'arcade_spawnProjectile', 'arcade projectile template (n + 1) kind hero vx "Player" vy 2 width (arcade local count) height -3 mode kind-source', ALIAS],
     ['reporter', 'arcade_ask', 'arcade ask yes (n + 1) subtitle "Choose A or B"'],
+    ['reporter', 'arcade_highScore', 'arcade high score'],
     ['reporter', 'arcade_askForNumberLength', 'arcade ask number (n + 1) length (n + 2)'],
     ['reporter', 'arcade_askForNumber', 'arcade ask number (n + 1)'],
     ['reporter', 'arcade_askForString', 'arcade ask text (n + 1)'],
@@ -508,7 +509,7 @@ describe('Arcade dialect words', () => {
         const here = new Set(WORD_LINES.map(([, op]) => op));
         assert.deepEqual([...here].sort(), [...ARCADE_DIALECT_OPS].sort());
         assert.equal(WORD_LINES.length, ARCADE_WORDS.length, 'one line per spelling, aliases included');
-        assert.equal(ARCADE_DIALECT_OPS.length, 439);
+        assert.equal(ARCADE_DIALECT_OPS.length, 440);
     });
 
     for (const [kind, op, line, alias] of WORD_LINES) {

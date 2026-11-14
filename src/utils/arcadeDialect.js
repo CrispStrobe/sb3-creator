@@ -441,6 +441,7 @@ export const ARCADE_WORDS = Object.freeze([
         'arcade projectile template {TEMPLATE} kind {KIND} vx {VX} vy {VY} width {WIDTH} height {HEIGHT} '
         + `mode {MODE:${PROJECTILE_MODES}}`, { early: true, alias: true, defaults: { SOURCE: '""' } }),
     w('arcade_ask', 'reporter', 'arcade ask yes {TITLE} subtitle {SUBTITLE}', { early: true }),
+    w('arcade_highScore', 'reporter', 'arcade high score', { early: true }),
     w('arcade_askForNumberLength', 'reporter', 'arcade ask number {QUESTION} length {LENGTH}', { early: true }),
     w('arcade_askForNumber', 'reporter', 'arcade ask number {QUESTION}', { early: true }),
     w('arcade_askForString', 'reporter', 'arcade ask text {QUESTION}', { early: true }),
