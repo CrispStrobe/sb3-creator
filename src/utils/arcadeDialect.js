@@ -410,6 +410,7 @@ export const ARCADE_WORDS = Object.freeze([
     w('arcade_placeOnTile', 'command', 'arcade place sprite {ID} on tile {LOCATION}'),
 
     // ---- commands: array references ------------------------------------------------
+    w('arcade_withoutNullSprites', 'reporter', 'arcade sprite array {ARRAY} without null', {early: true}),
     w('arrays_mutateReference', 'command', 'mutate array reference {ARRAY} op {OP} index {INDEX} value {VALUE}'),
 
     // ---- reporters read before operator splitting (signed or spaced slots) ---------
