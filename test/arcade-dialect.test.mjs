@@ -215,6 +215,7 @@ const WORD_LINES = [
     ['command', 'arcade_registerExternalHandler', 'arcade register external (n + 1) arguments hero as (n + 1) capturing hero'],
     ['command', 'arcade_registerIntervalHandler', 'arcade register interval (n + 1) as hero capturing "Player"'],
     ['command', 'arcade_registerButtonHandler', 'arcade register button (n + 1) event hero as "Player" capturing 2'],
+    ['command', 'arcade_registerPlayerButtonHandler', 'arcade register player 2 button (n + 1) event hero as "Player" capturing 2'],
     ['command', 'arcade_registerDestroyedHandler', 'arcade register destroyed kind (n + 1) as hero capturing "Player"'],
     ['command', 'arcade_registerOverlapHandler', 'arcade register overlap kind (n + 1) with kind hero as "Player" capturing 2'],
     ['command', 'arcade_registerScenePushHandler', 'arcade register scene push as (n + 1) capturing hero'],
@@ -509,7 +510,7 @@ describe('Arcade dialect words', () => {
         const here = new Set(WORD_LINES.map(([, op]) => op));
         assert.deepEqual([...here].sort(), [...ARCADE_DIALECT_OPS].sort());
         assert.equal(WORD_LINES.length, ARCADE_WORDS.length, 'one line per spelling, aliases included');
-        assert.equal(ARCADE_DIALECT_OPS.length, 440);
+        assert.equal(ARCADE_DIALECT_OPS.length, 441);
     });
 
     for (const [kind, op, line, alias] of WORD_LINES) {

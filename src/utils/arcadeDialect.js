@@ -216,6 +216,8 @@ export const ARCADE_WORDS = Object.freeze([
     w('arcade_registerIntervalHandler', 'command', 'arcade register interval {INTERVAL} as {TOKEN} capturing {CAPTURES}'),
     w('arcade_registerButtonHandler', 'command',
         'arcade register button {BUTTON} event {EVENT} as {TOKEN} capturing {CAPTURES}'),
+    w('arcade_registerPlayerButtonHandler', 'command',
+        'arcade register player {PLAYER} button {BUTTON} event {EVENT} as {TOKEN} capturing {CAPTURES}'),
     w('arcade_registerDestroyedHandler', 'command',
         'arcade register destroyed kind {KIND} as {TOKEN} capturing {CAPTURES}'),
     w('arcade_registerOverlapHandler', 'command',
