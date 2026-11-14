@@ -8638,10 +8638,11 @@ class SB3Creator {
         this.project.targets.push(stage);
         let currentTarget = stage;
 
-        const parseStructure = (startIndex, indentLevel, target) => {
+        const parseStructure = (startIndex, indentLevel, target, allowBranchPass = false) => {
             let i = startIndex;
             let firstBlockId = null;
             let lastBlockId = null;
+            let explicitBranchPass = false;
             const allBlocks = {};
             // A comment handed in by the caller (ELSE's) is not this body's own.
             const inherited = this._pendingComment;
@@ -8657,7 +8658,7 @@ class SB3Creator {
                     else trailingComment = this._pendingComment;
                     this._pendingComment = '';
                 }
-                return { blocks: allBlocks, firstBlockId, endIndex: i, trailingComment };
+                return { blocks: allBlocks, firstBlockId, endIndex: i, trailingComment, explicitBranchPass };
             };
 
             const linkBlock = (newBlockData) => {
@@ -8705,6 +8706,15 @@ class SB3Creator {
                 // than threaded through parseCommand/parseValue, which take no index
                 // and are reached from a dozen call sites.
                 this._lineIndex = i;
+
+                // PASS spells an intentionally empty conditional branch. It has
+                // no Scratch opcode, timing effect or value evaluation.
+                if (/^PASS$/i.test(trimmed)) {
+                    if (allowBranchPass) explicitBranchPass = true;
+                    else this.unreadable(i, trimmed, 'PASS is only valid inside an IF or ELSE branch');
+                    i++;
+                    continue;
+                }
 
                 if (trimmed.endsWith(':')) {
                     let newBlockData;
@@ -8760,7 +8770,7 @@ class SB3Creator {
                         this._pendingComment = ownComment;
                         if (lastBlockId && allBlocks[lastBlockId] && allBlocks[lastBlockId].opcode === 'control_if') {
                             allBlocks[lastBlockId].opcode = 'control_if_else';
-                            const childResult = parseStructure(i + 1, childIndent(i, currentIndent), target);
+                            const childResult = parseStructure(i + 1, childIndent(i, currentIndent), target, true);
                             if (childResult.firstBlockId) {
                                 allBlocks[lastBlockId].inputs.SUBSTACK2 = [2, childResult.firstBlockId];
                                 childResult.blocks[childResult.firstBlockId].parent = lastBlockId;
@@ -8781,7 +8791,7 @@ class SB3Creator {
                     }
 
                     if (newBlockData) {
-                        const childResult = parseStructure(i + 1, childIndent(i, currentIndent), target);
+                        const childResult = parseStructure(i + 1, childIndent(i, currentIndent), target, Object.values(newBlockData.block)[0].opcode === 'control_if');
                         const blockId = Object.keys(newBlockData.block)[0];
                         if (childResult.trailingComment) ownComment = [ownComment, childResult.trailingComment].filter(Boolean).join('\n');
                         
@@ -8789,7 +8799,7 @@ class SB3Creator {
                             newBlockData.block[blockId].inputs.SUBSTACK = [2, childResult.firstBlockId];
                             childResult.blocks[childResult.firstBlockId].parent = blockId;
                             Object.assign(newBlockData.extraBlocks, childResult.blocks);
-                        } else if (OPENS_A_BODY.has(newBlockData.block[blockId].opcode)) {
+                        } else if (OPENS_A_BODY.has(newBlockData.block[blockId].opcode) && !(newBlockData.block[blockId].opcode === 'control_if' && childResult.explicitBranchPass)) {
                             this.warn(i, `Empty body: "${trimmed}" has no indented lines under it, `
                                 + 'so it does nothing. If the following lines were meant to be its '
                                 + 'body, indent them further than this line.');
@@ -10046,6 +10056,7 @@ class SB3Creator {
         const v = (k) => this.dval(b.inputs[k], blocks);
         const f = (k) => (b.fields[k] ? b.fields[k][0] : '');
         const sub = (k, lvl) => (b.inputs[k] ? this.decompileStackFrom(b.inputs[k][1], blocks, lvl) : []);
+        const branch = k => {const lines = sub(k, level + 1);return lines.length ? lines : ['  '.repeat(level + 1) + 'PASS'];};
         const line = (txt) => [pad + txt];
         const mbc = MB_API_BY_OP.get(b.opcode);
         if (mbc && mbc.k === 'c') return line(mbApiText(mbc, v, f));
@@ -10055,10 +10066,10 @@ class SB3Creator {
             case 'control_forever': return [pad + 'FOREVER:', ...sub('SUBSTACK', level + 1)];
             case 'control_repeat': return [pad + `REPEAT ${v('TIMES')}:`, ...sub('SUBSTACK', level + 1)];
             case 'control_repeat_until': return [pad + `REPEAT UNTIL ${this.dcond(b.inputs.CONDITION[1], blocks)}:`, ...sub('SUBSTACK', level + 1)];
-            case 'control_if': return [pad + `IF ${this.dcond(b.inputs.CONDITION[1], blocks)} THEN:`, ...sub('SUBSTACK', level + 1)];
+            case 'control_if': return [pad + `IF ${this.dcond(b.inputs.CONDITION[1], blocks)} THEN:`, ...branch('SUBSTACK')];
             case 'control_if_else': return [
-                pad + `IF ${this.dcond(b.inputs.CONDITION[1], blocks)} THEN:`, ...sub('SUBSTACK', level + 1),
-                pad + 'ELSE:', ...sub('SUBSTACK2', level + 1)
+                pad + `IF ${this.dcond(b.inputs.CONDITION[1], blocks)} THEN:`, ...branch('SUBSTACK'),
+                pad + 'ELSE:', ...branch('SUBSTACK2')
             ];
             case 'control_wait': return line(`wait ${v('DURATION')} seconds`);
             case 'control_wait_until': return line(`wait until ${this.dcond(b.inputs.CONDITION[1], blocks)}`);
