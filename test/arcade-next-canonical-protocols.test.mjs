@@ -10,8 +10,9 @@ const source=(line=declaration())=>header+`DEFINE holdText (thisText):\n  ${line
 const parse=code=>{const c=new Creator();c.parse(code);assert.deepEqual(c.warnings,[]);return c;};
 const target=c=>c.project.targets.find(t=>!t.isStage);
 test('three new exact opcodes retain every prior word and explicit native input/field schemas',()=>{
- assert.equal(ARCADE_DIALECT_OPS.length,437);assert.equal(ARCADE_WORDS.length,442);
+ assert.equal(ARCADE_DIALECT_OPS.length,439);assert.equal(ARCADE_WORDS.length,444);
  for(const op of ['arcade_declareParameterConstraint','arcade_throwValue','arcade_createOwnedImageSprite'])assert.equal(ARCADE_WORDS.filter(w=>w.op===op).length,1);
+ for(const op of ['arcade_playNoteMelody','arcade_askForNumberLength'])assert.equal(ARCADE_WORDS.filter(w=>w.op===op).length,1);
  const c=parse(header+'WHEN flag clicked:\n  arcade throw (calculate value (2) op "+" with (3))\n  set result to (arcade create owned image (arcade local canvas) template "Player" kind (2 + 1))\n');
  const blocks=Object.values(target(c).blocks),thrown=blocks.find(b=>b.opcode==='arcade_throwValue'),sprite=blocks.find(b=>b.opcode==='arcade_createOwnedImageSprite');
  assert.deepEqual(Object.keys(thrown.inputs),['VALUE']);assert.deepEqual(Object.keys(sprite.inputs).sort(),['IMAGE','KIND','TEMPLATE']);
