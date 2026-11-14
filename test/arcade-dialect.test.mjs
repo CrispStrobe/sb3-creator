@@ -507,7 +507,7 @@ describe('Arcade dialect words', () => {
         const here = new Set(WORD_LINES.map(([, op]) => op));
         assert.deepEqual([...here].sort(), [...ARCADE_DIALECT_OPS].sort());
         assert.equal(WORD_LINES.length, ARCADE_WORDS.length, 'one line per spelling, aliases included');
-        assert.equal(ARCADE_DIALECT_OPS.length, 437);
+        assert.equal(ARCADE_DIALECT_OPS.length, 438);
     });
 
     for (const [kind, op, line, alias] of WORD_LINES) {
