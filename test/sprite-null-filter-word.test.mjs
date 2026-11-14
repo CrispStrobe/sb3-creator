@@ -1,0 +1,4 @@
+import test from 'node:test';import assert from 'node:assert/strict';import Creator from '../src/utils/sb3Creator.js';
+test('canonical Sprite null filter is a one-input native reporter through Code round-trip',()=>{
+ const c=new Creator();c.parse('SPRITE Game:\nWHEN flag clicked:\n  set output to (arcade sprite array (new array reference from ("[]")) without null)');assert.deepEqual(c.warnings,[]);const blocks=c.project.targets.flatMap(t=>Object.values(t.blocks)),filter=blocks.find(b=>b.opcode==='arcade_withoutNullSprites');assert.ok(filter);assert.deepEqual(Object.keys(filter.inputs),['ARRAY']);assert.deepEqual(filter.fields,{});const next=new Creator();next.parse(c.decompile());assert.deepEqual(next.warnings,[]);assert.equal(next.project.targets.flatMap(t=>Object.values(t.blocks)).filter(b=>b.opcode==='arcade_withoutNullSprites').length,1);
+});
