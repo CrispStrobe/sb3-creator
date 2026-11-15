@@ -208,6 +208,7 @@ export const ARCADE_WORDS = Object.freeze([
     w('arcade_registerUpdateHandler', 'command', 'arcade register update as {TOKEN} capturing {CAPTURES}'),
     // game.onPaint / game.onShade: scene renderables drawn with the sprites by z.
     w('arcade_registerPaintHandler', 'command', 'arcade register paint as {TOKEN} capturing {CAPTURES}'),
+    w('arcade_addLiteralDrawing','command','arcade add drawing commands {COMMANDS} at depth 0'),
     w('arcade_registerShadeHandler', 'command', 'arcade register shade as {TOKEN} capturing {CAPTURES}'),
     w('arcade_startParallelHandler', 'command', 'arcade run parallel as {TOKEN} capturing {CAPTURES}'),
     w('arcade_registerForeverHandler', 'command', 'arcade register forever as {TOKEN} capturing {CAPTURES}'),
