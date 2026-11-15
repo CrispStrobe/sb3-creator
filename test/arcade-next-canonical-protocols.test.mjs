@@ -9,10 +9,13 @@ const declaration=(type='String')=>`declare arcade procedure "holdText %s" param
 const source=(line=declaration())=>header+`DEFINE holdText (thisText):\n  ${line}\n  arcade log thisText\n`;
 const parse=code=>{const c=new Creator();c.parse(code);assert.deepEqual(c.warnings,[]);return c;};
 const target=c=>c.project.targets.find(t=>!t.isStage);
-test('three new exact opcodes retain every prior word and explicit native input/field schemas',()=>{
- assert.equal(ARCADE_DIALECT_OPS.length,442);assert.equal(ARCADE_WORDS.length,447);
- for(const op of ['arcade_declareParameterConstraint','arcade_throwValue','arcade_createOwnedImageSprite'])assert.equal(ARCADE_WORDS.filter(w=>w.op===op).length,1);
+test('canonical protocol opcodes retain prior words and explicit native input/field schemas',()=>{
+ assert.equal(ARCADE_DIALECT_OPS.length,445);assert.equal(ARCADE_WORDS.length,450);
+ for(const op of ['arcade_declareParameterConstraint','arcade_throwValue','arcade_createOwnedImageSprite','arcade_withoutNullSprites','arcade_addLiteralDrawing','arcade_setGameStats'])assert.equal(ARCADE_WORDS.filter(w=>w.op===op).length,1);
  for(const op of ['arcade_playNoteMelody','arcade_askForNumberLength','arcade_highScore','arcade_registerPlayerButtonHandler','arcade_resetGame'])assert.equal(ARCADE_WORDS.filter(w=>w.op===op).length,1);
+ const stats=parse(header+'WHEN flag clicked:\n  arcade game stats enabled\n');
+ const statsBlock=Object.values(target(stats).blocks).find(b=>b.opcode==='arcade_setGameStats');
+ assert.ok(statsBlock);assert.deepEqual(statsBlock.inputs,{});assert.deepEqual(statsBlock.fields,{MODE:['enabled',null]});
  const c=parse(header+'WHEN flag clicked:\n  arcade throw (calculate value (2) op "+" with (3))\n  set result to (arcade create owned image (arcade local canvas) template "Player" kind (2 + 1))\n');
  const blocks=Object.values(target(c).blocks),thrown=blocks.find(b=>b.opcode==='arcade_throwValue'),sprite=blocks.find(b=>b.opcode==='arcade_createOwnedImageSprite');
  assert.deepEqual(Object.keys(thrown.inputs),['VALUE']);assert.deepEqual(Object.keys(sprite.inputs).sort(),['IMAGE','KIND','TEMPLATE']);
