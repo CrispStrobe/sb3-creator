@@ -450,6 +450,7 @@ export const ARCADE_WORDS = Object.freeze([
     w('arcade_highScore', 'reporter', 'arcade high score', { early: true }),
     w('arcade_askForNumberLength', 'reporter', 'arcade ask number {QUESTION} length {LENGTH}', { early: true }),
     w('arcade_askForNumber', 'reporter', 'arcade ask number {QUESTION}', { early: true }),
+    w('arcade_askForStringLength', 'reporter', 'arcade ask text {QUESTION} length {LENGTH}', { early: true }),
     w('arcade_askForString', 'reporter', 'arcade ask text {QUESTION}', { early: true }),
 
     // ---- reporters: sprites ------------------------------------------------------------

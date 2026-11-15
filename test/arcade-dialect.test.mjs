@@ -23,6 +23,7 @@ const ALIAS = true;
 
 // [kind, opcode, one line of the word with a value in every slot, ALIAS?]
 const WORD_LINES = [
+    ['reporter','arcade_askForStringLength','arcade ask text "grade" length 2'],
     ['command','arcade_addLiteralDrawing','arcade add drawing commands "[]" at depth 0'],
     ['reporter','arcade_withoutNullSprites','arcade sprite array (arcade local items) without null'],
     ['command','arcade_setGameStats','arcade game stats enabled'],
@@ -514,7 +515,7 @@ describe('Arcade dialect words', () => {
         const here = new Set(WORD_LINES.map(([, op]) => op));
         assert.deepEqual([...here].sort(), [...ARCADE_DIALECT_OPS].sort());
         assert.equal(WORD_LINES.length, ARCADE_WORDS.length, 'one line per spelling, aliases included');
-        assert.equal(ARCADE_DIALECT_OPS.length, 445);
+        assert.equal(ARCADE_DIALECT_OPS.length, 446);
     });
 
     for (const [kind, op, line, alias] of WORD_LINES) {
