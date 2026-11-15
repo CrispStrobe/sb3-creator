@@ -23,6 +23,9 @@ const ALIAS = true;
 
 // [kind, opcode, one line of the word with a value in every slot, ALIAS?]
 const WORD_LINES = [
+    ['command','arcade_addLiteralDrawing','arcade add drawing commands "[]" at depth 0'],
+    ['reporter','arcade_withoutNullSprites','arcade sprite array (arcade local items) without null'],
+    ['command','arcade_setGameStats','arcade game stats enabled'],
     ['command', 'arcade_registerInstanceOverlapHandler', 'arcade register instance overlap of (arcade local hero) as "as capturing" capturing "value"'],
     ['hat', 'arcade_whenRegisteredInstanceOverlap', 'when arcade instance overlap handler "as capturing" runs'],
     ['reporter', 'arcade_sourceValueBinary', 'arcade source value 5 op "+" with 2'],
@@ -511,7 +514,7 @@ describe('Arcade dialect words', () => {
         const here = new Set(WORD_LINES.map(([, op]) => op));
         assert.deepEqual([...here].sort(), [...ARCADE_DIALECT_OPS].sort());
         assert.equal(WORD_LINES.length, ARCADE_WORDS.length, 'one line per spelling, aliases included');
-        assert.equal(ARCADE_DIALECT_OPS.length, 442);
+        assert.equal(ARCADE_DIALECT_OPS.length, 445);
     });
 
     for (const [kind, op, line, alias] of WORD_LINES) {

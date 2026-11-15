@@ -194,6 +194,7 @@ export const ARCADE_WORDS = Object.freeze([
     w('arcade_cameraShake', 'command', 'arcade shake camera by {AMPLITUDE} pixels for {DURATION} ms'),
     w('arcade_centerCameraAt', 'command', 'arcade center camera x {X} y {Y}'),
     w('arcade_cameraFollowSprite', 'command', 'arcade camera follow sprite {ID}'),
+    w('arcade_setGameStats', 'command', 'arcade game stats {MODE:enabled|disabled}'),
     w('arcade_setPalette', 'command', 'arcade set palette hex {DATA}'),
     w('arcade_setBackgroundColor', 'command', 'arcade set background color to {COLOR}'),
     w('arcade_setBackgroundImage', 'command', 'arcade set background image {IMAGE}'),
