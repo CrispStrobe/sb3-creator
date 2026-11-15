@@ -3631,8 +3631,12 @@ class SB3Creator {
                 + 'this way (see arcadeDialect.js)');
         }
 
+        // Preserve exact declared Unicode identifiers without treating arbitrary
+        // Unicode text as a newly invented variable. Do not normalize names.
+        const declaredUnicodeIdentifier = /^[$_\p{ID_Start}][$_\p{ID_Continue}\u200C\u200D]*$/u.test(s)
+            && (this.variableExists(s, context.target) || this.listExists(s, context.target));
         // Identifier -> list or variable reporter
-        if (/^[a-zA-Z_][a-zA-Z0-9_\s]*$/.test(s)) {
+        if (/^[a-zA-Z_][a-zA-Z0-9_\s]*$/.test(s) || declaredUnicodeIdentifier) {
             // A condition spelled like a name (`touching edge`, `mouse down`,
             // `not read btn`) is not a variable nothing writes: it gets the
             // rule below, as the literal text with the warning (task D7).
