@@ -9,10 +9,13 @@ const declaration=(type='String')=>`declare arcade procedure "holdText %s" param
 const source=(line=declaration())=>header+`DEFINE holdText (thisText):\n  ${line}\n  arcade log thisText\n`;
 const parse=code=>{const c=new Creator();c.parse(code);assert.deepEqual(c.warnings,[]);return c;};
 const target=c=>c.project.targets.find(t=>!t.isStage);
-test('three new exact opcodes retain every prior word and explicit native input/field schemas',()=>{
- assert.equal(ARCADE_DIALECT_OPS.length,442);assert.equal(ARCADE_WORDS.length,447);
- for(const op of ['arcade_declareParameterConstraint','arcade_throwValue','arcade_createOwnedImageSprite'])assert.equal(ARCADE_WORDS.filter(w=>w.op===op).length,1);
+test('canonical protocol opcodes retain prior words and explicit native input/field schemas',()=>{
+ assert.equal(ARCADE_DIALECT_OPS.length,446);assert.equal(ARCADE_WORDS.length,451);
+ for(const op of ['arcade_declareParameterConstraint','arcade_throwValue','arcade_createOwnedImageSprite','arcade_withoutNullSprites','arcade_addLiteralDrawing','arcade_setGameStats','arcade_askForStringLength'])assert.equal(ARCADE_WORDS.filter(w=>w.op===op).length,1);
  for(const op of ['arcade_playNoteMelody','arcade_askForNumberLength','arcade_highScore','arcade_registerPlayerButtonHandler','arcade_resetGame'])assert.equal(ARCADE_WORDS.filter(w=>w.op===op).length,1);
+ const stats=parse(header+'WHEN flag clicked:\n  arcade game stats enabled\n');
+ const statsBlock=Object.values(target(stats).blocks).find(b=>b.opcode==='arcade_setGameStats');
+ assert.ok(statsBlock);assert.deepEqual(statsBlock.inputs,{});assert.deepEqual(statsBlock.fields,{MODE:['enabled',null]});
  const c=parse(header+'WHEN flag clicked:\n  arcade throw (calculate value (2) op "+" with (3))\n  set result to (arcade create owned image (arcade local canvas) template "Player" kind (2 + 1))\n');
  const blocks=Object.values(target(c).blocks),thrown=blocks.find(b=>b.opcode==='arcade_throwValue'),sprite=blocks.find(b=>b.opcode==='arcade_createOwnedImageSprite');
  assert.deepEqual(Object.keys(thrown.inputs),['VALUE']);assert.deepEqual(Object.keys(sprite.inputs).sort(),['IMAGE','KIND','TEMPLATE']);
@@ -92,4 +95,17 @@ test('actual constrained definition, reporter and body ownership is complete and
 test('unconstrained legacy call shapes remain outside the new protocol validator',()=>{
  const c=parse(header+'DEFINE old (value):\n  arcade log value\nWHEN flag clicked:\n  old ("ok")\n'),t=target(c),call=Object.values(t.blocks).find(b=>b.opcode==='procedures_call');
  call.inputs.EXTRA=[1,[10,'legacy']];assert.doesNotThrow(()=>validateProcedureParameterConstraints(c.project));
+});
+
+
+test('existing bounded text-prompt word preserves both inputs through Code and fresh SB3',async()=>{
+ const c=parse(header+'WHEN flag clicked:\n  set answer to (arcade ask text "grade" length (1 + 1))\n');
+ const prompt=Object.values(target(c).blocks).find(b=>b.opcode==='arcade_askForStringLength');
+ assert.ok(prompt);assert.deepEqual(Object.keys(prompt.inputs).sort(),['LENGTH','QUESTION']);assert.deepEqual(prompt.fields,{});
+ const code=c.decompile();assert.match(code,/arcade ask text/);assert.match(code,/length/);assert.equal(parse(code).decompile(),code);
+ const zip=await JSZip.loadAsync(Buffer.from(await(await c.generateSB3()).arrayBuffer()));
+ const fresh=new Creator();fresh.project=JSON.parse(await zip.file('project.json').async('text'));assert.equal(fresh.decompile(),code);
+ const legacy=parse(header+'WHEN flag clicked:\n  set answer to (arcade ask text "grade")\n');
+ assert.equal(Object.values(target(legacy).blocks).filter(b=>b.opcode==='arcade_askForString').length,1);
+ assert.equal(Object.values(target(legacy).blocks).filter(b=>b.opcode==='arcade_askForStringLength').length,0);
 });

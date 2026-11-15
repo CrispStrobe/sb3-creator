@@ -194,6 +194,7 @@ export const ARCADE_WORDS = Object.freeze([
     w('arcade_cameraShake', 'command', 'arcade shake camera by {AMPLITUDE} pixels for {DURATION} ms'),
     w('arcade_centerCameraAt', 'command', 'arcade center camera x {X} y {Y}'),
     w('arcade_cameraFollowSprite', 'command', 'arcade camera follow sprite {ID}'),
+    w('arcade_setGameStats', 'command', 'arcade game stats {MODE:enabled|disabled}'),
     w('arcade_setPalette', 'command', 'arcade set palette hex {DATA}'),
     w('arcade_setBackgroundColor', 'command', 'arcade set background color to {COLOR}'),
     w('arcade_setBackgroundImage', 'command', 'arcade set background image {IMAGE}'),
@@ -208,6 +209,7 @@ export const ARCADE_WORDS = Object.freeze([
     w('arcade_registerUpdateHandler', 'command', 'arcade register update as {TOKEN} capturing {CAPTURES}'),
     // game.onPaint / game.onShade: scene renderables drawn with the sprites by z.
     w('arcade_registerPaintHandler', 'command', 'arcade register paint as {TOKEN} capturing {CAPTURES}'),
+    w('arcade_addLiteralDrawing','command','arcade add drawing commands {COMMANDS} at depth 0'),
     w('arcade_registerShadeHandler', 'command', 'arcade register shade as {TOKEN} capturing {CAPTURES}'),
     w('arcade_startParallelHandler', 'command', 'arcade run parallel as {TOKEN} capturing {CAPTURES}'),
     w('arcade_registerForeverHandler', 'command', 'arcade register forever as {TOKEN} capturing {CAPTURES}'),
@@ -410,6 +412,7 @@ export const ARCADE_WORDS = Object.freeze([
     w('arcade_placeOnTile', 'command', 'arcade place sprite {ID} on tile {LOCATION}'),
 
     // ---- commands: array references ------------------------------------------------
+    w('arcade_withoutNullSprites', 'reporter', 'arcade sprite array {ARRAY} without null', {early: true}),
     w('arrays_mutateReference', 'command', 'mutate array reference {ARRAY} op {OP} index {INDEX} value {VALUE}'),
 
     // ---- reporters read before operator splitting (signed or spaced slots) ---------
@@ -447,6 +450,7 @@ export const ARCADE_WORDS = Object.freeze([
     w('arcade_highScore', 'reporter', 'arcade high score', { early: true }),
     w('arcade_askForNumberLength', 'reporter', 'arcade ask number {QUESTION} length {LENGTH}', { early: true }),
     w('arcade_askForNumber', 'reporter', 'arcade ask number {QUESTION}', { early: true }),
+    w('arcade_askForStringLength', 'reporter', 'arcade ask text {QUESTION} length {LENGTH}', { early: true }),
     w('arcade_askForString', 'reporter', 'arcade ask text {QUESTION}', { early: true }),
 
     // ---- reporters: sprites ------------------------------------------------------------
