@@ -352,7 +352,12 @@ class JsParser {
             for (; j < this.toks.length; j++) { const tk = this.toks[j]; if (tk.type === 'OP' && tk.value === '(') depth++; else if (tk.type === 'OP' && tk.value === ')') { depth--; if (depth === 0) break; } }
             const after = this.toks[j + 1];
             if (after && after.type === 'OP' && after.value === '=>') {
+                const noParams = j === this.p + 1;
                 this.p = j + 2; // consume `(...)  =>`
+                // `() => { … }` keeps its statements (an ArrowBlock node): a layered reader
+                // that knows the call it is handed to reads them as a C-block body. Unclaimed,
+                // it reads as before (nothing).
+                if (noParams && this.at('OP', '{')) return { type: 'ArrowBlock', body: this.parseBlock() };
                 if (this.at('OP', '{')) this.skipBraces(); else this.parseExpr(); // arrow body (discarded)
                 return { type: 'Const', value: null };
             }

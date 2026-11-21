@@ -268,6 +268,14 @@ class Parser {
         if (t.type === 'if') return this.parseIf();
         if (t.type === 'while') return this.parseWhile();
         if (t.type === 'for') return this.parseFor();
+        // `with item:` — read as a node. The Translator refuses it as an unsupported
+        // statement unless a layered reader knows the item (a runtime C-block such as
+        // `with _cadshapes.move(…):`). `with = …` and `with.x` stay plain names.
+        if (t.type === 'NAME' && t.value === 'with' && !['=', '.', '(', '['].includes(this.peek(1).value)) {
+            this.next();
+            const item = this.parseExpr();
+            return { type: 'With', item, body: this.parseSuite() };
+        }
         if (t.type === 'def') return this.parseDef();
         // `async def` is a def whose calls are awaited. Scratch scripts already
         // run concurrently and a block that takes time already makes its script
@@ -605,6 +613,7 @@ class Translator {
             case 'Await': return this.expr(node.value);
             case 'FStr': return this.fstring(node);
             case 'Lambda': this.warn('lambda is not supported'); return '""';
+            case 'ArrowBlock': return '""';   // a JS `() => { … }` no reader claimed (read as before: nothing)
             case 'Tuple': this.warn('tuple is not supported'); return '""';
             case 'List': return node.elts.length ? `[${node.elts.map((e) => this.expr(e)).join(', ')}]` : '""';
             case 'Ternary': this.warn('ternary expression flattened to its true branch'); return this.expr(node.then);
