@@ -9246,5 +9246,158 @@
    "introDE": "school-led-people-dog/intro.de.md"
   },
   "devices": []
+ },
+ {
+  "id": "lab-touch-darlington",
+  "title": {
+   "en": "Touch switch: one transistor vs. a Darlington pair",
+   "de": "Berührungsschalter: ein Transistor gegen ein Darlington-Paar"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-touch-darlington/program.bw",
+   "circuit": "lab-touch-darlington/circuit.json",
+   "expected": "lab-touch-darlington/EXPECTED.md",
+   "intro": "lab-touch-darlington/intro.md",
+   "introDE": "lab-touch-darlington/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-touch-off",
+  "title": {
+   "en": "Touch to switch off: a Darlington as a shunt",
+   "de": "Berühren zum Ausschalten: ein Darlington als Nebenschluss"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-touch-off/program.bw",
+   "circuit": "lab-touch-off/circuit.json",
+   "expected": "lab-touch-off/EXPECTED.md",
+   "intro": "lab-touch-off/intro.md",
+   "introDE": "lab-touch-off/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-bicolor-polarity",
+  "title": {
+   "en": "Which side is plus? Two-colour polarity tester",
+   "de": "Wo ist Plus? Zweifarbiger Polaritätsprüfer"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 1,
+  "files": {
+   "program": "lab-bicolor-polarity/program.bw",
+   "circuit": "lab-bicolor-polarity/circuit.json",
+   "expected": "lab-bicolor-polarity/EXPECTED.md",
+   "intro": "lab-bicolor-polarity/intro.md",
+   "introDE": "lab-bicolor-polarity/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-shunt-gates",
+  "title": {
+   "en": "NOT, NAND and NOR from buttons that short a lamp",
+   "de": "NICHT, NAND und NOR aus Tastern, die eine Lampe kurzschließen"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 1,
+  "files": {
+   "program": "lab-shunt-gates/program.bw",
+   "circuit": "lab-shunt-gates/circuit.json",
+   "expected": "lab-shunt-gates/EXPECTED.md",
+   "intro": "lab-shunt-gates/intro.md",
+   "introDE": "lab-shunt-gates/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-wet-dry-probe",
+  "title": {
+   "en": "Wet or dry? A probe with two opposite indicators",
+   "de": "Nass oder trocken? Ein Fühler mit zwei entgegengesetzten Anzeigen"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 2,
+  "files": {
+   "program": "lab-wet-dry-probe/program.bw",
+   "circuit": "lab-wet-dry-probe/circuit.json",
+   "expected": "lab-wet-dry-probe/EXPECTED.md",
+   "intro": "lab-wet-dry-probe/intro.md",
+   "introDE": "lab-wet-dry-probe/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-diff-pair",
+  "title": {
+   "en": "The differential pair: two transistors compare two voltages",
+   "de": "Das Differenzpaar: zwei Transistoren vergleichen zwei Spannungen"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 4,
+  "files": {
+   "program": "lab-diff-pair/program.bw",
+   "circuit": "lab-diff-pair/circuit.json",
+   "expected": "lab-diff-pair/EXPECTED.md",
+   "intro": "lab-diff-pair/intro.md",
+   "introDE": "lab-diff-pair/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-break-loop-alarm",
+  "title": {
+   "en": "Break-the-loop alarm with memory",
+   "de": "Drahtschleifen-Alarm mit Speicher"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-break-loop-alarm/program.bw",
+   "circuit": "lab-break-loop-alarm/circuit.json",
+   "expected": "lab-break-loop-alarm/EXPECTED.md",
+   "intro": "lab-break-loop-alarm/intro.md",
+   "introDE": "lab-break-loop-alarm/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-electronic-fuse",
+  "title": {
+   "en": "Electronic fuse: a latch that trips on overcurrent",
+   "de": "Elektronische Sicherung: ein Speicher, der bei Überstrom auslöst"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 4,
+  "files": {
+   "program": "lab-electronic-fuse/program.bw",
+   "circuit": "lab-electronic-fuse/circuit.json",
+   "expected": "lab-electronic-fuse/EXPECTED.md",
+   "intro": "lab-electronic-fuse/intro.md",
+   "introDE": "lab-electronic-fuse/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-schmitt-clap",
+  "title": {
+   "en": "Clap-on light with a two-transistor Schmitt trigger",
+   "de": "Klatschlicht mit einem Schmitt-Trigger aus zwei Transistoren"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 4,
+  "files": {
+   "program": "lab-schmitt-clap/program.bw",
+   "circuit": "lab-schmitt-clap/circuit.json",
+   "expected": "lab-schmitt-clap/EXPECTED.md",
+   "intro": "lab-schmitt-clap/intro.md",
+   "introDE": "lab-schmitt-clap/intro.de.md"
+  }
  }
 ]
