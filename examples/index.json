@@ -9408,6 +9408,38 @@
   }
  },
  {
+  "id": "lab-hearing-sweep",
+  "title": {
+   "en": "How high can you hear? A tone sweep to 20 kHz",
+   "de": "Wie hoch hörst du? Ein Tonsweep bis 20 kHz"
+  },
+  "category": "pure-circuit",
+  "difficulty": 2,
+  "kind": "circuit",
+  "files": {
+   "circuit": "lab-hearing-sweep/circuit.json",
+   "expected": "lab-hearing-sweep/EXPECTED.md",
+   "intro": "lab-hearing-sweep/intro.md",
+   "introDE": "lab-hearing-sweep/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-flicker-fusion",
+  "title": {
+   "en": "When does blinking turn into steady light?",
+   "de": "Wann wird Blinken zu Dauerlicht?"
+  },
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "kind": "circuit",
+  "files": {
+   "circuit": "lab-flicker-fusion/circuit.json",
+   "expected": "lab-flicker-fusion/EXPECTED.md",
+   "intro": "lab-flicker-fusion/intro.md",
+   "introDE": "lab-flicker-fusion/intro.de.md"
+  }
+ },
+ {
   "id": "lab-level-crossing",
   "title": {
    "en": "Level crossing: latch plus flasher",
@@ -9437,6 +9469,70 @@
    "expected": "lab-led-light-sensor/EXPECTED.md",
    "intro": "lab-led-light-sensor/intro.md",
    "introDE": "lab-led-light-sensor/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-log-amp",
+  "title": {
+   "en": "Logarithmic amplifier with a diode",
+   "de": "Logarithmierer mit einer Diode"
+  },
+  "category": "pure-circuit",
+  "difficulty": 4,
+  "kind": "circuit",
+  "files": {
+   "circuit": "lab-log-amp/circuit.json",
+   "expected": "lab-log-amp/EXPECTED.md",
+   "intro": "lab-log-amp/intro.md",
+   "introDE": "lab-log-amp/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-hall-poles",
+  "title": {
+   "en": "Hall sensor: north, south and field strength",
+   "de": "Hallsensor: Nord, Süd und Feldstärke"
+  },
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "kind": "circuit",
+  "files": {
+   "circuit": "lab-hall-poles/circuit.json",
+   "expected": "lab-hall-poles/EXPECTED.md",
+   "intro": "lab-hall-poles/intro.md",
+   "introDE": "lab-hall-poles/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-listening-amp",
+  "title": {
+   "en": "Listening amplifier: millivolts made audible",
+   "de": "Horchverstärker: Millivolt werden hörbar"
+  },
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "kind": "circuit",
+  "files": {
+   "circuit": "lab-listening-amp/circuit.json",
+   "expected": "lab-listening-amp/EXPECTED.md",
+   "intro": "lab-listening-amp/intro.md",
+   "introDE": "lab-listening-amp/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-lc-ringing",
+  "title": {
+   "en": "Coil and capacitor: damped ringing",
+   "de": "Spule und Kondensator: gedämpfte Schwingung"
+  },
+  "category": "pure-circuit",
+  "difficulty": 4,
+  "kind": "circuit",
+  "files": {
+   "circuit": "lab-lc-ringing/circuit.json",
+   "expected": "lab-lc-ringing/EXPECTED.md",
+   "intro": "lab-lc-ringing/intro.md",
+   "introDE": "lab-lc-ringing/intro.de.md"
   }
  }
 ]
