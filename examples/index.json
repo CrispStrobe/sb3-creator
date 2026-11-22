@@ -9399,5 +9399,124 @@
    "intro": "lab-schmitt-clap/intro.md",
    "introDE": "lab-schmitt-clap/intro.de.md"
   }
+ },
+ {
+  "id": "lab-am-detector",
+  "title": {
+   "en": "How a radio gets the sound out: AM envelope detector",
+   "de": "Wie ein Radio den Ton herausholt: AM-Hüllkurvendetektor"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 4,
+  "files": {
+   "program": "lab-am-detector/program.bw",
+   "circuit": "lab-am-detector/circuit.json",
+   "expected": "lab-am-detector/EXPECTED.md",
+   "intro": "lab-am-detector/intro.md",
+   "introDE": "lab-am-detector/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-applause-meter",
+  "title": {
+   "en": "Applause meter: fast attack, slow release",
+   "de": "Applausmesser: schneller Anstieg, langsames Abklingen"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-applause-meter/program.bw",
+   "circuit": "lab-applause-meter/circuit.json",
+   "expected": "lab-applause-meter/EXPECTED.md",
+   "intro": "lab-applause-meter/intro.md",
+   "introDE": "lab-applause-meter/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-coin-toss",
+  "title": {
+   "en": "Electronic coin toss: freezing a fast flip-flop",
+   "de": "Elektronischer Münzwurf: ein schnelles Flipflop anhalten"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 2,
+  "files": {
+   "program": "lab-coin-toss/program.bw",
+   "circuit": "lab-coin-toss/circuit.json",
+   "expected": "lab-coin-toss/EXPECTED.md",
+   "intro": "lab-coin-toss/intro.md",
+   "introDE": "lab-coin-toss/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-charge-pump",
+  "title": {
+   "en": "Charge pump: more than 9 V from a 9 V battery",
+   "de": "Ladungspumpe: mehr als 9 V aus einer 9-V-Batterie"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-charge-pump/program.bw",
+   "circuit": "lab-charge-pump/circuit.json",
+   "expected": "lab-charge-pump/EXPECTED.md",
+   "intro": "lab-charge-pump/intro.md",
+   "introDE": "lab-charge-pump/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-counter-timer",
+  "title": {
+   "en": "Binary counter as a timer: count to eight, then stop",
+   "de": "Binärzähler als Timer: bis acht zählen, dann anhalten"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-counter-timer/program.bw",
+   "circuit": "lab-counter-timer/circuit.json",
+   "expected": "lab-counter-timer/EXPECTED.md",
+   "intro": "lab-counter-timer/intro.md",
+   "introDE": "lab-counter-timer/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-beats",
+  "title": {
+   "en": "Beats: two oscillators drifting in and out of step",
+   "de": "Schwebung: zwei Oszillatoren laufen auseinander und wieder zusammen"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-beats/program.bw",
+   "circuit": "lab-beats/circuit.json",
+   "expected": "lab-beats/EXPECTED.md",
+   "intro": "lab-beats/intro.md",
+   "introDE": "lab-beats/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-capacitive-level",
+  "title": {
+   "en": "Capacitive fill-level sensor: water slows the blinker",
+   "de": "Kapazitiver Füllstandssensor: Wasser bremst den Blinker"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 2,
+  "files": {
+   "program": "lab-capacitive-level/program.bw",
+   "circuit": "lab-capacitive-level/circuit.json",
+   "expected": "lab-capacitive-level/EXPECTED.md",
+   "intro": "lab-capacitive-level/intro.md",
+   "introDE": "lab-capacitive-level/intro.de.md"
+  }
  }
 ]
