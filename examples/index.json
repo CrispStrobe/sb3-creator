@@ -9534,5 +9534,37 @@
    "intro": "lab-light-link/intro.md",
    "introDE": "lab-light-link/intro.de.md"
   }
+ },
+ {
+  "id": "lab-phase-shift",
+  "title": {
+   "en": "RC phase-shift oscillator",
+   "de": "RC-Phasenschieber-Oszillator"
+  },
+  "category": "pure-circuit",
+  "difficulty": 4,
+  "kind": "circuit",
+  "files": {
+   "circuit": "lab-phase-shift/circuit.json",
+   "expected": "lab-phase-shift/EXPECTED.md",
+   "intro": "lab-phase-shift/intro.md",
+   "introDE": "lab-phase-shift/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-opamp-integrator",
+  "title": {
+   "en": "Integrator stopwatch",
+   "de": "Integrator als Stoppuhr"
+  },
+  "category": "pure-circuit",
+  "difficulty": 4,
+  "kind": "circuit",
+  "files": {
+   "circuit": "lab-opamp-integrator/circuit.json",
+   "expected": "lab-opamp-integrator/EXPECTED.md",
+   "intro": "lab-opamp-integrator/intro.md",
+   "introDE": "lab-opamp-integrator/intro.de.md"
+  }
  }
 ]

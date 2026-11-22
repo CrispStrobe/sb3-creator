@@ -1,0 +1,320 @@
+{
+ "vcc": 9,
+ "parts": [
+  {
+   "id": "bb1",
+   "kind": "breadboard",
+   "params": {},
+   "terminals": [],
+   "x": 470,
+   "y": 300,
+   "rotation": 0
+  },
+  {
+   "id": "gnd",
+   "kind": "gnd",
+   "params": {},
+   "x": 43,
+   "y": 255,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "gnd": "a1"
+    }
+   }
+  },
+  {
+   "id": "nudge",
+   "kind": "vsource",
+   "params": {
+    "wave": "spice-pwl",
+    "points": [
+     [
+      0,
+      0
+     ],
+     [
+      0.0001,
+      0.05
+     ],
+     [
+      0.0002,
+      0
+     ]
+    ]
+   },
+   "label": "start-up nudge (stands in for noise)",
+   "x": 60,
+   "y": 60
+  },
+  {
+   "id": "amp",
+   "kind": "opamp",
+   "params": {
+    "gain": 100000,
+    "railHigh": 9,
+    "railLow": -9
+   },
+   "label": "inverting amplifier (rails ±9 V)",
+   "x": 71,
+   "y": 311,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "inn": "e3",
+     "inp": "e4",
+     "out": "f3"
+    }
+   }
+  },
+  {
+   "id": "c1",
+   "kind": "capacitor",
+   "params": {
+    "farads": 1e-8
+   },
+   "label": "C1 10 nF",
+   "x": 113,
+   "y": 255,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a6",
+     "b": "a7"
+    }
+   }
+  },
+  {
+   "id": "c2",
+   "kind": "capacitor",
+   "params": {
+    "farads": 1e-8
+   },
+   "label": "C2 10 nF",
+   "x": 113,
+   "y": 345,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "j6",
+     "b": "j7"
+    }
+   }
+  },
+  {
+   "id": "c3",
+   "kind": "capacitor",
+   "params": {
+    "farads": 1e-8
+   },
+   "label": "C3 10 nF",
+   "x": 155,
+   "y": 255,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a9",
+     "b": "a10"
+    }
+   }
+  },
+  {
+   "id": "r1",
+   "kind": "resistor",
+   "params": {
+    "ohms": 10000
+   },
+   "label": "R1",
+   "x": 155,
+   "y": 345,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "j9",
+     "b": "j13"
+    }
+   }
+  },
+  {
+   "id": "r2",
+   "kind": "resistor",
+   "params": {
+    "ohms": 10000
+   },
+   "label": "R2",
+   "x": 197,
+   "y": 255,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a12",
+     "b": "a16"
+    }
+   }
+  },
+  {
+   "id": "r3",
+   "kind": "resistor",
+   "params": {
+    "ohms": 10000
+   },
+   "label": "R3",
+   "x": 239,
+   "y": 345,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "j15",
+     "b": "j19"
+    }
+   }
+  },
+  {
+   "id": "r_f",
+   "kind": "resistor",
+   "params": {
+    "ohms": 270000
+   },
+   "label": "R_f",
+   "x": 281,
+   "y": 255,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a18",
+     "b": "a22"
+    }
+   }
+  },
+  {
+   "id": "gain",
+   "kind": "potentiometer",
+   "params": {
+    "ohms": 100000,
+    "position": 0.5
+   },
+   "label": "GAIN",
+   "x": 323,
+   "y": 345,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "j21",
+     "wiper": "j23",
+     "b": "j25"
+    }
+   }
+  },
+  {
+   "id": "speaker",
+   "kind": "piezo",
+   "params": {},
+   "x": 150,
+   "y": 60
+  }
+ ],
+ "wires": [
+  {
+   "from": "gnd",
+   "fromTerminal": "gnd",
+   "to": "nudge",
+   "toTerminal": "neg"
+  },
+  {
+   "from": "nudge",
+   "fromTerminal": "neg",
+   "to": "r1",
+   "toTerminal": "b"
+  },
+  {
+   "from": "r1",
+   "fromTerminal": "b",
+   "to": "r2",
+   "toTerminal": "b"
+  },
+  {
+   "from": "r2",
+   "fromTerminal": "b",
+   "to": "speaker",
+   "toTerminal": "b"
+  },
+  {
+   "from": "nudge",
+   "fromTerminal": "pos",
+   "to": "amp",
+   "toTerminal": "inp"
+  },
+  {
+   "from": "amp",
+   "fromTerminal": "out",
+   "to": "c1",
+   "toTerminal": "a"
+  },
+  {
+   "from": "c1",
+   "fromTerminal": "a",
+   "to": "r_f",
+   "toTerminal": "a"
+  },
+  {
+   "from": "r_f",
+   "fromTerminal": "a",
+   "to": "speaker",
+   "toTerminal": "a"
+  },
+  {
+   "from": "c1",
+   "fromTerminal": "b",
+   "to": "r1",
+   "toTerminal": "a"
+  },
+  {
+   "from": "r1",
+   "fromTerminal": "a",
+   "to": "c2",
+   "toTerminal": "a"
+  },
+  {
+   "from": "c2",
+   "fromTerminal": "b",
+   "to": "r2",
+   "toTerminal": "a"
+  },
+  {
+   "from": "r2",
+   "fromTerminal": "a",
+   "to": "c3",
+   "toTerminal": "a"
+  },
+  {
+   "from": "c3",
+   "fromTerminal": "b",
+   "to": "r3",
+   "toTerminal": "a"
+  },
+  {
+   "from": "r3",
+   "fromTerminal": "b",
+   "to": "amp",
+   "toTerminal": "inn"
+  },
+  {
+   "from": "amp",
+   "fromTerminal": "inn",
+   "to": "gain",
+   "toTerminal": "b"
+  },
+  {
+   "from": "r_f",
+   "fromTerminal": "b",
+   "to": "gain",
+   "toTerminal": "a"
+  },
+  {
+   "from": "gain",
+   "fromTerminal": "a",
+   "to": "gain",
+   "toTerminal": "wiper"
+  }
+ ]
+}
