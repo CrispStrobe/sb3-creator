@@ -9518,5 +9518,21 @@
    "intro": "lab-staircase/intro.md",
    "introDE": "lab-staircase/intro.de.md"
   }
+ },
+ {
+  "id": "lab-light-link",
+  "title": {
+   "en": "Light link: a tone across a beam",
+   "de": "Lichtstrecke: ein Ton über einen Lichtstrahl"
+  },
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "kind": "circuit",
+  "files": {
+   "circuit": "lab-light-link/circuit.json",
+   "expected": "lab-light-link/EXPECTED.md",
+   "intro": "lab-light-link/intro.md",
+   "introDE": "lab-light-link/intro.de.md"
+  }
  }
 ]
