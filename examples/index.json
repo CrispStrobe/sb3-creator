@@ -9246,5 +9246,69 @@
    "introDE": "school-led-people-dog/intro.de.md"
   },
   "devices": []
+ },
+ {
+  "id": "lab-nand-code-lock",
+  "title": {
+   "en": "NAND combination lock with a relay",
+   "de": "Zahlenschloss aus NAND-Gattern mit Relais"
+  },
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "kind": "circuit",
+  "files": {
+   "circuit": "lab-nand-code-lock/circuit.json",
+   "expected": "lab-nand-code-lock/EXPECTED.md",
+   "intro": "lab-nand-code-lock/intro.md",
+   "introDE": "lab-nand-code-lock/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-first-press-wins",
+  "title": {
+   "en": "Who pressed first? A transistor lockout duel",
+   "de": "Wer war zuerst? Ein Transistor-Duell"
+  },
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "kind": "circuit",
+  "files": {
+   "circuit": "lab-first-press-wins/circuit.json",
+   "expected": "lab-first-press-wins/EXPECTED.md",
+   "intro": "lab-first-press-wins/intro.md",
+   "introDE": "lab-first-press-wins/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-mosfet-memory",
+  "title": {
+   "en": "A MOSFET remembers: charge on the gate",
+   "de": "Ein MOSFET merkt sich was: Ladung am Gate"
+  },
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "kind": "circuit",
+  "files": {
+   "circuit": "lab-mosfet-memory/circuit.json",
+   "expected": "lab-mosfet-memory/EXPECTED.md",
+   "intro": "lab-mosfet-memory/intro.md",
+   "introDE": "lab-mosfet-memory/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-level-crossing",
+  "title": {
+   "en": "Level crossing: latch plus flasher",
+   "de": "Bahnübergang: Speicher plus Blinker"
+  },
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "kind": "circuit",
+  "files": {
+   "circuit": "lab-level-crossing/circuit.json",
+   "expected": "lab-level-crossing/EXPECTED.md",
+   "intro": "lab-level-crossing/intro.md",
+   "introDE": "lab-level-crossing/intro.de.md"
+  }
  }
 ]

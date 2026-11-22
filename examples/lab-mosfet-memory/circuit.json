@@ -1,0 +1,283 @@
+{
+  "vcc": 5,
+  "parts": [
+    {
+      "id": "bb1",
+      "kind": "breadboard",
+      "params": {},
+      "terminals": [],
+      "x": 470,
+      "y": 330,
+      "rotation": 0
+    },
+    {
+      "id": "vcc1",
+      "kind": "vcc",
+      "params": {},
+      "x": 80,
+      "y": 60,
+      "rotation": 0
+    },
+    {
+      "id": "gnd1",
+      "kind": "gnd",
+      "params": {},
+      "x": 80,
+      "y": 620,
+      "rotation": 0
+    },
+    {
+      "id": "btn_1",
+      "kind": "button",
+      "params": {},
+      "x": 120,
+      "y": 330,
+      "rotation": 0,
+      "label": "Write 1",
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "a": "e2",
+          "b": "f2"
+        }
+      }
+    },
+    {
+      "id": "r_1",
+      "kind": "resistor",
+      "params": {
+        "ohms": 47000
+      },
+      "x": 150,
+      "y": 330,
+      "rotation": 0,
+      "label": "R1",
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "a": "b4",
+          "b": "f4"
+        },
+        "rot": 1
+      }
+    },
+    {
+      "id": "btn_0",
+      "kind": "button",
+      "params": {},
+      "x": 180,
+      "y": 330,
+      "rotation": 0,
+      "label": "Write 0",
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "a": "e6",
+          "b": "f6"
+        }
+      }
+    },
+    {
+      "id": "r_0",
+      "kind": "resistor",
+      "params": {
+        "ohms": 47000
+      },
+      "x": 210,
+      "y": 330,
+      "rotation": 0,
+      "label": "R2",
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "a": "b8",
+          "b": "f8"
+        },
+        "rot": 1
+      }
+    },
+    {
+      "id": "c_g",
+      "kind": "capacitor",
+      "params": {
+        "farads": 0.00001
+      },
+      "x": 240,
+      "y": 330,
+      "rotation": 0,
+      "label": "C1 gate store",
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "a": "e10",
+          "b": "f10"
+        },
+        "rot": 1
+      }
+    },
+    {
+      "id": "r_leak",
+      "kind": "resistor",
+      "params": {
+        "ohms": 1500000
+      },
+      "x": 270,
+      "y": 330,
+      "rotation": 0,
+      "label": "R3 leak",
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "a": "b12",
+          "b": "f12"
+        },
+        "rot": 1
+      }
+    },
+    {
+      "id": "m1",
+      "kind": "nmos",
+      "params": {
+        "vth": 1.5,
+        "k": 0.004
+      },
+      "x": 300,
+      "y": 330,
+      "rotation": 0,
+      "label": "T1",
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "source": "c14",
+          "gate": "c15",
+          "drain": "c16"
+        }
+      }
+    },
+    {
+      "id": "r_led",
+      "kind": "resistor",
+      "params": {
+        "ohms": 220
+      },
+      "x": 360,
+      "y": 330,
+      "rotation": 0,
+      "label": "R4",
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "a": "b18",
+          "b": "f18"
+        },
+        "rot": 1
+      }
+    },
+    {
+      "id": "led1",
+      "kind": "led",
+      "params": {
+        "vf": 2,
+        "color": "yellow"
+      },
+      "x": 390,
+      "y": 330,
+      "rotation": 0,
+      "label": "LED",
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "anode": "e20",
+          "cathode": "f20"
+        },
+        "rot": 1
+      }
+    }
+  ],
+  "wires": [
+    {
+      "from": "vcc1",
+      "fromTerminal": "vcc",
+      "to": "btn_1",
+      "toTerminal": "a"
+    },
+    {
+      "from": "btn_1",
+      "fromTerminal": "a",
+      "to": "r_led",
+      "toTerminal": "a"
+    },
+    {
+      "from": "btn_1",
+      "fromTerminal": "b",
+      "to": "r_1",
+      "toTerminal": "a"
+    },
+    {
+      "from": "r_1",
+      "fromTerminal": "b",
+      "to": "r_0",
+      "toTerminal": "a"
+    },
+    {
+      "from": "r_0",
+      "fromTerminal": "a",
+      "to": "c_g",
+      "toTerminal": "a"
+    },
+    {
+      "from": "c_g",
+      "fromTerminal": "a",
+      "to": "r_leak",
+      "toTerminal": "a"
+    },
+    {
+      "from": "r_leak",
+      "fromTerminal": "a",
+      "to": "m1",
+      "toTerminal": "gate"
+    },
+    {
+      "from": "r_0",
+      "fromTerminal": "b",
+      "to": "btn_0",
+      "toTerminal": "a"
+    },
+    {
+      "from": "r_led",
+      "fromTerminal": "b",
+      "to": "led1",
+      "toTerminal": "anode"
+    },
+    {
+      "from": "led1",
+      "fromTerminal": "cathode",
+      "to": "m1",
+      "toTerminal": "drain"
+    },
+    {
+      "from": "gnd1",
+      "fromTerminal": "gnd",
+      "to": "btn_0",
+      "toTerminal": "b"
+    },
+    {
+      "from": "btn_0",
+      "fromTerminal": "b",
+      "to": "c_g",
+      "toTerminal": "b"
+    },
+    {
+      "from": "c_g",
+      "fromTerminal": "b",
+      "to": "r_leak",
+      "toTerminal": "b"
+    },
+    {
+      "from": "r_leak",
+      "fromTerminal": "b",
+      "to": "m1",
+      "toTerminal": "source"
+    }
+  ]
+}
