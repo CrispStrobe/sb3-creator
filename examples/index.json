@@ -9344,6 +9344,70 @@
   }
  },
  {
+  "id": "lab-led-threshold",
+  "title": {
+   "en": "LED thresholds: four colours on one adjustable voltage",
+   "de": "LED-Schwellen: vier Farben an einer einstellbaren Spannung"
+  },
+  "category": "pure-circuit",
+  "difficulty": 2,
+  "kind": "circuit",
+  "files": {
+   "circuit": "lab-led-threshold/circuit.json",
+   "expected": "lab-led-threshold/EXPECTED.md",
+   "intro": "lab-led-threshold/intro.md",
+   "introDE": "lab-led-threshold/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-colour-pitch",
+  "title": {
+   "en": "Hear an LED's colour: pitch from forward voltage",
+   "de": "Die Farbe einer LED hören: Tonhöhe aus der Flussspannung"
+  },
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "kind": "circuit",
+  "files": {
+   "circuit": "lab-colour-pitch/circuit.json",
+   "expected": "lab-colour-pitch/EXPECTED.md",
+   "intro": "lab-colour-pitch/intro.md",
+   "introDE": "lab-colour-pitch/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-light-tone",
+  "title": {
+   "en": "Light to pitch: a phototransistor tone generator",
+   "de": "Licht wird Ton: Tongenerator mit Fototransistor"
+  },
+  "category": "pure-circuit",
+  "difficulty": 2,
+  "kind": "circuit",
+  "files": {
+   "circuit": "lab-light-tone/circuit.json",
+   "expected": "lab-light-tone/EXPECTED.md",
+   "intro": "lab-light-tone/intro.md",
+   "introDE": "lab-light-tone/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-exposure-timer",
+  "title": {
+   "en": "Exposure timer: brighter light, shorter time",
+   "de": "Belichtungsuhr: mehr Licht, kürzere Zeit"
+  },
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "kind": "circuit",
+  "files": {
+   "circuit": "lab-exposure-timer/circuit.json",
+   "expected": "lab-exposure-timer/EXPECTED.md",
+   "intro": "lab-exposure-timer/intro.md",
+   "introDE": "lab-exposure-timer/intro.de.md"
+  }
+ },
+ {
   "id": "lab-level-crossing",
   "title": {
    "en": "Level crossing: latch plus flasher",
@@ -9357,6 +9421,22 @@
    "expected": "lab-level-crossing/EXPECTED.md",
    "intro": "lab-level-crossing/intro.md",
    "introDE": "lab-level-crossing/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-led-light-sensor",
+  "title": {
+   "en": "An LED that sees: photocurrent amplifier and night switch",
+   "de": "Eine LED, die sieht: Fotostromverstärker und Dämmerungsschalter"
+  },
+  "category": "pure-circuit",
+  "difficulty": 4,
+  "kind": "circuit",
+  "files": {
+   "circuit": "lab-led-light-sensor/circuit.json",
+   "expected": "lab-led-light-sensor/EXPECTED.md",
+   "intro": "lab-led-light-sensor/intro.md",
+   "introDE": "lab-led-light-sensor/intro.de.md"
   }
  }
 ]

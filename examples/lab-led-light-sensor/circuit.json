@@ -1,0 +1,214 @@
+{
+  "vcc": 9,
+  "parts": [
+    {
+      "id": "vcc1",
+      "kind": "vcc",
+      "params": {},
+      "x": 80,
+      "y": 70,
+      "rotation": 0
+    },
+    {
+      "id": "gnd1",
+      "kind": "gnd",
+      "params": {},
+      "x": 80,
+      "y": 640,
+      "rotation": 0
+    },
+    {
+      "id": "pd",
+      "kind": "photodiode",
+      "params": {
+        "light": 0.8,
+        "iMax": 0.000005
+      },
+      "x": 190,
+      "y": 355,
+      "rotation": 0,
+      "label": "Sensor (LED used backwards)"
+    },
+    {
+      "id": "r_f",
+      "kind": "resistor",
+      "params": {
+        "ohms": 1000000
+      },
+      "x": 300,
+      "y": 165,
+      "rotation": 0,
+      "label": "R1 1M feedback"
+    },
+    {
+      "id": "u1",
+      "kind": "lm358",
+      "params": {},
+      "x": 410,
+      "y": 355,
+      "rotation": 0,
+      "label": "U1"
+    },
+    {
+      "id": "meter",
+      "kind": "analog_meter",
+      "params": {
+        "fullScale": 5
+      },
+      "x": 520,
+      "y": 165,
+      "rotation": 0,
+      "label": "Light meter 0-5 V"
+    },
+    {
+      "id": "pot",
+      "kind": "potentiometer",
+      "params": {
+        "ohms": 10000,
+        "position": 0.5
+      },
+      "x": 520,
+      "y": 545,
+      "rotation": 0,
+      "label": "Switch-on level"
+    },
+    {
+      "id": "r_top",
+      "kind": "resistor",
+      "params": {
+        "ohms": 8200
+      },
+      "x": 520,
+      "y": 450,
+      "rotation": 0,
+      "label": "R2 8k2"
+    },
+    {
+      "id": "r_led",
+      "kind": "resistor",
+      "params": {
+        "ohms": 680
+      },
+      "x": 630,
+      "y": 260,
+      "rotation": 0,
+      "label": "R3 680"
+    },
+    {
+      "id": "lamp",
+      "kind": "led",
+      "params": {
+        "vf": 2,
+        "color": "yellow"
+      },
+      "x": 740,
+      "y": 355,
+      "rotation": 0,
+      "label": "Night lamp"
+    }
+  ],
+  "wires": [
+    {
+      "from": "vcc1",
+      "fromTerminal": "vcc",
+      "to": "u1",
+      "toTerminal": "vcc"
+    },
+    {
+      "from": "u1",
+      "fromTerminal": "vcc",
+      "to": "r_top",
+      "toTerminal": "a"
+    },
+    {
+      "from": "pd",
+      "fromTerminal": "cathode",
+      "to": "r_f",
+      "toTerminal": "a"
+    },
+    {
+      "from": "r_f",
+      "fromTerminal": "a",
+      "to": "u1",
+      "toTerminal": "1_neg"
+    },
+    {
+      "from": "u1",
+      "fromTerminal": "1_out",
+      "to": "r_f",
+      "toTerminal": "b"
+    },
+    {
+      "from": "r_f",
+      "fromTerminal": "b",
+      "to": "meter",
+      "toTerminal": "a"
+    },
+    {
+      "from": "meter",
+      "fromTerminal": "a",
+      "to": "u1",
+      "toTerminal": "2_neg"
+    },
+    {
+      "from": "r_top",
+      "fromTerminal": "b",
+      "to": "pot",
+      "toTerminal": "a"
+    },
+    {
+      "from": "pot",
+      "fromTerminal": "wiper",
+      "to": "u1",
+      "toTerminal": "2_pos"
+    },
+    {
+      "from": "u1",
+      "fromTerminal": "2_out",
+      "to": "r_led",
+      "toTerminal": "a"
+    },
+    {
+      "from": "r_led",
+      "fromTerminal": "b",
+      "to": "lamp",
+      "toTerminal": "anode"
+    },
+    {
+      "from": "gnd1",
+      "fromTerminal": "gnd",
+      "to": "pd",
+      "toTerminal": "anode"
+    },
+    {
+      "from": "pd",
+      "fromTerminal": "anode",
+      "to": "u1",
+      "toTerminal": "1_pos"
+    },
+    {
+      "from": "u1",
+      "fromTerminal": "1_pos",
+      "to": "u1",
+      "toTerminal": "gnd"
+    },
+    {
+      "from": "u1",
+      "fromTerminal": "gnd",
+      "to": "meter",
+      "toTerminal": "b"
+    },
+    {
+      "from": "meter",
+      "fromTerminal": "b",
+      "to": "pot",
+      "toTerminal": "b"
+    },
+    {
+      "from": "pot",
+      "fromTerminal": "b",
+      "to": "lamp",
+      "toTerminal": "cathode"
+    }
+  ]
+}
