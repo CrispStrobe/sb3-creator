@@ -102,6 +102,19 @@ function benchDoc (dir) {
 const SOLVES = new Map();
 
 /**
+ * Put a bench that is not in examples/ under a name, so a test can route and
+ * adjudicate claims against a circuit it builds. The name must not be an
+ * example's: an authored bench is never shadowed.
+ */
+export function registerBench (dir, data) {
+    if (existsSync(join(EXAMPLES, dir))) throw new Error(`registerBench: ${dir} is an example; pick a fixture name`);
+    const declined = benchClass(data);
+    DOCS.set(dir, declined ? { error: declined } : { data });
+    POOLS.set(dir, poolOf(data));
+    for (const k of [...SOLVES.keys()]) if (k.startsWith(`${dir}|`)) SOLVES.delete(k);
+}
+
+/**
  * Solve one bench at one operating point.
  *
  * @param {string} dir
@@ -382,27 +395,29 @@ export function declaredPool (dir) {
     const path = join(EXAMPLES, dir, 'circuit.json');
     let pool = null;
     if (existsSync(path)) {
-        try {
-            const data = JSON.parse(readFileSync(path, 'utf8'));
-            pool = { ohm: new Set(), cap: new Set(), ind: new Set(), vf: new Set(), supply: new Set() };
-            for (const p of data.parts || []) {
-                const q = p.params || {};
-                for (const k of RES_KEYS) if (typeof q[k] === 'number') pool.ohm.add(q[k]);
-                if (typeof q.farads === 'number') pool.cap.add(q.farads);
-                if (typeof q.henrys === 'number') pool.ind.add(q.henrys);
-                for (const k of ['vf', 'vz', 'vbe', 'vth']) if (typeof q[k] === 'number') pool.vf.add(q[k]);
-                for (const k of ['volts', 'railHigh', 'railLow', 'amplitude', 'offset']) if (typeof q[k] === 'number') pool.supply.add(q[k]);
-                // A part's default is as much a declaration as an explicit value.
-                if (p.kind === 'led' && q.vf === undefined) pool.vf.add(2.0);
-                if (p.kind === 'diode' && q.vf === undefined) pool.vf.add(0.7);
-            }
-            if (typeof data.vcc === 'number') pool.supply.add(data.vcc);
-            // A `vcc` part with no `volts` is not undeclared: BoardImpl's
-            // constructor default IS the declaration, and 51-555-astable's
-            // "VCC (5 V)" is right about a bench that never writes the 5 down.
-            else if ((data.parts || []).some(p => p.kind === 'vcc')) pool.supply.add(5);
-        } catch { pool = null; }
+        try { pool = poolOf(JSON.parse(readFileSync(path, 'utf8'))); } catch { pool = null; }
     }
     POOLS.set(dir, pool);
+    return pool;
+}
+
+function poolOf (data) {
+    const pool = { ohm: new Set(), cap: new Set(), ind: new Set(), vf: new Set(), supply: new Set() };
+    for (const p of data.parts || []) {
+        const q = p.params || {};
+        for (const k of RES_KEYS) if (typeof q[k] === 'number') pool.ohm.add(q[k]);
+        if (typeof q.farads === 'number') pool.cap.add(q.farads);
+        if (typeof q.henrys === 'number') pool.ind.add(q.henrys);
+        for (const k of ['vf', 'vz', 'vbe', 'vth']) if (typeof q[k] === 'number') pool.vf.add(q[k]);
+        for (const k of ['volts', 'railHigh', 'railLow', 'amplitude', 'offset']) if (typeof q[k] === 'number') pool.supply.add(q[k]);
+        // A part's default is as much a declaration as an explicit value.
+        if (p.kind === 'led' && q.vf === undefined) pool.vf.add(2.0);
+        if (p.kind === 'diode' && q.vf === undefined) pool.vf.add(0.7);
+    }
+    if (typeof data.vcc === 'number') pool.supply.add(data.vcc);
+    // A `vcc` part with no `volts` is not undeclared: BoardImpl's
+    // constructor default IS the declaration, and 51-555-astable's
+    // "VCC (5 V)" is right about a bench that never writes the 5 down.
+    else if ((data.parts || []).some(p => p.kind === 'vcc')) pool.supply.add(5);
     return pool;
 }
