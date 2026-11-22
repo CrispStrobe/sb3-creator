@@ -9296,6 +9296,54 @@
   }
  },
  {
+  "id": "lab-lamp-monitor",
+  "title": {
+   "en": "Is the lamp really on? Current-sensing fault monitor",
+   "de": "Brennt die Lampe wirklich? Stromüberwachung"
+  },
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "kind": "circuit",
+  "files": {
+   "circuit": "lab-lamp-monitor/circuit.json",
+   "expected": "lab-lamp-monitor/EXPECTED.md",
+   "intro": "lab-lamp-monitor/intro.md",
+   "introDE": "lab-lamp-monitor/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-meter-multiplier",
+  "title": {
+   "en": "Moving-coil voltmeter: series multipliers and loading",
+   "de": "Drehspul-Voltmeter: Vorwiderstände und Belastung"
+  },
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "kind": "circuit",
+  "files": {
+   "circuit": "lab-meter-multiplier/circuit.json",
+   "expected": "lab-meter-multiplier/EXPECTED.md",
+   "intro": "lab-meter-multiplier/intro.md",
+   "introDE": "lab-meter-multiplier/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-meter-shunt",
+  "title": {
+   "en": "Moving-coil ammeter: shunts and Kirchhoff's current law",
+   "de": "Drehspul-Amperemeter: Nebenwiderstände und Knotenregel"
+  },
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "kind": "circuit",
+  "files": {
+   "circuit": "lab-meter-shunt/circuit.json",
+   "expected": "lab-meter-shunt/EXPECTED.md",
+   "intro": "lab-meter-shunt/intro.md",
+   "introDE": "lab-meter-shunt/intro.de.md"
+  }
+ },
+ {
   "id": "lab-level-crossing",
   "title": {
    "en": "Level crossing: latch plus flasher",
