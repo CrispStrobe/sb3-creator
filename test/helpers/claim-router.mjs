@@ -19,8 +19,11 @@
  *                        the bench is re-solved there and the comparison is
  *                        exact. `controls` reaches BoardImpl.setControl —
  *                        button 1 = pressed, pot = position, vsource = volts,
- *                        LDR = illumination, NTC = temperature — and `atMs`
- *                        reaches advanceTo.
+ *                        LDR = illumination, NTC = temperature — `atMs`
+ *                        reaches advanceTo, and a device model's input (slide
+ *                        or DIP switch, Hall field, reed magnet, light on a
+ *                        phototransistor or photodiode) reaches setPartParam
+ *                        through test/helpers/bench-inputs.mjs.
  *   an enumeration       the claim names no condition, so it is held against
  *                        every state the bench can be PUT in. A claim matching
  *                        no reachable state is a real mismatch; one that
@@ -51,6 +54,7 @@
  */
 import { solveBench, declaredPool } from './bench-measure.mjs';
 import { programOf, exampleDirs } from './expected-claims.mjs';
+import { readInputs, inputStates, pairsOf } from './bench-inputs.mjs';
 
 const EXAMPLE_DIRS = new Set(exampleDirs().map(d => d.toLowerCase()));
 
@@ -300,6 +304,10 @@ export function enumerateStates (dir) {
             const settle = (p.params?.switchTimeMs ?? 5) * 2;
             states.push({ controls: { button: 1 }, atMs: settle, label: `closed, ${settle} ms after` });
         }
+        // Slide and DIP switches, a Hall field, a reed magnet, a light level:
+        // the device-model inputs, appended last so every state above keeps
+        // answering first for the claims it already answered.
+        states.push(...inputStates(first.parts));
     }
     STATES.set(dir, states);
     return states;
@@ -355,7 +363,12 @@ export function route (claim) {
 
     if (conditionIsInHeader(claim))
         return { decline: 'the operating point is named by the COLUMN header rather than the row, and this gate reads conditions from rows' };
-    if (twoSwitchRow(claim))
+    // The device-model inputs a claim names. Read before the two-switch rule:
+    // a row that sets S1..S4 of ONE DIP block is a bitmask, not two switches
+    // this gate would have to drive together.
+    const proseCtx = `${claim.section} ${claim.leadIn || ''} ${claim.table && !claim.table.isHeader ? '' : claim.line}`;
+    const inputs = readInputs({ pairs: pairsOf(tctx), prose: proseCtx }, bench.parts);
+    if (twoSwitchRow(claim) && !inputs.dipRow)
         return { decline: 'the row puts two switches in different states, and this gate drives every switch on a bench together' };
     // One sentence, both states: "the LED runs at 2.97 mA. Open, the ..." says
     // what happens closed AND what happens open, and picking one of them for
@@ -379,6 +392,13 @@ export function route (claim) {
     // at zero" bullet, and letting that leak put the pot at 0 for a claim that
     // says 50 in its own words.
     const read = readConditions(`${tctx} ${claim.section} ${claim.leadIn || ''} ${claim.line}`, bench.parts);
+    // The router's own reading wins where both name the same knob (an LDR
+    // stated as a resistance), so an existing operating point never moves.
+    for (const [k, v] of Object.entries(inputs.controls)) {
+        if (read.controls[k] !== undefined) continue;
+        read.controls[k] = v;
+        read.labels.push(inputs.labels[Object.keys(inputs.controls).indexOf(k)]);
+    }
     if (!read.labels.length) return { points: enumerateStates(claim.dir) };
     const base = { controls: read.controls, atMs: read.atMs, label: read.labels.join(', ') };
     // An axis the claim did not name is still an axis. A blink table names the

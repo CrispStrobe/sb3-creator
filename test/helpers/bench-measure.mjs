@@ -40,6 +40,7 @@ import { readFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { EXAMPLES } from './expected-claims.mjs';
 import { injectEngine } from '../../scripts/lib/engine-surface.mjs';
+import { applyParam, parseParamKey } from './bench-inputs.mjs';
 
 /** Drawn but currents nothing; these must never reach the netlist. */
 const VISUAL_ONLY = new Set(['label', 'wire_jumper']);
@@ -189,6 +190,13 @@ function solveUncached (dir, controls, atMs) {
     }
     for (const [selector, value] of Object.entries(controls)) {
         if (selector.startsWith('__')) continue;
+        // `@id.param` is a device model's input — a slide switch's position, a
+        // DIP block's bitmask, a Hall field, a light level — driven through
+        // setPartParam as the UI drives it (see bench-inputs.mjs).
+        if (parseParamKey(selector)) {
+            try { applyParam(board, selector, value); } catch { /* a param the model refuses is not fatal */ }
+            continue;
+        }
         const targets = parts.filter(p => p.id === selector || p.kind === selector ||
             (selector === 'button' && (p.kind === 'button' || p.kind === 'switch' || p.kind === 'slide_switch')));
         for (const p of targets) {
