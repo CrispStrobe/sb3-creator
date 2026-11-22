@@ -9246,5 +9246,167 @@
    "introDE": "school-led-people-dog/intro.de.md"
   },
   "devices": []
+ },
+ {
+  "id": "lab-transistor-flip-flop",
+  "title": {
+   "en": "Transistor flip-flop: two buttons, one bit",
+   "de": "Transistor-Flipflop: zwei Taster, ein Bit"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-transistor-flip-flop/program.bw",
+   "circuit": "lab-transistor-flip-flop/circuit.json",
+   "expected": "lab-transistor-flip-flop/EXPECTED.md",
+   "intro": "lab-transistor-flip-flop/intro.md",
+   "introDE": "lab-transistor-flip-flop/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-base-current",
+  "title": {
+   "en": "How little base current a transistor needs",
+   "de": "Wie wenig Basisstrom ein Transistor braucht"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 2,
+  "files": {
+   "program": "lab-base-current/program.bw",
+   "circuit": "lab-base-current/circuit.json",
+   "expected": "lab-base-current/EXPECTED.md",
+   "intro": "lab-base-current/intro.md",
+   "introDE": "lab-base-current/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-transistor-curves",
+  "title": {
+   "en": "Transistor output curves",
+   "de": "Ausgangskennlinien eines Transistors"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 4,
+  "files": {
+   "program": "lab-transistor-curves/program.bw",
+   "circuit": "lab-transistor-curves/circuit.json",
+   "expected": "lab-transistor-curves/EXPECTED.md",
+   "intro": "lab-transistor-curves/intro.md",
+   "introDE": "lab-transistor-curves/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-delay-off-timer",
+  "title": {
+   "en": "Delay-off timer with a capacitor",
+   "de": "Ausschaltverzögerung mit Kondensator"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 2,
+  "files": {
+   "program": "lab-delay-off-timer/program.bw",
+   "circuit": "lab-delay-off-timer/circuit.json",
+   "expected": "lab-delay-off-timer/EXPECTED.md",
+   "intro": "lab-delay-off-timer/intro.md",
+   "introDE": "lab-delay-off-timer/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-transistor-two-diodes",
+  "title": {
+   "en": "A transistor is two diodes back to back",
+   "de": "Ein Transistor: zwei Dioden Rücken an Rücken"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 1,
+  "files": {
+   "program": "lab-transistor-two-diodes/program.bw",
+   "circuit": "lab-transistor-two-diodes/circuit.json",
+   "expected": "lab-transistor-two-diodes/EXPECTED.md",
+   "intro": "lab-transistor-two-diodes/intro.md",
+   "introDE": "lab-transistor-two-diodes/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-battery-threshold",
+  "title": {
+   "en": "Battery tester with three thresholds",
+   "de": "Batterietester mit drei Schwellen"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 2,
+  "files": {
+   "program": "lab-battery-threshold/program.bw",
+   "circuit": "lab-battery-threshold/circuit.json",
+   "expected": "lab-battery-threshold/EXPECTED.md",
+   "intro": "lab-battery-threshold/intro.md",
+   "introDE": "lab-battery-threshold/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-heat-alarm",
+  "title": {
+   "en": "Heat alarm: a sensor transistor steals the LED current",
+   "de": "Wärmealarm: ein Fühlertransistor stiehlt den LED-Strom"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-heat-alarm/program.bw",
+   "circuit": "lab-heat-alarm/circuit.json",
+   "expected": "lab-heat-alarm/EXPECTED.md",
+   "intro": "lab-heat-alarm/intro.md",
+   "introDE": "lab-heat-alarm/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-ce-vs-follower",
+  "title": {
+   "en": "Common emitter versus emitter follower",
+   "de": "Emitterschaltung gegen Emitterfolger"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-ce-vs-follower/program.bw",
+   "circuit": "lab-ce-vs-follower/circuit.json",
+   "expected": "lab-ce-vs-follower/EXPECTED.md",
+   "intro": "lab-ce-vs-follower/intro.md",
+   "introDE": "lab-ce-vs-follower/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-push-pull",
+  "title": {
+   "en": "Push-pull output: class B versus class AB",
+   "de": "Gegentakt-Endstufe: Klasse B gegen Klasse AB"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 4,
+  "files": {
+   "program": "lab-push-pull/program.bw",
+   "circuit": "lab-push-pull/circuit.json",
+   "expected": "lab-push-pull/EXPECTED.md",
+   "intro": "lab-push-pull/intro.md",
+   "introDE": "lab-push-pull/intro.de.md"
+  },
+  "devices": []
  }
 ]
