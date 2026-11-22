@@ -1,19 +1,19 @@
 {
   "note": "Which gates enrol which example, computed from scripts/lib/example-enrolment.mjs. A diff here is a change in COVERAGE — read it before regenerating.",
-  "measuredOn": "2026-10-23",
-  "examples": 343,
+  "measuredOn": "2026-08-23",
+  "examples": 363,
   "gates": {
     "gallery": 311,
-    "example-kind-matches-content": 343,
-    "index-metadata-matches-disk": 343,
+    "example-kind-matches-content": 363,
+    "index-metadata-matches-disk": 363,
     "retarget-gallery": 66,
     "retarget-amplification": 66,
     "gen-device-benches": 148,
     "example-corpus-contract": 146,
-    "assert-physics": 260,
+    "assert-physics": 280,
     "debug-micropython": 10,
     "debug-trace-audit": 18,
-    "circuit-params-are-read": 311,
+    "circuit-params-are-read": 331,
     "program-reads-what-it-writes": 307,
     "vm-and-c-agree-on-arithmetic": 168,
     "documented-tables-are-derived": 4,
@@ -3594,6 +3594,126 @@
       "program-reads-what-it-writes",
       "school-circuit-projects",
       "vm"
+    ],
+    "lab-555-inside": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "index-metadata-matches-disk"
+    ],
+    "lab-rtl-gates": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "index-metadata-matches-disk"
+    ],
+    "lab-led-shunt": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "index-metadata-matches-disk"
+    ],
+    "lab-power-matching": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "index-metadata-matches-disk"
+    ],
+    "lab-opamp-gain": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "index-metadata-matches-disk"
+    ],
+    "lab-opamp-follower": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "index-metadata-matches-disk"
+    ],
+    "lab-opamp-blinker": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "index-metadata-matches-disk"
+    ],
+    "lab-steady-hand": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "index-metadata-matches-disk"
+    ],
+    "lab-tone-keys": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "index-metadata-matches-disk"
+    ],
+    "lab-pitch-probe": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "index-metadata-matches-disk"
+    ],
+    "lab-precision-rectifier": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "index-metadata-matches-disk"
+    ],
+    "lab-crossfade": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "index-metadata-matches-disk"
+    ],
+    "lab-siren-glide": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "index-metadata-matches-disk"
+    ],
+    "lab-struck-note": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "index-metadata-matches-disk"
+    ],
+    "lab-attenuator-gain": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "index-metadata-matches-disk"
+    ],
+    "lab-555-vco": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "index-metadata-matches-disk"
+    ],
+    "lab-staircase": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "index-metadata-matches-disk"
+    ],
+    "lab-light-link": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "index-metadata-matches-disk"
+    ],
+    "lab-phase-shift": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "index-metadata-matches-disk"
+    ],
+    "lab-opamp-integrator": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "index-metadata-matches-disk"
     ]
   }
 }
