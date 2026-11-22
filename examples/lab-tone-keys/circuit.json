@@ -1,0 +1,307 @@
+{
+ "vcc": 9,
+ "parts": [
+  {
+   "id": "bb1",
+   "kind": "breadboard",
+   "params": {},
+   "terminals": [],
+   "x": 470,
+   "y": 300,
+   "rotation": 0
+  },
+  {
+   "id": "vcc",
+   "kind": "vcc",
+   "params": {},
+   "x": 43,
+   "y": 255,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "vcc": "a1"
+    }
+   }
+  },
+  {
+   "id": "gnd",
+   "kind": "gnd",
+   "params": {},
+   "x": 43,
+   "y": 345,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "gnd": "j1"
+    }
+   }
+  },
+  {
+   "id": "timer",
+   "kind": "timer_555",
+   "params": {},
+   "x": 60,
+   "y": 60
+  },
+  {
+   "id": "r1",
+   "kind": "resistor",
+   "params": {
+    "ohms": 1000
+   },
+   "label": "R1",
+   "x": 71,
+   "y": 255,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a3",
+     "b": "a7"
+    }
+   }
+  },
+  {
+   "id": "r_a",
+   "kind": "resistor",
+   "params": {
+    "ohms": 33000
+   },
+   "label": "R_a",
+   "x": 71,
+   "y": 345,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "j3",
+     "b": "j7"
+    }
+   }
+  },
+  {
+   "id": "r_b",
+   "kind": "resistor",
+   "params": {
+    "ohms": 47000
+   },
+   "label": "R_b",
+   "x": 155,
+   "y": 255,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a9",
+     "b": "a13"
+    }
+   }
+  },
+  {
+   "id": "r_c",
+   "kind": "resistor",
+   "params": {
+    "ohms": 47000
+   },
+   "label": "R_c",
+   "x": 155,
+   "y": 345,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "j9",
+     "b": "j13"
+    }
+   }
+  },
+  {
+   "id": "key1",
+   "kind": "button",
+   "params": {},
+   "label": "KEY 1 (R_c across)",
+   "x": 239,
+   "y": 311,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "e15",
+     "b": "f15"
+    }
+   }
+  },
+  {
+   "id": "key2",
+   "kind": "button",
+   "params": {},
+   "label": "KEY 2 (shorts R_a)",
+   "x": 267,
+   "y": 311,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "e17",
+     "b": "f17"
+    }
+   }
+  },
+  {
+   "id": "c_t",
+   "kind": "capacitor",
+   "params": {
+    "farads": 2.2e-8
+   },
+   "label": "C 22 nF",
+   "x": 295,
+   "y": 255,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a19",
+     "b": "a20"
+    }
+   }
+  },
+  {
+   "id": "c_ctl",
+   "kind": "capacitor",
+   "params": {
+    "farads": 1e-8
+   },
+   "x": 295,
+   "y": 345,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "j19",
+     "b": "j20"
+    }
+   }
+  },
+  {
+   "id": "speaker",
+   "kind": "piezo",
+   "params": {},
+   "x": 150,
+   "y": 60
+  }
+ ],
+ "wires": [
+  {
+   "from": "vcc",
+   "fromTerminal": "vcc",
+   "to": "timer",
+   "toTerminal": "vcc"
+  },
+  {
+   "from": "timer",
+   "fromTerminal": "vcc",
+   "to": "timer",
+   "toTerminal": "reset"
+  },
+  {
+   "from": "timer",
+   "fromTerminal": "reset",
+   "to": "r1",
+   "toTerminal": "a"
+  },
+  {
+   "from": "gnd",
+   "fromTerminal": "gnd",
+   "to": "timer",
+   "toTerminal": "gnd"
+  },
+  {
+   "from": "timer",
+   "fromTerminal": "gnd",
+   "to": "c_t",
+   "toTerminal": "b"
+  },
+  {
+   "from": "c_t",
+   "fromTerminal": "b",
+   "to": "c_ctl",
+   "toTerminal": "b"
+  },
+  {
+   "from": "c_ctl",
+   "fromTerminal": "b",
+   "to": "speaker",
+   "toTerminal": "b"
+  },
+  {
+   "from": "r1",
+   "fromTerminal": "b",
+   "to": "timer",
+   "toTerminal": "discharge"
+  },
+  {
+   "from": "timer",
+   "fromTerminal": "discharge",
+   "to": "r_a",
+   "toTerminal": "a"
+  },
+  {
+   "from": "r_a",
+   "fromTerminal": "a",
+   "to": "key1",
+   "toTerminal": "a"
+  },
+  {
+   "from": "key1",
+   "fromTerminal": "a",
+   "to": "key2",
+   "toTerminal": "a"
+  },
+  {
+   "from": "r_a",
+   "fromTerminal": "b",
+   "to": "r_b",
+   "toTerminal": "a"
+  },
+  {
+   "from": "r_b",
+   "fromTerminal": "a",
+   "to": "key2",
+   "toTerminal": "b"
+  },
+  {
+   "from": "r_b",
+   "fromTerminal": "b",
+   "to": "timer",
+   "toTerminal": "threshold"
+  },
+  {
+   "from": "timer",
+   "fromTerminal": "threshold",
+   "to": "timer",
+   "toTerminal": "trigger"
+  },
+  {
+   "from": "timer",
+   "fromTerminal": "trigger",
+   "to": "c_t",
+   "toTerminal": "a"
+  },
+  {
+   "from": "c_t",
+   "fromTerminal": "a",
+   "to": "r_c",
+   "toTerminal": "b"
+  },
+  {
+   "from": "key1",
+   "fromTerminal": "b",
+   "to": "r_c",
+   "toTerminal": "a"
+  },
+  {
+   "from": "timer",
+   "fromTerminal": "control",
+   "to": "c_ctl",
+   "toTerminal": "a"
+  },
+  {
+   "from": "timer",
+   "fromTerminal": "output",
+   "to": "speaker",
+   "toTerminal": "a"
+  }
+ ]
+}

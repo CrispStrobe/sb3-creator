@@ -1,0 +1,426 @@
+{
+ "vcc": 9,
+ "parts": [
+  {
+   "id": "bb1",
+   "kind": "breadboard",
+   "params": {},
+   "terminals": [],
+   "x": 470,
+   "y": 300,
+   "rotation": 0
+  },
+  {
+   "id": "vcc",
+   "kind": "vcc",
+   "params": {},
+   "x": 43,
+   "y": 255,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "vcc": "a1"
+    }
+   }
+  },
+  {
+   "id": "gnd",
+   "kind": "gnd",
+   "params": {},
+   "x": 43,
+   "y": 345,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "gnd": "j1"
+    }
+   }
+  },
+  {
+   "id": "r_chain",
+   "kind": "resistor",
+   "params": {
+    "ohms": 470
+   },
+   "x": 71,
+   "y": 255,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a3",
+     "b": "a7"
+    }
+   }
+  },
+  {
+   "id": "led_red1",
+   "kind": "led",
+   "params": {
+    "color": "red",
+    "vf": 1.8
+   },
+   "x": 71,
+   "y": 345,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "anode": "j3",
+     "cathode": "j4"
+    }
+   }
+  },
+  {
+   "id": "led_green1",
+   "kind": "led",
+   "params": {
+    "color": "green",
+    "vf": 2.2
+   },
+   "x": 113,
+   "y": 345,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "anode": "j6",
+     "cathode": "j7"
+    }
+   }
+  },
+  {
+   "id": "bypass_red",
+   "kind": "button",
+   "params": {},
+   "label": "BYPASS RED",
+   "x": 155,
+   "y": 311,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "e9",
+     "b": "f9"
+    }
+   }
+  },
+  {
+   "id": "bypass_green",
+   "kind": "button",
+   "params": {},
+   "label": "BYPASS GREEN",
+   "x": 183,
+   "y": 311,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "e11",
+     "b": "f11"
+    }
+   }
+  },
+  {
+   "id": "r_par",
+   "kind": "resistor",
+   "params": {
+    "ohms": 470
+   },
+   "x": 211,
+   "y": 255,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a13",
+     "b": "a17"
+    }
+   }
+  },
+  {
+   "id": "led_green2",
+   "kind": "led",
+   "params": {
+    "color": "green",
+    "vf": 2.2
+   },
+   "x": 211,
+   "y": 345,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "anode": "j13",
+     "cathode": "j14"
+    }
+   }
+  },
+  {
+   "id": "led_red2",
+   "kind": "led",
+   "params": {
+    "color": "red",
+    "vf": 1.8
+   },
+   "x": 253,
+   "y": 345,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "anode": "j16",
+     "cathode": "j17"
+    }
+   }
+  },
+  {
+   "id": "add_red",
+   "kind": "button",
+   "params": {},
+   "label": "ADD RED",
+   "x": 295,
+   "y": 311,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "e19",
+     "b": "f19"
+    }
+   }
+  },
+  {
+   "id": "r_tr",
+   "kind": "resistor",
+   "params": {
+    "ohms": 470
+   },
+   "x": 323,
+   "y": 255,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a21",
+     "b": "a25"
+    }
+   }
+  },
+  {
+   "id": "led_yellow",
+   "kind": "led",
+   "params": {
+    "color": "yellow",
+    "vf": 2
+   },
+   "x": 323,
+   "y": 345,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "anode": "j21",
+     "cathode": "j22"
+    }
+   }
+  },
+  {
+   "id": "q_shunt",
+   "kind": "npn",
+   "params": {},
+   "x": 365,
+   "y": 345,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "emitter": "j24",
+     "base": "j25",
+     "collector": "j26"
+    }
+   }
+  },
+  {
+   "id": "rb_shunt",
+   "kind": "resistor",
+   "params": {
+    "ohms": 10000
+   },
+   "x": 407,
+   "y": 255,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a27",
+     "b": "a31"
+    }
+   }
+  },
+  {
+   "id": "rpd_shunt",
+   "kind": "resistor",
+   "params": {
+    "ohms": 100000
+   },
+   "x": 421,
+   "y": 345,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "j28",
+     "b": "j32"
+    }
+   }
+  },
+  {
+   "id": "shunt_btn",
+   "kind": "button",
+   "params": {},
+   "label": "SHUNT",
+   "x": 505,
+   "y": 311,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "e34",
+     "b": "f34"
+    }
+   }
+  }
+ ],
+ "wires": [
+  {
+   "from": "vcc",
+   "fromTerminal": "vcc",
+   "to": "r_chain",
+   "toTerminal": "a"
+  },
+  {
+   "from": "r_chain",
+   "fromTerminal": "a",
+   "to": "r_par",
+   "toTerminal": "a"
+  },
+  {
+   "from": "r_par",
+   "fromTerminal": "a",
+   "to": "r_tr",
+   "toTerminal": "a"
+  },
+  {
+   "from": "r_tr",
+   "fromTerminal": "a",
+   "to": "shunt_btn",
+   "toTerminal": "a"
+  },
+  {
+   "from": "gnd",
+   "fromTerminal": "gnd",
+   "to": "led_green1",
+   "toTerminal": "cathode"
+  },
+  {
+   "from": "led_green1",
+   "fromTerminal": "cathode",
+   "to": "bypass_green",
+   "toTerminal": "b"
+  },
+  {
+   "from": "bypass_green",
+   "fromTerminal": "b",
+   "to": "led_green2",
+   "toTerminal": "cathode"
+  },
+  {
+   "from": "led_green2",
+   "fromTerminal": "cathode",
+   "to": "led_red2",
+   "toTerminal": "cathode"
+  },
+  {
+   "from": "led_red2",
+   "fromTerminal": "cathode",
+   "to": "led_yellow",
+   "toTerminal": "cathode"
+  },
+  {
+   "from": "led_yellow",
+   "fromTerminal": "cathode",
+   "to": "q_shunt",
+   "toTerminal": "emitter"
+  },
+  {
+   "from": "q_shunt",
+   "fromTerminal": "emitter",
+   "to": "rpd_shunt",
+   "toTerminal": "b"
+  },
+  {
+   "from": "r_chain",
+   "fromTerminal": "b",
+   "to": "led_red1",
+   "toTerminal": "anode"
+  },
+  {
+   "from": "led_red1",
+   "fromTerminal": "anode",
+   "to": "bypass_red",
+   "toTerminal": "a"
+  },
+  {
+   "from": "led_red1",
+   "fromTerminal": "cathode",
+   "to": "bypass_red",
+   "toTerminal": "b"
+  },
+  {
+   "from": "bypass_red",
+   "fromTerminal": "b",
+   "to": "led_green1",
+   "toTerminal": "anode"
+  },
+  {
+   "from": "led_green1",
+   "fromTerminal": "anode",
+   "to": "bypass_green",
+   "toTerminal": "a"
+  },
+  {
+   "from": "r_par",
+   "fromTerminal": "b",
+   "to": "led_green2",
+   "toTerminal": "anode"
+  },
+  {
+   "from": "led_green2",
+   "fromTerminal": "anode",
+   "to": "add_red",
+   "toTerminal": "a"
+  },
+  {
+   "from": "add_red",
+   "fromTerminal": "b",
+   "to": "led_red2",
+   "toTerminal": "anode"
+  },
+  {
+   "from": "r_tr",
+   "fromTerminal": "b",
+   "to": "led_yellow",
+   "toTerminal": "anode"
+  },
+  {
+   "from": "led_yellow",
+   "fromTerminal": "anode",
+   "to": "q_shunt",
+   "toTerminal": "collector"
+  },
+  {
+   "from": "shunt_btn",
+   "fromTerminal": "b",
+   "to": "rb_shunt",
+   "toTerminal": "a"
+  },
+  {
+   "from": "rb_shunt",
+   "fromTerminal": "a",
+   "to": "rpd_shunt",
+   "toTerminal": "a"
+  },
+  {
+   "from": "rb_shunt",
+   "fromTerminal": "b",
+   "to": "q_shunt",
+   "toTerminal": "base"
+  }
+ ]
+}

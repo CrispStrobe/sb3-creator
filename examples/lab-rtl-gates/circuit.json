@@ -1,0 +1,668 @@
+{
+ "vcc": 5,
+ "parts": [
+  {
+   "id": "bb1",
+   "kind": "breadboard",
+   "params": {},
+   "terminals": [],
+   "x": 470,
+   "y": 300,
+   "rotation": 0
+  },
+  {
+   "id": "vcc",
+   "kind": "vcc",
+   "params": {},
+   "x": 43,
+   "y": 255,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "vcc": "a1"
+    }
+   }
+  },
+  {
+   "id": "gnd",
+   "kind": "gnd",
+   "params": {},
+   "x": 43,
+   "y": 345,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "gnd": "j1"
+    }
+   }
+  },
+  {
+   "id": "btn_a",
+   "kind": "button",
+   "params": {},
+   "label": "A",
+   "x": 71,
+   "y": 311,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "e3",
+     "b": "f3"
+    }
+   }
+  },
+  {
+   "id": "btn_b",
+   "kind": "button",
+   "params": {},
+   "label": "B",
+   "x": 99,
+   "y": 311,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "e5",
+     "b": "f5"
+    }
+   }
+  },
+  {
+   "id": "rpd_a",
+   "kind": "resistor",
+   "params": {
+    "ohms": 10000
+   },
+   "x": 127,
+   "y": 255,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a7",
+     "b": "a11"
+    }
+   }
+  },
+  {
+   "id": "rpd_b",
+   "kind": "resistor",
+   "params": {
+    "ohms": 10000
+   },
+   "x": 127,
+   "y": 345,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "j7",
+     "b": "j11"
+    }
+   }
+  },
+  {
+   "id": "rb_not",
+   "kind": "resistor",
+   "params": {
+    "ohms": 10000
+   },
+   "x": 211,
+   "y": 255,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a13",
+     "b": "a17"
+    }
+   }
+  },
+  {
+   "id": "q_not",
+   "kind": "npn",
+   "params": {},
+   "x": 211,
+   "y": 345,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "emitter": "j13",
+     "base": "j14",
+     "collector": "j15"
+    }
+   }
+  },
+  {
+   "id": "rc_not",
+   "kind": "resistor",
+   "params": {
+    "ohms": 1000
+   },
+   "x": 267,
+   "y": 345,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "j17",
+     "b": "j21"
+    }
+   }
+  },
+  {
+   "id": "led_not",
+   "kind": "led",
+   "params": {
+    "color": "red",
+    "vf": 2
+   },
+   "x": 295,
+   "y": 255,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "anode": "a19",
+     "cathode": "a20"
+    }
+   }
+  },
+  {
+   "id": "rb_nor_a",
+   "kind": "resistor",
+   "params": {
+    "ohms": 10000
+   },
+   "x": 337,
+   "y": 255,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a22",
+     "b": "a26"
+    }
+   }
+  },
+  {
+   "id": "rb_nor_b",
+   "kind": "resistor",
+   "params": {
+    "ohms": 10000
+   },
+   "x": 351,
+   "y": 345,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "j23",
+     "b": "j27"
+    }
+   }
+  },
+  {
+   "id": "q_nor_a",
+   "kind": "npn",
+   "params": {},
+   "x": 421,
+   "y": 255,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "emitter": "a28",
+     "base": "a29",
+     "collector": "a30"
+    }
+   }
+  },
+  {
+   "id": "q_nor_b",
+   "kind": "npn",
+   "params": {},
+   "x": 435,
+   "y": 345,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "emitter": "j29",
+     "base": "j30",
+     "collector": "j31"
+    }
+   }
+  },
+  {
+   "id": "rc_nor",
+   "kind": "resistor",
+   "params": {
+    "ohms": 1000
+   },
+   "x": 477,
+   "y": 255,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a32",
+     "b": "a36"
+    }
+   }
+  },
+  {
+   "id": "led_nor",
+   "kind": "led",
+   "params": {
+    "color": "yellow",
+    "vf": 2
+   },
+   "x": 491,
+   "y": 345,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "anode": "j33",
+     "cathode": "j34"
+    }
+   }
+  },
+  {
+   "id": "rb_or",
+   "kind": "resistor",
+   "params": {
+    "ohms": 10000
+   },
+   "x": 533,
+   "y": 345,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "j36",
+     "b": "j40"
+    }
+   }
+  },
+  {
+   "id": "q_or",
+   "kind": "npn",
+   "params": {},
+   "x": 561,
+   "y": 255,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "emitter": "a38",
+     "base": "a39",
+     "collector": "a40"
+    }
+   }
+  },
+  {
+   "id": "rc_or",
+   "kind": "resistor",
+   "params": {
+    "ohms": 1000
+   },
+   "x": 617,
+   "y": 255,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a42",
+     "b": "a46"
+    }
+   }
+  },
+  {
+   "id": "led_or",
+   "kind": "led",
+   "params": {
+    "color": "green",
+    "vf": 2
+   },
+   "x": 617,
+   "y": 345,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "anode": "j42",
+     "cathode": "j43"
+    }
+   }
+  },
+  {
+   "id": "rb_nand_a",
+   "kind": "resistor",
+   "params": {
+    "ohms": 10000
+   },
+   "x": 659,
+   "y": 345,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "j45",
+     "b": "j49"
+    }
+   }
+  },
+  {
+   "id": "rb_nand_b",
+   "kind": "resistor",
+   "params": {
+    "ohms": 10000
+   },
+   "x": 701,
+   "y": 255,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a48",
+     "b": "a52"
+    }
+   }
+  },
+  {
+   "id": "q_nand_top",
+   "kind": "npn",
+   "params": {},
+   "x": 743,
+   "y": 345,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "emitter": "j51",
+     "base": "j52",
+     "collector": "j53"
+    }
+   }
+  },
+  {
+   "id": "q_nand_bot",
+   "kind": "npn",
+   "params": {},
+   "x": 785,
+   "y": 255,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "emitter": "a54",
+     "base": "a55",
+     "collector": "a56"
+    }
+   }
+  },
+  {
+   "id": "rc_nand",
+   "kind": "resistor",
+   "params": {
+    "ohms": 1000
+   },
+   "x": 799,
+   "y": 345,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "j55",
+     "b": "j59"
+    }
+   }
+  },
+  {
+   "id": "led_nand",
+   "kind": "led",
+   "params": {
+    "color": "blue",
+    "vf": 2
+   },
+   "x": 841,
+   "y": 255,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "anode": "a58",
+     "cathode": "a59"
+    }
+   }
+  }
+ ],
+ "wires": [
+  {
+   "from": "vcc",
+   "fromTerminal": "vcc",
+   "to": "btn_a",
+   "toTerminal": "a"
+  },
+  {
+   "from": "btn_a",
+   "fromTerminal": "a",
+   "to": "btn_b",
+   "toTerminal": "a"
+  },
+  {
+   "from": "btn_b",
+   "fromTerminal": "a",
+   "to": "rc_not",
+   "toTerminal": "a"
+  },
+  {
+   "from": "rc_not",
+   "fromTerminal": "a",
+   "to": "rc_nor",
+   "toTerminal": "a"
+  },
+  {
+   "from": "rc_nor",
+   "fromTerminal": "a",
+   "to": "rc_or",
+   "toTerminal": "a"
+  },
+  {
+   "from": "rc_or",
+   "fromTerminal": "a",
+   "to": "rc_nand",
+   "toTerminal": "a"
+  },
+  {
+   "from": "gnd",
+   "fromTerminal": "gnd",
+   "to": "rpd_a",
+   "toTerminal": "b"
+  },
+  {
+   "from": "rpd_a",
+   "fromTerminal": "b",
+   "to": "rpd_b",
+   "toTerminal": "b"
+  },
+  {
+   "from": "rpd_b",
+   "fromTerminal": "b",
+   "to": "q_not",
+   "toTerminal": "emitter"
+  },
+  {
+   "from": "q_not",
+   "fromTerminal": "emitter",
+   "to": "q_nor_a",
+   "toTerminal": "emitter"
+  },
+  {
+   "from": "q_nor_a",
+   "fromTerminal": "emitter",
+   "to": "q_nor_b",
+   "toTerminal": "emitter"
+  },
+  {
+   "from": "q_nor_b",
+   "fromTerminal": "emitter",
+   "to": "q_or",
+   "toTerminal": "emitter"
+  },
+  {
+   "from": "q_or",
+   "fromTerminal": "emitter",
+   "to": "q_nand_bot",
+   "toTerminal": "emitter"
+  },
+  {
+   "from": "q_nand_bot",
+   "fromTerminal": "emitter",
+   "to": "led_not",
+   "toTerminal": "cathode"
+  },
+  {
+   "from": "led_not",
+   "fromTerminal": "cathode",
+   "to": "led_nor",
+   "toTerminal": "cathode"
+  },
+  {
+   "from": "led_nor",
+   "fromTerminal": "cathode",
+   "to": "led_or",
+   "toTerminal": "cathode"
+  },
+  {
+   "from": "led_or",
+   "fromTerminal": "cathode",
+   "to": "led_nand",
+   "toTerminal": "cathode"
+  },
+  {
+   "from": "btn_a",
+   "fromTerminal": "b",
+   "to": "rpd_a",
+   "toTerminal": "a"
+  },
+  {
+   "from": "rpd_a",
+   "fromTerminal": "a",
+   "to": "rb_not",
+   "toTerminal": "a"
+  },
+  {
+   "from": "rb_not",
+   "fromTerminal": "a",
+   "to": "rb_nor_a",
+   "toTerminal": "a"
+  },
+  {
+   "from": "rb_nor_a",
+   "fromTerminal": "a",
+   "to": "rb_nand_a",
+   "toTerminal": "a"
+  },
+  {
+   "from": "btn_b",
+   "fromTerminal": "b",
+   "to": "rpd_b",
+   "toTerminal": "a"
+  },
+  {
+   "from": "rpd_b",
+   "fromTerminal": "a",
+   "to": "rb_nor_b",
+   "toTerminal": "a"
+  },
+  {
+   "from": "rb_nor_b",
+   "fromTerminal": "a",
+   "to": "rb_nand_b",
+   "toTerminal": "a"
+  },
+  {
+   "from": "rb_not",
+   "fromTerminal": "b",
+   "to": "q_not",
+   "toTerminal": "base"
+  },
+  {
+   "from": "rc_not",
+   "fromTerminal": "b",
+   "to": "q_not",
+   "toTerminal": "collector"
+  },
+  {
+   "from": "q_not",
+   "fromTerminal": "collector",
+   "to": "led_not",
+   "toTerminal": "anode"
+  },
+  {
+   "from": "rb_nor_a",
+   "fromTerminal": "b",
+   "to": "q_nor_a",
+   "toTerminal": "base"
+  },
+  {
+   "from": "rb_nor_b",
+   "fromTerminal": "b",
+   "to": "q_nor_b",
+   "toTerminal": "base"
+  },
+  {
+   "from": "rc_nor",
+   "fromTerminal": "b",
+   "to": "q_nor_a",
+   "toTerminal": "collector"
+  },
+  {
+   "from": "q_nor_a",
+   "fromTerminal": "collector",
+   "to": "q_nor_b",
+   "toTerminal": "collector"
+  },
+  {
+   "from": "q_nor_b",
+   "fromTerminal": "collector",
+   "to": "led_nor",
+   "toTerminal": "anode"
+  },
+  {
+   "from": "led_nor",
+   "fromTerminal": "anode",
+   "to": "rb_or",
+   "toTerminal": "a"
+  },
+  {
+   "from": "rb_or",
+   "fromTerminal": "b",
+   "to": "q_or",
+   "toTerminal": "base"
+  },
+  {
+   "from": "rc_or",
+   "fromTerminal": "b",
+   "to": "q_or",
+   "toTerminal": "collector"
+  },
+  {
+   "from": "q_or",
+   "fromTerminal": "collector",
+   "to": "led_or",
+   "toTerminal": "anode"
+  },
+  {
+   "from": "rb_nand_a",
+   "fromTerminal": "b",
+   "to": "q_nand_top",
+   "toTerminal": "base"
+  },
+  {
+   "from": "rb_nand_b",
+   "fromTerminal": "b",
+   "to": "q_nand_bot",
+   "toTerminal": "base"
+  },
+  {
+   "from": "rc_nand",
+   "fromTerminal": "b",
+   "to": "q_nand_top",
+   "toTerminal": "collector"
+  },
+  {
+   "from": "q_nand_top",
+   "fromTerminal": "collector",
+   "to": "led_nand",
+   "toTerminal": "anode"
+  },
+  {
+   "from": "q_nand_top",
+   "fromTerminal": "emitter",
+   "to": "q_nand_bot",
+   "toTerminal": "collector"
+  }
+ ]
+}

@@ -1,0 +1,215 @@
+{
+ "vcc": 9,
+ "parts": [
+  {
+   "id": "bb1",
+   "kind": "breadboard",
+   "params": {},
+   "terminals": [],
+   "x": 470,
+   "y": 300,
+   "rotation": 0
+  },
+  {
+   "id": "vcc",
+   "kind": "vcc",
+   "params": {},
+   "x": 43,
+   "y": 255,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "vcc": "a1"
+    }
+   }
+  },
+  {
+   "id": "gnd",
+   "kind": "gnd",
+   "params": {},
+   "x": 43,
+   "y": 345,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "gnd": "j1"
+    }
+   }
+  },
+  {
+   "id": "potato_a",
+   "kind": "potato_battery",
+   "params": {
+    "volts": 0.9,
+    "rInternal": 5000
+   },
+   "label": "potato A",
+   "x": 60,
+   "y": 60
+  },
+  {
+   "id": "potato_b",
+   "kind": "potato_battery",
+   "params": {
+    "volts": 0.9,
+    "rInternal": 5000
+   },
+   "label": "potato B",
+   "x": 150,
+   "y": 60
+  },
+  {
+   "id": "u1",
+   "kind": "lm358",
+   "params": {},
+   "x": 240,
+   "y": 60
+  },
+  {
+   "id": "load_a",
+   "kind": "resistor",
+   "params": {
+    "ohms": 4700
+   },
+   "label": "load 4.7k",
+   "x": 71,
+   "y": 255,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a3",
+     "b": "a7"
+    }
+   }
+  },
+  {
+   "id": "load_b",
+   "kind": "resistor",
+   "params": {
+    "ohms": 4700
+   },
+   "label": "load 4.7k",
+   "x": 71,
+   "y": 345,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "j3",
+     "b": "j7"
+    }
+   }
+  },
+  {
+   "id": "vm_a",
+   "kind": "voltmeter",
+   "params": {},
+   "x": 330,
+   "y": 60
+  },
+  {
+   "id": "vm_b",
+   "kind": "voltmeter",
+   "params": {},
+   "x": 420,
+   "y": 60
+  }
+ ],
+ "wires": [
+  {
+   "from": "vcc",
+   "fromTerminal": "vcc",
+   "to": "u1",
+   "toTerminal": "vcc"
+  },
+  {
+   "from": "gnd",
+   "fromTerminal": "gnd",
+   "to": "u1",
+   "toTerminal": "gnd"
+  },
+  {
+   "from": "u1",
+   "fromTerminal": "gnd",
+   "to": "potato_a",
+   "toTerminal": "neg"
+  },
+  {
+   "from": "potato_a",
+   "fromTerminal": "neg",
+   "to": "potato_b",
+   "toTerminal": "neg"
+  },
+  {
+   "from": "potato_b",
+   "fromTerminal": "neg",
+   "to": "load_a",
+   "toTerminal": "b"
+  },
+  {
+   "from": "load_a",
+   "fromTerminal": "b",
+   "to": "load_b",
+   "toTerminal": "b"
+  },
+  {
+   "from": "load_b",
+   "fromTerminal": "b",
+   "to": "vm_a",
+   "toTerminal": "b"
+  },
+  {
+   "from": "vm_a",
+   "fromTerminal": "b",
+   "to": "vm_b",
+   "toTerminal": "b"
+  },
+  {
+   "from": "vm_b",
+   "fromTerminal": "b",
+   "to": "u1",
+   "toTerminal": "2_pos"
+  },
+  {
+   "from": "potato_a",
+   "fromTerminal": "pos",
+   "to": "load_a",
+   "toTerminal": "a"
+  },
+  {
+   "from": "load_a",
+   "fromTerminal": "a",
+   "to": "vm_a",
+   "toTerminal": "a"
+  },
+  {
+   "from": "potato_b",
+   "fromTerminal": "pos",
+   "to": "u1",
+   "toTerminal": "1_pos"
+  },
+  {
+   "from": "u1",
+   "fromTerminal": "1_out",
+   "to": "u1",
+   "toTerminal": "1_neg"
+  },
+  {
+   "from": "u1",
+   "fromTerminal": "1_neg",
+   "to": "load_b",
+   "toTerminal": "a"
+  },
+  {
+   "from": "load_b",
+   "fromTerminal": "a",
+   "to": "vm_b",
+   "toTerminal": "a"
+  },
+  {
+   "from": "u1",
+   "fromTerminal": "2_neg",
+   "to": "u1",
+   "toTerminal": "2_out"
+  }
+ ]
+}
