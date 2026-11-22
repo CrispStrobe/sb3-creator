@@ -9408,5 +9408,167 @@
    "introDE": "lab-push-pull/intro.de.md"
   },
   "devices": []
+ },
+ {
+  "id": "lab-two-led-monostable",
+  "title": {
+   "en": "Red, press, green for a while",
+   "de": "Rot, drücken, eine Weile Grün"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-two-led-monostable/program.bw",
+   "circuit": "lab-two-led-monostable/circuit.json",
+   "expected": "lab-two-led-monostable/EXPECTED.md",
+   "intro": "lab-two-led-monostable/intro.md",
+   "introDE": "lab-two-led-monostable/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-virtual-ground",
+  "title": {
+   "en": "Virtual ground: plus and minus from one battery",
+   "de": "Virtuelle Masse: Plus und Minus aus einer Batterie"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-virtual-ground/program.bw",
+   "circuit": "lab-virtual-ground/circuit.json",
+   "expected": "lab-virtual-ground/EXPECTED.md",
+   "intro": "lab-virtual-ground/intro.md",
+   "introDE": "lab-virtual-ground/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-wheatstone-bridge",
+  "title": {
+   "en": "Wheatstone bridge: measuring by balancing",
+   "de": "Wheatstone-Brücke: Messen durch Abgleich"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-wheatstone-bridge/program.bw",
+   "circuit": "lab-wheatstone-bridge/circuit.json",
+   "expected": "lab-wheatstone-bridge/EXPECTED.md",
+   "intro": "lab-wheatstone-bridge/intro.md",
+   "introDE": "lab-wheatstone-bridge/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-window-comparator",
+  "title": {
+   "en": "Window comparator: only inside the band",
+   "de": "Fensterkomparator: nur im Bereich dazwischen"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-window-comparator/program.bw",
+   "circuit": "lab-window-comparator/circuit.json",
+   "expected": "lab-window-comparator/EXPECTED.md",
+   "intro": "lab-window-comparator/intro.md",
+   "introDE": "lab-window-comparator/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-2bit-dac",
+  "title": {
+   "en": "Two-bit digital-to-analog converter",
+   "de": "Zwei-Bit-Digital-Analog-Wandler"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 4,
+  "files": {
+   "program": "lab-2bit-dac/program.bw",
+   "circuit": "lab-2bit-dac/circuit.json",
+   "expected": "lab-2bit-dac/EXPECTED.md",
+   "intro": "lab-2bit-dac/intro.md",
+   "introDE": "lab-2bit-dac/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-2bit-adc",
+  "title": {
+   "en": "Two-bit analog-to-digital converter",
+   "de": "Zwei-Bit-Analog-Digital-Wandler"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 4,
+  "files": {
+   "program": "lab-2bit-adc/program.bw",
+   "circuit": "lab-2bit-adc/circuit.json",
+   "expected": "lab-2bit-adc/EXPECTED.md",
+   "intro": "lab-2bit-adc/intro.md",
+   "introDE": "lab-2bit-adc/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-function-generator",
+  "title": {
+   "en": "Triangle and square from two op-amps",
+   "de": "Dreieck und Rechteck aus zwei Operationsverstärkern"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 4,
+  "files": {
+   "program": "lab-function-generator/program.bw",
+   "circuit": "lab-function-generator/circuit.json",
+   "expected": "lab-function-generator/EXPECTED.md",
+   "intro": "lab-function-generator/intro.md",
+   "introDE": "lab-function-generator/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-two-band-light-organ",
+  "title": {
+   "en": "Two-band light organ: bass and treble",
+   "de": "Zweikanal-Lichtorgel: Bass und Höhen"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-two-band-light-organ/program.bw",
+   "circuit": "lab-two-band-light-organ/circuit.json",
+   "expected": "lab-two-band-light-organ/EXPECTED.md",
+   "intro": "lab-two-band-light-organ/intro.md",
+   "introDE": "lab-two-band-light-organ/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-v-to-f",
+  "title": {
+   "en": "Voltage to frequency: counting a voltage",
+   "de": "Spannung zu Frequenz: eine Spannung zählen"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 5,
+  "files": {
+   "program": "lab-v-to-f/program.bw",
+   "circuit": "lab-v-to-f/circuit.json",
+   "expected": "lab-v-to-f/EXPECTED.md",
+   "intro": "lab-v-to-f/intro.md",
+   "introDE": "lab-v-to-f/intro.de.md"
+  },
+  "devices": []
  }
 ]
