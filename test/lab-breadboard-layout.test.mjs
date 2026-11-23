@@ -92,7 +92,7 @@ test('(a) every lab part that is not an instrument or supply is seated, and stay
             else if (!l?.seat) failures.push(`${file}: ${p.id} (${p.kind}) loses its seat on a headless load — its footprint is sidecar-only; add the kind to SIDECAR_FOOTPRINT_KINDS`);
         }
     }
-    // MEASURED 2026-11-23 (bw-circuit-ui 8404334): parts > 500 -> observed 1012; expected ~1000 non-instrument lab parts.
+    // MEASURED 2026-11-23 (scripts/threshold-observe.mjs, bw-circuit-ui 8404334): parts > 500 -> observed 959.
     assert.ok(parts > 500, `only ${parts} lab parts checked — the file list or kind filter is stale`);
     // The kinds that may stay off the board for want of any footprint, said out loud.
     t.diagnostic(`footprintless kinds left off the board: ${[...exempt].sort().join(', ') || 'none'}`);
