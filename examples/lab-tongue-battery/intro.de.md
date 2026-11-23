@@ -6,7 +6,7 @@ Hält man eine 9-V-Batterie an die Zunge, kribbelt es und schmeckt sauer. Eine 1
 
 ## Was zu tun ist
 
-Klick auf **Sim**. Halte **TOUCH** gedrückt (das ist die Zunge an den Kontakten) und lies das Amperemeter ab. Fahr mit der Maus über die Zunge, um den Elektrolysestrom und den Geschmack zu sehen. Lass los und beobachte das Voltmeter. Schieb dann den Schalter nach links (1,5 V) und berühre noch einmal.
+Klick auf **Sim**. Halte den Taster gedrückt (das ist die Zunge an den Kontakten) und lies das Amperemeter ab. Fahr mit der Maus über die Zunge, um den Elektrolysestrom und den Geschmack zu sehen. Lass los und beobachte das Voltmeter. Schieb dann den Schalter nach links (1,5 V) und berühre noch einmal.
 
 ## Was du sehen solltest
 

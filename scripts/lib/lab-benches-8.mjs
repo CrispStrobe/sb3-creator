@@ -93,7 +93,7 @@ export const BENCHES = {
         parts: { bat: BAT9, mic: ['speaker', { ohms: 8, soundDb: 110, soundWave: 'ring', soundHz: 900, ringOnS: 1, ringOffS: 4 }],
             u: LM386, cg: EL(10e-6), cp: C(1e-6), d1: ['diode', { part: '1N34A' }], d2: ['diode', { part: '1N34A' }],
             ch: C(2.2e-6), rb: R(1000), q: NPN,
-            k: ['relay', {}], df: ['diode', { part: '1N4148' }], ck: EL(47e-6),
+            k: ['relay', { coilR: 200 }], df: ['diode', { part: '1N4148' }], ck: EL(47e-6),
             lamp: ['light_bulb', { ohms: 90, vRated: 9 }] },
         nets: [
             ['bat.pos', 'u.vs', 'k.coil_a', 'df.cathode', 'ck.pos', 'k.com'],

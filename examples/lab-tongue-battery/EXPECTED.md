@@ -1,7 +1,7 @@
 # lab-tongue-battery — expected behaviour
 
 ## Circuit
-- A 9 V battery and a 1.5 V cell on a slide switch (right: 9 V, as authored; left: 1.5 V). The TOUCH button is the tongue on the contacts: it connects the selected source through an ammeter to the electrolysis cell (`electrolysis_cell_7`).
+- A 9 V battery and a 1.5 V cell on a slide switch (right: 9 V, as authored; left: 1.5 V). The push button is the tongue on the contacts: it connects the selected source through an ammeter to the electrolysis cell (`electrolysis_cell_7`).
 - The cell is the wet tongue between two contacts: about 2 kΩ of electrolyte, and at each contact an interface that passes current only by electrolysis (about 1.7 V needed), with a 2 µF double layer.
 - A voltmeter across the contacts.
 

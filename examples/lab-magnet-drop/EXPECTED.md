@@ -2,13 +2,13 @@
 
 ## Circuit
 - 9 V supply. A hand-wound coil (`air_coil_3`: 1000 turns of 0.2 mm wire on a 3 cm tube, 1.5 cm radius) has one end on ground; the other reaches the base of Q1 (`npn_8`) through a diode and 1 kΩ. 100 kΩ keeps that base quiet.
-- Q1 and Q2 (`npn_9`) are a flip-flop: each collector feeds the other's base through 22 kΩ. The red LED shows Q1 conducting, the green one Q2. 1 µF on Q1's base makes Q2 win at switch-on; the RESET button pulls Q1's base to ground.
+- Q1 and Q2 (`npn_9`) are a flip-flop: each collector feeds the other's base through 22 kΩ. The red LED shows Q1 conducting, the green one Q2. 1 µF on Q1's base makes Q2 win at switch-on; the push button (reset) pulls Q1's base to ground.
 - The **Drop magnet** button in the instruments column drops a bar magnet (north pole first) through the coil from 20 cm.
 
 ## Observable behaviour
 - At rest: green on (Q2 collector 0.09 V), red off.
 - Drop: about 0.19 s later the magnet reaches the coil. Entering, it induces about +2.4 V at the coil's top end; the pulse turns Q1 on and the LEDs swap: red on. Leaving, it induces an opposite, bigger pulse (it falls faster by then), which the diode blocks.
-- RESET: green again.
+- Reset button: green again.
 - Turn the magnet over (`magnetPolarity` −1) and drop it: it still flips, now on the exit pulse, a few milliseconds later.
 
 ## Measured on the engine

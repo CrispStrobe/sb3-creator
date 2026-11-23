@@ -234,7 +234,9 @@
     {
       "id": "relay_12",
       "kind": "relay",
-      "params": {},
+      "params": {
+        "coilR": 200
+      },
       "x": 472.4,
       "y": 345,
       "rotation": 0,

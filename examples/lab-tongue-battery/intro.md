@@ -6,7 +6,7 @@ Touch a 9 V battery to your tongue and it tingles and tastes sour. A 1.5 V cell 
 
 ## What to do
 
-Click **Sim**. Hold **TOUCH** (that is the tongue on the contacts) and read the ammeter. Hover over the tongue to see the electrolysis current and the taste. Let go and watch the voltmeter. Then slide the switch to the left (1.5 V) and touch again.
+Click **Sim**. Hold the push button (that is the tongue touching the contacts) and read the ammeter. Hover over the tongue to see the electrolysis current and the taste. Let go and watch the voltmeter. Then slide the switch to the left (1.5 V) and touch again.
 
 ## What you should see
 

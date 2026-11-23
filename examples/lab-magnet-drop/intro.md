@@ -6,12 +6,12 @@ A magnet falling through a coil of wire makes a short voltage pulse in it, with 
 
 ## What to do
 
-Click **Sim**. Green is on. In the instruments column press **Drop magnet** and wait a moment while it falls. Then press **RESET** on the board. Try the scope on the coil to see the two pulses.
+Click **Sim**. Green is on. In the instruments column press **Drop magnet** and wait a moment while it falls. Then press the push button on the board (reset). Try the scope on the coil to see the two pulses.
 
 ## What you should see
 
 - About a fifth of a second after the drop, the LEDs swap: red on, green off.
-- They stay that way until you press RESET.
+- They stay that way until you press the reset button.
 - On the scope: one pulse as the magnet enters the coil and an opposite, bigger one as it leaves.
 
 ## Why it works

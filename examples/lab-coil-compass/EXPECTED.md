@@ -1,11 +1,12 @@
 # lab-coil-compass — expected behaviour
 
 ## Circuit
-- A 1.5 V cell, a switch, 22 Ω and a 100 Ω rheostat (`potentiometer_5`, authored at the end with no resistance in circuit), an ammeter and a hand-wound coil (`air_coil_7`: 200 turns of 0.25 mm wire on a 3 cm tube, 1.5 cm radius, 6.6 Ω).
+- A 1.5 V cell, a switch, 22 Ω and a 100 Ω rheostat (`potentiometer_5`, authored at the end with no resistance in circuit), an ammeter and a hand-wound coil (`air_coil_7`: 200 turns of 0.25 mm wire on a 3 cm tube, 1.5 cm radius).
 - A compass lies on the coil's axis 5 cm from its centre; the coil points east–west, so its field pushes the needle sideways against the Earth's 20 µT. The coil's field and the compass angle show on its tooltip.
 
 ## Observable behaviour
 - Switch open: no current, the compass points north (0°).
+- The coil's 12.6 m of copper wire add their own resistance (about six and a half ohms).
 - Switch closed, rheostat out: 50.5 mA, 0.30 mT inside the coil, the compass turns 30°.
 - Rheostat all in: 11.7 mA, the compass turns only about 8°.
 - The field is proportional to the current; the angle is atan(B / B_earth), so it grows more slowly at large fields.

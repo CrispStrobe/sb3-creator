@@ -6,12 +6,12 @@ Ein Magnet, der durch eine Drahtspule fällt, erzeugt darin einen kurzen Spannun
 
 ## Was zu tun ist
 
-Klick auf **Sim**. Grün leuchtet. Drück in der Instrumentenspalte **Magnet fallen lassen** und warte einen Moment, während er fällt. Drück dann **RESET** auf der Platine. Schließ das Oszilloskop an die Spule an, um die beiden Impulse zu sehen.
+Klick auf **Sim**. Grün leuchtet. Drück in der Instrumentenspalte **Magnet fallen lassen** und warte einen Moment, während er fällt. Drück dann den Taster auf der Platine (Reset). Schließ das Oszilloskop an die Spule an, um die beiden Impulse zu sehen.
 
 ## Was du sehen solltest
 
 - Etwa eine Fünftelsekunde nach dem Fallenlassen tauschen die LEDs: Rot an, Grün aus.
-- So bleibt es, bis du RESET drückst.
+- So bleibt es, bis du den Reset-Taster drückst.
 - Auf dem Oszilloskop: ein Impuls, wenn der Magnet in die Spule eintritt, und ein umgekehrter, größerer, wenn er sie verlässt.
 
 ## Warum es funktioniert
