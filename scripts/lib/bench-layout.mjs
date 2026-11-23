@@ -150,6 +150,7 @@ export function coverOf(E, part) {
  *   nets: [['id.term', …], …],
  *   supply: {pos, neg},       // optional 'id.term' on the rail nets; inferred if absent
  *   boardId: 'bb1',           // id of the first breadboard
+ *   order: ['id', …],         // optional: parts placed first, in this order
  *   extra: {…},               // other top-level circuit.json fields, kept
  * }
  * Returns the circuit JSON. Throws if the result's nets differ from spec.nets.
@@ -211,7 +212,11 @@ export function layoutBench(E, spec) {
         }
         return null;
     };
-    for (const part of parts) {
+    // `order` (optional): part ids placed first, in that order — a layout
+    // hint for a bench whose power-on race depends on where things sit.
+    const first = new Map((spec.order || []).map((id, i) => [id, i]));
+    const placing = [...parts].sort((x, y) => (first.get(x.id) ?? first.size + parts.indexOf(x)) - (first.get(y.id) ?? first.size + parts.indexOf(y)));
+    for (const part of placing) {
         const fp = seatableFootprint(E, part.kind);
         if (!fp) { delete part.seat; continue; }
         let b = boards.at(-1);
@@ -347,14 +352,17 @@ export function layoutBench(E, spec) {
         const loose = net.filter(m => !lead(m));
         if (sign) {
             const color = sign === '+' ? 'red' : 'black';
-            const railOn = new Map();   // board -> a rail hole carrying this net
+            // board -> the rail carrying this net there; the top one when
+            // both are used (they are bridged), so off-board parts above the
+            // board reach it without crossing the board.
+            const railOn = new Map();
             for (const L of seated) {
                 const rail = ('abcde'.includes(L.hole[0]) ? 't' : 'b') + sign;
                 const from = free(L.b, L.hole, 'rail');
                 if (!from) throw new Error(`strip of ${L.m} is full`);
                 const to = railHole(L.b, rail, colOf(L.hole));
                 jump(L.b, from, to, color);
-                if (!railOn.has(L.b)) railOn.set(L.b, rail);
+                if (!railOn.has(L.b) || rail[0] === 't') railOn.set(L.b, rail);
             }
             const onBoards = [...railOn.keys()].sort((x, y) => x.i - y.i);
             for (let i = 1; i < onBoards.length; i++) {

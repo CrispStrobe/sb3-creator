@@ -30,6 +30,7 @@ import path from 'node:path';
 import { requireSiblings, siblingGuardTest } from './helpers/siblings.mjs';
 import { injectEngine, registerSidecars } from '../scripts/lib/engine-surface.mjs';
 import { OFF_BOARD_KINDS } from '../scripts/lib/bench-layout.mjs';
+import { LAYOUT_PENDING } from '../scripts/lib/lab-bench-owners.mjs';
 
 const gate = requireSiblings('bw-board', 'bw-circuit-ui');
 siblingGuardTest(gate, 'the lab breadboard layout');
@@ -41,16 +42,8 @@ const labFiles = () => fs.readdirSync(path.join(ROOT, 'examples'))
     .filter(f => fs.existsSync(path.join(ROOT, f)))
     .sort();
 
-/**
- * Lab benches laid out on another branch at the time these gates landed
- * (2026-11-23): lab-amp-horn (its button is drawn over its electrolytic) and
- * lab-am-detector (its earpiece is off the board) belong to the parallel
- * measurement pass. Re-seat them with `node scripts/seat-lab-benches.mjs
- * lab-amp-horn lab-am-detector` (or the set-6 generator for lab-amp-horn) once
- * that pass has landed, and empty this list.
- */
-const PENDING = new Set(['lab-amp-horn', 'lab-am-detector']);
-const pending = (file) => PENDING.has(path.basename(path.dirname(file)));
+// Benches a parallel pass owned when these gates landed: see LAYOUT_PENDING.
+const pending = (file) => LAYOUT_PENDING.has(path.basename(path.dirname(file)));
 
 let E = null;
 if (!gate.skip) {

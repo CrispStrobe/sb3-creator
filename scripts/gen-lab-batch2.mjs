@@ -6,15 +6,12 @@
  *   node scripts/gen-lab-batch2.mjs lab-foo    # write only the named ones
  *
  * Each bench is described as PARTS plus NETS (lists of `part.terminal`), and
- * this script turns that into a circuit.json. Two layouts:
- *
- *   seated     every part that has a breadboard footprint goes on one
- *              breadboard, each lead in a strip of its own (two-lead parts
- *              stand across the centre gutter, one column each), and the
- *              connections are drawn as ordinary wires between terminals.
- *   schematic  for benches with parts the breadboard cannot hold (LM358,
- *              555, meters, sensor modules): parts at the grid positions the
- *              bench gives.
+ * this script turns that into a circuit.json through scripts/lib/bench-layout.mjs,
+ * the layout every lab bench shares: each part with a breadboard footprint is
+ * seated (chips straddling the gutter), connections between seated parts are
+ * jumpers and rail taps, and only instruments and supplies stay off the board,
+ * on tap wires. The `at` positions below are what the benches were drawn with
+ * before they were seated; the layout no longer reads them.
  *
  * What is CHECKED before a file is written, not hoped for:
  *   - the engine accepts the netlist (a rejected netlist leaves an empty board);
@@ -28,92 +25,24 @@
 import { writeFileSync, mkdirSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { injectEngine } from './lib/engine-surface.mjs';
+import { loadLayoutEngine, layoutBench } from './lib/bench-layout.mjs';
 import { refuseToRevertRepairs, forced } from './lib/generator-guard.mjs';
 
-const { Circuit, resetIds, cuiURL } = await injectEngine();
-const { FOOTPRINTS, computeLeadMap, rotateFootprint } =
-    await import(new URL('src/model/footprints.js', cuiURL).href);
+const E = await loadLayoutEngine();
+const { Circuit, resetIds } = E;
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const EXAMPLES = join(HERE, '..', 'examples');
 
 // ---------------------------------------------------------------------------
-// layout helpers
-
-const BB = { id: 'bb1', x: 470, y: 330 };
-const UNSEATED = new Set(['vcc', 'gnd', 'vsource', 'breadboard']);
-// The DIP switch has no footprint entry; it straddles the gutter like the
-// one in pc93-nand-is-universal (pole N: Na in row e, Nb in row f).
-const EXTRA_FOOTPRINTS = {
-    dip_switch_spst: { refTerminal: '1a', straddlesGutter: true, leads: {
-        '1a': { dRow: 0, dCol: 0 }, '2a': { dRow: 0, dCol: 1 }, '3a': { dRow: 0, dCol: 2 }, '4a': { dRow: 0, dCol: 3 },
-        '1b': { dRow: 5, dCol: 0 }, '2b': { dRow: 5, dCol: 1 }, '3b': { dRow: 5, dCol: 2 }, '4b': { dRow: 5, dCol: 3 } } },
-};
-const footprintOf = (kind) => EXTRA_FOOTPRINTS[kind] || FOOTPRINTS[kind];
-// The hole names of a full-size board, taken from the board model itself.
-const { BreadboardModel } = await import(new URL('src/model/breadboard.js', cuiURL).href);
-const FULL_BOARD = new BreadboardModel({});
-const FULL_BOARD_HOLES = new Set([...'abcdefghij'].flatMap(r =>
-    Array.from({ length: FULL_BOARD.cols }, (_, i) => `${r}${i + 1}`)));
-
-/** Seat parts left to right; every lead gets a strip nobody else uses. */
-function seatAll(parts) {
-    let col = 2;
-    for (const p of parts) {
-        if (UNSEATED.has(p.kind)) continue;
-        const fp = footprintOf(p.kind);
-        if (!fp) throw new Error(`${p.id} (${p.kind}) has no footprint — this bench cannot be seated`);
-        const leads = Object.values(fp.leads);
-        const span = Math.max(...leads.map(o => o.dCol));
-        let leadMap, rot;
-        if (leads.length === 2 && !fp.straddlesGutter) {
-            // Stand it across the gutter: first lead in the top block, second
-            // in row f, one column — two strips, no shared strip with anyone.
-            const k = span;
-            const refRow = 'abcde'[5 - k];
-            leadMap = computeLeadMap(rotateFootprint(fp, 1), `${refRow}${col}`);
-            rot = 1;
-            col += 2;
-        } else if (fp.straddlesGutter) {
-            leadMap = computeLeadMap(fp, `e${col}`);
-            col += span + 2;
-        } else {
-            leadMap = computeLeadMap(fp, `c${col}`);
-            col += span + 2;
-        }
-        // Every hole a lead was given must exist; computeLeadMap does not check
-        // the column range, so ask whether the far lead ran off the board.
-        if (!Object.values(leadMap).every(h => FULL_BOARD_HOLES.has(h))) {
-            throw new Error(`bench does not fit one breadboard (${p.id} would sit at column ${col})`);
-        }
-        p.seat = { boardId: BB.id, leadMap, ...(rot ? { rot } : {}) };
-        const cols = Object.values(leadMap).map(h => Number(h.slice(1)));
-        p.x = BB.x - 380 + 15 * Math.min(...cols);
-        p.y = BB.y;
-    }
-}
+// layout
 
 function toJSON(spec) {
-    const parts = spec.parts.map((p, i) => ({
-        id: p.id, kind: p.kind, params: { ...(p.params || {}) },
-        x: p.at ? p.at[0] : 80 + (i % 8) * 110,
-        y: p.at ? p.at[1] : 80 + Math.floor(i / 8) * 120,
-        rotation: 0,
+    const parts = spec.parts.map(p => ({
+        id: p.id, kind: p.kind, params: { ...(p.params || {}) }, x: 0, y: 0, rotation: 0,
         ...(p.label ? { label: p.label } : {}),
     }));
-    if (spec.seat) {
-        seatAll(parts);
-        parts.unshift({ id: BB.id, kind: 'breadboard', params: {}, terminals: [], x: BB.x, y: BB.y, rotation: 0 });
-    }
-    const wires = [];
-    for (const net of spec.nets) {
-        const ends = net.map(s => { const i = s.indexOf('.'); return { part: s.slice(0, i), terminal: s.slice(i + 1) }; });
-        for (let i = 1; i < ends.length; i++) {
-            wires.push({ from: ends[i - 1].part, fromTerminal: ends[i - 1].terminal, to: ends[i].part, toTerminal: ends[i].terminal });
-        }
-    }
-    return { vcc: spec.vcc, parts, wires };
+    return layoutBench(E, { vcc: spec.vcc, parts, nets: spec.nets, boardId: 'bb1' });
 }
 
 function verify(id, spec, json) {
