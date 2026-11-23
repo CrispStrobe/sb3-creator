@@ -273,6 +273,14 @@ const KNOWN_INERT = new Map([
 
     // Read by the model, but no shipped bench reaches the state that uses it.
     ['zener.vf',    'BLIND SPOT: the zener benches operate in reverse breakdown, where vz sets the voltage and vf does not.'],
+    ['field_probe.rodVolts',
+        'BLIND SPOT: bw-board src/fields.js reads it as the charged ruler\'s potential, which only couples while the '
+        + 'probe\'s knob is above 0; every charge bench starts with the ruler far away (position 0), and the induced '
+        + 'charge is a path in time (a hand moving), not one solve. test/lab-circuits-fields.test.mjs moves the knob and '
+        + 'flips rodVolts\' sign (lab-electroscope).'],
+    ['field_probe.skinOhms',
+        'BLIND SPOT: the finger\'s skin contact is skinOhms/position, open at the knob\'s rest position 0 '
+        + '(lab-body-hum starts untouched); test/lab-circuits-fields.test.mjs touches the plate.'],
     ['relay.switchTimeMs','BLIND SPOT: read by the relay model; no probed bench transitions the coil inside the probe window.'],
     ['ssd1306.address',   'BLIND SPOT: read by the I2C address decoder; the probe drives no I2C traffic.'],
     // The sensor PARTs' bench stimulus (2026-10-05). Each answers only to a

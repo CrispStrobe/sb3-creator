@@ -20,7 +20,17 @@ In avalanche breakdown each carrier that starts an avalanche arrives with a burs
 2. Avalanche noise as a signal source.
 
 ```assert
-# the junction at its breakdown voltage (noise is about a millivolt)
-net npn_4.emitter V 7.53 +-0.05
+# the supply rail; the junction reaches its breakdown voltage only once the
+# coupling capacitor behind it has charged (about 5 ms), which the scenario
+# test checks at 40 ms
 net vsource_2.pos V 9.00 +-0.01
 ```
+
+<!-- engine-provenance -->
+> **Engine provenance.** The measured numbers on this page were last held against
+> `bw-board@a685b22` and `bw-circuit-ui@df78c46` — the revisions pinned in
+> `test/fixtures/siblings.json`. `test/expected-quantities-hold.test.mjs` compares
+> **13 of this page's 18** numeric claims against that engine
+> (0 of them disagreeing) and declines the rest with a stated reason;
+> `node scripts/expected-claim-census.mjs lab-noise-hiss` prints them one by one.
+<!-- engine-provenance -->

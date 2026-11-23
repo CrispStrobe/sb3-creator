@@ -25,3 +25,12 @@ The output stage's tens of milliamps flow through the 47 Ω. A change of that cu
 # the supply itself; the oscillation is checked in the scenario test
 net vsource_2.pos V 9.00 +-0.01
 ```
+
+<!-- engine-provenance -->
+> **Engine provenance.** The measured numbers on this page were last held against
+> `bw-board@a685b22` and `bw-circuit-ui@df78c46` — the revisions pinned in
+> `test/fixtures/siblings.json`. `test/expected-quantities-hold.test.mjs` compares
+> **18 of this page's 24** numeric claims against that engine
+> (0 of them disagreeing) and declines the rest with a stated reason;
+> `node scripts/expected-claim-census.mjs lab-motorboat` prints them one by one.
+<!-- engine-provenance -->
