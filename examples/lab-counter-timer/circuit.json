@@ -130,13 +130,13 @@
   },
   {
    "id": "ct",
-   "kind": "polarized_cap",
+   "kind": "capacitor",
    "params": {
     "farads": 0.00001
    },
    "terminals": [
-    "pos",
-    "neg"
+    "a",
+    "b"
    ],
    "x": 308,
    "y": 300,
@@ -144,8 +144,8 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "pos": "a17",
-     "neg": "a18"
+     "a": "a17",
+     "b": "a18"
     }
    }
   },

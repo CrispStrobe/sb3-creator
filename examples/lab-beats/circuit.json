@@ -142,13 +142,13 @@
   },
   {
    "id": "ctA",
-   "kind": "polarized_cap",
+   "kind": "capacitor",
    "params": {
     "farads": 0.00001
    },
    "terminals": [
-    "pos",
-    "neg"
+    "a",
+    "b"
    ],
    "x": 340,
    "y": 300,
@@ -156,8 +156,8 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "pos": "a20",
-     "neg": "a21"
+     "a": "a20",
+     "b": "a21"
     }
    }
   },
@@ -308,13 +308,13 @@
   },
   {
    "id": "ctB",
-   "kind": "polarized_cap",
+   "kind": "capacitor",
    "params": {
     "farads": 0.00001
    },
    "terminals": [
-    "pos",
-    "neg"
+    "a",
+    "b"
    ],
    "x": 644,
    "y": 300,
@@ -322,8 +322,8 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "pos": "a49",
-     "neg": "a50"
+     "a": "a49",
+     "b": "a50"
     }
    }
   },
