@@ -44,7 +44,7 @@ net src_b.pos V 5.00 +-0.01
 
 <!-- engine-provenance -->
 > **Engine provenance.** The measured numbers on this page were last held against
-> `bw-board@0bc7baf` and `bw-circuit-ui@8404334` — the revisions pinned in
+> `bw-board@a685b22` and `bw-circuit-ui@540423d` — the revisions pinned in
 > `test/fixtures/siblings.json`. `test/expected-quantities-hold.test.mjs` compares
 > **11 of this page's 26** numeric claims against that engine
 > (0 of them disagreeing) and declines the rest with a stated reason;
