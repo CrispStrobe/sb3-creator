@@ -209,7 +209,7 @@ export const BENCHES = {
     'lab-amp-horn': {
         vcc: 9, supply: SUP,
         parts: { bat: BAT9, u: ['lm386', {}], cf: C(47e-9), rb: R(22000), btn: ['button', {}], rp: R(10000),
-            co: EL(100e-6), spk: ['speaker', {}], scope: ['oscilloscope', {}] },
+            co: EL(100e-6), spk: ['speaker', { ohms: 8 }], scope: ['oscilloscope', {}] },
         nets: [
             ['bat.pos', 'u.vs'],
             ['u.vout', 'cf.a', 'co.pos', 'scope.ch1'], ['cf.b', 'u.inp', 'rb.a', 'btn.a'], ['btn.b', 'rp.a'],

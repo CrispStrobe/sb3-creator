@@ -162,7 +162,9 @@
     {
       "id": "speaker_9",
       "kind": "speaker",
-      "params": {},
+      "params": {
+        "ohms": 8
+      },
       "terminals": [
         "a",
         "b"

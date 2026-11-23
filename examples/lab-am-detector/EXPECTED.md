@@ -1,8 +1,13 @@
 # lab-am-detector — expected behaviour
 
 ## Circuit
-**The test transmitter.** The simulator cannot receive a broadcast, so three
-sine sources in series build an amplitude-modulated signal on the bench:
+**The test transmitter.** Three sine sources in series build an
+amplitude-modulated signal on the bench, so that every stage of detection is a
+waveform you can put on the scope: the full AM signal, the half-waves after the
+diode, the carrier ripple on the capacitor. (The simulator's radio front end,
+used by [lab-crystal-set](../lab-crystal-set), receives real medium-wave
+stations, but it solves the carrier as an amplitude rather than as a waveform,
+so none of those stages would show.) The three sources:
 
 - carrier: 20 kHz, 3 V peak
 - lower side frequency: 19.5 kHz, 0.9 V peak
