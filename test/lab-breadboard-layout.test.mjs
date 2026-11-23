@@ -27,6 +27,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
+import { pathToFileURL } from 'node:url';
 import { requireSiblings, siblingGuardTest } from './helpers/siblings.mjs';
 import { injectEngine, registerSidecars } from '../scripts/lib/engine-surface.mjs';
 import { OFF_BOARD_KINDS } from '../scripts/lib/bench-layout.mjs';
@@ -66,11 +67,12 @@ async function footprintless() {
     return (kind, loadedKind) => ![kind, loadedKind].some(k => builtin.has(k) || withSidecarFootprint.has(k));
 }
 
-const endpoint = (w, side) => {
-    const v = w[side];
-    if (v && typeof v === 'object') return v.board ? null : v.part;
-    return v;
-};
+// Through bw-circuit-ui's one wire-endpoint dialect reader (flat and nested
+// wires alike); a hole or board endpoint has no part.
+const { wireEndpoint } = gate.skip ? {} : await import(new URL(
+    'src/model/wire-endpoints.js', pathToFileURL(`${gate.paths['bw-circuit-ui']}/`)).href);
+const endpoint = (w, side) => wireEndpoint(w, side)?.part ?? null;
+const endpointTerminal = (w, side) => wireEndpoint(w, side)?.terminal;
 
 test('(a) every lab part that is not an instrument or supply is seated, and stays seated on load',
     { skip: gate.skip }, async (t) => {
@@ -109,8 +111,8 @@ test('(b) no lab bench joins two seated parts with a part-to-part wire',
         for (const w of json.wires || []) {
             const a = endpoint(w, 'from'), b = endpoint(w, 'to');
             if (a && b && seated.has(a) && seated.has(b)) {
-                const ta = typeof w.from === 'object' ? w.from.terminal : w.fromTerminal;
-                const tb = typeof w.to === 'object' ? w.to.terminal : w.toTerminal;
+                const ta = endpointTerminal(w, 'from');
+                const tb = endpointTerminal(w, 'to');
                 failures.push(`${file}: ${a}.${ta} -> ${b}.${tb} is an invisible wire between seated parts`);
             }
         }
