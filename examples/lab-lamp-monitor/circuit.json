@@ -1,0 +1,224 @@
+{
+  "vcc": 9,
+  "parts": [
+    {
+      "id": "vcc1",
+      "kind": "vcc",
+      "params": {},
+      "x": 80,
+      "y": 70,
+      "rotation": 0
+    },
+    {
+      "id": "gnd1",
+      "kind": "gnd",
+      "params": {},
+      "x": 80,
+      "y": 640,
+      "rotation": 0
+    },
+    {
+      "id": "light_sw",
+      "kind": "slide_switch",
+      "params": {
+        "position": 0
+      },
+      "x": 190,
+      "y": 70,
+      "rotation": 0,
+      "label": "Light switch"
+    },
+    {
+      "id": "socket",
+      "kind": "slide_switch",
+      "params": {
+        "position": 0
+      },
+      "x": 300,
+      "y": 165,
+      "rotation": 0,
+      "label": "Bulb socket"
+    },
+    {
+      "id": "lamp",
+      "kind": "light_bulb",
+      "params": {
+        "ohms": 90,
+        "vRated": 9
+      },
+      "x": 300,
+      "y": 260,
+      "rotation": 0,
+      "label": "Tail lamp"
+    },
+    {
+      "id": "r_sense",
+      "kind": "resistor",
+      "params": {
+        "ohms": 10
+      },
+      "x": 300,
+      "y": 450,
+      "rotation": 0,
+      "label": "R1 shunt"
+    },
+    {
+      "id": "r_top",
+      "kind": "resistor",
+      "params": {
+        "ohms": 18000
+      },
+      "x": 410,
+      "y": 165,
+      "rotation": 0,
+      "label": "R2"
+    },
+    {
+      "id": "r_bot",
+      "kind": "resistor",
+      "params": {
+        "ohms": 1000
+      },
+      "x": 410,
+      "y": 450,
+      "rotation": 0,
+      "label": "R3"
+    },
+    {
+      "id": "u1",
+      "kind": "lm358",
+      "params": {},
+      "x": 520,
+      "y": 355,
+      "rotation": 0,
+      "label": "U1 comparator"
+    },
+    {
+      "id": "r_led",
+      "kind": "resistor",
+      "params": {
+        "ohms": 470
+      },
+      "x": 630,
+      "y": 165,
+      "rotation": 0,
+      "label": "R4"
+    },
+    {
+      "id": "led_warn",
+      "kind": "led",
+      "params": {
+        "vf": 2,
+        "color": "red"
+      },
+      "x": 630,
+      "y": 260,
+      "rotation": 0,
+      "label": "Lamp fault"
+    }
+  ],
+  "wires": [
+    {
+      "from": "vcc1",
+      "fromTerminal": "vcc",
+      "to": "light_sw",
+      "toTerminal": "com"
+    },
+    {
+      "from": "light_sw",
+      "fromTerminal": "com",
+      "to": "u1",
+      "toTerminal": "vcc"
+    },
+    {
+      "from": "light_sw",
+      "fromTerminal": "a",
+      "to": "socket",
+      "toTerminal": "com"
+    },
+    {
+      "from": "socket",
+      "fromTerminal": "com",
+      "to": "r_top",
+      "toTerminal": "a"
+    },
+    {
+      "from": "r_top",
+      "fromTerminal": "a",
+      "to": "r_led",
+      "toTerminal": "a"
+    },
+    {
+      "from": "socket",
+      "fromTerminal": "a",
+      "to": "lamp",
+      "toTerminal": "a"
+    },
+    {
+      "from": "lamp",
+      "fromTerminal": "b",
+      "to": "r_sense",
+      "toTerminal": "a"
+    },
+    {
+      "from": "r_sense",
+      "fromTerminal": "a",
+      "to": "u1",
+      "toTerminal": "1_pos"
+    },
+    {
+      "from": "r_top",
+      "fromTerminal": "b",
+      "to": "r_bot",
+      "toTerminal": "a"
+    },
+    {
+      "from": "r_bot",
+      "fromTerminal": "a",
+      "to": "u1",
+      "toTerminal": "1_neg"
+    },
+    {
+      "from": "r_led",
+      "fromTerminal": "b",
+      "to": "led_warn",
+      "toTerminal": "anode"
+    },
+    {
+      "from": "led_warn",
+      "fromTerminal": "cathode",
+      "to": "u1",
+      "toTerminal": "1_out"
+    },
+    {
+      "from": "gnd1",
+      "fromTerminal": "gnd",
+      "to": "r_sense",
+      "toTerminal": "b"
+    },
+    {
+      "from": "r_sense",
+      "fromTerminal": "b",
+      "to": "r_bot",
+      "toTerminal": "b"
+    },
+    {
+      "from": "r_bot",
+      "fromTerminal": "b",
+      "to": "u1",
+      "toTerminal": "gnd"
+    },
+    {
+      "from": "u1",
+      "fromTerminal": "gnd",
+      "to": "u1",
+      "toTerminal": "2_pos"
+    },
+    {
+      "from": "u1",
+      "fromTerminal": "2_pos",
+      "to": "u1",
+      "toTerminal": "2_neg"
+    }
+  ]
+}

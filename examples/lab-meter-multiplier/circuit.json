@@ -1,0 +1,187 @@
+{
+  "vcc": 9,
+  "parts": [
+    {
+      "id": "vcc1",
+      "kind": "vcc",
+      "params": {},
+      "x": 80,
+      "y": 70,
+      "rotation": 0
+    },
+    {
+      "id": "gnd1",
+      "kind": "gnd",
+      "params": {},
+      "x": 80,
+      "y": 640,
+      "rotation": 0
+    },
+    {
+      "id": "r_up",
+      "kind": "resistor",
+      "params": {
+        "ohms": 10000
+      },
+      "x": 190,
+      "y": 165,
+      "rotation": 0,
+      "label": "R1"
+    },
+    {
+      "id": "r_dn",
+      "kind": "resistor",
+      "params": {
+        "ohms": 10000
+      },
+      "x": 190,
+      "y": 450,
+      "rotation": 0,
+      "label": "R2"
+    },
+    {
+      "id": "dvm",
+      "kind": "voltmeter",
+      "params": {},
+      "x": 80,
+      "y": 355,
+      "rotation": 0,
+      "label": "Reference voltmeter"
+    },
+    {
+      "id": "r_5v",
+      "kind": "resistor",
+      "params": {
+        "ohms": 49000
+      },
+      "x": 300,
+      "y": 260,
+      "rotation": 0,
+      "label": "Multiplier 5 V (49k)"
+    },
+    {
+      "id": "r_10v",
+      "kind": "resistor",
+      "params": {
+        "ohms": 99000
+      },
+      "x": 300,
+      "y": 355,
+      "rotation": 0,
+      "label": "Multiplier 10 V (99k)"
+    },
+    {
+      "id": "range",
+      "kind": "slide_switch",
+      "params": {
+        "position": 0
+      },
+      "x": 410,
+      "y": 260,
+      "rotation": 0,
+      "label": "Range 5 V / 10 V"
+    },
+    {
+      "id": "m_coil",
+      "kind": "resistor",
+      "params": {
+        "ohms": 1000
+      },
+      "x": 520,
+      "y": 355,
+      "rotation": 0,
+      "label": "Meter coil 1k"
+    },
+    {
+      "id": "m_needle",
+      "kind": "analog_meter",
+      "params": {
+        "fullScale": 0.1
+      },
+      "x": 630,
+      "y": 355,
+      "rotation": 0,
+      "label": "Meter (100 uA full scale)"
+    }
+  ],
+  "wires": [
+    {
+      "from": "vcc1",
+      "fromTerminal": "vcc",
+      "to": "r_up",
+      "toTerminal": "a"
+    },
+    {
+      "from": "r_up",
+      "fromTerminal": "b",
+      "to": "r_dn",
+      "toTerminal": "a"
+    },
+    {
+      "from": "r_dn",
+      "fromTerminal": "a",
+      "to": "dvm",
+      "toTerminal": "a"
+    },
+    {
+      "from": "dvm",
+      "fromTerminal": "a",
+      "to": "r_5v",
+      "toTerminal": "a"
+    },
+    {
+      "from": "r_5v",
+      "fromTerminal": "a",
+      "to": "r_10v",
+      "toTerminal": "a"
+    },
+    {
+      "from": "r_5v",
+      "fromTerminal": "b",
+      "to": "range",
+      "toTerminal": "a"
+    },
+    {
+      "from": "r_10v",
+      "fromTerminal": "b",
+      "to": "range",
+      "toTerminal": "b"
+    },
+    {
+      "from": "range",
+      "fromTerminal": "com",
+      "to": "m_coil",
+      "toTerminal": "a"
+    },
+    {
+      "from": "m_coil",
+      "fromTerminal": "a",
+      "to": "m_needle",
+      "toTerminal": "a"
+    },
+    {
+      "from": "gnd1",
+      "fromTerminal": "gnd",
+      "to": "r_dn",
+      "toTerminal": "b"
+    },
+    {
+      "from": "r_dn",
+      "fromTerminal": "b",
+      "to": "dvm",
+      "toTerminal": "b"
+    },
+    {
+      "from": "dvm",
+      "fromTerminal": "b",
+      "to": "m_coil",
+      "toTerminal": "b"
+    },
+    {
+      "from": "m_coil",
+      "fromTerminal": "b",
+      "to": "m_needle",
+      "toTerminal": "b"
+    }
+  ]
+}

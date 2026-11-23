@@ -1,0 +1,236 @@
+{
+  "vcc": 9,
+  "parts": [
+    {
+      "id": "vcc1",
+      "kind": "vcc",
+      "params": {},
+      "x": 80,
+      "y": 70,
+      "rotation": 0
+    },
+    {
+      "id": "gnd1",
+      "kind": "gnd",
+      "params": {},
+      "x": 80,
+      "y": 640,
+      "rotation": 0
+    },
+    {
+      "id": "neg9",
+      "kind": "vsource",
+      "params": {
+        "volts": 9
+      },
+      "x": 80,
+      "y": 450,
+      "rotation": 0,
+      "label": "-9 V supply"
+    },
+    {
+      "id": "pot",
+      "kind": "potentiometer",
+      "params": {
+        "ohms": 10000,
+        "position": 0.5
+      },
+      "x": 190,
+      "y": 260,
+      "rotation": 0,
+      "label": "Input 0-9 V"
+    },
+    {
+      "id": "vin",
+      "kind": "voltmeter",
+      "params": {},
+      "x": 190,
+      "y": 450,
+      "rotation": 0,
+      "label": "V in"
+    },
+    {
+      "id": "r_in",
+      "kind": "resistor",
+      "params": {
+        "ohms": 100000
+      },
+      "x": 300,
+      "y": 260,
+      "rotation": 0,
+      "label": "R1 100k"
+    },
+    {
+      "id": "d_log",
+      "kind": "diode",
+      "params": {
+        "model": "shockley",
+        "is": 1e-14,
+        "n": 1,
+        "rs": 0
+      },
+      "x": 410,
+      "y": 165,
+      "rotation": 0,
+      "label": "D1 log element"
+    },
+    {
+      "id": "u1",
+      "kind": "lm358",
+      "params": {},
+      "x": 410,
+      "y": 355,
+      "rotation": 0,
+      "label": "U1"
+    },
+    {
+      "id": "r_g1",
+      "kind": "resistor",
+      "params": {
+        "ohms": 10000
+      },
+      "x": 520,
+      "y": 260,
+      "rotation": 0,
+      "label": "R2 10k"
+    },
+    {
+      "id": "r_g2",
+      "kind": "resistor",
+      "params": {
+        "ohms": 100000
+      },
+      "x": 630,
+      "y": 165,
+      "rotation": 0,
+      "label": "R3 100k"
+    },
+    {
+      "id": "meter",
+      "kind": "analog_meter",
+      "params": {
+        "fullScale": 7
+      },
+      "x": 740,
+      "y": 355,
+      "rotation": 0,
+      "label": "Log output"
+    }
+  ],
+  "wires": [
+    {
+      "from": "vcc1",
+      "fromTerminal": "vcc",
+      "to": "pot",
+      "toTerminal": "a"
+    },
+    {
+      "from": "pot",
+      "fromTerminal": "a",
+      "to": "u1",
+      "toTerminal": "vcc"
+    },
+    {
+      "from": "pot",
+      "fromTerminal": "wiper",
+      "to": "r_in",
+      "toTerminal": "a"
+    },
+    {
+      "from": "r_in",
+      "fromTerminal": "a",
+      "to": "vin",
+      "toTerminal": "a"
+    },
+    {
+      "from": "r_in",
+      "fromTerminal": "b",
+      "to": "d_log",
+      "toTerminal": "anode"
+    },
+    {
+      "from": "d_log",
+      "fromTerminal": "anode",
+      "to": "u1",
+      "toTerminal": "1_neg"
+    },
+    {
+      "from": "d_log",
+      "fromTerminal": "cathode",
+      "to": "u1",
+      "toTerminal": "1_out"
+    },
+    {
+      "from": "u1",
+      "fromTerminal": "1_out",
+      "to": "r_g1",
+      "toTerminal": "a"
+    },
+    {
+      "from": "r_g1",
+      "fromTerminal": "b",
+      "to": "r_g2",
+      "toTerminal": "a"
+    },
+    {
+      "from": "r_g2",
+      "fromTerminal": "a",
+      "to": "u1",
+      "toTerminal": "2_neg"
+    },
+    {
+      "from": "r_g2",
+      "fromTerminal": "b",
+      "to": "u1",
+      "toTerminal": "2_out"
+    },
+    {
+      "from": "u1",
+      "fromTerminal": "2_out",
+      "to": "meter",
+      "toTerminal": "a"
+    },
+    {
+      "from": "neg9",
+      "fromTerminal": "neg",
+      "to": "u1",
+      "toTerminal": "gnd"
+    },
+    {
+      "from": "gnd1",
+      "fromTerminal": "gnd",
+      "to": "neg9",
+      "toTerminal": "pos"
+    },
+    {
+      "from": "neg9",
+      "fromTerminal": "pos",
+      "to": "pot",
+      "toTerminal": "b"
+    },
+    {
+      "from": "pot",
+      "fromTerminal": "b",
+      "to": "vin",
+      "toTerminal": "b"
+    },
+    {
+      "from": "vin",
+      "fromTerminal": "b",
+      "to": "u1",
+      "toTerminal": "1_pos"
+    },
+    {
+      "from": "u1",
+      "fromTerminal": "1_pos",
+      "to": "u1",
+      "toTerminal": "2_pos"
+    },
+    {
+      "from": "u1",
+      "fromTerminal": "2_pos",
+      "to": "meter",
+      "toTerminal": "b"
+    }
+  ]
+}

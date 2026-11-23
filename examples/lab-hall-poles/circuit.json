@@ -1,0 +1,293 @@
+{
+  "vcc": 5,
+  "parts": [
+    {
+      "id": "vcc1",
+      "kind": "vcc",
+      "params": {},
+      "x": 80,
+      "y": 70,
+      "rotation": 0
+    },
+    {
+      "id": "gnd1",
+      "kind": "gnd",
+      "params": {},
+      "x": 80,
+      "y": 640,
+      "rotation": 0
+    },
+    {
+      "id": "hall",
+      "kind": "hall_analog",
+      "params": {
+        "field": 0.5
+      },
+      "x": 190,
+      "y": 355,
+      "rotation": 0,
+      "label": "Hall sensor"
+    },
+    {
+      "id": "r_t",
+      "kind": "resistor",
+      "params": {
+        "ohms": 20000
+      },
+      "x": 300,
+      "y": 165,
+      "rotation": 0,
+      "label": "R1 20k"
+    },
+    {
+      "id": "r_m",
+      "kind": "resistor",
+      "params": {
+        "ohms": 10000
+      },
+      "x": 300,
+      "y": 355,
+      "rotation": 0,
+      "label": "R2 10k"
+    },
+    {
+      "id": "r_b",
+      "kind": "resistor",
+      "params": {
+        "ohms": 20000
+      },
+      "x": 300,
+      "y": 545,
+      "rotation": 0,
+      "label": "R3 20k"
+    },
+    {
+      "id": "u1",
+      "kind": "lm358",
+      "params": {},
+      "x": 410,
+      "y": 355,
+      "rotation": 0,
+      "label": "U1 window"
+    },
+    {
+      "id": "r_n",
+      "kind": "resistor",
+      "params": {
+        "ohms": 220
+      },
+      "x": 520,
+      "y": 260,
+      "rotation": 0,
+      "label": "R4"
+    },
+    {
+      "id": "led_n",
+      "kind": "led",
+      "params": {
+        "vf": 2,
+        "color": "red"
+      },
+      "x": 630,
+      "y": 260,
+      "rotation": 0,
+      "label": "North"
+    },
+    {
+      "id": "r_s",
+      "kind": "resistor",
+      "params": {
+        "ohms": 220
+      },
+      "x": 520,
+      "y": 450,
+      "rotation": 0,
+      "label": "R5"
+    },
+    {
+      "id": "led_s",
+      "kind": "led",
+      "params": {
+        "vf": 2,
+        "color": "green"
+      },
+      "x": 630,
+      "y": 450,
+      "rotation": 0,
+      "label": "South"
+    },
+    {
+      "id": "r_z1",
+      "kind": "resistor",
+      "params": {
+        "ohms": 10000
+      },
+      "x": 740,
+      "y": 165,
+      "rotation": 0,
+      "label": "R6 10k"
+    },
+    {
+      "id": "r_z2",
+      "kind": "resistor",
+      "params": {
+        "ohms": 10000
+      },
+      "x": 740,
+      "y": 545,
+      "rotation": 0,
+      "label": "R7 10k"
+    },
+    {
+      "id": "meter",
+      "kind": "analog_meter",
+      "params": {
+        "fullScale": 2
+      },
+      "x": 850,
+      "y": 355,
+      "rotation": 0,
+      "label": "Field (centre zero)"
+    }
+  ],
+  "wires": [
+    {
+      "from": "vcc1",
+      "fromTerminal": "vcc",
+      "to": "hall",
+      "toTerminal": "vcc"
+    },
+    {
+      "from": "hall",
+      "fromTerminal": "vcc",
+      "to": "r_t",
+      "toTerminal": "a"
+    },
+    {
+      "from": "r_t",
+      "fromTerminal": "a",
+      "to": "u1",
+      "toTerminal": "vcc"
+    },
+    {
+      "from": "u1",
+      "fromTerminal": "vcc",
+      "to": "r_z1",
+      "toTerminal": "a"
+    },
+    {
+      "from": "r_t",
+      "fromTerminal": "b",
+      "to": "r_m",
+      "toTerminal": "a"
+    },
+    {
+      "from": "r_m",
+      "fromTerminal": "a",
+      "to": "u1",
+      "toTerminal": "1_neg"
+    },
+    {
+      "from": "r_m",
+      "fromTerminal": "b",
+      "to": "r_b",
+      "toTerminal": "a"
+    },
+    {
+      "from": "r_b",
+      "fromTerminal": "a",
+      "to": "u1",
+      "toTerminal": "2_pos"
+    },
+    {
+      "from": "hall",
+      "fromTerminal": "ao",
+      "to": "u1",
+      "toTerminal": "1_pos"
+    },
+    {
+      "from": "u1",
+      "fromTerminal": "1_pos",
+      "to": "u1",
+      "toTerminal": "2_neg"
+    },
+    {
+      "from": "u1",
+      "fromTerminal": "2_neg",
+      "to": "meter",
+      "toTerminal": "a"
+    },
+    {
+      "from": "u1",
+      "fromTerminal": "1_out",
+      "to": "r_n",
+      "toTerminal": "a"
+    },
+    {
+      "from": "r_n",
+      "fromTerminal": "b",
+      "to": "led_n",
+      "toTerminal": "anode"
+    },
+    {
+      "from": "u1",
+      "fromTerminal": "2_out",
+      "to": "r_s",
+      "toTerminal": "a"
+    },
+    {
+      "from": "r_s",
+      "fromTerminal": "b",
+      "to": "led_s",
+      "toTerminal": "anode"
+    },
+    {
+      "from": "r_z1",
+      "fromTerminal": "b",
+      "to": "r_z2",
+      "toTerminal": "a"
+    },
+    {
+      "from": "r_z2",
+      "fromTerminal": "a",
+      "to": "meter",
+      "toTerminal": "b"
+    },
+    {
+      "from": "gnd1",
+      "fromTerminal": "gnd",
+      "to": "hall",
+      "toTerminal": "gnd"
+    },
+    {
+      "from": "hall",
+      "fromTerminal": "gnd",
+      "to": "r_b",
+      "toTerminal": "b"
+    },
+    {
+      "from": "r_b",
+      "fromTerminal": "b",
+      "to": "u1",
+      "toTerminal": "gnd"
+    },
+    {
+      "from": "u1",
+      "fromTerminal": "gnd",
+      "to": "led_n",
+      "toTerminal": "cathode"
+    },
+    {
+      "from": "led_n",
+      "fromTerminal": "cathode",
+      "to": "led_s",
+      "toTerminal": "cathode"
+    },
+    {
+      "from": "led_s",
+      "fromTerminal": "cathode",
+      "to": "r_z2",
+      "toTerminal": "b"
+    }
+  ]
+}

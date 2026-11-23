@@ -1,0 +1,234 @@
+{
+  "vcc": 9,
+  "parts": [
+    {
+      "id": "vcc1",
+      "kind": "vcc",
+      "params": {},
+      "x": 80,
+      "y": 70,
+      "rotation": 0
+    },
+    {
+      "id": "gnd1",
+      "kind": "gnd",
+      "params": {},
+      "x": 80,
+      "y": 640,
+      "rotation": 0
+    },
+    {
+      "id": "pt",
+      "kind": "phototransistor",
+      "params": {
+        "light": 0.5,
+        "iMax": 0.0005
+      },
+      "x": 190,
+      "y": 165,
+      "rotation": 0,
+      "label": "Phototransistor"
+    },
+    {
+      "id": "r1",
+      "kind": "resistor",
+      "params": {
+        "ohms": 1000000
+      },
+      "x": 300,
+      "y": 165,
+      "rotation": 0,
+      "label": "R1 1M"
+    },
+    {
+      "id": "c_t",
+      "kind": "capacitor",
+      "params": {
+        "farads": 0.000022
+      },
+      "x": 300,
+      "y": 545,
+      "rotation": 0,
+      "label": "C1 22u"
+    },
+    {
+      "id": "r_trig",
+      "kind": "resistor",
+      "params": {
+        "ohms": 10000
+      },
+      "x": 410,
+      "y": 165,
+      "rotation": 0,
+      "label": "R2 10k"
+    },
+    {
+      "id": "start",
+      "kind": "button",
+      "params": {},
+      "x": 410,
+      "y": 545,
+      "rotation": 0,
+      "label": "Start"
+    },
+    {
+      "id": "u1",
+      "kind": "timer_555",
+      "params": {},
+      "x": 520,
+      "y": 355,
+      "rotation": 0,
+      "label": "U1 555"
+    },
+    {
+      "id": "c_ctl",
+      "kind": "capacitor",
+      "params": {
+        "farads": 1e-8
+      },
+      "x": 630,
+      "y": 545,
+      "rotation": 0,
+      "label": "C2 10n"
+    },
+    {
+      "id": "r_led",
+      "kind": "resistor",
+      "params": {
+        "ohms": 470
+      },
+      "x": 630,
+      "y": 260,
+      "rotation": 0,
+      "label": "R3 470"
+    },
+    {
+      "id": "lamp",
+      "kind": "led",
+      "params": {
+        "vf": 2,
+        "color": "white"
+      },
+      "x": 740,
+      "y": 355,
+      "rotation": 0,
+      "label": "Exposure lamp"
+    }
+  ],
+  "wires": [
+    {
+      "from": "vcc1",
+      "fromTerminal": "vcc",
+      "to": "pt",
+      "toTerminal": "collector"
+    },
+    {
+      "from": "pt",
+      "fromTerminal": "collector",
+      "to": "r1",
+      "toTerminal": "a"
+    },
+    {
+      "from": "r1",
+      "fromTerminal": "a",
+      "to": "r_trig",
+      "toTerminal": "a"
+    },
+    {
+      "from": "r_trig",
+      "fromTerminal": "a",
+      "to": "u1",
+      "toTerminal": "vcc"
+    },
+    {
+      "from": "u1",
+      "fromTerminal": "vcc",
+      "to": "u1",
+      "toTerminal": "reset"
+    },
+    {
+      "from": "pt",
+      "fromTerminal": "emitter",
+      "to": "r1",
+      "toTerminal": "b"
+    },
+    {
+      "from": "r1",
+      "fromTerminal": "b",
+      "to": "u1",
+      "toTerminal": "threshold"
+    },
+    {
+      "from": "u1",
+      "fromTerminal": "threshold",
+      "to": "u1",
+      "toTerminal": "discharge"
+    },
+    {
+      "from": "u1",
+      "fromTerminal": "discharge",
+      "to": "c_t",
+      "toTerminal": "a"
+    },
+    {
+      "from": "r_trig",
+      "fromTerminal": "b",
+      "to": "u1",
+      "toTerminal": "trigger"
+    },
+    {
+      "from": "u1",
+      "fromTerminal": "trigger",
+      "to": "start",
+      "toTerminal": "a"
+    },
+    {
+      "from": "u1",
+      "fromTerminal": "control",
+      "to": "c_ctl",
+      "toTerminal": "a"
+    },
+    {
+      "from": "u1",
+      "fromTerminal": "output",
+      "to": "r_led",
+      "toTerminal": "a"
+    },
+    {
+      "from": "r_led",
+      "fromTerminal": "b",
+      "to": "lamp",
+      "toTerminal": "anode"
+    },
+    {
+      "from": "gnd1",
+      "fromTerminal": "gnd",
+      "to": "c_t",
+      "toTerminal": "b"
+    },
+    {
+      "from": "c_t",
+      "fromTerminal": "b",
+      "to": "start",
+      "toTerminal": "b"
+    },
+    {
+      "from": "start",
+      "fromTerminal": "b",
+      "to": "c_ctl",
+      "toTerminal": "b"
+    },
+    {
+      "from": "c_ctl",
+      "fromTerminal": "b",
+      "to": "u1",
+      "toTerminal": "gnd"
+    },
+    {
+      "from": "u1",
+      "fromTerminal": "gnd",
+      "to": "lamp",
+      "toTerminal": "cathode"
+    }
+  ]
+}
