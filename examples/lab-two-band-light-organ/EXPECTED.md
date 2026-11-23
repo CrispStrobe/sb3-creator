@@ -26,9 +26,10 @@
 2. Two first-order filters split one signal into two bands.
 
 ```assert
-# t = 1 ms: the generator output is at 1.22 V, both drivers still off; each off collector
-# sits below 9 V by what the dark LED drops at its tiny leakage current
+# t = 1 ms: the generator output is at 1.22 V, both drivers still off: no LED
+# current, so each 470 ohm resistor drops nothing and the LED anodes sit at
+# 9 V (the off collectors are held by leakage alone and are not asserted)
 net function_gen_3.out V 1.22 +-0.02
-net npn_7.collector V 7.22 +-0.05
-net npn_13.collector V 7.22 +-0.05
+net resistor_8.b V 9.00 +-0.01
+net resistor_14.b V 9.00 +-0.01
 ```
