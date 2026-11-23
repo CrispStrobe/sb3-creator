@@ -31,11 +31,11 @@ waveform, so a single-instant solve cannot speak for it):
 | moment | hold capacitor, volts | LED, milliamps |
 |---|---|---|
 | quiet | 0 | 0 |
-| end of one 50 ms clap | 2.17 | 3.18 |
-| 0.25 s later | 1.76 | 2.31 |
-| 1 s later | 1.06 | 0.81 |
-| after four claps, 0.2 s apart | 2.92 | 4.76 |
-| 1.5 s after the last clap | 0.97 | 0.61 |
+| end of one 50 ms clap | 2.31 | 3.46 |
+| 0.25 s later | 1.86 | 2.52 |
+| 1 s later | 1.10 | 0.90 |
+| after four claps, 0.2 s apart | 3.09 | 5.12 |
+| 1.5 s after the last clap | 0.99 | 0.67 |
 
 ## What this verifies
 1. A diode is a one-way valve for charge: the capacitor fills fast and empties slowly.
@@ -49,7 +49,7 @@ net chold.pos V 0.00 +-0.01
 
 <!-- engine-provenance -->
 > **Engine provenance.** The measured numbers on this page were last held against
-> `bw-board@e339fcb` and `bw-circuit-ui@0ec68b3` — the revisions pinned in
+> `bw-board@0bc7baf` and `bw-circuit-ui@8404334` — the revisions pinned in
 > `test/fixtures/siblings.json`. `test/expected-quantities-hold.test.mjs` compares
 > **7 of this page's 18** numeric claims against that engine
 > (0 of them disagreeing) and declines the rest with a stated reason;

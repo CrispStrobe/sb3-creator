@@ -13,9 +13,9 @@ it.
 
 ## Try this
 
-1. Click **Sim**. The LED lights at **2.97 mA**, which is exactly what this
+1. Click **Sim**. The LED lights at **3.25 mA**, which is exactly what this
    resistor and this LED would do on their own.
-2. Work it out: (5 V − 2.03 V) ÷ 1000 Ω = 2.97 mA. The capacitor contributes
+2. Work it out: (5 V − 1.75 V) ÷ 1000 Ω = 3.25 mA. The capacitor contributes
    nothing to that sum.
 3. Watch the first half-second closely. The LED does not snap on — it comes up
    over a few hundred milliseconds, while the capacitor fills.

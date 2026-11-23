@@ -30,12 +30,12 @@
  *
  * HAND-COMPUTED, not merely observed. The dff model drives 5 V behind
  * R_OUT = 50 Ω (bw-board `src/devices/digital-ics.js`) into r4 = 220 Ω and a
- * red LED (vf 1.9 V at 20 mA; it takes 1.818 V here). The solve settles at
- * 11.786 mA, so:
+ * red LED (vf 1.9 V at 20 mA; it takes 1.795 V here). The solve settles at
+ * 11.872 mA, so:
  *
- *     drop across R_OUT = 11.786 mA x 50 Ω = 0.5893 V
- *     Q                 = 5 V - 0.5893 V   = 4.4107 V
- *     brightness        = 11.786 mA / 20 mA = 0.5893
+ *     drop across R_OUT = 11.872 mA x 50 Ω = 0.5936 V
+ *     Q                 = 5 V - 0.5936 V   = 4.4064 V
+ *     brightness        = 11.872 mA / 20 mA = 0.5936
  *
  * which is what the table in EXPECTED.md records.
  *
@@ -118,7 +118,13 @@ describe("ttl-clock-module: the step button clocks a register", { skip: gate.ski
             seen.push(held);
         }
         // Divide-by-two: four presses give ON, OFF, ON, OFF, and the ON level is
-        // the hand-computed 4.4107 V, not merely "something non-zero".
+        // the hand-computed 4.4064 V, not merely "something non-zero".
+        //
+        // RE-DERIVED 2026-11-23 at bw-board 0bc7baf, whose LEDs are exponential
+        // by default: below its rated 20 mA the red LED drops less than the
+        // knee did (1.795 V against 1.818 V), the loop carries 11.872 mA, the
+        // sag across R_OUT is 0.5936 V and Q = 5 - 0.5936 = 4.4064 V.
+        // MEASURED: 4.4064 V at 0bc7baf (rounded as the test reads it).
         //
         // RE-DERIVED 2026-11-23 at bw-board e339fcb. bw-board ed9bd4d6 gave an
         // LED without its own vf its colour's typical forward voltage, and a red
@@ -134,9 +140,9 @@ describe("ttl-clock-module: the step button clocks a register", { skip: gate.ski
         // carries more — so the sag grows with it. The number moved because the
         // LED model did, and this line is derived from the same three components
         // it always was.
-        assert.deepEqual(seen, [4.4107, 0, 4.4107, 0],
-            '5 V behind R_OUT = 50 Ω into 220 Ω + a red LED (vf 1.9 V) settles at 11.79 mA, '
-            + 'so Q sits 0.5893 V below the rail');
+        assert.deepEqual(seen, [4.4064, 0, 4.4064, 0],
+            '5 V behind R_OUT = 50 Ω into 220 Ω + a red LED (vf 1.9 V) settles at 11.87 mA, '
+            + 'so Q sits 0.5936 V below the rail');
     });
 
     test('the 555 half is untouched by the repair', async () => {

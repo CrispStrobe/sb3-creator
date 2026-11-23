@@ -12,10 +12,13 @@ No MCU -- pure passive circuit demonstrating diode polarity.
 ## Observable behaviour
 
 ### Path A -- forward-biased diode
-- **Current:** (5.0 - 0.7 - 2.0) / 470 = 4.9 mA
-- **Voltage across resistor:** 4.9 mA x 470 = 2.3 V
-- **Voltage across diode:** 0.7 V
-- **Voltage across LED:** 2.0 V
+- **Current:** (5.0 - 0.633 - 1.794) / 470 = 5.47 mA
+- **Voltage across resistor:** 5.47 mA x 470 = 2.57 V
+- **Voltage across diode:** 0.633 V
+- **Voltage across LED:** 1.794 V
+- The textbook figures (0.7 V for the diode, 2.0 V for the LED) belong to
+  larger currents; at about 5 mA both junctions sit a little lower, so a
+  little more current flows than the hand estimate predicts.
 - **Green LED state:** ON
 
 ### Path B -- reverse-biased diode
@@ -30,8 +33,8 @@ No MCU -- pure passive circuit demonstrating diode polarity.
 4. Visual comparison: one LED lights, the other stays dark
 
 ```assert
-# Forward path: d1 anode at ~2.79V (R + diode + LED drops)
-net d1.anode V 2.54 +-0.20
+# Forward path: d1 anode at 2.43 V (diode + LED drops above ground)
+net d1.anode V 2.43 +-0.20
 # Reverse path: d2 cathode at VCC (reverse-biased, no current)
 net d2.cathode V 5.00 +-0.01
 ```

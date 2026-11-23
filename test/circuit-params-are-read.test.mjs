@@ -232,6 +232,19 @@ const KNOWN_INERT = new Map([
         + '`commonAnode`, which the device never read at all; that was a real defect and is '
         + 'fixed upstream.)'],
 
+    ['diode.model',
+        'BLIND SPOT: since bw-board 0bc7baf diodes are exponential (Shockley) by default, so the '
+        + 'corpus\'s explicit `model: \'shockley\'` (lab-log-amp\'s d_log) restates the default, and the '
+        + 'probe\'s "ZZ" is an unknown model that falls back to that same default. The key IS read: '
+        + 'MEASURED 2026-11-23, `model: \'pwl\'` on d_log moves the log amp\'s output from -0.574 V to the '
+        + 'knee\'s rail-bound answer. A bench that declares `pwl` would move it.'],
+    ['led.model',
+        'BLIND SPOT: since bw-board 0bc7baf LEDs are exponential (Shockley) by default, so '
+        + 'lab-led-threshold\'s explicit `model: \'shockley\'` restates the default and the probe\'s "ZZ" '
+        + 'falls back to it. The key IS read: MEASURED 2026-11-23, `model: \'pwl\'` on that bench moves '
+        + 'the red/yellow/green LED currents from 1.599/1.209/0.829 mA to 1.357/0.945/0.536 mA. A bench '
+        + 'that declares `pwl` would move it.'],
+
     ['28c256.readOnly',
         'BLIND SPOT: no bench writes. readOnly refuses /WE writes, and both probed sites tie /WE high — '
         + 'a control store is never written. Flipping it changes nothing because nothing writes, '

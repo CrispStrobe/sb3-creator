@@ -27,10 +27,13 @@ Dark state (default LDR control = 0.0):
 | node | volts |
 |---|---|
 | base (ldr1.b, r1.a) | 0.4545 V |
-| collector (led1.cathode) | 3.0000 V |
+| LED anode (led1.anode) | 5.0000 V |
 | emitter | 0.0000 V |
 
-Base at 0.45 V (below V_be = 0.7 V), transistor off, LED dark. Correct sensing
+Base at 0.45 V (below V_be = 0.7 V), transistor off, LED dark: no current
+flows, so the 1 kΩ drops nothing and the LED anode sits at the rail. (The
+collector between the dark LED and the off transistor is held by leakage
+alone and has no meaningful value.) Correct sensing
 behaviour.
 
 ## Content defect fixed during the earlier audit
@@ -47,9 +50,9 @@ net r1.a V 0.45 +-0.10
 
 <!-- engine-provenance -->
 > **Engine provenance.** The measured numbers on this page were last held against
-> `bw-board@e339fcb` and `bw-circuit-ui@0ec68b3` — the revisions pinned in
+> `bw-board@0bc7baf` and `bw-circuit-ui@8404334` — the revisions pinned in
 > `test/fixtures/siblings.json`. `test/expected-quantities-hold.test.mjs` compares
-> **9 of this page's 20** numeric claims against that engine
+> **9 of this page's 21** numeric claims against that engine
 > (0 of them disagreeing) and declines the rest with a stated reason;
 > `node scripts/expected-claim-census.mjs pc24-light-gate` prints them one by one.
 <!-- engine-provenance -->

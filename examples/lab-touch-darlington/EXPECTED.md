@@ -13,8 +13,8 @@ The two channels see the same finger resistance; the only difference is the
 second transistor.
 
 ## Expected behaviour
-- Not touched: no base current, both transistors off, both LEDs dark. The two
-  collectors sit near the top rail.
+- Not touched: no base current, both transistors off, both LEDs dark. No current
+  flows through the 1 kΩ resistors, so the LED anodes sit at the top rail.
 - Touch button pressed: about 3.7 µA reaches each first base. q1 alone turns that
   into roughly a third of a milliamp — the red LED barely glimmers. The pair
   multiplies it twice: q3 saturates and the green LED is fully lit.
@@ -28,7 +28,7 @@ states):
 
 | state | red LED (single) | green LED (Darlington) | Darlington collector |
 |---|---|---|---|
-| not touched | 0.000 mA | 0.000 mA | 8.11 V |
+| not touched | 0.000 mA | 0.000 mA | off (no current) |
 | touch button pressed | 0.378 mA | 6.37 mA | 0.764 V |
 
 ## What this verifies
@@ -37,17 +37,19 @@ states):
 3. A megohm-range "finger" is enough to switch a load when the gain is high enough.
 
 ```assert
-# untouched: both channels off, collectors pulled up through the LEDs
-net q3.collector V 8.11 +-0.05
-net q1.collector V 8.11 +-0.05
+# untouched: both channels off, no LED current, so the 1 k resistors drop
+# nothing and both LED anodes sit at the rail (the off collectors are held by
+# leakage alone and are not asserted)
+net r2.b V 9.00 +-0.01
+net r1.b V 9.00 +-0.01
 net q2.base V 0.00 +-0.05
 ```
 
 <!-- engine-provenance -->
 > **Engine provenance.** The measured numbers on this page were last held against
-> `bw-board@e339fcb` and `bw-circuit-ui@0ec68b3` — the revisions pinned in
+> `bw-board@0bc7baf` and `bw-circuit-ui@8404334` — the revisions pinned in
 > `test/fixtures/siblings.json`. `test/expected-quantities-hold.test.mjs` compares
-> **13 of this page's 13** numeric claims against that engine
+> **12 of this page's 13** numeric claims against that engine
 > (0 of them disagreeing) and declines the rest with a stated reason;
 > `node scripts/expected-claim-census.mjs lab-touch-darlington` prints them one by one.
 <!-- engine-provenance -->

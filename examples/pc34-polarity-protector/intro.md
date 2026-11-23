@@ -12,8 +12,8 @@ one out: it does nothing useful when everything is fine. It is insurance.
 
 ## Try this
 
-1. Click **Sim**. The LED lights at **6.18 mA**.
-2. Measure across the diode: 9 V goes in, **8.24 V** comes out. It kept 0.76 V.
+1. Click **Sim**. The LED lights at **6.55 mA**.
+2. Measure across the diode: 9 V goes in, **8.36 V** comes out. It kept 0.64 V.
 3. Now connect the supply backwards — set `src`'s volts from `9` to `-9`.
 4. Nothing lights, and no current flows anywhere. The LED is unharmed.
 5. Notice the warning the simulator raises about the LED being backwards. That is
@@ -32,8 +32,8 @@ destroyed by reversed supplies, and a 9 V battery clips on backwards just as
 easily as forwards.
 
 The price is step 2. A conducting silicon diode is not free: it always keeps
-about 0.7 V for itself, whatever the current. Your 9 V circuit is really an 8.24 V
-circuit now. On a 9 V supply that is 8 % gone; on a 3 V coin cell it would be a
+a good half volt for itself, whatever the current. Your 9 V circuit is really an 8.36 V
+circuit now. On a 9 V supply that is 7 % gone; on a 3 V coin cell it would be a
 quarter of everything you have, which is why designers of low-voltage gear reach
 for a MOSFET instead — same protection, a few millivolts of loss, more parts.
 
@@ -57,5 +57,5 @@ behind the connector.
 - **Next:** [pc49-diode-clamp](../pc49-diode-clamp) — a diode protecting against
   voltage rather than direction.
 - **Experiment:** put a second diode in series with the first and measure again.
-  The LED dims, because you are now paying 1.5 V instead of 0.76 V. Protection is
+  The LED dims, because you are now paying about 1.3 V instead of 0.64 V. Protection is
   not free, and it does not stack for free either.

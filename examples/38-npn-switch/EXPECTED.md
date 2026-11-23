@@ -39,7 +39,10 @@ No MCU -- button directly drives the transistor.
 3. Button controls high-current load through low-current base drive
 
 ```assert
-# NPN off (button open): collector at VCC through R (LED reverse)
+# NPN off (button open): no current flows, so R_load drops nothing and the
+# LED anode sits at the rail. (The collector itself is driven by nothing: it
+# floats between the dark LED's and the off transistor's leakage, so it is not
+# asserted.)
 net btn1.a V 5.00 +-0.01
-net led1.cathode V 4.50 +-0.20
+net led1.anode V 5.00 +-0.01
 ```

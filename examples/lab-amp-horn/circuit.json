@@ -160,10 +160,10 @@
       }
     },
     {
-      "id": "piezo_9",
-      "kind": "piezo",
+      "id": "speaker_9",
+      "kind": "speaker",
       "params": {
-        "leakOhms": 8
+        "ohms": 8
       },
       "terminals": [
         "a",
@@ -176,7 +176,7 @@
         "boardId": "breadboard_1",
         "leadMap": {
           "a": "f19",
-          "b": "f20"
+          "b": "f21"
         }
       }
     },
@@ -358,8 +358,8 @@
     {
       "ref": "bbw:breadboard_1:bbw_31",
       "boardId": "breadboard_1",
-      "a": "g20",
-      "b": "b-20",
+      "a": "g21",
+      "b": "b-21",
       "color": "black"
     }
   ]

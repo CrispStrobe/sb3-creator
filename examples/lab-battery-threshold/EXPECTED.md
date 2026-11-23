@@ -21,5 +21,7 @@ base of an NPN with 1 kΩ and an LED in the collector. Upper resistor 22 kΩ in 
 net vsource_2.pos V 6.00 +-0.01
 net npn_5.base V 0.68 +-0.03
 net npn_15.base V 0.55 +-0.03
-net npn_15.collector V 4.22 +-0.10
+# green stage: no collector current, so its 1 k drops nothing (the off
+# collector itself is held by leakage alone and is not asserted)
+net resistor_16.b V 6.00 +-0.01
 ```

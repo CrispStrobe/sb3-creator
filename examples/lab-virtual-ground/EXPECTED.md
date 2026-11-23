@@ -7,9 +7,9 @@ virtual ground down to the battery's minus. Right half for comparison: a bare 10
 and 1 kΩ from +9 V into its midpoint. A voltmeter on each midpoint, measured from the battery's minus.
 
 ## Observable behaviour
-- The buffered midpoint stays at 4.5 V although the red load pushes about 5.6 mA into it and the green load takes
-  only about 2.7 mA out: the op-amp sinks the difference.
-- The bare divider's midpoint is pushed up to about 6.75 V by its single load — the divider cannot hold its value.
+- The buffered midpoint stays at 4.5 V although the red load pushes about 5.7 mA into it and the green load takes
+  only about 2.8 mA out: the op-amp sinks the difference.
+- The bare divider's midpoint is pushed up to about 6.9 V by its single load — the divider cannot hold its value.
 - Measured from the virtual ground, the battery terminals are plus and minus four and a half volts. "Ground" is just the point you
   agree to measure from.
 
@@ -19,5 +19,5 @@ and 1 kΩ from +9 V into its midpoint. A voltmeter on each midpoint, measured fr
 
 ```assert
 net lm358_3.1_out V 4.50 +-0.02
-net resistor_10.b V 6.75 +-0.05
+net resistor_10.b V 6.89 +-0.05
 ```

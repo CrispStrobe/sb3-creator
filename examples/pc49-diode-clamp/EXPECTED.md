@@ -5,6 +5,7 @@ when the node is driven beyond its forward threshold, limiting the excursion
 and protecting the load.
 
 ```assert
-# Diode clamp: forward-biased diode clamps at Vf ≈ 0.7V (Shockley)
-net r.b V 0.74 +-0.10
+# Diode clamp: the forward-biased diode clamps the node at its Shockley drop,
+# 0.62 V at the 4.3 mA it takes here
+net r.b V 0.62 +-0.10
 ```
