@@ -14,7 +14,10 @@
 - Holding "Write 0" empties the gate in about a second.
 
 ```assert
-# fresh start: gate empty, LED off, so the drain sits near the supply
+# fresh start: gate empty, LED off. No current flows, so the 220 ohm resistor
+# drops nothing and the LED anode sits at the supply. (The drain between the
+# dark LED and the off MOSFET is driven by nothing but leakage and is not
+# asserted.)
 net m1.gate V 0.00 +-0.01
-net m1.drain V 4.99 +-0.05
+net led1.anode V 5.00 +-0.01
 ```

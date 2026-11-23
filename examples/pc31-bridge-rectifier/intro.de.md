@@ -13,12 +13,12 @@ beiden rechts zeigen *zu ihm hin*. Nichts daran ist zufällig symmetrisch.
 
 ## Probier das aus
 
-1. Klick auf **Sim**. Die LED leuchtet, mit **5,44 mA**.
+1. Klick auf **Sim**. Die LED leuchtet, mit **5,92 mA**.
 2. Dreh die Quelle um — stell `volts` bei `src` von `9` auf `-9`.
-3. Die LED leuchtet, mit **5,44 mA**. Genau gleich. Das ist der ganze Trick.
+3. Die LED leuchtet, mit **5,92 mA**. Genau gleich. Das ist der ganze Trick.
 4. Miss jetzt in beiden Fällen die Anschlüsse der Quelle. Sie tauschen komplett:
-   einmal +8,25 V und −0,75 V, einmal −0,75 V und +8,25 V.
-5. Miss in beiden Fällen den Brückenausgang (`r1.a`): **7,49 V**, unverändert.
+   einmal +8,36 V und −0,64 V, einmal −0,64 V und +8,36 V.
+5. Miss in beiden Fällen den Brückenausgang (`r1.a`): **7,73 V**, unverändert.
 
 ## Was dahintersteckt
 
@@ -41,7 +41,7 @@ Masse. Die Last kann nicht erkennen, welches Paar geliefert hat. Deshalb zeichne
 man die Brücke als Raute: Beide Diagonalen speisen dieselbe Ecke.
 
 Der Preis steht in Schritt 5. Jeder Weg durch die Brücke führt über zwei Dioden,
-und jede behält etwa 0,75 V für sich. Die Last bekommt also 9 − 1,5 = 7,5 V. Bei
+und jede behält etwa 0,64 V für sich. Die Last bekommt also 9 − 1,27 = 7,73 V. Bei
 9 V ist das ärgerlich, bei 5 V tut es weh, bei 230 V merkt es niemand.
 
 Gib der Quelle statt einer umschaltbaren eine wechselnde Polarität, und die

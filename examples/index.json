@@ -10738,5 +10738,95 @@
    "introDE": "lab-amp-horn/intro.de.md"
   },
   "devices": []
+ },
+ {
+  "id": "lab-crystal-set",
+  "title": {
+   "en": "Crystal set: a radio without a battery",
+   "de": "Detektorempfänger: ein Radio ohne Batterie"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-crystal-set/program.bw",
+   "circuit": "lab-crystal-set/circuit.json",
+   "expected": "lab-crystal-set/EXPECTED.md",
+   "intro": "lab-crystal-set/intro.md",
+   "introDE": "lab-crystal-set/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-one-transistor-radio",
+  "title": {
+   "en": "One-transistor radio",
+   "de": "Ein-Transistor-Radio"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-one-transistor-radio/program.bw",
+   "circuit": "lab-one-transistor-radio/circuit.json",
+   "expected": "lab-one-transistor-radio/EXPECTED.md",
+   "intro": "lab-one-transistor-radio/intro.md",
+   "introDE": "lab-one-transistor-radio/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-reflex-radio",
+  "title": {
+   "en": "Reflex radio: one transistor, used twice",
+   "de": "Reflexempfänger: ein Transistor, zweimal benutzt"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 5,
+  "files": {
+   "program": "lab-reflex-radio/program.bw",
+   "circuit": "lab-reflex-radio/circuit.json",
+   "expected": "lab-reflex-radio/EXPECTED.md",
+   "intro": "lab-reflex-radio/intro.md",
+   "introDE": "lab-reflex-radio/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-radio-loudspeaker",
+  "title": {
+   "en": "Radio with a loudspeaker",
+   "de": "Radio mit Lautsprecher"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 4,
+  "files": {
+   "program": "lab-radio-loudspeaker/program.bw",
+   "circuit": "lab-radio-loudspeaker/circuit.json",
+   "expected": "lab-radio-loudspeaker/EXPECTED.md",
+   "intro": "lab-radio-loudspeaker/intro.md",
+   "introDE": "lab-radio-loudspeaker/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-radio-whistle",
+  "title": {
+   "en": "Two stations too close: the whistle, and how to tune more sharply",
+   "de": "Zwei Sender zu dicht: das Pfeifen, und wie man schärfer abstimmt"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 4,
+  "files": {
+   "program": "lab-radio-whistle/program.bw",
+   "circuit": "lab-radio-whistle/circuit.json",
+   "expected": "lab-radio-whistle/EXPECTED.md",
+   "intro": "lab-radio-whistle/intro.md",
+   "introDE": "lab-radio-whistle/intro.de.md"
+  },
+  "devices": []
  }
 ]

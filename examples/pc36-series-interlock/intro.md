@@ -15,7 +15,7 @@ one single loop of wire. There is no chip here and nothing to program.
 1. Click **Sim**. Both switches start open, and the LED is off.
 2. Close just `sw1`. Still off.
 3. Close just `sw2` instead. Still off.
-4. Close both. **Now** it lights, at 2.97 mA.
+4. Close both. **Now** it lights, at 3.25 mA.
 5. With both closed, open either one. It goes out immediately — it does not
    matter which one you pick.
 

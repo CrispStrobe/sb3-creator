@@ -14,15 +14,15 @@ directly.
 
 ## Try this
 
-1. Click **Sim**. The LED lights, and the shared node reads about **4.29 V** —
-   5 V minus one diode's 0.71 V.
+1. Click **Sim**. The LED lights, and the shared node reads about **4.43 V** —
+   5 V minus one diode's 0.57 V.
 2. Turn **source A** off (set it to 0 V) and run again. The LED current goes
-   from 2.266 mA to **2.255 mA**. Half a percent. You would never see it.
-3. Put A back and turn **source B** off instead. The same thing: 2.255 mA.
+   from 2.699 mA to **2.668 mA**. About one percent. You would never see it.
+3. Put A back and turn **source B** off instead. The same thing: 2.668 mA.
 4. Turn **both** off. Now the node is at 0 V and the current is 0 mA.
 5. The interesting one: set source A to **9 V** and leave B at 5 V. The shared
-   node jumps to **8.24 V**. Now look at source B's diode — 5 V on its anode,
-   8.24 V on its cathode. It is pointing uphill, so it is blocking.
+   node jumps to **8.36 V**. Now look at source B's diode — 5 V on its anode,
+   8.36 V on its cathode. It is pointing uphill, so it is blocking.
 
 ## What is going on
 
@@ -47,7 +47,7 @@ changeover: no switch, no logic, no moving parts, and no gap during the
 handover, because the second diode starts conducting the instant the first
 supply sags below it.
 
-The bill is that 0.71 V. Every diode in the path eats some, and it is dissipated
+The bill is that diode drop, 0.57 to 0.64 V here. Every diode in the path eats some, and it is dissipated
 as heat, and it is why real designs sometimes replace these with Schottky
 diodes (about 0.3 V) or with transistors arranged to do the same job for almost
 nothing.

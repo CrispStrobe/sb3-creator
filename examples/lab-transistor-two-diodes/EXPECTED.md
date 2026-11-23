@@ -22,6 +22,9 @@ The transistors use the exponential (Ebers–Moll) model, which has both junctio
 # A and B forward (LED lit, base about 0.7 V), C and D blocking
 net npn_5.base V 0.71 +-0.05
 net npn_8.base V 0.70 +-0.05
-net npn_11.emitter V 5.00 +-0.02
-net npn_14.collector V 5.00 +-0.02
+# C and D: no current, so their resistors drop nothing and the LED anodes sit
+# at the supply (the node between each dark LED and its blocking junction is
+# held by leakage alone and is not asserted)
+net resistor_9.b V 5.00 +-0.01
+net resistor_12.b V 5.00 +-0.01
 ```

@@ -5,22 +5,22 @@
 
 ## Expected
 
-Measured on bw-board `88e9668` through `Circuit.fromJSON`; the pot position is
+Measured on bw-board `0bc7baf` through `Circuit.fromJSON`; the pot position is
 the only control, and every row below is one `setControl` away from the last.
 
 | position | wiper | LED anode | LED current |
 |---|---|---|---|
 | 0.0 | 0.0050 V | 0.0050 V | 0.000 mA |
-| 0.5 | 2.1347 V | 1.8132 V | 1.461 mA |
-| 1.0 | 4.9812 V | 1.9383 V | 13.831 mA |
+| 0.5 | 2.0756 V | 1.7022 V | 1.697 mA |
+| 1.0 | 4.9811 V | 1.9221 V | 13.905 mA |
 
 At mid-travel the wiper does **not** sit at 2.5 V. Looking back into it the
 divider is a 2.5 V source behind 500 Ω || 500 Ω = 250 Ω, and the 220 Ω + LED
-hanging off that is a comparable load, so the node is pulled down to 2.1347 V
-and the LED gets 1.461 mA — a dim but visible glow. At full travel the pot is
-out of the way and the branch is the plain 220 Ω one, at 13.831 mA.
+hanging off that is a comparable load, so the node is pulled down to 2.0756 V
+and the LED gets 1.697 mA — a dim but visible glow. At full travel the pot is
+out of the way and the branch is the plain 220 Ω one, at 13.905 mA.
 
-The LED's own drop moves across the sweep — 1.8132 V at mid-travel, 1.9383 V
+The LED's own drop moves across the sweep — 1.7022 V at mid-travel, 1.9221 V
 at full — because the engine solves the junction at whatever current the
 divider delivers rather than holding it at a fixed forward voltage. A dimmer
 dims by moving along that curve, so the drop cannot be a constant.
@@ -28,8 +28,8 @@ dims by moving along that curve, so the drop cannot be a constant.
 That loading is the reason this bench uses a **1 kΩ** pot rather than the 10 kΩ
 one a dimmer is usually drawn with. [41-pot-as-dimmer](../41-pot-as-dimmer) is
 the same circuit at 10 kΩ, and there the source impedance is 2.5 kΩ against the
-same 220 Ω load — mid-travel there delivers twelve times less current, and the
-LED is effectively dark. Ten times the pot resistance is ten times the collapse,
+same 220 Ω load — mid-travel there delivers five times less current, and the
+LED is barely lit. Ten times the pot resistance is ten times the collapse,
 and at 1 kΩ the knob still visibly dims.
 
 ## What this verifies
@@ -42,13 +42,13 @@ and at 1 kΩ the knob still visibly dims.
 # Supply rail: 5V source
 net vsource_2.pos V 5.00 +-0.01
 # Pot at its authored 50 %: the wiper sits BELOW the unloaded 2.5 V.
-net potentiometer_3.wiper V 2.135 +-0.03
-net led_5.anode V 1.813 +-0.03
+net potentiometer_3.wiper V 2.076 +-0.03
+net led_5.anode V 1.702 +-0.03
 ```
 
 <!-- engine-provenance -->
 > **Engine provenance.** The measured numbers on this page were last held against
-> `bw-board@e339fcb` and `bw-circuit-ui@0ec68b3` — the revisions pinned in
+> `bw-board@a685b22` and `bw-circuit-ui@540423d` — the revisions pinned in
 > `test/fixtures/siblings.json`. `test/expected-quantities-hold.test.mjs` compares
 > **17 of this page's 30** numeric claims against that engine
 > (0 of them disagreeing) and declines the rest with a stated reason;

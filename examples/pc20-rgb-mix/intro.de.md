@@ -15,7 +15,7 @@ Lichter, sondern ein einziges weißliches.
 ## Probier das aus
 
 1. Klick auf **Sim**. Alle drei leuchten.
-2. Miss die Ströme: Rot **8,8 mA**, Grün **8,8 mA**, Blau **6,3 mA**. Rot und
+2. Miss die Ströme: Rot **9,5 mA**, Grün **9,5 mA**, Blau **6,8 mA**. Rot und
    Grün stimmen bis zur letzten Stelle überein, weil sie identische Widerstände
    und identische Zweige haben.
 3. Mach aus der Mischung eine Farbe, indem du Kanäle wegnimmst. Setz den
@@ -24,7 +24,7 @@ Lichter, sondern ein einziges weißliches.
 4. Stell Rot zurück und nimm stattdessen Blau weg: Rot + Grün ist **Gelb**.
    Nimm Grün weg: Rot + Blau ist **Magenta**.
 5. Ändere den blauen Widerstand von 470 auf 330, damit alle drei gleich sind.
-   Jetzt läuft jeder Kanal mit 8,8 mA.
+   Jetzt läuft jeder Kanal mit 9,5 mA.
 
 ## Was dahintersteckt
 

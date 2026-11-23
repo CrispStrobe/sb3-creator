@@ -2,19 +2,28 @@
   "vcc": 9,
   "parts": [
     {
+      "id": "bb1",
+      "kind": "breadboard",
+      "params": {},
+      "terminals": [],
+      "x": 520,
+      "y": 420,
+      "rotation": 0
+    },
+    {
       "id": "vcc1",
       "kind": "vcc",
       "params": {},
-      "x": 80,
-      "y": 70,
+      "x": 77,
+      "y": 221,
       "rotation": 0
     },
     {
       "id": "gnd1",
       "kind": "gnd",
       "params": {},
-      "x": 80,
-      "y": 640,
+      "x": 209,
+      "y": 221,
       "rotation": 0
     },
     {
@@ -23,10 +32,17 @@
       "params": {
         "ohms": 10000
       },
-      "x": 190,
-      "y": 165,
+      "x": 142,
+      "y": 345,
       "rotation": 0,
-      "label": "R1"
+      "label": "R1",
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "a": "a3",
+          "b": "a7"
+        }
+      }
     },
     {
       "id": "r_dn",
@@ -34,17 +50,24 @@
       "params": {
         "ohms": 10000
       },
-      "x": 190,
-      "y": 450,
+      "x": 142,
+      "y": 495,
       "rotation": 0,
-      "label": "R2"
+      "label": "R2",
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "a": "j3",
+          "b": "j7"
+        }
+      }
     },
     {
       "id": "dvm",
       "kind": "voltmeter",
       "params": {},
-      "x": 80,
-      "y": 355,
+      "x": 143,
+      "y": 217,
       "rotation": 0,
       "label": "Reference voltmeter"
     },
@@ -54,10 +77,17 @@
       "params": {
         "ohms": 49000
       },
-      "x": 300,
-      "y": 260,
+      "x": 226,
+      "y": 345,
       "rotation": 0,
-      "label": "Multiplier 5 V (49k)"
+      "label": "Multiplier 5 V (49k)",
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "a": "a9",
+          "b": "a13"
+        }
+      }
     },
     {
       "id": "r_10v",
@@ -65,10 +95,17 @@
       "params": {
         "ohms": 99000
       },
-      "x": 300,
-      "y": 355,
+      "x": 226,
+      "y": 495,
       "rotation": 0,
-      "label": "Multiplier 10 V (99k)"
+      "label": "Multiplier 10 V (99k)",
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "a": "j9",
+          "b": "j13"
+        }
+      }
     },
     {
       "id": "range",
@@ -76,10 +113,18 @@
       "params": {
         "position": 0
       },
-      "x": 410,
-      "y": 260,
+      "x": 296,
+      "y": 345,
       "rotation": 0,
-      "label": "Range 5 V / 10 V"
+      "label": "Range 5 V / 10 V",
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "a": "a15",
+          "com": "a16",
+          "b": "a17"
+        }
+      }
     },
     {
       "id": "m_meter",
@@ -90,78 +135,141 @@
         "ifs": 0.0001,
         "fullScale": 0.0001
       },
-      "x": 520,
-      "y": 355,
+      "x": 275,
+      "y": 217,
       "rotation": 0,
       "label": "Meter (1 k coil, 100 uA full scale)"
     }
   ],
   "wires": [
     {
-      "from": "vcc1",
-      "fromTerminal": "vcc",
-      "to": "r_up",
-      "toTerminal": "a"
+      "id": "w_2",
+      "netId": "net_2",
+      "from": {
+        "part": "vcc1",
+        "terminal": "vcc"
+      },
+      "to": {
+        "board": "bb1",
+        "hole": "t+1"
+      },
+      "color": "red"
     },
     {
-      "from": "r_up",
-      "fromTerminal": "b",
-      "to": "r_dn",
-      "toTerminal": "a"
+      "id": "w_6",
+      "netId": "net_6",
+      "from": {
+        "part": "dvm",
+        "terminal": "a"
+      },
+      "to": {
+        "board": "bb1",
+        "hole": "c7"
+      },
+      "color": "blue"
     },
     {
-      "from": "r_dn",
-      "fromTerminal": "a",
-      "to": "dvm",
-      "toTerminal": "a"
+      "id": "w_9",
+      "netId": "net_9",
+      "from": {
+        "part": "m_meter",
+        "terminal": "a"
+      },
+      "to": {
+        "board": "bb1",
+        "hole": "e16"
+      },
+      "color": "orange"
     },
     {
-      "from": "dvm",
-      "fromTerminal": "a",
-      "to": "r_5v",
-      "toTerminal": "a"
+      "id": "w_11",
+      "netId": "net_11",
+      "from": {
+        "part": "gnd1",
+        "terminal": "gnd"
+      },
+      "to": {
+        "board": "bb1",
+        "hole": "b-10"
+      },
+      "color": "black"
     },
     {
-      "from": "r_5v",
-      "fromTerminal": "a",
-      "to": "r_10v",
-      "toTerminal": "a"
+      "id": "w_12",
+      "netId": "net_12",
+      "from": {
+        "part": "dvm",
+        "terminal": "b"
+      },
+      "to": {
+        "board": "bb1",
+        "hole": "b-5"
+      },
+      "color": "black"
     },
     {
-      "from": "r_5v",
-      "fromTerminal": "b",
-      "to": "range",
-      "toTerminal": "a"
+      "id": "w_13",
+      "netId": "net_13",
+      "from": {
+        "part": "m_meter",
+        "terminal": "b"
+      },
+      "to": {
+        "board": "bb1",
+        "hole": "b-15"
+      },
+      "color": "black"
+    }
+  ],
+  "holeWires": [
+    {
+      "ref": "bbw:bb1:bbw_1",
+      "boardId": "bb1",
+      "a": "b3",
+      "b": "t+3",
+      "color": "red"
     },
     {
-      "from": "r_10v",
-      "fromTerminal": "b",
-      "to": "range",
-      "toTerminal": "b"
+      "ref": "bbw:bb1:bbw_3",
+      "boardId": "bb1",
+      "a": "f3",
+      "b": "e7",
+      "color": "blue"
     },
     {
-      "from": "range",
-      "fromTerminal": "com",
-      "to": "m_meter",
-      "toTerminal": "a"
+      "ref": "bbw:bb1:bbw_4",
+      "boardId": "bb1",
+      "a": "d7",
+      "b": "e9",
+      "color": "blue"
     },
     {
-      "from": "gnd1",
-      "fromTerminal": "gnd",
-      "to": "r_dn",
-      "toTerminal": "b"
+      "ref": "bbw:bb1:bbw_5",
+      "boardId": "bb1",
+      "a": "d9",
+      "b": "f9",
+      "color": "blue"
     },
     {
-      "from": "r_dn",
-      "fromTerminal": "b",
-      "to": "dvm",
-      "toTerminal": "b"
+      "ref": "bbw:bb1:bbw_7",
+      "boardId": "bb1",
+      "a": "e13",
+      "b": "e15",
+      "color": "green"
     },
     {
-      "from": "dvm",
-      "fromTerminal": "b",
-      "to": "m_meter",
-      "toTerminal": "b"
+      "ref": "bbw:bb1:bbw_8",
+      "boardId": "bb1",
+      "a": "f13",
+      "b": "e17",
+      "color": "yellow"
+    },
+    {
+      "ref": "bbw:bb1:bbw_10",
+      "boardId": "bb1",
+      "a": "i7",
+      "b": "b-7",
+      "color": "black"
     }
   ]
 }

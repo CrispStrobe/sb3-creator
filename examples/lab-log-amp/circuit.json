@@ -2,19 +2,28 @@
   "vcc": 9,
   "parts": [
     {
+      "id": "bb1",
+      "kind": "breadboard",
+      "params": {},
+      "terminals": [],
+      "x": 520,
+      "y": 420,
+      "rotation": 0
+    },
+    {
       "id": "vcc1",
       "kind": "vcc",
       "params": {},
-      "x": 80,
-      "y": 70,
+      "x": 77,
+      "y": 217,
       "rotation": 0
     },
     {
       "id": "gnd1",
       "kind": "gnd",
       "params": {},
-      "x": 80,
-      "y": 640,
+      "x": 209,
+      "y": 217,
       "rotation": 0
     },
     {
@@ -23,8 +32,8 @@
       "params": {
         "volts": 9
       },
-      "x": 80,
-      "y": 450,
+      "x": 275,
+      "y": 209,
       "rotation": 0,
       "label": "-9 V supply"
     },
@@ -35,17 +44,25 @@
         "ohms": 10000,
         "position": 0.5
       },
-      "x": 190,
-      "y": 260,
+      "x": 142,
+      "y": 345,
       "rotation": 0,
-      "label": "Input 0-9 V"
+      "label": "Input 0-9 V",
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "a": "a3",
+          "wiper": "a5",
+          "b": "a7"
+        }
+      }
     },
     {
       "id": "vin",
       "kind": "voltmeter",
       "params": {},
-      "x": 190,
-      "y": 450,
+      "x": 143,
+      "y": 213,
       "rotation": 0,
       "label": "V in"
     },
@@ -55,10 +72,17 @@
       "params": {
         "ohms": 100000
       },
-      "x": 300,
-      "y": 260,
+      "x": 142,
+      "y": 495,
       "rotation": 0,
-      "label": "R1 100k"
+      "label": "R1 100k",
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "a": "j3",
+          "b": "j7"
+        }
+      }
     },
     {
       "id": "d_log",
@@ -69,19 +93,39 @@
         "n": 1,
         "rs": 0
       },
-      "x": 410,
-      "y": 165,
+      "x": 226,
+      "y": 345,
       "rotation": 0,
-      "label": "D1 log element"
+      "label": "D1 log element",
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "anode": "a10",
+          "cathode": "a12"
+        }
+      }
     },
     {
       "id": "u1",
       "kind": "lm358",
       "params": {},
-      "x": 410,
-      "y": 355,
+      "x": 289,
+      "y": 420,
       "rotation": 0,
-      "label": "U1"
+      "label": "U1",
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "vcc": "e14",
+          "gnd": "e15",
+          "1_pos": "e16",
+          "1_neg": "e17",
+          "1_out": "f14",
+          "2_pos": "f15",
+          "2_neg": "f16",
+          "2_out": "f17"
+        }
+      }
     },
     {
       "id": "r_g1",
@@ -89,10 +133,17 @@
       "params": {
         "ohms": 10000
       },
-      "x": 520,
-      "y": 260,
+      "x": 366,
+      "y": 345,
       "rotation": 0,
-      "label": "R2 10k"
+      "label": "R2 10k",
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "a": "a19",
+          "b": "a23"
+        }
+      }
     },
     {
       "id": "r_g2",
@@ -100,10 +151,17 @@
       "params": {
         "ohms": 100000
       },
-      "x": 630,
-      "y": 165,
+      "x": 366,
+      "y": 495,
       "rotation": 0,
-      "label": "R3 100k"
+      "label": "R3 100k",
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "a": "j19",
+          "b": "j23"
+        }
+      }
     },
     {
       "id": "meter",
@@ -111,126 +169,216 @@
       "params": {
         "fullScale": 7
       },
-      "x": 740,
-      "y": 355,
+      "x": 347,
+      "y": 213,
       "rotation": 0,
       "label": "Log output"
     }
   ],
   "wires": [
     {
-      "from": "vcc1",
-      "fromTerminal": "vcc",
-      "to": "pot",
-      "toTerminal": "a"
+      "id": "w_4",
+      "netId": "net_4",
+      "from": {
+        "part": "vcc1",
+        "terminal": "vcc"
+      },
+      "to": {
+        "board": "bb1",
+        "hole": "t+1"
+      },
+      "color": "red"
     },
     {
-      "from": "pot",
-      "fromTerminal": "a",
-      "to": "u1",
-      "toTerminal": "vcc"
+      "id": "w_6",
+      "netId": "net_6",
+      "from": {
+        "part": "vin",
+        "terminal": "a"
+      },
+      "to": {
+        "board": "bb1",
+        "hole": "d5"
+      },
+      "color": "blue"
     },
     {
-      "from": "pot",
-      "fromTerminal": "wiper",
-      "to": "r_in",
-      "toTerminal": "a"
+      "id": "w_14",
+      "netId": "net_14",
+      "from": {
+        "part": "meter",
+        "terminal": "a"
+      },
+      "to": {
+        "board": "bb1",
+        "hole": "h17"
+      },
+      "color": "purple"
     },
     {
-      "from": "r_in",
-      "fromTerminal": "a",
-      "to": "vin",
-      "toTerminal": "a"
+      "id": "w_15",
+      "netId": "net_15",
+      "from": {
+        "part": "neg9",
+        "terminal": "neg"
+      },
+      "to": {
+        "board": "bb1",
+        "hole": "d15"
+      },
+      "color": "white"
     },
     {
-      "from": "r_in",
-      "fromTerminal": "b",
-      "to": "d_log",
-      "toTerminal": "anode"
+      "id": "w_19",
+      "netId": "net_19",
+      "from": {
+        "part": "gnd1",
+        "terminal": "gnd"
+      },
+      "to": {
+        "board": "bb1",
+        "hole": "t-10"
+      },
+      "color": "black"
     },
     {
-      "from": "d_log",
-      "fromTerminal": "anode",
-      "to": "u1",
-      "toTerminal": "1_neg"
+      "id": "w_20",
+      "netId": "net_20",
+      "from": {
+        "part": "neg9",
+        "terminal": "pos"
+      },
+      "to": {
+        "board": "bb1",
+        "hole": "t-15"
+      },
+      "color": "black"
     },
     {
-      "from": "d_log",
-      "fromTerminal": "cathode",
-      "to": "u1",
-      "toTerminal": "1_out"
+      "id": "w_21",
+      "netId": "net_21",
+      "from": {
+        "part": "vin",
+        "terminal": "b"
+      },
+      "to": {
+        "board": "bb1",
+        "hole": "t-5"
+      },
+      "color": "black"
     },
     {
-      "from": "u1",
-      "fromTerminal": "1_out",
-      "to": "r_g1",
-      "toTerminal": "a"
+      "id": "w_22",
+      "netId": "net_22",
+      "from": {
+        "part": "meter",
+        "terminal": "b"
+      },
+      "to": {
+        "board": "bb1",
+        "hole": "t-20"
+      },
+      "color": "black"
+    }
+  ],
+  "holeWires": [
+    {
+      "ref": "bbw:bb1:bbw_1",
+      "boardId": "bb1",
+      "a": "t-2",
+      "b": "b-2",
+      "color": "black"
     },
     {
-      "from": "r_g1",
-      "fromTerminal": "b",
-      "to": "r_g2",
-      "toTerminal": "a"
+      "ref": "bbw:bb1:bbw_2",
+      "boardId": "bb1",
+      "a": "b3",
+      "b": "t+3",
+      "color": "red"
     },
     {
-      "from": "r_g2",
-      "fromTerminal": "a",
-      "to": "u1",
-      "toTerminal": "2_neg"
+      "ref": "bbw:bb1:bbw_3",
+      "boardId": "bb1",
+      "a": "b14",
+      "b": "t+14",
+      "color": "red"
     },
     {
-      "from": "r_g2",
-      "fromTerminal": "b",
-      "to": "u1",
-      "toTerminal": "2_out"
+      "ref": "bbw:bb1:bbw_5",
+      "boardId": "bb1",
+      "a": "f3",
+      "b": "e5",
+      "color": "blue"
     },
     {
-      "from": "u1",
-      "fromTerminal": "2_out",
-      "to": "meter",
-      "toTerminal": "a"
+      "ref": "bbw:bb1:bbw_7",
+      "boardId": "bb1",
+      "a": "f7",
+      "b": "e10",
+      "color": "green"
     },
     {
-      "from": "neg9",
-      "fromTerminal": "neg",
-      "to": "u1",
-      "toTerminal": "gnd"
+      "ref": "bbw:bb1:bbw_8",
+      "boardId": "bb1",
+      "a": "d10",
+      "b": "d17",
+      "color": "green"
     },
     {
-      "from": "gnd1",
-      "fromTerminal": "gnd",
-      "to": "neg9",
-      "toTerminal": "pos"
+      "ref": "bbw:bb1:bbw_9",
+      "boardId": "bb1",
+      "a": "e12",
+      "b": "g14",
+      "color": "yellow"
     },
     {
-      "from": "neg9",
-      "fromTerminal": "pos",
-      "to": "pot",
-      "toTerminal": "b"
+      "ref": "bbw:bb1:bbw_10",
+      "boardId": "bb1",
+      "a": "h14",
+      "b": "e19",
+      "color": "yellow"
     },
     {
-      "from": "pot",
-      "fromTerminal": "b",
-      "to": "vin",
-      "toTerminal": "b"
+      "ref": "bbw:bb1:bbw_11",
+      "boardId": "bb1",
+      "a": "g16",
+      "b": "f19",
+      "color": "orange"
     },
     {
-      "from": "vin",
-      "fromTerminal": "b",
-      "to": "u1",
-      "toTerminal": "1_pos"
+      "ref": "bbw:bb1:bbw_12",
+      "boardId": "bb1",
+      "a": "g19",
+      "b": "e23",
+      "color": "orange"
     },
     {
-      "from": "u1",
-      "fromTerminal": "1_pos",
-      "to": "u1",
-      "toTerminal": "2_pos"
+      "ref": "bbw:bb1:bbw_13",
+      "boardId": "bb1",
+      "a": "g17",
+      "b": "f23",
+      "color": "purple"
     },
     {
-      "from": "u1",
-      "fromTerminal": "2_pos",
-      "to": "meter",
-      "toTerminal": "b"
+      "ref": "bbw:bb1:bbw_16",
+      "boardId": "bb1",
+      "a": "b7",
+      "b": "t-7",
+      "color": "black"
+    },
+    {
+      "ref": "bbw:bb1:bbw_17",
+      "boardId": "bb1",
+      "a": "i15",
+      "b": "b-15",
+      "color": "black"
+    },
+    {
+      "ref": "bbw:bb1:bbw_18",
+      "boardId": "bb1",
+      "a": "b16",
+      "b": "t-16",
+      "color": "black"
     }
   ]
 }

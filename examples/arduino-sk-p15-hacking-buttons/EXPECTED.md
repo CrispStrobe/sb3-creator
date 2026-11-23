@@ -26,7 +26,8 @@ net VCC.vcc V 5.00 +-0.01
 # At rest D2 is low, so the coupler's own LED sees nothing.
 net OPTO1.anode V 0.00 +-0.01
 # With the phototransistor dark, no current flows in the isolated branch:
-# both ends of the indicator sit at the rail, so it is off.
+# R_load drops nothing and the indicator's anode sits at the rail, so it is
+# off. (Its cathode, between the dark LED and the dark phototransistor, is
+# held by leakage alone and is not asserted.)
 net LED_opto.anode V 5.00 +-0.01
-net LED_opto.cathode V 5.00 +-0.01
 ```

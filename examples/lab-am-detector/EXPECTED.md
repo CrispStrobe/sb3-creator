@@ -1,8 +1,13 @@
 # lab-am-detector — expected behaviour
 
 ## Circuit
-**The test transmitter.** The simulator cannot receive a broadcast, so three
-sine sources in series build an amplitude-modulated signal on the bench:
+**The test transmitter.** Three sine sources in series build an
+amplitude-modulated signal on the bench, so that every stage of detection is a
+waveform you can put on the scope: the full AM signal, the half-waves after the
+diode, the carrier ripple on the capacitor. (The simulator's radio front end,
+used by [lab-crystal-set](../lab-crystal-set), receives real medium-wave
+stations, but it solves the carrier as an amplitude rather than as a waveform,
+so none of those stages would show.) The three sources:
 
 - carrier: 20 kHz, 3 V peak
 - lower side frequency: 19.5 kHz, 0.9 V peak
@@ -38,8 +43,8 @@ authored 10 nF (`test/lab-circuits-1.test.mjs` repeats this):
 | quantity | value |
 |---|---|
 | AM signal peak | 4.56 V |
-| envelope maximum on ENV (at a carrier crest) | 3.12 V |
-| envelope minimum on ENV | 0.65 V |
+| envelope maximum on ENV (at a carrier crest) | 3.22 V |
+| envelope minimum on ENV | 0.75 V |
 | difference between ENV and ENV 2 ms later | below 0.02 V |
 | envelope period | 2 ms (500 Hz) |
 
@@ -58,7 +63,7 @@ net rsrc.a V 0.00 +-0.02
 
 <!-- engine-provenance -->
 > **Engine provenance.** The measured numbers on this page were last held against
-> `bw-board@e339fcb` and `bw-circuit-ui@0ec68b3` — the revisions pinned in
+> `bw-board@a685b22` and `bw-circuit-ui@540423d` — the revisions pinned in
 > `test/fixtures/siblings.json`. `test/expected-quantities-hold.test.mjs` compares
 > **4 of this page's 31** numeric claims against that engine
 > (0 of them disagreeing) and declines the rest with a stated reason;

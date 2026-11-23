@@ -77,7 +77,10 @@ describe('lab benches (set 6) behave as documented', { skip: SKIP }, () => {
         x.set('sw', 1); x.run(5);
         // MEASURED 2026-11-23 (bw-board e339fcb): x.mA('rt') < 0.01 -> observed 7.02e-4.
         assert.ok(x.mA('rt') < 0.01, `tester from A to B: ${x.mA('rt')} mA`);
-        near(x.state('vm').reading, 7.02, 0.1, 'the voltmeter across the A-B gap');
+        // Re-measured on bw-board 0bc7baf: the dark LED in series with the
+        // meter now follows the exponential junction law at the meter's
+        // sub-uA current and drops less (7.02 -> 7.47 V across the gap).
+        near(x.state('vm').reading, 7.47, 0.1, 'the voltmeter across the A-B gap');
         x.set('sw', 0); x.run(5);
 
         x.set('dump', 1);
@@ -215,21 +218,27 @@ describe('lab benches (set 6) behave as documented', { skip: SKIP }, () => {
                 const v = x.v('spk', 'a');
                 out += x.v('u', 'vout'); spk += v; n++; lo = Math.min(lo, v); hi = Math.max(hi, v);
             });
-            return { hz: x.b.buzzerTone(x.ids.spk).hz, out: out / n, spk: spk / n, lo, hi };
+            const t = x.b.buzzerTone(x.ids.spk);
+            return { hz: t.hz, level: t.level, amps: t.amps, out: out / n, spk: spk / n, lo, hi };
         };
-        // MEASURED (bw-board e339fcb): idle 173.2 Hz, output 4.433 V average,
-        // speaker -0.009 V average and -4.00..+4.00 V; button held 439.5 Hz,
-        // 4.496 V; released again 175.1 Hz.
+        // MEASURED (bw-board 0bc7baf, real 8-ohm speaker): idle 175.8 Hz,
+        // level 1 (capped), 0.290 A rms, output 4.426 V average, speaker
+        // -0.017 V average and -6.92..+6.91 V (edge spikes from the coil's
+        // inductance); button held 437.5 Hz, 0.377 A rms, 4.485 V; released
+        // again 175.7 Hz.
         const idle = window();
         near(idle.hz, 175, 12, 'idle note (Hz)');
         near(idle.out, 4.5, 0.15, 'amp output averages to half the 9 V supply');
         near(idle.spk, 0, 0.05, 'the speaker side of the 100 uF carries no DC');
-        // MEASURED 2026-11-23 (bw-board e339fcb): idle.hi > 3.5 -> observed 3.997.
+        // MEASURED 2026-11-23 (bw-board 0bc7baf): idle.hi > 3.5 -> observed 6.914.
         assert.ok(idle.lo < -3.5 && idle.hi > 3.5, `the speaker swings both ways: ${idle.lo.toFixed(2)}..${idle.hi.toFixed(2)} V`);
+        near(idle.amps, 0.29, 0.03, 'speaker coil current (A rms)');
+        near(idle.level, 1, 0.001, 'full loudness: past the 0.25 A rating, level is capped at 1');
         x.set('btn', 1); x.run(30);
         const pressed = window();
         near(pressed.hz, 439, 20, 'button held: 10 k across 22 k, the higher note (Hz)');
         near(pressed.out, 4.5, 0.15, 'button held: still biased at half the supply');
+        near(pressed.amps, 0.377, 0.04, 'button held: speaker coil current (A rms)');
         x.set('btn', 0); x.run(30);
         near(window().hz, 175, 12, 'released: back to the low note (Hz)');
     });
@@ -299,7 +308,10 @@ describe('lab benches (set 6) behave as documented', { skip: SKIP }, () => {
         const tr = [];
         x.each(1300, 0.25, (t) => tr.push([t, x.mA('rl'), x.v('u', '4y')]));
         const lit = tr.filter(s => s[1] > 1);
-        near(lit.at(-1)[0] - released, 888, 60, 'LED time after release (ms)');
+        // Re-measured on bw-board 0bc7baf: the exponential charging diode drops
+        // less, the timing capacitor starts higher (4.69 V) and the beep lasts
+        // longer (888 -> 969.5 ms).
+        near(lit.at(-1)[0] - released, 970, 60, 'LED time after release (ms)');
         const during = tr.filter(s => s[0] < lit.at(-1)[0]).map(s => [s[0], s[2]]);
         near(hz(during, 2.5), 567, 30, 'beep pitch');
         const after = tr.filter(s => s[0] > lit.at(-1)[0] + 5).map(s => [s[0], s[2]]);

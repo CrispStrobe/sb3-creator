@@ -85,13 +85,15 @@ describe('discrete regenerative lab benches behave as documented', { skip: SKIP 
         }, 3, 3000, 10);
         // MEASURED 2026-11-23 (bw-board e339fcb): e.length >= 4 -> observed 4.
         assert.ok(e.length >= 4, `${e.length} red flashes in 3 s`);
-        near(period(e), 715, 40, 'period at the authored rheostat setting (ms)');
-        near(red / n, 0.5, 0.06, 'share of the time red is lit');
+        // Re-measured on bw-board 0bc7baf (exponential LED junctions): period
+        // 716.7 -> 750 ms, red share 0.554 -> 0.573 over this window.
+        near(period(e), 750, 40, 'period at the authored rheostat setting (ms)');
+        near(red / n, 0.57, 0.06, 'share of the time red is lit');
         // MEASURED 2026-11-23 (bw-board e339fcb): both / n < 0.05 -> observed 0.01923.
         assert.ok(both / n < 0.05, `both LEDs lit at once ${(both / n * 100).toFixed(1)} % of the time`);
         x.set('pot', 1);                                   // rheostat at zero: only the 10 k minimum
         const f = x.rises(() => x.mA('rc1'), 3, 2500, 10).slice(1);
-        near(period(f), 473, 40, 'period with the rheostat turned to its minimum (ms)');
+        near(period(f), 493, 40, 'period with the rheostat turned to its minimum (ms)');
     });
 
     test('lab-astable-tone: silent until keyed, a tone while keyed, a metronome on the big capacitors', () => {
@@ -213,7 +215,7 @@ describe('discrete regenerative lab benches behave as documented', { skip: SKIP 
         x.run(150);
         // MEASURED 2026-11-23 (bw-board e339fcb): x.mA('rc2') > 10 -> observed 13.97.
         assert.ok(x.mA('rc2') > 10, 'green again');
-        near(x.v('u', 'control'), 3.99, 0.1, 'control voltage pulled down through the diode');
+        near(x.v('u', 'control'), 3.89, 0.1, 'control voltage pulled down through the diode');
         near(hz(), 419, 15, 'and the high pitch is back (Hz)');
     });
 

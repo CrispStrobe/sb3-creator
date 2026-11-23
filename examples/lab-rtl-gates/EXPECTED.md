@@ -17,7 +17,7 @@ Resistor-transistor logic on 5 V. Buttons A and B pull their input lines to +5 V
 | 0 | 1 | ON | off | ON | ON |
 | 1 | 1 | off | off | ON | off |
 
-- **HIGH is not 5 V.** An output that is HIGH sits at about 1.83 V: the LED clamps it, and about 3.2 mA flows through the 1 kΩ load into the LED.
+- **HIGH is not 5 V.** An output that is HIGH sits at about 1.75 V: the LED clamps it, and about 3.25 mA flows through the 1 kΩ load into the LED.
 - **LOW is not 0 V either.** A single saturated transistor pulls its output to about 0.07 V. The NAND, with two transistors in series, only gets down to about 0.14 V.
 - **Inputs take current.** Pressing A sends about 0.43 mA into the NOT transistor's base, and the same again into the NOR and NAND bases. Every gate an input drives is another load on it: that is fan-out.
 
@@ -28,8 +28,8 @@ Resistor-transistor logic on 5 V. Buttons A and B pull their input lines to +5 V
 
 ```assert
 # both buttons released
-net led_not.anode V 1.83 +-0.05
-net led_nor.anode V 1.83 +-0.05
+net led_not.anode V 1.75 +-0.05
+net led_nor.anode V 1.75 +-0.05
 net led_or.anode V 0.11 +-0.05
-net led_nand.anode V 1.83 +-0.05
+net led_nand.anode V 1.75 +-0.05
 ```
