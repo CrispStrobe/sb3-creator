@@ -9806,5 +9806,325 @@
    "intro": "lab-lc-ringing/intro.md",
    "introDE": "lab-lc-ringing/intro.de.md"
   }
+ },
+ {
+  "id": "lab-555-inside",
+  "title": {
+   "en": "Inside the 555: thresholds, control and reset",
+   "de": "Der 555 von innen: Schwellen, Control und Reset"
+  },
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "kind": "circuit",
+  "files": {
+   "circuit": "lab-555-inside/circuit.json",
+   "expected": "lab-555-inside/EXPECTED.md",
+   "intro": "lab-555-inside/intro.md",
+   "introDE": "lab-555-inside/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-rtl-gates",
+  "title": {
+   "en": "Logic gates from transistors (RTL)",
+   "de": "Logikgatter aus Transistoren (RTL)"
+  },
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "kind": "circuit",
+  "files": {
+   "circuit": "lab-rtl-gates/circuit.json",
+   "expected": "lab-rtl-gates/EXPECTED.md",
+   "intro": "lab-rtl-gates/intro.md",
+   "introDE": "lab-rtl-gates/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-led-shunt",
+  "title": {
+   "en": "Steering current around an LED",
+   "de": "Strom an einer LED vorbeileiten"
+  },
+  "category": "pure-circuit",
+  "difficulty": 1,
+  "kind": "circuit",
+  "files": {
+   "circuit": "lab-led-shunt/circuit.json",
+   "expected": "lab-led-shunt/EXPECTED.md",
+   "intro": "lab-led-shunt/intro.md",
+   "introDE": "lab-led-shunt/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-power-matching",
+  "title": {
+   "en": "Internal resistance and maximum power",
+   "de": "Innenwiderstand und maximale Leistung"
+  },
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "kind": "circuit",
+  "files": {
+   "circuit": "lab-power-matching/circuit.json",
+   "expected": "lab-power-matching/EXPECTED.md",
+   "intro": "lab-power-matching/intro.md",
+   "introDE": "lab-power-matching/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-opamp-gain",
+  "title": {
+   "en": "Op-amp gain stages: inverting and non-inverting",
+   "de": "OPV-Verstärker: invertierend und nichtinvertierend"
+  },
+  "category": "pure-circuit",
+  "difficulty": 4,
+  "kind": "circuit",
+  "files": {
+   "circuit": "lab-opamp-gain/circuit.json",
+   "expected": "lab-opamp-gain/EXPECTED.md",
+   "intro": "lab-opamp-gain/intro.md",
+   "introDE": "lab-opamp-gain/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-opamp-follower",
+  "title": {
+   "en": "Follower: measuring a potato without loading it",
+   "de": "Spannungsfolger: eine Kartoffel messen, ohne sie zu belasten"
+  },
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "kind": "circuit",
+  "files": {
+   "circuit": "lab-opamp-follower/circuit.json",
+   "expected": "lab-opamp-follower/EXPECTED.md",
+   "intro": "lab-opamp-follower/intro.md",
+   "introDE": "lab-opamp-follower/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-opamp-blinker",
+  "title": {
+   "en": "An op-amp that blinks",
+   "de": "Ein Operationsverstärker, der blinkt"
+  },
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "kind": "circuit",
+  "files": {
+   "circuit": "lab-opamp-blinker/circuit.json",
+   "expected": "lab-opamp-blinker/EXPECTED.md",
+   "intro": "lab-opamp-blinker/intro.md",
+   "introDE": "lab-opamp-blinker/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-steady-hand",
+  "title": {
+   "en": "Steady hand: the wire-loop game",
+   "de": "Der heiße Draht: Geschicklichkeitsspiel"
+  },
+  "category": "pure-circuit",
+  "difficulty": 1,
+  "kind": "circuit",
+  "files": {
+   "circuit": "lab-steady-hand/circuit.json",
+   "expected": "lab-steady-hand/EXPECTED.md",
+   "intro": "lab-steady-hand/intro.md",
+   "introDE": "lab-steady-hand/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-tone-keys",
+  "title": {
+   "en": "Two keys, four notes",
+   "de": "Zwei Tasten, vier Töne"
+  },
+  "category": "pure-circuit",
+  "difficulty": 2,
+  "kind": "circuit",
+  "files": {
+   "circuit": "lab-tone-keys/circuit.json",
+   "expected": "lab-tone-keys/EXPECTED.md",
+   "intro": "lab-tone-keys/intro.md",
+   "introDE": "lab-tone-keys/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-pitch-probe",
+  "title": {
+   "en": "Hear the resistance: probe-controlled tone",
+   "de": "Widerstand hören: Prüfspitzen steuern den Ton"
+  },
+  "category": "pure-circuit",
+  "difficulty": 2,
+  "kind": "circuit",
+  "files": {
+   "circuit": "lab-pitch-probe/circuit.json",
+   "expected": "lab-pitch-probe/EXPECTED.md",
+   "intro": "lab-pitch-probe/intro.md",
+   "introDE": "lab-pitch-probe/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-precision-rectifier",
+  "title": {
+   "en": "Precision rectifier: a diode without a dead zone",
+   "de": "Präzisionsgleichrichter: eine Diode ohne Totzone"
+  },
+  "category": "pure-circuit",
+  "difficulty": 4,
+  "kind": "circuit",
+  "files": {
+   "circuit": "lab-precision-rectifier/circuit.json",
+   "expected": "lab-precision-rectifier/EXPECTED.md",
+   "intro": "lab-precision-rectifier/intro.md",
+   "introDE": "lab-precision-rectifier/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-crossfade",
+  "title": {
+   "en": "Crossfade: sliding light from red to green",
+   "de": "Überblenden: Licht gleitet von Rot nach Grün"
+  },
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "kind": "circuit",
+  "files": {
+   "circuit": "lab-crossfade/circuit.json",
+   "expected": "lab-crossfade/EXPECTED.md",
+   "intro": "lab-crossfade/intro.md",
+   "introDE": "lab-crossfade/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-siren-glide",
+  "title": {
+   "en": "The swelling siren",
+   "de": "Die anschwellende Sirene"
+  },
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "kind": "circuit",
+  "files": {
+   "circuit": "lab-siren-glide/circuit.json",
+   "expected": "lab-siren-glide/EXPECTED.md",
+   "intro": "lab-siren-glide/intro.md",
+   "introDE": "lab-siren-glide/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-struck-note",
+  "title": {
+   "en": "A struck note: tone with a decaying envelope",
+   "de": "Ein angeschlagener Ton: Klang mit Ausklingen"
+  },
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "kind": "circuit",
+  "files": {
+   "circuit": "lab-struck-note/circuit.json",
+   "expected": "lab-struck-note/EXPECTED.md",
+   "intro": "lab-struck-note/intro.md",
+   "introDE": "lab-struck-note/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-attenuator-gain",
+  "title": {
+   "en": "Attenuator, gain and clipping",
+   "de": "Abschwächer, Verstärkung und Übersteuerung"
+  },
+  "category": "pure-circuit",
+  "difficulty": 4,
+  "kind": "circuit",
+  "files": {
+   "circuit": "lab-attenuator-gain/circuit.json",
+   "expected": "lab-attenuator-gain/EXPECTED.md",
+   "intro": "lab-attenuator-gain/intro.md",
+   "introDE": "lab-attenuator-gain/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-555-vco",
+  "title": {
+   "en": "Voltage-controlled 555: pitch from a voltage, bits as tones",
+   "de": "Spannungsgesteuerter 555: Tonhöhe aus Spannung, Bits als Töne"
+  },
+  "category": "pure-circuit",
+  "difficulty": 4,
+  "kind": "circuit",
+  "files": {
+   "circuit": "lab-555-vco/circuit.json",
+   "expected": "lab-555-vco/EXPECTED.md",
+   "intro": "lab-555-vco/intro.md",
+   "introDE": "lab-555-vco/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-staircase",
+  "title": {
+   "en": "Staircase generator: counting with charge",
+   "de": "Treppenspannung: Zählen mit Ladung"
+  },
+  "category": "pure-circuit",
+  "difficulty": 4,
+  "kind": "circuit",
+  "files": {
+   "circuit": "lab-staircase/circuit.json",
+   "expected": "lab-staircase/EXPECTED.md",
+   "intro": "lab-staircase/intro.md",
+   "introDE": "lab-staircase/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-light-link",
+  "title": {
+   "en": "Light link: a tone across a beam",
+   "de": "Lichtstrecke: ein Ton über einen Lichtstrahl"
+  },
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "kind": "circuit",
+  "files": {
+   "circuit": "lab-light-link/circuit.json",
+   "expected": "lab-light-link/EXPECTED.md",
+   "intro": "lab-light-link/intro.md",
+   "introDE": "lab-light-link/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-phase-shift",
+  "title": {
+   "en": "RC phase-shift oscillator",
+   "de": "RC-Phasenschieber-Oszillator"
+  },
+  "category": "pure-circuit",
+  "difficulty": 4,
+  "kind": "circuit",
+  "files": {
+   "circuit": "lab-phase-shift/circuit.json",
+   "expected": "lab-phase-shift/EXPECTED.md",
+   "intro": "lab-phase-shift/intro.md",
+   "introDE": "lab-phase-shift/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-opamp-integrator",
+  "title": {
+   "en": "Integrator stopwatch",
+   "de": "Integrator als Stoppuhr"
+  },
+  "category": "pure-circuit",
+  "difficulty": 4,
+  "kind": "circuit",
+  "files": {
+   "circuit": "lab-opamp-integrator/circuit.json",
+   "expected": "lab-opamp-integrator/EXPECTED.md",
+   "intro": "lab-opamp-integrator/intro.md",
+   "introDE": "lab-opamp-integrator/intro.de.md"
+  }
  }
 ]

@@ -1,0 +1,326 @@
+{
+ "vcc": 9,
+ "parts": [
+  {
+   "id": "bb1",
+   "kind": "breadboard",
+   "params": {},
+   "terminals": [],
+   "x": 470,
+   "y": 300,
+   "rotation": 0
+  },
+  {
+   "id": "gnd",
+   "kind": "gnd",
+   "params": {},
+   "x": 43,
+   "y": 255,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "gnd": "a1"
+    }
+   }
+  },
+  {
+   "id": "bat_pos",
+   "kind": "vsource",
+   "params": {
+    "volts": 9
+   },
+   "label": "+9 V",
+   "x": 60,
+   "y": 60
+  },
+  {
+   "id": "bat_neg",
+   "kind": "vsource",
+   "params": {
+    "volts": 9
+   },
+   "label": "-9 V",
+   "x": 150,
+   "y": 60
+  },
+  {
+   "id": "tone",
+   "kind": "vsource",
+   "params": {
+    "wave": "sine",
+    "freq": 440,
+    "amplitude": 4,
+    "offset": 0
+   },
+   "label": "tone 440 Hz, 4 V peak",
+   "x": 240,
+   "y": 60
+  },
+  {
+   "id": "r_series",
+   "kind": "resistor",
+   "params": {
+    "ohms": 220000
+   },
+   "label": "R_series 220k",
+   "x": 43,
+   "y": 345,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "j1",
+     "b": "j5"
+    }
+   }
+  },
+  {
+   "id": "r_shunt",
+   "kind": "resistor",
+   "params": {
+    "ohms": 220
+   },
+   "label": "R_shunt 220",
+   "x": 71,
+   "y": 255,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a3",
+     "b": "a7"
+    }
+   }
+  },
+  {
+   "id": "bypass",
+   "kind": "switch",
+   "params": {},
+   "label": "BYPASS attenuator",
+   "x": 127,
+   "y": 345,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "j7",
+     "b": "j10"
+    }
+   }
+  },
+  {
+   "id": "u1",
+   "kind": "lm358",
+   "params": {},
+   "x": 330,
+   "y": 60
+  },
+  {
+   "id": "r_f",
+   "kind": "resistor",
+   "params": {
+    "ohms": 100000
+   },
+   "label": "R_f 100k",
+   "x": 155,
+   "y": 255,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a9",
+     "b": "a13"
+    }
+   }
+  },
+  {
+   "id": "gain_sel",
+   "kind": "slide_switch",
+   "params": {
+    "position": 0
+   },
+   "label": "GAIN: R_g 1k / 100",
+   "x": 197,
+   "y": 345,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "j12",
+     "com": "j13",
+     "b": "j14"
+    }
+   }
+  },
+  {
+   "id": "r_g_low",
+   "kind": "resistor",
+   "params": {
+    "ohms": 1000
+   },
+   "label": "R_g 1k",
+   "x": 239,
+   "y": 255,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a15",
+     "b": "a19"
+    }
+   }
+  },
+  {
+   "id": "r_g_high",
+   "kind": "resistor",
+   "params": {
+    "ohms": 100
+   },
+   "label": "R_g 100",
+   "x": 253,
+   "y": 345,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "j16",
+     "b": "j20"
+    }
+   }
+  },
+  {
+   "id": "speaker",
+   "kind": "piezo",
+   "params": {},
+   "x": 420,
+   "y": 60
+  }
+ ],
+ "wires": [
+  {
+   "from": "bat_pos",
+   "fromTerminal": "pos",
+   "to": "u1",
+   "toTerminal": "vcc"
+  },
+  {
+   "from": "bat_neg",
+   "fromTerminal": "neg",
+   "to": "u1",
+   "toTerminal": "gnd"
+  },
+  {
+   "from": "gnd",
+   "fromTerminal": "gnd",
+   "to": "bat_pos",
+   "toTerminal": "neg"
+  },
+  {
+   "from": "bat_pos",
+   "fromTerminal": "neg",
+   "to": "bat_neg",
+   "toTerminal": "pos"
+  },
+  {
+   "from": "bat_neg",
+   "fromTerminal": "pos",
+   "to": "tone",
+   "toTerminal": "neg"
+  },
+  {
+   "from": "tone",
+   "fromTerminal": "neg",
+   "to": "r_shunt",
+   "toTerminal": "b"
+  },
+  {
+   "from": "r_shunt",
+   "fromTerminal": "b",
+   "to": "r_g_low",
+   "toTerminal": "b"
+  },
+  {
+   "from": "r_g_low",
+   "fromTerminal": "b",
+   "to": "r_g_high",
+   "toTerminal": "b"
+  },
+  {
+   "from": "r_g_high",
+   "fromTerminal": "b",
+   "to": "speaker",
+   "toTerminal": "b"
+  },
+  {
+   "from": "speaker",
+   "fromTerminal": "b",
+   "to": "u1",
+   "toTerminal": "2_pos"
+  },
+  {
+   "from": "tone",
+   "fromTerminal": "pos",
+   "to": "r_series",
+   "toTerminal": "a"
+  },
+  {
+   "from": "r_series",
+   "fromTerminal": "a",
+   "to": "bypass",
+   "toTerminal": "a"
+  },
+  {
+   "from": "r_series",
+   "fromTerminal": "b",
+   "to": "bypass",
+   "toTerminal": "b"
+  },
+  {
+   "from": "bypass",
+   "fromTerminal": "b",
+   "to": "r_shunt",
+   "toTerminal": "a"
+  },
+  {
+   "from": "r_shunt",
+   "fromTerminal": "a",
+   "to": "u1",
+   "toTerminal": "1_pos"
+  },
+  {
+   "from": "u1",
+   "fromTerminal": "1_neg",
+   "to": "r_f",
+   "toTerminal": "a"
+  },
+  {
+   "from": "r_f",
+   "fromTerminal": "a",
+   "to": "gain_sel",
+   "toTerminal": "com"
+  },
+  {
+   "from": "gain_sel",
+   "fromTerminal": "a",
+   "to": "r_g_low",
+   "toTerminal": "a"
+  },
+  {
+   "from": "gain_sel",
+   "fromTerminal": "b",
+   "to": "r_g_high",
+   "toTerminal": "a"
+  },
+  {
+   "from": "u1",
+   "fromTerminal": "1_out",
+   "to": "r_f",
+   "toTerminal": "b"
+  },
+  {
+   "from": "r_f",
+   "fromTerminal": "b",
+   "to": "speaker",
+   "toTerminal": "a"
+  },
+  {
+   "from": "u1",
+   "fromTerminal": "2_neg",
+   "to": "u1",
+   "toTerminal": "2_out"
+  }
+ ]
+}

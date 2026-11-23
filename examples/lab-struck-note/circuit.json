@@ -1,0 +1,390 @@
+{
+ "vcc": 9,
+ "parts": [
+  {
+   "id": "bb1",
+   "kind": "breadboard",
+   "params": {},
+   "terminals": [],
+   "x": 470,
+   "y": 300,
+   "rotation": 0
+  },
+  {
+   "id": "vcc",
+   "kind": "vcc",
+   "params": {},
+   "x": 43,
+   "y": 255,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "vcc": "a1"
+    }
+   }
+  },
+  {
+   "id": "gnd",
+   "kind": "gnd",
+   "params": {},
+   "x": 43,
+   "y": 345,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "gnd": "j1"
+    }
+   }
+  },
+  {
+   "id": "timer",
+   "kind": "timer_555",
+   "params": {},
+   "x": 60,
+   "y": 60
+  },
+  {
+   "id": "r1",
+   "kind": "resistor",
+   "params": {
+    "ohms": 1000
+   },
+   "label": "R1",
+   "x": 71,
+   "y": 255,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a3",
+     "b": "a7"
+    }
+   }
+  },
+  {
+   "id": "r2",
+   "kind": "resistor",
+   "params": {
+    "ohms": 15000
+   },
+   "label": "R2",
+   "x": 71,
+   "y": 345,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "j3",
+     "b": "j7"
+    }
+   }
+  },
+  {
+   "id": "c_t",
+   "kind": "capacitor",
+   "params": {
+    "farads": 1e-7
+   },
+   "label": "C 100 nF",
+   "x": 155,
+   "y": 255,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a9",
+     "b": "a10"
+    }
+   }
+  },
+  {
+   "id": "c_ctl",
+   "kind": "capacitor",
+   "params": {
+    "farads": 1e-8
+   },
+   "x": 155,
+   "y": 345,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "j9",
+     "b": "j10"
+    }
+   }
+  },
+  {
+   "id": "key",
+   "kind": "button",
+   "params": {},
+   "label": "KEY",
+   "x": 197,
+   "y": 311,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "e12",
+     "b": "f12"
+    }
+   }
+  },
+  {
+   "id": "r_strike",
+   "kind": "resistor",
+   "params": {
+    "ohms": 100
+   },
+   "label": "R_strike",
+   "x": 225,
+   "y": 255,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a14",
+     "b": "a18"
+    }
+   }
+  },
+  {
+   "id": "c_env",
+   "kind": "capacitor",
+   "params": {
+    "farads": 0.000047
+   },
+   "label": "C_env 47 µF",
+   "x": 225,
+   "y": 345,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "j14",
+     "b": "j15"
+    }
+   }
+  },
+  {
+   "id": "r_decay_min",
+   "kind": "resistor",
+   "params": {
+    "ohms": 4700
+   },
+   "label": "R_min",
+   "x": 267,
+   "y": 345,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "j17",
+     "b": "j21"
+    }
+   }
+  },
+  {
+   "id": "decay",
+   "kind": "potentiometer",
+   "params": {
+    "ohms": 47000,
+    "position": 0.4
+   },
+   "label": "DECAY",
+   "x": 309,
+   "y": 255,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a20",
+     "wiper": "a22",
+     "b": "a24"
+    }
+   }
+  },
+  {
+   "id": "r_base",
+   "kind": "resistor",
+   "params": {
+    "ohms": 10000
+   },
+   "label": "R_base",
+   "x": 351,
+   "y": 345,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "j23",
+     "b": "j27"
+    }
+   }
+  },
+  {
+   "id": "q_out",
+   "kind": "npn",
+   "params": {},
+   "x": 393,
+   "y": 255,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "emitter": "a26",
+     "base": "a27",
+     "collector": "a28"
+    }
+   }
+  },
+  {
+   "id": "speaker",
+   "kind": "piezo",
+   "params": {},
+   "x": 150,
+   "y": 60
+  }
+ ],
+ "wires": [
+  {
+   "from": "vcc",
+   "fromTerminal": "vcc",
+   "to": "timer",
+   "toTerminal": "vcc"
+  },
+  {
+   "from": "timer",
+   "fromTerminal": "vcc",
+   "to": "timer",
+   "toTerminal": "reset"
+  },
+  {
+   "from": "timer",
+   "fromTerminal": "reset",
+   "to": "r1",
+   "toTerminal": "a"
+  },
+  {
+   "from": "r1",
+   "fromTerminal": "a",
+   "to": "key",
+   "toTerminal": "a"
+  },
+  {
+   "from": "gnd",
+   "fromTerminal": "gnd",
+   "to": "timer",
+   "toTerminal": "gnd"
+  },
+  {
+   "from": "timer",
+   "fromTerminal": "gnd",
+   "to": "c_t",
+   "toTerminal": "b"
+  },
+  {
+   "from": "c_t",
+   "fromTerminal": "b",
+   "to": "c_ctl",
+   "toTerminal": "b"
+  },
+  {
+   "from": "c_ctl",
+   "fromTerminal": "b",
+   "to": "c_env",
+   "toTerminal": "b"
+  },
+  {
+   "from": "c_env",
+   "fromTerminal": "b",
+   "to": "decay",
+   "toTerminal": "b"
+  },
+  {
+   "from": "decay",
+   "fromTerminal": "b",
+   "to": "q_out",
+   "toTerminal": "emitter"
+  },
+  {
+   "from": "r1",
+   "fromTerminal": "b",
+   "to": "timer",
+   "toTerminal": "discharge"
+  },
+  {
+   "from": "timer",
+   "fromTerminal": "discharge",
+   "to": "r2",
+   "toTerminal": "a"
+  },
+  {
+   "from": "r2",
+   "fromTerminal": "b",
+   "to": "timer",
+   "toTerminal": "threshold"
+  },
+  {
+   "from": "timer",
+   "fromTerminal": "threshold",
+   "to": "timer",
+   "toTerminal": "trigger"
+  },
+  {
+   "from": "timer",
+   "fromTerminal": "trigger",
+   "to": "c_t",
+   "toTerminal": "a"
+  },
+  {
+   "from": "timer",
+   "fromTerminal": "control",
+   "to": "c_ctl",
+   "toTerminal": "a"
+  },
+  {
+   "from": "timer",
+   "fromTerminal": "output",
+   "to": "r_base",
+   "toTerminal": "a"
+  },
+  {
+   "from": "r_base",
+   "fromTerminal": "b",
+   "to": "q_out",
+   "toTerminal": "base"
+  },
+  {
+   "from": "key",
+   "fromTerminal": "b",
+   "to": "r_strike",
+   "toTerminal": "a"
+  },
+  {
+   "from": "r_strike",
+   "fromTerminal": "b",
+   "to": "c_env",
+   "toTerminal": "a"
+  },
+  {
+   "from": "c_env",
+   "fromTerminal": "a",
+   "to": "r_decay_min",
+   "toTerminal": "a"
+  },
+  {
+   "from": "r_decay_min",
+   "fromTerminal": "a",
+   "to": "speaker",
+   "toTerminal": "a"
+  },
+  {
+   "from": "r_decay_min",
+   "fromTerminal": "b",
+   "to": "decay",
+   "toTerminal": "a"
+  },
+  {
+   "from": "decay",
+   "fromTerminal": "a",
+   "to": "decay",
+   "toTerminal": "wiper"
+  },
+  {
+   "from": "speaker",
+   "fromTerminal": "b",
+   "to": "q_out",
+   "toTerminal": "collector"
+  }
+ ]
+}
