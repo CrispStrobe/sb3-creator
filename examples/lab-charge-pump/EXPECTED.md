@@ -7,7 +7,7 @@
 - **Pump:** the 555 output drives the lower plate of a 47 µF pump capacitor.
   Its upper plate (node X) is fed from +9 V through diode D1 and passes charge
   on through diode D2 into a 220 µF reservoir capacitor.
-- **Load:** a blue LED with 4.7 kΩ across the reservoir. The **heavy load**
+- **Load:** a blue LED (it drops about three volts) with 4.7 kΩ across the reservoir. The **heavy load**
   button adds 1 kΩ in parallel.
 
 ## Expected behaviour
@@ -29,7 +29,7 @@ a single operating point):
 
 | moment | reservoir, volts | blue LED, milliamps |
 |---|---|---|
-| 0.8 s after power-on | 14.36 | 2.67 |
+| 0.8 s after power-on | 14.36 | 2.44 |
 | lowest point in the first 0.4 s of heavy load | between 7 and 9.5 | — |
 
 ```assert

@@ -70,7 +70,7 @@
   },
   {
    "id": "c_glide",
-   "kind": "capacitor",
+   "kind": "polarized_cap",
    "params": {
     "farads": 0.0001
    },
@@ -80,8 +80,8 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "j5",
-     "b": "j6"
+     "pos": "j5",
+     "neg": "j6"
     }
    }
   },
@@ -207,11 +207,11 @@
    "from": "gnd",
    "fromTerminal": "gnd",
    "to": "c_glide",
-   "toTerminal": "b"
+   "toTerminal": "neg"
   },
   {
    "from": "c_glide",
-   "fromTerminal": "b",
+   "fromTerminal": "neg",
    "to": "r_bleed",
    "toTerminal": "b"
   },
@@ -249,11 +249,11 @@
    "from": "r_charge",
    "fromTerminal": "b",
    "to": "c_glide",
-   "toTerminal": "a"
+   "toTerminal": "pos"
   },
   {
    "from": "c_glide",
-   "fromTerminal": "a",
+   "fromTerminal": "pos",
    "to": "r_bleed",
    "toTerminal": "a"
   },

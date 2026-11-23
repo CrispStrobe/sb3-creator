@@ -20,7 +20,8 @@ const BAT9 = ['vsource', { volts: 9, variant: '9v' }];
 export const BENCHES = {
     // Set/reset bistable: each collector feeds the other base. 10 nF from each
     // base to ground holds the state and fixes the power-on state (the larger
-    // 27 k feed into Q1 lets Q2 win the race).
+    // 27 k feed into Q1 lets Q2 win the race). Without them the engine starts
+    // at the symmetric equilibrium (both half on) and stays there.
     'lab-transistor-flip-flop': {
         vcc: 9, supply: SUP,
         parts: { bat: BAT9, q1: NPN, q2: NPN,
@@ -65,15 +66,15 @@ export const BENCHES = {
         ],
     },
 
-    // Button charges 100 µF at once; it drains through 47 k into a Darlington.
+    // Button charges a 100 µF electrolytic at once; it drains through 47 k into a Darlington.
     'lab-delay-off-timer': {
         vcc: 9, supply: SUP,
-        parts: { bat: BAT9, btn: ['button', {}], rs: R(100), ct: ['capacitor', { farads: 100e-6 }],
+        parts: { bat: BAT9, btn: ['button', {}], rs: R(100), ct: ['polarized_cap', { farads: 100e-6 }],
             rb: R(47000), q1: NPN, q2: NPN, rl: R(1000), led: LED('yellow') },
         nets: [
-            ['bat.pos', 'btn.a', 'rl.a'], ['btn.b', 'rs.a'], ['rs.b', 'ct.a', 'rb.a'], ['rb.b', 'q1.base'],
+            ['bat.pos', 'btn.a', 'rl.a'], ['btn.b', 'rs.a'], ['rs.b', 'ct.pos', 'rb.a'], ['rb.b', 'q1.base'],
             ['q1.emitter', 'q2.base'], ['rl.b', 'led.anode'], ['led.cathode', 'q1.collector', 'q2.collector'],
-            ['bat.neg', 'ct.b', 'q2.emitter'],
+            ['bat.neg', 'ct.neg', 'q2.emitter'],
         ],
     },
 
@@ -146,32 +147,35 @@ export const BENCHES = {
     'lab-push-pull': {
         vcc: 9, supply: { pos: 'bp.pos', neg: 'gnd.gnd' },
         parts: { gnd: ['gnd', {}], bp: ['vsource', { volts: 9 }], bn: ['vsource', { volts: 9 }],
-            sig: ['vsource', { wave: 'sine', freq: 50, amplitude: 4, offset: 0 }],
+            sig: ['function_gen', { wave: 'sine', freq: 50, amplitude: 4, offset: 0 }],
             qn1: NPN, qp1: PNP, rl1: R(1000),
             r1: R(10000), d1: ['diode', { vf: 0.7 }], d2: ['diode', { vf: 0.7 }], r2: R(10000),
             qn2: NPN, qp2: PNP, re1: R(22), re2: R(22), rl2: R(1000) },
         nets: [
-            ['gnd.gnd', 'bp.neg', 'bn.pos', 'sig.neg', 'rl1.b', 'rl2.b'],
+            ['gnd.gnd', 'bp.neg', 'bn.pos', 'sig.gnd', 'rl1.b', 'rl2.b'],
             ['bp.pos', 'qn1.collector', 'qn2.collector', 'r1.a'],
             ['bn.neg', 'qp1.collector', 'qp2.collector', 'r2.b'],
-            ['sig.pos', 'qn1.base', 'qp1.base', 'd1.cathode', 'd2.anode'],
+            ['sig.out', 'qn1.base', 'qp1.base', 'd1.cathode', 'd2.anode'],
             ['qn1.emitter', 'qp1.emitter', 'rl1.a'],
             ['r1.b', 'd1.anode', 'qn2.base'], ['d2.cathode', 'r2.a', 'qp2.base'],
             ['qn2.emitter', 're1.a'], ['qp2.emitter', 're2.a'], ['re1.b', 're2.b', 'rl2.a'],
         ],
     },
 
-    // Op-amp monostable: button tops up 22 µF, 470 k bleeds it; the comparator
-    // holds green while the capacitor is above 3 V. Ideal op-amp, rails 0/9 V.
+    // Op-amp monostable: button tops up a 22 µF electrolytic, 470 k bleeds
+    // it; half of an LM358 compares it with 3 V and holds green while the
+    // capacitor is above. The parked half is a grounded follower.
     'lab-two-led-monostable': {
         vcc: 9, supply: SUP,
-        parts: { bat: BAT9, u: OPAMP(9), ra: R(20000), rb: R(10000), go: ['button', {}], rch: R(100),
-            ct: ['capacitor', { farads: 22e-6 }], rt: R(470000),
+        parts: { bat: BAT9, u: ['lm358', {}], ra: R(20000), rb: R(10000), go: ['button', {}], rch: R(100),
+            ct: ['polarized_cap', { farads: 22e-6 }], rt: R(470000),
             rr: R(1000), red: LED('red'), rg: R(1000), green: LED('green') },
         nets: [
-            ['bat.pos', 'ra.a', 'go.a', 'rr.a'], ['bat.neg', 'rb.b', 'ct.b', 'rt.b', 'green.cathode'],
-            ['ra.b', 'rb.a', 'u.inn'], ['go.b', 'rch.a'], ['rch.b', 'ct.a', 'rt.a', 'u.inp'],
-            ['rr.b', 'red.anode'], ['red.cathode', 'u.out', 'rg.a'], ['rg.b', 'green.anode'],
+            ['bat.pos', 'u.vcc', 'ra.a', 'go.a', 'rr.a'],
+            ['bat.neg', 'u.gnd', 'rb.b', 'ct.neg', 'rt.b', 'green.cathode', 'u.2_pos'],
+            ['ra.b', 'rb.a', 'u.1_neg'], ['go.b', 'rch.a'], ['rch.b', 'ct.pos', 'rt.a', 'u.1_pos'],
+            ['rr.b', 'red.anode'], ['red.cathode', 'u.1_out', 'rg.a'], ['rg.b', 'green.anode'],
+            ['u.2_neg', 'u.2_out'],
         ],
     },
 
@@ -205,16 +209,18 @@ export const BENCHES = {
         ],
     },
 
-    // LDR divider into two comparators (LM393, open collector, outputs tied):
-    // the shared node is only released while 1.5 V < sensor < 3.5 V.
+    // Phototransistor (0.5 mA at full light) into a 10 k emitter load, so the
+    // sensor node reads about 5 V x light; two comparators (LM393, open
+    // collector, outputs tied) release the shared node only while
+    // 1.5 V < sensor < 3.5 V.
     'lab-window-comparator': {
         vcc: 5, supply: SUP,
-        parts: { bat: ['vsource', { volts: 5 }], ldr: ['ldr', {}], rs: R(10000),
+        parts: { bat: ['vsource', { volts: 5 }], pt: ['phototransistor', { iMax: 0.5e-3, light: 0 }], rs: R(10000),
             rh: R(15000), rm: R(20000), rl: R(15000), u: ['lm393', {}],
             pu: R(4700), rbq: R(10000), q: NPN, rled: R(330), led: LED('green') },
         nets: [
-            ['bat.pos', 'ldr.a', 'rh.a', 'u.vcc', 'pu.a', 'rled.a'],
-            ['ldr.b', 'rs.a', 'u.1_pos', 'u.2_neg'],
+            ['bat.pos', 'pt.collector', 'rh.a', 'u.vcc', 'pu.a', 'rled.a'],
+            ['pt.emitter', 'rs.a', 'u.1_pos', 'u.2_neg'],
             ['rh.b', 'rm.a', 'u.2_pos'], ['rm.b', 'rl.a', 'u.1_neg'],
             ['u.1_out', 'u.2_out', 'pu.b', 'rbq.a'], ['rbq.b', 'q.base'],
             ['rled.b', 'led.anode'], ['led.cathode', 'q.collector'],
@@ -281,21 +287,19 @@ export const BENCHES = {
         ],
     },
     // Treble path: 22 nF + 10 k high-pass; bass path: 4.7 k + 1 µF low-pass.
-    // 47 k base resistors keep both drivers out of saturation; the 10 k from
-    // each collector to +9 V keeps the node defined while the transistor is
-    // off (the solver cannot settle a node held only by a dark LED).
+    // 47 k base resistors keep both drivers out of saturation.
     'lab-two-band-light-organ': {
         vcc: 9, supply: SUP,
-        parts: { bat: BAT9, sig: ['vsource', { wave: 'sine', freq: 50, amplitude: 4, offset: 0 }],
-            ch: ['capacitor', { farads: 22e-9 }], rh: R(10000), bh: R(47000), qh: NPN, r1: R(470), l1: LED('blue'), k1: R(10000),
-            rlp: R(4700), cl: ['capacitor', { farads: 1e-6 }], bl: R(47000), ql: NPN, r2: R(470), l2: LED('red'), k2: R(10000) },
+        parts: { bat: BAT9, sig: ['function_gen', { wave: 'sine', freq: 50, amplitude: 4, offset: 0 }],
+            ch: ['capacitor', { farads: 22e-9 }], rh: R(10000), bh: R(47000), qh: NPN, r1: R(470), l1: LED('blue'),
+            rlp: R(4700), cl: ['capacitor', { farads: 1e-6 }], bl: R(47000), ql: NPN, r2: R(470), l2: LED('red') },
         nets: [
-            ['bat.pos', 'r1.a', 'r2.a', 'k1.a', 'k2.a'],
-            ['bat.neg', 'sig.neg', 'rh.b', 'cl.b', 'qh.emitter', 'ql.emitter'],
-            ['sig.pos', 'ch.a', 'rlp.a'], ['ch.b', 'rh.a', 'bh.a'], ['bh.b', 'qh.base'],
+            ['bat.pos', 'r1.a', 'r2.a'],
+            ['bat.neg', 'sig.gnd', 'rh.b', 'cl.b', 'qh.emitter', 'ql.emitter'],
+            ['sig.out', 'ch.a', 'rlp.a'], ['ch.b', 'rh.a', 'bh.a'], ['bh.b', 'qh.base'],
             ['rlp.b', 'cl.a', 'bl.a'], ['bl.b', 'ql.base'],
-            ['r1.b', 'l1.anode'], ['l1.cathode', 'qh.collector', 'k1.b'],
-            ['r2.b', 'l2.anode'], ['l2.cathode', 'ql.collector', 'k2.b'],
+            ['r1.b', 'l1.anode'], ['l1.cathode', 'qh.collector'],
+            ['r2.b', 'l2.anode'], ['l2.cathode', 'ql.collector'],
         ],
     },
     // Voltage-to-frequency: the input (pot, measured from a buffered 4.5 V

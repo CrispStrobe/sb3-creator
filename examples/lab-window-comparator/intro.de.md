@@ -10,11 +10,11 @@ Ein Lichtsensor, zwei Komparatoren und eine LED. Die LED leuchtet nur, wenn das 
 ## Probier das
 1. Klick auf **Sim**. Im Dunkeln ist die LED aus.
 2. Schieb den Lichtregler langsam hoch. Irgendwann geht die LED an.
-3. Weiter hoch. Kurz vor voller Helligkeit geht sie wieder aus.
+3. Weiter hoch. Schon deutlich vor voller Helligkeit geht sie wieder aus.
 4. Such beide Schaltpunkte auf dem Regler.
 
 ## Was passiert hier
-Der lichtabhängige Widerstand und ein fester Widerstand ergeben eine Spannung, die mit dem Licht steigt. Ein Komparator prüft „über der unteren Grenze", der andere „unter der oberen Grenze". Jeder kann die gemeinsame Ausgangsleitung nur nach unten ziehen (offener Kollektor); hoch ist sie nur, wenn keiner zieht — wenn beide Bedingungen zugleich erfüllt sind. Das ist ein UND-Gatter aus zwei Drähten. Mit demselben Trick sortiert man in der Fabrik Teile als „innerhalb der Toleranz".
+Der Fototransistor lässt einen Strom durch, der mit dem Licht wächst; an einem festen Widerstand wird daraus eine Spannung, die mit dem Licht steigt. Ein Komparator prüft „über der unteren Grenze", der andere „unter der oberen Grenze". Jeder kann die gemeinsame Ausgangsleitung nur nach unten ziehen (offener Kollektor); hoch ist sie nur, wenn keiner zieht — wenn beide Bedingungen zugleich erfüllt sind. Das ist ein UND-Gatter aus zwei Drähten. Mit demselben Trick sortiert man in der Fabrik Teile als „innerhalb der Toleranz".
 
 ## Weiter geht's
 - [pc48-ldr-comparator](../pc48-ldr-comparator) — ein Komparator, eine Schwelle.

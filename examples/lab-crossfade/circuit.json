@@ -102,7 +102,7 @@
   },
   {
    "id": "c_fade",
-   "kind": "capacitor",
+   "kind": "polarized_cap",
    "params": {
     "farads": 0.00001
    },
@@ -112,8 +112,8 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a13",
-     "b": "a14"
+     "pos": "a13",
+     "neg": "a14"
     }
    }
   },
@@ -233,11 +233,11 @@
    "from": "down_btn",
    "fromTerminal": "b",
    "to": "c_fade",
-   "toTerminal": "b"
+   "toTerminal": "neg"
   },
   {
    "from": "c_fade",
-   "fromTerminal": "b",
+   "fromTerminal": "neg",
    "to": "led_green",
    "toTerminal": "cathode"
   },
@@ -275,11 +275,11 @@
    "from": "r_down",
    "fromTerminal": "a",
    "to": "c_fade",
-   "toTerminal": "a"
+   "toTerminal": "pos"
   },
   {
    "from": "c_fade",
-   "fromTerminal": "a",
+   "fromTerminal": "pos",
    "to": "u1",
    "toTerminal": "1_pos"
   },

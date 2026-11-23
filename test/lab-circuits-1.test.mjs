@@ -181,8 +181,10 @@ describe('lab circuits (builder 1): behaviour over time', { skip: SKIP }, () => 
         for (let i = 1; i <= 800; i++) { b.at(i * 0.01); env.push(b.V('cs.a')); am.push(b.V('rsrc.a')); }
         near(Math.max(...am), 4.56, 0.05, 'AM peak (carrier + both side frequencies)');
         const w = env.slice(300);
-        near(Math.max(...w), 3.29, 0.1, 'envelope maximum');
-        near(Math.min(...w), 0.35, 0.1, 'envelope minimum');
+        // Re-measured when the piezo became a real capacitor (it loads ENV
+        // through the coupling capacitor): 3.29/0.35 V before, 3.12/0.65 V now.
+        near(Math.max(...w), 3.12, 0.1, 'envelope maximum');
+        near(Math.min(...w), 0.65, 0.1, 'envelope minimum');
         let repeat = 0, half = 0;
         for (let i = 300; i + 200 < env.length; i++) repeat = Math.max(repeat, Math.abs(env[i] - env[i + 200]));
         for (let i = 300; i + 100 < env.length; i++) half = Math.max(half, Math.abs(env[i] - env[i + 100]));
@@ -195,12 +197,12 @@ describe('lab circuits (builder 1): behaviour over time', { skip: SKIP }, () => 
         b.at(10);
         dark(b, 'led.anode', 'quiet');
         b.set('clap', 1); b.wait(50); b.set('clap', 0);
-        near(b.V('chold.a'), 2.17, 0.15, 'hold capacitor after one clap');
+        near(b.V('chold.pos'), 2.17, 0.15, 'hold capacitor after one clap');
         near(b.mA('led.anode'), 3.18, 0.3, 'LED after one clap');
         b.wait(250); near(b.mA('led.anode'), 2.31, 0.3, 'LED 0.25 s after the clap');
         b.wait(750); near(b.mA('led.anode'), 0.81, 0.2, 'LED 1 s after the clap');
         for (let k = 0; k < 4; k++) { b.set('clap', 1); b.wait(50); b.set('clap', 0); b.wait(150); }
-        near(b.V('chold.a'), 2.92, 0.15, 'hold capacitor after applause');
+        near(b.V('chold.pos'), 2.92, 0.15, 'hold capacitor after applause');
         near(b.mA('led.anode'), 4.76, 0.3, 'applause keeps the LED brighter than one clap');
         b.wait(1500); near(b.mA('led.anode'), 0.61, 0.2, 'faded 1.5 s after the last clap');
     });
@@ -208,24 +210,30 @@ describe('lab circuits (builder 1): behaviour over time', { skip: SKIP }, () => 
         const b = bench('lab-coin-toss');
         b.at(5);
         dark(b, 'heads.anode', 'power-on'); lit(b, 'tails.anode', 'power-on');
-        for (const [hold, face] of [[300, 'heads'], [320, 'tails'], [340, 'tails'], [360, 'tails'], [380, 'heads']]) {
+        // Re-measured when 555 timing became event-exact and LED colours got
+        // their own forward voltages: the sequence was heads/tails/tails/tails/
+        // heads at 8.2 mA each, it is now heads/heads/heads/tails/heads with
+        // red heads at 8.46 mA and green tails at 7.69 mA.
+        const litMA = { heads: 8.46, tails: 7.69 };
+        for (const [hold, face] of [[300, 'heads'], [320, 'heads'], [340, 'heads'], [360, 'tails'], [380, 'heads']]) {
             b.set('toss', 1); b.wait(hold); b.set('toss', 0); b.wait(200);
             const other = face === 'heads' ? 'tails' : 'heads';
-            near(b.mA(`${face}.anode`), 8.2, 0.3, `hold ${hold} ms: ${face}`);
+            near(b.mA(`${face}.anode`), litMA[face], 0.3, `hold ${hold} ms: ${face}`);
             dark(b, `${other}.anode`, `hold ${hold} ms`);
             b.wait(300);
-            near(b.mA(`${face}.anode`), 8.2, 0.3, `hold ${hold} ms: ${face} is kept`);
+            near(b.mA(`${face}.anode`), litMA[face], 0.3, `hold ${hold} ms: ${face} is kept`);
         }
     });
 
     test('lab-charge-pump: the reservoir climbs above the battery and sags under load', () => {
         const b = bench('lab-charge-pump');
         b.at(800);
-        near(b.V('cres.a'), 14.36, 0.4, 'reservoir after 0.8 s');
-        near(b.mA('led.anode'), 2.67, 0.2, 'LED load current');
+        near(b.V('cres.pos'), 14.36, 0.4, 'reservoir after 0.8 s');
+        // 2.67 mA before blue LEDs got their own 3.1 V forward voltage; 2.44 mA now.
+        near(b.mA('led.anode'), 2.44, 0.2, 'LED load current');
         b.set('heavy', 1);
         let low = Infinity;
-        for (let i = 0; i < 400; i += 5) { b.wait(5); low = Math.min(low, b.V('cres.a')); }
+        for (let i = 0; i < 400; i += 5) { b.wait(5); low = Math.min(low, b.V('cres.pos')); }
         assert.ok(low < 9.5, `heavy load: the output sags below the battery voltage (lowest ${low.toFixed(2)} V)`);
         assert.ok(low > 7, `heavy load: the pump still delivers (lowest ${low.toFixed(2)} V)`);
     });

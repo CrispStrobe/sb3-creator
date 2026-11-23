@@ -17,7 +17,9 @@ A 10 nF capacitor sits from each base to ground. SET shorts Q2's base to ground,
 
 ## Simulation note
 The two 10 nF base capacitors are part of the design (they make the power-on state certain and swallow
-spikes), and the simulator also needs them: without any capacitance a latch has no memory between solves.
+spikes). The simulator needs them for the power-on state: it has no noise, so without them it starts the
+latch exactly balanced, both transistors half on (about 5 mA in each LED), and nothing tips it over until a
+button is pressed. Once set or reset, the latch holds without them.
 
 ## What this verifies
 1. Positive feedback gives two stable states — one bit of memory.

@@ -5,10 +5,10 @@ prereqs: [lab-opamp-blinker, lab-opamp-integrator]
 teaches: [charge-pump, integrator, counting, staircase, analog-to-digital]
 ---
 ## What you see
-A needle that climbs in equal jumps, one jump per blink of a red LED. After thirteen jumps it is at the top; press RESET and it falls back to zero and starts climbing again.
+A needle that climbs in equal jumps, one jump per blink of a red LED. After twelve jumps it is at the top; press RESET and it falls back to zero and starts climbing again.
 
 ## Try this
-1. Start the simulation and count: blink, jump, blink, jump. Each jump is about 0.56 V.
+1. Start the simulation and count: blink, jump, blink, jump. Each jump is about 0.59 V.
 2. Put the scope on the integrator output: you see a staircase, flat between the steps.
 3. Press RESET at any time. The staircase restarts from 0 V.
 4. Work out the step size from C_pump, C_int and the clock swing before you measure it.

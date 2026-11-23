@@ -82,26 +82,18 @@
       "label": "Range 5 V / 10 V"
     },
     {
-      "id": "m_coil",
-      "kind": "resistor",
+      "id": "m_meter",
+      "kind": "analog_meter",
       "params": {
-        "ohms": 1000
+        "mode": "current",
+        "coilOhms": 1000,
+        "ifs": 0.0001,
+        "fullScale": 0.0001
       },
       "x": 520,
       "y": 355,
       "rotation": 0,
-      "label": "Meter coil 1k"
-    },
-    {
-      "id": "m_needle",
-      "kind": "analog_meter",
-      "params": {
-        "fullScale": 0.1
-      },
-      "x": 630,
-      "y": 355,
-      "rotation": 0,
-      "label": "Meter (100 uA full scale)"
+      "label": "Meter (1 k coil, 100 uA full scale)"
     }
   ],
   "wires": [
@@ -150,13 +142,7 @@
     {
       "from": "range",
       "fromTerminal": "com",
-      "to": "m_coil",
-      "toTerminal": "a"
-    },
-    {
-      "from": "m_coil",
-      "fromTerminal": "a",
-      "to": "m_needle",
+      "to": "m_meter",
       "toTerminal": "a"
     },
     {
@@ -174,13 +160,7 @@
     {
       "from": "dvm",
       "fromTerminal": "b",
-      "to": "m_coil",
-      "toTerminal": "b"
-    },
-    {
-      "from": "m_coil",
-      "fromTerminal": "b",
-      "to": "m_needle",
+      "to": "m_meter",
       "toTerminal": "b"
     }
   ]

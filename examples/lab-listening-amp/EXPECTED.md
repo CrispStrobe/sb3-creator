@@ -4,8 +4,8 @@
 - 9 V supply. A loudspeaker used as a microphone gives only millivolts; here a 1 kHz source of 10 mV amplitude stands in for it (the simulator has no speaker that works backwards).
 - C1 = 1 µF couples it onto a 10 kΩ pot used as a volume divider; C2 = 1 µF couples the wiper into the amplifier.
 - R1 = 10 kΩ and R2 = 10 kΩ make a half-supply reference; R3 = 100 kΩ biases the amplifier's input to it, so the output can swing both ways around half the supply.
-- The op-amp (output limited to the 0 to 9 V rails) is a non-inverting stage with R4 = 100 kΩ and R5 = 1 kΩ: gain 1 + 100000 / 1000 = 101 for speech-band signals. C3 = 2.2 µF in series with R5 keeps the DC gain at 1, so the bias stays put.
-- C4 = 10 µF couples the output to the piezo earpiece.
+- Half of an LM358 (the other half parked as a grounded follower) is a non-inverting stage with R4 = 100 kΩ and R5 = 1 kΩ: gain 1 + 100000 / 1000 = 101 for speech-band signals. C3 = 2.2 µF in series with R5 keeps the DC gain at 1, so the bias stays put.
+- C4 = 10 µF couples the output to the piezo earpiece. C3 and C4 are electrolytics, their + sides towards the amplifier.
 
 ## Observable behaviour
 - After switch-on the coupling capacitors take about half a second to charge; the output then settles at half the supply, 4.5 V.

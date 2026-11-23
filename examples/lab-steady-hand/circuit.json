@@ -93,7 +93,7 @@
   },
   {
    "id": "c_t",
-   "kind": "capacitor",
+   "kind": "polarized_cap",
    "params": {
     "farads": 0.00001
    },
@@ -103,8 +103,8 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a11",
-     "b": "a12"
+     "pos": "a11",
+     "neg": "a12"
     }
    }
   },
@@ -252,11 +252,11 @@
    "from": "wire_touch",
    "fromTerminal": "b",
    "to": "c_t",
-   "toTerminal": "b"
+   "toTerminal": "neg"
   },
   {
    "from": "c_t",
-   "fromTerminal": "b",
+   "fromTerminal": "neg",
    "to": "c_ctl",
    "toTerminal": "b"
   },
@@ -300,7 +300,7 @@
    "from": "timer",
    "fromTerminal": "discharge",
    "to": "c_t",
-   "toTerminal": "a"
+   "toTerminal": "pos"
   },
   {
    "from": "timer",

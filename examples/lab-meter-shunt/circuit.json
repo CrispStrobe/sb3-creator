@@ -51,26 +51,18 @@
       "label": "Shunt in / out"
     },
     {
-      "id": "mt_coil",
-      "kind": "resistor",
+      "id": "mt_meter",
+      "kind": "analog_meter",
       "params": {
-        "ohms": 1000
+        "mode": "current",
+        "coilOhms": 1000,
+        "ifs": 0.0001,
+        "fullScale": 0.0001
       },
       "x": 410,
       "y": 165,
       "rotation": 0,
-      "label": "Total coil 1k"
-    },
-    {
-      "id": "mt_needle",
-      "kind": "analog_meter",
-      "params": {
-        "fullScale": 0.1
-      },
-      "x": 520,
-      "y": 165,
-      "rotation": 0,
-      "label": "Total (100 uA full scale)"
+      "label": "Total (1 k coil, 100 uA full scale)"
     },
     {
       "id": "r_a",
@@ -95,26 +87,18 @@
       "label": "Shunt A 10.1"
     },
     {
-      "id": "ma_coil",
-      "kind": "resistor",
+      "id": "ma_meter",
+      "kind": "analog_meter",
       "params": {
-        "ohms": 1000
+        "mode": "current",
+        "coilOhms": 1000,
+        "ifs": 0.0001,
+        "fullScale": 0.0001
       },
       "x": 410,
       "y": 355,
       "rotation": 0,
-      "label": "Branch A coil 1k"
-    },
-    {
-      "id": "ma_needle",
-      "kind": "analog_meter",
-      "params": {
-        "fullScale": 0.1
-      },
-      "x": 520,
-      "y": 355,
-      "rotation": 0,
-      "label": "Branch A (100 uA full scale)"
+      "label": "Branch A (1 k coil, 100 uA full scale)"
     },
     {
       "id": "r_b",
@@ -139,26 +123,18 @@
       "label": "Shunt B 10.1"
     },
     {
-      "id": "mb_coil",
-      "kind": "resistor",
+      "id": "mb_meter",
+      "kind": "analog_meter",
       "params": {
-        "ohms": 1000
+        "mode": "current",
+        "coilOhms": 1000,
+        "ifs": 0.0001,
+        "fullScale": 0.0001
       },
       "x": 410,
       "y": 545,
       "rotation": 0,
-      "label": "Branch B coil 1k"
-    },
-    {
-      "id": "mb_needle",
-      "kind": "analog_meter",
-      "params": {
-        "fullScale": 0.1
-      },
-      "x": 520,
-      "y": 545,
-      "rotation": 0,
-      "label": "Branch B (100 uA full scale)"
+      "label": "Branch B (1 k coil, 100 uA full scale)"
     }
   ],
   "wires": [
@@ -177,13 +153,7 @@
     {
       "from": "shunt_sw",
       "fromTerminal": "com",
-      "to": "mt_coil",
-      "toTerminal": "a"
-    },
-    {
-      "from": "mt_coil",
-      "fromTerminal": "a",
-      "to": "mt_needle",
+      "to": "mt_meter",
       "toTerminal": "a"
     },
     {
@@ -195,17 +165,11 @@
     {
       "from": "shunt_t",
       "fromTerminal": "b",
-      "to": "mt_coil",
+      "to": "mt_meter",
       "toTerminal": "b"
     },
     {
-      "from": "mt_coil",
-      "fromTerminal": "b",
-      "to": "mt_needle",
-      "toTerminal": "b"
-    },
-    {
-      "from": "mt_needle",
+      "from": "mt_meter",
       "fromTerminal": "b",
       "to": "r_a",
       "toTerminal": "a"
@@ -225,13 +189,7 @@
     {
       "from": "shunt_a",
       "fromTerminal": "a",
-      "to": "ma_coil",
-      "toTerminal": "a"
-    },
-    {
-      "from": "ma_coil",
-      "fromTerminal": "a",
-      "to": "ma_needle",
+      "to": "ma_meter",
       "toTerminal": "a"
     },
     {
@@ -243,13 +201,7 @@
     {
       "from": "shunt_b",
       "fromTerminal": "a",
-      "to": "mb_coil",
-      "toTerminal": "a"
-    },
-    {
-      "from": "mb_coil",
-      "fromTerminal": "a",
-      "to": "mb_needle",
+      "to": "mb_meter",
       "toTerminal": "a"
     },
     {
@@ -261,17 +213,11 @@
     {
       "from": "shunt_a",
       "fromTerminal": "b",
-      "to": "ma_coil",
+      "to": "ma_meter",
       "toTerminal": "b"
     },
     {
-      "from": "ma_coil",
-      "fromTerminal": "b",
-      "to": "ma_needle",
-      "toTerminal": "b"
-    },
-    {
-      "from": "ma_needle",
+      "from": "ma_meter",
       "fromTerminal": "b",
       "to": "shunt_b",
       "toTerminal": "b"
@@ -279,13 +225,7 @@
     {
       "from": "shunt_b",
       "fromTerminal": "b",
-      "to": "mb_coil",
-      "toTerminal": "b"
-    },
-    {
-      "from": "mb_coil",
-      "fromTerminal": "b",
-      "to": "mb_needle",
+      "to": "mb_meter",
       "toTerminal": "b"
     }
   ]

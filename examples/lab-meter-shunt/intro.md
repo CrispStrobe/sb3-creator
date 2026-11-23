@@ -16,4 +16,4 @@ Click **Sim**. Read the three needles: the total and branches A and B, all on a 
 
 ## Why it works
 
-At full scale the coil has 0.1 V across it. The 10.1 Ω shunt passes 9.9 mA at that voltage, so coil and shunt together carry 10 mA. Without the shunt, the coil would need 1000 times its rated current to show 6 mA.
+At full scale the coil has 0.1 V across it. The 10.1 Ω shunt passes 9.9 mA at that voltage, so coil and shunt together carry 10 mA. Without the shunt, the coil would need 60 times its rated current to show 6 mA.

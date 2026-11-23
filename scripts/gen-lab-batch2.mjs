@@ -292,12 +292,13 @@ B['lab-lamp-monitor'] = () => ({
     ],
 });
 
-// A moving-coil movement is a coil (here 1 kOhm) that deflects fully at
-// 100 uA. The analog_meter across the coil reads the coil's own voltage, so
-// its needle IS the coil current: 100 uA x 1 kOhm = 0.1 V full scale.
+// A bare moving-coil movement: a 1 kOhm coil that deflects fully at 100 uA.
+// The analog_meter IS that coil (current mode, no built-in shunt because the
+// full scale equals the coil's own rating); shunts and multipliers are the
+// visible resistors around it, which is the lesson.
 const movement = (id, label, col, row) => [
-    { id: `${id}_coil`, kind: 'resistor', params: { ohms: 1000 }, label: `${label} coil 1k`, at: at(col, row) },
-    { id: `${id}_needle`, kind: 'analog_meter', params: { fullScale: 0.1 }, label: `${label} (100 uA full scale)`, at: at(col + 1, row) },
+    { id: `${id}_meter`, kind: 'analog_meter', params: { mode: 'current', coilOhms: 1000, ifs: 100e-6, fullScale: 100e-6 },
+        label: `${label} (1 k coil, 100 uA full scale)`, at: at(col, row) },
 ];
 
 // lab-meter-multiplier: the movement as a voltmeter, two ranges, measuring
@@ -320,8 +321,8 @@ B['lab-meter-multiplier'] = () => ({
         ['r_up.b', 'r_dn.a', 'dvm.a', 'r_5v.a', 'r_10v.a'],
         ['r_5v.b', 'range.a'],
         ['r_10v.b', 'range.b'],
-        ['range.com', 'm_coil.a', 'm_needle.a'],
-        ['gnd1.gnd', 'r_dn.b', 'dvm.b', 'm_coil.b', 'm_needle.b'],
+        ['range.com', 'm_meter.a'],
+        ['gnd1.gnd', 'r_dn.b', 'dvm.b', 'm_meter.b'],
     ],
 });
 
@@ -347,12 +348,12 @@ B['lab-meter-shunt'] = () => ({
     ],
     nets: [
         ['vcc1.vcc', 'r_feed.a'],
-        ['r_feed.b', 'shunt_sw.com', 'mt_coil.a', 'mt_needle.a'],
+        ['r_feed.b', 'shunt_sw.com', 'mt_meter.a'],
         ['shunt_sw.a', 'shunt_t.a'],
-        ['shunt_t.b', 'mt_coil.b', 'mt_needle.b', 'r_a.a', 'r_b.a'],
-        ['r_a.b', 'shunt_a.a', 'ma_coil.a', 'ma_needle.a'],
-        ['r_b.b', 'shunt_b.a', 'mb_coil.a', 'mb_needle.a'],
-        ['gnd1.gnd', 'shunt_a.b', 'ma_coil.b', 'ma_needle.b', 'shunt_b.b', 'mb_coil.b', 'mb_needle.b'],
+        ['shunt_t.b', 'mt_meter.b', 'r_a.a', 'r_b.a'],
+        ['r_a.b', 'shunt_a.a', 'ma_meter.a'],
+        ['r_b.b', 'shunt_b.a', 'mb_meter.a'],
+        ['gnd1.gnd', 'shunt_a.b', 'ma_meter.b', 'shunt_b.b', 'mb_meter.b'],
     ],
 });
 
@@ -463,7 +464,7 @@ B['lab-exposure-timer'] = () => ({
         { id: 'gnd1', kind: 'gnd', at: at(0, 6) },
         { id: 'pt', kind: 'phototransistor', params: { light: 0.5, iMax: 0.0005 }, label: 'Phototransistor', at: at(1, 1) },
         { id: 'r1', kind: 'resistor', params: { ohms: 1000000 }, label: 'R1 1M', at: at(2, 1) },
-        { id: 'c_t', kind: 'capacitor', params: { farads: 22e-6 }, label: 'C1 22u', at: at(2, 5) },
+        { id: 'c_t', kind: 'polarized_cap', params: { farads: 22e-6 }, label: 'C1 22u', at: at(2, 5) },
         { id: 'r_trig', kind: 'resistor', params: { ohms: 10000 }, label: 'R2 10k', at: at(3, 1) },
         { id: 'start', kind: 'button', label: 'Start', at: at(3, 5) },
         timer('u1', 'U1 555', 4, 3),
@@ -473,12 +474,12 @@ B['lab-exposure-timer'] = () => ({
     ],
     nets: [
         ['vcc1.vcc', 'pt.collector', 'r1.a', 'r_trig.a', 'u1.vcc', 'u1.reset'],
-        ['pt.emitter', 'r1.b', 'u1.threshold', 'u1.discharge', 'c_t.a'],
+        ['pt.emitter', 'r1.b', 'u1.threshold', 'u1.discharge', 'c_t.pos'],
         ['r_trig.b', 'u1.trigger', 'start.a'],
         ['u1.control', 'c_ctl.a'],
         ['u1.output', 'r_led.a'],
         ['r_led.b', 'lamp.anode'],
-        ['gnd1.gnd', 'c_t.b', 'start.b', 'c_ctl.b', 'u1.gnd', 'lamp.cathode'],
+        ['gnd1.gnd', 'c_t.neg', 'start.b', 'c_ctl.b', 'u1.gnd', 'lamp.cathode'],
     ],
 });
 
@@ -555,11 +556,11 @@ B['lab-level-crossing'] = () => ({
         { id: 'reed_b', kind: 'reed_switch', params: { magnet: false }, label: 'Contact B (train gone)', at: at(1, 4) },
         { id: 'r_s', kind: 'resistor', params: { ohms: 10000 }, label: 'R1 10k', at: at(1, 1) },
         { id: 'r_r', kind: 'resistor', params: { ohms: 10000 }, label: 'R2 10k', at: at(2, 1) },
-        { id: 'c_por', kind: 'capacitor', params: { farads: 10e-6 }, label: 'C1 power-on reset', at: at(2, 5) },
+        { id: 'c_por', kind: 'polarized_cap', params: { farads: 10e-6 }, label: 'C1 power-on reset', at: at(2, 5) },
         { id: 'u1', kind: '74hc00', label: 'U1 NAND latch', at: at(3, 3) },
         { id: 'r_a', kind: 'resistor', params: { ohms: 10000 }, label: 'R3 10k', at: at(4, 1) },
         { id: 'r_b', kind: 'resistor', params: { ohms: 47000 }, label: 'R4 47k', at: at(4, 2) },
-        { id: 'c_t', kind: 'capacitor', params: { farads: 10e-6 }, label: 'C2 10u', at: at(4, 5) },
+        { id: 'c_t', kind: 'polarized_cap', params: { farads: 10e-6 }, label: 'C2 10u', at: at(4, 5) },
         timer('u2', 'U2 555 flasher', 5, 3),
         { id: 'c_ctl', kind: 'capacitor', params: { farads: 10e-9 }, label: 'C3 10n', at: at(5, 5) },
         { id: 'r_l1', kind: 'resistor', params: { ohms: 330 }, label: 'R5', at: at(6, 2) },
@@ -570,17 +571,17 @@ B['lab-level-crossing'] = () => ({
     nets: [
         ['vcc1.vcc', 'r_s.a', 'r_r.a', 'u1.vcc', 'r_a.a', 'u2.vcc'],
         ['r_s.b', 'reed_a.a', 'u1.1a'],               // /SET
-        ['r_r.b', 'reed_b.a', 'c_por.a', 'u1.2b'],    // /RESET, held low at power-on
+        ['r_r.b', 'reed_b.a', 'c_por.pos', 'u1.2b'],    // /RESET, held low at power-on
         ['u1.1y', 'u1.2a', 'u2.reset', 'r_l2.a'],     // Q: enables the flasher, feeds lamp 2
         ['u1.2y', 'u1.1b'],                           // /Q
         ['r_a.b', 'u2.discharge', 'r_b.a'],
-        ['r_b.b', 'u2.threshold', 'u2.trigger', 'c_t.a'],
+        ['r_b.b', 'u2.threshold', 'u2.trigger', 'c_t.pos'],
         ['u2.control', 'c_ctl.a'],
         ['u2.output', 'r_l1.a', 'lamp_2.cathode'],
         ['r_l1.b', 'lamp_1.anode'],
         ['r_l2.b', 'lamp_2.anode'],
-        ['gnd1.gnd', 'reed_a.b', 'reed_b.b', 'c_por.b', 'u1.gnd', 'u1.3a', 'u1.3b', 'u1.4a', 'u1.4b',
-            'c_t.b', 'c_ctl.b', 'u2.gnd', 'lamp_1.cathode'],
+        ['gnd1.gnd', 'reed_a.b', 'reed_b.b', 'c_por.neg', 'u1.gnd', 'u1.3a', 'u1.3b', 'u1.4a', 'u1.4b',
+            'c_t.neg', 'c_ctl.b', 'u2.gnd', 'lamp_1.cathode'],
     ],
 });
 
@@ -661,9 +662,11 @@ B['lab-hall-poles'] = () => ({
         { id: 'led_n', kind: 'led', params: { vf: 2, color: 'red' }, label: 'North', at: at(5, 2) },
         { id: 'r_s', kind: 'resistor', params: { ohms: 220 }, label: 'R5', at: at(4, 4) },
         { id: 'led_s', kind: 'led', params: { vf: 2, color: 'green' }, label: 'South', at: at(5, 4) },
-        { id: 'r_z1', kind: 'resistor', params: { ohms: 10000 }, label: 'R6 10k', at: at(6, 1) },
-        { id: 'r_z2', kind: 'resistor', params: { ohms: 10000 }, label: 'R7 10k', at: at(6, 5) },
-        { id: 'meter', kind: 'analog_meter', params: { fullScale: 2 }, label: 'Field (centre zero)', at: at(7, 3) },
+        // A 50 uA movement on a 2 V range (40 kOhm) against a stiff 1 k / 1 k
+        // reference: the meter current barely moves the 2.5 V zero.
+        { id: 'r_z1', kind: 'resistor', params: { ohms: 1000 }, label: 'R6 1k', at: at(6, 1) },
+        { id: 'r_z2', kind: 'resistor', params: { ohms: 1000 }, label: 'R7 1k', at: at(6, 5) },
+        { id: 'meter', kind: 'analog_meter', params: { fullScale: 2, ifs: 50e-6 }, label: 'Field (centre zero)', at: at(7, 3) },
     ],
     nets: [
         ['vcc1.vcc', 'hall.vcc', 'r_t.a', 'u1.vcc', 'r_z1.a'],
@@ -679,7 +682,7 @@ B['lab-hall-poles'] = () => ({
 
 // lab-listening-amp: a few millivolts from a speaker used as microphone
 // (here a 1 kHz source standing in for it), a volume divider, and a
-// non-inverting x101 stage biased at half supply.
+// non-inverting x101 stage (half an LM358) biased at half supply.
 B['lab-listening-amp'] = () => ({
     vcc: 9,
     parts: [
@@ -692,25 +695,26 @@ B['lab-listening-amp'] = () => ({
         { id: 'r_h1', kind: 'resistor', params: { ohms: 10000 }, label: 'R1 10k', at: at(3, 0) },
         { id: 'r_h2', kind: 'resistor', params: { ohms: 10000 }, label: 'R2 10k', at: at(3, 5) },
         { id: 'r_bias', kind: 'resistor', params: { ohms: 100000 }, label: 'R3 100k bias', at: at(4, 1) },
-        { id: 'u1', kind: 'opamp', label: 'U1 x101 (rails 0-9 V)', at: at(4, 3) },
+        { id: 'u1', kind: 'lm358', label: 'U1 LM358 x101', at: at(4, 3) },
         { id: 'r_fb', kind: 'resistor', params: { ohms: 100000 }, label: 'R4 100k', at: at(5, 1) },
         { id: 'r_g', kind: 'resistor', params: { ohms: 1000 }, label: 'R5 1k', at: at(5, 4) },
-        { id: 'c_g', kind: 'capacitor', params: { farads: 2.2e-6 }, label: 'C3 2u2', at: at(5, 5) },
-        { id: 'c_out', kind: 'capacitor', params: { farads: 10e-6 }, label: 'C4 10u', at: at(6, 2) },
+        { id: 'c_g', kind: 'polarized_cap', params: { farads: 2.2e-6 }, label: 'C3 2u2', at: at(5, 5) },
+        { id: 'c_out', kind: 'polarized_cap', params: { farads: 10e-6 }, label: 'C4 10u', at: at(6, 2) },
         { id: 'ear', kind: 'piezo', label: 'Earpiece', at: at(7, 3) },
     ],
     nets: [
-        ['vcc1.vcc', 'r_h1.a'],
+        ['vcc1.vcc', 'r_h1.a', 'u1.vcc'],
         ['mic.pos', 'c_in.a'],
         ['c_in.b', 'pot.a'],
         ['pot.wiper', 'c_c.a'],
         ['r_h1.b', 'r_h2.a', 'r_bias.a'],               // 4.5 V half-supply reference
-        ['c_c.b', 'r_bias.b', 'u1.inp'],
-        ['u1.inn', 'r_fb.a', 'r_g.a'],
-        ['r_g.b', 'c_g.a'],
-        ['u1.out', 'r_fb.b', 'c_out.a'],
-        ['c_out.b', 'ear.a'],
-        ['gnd1.gnd', 'mic.neg', 'pot.b', 'r_h2.b', 'c_g.b', 'ear.b'],
+        ['c_c.b', 'r_bias.b', 'u1.1_pos'],
+        ['u1.1_neg', 'r_fb.a', 'r_g.a'],
+        ['r_g.b', 'c_g.pos'],
+        ['u1.1_out', 'r_fb.b', 'c_out.pos'],
+        ['c_out.neg', 'ear.a'],
+        ['u1.2_neg', 'u1.2_out'],
+        ['gnd1.gnd', 'mic.neg', 'pot.b', 'r_h2.b', 'c_g.neg', 'ear.b', 'u1.gnd', 'u1.2_pos'],
     ],
 });
 

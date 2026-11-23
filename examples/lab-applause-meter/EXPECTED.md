@@ -44,7 +44,7 @@ waveform, so a single-instant solve cannot speak for it):
 
 ```assert
 # quiet at 1 ms: nothing has reached the hold capacitor
-net chold.a V 0.00 +-0.01
+net chold.pos V 0.00 +-0.01
 ```
 
 <!-- engine-provenance -->

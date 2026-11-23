@@ -100,12 +100,12 @@
     },
     {
       "id": "u1",
-      "kind": "opamp",
+      "kind": "lm358",
       "params": {},
       "x": 520,
       "y": 355,
       "rotation": 0,
-      "label": "U1 x101 (rails 0-9 V)"
+      "label": "U1 LM358 x101"
     },
     {
       "id": "r_fb",
@@ -131,7 +131,7 @@
     },
     {
       "id": "c_g",
-      "kind": "capacitor",
+      "kind": "polarized_cap",
       "params": {
         "farads": 0.0000022
       },
@@ -142,7 +142,7 @@
     },
     {
       "id": "c_out",
-      "kind": "capacitor",
+      "kind": "polarized_cap",
       "params": {
         "farads": 0.00001
       },
@@ -167,6 +167,12 @@
       "fromTerminal": "vcc",
       "to": "r_h1",
       "toTerminal": "a"
+    },
+    {
+      "from": "r_h1",
+      "fromTerminal": "a",
+      "to": "u1",
+      "toTerminal": "vcc"
     },
     {
       "from": "mic",
@@ -208,11 +214,11 @@
       "from": "r_bias",
       "fromTerminal": "b",
       "to": "u1",
-      "toTerminal": "inp"
+      "toTerminal": "1_pos"
     },
     {
       "from": "u1",
-      "fromTerminal": "inn",
+      "fromTerminal": "1_neg",
       "to": "r_fb",
       "toTerminal": "a"
     },
@@ -226,11 +232,11 @@
       "from": "r_g",
       "fromTerminal": "b",
       "to": "c_g",
-      "toTerminal": "a"
+      "toTerminal": "pos"
     },
     {
       "from": "u1",
-      "fromTerminal": "out",
+      "fromTerminal": "1_out",
       "to": "r_fb",
       "toTerminal": "b"
     },
@@ -238,13 +244,19 @@
       "from": "r_fb",
       "fromTerminal": "b",
       "to": "c_out",
-      "toTerminal": "a"
+      "toTerminal": "pos"
     },
     {
       "from": "c_out",
-      "fromTerminal": "b",
+      "fromTerminal": "neg",
       "to": "ear",
       "toTerminal": "a"
+    },
+    {
+      "from": "u1",
+      "fromTerminal": "2_neg",
+      "to": "u1",
+      "toTerminal": "2_out"
     },
     {
       "from": "gnd1",
@@ -268,13 +280,25 @@
       "from": "r_h2",
       "fromTerminal": "b",
       "to": "c_g",
-      "toTerminal": "b"
+      "toTerminal": "neg"
     },
     {
       "from": "c_g",
-      "fromTerminal": "b",
+      "fromTerminal": "neg",
       "to": "ear",
       "toTerminal": "b"
+    },
+    {
+      "from": "ear",
+      "fromTerminal": "b",
+      "to": "u1",
+      "toTerminal": "gnd"
+    },
+    {
+      "from": "u1",
+      "fromTerminal": "gnd",
+      "to": "u1",
+      "toTerminal": "2_pos"
     }
   ]
 }

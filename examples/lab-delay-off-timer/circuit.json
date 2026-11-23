@@ -66,25 +66,18 @@
       }
     },
     {
-      "id": "capacitor_5",
-      "kind": "capacitor",
+      "id": "polarized_cap_5",
+      "kind": "polarized_cap",
       "params": {
         "farads": 0.0001
       },
       "terminals": [
-        "a",
-        "b"
+        "pos",
+        "neg"
       ],
-      "x": 0,
-      "y": 0,
-      "rotation": 0,
-      "seat": {
-        "boardId": "breadboard_1",
-        "leadMap": {
-          "a": "f4",
-          "b": "f5"
-        }
-      }
+      "x": 210,
+      "y": 70,
+      "rotation": 0
     },
     {
       "id": "resistor_6",
@@ -102,8 +95,8 @@
       "seat": {
         "boardId": "breadboard_1",
         "leadMap": {
-          "a": "f7",
-          "b": "f11"
+          "a": "f4",
+          "b": "f8"
         }
       }
     },
@@ -147,9 +140,9 @@
       "seat": {
         "boardId": "breadboard_1",
         "leadMap": {
-          "emitter": "f13",
-          "base": "f14",
-          "collector": "f15"
+          "emitter": "f10",
+          "base": "f11",
+          "collector": "f12"
         }
       }
     },
@@ -191,8 +184,8 @@
       "seat": {
         "boardId": "breadboard_1",
         "leadMap": {
-          "anode": "f17",
-          "cathode": "f18"
+          "anode": "f14",
+          "cathode": "f15"
         }
       }
     }
@@ -211,10 +204,34 @@
       }
     },
     {
+      "id": "w_19",
+      "netId": "net_20",
+      "from": {
+        "part": "polarized_cap_5",
+        "terminal": "pos"
+      },
+      "to": {
+        "board": "breadboard_1",
+        "hole": "c8"
+      }
+    },
+    {
       "id": "w_27",
       "netId": "net_28",
       "from": {
         "part": "vsource_2",
+        "terminal": "neg"
+      },
+      "to": {
+        "board": "breadboard_1",
+        "hole": "t-61"
+      }
+    },
+    {
+      "id": "w_29",
+      "netId": "net_30",
+      "from": {
+        "part": "polarized_cap_5",
         "terminal": "neg"
       },
       "to": {
@@ -267,59 +284,45 @@
       "color": "blue"
     },
     {
-      "ref": "bbw:breadboard_1:bbw_19",
-      "boardId": "breadboard_1",
-      "a": "h4",
-      "b": "g7",
-      "color": "blue"
-    },
-    {
-      "ref": "bbw:breadboard_1:bbw_20",
-      "boardId": "breadboard_1",
-      "a": "g11",
-      "b": "b11",
-      "color": "blue"
-    },
-    {
       "ref": "bbw:breadboard_1:bbw_21",
       "boardId": "breadboard_1",
-      "a": "b10",
-      "b": "g14",
+      "a": "g8",
+      "b": "b11",
       "color": "blue"
     },
     {
       "ref": "bbw:breadboard_1:bbw_22",
       "boardId": "breadboard_1",
-      "a": "b18",
-      "b": "g17",
+      "a": "b10",
+      "b": "g11",
       "color": "blue"
     },
     {
       "ref": "bbw:breadboard_1:bbw_23",
       "boardId": "breadboard_1",
-      "a": "g18",
-      "b": "b12",
+      "a": "b18",
+      "b": "g14",
       "color": "blue"
     },
     {
       "ref": "bbw:breadboard_1:bbw_24",
       "boardId": "breadboard_1",
-      "a": "c12",
-      "b": "g15",
+      "a": "g15",
+      "b": "b12",
       "color": "blue"
     },
     {
       "ref": "bbw:breadboard_1:bbw_25",
       "boardId": "breadboard_1",
-      "a": "g5",
-      "b": "b-5",
-      "color": "black"
+      "a": "c12",
+      "b": "g12",
+      "color": "blue"
     },
     {
       "ref": "bbw:breadboard_1:bbw_26",
       "boardId": "breadboard_1",
-      "a": "g13",
-      "b": "b-13",
+      "a": "g10",
+      "b": "b-10",
       "color": "black"
     }
   ]

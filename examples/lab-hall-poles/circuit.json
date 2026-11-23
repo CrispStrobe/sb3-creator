@@ -120,29 +120,30 @@
       "id": "r_z1",
       "kind": "resistor",
       "params": {
-        "ohms": 10000
+        "ohms": 1000
       },
       "x": 740,
       "y": 165,
       "rotation": 0,
-      "label": "R6 10k"
+      "label": "R6 1k"
     },
     {
       "id": "r_z2",
       "kind": "resistor",
       "params": {
-        "ohms": 10000
+        "ohms": 1000
       },
       "x": 740,
       "y": 545,
       "rotation": 0,
-      "label": "R7 10k"
+      "label": "R7 1k"
     },
     {
       "id": "meter",
       "kind": "analog_meter",
       "params": {
-        "fullScale": 2
+        "fullScale": 2,
+        "ifs": 0.00005
       },
       "x": 850,
       "y": 355,

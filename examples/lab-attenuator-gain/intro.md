@@ -9,8 +9,8 @@ A tone generator that is far too loud for its amplifier, a divider that turns it
 
 ## Try this
 1. Start the simulation and look at the output on the scope: a small, clean sine, about 0.4 V peak.
-2. Slide GAIN to the 100 Ω side. Ten times the gain: about 4 V peak, still clean, much louder.
-3. Slide GAIN back and close BYPASS. Now the full 4 V signal hits an amplifier with gain 101. The output slams into its limits and the sine becomes a flat-topped block.
+2. Slide GAIN to the 100 Ω side. Ten times the gain on paper: about 3.6 V peak (the op-amp runs short of bandwidth at this gain), still clean, much louder.
+3. Slide GAIN back and close BYPASS. Now the full signal, a few volts, hits an amplifier with gain 101. The output slams into its limits and the sine becomes a flat-topped block.
 4. Work out the divider ratio and both gains from the resistor values before you look.
 
 ## What is going on

@@ -19,5 +19,5 @@ a Darlington pair (two NPN transistors, beta 100 each). The pair switches a yell
 ```assert
 # idle at t = 1 ms: capacitor empty, Darlington off
 net vsource_2.pos V 9.00 +-0.01
-net capacitor_5.a V 0.00 +-0.01
+net polarized_cap_5.pos V 0.00 +-0.01
 ```

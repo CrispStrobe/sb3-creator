@@ -24,6 +24,16 @@
    }
   },
   {
+   "id": "bat_pos",
+   "kind": "vsource",
+   "params": {
+    "volts": 9
+   },
+   "label": "+9 V",
+   "x": 60,
+   "y": 160
+  },
+  {
    "id": "bat_neg",
    "kind": "vsource",
    "params": {
@@ -35,23 +45,11 @@
   },
   {
    "id": "amp",
-   "kind": "opamp",
-   "params": {
-    "gain": 100000,
-    "railHigh": 7.5,
-    "railLow": -9
-   },
-   "label": "integrator op-amp",
+   "kind": "lm358",
+   "params": {},
+   "label": "LM358",
    "x": 71,
-   "y": 311,
-   "seat": {
-    "boardId": "bb1",
-    "leadMap": {
-     "inn": "e3",
-     "inp": "e4",
-     "out": "f3"
-    }
-   }
+   "y": 311
   },
   {
    "id": "run_sw",
@@ -87,7 +85,7 @@
   },
   {
    "id": "c_int",
-   "kind": "capacitor",
+   "kind": "polarized_cap",
    "params": {
     "farads": 0.0001
    },
@@ -97,8 +95,8 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a11",
-     "b": "a12"
+     "neg": "a11",
+     "pos": "a12"
     }
    }
   },
@@ -144,11 +142,11 @@
    "from": "bat_neg",
    "fromTerminal": "pos",
    "to": "amp",
-   "toTerminal": "inp"
+   "toTerminal": "1_pos"
   },
   {
    "from": "amp",
-   "fromTerminal": "inp",
+   "fromTerminal": "1_pos",
    "to": "meter",
    "toTerminal": "b"
   },
@@ -162,29 +160,29 @@
    "from": "r_in",
    "fromTerminal": "b",
    "to": "amp",
-   "toTerminal": "inn"
+   "toTerminal": "1_neg"
   },
   {
    "from": "amp",
-   "fromTerminal": "inn",
+   "fromTerminal": "1_neg",
    "to": "c_int",
-   "toTerminal": "a"
+   "toTerminal": "neg"
   },
   {
    "from": "c_int",
-   "fromTerminal": "a",
+   "fromTerminal": "neg",
    "to": "reset_btn",
    "toTerminal": "a"
   },
   {
    "from": "amp",
-   "fromTerminal": "out",
+   "fromTerminal": "1_out",
    "to": "c_int",
-   "toTerminal": "b"
+   "toTerminal": "pos"
   },
   {
    "from": "c_int",
-   "fromTerminal": "b",
+   "fromTerminal": "pos",
    "to": "reset_btn",
    "toTerminal": "b"
   },
@@ -193,6 +191,36 @@
    "fromTerminal": "b",
    "to": "meter",
    "toTerminal": "a"
+  },
+  {
+   "from": "bat_pos",
+   "fromTerminal": "neg",
+   "to": "gnd",
+   "toTerminal": "gnd"
+  },
+  {
+   "from": "bat_pos",
+   "fromTerminal": "pos",
+   "to": "amp",
+   "toTerminal": "vcc"
+  },
+  {
+   "from": "amp",
+   "fromTerminal": "gnd",
+   "to": "bat_neg",
+   "toTerminal": "neg"
+  },
+  {
+   "from": "amp",
+   "fromTerminal": "2_pos",
+   "to": "gnd",
+   "toTerminal": "gnd"
+  },
+  {
+   "from": "amp",
+   "fromTerminal": "2_neg",
+   "to": "amp",
+   "toTerminal": "2_out"
   }
  ]
 }

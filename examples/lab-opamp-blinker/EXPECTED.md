@@ -11,8 +11,8 @@ The second half of the LM358 is parked as a grounded follower.
 
 ## Observable behaviour
 - **The LEDs alternate:** red and green take turns, never both on.
-- **The output is a square wave** between about 0.66 V and 7.0 V. The LM358 cannot reach its supply rails, especially not the top one.
-- **The capacitor ramps between two thresholds.** With the output high the non-inverting input sits at (9 + 7.0) / 3 = 5.33 V, with it low at (9 + 0.66) / 3 = 3.22 V. The capacitor voltage rises to the upper value, the output flips, and it falls back to the lower one.
+- **The output is a square wave** between about 0.36 V and 7.2 V. The LM358 cannot reach its supply rails, especially not the top one.
+- **The capacitor ramps between two thresholds.** With the output high the non-inverting input sits at (9 + 7.22) / 3 = 5.41 V, with it low at (9 + 0.36) / 3 = 3.12 V. The capacitor voltage rises to the upper value, the output flips, and it falls back to the lower one.
 - **Rate:** the period is about 1.42 × R_t × C_t, where R_t = R_min + the RATE setting.
 
 | RATE position | R_t | blink rate |
@@ -21,7 +21,7 @@ The second half of the LM358 is parked as a grounded follower.
 | 25 % (start) | 47 kΩ | 1.5 Hz |
 | 100 % | 122 kΩ | 0.58 Hz |
 
-- **Not quite 50/50:** the red (high) phase is a little longer than the green one, about 58 % of the period, because the thresholds are not centred between the two output levels.
+- **Not quite 50/50:** the red (high) phase is a little longer than the green one, about 57 % of the period, because the thresholds are not centred between the two output levels.
 
 ## What this verifies
 1. A comparator with hysteresis plus an RC network is an oscillator.
@@ -29,6 +29,6 @@ The second half of the LM358 is parked as a grounded follower.
 
 ```assert
 # t = 1 ms: capacitor still empty, output high
-net u1.1_out V 6.99 +-0.10
-net u1.1_pos V 5.33 +-0.05
+net u1.1_out V 7.22 +-0.10
+net u1.1_pos V 5.41 +-0.05
 ```

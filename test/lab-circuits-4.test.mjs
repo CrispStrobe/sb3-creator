@@ -43,7 +43,12 @@ function bench(id) {
         /** Current INTO a named terminal, in mA, sign dropped. */
         mA(name, term = 'a') { return Math.abs(b.branchCurrent(ids[name], term)) * 1e3; },
         run(ms) {
-            tMs += ms;
+            // A long advance is taken in 5 ms pieces, the way the app's frame
+            // loop takes it: the engine caps the solver attempts per advance,
+            // and one 60 ms advance over a 3 kHz sine exceeds that cap.
+            const end = tMs + ms;
+            while (tMs + 5 < end) { tMs += 5; b.advanceTo(BigInt(Math.round(tMs * 1e6))); }
+            tMs = end;
             b.advanceTo(BigInt(Math.round(tMs * 1e6)));
             assert.equal(b.transientAnalysisStatus().failure, null, `${id}: solver failed by ${tMs} ms`);
         },
@@ -148,7 +153,7 @@ describe('lab benches behave as documented', { skip: SKIP }, () => {
         let deadB = 0, worstAB = 0;
         for (let i = 0; i < 40; i++) {
             x.run(0.5);
-            const s = x.v('sig', 'pos');
+            const s = x.v('sig', 'out');
             if (Math.abs(s) < 0.5) deadB = Math.max(deadB, Math.abs(x.v('rl1', 'a')));
             worstAB = Math.max(worstAB, Math.abs(x.v('rl2', 'a') - s));
         }
@@ -188,8 +193,8 @@ describe('lab benches behave as documented', { skip: SKIP }, () => {
 
     test('lab-window-comparator: dark off, middle on, bright off', () => {
         const x = bench('lab-window-comparator');
-        for (const [light, on] of [[0, false], [0.5, true], [1, false]]) {
-            x.set('ldr', light); x.run(1);
+        for (const [light, on] of [[0, false], [0.2, false], [0.5, true], [0.8, false], [1, false]]) {
+            x.param('pt', 'light', light); x.run(1);
             assert.equal(x.mA('rled') > 2, on, `light ${light}: LED ${x.mA('rled')} mA`);
         }
     });
@@ -231,9 +236,11 @@ describe('lab-two-band-light-organ', { skip: SKIP }, () => {
     const average = (x, freq) => {
         x.param('sig', 'freq', freq);
         const period = 1000 / freq, step = Math.min(period / 20, 1);
-        x.run(Math.max(60, 5 * period));
+        // Settle for 30 ms (more than six time constants of the slower 4.7 k /
+        // 1 uF filter) or five periods, then average over 10 ms or four periods.
+        x.run(Math.max(30, 5 * period));
         let hi = 0, lo = 0, n = 0;
-        for (let t = 0; t < Math.max(40, 4 * period); t += step) { x.run(step); hi += x.mA('r1'); lo += x.mA('r2'); n++; }
+        for (let t = 0; t < Math.max(10, 4 * period); t += step) { x.run(step); hi += x.mA('r1'); lo += x.mA('r2'); n++; }
         return { treble: hi / n, bass: lo / n };
     };
     test('low notes light the bass LED, high notes the treble LED', () => {

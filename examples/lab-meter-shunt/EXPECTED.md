@@ -1,7 +1,7 @@
 # lab-meter-shunt — expected behaviour
 
 ## Circuit
-- Three identical movements: a 1 kΩ coil rated for full deflection at a hundred microamps, read by a needle across the coil (full scale 0.1 V).
+- Three identical moving-coil movements: each a 1 kΩ coil rated for full deflection at a hundred microamps (the meter part in current mode, 100 µA full scale, no built-in shunt). The coil voltage at full scale is 0.1 V.
 - A shunt in parallel with each coil turns it into a meter rated for ten milliamps: at full scale the shunt would take 99 parts of the current and the coil one part. Branch meters use 10.1 Ω; the total meter uses 10 Ω because the slide switch that can take it out adds about a tenth of an ohm of contact resistance.
 - The network: 5 V through R1 = 100 Ω and the TOTAL meter to a node; from there branch A (R2 = 1 kΩ plus meter A) and branch B (R3 = 2.2 kΩ plus meter B) to ground.
 

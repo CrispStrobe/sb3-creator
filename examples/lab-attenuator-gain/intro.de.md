@@ -9,8 +9,8 @@ Ein Tongenerator, der viel zu laut für seinen Verstärker ist, ein Teiler, der 
 
 ## Probier das
 1. Starte die Simulation und sieh dir den Ausgang auf dem Oszilloskop an: ein kleiner, sauberer Sinus, etwa 0,4 V Spitze.
-2. Schieb GAIN auf die 100-Ω-Seite. Zehnmal mehr Verstärkung: etwa 4 V Spitze, immer noch sauber, viel lauter.
-3. Schieb GAIN zurück und schließ BYPASS. Jetzt trifft das volle 4-V-Signal auf einen Verstärker mit Verstärkung 101. Der Ausgang knallt an seine Grenzen, und aus dem Sinus wird ein Block mit flachen Kanten.
+2. Schieb GAIN auf die 100-Ω-Seite. Auf dem Papier zehnmal mehr Verstärkung: etwa 3,6 V Spitze (bei dieser Verstärkung geht dem Operationsverstärker die Bandbreite aus), immer noch sauber, viel lauter.
+3. Schieb GAIN zurück und schließ BYPASS. Jetzt trifft das volle Signal, einige Volt, auf einen Verstärker mit Verstärkung 101. Der Ausgang knallt an seine Grenzen, und aus dem Sinus wird ein Block mit flachen Kanten.
 4. Berechne Teilerverhältnis und beide Verstärkungen aus den Widerstandswerten, bevor du hinschaust.
 
 ## Was dahintersteckt

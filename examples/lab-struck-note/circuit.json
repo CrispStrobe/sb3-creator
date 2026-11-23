@@ -144,7 +144,7 @@
   },
   {
    "id": "c_env",
-   "kind": "capacitor",
+   "kind": "polarized_cap",
    "params": {
     "farads": 0.000047
    },
@@ -154,8 +154,8 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "j14",
-     "b": "j15"
+     "pos": "j14",
+     "neg": "j15"
     }
    }
   },
@@ -282,11 +282,11 @@
    "from": "c_ctl",
    "fromTerminal": "b",
    "to": "c_env",
-   "toTerminal": "b"
+   "toTerminal": "neg"
   },
   {
    "from": "c_env",
-   "fromTerminal": "b",
+   "fromTerminal": "neg",
    "to": "decay",
    "toTerminal": "b"
   },
@@ -354,11 +354,11 @@
    "from": "r_strike",
    "fromTerminal": "b",
    "to": "c_env",
-   "toTerminal": "a"
+   "toTerminal": "pos"
   },
   {
    "from": "c_env",
-   "fromTerminal": "a",
+   "fromTerminal": "pos",
    "to": "r_decay_min",
    "toTerminal": "a"
   },

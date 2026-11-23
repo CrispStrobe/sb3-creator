@@ -119,7 +119,7 @@
   },
   {
    "id": "chold",
-   "kind": "capacitor",
+   "kind": "polarized_cap",
    "params": {
     "farads": 0.000022
    },
@@ -130,8 +130,8 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a21",
-     "b": "a22"
+     "pos": "a21",
+     "neg": "a22"
     }
    }
   },

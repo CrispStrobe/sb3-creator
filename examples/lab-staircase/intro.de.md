@@ -5,10 +5,10 @@ prereqs: [lab-opamp-blinker, lab-opamp-integrator]
 teaches: [charge-pump, integrator, counting, staircase, analog-to-digital]
 ---
 ## Was du siehst
-Ein Zeiger, der in gleichen Sprüngen klettert, ein Sprung pro Blinken einer roten LED. Nach dreizehn Sprüngen ist er oben; drück RESET, und er fällt auf null zurück und klettert von vorn.
+Ein Zeiger, der in gleichen Sprüngen klettert, ein Sprung pro Blinken einer roten LED. Nach zwölf Sprüngen ist er oben; drück RESET, und er fällt auf null zurück und klettert von vorn.
 
 ## Probier das
-1. Starte die Simulation und zähle mit: Blinken, Sprung, Blinken, Sprung. Jeder Sprung ist etwa 0,56 V groß.
+1. Starte die Simulation und zähle mit: Blinken, Sprung, Blinken, Sprung. Jeder Sprung ist etwa 0,59 V groß.
 2. Häng das Oszilloskop an den Ausgang des Integrators: Du siehst eine Treppe, flach zwischen den Stufen.
 3. Drück jederzeit RESET. Die Treppe beginnt wieder bei 0 V.
 4. Berechne die Stufenhöhe aus C_pump, C_int und dem Hub des Taktes, bevor du misst.

@@ -63,7 +63,7 @@
     },
     {
       "id": "c_por",
-      "kind": "capacitor",
+      "kind": "polarized_cap",
       "params": {
         "farads": 0.00001
       },
@@ -105,7 +105,7 @@
     },
     {
       "id": "c_t",
-      "kind": "capacitor",
+      "kind": "polarized_cap",
       "params": {
         "farads": 0.00001
       },
@@ -234,11 +234,11 @@
       "from": "reed_b",
       "fromTerminal": "a",
       "to": "c_por",
-      "toTerminal": "a"
+      "toTerminal": "pos"
     },
     {
       "from": "c_por",
-      "fromTerminal": "a",
+      "fromTerminal": "pos",
       "to": "u1",
       "toTerminal": "2b"
     },
@@ -294,7 +294,7 @@
       "from": "u2",
       "fromTerminal": "trigger",
       "to": "c_t",
-      "toTerminal": "a"
+      "toTerminal": "pos"
     },
     {
       "from": "u2",
@@ -342,11 +342,11 @@
       "from": "reed_b",
       "fromTerminal": "b",
       "to": "c_por",
-      "toTerminal": "b"
+      "toTerminal": "neg"
     },
     {
       "from": "c_por",
-      "fromTerminal": "b",
+      "fromTerminal": "neg",
       "to": "u1",
       "toTerminal": "gnd"
     },
@@ -378,11 +378,11 @@
       "from": "u1",
       "fromTerminal": "4b",
       "to": "c_t",
-      "toTerminal": "b"
+      "toTerminal": "neg"
     },
     {
       "from": "c_t",
-      "fromTerminal": "b",
+      "fromTerminal": "neg",
       "to": "c_ctl",
       "toTerminal": "b"
     },

@@ -32,6 +32,6 @@ Holding SIREN from rest, then releasing it after 1.5 s:
 
 ```assert
 # SIREN not pressed: glide node empty, no tone
-net c_glide.a V 0.00 +-0.01
+net c_glide.pos V 0.00 +-0.01
 net timer.vcc V 9.00 +-0.01
 ```

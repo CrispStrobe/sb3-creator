@@ -29,5 +29,5 @@ Two separate jobs on one 9 V supply: a tone and a loudness.
 
 ```assert
 # at rest, KEY not pressed
-net c_env.a V 0.00 +-0.01
+net c_env.pos V 0.00 +-0.01
 ```

@@ -45,14 +45,14 @@
   },
   {
    "id": "tone",
-   "kind": "vsource",
+   "kind": "function_gen",
    "params": {
     "wave": "sine",
     "freq": 440,
     "amplitude": 4,
     "offset": 0
    },
-   "label": "tone 440 Hz, 4 V peak",
+   "label": "function generator 440 Hz, 4 V peak",
    "x": 240,
    "y": 60
   },
@@ -218,11 +218,11 @@
    "from": "bat_neg",
    "fromTerminal": "pos",
    "to": "tone",
-   "toTerminal": "neg"
+   "toTerminal": "gnd"
   },
   {
    "from": "tone",
-   "fromTerminal": "neg",
+   "fromTerminal": "gnd",
    "to": "r_shunt",
    "toTerminal": "b"
   },
@@ -252,7 +252,7 @@
   },
   {
    "from": "tone",
-   "fromTerminal": "pos",
+   "fromTerminal": "out",
    "to": "r_series",
    "toTerminal": "a"
   },

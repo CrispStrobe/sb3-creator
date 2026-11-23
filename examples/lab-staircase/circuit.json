@@ -110,7 +110,7 @@
   },
   {
    "id": "c_t",
-   "kind": "capacitor",
+   "kind": "polarized_cap",
    "params": {
     "farads": 0.00001
    },
@@ -120,8 +120,8 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a15",
-     "b": "a16"
+     "pos": "a15",
+     "neg": "a16"
     }
    }
   },
@@ -208,26 +208,6 @@
    }
   },
   {
-   "id": "u_int",
-   "kind": "opamp",
-   "params": {
-    "gain": 100000,
-    "railHigh": 7.5,
-    "railLow": 0
-   },
-   "label": "integrator op-amp",
-   "x": 421,
-   "y": 311,
-   "seat": {
-    "boardId": "bb1",
-    "leadMap": {
-     "inn": "e28",
-     "inp": "e29",
-     "out": "f28"
-    }
-   }
-  },
-  {
    "id": "c_int",
    "kind": "capacitor",
    "params": {
@@ -298,11 +278,11 @@
    "from": "r_dn",
    "fromTerminal": "b",
    "to": "c_t",
-   "toTerminal": "b"
+   "toTerminal": "neg"
   },
   {
    "from": "c_t",
-   "fromTerminal": "b",
+   "fromTerminal": "neg",
    "to": "led_clock",
    "toTerminal": "cathode"
   },
@@ -315,14 +295,8 @@
   {
    "from": "d_reset",
    "fromTerminal": "cathode",
-   "to": "u_int",
-   "toTerminal": "inp"
-  },
-  {
-   "from": "u_int",
-   "fromTerminal": "inp",
-   "to": "meter",
-   "toTerminal": "b"
+   "to": "u1",
+   "toTerminal": "2_pos"
   },
   {
    "from": "meter",
@@ -388,7 +362,7 @@
    "from": "u1",
    "fromTerminal": "1_neg",
    "to": "c_t",
-   "toTerminal": "a"
+   "toTerminal": "pos"
   },
   {
    "from": "c_pump",
@@ -405,12 +379,12 @@
   {
    "from": "d_take",
    "fromTerminal": "anode",
-   "to": "u_int",
-   "toTerminal": "inn"
+   "to": "u1",
+   "toTerminal": "2_neg"
   },
   {
-   "from": "u_int",
-   "fromTerminal": "inn",
+   "from": "u1",
+   "fromTerminal": "2_neg",
    "to": "c_int",
    "toTerminal": "a"
   },
@@ -421,8 +395,8 @@
    "toTerminal": "a"
   },
   {
-   "from": "u_int",
-   "fromTerminal": "out",
+   "from": "u1",
+   "fromTerminal": "2_out",
    "to": "c_int",
    "toTerminal": "b"
   },
@@ -437,12 +411,6 @@
    "fromTerminal": "b",
    "to": "meter",
    "toTerminal": "a"
-  },
-  {
-   "from": "u1",
-   "fromTerminal": "2_neg",
-   "to": "u1",
-   "toTerminal": "2_out"
   }
  ]
 }
