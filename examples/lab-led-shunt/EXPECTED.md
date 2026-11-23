@@ -9,9 +9,9 @@ Three small benches on one 9 V supply, all about current taking the easiest path
 
 ## Observable behaviour
 
-| Pressed | red 1 | green 1 | green 2 | red 2 | yellow |
+| Button held | red 1 | green 1 | green 2 | red 2 | yellow |
 |---|---|---|---|---|---|
-| nothing | 11.02 mA | 11.02 mA | 14.58 mA | 0 | 15.00 mA |
+| none (all open) | 11.02 mA | 11.02 mA | 14.58 mA | 0 | 15.00 mA |
 | BYPASS RED | 0 | 14.58 mA | | | |
 | BYPASS GREEN | 15.42 mA | 0 | | | |
 | both bypasses | 0 | 0 | | | |

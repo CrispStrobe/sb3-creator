@@ -151,7 +151,12 @@ export function claimsOfText (dir, md) {
         const header = cells(lines[i - 1]);
         // Prose immediately above the table often disclaims it ("UNLOADED
         // approximations"), and that disclaimer governs every row.
-        const preamble = lines.slice(Math.max(0, i - 6), i - 1).join(' ');
+        // The look-back stops at a heading: prose in the previous section is
+        // about something else, and letting it in let a disclaimer in
+        // "## Circuit" disqualify a result table under "## Results".
+        let from = i - 1;
+        while (from > Math.max(0, i - 6) && !/^#{1,6}\s/.test(lines[from - 1])) from--;
+        const preamble = lines.slice(from, i - 1).join(' ');
         for (let j = i + 1; j < lines.length && lines[j].trim().startsWith('|'); j++)
             table[j] = { header, preamble, row: cells(lines[j]) };
         table[i - 1] = { header, preamble, row: header, isHeader: true };

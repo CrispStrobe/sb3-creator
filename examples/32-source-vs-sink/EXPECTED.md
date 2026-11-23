@@ -9,8 +9,9 @@ Two LEDs, same command (`turn on`), same resistor (1 kΩ), opposite wiring:
   I = (5.0 − 2.0) / 1000 = 3.0 mA. **LED is bright.**
 
 - **Source (red, active-high):** MCU P1.1 → 1 kΩ → LED → GND.
-  `turn on` drives P1.1 HIGH. The quasi-bidirectional pin sources only ~230 µA.
-  I ≈ 0.23 mA. **LED is dim or dark.**
+  `turn on` drives P1.1 HIGH. The quasi-bidirectional pin sources only ~230 µA even
+  into a short, through a weak internal pull-up of a little over twenty kilohms. With the
+  resistor and the LED in the way it is less: I ≈ 0.14 mA. **LED is dim or dark.**
 
 ## Why this matters
 
@@ -28,9 +29,9 @@ is the power-on default and the most common mode in beginner code.
 | LED | wiring | pin level | current | brightness |
 |---|---|---|---|---|
 | green (sink) | VCC→R→LED→pin | LOW (0) | ~3.0 mA | **bright** (~0.14) |
-| red (source) | pin→R→LED→GND | HIGH (1) | ~0.23 mA | **dim** (~0.007) |
+| red (source) | pin→R→LED→GND | HIGH (1, quasi-bidirectional) | ~0.14 mA | **dim** (~0.007) |
 
-The factor-of-13 difference in brightness IS the lesson.
+The factor-of-20 difference in brightness IS the lesson.
 
 ## What this verifies
 

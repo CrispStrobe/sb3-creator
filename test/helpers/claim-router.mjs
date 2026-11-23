@@ -109,7 +109,9 @@ function unsettable (ctx) {
     // A scheduled sequence: charge then discharge, or a source stepped
     // mid-run. The documents write these as an audit-solve invocation, and
     // honouring one means scripting control changes against the clock.
-    if (/--set@|--set\s|\bthen\s+(at|close|open)\b|\bstep it\b|\bstepped\b/i.test(ctx))
+    // "A first, then B as well" is the same thing written as a table row: which
+    // control came first decides the state, and one solve cannot know that.
+    if (/--set@|--set\s|\bthen\s+(at|close|open)\b|\bstep it\b|\bstepped\b|\bfirst,?\s+then\b/i.test(ctx))
         return 'the operating point is a SEQUENCE of control changes against the clock (the document states it as an audit-solve --set invocation), and this gate solves at one point rather than scripting a run';
 
     if (/sound[ _-]?(module|level)|\bAO\b|microphone/i.test(ctx))
@@ -203,7 +205,11 @@ function readConditions (text, parts) {
         // question nobody asked.
         const drive = text.match(/\b(?:pin|state|output|drive|p[0-9]\.[0-9]|d\d+|gp\d+|pa\d+)\b[^|]{0,24}?=?\s*\b(high|low)\b/i)
             || text.match(/\bpin\s+(?:is\s+)?(high|low)\b/i) || text.match(/\bdriven\s+(high|low)\b/i);
-        if (drive) { controls.__pins = drive[1].toLowerCase(); labels.push(`MCU pins ${drive[1].toLowerCase()}`); }
+        // A pin driven high in quasi-bidirectional mode is not a push-pull
+        // high: it sources through the weak internal pull-up, and a claim that
+        // says so is about that state.
+        if (drive && /high/i.test(drive[1]) && /quasi/i.test(text)) { controls.__pins = 'quasi-high'; labels.push('MCU pins quasi-high'); }
+        else if (drive) { controls.__pins = drive[1].toLowerCase(); labels.push(`MCU pins ${drive[1].toLowerCase()}`); }
         else if (/\bactive-low\b[^.]{0,40}\b(on|lit)\b/i.test(text)) { controls.__pins = 'low'; labels.push('MCU pins low'); }
     }
 

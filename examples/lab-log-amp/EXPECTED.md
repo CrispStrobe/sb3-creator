@@ -8,12 +8,12 @@
 
 ## Observable behaviour
 
-| input (voltmeter) | input current | meter (x10 output) |
-|---|---|---|
-| 0.09 V | 0.9 µA | 4.73 V |
-| 0.89 V | 8.9 µA | 5.33 V |
-| 4.39 V (knob half way, authored) | 44 µA | 5.74 V |
-| 9.00 V | 90 µA | 5.92 V |
+| knob position | input (voltmeter) | input current | meter (x10 output) |
+|---|---|---|---|
+| 0.01 | 0.09 V | 0.9 µA | 4.73 V |
+| 0.1 | 0.89 V | 8.9 µA | 5.33 V |
+| 0.5 (authored) | 4.39 V | 44 µA | 5.74 V |
+| 1 | 9.00 V | 90 µA | 5.92 V |
 
 - Every factor of ten at the input adds the same step at the output: about 0.59 V per step on the meter, 59 mV per step at the diode.
 - Doubling the input adds a constant 0.18 V per step rather than doubling the reading. That is what logarithms do: they turn multiplying into adding.
