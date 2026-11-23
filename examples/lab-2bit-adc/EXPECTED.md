@@ -2,7 +2,8 @@
 
 ## Circuit
 5 V. A 10 kΩ potentiometer is the analog input. Four 10 kΩ resistors in a ladder give thresholds of 1.25 V, 2.5 V and
-3.75 V. Three comparators (ideal op-amp parts, output 0 or 5 V) compare the input with each threshold: C1, C2, C3.
+3.75 V. Three comparators of an LM339 compare the input with each threshold: C1, C2, C3. Their outputs are open
+collector, so each has a 10 kΩ pull-up to 5 V: about 0.2 V when low, 5 V when high (the fourth comparator is unused).
 A 74HC14 inverts C2 twice (NOT C2 for the logic, and a clean copy of C2 for the MSB LED); a 74HC08 forms C1 AND NOT C2;
 a 74HC32 ORs that with C3 to make the LSB. Two red LEDs with 470 Ω show MSB and LSB.
 
@@ -27,7 +28,9 @@ a 74HC32 ORs that with C3 to make the LSB. Two red LEDs with 470 Ω show MSB and
 ```assert
 # input 3.0 V -> code 10
 net potentiometer_3.wiper V 3.00 +-0.02
-net resistor_11.b V 2.50 +-0.01
-net 74hc14_7.2y V 4.70 +-0.10
-net 74hc32_9.1y V 0.00 +-0.05
+net resistor_12.b V 2.50 +-0.01
+net lm339_4.2_out V 5.00 +-0.02
+net lm339_4.3_out V 0.20 +-0.02
+net 74hc14_8.2y V 4.70 +-0.10
+net 74hc32_10.1y V 0.00 +-0.05
 ```

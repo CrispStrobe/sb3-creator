@@ -223,7 +223,7 @@ describe('lab benches behave as documented', { skip: SKIP }, () => {
             const sq = x.v('us', '1_out') > 4;
             if (prev === false && sq) rises.push(x.t);
             prev = sq;
-            if (x.t > 600) { const tri = x.v('ui', 'out'); lo = Math.min(lo, tri); hi = Math.max(hi, tri); }
+            if (x.t > 600) { const tri = x.v('us', '2_out'); lo = Math.min(lo, tri); hi = Math.max(hi, tri); }
         }
         assert.ok(rises.length >= 3, `square rose ${rises.length} times`);
         const f = (rises.length - 1) / (rises.at(-1) - rises[0]) * 1000;
@@ -268,7 +268,10 @@ describe('lab-v-to-f', { skip: SKIP }, () => {
     test('flashes per second rise in step with the input voltage', () => {
         const f0 = hertz(0), f1 = hertz(0.2), f3 = hertz(0.6);
         assert.equal(f0, 0, 'no input, no flashes');
-        assert.ok(Math.abs(f1 - 2.65) < 0.3, `0.89 V over the reference: ${f1} Hz`);
+        // MEASURED 2026-11-23 (bw-board e339fcb, all three stages LM358):
+        // f0 0, f1 2.551 Hz, f3 6.991 Hz, so f3 / f1 = 2.740. The ideal-op-amp
+        // version measured 2.551 / 6.991 Hz on the same pin.
+        assert.ok(Math.abs(f1 - 2.55) < 0.3, `0.89 V over the reference: ${f1} Hz`);
         assert.ok(f3 / f1 > 2.4 && f3 / f1 < 3.0, `three times the input gives ${f3 / f1} times the rate`);
     });
 });
