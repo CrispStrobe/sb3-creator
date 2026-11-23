@@ -47,7 +47,7 @@ net r1.a V 0.45 +-0.10
 
 <!-- engine-provenance -->
 > **Engine provenance.** The measured numbers on this page were last held against
-> `bw-board@d19b5e4` and `bw-circuit-ui@6b4d702` — the revisions pinned in
+> `bw-board@d1a067c` and `bw-circuit-ui@211a693` — the revisions pinned in
 > `test/fixtures/siblings.json`. `test/expected-quantities-hold.test.mjs` compares
 > **9 of this page's 20** numeric claims against that engine
 > (0 of them disagreeing) and declines the rest with a stated reason;
