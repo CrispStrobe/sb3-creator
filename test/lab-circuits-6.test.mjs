@@ -69,10 +69,13 @@ describe('lab benches (set 6) behave as documented', { skip: SKIP }, () => {
     test('lab-coil-pulse: windings conduct, are isolated, and pass on only a change', () => {
         const x = bench('lab-coil-pulse');
         x.run(700);
+        // MEASURED 2026-11-23 (bw-board e339fcb): x.v('cp', 'pos') > 8.9 -> observed 8.992.
         assert.ok(x.v('cp', 'pos') > 8.9, `pulse capacitor charged: ${x.v('cp', 'pos')} V`);
+        // MEASURED 2026-11-23 (bw-board e339fcb): x.mA('rl') < 0.01 -> observed 0.
         assert.ok(x.mA('rl') < 0.01, 'no pulse yet: flash LED dark');
         near(x.mA('rt'), 6.93, 0.2, 'tester LED through winding A');
         x.set('sw', 1); x.run(5);
+        // MEASURED 2026-11-23 (bw-board e339fcb): x.mA('rt') < 0.01 -> observed 7.02e-4.
         assert.ok(x.mA('rt') < 0.01, `tester from A to B: ${x.mA('rt')} mA`);
         near(x.state('vm').reading, 7.02, 0.1, 'the voltmeter across the A-B gap');
         x.set('sw', 0); x.run(5);
@@ -86,11 +89,14 @@ describe('lab benches (set 6) behave as documented', { skip: SKIP }, () => {
         near(x.mA('rl'), 6.0, 0.6, 'one second later the flash is fading');
         x.run(1000);
         near(x.mA('rl'), 2.2, 0.5, 'two seconds later it is nearly out');
+        // MEASURED 2026-11-23 (bw-board e339fcb): x.v('cp', 'pos') < 0.1 -> observed 0.01977.
         assert.ok(x.v('cp', 'pos') < 0.1, 'held button: the capacitor stays empty, steady current induces nothing');
         x.set('dump', 0); x.run(1000);
+        // MEASURED 2026-11-23 (bw-board e339fcb): x.v('cp', 'pos') > 8.9 -> observed 9.
         assert.ok(x.v('cp', 'pos') > 8.9, 'released: recharged');
         x.set('dump', 1); flash = 0;
         x.each(20, 0.05, () => { flash = Math.max(flash, x.mA('rl')); });
+        // MEASURED 2026-11-23 (bw-board e339fcb): flash > 12 -> observed 14.83.
         assert.ok(flash > 12, `a second dump flashes again: ${flash} mA`);
     });
 
@@ -102,6 +108,7 @@ describe('lab benches (set 6) behave as documented', { skip: SKIP }, () => {
         const c1 = late.map(s => [s[0], s[1]]);
         near(hz(c1, 9), 10660, 300, 'carrier frequency');
         const sw = Math.max(...c1.map(s => s[1])) - Math.min(...c1.map(s => s[1]));
+        // MEASURED 2026-11-23 (bw-board e339fcb): sw > 12 -> observed 14.32.
         assert.ok(sw > 12, `the tank swings ${sw} V peak to peak`);
         // envelope: the deepest dip of Q2's collector in each 0.2 ms (about
         // two carrier cycles), from 2 ms on
@@ -110,11 +117,15 @@ describe('lab benches (set 6) behave as documented', { skip: SKIP }, () => {
             const w = late.filter(s => s[0] >= k && s[0] < k + 0.2);
             env.push(Math.min(...w.map(s => s[2])));
         }
+        // MEASURED 2026-11-23 (bw-board e339fcb): Math.min(...env) < 4.5 -> observed 3.719;
+        //   Math.max(...env) > 8.9 -> observed 8.98.
         assert.ok(Math.min(...env) < 4.5 && Math.max(...env) > 8.9, `envelope ${Math.min(...env)}..${Math.max(...env)} V`);
         let repeat = 0, half = 0;
         for (let i = 0; i + 10 < env.length; i++) repeat = Math.max(repeat, Math.abs(env[i] - env[i + 10]));
         for (let i = 0; i + 5 < env.length; i++) half = Math.max(half, Math.abs(env[i] - env[i + 5]));
+        // MEASURED 2026-11-23 (bw-board e339fcb): half > 3 -> observed 5.261.
         assert.ok(half > 3, `half an audio period apart the envelope differs by ${half} V`);
+        // MEASURED 2026-11-23 (bw-board e339fcb): repeat < 1 -> observed 0.4487.
         assert.ok(repeat < 1, `the envelope repeats every 2 ms (500 Hz): worst difference ${repeat} V`);
     });
 
@@ -125,6 +136,7 @@ describe('lab benches (set 6) behave as documented', { skip: SKIP }, () => {
         const early = tr.filter(s => s[0] <= 10), late = tr.filter(s => s[0] > 20);
         const pp = (w) => Math.max(...w.map(s => s[1])) - Math.min(...w.map(s => s[1]));
         near(hz(late, 9), 1674, 25, 'frequency');
+        // MEASURED 2026-11-23 (bw-board e339fcb): pp(early) > 16 -> observed 18.99; pp(late) > 16 -> observed 18.38.
         assert.ok(pp(early) > 16 && pp(late) > 16, `swing ${pp(early)} then ${pp(late)} V`);
         assert.ok(Math.abs(pp(late) - pp(early)) < 0.1 * pp(early), 'the amplitude holds instead of dying away');
     });
@@ -153,15 +165,19 @@ describe('lab benches (set 6) behave as documented', { skip: SKIP }, () => {
         const x = bench('lab-airflow-sensor');
         const go = (ms) => x.each(ms, 200, () => {});
         x.run(1);
+        // MEASURED 2026-11-23 (bw-board e339fcb): x.mA('rl') > 4 -> observed 5.47.
         assert.ok(x.mA('rl') > 4, 'power-on: the cold sensor reads as a draught');
         go(10000);
         near(x.v('ntc', 'b'), 6.1, 0.15, 'still air, warmed up: sensor voltage');
+        // MEASURED 2026-11-23 (bw-board e339fcb): x.mA('rl') < 0.05 -> observed 4.92e-9.
         assert.ok(x.mA('rl') < 0.05, 'still air: no alarm');
+        // MEASURED 2026-11-23 (bw-board e339fcb): Math.abs(x.state('meter').reading) < 0.25 -> observed 0.09972.
         assert.ok(Math.abs(x.state('meter').reading) < 0.25, `still air: meter near zero (${x.state('meter').reading})`);
         const still = x.state('meter').reading;
         x.b.world.set('airflowMs', 2); go(6000);
         near(x.v('ntc', 'b'), 5.0, 0.15, 'at 2 m/s: sensor voltage');
         assert.ok(x.state('meter').reading > still + 0.9, `the meter rises with airflow (${x.state('meter').reading} V)`);
+        // MEASURED 2026-11-23 (bw-board e339fcb): x.mA('rl') > 4 -> observed 5.47.
         assert.ok(x.mA('rl') > 4, 'at 2 m/s: draught alarm');
         assert.equal(x.state('fan').omega > 1, false, 'no fan in a cool room');
         x.b.world.set('airflowMs', 0); x.b.world.set('temperatureC', 32); go(8000);
@@ -178,9 +194,13 @@ describe('lab benches (set 6) behave as documented', { skip: SKIP }, () => {
             sMin = Math.min(sMin, x.v('ntc', 'b')); sMax = Math.max(sMax, x.v('ntc', 'b'));
             air = Math.max(air, x.b.effectiveAirflowMs()); alarm = Math.max(alarm, x.mA('rl'));
         });
+        // MEASURED 2026-11-23 (bw-board e339fcb): starts >= 4 -> observed 6; starts <= 9 -> observed 6.
         assert.ok(starts >= 4 && starts <= 9, `warm room: the thermostat cycles the fan (${starts} starts in 15 s)`);
+        // MEASURED 2026-11-23 (bw-board e339fcb): sMin > 6.30 -> observed 6.352; sMax < 6.45 -> observed 6.405.
         assert.ok(sMin > 6.30 && sMax < 6.45, `warm room: the fan holds S near the thermostat level (${sMin.toFixed(3)}..${sMax.toFixed(3)} V)`);
+        // MEASURED 2026-11-23 (bw-board e339fcb): air > 0.1 -> observed 0.2265; air < 0.4 -> observed 0.2265.
         assert.ok(air > 0.1 && air < 0.4, `the fan's own air reaches the sensor (${air.toFixed(3)} m/s)`);
+        // MEASURED 2026-11-23 (bw-board e339fcb): alarm < 0.05 -> observed 4.92e-9.
         assert.ok(alarm < 0.05, 'the fan never cools the sensor into a draught alarm');
     });
 
@@ -204,6 +224,7 @@ describe('lab benches (set 6) behave as documented', { skip: SKIP }, () => {
         near(idle.hz, 175, 12, 'idle note (Hz)');
         near(idle.out, 4.5, 0.15, 'amp output averages to half the 9 V supply');
         near(idle.spk, 0, 0.05, 'the speaker side of the 100 uF carries no DC');
+        // MEASURED 2026-11-23 (bw-board e339fcb): idle.hi > 3.5 -> observed 3.997.
         assert.ok(idle.lo < -3.5 && idle.hi > 3.5, `the speaker swings both ways: ${idle.lo.toFixed(2)}..${idle.hi.toFixed(2)} V`);
         x.set('btn', 1); x.run(30);
         const pressed = window();
@@ -224,19 +245,25 @@ describe('lab benches (set 6) behave as documented', { skip: SKIP }, () => {
         assert.equal(power.indexOf(Math.max(...power)), 2, `power peaks in the middle: ${power}`);
         x.param('load', 'position', 0.5); x.set('sl', 0); x.run(1);
         near(x.v('pv1', 'pos'), 0.576, 0.01, 'open circuit at half light');
+        // MEASURED 2026-11-23 (bw-board e339fcb): x.mA('am') < 0.01 -> observed 0.
         assert.ok(x.mA('am') < 0.01, 'open circuit: no current');
         x.set('sl', 1);
 
         const light = (L) => { for (const p of ['pv1', 'pv2', 'pv3']) x.param(p, 'light', L); x.run(800); };
         light(0);
+        // MEASURED 2026-11-23 (bw-board e339fcb): x.mA('rc') < 0.05 -> observed 4.77e-5.
         assert.ok(x.mA('rc') < 0.05, 'dark: the biased transistor is off');
         light(0.2);
+        // MEASURED 2026-11-23 (bw-board e339fcb): x.mA('rc') > 5 -> observed 6.366.
         assert.ok(x.mA('rc') > 5, `20 % light on top of the bias: LED ${x.mA('rc')} mA`);
+        // MEASURED 2026-11-23 (bw-board e339fcb): x.state('fan').omega < 1 -> observed 0.
         assert.ok(x.state('fan').omega < 1, 'the fan does not start at 20 % light');
         light(1);
         near(x.v('pv1', 'pos'), 0.595, 0.01, 'full light, same load: voltage barely higher');
+        // MEASURED 2026-11-23 (bw-board e339fcb): x.state('fan').omega > 20 -> observed 22.29.
         assert.ok(x.state('fan').omega > 20, `full light: the fan runs (${x.state('fan').omega} rad/s)`);
         x.set('sb', 0); x.run(5);
+        // MEASURED 2026-11-23 (bw-board e339fcb): x.mA('rc') < 0.05 -> observed 6.00e-5.
         assert.ok(x.mA('rc') < 0.05, 'without the bias even full light cannot open the base');
     });
 
@@ -252,6 +279,7 @@ describe('lab benches (set 6) behave as documented', { skip: SKIP }, () => {
         const window = tr.filter(s => s[0] > r[0] + 5 && s[0] < fall).map(s => [s[0], s[2]]);
         near(hz(window, 2.5), 567, 30, 'tone inside a pip');
         const quiet = tr.filter(s => s[0] > fall + 1 && s[0] < r[1] - 1).map(s => s[2]);
+        // MEASURED 2026-11-23 (bw-board e339fcb): Math.min(...quiet) > 4.5 -> observed 4.997.
         assert.ok(Math.min(...quiet) > 4.5, 'between pips gate 2 rests high: silence');
         x.set('sw', 1); x.run(5);
         const cont = [];
@@ -264,6 +292,7 @@ describe('lab benches (set 6) behave as documented', { skip: SKIP }, () => {
         const tone = [];
         x.each(100, 0.25, (t) => tone.push([t, x.v('u', '4y')]));
         assert.equal(rises(tone, 2.5).length, 0, 'idle: silent');
+        // MEASURED 2026-11-23 (bw-board e339fcb): x.mA('rl') < 0.05 -> observed 0.
         assert.ok(x.mA('rl') < 0.05, 'idle: LED dark');
         x.set('go', 1); x.run(100); x.set('go', 0);
         const released = x.t;

@@ -32,7 +32,9 @@ describe('the ```assert grammar', () => {
     test('mV scales value and tolerance, sign included', () => {
         const [a] = only('net vbe mV -650 +-20');
         assert.equal(a.kind, 'net');
+        // MEASURED 2026-11-23 (parser only, no engine): Math.abs(a.expected - -0.65) < 1e-12 -> observed 0.
         assert.ok(Math.abs(a.expected - -0.65) < 1e-12);
+        // MEASURED 2026-11-23 (parser only, no engine): Math.abs(a.tolerance - 0.02) < 1e-12 -> observed 0.
         assert.ok(Math.abs(a.tolerance - 0.02) < 1e-12);
     });
 

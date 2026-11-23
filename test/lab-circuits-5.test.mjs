@@ -83,9 +83,11 @@ describe('discrete regenerative lab benches behave as documented', { skip: SKIP 
             if (x.t > 400) { n++; if (r > 3) red++; if (r > 3 && g > 3) both++; }
             return r;
         }, 3, 3000, 10);
+        // MEASURED 2026-11-23 (bw-board e339fcb): e.length >= 4 -> observed 4.
         assert.ok(e.length >= 4, `${e.length} red flashes in 3 s`);
         near(period(e), 715, 40, 'period at the authored rheostat setting (ms)');
         near(red / n, 0.5, 0.06, 'share of the time red is lit');
+        // MEASURED 2026-11-23 (bw-board e339fcb): both / n < 0.05 -> observed 0.01923.
         assert.ok(both / n < 0.05, `both LEDs lit at once ${(both / n * 100).toFixed(1)} % of the time`);
         x.set('pot', 1);                                   // rheostat at zero: only the 10 k minimum
         const f = x.rises(() => x.mA('rc1'), 3, 2500, 10).slice(1);
@@ -95,10 +97,12 @@ describe('discrete regenerative lab benches behave as documented', { skip: SKIP 
     test('lab-astable-tone: silent until keyed, a tone while keyed, a metronome on the big capacitors', () => {
         const x = bench('lab-astable-tone');
         x.run(10);
+        // MEASURED 2026-11-23 (bw-board e339fcb): x.v('q2', 'collector') < 0.1 -> observed 0.007156.
         assert.ok(x.v('q2', 'collector') < 0.1, 'key up: the oscillator has no supply');
         x.set('key', 1);
         x.run(5);
         const e = x.rises(() => x.v('q2', 'collector'), 4.5, 6, 0.01);
+        // MEASURED 2026-11-23 (bw-board e339fcb): e.length >= 6 -> observed 9.
         assert.ok(e.length >= 6, `${e.length} cycles in 6 ms`);
         near(1000 / period(e), 1466, 80, 'tone frequency (Hz)');
         x.set('key', 0);
@@ -106,6 +110,7 @@ describe('discrete regenerative lab benches behave as documented', { skip: SKIP 
         assert.equal(x.rises(() => x.v('q2', 'collector'), 4.5, 3, 0.01).length, 0, 'key released: no more cycles');
         x.set('s1', 1); x.set('s2', 1); x.set('key', 1);
         const m = x.rises(() => x.v('q2', 'collector'), 4.5, 2000, 10).slice(1);
+        // MEASURED 2026-11-23 (bw-board e339fcb): m.length >= 4 -> observed 6.
         assert.ok(m.length >= 4, `${m.length} metronome beats in 2 s`);
         near(period(m), 321, 20, 'metronome period on the 4.7 µF electrolytics (ms)');
     });
@@ -113,6 +118,7 @@ describe('discrete regenerative lab benches behave as documented', { skip: SKIP 
     test('lab-scr-pair: a gate pulse latches the load on, only breaking the current resets it', () => {
         const x = bench('lab-scr-pair');
         x.run(10);
+        // MEASURED 2026-11-23 (bw-board e339fcb): x.mA('rl') < 0.01 -> observed 9.02e-12.
         assert.ok(x.mA('rl') < 0.01, 'idle: off');
         x.set('gate', 1); x.run(1); x.set('gate', 0); x.run(100);
         near(x.mA('rl'), 6.47, 0.3, 'after a 1 ms gate pulse the LED carries (mA)');
@@ -121,6 +127,7 @@ describe('discrete regenerative lab benches behave as documented', { skip: SKIP 
         near(x.mA('rl'), 6.47, 0.3, 'one second later, still latched (mA)');
         x.set('main', 0); x.run(50);
         x.set('main', 1); x.run(100);
+        // MEASURED 2026-11-23 (bw-board e339fcb): x.mA('rl') < 0.01 -> observed 9.02e-12.
         assert.ok(x.mA('rl') < 0.01, `main switch off and on again: ${x.mA('rl').toFixed(3)} mA`);
         x.set('gate', 1); x.run(20); x.set('gate', 0); x.run(100);
         near(x.mA('rl'), 6.47, 0.3, 'fires again on the next gate pulse (mA)');
@@ -161,10 +168,12 @@ describe('discrete regenerative lab benches behave as documented', { skip: SKIP 
             peak = Math.max(peak, x.mA('rs'));
             if (x.t > 1000) { lo = Math.min(lo, v); hi = Math.max(hi, v); }
         }
+        // MEASURED 2026-11-23 (bw-board e339fcb): drops.length >= 3 -> observed 4.
         assert.ok(drops.length >= 3, `${drops.length} discharges in 3 s`);
         near(period(drops), 668, 40, 'period at the authored rheostat setting (ms)');
         near(hi, 6.86, 0.15, 'capacitor voltage when the pair fires');
         near(lo, 2.72, 0.2, 'capacitor voltage when it lets go');
+        // MEASURED 2026-11-23 (bw-board e339fcb): peak > 40 -> observed 60.
         assert.ok(peak > 40, `the discharge flashes the LED: peak ${peak.toFixed(1)} mA`);
         x.set('pot', 1);
         x.run(500);
@@ -183,6 +192,7 @@ describe('discrete regenerative lab benches behave as documented', { skip: SKIP 
         const v0 = x.v('ct', 'pos');
         let still = 0;
         for (let k = 0; k < 150; k++) { x.run(20); still = Math.max(still, Math.abs(x.v('ct', 'pos') - v0)); }
+        // MEASURED 2026-11-23 (bw-board e339fcb): still < 0.05 -> observed 1.33e-15.
         assert.ok(still < 0.05, `on 4.5 V the capacitor stops at ${v0.toFixed(2)} V and moves only ${still.toFixed(3)} V: no more flashes`);
     });
 
@@ -190,13 +200,18 @@ describe('discrete regenerative lab benches behave as documented', { skip: SKIP 
         const x = bench('lab-siren-blinker');
         const hz = () => 1000 / period(x.rises(() => x.v('u', 'output'), 4.5, 25, 0.05));
         x.run(50);
+        // MEASURED 2026-11-23 (bw-board e339fcb): x.mA('rc2') > 10 -> observed 13.98;
+        //   x.mA('rc1') < 0.5 -> observed 2.93e-4.
         assert.ok(x.mA('rc2') > 10 && x.mA('rc1') < 0.5, 'green phase first');
         near(hz(), 419, 15, 'pitch while green is lit (Hz)');
         x.run(100);
+        // MEASURED 2026-11-23 (bw-board e339fcb): x.mA('rc1') > 10 -> observed 14.87;
+        //   x.mA('rc2') < 0.5 -> observed 7.30e-4.
         assert.ok(x.mA('rc1') > 10 && x.mA('rc2') < 0.5, `then red: red ${x.mA('rc1').toFixed(2)} mA, green ${x.mA('rc2').toFixed(2)} mA`);
         near(x.v('u', 'control'), 6.0, 0.05, 'control voltage with the diode blocking');
         near(hz(), 309, 12, 'pitch while red is lit (Hz)');
         x.run(150);
+        // MEASURED 2026-11-23 (bw-board e339fcb): x.mA('rc2') > 10 -> observed 13.97.
         assert.ok(x.mA('rc2') > 10, 'green again');
         near(x.v('u', 'control'), 3.99, 0.1, 'control voltage pulled down through the diode');
         near(hz(), 419, 15, 'and the high pitch is back (Hz)');
@@ -205,12 +220,16 @@ describe('discrete regenerative lab benches behave as documented', { skip: SKIP 
     test('lab-discrete-monostable: green for about four seconds after release, then red', () => {
         const x = bench('lab-discrete-monostable');
         x.run(10);
+        // MEASURED 2026-11-23 (bw-board e339fcb): x.mA('rc2') > 4 -> observed 5.109;
+        //   x.mA('rc1') < 0.5 -> observed 0.1023.
         assert.ok(x.mA('rc2') > 4 && x.mA('rc1') < 0.5, 'power-on: the empty capacitor starts a green period');
         x.run(8000);
         near(x.mA('rc1'), 5.31, 0.2, 'resting: red (mA)');
+        // MEASURED 2026-11-23 (bw-board e339fcb): x.mA('rc2') < 0.05 -> observed 1.64e-5.
         assert.ok(x.mA('rc2') < 0.05, 'resting: green dark');
         for (const hold of [200, 3000]) {
             x.set('go', 1); x.run(hold);
+            // MEASURED 2026-11-23 (bw-board e339fcb): x.mA('rc2') > 4 -> observed 5.109..5.109 over 2 checks.
             assert.ok(x.mA('rc2') > 4, `held ${hold} ms: green`);
             x.set('go', 0);
             const t0 = x.t;
@@ -219,6 +238,8 @@ describe('discrete regenerative lab benches behave as documented', { skip: SKIP 
             assert.ok(flip !== null, `held ${hold} ms: red never came back`);
             near(flip, 4300, 250, `held ${hold} ms: green time counted from the release (ms)`);
             x.run(100);
+            // MEASURED 2026-11-23 (bw-board e339fcb): x.mA('rc1') > 5 -> observed 5.331..5.331 over 2 checks;
+            //   x.mA('rc2') < 0.05 -> observed 1.22e-5..1.22e-5 over 2 checks.
             assert.ok(x.mA('rc1') > 5 && x.mA('rc2') < 0.05, 'and it switches cleanly');
         }
     });
