@@ -12,8 +12,8 @@ Klick auf **Sim** und warte etwa zehn Sekunden, bis sich der Sensor erwärmt hat
 
 - Ruhige Luft: Instrument nahe null, kein Alarm.
 - Luftstrom: Das Instrument steigt, die LED für Zugluft leuchtet.
-- Warmer Raum: Der Lüfter schaltet sich ein.
+- Warmer Raum: Der Lüfter schaltet sich ein, kühlt den Sensor mit seinem eigenen Luftstrom, geht aus und springt wieder an: Er taktet ein und aus.
 
 ## Warum es funktioniert
 
-Heizung und Thermistor sitzen zusammen. In ruhiger Luft stellt sich ein Gleichgewicht zwischen zugeführter und an die Luft abgegebener Wärme ein. Bewegte Luft nimmt die Wärme schneller weg, also stellt sich das Gleichgewicht tiefer ein. Der Widerstand des Thermistors folgt seiner Temperatur, die Brücke macht daraus eine Spannung, und die Komparatoren entscheiden, wann es zu kühl ist (Zugluft) oder zu warm (Lüfter an). Luftmassenmesser im Auto arbeiten mit derselben Idee.
+Heizung und Thermistor sitzen zusammen. In ruhiger Luft stellt sich ein Gleichgewicht zwischen zugeführter und an die Luft abgegebener Wärme ein. Bewegte Luft nimmt die Wärme schneller weg, also stellt sich das Gleichgewicht tiefer ein. Der Widerstand des Thermistors folgt seiner Temperatur, die Brücke macht daraus eine Spannung, und die Komparatoren entscheiden, wann es zu kühl ist (Zugluft) oder zu warm (Lüfter an). Der Lüfter bläst auf den Sensor selbst und schaltet sich dadurch wieder ab: ein Regelkreis. Luftmassenmesser im Auto arbeiten mit derselben Idee.

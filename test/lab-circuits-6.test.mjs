@@ -149,7 +149,7 @@ describe('lab benches (set 6) behave as documented', { skip: SKIP }, () => {
         near(man.state('m').omega, 103, 8, 'manual, loaded: the speed sags');
     });
 
-    test('lab-airflow-sensor: moving air cools the sensor, the meter rises, the alarm trips', () => {
+    test('lab-airflow-sensor: moving air cools the sensor, the meter rises, the alarm trips, the fan cycles', () => {
         const x = bench('lab-airflow-sensor');
         const go = (ms) => x.each(ms, 200, () => {});
         x.run(1);
@@ -165,8 +165,23 @@ describe('lab benches (set 6) behave as documented', { skip: SKIP }, () => {
         assert.ok(x.mA('rl') > 4, 'at 2 m/s: draught alarm');
         assert.equal(x.state('fan').omega > 1, false, 'no fan in a cool room');
         x.b.world.set('airflowMs', 0); x.b.world.set('temperatureC', 32); go(8000);
-        assert.ok(x.v('ntc', 'b') > 6.45, `warm room: sensor ${x.v('ntc', 'b')} V`);
-        assert.ok(x.mA('fan') > 50, `warm room: the thermostat runs the fan (${x.mA('fan')} mA)`);
+        // The fan blows on its own sensor (airflowGain 0.01 m/s per rad/s):
+        // each start cools S back under the thermostat level and the fan
+        // stops again. MEASURED (bw-board e339fcb) over 15 s: 6 starts, S
+        // 6.352..6.405 V, at most 0.226 m/s of fan air, no draught alarm.
+        // Without the gain S climbs to 6.60 V and the fan runs flat out.
+        let starts = 0, prev = x.state('fan').omega, sMin = 9, sMax = 0, air = 0, alarm = 0;
+        x.each(15000, 100, () => {
+            const w = x.state('fan').omega;
+            if (prev < 5 && w >= 5) starts++;
+            prev = w;
+            sMin = Math.min(sMin, x.v('ntc', 'b')); sMax = Math.max(sMax, x.v('ntc', 'b'));
+            air = Math.max(air, x.b.effectiveAirflowMs()); alarm = Math.max(alarm, x.mA('rl'));
+        });
+        assert.ok(starts >= 4 && starts <= 9, `warm room: the thermostat cycles the fan (${starts} starts in 15 s)`);
+        assert.ok(sMin > 6.30 && sMax < 6.45, `warm room: the fan holds S near the thermostat level (${sMin.toFixed(3)}..${sMax.toFixed(3)} V)`);
+        assert.ok(air > 0.1 && air < 0.4, `the fan's own air reaches the sensor (${air.toFixed(3)} m/s)`);
+        assert.ok(alarm < 0.05, 'the fan never cools the sensor into a draught alarm');
     });
 
     test('lab-solar-cell: I-V points, the bias trick, and a fan that needs light', () => {

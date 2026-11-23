@@ -119,14 +119,15 @@ export const BENCHES = {
     // "zero" pot is the other half of the bridge; the meter (2 V full scale)
     // between them reads airflow. Comparator 1 lights the DRAUGHT LED when S
     // falls below the alarm pot; comparator 2 runs the fan when S rises above
-    // the thermostat pot (a warmer room).
+    // the thermostat pot (a warmer room). The fan blows on the sensor
+    // (airflowGain 0.01 m/s per rad/s), so the thermostat cycles it.
     'lab-airflow-sensor': {
         vcc: 9, supply: SUP,
         parts: { bat: BAT9, rh: ['resistor', { ohms: 470, rth: 200, thermalTau: 2 }],
             ntc: ['ntc', { r25: 10000, beta: 3950, heatedBy: '@rh', thermalCoupling: 0.8, thermalTau: 2 }], rn: R(6800),
             zero: POT(1000, 0.69), meter: ['analog_meter', { fullScale: 2, ifs: 0.0001 }],
             alarm: POT(10000, 0.66), u: ['lm358', {}], rl: R(1000), led: LED('red'),
-            stat: POT(10000, 0.71), rbq: R(10000), q: NPN, fan: ['dc_motor', { J: 5e-6, loadTorque: 0.0005 }], d: ['diode', {}] },
+            stat: POT(10000, 0.71), rbq: R(10000), q: NPN, fan: ['dc_motor', { J: 5e-6, loadTorque: 0.0005, airflowGain: 0.01 }], d: ['diode', {}] },
         nets: [
             ['bat.pos', 'rh.a', 'ntc.a', 'zero.a', 'alarm.a', 'stat.a', 'u.vcc', 'q.collector', 'd.cathode'],
             ['ntc.b', 'rn.a', 'meter.b', 'u.1_neg', 'u.2_pos'], ['zero.wiper', 'meter.a'],
