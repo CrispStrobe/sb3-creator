@@ -359,8 +359,8 @@
         "amplitude": 0.15,
         "offset": 0.65
       },
-      "x": 227,
-      "y": 217,
+      "x": 285,
+      "y": 213,
       "rotation": 0,
       "terminals": [
         "out",
@@ -392,8 +392,8 @@
       "id": "oscilloscope_20",
       "kind": "oscilloscope",
       "params": {},
-      "x": 155,
-      "y": 217,
+      "x": 176,
+      "y": 209,
       "rotation": 0,
       "terminals": [
         "ch1",
@@ -477,7 +477,7 @@
       },
       "to": {
         "board": "breadboard_1",
-        "hole": "t-11"
+        "hole": "t-15"
       },
       "color": "black"
     },
@@ -490,7 +490,7 @@
       },
       "to": {
         "board": "breadboard_1",
-        "hole": "t-6"
+        "hole": "t-7"
       },
       "color": "black"
     }
