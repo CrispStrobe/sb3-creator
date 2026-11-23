@@ -10450,5 +10450,131 @@
    "introDE": "lab-v-to-f/intro.de.md"
   },
   "devices": []
+ },
+ {
+  "id": "lab-astable-blinker",
+  "title": {
+   "en": "Two-transistor blinker",
+   "de": "Blinker aus zwei Transistoren"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 2,
+  "files": {
+   "program": "lab-astable-blinker/program.bw",
+   "circuit": "lab-astable-blinker/circuit.json",
+   "expected": "lab-astable-blinker/EXPECTED.md",
+   "intro": "lab-astable-blinker/intro.md",
+   "introDE": "lab-astable-blinker/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-astable-tone",
+  "title": {
+   "en": "From click to tone: transistor oscillator",
+   "de": "Vom Klick zum Ton: Transistor-Oszillator"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 2,
+  "files": {
+   "program": "lab-astable-tone/program.bw",
+   "circuit": "lab-astable-tone/circuit.json",
+   "expected": "lab-astable-tone/EXPECTED.md",
+   "intro": "lab-astable-tone/intro.md",
+   "introDE": "lab-astable-tone/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-scr-pair",
+  "title": {
+   "en": "A thyristor made of two transistors",
+   "de": "Ein Thyristor aus zwei Transistoren"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 4,
+  "files": {
+   "program": "lab-scr-pair/program.bw",
+   "circuit": "lab-scr-pair/circuit.json",
+   "expected": "lab-scr-pair/EXPECTED.md",
+   "intro": "lab-scr-pair/intro.md",
+   "introDE": "lab-scr-pair/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-toggle-flip-flop",
+  "title": {
+   "en": "Push on, push off: transistor toggle",
+   "de": "Drücken an, drücken aus: Transistor-Umschalter"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 4,
+  "files": {
+   "program": "lab-toggle-flip-flop/program.bw",
+   "circuit": "lab-toggle-flip-flop/circuit.json",
+   "expected": "lab-toggle-flip-flop/EXPECTED.md",
+   "intro": "lab-toggle-flip-flop/intro.md",
+   "introDE": "lab-toggle-flip-flop/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-pnp-npn-relax",
+  "title": {
+   "en": "Home-made unijunction: flash oscillator",
+   "de": "Selbstgebauter Unijunction: Blitz-Oszillator"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 4,
+  "files": {
+   "program": "lab-pnp-npn-relax/program.bw",
+   "circuit": "lab-pnp-npn-relax/circuit.json",
+   "expected": "lab-pnp-npn-relax/EXPECTED.md",
+   "intro": "lab-pnp-npn-relax/intro.md",
+   "introDE": "lab-pnp-npn-relax/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-siren-blinker",
+  "title": {
+   "en": "Siren in step with the lights",
+   "de": "Sirene im Takt der Lampen"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-siren-blinker/program.bw",
+   "circuit": "lab-siren-blinker/circuit.json",
+   "expected": "lab-siren-blinker/EXPECTED.md",
+   "intro": "lab-siren-blinker/intro.md",
+   "introDE": "lab-siren-blinker/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-discrete-monostable",
+  "title": {
+   "en": "Red, press, green: transistor one-shot",
+   "de": "Rot, drücken, grün: Transistor-Monoflop"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-discrete-monostable/program.bw",
+   "circuit": "lab-discrete-monostable/circuit.json",
+   "expected": "lab-discrete-monostable/EXPECTED.md",
+   "intro": "lab-discrete-monostable/intro.md",
+   "introDE": "lab-discrete-monostable/intro.de.md"
+  },
+  "devices": []
  }
 ]
