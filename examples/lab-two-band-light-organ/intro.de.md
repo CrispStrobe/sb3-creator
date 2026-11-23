@@ -9,7 +9,7 @@ Ein Signal, zwei LEDs: Rot für den Bass, Blau für die Höhen. Welche leuchtet,
 
 ## Probier das
 1. Klick auf **Sim**. Bei 50 Hz glimmt die rote LED.
-2. Erhöh die Frequenz der Sinusquelle schrittweise: 100 Hz, 300 Hz, 1000 Hz, 3000 Hz.
+2. Erhöh die Frequenz des Funktionsgenerators schrittweise: 100 Hz, 300 Hz, 1000 Hz, 3000 Hz.
 3. Wo wird Rot schwächer? Wo kommt Blau?
 4. Setz Oszilloskop-Tastköpfe an die beiden Filterausgänge und vergleiche ihre Größe.
 

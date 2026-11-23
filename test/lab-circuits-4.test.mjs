@@ -194,7 +194,7 @@ describe('lab benches behave as documented', { skip: SKIP }, () => {
     test('lab-window-comparator: dark off, middle on, bright off', () => {
         const x = bench('lab-window-comparator');
         for (const [light, on] of [[0, false], [0.2, false], [0.5, true], [0.8, false], [1, false]]) {
-            x.param('pt', 'light', light); x.run(1);
+            x.set('pt', light); x.run(1);   // the light slider (setControl), as for an LDR
             assert.equal(x.mA('rled') > 2, on, `light ${light}: LED ${x.mA('rled')} mA`);
         }
     });
