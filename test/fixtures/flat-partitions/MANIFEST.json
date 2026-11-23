@@ -2,7 +2,7 @@
   "note": "Vendored VERDICT for the flat circuit twins. CI cannot recompute the net partition (that needs bw-circuit-ui + bw-board), but it can prove neither file of a pair changed since a run that did. Regenerate with scripts/vendor-flat-partitions.mjs --write.",
   "engine": {
     "repo": "bw-circuit-ui",
-    "sha": "ea94554dc0fd8d329bc3349d8abe5be6601ddfcb"
+    "sha": "b1103f9b07579f02bda5ff52fcc97dbd8fe5b95b"
   },
   "pairs": 901,
   "entries": [
@@ -1875,7 +1875,7 @@
       "flat": "circuit-flat.json",
       "twin": "circuit.json",
       "flatSha": "484bcbef8cd8ceb8a7f89639f641030928fefaada37a5e5a6d9ee39115f804e5",
-      "twinSha": "770443ecd0877c369c3e2952d037a722c5c75909f8fe141082d8e92f86589d83",
+      "twinSha": "f64f0eccab4a6adb1f1fd9ef7a55e1f26076195f1719ff243a6732847982bd4c",
       "partitionSha": "d4ce2642f95ca0cac8a886051baa967638c14258982768779a94cde144a2ebcc"
     },
     {
@@ -1883,7 +1883,7 @@
       "flat": "circuit-flat.json",
       "twin": "circuit.json",
       "flatSha": "484bcbef8cd8ceb8a7f89639f641030928fefaada37a5e5a6d9ee39115f804e5",
-      "twinSha": "770443ecd0877c369c3e2952d037a722c5c75909f8fe141082d8e92f86589d83",
+      "twinSha": "f64f0eccab4a6adb1f1fd9ef7a55e1f26076195f1719ff243a6732847982bd4c",
       "partitionSha": "d4ce2642f95ca0cac8a886051baa967638c14258982768779a94cde144a2ebcc"
     },
     {
@@ -2075,7 +2075,7 @@
       "flat": "circuit-flat.json",
       "twin": "circuit.json",
       "flatSha": "26977c2fb6880c8c3ad7cb3ec6509dd4f4d8050a233391b472b9da68d7727e8d",
-      "twinSha": "9e37d5ce77820a13f7f2a078e054f9c80bc57db4acca0a5da80e8510aa1672ae",
+      "twinSha": "117f9e8b1f6f9a87d803a4c0564f6aa5c49a5fa30eeb62c5598bda7b16eb4bc1",
       "partitionSha": "f51b46c976a8bdec0df5cee454a4986cdc1ae8c1748317de2436bb0ba5e36920"
     },
     {
