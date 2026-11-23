@@ -16,4 +16,4 @@ Klick auf **Sim** und lies das Messgerät ab: 4 V bei der voreingestellten Helli
 
 ## Warum es funktioniert
 
-Der Operationsverstärker hält seinen invertierenden Eingang auf 0 V, indem er genau den Fotostrom durch den 1-MΩ-Widerstand zurückschickt. Dafür muss sein Ausgang auf Strom mal Widerstand liegen. Im Simulator vertritt eine Fotodiode die LED, weil das LED-Modell keinen Fotostrom kennt; eine echte LED verhält sich genauso, nur schwächer.
+Der Operationsverstärker hält seinen invertierenden Eingang auf 0 V, indem er genau den Fotostrom durch den 1-MΩ-Widerstand zurückschickt. Dafür muss sein Ausgang auf Strom mal Widerstand liegen. Der Sensor ist hier eine ganz normale rote LED; sie leuchtet nie, weil der Operationsverstärker ihre beiden Anschlüsse auf 0 V hält.

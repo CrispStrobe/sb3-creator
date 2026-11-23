@@ -1,7 +1,7 @@
 /**
  * The inputs a bench can be PUT in beyond buttons, pots and supplies: slide
  * switches, DIP switches, a Hall sensor's field, a reed switch's magnet, and the
- * light falling on a phototransistor, a photodiode or an LDR.
+ * light falling on a phototransistor, a photodiode, a light-sensing LED or an LDR.
  *
  * WHY THESE WERE DECLINED, AND WHAT DRIVES THEM
  * ---------------------------------------------
@@ -58,6 +58,13 @@ const CONTROL_LIGHT = new Set(['light_sensor', 'ldr']);
 const DIP = new Set(['dip_switch', 'dip_switch_spst', 'dip_switch_dpst']);
 const LIGHT = new Set(['phototransistor', 'photodiode', 'light_sensor', 'ldr']);
 const HALL = new Set(['hall_analog', 'hall_digital']);
+/**
+ * An LED that opted into a photocurrent (params.photoSensitivity > 0, bw-board
+ * 2026-11-23) is a light sensor too: the engine reads its light exactly as a
+ * photodiode's (world.lightLevel: setControl, else params.light).
+ */
+const isLightLed = (p) => p.kind === 'led' && Number(p.params?.photoSensitivity) > 0;
+const isLight = (p) => LIGHT.has(p.kind) || isLightLed(p);
 
 export const paramKey = (id, param) => `@${id}.${param}`;
 
@@ -150,7 +157,7 @@ export function readInputs ({ pairs = [], prose = '' }, parts, already = {}) {
     };
 
     // ---- light -----------------------------------------------------------
-    const lights = of(LIGHT);
+    const lights = (parts || []).filter(isLight);
     if (lights.length) {
         let level = null;
         for (const { head, cell } of pairs) {
@@ -297,6 +304,9 @@ export function inputStates (parts) {
         } else if (spec && p.kind !== 'slide_switch') {
             for (const v of spec.states)
                 out.push({ controls: { [paramKey(p.id, spec.param)]: v }, label: `${p.id} ${spec.param} ${v}` });
+        } else if (isLightLed(p)) {
+            for (const v of PARAM_INPUTS.photodiode.states)
+                out.push({ controls: { [paramKey(p.id, 'light')]: v }, label: `${p.id} light ${v}` });
         } else if (p.kind === 'light_sensor') {
             for (const v of [0, 0.5, 1]) out.push({ controls: { [p.id]: v }, label: `${p.id} light ${v}` });
         }

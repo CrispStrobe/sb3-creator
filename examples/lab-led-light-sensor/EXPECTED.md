@@ -1,7 +1,7 @@
 # lab-led-light-sensor — expected behaviour
 
 ## Circuit
-- 9 V supply, one LM358. The sensor is a photodiode set to deliver at most 5 µA in full light, about what a clear LED gives when it is used backwards as a light sensor. (The simulator's LED has no photocurrent model, so the photodiode stands in for it.)
+- 9 V supply, one LM358. The sensor is an ordinary red LED used backwards: with `photoSensitivity` = 5 µA it delivers 5 µA of photocurrent in full light, about what a clear LED gives. Its anode is on ground and its cathode on the virtual ground, so there is no voltage across it and its own junction never conducts.
 - Channel 1 is a transimpedance amplifier: the photocurrent flows into the inverting input, which the op-amp holds at 0 V, and back out through R1 = 1 MΩ from the output. Output voltage = photocurrent x 1 MΩ, so 1 µA gives 1 V. An analog meter (5 V full scale) shows it.
 - Channel 2 compares that voltage with a threshold from R2 = 8.2 kΩ and a 10 kΩ pot. When the light level falls below the threshold, the output goes high and lights the yellow night lamp through 680 Ω.
 

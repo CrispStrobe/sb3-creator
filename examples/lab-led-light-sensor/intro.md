@@ -16,4 +16,4 @@ Click **Sim** and read the meter: 4 V at the authored light level. Move the ligh
 
 ## Why it works
 
-The op-amp keeps its inverting input at 0 V by pushing exactly the photocurrent back through the 1 MΩ resistor. To do that its output has to sit at current times resistance. In the simulator a photodiode stands in for the LED, because the LED model has no photocurrent; a real LED behaves the same way, only weaker.
+The op-amp keeps its inverting input at 0 V by pushing exactly the photocurrent back through the 1 MΩ resistor. To do that its output has to sit at current times resistance. The sensor here is an ordinary red LED; it never lights, because the op-amp keeps both its leads at 0 V.

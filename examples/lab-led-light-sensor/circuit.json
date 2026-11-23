@@ -18,16 +18,17 @@
       "rotation": 0
     },
     {
-      "id": "pd",
-      "kind": "photodiode",
+      "id": "sensor",
+      "kind": "led",
       "params": {
-        "light": 0.8,
-        "iMax": 0.000005
+        "color": "red",
+        "photoSensitivity": 5e-06,
+        "light": 0.8
       },
       "x": 190,
       "y": 355,
       "rotation": 0,
-      "label": "Sensor (LED used backwards)"
+      "label": "Sensor (red LED used backwards)"
     },
     {
       "id": "r_f",
@@ -121,7 +122,7 @@
       "toTerminal": "a"
     },
     {
-      "from": "pd",
+      "from": "sensor",
       "fromTerminal": "cathode",
       "to": "r_f",
       "toTerminal": "a"
@@ -177,11 +178,11 @@
     {
       "from": "gnd1",
       "fromTerminal": "gnd",
-      "to": "pd",
+      "to": "sensor",
       "toTerminal": "anode"
     },
     {
-      "from": "pd",
+      "from": "sensor",
       "fromTerminal": "anode",
       "to": "u1",
       "toTerminal": "1_pos"
