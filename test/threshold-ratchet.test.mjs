@@ -80,8 +80,18 @@ const SB3 = join(import.meta.dirname, '..');
  * direction too, and a ratchet whose maintenance is "bump the number" becomes a
  * rubber stamp — the finding this document's own §5 records about the one
  * exact-equality pin in the sweep.
+ *
+ * LOWERED 2026-11-23 to 21. The lab-* bench scenarios (lab-circuits-1/4/5/6)
+ * and pc-555-astables-oscillate arrived with 118 unevidenced bounds and took
+ * the count to 142; each now carries the value scripts/threshold-observe.mjs
+ * observed on a green run (bw-board e339fcb). The four assert-physics
+ * `tolerance:` properties above are gone from that file; assert-blocks brought
+ * one of the same shape (line 26, an expected object's `tolerance: 0.1`, no
+ * comparison to observe) and two float-equality epsilons, now stamped. What
+ * remains: 12 ttl-module-acceptance, 6 gate-integrity, 1 assert-blocks,
+ * 1 arduino-import, 1 build-machine-roms — counted, 21.
  */
-const CEILING = 24;
+const CEILING = 21;
 
 describe('bounding literals arrive with evidence', () => {
     const inv = inventory(SB3, 'sb3-creator');

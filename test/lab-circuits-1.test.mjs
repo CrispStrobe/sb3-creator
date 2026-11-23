@@ -63,7 +63,9 @@ function bench (id) {
 
 const near = (got, want, tol, what) =>
     assert.ok(Math.abs(got - want) <= tol, `${what}: ${got.toFixed(4)}, expected ${want} +-${tol}`);
+// MEASURED 2026-11-23 (bw-board e339fcb): b.mA(led) > 2 -> observed 3.281..7.692 over 16 checks.
 const lit = (b, led, what) => assert.ok(b.mA(led) > 2, `${what}: ${led} carries ${b.mA(led).toFixed(3)} mA, expected lit`);
+// MEASURED 2026-11-23 (bw-board e339fcb): b.mA(led) < 0.05 -> observed 0..6.57e-6 over 30 checks.
 const dark = (b, led, what) => assert.ok(b.mA(led) < 0.05, `${what}: ${led} carries ${b.mA(led).toFixed(3)} mA, expected dark`);
 
 describe('lab circuits (builder 1): behaviour over time', { skip: SKIP }, () => {
@@ -117,6 +119,7 @@ describe('lab circuits (builder 1): behaviour over time', { skip: SKIP }, () => 
         b.at(1);
         lit(b, 'dry.anode', 'dry probe'); dark(b, 'wet.anode', 'dry probe');
         b.set('probe', 0.99); b.wait(1);
+        // MEASURED 2026-11-23 (bw-board e339fcb): b.mA('wet.anode') > 5 -> observed 5.713.
         assert.ok(b.mA('wet.anode') > 5, 'probe at 100 kOhm: wet LED on');
         b.set('probe', 1); b.wait(1);
         lit(b, 'wet.anode', 'probes shorted'); dark(b, 'dry.anode', 'probes shorted');
@@ -188,7 +191,9 @@ describe('lab circuits (builder 1): behaviour over time', { skip: SKIP }, () => 
         let repeat = 0, half = 0;
         for (let i = 300; i + 200 < env.length; i++) repeat = Math.max(repeat, Math.abs(env[i] - env[i + 200]));
         for (let i = 300; i + 100 < env.length; i++) half = Math.max(half, Math.abs(env[i] - env[i + 100]));
+        // MEASURED 2026-11-23 (bw-board e339fcb): repeat < 0.05 -> observed 0.004861.
         assert.ok(repeat < 0.05, `the envelope repeats every 2 ms (500 Hz): worst difference ${repeat.toFixed(3)} V`);
+        // MEASURED 2026-11-23 (bw-board e339fcb): half > 2 -> observed 2.362.
         assert.ok(half > 2, `half a modulation period apart the envelope differs by ${half.toFixed(3)} V — it carries the tone`);
     });
 
@@ -234,7 +239,9 @@ describe('lab circuits (builder 1): behaviour over time', { skip: SKIP }, () => 
         b.set('heavy', 1);
         let low = Infinity;
         for (let i = 0; i < 400; i += 5) { b.wait(5); low = Math.min(low, b.V('cres.pos')); }
+        // MEASURED 2026-11-23 (bw-board e339fcb): low < 9.5 -> observed 8.274.
         assert.ok(low < 9.5, `heavy load: the output sags below the battery voltage (lowest ${low.toFixed(2)} V)`);
+        // MEASURED 2026-11-23 (bw-board e339fcb): low > 7 -> observed 8.274.
         assert.ok(low > 7, `heavy load: the pump still delivers (lowest ${low.toFixed(2)} V)`);
     });
     test('lab-counter-timer: counts in binary to eight and stops its own clock', () => {
@@ -244,6 +251,7 @@ describe('lab circuits (builder 1): behaviour over time', { skip: SKIP }, () => 
         b.at(250); assert.equal(count(), '0001', 'first tick');
         b.at(2000); assert.equal(count(), '1000', 'stopped at eight');
         b.at(3000); assert.equal(count(), '1000', 'the clock stays stopped');
+        // MEASURED 2026-11-23 (bw-board e339fcb): b.V('osc.reset') < 0.5 -> observed 0.03072.
         assert.ok(b.V('osc.reset') < 0.5, 'the stop transistor holds the 555 in reset');
         b.set('start', 1); b.wait(20); b.set('start', 0); b.wait(230);
         assert.equal(count(), '0001', 'start clears the count and the clock runs again');
@@ -258,12 +266,15 @@ describe('lab circuits (builder 1): behaviour over time', { skip: SKIP }, () => 
         near(fa, 4.99, 0.05, 'oscillator A (Hz)'); near(fb, 5.50, 0.05, 'oscillator B (Hz)');
         // fraction of each 200 ms window during which both are high
         const both = []; for (let i = 0; i + 200 <= 6000; i += 100) { let n = 0; for (let k = i; k < i + 200; k++) n += A[k] && B[k]; both.push(n / 200); }
+        // MEASURED 2026-11-23 (bw-board e339fcb): Math.max(...both) > 0.35 -> observed 0.84.
         assert.ok(Math.max(...both) > 0.35, `in step: both high for ${Math.max(...both).toFixed(2)} of the time`);
+        // MEASURED 2026-11-23 (bw-board e339fcb): Math.min(...both) < 0.2 -> observed 0.11.
         assert.ok(Math.min(...both) < 0.2, `out of step: both high for ${Math.min(...both).toFixed(2)} of the time`);
         // smooth over five windows, then time the upward crossings of the mean
         const sm = both.map((_, i) => { const w = both.slice(Math.max(0, i - 2), i + 3); return w.reduce((a, x) => a + x, 0) / w.length; });
         const mean = sm.reduce((a, x) => a + x, 0) / sm.length;
         const ups = []; for (let i = 1; i < sm.length; i++) if (sm[i - 1] < mean && sm[i] >= mean) ups.push(i);
+        // MEASURED 2026-11-23 (bw-board e339fcb): ups.length >= 2 -> observed 3.
         assert.ok(ups.length >= 2, `the together-LED swells more than once in 6 s (${ups.length} rises)`);
         const spacing = (ups.at(-1) - ups[0]) / (ups.length - 1) / 10;
         near(spacing, 1 / (fb - fa), 0.3, 'time between in-step moments (s) = 1 / beat frequency');

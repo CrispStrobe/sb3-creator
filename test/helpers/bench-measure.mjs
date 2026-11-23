@@ -188,6 +188,15 @@ function solveUncached (dir, controls, atMs) {
                 } catch { /* a pin the model refuses is not fatal */ }
             }
     }
+    // A slide switch whose position the claim NAMES (`@id.position`) is not
+    // also a "button". Since bw-board 01390d2e the slide switch's position is
+    // its setControl channel, and that channel wins over params.position — so
+    // the generic button axis (pressed 1 / released 0) silently flipped a
+    // switch the row had just put in position b back to a, and a row claiming
+    // the position-a value under "b" was matched. Before that revision
+    // setControl on a slide switch was a no-op and the conflict was invisible.
+    const positioned = new Set(Object.keys(controls).map(parseParamKey)
+        .filter(k => k && k.param === 'position').map(k => k.id));
     for (const [selector, value] of Object.entries(controls)) {
         if (selector.startsWith('__')) continue;
         // `@id.param` is a device model's input — a slide switch's position, a
@@ -200,6 +209,7 @@ function solveUncached (dir, controls, atMs) {
         const targets = parts.filter(p => p.id === selector || p.kind === selector ||
             (selector === 'button' && (p.kind === 'button' || p.kind === 'switch' || p.kind === 'slide_switch')));
         for (const p of targets) {
+            if (p.kind === 'slide_switch' && positioned.has(p.id)) continue;
             try { board.setControl(p.id, value); } catch { /* a control the model refuses is not fatal */ }
         }
     }

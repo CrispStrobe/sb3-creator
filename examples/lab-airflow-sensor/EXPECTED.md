@@ -5,7 +5,7 @@
 - The NTC over 6.8 kΩ gives the sensor voltage S: a warmer NTC has less resistance, so S rises.
 - A 1 kΩ "zero" pot is the other half of a bridge. A moving-coil meter (2 V full scale) reads zero pot minus S.
 - LM358 half 1: DRAUGHT alarm. The red LED lights while S is below the alarm pot (5.94 V).
-- LM358 half 2: thermostat. Above the thermostat pot (6.39 V) it switches an NPN that runs a small fan motor. The fan blows on the sensor: every rad/s of fan speed adds 0.01 m/s of air (`airflowGain`).
+- LM358 half 2: thermostat. Above the thermostat pot (6.39 V) it switches an NPN that runs a small fan motor; a diode across the motor catches its kick when the NPN turns off. The fan blows on the sensor: every rad/s of fan speed adds 0.01 m/s of air (`airflowGain`).
 - Airflow and room temperature are world settings (airflow in m/s, temperature in °C).
 
 ## Observable behaviour

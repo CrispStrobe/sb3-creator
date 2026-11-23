@@ -52,6 +52,7 @@ function run (id, dtMs, totalMs) {
 describe('555 astables with a decoupled CONTROL pin oscillate', { skip: SKIP }, () => {
     test('pc67-555-tongenerator: a tone near 686 Hz, duty a little over 50 %', () => {
         const r = run('pc67-555-tongenerator', 0.02, 30);
+        // MEASURED 2026-11-23 (bw-board e339fcb): r.edges > 10 -> observed 20.
         assert.ok(r.edges > 10, `only ${r.edges} rising edges in 30 ms — not oscillating`);
         assert.ok(Math.abs(r.hz - 680) < 20, `frequency ${r.hz.toFixed(1)} Hz, measured 680`);
         assert.ok(Math.abs(r.duty - 0.528) < 0.03, `duty ${r.duty.toFixed(3)}, measured 0.528`);
@@ -59,6 +60,7 @@ describe('555 astables with a decoupled CONTROL pin oscillate', { skip: SKIP }, 
 
     test('pc87-stroboskop: about 7.1 flashes per second', () => {
         const r = run('pc87-stroboskop', 2, 2000);
+        // MEASURED 2026-11-23 (bw-board e339fcb): r.edges > 8 -> observed 13.
         assert.ok(r.edges > 8, `only ${r.edges} rising edges in 2 s — not oscillating`);
         assert.ok(Math.abs(r.hz - 7.1) < 0.25, `frequency ${r.hz.toFixed(2)} Hz, measured 7.10`);
         assert.ok(Math.abs(r.duty - 0.51) < 0.03, `duty ${r.duty.toFixed(3)}, measured 0.51`);

@@ -330,8 +330,8 @@
   ],
   "wires": [
     {
-      "id": "w_26",
-      "netId": "net_27",
+      "id": "w_25",
+      "netId": "net_26",
       "from": {
         "part": "vsource_2",
         "terminal": "pos"
@@ -342,8 +342,8 @@
       }
     },
     {
-      "id": "w_28",
-      "netId": "net_29",
+      "id": "w_27",
+      "netId": "net_28",
       "from": {
         "part": "lm358_9",
         "terminal": "vcc"
@@ -354,8 +354,8 @@
       }
     },
     {
-      "id": "w_31",
-      "netId": "net_32",
+      "id": "w_30",
+      "netId": "net_31",
       "from": {
         "part": "analog_meter_7",
         "terminal": "b"
@@ -366,8 +366,8 @@
       }
     },
     {
-      "id": "w_33",
-      "netId": "net_34",
+      "id": "w_32",
+      "netId": "net_33",
       "from": {
         "part": "lm358_9",
         "terminal": "1_neg"
@@ -378,8 +378,8 @@
       }
     },
     {
-      "id": "w_35",
-      "netId": "net_36",
+      "id": "w_34",
+      "netId": "net_35",
       "from": {
         "part": "lm358_9",
         "terminal": "2_pos"
@@ -390,8 +390,8 @@
       }
     },
     {
-      "id": "w_37",
-      "netId": "net_38",
+      "id": "w_36",
+      "netId": "net_37",
       "from": {
         "part": "analog_meter_7",
         "terminal": "a"
@@ -402,8 +402,8 @@
       }
     },
     {
-      "id": "w_39",
-      "netId": "net_40",
+      "id": "w_38",
+      "netId": "net_39",
       "from": {
         "part": "lm358_9",
         "terminal": "1_pos"
@@ -414,8 +414,8 @@
       }
     },
     {
-      "id": "w_41",
-      "netId": "net_42",
+      "id": "w_40",
+      "netId": "net_41",
       "from": {
         "part": "lm358_9",
         "terminal": "1_out"
@@ -426,8 +426,8 @@
       }
     },
     {
-      "id": "w_44",
-      "netId": "net_45",
+      "id": "w_43",
+      "netId": "net_44",
       "from": {
         "part": "lm358_9",
         "terminal": "2_neg"
@@ -438,8 +438,8 @@
       }
     },
     {
-      "id": "w_46",
-      "netId": "net_47",
+      "id": "w_45",
+      "netId": "net_46",
       "from": {
         "part": "lm358_9",
         "terminal": "2_out"
@@ -532,94 +532,94 @@
       "color": "red"
     },
     {
-      "ref": "bbw:breadboard_1:bbw_25",
-      "boardId": "breadboard_1",
-      "a": "b32",
-      "b": "t+32",
-      "color": "red"
-    },
-    {
-      "ref": "bbw:breadboard_1:bbw_30",
+      "ref": "bbw:breadboard_1:bbw_29",
       "boardId": "breadboard_1",
       "a": "g3",
       "b": "g5",
       "color": "blue"
     },
     {
-      "ref": "bbw:breadboard_1:bbw_43",
+      "ref": "bbw:breadboard_1:bbw_42",
       "boardId": "breadboard_1",
       "a": "b18",
       "b": "g17",
       "color": "blue"
     },
     {
-      "ref": "bbw:breadboard_1:bbw_48",
+      "ref": "bbw:breadboard_1:bbw_47",
       "boardId": "breadboard_1",
       "a": "g24",
       "b": "b27",
       "color": "blue"
     },
     {
-      "ref": "bbw:breadboard_1:bbw_49",
+      "ref": "bbw:breadboard_1:bbw_48",
       "boardId": "breadboard_1",
       "a": "b26",
       "b": "g26",
       "color": "blue"
     },
     {
-      "ref": "bbw:breadboard_1:bbw_50",
+      "ref": "bbw:breadboard_1:bbw_49",
       "boardId": "breadboard_1",
       "a": "h26",
-      "b": "b30",
+      "b": "b32",
       "color": "blue"
     },
     {
-      "ref": "bbw:breadboard_1:bbw_51",
+      "ref": "bbw:breadboard_1:bbw_50",
       "boardId": "breadboard_1",
       "a": "b6",
       "b": "t-6",
       "color": "black"
     },
     {
-      "ref": "bbw:breadboard_1:bbw_52",
+      "ref": "bbw:breadboard_1:bbw_51",
       "boardId": "breadboard_1",
       "a": "g9",
       "b": "b-9",
       "color": "black"
     },
     {
-      "ref": "bbw:breadboard_1:bbw_53",
+      "ref": "bbw:breadboard_1:bbw_52",
       "boardId": "breadboard_1",
       "a": "b12",
       "b": "t-12",
       "color": "black"
     },
     {
-      "ref": "bbw:breadboard_1:bbw_54",
+      "ref": "bbw:breadboard_1:bbw_53",
       "boardId": "breadboard_1",
       "a": "g15",
       "b": "b-15",
       "color": "black"
     },
     {
-      "ref": "bbw:breadboard_1:bbw_55",
+      "ref": "bbw:breadboard_1:bbw_54",
       "boardId": "breadboard_1",
       "a": "b24",
       "b": "t-24",
       "color": "black"
     },
     {
-      "ref": "bbw:breadboard_1:bbw_56",
+      "ref": "bbw:breadboard_1:bbw_55",
       "boardId": "breadboard_1",
       "a": "g18",
       "b": "b-18",
       "color": "black"
     },
     {
-      "ref": "bbw:breadboard_1:bbw_57",
+      "ref": "bbw:breadboard_1:bbw_56",
       "boardId": "breadboard_1",
       "a": "g28",
       "b": "b-28",
+      "color": "black"
+    },
+    {
+      "ref": "bbw:breadboard_1:bbw_57",
+      "boardId": "breadboard_1",
+      "a": "b30",
+      "b": "t-30",
       "color": "black"
     }
   ]

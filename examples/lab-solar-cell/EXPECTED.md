@@ -4,7 +4,7 @@
 - Three single solar cells, each with its own light setting (0 = dark, 1 = full sun), all at 0.5 to start.
 - Cell 1: through an ammeter and a slide switch into a load (1 Ω plus a 100 Ω pot used as a variable resistor); a voltmeter across the cell. Switch to the left: no load, open circuit.
 - Cell 2: in series between a bias divider (100 kΩ from +9 V, 5.6 kΩ to minus, 0.48 V unloaded) and an NPN's base. The NPN lights a green LED through 1 kΩ. The second slide switch can put the cell's minus side on ground instead of on the divider.
-- Cell 3: straight into a small fan motor that needs some torque before it starts.
+- Cell 3: straight into a small fan motor that needs some torque before it starts, with the usual reverse diode across the motor (it never conducts at the cell's 0.6 V).
 
 ## Observable behaviour
 - Half light, load pot in the middle (about 51 Ω): 0.567 V and 11.1 mA.

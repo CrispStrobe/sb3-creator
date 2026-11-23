@@ -64,12 +64,16 @@ describe('lab benches behave as documented', { skip: SKIP }, () => {
         const x = bench('lab-transistor-flip-flop');
         const red = () => x.mA('r1'), green = () => x.mA('r2');
         x.run(5);
+        // MEASURED 2026-11-23 (bw-board e339fcb): green() > 5 -> observed 7.037; red() < 0.5 -> observed 0.2833.
         assert.ok(green() > 5 && red() < 0.5, `power-on: green ${green()}, red ${red()}`);
         x.set('set', 1); x.run(20); x.set('set', 0); x.run(50);
+        // MEASURED 2026-11-23 (bw-board e339fcb): red() > 5 -> observed 7.031; green() < 0.5 -> observed 0.2328.
         assert.ok(red() > 5 && green() < 0.5, `after SET: red ${red()}, green ${green()}`);
         x.set('set', 1); x.run(20); x.set('set', 0); x.run(50);
+        // MEASURED 2026-11-23 (bw-board e339fcb): red() > 5 -> observed 7.031; green() < 0.5 -> observed 0.2328.
         assert.ok(red() > 5 && green() < 0.5, 'a second SET changes nothing');
         x.set('reset', 1); x.run(20); x.set('reset', 0); x.run(50);
+        // MEASURED 2026-11-23 (bw-board e339fcb): green() > 5 -> observed 7.037; red() < 0.5 -> observed 0.2833.
         assert.ok(green() > 5 && red() < 0.5, `after RESET: red ${red()}, green ${green()}`);
     });
 
@@ -77,12 +81,16 @@ describe('lab benches behave as documented', { skip: SKIP }, () => {
         const x = bench('lab-base-current');
         x.run(1);
         const beta = x.mA('amc') / x.mA('amb');
+        // MEASURED 2026-11-23 (bw-board e339fcb): Math.abs(beta - 100) < 3 -> observed 3.45e-8.
         assert.ok(Math.abs(beta - 100) < 3, `Ic/Ib = ${beta}`);
         x.set('pot', 1); x.run(1);                       // only the 10 k minimum left
         assert.ok(x.mA('amc') < 100 * x.mA('amb') * 0.2, 'with 10 k the transistor saturates');
         x.param('sw', 'position', 1); x.run(1);         // fingertip path, not touched
+        // MEASURED 2026-11-23 (bw-board e339fcb): x.mA('amc') < 0.01 -> observed 8.99e-7.
         assert.ok(x.mA('amc') < 0.01, `open base: Ic ${x.mA('amc')} mA`);
         x.set('finger', 1); x.run(1);
+        // MEASURED 2026-11-23 (bw-board e339fcb): x.mA('amc') > 0.3 -> observed 0.3783;
+        //   x.mA('amc') < 0.45 -> observed 0.3783.
         assert.ok(x.mA('amc') > 0.3 && x.mA('amc') < 0.45, `fingertip: Ic ${x.mA('amc')} mA`);
     });
 
@@ -91,8 +99,10 @@ describe('lab benches behave as documented', { skip: SKIP }, () => {
         const ic = [];
         for (const vce of [2, 5, 8]) { x.set('vce', vce); x.run(1); ic.push(x.mA('amc')); }
         const ib = x.mA('amb');
+        // MEASURED 2026-11-23 (bw-board e339fcb): Math.abs(i / ib - 100) < 3 -> observed 0.002534..0.01314 over 3 checks.
         for (const i of ic) assert.ok(Math.abs(i / ib - 100) < 3, `active region Ic/Ib = ${i / ib}`);
         x.set('vce', 0.6); x.run(1);
+        // MEASURED 2026-11-23 (bw-board e339fcb): x.v('q', 'collector') < 0.3 -> observed 0.1536.
         assert.ok(x.v('q', 'collector') < 0.3, `source 0.6 V: V_CE ${x.v('q', 'collector')} V should be in saturation`);
         assert.ok(x.mA("amc") < 0.85 * 100 * ib, `source 0.6 V: Ic ${x.mA('amc')} mA should be well below beta*Ib`);
     });
@@ -100,21 +110,29 @@ describe('lab benches behave as documented', { skip: SKIP }, () => {
     test('lab-delay-off-timer: on at once, still on after 5 s, out by 40 s', () => {
         const x = bench('lab-delay-off-timer');
         x.run(100);
+        // MEASURED 2026-11-23 (bw-board e339fcb): x.mA('rl') < 0.01 -> observed 8.99e-13.
         assert.ok(x.mA('rl') < 0.01, 'idle: dark');
         x.set('btn', 1); x.run(200); x.set('btn', 0);
+        // MEASURED 2026-11-23 (bw-board e339fcb): x.mA('rl') > 5 -> observed 6.444.
         assert.ok(x.mA('rl') > 5, 'pressed: lit');
         x.run(5000);
+        // MEASURED 2026-11-23 (bw-board e339fcb): x.mA('rl') > 5 -> observed 6.433.
         assert.ok(x.mA('rl') > 5, `5 s after release: ${x.mA('rl')} mA`);
         x.run(35000);
+        // MEASURED 2026-11-23 (bw-board e339fcb): x.mA('rl') < 1 -> observed 0.645.
         assert.ok(x.mA('rl') < 1, `40 s after release: ${x.mA('rl')} mA`);
     });
 
     test('lab-transistor-two-diodes: each junction conducts one way only', () => {
         const x = bench('lab-transistor-two-diodes');
         x.run(1);
+        // MEASURED 2026-11-23 (bw-board e339fcb): x.mA('ra') > 4 -> observed 5.178.
         assert.ok(x.mA('ra') > 4, 'B-E forward conducts');
+        // MEASURED 2026-11-23 (bw-board e339fcb): x.mA('rb') > 4 -> observed 5.214.
         assert.ok(x.mA('rb') > 4, 'B-C forward conducts');
+        // MEASURED 2026-11-23 (bw-board e339fcb): x.mA('rc') < 0.01 -> observed 5.00e-9.
         assert.ok(x.mA('rc') < 0.01, 'B-E reversed blocks');
+        // MEASURED 2026-11-23 (bw-board e339fcb): x.mA('rd') < 0.01 -> observed 5.01e-9.
         assert.ok(x.mA('rd') < 0.01, 'B-C reversed blocks');
     });
 
@@ -130,8 +148,10 @@ describe('lab benches behave as documented', { skip: SKIP }, () => {
     test('lab-heat-alarm: warming the NTC puts the LED out', () => {
         const x = bench('lab-heat-alarm');
         x.run(1);
+        // MEASURED 2026-11-23 (bw-board e339fcb): x.mA('rl') > 5 -> observed 7.066.
         assert.ok(x.mA('rl') > 5, 'cold: lit');
         x.set('ntc', 0.7); x.run(1);
+        // MEASURED 2026-11-23 (bw-board e339fcb): x.mA('rl') < 0.1 -> observed 2.99e-6.
         assert.ok(x.mA('rl') < 0.1, `warm: ${x.mA('rl')} mA`);
     });
 
@@ -144,6 +164,7 @@ describe('lab benches behave as documented', { skip: SKIP }, () => {
         const dIn = b[0] - a[0];
         const gCE = (b[1] - a[1]) / dIn, gF = (b[2] - a[2]) / dIn;
         assert.ok(gCE < -1.9 && gCE > -2.3, `common-emitter gain ${gCE}`);
+        // MEASURED 2026-11-23 (bw-board e339fcb): gF > 0.95 -> observed 0.9985; gF < 1.05 -> observed 0.9985.
         assert.ok(gF > 0.95 && gF < 1.05, `follower gain ${gF}`);
     });
 
@@ -157,26 +178,35 @@ describe('lab benches behave as documented', { skip: SKIP }, () => {
             if (Math.abs(s) < 0.5) deadB = Math.max(deadB, Math.abs(x.v('rl1', 'a')));
             worstAB = Math.max(worstAB, Math.abs(x.v('rl2', 'a') - s));
         }
+        // MEASURED 2026-11-23 (bw-board e339fcb): deadB < 0.01 -> observed 1.24e-5.
         assert.ok(deadB < 0.01, `class B output near zero crossing: ${deadB} V`);
+        // MEASURED 2026-11-23 (bw-board e339fcb): worstAB < 0.3 -> observed 0.08124.
         assert.ok(worstAB < 0.3, `class AB tracks the input within ${worstAB} V`);
     });
 
     test('lab-two-led-monostable: green for about 11 s after release', () => {
         const x = bench('lab-two-led-monostable');
         x.run(500);
+        // MEASURED 2026-11-23 (bw-board e339fcb): x.mA('rr') > 5 -> observed 6.78;
+        //   x.mA('rg') < 0.1 -> observed 3.53e-7.
         assert.ok(x.mA('rr') > 5 && x.mA('rg') < 0.1, 'idle: red');
         x.set('go', 1); x.run(500); x.set('go', 0);
         let tGreen = 0;
         while (x.mA('rg') > 1 && tGreen < 20000) { x.run(100); tGreen += 100; }
+        // MEASURED 2026-11-23 (bw-board e339fcb): Math.abs(tGreen - 11400) < 600 -> observed 0.
         assert.ok(Math.abs(tGreen - 11400) < 600, `green lasted ${tGreen} ms`);
+        // MEASURED 2026-11-23 (bw-board e339fcb): x.mA('rr') > 5 -> observed 6.78.
         assert.ok(x.mA('rr') > 5, 'back to red');
     });
 
     test('lab-virtual-ground: buffered midpoint holds, bare divider drifts', () => {
         const x = bench('lab-virtual-ground');
         x.run(1);
+        // MEASURED 2026-11-23 (bw-board e339fcb): Math.abs(x.v('u', '1_out') - 4.5) < 0.02 -> observed 4.35e-5.
         assert.ok(Math.abs(x.v('u', '1_out') - 4.5) < 0.02);
+        // MEASURED 2026-11-23 (bw-board e339fcb): x.v('rc', 'b') > 6 -> observed 6.753.
         assert.ok(x.v('rc', 'b') > 6, `bare divider: ${x.v('rc', 'b')} V`);
+        // MEASURED 2026-11-23 (bw-board e339fcb): x.mA('rA') > 4 -> observed 5.625; x.mA('rB') > 2 -> observed 2.673.
         assert.ok(x.mA('rA') > 4 && x.mA('rB') > 2, 'both loads draw current');
     });
 
@@ -184,10 +214,13 @@ describe('lab benches behave as documented', { skip: SKIP }, () => {
         const x = bench('lab-wheatstone-bridge');
         const meter = () => x.v('rn', 'b') - x.v('pot', 'wiper');
         x.set('pot', 6.8 / 16.8); x.run(1);
+        // MEASURED 2026-11-23 (bw-board e339fcb): Math.abs(meter()) < 0.01 -> observed 3.19e-5.
         assert.ok(Math.abs(meter()) < 0.01, `6.8 k null: ${meter()} V`);
         x.param('sw', 'position', 1); x.run(1);
+        // MEASURED 2026-11-23 (bw-board e339fcb): Math.abs(meter()) > 0.5 -> observed 0.7648.
         assert.ok(Math.abs(meter()) > 0.5, 'other unknown: off balance');
         x.set('pot', 4.7 / 14.7); x.run(1);
+        // MEASURED 2026-11-23 (bw-board e339fcb): Math.abs(meter()) < 0.01 -> observed 4.16e-5.
         assert.ok(Math.abs(meter()) < 0.01, `4.7 k null: ${meter()} V`);
     });
 
@@ -195,6 +228,7 @@ describe('lab benches behave as documented', { skip: SKIP }, () => {
         const x = bench('lab-window-comparator');
         for (const [light, on] of [[0, false], [0.2, false], [0.5, true], [0.8, false], [1, false]]) {
             x.set('pt', light); x.run(1);   // the light slider (setControl), as for an LDR
+            // MEASURED 2026-11-23 (bw-board e339fcb): x.mA('rled') > 2 -> observed 2.10e-5..9.117 over 5 checks.
             assert.equal(x.mA('rled') > 2, on, `light ${light}: LED ${x.mA('rled')} mA`);
         }
     });
@@ -203,6 +237,7 @@ describe('lab benches behave as documented', { skip: SKIP }, () => {
         const x = bench('lab-2bit-dac');
         for (const [b1, b0, out] of [[0, 0, 0], [0, 1, 0.5], [1, 0, 1.0], [1, 1, 1.5]]) {
             x.param('s1', 'position', b1); x.param('s0', 'position', b0); x.run(1);
+            // MEASURED 2026-11-23 (bw-board e339fcb): Math.abs(x.v('r4', 'b') - out) < 0.01 -> observed 4.11e-9..6.88e-5 over 4 checks.
             assert.ok(Math.abs(x.v('r4', 'b') - out) < 0.01, `${b1}${b0}: ${x.v('r4', 'b')} V`);
         }
     });
@@ -211,6 +246,8 @@ describe('lab benches behave as documented', { skip: SKIP }, () => {
         const x = bench('lab-2bit-adc');
         for (const [pos, msb, lsb] of [[0.1, 0, 0], [0.4, 0, 1], [0.6, 1, 0], [0.9, 1, 1]]) {
             x.set('pot', pos); x.run(1);
+            // MEASURED 2026-11-23 (bw-board e339fcb): x.mA('rm') > 2 -> observed 0..6.038 over 4 checks;
+            //   x.mA('rl') > 2 -> observed 0..6.038 over 4 checks.
             assert.deepEqual([x.mA('rm') > 2 ? 1 : 0, x.mA('rl') > 2 ? 1 : 0], [msb, lsb], `pot ${pos}`);
         }
     });
@@ -223,11 +260,15 @@ describe('lab benches behave as documented', { skip: SKIP }, () => {
             const sq = x.v('us', '1_out') > 4;
             if (prev === false && sq) rises.push(x.t);
             prev = sq;
-            if (x.t > 600) { const tri = x.v('ui', 'out'); lo = Math.min(lo, tri); hi = Math.max(hi, tri); }
+            if (x.t > 600) { const tri = x.v('us', '2_out'); lo = Math.min(lo, tri); hi = Math.max(hi, tri); }
         }
+        // MEASURED 2026-11-23 (bw-board e339fcb): rises.length >= 3 -> observed 14.
         assert.ok(rises.length >= 3, `square rose ${rises.length} times`);
         const f = (rises.length - 1) / (rises.at(-1) - rises[0]) * 1000;
+        // MEASURED 2026-11-23 (bw-board e339fcb): f > 3 -> observed 5.623; f < 8 -> observed 5.623.
         assert.ok(f > 3 && f < 8, `frequency ${f} Hz`);
+        // MEASURED 2026-11-23 (bw-board e339fcb): hi - lo > 2 -> observed 3.274; lo > 2 -> observed 3.263;
+        //   hi < 8 -> observed 6.537.
         assert.ok(hi - lo > 2 && lo > 2 && hi < 8, `triangle ${lo}..${hi} V`);
     });
 });
@@ -268,7 +309,11 @@ describe('lab-v-to-f', { skip: SKIP }, () => {
     test('flashes per second rise in step with the input voltage', () => {
         const f0 = hertz(0), f1 = hertz(0.2), f3 = hertz(0.6);
         assert.equal(f0, 0, 'no input, no flashes');
-        assert.ok(Math.abs(f1 - 2.65) < 0.3, `0.89 V over the reference: ${f1} Hz`);
+        // MEASURED 2026-11-23 (bw-board e339fcb, all three stages LM358):
+        // f0 0, f1 2.551 Hz, f3 6.991 Hz, so f3 / f1 = 2.740. The ideal-op-amp
+        // version measured 2.551 / 6.991 Hz on the same pin.
+        assert.ok(Math.abs(f1 - 2.55) < 0.3, `0.89 V over the reference: ${f1} Hz`);
+        // MEASURED 2026-11-23 (bw-board e339fcb): f3 / f1 > 2.4 -> observed 2.74; f3 / f1 < 3.0 -> observed 2.74.
         assert.ok(f3 / f1 > 2.4 && f3 / f1 < 3.0, `three times the input gives ${f3 / f1} times the rate`);
     });
 });

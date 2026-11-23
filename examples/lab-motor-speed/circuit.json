@@ -447,8 +447,8 @@
       "seat": {
         "boardId": "breadboard_1",
         "leadMap": {
-          "anode": "a38",
-          "cathode": "a40"
+          "anode": "a40",
+          "cathode": "a38"
         }
       }
     }
@@ -809,8 +809,8 @@
       "ref": "bbw:breadboard_1:bbw_31",
       "boardId": "breadboard_1",
       "a": "b40",
-      "b": "t+40",
-      "color": "red"
+      "b": "t-40",
+      "color": "black"
     },
     {
       "ref": "bbw:breadboard_1:bbw_42",
