@@ -6,23 +6,17 @@
    "kind": "breadboard",
    "params": {},
    "terminals": [],
-   "x": 470,
-   "y": 330,
+   "x": 520,
+   "y": 420,
    "rotation": 0
   },
   {
    "id": "gnd",
    "kind": "gnd",
    "params": {},
-   "x": 151,
-   "y": 300,
-   "rotation": 0,
-   "seat": {
-    "boardId": "bb1",
-    "leadMap": {
-     "gnd": "a2"
-    }
-   }
+   "x": 221,
+   "y": 221,
+   "rotation": 0
   },
   {
    "id": "carrier",
@@ -34,8 +28,8 @@
     "amplitude": 3
    },
    "label": "carrier 20 kHz",
-   "x": 60,
-   "y": 60,
+   "x": 287,
+   "y": 213,
    "rotation": 0
   },
   {
@@ -48,8 +42,8 @@
     "amplitude": 0.9
    },
    "label": "lower sideband 19.5 kHz",
-   "x": 170,
-   "y": 60,
+   "x": 83,
+   "y": 213,
    "rotation": 0
   },
   {
@@ -62,8 +56,8 @@
     "amplitude": 0.9
    },
    "label": "upper sideband 20.5 kHz",
-   "x": 280,
-   "y": 60,
+   "x": 155,
+   "y": 213,
    "rotation": 0
   },
   {
@@ -72,14 +66,14 @@
    "params": {
     "ohms": 1000
    },
-   "x": 172,
-   "y": 300,
+   "x": 142,
+   "y": 345,
    "rotation": 0,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a4",
-     "b": "a8"
+     "a": "a3",
+     "b": "a7"
     }
    }
   },
@@ -88,14 +82,14 @@
    "kind": "diode",
    "params": {},
    "label": "detector diode",
-   "x": 235,
-   "y": 300,
+   "x": 128,
+   "y": 495,
    "rotation": 0,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "anode": "a10",
-     "cathode": "a12"
+     "anode": "j3",
+     "cathode": "j5"
     }
    }
   },
@@ -106,14 +100,14 @@
     "farads": 1e-8
    },
    "label": "smoothing 10nF",
-   "x": 277,
-   "y": 300,
+   "x": 177,
+   "y": 495,
    "rotation": 0,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a14",
-     "b": "a15"
+     "a": "j7",
+     "b": "j8"
     }
    }
   },
@@ -123,14 +117,14 @@
    "params": {
     "ohms": 22000
    },
-   "x": 308,
-   "y": 300,
+   "x": 226,
+   "y": 345,
    "rotation": 0,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a17",
-     "b": "a21"
+     "a": "a9",
+     "b": "a13"
     }
    }
   },
@@ -140,14 +134,14 @@
    "params": {
     "farads": 1e-7
    },
-   "x": 371,
-   "y": 300,
+   "x": 219,
+   "y": 495,
    "rotation": 0,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a23",
-     "b": "a24"
+     "a": "j10",
+     "b": "j11"
     }
    }
   },
@@ -156,172 +150,153 @@
    "kind": "piezo",
    "params": {},
    "label": "crystal earphone",
-   "x": 390,
-   "y": 60,
-   "rotation": 0
+   "x": 261,
+   "y": 495,
+   "rotation": 0,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "j13",
+     "b": "j14"
+    }
+   }
   }
  ],
  "wires": [
   {
-   "id": "w1",
+   "id": "w_5",
+   "netId": "net_5",
    "from": {
     "part": "carrier",
     "terminal": "neg"
    },
    "to": {
     "board": "bb1",
-    "hole": "t-1"
+    "hole": "t-15"
    },
    "color": "black"
   },
   {
-   "id": "w2",
+   "id": "w_6",
+   "netId": "net_6",
    "from": {
-    "part": "spk",
-    "terminal": "b"
+    "part": "gnd",
+    "terminal": "gnd"
    },
    "to": {
     "board": "bb1",
-    "hole": "t-3"
+    "hole": "t-11"
    },
    "color": "black"
   },
   {
-   "id": "w3",
+   "id": "w_7",
+   "netId": "net_7",
    "from": {
     "part": "carrier",
     "terminal": "pos"
    },
    "to": {
-    "board": "bb1",
-    "hole": "e26"
-   },
-   "color": "blue"
-  },
-  {
-   "id": "w4",
-   "from": {
     "part": "lsb",
     "terminal": "neg"
-   },
-   "to": {
-    "board": "bb1",
-    "hole": "d26"
-   },
-   "color": "blue"
+   }
   },
   {
-   "id": "w5",
+   "id": "w_13",
+   "netId": "net_13",
    "from": {
     "part": "lsb",
     "terminal": "pos"
    },
    "to": {
-    "board": "bb1",
-    "hole": "e28"
-   },
-   "color": "yellow"
-  },
-  {
-   "id": "w6",
-   "from": {
     "part": "usb",
     "terminal": "neg"
-   },
-   "to": {
-    "board": "bb1",
-    "hole": "d28"
-   },
-   "color": "yellow"
+   }
   },
   {
-   "id": "w7",
+   "id": "w_15",
+   "netId": "net_15",
    "from": {
     "part": "usb",
     "terminal": "pos"
    },
    "to": {
     "board": "bb1",
-    "hole": "e4"
+    "hole": "t+6"
    },
-   "color": "orange"
-  },
-  {
-   "id": "w8",
-   "from": {
-    "part": "spk",
-    "terminal": "a"
-   },
-   "to": {
-    "board": "bb1",
-    "hole": "e24"
-   },
-   "color": "purple"
+   "color": "red"
   }
  ],
  "holeWires": [
   {
-   "ref": "bbw:bb1:j1",
+   "ref": "bbw:bb1:bbw_1",
    "boardId": "bb1",
-   "a": "e2",
-   "b": "t-2",
+   "a": "t-2",
+   "b": "b-2",
    "color": "black"
   },
   {
-   "ref": "bbw:bb1:j2",
+   "ref": "bbw:bb1:bbw_2",
    "boardId": "bb1",
-   "a": "e15",
-   "b": "t-15",
+   "a": "i8",
+   "b": "b-8",
    "color": "black"
   },
   {
-   "ref": "bbw:bb1:j3",
+   "ref": "bbw:bb1:bbw_3",
    "boardId": "bb1",
-   "a": "e21",
-   "b": "t-21",
+   "a": "b13",
+   "b": "t-13",
    "color": "black"
   },
   {
-   "ref": "bbw:bb1:j4",
+   "ref": "bbw:bb1:bbw_4",
    "boardId": "bb1",
-   "a": "e8",
-   "b": "e10",
+   "a": "i14",
+   "b": "b-14",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb1:bbw_8",
+   "boardId": "bb1",
+   "a": "f5",
+   "b": "f7",
    "color": "green"
   },
   {
-   "ref": "bbw:bb1:j5",
+   "ref": "bbw:bb1:bbw_9",
    "boardId": "bb1",
-   "a": "e12",
-   "b": "e14",
-   "color": "white"
+   "a": "g7",
+   "b": "e9",
+   "color": "green"
   },
   {
-   "ref": "bbw:bb1:j6",
+   "ref": "bbw:bb1:bbw_10",
    "boardId": "bb1",
-   "a": "d14",
-   "b": "e17",
-   "color": "white"
+   "a": "d9",
+   "b": "f10",
+   "color": "green"
   },
   {
-   "ref": "bbw:bb1:j7",
+   "ref": "bbw:bb1:bbw_11",
    "boardId": "bb1",
-   "a": "d17",
-   "b": "e23",
-   "color": "white"
+   "a": "f11",
+   "b": "f13",
+   "color": "yellow"
   },
   {
-   "ref": "bbw:bb1:j8",
+   "ref": "bbw:bb1:bbw_12",
    "boardId": "bb1",
-   "a": "t+63",
-   "b": "b+63",
+   "a": "f3",
+   "b": "e7",
+   "color": "orange"
+  },
+  {
+   "ref": "bbw:bb1:bbw_14",
+   "boardId": "bb1",
+   "a": "b3",
+   "b": "t+3",
    "color": "red"
-  },
-  {
-   "ref": "bbw:bb1:j9",
-   "boardId": "bb1",
-   "a": "t-63",
-   "b": "b-63",
-   "color": "black"
   }
  ]
 }

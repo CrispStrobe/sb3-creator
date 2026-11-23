@@ -36,4 +36,4 @@ export const GENERATED_LAB_BENCHES = new Set([
  * `node scripts/gen-lab-circuits-4.mjs --set=6 lab-amp-horn` once that pass
  * has landed, then empty this list.
  */
-export const LAYOUT_PENDING = new Set(['lab-amp-horn', 'lab-am-detector']);
+export const LAYOUT_PENDING = new Set();
