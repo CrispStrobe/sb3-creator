@@ -10126,5 +10126,329 @@
    "intro": "lab-opamp-integrator/intro.md",
    "introDE": "lab-opamp-integrator/intro.de.md"
   }
+ },
+ {
+  "id": "lab-transistor-flip-flop",
+  "title": {
+   "en": "Transistor flip-flop: two buttons, one bit",
+   "de": "Transistor-Flipflop: zwei Taster, ein Bit"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-transistor-flip-flop/program.bw",
+   "circuit": "lab-transistor-flip-flop/circuit.json",
+   "expected": "lab-transistor-flip-flop/EXPECTED.md",
+   "intro": "lab-transistor-flip-flop/intro.md",
+   "introDE": "lab-transistor-flip-flop/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-base-current",
+  "title": {
+   "en": "How little base current a transistor needs",
+   "de": "Wie wenig Basisstrom ein Transistor braucht"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 2,
+  "files": {
+   "program": "lab-base-current/program.bw",
+   "circuit": "lab-base-current/circuit.json",
+   "expected": "lab-base-current/EXPECTED.md",
+   "intro": "lab-base-current/intro.md",
+   "introDE": "lab-base-current/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-transistor-curves",
+  "title": {
+   "en": "Transistor output curves",
+   "de": "Ausgangskennlinien eines Transistors"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 4,
+  "files": {
+   "program": "lab-transistor-curves/program.bw",
+   "circuit": "lab-transistor-curves/circuit.json",
+   "expected": "lab-transistor-curves/EXPECTED.md",
+   "intro": "lab-transistor-curves/intro.md",
+   "introDE": "lab-transistor-curves/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-delay-off-timer",
+  "title": {
+   "en": "Delay-off timer with a capacitor",
+   "de": "Ausschaltverzögerung mit Kondensator"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 2,
+  "files": {
+   "program": "lab-delay-off-timer/program.bw",
+   "circuit": "lab-delay-off-timer/circuit.json",
+   "expected": "lab-delay-off-timer/EXPECTED.md",
+   "intro": "lab-delay-off-timer/intro.md",
+   "introDE": "lab-delay-off-timer/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-transistor-two-diodes",
+  "title": {
+   "en": "A transistor is two diodes back to back",
+   "de": "Ein Transistor: zwei Dioden Rücken an Rücken"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 1,
+  "files": {
+   "program": "lab-transistor-two-diodes/program.bw",
+   "circuit": "lab-transistor-two-diodes/circuit.json",
+   "expected": "lab-transistor-two-diodes/EXPECTED.md",
+   "intro": "lab-transistor-two-diodes/intro.md",
+   "introDE": "lab-transistor-two-diodes/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-battery-threshold",
+  "title": {
+   "en": "Battery tester with three thresholds",
+   "de": "Batterietester mit drei Schwellen"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 2,
+  "files": {
+   "program": "lab-battery-threshold/program.bw",
+   "circuit": "lab-battery-threshold/circuit.json",
+   "expected": "lab-battery-threshold/EXPECTED.md",
+   "intro": "lab-battery-threshold/intro.md",
+   "introDE": "lab-battery-threshold/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-heat-alarm",
+  "title": {
+   "en": "Heat alarm: a sensor transistor steals the LED current",
+   "de": "Wärmealarm: ein Fühlertransistor stiehlt den LED-Strom"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-heat-alarm/program.bw",
+   "circuit": "lab-heat-alarm/circuit.json",
+   "expected": "lab-heat-alarm/EXPECTED.md",
+   "intro": "lab-heat-alarm/intro.md",
+   "introDE": "lab-heat-alarm/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-ce-vs-follower",
+  "title": {
+   "en": "Common emitter versus emitter follower",
+   "de": "Emitterschaltung gegen Emitterfolger"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-ce-vs-follower/program.bw",
+   "circuit": "lab-ce-vs-follower/circuit.json",
+   "expected": "lab-ce-vs-follower/EXPECTED.md",
+   "intro": "lab-ce-vs-follower/intro.md",
+   "introDE": "lab-ce-vs-follower/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-push-pull",
+  "title": {
+   "en": "Push-pull output: class B versus class AB",
+   "de": "Gegentakt-Endstufe: Klasse B gegen Klasse AB"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 4,
+  "files": {
+   "program": "lab-push-pull/program.bw",
+   "circuit": "lab-push-pull/circuit.json",
+   "expected": "lab-push-pull/EXPECTED.md",
+   "intro": "lab-push-pull/intro.md",
+   "introDE": "lab-push-pull/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-two-led-monostable",
+  "title": {
+   "en": "Red, press, green for a while",
+   "de": "Rot, drücken, eine Weile Grün"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-two-led-monostable/program.bw",
+   "circuit": "lab-two-led-monostable/circuit.json",
+   "expected": "lab-two-led-monostable/EXPECTED.md",
+   "intro": "lab-two-led-monostable/intro.md",
+   "introDE": "lab-two-led-monostable/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-virtual-ground",
+  "title": {
+   "en": "Virtual ground: plus and minus from one battery",
+   "de": "Virtuelle Masse: Plus und Minus aus einer Batterie"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-virtual-ground/program.bw",
+   "circuit": "lab-virtual-ground/circuit.json",
+   "expected": "lab-virtual-ground/EXPECTED.md",
+   "intro": "lab-virtual-ground/intro.md",
+   "introDE": "lab-virtual-ground/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-wheatstone-bridge",
+  "title": {
+   "en": "Wheatstone bridge: measuring by balancing",
+   "de": "Wheatstone-Brücke: Messen durch Abgleich"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-wheatstone-bridge/program.bw",
+   "circuit": "lab-wheatstone-bridge/circuit.json",
+   "expected": "lab-wheatstone-bridge/EXPECTED.md",
+   "intro": "lab-wheatstone-bridge/intro.md",
+   "introDE": "lab-wheatstone-bridge/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-window-comparator",
+  "title": {
+   "en": "Window comparator: only inside the band",
+   "de": "Fensterkomparator: nur im Bereich dazwischen"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-window-comparator/program.bw",
+   "circuit": "lab-window-comparator/circuit.json",
+   "expected": "lab-window-comparator/EXPECTED.md",
+   "intro": "lab-window-comparator/intro.md",
+   "introDE": "lab-window-comparator/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-2bit-dac",
+  "title": {
+   "en": "Two-bit digital-to-analog converter",
+   "de": "Zwei-Bit-Digital-Analog-Wandler"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 4,
+  "files": {
+   "program": "lab-2bit-dac/program.bw",
+   "circuit": "lab-2bit-dac/circuit.json",
+   "expected": "lab-2bit-dac/EXPECTED.md",
+   "intro": "lab-2bit-dac/intro.md",
+   "introDE": "lab-2bit-dac/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-2bit-adc",
+  "title": {
+   "en": "Two-bit analog-to-digital converter",
+   "de": "Zwei-Bit-Analog-Digital-Wandler"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 4,
+  "files": {
+   "program": "lab-2bit-adc/program.bw",
+   "circuit": "lab-2bit-adc/circuit.json",
+   "expected": "lab-2bit-adc/EXPECTED.md",
+   "intro": "lab-2bit-adc/intro.md",
+   "introDE": "lab-2bit-adc/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-function-generator",
+  "title": {
+   "en": "Triangle and square from two op-amps",
+   "de": "Dreieck und Rechteck aus zwei Operationsverstärkern"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 4,
+  "files": {
+   "program": "lab-function-generator/program.bw",
+   "circuit": "lab-function-generator/circuit.json",
+   "expected": "lab-function-generator/EXPECTED.md",
+   "intro": "lab-function-generator/intro.md",
+   "introDE": "lab-function-generator/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-two-band-light-organ",
+  "title": {
+   "en": "Two-band light organ: bass and treble",
+   "de": "Zweikanal-Lichtorgel: Bass und Höhen"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-two-band-light-organ/program.bw",
+   "circuit": "lab-two-band-light-organ/circuit.json",
+   "expected": "lab-two-band-light-organ/EXPECTED.md",
+   "intro": "lab-two-band-light-organ/intro.md",
+   "introDE": "lab-two-band-light-organ/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-v-to-f",
+  "title": {
+   "en": "Voltage to frequency: counting a voltage",
+   "de": "Spannung zu Frequenz: eine Spannung zählen"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 5,
+  "files": {
+   "program": "lab-v-to-f/program.bw",
+   "circuit": "lab-v-to-f/circuit.json",
+   "expected": "lab-v-to-f/EXPECTED.md",
+   "intro": "lab-v-to-f/intro.md",
+   "introDE": "lab-v-to-f/intro.de.md"
+  },
+  "devices": []
  }
 ]
