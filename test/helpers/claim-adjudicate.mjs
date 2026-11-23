@@ -472,7 +472,9 @@ export function adjudicate (claim) {
     }
     if (claim.cls === 'volt' &&
         (claim.section === 'Circuit'
-            ? /\bV\s*f\b|\bVf\s*=|forward|\bVz\b|zener|VCC|supply|rail|source|battery/i.test(claim.line)
+            // mains / a rubbed ruler / breakdown: a field probe's source or a
+            // junction's bvEbo (bw-board src/fields.js), declared on the part.
+            ? /\bV\s*f\b|\bVf\s*=|forward|\bVz\b|zener|VCC|supply|rail|source|battery|mains|ruler|breaks? down/i.test(claim.line)
             : /\bVf\s*[=≈]|\bVz\s*[=≈]|forward voltage of|[\d.]\s*V\s+forward voltage/i.test(claim.line)))
         return component(claim);
     if (['volt', 'curr', 'power'].includes(claim.cls)) return solved(claim);
