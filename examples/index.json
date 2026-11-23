@@ -10828,5 +10828,141 @@
    "introDE": "lab-radio-whistle/intro.de.md"
   },
   "devices": []
+ },
+ {
+  "id": "lab-voice-fm",
+  "title": {
+   "en": "Speak into the speaker: your voice bends the tone",
+   "de": "Sprich in den Lautsprecher: deine Stimme verbiegt den Ton"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-voice-fm/program.bw",
+   "circuit": "lab-voice-fm/circuit.json",
+   "expected": "lab-voice-fm/EXPECTED.md",
+   "intro": "lab-voice-fm/intro.md",
+   "introDE": "lab-voice-fm/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-feedback-howl",
+  "title": {
+   "en": "Feedback howl: an earphone held over the speaker",
+   "de": "Rückkopplung: ein Ohrhörer über dem Lautsprecher heult"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-feedback-howl/program.bw",
+   "circuit": "lab-feedback-howl/circuit.json",
+   "expected": "lab-feedback-howl/EXPECTED.md",
+   "intro": "lab-feedback-howl/intro.md",
+   "introDE": "lab-feedback-howl/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-ring-relay",
+  "title": {
+   "en": "The telephone rings, the lamp switches on",
+   "de": "Das Telefon klingelt, die Lampe geht an"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-ring-relay/program.bw",
+   "circuit": "lab-ring-relay/circuit.json",
+   "expected": "lab-ring-relay/EXPECTED.md",
+   "intro": "lab-ring-relay/intro.md",
+   "introDE": "lab-ring-relay/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-thermocouple",
+  "title": {
+   "en": "A thermocouple from two wires: match against lighter",
+   "de": "Ein Thermoelement aus zwei Drähten: Streichholz gegen Feuerzeug"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 2,
+  "files": {
+   "program": "lab-thermocouple/program.bw",
+   "circuit": "lab-thermocouple/circuit.json",
+   "expected": "lab-thermocouple/EXPECTED.md",
+   "intro": "lab-thermocouple/intro.md",
+   "introDE": "lab-thermocouple/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-magnet-drop",
+  "title": {
+   "en": "Drop a magnet through a coil: the pulse flips a flip-flop",
+   "de": "Ein Magnet fällt durch eine Spule: der Impuls kippt ein Flipflop"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-magnet-drop/program.bw",
+   "circuit": "lab-magnet-drop/circuit.json",
+   "expected": "lab-magnet-drop/EXPECTED.md",
+   "intro": "lab-magnet-drop/intro.md",
+   "introDE": "lab-magnet-drop/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-coil-compass",
+  "title": {
+   "en": "The magnetic field of a hand-wound coil",
+   "de": "Das Magnetfeld einer selbstgewickelten Spule"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 1,
+  "files": {
+   "program": "lab-coil-compass/program.bw",
+   "circuit": "lab-coil-compass/circuit.json",
+   "expected": "lab-coil-compass/EXPECTED.md",
+   "intro": "lab-coil-compass/intro.md",
+   "introDE": "lab-coil-compass/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-metal-detector",
+  "title": {
+   "en": "Beat-frequency metal detector with a hand-wound coil",
+   "de": "Schwebungs-Metallsuchgerät mit selbstgewickelter Spule"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 4,
+  "files": {
+   "program": "lab-metal-detector/program.bw",
+   "circuit": "lab-metal-detector/circuit.json",
+   "expected": "lab-metal-detector/EXPECTED.md",
+   "intro": "lab-metal-detector/intro.md",
+   "introDE": "lab-metal-detector/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-tongue-battery",
+  "title": {
+   "en": "A battery on the tongue: electrolysis you can taste",
+   "de": "Eine Batterie auf der Zunge: Elektrolyse, die man schmeckt"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 2,
+  "files": {
+   "program": "lab-tongue-battery/program.bw",
+   "circuit": "lab-tongue-battery/circuit.json",
+   "expected": "lab-tongue-battery/EXPECTED.md",
+   "intro": "lab-tongue-battery/intro.md",
+   "introDE": "lab-tongue-battery/intro.de.md"
+  }
  }
 ]
