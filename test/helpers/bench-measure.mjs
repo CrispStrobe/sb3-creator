@@ -76,6 +76,11 @@ export function benchClass (data) {
     const kinds = (data.parts || []).map(p => p.kind || '');
     if (kinds.some(k => CLOCKED_KIND.test(k)))
         return 'free-running oscillator — the claim is about a waveform and a solve is an instant';
+    // An antenna receives a broadcast of modulated carriers (bw-board's radio
+    // front end): what such a bench is about is RF amplitude per station and
+    // detected audio over time, neither of which one DC solve contains.
+    if (kinds.includes('antenna'))
+        return 'radio bench — the antenna receives a modulated broadcast, so the claim is about RF and audio over time and a solve is an instant';
     if (kinds.some(k => DRIVEN_KIND.test(k)))
         return 'the bench is driven by a module whose output level is an input this gate cannot set';
     if ((data.parts || []).some(p => p.kind === 'vsource' && (p.params?.wave || p.params?.freq)))
