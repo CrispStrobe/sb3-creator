@@ -21,7 +21,7 @@
  * is checked by test/lab-circuits-4.test.mjs against the committed files, not
  * here.
  *
- * Usage: BW_BOARD=… BW_CIRCUIT_UI=… node scripts/gen-lab-circuits-4.mjs [id …] [--force]
+ * Usage: BW_BOARD=… BW_CIRCUIT_UI=… node scripts/gen-lab-circuits-4.mjs [--set=N] [id …] [--force]
  */
 import { writeFileSync, mkdirSync, existsSync } from 'node:fs';
 import { join, dirname } from 'node:path';
@@ -172,7 +172,10 @@ export function buildBench(spec) {
 // The benches. Names are local to each netlist; the written ids are the
 // engine's (`npn_4` …), which is what EXPECTED.md asserts against.
 // ---------------------------------------------------------------------------
-import { BENCHES } from './lib/lab-benches-4.mjs';
+// `--set=N` picks scripts/lib/lab-benches-N.mjs (default 4), so later bench
+// sets reuse this seating instead of copying it.
+const SET = (process.argv.find(a => a.startsWith('--set=')) || '--set=4').slice(6);
+const { BENCHES } = await import(`./lib/lab-benches-${SET}.mjs`);
 
 // ---- main ----
 const args = process.argv.slice(2).filter(a => !a.startsWith('--'));
