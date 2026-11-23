@@ -12,7 +12,8 @@ Klick auf **Sim** und hör hin: ein tiefer Ton. Halte den Taster gedrückt, dann
 
 - Einen gleichmäßigen Ton von etwa 175 Hz, etwa 440 Hz, solange der Taster gedrückt ist.
 - Kanal 1 (vor dem Kondensator) schwingt um 4,5 V, die halbe Batteriespannung.
-- Kanal 2 (am Lautsprecher) zeigt dieselbe Schwingung, aber um 0 V herum.
+- Kanal 2 (am Lautsprecher) liegt um 0 V herum: Bei jedem Umkippen springt er auf etwa +4 V oder −4 V und klingt dann innerhalb von etwa einer Millisekunde ab, denn die 8-Ω-Schwingspule entlädt den großen Kondensator schnell (8 Ω × 100 µF = 0,8 ms). Jedes Umkippen ist ein Stoß auf die Lautsprechermembran.
+- Der Lautsprecher spielt mit voller Lautstärke: Durch seine Spule fließen etwa 0,29 A (Effektivwert).
 
 ## Warum es funktioniert
 

@@ -12,7 +12,8 @@ Click **Sim** and listen: a low tone. Hold the button for a higher one. Open the
 
 - A steady tone of about 175 Hz, about 440 Hz while the button is held.
 - Channel 1 (before the capacitor) swings around 4.5 V, half the battery voltage.
-- Channel 2 (at the speaker) shows the same wave, but centred on 0 V.
+- Channel 2 (at the speaker) is centred on 0 V: at every flip it jumps to about +4 V or −4 V and then dies away within about a millisecond, because the 8 Ω voice coil drains the large capacitor quickly (8 Ω × 100 µF = 0.8 ms). Each flip is a push on the speaker cone.
+- The speaker plays at full volume: its coil carries about 0.29 A rms.
 
 ## Why it works
 
