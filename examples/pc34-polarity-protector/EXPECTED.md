@@ -22,9 +22,9 @@ net d1.cathode V 8.24 +-0.20
 
 <!-- engine-provenance -->
 > **Engine provenance.** The measured numbers on this page were last held against
-> `bw-board@e339fcb` and `bw-circuit-ui@0ec68b3` — the revisions pinned in
+> `bw-board@0bc7baf` and `bw-circuit-ui@8404334` — the revisions pinned in
 > `test/fixtures/siblings.json`. `test/expected-quantities-hold.test.mjs` compares
 > **1 of this page's 9** numeric claims against that engine
-> (0 of them disagreeing) and declines the rest with a stated reason;
+> (1 of them disagreeing) and declines the rest with a stated reason;
 > `node scripts/expected-claim-census.mjs pc34-polarity-protector` prints them one by one.
 <!-- engine-provenance -->
