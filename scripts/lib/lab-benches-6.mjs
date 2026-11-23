@@ -198,6 +198,26 @@ export const BENCHES = {
             ['bat.neg', 'u.gnd', 'go.b', 'ct.neg', 'rt.b', 'c4.b', 'spk.b'],
         ],
     },
+
+    // Amp-IC horn. An LM386 (gain 20, pins 1 and 8 open) is made to oscillate:
+    // its output kicks +IN through 47 nF, and the kick decays through 22 kΩ
+    // (in parallel with the chip's own 50 kΩ input) until the amplifier flips
+    // back. −IN is grounded. The output, biased at half the supply, reaches an
+    // 8 Ω speaker (a piezo part with an 8 Ω element) through 100 µF, which
+    // blocks the DC. The button puts 10 kΩ across the 22 kΩ: a faster decay,
+    // a higher note. The scope watches both sides of the coupling capacitor.
+    'lab-amp-horn': {
+        vcc: 9, supply: SUP,
+        parts: { bat: BAT9, u: ['lm386', {}], cf: C(47e-9), rb: R(22000), btn: ['button', {}], rp: R(10000),
+            co: EL(100e-6), spk: ['piezo', { leakOhms: 8 }], scope: ['oscilloscope', {}] },
+        nets: [
+            ['bat.pos', 'u.vs'],
+            ['u.vout', 'cf.a', 'co.pos', 'scope.ch1'], ['cf.b', 'u.inp', 'rb.a', 'btn.a'], ['btn.b', 'rp.a'],
+            ['co.neg', 'spk.a', 'scope.ch2'],
+            ['bat.neg', 'u.gnd', 'u.inn', 'rb.b', 'rp.b', 'spk.b', 'scope.gnd'],
+        ],
+        open: ['u.gain1', 'u.gain8', 'u.bypass'],
+    },
 };
 
 // Resolve '@name' params to engine ids.

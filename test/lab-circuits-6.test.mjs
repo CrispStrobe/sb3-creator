@@ -184,6 +184,35 @@ describe('lab benches (set 6) behave as documented', { skip: SKIP }, () => {
         assert.ok(alarm < 0.05, 'the fan never cools the sensor into a draught alarm');
     });
 
+    test('lab-amp-horn: an LM386 oscillates, biased at half the supply; the button raises the note', () => {
+        const x = bench('lab-amp-horn');
+        x.run(100);   // past the power-on thump: the coupling capacitor has found its level
+        // Over 100 ms (17 periods at the low note) the output averages to its
+        // bias and the speaker side of the 100 uF to zero.
+        const window = () => {
+            let out = 0, spk = 0, n = 0, lo = 99, hi = -99;
+            x.each(100, 0.05, () => {
+                const v = x.v('spk', 'a');
+                out += x.v('u', 'vout'); spk += v; n++; lo = Math.min(lo, v); hi = Math.max(hi, v);
+            });
+            return { hz: x.b.buzzerTone(x.ids.spk).hz, out: out / n, spk: spk / n, lo, hi };
+        };
+        // MEASURED (bw-board e339fcb): idle 173.2 Hz, output 4.433 V average,
+        // speaker -0.009 V average and -4.00..+4.00 V; button held 439.5 Hz,
+        // 4.496 V; released again 175.1 Hz.
+        const idle = window();
+        near(idle.hz, 175, 12, 'idle note (Hz)');
+        near(idle.out, 4.5, 0.15, 'amp output averages to half the 9 V supply');
+        near(idle.spk, 0, 0.05, 'the speaker side of the 100 uF carries no DC');
+        assert.ok(idle.lo < -3.5 && idle.hi > 3.5, `the speaker swings both ways: ${idle.lo.toFixed(2)}..${idle.hi.toFixed(2)} V`);
+        x.set('btn', 1); x.run(30);
+        const pressed = window();
+        near(pressed.hz, 439, 20, 'button held: 10 k across 22 k, the higher note (Hz)');
+        near(pressed.out, 4.5, 0.15, 'button held: still biased at half the supply');
+        x.set('btn', 0); x.run(30);
+        near(window().hz, 175, 12, 'released: back to the low note (Hz)');
+    });
+
     test('lab-solar-cell: I-V points, the bias trick, and a fan that needs light', () => {
         const x = bench('lab-solar-cell');
         x.run(1);
