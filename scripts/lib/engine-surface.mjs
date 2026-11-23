@@ -221,6 +221,7 @@ export async function injectEngine (paths = {}) {
     } catch { /* an older cui has no drc extractor slot; the engine object covers it */ }
 
     const circuit = await import(new URL('src/model/circuit.js', cuiURL).href);
+    await registerChipFootprints(cuiPath);
 
     return {
         surface,
@@ -233,6 +234,55 @@ export async function injectEngine (paths = {}) {
         boardURL,
         cuiURL,
     };
+}
+
+/**
+ * Kinds whose breadboard footprint exists ONLY in their bw-circuit-ui sidecar,
+ * registered by every `injectEngine` so a seated chip keeps its seat headless.
+ *
+ * Circuit.fromJSON drops the seat of a part whose kind has no footprint, and
+ * the FOOTPRINTS proxy finds a sidecar footprint only once that sidecar is
+ * registered. The app registers all of them at startup; most gates here do
+ * not, so a seated LM358 sat on the board in the browser and on NO net in
+ * assert-physics. bw-circuit-ui made the same repair for two-lead parts by
+ * copying their footprints into its builtins (0ec68b3); the DIP chips below
+ * have not been copied, so this registers their sidecars instead.
+ *
+ * Only these kinds, not every sidecar: registering ALL of them changes the net
+ * partition of 508 shipped circuits (dev-board variants whose seats the gates
+ * have always dropped), which is a separate decision. MEASURED 2026-11-23
+ * (bw-board 0bc7baf, bw-circuit-ui 8404334) over all 2505
+ * examples/<id>/circuit*.json: with exactly this list registered every net
+ * partition is identical to the unregistered load, and 38 files gain the seat
+ * of a chip that was already wired by explicit wires.
+ */
+export const SIDECAR_FOOTPRINT_KINDS = Object.freeze([
+    'lm358', 'lm339', 'lm393', 'lm324',
+    '74hc08', '74hc14', '74hc32', '74hc74', '74hc93', '74hc132',
+    'optocoupler', 'dip_switch_spst', 'hall_analog', 'transformer',
+]);
+
+/**
+ * Register the sidecars of SIDECAR_FOOTPRINT_KINDS (see there). Not fatal: a
+ * bw-circuit-ui without parts-data degrades to dropping those seats.
+ * @param {string} cuiPath
+ * @returns {Promise<number>} how many sidecars registered
+ */
+export async function registerChipFootprints (cuiPath) {
+    const { readdirSync, readFileSync } = await import('node:fs');
+    const { registerSidecar } = await import(new URL('src/model/parts-registry.js', asURL(cuiPath)).href);
+    const dir = join(cuiPath, 'src', 'parts-data');
+    if (!existsSync(dir)) return 0;
+    const wanted = new Set(SIDECAR_FOOTPRINT_KINDS);
+    let n = 0;
+    for (const file of readdirSync(dir)) {
+        if (!file.endsWith('.json')) continue;
+        try {
+            const sidecar = JSON.parse(readFileSync(join(dir, file), 'utf8'));
+            if (wanted.has(sidecar.kind)) { registerSidecar(sidecar); n++; }
+        } catch { /* a malformed sidecar is bw-circuit-ui's gate, not ours */ }
+    }
+    return n;
 }
 
 /**
