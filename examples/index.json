@@ -10576,5 +10576,149 @@
    "introDE": "lab-discrete-monostable/intro.de.md"
   },
   "devices": []
+ },
+ {
+  "id": "lab-coil-pulse",
+  "title": {
+   "en": "Two coils, no wire: a pulse through the air",
+   "de": "Zwei Spulen, kein Draht: ein Impuls durch die Luft"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-coil-pulse/program.bw",
+   "circuit": "lab-coil-pulse/circuit.json",
+   "expected": "lab-coil-pulse/EXPECTED.md",
+   "intro": "lab-coil-pulse/intro.md",
+   "introDE": "lab-coil-pulse/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-meissner-am",
+  "title": {
+   "en": "LC oscillator with feedback coil, and AM",
+   "de": "LC-Oszillator mit Rückkopplungsspule und AM"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 5,
+  "files": {
+   "program": "lab-meissner-am/program.bw",
+   "circuit": "lab-meissner-am/circuit.json",
+   "expected": "lab-meissner-am/EXPECTED.md",
+   "intro": "lab-meissner-am/intro.md",
+   "introDE": "lab-meissner-am/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-lc-oscillator",
+  "title": {
+   "en": "Coil and capacitor that keep swinging: an LC oscillator",
+   "de": "Spule und Kondensator, die nicht aufhören: ein LC-Oszillator"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 4,
+  "files": {
+   "program": "lab-lc-oscillator/program.bw",
+   "circuit": "lab-lc-oscillator/circuit.json",
+   "expected": "lab-lc-oscillator/EXPECTED.md",
+   "intro": "lab-lc-oscillator/intro.md",
+   "introDE": "lab-lc-oscillator/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-motor-speed",
+  "title": {
+   "en": "Measuring and holding a motor's speed",
+   "de": "Die Drehzahl eines Motors messen und halten"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 5,
+  "files": {
+   "program": "lab-motor-speed/program.bw",
+   "circuit": "lab-motor-speed/circuit.json",
+   "expected": "lab-motor-speed/EXPECTED.md",
+   "intro": "lab-motor-speed/intro.md",
+   "introDE": "lab-motor-speed/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-airflow-sensor",
+  "title": {
+   "en": "Feeling the wind: a self-heated sensor",
+   "de": "Den Wind fühlen: ein selbstbeheizter Sensor"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 4,
+  "files": {
+   "program": "lab-airflow-sensor/program.bw",
+   "circuit": "lab-airflow-sensor/circuit.json",
+   "expected": "lab-airflow-sensor/EXPECTED.md",
+   "intro": "lab-airflow-sensor/intro.md",
+   "introDE": "lab-airflow-sensor/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-solar-cell",
+  "title": {
+   "en": "What a solar cell can and cannot do",
+   "de": "Was eine Solarzelle kann und was nicht"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-solar-cell/program.bw",
+   "circuit": "lab-solar-cell/circuit.json",
+   "expected": "lab-solar-cell/EXPECTED.md",
+   "intro": "lab-solar-cell/intro.md",
+   "introDE": "lab-solar-cell/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-nand-pips",
+  "title": {
+   "en": "Pips from logic gates",
+   "de": "Pieptöne aus Logikgattern"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 2,
+  "files": {
+   "program": "lab-nand-pips/program.bw",
+   "circuit": "lab-nand-pips/circuit.json",
+   "expected": "lab-nand-pips/EXPECTED.md",
+   "intro": "lab-nand-pips/intro.md",
+   "introDE": "lab-nand-pips/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-nand-one-shot",
+  "title": {
+   "en": "One press, one beep: a gate timer",
+   "de": "Ein Druck, ein Piep: ein Gatter-Zeitschalter"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-nand-one-shot/program.bw",
+   "circuit": "lab-nand-one-shot/circuit.json",
+   "expected": "lab-nand-one-shot/EXPECTED.md",
+   "intro": "lab-nand-one-shot/intro.md",
+   "introDE": "lab-nand-one-shot/intro.de.md"
+  },
+  "devices": []
  }
 ]

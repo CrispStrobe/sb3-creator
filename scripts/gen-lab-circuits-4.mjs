@@ -27,10 +27,27 @@ import { writeFileSync, mkdirSync, existsSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { injectEngine } from './lib/engine-surface.mjs';
+import { readdirSync, readFileSync } from 'node:fs';
 import { refuseToRevertRepairs, forced } from './lib/generator-guard.mjs';
 
-const { Circuit, resetIds, cuiURL } = await injectEngine();
+const { Circuit, resetIds, cuiURL, paths } = await injectEngine();
 const { FOOTPRINTS, computeLeadMap } = await import(new URL('src/model/footprints.js', cuiURL).href);
+// Kinds the engine has no terminal table for (transformer) take their
+// terminal list from the parts catalogue's sidecar. Footprints are NOT taken
+// from the sidecars: the gates load circuits without them, and a chip seated
+// by a sidecar-only footprint would lose its nets there. Such parts stay off
+// the board and reach it with tap wires, as in the earlier sets.
+{
+    const { registerSidecar } = await import(new URL('src/model/parts-registry.js', cuiURL).href);
+    const dir = join(paths['bw-circuit-ui'], 'src', 'parts-data');
+    for (const f of readdirSync(dir)) {
+        if (!f.endsWith('.json')) continue;
+        const sc = JSON.parse(readFileSync(join(dir, f), 'utf8'));
+        if (!sc.kind || FOOTPRINTS[sc.kind]) continue;
+        delete sc.footprint;
+        registerSidecar(sc);
+    }
+}
 const EXAMPLES = join(dirname(fileURLToPath(import.meta.url)), '..', 'examples');
 
 // Sources and bench instruments never sit in the board.
