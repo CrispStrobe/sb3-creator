@@ -2,19 +2,28 @@
   "vcc": 5,
   "parts": [
     {
+      "id": "bb1",
+      "kind": "breadboard",
+      "params": {},
+      "terminals": [],
+      "x": 520,
+      "y": 420,
+      "rotation": 0
+    },
+    {
       "id": "vcc1",
       "kind": "vcc",
       "params": {},
-      "x": 80,
-      "y": 70,
+      "x": 77,
+      "y": 221,
       "rotation": 0
     },
     {
       "id": "gnd1",
       "kind": "gnd",
       "params": {},
-      "x": 80,
-      "y": 735,
+      "x": 281,
+      "y": 221,
       "rotation": 0
     },
     {
@@ -23,10 +32,17 @@
       "params": {
         "ohms": 100
       },
-      "x": 190,
-      "y": 70,
+      "x": 142,
+      "y": 345,
       "rotation": 0,
-      "label": "R1 100"
+      "label": "R1 100",
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "a": "a3",
+          "b": "a7"
+        }
+      }
     },
     {
       "id": "shunt_t",
@@ -34,10 +50,17 @@
       "params": {
         "ohms": 10
       },
-      "x": 300,
-      "y": 70,
+      "x": 142,
+      "y": 495,
       "rotation": 0,
-      "label": "Shunt total 10 (+0.1 contact)"
+      "label": "Shunt total 10 (+0.1 contact)",
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "a": "j3",
+          "b": "j7"
+        }
+      }
     },
     {
       "id": "shunt_sw",
@@ -45,10 +68,18 @@
       "params": {
         "position": 0
       },
-      "x": 300,
-      "y": 165,
+      "x": 212,
+      "y": 345,
       "rotation": 0,
-      "label": "Shunt in / out"
+      "label": "Shunt in / out",
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "a": "a9",
+          "com": "a10",
+          "b": "a11"
+        }
+      }
     },
     {
       "id": "mt_meter",
@@ -59,8 +90,8 @@
         "ifs": 0.0001,
         "fullScale": 0.0001
       },
-      "x": 410,
-      "y": 165,
+      "x": 143,
+      "y": 217,
       "rotation": 0,
       "label": "Total (1 k coil, 100 uA full scale)"
     },
@@ -70,10 +101,17 @@
       "params": {
         "ohms": 1000
       },
-      "x": 190,
-      "y": 355,
+      "x": 226,
+      "y": 495,
       "rotation": 0,
-      "label": "R2 1k"
+      "label": "R2 1k",
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "a": "j9",
+          "b": "j13"
+        }
+      }
     },
     {
       "id": "shunt_a",
@@ -81,10 +119,17 @@
       "params": {
         "ohms": 10.1
       },
-      "x": 300,
-      "y": 355,
+      "x": 282,
+      "y": 345,
       "rotation": 0,
-      "label": "Shunt A 10.1"
+      "label": "Shunt A 10.1",
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "a": "a13",
+          "b": "a17"
+        }
+      }
     },
     {
       "id": "ma_meter",
@@ -95,8 +140,8 @@
         "ifs": 0.0001,
         "fullScale": 0.0001
       },
-      "x": 410,
-      "y": 355,
+      "x": 215,
+      "y": 217,
       "rotation": 0,
       "label": "Branch A (1 k coil, 100 uA full scale)"
     },
@@ -106,10 +151,17 @@
       "params": {
         "ohms": 2200
       },
-      "x": 190,
-      "y": 545,
+      "x": 310,
+      "y": 495,
       "rotation": 0,
-      "label": "R3 2k2"
+      "label": "R3 2k2",
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "a": "j15",
+          "b": "j19"
+        }
+      }
     },
     {
       "id": "shunt_b",
@@ -117,10 +169,17 @@
       "params": {
         "ohms": 10.1
       },
-      "x": 300,
-      "y": 545,
+      "x": 366,
+      "y": 345,
       "rotation": 0,
-      "label": "Shunt B 10.1"
+      "label": "Shunt B 10.1",
+      "seat": {
+        "boardId": "bb1",
+        "leadMap": {
+          "a": "a19",
+          "b": "a23"
+        }
+      }
     },
     {
       "id": "mb_meter",
@@ -131,102 +190,181 @@
         "ifs": 0.0001,
         "fullScale": 0.0001
       },
-      "x": 410,
-      "y": 545,
+      "x": 347,
+      "y": 217,
       "rotation": 0,
       "label": "Branch B (1 k coil, 100 uA full scale)"
     }
   ],
   "wires": [
     {
-      "from": "vcc1",
-      "fromTerminal": "vcc",
-      "to": "r_feed",
-      "toTerminal": "a"
+      "id": "w_2",
+      "netId": "net_2",
+      "from": {
+        "part": "vcc1",
+        "terminal": "vcc"
+      },
+      "to": {
+        "board": "bb1",
+        "hole": "t+1"
+      },
+      "color": "red"
     },
     {
-      "from": "r_feed",
-      "fromTerminal": "b",
-      "to": "shunt_sw",
-      "toTerminal": "com"
+      "id": "w_4",
+      "netId": "net_4",
+      "from": {
+        "part": "mt_meter",
+        "terminal": "a"
+      },
+      "to": {
+        "board": "bb1",
+        "hole": "d7"
+      },
+      "color": "blue"
     },
     {
-      "from": "shunt_sw",
-      "fromTerminal": "com",
-      "to": "mt_meter",
-      "toTerminal": "a"
+      "id": "w_8",
+      "netId": "net_8",
+      "from": {
+        "part": "mt_meter",
+        "terminal": "b"
+      },
+      "to": {
+        "board": "bb1",
+        "hole": "g7"
+      },
+      "color": "yellow"
     },
     {
-      "from": "shunt_sw",
-      "fromTerminal": "a",
-      "to": "shunt_t",
-      "toTerminal": "a"
+      "id": "w_10",
+      "netId": "net_10",
+      "from": {
+        "part": "ma_meter",
+        "terminal": "a"
+      },
+      "to": {
+        "board": "bb1",
+        "hole": "g13"
+      },
+      "color": "orange"
     },
     {
-      "from": "shunt_t",
-      "fromTerminal": "b",
-      "to": "mt_meter",
-      "toTerminal": "b"
+      "id": "w_12",
+      "netId": "net_12",
+      "from": {
+        "part": "mb_meter",
+        "terminal": "a"
+      },
+      "to": {
+        "board": "bb1",
+        "hole": "g19"
+      },
+      "color": "purple"
     },
     {
-      "from": "mt_meter",
-      "fromTerminal": "b",
-      "to": "r_a",
-      "toTerminal": "a"
+      "id": "w_15",
+      "netId": "net_15",
+      "from": {
+        "part": "gnd1",
+        "terminal": "gnd"
+      },
+      "to": {
+        "board": "bb1",
+        "hole": "t-15"
+      },
+      "color": "black"
     },
     {
-      "from": "r_a",
-      "fromTerminal": "a",
-      "to": "r_b",
-      "toTerminal": "a"
+      "id": "w_16",
+      "netId": "net_16",
+      "from": {
+        "part": "ma_meter",
+        "terminal": "b"
+      },
+      "to": {
+        "board": "bb1",
+        "hole": "t-10"
+      },
+      "color": "black"
     },
     {
-      "from": "r_a",
-      "fromTerminal": "b",
-      "to": "shunt_a",
-      "toTerminal": "a"
+      "id": "w_17",
+      "netId": "net_17",
+      "from": {
+        "part": "mb_meter",
+        "terminal": "b"
+      },
+      "to": {
+        "board": "bb1",
+        "hole": "t-20"
+      },
+      "color": "black"
+    }
+  ],
+  "holeWires": [
+    {
+      "ref": "bbw:bb1:bbw_1",
+      "boardId": "bb1",
+      "a": "b3",
+      "b": "t+3",
+      "color": "red"
     },
     {
-      "from": "shunt_a",
-      "fromTerminal": "a",
-      "to": "ma_meter",
-      "toTerminal": "a"
+      "ref": "bbw:bb1:bbw_3",
+      "boardId": "bb1",
+      "a": "e7",
+      "b": "e10",
+      "color": "blue"
     },
     {
-      "from": "r_b",
-      "fromTerminal": "b",
-      "to": "shunt_b",
-      "toTerminal": "a"
+      "ref": "bbw:bb1:bbw_5",
+      "boardId": "bb1",
+      "a": "f3",
+      "b": "e9",
+      "color": "green"
     },
     {
-      "from": "shunt_b",
-      "fromTerminal": "a",
-      "to": "mb_meter",
-      "toTerminal": "a"
+      "ref": "bbw:bb1:bbw_6",
+      "boardId": "bb1",
+      "a": "f7",
+      "b": "f9",
+      "color": "yellow"
     },
     {
-      "from": "gnd1",
-      "fromTerminal": "gnd",
-      "to": "shunt_a",
-      "toTerminal": "b"
+      "ref": "bbw:bb1:bbw_7",
+      "boardId": "bb1",
+      "a": "g9",
+      "b": "f15",
+      "color": "yellow"
     },
     {
-      "from": "shunt_a",
-      "fromTerminal": "b",
-      "to": "ma_meter",
-      "toTerminal": "b"
+      "ref": "bbw:bb1:bbw_9",
+      "boardId": "bb1",
+      "a": "f13",
+      "b": "e13",
+      "color": "orange"
     },
     {
-      "from": "ma_meter",
-      "fromTerminal": "b",
-      "to": "shunt_b",
-      "toTerminal": "b"
+      "ref": "bbw:bb1:bbw_11",
+      "boardId": "bb1",
+      "a": "f19",
+      "b": "e19",
+      "color": "purple"
     },
     {
-      "from": "shunt_b",
-      "fromTerminal": "b",
-      "to": "mb_meter",
-      "toTerminal": "b"
+      "ref": "bbw:bb1:bbw_13",
+      "boardId": "bb1",
+      "a": "b17",
+      "b": "t-17",
+      "color": "black"
+    },
+    {
+      "ref": "bbw:bb1:bbw_14",
+      "boardId": "bb1",
+      "a": "b23",
+      "b": "t-23",
+      "color": "black"
     }
   ]
 }
