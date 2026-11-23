@@ -18,21 +18,21 @@ const OPAMP = (railHigh, railLow = 0) => ['opamp', { gain: 100000, railHigh, rai
 const BAT9 = ['vsource', { volts: 9, variant: '9v' }];
 
 export const BENCHES = {
-    // Set/reset bistable: each collector feeds the other base. 10 nF from each
-    // base to ground holds the state and fixes the power-on state (the larger
-    // 27 k feed into Q1 lets Q2 win the race). Without them the engine starts
-    // at the symmetric equilibrium (both half on) and stays there.
+    // Set/reset bistable: each collector feeds the other base. The larger 27 k
+    // feed into Q1 lets Q2 win the power-on race, so the latch starts with
+    // green lit. No base capacitors: the engine powers a capacitor-free
+    // bistable up in one state (bw-board e339fcb).
     'lab-transistor-flip-flop': {
         vcc: 9, supply: SUP,
         parts: { bat: BAT9, q1: NPN, q2: NPN,
             r1: R(1000), r2: R(1000), l1: LED('red'), l2: LED('green'),
-            x1: R(22000), x2: R(27000), c1: ['capacitor', { farads: 10e-9 }], c2: ['capacitor', { farads: 10e-9 }],
+            x1: R(22000), x2: R(27000),
             set: ['button', {}], reset: ['button', {}] },
         nets: [
             ['bat.pos', 'r1.a', 'r2.a'], ['r1.b', 'l1.anode'], ['r2.b', 'l2.anode'],
             ['l1.cathode', 'q1.collector', 'x1.a'], ['l2.cathode', 'q2.collector', 'x2.a'],
-            ['x1.b', 'q2.base', 'c2.a', 'set.a'], ['x2.b', 'q1.base', 'c1.a', 'reset.a'],
-            ['bat.neg', 'q1.emitter', 'q2.emitter', 'c1.b', 'c2.b', 'set.b', 'reset.b'],
+            ['x1.b', 'q2.base', 'set.a'], ['x2.b', 'q1.base', 'reset.a'],
+            ['bat.neg', 'q1.emitter', 'q2.emitter', 'set.b', 'reset.b'],
         ],
     },
 
@@ -287,18 +287,17 @@ export const BENCHES = {
         ],
     },
     // Treble path: 22 nF + 10 k high-pass; bass path: 4.7 k + 1 µF low-pass.
-    // 47 k base resistors keep both drivers out of saturation. The source stays
-    // a waveform vsource: a function_gen's frequency does not follow a param
-    // change after load, and the scenario sweeps it.
+    // 47 k base resistors keep both drivers out of saturation. The source is a
+    // function_gen (50 ohm output); the scenario sweeps its live freq param.
     'lab-two-band-light-organ': {
         vcc: 9, supply: SUP,
-        parts: { bat: BAT9, sig: ['vsource', { wave: 'sine', freq: 50, amplitude: 4, offset: 0 }],
+        parts: { bat: BAT9, sig: ['function_gen', { wave: 'sine', freq: 50, amplitude: 4, offset: 0, rOut: 50 }],
             ch: ['capacitor', { farads: 22e-9 }], rh: R(10000), bh: R(47000), qh: NPN, r1: R(470), l1: LED('blue'),
             rlp: R(4700), cl: ['capacitor', { farads: 1e-6 }], bl: R(47000), ql: NPN, r2: R(470), l2: LED('red') },
         nets: [
             ['bat.pos', 'r1.a', 'r2.a'],
-            ['bat.neg', 'sig.neg', 'rh.b', 'cl.b', 'qh.emitter', 'ql.emitter'],
-            ['sig.pos', 'ch.a', 'rlp.a'], ['ch.b', 'rh.a', 'bh.a'], ['bh.b', 'qh.base'],
+            ['bat.neg', 'sig.gnd', 'rh.b', 'cl.b', 'qh.emitter', 'ql.emitter'],
+            ['sig.out', 'ch.a', 'rlp.a'], ['ch.b', 'rh.a', 'bh.a'], ['bh.b', 'qh.base'],
             ['rlp.b', 'cl.a', 'bl.a'], ['bl.b', 'ql.base'],
             ['r1.b', 'l1.anode'], ['l1.cathode', 'qh.collector'],
             ['r2.b', 'l2.anode'], ['l2.cathode', 'ql.collector'],

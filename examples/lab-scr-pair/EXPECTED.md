@@ -1,8 +1,7 @@
 # lab-scr-pair — expected behaviour
 
 ## Circuit
-9 V through a main slide switch (position 1 = on) into the load: 1 kΩ plus a red LED, with 22 kΩ in
-parallel to both, to the "anode", the emitter of a PNP transistor. The PNP's collector drives the base of an
+9 V through a main slide switch (position 1 = on) into the load: 1 kΩ plus a red LED, to the "anode", the emitter of a PNP transistor. The PNP's collector drives the base of an
 NPN; the NPN's collector drives the PNP's base. 22 kΩ from the PNP's base to its emitter, 10 kΩ from the NPN's
 base to its emitter (the "cathode", ground). The gate button feeds the NPN's base from +9 V through 10 kΩ.
 
@@ -15,10 +14,6 @@ base to its emitter (the "cathode", ground). The gate button feeds the NPN's bas
 - Only breaking the main current resets it: slide the main switch off and back on, and the LED stays dark
   until the next gate pulse.
 
-## Simulation note
-The 22 kΩ across the load is a second, resistive load. The simulator cannot hold this latch when an LED is
-its only load (the solve does not converge), so the bench keeps it.
-
 ## What this verifies
 1. Two transistors in a loop make a four-layer latch: the behaviour of a thyristor.
 2. The gate can only switch it on; to switch it off the load current has to stop.
@@ -26,6 +21,6 @@ its only load (the solve does not converge), so the bench keeps it.
 ```assert
 # t = 1 ms: not yet triggered
 net vsource_2.pos V 9.00 +-0.01
-net pnp_7.emitter V 9.00 +-0.01
-net npn_8.base V 0.00 +-0.01
+net pnp_6.emitter V 9.00 +-0.01
+net npn_7.base V 0.00 +-0.01
 ```

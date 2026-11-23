@@ -64,17 +64,16 @@ export const BENCHES = {
 
     // A thyristor from a PNP and an NPN: each collector feeds the other's
     // base. The load (1 k + red LED) runs from the main switch to the anode;
-    // the gate button sends a short base current into the NPN. 22 k from the
-    // switched supply straight to the anode is a second, resistive load: the
-    // engine cannot hold this latch with an LED as its ONLY load (the solve
-    // does not converge), and with it the pair behaves.
+    // the gate button sends a short base current into the NPN. The LED is the
+    // only load (the 22 k resistive helper load went with bw-board e339fcb,
+    // which converges on the dark-LED anode).
     'lab-scr-pair': {
         vcc: 9, supply: SUP,
         parts: { bat: BAT9, main: ['slide_switch', { position: 1 }], rl: R(1000), led: LED('red'),
-            rh: R(22000), qp: PNP, qn: NPN, rak: R(22000), rgk: R(10000), gate: ['button', {}], rg: R(10000) },
+            qp: PNP, qn: NPN, rak: R(22000), rgk: R(10000), gate: ['button', {}], rg: R(10000) },
         nets: [
-            ['bat.pos', 'main.com', 'gate.a'], ['main.b', 'rl.a', 'rh.a'], ['rl.b', 'led.anode'],
-            ['led.cathode', 'rh.b', 'qp.emitter', 'rak.a'],
+            ['bat.pos', 'main.com', 'gate.a'], ['main.b', 'rl.a'], ['rl.b', 'led.anode'],
+            ['led.cathode', 'qp.emitter', 'rak.a'],
             ['qp.base', 'rak.b', 'qn.collector'],
             ['qp.collector', 'qn.base', 'rgk.a', 'rg.b'], ['gate.b', 'rg.a'],
             ['bat.neg', 'qn.emitter', 'rgk.b'],
