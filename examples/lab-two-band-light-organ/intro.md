@@ -9,7 +9,7 @@ One signal, two LEDs: red for the bass, blue for the treble. Which one lights de
 
 ## Try this
 1. Click **Sim**. At 50 Hz the red LED glows.
-2. Raise the frequency of the sine source step by step: 100 Hz, 300 Hz, 1000 Hz, 3000 Hz.
+2. Raise the frequency of the function generator step by step: 100 Hz, 300 Hz, 1000 Hz, 3000 Hz.
 3. Where does red fade? Where does blue come up?
 4. Put scope probes on the two filter outputs and compare their sizes.
 

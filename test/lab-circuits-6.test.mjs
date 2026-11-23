@@ -149,7 +149,7 @@ describe('lab benches (set 6) behave as documented', { skip: SKIP }, () => {
         near(man.state('m').omega, 103, 8, 'manual, loaded: the speed sags');
     });
 
-    test('lab-airflow-sensor: moving air cools the sensor, the meter rises, the alarm trips', () => {
+    test('lab-airflow-sensor: moving air cools the sensor, the meter rises, the alarm trips, the fan cycles', () => {
         const x = bench('lab-airflow-sensor');
         const go = (ms) => x.each(ms, 200, () => {});
         x.run(1);
@@ -165,8 +165,52 @@ describe('lab benches (set 6) behave as documented', { skip: SKIP }, () => {
         assert.ok(x.mA('rl') > 4, 'at 2 m/s: draught alarm');
         assert.equal(x.state('fan').omega > 1, false, 'no fan in a cool room');
         x.b.world.set('airflowMs', 0); x.b.world.set('temperatureC', 32); go(8000);
-        assert.ok(x.v('ntc', 'b') > 6.45, `warm room: sensor ${x.v('ntc', 'b')} V`);
-        assert.ok(x.mA('fan') > 50, `warm room: the thermostat runs the fan (${x.mA('fan')} mA)`);
+        // The fan blows on its own sensor (airflowGain 0.01 m/s per rad/s):
+        // each start cools S back under the thermostat level and the fan
+        // stops again. MEASURED (bw-board e339fcb) over 15 s: 6 starts, S
+        // 6.352..6.405 V, at most 0.226 m/s of fan air, no draught alarm.
+        // Without the gain S climbs to 6.60 V and the fan runs flat out.
+        let starts = 0, prev = x.state('fan').omega, sMin = 9, sMax = 0, air = 0, alarm = 0;
+        x.each(15000, 100, () => {
+            const w = x.state('fan').omega;
+            if (prev < 5 && w >= 5) starts++;
+            prev = w;
+            sMin = Math.min(sMin, x.v('ntc', 'b')); sMax = Math.max(sMax, x.v('ntc', 'b'));
+            air = Math.max(air, x.b.effectiveAirflowMs()); alarm = Math.max(alarm, x.mA('rl'));
+        });
+        assert.ok(starts >= 4 && starts <= 9, `warm room: the thermostat cycles the fan (${starts} starts in 15 s)`);
+        assert.ok(sMin > 6.30 && sMax < 6.45, `warm room: the fan holds S near the thermostat level (${sMin.toFixed(3)}..${sMax.toFixed(3)} V)`);
+        assert.ok(air > 0.1 && air < 0.4, `the fan's own air reaches the sensor (${air.toFixed(3)} m/s)`);
+        assert.ok(alarm < 0.05, 'the fan never cools the sensor into a draught alarm');
+    });
+
+    test('lab-amp-horn: an LM386 oscillates, biased at half the supply; the button raises the note', () => {
+        const x = bench('lab-amp-horn');
+        x.run(100);   // past the power-on thump: the coupling capacitor has found its level
+        // Over 100 ms (17 periods at the low note) the output averages to its
+        // bias and the speaker side of the 100 uF to zero.
+        const window = () => {
+            let out = 0, spk = 0, n = 0, lo = 99, hi = -99;
+            x.each(100, 0.05, () => {
+                const v = x.v('spk', 'a');
+                out += x.v('u', 'vout'); spk += v; n++; lo = Math.min(lo, v); hi = Math.max(hi, v);
+            });
+            return { hz: x.b.buzzerTone(x.ids.spk).hz, out: out / n, spk: spk / n, lo, hi };
+        };
+        // MEASURED (bw-board e339fcb): idle 173.2 Hz, output 4.433 V average,
+        // speaker -0.009 V average and -4.00..+4.00 V; button held 439.5 Hz,
+        // 4.496 V; released again 175.1 Hz.
+        const idle = window();
+        near(idle.hz, 175, 12, 'idle note (Hz)');
+        near(idle.out, 4.5, 0.15, 'amp output averages to half the 9 V supply');
+        near(idle.spk, 0, 0.05, 'the speaker side of the 100 uF carries no DC');
+        assert.ok(idle.lo < -3.5 && idle.hi > 3.5, `the speaker swings both ways: ${idle.lo.toFixed(2)}..${idle.hi.toFixed(2)} V`);
+        x.set('btn', 1); x.run(30);
+        const pressed = window();
+        near(pressed.hz, 439, 20, 'button held: 10 k across 22 k, the higher note (Hz)');
+        near(pressed.out, 4.5, 0.15, 'button held: still biased at half the supply');
+        x.set('btn', 0); x.run(30);
+        near(window().hz, 175, 12, 'released: back to the low note (Hz)');
     });
 
     test('lab-solar-cell: I-V points, the bias trick, and a fan that needs light', () => {

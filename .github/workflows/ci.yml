@@ -69,14 +69,14 @@ jobs:
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
           repository: CrispStrobe/bw-board
-          ref: d1a067c56c474a1d77e299f8ff7dd4245e69c664
+          ref: e339fcbfe9626bb24a5e8b54f48ad00feb458453
           path: siblings/bw-board
 
       - name: Check out bw-circuit-ui (pinned)
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
           repository: CrispStrobe/bw-circuit-ui
-          ref: 211a693bcc2aae23a103aa8edfe92e3ccb22c93b
+          ref: b1103f9b07579f02bda5ff52fcc97dbd8fe5b95b
           path: siblings/bw-circuit-ui
 
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0

@@ -24,6 +24,15 @@ test('literal helper keys follow the actual relative imported parameter reader',
     assert.ok(!keys.has('param'));
 });
 
+test('the declaring file\'s own literal calls vote (world.lightLevel reads ambient(part, \'light\'))', () => {
+    const keys = read([['/engine/world.js', world + `
+export function lightLevel (part, fallback) {
+  return ambient(part, 'light', fallback);
+}`]]);
+    assert.ok(keys.has('light'));
+    assert.ok(!keys.has('param'));
+});
+
 test('unrelated helper names, wrong imports, dynamic keys and comments do not vote', () => {
     const keys = read([
         ['/engine/world.js', world],

@@ -3,7 +3,7 @@
 ## Circuit
 Two NPN transistors on 9 V. Each collector has 1 kΩ plus an LED to +9 V (Q1 red, Q2 green).
 Q1's collector feeds Q2's base through 22 kΩ; Q2's collector feeds Q1's base through 27 kΩ.
-A 10 nF capacitor sits from each base to ground. SET shorts Q2's base to ground, RESET shorts Q1's base.
+SET shorts Q2's base to ground, RESET shorts Q1's base.
 
 ## Observable behaviour
 - Power on: Q2 conducts and the green LED is lit (about 7 mA); Q1 is off and its collector sits near 6.9 V.
@@ -15,12 +15,6 @@ A 10 nF capacitor sits from each base to ground. SET shorts Q2's base to ground,
 - Press both: both bases are grounded and both LEDs go dark; whichever button you release last loses.
 - The dark LED is not quite off: about 0.3 mA still flows through it into the other transistor's base resistor.
 
-## Simulation note
-The two 10 nF base capacitors are part of the design (they make the power-on state certain and swallow
-spikes). The simulator needs them for the power-on state: it has no noise, so without them it starts the
-latch exactly balanced, both transistors half on (about 5 mA in each LED), and nothing tips it over until a
-button is pressed. Once set or reset, the latch holds without them.
-
 ## What this verifies
 1. Positive feedback gives two stable states — one bit of memory.
 2. A short pulse on one input is enough; the circuit remembers it.
@@ -30,5 +24,5 @@ button is pressed. Once set or reset, the latch holds without them.
 net vsource_2.pos V 9.00 +-0.01
 net npn_4.collector V 0.09 +-0.05
 net npn_3.collector V 6.92 +-0.10
-net npn_3.base V 0.11 +-0.05
+net npn_3.base V 0.09 +-0.05
 ```

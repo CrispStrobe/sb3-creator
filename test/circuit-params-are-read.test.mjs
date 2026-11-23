@@ -247,6 +247,12 @@ const KNOWN_INERT = new Map([
     ['led.color',         'BLIND SPOT: read by the renderer; the LED model uses vf.'],
     ['vsource.variant',   'BLIND SPOT: read only by bw-circuit-ui starter-migration at load time; volts carries the electrical meaning and is live.'],
     ['vsource.gain',      'BLIND SPOT: PCM input control; the shipped source has no samples until the debugger injects a waveform.'],
+    ['dc_motor.airflowGain',
+        'BLIND SPOT: bw-board BoardImpl._airflowMs reads it (m/s of air per rad/s of shaft speed). '
+        + 'Its one bench, lab-airflow-sensor, starts the fan only once the thermostat sees a warm '
+        + 'room (world temperatureC 32 and seconds of thermal settling); this sweep runs 40 ms at the '
+        + 'authored world, where the fan is still. test/lab-circuits-6.test.mjs drives that scenario '
+        + 'and asserts the fan cycles on its own air (measured: without the gain it runs flat out).'],
     ['vsource.loop',      'BLIND SPOT: PCM input control; an empty sample buffer cannot loop during this static probe.'],
     ['vsource.rate',      'BLIND SPOT: PCM input control; the shipped source has no samples until the debugger injects a waveform.'],
     ['vsource.samples',   'BLIND SPOT: the static probe cannot synthesize a replacement PCM array; debugger integration covers waveform injection.'],

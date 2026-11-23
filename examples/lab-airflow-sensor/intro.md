@@ -12,8 +12,8 @@ Click **Sim** and wait about ten seconds while the sensor warms up and the red L
 
 - Still air: the meter near zero, no alarm.
 - Airflow: the meter rises and the DRAUGHT LED lights.
-- Warm room: the fan switches on.
+- Warm room: the fan switches on, cools the sensor with its own air, stops, and starts again: it cycles on and off.
 
 ## Why it works
 
-The heater and the thermistor sit together. In still air they reach a balance between the heat put in and the heat lost to the air. Moving air removes heat faster, so the balance settles lower. The thermistor's resistance follows its temperature, the bridge turns that into a voltage, and the comparators decide when it is too cool (draught) or too warm (fan on). Real airflow meters in cars work with the same idea.
+The heater and the thermistor sit together. In still air they reach a balance between the heat put in and the heat lost to the air. Moving air removes heat faster, so the balance settles lower. The thermistor's resistance follows its temperature, the bridge turns that into a voltage, and the comparators decide when it is too cool (draught) or too warm (fan on). The fan blows on the sensor itself, so it switches itself off again: that is a control loop. Real airflow meters in cars work with the same idea.

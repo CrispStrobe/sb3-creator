@@ -290,7 +290,8 @@
       "kind": "dc_motor",
       "params": {
         "J": 0.000005,
-        "loadTorque": 0.0005
+        "loadTorque": 0.0005,
+        "airflowGain": 0.01
       },
       "terminals": [
         "a",

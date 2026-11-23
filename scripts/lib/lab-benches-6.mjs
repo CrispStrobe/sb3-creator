@@ -119,14 +119,15 @@ export const BENCHES = {
     // "zero" pot is the other half of the bridge; the meter (2 V full scale)
     // between them reads airflow. Comparator 1 lights the DRAUGHT LED when S
     // falls below the alarm pot; comparator 2 runs the fan when S rises above
-    // the thermostat pot (a warmer room).
+    // the thermostat pot (a warmer room). The fan blows on the sensor
+    // (airflowGain 0.01 m/s per rad/s), so the thermostat cycles it.
     'lab-airflow-sensor': {
         vcc: 9, supply: SUP,
         parts: { bat: BAT9, rh: ['resistor', { ohms: 470, rth: 200, thermalTau: 2 }],
             ntc: ['ntc', { r25: 10000, beta: 3950, heatedBy: '@rh', thermalCoupling: 0.8, thermalTau: 2 }], rn: R(6800),
             zero: POT(1000, 0.69), meter: ['analog_meter', { fullScale: 2, ifs: 0.0001 }],
             alarm: POT(10000, 0.66), u: ['lm358', {}], rl: R(1000), led: LED('red'),
-            stat: POT(10000, 0.71), rbq: R(10000), q: NPN, fan: ['dc_motor', { J: 5e-6, loadTorque: 0.0005 }], d: ['diode', {}] },
+            stat: POT(10000, 0.71), rbq: R(10000), q: NPN, fan: ['dc_motor', { J: 5e-6, loadTorque: 0.0005, airflowGain: 0.01 }], d: ['diode', {}] },
         nets: [
             ['bat.pos', 'rh.a', 'ntc.a', 'zero.a', 'alarm.a', 'stat.a', 'u.vcc', 'q.collector', 'd.cathode'],
             ['ntc.b', 'rn.a', 'meter.b', 'u.1_neg', 'u.2_pos'], ['zero.wiper', 'meter.a'],
@@ -196,6 +197,26 @@ export const BENCHES = {
             ['u.3y', 'u.4a'], ['u.4b', 'r4.a', 'c4.a'], ['u.4y', 'r4.b', 'rs.a'], ['rs.b', 'spk.a'],
             ['bat.neg', 'u.gnd', 'go.b', 'ct.neg', 'rt.b', 'c4.b', 'spk.b'],
         ],
+    },
+
+    // Amp-IC horn. An LM386 (gain 20, pins 1 and 8 open) is made to oscillate:
+    // its output kicks +IN through 47 nF, and the kick decays through 22 kΩ
+    // (in parallel with the chip's own 50 kΩ input) until the amplifier flips
+    // back. −IN is grounded. The output, biased at half the supply, reaches an
+    // 8 Ω speaker (a piezo part with an 8 Ω element) through 100 µF, which
+    // blocks the DC. The button puts 10 kΩ across the 22 kΩ: a faster decay,
+    // a higher note. The scope watches both sides of the coupling capacitor.
+    'lab-amp-horn': {
+        vcc: 9, supply: SUP,
+        parts: { bat: BAT9, u: ['lm386', {}], cf: C(47e-9), rb: R(22000), btn: ['button', {}], rp: R(10000),
+            co: EL(100e-6), spk: ['piezo', { leakOhms: 8 }], scope: ['oscilloscope', {}] },
+        nets: [
+            ['bat.pos', 'u.vs'],
+            ['u.vout', 'cf.a', 'co.pos', 'scope.ch1'], ['cf.b', 'u.inp', 'rb.a', 'btn.a'], ['btn.b', 'rp.a'],
+            ['co.neg', 'spk.a', 'scope.ch2'],
+            ['bat.neg', 'u.gnd', 'u.inn', 'rb.b', 'rp.b', 'spk.b', 'scope.gnd'],
+        ],
+        open: ['u.gain1', 'u.gain8', 'u.bypass'],
     },
 };
 

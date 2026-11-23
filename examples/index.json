@@ -10720,5 +10720,23 @@
    "introDE": "lab-nand-one-shot/intro.de.md"
   },
   "devices": []
+ },
+ {
+  "id": "lab-amp-horn",
+  "title": {
+   "en": "Amplifier as horn: an LM386 drives a speaker",
+   "de": "Verstärker als Hupe: ein LM386 treibt einen Lautsprecher"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-amp-horn/program.bw",
+   "circuit": "lab-amp-horn/circuit.json",
+   "expected": "lab-amp-horn/EXPECTED.md",
+   "intro": "lab-amp-horn/intro.md",
+   "introDE": "lab-amp-horn/intro.de.md"
+  },
+  "devices": []
  }
 ]
