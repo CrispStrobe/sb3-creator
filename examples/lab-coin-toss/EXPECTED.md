@@ -33,12 +33,13 @@ charge between tosses, so each result also depends on the tosses before it:
 | toss | hold, milliseconds | face after release |
 |---|---|---|
 | 1 | 300 | heads |
-| 2 | 320 | tails |
-| 3 | 340 | tails |
+| 2 | 320 | heads |
+| 3 | 340 | heads |
 | 4 | 360 | tails |
 | 5 | 380 | heads |
 
-A lit face carries 8.2 mA; the other LED carries none.
+A lit face carries 8.5 mA (red heads) or 7.7 mA (green tails, whose forward
+voltage is higher); the other LED carries none.
 
 ## What this verifies
 1. A flip-flop with its inverted output fed back to D divides by two (toggles).

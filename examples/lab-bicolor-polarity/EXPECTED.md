@@ -11,18 +11,19 @@ energises the coil (a diode across it catches the switch-off spike) and crosses
 the leads over, so B becomes plus.
 
 ## Expected behaviour
-- Button released, A positive: the red LED carries about 7.1 mA, the green one
+- Button released, A positive: the red LED carries about 7.2 mA, the green one
   is reverse-biased and dark.
-- Button pressed, B positive: the roles swap — green lit at the same current,
-  red dark.
+- Button pressed, B positive: the roles swap — green lit, red dark. Green
+  carries a little less (about 6.9 mA): its forward voltage is higher, so less
+  is left across the 1 kΩ.
 - In either direction the dark LED sits reverse-biased across the lit one,
   seeing only that LED's forward voltage, so it is never stressed.
 
 ## Measured on the engine
 | state | lead A | lead B | red LED | green LED |
 |---|---|---|---|---|
-| button released | 9.00 V | 0.00 V | 7.13 mA | 0.000 mA |
-| button pressed | 0.00 V | 9.00 V | 0.000 mA | 7.13 mA |
+| button released | 9.00 V | 0.00 V | 7.23 mA | 0.000 mA |
+| button pressed | 0.00 V | 9.00 V | 0.000 mA | 6.93 mA |
 
 ## What this verifies
 1. An LED conducts in one direction only.
@@ -31,7 +32,7 @@ the leads over, so B becomes plus.
 ```assert
 # at rest lead A is plus: X sits one red-LED drop above lead B
 net r1.a V 9.00 +-0.02
-net red.anode V 1.87 +-0.05
+net red.anode V 1.77 +-0.05
 net red.cathode V 0.00 +-0.02
 ```
 

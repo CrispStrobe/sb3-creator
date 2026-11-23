@@ -15,7 +15,9 @@ scaled down so the simulation stays quick. The idea is unchanged.
 
 **The receiver.** 1 kΩ (the antenna's source resistance) → detector diode →
 node ENV with a 10 nF smoothing capacitor and a 22 kΩ load to ground →
-100 nF coupling capacitor → piezo "crystal earphone".
+100 nF coupling capacitor → piezo "crystal earphone". The piezo is a
+capacitor electrically, so through the coupling capacitor it also loads ENV a
+little at audio frequencies: the envelope is somewhat flattened.
 
 ## Expected behaviour
 - Before the diode: the full AM waveform, swinging symmetrically about zero.
@@ -36,9 +38,9 @@ authored 10 nF (`test/lab-circuits-1.test.mjs` repeats this):
 | quantity | value |
 |---|---|
 | AM signal peak | 4.56 V |
-| envelope maximum on ENV (at a carrier crest) | 3.29 V |
-| envelope minimum on ENV | 0.35 V |
-| difference between ENV and ENV 2 ms later | below 0.01 V |
+| envelope maximum on ENV (at a carrier crest) | 3.12 V |
+| envelope minimum on ENV | 0.65 V |
+| difference between ENV and ENV 2 ms later | below 0.02 V |
 | envelope period | 2 ms (500 Hz) |
 
 The engine declines a single-instant check of this bench (its sources are

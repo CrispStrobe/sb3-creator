@@ -17,17 +17,17 @@ model electrolysis.
   Its collector is high, q2 is on, the red LED is lit.
 - Damp (around 1 MΩ to 500 kΩ): q1 starts to conduct and the blue LED glows
   faintly; the red LED is still fully on.
-- Wet (around 100 kΩ): q1 conducts hard, the blue LED is clearly on and the red
-  one is fading.
-- Shorted probes: q1 saturates, blue fully on, red dark.
+- Wet (around 100 kΩ): q1 already saturates, the blue LED is clearly on and
+  the red one has gone dark.
+- Shorted probes: the same, with the blue LED a little brighter.
 
 ## Measured on the engine
 | probe position | probe resistance | q1 base current | blue "wet" | red "dry" |
 |---|---|---|---|---|
-| 0 | 10 MΩ | 0.001 mA | 0.0017 mA | 7.04 mA |
-| 0.9 | 1 MΩ | 0.008 mA | 0.59 mA | 7.04 mA |
-| 0.99 | 100 kΩ | 0.076 mA | 5.93 mA | 2.42 mA |
-| 1 | shorted | 0.83 mA | 7.06 mA | 0.000 mA |
+| 0 | 10 MΩ | 0.001 mA | 0.000 mA | 7.14 mA |
+| 0.9 | 1 MΩ | 0.008 mA | 0.36 mA | 7.13 mA |
+| 0.99 | 100 kΩ | 0.076 mA | 5.71 mA | 0.000 mA |
+| 1 | shorted | 0.83 mA | 5.98 mA | 0.000 mA |
 
 ## What this verifies
 1. A sensor is just a resistance that changes; a transistor turns a tiny probe current into a lamp current.

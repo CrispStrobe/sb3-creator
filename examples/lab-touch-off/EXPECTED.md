@@ -8,7 +8,7 @@ ground. The touch button stands for two plates; behind it a 2.2 MΩ "finger"
 and a 47 kΩ guard resistor lead to q1's base.
 
 ## Expected behaviour
-- Not touched: the pair is off, the whole 7.1 mA through the 1 kΩ goes through
+- Not touched: the pair is off, the whole 7.0 mA through the 1 kΩ goes through
   the LED, which is lit.
 - Touch button pressed: the pair saturates and pulls N down to about 0.77 V.
   That is far below the LED's forward voltage, so the LED goes dark; the
@@ -20,7 +20,7 @@ and a 47 kΩ guard resistor lead to q1's base.
 ## Measured on the engine
 | state | node N | LED current | 1 kΩ current |
 |---|---|---|---|
-| not touched | 1.87 V | 7.13 mA | 7.13 mA |
+| not touched | 1.97 V | 7.03 mA | 7.03 mA |
 | touch button pressed | 0.774 V | 0.000 mA | 8.23 mA |
 
 ## What this verifies
@@ -29,7 +29,7 @@ and a 47 kΩ guard resistor lead to q1's base.
 
 ```assert
 # untouched: the LED holds node N at its forward voltage
-net led1.anode V 1.87 +-0.05
+net led1.anode V 1.97 +-0.05
 ```
 
 <!-- engine-provenance -->

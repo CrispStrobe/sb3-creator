@@ -40,7 +40,8 @@
    "id": "potato_a",
    "kind": "potato_battery",
    "params": {
-    "volts": 0.9
+    "volts": 0.9,
+    "rInternal": 1
    },
    "label": "potato A",
    "x": 60,
@@ -67,7 +68,8 @@
    "id": "potato_b",
    "kind": "potato_battery",
    "params": {
-    "volts": 0.9
+    "volts": 0.9,
+    "rInternal": 1
    },
    "label": "potato B",
    "x": 150,

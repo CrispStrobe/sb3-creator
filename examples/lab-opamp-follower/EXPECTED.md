@@ -1,7 +1,7 @@
 # lab-opamp-follower — expected behaviour
 
 ## Circuit
-Two identical potato cells. Each is drawn as what it is electrically: a 0.9 V source with a 5 kΩ resistor in series, standing for the resistance inside the potato. Both have to drive the same kind of load, a 4.7 kΩ resistor (think of a cheap meter or a small motor driver input).
+Two identical potato cells. Each is drawn as what it is electrically: a 0.9 V source with a 5 kΩ resistor in series, standing for the resistance inside the potato. (The potato part's own built-in internal resistance is turned down to 1 Ω, so the visible 5 kΩ is all of it.) Both have to drive the same kind of load, a 4.7 kΩ resistor (think of a cheap meter or a small motor driver input).
 
 - **Potato A** drives its 4.7 kΩ load directly.
 - **Potato B** feeds the non-inverting input of an LM358 wired as a voltage follower (output tied to the inverting input). The follower drives the second 4.7 kΩ load.
