@@ -6,22 +6,17 @@
    "kind": "breadboard",
    "params": {},
    "terminals": [],
-   "x": 470,
-   "y": 300,
+   "x": 520,
+   "y": 420,
    "rotation": 0
   },
   {
    "id": "gnd",
    "kind": "gnd",
    "params": {},
-   "x": 43,
-   "y": 255,
-   "seat": {
-    "boardId": "bb1",
-    "leadMap": {
-     "gnd": "a1"
-    }
-   }
+   "x": 149,
+   "y": 221,
+   "rotation": 0
   },
   {
    "id": "bat_pos",
@@ -30,8 +25,9 @@
     "volts": 9
    },
    "label": "+9 V",
-   "x": 60,
-   "y": 60
+   "x": 215,
+   "y": 213,
+   "rotation": 0
   },
   {
    "id": "bat_neg",
@@ -40,8 +36,9 @@
     "volts": 9
    },
    "label": "-9 V",
-   "x": 150,
-   "y": 60
+   "x": 287,
+   "y": 213,
+   "rotation": 0
   },
   {
    "id": "tone",
@@ -53,8 +50,9 @@
     "offset": 0
    },
    "label": "function generator 440 Hz, 4 V peak",
-   "x": 240,
-   "y": 60
+   "x": 83,
+   "y": 217,
+   "rotation": 0
   },
   {
    "id": "r_series",
@@ -63,13 +61,13 @@
     "ohms": 220000
    },
    "label": "R_series 220k",
-   "x": 43,
+   "x": 142,
    "y": 345,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "j1",
-     "b": "j5"
+     "a": "a3",
+     "b": "a7"
     }
    }
   },
@@ -80,13 +78,13 @@
     "ohms": 220
    },
    "label": "R_shunt 220",
-   "x": 71,
-   "y": 255,
+   "x": 142,
+   "y": 495,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a3",
-     "b": "a7"
+     "a": "j3",
+     "b": "j7"
     }
    }
   },
@@ -95,13 +93,13 @@
    "kind": "switch",
    "params": {},
    "label": "BYPASS attenuator",
-   "x": 127,
+   "x": 219,
    "y": 345,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "j7",
-     "b": "j10"
+     "a": "a9",
+     "b": "a12"
     }
    }
   },
@@ -109,8 +107,21 @@
    "id": "u1",
    "kind": "lm358",
    "params": {},
-   "x": 330,
-   "y": 60
+   "x": 289,
+   "y": 420,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "vcc": "e14",
+     "gnd": "e15",
+     "1_pos": "e16",
+     "1_neg": "e17",
+     "1_out": "f14",
+     "2_pos": "f15",
+     "2_neg": "f16",
+     "2_out": "f17"
+    }
+   }
   },
   {
    "id": "r_f",
@@ -119,13 +130,13 @@
     "ohms": 100000
    },
    "label": "R_f 100k",
-   "x": 155,
-   "y": 255,
+   "x": 366,
+   "y": 345,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a9",
-     "b": "a13"
+     "a": "a19",
+     "b": "a23"
     }
    }
   },
@@ -136,14 +147,14 @@
     "position": 0
    },
    "label": "GAIN: R_g 1k / 100",
-   "x": 197,
-   "y": 345,
+   "x": 352,
+   "y": 495,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "j12",
-     "com": "j13",
-     "b": "j14"
+     "a": "j19",
+     "com": "j20",
+     "b": "j21"
     }
    }
   },
@@ -154,13 +165,13 @@
     "ohms": 1000
    },
    "label": "R_g 1k",
-   "x": 239,
-   "y": 255,
+   "x": 422,
+   "y": 495,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a15",
-     "b": "a19"
+     "a": "j23",
+     "b": "j27"
     }
    }
   },
@@ -171,13 +182,13 @@
     "ohms": 100
    },
    "label": "R_g 100",
-   "x": 253,
+   "x": 450,
    "y": 345,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "j16",
-     "b": "j20"
+     "a": "a25",
+     "b": "a29"
     }
    }
   },
@@ -185,142 +196,236 @@
    "id": "speaker",
    "kind": "piezo",
    "params": {},
-   "x": 420,
-   "y": 60
+   "x": 485,
+   "y": 495,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "j29",
+     "b": "j30"
+    }
+   }
   }
  ],
  "wires": [
   {
-   "from": "bat_pos",
-   "fromTerminal": "pos",
-   "to": "u1",
-   "toTerminal": "vcc"
+   "id": "w_2",
+   "netId": "net_2",
+   "from": {
+    "part": "bat_neg",
+    "terminal": "neg"
+   },
+   "to": {
+    "board": "bb1",
+    "hole": "d15"
+   },
+   "color": "blue"
   },
   {
-   "from": "bat_neg",
-   "fromTerminal": "neg",
-   "to": "u1",
-   "toTerminal": "gnd"
+   "id": "w_8",
+   "netId": "net_8",
+   "from": {
+    "part": "bat_neg",
+    "terminal": "pos"
+   },
+   "to": {
+    "board": "bb1",
+    "hole": "t-15"
+   },
+   "color": "black"
   },
   {
-   "from": "gnd",
-   "fromTerminal": "gnd",
-   "to": "bat_pos",
-   "toTerminal": "neg"
+   "id": "w_9",
+   "netId": "net_9",
+   "from": {
+    "part": "bat_pos",
+    "terminal": "neg"
+   },
+   "to": {
+    "board": "bb1",
+    "hole": "t-10"
+   },
+   "color": "black"
   },
   {
-   "from": "bat_pos",
-   "fromTerminal": "neg",
-   "to": "bat_neg",
-   "toTerminal": "pos"
+   "id": "w_10",
+   "netId": "net_10",
+   "from": {
+    "part": "gnd",
+    "terminal": "gnd"
+   },
+   "to": {
+    "board": "bb1",
+    "hole": "t-6"
+   },
+   "color": "black"
   },
   {
-   "from": "bat_neg",
-   "fromTerminal": "pos",
-   "to": "tone",
-   "toTerminal": "gnd"
+   "id": "w_11",
+   "netId": "net_11",
+   "from": {
+    "part": "tone",
+    "terminal": "gnd"
+   },
+   "to": {
+    "board": "bb1",
+    "hole": "t-1"
+   },
+   "color": "black"
   },
   {
-   "from": "tone",
-   "fromTerminal": "gnd",
-   "to": "r_shunt",
-   "toTerminal": "b"
+   "id": "w_13",
+   "netId": "net_13",
+   "from": {
+    "part": "bat_pos",
+    "terminal": "pos"
+   },
+   "to": {
+    "board": "bb1",
+    "hole": "t+10"
+   },
+   "color": "red"
   },
   {
-   "from": "r_shunt",
-   "fromTerminal": "b",
-   "to": "r_g_low",
-   "toTerminal": "b"
+   "id": "w_15",
+   "netId": "net_15",
+   "from": {
+    "part": "tone",
+    "terminal": "out"
+   },
+   "to": {
+    "board": "bb1",
+    "hole": "d3"
+   },
+   "color": "green"
+  }
+ ],
+ "holeWires": [
+  {
+   "ref": "bbw:bb1:bbw_1",
+   "boardId": "bb1",
+   "a": "t-2",
+   "b": "b-2",
+   "color": "black"
   },
   {
-   "from": "r_g_low",
-   "fromTerminal": "b",
-   "to": "r_g_high",
-   "toTerminal": "b"
+   "ref": "bbw:bb1:bbw_3",
+   "boardId": "bb1",
+   "a": "i7",
+   "b": "b-7",
+   "color": "black"
   },
   {
-   "from": "r_g_high",
-   "fromTerminal": "b",
-   "to": "speaker",
-   "toTerminal": "b"
+   "ref": "bbw:bb1:bbw_4",
+   "boardId": "bb1",
+   "a": "i15",
+   "b": "b-15",
+   "color": "black"
   },
   {
-   "from": "speaker",
-   "fromTerminal": "b",
-   "to": "u1",
-   "toTerminal": "2_pos"
+   "ref": "bbw:bb1:bbw_5",
+   "boardId": "bb1",
+   "a": "i27",
+   "b": "b-27",
+   "color": "black"
   },
   {
-   "from": "tone",
-   "fromTerminal": "out",
-   "to": "r_series",
-   "toTerminal": "a"
+   "ref": "bbw:bb1:bbw_6",
+   "boardId": "bb1",
+   "a": "b29",
+   "b": "t-29",
+   "color": "black"
   },
   {
-   "from": "r_series",
-   "fromTerminal": "a",
-   "to": "bypass",
-   "toTerminal": "a"
+   "ref": "bbw:bb1:bbw_7",
+   "boardId": "bb1",
+   "a": "i30",
+   "b": "b-30",
+   "color": "black"
   },
   {
-   "from": "r_series",
-   "fromTerminal": "b",
-   "to": "bypass",
-   "toTerminal": "b"
+   "ref": "bbw:bb1:bbw_12",
+   "boardId": "bb1",
+   "a": "b14",
+   "b": "t+14",
+   "color": "red"
   },
   {
-   "from": "bypass",
-   "fromTerminal": "b",
-   "to": "r_shunt",
-   "toTerminal": "a"
+   "ref": "bbw:bb1:bbw_14",
+   "boardId": "bb1",
+   "a": "e3",
+   "b": "e9",
+   "color": "green"
   },
   {
-   "from": "r_shunt",
-   "fromTerminal": "a",
-   "to": "u1",
-   "toTerminal": "1_pos"
+   "ref": "bbw:bb1:bbw_16",
+   "boardId": "bb1",
+   "a": "f3",
+   "b": "e7",
+   "color": "yellow"
   },
   {
-   "from": "u1",
-   "fromTerminal": "1_neg",
-   "to": "r_f",
-   "toTerminal": "a"
+   "ref": "bbw:bb1:bbw_17",
+   "boardId": "bb1",
+   "a": "d7",
+   "b": "e12",
+   "color": "yellow"
   },
   {
-   "from": "r_f",
-   "fromTerminal": "a",
-   "to": "gain_sel",
-   "toTerminal": "com"
+   "ref": "bbw:bb1:bbw_18",
+   "boardId": "bb1",
+   "a": "d12",
+   "b": "d16",
+   "color": "yellow"
   },
   {
-   "from": "gain_sel",
-   "fromTerminal": "a",
-   "to": "r_g_low",
-   "toTerminal": "a"
+   "ref": "bbw:bb1:bbw_19",
+   "boardId": "bb1",
+   "a": "f19",
+   "b": "f23",
+   "color": "orange"
   },
   {
-   "from": "gain_sel",
-   "fromTerminal": "b",
-   "to": "r_g_high",
-   "toTerminal": "a"
+   "ref": "bbw:bb1:bbw_20",
+   "boardId": "bb1",
+   "a": "f21",
+   "b": "e25",
+   "color": "purple"
   },
   {
-   "from": "u1",
-   "fromTerminal": "1_out",
-   "to": "r_f",
-   "toTerminal": "b"
+   "ref": "bbw:bb1:bbw_21",
+   "boardId": "bb1",
+   "a": "d17",
+   "b": "e19",
+   "color": "white"
   },
   {
-   "from": "r_f",
-   "fromTerminal": "b",
-   "to": "speaker",
-   "toTerminal": "a"
+   "ref": "bbw:bb1:bbw_22",
+   "boardId": "bb1",
+   "a": "d19",
+   "b": "f20",
+   "color": "white"
   },
   {
-   "from": "u1",
-   "fromTerminal": "2_neg",
-   "to": "u1",
-   "toTerminal": "2_out"
+   "ref": "bbw:bb1:bbw_23",
+   "boardId": "bb1",
+   "a": "g14",
+   "b": "e23",
+   "color": "blue"
+  },
+  {
+   "ref": "bbw:bb1:bbw_24",
+   "boardId": "bb1",
+   "a": "d23",
+   "b": "f29",
+   "color": "blue"
+  },
+  {
+   "ref": "bbw:bb1:bbw_25",
+   "boardId": "bb1",
+   "a": "g16",
+   "b": "g17",
+   "color": "green"
   }
  ]
 }
