@@ -309,7 +309,7 @@ describe('bench invariants: every device bench, canonical loader', { skip: gate.
       // the MCU reachability early-return closes the blind spot that let
       // hand-authored relay and motor circuits ship without flyback diodes.
       if (!rel.startsWith('33-inductive-no-flyback/') && !rel.startsWith('pc26-motor-clamp/')) {
-        for (const load of bparts.filter(p => p.kind === 'dc_motor' || p.kind === 'relay')) {
+        for (const load of bparts.filter(p => p.kind === 'dc_motor' || p.kind === 'dc_motor_encoder' || p.kind === 'relay')) {
           const lowTerm = load.kind === 'relay' ? 'coil_b' : 'b';
           const highTerm = load.kind === 'relay' ? 'coil_a' : 'a';
           const low = bnets.find(n => n.terminals.some(t => t.part === load.id && t.terminal === lowTerm));
