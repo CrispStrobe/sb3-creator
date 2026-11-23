@@ -55,7 +55,7 @@ net rt.a V 4.59 +-0.05
 > **Engine provenance.** The measured numbers on this page were last held against
 > `bw-board@d19b5e4` and `bw-circuit-ui@6b4d702` — the revisions pinned in
 > `test/fixtures/siblings.json`. `test/expected-quantities-hold.test.mjs` compares
-> **7 of this page's 10** numeric claims against that engine
+> **7 of this page's 11** numeric claims against that engine
 > (0 of them disagreeing) and declines the rest with a stated reason;
 > `node scripts/expected-claim-census.mjs lab-coin-toss` prints them one by one.
 <!-- engine-provenance -->
