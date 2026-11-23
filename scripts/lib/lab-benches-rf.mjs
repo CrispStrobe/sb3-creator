@@ -67,8 +67,11 @@ export const BENCHES = {
     // Direction finding: no long wire; the ferrite rod is the antenna. Two
     // strong local stations from different directions (the rod's own
     // broadcast). The coupling winding feeds a transistor biased into light
-    // conduction (2.2 MΩ, held by 10 nF); the RF its base junction rectifies
-    // raises the collector current through a 1 mA meter. 10 nF bypasses the
+    // conduction from a stiff divider (220 kΩ / 15 kΩ, held by 10 nF): the
+    // RF its base junction rectifies raises the mean collector current
+    // through a 1 mA meter. (A current-source bias, a lone 2.2 MΩ, holds the
+    // mean base current, and with it the mean collector current: the RF then
+    // shows only as audio ripple, never on a needle.) 10 nF bypasses the
     // carrier.
     'lab-direction-finder': {
         vcc: 9, supply: SUP,
@@ -77,11 +80,11 @@ export const BENCHES = {
                 { id: 'north', name: 'North 700 kHz', hz: 700e3, fieldVPerM: 0.3, depth: 0.3, bearingDeg: 0, audio: { type: 'tone', hz: 400 } },
                 { id: 'east', name: 'East 1000 kHz', hz: 1000e3, fieldVPerM: 0.3, depth: 0.3, bearingDeg: 70, audio: { type: 'tone', hz: 800 } },
             ] }], tc: TUNE(0.4),
-            rb: R(2200000), cb: C(10e-9), q: NPN, m: ['analog_meter', { mode: 'current', fullScale: 0.001 }], cc: C(10e-9) },
+            rb: R(220000), rg: R(15000), cb: C(10e-9), q: NPN, m: ['analog_meter', { mode: 'current', fullScale: 0.001 }], cc: C(10e-9) },
         nets: [
-            ['l.b', 'tc.a'], ['l.c1', 'q.base'], ['l.c2', 'rb.b', 'cb.a'],
+            ['l.b', 'tc.a'], ['l.c1', 'q.base'], ['l.c2', 'rb.b', 'rg.a', 'cb.a'],
             ['bat.pos', 'rb.a', 'm.a'], ['m.b', 'q.collector', 'cc.a'],
-            ['bat.neg', 'gnd.gnd', 'l.a', 'tc.b', 'cb.b', 'q.emitter', 'cc.b'],
+            ['bat.neg', 'gnd.gnd', 'l.a', 'tc.b', 'cb.b', 'rg.b', 'q.emitter', 'cc.b'],
         ],
         open: ['l.tap'],
     },
@@ -124,7 +127,7 @@ export const BENCHES = {
                 { id: 'fm', name: 'FM 98.0 MHz', hz: 98e6, mod: 'fm', deviationHz: 75e3, fieldVPerM: 0.05, audio: { type: 'tone', hz: 1000 } },
             ] }],
             q: VHF, r1: R(47000), r2: R(10000), re: R(470), ce: C(1e-9),
-            l: ['air_coil', { henrys: 0.15e-6, q: 80 }], vd: ['varicap', { part: 'BB910' }], cv: C(1e-9), rt: R(100000), rv: POT(100000, 0.46),
+            l: ['vhf_coil', { henrys: 0.15e-6, q: 80 }], vd: ['varicap', { part: 'BB910' }], cv: C(1e-9), rt: R(100000), rv: POT(100000, 0.46),
             cd: C(10e-12), d: GE, rk: R(47000), rl: R(10000), cl: C(470e-12), ck: C(100e-9), rb: R(1000000), qa: NPN, ep: EP, cc: C(10e-9) },
         nets: [
             ['ant.a', 'q.base', 'r1.b', 'r2.a'], ['q.emitter', 're.a', 'ce.a'],
@@ -133,6 +136,92 @@ export const BENCHES = {
             ['qa.collector', 'ep.a', 'cc.a'],
             ['bat.pos', 'r1.a', 'l.b', 'rv.b', 'rb.a', 'ep.b'],
             ['bat.neg', 'gnd.gnd', 'r2.b', 're.b', 'ce.b', 'cv.b', 'rv.a', 'rk.b', 'rl.b', 'cl.b', 'qa.emitter', 'cc.b'],
+        ],
+    },
+
+    // AM test transmitter and a receiver a distance away. Transmitter: a
+    // Meissner oscillator on one ferrite rod — tank (main winding + tuning
+    // capacitor) in the collector, the coupling winding in the base circuit
+    // (bias 22 kΩ / 22 kΩ, held by 10 nF: room for the modulator below),
+    // emitter bypassed to ground for RF by 1 nF, 1 kΩ down to the modulator. Its emitter
+    // current is drawn by a second transistor (emitter 470 Ω) whose base the
+    // audio generator drives (1 kHz around 1.2 V through 10 kΩ): the
+    // oscillator's current, and so its amplitude, follows the audio.
+    // Receiver: a crystal set on a second rod whose `linkTo` names the
+    // transmitter's rod, `distanceM` 1 (near field ∝ 1/d³), same tuning.
+    'lab-am-transmitter': {
+        vcc: 9, supply: SUP,
+        parts: { bat: BAT9, gnd: ['gnd', {}],
+            lt: ['ferrite_coil', { rodHeightM: 0, couplingRatio: 0.02 }], tct: TUNE(0.3), q1: NPN,
+            r1: R(22000), r2: R(22000), cb: C(10e-9), re: R(1000), ce: C(1e-9),
+            q2: NPN, re2: R(470), rin: R(10000), fg: ['function_gen', { wave: 'sine', freq: 1000, amplitude: 0.1, offset: 1.2 }],
+            lr: ['ferrite_coil', { rodHeightM: 0, linkTo: 'ferrite_coil_4', distanceM: 0.5 }], tcr: TUNE(0.309),
+            d: GE, cd: C(2.2e-9), rd: R(47000), ep: ['earphone', { type: 'crystal' }] },
+        nets: [
+            ['bat.pos', 'lt.a', 'tct.a', 'r1.a'], ['q1.collector', 'lt.b', 'tct.b'],
+            ['r1.b', 'r2.a', 'cb.a', 'lt.c2'], ['q1.base', 'lt.c1'],
+            ['q1.emitter', 're.a', 'ce.a'], ['re.b', 'q2.collector'],
+            ['q2.emitter', 're2.a'], ['q2.base', 'rin.b'], ['rin.a', 'fg.out'],
+            ['lr.b', 'tcr.a', 'd.anode'], ['d.cathode', 'cd.a', 'rd.a', 'ep.a'],
+            ['bat.neg', 'gnd.gnd', 'r2.b', 'cb.b', 'ce.b', 're2.b', 'fg.gnd', 'lr.a', 'tcr.b', 'cd.b', 'rd.b', 'ep.b'],
+        ],
+        open: ['lt.tap', 'lr.tap', 'lr.c1', 'lr.c2'],
+    },
+
+    // Short-wave reception and mixing: the regenerative receiver on a
+    // short-wave coil (5 µH: the tuning capacitor reaches about 3–10 MHz).
+    // The antenna couples in through only 20 pF: at 6 MHz the long wire's
+    // 200 pF through the tap loads the tank to Q ≈ 20 and no tickler gets it
+    // past the threshold. A Morse beacon at 6.0585 MHz (a bare carrier keyed
+    // on and off) and an AM station at 5.9 MHz. Tuned near the beacon,
+    // below the threshold its carrier is silent; past it the receiver's own
+    // oscillation and the beacon's carrier meet in the base junction, and
+    // their difference frequency is a tone.
+    'lab-shortwave-regen': {
+        vcc: 9, supply: SUP,
+        parts: { bat: BAT9, gnd: ['gnd', {}],
+            ant: ['antenna', { heightM: 2, farads: 20e-12, stations: [
+                { id: 'cw', name: 'CW beacon 6.0585 MHz', hz: 6.0585e6, fieldVPerM: 0.005, mod: 'cw', audio: { type: 'morse', text: 'E', wpm: 20 } },
+                { id: 'am', name: 'AM 5.9 MHz', hz: 5.9e6, fieldVPerM: 0.005, depth: 0.5, audio: { type: 'tone', hz: 500 } },
+            ] }], earth: ['earth', {}],
+            l: ['ferrite_coil', { henrys: 5e-6, couplingRatio: 0.08, q: 100 }], tc: TUNE(0.25),
+            cb: C(100e-12), rb: R(1000000), rv: POT(100000, 0.85), q: NPN, re: R(1000), ce: C(100e-9),
+            ep: EP, cc: C(10e-9) },
+        nets: [
+            ['ant.a', 'l.tap'], ['l.b', 'tc.a', 'cb.a'], ['cb.b', 'rb.b', 'q.base'], ['rb.a', 'rv.wiper'],
+            ['q.emitter', 're.a', 'ce.a'], ['q.collector', 'l.c1'], ['l.c2', 'ep.a', 'cc.a'],
+            ['bat.pos', 'rv.b', 'ep.b'],
+            ['bat.neg', 'gnd.gnd', 'earth.earth', 'l.a', 'tc.b', 'rv.a', 're.b', 'ce.b', 'cc.b'],
+        ],
+    },
+
+    // Super-regenerative VHF receiver, separately quenched. A BF199 Colpitts
+    // in common base (base divider 10 kΩ / 10 kΩ held at RF by 100 pF; 3.3 pF
+    // collector→emitter, 10 pF emitter→ground; emitter returns through 1 kΩ
+    // to 2.2 kΩ ‖ 1 nF): the tank — air-core coil ‖ varicap tuned by the pot
+    // through 100 kΩ — in the collector, fed from 9 V. A 25 kHz quench
+    // generator (2 V peak) swings the base through 1 kΩ, so the stage is pushed past
+    // its oscillation threshold and back 25 000 times a second; each burst
+    // grows from whatever the tank holds — the station or noise. The average
+    // emitter current follows; 10 kΩ / 10 nF keeps the audio and drops the
+    // quench, and 100 nF passes it to a one-transistor amplifier and the
+    // earphone.
+    'lab-superregen-fm': {
+        vcc: 9, supply: SUP,
+        parts: { bat: BAT9, gnd: ['gnd', {}],
+            ant: ['antenna', { heightM: 0.5, ohms: 75, farads: 2e-12, stations: [
+                { id: 'fm', name: 'FM 98.0 MHz', hz: 98e6, mod: 'fm', deviationHz: 75e3, fieldVPerM: 0.05, audio: { type: 'tone', hz: 1000 } },
+            ] }],
+            l: ['vhf_coil', { henrys: 0.15e-6, q: 80 }], vd: ['varicap', { part: 'BB910' }], cv: C(1e-9),
+            rt: R(100000), rv: POT(100000, 0.72), q: VHF, r1: R(10000), r2: R(10000), cbb: C(100e-12), cf: C(3.3e-12), ce: C(10e-12),
+            rf: R(1000), rq: R(2200), cq: C(1e-9), rqg: R(1000), fq: ['function_gen', { wave: 'sine', freq: 25000, amplitude: 2, offset: 0 }],
+            ra: R(10000), ca: C(10e-9), ck: C(100e-9), rb: R(1000000), qa: NPN, ep: EP, cc: C(10e-9) },
+        nets: [
+            ['ant.a', 'q.collector', 'l.a', 'vd.cathode', 'cf.a'], ['vd.anode', 'cv.a', 'rt.a'], ['rt.b', 'rv.wiper'],
+            ['q.base', 'r1.b', 'r2.a', 'cbb.a', 'rqg.b'], ['rqg.a', 'fq.out'], ['q.emitter', 'cf.b', 'ce.a', 'rf.a'], ['rf.b', 'rq.a', 'cq.a', 'ra.a'],
+            ['ra.b', 'ca.a', 'ck.a'], ['ck.b', 'rb.b', 'qa.base'], ['qa.collector', 'ep.a', 'cc.a'],
+            ['bat.pos', 'l.b', 'r1.a', 'rv.b', 'rb.a', 'ep.b'],
+            ['bat.neg', 'gnd.gnd', 'cv.b', 'rv.a', 'r2.b', 'cbb.b', 'ce.b', 'rq.b', 'cq.b', 'ca.b', 'qa.emitter', 'cc.b', 'fq.gnd'],
         ],
     },
 };

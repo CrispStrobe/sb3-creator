@@ -29,8 +29,9 @@ if (!SKIP) ({ Circuit } = await injectEngine({ board: gate.paths['bw-board'], cu
 
 const EXAMPLES = join(import.meta.dirname, '..', 'examples');
 
-function bench (id) {
+function bench (id, edit = null) {
     const json = JSON.parse(readFileSync(join(EXAMPLES, id, 'circuit.json'), 'utf8'));
+    if (edit) edit(json);
     const c = Circuit.fromJSON(json);
     const b = c.board;
     const ids = benchIds(BENCHES[id]);
@@ -59,6 +60,14 @@ function bench (id) {
     return api;
 }
 
+/** Amplitude of the `hz` component of a [[tMs, v], …] trace (one-bin DFT). */
+const amplitude = (tr, hz) => {
+    let re = 0, im = 0;
+    for (const [t, v] of tr) { re += v * Math.cos(2 * Math.PI * hz * t / 1000); im += v * Math.sin(2 * Math.PI * hz * t / 1000); }
+    return 2 * Math.hypot(re, im) / tr.length;
+};
+const near1 = (got, want, tol, what) =>
+    assert.ok(Math.abs(got - want) <= tol, `${what}: ${got.toFixed(3)}, expected ${want} +-${tol}`);
 const near = (got, want, tol, what) =>
     assert.ok(Math.abs(got - want) <= tol, `${what}: ${got.toFixed(4)}, expected ${want} +-${tol}`);
 
@@ -75,25 +84,35 @@ describe('lab RF benches (set rf) behave as documented', { skip: SKIP }, () => {
         near(x.tone('ep').hz, 349, 7, 'fourth note (Hz)');
     });
 
-    test('lab-direction-finder: the meter follows |cos(rod angle − bearing)| with sharp nulls', () => {
-        // At build time: north (700 kHz, bearing 0°) rod 0° 0.515 mA, 45°
-        // 0.471 mA, 90° 0.378 mA (rest), 180° 0.515 mA; east (1000 kHz,
-        // bearing 70°, knob 0.186) rod 270° 0.735 mA, 160° 0.378 mA.
+    test('lab-direction-finder: the meter rises with |cos(rod angle − bearing)|, nothing in the sharp nulls', () => {
+        // At build time (mean over 5 ms): north (700 kHz, bearing 0°) rod 0°
+        // 0.296 mA, 45° 0.117 mA (the junction rectifies more than in
+        // proportion), 90° 0.0001 mA (the null: the divider leaves the
+        // transistor just short of conducting), 180° 0.296 mA; east
+        // (1000 kHz, bearing 70°, knob 0.186) rod 270° 0.632 mA, 160° null.
         const x = bench('lab-direction-finder');
         x.run(60);
-        const at = (deg) => { x.set('l', deg / 360); x.run(20); return x.meter('m') * 1e3; };
+        // The collector current carries the station's audio (400 / 800 Hz)
+        // at the meter; its mean over 5 ms (two and four periods) is the
+        // needle's reading.
+        const at = (deg) => {
+            x.set('l', deg / 360); x.run(15);
+            let sum = 0;
+            for (let k = 0; k < 100; k++) { x.run(0.05); sum += x.meter('m'); }
+            return sum / 100 * 1e3;
+        };
         const m0 = at(0), m45 = at(45), m90 = at(90);
         assert.ok(x.rf('tc', 'a') < 1e-4, `the tank RF in the null: ${x.rf('tc', 'a')} V`);
         const m180 = at(180);
-        near(m0, 0.515, 0.03, 'north, rod 0° (mA)');
-        near(m45, 0.471, 0.03, 'north, rod 45° (mA)');
-        near(m90, 0.378, 0.02, 'north, rod 90°: the null, the resting current (mA)');
+        near(m0, 0.296, 0.03, 'north, rod 0° (mA)');
+        near(m45, 0.117, 0.02, 'north, rod 45° (mA)');
+        assert.ok(m90 < 0.005, `north, rod 90°: the null, ${m90.toFixed(4)} mA`);
         near(m180, m0, 0.01, 'the back of the figure eight (mA)');
         x.set('tc', 0.186);
         x.run(40);    // the tank retunes and the 2.2 MΩ / 10 nF bias settles to the new station
         const e270 = at(270), e160 = at(160);
-        near(e270, 0.735, 0.04, 'east, rod 270° (mA)');
-        near(e160, 0.378, 0.02, 'east, rod 160°: its null (mA)');
+        near(e270, 0.632, 0.05, 'east, rod 270° (mA)');
+        assert.ok(e160 < 0.005, `east, rod 160°: its null, ${e160.toFixed(4)} mA`);
     });
 
     test('lab-dawn-radio: silent in the dark, the station plays once light falls on the LDR', () => {
@@ -144,5 +163,65 @@ describe('lab RF benches (set rf) behave as documented', { skip: SKIP }, () => {
         x.set('rv', 0.40);
         x.run(40);
         assert.ok(x.tone('ep').amps * 1e3 < 0.05, `far off: ${(x.tone('ep').amps * 1e3).toFixed(3)} mA`);
+    });
+
+    test('lab-shortwave-regen: the Morse beacon is heard only while the receiver oscillates and the key is down', () => {
+        // The beacon sends "E" at 20 wpm: a 60 ms key-down, then silence.
+        const x = bench('lab-shortwave-regen');
+        x.run(20);
+        assert.equal(x.tone('ep').on, false, 'below the threshold the bare carrier is silent');
+        x.set('rv', 0.75);
+        x.run(25);    // t = 45 ms: oscillating, key down
+        const on = x.tone('ep');
+        assert.ok(on.on, 'past the threshold: the beacon mixes with the oscillation into a tone');
+        assert.ok(on.hz > 500 && on.hz < 6000, `the difference frequency is audible: ${on.hz.toFixed(0)} Hz`);
+        const onAmps = on.amps;
+        x.run(55);    // t = 100 ms: the key is up
+        assert.ok(x.tone('ep').amps < 0.5 * onAmps, `key up, the tone dies away: ${(x.tone('ep').amps * 1e3).toFixed(3)} vs ${(onAmps * 1e3).toFixed(3)} mA rms`);
+    });
+
+    test('lab-am-transmitter: the near field falls with the cube of the distance, the tone faster', () => {
+        // Received RF and the 1 kHz audio at the detector after 15 ms, at
+        // 0.5 m and 1 m. At build time: RF 0.33 V and 0.041 V; 1 kHz 16 mV
+        // and 0.12 mV (the diode is square-law at the weaker signal).
+        const listen = (d) => {
+            const x = bench('lab-am-transmitter', (json) => { json.parts.find(p => p.kind === 'ferrite_coil' && p.params.linkTo).params.distanceM = d; });
+            x.run(15);
+            const tr = []; let rf = 0;
+            for (let k = 0; k < 400; k++) { x.run(0.01); tr.push([x.t, x.v('d', 'cathode')]); rf += x.rf('tcr', 'a'); }
+            return { rf: rf / 400, tone: amplitude(tr, 1000) };
+        };
+        const near = listen(0.5), far = listen(1);
+        assert.ok(near.tone > 5e-3, `at 0.5 m the 1 kHz audio is there: ${near.tone.toExponential(2)} V`);
+        near1(near.rf / far.rf, 8, 2, 'RF ratio 0.5 m : 1 m (near field ∝ 1/d³)');
+        assert.ok(near.tone > 30 * far.tone, `the audio falls faster than the RF: ${near.tone.toExponential(2)} vs ${far.tone.toExponential(2)} V`);
+    });
+
+    test('lab-superregen-fm: quench bursts grow from the station or from noise; the station quiets the hiss and brings its programme', () => {
+        // Over 3 ms after 4 ms: the RF in the tank every 10 µs, and the audio
+        // at the 10 nF after the 10 kΩ (detrended; one-bin DFTs). At build
+        // time: station on, bursts 0.108 -> 2.65 V, 1 kHz 9.5e-5 V against
+        // 3.0e-5 / 4.0e-5 V at 1.33 / 2 kHz; no station, bursts from
+        // 7e-8 V, 1.8e-4 / 3.2e-4 V of hiss.
+        const listen = (station) => {
+            const x = bench('lab-superregen-fm', station ? null : (json) => { json.parts.find(p => p.kind === 'antenna').params.stations = []; });
+            x.run(4);
+            const tr = []; let lo = 99, hi = 0;
+            for (let k = 1; k <= 300; k++) {
+                x.run(0.01);
+                tr.push([x.t, x.v('ca', 'a')]);
+                const a = x.rf('l', 'a'); lo = Math.min(lo, a); hi = Math.max(hi, a);
+            }
+            const n = tr.length, mt = tr.reduce((a, p) => a + p[0], 0) / n, mv = tr.reduce((a, p) => a + p[1], 0) / n;
+            const sl = tr.reduce((a, p) => a + (p[0] - mt) * (p[1] - mv), 0) / tr.reduce((a, p) => a + (p[0] - mt) ** 2, 0);
+            for (const p of tr) p[1] -= mv + sl * (p[0] - mt);
+            return { lo, hi, tone: amplitude(tr, 1000), hiss: (amplitude(tr, 4000 / 3) + amplitude(tr, 2000)) / 2 };
+        };
+        const on = listen(true), off = listen(false);
+        assert.ok(on.hi > 1.5 && off.hi > 1.5, `quench bursts reach volts: ${on.hi.toFixed(2)} / ${off.hi.toFixed(2)} V`);
+        assert.ok(on.lo > 0.03, `with the station each burst starts from its signal: ${on.lo.toFixed(4)} V`);
+        assert.ok(off.lo < 1e-4, `without it, from the noise: ${off.lo.toExponential(2)} V`);
+        assert.ok(off.hiss > 3 * on.hiss, `the station quiets the hiss: ${off.hiss.toExponential(2)} vs ${on.hiss.toExponential(2)} V`);
+        assert.ok(on.tone > 2 * on.hiss, `and its 1 kHz programme stands out: ${on.tone.toExponential(2)} vs ${on.hiss.toExponential(2)} V`);
     });
 });

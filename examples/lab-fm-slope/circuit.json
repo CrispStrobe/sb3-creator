@@ -179,8 +179,8 @@
       ]
     },
     {
-      "id": "air_coil_10",
-      "kind": "air_coil",
+      "id": "vhf_coil_10",
+      "kind": "vhf_coil",
       "params": {
         "henrys": 1.5e-7,
         "q": 80

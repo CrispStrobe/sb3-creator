@@ -10,7 +10,7 @@ Klick auf **Sim**. Dreh den kleinen Knopf über der Spule (den Winkel des Stabs,
 
 ## Was du sehen solltest
 
-- Das Messgerät steigt über seinen Ruhestrom, wenn der Stab den Sender empfängt, und fällt in einem scharfen Minimum auf den Ruhewert zurück.
+- Das Messgerät steigt von null an, wenn der Stab den Sender empfängt, und fällt in einem scharfen Minimum auf null zurück.
 - Mit der Abstimmung auf 0,4 (der 700-kHz-Sender) liegen die Minima bei 90° und 270°: Der Sender steht genau im Norden (0°).
 - Auf den 1000-kHz-Sender abgestimmt wandern die Minima nach 160° und 340°: Dieser Sender steht bei 70°.
 - Jedes Minimum ist scharf, jedes Maximum breit: Der Empfang folgt |cos(Winkel − Richtung)|.

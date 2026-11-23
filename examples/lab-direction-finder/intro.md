@@ -10,7 +10,7 @@ Click **Sim**. Turn the small dial above the coil (the rod's angle, 0–360°) s
 
 ## What you should see
 
-- The meter rises above its resting current when the rod receives the station and falls back to rest in a sharp null.
+- The meter rises from zero when the rod receives the station and falls back to zero in a sharp null.
 - With the tuning at 0.4 (the 700 kHz station) the nulls are at 90° and 270°: the station is due north (0°).
 - Tuned to the 1000 kHz station the nulls move to 160° and 340°: that station is at 70°.
 - Each null is sharp, each maximum broad: the pickup follows |cos(angle − bearing)|.
