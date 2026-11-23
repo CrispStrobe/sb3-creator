@@ -13,9 +13,9 @@ des Stroms. Er liegt daneben.
 
 ## Probier das aus
 
-1. Klick auf **Sim**. Die LED leuchtet mit **2,97 mA** — genau so viel, wie
+1. Klick auf **Sim**. Die LED leuchtet mit **3,25 mA** — genau so viel, wie
    dieser Widerstand mit dieser LED auch allein zustande brächte.
-2. Rechne nach: (5 V − 2,03 V) ÷ 1000 Ω = 2,97 mA. Der Kondensator trägt zu
+2. Rechne nach: (5 V − 1,75 V) ÷ 1000 Ω = 3,25 mA. Der Kondensator trägt zu
    dieser Rechnung nichts bei.
 3. Sieh dir die erste halbe Sekunde genau an. Die LED springt nicht an, sondern
    kommt über ein paar hundert Millisekunden hoch, während der Kondensator sich

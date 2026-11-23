@@ -12,7 +12,7 @@ output stages, each an NPN on top and a PNP below with joined emitters:
 - The class B output is flat at 0 V whenever the input is within about ±0.7 V of zero: neither transistor gets
   enough base voltage to conduct. That flat step at every zero crossing is crossover distortion.
 - At t = 1 ms the generator's output terminal is at 1.22 V (1.24 V less a little across its output resistance): the class B
-  output is only 0.55 V, the class AB output about 1.20 V.
+  output is only 0.55 V, the class AB output about 1.06 V.
 - Each class AB transistor carries a small idle current through the bias diodes, which is why there is no gap.
 
 ## What this verifies
@@ -23,5 +23,5 @@ output stages, each an NPN on top and a PNP below with joined emitters:
 # t = 1 ms: generator at 1.236 V behind its output resistance
 net function_gen_5.out V 1.22 +-0.02
 net resistor_8.a V 0.55 +-0.05
-net resistor_17.a V 1.20 +-0.05
+net resistor_17.a V 1.06 +-0.05
 ```

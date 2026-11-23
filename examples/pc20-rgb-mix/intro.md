@@ -15,7 +15,7 @@ you would see one whitish one.
 ## Try this
 
 1. Click **Sim**. All three light.
-2. Read the currents: red **8.8 mA**, green **8.8 mA**, blue **6.3 mA**. Red
+2. Read the currents: red **9.5 mA**, green **9.5 mA**, blue **6.8 mA**. Red
    and green agree to the last decimal, because they have identical resistors
    and identical branches.
 3. Turn the mix into a colour by removing channels. Set the red branch's
@@ -24,7 +24,7 @@ you would see one whitish one.
 4. Put red back and knock out blue instead: red + green is **yellow**. Knock
    out green: red + blue is **magenta**.
 5. Change the blue resistor from 470 to 330, so all three match. Every channel
-   is now at 8.8 mA.
+   is now at 9.5 mA.
 
 ## What is going on
 

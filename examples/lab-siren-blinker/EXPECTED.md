@@ -11,7 +11,7 @@ tone: 1 kΩ and 10 kΩ, 220 nF, output through 220 Ω into a piezo. The 555's co
 - Red lit (Q2 off): Q2's collector is high, the diode blocks, the control pin sits at its own 6.0 V and the
   555 sounds its plain tone of about 309 Hz (1.44 / ((1 kΩ + 2 · 10 kΩ) · 220 nF) = 312 Hz).
 - Green lit (Q2 on): Q2's collector is low, the diode conducts and, through the 5 kΩ of the half-turned
-  rheostat, pulls the control pin down to about 4.0 V.
+  rheostat, pulls the control pin down to about 3.9 V.
   The 555's thresholds drop with it, the capacitor has less far to charge and the pitch jumps to about 419 Hz.
 - So the two tones alternate in step with the two lamps: a two-tone siren with matching lights.
 - The rheostat sets how far apart the two tones are: less resistance pulls the control pin further down and

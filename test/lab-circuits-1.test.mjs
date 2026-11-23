@@ -185,9 +185,12 @@ describe('lab circuits (builder 1): behaviour over time', { skip: SKIP }, () => 
         near(Math.max(...am), 4.56, 0.05, 'AM peak (carrier + both side frequencies)');
         const w = env.slice(300);
         // Re-measured when the piezo became a real capacitor (it loads ENV
-        // through the coupling capacitor): 3.29/0.35 V before, 3.12/0.65 V now.
-        near(Math.max(...w), 3.12, 0.1, 'envelope maximum');
-        near(Math.min(...w), 0.65, 0.1, 'envelope minimum');
+        // through the coupling capacitor): 3.29/0.35 V before, 3.12/0.65 V
+        // after. Re-measured again on bw-board 0bc7baf, whose exponential
+        // diode keeps conducting into its low-current tail, so the detector
+        // holds higher: 3.224/0.754 V.
+        near(Math.max(...w), 3.22, 0.1, 'envelope maximum');
+        near(Math.min(...w), 0.75, 0.1, 'envelope minimum');
         let repeat = 0, half = 0;
         for (let i = 300; i + 200 < env.length; i++) repeat = Math.max(repeat, Math.abs(env[i] - env[i + 200]));
         for (let i = 300; i + 100 < env.length; i++) half = Math.max(half, Math.abs(env[i] - env[i + 100]));
@@ -202,14 +205,17 @@ describe('lab circuits (builder 1): behaviour over time', { skip: SKIP }, () => 
         b.at(10);
         dark(b, 'led.anode', 'quiet');
         b.set('clap', 1); b.wait(50); b.set('clap', 0);
-        near(b.V('chold.pos'), 2.17, 0.15, 'hold capacitor after one clap');
-        near(b.mA('led.anode'), 3.18, 0.3, 'LED after one clap');
-        b.wait(250); near(b.mA('led.anode'), 2.31, 0.3, 'LED 0.25 s after the clap');
-        b.wait(750); near(b.mA('led.anode'), 0.81, 0.2, 'LED 1 s after the clap');
+        // Re-measured on bw-board 0bc7baf: the exponential pump diodes keep
+        // conducting into their low-current tail, so the hold capacitor
+        // charges a little higher (2.17 -> 2.31 V after one clap).
+        near(b.V('chold.pos'), 2.31, 0.15, 'hold capacitor after one clap');
+        near(b.mA('led.anode'), 3.46, 0.3, 'LED after one clap');
+        b.wait(250); near(b.mA('led.anode'), 2.52, 0.3, 'LED 0.25 s after the clap');
+        b.wait(750); near(b.mA('led.anode'), 0.90, 0.2, 'LED 1 s after the clap');
         for (let k = 0; k < 4; k++) { b.set('clap', 1); b.wait(50); b.set('clap', 0); b.wait(150); }
-        near(b.V('chold.pos'), 2.92, 0.15, 'hold capacitor after applause');
-        near(b.mA('led.anode'), 4.76, 0.3, 'applause keeps the LED brighter than one clap');
-        b.wait(1500); near(b.mA('led.anode'), 0.61, 0.2, 'faded 1.5 s after the last clap');
+        near(b.V('chold.pos'), 3.09, 0.15, 'hold capacitor after applause');
+        near(b.mA('led.anode'), 5.12, 0.3, 'applause keeps the LED brighter than one clap');
+        b.wait(1500); near(b.mA('led.anode'), 0.67, 0.2, 'faded 1.5 s after the last clap');
     });
     test('lab-coin-toss: the coin freezes on the face it showed at release', () => {
         const b = bench('lab-coin-toss');

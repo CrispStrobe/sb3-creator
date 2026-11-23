@@ -8,8 +8,8 @@
 
 ## Observable behaviour
 - Idle: LED dark, piezo silent.
-- Press the button: the capacitor charges to about 4.3 V within a millisecond, the LED lights and the tone starts, about 570 Hz.
-- Release: the timer starts only now. The capacitor drains through 1 MΩ until it falls below gate 2's lower switching point; LED and tone stop about 0.9 s after release.
+- Press the button: the capacitor charges to about 4.7 V within a millisecond, the LED lights and the tone starts, about 570 Hz.
+- Release: the timer starts only now. The capacitor drains through 1 MΩ until it falls below gate 2's lower switching point; LED and tone stop about 0.97 s after release.
 - Holding the button longer keeps it on; the time is always counted from release. The diode stops gate 1 from emptying the capacitor when the button is let go.
 
 ```assert

@@ -77,7 +77,10 @@ describe('lab benches (set 6) behave as documented', { skip: SKIP }, () => {
         x.set('sw', 1); x.run(5);
         // MEASURED 2026-11-23 (bw-board e339fcb): x.mA('rt') < 0.01 -> observed 7.02e-4.
         assert.ok(x.mA('rt') < 0.01, `tester from A to B: ${x.mA('rt')} mA`);
-        near(x.state('vm').reading, 7.02, 0.1, 'the voltmeter across the A-B gap');
+        // Re-measured on bw-board 0bc7baf: the dark LED in series with the
+        // meter now follows the exponential junction law at the meter's
+        // sub-uA current and drops less (7.02 -> 7.47 V across the gap).
+        near(x.state('vm').reading, 7.47, 0.1, 'the voltmeter across the A-B gap');
         x.set('sw', 0); x.run(5);
 
         x.set('dump', 1);
@@ -299,7 +302,10 @@ describe('lab benches (set 6) behave as documented', { skip: SKIP }, () => {
         const tr = [];
         x.each(1300, 0.25, (t) => tr.push([t, x.mA('rl'), x.v('u', '4y')]));
         const lit = tr.filter(s => s[1] > 1);
-        near(lit.at(-1)[0] - released, 888, 60, 'LED time after release (ms)');
+        // Re-measured on bw-board 0bc7baf: the exponential charging diode drops
+        // less, the timing capacitor starts higher (4.69 V) and the beep lasts
+        // longer (888 -> 969.5 ms).
+        near(lit.at(-1)[0] - released, 970, 60, 'LED time after release (ms)');
         const during = tr.filter(s => s[0] < lit.at(-1)[0]).map(s => [s[0], s[2]]);
         near(hz(during, 2.5), 567, 30, 'beep pitch');
         const after = tr.filter(s => s[0] > lit.at(-1)[0] + 5).map(s => [s[0], s[2]]);

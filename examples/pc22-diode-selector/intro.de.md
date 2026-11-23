@@ -15,15 +15,15 @@ die beiden Versorgungen berühren einander nie direkt.
 ## Probier das aus
 
 1. Klick auf **Sim**. Die LED leuchtet, und am gemeinsamen Knoten stehen etwa
-   **4,29 V** — 5 V minus die 0,71 V einer Diode.
+   **4,43 V** — 5 V minus die 0,57 V einer Diode.
 2. Schalt **Quelle A** ab (auf 0 V) und lass es noch einmal laufen. Der
-   LED-Strom geht von 2,266 mA auf **2,255 mA**. Ein halbes Prozent. Das würdest
+   LED-Strom geht von 2,699 mA auf **2,668 mA**. Etwa ein Prozent. Das würdest
    du nie bemerken.
-3. Stell A zurück und schalt stattdessen **Quelle B** ab. Dasselbe: 2,255 mA.
+3. Stell A zurück und schalt stattdessen **Quelle B** ab. Dasselbe: 2,668 mA.
 4. Schalt **beide** ab. Jetzt steht der Knoten auf 0 V und der Strom auf 0 mA.
 5. Und jetzt der spannende Fall: Stell Quelle A auf **9 V** und lass B bei 5 V.
-   Der gemeinsame Knoten springt auf **8,24 V**. Schau nun die Diode von Quelle
-   B an — 5 V an der Anode, 8,24 V an der Kathode. Sie zeigt bergauf, also
+   Der gemeinsame Knoten springt auf **8,36 V**. Schau nun die Diode von Quelle
+   B an — 5 V an der Anode, 8,36 V an der Kathode. Sie zeigt bergauf, also
    sperrt sie.
 
 ## Was dahintersteckt
@@ -49,7 +49,7 @@ kein Schalter, keine Logik, keine beweglichen Teile — und keine Lücke beim
 Übergang, weil die zweite Diode in dem Moment zu leiten beginnt, in dem die
 erste Versorgung unter sie absackt.
 
-Die Rechnung sind diese 0,71 V. Jede Diode im Weg nimmt sich davon etwas, es
+Die Rechnung ist dieser Diodenabfall, hier 0,57 bis 0,64 V. Jede Diode im Weg nimmt sich davon etwas, es
 wird zu Wärme, und deshalb ersetzt man sie in echten Entwürfen manchmal durch
 Schottky-Dioden (rund 0,3 V) oder durch Transistoren, die dieselbe Aufgabe für
 fast nichts erledigen.

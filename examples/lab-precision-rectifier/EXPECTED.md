@@ -14,20 +14,20 @@ Voltmeters read the buffered input and both outputs.
 |---|---|---|---|---|
 | 0 % | −1.02 V | 0.00 V | 0.00 V | −9.0 V (saturated) |
 | 50 % | 0.00 V | 0.00 V | 0.00 V | |
-| 75 % (start) | +0.511 V | 0.00 V | 0.511 V | 1.20 V |
-| 100 % | +1.02 V | 0.34 V | 1.02 V | 1.71 V |
+| 75 % (start) | +0.511 V | 0.15 V | 0.511 V | 0.93 V |
+| 100 % | +1.02 V | 0.60 V | 1.02 V | 1.47 V |
 
-- **The plain diode has a dead zone.** Nothing gets through until the input passes about 0.68 V, and above that the output is always about 0.68 V short. A small signal disappears completely.
-- **The precision rectifier has none.** For every positive input its output equals the input to the millivolt. The op-amp simply raises its own output by one diode drop (0.511 V in, 1.20 V on the op-amp output) to make up for the diode.
+- **The plain diode has a dead zone.** Just above the middle of the knob almost nothing gets through, and further up the output stays 0.36–0.43 V short: at the start position only 0.15 V of the 0.511 V arrives. A small signal all but disappears.
+- **The precision rectifier has none.** For every positive input its output equals the input to the millivolt. The op-amp simply raises its own output by one diode drop (0.511 V in, 0.93 V on the op-amp output) to make up for the diode.
 - **Negative inputs are blocked by both.** The precision output stays at 0 V; the op-amp, with nothing it can do, runs into its negative rail.
 
 ## What this verifies
-1. A diode needs about 0.7 V before it conducts, so on its own it cannot rectify small signals.
+1. A diode needs a few tenths of a volt before it conducts noticeably, so on its own it cannot rectify small signals.
 2. Placing the diode inside an op-amp's feedback loop divides its error by the loop gain: the dead zone vanishes.
 
 ```assert
 # INPUT at 75 %
 net u1.2_out V 0.511 +-0.005
 net d_loop.cathode V 0.511 +-0.005
-net d_plain.cathode V 0.00 +-0.01
+net d_plain.cathode V 0.149 +-0.01
 ```

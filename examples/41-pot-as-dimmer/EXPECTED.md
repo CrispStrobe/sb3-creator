@@ -15,13 +15,14 @@ the wiper the divider is a 2.5 V source behind 5k || 5k = 2.5 kOhm, and the load
 hanging off it is 220 Ohm plus an LED. The source impedance dominates by an
 order of magnitude, so the unloaded midpoint is not what the node sits at:
 
-- **Wiper voltage:** 1.8485 V, not 2.5 V
-  I = (2.5 - 1.7911) / (2500 + 220) = 0.261 mA
-  V_wiper = 2.5 - 0.261 mA x 2500 = 1.8485 V
-- **LED forward drop:** 1.7911 V
-- **LED current:** 0.261 mA - not the 3.2 mA an unloaded 2.5 V wiper would give
+- **Wiper voltage:** 1.6836 V, not 2.5 V
+  I = (2.5 - 1.6118) / (2500 + 220) = 0.3265 mA
+  V_wiper = 2.5 - 0.3265 mA x 2500 = 1.6836 V
+- **LED forward drop:** 1.6118 V (a red LED rated 2.0 V at 20 mA drops much
+  less at a third of a milliamp)
+- **LED current:** 0.3265 mA - not the 3.2 mA an unloaded 2.5 V wiper would give
 
-That 12x difference is the lesson this bench actually teaches: a 10 kOhm pot is
+That tenfold difference is the lesson this bench actually teaches: a 10 kOhm pot is
 a stiff-looking divider that a 220 Ohm load collapses. Read as a dimmer it
 under-delivers; read as a demonstration of source impedance it is a good bench.
 
@@ -54,7 +55,7 @@ The 220 Ohm series resistor protects the LED at full rotation.
 
 ```assert
 # Pot at 50%, WITH the load: the wiper is not the unloaded midpoint.
-# 2.5 V behind 5k||5k = 2.5k, load 220R + LED -> I = 0.188 mA, wiper = 2.0301 V.
-net pot1.wiper V 1.85 +-0.05
-net led1.anode V 1.79 +-0.15
+# 2.5 V behind 5k||5k = 2.5k, load 220R + LED -> I = 0.3265 mA, wiper = 1.6836 V.
+net pot1.wiper V 1.68 +-0.05
+net led1.anode V 1.61 +-0.15
 ```

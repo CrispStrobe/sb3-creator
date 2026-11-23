@@ -13,12 +13,12 @@ two on the right point *towards* it. Nothing here is symmetric by accident.
 
 ## Try this
 
-1. Click **Sim**. The LED lights, at **5.44 mA**.
+1. Click **Sim**. The LED lights, at **5.92 mA**.
 2. Reverse the source — set `src`'s volts from `9` to `-9`.
-3. The LED lights, at **5.44 mA**. Exactly the same. That is the whole trick.
+3. The LED lights, at **5.92 mA**. Exactly the same. That is the whole trick.
 4. Now measure the source terminals in both cases. They swap completely:
-   +8.25 V and −0.75 V one way round, −0.75 V and +8.25 V the other.
-5. Measure the bridge output (`r1.a`) in both cases: **7.49 V**, unmoved.
+   +8.36 V and −0.64 V one way round, −0.64 V and +8.36 V the other.
+5. Measure the bridge output (`r1.a`) in both cases: **7.73 V**, unmoved.
 
 ## What is going on
 
@@ -40,7 +40,7 @@ cannot tell which pair delivered it. That is why a bridge is drawn as a diamond:
 both diagonals feed the same corner.
 
 The cost is in step 5. Every trip through the bridge crosses two diodes, and each
-one keeps about 0.75 V for itself, so the load gets 9 − 1.5 = 7.5 V. On a 9 V
+one keeps about 0.64 V for itself, so the load gets 9 − 1.27 = 7.73 V. On a 9 V
 supply that is annoying; on a 5 V one it hurts; on 230 V mains nobody notices.
 
 Give the source an alternating polarity instead of a switchable one and this

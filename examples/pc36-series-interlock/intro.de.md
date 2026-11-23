@@ -15,7 +15,7 @@ Alles hängt an einer einzigen Drahtschleife. Kein Chip, nichts zu programmieren
 1. Klick auf **Sim**. Beide Schalter sind offen, die LED ist aus.
 2. Schließ nur `sw1`. Immer noch aus.
 3. Schließ stattdessen nur `sw2`. Immer noch aus.
-4. Schließ beide. **Jetzt** leuchtet sie, mit 2,97 mA.
+4. Schließ beide. **Jetzt** leuchtet sie, mit 3,25 mA.
 5. Öffne bei beiden geschlossenen Schaltern irgendeinen davon. Sie geht sofort
    aus — egal, welchen du nimmst.
 

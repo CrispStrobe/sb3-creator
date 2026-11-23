@@ -9,19 +9,19 @@ single-package RGB LED (see the note at the end).
 
 | branch | LED anode | current | brightness |
 |---|---|---|---|
-| 330 Ω, red | 2.0882 V | **8.82 mA** | **0.4412** |
-| 330 Ω, green | 2.0882 V | **8.82 mA** | **0.4412** |
-| 470 Ω, blue | 2.0625 V | **6.25 mA** | **0.3125** |
+| 330 Ω, red | 1.8606 V | **9.51 mA** | **0.4757** |
+| 330 Ω, green | 1.8606 V | **9.51 mA** | **0.4757** |
+| 470 Ω, blue | 1.8173 V | **6.77 mA** | **0.3386** |
 
-Supply total: 23.9 mA. No DRC warnings.
+Supply total: 25.8 mA. No DRC warnings.
 
 Red and green are matched to the last decimal — identical resistor, identical
 LED model, and parallel branches that never interact. Blue is deliberately run
 about 30 % lower: it is the channel a real builder pulls back, because blue and
 white LEDs read as brighter to the eye at the same current.
 
-The ideal-drop estimate (5.0 − 2.0) / 330 = 9.1 mA is 3 % high; the LED's real
-drop at 9 mA is 2.088 V.
+The ideal-drop estimate (5.0 − 2.0) / 330 = 9.1 mA is 4 % low; the LED's
+2.0 V is its drop at the rated 20 mA, and at 9.5 mA it really sits at 1.861 V.
 
 ## Note — discrete vs. composite
 
@@ -40,7 +40,7 @@ net vsource_1.pos V 5.00 +-0.01
 > **Engine provenance.** The measured numbers on this page were last held against
 > `bw-board@0bc7baf` and `bw-circuit-ui@8404334` — the revisions pinned in
 > `test/fixtures/siblings.json`. `test/expected-quantities-hold.test.mjs` compares
-> **12 of this page's 19** numeric claims against that engine
-> (2 of them disagreeing) and declines the rest with a stated reason;
+> **12 of this page's 21** numeric claims against that engine
+> (0 of them disagreeing) and declines the rest with a stated reason;
 > `node scripts/expected-claim-census.mjs pc20-rgb-mix` prints them one by one.
 <!-- engine-provenance -->

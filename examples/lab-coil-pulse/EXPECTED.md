@@ -7,7 +7,7 @@
 
 ## Observable behaviour
 - Tester on the left: the green LED is lit, about 6.9 mA. A winding is just a piece of wire for steady current.
-- Tester on the right: the green LED is dark. There is no path from winding B to winding A; the voltmeter shows the gap holding about 7 V.
+- Tester on the right: the green LED is dark. There is no path from winding B to winding A; the voltmeter shows the gap holding about 7.5 V.
 - Press DUMP: the capacitor empties into winding A in a few milliseconds. The changing field induces a pulse of about 18 V in winding B, the diode catches it, and the red LED flashes at about 15 mA, then fades as the 10 µF drains into the base: about 6 mA one second after the press, about 2 mA after two.
 - Keep holding DUMP: nothing more happens. The steady current from the 1 kΩ through winding A induces nothing.
 - Release, wait a moment for the capacitor to recharge, press again: another flash.

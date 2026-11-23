@@ -38,8 +38,8 @@ authored 10 nF (`test/lab-circuits-1.test.mjs` repeats this):
 | quantity | value |
 |---|---|
 | AM signal peak | 4.56 V |
-| envelope maximum on ENV (at a carrier crest) | 3.12 V |
-| envelope minimum on ENV | 0.65 V |
+| envelope maximum on ENV (at a carrier crest) | 3.22 V |
+| envelope minimum on ENV | 0.75 V |
 | difference between ENV and ENV 2 ms later | below 0.02 V |
 | envelope period | 2 ms (500 Hz) |
 

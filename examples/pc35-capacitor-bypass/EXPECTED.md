@@ -10,11 +10,11 @@ Measured on the engine (board vcc 5, `--at 1 … 3000`):
 |---|---|---|
 | 1 ms | 0.0106 V | 0.00 mA |
 | 100 ms | 0.9578 V | 0.00 mA |
-| 300 ms | 2.0297 V | 2.97 mA |
-| 1 s … 3 s | 2.0297 V | 2.97 mA |
+| 300 ms | 1.7480 V | 3.25 mA |
+| 1 s … 3 s | 1.7480 V | 3.25 mA |
 
-Steady state is the plain resistor-and-LED answer — (5 − 2.03) V / 1 kΩ =
-**2.97 mA** — exactly as it would be with no capacitor at all, which is the
+Steady state is the plain resistor-and-LED answer — (5 − 1.748) V / 1 kΩ =
+**3.25 mA** — exactly as it would be with no capacitor at all, which is the
 point: a bypass capacitor is invisible until something changes.
 
 What it *does* change is the edges. The rise takes a few hundred milliseconds
@@ -28,7 +28,7 @@ digital circuits misbehave.
 > rather than leaving it to discharge. See `examples/AUDIT/pc25-pc36.md`.
 
 ```assert
-# Bypass cap: steady state = plain R+LED, (5-2.03)/1k = 2.97mA
+# Bypass cap: steady state = plain R+LED, (5-1.748)/1k = 3.25mA
 net src.pos V 5.00 +-0.01
 ```
 
@@ -37,6 +37,6 @@ net src.pos V 5.00 +-0.01
 > `bw-board@0bc7baf` and `bw-circuit-ui@8404334` — the revisions pinned in
 > `test/fixtures/siblings.json`. `test/expected-quantities-hold.test.mjs` compares
 > **8 of this page's 18** numeric claims against that engine
-> (2 of them disagreeing) and declines the rest with a stated reason;
+> (0 of them disagreeing) and declines the rest with a stated reason;
 > `node scripts/expected-claim-census.mjs pc35-capacitor-bypass` prints them one by one.
 <!-- engine-provenance -->

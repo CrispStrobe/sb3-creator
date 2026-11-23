@@ -11,8 +11,8 @@ No MCU -- demonstrates diode polarity.
 ## Observable behaviour
 
 ### Path 1 -- diode forward-biased
-- Diode conducts (Vf = 0.7 V drop)
-- **LED current:** (5.0 - 0.7 - 2.0) / 470 = 4.9 mA
+- Diode conducts (0.633 V drop at this current; the green LED drops 1.794 V)
+- **LED current:** (5.0 - 0.633 - 1.794) / 470 = 5.47 mA
 - **Green LED:** ON
 
 ### Path 2 -- diode reverse-biased
@@ -27,6 +27,6 @@ No MCU -- demonstrates diode polarity.
 3. Forward-biased diode drops ~0.7 V (silicon)
 
 ```assert
-# Forward diode: cathode at ~4.25V (5V - Vf)
-net d1.cathode V 4.25 +-0.20
+# Forward diode: cathode at 4.37 V (5 V less the diode's 0.633 V)
+net d1.cathode V 4.37 +-0.20
 ```

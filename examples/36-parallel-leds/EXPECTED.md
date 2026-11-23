@@ -10,10 +10,10 @@ No MCU -- pure passive circuit, both LEDs always on.
 
 ## Observable behaviour
 
-- **Current per branch:** (5.0 - 2.0) / 1000 = 3.0 mA each
-- **Total current from VCC:** 3.0 + 3.0 = 6.0 mA
-- **Voltage across each resistor:** 3.0 V
-- **Voltage across each LED:** 2.0 V
+- **Current per branch:** (5.0 - 1.748) / 1000 = 3.25 mA each
+- **Total current from VCC:** 3.25 + 3.25 = 6.50 mA
+- **Voltage across each resistor:** 3.25 V
+- **Voltage across each LED:** 1.748 V (rated 2.0 V at 20 mA; lower at 3 mA)
 - **LED states:** both always ON, equal brightness
 
 ## What this verifies
@@ -23,6 +23,6 @@ No MCU -- pure passive circuit, both LEDs always on.
 3. Each LED has its own current-limiting resistor (correct practice)
 
 ```assert
-# Equal parallel branches: both LEDs at Shockley Vf ≈ 2.03V
-net led1.anode V 1.83 +-0.15
+# Equal parallel branches: both LEDs at their Shockley drop for 3.25 mA, 1.75 V
+net led1.anode V 1.75 +-0.15
 ```

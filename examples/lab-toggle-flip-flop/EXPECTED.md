@@ -28,6 +28,6 @@ to Q1's base.
 # power-on state at t = 1 ms: Q2 conducts (green), Q1 off
 net vsource_2.pos V 9.00 +-0.01
 net npn_4.collector V 0.09 +-0.05
-net npn_3.collector V 7.01 +-0.10
+net npn_3.collector V 7.18 +-0.10
 net npn_4.base V 0.69 +-0.05
 ```
