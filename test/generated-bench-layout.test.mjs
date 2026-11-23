@@ -182,3 +182,55 @@ test('every device variant\'s component bodies are disjoint, seated or not',
   assert.ok(checked > 900, `only ${checked} device variants checked (expected ~1135)`);
   assert.deepEqual(failures, []);
 });
+
+// A seated potentiometer is drawn with a knob control that reaches well beyond
+// its hit-test body: a box 60·scale wide centred on pot.x, rising 60·scale above
+// its `a` terminal, scale = min(|b.x − a.x| / 40, 1.4). Neither body gate above
+// sees that box, so a knob could hide a neighbouring part in the rendered bench
+// (lab-airflow-sensor, lab-beats, lab-heat-alarm, lab-siren-blinker, 2026-11-23,
+// found by Lite's corpus gate). Mirrors Lite's "potentiometer controls do not
+// cover neighbouring parts in any shipped bench", over authored and generated
+// benches alike.
+test('potentiometer knobs do not cover neighbouring parts in any bench',
+  { skip: layoutGate.skip }, async () => {
+  const root = path.resolve(import.meta.dirname, '..');
+  const cui = process.env.BW_CIRCUIT_UI || path.join(root, '..', 'bw-circuit-ui');
+  const {registerSidecar} = await import(path.join(cui, 'src/model/parts-registry.js'));
+  for (const file of fs.readdirSync(path.join(cui, 'src/parts-data'))) {
+    if (!file.endsWith('.json')) continue;
+    try {
+      const sidecar = JSON.parse(fs.readFileSync(path.join(cui, 'src/parts-data', file), 'utf8'));
+      if (sidecar.kind) registerSidecar(sidecar);
+    } catch { /* malformed sidecars have their own source-repo gate */ }
+  }
+  const {resolveSeatedParts} = await import(path.join(cui, 'src/interaction/seat-geometry.js'));
+  const {partBounds} = await import(path.join(cui, 'src/interaction/hittest.js'));
+  const structural = new Set(['breadboard', 'vcc', 'gnd']);
+  const failures = [];
+  let pots = 0;
+  for (const file of benchFiles()) {
+    const data = JSON.parse(fs.readFileSync(file, 'utf8'));
+    const parts = resolveSeatedParts(data.parts || []);
+    for (const pot of parts.filter(part => part.kind === 'potentiometer')) {
+      pots++;
+      let knob = partBounds(pot);
+      const a = pot._seatTerminals?.a;
+      const b = pot._seatTerminals?.b;
+      if (pot.seat && a && b) {
+        const scale = Math.min(Math.abs(b.x - a.x) / 40, 1.4);
+        knob = {minX: pot.x - 30 * scale, maxX: pot.x + 30 * scale, minY: a.y - 60 * scale, maxY: a.y};
+      }
+      for (const neighbour of parts) {
+        if (neighbour === pot || structural.has(neighbour.kind)) continue;
+        const other = partBounds(neighbour);
+        const overlapX = Math.min(knob.maxX, other.maxX) - Math.max(knob.minX, other.minX);
+        const overlapY = Math.min(knob.maxY, other.maxY) - Math.max(knob.minY, other.minY);
+        if (overlapX > 1 && overlapY > 1) {
+          failures.push(`${file}: ${pot.id} covers ${neighbour.id} by ${overlapX.toFixed(1)}x${overlapY.toFixed(1)}`);
+        }
+      }
+    }
+  }
+  assert.ok(pots > 50, `only ${pots} potentiometers checked — the bench list or kind filter is stale`);
+  assert.deepEqual(failures, []);
+});
