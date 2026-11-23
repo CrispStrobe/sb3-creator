@@ -10828,5 +10828,221 @@
    "introDE": "lab-radio-whistle/intro.de.md"
   },
   "devices": []
+ },
+ {
+  "id": "lab-light-guide",
+  "title": {
+   "en": "Light guide: bends, cuts, colours",
+   "de": "Lichtleiter: Biegungen, Schnitte, Farben"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 2,
+  "files": {
+   "program": "lab-light-guide/program.bw",
+   "circuit": "lab-light-guide/circuit.json",
+   "expected": "lab-light-guide/EXPECTED.md",
+   "intro": "lab-light-guide/intro.md",
+   "introDE": "lab-light-guide/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-fibre-tone",
+  "title": {
+   "en": "Light guide sets the pitch",
+   "de": "Lichtleiter stellt die Tonhöhe ein"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 2,
+  "files": {
+   "program": "lab-fibre-tone/program.bw",
+   "circuit": "lab-fibre-tone/circuit.json",
+   "expected": "lab-fibre-tone/EXPECTED.md",
+   "intro": "lab-fibre-tone/intro.md",
+   "introDE": "lab-fibre-tone/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-fibre-audio",
+  "title": {
+   "en": "A tone sent through a light guide",
+   "de": "Ein Ton durch den Lichtleiter"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-fibre-audio/program.bw",
+   "circuit": "lab-fibre-audio/circuit.json",
+   "expected": "lab-fibre-audio/EXPECTED.md",
+   "intro": "lab-fibre-audio/intro.md",
+   "introDE": "lab-fibre-audio/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-fibre-fm",
+  "title": {
+   "en": "FM over a light guide (100 kHz)",
+   "de": "FM über den Lichtleiter (100 kHz)"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 4,
+  "files": {
+   "program": "lab-fibre-fm/program.bw",
+   "circuit": "lab-fibre-fm/circuit.json",
+   "expected": "lab-fibre-fm/EXPECTED.md",
+   "intro": "lab-fibre-fm/intro.md",
+   "introDE": "lab-fibre-fm/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-fibre-gap-gauge",
+  "title": {
+   "en": "Measuring hundredths of a millimetre with light",
+   "de": "Hundertstel Millimeter mit Licht messen"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-fibre-gap-gauge/program.bw",
+   "circuit": "lab-fibre-gap-gauge/circuit.json",
+   "expected": "lab-fibre-gap-gauge/EXPECTED.md",
+   "intro": "lab-fibre-gap-gauge/intro.md",
+   "introDE": "lab-fibre-gap-gauge/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-optical-bench",
+  "title": {
+   "en": "Optical bench: the inverse-square law",
+   "de": "Optische Bank: das Abstandsquadratgesetz"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 2,
+  "files": {
+   "program": "lab-optical-bench/program.bw",
+   "circuit": "lab-optical-bench/circuit.json",
+   "expected": "lab-optical-bench/EXPECTED.md",
+   "intro": "lab-optical-bench/intro.md",
+   "introDE": "lab-optical-bench/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-led-heat-light",
+  "title": {
+   "en": "Heat dims an LED, and sharpens a sensor",
+   "de": "Wärme dimmt die LED und schärft den Sensor"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-led-heat-light/program.bw",
+   "circuit": "lab-led-heat-light/circuit.json",
+   "expected": "lab-led-heat-light/EXPECTED.md",
+   "intro": "lab-led-heat-light/intro.md",
+   "introDE": "lab-led-heat-light/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-light-guitar",
+  "title": {
+   "en": "A guitar string played by light",
+   "de": "Eine Gitarrensaite, mit Licht gespielt"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 2,
+  "files": {
+   "program": "lab-light-guitar/program.bw",
+   "circuit": "lab-light-guitar/circuit.json",
+   "expected": "lab-light-guitar/EXPECTED.md",
+   "intro": "lab-light-guitar/intro.md",
+   "introDE": "lab-light-guitar/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-colour-sensor",
+  "title": {
+   "en": "Telling red from green with red light",
+   "de": "Rot und Grün mit rotem Licht unterscheiden"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 2,
+  "files": {
+   "program": "lab-colour-sensor/program.bw",
+   "circuit": "lab-colour-sensor/circuit.json",
+   "expected": "lab-colour-sensor/EXPECTED.md",
+   "intro": "lab-colour-sensor/intro.md",
+   "introDE": "lab-colour-sensor/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-lens-focus",
+  "title": {
+   "en": "A lens on the bench: finding the image",
+   "de": "Eine Linse auf der Bank: das Bild finden"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-lens-focus/program.bw",
+   "circuit": "lab-lens-focus/circuit.json",
+   "expected": "lab-lens-focus/EXPECTED.md",
+   "intro": "lab-lens-focus/intro.md",
+   "introDE": "lab-lens-focus/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-liquid-level",
+  "title": {
+   "en": "A light beam that knows when the glass is full",
+   "de": "Ein Lichtstrahl, der weiß, wann das Glas voll ist"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 2,
+  "files": {
+   "program": "lab-liquid-level/program.bw",
+   "circuit": "lab-liquid-level/circuit.json",
+   "expected": "lab-liquid-level/EXPECTED.md",
+   "intro": "lab-liquid-level/intro.md",
+   "introDE": "lab-liquid-level/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-prism-spectrum",
+  "title": {
+   "en": "Prism and slit: colours of LEDs and a laser",
+   "de": "Prisma und Spalt: die Farben von LEDs und Laser"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-prism-spectrum/program.bw",
+   "circuit": "lab-prism-spectrum/circuit.json",
+   "expected": "lab-prism-spectrum/EXPECTED.md",
+   "intro": "lab-prism-spectrum/intro.md",
+   "introDE": "lab-prism-spectrum/intro.de.md"
+  },
+  "devices": []
  }
 ]
