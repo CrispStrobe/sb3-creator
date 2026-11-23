@@ -1,0 +1,402 @@
+{
+  "vcc": 5,
+  "parts": [
+    {
+      "id": "vcc1",
+      "kind": "vcc",
+      "params": {},
+      "x": 80,
+      "y": 70,
+      "rotation": 0
+    },
+    {
+      "id": "gnd1",
+      "kind": "gnd",
+      "params": {},
+      "x": 80,
+      "y": 640,
+      "rotation": 0
+    },
+    {
+      "id": "reed_a",
+      "kind": "reed_switch",
+      "params": {
+        "magnet": false
+      },
+      "x": 190,
+      "y": 260,
+      "rotation": 0,
+      "label": "Contact A (train coming)"
+    },
+    {
+      "id": "reed_b",
+      "kind": "reed_switch",
+      "params": {
+        "magnet": false
+      },
+      "x": 190,
+      "y": 450,
+      "rotation": 0,
+      "label": "Contact B (train gone)"
+    },
+    {
+      "id": "r_s",
+      "kind": "resistor",
+      "params": {
+        "ohms": 10000
+      },
+      "x": 190,
+      "y": 165,
+      "rotation": 0,
+      "label": "R1 10k"
+    },
+    {
+      "id": "r_r",
+      "kind": "resistor",
+      "params": {
+        "ohms": 10000
+      },
+      "x": 300,
+      "y": 165,
+      "rotation": 0,
+      "label": "R2 10k"
+    },
+    {
+      "id": "c_por",
+      "kind": "polarized_cap",
+      "params": {
+        "farads": 0.00001
+      },
+      "x": 300,
+      "y": 545,
+      "rotation": 0,
+      "label": "C1 power-on reset"
+    },
+    {
+      "id": "u1",
+      "kind": "74hc00",
+      "params": {},
+      "x": 410,
+      "y": 355,
+      "rotation": 0,
+      "label": "U1 NAND latch"
+    },
+    {
+      "id": "r_a",
+      "kind": "resistor",
+      "params": {
+        "ohms": 10000
+      },
+      "x": 520,
+      "y": 165,
+      "rotation": 0,
+      "label": "R3 10k"
+    },
+    {
+      "id": "r_b",
+      "kind": "resistor",
+      "params": {
+        "ohms": 47000
+      },
+      "x": 520,
+      "y": 260,
+      "rotation": 0,
+      "label": "R4 47k"
+    },
+    {
+      "id": "c_t",
+      "kind": "polarized_cap",
+      "params": {
+        "farads": 0.00001
+      },
+      "x": 520,
+      "y": 545,
+      "rotation": 0,
+      "label": "C2 10u"
+    },
+    {
+      "id": "u2",
+      "kind": "timer_555",
+      "params": {},
+      "x": 630,
+      "y": 355,
+      "rotation": 0,
+      "label": "U2 555 flasher"
+    },
+    {
+      "id": "c_ctl",
+      "kind": "capacitor",
+      "params": {
+        "farads": 1e-8
+      },
+      "x": 630,
+      "y": 545,
+      "rotation": 0,
+      "label": "C3 10n"
+    },
+    {
+      "id": "r_l1",
+      "kind": "resistor",
+      "params": {
+        "ohms": 330
+      },
+      "x": 740,
+      "y": 260,
+      "rotation": 0,
+      "label": "R5"
+    },
+    {
+      "id": "lamp_1",
+      "kind": "led",
+      "params": {
+        "vf": 2,
+        "color": "red"
+      },
+      "x": 850,
+      "y": 260,
+      "rotation": 0,
+      "label": "Lamp left"
+    },
+    {
+      "id": "r_l2",
+      "kind": "resistor",
+      "params": {
+        "ohms": 330
+      },
+      "x": 740,
+      "y": 450,
+      "rotation": 0,
+      "label": "R6"
+    },
+    {
+      "id": "lamp_2",
+      "kind": "led",
+      "params": {
+        "vf": 2,
+        "color": "red"
+      },
+      "x": 850,
+      "y": 450,
+      "rotation": 0,
+      "label": "Lamp right"
+    }
+  ],
+  "wires": [
+    {
+      "from": "vcc1",
+      "fromTerminal": "vcc",
+      "to": "r_s",
+      "toTerminal": "a"
+    },
+    {
+      "from": "r_s",
+      "fromTerminal": "a",
+      "to": "r_r",
+      "toTerminal": "a"
+    },
+    {
+      "from": "r_r",
+      "fromTerminal": "a",
+      "to": "u1",
+      "toTerminal": "vcc"
+    },
+    {
+      "from": "u1",
+      "fromTerminal": "vcc",
+      "to": "r_a",
+      "toTerminal": "a"
+    },
+    {
+      "from": "r_a",
+      "fromTerminal": "a",
+      "to": "u2",
+      "toTerminal": "vcc"
+    },
+    {
+      "from": "r_s",
+      "fromTerminal": "b",
+      "to": "reed_a",
+      "toTerminal": "a"
+    },
+    {
+      "from": "reed_a",
+      "fromTerminal": "a",
+      "to": "u1",
+      "toTerminal": "1a"
+    },
+    {
+      "from": "r_r",
+      "fromTerminal": "b",
+      "to": "reed_b",
+      "toTerminal": "a"
+    },
+    {
+      "from": "reed_b",
+      "fromTerminal": "a",
+      "to": "c_por",
+      "toTerminal": "pos"
+    },
+    {
+      "from": "c_por",
+      "fromTerminal": "pos",
+      "to": "u1",
+      "toTerminal": "2b"
+    },
+    {
+      "from": "u1",
+      "fromTerminal": "1y",
+      "to": "u1",
+      "toTerminal": "2a"
+    },
+    {
+      "from": "u1",
+      "fromTerminal": "2a",
+      "to": "u2",
+      "toTerminal": "reset"
+    },
+    {
+      "from": "u2",
+      "fromTerminal": "reset",
+      "to": "r_l2",
+      "toTerminal": "a"
+    },
+    {
+      "from": "u1",
+      "fromTerminal": "2y",
+      "to": "u1",
+      "toTerminal": "1b"
+    },
+    {
+      "from": "r_a",
+      "fromTerminal": "b",
+      "to": "u2",
+      "toTerminal": "discharge"
+    },
+    {
+      "from": "u2",
+      "fromTerminal": "discharge",
+      "to": "r_b",
+      "toTerminal": "a"
+    },
+    {
+      "from": "r_b",
+      "fromTerminal": "b",
+      "to": "u2",
+      "toTerminal": "threshold"
+    },
+    {
+      "from": "u2",
+      "fromTerminal": "threshold",
+      "to": "u2",
+      "toTerminal": "trigger"
+    },
+    {
+      "from": "u2",
+      "fromTerminal": "trigger",
+      "to": "c_t",
+      "toTerminal": "pos"
+    },
+    {
+      "from": "u2",
+      "fromTerminal": "control",
+      "to": "c_ctl",
+      "toTerminal": "a"
+    },
+    {
+      "from": "u2",
+      "fromTerminal": "output",
+      "to": "r_l1",
+      "toTerminal": "a"
+    },
+    {
+      "from": "r_l1",
+      "fromTerminal": "a",
+      "to": "lamp_2",
+      "toTerminal": "cathode"
+    },
+    {
+      "from": "r_l1",
+      "fromTerminal": "b",
+      "to": "lamp_1",
+      "toTerminal": "anode"
+    },
+    {
+      "from": "r_l2",
+      "fromTerminal": "b",
+      "to": "lamp_2",
+      "toTerminal": "anode"
+    },
+    {
+      "from": "gnd1",
+      "fromTerminal": "gnd",
+      "to": "reed_a",
+      "toTerminal": "b"
+    },
+    {
+      "from": "reed_a",
+      "fromTerminal": "b",
+      "to": "reed_b",
+      "toTerminal": "b"
+    },
+    {
+      "from": "reed_b",
+      "fromTerminal": "b",
+      "to": "c_por",
+      "toTerminal": "neg"
+    },
+    {
+      "from": "c_por",
+      "fromTerminal": "neg",
+      "to": "u1",
+      "toTerminal": "gnd"
+    },
+    {
+      "from": "u1",
+      "fromTerminal": "gnd",
+      "to": "u1",
+      "toTerminal": "3a"
+    },
+    {
+      "from": "u1",
+      "fromTerminal": "3a",
+      "to": "u1",
+      "toTerminal": "3b"
+    },
+    {
+      "from": "u1",
+      "fromTerminal": "3b",
+      "to": "u1",
+      "toTerminal": "4a"
+    },
+    {
+      "from": "u1",
+      "fromTerminal": "4a",
+      "to": "u1",
+      "toTerminal": "4b"
+    },
+    {
+      "from": "u1",
+      "fromTerminal": "4b",
+      "to": "c_t",
+      "toTerminal": "neg"
+    },
+    {
+      "from": "c_t",
+      "fromTerminal": "neg",
+      "to": "c_ctl",
+      "toTerminal": "b"
+    },
+    {
+      "from": "c_ctl",
+      "fromTerminal": "b",
+      "to": "u2",
+      "toTerminal": "gnd"
+    },
+    {
+      "from": "u2",
+      "fromTerminal": "gnd",
+      "to": "lamp_1",
+      "toTerminal": "cathode"
+    }
+  ]
+}

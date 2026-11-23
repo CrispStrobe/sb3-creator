@@ -1,0 +1,437 @@
+{
+ "vcc": 9,
+ "parts": [
+  {
+   "id": "bb1",
+   "kind": "breadboard",
+   "params": {},
+   "terminals": [],
+   "x": 470,
+   "y": 300,
+   "rotation": 0
+  },
+  {
+   "id": "vcc",
+   "kind": "vcc",
+   "params": {},
+   "x": 43,
+   "y": 255,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "vcc": "a1"
+    }
+   }
+  },
+  {
+   "id": "gnd",
+   "kind": "gnd",
+   "params": {},
+   "x": 43,
+   "y": 345,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "gnd": "j1"
+    }
+   }
+  },
+  {
+   "id": "timer",
+   "kind": "timer_555",
+   "params": {},
+   "x": 60,
+   "y": 60
+  },
+  {
+   "id": "r1",
+   "kind": "resistor",
+   "params": {
+    "ohms": 1000
+   },
+   "label": "R1",
+   "x": 71,
+   "y": 255,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a3",
+     "b": "a7"
+    }
+   }
+  },
+  {
+   "id": "r2",
+   "kind": "resistor",
+   "params": {
+    "ohms": 6800
+   },
+   "label": "R2",
+   "x": 71,
+   "y": 345,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "j3",
+     "b": "j7"
+    }
+   }
+  },
+  {
+   "id": "c_t",
+   "kind": "capacitor",
+   "params": {
+    "farads": 1e-7
+   },
+   "label": "C 100 nF",
+   "x": 155,
+   "y": 255,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a9",
+     "b": "a10"
+    }
+   }
+  },
+  {
+   "id": "c_ctl",
+   "kind": "capacitor",
+   "params": {
+    "farads": 1e-8
+   },
+   "x": 155,
+   "y": 345,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "j9",
+     "b": "j10"
+    }
+   }
+  },
+  {
+   "id": "r_tx",
+   "kind": "resistor",
+   "params": {
+    "ohms": 330
+   },
+   "label": "R_tx",
+   "x": 197,
+   "y": 255,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a12",
+     "b": "a16"
+    }
+   }
+  },
+  {
+   "id": "steady_btn",
+   "kind": "button",
+   "params": {},
+   "label": "STEADY LIGHT",
+   "x": 281,
+   "y": 311,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "e18",
+     "b": "f18"
+    }
+   }
+  },
+  {
+   "id": "r_steady",
+   "kind": "resistor",
+   "params": {
+    "ohms": 330
+   },
+   "label": "R_steady",
+   "x": 309,
+   "y": 255,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a20",
+     "b": "a24"
+    }
+   }
+  },
+  {
+   "id": "link",
+   "kind": "optocoupler",
+   "params": {},
+   "label": "light path: emitter and receiver",
+   "x": 150,
+   "y": 60
+  },
+  {
+   "id": "block_btn",
+   "kind": "button",
+   "params": {},
+   "label": "HAND IN BEAM",
+   "x": 393,
+   "y": 311,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "e26",
+     "b": "f26"
+    }
+   }
+  },
+  {
+   "id": "r_rx",
+   "kind": "resistor",
+   "params": {
+    "ohms": 1000
+   },
+   "label": "R_rx",
+   "x": 421,
+   "y": 255,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a28",
+     "b": "a32"
+    }
+   }
+  },
+  {
+   "id": "led_rx",
+   "kind": "led",
+   "params": {
+    "color": "green",
+    "vf": 2
+   },
+   "x": 421,
+   "y": 345,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "anode": "j28",
+     "cathode": "j29"
+    }
+   }
+  },
+  {
+   "id": "c_couple",
+   "kind": "capacitor",
+   "params": {
+    "farads": 1e-7
+   },
+   "label": "C_couple 100 nF",
+   "x": 463,
+   "y": 345,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "j31",
+     "b": "j32"
+    }
+   }
+  },
+  {
+   "id": "r_spk",
+   "kind": "resistor",
+   "params": {
+    "ohms": 10000
+   },
+   "label": "R_spk",
+   "x": 505,
+   "y": 255,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a34",
+     "b": "a38"
+    }
+   }
+  },
+  {
+   "id": "speaker",
+   "kind": "piezo",
+   "params": {},
+   "x": 240,
+   "y": 60
+  }
+ ],
+ "wires": [
+  {
+   "from": "vcc",
+   "fromTerminal": "vcc",
+   "to": "timer",
+   "toTerminal": "vcc"
+  },
+  {
+   "from": "timer",
+   "fromTerminal": "vcc",
+   "to": "timer",
+   "toTerminal": "reset"
+  },
+  {
+   "from": "timer",
+   "fromTerminal": "reset",
+   "to": "r1",
+   "toTerminal": "a"
+  },
+  {
+   "from": "r1",
+   "fromTerminal": "a",
+   "to": "steady_btn",
+   "toTerminal": "a"
+  },
+  {
+   "from": "steady_btn",
+   "fromTerminal": "a",
+   "to": "r_rx",
+   "toTerminal": "a"
+  },
+  {
+   "from": "gnd",
+   "fromTerminal": "gnd",
+   "to": "timer",
+   "toTerminal": "gnd"
+  },
+  {
+   "from": "timer",
+   "fromTerminal": "gnd",
+   "to": "c_t",
+   "toTerminal": "b"
+  },
+  {
+   "from": "c_t",
+   "fromTerminal": "b",
+   "to": "c_ctl",
+   "toTerminal": "b"
+  },
+  {
+   "from": "c_ctl",
+   "fromTerminal": "b",
+   "to": "link",
+   "toTerminal": "cathode"
+  },
+  {
+   "from": "link",
+   "fromTerminal": "cathode",
+   "to": "block_btn",
+   "toTerminal": "b"
+  },
+  {
+   "from": "block_btn",
+   "fromTerminal": "b",
+   "to": "link",
+   "toTerminal": "emitter"
+  },
+  {
+   "from": "link",
+   "fromTerminal": "emitter",
+   "to": "r_spk",
+   "toTerminal": "b"
+  },
+  {
+   "from": "r_spk",
+   "fromTerminal": "b",
+   "to": "speaker",
+   "toTerminal": "b"
+  },
+  {
+   "from": "r1",
+   "fromTerminal": "b",
+   "to": "timer",
+   "toTerminal": "discharge"
+  },
+  {
+   "from": "timer",
+   "fromTerminal": "discharge",
+   "to": "r2",
+   "toTerminal": "a"
+  },
+  {
+   "from": "r2",
+   "fromTerminal": "b",
+   "to": "timer",
+   "toTerminal": "threshold"
+  },
+  {
+   "from": "timer",
+   "fromTerminal": "threshold",
+   "to": "timer",
+   "toTerminal": "trigger"
+  },
+  {
+   "from": "timer",
+   "fromTerminal": "trigger",
+   "to": "c_t",
+   "toTerminal": "a"
+  },
+  {
+   "from": "timer",
+   "fromTerminal": "control",
+   "to": "c_ctl",
+   "toTerminal": "a"
+  },
+  {
+   "from": "timer",
+   "fromTerminal": "output",
+   "to": "r_tx",
+   "toTerminal": "a"
+  },
+  {
+   "from": "steady_btn",
+   "fromTerminal": "b",
+   "to": "r_steady",
+   "toTerminal": "a"
+  },
+  {
+   "from": "r_tx",
+   "fromTerminal": "b",
+   "to": "r_steady",
+   "toTerminal": "b"
+  },
+  {
+   "from": "r_steady",
+   "fromTerminal": "b",
+   "to": "link",
+   "toTerminal": "anode"
+  },
+  {
+   "from": "link",
+   "fromTerminal": "anode",
+   "to": "block_btn",
+   "toTerminal": "a"
+  },
+  {
+   "from": "r_rx",
+   "fromTerminal": "b",
+   "to": "led_rx",
+   "toTerminal": "anode"
+  },
+  {
+   "from": "led_rx",
+   "fromTerminal": "cathode",
+   "to": "link",
+   "toTerminal": "collector"
+  },
+  {
+   "from": "link",
+   "fromTerminal": "collector",
+   "to": "c_couple",
+   "toTerminal": "a"
+  },
+  {
+   "from": "c_couple",
+   "fromTerminal": "b",
+   "to": "r_spk",
+   "toTerminal": "a"
+  },
+  {
+   "from": "r_spk",
+   "fromTerminal": "a",
+   "to": "speaker",
+   "toTerminal": "a"
+  }
+ ]
+}

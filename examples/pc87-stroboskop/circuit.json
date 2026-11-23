@@ -73,7 +73,7 @@
       "id": "capacitor_12",
       "kind": "capacitor",
       "params": {
-        "farads": 0.000001
+        "farads": 1e-06
       },
       "terminals": [
         "a",
@@ -111,6 +111,20 @@
       "x": 350,
       "y": 300,
       "rotation": 0
+    },
+    {
+      "id": "capacitor_29",
+      "kind": "capacitor",
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 120,
+      "y": 320,
+      "rotation": 0,
+      "params": {
+        "farads": 1e-08
+      }
     }
   ],
   "wires": [
@@ -147,18 +161,6 @@
       },
       "to": {
         "part": "timer_555_3",
-        "terminal": "gnd"
-      }
-    },
-    {
-      "id": "wire_9",
-      "netId": "net_7",
-      "from": {
-        "part": "timer_555_3",
-        "terminal": "control"
-      },
-      "to": {
-        "part": "gnd_2",
         "terminal": "gnd"
       }
     },
@@ -257,8 +259,7 @@
         "part": "gnd_2",
         "terminal": "gnd"
       }
-    }
-    ,
+    },
     {
       "id": "wire_27",
       "netId": "net_17",
@@ -276,6 +277,30 @@
       "netId": "net_7",
       "from": {
         "part": "capacitor_12",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "gnd_2",
+        "terminal": "gnd"
+      }
+    },
+    {
+      "id": "wire_31",
+      "netId": "net_30",
+      "from": {
+        "part": "timer_555_3",
+        "terminal": "control"
+      },
+      "to": {
+        "part": "capacitor_29",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_32",
+      "netId": "net_7",
+      "from": {
+        "part": "capacitor_29",
         "terminal": "b"
       },
       "to": {

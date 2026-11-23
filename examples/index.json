@@ -9246,5 +9246,1479 @@
    "introDE": "school-led-people-dog/intro.de.md"
   },
   "devices": []
+ },
+ {
+  "id": "lab-touch-darlington",
+  "title": {
+   "en": "Touch switch: one transistor vs. a Darlington pair",
+   "de": "Berührungsschalter: ein Transistor gegen ein Darlington-Paar"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-touch-darlington/program.bw",
+   "circuit": "lab-touch-darlington/circuit.json",
+   "expected": "lab-touch-darlington/EXPECTED.md",
+   "intro": "lab-touch-darlington/intro.md",
+   "introDE": "lab-touch-darlington/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-touch-off",
+  "title": {
+   "en": "Touch to switch off: a Darlington as a shunt",
+   "de": "Berühren zum Ausschalten: ein Darlington als Nebenschluss"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-touch-off/program.bw",
+   "circuit": "lab-touch-off/circuit.json",
+   "expected": "lab-touch-off/EXPECTED.md",
+   "intro": "lab-touch-off/intro.md",
+   "introDE": "lab-touch-off/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-bicolor-polarity",
+  "title": {
+   "en": "Which side is plus? Two-colour polarity tester",
+   "de": "Wo ist Plus? Zweifarbiger Polaritätsprüfer"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 1,
+  "files": {
+   "program": "lab-bicolor-polarity/program.bw",
+   "circuit": "lab-bicolor-polarity/circuit.json",
+   "expected": "lab-bicolor-polarity/EXPECTED.md",
+   "intro": "lab-bicolor-polarity/intro.md",
+   "introDE": "lab-bicolor-polarity/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-shunt-gates",
+  "title": {
+   "en": "NOT, NAND and NOR from buttons that short a lamp",
+   "de": "NICHT, NAND und NOR aus Tastern, die eine Lampe kurzschließen"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 1,
+  "files": {
+   "program": "lab-shunt-gates/program.bw",
+   "circuit": "lab-shunt-gates/circuit.json",
+   "expected": "lab-shunt-gates/EXPECTED.md",
+   "intro": "lab-shunt-gates/intro.md",
+   "introDE": "lab-shunt-gates/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-wet-dry-probe",
+  "title": {
+   "en": "Wet or dry? A probe with two opposite indicators",
+   "de": "Nass oder trocken? Ein Fühler mit zwei entgegengesetzten Anzeigen"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 2,
+  "files": {
+   "program": "lab-wet-dry-probe/program.bw",
+   "circuit": "lab-wet-dry-probe/circuit.json",
+   "expected": "lab-wet-dry-probe/EXPECTED.md",
+   "intro": "lab-wet-dry-probe/intro.md",
+   "introDE": "lab-wet-dry-probe/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-diff-pair",
+  "title": {
+   "en": "The differential pair: two transistors compare two voltages",
+   "de": "Das Differenzpaar: zwei Transistoren vergleichen zwei Spannungen"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 4,
+  "files": {
+   "program": "lab-diff-pair/program.bw",
+   "circuit": "lab-diff-pair/circuit.json",
+   "expected": "lab-diff-pair/EXPECTED.md",
+   "intro": "lab-diff-pair/intro.md",
+   "introDE": "lab-diff-pair/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-break-loop-alarm",
+  "title": {
+   "en": "Break-the-loop alarm with memory",
+   "de": "Drahtschleifen-Alarm mit Speicher"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-break-loop-alarm/program.bw",
+   "circuit": "lab-break-loop-alarm/circuit.json",
+   "expected": "lab-break-loop-alarm/EXPECTED.md",
+   "intro": "lab-break-loop-alarm/intro.md",
+   "introDE": "lab-break-loop-alarm/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-electronic-fuse",
+  "title": {
+   "en": "Electronic fuse: a latch that trips on overcurrent",
+   "de": "Elektronische Sicherung: ein Speicher, der bei Überstrom auslöst"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 4,
+  "files": {
+   "program": "lab-electronic-fuse/program.bw",
+   "circuit": "lab-electronic-fuse/circuit.json",
+   "expected": "lab-electronic-fuse/EXPECTED.md",
+   "intro": "lab-electronic-fuse/intro.md",
+   "introDE": "lab-electronic-fuse/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-schmitt-clap",
+  "title": {
+   "en": "Clap-on light with a two-transistor Schmitt trigger",
+   "de": "Klatschlicht mit einem Schmitt-Trigger aus zwei Transistoren"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 4,
+  "files": {
+   "program": "lab-schmitt-clap/program.bw",
+   "circuit": "lab-schmitt-clap/circuit.json",
+   "expected": "lab-schmitt-clap/EXPECTED.md",
+   "intro": "lab-schmitt-clap/intro.md",
+   "introDE": "lab-schmitt-clap/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-am-detector",
+  "title": {
+   "en": "How a radio gets the sound out: AM envelope detector",
+   "de": "Wie ein Radio den Ton herausholt: AM-Hüllkurvendetektor"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 4,
+  "files": {
+   "program": "lab-am-detector/program.bw",
+   "circuit": "lab-am-detector/circuit.json",
+   "expected": "lab-am-detector/EXPECTED.md",
+   "intro": "lab-am-detector/intro.md",
+   "introDE": "lab-am-detector/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-applause-meter",
+  "title": {
+   "en": "Applause meter: fast attack, slow release",
+   "de": "Applausmesser: schneller Anstieg, langsames Abklingen"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-applause-meter/program.bw",
+   "circuit": "lab-applause-meter/circuit.json",
+   "expected": "lab-applause-meter/EXPECTED.md",
+   "intro": "lab-applause-meter/intro.md",
+   "introDE": "lab-applause-meter/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-coin-toss",
+  "title": {
+   "en": "Electronic coin toss: freezing a fast flip-flop",
+   "de": "Elektronischer Münzwurf: ein schnelles Flipflop anhalten"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 2,
+  "files": {
+   "program": "lab-coin-toss/program.bw",
+   "circuit": "lab-coin-toss/circuit.json",
+   "expected": "lab-coin-toss/EXPECTED.md",
+   "intro": "lab-coin-toss/intro.md",
+   "introDE": "lab-coin-toss/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-charge-pump",
+  "title": {
+   "en": "Charge pump: more than 9 V from a 9 V battery",
+   "de": "Ladungspumpe: mehr als 9 V aus einer 9-V-Batterie"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-charge-pump/program.bw",
+   "circuit": "lab-charge-pump/circuit.json",
+   "expected": "lab-charge-pump/EXPECTED.md",
+   "intro": "lab-charge-pump/intro.md",
+   "introDE": "lab-charge-pump/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-counter-timer",
+  "title": {
+   "en": "Binary counter as a timer: count to eight, then stop",
+   "de": "Binärzähler als Timer: bis acht zählen, dann anhalten"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-counter-timer/program.bw",
+   "circuit": "lab-counter-timer/circuit.json",
+   "expected": "lab-counter-timer/EXPECTED.md",
+   "intro": "lab-counter-timer/intro.md",
+   "introDE": "lab-counter-timer/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-beats",
+  "title": {
+   "en": "Beats: two oscillators drifting in and out of step",
+   "de": "Schwebung: zwei Oszillatoren laufen auseinander und wieder zusammen"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-beats/program.bw",
+   "circuit": "lab-beats/circuit.json",
+   "expected": "lab-beats/EXPECTED.md",
+   "intro": "lab-beats/intro.md",
+   "introDE": "lab-beats/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-capacitive-level",
+  "title": {
+   "en": "Capacitive fill-level sensor: water slows the blinker",
+   "de": "Kapazitiver Füllstandssensor: Wasser bremst den Blinker"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 2,
+  "files": {
+   "program": "lab-capacitive-level/program.bw",
+   "circuit": "lab-capacitive-level/circuit.json",
+   "expected": "lab-capacitive-level/EXPECTED.md",
+   "intro": "lab-capacitive-level/intro.md",
+   "introDE": "lab-capacitive-level/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-nand-code-lock",
+  "title": {
+   "en": "NAND combination lock with a relay",
+   "de": "Zahlenschloss aus NAND-Gattern mit Relais"
+  },
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "kind": "circuit",
+  "files": {
+   "circuit": "lab-nand-code-lock/circuit.json",
+   "expected": "lab-nand-code-lock/EXPECTED.md",
+   "intro": "lab-nand-code-lock/intro.md",
+   "introDE": "lab-nand-code-lock/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-first-press-wins",
+  "title": {
+   "en": "Who pressed first? A transistor lockout duel",
+   "de": "Wer war zuerst? Ein Transistor-Duell"
+  },
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "kind": "circuit",
+  "files": {
+   "circuit": "lab-first-press-wins/circuit.json",
+   "expected": "lab-first-press-wins/EXPECTED.md",
+   "intro": "lab-first-press-wins/intro.md",
+   "introDE": "lab-first-press-wins/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-mosfet-memory",
+  "title": {
+   "en": "A MOSFET remembers: charge on the gate",
+   "de": "Ein MOSFET merkt sich was: Ladung am Gate"
+  },
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "kind": "circuit",
+  "files": {
+   "circuit": "lab-mosfet-memory/circuit.json",
+   "expected": "lab-mosfet-memory/EXPECTED.md",
+   "intro": "lab-mosfet-memory/intro.md",
+   "introDE": "lab-mosfet-memory/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-lamp-monitor",
+  "title": {
+   "en": "Is the lamp really on? Current-sensing fault monitor",
+   "de": "Brennt die Lampe wirklich? Stromüberwachung"
+  },
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "kind": "circuit",
+  "files": {
+   "circuit": "lab-lamp-monitor/circuit.json",
+   "expected": "lab-lamp-monitor/EXPECTED.md",
+   "intro": "lab-lamp-monitor/intro.md",
+   "introDE": "lab-lamp-monitor/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-meter-multiplier",
+  "title": {
+   "en": "Moving-coil voltmeter: series multipliers and loading",
+   "de": "Drehspul-Voltmeter: Vorwiderstände und Belastung"
+  },
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "kind": "circuit",
+  "files": {
+   "circuit": "lab-meter-multiplier/circuit.json",
+   "expected": "lab-meter-multiplier/EXPECTED.md",
+   "intro": "lab-meter-multiplier/intro.md",
+   "introDE": "lab-meter-multiplier/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-meter-shunt",
+  "title": {
+   "en": "Moving-coil ammeter: shunts and Kirchhoff's current law",
+   "de": "Drehspul-Amperemeter: Nebenwiderstände und Knotenregel"
+  },
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "kind": "circuit",
+  "files": {
+   "circuit": "lab-meter-shunt/circuit.json",
+   "expected": "lab-meter-shunt/EXPECTED.md",
+   "intro": "lab-meter-shunt/intro.md",
+   "introDE": "lab-meter-shunt/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-led-threshold",
+  "title": {
+   "en": "LED thresholds: four colours on one adjustable voltage",
+   "de": "LED-Schwellen: vier Farben an einer einstellbaren Spannung"
+  },
+  "category": "pure-circuit",
+  "difficulty": 2,
+  "kind": "circuit",
+  "files": {
+   "circuit": "lab-led-threshold/circuit.json",
+   "expected": "lab-led-threshold/EXPECTED.md",
+   "intro": "lab-led-threshold/intro.md",
+   "introDE": "lab-led-threshold/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-colour-pitch",
+  "title": {
+   "en": "Hear an LED's colour: pitch from forward voltage",
+   "de": "Die Farbe einer LED hören: Tonhöhe aus der Flussspannung"
+  },
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "kind": "circuit",
+  "files": {
+   "circuit": "lab-colour-pitch/circuit.json",
+   "expected": "lab-colour-pitch/EXPECTED.md",
+   "intro": "lab-colour-pitch/intro.md",
+   "introDE": "lab-colour-pitch/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-light-tone",
+  "title": {
+   "en": "Light to pitch: a phototransistor tone generator",
+   "de": "Licht wird Ton: Tongenerator mit Fototransistor"
+  },
+  "category": "pure-circuit",
+  "difficulty": 2,
+  "kind": "circuit",
+  "files": {
+   "circuit": "lab-light-tone/circuit.json",
+   "expected": "lab-light-tone/EXPECTED.md",
+   "intro": "lab-light-tone/intro.md",
+   "introDE": "lab-light-tone/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-exposure-timer",
+  "title": {
+   "en": "Exposure timer: brighter light, shorter time",
+   "de": "Belichtungsuhr: mehr Licht, kürzere Zeit"
+  },
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "kind": "circuit",
+  "files": {
+   "circuit": "lab-exposure-timer/circuit.json",
+   "expected": "lab-exposure-timer/EXPECTED.md",
+   "intro": "lab-exposure-timer/intro.md",
+   "introDE": "lab-exposure-timer/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-hearing-sweep",
+  "title": {
+   "en": "How high can you hear? A tone sweep to 20 kHz",
+   "de": "Wie hoch hörst du? Ein Tonsweep bis 20 kHz"
+  },
+  "category": "pure-circuit",
+  "difficulty": 2,
+  "kind": "circuit",
+  "files": {
+   "circuit": "lab-hearing-sweep/circuit.json",
+   "expected": "lab-hearing-sweep/EXPECTED.md",
+   "intro": "lab-hearing-sweep/intro.md",
+   "introDE": "lab-hearing-sweep/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-flicker-fusion",
+  "title": {
+   "en": "When does blinking turn into steady light?",
+   "de": "Wann wird Blinken zu Dauerlicht?"
+  },
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "kind": "circuit",
+  "files": {
+   "circuit": "lab-flicker-fusion/circuit.json",
+   "expected": "lab-flicker-fusion/EXPECTED.md",
+   "intro": "lab-flicker-fusion/intro.md",
+   "introDE": "lab-flicker-fusion/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-level-crossing",
+  "title": {
+   "en": "Level crossing: latch plus flasher",
+   "de": "Bahnübergang: Speicher plus Blinker"
+  },
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "kind": "circuit",
+  "files": {
+   "circuit": "lab-level-crossing/circuit.json",
+   "expected": "lab-level-crossing/EXPECTED.md",
+   "intro": "lab-level-crossing/intro.md",
+   "introDE": "lab-level-crossing/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-led-light-sensor",
+  "title": {
+   "en": "An LED that sees: photocurrent amplifier and night switch",
+   "de": "Eine LED, die sieht: Fotostromverstärker und Dämmerungsschalter"
+  },
+  "category": "pure-circuit",
+  "difficulty": 4,
+  "kind": "circuit",
+  "files": {
+   "circuit": "lab-led-light-sensor/circuit.json",
+   "expected": "lab-led-light-sensor/EXPECTED.md",
+   "intro": "lab-led-light-sensor/intro.md",
+   "introDE": "lab-led-light-sensor/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-log-amp",
+  "title": {
+   "en": "Logarithmic amplifier with a diode",
+   "de": "Logarithmierer mit einer Diode"
+  },
+  "category": "pure-circuit",
+  "difficulty": 4,
+  "kind": "circuit",
+  "files": {
+   "circuit": "lab-log-amp/circuit.json",
+   "expected": "lab-log-amp/EXPECTED.md",
+   "intro": "lab-log-amp/intro.md",
+   "introDE": "lab-log-amp/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-hall-poles",
+  "title": {
+   "en": "Hall sensor: north, south and field strength",
+   "de": "Hallsensor: Nord, Süd und Feldstärke"
+  },
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "kind": "circuit",
+  "files": {
+   "circuit": "lab-hall-poles/circuit.json",
+   "expected": "lab-hall-poles/EXPECTED.md",
+   "intro": "lab-hall-poles/intro.md",
+   "introDE": "lab-hall-poles/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-listening-amp",
+  "title": {
+   "en": "Listening amplifier: millivolts made audible",
+   "de": "Horchverstärker: Millivolt werden hörbar"
+  },
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "kind": "circuit",
+  "files": {
+   "circuit": "lab-listening-amp/circuit.json",
+   "expected": "lab-listening-amp/EXPECTED.md",
+   "intro": "lab-listening-amp/intro.md",
+   "introDE": "lab-listening-amp/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-lc-ringing",
+  "title": {
+   "en": "Coil and capacitor: damped ringing",
+   "de": "Spule und Kondensator: gedämpfte Schwingung"
+  },
+  "category": "pure-circuit",
+  "difficulty": 4,
+  "kind": "circuit",
+  "files": {
+   "circuit": "lab-lc-ringing/circuit.json",
+   "expected": "lab-lc-ringing/EXPECTED.md",
+   "intro": "lab-lc-ringing/intro.md",
+   "introDE": "lab-lc-ringing/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-555-inside",
+  "title": {
+   "en": "Inside the 555: thresholds, control and reset",
+   "de": "Der 555 von innen: Schwellen, Control und Reset"
+  },
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "kind": "circuit",
+  "files": {
+   "circuit": "lab-555-inside/circuit.json",
+   "expected": "lab-555-inside/EXPECTED.md",
+   "intro": "lab-555-inside/intro.md",
+   "introDE": "lab-555-inside/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-rtl-gates",
+  "title": {
+   "en": "Logic gates from transistors (RTL)",
+   "de": "Logikgatter aus Transistoren (RTL)"
+  },
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "kind": "circuit",
+  "files": {
+   "circuit": "lab-rtl-gates/circuit.json",
+   "expected": "lab-rtl-gates/EXPECTED.md",
+   "intro": "lab-rtl-gates/intro.md",
+   "introDE": "lab-rtl-gates/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-led-shunt",
+  "title": {
+   "en": "Steering current around an LED",
+   "de": "Strom an einer LED vorbeileiten"
+  },
+  "category": "pure-circuit",
+  "difficulty": 1,
+  "kind": "circuit",
+  "files": {
+   "circuit": "lab-led-shunt/circuit.json",
+   "expected": "lab-led-shunt/EXPECTED.md",
+   "intro": "lab-led-shunt/intro.md",
+   "introDE": "lab-led-shunt/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-power-matching",
+  "title": {
+   "en": "Internal resistance and maximum power",
+   "de": "Innenwiderstand und maximale Leistung"
+  },
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "kind": "circuit",
+  "files": {
+   "circuit": "lab-power-matching/circuit.json",
+   "expected": "lab-power-matching/EXPECTED.md",
+   "intro": "lab-power-matching/intro.md",
+   "introDE": "lab-power-matching/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-opamp-gain",
+  "title": {
+   "en": "Op-amp gain stages: inverting and non-inverting",
+   "de": "OPV-Verstärker: invertierend und nichtinvertierend"
+  },
+  "category": "pure-circuit",
+  "difficulty": 4,
+  "kind": "circuit",
+  "files": {
+   "circuit": "lab-opamp-gain/circuit.json",
+   "expected": "lab-opamp-gain/EXPECTED.md",
+   "intro": "lab-opamp-gain/intro.md",
+   "introDE": "lab-opamp-gain/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-opamp-follower",
+  "title": {
+   "en": "Follower: measuring a potato without loading it",
+   "de": "Spannungsfolger: eine Kartoffel messen, ohne sie zu belasten"
+  },
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "kind": "circuit",
+  "files": {
+   "circuit": "lab-opamp-follower/circuit.json",
+   "expected": "lab-opamp-follower/EXPECTED.md",
+   "intro": "lab-opamp-follower/intro.md",
+   "introDE": "lab-opamp-follower/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-opamp-blinker",
+  "title": {
+   "en": "An op-amp that blinks",
+   "de": "Ein Operationsverstärker, der blinkt"
+  },
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "kind": "circuit",
+  "files": {
+   "circuit": "lab-opamp-blinker/circuit.json",
+   "expected": "lab-opamp-blinker/EXPECTED.md",
+   "intro": "lab-opamp-blinker/intro.md",
+   "introDE": "lab-opamp-blinker/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-steady-hand",
+  "title": {
+   "en": "Steady hand: the wire-loop game",
+   "de": "Der heiße Draht: Geschicklichkeitsspiel"
+  },
+  "category": "pure-circuit",
+  "difficulty": 1,
+  "kind": "circuit",
+  "files": {
+   "circuit": "lab-steady-hand/circuit.json",
+   "expected": "lab-steady-hand/EXPECTED.md",
+   "intro": "lab-steady-hand/intro.md",
+   "introDE": "lab-steady-hand/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-tone-keys",
+  "title": {
+   "en": "Two keys, four notes",
+   "de": "Zwei Tasten, vier Töne"
+  },
+  "category": "pure-circuit",
+  "difficulty": 2,
+  "kind": "circuit",
+  "files": {
+   "circuit": "lab-tone-keys/circuit.json",
+   "expected": "lab-tone-keys/EXPECTED.md",
+   "intro": "lab-tone-keys/intro.md",
+   "introDE": "lab-tone-keys/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-pitch-probe",
+  "title": {
+   "en": "Hear the resistance: probe-controlled tone",
+   "de": "Widerstand hören: Prüfspitzen steuern den Ton"
+  },
+  "category": "pure-circuit",
+  "difficulty": 2,
+  "kind": "circuit",
+  "files": {
+   "circuit": "lab-pitch-probe/circuit.json",
+   "expected": "lab-pitch-probe/EXPECTED.md",
+   "intro": "lab-pitch-probe/intro.md",
+   "introDE": "lab-pitch-probe/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-precision-rectifier",
+  "title": {
+   "en": "Precision rectifier: a diode without a dead zone",
+   "de": "Präzisionsgleichrichter: eine Diode ohne Totzone"
+  },
+  "category": "pure-circuit",
+  "difficulty": 4,
+  "kind": "circuit",
+  "files": {
+   "circuit": "lab-precision-rectifier/circuit.json",
+   "expected": "lab-precision-rectifier/EXPECTED.md",
+   "intro": "lab-precision-rectifier/intro.md",
+   "introDE": "lab-precision-rectifier/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-crossfade",
+  "title": {
+   "en": "Crossfade: sliding light from red to green",
+   "de": "Überblenden: Licht gleitet von Rot nach Grün"
+  },
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "kind": "circuit",
+  "files": {
+   "circuit": "lab-crossfade/circuit.json",
+   "expected": "lab-crossfade/EXPECTED.md",
+   "intro": "lab-crossfade/intro.md",
+   "introDE": "lab-crossfade/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-siren-glide",
+  "title": {
+   "en": "The swelling siren",
+   "de": "Die anschwellende Sirene"
+  },
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "kind": "circuit",
+  "files": {
+   "circuit": "lab-siren-glide/circuit.json",
+   "expected": "lab-siren-glide/EXPECTED.md",
+   "intro": "lab-siren-glide/intro.md",
+   "introDE": "lab-siren-glide/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-struck-note",
+  "title": {
+   "en": "A struck note: tone with a decaying envelope",
+   "de": "Ein angeschlagener Ton: Klang mit Ausklingen"
+  },
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "kind": "circuit",
+  "files": {
+   "circuit": "lab-struck-note/circuit.json",
+   "expected": "lab-struck-note/EXPECTED.md",
+   "intro": "lab-struck-note/intro.md",
+   "introDE": "lab-struck-note/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-attenuator-gain",
+  "title": {
+   "en": "Attenuator, gain and clipping",
+   "de": "Abschwächer, Verstärkung und Übersteuerung"
+  },
+  "category": "pure-circuit",
+  "difficulty": 4,
+  "kind": "circuit",
+  "files": {
+   "circuit": "lab-attenuator-gain/circuit.json",
+   "expected": "lab-attenuator-gain/EXPECTED.md",
+   "intro": "lab-attenuator-gain/intro.md",
+   "introDE": "lab-attenuator-gain/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-555-vco",
+  "title": {
+   "en": "Voltage-controlled 555: pitch from a voltage, bits as tones",
+   "de": "Spannungsgesteuerter 555: Tonhöhe aus Spannung, Bits als Töne"
+  },
+  "category": "pure-circuit",
+  "difficulty": 4,
+  "kind": "circuit",
+  "files": {
+   "circuit": "lab-555-vco/circuit.json",
+   "expected": "lab-555-vco/EXPECTED.md",
+   "intro": "lab-555-vco/intro.md",
+   "introDE": "lab-555-vco/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-staircase",
+  "title": {
+   "en": "Staircase generator: counting with charge",
+   "de": "Treppenspannung: Zählen mit Ladung"
+  },
+  "category": "pure-circuit",
+  "difficulty": 4,
+  "kind": "circuit",
+  "files": {
+   "circuit": "lab-staircase/circuit.json",
+   "expected": "lab-staircase/EXPECTED.md",
+   "intro": "lab-staircase/intro.md",
+   "introDE": "lab-staircase/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-light-link",
+  "title": {
+   "en": "Light link: a tone across a beam",
+   "de": "Lichtstrecke: ein Ton über einen Lichtstrahl"
+  },
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "kind": "circuit",
+  "files": {
+   "circuit": "lab-light-link/circuit.json",
+   "expected": "lab-light-link/EXPECTED.md",
+   "intro": "lab-light-link/intro.md",
+   "introDE": "lab-light-link/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-phase-shift",
+  "title": {
+   "en": "RC phase-shift oscillator",
+   "de": "RC-Phasenschieber-Oszillator"
+  },
+  "category": "pure-circuit",
+  "difficulty": 4,
+  "kind": "circuit",
+  "files": {
+   "circuit": "lab-phase-shift/circuit.json",
+   "expected": "lab-phase-shift/EXPECTED.md",
+   "intro": "lab-phase-shift/intro.md",
+   "introDE": "lab-phase-shift/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-opamp-integrator",
+  "title": {
+   "en": "Integrator stopwatch",
+   "de": "Integrator als Stoppuhr"
+  },
+  "category": "pure-circuit",
+  "difficulty": 4,
+  "kind": "circuit",
+  "files": {
+   "circuit": "lab-opamp-integrator/circuit.json",
+   "expected": "lab-opamp-integrator/EXPECTED.md",
+   "intro": "lab-opamp-integrator/intro.md",
+   "introDE": "lab-opamp-integrator/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-transistor-flip-flop",
+  "title": {
+   "en": "Transistor flip-flop: two buttons, one bit",
+   "de": "Transistor-Flipflop: zwei Taster, ein Bit"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-transistor-flip-flop/program.bw",
+   "circuit": "lab-transistor-flip-flop/circuit.json",
+   "expected": "lab-transistor-flip-flop/EXPECTED.md",
+   "intro": "lab-transistor-flip-flop/intro.md",
+   "introDE": "lab-transistor-flip-flop/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-base-current",
+  "title": {
+   "en": "How little base current a transistor needs",
+   "de": "Wie wenig Basisstrom ein Transistor braucht"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 2,
+  "files": {
+   "program": "lab-base-current/program.bw",
+   "circuit": "lab-base-current/circuit.json",
+   "expected": "lab-base-current/EXPECTED.md",
+   "intro": "lab-base-current/intro.md",
+   "introDE": "lab-base-current/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-transistor-curves",
+  "title": {
+   "en": "Transistor output curves",
+   "de": "Ausgangskennlinien eines Transistors"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 4,
+  "files": {
+   "program": "lab-transistor-curves/program.bw",
+   "circuit": "lab-transistor-curves/circuit.json",
+   "expected": "lab-transistor-curves/EXPECTED.md",
+   "intro": "lab-transistor-curves/intro.md",
+   "introDE": "lab-transistor-curves/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-delay-off-timer",
+  "title": {
+   "en": "Delay-off timer with a capacitor",
+   "de": "Ausschaltverzögerung mit Kondensator"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 2,
+  "files": {
+   "program": "lab-delay-off-timer/program.bw",
+   "circuit": "lab-delay-off-timer/circuit.json",
+   "expected": "lab-delay-off-timer/EXPECTED.md",
+   "intro": "lab-delay-off-timer/intro.md",
+   "introDE": "lab-delay-off-timer/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-transistor-two-diodes",
+  "title": {
+   "en": "A transistor is two diodes back to back",
+   "de": "Ein Transistor: zwei Dioden Rücken an Rücken"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 1,
+  "files": {
+   "program": "lab-transistor-two-diodes/program.bw",
+   "circuit": "lab-transistor-two-diodes/circuit.json",
+   "expected": "lab-transistor-two-diodes/EXPECTED.md",
+   "intro": "lab-transistor-two-diodes/intro.md",
+   "introDE": "lab-transistor-two-diodes/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-battery-threshold",
+  "title": {
+   "en": "Battery tester with three thresholds",
+   "de": "Batterietester mit drei Schwellen"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 2,
+  "files": {
+   "program": "lab-battery-threshold/program.bw",
+   "circuit": "lab-battery-threshold/circuit.json",
+   "expected": "lab-battery-threshold/EXPECTED.md",
+   "intro": "lab-battery-threshold/intro.md",
+   "introDE": "lab-battery-threshold/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-heat-alarm",
+  "title": {
+   "en": "Heat alarm: a sensor transistor steals the LED current",
+   "de": "Wärmealarm: ein Fühlertransistor stiehlt den LED-Strom"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-heat-alarm/program.bw",
+   "circuit": "lab-heat-alarm/circuit.json",
+   "expected": "lab-heat-alarm/EXPECTED.md",
+   "intro": "lab-heat-alarm/intro.md",
+   "introDE": "lab-heat-alarm/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-ce-vs-follower",
+  "title": {
+   "en": "Common emitter versus emitter follower",
+   "de": "Emitterschaltung gegen Emitterfolger"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-ce-vs-follower/program.bw",
+   "circuit": "lab-ce-vs-follower/circuit.json",
+   "expected": "lab-ce-vs-follower/EXPECTED.md",
+   "intro": "lab-ce-vs-follower/intro.md",
+   "introDE": "lab-ce-vs-follower/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-push-pull",
+  "title": {
+   "en": "Push-pull output: class B versus class AB",
+   "de": "Gegentakt-Endstufe: Klasse B gegen Klasse AB"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 4,
+  "files": {
+   "program": "lab-push-pull/program.bw",
+   "circuit": "lab-push-pull/circuit.json",
+   "expected": "lab-push-pull/EXPECTED.md",
+   "intro": "lab-push-pull/intro.md",
+   "introDE": "lab-push-pull/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-two-led-monostable",
+  "title": {
+   "en": "Red, press, green for a while",
+   "de": "Rot, drücken, eine Weile Grün"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-two-led-monostable/program.bw",
+   "circuit": "lab-two-led-monostable/circuit.json",
+   "expected": "lab-two-led-monostable/EXPECTED.md",
+   "intro": "lab-two-led-monostable/intro.md",
+   "introDE": "lab-two-led-monostable/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-virtual-ground",
+  "title": {
+   "en": "Virtual ground: plus and minus from one battery",
+   "de": "Virtuelle Masse: Plus und Minus aus einer Batterie"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-virtual-ground/program.bw",
+   "circuit": "lab-virtual-ground/circuit.json",
+   "expected": "lab-virtual-ground/EXPECTED.md",
+   "intro": "lab-virtual-ground/intro.md",
+   "introDE": "lab-virtual-ground/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-wheatstone-bridge",
+  "title": {
+   "en": "Wheatstone bridge: measuring by balancing",
+   "de": "Wheatstone-Brücke: Messen durch Abgleich"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-wheatstone-bridge/program.bw",
+   "circuit": "lab-wheatstone-bridge/circuit.json",
+   "expected": "lab-wheatstone-bridge/EXPECTED.md",
+   "intro": "lab-wheatstone-bridge/intro.md",
+   "introDE": "lab-wheatstone-bridge/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-window-comparator",
+  "title": {
+   "en": "Window comparator: only inside the band",
+   "de": "Fensterkomparator: nur im Bereich dazwischen"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-window-comparator/program.bw",
+   "circuit": "lab-window-comparator/circuit.json",
+   "expected": "lab-window-comparator/EXPECTED.md",
+   "intro": "lab-window-comparator/intro.md",
+   "introDE": "lab-window-comparator/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-2bit-dac",
+  "title": {
+   "en": "Two-bit digital-to-analog converter",
+   "de": "Zwei-Bit-Digital-Analog-Wandler"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 4,
+  "files": {
+   "program": "lab-2bit-dac/program.bw",
+   "circuit": "lab-2bit-dac/circuit.json",
+   "expected": "lab-2bit-dac/EXPECTED.md",
+   "intro": "lab-2bit-dac/intro.md",
+   "introDE": "lab-2bit-dac/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-2bit-adc",
+  "title": {
+   "en": "Two-bit analog-to-digital converter",
+   "de": "Zwei-Bit-Analog-Digital-Wandler"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 4,
+  "files": {
+   "program": "lab-2bit-adc/program.bw",
+   "circuit": "lab-2bit-adc/circuit.json",
+   "expected": "lab-2bit-adc/EXPECTED.md",
+   "intro": "lab-2bit-adc/intro.md",
+   "introDE": "lab-2bit-adc/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-function-generator",
+  "title": {
+   "en": "Triangle and square from two op-amps",
+   "de": "Dreieck und Rechteck aus zwei Operationsverstärkern"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 4,
+  "files": {
+   "program": "lab-function-generator/program.bw",
+   "circuit": "lab-function-generator/circuit.json",
+   "expected": "lab-function-generator/EXPECTED.md",
+   "intro": "lab-function-generator/intro.md",
+   "introDE": "lab-function-generator/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-two-band-light-organ",
+  "title": {
+   "en": "Two-band light organ: bass and treble",
+   "de": "Zweikanal-Lichtorgel: Bass und Höhen"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-two-band-light-organ/program.bw",
+   "circuit": "lab-two-band-light-organ/circuit.json",
+   "expected": "lab-two-band-light-organ/EXPECTED.md",
+   "intro": "lab-two-band-light-organ/intro.md",
+   "introDE": "lab-two-band-light-organ/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-v-to-f",
+  "title": {
+   "en": "Voltage to frequency: counting a voltage",
+   "de": "Spannung zu Frequenz: eine Spannung zählen"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 5,
+  "files": {
+   "program": "lab-v-to-f/program.bw",
+   "circuit": "lab-v-to-f/circuit.json",
+   "expected": "lab-v-to-f/EXPECTED.md",
+   "intro": "lab-v-to-f/intro.md",
+   "introDE": "lab-v-to-f/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-astable-blinker",
+  "title": {
+   "en": "Two-transistor blinker",
+   "de": "Blinker aus zwei Transistoren"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 2,
+  "files": {
+   "program": "lab-astable-blinker/program.bw",
+   "circuit": "lab-astable-blinker/circuit.json",
+   "expected": "lab-astable-blinker/EXPECTED.md",
+   "intro": "lab-astable-blinker/intro.md",
+   "introDE": "lab-astable-blinker/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-astable-tone",
+  "title": {
+   "en": "From click to tone: transistor oscillator",
+   "de": "Vom Klick zum Ton: Transistor-Oszillator"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 2,
+  "files": {
+   "program": "lab-astable-tone/program.bw",
+   "circuit": "lab-astable-tone/circuit.json",
+   "expected": "lab-astable-tone/EXPECTED.md",
+   "intro": "lab-astable-tone/intro.md",
+   "introDE": "lab-astable-tone/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-scr-pair",
+  "title": {
+   "en": "A thyristor made of two transistors",
+   "de": "Ein Thyristor aus zwei Transistoren"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 4,
+  "files": {
+   "program": "lab-scr-pair/program.bw",
+   "circuit": "lab-scr-pair/circuit.json",
+   "expected": "lab-scr-pair/EXPECTED.md",
+   "intro": "lab-scr-pair/intro.md",
+   "introDE": "lab-scr-pair/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-toggle-flip-flop",
+  "title": {
+   "en": "Push on, push off: transistor toggle",
+   "de": "Drücken an, drücken aus: Transistor-Umschalter"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 4,
+  "files": {
+   "program": "lab-toggle-flip-flop/program.bw",
+   "circuit": "lab-toggle-flip-flop/circuit.json",
+   "expected": "lab-toggle-flip-flop/EXPECTED.md",
+   "intro": "lab-toggle-flip-flop/intro.md",
+   "introDE": "lab-toggle-flip-flop/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-pnp-npn-relax",
+  "title": {
+   "en": "Home-made unijunction: flash oscillator",
+   "de": "Selbstgebauter Unijunction: Blitz-Oszillator"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 4,
+  "files": {
+   "program": "lab-pnp-npn-relax/program.bw",
+   "circuit": "lab-pnp-npn-relax/circuit.json",
+   "expected": "lab-pnp-npn-relax/EXPECTED.md",
+   "intro": "lab-pnp-npn-relax/intro.md",
+   "introDE": "lab-pnp-npn-relax/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-siren-blinker",
+  "title": {
+   "en": "Siren in step with the lights",
+   "de": "Sirene im Takt der Lampen"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-siren-blinker/program.bw",
+   "circuit": "lab-siren-blinker/circuit.json",
+   "expected": "lab-siren-blinker/EXPECTED.md",
+   "intro": "lab-siren-blinker/intro.md",
+   "introDE": "lab-siren-blinker/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-discrete-monostable",
+  "title": {
+   "en": "Red, press, green: transistor one-shot",
+   "de": "Rot, drücken, grün: Transistor-Monoflop"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-discrete-monostable/program.bw",
+   "circuit": "lab-discrete-monostable/circuit.json",
+   "expected": "lab-discrete-monostable/EXPECTED.md",
+   "intro": "lab-discrete-monostable/intro.md",
+   "introDE": "lab-discrete-monostable/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-coil-pulse",
+  "title": {
+   "en": "Two coils, no wire: a pulse through the air",
+   "de": "Zwei Spulen, kein Draht: ein Impuls durch die Luft"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-coil-pulse/program.bw",
+   "circuit": "lab-coil-pulse/circuit.json",
+   "expected": "lab-coil-pulse/EXPECTED.md",
+   "intro": "lab-coil-pulse/intro.md",
+   "introDE": "lab-coil-pulse/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-meissner-am",
+  "title": {
+   "en": "LC oscillator with feedback coil, and AM",
+   "de": "LC-Oszillator mit Rückkopplungsspule und AM"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 5,
+  "files": {
+   "program": "lab-meissner-am/program.bw",
+   "circuit": "lab-meissner-am/circuit.json",
+   "expected": "lab-meissner-am/EXPECTED.md",
+   "intro": "lab-meissner-am/intro.md",
+   "introDE": "lab-meissner-am/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-lc-oscillator",
+  "title": {
+   "en": "Coil and capacitor that keep swinging: an LC oscillator",
+   "de": "Spule und Kondensator, die nicht aufhören: ein LC-Oszillator"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 4,
+  "files": {
+   "program": "lab-lc-oscillator/program.bw",
+   "circuit": "lab-lc-oscillator/circuit.json",
+   "expected": "lab-lc-oscillator/EXPECTED.md",
+   "intro": "lab-lc-oscillator/intro.md",
+   "introDE": "lab-lc-oscillator/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-motor-speed",
+  "title": {
+   "en": "Measuring and holding a motor's speed",
+   "de": "Die Drehzahl eines Motors messen und halten"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 5,
+  "files": {
+   "program": "lab-motor-speed/program.bw",
+   "circuit": "lab-motor-speed/circuit.json",
+   "expected": "lab-motor-speed/EXPECTED.md",
+   "intro": "lab-motor-speed/intro.md",
+   "introDE": "lab-motor-speed/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-airflow-sensor",
+  "title": {
+   "en": "Feeling the wind: a self-heated sensor",
+   "de": "Den Wind fühlen: ein selbstbeheizter Sensor"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 4,
+  "files": {
+   "program": "lab-airflow-sensor/program.bw",
+   "circuit": "lab-airflow-sensor/circuit.json",
+   "expected": "lab-airflow-sensor/EXPECTED.md",
+   "intro": "lab-airflow-sensor/intro.md",
+   "introDE": "lab-airflow-sensor/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-solar-cell",
+  "title": {
+   "en": "What a solar cell can and cannot do",
+   "de": "Was eine Solarzelle kann und was nicht"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-solar-cell/program.bw",
+   "circuit": "lab-solar-cell/circuit.json",
+   "expected": "lab-solar-cell/EXPECTED.md",
+   "intro": "lab-solar-cell/intro.md",
+   "introDE": "lab-solar-cell/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-nand-pips",
+  "title": {
+   "en": "Pips from logic gates",
+   "de": "Pieptöne aus Logikgattern"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 2,
+  "files": {
+   "program": "lab-nand-pips/program.bw",
+   "circuit": "lab-nand-pips/circuit.json",
+   "expected": "lab-nand-pips/EXPECTED.md",
+   "intro": "lab-nand-pips/intro.md",
+   "introDE": "lab-nand-pips/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-nand-one-shot",
+  "title": {
+   "en": "One press, one beep: a gate timer",
+   "de": "Ein Druck, ein Piep: ein Gatter-Zeitschalter"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-nand-one-shot/program.bw",
+   "circuit": "lab-nand-one-shot/circuit.json",
+   "expected": "lab-nand-one-shot/EXPECTED.md",
+   "intro": "lab-nand-one-shot/intro.md",
+   "introDE": "lab-nand-one-shot/intro.de.md"
+  },
+  "devices": []
  }
 ]

@@ -1,0 +1,233 @@
+{
+  "vcc": 9,
+  "parts": [
+    {
+      "id": "vcc1",
+      "kind": "vcc",
+      "params": {},
+      "x": 80,
+      "y": 70,
+      "rotation": 0
+    },
+    {
+      "id": "gnd1",
+      "kind": "gnd",
+      "params": {},
+      "x": 80,
+      "y": 640,
+      "rotation": 0
+    },
+    {
+      "id": "r1",
+      "kind": "resistor",
+      "params": {
+        "ohms": 2200
+      },
+      "x": 190,
+      "y": 165,
+      "rotation": 0,
+      "label": "R1 2k2"
+    },
+    {
+      "id": "r2",
+      "kind": "resistor",
+      "params": {
+        "ohms": 15000
+      },
+      "x": 190,
+      "y": 355,
+      "rotation": 0,
+      "label": "R2 15k"
+    },
+    {
+      "id": "pot",
+      "kind": "potentiometer",
+      "params": {
+        "ohms": 100000,
+        "position": 0.5
+      },
+      "x": 300,
+      "y": 355,
+      "rotation": 0,
+      "label": "Pitch 100k"
+    },
+    {
+      "id": "c_t",
+      "kind": "capacitor",
+      "params": {
+        "farads": 2.2e-9
+      },
+      "x": 300,
+      "y": 545,
+      "rotation": 0,
+      "label": "C1 2n2"
+    },
+    {
+      "id": "range",
+      "kind": "slide_switch",
+      "params": {
+        "position": 0
+      },
+      "x": 410,
+      "y": 545,
+      "rotation": 0,
+      "label": "Range high / low"
+    },
+    {
+      "id": "c_low",
+      "kind": "capacitor",
+      "params": {
+        "farads": 1e-8
+      },
+      "x": 520,
+      "y": 545,
+      "rotation": 0,
+      "label": "C3 10n"
+    },
+    {
+      "id": "u1",
+      "kind": "timer_555",
+      "params": {},
+      "x": 520,
+      "y": 355,
+      "rotation": 0,
+      "label": "U1 555"
+    },
+    {
+      "id": "c_ctl",
+      "kind": "capacitor",
+      "params": {
+        "farads": 1e-8
+      },
+      "x": 630,
+      "y": 545,
+      "rotation": 0,
+      "label": "C2 10n"
+    },
+    {
+      "id": "pz",
+      "kind": "piezo",
+      "params": {},
+      "x": 740,
+      "y": 355,
+      "rotation": 0,
+      "label": "Piezo"
+    }
+  ],
+  "wires": [
+    {
+      "from": "vcc1",
+      "fromTerminal": "vcc",
+      "to": "r1",
+      "toTerminal": "a"
+    },
+    {
+      "from": "r1",
+      "fromTerminal": "a",
+      "to": "u1",
+      "toTerminal": "vcc"
+    },
+    {
+      "from": "u1",
+      "fromTerminal": "vcc",
+      "to": "u1",
+      "toTerminal": "reset"
+    },
+    {
+      "from": "r1",
+      "fromTerminal": "b",
+      "to": "u1",
+      "toTerminal": "discharge"
+    },
+    {
+      "from": "u1",
+      "fromTerminal": "discharge",
+      "to": "r2",
+      "toTerminal": "a"
+    },
+    {
+      "from": "r2",
+      "fromTerminal": "b",
+      "to": "pot",
+      "toTerminal": "a"
+    },
+    {
+      "from": "pot",
+      "fromTerminal": "wiper",
+      "to": "pot",
+      "toTerminal": "b"
+    },
+    {
+      "from": "pot",
+      "fromTerminal": "b",
+      "to": "u1",
+      "toTerminal": "threshold"
+    },
+    {
+      "from": "u1",
+      "fromTerminal": "threshold",
+      "to": "u1",
+      "toTerminal": "trigger"
+    },
+    {
+      "from": "u1",
+      "fromTerminal": "trigger",
+      "to": "c_t",
+      "toTerminal": "a"
+    },
+    {
+      "from": "c_t",
+      "fromTerminal": "a",
+      "to": "range",
+      "toTerminal": "com"
+    },
+    {
+      "from": "range",
+      "fromTerminal": "b",
+      "to": "c_low",
+      "toTerminal": "a"
+    },
+    {
+      "from": "u1",
+      "fromTerminal": "control",
+      "to": "c_ctl",
+      "toTerminal": "a"
+    },
+    {
+      "from": "u1",
+      "fromTerminal": "output",
+      "to": "pz",
+      "toTerminal": "a"
+    },
+    {
+      "from": "gnd1",
+      "fromTerminal": "gnd",
+      "to": "c_t",
+      "toTerminal": "b"
+    },
+    {
+      "from": "c_t",
+      "fromTerminal": "b",
+      "to": "c_low",
+      "toTerminal": "b"
+    },
+    {
+      "from": "c_low",
+      "fromTerminal": "b",
+      "to": "c_ctl",
+      "toTerminal": "b"
+    },
+    {
+      "from": "c_ctl",
+      "fromTerminal": "b",
+      "to": "u1",
+      "toTerminal": "gnd"
+    },
+    {
+      "from": "u1",
+      "fromTerminal": "gnd",
+      "to": "pz",
+      "toTerminal": "b"
+    }
+  ]
+}

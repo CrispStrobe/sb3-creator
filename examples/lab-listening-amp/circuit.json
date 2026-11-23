@@ -1,0 +1,304 @@
+{
+  "vcc": 9,
+  "parts": [
+    {
+      "id": "vcc1",
+      "kind": "vcc",
+      "params": {},
+      "x": 80,
+      "y": 70,
+      "rotation": 0
+    },
+    {
+      "id": "gnd1",
+      "kind": "gnd",
+      "params": {},
+      "x": 80,
+      "y": 640,
+      "rotation": 0
+    },
+    {
+      "id": "mic",
+      "kind": "vsource",
+      "params": {
+        "wave": "sine",
+        "freq": 1000,
+        "amplitude": 0.01,
+        "offset": 0
+      },
+      "x": 190,
+      "y": 450,
+      "rotation": 0,
+      "label": "Speaker as microphone (10 mV)"
+    },
+    {
+      "id": "c_in",
+      "kind": "capacitor",
+      "params": {
+        "farads": 0.000001
+      },
+      "x": 190,
+      "y": 260,
+      "rotation": 0,
+      "label": "C1 1u"
+    },
+    {
+      "id": "pot",
+      "kind": "potentiometer",
+      "params": {
+        "ohms": 10000,
+        "position": 0.5
+      },
+      "x": 300,
+      "y": 355,
+      "rotation": 0,
+      "label": "Sensitivity"
+    },
+    {
+      "id": "c_c",
+      "kind": "capacitor",
+      "params": {
+        "farads": 0.000001
+      },
+      "x": 410,
+      "y": 260,
+      "rotation": 0,
+      "label": "C2 1u"
+    },
+    {
+      "id": "r_h1",
+      "kind": "resistor",
+      "params": {
+        "ohms": 10000
+      },
+      "x": 410,
+      "y": 70,
+      "rotation": 0,
+      "label": "R1 10k"
+    },
+    {
+      "id": "r_h2",
+      "kind": "resistor",
+      "params": {
+        "ohms": 10000
+      },
+      "x": 410,
+      "y": 545,
+      "rotation": 0,
+      "label": "R2 10k"
+    },
+    {
+      "id": "r_bias",
+      "kind": "resistor",
+      "params": {
+        "ohms": 100000
+      },
+      "x": 520,
+      "y": 165,
+      "rotation": 0,
+      "label": "R3 100k bias"
+    },
+    {
+      "id": "u1",
+      "kind": "lm358",
+      "params": {},
+      "x": 520,
+      "y": 355,
+      "rotation": 0,
+      "label": "U1 LM358 x101"
+    },
+    {
+      "id": "r_fb",
+      "kind": "resistor",
+      "params": {
+        "ohms": 100000
+      },
+      "x": 630,
+      "y": 165,
+      "rotation": 0,
+      "label": "R4 100k"
+    },
+    {
+      "id": "r_g",
+      "kind": "resistor",
+      "params": {
+        "ohms": 1000
+      },
+      "x": 630,
+      "y": 450,
+      "rotation": 0,
+      "label": "R5 1k"
+    },
+    {
+      "id": "c_g",
+      "kind": "polarized_cap",
+      "params": {
+        "farads": 0.0000022
+      },
+      "x": 630,
+      "y": 545,
+      "rotation": 0,
+      "label": "C3 2u2"
+    },
+    {
+      "id": "c_out",
+      "kind": "polarized_cap",
+      "params": {
+        "farads": 0.00001
+      },
+      "x": 740,
+      "y": 260,
+      "rotation": 0,
+      "label": "C4 10u"
+    },
+    {
+      "id": "ear",
+      "kind": "piezo",
+      "params": {},
+      "x": 850,
+      "y": 355,
+      "rotation": 0,
+      "label": "Earpiece"
+    }
+  ],
+  "wires": [
+    {
+      "from": "vcc1",
+      "fromTerminal": "vcc",
+      "to": "r_h1",
+      "toTerminal": "a"
+    },
+    {
+      "from": "r_h1",
+      "fromTerminal": "a",
+      "to": "u1",
+      "toTerminal": "vcc"
+    },
+    {
+      "from": "mic",
+      "fromTerminal": "pos",
+      "to": "c_in",
+      "toTerminal": "a"
+    },
+    {
+      "from": "c_in",
+      "fromTerminal": "b",
+      "to": "pot",
+      "toTerminal": "a"
+    },
+    {
+      "from": "pot",
+      "fromTerminal": "wiper",
+      "to": "c_c",
+      "toTerminal": "a"
+    },
+    {
+      "from": "r_h1",
+      "fromTerminal": "b",
+      "to": "r_h2",
+      "toTerminal": "a"
+    },
+    {
+      "from": "r_h2",
+      "fromTerminal": "a",
+      "to": "r_bias",
+      "toTerminal": "a"
+    },
+    {
+      "from": "c_c",
+      "fromTerminal": "b",
+      "to": "r_bias",
+      "toTerminal": "b"
+    },
+    {
+      "from": "r_bias",
+      "fromTerminal": "b",
+      "to": "u1",
+      "toTerminal": "1_pos"
+    },
+    {
+      "from": "u1",
+      "fromTerminal": "1_neg",
+      "to": "r_fb",
+      "toTerminal": "a"
+    },
+    {
+      "from": "r_fb",
+      "fromTerminal": "a",
+      "to": "r_g",
+      "toTerminal": "a"
+    },
+    {
+      "from": "r_g",
+      "fromTerminal": "b",
+      "to": "c_g",
+      "toTerminal": "pos"
+    },
+    {
+      "from": "u1",
+      "fromTerminal": "1_out",
+      "to": "r_fb",
+      "toTerminal": "b"
+    },
+    {
+      "from": "r_fb",
+      "fromTerminal": "b",
+      "to": "c_out",
+      "toTerminal": "pos"
+    },
+    {
+      "from": "c_out",
+      "fromTerminal": "neg",
+      "to": "ear",
+      "toTerminal": "a"
+    },
+    {
+      "from": "u1",
+      "fromTerminal": "2_neg",
+      "to": "u1",
+      "toTerminal": "2_out"
+    },
+    {
+      "from": "gnd1",
+      "fromTerminal": "gnd",
+      "to": "mic",
+      "toTerminal": "neg"
+    },
+    {
+      "from": "mic",
+      "fromTerminal": "neg",
+      "to": "pot",
+      "toTerminal": "b"
+    },
+    {
+      "from": "pot",
+      "fromTerminal": "b",
+      "to": "r_h2",
+      "toTerminal": "b"
+    },
+    {
+      "from": "r_h2",
+      "fromTerminal": "b",
+      "to": "c_g",
+      "toTerminal": "neg"
+    },
+    {
+      "from": "c_g",
+      "fromTerminal": "neg",
+      "to": "ear",
+      "toTerminal": "b"
+    },
+    {
+      "from": "ear",
+      "fromTerminal": "b",
+      "to": "u1",
+      "toTerminal": "gnd"
+    },
+    {
+      "from": "u1",
+      "fromTerminal": "gnd",
+      "to": "u1",
+      "toTerminal": "2_pos"
+    }
+  ]
+}

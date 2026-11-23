@@ -2,6 +2,8 @@
 
 ## Circuit
 555 astable. R₁=1 kΩ, R₂=100 kΩ, C=1 µF. Output → 100 Ω → white LED → GND.
+CONTROL (pin 5) goes to GND through 10 nF, the usual decoupling: it holds the
+thresholds at 1/3 and 2/3 of VCC. Wired straight to GND it would stop the timer.
 
 ## Observable behaviour (hand-computed)
 - **Frequency:** f = 1.44 / ((1k + 200k) × 1µ) = 1.44 / 0.201 ≈ 7.16 Hz.
@@ -11,6 +13,7 @@
 - **For true low duty:** would need diode across R₂. Without it, duty is ~50%.
 - **Flash current:** (5 − 2) / 100 = 30 mA — bright flash.
 - **Period:** ~139 ms = 7.2 flashes/s.
+- **Simulated:** about 7.1 flashes/s, output high 51 % of the time.
 
 ## What this verifies
 1. 555 astable duty cycle depends on R₁/(R₁+2R₂) ratio

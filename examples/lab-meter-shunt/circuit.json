@@ -1,0 +1,232 @@
+{
+  "vcc": 5,
+  "parts": [
+    {
+      "id": "vcc1",
+      "kind": "vcc",
+      "params": {},
+      "x": 80,
+      "y": 70,
+      "rotation": 0
+    },
+    {
+      "id": "gnd1",
+      "kind": "gnd",
+      "params": {},
+      "x": 80,
+      "y": 735,
+      "rotation": 0
+    },
+    {
+      "id": "r_feed",
+      "kind": "resistor",
+      "params": {
+        "ohms": 100
+      },
+      "x": 190,
+      "y": 70,
+      "rotation": 0,
+      "label": "R1 100"
+    },
+    {
+      "id": "shunt_t",
+      "kind": "resistor",
+      "params": {
+        "ohms": 10
+      },
+      "x": 300,
+      "y": 70,
+      "rotation": 0,
+      "label": "Shunt total 10 (+0.1 contact)"
+    },
+    {
+      "id": "shunt_sw",
+      "kind": "slide_switch",
+      "params": {
+        "position": 0
+      },
+      "x": 300,
+      "y": 165,
+      "rotation": 0,
+      "label": "Shunt in / out"
+    },
+    {
+      "id": "mt_meter",
+      "kind": "analog_meter",
+      "params": {
+        "mode": "current",
+        "coilOhms": 1000,
+        "ifs": 0.0001,
+        "fullScale": 0.0001
+      },
+      "x": 410,
+      "y": 165,
+      "rotation": 0,
+      "label": "Total (1 k coil, 100 uA full scale)"
+    },
+    {
+      "id": "r_a",
+      "kind": "resistor",
+      "params": {
+        "ohms": 1000
+      },
+      "x": 190,
+      "y": 355,
+      "rotation": 0,
+      "label": "R2 1k"
+    },
+    {
+      "id": "shunt_a",
+      "kind": "resistor",
+      "params": {
+        "ohms": 10.1
+      },
+      "x": 300,
+      "y": 355,
+      "rotation": 0,
+      "label": "Shunt A 10.1"
+    },
+    {
+      "id": "ma_meter",
+      "kind": "analog_meter",
+      "params": {
+        "mode": "current",
+        "coilOhms": 1000,
+        "ifs": 0.0001,
+        "fullScale": 0.0001
+      },
+      "x": 410,
+      "y": 355,
+      "rotation": 0,
+      "label": "Branch A (1 k coil, 100 uA full scale)"
+    },
+    {
+      "id": "r_b",
+      "kind": "resistor",
+      "params": {
+        "ohms": 2200
+      },
+      "x": 190,
+      "y": 545,
+      "rotation": 0,
+      "label": "R3 2k2"
+    },
+    {
+      "id": "shunt_b",
+      "kind": "resistor",
+      "params": {
+        "ohms": 10.1
+      },
+      "x": 300,
+      "y": 545,
+      "rotation": 0,
+      "label": "Shunt B 10.1"
+    },
+    {
+      "id": "mb_meter",
+      "kind": "analog_meter",
+      "params": {
+        "mode": "current",
+        "coilOhms": 1000,
+        "ifs": 0.0001,
+        "fullScale": 0.0001
+      },
+      "x": 410,
+      "y": 545,
+      "rotation": 0,
+      "label": "Branch B (1 k coil, 100 uA full scale)"
+    }
+  ],
+  "wires": [
+    {
+      "from": "vcc1",
+      "fromTerminal": "vcc",
+      "to": "r_feed",
+      "toTerminal": "a"
+    },
+    {
+      "from": "r_feed",
+      "fromTerminal": "b",
+      "to": "shunt_sw",
+      "toTerminal": "com"
+    },
+    {
+      "from": "shunt_sw",
+      "fromTerminal": "com",
+      "to": "mt_meter",
+      "toTerminal": "a"
+    },
+    {
+      "from": "shunt_sw",
+      "fromTerminal": "a",
+      "to": "shunt_t",
+      "toTerminal": "a"
+    },
+    {
+      "from": "shunt_t",
+      "fromTerminal": "b",
+      "to": "mt_meter",
+      "toTerminal": "b"
+    },
+    {
+      "from": "mt_meter",
+      "fromTerminal": "b",
+      "to": "r_a",
+      "toTerminal": "a"
+    },
+    {
+      "from": "r_a",
+      "fromTerminal": "a",
+      "to": "r_b",
+      "toTerminal": "a"
+    },
+    {
+      "from": "r_a",
+      "fromTerminal": "b",
+      "to": "shunt_a",
+      "toTerminal": "a"
+    },
+    {
+      "from": "shunt_a",
+      "fromTerminal": "a",
+      "to": "ma_meter",
+      "toTerminal": "a"
+    },
+    {
+      "from": "r_b",
+      "fromTerminal": "b",
+      "to": "shunt_b",
+      "toTerminal": "a"
+    },
+    {
+      "from": "shunt_b",
+      "fromTerminal": "a",
+      "to": "mb_meter",
+      "toTerminal": "a"
+    },
+    {
+      "from": "gnd1",
+      "fromTerminal": "gnd",
+      "to": "shunt_a",
+      "toTerminal": "b"
+    },
+    {
+      "from": "shunt_a",
+      "fromTerminal": "b",
+      "to": "ma_meter",
+      "toTerminal": "b"
+    },
+    {
+      "from": "ma_meter",
+      "fromTerminal": "b",
+      "to": "shunt_b",
+      "toTerminal": "b"
+    },
+    {
+      "from": "shunt_b",
+      "fromTerminal": "b",
+      "to": "mb_meter",
+      "toTerminal": "b"
+    }
+  ]
+}

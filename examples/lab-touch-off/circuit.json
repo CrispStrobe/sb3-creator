@@ -1,0 +1,262 @@
+{
+ "vcc": 9,
+ "parts": [
+  {
+   "id": "bb1",
+   "kind": "breadboard",
+   "params": {},
+   "terminals": [],
+   "x": 470,
+   "y": 330,
+   "rotation": 0
+  },
+  {
+   "id": "touch",
+   "kind": "button",
+   "params": {},
+   "label": "touch pads",
+   "x": 151,
+   "y": 300,
+   "rotation": 0,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "e2",
+     "b": "f2"
+    }
+   }
+  },
+  {
+   "id": "bat",
+   "kind": "vsource",
+   "params": {
+    "volts": 9,
+    "variant": "9v"
+   },
+   "x": 60,
+   "y": 60,
+   "rotation": 0
+  },
+  {
+   "id": "skin",
+   "kind": "resistor",
+   "params": {
+    "ohms": 2200000
+   },
+   "label": "finger 2.2M",
+   "x": 172,
+   "y": 300,
+   "rotation": 0,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a4",
+     "b": "a8"
+    }
+   }
+  },
+  {
+   "id": "rp",
+   "kind": "resistor",
+   "params": {
+    "ohms": 47000
+   },
+   "label": "base guard 47k",
+   "x": 235,
+   "y": 300,
+   "rotation": 0,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a10",
+     "b": "a14"
+    }
+   }
+  },
+  {
+   "id": "r1",
+   "kind": "resistor",
+   "params": {
+    "ohms": 1000
+   },
+   "x": 298,
+   "y": 300,
+   "rotation": 0,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a16",
+     "b": "a20"
+    }
+   }
+  },
+  {
+   "id": "led1",
+   "kind": "led",
+   "params": {
+    "color": "yellow"
+   },
+   "x": 361,
+   "y": 300,
+   "rotation": 0,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "anode": "a22",
+     "cathode": "a23"
+    }
+   }
+  },
+  {
+   "id": "q1",
+   "kind": "npn",
+   "params": {},
+   "x": 392,
+   "y": 300,
+   "rotation": 0,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "emitter": "a25",
+     "base": "a26",
+     "collector": "a27"
+    }
+   }
+  },
+  {
+   "id": "q2",
+   "kind": "npn",
+   "params": {},
+   "x": 434,
+   "y": 300,
+   "rotation": 0,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "emitter": "a29",
+     "base": "a30",
+     "collector": "a31"
+    }
+   }
+  }
+ ],
+ "wires": [
+  {
+   "id": "w1",
+   "from": {
+    "part": "bat",
+    "terminal": "pos"
+   },
+   "to": {
+    "board": "bb1",
+    "hole": "t+1"
+   },
+   "color": "red"
+  },
+  {
+   "id": "w2",
+   "from": {
+    "part": "bat",
+    "terminal": "neg"
+   },
+   "to": {
+    "board": "bb1",
+    "hole": "t-1"
+   },
+   "color": "black"
+  }
+ ],
+ "holeWires": [
+  {
+   "ref": "bbw:bb1:j1",
+   "boardId": "bb1",
+   "a": "d2",
+   "b": "t+2",
+   "color": "red"
+  },
+  {
+   "ref": "bbw:bb1:j2",
+   "boardId": "bb1",
+   "a": "e16",
+   "b": "t+16",
+   "color": "red"
+  },
+  {
+   "ref": "bbw:bb1:j3",
+   "boardId": "bb1",
+   "a": "e23",
+   "b": "t-23",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb1:j4",
+   "boardId": "bb1",
+   "a": "e29",
+   "b": "t-29",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb1:j5",
+   "boardId": "bb1",
+   "a": "g2",
+   "b": "e4",
+   "color": "blue"
+  },
+  {
+   "ref": "bbw:bb1:j6",
+   "boardId": "bb1",
+   "a": "e8",
+   "b": "e10",
+   "color": "yellow"
+  },
+  {
+   "ref": "bbw:bb1:j7",
+   "boardId": "bb1",
+   "a": "e14",
+   "b": "e26",
+   "color": "orange"
+  },
+  {
+   "ref": "bbw:bb1:j8",
+   "boardId": "bb1",
+   "a": "e25",
+   "b": "e30",
+   "color": "green"
+  },
+  {
+   "ref": "bbw:bb1:j9",
+   "boardId": "bb1",
+   "a": "e20",
+   "b": "e22",
+   "color": "white"
+  },
+  {
+   "ref": "bbw:bb1:j10",
+   "boardId": "bb1",
+   "a": "d22",
+   "b": "e27",
+   "color": "white"
+  },
+  {
+   "ref": "bbw:bb1:j11",
+   "boardId": "bb1",
+   "a": "d27",
+   "b": "e31",
+   "color": "white"
+  },
+  {
+   "ref": "bbw:bb1:j12",
+   "boardId": "bb1",
+   "a": "t+63",
+   "b": "b+63",
+   "color": "red"
+  },
+  {
+   "ref": "bbw:bb1:j13",
+   "boardId": "bb1",
+   "a": "t-63",
+   "b": "b-63",
+   "color": "black"
+  }
+ ]
+}

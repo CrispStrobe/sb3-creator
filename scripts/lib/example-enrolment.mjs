@@ -9,6 +9,7 @@
  */
 import { readFileSync, readdirSync, existsSync, statSync } from 'node:fs';
 import { join } from 'node:path';
+import { hasAssertBlock } from './assert-blocks.mjs';
 import SB3Creator from '../../src/utils/sb3Creator.js';
 
 /** Facts about one example, computed once and shared by every predicate. */
@@ -26,7 +27,7 @@ function factsFor(EXAMPLES, entry) {
         declaresParams: false,
     };
     const exp = join(dir, 'EXPECTED.md');
-    if (existsSync(exp)) f.assertBlock = /```assert\n[\s\S]*?```/.test(readFileSync(exp, 'utf8'));
+    if (existsSync(exp)) f.assertBlock = hasAssertBlock(readFileSync(exp, 'utf8'));
     for (const name of f.circuitFiles) {
         try {
             const data = JSON.parse(readFileSync(join(dir, name), 'utf8'));

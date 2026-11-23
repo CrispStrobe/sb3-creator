@@ -1,0 +1,313 @@
+{
+  "vcc": 9,
+  "parts": [
+    {
+      "id": "vcc1",
+      "kind": "vcc",
+      "params": {},
+      "x": 80,
+      "y": 70,
+      "rotation": 0
+    },
+    {
+      "id": "gnd1",
+      "kind": "gnd",
+      "params": {},
+      "x": 80,
+      "y": 640,
+      "rotation": 0
+    },
+    {
+      "id": "r_top",
+      "kind": "resistor",
+      "params": {
+        "ohms": 10000
+      },
+      "x": 190,
+      "y": 165,
+      "rotation": 0,
+      "label": "R5 10k"
+    },
+    {
+      "id": "pot",
+      "kind": "potentiometer",
+      "params": {
+        "ohms": 10000,
+        "position": 0.5
+      },
+      "x": 190,
+      "y": 260,
+      "rotation": 0,
+      "label": "Voltage knob"
+    },
+    {
+      "id": "u1",
+      "kind": "lm358",
+      "params": {},
+      "x": 300,
+      "y": 260,
+      "rotation": 0,
+      "label": "U1 follower"
+    },
+    {
+      "id": "r_red",
+      "kind": "resistor",
+      "params": {
+        "ohms": 470
+      },
+      "x": 410,
+      "y": 165,
+      "rotation": 0,
+      "label": "R1"
+    },
+    {
+      "id": "am",
+      "kind": "ammeter",
+      "params": {},
+      "x": 520,
+      "y": 165,
+      "rotation": 0,
+      "label": "I red"
+    },
+    {
+      "id": "led_red",
+      "kind": "led",
+      "params": {
+        "vf": 1.8,
+        "color": "red",
+        "model": "shockley"
+      },
+      "x": 630,
+      "y": 260,
+      "rotation": 0,
+      "label": "red"
+    },
+    {
+      "id": "vm",
+      "kind": "voltmeter",
+      "params": {},
+      "x": 740,
+      "y": 260,
+      "rotation": 0,
+      "label": "V red"
+    },
+    {
+      "id": "r_yel",
+      "kind": "resistor",
+      "params": {
+        "ohms": 470
+      },
+      "x": 410,
+      "y": 355,
+      "rotation": 0,
+      "label": "R2"
+    },
+    {
+      "id": "led_yel",
+      "kind": "led",
+      "params": {
+        "vf": 2,
+        "color": "yellow",
+        "model": "shockley"
+      },
+      "x": 520,
+      "y": 355,
+      "rotation": 0,
+      "label": "yellow"
+    },
+    {
+      "id": "r_grn",
+      "kind": "resistor",
+      "params": {
+        "ohms": 470
+      },
+      "x": 410,
+      "y": 450,
+      "rotation": 0,
+      "label": "R3"
+    },
+    {
+      "id": "led_grn",
+      "kind": "led",
+      "params": {
+        "vf": 2.2,
+        "color": "green",
+        "model": "shockley"
+      },
+      "x": 520,
+      "y": 450,
+      "rotation": 0,
+      "label": "green"
+    },
+    {
+      "id": "r_blu",
+      "kind": "resistor",
+      "params": {
+        "ohms": 470
+      },
+      "x": 410,
+      "y": 545,
+      "rotation": 0,
+      "label": "R4"
+    },
+    {
+      "id": "led_blu",
+      "kind": "led",
+      "params": {
+        "vf": 3,
+        "color": "blue",
+        "model": "shockley"
+      },
+      "x": 520,
+      "y": 545,
+      "rotation": 0,
+      "label": "blue"
+    }
+  ],
+  "wires": [
+    {
+      "from": "vcc1",
+      "fromTerminal": "vcc",
+      "to": "r_top",
+      "toTerminal": "a"
+    },
+    {
+      "from": "r_top",
+      "fromTerminal": "a",
+      "to": "u1",
+      "toTerminal": "vcc"
+    },
+    {
+      "from": "r_top",
+      "fromTerminal": "b",
+      "to": "pot",
+      "toTerminal": "a"
+    },
+    {
+      "from": "pot",
+      "fromTerminal": "wiper",
+      "to": "u1",
+      "toTerminal": "1_pos"
+    },
+    {
+      "from": "u1",
+      "fromTerminal": "1_out",
+      "to": "u1",
+      "toTerminal": "1_neg"
+    },
+    {
+      "from": "u1",
+      "fromTerminal": "1_neg",
+      "to": "r_red",
+      "toTerminal": "a"
+    },
+    {
+      "from": "r_red",
+      "fromTerminal": "a",
+      "to": "r_yel",
+      "toTerminal": "a"
+    },
+    {
+      "from": "r_yel",
+      "fromTerminal": "a",
+      "to": "r_grn",
+      "toTerminal": "a"
+    },
+    {
+      "from": "r_grn",
+      "fromTerminal": "a",
+      "to": "r_blu",
+      "toTerminal": "a"
+    },
+    {
+      "from": "r_red",
+      "fromTerminal": "b",
+      "to": "am",
+      "toTerminal": "a"
+    },
+    {
+      "from": "am",
+      "fromTerminal": "b",
+      "to": "led_red",
+      "toTerminal": "anode"
+    },
+    {
+      "from": "led_red",
+      "fromTerminal": "anode",
+      "to": "vm",
+      "toTerminal": "a"
+    },
+    {
+      "from": "r_yel",
+      "fromTerminal": "b",
+      "to": "led_yel",
+      "toTerminal": "anode"
+    },
+    {
+      "from": "r_grn",
+      "fromTerminal": "b",
+      "to": "led_grn",
+      "toTerminal": "anode"
+    },
+    {
+      "from": "r_blu",
+      "fromTerminal": "b",
+      "to": "led_blu",
+      "toTerminal": "anode"
+    },
+    {
+      "from": "gnd1",
+      "fromTerminal": "gnd",
+      "to": "pot",
+      "toTerminal": "b"
+    },
+    {
+      "from": "pot",
+      "fromTerminal": "b",
+      "to": "u1",
+      "toTerminal": "gnd"
+    },
+    {
+      "from": "u1",
+      "fromTerminal": "gnd",
+      "to": "u1",
+      "toTerminal": "2_pos"
+    },
+    {
+      "from": "u1",
+      "fromTerminal": "2_pos",
+      "to": "u1",
+      "toTerminal": "2_neg"
+    },
+    {
+      "from": "u1",
+      "fromTerminal": "2_neg",
+      "to": "led_red",
+      "toTerminal": "cathode"
+    },
+    {
+      "from": "led_red",
+      "fromTerminal": "cathode",
+      "to": "vm",
+      "toTerminal": "b"
+    },
+    {
+      "from": "vm",
+      "fromTerminal": "b",
+      "to": "led_yel",
+      "toTerminal": "cathode"
+    },
+    {
+      "from": "led_yel",
+      "fromTerminal": "cathode",
+      "to": "led_grn",
+      "toTerminal": "cathode"
+    },
+    {
+      "from": "led_grn",
+      "fromTerminal": "cathode",
+      "to": "led_blu",
+      "toTerminal": "cathode"
+    }
+  ]
+}

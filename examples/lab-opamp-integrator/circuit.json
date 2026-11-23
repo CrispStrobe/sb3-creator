@@ -1,0 +1,226 @@
+{
+ "vcc": 9,
+ "parts": [
+  {
+   "id": "bb1",
+   "kind": "breadboard",
+   "params": {},
+   "terminals": [],
+   "x": 470,
+   "y": 300,
+   "rotation": 0
+  },
+  {
+   "id": "gnd",
+   "kind": "gnd",
+   "params": {},
+   "x": 43,
+   "y": 255,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "gnd": "a1"
+    }
+   }
+  },
+  {
+   "id": "bat_pos",
+   "kind": "vsource",
+   "params": {
+    "volts": 9
+   },
+   "label": "+9 V",
+   "x": 60,
+   "y": 160
+  },
+  {
+   "id": "bat_neg",
+   "kind": "vsource",
+   "params": {
+    "volts": 9
+   },
+   "label": "-9 V",
+   "x": 60,
+   "y": 60
+  },
+  {
+   "id": "amp",
+   "kind": "lm358",
+   "params": {},
+   "label": "LM358",
+   "x": 71,
+   "y": 311
+  },
+  {
+   "id": "run_sw",
+   "kind": "switch",
+   "params": {},
+   "label": "RUN",
+   "x": 113,
+   "y": 255,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a6",
+     "b": "a9"
+    }
+   }
+  },
+  {
+   "id": "r_in",
+   "kind": "resistor",
+   "params": {
+    "ohms": 100000
+   },
+   "label": "R_in",
+   "x": 113,
+   "y": 345,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "j6",
+     "b": "j10"
+    }
+   }
+  },
+  {
+   "id": "c_int",
+   "kind": "polarized_cap",
+   "params": {
+    "farads": 0.0001
+   },
+   "label": "C 100 µF",
+   "x": 183,
+   "y": 255,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "neg": "a11",
+     "pos": "a12"
+    }
+   }
+  },
+  {
+   "id": "reset_btn",
+   "kind": "button",
+   "params": {},
+   "label": "RESET",
+   "x": 225,
+   "y": 311,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "e14",
+     "b": "f14"
+    }
+   }
+  },
+  {
+   "id": "meter",
+   "kind": "analog_meter",
+   "params": {
+    "fullScale": 7.5
+   },
+   "x": 150,
+   "y": 60
+  }
+ ],
+ "wires": [
+  {
+   "from": "bat_neg",
+   "fromTerminal": "neg",
+   "to": "run_sw",
+   "toTerminal": "b"
+  },
+  {
+   "from": "gnd",
+   "fromTerminal": "gnd",
+   "to": "bat_neg",
+   "toTerminal": "pos"
+  },
+  {
+   "from": "bat_neg",
+   "fromTerminal": "pos",
+   "to": "amp",
+   "toTerminal": "1_pos"
+  },
+  {
+   "from": "amp",
+   "fromTerminal": "1_pos",
+   "to": "meter",
+   "toTerminal": "b"
+  },
+  {
+   "from": "run_sw",
+   "fromTerminal": "a",
+   "to": "r_in",
+   "toTerminal": "a"
+  },
+  {
+   "from": "r_in",
+   "fromTerminal": "b",
+   "to": "amp",
+   "toTerminal": "1_neg"
+  },
+  {
+   "from": "amp",
+   "fromTerminal": "1_neg",
+   "to": "c_int",
+   "toTerminal": "neg"
+  },
+  {
+   "from": "c_int",
+   "fromTerminal": "neg",
+   "to": "reset_btn",
+   "toTerminal": "a"
+  },
+  {
+   "from": "amp",
+   "fromTerminal": "1_out",
+   "to": "c_int",
+   "toTerminal": "pos"
+  },
+  {
+   "from": "c_int",
+   "fromTerminal": "pos",
+   "to": "reset_btn",
+   "toTerminal": "b"
+  },
+  {
+   "from": "reset_btn",
+   "fromTerminal": "b",
+   "to": "meter",
+   "toTerminal": "a"
+  },
+  {
+   "from": "bat_pos",
+   "fromTerminal": "neg",
+   "to": "gnd",
+   "toTerminal": "gnd"
+  },
+  {
+   "from": "bat_pos",
+   "fromTerminal": "pos",
+   "to": "amp",
+   "toTerminal": "vcc"
+  },
+  {
+   "from": "amp",
+   "fromTerminal": "gnd",
+   "to": "bat_neg",
+   "toTerminal": "neg"
+  },
+  {
+   "from": "amp",
+   "fromTerminal": "2_pos",
+   "to": "gnd",
+   "toTerminal": "gnd"
+  },
+  {
+   "from": "amp",
+   "fromTerminal": "2_neg",
+   "to": "amp",
+   "toTerminal": "2_out"
+  }
+ ]
+}

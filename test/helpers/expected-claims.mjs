@@ -135,7 +135,12 @@ const isRule = (line) => /^\s*\|[\s|:-]+\|\s*$/.test(line);
 export function claimsOf (dir) {
     const path = join(EXAMPLES, dir, 'EXPECTED.md');
     if (!existsSync(path)) return [];
-    const lines = withoutFences(readFileSync(path, 'utf8'));
+    return claimsOfText(dir, readFileSync(path, 'utf8'));
+}
+
+/** The same census over a document given as text (a test's fixture page). */
+export function claimsOfText (dir, md) {
+    const lines = withoutFences(md);
 
     // Table geometry, resolved first: a claim in a table row is a claim about
     // the condition in that row's leading cells, and the header names what that
@@ -146,7 +151,12 @@ export function claimsOf (dir) {
         const header = cells(lines[i - 1]);
         // Prose immediately above the table often disclaims it ("UNLOADED
         // approximations"), and that disclaimer governs every row.
-        const preamble = lines.slice(Math.max(0, i - 6), i - 1).join(' ');
+        // The look-back stops at a heading: prose in the previous section is
+        // about something else, and letting it in let a disclaimer in
+        // "## Circuit" disqualify a result table under "## Results".
+        let from = i - 1;
+        while (from > Math.max(0, i - 6) && !/^#{1,6}\s/.test(lines[from - 1])) from--;
+        const preamble = lines.slice(from, i - 1).join(' ');
         for (let j = i + 1; j < lines.length && lines[j].trim().startsWith('|'); j++)
             table[j] = { header, preamble, row: cells(lines[j]) };
         table[i - 1] = { header, preamble, row: header, isHeader: true };

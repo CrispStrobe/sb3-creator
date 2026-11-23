@@ -4,7 +4,7 @@
  * An EXPECTED.md can carry a fenced block:
  *
  *     ```assert
- *     net <label> V <expected> +-<tolerance>
+ *     net <label> V <expected> +-<tolerance>     (expected may be negative)
  *     pin <name> duty <expected> +-<tolerance>
  *     current <partId> mA <expected> +-<tolerance>
  *     ```
@@ -25,6 +25,7 @@ import { pathToFileURL } from 'url';
 // ---- engine setup (same pattern as gallery-e2e) ----
 import { requireSiblings, siblingGuardTest } from './helpers/siblings.mjs';
 import { injectEngine } from '../scripts/lib/engine-surface.mjs';
+import { parseAssertions } from '../scripts/lib/assert-blocks.mjs';
 
 // Cross-repo guard: local skip, CI failure. See test/helpers/siblings.mjs.
 //
@@ -75,153 +76,11 @@ const EXAMPLES = join(import.meta.dirname, '..', 'examples');
 const VISUAL_ONLY = new Set(['label', 'wire_jumper']);
 
 // ---- assertion parser ----
-
-/**
- * Parse ```assert blocks from EXPECTED.md.
- * Returns [{kind, args, raw}] where kind is 'net'|'pin'|'current'|unknown.
- */
-function parseAssertions(mdText) {
-    const assertions = [];
-    const re = /```assert\n([\s\S]*?)```/g;
-    let m;
-    while ((m = re.exec(mdText)) !== null) {
-        for (const line of m[1].split('\n')) {
-            const trimmed = line.trim();
-            if (!trimmed || trimmed.startsWith('#')) continue;
-
-            // net <label> V <value> +-<tol>
-            const netMatch = trimmed.match(/^net\s+(\S+)\s+[Vv]\s+([\d.]+)\s*\+-\s*([\d.]+)$/);
-            if (netMatch) {
-                assertions.push({
-                    kind: 'net', label: netMatch[1],
-                    unit: 'V', expected: parseFloat(netMatch[2]),
-                    tolerance: parseFloat(netMatch[3]), raw: trimmed
-                });
-                continue;
-            }
-
-            // net <label> mV <value> +-<tol>
-            const netMvMatch = trimmed.match(/^net\s+(\S+)\s+mV\s+([\d.]+)\s*\+-\s*([\d.]+)$/);
-            if (netMvMatch) {
-                assertions.push({
-                    kind: 'net', label: netMvMatch[1],
-                    unit: 'V', expected: parseFloat(netMvMatch[2]) / 1000,
-                    tolerance: parseFloat(netMvMatch[3]) / 1000, raw: trimmed
-                });
-                continue;
-            }
-
-            // pin <name> duty <value> +-<tol>
-            const pinMatch = trimmed.match(/^pin\s+(\S+)\s+duty\s+~?([\d.]+)\s*\+-\s*([\d.]+)$/);
-            if (pinMatch) {
-                assertions.push({
-                    kind: 'pin-duty', pin: pinMatch[1],
-                    expected: parseFloat(pinMatch[2]),
-                    tolerance: parseFloat(pinMatch[3]), raw: trimmed
-                });
-                continue;
-            }
-
-            // current <partId> mA <value> +-<tol>
-            const curMatch = trimmed.match(/^current\s+(\S+)\s+mA\s+([\d.]+)\s*\+-\s*([\d.]+)$/);
-            if (curMatch) {
-                assertions.push({
-                    kind: 'current', partId: curMatch[1],
-                    expected: parseFloat(curMatch[2]),
-                    tolerance: parseFloat(curMatch[3]), raw: trimmed
-                });
-                continue;
-            }
-
-            // frequency <label> Hz <value> +-<tol>
-            const freqMatch = trimmed.match(/^frequency\s+(\S+)\s+Hz\s+([\d.]+)\s*\+-\s*([\d.]+)$/);
-            if (freqMatch) {
-                assertions.push({
-                    kind: 'frequency', label: freqMatch[1],
-                    expected: parseFloat(freqMatch[2]),
-                    tolerance: parseFloat(freqMatch[3]), raw: trimmed
-                });
-                continue;
-            }
-
-            // refresh_ms / tick_ms: <value> [+- <tol>] | [+- <n>%]
-            //
-            // These are PROGRAM-LOOP periods, not circuit quantities: the
-            // interval at which the FOREVER loop repeats, which is the `wait`
-            // inside it. Checking them cross-checks the shipped documentation
-            // against the shipped program, which is a real drift class — a
-            // waveform bench once declared 100 Hz in its circuit and ran at
-            // 1000.1 Hz, and its EXPECTED.md predicted a voltage that bench
-            // could not produce.
-            const periodMatch = trimmed.match(
-                /^(refresh_ms|tick_ms)\s*:\s*([\d.]+)\s*(?:(?:\+-|±)\s*([\d.]+)(%?))?$/);
-            if (periodMatch) {
-                const expected = parseFloat(periodMatch[2]);
-                const rawTol = periodMatch[3] === undefined ? null : parseFloat(periodMatch[3]);
-                assertions.push({
-                    kind: 'loop-period', key: periodMatch[1], expected,
-                    // No stated tolerance means exact: the program either waits
-                    // that long or the document is wrong.
-                    tolerance: rawTol === null ? 0
-                        : (periodMatch[4] === '%' ? expected * rawTol / 100 : rawTol),
-                    raw: trimmed
-                });
-                continue;
-            }
-
-            // pulse_duration_ms: <value> [+- <tol>[%]]
-            //
-            // A 555 in monostable: t = 1.1 * R * C, where R and C are found by
-            // TOPOLOGY, never by name or magnitude. Every one of these circuits
-            // carries three resistors, so "the big one" would be a guess that
-            // happens to work until it does not.
-            const pulseMatch = trimmed.match(
-                /^pulse_duration_ms\s*:\s*([\d.]+)\s*(?:(?:\+-|±)\s*([\d.]+)(%?))?$/);
-            if (pulseMatch) {
-                const expected = parseFloat(pulseMatch[1]);
-                const rawTol = pulseMatch[2] === undefined ? null : parseFloat(pulseMatch[2]);
-                assertions.push({
-                    kind: 'pulse-555', expected,
-                    tolerance: rawTol === null ? expected * 0.02
-                        : (pulseMatch[3] === '%' ? expected * rawTol / 100 : rawTol),
-                    raw: trimmed
-                });
-                continue;
-            }
-
-            // buzzer_tone_hz: <value> [+- <tol>[%]] — a 555 astable's frequency
-            const toneMatch = trimmed.match(
-                /^buzzer_tone_hz\s*:\s*([\d.]+)\s*(?:(?:\+-|±)\s*([\d.]+)(%?))?$/);
-            if (toneMatch) {
-                const expected = parseFloat(toneMatch[1]);
-                const rawTol = toneMatch[2] === undefined ? null : parseFloat(toneMatch[2]);
-                assertions.push({
-                    kind: 'tone-555', expected,
-                    tolerance: rawTol === null ? expected * 0.02
-                        : (toneMatch[3] === '%' ? expected * rawTol / 100 : rawTol),
-                    raw: trimmed
-                });
-                continue;
-            }
-
-            // display: <kind> [(<chip>)]   |   interface: i2c|spi|parallel
-            const dispMatch = trimmed.match(/^display\s*:\s*(.+)$/);
-            if (dispMatch) {
-                assertions.push({ kind: 'display-kind', claim: dispMatch[1].trim(), raw: trimmed });
-                continue;
-            }
-            const ifMatch = trimmed.match(/^interface\s*:\s*(i2c|spi|parallel)\s*$/i);
-            if (ifMatch) {
-                assertions.push({ kind: 'display-bus', bus: ifMatch[1].toLowerCase(), raw: trimmed });
-                continue;
-            }
-
-            // Unknown assertion kind — explicit skip
-            assertions.push({ kind: 'unknown', raw: trimmed });
-        }
-    }
-    return assertions;
-}
+//
+// The grammar lives in scripts/lib/assert-blocks.mjs, shared with the
+// enrolment ledger, so "this example has an assert block" and "these are its
+// assertions" are one reading of the file rather than two regexes that can
+// drift apart.
 
 /**
  * The period of a program's repeating loop, in ms, or a reason it cannot be read.
@@ -307,7 +166,8 @@ function astable555Hz(circuit) {
         }
     });
 
-    const legs = (p) => ['a', 'b'].map(t => netOf(p.id, t));
+    // An electrolytic (polarized_cap) names its leads pos/neg.
+    const legs = (p) => (p.kind === 'polarized_cap' ? ['pos', 'neg'] : ['a', 'b']).map(t => netOf(p.id, t));
     const res = parts.filter(p => /resistor/i.test(String(p.kind || '')));
     // R1 runs supply -> DISCHARGE, but the supply may be GATED: pc75-alarmgeber
     // is an alarm, so its rail reaches R1 through a button. One hop through a
@@ -330,7 +190,7 @@ function astable555Hz(circuit) {
     const r2 = res.find(p => { const [a, b] = legs(p);
         return (a === dis && b === thr) || (b === dis && a === thr); });
     if (!r2) return { ok: false, reason: 'no resistor between DISCHARGE and THRESHOLD (R2)' };
-    const c = parts.filter(p => /capacitor/i.test(String(p.kind || '')))
+    const c = parts.filter(p => /capacitor|polarized_cap/i.test(String(p.kind || '')))
         .find(p => { const [a, b] = legs(p);
             return (a === thr && groundNets.has(b)) || (b === thr && groundNets.has(a)); });
     if (!c) return { ok: false, reason: 'no capacitor from THRESHOLD to ground' };
@@ -374,14 +234,15 @@ function monostable555Ms(circuit) {
     });
 
     // R: one leg on THRESHOLD, the other on a supply net.
-    const legs = (p) => ['a', 'b'].map(t => netOf(p.id, t));
+    // An electrolytic (polarized_cap) names its leads pos/neg.
+    const legs = (p) => (p.kind === 'polarized_cap' ? ['pos', 'neg'] : ['a', 'b']).map(t => netOf(p.id, t));
     const rt = parts.filter(p => /resistor/i.test(String(p.kind || '')))
         .find(p => { const [a, b] = legs(p);
             return (a === thr && supplyNets.has(b)) || (b === thr && supplyNets.has(a)); });
     if (!rt) return { ok: false, reason: 'no resistor from the supply to THRESHOLD' };
 
     // C: one leg on THRESHOLD, the other on ground.
-    const ct = parts.filter(p => /capacitor/i.test(String(p.kind || '')))
+    const ct = parts.filter(p => /capacitor|polarized_cap/i.test(String(p.kind || '')))
         .find(p => { const [a, b] = legs(p);
             return (a === thr && groundNets.has(b)) || (b === thr && groundNets.has(a)); });
     if (!ct) return { ok: false, reason: 'no capacitor from THRESHOLD to ground' };
@@ -613,6 +474,14 @@ describe('absolute-physics assertions', { skip: ENGINE_SKIP }, () => {
             const circuitFail = solved.ok ? null : `circuit ${name} not solvable: ${solved.reason}`;
 
             for (const a of assertions) {
+                if (a.kind === 'malformed') {
+                    test(`malformed ${a.keyword} assertion: ${a.raw}`, () => {
+                        assert.fail(`${name}: "${a.raw}" names a known assertion kind (${a.keyword}) `
+                            + 'but matches none of its grammars in scripts/lib/assert-blocks.mjs, so it '
+                            + 'would never be compared. Fix the line, or extend the grammar.');
+                    });
+                    continue;
+                }
                 if (a.kind === 'unknown') {
                     test(`SKIP unknown assertion: ${a.raw}`, { skip: `unknown assertion kind: "${a.raw}"` }, () => {});
                     continue;

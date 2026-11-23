@@ -73,7 +73,7 @@
       "id": "capacitor_6",
       "kind": "capacitor",
       "params": {
-        "farads": 1e-7
+        "farads": 1e-07
       },
       "terminals": [
         "a",
@@ -94,6 +94,20 @@
       "x": 300,
       "y": 380,
       "rotation": 0
+    },
+    {
+      "id": "capacitor_26",
+      "kind": "capacitor",
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 200,
+      "y": 320,
+      "rotation": 0,
+      "params": {
+        "farads": 1e-08
+      }
     }
   ],
   "wires": [
@@ -194,19 +208,6 @@
       }
     },
     {
-      "id": "wire_20",
-      "netId": "net_11",
-      "from": {
-        "part": "timer_555_3",
-        "terminal": "control"
-      },
-      "to": {
-        "part": "gnd_2",
-        "terminal": "gnd"
-      }
-    }
-    ,
-    {
       "id": "wire_21",
       "netId": "net_17",
       "from": {
@@ -247,6 +248,30 @@
       "netId": "net_11",
       "from": {
         "part": "buzzer_7",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "gnd_2",
+        "terminal": "gnd"
+      }
+    },
+    {
+      "id": "wire_28",
+      "netId": "net_27",
+      "from": {
+        "part": "timer_555_3",
+        "terminal": "control"
+      },
+      "to": {
+        "part": "capacitor_26",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_29",
+      "netId": "net_11",
+      "from": {
+        "part": "capacitor_26",
         "terminal": "b"
       },
       "to": {

@@ -1,0 +1,164 @@
+{
+ "vcc": 6,
+ "parts": [
+  {
+   "id": "bb1",
+   "kind": "breadboard",
+   "params": {},
+   "terminals": [],
+   "x": 470,
+   "y": 300,
+   "rotation": 0
+  },
+  {
+   "id": "gnd",
+   "kind": "gnd",
+   "params": {},
+   "x": 43,
+   "y": 255,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "gnd": "a1"
+    }
+   }
+  },
+  {
+   "id": "emf",
+   "kind": "vsource",
+   "params": {
+    "volts": 6
+   },
+   "label": "EMF 6 V",
+   "x": 60,
+   "y": 60
+  },
+  {
+   "id": "r_int",
+   "kind": "resistor",
+   "params": {
+    "ohms": 10
+   },
+   "label": "R_i (inside the source)",
+   "x": 43,
+   "y": 345,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "j1",
+     "b": "j5"
+    }
+   }
+  },
+  {
+   "id": "am",
+   "kind": "ammeter",
+   "params": {},
+   "x": 150,
+   "y": 60
+  },
+  {
+   "id": "load",
+   "kind": "potentiometer",
+   "params": {
+    "ohms": 40,
+    "position": 0.5
+   },
+   "label": "LOAD",
+   "x": 71,
+   "y": 255,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a3",
+     "wiper": "a5",
+     "b": "a7"
+    }
+   }
+  },
+  {
+   "id": "vm_load",
+   "kind": "voltmeter",
+   "params": {},
+   "x": 240,
+   "y": 60
+  },
+  {
+   "id": "short_btn",
+   "kind": "button",
+   "params": {},
+   "label": "SHORT",
+   "x": 155,
+   "y": 311,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "e9",
+     "b": "f9"
+    }
+   }
+  }
+ ],
+ "wires": [
+  {
+   "from": "emf",
+   "fromTerminal": "pos",
+   "to": "r_int",
+   "toTerminal": "a"
+  },
+  {
+   "from": "r_int",
+   "fromTerminal": "b",
+   "to": "am",
+   "toTerminal": "a"
+  },
+  {
+   "from": "am",
+   "fromTerminal": "b",
+   "to": "load",
+   "toTerminal": "a"
+  },
+  {
+   "from": "load",
+   "fromTerminal": "a",
+   "to": "load",
+   "toTerminal": "wiper"
+  },
+  {
+   "from": "load",
+   "fromTerminal": "wiper",
+   "to": "vm_load",
+   "toTerminal": "a"
+  },
+  {
+   "from": "vm_load",
+   "fromTerminal": "a",
+   "to": "short_btn",
+   "toTerminal": "a"
+  },
+  {
+   "from": "gnd",
+   "fromTerminal": "gnd",
+   "to": "emf",
+   "toTerminal": "neg"
+  },
+  {
+   "from": "emf",
+   "fromTerminal": "neg",
+   "to": "load",
+   "toTerminal": "b"
+  },
+  {
+   "from": "load",
+   "fromTerminal": "b",
+   "to": "vm_load",
+   "toTerminal": "b"
+  },
+  {
+   "from": "vm_load",
+   "fromTerminal": "b",
+   "to": "short_btn",
+   "toTerminal": "b"
+  }
+ ]
+}
