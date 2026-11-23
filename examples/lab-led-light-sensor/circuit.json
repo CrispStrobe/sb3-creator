@@ -22,7 +22,7 @@
       "kind": "led",
       "params": {
         "color": "red",
-        "photoSensitivity": 5e-06,
+        "photoSensitivity": 0.000005,
         "light": 0.8
       },
       "x": 190,

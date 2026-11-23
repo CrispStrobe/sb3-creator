@@ -587,14 +587,14 @@ B['lab-level-crossing'] = () => ({
 
 // lab-led-light-sensor: photocurrent into a transimpedance amplifier
 // (1 MOhm feedback), then a comparator against a threshold knob that lights
-// a lamp LED when it gets dark. The photodiode is set to a weak 5 uA at full
-// light, the order of what a clear LED delivers when used backwards.
+// a lamp LED when it gets dark. The sensor is a red LED with a weak 5 uA at full
+// light (photoSensitivity), the order of what a clear LED delivers backwards.
 B['lab-led-light-sensor'] = () => ({
     vcc: 9,
     parts: [
         { id: 'vcc1', kind: 'vcc', at: at(0, 0) },
         { id: 'gnd1', kind: 'gnd', at: at(0, 6) },
-        { id: 'pd', kind: 'photodiode', params: { light: 0.8, iMax: 5e-6 }, label: 'Sensor (LED used backwards)', at: at(1, 3) },
+        { id: 'sensor', kind: 'led', params: { color: 'red', photoSensitivity: 5e-6, light: 0.8 }, label: 'Sensor (red LED used backwards)', at: at(1, 3) },
         { id: 'r_f', kind: 'resistor', params: { ohms: 1000000 }, label: 'R1 1M feedback', at: at(2, 1) },
         { id: 'u1', kind: 'lm358', label: 'U1', at: at(3, 3) },
         { id: 'meter', kind: 'analog_meter', params: { fullScale: 5 }, label: 'Light meter 0-5 V', at: at(4, 1) },
@@ -605,13 +605,13 @@ B['lab-led-light-sensor'] = () => ({
     ],
     nets: [
         ['vcc1.vcc', 'u1.vcc', 'r_top.a'],
-        ['pd.cathode', 'r_f.a', 'u1.1_neg'],
+        ['sensor.cathode', 'r_f.a', 'u1.1_neg'],
         ['u1.1_out', 'r_f.b', 'meter.a', 'u1.2_neg'],
         ['r_top.b', 'pot.a'],
         ['pot.wiper', 'u1.2_pos'],
         ['u1.2_out', 'r_led.a'],
         ['r_led.b', 'lamp.anode'],
-        ['gnd1.gnd', 'pd.anode', 'u1.1_pos', 'u1.gnd', 'meter.b', 'pot.b', 'lamp.cathode'],
+        ['gnd1.gnd', 'sensor.anode', 'u1.1_pos', 'u1.gnd', 'meter.b', 'pot.b', 'lamp.cathode'],
     ],
 });
 
