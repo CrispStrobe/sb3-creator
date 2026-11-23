@@ -48,6 +48,8 @@ const { FOOTPRINTS, computeLeadMap } = await import(new URL('src/model/footprint
         registerSidecar(sc);
     }
 }
+const { resolveSeatedParts } = await import(new URL('src/interaction/seat-geometry.js', cuiURL).href);
+const { partBounds } = await import(new URL('src/interaction/hittest.js', cuiURL).href);
 const EXAMPLES = join(dirname(fileURLToPath(import.meta.url)), '..', 'examples');
 
 // Sources and bench instruments never sit in the board.
@@ -62,7 +64,53 @@ const COLS = 63;
  *   open: ['name.term', …],                          // leads left open on purpose
  * }
  */
+/**
+ * A seated potentiometer is drawn with a knob that reaches past its holes: a
+ * box 60·scale wide centred on the part and 60·scale tall above its `a` lead
+ * (scale = min(|b.x − a.x| / 40, 1.4); bw-circuit-ui draws it, Lite's corpus
+ * gate and test/generated-bench-layout.test.mjs check it). Returns the names
+ * of the pots whose knob covers another non-structural part.
+ */
+function coveringPots(c, ids) {
+    const parts = resolveSeatedParts(c.toJSON().parts || []);
+    const nameOf = new Map(Object.entries(ids).map(([n, id]) => [id, n]));
+    const covering = new Set();
+    for (const pot of parts.filter(p => p.kind === 'potentiometer')) {
+        const a = pot._seatTerminals?.a, b = pot._seatTerminals?.b;
+        if (!pot.seat || !a || !b) continue;
+        const s = Math.min(Math.abs(b.x - a.x) / 40, 1.4);
+        const knob = { minX: pot.x - 30 * s, maxX: pot.x + 30 * s, minY: a.y - 60 * s, maxY: a.y };
+        for (const o of parts) {
+            if (o === pot || ['breadboard', 'vcc', 'gnd'].includes(o.kind)) continue;
+            const ob = partBounds(o);
+            if (Math.min(knob.maxX, ob.maxX) - Math.max(knob.minX, ob.minX) > 1 &&
+                Math.min(knob.maxY, ob.maxY) - Math.max(knob.minY, ob.minY) > 1) covering.add(nameOf.get(pot.id));
+        }
+    }
+    return covering;
+}
+
+/**
+ * Seat and wire a bench. A potentiometer whose knob would cover a neighbour
+ * is re-seated in the TOP block row with a spare column on each side, where
+ * its knob rises over the rails and nothing else; benches without such a
+ * collision keep exactly the layout they always had.
+ */
 export function buildBench(spec) {
+    const clear = new Set();
+    for (;;) {
+        const built = seatBench(spec, clear);
+        const covering = [...coveringPots(built.c, built.ids)].filter(n => !clear.has(n));
+        if (!covering.length) {
+            const left = coveringPots(built.c, built.ids);
+            if (left.size) throw new Error(`potentiometer knob still covers a neighbour: ${[...left].join(', ')}`);
+            return built;
+        }
+        for (const n of covering) clear.add(n);
+    }
+}
+
+function seatBench(spec, clear) {
     resetIds();
     const c = new Circuit(spec.vcc ?? 9);
     // Boards are added on demand: a bench that does not fit one full-size
@@ -93,8 +141,13 @@ export function buildBench(spec) {
 
     // ---- seat ----
     const leadHole = new Map();   // "id.term" -> {board, hole}
-    const place = (b, fp) => {
+    const place = (b, fp, knob) => {
         const span = Math.max(...Object.values(fp.leads).map(o => o.dCol));
+        if (knob) {
+            // top row only, one spare column either side of the knob's pot
+            if (b.top + 1 + span > COLS) return null;
+            const r = `a${b.top + 1}`; b.top += span + 4; return r;
+        }
         if (fp.straddlesGutter) {
             const col = Math.max(b.top, b.bot);
             if (col + span > COLS) return null;
@@ -109,8 +162,9 @@ export function buildBench(spec) {
         const fp = FOOTPRINTS[kind];
         if (OFFBOARD.has(kind) || !fp) continue;
         let b = boards.at(-1);
-        let ref = place(b, fp);
-        if (!ref) { b = addBoard(); ref = place(b, fp); }
+        const knob = clear.has(name);
+        let ref = place(b, fp, knob);
+        if (!ref) { b = addBoard(); ref = place(b, fp, knob); }
         const lm = computeLeadMap(fp, ref);
         if (!c.seatPart(ids[name], b.id, lm)) throw new Error(`seat failed: ${name} at ${ref}`);
         for (const [t, h] of Object.entries(lm)) leadHole.set(`${ids[name]}.${t}`, { b, hole: h });
