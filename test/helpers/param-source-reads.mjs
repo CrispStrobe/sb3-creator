@@ -35,7 +35,7 @@ export function readParamKeys(sources) {
     }
 
     // Follow the engine's literal-key helper calls only through their actual
-    // relative named import. The declaration must itself read its first
+    // relative named import, or inside the file that declares the helper. The declaration must itself read its first
     // argument's params using its second formal, as world.ambient does.
     // This discovers keys, not per-kind behaviour: tier 2 remains unchanged.
     const readers = new Map();
@@ -46,7 +46,14 @@ export function readParamKeys(sources) {
             if (m[2] === m[4] && m[3] === m[5]) names.add(m[1]);
         readers.set(file, names);
     }
+    const literalCalls = (text, local) => {
+        const call = new RegExp('\\b' + local + "\\s*\\(\\s*[A-Za-z_$][\\w$]*\\s*,\\s*['\"]([A-Za-z_]\\w*)['\"]\\s*,", 'g');
+        for (const m of text.matchAll(call)) keys.add(m[1]);
+    };
     for (const [file, text] of clean) {
+        // The declaring file's own calls: world.lightLevel(part, fallback)
+        // reads ambient(part, 'light', fallback) without any import.
+        for (const name of readers.get(file)) literalCalls(text, name);
         for (const imported of text.matchAll(/import\s*\{([^}]+)\}\s*from\s*['"]([^'"]+)['"]/g)) {
             if (!imported[2].startsWith('.')) continue;
             const exported = readers.get(resolve(dirname(file), imported[2]));
@@ -54,9 +61,7 @@ export function readParamKeys(sources) {
             for (const item of imported[1].split(',')) {
                 const binding = item.trim().match(/^(\w+)(?:\s+as\s+(\w+))?$/);
                 if (!binding || !exported.has(binding[1])) continue;
-                const local = binding[2] || binding[1];
-                const call = new RegExp('\\b' + local + "\\s*\\(\\s*[A-Za-z_$][\\w$]*\\s*,\\s*['\"]([A-Za-z_]\\w*)['\"]\\s*,", 'g');
-                for (const m of text.matchAll(call)) keys.add(m[1]);
+                literalCalls(text, binding[2] || binding[1]);
             }
         }
     }
