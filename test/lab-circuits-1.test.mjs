@@ -197,12 +197,12 @@ describe('lab circuits (builder 1): behaviour over time', { skip: SKIP }, () => 
         b.at(10);
         dark(b, 'led.anode', 'quiet');
         b.set('clap', 1); b.wait(50); b.set('clap', 0);
-        near(b.V('chold.pos'), 2.17, 0.15, 'hold capacitor after one clap');
+        near(b.V('chold.a'), 2.17, 0.15, 'hold capacitor after one clap');
         near(b.mA('led.anode'), 3.18, 0.3, 'LED after one clap');
         b.wait(250); near(b.mA('led.anode'), 2.31, 0.3, 'LED 0.25 s after the clap');
         b.wait(750); near(b.mA('led.anode'), 0.81, 0.2, 'LED 1 s after the clap');
         for (let k = 0; k < 4; k++) { b.set('clap', 1); b.wait(50); b.set('clap', 0); b.wait(150); }
-        near(b.V('chold.pos'), 2.92, 0.15, 'hold capacitor after applause');
+        near(b.V('chold.a'), 2.92, 0.15, 'hold capacitor after applause');
         near(b.mA('led.anode'), 4.76, 0.3, 'applause keeps the LED brighter than one clap');
         b.wait(1500); near(b.mA('led.anode'), 0.61, 0.2, 'faded 1.5 s after the last clap');
     });
@@ -228,12 +228,12 @@ describe('lab circuits (builder 1): behaviour over time', { skip: SKIP }, () => 
     test('lab-charge-pump: the reservoir climbs above the battery and sags under load', () => {
         const b = bench('lab-charge-pump');
         b.at(800);
-        near(b.V('cres.pos'), 14.36, 0.4, 'reservoir after 0.8 s');
+        near(b.V('cres.a'), 14.36, 0.4, 'reservoir after 0.8 s');
         // 2.67 mA before blue LEDs got their own 3.1 V forward voltage; 2.44 mA now.
         near(b.mA('led.anode'), 2.44, 0.2, 'LED load current');
         b.set('heavy', 1);
         let low = Infinity;
-        for (let i = 0; i < 400; i += 5) { b.wait(5); low = Math.min(low, b.V('cres.pos')); }
+        for (let i = 0; i < 400; i += 5) { b.wait(5); low = Math.min(low, b.V('cres.a')); }
         assert.ok(low < 9.5, `heavy load: the output sags below the battery voltage (lowest ${low.toFixed(2)} V)`);
         assert.ok(low > 7, `heavy load: the pump still delivers (lowest ${low.toFixed(2)} V)`);
     });

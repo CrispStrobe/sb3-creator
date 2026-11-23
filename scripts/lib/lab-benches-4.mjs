@@ -287,16 +287,18 @@ export const BENCHES = {
         ],
     },
     // Treble path: 22 nF + 10 k high-pass; bass path: 4.7 k + 1 µF low-pass.
-    // 47 k base resistors keep both drivers out of saturation.
+    // 47 k base resistors keep both drivers out of saturation. The source stays
+    // a waveform vsource: a function_gen's frequency does not follow a param
+    // change after load, and the scenario sweeps it.
     'lab-two-band-light-organ': {
         vcc: 9, supply: SUP,
-        parts: { bat: BAT9, sig: ['function_gen', { wave: 'sine', freq: 50, amplitude: 4, offset: 0 }],
+        parts: { bat: BAT9, sig: ['vsource', { wave: 'sine', freq: 50, amplitude: 4, offset: 0 }],
             ch: ['capacitor', { farads: 22e-9 }], rh: R(10000), bh: R(47000), qh: NPN, r1: R(470), l1: LED('blue'),
             rlp: R(4700), cl: ['capacitor', { farads: 1e-6 }], bl: R(47000), ql: NPN, r2: R(470), l2: LED('red') },
         nets: [
             ['bat.pos', 'r1.a', 'r2.a'],
-            ['bat.neg', 'sig.gnd', 'rh.b', 'cl.b', 'qh.emitter', 'ql.emitter'],
-            ['sig.out', 'ch.a', 'rlp.a'], ['ch.b', 'rh.a', 'bh.a'], ['bh.b', 'qh.base'],
+            ['bat.neg', 'sig.neg', 'rh.b', 'cl.b', 'qh.emitter', 'ql.emitter'],
+            ['sig.pos', 'ch.a', 'rlp.a'], ['ch.b', 'rh.a', 'bh.a'], ['bh.b', 'qh.base'],
             ['rlp.b', 'cl.a', 'bl.a'], ['bl.b', 'ql.base'],
             ['r1.b', 'l1.anode'], ['l1.cathode', 'qh.collector'],
             ['r2.b', 'l2.anode'], ['l2.cathode', 'ql.collector'],

@@ -26,8 +26,8 @@
       "rotation": 0
     },
     {
-      "id": "function_gen_3",
-      "kind": "function_gen",
+      "id": "vsource_3",
+      "kind": "vsource",
       "params": {
         "wave": "sine",
         "freq": 50,
@@ -35,8 +35,8 @@
         "offset": 0
       },
       "terminals": [
-        "out",
-        "gnd"
+        "pos",
+        "neg"
       ],
       "x": 210,
       "y": 70,
@@ -330,8 +330,8 @@
       "id": "w_28",
       "netId": "net_29",
       "from": {
-        "part": "function_gen_3",
-        "terminal": "gnd"
+        "part": "vsource_3",
+        "terminal": "neg"
       },
       "to": {
         "board": "breadboard_1",
@@ -342,8 +342,8 @@
       "id": "w_31",
       "netId": "net_32",
       "from": {
-        "part": "function_gen_3",
-        "terminal": "out"
+        "part": "vsource_3",
+        "terminal": "pos"
       },
       "to": {
         "board": "breadboard_1",

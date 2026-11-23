@@ -40,57 +40,21 @@
    "id": "potato_a",
    "kind": "potato_battery",
    "params": {
-    "volts": 0.9,
-    "rInternal": 1
+    "volts": 0.9
    },
    "label": "potato A",
    "x": 60,
    "y": 60
   },
   {
-   "id": "r_in_a",
-   "kind": "resistor",
-   "params": {
-    "ohms": 5000
-   },
-   "label": "inside potato A",
-   "x": 71,
-   "y": 255,
-   "seat": {
-    "boardId": "bb1",
-    "leadMap": {
-     "a": "a3",
-     "b": "a7"
-    }
-   }
-  },
-  {
    "id": "potato_b",
    "kind": "potato_battery",
    "params": {
-    "volts": 0.9,
-    "rInternal": 1
+    "volts": 0.9
    },
    "label": "potato B",
    "x": 150,
    "y": 60
-  },
-  {
-   "id": "r_in_b",
-   "kind": "resistor",
-   "params": {
-    "ohms": 5000
-   },
-   "label": "inside potato B",
-   "x": 71,
-   "y": 345,
-   "seat": {
-    "boardId": "bb1",
-    "leadMap": {
-     "a": "j3",
-     "b": "j7"
-    }
-   }
   },
   {
    "id": "u1",
@@ -206,12 +170,6 @@
   {
    "from": "potato_a",
    "fromTerminal": "pos",
-   "to": "r_in_a",
-   "toTerminal": "a"
-  },
-  {
-   "from": "r_in_a",
-   "fromTerminal": "b",
    "to": "load_a",
    "toTerminal": "a"
   },
@@ -224,12 +182,6 @@
   {
    "from": "potato_b",
    "fromTerminal": "pos",
-   "to": "r_in_b",
-   "toTerminal": "a"
-  },
-  {
-   "from": "r_in_b",
-   "fromTerminal": "b",
    "to": "u1",
    "toTerminal": "1_pos"
   },

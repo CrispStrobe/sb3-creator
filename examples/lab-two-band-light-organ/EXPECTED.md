@@ -1,7 +1,7 @@
 # lab-two-band-light-organ — expected behaviour
 
 ## Circuit
-9 V. A function generator (sine, 4 V peak, 50 Hz as loaded) stands in for the music. Treble path: 22 nF in series, 10 kΩ to ground
+9 V. A sine source (4 V peak, 50 Hz as loaded) stands in for the music. Treble path: 22 nF in series, 10 kΩ to ground
 (high-pass), then 47 kΩ into the base of an NPN with a blue LED and 470 Ω in its collector. Bass path: 4.7 kΩ in series,
 1 µF to ground (low-pass), then 47 kΩ into a second NPN with a red LED and 470 Ω.
 
@@ -26,9 +26,9 @@
 2. Two first-order filters split one signal into two bands.
 
 ```assert
-# t = 1 ms: the sine is at 1.22 V, both drivers still off; each off collector
+# t = 1 ms: the sine is at 1.24 V, both drivers still off; each off collector
 # sits below 9 V by what the dark LED drops at its tiny leakage current
-net function_gen_3.out V 1.22 +-0.02
+net vsource_3.pos V 1.24 +-0.02
 net npn_7.collector V 7.22 +-0.05
 net npn_13.collector V 7.22 +-0.05
 ```

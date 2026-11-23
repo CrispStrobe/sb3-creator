@@ -136,7 +136,7 @@
   },
   {
    "id": "cpump",
-   "kind": "polarized_cap",
+   "kind": "capacitor",
    "params": {
     "farads": 0.000047
    },
@@ -147,8 +147,8 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "neg": "a27",
-     "pos": "a28"
+     "a": "a27",
+     "b": "a28"
     }
    }
   },
@@ -184,7 +184,7 @@
   },
   {
    "id": "cres",
-   "kind": "polarized_cap",
+   "kind": "capacitor",
    "params": {
     "farads": 0.00022
    },
@@ -195,8 +195,8 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "pos": "a38",
-     "neg": "a39"
+     "a": "a38",
+     "b": "a39"
     }
    }
   },

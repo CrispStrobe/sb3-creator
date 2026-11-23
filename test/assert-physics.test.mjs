@@ -166,7 +166,8 @@ function astable555Hz(circuit) {
         }
     });
 
-    const legs = (p) => ['a', 'b'].map(t => netOf(p.id, t));
+    // An electrolytic (polarized_cap) names its leads pos/neg.
+    const legs = (p) => (p.kind === 'polarized_cap' ? ['pos', 'neg'] : ['a', 'b']).map(t => netOf(p.id, t));
     const res = parts.filter(p => /resistor/i.test(String(p.kind || '')));
     // R1 runs supply -> DISCHARGE, but the supply may be GATED: pc75-alarmgeber
     // is an alarm, so its rail reaches R1 through a button. One hop through a
@@ -189,7 +190,7 @@ function astable555Hz(circuit) {
     const r2 = res.find(p => { const [a, b] = legs(p);
         return (a === dis && b === thr) || (b === dis && a === thr); });
     if (!r2) return { ok: false, reason: 'no resistor between DISCHARGE and THRESHOLD (R2)' };
-    const c = parts.filter(p => /capacitor/i.test(String(p.kind || '')))
+    const c = parts.filter(p => /capacitor|polarized_cap/i.test(String(p.kind || '')))
         .find(p => { const [a, b] = legs(p);
             return (a === thr && groundNets.has(b)) || (b === thr && groundNets.has(a)); });
     if (!c) return { ok: false, reason: 'no capacitor from THRESHOLD to ground' };
@@ -233,14 +234,15 @@ function monostable555Ms(circuit) {
     });
 
     // R: one leg on THRESHOLD, the other on a supply net.
-    const legs = (p) => ['a', 'b'].map(t => netOf(p.id, t));
+    // An electrolytic (polarized_cap) names its leads pos/neg.
+    const legs = (p) => (p.kind === 'polarized_cap' ? ['pos', 'neg'] : ['a', 'b']).map(t => netOf(p.id, t));
     const rt = parts.filter(p => /resistor/i.test(String(p.kind || '')))
         .find(p => { const [a, b] = legs(p);
             return (a === thr && supplyNets.has(b)) || (b === thr && supplyNets.has(a)); });
     if (!rt) return { ok: false, reason: 'no resistor from the supply to THRESHOLD' };
 
     // C: one leg on THRESHOLD, the other on ground.
-    const ct = parts.filter(p => /capacitor/i.test(String(p.kind || '')))
+    const ct = parts.filter(p => /capacitor|polarized_cap/i.test(String(p.kind || '')))
         .find(p => { const [a, b] = legs(p);
             return (a === thr && groundNets.has(b)) || (b === thr && groundNets.has(a)); });
     if (!ct) return { ok: false, reason: 'no capacitor from THRESHOLD to ground' };

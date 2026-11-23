@@ -1,7 +1,7 @@
 # lab-opamp-follower — expected behaviour
 
 ## Circuit
-Two identical potato cells. Each is drawn as what it is electrically: a 0.9 V source with a 5 kΩ resistor in series, standing for the resistance inside the potato. (The potato part's own built-in internal resistance is turned down to 1 Ω, so the visible 5 kΩ is all of it.) Both have to drive the same kind of load, a 4.7 kΩ resistor (think of a cheap meter or a small motor driver input).
+Two identical potato cells. The potato part is what a potato cell is electrically: a 0.9 V source with about 5 kΩ of internal resistance, the resistance inside the potato, built in. Both have to drive the same kind of load, a 4.7 kΩ resistor (think of a cheap meter or a small motor driver input).
 
 - **Potato A** drives its 4.7 kΩ load directly.
 - **Potato B** feeds the non-inverting input of an LM358 wired as a voltage follower (output tied to the inverting input). The follower drives the second 4.7 kΩ load.
@@ -18,7 +18,7 @@ The LM358 runs from 9 V. Voltmeters read both loads. The second half of the LM35
 2. A voltage follower has gain 1, very high input resistance and low output resistance: it copies a voltage without loading it.
 
 ```assert
-net r_in_a.b V 0.436 +-0.005
-net r_in_b.b V 0.900 +-0.005
+net potato_a.pos V 0.436 +-0.005
+net potato_b.pos V 0.900 +-0.005
 net u1.1_out V 0.900 +-0.005
 ```
