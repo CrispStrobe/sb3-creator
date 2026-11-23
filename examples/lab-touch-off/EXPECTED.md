@@ -34,7 +34,7 @@ net led1.anode V 1.97 +-0.05
 
 <!-- engine-provenance -->
 > **Engine provenance.** The measured numbers on this page were last held against
-> `bw-board@e339fcb` and `bw-circuit-ui@b1103f9` — the revisions pinned in
+> `bw-board@e339fcb` and `bw-circuit-ui@0ec68b3` — the revisions pinned in
 > `test/fixtures/siblings.json`. `test/expected-quantities-hold.test.mjs` compares
 > **12 of this page's 15** numeric claims against that engine
 > (0 of them disagreeing) and declines the rest with a stated reason;

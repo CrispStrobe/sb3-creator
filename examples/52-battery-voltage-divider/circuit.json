@@ -17,7 +17,14 @@
     "rInternal": 0.5
    },
    "x": 232,
-   "y": 255
+   "y": 255,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "pos": "a15",
+     "neg": "a16"
+    }
+   }
   },
   {
    "id": "r1",
