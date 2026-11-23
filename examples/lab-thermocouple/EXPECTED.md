@@ -33,3 +33,12 @@ net thermocouple_3.pos V 0.032 +-0.001
 net lm358_4.1_out V 3.21 +-0.02
 net vsource_2.pos V 9.00 +-0.01
 ```
+
+<!-- engine-provenance -->
+> **Engine provenance.** The measured numbers on this page were last held against
+> `bw-board@a685b22` and `bw-circuit-ui@df78c46` — the revisions pinned in
+> `test/fixtures/siblings.json`. `test/expected-quantities-hold.test.mjs` compares
+> **3 of this page's 26** numeric claims against that engine
+> (0 of them disagreeing) and declines the rest with a stated reason;
+> `node scripts/expected-claim-census.mjs lab-thermocouple` prints them one by one.
+<!-- engine-provenance -->

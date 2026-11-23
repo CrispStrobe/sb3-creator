@@ -31,3 +31,12 @@ net vsource_2.pos V 9.00 +-0.01
 net lm386_4.bypass V 4.50 +-0.05
 net lm386_4.inp V 0.00 +-0.01
 ```
+
+<!-- engine-provenance -->
+> **Engine provenance.** The measured numbers on this page were last held against
+> `bw-board@a685b22` and `bw-circuit-ui@df78c46` — the revisions pinned in
+> `test/fixtures/siblings.json`. `test/expected-quantities-hold.test.mjs` compares
+> **8 of this page's 22** numeric claims against that engine
+> (0 of them disagreeing) and declines the rest with a stated reason;
+> `node scripts/expected-claim-census.mjs lab-voice-fm` prints them one by one.
+<!-- engine-provenance -->
