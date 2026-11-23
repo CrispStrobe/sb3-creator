@@ -231,6 +231,7 @@ test('potentiometer knobs do not cover neighbouring parts in any bench',
       }
     }
   }
+  // MEASURED 2026-11-23 (scripts/threshold-observe.mjs, bw-circuit-ui 8404334): pots > 50 -> observed 369.
   assert.ok(pots > 50, `only ${pots} potentiometers checked — the bench list or kind filter is stale`);
   assert.deepEqual(failures, []);
 });
